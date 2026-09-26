@@ -1,0 +1,313 @@
+# Recherche: Recht: Online-Shop-Pflichten (DE/EU)
+
+> Stand 26.09.2026. Automatisch erzeugt aus dem Recherche-Workflow (Websuche mit Quellen). Konfidenz je Befund: high/medium/low. Wo ein Faktencheck vorliegt, steht er am Ende und hat Vorrang. Entscheidungen der Inhaberin stehen in docs/ENTSCHEIDUNGEN.md und haben immer Vorrang vor Empfehlungen hier.
+
+## Zusammenfassung
+
+Rechtsrahmen Stand 26.09.2026 für den B2C-Shop einer Berliner Einzelkünstlerin mit Tattoo-Bereich ohne Kaufmöglichkeit. Neu und wichtig: Seit dem 19.06.2026 ist die elektronische Widerrufsfunktion nach § 356a BGB Pflicht (BGBl. 2026 I Nr. 28). Nötig sind ein dauerhaft sichtbarer Link „Vertrag widerrufen“, ein Formular mit Name, Vertragsidentifikation und E-Mail, ein zweiter Schritt „Widerruf bestätigen“ und eine sofortige Eingangsbestätigung mit Inhalt, Datum und Uhrzeit. Dazu kommt ein neuer Satz in der Muster-Widerrufsbelehrung. Kleinunternehmer sind davon nicht ausgenommen, und erste Abmahnungen gibt es schon. Die EU-OS-Plattform ist seit dem 20.07.2025 abgeschaltet: Der Link muss aus Impressum, AGB und E-Mails raus. Die VSBG-Hinweispflicht nach § 36 entfällt bei höchstens 10 Beschäftigten. Das BFSG gilt für Kleinstunternehmen mit Dienstleistungen nicht (§ 3 Abs. 3 BFSG), ein Onlineshop zählt als solche Dienstleistung. Ein Cookie-Banner ist laut DSK-Orientierungshilfe (Rn. 116) nicht nötig, wenn nichts einwilligungspflichtig ist. Voraussetzung dafür: keine Cookies oder Speicherung vor dem ersten Warenkorb-Klick, Stripe als gehostete Checkout-Seite, Statistik nur über Server-Logs, selbst gehostete Schriften und keine Einbettungen. Einzelstücke, die schon fertig sind, haben ein normales Widerrufsrecht. Ausgeschlossen ist es nur bei echten Auftragsarbeiten nach § 312g Abs. 2 Nr. 1 BGB. Neben dem Shop-Recht kommen Produktpflichten hinzu, die im Datenmodell stecken müssen: GPSR-Herstellerangaben, Textilkennzeichnung für Shirts, Kleider und Caps, Konformitätserklärung für Keramik mit Lebensmittelkontakt, LUCID-Registrierung. Für die Rechtstexte passt die IT-Recht Kanzlei am besten: Paket „Starter“ für 9,90 € netto im Monat, monatlich kündbar, dokumentierte Push-Schnittstelle für eigene Shops. Beim Tattoo-Anfrageformular können Fotos von Hautstellen Gesundheitsdaten nach Art. 9 DSGVO sein, etwa bei Narben oder Cover-ups. Deshalb braucht es eine ausdrückliche Einwilligung, eine Ab-18-Bestätigung, automatische Löschung und keine Online-Anzahlung. Am Ende folgt eine vollständige Umsetzungs-Checkliste mit Seiten, Checkboxen, Texten, E-Mails und Admin-Funktionen.
+
+## Befunde
+
+### Widerrufsbutton / elektronische Widerrufsfunktion (§ 356a BGB) – gilt seit 19.06.2026 `[high]`
+
+Umgesetzt durch das „Gesetz zur Änderung des Verbrauchervertrags- und des Versicherungsvertragsrechts sowie zur Änderung des Behandlungsvertragsrechts“ (BGBl. 2026 I Nr. 28, Februar 2026), Grundlage ist die Richtlinie (EU) 2023/2673. Inhalt von § 356a BGB: (1) Bei Fernabsatzverträgen über eine Online-Oberfläche muss es eine Widerrufsfunktion geben. Sie heißt „Vertrag widerrufen“ oder ähnlich eindeutig, ist während der Widerrufsfrist ständig verfügbar, hervorgehoben platziert und leicht zugänglich. (2) Über die Funktion werden übermittelt: Name des Verbrauchers, Angaben zur Identifikation des Vertrags, elektronischer Kontaktweg für die Eingangsbestätigung. (3) Danach folgt eine Bestätigungsfunktion „Widerruf bestätigen“ oder ähnlich. (4) Der Händler schickt unverzüglich eine Eingangsbestätigung auf einem dauerhaften Datenträger (E-Mail) mit dem Inhalt der Erklärung sowie Datum und Uhrzeit des Eingangs. (5) Der Widerruf ist rechtzeitig, wenn er vor Fristablauf abgeschickt wurde. Aus der Praxis-Literatur: Link auf jeder Unterseite, typischerweise im Footer; kein Login-Zwang (außer der Vertrag war nur mit Kundenkonto möglich); funktioniert auch für Gastbestellungen; der Widerrufsgrund darf nur optional abgefragt werden; Widerruf per E-Mail bleibt weiterhin möglich. Keine Ausnahme für Kleinunternehmer. Die Pflicht entfällt nur, wenn überhaupt kein Produkt ein Widerrufsrecht hat. Das trifft hier nicht zu, weil fertige Einzelstücke widerrufbar sind.
+
+**Auswirkung:** Muss zum Start fertig sein. Fehlt die Funktion, drohen Abmahnungen (erste Fälle im Abmahnradar Mai–Juli 2026). Ist die Widerrufsbelehrung unvollständig, kann sich die Widerrufsfrist auf bis zu 12 Monate und 14 Tage verlängern (§ 356 Abs. 3 BGB; diese Folge ist mittel sicher).
+
+Quellen:
+- https://www.gesetze-im-internet.de/bgb/__356a.html
+- https://www.noerr.com/de/insights/umsetzungsgesetz-zum-widerrufsbutton-veroeffentlicht
+- https://datenschutz-generator.de/widerrufsbutton/
+- https://shopbetreiber-blog.de/ab-19.6.2026-der-widerrufsbutton-kommt
+- https://www.ihk.de/giessen-friedberg/geschaeftsbereiche/recht-und-steuern/recht/weitere-rechtsinfos/elektronische-widerrufsfunktion-7058180
+- https://shopbetreiber-blog.de/abmahnradar-mai-juni-juli-2026
+
+### Neue Muster-Widerrufsbelehrung (Anlage 1 EGBGB, Gestaltungshinweis 3) und Muster-Widerrufsformular `[medium]`
+
+Seit dem 19.06.2026 gilt eine geänderte Anlage 1 zu Art. 246a § 1 Abs. 2 EGBGB (Änderung vom 03.02.2026). Nach Gestaltungshinweis 3 muss ein Hinweis rein, sinngemäß: „Sie können Ihr Widerrufsrecht auch online unter [Internetadresse oder anderer geeigneter Hinweis darauf, wo die Widerrufsfunktion verfügbar ist] ausüben. Machen Sie davon Gebrauch, übermitteln wir Ihnen unverzüglich (z. B. per E-Mail) eine Eingangsbestätigung auf einem dauerhaften Datenträger mit dem Inhalt Ihrer Widerrufserklärung sowie Datum und Uhrzeit ihres Eingangs.“ Den exakten amtlichen Wortlaut konnte ich nicht zeichengenau prüfen, weil gesetze-im-internet.de die Anlage mit 404 beantwortete. Er muss vom Rechtstext-Anbieter kommen. Art. 246a EGBGB verlangt jetzt zusätzlich Informationen darüber, dass es die Widerrufsfunktion gibt und wo sie zu finden ist. Das Muster-Widerrufsformular (Anlage 2) bleibt laut Sekundärquelle unverändert und muss weiterhin bereitgestellt werden.
+
+**Auswirkung:** Die Widerrufsbelehrung muss die URL von /vertrag-widerrufen enthalten, also eine feste, stabile Route.
+
+Quellen:
+- https://www.buzer.de/Anlage_1_EGBGB.htm
+- https://www.gepruefter-webshop.de/shopbetreiber-blog/2025/12/widerrufsrecht-aenderungen-ab-19-juni-2026/
+- https://www.ihk.de/bodensee-oberschwaben/recht/werbung-und-vertrieb/online-handel/widerrufsbutton-im-onlinehandel-6831090
+- https://avalex.de/blog/widerrufsbutton/
+
+### Widerrufsrecht bei Unikaten und Auftragsarbeiten (§ 312g Abs. 2 Nr. 1 BGB) `[high]`
+
+Ausgeschlossen ist der Widerruf nur bei Waren, „die nicht vorgefertigt sind und für deren Herstellung eine individuelle Auswahl oder Bestimmung durch den Verbraucher maßgeblich ist oder die eindeutig auf die persönlichen Bedürfnisse des Verbrauchers zugeschnitten sind“. Die Vorschrift wird eng ausgelegt. Ein fertig bemaltes Einzelstück (Schale, Cap, Shirt, Zeichnung) ist vorgefertigt, also besteht das Widerrufsrecht voll. Ausgenommen sind nur echte Aufträge nach Kundenwunsch, etwa eine Cap mit Wunschmotiv oder ein Teller mit Wunschtext. Auch bei ausgeschlossenem Widerruf muss vor der Bestellung darauf hingewiesen werden, dass kein Widerrufsrecht besteht (Art. 246a § 1 Abs. 3 EGBGB). Werden Einzelstücke mit sichtbaren Fehlern verkauft (2. Wahl, Flohmarktware), muss die Abweichung von der objektiven Beschaffenheit vor der Bestellung eigens mitgeteilt und „ausdrücklich und gesondert“ vereinbart werden (§ 476 Abs. 1 S. 2 BGB), in der Praxis per eigener Checkbox.
+
+**Auswirkung:** Das Datenmodell braucht die Kennzeichen „custom_made“ und „abweichende Beschaffenheit“ mit Beschreibungsfeld. Den Ausschluss nie pauschal für „Handmade“ behaupten, das ist ein klassischer Abmahngrund.
+
+Quellen:
+- https://www.gesetze-im-internet.de/bgb/__312g.html
+- https://www.haendlerbund.de/de/ratgeber/recht/3883-ausschluss-widerrufsrecht-kundenspezifikation
+- https://www.it-recht-kanzlei.de/ausnahmen-widerrufsrecht.html
+- https://www.gesetze-im-internet.de/bgb/__476.html
+
+### Button-Lösung und Pflichten im elektronischen Geschäftsverkehr (§§ 312i, 312j BGB) `[high]`
+
+§ 312j Abs. 1: Spätestens zu Beginn des Bestellvorgangs klar angeben, ob es Lieferbeschränkungen gibt und welche Zahlungsmittel akzeptiert werden. Abs. 2: Unmittelbar vor der Bestellung die wesentlichen Eigenschaften, den Gesamtpreis inklusive Versandkosten usw. (Art. 246a § 1 Abs. 1 S. 1 Nr. 1, 5–7, 8, 14, 15 EGBGB) klar und hervorgehoben anzeigen. Abs. 3: Der Bestellbutton darf nur „zahlungspflichtig bestellen“ oder etwas eindeutig Gleichwertiges tragen. Abs. 4: Sonst kommt kein Vertrag zustande. § 312i Abs. 1: Werkzeuge zum Korrigieren von Eingabefehlern, unverzügliche elektronische Bestätigung des Bestelleingangs, Vertragsbestimmungen inklusive AGB beim Vertragsschluss abrufbar und speicherbar. Art. 246c EGBGB: über die technischen Schritte zum Vertragsschluss informieren, ob der Vertragstext gespeichert wird und zugänglich ist, wie Eingabefehler korrigiert werden, welche Vertragssprachen gelten (üblich in den AGB).
+
+**Auswirkung:** Wird Stripe Checkout per Weiterleitung genutzt, muss der Button „zahlungspflichtig bestellen“ auf der eigenen Übersichtsseite liegen, bevor weitergeleitet wird.
+
+Quellen:
+- https://www.gesetze-im-internet.de/bgb/__312j.html
+- https://www.gesetze-im-internet.de/bgb/__312i.html
+
+### Bestellbestätigung und Speicherung des Vertragstexts (§ 312f Abs. 2 BGB) `[high]`
+
+Bei Fernabsatzverträgen muss eine Vertragsbestätigung mit dem Vertragsinhalt „innerhalb einer angemessenen Frist nach Vertragsschluss, spätestens jedoch bei der Lieferung der Ware“ auf einem dauerhaften Datenträger kommen. Sie enthält die Informationen nach Art. 246a EGBGB, sofern diese nicht schon vorher auf einem dauerhaften Datenträger übergeben wurden, also praktisch AGB, Widerrufsbelehrung und Muster-Widerrufsformular. Das wird üblicherweise mit der Eingangsbestätigung nach § 312i kombiniert (Text in der E-Mail oder als PDF-Anhang). Der Shop muss Bestellungen revisionssicher als Snapshot speichern: Produktdaten, Preise und AGB-Version zum Bestellzeitpunkt.
+
+**Auswirkung:** E-Mail-Vorlagen und Versionierung der Rechtstexte sind Pflichtbestandteile der Software.
+
+Quellen:
+- https://www.gesetze-im-internet.de/bgb/__312f.html
+- https://www.gesetze-im-internet.de/bgb/__312i.html
+
+### Impressum (§ 5 DDG), auch für Instagram `[high]`
+
+Leicht erkennbar, unmittelbar erreichbar und ständig verfügbar sein müssen: vollständiger Name, ladungsfähige Anschrift (kein Postfach, keine reine Weiterleitungsadresse), E-Mail plus ein weiterer schneller Kontaktweg (Telefon oder Kontaktformular). Außerdem USt-IdNr. oder Wirtschafts-Identifikationsnummer (W-IdNr.), falls vorhanden; das BZSt vergibt die W-IdNr. seit Ende 2024 schrittweise, die Einführung soll 2026 abgeschlossen sein. Registerangaben entfallen bei einer nicht eingetragenen Einzelunternehmerin. Kammer- oder Berufsangaben sind nicht einschlägig. Das Instagram-Profil wird geschäftlich genutzt und braucht deshalb ebenfalls ein erreichbares Impressum, z. B. als Link in der Bio auf /impressum. Die Privatadresse kann durch eine echte Geschäfts- oder Atelieradresse ersetzt werden. Gemietete „Impressum-Adressen“ sind nur ladungsfähig, wenn dort wirklich zugestellt werden kann; das ist ein Graubereich.
+
+**Auswirkung:** Welche Adresse ins Impressum kommt, muss die Kundin vor dem Start entscheiden.
+
+Quellen:
+- https://www.gesetze-im-internet.de/ddg/__5.html
+- https://www.wetreu.de/wissensportal/1881/wirtschafts-identifikationsnummer-angabe-im-impressum
+- https://www.e-recht24.de/impressum/13082-ladungsfaehige-anschrift.html
+
+### OS-Plattform abgeschafft, VSBG-Hinweis `[high]`
+
+Die Verordnung (EU) 2024/3228 hat die ODR-Verordnung 524/2013 aufgehoben. Die OS-Plattform ist seit dem 20.07.2025 abgeschaltet, neue Beschwerden waren schon seit dem 20.03.2025 nicht mehr möglich. Der früher vorgeschriebene Link „https://ec.europa.eu/consumers/odr“ samt Satz „Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit …“ gehört nicht auf die Website, in die AGB oder in E-Mails; Kanzleien sehen darin ein Irreführungs- und Abmahnrisiko. VSBG: Die Pflicht nach § 36 Abs. 1 Nr. 1, über die Bereitschaft zur Verbraucherschlichtung zu informieren, entfällt für Unternehmer mit höchstens 10 Beschäftigten am 31.12. des Vorjahres (§ 36 Abs. 3). Ein freiwilliger, zutreffender Satz ist üblich und unschädlich: „Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.“ § 37 VSBG gilt für alle: Kommt es zum Streit, muss in Textform auf eine zuständige Schlichtungsstelle mit Anschrift und Webseite hingewiesen werden. Die geänderte ADR-Richtlinie (in Kraft seit 19.01.2026, Umsetzung bis März 2028) bringt später eine Antwortpflicht innerhalb von 20 Arbeitstagen; aktuell ist nichts zu tun.
+
+**Auswirkung:** Nirgends ein OS-Link. Für den Streitfall eine Textvorlage nach § 37 VSBG im Admin bereithalten.
+
+Quellen:
+- https://www.wettbewerbszentrale.de/os-plattform-am-20-07-2025-deaktiviert/
+- https://www.wbs.legal/it-und-internet-recht/eu-streitbeilegungsplattform-os-plattform-eingestellt-jetzt-impressum-aktualisieren-83428/
+- https://www.gesetze-im-internet.de/vsbg/__36.html
+- https://www.gesetze-im-internet.de/vsbg/__37.html
+- https://www.otto-schmidt.de/blog/zkm-report/eu-verabschiedet-uberarbeitete-richtlinie-zur-alternativen-streitbeilegung-ZKMR0001800.html
+
+### Preisangaben (PAngV) und Kleinunternehmer-Hinweis `[high]`
+
+Preise sind immer Gesamtpreise (§ 3 PAngV). Im Fernabsatz muss angegeben werden, ob Versandkosten anfallen und wie hoch sie sind (§ 6 PAngV), z. B. mit „zzgl. Versandkosten“ und Link auf die Versandseite. Kleinunternehmerin nach § 19 UStG (seit 2025: Vorjahr höchstens 25.000 €, laufendes Jahr höchstens 100.000 € als harte Grenze): kein „inkl. MwSt.“, stattdessen z. B. „Endpreis – gemäß § 19 UStG wird keine Umsatzsteuer berechnet, zzgl. Versandkosten“ (Sternchen mit Hinweis auf derselben Seite reicht). Grundpreise sind bei Einzelstücken, Kleidung und Keramik nicht einschlägig. Das ist wichtig, weil fehlende Grundpreise der häufigste Abmahngrund sind (23 % der Wettbewerbsverstöße). Streichpreise nur mit dem niedrigsten Preis der letzten 30 Tage als Referenz (§ 11 PAngV), dafür braucht es eine Preis-Historie. Tattoo-Leistungen: Werden Preise genannt, müssen es Gesamtpreise sein; Stundensätze sind zulässig, „soweit üblich“ (§ 12 PAngV). Rechnungen als Kleinunternehmerin nach § 34a UStDV mit Hinweis auf die Steuerbefreiung.
+
+**Auswirkung:** Kleinunternehmer-Status als Admin-Schalter, der alle Preishinweise zentral umstellt.
+
+Quellen:
+- https://www.gesetze-im-internet.de/pangv_2022/__6.html
+- https://www.gesetze-im-internet.de/pangv_2022/BJNR492110021.html
+- https://www.ihk.de/osnabrueck/recht-und-fair-play/recht/internetrecht/preisangaben-bei-umsatzsteuer-befreiten-kleinunternehmern-1085390
+- https://www.ihk.de/stuttgart/fuer-unternehmen/recht-und-steuern/steuerrecht/umsatzsteuer-national/kleinunternehmerregelung-in-der-umsatzsteuer-1843632
+- https://dejure.org/gesetze/UStDV/34a.html
+- https://www.haendlerbund.de/de/news/presse/pressemitteilungen/abmahnstudie2026
+
+### Cookies / Endgerätezugriff (§ 25 TDDDG): Ein Banner ist vermeidbar `[medium]`
+
+§ 25 Abs. 1 TDDDG verlangt eine Einwilligung für jedes Speichern auf dem Endgerät und jeden Zugriff darauf. Ausnahme nach Abs. 2 Nr. 2: unbedingt erforderlich für einen ausdrücklich gewünschten Dienst. Aus der DSK-Orientierungshilfe Digitale Dienste (Version 1.2, November 2024): Banner nur, „wenn tatsächlich eine Einwilligung notwendig ist“ (Rn. 116). Warenkorb- und Zahlungs-Cookies sind erst nach einer Nutzeraktion (in den Warenkorb legen, Zahlung starten) unbedingt erforderlich, nicht schon beim Stöbern (Rn. 80). Betrugsprävention kann dem Basisdienst zugerechnet werden (Rn. 74). Auslesen von Geräteeigenschaften per JavaScript für einen Fingerprint gilt als Zugriff (Rn. 24). Reine Zählung über Logfiles ohne Personenbezug oder mit einem einfachen eigenen Zählpixel ist unproblematisch (Rn. 88). Die EDPB-Leitlinien 2/2023 (final seit Oktober 2024) legen Art. 5 Abs. 3 ePrivacy weit aus (Pixel, Fingerprinting, lokale Verarbeitung). Stripe stuft seine Betrugspräventions-Cookies als unbedingt erforderlich ein. Bei der gehosteten Stripe-Checkout-Seite laufen sie ohnehin auf Stripes Domain, nachdem die Kundin bewusst weitergeleitet wurde. JavaScript-basierte „cookielose“ Tools wie Plausible oder Umami gelten nach Anbieter-Aussage als einwilligungsfrei; nach EDPB 2/2023 bleibt ein Restrisiko. Der Digital Omnibus (Art. 88a/88b DSGVO-E) ist im September 2026 nur ein Vorschlag, ohne Trilog, also nicht geltendes Recht.
+
+**Auswirkung:** Ohne Banner geht es, wenn: kein Cookie und kein localStorage vor dem ersten Warenkorb-Klick; Stripe per Weiterleitung oder Stripe.js erst im Checkout; Statistik serverseitig ohne Geräte-JS; Schriften selbst gehostet; keine Instagram-, YouTube- oder Maps-Einbettungen und kein reCAPTCHA. Das ist auch gestalterisch gut, weil kein Banner das Design stört.
+
+Quellen:
+- https://www.gesetze-im-internet.de/ttdsg/__25.html
+- https://www.datenschutzkonferenz-online.de/media/oh/OH_Digitale_Dienste.pdf
+- https://www.edpb.europa.eu/system/files/2024-10/edpb_guidelines_202302_technical_scope_art_53_eprivacydirective_v2_en_0.pdf
+- https://stripe.com/legal/cookies-policy
+- https://www.taylorwessing.com/en/global-data-hub/2026/the-digital-omnibus-proposal/gdh---the-digital-omnibus---cookies
+
+### Datenschutzerklärung (DSGVO): Inhalte, Dienstleister, Nebenpflichten `[high]`
+
+Pflichtinhalte nach Art. 13 DSGVO: verantwortliche Person, Zwecke und Rechtsgrundlagen, Empfänger, Übermittlung in Drittländer, Speicherdauer, Betroffenenrechte, Beschwerderecht bei der Berliner Beauftragten für Datenschutz und Informationsfreiheit (Alt-Moabit 59–61, 10555 Berlin). Zu nennen sind: Hosting, Datenbank und Bildspeicher (Auftragsverarbeitung nach Art. 28); Server-Logs; E-Mail-Postfach (IONOS) und Versanddienst für System-Mails; Stripe (Stripe Payments Europe Ltd., Dublin, teils Auftragsverarbeiter, teils eigener Verantwortlicher für Regulierungs- und Betrugszwecke; ggf. automatisierte Risikoprüfung); gegebenenfalls PayPal als eigener Verantwortlicher; Versanddienstleister wie DHL oder Deutsche Post (Adresse zur Vertragserfüllung; die E-Mail-Adresse nur mit Einwilligung, so die DSK, per nicht vorangekreuzter Checkbox); Steuerberatung und Buchhaltung; Statistik; Kontakt- und Tattoo-Formular; Verlinkung zu Instagram ohne Einbettung. Datenübermittlung in die USA: Das Data Privacy Framework gilt, das EuG hat die Klage Latombe am 03.09.2025 abgewiesen (T-553/23), das Rechtsmittel C-703/25 P ist beim EuGH anhängig. Deshalb möglichst EU-Anbieter wählen. Ein Datenschutzbeauftragter ist nicht nötig (§ 38 BDSG: unter 20 Personen). Ein Verzeichnis der Verarbeitungstätigkeiten (Art. 30) ist trotzdem nötig, weil die Verarbeitung regelmäßig stattfindet und Art.-9-Daten betreffen kann. Die DSK verlangt, dass Gastbestellung möglich ist (Beschluss 2022). Rechtsgrundlage für Bestelldaten: Art. 6 Abs. 1 lit. b. Aufbewahrung: Buchungsbelege und Rechnungen 8 Jahre (§ 147 AO nach BEG IV, seit 01.01.2025), Geschäftsbriefe 6 Jahre. Nicht beantwortete Auskunftsersuchen (Art. 15) tauchen im Abmahnradar auf. Wettbewerber dürfen DSGVO-Verstöße abmahnen (EuGH C-21/23 Lindenapotheke).
+
+**Auswirkung:** Admin-Funktionen für Auskunft und Export, Löschen und Anonymisieren sowie automatische Löschfristen sind Pflicht. Vor dem Start mit allen Auftragsverarbeitern einen Vertrag nach Art. 28 schließen.
+
+Quellen:
+- https://www.datenschutz-berlin.de/ueber-uns/kontakt/
+- https://www.e-recht24.de/dsg/12735-stripe.html
+- https://www.dr-datenschutz.de/paketankuendigung-und-dsgvo-was-gilt-fuer-die-e-mail-weitergabe/
+- https://www.it-recht-kanzlei.de/e-mailadressen-weitergeben-paketdienstleister.html
+- https://www.datenschutzkonferenz-online.de/media/dskb/20222604_beschluss_datenminimierung_onlinehandel.pdf
+- https://natlawreview.com/article/adequacy-eu-us-data-privacy-framework-survives-challenge
+- https://next-levels.de/wiki/eu-us-data-privacy-framework
+- https://www.ihk.de/koeln/hauptnavigation/recht-steuern/steuern/aufbewahrung-von-geschaeftsunterlagen-5905058
+- https://curia.europa.eu/site/upload/docs/application/pdf/2024-10/cp240159de.pdf
+
+### AGB und neues Mängelrecht (Recht auf Reparatur ab 31.07.2026) `[medium]`
+
+AGB sind nicht gesetzlich vorgeschrieben, aber der übliche Ort für Pflichtinformationen: Vertragsschluss (z. B. „mit Abschluss des Zahlungsvorgangs bei Stripe“), technische Schritte, Speicherung des Vertragstexts, Vertragssprache, Zahlung, Lieferung, Eigentumsvorbehalt, Hinweis auf die gesetzliche Mängelhaftung (Art. 246a § 1 Abs. 1 Nr. 8 EGBGB). Neu ist die Umsetzung der Richtlinie (EU) 2024/1799 (Gesetz vom 16.07.2026, verkündet am 22.07.2026, für Kaufverträge ab dem 31.07.2026). Vor der Nacherfüllung muss auf das Wahlrecht zwischen Reparatur und Ersatzlieferung hingewiesen werden. Wählt die Kundin die Reparatur, verlängert sich die Gewährleistung einmalig um 12 Monate. Die Paragraphen dazu (§ 475 Abs. 4, § 475e Abs. 5 BGB) habe ich nur aus Sekundärquellen. Die Gefahr bei Transportbruch trägt beim Verbrauchsgüterkauf der Händler (§ 475 Abs. 2 BGB), was für Keramik wichtig ist: versicherter Versand, gute Verpackung.
+
+**Auswirkung:** Die AGB kommen vom Anbieter. Für den Admin braucht es eine Reklamationsvorlage mit dem Hinweis auf das Wahlrecht Reparatur oder Ersatz.
+
+Quellen:
+- https://shopbetreiber-blog.de/nicht-vergessen-ab-heute-gilt-das-recht-auf-reparatur
+- https://www.bundestag.de/dokumente/textarchiv/2026/kw26-de-reparatur-1191040
+- https://www.taylorwessing.com/de/insights-and-events/insights/2026/07/neu-das-recht-auf-reparatur-im-bgb
+
+### Barrierefreiheitsstärkungsgesetz (BFSG): Ausnahme für Kleinstunternehmen greift `[high]`
+
+§ 2 Nr. 17 BFSG: Kleinstunternehmen hat „weniger als zehn Personen“ beschäftigt und entweder höchstens 2 Mio. € Jahresumsatz oder höchstens 2 Mio. € Bilanzsumme. § 3 Abs. 3 BFSG: Die Barrierefreiheitsanforderungen „gilt nicht für Kleinstunternehmen, die Dienstleistungen anbieten oder erbringen“. Ein Onlineshop ist eine „Dienstleistung im elektronischen Geschäftsverkehr“ (§ 2 Nr. 26 BFSG). Die Ausnahme gilt nicht für Produkte nach § 1 Abs. 2 BFSG (Hardware, E-Reader usw.), aber Keramik, Kleidung und Zeichnungen sind keine BFSG-Produkte. Also besteht keine gesetzliche Pflicht und keine Erklärungspflicht. Die Bundesfachstelle Barrierefreiheit berät Kleinstunternehmen kostenlos (§ 15 BFSG).
+
+**Auswirkung:** Nicht verpflichtend. Trotzdem empfohlen: Die unkonventionelle Navigation sollte eine per Tastatur und Screenreader bedienbare Alternative haben, mit Kontrasten und Alt-Texten. Das hilft Nutzbarkeit und SEO und schützt, falls die Schwellen später überschritten werden.
+
+Quellen:
+- https://www.gesetze-im-internet.de/bfsg/__2.html
+- https://www.gesetze-im-internet.de/bfsg/__3.html
+- https://www.bundesfachstelle-barrierefreiheit.de/DE/Fachwissen/Produkte-und-Dienstleistungen/Barrierefreiheitsstaerkungsgesetz/E-Commerce/online-shops_node
+- https://ohn.haendlerbund.de/recht/rechtsfragen/kleinstunternehmen-bfsg-ausnahme
+
+### Produktrecht mit Folgen für Produktseiten: GPSR, Textilkennzeichnung, Keramik mit Lebensmittelkontakt, Verpackung `[medium]`
+
+GPSR (Verordnung (EU) 2023/988, seit 13.12.2024), Art. 19: Im Online-Angebot müssen klar sichtbar stehen: Name oder Firma des Herstellers, Postanschrift und elektronische Kontaktadresse (bei Handgemachtem sie selbst); Produktidentifikation (Foto, Typ, Kennung; die Objektnummer eignet sich dafür); Warn- und Sicherheitshinweise. Textilkennzeichnung (Verordnung (EU) 1007/2011): Bei Shirts, Kleidern und Caps (ab 80 % Textilanteil) muss die Faserzusammensetzung vor dem Klick auf „In den Warenkorb“ angegeben sein, nur mit den amtlichen Faserbezeichnungen aus Anhang I; bei Verkauf in andere Mitgliedstaaten in deren Sprache; häufiger Abmahngrund. Keramik mit Lebensmittelkontakt (Richtlinie 84/500/EWG in der Fassung 2005/31/EG): Grenzwerte für Blei und Cadmium; bis einschließlich Einzelhandel muss eine schriftliche Konformitätserklärung vorliegen, was eine Laborprüfung der Glasur voraussetzt. Ob die Richtlinie 2025/26 revidiert wurde, konnte ich nicht prüfen. Ohne Prüfung Schalen und Teller ausdrücklich als „Dekorationsobjekt – nicht für Lebensmittel“ anbieten. Verpackung: vor dem ersten Versand im Register LUCID registrieren; bei Kauf von Versandmaterial bei einem deutschen Lieferanten kann die Systembeteiligung beim Lieferanten liegen. Das neue VerpackDG gilt seit 12.08.2026, Einzelheiten nur mittel sicher. Anhänger bzw. Schmuck: REACH-Grenzwerte für Nickel, Cadmium und Blei bei Metallteilen wie dem Biegering; nicht im Detail geprüft.
+
+**Auswirkung:** Diese Pflichtfelder gehören ins Produkt-Datenmodell. Die Validierung im CMS sollte eine Veröffentlichung ohne sie verhindern.
+
+Quellen:
+- https://www.it-recht-kanzlei.de/eu-produktsicherheitsverordnung-gpsr-haendler-informationspflichten.html
+- https://www.haendlerbund.de/de/ratgeber/recht/produktsicherheitsverordnung
+- https://www.it-recht-kanzlei.de/textilkennzeichnungsverordnung.html
+- https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=LEGISSUM:l21300
+- http://www.untersuchungsaemter-bw.de/pdf/merkblatt_bg_keramik.pdf
+- https://www.verpackungsregister.org/ich-bin-versand-und-onlinehaendler
+- https://www.xictron.com/de/blog/verpackungsregister-lucid-pflicht-online-shop-2026
+
+### Rechtstexte-Dienste mit automatischer Aktualisierung, Preise 2026 `[medium]`
+
+IT-Recht Kanzlei (Anbieterseite, Preise netto): „Datenschutz“ 5,90 €/Monat (nur Impressum und Datenschutz, keine Verkaufsfunktion); „Starter“ 9,90 €/Monat für eine Internetpräsenz mit AGB, Widerrufsbelehrung und Formular, Datenschutz, Impressum, Update-Service mit Haftung und Schnittstelle; „Premium“ 24,90 € (bis 5 Präsenzen); „Unlimited“ 54,90 € (12 Monate). Laufzeit ein Monat, zum Monatsende kündbar. Die LTI-Schnittstelle für eigene Shops ist öffentlich dokumentiert (GitHub itrk-plugin-sdk): Die Kanzlei schickt XML per HTTP POST (text/xml) an einen Endpunkt des Shops, Aktionen getversion, getaccountlist und push, Authentifizierung per user_auth_token, Typen impressum, agb, datenschutz und widerruf, jeweils als Text, HTML und PDF (Base64 plus pdf_url; für das Impressum gibt es kein PDF), Fehlercodes sind festgelegt. Händlerbund: BASIC 9,90 €/Monat, PREMIUM 29,90 €, UNLIMITED ab 57,90 € (netto, Mindestlaufzeit 12 Monate), AGB-Schnittstelle per Token in allen Paketen inklusive AGB, Impressum, Datenschutz und Widerruf. eRecht24 (Anbieterseite, ob netto oder brutto ist unklar): Basic 30 €/Monat (15 € bei Jahreszahlung), Business 80 €/40 € mit Abmahnschutz; die Rechtstexte-API liefert laut SDK nur Impressum, Datenschutz und Social-Media-Datenschutz, keine AGB oder Widerrufsbelehrung. Trusted Shops: Rechtstexter kostenlos; Legal-Pakete mit Abmahnschutz und 12 Monaten Mindestlaufzeit; aktuelle Preise nicht überprüfbar, weil die Preisseite nicht lud.
+
+**Auswirkung:** Die IT-Recht Kanzlei Starter passt am besten zu einem selbst gebauten Shop: monatlich kündbar, vollständige Shop-Texte, Push-API mit PDF für Bestell-Mails. Der Cloud-Agent kann den LTI-Endpunkt direkt nach der Spezifikation umsetzen.
+
+Quellen:
+- https://www.it-recht-kanzlei.de/schutzpakete.html
+- https://github.com/it-recht-kanzlei/itrk-plugin-sdk
+- https://www.it-recht-kanzlei.de/rechtstexte-schnittstelle-inhouse-individual-shops.html
+- https://marketplace.haendlerbund.de/products/haendlerbund-basic-mitgliedschaftspaket
+- https://www.haendlerbund.de/de/leistungen/mitgliedschaft/premium-mitgliedschaft
+- https://www.haendlerbund.de/de/leistungen/rechtssicherheit/agb-service/agb-schnittstelle
+- https://www.e-recht24.de/mitglieder/
+- https://github.com/eRecht24/rechtstexte-sdk
+- https://business.trustedshops.de/produkte/legalservices/rechtstexter
+
+### Abmahnrisiken für diesen konkreten Shop `[medium]`
+
+Händlerbund-Abmahnstudie 2026 (15.09.2026): 48 % der Abmahnungen betreffen Wettbewerbsrecht (darunter Grundpreis 23 %, Gesundheitswerbung 15 %, irreführende Werbung 14 %), 26 % Urheberrecht (davon 88 % Bilder), rund 20 % Markenrecht. Rund 70 % der Betroffenen zahlten vierstellig, am häufigsten 1.001–2.000 €. Für diesen Shop besonders relevant: (1) fehlende oder falsche Widerrufsfunktion; (2) übrig gebliebener OS-Link; (3) falscher Ausschluss des Widerrufs für Unikate; (4) fehlende Faserangaben bei Textilien; (5) fehlende GPSR-Angaben; (6) Lücken im Impressum, auch auf Instagram; (7) falsche Preishinweise für Kleinunternehmer oder fehlende Versandkosten; (8) fremde Marken oder Figuren auf Verkaufsware (z. B. ein „Godzilla“-Motiv; die Rechte an der Figur hält Toho); (9) Markenlage für den Namen „Planet Claire“ in Klasse 25 (Bekleidung) ungeprüft, eine Suche bei DPMA und EUIPO wird empfohlen; (10) DSGVO: nach EuGH C-21/23 auch von Mitbewerbern abmahnbar (Einbettungen, Google Fonts von fremden Servern, Newsletter ohne Double-Opt-in, unbeantwortete Auskunftsanfragen).
+
+**Auswirkung:** Die meisten Risiken lassen sich durch Pflichtfelder, Validierung und fest verdrahtete Rechtstexte in der Software ausschließen.
+
+Quellen:
+- https://www.haendlerbund.de/de/news/presse/pressemitteilungen/abmahnstudie2026
+- https://shopbetreiber-blog.de/abmahnradar-mai-juni-juli-2026
+- https://haerting.de/en/insights/the-handling-of-sensitive-data-in-online-shops-as-a-consequence-of-ecj-case-law/
+
+### Tattoo-Anfrageformular: Gesundheitsdaten (Art. 9 DSGVO), Alter, Löschfristen, Einwilligungen `[medium]`
+
+Fotos einer Körperstelle sind personenbezogene Daten. Zu Gesundheitsdaten werden sie, wenn sich daraus der Gesundheitszustand ableiten lässt: Narben (auch Cover-ups von Selbstverletzungsnarben), Hauterkrankungen, OP-Narben, Muttermale mit Befund. Der EuGH legt „Gesundheitsdaten“ weit aus und lässt schon einen gedanklichen Schluss genügen (C-21/23, 04.10.2024). Deshalb Uploads vorsorglich als mögliche Art.-9-Daten behandeln und eine ausdrückliche Einwilligung nach Art. 9 Abs. 2 lit. a DSGVO einholen: eigene Checkbox, nicht vorangekreuzt, mit Hinweis auf den jederzeitigen Widerruf (Art. 7 Abs. 3). Datensparsam vorgehen: Foto-Upload optional; Hinweis „keine Gesichter oder Intimbereiche; Angaben zu Allergien oder Hauterkrankungen bitte erst im persönlichen Termin“. Alter: In Deutschland gibt es keine gesetzliche Altersgrenze fürs Tätowieren; rechtlich zählt, ob die Person einwilligungsfähig ist (sonst Körperverletzung). Anwälte und der Verband DOT raten, unter 18 nicht zu tätowieren. Also Pflicht-Checkbox „mindestens 18 Jahre“. Speicherdauer: keine gesetzliche Vorgabe für Anfragen. Empfohlen: automatische Löschung 6 Monate nach dem letzten Kontakt, wenn kein Termin zustande kommt; Referenzfotos spätestens 3 Monate nach dem Termin löschen; steuerlich relevante Belege 8 Jahre. Keine Online-Anzahlung: Sonst entsteht ein Fernabsatzvertrag über eine Dienstleistung mit Widerrufsrecht und Widerrufsfunktion. Portfolio: Für jedes Foto einer Kundin oder eines Kunden eine Einwilligung zur Veröffentlichung auf der Website einholen (DSGVO bzw. § 22 KUG); eine Instagram-Freigabe deckt die Website nicht automatisch ab.
+
+**Auswirkung:** Das Formular braucht zwei Pflicht-Checkboxen, eine Einwilligungsprotokollierung, nicht öffentlichen verschlüsselten Speicher für Uploads und automatische Löschjobs. Uploads nie als E-Mail-Anhang verschicken.
+
+Quellen:
+- https://curia.europa.eu/site/upload/docs/application/pdf/2024-10/cp240159de.pdf
+- https://haerting.de/en/insights/the-handling-of-sensitive-data-in-online-shops-as-a-consequence-of-ecj-case-law/
+- https://blog.zumbuntspecht.de/was-ihr-als-taetowierer-zur-dsgvo-wissen-muesst/
+- https://www.fachanwalt.de/ratgeber/piercen-und-taetowieren-lassen-ab-wann-ist-es-jugendlichen-erlaubt
+- https://www.haufe.de/recht/kanzleimanagement/taetowierung-eines-kindes-kann-gefaehrliche-koerperverletzung-sein_222_552830.html
+
+### Steuerliche Randpunkte mit Folgen für Shop-Konfiguration (Steuerberatung einbeziehen) `[medium]`
+
+Kleinunternehmerregelung seit 2025: Vorjahr höchstens 25.000 €, laufendes Jahr höchstens 100.000 €. Wird die Grenze überschritten, gilt ab diesem Umsatz die Regelbesteuerung, und die Preishinweise müssen sofort umgestellt werden. Verkäufe an Privatleute in anderen EU-Ländern: Über 10.000 € netto EU-weit im Jahr wird im Bestimmungsland versteuert, auch bei deutscher Kleinunternehmerin (OSS); das habe ich nur über Sekundärquellen geprüft. Rechnungen für Kleinunternehmer nach § 34a UStDV: Namen und Anschriften, Steuernummer oder USt-IdNr., Menge und Art, Entgelt, Hinweis auf die Steuerbefreiung, Ausstellungsdatum.
+
+**Auswirkung:** Liefergebiet und Umsatzsteuer-Modus als Einstellungen anlegen. Für v1 sind Deutschland und Österreich (gleiche Sprache) die rechtlich einfachste Wahl.
+
+Quellen:
+- https://www.ihk.de/berlin/eu-lieferungen-an-private-4482532
+- https://www.taxdoo.com/de/blog/oss-schwellenwert-10000-euro-ueberschritten/
+- https://dejure.org/gesetze/UStDV/34a.html
+
+## Empfehlungen
+
+- **Rechtstexte ausschließlich über die IT-Recht Kanzlei (Paket Starter, 9,90 € netto im Monat) beziehen und per LTI-Push-Endpunkt automatisch einspielen. Keine selbst geschriebenen AGB, Widerrufsbelehrung oder Datenschutzerklärung.**  
+  _BegrÃ¼ndung:_ Monatlich kündbar, vollständige Shop-Texte inklusive neuer Widerrufsbelehrung, Haftung für Aktualität, öffentlich dokumentierte XML-Schnittstelle für eigene Shops, PDF-Version für Bestell-Mails. eRecht24 liefert AGB und Widerruf nicht per API, der Händlerbund bindet 12 Monate.
+
+- **Architektur ohne Einwilligungsbanner: kein Cookie und kein localStorage vor dem ersten Warenkorb-Klick, Stripe als gehostete Checkout-Seite per Weiterleitung, Statistik serverseitig über Logs oder einen eigenen Zähler ohne Auslesen von Geräteeigenschaften, Schriften selbst gehostet, Instagram nur verlinken (Standbilder plus Link), Spamschutz per Honeypot statt reCAPTCHA.**  
+  _BegrÃ¼ndung:_ Nach DSK-Orientierungshilfe Rn. 80, 88 und 116 ist dann keine Einwilligung und kein Banner nötig. Das senkt Abmahn- und Aufsichtsrisiken und hält das verträumte Design frei von Pop-ups.
+
+- **Die Widerrufsfunktion (/vertrag-widerrufen) plus Footer-Link „Vertrag widerrufen“ auf jeder Seite als Launch-Blocker in P0/P1 einplanen, zusammen mit der neuen Widerrufsbelehrung und der automatischen Eingangsbestätigung.**  
+  _BegrÃ¼ndung:_ Pflicht seit dem 19.06.2026 ohne Ausnahme für kleine Shops. Erste Abmahnungen gibt es bereits, und die Widerrufsfrist kann sich verlängern.
+
+- **In v1 nur fertige Einzelstücke mit normalem Widerrufsrecht verkaufen. Personalisierte Auftragsarbeiten zunächst über die Anfrage abwickeln oder nur mit dem Kennzeichen custom_made und deutlichem Hinweis „kein Widerrufsrecht“.**  
+  _BegrÃ¼ndung:_ Der Ausschluss nach § 312g Abs. 2 Nr. 1 BGB wird eng ausgelegt. Ein falscher Ausschluss ist abmahnfähig und ein Risiko für die Wirksamkeit.
+
+- **Produkt-Datenmodell mit rechtlichen Pflichtfeldern und Validierung vor der Veröffentlichung: Objektnummer, GPSR-Hersteller- und Warnhinweise, Faserzusammensetzung bei Textilien, Lebensmittelkontakt ja/nein samt Konformitätserklärung, Auftragsarbeit ja/nein, abweichende Beschaffenheit samt Beschreibung, Lieferzeit.**  
+  _BegrÃ¼ndung:_ GPSR, Textilkennzeichnung und Keramikrecht gelten produktbezogen. Pflichtfelder verhindern typische Abmahnfehler, die sonst beim Hochladen im Alltag passieren.
+
+- **Keramik standardmäßig als „Dekorationsobjekt – nicht für Lebensmittel geeignet“ kennzeichnen, bis Glasuren im Labor auf Blei und Cadmium geprüft sind und eine Konformitätserklärung vorliegt.**  
+  _BegrÃ¼ndung:_ Richtlinie 84/500/EWG verlangt die Konformitätserklärung bis zur Einzelhandelsstufe. Ohne Prüfung ist der Verkauf als Essgeschirr rechtlich riskant.
+
+- **Tattoo-Bereich als reiner Info- und Anfragebereich ohne Zahlung: Formular mit Ab-18-Bestätigung, gesonderter Art.-9-Einwilligung bei Körperfotos, privatem Upload-Speicher und automatischer Löschung nach 6 Monaten. Tattoo-Preise nur als Gesamt- oder Stundenpreise.**  
+  _BegrÃ¼ndung:_ So entsteht kein Fernabsatzvertrag mit Widerrufspflichten. Das Risiko bei Gesundheitsdaten wird durch ausdrückliche Einwilligung und Datensparsamkeit beherrscht.
+
+- **Nur Gastbestellung (keine Kundenkonten in v1). Übermittlung der E-Mail-Adresse an DHL nur per optionaler, nicht vorangekreuzter Checkbox.**  
+  _BegrÃ¼ndung:_ Gastbestellung entspricht dem DSK-Beschluss 2022 und vereinfacht die Widerrufsfunktion ohne Login. Die E-Mail-Weitergabe an den Paketdienst braucht laut DSK eine Einwilligung.
+
+- **EU-Hosting und EU-Dienstleister bevorzugen und mit allen Auftragsverarbeitern einen Vertrag nach Art. 28 DSGVO schließen. Ein Verzeichnis der Verarbeitungstätigkeiten als Markdown im Repo pflegen.**  
+  _BegrÃ¼ndung:_ Das Data Privacy Framework ist gültig, wird aber vom EuGH überprüft (C-703/25 P). EU-Anbieter vermeiden ein mögliches „Schrems III“-Risiko. Das Verzeichnis ist trotz Kleinbetrieb Pflicht.
+
+- **Vor dem Start außerhalb der Software erledigen: LUCID-Registrierung, Markenrecherche „Planet Claire“ (DPMA/EUIPO, Klassen 21, 25, 40, 44), Klärung von Kleinunternehmer-Status und Liefergebiet mit der Steuerberatung, Impressum-Link in der Instagram-Bio, Einwilligungen zur Veröffentlichung der Portfolio-Fotos.**  
+  _BegrÃ¼ndung:_ Diese Punkte kann die Software nicht selbst lösen, sie sind aber abmahn- oder bußgeldrelevant.
+
+## Umsetzungsanforderungen
+
+- SEITEN: /impressum, /datenschutz, /agb, /widerrufsbelehrung (mit Muster-Widerrufsformular als Text und PDF-Download sowie dem Satz zur Online-Widerrufsfunktion mit URL), /versand-und-zahlung (Versandkostentabelle je Zone, Lieferzeiten, Lieferbeschränkungen, Zahlungsarten), /vertrag-widerrufen (Widerrufsfunktion), /kontakt, /tattoo/anfrage. Rechtstexte kommen aus der Datenbank (per LTI gepusht), nicht hart codiert.
+- FOOTER AUF JEDER SEITE (auch Checkout, Tattoo-Seiten, 404, Danke-Seite, mobil und im Instagram-In-App-Browser): Impressum, Datenschutz, AGB, Widerrufsbelehrung, Versand und Zahlung sowie ein hervorgehobener Button oder Link „Vertrag widerrufen“. Die kreative Navigation darf diese Links weder verdecken noch hinter Animationen verstecken; von jeder Seite höchstens 2 Klicks.
+- LTI-ENDPUNKT (z. B. POST /api/legal/itrk, Content-Type text/xml): Aktionen getversion, getaccountlist (accountid 0, locale de, country DE) und push nach der IT-Recht-Kanzlei-Spezifikation umsetzen; Token-Prüfung (user_auth_token, im Admin erzeugt); Typen impressum, agb, datenschutz, widerruf; rechtstext_html, rechtstext_text und PDF (Base64, MD5 prüfen) versioniert mit Zeitstempel speichern; XML-Antwort mit status, Fehlercodes laut Spezifikation und target_url. Admin-Fallback: manueller Upload und Vorschau.
+- VERSIONIERUNG: Jede Version eines Rechtstexts bekommt eine eindeutige ID. Jede Bestellung speichert die IDs der zu diesem Zeitpunkt geltenden AGB und Widerrufsbelehrung sowie einen Snapshot der Produktdaten (Titel, Beschreibung, Objektnummer, Preis, Versandkosten).
+- PRODUKTSEITE: Preis als Endpreis mit Sternchen und Hinweis „Gemäß § 19 UStG wird keine Umsatzsteuer berechnet“ (umschaltbar auf „inkl. USt“) plus Link „zzgl. Versandkosten“; Lieferzeit; Objekt- bzw. Artikelnummer; Block „Hersteller“ (Name, Postanschrift, E-Mail) und Sicherheits- und Warnhinweise (GPSR); bei Textilien die Faserzusammensetzung in Prozent mit amtlichen Bezeichnungen, sichtbar vor „In den Warenkorb“; bei Keramik „Lebensmittelecht: ja (Konformitätserklärung liegt vor) / nein – Dekorationsobjekt“; bei custom_made der Hinweis „Kein Widerrufsrecht (§ 312g Abs. 2 Nr. 1 BGB)“; bei abweichender Beschaffenheit eine konkrete Beschreibung der Abweichung.
+- CMS-VALIDIERUNG: Veröffentlichen erst möglich, wenn die Pflichtfelder der Kategorie gefüllt sind (Textil: Faserangaben; Keramik: Lebensmittelkontakt-Status; alle: GPSR-Hersteller über globale Einstellung, Warnhinweis-Feld, Objektnummer, Lieferzeit, Gewicht bzw. Versandklasse). Objektnummer wird automatisch vergeben (z. B. PC-2026-0042) und ist unveränderlich.
+- PREIS-HISTORIE: Jede Preisänderung protokollieren. Streichpreise nur zulassen, wenn der Referenzpreis der niedrigste der letzten 30 Tage ist (§ 11 PAngV), sonst die Streichpreis-Funktion deaktivieren.
+- BESTAND: Unikate haben Bestand 1. Beim Start des Checkouts wird das Stück reserviert (z. B. 30 Minuten), bei Abbruch, Timeout oder gescheiterter Zahlung freigegeben. Verkauft erst nach dem Zahlungs-Webhook. Kein Doppelverkauf.
+- WARENKORB UND COOKIES: Vor der ersten Nutzeraktion (in den Warenkorb legen) werden keine Cookies gesetzt und nichts im localStorage oder sessionStorage gespeichert. Danach nur ein Session- oder Warenkorb-Cookie ohne Tracking-Zweck. Keine Dritt-Skripte auf Katalogseiten. Schriften selbst gehostet. Keine iframes oder Einbettungen von Instagram, YouTube oder Maps.
+- CHECKOUT, BEGINN: Akzeptierte Zahlungsarten und Liefergebiet bzw. Lieferbeschränkungen sind auf der Warenkorbseite sichtbar (§ 312j Abs. 1 BGB).
+- CHECKOUT, DATEN: Gastbestellung. Pflichtfelder nur Name, Lieferadresse und E-Mail; Rechnungsadresse optional abweichend; Telefon optional. Optionale, nicht vorangekreuzte Checkbox: „Ich willige ein, dass meine E-Mail-Adresse an [DHL] zur Ankündigung der Zustellung übermittelt wird. Widerruf jederzeit möglich.“
+- CHECKOUT, ÜBERSICHTSSEITE (unmittelbar vor dem Button): Artikel mit wesentlichen Eigenschaften, Objektnummer, Einzelpreis, Versandkosten, Gesamtpreis, Lieferzeit, Liefer- und Rechnungsadresse, Zahlungsart. Je ein „Ändern“-Link zur Korrektur von Eingabefehlern. Hinweistext mit Links: „Es gelten unsere AGB. Informationen zu Ihrem Widerrufsrecht finden Sie in der Widerrufsbelehrung.“ (keine erzwungene Akzeptanz-Checkbox nötig). Bei custom_made-Artikeln ein hervorgehobener Hinweis auf das fehlende Widerrufsrecht. Bei abweichender Beschaffenheit eine eigene Pflicht-Checkbox: „Mir ist bekannt, dass [Artikel] folgende Abweichung aufweist: […]. Ich vereinbare diese Beschaffenheit ausdrücklich und gesondert.“ (§ 476 Abs. 1 S. 2 BGB).
+- BESTELLBUTTON: Beschriftung exakt „zahlungspflichtig bestellen“, gut lesbar, ohne weiteren Text im Button. Erst danach Weiterleitung zu Stripe Checkout (gehostet). Bestellung bleibt „ausstehend“, bis der Stripe-Webhook (checkout.session.completed bzw. payment_intent.succeeded) eintrifft; Abbruch-URL gibt die Reservierung frei. Keine Zahlungsgebühren oder Aufschläge.
+- DANKE-SEITE: Bestellnummer, Zusammenfassung, Hinweis auf die Bestätigungs-Mail und Link „Vertrag widerrufen“.
+- E-MAIL 1, Bestelleingang und Vertragsbestätigung (sofort nach Zahlungseingang, §§ 312i, 312f BGB): Absender mit eigener Domain; Anbieterkennung (Name, Anschrift, E-Mail); Bestellnummer, Datum, alle Positionen mit Objektnummer, Preisen, Versandkosten und Gesamtpreis; Kleinunternehmer-Hinweis; Liefer- und Rechnungsadresse, Zahlungsart, Lieferzeit; vollständige AGB und Widerrufsbelehrung inklusive Muster-Widerrufsformular als Text oder PDF-Anhang (aus LTI) in der zum Bestellzeitpunkt geltenden Version; bei custom_made der Hinweis auf das fehlende Widerrufsrecht; Link auf /vertrag-widerrufen. Keine Werbung. Kein OS-Link.
+- E-MAIL 2, Versandbestätigung: Sendungsnummer bzw. Tracking-Link, versandte Artikel.
+- E-MAIL 3, Eingangsbestätigung des Widerrufs (sofort, § 356a Abs. 4 BGB): vollständiger Inhalt der Widerrufserklärung (Name, Vertragsangaben, gegebenenfalls ausgewählte Artikel, gegebenenfalls Grund), Datum und Uhrzeit des Eingangs mit Zeitzone Europe/Berlin, Hinweis dass nur der Eingang bestätigt wird, Rücksendeadresse und Hinweise zur Rücksendung. Kopie an die Admin-Mailbox.
+- E-MAIL 4, Erstattungsbestätigung (optional) sowie Rechnung als PDF nach § 34a UStDV (Namen und Anschriften, Steuernummer, Menge und Art, Entgelt, Hinweis auf die Kleinunternehmer-Befreiung, Ausstellungsdatum).
+- E-MAIL 5, Eingangsbestätigung der Tattoo-Anfrage: nur Bestätigung und Datenschutzhinweis, keine Fotos und keine Gesundheitsangaben im Mailtext.
+- E-MAIL-TECHNIK: SPF, DKIM und DMARC für planetclairetattoos.com. Versanddienst mit Vertrag nach Art. 28, möglichst EU. Versandprotokoll speichern (Nachweis des Zugangs).
+- WIDERRUFSFUNKTION /vertrag-widerrufen: ohne Login erreichbar und dauerhaft online (nicht nach 14 Tagen ausblenden). Schritt 1 Formular: Name*, Bestellnummer oder andere Angaben zum Vertrag* (Freitext, alternativ Bestelldatum und Artikel), E-Mail für die Eingangsbestätigung*; optional Artikelauswahl bei Teilwiderruf und optionaler Grund (nie Pflicht). Keine Hürden wie CAPTCHA-Rätsel, Honeypot ist in Ordnung. Schritt 2: Zusammenfassung und Button „Widerruf bestätigen“. Danach unveränderlichen Datensatz mit Server-Zeitstempel speichern, E-Mail 3 senden, Bestätigungsseite zeigen. Auch Widerrufe ohne passende Bestellnummer annehmen und zur manuellen Zuordnung markieren.
+- TATTOO-ANFRAGEFORMULAR: Name*, E-Mail*, Instagram-Handle (optional), Motivbeschreibung*, Körperstelle (Auswahl), ungefähre Größe, Wunschzeitraum, optionale Referenzbilder und optionales Foto der Körperstelle (Begrenzung auf Anzahl, Größe und Dateitypen JPG, PNG, HEIC; EXIF- und GPS-Daten serverseitig entfernen). Hinweis beim Upload: „Bitte keine Gesichter oder Intimbereiche. Angaben zu Allergien oder Hauterkrankungen bitte erst im persönlichen Gespräch.“
+- TATTOO-CHECKBOX 1 (Pflicht, nicht vorangekreuzt): „Ich bin mindestens 18 Jahre alt.“
+- TATTOO-CHECKBOX 2 (Pflicht, sobald ein Foto der Körperstelle hochgeladen wird; nicht vorangekreuzt): „Ich willige ausdrücklich ein, dass die von mir hochgeladenen Fotos meiner Haut bzw. Körperstelle – die ggf. Rückschlüsse auf meine Gesundheit zulassen (z. B. Narben, Hautveränderungen) – zur Bearbeitung meiner Tattoo-Anfrage verarbeitet werden (Art. 9 Abs. 2 lit. a DSGVO). Die Fotos werden spätestens 6 Monate nach meiner letzten Nachricht gelöscht. Ich kann die Einwilligung jederzeit per E-Mail an jutta@planetclairetattoos.com mit Wirkung für die Zukunft widerrufen. Details: Datenschutzerklärung.“ (Endgültiger Wortlaut über den Rechtstext-Anbieter bzw. die Datenschutzerklärung abstimmen.)
+- TATTOO-SPEICHER: Uploads in einem privaten, nicht öffentlichen Speicherbereich mit signierten, kurzlebigen URLs nur für den Admin, verschlüsselt gespeichert. Nie als E-Mail-Anhang versenden. Einwilligungsprotokoll mit Zeitstempel, Version des Einwilligungstexts und Checkbox-Status. Kein Zahlungs- oder Anzahlungsfeld.
+- TATTOO-SEITEN: Flash- und Angebotsdarstellung ohne Warenkorb. Preise nur als Gesamtpreis oder Stundensatz. Portfolio-Bilder bekommen im Admin das Kennzeichen „Einwilligung zur Veröffentlichung liegt vor“ (Datum, Nachweis-Datei); ohne dieses Kennzeichen keine Veröffentlichung von Fotos mit Kundschaft.
+- ADMIN, BESTELLUNGEN: Liste und Details mit Status (bezahlt, in Bearbeitung, versendet, zugestellt, widerrufen, erstattet); Versanddaten und Adressexport für Etiketten; sichtbares Kennzeichen, ob die E-Mail an den Paketdienst weitergegeben werden darf; Sendungsnummer eintragen löst E-Mail 2 aus; Notizfeld.
+- ADMIN, WIDERRUFE: Posteingang der Widerrufserklärungen, Zuordnung zur Bestellung, Status (eingegangen, Ware zurück, erstattet); Fristanzeige für die Erstattung (14 Tage ab Zugang, § 357 Abs. 1 BGB; zurückhalten bis Ware oder Nachweis der Rücksendung vorliegt); Erstattung über die Stripe-Refund-API mit demselben Zahlungsmittel.
+- ADMIN, REKLAMATIONEN: Vorlage mit dem Hinweis auf das Wahlrecht Reparatur oder Ersatzlieferung und die Verlängerung der Gewährleistung um 12 Monate bei Reparatur (Kaufverträge ab 31.07.2026). Vorlage für den Hinweis auf die Schlichtungsstelle nach § 37 VSBG.
+- ADMIN, EINSTELLUNGEN: Impressum-Stammdaten (Name, Adresse, Kontakt, W-IdNr. bzw. USt-IdNr.), Kleinunternehmer-Schalter, Versandzonen und -kosten, Lieferzeiten, Liefergebiet, Zahlungsarten, globaler GPSR-Herstellerblock, Absender-E-Mail, LTI-Token erzeugen bzw. rotieren, Status der Rechtstexte (Datum des letzten Pushs, Warnung wenn älter als 90 Tage oder wenn ein Typ fehlt).
+- ADMIN, DSGVO-WERKZEUGE: Suche nach E-Mail und Export aller Daten einer Person als JSON oder PDF (Art. 15 und 20); Löschen bzw. Anonymisieren mit Aufbewahrungssperre (Rechnungen und Buchungsbelege 8 Jahre, danach Löschung); Protokoll der Löschungen.
+- AUTOMATISCHE LÖSCHJOBS (täglich): Tattoo-Anfragen samt Uploads 6 Monate nach dem letzten Kontakt, sofern nicht als ‚Termin vereinbart‘ markiert; Referenzfotos von Terminen 3 Monate nach dem Termindatum; abgebrochene bzw. ausstehende Bestellungen nach 30 Tagen; Server- und Anwendungslogs mit IP nach höchstens 14 Tagen; Kontaktformular-Nachrichten nach 12 Monaten, soweit nicht geschäftsrelevant (Geschäftsbriefe 6 Jahre).
+- STATISTIK: nur serverseitig (Seitenaufruf-Zähler bzw. Logauswertung ohne IP-Speicherung, ohne JS-Fingerprinting). Keine Einbindung von Google Analytics, Meta Pixel o. ä. Wird später doch ein einwilligungspflichtiges Tool gebraucht, zuerst eine Consent-Lösung mit gleichwertigem „Ablehnen“ auf der ersten Ebene bauen.
+- DATENSCHUTZERKLÄRUNG, DATENQUELLE: Eine maschinenlesbare Liste aller eingesetzten Dienste (Hosting, Datenbank, Speicher, Mail, Stripe, Paketdienst, Statistik) mit Anbieter, Sitz, Zweck und Vertrag nach Art. 28 im Repo (z. B. docs/processors.md) pflegen. Daraus werden die Angaben beim Rechtstext-Anbieter konfiguriert. Keine undokumentierten Dritt-Requests (CI-Check auf externe Domains im HTML ist sinnvoll).
+- VERBOTEN IM CODE UND IN TEXTEN: OS-Plattform-Link oder -Text; „inkl. MwSt.“ bei aktivem Kleinunternehmer-Status; vorangekreuzte Checkboxen; externe Google Fonts, reCAPTCHA oder Instagram-Embeds; pauschale Aussagen wie „Handmade = kein Widerruf“; Werbung in Transaktions-Mails.
+- OPTIONAL, BARRIEREARM (nicht Pflicht nach BFSG): alternative, per Tastatur und Screenreader bedienbare Navigation zur kreativen Navigation, Alt-Texte als Pflichtfeld für Produktbilder, ausreichende Kontraste, Fokus-Stile, prefers-reduced-motion beachten.
+
+## Offene Fragen aus der Recherche (inzwischen im Interview beantwortet, siehe docs/ENTSCHEIDUNGEN.md)
+
+- Welche Adresse soll ins Impressum (öffentlich sichtbar, auch für Instagram)? _(Optionen: Privatadresse / Adresse eines Ateliers oder Tattoo-Studios, in dem Jutta tatsächlich erreichbar ist und Post zugestellt werden kann / Gemietete ladungsfähige Geschäftsadresse (Impressum-Service mit echter Zustellmöglichkeit); Empfehlung: Atelier- oder Studioadresse, wenn Jutta dort regelmäßig erreichbar ist; sonst Privatadresse. Eine gemietete Adresse nur mit echter Zustellmöglichkeit.)_
+- Ist Jutta umsatzsteuerlich Kleinunternehmerin nach § 19 UStG, und hat sie eine USt-IdNr. oder W-IdNr.? _(Optionen: Ja, Kleinunternehmerin, keine USt-IdNr. / Ja, Kleinunternehmerin, mit W-IdNr. bzw. USt-IdNr. / Nein, Regelbesteuerung (Preise inkl. 19 % bzw. 7 % USt) / Unklar, Steuerberatung fragen; Empfehlung: Mit der Steuerberatung bestätigen. Die Software bekommt einen Schalter und startet im Kleinunternehmer-Modus.)_
+- Welcher Rechtstexte-Dienst soll gebucht werden? _(Optionen: IT-Recht Kanzlei Starter (9,90 € netto im Monat, monatlich kündbar, LTI-Push-API inklusive AGB und Widerruf) / Händlerbund BASIC (9,90 € netto im Monat, 12 Monate Laufzeit, Token-API) / eRecht24 (API nur Impressum und Datenschutz, AGB und Widerruf manuell) / Anwalt oder Anwältin mit individuellen Texten, manuell gepflegt; Empfehlung: IT-Recht Kanzlei Starter)_
+- In welche Länder soll in v1 geliefert werden? _(Optionen: Nur Deutschland / Deutschland und Österreich / Deutschland und ganze EU / Weltweit; Empfehlung: Deutschland und Österreich in v1; EU später nach Klärung mit der Steuerberatung)_
+- Sollen personalisierte Auftragsarbeiten (z. B. Cap oder Teller mit Wunschmotiv oder -text) direkt im Shop bestellbar sein? _(Optionen: Nein, nur fertige Unikate im Shop, Auftragsarbeiten über Anfrage bzw. E-Mail / Ja, als eigener Produkttyp mit Kennzeichen custom_made und Hinweis ‚kein Widerrufsrecht‘; Empfehlung: Nein in v1, Auftragsarbeiten über die Anfrage)_
+- Sind Schalen und Teller als Geschirr für Lebensmittel gedacht, und liegen Laborprüfungen bzw. Konformitätserklärungen für die Glasuren vor? _(Optionen: Alles als Dekorationsobjekt, nicht für Lebensmittel / Lebensmittelecht, Prüfberichte und Konformitätserklärung liegen vor bzw. werden beschafft / Gemischt, Kennzeichen pro Objekt; Empfehlung: Standard ‚Dekorationsobjekt‘, Kennzeichen pro Objekt, sobald Prüfungen vorliegen)_
+- Welche Zahlungsarten sollen angeboten werden? _(Optionen: Stripe Checkout mit Karte, Apple Pay, Google Pay und PayPal über Stripe / Wie vorher, zusätzlich Klarna oder SEPA-Lastschrift / Zusätzlich Vorkasse per Überweisung (manueller Zahlungsabgleich im Admin); Empfehlung: Stripe Checkout (gehostet) mit Karte, Apple Pay, Google Pay und PayPal; keine Vorkasse in v1)_
+- Ist Webanalyse gewünscht, und wenn ja, wie genau? _(Optionen: Keine Analyse / Serverseitige Zählung bzw. Logauswertung ohne Geräte-JS (kein Banner) / Plausible oder Umami per JavaScript (kleines Restrisiko nach EDPB 2/2023) / Google Analytics o. ä. (Banner nötig); Empfehlung: Serverseitige Zählung ohne Banner)_
+- Dürfen Interessierte im Tattoo-Formular Fotos ihrer Haut bzw. Körperstelle hochladen, und wie lange sollen Anfragen gespeichert werden? _(Optionen: Nur Motiv- bzw. Referenzbilder, keine Körperfotos / Körperfotos optional mit ausdrücklicher Art.-9-Einwilligung, Löschung 6 Monate nach letztem Kontakt / Keine Uploads, nur Text und Nachreichen per E-Mail; Empfehlung: Körperfotos optional mit ausdrücklicher Einwilligung, Löschung 6 Monate nach letztem Kontakt, Referenzfotos 3 Monate nach dem Termin)_
+- Sollen im Tattoo-Bereich Preise gezeigt oder Anzahlungen online kassiert werden? _(Optionen: Keine Preise, nur ‚auf Anfrage‘ / Feste Flash-Preise und/oder Stundensatz als Gesamtpreise, keine Online-Anzahlung / Online-Anzahlung bzw. Termin-Buchung mit Zahlung; Empfehlung: Flash-Festpreise und Stundensatz als Gesamtpreise anzeigen, Anzahlung weiterhin offline bzw. im Studio)_
+- Liegen für die Fotos von Kundinnen und Kunden (verheilte Tattoos) Einwilligungen zur Veröffentlichung vor, die auch die Website abdecken? _(Optionen: Ja, schriftlich bzw. per DM dokumentiert und auch für die Website / Nur für Instagram, für die Website neu einholen / Nein, nur eigene Arbeiten ohne erkennbare Personen zeigen; Empfehlung: Für jedes Portfolio-Foto einen Nachweis im Admin hinterlegen; ohne Nachweis wird das Foto nicht veröffentlicht)_
+- Wurde geprüft, ob ‚Planet Claire‘ als Marke für Bekleidung und Keramik geschützt ist, und sollen Motive mit fremden Figuren (z. B. Godzilla) verkauft werden? _(Optionen: Markenrecherche bei DPMA und EUIPO vor dem Start durchführen (ggf. eigene Marke anmelden) / Ohne Recherche starten (Risiko akzeptieren) / Shop-Name bzw. Label neutral halten, z. B. ‚Jutta … – Handmade‘; Empfehlung: Vor dem Start recherchieren; keine Verkaufsware mit geschützten fremden Figuren)_
+- Ist die Registrierung im Verpackungsregister LUCID erledigt, und woher kommt das Versandmaterial? _(Optionen: Registriert, eigene Systembeteiligung / Registriert, Versandmaterial vorlizenziert vom deutschen Lieferanten / Noch nicht registriert; Empfehlung: Vor dem ersten Versand registrieren und vorlizenziertes Versandmaterial nutzen)_
+- Wird es in v1 Kundenkonten oder einen Newsletter geben? _(Optionen: Nur Gastbestellung, kein Newsletter / Gastbestellung plus optionales Kundenkonto / Zusätzlich Newsletter mit Double-Opt-in; Empfehlung: Nur Gastbestellung, kein Newsletter in v1 (Instagram bleibt der Kommunikationskanal))_

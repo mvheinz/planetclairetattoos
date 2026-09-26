@@ -1,0 +1,966 @@
+<title>Planet Claire Konzept</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Mansalva&display=swap">
+<style>
+:root{
+  --paper:#F4EFE6; --paper-2:#EAE2D4; --ink:#1C1A17; --ink-2:#4B463F; --clay:#CBBBA2;
+  --mat:#2F6B4C; --mat-grid:rgba(47,107,76,.09); --fox:#B84E1A; --pink:#E58FB0; --stencil:#5A4BC4;
+  --ok:#2F6B4C; --warn:#9A5B00;
+  --hand:"Mansalva","Segoe Print","Bradley Hand",cursive;
+  --body:"Bricolage Grotesque",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --gutter:64px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#1A1917; --paper-2:#24221E; --ink:#EFE8DC; --ink-2:#B8AFA1; --clay:#3D3832;
+    --mat:#86C7A1; --mat-grid:rgba(134,199,161,.06); --fox:#F28C52; --pink:#F0A7C3; --stencil:#AFA3F5;
+    --ok:#86C7A1; --warn:#E6B45C; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#1A1917; --paper-2:#24221E; --ink:#EFE8DC; --ink-2:#B8AFA1; --clay:#3D3832;
+  --mat:#86C7A1; --mat-grid:rgba(134,199,161,.06); --fox:#F28C52; --pink:#F0A7C3; --stencil:#AFA3F5;
+  --ok:#86C7A1; --warn:#E6B45C; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--mat-grid) 1px,transparent 1px),linear-gradient(90deg,var(--mat-grid) 1px,transparent 1px);
+  background-size:32px 32px;
+  color:var(--ink); font:400 17px/1.62 var(--body); padding-inline:16px; padding-block:0 64px;
+}
+a{color:var(--mat); text-underline-offset:3px}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--fox); outline-offset:3px; border-radius:4px}
+.journey{position:relative; max-width:1040px; margin:0 auto; padding-left:var(--gutter)}
+#leash{position:absolute; left:0; top:0; width:var(--gutter); pointer-events:none; overflow:visible}
+#leash path{fill:none; stroke:var(--ink); stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round}
+#coco{position:absolute; width:58px; height:40px; left:2px; top:40px; pointer-events:none; color:var(--ink); transition:transform .08s linear}
+main{max-width:740px}
+header.top{padding-block:56px 24px}
+.kicker{font:500 12px/1.4 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-2)}
+h1{font:400 clamp(44px,8vw,76px)/1 var(--hand); margin:.2em 0 .15em; text-wrap:balance}
+h1 small{display:block; font:500 clamp(18px,2.6vw,24px)/1.3 var(--body); margin-top:.5em; letter-spacing:-.01em}
+.lede{font-size:19px; max-width:62ch; color:var(--ink)}
+.meta{display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:18px; font:400 13px/1.4 var(--mono); color:var(--ink-2)}
+nav.toc{margin:28px 0 8px; padding:14px 0; border-top:1.5px solid var(--ink); border-bottom:1px solid var(--clay)}
+nav.toc ol{list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:6px 16px; font:400 14px/1.5 var(--body)}
+nav.toc a{color:var(--ink); text-decoration:none; border-bottom:1px dashed var(--clay)}
+nav.toc a:hover{border-bottom-color:var(--ink)}
+section{padding-block:40px 8px; scroll-margin-top:16px}
+.station{position:relative}
+.station-no{font:500 12px/1 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-2)}
+h2{font:400 clamp(32px,5vw,44px)/1.05 var(--hand); margin:.25em 0 .5em; text-wrap:balance}
+h3{font:700 18px/1.3 var(--body); margin:1.8em 0 .5em; letter-spacing:-.005em}
+h4{font:500 13px/1.3 var(--mono); letter-spacing:.06em; text-transform:uppercase; margin:1.4em 0 .5em; color:var(--ink-2)}
+p,li{max-width:66ch}
+ul,ol{padding-left:1.25em}
+li{margin:.25em 0}
+strong{font-weight:700}
+.mono{font-family:var(--mono); font-size:.9em}
+.note{font-size:15px; color:var(--ink-2)}
+.hand{font-family:var(--hand); font-size:1.25em; line-height:1.1}
+.pill{display:inline-block; font:500 11px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase; padding:5px 8px 4px; border:1px solid currentColor; border-radius:3px; vertical-align:2px; white-space:nowrap}
+.pill.fox{color:var(--fox)} .pill.mat{color:var(--mat)} .pill.st{color:var(--stencil)} .pill.ink{color:var(--ink-2)}
+.gist{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr)); gap:14px; margin:18px 0 0; padding:0; list-style:none}
+.gist li{margin:0; padding:14px 14px 12px; background:var(--paper-2); border-radius:2px; position:relative; max-width:none}
+.gist li b{display:block; font:400 22px/1.1 var(--hand); margin-bottom:6px}
+.gist li span{font-size:15px; color:var(--ink-2)}
+.tablewrap{overflow-x:auto; margin:10px 0 6px; -webkit-overflow-scrolling:touch}
+table{border-collapse:collapse; width:100%; font-size:15px; min-width:520px}
+th,td{text-align:left; vertical-align:top; padding:9px 10px 9px 0; border-bottom:1px solid var(--clay)}
+th{font:500 12px/1.3 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-2); border-bottom:1.5px solid var(--ink)}
+td:first-child{font-weight:500; width:34%}
+td.num,th.num{text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono); font-size:14px; white-space:nowrap; padding-right:0}
+tr.group td{font:500 12px/1.3 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--mat); padding-top:20px; border-bottom:1px solid var(--mat)}
+tr.sum td{border-top:1.5px solid var(--ink); border-bottom:none; font-weight:700}
+.defaults{list-style:none; padding:0; margin:12px 0}
+.defaults li{padding:10px 0 10px 30px; border-bottom:1px dashed var(--clay); position:relative; max-width:none}
+.defaults li::before{content:"?"; position:absolute; left:0; top:9px; width:20px; height:20px; border:1.5px solid var(--stencil); border-radius:50%; font:500 12px/17px var(--mono); text-align:center; color:var(--stencil)}
+.phones{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr)); gap:18px; margin:22px 0 8px}
+figure{margin:0}
+figure svg{width:100%; height:auto; display:block; color:var(--ink)}
+figcaption{font:400 13px/1.4 var(--mono); color:var(--ink-2); margin-top:8px}
+.pf{fill:var(--paper)} .pf2{fill:var(--paper-2)} .fi{fill:var(--ink)} .si{stroke:var(--ink); fill:none} .sfx{stroke:var(--fox); fill:none} .ffx{fill:var(--fox)} .fmat{fill:var(--mat)} .smat{stroke:var(--mat); fill:none} .sst{stroke:var(--stencil); fill:none} .fst{fill:var(--stencil)}
+.tx{fill:var(--ink); font-family:var(--body)} .th{fill:var(--ink); font-family:var(--hand)} .tm{fill:var(--ink-2); font-family:var(--mono)} .tp{fill:var(--paper); font-family:var(--body)}
+.steps{list-style:none; counter-reset:s; padding:0; margin:14px 0; display:grid; gap:10px}
+.steps li{counter-increment:s; position:relative; padding:2px 0 2px 44px; max-width:none}
+.steps li::before{content:counter(s); position:absolute; left:0; top:0; width:30px; height:30px; border:1.5px solid var(--ink); border-radius:50% 46% 52% 48%; font:400 18px/28px var(--hand); text-align:center}
+.flow{display:flex; flex-wrap:wrap; align-items:center; gap:6px 4px; margin:12px 0; font:500 13px/1.2 var(--mono)}
+.flow span{padding:7px 10px 6px; border:1.5px solid var(--ink); border-radius:14px 12px 15px 11px; background:var(--paper)}
+.flow span.alt{border-style:dashed}
+.flow span.end{background:var(--ink); color:var(--paper)}
+.flow i{font-style:normal; color:var(--ink-2); padding:0 2px}
+.two{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr)); gap:14px 28px}
+.box{padding:16px 18px 14px; border:1.5px solid var(--ink); border-radius:3px 14px 4px 12px; background:var(--paper)}
+.box.you{border-color:var(--fox)}
+.box h3{margin-top:0}
+.box ul{margin:.3em 0}
+.tags{display:flex; flex-wrap:wrap; gap:26px 22px; margin:22px 0 10px; padding:18px 4px 4px; border-top:2px solid var(--ink); border-radius:50% 50% 0 0/14px 14px 0 0}
+.tag{position:relative; width:112px; padding:16px 10px 10px; background:var(--paper-2); border:1.5px solid var(--ink); border-radius:4px 4px 14px 4px; transform:rotate(-3deg); text-align:center}
+.tag:nth-child(2){transform:rotate(2.5deg)} .tag:nth-child(3){transform:rotate(-1deg)} .tag:nth-child(4){transform:rotate(3.5deg)}
+.tag::before{content:""; position:absolute; top:6px; left:50%; width:8px; height:8px; margin-left:-4px; border:1.5px solid var(--ink); border-radius:50%; background:var(--paper)}
+.tag::after{content:""; position:absolute; top:-20px; left:50%; width:1.5px; height:24px; background:var(--ink)}
+.tag b{display:block; font:400 30px/1 var(--hand)}
+.tag small{font:400 11px/1.3 var(--mono); color:var(--ink-2)}
+.tag.sold{opacity:.9}
+.tag.sold .stamp{position:absolute; top:22px; left:6px; right:6px; padding:3px 0 1px; font:400 22px/1 var(--hand); color:var(--fox); border:2px solid var(--fox); border-radius:4px; transform:rotate(-14deg); background:transparent}
+.swatches{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr)); gap:10px; margin:14px 0}
+.sw{border:1px solid var(--clay); background:var(--paper)}
+.sw div{height:54px}
+.sw p{margin:0; padding:7px 9px 8px; font:400 12px/1.35 var(--mono); color:var(--ink-2)}
+.sw p b{display:block; font:500 13px/1.3 var(--body); color:var(--ink)}
+.typo{display:grid; gap:12px; margin:12px 0}
+.typo div{padding:12px 0; border-bottom:1px solid var(--clay)}
+.typo .a{font:400 36px/1.1 var(--hand)} .typo .b{font:400 17px/1.5 var(--body)} .typo .c{font:400 14px/1.4 var(--mono)}
+.typo small{display:block; font:400 12px/1.3 var(--mono); color:var(--ink-2); margin-top:4px}
+.arch{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr)); gap:12px; margin:16px 0}
+.arch div{padding:12px 14px; border:1.5px solid var(--ink); border-radius:12px 4px 12px 5px; background:var(--paper)}
+.arch div.core{background:var(--ink); color:var(--paper)}
+.arch b{display:block; font:400 21px/1.1 var(--hand); margin-bottom:4px}
+.arch span{font-size:14px}
+.arch div:not(.core) span{color:var(--ink-2)}
+.phase{border-left:2.5px solid var(--ink); padding:4px 0 4px 18px; margin:18px 0 22px}
+.phase.p0{border-left-color:var(--fox)}
+.phase.live{border-left-style:dashed}
+.phase header{display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 12px}
+.phase header b{font:400 28px/1 var(--hand)}
+.phase header span{font:500 17px/1.3 var(--body)}
+.phase p{margin:.4em 0}
+.phase ul{margin:.3em 0}
+.phase .dod{font-size:15px; color:var(--ink-2)}
+details{border-top:1px solid var(--clay); padding:10px 0}
+details:last-of-type{border-bottom:1px solid var(--clay)}
+summary{cursor:pointer; font-weight:500}
+details[open] summary{margin-bottom:8px}
+.callout{margin:20px 0; padding:16px 18px; background:var(--paper-2); border-left:3px solid var(--fox); border-radius:0}
+.callout p{margin:.3em 0}
+.sign{margin-top:28px; padding:22px 20px 18px; border:2px solid var(--ink); border-radius:18px 6px 20px 8px}
+.sign .hand{font-size:32px}
+footer.end{margin-top:40px; font:400 13px/1.5 var(--mono); color:var(--ink-2)}
+@media (max-width:640px){
+  :root{--gutter:44px}
+  body{font-size:16px}
+  #coco{width:42px; height:30px}
+  header.top{padding-block:36px 16px}
+}
+@media (prefers-reduced-motion:reduce){ #coco{transition:none} }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(40)">
+      <line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="1" opacity=".35"/>
+    </pattern>
+    <symbol id="coco-run" viewBox="0 0 120 80">
+      <g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M30 44 C38 33 66 31 80 39 C88 44 88 53 79 55 C65 59 44 59 34 55 C27 52 25 47 30 44 Z"/>
+        <path d="M81 40 C78 29 84 20 94 20 C104 21 109 29 105 37 C102 42 93 45 86 42"/>
+        <path d="M88 23 L83 7 L94 18"/><path d="M99 20 L107 6 L106 25"/>
+        <path d="M105 32 L114 35 L106 38"/>
+        <path d="M40 56 L32 71"/><path d="M48 57 L51 72"/><path d="M71 57 L79 70"/><path d="M79 53 L91 64"/>
+        <path d="M30 45 C21 41 17 32 22 25"/>
+      </g>
+      <circle cx="97" cy="28" r="2.4" fill="currentColor"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="journey" id="journey">
+  <svg id="leash" aria-hidden="true" focusable="false"><path id="leashPath" d=""/></svg>
+  <svg id="coco" aria-hidden="true" focusable="false"><use href="#coco-run"/></svg>
+
+<main>
+<header class="top">
+  <div class="kicker">planetclairetattoos.com · Konzept zur Freigabe</div>
+  <h1>Planet Claire<small>Website, Shop und Tattoo-Bereich für Jutta</small></h1>
+  <p class="lede">Hier steht alles, was wir in den Fragerunden festgelegt haben: wie die Seite aussieht, wie Leute bei dir einkaufen, wie du Stücke einstellst und Pakete verschickst, was rechtlich dazugehört und in welchen Phasen gebaut wird. Wenn du zustimmst, lege ich <b>nur P0</b> hier lokal an und halte dann an. Danach geht es in der Cloud weiter.</p>
+  <div class="meta"><span>Stand 26.09.2026</span><span>Entwurf 1</span><span>Grundlage: 13 Fragerunden + Recherche</span></div>
+  <nav class="toc" aria-label="Inhalt">
+    <ol>
+      <li><a href="#kurz">Auf einen Blick</a></li>
+      <li><a href="#entscheidungen">Deine Entscheidungen</a></li>
+      <li><a href="#vorschlaege">Meine Vorschläge</a></li>
+      <li><a href="#seiten">Seitenplan</a></li>
+      <li><a href="#design">Design</a></li>
+      <li><a href="#shop">Einkaufen</a></li>
+      <li><a href="#verwaltung">Deine Verwaltung</a></li>
+      <li><a href="#ablaeufe">Lager und Versand</a></li>
+      <li><a href="#tattoo">Tattoo</a></li>
+      <li><a href="#recht">Recht</a></li>
+      <li><a href="#technik">Technik</a></li>
+      <li><a href="#kosten">Kosten</a></li>
+      <li><a href="#aufgaben">Deine Aufgaben</a></li>
+      <li><a href="#plan">Phasenplan</a></li>
+      <li><a href="#spaeter">Später</a></li>
+      <li><a href="#risiken">Risiken</a></li>
+      <li><a href="#freigabe">Freigabe</a></li>
+    </ol>
+  </nav>
+</header>
+
+<section id="kurz" class="station">
+  <div class="station-no">Station 01</div>
+  <h2>Auf einen Blick</h2>
+  <ul class="gist">
+    <li><b>Drei Welten</b><span>Shop (Keramik, Textil, Zeichnungen, Schmuck), Tattoo (nur zeigen, nicht kaufen) und Jutta &amp; Coco.</span></li>
+    <li><b>Die Tuschelinie</b><span>Eine schwarze Linie zeichnet sich beim Scrollen. Sie ist Cocos Leine, und Coco rennt vorneweg.</span></li>
+    <li><b>Unikate</b><span>Jedes Stück hat deine Nummer, wird beim Bezahlen kurz reserviert und kann nie doppelt verkauft werden.</span></li>
+    <li><b>Bezahlen</b><span>Karte, Apple Pay, Google Pay, PayPal und Vorkasse. Versand mit DHL innerhalb Deutschlands, dazu Abholung in Berlin.</span></li>
+    <li><b>Am Handy</b><span>Stücke einstellen, Bestellungen packen, Sendungsnummer scannen: eine Web-App mit Icon auf deinem Homescreen.</span></li>
+    <li><b>Rechtssicher gebaut</b><span>Widerrufsbutton, Pflichtangaben pro Stück, kein Cookie-Banner. Die Texte schreibt eine Kanzlei.</span></li>
+    <li><b>Rund 19 € im Monat</b><span>Dazu kommen nur Gebühren pro Verkauf, etwa 0,93 € bei einer Schale für 45 € mit Karte.</span></li>
+    <li><b>P0, dann Cloud</b><span>P0 legt hier das Fundament. Danach baut die Cloud P1 bis P10 selbstständig. Der Start (P11) passiert gemeinsam mit dir.</span></li>
+    <li><b>Vorschau zum Mitnehmen</b><span>Die ganze Website als eine einzige HTML-Datei, die du auf jedem Rechner ohne Server und ohne Konten öffnen kannst.</span></li>
+    <li><b>Komplett befüllt</b><span>Ein Beispielbestand für alles: Stücke, Bestellungen, Flash, Texte und Bilder. So sieht die Seite von Anfang an fertig aus.</span></li>
+    <li><b>Extra-Liebe fürs Bild</b><span>Eine eigene Phase nur für Zeichnungen, Coco und Animationen, mit mehrfacher Prüfung.</span></li>
+  </ul>
+</section>
+
+<section id="entscheidungen" class="station">
+  <div class="station-no">Station 02</div>
+  <h2>Deine Entscheidungen</h2>
+  <p>Das hast du in den Fragerunden festgelegt. Bitte lies es einmal durch. Wenn etwas nicht stimmt, sag es mir vor der Freigabe.</p>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Thema</th><th>Entscheidung</th></tr></thead>
+    <tbody>
+      <tr class="group"><td colspan="2">Du und dein Geschäft</td></tr>
+      <tr><td>Steuer</td><td>Kleinunternehmerin nach § 19 UStG. Umstellen auf „mit MwSt.“ ist mit einem Schalter vorbereitet.</td></tr>
+      <tr><td>Team</td><td>Nur du, ein Admin-Zugang, am Handy und am Laptop gleich gut bedienbar</td></tr>
+      <tr><td>Buchhaltung</td><td>Machst du selbst (EÜR). Der Shop erstellt die Rechnungs-PDFs und einen Monatsexport als Tabelle (CSV).</td></tr>
+      <tr><td>Budget</td><td>Höchstens etwa 25 € im Monat für den laufenden Betrieb</td></tr>
+      <tr><td>Start</td><td>Kein fester Termin, so schnell es gut geht</td></tr>
+      <tr><td>Name</td><td>„Planet Claire“ nach dem B-52's-Song. Weltall ist willkommen, aber handgezeichnet und retro.</td></tr>
+      <tr class="group"><td colspan="2">Sortiment</td></tr>
+      <tr><td>Arten</td><td>Nur Unikate (Stückzahl 1), keine Serien und keine Größenvarianten. Bei Kleidung ist die Größe eine Angabe am Stück.</td></tr>
+      <tr><td>Auftragsarbeiten</td><td>Nur als Anfrage über ein Formular. Die Bezahlung läuft außerhalb des Shops.</td></tr>
+      <tr><td>Objektnummern</td><td>Vergibst du selbst als reine Zahl. Das System prüft, dass keine Nummer doppelt vorkommt, und schlägt die nächste freie vor.</td></tr>
+      <tr><td>Neue Stücke</td><td>Einfach online stellen, ohne Drops und ohne Newsletter</td></tr>
+      <tr><td>Verkaufte Stücke</td><td>Du entscheidest pro Stück, ob es mit „sold“-Stempel im Archiv bleibt</td></tr>
+      <tr><td>Keramik</td><td>Standard ist „Deko, nicht für Lebensmittel“. Auf „lebensmittelecht“ lässt sich pro Stück nur umstellen, wenn eine Konformitätserklärung hinterlegt ist.</td></tr>
+      <tr><td>Textilien</td><td>Second-Hand und Vintage. Pflichtangaben sind Material laut Etikett und Zustand.</td></tr>
+      <tr><td>Schmuck</td><td>Veröffentlichen geht nur mit dem Häkchen „Metallteile nickelfrei, Nachweis liegt vor“</td></tr>
+      <tr><td>Motive</td><td>Auf Verkaufsware nur deine eigenen Figuren</td></tr>
+      <tr class="group"><td colspan="2">Verkauf, Zahlung, Versand</td></tr>
+      <tr><td>Zahlarten</td><td>Karte, Apple Pay und Google Pay, PayPal über Stripe, Vorkasse per Überweisung</td></tr>
+      <tr><td>Vorkasse</td><td>Das Stück bleibt 5 Tage reserviert und wird danach automatisch wieder freigegeben</td></tr>
+      <tr><td>Liefergebiet</td><td>Zum Start nur Deutschland, dazu Abholung in Berlin. EU-Länder sind vorbereitet und lassen sich einzeln freischalten.</td></tr>
+      <tr><td>Versandkosten</td><td>Nach Versandklasse pro Stück, im Warenkorb zählt die größte: Brief 4,50 € · Paket klein 6,50 € · Keramik 8,90 € · Abholung 0 €</td></tr>
+      <tr><td>Versanddienst</td><td>DHL. Etiketten erstellst du in der Post-&amp;-DHL-App, die Sendungsnummer wird im Admin gescannt.</td></tr>
+      <tr><td>Rücksendung</td><td>Bei Widerruf zahlt die Kund:in die Rücksendung, Kulanz entscheidest du im Einzelfall</td></tr>
+      <tr><td>Flohmarkt</td><td>Ein Knopf „offline verkauft“. Karten nimmst du dort weiter mit SumUp oder Ähnlichem an.</td></tr>
+      <tr class="group"><td colspan="2">Recht</td></tr>
+      <tr><td>Impressum</td><td>Deine Privatadresse, die auch als Herstelleradresse auf den Produktseiten steht</td></tr>
+      <tr><td>Rechtstexte</td><td>Einmalig von einer Anwältin oder einem Anwalt. Du pflegst sie im CMS mit Versionen, und ich bereite eine Briefing-Mappe für die Kanzlei vor.</td></tr>
+      <tr><td>Portfolio</td><td>Die Einwilligungen deiner Kund:innen holst du nach. Pro Foto gibt es ein Häkchen, ohne Häkchen wird es nicht gezeigt.</td></tr>
+      <tr class="group"><td colspan="2">Tattoo</td></tr>
+      <tr><td>Ort</td><td>Privatstudio, öffentlich steht nur der Bezirk</td></tr>
+      <tr><td>Anfragen</td><td>Nur per E-Mail oder Instagram-DM, ohne Formular</td></tr>
+      <tr><td>Flash</td><td>Pro Motiv einmalig oder wiederholbar. Status verfügbar oder vergeben.</td></tr>
+      <tr><td>Angebote</td><td>Flash mit Festpreis, Flash-Days und Aktionen mit Datum, Preisrahmen für Custom-Motive</td></tr>
+      <tr class="group"><td colspan="2">Design und Inhalte</td></tr>
+      <tr><td>Leitidee</td><td>Konzept D: die Tuschelinie. Sie ist Cocos Leine, verbindet alle Seiten und ist immer tuscheschwarz.</td></tr>
+      <tr><td>Stimmung</td><td>Hell: Papier und Ton</td></tr>
+      <tr><td>Shop-Look</td><td>Flohmarkt-Preisschilder an der Linie, dazu ein „sold“-Stempel</td></tr>
+      <tr><td>Bewegung</td><td>Mittel: Startseite und Menü verspielt, Shop und Kasse ruhig und schnell</td></tr>
+      <tr><td>Schrift</td><td>Freie Handschrift-Schrift, keine eigene aus deiner Handschrift</td></tr>
+      <tr><td>Zeichnungen</td><td>Aus deinen Instagram-Bildern. Coco wird nach Fotos als Linienzeichnung nachgezeichnet.</td></tr>
+      <tr><td>Sprache</td><td>Deutsch und Englisch. Englische Produkttexte kommen per „Übersetzen“-Knopf (DeepL), die Seitentexte entwerfen wir in deinem Ton.</td></tr>
+      <tr class="group"><td colspan="2">Technik</td></tr>
+      <tr><td>Hosting</td><td>Komfort-Variante mit Rechenzentren in Frankfurt und der EU (Vercel, Neon, Cloudflare R2), ohne Serverpflege</td></tr>
+      <tr><td>Verwaltung</td><td>Web-App mit eigenen Handy-Ansichten, keine App aus dem App Store</td></tr>
+      <tr><td>Konten</td><td>GitHub und IONOS hast du. Alles andere legst du nach Anleitung neu an.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="vorschlaege" class="station">
+  <div class="station-no">Station 03</div>
+  <h2>Was ich ohne Frage festgelegt habe</h2>
+  <p>Für diese Punkte gibt es eine übliche, gute Lösung, deshalb habe ich dich nicht gefragt. <b>Wenn dir einer davon nicht passt, sag es vor der Freigabe.</b> Danach entscheidet die Cloud-Entwicklung nichts mehr selbst.</p>
+  <ul class="defaults">
+    <li><b>Keine Kundenkonten.</b> Alle bestellen als Gast. Den Bestellstatus sieht man über einen Link in der Bestätigungsmail.</li>
+    <li><b>Die Kasse liegt auf deiner eigenen Seite</b> mit dem Button „Zahlungspflichtig bestellen“. Stripe arbeitet eingebettet im Hintergrund. So verlangt es das Gesetz, und das Design bleibt aus einem Guss.</li>
+    <li><b>30 Minuten Reservierung beim Bezahlen.</b> Wer ein Stück in die Kasse legt, hält es 30 Minuten fest. Coco zeigt dabei einen kleinen Countdown.</li>
+    <li><b>Kein Klarna und keine Lastschrift.</b> Beides bestätigt Zahlungen erst nach Tagen, und das passt nicht zu Unikaten. Nachrüsten ginge später per Klick.</li>
+    <li><b>Kein Cookie-Banner.</b> Es gibt keine eingebetteten Instagram-Posts, keine Google-Schriften von fremden Servern und keine Tracking-Pixel. Die Besucherstatistik läuft ohne Cookies.</li>
+    <li><b>Lieferzeit</b> steht auf jeder Produktseite als „2–5 Werktage“ und ist im Admin änderbar.</li>
+    <li><b>Vorkasse:</b> Die Bestellmail enthält deine IBAN und die Bestellnummer als Verwendungszweck. Nach 3 Tagen geht eine Erinnerung raus, nach 5 Tagen wird automatisch storniert. Kommt das Geld, tippst du auf „Zahlung erhalten“.</li>
+    <li><b>Abholung:</b> Den Ort und die Absprache gibt es erst in der Abholmail, weil du ein Privatstudio hast.</li>
+    <li><b>Fotos:</b> Pro Stück bis zu 12 Bilder. Standortdaten (GPS) werden automatisch aus den Fotos gelöscht, und jedes Bild braucht einen kurzen Beschreibungstext für Blinde und Suchmaschinen (Vorschlag per Knopf).</li>
+    <li><b>Rechnungen:</b> automatisch als PDF mit fortlaufender Nummer, zum Beispiel RE-2026-00001. Sie sind unveränderbar und werden 10 Jahre aufbewahrt.</li>
+    <li><b>Umsatz-Wächter:</b> Der Admin zählt deinen Umsatz. Tattoo- und Flohmarkt-Umsätze trägst du monatlich als Summe ein. Du wirst gewarnt, bevor die Kleinunternehmer-Grenze erreicht ist.</li>
+    <li><b>Flash-Anfrage:</b> Der Button öffnet eine Mail mit Motiv-Nummer im Betreff. Deine Adresse steht zusätzlich als Text zum Kopieren da, weil Mail-Links in der Instagram-App nicht immer funktionieren.</li>
+    <li><b>Formular für Auftragsarbeiten:</b> optional mit bis zu 5 Referenzbildern. Sie liegen privat, nur für dich, und werden nach 6 Monaten automatisch gelöscht.</li>
+    <li><b>Benachrichtigung:</b> Bei jeder Bestellung und jeder Anfrage bekommst du eine Mail an jutta@planetclairetattoos.com.</li>
+    <li><b>Login-Schutz:</b> starkes Passwort und Sperre nach mehreren Fehlversuchen. Die Verwaltungsadresse ist nicht /admin, sondern eine eigene.</li>
+    <li><b>Arbeitsweise in der Cloud:</b> Jede Phase ist ein eigener Änderungsvorschlag (Pull Request). Wenn alle automatischen Tests grün sind, wird er übernommen. Du musst keinen Code lesen.</li>
+    <li><b>Sicherheit und Backups:</b> Sicherheitsupdates werden automatisch eingespielt. Die Datenbank wird jede Nacht verschlüsselt in der EU gesichert.</li>
+    <li><b>Instagram:</b> In die Bio kommen der Link zur Seite und der Link zum Impressum, denn dein Instagram braucht als geschäftlicher Account auch ein Impressum.</li>
+  </ul>
+
+  <h3>Aus deinen letzten Nachrichten</h3>
+  <div class="two">
+    <div class="box">
+      <h3>Vorschau als eine Datei</h3>
+      <p>Wenn der Plan leer gearbeitet ist, wird automatisch <span class="mono">planet-claire-vorschau.html</span> erzeugt. Diese eine Datei enthält alle Seiten, Bilder, Schriften und Animationen. Du kannst sie per Mail oder USB-Stick auf einen anderen Rechner bringen und im Browser öffnen, ohne Internet-Server und ohne Konten.</p>
+      <ul>
+        <li>Alle Seiten sind klickbar: Startseite, Shop, Stücke, Tattoo, Über mich, Rechtliches</li>
+        <li>Die Kasse ist dort nur eine Attrappe („Vorschau – hier wird nichts gekauft“)</li>
+        <li><b>Bonus:</b> Ab P2 entsteht nach jeder Phase eine Zwischenversion, die du auf GitHub herunterladen kannst. So siehst du den Fortschritt, lange bevor die Seite online ist.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Beispielbestand für alles</h3>
+      <ul>
+        <li><b>Rund 30 Stücke</b> in allen Kategorien (Keramik, Textil, Caps, Zeichnungen, Schmuck), einige davon mit „sold“-Stempel im Archiv</li>
+        <li><b>Rund 12 Beispielbestellungen</b> in jedem Status, von Vorkasse offen bis erstattet, mit offensichtlich erfundenen Namen. So ist auch deine Verwaltung „bewohnt“.</li>
+        <li><b>Flash-Motive, Flash-Day, Galerie, FAQ, Aftercare, Über mich</b>: alle Texte ausformuliert auf Deutsch und Englisch in deinem Ton</li>
+        <li><b>Bilder:</b> deine eigenen Instagram-Bilder, zuerst die öffentlich sichtbaren und später in voller Qualität aus deinem Datenexport. Wo kein Foto passt, zeichnen wir Platzhalter in deinem Linienstil.</li>
+        <li><b>Nicht aus fremden Shops:</b> Fotos und Texte anderer Shops sind urheberrechtlich geschützt, die dürfen wir nicht übernehmen. Wir schauen uns an, wie gute Shops ihre Texte aufbauen, und schreiben dann eigene.</li>
+        <li>Alle Beispieldaten sind markiert und lassen sich vor dem Start mit einem Knopf entfernen</li>
+      </ul>
+    </div>
+  </div>
+  <div class="box" style="margin-top:14px">
+    <h3>Extra-Aufwand für Bilder und Animationen</h3>
+    <p>Dafür gibt es eine eigene Phase (<a href="#plan">P9 „Kunst und Bewegung“</a>) mit höherer Messlatte:</p>
+    <ul>
+      <li><b>Lebendige Tusche:</b> Die Linie hat eine leicht wechselnde Strichstärke und einen feinen Tinten-Rand wie eine echte Feder. Dazu kommt „Line Boil“: Linien zittern minimal, wie in handgezeichneten Trickfilmen.</li>
+      <li><b>Coco in mindestens 6 Posen</b> (rennen, schnüffeln, sitzen, schlafen, springen, Kopf schief), jede in 3 Zeichnungsvarianten für den Zitter-Effekt, mit weichen Übergängen</li>
+      <li><b>Choreografie:</b> Timing, Kurven und Pausen sind für jede Station festgelegt, keine Standard-Animationen</li>
+      <li><b>Kleine Momente:</b> Der „sold“-Stempel knallt drauf, das Preisschild schwingt aus, Coco hüpft bei „in den Korb“ und rollt sich auf der Danke-Seite ein.</li>
+      <li><b>Fotos:</b> einheitlicher Zuschnitt, automatischer Weißabgleich und Helligkeit, sodass der Shop wie aus einem Guss wirkt</li>
+      <li><b>Prüfung wie im Studio:</b> Jede Animation wird im iPhone- und Android-Format als Video aufgenommen und von mehreren unabhängigen Prüf-Durchgängen gegen eine Checkliste bewertet (Strichqualität, Timing, Lesbarkeit, Tempo). Nachgebessert wird, bis alle zustimmen.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="seiten" class="station">
+  <div class="station-no">Station 04</div>
+  <h2>Der Seitenplan</h2>
+  <p>Alle Seiten gibt es auf Deutsch unter <span class="mono">/de/…</span> und auf Englisch unter <span class="mono">/en/…</span>. Wer von Instagram kommt, landet auf der Startseite oder direkt auf einem Stück, wenn du den Link zu diesem Stück teilst.</p>
+  <div class="two">
+    <div>
+      <h4>Hauptwege</h4>
+      <ul>
+        <li><b>Startseite:</b> die Reise entlang der Linie mit Hallo, Keramik, Textil, Zeichnungen, Schmuck, Tattoo und Jutta &amp; Coco</li>
+        <li><b>Shop:</b> alle Stücke, filterbar nach Kategorie und „nur verfügbare“
+          <ul><li>Produktseite pro Stück</li><li>Archiv mit „sold“-Stücken</li><li>Warenkorb → Kasse → Danke</li><li>Bestellstatus (Link aus der Mail)</li></ul></li>
+        <li><b>Auftragsarbeiten:</b> Beispiele und Anfrageformular</li>
+        <li><b>Tattoo:</b> Stil, Flash, Angebote, Preise, Fresh &amp; Healed, Ablauf, Aftercare, FAQ, Kontakt</li>
+        <li><b>Über mich &amp; Coco</b></li>
+        <li><b>Kontakt:</b> E-Mail, Instagram, Bezirk</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Pflicht und Service</h4>
+      <ul>
+        <li>Impressum</li>
+        <li>Datenschutz</li>
+        <li>AGB</li>
+        <li>Widerrufsbelehrung und Muster-Formular</li>
+        <li>Versand &amp; Zahlung</li>
+        <li><b>Vertrag widerrufen</b> (Widerrufsbutton)</li>
+        <li>Konformitätserklärungen Keramik, wenn vorhanden</li>
+        <li>404-Seite („Coco hat sich losgerissen“)</li>
+      </ul>
+      <p class="note">Die Pflichtlinks stehen auf jeder Seite unten, auch in der Kasse. Keine Animation darf sie verdecken.</p>
+    </div>
+  </div>
+</section>
+
+<section id="design" class="station">
+  <div class="station-no">Station 05</div>
+  <h2>Design: die Tuschelinie</h2>
+  <p><b>Die Idee:</b> Coco rennt voraus, und ihre Leine ist eine Tuschelinie, die sich beim Scrollen über das Papier zieht. Genau das passiert gerade links auf dieser Seite. An jeder Station bleibt Coco stehen und schnüffelt: an einer Schale, einer Cap, einer Zeichnung, einem Flash. Die Linie macht dort eine kleine Schlaufe um das Foto. Winzige handgezeichnete Planeten und Sterne markieren die Stationen, als Retro-Weltall-Gruß an die B-52's. Ganz oben kreist die Linie einmal um einen kleinen Planeten: Planet Claire.</p>
+
+  <div class="phones">
+    <figure>
+      <svg viewBox="0 0 180 360" role="img" aria-labelledby="m1t">
+        <title id="m1t">Skizze Startseite: Coco zieht die Tuschelinie zu den Stationen Keramik, Textil und Tattoo</title>
+        <rect x="2" y="2" width="176" height="356" rx="22" class="pf si" stroke-width="1.5"/>
+        <text x="16" y="34" font-size="17" class="th">planet claire</text>
+        <text x="132" y="33" font-size="10" class="tm">korb 0</text>
+        <circle cx="150" cy="66" r="9" class="si" stroke-width="1.3"/><ellipse cx="150" cy="67" rx="17" ry="4" class="si" stroke-width="1.2" transform="rotate(-15 150 67)"/>
+        <path d="M122 54 l1.5 3 3 .3 -2.3 2 .7 3 -2.9-1.6 -2.8 1.6 .7-3 -2.3-2 3-.3z" class="fi"/>
+        <use href="#coco-run" x="16" y="48" width="44" height="30" style="color:var(--ink)"/>
+        <path d="M49 71 C46 90 30 96 30 116 C30 128 34 132 34 140 C34 150 20 148 22 138 C24 130 36 132 34 150 C32 176 24 184 28 206 C31 220 38 222 36 232 C34 242 20 240 22 230 C24 222 38 226 34 244 C30 268 26 282 30 300 C32 312 36 318 34 344" class="si" stroke-width="2" stroke-linecap="round"/>
+        <rect x="58" y="104" width="104" height="62" class="si" stroke-width="1.3" fill="url(#hatch)"/>
+        <text x="58" y="180" font-size="15" class="th">keramik</text>
+        <rect x="58" y="196" width="104" height="62" class="si" stroke-width="1.3" fill="url(#hatch)"/>
+        <text x="58" y="272" font-size="15" class="th">textil</text>
+        <rect x="58" y="288" width="104" height="40" class="si" stroke-width="1.3" fill="url(#hatch)"/>
+        <text x="58" y="344" font-size="15" class="th">tattoo</text>
+      </svg>
+      <figcaption>Startseite: Die Leine führt von Station zu Station.</figcaption>
+    </figure>
+    <figure>
+      <svg viewBox="0 0 180 360" role="img" aria-labelledby="m2t">
+        <title id="m2t">Skizze Shop: Fotos, darunter hängen Preisschilder an der Linie, ein Stück mit sold-Stempel</title>
+        <rect x="2" y="2" width="176" height="356" rx="22" class="pf si" stroke-width="1.5"/>
+        <text x="16" y="34" font-size="17" class="th">shop</text>
+        <text x="16" y="56" font-size="9" class="tm">alle · keramik · textil · zeichn.</text>
+        <rect x="14" y="68" width="72" height="88" class="si" stroke-width="1.2" fill="url(#hatch)"/>
+        <rect x="94" y="68" width="72" height="88" class="si" stroke-width="1.2" fill="url(#hatch)"/>
+        <path d="M6 166 C50 176 120 158 176 168" class="si" stroke-width="2"/>
+        <g transform="rotate(-6 50 190)"><line x1="50" y1="171" x2="50" y2="180" class="si" stroke-width="1.2"/><rect x="30" y="180" width="40" height="30" rx="2" class="pf2 si" stroke-width="1.2"/><text x="50" y="200" font-size="14" text-anchor="middle" class="th">38 €</text></g>
+        <g transform="rotate(5 130 188)"><line x1="130" y1="166" x2="130" y2="176" class="si" stroke-width="1.2"/><rect x="110" y="176" width="40" height="30" rx="2" class="pf2 si" stroke-width="1.2"/><text x="130" y="196" font-size="14" text-anchor="middle" class="th">89 €</text></g>
+        <rect x="14" y="224" width="72" height="88" class="si" stroke-width="1.2" fill="url(#hatch)"/>
+        <rect x="94" y="224" width="72" height="88" class="si" stroke-width="1.2" fill="url(#hatch)"/>
+        <g transform="rotate(-16 130 268)"><rect x="104" y="254" width="52" height="24" rx="3" class="sfx" stroke-width="2"/><text x="130" y="272" font-size="17" text-anchor="middle" class="th" style="fill:var(--fox)">sold</text></g>
+        <path d="M6 322 C60 312 110 332 176 320" class="si" stroke-width="2"/>
+        <g transform="rotate(4 50 340)"><line x1="50" y1="318" x2="50" y2="326" class="si" stroke-width="1.2"/><rect x="30" y="326" width="40" height="26" rx="2" class="pf2 si" stroke-width="1.2"/><text x="50" y="344" font-size="13" text-anchor="middle" class="th">24 €</text></g>
+      </svg>
+      <figcaption>Shop: Die Linie ist die Schnur, an der die Schilder hängen.</figcaption>
+    </figure>
+    <figure>
+      <svg viewBox="0 0 180 360" role="img" aria-labelledby="m3t">
+        <title id="m3t">Skizze Produktseite mit Foto, Nummer, Preisschild, Keramik-Hinweis, Warenkorb-Knopf und Herstellerinnen-Block</title>
+        <rect x="2" y="2" width="176" height="356" rx="22" class="pf si" stroke-width="1.5"/>
+        <rect x="14" y="20" width="152" height="130" class="si" stroke-width="1.2" fill="url(#hatch)"/>
+        <circle cx="80" cy="160" r="2.5" class="fi"/><circle cx="90" cy="160" r="2.5" class="si"/><circle cx="100" cy="160" r="2.5" class="si"/>
+        <text x="14" y="188" font-size="18" class="th">schale mit hund</text>
+        <path d="M14 194 C60 198 110 190 150 195" class="si" stroke-width="1.6"/>
+        <text x="14" y="210" font-size="9" class="tm">nr. 017 · unikat · ø 14 cm</text>
+        <g transform="rotate(-4 146 214)"><rect x="124" y="200" width="44" height="28" rx="2" class="pf2 si" stroke-width="1.2"/><text x="146" y="219" font-size="15" text-anchor="middle" class="th">45 €*</text></g>
+        <text x="14" y="232" font-size="7.5" class="tm">*endpreis, keine ust. (§ 19 ustg)</text>
+        <text x="14" y="242" font-size="7.5" class="tm">zzgl. versand · 2–5 werktage</text>
+        <rect x="14" y="252" width="118" height="17" rx="8" class="sst" stroke-width="1.2"/>
+        <text x="22" y="264" font-size="8" class="tx" style="fill:var(--stencil)">deko – nicht für lebensmittel</text>
+        <rect x="14" y="278" width="152" height="30" rx="15" class="fi"/>
+        <text x="90" y="297" font-size="12" text-anchor="middle" class="tp">in den korb</text>
+        <line x1="14" y1="322" x2="166" y2="322" class="si" stroke-width="1"/>
+        <text x="14" y="336" font-size="8.5" class="tx">herstellerin &amp; sicherheit ▾</text>
+        <text x="14" y="348" font-size="7.5" class="tm">jutta …, berlin · jutta@planetclaire…</text>
+      </svg>
+      <figcaption>Produktseite: ruhig, mit allen Pflichtangaben.</figcaption>
+    </figure>
+  </div>
+
+  <h3>Wie die Linie sich auf den Seiten verhält</h3>
+  <ul>
+    <li><b>Startseite:</b> Die große Reise. Die Linie zeichnet sich mit dem Scrollen, Coco läuft an der Spitze, an den Stationen wechselt sie die Pose: rennen, schnüffeln, sitzen.</li>
+    <li><b>Shop-Übersicht:</b> Die Linie wird zur Schnur. An ihr hängen handgeschriebene Flohmarkt-Preisschilder mit Preis und Nummer, und verkaufte Stücke tragen den „sold“-Stempel.</li>
+    <li><b>Produktseite:</b> Die Linie unterstreicht den Titel und führt zum Knopf „In den Korb“. Sonst ist hier Ruhe, das Foto zählt.</li>
+    <li><b>Warenkorb und Kasse:</b> nur eine stille, feine Linie ohne Animation. Coco sitzt neben dem Korb und hält den Countdown der Reservierung.</li>
+    <li><b>Tattoo:</b> Die Linie wirkt wie die Kontur eines Stencils um die Flash-Motive, bleibt aber tuscheschwarz.</li>
+    <li><b>Danke-Seite:</b> Coco rollt sich ein und schläft, die Linie endet in einem kleinen Herz.</li>
+    <li><b>404:</b> Die Leine hängt lose, und Coco ist weggerannt. Zurück geht es über einen Link.</li>
+  </ul>
+
+  <h3>Menü</h3>
+  <p>Oben steht immer eine schmale Leiste mit dem handgeschriebenen Schriftzug „planet claire“, den Links <b>Shop</b> und <b>Tattoo</b>, dem Korb mit Anzahl und einem Menü-Knopf. Der öffnet eine Papierseite mit handgeschriebenen Links, und die Linie unterstreicht den Link, auf den man zeigt oder tippt. Diese Navigation ist schlicht, mit Tastatur und Screenreader bedienbar und immer da. Die Linie ist Schmuck und nie der einzige Weg.</p>
+
+  <h3>Bewegung: mittel</h3>
+  <ul>
+    <li>Nur die Startseite, das Menü und kleine Momente wie „in den Korb“ oder „sold“ sind animiert. Shop-Raster, Produktseite, Kasse und Verwaltung bleiben ruhig und schnell.</li>
+    <li>Die Seite scrollt normal, niemand wird festgehalten oder „entführt“.</li>
+    <li>Wer am Handy „Bewegung reduzieren“ eingestellt hat, sieht die Linie fertig gezeichnet und Coco still.</li>
+    <li>Zielwerte: Am Handy ist die Seite in unter 2,5 Sekunden sichtbar, und nichts springt beim Laden herum.</li>
+  </ul>
+
+  <h3>Farben</h3>
+  <div class="swatches">
+    <div class="sw"><div style="background:#F4EFE6;border-bottom:1px solid #CBBBA2"></div><p><b>Papier</b>#F4EFE6 · Grund</p></div>
+    <div class="sw"><div style="background:#1C1A17"></div><p><b>Tusche</b>#1C1A17 · Linie, Text</p></div>
+    <div class="sw"><div style="background:#CBBBA2"></div><p><b>Ton</b>#CBBBA2 · Linien, Ränder</p></div>
+    <div class="sw"><div style="background:#2F6B4C"></div><p><b>Schneidematte</b>#2F6B4C · Links, Raster</p></div>
+    <div class="sw"><div style="background:#B84E1A"></div><p><b>Fuchs</b>#B84E1A · „sold“, Hinweise</p></div>
+    <div class="sw"><div style="background:#E58FB0"></div><p><b>Cap-Pink</b>#E58FB0 · nur kleine Akzente</p></div>
+  </div>
+  <p class="note">Das zarte grüne Raster im Hintergrund zitiert deine Schneidematte. Die Farben kommen direkt aus deinen Arbeiten: Tuscheschwarz, Porzellanweiß, der Fuchs, die pinke Cap. Die Kontraste sind so gewählt, dass Text gut lesbar bleibt, und die Farbe steckt vor allem in deinen Fotos.</p>
+
+  <h3>Schrift</h3>
+  <div class="typo">
+    <div><span class="a">hi, ich bin jutta</span><small>Mansalva: handgezeichnet für Überschriften und Preisschilder (freie Lizenz)</small></div>
+    <div><span class="b">Schale mit Hund, weiß glasiert, innen Tuschezeichnung. Unikat.</span><small>Bricolage Grotesque: für Fließtext, eigenwillig, aber gut lesbar (freie Lizenz)</small></div>
+    <div><span class="c">Nr. 017 · 45 € · Keramik · Ø 14 cm</span><small>IBM Plex Mono: für Nummern, Maße und Preise (freie Lizenz)</small></div>
+  </div>
+  <p class="note">Alle Schriften werden auf deiner eigenen Seite gespeichert und nicht bei Google geladen. Das ist wichtig für den Datenschutz. Diese Konzeptseite lädt sie ausnahmsweise von Google Fonts.</p>
+
+  <h3>Preisschilder</h3>
+  <div class="tags" aria-label="Beispiel Preisschilder">
+    <div class="tag"><b>45 €</b><small>Nr. 017 · Schale</small></div>
+    <div class="tag"><b>89 €</b><small>Nr. 031 · Cap</small></div>
+    <div class="tag sold"><b>120 €</b><small>Nr. 012 · Aquarell</small><span class="stamp">sold</span></div>
+    <div class="tag"><b>24 €</b><small>Nr. 044 · Anhänger</small></div>
+  </div>
+
+  <h3>Fotos und Zeichnungen</h3>
+  <ul>
+    <li><b>Produktfotos:</b> hochformatig (4:5), Tageslicht, auf Papier oder auf deiner grünen Matte. Das erste Foto ist das Titelbild. Eine kurze Foto-Anleitung kommt ins Handbuch.</li>
+    <li><b>Zeichnungen für die Seite</b> (Stationen, Deko) kommen aus deinem Instagram-Export und werden zu Linien (SVG) digitalisiert.</li>
+    <li><b>Coco</b> wird nach deinen Fotos in 4 Posen gezeichnet: rennen, schnüffeln, sitzen, schlafen. Bis dahin steht ein Platzhalter da, wie der hier links.</li>
+  </ul>
+</section>
+
+<section id="shop" class="station">
+  <div class="station-no">Station 06</div>
+  <h2>So kaufen Leute bei dir ein</h2>
+  <ol class="steps">
+    <li><b>Stöbern:</b> Aus Instagram oder über die Startseite in den Shop, Kategorie wählen, „nur verfügbare“ anhaken</li>
+    <li><b>Stück ansehen:</b> Fotos wischen und zoomen, Nummer, Maße, Material, Zustand, Keramik-Hinweis, Lieferzeit, Preis mit Hinweis „keine USt. (§ 19 UStG), zzgl. Versand“</li>
+    <li><b>In den Korb:</b> Erst ab hier merkt sich die Seite etwas auf dem Gerät, nämlich den Warenkorb. Davor wird nichts gespeichert.</li>
+    <li><b>Warenkorb:</b> Versandklasse und Kosten werden automatisch berechnet. Wählbar sind Versand nach Deutschland oder Abholung in Berlin. Die Zahlarten sind sichtbar.</li>
+    <li><b>Kasse:</b> Name, E-Mail, Adresse, Zahlart. Das Stück ist jetzt 30 Minuten reserviert. Darunter kommt die Übersicht mit „Ändern“-Links, dem Hinweis auf AGB und Widerruf und dem Knopf <b>„Zahlungspflichtig bestellen“</b>.</li>
+    <li><b>Bezahlen:</b> Karte, Apple oder Google Pay und PayPal laufen sofort über Stripe. Bei Vorkasse kommt eine Mail mit IBAN, und das Stück ist 5 Tage reserviert.</li>
+    <li><b>Danach:</b> Die Danke-Seite, eine Bestellbestätigung mit Rechnung und den Rechtstexten als PDF und später eine Versandmail mit Sendungsverfolgung</li>
+  </ol>
+  <div class="callout">
+    <p><b>Nie doppelt verkauft:</b> Wenn zwei Leute gleichzeitig dieselbe Schale kaufen wollen, bekommt nur eine sie in die Kasse. Die andere sieht „gerade reserviert, schau in 30 Minuten nochmal“. Ein Stück gilt erst als verkauft, wenn die Zahlung sicher bestätigt ist.</p>
+  </div>
+  <h3>Was auf jeder Produktseite steht</h3>
+  <div class="two">
+    <ul>
+      <li>Titel, Beschreibung (Deutsch/Englisch), Fotos</li>
+      <li>Deine Objektnummer und der Hinweis „Unikat“</li>
+      <li>Preis, Steuerhinweis, Link zu den Versandkosten, Lieferzeit</li>
+      <li>Maße, Gewicht, Material</li>
+    </ul>
+    <ul>
+      <li><b>Keramik:</b> Badge „Deko – nicht für Lebensmittel“ oder „lebensmittelecht“ mit Link zur Erklärung</li>
+      <li><b>Textil:</b> Material in Prozent laut Etikett, Größe, Zustand, Pflegehinweis</li>
+      <li><b>Schmuck:</b> Material der Metallteile, Hinweis „Kleinteile, nicht für Kinder“</li>
+      <li><b>Herstellerin &amp; Sicherheit:</b> Name, Anschrift, E-Mail, Warnhinweise (EU-Produktsicherheit)</li>
+    </ul>
+  </div>
+  <h3>Auftragsarbeiten</h3>
+  <p>Eine Seite mit Beispielen und einem kurzen Formular: Name, E-Mail, Was stellst du dir vor?, Gegenstand (Cap, Shirt, Teller …), Wunschzeitraum, Budget (optional) und bis zu 5 Bilder (optional). Das Formular landet in deiner Verwaltung und schickt dir eine Mail. Angebot und Bezahlung laufen dann wie bisher per Mail, außerhalb des Shops.</p>
+</section>
+
+<section id="verwaltung" class="station">
+  <div class="station-no">Station 07</div>
+  <h2>Deine Verwaltung am Handy</h2>
+  <p>Die Verwaltung läuft im Browser unter einer geheimen Adresse deiner Domain. Einmal „Zum Homescreen hinzufügen“, dann hast du ein Icon wie bei einer App. Sie ist fürs Handy gebaut und funktioniert am Laptop genauso.</p>
+  <div class="phones">
+    <figure>
+      <svg viewBox="0 0 180 360" role="img" aria-labelledby="m4t">
+        <title id="m4t">Skizze Verwaltung: Formular Neues Stück mit Fotos, Nummer, Kategorie, Titel, Übersetzen-Knopf, Preis, Versandklasse und Veröffentlichen</title>
+        <rect x="2" y="2" width="176" height="356" rx="22" class="pf si" stroke-width="1.5"/>
+        <text x="16" y="34" font-size="17" class="th">neues stück</text>
+        <rect x="14" y="46" width="36" height="36" class="si" stroke-width="1.2" fill="url(#hatch)"/>
+        <rect x="56" y="46" width="36" height="36" class="si" stroke-width="1.2" fill="url(#hatch)"/>
+        <rect x="98" y="46" width="36" height="36" rx="3" class="si" stroke-width="1.2" stroke-dasharray="3 3"/>
+        <text x="116" y="69" font-size="14" text-anchor="middle" class="tx">+</text>
+        <text x="14" y="102" font-size="8" class="tm">nummer</text><rect x="14" y="106" width="70" height="18" rx="3" class="si" stroke-width="1"/><text x="20" y="119" font-size="10" class="tx">018</text><text x="90" y="119" font-size="8.5" class="tx" style="fill:var(--mat)">✓ frei</text>
+        <text x="14" y="140" font-size="8" class="tm">kategorie</text><rect x="14" y="144" width="152" height="18" rx="3" class="si" stroke-width="1"/><text x="20" y="157" font-size="10" class="tx">Keramik ▾</text>
+        <text x="14" y="178" font-size="8" class="tm">titel (de)</text><rect x="14" y="182" width="152" height="18" rx="3" class="si" stroke-width="1"/><text x="20" y="195" font-size="10" class="tx">Schale mit Hund</text>
+        <rect x="14" y="206" width="92" height="17" rx="8" class="smat" stroke-width="1.2"/><text x="22" y="218" font-size="8.5" class="tx" style="fill:var(--mat)">übersetzen → EN</text>
+        <text x="14" y="240" font-size="8" class="tm">preis · versand</text>
+        <rect x="14" y="244" width="60" height="18" rx="3" class="si" stroke-width="1"/><text x="20" y="257" font-size="10" class="tx">45 €</text>
+        <rect x="80" y="244" width="86" height="18" rx="3" class="si" stroke-width="1"/><text x="86" y="257" font-size="10" class="tx">Keramik ▾</text>
+        <text x="14" y="280" font-size="8" class="tm">lebensmittel</text><rect x="14" y="284" width="152" height="18" rx="3" class="si" stroke-width="1"/><text x="20" y="297" font-size="10" class="tx">Deko – nicht für Lebensm. ▾</text>
+        <rect x="14" y="316" width="72" height="26" rx="13" class="si" stroke-width="1.3"/><text x="50" y="333" font-size="10" text-anchor="middle" class="tx">entwurf</text>
+        <rect x="92" y="316" width="74" height="26" rx="13" class="fi"/><text x="129" y="333" font-size="10" text-anchor="middle" class="tp">online stellen</text>
+      </svg>
+      <figcaption>„Neues Stück“: Foto machen, ausfüllen, online.</figcaption>
+    </figure>
+    <div style="align-self:center">
+      <h4>Ansichten</h4>
+      <ul>
+        <li><b>Neues Stück:</b> Fotos direkt aus Kamera oder Galerie, Nummer mit Prüfung, Texte mit Übersetzen-Knopf, Preis, Versandklasse und je nach Kategorie die Pflichtfelder</li>
+        <li><b>Meine Stücke:</b> Suche nach Nummer, Status, Knöpfe „offline verkauft“ und „ins Archiv“</li>
+        <li><b>Zu packen:</b> neue Bestellungen mit Packzettel und Verpackungs-Checkliste</li>
+        <li><b>Vorkasse offen:</b> Knopf „Zahlung erhalten“, dazu die Tage bis zur Stornierung</li>
+        <li><b>Versendet und Abholung:</b> Status, Sendungsnummer, Mails</li>
+        <li><b>Widerrufe:</b> Eingang, Frist, Knopf „Erstatten“</li>
+        <li><b>Anfragen:</b> Auftragsarbeiten</li>
+        <li><b>Tattoo:</b> Flash (verfügbar/vergeben), Angebote mit Datum, Galerie mit Einwilligungs-Häkchen</li>
+        <li><b>Texte:</b> Seiten, FAQ, Rechtstexte mit Versionen</li>
+        <li><b>Einstellungen:</b> Versandpreise, Lieferzeit, IBAN, Impressum-Daten, Umsatz-Wächter</li>
+        <li><b>Export:</b> Monatstabelle (CSV) und alle Rechnungen</li>
+      </ul>
+    </div>
+  </div>
+  <h3>Vom Foto zum Verkauf</h3>
+  <ol class="steps">
+    <li>Stück fotografieren (2–12 Bilder) und in „Neues Stück“ hochladen. Die Bilder werden automatisch verkleinert, und der Standort wird entfernt.</li>
+    <li>Nummer eintragen (das System prüft, dass sie frei ist), Kategorie wählen, Titel und Text auf Deutsch schreiben, „Übersetzen“ tippen und das Englische kurz prüfen</li>
+    <li>Preis, Maße und Versandklasse eintragen und die Pflichtfelder der Kategorie ausfüllen. Ohne sie lässt sich nichts veröffentlichen, das schützt vor Abmahnungen.</li>
+    <li>„Online stellen“: Das Stück steht sofort im Shop, und du kannst den Link zum Stück auf Instagram teilen.</li>
+  </ol>
+</section>
+
+<section id="ablaeufe" class="station">
+  <div class="station-no">Station 08</div>
+  <h2>Lager, Versand und Abläufe</h2>
+  <h3>Lebenslauf eines Stücks</h3>
+  <div class="flow" aria-label="Status eines Stücks">
+    <span>Entwurf</span><i>→</i><span>online</span><i>→</i><span>reserviert</span><i>→</i><span class="end">verkauft</span><i>→</i><span class="alt">Archiv „sold“ oder ausgeblendet</span>
+  </div>
+  <p class="note">Wird die Reservierung nicht bezahlt, ist das Stück automatisch wieder online. Mit „offline verkauft“ springt es direkt auf verkauft, etwa nach einem Flohmarkt.</p>
+  <h3>Lebenslauf einer Bestellung</h3>
+  <div class="flow" aria-label="Status einer Bestellung">
+    <span class="alt">Vorkasse offen</span><i>→</i><span>bezahlt</span><i>→</i><span>gepackt</span><i>→</i><span>versendet</span><i>→</i><span class="end">zugestellt</span>
+  </div>
+  <div class="flow" aria-label="Abholung und Widerruf">
+    <span>bezahlt</span><i>→</i><span>bereit zur Abholung</span><i>→</i><span class="end">abgeholt</span><i>&nbsp;·&nbsp;</i><span class="alt">Widerruf</span><i>→</i><span class="alt">Ware zurück</span><i>→</i><span class="end">erstattet</span>
+  </div>
+  <h3>Vom Bestelleingang zum Paket</h3>
+  <ol class="steps">
+    <li>Eine Zahlung kommt rein: Die Bestellung wird angelegt, das Stück ist verkauft, die Rechnung erstellt, die Kund:in bekommt ihre Bestätigung und du eine Mail.</li>
+    <li>Du öffnest „Zu packen“ und siehst Foto, Nummer, Adresse und die Verpackungs-Checkliste. Wenn du einen Drucker hast, kannst du den Packzettel ausdrucken.</li>
+    <li>In der Post-&amp;-DHL-App machst du eine Paketmarke. Der Knopf „Adresse kopieren“ hilft beim Übertragen, und ausgedruckt wird in der Filiale, ohne eigenen Drucker.</li>
+    <li>Die Sendungsnummer tippst oder scannst du im Admin ein. Dann gilt die Bestellung als „versendet“, und die Kund:in bekommt eine Mail mit Sendungsverfolgung.</li>
+  </ol>
+  <h3>Versandklassen</h3>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Klasse</th><th>Für</th><th>DHL (dein Preis)</th><th class="num">Kund:in zahlt</th></tr></thead>
+    <tbody>
+      <tr><td>Brief</td><td>Zeichnungen, Anhänger (Großbrief mit Einschreiben)</td><td>ca. 4,45 €</td><td class="num">4,50 €</td></tr>
+      <tr><td>Paket klein</td><td>Textil, Caps (Paket 2 kg)</td><td>6,19 €</td><td class="num">6,50 €</td></tr>
+      <tr><td>Keramik</td><td>Karton in Karton (Paket 5 kg)</td><td>7,69 € + Material</td><td class="num">8,90 €</td></tr>
+      <tr><td>Abholung</td><td>Berlin nach Absprache</td><td>–</td><td class="num">0,00 €</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note">Liegen mehrere Stücke im Korb, zählt die größte Klasse. Alle Preise kannst du im Admin ändern. DHL haftet bis 500 €, für teurere Stücke erinnert dich der Admin an eine Zusatzversicherung.</p>
+  <h3>Verpackungs-Checkliste (erscheint beim Packen)</h3>
+  <ul>
+    <li><b>Keramik:</b> Hohlräume mit Papier füllen, jedes Teil einzeln einwickeln, in einen Innenkarton, dann in einen Außenkarton mit mindestens 6 cm Polster rundum. Schütteltest machen, es darf nichts klappern.</li>
+    <li><b>Textil:</b> Papier- oder Kartonversandtasche, niemals Plastik, sonst berechnet DHL 28,99 € Sperrgut-Zuschlag</li>
+    <li><b>Zeichnungen:</b> zwischen zwei feste Kartonplatten, Aufschrift „Bitte nicht knicken“</li>
+    <li>Vor dem Zukleben zwei Fotos machen und an die Bestellung hängen. Das ist dein Nachweis bei Bruch.</li>
+  </ul>
+  <h3>Wenn etwas schiefgeht</h3>
+  <ul>
+    <li><b>Bruch:</b> Das Transportrisiko trägst du als Verkäuferin. Der Admin hat eine Vorlage: Fotos anfordern, innerhalb von 7 Tagen bei DHL reklamieren, Ersatz oder Erstattung anbieten.</li>
+    <li><b>Widerruf:</b> Eingangsbestätigung geht automatisch raus. Du wartest auf die Ware, prüfst sie und tippst „Erstatten“. Das Geld geht über Stripe automatisch zurück, spätestens 14 Tage nach dem Widerruf.</li>
+    <li><b>Vorkasse kommt nicht:</b> Nach 3 Tagen Erinnerung, nach 5 Tagen automatisch storniert, und das Stück ist wieder online.</li>
+  </ul>
+</section>
+
+<section id="tattoo" class="station">
+  <div class="station-no">Station 09</div>
+  <h2>Der Tattoo-Bereich</h2>
+  <p>Ein eigener, besonders schöner Teil ohne Warenkorb. Hier geht es ums Zeigen, Einladen und Erklären. Gebucht wird wie bisher per Mail oder DM.</p>
+  <div class="two">
+    <div>
+      <h4>Inhalte</h4>
+      <ul>
+        <li><b>Mein Stil:</b> Fine Line, naiv, mit Humor, als kurzer Text in deinem Ton</li>
+        <li><b>Flash:</b> Motive mit Größe, Festpreis und Status. Einmalige Motive bekommen nach dem Stechen ein „vergeben“, wiederholbare bleiben stehen.</li>
+        <li><b>Angebote:</b> Flash-Days und Aktionen mit Datum. Sie verschwinden nach Ablauf automatisch.</li>
+        <li><b>Preise:</b> Mindestpreis und Richtwerte für Custom-Motive</li>
+        <li><b>Galerie:</b> Fresh und Healed, zum Beispiel „3,5 years healed“. Gezeigt werden nur Fotos mit Einwilligung.</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Und außerdem</h4>
+      <ul>
+        <li><b>Ablauf:</b> Anfrage → Termin → Anzahlung (offline) → Stechen → Aftercare</li>
+        <li><b>Aftercare:</b> Pflegeanleitung zum Nachlesen</li>
+        <li><b>FAQ:</b> Tattoos erst ab 18, Privatstudio im Bezirk X, Anzahlung, Absagen</li>
+        <li><b>Kontakt:</b> Knöpfe „Mail schreiben“ und „Instagram-DM“, dazu die Adresse als Text</li>
+      </ul>
+    </div>
+  </div>
+  <p class="note">Weil es keine Online-Buchung und keine Anzahlung über die Seite gibt, entstehen hier keine Online-Verträge, kein Widerrufsrecht und keine sensiblen Gesundheitsdaten. Das hält den Bereich rechtlich einfach.</p>
+</section>
+
+<section id="recht" class="station">
+  <div class="station-no">Station 10</div>
+  <h2>Recht und Pflichten</h2>
+  <p>Die Recherche hat den Stand vom September 2026 geprüft. Das Wichtigste:</p>
+  <div class="two">
+    <div class="box">
+      <h3>Das erledigt der Shop automatisch</h3>
+      <ul>
+        <li><b>Widerrufsbutton</b> „Vertrag widerrufen“ auf jeder Seite, Pflicht seit 19.06.2026 (§ 356a BGB), mit sofortiger Eingangsbestätigung</li>
+        <li><b>Bestell-Knopf</b> „Zahlungspflichtig bestellen“ mit vollständiger Übersicht davor</li>
+        <li><b>Kein Cookie-Banner nötig:</b> So ist die Seite gebaut.</li>
+        <li><b>Pflichtfelder pro Stück:</b> EU-Produktsicherheit (GPSR), Textilmaterial, Keramik-Hinweis, Schmuck-Nachweis</li>
+        <li><b>Kleinunternehmer-Hinweis</b> statt „inkl. MwSt.“ an jedem Preis und auf jeder Rechnung</li>
+        <li>Bestellbestätigung mit AGB, Widerrufsbelehrung und Muster-Formular als PDF, in der Version zum Kaufzeitpunkt</li>
+        <li>Rechnungen fortlaufend und unveränderbar, 10 Jahre aufbewahrt</li>
+        <li>Löschfristen und Datenauskunft auf Knopfdruck (DSGVO)</li>
+        <li>Kein Link mehr zur EU-Streitschlichtungs-Plattform. Die wurde 2025 abgeschaltet, und ein alter Link wäre selbst ein Abmahnrisiko.</li>
+      </ul>
+    </div>
+    <div class="box you">
+      <h3>Das musst du tun</h3>
+      <ul>
+        <li><b>Kanzlei beauftragen:</b> Impressum, Datenschutz, AGB, Widerrufsbelehrung. Du bekommst dafür eine fertige Briefing-Mappe.</li>
+        <li><b>Verpackungsregister LUCID:</b> vor dem ersten Paket kostenlos registrieren. Versandkartons möglichst „vorlizenziert“ bei einem deutschen Händler kaufen.</li>
+        <li><b>Nickelfreie Ösen und Ketten</b> mit Lieferantenerklärung für den Schmuck</li>
+        <li><b>Keramik:</b> klären, ob deine Glasuren als Geschirr gelten sollen. Dann brauchst du Laborbefunde und eine Erklärung, etwa 40–150 € pro Glasur. Bis dahin ist alles „Deko“.</li>
+        <li><b>Einwilligungen</b> für Tattoo-Fotos von Kund:innen einholen</li>
+        <li><b>Impressum-Link</b> in die Instagram-Bio</li>
+        <li><b>Umsatz:</b> Tattoo- und Flohmarkt-Einnahmen monatlich eintragen, denn sie zählen zur Kleinunternehmer-Grenze</li>
+      </ul>
+    </div>
+  </div>
+  <details>
+    <summary>Warum zum Start nur Deutschland?</summary>
+    <p>Seit dem 12.08.2026 gilt die EU-Verpackungsverordnung (PPWR). Wer Pakete an Privatleute in einem anderen EU-Land schickt, braucht dort eine bevollmächtigte Vertretung für die Verpackungspflichten. Das kostet pro Land mehrere hundert Euro im Jahr, egal wie wenig man verschickt. Der Shop ist technisch für die EU vorbereitet: Liefergebiete und Versandpreise lassen sich pro Land freischalten, sobald es sich lohnt. Großbritannien und die USA bleiben wegen Steuer- und Zollregeln gesperrt.</p>
+  </details>
+  <details>
+    <summary>Was ist mit Second-Hand-Kleidung ohne Etikett?</summary>
+    <p>Das Material muss vor dem Kauf sichtbar sein. Fehlt das Etikett, gibt es im Admin die Option „Etikett fehlt“ mit einer Materialangabe nach bestem Wissen. Diesen Fall klärt die Kanzlei über die Briefing-Mappe verbindlich.</p>
+  </details>
+  <details>
+    <summary>Was steht in der Briefing-Mappe für die Kanzlei?</summary>
+    <p>Wer du bist und was du verkaufst: Unikate, Auftragsarbeiten nur auf Anfrage, Second-Hand-Textil, Deko-Keramik, Schmuck. Dazu Zahlarten inklusive Vorkasse, Liefergebiet und Abholung, die Rücksendekosten-Regel, der Ablauf von Kasse und Widerrufsbutton, alle eingesetzten Dienste (für die Datenschutzerklärung), die Formulare und Löschfristen, der Tattoo-Bereich ohne Online-Buchung und die offenen Fragen (Etikett fehlt, Statistik ohne Cookies). So muss die Kanzlei nichts erfragen, und du sparst Zeit und Geld.</p>
+  </details>
+  <p class="note">Hinweis: Das hier ist gründliche Recherche und keine Rechtsberatung. Die verbindlichen Texte und Einschätzungen kommen von der Kanzlei.</p>
+</section>
+
+<section id="technik" class="station">
+  <div class="station-no">Station 11</div>
+  <h2>Technik, verständlich</h2>
+  <p>Deine Seite ist <b>eine einzige Anwendung</b>, die die Website, den Shop und deine Verwaltung zusammen enthält. Der Code gehört dir und liegt in deinem GitHub. Jede Änderung wird automatisch getestet und kann vorab in einer Vorschau angeschaut werden.</p>
+  <div class="arch">
+    <div class="core"><b>Deine App</b><span>Website, Shop und Verwaltung, läuft bei Vercel in Frankfurt</span></div>
+    <div><b>Datenbank</b><span>Stücke, Bestellungen, Texte. Neon, Frankfurt</span></div>
+    <div><b>Bilder</b><span>Fotos und PDFs. Cloudflare R2, nur EU</span></div>
+    <div><b>Zahlung</b><span>Stripe mit Karte, Apple/Google Pay, PayPal</span></div>
+    <div><b>Shop-Mails</b><span>Bestätigungen und Versandmails. Lettermint, Niederlande</span></div>
+    <div><b>Übersetzen</b><span>DeepL (Köln), kostenloses Kontingent</span></div>
+    <div><b>IONOS</b><span>Domain und dein Postfach bleiben, wie sie sind</span></div>
+    <div><b>GitHub</b><span>Hier liegt der Code, und hier arbeitet die Cloud-Entwicklung</span></div>
+  </div>
+  <details>
+    <summary>Für Technik-Neugierige: die genauen Bausteine</summary>
+    <ul>
+      <li><b>Next.js 16</b> und <b>Payload CMS 3</b> in einer TypeScript-App. Payload ist quelloffen (MIT) und selbst gehostet.</li>
+      <li><b>Postgres</b> (Neon Frankfurt). Die Medien liegen in S3-kompatiblem Speicher (Cloudflare R2, EU-Jurisdiktion).</li>
+      <li>Den Shop-Kern bauen wir selbst: Das offizielle Payload-Shop-Plugin ist noch Beta und kann nicht reservieren. Die Reservierung läuft atomar in der Datenbank, und die Stripe-Zahlungsseite ist eingebettet (Checkout Sessions mit eigenem Bestell-Knopf).</li>
+      <li>Animation mit GSAP (Linien zeichnen) und Rücksicht auf „Bewegung reduzieren“. Zweisprachig mit next-intl.</li>
+      <li>Tests mit Vitest (Logik, Reservierungs-Wettlauf) und Playwright (Kaufstrecke am iPhone- und Android-Format, Barrierefreiheit). Jede Änderung prüft GitHub Actions.</li>
+      <li>Fehlermeldungen gehen an Sentry (EU), die Statistik läuft ohne Cookies. Backups nachts verschlüsselt in der EU.</li>
+      <li><b>Umzugsplan:</b> Ein Docker-Paket wird von Anfang an mitgepflegt, damit die Seite jederzeit auf einen deutschen Server (Hetzner) umziehen kann.</li>
+    </ul>
+  </details>
+</section>
+
+<section id="kosten" class="station">
+  <div class="station-no">Station 12</div>
+  <h2>Kosten</h2>
+  <h3>Laufend pro Monat</h3>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Dienst</th><th>Wofür</th><th class="num">ca. €/Monat</th></tr></thead>
+    <tbody>
+      <tr><td>Vercel Pro</td><td>App-Hosting in Frankfurt (20 USD). Der kostenlose Tarif ist für Shops nicht erlaubt.</td><td class="num">18,50</td></tr>
+      <tr><td>Neon</td><td>Datenbank, kostenlos bis 0,5 GB, das reicht für Jahre</td><td class="num">0,00</td></tr>
+      <tr><td>Cloudflare R2</td><td>Bilder, kostenlos bis 10 GB</td><td class="num">0,00</td></tr>
+      <tr><td>Lettermint</td><td>Shop-Mails, kostenlos bis 300 im Monat</td><td class="num">0,00</td></tr>
+      <tr><td>DeepL API Free</td><td>Übersetzen-Knopf, kostenlos bis 500.000 Zeichen</td><td class="num">0,00</td></tr>
+      <tr><td>GitHub, Sentry</td><td>Code und Fehlermeldungen, kostenlose Tarife</td><td class="num">0,00</td></tr>
+      <tr><td>IONOS</td><td>Domain und Postfach, bestehender Vertrag, unverändert</td><td class="num">wie bisher</td></tr>
+      <tr class="sum"><td>Summe</td><td>Budget eingehalten, eine Warnung ab 30 € ist eingerichtet</td><td class="num">≈ 18,50</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>Pro Verkauf (Beispiel: Schale für 45 €)</h3>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Zahlart</th><th>Gebühr</th><th class="num">bei 45 €</th></tr></thead>
+    <tbody>
+      <tr><td>Karte, Apple Pay, Google Pay</td><td>1,5 % + 0,25 € (EU-Karten)</td><td class="num">0,93 €</td></tr>
+      <tr><td>PayPal (über Stripe)</td><td>ca. 3,19 % + 0,49 €</td><td class="num">1,93 €</td></tr>
+      <tr><td>Vorkasse</td><td>keine</td><td class="num">0,00 €</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>Einmalig</h3>
+  <ul>
+    <li><b>Kanzlei</b> für die Rechtstexte. Hol dir mit der Briefing-Mappe ein Angebot ein.</li>
+    <li><b>LUCID-Registrierung</b> ist kostenlos. Für Versandkartons eines deutschen Händlers ist die Lizenz meist schon im Preis enthalten, sonst fällt ein kleiner Jahresbetrag an.</li>
+    <li><b>Optional:</b> Glasur-Labortests (40–150 € pro Glasur), nickelfreie Ösen</li>
+  </ul>
+</section>
+
+<section id="aufgaben" class="station">
+  <div class="station-no">Station 13</div>
+  <h2>Deine Aufgaben</h2>
+  <p>Die Cloud-Entwicklung kommt ohne deine Zugänge weit, denn sie testet alles mit Testdaten und Testzahlungen. Deine Aufgaben blockieren also nichts bis kurz vor dem Start. Zu jedem Punkt bekommst du in P0 eine Schritt-für-Schritt-Anleitung.</p>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Wann</th><th>Was</th></tr></thead>
+    <tbody>
+      <tr><td>In P0 (mit mir)</td><td>GitHub-Login für das private Repository „planetclairetattoos“. Danach die Session in die Cloud schieben.</td></tr>
+      <tr><td>Direkt danach</td><td>Instagram-Datenexport anfordern (dauert bis zu 48 h) und das ZIP in den Projektordner auf GitHub hochladen. Dazu 5–10 Fotos von Coco in verschiedenen Posen.</td></tr>
+      <tr><td>Während der Cloud-Phasen</td><td>Stripe-Konto anlegen (Testmodus reicht erstmal), PayPal-Geschäftskonto, Kanzlei mit der Briefing-Mappe beauftragen, nickelfreie Ösen besorgen, Glasurfrage klären, Tattoo-Einwilligungen einholen</td></tr>
+      <tr><td>Vor dem Start (P11)</td><td>Konten bei Vercel, Neon, Cloudflare, Lettermint, Sentry und DeepL anlegen (alle auf jutta@planetclairetattoos.com, mit 2-Faktor-Schutz). Stripe verifizieren (Ausweis, IBAN, Steuernummer), LUCID registrieren, IBAN für Vorkasse nennen, erste Stücke einstellen, Rechtstexte ins CMS kopieren</td></tr>
+      <tr><td>Start-Tag</td><td>Bei IONOS die DNS-Einträge nach Anleitung ändern (Mail bleibt unberührt), Testkauf, Link in der Instagram-Bio</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="plan" class="station">
+  <div class="station-no">Station 14</div>
+  <h2>Der Phasenplan</h2>
+  <p>Jede Phase endet mit grünen Tests und einer Vorschau. Alle Entscheidungen stehen in den Projekt-Dokumenten, deshalb muss die Cloud-Entwicklung dich nichts fragen. Fehlen deine Zugänge noch, arbeitet sie mit Testdaten weiter und sammelt alles, was dich braucht, in P11.</p>
+
+  <div class="phase p0">
+    <header><b>P0</b><span>Fundament, lokal hier mit mir</span><span class="pill fox">danach Stopp</span></header>
+    <ul>
+      <li>Das Projekt wird angelegt: Git-Repository, privat auf deinem GitHub</li>
+      <li>Dokumente für die Cloud: dieses Konzept, Entscheidungsprotokoll, detaillierter Aufgabenplan für P1–P11 mit „Fertig, wenn …“, Regeln für die KI-Entwicklung (CLAUDE.md), Glossar, Liste aller Dienste, Gerüst für die Kanzlei-Mappe</li>
+      <li>App-Grundgerüst (Next.js und Payload), das sich bauen lässt, dazu automatische Prüfungen (GitHub Actions) und eine Beispiel-Konfiguration ohne Geheimnisse</li>
+      <li>Anleitung für die Cloud-Umgebung (Netzwerkfreigaben, Setup) und deine Aufgabenliste mit Schritt-für-Schritt-Anleitungen</li>
+    </ul>
+    <p class="dod">Fertig, wenn alles auf GitHub liegt, die App baut und die Prüfungen grün sind. Dann halte ich an, und du schiebst die Session in die Cloud.</p>
+  </div>
+  <div class="phase">
+    <header><b>P1</b><span>Datenmodell und Verwaltung</span></header>
+    <ul><li>Stücke, Kategorien, Bilder (verkleinern, GPS löschen), Bestellungen, Rechnungen, Einstellungen, Tattoo-Inhalte</li><li>Nummernprüfung, Pflichtfelder je Kategorie, Deutsch/Englisch, Login-Schutz, Beispieldaten</li></ul>
+    <p class="dod">Fertig, wenn sich Stücke mit allen Regeln anlegen lassen und die Tests grün sind.</p>
+  </div>
+  <div class="phase">
+    <header><b>P2</b><span>Designsystem und Tuschelinie</span></header>
+    <ul><li>Farben, Schriften (selbst gehostet), Raster, Kopfzeile, Menü, Fußzeile mit Pflichtlinks</li><li>Linien-Maschine (Zeichnen beim Scrollen, Stationen, Coco-Posen als Platzhalter), ruhige Variante für „Bewegung reduzieren“, Startseite mit Beispielinhalten</li></ul>
+    <p class="dod">Fertig, wenn die Startseite am Handy flüssig läuft, die Tempo-Ziele erreicht und per Tastatur bedienbar ist.</p>
+  </div>
+  <div class="phase">
+    <header><b>P3</b><span>Shop-Schaufenster</span></header>
+    <ul><li>Shop-Übersicht mit Preisschildern an der Schnur, Filter, Archiv „sold“</li><li>Produktseite mit allen Pflichtangaben, zweisprachige Adressen, gute Vorschaubilder für Instagram-Links, Suchmaschinen-Grundlagen</li></ul>
+    <p class="dod">Fertig, wenn alle Beispielstücke korrekt und vollständig angezeigt werden.</p>
+  </div>
+  <div class="phase">
+    <header><b>P4</b><span>Warenkorb, Kasse, Bezahlen</span></header>
+    <ul><li>Warenkorb, Versandklassen, Abholung, Kasse mit „Zahlungspflichtig bestellen“, Stripe (Karte, Apple/Google Pay, PayPal) im Testmodus</li><li>30-Minuten-Reservierung, Vorkasse mit 5 Tagen, Erinnerung und Storno, Bestätigungsmails mit Rechtstext-PDFs, Rechnungs-PDF, Bestellstatus-Seite</li></ul>
+    <p class="dod">Fertig, wenn Testkäufe mit allen Zahlarten klappen und der Test „zwei Leute kaufen gleichzeitig dasselbe Stück“ immer genau einen Verkauf ergibt.</p>
+  </div>
+  <div class="phase">
+    <header><b>P5</b><span>Abläufe hinter den Kulissen</span></header>
+    <ul><li>Handy-Ansichten „Neues Stück“, „Zu packen“, „Vorkasse offen“, „Versendet“, „Abholung“, „offline verkauft“</li><li>Packzettel, Checklisten, Sendungsnummer scannen → Versandmail, Benachrichtigungen an dich, Monatsexport, Umsatz-Wächter, Homescreen-Icon</li></ul>
+    <p class="dod">Fertig, wenn eine Bestellung am Handy komplett von „bezahlt“ bis „versendet“ bearbeitet werden kann.</p>
+  </div>
+  <div class="phase">
+    <header><b>P6</b><span>Recht und Datenschutz</span></header>
+    <ul><li>Rechtstexte im CMS mit Versionen, Widerrufsbutton mit Eingangsbestätigung, Widerrufs-Posteingang, Erstattung per Knopf, Vorlagen für Reklamationen</li><li>Datenauskunft und Löschung auf Knopfdruck, automatische Löschfristen, Kanzlei-Briefing-Mappe fertig, automatische Prüfung „keine fremden Dienste auf der Seite“</li></ul>
+    <p class="dod">Fertig, wenn alle Punkte der Rechts-Checkliste nachweislich umgesetzt und getestet sind.</p>
+  </div>
+  <div class="phase">
+    <header><b>P7</b><span>Tattoo und Auftragsarbeiten</span></header>
+    <ul><li>Stil, Flash mit Status und Anfrage-Knopf, Angebote mit Datum, Preise, Fresh &amp; Healed mit Einwilligungs-Häkchen, Ablauf, Aftercare, FAQ</li><li>Auftragsarbeiten mit Formular, privaten Uploads und Löschfrist</li></ul>
+    <p class="dod">Fertig, wenn du den ganzen Bereich im Admin pflegen kannst.</p>
+  </div>
+  <div class="phase">
+    <header><b>P8</b><span>Inhalte und Beispielbestand</span></header>
+    <ul><li>Alle Texte ausformuliert auf Deutsch und Englisch in deinem Instagram-Ton, Übersetzen-Knopf (DeepL)</li><li>Kompletter Beispielbestand: etwa 30 Stücke, etwa 12 Bestellungen in allen Status, Flash, Flash-Day, Galerie, FAQ. Deine Instagram-Bilder werden eingebaut (Export-Import, sobald das ZIP da ist), sonst Platzhalter im Linienstil.</li><li>Leere Zustände, 404-Seite, Knopf „Beispieldaten entfernen“</li></ul>
+    <p class="dod">Fertig, wenn jede Seite und jede Verwaltungsansicht realistisch befüllt ist und nirgends „Lorem ipsum“ steht.</p>
+  </div>
+  <div class="phase">
+    <header><b>P9</b><span>Kunst und Bewegung</span><span class="pill st">Extra-Aufwand</span></header>
+    <ul><li>Coco nach deinen Fotos in mindestens 6 Posen × 3 Zeichnungsvarianten (Line Boil), Stationszeichnungen aus deinen Bildern, lebendige Tuschelinie mit wechselnder Strichstärke und Tinten-Rand</li><li>Choreografie pro Station, kleine Momente (Stempel, Schild, Korb, Schlaf), einheitlicher Foto-Look</li><li>Studio-Prüfung: Videoaufnahmen jeder Animation am Handy-Format, mehrere unabhängige Prüf-Durchgänge gegen eine Qualitäts-Checkliste, nachbessern bis alle zustimmen, ohne die Tempo-Ziele zu reißen</li></ul>
+    <p class="dod">Fertig, wenn alle Prüf-Durchgänge jede Animation und jede Zeichnung abgenommen haben und die Seite am Handy trotzdem schnell ist.</p>
+  </div>
+  <div class="phase">
+    <header><b>P10</b><span>Qualität, Startvorbereitung, Vorschau-Datei</span></header>
+    <ul><li>Komplette Testreihe, Barrierefreiheit, Tempo, Sicherheitsregeln, Backups, Fehlermeldungen, Statistik</li><li>Notfallhandbuch, <b>Handbuch für dich</b> (mit Bildern), Schritt-für-Schritt-Anleitung für die DNS-Umstellung, Start-Checkliste</li><li><b>planet-claire-vorschau.html</b>: die ganze Seite als eine Datei zum Anschauen auf jedem Rechner</li></ul>
+    <p class="dod">Fertig, wenn alles startklar ist, nur noch deine Zugänge fehlen und die Vorschau-Datei auf GitHub zum Herunterladen bereitliegt. Hier ist die Cloud-Arbeit zu Ende, der Plan ist leer.</p>
+  </div>
+  <div class="phase live">
+    <header><b>P11</b><span>Start, gemeinsam mit dir</span><span class="pill ink">braucht dich</span></header>
+    <ul><li>Deine Konten verbinden, Geheimnisse sicher hinterlegen, Vorschau zur Abnahme durch dich, Rechtstexte der Kanzlei einsetzen</li><li>DNS bei IONOS umstellen, Stripe live schalten, echter Testkauf mit Erstattung, Link in der Instagram-Bio</li></ul>
+    <p class="dod">Fertig, wenn planetclairetattoos.com live ist und die erste echte Bestellung durchlaufen kann.</p>
+  </div>
+</section>
+
+<section id="spaeter" class="station">
+  <div class="station-no">Station 15</div>
+  <h2>Später, nicht jetzt</h2>
+  <p>Diese Ideen kamen auf und sind bewusst nicht im Plan. Sie lassen sich jederzeit nachrüsten, weil die Technik darauf vorbereitet ist:</p>
+  <ul>
+    <li>EU-Versand pro Land freischalten, wenn es sich lohnt, dazu Schweiz mit Zollformular</li>
+    <li>DHL-Anbindung mit Etiketten per Knopfdruck, ab etwa 200 Paketen im Jahr</li>
+    <li>Kurze Produktvideos, zum Beispiel eine Schale, die sich dreht</li>
+    <li>Drops mit Countdown, „Benachrichtige mich“-Liste, Newsletter</li>
+    <li>Gutscheine, Rabattcodes</li>
+    <li>Online-Anzahlung für Tattoo-Termine (bringt rechtliche Pflichten mit sich)</li>
+    <li>Klarna, eigene Schrift aus deiner Handschrift, Markt-Modus mit „Marktkiste“</li>
+  </ul>
+</section>
+
+<section id="risiken" class="station">
+  <div class="station-no">Station 16</div>
+  <h2>Risiken, und wie wir sie klein halten</h2>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Risiko</th><th>Gegenmittel</th></tr></thead>
+    <tbody>
+      <tr><td>Doppelverkauf eines Unikats</td><td>Die Reservierung läuft atomar in der Datenbank, und Pflicht-Tests prüfen gleichzeitige Käufe. Rutscht trotzdem etwas durch, wird automatisch erstattet und du bekommst eine Warnung.</td></tr>
+      <tr><td>Abmahnung wegen fehlender Angaben</td><td>Pflichtfelder blockieren das Veröffentlichen, die Rechts-Checkliste wird in P6 geprüft, und die Texte kommen von der Kanzlei.</td></tr>
+      <tr><td>Rechtstexte veralten (einmalige Kanzlei)</td><td>Die Texte sind im CMS versioniert. Einmal im Jahr erinnert dich der Admin an eine Prüfung, und ein Wechsel zu einem Update-Dienst ist technisch vorbereitet.</td></tr>
+      <tr><td>Keramik geht beim Versand kaputt</td><td>Verpackungs-Checkliste, Fotos vor dem Zukleben, Vorlage für die Reklamation bei DHL</td></tr>
+      <tr><td>Kosten steigen</td><td>Die Kostenwarnung ist eingerichtet, und dank Docker-Umzugsplan ist ein Wechsel auf einen günstigen deutschen Server möglich.</td></tr>
+      <tr><td>Kleinunternehmer-Grenze wird überschritten</td><td>Der Umsatz-Wächter warnt dich früh, und der Schalter auf „mit MwSt.“ ist eingebaut.</td></tr>
+      <tr><td>Animation macht die Seite langsam</td><td>Feste Tempo-Ziele werden automatisch geprüft. Die Animation gibt es nur, wo sie Sinn ergibt.</td></tr>
+      <tr><td>Datenverlust</td><td>Tägliche verschlüsselte Backups in der EU, und die Wiederherstellung wird geübt</td></tr>
+      <tr><td>Instagram-Bilder fehlen oder sind zu klein</td><td>Die Originale kommen aus deinem Datenexport. Fehlende Bilder markiert P8 als Aufgabe für dich, statt zu raten.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="freigabe" class="station">
+  <div class="station-no">Station 17</div>
+  <h2>Freigabe</h2>
+  <div class="sign">
+    <p class="hand">So geht es weiter</p>
+    <ol class="steps">
+      <li>Du liest das Konzept. Wenn etwas nicht passt, vor allem in <a href="#entscheidungen">Deine Entscheidungen</a> und <a href="#vorschlaege">Meine Vorschläge</a>, schreib es mir. Ich passe es an.</li>
+      <li>Wenn alles stimmt, schreib mir im Chat <b>„Freigabe“</b>. Sag mir dabei auch, ob ich in P0 die öffentlich sichtbaren Bilder deines Instagram-Profils (etwa 12 Beiträge) als ersten Beispielbestand herunterladen darf.</li>
+      <li>Ich baue <b>P0</b> hier lokal: Projekt, Dokumente, detaillierter Plan, App-Gerüst, GitHub. Zwischendurch musst du dich einmal bei GitHub anmelden.</li>
+      <li>Nach P0 halte ich automatisch an. Du schiebst die Session in die Cloud, und dort wird P1 bis P10 abgearbeitet, bis der Plan leer ist. Am Ende liegt die Vorschau-Datei für dich bereit.</li>
+    </ol>
+  </div>
+  <footer class="end">Planet Claire · Konzept Entwurf 1 · 26.09.2026 · Recherche mit Quellen liegt bei und kommt in P0 ins Projekt.</footer>
+</section>
+</main>
+</div>
+
+<script>
+(function(){
+  var journey=document.getElementById('journey'), svg=document.getElementById('leash'), path=document.getElementById('leashPath'), coco=document.getElementById('coco');
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var total=0;
+  function build(){
+    var g=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--gutter'))||64;
+    var h=journey.scrollHeight, x=g*0.5, top=coco.offsetTop+coco.offsetHeight*0.62;
+    svg.setAttribute('viewBox','0 0 '+g+' '+h); svg.style.height=h+'px';
+    var ys=[].slice.call(document.querySelectorAll('.station')).map(function(s){return s.offsetTop+s.offsetHeight*0+30;});
+    var d='M '+(g*0.72)+' '+top, cy=top, i, k=0;
+    for(i=0;i<ys.length;i++){
+      var y=ys[i]; if(y<=cy+40) continue;
+      var mid=(cy+y)/2, sway=(k%2?1:-1)*g*0.18;
+      d+=' C '+(x+sway)+' '+(cy+(mid-cy)*0.6)+' '+(x-sway)+' '+(mid+(y-mid)*0.4)+' '+x+' '+(y-16);
+      var r=g*0.2;
+      d+=' C '+(x+r*1.6)+' '+(y-18)+' '+(x+r*1.6)+' '+(y+14)+' '+x+' '+(y+14);
+      d+=' C '+(x-r*1.3)+' '+(y+14)+' '+(x-r*1.2)+' '+(y-6)+' '+(x+2)+' '+(y-4);
+      cy=y-4; k++;
+    }
+    d+=' C '+(x+g*0.15)+' '+(cy+60)+' '+(x-g*0.1)+' '+(h-80)+' '+x+' '+(h-24);
+    path.setAttribute('d',d);
+    total=path.getTotalLength();
+    if(reduce){ path.style.strokeDasharray='none'; return; }
+    path.style.strokeDasharray=total+' '+total;
+    update();
+  }
+  var ticking=false;
+  function update(){
+    ticking=false; if(reduce||!total) return;
+    var doc=journey.scrollHeight, vis=window.scrollY+window.innerHeight*0.72-journey.offsetTop;
+    var p=Math.max(0.06,Math.min(1,vis/doc));
+    var len=total*p;
+    path.style.strokeDashoffset=(total-len);
+    var pt=path.getPointAtLength(Math.max(0,len-2));
+    var w=coco.offsetWidth, hh=coco.offsetHeight;
+    coco.style.transform='translate('+(pt.x-w*0.62-2)+'px,'+(pt.y-coco.offsetTop-hh*0.55)+'px)';
+  }
+  window.addEventListener('scroll',function(){ if(!ticking){ ticking=true; requestAnimationFrame(update);} },{passive:true});
+  var rt; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(build,150); });
+  if(document.fonts&&document.fonts.ready){ document.fonts.ready.then(build); }
+  window.addEventListener('load',build);
+  build();
+})();
+</script>

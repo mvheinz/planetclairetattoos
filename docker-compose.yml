@@ -1,0 +1,24 @@
+# Lokale Entwicklung: Postgres + Mail-Fänger. Start: `docker compose up -d`
+# (In der Claude-Cloud-Umgebung läuft Postgres als Systemdienst, siehe docs/CLOUD-SETUP.md.)
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: planetclaire
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - '1025:1025' # SMTP
+      - '8025:8025' # Web-Oberfläche: http://localhost:8025
+
+volumes:
+  pgdata:
