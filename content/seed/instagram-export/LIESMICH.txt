@@ -1,0 +1,2 @@
+Hier kommt Juttas Instagram-Datenexport hin (nur Beiträge/Medien, keine Nachrichten).
+Anleitung: docs/owner/ANLEITUNGEN.md. Importer ignorieren diese Datei.

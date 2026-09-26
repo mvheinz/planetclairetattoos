@@ -9,10 +9,16 @@ Projekt: Website, Shop und Tattoo-Bereich für **planetclairetattoos.com** (Jutt
 2. `PLAN.md` – Aufgaben P1–P11 mit Akzeptanzkriterien. Du arbeitest die **erste offene Aufgabe** ab.
 3. Fachdokumente zur jeweiligen Aufgabe: `docs/KONZEPT.md` (Funktion), `docs/DATENMODELL.md`, `docs/ARCHITEKTUR.md`,
    `docs/design/DESIGN.md` + `docs/design/KUNST-QA.md`, `docs/recht/ANFORDERUNGEN.md` (R-xxx), `content/seed/SEED-SPEC.md`.
-4. Hintergrund mit Quellen: `docs/research/*.md` (Empfehlungen dort gelten nur, wenn ENTSCHEIDUNGEN nichts anderes sagt).
-5. Payload-Referenz: `.claude/skills/payload/SKILL.md` und `.claude/skills/payload/reference/`.
+4. `docs/OFFENE-PUNKTE.md` (getroffene Annahmen, offene Fragen an Jutta/Kanzlei) und `docs/CLOUD-SETUP.md` §3–§5 (wie Cloud-Sessions laufen).
+5. Hintergrund mit Quellen: `docs/research/*.md` (Empfehlungen dort gelten nur, wenn ENTSCHEIDUNGEN nichts anderes sagt).
+6. Payload-Referenz: `.claude/skills/payload/SKILL.md` und `.claude/skills/payload/reference/`.
 
-Rangfolge bei Widersprüchen: ENTSCHEIDUNGEN > Fachdokumente > PLAN > research.
+Rangfolge bei Widersprüchen: ENTSCHEIDUNGEN > Fachdokumente > PLAN > research. Namen im Code (Umgebungsvariablen,
+Endpunkte, Job-Slugs, Cookies) legt `docs/ARCHITEKTUR.md` fest (§5.2, §2.5, §8.7, Anhang A.3).
+
+IDs sind dokumentweit eindeutig: `E-xx` Entscheidungen · `KA-xx` Konzept-Annahmen · `R01…` Routen · `R-xxx` Rechts-
+anforderungen · `L-xx` Löschkonzept · `K-xx` Kanzleifragen · `A-xx`/`B-xx`/`C-xx` Architektur-Prinzipien/Spikes/
+Annahmen · `DM-xx` Datenmodell · `KO-xx`/`DA-x` Design-Komponenten/-Annahmen · `SE-xx` Beispielbestand · `P<n>.<m>` Aufgaben.
 
 ## 2. Autonomie-Regeln
 
@@ -28,17 +34,34 @@ Rangfolge bei Widersprüchen: ENTSCHEIDUNGEN > Fachdokumente > PLAN > research.
 
 ## 3. Arbeitsablauf pro Phase
 
-1. `git checkout main && git pull`, dann Branch `phase/P<n>-<kurzname>` (z. B. `phase/P3-schaufenster`).
-2. Aufgaben der Phase in PLAN.md-Reihenfolge umsetzen. Nach jeder Aufgabe: Tests + `pnpm check`, Checkbox in
-   `PLAN.md` abhaken, kurzer Eintrag in `docs/FORTSCHRITT.md` (Datum, Aufgabe, was, Tests).
-3. Kleine, sprechende Commits (Conventional Commits auf Englisch, z. B. `feat(shop): add price tag component`).
-4. Phase fertig = alle Akzeptanzkriterien der Phase erfüllt → Pull Request „P<n>: <Titel>“ mit Zusammenfassung auf
-   Deutsch → CI grün abwarten → mergen (squash). Falls Mergen nicht erlaubt ist: PR offen lassen, im PR-Text
-   „Bitte mergen“ vermerken und auf Basis des PR-Branches mit der nächsten Phase weitermachen.
-5. Ab P2: das CI-Artefakt „Vorschau-Datei“ (siehe KONZEPT §12) muss nach jeder Phase erzeugt werden.
-6. Nächste Phase. **Bis der Plan leer ist (P10).** Danach Abschlussbericht (siehe §8) und anhalten.
+Cloud-Sessions dürfen nur ihren **eigenen Arbeitsbranch** pushen (von der Session vorgegeben, meist `claude/…`).
+Deshalb:
 
-Endet eine Session mitten in einer Phase, setzt die nächste an der ersten offenen Checkbox in `PLAN.md` fort.
+1. Zu Beginn: prüfen, ob `main` neuer ist als dein Branch (offene PRs früherer Sessions?). Wenn ein früherer
+   Session-PR noch nicht gemergt ist, baue auf dessen Stand auf (`git fetch && git merge origin/<branch>`), damit
+   nichts verloren geht, und vermerke das im PR-Text.
+2. Aufgaben in PLAN.md-Reihenfolge umsetzen (Reihenfolge in der Datei, nicht Nummer). Vor jedem Commit **lokal**
+   prüfen: `pnpm check`, `pnpm test:int`, betroffene E2E, bei UI `pnpm build`. Danach Checkbox in `PLAN.md` abhaken
+   (`- [ ]` → `- [x]`, Format nicht ändern – `scripts/cloud-setup.sh --plan-status` zählt sie) und kurzer Eintrag in
+   `docs/FORTSCHRITT.md` (Datum, Aufgabe, was, Tests). Häufig committen und pushen.
+3. Commits: Conventional Commits auf Englisch mit Aufgaben-ID, z. B. `feat(P1.4): add money helpers [skip ci]`.
+   **GitHub-CI-Minuten sind knapp (2.000/Monat):** Zwischen-Commits tragen `[skip ci]`. CI läuft nur (a) am
+   Phasenende – letzter Commit mit `[ci:full pN]` (N = Phase; erzeugt ab P2 das Artefakt „Vorschau-Datei“, KONZEPT §12)
+   – und (b) höchstens einmal zwischendurch je Phase bei riskanten Aufgaben (`[ci:full]`); Ausnahme P9: Kunst-QA-Läufe
+   per `[ci:art]` (begrenzt durch KUNST-QA §6.6). Merge-Nachricht, PR-Titel und -Beschreibung enthalten **nie**
+   `[skip ci]`. Details ARCHITEKTUR §6.2/§6.7/§6.8.
+4. Höchstens **ein** offener Pull Request je Session gegen `main` („P<n>…P<m>: <Titel>“), Beschreibung auf Deutsch,
+   nach jeder Phase aktualisiert. Maßgeblich ist der letzte Commit **ohne** `[skip ci]` – er muss grün sein; danach nur
+   reine Doku-Commits (`PLAN.md`, `docs/FORTSCHRITT.md`, `docs/OFFENE-PUNKTE.md`) mit `[skip ci]` – darin wird
+   „CI grün“ abgehakt. Mergen, wenn die Rechte es erlauben (squash); sonst oben im PR-Text „Bitte mergen – CI ist grün“
+   (Jutta klickt dann nur „Merge“). Nach einem Merge darf dieselbe Session einen neuen PR vom selben Branch öffnen.
+5. Beispielbestand entsteht vollständig erst in P8: Tests in P1–P7 nutzen gleichartige Test-Fixtures (Nummern 980–999).
+6. Weiter mit der nächsten Phase auf demselben Branch. **Bis der Plan leer ist (P10).** Danach Abschlussbericht
+   (siehe §8) und anhalten.
+
+Endet eine Session mitten in einer Phase, setzt die nächste an der ersten offenen Checkbox in `PLAN.md` fort
+(auf dem Stand des letzten PR-Branches, falls noch nicht gemergt). Auto-Memory gibt es in der Cloud nicht –
+alles Wissen gehört ins Repo.
 
 ## 4. Befehle
 
@@ -69,7 +92,8 @@ Lokale Dienste: `docker compose up -d` (Postgres 17 + Mailpit) – in der Cloud:
 - **Geld** immer als Integer-Cent. **Zeiten** in der DB UTC, Anzeige Europe/Berlin.
 - **Unikate nie doppelt verkaufen:** Reservierung atomar in Postgres (`UPDATE … WHERE status='available' RETURNING`),
   Bestellung/Bestand nur per verifiziertem Webhook bzw. Admin-Aktion ändern, Webhooks idempotent.
-- **Keine Cookies/Storage vor der ersten Warenkorb-Aktion.** Keine Drittanbieter-Requests auf öffentlichen Seiten
+- **Keine Cookies/Storage vor der ersten Warenkorb-Aktion** (einzige Ausnahme: `localStorage` `pc-motion` erst nach
+  Klick auf den Animationen-Schalter, R-130 a; vollständige Liste ARCHITEKTUR §8.7). Keine Drittanbieter-Requests auf öffentlichen Seiten
   (keine Google Fonts, keine Embeds, kein reCAPTCHA, keine Tracker). Stripe-Skripte nur auf der Kasse.
   Schriften selbst gehostet (`@fontsource/*` o. ä.).
 - **Verboten:** Link/Text zur EU-OS-Plattform; „inkl. MwSt.“ solange Kleinunternehmer-Modus aktiv; vorangekreuzte
@@ -78,7 +102,8 @@ Lokale Dienste: `docker compose up -d` (Postgres 17 + Mailpit) – in der Cloud:
 - Bestell-Button-Text exakt **„Zahlungspflichtig bestellen“** (EN: „Order with obligation to pay“).
 - Link **„Vertrag widerrufen“** auf jeder Seite (Footer), zweistufige Widerrufsfunktion nach § 356a BGB.
 - **Keine Secrets im Repo.** Nur `.env.example` mit Platzhaltern. Cloud-Umgebungsvariablen sind nicht geheim →
-  dort höchstens Stripe-**Test**-Schlüssel.
+  Stripe-**Test**-Schlüssel bevorzugt als API-Credential der Cloud-Umgebung, sonst höchstens als Test-Variable
+  (`livemode:false` prüfen). Nie Live-Schlüssel vor P11.
 - Seed-Daten immer mit `seed: true`; Seed läuft nie automatisch in Produktion.
 - Schema-Änderungen nur per Migration; kein `push` außerhalb lokaler Entwicklung.
 - Payload: alle `@payloadcms/*` exakt gleiche Version wie `payload`; Payload 4 nicht einführen.
@@ -93,7 +118,8 @@ Halte dich an `docs/design/DESIGN.md`; in P9 gilt das Studio-QA-Verfahren aus `d
 ## 8. Abschluss
 
 Wenn P10 abgeschlossen ist (Plan bis auf P11 leer):
-1. `dist/planet-claire-vorschau.html` erzeugen und als GitHub-Release-Asset „Vorschau“ veröffentlichen (KONZEPT §12).
+1. `dist/planet-claire-vorschau.html` erzeugen; nach dem Merge veröffentlicht `release.yml` sie automatisch als
+   Release `vorschau-p10` („Planet Claire – Vorschau (Stand P10)“), sobald `OFFEN_P1_P10=0` (KONZEPT §12, P10.21).
 2. `docs/FORTSCHRITT.md` um einen Abschlussbericht für Jutta ergänzen (Deutsch, du-Form, ohne Fachjargon):
    was fertig ist, wie sie die Vorschau-Datei öffnet, welche Punkte aus `docs/OFFENE-PUNKTE.md` sie entscheiden
    sollte und was in P11 gemeinsam passiert (Liste aus `docs/owner/AUFGABEN.md`).

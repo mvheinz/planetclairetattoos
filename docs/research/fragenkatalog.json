@@ -1,0 +1,1295 @@
+﻿{
+    "question_rounds":  [
+                            {
+                                "theme":  "Start, Zeitplan \u0026 Zusammenarbeit",
+                                "questions":  [
+                                                  {
+                                                      "id":  "launch_termin",
+                                                      "question":  "Bis wann soll der Shop live sein?",
+                                                      "why":  "Heute ist der 26.09.2026. Der Termin entscheidet, wie viel in die erste Version passt und ob das Weihnachtsgeschäft 2026 noch erreicht wird. Vorher müssen auch Stripe-Prüfung, LUCID, Rechtstexte, Fotos und Zeichnungen fertig sein.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Mitte November 2026",
+                                                                          "description":  "Soft-Launch mit den Kernfunktionen, Extras folgen im Dezember oder Januar."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Anfang Dezember 2026",
+                                                                          "description":  "Knapp vor Weihnachten, danach bleiben nur etwa drei Wochen Versandzeit bis zum Fest."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Januar 2027",
+                                                                          "description":  "Kein Zeitdruck, aber auch kein Weihnachtsgeschäft."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Kein fester Termin",
+                                                                          "description":  "Live geht es, wenn der Plan komplett abgearbeitet ist."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Mitte November 2026",
+                                                      "priority":  "blocker"
+                                                  },
+                                                  {
+                                                      "id":  "scope_kuerzung",
+                                                      "question":  "Falls es zeitlich eng wird: Was darf nach dem Start nachgeliefert werden?",
+                                                      "why":  "Mit dieser Antwort kann der Cloud-Agent selbst priorisieren, wenn der Termin wackelt, und muss nicht nachfragen. Rechtstexte, Widerrufsfunktion und Bezahlung gehören immer in die erste Version.",
+                                                      "multiSelect":  true,
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Aufwendige Animationen",
+                                                                          "description":  "Der Shop startet mit schlichter Navigation, die Flash-Bogen-Effekte kommen später."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Flohmarkt-Markt-Modus",
+                                                                          "description":  "Verkäufe auf dem Markt markierst du anfangs von Hand als verkauft."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Tattoo-Events \u0026 Healed-Galerie",
+                                                                          "description":  "Tattoo-Infoseiten und das Anfrageformular sind zum Start da, Events und Vorher/Nachher kommen später."
+                                                                      },
+                                                                      {
+                                                                          "label":  "DATEV-Export",
+                                                                          "description":  "Rechnungen gibt es ab dem ersten Tag, den Monatsexport im DATEV-Format liefern wir nach."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Aufwendige Animationen, Flohmarkt-Markt-Modus",
+                                                      "priority":  "important"
+                                                  },
+                                                  {
+                                                      "id":  "freigabe_merge",
+                                                      "question":  "Wer gibt die Arbeit der Cloud-Agenten frei, bevor sie übernommen wird und live geht?",
+                                                      "why":  "Jede Cloud-Session arbeitet auf einem eigenen Branch. Ohne feste Regel, wer zusammenführt (mergt), baut die nächste Session nicht auf der vorherigen auf, und der Plan wird nie leer.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Auto-Merge, Go-Live durch mich",
+                                                                          "description":  "Sind alle automatischen Tests grün, werden Änderungen übernommen. Nur das Schalten auf die echte Seite gibst du frei."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Ich prüfe jede Phase",
+                                                                          "description":  "Am Ende jeder Phase schaust du dir die Vorschau an und gibst sie frei."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Helfer:in prüft und mergt",
+                                                                          "description":  "Eine technische Vertrauensperson prüft die Pull Requests und führt sie zusammen."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Auto-Merge, Go-Live durch mich",
+                                                      "priority":  "blocker"
+                                                  },
+                                                  {
+                                                      "id":  "helferperson",
+                                                      "question":  "Hast du eine technische Vertrauensperson, die bei Konten, DNS-Umstellung und Freigaben hilft?",
+                                                      "why":  "Davon hängt ab, wie ausführlich die Anleitungen werden und wer am Umstellungstag die DNS-Einträge bei IONOS und die Claude-Cloud-Umgebung einrichtet.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Ja, eine feste Person",
+                                                                          "description":  "Sie wird als Mitglied eingeladen, die Konten bleiben aber auf deinen Namen."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Ja, gelegentlich",
+                                                                          "description":  "Sie hilft bei einzelnen Schritten, zum Beispiel beim DNS-Umzug."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Nein, ich allein",
+                                                                          "description":  "Alle Anleitungen schreiben wir Schritt für Schritt mit Screenshots, ohne Fachsprache."
+                                                                      }
+                                                                  ],
+                                                      "priority":  "important"
+                                                  }
+                                              ]
+                            },
+                            {
+                                "theme":  "Konten, Zugänge \u0026 Budget",
+                                "questions":  [
+                                                  {
+                                                      "id":  "claude_plan",
+                                                      "question":  "Mit welchem Claude-Abo soll das Projekt in der Cloud weiterentwickelt werden?",
+                                                      "why":  "Test-Schlüssel für Stripe lassen sich nur mit Pro oder Max sicher als „API Credential“ hinterlegen. Ein kompletter autonomer Bau verbraucht außerdem viel Kontingent, Pro reicht dafür voraussichtlich nicht.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Max",
+                                                                          "description":  "Genug Kontingent für lange autonome Sessions. Für die Bauphase empfohlen."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Pro",
+                                                                          "description":  "Günstiger, aber durch die Nutzungslimits zieht sich die Arbeit wahrscheinlich über viele Tage."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Team/Enterprise",
+                                                                          "description":  "Mit Teamverwaltung, aber ohne sicheren Speicher für API-Schlüssel."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Weiß ich nicht",
+                                                                          "description":  "Das klären wir, bevor die Cloud-Phase startet."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Max",
+                                                      "priority":  "blocker"
+                                                  },
+                                                  {
+                                                      "id":  "vorhandene_konten",
+                                                      "question":  "Welche dieser Konten hast du schon?",
+                                                      "why":  "Vorhandene Konten sparen Einrichtungszeit. Die Stripe-Identitätsprüfung und die PayPal-Verknüpfung brauchen Vorlauf, und die erste Auszahlung kommt erst 7 Tage nach der ersten echten Zahlung.",
+                                                      "multiSelect":  true,
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "GitHub",
+                                                                          "description":  "Ein GitHub-Konto, auf dem das private Projekt-Repository liegen kann."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Stripe",
+                                                                          "description":  "Ein Stripe-Konto, am besten schon verifiziert."
+                                                                      },
+                                                                      {
+                                                                          "label":  "PayPal-Geschäftskonto",
+                                                                          "description":  "Wird mit Stripe verknüpft, damit Kund:innen mit PayPal zahlen können."
+                                                                      },
+                                                                      {
+                                                                          "label":  "SumUp oder Zettle",
+                                                                          "description":  "Ein Kartenleser oder Tap to Pay, den du auf Flohmärkten schon nutzt."
+                                                                      }
+                                                                  ],
+                                                      "priority":  "important"
+                                                  },
+                                                  {
+                                                      "id":  "ionos_zugang",
+                                                      "question":  "Kommst du selbst ins IONOS-Kundenkonto, in dem Domain und E-Mail liegen?",
+                                                      "why":  "Für den Go-Live müssen dort DNS-Einträge geändert werden. Ein Fehler dabei kann die Adresse jutta@planetclairetattoos.com lahmlegen.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Ja, Login vorhanden",
+                                                                          "description":  "Du oder deine Helferperson stellt nach Anleitung um."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Jemand anderes verwaltet es",
+                                                                          "description":  "Diese Person bekommt eine genaue Checkliste für den Umstellungstag."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Weiß ich nicht",
+                                                                          "description":  "Die Zugangsdaten müssen vor dem Go-Live gefunden oder zurückgesetzt werden."
+                                                                      }
+                                                                  ],
+                                                      "priority":  "important"
+                                                  },
+                                                  {
+                                                      "id":  "budget_monatlich",
+                                                      "question":  "Welche laufenden Kosten im Monat sind für dich in Ordnung?",
+                                                      "why":  "Die empfohlene wartungsfreie Lösung kostet grob 30–45 € im Monat: Hosting in Frankfurt ca. 18–30 €, Rechtstexte mit Update-Service 9,90 € netto. Dazu kommen Stripe-Gebühren pro Verkauf und während der Entwicklung das Claude-Abo.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Bis ca. 50 € im Monat",
+                                                                          "description":  "Wartungsfreies Hosting und Rechtstexte-Abo mit Haftung für Aktualität."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Maximal ca. 25 € im Monat",
+                                                                          "description":  "Dann ein eigener Server bei Hetzner, der regelmäßig gewartet werden muss."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Egal, Hauptsache wartungsfrei",
+                                                                          "description":  "Die Kostengrenze dient nur als Warnschwelle gegen Überraschungen."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Bis ca. 50 € im Monat",
+                                                      "priority":  "important"
+                                                  }
+                                              ]
+                            },
+                            {
+                                "theme":  "Öffentliche Adresse, Recht \u0026 Marke",
+                                "questions":  [
+                                                  {
+                                                      "id":  "oeffentliche_adresse",
+                                                      "question":  "Welche Postanschrift darf öffentlich im Impressum, als Herstellerangabe auf jeder Produktseite und am Produkt sowie als Rücksendeadresse stehen?",
+                                                      "why":  "Impressum (§ 5 DDG) und Produktsicherheitsrecht (GPSR) verlangen eine echte Anschrift, an die zugestellt werden kann. Sie steht auch auf Etiketten und ist über Instagram verlinkt.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Atelier- oder Studioadresse",
+                                                                          "description":  "Nur, wenn dort regelmäßig Post ankommt und du dort erreichbar bist."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Wohnadresse",
+                                                                          "description":  "Rechtlich am einfachsten, aber deine Privatadresse wird öffentlich."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Geschäftsadresse-Service",
+                                                                          "description":  "Gemietete Adresse nur mit echter Zustellung und Weiterleitung, rechtlich ein Graubereich."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Atelier- oder Studioadresse",
+                                                      "priority":  "blocker"
+                                                  },
+                                                  {
+                                                      "id":  "externe_pruefungen",
+                                                      "question":  "Welche einmaligen Prüfungen durch Fachleute willst du vor dem Start bezahlen?",
+                                                      "why":  "Einige Punkte kann die Software nicht selbst klären. Ohne Prüfung baut der Agent die vorsichtigere Variante, zum Beispiel Keramik nur als Deko und keine Online-Kaution.",
+                                                      "multiSelect":  true,
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Steuerberatungs-Gespräch",
+                                                                          "description":  "Klärt 7 % oder 19 % je Produkt, Aufbewahrungsfristen, Gewerbeanmeldung und die Kassenfrage auf dem Flohmarkt."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Anwaltscheck Tattoo-Kaution",
+                                                                          "description":  "Prüft Kautionsregel, Widerrufsbelehrung für Tattoo-Termine, Einwilligungsbogen und Foto-Freigaben."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Laborprüfung Glasuren",
+                                                                          "description":  "Nötig, wenn Schalen und Teller als Essgeschirr verkauft werden sollen."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Markenrecherche Planet Claire",
+                                                                          "description":  "Prüft bei DPMA und EUIPO, ob der Name für Kleidung und Keramik frei ist."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Steuerberatungs-Gespräch, Markenrecherche Planet Claire",
+                                                      "priority":  "important"
+                                                  },
+                                                  {
+                                                      "id":  "fremde_figuren",
+                                                      "question":  "Sind auf deiner Verkaufsware bekannte fremde Figuren, Marken oder Logos zu sehen, zum Beispiel Godzilla oder Comicfiguren?",
+                                                      "why":  "Laut Händlerbund-Abmahnstudie 2026 betreffen rund 20 % der Abmahnungen das Markenrecht und 26 % das Urheberrecht. Fremde Figuren auf Verkaufsware sind ein direktes Risiko, die Rechte an Godzilla hält Toho.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Nein, nur eigene Figuren",
+                                                                          "description":  "Beim Hochladen fragt das CMS trotzdem kurz ab, ob das Motiv von dir stammt."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Ja, bei einzelnen Stücken",
+                                                                          "description":  "Diese Stücke bleiben aus dem Shop oder werden vorher geprüft."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Nur bei Tattoos",
+                                                                          "description":  "Tattoo-Fotos im Portfolio sind weniger kritisch als Verkaufsware und werden im CMS markiert."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Nein, nur eigene Figuren",
+                                                      "priority":  "important"
+                                                  },
+                                                  {
+                                                      "id":  "buchhaltung",
+                                                      "question":  "Wie machst du deine Buchhaltung, und in welchem Format brauchst du die Monatsdaten?",
+                                                      "why":  "Die Rechnungen erzeugt der Shop selbst. Offen ist nur, in welchem Format Umsätze, Gebühren und Auszahlungen an Steuerberatung oder Buchhaltungsprogramm gehen.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Steuerberatung mit DATEV",
+                                                                          "description":  "Monatsexport als DATEV-Buchungsstapel plus CSV."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Lexware Office oder sevDesk",
+                                                                          "description":  "CSV-Import. Eine direkte Anbindung ginge erst mit einem Tarif für 33–35 € im Monat."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Selbst mit EÜR/Excel",
+                                                                          "description":  "Übersichtlicher CSV-Export mit Rechnungen, Gebühren und Auszahlungen."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Noch unklar",
+                                                                          "description":  "CSV gibt es sofort, das DATEV-Format bereiten wir vor."
+                                                                      }
+                                                                  ],
+                                                      "priority":  "important"
+                                                  }
+                                              ]
+                            },
+                            {
+                                "theme":  "Design-Grundrichtung",
+                                "questions":  [
+                                                  {
+                                                      "id":  "design_richtung",
+                                                      "question":  "Welche Grundidee für Look und Navigation spricht dich am meisten an?",
+                                                      "why":  "Die Grundidee legt Bausteine, Zeichnungsliste und Aufwand fest. Sie muss vor dem Cloud-Start feststehen, damit der Agent ohne Rückfragen arbeiten kann.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Flash-Bogen auf Schneidematte",
+                                                                          "description":  "Die Startseite ist ein gezeichneter Tattoo-Flash-Bogen, der Shop liegt auf deiner grünen Schneidematte, dazu violette Schablonen-Effekte."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Planet-Claire-Orbit",
+                                                                          "description":  "Die Bereiche kreisen als Monde um einen Keramik-Planeten, Retro-Weltraum steht im Vordergrund."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Skizzenbuch mit Reitern",
+                                                                          "description":  "Aquarellflecken, Randkritzeleien und farbige Register-Reiter, weicher und verträumter."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Drehscheibe \u0026 Brennofen",
+                                                                          "description":  "Die Navigation ist ein drehbarer Teller mit Randschrift, die Keramik steht im Mittelpunkt."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Flash-Bogen auf Schneidematte",
+                                                      "priority":  "blocker"
+                                                  },
+                                                  {
+                                                      "id":  "illustrationen",
+                                                      "question":  "Kannst du die Zeichnungen für die Seite liefern, und bis wann?",
+                                                      "why":  "Rund 25–40 Zeichnungen sind der kritische Pfad des Designs: 9–12 Navigationsmotive, 6–10 Coco-Posen, 5 Stempel, Kringel und Pfeile sowie die Wortmarke mit Planet. Bis sie da sind, arbeitet der Agent mit Platzhaltern.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Ja, alles neu gezeichnet",
+                                                                          "description":  "Einheitlicher Strich. Bitte nenne einen Termin, spätestens vier Wochen vor dem Launch."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Teils vorhandene Zeichnungen",
+                                                                          "description":  "Vorhandene Motive aus Instagram und Skizzenbuch werden gescannt, den Rest zeichnest du neu."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Erst Platzhalter, später tauschen",
+                                                                          "description":  "Der Start läuft mit einfachen Linien, deine Zeichnungen ersetzen sie nach und nach."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Teils vorhandene Zeichnungen",
+                                                      "priority":  "blocker"
+                                                  },
+                                                  {
+                                                      "id":  "handschrift_font",
+                                                      "question":  "Soll aus deiner Handschrift eine eigene Schrift für Überschriften werden?",
+                                                      "why":  "Die eigene Handschrift zeigt am deutlichsten, dass hier kein Baukasten-Template läuft. Dafür schreibst du etwa 1–2 Stunden nach Vorlage, die Kosten liegen einmalig bei 10 € (Calligraphr Pro, 1 Monat).",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Ja, eigene Handschrift-Font",
+                                                                          "description":  "Mehrere Varianten pro Buchstabe, damit die Schrift lebendig wirkt."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Nein, Fraunces",
+                                                                          "description":  "Weiche, leicht wackelige Serifenschrift mit freier Lizenz."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Nein, Basteleur",
+                                                                          "description":  "Retro-Schrift mit Tarot- und Flohmarkt-Charakter, ebenfalls frei lizenziert."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Ja, eigene Handschrift-Font",
+                                                      "priority":  "important"
+                                                  },
+                                                  {
+                                                      "id":  "tattoo_dunkel",
+                                                      "question":  "Soll der Tattoo-Bereich eine dunkle Planet-Nacht werden, während der Shop hell bleibt?",
+                                                      "why":  "Der Farbwechsel zeigt ohne Worte: Hier kann man nichts kaufen, nur anfragen.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Ja, Tattoo dunkel",
+                                                                          "description":  "Nachtblau-violette Welt ohne Warenkorb, der Shop bleibt porzellanweiß."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Alles hell",
+                                                                          "description":  "Der Tattoo-Bereich hebt sich nur durch violette Schablonenlinien ab."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Dunkelmodus-Schalter überall",
+                                                                          "description":  "Besucher:innen wählen selbst, das kostet etwas mehr Aufwand."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Ja, Tattoo dunkel",
+                                                      "priority":  "important"
+                                                  }
+                                              ]
+                            },
+                            {
+                                "theme":  "Keramik, Textil \u0026 Schmuck (Produktpflichten)",
+                                "questions":  [
+                                                  {
+                                                      "id":  "keramik_lebensmittel",
+                                                      "question":  "Sollen Schalen, Teller und Tassen als Essgeschirr verkauft werden oder als Kunstobjekte zur Dekoration?",
+                                                      "why":  "Für Essgeschirr braucht es je Glasur eine Laborprüfung auf Blei und Cadmium und eine deutsche Konformitätserklärung, die online abrufbar ist (§ 10 BedGgstV). Deko muss dauerhaft am Boden gekennzeichnet sein.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Nur Deko",
+                                                                          "description":  "Alles wird dauerhaft als nicht für Lebensmittel geeignet gekennzeichnet."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Deko jetzt, Prüfung später",
+                                                                          "description":  "Nach dem Start lassen wir 1–2 blei- und cadmiumfreie Standardglasuren prüfen."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Von Anfang an Essgeschirr",
+                                                                          "description":  "Laborberichte und Konformitätserklärungen müssen vor dem Start vorliegen."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Deko jetzt, Prüfung später",
+                                                      "priority":  "important"
+                                                  },
+                                                  {
+                                                      "id":  "glasuren",
+                                                      "question":  "Welche Glasuren und Unterglasuren verwendest du?",
+                                                      "why":  "Gekaufte blei- und cadmiumfreie Markenglasuren mit Datenblatt machen Laborprüfung, Schmuckregeln und Rückverfolgbarkeit einfacher. Davon hängt ab, wie wir die Glasur-Stammdaten anlegen.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Gekaufte Markenglasuren",
+                                                                          "description":  "Bitte nenne Hersteller und Namen der Glasuren."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Eigene Mischungen",
+                                                                          "description":  "Für Essgeschirr müsste dann jede Mischung einzeln geprüft werden."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Beides",
+                                                                          "description":  "Wir legen beide Arten als Stammdaten an."
+                                                                      }
+                                                                  ],
+                                                      "priority":  "nice"
+                                                  },
+                                                  {
+                                                      "id":  "textil_rohlinge",
+                                                      "question":  "Woher kommen die Rohlinge für Shirts, Kleider und Caps?",
+                                                      "why":  "Davon hängt ab, wer für die Faserangabe verantwortlich ist, ob die Ausnahme für gebrauchte Kleidung greift und ob für Kinderkleidung strengere Regeln gelten.",
+                                                      "multiSelect":  true,
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Neue Markenware mit Etikett",
+                                                                          "description":  "Die Faserangabe vom Originaletikett wird übernommen."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Neue Blanks, eigenes Label",
+                                                                          "description":  "Du bist dann selbst für ein korrektes, eingenähtes Etikett verantwortlich."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Second-Hand oder Vintage",
+                                                                          "description":  "Solche Stücke werden ausdrücklich als gebraucht gekennzeichnet und brauchen dann keine Faserangabe."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Auch Kinderkleidung",
+                                                                          "description":  "Dafür gelten zusätzliche Anforderungen, etwa an Kordeln und Farben."
+                                                                      }
+                                                                  ],
+                                                      "priority":  "important"
+                                                  },
+                                                  {
+                                                      "id":  "schmuck_metall",
+                                                      "question":  "Aus welchem Material sind Ösen, Ringe und Ketten deiner Keramik-Anhänger?",
+                                                      "why":  "Die Grenzwerte für Nickel, Blei und Cadmium (REACH) kannst du als Kleinbetrieb praktisch nur über Einkaufsnachweise belegen.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Edelstahl mit Nachweis",
+                                                                          "description":  "Zum Beispiel 316L mit schriftlicher Erklärung des Lieferanten."
+                                                                      },
+                                                                      {
+                                                                          "label":  "925er Silber",
+                                                                          "description":  "Mit Nachweis vom Lieferanten."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Unbekanntes Modeschmuck-Metall",
+                                                                          "description":  "Das müsste vor dem Online-Verkauf durch nickelfreies Material mit Nachweis ersetzt werden."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Kein Schmuck im Shop",
+                                                                          "description":  "Anhänger werden vorerst nicht online verkauft."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Edelstahl mit Nachweis",
+                                                      "priority":  "nice"
+                                                  }
+                                              ]
+                            },
+                            {
+                                "theme":  "Zahlung \u0026 Verkaufsfunktionen",
+                                "questions":  [
+                                                  {
+                                                      "id":  "zahlarten",
+                                                      "question":  "Welche Zahlarten soll es zusätzlich zu Karte, Apple Pay und Google Pay geben?",
+                                                      "why":  "Jede Zahlart kostet andere Gebühren. SEPA-Lastschrift und Vorkasse bestätigen erst nach Tagen, passen deshalb nicht zu Unikaten und bleiben aus.",
+                                                      "multiSelect":  true,
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "PayPal über Stripe",
+                                                                          "description":  "Bei 45 € fallen ca. 1,93 € Gebühr an, mit Karte ca. 0,93 €."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Klarna",
+                                                                          "description":  "Kauf auf Rechnung oder in Raten, 2,99 % + 0,35 €. Das Ausfallrisiko trägt Klarna."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Wero, sobald verfügbar",
+                                                                          "description":  "Neues europäisches Bezahlverfahren, bei Stripe noch im Vorschau-Status."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Nur Karte \u0026 Wallets",
+                                                                          "description":  "Am günstigsten, aber manche Kund:innen brechen ohne PayPal ab."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "PayPal über Stripe",
+                                                      "priority":  "important"
+                                                  },
+                                                  {
+                                                      "id":  "flohmarkt_bestand",
+                                                      "question":  "Sollen Flohmarkt-Verkäufe im selben Bestand laufen wie der Online-Shop?",
+                                                      "why":  "Wird ein Unikat auf dem Markt verkauft, muss es online sofort als verkauft gelten. Sonst droht ein Doppelverkauf.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Ja, Markt-Modus",
+                                                                          "description":  "Du packst eine Marktkiste, deren Stücke online pausiert sind. Ein Tippen markiert ein Stück als verkauft."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Ja, plus QR-Bezahllink",
+                                                                          "description":  "Zusätzlich können Kund:innen per QR-Code mit dem eigenen Handy zahlen, das Stück gilt dann automatisch als verkauft."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Nein, getrennte Ware",
+                                                                          "description":  "Flohmarkt-Stücke kommen nie in den Online-Shop."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Ja, Markt-Modus",
+                                                      "priority":  "important"
+                                                  },
+                                                  {
+                                                      "id":  "verkaufs_extras",
+                                                      "question":  "Welche Verkaufsfunktionen sollen schon zum Start dabei sein?",
+                                                      "why":  "Jede Funktion kostet Bauzeit vor dem Launch. Gutscheine sind rechtlich und steuerlich am aufwendigsten.",
+                                                      "multiSelect":  true,
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Drops mit Countdown",
+                                                                          "description":  "Neue Stücke gehen zu einer angekündigten Uhrzeit online, passend zu deinen Instagram-Ankündigungen."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Rabattcodes",
+                                                                          "description":  "Codes für gezielte Aktionen, rechtssicher mit Anzeige des niedrigsten Preises der letzten 30 Tage."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Kauflink für Instagram-DMs",
+                                                                          "description":  "Ein Link reserviert ein bestimmtes Stück 24 Stunden lang für eine Person."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Gutscheine",
+                                                                          "description":  "Wertgutscheine, mindestens 3 Jahre gültig."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Drops mit Countdown, Kauflink für Instagram-DMs",
+                                                      "priority":  "important"
+                                                  },
+                                                  {
+                                                      "id":  "newsletter",
+                                                      "question":  "Soll es einen Newsletter oder eine Warteliste für neue Drops geben?",
+                                                      "why":  "Dafür braucht es einen E-Mail-Dienst mit Double-Opt-in und ein Protokoll der Einwilligungen. Ohne Newsletter bleibt Instagram der einzige Kanal.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Nein, Instagram reicht",
+                                                                          "description":  "In der ersten Version kein Newsletter, später nachrüstbar."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Drop-Alarm mit Double-Opt-in",
+                                                                          "description":  "Eine kurze Benachrichtigung vor neuen Drops, pro Kategorie abonnierbar."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Richtiger Newsletter",
+                                                                          "description":  "Regelmäßige Mails mit Neuheiten, Terminen und Geschichten."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Nein, Instagram reicht",
+                                                      "priority":  "nice"
+                                                  }
+                                              ]
+                            },
+                            {
+                                "theme":  "Versand \u0026 Retouren",
+                                "questions":  [
+                                                  {
+                                                      "id":  "versandkosten",
+                                                      "question":  "Wie sollen die Versandkosten berechnet werden?",
+                                                      "why":  "Die Beträge gehen als feste Werte in den Checkout und müssen vor dem Bau stehen. Vorschlag für Deutschland: Brief ca. 4,50 €, kleines Paket ca. 6,50 €, Keramik ca. 8,90 €.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Pauschale je Versandklasse",
+                                                                          "description":  "Brief, kleines Paket, Keramik. Bei gemischtem Warenkorb gilt die höchste Klasse."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Plus versandkostenfrei ab Betrag",
+                                                                          "description":  "Wie oben, aber ab einem Bestellwert, den du festlegst, kostenlos."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Eine Pauschale für alles",
+                                                                          "description":  "Einfach, aber für Zeichnungen wäre der Versand zu teuer."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Pauschale je Versandklasse",
+                                                      "priority":  "important"
+                                                  },
+                                                  {
+                                                      "id":  "versandzeit",
+                                                      "question":  "Wie schnell verschickst du nach einer Bestellung?",
+                                                      "why":  "Die Lieferzeit muss auf jeder Produktseite und vor der Bestellung stehen. Sie steuert auch die Packliste im Admin.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "1–3 Werktage",
+                                                                          "description":  "Du packst fast täglich."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Feste Versandtage",
+                                                                          "description":  "Zum Beispiel dienstags und freitags, Lieferzeit etwa 3–6 Werktage."
+                                                                      },
+                                                                      {
+                                                                          "label":  "3–7 Werktage",
+                                                                          "description":  "Mehr Puffer neben Tattoo-Terminen und Märkten."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Feste Versandtage",
+                                                      "priority":  "important"
+                                                  },
+                                                  {
+                                                      "id":  "ruecksendekosten",
+                                                      "question":  "Wer trägt bei einem Widerruf die Rücksendekosten?",
+                                                      "why":  "Das muss in der Widerrufsbelehrung stehen. Fehlt der Hinweis, zahlst du die Rücksendung (§ 357 BGB).",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Die Kundin oder der Kunde",
+                                                                          "description":  "Kulanz im Einzelfall bleibt möglich."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Ich übernehme sie",
+                                                                          "description":  "Kundenfreundlich, bei Keramik aber teuer."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Die Kundin oder der Kunde",
+                                                      "priority":  "important"
+                                                  },
+                                                  {
+                                                      "id":  "drucker_paketmenge",
+                                                      "question":  "Hast du einen Drucker, und wie viele Pakete erwartest du im Monat?",
+                                                      "why":  "Davon hängt ab, ob du die mobile Paketmarke ohne Drucker nutzt, auf A4 druckst oder später mit einem DHL-Geschäftskundenkonto Thermo-Etiketten druckst. Das Geschäftskundenkonto lohnt sich ab ca. 200 Paketen im Jahr.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Kein Drucker, unter 20",
+                                                                          "description":  "Mobile Paketmarke per App, den Packzettel liest du am Handy."
+                                                                      },
+                                                                      {
+                                                                          "label":  "A4-Drucker, 20–50",
+                                                                          "description":  "Packzettel und Etiketten druckst du auf A4."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Etikettendrucker gewünscht, 50+",
+                                                                          "description":  "Wir bereiten DHL-Geschäftskundenkonto und Thermo-Etiketten vor."
+                                                                      }
+                                                                  ],
+                                                      "priority":  "nice"
+                                                  }
+                                              ]
+                            },
+                            {
+                                "theme":  "Tattoo: Ort, Preise \u0026 Verbindlichkeit",
+                                "questions":  [
+                                                  {
+                                                      "id":  "tattoo_ort",
+                                                      "question":  "Wo tätowierst du, und darf diese Adresse öffentlich auf der Website stehen?",
+                                                      "why":  "Davon hängen Studio-Seite, Anfahrt und Hygiene-Angaben ab, außerdem die Frage, ob die Adresse erst mit der Terminbestätigung verschickt wird.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Eigenes Studio, öffentlich",
+                                                                          "description":  "Adresse und Anfahrt stehen offen auf der Seite."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Gemeinschaftsstudio, verlinkt",
+                                                                          "description":  "Die Seite nennt und verlinkt das Studio, in dem du arbeitest."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Privates Atelier, nur Bezirk",
+                                                                          "description":  "Öffentlich steht nur der Bezirk, die Adresse kommt mit der Terminbestätigung."
+                                                                      }
+                                                                  ],
+                                                      "priority":  "important"
+                                                  },
+                                                  {
+                                                      "id":  "tattoo_preise",
+                                                      "question":  "Welche Preise sollen im Tattoo-Bereich zu sehen sein?",
+                                                      "why":  "Angezeigte Preise müssen Gesamtpreise sein (PAngV). Feste Preise für Flash-Motive senken die Hemmschwelle für Anfragen. Die genauen Zahlen lieferst du separat.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Mindestpreis + feste Flash-Preise",
+                                                                          "description":  "Eigene Ideen kosten „nach Entwurf“, mit einem Richtwert."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Zusätzlich Stunden- oder Tagessatz",
+                                                                          "description":  "Mehr Transparenz bei größeren Projekten."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Keine Preise",
+                                                                          "description":  "Alles auf Anfrage. Das bringt mehr Rückfragen per DM."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Mindestpreis + feste Flash-Preise",
+                                                      "priority":  "important"
+                                                  },
+                                                  {
+                                                      "id":  "tattoo_kaution",
+                                                      "question":  "Wie werden Tattoo-Termine verbindlich?",
+                                                      "why":  "Wird ein Termin mit Anzahlung nur per DM oder E-Mail fest vereinbart, ist das meist ein Fernabsatzvertrag mit 14 Tagen Widerrufsrecht (§ 312c BGB). Eine „nicht erstattbare Anzahlung“ in den AGB ist angreifbar.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Kaution per Mail, mit Belehrung",
+                                                                          "description":  "Individuell vereinbarte Terminkaution per Überweisung oder Zahlungslink, mit Widerrufsbelehrung und Bestätigung zum vorzeitigen Beginn."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Nur persönlich im Studio",
+                                                                          "description":  "Termin und Kaution werden vor Ort fest vereinbart, damit ist es kein Fernabsatz."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Online-Kaution über Website",
+                                                                          "description":  "In einer späteren Phase möglich, braucht dann Widerrufsbutton und weitere Rechtstexte."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Keine Kaution",
+                                                                          "description":  "Kein Aufwand, aber du trägst das Risiko, wenn jemand nicht erscheint."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Kaution per Mail, mit Belehrung",
+                                                      "priority":  "important"
+                                                  },
+                                                  {
+                                                      "id":  "tattoo_koerperfotos",
+                                                      "question":  "Dürfen Interessierte im Anfrageformular Fotos ihrer Körperstelle hochladen?",
+                                                      "why":  "Solche Fotos können Gesundheitsdaten zeigen, zum Beispiel Narben bei Cover-ups. Dann braucht es eine ausdrückliche Einwilligung (Art. 9 DSGVO), einen privaten Speicher und kurze Löschfristen.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Ja, optional mit Einwilligung",
+                                                                          "description":  "Nur beim Körperfoto kommt eine Pflicht-Checkbox dazu, gelöscht wird spätestens 3 Monate nach dem Termin."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Nur Motiv-Referenzbilder",
+                                                                          "description":  "Keine Körperfotos, die Stelle schaust du dir beim Termin an."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Gar keine Uploads",
+                                                                          "description":  "Nur Text, Bilder kommen im persönlichen Gespräch."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Ja, optional mit Einwilligung",
+                                                      "priority":  "important"
+                                                  }
+                                              ]
+                            },
+                            {
+                                "theme":  "Design-Details \u0026 Shop-Darstellung",
+                                "questions":  [
+                                                  {
+                                                      "id":  "coco_maskottchen",
+                                                      "question":  "Darf Coco als durchgehendes Maskottchen auftreten?",
+                                                      "why":  "Coco bestimmt die Zeichnungsliste und den Ton der Systemtexte: leerer Warenkorb, 404-Seite, „Coco packt dein Paket“.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Ja, überall als Guide",
+                                                                          "description":  "Coco begleitet durch Warenkorb, Bestellbestätigung, Ladezustände und Fehlerseiten."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Nur an wenigen Stellen",
+                                                                          "description":  "Zum Beispiel Über mich und die 404-Seite."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Nein",
+                                                                          "description":  "Keine Hunde-Motive in der Oberfläche."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Ja, überall als Guide",
+                                                      "priority":  "important"
+                                                  },
+                                                  {
+                                                      "id":  "verkaufte_unikate",
+                                                      "question":  "Was passiert mit verkauften Unikaten auf der Seite?",
+                                                      "why":  "Das beeinflusst Shop-Raster, Filter und Suchmaschinen. Sichtbare Verkäufe zeigen, dass deine Stücke gefragt sind, können aber auch frustrieren.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Archiv „schon zuhause“",
+                                                                          "description":  "Verkaufte Stücke wandern in einen eigenen, schönen Archivbereich."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Im Shop mit Stempel",
+                                                                          "description":  "Sie bleiben sichtbar, hinter den verfügbaren Stücken einsortiert."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Ganz ausblenden",
+                                                                          "description":  "Verkaufte Stücke verschwinden sofort."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Archiv „schon zuhause“",
+                                                      "priority":  "important"
+                                                  },
+                                                  {
+                                                      "id":  "artikelnummer_format",
+                                                      "question":  "Wie sollen die Objektnummern aussehen?",
+                                                      "why":  "Die Nummer steht auf Etikett, Produktseite und Rechnung und in der Webadresse. Später lässt sie sich nicht mehr ändern.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "PC-K-0042 (Kategorie + Nummer)",
+                                                                          "description":  "K = Keramik, T = Tragbares, Z = Zeichnung, S = Schmuck, kurz genug für einen Stempel."
+                                                                      },
+                                                                      {
+                                                                          "label":  "PC-2026-0042 (Jahr + Nummer)",
+                                                                          "description":  "Zeigt das Entstehungsjahr, aber keine Kategorie."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Nur #0042",
+                                                                          "description":  "Eine einfache laufende Nummer."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Mein eigenes System",
+                                                                          "description":  "Du nummerierst schon, etwa für den Flohmarkt. Bitte schick ein Beispiel."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "PC-K-0042 (Kategorie + Nummer)",
+                                                      "priority":  "important"
+                                                  },
+                                                  {
+                                                      "id":  "planet_claire_staerke",
+                                                      "question":  "Wie stark soll „Planet Claire“ als Retro-Weltraum-Thema sichtbar sein?",
+                                                      "why":  "Das beeinflusst Logo, 404-Seite und Texte. Musik, Liedtext und Cover der B-52\u0027s verwenden wir ohnehin nicht.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Dezent als Easter Egg",
+                                                                          "description":  "Logo-Planet, Morse-Bordüre „CLAIRE“, 404-Seite und Tattoo-Nachtseite."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Deutlich als zweites Thema",
+                                                                          "description":  "Weltraum-Elemente überall, Coco als Astronautin."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Gar nicht",
+                                                                          "description":  "Der Name ist nur ein Name."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Dezent als Easter Egg",
+                                                      "priority":  "nice"
+                                                  }
+                                              ]
+                            },
+                            {
+                                "theme":  "Tattoo: Inhalte \u0026 Abläufe",
+                                "questions":  [
+                                                  {
+                                                      "id":  "portfolio_einwilligungen",
+                                                      "question":  "Hast du für die Fotos deiner Tattoo-Kundschaft Einwilligungen, die auch die Website abdecken?",
+                                                      "why":  "Eine Freigabe für Instagram gilt nicht automatisch für die Website (DSGVO, § 22 KUG). Ohne hinterlegten Nachweis veröffentlicht das CMS kein Foto.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Ja, dokumentiert inkl. Website",
+                                                                          "description":  "Die Nachweise werden beim Hochladen im Admin hinterlegt."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Nur für Instagram",
+                                                                          "description":  "Für die Website holen wir neue Einwilligungen ein und starten mit weniger Fotos."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Nein, nur eigene Motive",
+                                                                          "description":  "Start mit Flash-Zeichnungen und Fotos ohne erkennbare Personen."
+                                                                      }
+                                                                  ],
+                                                      "priority":  "important"
+                                                  },
+                                                  {
+                                                      "id":  "tattoo_angebot",
+                                                      "question":  "Was bietest du beim Tätowieren an?",
+                                                      "why":  "Das steuert die Formularoptionen, die FAQ und die Vorlagen für Absagen. Was du nicht machst, steht ehrlich auf der Seite.",
+                                                      "multiSelect":  true,
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Farbe oder Farbakzente",
+                                                                          "description":  "Ohne diese Option bieten wir nur Schwarz und Grau an."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Cover-ups",
+                                                                          "description":  "Dafür braucht es meist ein Foto der Stelle, siehe Einwilligungsfrage."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Schriftzüge",
+                                                                          "description":  "Lettering als eigene Anfrageart."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Handpoke",
+                                                                          "description":  "Wird als eigene Technik im Formular und in der FAQ genannt."
+                                                                      }
+                                                                  ],
+                                                      "priority":  "nice"
+                                                  },
+                                                  {
+                                                      "id":  "tattoo_events",
+                                                      "question":  "Wie oft planst du Flash Days oder Guest Spots, und wie sollen sie gebucht werden?",
+                                                      "why":  "Davon hängt ab, ob ein System zum Buchen von Zeitfenstern nötig ist oder ob Ankündigen plus Anfrageformular reicht.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Ankündigen, first come",
+                                                                          "description":  "Aktionskarte mit Datum, Ort und Motiven, Buchung vor Ort oder per Anfrage."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Feste Slots über Formular",
+                                                                          "description":  "Besucher:innen wählen ein Zeitfenster, du bestätigst es im Admin."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Selten oder nie",
+                                                                          "description":  "In der ersten Version kein eigener Terminbereich."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Ankündigen, first come",
+                                                      "priority":  "nice"
+                                                  },
+                                                  {
+                                                      "id":  "tattoo_dm",
+                                                      "question":  "Nimmst du Tattoo-Anfragen weiterhin per Instagram-DM an?",
+                                                      "why":  "Das bestimmt Bio-Text und Auto-Antwort und die Frage, ob du DM-Anfragen im Admin von Hand anlegen können musst.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Nur Formular",
+                                                                          "description":  "DMs beantwortest du mit einem Schnelllink zum Formular."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Beides",
+                                                                          "description":  "Im Admin gibt es „Anfrage manuell anlegen“."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Nur DMs",
+                                                                          "description":  "Das Formular ist nur ein zusätzliches Angebot."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Nur Formular",
+                                                      "priority":  "nice"
+                                                  }
+                                              ]
+                            },
+                            {
+                                "theme":  "Statistik, Fotos \u0026 Start-Sortiment",
+                                "questions":  [
+                                                  {
+                                                      "id":  "statistik",
+                                                      "question":  "Möchtest du sehen, wie viele Menschen die Seite besuchen?",
+                                                      "why":  "Eine einfache Zählung ohne Cookies braucht kein Cookie-Banner. Google Analytics bräuchte eins, und das stört das Design.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Einfache Zählung ohne Banner",
+                                                                          "description":  "Seitenaufrufe und Herkunft (z. B. Instagram), ohne Cookies und ohne gespeicherte IP-Adressen."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Keine Statistik",
+                                                                          "description":  "Am einfachsten, aber du siehst nicht, was funktioniert."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Google Analytics mit Banner",
+                                                                          "description":  "Nicht empfohlen: Daten gehen in die USA, und auf jeder Seite erscheint ein Banner."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Einfache Zählung ohne Banner",
+                                                      "priority":  "nice"
+                                                  },
+                                                  {
+                                                      "id":  "sortiment_start",
+                                                      "question":  "Wie viele Stücke willst du zum Start online haben?",
+                                                      "why":  "Davon hängen Foto- und Textaufwand vor dem Launch ab und ob eine Sammel-Erfassung schon in die erste Version muss.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Unter 20",
+                                                                          "description":  "Die Erfassung Stück für Stück am Handy reicht."
+                                                                      },
+                                                                      {
+                                                                          "label":  "20–50",
+                                                                          "description":  "Handy-Erfassung plus eine Vorlage für Texte."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Über 50",
+                                                                          "description":  "In die erste Version kommt eine Sammel-Erfassung per CSV/Excel-Vorlage."
+                                                                      }
+                                                                  ],
+                                                      "priority":  "nice"
+                                                  },
+                                                  {
+                                                      "id":  "produktfotos",
+                                                      "question":  "Wer fotografiert die Produkte?",
+                                                      "why":  "Einheitliche Fotos gehören zum Design: Hochformat 4:5, grüne Schneidematte, mindestens 3 pro Stück. Die Handy-Erfassung im Admin wird darauf ausgerichtet.",
+                                                      "options":  [
+                                                                      {
+                                                                          "label":  "Ich mit dem Handy",
+                                                                          "description":  "Auf der Schneidematte bei Tageslicht, direkt über den Admin hochgeladen."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Ich mit Kamera am PC",
+                                                                          "description":  "Hochladen am Computer, das Handy nur für schnelle Änderungen."
+                                                                      },
+                                                                      {
+                                                                          "label":  "Eine Fotografin",
+                                                                          "description":  "Achtung: Regelmäßige Aufträge an Kreative können künstlersozialabgabepflichtig sein."
+                                                                      }
+                                                                  ],
+                                                      "recommended":  "Ich mit dem Handy",
+                                                      "priority":  "nice"
+                                                  }
+                                              ]
+                            }
+                        ],
+    "defaults_without_asking":  [
+                                    {
+                                        "decision":  "Architektur",
+                                        "default":  "Eine einzige Next.js-App (≥ 16.3.7, \u003c 17) mit eingebautem Payload CMS 3.90.x (alle @payloadcms/* in exakt derselben Version), @payloadcms/db-postgres, TypeScript 6.0.x, pnpm 11, Tailwind 4. Kein getrenntes /apps/api-Monorepo.",
+                                        "rationale":  "Payload 3 ist dafür gebaut, direkt in der Next-App zu laufen. Die Empfehlung aus der Cloud-Recherche, /apps/web und /apps/api zu trennen, hat die Faktenprüfung widerlegt. Next 16.3.7 schließt die Sicherheitslücken vom 22. und 30.09.2026; die Vorlage mit 16.3.3 ist angreifbar."
+                                    },
+                                    {
+                                        "decision":  "Hosting und Datenhaltung",
+                                        "default":  "Vercel Pro mit Region fra1 (in vercel.json), Neon Postgres in aws-eu-central-1 (Frankfurt), Cloudflare R2 mit EU-Jurisdiktion (forcePathStyle: true, Buckets je Umgebung plus ein privater Bucket für Anfragen und einer für Backups). Dockerfile und docker-compose.prod.yml pflegen wir ab Tag 1 als Ausweg zu Hetzner. Das Vercel-Ausgabenlimit senken wir von 200 USD auf 50 USD, mit harter Pause.",
+                                        "rationale":  "Es gibt keinen Server zu warten, und die Cloud-Agenten brauchen keinen SSH-Zugang. Der Hobby-Plan verbietet kommerzielle Nutzung, Vercel Postgres gibt es nicht mehr, und AWS RDS bräuchte mit Vercel statische IPs für 100 $ im Monat. Weicht das Budget in der Antwort ab, wechseln wir auf Hetzner."
+                                    },
+                                    {
+                                        "decision":  "Node-Version",
+                                        "default":  "Node 24 LTS (≥ 24.15) über .nvmrc und engines. Das Setup-Skript der Cloud-Umgebung installiert es, weil dort standardmäßig Node 22 läuft. Ein ADR vermerkt, dass Node 26 am 28.10.2026 LTS wird.",
+                                        "rationale":  "Die Payload-Vorlage verlangt ≥ 24.15. Node 24 wird bis 30.04.2028 unterstützt."
+                                    },
+                                    {
+                                        "decision":  "Commerce-Kern",
+                                        "default":  "Eigene, schlanke Collections statt @payloadcms/plugin-ecommerce: Products (unique/stocked), Variants nur für Größen, Categories, Orders mit Positions-Snapshot, Reservations, ShippingRates, InvoiceCounter, Media.",
+                                        "rationale":  "Das Plugin ist Beta mit angekündigten Breaking Changes und kann nicht reservieren, deshalb reicht es für Unikate nicht."
+                                    },
+                                    {
+                                        "decision":  "Checkout, Button und Zeitpunkt des Vertragsschlusses",
+                                        "default":  "Stripe Checkout Sessions mit ui_mode „elements“ auf der eigenen Seite /kasse. Direkt davor steht eine Übersicht mit allen Pflichtangaben und ein eigener Button mit exakt „zahlungspflichtig bestellen“. Der Vertrag kommt mit diesem Klick zustande, so steht es auch in den AGB. Stripe-API-Version und SDK (stripe 22.x) sind festgepinnt. Stripe.js lädt nur auf /kasse. return_url statt success_url.",
+                                        "rationale":  "So ist die Button-Lösung nach § 312j BGB erfüllt, ohne sich auf Stripes nicht beschriftbaren Standardbutton zu verlassen, und die Faktenprüfung hat den Widerspruch beim Vertragsschluss aufgelöst. Weil Stripe.js erst nach aktiver Nutzung lädt, braucht es kein Einwilligungsbanner."
+                                    },
+                                    {
+                                        "decision":  "Doppelverkäufe verhindern",
+                                        "default":  "Beim Start des Checkouts wird das Stück atomar per SQL reserviert (UPDATE … WHERE status=\u0027available\u0027 RETURNING). Die Session läuft nach 30 Minuten ab (expires_at). Freigegeben wird per Webhook checkout.session.expired und zusätzlich per Cron alle 5 Minuten; bricht jemand ab, beenden wir die Session sofort. Als verkauft gilt ein Stück nur nach dem Zahlungs-Webhook, abgesichert durch einen UNIQUE-Index auf der Session-ID. Wird ein Stück trotzdem doppelt bezahlt, erstatten wir automatisch und markieren den Fall im Admin.",
+                                        "rationale":  "Stripe führt keinen Bestand. Das ist Stripes dokumentiertes Muster für begrenzte Ware und verhindert Doppelverkäufe auch bei Drops."
+                                    },
+                                    {
+                                        "decision":  "Zahlarten mit verzögerter Bestätigung",
+                                        "default":  "SEPA-Lastschrift und Vorkasse per Überweisung sind aus. Zahlarten steuern wir über die Stripe-Zahlungskonfiguration, nicht fest im Code.",
+                                        "rationale":  "SEPA gilt erst nach etwa 6 Geschäftstagen als bezahlt und kann bis zu 8 Wochen zurückgebucht werden. Ein Unikat wäre so lange blockiert."
+                                    },
+                                    {
+                                        "decision":  "Kundenkonten",
+                                        "default":  "Nur Gastbestellung. Den Bestellstatus sieht man über einen Link in der Mail, der Widerruf klappt ohne Login.",
+                                        "rationale":  "Die DSK verlangt die Möglichkeit zur Gastbestellung (Beschluss 2022). Weniger Login-, Passwort- und Datenschutzaufwand, und die Widerrufsfunktion bleibt einfach."
+                                    },
+                                    {
+                                        "decision":  "Kein Cookie-Banner",
+                                        "default":  "Vor dem ersten Klick auf den Warenkorb setzen wir keine Cookies und schreiben nichts in local- oder sessionStorage. Schriften sind selbst gehostet. Keine Einbettungen von Instagram, YouTube oder Maps, kein reCAPTCHA, keine Skripte von Google oder Meta. Die Statistik läuft serverseitig über einen eigenen Zähler ohne IP-Speicherung und ohne Geräte-JavaScript. Ein CI-Check meldet externe Domains im HTML.",
+                                        "rationale":  "Nach der DSK-Orientierungshilfe (Rn. 76, 80, 88, 116) ist dann keine Einwilligung nötig. Die Empfehlung aus der Cloud-Recherche, GA4 mit Banner einzusetzen, verwerfen wir: sie bringt Abmahnrisiko und stört das Design."
+                                    },
+                                    {
+                                        "decision":  "Rechtstexte",
+                                        "default":  "IT-Recht Kanzlei, Paket „Starter“ (9,90 € netto im Monat, monatlich kündbar). Die Texte kommen automatisch über den LTI-Push-Endpunkt POST /api/legal/itrk (XML) herein und werden versioniert gespeichert (HTML, Text, PDF). Jede Bestellung speichert die IDs der gültigen AGB- und Widerrufsfassung sowie einen Snapshot des Produkts. Als Notlösung gibt es einen manuellen Upload.",
+                                        "rationale":  "Das Paket ist monatlich kündbar, liefert vollständige Shop-Texte samt neuer Widerrufsbelehrung und bietet eine öffentlich dokumentierte API für eigene Shops. Der Händlerbund hat für Eigenbauten keine API, eRecht24 liefert AGB und Widerruf nicht per API."
+                                    },
+                                    {
+                                        "decision":  "Widerrufsfunktion nach § 356a BGB",
+                                        "default":  "Feste Route /vertrag-widerrufen, ohne Login erreichbar und dauerhaft online. Der Link „Vertrag widerrufen“ steht im Footer jeder Seite, auch im Checkout, auf den Tattoo-Seiten, der 404-Seite und im Instagram-In-App-Browser. Ablauf in zwei Schritten (Name, Vertragsangabe, E-Mail, dann „Widerruf bestätigen“). Danach sofort eine Eingangsbestätigung mit Inhalt, Datum und Uhrzeit (Europe/Berlin). Widerrufe ohne passende Bestellnummer nehmen wir an und markieren sie zur Zuordnung. Dort gibt es nur einen Honeypot, kein Rätsel.",
+                                        "rationale":  "Seit 19.06.2026 Pflicht, auch für Kleinunternehmerinnen. Die ersten Abmahnungen gibt es schon. Die Route muss stabil bleiben, weil die Widerrufsbelehrung sie nennt."
+                                    },
+                                    {
+                                        "decision":  "Was in Code und Texten verboten ist",
+                                        "default":  "Kein Link und kein Text zur OS-Plattform. Kein „inkl. MwSt.“ im Kleinunternehmer-Modus. Keine vorangekreuzten Checkboxen. Keine pauschale Aussage „Handmade = kein Widerrufsrecht“. Keine Werbung in Transaktionsmails. Freiwillig steht der Satz, dass du an Verbraucherschlichtung nicht teilnimmst.",
+                                        "rationale":  "Das sind typische Abmahngründe. Die OS-Plattform ist seit 20.07.2025 abgeschaltet, und § 36 VSBG entfällt bei höchstens 10 Beschäftigten."
+                                    },
+                                    {
+                                        "decision":  "Steuer- und Preislogik",
+                                        "default":  "Ein globaler Schalter Kleinunternehmerin/Regelbesteuerung mit Gültig-ab-Datum; alte Belege bleiben unverändert. Jedes Produkt hat schon eine Steuerklasse (7 % nur mit Begründung, sonst 19 %) und eine Zolltarifnummer. Ein Umsatzzähler rechnet auch von Hand erfasste Tattoo- und Flohmarkt-Umsätze mit ein und warnt (im Gründungsjahr bei 20.000 €, sonst bei 25.000 €, 80.000 € und 100.000 €). Ein weiterer Zähler erfasst EU-Fernverkäufe bis 10.000 €. Preise erscheinen als Endpreis mit Hinweis nach § 19 UStG und dem Link „zzgl. Versandkosten“.",
+                                        "rationale":  "Steuerwechsel sollen ohne Umbau gehen. Wird die Grenze überschritten, fällt die Befreiung sofort weg, und wer als Kleinunternehmerin fälschlich Umsatzsteuer ausweist, schuldet sie (§ 14c UStG)."
+                                    },
+                                    {
+                                        "decision":  "Pflichtfelder für Produkte und Prüfung vor dem Veröffentlichen",
+                                        "default":  "Objektnummer (automatisch, unveränderlich, UNIQUE), mindestens 3 Fotos mit Alt-Text, Maße B×H×T, Gewicht bzw. Versandklasse, Lieferzeit, Warnhinweise und ein GPSR-Block „Herstellerin \u0026 Produktsicherheit“ bei JEDEM Produkt, auch bei Zeichnungen. Bei Textilien die Faserzusammensetzung (strukturiert, Summe 100 %, sichtbar vor „In den Warenkorb“) und ein Merker „gebraucht“. Bei Keramik der Lebensmittelstatus, bei Schmuck das Metallmaterial. Dazu die Merker „Auftragsarbeit“ (Hinweis: kein Widerruf) und „abweichende Beschaffenheit“ mit eigener Pflicht-Checkbox im Checkout (§ 476 BGB). Veröffentlicht wird erst, wenn alle Pflichtfelder gefüllt sind.",
+                                        "rationale":  "GPSR, Textilkennzeichnung und Keramikrecht gelten pro Produkt. Pflichtfelder verhindern die typischen Abmahnfehler im Alltag beim Hochladen."
+                                    },
+                                    {
+                                        "decision":  "Keramik mit Lebensmittelkontakt",
+                                        "default":  "Standard ist „Dekorationsobjekt – nicht für Lebensmittel geeignet“. „Lebensmittelgeeignet“ lässt sich nur speichern, wenn eine gültige Konformitätserklärung verknüpft ist. Die Glasur-Stammdaten und eine öffentliche Seite für Konformitätserklärungen sind vorbereitet. Essgeschirr wird nie nach NL oder LU verschickt.",
+                                        "rationale":  "Nach § 10 BedGgstV braucht es eine deutsche Konformitätserklärung, die online abrufbar ist. In NL und LU gelten seit 29.05.2026 deutlich strengere Grenzwerte."
+                                    },
+                                    {
+                                        "decision":  "Rechnungen und Export",
+                                        "default":  "Der Shop erzeugt die Rechnungs-PDFs selbst: lückenlose Nummern RE-JJJJ-NNNNN, Gutschriften und Stornos als GS-JJJJ-NNNNN, vergeben per Zeilensperre. Die PDFs werden unveränderlich mit SHA-256 in R2 archiviert; es gibt keine Löschfunktion. Monatsexport als CSV plus optional DATEV-Buchungsstapel (EXTF 700). Keine API-Anbindung an Lexware Office oder sevDesk.",
+                                        "rationale":  "Belege nach GoBD für 5–50 Bestellungen im Monat. Eine API-Anbindung würde 33–35 € im Monat kosten und Entwicklungsaufwand bedeuten."
+                                    },
+                                    {
+                                        "decision":  "Aufbewahren und Löschen im Shop",
+                                        "default":  "Bestell-, Rechnungs- und Umsatzdaten 10 Jahre ab Jahresende, danach löschen. Offene oder abgebrochene Bestellungen nach 30 Tagen. Server- und Anwendungslogs mit IP nach spätestens 14 Tagen. Kontaktanfragen nach 12 Monaten, soweit sie keine Geschäftsbriefe sind. Im Admin gibt es Werkzeuge für Auskunft und Export (Art. 15/20 DSGVO), zum Löschen bzw. Anonymisieren und ein Löschprotokoll.",
+                                        "rationale":  "Belege müssen 8 Jahre, Bücher und Aufzeichnungen 10 Jahre aufbewahrt werden (§ 147 AO). Pauschal nach 8 Jahren zu löschen wäre falsch. Die Details stimmen wir mit der Steuerberatung ab."
+                                    },
+                                    {
+                                        "decision":  "Versandtechnik",
+                                        "default":  "Eine Länder-Whitelist in den Einstellungen; UK und USA sind gesperrt, bis sie bewusst freigeschaltet werden. Versandklassen BRIEF, PAKET_S, KERAMIK und ABHOLUNG; im Warenkorb gilt die höchste Klasse. Standard ist DHL. In Phase 1 erstellst du die Etiketten von Hand (Adresse kopieren, Sendungsnummer eintippen oder scannen, das löst die Versandmail aus). Ein Carrier-Interface bereitet die spätere DHL-API vor. Keine Versandplattform. Die Geoblocking-Verordnung wird eingehalten: Kaufen kann jede:r, geliefert wird nur ins Liefergebiet.",
+                                        "rationale":  "Bei diesem Volumen lohnen sich weder DHL-Geschäftskundenkonto noch Sendcloud. UK verlangt ab dem ersten Paket eine VAT-Registrierung, die USA haben keine Zollfreigrenze mehr."
+                                    },
+                                    {
+                                        "decision":  "Verpackung und Bruch",
+                                        "default":  "Keine Versandtaschen aus Kunststoff. Keramik im Karton-in-Karton-System mit mindestens 6 cm Polster. Im Admin gibt es eine Pack-Checkliste je Versandklasse und zwei Packfotos pro Paket. Die Verpackungsgewichte pro Sendung werden gebucht und für die LUCID-Jahresmeldung (bis 1. Juni des Folgejahres) summiert. Die Versandmail enthält den Hinweis, Schäden innerhalb von 7 Tagen mit Fotos zu melden.",
+                                        "rationale":  "DHL berechnet für Nicht-Papier-Verpackungen den Sperrgutzuschlag von 28,99 €. Bruch geht zu Lasten der Verkäuferin (§ 475 Abs. 2 BGB), und bei schlechter Verpackung haftet DHL nicht (§ 427 HGB)."
+                                    },
+                                    {
+                                        "decision":  "E-Mail-Adresse an DHL weitergeben",
+                                        "default":  "Nur mit einer optionalen, nicht vorangekreuzten Checkbox im Checkout. Im Admin ist sichtbar, ob die Weitergabe erlaubt ist.",
+                                        "rationale":  "Laut DSK braucht diese Weitergabe eine Einwilligung."
+                                    },
+                                    {
+                                        "decision":  "Transaktionsmails und DNS",
+                                        "default":  "Die Mails verschickt Lettermint (EU-Infrastruktur) per SMTP über @payloadcms/email-nodemailer. Absender ist shop@planetclairetattoos.com, Antworten gehen an jutta@planetclairetattoos.com. Das Postfach bleibt bei IONOS, das DNS ebenfalls. Beim Go-Live ändern wir nur A @ und CNAME www nach Vercel-Vorgabe, löschen die AAAA-Einträge der Parkseite, lassen MX, SPF und die IONOS-DKIM-Einträge unangetastet, ergänzen DKIM und Return-Path von Lettermint und ersetzen DMARC durch einen eigenen TXT-Eintrag (p=none, nach 4–8 Wochen quarantine). Dazu ein CNAME für staging.",
+                                        "rationale":  "Resend und Postmark speichern Daten in den USA, die Angaben zu Brevo ließen sich nicht prüfen. Über SMTP bleibt ein späterer Anbieterwechsel einfach. Die Mail bleibt während der Umstellung ununterbrochen erreichbar."
+                                    },
+                                    {
+                                        "decision":  "Bilder und Uploads",
+                                        "default":  "Upload-Felder nehmen nur image/jpeg, image/png und image/webp an; iOS wandelt HEIC dabei automatisch um. Im Browser wird auf 2560 px verkleinert, auf dem Server neu kodiert und EXIF/GPS entfernt. WebP-Größen 400/800/1600/2560, Fokuspunkt aktiv. Ein E2E-Test prüft, dass keine GPS-Daten übrig bleiben. Gleich zu Beginn von P1 klärt ein Spike, ob Payload bei clientUploads Bildgrößen erzeugt und Metadaten entfernt.",
+                                        "rationale":  "Umgeht das 4,5-MB-Limit von Vercel und das fehlende HEIC in sharp. Handyfotos würden sonst den Standort von Atelier oder Wohnung verraten."
+                                    },
+                                    {
+                                        "decision":  "Tattoo-Bereich technisch",
+                                        "default":  "Kein Warenkorb, kein Checkout und keine Zahlungsfelder, abgesichert durch einen automatischen Test. Die Buttons heißen „Diesen Flash anfragen“ oder „Idee anfragen“. Anfragen sind privat. Uploads liegen im privaten EU-Bucket mit kurzlebigen, signierten Admin-URLs und werden nie als Mail-Anhang verschickt. Die Admin-Benachrichtigung enthält nur Referenz und Link. Keine Gesundheitsfelder, stattdessen der Hinweistext „bitte keine Gesundheitsinfos“. Pflicht-Checkbox „Ich bin am Tag des Termins mindestens 18“. Anfragenummern im Format T-JJJJ-NNNN.",
+                                        "rationale":  "Erfüllt die Vorgabe „nicht kaufbar“. Online entsteht kein Vertrag über Tattoos, und besonders sensible Daten bleiben aus der Website-Datenbank."
+                                    },
+                                    {
+                                        "decision":  "Löschfristen im Tattoo-Bereich",
+                                        "default":  "Anfragen ohne Termin (abgelehnt, ohne Antwort, zurückgezogen) löschen wir samt Bildern 90 Tage nach dem letzten Kontakt. Fotos der Körperstelle spätestens 3 Monate nach dem Termin. Referenzbilder gebuchter Projekte 12 Monate nach der letzten Sitzung (Zeitfenster fürs Nachstechen). Ein täglicher Löschjob schreibt ein Protokoll nur mit Referenz und Datum. Rate-Limit-Logs mit gehashter IP bleiben 7 Tage.",
+                                        "rationale":  "Verbindet die Empfehlungen aus Rechts- und Tattoo-Recherche und bleibt unter der 6-Monats-Zusage im Einwilligungstext (Art. 5 Abs. 1 lit. e DSGVO)."
+                                    },
+                                    {
+                                        "decision":  "Flash-Status und Buchungsstatus",
+                                        "default":  "Die Status sind verfügbar, reserviert (standardmäßig 72 Stunden, danach automatisch wieder frei), vergeben, wiederholbar, Wanna-do, nur Flash Day und archiviert. Die Anzeigenamen lassen sich im CMS ändern. Eine Anfrage reserviert nicht automatisch. Vergebene One-offs bleiben mit Stempel „VERGEBEN“ sichtbar. Mit dem Schalter „Books open/closed“ stellst du das Formular auf „nur Flash Day, Guest Spot oder Warteliste“ um.",
+                                        "rationale":  "Transparenz, sichtbare Exklusivität der One-offs, kein Blockieren durch Fake-Anfragen und steuerbare Nachfrage."
+                                    },
+                                    {
+                                        "decision":  "Einwilligungen und Kaution beim Tattoo",
+                                        "default":  "Der Einwilligungsbogen mit Gesundheits-Check, Aufklärung, REACH-Farbangaben und abgestufter Foto-Einwilligung bleibt auf Papier bzw. als PDF im Studio. Portfolio-Fotos lassen sich nur mit hinterlegtem Einwilligungsnachweis veröffentlichen und bei Widerruf mit einem Klick zurückziehen. In v1 läuft keine Kaution über die Website; der Admin liefert nur E-Mail-Vorlagen für Vorschlag, Kaution, Termin, Pflege und das Healed-Foto.",
+                                        "rationale":  "So bleiben keine Gesundheitsdaten in der Web-Datenbank (Art. 9 DSGVO, § 22 KUG). Eine Online-Kaution würde Widerrufsbutton, Webhooks und zusätzliche Rechtstexte nach sich ziehen."
+                                    },
+                                    {
+                                        "decision":  "Spamschutz",
+                                        "default":  "Honeypot, Mindest-Ausfüllzeit von 3 Sekunden, Rate-Limit von 5 Anfragen pro Stunde je gehashter IP und ein selbst gehostetes ALTCHA (MIT-Lizenz). Kein reCAPTCHA, kein Turnstile.",
+                                        "rationale":  "Kostenlos, ohne Cookies und Drittanbieter, barrierearm und ohne Banner."
+                                    },
+                                    {
+                                        "decision":  "Instagram",
+                                        "default":  "Keine Einbettungen und keine Feed-Widgets. Eigene Bilder kommen aus dem CMS, dazu ein einfacher Profil-Link. Open-Graph-Bilder sorgen für eine schöne Vorschau beim Teilen. Tiefe Links wie /shop/pc-k-0042-schale-hund lassen sich in Stories nutzen.",
+                                        "rationale":  "Keine gemeinsame Verantwortlichkeit mit Meta, schnellere Ladezeiten und volle Kontrolle über die Bildauswahl."
+                                    },
+                                    {
+                                        "decision":  "Navigation und Barrierefreiheit",
+                                        "default":  "Die kreative Navigation besteht immer aus echten Links mit Textlabel und hat eine Alternative: Textlinks im Header, eine mobile Bottom-Bar (Shop · Tattoo · Coco · Korb), einen Skip-Link und Pflicht-Links im Footer, die höchstens 2 Klicks entfernt sind. Dazu ein Schalter „Einfache Ansicht“ und volle Unterstützung von prefers-reduced-motion. Ziel ist WCAG 2.2 AA, axe-Checks laufen in der CI.",
+                                        "rationale":  "Das BFSG gilt für Kleinstunternehmen nicht (§ 3 Abs. 3), trotzdem sichert das Konversion, SEO und Nutzbarkeit."
+                                    },
+                                    {
+                                        "decision":  "Animation und Performance",
+                                        "default":  "Inline-SVG und CSS (Stroke-Draw, mask-image, Scroll-Snap), native Cross-Document View Transitions nur mit @supports bzw. no-preference, dazu Motion mini. GSAP nur per dynamischem Import. Rive, dotLottie und Three.js kommen nicht in den initialen Ladevorgang. Budgets mobil: LCP ≤ 2,0 s, INP ≤ 150 ms, CLS ≤ 0,05, JS ≤ 90 KB gz auf der Landingpage bzw. ≤ 60 KB gz in Shop und Produktseite, 0 KB WASM. Lighthouse-CI überwacht die Budgets. Vor jedem Release testen wir von Hand im Instagram-In-App-Browser auf iOS und Android.",
+                                        "rationale":  "Die meisten Besuche kommen mobil über den Instagram-In-App-Browser (unter iOS WebKit). Allein die WASM-Laufzeiten mit 360–907 KB gz würden das Budget sprengen."
+                                    },
+                                    {
+                                        "decision":  "Schriften, Farben, Platzhalter",
+                                        "default":  "OFL-Schriften, selbst gehostet und als WOFF2-Subset (höchstens 3 Dateien beim ersten Laden): Fraunces als Platzhalter für die Anzeigeschrift, Atkinson Hyperlegible Next für Fließtext, Bricolage Grotesque für die Bedienoberfläche, Big Shoulders Stencil für Nummern. Das geprüfte Farbtoken-Set aus der Design-Recherche ist der Startwert (Schablonenviolett #5B3FC4 für Zustände, Fokus-Doppelring). Später kalibrieren wir es per Pipette an deinen Fotos. Bis deine Zeichnungen da sind, stehen Platzhalter-SVGs unter festen Dateipfaden.",
+                                        "rationale":  "Freie Lizenzen, keine Übertragung an Google (LG München I, 3 O 17493/20), und der Agent kann ohne Warten auf die Zulieferung weiterarbeiten."
+                                    },
+                                    {
+                                        "decision":  "Admin am Handy",
+                                        "default":  "Payload-Admin mit eigenen, mobil optimierten Ansichten: Neues Stück (Kamera, mehrere Fotos, automatische Nummer), Zu packen, Versenden (Sendungsnummer scannen), Anfragen-Inbox, Flash-Status in höchstens 2 Taps. Dazu ein PWA-Manifest für den Homescreen, Login per Passkey oder TOTP-2FA und eine Sperre nach Fehlversuchen. Außerdem ein Urlaubsmodus, der die Lieferzeit anpasst.",
+                                        "rationale":  "Du pflegst vom Handy aus. Status zu ändern muss schneller gehen als eine Instagram-Story, sonst veraltet die Seite."
+                                    },
+                                    {
+                                        "decision":  "Bargeld auf dem Flohmarkt",
+                                        "default":  "Im Shop wird nur der Bestandsstatus „verkauft (Markt)“ gesetzt, ohne Preis, Bon, Wechselgeld oder Tagesabschluss, bis die Steuerberatung die TSE-Frage geklärt hat. Bargeld führst du getrennt im Kassenbericht.",
+                                        "rationale":  "Eine elektronische Aufzeichnung könnte die TSE- und Meldepflicht nach § 146a AO auslösen. Das ist nicht geklärt."
+                                    },
+                                    {
+                                        "decision":  "Streichpreise und Rabatte",
+                                        "default":  "Jede Preisänderung wird ab Tag 1 protokolliert. Ein Streichpreis ist nur mit dem niedrigsten Preis der letzten 30 Tage als Referenz möglich. Rabattcodes laufen über Stripe Promotion Codes.",
+                                        "rationale":  "§ 11 PAngV. Ohne Preishistorie wäre eine Rabattaktion abmahnbar."
+                                    },
+                                    {
+                                        "decision":  "Reklamationen und Streitfälle",
+                                        "default":  "Im Admin liegen Vorlagen bereit: Wahlrecht Reparatur oder Ersatz, mit dem Hinweis auf 12 Monate zusätzliche Gewährleistung bei Reparatur (für Kaufverträge ab 31.07.2026), ein Bruchprozess mit 7-Tage-Frist gegenüber DHL und ein Hinweis auf die Schlichtungsstelle nach § 37 VSBG. Erstattungen laufen über die Stripe Refunds API, mit Fristanzeige (14 Tage).",
+                                        "rationale":  "Neue Informationspflicht nach § 475 Abs. 4 BGB. § 37 VSBG gilt im Streitfall für alle."
+                                    },
+                                    {
+                                        "decision":  "Impressum-Kontakt",
+                                        "default":  "Der zweite schnelle Kontaktweg ist ein Kontaktformular, keine veröffentlichte Telefonnummer. W-IdNr. und USt-IdNr. sind optionale Felder in den Einstellungen. Die Steuernummer wird nie veröffentlicht.",
+                                        "rationale":  "§ 5 DDG verlangt E-Mail plus einen weiteren schnellen Kontaktweg. Die Steuernummer gehört nicht ins Impressum."
+                                    },
+                                    {
+                                        "decision":  "Mehrsprachigkeit technisch",
+                                        "default":  "Payload-Lokalisierung und next-intl sind von Anfang an mehrsprachig angelegt (Standard de, Fallback aktiv). Freigeschaltet werden nur die Sprachen aus Runde 1.",
+                                        "rationale":  "Einer weiteren Sprache später nachzurüsten wäre teurer als die Struktur jetzt anzulegen."
+                                    },
+                                    {
+                                        "decision":  "Cloud-Entwicklungsumgebung",
+                                        "default":  "Das Setup-Skript installiert Node 24, pnpm 11 und Playwright-Chromium und muss unter ca. 5 Minuten bleiben, damit es gecacht wird. Ein SessionStart-Hook (matcher startup|resume, prüft CLAUDE_CODE_REMOTE) startet Postgres und die Abhängigkeiten. Netzstufe Custom: die Standardliste plus api.stripe.com, files.stripe.com und die Playwright-CDNs. Nur Stripe-Testschlüssel als API Credential. Nie Live-Schlüssel und nie die Produktionsdatenbank in der Cloud; entwickelt wird gegen Postgres in der VM.",
+                                        "rationale":  "Umgebungsvariablen und Setup-Skript sind für alle Nutzer der Umgebung lesbar. Stripe und Playwright stehen nicht auf der Standard-Allowlist."
+                                    },
+                                    {
+                                        "decision":  "Projektgedächtnis und Regeln im Repo",
+                                        "default":  "CLAUDE.md mit unter 200 Zeilen plus .claude/rules/, PLAN.md mit Phasen und einer Definition of Done je Aufgabe, docs/decisions.md mit allen Antworten aus diesem Interview, docs/adr/, RUNBOOK.md, docs/owner-guide-de.md und docs/processors.md (Grundlage für Datenschutzerklärung und Verarbeitungsverzeichnis). Verbindliche Grenzen stehen als permissions.deny in der committeten .claude/settings.json. Dazu .gitattributes mit eol=lf, weil P0 unter Windows entsteht.",
+                                        "rationale":  "Das Auto-Memory wird nicht in die Cloud übertragen, und autoMode-Einstellungen aus dem Projekt liest der Classifier nicht. Nur committete Dateien überleben zwischen den Sessions."
+                                    },
+                                    {
+                                        "decision":  "Umgebungen, CI und Backups",
+                                        "default":  "Lokal mit docker compose (postgres:17). Pro PR eine Vorschau mit anonymisiertem Seed. Staging unter staging.planetclairetattoos.com mit Stripe-Testmodus und Zugangsschutz, Produktion auf dem main-Branch mit Stripe live. GitHub Actions mit lint, typecheck, test:int, build und e2e als Pflicht-Checks, Renovate wöchentlich, Sicherheitspatches sofort. Nachts ein pg_dump, mit age verschlüsselt, in R2 (30 Tage täglich, 12 Monate monatlich). Sentry in der EU-Region ohne personenbezogene Daten und ohne Replay, dazu ein Uptime-Check.",
+                                        "rationale":  "Doppelverkauf, Zahlungsflüsse und Uploads werden automatisch abgesichert. Der kostenlose Neon-Plan hält nur 6 Stunden Wiederherstellungshistorie."
+                                    },
+                                    {
+                                        "decision":  "Spätere Phasen, nicht in v1",
+                                        "default":  "360°-Drehansicht für Keramik, DHL-API mit Thermo-Etiketten, digitale Tattoo-Einwilligung (z. B. kissSign), Katalog für Tattoo-Farbchargen, Online-Kaution und Gutscheine (falls nicht gewählt). Payload 4 erst nach dem stabilen Release, als eigene Migrationsaufgabe.",
+                                        "rationale":  "Diese Punkte gefährden den Launch-Termin und haben keinen Einfluss auf die rechtliche Mindestausstattung."
+                                    }
+                                ],
+    "key_facts":  [
+                      "Die elektronische Widerrufsfunktion (§ 356a BGB) ist seit 19.06.2026 Pflicht, auch für Kleinunternehmerinnen. Grundlage: BGBl. 2026 I Nr. 28, verkündet am 05.02.2026. Gefordert sind ein Link „Vertrag widerrufen“, ein zweiter Schritt „Widerruf bestätigen“ und eine sofortige Eingangsbestätigung mit Datum und Uhrzeit. Die Muster-Widerrufsbelehrung braucht einen neuen Satz zur Online-Funktion. Die erste Abmahnung taucht im Abmahnradar Mai–Juli 2026 auf. (gesetze-im-internet.de/bgb/__356a.html; noerr.com)",
+                      "Die EU-Plattform zur Online-Streitbeilegung (OS) ist seit 20.07.2025 abgeschaltet. Der OS-Link muss aus Impressum, AGB und Mails verschwinden. Die Hinweispflicht nach § 36 VSBG entfällt bei höchstens 10 Beschäftigten. § 37 VSBG gilt im Streitfall trotzdem. (wettbewerbszentrale.de; gesetze-im-internet.de/vsbg/__36.html)",
+                      "BFSG: Kleinstunternehmen, die Dienstleistungen anbieten, sind ausgenommen (§ 3 Abs. 3 i. V. m. § 2 Nr. 17: weniger als 10 Beschäftigte, höchstens 2 Mio. € Umsatz). Ein Onlineshop zählt als Dienstleistung. Barrierefreiheit ist daher freiwillig, aber als Ziel empfohlen. (gesetze-im-internet.de/bfsg/__3.html)",
+                      "Recht auf Reparatur: Für Kaufverträge ab 31.07.2026 muss vor der Nacherfüllung auf das Wahlrecht zwischen Reparatur und Ersatz hingewiesen werden (§ 475 Abs. 4 BGB). Wird repariert, verlängert sich die Verjährung einmalig um 12 Monate (§ 475e Abs. 5 BGB). (gesetze-im-internet.de/bgb/__475e.html)",
+                      "Umtauschrecht bei Unikaten: Fertige Einzelstücke sind voll widerrufbar. Ausgenommen sind nur echte Auftragsarbeiten nach Kundenwunsch (§ 312g Abs. 2 Nr. 1 BGB, eng ausgelegt). Wer Stücke mit Fehlern verkauft, muss die Abweichung ausdrücklich und gesondert vereinbaren (§ 476 BGB). (gesetze-im-internet.de/bgb/__312g.html)",
+                      "Kleinunternehmerregelung seit 2025: Vorjahr höchstens 25.000 €, laufendes Jahr höchstens 100.000 € (netto). Tattoo-, Shop- und Flohmarktumsätze zählen zusammen. Schon der Umsatz, der die Grenze überschreitet, ist steuerpflichtig. Im Gründungsjahr gelten 25.000 €. Kein „inkl. MwSt.“ angeben. (gesetze-im-internet.de/ustg_1980/__19.html; ihk.de/berlin)",
+                      "7 % Umsatzsteuer gelten nur für Kunstgegenstände nach Anlage 2 Nr. 53 UStG (vollständig handgemalte Zeichnungen und Aquarelle, Originalgrafik, Originalskulptur). Handbemalte Gebrauchsgegenstände wie Caps, Shirts, Schalen, Teller und Fliesen liegen voraussichtlich bei 19 %. Das betrifft nur die Regelbesteuerung, die Einordnung ist mit der Steuerberatung zu klären. (gesetze-im-internet.de/ustg_1980/anlage_2.html)",
+                      "Verpackungsrecht: Seit 12.08.2026 gelten die EU-Verordnung PPWR (VO (EU) 2025/40) und das VerpackDG (BGBl. 2026 I Nr. 207), das VerpackG ist außer Kraft. Die LUCID-Registrierung muss vor dem ersten Versand erfolgen und darf nicht delegiert werden. Alte Verträge mit dualen Systemen gelten nur bis 31.12.2026. Bußgelder bis 200.000 €, PPWR-Bußgelder ab 12.02.2027. Wer Karton, Füllmaterial und Klebeband kombiniert, ist in der Regel selbst Herstellerin. (recht.bund.de/bgbl/1/2026/207; verpackungsregister.org)",
+                      "PPWR Art. 45: Wer an Privatkund:innen in anderen EU-Ländern liefert, braucht seit 12.08.2026 pro Zielland einen Bevollmächtigten, ohne Mindestmenge (mehrere hundert € pro Land und Jahr). Ein Marktplatz wie Etsy nimmt diese Pflicht nicht ab. Großbritannien verlangt ab dem ersten Verkauf bis 135 £ eine VAT-Registrierung. Die US-Zollfreigrenze ist ausgesetzt. (etailment.de; gov.uk/guidance/vat-and-overseas-goods-sold-directly-to-customers-in-the-uk)",
+                      "GPSR (seit 13.12.2024, Art. 19): Jedes Online-Angebot braucht Hersteller-Name, Postanschrift, E-Mail, Produktkennung und Warnhinweise auf Deutsch. Ausgenommen sind nur reine Kunstwerke; Gebrauchsgegenstände wie „Kunsttassen“ fallen darunter. Die Kennzeichnung gehört auch aufs Produkt, auf die Verpackung oder einen Beileger (Art. 9). (eur-lex.europa.eu CELEX:32023R0988; ohn.haendlerbund.de)",
+                      "Textilkennzeichnung: Die Faserzusammensetzung muss vor dem Kauf deutlich sichtbar sein, auch online (Art. 16 VO 1007/2011), und nur mit den amtlichen Faserbezeichnungen. Gebrauchte Textilien, die ausdrücklich als gebraucht bezeichnet sind, sind ausgenommen. Pflegehinweise sind freiwillig, die GINETEX-Symbole markenrechtlich geschützt. (eur-lex.europa.eu CELEX:32011R1007)",
+                      "Keramik mit Lebensmittelkontakt braucht eine deutschsprachige Konformitätserklärung (§ 10 BedGgstV). Grenzwerte: Blei 4,0 mg/l, Cadmium 0,3 mg/l bei füllbaren Gefäßen. Online muss die Erklärung mindestens auf der Website abrufbar sein (CVUA Stuttgart, Stand Mai 2026). In NL und LU gelten seit 29.05.2026 strengere Werte (Blei ca. 133-fach, Cadmium ca. 15- bis 17-fach). Die EU-Revision ist noch nicht verabschiedet. (gesetze-im-internet.de/bedggstv/__10.html)",
+                      "Cookies: Laut DSK-Orientierungshilfe Digitale Dienste (v1.2, Rn. 76/80/116) ist ein Banner nur nötig, wenn tatsächlich eine Einwilligung erforderlich ist. Warenkorb- und Zahlungscookies sind erst nach dem Klick auf „In den Warenkorb“ erforderlich. Der Digital Omnibus ist im September 2026 nur ein Vorschlag. (datenschutzkonferenz-online.de/media/oh/OH_Digitale_Dienste.pdf)",
+                      "Aufbewahrung (§ 147 AO): Buchungsbelege und Rechnungen 8 Jahre, Bücher und Aufzeichnungen 10 Jahre, sonstige Geschäftsbriefe 6 Jahre. Die E-Rechnung betrifft nur B2B; Kleinunternehmerinnen dürfen dauerhaft PDF-Rechnungen schicken (§ 34a UStDV). (gesetze-im-internet.de/ao_1977/__147.html)",
+                      "Rechtstexte: Die IT-Recht Kanzlei „Starter“ kostet 9,90 € netto im Monat, ist monatlich kündbar und hat eine öffentlich dokumentierte LTI-Push-Schnittstelle für eigene Shops. Der Händlerbund dokumentiert seine Schnittstelle nur für Shopware, JTL, WooCommerce, Shopify und Magento und bindet 12 Monate. (it-recht-kanzlei.de/schutzpakete.html; github.com/it-recht-kanzlei/itrk-plugin-sdk)",
+                      "Wirtschafts-Identifikationsnummer: Kleinunternehmer:innen haben sie seit November 2024 automatisch bekommen (Stufe 1). Ist sie vorhanden, gehört sie ins Impressum (§ 5 Abs. 1 Nr. 6 DDG). Die Steuernummer gehört nicht ins Impressum. (bzst.de)",
+                      "Stripe (DE): Standardkarten aus dem EWR 1,5 % + 0,25 €. PayPal über Stripe kostet zusätzlich 0,2 % + 0,10 € auf die PayPal-Gebühr von 2,99 % + 0,39 €. Klarna 2,99 % + 0,35 €. Die erste Auszahlung kommt 7 Tage nach der ersten Live-Zahlung. Checkout-Sessions laufen nach 30 Minuten bis 24 Stunden ab. SEPA gilt erst nach etwa T+6 Geschäftstagen als bezahlt. (stripe.com/de/pricing; docs.stripe.com/api/checkout/sessions/create)",
+                      "DHL-Privatkundenpreise 2026 (online): Paket 2 kg 6,19 € (max. 60×30×15 cm), 5 kg 7,69 €, Haftung bis 500 €. Sperrgut kostet 28,99 € und gilt auch für jede Verpackung, die nicht aus Pappe oder Papier ist. Das Transportrisiko trägt bei Privatkund:innen die Verkäuferin (§ 475 Abs. 2 BGB). (dhl.de Leistungen und Preise, Stand 01.07.2026)",
+                      "Tattoo-Termine per DM, E-Mail oder Formular mit Anzahlung können Fernabsatzverträge mit 14 Tagen Widerrufsrecht sein (§ 312c BGB). Eine Anzahlung kann nicht per AGB „verfallen“ (§ 648 BGB). Das Urteil AG Dresden vom 17.04.2026 (Az. 116 C 5571/25, 310 € Rückzahlung) kennen wir nur aus zweiter Hand (tattoo-recht.de), den Volltext haben wir nicht geprüft.",
+                      "Tätowierfarben: REACH Anhang XVII Nr. 75 verlangt, dass Kund:innen vor dem Tätowieren die Angaben vom Farbetikett bekommen (Charge, Inhaltsstoffe). Die Berliner Infektionsverhütungs-VO 2017 verlangt einen Hygieneplan und 5 Jahre Aufbewahrung der Sterilisator-Nachweise. Eine gesetzliche 10-Jahres-Pflicht für Einwilligungsbögen ließ sich nicht belegen. (eur-lex.europa.eu CELEX:32020R2081; parlament-berlin.de vo18-047)",
+                      "Aktueller DNS-Stand von planetclairetattoos.com (Abfrage am 26.09.2026): Nameserver bei IONOS; A 217.160.0.7 und AAAA 2001:8d8:100f:f000::200 zeigen auf die Parkseite; kein HTTPS. MX mx00/mx01.ionos.de, SPF include:_spf-eu.ionos.com, IONOS-DKIM (s1-ionos, s2-ionos, s42582890), DMARC als CNAME mit p=none.",
+                      "Technikstand am 26.09.2026: Payload 3.90.2 ist stabil, Payload 4 gibt es nur als Canary. Next.js 16.3.6 kam am 22.09. außer Plan, 16.3.7 ist für den 30.09.2026 angekündigt (behebt 9 Lücken). Vercel Hobby ist nur für nicht-kommerzielle Nutzung, Standardregion ist iad1 (USA), Uploads sind auf 4,5 MB pro Anfrage begrenzt, das Standard-Ausgabenbudget liegt bei 200 USD. Vercel Postgres gibt es nicht mehr. (npmjs.com; nextjs.org/blog; vercel.com/docs)",
+                      "Claude-Code-Cloud: Standard ist Node 22. Das Setup-Skript wird nur gecacht, wenn es in etwa 5 Minuten fertig ist. API Credentials gibt es nur bei Pro und Max. Umgebungsvariablen sind für alle Nutzer der Umgebung lesbar. Auto-Memory und ~/.claude/settings.json gibt es in der Cloud nicht, und autoMode wird nicht aus Projekteinstellungen gelesen. Jede Session pusht nur auf ihren eigenen Branch. Routines laufen höchstens stündlich, nur mit Abo-Login. (code.claude.com/docs/en/cloud-environments; /routines; /auto-mode-config)",
+                      "Händlerbund-Abmahnstudie 2026: 48 % Wettbewerbsrecht, 26 % Urheberrecht (davon 88 % Bilder), rund 20 % Markenrecht. 41 % der Betroffenen zahlten 1.001–2.000 €. Seit EuGH C-21/23 können auch Mitbewerber DSGVO-Verstöße abmahnen. (haendlerbund.de/abmahnstudie2026)",
+                      "Instagram-In-App-Browser: Auf iOS läuft er über WebKit, also mit Safari-Funktionen. Cross-Document View Transitions gibt es ab iOS 18.2 (weltweit ca. 88 %), scroll-gesteuerte Animationen erst ab iOS 26. Beides nur als progressive Verbesserung einsetzen. (caniuse.com; developer.apple.com App Review 2.5.6)",
+                      "Nicht verifiziert bzw. unsicher: Laborkosten für Glasurprüfungen (Forenangaben 40–150 € pro Glasur), aktuelle DHL-Bedingungen für die USA, Datenstandort bei Brevo, Firmensitz von Lettermint, der Preis von PreZero, ob Payload bei clientUploads EXIF-Daten entfernt, Anlage 1 EGBGB zeichengenau, die Android-WebView-Basis des Instagram-Browsers. Die Awwwards-Referenz mystaelectric.com leitet inzwischen auf eine Glücksspielseite um und darf nicht verlinkt werden."
+                  ],
+    "risks":  [
+                  "Zeitplan für das Weihnachtsgeschäft 2026: Bis Mitte November bleiben etwa 7 Wochen. In dieser Zeit müssen Stripe-Prüfung (erste Auszahlung erst 7 Tage nach der ersten Live-Zahlung), LUCID-Registrierung und Lizenz, Rechtstexte, AV-Verträge, Produktfotos und Zeichnungen fertig werden, dazu die DHL-Stichtage vor Weihnachten. Gegenmaßnahme: MVP-Schnitt nach der Antwort zu „Was darf später kommen?“ und Soft-Launch mit Platzhalter-Grafik.",
+                  "Kritischer Pfad Zeichnungen und Inhalte: 25–40 Zeichnungen, eine Handschrift-Vorlage, mindestens 3 Fotos pro Stück sowie Texte zu Tattoo, Pflege und Über mich kommen von dir. Verzögern sie sich, kann der Cloud-Agent die Design-Phasen nicht abschließen.",
+                  "Abmahnrisiken beim Start: fehlende oder fehlerhafte Widerrufsfunktion, übrig gebliebener OS-Link, „inkl. MwSt.“ trotz Kleinunternehmerstatus, fehlende Faserangaben, GPSR-Block oder Versandkostenhinweis, Impressum-Lücken auch bei Instagram, ein pauschaler Widerrufsausschluss für Handgemachtes. Eine Abmahnung kostet oft 1.000–2.000 €.",
+                  "Keramik: Schalen und Teller ohne Konformitätserklärung als Essgeschirr zu verkaufen ist unzulässig. Auch mit dem Hinweis „nur Deko“ ist das Risiko bei klassischen Essformen nicht ganz weg. Außerdem kann eine EU-Revision heutige Prüfberichte entwerten.",
+                  "Marke und Urheberrecht: Ob „Planet Claire“ in Klasse 25 (Bekleidung) bzw. 21 (Keramik) frei ist, wurde nicht geprüft; der Name ist auch ein bekannter Songtitel. Motive mit fremden Figuren (z. B. Godzilla/Toho) auf Verkaufsware sind abmahnfähig.",
+                  "Tattoo-Kautionen: Werden Termine per DM oder E-Mail mit Anzahlung fest vereinbart, droht ohne Widerrufsbelehrung die Rückzahlung, und die Widerrufsfrist kann auf bis zu 12 Monate und 14 Tage anwachsen. Klauseln wie „Anzahlung verfällt“ in AGB sind angreifbar. Die Anwaltsprüfung steht noch aus.",
+                  "Gesundheitsdaten: Fotos der Körperstelle (Narben, Cover-ups) gelten als Art.-9-Daten. Ein Datenleck, E-Mail-Anhänge oder fehlende Löschung wären schwere DSGVO-Verstöße. Der Upload-Speicher muss privat bleiben und automatisch löschen.",
+                  "Doppelverkauf von Unikaten zwischen Online-Shop, Instagram-DM und Flohmarkt: Fehlen die Reservierungslogik oder der Markt-Modus, gibt es Erstattungen und enttäuschte Kund:innen. Deshalb gibt es einen Test mit zwei gleichzeitigen Käufen.",
+                  "Steuergrenzen: Wird die Kleinunternehmergrenze plötzlich überschritten (Tattoos zählen mit), müssen Preishinweise und Rechnungen sofort umgestellt werden. Fälschlich ausgewiesene Umsatzsteuer wird nach § 14c UStG trotzdem geschuldet. Bleibt die Frage der elektronischen Barverkaufs-Erfassung (TSE, § 146a AO) offen, bleibt ein Risiko beim Flohmarkt.",
+                  "Unbedachte Öffnung für die EU: Schon das erste Paket ins EU-Ausland löst die PPWR-Pflicht aus, pro Land einen Bevollmächtigten zu benennen. Oberhalb von 10.000 € gilt Umsatzsteuer im Bestimmungsland (OSS). Die Freigabe von Versandländern im Admin muss deshalb bewusst geschehen.",
+                  "Bruch bei Keramik: Das Transportrisiko trägt die Verkäuferin. Bei mangelhafter Verpackung zahlt weder DHL noch eine Versicherung. Bruch kostet also direkt Geld und muss eingepreist werden.",
+                  "Sicherheit und Updates: Next.js hatte im September 2026 mehrere kritische Lücken. Ohne Renovate und zügige Patches, höchstens nach 48 Stunden, bleibt der Shop angreifbar. Payload 4 wird später eine eigene Migration brauchen.",
+                  "Offene technische Punkte: Ob Payload bei clientUploads Bildgrößen erzeugt und GPS/EXIF entfernt, ist ungeklärt; ohne den Spike könnten Standortdaten öffentlich werden. Die Stripe-API benennt ui_mode je nach Version anders. Neons Produkt- und Preisentwicklung nach der Übernahme durch Databricks ist offen.",
+                  "Datenübermittlung in die USA: Vercel verarbeitet hauptsächlich in den USA (SCC + DPF). Das DPF wird vom EuGH geprüft (C-703/25 P). Fiele es weg, müssten wir über den Docker-Exit-Pfad zu Hetzner umziehen.",
+                  "Kostenfallen: Das Vercel-Standardbudget liegt bei 200 USD ohne harte Pause. Ein Bot-Angriff oder ein viraler Drop könnte ohne gesenktes Limit teuer werden. Dazu kommt das Claude-Abo; mit Pro dauert der autonome Bau durch die Limits deutlich länger.",
+                  "Autonomer Cloud-Ablauf: Ohne feste Merge-Regel baut die nächste Session nicht auf der vorherigen auf. Die autoMode-Konfiguration wird aus dem Projekt nicht gelesen, das Auto-Memory geht verloren, und Playwright- bzw. Stripe-Domains sind ohne Custom-Allowlist gesperrt. Entscheidungen, die nicht im Repo stehen, sind in der nächsten Session weg.",
+                  "Geheimnisse: Umgebungsvariablen der Cloud-Umgebung sind lesbar. Liegen dort Live-Schlüssel für Stripe oder Datenbank, wäre das ein schwerer Sicherheitsvorfall. Deshalb dort nur Testschlüssel als API Credential.",
+                  "DNS-Umstellung: Bleiben die AAAA-Einträge stehen, landen IPv6-Nutzer weiter auf der Parkseite. Ein Nameserver-Wechsel ohne Übernahme von MX/SPF/DKIM würde die IONOS-Mail lahmlegen. Deshalb nur A- und CNAME-Einträge ändern.",
+                  "Kreative Navigation gegen Kaufpfad: Zu viel Animation verschlechtert LCP und INP im Instagram-In-App-Browser und die Bedienbarkeit per Tastatur oder Screenreader. Ohne Performance- und a11y-Prüfungen in der CI sinkt die Konversion unbemerkt.",
+                  "Eine Person trägt alles (Bus-Faktor): Wenn du allein alle 2FA-Zugänge, Stripe und IONOS hältst, stehen Shop und Mail bei Verlust eines Geräts still. Wiederherstellungscodes und eine Notfall-Checkliste sind Pflicht.",
+                  "Unsichere Rechercheergebnisse: Laborkosten, Brevo-Standort, DHL-USA, AG-Dresden-Volltext, der exakte Wortlaut von Anlage 1 EGBGB und das Fortgelten der Berliner Hygiene-VO wurden nicht primär geprüft und dürfen nicht ungeprüft in Texte übernommen werden."
+              ],
+    "manual_owner_tasks":  [
+                               "1. Fragenkatalog beantworten und die ausdrückliche Freigabe für P0 geben. Danach wird P0 lokal umgesetzt, und es geht erst nach deiner Rückkehr in die Cloud weiter.",
+                               "2. Claude-Abo für die Bauphase klären, empfohlen Max. GitHub-Konto mit 2FA anlegen bzw. prüfen. Das private Repository nach P0 übernehmen und die Claude GitHub App dafür installieren; sie ist für Auto-Fix und Routines nötig.",
+                               "3. Termin mit der Steuerberatung vor P1: Kleinunternehmerstatus 2025/2026 inklusive Tattoo-Umsätzen, W-IdNr. oder USt-IdNr. (in ELSTER oder im BZSt-Schreiben nachsehen), Einordnung 7 %/19 %, Löschfristen nach GoBD (10 Jahre), TSE-Frage bei Barverkäufen, Exportformat für die Buchhaltung.",
+                               "4. Gewerbeanmeldung prüfen: Deckt sie Online-Handel mit Keramik, Textil und Zeichnungen sowie das Tätowieren ab? Eventuell ergänzen. Außerdem die Betriebshaftpflicht für Tattoo und Produkte prüfen.",
+                               "5. Öffentliche Adresse für Impressum, Herstellerangabe und Rücksendung festlegen. Falls eine Atelieradresse genutzt wird: Klingelschild und Briefkasten so beschriften, dass dort zugestellt werden kann.",
+                               "6. Markenrecherche zu „Planet Claire“ beim DPMA (dpma.de, DPMAregister) und EUIPO (TMview) in den Klassen 21, 25, 40 und 44. Stücke mit fremden Figuren aussortieren oder vorher prüfen lassen.",
+                               "7. Stripe-Konto als Einzelunternehmen auf deine Geschäfts-E-Mail anlegen, mit Ausweis, IBAN und Steuernummer verifizieren. Kontoauszugs-Beschreibung „PLANETCLAIRE“ setzen. PayPal-Geschäftskonto in Stripe verknüpfen, Klarna je nach Antwort aktivieren, SEPA-Lastschrift deaktivieren. 2FA einschalten.",
+                               "8. Weitere Konten auf deine Geschäfts-E-Mail mit 2FA anlegen: Vercel (Pro-Plan, Ausgabenlimit auf 50 USD mit harter Pause), Neon (Region Frankfurt), Cloudflare (R2 mit EU-Jurisdiktion), Lettermint, Sentry (Datenregion EU schon beim Anlegen wählen, später nicht mehr änderbar). Eine Helferperson nur als eingeladenes Mitglied hinzufügen. Wiederherstellungscodes offline sichern.",
+                               "9. Mit allen Dienstleistern die Auftragsverarbeitungsverträge nach Art. 28 DSGVO abschließen bzw. im Dashboard akzeptieren: Vercel, Neon, Cloudflare, Stripe, Lettermint, Sentry, gegebenenfalls den Newsletter-Dienst.",
+                               "10. IT-Recht Kanzlei „Starter“ buchen (9,90 € netto im Monat) und den Fragebogen anhand der Dienstleisterliste aus docs/processors.md ausfüllen: Zahlarten, Versandgebiet, Rücksendekosten, keine Streitschlichtung. Nach P1 den LTI-Token aus dem Shop-Admin im Kanzlei-Portal eintragen.",
+                               "11. Selbst im Verpackungsregister LUCID registrieren (verpackungsregister.org; darf nicht delegiert werden) und vor dem ersten Versand eine Kleinstlizenz bei einem dualen System nach neuem VerpackDG abschließen, gültig über 2027 hinaus. Neutrale, zweiwellige Kartons, Papierpolster und Papierversandtaschen besorgen, keine aus Kunststoff.",
+                               "12. Produktpflichten vorbereiten. Keramik: Boden dauerhaft mit Objektnummer und „nicht für Lebensmittel“ kennzeichnen (Stempel oder Unterschrift); optional Angebote für die Laborprüfung bei FGK, KI Meißen oder Eurofins einholen. Textil: Faserangaben aller Rohlinge notieren, Labels oder Hangtags besorgen, Sicherheitsdatenblätter der Textilfarben sammeln. Schmuck: Lieferantenerklärungen zu Nickel und Material für Ösen und Ketten besorgen.",
+                               "13. GPSR-Unterlagen: Die Vorlage aus dem Repo zur Risikoanalyse und technischen Dokumentation je Produktkategorie ausfüllen und 10 Jahre aufbewahren.",
+                               "14. Produktfotos und -daten für das Start-Sortiment: mindestens 3 Fotos pro Stück im Hochformat 4:5 auf der grünen Schneidematte bei Tageslicht (Übersicht, Detail, Größenvergleich), dazu Maße in cm, Gewicht, Material, Beschreibung und eine kurze „Jutta sagt“-Notiz.",
+                               "15. Zeichnungen liefern (Scan mit 600 dpi, schwarze Linie auf Weiß): 9–12 Navigationsmotive, 6–10 Coco-Posen, 5 Stempel (1 von 1, schon zuhause, frisch aus dem Ofen, frei, vergeben), Kringel und Pfeile, Wortmarke „planet claire“ mit Planet. Bei einer Handschrift-Schrift: Calligraphr Pro für einen Monat (10 €) buchen und die Vorlage ausfüllen.",
+                               "16. Inhalte für den Tattoo-Bereich: Text über deinen Stil und darüber, was du stichst und was nicht; Flash-Bögen scannen oder fotografieren; Preise (Mindestpreis, Flash-Preise, eventuell Stundensatz); deine Pflegeanleitung; FAQ-Antworten; Studio- und Hygiene-Angaben; Hinweis auf Coco für Allergiker:innen.",
+                               "17. Für alle Portfolio-Fotos von Kund:innen die Einwilligung für die Website neu einholen, falls nur Instagram abgedeckt ist. Den Einwilligungsbogen auf Papier aktualisieren: abgestufte Foto-Freigabe, REACH-Farbangaben mit Marke, Farbton und Charge, Pflegeanleitung erhalten.",
+                               "18. Anwaltliche Prüfung (Tattoo-Recht): Regel für die Terminkaution, Widerrufsbelehrung für Tattoo-Dienstleistungen samt Textbaustein zum vorzeitigen Beginn, Aufbewahrungsfrist der Einwilligungsbögen, Text der Einwilligung für Körperfotos.",
+                               "19. Vor der Cloud-Phase in claude.ai/code die Cloud-Umgebung nach der P0-Anleitung einrichten, gegebenenfalls mit der Helferperson: Setup-Skript, Netzstufe Custom mit Standardliste plus api.stripe.com und Playwright-Domains, Stripe-TEST-Schlüssel als API Credential (nie Live-Schlüssel). Das geht nur mit Pro oder Max und Admin-Rolle.",
+                               "20. Die Pull Requests nach der vereinbarten Merge-Regel freigeben bzw. die automatische Übernahme im Repository einschalten. Am Ende jeder Phase die Vorschau bzw. Staging-Seite anschauen.",
+                               "21. Am Go-Live-Tag bei IONOS, allein oder mit Helferperson: die DNS-Zone vorher per Screenshot sichern. A @ und CNAME www genau nach Vercel-Anzeige setzen, die AAAA-Einträge der Parkseite löschen, MX, SPF und IONOS-DKIM nicht anfassen. DKIM und Return-Path von Lettermint ergänzen, DMARC als eigenen TXT-Eintrag setzen, staging-CNAME anlegen. In Stripe die Domain unter „Payment method domains“ registrieren (für Apple Pay).",
+                               "22. Abnahme vor dem Go-Live: eine echte Testbestellung mit eigener Karte samt Erstattung, einen Widerruf über /vertrag-widerrufen ausprobieren, eine Testmail an Gmail schicken und im Header prüfen, dass SPF, DKIM und DMARC „pass“ zeigen. Seite im Instagram-In-App-Browser auf iPhone und Android öffnen.",
+                               "23. Instagram: Bio-Link auf planetclairetattoos.com und zusätzlich einen Impressum-Link (/impressum) setzen. Schnellantwort für DMs mit Link zu /tattoo/anfrage anlegen. Story-Highlight „Shop“ erstellen und in Stories auf Produktlinks verweisen.",
+                               "24. Flohmarkt vorbereiten: QR-Aufkleber mit Objektnummer aus dem Admin drucken. Tap to Pay in der Stripe-Dashboard-App einrichten oder SumUp weiter nutzen. Bargeld getrennt im Kassenbericht führen.",
+                               "25. Laufend: DHL-Etiketten in der Post-\u0026-DHL-App erstellen und die Sendungsnummer im Admin eintragen. Jährlich bis 1. Juni die Verpackungsmengen in LUCID melden. Auskunftsanfragen zum Datenschutz innerhalb eines Monats beantworten. Warnungen des Umsatzzählers im Admin beachten."
+                           ]
+}

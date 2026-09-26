@@ -1,7 +1,298 @@
 # Offene Punkte
 
-Hier tragen Entwicklungs-Sessions Annahmen ein, die sie ohne Rückfrage treffen mussten (siehe CLAUDE.md §2),
-sowie Punkte, die Jutta irgendwann entscheiden oder liefern sollte. Jutta geht diese Liste in P11 durch.
+> **Stand:** 27.09.2026 (nach P0) · **Für:** Jutta und alle Claude-Sessions P1–P10 · **Durchsicht:** in P11 gemeinsam
+> (AUFGABEN A31, PLAN P11.1)
+
+## 1. Was ist diese Liste?
+
+Hallo Jutta,
+
+hier steht alles, was noch offen ist: Dinge, die nur du oder die Kanzlei entscheiden können, und Annahmen, die die
+Entwicklung ohne dich getroffen hat. Nichts davon hält die Arbeit auf. Bis du entscheidest, gilt immer der
+**Standard**: die vorsichtigste Lösung, die sich später leicht ändern lässt. Damit geht nichts Riskantes online.
+
+**Wer trägt ein?** Die Claude-Sessions. Wenn etwas nicht in den Unterlagen steht, nehmen sie den Standard, schreiben
+ihn hier auf und arbeiten weiter (CLAUDE.md §2). Du wirst zwischendurch nichts gefragt.
+
+**Wie liest du die Liste?**
+
+- **Abschnitt 2 ist für dich.** Er ist nach Wichtigkeit sortiert, das Wichtigste steht oben. Die Spalten sagen dir,
+  was gerade gilt, was du tun sollst und bis wann.
+- **Abschnitt 3** enthält die Fragen an die Kanzlei aus der Briefing-Mappe. Die beantwortet die Kanzlei. Wo du danach
+  selbst entscheiden musst, steht der Punkt zusätzlich in Abschnitt 2.
+- **Abschnitt 4** kannst du überspringen. Das sind technische Annahmen, die die Entwicklung selbst entscheidet.
+- **Abschnitt 5** ist das Protokoll. Dort schreibt jede Session neue Annahmen hinein. In P11 gehen wir jede Zeile
+  gemeinsam durch.
+- Die Spalte **ID** sagt, woher ein Punkt stammt. Die brauchst du nicht, sie hilft nur beim Nachlesen. Die
+  **J-Nummern** (J-01, J-02 …) sind die Nummern dieser Liste. Damit kannst du einfach sagen: „J-05 ist erledigt.“
+  **A-Nummern** (A08 …) sind deine Aufgaben in `docs/owner/AUFGABEN.md`, dort mit Schritt-für-Schritt-Anleitung.
+
+**Worauf du achten solltest**
+
+- Eine kleine Einstellung im GitHub-Repository machst du am besten sofort, sie dauert fünf Minuten (J-44).
+- Drei Punkte brauchen viel Vorlauf: Kanzlei (J-04), Verpackungsregister und -lizenz (J-03) und die Einwilligungen
+  für Tattoo-Fotos (J-05). Am besten fängst du damit früh an.
+- Die Adressfrage (J-01) betrifft deine Privatsphäre. Entscheide sie bewusst, sobald die Antwort der Kanzlei da ist.
+- Die Vorschau-Datei schaust du dir nur privat an (J-10).
+- Schreib nichts Geheimes in diese Datei: keine Passwörter, keine IBAN, keine Steuernummer, keine Daten von
+  Kund:innen. Das trägst du in P11 selbst in der Verwaltung ein. Hier reicht „erledigt“ oder deine Entscheidung. Du
+  kannst sie auch einfach Claude sagen.
+
+**Abkürzungen in der Spalte ID:** KONZEPT = `docs/KONZEPT.md` (KA-xx: Anhang A) · DATENMODELL = `docs/DATENMODELL.md`
+(DM-xx: §16) · ARCHITEKTUR = `docs/ARCHITEKTUR.md` (C-xx: Anhang C, B-xx: Anhang B) · DESIGN = `docs/design/DESIGN.md`
+(DA-x: Anhang A.1) · SEED-SPEC = `content/seed/SEED-SPEC.md` (SE-xx: §20) · RECHT = `docs/recht/ANFORDERUNGEN.md`
+(R-xxx, V-xx) · K-xx = Kanzleifrage aus `docs/recht/KANZLEI-BRIEFING.md` §17 · LÖSCHKONZEPT =
+`docs/recht/LOESCHKONZEPT.md` · E-xx = `docs/ENTSCHEIDUNGEN.md` · PLAN = `PLAN.md` (P<n>.<m>: Aufgaben; W-xx:
+W-Liste vor Phase P1) · KUNST-QA = `docs/design/KUNST-QA.md` · CLOUD-SETUP = `docs/CLOUD-SETUP.md` · A-xx =
+`docs/owner/AUFGABEN.md`.
+
+---
+
+## 2. Für Jutta – bitte entscheiden oder liefern (vor/bei P11)
+
+Hier stehen nur Punkte, bei denen es um eine Entscheidung, eine Lieferung oder eine Annahme geht, die du kennen
+solltest. Alle Schritt-für-Schritt-Aufgaben (Konten, Stripe, PayPal, DNS, Start-Tag) stehen in
+`docs/owner/AUFGABEN.md` (A01–A50) und werden hier nicht wiederholt.
+
+### 2.1 Wichtig – bitte zuerst
+
+| ID | Thema in einfachen Worten | Was gerade gilt (Standard) | Was du tun sollst | bis wann |
+|---|---|---|---|---|
+| **J-44** · ARCHITEKTUR §6.7 · CLOUD-SETUP §1 · A01a | **Eine Einstellung im GitHub-Repository: was beim Übernehmen („Mergen“) eines Pull Requests in die Nachricht kommt.** | Claude übernimmt seine Pull Requests immer mit einer eigenen, kurzen Nachricht. Übernimmst du selbst per Knopf, schreibt GitHub ohne diese Einstellung alle Zwischenschritte in die Nachricht; ein Vermerk darin kann verhindern, dass die fertige Vorschau automatisch veröffentlicht wird. Ein täglicher Nachhol-Lauf fängt das zwar ab, aber mit der Einstellung klappt es sofort. | Einmal einstellen: Repository auf github.com → „Settings“ → „General“ → Abschnitt „Pull Requests“ → Häkchen bei „Allow squash merging“ → darunter bei „Default commit message“ **„Pull request title and description“** wählen (Anleitung G1, Teil „Einmal einstellen“). | sofort nach dem Anlegen des Repositorys, vor dem ersten Übernehmen |
+| **J-01** · K-39 · KONZEPT KA-14 · E-40, E-50 · RECHT R-020, R-040, V-31 · A08, A26 | **Deine Privatadresse und der Ort deines Studios.** Die Adresse im Impressum zeigt, wo dein Privatstudio ist, obwohl die Tattoo-Seiten nur den Bezirk nennen. | Deine Privatadresse steht im Impressum, als Herstelleranschrift auf jeder Produktseite, auf Rechnungen, Etiketten und Beilegern und als Rücksendeadresse. Tattoo- und Kontaktseiten nennen nur den Bezirk; den Abholort erfährt man erst aus der Abholmail. | Die Kanzlei klärt, ob statt der Wohnadresse eine andere Anschrift reicht (K-39). Danach entscheidest du: Privatadresse lassen oder eine Geschäftsadresse nutzen, unter der dich Post von Behörden und Gerichten sicher erreicht (ein Postfach geht nicht; so eine Adresse kostet meist monatlich). | nach der Antwort der Kanzlei, spätestens P11 |
+| **J-02** · RECHT R-020, R-021, R-205 · KONZEPT KA-03 · K-28 · A11, A12 | **Impressum: Telefonnummer und W-IdNr.** (Wirtschafts-Identifikationsnummer) | Platzhalter. Eine Telefonnummer ist Pflicht (Impressum und Widerrufsbelehrung); ohne sie bleibt die Startklar-Prüfung rot. Die W-IdNr. ist ein freiwilliges Feld; ob sie ins Impressum muss, klärt die Kanzlei (K-28). | Eine Telefonnummer festlegen, gern eine eigene Nummer nur fürs Geschäft. Deine W-IdNr. heraussuchen, falls du eine hast (Anleitung T2). Beides trägst du in P11 selbst in der Verwaltung ein. | vor P11 |
+| **J-03** · E-47 · RECHT R-200, R-201, R-210 Nr. 5 · KONZEPT KA-27 · DATENMODELL DM-15 · K-35 · A14, A15 | **Verpackung: Registrierung bei LUCID und eigene Verpackungslizenz** bei einem „dualen System“. Pflicht vor dem ersten Paket. | Der Shop zählt beim Packen das Verpackungsmaterial je Sendung und macht daraus einen Jahres-Export für die Meldungen. Ohne LUCID-Nummer und Lizenz bleibt die Startklar-Prüfung rot. Dass du beides brauchst, ist entschieden; die Kanzlei nennt nur Details zu Meldungen und Fristen (K-35). | Bei LUCID registrieren (das darfst nur du selbst), dann die Lizenz abschließen und die Menge fürs erste Jahr schätzen. „Vorlizenzierte“ Kartons reichen nicht. LUCID-Nummer, Name des Systems und Vertragsbeginn trägst du in P11 ein. | vor P11 (vor dem ersten Paket) |
+| **J-04** · E-41 · RECHT R-002, R-012, R-210 Nr. 1–2, §6 · Protokoll P0 „Rechtstexte“ · A08, A28 | **Kanzlei beauftragen.** Impressum, Datenschutzerklärung, AGB, Widerrufsbelehrung und die kurzen Rechtsbausteine (z. B. der Hinweis am Preis) schreibt einmalig eine Kanzlei. | Deutlich markierte Platzhalter-Texte. Damit geht die Seite nicht live. | Angebote einholen und eine Kanzlei mit der Mappe `docs/recht/KANZLEI-BRIEFING.md` beauftragen, am besten früh, denn die Kanzlei braucht Zeit. Wenn die Texte kommen: prüfen, ob alle da sind, als Text- und HTML-Datei, nicht nur als PDF (A28). | so bald wie möglich; Texte vollständig vor P11 |
+| **J-05** · E-42 · RECHT R-172 · KONZEPT KA-27 · K-27 · A13, A48 | **Einwilligungen für Tattoo-Fotos** deiner Kund:innen. | Fotos von Kund:innen erscheinen nur, wenn an genau diesem Foto das Häkchen für die Einwilligung gesetzt ist, ohne Häkchen nie. Eine Freigabe für Instagram gilt nicht automatisch für die Website. Den Wortlaut der Einwilligung prüft die Kanzlei (K-27). | Einwilligungen einholen (fertige DM-Texte in der Anleitung E1) und in der Verwaltung je Foto das Häkchen setzen. Keine Screenshots der Einwilligungen auf GitHub. | während P1–P10, spätestens P11 |
+| **J-06** · E-64 · DESIGN DA-8 · Protokoll P0 „Instagram-Bilder nur 640 px“ · PLAN P8.10 · A04, A06 | **Instagram-Datenexport.** Die Bilder aus deinem Profil sind nur 640 Pixel groß. | Beispielbestand und Zeichnungen entstehen aus den kleinen öffentlichen Bildern. | Export anfordern (A04), dann herunterladen und in den Ordner `content/seed/instagram-export/` hochladen (A06). Der Download-Link gilt nur wenige Tage. Danach baut eine Session Bilder und Zeichnungen in voller Qualität neu. | so bald wie möglich, spätestens P11 |
+| **J-07** · E-75 · DESIGN DA-7 · PLAN P8.11, P9.8 · A05 | **Fotos von Coco.** Coco wird nach Fotos gezeichnet; die Highlight-Bildchen sind nur 150 Pixel groß. | Coco wird nach den Highlight-Bildchen gezeichnet. | 5–10 Fotos in den Ordner `content/seed/coco/` hochladen, am besten in den Posen rennen, schnüffeln, sitzen, schlafen, springen und Kopf schief (A05). Die Fotos werden nie veröffentlicht; Ortsangaben darin werden entfernt. In P11 schaust du dir Coco an und sagst, ob sie getroffen ist. | so bald wie möglich; Abnahme in P11 |
+| **J-08** · DATENMODELL DM-13 · KONZEPT KA-13 · RECHT R-205, R-210 Nr. 3–4 · Protokoll P0 „Impressum-/Herstelleradresse, IBAN“ · A26, A34 | **Stammdaten und Bankverbindung für Vorkasse:** vollständiger Name, Anschrift (siehe J-01), Bezirk des Studios, Abhol-Infos, IBAN und Kontoinhaberin. | Platzhalter wie „[Adresse folgt]“ und „[Bezirk folgt]“ und eine Beispiel-IBAN. Die Startklar-Prüfung erkennt Platzhalter und bleibt rot. | Daten bereitlegen (A26) und in P11 selbst in der Verwaltung eintragen (A34), nicht in diese Datei. | bereitlegen vor P11, eintragen in P11 |
+| **J-09** · E-02 · RECHT R-125, R-205, R-210 Nr. 12 · A11 | **Steuer (mit Steuerberatung):** Steuernummer, Kleinunternehmer-Status, Umsatz des Vorjahres aus allen Tätigkeiten. | Kleinunternehmer-Modus ist an; die Steuernummer ist ein Platzhalter; der Umsatz-Wächter kennt noch keinen Vorjahresumsatz. Die Startklar-Prüfung verlangt, dass du die Steuerangaben bestätigst. | Mit der Steuerberatung klären und in P11 eintragen: Steuernummer, Kleinunternehmer-Status bestätigt, Vorjahresumsatz. | vor P11 |
+| **J-10** · RECHT R-182 · KONZEPT KA-21 · DATENMODELL DM-11 · SEED-SPEC SE-03 · K-34 · A21, A30 | **Die Vorschau-Datei ist nur für dich.** Sie zeigt zwei Tattoo-Fotos von Kund:innen, die noch nicht eingewilligt haben. | Die zwei Fotos gibt es nur im Beispielbestand, mit Etikett „intern – Einwilligung fehlt“ und dem Band „nicht weitergeben“; nie auf der echten Seite. Beim Entfernen der Beispieldaten werden sie gelöscht. Ob das so in Ordnung ist, prüft die Kanzlei (K-34). | Die Vorschau nur privat ansehen: nicht weitergeben, nicht veröffentlichen, auch nicht auf Instagram. Hat die Kanzlei Bedenken, ersetzen wir die zwei Fotos durch Platzhalter. | ab jetzt, bei jeder Vorschau |
+| **J-11** · K-33 · KONZEPT KA-01 · DATENMODELL DM-09 · ARCHITEKTUR C-06 · LÖSCHKONZEPT §7 · RECHT R-122, R-123 | **Rechnungen: 8 oder 10 Jahre aufbewahren, und wo** (mit Steuerberatung). | 10 Jahre (dein Wunsch; die Mindestfrist sind 8). Die Rechnungen liegen in einem eigenen Ordner des privaten Speichers mit Löschsperre; die Sperrdauer wird erst nach dieser Entscheidung gesetzt. Eine spätere Umstellung gilt nur für neue Rechnungen (DM-10). | Steuerberatung fragen: Sind 10 Jahre in Ordnung? Reicht ein eigener Ordner, oder soll es ein eigener Speicher nur für Rechnungen sein? Die Kanzlei fragen wir mit (K-33). | vor P11 |
+| **J-12** · E-17 · RECHT R-045 · DATENMODELL DM-24 · KONZEPT KA-27 · K-15 · A17 | **Schmuck: Nachweise für „nickelfrei“ und „bleifreie Glasur“.** | Schmuck lässt sich nur veröffentlichen, wenn beide Häkchen gesetzt sind und der Nickel-Nachweis hochgeladen ist, bei jedem Schmuckstück ohne Ausnahme. | Ösen und Ketten nur mit Lieferantenerklärung kaufen; das Datenblatt deiner Glasur ablegen. | vor dem ersten Schmuckstück im Shop |
+| **J-13** · E-15 · RECHT R-044, R-203 · KONZEPT KA-27 · K-14 · A18, A19 | **Keramik: Glasur-Frage und Kennzeichnung am Boden.** | Alle Keramik ist „Dekoration – nicht für Lebensmittel“. „Lebensmittelecht“ geht nur mit einer Konformitätserklärung für alle verwendeten Glasuren. | Entscheiden, ob dir „Deko“ reicht (dann musst du nichts weiter tun) oder ob du Glasuren im Labor prüfen lässt. Neue Keramik ab jetzt am Boden mit Objektnummer und „Nur Deko – nicht für Lebensmittel“ kennzeichnen. | Kennzeichnung ab jetzt; Glasur-Entscheidung vor P11 |
+| **J-14** · RECHT R-203 · K-16 · A19, A34 | **Produktsicherheit: Unterlagen je Produktart und Kennzeichnung jedes Stücks.** | Die Verwaltung erzeugt Etikett und Beileger als PDF und hat eine private Ablage für die Unterlagen, mit einer Vorlage je Produktart. | Unterlagen je Produktart anlegen und hochladen; jedes Stück kennzeichnen (Keramik am Boden, Anhänger bei Textil, Karte bei Schmuck). | vor P11 |
+| **J-15** · RECHT R-155, R-210 Nr. 6 · DIENSTE §6 · A35 | **Verträge zur Auftragsverarbeitung (AVV)** mit den Diensten, die für dich Daten verarbeiten. | Noch keine. Die Startklar-Prüfung verlangt sie für alle Dienste, die einen brauchen. | In P11 bei jedem Dienst bestätigen und in der Verwaltung eintragen. Claude zeigt dir, wo. | P11 |
+
+### 2.2 Am Start-Tag oder nach der Antwort der Kanzlei entscheiden
+
+| ID | Thema in einfachen Worten | Was gerade gilt (Standard) | Was du tun sollst | bis wann |
+|---|---|---|---|---|
+| **J-16** · E-96 · RECHT R-132, R-210 Nr. 10 · K-30 · A36 | **Besucher-Statistik an oder aus.** Die Statistik kommt ohne Cookies aus. | Aus. Einschalten erst, wenn die Kanzlei bestätigt hat, dass das ohne Einwilligungs-Banner zulässig ist (K-30). | Nach der Antwort der Kanzlei entscheiden. | P11 |
+| **J-17** · ARCHITEKTUR C-23 · RECHT R-133 · K-30 (c) | **Fehlermeldungen aus dem Browser** der Besucher:innen an die eigene Website schicken (hilft, Fehler zu finden). | Aus; auf öffentlichen Seiten läuft dafür kein Skript. | Nach der Antwort der Kanzlei auf K-30 (c) entscheiden, ob es an soll. | P11 |
+| **J-18** · RECHT R-022 · KONZEPT KA-27 · K-29 · A40 | **Impressum-Link in deiner Instagram-Bio.** | Die Kurzadresse `planetclairetattoos.com/impressum` ist vorbereitet. | Am Start-Tag Links zur Website und zum Impressum in die Bio setzen. | P11 (Start-Tag) |
+| **J-19** · SEED-SPEC SE-07 · K-26 · RECHT R-170, V-15, V-24 · PLAN P8.15 | **Texte zu Aftercare und FAQ:** Pflegemethode (Folie oder „Second Skin“), Farbe, Cover-ups, Coco im Studio, Anzahlung, Absagen, Mindestalter. | Entwürfe von Claude in deinem Ton, ohne Heilversprechen und ohne „Anzahlung verfällt“. Mindestalter, Absagen und Anzahlung prüft zusätzlich die Kanzlei (K-26). | Texte lesen und in der Verwaltung korrigieren. Was passt, übernimmst du, indem du es dort bearbeitest und speicherst. | P11 |
+| **J-20** · RECHT R-204 · KONZEPT KA-27 · K-37 · A22 | **Markenrecherche „Planet Claire“ (freiwillig).** | Keine Recherche; das blockiert nichts. | Wenn du magst: beim DPMA und beim EUIPO nachsehen, ob der Name für Keramik, Kleidung oder Tattoo schon geschützt ist (Anleitung R1). Das Ergebnis vermerken wir hier. | vor dem Start empfohlen |
+
+### 2.3 Beispielbestand prüfen (nur in der Vorschau, nie auf der echten Seite)
+
+| ID | Thema in einfachen Worten | Was gerade gilt (Standard) | Was du tun sollst | bis wann |
+|---|---|---|---|---|
+| **J-21** · SEED-SPEC SE-01 | **Schmetterlings-Schälchen und Fliese (S04–S06):** Die Handschrift auf den Schälchen könnte eine Liedzeile sein; die Fliese zeigt vielleicht eine bekannte Person oder zitiert einen fremden Text. | Neutrale Titel und Beschreibungen, keine Zitate. Die Fotos erscheinen nur im Beispielbestand. | Sag uns, ob das fremdes Material ist. Dann ersetzen wir die drei Fotos durch Platzhalter. | P11 |
+| **J-22** · SEED-SPEC SE-02 · RECHT R-210 Nr. 15 | **Foto der grauen Cap:** Das ganze Foto zeigt dich. | Als Produktbild nur ein Ausschnitt ohne dein Gesicht (am Rand vielleicht Haarspitzen); nie auf „Über mich“. Fotos, auf denen du zu sehen bist, erscheinen nur mit deiner Freigabe. | Den Ausschnitt freigeben oder ein besseres Foto liefern. | P11 |
+| **J-23** · SEED-SPEC SE-04 · E-18 | **Name einer fremden Figur in der Bildunterschrift eines Beispiel-Tattoofotos.** | Deine Original-Bildunterschrift bleibt, denn das Tattoo-Portfolio ist keine Verkaufsware. Dafür gibt es genau eine begründete Ausnahme im automatischen Wort-Prüfer. | Passt das für dich? Sonst ersetzen wir sie durch eine neutrale Beschreibung. Bei Bedenken fragen wir die Kanzlei. | P11 |
+| **J-24** · SEED-SPEC SE-06 · PLAN P8.3, P8.15 | **Material, Fasern, Maße und Gewichte im Beispielbestand** (z. B. Steinzeug, Glasuren, Edelstahl 316L, 300-g-Papier, Fasern der Caps) sind geschätzt. | Annahmen nach bestem Wissen, nur im Beispielbestand. | Beim Ansehen der Vorschau notieren, was nicht stimmt. Wir korrigieren es. | P11 |
+
+### 2.4 Kleine Regeln im Shop – bitte bestätigen oder ändern
+
+| ID | Thema in einfachen Worten | Was gerade gilt (Standard) | Was du tun sollst | bis wann |
+|---|---|---|---|---|
+| **J-25** · KONZEPT KA-29 · DATENMODELL DM-08 · PLAN P5 (Phasen-Abnahme) · A42 | **Standard-Verpackung je Versandart:** Material und Gewicht sind geschätzt (60 g, 90 g, 900 g). | Schätzwerte; beim Packen je Sendung änderbar. | Beim ersten Packen wiegen und die Werte in den Einstellungen korrigieren. | beim ersten Packen nach dem Start |
+| **J-26** · KONZEPT KA-34 · DATENMODELL DM-37 | **Eine Zahlung kommt an, obwohl die Kasse schon abgelaufen oder abgebrochen war.** | Es entsteht keine Bestellung, denn das Stück kann längst anders verkauft sein. Du bekommst eine Mail mit dem Betrag und erstattest selbst im Stripe-Dashboard. | Bestätigen oder sagen, dass der Shop in diesem Fall automatisch erstatten soll. | P11 |
+| **J-27** · KONZEPT KA-35 · DATENMODELL DM-38 | **Jemand bestellt per Vorkasse und bezahlt zusätzlich mit Karte oder PayPal.** | Keine zweite Bestellung. Die Vorkasse-Bestellung bekommt einen Hinweis, du bekommst eine Mail und erstattest eine der Zahlungen oder klärst es mit der Kundin. | Bestätigen oder anders regeln. | P11 |
+| **J-28** · KONZEPT KA-37 · DATENMODELL DM-39 | **Du stornierst eine bezahlte Bestellung, bevor das Stück verschickt oder abgeholt ist.** | Du darfst das Stück mit „Wieder verkaufen“ zurück in den Shop stellen. Ist es vor dem Versand zerbrochen, gibt es nur „Ausblenden“. | Bestätigen. | P11 |
+| **J-29** · KONZEPT KA-36 · DATENMODELL DM-41 | **Shop pausieren.** | „Pause“ sperrt nur neue Einkäufe („In den Korb“, „Zur Kasse“). Wer schon an der Kasse ist, darf fertig bezahlen. | Bestätigen. | P11 |
+| **J-30** · KONZEPT KA-06 | **Bezahlen bei Abholung.** | Keine Barzahlung bei Abholung; bezahlt wird vorher. | Bestätigen. | P11 |
+| **J-31** · KONZEPT KA-05 | **Absender der Shop-Mails.** | `shop@planetclairetattoos.com`; Antworten landen bei `jutta@planetclairetattoos.com`. | Bestätigen oder eine andere Adresse nennen. | P11 |
+| **J-32** · KONZEPT KA-07 | **Anmeldung in der Verwaltung.** | Du bleibst 7 Tage angemeldet. Keine Zwei-Faktor-Anmeldung, dafür ein starkes Passwort und eine Sperre nach Fehlversuchen. | Bestätigen oder sagen, dass du lieber zusätzlich einen Code vom Handy eingeben willst. | P11 |
+| **J-33** · KONZEPT KA-12 | **Antwortzeit auf Anfragen für Auftragsarbeiten.** | In der automatischen Bestätigung steht „meist innerhalb einer Woche“. | Bestätigen oder eine andere Zeit nennen. | P11 |
+| **J-34** · KONZEPT KA-33 | **Status von Anfragen für Auftragsarbeiten.** | „Erledigt“ heißt: Auftrag ausgeführt. „Geschlossen“ heißt: ohne Auftrag beendet, z. B. weil keine Rückmeldung kam. Beides ändert nichts daran, wann die Anfrage gelöscht wird. | Bestätigen oder andere Bezeichnungen wünschen. | P11 |
+| **J-35** · DESIGN DA-1 | **Farbtöne.** Zwei Farben aus dem Konzept (Warnfarbe und Fuchs-Orange) sind für kleine Schrift etwas dunkler, damit alles gut lesbar ist. | Dunklere Töne für kleinen Text; das Original-Fuchs-Orange nur für große Schrift (Stempel) und Deko. | In der Vorschau ansehen. Andere Töne gehen, die Mindest-Lesbarkeit bleibt aber. | P11 |
+
+### 2.5 Mit der Steuerberatung
+
+| ID | Thema in einfachen Worten | Was gerade gilt (Standard) | Was du tun sollst | bis wann |
+|---|---|---|---|---|
+| **J-36** · PLAN P5.25 · KONZEPT §7.15 · RECHT R-124 | **Export für die Buchhaltung im DATEV-Format.** | Der Knopf bleibt ausgegraut, bis die Konten eingetragen sind. Zeichensatz und Feldformate der Datei sind eine Annahme der Entwicklung (kommt in P5). | Die Steuerberatung legt Kontenrahmen und Kontonummern fest und prüft den ersten Import. | P11 bzw. erster Monatsexport |
+| **J-37** · KONZEPT KA-10 · PLAN P4 (Phasen-Abnahme) | **Nur bei Regelbesteuerung:** Wie werden die Versandkosten auf die Steuersätze verteilt? | Anteilig nach Warenwert. Solange du Kleinunternehmerin bist, spielt das keine Rolle. | Die Steuerberatung fragen, bevor du auf Regelbesteuerung umstellst. | erst bei einem Wechsel |
+| **J-38** · DATENMODELL DM-07 · RECHT R-032 | **Nur bei Regelbesteuerung:** Steuersatz für Zeichnungen. | 19 %; 7 % (Kunst) nur von Hand und mit Begründung. | Die Steuerberatung fragen, bevor du umstellst. | erst bei einem Wechsel |
+
+### 2.6 Betrieb und Kosten (in P11 gemeinsam)
+
+| ID | Thema in einfachen Worten | Was gerade gilt (Standard) | Was du tun sollst | bis wann |
+|---|---|---|---|---|
+| **J-39** · ARCHITEKTUR C-01 · E-05 | **Tarif der Datenbank (Neon).** | Kostenloser Tarif; die Technik ist so gebaut, dass er reicht. | In P11 und nach dem ersten Monat gemeinsam die Nutzung ansehen. Wird es knapp, wechselst du in den Tarif, der nach Verbrauch abrechnet (Kosten vorher prüfen, Budget ca. 25 € im Monat). | P11, dann nach dem ersten Monat |
+| **J-40** · ARCHITEKTUR C-16 · LÖSCHKONZEPT §7 (L-23 d) | **Wie weit die Datenbank selbst zurückspulen kann** (Wiederherstellungsfenster). | Höchstens 7 Tage; im kostenlosen Tarif eher wenige Stunden (ungeprüft). Maßgeblich ist das eigene Backup. | In P11 gemeinsam Tarif und Einstellung prüfen; den Wert tragen wir in `docs/recht/DIENSTE.md` ein. | P11 |
+| **J-41** · ARCHITEKTUR C-02 | **Kostenbremse bei Vercel** (dort läuft die Website). | Du bekommst eine Nachricht bei 50, 75 und 100 % von 10 US-Dollar Zusatzkosten; die Seite wird nicht automatisch angehalten. | Entscheiden, ob die Seite beim Erreichen der Grenze automatisch angehalten werden soll (dann ist sie nicht erreichbar) oder ob die Nachricht reicht. | P11 |
+| **J-42** · ARCHITEKTUR C-04 | **Reichen die kostenlosen Kontingente?** Gemeint sind die Überwachung, ob die Seite erreichbar ist (Sentry), und der Mailversand (Lettermint). | Angenommen, dass sie reichen. Falls nicht: kein weiterer Anbieter, sondern eine wöchentliche Prüfroutine und Warn-Mails. | In P11 gemeinsam prüfen. | P11 |
+| **J-43** · ARCHITEKTUR C-03 | **Stärkerer Schutz auf GitHub** (GitHub Pro, ca. 4 US-Dollar im Monat), damit nichts Ungeprüftes in den Code kommt. | Kostenloses GitHub; die Regel „nur übernehmen, wenn die Prüfungen grün sind“ gilt als Arbeitsregel. | Entscheiden, ob dir das die Kosten wert ist (Budget bleibt höchstens 25 € im Monat). | freiwillig, jederzeit |
+
+---
+
+## 3. Fragen an die Kanzlei
+
+Quelle aller Fragen: `docs/recht/KANZLEI-BRIEFING.md` §17 (dort ausführlich). Bis zur Antwort gilt die Spalte
+„Standard“. **Vorläufige Regel** heißt: bewusst schwächer umgesetzt als die strengste Lesart (RECHT §0 Nr. 8); nach der
+Antwort wird die Regel angepasst (BRIEFING §19). Kommt eine Antwort, bleibt die Zeile stehen und bekommt in der ersten
+Spalte den Vermerk „beantwortet TT.MM.JJJJ“; die Änderung steht im Protokoll (Abschnitt 5).
+
+| K-ID | Frage (kurz) | Standard bis zur Antwort | betroffene Stellen |
+|---|---|---|---|
+| K-01 | Trägt die Vertragsschluss-Mechanik (Annahme durch Bestellbestätigung nach Zahlung, bei Vorkasse sofort)? Welche Sätze gehören auf die Danke-Seite und in die Bestellbestätigung? | Danke-Seite neutral: „Deine Bestellung ist eingegangen“. Die Bestellung entsteht erst nach bestätigter Zahlung, bei Vorkasse sofort. Der Vertrags-Satz der Bestätigung fehlt noch (Baustein `email.orderConfirmation.contractSentence`). | RECHT R-065, R-066, R-081, §6; BRIEFING §5.2 |
+| K-02 | Vorkasse: Wie wird die automatische Stornierung rechtlich gestaltet, und was gilt bei verspäteter Zahlung? | Storno nach Ablauf der Zahlungsfrist um 23:59 Uhr am 5. Kalendertag nach dem Bestelltag, Erinnerung 72 Stunden nach der Bestellung; verspätete Zahlungen werden manuell erstattet oder reaktiviert. Storno-Text fehlt (`email.vorkasse.cancellation`). | RECHT R-065, R-071, §6 |
+| K-03 | Reichen die englischen Knopf-Texte „Order with obligation to pay“, „Withdraw from contract here“, „Confirm withdrawal“? | Genau diese Texte (fest, nicht editierbar). | RECHT R-064, R-090, R-092, §6; DESIGN DA-6 |
+| K-04 | Genügen Links auf AGB und Widerrufsbelehrung ohne Zustimmungs-Häkchen? | Kein AGB-Häkchen; Baustein `checkout.legalNotice` mit Links. | RECHT R-063 |
+| K-05 | Vertragssprache nur Deutsch, auch bei Bestellung über die englische Seite? Englische Fassung als unverbindliche Übersetzung, und wie lautet der Hinweis? | Deutsch verbindlich. EN-Seiten zeigen den deutschen Text mit „Only available in German“, solange keine EN-Fassung geliefert ist; Baustein `translation.disclaimer`. | RECHT R-015; KONZEPT KA-04 |
+| K-06 | Ist „Lieferzeit 2–5 Werktage (bei Vorkasse ab Zahlungseingang)“ bestimmt genug? Formulierung für Abholung? | Wie Bausteine `delivery.timeShipping` und `delivery.timePickup`. | RECHT R-035, §6 |
+| K-07 | Rechnungsadresse auch bei Abholung Pflicht, oder dort optional (Kleinbetragsrechnung)? | Pflicht bei Abholung, unabhängig vom Betrag. | RECHT R-061; KONZEPT KA-31; DATENMODELL DM-29; PLAN P4 (Phasen-Abnahme) |
+| K-08 | Widerrufsrecht bei Online-Bestellung mit Abholung in Berlin? Frist ab Übergabe? Rückgabe persönlich? | Widerrufsrecht besteht; Frist ab Übergabe. | RECHT R-083, R-102 |
+| K-09 | Formulierung zu den Rücksendekosten; unfrei zurückgeschickte Pakete; Erstattung der Hinsendekosten bei Teilwiderruf. | **Vorläufige Regel:** Die Kund:in trägt die Rücksendekosten. Beim Teilwiderruf werden Warenwert plus die Differenz zwischen bezahlten Versandkosten und denen für die behaltenen Stücke erstattet; der Erstattungsdialog weist auf K-09 hin. | RECHT R-072, R-095, §6 (`withdrawal.returnCostsNote`); KONZEPT KA-32, §5.3; SEED-SPEC SE-10 (Beispielbestellung O05) |
+| K-10 | Inhalte der Widerrufsbelehrung bestätigen: Satz zur Online-Widerrufsfunktion mit URL, Telefonnummer, Hinweise zum Wertersatz. | Platzhalter-Belehrung mit Platzhaltern für die Widerrufs-URL `https://planetclairetattoos.com/de/vertrag-widerrufen` und die Telefonnummer. | RECHT R-021, R-095 |
+| K-11 | Erfüllt die Widerrufsfunktion § 356a BGB (optionale Stückauswahl, freiwilliger Grund, dauerhafte Verfügbarkeit, Annahme ohne passende Bestellnummer, Text der Eingangsbestätigung)? | Umsetzung laut RECHT R-090 bis R-094. Im Wartungsmodus bleibt die Funktion erreichbar und arbeitet, solange die Datenbank läuft; nur ohne Datenbank zeigt sie den Weg per E-Mail. | RECHT R-090–R-094, §6 (`withdrawal.*`); KONZEPT KA-30; ARCHITEKTUR C-25; PLAN P10.7 |
+| K-12 | Second-Hand-Textilien: Faserangabe trotz Ausnahme für Gebrauchtware nötig? „Etikett fehlt – Materialangabe nach bestem Wissen“ zulässig? Wird Jutta durch das Bemalen Herstellerin? | Faserangabe immer Pflicht; bei „Etikett fehlt“ Fasern **und** Freitext mit Hinweis. | RECHT R-043, §6 (`product.textileLabelMissing`); DATENMODELL DM-03; E-16 |
+| K-13 | Bemalte Second-Hand-Stücke mit sichtbarem Hersteller-Logo verkaufen? Marke im Text nennen? | Veröffentlichung solcher Stücke gesperrt (`legal.allowVisibleBlankBrands = false`); keine Markennamen in Texten. | RECHT R-047, V-16 |
+| K-14 | Reicht „Dekorationsobjekt – nicht für Lebensmittel geeignet“, wenn es auch am Boden steht? Wie werden Konformitätserklärungen online bereitgestellt? | Deko-Hinweis online und am Boden; „lebensmittelecht“ nur mit Erklärung, Seite „Konformitätserklärungen“ (R27). | RECHT R-044, §6 (`product.ceramics*`); J-13 |
+| K-15 | Schmuck: Wortlaut der Kleinteile-Warnung; ist „nickelfrei (Lieferantennachweis liegt vor)“ zulässig; weitere Angaben (Blei, Cadmium)? | Arbeitsfassungen der Bausteine; Häkchen „nickelfrei“ und „bleifreie Glasur“ sind Pflicht. | RECHT R-045, §6 (`product.jewelry*`); DATENMODELL DM-24; J-12 |
+| K-16 | Gelten die GPSR-Pflichten für Zeichnungen, bemalte Fliesen und bemalte Second-Hand-Textilien? Reicht die Privatadresse als Herstelleranschrift? Welche Unterlagen und Kennzeichnungen braucht eine Kleinstherstellerin? | Block „Herstellerin & Produktsicherheit“ auf allen Produktseiten, immer sichtbar (nicht eingeklappt); Warnhinweis-Vorlagen je Kategorie; alle Stücke gekennzeichnet. | RECHT R-040, R-046, R-203; KONZEPT KA-02, KA-11; J-14 |
+| K-17 | Gebrauchtware: Reicht eine Zustandsbeschreibung, oder müssen übliche Gebrauchsspuren gesondert vereinbart werden? Verjährung auf ein Jahr verkürzen? | Gesondertes, nicht vorangekreuztes Häkchen nur für konkret beschriebene Abweichungen; keine Verkürzung. | RECHT R-048, §6 (`checkout.deviationAgreement`); DATENMODELL DM-01 |
+| K-18 | Umweltaussagen (UWG ab 27.09.2026): Sind „Second-Hand“, „Vintage“, „gebraucht und neu bemalt“ unbedenklich? | Allgemeine Aussagen wie „nachhaltig“ sind gesperrt; sachliche Angaben erlaubt. | RECHT V-14 |
+| K-19 | Harmonisierte Mitteilung zur Gewährleistung: Reicht die Platzierung auf Produktseite, Warenkorb und Versandseite? Auch für Gebrauchtware und Kunst? Welche Sprachfassung auf englischen Seiten? | An allen drei Stellen, auf `/en` die englische Fassung, Grafik lokal. Lässt sich die amtliche Grafik in der Cloud nicht laden: Platzhalter-Grafik, die die Startklar-Prüfung erkennt. | RECHT R-049, R-210 Nr. 11; PLAN P3.3 |
+| K-20 | Recht auf Reparatur: Vorlage für die Reklamationsantwort, Hinweise in den AGB, Umgang bei Unikaten. | Mail-Vorlage mit Wahlrecht und dem Hinweis, dass Ersatz bei Unikaten in der Regel unmöglich ist; Wortlaut fehlt (`complaint.repairChoice`). | RECHT R-110, R-111, §6 |
+| K-21 | Formulierung des Transportschaden-Hinweises in der Versandmail, ohne Rechte zu verkürzen. | Arbeitsfassung `email.shipping.damageNotice` („… deine gesetzlichen Rechte bleiben davon unberührt“). | RECHT R-082, V-11, §6 |
+| K-22 | VSBG: freiwilliger Hinweis nach § 36? Wortlaut der Vorlage nach § 37 und Erklärung zur Teilnahmebereitschaft. | „nicht bereit und nicht verpflichtet“; kein Hinweis auf die OS-Plattform. | RECHT R-112, V-01, §6 (`dispute.vsbg37`) |
+| K-23 | Wortlaut des Kleinunternehmer-Hinweises am Preis, auf Preisschildern mit Sternchen und bei Tattoo-Preisen. | Arbeitsfassungen `price.kleinunternehmerNote` und `price.tattooNote`; Sternchen mit Auflösung auf derselben Seite; im Vorschaubild für Instagram/WhatsApp „Endpreis zzgl. Versand“. | RECHT R-030, R-034, §6; DESIGN DA-6 |
+| K-24 | Auftragsarbeiten per E-Mail: Pflichtinhalte des Angebots, wann greift der Widerrufsausschluss, gilt § 356a BGB? Vorlage T8. | Vorlage `commission.offer` als Platzhalter. | RECHT R-161, §6 |
+| K-25 | Anfrageformular: Reicht Art. 6 Abs. 1 lit. b DSGVO ohne Einwilligungs-Häkchen? Löschung 6 Monate nach Eingang angemessen? Umgang mit unaufgefordert hochgeladenen Personenfotos. | Kein Einwilligungs-Häkchen; Löschung 6 Monate ab Eingang; Hinweis „keine Fotos von Personen“. | RECHT R-160, §6 (`inquiry.*`); LÖSCHKONZEPT L-10, §7; DATENMODELL DM-22 |
+| K-26 | Tattoo-Termine und Kaution per E-Mail/DM: Fernabsatz mit Widerrufsrecht? Unterlagen T9; FAQ zu Mindestalter 18 und Absagen. | Kein Online-Vertrag; FAQ-Entwürfe nennen die Kaution nur „individuell vereinbart“, ohne Verfallsklausel, und das Mindestalter 18. | RECHT R-170, V-24; SEED-SPEC SE-07; J-19 |
+| K-27 | Einwilligung zur Veröffentlichung von Tattoo-Fotos (T10): abgestuft, widerruflich; Umgang mit Fotos, die mit Einwilligung schon auf Instagram sind. | Häkchen pro Foto, Umfang „nur Tattoo“ oder „mit Gesicht“, Widerruf wirkt sofort; Instagram-Freigabe gilt nicht automatisch für die Website. | RECHT R-172; E-42; J-05 |
+| K-28 | Impressum: Telefonnummer nötig? W-IdNr.? Angaben nach § 18 Abs. 2 MStV? Wie wird die Geschäftsbezeichnung aufgenommen? | Telefonnummer Pflicht für den Start; W-IdNr. und Geschäftsbezeichnung „Planet Claire“ sind freiwillige Felder. | RECHT R-020, R-021; KONZEPT KA-03; J-02 |
+| K-29 | Instagram: Genügt der Impressum-Link in der Bio? Datenschutzhinweise für das Profil nötig (gemeinsame Verantwortung mit Meta für Statistiken)? | Impressum-Link in der Bio. | RECHT R-022, R-139; J-18 |
+| K-30 | Ist die Seite ohne Einwilligungsbanner zulässig, insbesondere (a) Vercel Web Analytics, (b) Stripe-Cookies ab der Kasse, (c) Meldung von Browser-Fehlern an einen eigenen Endpunkt? | (a) aus, (b) an, (c) aus. Die Einstellung „Animationen“ wird erst nach Klick im Browser gespeichert. | RECHT R-062, R-130, R-132, R-133; ARCHITEKTUR C-23; DESIGN DA-2; J-16, J-17 |
+| K-31 | Wortlaut der Einwilligung zur E-Mail-Weitergabe an DHL und des Widerrufshinweises. | Arbeitsfassung `checkout.dhlEmailConsent`; optional, nicht vorangekreuzt. | RECHT R-101, §6 |
+| K-32 | Rollen und Übermittlungen in der Datenschutzerklärung (Stripe, PayPal, Apple/Google Pay, US-Anbieter mit EU-Speicherort). Muss DeepL genannt werden? | Rollen laut `docs/recht/DIENSTE.md` (Anlage B). | Datenschutzerklärung; DIENSTE.md |
+| K-33 | Aufbewahrung: Rechnungen 10 statt 8 Jahre zulässig? Bestellungen, stornierte Vorkasse-Bestellungen und Widerrufe je 6 Jahre, Monatssicherungen 12 Monate angemessen? | Wie gefragt; Rechnungen 10 Jahre. | LÖSCHKONZEPT §2, §7; RECHT R-123; KONZEPT KA-01, KA-08; DATENMODELL DM-09; J-11 |
+| K-34 | Bedenken gegen die interne Nutzung der zwei Kunden-Tattoofotos im privaten Repository und in der Vorschau-Datei? Brauchen passwortgeschützte Vorschau-Umgebungen ein Impressum? | Nur im Beispielbestand, Etikett „intern – Einwilligung fehlt“, Vorschau nur im privaten Repository. | RECHT R-182; KONZEPT KA-21; DATENMODELL DM-11; SEED-SPEC SE-03; J-10 |
+| K-35 | Verpackung: nur die Details zu Mengenmeldungen, Nachweisen, Fristen und zur Wahl des dualen Systems (die Pflicht selbst ist entschieden). | Der Shop erfasst die Mengen je Sendung und liefert einen Jahres-Export nach Material. | RECHT R-200, R-201; E-47; J-03 |
+| K-36 | Bestätigen Sie die BFSG-Ausnahme? Ist ein freiwilliger Hinweis zur Barrierefreiheit sinnvoll? | Keine Erklärung zur Barrierefreiheit und keine Aussage „barrierefrei“. | RECHT R-190, V-26 |
+| K-37 | (optional) Bedenken gegen den Namen „Planet Claire“ (Songtitel)? Markenrecherche oder -anmeldung empfohlen? | Nichts umgesetzt; Markenrecherche freiwillig. | RECHT R-204, V-28; J-20 |
+| K-38 | Warenkorb nur als Cookie im Browser (ohne Kennung) zulässig, oder ist ein Server-Warenkorb mit zufälliger ID nötig? | Cookie `pc_cart` (7 Tage) erst beim ersten „In den Korb“, Kassen-Cookie `pc_checkout` (1 Stunde) erst bei „Zur Kasse“; kein Server-Warenkorb. | RECHT R-130; ARCHITEKTUR C-05; LÖSCHKONZEPT L-01, §7 |
+| K-39 | Privatadresse und Studio-Ort: Muss die Wohnanschrift in Impressum, GPSR-Angabe und Widerrufsbelehrung, oder genügt eine andere ladungsfähige Anschrift? Risiken? Weitere Schutzmöglichkeiten? | Privatadresse an den Pflichtstellen (Impressum, GPSR, Rechnung, Widerrufsbelehrung, Rücksendeadresse); sonst öffentlich nur der Bezirk; Abholort nur in der Abholmail. | RECHT R-020, R-040, V-31; KONZEPT KA-14; E-40, E-50; J-01 |
+| K-40 | Versandnachweise: Packfotos keine Pflicht, Briefe ohne Sendungsnummer. Reicht das (Transportschaden, Zustellnachweis, Beginn der Widerrufsfrist)? | **Vorläufige Regel:** Keramik ohne Packfoto nur nach Rückfrage „Ohne Packfoto versenden?“ mit Protokoll; Sendungsnummer Pflicht für Pakete, optional für Briefe (dann Versandmail ohne Verfolgungslink). | RECHT R-082, R-100 |
+| K-41 | Content-Security-Policy: Falls eigene Inline-Skripte auf statischen Seiten oder in der Verwaltung nicht per Prüfsumme bzw. Einmal-Kennung gehen und deshalb generell erlaubt werden (weiter ohne fremde Server): Ist das ein Risiko? | **Vorläufige Regel:** Ziel Prüfsumme bzw. Einmal-Kennung. Rückfall `'unsafe-inline'` nur auf statischen öffentlichen Seiten und in der Verwaltung, nur eigener Server, mit ADR; Kasse und übrige dynamische Seiten immer mit Einmal-Kennung. | RECHT R-131; ARCHITEKTUR B-01, B-03 |
+| – (keine eigene Frage im Briefing) | Rechnung und Gutschrift auch über den geheimen Bestellstatus-Link herunterladbar? Im Briefing nur beschrieben (§5.3); bei Bedarf in P11 nachfragen. | Nein: Belege nur als Mail-Anhang und in der Verwaltung. | ARCHITEKTUR C-24; DATENMODELL DM-27; RECHT R-067 |
+
+---
+
+## 4. Technische Annahmen (Entwicklung entscheidet selbst)
+
+Diese Punkte brauchen weder Jutta noch die Kanzlei. Alle Zeilen haben den Status **„Annahme gilt“**, die W-Zeilen
+und die Zeilen „Regel: …“ **„gilt (Plan)“** (Regeln aus dem Abgleich vom 27.09.2026; sie stehen auch in den genannten
+Fachdokumenten und im Plan). Erledigte Zeilen tragen in der ersten Spalte „erledigt TT.MM.JJJJ“. Spikes tragen ihr
+Ergebnis in ARCHITEKTUR Anhang B ein („Ergebnis: …, Datum, PR“, bei Abweichung mit ADR); dort ist es maßgeblich.
+Scheitert ein Soll, gilt ohne Rückfrage die Rückfallebene.
+
+Nicht übernommen, weil in den Fachdokumenten als geklärt, angeglichen oder nur Hinweis vermerkt: KONZEPT KA-09, KA-15,
+KA-17, KA-18, KA-23, KA-24, KA-28 · DATENMODELL DM-05, DM-06, DM-14, DM-23, DM-28, DM-30, DM-31, DM-32 · ARCHITEKTUR
+C-07 bis C-11, C-15, C-18 bis C-22 (angeglichen), C-12, C-13 (nur Hinweis), C-14 (Arbeitsauftrag P1.1–P1.1b) ·
+SEED-SPEC SE-11, SE-13.
+
+| ID | Thema | Annahme | So änderbar |
+|---|---|---|---|
+| PLAN W-21 | W-21 Umfang des Beispielbestands in P1 | gilt (Plan): P1 baut Seed-Rahmen, Grund-Seed und einen Mini-Satz (P1.30); den vollständigen Bestand laut SEED-SPEC §0.1 liefert P8 | W-Liste in `PLAN.md` |
+| PLAN W-31 | W-31 Vorschau-Artefakt je Phase | gilt (Plan): Der letzte Commit jeder Phase trägt `[ci:full pN]` (ARCHITEKTUR §6.7), damit jeder Phasen-PR ein Vorschau-Artefakt hat (AK-12-02) | W-Liste in `PLAN.md` |
+| PLAN W-33 | W-33 Startseiten-Stationen in P2 | gilt (Plan): P2 zeigt die Stationen ohne Produktkarten (DESIGN §13); Karten (KO-07 in KO-21) und AK-3-02 kommen in P3 | W-Liste in `PLAN.md` |
+| ARCHITEKTUR §6.2, §6.6, §6.7 · PLAN Arbeitsregeln, P1.1a, P2.28, P10.21 | Regel: CI-Auslöser und Squash-Nachricht | gilt (Plan): `ci.yml`, `ci-full.yml` und `preview-export.yml` laufen nur bei `pull_request` (dort greift `[skip ci]`) und per `workflow_dispatch`, nie bei einem Push auf `main` (der gemergte Stand ist der geprüfte PR-Stand). Ein Push auf `main` startet nur `release.yml` (bei Änderung an `.github/vorschau-release.json`); dazu kommen ein täglicher `schedule` um 06:00 UTC und `workflow_dispatch` als Rückfall; veröffentlicht wird nur bei `OFFEN_P1_P10=0` und fehlendem oder veraltetem Release, sonst endet der Lauf nach Sekunden. Sessions mergen nur mit `gh pr merge --squash --subject "<PR-Titel>" --body "<Kurzfassung>"`; Squash-Nachrichten und PR-Beschreibungen enthalten nie `[skip ci]`, nur Merge-Commits von `main` in den Arbeitsbranch dürfen es tragen. Jutta stellt die Squash-Standardnachricht einmal ein (J-44) | ARCHITEKTUR §6.2/§6.6/§6.7, Workflow-Dateien |
+| ARCHITEKTUR C-27 · KONZEPT §12.6 · PLAN P10.20 | Größe der Vorschau-Datei | Ziel ≤ 20 MB, harte Grenze 40 MB; über 20 MB automatische Neukodierung und Release-Satz „zu groß für eine Mail – per Link oder USB-Stick auf einen anderen eigenen Rechner bringen“ (passt zu R-182) | ARCHITEKTUR §14.8, `.github/vorschau-release.json` |
+| ARCHITEKTUR C-29 | Commit-Kennung bei `pull_request` lesen | der erste Schritt bzw. Job `mode` liest die Head-Commit-Nachricht per `gh api …/commits/<head.sha>`; scheitert der Aufruf, wird der Schritt rot (kein stilles Überspringen); je übersprungenem Lauf ~1 min | ARCHITEKTUR §6.2 (Umstieg auf `push` mit `branches-ignore: [main]` per ADR) |
+| ARCHITEKTUR §6.2, §6.7, §6.8 · KUNST-QA §9 · PLAN P9.7, P9.18, P9.18a | Regel: Kunst-QA-Läufe per `[ci:art]` | gilt (Plan): `art-qa.yml` startet per Label `art`, per Commit-Kennung `[ci:art]` im Head-Commit des PR oder per `workflow_dispatch`; ein Head-Commit mit `[skip ci]` unterdrückt auch das Label-Ereignis. P9 ist von der Regel „höchstens ein Zwischenlauf je Phase“ ausgenommen; die Zahl der Läufe begrenzt die KUNST-QA-Obergrenze (12 Iterationen) | ARCHITEKTUR §6.7, KUNST-QA §9 |
+| ARCHITEKTUR §6.2, §6.4, §6.5 · PLAN P2.28 | Regel: Vorschau-Export und Referenzbild-Läufe | gilt (Plan): `preview-export.yml` läuft nur bei `[ci:full pN]` im PR (Phasenende) oder per `workflow_dispatch`, nicht bei `[ci:full]` ohne Phase. `[ci:update-snapshots]` (bzw. Dispatch mit `update_snapshots = true`) startet in `ci-full.yml` nur den Job `snapshots`; diese Läufe zählen im Minutenbudget | ARCHITEKTUR §6.2/§6.4 |
+| ARCHITEKTUR §6.6 · KONZEPT §12.6 · RECHT R-182 · PLAN P10.20, P10.21 | Regel: Größenhinweis im Release-Text | gilt (Plan): Ist die Vorschau-Datei größer als 20 MB, sagt der Release-Text „Die Datei ist zu groß für eine Mail – per Link oder USB-Stick auf einen anderen eigenen Rechner bringen.“ – passend zu R-182 („nicht weitergeben“) | `.github/vorschau-release.json`, `release.yml` |
+| DATENMODELL §11 · KONZEPT §8 · LÖSCHKONZEPT §4 · PLAN P4.19, P5.13, P6.9, P6.15, P6.16 | Regel: Fristen- und Erinnerungs-Jobs überspringen Beispieldaten | gilt (Plan): Jobs, die an Fristen erinnern oder wegen einer Frist Mails auslösen (u. a. `prepaymentReminders`, `cancelOverduePrepayments`, `withdrawalDeadlines`, `privacyRequestsDeadlineReminder`, `legalHoldReview`, `complianceDocsReview`), überspringen Datensätze mit `seed = true` – keine Admin- oder Kund:innen-Mails zu Beispieldaten; die Verwaltung zeigt die Beispiel-Fristen trotzdem an. Löschfristen gelten für Beispieldaten unverändert (KONZEPT §8.3) | Filter in den Tasks unter `src/jobs/` |
+| KONZEPT §5.3, §5.4 · DATENMODELL §6.8.5, §6.11 · PLAN P6.9 | Widerruf ohne Erstattung abschließen (O20) bei mehreren Widerrufen | die Bestellung geht nur dann auf `statusBeforeWithdrawal` zurück, wenn kein anderer Widerruf derselben Bestellung offen ist; „offen“ heißt `received` oder `goods_returned` (wie „Widerrufe offen“ unter „Heute“, SEED-SPEC §17) | `src/lib/commerce/withdrawalTransitions.ts` |
+| ARCHITEKTUR §6.6 · PLAN P10.21 | Wann das Vorschau-Release „veraltet“ ist | wenn das Release `vorschau-p10` fehlt oder seine Zeile „Stand“ von der in `.github/vorschau-release.json` abweicht; deshalb aktualisiert jeder PR, der die finale Vorschau ändert, diese Zeile | Prüfschritt in `release.yml` |
+| PLAN Arbeitsregeln | Vermerk „(CI-Nachweis)“ | Kriterien, die nur ein GitHub-Lauf belegen kann, tragen „(CI-Nachweis)“: Die Aufgabe wird nach ihren lokalen Kriterien abgehakt; den Nachweis erbringt der Phasenende-Lauf, er gehört zum Punkt „CI grün“ der Phasen-Abnahme | Arbeitsregeln am Planbeginn |
+| PLAN P1.33a · ARCHITEKTUR §6.8 | Minuten-Wächter `pnpm ci:minutes` | zählt die abrechenbaren Minuten je Kalendermonat in UTC (so rechnet GitHub ab), je Job auf volle Minuten aufgerundet; kann er nicht zählen (API-Fehler, kein `gh`, kein Netz), meldet er `MINUTEN_STATUS=unbekannt`, und das gilt als „Grenze erreicht“: bis Monatsende nur Phasenende-Läufe | `scripts/ci/minutes.ts`, ARCHITEKTUR §6.8 |
+| PLAN P1.1a, P1.12 | Admin-E2E zwischen P1.1a und P1.12 | `tests/e2e/admin.e2e.spec.ts` trägt `test.fixme` mit dem Hinweis „Admin-Pfad ab P1.12“, bis die Verwaltung unter `ADMIN_ROUTE` läuft; P1.12 entfernt die Markierung | – |
+| PLAN P1 (Kopf) | Beziehungsfelder auf spätere Collections | ein Beziehungsfeld auf eine Collection, die erst eine spätere Aufgabe anlegt, ergänzt immer die spätere Aufgabe in ihrer Migration (`products.currentOrder` in P1.20, Verweise von `orders` auf `invoices`/`withdrawals` in P1.21, `legalTextVersions` in P1.22, Verweise auf `complaints` in P6) | Plan P1, Absatz „Reihenfolge“ |
+| DESIGN DA-9 · KONZEPT §3.4 · PLAN P3.1, P3.9 | Gewichtsformat auf der Produktseite | unter 1000 g „210 g“, ab 1000 g in kg mit einer Nachkommastelle („2,4 kg“, EN „2.4 kg“, „,0“ entfällt); `formatWeight` in `src/lib/shop/format.ts`; die Details-Tabelle zeigt das Gewicht | `formatWeight`, DESIGN DA-9 |
+| DESIGN KO-13 · PLAN P4.8, P4.9 | Countdown im Warenkorb | nur, wenn `pc_checkout` auf eine Kasse `open` oder `confirming` dieser Person mit aktiver Reservierung zeigt; Zeitbasis `displayExpiresAt` derselben Kasse; sonst kein Countdown (V-17) | Modul `reservation-countdown` |
+| DATENMODELL §7.1 · RECHT R-021 · PLAN P5.21 | Telefon-Platzhalter | „[Telefon folgt]“ ist speicherbar, die Startklar-Prüfung meldet ihn rot; die Nummer erscheint nur im Impressum, in der Widerrufsbelehrung und in der Anbieterkennung der Bestellbestätigungen M01/M02 | Validierung `business.phone` |
+| DATENMODELL §7.1 · E-05 · PLAN P5.28 | Kostenwarnung ab Erreichen der Schwelle | Hinweis unter „Heute“, sobald der letzte Monatswert `costs.warningThresholdCents` erreicht (≥, Standard 3.000 ct = 30 €) | Einstellung `costs.warningThresholdCents` |
+| DATENMODELL §13.7 · PLAN P5.22a, P10.14 | „Shop öffnen“ in Produktion | mit `APP_ENV=production` lehnt der Server `shop.isOpen = true` ab, solange die Startklar-Prüfung nicht grün ist; bis P10.14 gilt sie in Produktion als nicht grün | P10.14 schließt die echte Prüfung an |
+| KONZEPT §6.3 · RECHT R-152 · PLAN P7.8 | Bestätigung M16 beim Widerruf einer Portfolio-Einwilligung | nur an eine Adresse, die Jutta im Dialog eintippt; der Galerie-Eintrag speichert keine E-Mail; kam der Widerruf per DM, antwortet Jutta dort | Dialog in P7.8 |
+| PLAN P9.7 | Rot-Pfad von `art-qa.yml` | belegt ein Unit-Test der Workflow-Datei (nur `art-qa-check-<lauf-id>`, ≤ 5 MB, 2 Tage); kein absichtlich roter CI-Lauf, das spart Minuten | bei Bedarf ein Lauf per `workflow_dispatch` |
+| PLAN P9.18a · ARCHITEKTUR §7.2 | Kunst-QA-Blocker im Dauer-Gate | endet die Kunst-QA an der Obergrenze und betrifft ein Blocker ein Kriterium des Dauer-Gates (P9.7), bekommt genau dieser Test `test.fixme` mit Verweis auf den Eintrag in dieser Liste, damit die reguläre CI grün bleibt | Blocker beheben, Markierung entfernen |
+| PLAN P9.19 | Label `art` nach P9 | nach P9.19 wird das Label `art` vom PR entfernt; danach läuft `art-qa.yml` nur per `workflow_dispatch`, `[ci:art]` oder neu gesetztem Label | Label neu setzen |
+| PLAN P11.14 | Verwaltung als Web-App nach der DNS-Umstellung | Jutta legt die Web-App einmal neu von `https://planetclairetattoos.com` aufs Handy und entfernt die Verknüpfung, die sie vorher über die Vercel-Adresse angelegt hat | – |
+| KONZEPT KA-16 | Knopf „ins Archiv“ der Konzeptseite | umgesetzt als „Ausblenden“ (unverkauft) und Schalter „Im Archiv zeigen“ (verkauft) | Aktionen und Statusautomat laut KONZEPT §5.1, §7.5 |
+| KONZEPT KA-19 · DATENMODELL DM-02 | E-18 „nur eigene Figuren“ im Admin | Pflicht-Häkchen `ownDesignConfirmed` je Stück | Setting/Code; Veröffentlichungsregel DATENMODELL §6.6.6 |
+| KONZEPT KA-20 | Kurzlink für Instagram-Stories | `/nr/[nummer]` leitet auf die kanonische Produktseite (R31) | Routen-Registry; KONZEPT §2.2, §2.4 |
+| KONZEPT KA-22 | Komfort bei Vorkasse | EPC-QR-Code (GiroCode) auf Danke-Seite, Bestellstatus und in M02/M03 | KONZEPT §4.8, §6.3 |
+| KONZEPT KA-25 | Kasse im Instagram-In-App-Browser | Hinweis zu Apple Pay/Google Pay über der Zahlart | KONZEPT §4.4 |
+| KONZEPT KA-26 | Archiv-Filter | Kategorie als Query `?category=` statt eigener Route | KONZEPT §3.5 |
+| DATENMODELL DM-04 | Faserliste `TEXTILE_FIBERS` | amtliche Bezeichnungen aus dem Gedächtnis der Recherche; vor P1-Abschluss gegen EUR-Lex prüfen | DATENMODELL §6.6.5 |
+| DATENMODELL DM-10 | Umstellung `retention.invoiceYears` | wirkt nur auf neu ausgestellte Belege; bestehende `retainUntil` bleiben eingefroren (Trigger §9.4) | Datenmigration mit Begründung; die Entscheidung 8 oder 10 Jahre steht in J-11 |
+| DATENMODELL DM-12 · SEED-SPEC SE-08 | Versandtarife EU/CH, Sendungsverfolgung Deutsche Post | EU/CH-Versand ist vorbereitet, aber abgeschaltet: keine Standardtarife für EU/CH im Grund-Seed, `shipping.enabledCountries` nur DE, kein EU/CH-Ablauf (ENTSCHEIDUNGEN „Später“; Freischaltung nur mit `shipping.euChecklist` und allen 3 Tarifen der Zone). Deutsche-Post-Sendungen nutzen dieselbe Sendungsverfolgung wie DHL (Vorlage `deutsche_post` in `settings.shipping.trackingUrlTemplates` des Grund-Seeds); die Beispielbestellung O03 bekommt ihre `trackingUrl` aus dieser Vorlage (P8.4) | Einstellungen `shipping.*`; P5.14 prüft die Vorlage im Grund-Seed; Prüfung mit der ersten echten Sendung in P11 |
+| DATENMODELL DM-16 | Offline-Verkäufe | kein Preis, kein Umsatz; Flohmarkt-Umsätze als Monatssumme (E-45) | – |
+| DATENMODELL DM-17 | Bilderzahl je Stück | technisch 1–12, empfohlen 2–12 | – |
+| DATENMODELL DM-18 | Legal Hold und Einschränkung | Feldbaustein `privacyFields()` an `orders`, `withdrawals`, `inquiries`; Rechnungen brauchen keinen (Frist ohnehin gesperrt) | DATENMODELL §5 |
+| DATENMODELL DM-19 | Datenschutz-Anfragen | eigene Referenz `DS-JJJJ-NNNN`; Status `received`, `identity_check`, `in_progress`, `answered`, `rejected`; Beispielbestand je Status mit `seed = true` (DS1–DS5, Nummern `DS-2026-900N`, ohne Exportdatei; SEED-SPEC §11a, PLAN P8.5a) | DATENMODELL §6.26, §13.3 |
+| DATENMODELL DM-20 | Protokollierung von Löschungen | „Beispieldaten entfernen“ und `retentionDeletionLog` schreiben keine `deletion-log`-Einträge | DATENMODELL §6.27 |
+| DATENMODELL DM-21 | Status-Verlauf | `statusHistory` als Array nur an `orders`; für Stücke, Widerrufe und Anfragen genügt das `audit-log` | DATENMODELL §6.8.1 |
+| DATENMODELL DM-25 | Abweichungs-Entscheidung Textil/Cap | eigenes Feld `deviationDecision` (`none`/`described`, ohne Vorbelegung), daraus wird `hasDeviation` abgeleitet (R-048) | DATENMODELL §6.6.1, Migration |
+| DATENMODELL DM-26 | Reklamationen | eigene Collection `complaints` ab P6; Erstattungen weiter als `orders.refunds[]` mit Grund `complaint` | DATENMODELL §6.29 |
+| DATENMODELL DM-33 · erledigt 27.09.2026 | Token `{{returnCostsNote}}` | geklärt (R-012): Der Wert ist der aktive Rechtsbaustein `withdrawal.returnCostsNote` (RECHT §6; Arbeitsfassung nach E-27: Kund:in trägt die Rücksendekosten; Wortlaut der Kanzlei nach Kanzleifrage K-09), kein Einstellungsfeld; derselbe Baustein steht in der Kassen-Übersicht (KONZEPT §4.5) | Baustein in der Verwaltung unter „Rechtstexte“ (ab P6); `src/lib/legal/render.ts`, `src/lib/legal/snippets.ts` |
+| DATENMODELL DM-34 | Offline-Verkauf eines reservierten Stücks (P10) | nur, wenn die Kasse `open` ist; bei `confirming` gesperrt („Zahlung läuft gerade“); vorher Stripe-Session beenden; meldet Stripe „bezahlt“, gewinnt die Online-Bestellung | DATENMODELL §6.6.7 |
+| DATENMODELL DM-35 | Widerruf einer Konformitätserklärung | betroffene `available`-Stücke gehen per Systemübergang auf `draft`; alle betroffenen Stücke bekommen `adminAttention` (`conformity_revoked`) und Mail `admin_alert`; reservierte und verkaufte behalten ihren Status | DATENMODELL §6.6.6 |
+| DATENMODELL DM-36 | Status-Link in späteren Mails | Status-Token zusätzlich versiegelt als `orders.statusTokenSealed` (AES-256-GCM, HKDF `pc:status-token-seal:v1`); lässt sich das Siegel nicht öffnen, wird ein neuer Token erzeugt und gemailt; Seed-Bestellungen nie automatisch rotiert | DATENMODELL §6.8.2, ARCHITEKTUR §8.6 |
+| DATENMODELL DM-40 | AVV-Dateien (R-155) | optionale Datei je `settings.processorAgreements`-Eintrag als `private-uploads` (Zweck `processor_agreement`); keine automatische Löschung, Löschen nur ohne Verweis | DATENMODELL §6.4, §7.1 |
+| DESIGN DA-3 | IBM Plex Mono nur im Schnitt 400 | Budget genau 3 Schriftdateien ≤ 100 KB | zweite Datei ergänzen, Budget AK-DS-04 anpassen (P2/P9) |
+| DESIGN DA-4 | GSAP | nicht verwendet: eigener Code, CSS und Web Animations API (DESIGN §9.10) | nur per ADR, nur R01, Lazy-Chunk ≤ 30 KB gz (P9) |
+| DESIGN DA-5 | Papierkorn-Textur | kein Papierkorn in P2 | DESIGN §3.4; in P9 nur auf Verlangen von Prüfer:in R1 (KUNST-QA) |
+| SEED-SPEC SE-05 | Straßennamen der erfundenen Kund:innen, besonders „Musterstraße“ in Berlin | erfundene Namen; alle übrigen Adressen liegen außerhalb Berlins (R-180) | P8 prüft gegen das Berliner Straßenverzeichnis; gibt es den Namen, in `customers.json` ersetzen |
+| SEED-SPEC SE-09 | `PAGE_KEYS` für die Tattoo-Unterseiten R12–R18 | bisher nur `tattoo` und `tattoo_aftercare`; die Unterseiten lesen die passenden Blöcke der Seite `tattoo` nach Typ (SEED-SPEC §13.5) | P7 bestätigt oder ergänzt Page-Keys (DATENMODELL, `pages.json`) |
+| SEED-SPEC SE-12 | Kassen und Reservierungen im Beispielbestand nach den Löschfristen L-02/L-03 | nur, was bei `N` noch existieren würde: 14 Kassen, 10 Reservierungen; O01/O02 ohne Kasse | Filter in `src/lib/seed/` (Fristen aus `src/lib/retention/policy.ts`), Mengen in SEED-SPEC §0.1 (P1) |
+| ARCHITEKTUR C-17 | DNS-Werte von Vercel | werden aus der Vercel-Oberfläche übernommen, nicht aus der Doku (ARCHITEKTUR §12.4) | P11 gemeinsam mit Jutta |
+| ARCHITEKTUR C-26 | Verwaltung vor der DNS-Umstellung | in Produktion lassen `cors`/`csrf` zusätzlich die Vercel-Produktions-Domain zu; kanonische URLs bleiben auf der Hauptdomain | nach der Umstellung eine Zeile in `payload.config.ts` (Claude-Session in P11) |
+| LÖSCHKONZEPT §7 | Aufbewahrung der Logs bei Vercel, Lettermint und Sentry | kürzeste Einstellung | P11: Werte in `docs/recht/DIENSTE.md` eintragen |
+| PLAN P5.23 | Umsatz-Wächter-Stufen | Stufen aus KONZEPT §8.4 und R-125 zusammengeführt: U0 bis U5 und U3a (`REVENUE_GUARD_STAGES`); P5 trägt die Annahme mit Datum im Protokoll nach (PLAN P5, Phasen-Abnahme) | Grenzen in `settings.revenueGuard` |
+| ARCHITEKTUR B-01 (P1) | Spike: Verwaltung unter `ADMIN_ROUTE` per Proxy-Umschreibung und mit Nonce-CSP | Soll laut §8.4, §8.1; offen | Rückfall: Ordner heißt wie der Pfad (`src/app/(payload)/werkstatt/`), Umbenennung in P11; CSP `script-src 'self' 'unsafe-inline'` nur im Kontext `admin` (R-131, K-41), ADR |
+| ARCHITEKTUR B-02 (P1) | Spike: `@payloadcms/storage-s3` doppelt (öffentlich/privat) inkl. Präfix `private/invoices/` und signierter Downloads (300 s) | Soll laut §3.3; offen | Rückfall: eine Instanz plus eigener Download-Handler mit `@aws-sdk/s3-request-presigner`; Rechnungen notfalls eigener Bucket (C-06) |
+| ARCHITEKTUR B-03 (P2) | Spike: `script-src` auf statischen Seiten ohne `'unsafe-inline'` | Soll laut §8.1 Kontext `public`; offen | Rückfall: `'unsafe-inline'` im Kontext `public`, Hosts nur `'self'` (R-131, K-41), ADR |
+| ARCHITEKTUR B-04 (ab P2, optional) | Spike: Cache Components (`cacheComponents: true`) | Soll: nein, `unstable_cache` bleibt (§9.2); offen | Soll beibehalten |
+| ARCHITEKTUR B-05 (P3) | Spike: Listen-Varianten (`?available=1&page=2`) per Proxy statisch | Soll laut §9.1; offen | Rückfall: dynamisches Rendern mit Daten-Cache, nur wenn T-10 (LCP) grün bleibt |
+| ARCHITEKTUR B-06 (P10) | Spike: eigener COPY-Dump auf Vercel (Speicher, 300 s, Streaming) | Soll laut §10.3; offen | Rückfall: gebündeltes statisches `pg_dump` 17 plus `pg_restore`; zweite Ebene Neon-Wiederherstellung plus Backup über den Docker-Pfad |
+| ARCHITEKTUR B-07 (P4) | Spike: `checkout.sessions.update` mit neuen `shipping_options` bei `ui_mode: 'elements'` | Soll: `updateShipping` → `updated`; offen | Rückfall `recreate_required`: alte Session beenden, neue mit derselben Reservierung (§3.5) |
+| ARCHITEKTUR B-08 (P10) | Spike: Docker-Image ohne DB bauen, Seiten rendern zur Laufzeit korrekt | Soll laut §13.2 (`BUILD_WITHOUT_DB=1`, `connection()`); offen | Rückfall: Build im Compose-Netz mit laufender, migrierter Wegwerf-DB |
+| ARCHITEKTUR B-09 (P1) | Spike: `payload.jobs.handleSchedules()` und `payload.jobs.run()` in 3.90.2, auch mit injizierter Zeit | Soll laut §9.6; offen | Rückfall: eigene Tabelle `job_schedules (task, next_run_at)` und Einreihen im Tick |
+
+---
+
+## 5. Laufendes Protokoll der Sessions
+
+Hier trägt jede Session ein, was sie ohne Rückfrage festlegen musste (CLAUDE.md §2). Jutta, diesen Abschnitt gehen wir
+in P11 gemeinsam durch.
+
+**Für Claude-Sessions (Jutta kann das überspringen)**
+
+- Neue Zeile unten anhängen, nie Zeilen löschen. Datum `JJJJ-MM-TT`, Aufgabe = Plan-ID (z. B. `P3.3`). Hat der Punkt
+  eine Quell-ID, beginnt „Thema“ damit (z. B. „DM-12 …“, „K-40 …“, „W-21 …“).
+- Status: `Annahme gilt`, `gilt (Plan)`, `wartet auf Jutta`, `wartet auf Kanzlei`, `wartet auf Steuerberatung` oder
+  `erledigt TT.MM.JJJJ (PR #…)`.
+- Braucht der Punkt eine Entscheidung von Jutta, zusätzlich eine Zeile in Abschnitt 2: nächste freie J-Nummer, nach
+  Wichtigkeit einsortiert, in einfachen Worten. Kanzleifragen gehören in Abschnitt 3, technische Dauer-Annahmen in
+  Abschnitt 4. Erledigte Punkte in Abschnitt 2 bis 4 bleiben stehen und bekommen in der ersten Spalte „erledigt
+  TT.MM.JJJJ“.
+- Nie Geheimnisse, echte IBAN, Steuernummer oder Daten von Kund:innen eintragen.
+- Nur bei Bedarf kommt ein Eintrag hierher, u. a. wenn: WebKit sich nicht installieren lässt (`PW_SKIP_WEBKIT=1`,
+  ARCHITEKTUR §4.5); `next` 16.3.7 am 30.09.2026 noch nicht veröffentlicht ist (PLAN P1.1b); die amtliche Grafik der
+  harmonisierten Mitteilung nicht ladbar ist (RECHT R-049, PLAN P3.3); ein Test mit `test.fixme` markiert wird
+  (ARCHITEKTUR §7.2); die CI-Minuten aufgebraucht sind (ARCHITEKTUR §6.8); ein Host fehlt, ein Befehl nicht
+  freigegeben ist oder ein Stripe-Live-Schlüssel auftaucht (CLOUD-SETUP §3.4, §3.6, §3.9, §5); Kunst-QA Punkte offen
+  lässt oder vereinfacht (KUNST-QA §6); ein `TODO` im Code auf diese Liste verweist (ARCHITEKTUR §15.6).
+- P10.19 bereinigt die Liste und sortiert nach „Jutta entscheidet“, „Kanzlei“, „Steuerberatung“ und „technisch
+  erledigt“.
 
 | Datum | Aufgabe | Thema | Getroffene Annahme | So änderbar | Status |
 |---|---|---|---|---|---|

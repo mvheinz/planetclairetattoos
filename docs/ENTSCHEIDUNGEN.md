@@ -62,6 +62,8 @@
 | E-42 | Portfolio-Einwilligung | Jutta holt Einwilligungen nach. **Häkchen pro Foto**; ohne Häkchen keine Veröffentlichung von Fotos mit Kund:innen. |
 | E-43 | Cookie-Banner | **Keins.** Architektur ohne einwilligungspflichtige Dienste: keine Embeds, keine fremden Fonts, kein Tracking-Pixel, Warenkorb-Cookie erst nach erster Aktion, cookielose Statistik [V]. |
 | E-44 | Widerrufsbutton | § 356a BGB (seit 19.06.2026): „Vertrag widerrufen“ auf jeder Seite, zweistufig, sofortige Eingangsbestätigung. |
+| E-46 | Impressum-Nummern | Impressum enthält die **W-IdNr.** (bzw. USt-IdNr.), sobald Jutta sie nennt – als Kleinunternehmerin wurde sie ihr vermutlich automatisch zugeteilt (Faktencheck). Die Steuernummer wird **nicht** veröffentlicht. Feld in den Einstellungen, bis dahin Platzhalter. |
+| E-47 | Verpackung | Jutta gilt als Herstellerin ihrer Versandverpackung → LUCID-Registrierung **plus** eigene Kleinstlizenz bei einem dualen System (Faktencheck: „vorlizenzierte Kartons“ reichen nicht). Owner-Aufgabe vor dem ersten Versand. |
 | E-45 | Umsatz-Wächter | Zähler Shop-Umsatz + monatliche manuelle Summen (Tattoo, Flohmarkt), Warnungen vor der Kleinunternehmer-Grenze [V]. |
 
 ## Tattoo-Bereich (nicht kaufbar)
@@ -110,7 +112,7 @@
 | E-94 | Konten | GitHub + IONOS vorhanden. Stripe, PayPal-Business, Vercel, Neon, Cloudflare, Lettermint, Sentry, DeepL neu – alle auf jutta@planetclairetattoos.com mit 2FA. |
 | E-95 | DNS | Bleibt bei IONOS. Nur Web-Einträge ändern (A/CNAME, AAAA der Parkseite löschen); MX/SPF/DKIM unverändert. |
 | E-96 | Statistik | Cookielos (Vercel Web Analytics), keine Drittanbieter-Tracker [V]. |
-| E-97 | Arbeitsweise Cloud | Jede Phase = Branch + Pull Request; Merge bei grüner CI durch die Session (falls Rechte fehlen: Jutta klickt „Merge“). Keine Rückfragen an Jutta – alles steht in den Docs; Unklares → konservativste Variante + Eintrag in `docs/OFFENE-PUNKTE.md`. |
+| E-97 | Arbeitsweise Cloud | Pro Cloud-Session ein Arbeitsbranch (die Session darf nur diesen pushen) + ein Pull Request gegen `main`, Beschreibung nach jeder Phase aktualisiert; Merge bei grüner CI durch die Session, falls erlaubt, sonst klickt Jutta „Merge“. Keine Rückfragen an Jutta – alles steht in den Docs; Unklares → konservativste Variante + Eintrag in `docs/OFFENE-PUNKTE.md`. Details: CLAUDE.md §3. |
 | E-98 | Vorschau-Datei | **Wunsch nach Freigabe:** Wenn der Plan leer ist, automatisch **`planet-claire-vorschau.html`** erzeugen – die ganze Website als **eine einzige HTML-Datei** (alle Seiten, Bilder, Schriften, Animationen inline, offline auf jedem Rechner öffnbar, Kasse als Attrappe). Zusätzlich ab P2 nach jeder Phase eine Zwischenversion als GitHub-Actions-Artefakt. |
 | E-99 | Phasen | P0 lokal (dann **Stopp**), P1–P10 in der Cloud autonom, P11 Go-live gemeinsam mit Jutta. |
 

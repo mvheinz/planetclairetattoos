@@ -1,0 +1,2 @@
+Hier kommen Fotos von Coco hin (verschiedene Posen, gern von der Seite und von vorn).
+Sie dienen als Vorlage für die Zeichnungen (docs/design/DESIGN.md). Importer ignorieren diese Datei.

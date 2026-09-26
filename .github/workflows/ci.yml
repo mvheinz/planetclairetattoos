@@ -1,9 +1,11 @@
 name: CI
 
 on:
+  # P0: einmal auf main prüfen. P1.1a stellt auf pull_request + workflow_dispatch um (ARCHITEKTUR §6.2).
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -29,6 +31,8 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     env:
+      APP_ENV: test
+      ADMIN_ROUTE: /werkstatt
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/planetclaire
       PAYLOAD_SECRET: ci-only-secret-not-used-anywhere-else-0000
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
@@ -37,7 +41,7 @@ jobs:
       EMAIL_DRIVER: file
       PAYMENTS_DRIVER: mock
       TRANSLATION_DRIVER: mock
-      CRON_SECRET: ci-only
+      CRON_SECRET: ci-only-cron-secret-000000000000000000
       NEXT_TELEMETRY_DISABLED: '1'
     steps:
       - uses: actions/checkout@v7
