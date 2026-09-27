@@ -327,7 +327,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - Lint-Regeltest aus P1.1 um `process.env` erweitert.
   - Ohne Jutta: Nur Testwerte. Echte Werte setzt P11 (A25, A33).
 
-- [ ] **P1.4 Basis-Module: Zeit, Geld, Logger, Enums** –
+- [x] **P1.4 Basis-Module: Zeit, Geld, Logger, Enums** –
   - `src/lib/time.ts` (ARCHITEKTUR §3.9, A-08): `APP_TIME_ZONE = 'Europe/Berlin'`, `type Clock = { now(): Date }`,
     `systemClock`, `fixedClock(iso)`, `berlinDayStart(d)`, `berlinMonthRange(yyyyMm)`, `addBerlinDays(d, n)`,
     `formatBerlin(d, pattern, locale)`; zusätzlich `berlinYear(d)` und `berlinMonthKey(d)`. Die Uhr wird übergeben
