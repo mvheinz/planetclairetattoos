@@ -7,6 +7,7 @@ import type { Locale } from '@/lib/routes/registry'
 import styles from './AppShell.module.css'
 import { MenuOverlay } from './MenuOverlay'
 import { PreviewBanner, previewBannerState } from './PreviewBanner'
+import { SiteFooter } from './SiteFooter'
 import { SiteHeader } from './SiteHeader'
 
 // Seitenrahmen (DESIGN KO-01): Skip-Link → SiteHeader → Vorschau-Banner → `<main id="inhalt">` → SiteFooter.
@@ -16,11 +17,9 @@ import { SiteHeader } from './SiteHeader'
 export async function AppShell({
   locale,
   children,
-  footer,
 }: {
   locale: Locale
   children: React.ReactNode
-  footer?: React.ReactNode
 }) {
   const [t, nav] = await Promise.all([
     getTranslations({ locale, namespace: 'a11y' }),
@@ -39,7 +38,7 @@ export async function AppShell({
           {children}
         </main>
       </div>
-      {footer}
+      <SiteFooter locale={locale} nav={nav} />
       <MenuOverlay locale={locale} nav={nav} />
     </>
   )

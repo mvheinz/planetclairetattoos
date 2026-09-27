@@ -26,13 +26,15 @@ interface CommonProps {
 
 export type ButtonProps = CommonProps &
   (
-    | { href: string; type?: never; name?: never; value?: never; form?: never }
+    | { href: string; type?: never; name?: never; value?: never; form?: never; onClick?: never }
     | {
         href?: undefined
         type?: 'button' | 'submit' | 'reset'
         name?: string
         value?: string
         form?: string
+        /** Nur in Client-Komponenten (z. B. „Nochmal versuchen“ auf R29). */
+        onClick?: React.MouseEventHandler<HTMLButtonElement>
       }
   ) & { 'data-behavior'?: string }
 
@@ -86,6 +88,7 @@ export function Button(props: ButtonProps) {
       name={props.name}
       value={props.value}
       form={props.form}
+      onClick={props.onClick}
       disabled={disabled}
     >
       {content}

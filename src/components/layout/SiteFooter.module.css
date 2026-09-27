@@ -1,0 +1,172 @@
+/* KO-04 Fußbereich: Grund --paper-2 (deckt Raster), obere Handlinie, Links Bricolage 15 px in --ink unterstrichen,
+   Zielhöhe ≥ 44 px, Spalten ab 768 (Rechtliches | Seiten | Sprache & Einstellungen). Nie animiert. */
+.footer {
+  position: relative;
+  z-index: calc(var(--z-leash) + 1);
+  margin-top: var(--space-8);
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.edgeWrap {
+  position: absolute;
+  top: -4px;
+  left: 0;
+  right: 0;
+  height: 8px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.edge {
+  display: block;
+  max-width: none;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: var(--stroke-ui);
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.inner {
+  display: grid;
+  gap: var(--space-6);
+  max-width: calc(var(--content-max) + 2 * var(--page-pad));
+  margin-inline: auto;
+  padding: var(--space-7) var(--page-pad) var(--space-6);
+}
+
+/* LegalFooter: Knopf über die volle Zeile, darunter die Pflichtlinks als erste Spalte. */
+.legalBlock {
+  display: contents;
+}
+
+.withdraw {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: var(--space-2);
+  min-height: 48px;
+  padding: var(--space-2) var(--space-5);
+  border: var(--stroke-ink) solid var(--ink);
+  border-radius: var(--r-btn);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.withdraw:visited,
+.withdraw:hover,
+.withdraw:focus-visible {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.withdrawIcon {
+  flex: none;
+}
+
+.column {
+  display: grid;
+  align-content: start;
+  gap: var(--space-1);
+}
+
+.heading {
+  font-family: var(--font-body);
+  font-size: var(--fs-label);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.list,
+.languages {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.languages {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 0.9375rem;
+}
+
+.languages li {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--tap-min);
+  color: var(--ink);
+  font-size: 0.9375rem;
+  font-weight: 400;
+}
+
+.link:visited,
+.link:hover,
+.link:focus-visible {
+  color: var(--ink);
+}
+
+.inlineIcon {
+  flex: none;
+}
+
+.motion {
+  justify-self: start;
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-3);
+  border: var(--stroke-ui) solid var(--ink-2);
+  border-radius: var(--r-btn);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 0.9375rem;
+}
+
+.motion[hidden] {
+  display: none;
+}
+
+.motion[aria-pressed='false'] {
+  border-style: dashed;
+}
+
+.priceNote {
+  font-size: var(--fs-small);
+  color: var(--ink-2);
+}
+
+.copyright {
+  font-size: var(--fs-small);
+  color: var(--ink-2);
+}
+
+@media (min-width: 768px) {
+  .inner {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: var(--space-6);
+  }
+
+  .withdraw,
+  .priceNote,
+  .copyright {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (forced-colors: active) {
+  .edge {
+    stroke: CanvasText;
+  }
+}

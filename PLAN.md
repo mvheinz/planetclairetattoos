@@ -1495,7 +1495,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: e2e `tests/e2e/menu.e2e.spec.ts` @smoke (AK-DS-08).
   - Ohne Jutta: –
 
-- [ ] **P2.10 Fußbereich mit Pflichtlinks, Sprachumschalter, Animationen-Schalter** – `src/components/SiteFooter.tsx`
+- [x] **P2.10 Fußbereich mit Pflichtlinks, Sprachumschalter, Animationen-Schalter** – `src/components/SiteFooter.tsx`
   (KO-04) in DOM-Reihenfolge:
   1. „Vertrag widerrufen“ / „Withdraw from contract here“ (R-090, Konstante aus `src/lib/legal/constants.ts`)
      als hervorgehobener Knopf-Link → R26;

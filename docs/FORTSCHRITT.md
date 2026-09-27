@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P2.10
+
+- Fußbereich `SiteFooter` (KO-04, liegt wie die übrigen Rahmen-Bausteine unter `src/components/layout/`) in DOM-Reihenfolge: „Vertrag widerrufen“ als Knopf-Link → R26, `LegalFooter` (6 Pflichtlinks, Konformitätserklärungen nur bei aktiver Erklärung), `nav#fussnavigation` mit Menüliste + Instagram, Sprachumschalter, Schalter „Animationen“ (`src/behaviors/motion-toggle.ts`, `aria-pressed`, „aus (Systemeinstellung)“, `pc-motion` erst nach Klick, Vorschau nur im Speicher), Platz für Preis-Fußnote, „© {Berliner Jahr} Planet Claire · Berlin“.
+- Damit der Fuß auch auf 404/500 steht, gibt es minimale Grundformen: `[locale]/not-found.tsx`, `src/app/global-not-found.tsx` (Next `experimental.globalNotFound`, Kopf und Fuß schon im HTML) und `[locale]/error.tsx`; Gestaltung, Coco und Fehler-Auslöser folgen in P2.19. Gemeinsames Dokument `SiteDocument`, `RouteOverride` für 404 ohne Registry-Route.
+- Tests: e2e `footer.e2e.spec.ts` @smoke (R-011, R-090, AK-3-11, AK-DS-09; 390/1440, reduce/no-preference, ohne JS) und `motion-toggle.e2e.spec.ts`; unit `motion-toggle.unit.spec.ts`, `footer-links.unit.spec.ts`; 102 E2E (3 Projekte, gegen Produktions-Build), `pnpm check`, `pnpm test:int`, `pnpm build` grün.
+
 ## 2026-09-27 – P2.9
 
 - MenuOverlay (KO-03): serverseitiges <dialog id="menu" aria-label="Menü"> mit Hauptliste (Start · Shop · Archiv · Auftragsarbeiten · Tattoo · Über mich & Coco · Kontakt), Kategorien aus categories (showInNavigation, src/lib/data/navigation.ts, gecacht, ohne DB robust), Tattoo-Unterseiten aus der Registry, unten Sprachumschalter, Instagram und Pflichtlinks inkl. „Vertrag widerrufen“, Coco-Platz\n- Verhaltensmodul src/behaviors/menu.ts: showModal, Fokus auf ersten Link, eigene Tab-Falle (auch Safari), Esc/„Schließen“ mit Fokus zurück, html[data-menu-open] (overflow hidden + scrollbar-gutter stable), MI-05 per WAAPI (≤ 700 ms), Linkklick schließt sofort; bei reduzierter Bewegung ohne Animation\n- LinkUnderline (MI-06, 3 Pfade per Hash des href) an Menü- und Kopflinks; ohne JS führt „Menü“ zu #fussnavigation\n- Tests: e2e tests/e2e/menu.e2e.spec.ts @smoke (AK-DS-08, ohne JS; 21 grün in 3 Projekten inkl. WebKit), Vertragstest AK-DS-18 um menu ergänzt; pnpm check, pnpm build grün

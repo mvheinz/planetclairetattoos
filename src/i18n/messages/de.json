@@ -52,8 +52,13 @@
     "instagram": "Instagram",
     "language": "Sprache",
     "languageSwitch": "English",
-    "motionOn": "Animationen an",
-    "motionOff": "Animationen aus"
+    "motionOn": "an",
+    "motionOff": "aus",
+    "siteNav": "Seitenübersicht",
+    "settingsHeading": "Sprache & Einstellungen",
+    "motionLabel": "Animationen:",
+    "motionOffSystem": "aus (Systemeinstellung)",
+    "copyright": "© {year} Planet Claire · Berlin"
   },
   "legal": {
     "placeholder": "Platzhalter – der verbindliche Text folgt nach Prüfung durch die Kanzlei.",

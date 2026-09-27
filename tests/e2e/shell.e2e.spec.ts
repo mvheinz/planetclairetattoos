@@ -29,7 +29,7 @@ const headerItems = (page: Page) => {
     shop: header.getByRole('link', { name: 'Shop', exact: true }),
     tattoo: header.getByRole('link', { name: 'Tattoo', exact: true }),
     cart: header.locator('[data-header-cart]'),
-    menu: header.getByRole('link', { name: 'Menü' }),
+    menu: header.locator('[data-menu-trigger]'),
   }
 }
 

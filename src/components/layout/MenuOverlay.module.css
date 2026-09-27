@@ -132,6 +132,10 @@
   gap: 0 var(--space-3);
 }
 
+.languages {
+  gap: 0;
+}
+
 .languages li {
   display: inline-flex;
   align-items: center;

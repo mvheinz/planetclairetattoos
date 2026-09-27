@@ -26,6 +26,19 @@ const FIXTURES: Record<BehaviorName, { html: string; exercise: (root: Element) =
       document.dispatchEvent(new CustomEvent('pc:cart-change', { detail: { count: 2 } }))
     },
   },
+  'motion-toggle': {
+    html:
+      '<button type="button" data-behavior="motion-toggle" data-label-on="an" data-label-off="aus" ' +
+      'data-label-off-system="aus (Systemeinstellung)" aria-pressed="true" hidden>Animationen: ' +
+      '<span data-motion-state>an</span></button>',
+    exercise: (root) => {
+      ;(root as HTMLElement).click()
+      ;(root as HTMLElement).click()
+      document.documentElement.removeAttribute('data-motion')
+      // jsdom verschickt nach `localStorage.setItem` ein `storage`-Ereignis per Timer (nicht vom Modul).
+      vi.runOnlyPendingTimers()
+    },
+  },
   menu: {
     html:
       '<a href="#fussnavigation" data-menu-trigger aria-controls="menu" aria-expanded="false">Menü</a>' +

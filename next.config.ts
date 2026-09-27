@@ -19,6 +19,10 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  // 404 mit Seitenrahmen schon im HTML (src/app/global-not-found.tsx): das Wurzel-Layout liegt unter [locale].
+  experimental: {
+    globalNotFound: true,
+  },
   // Rechtliche Kurz-URLs (R-010, ARCHITEKTUR §2.3 Nr. 1): 308 auf die kanonische DE-Route, ohne Spracherkennung
   // und ohne Cookie; läuft vor dem Proxy.
   async redirects() {
