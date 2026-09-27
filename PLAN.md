@@ -54,13 +54,13 @@ Checkbox** ist die nächste Aufgabe (CLAUDE.md §3). P1–P10 erledigen Cloud-Se
 - [x] **P0.6 CI und Cloud-Einrichtung** – `.github/workflows/ci.yml`; `CLAUDE.md`; `docs/CLOUD-SETUP.md`,
   `scripts/cloud-setup.sh`, `.claude/settings.json`.
 - [x] **P0.7 Plan** – diese Datei (P1–P11 mit Akzeptanzkriterien).
-- [ ] **P0.8 GitHub** – privates Repository `planetclairetattoos`, `main` gepusht, CI grün.
+- [x] **P0.8 GitHub** – privates Repository `planetclairetattoos`, `main` gepusht, CI grün (27.09.2026).
 
 ### Phasen-Abnahme
 
 - [x] Konzept von Jutta freigegeben (26.09.2026).
 - [x] `pnpm check` und `pnpm build` lokal grün.
-- [ ] CI auf GitHub grün (erster Lauf inkl. Integrationstest gegen Postgres).
+- [x] CI auf GitHub grün (erster Lauf inkl. Integrationstest gegen Postgres, 27.09.2026).
 
 ---
 
