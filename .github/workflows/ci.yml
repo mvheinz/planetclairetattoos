@@ -102,6 +102,6 @@ jobs:
       - name: Integrationstests
         if: steps.mode.outputs.skip != 'true'
         run: pnpm run test:int
-      - name: Build
+      - name: Seed + Build
         if: steps.mode.outputs.skip != 'true'
-        run: pnpm run build
+        run: pnpm run seed && pnpm run build

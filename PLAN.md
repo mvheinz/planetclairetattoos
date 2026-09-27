@@ -1091,7 +1091,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: int `tests/int/seed/base.int.spec.ts` (DM-P1-04, AK-SEED-02 Grund-Seed-Teil).
   - Ohne Jutta: Platzhalter für Name, Adresse und Bank (A11, A12, A26).
 
-- [ ] **P1.30 Mini-Beispielbestand und Entfernen** – Teilmenge der SEED-SPEC (W-21). Datendateien unter
+- [x] **P1.30 Mini-Beispielbestand und Entfernen** – Teilmenge der SEED-SPEC (W-21). Datendateien unter
   `content/seed/data/` mit den endgültigen `seedKey`s, damit P8 nur ergänzt:
   - `products.json`: die Stücke S01, S06, S09, S11, S15, S18, S20, S25, S26 und S27 aus SEED-SPEC §5.1 (Nummern 9nn,
     Status laut §5.1): zusammen `available`, `sold` (offline, im Archiv sichtbar), `archived`, `draft` und `reserved`.

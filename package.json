@@ -20,7 +20,7 @@
     "test": "pnpm run test:unit && pnpm run test:int",
     "test:unit": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.unit.config.mts",
     "test:int": "pnpm run db:ensure && pnpm run db:reset --test && cross-env PC_DB_READY=1 NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
-    "test:e2e": "pnpm run db:ensure && pnpm run db:reset --test && cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm --import=./scripts/lib/register-server-only.mjs\" playwright test --config=playwright.config.ts",
+    "test:e2e": "pnpm run db:ensure && pnpm run db:reset --test --seed=all && cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm --import=./scripts/lib/register-server-only.mjs\" playwright test --config=playwright.config.ts",
     "check": "pnpm run lint && pnpm run typecheck && pnpm run check:static && pnpm run test:unit",
     "check:versions": "tsx scripts/check-versions.ts",
     "env:example": "tsx --import=./scripts/lib/register-server-only.mjs scripts/gen-env-example.ts",

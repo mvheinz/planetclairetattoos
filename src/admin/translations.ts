@@ -13,6 +13,8 @@ export const ADMIN_CUSTOM_DE = {
   postalCodeDe: 'Deutsche Postleitzahl: genau 5 Ziffern.',
   required: 'Pflichtfeld.',
   categoryRequired: 'Bitte eine Kategorie wählen.',
+  linkTargetRequired: 'Bitte ein Ziel für den Link wählen.',
+  linkLabelRequired: 'Bitte eine Beschriftung für den Link angeben.',
   integerMin1: 'Ganzzahl ≥ 1.',
   integerMin0: 'Ganzzahl ≥ 0.',
   entityIdInvalid:

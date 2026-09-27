@@ -28,7 +28,7 @@ export const Station: Block = {
     heading(true),
     textarea('text', 'Text', { maxLength: 400 }),
     { name: 'image', type: 'upload', label: 'Bild', relationTo: 'media' },
-    { name: 'link', type: 'group', label: 'Link', fields: internalLinkFields() },
+    { name: 'link', type: 'group', label: 'Link', fields: internalLinkFields({ optional: true }) },
     cocoPose('sniff'),
     {
       name: 'ornament',

@@ -1913,22 +1913,25 @@ export interface Page {
             heading: string;
             text?: string | null;
             image?: (number | null) | Media;
-            link: {
-              target:
-                | 'home'
-                | 'shop'
-                | 'archive'
-                | 'category'
-                | 'tattoo'
-                | 'tattoo_aftercare'
-                | 'about'
-                | 'commissions'
-                | 'contact'
-                | 'conformity'
-                | 'instagram'
-                | 'email';
+            link?: {
+              target?:
+                | (
+                    | 'home'
+                    | 'shop'
+                    | 'archive'
+                    | 'category'
+                    | 'tattoo'
+                    | 'tattoo_aftercare'
+                    | 'about'
+                    | 'commissions'
+                    | 'contact'
+                    | 'conformity'
+                    | 'instagram'
+                    | 'email'
+                  )
+                | null;
               category?: ('keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges') | null;
-              label: string;
+              label?: string | null;
             };
             cocoPose?: ('run' | 'sniff' | 'sit' | 'sleep' | 'jump' | 'head_tilt') | null;
             ornament?: ('planet' | 'star' | 'none') | null;

@@ -1,0 +1,36 @@
+{
+  "checkouts": [
+    {
+      "key": "KS2",
+      "status": "open",
+      "locale": "de",
+      "items": [
+        "products:S27"
+      ],
+      "fulfillmentMethod": "shipping",
+      "shippingZone": "DE",
+      "reservationRef": "00000000-0000-4000-8000-000000090102",
+      "createdAt": "N-6min",
+      "displayExpiresAt": "N+24min",
+      "expiresAt": "N+30min",
+      "stripe": {
+        "checkoutSessionId": "cs_seed_ks2",
+        "sessionExpiresAt": "N+25min",
+        "sessionSeq": 1
+      }
+    }
+  ],
+  "orders": [],
+  "reservations": [
+    {
+      "key": "KS2",
+      "checkout": "checkouts:KS2",
+      "product": "products:S27",
+      "source": "checkout_session",
+      "status": "active",
+      "createdAt": "N-6min",
+      "expiresAt": "N+30min",
+      "displayExpiresAt": "N+24min"
+    }
+  ]
+}

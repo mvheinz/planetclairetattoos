@@ -1,0 +1,16 @@
+[
+  {
+    "key": "nickel-demo",
+    "purpose": "nickel_evidence",
+    "complianceCategory": "schmuck",
+    "pdfText": "BEISPIELDOKUMENT – kein Nachweis. Platzhalter für die Lieferantenerklärung zu den Ösen (Edelstahl).",
+    "note": "Beispieldokument (Beispielbestand) – Nachweis für S26–S29."
+  },
+  {
+    "key": "glaze-demo",
+    "purpose": "supplier_document",
+    "complianceCategory": "schmuck",
+    "pdfText": "BEISPIELDOKUMENT – kein Nachweis. Platzhalter für das Hersteller-Datenblatt der Glasur.",
+    "note": "Beispieldokument (Beispielbestand) – Glasur-Datenblatt zu S26–S29."
+  }
+]

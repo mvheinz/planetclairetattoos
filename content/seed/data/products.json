@@ -1,0 +1,459 @@
+[
+  {
+    "key": "S01",
+    "itemNumber": 901,
+    "category": "keramik",
+    "title": {
+      "de": "Schale „Langohr & Wuschel“",
+      "en": "Bowl “Long Ears & Fluff”"
+    },
+    "description": {
+      "de": "Kleine Schale, innen wohnen ein Hase mit sehr langen Ohren und ein Wuschelhund, der ihn anhimmelt. Leicht schief geformt, weiß glasiert, schwarze Linie. Für Ringe, Schlüssel oder Kleinkram.",
+      "en": "A small bowl where a very long-eared bunny lives with a fluffy dog who adores him. Slightly wonky, white glaze, black line. For rings, keys or odds and ends."
+    },
+    "juttaSays": {
+      "de": "Die beiden sind unzertrennlich. Bitte nicht auseinanderbringen.",
+      "en": "These two are inseparable. Please don't split them up."
+    },
+    "priceCents": 4500,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
+      "en": "Stoneware, underglaze colours, clear glaze"
+    },
+    "dimensions": {
+      "diameterCm": 11,
+      "heightCm": 5
+    },
+    "weightGrams": 210,
+    "shippingClass": "keramik",
+    "foodContact": "deko",
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ig:DdUPhoZOoMW#a",
+      "media:ig:DdUPhoZOoMW"
+    ],
+    "state": {
+      "status": "available",
+      "firstPublishedAt": "D-30@18:00"
+    },
+    "storageLocation": "Regal K",
+    "enStatus": "reviewed"
+  },
+  {
+    "key": "S06",
+    "itemNumber": 906,
+    "category": "keramik",
+    "title": {
+      "de": "Fliese „Auftritt“",
+      "en": "Tile “On Stage”"
+    },
+    "description": {
+      "de": "Bemalte Fliese: Jemand im dunklen Anzug steht auf der Bühne, die Worte schweben drumherum. Vom Flohmarkttisch direkt in die Welt.",
+      "en": "A painted tile: someone in a dark suit on stage, words floating all around. Straight from the flea market table out into the world."
+    },
+    "priceCents": 6500,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Keramikfliese, bemalt, glasiert",
+      "en": "Ceramic tile, painted, glazed"
+    },
+    "dimensions": {
+      "widthCm": 10,
+      "heightCm": 10,
+      "depthCm": 0.6
+    },
+    "weightGrams": 180,
+    "shippingClass": "keramik",
+    "foodContact": "deko",
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ig:Dav1kUkDgR7"
+    ],
+    "state": {
+      "status": "sold",
+      "firstPublishedAt": "D-94@18:00",
+      "soldAt": "D-32@15:00",
+      "soldChannel": "offline",
+      "offlineSaleNote": "Flohmarkt Mauerpark",
+      "showInArchiveAfterSale": true
+    },
+    "storageLocation": "Regal K",
+    "enStatus": "reviewed"
+  },
+  {
+    "key": "S09",
+    "itemNumber": 909,
+    "category": "keramik",
+    "title": {
+      "de": "Fliese „Reh im Planetenregen“",
+      "en": "Tile “Deer in Planet Rain”"
+    },
+    "description": {
+      "de": "Ein Reh mit Tupfen bleibt ganz ruhig, während es kleine Planeten regnet. Quadratische Fliese zum Hinstellen oder Aufhängen.",
+      "en": "A spotted deer stays perfectly calm while it rains little planets. Square tile to stand up or hang."
+    },
+    "priceCents": 8500,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
+      "en": "Stoneware, underglaze colours, clear glaze"
+    },
+    "dimensions": {
+      "widthCm": 20,
+      "heightCm": 20,
+      "depthCm": 0.8
+    },
+    "weightGrams": 650,
+    "shippingClass": "keramik",
+    "foodContact": "deko",
+    "internalNote": "Beim Packen für PC-2026-90008 zerbrochen – Bestellung voll erstattet, nicht mehr verkaufen.",
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ph:fliese-01"
+    ],
+    "state": {
+      "status": "archived",
+      "firstPublishedAt": "D-20@18:00",
+      "archivedAt": "D-6@09:35"
+    },
+    "storageLocation": "Regal K",
+    "enStatus": "reviewed"
+  },
+  {
+    "key": "S11",
+    "itemNumber": 911,
+    "category": "textil",
+    "title": {
+      "de": "T-Shirt „Coco fliegt zum Mond“",
+      "en": "T-shirt “Coco Flies to the Moon”"
+    },
+    "description": {
+      "de": "Graues Shirt: Coco sitzt mit Helm auf einer Rakete und will zum Mond. Second-Hand, von Hand bemalt.",
+      "en": "Grey tee: Coco in a helmet, riding a rocket to the moon. Second-hand, painted by hand."
+    },
+    "juttaSays": {
+      "de": "Das Loch hab ich extra bunt gestopft – Coco findet, das gehört jetzt dazu.",
+      "en": "I darned the hole in a bright colour on purpose – Coco says it's part of the look now."
+    },
+    "priceCents": 6400,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Second-Hand-T-Shirt, bemalt mit Textilfarbe",
+      "en": "Second-hand T-shirt, painted with fabric paint"
+    },
+    "dimensions": {
+      "note": {
+        "de": "Brustweite 56 cm, Länge 74 cm",
+        "en": "Chest width 56 cm, length 74 cm"
+      }
+    },
+    "weightGrams": 200,
+    "shippingClass": "paket_klein",
+    "sizeLabel": {
+      "de": "L",
+      "en": "L"
+    },
+    "isSecondHand": true,
+    "condition": "good",
+    "conditionNote": {
+      "de": "leichte Knötchen unter den Armen",
+      "en": "light pilling under the arms"
+    },
+    "fiberComposition": [
+      {
+        "component": "main",
+        "fiber": "cotton",
+        "percent": 60
+      },
+      {
+        "component": "main",
+        "fiber": "polyester",
+        "percent": 40
+      }
+    ],
+    "blankBrandVisible": false,
+    "deviationDecision": "described",
+    "hasDeviation": true,
+    "deviationDescription": {
+      "de": "Kleines Loch an der linken Seitennaht, von mir sichtbar gestopft (ca. 1 cm).",
+      "en": "Small hole at the left side seam, visibly darned by me (approx. 1 cm)."
+    },
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ph:shirt-02"
+    ],
+    "state": {
+      "status": "available",
+      "firstPublishedAt": "D-16@18:00"
+    },
+    "storageLocation": "Stange T",
+    "enStatus": "reviewed"
+  },
+  {
+    "key": "S15",
+    "itemNumber": 915,
+    "category": "cap",
+    "title": {
+      "de": "Pinke Cap „sometimes“",
+      "en": "Pink cap “sometimes”"
+    },
+    "description": {
+      "de": "Pinke Cap mit einem roten Fabelwesen, schwarzen Ranken und kleinen blauen Schlangen. Auf dem Schirm steht „sometimes“ – manchmal eben.",
+      "en": "Pink cap with a red creature, black vines and little blue snakes. The brim says “sometimes” – because sometimes, well."
+    },
+    "juttaSays": {
+      "de": "Das Wesen hat keinen Namen. Vorschläge nehme ich gern per DM.",
+      "en": "The creature doesn't have a name yet. Suggestions welcome by DM."
+    },
+    "priceCents": 8500,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Second-Hand-Cap, bemalt mit Textilfarbe",
+      "en": "Second-hand cap, painted with fabric paint"
+    },
+    "dimensions": {
+      "note": {
+        "de": "Kopfumfang ca. 54–60 cm",
+        "en": "Head size approx. 54–60 cm"
+      }
+    },
+    "weightGrams": 110,
+    "shippingClass": "paket_klein",
+    "sizeLabel": {
+      "de": "Einheitsgröße, verstellbar",
+      "en": "One size, adjustable"
+    },
+    "isSecondHand": true,
+    "condition": "very_good",
+    "fiberComposition": [
+      {
+        "component": "main",
+        "fiber": "cotton",
+        "percent": 100
+      }
+    ],
+    "blankBrandVisible": false,
+    "deviationDecision": "none",
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ig:DcT7ErBDsWi"
+    ],
+    "state": {
+      "status": "available",
+      "firstPublishedAt": "D-55@18:00"
+    },
+    "storageLocation": "Kiste C",
+    "enStatus": "reviewed"
+  },
+  {
+    "key": "S18",
+    "itemNumber": 918,
+    "category": "cap",
+    "title": {
+      "de": "Cap „Kleiner Planet“",
+      "en": "Cap “Little Planet”"
+    },
+    "description": {
+      "de": "Schwarze Cap mit einem kleinen Planeten und zwei Sternen an der Seite.",
+      "en": "Black cap with a little planet and two stars on the side."
+    },
+    "priceCents": 7500,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Second-Hand-Cap, bemalt mit Textilfarbe",
+      "en": "Second-hand cap, painted with fabric paint"
+    },
+    "dimensions": {
+      "note": {
+        "de": "Kopfumfang ca. 54–60 cm",
+        "en": "Head size approx. 54–60 cm"
+      }
+    },
+    "weightGrams": 100,
+    "shippingClass": "paket_klein",
+    "sizeLabel": {
+      "de": "Einheitsgröße, verstellbar",
+      "en": "One size, adjustable"
+    },
+    "isSecondHand": true,
+    "condition": "like_new",
+    "fiberComposition": [],
+    "labelMissing": false,
+    "blankBrandVisible": false,
+    "deviationDecision": "none",
+    "internalNote": "Etikett noch abschreiben.",
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ph:cap-02"
+    ],
+    "state": {
+      "status": "draft"
+    },
+    "storageLocation": "Kiste C",
+    "enStatus": "reviewed"
+  },
+  {
+    "key": "S20",
+    "itemNumber": 920,
+    "category": "zeichnung",
+    "title": {
+      "de": "„Zwei Figuren“, Tusche",
+      "en": "“Two Figures”, ink"
+    },
+    "description": {
+      "de": "Eine Figur im karierten Kleid mit tätowierten Beinen, daneben hängt jemand kopfüber ab. Feine, zittrige Linie – mein Lieblingsstrich.",
+      "en": "A figure in a checked dress with tattooed legs, and someone hanging upside down next to her. Fine, shaky line – my favourite kind."
+    },
+    "priceCents": 9500,
+    "vatCategory": "reduced_art",
+    "materials": {
+      "de": "Tusche auf Papier",
+      "en": "Ink on paper"
+    },
+    "dimensions": {
+      "widthCm": 21,
+      "heightCm": 29.7
+    },
+    "weightGrams": 15,
+    "shippingClass": "brief",
+    "framed": false,
+    "frameHasGlass": false,
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ig:DaJH_kADpsK"
+    ],
+    "state": {
+      "status": "available",
+      "firstPublishedAt": "D-109@18:00"
+    },
+    "storageLocation": "Mappe Z",
+    "enStatus": "reviewed"
+  },
+  {
+    "key": "S25",
+    "itemNumber": 925,
+    "category": "zeichnung",
+    "title": {
+      "de": "„Kleine Hasenversammlung“, Tusche"
+    },
+    "description": {
+      "de": "Fünf Hasen stehen im Halbkreis und beraten etwas sehr Wichtiges. Tusche, A5."
+    },
+    "priceCents": 6000,
+    "vatCategory": "reduced_art",
+    "materials": {
+      "de": "Tusche auf Papier",
+      "en": "Ink on paper"
+    },
+    "dimensions": {
+      "widthCm": 14.8,
+      "heightCm": 21
+    },
+    "weightGrams": 8,
+    "shippingClass": "brief",
+    "framed": false,
+    "frameHasGlass": false,
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ph:zeichnung-03"
+    ],
+    "state": {
+      "status": "draft"
+    },
+    "storageLocation": "Mappe Z",
+    "enStatus": "missing"
+  },
+  {
+    "key": "S26",
+    "itemNumber": 926,
+    "category": "schmuck",
+    "title": {
+      "de": "Fuchs-Anhänger",
+      "en": "Fox pendant"
+    },
+    "description": {
+      "de": "Winziger Fuchs aus Keramik, orange-weiß glasiert, mit schwarz gemaltem Gesicht und Öse. Kette nicht dabei.",
+      "en": "A tiny ceramic fox, glazed orange and white, with a black-painted face and a loop. Chain not included."
+    },
+    "juttaSays": {
+      "de": "1 × 1,5 cm. Ja, wirklich so klein.",
+      "en": "1 × 1.5 cm. Yes, really that small."
+    },
+    "priceCents": 2800,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Steinzeug, glasiert; Öse aus Edelstahl",
+      "en": "Stoneware, glazed; stainless steel loop"
+    },
+    "dimensions": {
+      "widthCm": 1,
+      "heightCm": 1.5
+    },
+    "weightGrams": 4,
+    "shippingClass": "brief",
+    "metalPartsMaterial": {
+      "de": "Öse: Edelstahl 316L",
+      "en": "Loop: stainless steel 316L"
+    },
+    "nickelFreeConfirmed": true,
+    "nickelEvidence": "private-uploads:nickel-demo",
+    "leadFreeGlazeConfirmed": true,
+    "smallPartsWarning": true,
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ig:Da2WrEgDpC_#pendant"
+    ],
+    "state": {
+      "status": "available",
+      "firstPublishedAt": "D-91@18:00"
+    },
+    "storageLocation": "Kästchen S",
+    "enStatus": "reviewed"
+  },
+  {
+    "key": "S27",
+    "itemNumber": 927,
+    "category": "schmuck",
+    "title": {
+      "de": "Anhänger „Coco mit Planetenring“",
+      "en": "Pendant “Coco with a Planet Ring”"
+    },
+    "description": {
+      "de": "Coco als Planet – mit Ring um den Kopf. Kleiner Keramik-Anhänger mit Öse.",
+      "en": "Coco as a planet – with a ring around her head. Small ceramic pendant with a loop."
+    },
+    "priceCents": 3200,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Steinzeug, glasiert; Öse aus Edelstahl",
+      "en": "Stoneware, glazed; stainless steel loop"
+    },
+    "dimensions": {
+      "widthCm": 2,
+      "heightCm": 1.8
+    },
+    "weightGrams": 5,
+    "shippingClass": "brief",
+    "metalPartsMaterial": {
+      "de": "Öse: Edelstahl 316L",
+      "en": "Loop: stainless steel 316L"
+    },
+    "nickelFreeConfirmed": true,
+    "nickelEvidence": "private-uploads:nickel-demo",
+    "leadFreeGlazeConfirmed": true,
+    "smallPartsWarning": true,
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ph:anhaenger-01"
+    ],
+    "state": {
+      "status": "reserved",
+      "firstPublishedAt": "D-18@18:00",
+      "reservedUntil": "N+30min",
+      "reservationCheckout": "checkouts:KS2"
+    },
+    "storageLocation": "Kästchen S",
+    "enStatus": "reviewed"
+  }
+]

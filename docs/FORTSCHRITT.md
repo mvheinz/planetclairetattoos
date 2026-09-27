@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P1.30
+
+- Mini-Satz in `content/seed/data/` (media, private-uploads, products S01/S06/S09/S11/S15/S18/S20/S25/S26/S27, orders mit Kasse und Reservierung KS2, pages home/contact) mit endgültigen seedKeys; Import `src/lib/seed/example.ts` (IG-Ausschnitte per sharp, Ersatzzeichnungen, Beispiel-PDFs), Entfernen `remove.ts`, settings.seed.\n- Station-Link optional (hallo ohne Link); `test:e2e` nutzt `db:reset --test --seed=all`; ci.yml Schritt „Seed + Build“.\n- Tests: int seed/example (DM-P1-04, AK-11-01…03, AK-SEED-06, AK-SEED-14, AK-SEED-15, AK-SEED-18), unit seed/data (zod, AK-SEED-12, AK-SEED-19 Teil); volle Int-Suite, check, check:migrations, build grün.
+
 ## 2026-09-27 – P1.29
 
 - `content/seed/data/base.json` (settings §3.1/§3.2, 6 Kategorien, 6 Platzhalter-Rechtstexte v1) und Import `src/lib/seed/base.ts`: create-if-missing, nur leere Felder füllen, Admin aus SEED_ADMIN_* (nie in Produktion).\n- `db:reset --test` ruft danach `seed:base` auf (`--seed=none|base|all`).\n- Tests: int seed/base (DM-P1-04, AK-SEED-02, AK-SEED-13 Teil), volle Int-Suite grün.

@@ -1,0 +1,134 @@
+{
+  "instagram": [
+    {
+      "key": "ig:DdUPhoZOoMW#a",
+      "file": "post-DdUPhoZOoMW.jpg",
+      "crop": {
+        "x": 46,
+        "y": 21.5,
+        "w": 54,
+        "h": 38
+      },
+      "showsPerson": "none",
+      "alt": {
+        "de": "Weiße Keramikschale von oben, innen schwarz bemalt: ein langohriger Hase und ein zotteliger Hund mit Kulleraugen",
+        "en": "White ceramic bowl from above, painted inside in black: a long-eared bunny and a shaggy dog with googly eyes"
+      }
+    },
+    {
+      "key": "ig:DdUPhoZOoMW",
+      "file": "post-DdUPhoZOoMW.jpg",
+      "crop": null,
+      "focal": {
+        "x": 55,
+        "y": 55
+      },
+      "showsPerson": "none",
+      "alt": {
+        "de": "Drei weiße Keramikschalen mit Tuschetieren auf grüner Schneidematte",
+        "en": "Three white ceramic bowls with ink-drawn animals on a green cutting mat"
+      }
+    },
+    {
+      "key": "ig:Dav1kUkDgR7",
+      "file": "post-Dav1kUkDgR7.jpg",
+      "crop": {
+        "x": 0,
+        "y": 3.125,
+        "w": 100,
+        "h": 93.75
+      },
+      "showsPerson": "none",
+      "alt": {
+        "de": "Bemalte Keramikfliese in Schutzhülle: Figur im dunklen Anzug auf einer Bühne, handgeschriebene Worte, dahinter ein Flohmarktstand",
+        "en": "Painted ceramic tile in a sleeve: a figure in a dark suit on stage, handwritten words, a flea market stall behind"
+      }
+    },
+    {
+      "key": "ig:DcT7ErBDsWi",
+      "file": "post-DcT7ErBDsWi.jpg",
+      "crop": {
+        "x": 0,
+        "y": 3.125,
+        "w": 100,
+        "h": 93.75
+      },
+      "showsPerson": "none",
+      "alt": {
+        "de": "Pinke Baseballcap, bemalt mit rotem Fabelwesen, schwarzen Ranken und dem Wort „sometimes“ auf dem Schirm",
+        "en": "Pink baseball cap painted with a red creature, black vines and the word “sometimes” on the brim"
+      }
+    },
+    {
+      "key": "ig:DaJH_kADpsK",
+      "file": "post-DaJH_kADpsK.jpg",
+      "crop": {
+        "x": 0,
+        "y": 3.125,
+        "w": 100,
+        "h": 93.75
+      },
+      "showsPerson": "none",
+      "alt": {
+        "de": "Tuschezeichnung: Figur im karierten Kleid mit tätowierten Beinen, daneben eine kopfüber hängende Figur mit langen Haaren",
+        "en": "Ink drawing: a figure in a checked dress with tattooed legs, next to a long-haired figure hanging upside down"
+      }
+    },
+    {
+      "key": "ig:Da2WrEgDpC_#pendant",
+      "file": "post-Da2WrEgDpC_.jpg",
+      "crop": {
+        "x": 10,
+        "y": 25,
+        "w": 80,
+        "h": 75
+      },
+      "showsPerson": "none",
+      "alt": {
+        "de": "Winziger Fuchs-Anhänger aus Keramik, orange-weiß glasiert, mit Metallöse auf grüner Schneidematte",
+        "en": "Tiny ceramic fox pendant, glazed orange and white, with a metal loop on a green cutting mat"
+      }
+    }
+  ],
+  "placeholders": [
+    {
+      "key": "ph:fliese-01",
+      "wash": "mat",
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Fliese mit Reh im Planetenregen",
+        "en": "Placeholder drawing: tile with a deer in planet rain"
+      }
+    },
+    {
+      "key": "ph:shirt-02",
+      "wash": "clay",
+      "alt": {
+        "de": "Platzhalter-Zeichnung: T-Shirt mit Coco auf einer Rakete",
+        "en": "Placeholder drawing: T-shirt with Coco on a rocket"
+      }
+    },
+    {
+      "key": "ph:cap-02",
+      "wash": "pink",
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Cap mit kleinem Planeten",
+        "en": "Placeholder drawing: cap with a little planet"
+      }
+    },
+    {
+      "key": "ph:zeichnung-03",
+      "wash": "mat",
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Skizze: fünf Hasen im Halbkreis"
+      }
+    },
+    {
+      "key": "ph:anhaenger-01",
+      "wash": "pink",
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Anhänger Coco mit Planetenring",
+        "en": "Placeholder drawing: pendant Coco with a planet ring"
+      }
+    }
+  ]
+}
