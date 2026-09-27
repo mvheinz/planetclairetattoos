@@ -20,6 +20,15 @@ export const ADMIN_CUSTOM_DE = {
   privacyRequestRefInvalid: 'Format DS-JJJJ-NNNN.',
   taskSlugInvalid: 'Task-Slug in camelCase (z. B. retentionOrders).',
   immutableField: 'Protokolleinträge sind unveränderlich.',
+  mediaAltRequired: 'Bitte beschreibe kurz, was zu sehen ist (5–250 Zeichen).',
+  mediaAltPrefix: 'Bitte ohne „Bild von …“ beginnen – beschreibe direkt, was zu sehen ist.',
+  mediaAltFilename: 'Der Alt-Text darf nicht der Dateiname sein.',
+  mediaColorInvalid: 'Farbe im Format #rrggbb.',
+  downscaleHint:
+    'Große Fotos werden vor dem Hochladen auf höchstens 2560 Pixel verkleinert (JPEG). Standortdaten entfernt der Server.',
+  downscaleWorking: 'Foto wird verkleinert …',
+  downscaleDone: 'Foto verkleinert auf {{width}} × {{height}} Pixel.',
+  downscaleFailed: 'Verkleinern im Browser nicht möglich – das Foto wird unverändert hochgeladen.',
   ruleIdInvalid: 'Regel muss L-xx (z. B. „L-13 a“, „L-05 Stufe C“), DSGVO oder ADMIN sein.',
 } as const
 

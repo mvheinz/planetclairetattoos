@@ -602,7 +602,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - Build-Prüfung in `scripts/check-external.ts --built` auf den Pfad-String (Grundgerüst, P2 erweitert).
   - Ohne Jutta: Produktionspfad wählt P11 (A33).
 
-- [ ] **P1.13 `media` und Bildpipeline** – `src/collections/Media.ts` laut DATENMODELL §6.2 und DESIGN §12.2 (Schritte 1–3,
+- [x] **P1.13 `media` und Bildpipeline** – `src/collections/Media.ts` laut DATENMODELL §6.2 und DESIGN §12.2 (Schritte 1–3,
   7, 8).
   - `beforeOperation`: `sharp(buffer).rotate().toColourspace('srgb')` wendet die Orientierung an und wandelt in sRGB;
     die Neukodierung entfernt alle Metadaten (EXIF, GPS, XMP, IPTC); das Original wird als WebP q90 in maximal

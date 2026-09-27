@@ -146,7 +146,7 @@ describe('Speicher – Payload-Uploads mit STORAGE_DRIVER=local', () => {
     const data = await png()
     const doc = await h.payload.create({
       collection: 'media',
-      data: { alt: 'Schale blau' },
+      data: { alt: 'Schale blau' } as never,
       file: file(data, 'schale.png', 'image/png'),
       overrideAccess: true,
     })
@@ -236,7 +236,7 @@ describe.skipIf(!s3Available)('Speicher – STORAGE_DRIVER=s3 gegen MinIO (Spike
     const data = await png()
     const doc = await h.payload.create({
       collection: 'media',
-      data: { alt: 'Schale grün' },
+      data: { alt: 'Schale grün' } as never,
       file: file(data, 'schale-s3.png', 'image/png'),
       overrideAccess: true,
     })

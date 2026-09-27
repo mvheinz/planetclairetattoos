@@ -167,12 +167,34 @@ export interface User {
   collection: 'users';
 }
 /**
+ * Bilder für Shop, Seiten und Galerie. Große Fotos werden vor dem Hochladen verkleinert; Standortdaten werden entfernt.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
   id: number;
-  alt: string;
+  /**
+   * Was ist zu sehen? Objekt, Motiv, Farbe.
+   */
+  alt?: string | null;
+  caption?: string | null;
+  /**
+   * „Kund:in“ = Haut oder Tattoo einer Kundin/eines Kunden (nie öffentlich ohne Einwilligung).
+   */
+  showsPerson: 'none' | 'jutta' | 'customer';
+  restricted?: boolean | null;
+  source: 'upload' | 'instagram_seed' | 'instagram_export' | 'placeholder' | 'generated';
+  sourceRef?: string | null;
+  /**
+   * Wirkt ab P9 (einheitlicher Bildlook).
+   */
+  enhance: 'auto' | 'off';
+  derivativesVersion?: number | null;
+  placeholderDataUrl?: string | null;
+  dominantColor?: string | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
   prefix?: string | null;
   _objectKey?: string | null;
   updatedAt: string;
@@ -186,6 +208,48 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+  sizes?: {
+    thumb?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    detail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    zoom?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    og?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * Wer hat wann was geändert. Nur lesen.
@@ -610,6 +674,17 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  caption?: T;
+  showsPerson?: T;
+  restricted?: T;
+  source?: T;
+  sourceRef?: T;
+  enhance?: T;
+  derivativesVersion?: T;
+  placeholderDataUrl?: T;
+  dominantColor?: T;
+  seed?: T;
+  seedKey?: T;
   prefix?: T;
   _objectKey?: T;
   updatedAt?: T;
@@ -623,6 +698,60 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumb?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        detail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        zoom?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        og?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
