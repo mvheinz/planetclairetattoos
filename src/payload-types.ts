@@ -71,6 +71,8 @@ export interface Config {
     media: Media;
     documents: Document;
     'private-uploads': PrivateUpload;
+    categories: Category;
+    'conformity-declarations': ConformityDeclaration;
     'audit-log': AuditLog;
     'email-log': EmailLog;
     'consent-log': ConsentLog;
@@ -88,6 +90,8 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
     'private-uploads': PrivateUploadsSelect<false> | PrivateUploadsSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    'conformity-declarations': ConformityDeclarationsSelect<false> | ConformityDeclarationsSelect<true>;
     'audit-log': AuditLogSelect<false> | AuditLogSelect<true>;
     'email-log': EmailLogSelect<false> | EmailLogSelect<true>;
     'consent-log': ConsentLogSelect<false> | ConsentLogSelect<true>;
@@ -334,6 +338,7 @@ export interface PrivateUpload {
    */
   documentVersion?: string | null;
   documentDate?: string | null;
+  relatedDeclaration?: (number | null) | ConformityDeclaration;
   note?: string | null;
   seed?: boolean | null;
   seedKey?: string | null;
@@ -360,6 +365,64 @@ export interface PrivateUpload {
       filename?: string | null;
     };
   };
+}
+/**
+ * Je Glasur: Laborbericht (privat) und Konformitätserklärung (öffentlich). Nur damit darf Keramik „lebensmittelecht“ sein.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "conformity-declarations".
+ */
+export interface ConformityDeclaration {
+  id: number;
+  /**
+   * Glasurname, wie auf der Seite angezeigt.
+   */
+  name: string;
+  glazeManufacturer?: string | null;
+  glazeProduct?: string | null;
+  leadCadmiumFreeByManufacturer?: boolean | null;
+  labName: string;
+  labReportDate: string;
+  /**
+   * Nicht öffentlich.
+   */
+  labReport: number | PrivateUpload;
+  declarationPdf: number | Document;
+  validFrom: string;
+  /**
+   * Widerrufen sperrt verknüpfte „lebensmittelecht“-Stücke.
+   */
+  status: 'active' | 'revoked';
+  notes?: string | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Die sechs festen Kategorien: Namen, Adressen (Slugs), Texte und Bilder.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  key: 'keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges';
+  name: string;
+  /**
+   * Teil der URL, z. B. „keramik“. Änderungen ändern die Adresse.
+   */
+  slug: string;
+  intro?: string | null;
+  coverImage?: (number | null) | Media;
+  sortOrder: number;
+  showInNavigation?: boolean | null;
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * Wer hat wann was geändert. Nur lesen.
@@ -699,6 +762,14 @@ export interface PayloadLockedDocument {
         value: number | PrivateUpload;
       } | null)
     | ({
+        relationTo: 'categories';
+        value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'conformity-declarations';
+        value: number | ConformityDeclaration;
+      } | null)
+    | ({
         relationTo: 'audit-log';
         value: number | AuditLog;
       } | null)
@@ -909,6 +980,7 @@ export interface PrivateUploadsSelect<T extends boolean = true> {
   complianceCategory?: T;
   documentVersion?: T;
   documentDate?: T;
+  relatedDeclaration?: T;
   note?: T;
   seed?: T;
   seedKey?: T;
@@ -939,6 +1011,48 @@ export interface PrivateUploadsSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  key?: T;
+  name?: T;
+  slug?: T;
+  intro?: T;
+  coverImage?: T;
+  sortOrder?: T;
+  showInNavigation?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "conformity-declarations_select".
+ */
+export interface ConformityDeclarationsSelect<T extends boolean = true> {
+  name?: T;
+  glazeManufacturer?: T;
+  glazeProduct?: T;
+  leadCadmiumFreeByManufacturer?: T;
+  labName?: T;
+  labReportDate?: T;
+  labReport?: T;
+  declarationPdf?: T;
+  validFrom?: T;
+  status?: T;
+  notes?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

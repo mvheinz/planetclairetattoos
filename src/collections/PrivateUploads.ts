@@ -369,6 +369,13 @@ export const PrivateUploads: CollectionConfig = {
         condition: (data) => EVIDENCE_PURPOSES.has(data?.purpose as PrivateUploadPurpose),
       },
     },
+    {
+      name: 'relatedDeclaration',
+      type: 'relationship',
+      label: 'Konformitätserklärung',
+      relationTo: 'conformity-declarations',
+      admin: { condition: (data) => data?.purpose === 'lab_report' },
+    },
     { name: 'note', type: 'textarea', label: 'Notiz', maxLength: 500 },
     ...seedField(),
   ],

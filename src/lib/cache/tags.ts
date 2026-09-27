@@ -1,6 +1,7 @@
 // Cache-Tags (ARCHITEKTUR §9.3) – einzige Stelle für Tag-Namen.
 export const TAGS = {
   products: 'products',
+  categories: 'categories',
   home: 'home',
   sitemap: 'sitemap',
   faqs: 'faqs',

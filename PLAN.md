@@ -687,7 +687,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: int `tests/int/globals/settings.int.spec.ts` (R-032); unit `tests/unit/legal/constants.unit.spec.ts`.
   - Ohne Jutta: Platzhalter laut Grund-Seed (DATENMODELL §13.1) und die Beispiel-IBAN. P11: A11, A12, A26.
 
-- [ ] **P1.15 `categories` und `conformity-declarations`** –
+- [x] **P1.15 `categories` und `conformity-declarations`** –
   - `src/collections/Categories.ts` laut DATENMODELL §6.5: 6 feste Keys, lokalisierte Slugs (DE `keramik`, `textil`,
     `caps`, `zeichnungen`, `schmuck`, `sonstiges`; EN `ceramics`, `textiles`, `caps`, `drawings`, `jewellery`,
     `other`), `create`/`delete` = `none`, `key` unveränderlich, `revalidateTag('categories')`. Slugs werden nie im Code

@@ -496,7 +496,13 @@ describe.skipIf(!s3Available)('private-uploads – STORAGE_DRIVER=s3 (MinIO)', (
         S3_SECRET_ACCESS_KEY: S3_TEST.secretAccessKey,
         S3_FORCE_PATH_STYLE: 'true',
       },
-      { privateUploads: PrivateUploads },
+      {
+        // Beziehungen auf Collections, die die Test-Instanz nicht kennt, entfallen
+        privateUploads: {
+          ...PrivateUploads,
+          fields: PrivateUploads.fields.filter((f) => f.type !== 'relationship'),
+        },
+      },
     )
   })
   afterAll(async () => {

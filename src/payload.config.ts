@@ -11,6 +11,8 @@ import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Documents } from './collections/Documents'
 import { PrivateUploads } from './collections/PrivateUploads'
+import { Categories } from './collections/Categories'
+import { ConformityDeclarations } from './collections/ConformityDeclarations'
 import { AuditLog } from './collections/AuditLog'
 import { ConsentLog } from './collections/ConsentLog'
 import { DeletionLog } from './collections/DeletionLog'
@@ -52,6 +54,8 @@ export default buildConfig({
     Media,
     Documents,
     PrivateUploads,
+    Categories,
+    ConformityDeclarations,
     AuditLog,
     EmailLog,
     ConsentLog,
