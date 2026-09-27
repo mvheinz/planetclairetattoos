@@ -9,11 +9,14 @@ import {
 } from '@/lib/db/guard'
 
 const testUrl = process.env.DATABASE_URL_TEST!
-const devUrl = (() => {
+function urlWithDatabase(name: string): string {
   const u = new URL(testUrl)
-  u.pathname = '/planetclaire'
+  u.pathname = `/${name}`
   return u.toString()
-})()
+}
+const devUrl = urlWithDatabase('planetclaire')
+// Existiert garantiert nicht: die Namensregel muss ohne Verbindungsaufbau greifen (CI hat keine DB planetclaire).
+const missingUrl = urlWithDatabase('planetclaire_reset_guard_missing')
 
 function runReset(env: Record<string, string>) {
   return spawnSync('pnpm', ['-s', 'db:reset', '--test'], {
@@ -27,6 +30,14 @@ describe('db:reset --test Schutz (ARCHITEKTUR §4.8)', () => {
     const res = runReset({ DATABASE_URL_TEST: devUrl })
     expect(res.status).toBe(1)
     expect(res.stderr + res.stdout).toContain('endet nicht auf _test')
+  })
+
+  it('prüft die Namensregel vor dem Verbindungsaufbau (Ziel-DB existiert nicht)', () => {
+    const res = runReset({ DATABASE_URL_TEST: missingUrl })
+    expect(res.status).toBe(1)
+    const out = res.stderr + res.stdout
+    expect(out).toContain('endet nicht auf _test')
+    expect(out).not.toContain('does not exist')
   })
 
   it('bricht mit APP_ENV=production ab', () => {

@@ -1256,7 +1256,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
 ### Phasen-Abnahme
 - [x] Alle Aufgaben P1.1–P1.33 einschließlich P1.1a, P1.1b und P1.33a sind abgehakt.
 - [x] Lokal grün: `pnpm check`, `pnpm test:int`, `pnpm test:e2e --grep @smoke`, `pnpm build`.
-- [ ] CI grün – erst nach dem grünen Lauf abhaken, in einem Doku-Commit mit `[skip ci]`: Der letzte Commit ohne
+- [x] CI grün – erst nach dem grünen Lauf abhaken, in einem Doku-Commit mit `[skip ci]`: Der letzte Commit ohne
   `[skip ci]` trägt `[ci:full p1]` (W-31; ARCHITEKTUR §6.7); `CI / quick` ist auf dem PR grün. Damit sind die
   „(CI-Nachweis)“-Kriterien aus P1.1a und P1.33 belegt.
 - [x] DM-P1-01 bis DM-P1-07 grün; ebenso T-05, T-14, T-15, T-17. Alle 27 Collections der P1 (DATENMODELL §10.1: alle
@@ -1271,7 +1271,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   Prüfstellen aus P1.2 sind abgehakt; neue Owner-Punkte stehen in `docs/owner/AUFGABEN.md` unter der nächsten freien
   A-Nummer (falls nötig).
 - [x] Eintrag in `docs/FORTSCHRITT.md`: was erledigt wurde und wie es getestet ist.
-- [ ] PR-Titel und -Text (Deutsch) aktualisiert, oben „Bitte mergen – CI ist grün“.
+- [x] PR-Titel und -Text (Deutsch) aktualisiert, oben „Bitte mergen – CI ist grün“.
 - [x] Keine echten Schlüssel oder Konten im Repo (gitleaks grün).
 - [x] Ein Vorschau-Artefakt ist in P1 nicht nötig; Pflicht ab P2.
 

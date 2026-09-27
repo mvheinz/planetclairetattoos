@@ -12,6 +12,14 @@ import { testUrl, withClient } from './lib/pg'
 
 export async function resetTestDatabase(url: string, appEnv: string): Promise<void> {
   const databaseName = databaseNameFromUrl(url)
+  // Namensregel und APP_ENV zuerst prüfen – ohne Verbindung (die Ziel-DB muss dafür nicht existieren).
+  const preReason = destructiveActionBlockedReason({
+    appEnv,
+    databaseName,
+    isProductionMarked: false,
+    requireTestSuffix: true,
+  })
+  if (preReason) throw new Error(preReason)
   await withClient(url, async (c) => {
     const reason = destructiveActionBlockedReason({
       appEnv,
@@ -22,6 +30,7 @@ export async function resetTestDatabase(url: string, appEnv: string): Promise<vo
     if (reason) throw new Error(reason)
     await c.query('DROP SCHEMA IF EXISTS public CASCADE')
     await c.query('DROP SCHEMA IF EXISTS payload CASCADE')
+    await c.query('DROP SCHEMA IF EXISTS pc_test_baseline CASCADE') // Int-Test-Ausgangszustand (tests/int/setup)
     await c.query('CREATE SCHEMA public')
   })
 }

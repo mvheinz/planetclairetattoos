@@ -1326,7 +1326,12 @@ ab 1.500 Minuten `MINUTEN_STATUS=knapp`, ab 2.000 `erschoepft` und bei einem API
 
 - **Datenbank:** `pnpm test:int` und `pnpm test:e2e` rufen vorher `db:ensure` und `db:reset --test` (Schema `public` leeren,
   `payload migrate`, eigenes SQL, `seed:base`; E2E zusätzlich `seed:example`) gegen `DATABASE_URL_TEST`. Der Reset verweigert
-  jede DB, deren Name nicht auf `_test` endet oder die als Produktion markiert ist (§4.8).
+  jede DB, deren Name nicht auf `_test` endet oder die als Produktion markiert ist (§4.8); Namensregel und `APP_ENV`
+  prüft er vor dem Verbindungsaufbau.
+- **Int-Tests unabhängig von der Reihenfolge:** Das globale Vitest-Setup sichert den Stand nach dem Reset in das Schema
+  `pc_test_baseline`; vor jeder Int-Testdatei stellt `tests/int/setup/restore.ts` ihn wieder her (Tabellen leeren,
+  Daten und Sequenzstände zurückspielen). Jede Datei beginnt so im Zustand „nach `db:reset --test`“ – auch in CI, wo die
+  Reihenfolge der Dateien mangels Vitest-Cache eine andere ist als lokal.
 - **E2E-Fixtures:** Tests, die Stücke kaufen/reservieren, legen eigene Stücke im Seed-Nummernbereich `980–999` an
   (`tests/e2e/fixtures.ts`, Local API, `seed=true`) und setzen sie vor jedem Test zurück; der P8-Beispielbestand bleibt
   unverändert (für Screenshots und Export).

@@ -32,6 +32,12 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 ## 2026-09-27 – P2.1
 
 - next-intl 4.14.7 exakt gepinnt; Routen-Registry src/lib/routes/registry.ts (R01–R31, shortLinks, aliases) + Pfad-Helfer src/lib/routes/paths.ts (localizedPath, alternatePath, matchRoute)\n- src/i18n/{routing,request,navigation}.ts, Nachrichten de/en (9 Namensräume, EN als Entwurf E-62)\n- App-Ordner [locale]/ mit Startseite (vorläufig) und Gerüsten R20–R27; P0-Platzhalter entfernt\n- check:static: neue Teilprüfungen i18n-parity und route-registry (inkl. Abgleich page.tsx ↔ live-Routen)\n- Tests: tests/unit/i18n/parity.unit.spec.ts (T-06), tests/unit/routes/registry.unit.spec.ts (T-07, AK-2-01); pnpm check + build grün
+## 2026-09-27 – P1 CI grün
+
+- Phasenende-Lauf `[ci:full p1]` auf PR #1 grün (`CI / quick`, 11 min, Kopf `f266c47`): Lint, Typen, statische
+  Prüfungen, Unit, Migrationen + Drift, Int (reihenfolgeunabhängig dank Ausgangszustand je Datei), Seed + Build,
+  Budgets, E2E-Rauchtest, gitleaks, audit. Zuvor behoben: falscher `CARRIER_DRIVER` in `ci.yml`, `db:reset` prüft den
+  DB-Namen vor dem Verbinden, Int-Tests hingen von der Dateireihenfolge ab.
 
 ## 2026-09-27 – P1 Phasen-Abnahme (Datenmodell, Verwaltung, Werkzeuge)
 
