@@ -945,6 +945,8 @@ und `title`. Formular in Tabs „Basis“, „Pflichtangaben“, „Bilder“, �
 `adminTitle` („Nr. 017 · {title}“), `displayNumber` („017“), `isPublic` (status ∈ available/reserved oder sold+Archiv),
 `characteristics` (DE/EN-Zeile der wesentlichen Eigenschaften, z. B. „Keramik · Ø 14 cm · Steinzeug · Deko – nicht für
 Lebensmittel“; Funktion `buildCharacteristics(product, locale)` – wird in Kasse und Bestell-Snapshot verwendet).
+Umsetzung (P1.16): `adminTitle` ist als lokalisiertes, schreibgeschütztes Textfeld gespeichert und wird von den Hooks
+gesetzt, weil Payload ein rein virtuelles Feld nicht als `useAsTitle` zulässt (OFFENE-PUNKTE §5).
 
 #### 6.6.3 Kategorie-Voreinstellungen (beim Anlegen/Kategoriewechsel in `beforeValidate`, nur leere Felder)
 

@@ -9,6 +9,7 @@ import * as migration_20260927_112218_p1_media from './20260927_112218_p1_media'
 import * as migration_20260927_113844_p1_documents from './20260927_113844_p1_documents';
 import * as migration_20260927_115819_p1_globals from './20260927_115819_p1_globals';
 import * as migration_20260927_120755_p1_categories from './20260927_120755_p1_categories';
+import * as migration_20260927_122558_p1_products from './20260927_122558_p1_products';
 
 export const migrations = [
   {
@@ -64,6 +65,11 @@ export const migrations = [
   {
     up: migration_20260927_120755_p1_categories.up,
     down: migration_20260927_120755_p1_categories.down,
-    name: '20260927_120755_p1_categories'
+    name: '20260927_120755_p1_categories',
+  },
+  {
+    up: migration_20260927_122558_p1_products.up,
+    down: migration_20260927_122558_p1_products.down,
+    name: '20260927_122558_p1_products'
   },
 ];

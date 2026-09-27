@@ -705,7 +705,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: int `tests/int/collections/categories.int.spec.ts`, `conformity.int.spec.ts` (R-044).
   - Ohne Jutta: Alle Keramik bleibt `deko` (E-15). P11: Glasur-Nachweise (A18).
 
-- [ ] **P1.16 `products`: Felder, Tabs, Bedingungen, Voreinstellungen** – `src/collections/Products.ts` laut DATENMODELL
+- [x] **P1.16 `products`: Felder, Tabs, Bedingungen, Voreinstellungen** – `src/collections/Products.ts` laut DATENMODELL
   §6.6.1–§6.6.3, §6.6.8, §6.6.9; Feldnamen, Enums und Pflichtangaben ausschließlich aus DATENMODELL (u. a.
   `ownDesignConfirmed`, `vatCategory`/`vatReducedReason`, `hasDeviation`/`deviationDescription`). Dazu die Felder nach
   RECHT R-043–R-048 aus §6.6.1:

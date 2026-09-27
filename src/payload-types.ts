@@ -73,6 +73,7 @@ export interface Config {
     'private-uploads': PrivateUpload;
     categories: Category;
     'conformity-declarations': ConformityDeclaration;
+    products: Product;
     'audit-log': AuditLog;
     'email-log': EmailLog;
     'consent-log': ConsentLog;
@@ -92,6 +93,7 @@ export interface Config {
     'private-uploads': PrivateUploadsSelect<false> | PrivateUploadsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     'conformity-declarations': ConformityDeclarationsSelect<false> | ConformityDeclarationsSelect<true>;
+    products: ProductsSelect<false> | ProductsSelect<true>;
     'audit-log': AuditLogSelect<false> | AuditLogSelect<true>;
     'email-log': EmailLogSelect<false> | EmailLogSelect<true>;
     'consent-log': ConsentLogSelect<false> | ConsentLogSelect<true>;
@@ -421,6 +423,305 @@ export interface Category {
     metaTitle?: string | null;
     metaDescription?: string | null;
   };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products".
+ */
+export interface Product {
+  id: number;
+  /**
+   * „Nr. 017 · Titel“
+   */
+  adminTitle?: string | null;
+  displayNumber?: string | null;
+  isPublic?: boolean | null;
+  characteristics?: string | null;
+  /**
+   * Deine Objektnummer. Anzeige: Nr. 017. Nach der ersten Veröffentlichung nicht mehr änderbar.
+   */
+  itemNumber: number;
+  /**
+   * Englisch optional – sonst erscheint der deutsche Titel.
+   */
+  title?: string | null;
+  /**
+   * Entsteht automatisch aus Nummer und Titel.
+   */
+  slug?: string | null;
+  /**
+   * Nur im Entwurf änderbar.
+   */
+  category: 'keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges';
+  /**
+   * Absätze per Leerzeile.
+   */
+  description?: string | null;
+  /**
+   * Optionale kurze Notiz von dir (höchstens 280 Zeichen).
+   */
+  juttaSays?: string | null;
+  priceCents: number;
+  /**
+   * Nur bei Regelbesteuerung relevant.
+   */
+  vatCategory: 'standard' | 'reduced_art';
+  vatReducedReason?: string | null;
+  /**
+   * z. B. „Steinzeug, Unterglasurfarbe, Transparentglasur“ oder „Aquarell auf Papier 300 g“
+   */
+  materials?: string | null;
+  dimensions?: {
+    widthCm?: number | null;
+    heightCm?: number | null;
+    depthCm?: number | null;
+    diameterCm?: number | null;
+    /**
+     * z. B. „Brustweite 52 cm, Länge 70 cm“
+     */
+    note?: string | null;
+  };
+  /**
+   * Ohne Verpackung.
+   */
+  weightGrams?: number | null;
+  /**
+   * Wird aus der Kategorie vorbelegt.
+   */
+  shippingClass: 'brief' | 'paket_klein' | 'keramik' | 'nur_abholung';
+  /**
+   * „M“, „EU 38“, „Einheitsgröße, verstellbar 54–60 cm“
+   */
+  sizeLabel?: string | null;
+  isSecondHand?: boolean | null;
+  condition?: ('like_new' | 'very_good' | 'good' | 'worn') | null;
+  /**
+   * z. B. „winziger Fleck am Saum“
+   */
+  conditionNote?: string | null;
+  /**
+   * Laut Etikett – fehlt das Etikett: nach bestem Wissen. Je Teil (Hauptstoff, Futter …) genau 100 %.
+   */
+  fiberComposition?:
+    | {
+        component: 'main' | 'lining' | 'trim' | 'other';
+        fiber:
+          | 'wool'
+          | 'alpaca'
+          | 'llama'
+          | 'camel'
+          | 'cashmere'
+          | 'mohair'
+          | 'angora'
+          | 'vicuna'
+          | 'yak'
+          | 'guanaco'
+          | 'cashgora'
+          | 'beaver'
+          | 'otter'
+          | 'animal_hair'
+          | 'horsehair'
+          | 'silk'
+          | 'cotton'
+          | 'kapok'
+          | 'flax'
+          | 'hemp'
+          | 'jute'
+          | 'abaca'
+          | 'alfa'
+          | 'coir'
+          | 'broom'
+          | 'ramie'
+          | 'sisal'
+          | 'sunn'
+          | 'henequen'
+          | 'maguey'
+          | 'acetate'
+          | 'alginate'
+          | 'cupro'
+          | 'modal'
+          | 'protein'
+          | 'triacetate'
+          | 'viscose'
+          | 'acrylic'
+          | 'chlorofibre'
+          | 'fluorofibre'
+          | 'modacrylic'
+          | 'polyamide'
+          | 'aramid'
+          | 'polyimide'
+          | 'lyocell'
+          | 'polylactide'
+          | 'polyester'
+          | 'polyethylene'
+          | 'polypropylene'
+          | 'polycarbamide'
+          | 'polyurethane'
+          | 'vinylal'
+          | 'trivinyl'
+          | 'elastodiene'
+          | 'elastane'
+          | 'glass_fibre'
+          | 'metal_fibre'
+          | 'paper_fibre'
+          | 'elastomultiester'
+          | 'elastolefin'
+          | 'melamine'
+          | 'pp_pa_bicomponent'
+          | 'polyacrylate'
+          | 'other_fibres';
+        percent: number;
+        id?: string | null;
+      }[]
+    | null;
+  labelMissing?: boolean | null;
+  /**
+   * Ergänzt die Faserangabe und wird mit dem Hinweis „Etikett fehlt“ angezeigt.
+   */
+  fiberFreeText?: string | null;
+  /**
+   * Als Text, ohne Symbole.
+   */
+  careInstructions?: string | null;
+  /**
+   * Angehakt: Veröffentlichung gesperrt, solange sichtbare Marken nicht erlaubt sind.
+   */
+  blankBrandVisible?: boolean | null;
+  /**
+   * „lebensmittelecht“ nur mit gültiger Konformitätserklärung.
+   */
+  foodContact?: ('deko' | 'lebensmittelecht') | null;
+  /**
+   * Alle verwendeten Glasuren.
+   */
+  conformityDeclarations?: (number | ConformityDeclaration)[] | null;
+  /**
+   * z. B. „Edelstahl 316L“
+   */
+  metalPartsMaterial?: string | null;
+  nickelFreeConfirmed?: boolean | null;
+  /**
+   * Foto oder PDF der Lieferantenerklärung.
+   */
+  nickelEvidence?: (number | null) | PrivateUpload;
+  /**
+   * Datenblatt als „Lieferantenunterlage“ ablegen.
+   */
+  leadFreeGlazeConfirmed?: boolean | null;
+  /**
+   * Bei Schmuck immer an; der Hinweis wird automatisch angefügt.
+   */
+  smallPartsWarning?: boolean | null;
+  /**
+   * Technik und Papier/Träger stehen im Feld „Material“.
+   */
+  framed?: boolean | null;
+  /**
+   * Der Glas-Hinweis wird automatisch an die Warnhinweise angefügt.
+   */
+  frameHasGlass?: boolean | null;
+  /**
+   * Aus der Vorlage der Kategorie vorbelegt.
+   */
+  safetyWarnings?: string | null;
+  /**
+   * Bei Textil und Caps Pflicht: keine Abweichung oder Abweichung beschreiben (z. B. Fleck, Glasurfehler).
+   */
+  deviationDecision?: ('none' | 'described') | null;
+  /**
+   * Wird in der Kasse gesondert bestätigt.
+   */
+  hasDeviation?: boolean | null;
+  deviationDescription?: string | null;
+  ownDesignConfirmed?: boolean | null;
+  isCustomCommission?: boolean | null;
+  customs?: {
+    hsCode?: string | null;
+    countryOfOrigin?:
+      | (
+          | 'DE'
+          | 'AT'
+          | 'BE'
+          | 'BG'
+          | 'CY'
+          | 'CZ'
+          | 'DK'
+          | 'EE'
+          | 'ES'
+          | 'FI'
+          | 'FR'
+          | 'GR'
+          | 'HR'
+          | 'HU'
+          | 'IE'
+          | 'IT'
+          | 'LT'
+          | 'LU'
+          | 'LV'
+          | 'MT'
+          | 'NL'
+          | 'PL'
+          | 'PT'
+          | 'RO'
+          | 'SE'
+          | 'SI'
+          | 'SK'
+          | 'CH'
+        )
+      | null;
+    descriptionEn?: string | null;
+  };
+  /**
+   * Erstes Bild = Titelbild; Reihenfolge per Ziehen. Empfohlen 2–12 Fotos im Hochformat 4:5.
+   */
+  images?: (number | Media)[] | null;
+  status: 'draft' | 'available' | 'reserved' | 'sold' | 'archived';
+  showInArchiveAfterSale?: boolean | null;
+  firstPublishedAt?: string | null;
+  soldAt?: string | null;
+  soldChannel?: ('online' | 'pickup' | 'offline') | null;
+  /**
+   * z. B. „Flohmarkt Mauerpark“ (ohne Preis).
+   */
+  offlineSaleNote?: string | null;
+  archivedAt?: string | null;
+  reservedUntil?: string | null;
+  reservationRef?: string | null;
+  /**
+   * Steht auf dem Packzettel.
+   */
+  storageLocation?: string | null;
+  internalNote?: string | null;
+  /**
+   * Leer = aus Titel und Beschreibung.
+   */
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+  };
+  i18n?: {
+    enStatus?: ('missing' | 'machine' | 'reviewed') | null;
+    translatedAt?: string | null;
+  };
+  adminAttention?: {
+    flag?: boolean | null;
+    reason?:
+      | (
+          | 'oversold'
+          | 'dispute_open'
+          | 'refund_failed'
+          | 'webhook_error'
+          | 'payment_amount_mismatch'
+          | 'conformity_revoked'
+          | 'manual'
+        )
+      | null;
+    note?: string | null;
+  };
+  seed?: boolean | null;
+  seedKey?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -770,6 +1071,10 @@ export interface PayloadLockedDocument {
         value: number | ConformityDeclaration;
       } | null)
     | ({
+        relationTo: 'products';
+        value: number | Product;
+      } | null)
+    | ({
         relationTo: 'audit-log';
         value: number | AuditLog;
       } | null)
@@ -1049,6 +1354,110 @@ export interface ConformityDeclarationsSelect<T extends boolean = true> {
   validFrom?: T;
   status?: T;
   notes?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products_select".
+ */
+export interface ProductsSelect<T extends boolean = true> {
+  adminTitle?: T;
+  displayNumber?: T;
+  isPublic?: T;
+  characteristics?: T;
+  itemNumber?: T;
+  title?: T;
+  slug?: T;
+  category?: T;
+  description?: T;
+  juttaSays?: T;
+  priceCents?: T;
+  vatCategory?: T;
+  vatReducedReason?: T;
+  materials?: T;
+  dimensions?:
+    | T
+    | {
+        widthCm?: T;
+        heightCm?: T;
+        depthCm?: T;
+        diameterCm?: T;
+        note?: T;
+      };
+  weightGrams?: T;
+  shippingClass?: T;
+  sizeLabel?: T;
+  isSecondHand?: T;
+  condition?: T;
+  conditionNote?: T;
+  fiberComposition?:
+    | T
+    | {
+        component?: T;
+        fiber?: T;
+        percent?: T;
+        id?: T;
+      };
+  labelMissing?: T;
+  fiberFreeText?: T;
+  careInstructions?: T;
+  blankBrandVisible?: T;
+  foodContact?: T;
+  conformityDeclarations?: T;
+  metalPartsMaterial?: T;
+  nickelFreeConfirmed?: T;
+  nickelEvidence?: T;
+  leadFreeGlazeConfirmed?: T;
+  smallPartsWarning?: T;
+  framed?: T;
+  frameHasGlass?: T;
+  safetyWarnings?: T;
+  deviationDecision?: T;
+  hasDeviation?: T;
+  deviationDescription?: T;
+  ownDesignConfirmed?: T;
+  isCustomCommission?: T;
+  customs?:
+    | T
+    | {
+        hsCode?: T;
+        countryOfOrigin?: T;
+        descriptionEn?: T;
+      };
+  images?: T;
+  status?: T;
+  showInArchiveAfterSale?: T;
+  firstPublishedAt?: T;
+  soldAt?: T;
+  soldChannel?: T;
+  offlineSaleNote?: T;
+  archivedAt?: T;
+  reservedUntil?: T;
+  reservationRef?: T;
+  storageLocation?: T;
+  internalNote?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+      };
+  i18n?:
+    | T
+    | {
+        enStatus?: T;
+        translatedAt?: T;
+      };
+  adminAttention?:
+    | T
+    | {
+        flag?: T;
+        reason?: T;
+        note?: T;
+      };
   seed?: T;
   seedKey?: T;
   updatedAt?: T;

@@ -16,6 +16,8 @@ export interface AppContext {
   translation?: boolean
   /** Injizierte Zeit für Jobs (ISO 8601), z. B. aus `pnpm jobs:run <task> --now=<ISO>` (A-08). */
   now?: string
+  /** Interner Folgeschritt: abgeleitete Werte einer anderen Sprache nachziehen (z. B. Slug EN, `products`). */
+  localeSync?: boolean
 }
 
 declare module 'payload' {
