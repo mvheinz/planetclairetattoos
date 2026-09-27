@@ -737,7 +737,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - unit `tests/unit/products/characteristics.unit.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P1.17 Objektnummern und Slug** – `src/lib/products/itemNumber.ts` laut DATENMODELL §6.6.4 und §6.6.8 (E-12,
+- [x] **P1.17 Objektnummern und Slug** – `src/lib/products/itemNumber.ts` laut DATENMODELL §6.6.4 und §6.6.8 (E-12,
   R-041):
   - `itemNumber` ist eine Ganzzahl 1–99999 und UNIQUE.
   - Sie ist unveränderlich, sobald `firstPublishedAt` gesetzt ist: Standardformular, REST und Local API ohne `seed`.

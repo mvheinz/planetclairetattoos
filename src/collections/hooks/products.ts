@@ -20,7 +20,13 @@ import {
   isTextile,
   type CategoryTemplates,
 } from '@/lib/products/categoryRules'
-import { formatItemNumber, isValidItemNumber } from '@/lib/products/itemNumber'
+import { exampleDataPresent, nextFreeItemNumber } from '@/endpoints/products/nextItemNumber'
+import {
+  buildProductSlug,
+  formatItemNumber,
+  isReservedItemNumber,
+  isValidItemNumber,
+} from '@/lib/products/itemNumber'
 import { pickLocale } from '@/lib/products/localized'
 import {
   appendWarnings,
@@ -151,7 +157,63 @@ export const prepareProduct: CollectionBeforeValidateHook = async ({
   data.isCustomCommission = false
   const adminTitle = adminTitleOf(merged.itemNumber, merged.title)
   if (adminTitle) data.adminTitle = adminTitle
+  // Slug je Sprache aus Nummer und Titel (§6.6.8); fehlt der Titel dieser Sprache, zieht `afterChange` nach.
+  if (isValidItemNumber(merged.itemNumber) && typeof merged.title === 'string' && merged.title) {
+    data.slug = buildProductSlug(merged.itemNumber, merged.title)
+  }
   return data
+}
+
+/**
+ * Objektnummer (E-12, R-041, §6.6.4): nach der ersten Veröffentlichung unveränderlich (außer Seed), eindeutig mit
+ * verständlicher Meldung, 901–999 gesperrt, solange Beispieldaten existieren (Anlage durch die Verwaltung).
+ */
+async function guardItemNumber(
+  data: Doc,
+  original: Doc,
+  operation: 'create' | 'update',
+  req: PayloadRequest,
+): Promise<void> {
+  const ctx = getAppContext(req)
+  const nr = data.itemNumber ?? original.itemNumber
+  const changed =
+    operation === 'create' ||
+    (data.itemNumber !== undefined && data.itemNumber !== original.itemNumber)
+  if (!changed || !isValidItemNumber(nr)) return
+  if (operation === 'update' && original.firstPublishedAt && !ctx.seed) {
+    fail(
+      `Die Nummer ist seit der ersten Veröffentlichung fest (${formatItemNumber(original.itemNumber as number, 'de')}).`,
+      'itemNumber',
+    )
+  }
+  if (req.user && !ctx.seed && !ctx.system && isReservedItemNumber(nr)) {
+    if (await exampleDataPresent(req)) {
+      fail('Nr. 901–999 sind für Beispieldaten reserviert, bis sie entfernt sind.', 'itemNumber')
+    }
+  }
+  const clash = await preservingReq(req, () =>
+    req.payload.find({
+      collection: 'products',
+      where: {
+        and: [
+          { itemNumber: { equals: nr } },
+          ...(original.id ? [{ id: { not_equals: original.id } }] : []),
+        ],
+      },
+      limit: 1,
+      depth: 0,
+      select: { itemNumber: true },
+      overrideAccess: true,
+      req,
+    }),
+  )
+  if (clash.docs.length > 0) {
+    const next = await nextFreeItemNumber(req, nr)
+    fail(
+      `${formatItemNumber(nr, 'de')} ist schon vergeben – nächste freie: ${next ? formatItemNumber(next, 'de') : 'keine'}.`,
+      'itemNumber',
+    )
+  }
 }
 
 const LOCKED_WHEN_TAKEN = ['priceCents', 'shippingClass', 'category'] as const
@@ -161,10 +223,16 @@ const FIELD_LABELS: Record<(typeof LOCKED_WHEN_TAKEN)[number], string> = {
   category: 'Die Kategorie',
 }
 
-/** `beforeChange` Nr. 2, 5 und 7 (§6.6.8). */
-export const guardProduct: CollectionBeforeChangeHook = ({ data, originalDoc, operation, req }) => {
+/** `beforeChange` Nr. 1, 2, 5 und 7 (§6.6.8). */
+export const guardProduct: CollectionBeforeChangeHook = async ({
+  data,
+  originalDoc,
+  operation,
+  req,
+}) => {
   const locale = requestLocale(req)
   const original = (originalDoc ?? {}) as Doc
+  await guardItemNumber(data, original, operation, req)
   if (operation === 'update' && originalDoc) {
     const status = original.status as ProductStatus
     if (data.category !== undefined && data.category !== original.category && status !== 'draft') {
@@ -231,12 +299,21 @@ async function syncOtherLocales(
     operation === 'create' || (!!previousDoc?.category && previousDoc.category !== category)
   const keys = requiredWarningKeys(doc)
   for (const locale of LOCALES) {
-    if (locale === current) continue
     const patch: Doc = {}
     const at = (field: string) => (full[field] as Doc | undefined)?.[locale] as string | undefined
 
-    const adminTitle = adminTitleOf(doc.itemNumber, pickLocale(full.title, locale))
+    // Titel in Listen und Slug für jede Sprache (EN aus dem EN-Titel, sonst aus dem deutschen).
+    const title = pickLocale(full.title, locale)
+    const adminTitle = adminTitleOf(doc.itemNumber, title)
     if (adminTitle && at('adminTitle') !== adminTitle) patch.adminTitle = adminTitle
+    if (isValidItemNumber(doc.itemNumber) && title) {
+      const slug = buildProductSlug(doc.itemNumber, title)
+      if (at('slug') !== slug) patch.slug = slug
+    }
+    if (locale === current) {
+      if (Object.keys(patch).length > 0) await syncUpdate(req, doc.id as number, locale, patch)
+      continue
+    }
 
     let safety = at('safetyWarnings')
     if (category && changed) {
@@ -259,20 +336,23 @@ async function syncOtherLocales(
       if (withWarnings !== safety) patch.safetyWarnings = withWarnings
     }
 
-    if (Object.keys(patch).length === 0) continue
-    await preservingReq(req, () =>
-      req.payload.update({
-        collection: 'products',
-        id: doc.id as number,
-        locale,
-        data: patch as never,
-        depth: 0,
-        overrideAccess: true,
-        req,
-        context: { ...req.context, system: true, localeSync: true },
-      }),
-    )
+    if (Object.keys(patch).length > 0) await syncUpdate(req, doc.id as number, locale, patch)
   }
+}
+
+function syncUpdate(req: PayloadRequest, id: number, locale: Locale, patch: Doc) {
+  return preservingReq(req, () =>
+    req.payload.update({
+      collection: 'products',
+      id,
+      locale,
+      data: patch as never,
+      depth: 0,
+      overrideAccess: true,
+      req,
+      context: { ...req.context, system: true, localeSync: true },
+    }),
+  )
 }
 
 /** `afterChange`: andere Sprache nachziehen, Audit (Anlage, Preis), Cache erneuern. */

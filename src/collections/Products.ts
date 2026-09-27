@@ -26,8 +26,10 @@ import {
   ITEM_NUMBER_MIN,
   isValidItemNumber,
   padItemNumber,
+  PRODUCT_SLUG_RE,
 } from '@/lib/products/itemNumber'
 import { registerUploadReference } from '@/lib/uploads/references'
+import { computeNextItemNumber, nextItemNumberEndpoint } from '@/endpoints/products/nextItemNumber'
 
 import {
   afterProductChange,
@@ -170,6 +172,10 @@ const basisFields: Field[] = [
     min: ITEM_NUMBER_MIN,
     max: ITEM_NUMBER_MAX,
     validate: intRange(ITEM_NUMBER_MIN, ITEM_NUMBER_MAX, true),
+    // Vorschlag beim Anlegen (§6.6.4); jede freie Zahl ist erlaubt.
+    defaultValue: ({ req }) => computeNextItemNumber(req),
+    // Nach der ersten Veröffentlichung schreibgeschützt (Formular, REST); die Local API prüft der Hook.
+    access: { update: ({ doc }) => !doc?.firstPublishedAt },
     admin: {
       step: 1,
       description:
@@ -191,6 +197,10 @@ const basisFields: Field[] = [
     localized: true,
     unique: true,
     index: true,
+    validate: (value: unknown): V =>
+      value === null || value === undefined || PRODUCT_SLUG_RE.test(String(value))
+        ? true
+        : 'Slug: Nummer, Bindestrich, Kleinbuchstaben/Ziffern.',
     admin: {
       readOnly: true,
       description: 'Entsteht automatisch aus Nummer und Titel.',
@@ -749,6 +759,7 @@ export const Products: CollectionConfig = {
     delete: isAdmin,
   },
   defaultSort: '-updatedAt',
+  endpoints: [nextItemNumberEndpoint],
   // §6.6.11: Index (category, status); UNIQUE item_number und (slug, _locale) über die Felder.
   indexes: [{ fields: ['category', 'status'] }],
   fields: [

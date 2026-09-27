@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P1.17
+
+- `src/lib/products/itemNumber.ts`: `formatItemNumber`/`padItemNumber` (einzige Stelle), `slugify`, `buildProductSlug`, Nummernbereiche und `suggestItemNumber`.
+- `GET /api/products/next-item-number` (nur Verwaltung, `src/endpoints/products/nextItemNumber.ts`): max(Nicht-Seed)+1, belegte und bei Beispieldaten 901–999 übersprungen; Vorschlag auch als Voreinstellung beim Anlegen.
+- Hooks: Nummer nach erster Veröffentlichung fest (Local API ohne seed abgelehnt, Formular/REST schreibgeschützt), Meldung „Nr. 017 ist schon vergeben – nächste freie: …“, Sperre 901–999 bei Beispieldaten, Slug je Sprache (EN aus EN-Titel, Fallback DE).
+- Tests: unit `tests/unit/products/item-number.unit.spec.ts` (7, R-041), int `tests/int/products/item-number.int.spec.ts` (6: DM-PROD-05, AK-7-03, R-041); pnpm check, test:int, build grün.
+
 ## 2026-09-27 – P1.16
 
 - `src/collections/Products.ts` mit Tabs Basis/Pflichtangaben/Bilder/Verkauf/Intern, Feldern aus DATENMODELL §6.6.1 (inkl. R-043–R-048), Bedingungen je Kategorie, Zugriff §6.6.9, keine Versionen; Migration `p1_products` (inkl. Index category/status).
