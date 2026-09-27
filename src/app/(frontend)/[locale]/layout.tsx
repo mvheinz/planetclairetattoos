@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import React from 'react'
 
 import { routing } from '@/i18n/routing'
+import { fontVariables } from '@/styles/fonts'
 
 import '@/styles/tokens.css'
 import '@/styles/global.css'
@@ -38,7 +39,7 @@ export default async function LocaleLayout({
   setRequestLocale(locale)
 
   return (
-    <html lang={locale}>
+    <html lang={locale} className={fontVariables}>
       <body>
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>

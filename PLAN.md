@@ -1374,7 +1374,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     -16).
   - Ohne Jutta: –
 
-- [ ] **P2.4 Selbst gehostete Schriften** – Pakete `@fontsource/mansalva`, `@fontsource-variable/bricolage-grotesque`,
+- [x] **P2.4 Selbst gehostete Schriften** – Pakete `@fontsource/mansalva`, `@fontsource-variable/bricolage-grotesque`,
   `@fontsource/ibm-plex-mono` als Dev-Abhängigkeiten (E-79).
   - `pnpm fonts:copy` (`scripts/fonts/copy.ts`) kopiert genau 3 `.woff2` nach `src/styles/fonts/` (Schnitte und
     Subsets laut DESIGN §4.1, Plex Mono nur 400, Annahme DA-3). Liegt Bricolage (variabel, Achse `wght`) über 45 KB,

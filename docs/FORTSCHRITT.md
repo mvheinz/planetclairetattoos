@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P2.4
+
+- Fontsource-Pakete, subset-font, fontkit als Dev-Abhängigkeiten; `pnpm fonts:copy` (scripts/fonts/copy.ts) erzeugt 3 WOFF2 unter src/styles/fonts (98,6 KB) und die Mansalva-Abdeckung
+- next/font/local in src/styles/fonts.ts (Mansalva/Bricolage mit Preload, Plex Mono ohne), Klassen am <html>; GlyphFallback + .glyph-fallback (Bricolage 600)
+- check:bundle prüft AK-DS-04 (genau 3 .woff2, ≤ 100 KB, keine Google-Fonts-Verweise)
+- Tests: unit glyphs (5, AK-DS-05) und fonts/copy (6: Determinismus, Budget, Achse 400–700, eingecheckt = erzeugt, check:bundle); pnpm check, test:int, build + check:bundle grün
+
 ## 2026-09-27 – P2.3
 
 - src/styles/tokens.css wörtlich aus DESIGN §7 (von Prettier ausgenommen; Test vergleicht Byte für Byte); src/styles/global.css: Reset, Typografie §4.2/§4.3, Links §3.2, Fokus-Ring, Container/Rinne je Preset (data-preset), Ebenen, Sticky/scroll-padding, Schneidematten-Raster §3.4, Bewegungsreduktion (prefers-reduced-motion und html[data-motion=reduced]), forced-colors, Druck; eingebunden im [locale]-Layout\n- Ruheseiten ohne eigene Routengruppe; Ruheseiten-Ordner kommen aus der Registry (Presets calm/legal)\n- Tests: tests/unit/design/{contrast,lint-colors,lint-shadows,lint-motion}.unit.spec.ts (AK-DS-01, -02, -06, -16; mit Negativproben), Helfer tests/helpers/designLint.ts; pnpm check, test:int, build grün; 390 px geprüft (kein Querscrollen)

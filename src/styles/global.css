@@ -1,6 +1,6 @@
 /* src/styles/global.css – globale Regeln der öffentlichen Website (DESIGN §3–§5, §11). Tokens: tokens.css (§7). */
 
-/* Rückfall-Familien, bis next/font (P2.4) die Variablen setzt; Spezifität 0, damit next/font gewinnt. */
+/* Rückfall-Familien, falls die next/font-Klassen (src/styles/fonts.ts) fehlen; Spezifität 0, damit next/font gewinnt. */
 :where(html) {
   --font-mansalva: 'Segoe Print';
   --font-bricolage: ui-sans-serif;
@@ -108,6 +108,12 @@ h3 {
   font-size: var(--fs-h3);
   line-height: 1.3;
   letter-spacing: -0.005em;
+}
+
+/* Zeichen, die Mansalva fehlen (Komponente GlyphFallback, §4.4): Bricolage 600, nie Systemschrift-Mischung. */
+.glyph-fallback {
+  font-family: var(--font-body);
+  font-weight: 600;
 }
 
 p,
