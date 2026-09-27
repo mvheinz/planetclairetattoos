@@ -358,7 +358,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: unit `tests/unit/lib/{time,money,logger,enums,keys}.unit.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P1.5 Datenbank-Werkzeuge, Test-Infrastruktur, Migrationsregeln** –
+- [x] **P1.5 Datenbank-Werkzeuge, Test-Infrastruktur, Migrationsregeln** –
   - `scripts/db-ensure.ts` (`db:ensure`) legt die Datenbanken aus `DATABASE_URL`/`DATABASE_URL_TEST` an, falls sie
     fehlen.
   - `scripts/db-reset.ts` (`db:reset --test`) arbeitet nur, wenn der DB-Name auf `_test` endet, `APP_ENV ≠ production`

@@ -26,10 +26,14 @@ export default buildConfig({
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
+  // DATENMODELL §10: Schema nur über Migrationen; Push nur lokal auf einer Wegwerf-Datenbank.
   db: postgresAdapter({
     pool: {
       connectionString: env.DATABASE_URL,
+      max: env.DB_POOL_MAX,
     },
+    push: env.PAYLOAD_DB_PUSH && env.APP_ENV === 'development',
+    migrationDir: path.resolve(dirname, 'migrations'),
   }),
   sharp,
   plugins: [],

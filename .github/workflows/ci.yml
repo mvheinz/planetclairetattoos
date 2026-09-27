@@ -96,6 +96,9 @@ jobs:
       - name: Unit-Tests
         if: steps.mode.outputs.skip != 'true'
         run: pnpm run test:unit
+      - name: Migrationen
+        if: steps.mode.outputs.skip != 'true'
+        run: pnpm run db:ensure && pnpm payload migrate && pnpm run check:migrations
       - name: Integrationstests
         if: steps.mode.outputs.skip != 'true'
         run: pnpm run test:int

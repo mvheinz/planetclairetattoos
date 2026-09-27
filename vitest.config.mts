@@ -15,7 +15,10 @@ export default defineConfig({
     environment: 'node',
     // Eine gemeinsame Test-Datenbank: Dateien nacheinander ausführen.
     fileParallelism: false,
-    setupFiles: ['./vitest.setup.ts'],
+    globalSetup: ['./tests/int/setup/global.ts'],
+    setupFiles: ['./tests/int/setup/env.ts', './vitest.setup.ts'],
     include: ['tests/int/**/*.int.spec.ts'],
+    testTimeout: 30_000,
+    hookTimeout: 60_000,
   },
 })

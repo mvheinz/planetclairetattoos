@@ -1,4 +1,6 @@
-// Any setup scripts you might need go here
-
-// Load .env files
+// Gemeinsames Setup für Unit- und Int-Tests (ARCHITEKTUR §7.2).
 import 'dotenv/config'
+
+import { installNetworkGuard } from './tests/setup/network-guard'
+
+installNetworkGuard()
