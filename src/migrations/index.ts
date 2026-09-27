@@ -6,6 +6,7 @@ import * as migration_20260927_102652_p1_jobs from './20260927_102652_p1_jobs';
 import * as migration_20260927_104753_p1_users from './20260927_104753_p1_users';
 import * as migration_20260927_104805_p1_rate_limit from './20260927_104805_p1_rate_limit';
 import * as migration_20260927_112218_p1_media from './20260927_112218_p1_media';
+import * as migration_20260927_113844_p1_documents from './20260927_113844_p1_documents';
 
 export const migrations = [
   {
@@ -46,6 +47,11 @@ export const migrations = [
   {
     up: migration_20260927_112218_p1_media.up,
     down: migration_20260927_112218_p1_media.down,
-    name: '20260927_112218_p1_media'
+    name: '20260927_112218_p1_media',
+  },
+  {
+    up: migration_20260927_113844_p1_documents.up,
+    down: migration_20260927_113844_p1_documents.down,
+    name: '20260927_113844_p1_documents'
   },
 ];

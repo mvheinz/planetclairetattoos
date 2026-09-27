@@ -12,6 +12,7 @@ import {
   L_13H_AUDIT_LOG_OTHER,
   L_13H_AUDIT_LOG_RECORDS,
   L_18_DELETION_LOG,
+  privateUploadRetention,
   RETENTION_RULES,
   retainUntil,
   RULES_WITHOUT_OWN_DEADLINE,
@@ -154,5 +155,84 @@ describe('Löschfristen (LOESCHKONZEPT §2, src/lib/retention/policy.ts)', () =>
   it('Regel-IDs passen zum deletion-log-Muster (DATENMODELL §6.27)', () => {
     for (const r of RETENTION_RULES) expect(r.id).toMatch(/^L-\d{2}( [a-h])?( Stufe [A-D12])?$/)
     expect(DELETION_ACTIONS).toEqual(['deleted', 'anonymized', 'restricted', 'files_deleted'])
+  })
+})
+
+describe('Aufbewahrung je Zweck (DATENMODELL §6.4, privateUploadRetention)', () => {
+  const createdAt = new Date('2026-10-15T10:00:00Z')
+  const base = { createdAt, status: 'attached' as const }
+
+  it('Referenzbild: pending 24 h (L-13 f), zugeordnet Anfrage + 6 Monate (L-10)', () => {
+    const pending = privateUploadRetention({
+      ...base,
+      purpose: 'commission_reference',
+      status: 'pending',
+    })
+    expect(pending.deleteAfter?.toISOString()).toBe('2026-10-16T10:00:00.000Z')
+    expect(pending.ruleId).toBe('L-13 f')
+    const attached = privateUploadRetention({ ...base, purpose: 'commission_reference' })
+    expect(attached.deleteAfter?.toISOString()).toBe('2027-04-15T10:00:00.000Z')
+    expect(attached.retainUntil).toBeNull()
+  })
+
+  it('Beleg-PDFs: retainUntil = Ende des Belegjahres + invoiceYears (Standard 10, sonst 8), keine Auto-Löschung', () => {
+    const recordDate = new Date('2027-03-15T09:00:00Z')
+    const ten = privateUploadRetention({ ...base, purpose: 'invoice_pdf', recordDate })
+    expect(ten.retainUntil?.toISOString()).toBe('2037-12-31T23:00:00.000Z')
+    expect(ten.deleteAfter).toBeNull()
+    const eight = privateUploadRetention({
+      ...base,
+      purpose: 'credit_note_pdf',
+      recordDate,
+      invoiceYears: 8,
+    })
+    expect(eight.retainUntil?.toISOString()).toBe('2035-12-31T23:00:00.000Z')
+    const exp = privateUploadRetention({ ...base, purpose: 'monthly_export', invoiceYears: 8 })
+    expect(exp.retainUntil?.toISOString()).toBe('2036-12-31T23:00:00.000Z') // L-07 immer 10 Jahre
+  })
+
+  it('Fotos und Exporte folgen dem Bezugsereignis; ohne Ereignis keine Frist', () => {
+    expect(privateUploadRetention({ ...base, purpose: 'packing_photo' }).deleteAfter).toBeNull()
+    expect(
+      privateUploadRetention({
+        ...base,
+        purpose: 'packing_photo',
+        orderShippedAt: new Date('2026-11-02T12:00:00Z'),
+      }).deleteAfter?.toISOString(),
+    ).toBe('2027-11-02T12:00:00.000Z')
+    expect(
+      privateUploadRetention({
+        ...base,
+        purpose: 'return_photo',
+        orderReturnReceivedAt: new Date('2026-12-01T12:00:00Z'),
+      }).deleteAfter?.toISOString(),
+    ).toBe('2027-12-01T12:00:00.000Z')
+    expect(
+      privateUploadRetention({
+        ...base,
+        purpose: 'data_export',
+        privacyAnsweredAt: new Date('2026-11-01T12:00:00Z'),
+      }).deleteAfter?.toISOString(),
+    ).toBe('2026-12-01T12:00:00.000Z')
+    const until = new Date('2033-12-31T23:00:00Z')
+    expect(
+      privateUploadRetention({ ...base, purpose: 'complaint_photo', orderRetainUntil: until })
+        .deleteAfter,
+    ).toEqual(until)
+  })
+
+  it('Nachweise, Unterlagen und AV-Verträge ohne automatische Löschung (L-24, L-25)', () => {
+    for (const purpose of [
+      'nickel_evidence',
+      'lab_report',
+      'supplier_document',
+      'technical_file',
+      'processor_agreement',
+      'consent_evidence',
+    ] as const) {
+      const r = privateUploadRetention({ ...base, purpose })
+      expect(r.deleteAfter, purpose).toBeNull()
+      expect(r.retainUntil, purpose).toBeNull()
+    }
   })
 })

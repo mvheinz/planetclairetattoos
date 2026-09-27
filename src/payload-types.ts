@@ -69,6 +69,8 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    documents: Document;
+    'private-uploads': PrivateUpload;
     'audit-log': AuditLog;
     'email-log': EmailLog;
     'consent-log': ConsentLog;
@@ -84,6 +86,8 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    documents: DocumentsSelect<false> | DocumentsSelect<true>;
+    'private-uploads': PrivateUploadsSelect<false> | PrivateUploadsSelect<true>;
     'audit-log': AuditLogSelect<false> | AuditLogSelect<true>;
     'email-log': EmailLogSelect<false> | EmailLogSelect<true>;
     'consent-log': ConsentLogSelect<false> | ConsentLogSelect<true>;
@@ -242,6 +246,106 @@ export interface Media {
       filename?: string | null;
     };
     og?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * Öffentlich abrufbare PDFs (z. B. Konformitätserklärungen, Pflegehinweise). Nur PDF, höchstens 20 MB.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents".
+ */
+export interface Document {
+  id: number;
+  title: string;
+  kind: 'legal_text_pdf' | 'conformity_declaration' | 'aftercare_pdf' | 'other';
+  language?: ('de' | 'en') | null;
+  sha256?: string | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  prefix?: string | null;
+  _objectKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * Nicht öffentliche Dateien (Referenzbilder, Packfotos, Nachweise, Belege). Nur angemeldet abrufbar; Standortdaten werden aus Fotos entfernt. Höchstens 10 MB je Datei.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "private-uploads".
+ */
+export interface PrivateUpload {
+  id: number;
+  /**
+   * Nach dem Hochladen nicht mehr änderbar – bestimmt die Löschfrist.
+   */
+  purpose:
+    | 'commission_reference'
+    | 'packing_photo'
+    | 'return_photo'
+    | 'complaint_photo'
+    | 'nickel_evidence'
+    | 'lab_report'
+    | 'consent_evidence'
+    | 'supplier_document'
+    | 'technical_file'
+    | 'invoice_pdf'
+    | 'credit_note_pdf'
+    | 'monthly_export'
+    | 'data_export'
+    | 'processor_agreement';
+  status: 'pending' | 'attached';
+  /**
+   * Wird automatisch berechnet. Du kannst die Frist nur verkürzen.
+   */
+  deleteAfter?: string | null;
+  /**
+   * Belege: vorher ist Löschen nicht möglich.
+   */
+  retainUntil?: string | null;
+  sha256?: string | null;
+  /**
+   * Nur bei Nachweisen und Unterlagen; bei technischen Unterlagen Pflicht.
+   */
+  complianceCategory?: ('keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges') | null;
+  /**
+   * z. B. „Datenblatt 2026-03“
+   */
+  documentVersion?: string | null;
+  documentDate?: string | null;
+  note?: string | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  prefix?: string | null;
+  _objectKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumb?: {
       url?: string | null;
       width?: number | null;
       height?: number | null;
@@ -581,6 +685,14 @@ export interface PayloadLockedDocument {
         value: number | Media;
       } | null)
     | ({
+        relationTo: 'documents';
+        value: number | Document;
+      } | null)
+    | ({
+        relationTo: 'private-uploads';
+        value: number | PrivateUpload;
+      } | null)
+    | ({
         relationTo: 'audit-log';
         value: number | AuditLog;
       } | null)
@@ -742,6 +854,75 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
         og?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents_select".
+ */
+export interface DocumentsSelect<T extends boolean = true> {
+  title?: T;
+  kind?: T;
+  language?: T;
+  sha256?: T;
+  seed?: T;
+  seedKey?: T;
+  prefix?: T;
+  _objectKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "private-uploads_select".
+ */
+export interface PrivateUploadsSelect<T extends boolean = true> {
+  purpose?: T;
+  status?: T;
+  deleteAfter?: T;
+  retainUntil?: T;
+  sha256?: T;
+  complianceCategory?: T;
+  documentVersion?: T;
+  documentDate?: T;
+  note?: T;
+  seed?: T;
+  seedKey?: T;
+  prefix?: T;
+  _objectKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumb?:
           | T
           | {
               url?: T;

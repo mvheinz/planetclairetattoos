@@ -9,6 +9,8 @@ import sharp from 'sharp'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
+import { Documents } from './collections/Documents'
+import { PrivateUploads } from './collections/PrivateUploads'
 import { AuditLog } from './collections/AuditLog'
 import { ConsentLog } from './collections/ConsentLog'
 import { DeletionLog } from './collections/DeletionLog'
@@ -43,9 +45,17 @@ export default buildConfig({
     },
   },
   // JSON-/Code-Felder ohne Monaco (CDN) in der Verwaltung (ARCHITEKTUR §8.4).
-  collections: [Users, Media, AuditLog, EmailLog, ConsentLog, WebhookEvents, DeletionLog].map(
-    (c) => ({ ...c, fields: withJsonPreview(c.fields) }),
-  ),
+  collections: [
+    Users,
+    Media,
+    Documents,
+    PrivateUploads,
+    AuditLog,
+    EmailLog,
+    ConsentLog,
+    WebhookEvents,
+    DeletionLog,
+  ].map((c) => ({ ...c, fields: withJsonPreview(c.fields) })),
   editor: lexicalEditor(),
   // DATENMODELL §1.2 (E-60, E-61): fehlendes EN zeigt DE.
   localization: {

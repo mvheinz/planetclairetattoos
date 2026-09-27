@@ -3,7 +3,12 @@ import 'server-only'
 import { TZDate } from '@date-fns/tz'
 import { addDays, addMonths, addYears } from 'date-fns'
 
-import type { AuditAction, InvoiceRetentionYears } from '@/lib/enums'
+import type {
+  AuditAction,
+  InvoiceRetentionYears,
+  PrivateUploadPurpose,
+  PrivateUploadStatus,
+} from '@/lib/enums'
 import { APP_TIME_ZONE, berlinYear } from '@/lib/time'
 
 // Alle Lösch- und Aufbewahrungsfristen (LOESCHKONZEPT §2, §3) – einzige Stelle (LOESCHKONZEPT §1 Nr. 4).
@@ -452,4 +457,137 @@ export const AUDIT_LONG_RETENTION_ACTIONS: ReadonlySet<AuditAction> = new Set<Au
 
 export function auditRetentionRule(action: AuditAction): Readonly<RetentionRule> {
   return AUDIT_LONG_RETENTION_ACTIONS.has(action) ? L_13H_AUDIT_LOG_RECORDS : L_13H_AUDIT_LOG_OTHER
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Private Dateien (DATENMODELL §6.4, Tabelle „Aufbewahrung je Zweck“)
+
+/** Zwecke ohne automatische Löschung, die als Nachweis/Unterlage gelten (L-24, L-25, L-19 b). */
+export const EVIDENCE_PURPOSES: ReadonlySet<PrivateUploadPurpose> = new Set<PrivateUploadPurpose>([
+  'nickel_evidence',
+  'lab_report',
+  'supplier_document',
+  'technical_file',
+  'consent_evidence',
+  'processor_agreement',
+])
+
+/** Beleg-PDFs mit gesetzlicher Aufbewahrung (`retainUntil`, Löschen vorher unmöglich). */
+export const RECORD_PURPOSES: ReadonlySet<PrivateUploadPurpose> = new Set<PrivateUploadPurpose>([
+  'invoice_pdf',
+  'credit_note_pdf',
+  'monthly_export',
+])
+
+export interface PrivateUploadRetentionInput {
+  purpose: PrivateUploadPurpose
+  status: PrivateUploadStatus
+  /** Anlage der Datei (Fristbeginn bei `pending`). */
+  createdAt: Date
+  /** `settings.retention.invoiceYears` (Standard 10, L-06). */
+  invoiceYears?: InvoiceRetentionYears
+  /** Beleg- bzw. Exportdatum (`invoices.issueDate`, Exportmonat); ohne Angabe `createdAt`. */
+  recordDate?: Date | null
+  /** `inquiries.createdAt` der Bezugsanfrage; ohne Angabe `createdAt` (Formular schickt Datei und Anfrage zusammen). */
+  inquiryCreatedAt?: Date | null
+  /** Bezugsbestellung: `shippedAt` bzw. `pickedUpAt` (Packfoto) und `returnReceivedAt` (Rückgabefoto). */
+  orderShippedAt?: Date | null
+  orderPickedUpAt?: Date | null
+  orderReturnReceivedAt?: Date | null
+  /** Stufe D der Bezugsbestellung (`orders.retainUntil`) – Reklamationsfotos (L-09). */
+  orderRetainUntil?: Date | null
+  /** Antwort auf die Datenschutz-Anfrage (`privacy-requests.answeredAt`) – DSGVO-Exporte (L-17). */
+  privacyAnsweredAt?: Date | null
+  /** Widerruf bzw. Ende der Veröffentlichung des Galerie-Eintrags – Einwilligungsnachweise (L-19 b). */
+  galleryEndedAt?: Date | null
+}
+
+export interface PrivateUploadRetention {
+  /** Ab hier löscht der zuständige `retention*`-Task (leer = keine automatische Löschung). */
+  deleteAfter: Date | null
+  /** Vorher ist Löschen unmöglich (nur Beleg-PDFs und Monatsexporte). */
+  retainUntil: Date | null
+  /** Regel laut LOESCHKONZEPT (für `deletion-log`). */
+  ruleId: string | null
+}
+
+const orNull = (d: Date | null | undefined, r: Pick<RetentionRule, 'duration' | 'start'>) =>
+  d ? retainUntil(r, d) : null
+
+/**
+ * Fristen einer privaten Datei je Zweck (DATENMODELL §6.4). Fehlt das Bezugsereignis (z. B. noch nicht versendet),
+ * bleibt `deleteAfter` leer, bis der Bezug es liefert.
+ */
+export function privateUploadRetention(input: PrivateUploadRetentionInput): PrivateUploadRetention {
+  const none = (ruleId: string | null): PrivateUploadRetention => ({
+    deleteAfter: null,
+    retainUntil: null,
+    ruleId,
+  })
+  switch (input.purpose) {
+    case 'commission_reference':
+      if (input.status === 'pending') {
+        return {
+          deleteAfter: retainUntil(L_13F_PENDING_UPLOADS, input.createdAt),
+          retainUntil: null,
+          ruleId: L_13F_PENDING_UPLOADS.id,
+        }
+      }
+      return {
+        deleteAfter: retainUntil(L_10_INQUIRIES, input.inquiryCreatedAt ?? input.createdAt),
+        retainUntil: null,
+        ruleId: L_10_INQUIRIES.id,
+      }
+    case 'packing_photo':
+      return {
+        deleteAfter: orNull(input.orderShippedAt ?? input.orderPickedUpAt, L_05_ORDERS_STAGE_C),
+        retainUntil: null,
+        ruleId: L_05_ORDERS_STAGE_C.id,
+      }
+    case 'return_photo':
+      return {
+        deleteAfter: orNull(input.orderReturnReceivedAt, L_05_ORDERS_STAGE_C),
+        retainUntil: null,
+        ruleId: L_05_ORDERS_STAGE_C.id,
+      }
+    case 'complaint_photo':
+      return {
+        deleteAfter: input.orderRetainUntil ?? null,
+        retainUntil: null,
+        ruleId: L_09_COMPLAINTS.id,
+      }
+    case 'consent_evidence':
+      return {
+        deleteAfter: orNull(input.galleryEndedAt, L_19B_PORTFOLIO_CONSENT),
+        retainUntil: null,
+        ruleId: L_19B_PORTFOLIO_CONSENT.id,
+      }
+    case 'invoice_pdf':
+    case 'credit_note_pdf': {
+      const until = invoiceRetainUntil(
+        input.recordDate ?? input.createdAt,
+        input.invoiceYears ?? L_06_INVOICES_DEFAULT_YEARS,
+      )
+      return { deleteAfter: null, retainUntil: until, ruleId: 'L-06' }
+    }
+    case 'monthly_export':
+      return {
+        deleteAfter: null,
+        retainUntil: retainUntil(L_07_MONTHLY_EXPORTS, input.recordDate ?? input.createdAt),
+        ruleId: L_07_MONTHLY_EXPORTS.id,
+      }
+    case 'data_export':
+      return {
+        deleteAfter: orNull(input.privacyAnsweredAt, L_17_EXPORT_FILES),
+        retainUntil: null,
+        ruleId: L_17_EXPORT_FILES.id,
+      }
+    case 'nickel_evidence':
+    case 'lab_report':
+    case 'supplier_document':
+    case 'technical_file':
+      return none(L_24_COMPLIANCE_DOCS.id)
+    case 'processor_agreement':
+      return none('L-25')
+  }
 }

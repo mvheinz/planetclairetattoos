@@ -634,7 +634,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: int `tests/int/collections/media.int.spec.ts` (DM-MEDIA-01…04, R-135, T-05). DM-MEDIA-05 folgt in P1.16.
   - Ohne Jutta: Fixtures und Instagram-Ausschnitte (E-64). Volle Auflösung kommt mit dem Export (A04, A06).
 
-- [ ] **P1.14 `documents`, `private-uploads` und Aufbewahrungsmodul** – `src/collections/Documents.ts` (öffentliche PDFs,
+- [x] **P1.14 `documents`, `private-uploads` und Aufbewahrungsmodul** – `src/collections/Documents.ts` (öffentliche PDFs,
   §6.3) und `src/collections/PrivateUploads.ts` (§6.4).
   - `private-uploads` nutzt die private Speicher-Instanz (`.data/private` bzw. `S3_PRIVATE_BUCKET`), ausgeliefert nur
     angemeldet (signiert, ≤ 300 s); max. 10 MB je Datei.
