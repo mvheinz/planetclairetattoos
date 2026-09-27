@@ -69,33 +69,103 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    documents: Document;
+    'private-uploads': PrivateUpload;
+    categories: Category;
+    'conformity-declarations': ConformityDeclaration;
+    products: Product;
+    checkouts: Checkout;
+    reservations: Reservation;
+    orders: Order;
+    invoices: Invoice;
+    'invoice-counters': InvoiceCounter;
+    withdrawals: Withdrawal;
+    'legal-texts': LegalText;
+    flash: Flash;
+    'tattoo-offers': TattooOffer;
+    'tattoo-gallery': TattooGallery;
+    inquiries: Inquiry;
+    faqs: Faq;
+    pages: Page;
+    'revenue-entries': RevenueEntry;
+    'privacy-requests': PrivacyRequest;
+    'audit-log': AuditLog;
+    'email-log': EmailLog;
+    'consent-log': ConsentLog;
+    'webhook-events': WebhookEvent;
+    'deletion-log': DeletionLog;
     'payload-kv': PayloadKv;
+    'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    orders: {
+      creditNotes: 'invoices';
+      withdrawals: 'withdrawals';
+      emails: 'email-log';
+    };
+  };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    documents: DocumentsSelect<false> | DocumentsSelect<true>;
+    'private-uploads': PrivateUploadsSelect<false> | PrivateUploadsSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    'conformity-declarations': ConformityDeclarationsSelect<false> | ConformityDeclarationsSelect<true>;
+    products: ProductsSelect<false> | ProductsSelect<true>;
+    checkouts: CheckoutsSelect<false> | CheckoutsSelect<true>;
+    reservations: ReservationsSelect<false> | ReservationsSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
+    invoices: InvoicesSelect<false> | InvoicesSelect<true>;
+    'invoice-counters': InvoiceCountersSelect<false> | InvoiceCountersSelect<true>;
+    withdrawals: WithdrawalsSelect<false> | WithdrawalsSelect<true>;
+    'legal-texts': LegalTextsSelect<false> | LegalTextsSelect<true>;
+    flash: FlashSelect<false> | FlashSelect<true>;
+    'tattoo-offers': TattooOffersSelect<false> | TattooOffersSelect<true>;
+    'tattoo-gallery': TattooGallerySelect<false> | TattooGallerySelect<true>;
+    inquiries: InquiriesSelect<false> | InquiriesSelect<true>;
+    faqs: FaqsSelect<false> | FaqsSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
+    'revenue-entries': RevenueEntriesSelect<false> | RevenueEntriesSelect<true>;
+    'privacy-requests': PrivacyRequestsSelect<false> | PrivacyRequestsSelect<true>;
+    'audit-log': AuditLogSelect<false> | AuditLogSelect<true>;
+    'email-log': EmailLogSelect<false> | EmailLogSelect<true>;
+    'consent-log': ConsentLogSelect<false> | ConsentLogSelect<true>;
+    'webhook-events': WebhookEventsSelect<false> | WebhookEventsSelect<true>;
+    'deletion-log': DeletionLogSelect<false> | DeletionLogSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
+    'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
-    defaultIDType: string;
+    defaultIDType: number;
   };
-  fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
-  locale: null;
+  fallbackLocale: ('false' | 'none' | 'null') | false | null | ('de' | 'en') | ('de' | 'en')[];
+  globals: {
+    settings: Setting;
+    'site-texts': SiteText;
+  };
+  globalsSelect: {
+    settings: SettingsSelect<false> | SettingsSelect<true>;
+    'site-texts': SiteTextsSelect<false> | SiteTextsSelect<true>;
+  };
+  locale: 'de' | 'en';
   widgets: {
     collections: CollectionsWidget;
   };
   user: User;
   jobs: {
-    tasks: unknown;
+    tasks: {
+      sendEmail: TaskSendEmail;
+      inline: {
+        input: unknown;
+        output: unknown;
+      };
+    };
     workflows: unknown;
   };
 }
@@ -118,11 +188,16 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * Dein Zugang zur Verwaltung. Es gibt genau ein Konto.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
-  id: string;
+  id: number;
+  name: string;
+  role: 'admin';
+  lastLoginAt?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -130,6 +205,7 @@ export interface User {
   resetPasswordExpiration?: string | null;
   salt?: string | null;
   hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
   loginAttempts?: number | null;
   lockUntil?: string | null;
   sessions?:
@@ -143,12 +219,106 @@ export interface User {
   collection: 'users';
 }
 /**
+ * Bilder für Shop, Seiten und Galerie. Große Fotos werden vor dem Hochladen verkleinert; Standortdaten werden entfernt.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
-  id: string;
-  alt: string;
+  id: number;
+  /**
+   * Was ist zu sehen? Objekt, Motiv, Farbe.
+   */
+  alt?: string | null;
+  caption?: string | null;
+  /**
+   * „Kund:in“ = Haut oder Tattoo einer Kundin/eines Kunden (nie öffentlich ohne Einwilligung).
+   */
+  showsPerson: 'none' | 'jutta' | 'customer';
+  restricted?: boolean | null;
+  source: 'upload' | 'instagram_seed' | 'instagram_export' | 'placeholder' | 'generated';
+  sourceRef?: string | null;
+  /**
+   * Wirkt ab P9 (einheitlicher Bildlook).
+   */
+  enhance: 'auto' | 'off';
+  derivativesVersion?: number | null;
+  placeholderDataUrl?: string | null;
+  dominantColor?: string | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  prefix?: string | null;
+  _objectKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumb?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    detail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    zoom?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    og?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * Öffentlich abrufbare PDFs (z. B. Konformitätserklärungen, Pflegehinweise). Nur PDF, höchstens 20 MB.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents".
+ */
+export interface Document {
+  id: number;
+  title: string;
+  kind: 'legal_text_pdf' | 'conformity_declaration' | 'aftercare_pdf' | 'other';
+  language?: ('de' | 'en') | null;
+  sha256?: string | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  prefix?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -162,11 +332,1978 @@ export interface Media {
   focalY?: number | null;
 }
 /**
+ * Nicht öffentliche Dateien (Referenzbilder, Packfotos, Nachweise, Belege). Nur angemeldet abrufbar; Standortdaten werden aus Fotos entfernt. Höchstens 10 MB je Datei.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "private-uploads".
+ */
+export interface PrivateUpload {
+  id: number;
+  /**
+   * Nach dem Hochladen nicht mehr änderbar – bestimmt die Löschfrist.
+   */
+  purpose:
+    | 'commission_reference'
+    | 'packing_photo'
+    | 'return_photo'
+    | 'complaint_photo'
+    | 'nickel_evidence'
+    | 'lab_report'
+    | 'consent_evidence'
+    | 'supplier_document'
+    | 'technical_file'
+    | 'invoice_pdf'
+    | 'credit_note_pdf'
+    | 'monthly_export'
+    | 'data_export'
+    | 'processor_agreement';
+  status: 'pending' | 'attached';
+  /**
+   * Wird automatisch berechnet. Du kannst die Frist nur verkürzen.
+   */
+  deleteAfter?: string | null;
+  /**
+   * Belege: vorher ist Löschen nicht möglich.
+   */
+  retainUntil?: string | null;
+  sha256?: string | null;
+  /**
+   * Nur bei Nachweisen und Unterlagen; bei technischen Unterlagen Pflicht.
+   */
+  complianceCategory?: ('keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges') | null;
+  /**
+   * z. B. „Datenblatt 2026-03“
+   */
+  documentVersion?: string | null;
+  documentDate?: string | null;
+  relatedDeclaration?: (number | null) | ConformityDeclaration;
+  /**
+   * Die Löschfrist richtet sich nach Versand, Rückgabe bzw. Aufbewahrung der Bestellung.
+   */
+  relatedOrder?: (number | null) | Order;
+  relatedProduct?: (number | null) | Product;
+  /**
+   * Aufbewahrung wie der Beleg.
+   */
+  relatedInvoice?: (number | null) | Invoice;
+  relatedInquiry?: (number | null) | Inquiry;
+  relatedPrivacyRequest?: (number | null) | PrivacyRequest;
+  relatedGalleryItem?: (number | null) | TattooGallery;
+  note?: string | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  prefix?: string | null;
+  _objectKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumb?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * Je Glasur: Laborbericht (privat) und Konformitätserklärung (öffentlich). Nur damit darf Keramik „lebensmittelecht“ sein.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "conformity-declarations".
+ */
+export interface ConformityDeclaration {
+  id: number;
+  /**
+   * Glasurname, wie auf der Seite angezeigt.
+   */
+  name: string;
+  glazeManufacturer?: string | null;
+  glazeProduct?: string | null;
+  leadCadmiumFreeByManufacturer?: boolean | null;
+  labName: string;
+  labReportDate: string;
+  /**
+   * Nicht öffentlich.
+   */
+  labReport: number | PrivateUpload;
+  declarationPdf: number | Document;
+  validFrom: string;
+  /**
+   * Widerrufen sperrt verknüpfte „lebensmittelecht“-Stücke.
+   */
+  status: 'active' | 'revoked';
+  notes?: string | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: number;
+  /**
+   * Verwendungszweck bei Vorkasse.
+   */
+  orderNumber: string;
+  checkout?: (number | null) | Checkout;
+  status:
+    | 'awaiting_prepayment'
+    | 'paid'
+    | 'packed'
+    | 'shipped'
+    | 'ready_for_pickup'
+    | 'picked_up'
+    | 'delivered'
+    | 'cancelled'
+    | 'withdrawal_received'
+    | 'return_received'
+    | 'refunded'
+    | 'partially_refunded'
+    | 'disputed';
+  statusBeforeWithdrawal?:
+    | (
+        | 'awaiting_prepayment'
+        | 'paid'
+        | 'packed'
+        | 'shipped'
+        | 'ready_for_pickup'
+        | 'picked_up'
+        | 'delivered'
+        | 'cancelled'
+        | 'withdrawal_received'
+        | 'return_received'
+        | 'refunded'
+        | 'partially_refunded'
+        | 'disputed'
+      )
+    | null;
+  statusBeforeDispute?:
+    | (
+        | 'awaiting_prepayment'
+        | 'paid'
+        | 'packed'
+        | 'shipped'
+        | 'ready_for_pickup'
+        | 'picked_up'
+        | 'delivered'
+        | 'cancelled'
+        | 'withdrawal_received'
+        | 'return_received'
+        | 'refunded'
+        | 'partially_refunded'
+        | 'disputed'
+      )
+    | null;
+  cancelReason?: ('payment_timeout' | 'admin' | 'withdrawn') | null;
+  cancelNote?: string | null;
+  statusHistory?:
+    | {
+        from?:
+          | (
+              | 'awaiting_prepayment'
+              | 'paid'
+              | 'packed'
+              | 'shipped'
+              | 'ready_for_pickup'
+              | 'picked_up'
+              | 'delivered'
+              | 'cancelled'
+              | 'withdrawal_received'
+              | 'return_received'
+              | 'refunded'
+              | 'partially_refunded'
+              | 'disputed'
+            )
+          | null;
+        to:
+          | 'awaiting_prepayment'
+          | 'paid'
+          | 'packed'
+          | 'shipped'
+          | 'ready_for_pickup'
+          | 'picked_up'
+          | 'delivered'
+          | 'cancelled'
+          | 'withdrawal_received'
+          | 'return_received'
+          | 'refunded'
+          | 'partially_refunded'
+          | 'disputed';
+        at: string;
+        actorType: 'admin' | 'system' | 'webhook' | 'job' | 'customer' | 'seed';
+        transition?: string | null;
+        note?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  locale: 'de' | 'en';
+  customer: {
+    name?: string | null;
+    email: string;
+  };
+  fulfillmentMethod: 'shipping' | 'pickup';
+  shippingAddress?: {
+    name?: string | null;
+    addressLine1?: string | null;
+    addressLine2?: string | null;
+    postalCode?: string | null;
+    city?: string | null;
+    country?:
+      | (
+          | 'DE'
+          | 'AT'
+          | 'BE'
+          | 'BG'
+          | 'CY'
+          | 'CZ'
+          | 'DK'
+          | 'EE'
+          | 'ES'
+          | 'FI'
+          | 'FR'
+          | 'GR'
+          | 'HR'
+          | 'HU'
+          | 'IE'
+          | 'IT'
+          | 'LT'
+          | 'LU'
+          | 'LV'
+          | 'MT'
+          | 'NL'
+          | 'PL'
+          | 'PT'
+          | 'RO'
+          | 'SE'
+          | 'SI'
+          | 'SK'
+          | 'CH'
+        )
+      | null;
+  };
+  billingAddressDiffers?: boolean | null;
+  billingAddress?: {
+    name?: string | null;
+    addressLine1?: string | null;
+    addressLine2?: string | null;
+    postalCode?: string | null;
+    city?: string | null;
+    country?:
+      | (
+          | 'DE'
+          | 'AT'
+          | 'BE'
+          | 'BG'
+          | 'CY'
+          | 'CZ'
+          | 'DK'
+          | 'EE'
+          | 'ES'
+          | 'FI'
+          | 'FR'
+          | 'GR'
+          | 'HR'
+          | 'HU'
+          | 'IE'
+          | 'IT'
+          | 'LT'
+          | 'LU'
+          | 'LV'
+          | 'MT'
+          | 'NL'
+          | 'PL'
+          | 'PT'
+          | 'RO'
+          | 'SE'
+          | 'SI'
+          | 'SK'
+          | 'CH'
+        )
+      | null;
+  };
+  shippingZone?: ('DE' | 'EU' | 'CH') | null;
+  shippingClass?: ('brief' | 'paket_klein' | 'keramik' | 'nur_abholung') | null;
+  items: {
+    product: number | Product;
+    itemNumber: number;
+    titleDe: string;
+    titleEn?: string | null;
+    category: 'keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges';
+    characteristicsDe: string;
+    characteristicsEn?: string | null;
+    priceCents: number;
+    vatCategory: 'standard' | 'reduced_art';
+    shippingClass: 'brief' | 'paket_klein' | 'keramik' | 'nur_abholung';
+    coverImage?: (number | null) | Media;
+    coverImageUrl?: string | null;
+    foodContact?: ('deko' | 'lebensmittelecht') | null;
+    deviationText?: string | null;
+    deviationAgreedAt?: string | null;
+    status: 'active' | 'withdrawn' | 'returned' | 'refunded';
+    refundedCents: number;
+    id?: string | null;
+  }[];
+  subtotalCents: number;
+  shippingCents: number;
+  totalCents: number;
+  currency: 'EUR';
+  taxModeAtOrder: 'kleinunternehmer' | 'regelbesteuert';
+  paymentMethod: 'card' | 'paypal' | 'prepayment';
+  paymentProvider: 'stripe' | 'mock' | 'bank_transfer';
+  stripe?: {
+    checkoutSessionId?: string | null;
+    paymentIntentId?: string | null;
+    chargeId?: string | null;
+    paymentMethodType?: string | null;
+    livemode?: boolean | null;
+    amountReceivedCents?: number | null;
+    feeCents?: number | null;
+  };
+  prepayment?: {
+    dueAt?: string | null;
+    reminderDueAt?: string | null;
+    reminderSentAt?: string | null;
+    receivedAt?: string | null;
+    receivedAmountCents?: number | null;
+  };
+  shipment?: {
+    carrier?: ('dhl' | 'deutsche_post' | 'other') | null;
+    trackingNumber?: string | null;
+    trackingUrl?: string | null;
+    deliveredSource?: ('manual' | 'auto') | null;
+  };
+  packaging?: {
+    templateKey?: string | null;
+    templateName?: string | null;
+    components?:
+      | {
+          material: 'paper_cardboard' | 'plastic' | 'other';
+          grams: number;
+          id?: string | null;
+        }[]
+      | null;
+    recordedAt?: string | null;
+  };
+  pickup?: {
+    messageText?: string | null;
+  };
+  packingChecklistState?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  packingPhotos?: (number | PrivateUpload)[] | null;
+  returnPhotos?: (number | PrivateUpload)[] | null;
+  legalTextVersions: {
+    agb: number | LegalText;
+    widerrufsbelehrung: number | LegalText;
+    widerrufsformular: number | LegalText;
+    datenschutz: number | LegalText;
+    versandZahlung: number | LegalText;
+  };
+  legalSnippetVersions:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  carrierEmailConsent?: boolean | null;
+  carrierEmailConsentRevokedAt?: string | null;
+  invoice?: (number | null) | Invoice;
+  creditNotes?: {
+    docs?: (number | Invoice)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  withdrawals?: {
+    docs?: (number | Withdrawal)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  emails?: {
+    docs?: (number | EmailLog)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  refunds?:
+    | {
+        amountCents: number;
+        reason:
+          'withdrawal' | 'goodwill' | 'complaint' | 'breakage' | 'admin_cancellation' | 'item_unavailable' | 'dispute';
+        itemIds?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        includesShipping?: boolean | null;
+        status: 'pending' | 'succeeded' | 'failed';
+        stripeRefundId?: string | null;
+        manualTransferConfirmedAt?: string | null;
+        creditNote?: (number | null) | Invoice;
+        createdAt: string;
+        id?: string | null;
+      }[]
+    | null;
+  dispute?: {
+    status?: ('none' | 'open' | 'won' | 'lost') | null;
+    stripeDisputeId?: string | null;
+  };
+  adminAttention?: {
+    flag?: boolean | null;
+    reason?:
+      | (
+          | 'oversold'
+          | 'dispute_open'
+          | 'refund_failed'
+          | 'webhook_error'
+          | 'payment_amount_mismatch'
+          | 'conformity_revoked'
+          | 'manual'
+        )
+      | null;
+    note?: string | null;
+  };
+  timestamps: {
+    placedAt: string;
+    paidAt?: string | null;
+    packedAt?: string | null;
+    shippedAt?: string | null;
+    deliveredAt?: string | null;
+    readyForPickupAt?: string | null;
+    pickedUpAt?: string | null;
+    withdrawalReceivedAt?: string | null;
+    returnReceivedAt?: string | null;
+    refundedAt?: string | null;
+    cancelledAt?: string | null;
+    disputedAt?: string | null;
+    finalStatusAt?: string | null;
+  };
+  statusTokenHash?: string | null;
+  statusTokenSealed?: string | null;
+  statusTokenIssuedAt?: string | null;
+  notes?: string | null;
+  privacy?: {
+    /**
+     * Art. 18 bzw. Art. 17 Abs. 3 lit. b DSGVO: keine Mails, nur Pflichtzwecke.
+     */
+    processingRestricted?: boolean | null;
+    restrictedAt?: string | null;
+    legalHold?: boolean | null;
+    legalHoldReason?: string | null;
+    legalHoldSince?: string | null;
+    legalHoldReviewedAt?: string | null;
+    anonymizedAt?: string | null;
+  };
+  retainUntil?: string | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Laufende und beendete Bezahlvorgänge (Fehlersuche). Nur lesen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "checkouts".
+ */
+export interface Checkout {
+  id: number;
+  tokenHash: string;
+  status: 'open' | 'confirming' | 'completed' | 'expired' | 'cancelled' | 'failed';
+  locale: 'de' | 'en';
+  reservationRef: string;
+  items: {
+    product: number | Product;
+    itemNumber: number;
+    titleDe: string;
+    titleEn?: string | null;
+    category: 'keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges';
+    priceCents: number;
+    vatCategory: 'standard' | 'reduced_art';
+    shippingClass: 'brief' | 'paket_klein' | 'keramik' | 'nur_abholung';
+    characteristicsDe?: string | null;
+    characteristicsEn?: string | null;
+    deviationText?: string | null;
+    id?: string | null;
+  }[];
+  fulfillmentMethod: 'shipping' | 'pickup';
+  shippingZone?: ('DE' | 'EU' | 'CH') | null;
+  shippingClass?: ('brief' | 'paket_klein' | 'keramik' | 'nur_abholung') | null;
+  subtotalCents: number;
+  shippingCents: number;
+  totalCents: number;
+  expiresAt: string;
+  displayExpiresAt: string;
+  paymentChoice?: ('stripe' | 'prepayment') | null;
+  customer?: {
+    email?: string | null;
+  };
+  shippingAddress?: {
+    name?: string | null;
+    addressLine1?: string | null;
+    addressLine2?: string | null;
+    postalCode?: string | null;
+    city?: string | null;
+    country?:
+      | (
+          | 'DE'
+          | 'AT'
+          | 'BE'
+          | 'BG'
+          | 'CY'
+          | 'CZ'
+          | 'DK'
+          | 'EE'
+          | 'ES'
+          | 'FI'
+          | 'FR'
+          | 'GR'
+          | 'HR'
+          | 'HU'
+          | 'IE'
+          | 'IT'
+          | 'LT'
+          | 'LU'
+          | 'LV'
+          | 'MT'
+          | 'NL'
+          | 'PL'
+          | 'PT'
+          | 'RO'
+          | 'SE'
+          | 'SI'
+          | 'SK'
+          | 'CH'
+        )
+      | null;
+  };
+  billingAddressDiffers?: boolean | null;
+  billingAddress?: {
+    name?: string | null;
+    addressLine1?: string | null;
+    addressLine2?: string | null;
+    postalCode?: string | null;
+    city?: string | null;
+    country?:
+      | (
+          | 'DE'
+          | 'AT'
+          | 'BE'
+          | 'BG'
+          | 'CY'
+          | 'CZ'
+          | 'DK'
+          | 'EE'
+          | 'ES'
+          | 'FI'
+          | 'FR'
+          | 'GR'
+          | 'HR'
+          | 'HU'
+          | 'IE'
+          | 'IT'
+          | 'LT'
+          | 'LU'
+          | 'LV'
+          | 'MT'
+          | 'NL'
+          | 'PL'
+          | 'PT'
+          | 'RO'
+          | 'SE'
+          | 'SI'
+          | 'SK'
+          | 'CH'
+        )
+      | null;
+  };
+  carrierEmailConsent?: boolean | null;
+  deviationAgreements?:
+    | {
+        product: number | Product;
+        agreedAt: string;
+        id?: string | null;
+      }[]
+    | null;
+  legalTextVersions?: {
+    agb?: (number | null) | LegalText;
+    widerrufsbelehrung?: (number | null) | LegalText;
+    widerrufsformular?: (number | null) | LegalText;
+    datenschutz?: (number | null) | LegalText;
+    versandZahlung?: (number | null) | LegalText;
+  };
+  legalSnippetVersions?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  submittedAt?: string | null;
+  stripe?: {
+    checkoutSessionId?: string | null;
+    sessionExpiresAt?: string | null;
+    sessionSeq?: number | null;
+    livemode?: boolean | null;
+  };
+  mock?: {
+    state?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+  };
+  order?: (number | null) | Order;
+  closeReason?:
+    ('reservation_expired' | 'cart_changed' | 'replaced' | 'payment_failed' | 'checkout_error' | 'sold_offline') | null;
+  timestamps?: {
+    confirmingAt?: string | null;
+    completedAt?: string | null;
+    expiredAt?: string | null;
+    cancelledAt?: string | null;
+    failedAt?: string | null;
+  };
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products".
+ */
+export interface Product {
+  id: number;
+  /**
+   * „Nr. 017 · Titel“
+   */
+  adminTitle?: string | null;
+  displayNumber?: string | null;
+  isPublic?: boolean | null;
+  characteristics?: string | null;
+  /**
+   * Deine Objektnummer. Anzeige: Nr. 017. Nach der ersten Veröffentlichung nicht mehr änderbar.
+   */
+  itemNumber: number;
+  /**
+   * Englisch optional – sonst erscheint der deutsche Titel.
+   */
+  title?: string | null;
+  /**
+   * Entsteht automatisch aus Nummer und Titel.
+   */
+  slug?: string | null;
+  /**
+   * Nur im Entwurf änderbar.
+   */
+  category: 'keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges';
+  /**
+   * Absätze per Leerzeile.
+   */
+  description?: string | null;
+  /**
+   * Optionale kurze Notiz von dir (höchstens 280 Zeichen).
+   */
+  juttaSays?: string | null;
+  priceCents: number;
+  /**
+   * Nur bei Regelbesteuerung relevant.
+   */
+  vatCategory: 'standard' | 'reduced_art';
+  vatReducedReason?: string | null;
+  /**
+   * z. B. „Steinzeug, Unterglasurfarbe, Transparentglasur“ oder „Aquarell auf Papier 300 g“
+   */
+  materials?: string | null;
+  dimensions?: {
+    widthCm?: number | null;
+    heightCm?: number | null;
+    depthCm?: number | null;
+    diameterCm?: number | null;
+    /**
+     * z. B. „Brustweite 52 cm, Länge 70 cm“
+     */
+    note?: string | null;
+  };
+  /**
+   * Ohne Verpackung.
+   */
+  weightGrams?: number | null;
+  /**
+   * Wird aus der Kategorie vorbelegt.
+   */
+  shippingClass: 'brief' | 'paket_klein' | 'keramik' | 'nur_abholung';
+  /**
+   * „M“, „EU 38“, „Einheitsgröße, verstellbar 54–60 cm“
+   */
+  sizeLabel?: string | null;
+  isSecondHand?: boolean | null;
+  condition?: ('like_new' | 'very_good' | 'good' | 'worn') | null;
+  /**
+   * z. B. „winziger Fleck am Saum“
+   */
+  conditionNote?: string | null;
+  /**
+   * Laut Etikett – fehlt das Etikett: nach bestem Wissen. Je Teil (Hauptstoff, Futter …) genau 100 %.
+   */
+  fiberComposition?:
+    | {
+        component: 'main' | 'lining' | 'trim' | 'other';
+        fiber:
+          | 'wool'
+          | 'alpaca'
+          | 'llama'
+          | 'camel'
+          | 'cashmere'
+          | 'mohair'
+          | 'angora'
+          | 'vicuna'
+          | 'yak'
+          | 'guanaco'
+          | 'cashgora'
+          | 'beaver'
+          | 'otter'
+          | 'animal_hair'
+          | 'horsehair'
+          | 'silk'
+          | 'cotton'
+          | 'kapok'
+          | 'flax'
+          | 'hemp'
+          | 'jute'
+          | 'abaca'
+          | 'alfa'
+          | 'coir'
+          | 'broom'
+          | 'ramie'
+          | 'sisal'
+          | 'sunn'
+          | 'henequen'
+          | 'maguey'
+          | 'acetate'
+          | 'alginate'
+          | 'cupro'
+          | 'modal'
+          | 'protein'
+          | 'triacetate'
+          | 'viscose'
+          | 'acrylic'
+          | 'chlorofibre'
+          | 'fluorofibre'
+          | 'modacrylic'
+          | 'polyamide'
+          | 'aramid'
+          | 'polyimide'
+          | 'lyocell'
+          | 'polylactide'
+          | 'polyester'
+          | 'polyethylene'
+          | 'polypropylene'
+          | 'polycarbamide'
+          | 'polyurethane'
+          | 'vinylal'
+          | 'trivinyl'
+          | 'elastodiene'
+          | 'elastane'
+          | 'glass_fibre'
+          | 'metal_fibre'
+          | 'paper_fibre'
+          | 'elastomultiester'
+          | 'elastolefin'
+          | 'melamine'
+          | 'pp_pa_bicomponent'
+          | 'polyacrylate'
+          | 'other_fibres';
+        percent: number;
+        id?: string | null;
+      }[]
+    | null;
+  labelMissing?: boolean | null;
+  /**
+   * Ergänzt die Faserangabe und wird mit dem Hinweis „Etikett fehlt“ angezeigt.
+   */
+  fiberFreeText?: string | null;
+  /**
+   * Als Text, ohne Symbole.
+   */
+  careInstructions?: string | null;
+  /**
+   * Angehakt: Veröffentlichung gesperrt, solange sichtbare Marken nicht erlaubt sind.
+   */
+  blankBrandVisible?: boolean | null;
+  /**
+   * „lebensmittelecht“ nur mit gültiger Konformitätserklärung.
+   */
+  foodContact?: ('deko' | 'lebensmittelecht') | null;
+  /**
+   * Alle verwendeten Glasuren.
+   */
+  conformityDeclarations?: (number | ConformityDeclaration)[] | null;
+  /**
+   * z. B. „Edelstahl 316L“
+   */
+  metalPartsMaterial?: string | null;
+  nickelFreeConfirmed?: boolean | null;
+  /**
+   * Foto oder PDF der Lieferantenerklärung.
+   */
+  nickelEvidence?: (number | null) | PrivateUpload;
+  /**
+   * Datenblatt als „Lieferantenunterlage“ ablegen.
+   */
+  leadFreeGlazeConfirmed?: boolean | null;
+  /**
+   * Bei Schmuck immer an; der Hinweis wird automatisch angefügt.
+   */
+  smallPartsWarning?: boolean | null;
+  /**
+   * Technik und Papier/Träger stehen im Feld „Material“.
+   */
+  framed?: boolean | null;
+  /**
+   * Der Glas-Hinweis wird automatisch an die Warnhinweise angefügt.
+   */
+  frameHasGlass?: boolean | null;
+  /**
+   * Aus der Vorlage der Kategorie vorbelegt.
+   */
+  safetyWarnings?: string | null;
+  /**
+   * Bei Textil und Caps Pflicht: keine Abweichung oder Abweichung beschreiben (z. B. Fleck, Glasurfehler).
+   */
+  deviationDecision?: ('none' | 'described') | null;
+  /**
+   * Wird in der Kasse gesondert bestätigt.
+   */
+  hasDeviation?: boolean | null;
+  deviationDescription?: string | null;
+  ownDesignConfirmed?: boolean | null;
+  isCustomCommission?: boolean | null;
+  customs?: {
+    hsCode?: string | null;
+    countryOfOrigin?:
+      | (
+          | 'DE'
+          | 'AT'
+          | 'BE'
+          | 'BG'
+          | 'CY'
+          | 'CZ'
+          | 'DK'
+          | 'EE'
+          | 'ES'
+          | 'FI'
+          | 'FR'
+          | 'GR'
+          | 'HR'
+          | 'HU'
+          | 'IE'
+          | 'IT'
+          | 'LT'
+          | 'LU'
+          | 'LV'
+          | 'MT'
+          | 'NL'
+          | 'PL'
+          | 'PT'
+          | 'RO'
+          | 'SE'
+          | 'SI'
+          | 'SK'
+          | 'CH'
+        )
+      | null;
+    descriptionEn?: string | null;
+  };
+  /**
+   * Erstes Bild = Titelbild; Reihenfolge per Ziehen. Empfohlen 2–12 Fotos im Hochformat 4:5.
+   */
+  images?: (number | Media)[] | null;
+  status: 'draft' | 'available' | 'reserved' | 'sold' | 'archived';
+  showInArchiveAfterSale?: boolean | null;
+  firstPublishedAt?: string | null;
+  soldAt?: string | null;
+  soldChannel?: ('online' | 'pickup' | 'offline') | null;
+  /**
+   * z. B. „Flohmarkt Mauerpark“ (ohne Preis).
+   */
+  offlineSaleNote?: string | null;
+  archivedAt?: string | null;
+  reservedUntil?: string | null;
+  reservationRef?: string | null;
+  currentOrder?: (number | null) | Order;
+  /**
+   * Steht auf dem Packzettel.
+   */
+  storageLocation?: string | null;
+  internalNote?: string | null;
+  /**
+   * Leer = aus Titel und Beschreibung.
+   */
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+  };
+  i18n?: {
+    enStatus?: ('missing' | 'machine' | 'reviewed') | null;
+    translatedAt?: string | null;
+  };
+  adminAttention?: {
+    flag?: boolean | null;
+    reason?:
+      | (
+          | 'oversold'
+          | 'dispute_open'
+          | 'refund_failed'
+          | 'webhook_error'
+          | 'payment_amount_mismatch'
+          | 'conformity_revoked'
+          | 'manual'
+        )
+      | null;
+    note?: string | null;
+  };
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Jede Fassung ist ein eigenes Dokument. Veröffentlichte Fassungen lassen sich nicht mehr ändern – für Änderungen eine neue Fassung anlegen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legal-texts".
+ */
+export interface LegalText {
+  id: number;
+  type: 'impressum' | 'datenschutz' | 'agb' | 'widerrufsbelehrung' | 'widerrufsformular' | 'versand-zahlung';
+  version?: number | null;
+  versionLabel?: string | null;
+  status: 'draft' | 'scheduled' | 'active' | 'superseded';
+  validFrom: string;
+  /**
+   * Deutsch ist verbindlich, Englisch eine unverbindliche Übersetzung. Erlaubt sind nur die Platzhalter aus der Liste (z. B. {{name}}).
+   */
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Herkunft des Textes (R-002).
+   */
+  origin: 'placeholder' | 'draft' | 'lawyer';
+  /**
+   * Seite zeigt oben „PLATZHALTER – nicht rechtsverbindlich“.
+   */
+  isPlaceholder?: boolean | null;
+  source: 'manual' | 'itrk_lti';
+  /**
+   * z. B. „Kanzlei X, Stand 15.11.2026“
+   */
+  sourceNote?: string | null;
+  changeNote?: string | null;
+  pdfDe?: (number | null) | Document;
+  pdfEn?: (number | null) | Document;
+  contentSha256De?: string | null;
+  contentSha256En?: string | null;
+  activatedAt?: string | null;
+  supersededAt?: string | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Rechnungen und Gutschriften – unveränderlich (GoBD). Nur lesen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "invoices".
+ */
+export interface Invoice {
+  id: number;
+  number: string;
+  type: 'invoice' | 'credit_note';
+  series: 'RE' | 'GS' | 'BSP-RE' | 'BSP-GS';
+  year: number;
+  sequenceNumber: number;
+  status: 'pending_pdf' | 'issued';
+  order: number | Order;
+  relatedInvoice?: (number | null) | Invoice;
+  issueDate: string;
+  deliveryDate: string;
+  taxMode: 'kleinunternehmer' | 'regelbesteuert';
+  isKleinunternehmer?: boolean | null;
+  totalGrossCents: number;
+  totalNetCents: number;
+  totalTaxCents: number;
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  pdf?: (number | null) | PrivateUpload;
+  sha256?: string | null;
+  renderedAt?: string | null;
+  reason?:
+    | ('withdrawal' | 'goodwill' | 'complaint' | 'breakage' | 'admin_cancellation' | 'item_unavailable' | 'dispute')
+    | null;
+  retainUntil: string;
+  anonymizedAt?: string | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "withdrawals".
+ */
+export interface Withdrawal {
+  id: number;
+  reference: string;
+  channel: 'online_form' | 'email' | 'letter' | 'other';
+  receivedAt: string;
+  name?: string | null;
+  contractIdentification?: string | null;
+  email?: string | null;
+  itemsText?: string | null;
+  reason?: string | null;
+  locale: 'de' | 'en';
+  submissionSnapshot:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  order?: (number | null) | Order;
+  matchStatus: 'auto_matched' | 'needs_manual_match' | 'manually_matched' | 'no_order';
+  affectedItemIds?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  status: 'received' | 'goods_returned' | 'partially_refunded' | 'refunded' | 'rejected' | 'closed';
+  confirmationSentAt?: string | null;
+  confirmationEmail?: (number | null) | EmailLog;
+  refundDueAt: string;
+  returnTrackingNumber?: string | null;
+  returnProofReceivedAt?: string | null;
+  goodsReturnedAt?: string | null;
+  refundedAt?: string | null;
+  closedAt?: string | null;
+  rejectedAt?: string | null;
+  closeReason?: ('unpaid_order_cancelled' | 'duplicate' | 'retracted' | 'other') | null;
+  closeNote?: string | null;
+  deadlineReminderSentAt?: string | null;
+  spam?: {
+    markedAt?: string | null;
+    reason?: string | null;
+  };
+  adminNotes?: string | null;
+  privacy?: {
+    /**
+     * Art. 18 bzw. Art. 17 Abs. 3 lit. b DSGVO: keine Mails, nur Pflichtzwecke.
+     */
+    processingRestricted?: boolean | null;
+    restrictedAt?: string | null;
+    legalHold?: boolean | null;
+    legalHoldReason?: string | null;
+    legalHoldSince?: string | null;
+    legalHoldReviewedAt?: string | null;
+    anonymizedAt?: string | null;
+  };
+  retainUntil?: string | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Welche Mail wann verschickt wurde (ohne Inhalt). Nur lesen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "email-log".
+ */
+export interface EmailLog {
+  id: number;
+  template:
+    | 'order_confirmation'
+    | 'prepayment_instructions'
+    | 'prepayment_reminder'
+    | 'prepayment_cancelled'
+    | 'prepayment_received'
+    | 'order_shipped'
+    | 'pickup_ready'
+    | 'withdrawal_receipt'
+    | 'refund_confirmation'
+    | 'oversold_apology'
+    | 'inquiry_receipt'
+    | 'complaint_repair_choice'
+    | 'dispute_vsbg'
+    | 'privacy_access_response'
+    | 'privacy_erasure_response'
+    | 'consent_withdrawal_confirmation'
+    | 'admin_order_placed'
+    | 'admin_prepayment_cancelled'
+    | 'admin_withdrawal_received'
+    | 'admin_inquiry_received'
+    | 'admin_oversold'
+    | 'admin_dispute_opened'
+    | 'admin_refund_failed'
+    | 'admin_revenue_guard'
+    | 'admin_legal_review_due'
+    | 'admin_monthly_close'
+    | 'admin_alert'
+    | 'admin_withdrawal_deadline'
+    | 'admin_password_reset'
+    | 'admin_privacy_request_due'
+    | 'admin_legal_hold_review'
+    | 'admin_compliance_docs_review';
+  to: string;
+  locale: 'de' | 'en';
+  subject: string;
+  status: 'queued' | 'sent' | 'failed' | 'suppressed';
+  transport?: ('file' | 'smtp' | 'memory' | 'log') | null;
+  messageId?: string | null;
+  smtpResponse?: string | null;
+  sentAt?: string | null;
+  attempts?: number | null;
+  lastError?: string | null;
+  attachments?:
+    | {
+        filename: string;
+        sha256: string;
+        sizeBytes: number;
+        id?: string | null;
+      }[]
+    | null;
+  templateVersion?: string | null;
+  bodySha256?: string | null;
+  retainUntil: string;
+  order?: (number | null) | Order;
+  withdrawal?: (number | null) | Withdrawal;
+  inquiry?: (number | null) | Inquiry;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Anfragen aus dem Formular. Sie werden 6 Monate nach Eingang automatisch gelöscht.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "inquiries".
+ */
+export interface Inquiry {
+  id: number;
+  reference: string;
+  name: string;
+  email: string;
+  idea: string;
+  objectType:
+    | 'cap'
+    | 'shirt'
+    | 'textil_sonstiges'
+    | 'teller'
+    | 'schale'
+    | 'tasse'
+    | 'fliese'
+    | 'zeichnung'
+    | 'schmuck'
+    | 'sonstiges';
+  objectTypeOther?: string | null;
+  desiredTimeframe?: string | null;
+  budget?: string | null;
+  referenceImages?: (number | PrivateUpload)[] | null;
+  locale: 'de' | 'en';
+  privacyNoticeVersion: number | LegalText;
+  status: 'new' | 'in_progress' | 'offer_sent' | 'accepted' | 'declined' | 'completed' | 'closed';
+  lastActivityAt: string;
+  /**
+   * Nur verkürzbar („Jetzt löschen“).
+   */
+  deleteAfter: string;
+  adminNotes?: string | null;
+  privacy?: {
+    /**
+     * Art. 18 bzw. Art. 17 Abs. 3 lit. b DSGVO: keine Mails, nur Pflichtzwecke.
+     */
+    processingRestricted?: boolean | null;
+    restrictedAt?: string | null;
+    legalHold?: boolean | null;
+    legalHoldReason?: string | null;
+    legalHoldSince?: string | null;
+    legalHoldReviewedAt?: string | null;
+    anonymizedAt?: string | null;
+  };
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Anfragen zu Auskunft, Löschung usw. (DSGVO). Bitte innerhalb eines Werktags anlegen; Antwort binnen eines Monats.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "privacy-requests".
+ */
+export interface PrivacyRequest {
+  id: number;
+  /**
+   * Wird beim Speichern automatisch vergeben.
+   */
+  reference: string;
+  types: (
+    'access' | 'rectification' | 'erasure' | 'restriction' | 'portability' | 'objection' | 'consent_withdrawal'
+  )[];
+  channel: 'email' | 'letter' | 'instagram_dm' | 'oral' | 'withdrawal_form' | 'other';
+  receivedAt: string;
+  dueAt: string;
+  /**
+   * Verlängerung um höchstens 2 Monate.
+   */
+  extendedDueAt?: string | null;
+  extensionReason?: string | null;
+  extensionNotifiedAt?: string | null;
+  status: 'received' | 'identity_check' | 'in_progress' | 'answered' | 'rejected';
+  /**
+   * Antworten nur an eine in den Daten gespeicherte Adresse.
+   */
+  contactEmail: string;
+  contactName?: string | null;
+  locale: 'de' | 'en';
+  identityVerified?: boolean | null;
+  /**
+   * Keine Ausweiskopie außer bei begründeten Zweifeln.
+   */
+  identityMethod?: ('stored_email' | 'control_data' | 'other') | null;
+  identityVerifiedAt?: string | null;
+  matchedOrders?: (number | Order)[] | null;
+  matchedWithdrawals?: (number | Withdrawal)[] | null;
+  matchedInquiries?: (number | Inquiry)[] | null;
+  exportFile?: (number | null) | PrivateUpload;
+  answeredAt?: string | null;
+  resultNote?: string | null;
+  remindersSent?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  adminNotes?: string | null;
+  retainUntil?: string | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Fotos gestochener Tattoos. Fotos mit Kund:innen erscheinen nur mit dokumentierter Einwilligung.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tattoo-gallery".
+ */
+export interface TattooGallery {
+  id: number;
+  image: number | Media;
+  extraImages?: (number | Media)[] | null;
+  kind: 'fresh' | 'healed';
+  /**
+   * z. B. 42 → „3,5 years healed“
+   */
+  healedDurationMonths?: number | null;
+  healedLabel?: string | null;
+  caption?: string | null;
+  /**
+   * z. B. „Unterarm“
+   */
+  placement?: string | null;
+  flash?: (number | null) | Flash;
+  /**
+   * Aus bei eigenen Zeichnungen oder Platzhaltern.
+   */
+  showsCustomer?: boolean | null;
+  consentGiven?: boolean | null;
+  consentScope?: ('tattoo_only' | 'with_face') | null;
+  consentDate?: string | null;
+  /**
+   * z. B. „per DM am 02.10.2026“
+   */
+  consentNote?: string | null;
+  consentEvidence?: (number | null) | PrivateUpload;
+  consentWithdrawnAt?: string | null;
+  /**
+   * Eine Instagram-Freigabe deckt die Website nicht automatisch ab.
+   */
+  creditHandleAllowed?: boolean | null;
+  creditHandle?: string | null;
+  published?: boolean | null;
+  featured?: boolean | null;
+  sortOrder: number;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Motive mit Festpreis. „Vergeben“ zeigt einen Stempel; wiederholbare Motive bleiben verfügbar.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "flash".
+ */
+export interface Flash {
+  id: number;
+  /**
+   * Anzeige „F-012“. Leer lassen = nächste freie Nummer.
+   */
+  number?: number | null;
+  title: string;
+  image: number | Media;
+  extraImages?: (number | Media)[] | null;
+  /**
+   * ungefähre Größe, z. B. 9,5
+   */
+  sizeCm: number;
+  /**
+   * z. B. „Größe anpassbar“
+   */
+  sizeNote?: string | null;
+  /**
+   * Gesamtpreis (mindestens 10,00 €).
+   */
+  priceCents: number;
+  repeatable?: boolean | null;
+  status: 'available' | 'claimed';
+  claimedAt?: string | null;
+  published?: boolean | null;
+  sortOrder: number;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Die sechs festen Kategorien: Namen, Adressen (Slugs), Texte und Bilder.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  key: 'keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges';
+  name: string;
+  /**
+   * Teil der URL, z. B. „keramik“. Änderungen ändern die Adresse.
+   */
+  slug: string;
+  intro?: string | null;
+  coverImage?: (number | null) | Media;
+  sortOrder: number;
+  showInNavigation?: boolean | null;
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Reservierungen der Kassen und Vorkasse-Bestellungen. Nur lesen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reservations".
+ */
+export interface Reservation {
+  id: number;
+  ref: string;
+  checkout: number | Checkout;
+  product: number | Product;
+  source: 'checkout_session' | 'prepayment';
+  status: 'active' | 'converted' | 'released';
+  expiresAt: string;
+  displayExpiresAt?: string | null;
+  order?: (number | null) | Order;
+  convertedAt?: string | null;
+  releasedAt?: string | null;
+  releaseReason?:
+    | (
+        | 'session_expired'
+        | 'payment_failed'
+        | 'customer_cancelled'
+        | 'prepayment_overdue'
+        | 'order_cancelled'
+        | 'checkout_error'
+        | 'admin'
+      )
+    | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Letzte vergebene Belegnummer je Serie und Jahr. Nur lesen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "invoice-counters".
+ */
+export interface InvoiceCounter {
+  id: number;
+  series: string;
+  year: number;
+  lastNumber: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Flash-Days und Aktionen. Nach dem Ende verschwindet ein Angebot automatisch von der Website.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tattoo-offers".
+ */
+export interface TattooOffer {
+  id: number;
+  type: 'flash_day' | 'aktion';
+  title: string;
+  description: string;
+  startsAt: string;
+  /**
+   * Leer = Ende des Starttags (23:59 Uhr). Ab hier unsichtbar.
+   */
+  endsAt: string;
+  /**
+   * Keine Adresse – nur der Bezirk.
+   */
+  locationNote?: string | null;
+  image?: (number | null) | Media;
+  flashes?: (number | Flash)[] | null;
+  /**
+   * Gesamtpreise nennen.
+   */
+  priceNote?: string | null;
+  published?: boolean | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs".
+ */
+export interface Faq {
+  id: number;
+  question: string;
+  answer: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  category: 'tattoo' | 'aftercare' | 'shop' | 'shipping' | 'commissions' | 'general';
+  sortOrder: number;
+  published?: boolean | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  key:
+    | 'home'
+    | 'about'
+    | 'contact'
+    | 'commissions'
+    | 'tattoo'
+    | 'tattoo_aftercare'
+    | 'shop'
+    | 'archive'
+    | 'conformity'
+    | 'withdrawal'
+    | 'order_status'
+    | 'thanks'
+    | 'not_found';
+  title: string;
+  layout?:
+    | (
+        | {
+            heading: string;
+            subheading?: string | null;
+            image?: (number | null) | Media;
+            cocoPose?: ('run' | 'sniff' | 'sit' | 'sleep' | 'jump' | 'head_tilt') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'hero';
+          }
+        | {
+            /**
+             * z. B. „shop“ – nur a–z, 0–9 und Bindestrich, eindeutig auf der Seite.
+             */
+            stationId: string;
+            heading: string;
+            text?: string | null;
+            image?: (number | null) | Media;
+            link?: {
+              target?:
+                | (
+                    | 'home'
+                    | 'shop'
+                    | 'archive'
+                    | 'category'
+                    | 'tattoo'
+                    | 'tattoo_aftercare'
+                    | 'about'
+                    | 'commissions'
+                    | 'contact'
+                    | 'conformity'
+                    | 'instagram'
+                    | 'email'
+                  )
+                | null;
+              category?: ('keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges') | null;
+              label?: string | null;
+            };
+            cocoPose?: ('run' | 'sniff' | 'sit' | 'sleep' | 'jump' | 'head_tilt') | null;
+            ornament?: ('planet' | 'star' | 'none') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'station';
+          }
+        | {
+            content: {
+              root: {
+                type: string;
+                children: {
+                  type: string;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'richText';
+          }
+        | {
+            image: number | Media;
+            content: {
+              root: {
+                type: string;
+                children: {
+                  type: string;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
+            imagePosition?: ('left' | 'right') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'imageText';
+          }
+        | {
+            images: (number | Media)[];
+            caption?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'imageGallery';
+          }
+        | {
+            heading?: string | null;
+            mode?: ('latest' | 'category' | 'manual') | null;
+            category?: ('keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges') | null;
+            products?: (number | Product)[] | null;
+            limit?: number | null;
+            onlyAvailable?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'productTeaser';
+          }
+        | {
+            heading?: string | null;
+            categories?: ('keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges')[] | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categoryTeaser';
+          }
+        | {
+            heading?: string | null;
+            showClaimed?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'flashGrid';
+          }
+        | {
+            heading?: string | null;
+            emptyText?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'offersList';
+          }
+        | {
+            heading?: string | null;
+            filter?: ('all' | 'fresh' | 'healed') | null;
+            limit?: number | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'tattooGallery';
+          }
+        | {
+            heading?: string | null;
+            content?: {
+              root: {
+                type: string;
+                children: {
+                  type: string;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'priceInfo';
+          }
+        | {
+            heading?: string | null;
+            steps: {
+              title: string;
+              text: string;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'processSteps';
+          }
+        | {
+            heading?: string | null;
+            phases: {
+              title: string;
+              content: {
+                root: {
+                  type: string;
+                  children: {
+                    type: string;
+                    version: number;
+                    [k: string]: unknown;
+                  }[];
+                  direction: ('ltr' | 'rtl') | null;
+                  format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                  indent: number;
+                  version: number;
+                };
+                [k: string]: unknown;
+              };
+              id?: string | null;
+            }[];
+            pdf?: (number | null) | Document;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'aftercareSteps';
+          }
+        | {
+            heading?: string | null;
+            category: 'tattoo' | 'aftercare' | 'shop' | 'shipping' | 'commissions' | 'general';
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'faqList';
+          }
+        | {
+            heading?: string | null;
+            showEmail?: boolean | null;
+            showInstagram?: boolean | null;
+            showDistrict?: boolean | null;
+            emailSubject?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'contactLinks';
+          }
+        | {
+            heading?: string | null;
+            intro?: string | null;
+            successText: string;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'commissionForm';
+          }
+        | {
+            text: string;
+            tone?: ('info' | 'hint') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'callout';
+          }
+      )[]
+    | null;
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    ogImage?: (number | null) | Media;
+  };
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Monatssummen außerhalb des Shops (Tattoo, Flohmarkt, Auftragsarbeiten, Sonstiges) für den Umsatz-Wächter.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "revenue-entries".
+ */
+export interface RevenueEntry {
+  id: number;
+  /**
+   * z. B. „2026-09“
+   */
+  month: string;
+  source: 'tattoo' | 'flohmarkt' | 'auftragsarbeiten' | 'sonstiges';
+  /**
+   * Brutto = Netto bei Kleinunternehmerregelung.
+   */
+  amountCents: number;
+  note?: string | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Wer hat wann was geändert. Nur lesen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "audit-log".
+ */
+export interface AuditLog {
+  id: number;
+  action:
+    | 'product_created'
+    | 'product_published'
+    | 'product_status_changed'
+    | 'product_price_changed'
+    | 'product_offline_sold'
+    | 'product_adopted'
+    | 'product_deleted'
+    | 'reservation_conflict'
+    | 'order_created'
+    | 'order_status_changed'
+    | 'order_address_changed'
+    | 'order_status_link_rotated'
+    | 'order_refund_created'
+    | 'order_refund_failed'
+    | 'packing_photo_skipped'
+    | 'carrier_consent_withdrawn'
+    | 'complaint_changed'
+    | 'invoice_issued'
+    | 'credit_note_issued'
+    | 'withdrawal_received'
+    | 'withdrawal_matched'
+    | 'withdrawal_status_changed'
+    | 'legal_text_activated'
+    | 'legal_text_superseded'
+    | 'legal_snippet_activated'
+    | 'legal_snippet_superseded'
+    | 'legal_review_confirmed'
+    | 'settings_changed'
+    | 'tax_mode_changed'
+    | 'gallery_published'
+    | 'gallery_consent_withdrawn'
+    | 'inquiry_status_changed'
+    | 'inquiry_deleted'
+    | 'private_upload_deleted'
+    | 'order_anonymized'
+    | 'data_exported'
+    | 'legal_hold_changed'
+    | 'processing_restricted'
+    | 'privacy_request_changed'
+    | 'retention_setting_changed'
+    | 'seed_imported'
+    | 'seed_removed'
+    | 'login_succeeded'
+    | 'password_reset_requested';
+  actorType: 'admin' | 'system' | 'webhook' | 'job' | 'customer' | 'seed';
+  actorUser?: (number | null) | User;
+  entityCollection: string;
+  entityId: string;
+  summary: string;
+  changes?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  retainUntil: string;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Nachweis von Einwilligungen und Vereinbarungen. Nur lesen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "consent-log".
+ */
+export interface ConsentLog {
+  id: number;
+  purpose: 'carrier_email_forwarding' | 'deviation_agreement' | 'inquiry_privacy_notice';
+  granted: boolean;
+  textSnapshot: string;
+  textSha256: string;
+  snippetKey?: string | null;
+  snippetVersion?: string | null;
+  locale: 'de' | 'en';
+  email: string;
+  withdrawnAt?: string | null;
+  checkout?: (number | null) | Checkout;
+  order?: (number | null) | Order;
+  product?: (number | null) | Product;
+  inquiry?: (number | null) | Inquiry;
+  retainUntil: string;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Eingegangene Zahlungs-Ereignisse (ohne Personendaten). Nur lesen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "webhook-events".
+ */
+export interface WebhookEvent {
+  id: number;
+  provider: 'stripe' | 'mock';
+  eventId: string;
+  type: string;
+  livemode: boolean;
+  status: 'processing' | 'processed' | 'failed' | 'ignored';
+  attempts: number;
+  receivedAt?: string | null;
+  processedAt?: string | null;
+  lastError?: string | null;
+  relatedCheckout?: (number | null) | Checkout;
+  relatedOrder?: (number | null) | Order;
+  payloadSha256?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Nachweis aller Löschungen (ohne Inhalte, Namen oder E-Mail-Adressen). Nur lesen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "deletion-log".
+ */
+export interface DeletionLog {
+  id: number;
+  entityCollection: string;
+  entityId: string;
+  ruleId: string;
+  action: 'deleted' | 'anonymized' | 'restricted' | 'files_deleted';
+  trigger: 'job' | 'privacy_request' | 'admin' | 'consent_withdrawn';
+  taskSlug?: string | null;
+  privacyRequestRef?: string | null;
+  storageObjectsCount: number;
+  executedAt: string;
+  retainUntil: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: string;
+  id: number;
   key: string;
   data:
     | {
@@ -180,23 +2317,215 @@ export interface PayloadKv {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs".
+ */
+export interface PayloadJob {
+  id: number;
+  /**
+   * Input data provided to the job
+   */
+  input?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  taskStatus?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  completedAt?: string | null;
+  totalTried?: number | null;
+  /**
+   * If hasError is true this job will not be retried
+   */
+  hasError?: boolean | null;
+  /**
+   * If hasError is true, this is the error that caused it
+   */
+  error?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Task execution log
+   */
+  log?:
+    | {
+        executedAt: string;
+        completedAt: string;
+        taskSlug: 'inline' | 'sendEmail';
+        taskID: string;
+        input?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        output?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        state: 'failed' | 'succeeded';
+        error?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  taskSlug?: ('inline' | 'sendEmail') | null;
+  queue?: string | null;
+  waitUntil?: string | null;
+  processing?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: string;
+  id: number;
   document?:
     | ({
         relationTo: 'users';
-        value: string | User;
+        value: number | User;
       } | null)
     | ({
         relationTo: 'media';
-        value: string | Media;
+        value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'documents';
+        value: number | Document;
+      } | null)
+    | ({
+        relationTo: 'private-uploads';
+        value: number | PrivateUpload;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'conformity-declarations';
+        value: number | ConformityDeclaration;
+      } | null)
+    | ({
+        relationTo: 'products';
+        value: number | Product;
+      } | null)
+    | ({
+        relationTo: 'checkouts';
+        value: number | Checkout;
+      } | null)
+    | ({
+        relationTo: 'reservations';
+        value: number | Reservation;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: number | Order;
+      } | null)
+    | ({
+        relationTo: 'invoices';
+        value: number | Invoice;
+      } | null)
+    | ({
+        relationTo: 'invoice-counters';
+        value: number | InvoiceCounter;
+      } | null)
+    | ({
+        relationTo: 'withdrawals';
+        value: number | Withdrawal;
+      } | null)
+    | ({
+        relationTo: 'legal-texts';
+        value: number | LegalText;
+      } | null)
+    | ({
+        relationTo: 'flash';
+        value: number | Flash;
+      } | null)
+    | ({
+        relationTo: 'tattoo-offers';
+        value: number | TattooOffer;
+      } | null)
+    | ({
+        relationTo: 'tattoo-gallery';
+        value: number | TattooGallery;
+      } | null)
+    | ({
+        relationTo: 'inquiries';
+        value: number | Inquiry;
+      } | null)
+    | ({
+        relationTo: 'faqs';
+        value: number | Faq;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'revenue-entries';
+        value: number | RevenueEntry;
+      } | null)
+    | ({
+        relationTo: 'privacy-requests';
+        value: number | PrivacyRequest;
+      } | null)
+    | ({
+        relationTo: 'audit-log';
+        value: number | AuditLog;
+      } | null)
+    | ({
+        relationTo: 'email-log';
+        value: number | EmailLog;
+      } | null)
+    | ({
+        relationTo: 'consent-log';
+        value: number | ConsentLog;
+      } | null)
+    | ({
+        relationTo: 'webhook-events';
+        value: number | WebhookEvent;
+      } | null)
+    | ({
+        relationTo: 'deletion-log';
+        value: number | DeletionLog;
       } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   updatedAt: string;
   createdAt: string;
@@ -206,10 +2535,10 @@ export interface PayloadLockedDocument {
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: string;
+  id: number;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   key?: string | null;
   value?:
@@ -229,7 +2558,7 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: string;
+  id: number;
   name?: string | null;
   batch?: number | null;
   updatedAt: string;
@@ -240,6 +2569,9 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  name?: T;
+  role?: T;
+  lastLoginAt?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -247,6 +2579,7 @@ export interface UsersSelect<T extends boolean = true> {
   resetPasswordExpiration?: T;
   salt?: T;
   hash?: T;
+  resetPasswordRequestedAt?: T;
   loginAttempts?: T;
   lockUntil?: T;
   sessions?:
@@ -263,6 +2596,98 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  caption?: T;
+  showsPerson?: T;
+  restricted?: T;
+  source?: T;
+  sourceRef?: T;
+  enhance?: T;
+  derivativesVersion?: T;
+  placeholderDataUrl?: T;
+  dominantColor?: T;
+  seed?: T;
+  seedKey?: T;
+  prefix?: T;
+  _objectKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumb?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        detail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        zoom?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        og?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents_select".
+ */
+export interface DocumentsSelect<T extends boolean = true> {
+  title?: T;
+  kind?: T;
+  language?: T;
+  sha256?: T;
+  seed?: T;
+  seedKey?: T;
+  prefix?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -277,11 +2702,1189 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "private-uploads_select".
+ */
+export interface PrivateUploadsSelect<T extends boolean = true> {
+  purpose?: T;
+  status?: T;
+  deleteAfter?: T;
+  retainUntil?: T;
+  sha256?: T;
+  complianceCategory?: T;
+  documentVersion?: T;
+  documentDate?: T;
+  relatedDeclaration?: T;
+  relatedOrder?: T;
+  relatedProduct?: T;
+  relatedInvoice?: T;
+  relatedInquiry?: T;
+  relatedPrivacyRequest?: T;
+  relatedGalleryItem?: T;
+  note?: T;
+  seed?: T;
+  seedKey?: T;
+  prefix?: T;
+  _objectKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumb?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  key?: T;
+  name?: T;
+  slug?: T;
+  intro?: T;
+  coverImage?: T;
+  sortOrder?: T;
+  showInNavigation?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "conformity-declarations_select".
+ */
+export interface ConformityDeclarationsSelect<T extends boolean = true> {
+  name?: T;
+  glazeManufacturer?: T;
+  glazeProduct?: T;
+  leadCadmiumFreeByManufacturer?: T;
+  labName?: T;
+  labReportDate?: T;
+  labReport?: T;
+  declarationPdf?: T;
+  validFrom?: T;
+  status?: T;
+  notes?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products_select".
+ */
+export interface ProductsSelect<T extends boolean = true> {
+  adminTitle?: T;
+  displayNumber?: T;
+  isPublic?: T;
+  characteristics?: T;
+  itemNumber?: T;
+  title?: T;
+  slug?: T;
+  category?: T;
+  description?: T;
+  juttaSays?: T;
+  priceCents?: T;
+  vatCategory?: T;
+  vatReducedReason?: T;
+  materials?: T;
+  dimensions?:
+    | T
+    | {
+        widthCm?: T;
+        heightCm?: T;
+        depthCm?: T;
+        diameterCm?: T;
+        note?: T;
+      };
+  weightGrams?: T;
+  shippingClass?: T;
+  sizeLabel?: T;
+  isSecondHand?: T;
+  condition?: T;
+  conditionNote?: T;
+  fiberComposition?:
+    | T
+    | {
+        component?: T;
+        fiber?: T;
+        percent?: T;
+        id?: T;
+      };
+  labelMissing?: T;
+  fiberFreeText?: T;
+  careInstructions?: T;
+  blankBrandVisible?: T;
+  foodContact?: T;
+  conformityDeclarations?: T;
+  metalPartsMaterial?: T;
+  nickelFreeConfirmed?: T;
+  nickelEvidence?: T;
+  leadFreeGlazeConfirmed?: T;
+  smallPartsWarning?: T;
+  framed?: T;
+  frameHasGlass?: T;
+  safetyWarnings?: T;
+  deviationDecision?: T;
+  hasDeviation?: T;
+  deviationDescription?: T;
+  ownDesignConfirmed?: T;
+  isCustomCommission?: T;
+  customs?:
+    | T
+    | {
+        hsCode?: T;
+        countryOfOrigin?: T;
+        descriptionEn?: T;
+      };
+  images?: T;
+  status?: T;
+  showInArchiveAfterSale?: T;
+  firstPublishedAt?: T;
+  soldAt?: T;
+  soldChannel?: T;
+  offlineSaleNote?: T;
+  archivedAt?: T;
+  reservedUntil?: T;
+  reservationRef?: T;
+  currentOrder?: T;
+  storageLocation?: T;
+  internalNote?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+      };
+  i18n?:
+    | T
+    | {
+        enStatus?: T;
+        translatedAt?: T;
+      };
+  adminAttention?:
+    | T
+    | {
+        flag?: T;
+        reason?: T;
+        note?: T;
+      };
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "checkouts_select".
+ */
+export interface CheckoutsSelect<T extends boolean = true> {
+  tokenHash?: T;
+  status?: T;
+  locale?: T;
+  reservationRef?: T;
+  items?:
+    | T
+    | {
+        product?: T;
+        itemNumber?: T;
+        titleDe?: T;
+        titleEn?: T;
+        category?: T;
+        priceCents?: T;
+        vatCategory?: T;
+        shippingClass?: T;
+        characteristicsDe?: T;
+        characteristicsEn?: T;
+        deviationText?: T;
+        id?: T;
+      };
+  fulfillmentMethod?: T;
+  shippingZone?: T;
+  shippingClass?: T;
+  subtotalCents?: T;
+  shippingCents?: T;
+  totalCents?: T;
+  expiresAt?: T;
+  displayExpiresAt?: T;
+  paymentChoice?: T;
+  customer?:
+    | T
+    | {
+        email?: T;
+      };
+  shippingAddress?:
+    | T
+    | {
+        name?: T;
+        addressLine1?: T;
+        addressLine2?: T;
+        postalCode?: T;
+        city?: T;
+        country?: T;
+      };
+  billingAddressDiffers?: T;
+  billingAddress?:
+    | T
+    | {
+        name?: T;
+        addressLine1?: T;
+        addressLine2?: T;
+        postalCode?: T;
+        city?: T;
+        country?: T;
+      };
+  carrierEmailConsent?: T;
+  deviationAgreements?:
+    | T
+    | {
+        product?: T;
+        agreedAt?: T;
+        id?: T;
+      };
+  legalTextVersions?:
+    | T
+    | {
+        agb?: T;
+        widerrufsbelehrung?: T;
+        widerrufsformular?: T;
+        datenschutz?: T;
+        versandZahlung?: T;
+      };
+  legalSnippetVersions?: T;
+  submittedAt?: T;
+  stripe?:
+    | T
+    | {
+        checkoutSessionId?: T;
+        sessionExpiresAt?: T;
+        sessionSeq?: T;
+        livemode?: T;
+      };
+  mock?:
+    | T
+    | {
+        state?: T;
+      };
+  order?: T;
+  closeReason?: T;
+  timestamps?:
+    | T
+    | {
+        confirmingAt?: T;
+        completedAt?: T;
+        expiredAt?: T;
+        cancelledAt?: T;
+        failedAt?: T;
+      };
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reservations_select".
+ */
+export interface ReservationsSelect<T extends boolean = true> {
+  ref?: T;
+  checkout?: T;
+  product?: T;
+  source?: T;
+  status?: T;
+  expiresAt?: T;
+  displayExpiresAt?: T;
+  order?: T;
+  convertedAt?: T;
+  releasedAt?: T;
+  releaseReason?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  orderNumber?: T;
+  checkout?: T;
+  status?: T;
+  statusBeforeWithdrawal?: T;
+  statusBeforeDispute?: T;
+  cancelReason?: T;
+  cancelNote?: T;
+  statusHistory?:
+    | T
+    | {
+        from?: T;
+        to?: T;
+        at?: T;
+        actorType?: T;
+        transition?: T;
+        note?: T;
+        id?: T;
+      };
+  locale?: T;
+  customer?:
+    | T
+    | {
+        name?: T;
+        email?: T;
+      };
+  fulfillmentMethod?: T;
+  shippingAddress?:
+    | T
+    | {
+        name?: T;
+        addressLine1?: T;
+        addressLine2?: T;
+        postalCode?: T;
+        city?: T;
+        country?: T;
+      };
+  billingAddressDiffers?: T;
+  billingAddress?:
+    | T
+    | {
+        name?: T;
+        addressLine1?: T;
+        addressLine2?: T;
+        postalCode?: T;
+        city?: T;
+        country?: T;
+      };
+  shippingZone?: T;
+  shippingClass?: T;
+  items?:
+    | T
+    | {
+        product?: T;
+        itemNumber?: T;
+        titleDe?: T;
+        titleEn?: T;
+        category?: T;
+        characteristicsDe?: T;
+        characteristicsEn?: T;
+        priceCents?: T;
+        vatCategory?: T;
+        shippingClass?: T;
+        coverImage?: T;
+        coverImageUrl?: T;
+        foodContact?: T;
+        deviationText?: T;
+        deviationAgreedAt?: T;
+        status?: T;
+        refundedCents?: T;
+        id?: T;
+      };
+  subtotalCents?: T;
+  shippingCents?: T;
+  totalCents?: T;
+  currency?: T;
+  taxModeAtOrder?: T;
+  paymentMethod?: T;
+  paymentProvider?: T;
+  stripe?:
+    | T
+    | {
+        checkoutSessionId?: T;
+        paymentIntentId?: T;
+        chargeId?: T;
+        paymentMethodType?: T;
+        livemode?: T;
+        amountReceivedCents?: T;
+        feeCents?: T;
+      };
+  prepayment?:
+    | T
+    | {
+        dueAt?: T;
+        reminderDueAt?: T;
+        reminderSentAt?: T;
+        receivedAt?: T;
+        receivedAmountCents?: T;
+      };
+  shipment?:
+    | T
+    | {
+        carrier?: T;
+        trackingNumber?: T;
+        trackingUrl?: T;
+        deliveredSource?: T;
+      };
+  packaging?:
+    | T
+    | {
+        templateKey?: T;
+        templateName?: T;
+        components?:
+          | T
+          | {
+              material?: T;
+              grams?: T;
+              id?: T;
+            };
+        recordedAt?: T;
+      };
+  pickup?:
+    | T
+    | {
+        messageText?: T;
+      };
+  packingChecklistState?: T;
+  packingPhotos?: T;
+  returnPhotos?: T;
+  legalTextVersions?:
+    | T
+    | {
+        agb?: T;
+        widerrufsbelehrung?: T;
+        widerrufsformular?: T;
+        datenschutz?: T;
+        versandZahlung?: T;
+      };
+  legalSnippetVersions?: T;
+  carrierEmailConsent?: T;
+  carrierEmailConsentRevokedAt?: T;
+  invoice?: T;
+  creditNotes?: T;
+  withdrawals?: T;
+  emails?: T;
+  refunds?:
+    | T
+    | {
+        amountCents?: T;
+        reason?: T;
+        itemIds?: T;
+        includesShipping?: T;
+        status?: T;
+        stripeRefundId?: T;
+        manualTransferConfirmedAt?: T;
+        creditNote?: T;
+        createdAt?: T;
+        id?: T;
+      };
+  dispute?:
+    | T
+    | {
+        status?: T;
+        stripeDisputeId?: T;
+      };
+  adminAttention?:
+    | T
+    | {
+        flag?: T;
+        reason?: T;
+        note?: T;
+      };
+  timestamps?:
+    | T
+    | {
+        placedAt?: T;
+        paidAt?: T;
+        packedAt?: T;
+        shippedAt?: T;
+        deliveredAt?: T;
+        readyForPickupAt?: T;
+        pickedUpAt?: T;
+        withdrawalReceivedAt?: T;
+        returnReceivedAt?: T;
+        refundedAt?: T;
+        cancelledAt?: T;
+        disputedAt?: T;
+        finalStatusAt?: T;
+      };
+  statusTokenHash?: T;
+  statusTokenSealed?: T;
+  statusTokenIssuedAt?: T;
+  notes?: T;
+  privacy?:
+    | T
+    | {
+        processingRestricted?: T;
+        restrictedAt?: T;
+        legalHold?: T;
+        legalHoldReason?: T;
+        legalHoldSince?: T;
+        legalHoldReviewedAt?: T;
+        anonymizedAt?: T;
+      };
+  retainUntil?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "invoices_select".
+ */
+export interface InvoicesSelect<T extends boolean = true> {
+  number?: T;
+  type?: T;
+  series?: T;
+  year?: T;
+  sequenceNumber?: T;
+  status?: T;
+  order?: T;
+  relatedInvoice?: T;
+  issueDate?: T;
+  deliveryDate?: T;
+  taxMode?: T;
+  isKleinunternehmer?: T;
+  totalGrossCents?: T;
+  totalNetCents?: T;
+  totalTaxCents?: T;
+  data?: T;
+  pdf?: T;
+  sha256?: T;
+  renderedAt?: T;
+  reason?: T;
+  retainUntil?: T;
+  anonymizedAt?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "invoice-counters_select".
+ */
+export interface InvoiceCountersSelect<T extends boolean = true> {
+  series?: T;
+  year?: T;
+  lastNumber?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "withdrawals_select".
+ */
+export interface WithdrawalsSelect<T extends boolean = true> {
+  reference?: T;
+  channel?: T;
+  receivedAt?: T;
+  name?: T;
+  contractIdentification?: T;
+  email?: T;
+  itemsText?: T;
+  reason?: T;
+  locale?: T;
+  submissionSnapshot?: T;
+  order?: T;
+  matchStatus?: T;
+  affectedItemIds?: T;
+  status?: T;
+  confirmationSentAt?: T;
+  confirmationEmail?: T;
+  refundDueAt?: T;
+  returnTrackingNumber?: T;
+  returnProofReceivedAt?: T;
+  goodsReturnedAt?: T;
+  refundedAt?: T;
+  closedAt?: T;
+  rejectedAt?: T;
+  closeReason?: T;
+  closeNote?: T;
+  deadlineReminderSentAt?: T;
+  spam?:
+    | T
+    | {
+        markedAt?: T;
+        reason?: T;
+      };
+  adminNotes?: T;
+  privacy?:
+    | T
+    | {
+        processingRestricted?: T;
+        restrictedAt?: T;
+        legalHold?: T;
+        legalHoldReason?: T;
+        legalHoldSince?: T;
+        legalHoldReviewedAt?: T;
+        anonymizedAt?: T;
+      };
+  retainUntil?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legal-texts_select".
+ */
+export interface LegalTextsSelect<T extends boolean = true> {
+  type?: T;
+  version?: T;
+  versionLabel?: T;
+  status?: T;
+  validFrom?: T;
+  content?: T;
+  origin?: T;
+  isPlaceholder?: T;
+  source?: T;
+  sourceNote?: T;
+  changeNote?: T;
+  pdfDe?: T;
+  pdfEn?: T;
+  contentSha256De?: T;
+  contentSha256En?: T;
+  activatedAt?: T;
+  supersededAt?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "flash_select".
+ */
+export interface FlashSelect<T extends boolean = true> {
+  number?: T;
+  title?: T;
+  image?: T;
+  extraImages?: T;
+  sizeCm?: T;
+  sizeNote?: T;
+  priceCents?: T;
+  repeatable?: T;
+  status?: T;
+  claimedAt?: T;
+  published?: T;
+  sortOrder?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tattoo-offers_select".
+ */
+export interface TattooOffersSelect<T extends boolean = true> {
+  type?: T;
+  title?: T;
+  description?: T;
+  startsAt?: T;
+  endsAt?: T;
+  locationNote?: T;
+  image?: T;
+  flashes?: T;
+  priceNote?: T;
+  published?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tattoo-gallery_select".
+ */
+export interface TattooGallerySelect<T extends boolean = true> {
+  image?: T;
+  extraImages?: T;
+  kind?: T;
+  healedDurationMonths?: T;
+  healedLabel?: T;
+  caption?: T;
+  placement?: T;
+  flash?: T;
+  showsCustomer?: T;
+  consentGiven?: T;
+  consentScope?: T;
+  consentDate?: T;
+  consentNote?: T;
+  consentEvidence?: T;
+  consentWithdrawnAt?: T;
+  creditHandleAllowed?: T;
+  creditHandle?: T;
+  published?: T;
+  featured?: T;
+  sortOrder?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "inquiries_select".
+ */
+export interface InquiriesSelect<T extends boolean = true> {
+  reference?: T;
+  name?: T;
+  email?: T;
+  idea?: T;
+  objectType?: T;
+  objectTypeOther?: T;
+  desiredTimeframe?: T;
+  budget?: T;
+  referenceImages?: T;
+  locale?: T;
+  privacyNoticeVersion?: T;
+  status?: T;
+  lastActivityAt?: T;
+  deleteAfter?: T;
+  adminNotes?: T;
+  privacy?:
+    | T
+    | {
+        processingRestricted?: T;
+        restrictedAt?: T;
+        legalHold?: T;
+        legalHoldReason?: T;
+        legalHoldSince?: T;
+        legalHoldReviewedAt?: T;
+        anonymizedAt?: T;
+      };
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs_select".
+ */
+export interface FaqsSelect<T extends boolean = true> {
+  question?: T;
+  answer?: T;
+  category?: T;
+  sortOrder?: T;
+  published?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  key?: T;
+  title?: T;
+  layout?:
+    | T
+    | {
+        hero?:
+          | T
+          | {
+              heading?: T;
+              subheading?: T;
+              image?: T;
+              cocoPose?: T;
+              id?: T;
+              blockName?: T;
+            };
+        station?:
+          | T
+          | {
+              stationId?: T;
+              heading?: T;
+              text?: T;
+              image?: T;
+              link?:
+                | T
+                | {
+                    target?: T;
+                    category?: T;
+                    label?: T;
+                  };
+              cocoPose?: T;
+              ornament?: T;
+              id?: T;
+              blockName?: T;
+            };
+        richText?:
+          | T
+          | {
+              content?: T;
+              id?: T;
+              blockName?: T;
+            };
+        imageText?:
+          | T
+          | {
+              image?: T;
+              content?: T;
+              imagePosition?: T;
+              id?: T;
+              blockName?: T;
+            };
+        imageGallery?:
+          | T
+          | {
+              images?: T;
+              caption?: T;
+              id?: T;
+              blockName?: T;
+            };
+        productTeaser?:
+          | T
+          | {
+              heading?: T;
+              mode?: T;
+              category?: T;
+              products?: T;
+              limit?: T;
+              onlyAvailable?: T;
+              id?: T;
+              blockName?: T;
+            };
+        categoryTeaser?:
+          | T
+          | {
+              heading?: T;
+              categories?: T;
+              id?: T;
+              blockName?: T;
+            };
+        flashGrid?:
+          | T
+          | {
+              heading?: T;
+              showClaimed?: T;
+              id?: T;
+              blockName?: T;
+            };
+        offersList?:
+          | T
+          | {
+              heading?: T;
+              emptyText?: T;
+              id?: T;
+              blockName?: T;
+            };
+        tattooGallery?:
+          | T
+          | {
+              heading?: T;
+              filter?: T;
+              limit?: T;
+              id?: T;
+              blockName?: T;
+            };
+        priceInfo?:
+          | T
+          | {
+              heading?: T;
+              content?: T;
+              id?: T;
+              blockName?: T;
+            };
+        processSteps?:
+          | T
+          | {
+              heading?: T;
+              steps?:
+                | T
+                | {
+                    title?: T;
+                    text?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        aftercareSteps?:
+          | T
+          | {
+              heading?: T;
+              phases?:
+                | T
+                | {
+                    title?: T;
+                    content?: T;
+                    id?: T;
+                  };
+              pdf?: T;
+              id?: T;
+              blockName?: T;
+            };
+        faqList?:
+          | T
+          | {
+              heading?: T;
+              category?: T;
+              id?: T;
+              blockName?: T;
+            };
+        contactLinks?:
+          | T
+          | {
+              heading?: T;
+              showEmail?: T;
+              showInstagram?: T;
+              showDistrict?: T;
+              emailSubject?: T;
+              id?: T;
+              blockName?: T;
+            };
+        commissionForm?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              successText?: T;
+              id?: T;
+              blockName?: T;
+            };
+        callout?:
+          | T
+          | {
+              text?: T;
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        ogImage?: T;
+      };
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "revenue-entries_select".
+ */
+export interface RevenueEntriesSelect<T extends boolean = true> {
+  month?: T;
+  source?: T;
+  amountCents?: T;
+  note?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "privacy-requests_select".
+ */
+export interface PrivacyRequestsSelect<T extends boolean = true> {
+  reference?: T;
+  types?: T;
+  channel?: T;
+  receivedAt?: T;
+  dueAt?: T;
+  extendedDueAt?: T;
+  extensionReason?: T;
+  extensionNotifiedAt?: T;
+  status?: T;
+  contactEmail?: T;
+  contactName?: T;
+  locale?: T;
+  identityVerified?: T;
+  identityMethod?: T;
+  identityVerifiedAt?: T;
+  matchedOrders?: T;
+  matchedWithdrawals?: T;
+  matchedInquiries?: T;
+  exportFile?: T;
+  answeredAt?: T;
+  resultNote?: T;
+  remindersSent?: T;
+  adminNotes?: T;
+  retainUntil?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "audit-log_select".
+ */
+export interface AuditLogSelect<T extends boolean = true> {
+  action?: T;
+  actorType?: T;
+  actorUser?: T;
+  entityCollection?: T;
+  entityId?: T;
+  summary?: T;
+  changes?: T;
+  retainUntil?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "email-log_select".
+ */
+export interface EmailLogSelect<T extends boolean = true> {
+  template?: T;
+  to?: T;
+  locale?: T;
+  subject?: T;
+  status?: T;
+  transport?: T;
+  messageId?: T;
+  smtpResponse?: T;
+  sentAt?: T;
+  attempts?: T;
+  lastError?: T;
+  attachments?:
+    | T
+    | {
+        filename?: T;
+        sha256?: T;
+        sizeBytes?: T;
+        id?: T;
+      };
+  templateVersion?: T;
+  bodySha256?: T;
+  retainUntil?: T;
+  order?: T;
+  withdrawal?: T;
+  inquiry?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "consent-log_select".
+ */
+export interface ConsentLogSelect<T extends boolean = true> {
+  purpose?: T;
+  granted?: T;
+  textSnapshot?: T;
+  textSha256?: T;
+  snippetKey?: T;
+  snippetVersion?: T;
+  locale?: T;
+  email?: T;
+  withdrawnAt?: T;
+  checkout?: T;
+  order?: T;
+  product?: T;
+  inquiry?: T;
+  retainUntil?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "webhook-events_select".
+ */
+export interface WebhookEventsSelect<T extends boolean = true> {
+  provider?: T;
+  eventId?: T;
+  type?: T;
+  livemode?: T;
+  status?: T;
+  attempts?: T;
+  receivedAt?: T;
+  processedAt?: T;
+  lastError?: T;
+  relatedCheckout?: T;
+  relatedOrder?: T;
+  payloadSha256?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "deletion-log_select".
+ */
+export interface DeletionLogSelect<T extends boolean = true> {
+  entityCollection?: T;
+  entityId?: T;
+  ruleId?: T;
+  action?: T;
+  trigger?: T;
+  taskSlug?: T;
+  privacyRequestRef?: T;
+  storageObjectsCount?: T;
+  executedAt?: T;
+  retainUntil?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
   key?: T;
   data?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs_select".
+ */
+export interface PayloadJobsSelect<T extends boolean = true> {
+  input?: T;
+  taskStatus?: T;
+  completedAt?: T;
+  totalTried?: T;
+  hasError?: T;
+  error?: T;
+  log?:
+    | T
+    | {
+        executedAt?: T;
+        completedAt?: T;
+        taskSlug?: T;
+        taskID?: T;
+        input?: T;
+        output?: T;
+        state?: T;
+        error?: T;
+        id?: T;
+      };
+  taskSlug?: T;
+  queue?: T;
+  waitUntil?: T;
+  processing?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -317,6 +3920,885 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings".
+ */
+export interface Setting {
+  id: number;
+  shop?: {
+    /**
+     * Aus: „In den Korb“ und „Zur Kasse“ sind gesperrt; laufende Kassen und Zahlungen werden normal abgeschlossen.
+     */
+    isOpen?: boolean | null;
+    closedMessage?: string | null;
+    maxItemsPerCheckout?: number | null;
+  };
+  business: {
+    legalName: string;
+    tradeName?: string | null;
+    street: string;
+    postalCode?: string | null;
+    city: string;
+    country?:
+      | (
+          | 'DE'
+          | 'AT'
+          | 'BE'
+          | 'BG'
+          | 'CY'
+          | 'CZ'
+          | 'DK'
+          | 'EE'
+          | 'ES'
+          | 'FI'
+          | 'FR'
+          | 'GR'
+          | 'HR'
+          | 'HU'
+          | 'IE'
+          | 'IT'
+          | 'LT'
+          | 'LU'
+          | 'LV'
+          | 'MT'
+          | 'NL'
+          | 'PL'
+          | 'PT'
+          | 'RO'
+          | 'SE'
+          | 'SI'
+          | 'SK'
+          | 'CH'
+        )
+      | null;
+    email: string;
+    /**
+     * Pflicht zum Start (Impressum, Widerrufsbelehrung, Bestellbestätigung).
+     */
+    phone?: string | null;
+    vatId?: string | null;
+    economicId?: string | null;
+    /**
+     * Nur für Rechnungen – nie öffentlich.
+     */
+    taxNumber?: string | null;
+    /**
+     * Leer = Geschäftsadresse.
+     */
+    returnAddress?: string | null;
+    lucidNumber?: string | null;
+    packagingScheme?: {
+      name?: string | null;
+      contractFrom?: string | null;
+    };
+  };
+  social?: {
+    instagramHandle?: string | null;
+    contactEmail?: string | null;
+  };
+  tax?: {
+    /**
+     * Geltend ist der letzte Eintrag mit „gültig ab“ ≤ heute. Neue Einträge nur mit Begründung und nach Rücksprache mit der Steuerberatung.
+     */
+    modes?:
+      | {
+          mode: 'kleinunternehmer' | 'regelbesteuert';
+          validFrom: string;
+          reason?: string | null;
+          confirmedWithTaxAdvisor?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+    confirmedAt?: string | null;
+    standardRate?: number | null;
+    reducedRate?: number | null;
+  };
+  revenueGuard?: {
+    previousYearLimitCents?: number | null;
+    currentYearLimitCents?: number | null;
+    stageThresholdsCents?: {
+      u1?: number | null;
+      u3?: number | null;
+      u3a?: number | null;
+      u4?: number | null;
+    };
+    manualYearTotals?:
+      | {
+          year: number;
+          amountCents: number;
+          note?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    lastNotified?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+  };
+  retention?: {
+    /**
+     * Achtung: nur nach Antwort von Kanzlei/Steuerberatung (K-33) umstellen. Wirkt nur auf neue Belege.
+     */
+    invoiceYears?: ('8' | '10') | null;
+  };
+  export?: {
+    datev?: {
+      consultantNumber?: string | null;
+      clientNumber?: string | null;
+      fiscalYearStart?: string | null;
+      revenueAccount?: string | null;
+      stripeTransitAccount?: string | null;
+      bankAccount?: string | null;
+      feeAccount?: string | null;
+    };
+  };
+  costs?: {
+    budgetCents?: number | null;
+    warningThresholdCents?: number | null;
+    monthlyEntries?:
+      | {
+          month: string;
+          amountCents: number;
+          note?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  shipping?: {
+    /**
+     * Start nur Deutschland. Andere Länder erst nach der EU-Checkliste und dem Häkchen „EU-Versand geprüft“.
+     */
+    enabledCountries?:
+      | (
+          | 'DE'
+          | 'AT'
+          | 'BE'
+          | 'BG'
+          | 'CY'
+          | 'CZ'
+          | 'DK'
+          | 'EE'
+          | 'ES'
+          | 'FI'
+          | 'FR'
+          | 'GR'
+          | 'HR'
+          | 'HU'
+          | 'IE'
+          | 'IT'
+          | 'LT'
+          | 'LU'
+          | 'LV'
+          | 'MT'
+          | 'NL'
+          | 'PL'
+          | 'PT'
+          | 'RO'
+          | 'SE'
+          | 'SI'
+          | 'SK'
+          | 'CH'
+        )[]
+      | null;
+    euShippingAcknowledged?: boolean | null;
+    euShippingAcknowledgedAt?: string | null;
+    euChecklist?: {
+      authorisedRepresentativeNamed?: boolean | null;
+      ossThresholdChecked?: boolean | null;
+      textileLanguageChecked?: boolean | null;
+      ratesMaintained?: boolean | null;
+      legalTextsAdapted?: boolean | null;
+    };
+    pickupEnabled?: boolean | null;
+    pickupCity?: string | null;
+    rates?:
+      | {
+          zone: 'DE' | 'EU' | 'CH';
+          shippingClass: 'brief' | 'paket_klein' | 'keramik';
+          priceCents: number;
+          id?: string | null;
+        }[]
+      | null;
+    deliveryTimeText?: string | null;
+    insuranceHintThresholdCents?: number | null;
+    trackingUrlTemplates?:
+      | {
+          carrier: 'dhl' | 'deutsche_post' | 'other';
+          urlTemplate: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  pickup?: {
+    instructions?: string | null;
+  };
+  /**
+   * Gewichte sind Schätzwerte – bitte einmal nachwiegen (Verpackungsmeldung).
+   */
+  packaging?: {
+    templates?:
+      | {
+          key: string;
+          name: string;
+          components?:
+            | {
+                material: 'paper_cardboard' | 'plastic' | 'other';
+                grams: number;
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+    defaultsByShippingClass?:
+      | {
+          shippingClass: 'brief' | 'paket_klein' | 'keramik';
+          templateKey: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  payment?: {
+    prepaymentEnabled?: boolean | null;
+    accountHolder?: string | null;
+    /**
+     * Beispiel-IBAN bis zum Start – die Startprüfung meldet sie.
+     */
+    iban?: string | null;
+    bic?: string | null;
+    bankName?: string | null;
+    reservationMinutes?: number | null;
+    prepaymentDays?: number | null;
+    prepaymentReminderHours?: number | null;
+    stripePaymentMethodConfigurationId?: string | null;
+  };
+  tattoo?: {
+    /**
+     * Nur der Bezirk, keine Adresse.
+     */
+    studioDistrict?: string | null;
+    minPriceCents?: number | null;
+    customPriceFromCents?: number | null;
+    customPriceToCents?: number | null;
+    priceNote?: string | null;
+  };
+  legal?: {
+    reviewIntervalDays?: number | null;
+    reviews?:
+      | {
+          type: 'impressum' | 'datenschutz' | 'agb' | 'widerrufsbelehrung' | 'widerrufsformular' | 'versand-zahlung';
+          reviewedAt?: string | null;
+          lastReminderSentAt?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Achtung: nur nach Antwort der Kanzlei (K-13) einschalten. Aus = Stücke mit sichtbarer Fremdmarke lassen sich nicht veröffentlichen.
+     */
+    allowVisibleBlankBrands?: boolean | null;
+  };
+  safetyTemplates?:
+    | {
+        category: 'keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges';
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  careTemplates?:
+    | {
+        category: 'textil' | 'cap';
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  packingChecklists?:
+    | {
+        shippingClass: 'brief' | 'paket_klein' | 'keramik' | 'nur_abholung';
+        items?:
+          | {
+              text: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  processorAgreements?:
+    | {
+        serviceId: string;
+        signedAt?: string | null;
+        documentVersion?: string | null;
+        url?: string | null;
+        file?: (number | null) | PrivateUpload;
+        id?: string | null;
+      }[]
+    | null;
+  analytics?: {
+    enabled?: boolean | null;
+    confirmedAt?: string | null;
+    note?: string | null;
+  };
+  adminNotificationEmail?: string | null;
+  seed?: {
+    exampleDataPresent?: boolean | null;
+    importedAt?: string | null;
+    removedAt?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-texts".
+ */
+export interface SiteText {
+  id: number;
+  navigation?: {
+    mainLinks?:
+      | {
+          target:
+            | 'home'
+            | 'shop'
+            | 'archive'
+            | 'category'
+            | 'tattoo'
+            | 'tattoo_aftercare'
+            | 'about'
+            | 'commissions'
+            | 'contact'
+            | 'conformity'
+            | 'instagram'
+            | 'email';
+          category?: ('keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges') | null;
+          label: string;
+          id?: string | null;
+        }[]
+      | null;
+    menuLinks?:
+      | {
+          target:
+            | 'home'
+            | 'shop'
+            | 'archive'
+            | 'category'
+            | 'tattoo'
+            | 'tattoo_aftercare'
+            | 'about'
+            | 'commissions'
+            | 'contact'
+            | 'conformity'
+            | 'instagram'
+            | 'email';
+          category?: ('keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges') | null;
+          label: string;
+          id?: string | null;
+        }[]
+      | null;
+    menuTagline?: string | null;
+  };
+  footer?: {
+    tagline?: string | null;
+    instagramLabel?: string | null;
+  };
+  shop?: {
+    filterAll?: string | null;
+    filterAvailableOnly?: string | null;
+    soldStamp?: string | null;
+    reservedLabel?: string | null;
+    reservedPrepaymentLabel?: string | null;
+    uniqueHint?: string | null;
+    emptyCategory?: string | null;
+    archiveIntro?: string | null;
+  };
+  product?: {
+    addToCart?: string | null;
+    shippingLinkLabel?: string | null;
+    manufacturerHeading?: string | null;
+    deviationHeading?: string | null;
+    fiberHeading?: string | null;
+    labelMissingHint?: string | null;
+  };
+  cart?: {
+    empty?: string | null;
+    countdown?: string | null;
+    reservationExpired?: string | null;
+    pickupOption?: string | null;
+    shippingOption?: string | null;
+  };
+  checkout?: {
+    intro?: string | null;
+    changeLink?: string | null;
+  };
+  thanks?: {
+    heading?: string | null;
+    intro?: string | null;
+  };
+  orderStatus?: {
+    intro?: string | null;
+    linkInvalid?: string | null;
+  };
+  withdrawal?: {
+    intro?: string | null;
+    done?: string | null;
+  };
+  notFound?: {
+    heading?: string | null;
+    intro?: string | null;
+  };
+  errors?: {
+    generic?: string | null;
+    shopClosed?: string | null;
+    alreadyReserved?: string | null;
+  };
+  emails?: {
+    /**
+     * Steht unter jeder Mail an Kund:innen.
+     */
+    signature?: string | null;
+    inquiryResponseTime?: string | null;
+    /**
+     * Leer bzw. ohne Zeile = Standardtext der Vorlage.
+     */
+    templates?:
+      | {
+          template:
+            | 'order_confirmation'
+            | 'prepayment_instructions'
+            | 'prepayment_reminder'
+            | 'prepayment_cancelled'
+            | 'prepayment_received'
+            | 'order_shipped'
+            | 'pickup_ready'
+            | 'withdrawal_receipt'
+            | 'refund_confirmation'
+            | 'oversold_apology'
+            | 'inquiry_receipt'
+            | 'complaint_repair_choice'
+            | 'dispute_vsbg'
+            | 'privacy_access_response'
+            | 'privacy_erasure_response'
+            | 'consent_withdrawal_confirmation'
+            | 'admin_order_placed'
+            | 'admin_prepayment_cancelled'
+            | 'admin_withdrawal_received'
+            | 'admin_inquiry_received'
+            | 'admin_oversold'
+            | 'admin_dispute_opened'
+            | 'admin_refund_failed'
+            | 'admin_revenue_guard'
+            | 'admin_legal_review_due'
+            | 'admin_monthly_close'
+            | 'admin_alert'
+            | 'admin_withdrawal_deadline'
+            | 'admin_password_reset'
+            | 'admin_privacy_request_due'
+            | 'admin_legal_hold_review'
+            | 'admin_compliance_docs_review';
+          subject?: string | null;
+          intro?: string | null;
+          outro?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings_select".
+ */
+export interface SettingsSelect<T extends boolean = true> {
+  shop?:
+    | T
+    | {
+        isOpen?: T;
+        closedMessage?: T;
+        maxItemsPerCheckout?: T;
+      };
+  business?:
+    | T
+    | {
+        legalName?: T;
+        tradeName?: T;
+        street?: T;
+        postalCode?: T;
+        city?: T;
+        country?: T;
+        email?: T;
+        phone?: T;
+        vatId?: T;
+        economicId?: T;
+        taxNumber?: T;
+        returnAddress?: T;
+        lucidNumber?: T;
+        packagingScheme?:
+          | T
+          | {
+              name?: T;
+              contractFrom?: T;
+            };
+      };
+  social?:
+    | T
+    | {
+        instagramHandle?: T;
+        contactEmail?: T;
+      };
+  tax?:
+    | T
+    | {
+        modes?:
+          | T
+          | {
+              mode?: T;
+              validFrom?: T;
+              reason?: T;
+              confirmedWithTaxAdvisor?: T;
+              id?: T;
+            };
+        confirmedAt?: T;
+        standardRate?: T;
+        reducedRate?: T;
+      };
+  revenueGuard?:
+    | T
+    | {
+        previousYearLimitCents?: T;
+        currentYearLimitCents?: T;
+        stageThresholdsCents?:
+          | T
+          | {
+              u1?: T;
+              u3?: T;
+              u3a?: T;
+              u4?: T;
+            };
+        manualYearTotals?:
+          | T
+          | {
+              year?: T;
+              amountCents?: T;
+              note?: T;
+              id?: T;
+            };
+        lastNotified?: T;
+      };
+  retention?:
+    | T
+    | {
+        invoiceYears?: T;
+      };
+  export?:
+    | T
+    | {
+        datev?:
+          | T
+          | {
+              consultantNumber?: T;
+              clientNumber?: T;
+              fiscalYearStart?: T;
+              revenueAccount?: T;
+              stripeTransitAccount?: T;
+              bankAccount?: T;
+              feeAccount?: T;
+            };
+      };
+  costs?:
+    | T
+    | {
+        budgetCents?: T;
+        warningThresholdCents?: T;
+        monthlyEntries?:
+          | T
+          | {
+              month?: T;
+              amountCents?: T;
+              note?: T;
+              id?: T;
+            };
+      };
+  shipping?:
+    | T
+    | {
+        enabledCountries?: T;
+        euShippingAcknowledged?: T;
+        euShippingAcknowledgedAt?: T;
+        euChecklist?:
+          | T
+          | {
+              authorisedRepresentativeNamed?: T;
+              ossThresholdChecked?: T;
+              textileLanguageChecked?: T;
+              ratesMaintained?: T;
+              legalTextsAdapted?: T;
+            };
+        pickupEnabled?: T;
+        pickupCity?: T;
+        rates?:
+          | T
+          | {
+              zone?: T;
+              shippingClass?: T;
+              priceCents?: T;
+              id?: T;
+            };
+        deliveryTimeText?: T;
+        insuranceHintThresholdCents?: T;
+        trackingUrlTemplates?:
+          | T
+          | {
+              carrier?: T;
+              urlTemplate?: T;
+              id?: T;
+            };
+      };
+  pickup?:
+    | T
+    | {
+        instructions?: T;
+      };
+  packaging?:
+    | T
+    | {
+        templates?:
+          | T
+          | {
+              key?: T;
+              name?: T;
+              components?:
+                | T
+                | {
+                    material?: T;
+                    grams?: T;
+                    id?: T;
+                  };
+              id?: T;
+            };
+        defaultsByShippingClass?:
+          | T
+          | {
+              shippingClass?: T;
+              templateKey?: T;
+              id?: T;
+            };
+      };
+  payment?:
+    | T
+    | {
+        prepaymentEnabled?: T;
+        accountHolder?: T;
+        iban?: T;
+        bic?: T;
+        bankName?: T;
+        reservationMinutes?: T;
+        prepaymentDays?: T;
+        prepaymentReminderHours?: T;
+        stripePaymentMethodConfigurationId?: T;
+      };
+  tattoo?:
+    | T
+    | {
+        studioDistrict?: T;
+        minPriceCents?: T;
+        customPriceFromCents?: T;
+        customPriceToCents?: T;
+        priceNote?: T;
+      };
+  legal?:
+    | T
+    | {
+        reviewIntervalDays?: T;
+        reviews?:
+          | T
+          | {
+              type?: T;
+              reviewedAt?: T;
+              lastReminderSentAt?: T;
+              id?: T;
+            };
+        allowVisibleBlankBrands?: T;
+      };
+  safetyTemplates?:
+    | T
+    | {
+        category?: T;
+        text?: T;
+        id?: T;
+      };
+  careTemplates?:
+    | T
+    | {
+        category?: T;
+        text?: T;
+        id?: T;
+      };
+  packingChecklists?:
+    | T
+    | {
+        shippingClass?: T;
+        items?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  processorAgreements?:
+    | T
+    | {
+        serviceId?: T;
+        signedAt?: T;
+        documentVersion?: T;
+        url?: T;
+        file?: T;
+        id?: T;
+      };
+  analytics?:
+    | T
+    | {
+        enabled?: T;
+        confirmedAt?: T;
+        note?: T;
+      };
+  adminNotificationEmail?: T;
+  seed?:
+    | T
+    | {
+        exampleDataPresent?: T;
+        importedAt?: T;
+        removedAt?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-texts_select".
+ */
+export interface SiteTextsSelect<T extends boolean = true> {
+  navigation?:
+    | T
+    | {
+        mainLinks?:
+          | T
+          | {
+              target?: T;
+              category?: T;
+              label?: T;
+              id?: T;
+            };
+        menuLinks?:
+          | T
+          | {
+              target?: T;
+              category?: T;
+              label?: T;
+              id?: T;
+            };
+        menuTagline?: T;
+      };
+  footer?:
+    | T
+    | {
+        tagline?: T;
+        instagramLabel?: T;
+      };
+  shop?:
+    | T
+    | {
+        filterAll?: T;
+        filterAvailableOnly?: T;
+        soldStamp?: T;
+        reservedLabel?: T;
+        reservedPrepaymentLabel?: T;
+        uniqueHint?: T;
+        emptyCategory?: T;
+        archiveIntro?: T;
+      };
+  product?:
+    | T
+    | {
+        addToCart?: T;
+        shippingLinkLabel?: T;
+        manufacturerHeading?: T;
+        deviationHeading?: T;
+        fiberHeading?: T;
+        labelMissingHint?: T;
+      };
+  cart?:
+    | T
+    | {
+        empty?: T;
+        countdown?: T;
+        reservationExpired?: T;
+        pickupOption?: T;
+        shippingOption?: T;
+      };
+  checkout?:
+    | T
+    | {
+        intro?: T;
+        changeLink?: T;
+      };
+  thanks?:
+    | T
+    | {
+        heading?: T;
+        intro?: T;
+      };
+  orderStatus?:
+    | T
+    | {
+        intro?: T;
+        linkInvalid?: T;
+      };
+  withdrawal?:
+    | T
+    | {
+        intro?: T;
+        done?: T;
+      };
+  notFound?:
+    | T
+    | {
+        heading?: T;
+        intro?: T;
+      };
+  errors?:
+    | T
+    | {
+        generic?: T;
+        shopClosed?: T;
+        alreadyReserved?: T;
+      };
+  emails?:
+    | T
+    | {
+        signature?: T;
+        inquiryResponseTime?: T;
+        templates?:
+          | T
+          | {
+              template?: T;
+              subject?: T;
+              intro?: T;
+              outro?: T;
+              id?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "collections_widget".
  */
 export interface CollectionsWidget {
@@ -324,6 +4806,18 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSendEmail".
+ */
+export interface TaskSendEmail {
+  input: {
+    emailLogId: number;
+  };
+  output: {
+    status: string;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

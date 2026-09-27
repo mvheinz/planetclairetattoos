@@ -1,0 +1,80 @@
+[
+  {
+    "total_count": 4,
+    "artifacts": [
+      {
+        "id": 1001,
+        "node_id": "MDg6QXJ0aWZhY3Q1",
+        "name": "planet-claire-vorschau-p2-abc1234",
+        "size_in_bytes": 200000000,
+        "url": "https://api.github.com/repos/owner/repo/actions/artifacts/1001",
+        "archive_download_url": "https://api.github.com/repos/owner/repo/actions/artifacts/1001/zip",
+        "expired": false,
+        "created_at": "2026-09-20T10:00:00Z",
+        "updated_at": "2026-09-20T10:00:00Z",
+        "expires_at": "2026-09-22T10:00:00Z",
+        "workflow_run": {
+          "id": 5001,
+          "head_branch": "claude/x",
+          "head_sha": "abc"
+        }
+      },
+      {
+        "id": 1002,
+        "node_id": "MDg6QXJ0aWZhY3Q2",
+        "name": "ci-report-abc0002",
+        "size_in_bytes": 100000000,
+        "url": "https://api.github.com/repos/owner/repo/actions/artifacts/1002",
+        "archive_download_url": "https://api.github.com/repos/owner/repo/actions/artifacts/1002/zip",
+        "expired": false,
+        "created_at": "2026-09-20T10:00:00Z",
+        "updated_at": "2026-09-20T10:00:00Z",
+        "expires_at": "2026-09-22T10:00:00Z",
+        "workflow_run": {
+          "id": 5002,
+          "head_branch": "claude/x",
+          "head_sha": "abc"
+        }
+      },
+      {
+        "id": 1003,
+        "node_id": "MDg6QXJ0aWZhY3Q3",
+        "name": "ci-report-abc0003",
+        "size_in_bytes": 200000000,
+        "url": "https://api.github.com/repos/owner/repo/actions/artifacts/1003",
+        "archive_download_url": "https://api.github.com/repos/owner/repo/actions/artifacts/1003/zip",
+        "expired": true,
+        "created_at": "2026-09-20T10:00:00Z",
+        "updated_at": "2026-09-20T10:00:00Z",
+        "expires_at": "2026-09-22T10:00:00Z",
+        "workflow_run": {
+          "id": 5003,
+          "head_branch": "claude/x",
+          "head_sha": "abc"
+        }
+      }
+    ]
+  },
+  {
+    "total_count": 4,
+    "artifacts": [
+      {
+        "id": 1004,
+        "node_id": "MDg6QXJ0aWZhY3Q4",
+        "name": "ci-report-abc0004",
+        "size_in_bytes": 50000000,
+        "url": "https://api.github.com/repos/owner/repo/actions/artifacts/1004",
+        "archive_download_url": "https://api.github.com/repos/owner/repo/actions/artifacts/1004/zip",
+        "expired": false,
+        "created_at": "2026-09-20T10:00:00Z",
+        "updated_at": "2026-09-20T10:00:00Z",
+        "expires_at": "2026-09-22T10:00:00Z",
+        "workflow_run": {
+          "id": 5004,
+          "head_branch": "claude/x",
+          "head_sha": "abc"
+        }
+      }
+    ]
+  }
+]

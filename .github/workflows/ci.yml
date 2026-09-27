@@ -1,19 +1,23 @@
 name: CI
 
+# ARCHITEKTUR §6.2/§6.3: nur über den offenen PR oder per Hand, nie bei push auf main.
 on:
-  # P0: einmal auf main prüfen. P1.1a stellt auf pull_request + workflow_dispatch um (ARCHITEKTUR §6.2).
-  push:
-    branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Minimal: Code lesen; `actions: read` für den Budget-Schritt (Artefakt-Liste, §6.2).
+permissions:
+  contents: read
+  actions: read
+
 jobs:
-  checks:
-    name: Lint, Typen, Tests, Build
+  quick:
+    name: quick
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
@@ -22,7 +26,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: planetclaire
+          POSTGRES_DB: planetclaire_test
         ports:
           - 5432:5432
         options: >-
@@ -32,27 +36,153 @@ jobs:
           --health-retries 10
     env:
       APP_ENV: test
+      TZ: UTC
       ADMIN_ROUTE: /werkstatt
-      DATABASE_URL: postgres://postgres:postgres@localhost:5432/planetclaire
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/planetclaire_test
+      DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/planetclaire_test
+      DB_POOL_MAX: '25'
       PAYLOAD_SECRET: ci-only-secret-not-used-anywhere-else-0000
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
       SEED_PREVIEW_MODE: 'true'
+      SEED_NOW: '2026-10-15T10:00:00+02:00'
+      SEED_ADMIN_EMAIL: admin@example.com
+      SEED_ADMIN_PASSWORD: ci-only-password-2026
       STORAGE_DRIVER: local
       EMAIL_DRIVER: file
       PAYMENTS_DRIVER: mock
       TRANSLATION_DRIVER: mock
+      CARRIER_DRIVER: manual
       CRON_SECRET: ci-only-cron-secret-000000000000000000
+      NEXT_PUBLIC_LEASH_DEBUG: '1'
       NEXT_TELEMETRY_DISABLED: '1'
+      E2E_SERVER: start
     steps:
-      - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
+      # Kennung (§6.2): bei [ci:update-snapshots] und [ci:art] entfällt quick.
+      - name: Kennung
+        id: mode
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            sha="${{ github.event.pull_request.head.sha }}"
+            msg=$(gh api "repos/${{ github.repository }}/commits/$sha" --jq .commit.message)
+          else
+            sha="${{ github.sha }}"
+            msg=""
+          fi
+          echo "sha7=${sha:0:7}" >> "$GITHUB_OUTPUT"
+          if echo "$msg" | grep -qE '\[ci:update-snapshots\]|\[ci:art\]'; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "quick übersprungen (Kennung im Kopf-Commit)" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.mode.outputs.skip != 'true'
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # gitleaks prüft die Commits des PR
+      - if: steps.mode.outputs.skip != 'true'
+        uses: pnpm/action-setup@v6
+      - if: steps.mode.outputs.skip != 'true'
+        uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run lint
-      - run: pnpm run typecheck
-      - run: pnpm run test:unit
-      - run: pnpm run test:int
-      - run: pnpm run build
+      - name: Installation
+        if: steps.mode.outputs.skip != 'true'
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        if: steps.mode.outputs.skip != 'true'
+        run: pnpm run lint
+      - name: Typen
+        if: steps.mode.outputs.skip != 'true'
+        run: pnpm run typecheck
+      - name: Statische Prüfungen
+        if: steps.mode.outputs.skip != 'true'
+        run: pnpm run check:static
+      - name: Unit-Tests
+        if: steps.mode.outputs.skip != 'true'
+        run: pnpm run test:unit
+      - name: Migrationen
+        if: steps.mode.outputs.skip != 'true'
+        run: pnpm run db:ensure && pnpm payload migrate && pnpm run check:migrations
+      - name: Integrationstests
+        if: steps.mode.outputs.skip != 'true'
+        run: pnpm run test:int
+      - name: Next.js-Cache
+        if: steps.mode.outputs.skip != 'true'
+        uses: actions/cache@v6
+        with:
+          path: .next/cache
+          key: next-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('src/**') }}
+          restore-keys: next-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+      - name: Seed + Build
+        if: steps.mode.outputs.skip != 'true'
+        run: pnpm run seed && pnpm run build
+      - name: Budgets
+        if: steps.mode.outputs.skip != 'true'
+        run: pnpm run check:bundle && pnpm run check:external --built
+      - name: Playwright-Version
+        id: pw
+        if: steps.mode.outputs.skip != 'true'
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Playwright-Browser-Cache
+        id: pw-cache
+        if: steps.mode.outputs.skip != 'true'
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+      - name: Playwright Chromium + WebKit
+        if: steps.mode.outputs.skip != 'true'
+        run: |
+          if [ "${{ steps.pw-cache.outputs.cache-hit }}" = "true" ]; then
+            pnpm exec playwright install-deps chromium webkit
+          else
+            pnpm exec playwright install --with-deps chromium webkit
+          fi
+      - name: E2E-Rauchtest
+        if: steps.mode.outputs.skip != 'true'
+        run: pnpm run test:e2e --grep @smoke --project=desktop --project=iphone-15
+      - name: Geheimnis-Scan
+        if: steps.mode.outputs.skip != 'true'
+        env:
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          url="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfL -o "$RUNNER_TEMP/gitleaks.tgz" "$url"
+          echo "${GITLEAKS_SHA256}  $RUNNER_TEMP/gitleaks.tgz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/gitleaks.tgz" -C "$RUNNER_TEMP" gitleaks
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            range="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+            "$RUNNER_TEMP/gitleaks" detect --source . --config .gitleaks.toml --redact --no-banner --log-opts="$range"
+          else
+            "$RUNNER_TEMP/gitleaks" detect --source . --config .gitleaks.toml --redact --no-banner
+          fi
+      - name: Abhängigkeiten
+        if: steps.mode.outputs.skip != 'true'
+        run: |
+          if ! pnpm audit --prod --audit-level=high; then
+            echo "Warnung: pnpm audit meldet Lücken der Stufe high (blockiert nur bei critical, §8.10)." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          pnpm audit --prod --audit-level=critical
+      # Bei Fehler (§6.2): erst der Budget-Schritt, dann – nur bei upload_optional=true – der Fehlerbericht (2 Tage).
+      - name: Artefakt-Budget
+        id: budget
+        if: failure() && steps.mode.outputs.skip != 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: pnpm run ci:artifacts
+      - name: Fehlerbericht hochladen
+        if: failure() && steps.budget.outputs.upload_optional == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-report-${{ steps.mode.outputs.sha7 }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 2
+          if-no-files-found: ignore

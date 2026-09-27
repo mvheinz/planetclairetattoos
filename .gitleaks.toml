@@ -1,0 +1,21 @@
+# gitleaks-Konfiguration (ARCHITEKTUR §6.3 Schritt 11): Standardregeln plus Ausnahmen für erfundene Testwerte.
+# Tests und Doku enthalten absichtlich Schein-Schlüssel (z. B. `sk_live_TESTVALUEONLY`, `ci-only-…`), damit Prüfungen
+# gegen echte Schlüssel greifen. Echte Schlüssel gehören nie ins Repo (CLAUDE.md §6).
+title = "planetclairetattoos"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Erfundene Testwerte in Tests und Beispiel-Befehle in der Doku"
+paths = [
+  '''^tests/''',
+  '''^docs/''',
+]
+
+[[allowlists]]
+description = "Wegwerf-Werte der CI (nur Testdatenbank, Präfix ci-only-)"
+regexTarget = "match"
+regexes = [
+  '''ci-only-[A-Za-z0-9-]+''',
+]

@@ -6,7 +6,9 @@ import packageJson from '../../package.json' with { type: 'json' }
 describe('Projektgrundlage', () => {
   it('nutzt die festgelegten Kernpakete', () => {
     expect(packageJson.dependencies.payload).toMatch(/^3\./)
-    expect(packageJson.dependencies['@payloadcms/db-postgres']).toBe(packageJson.dependencies.payload)
+    expect(packageJson.dependencies['@payloadcms/db-postgres']).toBe(
+      packageJson.dependencies.payload,
+    )
     expect(packageJson.dependencies.next).toMatch(/^16\./)
   })
 })

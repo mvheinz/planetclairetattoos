@@ -1,0 +1,15 @@
+# ARCHITEKTUR §1.3: bis P11 nur Sicherheits-Updates. Versions-Updates sind mit `open-pull-requests-limit: 0`
+# abgeschaltet; Sicherheits-PRs kommen über die Repo-Einstellung „Dependabot security updates“. Kein Automerge vor P11
+# (`dependabot-automerge.yml` entsteht erst in P11).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0

@@ -1,0 +1,221 @@
+[
+  {
+    "key": "home",
+    "title": {
+      "de": "Startseite",
+      "en": "Home"
+    },
+    "layout": [
+      {
+        "blockType": "hero",
+        "heading": {
+          "de": "Tattoos & handgemachte Unikate aus Berlin",
+          "en": "Tattoos & handmade one-offs from Berlin"
+        },
+        "subheading": {
+          "de": "Fine-Line-Tattoos, bemalte Keramik, Caps und Shirts, Tusche auf Papier – alles von Hand, alles nur einmal. Coco passt auf.",
+          "en": "Fine line tattoos, painted ceramics, caps and shirts, ink on paper – all by hand, each one only once. Coco keeps an eye on things."
+        },
+        "cocoPose": "run"
+      },
+      {
+        "blockType": "station",
+        "stationId": "hallo",
+        "heading": {
+          "de": "Hallo!",
+          "en": "Hi!"
+        },
+        "text": {
+          "de": "Ich bin Jutta. Ich zeichne Tiere mit Kulleraugen – auf Haut, auf Ton, auf Stoff und auf Papier. Und das ist Coco. Sie rennt schon mal vor.",
+          "en": "I'm Jutta. I draw animals with googly eyes – on skin, clay, fabric and paper. And that's Coco. She's already running ahead."
+        },
+        "cocoPose": "sit",
+        "ornament": "star"
+      },
+      {
+        "blockType": "station",
+        "stationId": "keramik",
+        "heading": {
+          "de": "Keramik",
+          "en": "Ceramics"
+        },
+        "text": {
+          "de": "Schalen, Tellerchen, Fliesen – gekniffen, gedreht, bemalt. Jede Form ist ein bisschen schief, genau so soll sie sein. Alles Deko, nicht für Essen.",
+          "en": "Bowls, little plates, tiles – pinched, shaped, painted. Every piece is a little wonky, exactly as it should be. All decorative, not for food."
+        },
+        "cocoPose": "sniff",
+        "ornament": "planet",
+        "link": {
+          "target": "category",
+          "category": "keramik",
+          "label": {
+            "de": "Alle Keramik",
+            "en": "All ceramics"
+          }
+        }
+      },
+      {
+        "blockType": "station",
+        "stationId": "textil",
+        "heading": {
+          "de": "Textil & Caps",
+          "en": "Textiles & caps"
+        },
+        "text": {
+          "de": "Second-Hand-Shirts, Kleider und Caps, von Hand bemalt. Jedes Teil gibt's genau einmal – in genau einer Größe.",
+          "en": "Second-hand shirts, dresses and caps, painted by hand. Every piece exists exactly once – in exactly one size."
+        },
+        "cocoPose": "sniff",
+        "ornament": "star",
+        "link": {
+          "target": "category",
+          "category": "textil",
+          "label": {
+            "de": "Alle Textilien",
+            "en": "All textiles"
+          }
+        }
+      },
+      {
+        "blockType": "station",
+        "stationId": "zeichnungen",
+        "heading": {
+          "de": "Zeichnungen",
+          "en": "Drawings"
+        },
+        "text": {
+          "de": "Tusche, Aquarell, Skizzenbuchseiten. Hier fängt eigentlich alles an.",
+          "en": "Ink, watercolour, sketchbook pages. This is where it all starts, really."
+        },
+        "cocoPose": "sit",
+        "ornament": "none",
+        "link": {
+          "target": "category",
+          "category": "zeichnung",
+          "label": {
+            "de": "Alle Zeichnungen",
+            "en": "All drawings"
+          }
+        }
+      },
+      {
+        "blockType": "station",
+        "stationId": "schmuck",
+        "heading": {
+          "de": "Schmuck",
+          "en": "Jewellery"
+        },
+        "text": {
+          "de": "Winzige Anhänger aus Keramik: Füchse, Planeten, Rehköpfchen. Klein genug für die Hosentasche, groß genug für gute Laune.",
+          "en": "Tiny ceramic pendants: foxes, planets, little deer. Small enough for your pocket, big enough for a good mood."
+        },
+        "cocoPose": "jump",
+        "ornament": "none",
+        "link": {
+          "target": "category",
+          "category": "schmuck",
+          "label": {
+            "de": "Zum Schmuck",
+            "en": "See the jewellery"
+          }
+        }
+      },
+      {
+        "blockType": "station",
+        "stationId": "tattoo",
+        "heading": {
+          "de": "Tattoo",
+          "en": "Tattoo"
+        },
+        "text": {
+          "de": "Fine Line, naiv, mit Humor. Flash mit Festpreis oder deine eigene Idee – Anfragen per Mail oder DM, gestochen wird im Privatstudio in Berlin.",
+          "en": "Fine line, naive, with a sense of humour. Flash with fixed prices or your own idea – ask by email or DM, tattooed in a private studio in Berlin."
+        },
+        "cocoPose": "head_tilt",
+        "ornament": "planet",
+        "link": {
+          "target": "tattoo",
+          "label": {
+            "de": "Zum Tattoo-Bereich",
+            "en": "Go to tattoos"
+          }
+        }
+      },
+      {
+        "blockType": "station",
+        "stationId": "jutta-und-coco",
+        "heading": {
+          "de": "Jutta & Coco",
+          "en": "Jutta & Coco"
+        },
+        "text": {
+          "de": "Werkstatt unter der Woche, Flohmarkt am Wochenende, Coco immer dabei. Und falls du eine eigene Idee hast: Auftragsarbeiten gehen auch.",
+          "en": "Workshop during the week, flea market at the weekend, Coco always along. And if you've got your own idea: commissions are possible too."
+        },
+        "cocoPose": "sit",
+        "ornament": "star",
+        "link": {
+          "target": "about",
+          "label": {
+            "de": "Mehr über uns",
+            "en": "More about us"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "key": "contact",
+    "title": {
+      "de": "Kontakt",
+      "en": "Contact"
+    },
+    "layout": [
+      {
+        "blockType": "richText",
+        "content": {
+          "de": "Am schnellsten erreichst du mich per Mail. Auf Instagram bin ich auch – schreib mir gern eine DM.",
+          "en": "The quickest way to reach me is by email. I'm on Instagram too – feel free to send a DM."
+        }
+      },
+      {
+        "blockType": "contactLinks",
+        "heading": {
+          "de": "Schreib mir",
+          "en": "Write to me"
+        },
+        "showEmail": true,
+        "showInstagram": true,
+        "showDistrict": true,
+        "emailSubject": {
+          "de": "Hallo Jutta",
+          "en": "Hi Jutta"
+        }
+      },
+      {
+        "blockType": "callout",
+        "text": {
+          "de": "Frage zu einer Bestellung? Nenn bitte deine Bestellnummer. Tattoo-Anfragen bitte per Mail oder DM, eigene Ideen für Keramik und Co. über das Formular bei den Auftragsarbeiten.",
+          "en": "Question about an order? Please include your order number. Tattoo requests by email or DM, please; custom ideas for ceramics and more via the commissions form."
+        },
+        "tone": "info"
+      },
+      {
+        "blockType": "faqList",
+        "heading": {
+          "de": "Shop",
+          "en": "Shop"
+        },
+        "category": "shop"
+      },
+      {
+        "blockType": "faqList",
+        "heading": {
+          "de": "Versand",
+          "en": "Shipping"
+        },
+        "category": "shipping"
+      }
+    ]
+  }
+]

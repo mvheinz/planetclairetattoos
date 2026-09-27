@@ -1,0 +1,54 @@
+name: CI full
+
+# ARCHITEKTUR §6.2/§6.4 – Gerüst aus P1.33: in P1 nur per Hand (`workflow_dispatch`), nie bei push auf main.
+# P2 ergänzt den Auslöser `pull_request` (wie ci.yml), die Kennungs-Auswertung des PR-Kopf-Commits und füllt die Jobs
+# `e2e-full`, `quality` und `snapshots`.
+on:
+  workflow_dispatch:
+    inputs:
+      update_snapshots:
+        description: 'Referenzbilder neu erzeugen (Job snapshots, §7.6)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: ci-full-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  mode:
+    name: mode
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      full: ${{ steps.mode.outputs.full }}
+      phase: ${{ steps.mode.outputs.phase }}
+      snapshots: ${{ steps.mode.outputs.snapshots }}
+    steps:
+      # Kennung (§6.2): bei workflow_dispatch gelten die Eingaben statt der Commit-Nachricht.
+      - name: Kennung
+        id: mode
+        run: |
+          if [ "${{ inputs.update_snapshots }}" = "true" ]; then
+            echo "full=false" >> "$GITHUB_OUTPUT"
+            echo "snapshots=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "full=true" >> "$GITHUB_OUTPUT"
+            echo "snapshots=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "phase=px" >> "$GITHUB_OUTPUT"
+
+  e2e-full:
+    name: e2e-full
+    needs: mode
+    if: needs.mode.outputs.full == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      # Skelett: P2 ergänzt Postgres-Service, Umgebung wie ci.yml, Build mit NEXT_PUBLIC_LEASH_DEBUG=1 und alle
+      # Playwright-Projekte (desktop, iphone-15 mit WebKit, pixel-7) ohne @visual/@perf, inkl. @a11y und @privacy.
+      - name: Gerüst
+        run: echo "e2e-full ist ein Gerüst (P1.33) – P2 füllt diesen Job." >> "$GITHUB_STEP_SUMMARY"

@@ -109,6 +109,7 @@ aus §10–§13 dieses Dokuments); DNS-Umstellung und Start-Checkliste für P11 
 | `zod` | 4.x | P1 | Validierung an allen Grenzen (§15) |
 | `date-fns`, `@date-fns/tz` | 4.x / 1.x | P1 | Berliner Kalendertage, Monatsgrenzen (`src/lib/time.ts`) |
 | `exifr` (dev) | aktuell | P1 | EXIF-Tests (R-135) |
+| `yaml` (dev) | 2.x | P1 | Workflow-Test `tests/unit/ci/workflows.unit.spec.ts` parst `.github/**/*.yml` (P1.33) |
 | `next-intl` | 4.x (≥ 4.14) | P2 | Routing DE/EN, Nachrichten; `localeCookie: false` (R-130) |
 | `@fontsource/mansalva`, `@fontsource-variable/bricolage-grotesque`, `@fontsource/ibm-plex-mono` | aktuell | P2 | nur Quelle für das Kopierskript nach `src/styles/fonts/` (DESIGN §4.1) |
 | `subset-font` (dev) | aktuell | P2 | Schrift-Subsetting in `pnpm fonts:copy` (harfbuzz-wasm, ohne Python): beschneidet Bricolage bei Bedarf auf `wght 400–700` (DESIGN §4.1); Skripte bleiben TypeScript über `tsx` |
@@ -512,7 +513,11 @@ Regeln:
   `writeJson(key, value)`; `local` → `.data/<key>`, `s3` → Bucket `S3_PRIVATE_BUCKET`, Präfix `system/`.
 - **Lokaler S3-Test:** `docker compose --profile s3 up -d` startet MinIO (`minio/minio`, Port 9000/9001) und legt per
   `minio/mc` die Buckets `pct-media-dev` und `pct-private-dev` an (P1 ergänzt das Profil in `docker-compose.yml`).
-  Kontrakttest DM-PRIV-01 läuft mit `STORAGE_DRIVER=s3` gegen MinIO, wenn erreichbar.
+  Kontrakttest DM-PRIV-01 läuft mit `STORAGE_DRIVER=s3` gegen MinIO, wenn erreichbar. Der Test (`tests/int/adapters/storage.contract.int.spec.ts`)
+  baut dafür eine eigene Payload-Instanz in einem eigenen Postgres-Schema; Ziel über `S3_TEST_ENDPOINT` (Standard
+  `http://127.0.0.1:9000`, Zugang `S3_TEST_ACCESS_KEY_ID`/`S3_TEST_SECRET_ACCESS_KEY`, Standard `minioadmin`), nur lokale Hosts.
+  Umsetzung: `src/lib/storage/` (`uploadStorage(area)` für die Collection, `storagePlugins()`, `systemFiles.ts`,
+  `signed.ts`); bei `local` liefert ein eigener Datei-Handler die Datei mit den dokumentabhängigen Cache-Headern aus.
 
 ### 3.4 E-Mail (`EMAIL_DRIVER`)
 
@@ -550,6 +555,10 @@ export interface EmailAdapter {
   ignoriert und ein Fehler geloggt.
 - Versand läuft über das Outbox-Muster (DATENMODELL §1.5): `email-log`-Zeile + Job `sendEmail` in derselben Transaktion,
   nach dem Commit sofortiger Versuch; Wiederholungen über den Job-Wecker (§9.6).
+- Umsetzung (P1.9): Unterdrückung und Umleitung wirken im Transport (`createMailTransport`, nodemailer-`compile`-Schritt
+  plus vorgeschalteter Transport), damit auch Payloads eigene Mails (Passwort-Reset) sie einhalten; unterdrückte Mails
+  bauen keine Verbindung auf. Kontrakttest `tests/int/adapters/email.contract.int.spec.ts` prüft alle Treiber, SMTP gegen
+  einen lokalen Fake-Server (`smtp-server`, nur Test).
 
 ### 3.5 Zahlung (`PAYMENTS_DRIVER`)
 
@@ -1269,7 +1278,7 @@ Migration, §6.7 Nr. 5), sonst Hotfix-PR. Details im RUNBOOK (P10).
 | CI-Hilfen | `ci:minutes` (`scripts/ci/minutes.ts`, Minuten-Wächter §6.8, P1.33a; gleichwertig `pnpm exec tsx scripts/ci/minutes.ts`), `ci:artifacts` (`scripts/ci/artifact-budget.ts`, Budget-Schritt §6.2, P1) |
 | Prüfungen | `check` (= `lint` + `typecheck` + `check:static` + `test:unit`), `check:static` (`scripts/check-static.ts`; Teilprüfungen u. a. Versionen, `.env.example`, i18n-Parität, Routen-Registry, Stripe-Importe, Fremd-URLs, Aktualität von `src/lib/legal/services.generated.ts`), `check:versions` (`scripts/check-versions.ts`, §1.3; auch Teil von `check:static`), `check:migrations` (`scripts/check-migration-drift.ts`), `check:bundle`, `check:external`, `check:no-debug`, `check:golive` (Startklar-Prüfung R-210/KONZEPT §7.16/DATENMODELL §13.7, Exit-Code ≠ 0 bei jedem roten Punkt; P10), `env:example` (`scripts/gen-env-example.ts`) |
 | Tests | `test` (= `test:unit` + `test:int`), `test:unit`, `test:int`, `test:e2e`, `test:visual`, `test:perf`, `test:preview-export`, `test:coverage` |
-| Daten | `seed` (= `seed:base` + `seed:example`), `seed:base`, `seed:example [--only=<collection,…>] [--refresh-media]`, `seed:remove [--yes] [--drop-texts]` (ohne `--yes` nur Mengenvorschau), `seed:reset` (= `seed:remove --yes --drop-texts` + `seed:base` + `seed:example`; nur Entwicklung, Test, Vorschau-Export), `seed:import-instagram` (`scripts/seed/import-instagram.ts`, P8), `db:ensure`, `db:reset --test [--seed=base\|all]` (nur dev/test), `db:mark-production`, `media:regenerate` |
+| Daten | `seed` (= `seed:base` + `seed:example`), `seed:base`, `seed:example [--only=<collection,…>] [--refresh-media]`, `seed:remove [--yes] [--drop-texts]` (ohne `--yes` nur Mengenvorschau), `seed:reset` (= `seed:remove --yes --drop-texts` + `seed:base` + `seed:example`; nur Entwicklung, Test, Vorschau-Export), `seed:import-instagram` (`scripts/seed/import-instagram.ts`, P8), `db:ensure`, `db:reset --test [--seed=none\|base\|all]` (Standard `base`) (nur dev/test), `db:mark-production`, `media:regenerate` |
 | Betrieb | `jobs:run [task] [--now=<ISO>]` (`scripts/jobs-run.ts`), `admin:create`, `admin:unlock` (`scripts/admin-*.ts`), `backup:run`, `backup:restore`, `backup:verify`, `retention:replay`, `payments:reconcile [--since=<ISO>]`, `stripe:fixture <name>` |
 | Vorschau/Kunst | `preview:export`, `fonts:copy` (`scripts/fonts/copy.ts`: WOFF2 kopieren, bei Bedarf per `subset-font` beschneiden, ab P3 TTF für OG-Bilder per WOFF2→TTF-Wandler, §1.2, DESIGN §4.1), `art:build`, `art:record`, `art:metrics`, `art:sheets`, `art:check`, `art:bundle`, `art:vectorize`, `art:sprite` (KUNST-QA §3.3), `art:coco-refs` (`scripts/art/coco-refs.ts`, P8), `art:placeholders` (`scripts/art/placeholders.ts`, P8) |
 | Doku | `handbook:shots` (`scripts/handbook/shots.ts`, P10) |
@@ -1317,7 +1326,12 @@ ab 1.500 Minuten `MINUTEN_STATUS=knapp`, ab 2.000 `erschoepft` und bei einem API
 
 - **Datenbank:** `pnpm test:int` und `pnpm test:e2e` rufen vorher `db:ensure` und `db:reset --test` (Schema `public` leeren,
   `payload migrate`, eigenes SQL, `seed:base`; E2E zusätzlich `seed:example`) gegen `DATABASE_URL_TEST`. Der Reset verweigert
-  jede DB, deren Name nicht auf `_test` endet oder die als Produktion markiert ist (§4.8).
+  jede DB, deren Name nicht auf `_test` endet oder die als Produktion markiert ist (§4.8); Namensregel und `APP_ENV`
+  prüft er vor dem Verbindungsaufbau.
+- **Int-Tests unabhängig von der Reihenfolge:** Das globale Vitest-Setup sichert den Stand nach dem Reset in das Schema
+  `pc_test_baseline`; vor jeder Int-Testdatei stellt `tests/int/setup/restore.ts` ihn wieder her (Tabellen leeren,
+  Daten und Sequenzstände zurückspielen). Jede Datei beginnt so im Zustand „nach `db:reset --test`“ – auch in CI, wo die
+  Reihenfolge der Dateien mangels Vitest-Cache eine andere ist als lokal.
 - **E2E-Fixtures:** Tests, die Stücke kaufen/reservieren, legen eigene Stücke im Seed-Nummernbereich `980–999` an
   (`tests/e2e/fixtures.ts`, Local API, `seed=true`) und setzen sie vor jedem Test zurück; der P8-Beispielbestand bleibt
   unverändert (für Screenshots und Export).
@@ -2595,15 +2609,15 @@ Kein Spike darf die Phase blockieren: Scheitert das Soll, wird ohne Rückfrage d
 
 | ID | Phase | Frage | Soll | Erfolgskriterium | Rückfallebene | Ergebnis |
 |---|---|---|---|---|---|---|
-| B-01 | P1 | Läuft die Payload-Verwaltung unter `ADMIN_ROUTE` per Proxy-Umschreibung auf den internen Ordner `admin/` – und mit Nonce-CSP (§8.1 Kontext `admin`)? | §8.4, §8.1 | AK-A-8-02; Login, Listen, Bearbeiten, eigene Ansichten, Passwort-Reset-Link, Manifest und Service Worker funktionieren unter `/werkstatt` ohne CSP-Verstoß | Pfad: Ordner heißt wie der Pfad (`src/app/(payload)/werkstatt/`), Startprüfung „Ordner = `ADMIN_ROUTE`“, Produktionspfad per Umbenennung in P11. CSP: `script-src 'self' 'unsafe-inline'` nur im Kontext `admin` (Hosts bleiben `'self'`; R-131, Kanzleifrage K-41), ADR | offen |
-| B-02 | P1 | Funktioniert `@payloadcms/storage-s3` doppelt (öffentlich/privat) inkl. Präfix `private/invoices/` je Dokument und `signedDownloads` 300 s? | §3.3 | DM-PRIV-01 gegen MinIO grün; private Datei nur per signierter URL, nach Ablauf 403 | eine Instanz für alle Collections + eigener Download-Handler mit `@aws-sdk/s3-request-presigner`; Rechnungen notfalls eigener Bucket (C-06) | offen |
+| B-01 | P1 | Läuft die Payload-Verwaltung unter `ADMIN_ROUTE` per Proxy-Umschreibung auf den internen Ordner `admin/` – und mit Nonce-CSP (§8.1 Kontext `admin`)? | §8.4, §8.1 | AK-A-8-02; Login, Listen, Bearbeiten, eigene Ansichten, Passwort-Reset-Link, Manifest und Service Worker funktionieren unter `/werkstatt` ohne CSP-Verstoß | Pfad: Ordner heißt wie der Pfad (`src/app/(payload)/werkstatt/`), Startprüfung „Ordner = `ADMIN_ROUTE`“, Produktionspfad per Umbenennung in P11. CSP: `script-src 'self' 'unsafe-inline'` nur im Kontext `admin` (Hosts bleiben `'self'`; R-131, Kanzleifrage K-41), ADR | Ergebnis Pfad: Soll erfüllt – `src/proxy.ts` (Next 16, Node-Laufzeit) schreibt `ADMIN_ROUTE/*` intern auf den Ordner `admin/` um, `/admin` und `/admin/*` antworten mit 404 ohne Weiterleitung (`/admin/` normalisiert Next per 308 auf `/admin` → 404); `routes.admin = ADMIN_ROUTE`, `admin.importMap.importMapFile` zeigt fest auf `app/(payload)/admin/importMap.js`. Login, Übersicht, Liste, Bearbeiten, Weiterleitung auf `/werkstatt/login` und Passwort-Reset-Link `/werkstatt/reset/<token>` funktionieren mit `pnpm dev` und `pnpm start` (Desktop, iPhone 15/WebKit, Pixel 7); der Pfad steht in keiner Datei unter `.next/static` (`pnpm check:external --built`). GraphQL-Routen entfernt (`/api/graphql` → 404). Manifest/Service Worker (PWA) prüft P5.29, den CSP-Teil (Nonce, §8.1 Kontext `admin`) P2.12 (`tests/e2e/admin-route.e2e.spec.ts`, `tests/e2e/admin.e2e.spec.ts`), 27.09.2026, PR #1 |
+| B-02 | P1 | Funktioniert `@payloadcms/storage-s3` doppelt (öffentlich/privat) inkl. Präfix `private/invoices/` je Dokument und `signedDownloads` 300 s? | §3.3 | DM-PRIV-01 gegen MinIO grün; private Datei nur per signierter URL, nach Ablauf 403 | eine Instanz für alle Collections + eigener Download-Handler mit `@aws-sdk/s3-request-presigner`; Rechnungen notfalls eigener Bucket (C-06) | Ergebnis: Soll erfüllt – zwei Instanzen `@payloadcms/storage-s3` 3.90.2 (`clientCacheKey` je Bucket, `alwaysInsertFields` für gleiches Schema bei `local`), Dokument-Präfix `private/invoices/<Jahr>` wird übernommen, Dateiroute leitet nur die Verwaltung per 302 auf eine signierte URL (300 s) um, anonym 403, abgelaufene Signatur 403; geprüft gegen einen MinIO-kompatiblen Dienst (RustFS, weil das Image `minio/minio` hier nicht erhältlich war), R2 selbst in P11 (`tests/int/adapters/storage.contract.int.spec.ts`), 27.09.2026, PR #1 |
 | B-03 | P2 | Lässt sich `script-src` auf statischen Seiten ohne `'unsafe-inline'` betreiben (`experimental.sri`, Inline-Daten von Next)? | §8.1 Kontext `public` | alle öffentlichen Routen ohne CSP-Verstoß in E2E, Seiten bleiben statisch | `'unsafe-inline'` im Kontext `public` (Hosts bleiben auf `'self'` beschränkt, R-131 erfüllt), ADR | offen |
 | B-04 | ab P2, optional | Bringen Cache Components (`cacheComponents: true`) Vorteile ohne Nebenwirkungen? | nein, `unstable_cache` bleibt (§9.2) | Build, Verwaltung und alle Tests grün, messbar besseres LCP/TTFB | Soll beibehalten | offen |
 | B-05 | P3 | Bleiben Listen-Varianten (`?available=1&page=2`) per Proxy-Umschreibung statisch? | §9.1 | AK-A-9-03 | dynamisches Rendern mit Daten-Cache, nur wenn T-10 (LCP) grün bleibt | offen |
 | B-06 | P10 | Reicht der eigene COPY-Dump auf Vercel (Speicher, 300 s, Streaming von age)? | §10.3 | AK-A-10-01 bis -05; zehnfacher Beispielbestand in < 60 s und < 512 MB Speicher | gebündeltes statisches `pg_dump` 17 (`outputFileTracingIncludes`) + `pg_restore`; zweite Ebene: Neon-Wiederherstellung + Backup über den Docker-Pfad | offen |
 | B-07 | P4 | Erlaubt die gepinnte Stripe-API-Version `checkout.sessions.update` mit neuen `shipping_options` bei `ui_mode: 'elements'`? | `updateShipping` → `updated` | Test im Stripe-Testmodus (falls Test-Schlüssel als API-Credential vorhanden) oder Parameter-Test gegen stripe-mock + Doku der gepinnten Version | `recreate_required`: alte Session beenden, neue mit derselben Reservierung (§3.5) | offen |
 | B-08 | P10 | Baut das Docker-Image ohne DB, und rendern die Seiten dann zur Laufzeit korrekt? | §13.2 (`BUILD_WITHOUT_DB=1`, `connection()`) | AK-A-13-01, AK-A-13-02 | Build im Compose-Netz mit laufender, migrierter DB (`DATABASE_URL` als Build-Argument einer Wegwerf-DB) | offen |
-| B-09 | P1 | Stellen `payload.jobs.handleSchedules()` und `payload.jobs.run()` in 3.90.2 die in §9.6 angenommenen Funktionen bereit (auch mit injizierter Zeit)? | §9.6 | Int-Test: geplanter Task wird durch einen Tick mit vorgestellter Uhr eingereiht und ausgeführt | eigene Tabelle `job_schedules (task, next_run_at)` und Einreihen im Tick | offen |
+| B-09 | P1 | Stellen `payload.jobs.handleSchedules()` und `payload.jobs.run()` in 3.90.2 die in §9.6 angenommenen Funktionen bereit (auch mit injizierter Zeit)? | §9.6 | Int-Test: geplanter Task wird durch einen Tick mit vorgestellter Uhr eingereiht und ausgeführt | eigene Tabelle `job_schedules (task, next_run_at)` und Einreihen im Tick | Ergebnis: Soll erfüllt – `handleSchedules({ allQueues, req })`, `run({ allQueues, limit, where, req })`, `runByID`, `queue`, `cancel` vorhanden; ein stündlich geplanter Test-Task wird bei vorgestellter Uhr (`Date` gefälscht) mit `waitUntil` = nächste volle Stunde eingereiht, erst danach ausgeführt, nicht doppelt eingereiht; `req.context` (injizierte Zeit `now`) erreicht den Task. Hinweis: erledigte Jobs löscht Payload standardmäßig (`deleteJobOnComplete`) – das Lauf-Protokoll (P5.3) braucht eine eigene Ablage (`tests/int/spikes/b09-jobs.int.spec.ts`), 27.09.2026, PR #1 |
 
 ---
 

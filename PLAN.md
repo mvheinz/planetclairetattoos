@@ -162,7 +162,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
 
 ### Aufgaben
 
-- [ ] **P1.1 Gerüst-Abweichungen beheben und Werkzeugregeln** – Erste Aufgabe der Phase (ARCHITEKTUR Anhang C-14 Nr. 4,
+- [x] **P1.1 Gerüst-Abweichungen beheben und Werkzeugregeln** – Erste Aufgabe der Phase (ARCHITEKTUR Anhang C-14 Nr. 4,
   §1.3, §15). `ci.yml` und Test-Helfer folgen in P1.1a, Versionsprüfung und Next.js-Patch in P1.1b.
   - Prüfen, dass der P0-Stand noch gilt, sonst korrigieren (bereits in P0 erledigt, nicht neu bauen):
     - `.gitattributes` mit `* text=auto eol=lf` und Binärtypen (u. a. `png jpg jpeg webp avif gif ico pdf woff woff2`);
@@ -193,7 +193,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     virtuellen `src/`-Pfaden auf; im Repo liegen keine absichtlich fehlerhaften Dateien.
   - Ohne Jutta: –
 
-- [ ] **P1.1a `ci.yml` und Test-Helfer** – ARCHITEKTUR Anhang C-14 Nr. 1 und 3, §6.3.
+- [x] **P1.1a `ci.yml` und Test-Helfer** – ARCHITEKTUR Anhang C-14 Nr. 1 und 3, §6.3.
   - `ci.yml` nach ARCHITEKTUR §6.3 (C-14 Nr. 3): Job `checks` heißt `quick` (Pflicht-Check „CI / quick“, Workflow-Name
     `CI` bleibt); Auslöser nur `pull_request` (Typen `opened`, `synchronize`, `reopened`, `ready_for_review`) und
     `workflow_dispatch` – der P0-Auslöser `push` auf `main` entfällt (Arbeitsregeln oben, ARCHITEKTUR §6.2);
@@ -215,7 +215,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: Die YAML-Prüfung deckt ab P1.33 `tests/unit/ci/workflows.unit.spec.ts` ab; bis dahin lokales Parsen.
   - Ohne Jutta: –
 
-- [ ] **P1.1b Versionsprüfung und Next.js-Patch** – ARCHITEKTUR §1.1, §1.3, Anhang C-14 Nr. 5.
+- [x] **P1.1b Versionsprüfung und Next.js-Patch** – ARCHITEKTUR §1.1, §1.3, Anhang C-14 Nr. 5.
   - `scripts/check-versions.ts` (`pnpm check:versions`, ARCHITEKTUR §1.3, §6.10): alle `@payloadcms/*` = `payload`,
     `eslint-config-next` = `next`, `react` = `react-dom`, keine `^`/`~` bei Laufzeit-Abhängigkeiten. Ab P1.3 läuft es
     zusätzlich als Teilprüfung `versions` von `pnpm check:static` und damit in `pnpm check`.
@@ -238,7 +238,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     mit injiziertem Datum (Fehler bei Versionsabweichung, Warnung am Stichtag).
   - Ohne Jutta: –
 
-- [ ] **P1.2 Spezifikationsabgleich prüfen und offene Punkte übernehmen** – Die W-Liste oben als Zeilen in
+- [x] **P1.2 Spezifikationsabgleich prüfen und offene Punkte übernehmen** – Die W-Liste oben als Zeilen in
   `docs/OFFENE-PUNKTE.md` eintragen (Spalte „Thema“ beginnt mit der W-ID, Status „gilt (Plan)“). Die Annahmen aus
   ARCHITEKTUR Anhang C (C-xx), DATENMODELL §16 (DM-xx), DESIGN Anhang A.1 (DA-x), KONZEPT Anhang A (KA-xx) und
   SEED-SPEC §20 (SE-xx) übernehmen – je Zeile mit ihrer ID, Dubletten zusammengeführt, Status „Annahme gilt“ (P8.1
@@ -275,7 +275,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     in `docs/OFFENE-PUNKTE.md` vorkommt.
   - Ohne Jutta: Jutta geht die Liste in P11 durch (A30/A31); nichts blockiert.
 
-- [ ] **P1.3 Umgebungsvariablen, Start-Prüfung und `check:static`** – `src/lib/env.ts` (mit `import 'server-only'`)
+- [x] **P1.3 Umgebungsvariablen, Start-Prüfung und `check:static`** – `src/lib/env.ts` (mit `import 'server-only'`)
   enthält ein zod-4-Schema **aller** Variablen aus ARCHITEKTUR §5.2. Auch spätere Phasen sind enthalten, dann optional.
   Jede Variable hat `.describe()`, einen Standardwert, eine Geheimnis-Kennung und „Seit“.
   - Neu in P1 (Spalte „Seit“ in §5.2): `APP_ENV`, `DATABASE_URL_UNPOOLED`, `DATABASE_URL_TEST`, `DB_POOL_MAX`,
@@ -327,7 +327,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - Lint-Regeltest aus P1.1 um `process.env` erweitert.
   - Ohne Jutta: Nur Testwerte. Echte Werte setzt P11 (A25, A33).
 
-- [ ] **P1.4 Basis-Module: Zeit, Geld, Logger, Enums** –
+- [x] **P1.4 Basis-Module: Zeit, Geld, Logger, Enums** –
   - `src/lib/time.ts` (ARCHITEKTUR §3.9, A-08): `APP_TIME_ZONE = 'Europe/Berlin'`, `type Clock = { now(): Date }`,
     `systemClock`, `fixedClock(iso)`, `berlinDayStart(d)`, `berlinMonthRange(yyyyMm)`, `addBerlinDays(d, n)`,
     `formatBerlin(d, pattern, locale)`; zusätzlich `berlinYear(d)` und `berlinMonthKey(d)`. Die Uhr wird übergeben
@@ -358,7 +358,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: unit `tests/unit/lib/{time,money,logger,enums,keys}.unit.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P1.5 Datenbank-Werkzeuge, Test-Infrastruktur, Migrationsregeln** –
+- [x] **P1.5 Datenbank-Werkzeuge, Test-Infrastruktur, Migrationsregeln** –
   - `scripts/db-ensure.ts` (`db:ensure`) legt die Datenbanken aus `DATABASE_URL`/`DATABASE_URL_TEST` an, falls sie
     fehlen.
   - `scripts/db-reset.ts` (`db:reset --test`) arbeitet nur, wenn der DB-Name auf `_test` endet, `APP_ENV ≠ production`
@@ -392,7 +392,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - unit `tests/unit/setup/network-guard.unit.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P1.6 Zugriffsschicht, Kontext-Flags, öffentliche Lesezugriffe, Feldbausteine** –
+- [x] **P1.6 Zugriffsschicht, Kontext-Flags, öffentliche Lesezugriffe, Feldbausteine** –
   - `src/access/index.ts`: `isAdmin`, `none`, `publicRead(where)`, `adminField` (DATENMODELL §1.4). `publicRead` hängt
     `{ seed: { equals: false } }` an, wenn `SEED_PREVIEW_MODE !== 'true'`.
   - `src/lib/payload/context.ts`: Typ `AppContext` mit `system`, `transition`, `seed`, `skipAudit`, `translation`, dazu
@@ -422,7 +422,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - unit `tests/unit/fields/seed-field.unit.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P1.7 Protokoll-Collections und Audit** – Laut DATENMODELL §6.21–§6.24 und §6.27: `src/collections/AuditLog.ts`,
+- [x] **P1.7 Protokoll-Collections und Audit** – Laut DATENMODELL §6.21–§6.24 und §6.27: `src/collections/AuditLog.ts`,
   `EmailLog.ts`, `ConsentLog.ts`, `WebhookEvents.ts` und `DeletionLog.ts` (`deletion-log`, L-18: ohne Inhalte, Namen
   oder E-Mail-Adressen).
   - Zugriff: `create: none`, Lesen nur Admin, `update`/`delete` gesperrt. Unveränderliche Felder werden per Hook
@@ -447,7 +447,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - unit `tests/unit/retention/policy.unit.spec.ts` (L-IDs im Titel).
   - Ohne Jutta: –
 
-- [ ] **P1.8 Speicher-Adapter und Spike B-02** – `src/lib/storage/` laut ARCHITEKTUR §3.1/§3.3 (`import 'server-only'`,
+- [x] **P1.8 Speicher-Adapter und Spike B-02** – `src/lib/storage/` laut ARCHITEKTUR §3.1/§3.3 (`import 'server-only'`,
   Auswahl nur über `STORAGE_DRIVER`): Speicher-Konfiguration für die Payload-Uploads, signierte URLs und
   `systemFiles.ts` (`readJson(key)`, `writeJson(key, value)`; `local` → `.data/<key>`, `s3` → `S3_PRIVATE_BUCKET`,
   Präfix `system/`).
@@ -472,7 +472,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: int `tests/int/adapters/storage.contract.int.spec.ts` (R-136).
   - Ohne Jutta: MinIO statt R2. P11: R2-Buckets und Schlüssel (A25, A33).
 
-- [ ] **P1.9 E-Mail-Adapter, Outbox, Jobs-Grundgerüst und Spike B-09** –
+- [x] **P1.9 E-Mail-Adapter, Outbox, Jobs-Grundgerüst und Spike B-09** –
   - `src/lib/email/{types,index,file,smtp,memory,log}.ts` (ARCHITEKTUR §3.4; `@payloadcms/email-nodemailer` und
     `nodemailer` exakt gepinnt).
   - Eine Transport-Fabrik `createMailTransport(env)` für alle Treiber; `file` schreibt `.eml` + `.json` nach
@@ -513,7 +513,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - unit `tests/unit/jobs/slugs.unit.spec.ts`.
   - Ohne Jutta: `EMAIL_DRIVER=file`. P11: Lettermint-SMTP (A25, A33).
 
-- [ ] **P1.10 Adapter für Zahlung, Übersetzung und Versand (Schnittstellen und Mocks)** –
+- [x] **P1.10 Adapter für Zahlung, Übersetzung und Versand (Schnittstellen und Mocks)** –
   - `src/lib/payments/types.ts` und `index.ts` (`getPaymentsAdapter()`), Treiber-Ordner `mock/` und `stripe/`:
     `PaymentsAdapter`-Schnittstelle vollständig laut ARCHITEKTUR §3.5 (Sitzung anlegen/abrufen/beenden, Versand
     aktualisieren, Erstattung, Webhook prüfen, Ereignisse und Gebühren abrufen; Eingabe `checkoutRef`, nie ein Token).
@@ -537,7 +537,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - `payments` gegen `stripe-mock`, nur wenn erreichbar.
   - Ohne Jutta: Mocks. P11: Stripe- und DeepL-Schlüssel (A09, A23, A24, A25).
 
-- [ ] **P1.11 Konto `users`: ein Admin, Sperre, Rate-Limits, Admin-CLI** – `src/collections/Users.ts` laut DATENMODELL
+- [x] **P1.11 Konto `users`: ein Admin, Sperre, Rate-Limits, Admin-CLI** – `src/collections/Users.ts` laut DATENMODELL
   §6.1.
   - Es gibt genau ein Konto (E-03): Access `create` nur, solange noch kein Konto existiert (Ersteinrichtung/Grund-Seed);
     der `beforeChange`-Hook lehnt jedes zweite Konto ab, auch über die Local API. `read`/`update` nur das eigene Konto,
@@ -573,7 +573,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     `admin_password_reset`).
   - Ohne Jutta: Test-Admin aus `SEED_ADMIN_*`. P11: Jutta legt ihr Konto selbst an (A33).
 
-- [ ] **P1.12 Verwaltungspfad (Spike B-01), GraphQL entfernen, Health-Endpunkt** –
+- [x] **P1.12 Verwaltungspfad (Spike B-01), GraphQL entfernen, Health-Endpunkt** –
   - `src/proxy.ts` schreibt `ADMIN_ROUTE/*` intern auf den Ordner `src/app/(payload)/admin/` um; `/admin` und
     `/admin/*` liefern 404 (ARCHITEKTUR §8.4).
   - `routes.admin` wird aus `getEnv()` gesetzt, damit Links, Passwort-Reset und Weiterleitungen den richtigen Pfad
@@ -602,7 +602,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - Build-Prüfung in `scripts/check-external.ts --built` auf den Pfad-String (Grundgerüst, P2 erweitert).
   - Ohne Jutta: Produktionspfad wählt P11 (A33).
 
-- [ ] **P1.13 `media` und Bildpipeline** – `src/collections/Media.ts` laut DATENMODELL §6.2 und DESIGN §12.2 (Schritte 1–3,
+- [x] **P1.13 `media` und Bildpipeline** – `src/collections/Media.ts` laut DATENMODELL §6.2 und DESIGN §12.2 (Schritte 1–3,
   7, 8).
   - `beforeOperation`: `sharp(buffer).rotate().toColourspace('srgb')` wendet die Orientierung an und wandelt in sRGB;
     die Neukodierung entfernt alle Metadaten (EXIF, GPS, XMP, IPTC); das Original wird als WebP q90 in maximal
@@ -634,7 +634,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: int `tests/int/collections/media.int.spec.ts` (DM-MEDIA-01…04, R-135, T-05). DM-MEDIA-05 folgt in P1.16.
   - Ohne Jutta: Fixtures und Instagram-Ausschnitte (E-64). Volle Auflösung kommt mit dem Export (A04, A06).
 
-- [ ] **P1.14 `documents`, `private-uploads` und Aufbewahrungsmodul** – `src/collections/Documents.ts` (öffentliche PDFs,
+- [x] **P1.14 `documents`, `private-uploads` und Aufbewahrungsmodul** – `src/collections/Documents.ts` (öffentliche PDFs,
   §6.3) und `src/collections/PrivateUploads.ts` (§6.4).
   - `private-uploads` nutzt die private Speicher-Instanz (`.data/private` bzw. `S3_PRIVATE_BUCKET`), ausgeliefert nur
     angemeldet (signiert, ≤ 300 s); max. 10 MB je Datei.
@@ -655,7 +655,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: int `tests/int/collections/private-uploads.int.spec.ts` (DM-PRIV-01/-02, R-136, R-135).
   - Ohne Jutta: –
 
-- [ ] **P1.25 Globals `settings` und `site-texts`** – `src/globals/Settings.ts` und `SiteTexts.ts` laut DATENMODELL §7.
+- [x] **P1.25 Globals `settings` und `site-texts`** – `src/globals/Settings.ts` und `SiteTexts.ts` laut DATENMODELL §7.
   Steht direkt hinter P1.14, weil Stücke, Veröffentlichungsprüfung, Belege und Rechtstexte `settings` brauchen.
   - Validierungen je Feld; `versions: { max: 50 }`.
   - Audit `settings_changed` mit maskiertem Diff, `tax_mode_changed` mit Bestätigungsfeld „mit Steuerberatung
@@ -687,7 +687,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: int `tests/int/globals/settings.int.spec.ts` (R-032); unit `tests/unit/legal/constants.unit.spec.ts`.
   - Ohne Jutta: Platzhalter laut Grund-Seed (DATENMODELL §13.1) und die Beispiel-IBAN. P11: A11, A12, A26.
 
-- [ ] **P1.15 `categories` und `conformity-declarations`** –
+- [x] **P1.15 `categories` und `conformity-declarations`** –
   - `src/collections/Categories.ts` laut DATENMODELL §6.5: 6 feste Keys, lokalisierte Slugs (DE `keramik`, `textil`,
     `caps`, `zeichnungen`, `schmuck`, `sonstiges`; EN `ceramics`, `textiles`, `caps`, `drawings`, `jewellery`,
     `other`), `create`/`delete` = `none`, `key` unveränderlich, `revalidateTag('categories')`. Slugs werden nie im Code
@@ -705,7 +705,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: int `tests/int/collections/categories.int.spec.ts`, `conformity.int.spec.ts` (R-044).
   - Ohne Jutta: Alle Keramik bleibt `deko` (E-15). P11: Glasur-Nachweise (A18).
 
-- [ ] **P1.16 `products`: Felder, Tabs, Bedingungen, Voreinstellungen** – `src/collections/Products.ts` laut DATENMODELL
+- [x] **P1.16 `products`: Felder, Tabs, Bedingungen, Voreinstellungen** – `src/collections/Products.ts` laut DATENMODELL
   §6.6.1–§6.6.3, §6.6.8, §6.6.9; Feldnamen, Enums und Pflichtangaben ausschließlich aus DATENMODELL (u. a.
   `ownDesignConfirmed`, `vatCategory`/`vatReducedReason`, `hasDeviation`/`deviationDescription`). Dazu die Felder nach
   RECHT R-043–R-048 aus §6.6.1:
@@ -737,7 +737,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - unit `tests/unit/products/characteristics.unit.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P1.17 Objektnummern und Slug** – `src/lib/products/itemNumber.ts` laut DATENMODELL §6.6.4 und §6.6.8 (E-12,
+- [x] **P1.17 Objektnummern und Slug** – `src/lib/products/itemNumber.ts` laut DATENMODELL §6.6.4 und §6.6.8 (E-12,
   R-041):
   - `itemNumber` ist eine Ganzzahl 1–99999 und UNIQUE.
   - Sie ist unveränderlich, sobald `firstPublishedAt` gesetzt ist: Standardformular, REST und Local API ohne `seed`.
@@ -759,7 +759,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - int `tests/int/products/item-number.int.spec.ts` (DM-PROD-05, AK-7-03, R-041).
   - Ohne Jutta: –
 
-- [ ] **P1.18 Veröffentlichungsprüfung je Kategorie** – `src/lib/products/validate.ts` → `validateForPublish(product,
+- [x] **P1.18 Veröffentlichungsprüfung je Kategorie** – `src/lib/products/validate.ts` → `validateForPublish(product,
   ctx)` setzt die Tabelle DATENMODELL §6.6.6 um (inklusive der Regeln nach R-043–R-048). Sie läuft bei
   `draft → available`, `sold → available` und bei jedem Speichern mit `status ∈ {available, reserved}`. Fehler werden
   gesammelt, deutsch und mit Feldname. Die Lint-Listen V-13 und V-16 liegen in `src/lib/legal/forbidden.ts`.
@@ -799,7 +799,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - int `tests/int/products/publish-validation.int.spec.ts` (DM-PROD-01…04, DM-PROD-09, AK-7-01, R-042).
   - Ohne Jutta: Schmuck bleibt unveröffentlichbar, bis Nachweise da sind (A17). Glasur-Erklärungen: A18.
 
-- [ ] **P1.20 `checkouts`, `reservations` und `orders` (Schema)** – `src/collections/Checkouts.ts` (DATENMODELL
+- [x] **P1.20 `checkouts`, `reservations` und `orders` (Schema)** – `src/collections/Checkouts.ts` (DATENMODELL
   §6.25), `Reservations.ts` (§6.7) und `Orders.ts` (§6.8.1–§6.8.4, §6.8.6). Vor der Zahlung existiert nur die Kasse;
   eine Bestellung entsteht erst über `createOrderFromCheckout()` – bei Karte/PayPal durch `fulfillCheckout` als `paid`
   (O1/O19), bei Vorkasse sofort als `awaiting_prepayment` (O2). Es gibt keine Bestellstatus für abgebrochene oder
@@ -839,7 +839,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - unit `tests/unit/commerce/shipping.unit.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P1.21 `invoices`, `invoice-counters`, `withdrawals` (Schema)** – `src/collections/Invoices.ts` (§6.9),
+- [x] **P1.21 `invoices`, `invoice-counters`, `withdrawals` (Schema)** – `src/collections/Invoices.ts` (§6.9),
   `InvoiceCounters.ts` (§6.10) und `Withdrawals.ts` (§6.11).
   - Belege sind nach `issued` unveränderlich. Der GoBD-Trigger kommt in P1.26.
   - `src/lib/commerce/invoiceNumber.ts` vergibt Nummern über eine Zählerzeile mit Row-Lock (§8.6). Serien `RE`, `GS`,
@@ -864,7 +864,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - unit `tests/unit/tax/tax-mode.unit.spec.ts` (R-032).
   - Ohne Jutta: Kleinunternehmer-Modus (E-02). Steuer-Nummer folgt in P11 (A11, A12).
 
-- [ ] **P1.19 Produkt-Statusautomat, Admin-Endpunkte, EN-Status und Übersetzen** –
+- [x] **P1.19 Produkt-Statusautomat, Admin-Endpunkte, EN-Status und Übersetzen** –
   `src/lib/commerce/productTransitions.ts` (ARCHITEKTUR §2.1) mit der Tabelle `PRODUCT_TRANSITIONS` setzt DATENMODELL
   §6.6.7 um (Verhalten = KONZEPT §5.1 P1–P15). Steht hinter P1.20 und P1.21, weil `currentOrder`, `sell-offline` und
   P11/P13 Kassen und Bestellungen brauchen.
@@ -911,7 +911,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - int `tests/int/products/conformity-revoke.int.spec.ts` (R-044).
   - Ohne Jutta: DeepL-Schlüssel folgt in P11 (A25).
 
-- [ ] **P1.22 `legal-texts`: Fassungen, Aktivierung, Tokens** – `src/collections/LegalTexts.ts` laut DATENMODELL §6.12
+- [x] **P1.22 `legal-texts`: Fassungen, Aktivierung, Tokens** – `src/collections/LegalTexts.ts` laut DATENMODELL §6.12
   und RECHT R-002/R-012 (strengere Regel gilt).
   - Jede Fassung ist ein eigenes Dokument (Typen aus `LEGAL_TEXT_TYPES`: `impressum`, `datenschutz`, `agb`,
     `widerrufsbelehrung`, `widerrufsformular`, `versand-zahlung`), `status` `draft`/`scheduled`/`active`/`superseded`
@@ -947,7 +947,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     `tests/int/collections/orders.int.spec.ts` um DM-ORD-02 (`legalTextVersions`) erweitert.
   - Ohne Jutta: Platzhalter-Fassungen (R-002). Die Kanzlei-Texte folgen in P11 (A08, A28).
 
-- [ ] **P1.23 Tattoo-Collections: `flash`, `tattoo-offers`, `tattoo-gallery`** – Laut DATENMODELL §6.14–§6.16 (E-42,
+- [x] **P1.23 Tattoo-Collections: `flash`, `tattoo-offers`, `tattoo-gallery`** – Laut DATENMODELL §6.14–§6.16 (E-42,
   E-52, E-53).
   - `flash`: einmalig/wiederholbar, `status` aus `FLASH_STATUSES` (`available`/`claimed`), `number` Ganzzahl 1–9999
     (Anzeige `F-012`, Seed `F-901`).
@@ -969,7 +969,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: int `tests/int/collections/tattoo.int.spec.ts` (DM-OFF-01, DM-GAL-01, AK-1-03).
   - Ohne Jutta: Einwilligungen holt Jutta nach (A13).
 
-- [ ] **P1.24 `inquiries`, `faqs`, `pages`, `revenue-entries`, `privacy-requests`** – Laut DATENMODELL §6.17–§6.20 und
+- [x] **P1.24 `inquiries`, `faqs`, `pages`, `revenue-entries`, `privacy-requests`** – Laut DATENMODELL §6.17–§6.20 und
   §6.26.
   - `inquiries`: `create: none` (Formular P7), Referenzbilder in `private-uploads`, `deleteAfter` = `createdAt` +
     6 Monate (L-10, aus `src/lib/retention/policy.ts`), `reference` `AA-<JJJJ>-<NNNN>`.
@@ -995,7 +995,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     (DM-PRQ-01).
   - Ohne Jutta: Seitentexte sind Entwürfe im Insta-Ton (E-62); Jutta korrigiert sie später.
 
-- [ ] **P1.26 Eigene Postgres-Objekte (`p1_constraints`)** – Migration `pnpm payload migrate:create p1_constraints` mit
+- [x] **P1.26 Eigene Postgres-Objekte (`p1_constraints`)** – Migration `pnpm payload migrate:create p1_constraints` mit
   eigenem SQL laut DATENMODELL §9. Tabellen- und Spaltennamen werden vorher im generierten SQL geprüft.
   - Sequenzen `order_number_seq`, `withdrawal_number_seq`, `inquiry_number_seq`, `privacy_request_number_seq` (§9.1).
   - CHECK-Constraints §9.2, u. a. Cent-Beträge ganzzahlig und ≥ 0, `item_number` 1–99999, Summen der Kassen
@@ -1018,7 +1018,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - int `tests/int/db/constraints.int.spec.ts` (DM-RES-03, DM-INV-03).
   - Ohne Jutta: –
 
-- [ ] **P1.27 Zugriffsmatrix aller Collections (T-15)** – Eine Datei `tests/int/access/matrix.ts` beschreibt für alle 27
+- [x] **P1.27 Zugriffsmatrix aller Collections (T-15)** – Eine Datei `tests/int/access/matrix.ts` beschreibt für alle 27
   Collections der P1 (DATENMODELL §10.1; `legal-snippets` und `complaints` ergänzt P6) und 2 Globals das erlaubte
   anonyme Ergebnis für REST `GET`/`POST`/`PATCH`/`DELETE`, samt öffentlicher Where-Filter und versteckter Felder
   (DATENMODELL §1.4 und die Access-Abschnitte je Collection).
@@ -1029,7 +1029,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: int `tests/int/access/access-matrix.int.spec.ts` (T-15, DM-P1-03, R-136).
   - Ohne Jutta: –
 
-- [ ] **P1.28 Seed-Rahmen** – Bibliothek `src/lib/seed/` und CLI `scripts/seed/cli.ts` (ARCHITEKTUR §2.1, SEED-SPEC
+- [x] **P1.28 Seed-Rahmen** – Bibliothek `src/lib/seed/` und CLI `scripts/seed/cli.ts` (ARCHITEKTUR §2.1, SEED-SPEC
   §1.4); das Skript ruft nur die Bibliothek auf.
   - Aufruf: `payload run scripts/seed/cli.ts -- <base|example|all|remove|reset>`, Lösung aus dem Spike in P1.5.
   - `guard.ts` (SEED-SPEC §1.5 und ARCHITEKTUR §4.8):
@@ -1066,7 +1066,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - int `tests/int/seed/side-effects.int.spec.ts` (AK-SEED-05).
   - Ohne Jutta: –
 
-- [ ] **P1.29 Grund-Seed (`pnpm seed:base`)** – `content/seed/data/base.json` und der Import laut SEED-SPEC §3,
+- [x] **P1.29 Grund-Seed (`pnpm seed:base`)** – `content/seed/data/base.json` und der Import laut SEED-SPEC §3,
   `seed = false`, nur anlegen, wenn es fehlt:
   - `settings` mit Standardwerten (§3.1, DATENMODELL §7.1): Versandtarife nur Zone DE (`brief` 450, `paket_klein` 650,
     `keramik` 890; EU/CH-Versand ist „Später“), Beispiel-IBAN `DE36000000000000000000`, `retention.invoiceYears` 10,
@@ -1091,7 +1091,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: int `tests/int/seed/base.int.spec.ts` (DM-P1-04, AK-SEED-02 Grund-Seed-Teil).
   - Ohne Jutta: Platzhalter für Name, Adresse und Bank (A11, A12, A26).
 
-- [ ] **P1.30 Mini-Beispielbestand und Entfernen** – Teilmenge der SEED-SPEC (W-21). Datendateien unter
+- [x] **P1.30 Mini-Beispielbestand und Entfernen** – Teilmenge der SEED-SPEC (W-21). Datendateien unter
   `content/seed/data/` mit den endgültigen `seedKey`s, damit P8 nur ergänzt:
   - `products.json`: die Stücke S01, S06, S09, S11, S15, S18, S20, S25, S26 und S27 aus SEED-SPEC §5.1 (Nummern 9nn,
     Status laut §5.1): zusammen `available`, `sold` (offline, im Archiv sichtbar), `archived`, `draft` und `reserved`.
@@ -1129,7 +1129,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - unit `tests/unit/seed/data.unit.spec.ts` (zod-Schemas, AK-SEED-12 Mail-Domains).
   - Ohne Jutta: Vollständiger Bestand in P8, höher aufgelöste Bilder aus dem Export (A04, A06).
 
-- [ ] **P1.31 Verwaltung am Handy: Formular-Test und keine Fremd-Requests** – Playwright-Konfiguration nach ARCHITEKTUR
+- [x] **P1.31 Verwaltung am Handy: Formular-Test und keine Fremd-Requests** – Playwright-Konfiguration nach ARCHITEKTUR
   §7.3:
   - Projekte `desktop`, `iphone-15` (WebKit, 390×844; nur wenn die WebKit-Installation in der Cloud scheitert, mit
     `PW_SKIP_WEBKIT=1` als markierte Chromium-Emulation plus OFFENE-PUNKTE-Eintrag; CI immer WebKit), `pixel-7`;
@@ -1149,7 +1149,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: e2e `tests/e2e/admin-product-form.e2e.spec.ts` (DM-P1-07, T-05, R-135), `admin-privacy.e2e.spec.ts` @smoke.
   - Ohne Jutta: Die eigenen Handy-Ansichten (KONZEPT §7.3 ff.) folgen in P5.
 
-- [ ] **P1.32 Typen, Import-Map, Enum-Quelle und Rechts-Nachverfolgbarkeit** –
+- [x] **P1.32 Typen, Import-Map, Enum-Quelle und Rechts-Nachverfolgbarkeit** –
   - `pnpm generate:types` und `pnpm generate:importmap` aktualisieren; `src/payload-types.ts` und `importMap.js` werden
     committet.
   - `check:static` prüft, dass beide nach dem Erzeugen unverändert sind.
@@ -1172,7 +1172,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - unit `forbidden.unit.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P1.33 CI-Erweiterung und Repo-Pflege** – `.github/workflows/ci.yml`, Job `quick`, mit Schritten und Umgebung genau
+- [x] **P1.33 CI-Erweiterung und Repo-Pflege** – `.github/workflows/ci.yml`, Job `quick`, mit Schritten und Umgebung genau
   nach ARCHITEKTUR §6.3:
   1. Installation;
   2. Lint;
@@ -1228,7 +1228,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - CI-Nachweis im Phasenende-Lauf `[ci:full p1]`.
   - Ohne Jutta: Jutta klickt nur „Merge“ (A07).
 
-- [ ] **P1.33a Minuten-Wächter für GitHub Actions** – `pnpm ci:minutes` (`scripts/ci/minutes.ts`, ARCHITEKTUR §6.8,
+- [x] **P1.33a Minuten-Wächter für GitHub Actions** – `pnpm ci:minutes` (`scripts/ci/minutes.ts`, ARCHITEKTUR §6.8,
   §6.10; Skript in `package.json`) summiert die abrechenbaren Minuten des laufenden Kalendermonats (UTC): Läufe über
   `gh api repos/{owner}/{repo}/actions/runs` (Filter `created`, alle Seiten), je Lauf
   `gh api repos/{owner}/{repo}/actions/runs/<id>/timing`, Summe über `billable.UBUNTU.job_runs[].duration_ms`, je Job
@@ -1254,26 +1254,26 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Ohne Jutta: –
 
 ### Phasen-Abnahme
-- [ ] Alle Aufgaben P1.1–P1.33 einschließlich P1.1a, P1.1b und P1.33a sind abgehakt.
-- [ ] Lokal grün: `pnpm check`, `pnpm test:int`, `pnpm test:e2e --grep @smoke`, `pnpm build`.
-- [ ] CI grün – erst nach dem grünen Lauf abhaken, in einem Doku-Commit mit `[skip ci]`: Der letzte Commit ohne
+- [x] Alle Aufgaben P1.1–P1.33 einschließlich P1.1a, P1.1b und P1.33a sind abgehakt.
+- [x] Lokal grün: `pnpm check`, `pnpm test:int`, `pnpm test:e2e --grep @smoke`, `pnpm build`.
+- [x] CI grün – erst nach dem grünen Lauf abhaken, in einem Doku-Commit mit `[skip ci]`: Der letzte Commit ohne
   `[skip ci]` trägt `[ci:full p1]` (W-31; ARCHITEKTUR §6.7); `CI / quick` ist auf dem PR grün. Damit sind die
   „(CI-Nachweis)“-Kriterien aus P1.1a und P1.33 belegt.
-- [ ] DM-P1-01 bis DM-P1-07 grün; ebenso T-05, T-14, T-15, T-17. Alle 27 Collections der P1 (DATENMODELL §10.1: alle
+- [x] DM-P1-01 bis DM-P1-07 grün; ebenso T-05, T-14, T-15, T-17. Alle 27 Collections der P1 (DATENMODELL §10.1: alle
   29 außer `legal-snippets` und `complaints`) und 2 Globals existieren.
-- [ ] `LEGAL_TRACE_PHASE = 1` grün.
-- [ ] `pnpm check:migrations` grün; `src/payload-types.ts` und `importMap.js` aktuell.
-- [ ] Spikes B-01, B-02, B-09 sind in ARCHITEKTUR Anhang B mit „Ergebnis: …, Datum, PR“ eingetragen, bei Abweichung
+- [x] `LEGAL_TRACE_PHASE = 1` grün.
+- [x] `pnpm check:migrations` grün; `src/payload-types.ts` und `importMap.js` aktuell.
+- [x] Spikes B-01, B-02, B-09 sind in ARCHITEKTUR Anhang B mit „Ergebnis: …, Datum, PR“ eingetragen, bei Abweichung
   mit ADR in `docs/adr/`. Die ADR zu `server-only` in Skripten existiert.
-- [ ] `pnpm seed:reset` läuft auf frischer Test-DB ohne Fehler; danach enthält die Verwaltung unter `/werkstatt` den
+- [x] `pnpm seed:reset` läuft auf frischer Test-DB ohne Fehler; danach enthält die Verwaltung unter `/werkstatt` den
   Mini-Bestand.
-- [ ] `docs/OFFENE-PUNKTE.md` enthält die W-Liste und die übernommenen Annahmen (C-xx, DM-xx, DA-x, KA-xx, SE-xx); die
+- [x] `docs/OFFENE-PUNKTE.md` enthält die W-Liste und die übernommenen Annahmen (C-xx, DM-xx, DA-x, KA-xx, SE-xx); die
   Prüfstellen aus P1.2 sind abgehakt; neue Owner-Punkte stehen in `docs/owner/AUFGABEN.md` unter der nächsten freien
   A-Nummer (falls nötig).
-- [ ] Eintrag in `docs/FORTSCHRITT.md`: was erledigt wurde und wie es getestet ist.
-- [ ] PR-Titel und -Text (Deutsch) aktualisiert, oben „Bitte mergen – CI ist grün“.
-- [ ] Keine echten Schlüssel oder Konten im Repo (gitleaks grün).
-- [ ] Ein Vorschau-Artefakt ist in P1 nicht nötig; Pflicht ab P2.
+- [x] Eintrag in `docs/FORTSCHRITT.md`: was erledigt wurde und wie es getestet ist.
+- [x] PR-Titel und -Text (Deutsch) aktualisiert, oben „Bitte mergen – CI ist grün“.
+- [x] Keine echten Schlüssel oder Konten im Repo (gitleaks grün).
+- [x] Ein Vorschau-Artefakt ist in P1 nicht nötig; Pflicht ab P2.
 
 ---
 
