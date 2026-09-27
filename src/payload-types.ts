@@ -377,6 +377,15 @@ export interface PrivateUpload {
   documentVersion?: string | null;
   documentDate?: string | null;
   relatedDeclaration?: (number | null) | ConformityDeclaration;
+  /**
+   * Die Löschfrist richtet sich nach Versand, Rückgabe bzw. Aufbewahrung der Bestellung.
+   */
+  relatedOrder?: (number | null) | Order;
+  relatedProduct?: (number | null) | Product;
+  /**
+   * Aufbewahrung wie der Beleg.
+   */
+  relatedInvoice?: (number | null) | Invoice;
   relatedInquiry?: (number | null) | Inquiry;
   relatedPrivacyRequest?: (number | null) | PrivacyRequest;
   relatedGalleryItem?: (number | null) | TattooGallery;
@@ -435,171 +444,6 @@ export interface ConformityDeclaration {
    */
   status: 'active' | 'revoked';
   notes?: string | null;
-  seed?: boolean | null;
-  seedKey?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Anfragen aus dem Formular. Sie werden 6 Monate nach Eingang automatisch gelöscht.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "inquiries".
- */
-export interface Inquiry {
-  id: number;
-  reference: string;
-  name: string;
-  email: string;
-  idea: string;
-  objectType:
-    | 'cap'
-    | 'shirt'
-    | 'textil_sonstiges'
-    | 'teller'
-    | 'schale'
-    | 'tasse'
-    | 'fliese'
-    | 'zeichnung'
-    | 'schmuck'
-    | 'sonstiges';
-  objectTypeOther?: string | null;
-  desiredTimeframe?: string | null;
-  budget?: string | null;
-  referenceImages?: (number | PrivateUpload)[] | null;
-  locale: 'de' | 'en';
-  privacyNoticeVersion: number | LegalText;
-  status: 'new' | 'in_progress' | 'offer_sent' | 'accepted' | 'declined' | 'completed' | 'closed';
-  lastActivityAt: string;
-  /**
-   * Nur verkürzbar („Jetzt löschen“).
-   */
-  deleteAfter: string;
-  adminNotes?: string | null;
-  privacy?: {
-    /**
-     * Art. 18 bzw. Art. 17 Abs. 3 lit. b DSGVO: keine Mails, nur Pflichtzwecke.
-     */
-    processingRestricted?: boolean | null;
-    restrictedAt?: string | null;
-    legalHold?: boolean | null;
-    legalHoldReason?: string | null;
-    legalHoldSince?: string | null;
-    legalHoldReviewedAt?: string | null;
-    anonymizedAt?: string | null;
-  };
-  seed?: boolean | null;
-  seedKey?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Jede Fassung ist ein eigenes Dokument. Veröffentlichte Fassungen lassen sich nicht mehr ändern – für Änderungen eine neue Fassung anlegen.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "legal-texts".
- */
-export interface LegalText {
-  id: number;
-  type: 'impressum' | 'datenschutz' | 'agb' | 'widerrufsbelehrung' | 'widerrufsformular' | 'versand-zahlung';
-  version?: number | null;
-  versionLabel?: string | null;
-  status: 'draft' | 'scheduled' | 'active' | 'superseded';
-  validFrom: string;
-  /**
-   * Deutsch ist verbindlich, Englisch eine unverbindliche Übersetzung. Erlaubt sind nur die Platzhalter aus der Liste (z. B. {{name}}).
-   */
-  content?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  /**
-   * Herkunft des Textes (R-002).
-   */
-  origin: 'placeholder' | 'draft' | 'lawyer';
-  /**
-   * Seite zeigt oben „PLATZHALTER – nicht rechtsverbindlich“.
-   */
-  isPlaceholder?: boolean | null;
-  source: 'manual' | 'itrk_lti';
-  /**
-   * z. B. „Kanzlei X, Stand 15.11.2026“
-   */
-  sourceNote?: string | null;
-  changeNote?: string | null;
-  pdfDe?: (number | null) | Document;
-  pdfEn?: (number | null) | Document;
-  contentSha256De?: string | null;
-  contentSha256En?: string | null;
-  activatedAt?: string | null;
-  supersededAt?: string | null;
-  seed?: boolean | null;
-  seedKey?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Anfragen zu Auskunft, Löschung usw. (DSGVO). Bitte innerhalb eines Werktags anlegen; Antwort binnen eines Monats.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "privacy-requests".
- */
-export interface PrivacyRequest {
-  id: number;
-  reference: string;
-  types: (
-    'access' | 'rectification' | 'erasure' | 'restriction' | 'portability' | 'objection' | 'consent_withdrawal'
-  )[];
-  channel: 'email' | 'letter' | 'instagram_dm' | 'oral' | 'withdrawal_form' | 'other';
-  receivedAt: string;
-  dueAt: string;
-  /**
-   * Verlängerung um höchstens 2 Monate.
-   */
-  extendedDueAt?: string | null;
-  extensionReason?: string | null;
-  extensionNotifiedAt?: string | null;
-  status: 'received' | 'identity_check' | 'in_progress' | 'answered' | 'rejected';
-  /**
-   * Antworten nur an eine in den Daten gespeicherte Adresse.
-   */
-  contactEmail: string;
-  contactName?: string | null;
-  locale: 'de' | 'en';
-  identityVerified?: boolean | null;
-  /**
-   * Keine Ausweiskopie außer bei begründeten Zweifeln.
-   */
-  identityMethod?: ('stored_email' | 'control_data' | 'other') | null;
-  identityVerifiedAt?: string | null;
-  matchedOrders?: (number | Order)[] | null;
-  matchedWithdrawals?: (number | Withdrawal)[] | null;
-  matchedInquiries?: (number | Inquiry)[] | null;
-  exportFile?: (number | null) | PrivateUpload;
-  answeredAt?: string | null;
-  resultNote?: string | null;
-  remindersSent?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  adminNotes?: string | null;
-  retainUntil?: string | null;
   seed?: boolean | null;
   seedKey?: string | null;
   updatedAt: string;
@@ -1456,6 +1300,62 @@ export interface Product {
   createdAt: string;
 }
 /**
+ * Jede Fassung ist ein eigenes Dokument. Veröffentlichte Fassungen lassen sich nicht mehr ändern – für Änderungen eine neue Fassung anlegen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legal-texts".
+ */
+export interface LegalText {
+  id: number;
+  type: 'impressum' | 'datenschutz' | 'agb' | 'widerrufsbelehrung' | 'widerrufsformular' | 'versand-zahlung';
+  version?: number | null;
+  versionLabel?: string | null;
+  status: 'draft' | 'scheduled' | 'active' | 'superseded';
+  validFrom: string;
+  /**
+   * Deutsch ist verbindlich, Englisch eine unverbindliche Übersetzung. Erlaubt sind nur die Platzhalter aus der Liste (z. B. {{name}}).
+   */
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Herkunft des Textes (R-002).
+   */
+  origin: 'placeholder' | 'draft' | 'lawyer';
+  /**
+   * Seite zeigt oben „PLATZHALTER – nicht rechtsverbindlich“.
+   */
+  isPlaceholder?: boolean | null;
+  source: 'manual' | 'itrk_lti';
+  /**
+   * z. B. „Kanzlei X, Stand 15.11.2026“
+   */
+  sourceNote?: string | null;
+  changeNote?: string | null;
+  pdfDe?: (number | null) | Document;
+  pdfEn?: (number | null) | Document;
+  contentSha256De?: string | null;
+  contentSha256En?: string | null;
+  activatedAt?: string | null;
+  supersededAt?: string | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Rechnungen und Gutschriften – unveränderlich (GoBD). Nur lesen.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1636,6 +1536,115 @@ export interface EmailLog {
   order?: (number | null) | Order;
   withdrawal?: (number | null) | Withdrawal;
   inquiry?: (number | null) | Inquiry;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Anfragen aus dem Formular. Sie werden 6 Monate nach Eingang automatisch gelöscht.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "inquiries".
+ */
+export interface Inquiry {
+  id: number;
+  reference: string;
+  name: string;
+  email: string;
+  idea: string;
+  objectType:
+    | 'cap'
+    | 'shirt'
+    | 'textil_sonstiges'
+    | 'teller'
+    | 'schale'
+    | 'tasse'
+    | 'fliese'
+    | 'zeichnung'
+    | 'schmuck'
+    | 'sonstiges';
+  objectTypeOther?: string | null;
+  desiredTimeframe?: string | null;
+  budget?: string | null;
+  referenceImages?: (number | PrivateUpload)[] | null;
+  locale: 'de' | 'en';
+  privacyNoticeVersion: number | LegalText;
+  status: 'new' | 'in_progress' | 'offer_sent' | 'accepted' | 'declined' | 'completed' | 'closed';
+  lastActivityAt: string;
+  /**
+   * Nur verkürzbar („Jetzt löschen“).
+   */
+  deleteAfter: string;
+  adminNotes?: string | null;
+  privacy?: {
+    /**
+     * Art. 18 bzw. Art. 17 Abs. 3 lit. b DSGVO: keine Mails, nur Pflichtzwecke.
+     */
+    processingRestricted?: boolean | null;
+    restrictedAt?: string | null;
+    legalHold?: boolean | null;
+    legalHoldReason?: string | null;
+    legalHoldSince?: string | null;
+    legalHoldReviewedAt?: string | null;
+    anonymizedAt?: string | null;
+  };
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Anfragen zu Auskunft, Löschung usw. (DSGVO). Bitte innerhalb eines Werktags anlegen; Antwort binnen eines Monats.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "privacy-requests".
+ */
+export interface PrivacyRequest {
+  id: number;
+  reference: string;
+  types: (
+    'access' | 'rectification' | 'erasure' | 'restriction' | 'portability' | 'objection' | 'consent_withdrawal'
+  )[];
+  channel: 'email' | 'letter' | 'instagram_dm' | 'oral' | 'withdrawal_form' | 'other';
+  receivedAt: string;
+  dueAt: string;
+  /**
+   * Verlängerung um höchstens 2 Monate.
+   */
+  extendedDueAt?: string | null;
+  extensionReason?: string | null;
+  extensionNotifiedAt?: string | null;
+  status: 'received' | 'identity_check' | 'in_progress' | 'answered' | 'rejected';
+  /**
+   * Antworten nur an eine in den Daten gespeicherte Adresse.
+   */
+  contactEmail: string;
+  contactName?: string | null;
+  locale: 'de' | 'en';
+  identityVerified?: boolean | null;
+  /**
+   * Keine Ausweiskopie außer bei begründeten Zweifeln.
+   */
+  identityMethod?: ('stored_email' | 'control_data' | 'other') | null;
+  identityVerifiedAt?: string | null;
+  matchedOrders?: (number | Order)[] | null;
+  matchedWithdrawals?: (number | Withdrawal)[] | null;
+  matchedInquiries?: (number | Inquiry)[] | null;
+  exportFile?: (number | null) | PrivateUpload;
+  answeredAt?: string | null;
+  resultNote?: string | null;
+  remindersSent?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  adminNotes?: string | null;
+  retainUntil?: string | null;
   seed?: boolean | null;
   seedKey?: string | null;
   updatedAt: string;
@@ -2699,6 +2708,9 @@ export interface PrivateUploadsSelect<T extends boolean = true> {
   documentVersion?: T;
   documentDate?: T;
   relatedDeclaration?: T;
+  relatedOrder?: T;
+  relatedProduct?: T;
+  relatedInvoice?: T;
   relatedInquiry?: T;
   relatedPrivacyRequest?: T;
   relatedGalleryItem?: T;

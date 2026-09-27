@@ -13,7 +13,14 @@ import { PRIVATE_URL_TTL_SECONDS, uploadStaticDir } from '@/lib/storage'
 import { sha256Hex } from '@/lib/uploads/files'
 import { registerUploadReference } from '@/lib/uploads/references'
 
+import { createOrder, deleteCommerce, orderData } from '../helpers/commerce'
 import { getTestPayload } from '../helpers/payload'
+import {
+  completeProduct,
+  createProduct,
+  createProductFixtures,
+  deleteProducts,
+} from '../helpers/products'
 import { rest } from '../helpers/rest'
 import { createStorageHarness, type StorageHarness } from '../helpers/storageHarness'
 
@@ -405,6 +412,100 @@ describe('private-uploads – Aufbewahrung (DATENMODELL §6.4, LOESCHKONZEPT)', 
     expect(audit.docs).toHaveLength(1)
     expect(audit.docs[0]!.summary).toBe(`Private Datei ${lab.id} (Laborbericht) gelöscht.`)
     expect(audit.docs[0]!.summary).not.toContain('.pdf')
+  })
+})
+
+describe('private-uploads – Bezüge zu Bestellung, Stück und Beleg (DATENMODELL §6.4)', () => {
+  let productId: number
+  let shipped: { id: number; retainUntil?: string | null }
+  let invoice: { id: number; retainUntil: string }
+
+  beforeAll(async () => {
+    await deleteCommerce(payload)
+    await deleteProducts(payload, [982])
+    const fx = await createProductFixtures(payload)
+    const p = await createProduct(payload, completeProduct('keramik', 982, fx))
+    productId = p.id as number
+    const item = { id: productId, itemNumber: 982 }
+    shipped = (await createOrder(
+      payload,
+      orderData(90982, [item], {
+        seed: true,
+        status: 'shipped',
+        timestamps: {
+          placedAt: '2026-09-27T10:00:00.000Z',
+          shippedAt: '2026-10-01T08:00:00.000Z',
+        },
+        retainUntil: '2033-12-31T23:00:00.000Z',
+      }),
+      { seed: true },
+    )) as never
+    const paid = await createOrder(payload, orderData(983, [item]))
+    invoice = (await payload.create({
+      collection: 'invoices',
+      data: {
+        type: 'invoice',
+        order: paid.id,
+        deliveryDate: '2026-09-27T10:00:00.000Z',
+        totalGrossCents: 5390,
+        data: { version: 1 },
+      } as never,
+      overrideAccess: true,
+      context: { system: true, now: '2026-09-27T10:00:00.000Z' },
+    })) as never
+  })
+  afterAll(async () => {
+    await deleteCommerce(payload)
+    await deleteProducts(payload, [982])
+  })
+
+  it('Packfoto mit Bestellung: deleteAfter = shippedAt + 12 Monate (L-05 Stufe C); Stück wird gespeichert', async () => {
+    const doc = (await createPrivate({
+      purpose: 'packing_photo',
+      relatedOrder: shipped.id,
+      relatedProduct: productId,
+    })) as PrivateDoc & { relatedOrder?: { id: number }; relatedProduct?: { id: number } }
+    expect(doc.relatedOrder?.id).toBe(shipped.id)
+    expect(doc.relatedProduct?.id).toBe(productId)
+    expect(doc.deleteAfter).toBe('2027-10-01T08:00:00.000Z')
+  })
+
+  it('Reklamationsfoto: deleteAfter = orders.retainUntil (L-09); ohne Bestellung zunächst leer', async () => {
+    const doc = await createPrivate({ purpose: 'complaint_photo', relatedOrder: shipped.id })
+    expect(doc.deleteAfter).toBe('2033-12-31T23:00:00.000Z')
+    const loose = await createPrivate({ purpose: 'complaint_photo' })
+    expect(loose.deleteAfter ?? null).toBeNull()
+    // spätere Zuordnung zieht die Frist nach
+    const linked = await payload.update({
+      collection: 'private-uploads',
+      id: loose.id,
+      data: { relatedOrder: shipped.id } as never,
+      overrideAccess: true,
+    })
+    expect(linked.deleteAfter).toBe('2033-12-31T23:00:00.000Z')
+  })
+
+  it('L-06 Beleg-PDF mit Beleg: retainUntil = invoices.retainUntil; spätere Zuordnung verlängert nur', async () => {
+    expect(invoice.retainUntil).toBe('2036-12-31T23:00:00.000Z')
+    const pdf = (await createPrivate(
+      { purpose: 'invoice_pdf', relatedInvoice: invoice.id },
+      undefined,
+      { now: '2027-02-01T10:00:00.000Z' },
+    )) as PrivateDoc & { relatedInvoice?: { id: number } }
+    expect(pdf.relatedInvoice?.id).toBe(invoice.id)
+    expect(pdf.retainUntil).toBe(invoice.retainUntil)
+    // ohne Beleg ab Anlagejahr 2027 (bis 01.01.2038); Zuordnung zum Beleg 2026 verkürzt nicht
+    const loose = await createPrivate({ purpose: 'invoice_pdf' }, undefined, {
+      now: '2027-02-01T10:00:00.000Z',
+    })
+    expect(loose.retainUntil).toBe('2037-12-31T23:00:00.000Z')
+    const linked = await payload.update({
+      collection: 'private-uploads',
+      id: loose.id,
+      data: { relatedInvoice: invoice.id } as never,
+      overrideAccess: true,
+    })
+    expect(linked.retainUntil).toBe('2037-12-31T23:00:00.000Z')
   })
 })
 

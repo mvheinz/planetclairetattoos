@@ -41,12 +41,23 @@ import { findUploadReferences, formatUploadReferenceMessage } from '@/lib/upload
 
 // DATENMODELL §6.4 – private Dateien (Referenzbilder, Packfotos, Nachweise, Beleg-PDFs, Exporte). Privater Speicher
 // (`.data/private` bzw. S3_PRIVATE_BUCKET), Auslieferung nur angemeldet (bei `s3` signiert, ≤ 300 s; R-136).
-// Keine Versionen/Drafts (Personendaten, R-154). Beziehungsfelder auf Collections späterer Aufgaben ergänzen diese.
+// Keine Versionen/Drafts (Personendaten, R-154). `relatedComplaint` ergänzt P6 (DATENMODELL §10.1).
 
 const SLUG = 'private-uploads'
 const SHA256_RE = /^[a-f0-9]{64}$/
 
 /** Zwecke mit Ablage „Unterlagen je Kategorie“ (R-203). */
+/** Zwecke mit Bestellbezug (Frist aus der Bestellung, L-05 Stufe C bzw. L-09). */
+export const ORDER_PURPOSES: ReadonlySet<PrivateUploadPurpose> = new Set<PrivateUploadPurpose>([
+  'packing_photo',
+  'return_photo',
+  'complaint_photo',
+])
+
+/** Beleg-PDFs mit Bezug auf `invoices` (L-06). */
+export const INVOICE_PDF_PURPOSES: ReadonlySet<PrivateUploadPurpose> =
+  new Set<PrivateUploadPurpose>(['invoice_pdf', 'credit_note_pdf'])
+
 export const COMPLIANCE_PURPOSES: ReadonlySet<PrivateUploadPurpose> = new Set<PrivateUploadPurpose>(
   ['nickel_evidence', 'lab_report', 'supplier_document', 'technical_file'],
 )
@@ -67,6 +78,67 @@ const toDate = (v: unknown): Date | null => {
   return Number.isNaN(d.getTime()) ? null : d
 }
 const iso = (d: Date | null) => (d ? d.toISOString() : null)
+
+/** Beziehungsfelder, deren Bezugsobjekt die Frist bestimmt (DATENMODELL §6.4, Tabelle „Aufbewahrung je Zweck“). */
+const RETENTION_RELATIONS = [
+  'relatedInquiry',
+  'relatedOrder',
+  'relatedInvoice',
+  'relatedPrivacyRequest',
+  'relatedGalleryItem',
+] as const
+type RetentionRelation = (typeof RETENTION_RELATIONS)[number]
+
+const relId = (v: unknown): number | string | null => {
+  if (v === null || v === undefined || v === '') return null
+  if (typeof v === 'object') return ((v as { id?: number | string }).id ?? null) as never
+  return v as number | string
+}
+
+type Related = Record<string, unknown> & { timestamps?: Record<string, unknown> | null }
+
+async function loadRelated(
+  req: PayloadRequest,
+  collection: 'inquiries' | 'orders' | 'invoices' | 'privacy-requests' | 'tattoo-gallery',
+  id: number | string | null,
+): Promise<Related | null> {
+  if (id === null || !req.payload.collections[collection]) return null
+  return (await req.payload.findByID({
+    collection,
+    id,
+    req,
+    depth: 0,
+    overrideAccess: true,
+    disableErrors: true,
+  })) as Related | null
+}
+
+/** Bezugsdaten für die Fristberechnung (Anfrage, Bestellung, Beleg, Datenschutz-Anfrage, Galerie-Eintrag). */
+async function relatedRetentionInput(
+  req: PayloadRequest,
+  ids: Record<RetentionRelation, number | string | null>,
+) {
+  const [inquiry, order, invoice, privacy, gallery] = await Promise.all([
+    loadRelated(req, 'inquiries', ids.relatedInquiry),
+    loadRelated(req, 'orders', ids.relatedOrder),
+    loadRelated(req, 'invoices', ids.relatedInvoice),
+    loadRelated(req, 'privacy-requests', ids.relatedPrivacyRequest),
+    loadRelated(req, 'tattoo-gallery', ids.relatedGalleryItem),
+  ])
+  const ts = order?.timestamps ?? {}
+  return {
+    inquiryCreatedAt: toDate(inquiry?.createdAt),
+    orderShippedAt: toDate(ts.shippedAt),
+    orderPickedUpAt: toDate(ts.pickedUpAt),
+    orderReturnReceivedAt: toDate(ts.returnReceivedAt),
+    orderRetainUntil: toDate(order?.retainUntil),
+    privacyAnsweredAt: toDate(privacy?.answeredAt),
+    galleryEndedAt: toDate(gallery?.consentWithdrawnAt),
+    /** Beleg-PDF: dieselbe Frist wie der Beleg (`invoices.retainUntil`, L-06). */
+    invoiceRetainUntil: toDate(invoice?.retainUntil),
+    invoiceIssueDate: toDate(invoice?.issueDate),
+  }
+}
 
 function fail(message: string, path: string): never {
   throw new ValidationError({ collection: SLUG, errors: [{ message, path }] })
@@ -161,6 +233,23 @@ const validateAndCompute: CollectionBeforeChangeHook = async ({
   if (req.file) data.sha256 = sha256Hex(await fileBuffer(req.file))
   else data.sha256 = (originalDoc as { sha256?: string } | undefined)?.sha256 ?? null
 
+  // Beziehungen je Zweck (DATENMODELL §6.4)
+  const ids = Object.fromEntries(
+    RETENTION_RELATIONS.map((f) => [
+      f,
+      relId(
+        data[f] !== undefined ? data[f] : (original as Record<string, unknown> | undefined)?.[f],
+      ),
+    ]),
+  ) as Record<RetentionRelation, number | string | null>
+  const relationChanged = Boolean(
+    original &&
+    RETENTION_RELATIONS.some(
+      (f) => String(relId((original as Record<string, unknown>)[f])) !== String(ids[f]),
+    ),
+  )
+  const related = await relatedRetentionInput(req, ids)
+
   // Fristen je Zweck (DATENMODELL §6.4, src/lib/retention/policy.ts)
   const createdAt = toDate(original?.createdAt) ?? now
   const computed = privateUploadRetention({
@@ -168,11 +257,25 @@ const validateAndCompute: CollectionBeforeChangeHook = async ({
     status,
     createdAt: status === 'attached' && original?.status === 'pending' ? now : createdAt,
     invoiceYears: await resolveInvoiceYears(req),
+    recordDate: related.invoiceIssueDate,
+    inquiryCreatedAt: related.inquiryCreatedAt,
+    orderShippedAt: related.orderShippedAt,
+    orderPickedUpAt: related.orderPickedUpAt,
+    orderReturnReceivedAt: related.orderReturnReceivedAt,
+    orderRetainUntil: related.orderRetainUntil,
+    privacyAnsweredAt: related.privacyAnsweredAt,
+    galleryEndedAt: related.galleryEndedAt,
   })
+  // Beleg-PDF mit Beleg: exakt `invoices.retainUntil` (beim Ausstellen eingefroren, L-06)
+  if (INVOICE_PDF_PURPOSES.has(purpose) && related.invoiceRetainUntil) {
+    computed.retainUntil = related.invoiceRetainUntil
+  }
   const statusChanged = Boolean(original && original.status !== status)
   const previous = toDate(original?.deleteAfter)
   const base =
-    !original || statusChanged ? computed.deleteAfter : (previous ?? computed.deleteAfter)
+    !original || statusChanged || relationChanged
+      ? computed.deleteAfter
+      : (previous ?? computed.deleteAfter)
 
   let deleteAfter = base
   if (data.deleteAfter !== undefined) {
@@ -193,12 +296,15 @@ const validateAndCompute: CollectionBeforeChangeHook = async ({
   }
   data.deleteAfter = iso(deleteAfter)
 
-  // Aufbewahrungspflicht (Beleg-PDFs): beim Anlegen berechnet, danach eingefroren
+  // Aufbewahrungspflicht (Beleg-PDFs): beim Anlegen berechnet, danach eingefroren; eine spätere Zuordnung zum
+  // Beleg kann die Frist nur verlängern (nie verkürzen).
   if (original) {
+    const frozen = toDate(original.retainUntil)
+    const linked = relationChanged ? computed.retainUntil : null
     data.retainUntil =
       privileged && data.retainUntil !== undefined
         ? iso(toDate(data.retainUntil))
-        : iso(toDate(original.retainUntil))
+        : iso(linked && (!frozen || linked.getTime() > frozen.getTime()) ? linked : frozen)
   } else {
     data.retainUntil = iso(computed.retainUntil)
   }
@@ -375,6 +481,41 @@ export const PrivateUploads: CollectionConfig = {
       label: 'Konformitätserklärung',
       relationTo: 'conformity-declarations',
       admin: { condition: (data) => data?.purpose === 'lab_report' },
+    },
+    {
+      name: 'relatedOrder',
+      type: 'relationship',
+      label: 'Bestellung',
+      relationTo: 'orders',
+      index: true,
+      admin: {
+        condition: (data) => ORDER_PURPOSES.has(data?.purpose as PrivateUploadPurpose),
+        description:
+          'Die Löschfrist richtet sich nach Versand, Rückgabe bzw. Aufbewahrung der Bestellung.',
+      },
+    },
+    {
+      name: 'relatedProduct',
+      type: 'relationship',
+      label: 'Stück',
+      relationTo: 'products',
+      index: true,
+      admin: {
+        condition: (data) =>
+          EVIDENCE_PURPOSES.has(data?.purpose as PrivateUploadPurpose) ||
+          ORDER_PURPOSES.has(data?.purpose as PrivateUploadPurpose),
+      },
+    },
+    {
+      name: 'relatedInvoice',
+      type: 'relationship',
+      label: 'Beleg',
+      relationTo: 'invoices',
+      index: true,
+      admin: {
+        condition: (data) => INVOICE_PDF_PURPOSES.has(data?.purpose as PrivateUploadPurpose),
+        description: 'Aufbewahrung wie der Beleg.',
+      },
     },
     {
       name: 'relatedInquiry',
