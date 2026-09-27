@@ -1,19 +1,21 @@
 name: CI
 
+# ARCHITEKTUR §6.2/§6.3: nur über den offenen PR oder per Hand, nie bei push auf main.
 on:
-  # P0: einmal auf main prüfen. P1.1a stellt auf pull_request + workflow_dispatch um (ARCHITEKTUR §6.2).
-  push:
-    branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
-  checks:
-    name: Lint, Typen, Tests, Build
+  quick:
+    name: quick
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
@@ -22,7 +24,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: planetclaire
+          POSTGRES_DB: planetclaire_test
         ports:
           - 5432:5432
         options: >-
@@ -32,27 +34,68 @@ jobs:
           --health-retries 10
     env:
       APP_ENV: test
+      TZ: UTC
       ADMIN_ROUTE: /werkstatt
-      DATABASE_URL: postgres://postgres:postgres@localhost:5432/planetclaire
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/planetclaire_test
+      DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/planetclaire_test
+      DB_POOL_MAX: '25'
       PAYLOAD_SECRET: ci-only-secret-not-used-anywhere-else-0000
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
       SEED_PREVIEW_MODE: 'true'
+      SEED_NOW: '2026-10-15T10:00:00+02:00'
+      SEED_ADMIN_EMAIL: admin@example.com
+      SEED_ADMIN_PASSWORD: ci-only-password-2026
       STORAGE_DRIVER: local
       EMAIL_DRIVER: file
       PAYMENTS_DRIVER: mock
       TRANSLATION_DRIVER: mock
+      CARRIER_DRIVER: mock
       CRON_SECRET: ci-only-cron-secret-000000000000000000
+      NEXT_PUBLIC_LEASH_DEBUG: '1'
       NEXT_TELEMETRY_DISABLED: '1'
+      E2E_SERVER: start
     steps:
-      - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
+      # Kennung (§6.2): bei [ci:update-snapshots] und [ci:art] entfällt quick.
+      - name: Kennung
+        id: mode
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            msg=$(gh api "repos/${{ github.repository }}/commits/${{ github.event.pull_request.head.sha }}" --jq .commit.message)
+          else
+            msg=""
+          fi
+          if echo "$msg" | grep -qE '\[ci:update-snapshots\]|\[ci:art\]'; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "quick übersprungen (Kennung im Kopf-Commit)" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.mode.outputs.skip != 'true'
+        uses: actions/checkout@v7
+      - if: steps.mode.outputs.skip != 'true'
+        uses: pnpm/action-setup@v6
+      - if: steps.mode.outputs.skip != 'true'
+        uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run lint
-      - run: pnpm run typecheck
-      - run: pnpm run test:unit
-      - run: pnpm run test:int
-      - run: pnpm run build
+      - name: Installation
+        if: steps.mode.outputs.skip != 'true'
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        if: steps.mode.outputs.skip != 'true'
+        run: pnpm run lint
+      - name: Typen
+        if: steps.mode.outputs.skip != 'true'
+        run: pnpm run typecheck
+      - name: Unit-Tests
+        if: steps.mode.outputs.skip != 'true'
+        run: pnpm run test:unit
+      - name: Integrationstests
+        if: steps.mode.outputs.skip != 'true'
+        run: pnpm run test:int
+      - name: Build
+        if: steps.mode.outputs.skip != 'true'
+        run: pnpm run build

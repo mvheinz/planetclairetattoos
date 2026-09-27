@@ -193,7 +193,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     virtuellen `src/`-Pfaden auf; im Repo liegen keine absichtlich fehlerhaften Dateien.
   - Ohne Jutta: –
 
-- [ ] **P1.1a `ci.yml` und Test-Helfer** – ARCHITEKTUR Anhang C-14 Nr. 1 und 3, §6.3.
+- [x] **P1.1a `ci.yml` und Test-Helfer** – ARCHITEKTUR Anhang C-14 Nr. 1 und 3, §6.3.
   - `ci.yml` nach ARCHITEKTUR §6.3 (C-14 Nr. 3): Job `checks` heißt `quick` (Pflicht-Check „CI / quick“, Workflow-Name
     `CI` bleibt); Auslöser nur `pull_request` (Typen `opened`, `synchronize`, `reopened`, `ready_for_review`) und
     `workflow_dispatch` – der P0-Auslöser `push` auf `main` entfällt (Arbeitsregeln oben, ARCHITEKTUR §6.2);
