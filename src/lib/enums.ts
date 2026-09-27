@@ -598,5 +598,7 @@ export const EMAIL_STATUSES = ['queued', 'sent', 'failed', 'suppressed'] as cons
 export type EmailStatus = (typeof EMAIL_STATUSES)[number]
 export const EMAIL_TRANSPORTS = ['file', 'smtp', 'memory', 'log'] as const // = EMAIL_DRIVER (ARCHITEKTUR §3.4)
 export type EmailTransport = (typeof EMAIL_TRANSPORTS)[number]
+export const WEBHOOK_PROVIDERS = ['stripe', 'mock'] as const // webhook-events.provider (DATENMODELL §6.24)
+export type WebhookProvider = (typeof WEBHOOK_PROVIDERS)[number]
 export const WEBHOOK_EVENT_STATUSES = ['processing', 'processed', 'failed', 'ignored'] as const
 export type WebhookEventStatus = (typeof WEBHOOK_EVENT_STATUSES)[number]

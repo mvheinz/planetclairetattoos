@@ -678,6 +678,10 @@ export const ENUM_LABELS = {
     memory: l('Speicher (Test)'),
     log: l('Protokoll'),
   } satisfies Labels<E.EmailTransport>,
+  WEBHOOK_PROVIDERS: {
+    stripe: l('Stripe'),
+    mock: l('Test-Zahlung (Mock)'),
+  } satisfies Labels<E.WebhookProvider>,
   WEBHOOK_EVENT_STATUSES: {
     processing: l('in Bearbeitung'),
     processed: l('verarbeitet'),

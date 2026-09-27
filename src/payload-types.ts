@@ -69,6 +69,11 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    'audit-log': AuditLog;
+    'email-log': EmailLog;
+    'consent-log': ConsentLog;
+    'webhook-events': WebhookEvent;
+    'deletion-log': DeletionLog;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,6 +83,11 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    'audit-log': AuditLogSelect<false> | AuditLogSelect<true>;
+    'email-log': EmailLogSelect<false> | EmailLogSelect<true>;
+    'consent-log': ConsentLogSelect<false> | ConsentLogSelect<true>;
+    'webhook-events': WebhookEventsSelect<false> | WebhookEventsSelect<true>;
+    'deletion-log': DeletionLogSelect<false> | DeletionLogSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -163,6 +173,211 @@ export interface Media {
   focalY?: number | null;
 }
 /**
+ * Wer hat wann was geändert. Nur lesen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "audit-log".
+ */
+export interface AuditLog {
+  id: number;
+  action:
+    | 'product_created'
+    | 'product_published'
+    | 'product_status_changed'
+    | 'product_price_changed'
+    | 'product_offline_sold'
+    | 'product_adopted'
+    | 'product_deleted'
+    | 'reservation_conflict'
+    | 'order_created'
+    | 'order_status_changed'
+    | 'order_address_changed'
+    | 'order_status_link_rotated'
+    | 'order_refund_created'
+    | 'order_refund_failed'
+    | 'packing_photo_skipped'
+    | 'carrier_consent_withdrawn'
+    | 'complaint_changed'
+    | 'invoice_issued'
+    | 'credit_note_issued'
+    | 'withdrawal_received'
+    | 'withdrawal_matched'
+    | 'withdrawal_status_changed'
+    | 'legal_text_activated'
+    | 'legal_text_superseded'
+    | 'legal_snippet_activated'
+    | 'legal_snippet_superseded'
+    | 'legal_review_confirmed'
+    | 'settings_changed'
+    | 'tax_mode_changed'
+    | 'gallery_published'
+    | 'gallery_consent_withdrawn'
+    | 'inquiry_status_changed'
+    | 'inquiry_deleted'
+    | 'private_upload_deleted'
+    | 'order_anonymized'
+    | 'data_exported'
+    | 'legal_hold_changed'
+    | 'processing_restricted'
+    | 'privacy_request_changed'
+    | 'retention_setting_changed'
+    | 'seed_imported'
+    | 'seed_removed'
+    | 'login_succeeded'
+    | 'password_reset_requested';
+  actorType: 'admin' | 'system' | 'webhook' | 'job' | 'customer' | 'seed';
+  actorUser?: (number | null) | User;
+  entityCollection: string;
+  entityId: string;
+  summary: string;
+  changes?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  retainUntil: string;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Welche Mail wann verschickt wurde (ohne Inhalt). Nur lesen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "email-log".
+ */
+export interface EmailLog {
+  id: number;
+  template:
+    | 'order_confirmation'
+    | 'prepayment_instructions'
+    | 'prepayment_reminder'
+    | 'prepayment_cancelled'
+    | 'prepayment_received'
+    | 'order_shipped'
+    | 'pickup_ready'
+    | 'withdrawal_receipt'
+    | 'refund_confirmation'
+    | 'oversold_apology'
+    | 'inquiry_receipt'
+    | 'complaint_repair_choice'
+    | 'dispute_vsbg'
+    | 'privacy_access_response'
+    | 'privacy_erasure_response'
+    | 'consent_withdrawal_confirmation'
+    | 'admin_order_placed'
+    | 'admin_prepayment_cancelled'
+    | 'admin_withdrawal_received'
+    | 'admin_inquiry_received'
+    | 'admin_oversold'
+    | 'admin_dispute_opened'
+    | 'admin_refund_failed'
+    | 'admin_revenue_guard'
+    | 'admin_legal_review_due'
+    | 'admin_monthly_close'
+    | 'admin_alert'
+    | 'admin_withdrawal_deadline'
+    | 'admin_password_reset'
+    | 'admin_privacy_request_due'
+    | 'admin_legal_hold_review'
+    | 'admin_compliance_docs_review';
+  to: string;
+  locale: 'de' | 'en';
+  subject: string;
+  status: 'queued' | 'sent' | 'failed' | 'suppressed';
+  transport?: ('file' | 'smtp' | 'memory' | 'log') | null;
+  messageId?: string | null;
+  smtpResponse?: string | null;
+  sentAt?: string | null;
+  attempts?: number | null;
+  lastError?: string | null;
+  attachments?:
+    | {
+        filename: string;
+        sha256: string;
+        sizeBytes: number;
+        id?: string | null;
+      }[]
+    | null;
+  templateVersion?: string | null;
+  bodySha256?: string | null;
+  retainUntil: string;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Nachweis von Einwilligungen und Vereinbarungen. Nur lesen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "consent-log".
+ */
+export interface ConsentLog {
+  id: number;
+  purpose: 'carrier_email_forwarding' | 'deviation_agreement' | 'inquiry_privacy_notice';
+  granted: boolean;
+  textSnapshot: string;
+  textSha256: string;
+  snippetKey?: string | null;
+  snippetVersion?: string | null;
+  locale: 'de' | 'en';
+  email: string;
+  withdrawnAt?: string | null;
+  retainUntil: string;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Eingegangene Zahlungs-Ereignisse (ohne Personendaten). Nur lesen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "webhook-events".
+ */
+export interface WebhookEvent {
+  id: number;
+  provider: 'stripe' | 'mock';
+  eventId: string;
+  type: string;
+  livemode: boolean;
+  status: 'processing' | 'processed' | 'failed' | 'ignored';
+  attempts: number;
+  receivedAt?: string | null;
+  processedAt?: string | null;
+  lastError?: string | null;
+  payloadSha256?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Nachweis aller Löschungen (ohne Inhalte, Namen oder E-Mail-Adressen). Nur lesen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "deletion-log".
+ */
+export interface DeletionLog {
+  id: number;
+  entityCollection: string;
+  entityId: string;
+  ruleId: string;
+  action: 'deleted' | 'anonymized' | 'restricted' | 'files_deleted';
+  trigger: 'job' | 'privacy_request' | 'admin' | 'consent_withdrawn';
+  taskSlug?: string | null;
+  privacyRequestRef?: string | null;
+  storageObjectsCount: number;
+  executedAt: string;
+  retainUntil: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -193,6 +408,26 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'audit-log';
+        value: number | AuditLog;
+      } | null)
+    | ({
+        relationTo: 'email-log';
+        value: number | EmailLog;
+      } | null)
+    | ({
+        relationTo: 'consent-log';
+        value: number | ConsentLog;
+      } | null)
+    | ({
+        relationTo: 'webhook-events';
+        value: number | WebhookEvent;
+      } | null)
+    | ({
+        relationTo: 'deletion-log';
+        value: number | DeletionLog;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -276,6 +511,112 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "audit-log_select".
+ */
+export interface AuditLogSelect<T extends boolean = true> {
+  action?: T;
+  actorType?: T;
+  actorUser?: T;
+  entityCollection?: T;
+  entityId?: T;
+  summary?: T;
+  changes?: T;
+  retainUntil?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "email-log_select".
+ */
+export interface EmailLogSelect<T extends boolean = true> {
+  template?: T;
+  to?: T;
+  locale?: T;
+  subject?: T;
+  status?: T;
+  transport?: T;
+  messageId?: T;
+  smtpResponse?: T;
+  sentAt?: T;
+  attempts?: T;
+  lastError?: T;
+  attachments?:
+    | T
+    | {
+        filename?: T;
+        sha256?: T;
+        sizeBytes?: T;
+        id?: T;
+      };
+  templateVersion?: T;
+  bodySha256?: T;
+  retainUntil?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "consent-log_select".
+ */
+export interface ConsentLogSelect<T extends boolean = true> {
+  purpose?: T;
+  granted?: T;
+  textSnapshot?: T;
+  textSha256?: T;
+  snippetKey?: T;
+  snippetVersion?: T;
+  locale?: T;
+  email?: T;
+  withdrawnAt?: T;
+  retainUntil?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "webhook-events_select".
+ */
+export interface WebhookEventsSelect<T extends boolean = true> {
+  provider?: T;
+  eventId?: T;
+  type?: T;
+  livemode?: T;
+  status?: T;
+  attempts?: T;
+  receivedAt?: T;
+  processedAt?: T;
+  lastError?: T;
+  payloadSha256?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "deletion-log_select".
+ */
+export interface DeletionLogSelect<T extends boolean = true> {
+  entityCollection?: T;
+  entityId?: T;
+  ruleId?: T;
+  action?: T;
+  trigger?: T;
+  taskSlug?: T;
+  privacyRequestRef?: T;
+  storageObjectsCount?: T;
+  executedAt?: T;
+  retainUntil?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -8,6 +8,11 @@ import sharp from 'sharp'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
+import { AuditLog } from './collections/AuditLog'
+import { ConsentLog } from './collections/ConsentLog'
+import { DeletionLog } from './collections/DeletionLog'
+import { EmailLog } from './collections/EmailLog'
+import { WebhookEvents } from './collections/WebhookEvents'
 import { ADMIN_CUSTOM_DE } from './admin/translations'
 import { getEnv } from './lib/env'
 
@@ -24,7 +29,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media],
+  collections: [Users, Media, AuditLog, EmailLog, ConsentLog, WebhookEvents, DeletionLog],
   editor: lexicalEditor(),
   // DATENMODELL §1.2 (E-60, E-61): fehlendes EN zeigt DE.
   localization: {

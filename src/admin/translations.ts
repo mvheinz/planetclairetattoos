@@ -13,6 +13,12 @@ export const ADMIN_CUSTOM_DE = {
   postalCodeDe: 'Deutsche Postleitzahl: genau 5 Ziffern.',
   required: 'Pflichtfeld.',
   categoryRequired: 'Bitte eine Kategorie wählen.',
+  integerMin1: 'Ganzzahl ≥ 1.',
+  integerMin0: 'Ganzzahl ≥ 0.',
+  entityIdInvalid:
+    'Nur die interne ID (Ziffern, Buchstaben, - oder _), keine Namen oder E-Mail-Adressen.',
+  privacyRequestRefInvalid: 'Format DS-JJJJ-NNNN.',
+  taskSlugInvalid: 'Task-Slug in camelCase (z. B. retentionOrders).',
   immutableField: 'Protokolleinträge sind unveränderlich.',
   ruleIdInvalid: 'Regel muss L-xx (z. B. „L-13 a“, „L-05 Stufe C“), DSGVO oder ADMIN sein.',
 } as const

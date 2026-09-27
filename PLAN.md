@@ -422,7 +422,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - unit `tests/unit/fields/seed-field.unit.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P1.7 Protokoll-Collections und Audit** – Laut DATENMODELL §6.21–§6.24 und §6.27: `src/collections/AuditLog.ts`,
+- [x] **P1.7 Protokoll-Collections und Audit** – Laut DATENMODELL §6.21–§6.24 und §6.27: `src/collections/AuditLog.ts`,
   `EmailLog.ts`, `ConsentLog.ts`, `WebhookEvents.ts` und `DeletionLog.ts` (`deletion-log`, L-18: ohne Inhalte, Namen
   oder E-Mail-Adressen).
   - Zugriff: `create: none`, Lesen nur Admin, `update`/`delete` gesperrt. Unveränderliche Felder werden per Hook

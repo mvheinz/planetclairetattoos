@@ -1,0 +1,159 @@
+import type { CollectionConfig } from 'payload'
+
+import { isAdmin, none } from '@/access'
+import { seedField } from '@/fields'
+import { ENUM_LABELS, enumOptions } from '@/lib/enumLabels'
+import { EMAIL_STATUSES, EMAIL_TEMPLATES, EMAIL_TRANSPORTS, LOCALES } from '@/lib/enums'
+import { L_12_EMAIL_LOG_UNRELATED, retainUntil } from '@/lib/retention/policy'
+
+import { immutableFields } from './hooks/immutable'
+
+// DATENMODELL §6.22 – Versandnachweis ohne Inhalt. Die Relationen `order`/`withdrawal`/`inquiry` folgen mit den
+// Ziel-Collections (P1.20/P1.21/P1.24); bis dahin gilt für alle Einträge L-12 „ohne Bezug“.
+
+/** Reservierte Empfänger-Domains werden in allen Umgebungen unterdrückt (R-180, ARCHITEKTUR §3.4). */
+export function isSuppressedRecipient(to: string): boolean {
+  const domain = to.split('@').pop()?.toLowerCase().trim() ?? ''
+  return (
+    ['example.com', 'example.org', 'example.net'].includes(domain) ||
+    domain.endsWith('.invalid') ||
+    domain.endsWith('.test') ||
+    domain === 'invalid' ||
+    domain === 'test'
+  )
+}
+
+const RELATION_FIELDS = ['order', 'withdrawal', 'inquiry'] as const
+
+export const EmailLog: CollectionConfig = {
+  slug: 'email-log',
+  labels: { singular: 'Mail-Protokoll', plural: 'Mail-Protokoll' },
+  admin: {
+    group: 'System',
+    useAsTitle: 'subject',
+    defaultColumns: ['createdAt', 'template', 'subject', 'status'],
+    description: 'Welche Mail wann verschickt wurde (ohne Inhalt). Nur lesen.',
+  },
+  access: { read: isAdmin, create: none, update: none, delete: none },
+  defaultSort: '-createdAt',
+  fields: [
+    {
+      name: 'template',
+      type: 'select',
+      label: 'Vorlage',
+      required: true,
+      index: true,
+      options: enumOptions(EMAIL_TEMPLATES, ENUM_LABELS.EMAIL_TEMPLATES),
+    },
+    { name: 'to', type: 'email', label: 'Empfänger', required: true },
+    {
+      name: 'locale',
+      type: 'select',
+      label: 'Sprache',
+      required: true,
+      options: enumOptions(LOCALES, ENUM_LABELS.LOCALES),
+    },
+    { name: 'subject', type: 'text', label: 'Betreff', required: true, maxLength: 200 },
+    {
+      name: 'status',
+      type: 'select',
+      label: 'Status',
+      required: true,
+      index: true,
+      defaultValue: 'queued',
+      options: enumOptions(EMAIL_STATUSES, ENUM_LABELS.EMAIL_STATUSES),
+    },
+    {
+      name: 'transport',
+      type: 'select',
+      label: 'Versandweg',
+      options: enumOptions(EMAIL_TRANSPORTS, ENUM_LABELS.EMAIL_TRANSPORTS),
+      admin: { readOnly: true },
+    },
+    { name: 'messageId', type: 'text', label: 'Message-ID', admin: { readOnly: true } },
+    {
+      name: 'smtpResponse',
+      type: 'text',
+      label: 'Antwort des Mailservers',
+      maxLength: 300,
+      admin: { readOnly: true },
+    },
+    { name: 'sentAt', type: 'date', label: 'Gesendet am', admin: { readOnly: true } },
+    {
+      name: 'attempts',
+      type: 'number',
+      label: 'Versuche',
+      defaultValue: 0,
+      min: 0,
+      admin: { readOnly: true },
+    },
+    {
+      name: 'lastError',
+      type: 'text',
+      label: 'Letzter Fehler',
+      maxLength: 1000,
+      admin: { readOnly: true },
+    },
+    {
+      name: 'attachments',
+      type: 'array',
+      label: 'Anhänge',
+      admin: { readOnly: true },
+      fields: [
+        { name: 'filename', type: 'text', required: true },
+        { name: 'sha256', type: 'text', required: true },
+        { name: 'sizeBytes', type: 'number', required: true, min: 0 },
+      ],
+    },
+    { name: 'templateVersion', type: 'text', label: 'Vorlagen-Version', admin: { readOnly: true } },
+    { name: 'bodySha256', type: 'text', label: 'Prüfsumme Inhalt', admin: { readOnly: true } },
+    {
+      name: 'retainUntil',
+      type: 'date',
+      label: 'Aufbewahren bis',
+      required: true,
+      index: true,
+      admin: { readOnly: true, position: 'sidebar' },
+    },
+    ...seedField(),
+  ],
+  hooks: {
+    beforeValidate: [
+      ({ operation, data, originalDoc }) => {
+        if (!data) return data
+        if (
+          operation === 'create' &&
+          typeof data.to === 'string' &&
+          isSuppressedRecipient(data.to)
+        ) {
+          data.status = 'suppressed'
+        }
+        // L-12: ohne Bezug Versand + 90 Tage (vor dem Versand ab Anlage); mit Bezug setzt der Service den Wert.
+        const doc = { ...(originalDoc ?? {}), ...data } as Record<string, unknown>
+        const related = RELATION_FIELDS.some((f) => doc[f])
+        if (!related && (operation === 'create' || 'sentAt' in data)) {
+          const base = doc.sentAt ?? doc.createdAt
+          const at = base ? new Date(base as string) : new Date()
+          data.retainUntil = retainUntil(L_12_EMAIL_LOG_UNRELATED, at).toISOString()
+        }
+        return data
+      },
+    ],
+    beforeChange: [
+      immutableFields([
+        'status',
+        'transport',
+        'messageId',
+        'smtpResponse',
+        'sentAt',
+        'attempts',
+        'lastError',
+        'attachments',
+        'templateVersion',
+        'bodySha256',
+        'retainUntil',
+        ...RELATION_FIELDS,
+      ]),
+    ],
+  },
+}
