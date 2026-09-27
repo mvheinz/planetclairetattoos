@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P1 CI grün
+
+- Phasenende-Lauf `[ci:full p1]` auf PR #1 grün (`CI / quick`, 11 min, Kopf `f266c47`): Lint, Typen, statische
+  Prüfungen, Unit, Migrationen + Drift, Int (reihenfolgeunabhängig dank Ausgangszustand je Datei), Seed + Build,
+  Budgets, E2E-Rauchtest, gitleaks, audit. Zuvor behoben: falscher `CARRIER_DRIVER` in `ci.yml`, `db:reset` prüft den
+  DB-Namen vor dem Verbinden, Int-Tests hingen von der Dateireihenfolge ab.
+
 ## 2026-09-27 – P1 Phasen-Abnahme (Datenmodell, Verwaltung, Werkzeuge)
 
 - Alle Aufgaben P1.1–P1.33a erledigt: 27 Collections + 2 Globals mit Migrationen und eigenen Postgres-Objekten,
