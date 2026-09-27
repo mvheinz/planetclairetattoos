@@ -1254,26 +1254,26 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Ohne Jutta: –
 
 ### Phasen-Abnahme
-- [ ] Alle Aufgaben P1.1–P1.33 einschließlich P1.1a, P1.1b und P1.33a sind abgehakt.
-- [ ] Lokal grün: `pnpm check`, `pnpm test:int`, `pnpm test:e2e --grep @smoke`, `pnpm build`.
+- [x] Alle Aufgaben P1.1–P1.33 einschließlich P1.1a, P1.1b und P1.33a sind abgehakt.
+- [x] Lokal grün: `pnpm check`, `pnpm test:int`, `pnpm test:e2e --grep @smoke`, `pnpm build`.
 - [ ] CI grün – erst nach dem grünen Lauf abhaken, in einem Doku-Commit mit `[skip ci]`: Der letzte Commit ohne
   `[skip ci]` trägt `[ci:full p1]` (W-31; ARCHITEKTUR §6.7); `CI / quick` ist auf dem PR grün. Damit sind die
   „(CI-Nachweis)“-Kriterien aus P1.1a und P1.33 belegt.
-- [ ] DM-P1-01 bis DM-P1-07 grün; ebenso T-05, T-14, T-15, T-17. Alle 27 Collections der P1 (DATENMODELL §10.1: alle
+- [x] DM-P1-01 bis DM-P1-07 grün; ebenso T-05, T-14, T-15, T-17. Alle 27 Collections der P1 (DATENMODELL §10.1: alle
   29 außer `legal-snippets` und `complaints`) und 2 Globals existieren.
-- [ ] `LEGAL_TRACE_PHASE = 1` grün.
-- [ ] `pnpm check:migrations` grün; `src/payload-types.ts` und `importMap.js` aktuell.
-- [ ] Spikes B-01, B-02, B-09 sind in ARCHITEKTUR Anhang B mit „Ergebnis: …, Datum, PR“ eingetragen, bei Abweichung
+- [x] `LEGAL_TRACE_PHASE = 1` grün.
+- [x] `pnpm check:migrations` grün; `src/payload-types.ts` und `importMap.js` aktuell.
+- [x] Spikes B-01, B-02, B-09 sind in ARCHITEKTUR Anhang B mit „Ergebnis: …, Datum, PR“ eingetragen, bei Abweichung
   mit ADR in `docs/adr/`. Die ADR zu `server-only` in Skripten existiert.
-- [ ] `pnpm seed:reset` läuft auf frischer Test-DB ohne Fehler; danach enthält die Verwaltung unter `/werkstatt` den
+- [x] `pnpm seed:reset` läuft auf frischer Test-DB ohne Fehler; danach enthält die Verwaltung unter `/werkstatt` den
   Mini-Bestand.
-- [ ] `docs/OFFENE-PUNKTE.md` enthält die W-Liste und die übernommenen Annahmen (C-xx, DM-xx, DA-x, KA-xx, SE-xx); die
+- [x] `docs/OFFENE-PUNKTE.md` enthält die W-Liste und die übernommenen Annahmen (C-xx, DM-xx, DA-x, KA-xx, SE-xx); die
   Prüfstellen aus P1.2 sind abgehakt; neue Owner-Punkte stehen in `docs/owner/AUFGABEN.md` unter der nächsten freien
   A-Nummer (falls nötig).
-- [ ] Eintrag in `docs/FORTSCHRITT.md`: was erledigt wurde und wie es getestet ist.
+- [x] Eintrag in `docs/FORTSCHRITT.md`: was erledigt wurde und wie es getestet ist.
 - [ ] PR-Titel und -Text (Deutsch) aktualisiert, oben „Bitte mergen – CI ist grün“.
-- [ ] Keine echten Schlüssel oder Konten im Repo (gitleaks grün).
-- [ ] Ein Vorschau-Artefakt ist in P1 nicht nötig; Pflicht ab P2.
+- [x] Keine echten Schlüssel oder Konten im Repo (gitleaks grün).
+- [x] Ein Vorschau-Artefakt ist in P1 nicht nötig; Pflicht ab P2.
 
 ---
 

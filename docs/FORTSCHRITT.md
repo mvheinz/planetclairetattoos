@@ -2,6 +2,19 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P1 Phasen-Abnahme (Datenmodell, Verwaltung, Werkzeuge)
+
+- Alle Aufgaben P1.1–P1.33a erledigt: 27 Collections + 2 Globals mit Migrationen und eigenen Postgres-Objekten,
+  Zugriffsschutz (Matrix T-15), Adapter mit Mocks (Speicher, Mail, Zahlung, Übersetzung, Versand), Bildpipeline ohne
+  Metadaten, Objektnummern und Veröffentlichungsregeln je Kategorie, Verwaltung unter `/werkstatt` mit Sperre,
+  Seed-Rahmen mit Grund-Seed und Mini-Beispielbestand, erweiterte CI (gitleaks, audit, Budget, Minuten-Wächter).
+- Lokal grün: `pnpm check` (418 Unit-Tests), `pnpm test:int` (358 grün, 5 optional übersprungen: S3/stripe-mock ohne
+  Dienst), `pnpm test:e2e --grep @smoke` (24, desktop/iphone-15/pixel-7), `pnpm build`, `check:migrations`,
+  `seed:reset` auf frischer Test-DB.
+- Spikes B-01, B-02, B-09 in ARCHITEKTUR Anhang B; ADR 0001 (`server-only` in Skripten).
+- Nächster Schritt: CI-Lauf `[ci:full p1]` grün → Merge, dann P2.1. Stolpersteine: Login-Rate-Limit in E2E (Fixture
+  `adminPage` meldet über die Local API an); lokalisierte Felder brauchen `localeSync`; Nummern kommen aus Sequenzen.
+
 ## 2026-09-27 – P1.33a
 
 - `pnpm ci:minutes` (`scripts/ci/minutes.ts`): Läufe des laufenden UTC-Monats (`created>=JJJJ-MM-01`, alle Seiten), je Lauf `timing` (`billable.UBUNTU.job_runs`), sonst `jobs` (`completed_at − started_at`), je Job aufgerundet; Ausgabe `MINUTEN_MONAT`/`MINUTEN_STATUS` (knapp ab 1.500, erschoepft ab 2.000, `unbekannt` mit deutscher Meldung bei fehlendem `gh`/Netz/Rechten); Exit immer 0; nur GET über injizierbare `gh`-Aufrufe.\n- Lokal ohne `gh`: `MINUTEN_STATUS=unbekannt` („Minuten-Stand nicht abrufbar“).\n- Tests: `minutes.unit.spec.ts` (6, AK-A-6-03) mit aufgezeichneten Antworten unter `tests/fixtures/github/minutes/`; `pnpm check` grün.
