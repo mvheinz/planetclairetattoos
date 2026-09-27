@@ -839,7 +839,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - unit `tests/unit/commerce/shipping.unit.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P1.21 `invoices`, `invoice-counters`, `withdrawals` (Schema)** – `src/collections/Invoices.ts` (§6.9),
+- [x] **P1.21 `invoices`, `invoice-counters`, `withdrawals` (Schema)** – `src/collections/Invoices.ts` (§6.9),
   `InvoiceCounters.ts` (§6.10) und `Withdrawals.ts` (§6.11).
   - Belege sind nach `issued` unveränderlich. Der GoBD-Trigger kommt in P1.26.
   - `src/lib/commerce/invoiceNumber.ts` vergibt Nummern über eine Zählerzeile mit Row-Lock (§8.6). Serien `RE`, `GS`,

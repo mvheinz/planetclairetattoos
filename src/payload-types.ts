@@ -77,6 +77,9 @@ export interface Config {
     checkouts: Checkout;
     reservations: Reservation;
     orders: Order;
+    invoices: Invoice;
+    'invoice-counters': InvoiceCounter;
+    withdrawals: Withdrawal;
     'audit-log': AuditLog;
     'email-log': EmailLog;
     'consent-log': ConsentLog;
@@ -90,6 +93,8 @@ export interface Config {
   };
   collectionsJoins: {
     orders: {
+      creditNotes: 'invoices';
+      withdrawals: 'withdrawals';
       emails: 'email-log';
     };
   };
@@ -104,6 +109,9 @@ export interface Config {
     checkouts: CheckoutsSelect<false> | CheckoutsSelect<true>;
     reservations: ReservationsSelect<false> | ReservationsSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
+    invoices: InvoicesSelect<false> | InvoicesSelect<true>;
+    'invoice-counters': InvoiceCountersSelect<false> | InvoiceCountersSelect<true>;
+    withdrawals: WithdrawalsSelect<false> | WithdrawalsSelect<true>;
     'audit-log': AuditLogSelect<false> | AuditLogSelect<true>;
     'email-log': EmailLogSelect<false> | EmailLogSelect<true>;
     'consent-log': ConsentLogSelect<false> | ConsentLogSelect<true>;
@@ -1010,6 +1018,17 @@ export interface Order {
     | null;
   carrierEmailConsent?: boolean | null;
   carrierEmailConsentRevokedAt?: string | null;
+  invoice?: (number | null) | Invoice;
+  creditNotes?: {
+    docs?: (number | Invoice)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  withdrawals?: {
+    docs?: (number | Withdrawal)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   emails?: {
     docs?: (number | EmailLog)[];
     hasNextPage?: boolean;
@@ -1033,6 +1052,7 @@ export interface Order {
         status: 'pending' | 'succeeded' | 'failed';
         stripeRefundId?: string | null;
         manualTransferConfirmedAt?: string | null;
+        creditNote?: (number | null) | Invoice;
         createdAt: string;
         id?: string | null;
       }[]
@@ -1261,6 +1281,122 @@ export interface Checkout {
   createdAt: string;
 }
 /**
+ * Rechnungen und Gutschriften – unveränderlich (GoBD). Nur lesen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "invoices".
+ */
+export interface Invoice {
+  id: number;
+  number: string;
+  type: 'invoice' | 'credit_note';
+  series: 'RE' | 'GS' | 'BSP-RE' | 'BSP-GS';
+  year: number;
+  sequenceNumber: number;
+  status: 'pending_pdf' | 'issued';
+  order: number | Order;
+  relatedInvoice?: (number | null) | Invoice;
+  issueDate: string;
+  deliveryDate: string;
+  taxMode: 'kleinunternehmer' | 'regelbesteuert';
+  isKleinunternehmer?: boolean | null;
+  totalGrossCents: number;
+  totalNetCents: number;
+  totalTaxCents: number;
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  pdf?: (number | null) | PrivateUpload;
+  sha256?: string | null;
+  renderedAt?: string | null;
+  reason?:
+    | ('withdrawal' | 'goodwill' | 'complaint' | 'breakage' | 'admin_cancellation' | 'item_unavailable' | 'dispute')
+    | null;
+  retainUntil: string;
+  anonymizedAt?: string | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "withdrawals".
+ */
+export interface Withdrawal {
+  id: number;
+  reference: string;
+  channel: 'online_form' | 'email' | 'letter' | 'other';
+  receivedAt: string;
+  name?: string | null;
+  contractIdentification?: string | null;
+  email?: string | null;
+  itemsText?: string | null;
+  reason?: string | null;
+  locale: 'de' | 'en';
+  submissionSnapshot:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  order?: (number | null) | Order;
+  matchStatus: 'auto_matched' | 'needs_manual_match' | 'manually_matched' | 'no_order';
+  affectedItemIds?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  status: 'received' | 'goods_returned' | 'partially_refunded' | 'refunded' | 'rejected' | 'closed';
+  confirmationSentAt?: string | null;
+  confirmationEmail?: (number | null) | EmailLog;
+  refundDueAt: string;
+  returnTrackingNumber?: string | null;
+  returnProofReceivedAt?: string | null;
+  goodsReturnedAt?: string | null;
+  refundedAt?: string | null;
+  closedAt?: string | null;
+  rejectedAt?: string | null;
+  closeReason?: ('unpaid_order_cancelled' | 'duplicate' | 'retracted' | 'other') | null;
+  closeNote?: string | null;
+  deadlineReminderSentAt?: string | null;
+  spam?: {
+    markedAt?: string | null;
+    reason?: string | null;
+  };
+  adminNotes?: string | null;
+  privacy?: {
+    /**
+     * Art. 18 bzw. Art. 17 Abs. 3 lit. b DSGVO: keine Mails, nur Pflichtzwecke.
+     */
+    processingRestricted?: boolean | null;
+    restrictedAt?: string | null;
+    legalHold?: boolean | null;
+    legalHoldReason?: string | null;
+    legalHoldSince?: string | null;
+    legalHoldReviewedAt?: string | null;
+    anonymizedAt?: string | null;
+  };
+  retainUntil?: string | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Welche Mail wann verschickt wurde (ohne Inhalt). Nur lesen.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1323,6 +1459,7 @@ export interface EmailLog {
   bodySha256?: string | null;
   retainUntil: string;
   order?: (number | null) | Order;
+  withdrawal?: (number | null) | Withdrawal;
   seed?: boolean | null;
   seedKey?: string | null;
   updatedAt: string;
@@ -1359,6 +1496,20 @@ export interface Reservation {
     | null;
   seed?: boolean | null;
   seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Letzte vergebene Belegnummer je Serie und Jahr. Nur lesen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "invoice-counters".
+ */
+export interface InvoiceCounter {
+  id: number;
+  series: string;
+  year: number;
+  lastNumber: number;
   updatedAt: string;
   createdAt: string;
 }
@@ -1660,6 +1811,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'orders';
         value: number | Order;
+      } | null)
+    | ({
+        relationTo: 'invoices';
+        value: number | Invoice;
+      } | null)
+    | ({
+        relationTo: 'invoice-counters';
+        value: number | InvoiceCounter;
+      } | null)
+    | ({
+        relationTo: 'withdrawals';
+        value: number | Withdrawal;
       } | null)
     | ({
         relationTo: 'audit-log';
@@ -2307,6 +2470,9 @@ export interface OrdersSelect<T extends boolean = true> {
   legalSnippetVersions?: T;
   carrierEmailConsent?: T;
   carrierEmailConsentRevokedAt?: T;
+  invoice?: T;
+  creditNotes?: T;
+  withdrawals?: T;
   emails?: T;
   refunds?:
     | T
@@ -2318,6 +2484,7 @@ export interface OrdersSelect<T extends boolean = true> {
         status?: T;
         stripeRefundId?: T;
         manualTransferConfirmedAt?: T;
+        creditNote?: T;
         createdAt?: T;
         id?: T;
       };
@@ -2355,6 +2522,104 @@ export interface OrdersSelect<T extends boolean = true> {
   statusTokenSealed?: T;
   statusTokenIssuedAt?: T;
   notes?: T;
+  privacy?:
+    | T
+    | {
+        processingRestricted?: T;
+        restrictedAt?: T;
+        legalHold?: T;
+        legalHoldReason?: T;
+        legalHoldSince?: T;
+        legalHoldReviewedAt?: T;
+        anonymizedAt?: T;
+      };
+  retainUntil?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "invoices_select".
+ */
+export interface InvoicesSelect<T extends boolean = true> {
+  number?: T;
+  type?: T;
+  series?: T;
+  year?: T;
+  sequenceNumber?: T;
+  status?: T;
+  order?: T;
+  relatedInvoice?: T;
+  issueDate?: T;
+  deliveryDate?: T;
+  taxMode?: T;
+  isKleinunternehmer?: T;
+  totalGrossCents?: T;
+  totalNetCents?: T;
+  totalTaxCents?: T;
+  data?: T;
+  pdf?: T;
+  sha256?: T;
+  renderedAt?: T;
+  reason?: T;
+  retainUntil?: T;
+  anonymizedAt?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "invoice-counters_select".
+ */
+export interface InvoiceCountersSelect<T extends boolean = true> {
+  series?: T;
+  year?: T;
+  lastNumber?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "withdrawals_select".
+ */
+export interface WithdrawalsSelect<T extends boolean = true> {
+  reference?: T;
+  channel?: T;
+  receivedAt?: T;
+  name?: T;
+  contractIdentification?: T;
+  email?: T;
+  itemsText?: T;
+  reason?: T;
+  locale?: T;
+  submissionSnapshot?: T;
+  order?: T;
+  matchStatus?: T;
+  affectedItemIds?: T;
+  status?: T;
+  confirmationSentAt?: T;
+  confirmationEmail?: T;
+  refundDueAt?: T;
+  returnTrackingNumber?: T;
+  returnProofReceivedAt?: T;
+  goodsReturnedAt?: T;
+  refundedAt?: T;
+  closedAt?: T;
+  rejectedAt?: T;
+  closeReason?: T;
+  closeNote?: T;
+  deadlineReminderSentAt?: T;
+  spam?:
+    | T
+    | {
+        markedAt?: T;
+        reason?: T;
+      };
+  adminNotes?: T;
   privacy?:
     | T
     | {
@@ -2418,6 +2683,7 @@ export interface EmailLogSelect<T extends boolean = true> {
   bodySha256?: T;
   retainUntil?: T;
   order?: T;
+  withdrawal?: T;
   seed?: T;
   seedKey?: T;
   updatedAt?: T;

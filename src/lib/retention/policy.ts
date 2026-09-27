@@ -437,6 +437,23 @@ export function orderRelatedRetainUntil(orderRetainUntil: Date | null, eventAt: 
   return orderRetainUntil ?? retainUntil(L_05_ORDERS_STAGE_D, eventAt)
 }
 
+/**
+ * Widerrufe (L-08, DATENMODELL §6.11): zugeordnet wie die Bestellung, mindestens Ende des Eingangsjahres + 6 Jahre;
+ * nicht zugeordnet Ende des Eingangsjahres + 6 Jahre; als Test/Spam markiert `spam.markedAt` + 30 Tage.
+ */
+export function withdrawalRetainUntil(input: {
+  receivedAt: Date
+  orderRetainUntil?: Date | null
+  spamMarkedAt?: Date | null
+}): Date {
+  if (input.spamMarkedAt) return retainUntil(L_08_WITHDRAWALS_SPAM, input.spamMarkedAt)
+  const own = retainUntil(L_08_WITHDRAWALS, input.receivedAt)
+  if (input.orderRetainUntil && input.orderRetainUntil.getTime() > own.getTime()) {
+    return input.orderRetainUntil
+  }
+  return own
+}
+
 /** Audit-Aktionen mit 10 Jahren ab Jahresende (Beleg-, Bestell-, Widerrufs- und Rechtstext-Aktionen, L-13 h). */
 export const AUDIT_LONG_RETENTION_ACTIONS: ReadonlySet<AuditAction> = new Set<AuditAction>([
   'order_created',

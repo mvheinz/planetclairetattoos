@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P1.21
+
+- Collections `invoices` (Nummer lückenlos per Zählerzeile mit Row-Lock in der Transaktion der Anlage, Serien RE/GS/BSP-RE/BSP-GS, Steuermodus je Beleg eingefroren, retainUntil nach settings.retention.invoiceYears, nach Anlage unveränderlich, ausgestellt genau einmal mit PDF und SHA-256, Löschen nur Beispielbelege), `invoice-counters` (UNIQUE Serie+Jahr) und `withdrawals` (Serverzeit bei der Widerrufsfunktion, Angaben unveränderlich, Snapshot, Frist + 14 Tage, Auto-Zuordnung über Bestellnummer + E-Mail, Übergänge laut `withdrawalTransitions.ts`, Ablehnen nie automatisch, Aufbewahrung L-08).
+- `src/lib/commerce/invoiceNumber.ts`, `src/lib/db/tx.ts` (SQL in der Payload-Transaktion), `src/lib/tax/` (`getTaxModeAt`, `computeTax`); `orders.invoice`, Joins `creditNotes`/`withdrawals`, `refunds[].creditNote`, `email-log.withdrawal`. Migration `p1_invoices`.
+- Tests: unit tax-mode (5, R-032/DM-INV-04 Logik); int invoice-number (5: DM-INV-01 20 parallele Vergaben ohne Lücke, DM-INV-02 Rollback verbraucht keine Nummer, Gutschrift, Unveränderlichkeit, DM-INV-04 alter Beleg bleibt Kleinunternehmer), int withdrawals (6: DM-WDR-03, Serverzeit, Zuordnung, manuelle Erfassung, Übergänge, REST 403/404); pnpm check, test:int, build grün.
+
 ## 2026-09-27 – P1.20
 
 - Collections `checkouts` (nur Token-Hash, Snapshot fest, Zustände über `checkoutTransitions.ts`), `reservations` (active → converted/released mit Grund) und `orders` (Snapshot, Summen, Nummer, Steuermodus, Zahlart, Bausteinfassungen und Statusverlauf unveränderlich; Status nur mit Übergangs-Kennung nach `ORDER_TRANSITIONS`, je Wechsel Verlaufseintrag O1–O21, Zeitstempel, `finalStatusAt`/`retainUntil` Stufe D, Audit; Status-Token nur als Hash + verborgenes Siegel; Löschen echter Bestellungen gesperrt).

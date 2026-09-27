@@ -11,6 +11,7 @@ import * as migration_20260927_115819_p1_globals from './20260927_115819_p1_glob
 import * as migration_20260927_120755_p1_categories from './20260927_120755_p1_categories';
 import * as migration_20260927_122558_p1_products from './20260927_122558_p1_products';
 import * as migration_20260927_131109_p1_orders from './20260927_131109_p1_orders';
+import * as migration_20260927_132358_p1_invoices from './20260927_132358_p1_invoices';
 
 export const migrations = [
   {
@@ -76,6 +77,11 @@ export const migrations = [
   {
     up: migration_20260927_131109_p1_orders.up,
     down: migration_20260927_131109_p1_orders.down,
-    name: '20260927_131109_p1_orders'
+    name: '20260927_131109_p1_orders',
+  },
+  {
+    up: migration_20260927_132358_p1_invoices.up,
+    down: migration_20260927_132358_p1_invoices.down,
+    name: '20260927_132358_p1_invoices'
   },
 ];

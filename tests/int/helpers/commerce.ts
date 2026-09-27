@@ -115,7 +115,14 @@ export function checkoutData(items: ItemInput[], overrides: Record<string, unkno
 export async function deleteCommerce(payload: Payload): Promise<void> {
   const db = dbOf(payload)
   await db.execute(sql`UPDATE products SET current_order_id = NULL`)
-  for (const table of ['reservations', 'checkouts', 'orders']) {
+  for (const table of [
+    'withdrawals',
+    'invoices',
+    'invoice_counters',
+    'reservations',
+    'checkouts',
+    'orders',
+  ]) {
     const exists = await db.execute(sql`SELECT to_regclass(${table}) AS t`)
     if (exists.rows[0]?.t) await db.execute(sql.raw(`DELETE FROM "${table}"`))
   }

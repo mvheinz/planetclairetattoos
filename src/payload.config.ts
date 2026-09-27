@@ -17,6 +17,9 @@ import { Products } from './collections/Products'
 import { Checkouts } from './collections/Checkouts'
 import { Reservations } from './collections/Reservations'
 import { Orders } from './collections/Orders'
+import { Invoices } from './collections/Invoices'
+import { InvoiceCounters } from './collections/InvoiceCounters'
+import { Withdrawals } from './collections/Withdrawals'
 import { AuditLog } from './collections/AuditLog'
 import { ConsentLog } from './collections/ConsentLog'
 import { DeletionLog } from './collections/DeletionLog'
@@ -64,6 +67,9 @@ export default buildConfig({
     Checkouts,
     Reservations,
     Orders,
+    Invoices,
+    InvoiceCounters,
+    Withdrawals,
     AuditLog,
     EmailLog,
     ConsentLog,

@@ -50,6 +50,7 @@ import {
   L_05_ORDERS_STAGE_D,
   L_05_SHIPPED_FINAL_STATUS_FALLBACK,
   retainUntil,
+  withdrawalRetainUntil,
 } from '@/lib/retention/policy'
 
 import { actorTypeOf, failField, groupOf, rejectChanges, SHA256_HEX } from './hooks/commerce'
@@ -57,7 +58,7 @@ import { changedFields } from './hooks/immutable'
 
 // DATENMODELL §6.8 – Bestellungen (Gastbestellungen, E-30) mit unveränderlichem Snapshot. Eine Bestellung entsteht
 // erst mit bestätigter Zahlung (O1/O19) oder beim Vorkasse-Abschluss (O2) über createOrderFromCheckout() (P4).
-// Verweise auf `invoices`/`withdrawals` ergänzt P1.21, `legalTextVersions` P1.22, `complaints` P6.
+// Verweise auf `invoices`/`withdrawals` seit P1.21; `legalTextVersions` ergänzt P1.22, `complaints` P6.
 
 const SLUG = 'orders'
 const fail = (message: string, path: string): never => failField(SLUG, message, path)
@@ -285,6 +286,38 @@ const guardOrder: CollectionBeforeChangeHook = ({ data, originalDoc, operation, 
 }
 
 async function propagateRetention(req: PayloadRequest, orderId: number, until: string) {
+  // Widerrufe: wie die Bestellung, mindestens Ende des Eingangsjahres + 6 Jahre (L-08)
+  const withdrawals = await preservingReq(req, () =>
+    req.payload.find({
+      collection: 'withdrawals',
+      where: { order: { equals: orderId } },
+      pagination: false,
+      depth: 0,
+      select: { receivedAt: true, spam: true, retainUntil: true },
+      overrideAccess: true,
+      req,
+    }),
+  )
+  for (const w of withdrawals.docs) {
+    const next = withdrawalRetainUntil({
+      receivedAt: new Date(w.receivedAt),
+      orderRetainUntil: new Date(until),
+      spamMarkedAt: w.spam?.markedAt ? new Date(w.spam.markedAt) : null,
+    }).toISOString()
+    if (next !== w.retainUntil) {
+      await preservingReq(req, () =>
+        req.payload.update({
+          collection: 'withdrawals',
+          id: w.id,
+          data: { retainUntil: next } as never,
+          depth: 0,
+          overrideAccess: true,
+          req,
+          context: { system: true, seed: false },
+        }),
+      )
+    }
+  }
   for (const collection of ['email-log', 'consent-log'] as const) {
     await preservingReq(req, () =>
       req.payload.update({
@@ -721,6 +754,22 @@ export const Orders: CollectionConfig = {
       label: 'DHL-Einwilligung widerrufen am',
       admin: ro,
     },
+    { name: 'invoice', type: 'relationship', label: 'Rechnung', relationTo: 'invoices', admin: ro },
+    {
+      name: 'creditNotes',
+      type: 'join',
+      label: 'Gutschriften',
+      collection: 'invoices',
+      on: 'order',
+      where: { type: { equals: 'credit_note' } },
+    },
+    {
+      name: 'withdrawals',
+      type: 'join',
+      label: 'Widerrufe',
+      collection: 'withdrawals',
+      on: 'order',
+    },
     {
       name: 'emails',
       type: 'join',
@@ -751,6 +800,7 @@ export const Orders: CollectionConfig = {
         }),
         { name: 'stripeRefundId', type: 'text', label: 'Stripe-Erstattung' },
         { name: 'manualTransferConfirmedAt', type: 'date', label: 'Überweisung bestätigt am' },
+        { name: 'creditNote', type: 'relationship', label: 'Gutschrift', relationTo: 'invoices' },
         { name: 'createdAt', type: 'date', label: 'Angelegt am', required: true },
       ],
     },

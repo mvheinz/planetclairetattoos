@@ -14,8 +14,8 @@ import {
 
 import { immutableFields } from './hooks/immutable'
 
-// DATENMODELL §6.22 – Versandnachweis ohne Inhalt. Relation `order` seit P1.20; `withdrawal` folgt mit P1.21,
-// `inquiry` mit P1.24. Ohne Bezug gilt L-12; mit Bezug die Frist des Bezugsobjekts (Service bzw. Bestell-Hook).
+// DATENMODELL §6.22 – Versandnachweis ohne Inhalt. Relationen `order` (P1.20) und `withdrawal` (P1.21); `inquiry`
+// folgt mit P1.24. Ohne Bezug gilt L-12; mit Bezug die Frist des Bezugsobjekts (Service bzw. Bestell-Hook).
 
 /** Reservierte Empfänger-Domains werden in allen Umgebungen unterdrückt (R-180, ARCHITEKTUR §3.4). */
 export { isSuppressedRecipient }
@@ -143,6 +143,14 @@ export const EmailLog: CollectionConfig = {
       index: true,
       admin: { readOnly: true },
     },
+    {
+      name: 'withdrawal',
+      type: 'relationship',
+      label: 'Widerruf',
+      relationTo: 'withdrawals',
+      index: true,
+      admin: { readOnly: true },
+    },
     ...seedField(),
   ],
   hooks: {
@@ -162,6 +170,25 @@ export const EmailLog: CollectionConfig = {
           const base = doc.createdAt ? new Date(doc.createdAt as string) : new Date()
           const until = await retainUntilFromOrder(req, data.order, base)
           if (until) data.retainUntil = until
+        }
+        if (
+          (operation === 'create' || 'withdrawal' in data) &&
+          data.withdrawal &&
+          !data.retainUntil
+        ) {
+          const id = typeof data.withdrawal === 'object' ? data.withdrawal.id : data.withdrawal
+          const w = await preservingReq(req, () =>
+            req.payload.findByID({
+              collection: 'withdrawals',
+              id,
+              depth: 0,
+              select: { retainUntil: true },
+              overrideAccess: true,
+              disableErrors: true,
+              req,
+            }),
+          )
+          if (w?.retainUntil) data.retainUntil = w.retainUntil
         }
         const related = RELATION_FIELDS.some((f) => doc[f])
         if (!related && (operation === 'create' || 'sentAt' in data)) {
