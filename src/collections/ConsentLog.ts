@@ -13,10 +13,11 @@ import {
   retainUntil,
 } from '@/lib/retention/policy'
 
+import { retainUntilFromInquiry } from './EmailLog'
 import { immutableFields } from './hooks/immutable'
 
-// DATENMODELL §6.23. Relationen `checkout`/`order`/`product` seit P1.20, `inquiry` folgt mit P1.24. Änderbar ist nur
-// `withdrawnAt` (Endpoint, P5) sowie der Bezug und seine Frist.
+// DATENMODELL §6.23. Relationen `checkout`/`order`/`product` seit P1.20, `inquiry` seit P1.24 (Frist wie die
+// Anfrage). Änderbar ist nur `withdrawnAt` (Endpoint, P5) sowie der Bezug und seine Frist.
 
 export const sha256Hex = (text: string) => createHash('sha256').update(text, 'utf8').digest('hex')
 
@@ -91,6 +92,7 @@ export const ConsentLog: CollectionConfig = {
       index: true,
     },
     { name: 'product', type: 'relationship', label: 'Stück', relationTo: 'products' },
+    { name: 'inquiry', type: 'relationship', label: 'Anfrage', relationTo: 'inquiries' },
     {
       name: 'retainUntil',
       type: 'date',
@@ -114,6 +116,10 @@ export const ConsentLog: CollectionConfig = {
             data.order,
             created ? new Date(created as string) : new Date(),
           )
+          if (until) data.retainUntil = until
+        }
+        if ((operation === 'create' || 'inquiry' in data) && data.inquiry && !data.retainUntil) {
+          const until = await retainUntilFromInquiry(req, data.inquiry)
           if (until) data.retainUntil = until
         }
         if (operation === 'create' && !data.retainUntil) {

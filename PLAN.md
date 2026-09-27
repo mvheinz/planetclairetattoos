@@ -969,7 +969,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: int `tests/int/collections/tattoo.int.spec.ts` (DM-OFF-01, DM-GAL-01, AK-1-03).
   - Ohne Jutta: Einwilligungen holt Jutta nach (A13).
 
-- [ ] **P1.24 `inquiries`, `faqs`, `pages`, `revenue-entries`, `privacy-requests`** – Laut DATENMODELL §6.17–§6.20 und
+- [x] **P1.24 `inquiries`, `faqs`, `pages`, `revenue-entries`, `privacy-requests`** – Laut DATENMODELL §6.17–§6.20 und
   §6.26.
   - `inquiries`: `create: none` (Formular P7), Referenzbilder in `private-uploads`, `deleteAfter` = `createdAt` +
     6 Monate (L-10, aus `src/lib/retention/policy.ts`), `reference` `AA-<JJJJ>-<NNNN>`.

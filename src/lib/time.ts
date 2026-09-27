@@ -1,7 +1,14 @@
 // Zeitquelle und Berliner Kalender (ARCHITEKTUR §3.9, A-08). DB speichert UTC, Anzeige Europe/Berlin (CLAUDE.md §6).
 // Reines Hilfsmodul ohne Server-Zugriff: auch für Client und Verhaltensmodule importierbar.
 import { TZDate } from '@date-fns/tz'
-import { addDays, format, startOfDay, startOfMonth, type Locale as DateFnsLocale } from 'date-fns'
+import {
+  addDays,
+  addMonths,
+  format,
+  startOfDay,
+  startOfMonth,
+  type Locale as DateFnsLocale,
+} from 'date-fns'
 import { de, enGB } from 'date-fns/locale'
 
 export const APP_TIME_ZONE = 'Europe/Berlin'
@@ -29,6 +36,11 @@ export function berlinDayStart(d: Date): Date {
 /** n Berliner Kalendertage addieren (Uhrzeit bleibt lokal gleich, auch über die Zeitumstellung). */
 export function addBerlinDays(d: Date, n: number): Date {
   return toDate(addDays(inBerlin(d), n))
+}
+
+/** n Berliner Kalendermonate addieren (kalendergenau: 31.01. + 1 Monat = 28./29.02.; Uhrzeit bleibt lokal gleich). */
+export function addBerlinMonths(d: Date, n: number): Date {
+  return toDate(addMonths(inBerlin(d), n))
 }
 
 /** Monatsbereich `[start, end)` für `YYYY-MM` in Berliner Zeit. */

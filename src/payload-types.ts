@@ -84,6 +84,11 @@ export interface Config {
     flash: Flash;
     'tattoo-offers': TattooOffer;
     'tattoo-gallery': TattooGallery;
+    inquiries: Inquiry;
+    faqs: Faq;
+    pages: Page;
+    'revenue-entries': RevenueEntry;
+    'privacy-requests': PrivacyRequest;
     'audit-log': AuditLog;
     'email-log': EmailLog;
     'consent-log': ConsentLog;
@@ -120,6 +125,11 @@ export interface Config {
     flash: FlashSelect<false> | FlashSelect<true>;
     'tattoo-offers': TattooOffersSelect<false> | TattooOffersSelect<true>;
     'tattoo-gallery': TattooGallerySelect<false> | TattooGallerySelect<true>;
+    inquiries: InquiriesSelect<false> | InquiriesSelect<true>;
+    faqs: FaqsSelect<false> | FaqsSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
+    'revenue-entries': RevenueEntriesSelect<false> | RevenueEntriesSelect<true>;
+    'privacy-requests': PrivacyRequestsSelect<false> | PrivacyRequestsSelect<true>;
     'audit-log': AuditLogSelect<false> | AuditLogSelect<true>;
     'email-log': EmailLogSelect<false> | EmailLogSelect<true>;
     'consent-log': ConsentLogSelect<false> | ConsentLogSelect<true>;
@@ -367,6 +377,8 @@ export interface PrivateUpload {
   documentVersion?: string | null;
   documentDate?: string | null;
   relatedDeclaration?: (number | null) | ConformityDeclaration;
+  relatedInquiry?: (number | null) | Inquiry;
+  relatedPrivacyRequest?: (number | null) | PrivacyRequest;
   relatedGalleryItem?: (number | null) | TattooGallery;
   note?: string | null;
   seed?: boolean | null;
@@ -429,410 +441,165 @@ export interface ConformityDeclaration {
   createdAt: string;
 }
 /**
- * Fotos gestochener Tattoos. Fotos mit Kund:innen erscheinen nur mit dokumentierter Einwilligung.
+ * Anfragen aus dem Formular. Sie werden 6 Monate nach Eingang automatisch gelöscht.
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tattoo-gallery".
+ * via the `definition` "inquiries".
  */
-export interface TattooGallery {
+export interface Inquiry {
   id: number;
-  image: number | Media;
-  extraImages?: (number | Media)[] | null;
-  kind: 'fresh' | 'healed';
-  /**
-   * z. B. 42 → „3,5 years healed“
-   */
-  healedDurationMonths?: number | null;
-  healedLabel?: string | null;
-  caption?: string | null;
-  /**
-   * z. B. „Unterarm“
-   */
-  placement?: string | null;
-  flash?: (number | null) | Flash;
-  /**
-   * Aus bei eigenen Zeichnungen oder Platzhaltern.
-   */
-  showsCustomer?: boolean | null;
-  consentGiven?: boolean | null;
-  consentScope?: ('tattoo_only' | 'with_face') | null;
-  consentDate?: string | null;
-  /**
-   * z. B. „per DM am 02.10.2026“
-   */
-  consentNote?: string | null;
-  consentEvidence?: (number | null) | PrivateUpload;
-  consentWithdrawnAt?: string | null;
-  /**
-   * Eine Instagram-Freigabe deckt die Website nicht automatisch ab.
-   */
-  creditHandleAllowed?: boolean | null;
-  creditHandle?: string | null;
-  published?: boolean | null;
-  featured?: boolean | null;
-  sortOrder: number;
-  seed?: boolean | null;
-  seedKey?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Motive mit Festpreis. „Vergeben“ zeigt einen Stempel; wiederholbare Motive bleiben verfügbar.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "flash".
- */
-export interface Flash {
-  id: number;
-  /**
-   * Anzeige „F-012“. Leer lassen = nächste freie Nummer.
-   */
-  number?: number | null;
-  title: string;
-  image: number | Media;
-  extraImages?: (number | Media)[] | null;
-  /**
-   * ungefähre Größe, z. B. 9,5
-   */
-  sizeCm: number;
-  /**
-   * z. B. „Größe anpassbar“
-   */
-  sizeNote?: string | null;
-  /**
-   * Gesamtpreis (mindestens 10,00 €).
-   */
-  priceCents: number;
-  repeatable?: boolean | null;
-  status: 'available' | 'claimed';
-  claimedAt?: string | null;
-  published?: boolean | null;
-  sortOrder: number;
-  seed?: boolean | null;
-  seedKey?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Die sechs festen Kategorien: Namen, Adressen (Slugs), Texte und Bilder.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: number;
-  key: 'keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges';
+  reference: string;
   name: string;
+  email: string;
+  idea: string;
+  objectType:
+    | 'cap'
+    | 'shirt'
+    | 'textil_sonstiges'
+    | 'teller'
+    | 'schale'
+    | 'tasse'
+    | 'fliese'
+    | 'zeichnung'
+    | 'schmuck'
+    | 'sonstiges';
+  objectTypeOther?: string | null;
+  desiredTimeframe?: string | null;
+  budget?: string | null;
+  referenceImages?: (number | PrivateUpload)[] | null;
+  locale: 'de' | 'en';
+  privacyNoticeVersion: number | LegalText;
+  status: 'new' | 'in_progress' | 'offer_sent' | 'accepted' | 'declined' | 'completed' | 'closed';
+  lastActivityAt: string;
   /**
-   * Teil der URL, z. B. „keramik“. Änderungen ändern die Adresse.
+   * Nur verkürzbar („Jetzt löschen“).
    */
-  slug: string;
-  intro?: string | null;
-  coverImage?: (number | null) | Media;
-  sortOrder: number;
-  showInNavigation?: boolean | null;
-  seo?: {
-    metaTitle?: string | null;
-    metaDescription?: string | null;
+  deleteAfter: string;
+  adminNotes?: string | null;
+  privacy?: {
+    /**
+     * Art. 18 bzw. Art. 17 Abs. 3 lit. b DSGVO: keine Mails, nur Pflichtzwecke.
+     */
+    processingRestricted?: boolean | null;
+    restrictedAt?: string | null;
+    legalHold?: boolean | null;
+    legalHoldReason?: string | null;
+    legalHoldSince?: string | null;
+    legalHoldReviewedAt?: string | null;
+    anonymizedAt?: string | null;
   };
+  seed?: boolean | null;
+  seedKey?: string | null;
   updatedAt: string;
   createdAt: string;
 }
 /**
+ * Jede Fassung ist ein eigenes Dokument. Veröffentlichte Fassungen lassen sich nicht mehr ändern – für Änderungen eine neue Fassung anlegen.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "products".
+ * via the `definition` "legal-texts".
  */
-export interface Product {
+export interface LegalText {
   id: number;
+  type: 'impressum' | 'datenschutz' | 'agb' | 'widerrufsbelehrung' | 'widerrufsformular' | 'versand-zahlung';
+  version?: number | null;
+  versionLabel?: string | null;
+  status: 'draft' | 'scheduled' | 'active' | 'superseded';
+  validFrom: string;
   /**
-   * „Nr. 017 · Titel“
+   * Deutsch ist verbindlich, Englisch eine unverbindliche Übersetzung. Erlaubt sind nur die Platzhalter aus der Liste (z. B. {{name}}).
    */
-  adminTitle?: string | null;
-  displayNumber?: string | null;
-  isPublic?: boolean | null;
-  characteristics?: string | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   /**
-   * Deine Objektnummer. Anzeige: Nr. 017. Nach der ersten Veröffentlichung nicht mehr änderbar.
+   * Herkunft des Textes (R-002).
    */
-  itemNumber: number;
+  origin: 'placeholder' | 'draft' | 'lawyer';
   /**
-   * Englisch optional – sonst erscheint der deutsche Titel.
+   * Seite zeigt oben „PLATZHALTER – nicht rechtsverbindlich“.
    */
-  title?: string | null;
+  isPlaceholder?: boolean | null;
+  source: 'manual' | 'itrk_lti';
   /**
-   * Entsteht automatisch aus Nummer und Titel.
+   * z. B. „Kanzlei X, Stand 15.11.2026“
    */
-  slug?: string | null;
+  sourceNote?: string | null;
+  changeNote?: string | null;
+  pdfDe?: (number | null) | Document;
+  pdfEn?: (number | null) | Document;
+  contentSha256De?: string | null;
+  contentSha256En?: string | null;
+  activatedAt?: string | null;
+  supersededAt?: string | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Anfragen zu Auskunft, Löschung usw. (DSGVO). Bitte innerhalb eines Werktags anlegen; Antwort binnen eines Monats.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "privacy-requests".
+ */
+export interface PrivacyRequest {
+  id: number;
+  reference: string;
+  types: (
+    'access' | 'rectification' | 'erasure' | 'restriction' | 'portability' | 'objection' | 'consent_withdrawal'
+  )[];
+  channel: 'email' | 'letter' | 'instagram_dm' | 'oral' | 'withdrawal_form' | 'other';
+  receivedAt: string;
+  dueAt: string;
   /**
-   * Nur im Entwurf änderbar.
+   * Verlängerung um höchstens 2 Monate.
    */
-  category: 'keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges';
+  extendedDueAt?: string | null;
+  extensionReason?: string | null;
+  extensionNotifiedAt?: string | null;
+  status: 'received' | 'identity_check' | 'in_progress' | 'answered' | 'rejected';
   /**
-   * Absätze per Leerzeile.
+   * Antworten nur an eine in den Daten gespeicherte Adresse.
    */
-  description?: string | null;
+  contactEmail: string;
+  contactName?: string | null;
+  locale: 'de' | 'en';
+  identityVerified?: boolean | null;
   /**
-   * Optionale kurze Notiz von dir (höchstens 280 Zeichen).
+   * Keine Ausweiskopie außer bei begründeten Zweifeln.
    */
-  juttaSays?: string | null;
-  priceCents: number;
-  /**
-   * Nur bei Regelbesteuerung relevant.
-   */
-  vatCategory: 'standard' | 'reduced_art';
-  vatReducedReason?: string | null;
-  /**
-   * z. B. „Steinzeug, Unterglasurfarbe, Transparentglasur“ oder „Aquarell auf Papier 300 g“
-   */
-  materials?: string | null;
-  dimensions?: {
-    widthCm?: number | null;
-    heightCm?: number | null;
-    depthCm?: number | null;
-    diameterCm?: number | null;
-    /**
-     * z. B. „Brustweite 52 cm, Länge 70 cm“
-     */
-    note?: string | null;
-  };
-  /**
-   * Ohne Verpackung.
-   */
-  weightGrams?: number | null;
-  /**
-   * Wird aus der Kategorie vorbelegt.
-   */
-  shippingClass: 'brief' | 'paket_klein' | 'keramik' | 'nur_abholung';
-  /**
-   * „M“, „EU 38“, „Einheitsgröße, verstellbar 54–60 cm“
-   */
-  sizeLabel?: string | null;
-  isSecondHand?: boolean | null;
-  condition?: ('like_new' | 'very_good' | 'good' | 'worn') | null;
-  /**
-   * z. B. „winziger Fleck am Saum“
-   */
-  conditionNote?: string | null;
-  /**
-   * Laut Etikett – fehlt das Etikett: nach bestem Wissen. Je Teil (Hauptstoff, Futter …) genau 100 %.
-   */
-  fiberComposition?:
+  identityMethod?: ('stored_email' | 'control_data' | 'other') | null;
+  identityVerifiedAt?: string | null;
+  matchedOrders?: (number | Order)[] | null;
+  matchedWithdrawals?: (number | Withdrawal)[] | null;
+  matchedInquiries?: (number | Inquiry)[] | null;
+  exportFile?: (number | null) | PrivateUpload;
+  answeredAt?: string | null;
+  resultNote?: string | null;
+  remindersSent?:
     | {
-        component: 'main' | 'lining' | 'trim' | 'other';
-        fiber:
-          | 'wool'
-          | 'alpaca'
-          | 'llama'
-          | 'camel'
-          | 'cashmere'
-          | 'mohair'
-          | 'angora'
-          | 'vicuna'
-          | 'yak'
-          | 'guanaco'
-          | 'cashgora'
-          | 'beaver'
-          | 'otter'
-          | 'animal_hair'
-          | 'horsehair'
-          | 'silk'
-          | 'cotton'
-          | 'kapok'
-          | 'flax'
-          | 'hemp'
-          | 'jute'
-          | 'abaca'
-          | 'alfa'
-          | 'coir'
-          | 'broom'
-          | 'ramie'
-          | 'sisal'
-          | 'sunn'
-          | 'henequen'
-          | 'maguey'
-          | 'acetate'
-          | 'alginate'
-          | 'cupro'
-          | 'modal'
-          | 'protein'
-          | 'triacetate'
-          | 'viscose'
-          | 'acrylic'
-          | 'chlorofibre'
-          | 'fluorofibre'
-          | 'modacrylic'
-          | 'polyamide'
-          | 'aramid'
-          | 'polyimide'
-          | 'lyocell'
-          | 'polylactide'
-          | 'polyester'
-          | 'polyethylene'
-          | 'polypropylene'
-          | 'polycarbamide'
-          | 'polyurethane'
-          | 'vinylal'
-          | 'trivinyl'
-          | 'elastodiene'
-          | 'elastane'
-          | 'glass_fibre'
-          | 'metal_fibre'
-          | 'paper_fibre'
-          | 'elastomultiester'
-          | 'elastolefin'
-          | 'melamine'
-          | 'pp_pa_bicomponent'
-          | 'polyacrylate'
-          | 'other_fibres';
-        percent: number;
-        id?: string | null;
-      }[]
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
     | null;
-  labelMissing?: boolean | null;
-  /**
-   * Ergänzt die Faserangabe und wird mit dem Hinweis „Etikett fehlt“ angezeigt.
-   */
-  fiberFreeText?: string | null;
-  /**
-   * Als Text, ohne Symbole.
-   */
-  careInstructions?: string | null;
-  /**
-   * Angehakt: Veröffentlichung gesperrt, solange sichtbare Marken nicht erlaubt sind.
-   */
-  blankBrandVisible?: boolean | null;
-  /**
-   * „lebensmittelecht“ nur mit gültiger Konformitätserklärung.
-   */
-  foodContact?: ('deko' | 'lebensmittelecht') | null;
-  /**
-   * Alle verwendeten Glasuren.
-   */
-  conformityDeclarations?: (number | ConformityDeclaration)[] | null;
-  /**
-   * z. B. „Edelstahl 316L“
-   */
-  metalPartsMaterial?: string | null;
-  nickelFreeConfirmed?: boolean | null;
-  /**
-   * Foto oder PDF der Lieferantenerklärung.
-   */
-  nickelEvidence?: (number | null) | PrivateUpload;
-  /**
-   * Datenblatt als „Lieferantenunterlage“ ablegen.
-   */
-  leadFreeGlazeConfirmed?: boolean | null;
-  /**
-   * Bei Schmuck immer an; der Hinweis wird automatisch angefügt.
-   */
-  smallPartsWarning?: boolean | null;
-  /**
-   * Technik und Papier/Träger stehen im Feld „Material“.
-   */
-  framed?: boolean | null;
-  /**
-   * Der Glas-Hinweis wird automatisch an die Warnhinweise angefügt.
-   */
-  frameHasGlass?: boolean | null;
-  /**
-   * Aus der Vorlage der Kategorie vorbelegt.
-   */
-  safetyWarnings?: string | null;
-  /**
-   * Bei Textil und Caps Pflicht: keine Abweichung oder Abweichung beschreiben (z. B. Fleck, Glasurfehler).
-   */
-  deviationDecision?: ('none' | 'described') | null;
-  /**
-   * Wird in der Kasse gesondert bestätigt.
-   */
-  hasDeviation?: boolean | null;
-  deviationDescription?: string | null;
-  ownDesignConfirmed?: boolean | null;
-  isCustomCommission?: boolean | null;
-  customs?: {
-    hsCode?: string | null;
-    countryOfOrigin?:
-      | (
-          | 'DE'
-          | 'AT'
-          | 'BE'
-          | 'BG'
-          | 'CY'
-          | 'CZ'
-          | 'DK'
-          | 'EE'
-          | 'ES'
-          | 'FI'
-          | 'FR'
-          | 'GR'
-          | 'HR'
-          | 'HU'
-          | 'IE'
-          | 'IT'
-          | 'LT'
-          | 'LU'
-          | 'LV'
-          | 'MT'
-          | 'NL'
-          | 'PL'
-          | 'PT'
-          | 'RO'
-          | 'SE'
-          | 'SI'
-          | 'SK'
-          | 'CH'
-        )
-      | null;
-    descriptionEn?: string | null;
-  };
-  /**
-   * Erstes Bild = Titelbild; Reihenfolge per Ziehen. Empfohlen 2–12 Fotos im Hochformat 4:5.
-   */
-  images?: (number | Media)[] | null;
-  status: 'draft' | 'available' | 'reserved' | 'sold' | 'archived';
-  showInArchiveAfterSale?: boolean | null;
-  firstPublishedAt?: string | null;
-  soldAt?: string | null;
-  soldChannel?: ('online' | 'pickup' | 'offline') | null;
-  /**
-   * z. B. „Flohmarkt Mauerpark“ (ohne Preis).
-   */
-  offlineSaleNote?: string | null;
-  archivedAt?: string | null;
-  reservedUntil?: string | null;
-  reservationRef?: string | null;
-  currentOrder?: (number | null) | Order;
-  /**
-   * Steht auf dem Packzettel.
-   */
-  storageLocation?: string | null;
-  internalNote?: string | null;
-  /**
-   * Leer = aus Titel und Beschreibung.
-   */
-  seo?: {
-    metaTitle?: string | null;
-    metaDescription?: string | null;
-  };
-  i18n?: {
-    enStatus?: ('missing' | 'machine' | 'reviewed') | null;
-    translatedAt?: string | null;
-  };
-  adminAttention?: {
-    flag?: boolean | null;
-    reason?:
-      | (
-          | 'oversold'
-          | 'dispute_open'
-          | 'refund_failed'
-          | 'webhook_error'
-          | 'payment_amount_mismatch'
-          | 'conformity_revoked'
-          | 'manual'
-        )
-      | null;
-    note?: string | null;
-  };
+  adminNotes?: string | null;
+  retainUntil?: string | null;
   seed?: boolean | null;
   seedKey?: string | null;
   updatedAt: string;
@@ -1389,56 +1156,300 @@ export interface Checkout {
   createdAt: string;
 }
 /**
- * Jede Fassung ist ein eigenes Dokument. Veröffentlichte Fassungen lassen sich nicht mehr ändern – für Änderungen eine neue Fassung anlegen.
- *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "legal-texts".
+ * via the `definition` "products".
  */
-export interface LegalText {
+export interface Product {
   id: number;
-  type: 'impressum' | 'datenschutz' | 'agb' | 'widerrufsbelehrung' | 'widerrufsformular' | 'versand-zahlung';
-  version?: number | null;
-  versionLabel?: string | null;
-  status: 'draft' | 'scheduled' | 'active' | 'superseded';
-  validFrom: string;
   /**
-   * Deutsch ist verbindlich, Englisch eine unverbindliche Übersetzung. Erlaubt sind nur die Platzhalter aus der Liste (z. B. {{name}}).
+   * „Nr. 017 · Titel“
    */
-  content?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
+  adminTitle?: string | null;
+  displayNumber?: string | null;
+  isPublic?: boolean | null;
+  characteristics?: string | null;
   /**
-   * Herkunft des Textes (R-002).
+   * Deine Objektnummer. Anzeige: Nr. 017. Nach der ersten Veröffentlichung nicht mehr änderbar.
    */
-  origin: 'placeholder' | 'draft' | 'lawyer';
+  itemNumber: number;
   /**
-   * Seite zeigt oben „PLATZHALTER – nicht rechtsverbindlich“.
+   * Englisch optional – sonst erscheint der deutsche Titel.
    */
-  isPlaceholder?: boolean | null;
-  source: 'manual' | 'itrk_lti';
+  title?: string | null;
   /**
-   * z. B. „Kanzlei X, Stand 15.11.2026“
+   * Entsteht automatisch aus Nummer und Titel.
    */
-  sourceNote?: string | null;
-  changeNote?: string | null;
-  pdfDe?: (number | null) | Document;
-  pdfEn?: (number | null) | Document;
-  contentSha256De?: string | null;
-  contentSha256En?: string | null;
-  activatedAt?: string | null;
-  supersededAt?: string | null;
+  slug?: string | null;
+  /**
+   * Nur im Entwurf änderbar.
+   */
+  category: 'keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges';
+  /**
+   * Absätze per Leerzeile.
+   */
+  description?: string | null;
+  /**
+   * Optionale kurze Notiz von dir (höchstens 280 Zeichen).
+   */
+  juttaSays?: string | null;
+  priceCents: number;
+  /**
+   * Nur bei Regelbesteuerung relevant.
+   */
+  vatCategory: 'standard' | 'reduced_art';
+  vatReducedReason?: string | null;
+  /**
+   * z. B. „Steinzeug, Unterglasurfarbe, Transparentglasur“ oder „Aquarell auf Papier 300 g“
+   */
+  materials?: string | null;
+  dimensions?: {
+    widthCm?: number | null;
+    heightCm?: number | null;
+    depthCm?: number | null;
+    diameterCm?: number | null;
+    /**
+     * z. B. „Brustweite 52 cm, Länge 70 cm“
+     */
+    note?: string | null;
+  };
+  /**
+   * Ohne Verpackung.
+   */
+  weightGrams?: number | null;
+  /**
+   * Wird aus der Kategorie vorbelegt.
+   */
+  shippingClass: 'brief' | 'paket_klein' | 'keramik' | 'nur_abholung';
+  /**
+   * „M“, „EU 38“, „Einheitsgröße, verstellbar 54–60 cm“
+   */
+  sizeLabel?: string | null;
+  isSecondHand?: boolean | null;
+  condition?: ('like_new' | 'very_good' | 'good' | 'worn') | null;
+  /**
+   * z. B. „winziger Fleck am Saum“
+   */
+  conditionNote?: string | null;
+  /**
+   * Laut Etikett – fehlt das Etikett: nach bestem Wissen. Je Teil (Hauptstoff, Futter …) genau 100 %.
+   */
+  fiberComposition?:
+    | {
+        component: 'main' | 'lining' | 'trim' | 'other';
+        fiber:
+          | 'wool'
+          | 'alpaca'
+          | 'llama'
+          | 'camel'
+          | 'cashmere'
+          | 'mohair'
+          | 'angora'
+          | 'vicuna'
+          | 'yak'
+          | 'guanaco'
+          | 'cashgora'
+          | 'beaver'
+          | 'otter'
+          | 'animal_hair'
+          | 'horsehair'
+          | 'silk'
+          | 'cotton'
+          | 'kapok'
+          | 'flax'
+          | 'hemp'
+          | 'jute'
+          | 'abaca'
+          | 'alfa'
+          | 'coir'
+          | 'broom'
+          | 'ramie'
+          | 'sisal'
+          | 'sunn'
+          | 'henequen'
+          | 'maguey'
+          | 'acetate'
+          | 'alginate'
+          | 'cupro'
+          | 'modal'
+          | 'protein'
+          | 'triacetate'
+          | 'viscose'
+          | 'acrylic'
+          | 'chlorofibre'
+          | 'fluorofibre'
+          | 'modacrylic'
+          | 'polyamide'
+          | 'aramid'
+          | 'polyimide'
+          | 'lyocell'
+          | 'polylactide'
+          | 'polyester'
+          | 'polyethylene'
+          | 'polypropylene'
+          | 'polycarbamide'
+          | 'polyurethane'
+          | 'vinylal'
+          | 'trivinyl'
+          | 'elastodiene'
+          | 'elastane'
+          | 'glass_fibre'
+          | 'metal_fibre'
+          | 'paper_fibre'
+          | 'elastomultiester'
+          | 'elastolefin'
+          | 'melamine'
+          | 'pp_pa_bicomponent'
+          | 'polyacrylate'
+          | 'other_fibres';
+        percent: number;
+        id?: string | null;
+      }[]
+    | null;
+  labelMissing?: boolean | null;
+  /**
+   * Ergänzt die Faserangabe und wird mit dem Hinweis „Etikett fehlt“ angezeigt.
+   */
+  fiberFreeText?: string | null;
+  /**
+   * Als Text, ohne Symbole.
+   */
+  careInstructions?: string | null;
+  /**
+   * Angehakt: Veröffentlichung gesperrt, solange sichtbare Marken nicht erlaubt sind.
+   */
+  blankBrandVisible?: boolean | null;
+  /**
+   * „lebensmittelecht“ nur mit gültiger Konformitätserklärung.
+   */
+  foodContact?: ('deko' | 'lebensmittelecht') | null;
+  /**
+   * Alle verwendeten Glasuren.
+   */
+  conformityDeclarations?: (number | ConformityDeclaration)[] | null;
+  /**
+   * z. B. „Edelstahl 316L“
+   */
+  metalPartsMaterial?: string | null;
+  nickelFreeConfirmed?: boolean | null;
+  /**
+   * Foto oder PDF der Lieferantenerklärung.
+   */
+  nickelEvidence?: (number | null) | PrivateUpload;
+  /**
+   * Datenblatt als „Lieferantenunterlage“ ablegen.
+   */
+  leadFreeGlazeConfirmed?: boolean | null;
+  /**
+   * Bei Schmuck immer an; der Hinweis wird automatisch angefügt.
+   */
+  smallPartsWarning?: boolean | null;
+  /**
+   * Technik und Papier/Träger stehen im Feld „Material“.
+   */
+  framed?: boolean | null;
+  /**
+   * Der Glas-Hinweis wird automatisch an die Warnhinweise angefügt.
+   */
+  frameHasGlass?: boolean | null;
+  /**
+   * Aus der Vorlage der Kategorie vorbelegt.
+   */
+  safetyWarnings?: string | null;
+  /**
+   * Bei Textil und Caps Pflicht: keine Abweichung oder Abweichung beschreiben (z. B. Fleck, Glasurfehler).
+   */
+  deviationDecision?: ('none' | 'described') | null;
+  /**
+   * Wird in der Kasse gesondert bestätigt.
+   */
+  hasDeviation?: boolean | null;
+  deviationDescription?: string | null;
+  ownDesignConfirmed?: boolean | null;
+  isCustomCommission?: boolean | null;
+  customs?: {
+    hsCode?: string | null;
+    countryOfOrigin?:
+      | (
+          | 'DE'
+          | 'AT'
+          | 'BE'
+          | 'BG'
+          | 'CY'
+          | 'CZ'
+          | 'DK'
+          | 'EE'
+          | 'ES'
+          | 'FI'
+          | 'FR'
+          | 'GR'
+          | 'HR'
+          | 'HU'
+          | 'IE'
+          | 'IT'
+          | 'LT'
+          | 'LU'
+          | 'LV'
+          | 'MT'
+          | 'NL'
+          | 'PL'
+          | 'PT'
+          | 'RO'
+          | 'SE'
+          | 'SI'
+          | 'SK'
+          | 'CH'
+        )
+      | null;
+    descriptionEn?: string | null;
+  };
+  /**
+   * Erstes Bild = Titelbild; Reihenfolge per Ziehen. Empfohlen 2–12 Fotos im Hochformat 4:5.
+   */
+  images?: (number | Media)[] | null;
+  status: 'draft' | 'available' | 'reserved' | 'sold' | 'archived';
+  showInArchiveAfterSale?: boolean | null;
+  firstPublishedAt?: string | null;
+  soldAt?: string | null;
+  soldChannel?: ('online' | 'pickup' | 'offline') | null;
+  /**
+   * z. B. „Flohmarkt Mauerpark“ (ohne Preis).
+   */
+  offlineSaleNote?: string | null;
+  archivedAt?: string | null;
+  reservedUntil?: string | null;
+  reservationRef?: string | null;
+  currentOrder?: (number | null) | Order;
+  /**
+   * Steht auf dem Packzettel.
+   */
+  storageLocation?: string | null;
+  internalNote?: string | null;
+  /**
+   * Leer = aus Titel und Beschreibung.
+   */
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+  };
+  i18n?: {
+    enStatus?: ('missing' | 'machine' | 'reviewed') | null;
+    translatedAt?: string | null;
+  };
+  adminAttention?: {
+    flag?: boolean | null;
+    reason?:
+      | (
+          | 'oversold'
+          | 'dispute_open'
+          | 'refund_failed'
+          | 'webhook_error'
+          | 'payment_amount_mismatch'
+          | 'conformity_revoked'
+          | 'manual'
+        )
+      | null;
+    note?: string | null;
+  };
   seed?: boolean | null;
   seedKey?: string | null;
   updatedAt: string;
@@ -1624,8 +1635,119 @@ export interface EmailLog {
   retainUntil: string;
   order?: (number | null) | Order;
   withdrawal?: (number | null) | Withdrawal;
+  inquiry?: (number | null) | Inquiry;
   seed?: boolean | null;
   seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Fotos gestochener Tattoos. Fotos mit Kund:innen erscheinen nur mit dokumentierter Einwilligung.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tattoo-gallery".
+ */
+export interface TattooGallery {
+  id: number;
+  image: number | Media;
+  extraImages?: (number | Media)[] | null;
+  kind: 'fresh' | 'healed';
+  /**
+   * z. B. 42 → „3,5 years healed“
+   */
+  healedDurationMonths?: number | null;
+  healedLabel?: string | null;
+  caption?: string | null;
+  /**
+   * z. B. „Unterarm“
+   */
+  placement?: string | null;
+  flash?: (number | null) | Flash;
+  /**
+   * Aus bei eigenen Zeichnungen oder Platzhaltern.
+   */
+  showsCustomer?: boolean | null;
+  consentGiven?: boolean | null;
+  consentScope?: ('tattoo_only' | 'with_face') | null;
+  consentDate?: string | null;
+  /**
+   * z. B. „per DM am 02.10.2026“
+   */
+  consentNote?: string | null;
+  consentEvidence?: (number | null) | PrivateUpload;
+  consentWithdrawnAt?: string | null;
+  /**
+   * Eine Instagram-Freigabe deckt die Website nicht automatisch ab.
+   */
+  creditHandleAllowed?: boolean | null;
+  creditHandle?: string | null;
+  published?: boolean | null;
+  featured?: boolean | null;
+  sortOrder: number;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Motive mit Festpreis. „Vergeben“ zeigt einen Stempel; wiederholbare Motive bleiben verfügbar.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "flash".
+ */
+export interface Flash {
+  id: number;
+  /**
+   * Anzeige „F-012“. Leer lassen = nächste freie Nummer.
+   */
+  number?: number | null;
+  title: string;
+  image: number | Media;
+  extraImages?: (number | Media)[] | null;
+  /**
+   * ungefähre Größe, z. B. 9,5
+   */
+  sizeCm: number;
+  /**
+   * z. B. „Größe anpassbar“
+   */
+  sizeNote?: string | null;
+  /**
+   * Gesamtpreis (mindestens 10,00 €).
+   */
+  priceCents: number;
+  repeatable?: boolean | null;
+  status: 'available' | 'claimed';
+  claimedAt?: string | null;
+  published?: boolean | null;
+  sortOrder: number;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Die sechs festen Kategorien: Namen, Adressen (Slugs), Texte und Bilder.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  key: 'keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges';
+  name: string;
+  /**
+   * Teil der URL, z. B. „keramik“. Änderungen ändern die Adresse.
+   */
+  slug: string;
+  intro?: string | null;
+  coverImage?: (number | null) | Media;
+  sortOrder: number;
+  showInNavigation?: boolean | null;
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -1704,6 +1826,314 @@ export interface TattooOffer {
    */
   priceNote?: string | null;
   published?: boolean | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs".
+ */
+export interface Faq {
+  id: number;
+  question: string;
+  answer: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  category: 'tattoo' | 'aftercare' | 'shop' | 'shipping' | 'commissions' | 'general';
+  sortOrder: number;
+  published?: boolean | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  key:
+    | 'home'
+    | 'about'
+    | 'contact'
+    | 'commissions'
+    | 'tattoo'
+    | 'tattoo_aftercare'
+    | 'shop'
+    | 'archive'
+    | 'conformity'
+    | 'withdrawal'
+    | 'order_status'
+    | 'thanks'
+    | 'not_found';
+  title: string;
+  layout?:
+    | (
+        | {
+            heading: string;
+            subheading?: string | null;
+            image?: (number | null) | Media;
+            cocoPose?: ('run' | 'sniff' | 'sit' | 'sleep' | 'jump' | 'head_tilt') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'hero';
+          }
+        | {
+            /**
+             * z. B. „shop“ – nur a–z, 0–9 und Bindestrich, eindeutig auf der Seite.
+             */
+            stationId: string;
+            heading: string;
+            text?: string | null;
+            image?: (number | null) | Media;
+            link: {
+              target:
+                | 'home'
+                | 'shop'
+                | 'archive'
+                | 'category'
+                | 'tattoo'
+                | 'tattoo_aftercare'
+                | 'about'
+                | 'commissions'
+                | 'contact'
+                | 'conformity'
+                | 'instagram'
+                | 'email';
+              category?: ('keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges') | null;
+              label: string;
+            };
+            cocoPose?: ('run' | 'sniff' | 'sit' | 'sleep' | 'jump' | 'head_tilt') | null;
+            ornament?: ('planet' | 'star' | 'none') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'station';
+          }
+        | {
+            content: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'richText';
+          }
+        | {
+            image: number | Media;
+            content: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
+            imagePosition?: ('left' | 'right') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'imageText';
+          }
+        | {
+            images: (number | Media)[];
+            caption?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'imageGallery';
+          }
+        | {
+            heading?: string | null;
+            mode?: ('latest' | 'category' | 'manual') | null;
+            category?: ('keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges') | null;
+            products?: (number | Product)[] | null;
+            limit?: number | null;
+            onlyAvailable?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'productTeaser';
+          }
+        | {
+            heading?: string | null;
+            categories?: ('keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges')[] | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categoryTeaser';
+          }
+        | {
+            heading?: string | null;
+            showClaimed?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'flashGrid';
+          }
+        | {
+            heading?: string | null;
+            emptyText?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'offersList';
+          }
+        | {
+            heading?: string | null;
+            filter?: ('all' | 'fresh' | 'healed') | null;
+            limit?: number | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'tattooGallery';
+          }
+        | {
+            heading?: string | null;
+            content?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'priceInfo';
+          }
+        | {
+            heading?: string | null;
+            steps: {
+              title: string;
+              text: string;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'processSteps';
+          }
+        | {
+            heading?: string | null;
+            phases: {
+              title: string;
+              content: {
+                root: {
+                  type: string;
+                  children: {
+                    type: any;
+                    version: number;
+                    [k: string]: unknown;
+                  }[];
+                  direction: ('ltr' | 'rtl') | null;
+                  format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                  indent: number;
+                  version: number;
+                };
+                [k: string]: unknown;
+              };
+              id?: string | null;
+            }[];
+            pdf?: (number | null) | Document;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'aftercareSteps';
+          }
+        | {
+            heading?: string | null;
+            category: 'tattoo' | 'aftercare' | 'shop' | 'shipping' | 'commissions' | 'general';
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'faqList';
+          }
+        | {
+            heading?: string | null;
+            showEmail?: boolean | null;
+            showInstagram?: boolean | null;
+            showDistrict?: boolean | null;
+            emailSubject?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'contactLinks';
+          }
+        | {
+            heading?: string | null;
+            intro?: string | null;
+            successText: string;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'commissionForm';
+          }
+        | {
+            text: string;
+            tone?: ('info' | 'hint') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'callout';
+          }
+      )[]
+    | null;
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    ogImage?: (number | null) | Media;
+  };
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Monatssummen außerhalb des Shops (Tattoo, Flohmarkt, Auftragsarbeiten, Sonstiges) für den Umsatz-Wächter.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "revenue-entries".
+ */
+export interface RevenueEntry {
+  id: number;
+  /**
+   * z. B. „2026-09“
+   */
+  month: string;
+  source: 'tattoo' | 'flohmarkt' | 'auftragsarbeiten' | 'sonstiges';
+  /**
+   * Brutto = Netto bei Kleinunternehmerregelung.
+   */
+  amountCents: number;
+  note?: string | null;
   seed?: boolean | null;
   seedKey?: string | null;
   updatedAt: string;
@@ -1802,6 +2232,7 @@ export interface ConsentLog {
   checkout?: (number | null) | Checkout;
   order?: (number | null) | Order;
   product?: (number | null) | Product;
+  inquiry?: (number | null) | Inquiry;
   retainUntil: string;
   seed?: boolean | null;
   seedKey?: string | null;
@@ -2037,6 +2468,26 @@ export interface PayloadLockedDocument {
         value: number | TattooGallery;
       } | null)
     | ({
+        relationTo: 'inquiries';
+        value: number | Inquiry;
+      } | null)
+    | ({
+        relationTo: 'faqs';
+        value: number | Faq;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'revenue-entries';
+        value: number | RevenueEntry;
+      } | null)
+    | ({
+        relationTo: 'privacy-requests';
+        value: number | PrivacyRequest;
+      } | null)
+    | ({
         relationTo: 'audit-log';
         value: number | AuditLog;
       } | null)
@@ -2248,6 +2699,8 @@ export interface PrivateUploadsSelect<T extends boolean = true> {
   documentVersion?: T;
   documentDate?: T;
   relatedDeclaration?: T;
+  relatedInquiry?: T;
+  relatedPrivacyRequest?: T;
   relatedGalleryItem?: T;
   note?: T;
   seed?: T;
@@ -2969,6 +3422,300 @@ export interface TattooGallerySelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "inquiries_select".
+ */
+export interface InquiriesSelect<T extends boolean = true> {
+  reference?: T;
+  name?: T;
+  email?: T;
+  idea?: T;
+  objectType?: T;
+  objectTypeOther?: T;
+  desiredTimeframe?: T;
+  budget?: T;
+  referenceImages?: T;
+  locale?: T;
+  privacyNoticeVersion?: T;
+  status?: T;
+  lastActivityAt?: T;
+  deleteAfter?: T;
+  adminNotes?: T;
+  privacy?:
+    | T
+    | {
+        processingRestricted?: T;
+        restrictedAt?: T;
+        legalHold?: T;
+        legalHoldReason?: T;
+        legalHoldSince?: T;
+        legalHoldReviewedAt?: T;
+        anonymizedAt?: T;
+      };
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs_select".
+ */
+export interface FaqsSelect<T extends boolean = true> {
+  question?: T;
+  answer?: T;
+  category?: T;
+  sortOrder?: T;
+  published?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  key?: T;
+  title?: T;
+  layout?:
+    | T
+    | {
+        hero?:
+          | T
+          | {
+              heading?: T;
+              subheading?: T;
+              image?: T;
+              cocoPose?: T;
+              id?: T;
+              blockName?: T;
+            };
+        station?:
+          | T
+          | {
+              stationId?: T;
+              heading?: T;
+              text?: T;
+              image?: T;
+              link?:
+                | T
+                | {
+                    target?: T;
+                    category?: T;
+                    label?: T;
+                  };
+              cocoPose?: T;
+              ornament?: T;
+              id?: T;
+              blockName?: T;
+            };
+        richText?:
+          | T
+          | {
+              content?: T;
+              id?: T;
+              blockName?: T;
+            };
+        imageText?:
+          | T
+          | {
+              image?: T;
+              content?: T;
+              imagePosition?: T;
+              id?: T;
+              blockName?: T;
+            };
+        imageGallery?:
+          | T
+          | {
+              images?: T;
+              caption?: T;
+              id?: T;
+              blockName?: T;
+            };
+        productTeaser?:
+          | T
+          | {
+              heading?: T;
+              mode?: T;
+              category?: T;
+              products?: T;
+              limit?: T;
+              onlyAvailable?: T;
+              id?: T;
+              blockName?: T;
+            };
+        categoryTeaser?:
+          | T
+          | {
+              heading?: T;
+              categories?: T;
+              id?: T;
+              blockName?: T;
+            };
+        flashGrid?:
+          | T
+          | {
+              heading?: T;
+              showClaimed?: T;
+              id?: T;
+              blockName?: T;
+            };
+        offersList?:
+          | T
+          | {
+              heading?: T;
+              emptyText?: T;
+              id?: T;
+              blockName?: T;
+            };
+        tattooGallery?:
+          | T
+          | {
+              heading?: T;
+              filter?: T;
+              limit?: T;
+              id?: T;
+              blockName?: T;
+            };
+        priceInfo?:
+          | T
+          | {
+              heading?: T;
+              content?: T;
+              id?: T;
+              blockName?: T;
+            };
+        processSteps?:
+          | T
+          | {
+              heading?: T;
+              steps?:
+                | T
+                | {
+                    title?: T;
+                    text?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        aftercareSteps?:
+          | T
+          | {
+              heading?: T;
+              phases?:
+                | T
+                | {
+                    title?: T;
+                    content?: T;
+                    id?: T;
+                  };
+              pdf?: T;
+              id?: T;
+              blockName?: T;
+            };
+        faqList?:
+          | T
+          | {
+              heading?: T;
+              category?: T;
+              id?: T;
+              blockName?: T;
+            };
+        contactLinks?:
+          | T
+          | {
+              heading?: T;
+              showEmail?: T;
+              showInstagram?: T;
+              showDistrict?: T;
+              emailSubject?: T;
+              id?: T;
+              blockName?: T;
+            };
+        commissionForm?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              successText?: T;
+              id?: T;
+              blockName?: T;
+            };
+        callout?:
+          | T
+          | {
+              text?: T;
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        ogImage?: T;
+      };
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "revenue-entries_select".
+ */
+export interface RevenueEntriesSelect<T extends boolean = true> {
+  month?: T;
+  source?: T;
+  amountCents?: T;
+  note?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "privacy-requests_select".
+ */
+export interface PrivacyRequestsSelect<T extends boolean = true> {
+  reference?: T;
+  types?: T;
+  channel?: T;
+  receivedAt?: T;
+  dueAt?: T;
+  extendedDueAt?: T;
+  extensionReason?: T;
+  extensionNotifiedAt?: T;
+  status?: T;
+  contactEmail?: T;
+  contactName?: T;
+  locale?: T;
+  identityVerified?: T;
+  identityMethod?: T;
+  identityVerifiedAt?: T;
+  matchedOrders?: T;
+  matchedWithdrawals?: T;
+  matchedInquiries?: T;
+  exportFile?: T;
+  answeredAt?: T;
+  resultNote?: T;
+  remindersSent?: T;
+  adminNotes?: T;
+  retainUntil?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "audit-log_select".
  */
 export interface AuditLogSelect<T extends boolean = true> {
@@ -3014,6 +3761,7 @@ export interface EmailLogSelect<T extends boolean = true> {
   retainUntil?: T;
   order?: T;
   withdrawal?: T;
+  inquiry?: T;
   seed?: T;
   seedKey?: T;
   updatedAt?: T;
@@ -3036,6 +3784,7 @@ export interface ConsentLogSelect<T extends boolean = true> {
   checkout?: T;
   order?: T;
   product?: T;
+  inquiry?: T;
   retainUntil?: T;
   seed?: T;
   seedKey?: T;

@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P1.24
+
+- Collections `inquiries` (Anlage nur serverseitig, Löschfrist createdAt + 6 Monate nur verkürzbar, Datenschutz-Fassung, Bilder werden mitgelöscht), `faqs`, `pages` (17 Blöcke unter src/blocks/, Entwürfe, key eindeutig, stationId je Seite eindeutig), `revenue-entries` (UNIQUE Monat+Quelle, echter Eintrag ersetzt Seed-Eintrag), `privacy-requests` (Frist +1 Monat kalendergenau Berlin, Übergänge, L-17, Audit ohne Inhalte, kein Löschen)\n- Übernahme-Regel für pages/faqs; email-log.inquiry, consent-log.inquiry, private-uploads.relatedInquiry/relatedPrivacyRequest; Migration `p1_content`\n- Tests: int content (5) und privacy-requests (3, DM-PRQ-01); check, test:int, build grün
+
 ## 2026-09-27 – P1.23
 
 - Collections `flash` (Nummer max+1 ohne Seed, F-012, claimedAt, wiederholbar nie vergeben), `tattoo-offers` (öffentlich nur published und endsAt > jetzt mit injizierbarer Uhr, Ende standardmäßig 23:59 Berlin, keine Adresse im Ort), `tattoo-gallery` (Veröffentlichung nur mit Einwilligung, Ausnahme Seed + Vorschau außerhalb Produktion, keine Versionen, Einwilligungsfelder nur für Admin, media.restricted-Sync)\n- private-uploads.relatedGalleryItem, Medien-/Upload-Verweise registriert; Migration `p1_tattoo`\n- Tests: int tattoo (4: Flash, DM-OFF-01, DM-GAL-01, AK-1-03); check, test:int, build grün

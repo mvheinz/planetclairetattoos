@@ -24,6 +24,11 @@ import { LegalTexts } from './collections/LegalTexts'
 import { Flash } from './collections/Flash'
 import { TattooOffers } from './collections/TattooOffers'
 import { TattooGallery } from './collections/TattooGallery'
+import { Inquiries } from './collections/Inquiries'
+import { Faqs } from './collections/Faqs'
+import { Pages } from './collections/Pages'
+import { RevenueEntries } from './collections/RevenueEntries'
+import { PrivacyRequests } from './collections/PrivacyRequests'
 import { AuditLog } from './collections/AuditLog'
 import { ConsentLog } from './collections/ConsentLog'
 import { DeletionLog } from './collections/DeletionLog'
@@ -78,6 +83,11 @@ export default buildConfig({
     Flash,
     TattooOffers,
     TattooGallery,
+    Inquiries,
+    Faqs,
+    Pages,
+    RevenueEntries,
+    PrivacyRequests,
     AuditLog,
     EmailLog,
     ConsentLog,

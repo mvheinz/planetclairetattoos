@@ -377,6 +377,20 @@ export const PrivateUploads: CollectionConfig = {
       admin: { condition: (data) => data?.purpose === 'lab_report' },
     },
     {
+      name: 'relatedInquiry',
+      type: 'relationship',
+      label: 'Anfrage',
+      relationTo: 'inquiries',
+      admin: { condition: (data) => data?.purpose === 'commission_reference' },
+    },
+    {
+      name: 'relatedPrivacyRequest',
+      type: 'relationship',
+      label: 'Datenschutz-Anfrage',
+      relationTo: 'privacy-requests',
+      admin: { condition: (data) => data?.purpose === 'data_export' },
+    },
+    {
       name: 'relatedGalleryItem',
       type: 'relationship',
       label: 'Galerie-Foto',

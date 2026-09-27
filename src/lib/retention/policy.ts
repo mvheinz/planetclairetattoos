@@ -617,3 +617,21 @@ export function privateUploadRetention(input: PrivateUploadRetentionInput): Priv
       return none('L-25')
   }
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Anfragen und Datenschutz-Anfragen (DATENMODELL §6.17, §6.26)
+
+/** Anfrage Auftragsarbeiten: Löschung `createdAt + 6 Monate`, unabhängig vom Bearbeitungsstand (L-10). */
+export function inquiryDeleteAfter(createdAt: Date): Date {
+  return retainUntil(L_10_INQUIRIES, createdAt)
+}
+
+/** Datenschutz-Anfrage: Datensatz bis Ende des Abschlussjahres + 3 Jahre (L-17). */
+export function privacyRequestRetainUntil(answeredAt: Date): Date {
+  return retainUntil(L_17_PRIVACY_REQUESTS, answeredAt)
+}
+
+/** DSGVO-Export: Datei `answeredAt + 30 Tage` (L-17). */
+export function privacyExportDeleteAfter(answeredAt: Date): Date {
+  return retainUntil(L_17_EXPORT_FILES, answeredAt)
+}

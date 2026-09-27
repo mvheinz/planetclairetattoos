@@ -14,6 +14,7 @@ import * as migration_20260927_131109_p1_orders from './20260927_131109_p1_order
 import * as migration_20260927_132358_p1_invoices from './20260927_132358_p1_invoices';
 import * as migration_20260927_140139_p1_legal from './20260927_140139_p1_legal';
 import * as migration_20260927_141511_p1_tattoo from './20260927_141511_p1_tattoo';
+import * as migration_20260927_143154_p1_content from './20260927_143154_p1_content';
 
 export const migrations = [
   {
@@ -94,6 +95,11 @@ export const migrations = [
   {
     up: migration_20260927_141511_p1_tattoo.up,
     down: migration_20260927_141511_p1_tattoo.down,
-    name: '20260927_141511_p1_tattoo'
+    name: '20260927_141511_p1_tattoo',
+  },
+  {
+    up: migration_20260927_143154_p1_content.up,
+    down: migration_20260927_143154_p1_content.down,
+    name: '20260927_143154_p1_content'
   },
 ];

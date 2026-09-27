@@ -14,8 +14,9 @@ import {
 
 import { immutableFields } from './hooks/immutable'
 
-// DATENMODELL §6.22 – Versandnachweis ohne Inhalt. Relationen `order` (P1.20) und `withdrawal` (P1.21); `inquiry`
-// folgt mit P1.24. Ohne Bezug gilt L-12; mit Bezug die Frist des Bezugsobjekts (Service bzw. Bestell-Hook).
+// DATENMODELL §6.22 – Versandnachweis ohne Inhalt. Relationen `order` (P1.20), `withdrawal` (P1.21) und `inquiry`
+// (P1.24). Ohne Bezug gilt L-12; mit Bezug die Frist des Bezugsobjekts (Service bzw. Bestell-Hook; bei Anfragen deren
+// `deleteAfter`, L-10).
 
 /** Reservierte Empfänger-Domains werden in allen Umgebungen unterdrückt (R-180, ARCHITEKTUR §3.4). */
 export { isSuppressedRecipient }
@@ -43,6 +44,27 @@ async function retainUntilFromOrder(
   )
   const until = doc?.retainUntil ? new Date(doc.retainUntil) : null
   return orderRelatedRetainUntil(until, eventAt).toISOString()
+}
+
+/** Frist aus der Bezugsanfrage (`inquiries.deleteAfter`, L-10), `null` ohne Anfrage. */
+export async function retainUntilFromInquiry(
+  req: PayloadRequest,
+  inquiry: unknown,
+): Promise<string | null> {
+  const id = typeof inquiry === 'object' && inquiry ? (inquiry as { id: number }).id : inquiry
+  if (id === null || id === undefined || id === '') return null
+  const doc = await preservingReq(req, () =>
+    req.payload.findByID({
+      collection: 'inquiries',
+      id: id as number,
+      depth: 0,
+      select: { deleteAfter: true },
+      overrideAccess: true,
+      disableErrors: true,
+      req,
+    }),
+  )
+  return doc?.deleteAfter ? new Date(doc.deleteAfter).toISOString() : null
 }
 
 export const EmailLog: CollectionConfig = {
@@ -151,6 +173,14 @@ export const EmailLog: CollectionConfig = {
       index: true,
       admin: { readOnly: true },
     },
+    {
+      name: 'inquiry',
+      type: 'relationship',
+      label: 'Anfrage',
+      relationTo: 'inquiries',
+      index: true,
+      admin: { readOnly: true },
+    },
     ...seedField(),
   ],
   hooks: {
@@ -189,6 +219,10 @@ export const EmailLog: CollectionConfig = {
             }),
           )
           if (w?.retainUntil) data.retainUntil = w.retainUntil
+        }
+        if ((operation === 'create' || 'inquiry' in data) && data.inquiry && !data.retainUntil) {
+          const until = await retainUntilFromInquiry(req, data.inquiry)
+          if (until) data.retainUntil = until
         }
         const related = RELATION_FIELDS.some((f) => doc[f])
         if (!related && (operation === 'create' || 'sentAt' in data)) {
