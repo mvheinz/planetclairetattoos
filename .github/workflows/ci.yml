@@ -51,7 +51,7 @@ jobs:
       EMAIL_DRIVER: file
       PAYMENTS_DRIVER: mock
       TRANSLATION_DRIVER: mock
-      CARRIER_DRIVER: mock
+      CARRIER_DRIVER: manual
       CRON_SECRET: ci-only-cron-secret-000000000000000000
       NEXT_PUBLIC_LEASH_DEBUG: '1'
       NEXT_TELEMETRY_DISABLED: '1'
