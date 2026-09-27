@@ -1029,7 +1029,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: int `tests/int/access/access-matrix.int.spec.ts` (T-15, DM-P1-03, R-136).
   - Ohne Jutta: –
 
-- [ ] **P1.28 Seed-Rahmen** – Bibliothek `src/lib/seed/` und CLI `scripts/seed/cli.ts` (ARCHITEKTUR §2.1, SEED-SPEC
+- [x] **P1.28 Seed-Rahmen** – Bibliothek `src/lib/seed/` und CLI `scripts/seed/cli.ts` (ARCHITEKTUR §2.1, SEED-SPEC
   §1.4); das Skript ruft nur die Bibliothek auf.
   - Aufruf: `payload run scripts/seed/cli.ts -- <base|example|all|remove|reset>`, Lösung aus dem Spike in P1.5.
   - `guard.ts` (SEED-SPEC §1.5 und ARCHITEKTUR §4.8):

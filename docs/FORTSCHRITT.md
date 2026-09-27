@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P1.28
+
+- Seed-Bibliothek `src/lib/seed/` (guard, time, tokens, schemas, loader, upsert, context, fallbackArt, remove, run) und CLI `scripts/seed/cli.ts` (payload run, Top-Level-await); Skripte seed, seed:base, seed:example, seed:remove, seed:reset.\n- Guard prüft vor dem Start von Payload über eine nur lesende Verbindung (APP_ENV, DB-Markierung, livemode-Bestellungen).\n- Tests: unit seed/time (AK-SEED-16), seed/loader; int seed/guard (AK-SEED-04, AK-11-04, AK-A-4-01, Fingerabdruck aller Tabellen), seed/side-effects (AK-SEED-05) – grün.
+
 ## 2026-09-27 – P1.27
 
 - Zugriffsmatrix tests/int/access/matrix.ts: 27 Collections + 2 Globals mit anonymem Ergebnis für GET/POST/PATCH/DELETE, öffentlichem Where-Filter (inkl. Seed-Filter) und versteckten Feldern.\n- Test prüft jeden Eintrag über den REST-Handler (auch Einzelabruf und Massenänderung/-löschung), vergleicht die Zugriffsfunktion mit dem Matrix-Filter, scheitert bei fehlendem Eintrag und leitet die adminField-Felder aus der Konfiguration ab.\n- Tests: int access-matrix (32, T-15, DM-P1-03, R-136); pnpm check, test:int (336) grün.
