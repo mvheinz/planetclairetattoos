@@ -21,6 +21,8 @@ export async function login({
   user,
 }: LoginOptions): Promise<void> {
   await page.goto(`${serverURL}${adminRoute}/login`)
+  // Erst nach der Hydrierung ausfüllen (Produktions-Build rendert das Formular vorab).
+  await page.waitForLoadState('networkidle')
 
   await page.fill('#field-email', user.email)
   await page.fill('#field-password', user.password)

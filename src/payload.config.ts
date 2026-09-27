@@ -14,6 +14,7 @@ import { ConsentLog } from './collections/ConsentLog'
 import { DeletionLog } from './collections/DeletionLog'
 import { EmailLog } from './collections/EmailLog'
 import { WebhookEvents } from './collections/WebhookEvents'
+import { withJsonPreview } from './admin/jsonPreview'
 import { ADMIN_CUSTOM_DE } from './admin/translations'
 import { isAdmin, isAdminRequest } from './access'
 import { JOB_TASKS } from './jobs'
@@ -28,15 +29,23 @@ const env = getEnv()
 const mailFrom = parseMailFrom(env.MAIL_FROM)
 
 export default buildConfig({
+  // Verwaltungspfad aus ADMIN_ROUTE (E-93): Links, Weiterleitungen und Passwort-Reset nutzen ihn; src/proxy.ts schreibt
+  // ihn intern auf den Ordner app/(payload)/admin um (ARCHITEKTUR §8.4, Spike B-01).
+  routes: { admin: env.ADMIN_ROUTE },
   admin: {
     user: Users.slug,
     // Kein Gravatar-Request (keine Drittanbieter-Requests, CLAUDE.md §6).
     avatar: 'default',
     importMap: {
       baseDir: path.resolve(dirname),
+      // Ordner bleibt `admin/` (interner Mount-Punkt), auch wenn ADMIN_ROUTE anders heißt.
+      importMapFile: path.resolve(dirname, 'app/(payload)/admin/importMap.js'),
     },
   },
-  collections: [Users, Media, AuditLog, EmailLog, ConsentLog, WebhookEvents, DeletionLog],
+  // JSON-/Code-Felder ohne Monaco (CDN) in der Verwaltung (ARCHITEKTUR §8.4).
+  collections: [Users, Media, AuditLog, EmailLog, ConsentLog, WebhookEvents, DeletionLog].map(
+    (c) => ({ ...c, fields: withJsonPreview(c.fields) }),
+  ),
   editor: lexicalEditor(),
   // DATENMODELL §1.2 (E-60, E-61): fehlendes EN zeigt DE.
   localization: {
@@ -88,6 +97,7 @@ export default buildConfig({
     shouldAutoRun: () => env.JOBS_AUTORUN,
     jobsCollectionOverrides: ({ defaultJobsCollection }) => ({
       ...defaultJobsCollection,
+      fields: withJsonPreview(defaultJobsCollection.fields),
       access: { ...defaultJobsCollection.access, read: isAdmin },
       admin: { ...defaultJobsCollection.admin, group: 'System', hidden: false },
     }),

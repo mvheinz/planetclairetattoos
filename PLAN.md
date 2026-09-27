@@ -573,7 +573,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     `admin_password_reset`).
   - Ohne Jutta: Test-Admin aus `SEED_ADMIN_*`. P11: Jutta legt ihr Konto selbst an (A33).
 
-- [ ] **P1.12 Verwaltungspfad (Spike B-01), GraphQL entfernen, Health-Endpunkt** –
+- [x] **P1.12 Verwaltungspfad (Spike B-01), GraphQL entfernen, Health-Endpunkt** –
   - `src/proxy.ts` schreibt `ADMIN_ROUTE/*` intern auf den Ordner `src/app/(payload)/admin/` um; `/admin` und
     `/admin/*` liefern 404 (ARCHITEKTUR §8.4).
   - `routes.admin` wird aus `getEnv()` gesetzt, damit Links, Passwort-Reset und Weiterleitungen den richtigen Pfad
