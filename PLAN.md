@@ -162,7 +162,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
 
 ### Aufgaben
 
-- [ ] **P1.1 Gerüst-Abweichungen beheben und Werkzeugregeln** – Erste Aufgabe der Phase (ARCHITEKTUR Anhang C-14 Nr. 4,
+- [x] **P1.1 Gerüst-Abweichungen beheben und Werkzeugregeln** – Erste Aufgabe der Phase (ARCHITEKTUR Anhang C-14 Nr. 4,
   §1.3, §15). `ci.yml` und Test-Helfer folgen in P1.1a, Versionsprüfung und Next.js-Patch in P1.1b.
   - Prüfen, dass der P0-Stand noch gilt, sonst korrigieren (bereits in P0 erledigt, nicht neu bauen):
     - `.gitattributes` mit `* text=auto eol=lf` und Binärtypen (u. a. `png jpg jpeg webp avif gif ico pdf woff woff2`);

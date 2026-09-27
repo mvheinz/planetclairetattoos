@@ -1,0 +1,17 @@
+# Prosa und generierte Dateien werden nicht formatiert (Doku-Format bleibt stabil, PLAN.md wird von Skripten gezählt).
+*.md
+docs/
+content/
+pnpm-lock.yaml
+src/payload-types.ts
+src/payload-generated-schema.ts
+src/app/(payload)/admin/importMap.js
+src/migrations/*.json
+public/
+dist/
+.next/
+.next-preview/
+.data/
+.mailbox/
+test-results/
+playwright-report/
