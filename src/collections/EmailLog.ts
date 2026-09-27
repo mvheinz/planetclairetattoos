@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { isAdmin, none } from '@/access'
+import { isSuppressedRecipient } from '@/lib/email/recipients'
 import { seedField } from '@/fields'
 import { ENUM_LABELS, enumOptions } from '@/lib/enumLabels'
 import { EMAIL_STATUSES, EMAIL_TEMPLATES, EMAIL_TRANSPORTS, LOCALES } from '@/lib/enums'
@@ -12,16 +13,7 @@ import { immutableFields } from './hooks/immutable'
 // Ziel-Collections (P1.20/P1.21/P1.24); bis dahin gilt für alle Einträge L-12 „ohne Bezug“.
 
 /** Reservierte Empfänger-Domains werden in allen Umgebungen unterdrückt (R-180, ARCHITEKTUR §3.4). */
-export function isSuppressedRecipient(to: string): boolean {
-  const domain = to.split('@').pop()?.toLowerCase().trim() ?? ''
-  return (
-    ['example.com', 'example.org', 'example.net'].includes(domain) ||
-    domain.endsWith('.invalid') ||
-    domain.endsWith('.test') ||
-    domain === 'invalid' ||
-    domain === 'test'
-  )
-}
+export { isSuppressedRecipient }
 
 const RELATION_FIELDS = ['order', 'withdrawal', 'inquiry'] as const
 

@@ -12,6 +12,8 @@ export interface AppContext {
   skipAudit?: boolean
   /** Schreibvorgang durch den Übersetzen-Knopf (`enStatus = machine`). */
   translation?: boolean
+  /** Injizierte Zeit für Jobs (ISO 8601), z. B. aus `pnpm jobs:run <task> --now=<ISO>` (A-08). */
+  now?: string
 }
 
 declare module 'payload' {

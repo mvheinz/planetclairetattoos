@@ -554,6 +554,10 @@ export interface EmailAdapter {
   ignoriert und ein Fehler geloggt.
 - Versand läuft über das Outbox-Muster (DATENMODELL §1.5): `email-log`-Zeile + Job `sendEmail` in derselben Transaktion,
   nach dem Commit sofortiger Versuch; Wiederholungen über den Job-Wecker (§9.6).
+- Umsetzung (P1.9): Unterdrückung und Umleitung wirken im Transport (`createMailTransport`, nodemailer-`compile`-Schritt
+  plus vorgeschalteter Transport), damit auch Payloads eigene Mails (Passwort-Reset) sie einhalten; unterdrückte Mails
+  bauen keine Verbindung auf. Kontrakttest `tests/int/adapters/email.contract.int.spec.ts` prüft alle Treiber, SMTP gegen
+  einen lokalen Fake-Server (`smtp-server`, nur Test).
 
 ### 3.5 Zahlung (`PAYMENTS_DRIVER`)
 
@@ -2607,7 +2611,7 @@ Kein Spike darf die Phase blockieren: Scheitert das Soll, wird ohne Rückfrage d
 | B-06 | P10 | Reicht der eigene COPY-Dump auf Vercel (Speicher, 300 s, Streaming von age)? | §10.3 | AK-A-10-01 bis -05; zehnfacher Beispielbestand in < 60 s und < 512 MB Speicher | gebündeltes statisches `pg_dump` 17 (`outputFileTracingIncludes`) + `pg_restore`; zweite Ebene: Neon-Wiederherstellung + Backup über den Docker-Pfad | offen |
 | B-07 | P4 | Erlaubt die gepinnte Stripe-API-Version `checkout.sessions.update` mit neuen `shipping_options` bei `ui_mode: 'elements'`? | `updateShipping` → `updated` | Test im Stripe-Testmodus (falls Test-Schlüssel als API-Credential vorhanden) oder Parameter-Test gegen stripe-mock + Doku der gepinnten Version | `recreate_required`: alte Session beenden, neue mit derselben Reservierung (§3.5) | offen |
 | B-08 | P10 | Baut das Docker-Image ohne DB, und rendern die Seiten dann zur Laufzeit korrekt? | §13.2 (`BUILD_WITHOUT_DB=1`, `connection()`) | AK-A-13-01, AK-A-13-02 | Build im Compose-Netz mit laufender, migrierter DB (`DATABASE_URL` als Build-Argument einer Wegwerf-DB) | offen |
-| B-09 | P1 | Stellen `payload.jobs.handleSchedules()` und `payload.jobs.run()` in 3.90.2 die in §9.6 angenommenen Funktionen bereit (auch mit injizierter Zeit)? | §9.6 | Int-Test: geplanter Task wird durch einen Tick mit vorgestellter Uhr eingereiht und ausgeführt | eigene Tabelle `job_schedules (task, next_run_at)` und Einreihen im Tick | offen |
+| B-09 | P1 | Stellen `payload.jobs.handleSchedules()` und `payload.jobs.run()` in 3.90.2 die in §9.6 angenommenen Funktionen bereit (auch mit injizierter Zeit)? | §9.6 | Int-Test: geplanter Task wird durch einen Tick mit vorgestellter Uhr eingereiht und ausgeführt | eigene Tabelle `job_schedules (task, next_run_at)` und Einreihen im Tick | Ergebnis: Soll erfüllt – `handleSchedules({ allQueues, req })`, `run({ allQueues, limit, where, req })`, `runByID`, `queue`, `cancel` vorhanden; ein stündlich geplanter Test-Task wird bei vorgestellter Uhr (`Date` gefälscht) mit `waitUntil` = nächste volle Stunde eingereiht, erst danach ausgeführt, nicht doppelt eingereiht; `req.context` (injizierte Zeit `now`) erreicht den Task. Hinweis: erledigte Jobs löscht Payload standardmäßig (`deleteJobOnComplete`) – das Lauf-Protokoll (P5.3) braucht eine eigene Ablage (`tests/int/spikes/b09-jobs.int.spec.ts`), 27.09.2026, PR #1 |
 
 ---
 

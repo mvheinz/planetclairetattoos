@@ -27,7 +27,8 @@
     "check:static": "tsx --import=./scripts/lib/register-server-only.mjs scripts/check-static.ts",
     "db:ensure": "tsx --import=./scripts/lib/register-server-only.mjs scripts/db-ensure.ts",
     "db:reset": "tsx --import=./scripts/lib/register-server-only.mjs scripts/db-reset.ts",
-    "check:migrations": "tsx --import=./scripts/lib/register-server-only.mjs scripts/check-migration-drift.ts"
+    "check:migrations": "tsx --import=./scripts/lib/register-server-only.mjs scripts/check-migration-drift.ts",
+    "jobs:run": "tsx --import=./scripts/lib/register-server-only.mjs scripts/jobs-run.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1141.0",

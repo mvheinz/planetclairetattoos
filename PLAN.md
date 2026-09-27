@@ -472,7 +472,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: int `tests/int/adapters/storage.contract.int.spec.ts` (R-136).
   - Ohne Jutta: MinIO statt R2. P11: R2-Buckets und Schlüssel (A25, A33).
 
-- [ ] **P1.9 E-Mail-Adapter, Outbox, Jobs-Grundgerüst und Spike B-09** –
+- [x] **P1.9 E-Mail-Adapter, Outbox, Jobs-Grundgerüst und Spike B-09** –
   - `src/lib/email/{types,index,file,smtp,memory,log}.ts` (ARCHITEKTUR §3.4; `@payloadcms/email-nodemailer` und
     `nodemailer` exakt gepinnt).
   - Eine Transport-Fabrik `createMailTransport(env)` für alle Treiber; `file` schreibt `.eml` + `.json` nach

@@ -1,4 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { de } from '@payloadcms/translations/languages/de'
 import path from 'path'
@@ -14,12 +15,17 @@ import { DeletionLog } from './collections/DeletionLog'
 import { EmailLog } from './collections/EmailLog'
 import { WebhookEvents } from './collections/WebhookEvents'
 import { ADMIN_CUSTOM_DE } from './admin/translations'
+import { isAdmin, isAdminRequest } from './access'
+import { JOB_TASKS } from './jobs'
+import { createMailTransport, parseMailFrom } from './lib/email'
 import { getEnv } from './lib/env'
+import { isCronAuthorized } from './lib/jobs/auth'
 import { storagePlugins } from './lib/storage'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 const env = getEnv()
+const mailFrom = parseMailFrom(env.MAIL_FROM)
 
 export default buildConfig({
   admin: {
@@ -63,5 +69,28 @@ export default buildConfig({
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
   sharp,
+  // E-Mail über dieselbe Transport-Fabrik wie der Mail-Adapter (ARCHITEKTUR §3.4) – auch für Payloads eigene Mails.
+  email: nodemailerAdapter({
+    transport: createMailTransport(env),
+    defaultFromAddress: mailFrom.address,
+    defaultFromName: mailFrom.name || 'Planet Claire',
+    skipVerify: true,
+  }),
+  // Jobs-Queue (DATENMODELL §11, ARCHITEKTUR §9.6): Hauptweg ist der Job-Wecker /api/cron/tick.
+  jobs: {
+    tasks: JOB_TASKS,
+    access: {
+      run: ({ req }) => isAdminRequest(req) || isCronAuthorized(req.headers, env),
+      queue: ({ req }) => isAdminRequest(req),
+      cancel: ({ req }) => isAdminRequest(req),
+    },
+    autoRun: env.JOBS_AUTORUN ? [{ cron: '* * * * *', allQueues: true, limit: 50 }] : [],
+    shouldAutoRun: () => env.JOBS_AUTORUN,
+    jobsCollectionOverrides: ({ defaultJobsCollection }) => ({
+      ...defaultJobsCollection,
+      access: { ...defaultJobsCollection.access, read: isAdmin },
+      admin: { ...defaultJobsCollection.admin, group: 'System', hidden: false },
+    }),
+  },
   plugins: [...storagePlugins(env)],
 })
