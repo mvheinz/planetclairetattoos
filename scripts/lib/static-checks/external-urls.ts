@@ -11,6 +11,7 @@ export const URL_ALLOWLIST: RegExp[] = [
   /^https:\/\/ig\.me\//, // Instagram-DM-Link (E-51)
   /^https:\/\/api(-free)?\.deepl\.com\//, // Übersetzen-Knopf nur in der Verwaltung (E-61)
   /^https:\/\/[a-z0-9-]+\.eu\.r2\.cloudflarestorage\.com/, // Speicher (ARCHITEKTUR §4.3)
+  /^https:\/\/www\.dhl\.de\/[a-z]{2}\/privatkunden\/pakete-empfangen\/verfolgen\.html/, // Link zur Sendungsverfolgung in Versandmails, kein Request (DATENMODELL §7.1)
   /^https:\/\/planetclairetattoos\.com$/,
 ]
 

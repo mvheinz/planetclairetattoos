@@ -51,6 +51,15 @@ services:
       mc anonymous set none local/pct-private-dev;
       "
 
+  # Profil `payments` (ARCHITEKTUR §3.5): zustandsloser Stripe-Nachbau für Form-/Parameter-Tests.
+  # Start: `docker compose --profile payments up -d`, dann STRIPE_API_BASE_URL=http://127.0.0.1:12111 (ab P4).
+  stripe-mock:
+    image: stripe/stripe-mock:latest
+    profiles: ['payments']
+    ports:
+      - '12111:12111' # HTTP
+      - '12112:12112' # HTTPS
+
 volumes:
   pgdata:
   miniodata:

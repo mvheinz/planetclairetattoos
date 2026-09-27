@@ -513,7 +513,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - unit `tests/unit/jobs/slugs.unit.spec.ts`.
   - Ohne Jutta: `EMAIL_DRIVER=file`. P11: Lettermint-SMTP (A25, A33).
 
-- [ ] **P1.10 Adapter für Zahlung, Übersetzung und Versand (Schnittstellen und Mocks)** –
+- [x] **P1.10 Adapter für Zahlung, Übersetzung und Versand (Schnittstellen und Mocks)** –
   - `src/lib/payments/types.ts` und `index.ts` (`getPaymentsAdapter()`), Treiber-Ordner `mock/` und `stripe/`:
     `PaymentsAdapter`-Schnittstelle vollständig laut ARCHITEKTUR §3.5 (Sitzung anlegen/abrufen/beenden, Versand
     aktualisieren, Erstattung, Webhook prüfen, Ereignisse und Gebühren abrufen; Eingabe `checkoutRef`, nie ein Token).
