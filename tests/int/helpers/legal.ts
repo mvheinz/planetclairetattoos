@@ -40,8 +40,18 @@ export const FIXTURE_TYPES: readonly LegalTextType[] = [
   'versand-zahlung',
 ]
 
+// Parallele Aufrufe (z. B. 20 gleichzeitige Bestellungen) nacheinander abarbeiten: sonst legen zwei Aufrufe dieselbe
+// fehlende Fassung an und die nächste freie `version` kollidiert (Unique type+version).
+let queue: Promise<unknown> = Promise.resolve()
+
 /** Legt je Typ eine aktive Test-Fassung an (falls keine aktive existiert) und liefert die Felder für `legalTextVersions`. */
-export async function ensureLegalTextFixtures(payload: Payload) {
+export function ensureLegalTextFixtures(payload: Payload) {
+  const run = queue.then(() => ensureLegalTextFixturesNow(payload))
+  queue = run.catch(() => undefined)
+  return run
+}
+
+async function ensureLegalTextFixturesNow(payload: Payload) {
   const ids: Record<string, number> = {}
   for (const type of FIXTURE_TYPES) {
     const found = await payload.find({
