@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P1.27
+
+- Zugriffsmatrix tests/int/access/matrix.ts: 27 Collections + 2 Globals mit anonymem Ergebnis für GET/POST/PATCH/DELETE, öffentlichem Where-Filter (inkl. Seed-Filter) und versteckten Feldern.\n- Test prüft jeden Eintrag über den REST-Handler (auch Einzelabruf und Massenänderung/-löschung), vergleicht die Zugriffsfunktion mit dem Matrix-Filter, scheitert bei fehlendem Eintrag und leitet die adminField-Felder aus der Konfiguration ab.\n- Tests: int access-matrix (32, T-15, DM-P1-03, R-136); pnpm check, test:int (336) grün.
+
 ## 2026-09-27 – P1.26
 
 - Migration p1_constraints: 4 Sequenzen, CHECKs aus §9.2 (item_number 1–99999, Summen, Storno-Grund …) plus Cent-CHECK für jede *_cents-Spalte, partielle UNIQUE-Indizes (aktive Reservierung/Rechtstext, eine Rechnung je Bestellung, seed_key für 22 Tabellen), GoBD-Trigger invoices_guard; down entfernt alles.\n- Nummern PC-/WR-/AA-/DS- aus den Sequenzen (src/lib/db/sequences.ts, Hook assignSequenceNumber); die Verwaltung kann Datenschutz-Anfragen ohne Nummer anlegen.\n- DATENMODELL §8.7/§9 an die echten Spalten angepasst (reason, created_at, legal_texts).\n- Tests: int pg-objects (6, T-14/DM-P1-02, inkl. down/up), constraints (16, DM-RES-03, DM-INV-03, CHECKs, Sequenzen), angepasste Nummern-Tests; pnpm check, test:int (304), build grün.

@@ -1018,7 +1018,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - int `tests/int/db/constraints.int.spec.ts` (DM-RES-03, DM-INV-03).
   - Ohne Jutta: –
 
-- [ ] **P1.27 Zugriffsmatrix aller Collections (T-15)** – Eine Datei `tests/int/access/matrix.ts` beschreibt für alle 27
+- [x] **P1.27 Zugriffsmatrix aller Collections (T-15)** – Eine Datei `tests/int/access/matrix.ts` beschreibt für alle 27
   Collections der P1 (DATENMODELL §10.1; `legal-snippets` und `complaints` ergänzt P6) und 2 Globals das erlaubte
   anonyme Ergebnis für REST `GET`/`POST`/`PATCH`/`DELETE`, samt öffentlicher Where-Filter und versteckter Felder
   (DATENMODELL §1.4 und die Access-Abschnitte je Collection).
