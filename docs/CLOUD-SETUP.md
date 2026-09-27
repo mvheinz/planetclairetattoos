@@ -41,9 +41,10 @@ nicht auf deinem Laptop. Du kannst ihn zuklappen.
       steckt **Settings** hinter den drei Punkten **…**.
    2. Links ist **General** schon ausgewählt. Nach unten scrollen bis zum Abschnitt **Pull Requests**.
    3. Häkchen bei **Allow squash merging** setzen (falls es noch fehlt).
-   4. Direkt darunter bei **Default commit message** den Eintrag **Pull request title and description** wählen.
-   5. GitHub speichert das sofort (oben erscheint kurz eine Bestätigung). Siehst du einen Knopf **Save** oder
-      **Update**, klick ihn.
+   4. Direkt darunter ist ein Auswahlknopf; er zeigt anfangs **Default message**. Darauf klicken und
+      **Default to pull request title and description** wählen.
+   5. GitHub speichert das sofort: Neben **Allow squash merging** erscheint kurz ein grünes Häkchen. Einen
+      Speichern-Knopf gibt es nicht. Die anderen Einstellungen lässt du, wie sie sind.
 3. **Claude-GitHub-App installieren.** Damit darf Claude dein privates Repository lesen und Arbeitsstände hochladen.
    Öffne <https://github.com/apps/claude/installations/new> → dein Konto wählen → **Only select repositories** →
    `planetclairetattoos` wählen → **Install**. GitHub zeigt vorher eine Liste mit Rechten (Code, Pull Requests,
@@ -589,6 +590,7 @@ Geprüft am 26.09.2026 durch Abruf der Markdown-Fassung der offiziellen Seiten (
 | F-27 | Neueste Node-24-Version: 24.21.0 vom 07.09.2026 (LTS „Krypton“); SHA-256 `node-v24.21.0-linux-x64.tar.xz` = `fd8e59d5…6cb2d6`, `.tar.gz` = `6e1db87e…88dc5ff`. Aktuell ist außerdem 26.10.0. | <https://nodejs.org/dist/index.json>, <https://nodejs.org/dist/v24.21.0/SHASUMS256.txt> |
 | F-28 | pnpm 10.34.5 und `@playwright/test` 1.58.2 existieren in der npm-Registry. | <https://registry.npmjs.org/pnpm/10.34.5>, <https://registry.npmjs.org/@playwright%2ftest/1.58.2> |
 | F-29 | Stripe.js braucht `api.stripe.com`, `js.stripe.com`, `*.js.stripe.com`, für 3-D-Secure `hooks.stripe.com`. | <https://docs.stripe.com/security/guide> (CSP-Abschnitt) |
+| F-31 | GitHub (geprüft 27.09.2026): Unter „Allow squash merging“ sitzt ein Auswahlknopf ohne eigene Überschrift (anfangs „Default message“) mit den Optionen „Default message“, „Default to pull request title“, „Default to pull request title and commit details“, „Default to pull request title and description“; Änderungen speichern sofort (grünes Häkchen). Neues-Repository-Formular seit 08/2025: „Choose visibility“ (Public/Private, voreingestellt Public), Schalter „Add README“ (Off), „Add .gitignore“ („No .gitignore“), „Add license“ („No license“). Erster `git push` unter Windows: Git Credential Manager öffnet das Fenster „Connect to GitHub“ → „Sign in with your browser“. | <https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/configuring-commit-squashing-for-pull-requests>, <https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository>, <https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git> |
 | F-30 | Abgeleitet/nicht dokumentiert: Arbeitsverzeichnis und Benutzer, unter dem Claudes Befehle laufen; Form der `origin`-URL im Klon; ob der Proxy `gh pr merge` erlaubt; welche Umgebung „Continue in“ wählt. Das Skript sucht das Repo selbst, setzt `GH_REPO`, und die Doku nennt jeweils eine Ausweichlösung. | – |
 
 **Korrekturen gegenüber `docs/research/`:** Das Setup-Skript läuft **nicht** vor jeder Session (nur beim Cache-Aufbau);

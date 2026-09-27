@@ -60,8 +60,8 @@ aber je früher, desto besser. A01a erledigst du am besten gleich nach A01.
     Nachricht. Sonst kommen alle Zwischenschritte hinein, und ein Vermerk darin kann verhindern, dass die fertige
     Vorschau am Ende automatisch veröffentlicht wird.
   - So geht's: dein Repository auf github.com öffnen → oben „Settings“ → links „General“ → nach unten bis
-    „Pull Requests“ → Häkchen bei „Allow squash merging“ → direkt darunter bei „Default commit message“
-    **„Pull request title and description“** wählen.
+    „Pull Requests“ → Häkchen bei „Allow squash merging“ → direkt darunter auf den Auswahlknopf („Default message“)
+    → **„Default to pull request title and description“** wählen (speichert sofort).
   - Aufwand: ca. 5 Min. (einmalig; auch nötig, wenn Claude das Repository in P0 schon mit dir angelegt hat)
   - Anleitung: [G1, Teil „Einmal einstellen“](ANLEITUNGEN.md#g1a)
 
@@ -416,7 +416,7 @@ Die genaue Bedienung erklärt dein Handbuch, das in P10 in diesen Ordner kommt.
 | Aufgabe | Bezug | Wo es in der Software landet | Ersatz bis dahin |
 |---|---|---|---|
 | A01–A03 | E-97, E-99 | – | – |
-| A01a | ARCHITEKTUR §6.6/§6.7, `docs/CLOUD-SETUP.md` §1 | Repository-Einstellung „Allow squash merging“ mit „Default commit message = Pull request title and description“ (API-Felder `squash_merge_commit_title = PR_TITLE`, `squash_merge_commit_message = PR_BODY`). Sessions ändern keine Repository-Einstellungen; sie mergen mit eigener Nachricht (`gh pr merge --squash --subject "<PR-Titel>" --body "<Kurzfassung>"`), und weder diese Nachricht noch eine PR-Beschreibung enthält je `[skip ci]` | Rückfall: `release.yml` läuft zusätzlich täglich (06:00 UTC) und per `workflow_dispatch` |
+| A01a | ARCHITEKTUR §6.6/§6.7, `docs/CLOUD-SETUP.md` §1 | Repository-Einstellung „Allow squash merging“ mit der Auswahl „Default to pull request title and description“ (API-Felder `squash_merge_commit_title = PR_TITLE`, `squash_merge_commit_message = PR_BODY`). Sessions ändern keine Repository-Einstellungen; sie mergen mit eigener Nachricht (`gh pr merge --squash --subject "<PR-Titel>" --body "<Kurzfassung>"`), und weder diese Nachricht noch eine PR-Beschreibung enthält je `[skip ci]` | Rückfall: `release.yml` läuft zusätzlich täglich (06:00 UTC) und per `workflow_dispatch` |
 | A04, A06 | E-64 | `content/seed/instagram-export/` (Ordner mit `LIESMICH.txt` existiert seit P0) → Import in P8 (Formate: ANLEITUNGEN, Anhang) | 640-px-Bilder aus `content/seed/instagram/` |
 | A05 | E-75 | `content/seed/coco/` (Ordner mit `LIESMICH.txt` existiert seit P0) → Coco-Zeichnungen in P9 | Highlight-Bilder (150 px) |
 | A07 | E-97 | – | PR-Text „Bitte mergen – CI ist grün“ |

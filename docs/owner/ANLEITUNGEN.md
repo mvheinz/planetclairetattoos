@@ -76,8 +76,9 @@ Ein **Pull Request** (kurz PR) ist ein Änderungsvorschlag, den man prüfen und 
    und folgst den Schritten.
 3. Oben rechts auf „+“ → „New repository“.
 4. Bei „Repository name“ trägst du ein: `planetclairetattoos`
-5. Wähl **„Private“**. Das ist wichtig, weil im Repo Fotos von Tattoos deiner Kund:innen und Beispieldaten liegen.
-6. Bei „Add a README file“, „.gitignore“ und „License“ wählst du **nichts** aus. Das Repo muss leer sein.
+5. Stell bei „Choose visibility“ auf **„Private“** um (voreingestellt ist „Public“). Das ist wichtig, weil im Repo Fotos von Tattoos deiner Kund:innen und Beispieldaten liegen.
+6. „Add README“ bleibt auf **Off**, bei „Add .gitignore“ bleibt **„No .gitignore“** und bei „Add license“
+   **„No license“**. Das Repo muss leer sein.
 7. Klick unten auf „Create repository“.
 8. Schick Claude im Chat die Adresse aus der Adresszeile, zum Beispiel `https://github.com/dein-name/planetclairetattoos`.
    Die Adresse ist nicht geheim.
@@ -96,10 +97,10 @@ verhindern, dass die fertige Vorschau am Ende automatisch veröffentlicht wird.
 3. Links in der Spalte ist **„General“** schon ausgewählt. Wenn nicht, klick darauf.
 4. Scroll nach unten bis zur Überschrift **„Pull Requests“**.
 5. Setz das Häkchen bei **„Allow squash merging“**, falls es noch fehlt.
-6. Direkt darunter steht **„Default commit message“** (so ähnlich) mit einer Auswahlliste. Klick darauf und wähl
-   **„Pull request title and description“**.
-7. GitHub speichert das meist sofort und zeigt kurz eine Bestätigung. Steht dort ein Knopf „Save“ oder „Update“,
-   klick darauf.
+6. Direkt darunter ist ein Auswahlknopf ohne eigene Überschrift. Er zeigt anfangs „Default message“. Klick darauf
+   und wähl **„Default to pull request title and description“**.
+7. GitHub speichert das sofort: Neben „Allow squash merging“ erscheint kurz ein grünes Häkchen. Einen
+   Speichern-Knopf gibt es nicht.
 8. Die anderen Häkchen in diesem Abschnitt lässt du, wie sie sind. Fertig.
 
 <a id="g2"></a>
@@ -112,7 +113,7 @@ Pull Requests anlegen.
 2. Klick auf „Install“. Ist die App schon installiert, heißt der Knopf „Configure“.
 3. Wähl dein Konto.
 4. Wähl „Only select repositories“ und darunter `planetclairetattoos`. So sieht Claude nur dieses eine Repo.
-5. Bestätige mit „Install“ (oder „Save“). GitHub zeigt dir vorher, was die App darf, zum Beispiel Code lesen und
+5. Bestätige mit „Install“ (manchmal „Install & Authorize“, bei schon installierter App „Save“). GitHub zeigt dir vorher, was die App darf, zum Beispiel Code lesen und
    schreiben oder Pull Requests anlegen. Das ist so nötig.
 6. Will GitHub dein Passwort oder einen 2FA-Code, gibst du ihn selbst ein.
 
