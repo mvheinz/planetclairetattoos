@@ -13,6 +13,7 @@ import * as migration_20260927_122558_p1_products from './20260927_122558_p1_pro
 import * as migration_20260927_131109_p1_orders from './20260927_131109_p1_orders';
 import * as migration_20260927_132358_p1_invoices from './20260927_132358_p1_invoices';
 import * as migration_20260927_140139_p1_legal from './20260927_140139_p1_legal';
+import * as migration_20260927_141511_p1_tattoo from './20260927_141511_p1_tattoo';
 
 export const migrations = [
   {
@@ -88,6 +89,11 @@ export const migrations = [
   {
     up: migration_20260927_140139_p1_legal.up,
     down: migration_20260927_140139_p1_legal.down,
-    name: '20260927_140139_p1_legal'
+    name: '20260927_140139_p1_legal',
+  },
+  {
+    up: migration_20260927_141511_p1_tattoo.up,
+    down: migration_20260927_141511_p1_tattoo.down,
+    name: '20260927_141511_p1_tattoo'
   },
 ];

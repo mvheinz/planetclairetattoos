@@ -7,6 +7,8 @@ import {
 
 import { isAdmin, publicRead } from '@/access'
 import { legalRichTextEditor, seedField } from '@/fields'
+import { revalidateContent } from '@/lib/cache/revalidate'
+import { TAGS } from '@/lib/cache/tags'
 import { ENUM_LABELS, enumOptions } from '@/lib/enumLabels'
 import {
   LEGAL_TEXT_ORIGINS,
@@ -333,5 +335,14 @@ export const LegalTexts: CollectionConfig = {
   hooks: {
     beforeChange: [guardLegalText],
     beforeDelete: [guardDelete],
+    afterChange: [
+      ({ doc, previousDoc, req }) => {
+        // Rechtsseiten sofort erneuern, sobald sich die veröffentlichte Fassung ändert.
+        if (doc.status !== previousDoc?.status && doc.status !== 'draft') {
+          revalidateContent(TAGS.legal(String(doc.type)), { context: getAppContext(req) })
+        }
+        return doc
+      },
+    ],
   },
 }

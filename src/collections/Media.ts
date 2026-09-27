@@ -31,6 +31,7 @@ import {
 } from '@/lib/media/pipeline'
 import { getAppContext } from '@/lib/payload/context'
 import { uploadStaticDir, uploadStorage } from '@/lib/storage'
+import { mediaVisibleInGallery } from '@/lib/tattoo/gallery'
 
 // DATENMODELL §6.2 – öffentliche Bilder mit Bildpipeline (DESIGN §12.2 Schritte 1–3, 7, 8).
 
@@ -166,13 +167,19 @@ const dropIncompleteSizes: CollectionBeforeChangeHook = ({ data, req }) => {
 }
 
 /** Schritt 8 und Sichtbarkeit: LQIP/Dominanzfarbe bei neuer Datei; Kund:innen-Bilder sind gesperrt. */
-const computeDerived: CollectionBeforeChangeHook = async ({ data, req }) => {
+const computeDerived: CollectionBeforeChangeHook = async ({ data, req, originalDoc }) => {
   if (req.file) {
     const buffer = await fileBuffer(req.file)
     if (buffer.length > 0) Object.assign(data, await computePlaceholder(buffer))
   }
-  // `restricted` steuert ab P7 die Tattoo-Galerie (§6.16); bis dahin gilt: Kund:innen-Haut ist nie öffentlich.
-  if (data.showsPerson !== undefined) data.restricted = data.showsPerson === 'customer'
+  // `restricted` steuert die Tattoo-Galerie (§6.16, Hook `tattoo-gallery.afterChange`). Sonst gilt: Kund:innen-Haut
+  // ist gesperrt, solange kein öffentlich sichtbarer Galerie-Eintrag mit Einwilligung darauf verweist.
+  if (getAppContext(req).gallerySync) return data
+  if (data.showsPerson !== undefined) {
+    data.restricted =
+      data.showsPerson === 'customer' &&
+      !(originalDoc?.id !== undefined && (await mediaVisibleInGallery(req, originalDoc.id)))
+  }
   return data
 }
 

@@ -947,7 +947,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     `tests/int/collections/orders.int.spec.ts` um DM-ORD-02 (`legalTextVersions`) erweitert.
   - Ohne Jutta: Platzhalter-Fassungen (R-002). Die Kanzlei-Texte folgen in P11 (A08, A28).
 
-- [ ] **P1.23 Tattoo-Collections: `flash`, `tattoo-offers`, `tattoo-gallery`** – Laut DATENMODELL §6.14–§6.16 (E-42,
+- [x] **P1.23 Tattoo-Collections: `flash`, `tattoo-offers`, `tattoo-gallery`** – Laut DATENMODELL §6.14–§6.16 (E-42,
   E-52, E-53).
   - `flash`: einmalig/wiederholbar, `status` aus `FLASH_STATUSES` (`available`/`claimed`), `number` Ganzzahl 1–9999
     (Anzeige `F-012`, Seed `F-901`).

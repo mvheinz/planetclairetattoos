@@ -21,6 +21,9 @@ import { Invoices } from './collections/Invoices'
 import { InvoiceCounters } from './collections/InvoiceCounters'
 import { Withdrawals } from './collections/Withdrawals'
 import { LegalTexts } from './collections/LegalTexts'
+import { Flash } from './collections/Flash'
+import { TattooOffers } from './collections/TattooOffers'
+import { TattooGallery } from './collections/TattooGallery'
 import { AuditLog } from './collections/AuditLog'
 import { ConsentLog } from './collections/ConsentLog'
 import { DeletionLog } from './collections/DeletionLog'
@@ -72,6 +75,9 @@ export default buildConfig({
     InvoiceCounters,
     Withdrawals,
     LegalTexts,
+    Flash,
+    TattooOffers,
+    TattooGallery,
     AuditLog,
     EmailLog,
     ConsentLog,

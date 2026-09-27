@@ -81,6 +81,9 @@ export interface Config {
     'invoice-counters': InvoiceCounter;
     withdrawals: Withdrawal;
     'legal-texts': LegalText;
+    flash: Flash;
+    'tattoo-offers': TattooOffer;
+    'tattoo-gallery': TattooGallery;
     'audit-log': AuditLog;
     'email-log': EmailLog;
     'consent-log': ConsentLog;
@@ -114,6 +117,9 @@ export interface Config {
     'invoice-counters': InvoiceCountersSelect<false> | InvoiceCountersSelect<true>;
     withdrawals: WithdrawalsSelect<false> | WithdrawalsSelect<true>;
     'legal-texts': LegalTextsSelect<false> | LegalTextsSelect<true>;
+    flash: FlashSelect<false> | FlashSelect<true>;
+    'tattoo-offers': TattooOffersSelect<false> | TattooOffersSelect<true>;
+    'tattoo-gallery': TattooGallerySelect<false> | TattooGallerySelect<true>;
     'audit-log': AuditLogSelect<false> | AuditLogSelect<true>;
     'email-log': EmailLogSelect<false> | EmailLogSelect<true>;
     'consent-log': ConsentLogSelect<false> | ConsentLogSelect<true>;
@@ -361,6 +367,7 @@ export interface PrivateUpload {
   documentVersion?: string | null;
   documentDate?: string | null;
   relatedDeclaration?: (number | null) | ConformityDeclaration;
+  relatedGalleryItem?: (number | null) | TattooGallery;
   note?: string | null;
   seed?: boolean | null;
   seedKey?: string | null;
@@ -416,6 +423,91 @@ export interface ConformityDeclaration {
    */
   status: 'active' | 'revoked';
   notes?: string | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Fotos gestochener Tattoos. Fotos mit Kund:innen erscheinen nur mit dokumentierter Einwilligung.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tattoo-gallery".
+ */
+export interface TattooGallery {
+  id: number;
+  image: number | Media;
+  extraImages?: (number | Media)[] | null;
+  kind: 'fresh' | 'healed';
+  /**
+   * z. B. 42 → „3,5 years healed“
+   */
+  healedDurationMonths?: number | null;
+  healedLabel?: string | null;
+  caption?: string | null;
+  /**
+   * z. B. „Unterarm“
+   */
+  placement?: string | null;
+  flash?: (number | null) | Flash;
+  /**
+   * Aus bei eigenen Zeichnungen oder Platzhaltern.
+   */
+  showsCustomer?: boolean | null;
+  consentGiven?: boolean | null;
+  consentScope?: ('tattoo_only' | 'with_face') | null;
+  consentDate?: string | null;
+  /**
+   * z. B. „per DM am 02.10.2026“
+   */
+  consentNote?: string | null;
+  consentEvidence?: (number | null) | PrivateUpload;
+  consentWithdrawnAt?: string | null;
+  /**
+   * Eine Instagram-Freigabe deckt die Website nicht automatisch ab.
+   */
+  creditHandleAllowed?: boolean | null;
+  creditHandle?: string | null;
+  published?: boolean | null;
+  featured?: boolean | null;
+  sortOrder: number;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Motive mit Festpreis. „Vergeben“ zeigt einen Stempel; wiederholbare Motive bleiben verfügbar.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "flash".
+ */
+export interface Flash {
+  id: number;
+  /**
+   * Anzeige „F-012“. Leer lassen = nächste freie Nummer.
+   */
+  number?: number | null;
+  title: string;
+  image: number | Media;
+  extraImages?: (number | Media)[] | null;
+  /**
+   * ungefähre Größe, z. B. 9,5
+   */
+  sizeCm: number;
+  /**
+   * z. B. „Größe anpassbar“
+   */
+  sizeNote?: string | null;
+  /**
+   * Gesamtpreis (mindestens 10,00 €).
+   */
+  priceCents: number;
+  repeatable?: boolean | null;
+  status: 'available' | 'claimed';
+  claimedAt?: string | null;
+  published?: boolean | null;
+  sortOrder: number;
   seed?: boolean | null;
   seedKey?: string | null;
   updatedAt: string;
@@ -1586,6 +1678,38 @@ export interface InvoiceCounter {
   createdAt: string;
 }
 /**
+ * Flash-Days und Aktionen. Nach dem Ende verschwindet ein Angebot automatisch von der Website.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tattoo-offers".
+ */
+export interface TattooOffer {
+  id: number;
+  type: 'flash_day' | 'aktion';
+  title: string;
+  description: string;
+  startsAt: string;
+  /**
+   * Leer = Ende des Starttags (23:59 Uhr). Ab hier unsichtbar.
+   */
+  endsAt: string;
+  /**
+   * Keine Adresse – nur der Bezirk.
+   */
+  locationNote?: string | null;
+  image?: (number | null) | Media;
+  flashes?: (number | Flash)[] | null;
+  /**
+   * Gesamtpreise nennen.
+   */
+  priceNote?: string | null;
+  published?: boolean | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Wer hat wann was geändert. Nur lesen.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1901,6 +2025,18 @@ export interface PayloadLockedDocument {
         value: number | LegalText;
       } | null)
     | ({
+        relationTo: 'flash';
+        value: number | Flash;
+      } | null)
+    | ({
+        relationTo: 'tattoo-offers';
+        value: number | TattooOffer;
+      } | null)
+    | ({
+        relationTo: 'tattoo-gallery';
+        value: number | TattooGallery;
+      } | null)
+    | ({
         relationTo: 'audit-log';
         value: number | AuditLog;
       } | null)
@@ -2112,6 +2248,7 @@ export interface PrivateUploadsSelect<T extends boolean = true> {
   documentVersion?: T;
   documentDate?: T;
   relatedDeclaration?: T;
+  relatedGalleryItem?: T;
   note?: T;
   seed?: T;
   seedKey?: T;
@@ -2753,6 +2890,78 @@ export interface LegalTextsSelect<T extends boolean = true> {
   contentSha256En?: T;
   activatedAt?: T;
   supersededAt?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "flash_select".
+ */
+export interface FlashSelect<T extends boolean = true> {
+  number?: T;
+  title?: T;
+  image?: T;
+  extraImages?: T;
+  sizeCm?: T;
+  sizeNote?: T;
+  priceCents?: T;
+  repeatable?: T;
+  status?: T;
+  claimedAt?: T;
+  published?: T;
+  sortOrder?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tattoo-offers_select".
+ */
+export interface TattooOffersSelect<T extends boolean = true> {
+  type?: T;
+  title?: T;
+  description?: T;
+  startsAt?: T;
+  endsAt?: T;
+  locationNote?: T;
+  image?: T;
+  flashes?: T;
+  priceNote?: T;
+  published?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tattoo-gallery_select".
+ */
+export interface TattooGallerySelect<T extends boolean = true> {
+  image?: T;
+  extraImages?: T;
+  kind?: T;
+  healedDurationMonths?: T;
+  healedLabel?: T;
+  caption?: T;
+  placement?: T;
+  flash?: T;
+  showsCustomer?: T;
+  consentGiven?: T;
+  consentScope?: T;
+  consentDate?: T;
+  consentNote?: T;
+  consentEvidence?: T;
+  consentWithdrawnAt?: T;
+  creditHandleAllowed?: T;
+  creditHandle?: T;
+  published?: T;
+  featured?: T;
+  sortOrder?: T;
   seed?: T;
   seedKey?: T;
   updatedAt?: T;

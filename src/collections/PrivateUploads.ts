@@ -376,6 +376,13 @@ export const PrivateUploads: CollectionConfig = {
       relationTo: 'conformity-declarations',
       admin: { condition: (data) => data?.purpose === 'lab_report' },
     },
+    {
+      name: 'relatedGalleryItem',
+      type: 'relationship',
+      label: 'Galerie-Foto',
+      relationTo: 'tattoo-gallery',
+      admin: { condition: (data) => data?.purpose === 'consent_evidence' },
+    },
     { name: 'note', type: 'textarea', label: 'Notiz', maxLength: 500 },
     ...seedField(),
   ],
