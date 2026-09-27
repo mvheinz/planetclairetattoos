@@ -14,6 +14,9 @@ import { PrivateUploads } from './collections/PrivateUploads'
 import { Categories } from './collections/Categories'
 import { ConformityDeclarations } from './collections/ConformityDeclarations'
 import { Products } from './collections/Products'
+import { Checkouts } from './collections/Checkouts'
+import { Reservations } from './collections/Reservations'
+import { Orders } from './collections/Orders'
 import { AuditLog } from './collections/AuditLog'
 import { ConsentLog } from './collections/ConsentLog'
 import { DeletionLog } from './collections/DeletionLog'
@@ -58,6 +61,9 @@ export default buildConfig({
     Categories,
     ConformityDeclarations,
     Products,
+    Checkouts,
+    Reservations,
+    Orders,
     AuditLog,
     EmailLog,
     ConsentLog,

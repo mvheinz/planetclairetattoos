@@ -10,6 +10,7 @@ import * as migration_20260927_113844_p1_documents from './20260927_113844_p1_do
 import * as migration_20260927_115819_p1_globals from './20260927_115819_p1_globals';
 import * as migration_20260927_120755_p1_categories from './20260927_120755_p1_categories';
 import * as migration_20260927_122558_p1_products from './20260927_122558_p1_products';
+import * as migration_20260927_131109_p1_orders from './20260927_131109_p1_orders';
 
 export const migrations = [
   {
@@ -70,6 +71,11 @@ export const migrations = [
   {
     up: migration_20260927_122558_p1_products.up,
     down: migration_20260927_122558_p1_products.down,
-    name: '20260927_122558_p1_products'
+    name: '20260927_122558_p1_products',
+  },
+  {
+    up: migration_20260927_131109_p1_orders.up,
+    down: migration_20260927_131109_p1_orders.down,
+    name: '20260927_131109_p1_orders'
   },
 ];

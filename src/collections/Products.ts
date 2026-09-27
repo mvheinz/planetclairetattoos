@@ -666,6 +666,14 @@ const saleFields: Field[] = [
     access: adminField,
     admin: readOnlySystem,
   },
+  {
+    name: 'currentOrder',
+    type: 'relationship',
+    label: 'Bestellung',
+    relationTo: 'orders',
+    access: adminField,
+    admin: readOnlySystem,
+  },
 ]
 
 const internalFields: Field[] = [

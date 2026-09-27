@@ -74,6 +74,9 @@ export interface Config {
     categories: Category;
     'conformity-declarations': ConformityDeclaration;
     products: Product;
+    checkouts: Checkout;
+    reservations: Reservation;
+    orders: Order;
     'audit-log': AuditLog;
     'email-log': EmailLog;
     'consent-log': ConsentLog;
@@ -85,7 +88,11 @@ export interface Config {
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    orders: {
+      emails: 'email-log';
+    };
+  };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -94,6 +101,9 @@ export interface Config {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     'conformity-declarations': ConformityDeclarationsSelect<false> | ConformityDeclarationsSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
+    checkouts: CheckoutsSelect<false> | CheckoutsSelect<true>;
+    reservations: ReservationsSelect<false> | ReservationsSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
     'audit-log': AuditLogSelect<false> | AuditLogSelect<true>;
     'email-log': EmailLogSelect<false> | EmailLogSelect<true>;
     'consent-log': ConsentLogSelect<false> | ConsentLogSelect<true>;
@@ -689,6 +699,7 @@ export interface Product {
   archivedAt?: string | null;
   reservedUntil?: string | null;
   reservationRef?: string | null;
+  currentOrder?: (number | null) | Order;
   /**
    * Steht auf dem Packzettel.
    */
@@ -720,6 +731,632 @@ export interface Product {
       | null;
     note?: string | null;
   };
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: number;
+  /**
+   * Verwendungszweck bei Vorkasse.
+   */
+  orderNumber: string;
+  checkout?: (number | null) | Checkout;
+  status:
+    | 'awaiting_prepayment'
+    | 'paid'
+    | 'packed'
+    | 'shipped'
+    | 'ready_for_pickup'
+    | 'picked_up'
+    | 'delivered'
+    | 'cancelled'
+    | 'withdrawal_received'
+    | 'return_received'
+    | 'refunded'
+    | 'partially_refunded'
+    | 'disputed';
+  statusBeforeWithdrawal?:
+    | (
+        | 'awaiting_prepayment'
+        | 'paid'
+        | 'packed'
+        | 'shipped'
+        | 'ready_for_pickup'
+        | 'picked_up'
+        | 'delivered'
+        | 'cancelled'
+        | 'withdrawal_received'
+        | 'return_received'
+        | 'refunded'
+        | 'partially_refunded'
+        | 'disputed'
+      )
+    | null;
+  statusBeforeDispute?:
+    | (
+        | 'awaiting_prepayment'
+        | 'paid'
+        | 'packed'
+        | 'shipped'
+        | 'ready_for_pickup'
+        | 'picked_up'
+        | 'delivered'
+        | 'cancelled'
+        | 'withdrawal_received'
+        | 'return_received'
+        | 'refunded'
+        | 'partially_refunded'
+        | 'disputed'
+      )
+    | null;
+  cancelReason?: ('payment_timeout' | 'admin' | 'withdrawn') | null;
+  cancelNote?: string | null;
+  statusHistory?:
+    | {
+        from?:
+          | (
+              | 'awaiting_prepayment'
+              | 'paid'
+              | 'packed'
+              | 'shipped'
+              | 'ready_for_pickup'
+              | 'picked_up'
+              | 'delivered'
+              | 'cancelled'
+              | 'withdrawal_received'
+              | 'return_received'
+              | 'refunded'
+              | 'partially_refunded'
+              | 'disputed'
+            )
+          | null;
+        to:
+          | 'awaiting_prepayment'
+          | 'paid'
+          | 'packed'
+          | 'shipped'
+          | 'ready_for_pickup'
+          | 'picked_up'
+          | 'delivered'
+          | 'cancelled'
+          | 'withdrawal_received'
+          | 'return_received'
+          | 'refunded'
+          | 'partially_refunded'
+          | 'disputed';
+        at: string;
+        actorType: 'admin' | 'system' | 'webhook' | 'job' | 'customer' | 'seed';
+        transition?: string | null;
+        note?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  locale: 'de' | 'en';
+  customer: {
+    name?: string | null;
+    email: string;
+  };
+  fulfillmentMethod: 'shipping' | 'pickup';
+  shippingAddress?: {
+    name?: string | null;
+    addressLine1?: string | null;
+    addressLine2?: string | null;
+    postalCode?: string | null;
+    city?: string | null;
+    country?:
+      | (
+          | 'DE'
+          | 'AT'
+          | 'BE'
+          | 'BG'
+          | 'CY'
+          | 'CZ'
+          | 'DK'
+          | 'EE'
+          | 'ES'
+          | 'FI'
+          | 'FR'
+          | 'GR'
+          | 'HR'
+          | 'HU'
+          | 'IE'
+          | 'IT'
+          | 'LT'
+          | 'LU'
+          | 'LV'
+          | 'MT'
+          | 'NL'
+          | 'PL'
+          | 'PT'
+          | 'RO'
+          | 'SE'
+          | 'SI'
+          | 'SK'
+          | 'CH'
+        )
+      | null;
+  };
+  billingAddressDiffers?: boolean | null;
+  billingAddress?: {
+    name?: string | null;
+    addressLine1?: string | null;
+    addressLine2?: string | null;
+    postalCode?: string | null;
+    city?: string | null;
+    country?:
+      | (
+          | 'DE'
+          | 'AT'
+          | 'BE'
+          | 'BG'
+          | 'CY'
+          | 'CZ'
+          | 'DK'
+          | 'EE'
+          | 'ES'
+          | 'FI'
+          | 'FR'
+          | 'GR'
+          | 'HR'
+          | 'HU'
+          | 'IE'
+          | 'IT'
+          | 'LT'
+          | 'LU'
+          | 'LV'
+          | 'MT'
+          | 'NL'
+          | 'PL'
+          | 'PT'
+          | 'RO'
+          | 'SE'
+          | 'SI'
+          | 'SK'
+          | 'CH'
+        )
+      | null;
+  };
+  shippingZone?: ('DE' | 'EU' | 'CH') | null;
+  shippingClass?: ('brief' | 'paket_klein' | 'keramik' | 'nur_abholung') | null;
+  items: {
+    product: number | Product;
+    itemNumber: number;
+    titleDe: string;
+    titleEn?: string | null;
+    category: 'keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges';
+    characteristicsDe: string;
+    characteristicsEn?: string | null;
+    priceCents: number;
+    vatCategory: 'standard' | 'reduced_art';
+    shippingClass: 'brief' | 'paket_klein' | 'keramik' | 'nur_abholung';
+    coverImage?: (number | null) | Media;
+    coverImageUrl?: string | null;
+    foodContact?: ('deko' | 'lebensmittelecht') | null;
+    deviationText?: string | null;
+    deviationAgreedAt?: string | null;
+    status: 'active' | 'withdrawn' | 'returned' | 'refunded';
+    refundedCents: number;
+    id?: string | null;
+  }[];
+  subtotalCents: number;
+  shippingCents: number;
+  totalCents: number;
+  currency: 'EUR';
+  taxModeAtOrder: 'kleinunternehmer' | 'regelbesteuert';
+  paymentMethod: 'card' | 'paypal' | 'prepayment';
+  paymentProvider: 'stripe' | 'mock' | 'bank_transfer';
+  stripe?: {
+    checkoutSessionId?: string | null;
+    paymentIntentId?: string | null;
+    chargeId?: string | null;
+    paymentMethodType?: string | null;
+    livemode?: boolean | null;
+    amountReceivedCents?: number | null;
+    feeCents?: number | null;
+  };
+  prepayment?: {
+    dueAt?: string | null;
+    reminderDueAt?: string | null;
+    reminderSentAt?: string | null;
+    receivedAt?: string | null;
+    receivedAmountCents?: number | null;
+  };
+  shipment?: {
+    carrier?: ('dhl' | 'deutsche_post' | 'other') | null;
+    trackingNumber?: string | null;
+    trackingUrl?: string | null;
+    deliveredSource?: ('manual' | 'auto') | null;
+  };
+  packaging?: {
+    templateKey?: string | null;
+    templateName?: string | null;
+    components?:
+      | {
+          material: 'paper_cardboard' | 'plastic' | 'other';
+          grams: number;
+          id?: string | null;
+        }[]
+      | null;
+    recordedAt?: string | null;
+  };
+  pickup?: {
+    messageText?: string | null;
+  };
+  packingChecklistState?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  packingPhotos?: (number | PrivateUpload)[] | null;
+  returnPhotos?: (number | PrivateUpload)[] | null;
+  legalSnippetVersions:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  carrierEmailConsent?: boolean | null;
+  carrierEmailConsentRevokedAt?: string | null;
+  emails?: {
+    docs?: (number | EmailLog)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  refunds?:
+    | {
+        amountCents: number;
+        reason:
+          'withdrawal' | 'goodwill' | 'complaint' | 'breakage' | 'admin_cancellation' | 'item_unavailable' | 'dispute';
+        itemIds?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        includesShipping?: boolean | null;
+        status: 'pending' | 'succeeded' | 'failed';
+        stripeRefundId?: string | null;
+        manualTransferConfirmedAt?: string | null;
+        createdAt: string;
+        id?: string | null;
+      }[]
+    | null;
+  dispute?: {
+    status?: ('none' | 'open' | 'won' | 'lost') | null;
+    stripeDisputeId?: string | null;
+  };
+  adminAttention?: {
+    flag?: boolean | null;
+    reason?:
+      | (
+          | 'oversold'
+          | 'dispute_open'
+          | 'refund_failed'
+          | 'webhook_error'
+          | 'payment_amount_mismatch'
+          | 'conformity_revoked'
+          | 'manual'
+        )
+      | null;
+    note?: string | null;
+  };
+  timestamps: {
+    placedAt: string;
+    paidAt?: string | null;
+    packedAt?: string | null;
+    shippedAt?: string | null;
+    deliveredAt?: string | null;
+    readyForPickupAt?: string | null;
+    pickedUpAt?: string | null;
+    withdrawalReceivedAt?: string | null;
+    returnReceivedAt?: string | null;
+    refundedAt?: string | null;
+    cancelledAt?: string | null;
+    disputedAt?: string | null;
+    finalStatusAt?: string | null;
+  };
+  statusTokenHash?: string | null;
+  statusTokenSealed?: string | null;
+  statusTokenIssuedAt?: string | null;
+  notes?: string | null;
+  privacy?: {
+    /**
+     * Art. 18 bzw. Art. 17 Abs. 3 lit. b DSGVO: keine Mails, nur Pflichtzwecke.
+     */
+    processingRestricted?: boolean | null;
+    restrictedAt?: string | null;
+    legalHold?: boolean | null;
+    legalHoldReason?: string | null;
+    legalHoldSince?: string | null;
+    legalHoldReviewedAt?: string | null;
+    anonymizedAt?: string | null;
+  };
+  retainUntil?: string | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Laufende und beendete Bezahlvorgänge (Fehlersuche). Nur lesen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "checkouts".
+ */
+export interface Checkout {
+  id: number;
+  tokenHash: string;
+  status: 'open' | 'confirming' | 'completed' | 'expired' | 'cancelled' | 'failed';
+  locale: 'de' | 'en';
+  reservationRef: string;
+  items: {
+    product: number | Product;
+    itemNumber: number;
+    titleDe: string;
+    titleEn?: string | null;
+    category: 'keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges';
+    priceCents: number;
+    vatCategory: 'standard' | 'reduced_art';
+    shippingClass: 'brief' | 'paket_klein' | 'keramik' | 'nur_abholung';
+    characteristicsDe?: string | null;
+    characteristicsEn?: string | null;
+    deviationText?: string | null;
+    id?: string | null;
+  }[];
+  fulfillmentMethod: 'shipping' | 'pickup';
+  shippingZone?: ('DE' | 'EU' | 'CH') | null;
+  shippingClass?: ('brief' | 'paket_klein' | 'keramik' | 'nur_abholung') | null;
+  subtotalCents: number;
+  shippingCents: number;
+  totalCents: number;
+  expiresAt: string;
+  displayExpiresAt: string;
+  paymentChoice?: ('stripe' | 'prepayment') | null;
+  customer?: {
+    email?: string | null;
+  };
+  shippingAddress?: {
+    name?: string | null;
+    addressLine1?: string | null;
+    addressLine2?: string | null;
+    postalCode?: string | null;
+    city?: string | null;
+    country?:
+      | (
+          | 'DE'
+          | 'AT'
+          | 'BE'
+          | 'BG'
+          | 'CY'
+          | 'CZ'
+          | 'DK'
+          | 'EE'
+          | 'ES'
+          | 'FI'
+          | 'FR'
+          | 'GR'
+          | 'HR'
+          | 'HU'
+          | 'IE'
+          | 'IT'
+          | 'LT'
+          | 'LU'
+          | 'LV'
+          | 'MT'
+          | 'NL'
+          | 'PL'
+          | 'PT'
+          | 'RO'
+          | 'SE'
+          | 'SI'
+          | 'SK'
+          | 'CH'
+        )
+      | null;
+  };
+  billingAddressDiffers?: boolean | null;
+  billingAddress?: {
+    name?: string | null;
+    addressLine1?: string | null;
+    addressLine2?: string | null;
+    postalCode?: string | null;
+    city?: string | null;
+    country?:
+      | (
+          | 'DE'
+          | 'AT'
+          | 'BE'
+          | 'BG'
+          | 'CY'
+          | 'CZ'
+          | 'DK'
+          | 'EE'
+          | 'ES'
+          | 'FI'
+          | 'FR'
+          | 'GR'
+          | 'HR'
+          | 'HU'
+          | 'IE'
+          | 'IT'
+          | 'LT'
+          | 'LU'
+          | 'LV'
+          | 'MT'
+          | 'NL'
+          | 'PL'
+          | 'PT'
+          | 'RO'
+          | 'SE'
+          | 'SI'
+          | 'SK'
+          | 'CH'
+        )
+      | null;
+  };
+  carrierEmailConsent?: boolean | null;
+  deviationAgreements?:
+    | {
+        product: number | Product;
+        agreedAt: string;
+        id?: string | null;
+      }[]
+    | null;
+  legalSnippetVersions?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  submittedAt?: string | null;
+  stripe?: {
+    checkoutSessionId?: string | null;
+    sessionExpiresAt?: string | null;
+    sessionSeq?: number | null;
+    livemode?: boolean | null;
+  };
+  mock?: {
+    state?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+  };
+  order?: (number | null) | Order;
+  closeReason?:
+    ('reservation_expired' | 'cart_changed' | 'replaced' | 'payment_failed' | 'checkout_error' | 'sold_offline') | null;
+  timestamps?: {
+    confirmingAt?: string | null;
+    completedAt?: string | null;
+    expiredAt?: string | null;
+    cancelledAt?: string | null;
+    failedAt?: string | null;
+  };
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Welche Mail wann verschickt wurde (ohne Inhalt). Nur lesen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "email-log".
+ */
+export interface EmailLog {
+  id: number;
+  template:
+    | 'order_confirmation'
+    | 'prepayment_instructions'
+    | 'prepayment_reminder'
+    | 'prepayment_cancelled'
+    | 'prepayment_received'
+    | 'order_shipped'
+    | 'pickup_ready'
+    | 'withdrawal_receipt'
+    | 'refund_confirmation'
+    | 'oversold_apology'
+    | 'inquiry_receipt'
+    | 'complaint_repair_choice'
+    | 'dispute_vsbg'
+    | 'privacy_access_response'
+    | 'privacy_erasure_response'
+    | 'consent_withdrawal_confirmation'
+    | 'admin_order_placed'
+    | 'admin_prepayment_cancelled'
+    | 'admin_withdrawal_received'
+    | 'admin_inquiry_received'
+    | 'admin_oversold'
+    | 'admin_dispute_opened'
+    | 'admin_refund_failed'
+    | 'admin_revenue_guard'
+    | 'admin_legal_review_due'
+    | 'admin_monthly_close'
+    | 'admin_alert'
+    | 'admin_withdrawal_deadline'
+    | 'admin_password_reset'
+    | 'admin_privacy_request_due'
+    | 'admin_legal_hold_review'
+    | 'admin_compliance_docs_review';
+  to: string;
+  locale: 'de' | 'en';
+  subject: string;
+  status: 'queued' | 'sent' | 'failed' | 'suppressed';
+  transport?: ('file' | 'smtp' | 'memory' | 'log') | null;
+  messageId?: string | null;
+  smtpResponse?: string | null;
+  sentAt?: string | null;
+  attempts?: number | null;
+  lastError?: string | null;
+  attachments?:
+    | {
+        filename: string;
+        sha256: string;
+        sizeBytes: number;
+        id?: string | null;
+      }[]
+    | null;
+  templateVersion?: string | null;
+  bodySha256?: string | null;
+  retainUntil: string;
+  order?: (number | null) | Order;
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Reservierungen der Kassen und Vorkasse-Bestellungen. Nur lesen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reservations".
+ */
+export interface Reservation {
+  id: number;
+  ref: string;
+  checkout: number | Checkout;
+  product: number | Product;
+  source: 'checkout_session' | 'prepayment';
+  status: 'active' | 'converted' | 'released';
+  expiresAt: string;
+  displayExpiresAt?: string | null;
+  order?: (number | null) | Order;
+  convertedAt?: string | null;
+  releasedAt?: string | null;
+  releaseReason?:
+    | (
+        | 'session_expired'
+        | 'payment_failed'
+        | 'customer_cancelled'
+        | 'prepayment_overdue'
+        | 'order_cancelled'
+        | 'checkout_error'
+        | 'admin'
+      )
+    | null;
   seed?: boolean | null;
   seedKey?: string | null;
   updatedAt: string;
@@ -799,73 +1436,6 @@ export interface AuditLog {
   createdAt: string;
 }
 /**
- * Welche Mail wann verschickt wurde (ohne Inhalt). Nur lesen.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "email-log".
- */
-export interface EmailLog {
-  id: number;
-  template:
-    | 'order_confirmation'
-    | 'prepayment_instructions'
-    | 'prepayment_reminder'
-    | 'prepayment_cancelled'
-    | 'prepayment_received'
-    | 'order_shipped'
-    | 'pickup_ready'
-    | 'withdrawal_receipt'
-    | 'refund_confirmation'
-    | 'oversold_apology'
-    | 'inquiry_receipt'
-    | 'complaint_repair_choice'
-    | 'dispute_vsbg'
-    | 'privacy_access_response'
-    | 'privacy_erasure_response'
-    | 'consent_withdrawal_confirmation'
-    | 'admin_order_placed'
-    | 'admin_prepayment_cancelled'
-    | 'admin_withdrawal_received'
-    | 'admin_inquiry_received'
-    | 'admin_oversold'
-    | 'admin_dispute_opened'
-    | 'admin_refund_failed'
-    | 'admin_revenue_guard'
-    | 'admin_legal_review_due'
-    | 'admin_monthly_close'
-    | 'admin_alert'
-    | 'admin_withdrawal_deadline'
-    | 'admin_password_reset'
-    | 'admin_privacy_request_due'
-    | 'admin_legal_hold_review'
-    | 'admin_compliance_docs_review';
-  to: string;
-  locale: 'de' | 'en';
-  subject: string;
-  status: 'queued' | 'sent' | 'failed' | 'suppressed';
-  transport?: ('file' | 'smtp' | 'memory' | 'log') | null;
-  messageId?: string | null;
-  smtpResponse?: string | null;
-  sentAt?: string | null;
-  attempts?: number | null;
-  lastError?: string | null;
-  attachments?:
-    | {
-        filename: string;
-        sha256: string;
-        sizeBytes: number;
-        id?: string | null;
-      }[]
-    | null;
-  templateVersion?: string | null;
-  bodySha256?: string | null;
-  retainUntil: string;
-  seed?: boolean | null;
-  seedKey?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
  * Nachweis von Einwilligungen und Vereinbarungen. Nur lesen.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -882,6 +1452,9 @@ export interface ConsentLog {
   locale: 'de' | 'en';
   email: string;
   withdrawnAt?: string | null;
+  checkout?: (number | null) | Checkout;
+  order?: (number | null) | Order;
+  product?: (number | null) | Product;
   retainUntil: string;
   seed?: boolean | null;
   seedKey?: string | null;
@@ -905,6 +1478,8 @@ export interface WebhookEvent {
   receivedAt?: string | null;
   processedAt?: string | null;
   lastError?: string | null;
+  relatedCheckout?: (number | null) | Checkout;
+  relatedOrder?: (number | null) | Order;
   payloadSha256?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1073,6 +1648,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'products';
         value: number | Product;
+      } | null)
+    | ({
+        relationTo: 'checkouts';
+        value: number | Checkout;
+      } | null)
+    | ({
+        relationTo: 'reservations';
+        value: number | Reservation;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: number | Order;
       } | null)
     | ({
         relationTo: 'audit-log';
@@ -1437,6 +2024,7 @@ export interface ProductsSelect<T extends boolean = true> {
   archivedAt?: T;
   reservedUntil?: T;
   reservationRef?: T;
+  currentOrder?: T;
   storageLocation?: T;
   internalNote?: T;
   seo?:
@@ -1458,6 +2046,327 @@ export interface ProductsSelect<T extends boolean = true> {
         reason?: T;
         note?: T;
       };
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "checkouts_select".
+ */
+export interface CheckoutsSelect<T extends boolean = true> {
+  tokenHash?: T;
+  status?: T;
+  locale?: T;
+  reservationRef?: T;
+  items?:
+    | T
+    | {
+        product?: T;
+        itemNumber?: T;
+        titleDe?: T;
+        titleEn?: T;
+        category?: T;
+        priceCents?: T;
+        vatCategory?: T;
+        shippingClass?: T;
+        characteristicsDe?: T;
+        characteristicsEn?: T;
+        deviationText?: T;
+        id?: T;
+      };
+  fulfillmentMethod?: T;
+  shippingZone?: T;
+  shippingClass?: T;
+  subtotalCents?: T;
+  shippingCents?: T;
+  totalCents?: T;
+  expiresAt?: T;
+  displayExpiresAt?: T;
+  paymentChoice?: T;
+  customer?:
+    | T
+    | {
+        email?: T;
+      };
+  shippingAddress?:
+    | T
+    | {
+        name?: T;
+        addressLine1?: T;
+        addressLine2?: T;
+        postalCode?: T;
+        city?: T;
+        country?: T;
+      };
+  billingAddressDiffers?: T;
+  billingAddress?:
+    | T
+    | {
+        name?: T;
+        addressLine1?: T;
+        addressLine2?: T;
+        postalCode?: T;
+        city?: T;
+        country?: T;
+      };
+  carrierEmailConsent?: T;
+  deviationAgreements?:
+    | T
+    | {
+        product?: T;
+        agreedAt?: T;
+        id?: T;
+      };
+  legalSnippetVersions?: T;
+  submittedAt?: T;
+  stripe?:
+    | T
+    | {
+        checkoutSessionId?: T;
+        sessionExpiresAt?: T;
+        sessionSeq?: T;
+        livemode?: T;
+      };
+  mock?:
+    | T
+    | {
+        state?: T;
+      };
+  order?: T;
+  closeReason?: T;
+  timestamps?:
+    | T
+    | {
+        confirmingAt?: T;
+        completedAt?: T;
+        expiredAt?: T;
+        cancelledAt?: T;
+        failedAt?: T;
+      };
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reservations_select".
+ */
+export interface ReservationsSelect<T extends boolean = true> {
+  ref?: T;
+  checkout?: T;
+  product?: T;
+  source?: T;
+  status?: T;
+  expiresAt?: T;
+  displayExpiresAt?: T;
+  order?: T;
+  convertedAt?: T;
+  releasedAt?: T;
+  releaseReason?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  orderNumber?: T;
+  checkout?: T;
+  status?: T;
+  statusBeforeWithdrawal?: T;
+  statusBeforeDispute?: T;
+  cancelReason?: T;
+  cancelNote?: T;
+  statusHistory?:
+    | T
+    | {
+        from?: T;
+        to?: T;
+        at?: T;
+        actorType?: T;
+        transition?: T;
+        note?: T;
+        id?: T;
+      };
+  locale?: T;
+  customer?:
+    | T
+    | {
+        name?: T;
+        email?: T;
+      };
+  fulfillmentMethod?: T;
+  shippingAddress?:
+    | T
+    | {
+        name?: T;
+        addressLine1?: T;
+        addressLine2?: T;
+        postalCode?: T;
+        city?: T;
+        country?: T;
+      };
+  billingAddressDiffers?: T;
+  billingAddress?:
+    | T
+    | {
+        name?: T;
+        addressLine1?: T;
+        addressLine2?: T;
+        postalCode?: T;
+        city?: T;
+        country?: T;
+      };
+  shippingZone?: T;
+  shippingClass?: T;
+  items?:
+    | T
+    | {
+        product?: T;
+        itemNumber?: T;
+        titleDe?: T;
+        titleEn?: T;
+        category?: T;
+        characteristicsDe?: T;
+        characteristicsEn?: T;
+        priceCents?: T;
+        vatCategory?: T;
+        shippingClass?: T;
+        coverImage?: T;
+        coverImageUrl?: T;
+        foodContact?: T;
+        deviationText?: T;
+        deviationAgreedAt?: T;
+        status?: T;
+        refundedCents?: T;
+        id?: T;
+      };
+  subtotalCents?: T;
+  shippingCents?: T;
+  totalCents?: T;
+  currency?: T;
+  taxModeAtOrder?: T;
+  paymentMethod?: T;
+  paymentProvider?: T;
+  stripe?:
+    | T
+    | {
+        checkoutSessionId?: T;
+        paymentIntentId?: T;
+        chargeId?: T;
+        paymentMethodType?: T;
+        livemode?: T;
+        amountReceivedCents?: T;
+        feeCents?: T;
+      };
+  prepayment?:
+    | T
+    | {
+        dueAt?: T;
+        reminderDueAt?: T;
+        reminderSentAt?: T;
+        receivedAt?: T;
+        receivedAmountCents?: T;
+      };
+  shipment?:
+    | T
+    | {
+        carrier?: T;
+        trackingNumber?: T;
+        trackingUrl?: T;
+        deliveredSource?: T;
+      };
+  packaging?:
+    | T
+    | {
+        templateKey?: T;
+        templateName?: T;
+        components?:
+          | T
+          | {
+              material?: T;
+              grams?: T;
+              id?: T;
+            };
+        recordedAt?: T;
+      };
+  pickup?:
+    | T
+    | {
+        messageText?: T;
+      };
+  packingChecklistState?: T;
+  packingPhotos?: T;
+  returnPhotos?: T;
+  legalSnippetVersions?: T;
+  carrierEmailConsent?: T;
+  carrierEmailConsentRevokedAt?: T;
+  emails?: T;
+  refunds?:
+    | T
+    | {
+        amountCents?: T;
+        reason?: T;
+        itemIds?: T;
+        includesShipping?: T;
+        status?: T;
+        stripeRefundId?: T;
+        manualTransferConfirmedAt?: T;
+        createdAt?: T;
+        id?: T;
+      };
+  dispute?:
+    | T
+    | {
+        status?: T;
+        stripeDisputeId?: T;
+      };
+  adminAttention?:
+    | T
+    | {
+        flag?: T;
+        reason?: T;
+        note?: T;
+      };
+  timestamps?:
+    | T
+    | {
+        placedAt?: T;
+        paidAt?: T;
+        packedAt?: T;
+        shippedAt?: T;
+        deliveredAt?: T;
+        readyForPickupAt?: T;
+        pickedUpAt?: T;
+        withdrawalReceivedAt?: T;
+        returnReceivedAt?: T;
+        refundedAt?: T;
+        cancelledAt?: T;
+        disputedAt?: T;
+        finalStatusAt?: T;
+      };
+  statusTokenHash?: T;
+  statusTokenSealed?: T;
+  statusTokenIssuedAt?: T;
+  notes?: T;
+  privacy?:
+    | T
+    | {
+        processingRestricted?: T;
+        restrictedAt?: T;
+        legalHold?: T;
+        legalHoldReason?: T;
+        legalHoldSince?: T;
+        legalHoldReviewedAt?: T;
+        anonymizedAt?: T;
+      };
+  retainUntil?: T;
   seed?: T;
   seedKey?: T;
   updatedAt?: T;
@@ -1508,6 +2417,7 @@ export interface EmailLogSelect<T extends boolean = true> {
   templateVersion?: T;
   bodySha256?: T;
   retainUntil?: T;
+  order?: T;
   seed?: T;
   seedKey?: T;
   updatedAt?: T;
@@ -1527,6 +2437,9 @@ export interface ConsentLogSelect<T extends boolean = true> {
   locale?: T;
   email?: T;
   withdrawnAt?: T;
+  checkout?: T;
+  order?: T;
+  product?: T;
   retainUntil?: T;
   seed?: T;
   seedKey?: T;
@@ -1547,6 +2460,8 @@ export interface WebhookEventsSelect<T extends boolean = true> {
   receivedAt?: T;
   processedAt?: T;
   lastError?: T;
+  relatedCheckout?: T;
+  relatedOrder?: T;
   payloadSha256?: T;
   updatedAt?: T;
   createdAt?: T;

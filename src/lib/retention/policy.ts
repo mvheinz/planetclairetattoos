@@ -428,6 +428,15 @@ export function invoiceRetainUntil(issueDate: Date, invoiceYears: InvoiceRetenti
   return retainUntil(L_06_INVOICES(invoiceYears), issueDate)
 }
 
+/**
+ * Frist eines Nachweises mit Bestellbezug (`email-log`, `consent-log`; L-12, L-19 a): wie die Bestellung
+ * (`orders.retainUntil`, Stufe D). Solange die Bestellung noch keinen Endstatus hat, vorsorglich Stufe D ab
+ * `eventAt`; der Bestell-Hook zieht den Wert nach, sobald `orders.retainUntil` feststeht.
+ */
+export function orderRelatedRetainUntil(orderRetainUntil: Date | null, eventAt: Date): Date {
+  return orderRetainUntil ?? retainUntil(L_05_ORDERS_STAGE_D, eventAt)
+}
+
 /** Audit-Aktionen mit 10 Jahren ab Jahresende (Beleg-, Bestell-, Widerrufs- und Rechtstext-Aktionen, L-13 h). */
 export const AUDIT_LONG_RETENTION_ACTIONS: ReadonlySet<AuditAction> = new Set<AuditAction>([
   'order_created',

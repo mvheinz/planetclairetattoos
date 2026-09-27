@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P1.20
+
+- Collections `checkouts` (nur Token-Hash, Snapshot fest, Zustände über `checkoutTransitions.ts`), `reservations` (active → converted/released mit Grund) und `orders` (Snapshot, Summen, Nummer, Steuermodus, Zahlart, Bausteinfassungen und Statusverlauf unveränderlich; Status nur mit Übergangs-Kennung nach `ORDER_TRANSITIONS`, je Wechsel Verlaufseintrag O1–O21, Zeitstempel, `finalStatusAt`/`retainUntil` Stufe D, Audit; Status-Token nur als Hash + verborgenes Siegel; Löschen echter Bestellungen gesperrt).
+- `src/lib/commerce/`: `orderTransitions.ts`, `checkoutTransitions.ts`, `shipping.ts` (`computeShipping`: höchste Versandklasse, Abholung 0, nur_abholung nie versenden), `transitionError.ts`.
+- `products.currentOrder` (nur Verwaltung), Bezüge `email-log.order`, `consent-log.checkout/order/product`, `webhook-events.relatedCheckout/relatedOrder`; Fristen der Nachweise folgen der Bestellung. Migration `p1_orders`.
+- Tests: unit order-transitions (47, Matrix DM-ORD-01), checkout-transitions (DM-CHK-02), shipping (DM-ORD-05); int orders (13: DM-ORD-02, DM-CHK-01 Token in keinem Log/keiner Zeile, DM-PROD-07 currentOrder, anonymes REST 403/404, Fristen); pnpm check, test:int, build grün.
+
 ## 2026-09-27 – P1.18
 
 - `src/lib/products/validate.ts`: `validateForPublish` (Regeltabelle DATENMODELL §6.6.6 inkl. R-043–R-048, gesammelte deutsche Meldungen mit Feldname) und `checkFoodContact` (lebensmittelecht schon beim Entwurf, AK-7-01).

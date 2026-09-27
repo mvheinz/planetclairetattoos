@@ -8,7 +8,7 @@ import { WEBHOOK_EVENT_STATUSES, WEBHOOK_PROVIDERS } from '@/lib/enums'
 import { immutableFields } from './hooks/immutable'
 
 // DATENMODELL §6.24 – Idempotenz (Verfahren §8.8). Aufbewahrung 90 Tage ab receivedAt (L-13 d, retentionTechnical).
-// Relationen `relatedCheckout`/`relatedOrder` folgen mit `checkouts`/`orders` (P1.20).
+// Relationen `relatedCheckout`/`relatedOrder` seit P1.20.
 export const WebhookEvents: CollectionConfig = {
   slug: 'webhook-events',
   labels: { singular: 'Webhook-Ereignis', plural: 'Webhook-Ereignisse' },
@@ -62,6 +62,20 @@ export const WebhookEvents: CollectionConfig = {
       type: 'text',
       label: 'Letzter Fehler',
       maxLength: 1000,
+      admin: { readOnly: true },
+    },
+    {
+      name: 'relatedCheckout',
+      type: 'relationship',
+      label: 'Kasse',
+      relationTo: 'checkouts',
+      admin: { readOnly: true },
+    },
+    {
+      name: 'relatedOrder',
+      type: 'relationship',
+      label: 'Bestellung',
+      relationTo: 'orders',
       admin: { readOnly: true },
     },
     {

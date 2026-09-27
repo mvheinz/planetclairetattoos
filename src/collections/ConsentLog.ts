@@ -1,19 +1,47 @@
 import { createHash } from 'node:crypto'
 
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, PayloadRequest } from 'payload'
 
 import { isAdmin, none } from '@/access'
 import { seedField } from '@/fields'
 import { ENUM_LABELS, enumOptions } from '@/lib/enumLabels'
 import { CONSENT_PURPOSES, LOCALES } from '@/lib/enums'
-import { L_19A_CONSENT_WITHOUT_ORDER, retainUntil } from '@/lib/retention/policy'
+import { preservingReq } from '@/lib/payload/localReq'
+import {
+  L_19A_CONSENT_WITHOUT_ORDER,
+  orderRelatedRetainUntil,
+  retainUntil,
+} from '@/lib/retention/policy'
 
 import { immutableFields } from './hooks/immutable'
 
-// DATENMODELL §6.23. Relationen `checkout`/`order`/`inquiry`/`product` folgen mit den Ziel-Collections
-// (P1.16/P1.20/P1.24). Änderbar ist nur `withdrawnAt` (Endpoint, P5) sowie der Bezug und seine Frist.
+// DATENMODELL §6.23. Relationen `checkout`/`order`/`product` seit P1.20, `inquiry` folgt mit P1.24. Änderbar ist nur
+// `withdrawnAt` (Endpoint, P5) sowie der Bezug und seine Frist.
 
 export const sha256Hex = (text: string) => createHash('sha256').update(text, 'utf8').digest('hex')
+
+/** Frist aus der Bezugsbestellung (L-12/L-19 a mit Bezug), `null` ohne Bestellung. */
+async function retainUntilFromOrder(
+  req: PayloadRequest,
+  order: unknown,
+  eventAt: Date,
+): Promise<string | null> {
+  const id = typeof order === 'object' && order ? (order as { id: number }).id : order
+  if (id === null || id === undefined || id === '') return null
+  const doc = await preservingReq(req, () =>
+    req.payload.findByID({
+      collection: 'orders',
+      id: id as number,
+      depth: 0,
+      select: { retainUntil: true },
+      overrideAccess: true,
+      disableErrors: true,
+      req,
+    }),
+  )
+  const until = doc?.retainUntil ? new Date(doc.retainUntil) : null
+  return orderRelatedRetainUntil(until, eventAt).toISOString()
+}
 
 export const ConsentLog: CollectionConfig = {
   slug: 'consent-log',
@@ -54,6 +82,15 @@ export const ConsentLog: CollectionConfig = {
     },
     { name: 'email', type: 'email', label: 'E-Mail', required: true },
     { name: 'withdrawnAt', type: 'date', label: 'Widerrufen am' },
+    { name: 'checkout', type: 'relationship', label: 'Kasse', relationTo: 'checkouts' },
+    {
+      name: 'order',
+      type: 'relationship',
+      label: 'Bestellung',
+      relationTo: 'orders',
+      index: true,
+    },
+    { name: 'product', type: 'relationship', label: 'Stück', relationTo: 'products' },
     {
       name: 'retainUntil',
       type: 'date',
@@ -66,10 +103,19 @@ export const ConsentLog: CollectionConfig = {
   ],
   hooks: {
     beforeValidate: [
-      ({ operation, data }) => {
+      async ({ operation, data, originalDoc, req }) => {
         if (!data) return data
         if (typeof data.textSnapshot === 'string') data.textSha256 = sha256Hex(data.textSnapshot)
-        // L-19 a: ohne Bestellung wie die Kasse (30 Tage, L-03); mit Bestellung setzt der Service die Frist.
+        // L-19 a: mit Bestellung wie die Bestellung (Stufe D); ohne wie die Kasse (30 Tage, L-03).
+        if ((operation === 'create' || 'order' in data) && data.order && !data.retainUntil) {
+          const created = data.createdAt ?? originalDoc?.createdAt
+          const until = await retainUntilFromOrder(
+            req,
+            data.order,
+            created ? new Date(created as string) : new Date(),
+          )
+          if (until) data.retainUntil = until
+        }
         if (operation === 'create' && !data.retainUntil) {
           const at = data.createdAt ? new Date(data.createdAt as string) : new Date()
           data.retainUntil = retainUntil(L_19A_CONSENT_WITHOUT_ORDER, at).toISOString()
@@ -77,6 +123,8 @@ export const ConsentLog: CollectionConfig = {
         return data
       },
     ],
-    beforeChange: [immutableFields(['withdrawnAt', 'retainUntil', 'checkout', 'order', 'inquiry'])],
+    beforeChange: [
+      immutableFields(['withdrawnAt', 'retainUntil', 'checkout', 'order', 'inquiry', 'product']),
+    ],
   },
 }

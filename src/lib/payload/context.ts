@@ -18,6 +18,8 @@ export interface AppContext {
   now?: string
   /** Interner Folgeschritt: abgeleitete Werte einer anderen Sprache nachziehen (z. B. Slug EN, `products`). */
   localeSync?: boolean
+  /** Notiz zu einem Statuswechsel (z. B. `orders.statusHistory[].note`, höchstens 300 Zeichen). */
+  note?: string
 }
 
 declare module 'payload' {

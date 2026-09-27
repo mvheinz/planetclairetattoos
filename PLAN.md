@@ -799,7 +799,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - int `tests/int/products/publish-validation.int.spec.ts` (DM-PROD-01…04, DM-PROD-09, AK-7-01, R-042).
   - Ohne Jutta: Schmuck bleibt unveröffentlichbar, bis Nachweise da sind (A17). Glasur-Erklärungen: A18.
 
-- [ ] **P1.20 `checkouts`, `reservations` und `orders` (Schema)** – `src/collections/Checkouts.ts` (DATENMODELL
+- [x] **P1.20 `checkouts`, `reservations` und `orders` (Schema)** – `src/collections/Checkouts.ts` (DATENMODELL
   §6.25), `Reservations.ts` (§6.7) und `Orders.ts` (§6.8.1–§6.8.4, §6.8.6). Vor der Zahlung existiert nur die Kasse;
   eine Bestellung entsteht erst über `createOrderFromCheckout()` – bei Karte/PayPal durch `fulfillCheckout` als `paid`
   (O1/O19), bei Vorkasse sofort als `awaiting_prepayment` (O2). Es gibt keine Bestellstatus für abgebrochene oder

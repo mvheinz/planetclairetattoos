@@ -1,21 +1,49 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, PayloadRequest } from 'payload'
 
 import { isAdmin, none } from '@/access'
 import { isSuppressedRecipient } from '@/lib/email/recipients'
 import { seedField } from '@/fields'
 import { ENUM_LABELS, enumOptions } from '@/lib/enumLabels'
 import { EMAIL_STATUSES, EMAIL_TEMPLATES, EMAIL_TRANSPORTS, LOCALES } from '@/lib/enums'
-import { L_12_EMAIL_LOG_UNRELATED, retainUntil } from '@/lib/retention/policy'
+import { preservingReq } from '@/lib/payload/localReq'
+import {
+  L_12_EMAIL_LOG_UNRELATED,
+  orderRelatedRetainUntil,
+  retainUntil,
+} from '@/lib/retention/policy'
 
 import { immutableFields } from './hooks/immutable'
 
-// DATENMODELL §6.22 – Versandnachweis ohne Inhalt. Die Relationen `order`/`withdrawal`/`inquiry` folgen mit den
-// Ziel-Collections (P1.20/P1.21/P1.24); bis dahin gilt für alle Einträge L-12 „ohne Bezug“.
+// DATENMODELL §6.22 – Versandnachweis ohne Inhalt. Relation `order` seit P1.20; `withdrawal` folgt mit P1.21,
+// `inquiry` mit P1.24. Ohne Bezug gilt L-12; mit Bezug die Frist des Bezugsobjekts (Service bzw. Bestell-Hook).
 
 /** Reservierte Empfänger-Domains werden in allen Umgebungen unterdrückt (R-180, ARCHITEKTUR §3.4). */
 export { isSuppressedRecipient }
 
 const RELATION_FIELDS = ['order', 'withdrawal', 'inquiry'] as const
+
+/** Frist aus der Bezugsbestellung (L-12/L-19 a mit Bezug), `null` ohne Bestellung. */
+async function retainUntilFromOrder(
+  req: PayloadRequest,
+  order: unknown,
+  eventAt: Date,
+): Promise<string | null> {
+  const id = typeof order === 'object' && order ? (order as { id: number }).id : order
+  if (id === null || id === undefined || id === '') return null
+  const doc = await preservingReq(req, () =>
+    req.payload.findByID({
+      collection: 'orders',
+      id: id as number,
+      depth: 0,
+      select: { retainUntil: true },
+      overrideAccess: true,
+      disableErrors: true,
+      req,
+    }),
+  )
+  const until = doc?.retainUntil ? new Date(doc.retainUntil) : null
+  return orderRelatedRetainUntil(until, eventAt).toISOString()
+}
 
 export const EmailLog: CollectionConfig = {
   slug: 'email-log',
@@ -107,11 +135,19 @@ export const EmailLog: CollectionConfig = {
       index: true,
       admin: { readOnly: true, position: 'sidebar' },
     },
+    {
+      name: 'order',
+      type: 'relationship',
+      label: 'Bestellung',
+      relationTo: 'orders',
+      index: true,
+      admin: { readOnly: true },
+    },
     ...seedField(),
   ],
   hooks: {
     beforeValidate: [
-      ({ operation, data, originalDoc }) => {
+      async ({ operation, data, originalDoc, req }) => {
         if (!data) return data
         if (
           operation === 'create' &&
@@ -120,8 +156,13 @@ export const EmailLog: CollectionConfig = {
         ) {
           data.status = 'suppressed'
         }
-        // L-12: ohne Bezug Versand + 90 Tage (vor dem Versand ab Anlage); mit Bezug setzt der Service den Wert.
+        // L-12: ohne Bezug Versand + 90 Tage (vor dem Versand ab Anlage); mit Bezug die Frist des Bezugsobjekts.
         const doc = { ...(originalDoc ?? {}), ...data } as Record<string, unknown>
+        if ((operation === 'create' || 'order' in data) && data.order && !data.retainUntil) {
+          const base = doc.createdAt ? new Date(doc.createdAt as string) : new Date()
+          const until = await retainUntilFromOrder(req, data.order, base)
+          if (until) data.retainUntil = until
+        }
         const related = RELATION_FIELDS.some((f) => doc[f])
         if (!related && (operation === 'create' || 'sentAt' in data)) {
           const base = doc.sentAt ?? doc.createdAt
