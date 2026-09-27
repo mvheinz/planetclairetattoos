@@ -512,7 +512,11 @@ Regeln:
   `writeJson(key, value)`; `local` → `.data/<key>`, `s3` → Bucket `S3_PRIVATE_BUCKET`, Präfix `system/`.
 - **Lokaler S3-Test:** `docker compose --profile s3 up -d` startet MinIO (`minio/minio`, Port 9000/9001) und legt per
   `minio/mc` die Buckets `pct-media-dev` und `pct-private-dev` an (P1 ergänzt das Profil in `docker-compose.yml`).
-  Kontrakttest DM-PRIV-01 läuft mit `STORAGE_DRIVER=s3` gegen MinIO, wenn erreichbar.
+  Kontrakttest DM-PRIV-01 läuft mit `STORAGE_DRIVER=s3` gegen MinIO, wenn erreichbar. Der Test (`tests/int/adapters/storage.contract.int.spec.ts`)
+  baut dafür eine eigene Payload-Instanz in einem eigenen Postgres-Schema; Ziel über `S3_TEST_ENDPOINT` (Standard
+  `http://127.0.0.1:9000`, Zugang `S3_TEST_ACCESS_KEY_ID`/`S3_TEST_SECRET_ACCESS_KEY`, Standard `minioadmin`), nur lokale Hosts.
+  Umsetzung: `src/lib/storage/` (`uploadStorage(area)` für die Collection, `storagePlugins()`, `systemFiles.ts`,
+  `signed.ts`); bei `local` liefert ein eigener Datei-Handler die Datei mit den dokumentabhängigen Cache-Headern aus.
 
 ### 3.4 E-Mail (`EMAIL_DRIVER`)
 
@@ -2596,7 +2600,7 @@ Kein Spike darf die Phase blockieren: Scheitert das Soll, wird ohne Rückfrage d
 | ID | Phase | Frage | Soll | Erfolgskriterium | Rückfallebene | Ergebnis |
 |---|---|---|---|---|---|---|
 | B-01 | P1 | Läuft die Payload-Verwaltung unter `ADMIN_ROUTE` per Proxy-Umschreibung auf den internen Ordner `admin/` – und mit Nonce-CSP (§8.1 Kontext `admin`)? | §8.4, §8.1 | AK-A-8-02; Login, Listen, Bearbeiten, eigene Ansichten, Passwort-Reset-Link, Manifest und Service Worker funktionieren unter `/werkstatt` ohne CSP-Verstoß | Pfad: Ordner heißt wie der Pfad (`src/app/(payload)/werkstatt/`), Startprüfung „Ordner = `ADMIN_ROUTE`“, Produktionspfad per Umbenennung in P11. CSP: `script-src 'self' 'unsafe-inline'` nur im Kontext `admin` (Hosts bleiben `'self'`; R-131, Kanzleifrage K-41), ADR | offen |
-| B-02 | P1 | Funktioniert `@payloadcms/storage-s3` doppelt (öffentlich/privat) inkl. Präfix `private/invoices/` je Dokument und `signedDownloads` 300 s? | §3.3 | DM-PRIV-01 gegen MinIO grün; private Datei nur per signierter URL, nach Ablauf 403 | eine Instanz für alle Collections + eigener Download-Handler mit `@aws-sdk/s3-request-presigner`; Rechnungen notfalls eigener Bucket (C-06) | offen |
+| B-02 | P1 | Funktioniert `@payloadcms/storage-s3` doppelt (öffentlich/privat) inkl. Präfix `private/invoices/` je Dokument und `signedDownloads` 300 s? | §3.3 | DM-PRIV-01 gegen MinIO grün; private Datei nur per signierter URL, nach Ablauf 403 | eine Instanz für alle Collections + eigener Download-Handler mit `@aws-sdk/s3-request-presigner`; Rechnungen notfalls eigener Bucket (C-06) | Ergebnis: Soll erfüllt – zwei Instanzen `@payloadcms/storage-s3` 3.90.2 (`clientCacheKey` je Bucket, `alwaysInsertFields` für gleiches Schema bei `local`), Dokument-Präfix `private/invoices/<Jahr>` wird übernommen, Dateiroute leitet nur die Verwaltung per 302 auf eine signierte URL (300 s) um, anonym 403, abgelaufene Signatur 403; geprüft gegen einen MinIO-kompatiblen Dienst (RustFS, weil das Image `minio/minio` hier nicht erhältlich war), R2 selbst in P11 (`tests/int/adapters/storage.contract.int.spec.ts`), 27.09.2026, PR #1 |
 | B-03 | P2 | Lässt sich `script-src` auf statischen Seiten ohne `'unsafe-inline'` betreiben (`experimental.sri`, Inline-Daten von Next)? | §8.1 Kontext `public` | alle öffentlichen Routen ohne CSP-Verstoß in E2E, Seiten bleiben statisch | `'unsafe-inline'` im Kontext `public` (Hosts bleiben auf `'self'` beschränkt, R-131 erfüllt), ADR | offen |
 | B-04 | ab P2, optional | Bringen Cache Components (`cacheComponents: true`) Vorteile ohne Nebenwirkungen? | nein, `unstable_cache` bleibt (§9.2) | Build, Verwaltung und alle Tests grün, messbar besseres LCP/TTFB | Soll beibehalten | offen |
 | B-05 | P3 | Bleiben Listen-Varianten (`?available=1&page=2`) per Proxy-Umschreibung statisch? | §9.1 | AK-A-9-03 | dynamisches Rendern mit Daten-Cache, nur wenn T-10 (LCP) grün bleibt | offen |

@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
+import { uploadStorage } from '@/lib/storage'
+
 export const Media: CollectionConfig = {
   slug: 'media',
   access: {
@@ -12,5 +14,6 @@ export const Media: CollectionConfig = {
       required: true,
     },
   ],
-  upload: true,
+  // Speicher laut STORAGE_DRIVER (ARCHITEKTUR §3.3); Felder und Bildgrößen folgen mit DATENMODELL §6.2.
+  upload: { ...uploadStorage('media') },
 }

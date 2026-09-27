@@ -20,5 +20,37 @@ services:
       - '1025:1025' # SMTP
       - '8025:8025' # Web-Oberfläche: http://localhost:8025
 
+  # Profil `s3` (ARCHITEKTUR §3.3): lokaler S3-Test mit MinIO. Start: `docker compose --profile s3 up -d`,
+  # dann in `.env`: STORAGE_DRIVER=s3, S3_ENDPOINT=http://127.0.0.1:9000, S3_BUCKET=pct-media-dev,
+  # S3_PRIVATE_BUCKET=pct-private-dev, S3_ACCESS_KEY_ID=minioadmin, S3_SECRET_ACCESS_KEY=minioadmin.
+  # Ist das Image nicht erhältlich, geht jeder MinIO-kompatible Ersatz über MINIO_IMAGE (siehe docs/OFFENE-PUNKTE.md).
+  minio:
+    image: ${MINIO_IMAGE:-minio/minio:latest}
+    profiles: ['s3']
+    command: server /data --console-address ':9001'
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - '9000:9000' # S3-API
+      - '9001:9001' # Web-Oberfläche: http://localhost:9001
+    volumes:
+      - miniodata:/data
+
+  minio-init:
+    image: ${MINIO_MC_IMAGE:-minio/mc:latest}
+    profiles: ['s3']
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 minioadmin minioadmin; do sleep 1; done;
+      mc mb --ignore-existing local/pct-media-dev;
+      mc mb --ignore-existing local/pct-private-dev;
+      mc anonymous set none local/pct-media-dev;
+      mc anonymous set none local/pct-private-dev;
+      "
+
 volumes:
   pgdata:
+  miniodata:

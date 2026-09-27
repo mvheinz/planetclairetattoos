@@ -447,7 +447,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - unit `tests/unit/retention/policy.unit.spec.ts` (L-IDs im Titel).
   - Ohne Jutta: –
 
-- [ ] **P1.8 Speicher-Adapter und Spike B-02** – `src/lib/storage/` laut ARCHITEKTUR §3.1/§3.3 (`import 'server-only'`,
+- [x] **P1.8 Speicher-Adapter und Spike B-02** – `src/lib/storage/` laut ARCHITEKTUR §3.1/§3.3 (`import 'server-only'`,
   Auswahl nur über `STORAGE_DRIVER`): Speicher-Konfiguration für die Payload-Uploads, signierte URLs und
   `systemFiles.ts` (`readJson(key)`, `writeJson(key, value)`; `local` → `.data/<key>`, `s3` → `S3_PRIVATE_BUCKET`,
   Präfix `system/`).

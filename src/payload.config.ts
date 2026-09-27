@@ -15,6 +15,7 @@ import { EmailLog } from './collections/EmailLog'
 import { WebhookEvents } from './collections/WebhookEvents'
 import { ADMIN_CUSTOM_DE } from './admin/translations'
 import { getEnv } from './lib/env'
+import { storagePlugins } from './lib/storage'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -62,5 +63,5 @@ export default buildConfig({
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
   sharp,
-  plugins: [],
+  plugins: [...storagePlugins(env)],
 })
