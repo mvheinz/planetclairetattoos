@@ -1199,7 +1199,7 @@ Texte (unveränderliche Felder, so wie abgesendet):
 | W6 | Wie schon geschrieben: Die Tasse vom Flohmarkt möchte ich zurückgeben. | Tasse mit Hund | – | Doppelt abgeschickt, gleiche Erklärung wie WR-2026-90004; Antwort läuft dort. |
 | W7 | test | test | – | – |
 
-`closeNote` W7: „Test-Eingabe ohne Vertragsbezug (Name und Text ‚test‘), kein Widerruf.“
+`closeNote` W7: „Test-Eingabe ohne Vertragsbezug (Name und Text ‚test‘), nicht als Widerruf gemeint.“
 
 ---
 

@@ -41,6 +41,10 @@ async function seedGlobal(
     let changed = false
     let created = false
     for (const locale of LOCALES) {
+      // Nie gespeichert: Payload zeigt nur Standardwerte an (IDs von Array-Zeilen wechseln) → einmal speichern.
+      const stored = (await req.payload.db.findGlobal({ slug, req, locale })) as Obj | null
+      const neverSaved = !stored?.updatedAt
+      if (neverSaved) created = true
       const current = stripMeta(
         await req.payload.findGlobal({
           slug,
@@ -49,14 +53,12 @@ async function seedGlobal(
           ...seedOp(req),
         }),
       )
-      const stored = await req.payload.db.findGlobal({ slug, req, locale })
-      if (!stored) created = true
       const desired = deepMerge(
         await fieldDefaults(config.fields, locale, req),
         pickLocaleTree(desiredFromData, locale) as Obj,
       )
       const next = fillEmpty(current, desired) as Obj
-      if (!stored || JSON.stringify(next) !== JSON.stringify(current)) {
+      if (neverSaved || JSON.stringify(next) !== JSON.stringify(current)) {
         await req.payload.updateGlobal({ slug, data: next as never, locale, ...seedOp(req) })
         changed = true
       }

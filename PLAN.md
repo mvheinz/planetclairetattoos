@@ -1066,7 +1066,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - int `tests/int/seed/side-effects.int.spec.ts` (AK-SEED-05).
   - Ohne Jutta: –
 
-- [ ] **P1.29 Grund-Seed (`pnpm seed:base`)** – `content/seed/data/base.json` und der Import laut SEED-SPEC §3,
+- [x] **P1.29 Grund-Seed (`pnpm seed:base`)** – `content/seed/data/base.json` und der Import laut SEED-SPEC §3,
   `seed = false`, nur anlegen, wenn es fehlt:
   - `settings` mit Standardwerten (§3.1, DATENMODELL §7.1): Versandtarife nur Zone DE (`brief` 450, `paket_klein` 650,
     `keramik` 890; EU/CH-Versand ist „Später“), Beispiel-IBAN `DE36000000000000000000`, `retention.invoiceYears` 10,

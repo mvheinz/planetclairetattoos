@@ -58,9 +58,8 @@ describe('Seed ohne Nebenwirkungen (AK-SEED-05)', () => {
     const clock = fixedClock('2026-10-15T08:00:30Z')
     const data = await loadSeedData({ now })
     const before = await counts()
-    // Ohne base.json (vor P1.29) läuft nur der Beispielbestand.
     await runSeed(payload, {
-      command: data.base ? 'all' : 'example',
+      command: 'all',
       data,
       now,
       clock,

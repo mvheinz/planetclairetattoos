@@ -1,0 +1,653 @@
+{
+  "settings": {
+    "business": {
+      "legalName": "[Name folgt]",
+      "tradeName": "Planet Claire",
+      "street": "[Adresse folgt]",
+      "postalCode": "00000",
+      "city": "Berlin",
+      "country": "DE",
+      "email": "jutta@planetclairetattoos.com",
+      "phone": "[Telefon folgt]",
+      "economicId": "[W-IdNr. folgt]"
+    },
+    "tax": {
+      "modes": [
+        {
+          "mode": "kleinunternehmer",
+          "validFrom": "2026-01-01T00:00:00.000Z"
+        }
+      ]
+    },
+    "shipping": {
+      "enabledCountries": [
+        "DE"
+      ],
+      "rates": [
+        {
+          "zone": "DE",
+          "shippingClass": "brief",
+          "priceCents": 450
+        },
+        {
+          "zone": "DE",
+          "shippingClass": "paket_klein",
+          "priceCents": 650
+        },
+        {
+          "zone": "DE",
+          "shippingClass": "keramik",
+          "priceCents": 890
+        }
+      ],
+      "pickupEnabled": true,
+      "pickupCity": "Berlin",
+      "deliveryTimeText": {
+        "de": "2–5 Werktage",
+        "en": "2–5 working days"
+      },
+      "trackingUrlTemplates": [
+        {
+          "carrier": "dhl",
+          "urlTemplate": "https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode={trackingNumber}"
+        },
+        {
+          "carrier": "deutsche_post",
+          "urlTemplate": "https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode={trackingNumber}"
+        }
+      ]
+    },
+    "packaging": {
+      "templates": [
+        {
+          "key": "brief-karton",
+          "name": "Kartonumschlag",
+          "components": [
+            {
+              "material": "paper_cardboard",
+              "grams": 60
+            }
+          ]
+        },
+        {
+          "key": "tasche-papier",
+          "name": "Papier-Versandtasche",
+          "components": [
+            {
+              "material": "paper_cardboard",
+              "grams": 90
+            }
+          ]
+        },
+        {
+          "key": "keramik-doppelkarton",
+          "name": "Karton in Karton mit Papierpolster",
+          "components": [
+            {
+              "material": "paper_cardboard",
+              "grams": 900
+            }
+          ]
+        }
+      ],
+      "defaultsByShippingClass": [
+        {
+          "shippingClass": "brief",
+          "templateKey": "brief-karton"
+        },
+        {
+          "shippingClass": "paket_klein",
+          "templateKey": "tasche-papier"
+        },
+        {
+          "shippingClass": "keramik",
+          "templateKey": "keramik-doppelkarton"
+        }
+      ]
+    },
+    "pickup": {
+      "instructions": {
+        "de": "Abholung in Berlin nach Absprache: Wir machen per Mail einen Termin aus, die Adresse bekommst du mit der Terminbestätigung. Bring bitte deine Bestellnummer mit.",
+        "en": "Pickup in Berlin by arrangement: we'll set a time by email, and you'll get the address with the confirmation. Please bring your order number."
+      }
+    },
+    "payment": {
+      "prepaymentEnabled": true,
+      "accountHolder": "[Kontoinhaberin folgt]",
+      "iban": "DE36000000000000000000",
+      "reservationMinutes": 30,
+      "prepaymentDays": 5,
+      "prepaymentReminderHours": 72
+    },
+    "tattoo": {
+      "studioDistrict": "[Bezirk folgt]",
+      "minPriceCents": 8000,
+      "customPriceFromCents": 15000,
+      "customPriceToCents": 40000,
+      "priceNote": {
+        "de": "Alle Preise sind Endpreise. Flash hat einen Festpreis direkt am Motiv, eigene Ideen rechne ich nach Größe und Aufwand.",
+        "en": "All prices are final prices. Flash has a fixed price right on the design; custom ideas are priced by size and effort."
+      }
+    },
+    "social": {
+      "instagramHandle": "planet.claire.tattoos",
+      "contactEmail": "jutta@planetclairetattoos.com"
+    },
+    "legal": {
+      "allowVisibleBlankBrands": false
+    },
+    "retention": {
+      "invoiceYears": "10"
+    },
+    "safetyTemplates": [
+      {
+        "category": "keramik",
+        "text": {
+          "de": "Handgemacht: Kanten und Glasur können unregelmäßig sein. Zerbrechlich – Scherben bei Bruch vorsichtig entfernen.",
+          "en": "Handmade: edges and glaze may be irregular. Fragile – remove shards carefully if it breaks."
+        }
+      },
+      {
+        "category": "textil",
+        "text": {
+          "de": "Gebrauchtes Kleidungsstück, von Hand bemalt. Farbe kann bei der ersten Wäsche leicht ausbluten – separat waschen.",
+          "en": "Pre-owned garment, painted by hand. Colour may bleed slightly in the first wash – wash separately."
+        }
+      },
+      {
+        "category": "cap",
+        "text": {
+          "de": "Gebrauchte Cap, von Hand bemalt. Farbe kann bei Nässe abfärben.",
+          "en": "Pre-owned cap, painted by hand. Colour may transfer when wet."
+        }
+      },
+      {
+        "category": "zeichnung",
+        "text": {
+          "de": "Original auf Papier. Vor direktem Sonnenlicht und Feuchtigkeit schützen.",
+          "en": "Original on paper. Keep away from direct sunlight and moisture."
+        }
+      },
+      {
+        "category": "schmuck",
+        "text": {
+          "de": "Keramik kann bei Stößen brechen. Nicht beim Schlafen oder beim Sport tragen.",
+          "en": "Ceramic can break if knocked. Do not wear while sleeping or doing sport."
+        }
+      },
+      {
+        "category": "sonstiges",
+        "text": {
+          "de": "Handgemachtes Einzelstück – bitte die Hinweise in der Beschreibung beachten.",
+          "en": "Handmade one-off – please note the details in the description."
+        }
+      }
+    ],
+    "careTemplates": [
+      {
+        "category": "textil",
+        "text": {
+          "de": "Links gewendet bei 30 °C waschen, nicht in den Trockner, Motiv nicht bügeln.",
+          "en": "Wash inside out at 30 °C, do not tumble dry, do not iron over the design."
+        }
+      },
+      {
+        "category": "cap",
+        "text": {
+          "de": "Nicht in die Waschmaschine. Flecken mit einem feuchten Tuch vorsichtig abtupfen, an der Luft trocknen.",
+          "en": "Do not machine wash. Gently dab stains with a damp cloth and let it air dry."
+        }
+      }
+    ],
+    "packingChecklists": [
+      {
+        "shippingClass": "keramik",
+        "items": [
+          {
+            "text": "Hohlräume mit Papier füllen"
+          },
+          {
+            "text": "jedes Teil einzeln einwickeln"
+          },
+          {
+            "text": "Innenkarton"
+          },
+          {
+            "text": "Außenkarton mit mind. 6 cm Polster rundum"
+          },
+          {
+            "text": "Schütteltest"
+          },
+          {
+            "text": "zwei Fotos vor dem Zukleben"
+          }
+        ]
+      },
+      {
+        "shippingClass": "paket_klein",
+        "items": [
+          {
+            "text": "Papier- oder Kartonversandtasche, niemals Plastik"
+          },
+          {
+            "text": "Zeichnungen zwischen zwei feste Kartonplatten"
+          },
+          {
+            "text": "zwei Fotos vor dem Zukleben"
+          }
+        ]
+      },
+      {
+        "shippingClass": "brief",
+        "items": [
+          {
+            "text": "Zeichnung zwischen zwei Kartonplatten, „Bitte nicht knicken“"
+          },
+          {
+            "text": "Anhänger in Seidenpapier und kleine Schachtel"
+          },
+          {
+            "text": "zwei Fotos vor dem Zukleben"
+          }
+        ]
+      }
+    ]
+  },
+  "categories": [
+    {
+      "key": "keramik",
+      "name": {
+        "de": "Keramik",
+        "en": "Ceramics"
+      },
+      "slug": {
+        "de": "keramik",
+        "en": "ceramics"
+      },
+      "sortOrder": 10,
+      "showInNavigation": true,
+      "intro": {
+        "de": "Alles hier ist von Hand geformt und bemalt – mit Tieren, die zurückgucken. Jede Keramik ist ein Deko-Stück: schön für Schlüssel, Ringe und Kleinkram, nicht für Essen.",
+        "en": "Everything here is shaped and painted by hand – with animals that look back at you. Every ceramic piece is decorative: great for keys, rings and odds and ends, not for food."
+      }
+    },
+    {
+      "key": "textil",
+      "name": {
+        "de": "Textil",
+        "en": "Textiles"
+      },
+      "slug": {
+        "de": "textil",
+        "en": "textiles"
+      },
+      "sortOrder": 20,
+      "showInNavigation": true,
+      "intro": {
+        "de": "Second-Hand-Teile, die ich bemale. Größe, Zustand und Material stehen bei jedem Stück – bitte kurz nachmessen, jedes gibt es nur einmal.",
+        "en": "Second-hand pieces that I paint. Size, condition and fabric are listed for each one – please measure, every piece exists only once."
+      }
+    },
+    {
+      "key": "cap",
+      "name": {
+        "de": "Caps",
+        "en": "Caps"
+      },
+      "slug": {
+        "de": "caps",
+        "en": "caps"
+      },
+      "sortOrder": 30,
+      "showInNavigation": true,
+      "intro": {
+        "de": "Gebrauchte Caps mit neuen Bewohnern. Ob verstellbar oder feste Größe, steht bei jeder Cap dabei.",
+        "en": "Pre-loved caps with new residents. Whether adjustable or a fixed size is listed on each cap."
+      }
+    },
+    {
+      "key": "zeichnung",
+      "name": {
+        "de": "Zeichnungen",
+        "en": "Drawings"
+      },
+      "slug": {
+        "de": "zeichnungen",
+        "en": "drawings"
+      },
+      "sortOrder": 40,
+      "showInNavigation": true,
+      "intro": {
+        "de": "Originale auf Papier: Tusche, Aquarell, Skizzenbuchseiten. Keine Drucke – was du siehst, ist genau das Blatt, das du bekommst.",
+        "en": "Originals on paper: ink, watercolour, sketchbook pages. No prints – what you see is exactly the sheet you get."
+      }
+    },
+    {
+      "key": "schmuck",
+      "name": {
+        "de": "Schmuck",
+        "en": "Jewellery"
+      },
+      "slug": {
+        "de": "schmuck",
+        "en": "jewellery"
+      },
+      "sortOrder": 50,
+      "showInNavigation": true,
+      "intro": {
+        "de": "Winzige Anhänger aus Keramik mit Öse aus Edelstahl. Die Kette ist nicht dabei – du hast bestimmt schon eine Lieblingskette.",
+        "en": "Tiny ceramic pendants with a stainless steel loop. Chain not included – you've probably got a favourite one already."
+      }
+    },
+    {
+      "key": "sonstiges",
+      "name": {
+        "de": "Sonstiges",
+        "en": "Other"
+      },
+      "slug": {
+        "de": "sonstiges",
+        "en": "other"
+      },
+      "sortOrder": 60,
+      "showInNavigation": false,
+      "intro": {
+        "de": "Was nirgends reinpasst: Flohmarktfunde, die ich bemalt habe.",
+        "en": "Things that don't fit anywhere else: flea market finds I've painted."
+      }
+    }
+  ],
+  "legalTexts": [
+    {
+      "type": "impressum",
+      "validFrom": "2026-01-01T00:00:00+01:00",
+      "sourceNote": "Platzhalter aus dem Grund-Seed",
+      "sections": [
+        {
+          "heading": "Anbieterin",
+          "paragraphs": [
+            "Text folgt von der Kanzlei.",
+            "{{name}}",
+            "{{street}}",
+            "{{postalCode}} {{city}}"
+          ]
+        },
+        {
+          "heading": "Kontakt",
+          "paragraphs": [
+            "Text folgt von der Kanzlei.",
+            "{{email}}",
+            "{{phone}}"
+          ]
+        },
+        {
+          "heading": "Instagram-Profil",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "datenschutz",
+      "validFrom": "2026-01-01T00:00:00+01:00",
+      "sourceNote": "Platzhalter aus dem Grund-Seed",
+      "sections": [
+        {
+          "heading": "Verantwortliche",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Hosting",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Cookies und lokale Speicherung",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Bestellung",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Zahlung",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Versand",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "E-Mails",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Widerruf",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Auftragsarbeiten",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Kontakt",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Statistik",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Fehlerüberwachung",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Tattoo-Portfolio",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Instagram",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Empfänger",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Übermittlung in Drittländer",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Speicherdauer",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Deine Rechte",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Beschwerderecht",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "agb",
+      "validFrom": "2026-01-01T00:00:00+01:00",
+      "sourceNote": "Platzhalter aus dem Grund-Seed",
+      "sections": [
+        {
+          "heading": "Geltungsbereich",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Vertragsschluss",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Preise und Zahlung",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Vorkasse",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Lieferung und Abholung",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Eigentumsvorbehalt",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Mängelhaftung",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Vertragstext und Vertragssprache",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "widerrufsbelehrung",
+      "validFrom": "2026-01-01T00:00:00+01:00",
+      "sourceNote": "Platzhalter aus dem Grund-Seed",
+      "sections": [
+        {
+          "heading": "Widerrufsrecht",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Widerruf über die Website",
+          "paragraphs": [
+            "Text folgt von der Kanzlei.",
+            "{{withdrawalUrl}}"
+          ]
+        },
+        {
+          "heading": "Folgen des Widerrufs",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "widerrufsformular",
+      "validFrom": "2026-01-01T00:00:00+01:00",
+      "sourceNote": "Platzhalter aus dem Grund-Seed",
+      "sections": [
+        {
+          "heading": "Muster-Widerrufsformular",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "versand-zahlung",
+      "validFrom": "2026-01-01T00:00:00+01:00",
+      "sourceNote": "Platzhalter aus dem Grund-Seed",
+      "sections": [
+        {
+          "heading": "Liefergebiet",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Versandkosten",
+          "paragraphs": [
+            "Text folgt von der Kanzlei.",
+            "{{shippingTable}}"
+          ]
+        },
+        {
+          "heading": "Lieferzeit",
+          "paragraphs": [
+            "Text folgt von der Kanzlei.",
+            "{{deliveryTime}}"
+          ]
+        },
+        {
+          "heading": "Abholung",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Zahlarten",
+          "paragraphs": [
+            "Text folgt von der Kanzlei."
+          ]
+        },
+        {
+          "heading": "Vorkasse",
+          "paragraphs": [
+            "Text folgt von der Kanzlei.",
+            "{{vorkasseDays}}"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P1.29
+
+- `content/seed/data/base.json` (settings §3.1/§3.2, 6 Kategorien, 6 Platzhalter-Rechtstexte v1) und Import `src/lib/seed/base.ts`: create-if-missing, nur leere Felder füllen, Admin aus SEED_ADMIN_* (nie in Produktion).\n- `db:reset --test` ruft danach `seed:base` auf (`--seed=none|base|all`).\n- Tests: int seed/base (DM-P1-04, AK-SEED-02, AK-SEED-13 Teil), volle Int-Suite grün.
+
 ## 2026-09-27 – P1.28
 
 - Seed-Bibliothek `src/lib/seed/` (guard, time, tokens, schemas, loader, upsert, context, fallbackArt, remove, run) und CLI `scripts/seed/cli.ts` (payload run, Top-Level-await); Skripte seed, seed:base, seed:example, seed:remove, seed:reset.\n- Guard prüft vor dem Start von Payload über eine nur lesende Verbindung (APP_ENV, DB-Markierung, livemode-Bestellungen).\n- Tests: unit seed/time (AK-SEED-16), seed/loader; int seed/guard (AK-SEED-04, AK-11-04, AK-A-4-01, Fingerabdruck aller Tabellen), seed/side-effects (AK-SEED-05) – grün.
