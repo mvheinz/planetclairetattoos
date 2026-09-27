@@ -5,12 +5,14 @@ import { fileURLToPath } from 'node:url'
 import { envExampleCheck } from './lib/static-checks/env-example'
 import { externalUrlsCheck } from './lib/static-checks/external-urls'
 import { generatedFilesCheck } from './lib/static-checks/generated'
+import { i18nParityCheck } from './lib/static-checks/i18n-parity'
 import { importRulesCheck } from './lib/static-checks/import-rules'
 import { stripeImportCheck } from './lib/static-checks/stripe-import'
+import { routeRegistryCheck } from './lib/static-checks/route-registry'
 import type { StaticCheck } from './lib/static-checks/types'
 import { versionsCheck } from './lib/static-checks/versions'
 
-/** Registrierte Teilprüfungen; spätere Phasen hängen ihre hier an (i18n-parity, route-registry ab P2.1). */
+/** Registrierte Teilprüfungen; spätere Phasen hängen ihre hier an. */
 export const CHECKS: StaticCheck[] = [
   versionsCheck,
   envExampleCheck,
@@ -18,6 +20,8 @@ export const CHECKS: StaticCheck[] = [
   stripeImportCheck,
   externalUrlsCheck,
   generatedFilesCheck,
+  i18nParityCheck,
+  routeRegistryCheck,
 ]
 
 async function main(): Promise<void> {

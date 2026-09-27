@@ -1,0 +1,82 @@
+{
+  "common": {
+    "siteName": "Planet Claire",
+    "claim": "Tattoos, ceramics and drawings from Berlin",
+    "scaffoldNotice": "This page is still a scaffold. The full content will follow.",
+    "routes": {
+      "R01": "Home",
+      "R02": "Shop",
+      "R03": "Category",
+      "R04": "Piece",
+      "R05": "Archive",
+      "R06": "Basket",
+      "R07": "Checkout",
+      "R08": "Thank you",
+      "R09": "Order status",
+      "R10": "Commissions",
+      "R11": "Tattoo",
+      "R12": "Flash",
+      "R13": "Offers",
+      "R14": "Prices",
+      "R15": "Gallery",
+      "R16": "Process",
+      "R17": "Aftercare",
+      "R18": "FAQ",
+      "R19": "About me & Coco",
+      "R20": "Contact",
+      "R21": "Legal notice",
+      "R22": "Privacy",
+      "R23": "Terms and conditions",
+      "R24": "Right of withdrawal",
+      "R25": "Shipping & payment",
+      "R26": "Withdraw from contract here",
+      "R27": "Declarations of conformity"
+    }
+  },
+  "header": {
+    "home": "planet claire – to the home page",
+    "shop": "Shop",
+    "tattoo": "Tattoo",
+    "cart": "Basket",
+    "menu": "Menu"
+  },
+  "menu": {
+    "title": "Menu",
+    "close": "Close menu",
+    "language": "Language"
+  },
+  "footer": {
+    "legalHeading": "Legal",
+    "withdraw": "Withdraw from contract here",
+    "instagram": "Instagram",
+    "language": "Language",
+    "languageSwitch": "Deutsch",
+    "motionOn": "Animations on",
+    "motionOff": "Animations off"
+  },
+  "legal": {
+    "placeholder": "Placeholder – the binding text will follow after review by the law firm.",
+    "version": "Version"
+  },
+  "errors": {
+    "notFoundTitle": "Coco broke loose",
+    "notFoundText": "This page does not exist (anymore).",
+    "serverErrorTitle": "Oops – the leash got tangled",
+    "retry": "Try again",
+    "toHome": "To the home page"
+  },
+  "home": {
+    "title": "Planet Claire",
+    "intro": "Tattoos, handmade one-of-a-kind ceramics and drawings from Berlin."
+  },
+  "a11y": {
+    "skipToContent": "Skip to content",
+    "currentLanguage": "Current language: English",
+    "switchToOther": "Switch to the German page"
+  },
+  "previewExport": {
+    "banner": "Preview file with sample data",
+    "notBuilt": "Not built yet",
+    "seedBanner": "Preview with sample data"
+  }
+}

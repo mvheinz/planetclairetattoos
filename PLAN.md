@@ -1301,7 +1301,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
 
 ### Aufgaben
 
-- [ ] **P2.1 i18n-Grundlage und Routen-Registry** – `next-intl` (≥ 4.14, exakt gepinnt).
+- [x] **P2.1 i18n-Grundlage und Routen-Registry** – `next-intl` (≥ 4.14, exakt gepinnt).
   - Routen-Registry `src/lib/routes/registry.ts` (ARCHITEKTUR §2.3) mit R01–R31 – reine Daten ohne Framework-Importe
     und ohne Pfad-Aliasse. Felder je Eintrag: `id`, DE/EN-Muster (exakt KONZEPT §2.2), `pageType`
     (`PUBLIC_PAGE_TYPES`), `preset`, `rendering`, `robots`, `headerContext` (public/dynamic/checkout), `status`

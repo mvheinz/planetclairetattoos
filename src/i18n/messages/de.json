@@ -1,0 +1,82 @@
+{
+  "common": {
+    "siteName": "Planet Claire",
+    "claim": "Tattoos, Keramik und Zeichnungen aus Berlin",
+    "scaffoldNotice": "Diese Seite ist noch ein Gerüst. Der vollständige Inhalt folgt.",
+    "routes": {
+      "R01": "Start",
+      "R02": "Shop",
+      "R03": "Kategorie",
+      "R04": "Stück",
+      "R05": "Archiv",
+      "R06": "Korb",
+      "R07": "Kasse",
+      "R08": "Danke",
+      "R09": "Bestellstatus",
+      "R10": "Auftragsarbeiten",
+      "R11": "Tattoo",
+      "R12": "Flash",
+      "R13": "Angebote",
+      "R14": "Preise",
+      "R15": "Galerie",
+      "R16": "Ablauf",
+      "R17": "Aftercare",
+      "R18": "FAQ",
+      "R19": "Über mich & Coco",
+      "R20": "Kontakt",
+      "R21": "Impressum",
+      "R22": "Datenschutz",
+      "R23": "AGB",
+      "R24": "Widerrufsbelehrung",
+      "R25": "Versand & Zahlung",
+      "R26": "Vertrag widerrufen",
+      "R27": "Konformitätserklärungen"
+    }
+  },
+  "header": {
+    "home": "planet claire – zur Startseite",
+    "shop": "Shop",
+    "tattoo": "Tattoo",
+    "cart": "Korb",
+    "menu": "Menü"
+  },
+  "menu": {
+    "title": "Menü",
+    "close": "Menü schließen",
+    "language": "Sprache"
+  },
+  "footer": {
+    "legalHeading": "Rechtliches",
+    "withdraw": "Vertrag widerrufen",
+    "instagram": "Instagram",
+    "language": "Sprache",
+    "languageSwitch": "English",
+    "motionOn": "Animationen an",
+    "motionOff": "Animationen aus"
+  },
+  "legal": {
+    "placeholder": "Platzhalter – der verbindliche Text folgt nach Prüfung durch die Kanzlei.",
+    "version": "Stand"
+  },
+  "errors": {
+    "notFoundTitle": "Coco hat sich losgerissen",
+    "notFoundText": "Diese Seite gibt es nicht (mehr).",
+    "serverErrorTitle": "Hoppla – die Leine hat sich verheddert",
+    "retry": "Nochmal versuchen",
+    "toHome": "Zur Startseite"
+  },
+  "home": {
+    "title": "Planet Claire",
+    "intro": "Tattoos, handgemachte Unikat-Keramik und Zeichnungen aus Berlin."
+  },
+  "a11y": {
+    "skipToContent": "Zum Inhalt springen",
+    "currentLanguage": "Aktuelle Sprache: Deutsch",
+    "switchToOther": "Zur englischen Seite wechseln"
+  },
+  "previewExport": {
+    "banner": "Vorschau-Datei mit Beispieldaten",
+    "notBuilt": "Noch nicht gebaut",
+    "seedBanner": "Vorschau mit Beispieldaten"
+  }
+}
