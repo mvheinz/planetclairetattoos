@@ -40,7 +40,9 @@
     "check:bundle": "tsx scripts/check-bundle.ts",
     "ci:artifacts": "tsx scripts/ci/artifact-budget.ts",
     "ci:minutes": "tsx scripts/ci/minutes.ts",
-    "fonts:copy": "tsx scripts/fonts/copy.ts"
+    "fonts:copy": "tsx scripts/fonts/copy.ts",
+    "art:brand": "tsx scripts/art/build-brand.ts",
+    "art:icons": "tsx scripts/art/build-icons.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1141.0",

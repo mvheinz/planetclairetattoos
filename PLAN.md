@@ -1396,7 +1396,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     P2.21.
   - Ohne Jutta: Keine eigene Handschrift-Font („Später“).
 
-- [ ] **P2.5 Icons, Wortmarke, Planet-Marke, Favicon, Standard-OG** – Icons nach DESIGN §6.5: Quellen
+- [x] **P2.5 Icons, Wortmarke, Planet-Marke, Favicon, Standard-OG** – Icons nach DESIGN §6.5: Quellen
   `src/art/icons/*.svg` (je ≤ 600 B), eingebunden als Inline-SVG-React-Komponenten in `src/components/icons/`
   (Komponente `Icon`, kein Sprite, kein `<use href>`); Bestand genau laut §6.5: `basket`, `menu`, `close`,
   `arrow-right`, `arrow-left`, `external`, `mail`, `instagram`, `copy`, `zoom`, `check`, `warn`, `info`, `planet`,

@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P2.5
+
+- 18 handgezeichnete Icons (src/art/icons, je ≤ 600 B) → pnpm art:icons → Inline-SVG-Komponente Icon (aria-hidden, mit label role=img)
+- pnpm art:brand: Wortmarke (4,4 KB, Mansalva-Umrisse, Planet als i-Punkt), icon.svg, favicon.ico (16/32), apple-icon.png (180), public/og/default.png (1200×630); Komponente WordmarkLink; Verwaltung mit eigenem Logo/Icon/Favicon
+- Tests: unit icons (9: Bestand, Größe, Attribute, Freshness, aria, Name „planet claire – Startseite“, ICO/PNG-Maße); Build grün, alle Dateien per pnpm start mit 200 vom eigenen Origin geprüft; pnpm check, test:int grün
+
 ## 2026-09-27 – P2.4
 
 - Fontsource-Pakete, subset-font, fontkit als Dev-Abhängigkeiten; `pnpm fonts:copy` (scripts/fonts/copy.ts) erzeugt 3 WOFF2 unter src/styles/fonts (98,6 KB) und die Mansalva-Abdeckung
