@@ -16,6 +16,15 @@ export const URL_ALLOWLIST: RegExp[] = [
   /^https:\/\/schema\.org$/, // JSON-LD-`@context` (KONZEPT §3.0.5), Bezeichner, kein Request
 ]
 
+/**
+ * Nur in einzelnen Dateien erlaubt: Stripe-Hosts ausschließlich in der CSP des Kontexts `checkout` (DIENSTE-YAML,
+ * R-131, ARCHITEKTUR §8.1) – Deklaration, kein Request.
+ */
+export const FILE_URL_ALLOWLIST: Record<string, RegExp[]> = {
+  'src/lib/security/csp.ts': [/^https:\/\/(\*\.)?(js|hooks|api)\.stripe\.com$/],
+  'src/lib/security/headers.ts': [/^https:\/\/js\.stripe\.com$/],
+}
+
 const URL_RE = /https?:\/\/[^\s'"`)<>\]}]+/g
 
 export function checkExternalUrls(files: { path: string; source: string }[]): CheckResult {
@@ -23,7 +32,8 @@ export function checkExternalUrls(files: { path: string; source: string }[]): Ch
   for (const f of files) {
     for (const m of f.source.matchAll(URL_RE)) {
       const url = m[0]
-      if (!URL_ALLOWLIST.some((re) => re.test(url))) {
+      const allowed = [...URL_ALLOWLIST, ...(FILE_URL_ALLOWLIST[f.path] ?? [])]
+      if (!allowed.some((re) => re.test(url))) {
         errors.push(
           `${f.path}: Fremd-URL ${url} (nicht in der Allowlist, scripts/lib/static-checks/external-urls.ts).`,
         )

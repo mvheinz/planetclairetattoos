@@ -1,10 +1,11 @@
 import createIntlMiddleware from 'next-intl/middleware'
-import { NextResponse, type NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 import { routing } from '@/i18n/routing'
 import { getEnv } from '@/lib/env'
 import { decidePublicRoute } from '@/lib/routes/redirects'
-import { xRobotsTag } from '@/lib/seo/robots'
+import { createNonce, type NonceContext } from '@/lib/security/csp'
+import { baseHeaders, contextHeaders, nonceContextForPath } from '@/lib/security/headers'
 
 // Verwaltungspfad (ARCHITEKTUR §8.4, E-93, Spike B-01): Der Ordner `src/app/(payload)/admin/` ist nur interner
 // Mount-Punkt. `ADMIN_ROUTE/*` wird intern auf `/admin/*` umgeschrieben; direkte Aufrufe von `/admin` oder `/admin/*`
@@ -45,13 +46,38 @@ export function wwwRedirectTarget(
 const redirect = (location: string | URL, status: 307 | 308, vary = false) => {
   const res = NextResponse.redirect(location, status)
   if (vary) res.headers.set('vary', 'Accept-Language')
-  return withRobots(res)
+  return withBaseHeaders(res)
 }
 
-/** Eigene Antworten des Proxys (Weiterleitung, 404) bekommen `X-Robots-Tag` hier; alle übrigen über `next.config.ts`. */
-function withRobots(res: NextResponse): NextResponse {
-  const robots = xRobotsTag(getEnv().APP_ENV)
-  if (robots) res.headers.set('x-robots-tag', robots)
+/** Eigene Antworten des Proxys (Weiterleitung, 404) bekommen die allgemeinen Header (§8.1) hier selbst. */
+function withBaseHeaders(res: NextResponse): NextResponse {
+  for (const [key, value] of Object.entries(baseHeaders(getEnv().APP_ENV)))
+    res.headers.set(key, value)
+  return res
+}
+
+/**
+ * Nonce-Kontext (ARCHITEKTUR §8.1): neue Nonce je Anfrage, CSP auch als Anfrage-Header, damit Next die Nonce beim
+ * Rendern an seine Skripte hängt; Antwort-Header überschreiben die statischen Werte aus `next.config.ts`.
+ */
+function nonceHeaders(context: NonceContext, tokenPage: boolean, request: NextRequest) {
+  const env = getEnv()
+  const nonce = createNonce()
+  const response = contextHeaders(context, {
+    appEnv: env.APP_ENV,
+    nodeEnv: env.NODE_ENV,
+    paymentsDriver: env.PAYMENTS_DRIVER,
+    nonce,
+    tokenPage,
+  })
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('content-security-policy', response['Content-Security-Policy']!)
+  requestHeaders.set('x-nonce', nonce)
+  return { requestHeaders, response }
+}
+
+const applyHeaders = (res: NextResponse, headers: Record<string, string>) => {
+  for (const [key, value] of Object.entries(headers)) res.headers.set(key, value)
   return res
 }
 
@@ -71,10 +97,14 @@ export function proxy(request: NextRequest): NextResponse {
   if (decision.kind === 'rewrite') {
     const url = request.nextUrl.clone()
     url.pathname = decision.pathname
-    return NextResponse.rewrite(url)
+    const { requestHeaders, response } = nonceHeaders('admin', false, request)
+    return applyHeaders(
+      NextResponse.rewrite(url, { request: { headers: requestHeaders } }),
+      response,
+    )
   }
   if (decision.kind === 'not-found') {
-    return withRobots(
+    return withBaseHeaders(
       new NextResponse('Not Found', {
         status: 404,
         headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
@@ -88,9 +118,20 @@ export function proxy(request: NextRequest): NextResponse {
   }
   if (route.kind === 'pass') return NextResponse.next()
 
-  const res = intlMiddleware(request)
+  const nonceContext = nonceContextForPath(pathname)
+  if (!nonceContext) {
+    const res = intlMiddleware(request)
+    res.headers.delete('set-cookie')
+    return res
+  }
+  const { requestHeaders, response } = nonceHeaders(
+    nonceContext.context,
+    nonceContext.tokenPage,
+    request,
+  )
+  const res = intlMiddleware(new NextRequest(request, { headers: requestHeaders }))
   res.headers.delete('set-cookie')
-  return res
+  return applyHeaders(res, response)
 }
 
 export const config = {

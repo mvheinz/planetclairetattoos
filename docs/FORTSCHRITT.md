@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P2.12
+
+- `src/lib/security/csp.ts` (Kontexte `public`, `dynamic`, `checkout`, `admin`, `api` nach §8.1; Fremd-Hosts nur Stripe auf der Kasse bei `PAYMENTS_DRIVER=stripe`; Nonce je Anfrage) und `headers.ts` (allgemeine Header, HSTS nur production/staging, `X-Robots-Tag` außerhalb production, Token-Seiten, Kasse, Verwaltung). Anwendung: `next.config.ts headers()` für alle Pfade (`public`) und `/api/*` (`api`), der Proxy überschreibt für Nonce-Kontexte (R26 jetzt dynamisch gerendert, Verwaltung); genau ein CSP-Header je Antwort.
+- Spike B-03: Soll (SRI + Hash) scheitert an den Inline-RSC-Daten von Next → Rückfall `'unsafe-inline'` im Kontext `public`, nur `'self'` (ADR `docs/adr/0002-csp-script-src.md`, ARCHITEKTUR Anhang B). CSP-Teil B-01: Verwaltung läuft mit Nonce ohne Verstoß (Soll erfüllt).
+- `pc-motion`-Hash aus `inlineScripts.ts` in `dynamic`/`checkout` neben der Nonce; `security/{csp,headers,inlineScripts}.ts` ohne `server-only` (von `next.config.ts` geladen, Ausnahme im Static-Check); Stripe-Hosts nur in diesen Dateien erlaubt. Gegenprobe in `admin-privacy.e2e.spec.ts` umgeht die CSP (`bypassCSP`), weil die CSP die Probe-Anfrage jetzt selbst blockiert.
+- Tests: unit `tests/unit/security/headers.unit.spec.ts` (12; T-16, R-131 gegen DIENSTE-YAML, Hash-Abgleich), e2e `tests/e2e/security-headers.e2e.spec.ts` (AK-A-8-01, R-136, keine CSP-Verstöße auf live-Routen und in Login/Liste/Bearbeiten); volle E2E-Suite 183 grün (Produktions-Build, 3 Projekte), `pnpm check`, `pnpm test:int`, `pnpm build`, `check:external --built` grün.
+
 ## 2026-09-27 – P2.11
 
 - `src/lib/seo/metadata.ts` → `buildMetadata(routeId, locale, params)`: Titel „{Seite} · Planet Claire“ (Start „Planet Claire – {Claim}“), Beschreibung je Seitentyp aus den Nachrichten (`seo.descriptions`, 120–160 Zeichen), Open Graph mit Standardbild, `robots` aus der Registry; canonical + hreflang `de`/`en`/`x-default` (absolute Apex-URLs aus `NEXT_PUBLIC_SITE_URL`) nur auf indexierbaren Seiten. Alle Seiten nutzen `routeMetadata(id)`.

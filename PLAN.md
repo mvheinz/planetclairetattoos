@@ -1550,7 +1550,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     T-07).
   - Ohne Jutta: –
 
-- [ ] **P2.12 Sicherheits-Header und CSP (Spike B-03)** – `src/lib/security/headers.ts` und `src/lib/security/csp.ts`
+- [x] **P2.12 Sicherheits-Header und CSP (Spike B-03)** – `src/lib/security/headers.ts` und `src/lib/security/csp.ts`
   (Host-Listen je Kontext) mit den Kontexten `public`, `dynamic`, `checkout`, `admin`, `api` genau nach ARCHITEKTUR
   §8.1.
   - Anwendung: statische Routen über `next.config.ts headers()`, Nonce-Kontexte (`dynamic`, `checkout`, `admin`) über

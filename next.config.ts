@@ -6,7 +6,8 @@ import { fileURLToPath } from 'url'
 
 import { localizedPath } from './src/lib/routes/paths'
 import { shortLinks } from './src/lib/routes/registry'
-import { xRobotsTag, type AppEnvName } from './src/lib/seo/robots'
+import type { AppEnvName } from './src/lib/seo/robots'
+import { staticHeaderRules } from './src/lib/security/headers'
 
 const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
@@ -36,10 +37,10 @@ const nextConfig: NextConfig = {
       permanent: true,
     }))
   },
-  // Außerhalb der Produktion tragen alle Antworten `X-Robots-Tag: noindex, nofollow` (KONZEPT §2.5, AK-A-4-03).
+  // Sicherheits-Header (ARCHITEKTUR §8.1): alle Antworten + CSP `public`, `/api/*` CSP `api`; außerhalb der Produktion
+  // `X-Robots-Tag: noindex, nofollow` (AK-A-4-03). Nonce-Kontexte überschreibt `src/proxy.ts`.
   async headers() {
-    const robots = xRobotsTag(appEnv)
-    return robots ? [{ source: '/:path*', headers: [{ key: 'X-Robots-Tag', value: robots }] }] : []
+    return staticHeaderRules({ appEnv, nodeEnv: process.env.NODE_ENV })
   },
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {

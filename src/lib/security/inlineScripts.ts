@@ -1,10 +1,9 @@
-import 'server-only'
-
 import { createHash } from 'node:crypto'
 
 // Feste Inline-Skripte der öffentlichen Seiten (ARCHITEKTUR §8.1, DESIGN §11.7). Der Text ist unveränderlich; die CSP
-// (P2.12, `src/lib/security/csp.ts`) erlaubt ihn im Kontext `public` über seinen `sha256`-Hash, in `dynamic`/`checkout`
-// über die Nonce.
+// (`src/lib/security/csp.ts`) erlaubt ihn über seinen `sha256`-Hash – in `dynamic`/`checkout` neben der Nonce, weil das
+// Skript im gemeinsamen, statisch gerenderten Wurzel-Layout steht und die Nonce dort nicht kennt (ADR 0002). Ohne
+// `server-only`, weil `next.config.ts` den Hash über `csp.ts` lädt (Ausnahme in `import-rules.ts`); keine Geheimnisse.
 
 /**
  * `pc-motion`: liest vor dem ersten Rendern die gespeicherte Wahl des Schalters „Animationen“ und setzt
