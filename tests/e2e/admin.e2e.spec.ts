@@ -1,6 +1,7 @@
-import { test, expect, type Page } from '@playwright/test'
+import { test, expect, type Browser, type Page } from '@playwright/test'
 
 import { adminRoute, serverURL } from '../helpers/adminEnv'
+import { holdAdminSessions, type ReleaseLock } from '../helpers/adminSessionLock'
 import { login } from '../helpers/login'
 import { createResetToken, seedTestUser, testUser } from '../helpers/seedUser'
 
@@ -8,8 +9,11 @@ import { createResetToken, seedTestUser, testUser } from '../helpers/seedUser'
 test.describe('Admin Panel', () => {
   test.describe.configure({ mode: 'serial' })
   let page: Page
+  // Angemeldete Sitzung vor parallelen Anmeldungen/Resets anderer Worker schützen (siehe `adminSessionLock.ts`).
+  let releaseSessions: ReleaseLock | undefined
 
   test.beforeAll(async ({ browser }) => {
+    releaseSessions = await holdAdminSessions('shared')
     await seedTestUser()
     const context = await browser.newContext()
     page = await context.newPage()
@@ -18,6 +22,7 @@ test.describe('Admin Panel', () => {
 
   test.afterAll(async () => {
     await page?.context().close()
+    await releaseSessions?.()
   })
 
   test('can navigate to dashboard', async () => {
@@ -28,7 +33,11 @@ test.describe('Admin Panel', () => {
 
   test('can navigate to list view', async () => {
     await page.goto(`${serverURL}${adminRoute}/collections/users`)
-    await expect(page).toHaveURL(`${serverURL}${adminRoute}/collections/users`)
+    // Die Listenansicht schreibt nach der Hydrierung ihre Abfrage in die URL (`?depth=1&limit=10`, Payload
+    // ListQueryProvider) – geprüft wird der exakte Pfad unter ADMIN_ROUTE.
+    await expect(page).toHaveURL(
+      (url) => `${url.origin}${url.pathname}` === `${serverURL}${adminRoute}/collections/users`,
+    )
     await expect(page.getByText(testUser.email).first()).toBeVisible()
   })
 
@@ -41,6 +50,19 @@ test.describe('Admin Panel', () => {
   })
 
   test('password reset link works under ADMIN_ROUTE', async ({ browser }) => {
+    // Ein Reset beendet alle Sitzungen des Kontos (Payload `useSessions`) – erst, wenn kein anderer Worker mehr
+    // angemeldet ist. Die eigene Sitzung wird hier nicht mehr gebraucht.
+    test.setTimeout(120_000)
+    await releaseSessions?.()
+    const releaseExclusive = await holdAdminSessions('exclusive')
+    try {
+      await resetViaLink(browser)
+    } finally {
+      await releaseExclusive()
+    }
+  })
+
+  async function resetViaLink(browser: Browser): Promise<void> {
     const token = await createResetToken()
     const context = await browser.newContext()
     const anon = await context.newPage()
@@ -54,5 +76,5 @@ test.describe('Admin Panel', () => {
     await expect(anon).not.toHaveURL(/\/reset\//, { timeout: 15_000 })
     expect(new URL(anon.url()).pathname.startsWith(adminRoute)).toBe(true)
     await context.close()
-  })
+  }
 })
