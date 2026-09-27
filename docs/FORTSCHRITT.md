@@ -2,6 +2,15 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P1.19
+
+- `src/lib/commerce/productTransitions.ts`: Tabelle `PRODUCT_TRANSITIONS` (P2–P14, Namen publish/unpublish/reserve/release/convertToPrepayment/sell/sellOffline/returnToStock/archive/archiveAfterReturn/restore), reine Prüfung `evaluateProductTransition` und Service `transitionProduct` (eine Transaktion, Nebenwirkungen firstPublishedAt/soldAt/soldChannel/archivedAt/currentOrder; P10 beendet Kasse und Reservierungen).
+- Speicher-Hook: Status nur mit `context.transition` und erlaubtem Paar (sonst 403/409), Systemfelder gesperrt, Preis/Versandklasse/Kategorie bei reserved/sold gesperrt, EN-Status (machine/reviewed/missing), Audit `product_status_changed` je Wechsel (+ `product_published`, `product_offline_sold`), sofortige Revalidierung; Löschen nur nie veröffentlichter Entwürfe ohne Bestellposition, eigene Bilder mit.
+- Endpunkte `/api/products/:id/{publish,unpublish,sell-offline,archive,archive-after-return,restore,return-to-stock,translate,adopt}`; Übersetzen über den Adapter (Mock "[EN] …") inkl. Alt-Texte.
+- `revokeConformityDeclaration` (R-044): Erklärung widerrufen, betroffene Stücke per P3 offline + Hinweis, Mail `admin_alert` über die Outbox; Löschsperre bei verknüpften Stücken; Endpunkt `/api/conformity-declarations/:id/revoke`.
+- Test-Fixtures mit Endstatus laufen im Seed-Kontext; REST-Test veröffentlicht über den Endpunkt.
+- Tests: unit transitions (8, Matrix aller Statuspaare AK-5-01/DM-PROD-10); int status (10: DM-PROD-06, DM-PROD-08, AK-5-02, Endpunkte, P10, P11, P13, Übernahme, Löschen), translate (3), conformity-revoke (3, R-044); pnpm check, test:int, build grün.
+
 ## 2026-09-27 – P1.21
 
 - Collections `invoices` (Nummer lückenlos per Zählerzeile mit Row-Lock in der Transaktion der Anlage, Serien RE/GS/BSP-RE/BSP-GS, Steuermodus je Beleg eingefroren, retainUntil nach settings.retention.invoiceYears, nach Anlage unveränderlich, ausgestellt genau einmal mit PDF und SHA-256, Löschen nur Beispielbelege), `invoice-counters` (UNIQUE Serie+Jahr) und `withdrawals` (Serverzeit bei der Widerrufsfunktion, Angaben unveränderlich, Snapshot, Frist + 14 Tage, Auto-Zuordnung über Bestellnummer + E-Mail, Übergänge laut `withdrawalTransitions.ts`, Ablehnen nie automatisch, Aufbewahrung L-08).

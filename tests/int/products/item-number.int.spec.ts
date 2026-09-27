@@ -124,11 +124,13 @@ describe('Objektnummer (DM-PROD-05, R-041)', () => {
     expect(moved.slug).toBe('041-stueck-40')
     expect((await byId(doc.id, 'en')).slug).toBe('041-stueck-40')
 
+    // Stand nach einer ersten Veröffentlichung (Systemfeld; seit P1.19 nur per Übergang bzw. Seed setzbar).
     await payload.update({
       collection: 'products',
       id: doc.id,
       data: { firstPublishedAt: '2026-09-01T10:00:00.000Z' },
       overrideAccess: true,
+      context: { seed: true },
     })
     await rejects(
       payload.update({

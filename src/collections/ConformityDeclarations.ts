@@ -1,6 +1,13 @@
-import { ValidationError, type CollectionBeforeChangeHook, type CollectionConfig } from 'payload'
+import {
+  APIError,
+  ValidationError,
+  type CollectionBeforeChangeHook,
+  type CollectionBeforeDeleteHook,
+  type CollectionConfig,
+  type Endpoint,
+} from 'payload'
 
-import { adminField, isAdmin, publicRead } from '@/access'
+import { adminField, isAdmin, isAdminRequest, publicRead } from '@/access'
 import { seedField } from '@/fields'
 import { revalidateContent } from '@/lib/cache/revalidate'
 import { TAGS } from '@/lib/cache/tags'
@@ -11,7 +18,7 @@ import { registerUploadReference } from '@/lib/uploads/references'
 
 // DATENMODELL §6.13 – Konformitätserklärungen Keramik (E-15): Laborbefund privat, Erklärung öffentlich. Voraussetzung für
 // `foodContact = lebensmittelecht`. Der Wechsel auf `revoked` läuft nur über den Service `revokeConformityDeclaration`
-// (§6.6.6, R-044; Service und Löschsperre bei verknüpften Stücken folgen in P1.19).
+// (§6.6.6, R-044; src/lib/commerce/conformity.ts). Eine Erklärung mit verknüpften Stücken lässt sich nicht löschen.
 
 const SLUG = 'conformity-declarations'
 
@@ -72,6 +79,45 @@ const guardStatus: CollectionBeforeChangeHook = ({ data, operation, originalDoc,
   return data
 }
 
+/** Löschsperre (R-044): solange ein Stück auf die Erklärung verweist. */
+const guardDelete: CollectionBeforeDeleteHook = async ({ id, req }) => {
+  const linked = await req.payload.find({
+    collection: 'products',
+    where: { conformityDeclarations: { in: [id] } },
+    limit: 5,
+    depth: 0,
+    select: { adminTitle: true },
+    overrideAccess: true,
+    req,
+  })
+  if (linked.totalDocs > 0) {
+    const names = linked.docs.map((d) => d.adminTitle ?? `Stück ${d.id}`).join(', ')
+    throw new APIError(
+      `Die Erklärung ist mit Stücken verknüpft und lässt sich nicht löschen (${names}). Bitte stattdessen widerrufen.`,
+      409,
+      undefined,
+      true,
+    )
+  }
+}
+
+/** `POST /api/conformity-declarations/:id/revoke` (Verwaltung): Service `revokeConformityDeclaration`. */
+const revokeEndpoint: Endpoint = {
+  path: '/:id/revoke',
+  method: 'post',
+  handler: async (req) => {
+    if (!isAdminRequest(req)) return Response.json({ error: 'Nicht erlaubt.' }, { status: 403 })
+    const { revokeConformityDeclaration } = await import('@/lib/commerce/conformity')
+    const { errorResponse } = await import('@/endpoints/products/actions')
+    try {
+      const result = await revokeConformityDeclaration(req, Number(req.routeParams?.id))
+      return Response.json(result, { headers: { 'cache-control': 'private, no-store' } })
+    } catch (err) {
+      return errorResponse(err)
+    }
+  },
+}
+
 export const ConformityDeclarations: CollectionConfig = {
   slug: SLUG,
   labels: { singular: 'Konformitätserklärung', plural: 'Konformitätserklärungen' },
@@ -90,6 +136,7 @@ export const ConformityDeclarations: CollectionConfig = {
     readVersions: isAdmin,
   },
   versions: { maxPerDoc: 10 },
+  endpoints: [revokeEndpoint],
   fields: [
     {
       name: 'name',
@@ -166,6 +213,7 @@ export const ConformityDeclarations: CollectionConfig = {
   ],
   hooks: {
     beforeChange: [guardStatus],
+    beforeDelete: [guardDelete],
     afterChange: [
       ({ doc, req }) => {
         revalidateContent(TAGS.page('conformity'), { context: getAppContext(req) })

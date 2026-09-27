@@ -19,6 +19,7 @@ import {
   VAT_CATEGORIES,
 } from '@/lib/enums'
 import { registerMediaReference } from '@/lib/media/references'
+import { getAppContext } from '@/lib/payload/context'
 import { showFor } from '@/lib/products/categoryRules'
 import { buildCharacteristics } from '@/lib/products/characteristics'
 import {
@@ -29,11 +30,16 @@ import {
   PRODUCT_SLUG_RE,
 } from '@/lib/products/itemNumber'
 import { registerUploadReference } from '@/lib/uploads/references'
+import { productTransitionEndpoints } from '@/endpoints/products/actions'
+import { adoptEndpoint } from '@/endpoints/products/adopt'
 import { computeNextItemNumber, nextItemNumberEndpoint } from '@/endpoints/products/nextItemNumber'
+import { translateEndpoint } from '@/endpoints/products/translate'
 
 import {
   afterProductChange,
+  afterProductDelete,
   guardProduct,
+  guardProductDelete,
   prepareProduct,
   PRODUCTS_SLUG,
   requestLocale,
@@ -444,7 +450,12 @@ const requiredInfoFields: Field[] = [
     label: 'Konformitätserklärungen',
     relationTo: 'conformity-declarations',
     hasMany: true,
-    filterOptions: { status: { equals: 'active' } },
+    // Auswahl nur aktiver Erklärungen; Systemschreibvorgänge (z. B. Offline-Nehmen beim Widerruf, R-044) und Seed
+    // speichern ein Stück auch mit einer inzwischen widerrufenen Erklärung.
+    filterOptions: ({ req }) => {
+      const ctx = getAppContext(req)
+      return ctx.system || ctx.seed ? true : { status: { equals: 'active' } }
+    },
     admin: {
       condition: (data) =>
         showFor('conformityDeclarations')(data) && data?.foodContact === 'lebensmittelecht',
@@ -767,7 +778,12 @@ export const Products: CollectionConfig = {
     delete: isAdmin,
   },
   defaultSort: '-updatedAt',
-  endpoints: [nextItemNumberEndpoint],
+  endpoints: [
+    nextItemNumberEndpoint,
+    ...productTransitionEndpoints,
+    translateEndpoint,
+    adoptEndpoint,
+  ],
   // §6.6.11: Index (category, status); UNIQUE item_number und (slug, _locale) über die Felder.
   indexes: [{ fields: ['category', 'status'] }],
   fields: [
@@ -817,5 +833,7 @@ export const Products: CollectionConfig = {
     beforeValidate: [prepareProduct],
     beforeChange: [guardProduct],
     afterChange: [afterProductChange],
+    beforeDelete: [guardProductDelete],
+    afterDelete: [afterProductDelete],
   },
 }

@@ -163,12 +163,20 @@ describe('DM-PROD-01 / R-042 je Kategorie', () => {
     },
   )
 
-  it('R-042 auch per REST: PATCH auf „available“ ohne Titel → 400 mit Feldname', async () => {
+  it('R-042 auch per REST: „Online stellen“ ohne Gewicht → 400 mit Feldname', async () => {
     const doc = await draftOf('sonstiges', { weightGrams: null })
-    const res = await rest(
+    // Seit P1.19 ändert ein PATCH den Status nie (403); veröffentlicht wird über den Endpunkt P2.
+    const patch = await rest(
       'PATCH',
       `/products/${doc.id}`,
       { status: 'available' },
+      { authorization: `JWT ${token}` },
+    )
+    expect(patch.status).toBe(403)
+    const res = await rest(
+      'POST',
+      `/products/${doc.id}/publish`,
+      {},
       { authorization: `JWT ${token}` },
     )
     expect(res.status).toBe(400)

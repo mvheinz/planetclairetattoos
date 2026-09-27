@@ -1,7 +1,10 @@
 import {
+  APIError,
   ValidationError,
   type CollectionAfterChangeHook,
+  type CollectionAfterDeleteHook,
   type CollectionBeforeChangeHook,
+  type CollectionBeforeDeleteHook,
   type CollectionBeforeValidateHook,
   type PayloadRequest,
 } from 'payload'
@@ -9,6 +12,9 @@ import {
 import { CARE_TEMPLATE_TEXTS, SAFETY_TEMPLATE_TEXTS } from '@/globals/settingsDefaults'
 import { writeAudit } from '@/lib/audit'
 import { revalidateProduct } from '@/lib/cache/revalidate'
+import { TransitionError } from '@/lib/commerce/transitionError'
+import { isProductTransition, productTransitionId } from '@/lib/commerce/productTransitions'
+import { findMediaReferences } from '@/lib/media/references'
 import { LOCALES, type Locale, type ProductCategory, type ProductStatus } from '@/lib/enums'
 import { formatMoney } from '@/lib/money'
 import { getAppContext, requestNow } from '@/lib/payload/context'
@@ -21,6 +27,7 @@ import {
   type CategoryTemplates,
 } from '@/lib/products/categoryRules'
 import { exampleDataPresent, nextFreeItemNumber } from '@/endpoints/products/nextItemNumber'
+import { changedFields } from './immutable'
 import {
   buildProductSlug,
   formatItemNumber,
@@ -44,8 +51,8 @@ import {
   stripWarnings,
 } from '@/lib/products/warnings'
 
-// Hooks der Collection `products` (DATENMODELL §6.6.3, §6.6.8). Statusautomat, EN-Status und Löschregeln folgen in
-// P1.19, die Veröffentlichungsprüfung in P1.18.
+// Hooks der Collection `products` (DATENMODELL §6.6.3, §6.6.8): Vorbelegung, Nummer, Sperren, Statusautomat (Tabelle
+// in src/lib/commerce/productTransitions.ts), Veröffentlichungsprüfung, EN-Status, Audit und Löschregeln (P15).
 
 export const PRODUCTS_SLUG = 'products'
 
@@ -224,6 +231,135 @@ async function guardItemNumber(
   }
 }
 
+/** Vom System gesetzte Verkaufsfelder (§6.6.1 „S“): nur über einen Übergang (oder Seed) änderbar. */
+const SYSTEM_FIELDS = [
+  'firstPublishedAt',
+  'soldAt',
+  'soldChannel',
+  'archivedAt',
+  'reservedUntil',
+  'reservationRef',
+  'currentOrder',
+] as const
+
+/**
+ * `beforeChange` Nr. 3 (§6.6.7, §6.6.8): neue Stücke sind Entwürfe; `status` ändert sich nur mit `context.transition`
+ * und einem Übergang der Tabelle `PRODUCT_TRANSITIONS` (sonst 403 bzw. 409). Seed legt mit Endstatus an.
+ */
+function guardStatus(
+  data: Doc,
+  original: Doc,
+  operation: 'create' | 'update',
+  req: PayloadRequest,
+): void {
+  const ctx = getAppContext(req)
+  if (ctx.seed || ctx.localeSync) return
+  if (operation === 'create') {
+    if (data.status !== undefined && data.status !== null && data.status !== 'draft') {
+      throw new APIError('Neue Stücke beginnen immer als Entwurf.', 403, undefined, true)
+    }
+    for (const field of SYSTEM_FIELDS) {
+      if (data[field] !== undefined && data[field] !== null) {
+        fail('Wird vom System gesetzt.', field)
+      }
+    }
+    return
+  }
+  const from = original.status as ProductStatus
+  const to = (data.status ?? from) as ProductStatus
+  if (to !== from) {
+    if (!ctx.transition || !isProductTransition(ctx.transition)) {
+      throw new APIError(
+        'Der Status ändert sich nur über die Aktionen (z. B. „Online stellen“).',
+        403,
+        undefined,
+        true,
+      )
+    }
+    if (!productTransitionId(ctx.transition, from, to)) {
+      throw new TransitionError(`Von „${from}“ nach „${to}“ ist nicht möglich.`)
+    }
+  }
+  if (!ctx.transition) {
+    const changed = changedFields(SYSTEM_FIELDS, original, data)
+    if (changed.length > 0) fail('Wird vom System gesetzt.', changed[0]!)
+  }
+}
+
+/** Übersetzbare Textfelder (Pfad), Übersetzen-Knopf und EN-Status (§6.6.8 Nr. 6, §6.6.10 `translate`). */
+export const EN_TEXT_PATHS = [
+  'title',
+  'description',
+  'juttaSays',
+  'materials',
+  'dimensions.note',
+  'sizeLabel',
+  'conditionNote',
+  'fiberFreeText',
+  'careInstructions',
+  'metalPartsMaterial',
+  'safetyWarnings',
+  'deviationDescription',
+  'seo.metaTitle',
+  'seo.metaDescription',
+] as const
+/** Aus Vorlagen vorbelegte Felder: zählen nicht als eigene Übersetzung. */
+export const EN_TEMPLATE_PATHS: ReadonlySet<string> = new Set([
+  'safetyWarnings',
+  'careInstructions',
+])
+
+export function getPath(obj: unknown, path: string): unknown {
+  return path.split('.').reduce<unknown>((o, k) => (isObj(o) ? o[k] : undefined), obj)
+}
+const hasPath = (obj: unknown, path: string): boolean => {
+  const [head, ...rest] = path.split('.')
+  if (!isObj(obj) || !(head! in obj)) return false
+  return rest.length === 0 || hasPath(obj[head!], rest.join('.'))
+}
+const textOf = (v: unknown) => (typeof v === 'string' ? v.trim() : '')
+
+/**
+ * EN-Status (§6.6.8 Nr. 6): Übersetzen-Knopf (`context.translation`) → `machine` + `translatedAt`; eine Änderung an
+ * EN-Texten durch dich → `reviewed`; sind danach alle eigenen EN-Texte leer → `missing`.
+ */
+async function applyEnStatus(
+  data: Doc,
+  original: Doc,
+  operation: 'create' | 'update',
+  req: PayloadRequest,
+): Promise<void> {
+  const ctx = getAppContext(req)
+  if (ctx.localeSync || ctx.seed || operation !== 'update' || requestLocale(req) !== 'en') return
+  const i18n = {
+    ...(isObj(original.i18n) ? original.i18n : {}),
+    ...(isObj(data.i18n) ? data.i18n : {}),
+  }
+  if (ctx.translation) {
+    data.i18n = { ...i18n, enStatus: 'machine', translatedAt: requestNow(req).toISOString() }
+    return
+  }
+  const touched = EN_TEXT_PATHS.filter((p) => hasPath(data, p))
+  if (touched.length === 0) return
+  const en = (await preservingReq(req, () =>
+    req.payload.findByID({
+      collection: 'products',
+      id: original.id as number,
+      locale: 'en',
+      fallbackLocale: false,
+      depth: 0,
+      overrideAccess: true,
+      req,
+    }),
+  )) as unknown as Doc
+  if (!touched.some((p) => textOf(getPath(data, p)) !== textOf(getPath(en, p)))) return
+  const value = (p: string) => (hasPath(data, p) ? getPath(data, p) : getPath(en, p))
+  const empty = EN_TEXT_PATHS.filter((p) => !EN_TEMPLATE_PATHS.has(p)).every(
+    (p) => !textOf(value(p)),
+  )
+  data.i18n = { ...i18n, enStatus: empty ? 'missing' : 'reviewed' }
+}
+
 const LOCKED_WHEN_TAKEN = ['priceCents', 'shippingClass', 'category'] as const
 const FIELD_LABELS: Record<(typeof LOCKED_WHEN_TAKEN)[number], string> = {
   priceCents: 'Der Preis',
@@ -240,7 +376,9 @@ export const guardProduct: CollectionBeforeChangeHook = async ({
 }) => {
   const locale = requestLocale(req)
   const original = (originalDoc ?? {}) as Doc
+  guardStatus(data, original, operation, req)
   await guardItemNumber(data, original, operation, req)
+  await applyEnStatus(data, original, operation, req)
   if (operation === 'update' && originalDoc) {
     const status = original.status as ProductStatus
     if (data.category !== undefined && data.category !== original.category && status !== 'draft') {
@@ -354,6 +492,8 @@ async function runPublishChecks(
   if (ctx.localeSync) return
   const status = (data.status ?? original.status ?? 'draft') as ProductStatus
   const systemOnly = !!ctx.system && !PUBLISH_TRANSITIONS.has(ctx.transition ?? '')
+  // Reine Systemschreibvorgänge (Reservierung, Freigabe, Offline-Nehmen beim Widerruf einer Erklärung) prüfen nicht.
+  if (systemOnly) return
   const live = (status === 'available' || status === 'reserved') && !systemOnly
   const merged = { ...original, ...data }
   const foodChanged =
@@ -513,10 +653,45 @@ export const afterProductChange: CollectionAfterChangeHook = async ({
   if (ctx.localeSync) return doc
   await syncOtherLocales(doc as Doc, previousDoc as Doc | undefined, operation, req)
 
+  const statusChanged = !!previousDoc && operation === 'update' && previousDoc.status !== doc.status
   if (!ctx.seed) {
     const label = isValidItemNumber(doc.itemNumber)
       ? formatItemNumber(doc.itemNumber, 'de')
       : `Stück ${doc.id}`
+    if (statusChanged) {
+      const transition = ctx.transition ?? ''
+      const id = productTransitionId(transition, previousDoc.status, doc.status) ?? transition
+      const actorType = ctx.system ? 'system' : undefined
+      await writeAudit(req, {
+        action: 'product_status_changed',
+        entityCollection: PRODUCTS_SLUG,
+        entityId: doc.id,
+        summary: `${label}: ${previousDoc.status} → ${doc.status}${ctx.note ? ` (${ctx.note})` : ''}`,
+        changes: { status: [previousDoc.status, doc.status] },
+        transition: id,
+        actorType,
+      })
+      if (transition === 'publish' && !previousDoc.firstPublishedAt) {
+        await writeAudit(req, {
+          action: 'product_published',
+          entityCollection: PRODUCTS_SLUG,
+          entityId: doc.id,
+          summary: `${label} erstmals veröffentlicht`,
+          transition: id,
+          actorType,
+        })
+      }
+      if (transition === 'sellOffline') {
+        await writeAudit(req, {
+          action: 'product_offline_sold',
+          entityCollection: PRODUCTS_SLUG,
+          entityId: doc.id,
+          summary: `${label} offline verkauft`,
+          transition: id,
+          actorType,
+        })
+      }
+    }
     if (operation === 'create') {
       await writeAudit(req, {
         action: 'product_created',
@@ -540,9 +715,81 @@ export const afterProductChange: CollectionAfterChangeHook = async ({
     }
   }
 
-  revalidateProduct(doc.id, { context: ctx, category: doc.category })
+  revalidateProduct(doc.id, { context: ctx, category: doc.category, immediate: statusChanged })
   if (previousDoc?.category && previousDoc.category !== doc.category) {
     revalidateProduct(doc.id, { context: ctx, category: previousDoc.category })
   }
+  return doc
+}
+
+/** Referenzprüfung der Bestellpositionen (P15). */
+async function orderItemsReference(req: PayloadRequest, id: number | string): Promise<boolean> {
+  const res = await preservingReq(req, () =>
+    req.payload.find({
+      collection: 'orders',
+      where: { 'items.product': { equals: id } },
+      limit: 1,
+      depth: 0,
+      select: { orderNumber: true },
+      overrideAccess: true,
+      req,
+    }),
+  )
+  return res.totalDocs > 0
+}
+
+/**
+ * `beforeDelete` (P15, §6.6.8): nur nie veröffentlichte Entwürfe ohne Bestellposition. Seed-Entfernung ist
+ * ausgenommen (§13.5).
+ */
+export const guardProductDelete: CollectionBeforeDeleteHook = async ({ id, req }) => {
+  if (getAppContext(req).seed) return
+  const doc = (await preservingReq(req, () =>
+    req.payload.findByID({ collection: 'products', id, depth: 0, overrideAccess: true, req }),
+  )) as unknown as Doc
+  if (doc.status !== 'draft' || doc.firstPublishedAt || (await orderItemsReference(req, id))) {
+    throw new APIError(
+      'Stücke mit Verlauf werden ins Archiv gelegt, nicht gelöscht.',
+      409,
+      undefined,
+      true,
+    )
+  }
+}
+
+/** `afterDelete`: nur von diesem Stück genutzte Bilder mit löschen; Audit `product_deleted`. */
+export const afterProductDelete: CollectionAfterDeleteHook = async ({ doc, req }) => {
+  const ctx = getAppContext(req)
+  if (ctx.seed) return doc
+  const images = Array.isArray(doc.images) ? doc.images.map(relationId) : []
+  for (const imageId of images) {
+    if (imageId === null) continue
+    const others = await preservingReq(req, () =>
+      req.payload.find({
+        collection: 'products',
+        where: { images: { equals: imageId } },
+        limit: 1,
+        depth: 0,
+        select: { itemNumber: true },
+        overrideAccess: true,
+        req,
+      }),
+    )
+    if (others.totalDocs > 0) continue
+    if ((await findMediaReferences(req.payload, imageId, req)).length > 0) continue
+    await preservingReq(req, () =>
+      req.payload.delete({ collection: 'media', id: imageId, overrideAccess: true, req }),
+    )
+  }
+  const label = isValidItemNumber(doc.itemNumber)
+    ? formatItemNumber(doc.itemNumber, 'de')
+    : `Stück ${doc.id}`
+  await writeAudit(req, {
+    action: 'product_deleted',
+    entityCollection: PRODUCTS_SLUG,
+    entityId: doc.id,
+    summary: `${label} gelöscht (Nummer wieder frei)`,
+  })
+  revalidateProduct(doc.id, { context: ctx, category: doc.category })
   return doc
 }

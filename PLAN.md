@@ -864,7 +864,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - unit `tests/unit/tax/tax-mode.unit.spec.ts` (R-032).
   - Ohne Jutta: Kleinunternehmer-Modus (E-02). Steuer-Nummer folgt in P11 (A11, A12).
 
-- [ ] **P1.19 Produkt-Statusautomat, Admin-Endpunkte, EN-Status und Übersetzen** –
+- [x] **P1.19 Produkt-Statusautomat, Admin-Endpunkte, EN-Status und Übersetzen** –
   `src/lib/commerce/productTransitions.ts` (ARCHITEKTUR §2.1) mit der Tabelle `PRODUCT_TRANSITIONS` setzt DATENMODELL
   §6.6.7 um (Verhalten = KONZEPT §5.1 P1–P15). Steht hinter P1.20 und P1.21, weil `currentOrder`, `sell-offline` und
   P11/P13 Kassen und Bestellungen brauchen.

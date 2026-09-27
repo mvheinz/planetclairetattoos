@@ -111,16 +111,35 @@ export function completeProduct(
   return { ...base, ...extra[category], ...overrides }
 }
 
+/** Vom System gesetzte Felder: Fixtures mit Endstatus legen wie der Seed an (DATENMODELL §1.5, Seed-Kontext). */
+const SYSTEM_FIELDS = [
+  'firstPublishedAt',
+  'soldAt',
+  'soldChannel',
+  'archivedAt',
+  'reservedUntil',
+  'reservationRef',
+  'currentOrder',
+]
+
+/**
+ * Legt ein Stück an. Entwürfe laufen durch den normalen Weg; Fixtures mit Endstatus oder Systemfeldern (seit dem
+ * Statusautomaten P1.19 nur über Aktionen erreichbar) nutzen den Seed-Kontext – die Veröffentlichungsprüfung läuft
+ * dabei trotzdem (§1.5).
+ */
 export async function createProduct(
   payload: Payload,
   data: Record<string, unknown>,
   context: RequestContext = {},
 ) {
+  const needsSeed =
+    (data.status !== undefined && data.status !== 'draft') ||
+    SYSTEM_FIELDS.some((f) => data[f] !== undefined && data[f] !== null)
   return payload.create({
     collection: 'products',
     data: data as never,
     overrideAccess: true,
-    context,
+    context: needsSeed ? { seed: true, ...context } : context,
   })
 }
 
