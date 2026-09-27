@@ -4,6 +4,9 @@ import createNextIntlPlugin from 'next-intl/plugin'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
+import { localizedPath } from './src/lib/routes/paths'
+import { shortLinks } from './src/lib/routes/registry'
+
 const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 
@@ -15,6 +18,15 @@ const nextConfig: NextConfig = {
   // Bildgrößen erzeugt Payload beim Hochladen (DATENMODELL §6.2); keine Laufzeit-Optimierung (ARCHITEKTUR §9.4).
   images: {
     unoptimized: true,
+  },
+  // Rechtliche Kurz-URLs (R-010, ARCHITEKTUR §2.3 Nr. 1): 308 auf die kanonische DE-Route, ohne Spracherkennung
+  // und ohne Cookie; läuft vor dem Proxy.
+  async redirects() {
+    return shortLinks.map((s) => ({
+      source: s.path,
+      destination: localizedPath(s.routeId, 'de'),
+      permanent: true,
+    }))
   },
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {

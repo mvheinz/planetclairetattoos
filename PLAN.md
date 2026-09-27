@@ -1325,7 +1325,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: unit `tests/unit/i18n/parity.unit.spec.ts` (T-06), `tests/unit/routes/registry.unit.spec.ts` (T-07, AK-2-01).
   - Ohne Jutta: EN-Texte als Entwürfe (E-62); Jutta korrigiert später.
 
-- [ ] **P2.2 Proxy, Sprachumleitung und Weiterleitungen** – `src/proxy.ts` verbindet die Admin-Umschreibung (P1.12) mit
+- [x] **P2.2 Proxy, Sprachumleitung und Weiterleitungen** – `src/proxy.ts` verbindet die Admin-Umschreibung (P1.12) mit
   der next-intl-Middleware.
   - Reihenfolge und Codes laut ARCHITEKTUR §2.3:
     - die sieben Kurz-URLs aus `shortLinks` (R-010) → 308 auf die kanonische DE-Route aus KONZEPT §2.2, statisch in

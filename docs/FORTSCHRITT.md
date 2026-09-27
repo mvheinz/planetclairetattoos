@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P2.2
+
+- src/proxy.ts: Reihenfolge www→Apex (308) → Verwaltung (ADMIN_ROUTE-Umschreibung, /admin 404) → Schrägstrich (308) → Sprachlogik → next-intl-Middleware; nie Set-Cookie\n- Reine Entscheidung decidePublicRoute (src/lib/routes/redirects.ts): / und unpräfixierte Pfade 307 nach Accept-Language mit Vary (übersetzt), Pfad der anderen Sprache und Aliasse 308; pickLocale als reine Funktion (src/i18n/pickLocale.ts)\n- Sieben Kurz-URLs (R-010) als statische redirects() in next.config.ts (308) aus der Registry; R30 in der Registry live\n- Tests: tests/unit/i18n/pick-locale.unit.spec.ts (26), tests/e2e/routing.e2e.spec.ts @smoke (AK-2-02, R-010, AK-A-2-04, AK-A-8-02; 3 Projekte grün), pnpm check + build grün
+
 ## 2026-09-27 – P2.1
 
 - next-intl 4.14.7 exakt gepinnt; Routen-Registry src/lib/routes/registry.ts (R01–R31, shortLinks, aliases) + Pfad-Helfer src/lib/routes/paths.ts (localizedPath, alternatePath, matchRoute)\n- src/i18n/{routing,request,navigation}.ts, Nachrichten de/en (9 Namensräume, EN als Entwurf E-62)\n- App-Ordner [locale]/ mit Startseite (vorläufig) und Gerüsten R20–R27; P0-Platzhalter entfernt\n- check:static: neue Teilprüfungen i18n-parity und route-registry (inkl. Abgleich page.tsx ↔ live-Routen)\n- Tests: tests/unit/i18n/parity.unit.spec.ts (T-06), tests/unit/routes/registry.unit.spec.ts (T-07, AK-2-01); pnpm check + build grün

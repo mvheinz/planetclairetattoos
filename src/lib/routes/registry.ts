@@ -123,7 +123,7 @@ export const ROUTES: readonly RouteEntry[] = [
   page({ id: 'R27', de: '/konformitaetserklaerungen', en: '/declarations-of-conformity', pageType: 'conformity', preset: 'legal', rendering: 'static', robots: 'index', headerContext: 'public', status: 'live', phase: 6, scaffoldPhase: 2 }),
   { id: 'R28', kind: 'error', key: null, paths: null, from: null, pageType: 'notFound', preset: 'lost', rendering: 'static', robots: 'noindex', headerContext: 'public', status: 'live', phase: 2, scaffoldPhase: null },
   { id: 'R29', kind: 'error', key: null, paths: null, from: null, pageType: 'error', preset: null, rendering: 'static', robots: 'noindex', headerContext: 'public', status: 'live', phase: 2, scaffoldPhase: null },
-  { id: 'R30', kind: 'redirect', key: null, paths: null, from: '/', pageType: null, preset: null, rendering: 'redirect', robots: 'noindex', headerContext: 'public', status: 'planned', phase: 2, scaffoldPhase: null },
+  { id: 'R30', kind: 'redirect', key: null, paths: null, from: '/', pageType: null, preset: null, rendering: 'redirect', robots: 'noindex', headerContext: 'public', status: 'live', phase: 2, scaffoldPhase: null },
   { id: 'R31', kind: 'redirect', key: null, paths: null, from: '/nr/[nummer]', pageType: null, preset: null, rendering: 'redirect', robots: 'noindex', headerContext: 'public', status: 'planned', phase: 3, scaffoldPhase: null },
 ]
 
