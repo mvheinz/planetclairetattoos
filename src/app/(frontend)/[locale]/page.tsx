@@ -10,9 +10,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const t = await getTranslations('home')
 
   return (
-    <main id="main">
+    <div className="u-container u-stack">
       <h1>{t('title')}</h1>
       <p>{t('intro')}</p>
-    </main>
+    </div>
   )
 }

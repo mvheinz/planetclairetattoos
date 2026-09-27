@@ -5,14 +5,18 @@ import type { Metadata } from 'next'
 import React from 'react'
 
 import { BehaviorHost } from '@/components/BehaviorHost'
+import { AppShell } from '@/components/layout/AppShell'
+import { PresetBody } from '@/components/layout/PresetBody'
 import { routing } from '@/i18n/routing'
+import { MOTION_SCRIPT } from '@/lib/security/inlineScripts'
 import { fontVariables } from '@/styles/fonts'
 
 import '@/styles/tokens.css'
 import '@/styles/global.css'
 
-// Wurzel-Layout der öffentlichen Website (ARCHITEKTUR §2.1): setzt `<html lang>` gemäß Route. Kopf, Fuß, Banner und
-// Tuschelinie folgen in P2.8 ff.
+// Wurzel-Layout der öffentlichen Website (ARCHITEKTUR §2.1, DESIGN KO-01): `<html lang>` gemäß Route,
+// `<html data-motion>` über das feste Inline-Skript `pc-motion` im `<head>` (DESIGN §11.7; CSP-Hash in
+// `src/lib/security/inlineScripts.ts`), `<body data-preset>` aus der Registry (PresetBody) und der Seitenrahmen.
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
@@ -40,11 +44,17 @@ export default async function LocaleLayout({
   setRequestLocale(locale)
 
   return (
-    <html lang={locale} className={fontVariables}>
-      <body>
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+    // `data-motion` setzt das Inline-Skript vor der Hydration – daher suppressHydrationWarning.
+    <html lang={locale} className={fontVariables} suppressHydrationWarning>
+      <head>
+        <script id="pc-motion" dangerouslySetInnerHTML={{ __html: MOTION_SCRIPT }} />
+      </head>
+      <PresetBody>
+        <NextIntlClientProvider>
+          <AppShell locale={locale}>{children}</AppShell>
+        </NextIntlClientProvider>
         <BehaviorHost />
-      </body>
+      </PresetBody>
     </html>
   )
 }

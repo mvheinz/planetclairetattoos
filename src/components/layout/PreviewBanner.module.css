@@ -1,0 +1,15 @@
+/* KO-01 Vorschau-Banner: schmale Leiste unter dem Kopf, --paper-2, gestrichelter unterer Rand --stencil 1.5 px,
+   Text --ink 14 px; statisch. */
+.banner {
+  background: var(--paper-2);
+  border-bottom: var(--stroke-ui) dashed var(--stencil);
+}
+
+.text {
+  max-width: calc(var(--content-max) + 2 * var(--page-pad));
+  margin-inline: auto;
+  padding: var(--space-2) var(--page-pad);
+  color: var(--ink);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}

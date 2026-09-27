@@ -208,6 +208,12 @@ a:focus-visible {
   text-decoration-thickness: 2px;
 }
 
+/* Navigationslinks mit gezeichneter Unterstreichung (KO-02/KO-03, LinkUnderline): Bezugsrahmen der Linie. */
+.nav-link__text {
+  position: relative;
+  display: inline-block;
+}
+
 /* ---------- Fokus (§3.2 Nr. 3) – nie entfernen ---------- */
 :focus-visible {
   outline: 3px solid var(--color-focus);

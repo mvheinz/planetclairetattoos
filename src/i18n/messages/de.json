@@ -38,7 +38,8 @@
     "shop": "Shop",
     "tattoo": "Tattoo",
     "cart": "Korb",
-    "menu": "Menü"
+    "menu": "Menü",
+    "mainNav": "Hauptnavigation"
   },
   "menu": {
     "title": "Menü",
@@ -78,7 +79,8 @@
   "previewExport": {
     "banner": "Vorschau-Datei mit Beispieldaten",
     "notBuilt": "Noch nicht gebaut",
-    "seedBanner": "Vorschau mit Beispieldaten"
+    "seedBanner": "Vorschau mit Beispieldaten",
+    "phase": "Phase {phase}"
   },
   "ui": {
     "callout": {

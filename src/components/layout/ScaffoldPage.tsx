@@ -17,9 +17,9 @@ export async function ScaffoldPage({
   const t = await getTranslations('common')
 
   return (
-    <main id="main">
+    <div className="u-container u-stack">
       <h1>{t(`routes.${routeId}` as 'routes.R01')}</h1>
       <p>{t('scaffoldNotice')}</p>
-    </main>
+    </div>
   )
 }

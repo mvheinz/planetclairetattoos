@@ -128,3 +128,13 @@ export function toFolderPattern(pattern: string, key: string): string {
     .map((seg, i) => (seg.includes('[') ? (keySegs[i] ?? seg) : seg))
     .join('/')
 }
+
+/**
+ * Route zu den Layout-Segmenten unterhalb von `[locale]` (`useSelectedLayoutSegments()`): Die Ordner sind die
+ * EN-Pfade (`key`), dynamische Segmente tragen ihren Wert – deshalb genügt der Abgleich mit den EN-Mustern
+ * (`['shop','991-vase']` → R04). Kein Segment = Startseite R01. Unbekannt → `null` (z. B. 404).
+ */
+export function matchSegments(segments: readonly string[]): RouteMatch | null {
+  const parts = segments.filter((s) => s !== '' && !s.startsWith('('))
+  return matchRoute(parts.length === 0 ? '/' : `/${parts.join('/')}`, 'en')
+}

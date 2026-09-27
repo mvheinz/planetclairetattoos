@@ -1451,7 +1451,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: unit `tests/unit/components/ui.unit.spec.tsx` (jsdom, Testing Library); a11y-Teil in P2.22.
   - Ohne Jutta: –
 
-- [ ] **P2.8 Seitenrahmen, Kopfleiste, Vorschau-Banner** – `src/app/(frontend)/[locale]/layout.tsx` setzt `<html lang>`
+- [x] **P2.8 Seitenrahmen, Kopfleiste, Vorschau-Banner** – `src/app/(frontend)/[locale]/layout.tsx` setzt `<html lang>`
   aus der Route, `<body data-preset>` aus der Registry und `<html data-motion>` über ein Inline-Skript im `<head>`
   (DESIGN §11.7; der Hash wird für die CSP in `src/lib/security/inlineScripts.ts` hinterlegt).
   - `AppShell` (KO-01): Skip-Link „Zum Inhalt springen“ / „Skip to content“ → `SiteHeader` → Vorschau-Banner → `<main
