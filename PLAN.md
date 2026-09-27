@@ -1349,7 +1349,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     R-010, AK-A-2-04, AK-A-8-02).
   - Ohne Jutta: –
 
-- [ ] **P2.3 Design-Tokens, globale Styles, Raster und Lint-Tests** – `src/styles/tokens.css` wörtlich aus DESIGN §7.
+- [x] **P2.3 Design-Tokens, globale Styles, Raster und Lint-Tests** – `src/styles/tokens.css` wörtlich aus DESIGN §7.
   `src/styles/global.css`:
   - Reset;
   - Typografie §4.2/§4.3;

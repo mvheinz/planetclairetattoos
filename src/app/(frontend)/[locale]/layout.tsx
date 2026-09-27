@@ -6,6 +6,9 @@ import React from 'react'
 
 import { routing } from '@/i18n/routing'
 
+import '@/styles/tokens.css'
+import '@/styles/global.css'
+
 // Wurzel-Layout der öffentlichen Website (ARCHITEKTUR §2.1): setzt `<html lang>` gemäß Route. Kopf, Fuß, Banner und
 // Tuschelinie folgen in P2.8 ff.
 

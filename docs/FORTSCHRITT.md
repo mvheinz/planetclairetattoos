@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P2.3
+
+- src/styles/tokens.css wörtlich aus DESIGN §7 (von Prettier ausgenommen; Test vergleicht Byte für Byte); src/styles/global.css: Reset, Typografie §4.2/§4.3, Links §3.2, Fokus-Ring, Container/Rinne je Preset (data-preset), Ebenen, Sticky/scroll-padding, Schneidematten-Raster §3.4, Bewegungsreduktion (prefers-reduced-motion und html[data-motion=reduced]), forced-colors, Druck; eingebunden im [locale]-Layout\n- Ruheseiten ohne eigene Routengruppe; Ruheseiten-Ordner kommen aus der Registry (Presets calm/legal)\n- Tests: tests/unit/design/{contrast,lint-colors,lint-shadows,lint-motion}.unit.spec.ts (AK-DS-01, -02, -06, -16; mit Negativproben), Helfer tests/helpers/designLint.ts; pnpm check, test:int, build grün; 390 px geprüft (kein Querscrollen)
+
 ## 2026-09-27 – P2.2
 
 - src/proxy.ts: Reihenfolge www→Apex (308) → Verwaltung (ADMIN_ROUTE-Umschreibung, /admin 404) → Schrägstrich (308) → Sprachlogik → next-intl-Middleware; nie Set-Cookie\n- Reine Entscheidung decidePublicRoute (src/lib/routes/redirects.ts): / und unpräfixierte Pfade 307 nach Accept-Language mit Vary (übersetzt), Pfad der anderen Sprache und Aliasse 308; pickLocale als reine Funktion (src/i18n/pickLocale.ts)\n- Sieben Kurz-URLs (R-010) als statische redirects() in next.config.ts (308) aus der Registry; R30 in der Registry live\n- Tests: tests/unit/i18n/pick-locale.unit.spec.ts (26), tests/e2e/routing.e2e.spec.ts @smoke (AK-2-02, R-010, AK-A-2-04, AK-A-8-02; 3 Projekte grün), pnpm check + build grün
