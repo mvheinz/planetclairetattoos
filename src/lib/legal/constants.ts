@@ -25,7 +25,7 @@ export const WITHDRAWAL_CONFIRM_LABEL: Localized = Object.freeze({
   en: 'Confirm withdrawal',
 })
 
-/** Kleinunternehmer-Hinweis (§ 19 UStG, E-02); nie „inkl. MwSt.“ in diesem Modus. */
+/** Kleinunternehmer-Hinweis (§ 19 UStG, E-02); in diesem Modus nie ein Hinweis auf enthaltene Steuer (RECHT V-02). */
 export const SMALL_BUSINESS_VAT_NOTE: Localized = Object.freeze({
   de: 'Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.',
   en: 'No VAT is charged in accordance with Section 19 of the German VAT Act (UStG).',

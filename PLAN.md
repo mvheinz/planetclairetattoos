@@ -1149,7 +1149,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: e2e `tests/e2e/admin-product-form.e2e.spec.ts` (DM-P1-07, T-05, R-135), `admin-privacy.e2e.spec.ts` @smoke.
   - Ohne Jutta: Die eigenen Handy-Ansichten (KONZEPT §7.3 ff.) folgen in P5.
 
-- [ ] **P1.32 Typen, Import-Map, Enum-Quelle und Rechts-Nachverfolgbarkeit** –
+- [x] **P1.32 Typen, Import-Map, Enum-Quelle und Rechts-Nachverfolgbarkeit** –
   - `pnpm generate:types` und `pnpm generate:importmap` aktualisieren; `src/payload-types.ts` und `importMap.js` werden
     committet.
   - `check:static` prüft, dass beide nach dem Erzeugen unverändert sind.

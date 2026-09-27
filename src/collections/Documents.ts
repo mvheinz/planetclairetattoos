@@ -10,7 +10,7 @@ import {
 import { isAdmin, publicRead } from '@/access'
 import { seedField } from '@/fields'
 import { ENUM_LABELS, enumOptions } from '@/lib/enumLabels'
-import { DOCUMENT_KINDS } from '@/lib/enums'
+import { DOCUMENT_KINDS, LOCALES } from '@/lib/enums'
 import { MediaFileError } from '@/lib/media/pipeline'
 import { uploadStorage } from '@/lib/storage'
 import { PDF_MIME, checkDocumentFile, fileBuffer, sha256Hex } from '@/lib/uploads/files'
@@ -111,10 +111,7 @@ export const Documents: CollectionConfig = {
       name: 'language',
       type: 'select',
       label: 'Sprache des PDFs',
-      options: [
-        { label: 'Deutsch', value: 'de' },
-        { label: 'Englisch', value: 'en' },
-      ],
+      options: enumOptions(LOCALES, ENUM_LABELS.LOCALES),
       admin: { position: 'sidebar' },
     },
     {

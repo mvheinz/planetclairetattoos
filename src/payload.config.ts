@@ -37,6 +37,7 @@ import { WebhookEvents } from './collections/WebhookEvents'
 import { Settings } from './globals/Settings'
 import { SiteTexts } from './globals/SiteTexts'
 import { withJsonPreview } from './admin/jsonPreview'
+import { noAnyTypesSchema } from './lib/payload/typesSchema'
 import { ADMIN_CUSTOM_DE } from './admin/translations'
 import { isAdmin, isAdminRequest } from './access'
 import { JOB_TASKS } from './jobs'
@@ -116,6 +117,7 @@ export default buildConfig({
   secret: env.PAYLOAD_SECRET,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
+    schema: [noAnyTypesSchema], // DM-P1-06: keine `any` in den erzeugten Typen
   },
   // DATENMODELL §10: Schema nur über Migrationen; Push nur lokal auf einer Wegwerf-Datenbank.
   db: postgresAdapter({

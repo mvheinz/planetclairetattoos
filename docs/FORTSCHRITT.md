@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P1.32
+
+- `check:static` Teilprüfung `generated-files`: erzeugt `src/payload-types.ts` und `importMap.js` neu, meldet Abweichungen und `any` (DM-P1-06); `typescript.schema`-Hook entfernt Lexicals `tsType: 'any'`.\n- DM-P1-05-Test (TypeScript-AST) für Collections/Globals; `documents.language` nimmt die Optionen jetzt aus `LOCALES`.\n- R-001-Nachverfolgbarkeit (`LEGAL_TRACE_PHASE = 1`, Tabelle §3 geparst, Gegenprobe) und Verbotsmuster-Scan über `src/**`/`content/**` mit begründeter Allowlist.\n- Tests: 5 neue Unit-Dateien grün; `pnpm check`, `pnpm test:int`, `pnpm build`, `check:migrations` grün.
+
 ## 2026-09-27 – P1.31
 
 - Playwright nach ARCHITEKTUR §7.3: `trace: 'retain-on-failure'`, Screenshots nur bei Fehler, `video: 'off'`, `testIgnore` für `preview-export.e2e.spec.ts`.\n- `tests/e2e/fixtures.ts`: Fremd-Host-Wächter (`context.route`, protokolliert), Admin-Anmeldung des Grund-Seed-Admins über die Local API (schont das Login-Rate-Limit), Stück-Fixtures 980–999 je Projekt eigener Block.\n- Neue E2E: `admin-product-form.e2e.spec.ts` (DM-P1-07 Pflichtangaben je Kategorie bei 375 px, fehlende Angabe → Publish 400 mit deutscher Meldung, AK-7-04 ohne horizontales Scrollen bei 390×844, T-05/R-135 GPS-Upload ohne EXIF) und `admin-privacy.e2e.spec.ts` @smoke (R-136: Login, Liste, Formulare, JSON-Feld ohne Fremd-Requests, Gegenprobe).\n- Tests: 19 E2E in desktop/iphone-15 (WebKit)/pixel-7 grün; `pnpm check`, `pnpm test:int` grün.

@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 
 import { envExampleCheck } from './lib/static-checks/env-example'
 import { externalUrlsCheck } from './lib/static-checks/external-urls'
+import { generatedFilesCheck } from './lib/static-checks/generated'
 import { importRulesCheck } from './lib/static-checks/import-rules'
 import { stripeImportCheck } from './lib/static-checks/stripe-import'
 import type { StaticCheck } from './lib/static-checks/types'
@@ -16,6 +17,7 @@ export const CHECKS: StaticCheck[] = [
   importRulesCheck,
   stripeImportCheck,
   externalUrlsCheck,
+  generatedFilesCheck,
 ]
 
 async function main(): Promise<void> {
