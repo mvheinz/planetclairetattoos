@@ -1634,9 +1634,9 @@ Ablehnung (R-094). Die Zuordnung zu einer Bestellung (W2) ändert den Widerrufss
 **Zweck:** versionierte Rechtstexte der Kanzlei. Jede Fassung ist ein eigenes, nach Aktivierung unveränderliches
 Dokument mit DE-Text (verbindlich) und EN-Text (unverbindliche Übersetzung); Bestellungen speichern die gültigen
 Fassungen (E-41, R-012, R-013). Bis zur Lieferung: klar markierte Platzhalter (`origin = placeholder`), Seite darf so
-nicht live gehen. Begriffe aus RECHT R-012: „published“ = `active`; Typen `impressum`/`privacy`/`terms`/
-`withdrawalPolicy`/`withdrawalForm`/`shippingPayment` = `impressum`/`datenschutz`/`agb`/`widerrufsbelehrung`/
-`widerrufsformular`/`versand-zahlung`; `source` (R-002) = Feld `origin`.
+nicht live gehen. Begriffe laut RECHT R-012: `active` = „veröffentlicht“; `type` ∈ `LEGAL_TEXT_TYPES` (`impressum`, `datenschutz`,
+`agb`, `widerrufsbelehrung`, `widerrufsformular`, `versand-zahlung`); `origin` (R-002) ist die Herkunft, `source` nur der
+Eingangsweg (`manual`/`itrk_lti`) und ersetzt `origin` nicht.
 
 | Feld | Typ | Pfl. | L | Default | Validierung / Regel | Admin-Hinweis |
 |---|---|---|---|---|---|---|

@@ -171,7 +171,7 @@ Zusatzregeln:
 | `pnpm seed:base` | nur Grund-Seed (§3), create-if-missing | **erlaubt** (Erstbefüllung P11) |
 | `pnpm seed:example [--only=<collection,…>] [--refresh-media]` | Beispielbestand (§4–§16) | Abbruch, Exit 1 |
 | `pnpm seed` | `seed:base` + `seed:example` | Abbruch **vor** dem ersten Schreiben, Exit 1 (AK-11-04) |
-| `pnpm seed:remove --yes [--drop-texts]` | §18 (entspricht dem Admin-Knopf); ohne `--yes` nur Mengenvorschau | Abbruch, Exit 1 (in Produktion gibt es keine Beispieldaten; ARCHITEKTUR §4.8) |
+| `pnpm seed:remove --yes [--drop-texts]` | §18 (entspricht dem Admin-Knopf); ohne `--yes` nur Mengenvorschau | Abbruch, Exit 1 (ARCHITEKTUR §4.8); in Produktion entfernt stattdessen der Admin-Knopf „Beispieldaten entfernen“ (ab P8, mit „Texte behalten“, DATENMODELL §13.5) die Beispieldaten |
 | `pnpm seed:reset` | `seed:remove --yes --drop-texts`, dann `seed:base`, dann `seed:example` (nur Entwicklung, Test, Vorschau-Export) | Abbruch, Exit 1 |
 
 Skriptnamen nach ARCHITEKTUR §6.10; `seed:reset` ist die Ergänzung dieser Datei dazu. Umsetzung:
@@ -228,7 +228,7 @@ Ausnahmen gelten nur bei `req.context.seed === true`, nie über die Verwaltung o
 
 | Phase | Aufgabe |
 |---|---|
-| **P1** | Seed-Rahmen: `src/lib/seed/*` (Lader, zod-Schemas, Guard, `time.ts`, `tokens.ts`, `fallbackArt.ts`, `remove.ts`) und `scripts/seed/cli.ts` mit allen Befehlen §1.4; Grund-Seed §3 (Plan P1.29). Vom Beispielbestand nur der **Mini-Satz** (Plan P1.30, DATENMODELL §13.1, W-21): Stücke S01, S06, S09, S11, S15, S18, S20, S25, S26, S27 (alle Kategorien außer `sonstiges` – S30 hängt an der Bestellung O09 –, jeder `ProductStatus`), dazu die offene Kasse KS2 mit ihrer Reservierung, die privaten Dateien `nickel-demo` und `glaze-demo` (Nachweise für S26), die dafür und für die Startseite nötigen Medien (Platzhalterbilder aus `fallbackArt.ts`) und die Seiten `home` und `contact`. Die Datendateien tragen schon die endgültigen `seedKey`s; spätere Phasen ergänzen nur |
+| **P1** | Seed-Rahmen: `src/lib/seed/*` (Lader, zod-Schemas, Guard, `time.ts`, `tokens.ts`, `fallbackArt.ts`, `remove.ts`) und `scripts/seed/cli.ts` mit allen Befehlen §1.4; Grund-Seed §3 (Plan P1.29). Vom Beispielbestand nur der **Mini-Satz** (Plan P1.30, DATENMODELL §13.1, W-21): Stücke S01, S06, S09, S11, S15, S18, S20, S25, S26, S27 (alle Kategorien außer `sonstiges` – S30 hängt an der Bestellung O09 –, jeder `ProductStatus`), dazu die offene Kasse KS2 mit ihrer Reservierung, die privaten Dateien `nickel-demo` und `glaze-demo` (Nachweise für S26), die dafür und für die Startseite nötigen Medien (Instagram-Ausschnitte §4.1 über die Pipeline aus P1.13; `ph:`-Bilder über `fallbackArt.ts`, §4.3) und die Seiten `home` und `contact`. Die Datendateien tragen schon die endgültigen `seedKey`s; spätere Phasen ergänzen nur |
 | P4 | Beleg-PDF-Renderer mit Wasserzeichen „BEISPIELBELEG“ (§9), den der Seed ab P8 direkt (ohne Job) nutzt. Tests zu Kasse, Danke- und Statusseite laufen bis P8 gegen gleichartige Fixtures (Nummern 980–999) statt gegen die Anker §17 (Regel „Beispielbestand vor P8“ in den Arbeitsregeln von `PLAN.md`; mit den echten Ankern prüft P8.21) |
 | P7 | Tattoo-Seiten für `flash`, `tattoo-offers`, `tattoo-gallery` und die Seiten-Blöcke aus §13.5; bis P8 mit Test-Fixtures |
 | **P8** | Vollständiger Bestand laut §0.1: alle übrigen Datensätze aus §4–§15 (Medien, private Dateien, Stücke, Kund:innen, Bestellungen, Kassen, Reservierungen, Belege mit BSP-PDFs, Widerrufe, Reklamationen, Anfragen, Datenschutz-Anfragen, Tattoo, Seiten, FAQ, Umsätze; Reklamationen und Datenschutz-Anfragen samt aller Status in Plan P8.5a), Logs (§16), echte Platzhalter-SVGs nach DESIGN §12.3 in `src/art/placeholders/`, Texte gegenlesen, Import aus dem Instagram-Export (bessere Auflösung, gleiche `seedKey`s), AK-SEED vollständig grün |
@@ -255,6 +255,8 @@ Ausnahmen gelten nur bei `req.context.seed === true`, nie über die Verwaltung o
 | `content/seed/data/pages.json`, `faqs.json` | §13, §14 |
 | `content/seed/data/revenue.json` | §15 |
 | `content/seed/data/logs.json` | §16 (Regeln + Ausnahmen) |
+| `src/lib/seed/` | Seed-Bibliothek (Lader, Guard, `time.ts`, `tokens.ts`, `remove.ts`, `fallbackArt.ts`; ARCHITEKTUR §2.1) |
+| `scripts/seed/cli.ts` | CLI für alle Befehle §1.4 (ruft nur `src/lib/seed/` auf) |
 | `src/lib/seed/schemas.ts` | zod-Schemas je Datei; Enum-Werte **nur** aus `src/lib/enums.ts` |
 | `src/art/placeholders/{typ}-{n}.svg` | Platzhalter (P8/P9, DESIGN §12.3); fehlt die Datei → `src/lib/seed/fallbackArt.ts` |
 

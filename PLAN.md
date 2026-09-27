@@ -238,7 +238,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     mit injiziertem Datum (Fehler bei Versionsabweichung, Warnung am Stichtag).
   - Ohne Jutta: –
 
-- [ ] **P1.2 Spezifikationsabgleich prüfen und offene Punkte übernehmen** – Die W-Liste oben als Zeilen in
+- [x] **P1.2 Spezifikationsabgleich prüfen und offene Punkte übernehmen** – Die W-Liste oben als Zeilen in
   `docs/OFFENE-PUNKTE.md` eintragen (Spalte „Thema“ beginnt mit der W-ID, Status „gilt (Plan)“). Die Annahmen aus
   ARCHITEKTUR Anhang C (C-xx), DATENMODELL §16 (DM-xx), DESIGN Anhang A.1 (DA-x), KONZEPT Anhang A (KA-xx) und
   SEED-SPEC §20 (SE-xx) übernehmen – je Zeile mit ihrer ID, Dubletten zusammengeführt, Status „Annahme gilt“ (P8.1
