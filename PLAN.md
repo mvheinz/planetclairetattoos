@@ -1580,7 +1580,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     `tests/e2e/security-headers.e2e.spec.ts` (AK-A-8-01, R-136).
   - Ohne Jutta: –
 
-- [ ] **P2.13 Rechtsseiten-Gerüste R21–R25, R27** – Seiten in `src/app/(frontend)/[locale]/` mit den englischen
+- [x] **P2.13 Rechtsseiten-Gerüste R21–R25, R27** – Seiten in `src/app/(frontend)/[locale]/` mit den englischen
   Ordnernamen laut ARCHITEKTUR §2.1: `legal-notice/`, `privacy/`, `terms/`, `right-of-withdrawal/`,
   `shipping-and-payment/`, `declarations-of-conformity/` (DE-Pfade `/de/impressum` usw. aus der Registry); keine
   Routengruppe.

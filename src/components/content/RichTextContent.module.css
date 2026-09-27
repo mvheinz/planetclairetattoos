@@ -1,0 +1,19 @@
+/* Fließtext aus dem CMS (DESIGN §4 Typografie): Absätze, Listen, Zwischenüberschriften; keine Transition. */
+.prose > * + * {
+  margin-block-start: var(--space-4);
+}
+
+.prose h2 {
+  margin-block-start: var(--space-6);
+}
+
+.prose ul,
+.prose ol {
+  padding-inline-start: 1.4em;
+}
+
+.prose a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}

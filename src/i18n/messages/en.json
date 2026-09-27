@@ -63,7 +63,17 @@
   "legal": {
     "placeholder": "Placeholder – the binding text will follow after review by the law firm.",
     "version": "Version",
-    "placeholderBanner": "PLACEHOLDER – not legally binding"
+    "placeholderBanner": "PLACEHOLDER – not legally binding",
+    "asOf": "Version: {date}",
+    "germanOnly": "Only available in German.",
+    "emptyTitle": "This text is being prepared",
+    "emptyText": "Please check back a little later. If you have questions, you can reach me via the contact page.",
+    "emptyAction": "Go to the contact page",
+    "conformity": {
+      "empty": "Currently all ceramics are labelled as decoration and are not intended for use with food.",
+      "validFrom": "valid from {date}",
+      "pdf": "Declaration as PDF: {name}"
+    }
   },
   "errors": {
     "notFoundTitle": "Coco broke loose",
@@ -104,5 +114,21 @@
       "withdrawal": "Withdraw from a contract with Planet Claire here: identify your order, send your declaration and immediately receive a confirmation of receipt by email.",
       "conformity": "Declarations of conformity from Planet Claire, Berlin, for handmade ceramics in contact with food – current declarations to view and download."
     }
+  },
+  "contact": {
+    "emailLabel": "Email",
+    "instagramLabel": "Instagram",
+    "instagramProfile": "Profile @{handle}",
+    "instagramDm": "Direct message on Instagram",
+    "studio": "Private studio in Berlin-{district}",
+    "withdrawHint": "Want to withdraw from a contract?",
+    "legalNoticeHint": "Provider details:",
+    "emptyTitle": "The contact page is on its way",
+    "emptyText": "Just send me an email or a message on Instagram."
+  },
+  "withdraw": {
+    "previewNotice": "Not yet functional in this preview – coming in P6.",
+    "policyLink": "Go to the right of withdrawal",
+    "emailAlternative": "Alternatively by email:"
   }
 }

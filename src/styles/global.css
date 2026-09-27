@@ -316,6 +316,18 @@ html:has(body[data-preset='legal']) {
   scroll-behavior: auto;
 }
 
+/* Ruhe-Modus (DESIGN §5.3, AK-DS-11): auf Rechtsseiten und `calm`-Seiten keine Animation und keine Transition im
+   Inhalt – auch nicht für Hover-Zustände der Grundbausteine. */
+body[data-preset='calm'] main *,
+body[data-preset='calm'] main *::before,
+body[data-preset='calm'] main *::after,
+body[data-preset='legal'] main *,
+body[data-preset='legal'] main *::before,
+body[data-preset='legal'] main *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
 /* ---------- Reduzierte Bewegung (§9.11, §11.7) ---------- */
 @media (prefers-reduced-motion: reduce) {
   html:not([data-motion='full']) *,

@@ -63,7 +63,17 @@
   "legal": {
     "placeholder": "Platzhalter – der verbindliche Text folgt nach Prüfung durch die Kanzlei.",
     "version": "Stand",
-    "placeholderBanner": "PLATZHALTER – nicht rechtsverbindlich"
+    "placeholderBanner": "PLATZHALTER – nicht rechtsverbindlich",
+    "asOf": "Stand: {date}",
+    "germanOnly": "Nur auf Deutsch verfügbar.",
+    "emptyTitle": "Dieser Text wird gerade vorbereitet",
+    "emptyText": "Schau bitte etwas später wieder vorbei. Bei Fragen erreichst du mich über die Kontaktseite.",
+    "emptyAction": "Zur Kontaktseite",
+    "conformity": {
+      "empty": "Derzeit sind alle Keramiken als Dekoration gekennzeichnet und nicht für Lebensmittel bestimmt.",
+      "validFrom": "gültig ab {date}",
+      "pdf": "Erklärung als PDF: {name}"
+    }
   },
   "errors": {
     "notFoundTitle": "Coco hat sich losgerissen",
@@ -104,5 +114,21 @@
       "withdrawal": "Hier kannst du einen Vertrag mit Planet Claire widerrufen: Bestellung angeben, Erklärung absenden und sofort eine Eingangsbestätigung per E-Mail erhalten.",
       "conformity": "Konformitätserklärungen von Planet Claire, Berlin, zu handgemachter Keramik mit Lebensmittelkontakt – aktuelle Erklärungen zum Ansehen und Herunterladen."
     }
+  },
+  "contact": {
+    "emailLabel": "E-Mail",
+    "instagramLabel": "Instagram",
+    "instagramProfile": "Profil @{handle}",
+    "instagramDm": "Direktnachricht auf Instagram",
+    "studio": "Privatstudio in Berlin-{district}",
+    "withdrawHint": "Du willst einen Vertrag widerrufen?",
+    "legalNoticeHint": "Angaben zur Anbieterin:",
+    "emptyTitle": "Die Kontaktseite entsteht gerade",
+    "emptyText": "Schreib mir einfach eine Mail oder auf Instagram."
+  },
+  "withdraw": {
+    "previewNotice": "In dieser Vorschau noch ohne Funktion – kommt in P6.",
+    "policyLink": "Zur Widerrufsbelehrung",
+    "emailAlternative": "Alternativ per E-Mail:"
   }
 }

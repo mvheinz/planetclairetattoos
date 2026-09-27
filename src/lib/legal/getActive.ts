@@ -16,6 +16,8 @@ export interface GetActiveLegalTextOptions {
   /** Gleiche Transaktion wie ein laufender Vorgang (z. B. Kasse absenden). */
   req?: PayloadRequest
   locale?: Locale
+  /** `false`: fehlende Übersetzung bleibt leer statt auf Deutsch zurückzufallen (R-015 prüft das selbst). */
+  fallbackLocale?: Locale | false
 }
 
 export async function getActiveLegalText(
@@ -38,6 +40,7 @@ export async function getActiveLegalText(
       limit: 1,
       depth: 0,
       locale: options.locale,
+      ...(options.fallbackLocale !== undefined ? { fallbackLocale: options.fallbackLocale } : {}),
       overrideAccess: true,
       req: options.req,
     })

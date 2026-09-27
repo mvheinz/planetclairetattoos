@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P2.13
+
+- Rechtsseiten R21–R25 aus der gültigen legal-texts-Fassung (Loader src/lib/data/legal.ts, Tokens ersetzt, Lexical als Server-HTML mit h1→h2), Platzhalter-Band, „Stand“, EN-Rückfall auf Deutsch, neutraler Leerzustand statt 500; R24 mit Muster-Formular und Link „Vertrag widerrufen“; R25 nur Text (Tabelle P4).\n- R27 mit Einleitung aus pages:conformity (falls vorhanden) und Liste aktiver Erklärungen, sonst fester Satz.\n- Ruhe-Modus: keine Animation/Transition im <main> bei Preset legal/calm (global.css).\n- Tests: e2e legal-pages (48 grün, 3 Geräte), int public-pages (8 grün); pnpm check, test:int, build grün.
+
 ## 2026-09-27 – P2.12
 
 - `src/lib/security/csp.ts` (Kontexte `public`, `dynamic`, `checkout`, `admin`, `api` nach §8.1; Fremd-Hosts nur Stripe auf der Kasse bei `PAYMENTS_DRIVER=stripe`; Nonce je Anfrage) und `headers.ts` (allgemeine Header, HSTS nur production/staging, `X-Robots-Tag` außerhalb production, Token-Seiten, Kasse, Verwaltung). Anwendung: `next.config.ts headers()` für alle Pfade (`public`) und `/api/*` (`api`), der Proxy überschreibt für Nonce-Kontexte (R26 jetzt dynamisch gerendert, Verwaltung); genau ein CSP-Header je Antwort.
