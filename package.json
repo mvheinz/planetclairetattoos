@@ -28,7 +28,9 @@
     "db:ensure": "tsx --import=./scripts/lib/register-server-only.mjs scripts/db-ensure.ts",
     "db:reset": "tsx --import=./scripts/lib/register-server-only.mjs scripts/db-reset.ts",
     "check:migrations": "tsx --import=./scripts/lib/register-server-only.mjs scripts/check-migration-drift.ts",
-    "jobs:run": "tsx --import=./scripts/lib/register-server-only.mjs scripts/jobs-run.ts"
+    "jobs:run": "tsx --import=./scripts/lib/register-server-only.mjs scripts/jobs-run.ts",
+    "admin:create": "tsx --import=./scripts/lib/register-server-only.mjs scripts/admin-create.ts",
+    "admin:unlock": "tsx --import=./scripts/lib/register-server-only.mjs scripts/admin-unlock.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1141.0",

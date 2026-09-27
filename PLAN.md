@@ -537,7 +537,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - `payments` gegen `stripe-mock`, nur wenn erreichbar.
   - Ohne Jutta: Mocks. P11: Stripe- und DeepL-Schlüssel (A09, A23, A24, A25).
 
-- [ ] **P1.11 Konto `users`: ein Admin, Sperre, Rate-Limits, Admin-CLI** – `src/collections/Users.ts` laut DATENMODELL
+- [x] **P1.11 Konto `users`: ein Admin, Sperre, Rate-Limits, Admin-CLI** – `src/collections/Users.ts` laut DATENMODELL
   §6.1.
   - Es gibt genau ein Konto (E-03): Access `create` nur, solange noch kein Konto existiert (Ersteinrichtung/Grund-Seed);
     der `beforeChange`-Hook lehnt jedes zweite Konto ab, auch über die Local API. `read`/`update` nur das eigene Konto,

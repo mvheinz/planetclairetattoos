@@ -1,5 +1,7 @@
 import type { PayloadRequest, RequestContext } from 'payload'
 
+import { systemClock } from '@/lib/time'
+
 // Kontext-Flags für Hooks (DATENMODELL §1.5). Typisiert über die Payload-Erweiterung `RequestContext`.
 export interface AppContext {
   /** Aufruf aus Server-Code (Webhook, Job, Service); erlaubt Systemübergänge. */
@@ -37,4 +39,14 @@ export function withSystem(
   const context: RequestContext = { ...req.context, system: true }
   if (transition !== undefined) context.transition = transition
   return { context, overrideAccess: true, req }
+}
+
+/** Aktuelle Zeit eines Requests: injiziert über `req.context.now` (Tests, Jobs), sonst Systemuhr (A-08). */
+export function requestNow(req: Pick<PayloadRequest, 'context'> | undefined): Date {
+  const iso = getAppContext(req).now
+  if (iso) {
+    const d = new Date(iso)
+    if (!Number.isNaN(d.getTime())) return d
+  }
+  return systemClock.now()
 }

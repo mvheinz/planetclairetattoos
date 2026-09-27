@@ -60,7 +60,7 @@ export async function createStorageHarness(
     plugins: storagePlugins(env),
   })
   const { payload, config, cacheKey } = iso
-  await payload.create({ collection: 'users', data: ADMIN, overrideAccess: true })
+  await payload.create({ collection: 'users', data: ADMIN as never, overrideAccess: true })
 
   return {
     env,

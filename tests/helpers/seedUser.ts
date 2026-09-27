@@ -6,19 +6,22 @@ import { testUser } from './adminEnv'
 export { testUser }
 
 /**
- * Legt das Test-Admin-Konto an (Zugangsdaten aus SEED_ADMIN_EMAIL/SEED_ADMIN_PASSWORD).
+ * Legt das eine Admin-Konto an (E-03; Zugangsdaten aus SEED_ADMIN_EMAIL/SEED_ADMIN_PASSWORD). Ein vorhandenes Konto
+ * wird vorher entfernt, weil es genau ein Konto geben darf.
  */
 export async function seedTestUser(): Promise<void> {
   const payload = await getPayload({ config })
 
   await payload.delete({
     collection: 'users',
-    where: { email: { equals: testUser.email } },
+    where: { id: { exists: true } },
+    overrideAccess: true,
   })
 
   await payload.create({
     collection: 'users',
-    data: testUser,
+    data: { ...testUser, name: 'Jutta', role: 'admin' },
+    overrideAccess: true,
   })
 }
 
@@ -31,5 +34,6 @@ export async function cleanupTestUser(): Promise<void> {
   await payload.delete({
     collection: 'users',
     where: { email: { equals: testUser.email } },
+    overrideAccess: true,
   })
 }
