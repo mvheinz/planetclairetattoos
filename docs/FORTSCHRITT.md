@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P2.11
+
+- `src/lib/seo/metadata.ts` → `buildMetadata(routeId, locale, params)`: Titel „{Seite} · Planet Claire“ (Start „Planet Claire – {Claim}“), Beschreibung je Seitentyp aus den Nachrichten (`seo.descriptions`, 120–160 Zeichen), Open Graph mit Standardbild, `robots` aus der Registry; canonical + hreflang `de`/`en`/`x-default` (absolute Apex-URLs aus `NEXT_PUBLIC_SITE_URL`) nur auf indexierbaren Seiten. Alle Seiten nutzen `routeMetadata(id)`.
+- Organization-JSON-LD auf R01 (Name, URL, Logo, `sameAs` Instagram, ohne Adresse); `https://schema.org` als Bezeichner in die URL-Allowlist von `check:static` aufgenommen.
+- `src/app/robots.ts` + `src/lib/seo/robots.ts` (Produktion `Allow` + Sperrliste aus der Registry + Sitemap, sonst `Disallow: /`, nie `ADMIN_ROUTE`), `src/app/sitemap.ts` (live + indexierbar, beide Sprachen mit Alternates); `X-Robots-Tag: noindex, nofollow` außerhalb der Produktion über `next.config.ts headers()`, für Weiterleitungen/404 des Proxys im Proxy.
+- Tests: unit `tests/unit/seo/metadata.unit.spec.ts` (10), e2e `tests/e2e/seo.e2e.spec.ts` (AK-2-04, AK-2-05, AK-A-4-03, T-07, R26 `noindex, follow`) – 78 E2E grün (3 Projekte, Produktions-Build); `pnpm check`, `pnpm build`, `check:external --built` grün.
+
 ## 2026-09-27 – P2.10
 
 - Fußbereich `SiteFooter` (KO-04, liegt wie die übrigen Rahmen-Bausteine unter `src/components/layout/`) in DOM-Reihenfolge: „Vertrag widerrufen“ als Knopf-Link → R26, `LegalFooter` (6 Pflichtlinks, Konformitätserklärungen nur bei aktiver Erklärung), `nav#fussnavigation` mit Menüliste + Instagram, Sprachumschalter, Schalter „Animationen“ (`src/behaviors/motion-toggle.ts`, `aria-pressed`, „aus (Systemeinstellung)“, `pc-motion` erst nach Klick, Vorschau nur im Speicher), Platz für Preis-Fußnote, „© {Berliner Jahr} Planet Claire · Berlin“.

@@ -13,6 +13,7 @@ export const URL_ALLOWLIST: RegExp[] = [
   /^https:\/\/[a-z0-9-]+\.eu\.r2\.cloudflarestorage\.com/, // Speicher (ARCHITEKTUR §4.3)
   /^https:\/\/www\.dhl\.de\/[a-z]{2}\/privatkunden\/pakete-empfangen\/verfolgen\.html/, // Link zur Sendungsverfolgung in Versandmails, kein Request (DATENMODELL §7.1)
   /^https:\/\/planetclairetattoos\.com$/,
+  /^https:\/\/schema\.org$/, // JSON-LD-`@context` (KONZEPT §3.0.5), Bezeichner, kein Request
 ]
 
 const URL_RE = /https?:\/\/[^\s'"`)<>\]}]+/g

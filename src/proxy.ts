@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { routing } from '@/i18n/routing'
 import { getEnv } from '@/lib/env'
 import { decidePublicRoute } from '@/lib/routes/redirects'
+import { xRobotsTag } from '@/lib/seo/robots'
 
 // Verwaltungspfad (ARCHITEKTUR §8.4, E-93, Spike B-01): Der Ordner `src/app/(payload)/admin/` ist nur interner
 // Mount-Punkt. `ADMIN_ROUTE/*` wird intern auf `/admin/*` umgeschrieben; direkte Aufrufe von `/admin` oder `/admin/*`
@@ -44,6 +45,13 @@ export function wwwRedirectTarget(
 const redirect = (location: string | URL, status: 307 | 308, vary = false) => {
   const res = NextResponse.redirect(location, status)
   if (vary) res.headers.set('vary', 'Accept-Language')
+  return withRobots(res)
+}
+
+/** Eigene Antworten des Proxys (Weiterleitung, 404) bekommen `X-Robots-Tag` hier; alle übrigen über `next.config.ts`. */
+function withRobots(res: NextResponse): NextResponse {
+  const robots = xRobotsTag(getEnv().APP_ENV)
+  if (robots) res.headers.set('x-robots-tag', robots)
   return res
 }
 
@@ -66,10 +74,12 @@ export function proxy(request: NextRequest): NextResponse {
     return NextResponse.rewrite(url)
   }
   if (decision.kind === 'not-found') {
-    return new NextResponse('Not Found', {
-      status: 404,
-      headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
-    })
+    return withRobots(
+      new NextResponse('Not Found', {
+        status: 404,
+        headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
+      }),
+    )
   }
 
   const route = decidePublicRoute(pathname, search, request.headers.get('accept-language'))

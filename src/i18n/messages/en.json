@@ -94,5 +94,15 @@
     "form": {
       "requiredNote": "* Required field"
     }
+  },
+  "seo": {
+    "descriptions": {
+      "default": "Planet Claire from Berlin: tattoos, handmade one-of-a-kind ceramics and drawings by Jutta – unique pieces, tattoo appointments and commissioned work.",
+      "home": "Planet Claire from Berlin: tattoos, handmade one-of-a-kind ceramics and drawings by Jutta. Browse the shop, discover flash designs or ask for a tattoo.",
+      "contact": "How to reach Planet Claire in Berlin: questions about unique pieces, orders, tattoo appointments or commissioned work – by email or via Instagram.",
+      "legal": "Legal information from Planet Claire, Berlin: legal notice, privacy policy, terms, right of withdrawal and shipping and payment for the one-of-a-kind shop.",
+      "withdrawal": "Withdraw from a contract with Planet Claire here: identify your order, send your declaration and immediately receive a confirmation of receipt by email.",
+      "conformity": "Declarations of conformity from Planet Claire, Berlin, for handmade ceramics in contact with food – current declarations to view and download."
+    }
   }
 }

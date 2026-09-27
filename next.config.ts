@@ -6,9 +6,13 @@ import { fileURLToPath } from 'url'
 
 import { localizedPath } from './src/lib/routes/paths'
 import { shortLinks } from './src/lib/routes/registry'
+import { xRobotsTag, type AppEnvName } from './src/lib/seo/robots'
 
 const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
+
+// `APP_ENV` wie `src/lib/env.ts` (ARCHITEKTUR §4.2); `next.config.ts` darf `process.env` lesen, `.env` ist hier geladen.
+const appEnv = (process.env.APP_ENV || 'development') as AppEnvName
 
 const nextConfig: NextConfig = {
   // Docker-Exit-Pfad (docs/ARCHITEKTUR.md): standalone nur, wenn das Dockerfile es anfordert.
@@ -31,6 +35,11 @@ const nextConfig: NextConfig = {
       destination: localizedPath(s.routeId, 'de'),
       permanent: true,
     }))
+  },
+  // Außerhalb der Produktion tragen alle Antworten `X-Robots-Tag: noindex, nofollow` (KONZEPT §2.5, AK-A-4-03).
+  async headers() {
+    const robots = xRobotsTag(appEnv)
+    return robots ? [{ source: '/:path*', headers: [{ key: 'X-Robots-Tag', value: robots }] }] : []
   },
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {

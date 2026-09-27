@@ -94,5 +94,15 @@
     "form": {
       "requiredNote": "* Pflichtfeld"
     }
+  },
+  "seo": {
+    "descriptions": {
+      "default": "Planet Claire aus Berlin: Tattoos, handgemachte Unikat-Keramik und Zeichnungen von Jutta – Einzelstücke, Tattoo-Termine und Auftragsarbeiten.",
+      "home": "Planet Claire aus Berlin: Tattoos, handgemachte Unikat-Keramik und Zeichnungen von Jutta. Stöbere im Shop, entdecke Flash-Motive oder frag ein Tattoo an.",
+      "contact": "So erreichst du Planet Claire in Berlin: Fragen zu Unikaten, Bestellungen, Tattoo-Terminen oder Auftragsarbeiten – per Mail oder über Instagram.",
+      "legal": "Rechtliche Informationen von Planet Claire, Berlin: Impressum, Datenschutz, AGB, Widerrufsbelehrung sowie Versand und Zahlung für den Unikat-Shop.",
+      "withdrawal": "Hier kannst du einen Vertrag mit Planet Claire widerrufen: Bestellung angeben, Erklärung absenden und sofort eine Eingangsbestätigung per E-Mail erhalten.",
+      "conformity": "Konformitätserklärungen von Planet Claire, Berlin, zu handgemachter Keramik mit Lebensmittelkontakt – aktuelle Erklärungen zum Ansehen und Herunterladen."
+    }
   }
 }

@@ -1530,7 +1530,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     unit `tests/unit/legal/footer-links.unit.spec.ts` (R-090: Konstanten DE/EN).
   - Ohne Jutta: –
 
-- [ ] **P2.11 SEO-Grundlagen** – `src/lib/seo/metadata.ts` → `buildMetadata(routeId, locale, params)`:
+- [x] **P2.11 SEO-Grundlagen** – `src/lib/seo/metadata.ts` → `buildMetadata(routeId, locale, params)`:
   - Titel „{Seite} · Planet Claire“, Beschreibung aus den Nachrichten;
   - canonical und drei hreflang-Links (`de`, `en`, `x-default`) mit absoluten Apex-URLs aus `NEXT_PUBLIC_SITE_URL`;
   - `robots` aus der Registry.
