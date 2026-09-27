@@ -26,6 +26,24 @@ const FIXTURES: Record<BehaviorName, { html: string; exercise: (root: Element) =
       document.dispatchEvent(new CustomEvent('pc:cart-change', { detail: { count: 2 } }))
     },
   },
+  menu: {
+    html:
+      '<a href="#fussnavigation" data-menu-trigger aria-controls="menu" aria-expanded="false">Menü</a>' +
+      '<dialog id="menu" data-behavior="menu"><button type="button" data-menu-close-button>Schließen</button>' +
+      '<ul><li data-menu-item><a href="/de">Start</a></li><li data-menu-item><a href="/de/shop">Shop</a></li></ul>' +
+      '<div data-coco-slot aria-hidden="true"></div></dialog>',
+    exercise: () => {
+      document.querySelector<HTMLElement>('[data-menu-trigger]')!.click()
+      document
+        .querySelector('#menu')!
+        .dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }))
+      document
+        .querySelector('#menu')!
+        .dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+      // jsdom legt bei `focus()` einen eigenen Timer an (nicht vom Modul); das Menü selbst nutzt keine Timer.
+      vi.runOnlyPendingTimers()
+    },
+  },
 }
 
 function behaviorFiles(): string[] {

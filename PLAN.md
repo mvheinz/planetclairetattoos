@@ -1474,7 +1474,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: e2e `tests/e2e/shell.e2e.spec.ts` @smoke (AK-DS-07).
   - Ohne Jutta: –
 
-- [ ] **P2.9 Menü (KO-03) als Verhaltensmodul** – `src/components/MenuOverlay.tsx` rendert serverseitig
+- [x] **P2.9 Menü (KO-03) als Verhaltensmodul** – `src/components/MenuOverlay.tsx` rendert serverseitig
   `<dialog id="menu" aria-label="Menü">` mit der Hauptliste aus KONZEPT §3.0.2 (Start · Shop · Archiv ·
   Auftragsarbeiten · Tattoo · Über mich & Coco · Kontakt):
   - Kategorien aus `categories` (`getPublicPayload`, `showInNavigation`);

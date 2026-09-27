@@ -6,6 +6,7 @@ import type { BehaviorContext, BehaviorModule, Unmount } from './types'
 
 export const BEHAVIOR_LOADERS = {
   'cart-count': () => import('./cart-count'),
+  menu: () => import('./menu'),
 } satisfies Record<string, () => Promise<BehaviorModule>>
 
 export type BehaviorName = keyof typeof BEHAVIOR_LOADERS

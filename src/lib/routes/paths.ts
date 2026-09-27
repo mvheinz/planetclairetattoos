@@ -138,3 +138,13 @@ export function matchSegments(segments: readonly string[]): RouteMatch | null {
   const parts = segments.filter((s) => s !== '' && !s.startsWith('('))
   return matchRoute(parts.length === 0 ? '/' : `/${parts.join('/')}`, 'en')
 }
+
+/**
+ * Gegenstück einer Route in der anderen Sprache (Sprachumschalter, KONZEPT §2.6): gleiche Route mit gleichen
+ * Parametern; Routen mit sprachabhängigem `slug` (Kategorie, Stück) haben ohne Daten kein sicheres Gegenstück →
+ * Startseite der Zielsprache. Ohne Route (404) ebenfalls die Startseite.
+ */
+export function alternateForMatch(match: RouteMatch | null, locale: Locale): string {
+  if (!match || 'slug' in match.params) return localizedPath('R01', locale)
+  return localizedPath(match.route.id, locale, match.params)
+}

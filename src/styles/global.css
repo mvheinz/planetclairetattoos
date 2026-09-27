@@ -208,6 +208,12 @@ a:focus-visible {
   text-decoration-thickness: 2px;
 }
 
+/* Menü offen (KO-03, Modul `menu`): Seite sperren ohne Verschiebung. */
+html[data-menu-open] {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+}
+
 /* Navigationslinks mit gezeichneter Unterstreichung (KO-02/KO-03, LinkUnderline): Bezugsrahmen der Linie. */
 .nav-link__text {
   position: relative;

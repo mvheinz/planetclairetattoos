@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P2.9
+
+- MenuOverlay (KO-03): serverseitiges <dialog id="menu" aria-label="Menü"> mit Hauptliste (Start · Shop · Archiv · Auftragsarbeiten · Tattoo · Über mich & Coco · Kontakt), Kategorien aus categories (showInNavigation, src/lib/data/navigation.ts, gecacht, ohne DB robust), Tattoo-Unterseiten aus der Registry, unten Sprachumschalter, Instagram und Pflichtlinks inkl. „Vertrag widerrufen“, Coco-Platz\n- Verhaltensmodul src/behaviors/menu.ts: showModal, Fokus auf ersten Link, eigene Tab-Falle (auch Safari), Esc/„Schließen“ mit Fokus zurück, html[data-menu-open] (overflow hidden + scrollbar-gutter stable), MI-05 per WAAPI (≤ 700 ms), Linkklick schließt sofort; bei reduzierter Bewegung ohne Animation\n- LinkUnderline (MI-06, 3 Pfade per Hash des href) an Menü- und Kopflinks; ohne JS führt „Menü“ zu #fussnavigation\n- Tests: e2e tests/e2e/menu.e2e.spec.ts @smoke (AK-DS-08, ohne JS; 21 grün in 3 Projekten inkl. WebKit), Vertragstest AK-DS-18 um menu ergänzt; pnpm check, pnpm build grün
+
 ## 2026-09-27 – P2.8
 
 - Seitenrahmen AppShell (KO-01): Skip-Link → SiteHeader → Vorschau-Banner → <main id="inhalt"> mit Linien-Ebene als Geschwister; <body data-preset>/<data-route> aus der Registry über die Layout-Segmente (PresetBody), <html data-motion> per festem Inline-Skript pc-motion (src/lib/security/inlineScripts.ts mit sha256-Hash für P2.12)\n- SiteHeader (KO-02): Wortmarke bzw. unter 375 px Planet-Marke, Shop/Tattoo (aria-current), Korb mit immer reserviertem Platz für die Anzahl (cart-count), Menü-Link #fussnavigation mit aria-controls/-haspopup/-expanded, handgezeichnete Unterkante in 3 Varianten nach Routen-Seed\n- Vorschau-Banner nur bei SEED_PREVIEW_MODE=true und APP_ENV≠production, im Export mit Phase\n- Tests: e2e tests/e2e/shell.e2e.spec.ts @smoke (AK-DS-07 bei 320/360/390/1440, Korb-Cookie, Skip-Link, Banner; 27 grün in desktop/iPhone-WebKit/Pixel), unit tests/unit/layout/shell.unit.spec.ts (15); pnpm check, pnpm build grün
