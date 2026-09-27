@@ -17,6 +17,7 @@ import {
   createProductFixtures,
   deleteProducts,
 } from '../helpers/products'
+import { ensureLegalTextFixtures, lexical } from '../helpers/legal'
 import { rest } from '../helpers/rest'
 
 // P1.20: checkouts, reservations, orders (DATENMODELL §6.7, §6.8, §6.25).
@@ -137,6 +138,58 @@ describe('orders (DATENMODELL §6.8)', () => {
     expect(updated.items[0]!.status).toBe('withdrawn')
     expect(updated.items[0]!.refundedCents).toBe(4500)
     expect(updated.totalCents).toBe(order.totalCents)
+  })
+
+  it('DM-ORD-02 legalTextVersions: Pflicht beim Anlegen, danach per Local API unveränderlich (R-012)', async () => {
+    const versions = await ensureLegalTextFixtures(payload)
+    const { agb: _agb, ...withoutAgb } = versions
+    await rejects(
+      createOrder(payload, orderData(990, [items[2]!], { legalTextVersions: withoutAgb })),
+      /AGB|legalTextVersions/,
+    )
+    const order = await createOrder(
+      payload,
+      orderData(990, [items[2]!], { legalTextVersions: versions }),
+    )
+    expect(order.legalTextVersions).toMatchObject({
+      agb: expect.objectContaining({ id: versions.agb }),
+      versandZahlung: expect.objectContaining({ id: versions.versandZahlung }),
+    })
+    const other = await payload.create({
+      collection: 'legal-texts',
+      data: {
+        type: 'agb',
+        validFrom: '2027-01-01T00:00:00.000Z',
+        content: lexical('Neue AGB'),
+      } as never,
+      overrideAccess: true,
+    })
+    for (const value of [
+      { ...versions, agb: other.id },
+      { ...versions, datenschutz: null },
+    ]) {
+      await rejects(
+        payload.update({
+          collection: 'orders',
+          id: order.id,
+          data: { legalTextVersions: value } as never,
+          overrideAccess: true,
+          context: { system: true },
+        }),
+        /unveränderlich/,
+      )
+    }
+    // Kassen verweisen ebenfalls auf Fassungen (Stand beim Absenden)
+    const { data } = checkoutData([items[2]!], { legalTextVersions: versions })
+    const checkout = await payload.create({
+      collection: 'checkouts',
+      data: data as never,
+      overrideAccess: true,
+      context: { system: true },
+    })
+    expect(checkout.legalTextVersions?.widerrufsbelehrung).toMatchObject({
+      id: versions.widerrufsbelehrung,
+    })
   })
 
   it('Summen beim Anlegen: Zwischensumme = Σ Positionen, Summe = Zwischensumme + Versand', async () => {

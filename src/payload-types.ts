@@ -80,6 +80,7 @@ export interface Config {
     invoices: Invoice;
     'invoice-counters': InvoiceCounter;
     withdrawals: Withdrawal;
+    'legal-texts': LegalText;
     'audit-log': AuditLog;
     'email-log': EmailLog;
     'consent-log': ConsentLog;
@@ -112,6 +113,7 @@ export interface Config {
     invoices: InvoicesSelect<false> | InvoicesSelect<true>;
     'invoice-counters': InvoiceCountersSelect<false> | InvoiceCountersSelect<true>;
     withdrawals: WithdrawalsSelect<false> | WithdrawalsSelect<true>;
+    'legal-texts': LegalTextsSelect<false> | LegalTextsSelect<true>;
     'audit-log': AuditLogSelect<false> | AuditLogSelect<true>;
     'email-log': EmailLogSelect<false> | EmailLogSelect<true>;
     'consent-log': ConsentLogSelect<false> | ConsentLogSelect<true>;
@@ -1007,6 +1009,13 @@ export interface Order {
     | null;
   packingPhotos?: (number | PrivateUpload)[] | null;
   returnPhotos?: (number | PrivateUpload)[] | null;
+  legalTextVersions: {
+    agb: number | LegalText;
+    widerrufsbelehrung: number | LegalText;
+    widerrufsformular: number | LegalText;
+    datenschutz: number | LegalText;
+    versandZahlung: number | LegalText;
+  };
   legalSnippetVersions:
     | {
         [k: string]: unknown;
@@ -1238,6 +1247,13 @@ export interface Checkout {
         id?: string | null;
       }[]
     | null;
+  legalTextVersions?: {
+    agb?: (number | null) | LegalText;
+    widerrufsbelehrung?: (number | null) | LegalText;
+    widerrufsformular?: (number | null) | LegalText;
+    datenschutz?: (number | null) | LegalText;
+    versandZahlung?: (number | null) | LegalText;
+  };
   legalSnippetVersions?:
     | {
         [k: string]: unknown;
@@ -1275,6 +1291,62 @@ export interface Checkout {
     cancelledAt?: string | null;
     failedAt?: string | null;
   };
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Jede Fassung ist ein eigenes Dokument. Veröffentlichte Fassungen lassen sich nicht mehr ändern – für Änderungen eine neue Fassung anlegen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legal-texts".
+ */
+export interface LegalText {
+  id: number;
+  type: 'impressum' | 'datenschutz' | 'agb' | 'widerrufsbelehrung' | 'widerrufsformular' | 'versand-zahlung';
+  version?: number | null;
+  versionLabel?: string | null;
+  status: 'draft' | 'scheduled' | 'active' | 'superseded';
+  validFrom: string;
+  /**
+   * Deutsch ist verbindlich, Englisch eine unverbindliche Übersetzung. Erlaubt sind nur die Platzhalter aus der Liste (z. B. {{name}}).
+   */
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Herkunft des Textes (R-002).
+   */
+  origin: 'placeholder' | 'draft' | 'lawyer';
+  /**
+   * Seite zeigt oben „PLATZHALTER – nicht rechtsverbindlich“.
+   */
+  isPlaceholder?: boolean | null;
+  source: 'manual' | 'itrk_lti';
+  /**
+   * z. B. „Kanzlei X, Stand 15.11.2026“
+   */
+  sourceNote?: string | null;
+  changeNote?: string | null;
+  pdfDe?: (number | null) | Document;
+  pdfEn?: (number | null) | Document;
+  contentSha256De?: string | null;
+  contentSha256En?: string | null;
+  activatedAt?: string | null;
+  supersededAt?: string | null;
   seed?: boolean | null;
   seedKey?: string | null;
   updatedAt: string;
@@ -1825,6 +1897,10 @@ export interface PayloadLockedDocument {
         value: number | Withdrawal;
       } | null)
     | ({
+        relationTo: 'legal-texts';
+        value: number | LegalText;
+      } | null)
+    | ({
         relationTo: 'audit-log';
         value: number | AuditLog;
       } | null)
@@ -2282,6 +2358,15 @@ export interface CheckoutsSelect<T extends boolean = true> {
         agreedAt?: T;
         id?: T;
       };
+  legalTextVersions?:
+    | T
+    | {
+        agb?: T;
+        widerrufsbelehrung?: T;
+        widerrufsformular?: T;
+        datenschutz?: T;
+        versandZahlung?: T;
+      };
   legalSnippetVersions?: T;
   submittedAt?: T;
   stripe?:
@@ -2467,6 +2552,15 @@ export interface OrdersSelect<T extends boolean = true> {
   packingChecklistState?: T;
   packingPhotos?: T;
   returnPhotos?: T;
+  legalTextVersions?:
+    | T
+    | {
+        agb?: T;
+        widerrufsbelehrung?: T;
+        widerrufsformular?: T;
+        datenschutz?: T;
+        versandZahlung?: T;
+      };
   legalSnippetVersions?: T;
   carrierEmailConsent?: T;
   carrierEmailConsentRevokedAt?: T;
@@ -2632,6 +2726,33 @@ export interface WithdrawalsSelect<T extends boolean = true> {
         anonymizedAt?: T;
       };
   retainUntil?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legal-texts_select".
+ */
+export interface LegalTextsSelect<T extends boolean = true> {
+  type?: T;
+  version?: T;
+  versionLabel?: T;
+  status?: T;
+  validFrom?: T;
+  content?: T;
+  origin?: T;
+  isPlaceholder?: T;
+  source?: T;
+  sourceNote?: T;
+  changeNote?: T;
+  pdfDe?: T;
+  pdfEn?: T;
+  contentSha256De?: T;
+  contentSha256En?: T;
+  activatedAt?: T;
+  supersededAt?: T;
   seed?: T;
   seedKey?: T;
   updatedAt?: T;

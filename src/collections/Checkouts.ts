@@ -1,7 +1,7 @@
 import type { CollectionBeforeChangeHook, CollectionConfig, Field } from 'payload'
 
 import { isAdmin, none } from '@/access'
-import { addressFields, moneyField, seedField } from '@/fields'
+import { addressFields, legalTextVersionsField, moneyField, seedField } from '@/fields'
 import {
   CHECKOUT_CLOSE_REASON_REQUIRED,
   CHECKOUT_INITIAL_STATUS,
@@ -27,7 +27,7 @@ import { failField, groupOf, rejectChanges, SHA256_HEX, UUID_V4 } from './hooks/
 
 // DATENMODELL §6.25 – Kasse: interner Datensatz einer laufenden Bezahlung (nicht die Bestellung). Nur Services
 // schreiben (P4); Lesen nur Verwaltung. Der Kassen-Token wird nie gespeichert, nur sein SHA-256 (§6.25.2).
-// `legalTextVersions` ergänzt P1.22.
+// `legalTextVersions` seit P1.22.
 
 const SLUG = 'checkouts'
 const fail = (message: string, path: string): never => failField(SLUG, message, path)
@@ -239,6 +239,7 @@ export const Checkouts: CollectionConfig = {
         { name: 'agreedAt', type: 'date', required: true },
       ],
     },
+    legalTextVersionsField({ required: false }),
     { name: 'legalSnippetVersions', type: 'json', label: 'Bausteinfassungen', admin: ro },
     { name: 'submittedAt', type: 'date', label: 'Bestellt am', admin: ro },
     {

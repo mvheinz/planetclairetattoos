@@ -10,7 +10,13 @@ import {
 } from 'payload'
 
 import { isAdmin, none } from '@/access'
-import { addressFields, moneyField, privacyFields, seedField } from '@/fields'
+import {
+  addressFields,
+  legalTextVersionsField,
+  moneyField,
+  privacyFields,
+  seedField,
+} from '@/fields'
 import { writeAudit } from '@/lib/audit'
 import {
   evaluateOrderTransition,
@@ -58,7 +64,7 @@ import { changedFields } from './hooks/immutable'
 
 // DATENMODELL §6.8 – Bestellungen (Gastbestellungen, E-30) mit unveränderlichem Snapshot. Eine Bestellung entsteht
 // erst mit bestätigter Zahlung (O1/O19) oder beim Vorkasse-Abschluss (O2) über createOrderFromCheckout() (P4).
-// Verweise auf `invoices`/`withdrawals` seit P1.21; `legalTextVersions` ergänzt P1.22, `complaints` P6.
+// Verweise auf `invoices`/`withdrawals` seit P1.21, `legalTextVersions` seit P1.22; `complaints` folgt in P6.
 
 const SLUG = 'orders'
 const fail = (message: string, path: string): never => failField(SLUG, message, path)
@@ -77,7 +83,7 @@ const ADDRESS_EDITABLE: ReadonlySet<OrderStatus> = new Set([
   'ready_for_pickup',
 ])
 
-/** Nach der Anlage unveränderlich (§6.8.3 Nr. 2; `legalTextVersions` folgt mit P1.22). */
+/** Nach der Anlage unveränderlich (§6.8.3 Nr. 2). */
 const IMMUTABLE = [
   'orderNumber',
   'subtotalCents',
@@ -86,6 +92,7 @@ const IMMUTABLE = [
   'currency',
   'taxModeAtOrder',
   'paymentMethod',
+  'legalTextVersions',
   'legalSnippetVersions',
   'statusHistory',
 ] as const
@@ -734,6 +741,7 @@ export const Orders: CollectionConfig = {
       maxRows: 6,
       filterOptions: { purpose: { equals: 'return_photo' } },
     },
+    legalTextVersionsField({ required: true }),
     {
       name: 'legalSnippetVersions',
       type: 'json',

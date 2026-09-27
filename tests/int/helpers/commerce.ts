@@ -5,6 +5,8 @@ import type { Payload, RequestContext } from 'payload'
 
 import { hashToken, randomToken } from '@/lib/security/tokens'
 
+import { ensureLegalTextFixtures } from './legal'
+
 // Test-Fixtures für Kassen, Reservierungen und Bestellungen (Nummern im Bereich 980–999, CLAUDE.md §3 Nr. 5).
 // Die Services (startCheckout, createOrderFromCheckout) folgen in P4; bis dahin legen die Tests direkt an.
 
@@ -77,9 +79,14 @@ export async function createOrder(
   data: Record<string, unknown>,
   context: RequestContext = SYSTEM,
 ) {
+  // Rechtstext-Fassungen sind an Bestellungen Pflicht (P1.22): fehlen sie, gelten die aktiven Test-Fassungen.
+  const full =
+    'legalTextVersions' in data
+      ? data
+      : { ...data, legalTextVersions: await ensureLegalTextFixtures(payload) }
   return payload.create({
     collection: 'orders',
-    data: data as never,
+    data: full as never,
     overrideAccess: true,
     context,
   })

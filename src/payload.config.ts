@@ -20,6 +20,7 @@ import { Orders } from './collections/Orders'
 import { Invoices } from './collections/Invoices'
 import { InvoiceCounters } from './collections/InvoiceCounters'
 import { Withdrawals } from './collections/Withdrawals'
+import { LegalTexts } from './collections/LegalTexts'
 import { AuditLog } from './collections/AuditLog'
 import { ConsentLog } from './collections/ConsentLog'
 import { DeletionLog } from './collections/DeletionLog'
@@ -70,6 +71,7 @@ export default buildConfig({
     Invoices,
     InvoiceCounters,
     Withdrawals,
+    LegalTexts,
     AuditLog,
     EmailLog,
     ConsentLog,

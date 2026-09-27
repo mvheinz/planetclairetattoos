@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P1.22
+
+- Collection `legal-texts` (Fassungen, Status nur über `activateLegalText`, aktive/abgelöste unveränderlich, nur Entwürfe löschbar, `isPlaceholder` folgt `origin`, Version/Label automatisch, UNIQUE (type, version))\n- Renderer `src/lib/legal/render.ts` (geschlossene Token-Liste R-012, Fehler bei unbekannten/unersetzten Tokens), `getActiveLegalText`, Versandtabelle `src/lib/shop/shippingTable.ts`\n- `legalTextVersions` an Kassen und Bestellungen (dort Pflicht und unveränderlich); Migration `p1_legal`\n- Tests: int legal-texts (6: DM-LEG-01/03/04, DM-DOC-01, R-012), orders um DM-ORD-02 (legalTextVersions) erweitert; check, test:int, build grün
+
 ## 2026-09-27 – P1.19
 
 - `src/lib/commerce/productTransitions.ts`: Tabelle `PRODUCT_TRANSITIONS` (P2–P14, Namen publish/unpublish/reserve/release/convertToPrepayment/sell/sellOffline/returnToStock/archive/archiveAfterReturn/restore), reine Prüfung `evaluateProductTransition` und Service `transitionProduct` (eine Transaktion, Nebenwirkungen firstPublishedAt/soldAt/soldChannel/archivedAt/currentOrder; P10 beendet Kasse und Reservierungen).

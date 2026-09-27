@@ -911,7 +911,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - int `tests/int/products/conformity-revoke.int.spec.ts` (R-044).
   - Ohne Jutta: DeepL-Schlüssel folgt in P11 (A25).
 
-- [ ] **P1.22 `legal-texts`: Fassungen, Aktivierung, Tokens** – `src/collections/LegalTexts.ts` laut DATENMODELL §6.12
+- [x] **P1.22 `legal-texts`: Fassungen, Aktivierung, Tokens** – `src/collections/LegalTexts.ts` laut DATENMODELL §6.12
   und RECHT R-002/R-012 (strengere Regel gilt).
   - Jede Fassung ist ein eigenes Dokument (Typen aus `LEGAL_TEXT_TYPES`: `impressum`, `datenschutz`, `agb`,
     `widerrufsbelehrung`, `widerrufsformular`, `versand-zahlung`), `status` `draft`/`scheduled`/`active`/`superseded`
