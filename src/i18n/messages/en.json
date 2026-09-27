@@ -2,7 +2,6 @@
   "common": {
     "siteName": "Planet Claire",
     "claim": "Tattoos, ceramics and drawings from Berlin",
-    "scaffoldNotice": "This page is still a scaffold. The full content will follow.",
     "routes": {
       "R01": "Home",
       "R02": "Shop",

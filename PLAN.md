@@ -1600,7 +1600,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: e2e `tests/e2e/legal-pages.e2e.spec.ts` @smoke (R-010, R-002, AK-DS-11).
   - Ohne Jutta: Kanzlei-Texte folgen in P11 (A08, A28); bis dahin Platzhalter, nicht live schalten.
 
-- [ ] **P2.14 Kontakt R20 und „Vertrag widerrufen“-Gerüst R26** –
+- [x] **P2.14 Kontakt R20 und „Vertrag widerrufen“-Gerüst R26** –
   - R20 (`/de/kontakt`, `/en/contact`, Ordner `contact/`), Preset `margin`: Inhalt aus `pages:contact` (Seed P1.30),
     sonst ein neutraler Leerzustand (DM-PAGE-01). E-Mail-Adresse und Instagram-Link kommen aus `getPublicSettings()`;
     kein Formular (E-51).

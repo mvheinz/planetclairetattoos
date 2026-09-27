@@ -2,7 +2,6 @@
   "common": {
     "siteName": "Planet Claire",
     "claim": "Tattoos, Keramik und Zeichnungen aus Berlin",
-    "scaffoldNotice": "Diese Seite ist noch ein Gerüst. Der vollständige Inhalt folgt.",
     "routes": {
       "R01": "Start",
       "R02": "Shop",
