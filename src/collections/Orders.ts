@@ -61,6 +61,7 @@ import {
 
 import { actorTypeOf, failField, groupOf, rejectChanges, SHA256_HEX } from './hooks/commerce'
 import { changedFields } from './hooks/immutable'
+import { assignSequenceNumber } from './hooks/numbers'
 
 // DATENMODELL §6.8 – Bestellungen (Gastbestellungen, E-30) mit unveränderlichem Snapshot. Eine Bestellung entsteht
 // erst mit bestätigter Zahlung (O1/O19) oder beim Vorkasse-Abschluss (O2) über createOrderFromCheckout() (P4).
@@ -72,7 +73,7 @@ const ro = { readOnly: true } as const
 
 type Doc = Record<string, unknown>
 
-export const ORDER_NUMBER_RE = /^PC-\d{4}-\d{5}$/
+export const ORDER_NUMBER_RE = /^PC-\d{4}-\d{5,}$/
 /** Platzhalter nach der Anonymisierung (wird nie gemailt, §6.22). */
 export const ANONYMIZED_EMAIL = 'anonymisiert@example.invalid'
 /** Adressen änderbar nur vor dem Versand bzw. der Abholung (§6.8.3 Nr. 3). */
@@ -886,7 +887,7 @@ export const Orders: CollectionConfig = {
     ...seedField(),
   ],
   hooks: {
-    beforeValidate: [prepareOrder],
+    beforeValidate: [assignSequenceNumber('orderNumber', 'order'), prepareOrder],
     beforeChange: [guardOrder],
     afterChange: [afterOrderChange],
     beforeDelete: [guardOrderDelete],

@@ -995,7 +995,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     (DM-PRQ-01).
   - Ohne Jutta: Seitentexte sind Entwürfe im Insta-Ton (E-62); Jutta korrigiert sie später.
 
-- [ ] **P1.26 Eigene Postgres-Objekte (`p1_constraints`)** – Migration `pnpm payload migrate:create p1_constraints` mit
+- [x] **P1.26 Eigene Postgres-Objekte (`p1_constraints`)** – Migration `pnpm payload migrate:create p1_constraints` mit
   eigenem SQL laut DATENMODELL §9. Tabellen- und Spaltennamen werden vorher im generierten SQL geprüft.
   - Sequenzen `order_number_seq`, `withdrawal_number_seq`, `inquiry_number_seq`, `privacy_request_number_seq` (§9.1).
   - CHECK-Constraints §9.2, u. a. Cent-Beträge ganzzahlig und ≥ 0, `item_number` 1–99999, Summen der Kassen

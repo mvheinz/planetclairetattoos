@@ -17,6 +17,7 @@ let payload: Payload
 let item: ItemInput
 let ref = 0
 const nextRef = () => `WR-2026-${String(++ref).padStart(5, '0')}`
+let orderNumber = ''
 
 type Err = { message?: string; data?: { errors?: { message: string }[] } }
 async function rejects(promise: Promise<unknown>, re: RegExp): Promise<void> {
@@ -35,7 +36,7 @@ const submit = (data: Record<string, unknown>, now = '2026-10-05T08:15:30.000Z')
       reference: nextRef(),
       channel: 'online_form',
       name: 'Erika Beispiel',
-      contractIdentification: 'Bestellung PC-2026-00980',
+      contractIdentification: `Bestellung ${orderNumber}`,
       email: 'Erika@Example.com',
       locale: 'de',
       ...data,
@@ -51,7 +52,7 @@ beforeAll(async () => {
   const fx = await createProductFixtures(payload)
   const p = await createProduct(payload, completeProduct('keramik', 980, fx))
   item = { id: p.id as number, itemNumber: 980 }
-  await createOrder(payload, orderData(980, [item]))
+  orderNumber = (await createOrder(payload, orderData(980, [item]))).orderNumber
 })
 
 afterAll(async () => {
@@ -159,7 +160,27 @@ describe('withdrawals (DATENMODELL §6.11)', () => {
       }),
       /Widerrufsfunktion/,
     )
-    await rejects(submit({ reference: 'WR-26-1' }), /WR-JJJJ-NNNNN/)
+    // Nummer kommt aus withdrawal_number_seq (§8.7): ein mitgegebener Wert wird ersetzt; nur der Seed bringt eine mit
+    const own = await submit({ reference: 'WR-26-1' })
+    expect(own.reference).toMatch(/^WR-2026-\d{5}$/)
+    const next = await submit({})
+    expect(Number(next.reference.slice(-5))).toBeGreaterThan(Number(own.reference.slice(-5)))
+    await rejects(
+      payload.create({
+        collection: 'withdrawals',
+        data: {
+          reference: 'WR-26-1',
+          name: 'A B',
+          contractIdentification: 'xyz',
+          locale: 'de',
+          seed: true,
+          receivedAt: '2026-10-03T09:00:00.000Z',
+        } as never,
+        overrideAccess: true,
+        context: { seed: true },
+      }),
+      /WR-JJJJ-NNNNN/,
+    )
   })
 
   it('Status nur über Übergänge; Ablehnen nie automatisch (R-094)', async () => {

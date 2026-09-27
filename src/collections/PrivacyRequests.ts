@@ -25,10 +25,11 @@ import { registerUploadReference } from '@/lib/uploads/references'
 
 import { PRIVACY_REQUEST_REF_REGEX } from './DeletionLog'
 import { failField, idOf } from './hooks/commerce'
+import { assignSequenceNumber } from './hooks/numbers'
 
 // DATENMODELL §6.26 – Datenschutz-Anfragen (L-17, R-150 bis R-153, LOESCHKONZEPT §5). Jutta legt jede Anfrage an; Frist
 // `receivedAt + 1 Monat` (kalendergenau, Europe/Berlin), keine Fristhemmung während der Identitätsprüfung. Keine
-// Versionen, kein Löschen außer durch den Task `retentionPrivacyRequests`. Die Nummer DS-JJJJ-NNNN kommt ab P1.26 aus
+// Versionen, kein Löschen außer durch den Task `retentionPrivacyRequests`. Die Nummer DS-JJJJ-NNNN kommt aus
 // `privacy_request_number_seq` (§8.7). Oberfläche, Such-/Export-Aktionen (mit `deletion-log`, `trigger =
 // privacy_request`) und der Erinnerungs-Task folgen in P6.
 
@@ -236,7 +237,17 @@ export const PrivacyRequests: CollectionConfig = {
       label: 'Nummer',
       required: true,
       unique: true,
-      admin: { ...ro, position: 'sidebar' },
+      // Beim Anlegen vergibt der Server die Nummer (Sequenz, §8.7) – das leere Formularfeld ist dann erlaubt.
+      validate: (v: string | null | undefined, { operation }: { operation?: string }) =>
+        (!v && operation === 'create') ||
+        (typeof v === 'string' && PRIVACY_REQUEST_REF_REGEX.test(v))
+          ? true
+          : 'Format DS-JJJJ-NNNN.',
+      admin: {
+        ...ro,
+        position: 'sidebar',
+        description: 'Wird beim Speichern automatisch vergeben.',
+      },
     },
     {
       name: 'types',
@@ -352,6 +363,7 @@ export const PrivacyRequests: CollectionConfig = {
     ...seedField(),
   ],
   hooks: {
+    beforeValidate: [assignSequenceNumber('reference', 'privacyRequest')],
     beforeChange: [guardPrivacyRequest],
     afterChange: [afterPrivacyRequest],
   },

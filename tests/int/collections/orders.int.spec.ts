@@ -54,13 +54,18 @@ afterAll(async () => {
 })
 
 describe('orders (DATENMODELL §6.8)', () => {
-  it('orderNumber: Format PC-JJJJ-NNNNN (Sequenz folgt in P1.26)', async () => {
+  it('orderNumber: PC-JJJJ-NNNNN aus order_number_seq (§8.7); nur der Seed bringt feste Nummern mit', async () => {
     await rejects(
-      createOrder(payload, orderData(980, [items[0]!], { orderNumber: 'PC-26-1' })),
+      createOrder(payload, orderData(980, [items[0]!], { orderNumber: 'PC-26-1', seed: true }), {
+        seed: true,
+      }),
       /PC-JJJJ-NNNNN/,
     )
-    const order = await createOrder(payload, orderData(980, [items[0]!]))
-    expect(order.orderNumber).toMatch(/^PC-\d{4}-\d{5}$/)
+    const order = await createOrder(
+      payload,
+      orderData(980, [items[0]!], { orderNumber: 'PC-2026-00001' }),
+    )
+    expect(order.orderNumber).toMatch(/^PC-2026-\d{5}$/)
     expect(order.customer.email).toBe('erika@example.com')
     // Anlage O1: Statusverlauf, Zeitstempel, Audit
     expect(order.statusHistory).toHaveLength(1)

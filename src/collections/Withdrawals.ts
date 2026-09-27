@@ -28,10 +28,11 @@ import { withdrawalRetainUntil } from '@/lib/retention/policy'
 import { formatBerlin } from '@/lib/time'
 
 import { failField, groupOf, idOf, rejectChanges } from './hooks/commerce'
+import { assignSequenceNumber } from './hooks/numbers'
 
 // DATENMODELL §6.11 – Widerrufe (§ 356a BGB, E-44): jede Erklärung unveränderlich mit Server-Zeitstempel, ohne IP und
 // User-Agent (R-093). Anlage nur über die Widerrufsfunktion (R26, P6) bzw. die manuelle Erfassung (R-094, P6).
-// Die Nummer WR-JJJJ-NNNNN kommt ab P1.26 aus `withdrawal_number_seq` (§8.7); Mails und Bestellwechsel (O4/O11)
+// Die Nummer WR-JJJJ-NNNNN kommt aus `withdrawal_number_seq` (§8.7); Mails und Bestellwechsel (O4/O11)
 // folgen mit den Services in P6.
 
 const SLUG = 'withdrawals'
@@ -40,7 +41,7 @@ const ro = { readOnly: true } as const
 
 type Doc = Record<string, unknown>
 
-export const WITHDRAWAL_REFERENCE_RE = /^WR-\d{4}-\d{5}$/
+export const WITHDRAWAL_REFERENCE_RE = /^WR-\d{4}-\d{5,}$/
 const ORDER_NUMBER_IN_TEXT = /PC-\d{4}-\d{5}/
 
 /** Unveränderlich nach dem Eingang (DM-WDR-03). */
@@ -396,7 +397,11 @@ export const Withdrawals: CollectionConfig = {
     },
     ...seedField(),
   ],
-  hooks: { beforeChange: [guardWithdrawal], afterChange: [afterWithdrawalChange] },
+  hooks: {
+    beforeValidate: [assignSequenceNumber('reference', 'withdrawal')],
+    beforeChange: [guardWithdrawal],
+    afterChange: [afterWithdrawalChange],
+  },
 }
 
 export const WITHDRAWALS_SLUG = SLUG

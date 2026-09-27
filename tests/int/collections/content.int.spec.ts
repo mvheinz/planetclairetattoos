@@ -225,7 +225,8 @@ describe('inquiries (DATENMODELL §6.17)', () => {
       payload.create({ collection: 'inquiries', data: data as never, overrideAccess: true }),
       /Anfrageformular/,
     )
-    await rejects(create({ reference: 'AA-26-1' }), /AA-JJJJ-NNNN/)
+    // Nummer aus inquiry_number_seq (§8.7); mitgegebene Werte ersetzt der Server, nur der Seed bringt feste mit
+    await rejects(create({ reference: 'AA-26-1', seed: true }, { seed: true }), /AA-JJJJ-NNNN/)
     await rejects(create({ reference: 'AA-2026-0002', objectType: 'sonstiges' }), /Gegenstand/)
 
     const image = await payload.create({
@@ -236,6 +237,7 @@ describe('inquiries (DATENMODELL §6.17)', () => {
       context: { system: true },
     })
     const inquiry = await create({ referenceImages: [image.id] })
+    expect(inquiry.reference).toMatch(/^AA-2026-\d{4}$/)
     expect(inquiry.email).toBe('erika@example.com')
     expect(inquiry.status).toBe('new')
     expect(formatBerlin(new Date(inquiry.deleteAfter), 'dd.MM.yyyy HH:mm')).toBe(
@@ -250,7 +252,7 @@ describe('inquiries (DATENMODELL §6.17)', () => {
         template: 'inquiry_receipt',
         to: 'erika@example.com',
         locale: 'de',
-        subject: 'Deine Anfrage AA-2026-0001',
+        subject: `Deine Anfrage ${inquiry.reference}`,
         inquiry: inquiry.id,
       } as never,
       overrideAccess: true,
@@ -299,7 +301,7 @@ describe('inquiries (DATENMODELL §6.17)', () => {
       where: { action: { equals: 'inquiry_status_changed' } },
       overrideAccess: true,
     })
-    expect(audit.docs[0]?.summary).toMatch(/AA-2026-0001: new → in_progress/)
+    expect(audit.docs[0]?.summary).toContain(`${inquiry.reference}: new → in_progress`)
 
     await payload
       .delete({

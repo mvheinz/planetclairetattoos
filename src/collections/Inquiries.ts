@@ -18,9 +18,10 @@ import { formatBerlin } from '@/lib/time'
 import { registerUploadReference } from '@/lib/uploads/references'
 
 import { failField, idOf, rejectChanges } from './hooks/commerce'
+import { assignSequenceNumber } from './hooks/numbers'
 
 // DATENMODELL §6.17 – Anfragen Auftragsarbeiten (E-11). Anlage nur über den Route-Handler des Formulars (P7,
-// `create: none` für REST); die Nummer AA-JJJJ-NNNN kommt ab P1.26 aus `inquiry_number_seq` (§8.7). Mails
+// `create: none` für REST); die Nummer AA-JJJJ-NNNN kommt aus `inquiry_number_seq` (§8.7). Mails
 // (`inquiry_receipt`, `admin_inquiry_received`) und die Statusübergänge (`INQUIRY_TRANSITIONS`) folgen in P7.
 // Löschung `createdAt + 6 Monate` (L-10), unabhängig vom Bearbeitungsstand; nur verkürzbar.
 
@@ -30,7 +31,7 @@ const ro = { readOnly: true } as const
 
 type Doc = Record<string, unknown>
 
-export const INQUIRY_REFERENCE_RE = /^AA-\d{4}-\d{4}$/
+export const INQUIRY_REFERENCE_RE = /^AA-\d{4}-\d{4,}$/
 /** Höchstzahl Referenzbilder (E-11). */
 export const INQUIRY_MAX_IMAGES = 5
 
@@ -287,6 +288,7 @@ export const Inquiries: CollectionConfig = {
     ...seedField(),
   ],
   hooks: {
+    beforeValidate: [assignSequenceNumber('reference', 'inquiry')],
     beforeChange: [guardInquiry],
     afterChange: [auditStatus],
     beforeDelete: [deleteImages],

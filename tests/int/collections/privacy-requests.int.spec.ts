@@ -4,6 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { formatBerlin } from '@/lib/time'
 
+import { resetAdmin } from '../helpers/admin'
 import { dbOf } from '../helpers/commerce'
 import { getTestPayload } from '../helpers/payload'
 import { rest } from '../helpers/rest'
@@ -142,13 +143,51 @@ describe('privacy-requests (DATENMODELL §6.26)', () => {
     }
 
     await rejects(update(r.id, { types: [] }), /mindestens eine/)
+    // Nummer aus privacy_request_number_seq (§8.7): mitgegebene Werte ersetzt der Server; der Seed bringt sie mit
+    const own = await create(
+      { reference: 'DS-26-1', receivedAt: '2026-10-14T22:00:00.000Z' },
+      '2026-10-15T09:00:00.000Z',
+    )
+    expect(own.reference).toMatch(/^DS-2026-\d{4}$/)
     await rejects(
-      create(
-        { reference: 'DS-26-1', receivedAt: '2026-10-14T22:00:00.000Z' },
-        '2026-10-15T09:00:00.000Z',
-      ),
+      payload.create({
+        collection: 'privacy-requests',
+        data: {
+          reference: 'DS-26-1',
+          types: ['access'],
+          contactEmail: 'seed@example.com',
+          receivedAt: '2026-10-14T22:00:00.000Z',
+          seed: true,
+        } as never,
+        overrideAccess: true,
+        context: { seed: true, now: '2026-10-15T09:00:00.000Z' },
+      }),
       /DS-JJJJ-NNNN/,
     )
+  })
+
+  it('P1.26 Verwaltung legt eine Anfrage ohne Nummer an: DS-<Jahr>-NNNN fortlaufend aus der Sequenz', async () => {
+    const { token } = await resetAdmin(payload)
+    const now = new Date()
+    const post = () =>
+      rest(
+        'POST',
+        '/privacy-requests',
+        { types: ['access'], contactEmail: 'anfrage@example.com', receivedAt: now.toISOString() },
+        { authorization: `JWT ${token}` },
+      )
+    const first = await post()
+    expect(first.status).toBe(201)
+    const a = ((await first.json()) as { doc: { reference: string } }).doc.reference
+    const b = ((await (await post()).json()) as { doc: { reference: string } }).doc.reference
+    const year = formatBerlin(now, 'yyyy')
+    expect(a).toMatch(new RegExp(`^DS-${year}-\\d{4}$`))
+    expect(Number(b.slice(-4))).toBe(Number(a.slice(-4)) + 1)
+    await payload.delete({
+      collection: 'users',
+      where: { id: { exists: true } },
+      overrideAccess: true,
+    })
   })
 
   it('Zugriff: anonym 403, Löschen gesperrt (nur Task)', async () => {

@@ -1602,6 +1602,9 @@ export interface Inquiry {
  */
 export interface PrivacyRequest {
   id: number;
+  /**
+   * Wird beim Speichern automatisch vergeben.
+   */
   reference: string;
   types: (
     'access' | 'rectification' | 'erasure' | 'restriction' | 'portability' | 'objection' | 'consent_withdrawal'

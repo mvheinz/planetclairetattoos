@@ -15,7 +15,7 @@ import { immutableFields } from './hooks/immutable'
 export const DELETION_RULE_ID_REGEX = /^(?:L-\d{2}(?: [a-h])?(?: Stufe [A-D12])?|DSGVO|ADMIN)$/
 /** Interne ID ohne Personenbezug. */
 export const DELETION_ENTITY_ID_REGEX = /^[A-Za-z0-9_-]{1,64}$/
-export const PRIVACY_REQUEST_REF_REGEX = /^DS-\d{4}-\d{4}$/
+export const PRIVACY_REQUEST_REF_REGEX = /^DS-\d{4}-\d{4,}$/
 export const TASK_SLUG_REGEX = /^[a-z][A-Za-z0-9]{2,63}$/
 
 const optionalMatch = (re: RegExp, message: string) => (value: unknown) =>

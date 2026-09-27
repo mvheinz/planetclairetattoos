@@ -131,6 +131,16 @@ export async function deleteCommerce(payload: Payload): Promise<void> {
     'orders',
   ]) {
     const exists = await db.execute(sql`SELECT to_regclass(${table}) AS t`)
-    if (exists.rows[0]?.t) await db.execute(sql.raw(`DELETE FROM "${table}"`))
+    if (!exists.rows[0]?.t) continue
+    if (table === 'invoices') {
+      // Der GoBD-Trigger (§9.4) sperrt DELETE echter Belege: nur im Test in einem Statement kurz aussetzen
+      await db.execute(
+        sql.raw(`DO $$ BEGIN
+          ALTER TABLE invoices DISABLE TRIGGER USER;
+          DELETE FROM invoices;
+          ALTER TABLE invoices ENABLE TRIGGER USER;
+        END $$`),
+      )
+    } else await db.execute(sql.raw(`DELETE FROM "${table}"`))
   }
 }

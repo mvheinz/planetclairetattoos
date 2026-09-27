@@ -35,7 +35,7 @@ import { failField, idOf, rejectChanges } from './hooks/commerce'
 
 // DATENMODELL §6.9 – Rechnungen und Gutschriften (GoBD, E-04). Nummer lückenlos per Zählerzeile (§8.6) in der
 // Transaktion der Anlage; Steuermodus je Beleg eingefroren (E-02). Nach `issued` unveränderlich; der DB-Trigger
-// (§9.4) folgt in P1.26, PDF-Job `renderInvoicePdf` und `InvoiceDataV1` (zod) in P4.11.
+// (§9.4, `invoices_guard`) sichert zusätzlich in Postgres; PDF-Job `renderInvoicePdf` und `InvoiceDataV1` (zod) in P4.11.
 
 const SLUG = 'invoices'
 const fail = (message: string, path: string): never => failField(SLUG, message, path)

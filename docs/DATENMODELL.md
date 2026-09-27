@@ -2558,6 +2558,11 @@ Beleganlage setzt den Zähler mit zurück ⇒ lückenlos je Serie und Jahr. PDF-
 | Anfrage | `inquiry_number_seq` | `AA-<JJJJ>-<lpad(nextval, 4)>` |
 | Datenschutz-Anfrage | `privacy_request_number_seq` | `DS-<JJJJ>-<lpad(nextval, 4)>` |
 
+`lpad` heißt „mindestens so viele Stellen, mit Nullen aufgefüllt“ – längere Werte werden nicht gekürzt (Formate
+`^PC-\d{4}-\d{5,}$` usw.). Vergabe: `src/lib/db/sequences.ts` (`nextSequenceNumber`), angehängt als `beforeValidate`-Hook
+`assignSequenceNumber` an `orders`, `withdrawals`, `inquiries`, `privacy-requests`; ein vom Aufrufer übergebener Wert
+wird außer im Seed ersetzt.
+
 Seed-Daten verwenden feste Nummern ab 90001 bzw. 9001 (`PC-2026-90001`, `WR-2026-90001`, `AA-2026-9001`,
 `DS-2026-9001`) und ziehen **keine** Sequenzwerte (§13.3).
 
@@ -2614,23 +2619,32 @@ CREATE SEQUENCE IF NOT EXISTS privacy_request_number_seq AS bigint START 1 MINVA
 ### 9.2 CHECK-Constraints
 
 ```sql
-ALTER TABLE products ADD CONSTRAINT products_item_number_int CHECK (item_number >= 1 AND item_number = trunc(item_number));
+ALTER TABLE products ADD CONSTRAINT products_item_number_int CHECK (item_number >= 1 AND item_number <= 99999 AND item_number = trunc(item_number));
 ALTER TABLE products ADD CONSTRAINT products_price_positive CHECK (price_cents >= 100 AND price_cents = trunc(price_cents));
 ALTER TABLE products ADD CONSTRAINT products_reserved_consistent
   CHECK ((status = 'reserved') = (reserved_until IS NOT NULL AND reservation_ref IS NOT NULL));
 ALTER TABLE products ADD CONSTRAINT products_sold_consistent CHECK ((status = 'sold') = (sold_channel IS NOT NULL));
-ALTER TABLE products ADD CONSTRAINT products_no_commission CHECK (is_custom_commission = false);
+ALTER TABLE products ADD CONSTRAINT products_no_commission CHECK (is_custom_commission IS NOT TRUE);
 ALTER TABLE orders ADD CONSTRAINT orders_totals_consistent
   CHECK (total_cents = subtotal_cents + shipping_cents AND total_cents > 0 AND shipping_cents >= 0);
 ALTER TABLE orders ADD CONSTRAINT orders_cancel_reason CHECK (status <> 'cancelled' OR cancel_reason IS NOT NULL);
 ALTER TABLE checkouts ADD CONSTRAINT checkouts_totals_consistent
   CHECK (total_cents = subtotal_cents + shipping_cents AND total_cents > 0 AND shipping_cents >= 0);
-ALTER TABLE invoice_counters ADD CONSTRAINT invoice_counters_non_negative CHECK (last_number >= 0);
+ALTER TABLE invoice_counters ADD CONSTRAINT invoice_counters_non_negative CHECK (last_number >= 0 AND last_number = trunc(last_number));
 ALTER TABLE invoices ADD CONSTRAINT invoices_amount_positive CHECK (total_gross_cents > 0);
 ALTER TABLE invoices ADD CONSTRAINT invoices_credit_note_has_parent CHECK (type <> 'credit_note' OR related_invoice_id IS NOT NULL);
-ALTER TABLE flash ADD CONSTRAINT flash_repeatable_available CHECK (NOT repeatable OR status = 'available');
+ALTER TABLE flash ADD CONSTRAINT flash_repeatable_available CHECK (repeatable IS NOT TRUE OR status = 'available');
 ALTER TABLE revenue_entries ADD CONSTRAINT revenue_entries_non_negative CHECK (amount_cents >= 0);
 ALTER TABLE tattoo_offers ADD CONSTRAINT tattoo_offers_dates CHECK (ends_at > starts_at);
+
+-- Jede Cent-Spalte (Liste `CENT_COLUMNS` in der Migration) ganzzahlig und ≥ 0, Name `<tabelle>_<spalte>_ck`:
+-- checkouts.{subtotal,shipping,total}_cents, checkouts_items.price_cents, orders.{subtotal,shipping,total,
+-- stripe_amount_received,stripe_fee,prepayment_received_amount}_cents, orders_items.{price,refunded}_cents,
+-- orders_refunds.amount_cents, invoices.total_{gross,net,tax}_cents, flash.price_cents, revenue_entries.amount_cents,
+-- alle *_cents-Spalten von settings (inkl. settings_costs_monthly_entries, settings_revenue_guard_manual_year_totals,
+-- settings_shipping_rates). products.price_cents deckt products_price_positive ab.
+ALTER TABLE orders ADD CONSTRAINT orders_stripe_fee_cents_ck CHECK (stripe_fee_cents >= 0 AND stripe_fee_cents = trunc(stripe_fee_cents));
+-- … usw.; der Test pg-objects.int.spec.ts verlangt für jede *_cents-Spalte einen CHECK (neue Spalten: Migration ergänzen)
 ```
 
 ### 9.3 Partielle UNIQUE-Indizes
@@ -2646,7 +2660,7 @@ DECLARE t text;
 BEGIN
   FOREACH t IN ARRAY ARRAY['media', 'documents', 'private_uploads', 'products', 'checkouts', 'reservations', 'orders',
     'invoices', 'withdrawals', 'conformity_declarations', 'flash', 'tattoo_offers', 'tattoo_gallery', 'inquiries',
-    'privacy_requests', 'faqs', 'pages', 'revenue_entries', 'audit_log', 'email_log', 'consent_log'] LOOP
+    'privacy_requests', 'faqs', 'pages', 'revenue_entries', 'audit_log', 'email_log', 'consent_log', 'legal_texts'] LOOP
     EXECUTE format('CREATE UNIQUE INDEX %I ON %I (seed_key) WHERE seed_key IS NOT NULL', t || '_seed_key_unique', t);
   END LOOP;
 END $$;
@@ -2686,10 +2700,11 @@ BEGIN
     OR NEW.sequence_number IS DISTINCT FROM OLD.sequence_number OR NEW.order_id IS DISTINCT FROM OLD.order_id
     OR NEW.related_invoice_id IS DISTINCT FROM OLD.related_invoice_id OR NEW.issue_date IS DISTINCT FROM OLD.issue_date
     OR NEW.delivery_date IS DISTINCT FROM OLD.delivery_date OR NEW.tax_mode IS DISTINCT FROM OLD.tax_mode
-    OR NEW.is_kleinunternehmer IS DISTINCT FROM OLD.is_kleinunternehmer
+    OR NEW.is_kleinunternehmer IS DISTINCT FROM OLD.is_kleinunternehmer OR NEW.reason IS DISTINCT FROM OLD.reason
     OR NEW.total_gross_cents IS DISTINCT FROM OLD.total_gross_cents OR NEW.total_net_cents IS DISTINCT FROM OLD.total_net_cents
     OR NEW.total_tax_cents IS DISTINCT FROM OLD.total_tax_cents
-    OR NEW.retain_until IS DISTINCT FROM OLD.retain_until OR NEW.seed IS DISTINCT FROM OLD.seed;
+    OR NEW.retain_until IS DISTINCT FROM OLD.retain_until OR NEW.seed IS DISTINCT FROM OLD.seed
+    OR NEW.created_at IS DISTINCT FROM OLD.created_at;
   IF v_core_changed THEN
     RAISE EXCEPTION 'GoBD: Beleg % ist unveränderbar', OLD.number;
   END IF;
@@ -2716,7 +2731,8 @@ END $$;
 CREATE TRIGGER invoices_guard BEFORE UPDATE OR DELETE ON invoices FOR EACH ROW EXECUTE FUNCTION pc_guard_invoices();
 ```
 
-(`updated_at` darf sich ändern.) Unveränderlichkeit von `withdrawals`, `legal-texts` (aktiv/abgelöst) und
+(`updated_at` darf sich ändern. Umsetzung P1.26: alle `RAISE EXCEPTION … USING ERRCODE = 'check_violation'` (23514);
+`reason` und `created_at` gehören zu den Kernfeldern, weil die Spalte `reason` in `invoices` existiert.) Unveränderlichkeit von `withdrawals`, `legal-texts` (aktiv/abgelöst) und
 Bestell-Snapshots wird über Hooks + Feldzugriff gesichert; Tests DM-WDR-03, DM-LEG-03, DM-ORD-02 decken das ab.
 
 ---

@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P1.26
+
+- Migration p1_constraints: 4 Sequenzen, CHECKs aus §9.2 (item_number 1–99999, Summen, Storno-Grund …) plus Cent-CHECK für jede *_cents-Spalte, partielle UNIQUE-Indizes (aktive Reservierung/Rechtstext, eine Rechnung je Bestellung, seed_key für 22 Tabellen), GoBD-Trigger invoices_guard; down entfernt alles.\n- Nummern PC-/WR-/AA-/DS- aus den Sequenzen (src/lib/db/sequences.ts, Hook assignSequenceNumber); die Verwaltung kann Datenschutz-Anfragen ohne Nummer anlegen.\n- DATENMODELL §8.7/§9 an die echten Spalten angepasst (reason, created_at, legal_texts).\n- Tests: int pg-objects (6, T-14/DM-P1-02, inkl. down/up), constraints (16, DM-RES-03, DM-INV-03, CHECKs, Sequenzen), angepasste Nummern-Tests; pnpm check, test:int (304), build grün.
+
 ## 2026-09-27 – P1.24
 
 - Collections `inquiries` (Anlage nur serverseitig, Löschfrist createdAt + 6 Monate nur verkürzbar, Datenschutz-Fassung, Bilder werden mitgelöscht), `faqs`, `pages` (17 Blöcke unter src/blocks/, Entwürfe, key eindeutig, stationId je Seite eindeutig), `revenue-entries` (UNIQUE Monat+Quelle, echter Eintrag ersetzt Seed-Eintrag), `privacy-requests` (Frist +1 Monat kalendergenau Berlin, Übergänge, L-17, Audit ohne Inhalte, kein Löschen)\n- Übernahme-Regel für pages/faqs; email-log.inquiry, consent-log.inquiry, private-uploads.relatedInquiry/relatedPrivacyRequest; Migration `p1_content`\n- Tests: int content (5) und privacy-requests (3, DM-PRQ-01); check, test:int, build grün
