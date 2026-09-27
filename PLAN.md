@@ -392,7 +392,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - unit `tests/unit/setup/network-guard.unit.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P1.6 Zugriffsschicht, Kontext-Flags, öffentliche Lesezugriffe, Feldbausteine** –
+- [x] **P1.6 Zugriffsschicht, Kontext-Flags, öffentliche Lesezugriffe, Feldbausteine** –
   - `src/access/index.ts`: `isAdmin`, `none`, `publicRead(where)`, `adminField` (DATENMODELL §1.4). `publicRead` hängt
     `{ seed: { equals: false } }` an, wenn `SEED_PREVIEW_MODE !== 'true'`.
   - `src/lib/payload/context.ts`: Typ `AppContext` mit `system`, `transition`, `seed`, `skipAudit`, `translation`, dazu

@@ -67,3 +67,9 @@ export function parseEuroInput(input: string): number | null {
   const cents = Number(intPart) * 100 + Number((frac ?? '').padEnd(2, '0') || '0')
   return Number.isSafeInteger(cents) ? cents : null
 }
+
+/** Cent → Eingabetext im Admin („3850“ → „38,50“), ohne Tausenderpunkte; `''` für leer. */
+export function formatEuroInput(cents: number | null | undefined): string {
+  if (cents === null || cents === undefined || !Number.isSafeInteger(cents) || cents < 0) return ''
+  return `${Math.trunc(cents / 100)},${String(cents % 100).padStart(2, '0')}`
+}
