@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P1.33
+
+- `ci.yml` (Job `quick`) vollständig nach ARCHITEKTUR §6.3: Next-Cache, `check:bundle` + `check:external --built`, Playwright Chromium + WebKit (gecacht), E2E-Rauchtest, gitleaks 8.30.1 (gepinnt, Prüfsumme, nur PR-Commits, `.gitleaks.toml`), `pnpm audit` (critical blockiert, high als Warnung); bei Fehler Budget-Schritt `pnpm ci:artifacts` → Upload nur bei `upload_optional=true`, 2 Tage; `permissions: contents/actions: read`.\n- Neu: `scripts/check-bundle.ts` (Gerüst, nur Gesamtgröße), `scripts/ci/artifact-budget.ts` + `scripts/ci/gh.ts` (gh-Aufrufe injizierbar), `ci-full.yml` (Gerüst, nur `workflow_dispatch`), `.github/dependabot.yml` (nur Sicherheits-Updates), PR-Vorlage; Dev-Abhängigkeit `yaml` 2.9.1.\n- `pnpm audit --prod`: nur eine moderate Lücke (esbuild über drizzle-kit), keine high/critical.\n- Tests: `workflows.unit.spec.ts` (16), `artifact-budget.unit.spec.ts` (5) grün; `pnpm check`, E2E-Rauchtest mit `E2E_SERVER=start` (16 grün), gitleaks lokal ohne Fund.
+
 ## 2026-09-27 – P1.32
 
 - `check:static` Teilprüfung `generated-files`: erzeugt `src/payload-types.ts` und `importMap.js` neu, meldet Abweichungen und `any` (DM-P1-06); `typescript.schema`-Hook entfernt Lexicals `tsType: 'any'`.\n- DM-P1-05-Test (TypeScript-AST) für Collections/Globals; `documents.language` nimmt die Optionen jetzt aus `LOCALES`.\n- R-001-Nachverfolgbarkeit (`LEGAL_TRACE_PHASE = 1`, Tabelle §3 geparst, Gegenprobe) und Verbotsmuster-Scan über `src/**`/`content/**` mit begründeter Allowlist.\n- Tests: 5 neue Unit-Dateien grün; `pnpm check`, `pnpm test:int`, `pnpm build`, `check:migrations` grün.

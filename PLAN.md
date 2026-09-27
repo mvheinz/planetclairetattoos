@@ -1172,7 +1172,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - unit `forbidden.unit.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P1.33 CI-Erweiterung und Repo-Pflege** – `.github/workflows/ci.yml`, Job `quick`, mit Schritten und Umgebung genau
+- [x] **P1.33 CI-Erweiterung und Repo-Pflege** – `.github/workflows/ci.yml`, Job `quick`, mit Schritten und Umgebung genau
   nach ARCHITEKTUR §6.3:
   1. Installation;
   2. Lint;

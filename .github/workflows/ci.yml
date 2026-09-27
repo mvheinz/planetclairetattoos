@@ -10,8 +10,10 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Minimal: Code lesen; `actions: read` für den Budget-Schritt (Artefakt-Liste, §6.2).
 permissions:
   contents: read
+  actions: read
 
 jobs:
   quick:
@@ -62,10 +64,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            msg=$(gh api "repos/${{ github.repository }}/commits/${{ github.event.pull_request.head.sha }}" --jq .commit.message)
+            sha="${{ github.event.pull_request.head.sha }}"
+            msg=$(gh api "repos/${{ github.repository }}/commits/$sha" --jq .commit.message)
           else
+            sha="${{ github.sha }}"
             msg=""
           fi
+          echo "sha7=${sha:0:7}" >> "$GITHUB_OUTPUT"
           if echo "$msg" | grep -qE '\[ci:update-snapshots\]|\[ci:art\]'; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
             echo "quick übersprungen (Kennung im Kopf-Commit)" >> "$GITHUB_STEP_SUMMARY"
@@ -74,6 +79,8 @@ jobs:
           fi
       - if: steps.mode.outputs.skip != 'true'
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # gitleaks prüft die Commits des PR
       - if: steps.mode.outputs.skip != 'true'
         uses: pnpm/action-setup@v6
       - if: steps.mode.outputs.skip != 'true'
@@ -102,6 +109,80 @@ jobs:
       - name: Integrationstests
         if: steps.mode.outputs.skip != 'true'
         run: pnpm run test:int
+      - name: Next.js-Cache
+        if: steps.mode.outputs.skip != 'true'
+        uses: actions/cache@v6
+        with:
+          path: .next/cache
+          key: next-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('src/**') }}
+          restore-keys: next-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
       - name: Seed + Build
         if: steps.mode.outputs.skip != 'true'
         run: pnpm run seed && pnpm run build
+      - name: Budgets
+        if: steps.mode.outputs.skip != 'true'
+        run: pnpm run check:bundle && pnpm run check:external --built
+      - name: Playwright-Version
+        id: pw
+        if: steps.mode.outputs.skip != 'true'
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Playwright-Browser-Cache
+        id: pw-cache
+        if: steps.mode.outputs.skip != 'true'
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+      - name: Playwright Chromium + WebKit
+        if: steps.mode.outputs.skip != 'true'
+        run: |
+          if [ "${{ steps.pw-cache.outputs.cache-hit }}" = "true" ]; then
+            pnpm exec playwright install-deps chromium webkit
+          else
+            pnpm exec playwright install --with-deps chromium webkit
+          fi
+      - name: E2E-Rauchtest
+        if: steps.mode.outputs.skip != 'true'
+        run: pnpm run test:e2e --grep @smoke --project=desktop --project=iphone-15
+      - name: Geheimnis-Scan
+        if: steps.mode.outputs.skip != 'true'
+        env:
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          url="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfL -o "$RUNNER_TEMP/gitleaks.tgz" "$url"
+          echo "${GITLEAKS_SHA256}  $RUNNER_TEMP/gitleaks.tgz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/gitleaks.tgz" -C "$RUNNER_TEMP" gitleaks
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            range="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+            "$RUNNER_TEMP/gitleaks" detect --source . --config .gitleaks.toml --redact --no-banner --log-opts="$range"
+          else
+            "$RUNNER_TEMP/gitleaks" detect --source . --config .gitleaks.toml --redact --no-banner
+          fi
+      - name: Abhängigkeiten
+        if: steps.mode.outputs.skip != 'true'
+        run: |
+          if ! pnpm audit --prod --audit-level=high; then
+            echo "Warnung: pnpm audit meldet Lücken der Stufe high (blockiert nur bei critical, §8.10)." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          pnpm audit --prod --audit-level=critical
+      # Bei Fehler (§6.2): erst der Budget-Schritt, dann – nur bei upload_optional=true – der Fehlerbericht (2 Tage).
+      - name: Artefakt-Budget
+        id: budget
+        if: failure() && steps.mode.outputs.skip != 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: pnpm run ci:artifacts
+      - name: Fehlerbericht hochladen
+        if: failure() && steps.budget.outputs.upload_optional == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-report-${{ steps.mode.outputs.sha7 }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 2
+          if-no-files-found: ignore

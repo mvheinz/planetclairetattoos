@@ -109,6 +109,7 @@ aus §10–§13 dieses Dokuments); DNS-Umstellung und Start-Checkliste für P11 
 | `zod` | 4.x | P1 | Validierung an allen Grenzen (§15) |
 | `date-fns`, `@date-fns/tz` | 4.x / 1.x | P1 | Berliner Kalendertage, Monatsgrenzen (`src/lib/time.ts`) |
 | `exifr` (dev) | aktuell | P1 | EXIF-Tests (R-135) |
+| `yaml` (dev) | 2.x | P1 | Workflow-Test `tests/unit/ci/workflows.unit.spec.ts` parst `.github/**/*.yml` (P1.33) |
 | `next-intl` | 4.x (≥ 4.14) | P2 | Routing DE/EN, Nachrichten; `localeCookie: false` (R-130) |
 | `@fontsource/mansalva`, `@fontsource-variable/bricolage-grotesque`, `@fontsource/ibm-plex-mono` | aktuell | P2 | nur Quelle für das Kopierskript nach `src/styles/fonts/` (DESIGN §4.1) |
 | `subset-font` (dev) | aktuell | P2 | Schrift-Subsetting in `pnpm fonts:copy` (harfbuzz-wasm, ohne Python): beschneidet Bricolage bei Bedarf auf `wght 400–700` (DESIGN §4.1); Skripte bleiben TypeScript über `tsx` |
