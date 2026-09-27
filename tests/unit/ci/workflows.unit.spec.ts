@@ -213,6 +213,7 @@ describe('ci.yml – Job quick (§6.3)', () => {
       .scripts
     expect(scripts['ci:artifacts']).toBe('tsx scripts/ci/artifact-budget.ts')
     expect(scripts['check:bundle']).toBe('tsx scripts/check-bundle.ts')
+    expect(scripts['ci:minutes']).toBe('tsx scripts/ci/minutes.ts')
   })
 })
 

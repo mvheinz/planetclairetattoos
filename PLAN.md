@@ -1228,7 +1228,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - CI-Nachweis im Phasenende-Lauf `[ci:full p1]`.
   - Ohne Jutta: Jutta klickt nur „Merge“ (A07).
 
-- [ ] **P1.33a Minuten-Wächter für GitHub Actions** – `pnpm ci:minutes` (`scripts/ci/minutes.ts`, ARCHITEKTUR §6.8,
+- [x] **P1.33a Minuten-Wächter für GitHub Actions** – `pnpm ci:minutes` (`scripts/ci/minutes.ts`, ARCHITEKTUR §6.8,
   §6.10; Skript in `package.json`) summiert die abrechenbaren Minuten des laufenden Kalendermonats (UTC): Läufe über
   `gh api repos/{owner}/{repo}/actions/runs` (Filter `created`, alle Seiten), je Lauf
   `gh api repos/{owner}/{repo}/actions/runs/<id>/timing`, Summe über `billable.UBUNTU.job_runs[].duration_ms`, je Job

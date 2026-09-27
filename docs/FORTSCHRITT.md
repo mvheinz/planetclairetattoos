@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P1.33a
+
+- `pnpm ci:minutes` (`scripts/ci/minutes.ts`): Läufe des laufenden UTC-Monats (`created>=JJJJ-MM-01`, alle Seiten), je Lauf `timing` (`billable.UBUNTU.job_runs`), sonst `jobs` (`completed_at − started_at`), je Job aufgerundet; Ausgabe `MINUTEN_MONAT`/`MINUTEN_STATUS` (knapp ab 1.500, erschoepft ab 2.000, `unbekannt` mit deutscher Meldung bei fehlendem `gh`/Netz/Rechten); Exit immer 0; nur GET über injizierbare `gh`-Aufrufe.\n- Lokal ohne `gh`: `MINUTEN_STATUS=unbekannt` („Minuten-Stand nicht abrufbar“).\n- Tests: `minutes.unit.spec.ts` (6, AK-A-6-03) mit aufgezeichneten Antworten unter `tests/fixtures/github/minutes/`; `pnpm check` grün.
+
 ## 2026-09-27 – P1.33
 
 - `ci.yml` (Job `quick`) vollständig nach ARCHITEKTUR §6.3: Next-Cache, `check:bundle` + `check:external --built`, Playwright Chromium + WebKit (gecacht), E2E-Rauchtest, gitleaks 8.30.1 (gepinnt, Prüfsumme, nur PR-Commits, `.gitleaks.toml`), `pnpm audit` (critical blockiert, high als Warnung); bei Fehler Budget-Schritt `pnpm ci:artifacts` → Upload nur bei `upload_optional=true`, 2 Tage; `permissions: contents/actions: read`.\n- Neu: `scripts/check-bundle.ts` (Gerüst, nur Gesamtgröße), `scripts/ci/artifact-budget.ts` + `scripts/ci/gh.ts` (gh-Aufrufe injizierbar), `ci-full.yml` (Gerüst, nur `workflow_dispatch`), `.github/dependabot.yml` (nur Sicherheits-Updates), PR-Vorlage; Dev-Abhängigkeit `yaml` 2.9.1.\n- `pnpm audit --prod`: nur eine moderate Lücke (esbuild über drizzle-kit), keine high/critical.\n- Tests: `workflows.unit.spec.ts` (16), `artifact-budget.unit.spec.ts` (5) grün; `pnpm check`, E2E-Rauchtest mit `E2E_SERVER=start` (16 grün), gitleaks lokal ohne Fund.

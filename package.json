@@ -38,7 +38,8 @@
     "admin:unlock": "tsx --import=./scripts/lib/register-server-only.mjs scripts/admin-unlock.ts",
     "check:external": "tsx scripts/check-external.ts",
     "check:bundle": "tsx scripts/check-bundle.ts",
-    "ci:artifacts": "tsx scripts/ci/artifact-budget.ts"
+    "ci:artifacts": "tsx scripts/ci/artifact-budget.ts",
+    "ci:minutes": "tsx scripts/ci/minutes.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1141.0",
