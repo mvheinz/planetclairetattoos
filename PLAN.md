@@ -1436,7 +1436,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     (jsdom).
   - Ohne Jutta: –
 
-- [ ] **P2.7 Grundbausteine KO-11, KO-12, KO-17, KO-22** – `src/components/ui/`:
+- [x] **P2.7 Grundbausteine KO-11, KO-12, KO-17, KO-22** – `src/components/ui/`:
   - `Button` mit den Varianten aus KO-11 (Primär, Sekundär mit MI-06-Unterstreichung, Link), Höhe ≥ 48 px;
   - `Field`, `Checkbox`, `Radio`, `Select` in der Basis von KO-12 (Label, Hilfe, Fehler, `aria-describedby`, nie
     vorbelegte Häkchen);

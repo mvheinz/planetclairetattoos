@@ -1,0 +1,183 @@
+/* KO-12 Formulare (DESIGN §8): Label über dem Feld, Hinweis und Fehler darunter, Feldhöhe 48 px, Text 16 px (kein
+   iOS-Zoom), Fokusring aus global.css (Stencil 3 px), Fehler ohne Animation. */
+.field,
+.choiceField {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.fieldset {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: 0;
+  border: 0;
+}
+
+.label {
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+.required {
+  color: var(--ink);
+}
+
+.requiredNote,
+.hint {
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+.control {
+  width: 100%;
+  min-height: 48px;
+  padding: var(--space-2) var(--space-3);
+  border: var(--stroke-ui) solid var(--ink-2);
+  border-radius: var(--r-field);
+  background: var(--paper-field);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+textarea.control {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.control::placeholder {
+  color: var(--ink-3);
+  opacity: 1;
+}
+
+.control:focus-visible {
+  border-color: var(--ink);
+}
+
+.invalid .control {
+  border: 2px solid var(--error);
+}
+
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--error);
+}
+
+.errorIcon {
+  flex: none;
+  margin-top: 1px;
+}
+
+/* Select: native Auswahl mit eigenem Pfeil. */
+.selectWrap {
+  position: relative;
+}
+
+.select {
+  appearance: none;
+  padding-inline-end: 44px;
+  cursor: pointer;
+}
+
+.selectArrow {
+  position: absolute;
+  top: 50%;
+  right: var(--space-3);
+  transform: translateY(-50%) rotate(90deg);
+  pointer-events: none;
+  color: var(--ink);
+}
+
+/* Checkbox/Radio: Zielfläche inkl. Label ≥ 44 px hoch. */
+.choice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  min-height: var(--tap-min);
+  padding-block: 10px;
+}
+
+.choiceControl {
+  position: relative;
+  flex: none;
+  width: 24px;
+  height: 24px;
+}
+
+.choiceInput {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.box {
+  width: 24px;
+  height: 24px;
+  color: var(--ink);
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.boxLine {
+  stroke-width: var(--stroke-ui);
+  fill: var(--paper-field);
+}
+
+.tick {
+  stroke-width: 2.2px;
+  visibility: hidden;
+}
+
+.dot {
+  fill: currentColor;
+  stroke-width: 1px;
+  visibility: hidden;
+}
+
+.choiceInput:checked + .box .tick,
+.choiceInput:checked + .box .dot {
+  visibility: visible;
+}
+
+.choiceInput:focus-visible + .box {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.invalid .boxLine {
+  stroke: var(--error);
+  stroke-width: 2px;
+}
+
+.choiceLabel {
+  padding-top: 1px;
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+@media (forced-colors: active) {
+  .box {
+    color: CanvasText;
+  }
+}

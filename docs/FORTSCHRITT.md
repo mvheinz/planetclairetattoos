@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P2.7
+
+- Grundbausteine unter src/components/ui/: Button (Primär/Sekundär/Text, KO-11), Field/Select/Checkbox/Radio/RadioGroup (KO-12), EmptyState (KO-17-Rahmen mit Coco-Platz), Callout (KO-22), PlaceholderBanner (R-002), LinkUnderline (MI-06, für Sekundärknopf und Menü)\n- Checkbox/Radio haken nur bei ausdrücklichem checked=true an; Knopf-/Auswahl-Zielflächen ≥ 44 px\n- Tests: unit tests/unit/components/ui.unit.spec.tsx (14, jsdom + Testing Library); pnpm check, test:int grün
+
 ## 2026-09-27 – P2.6
 
 - src/behaviors/types.ts (mount → unmount), Register src/behaviors/index.ts mit mountBehaviors (lädt per import() nur Benötigtes), BehaviorHost im Layout (bindet bei Routenwechsel neu)

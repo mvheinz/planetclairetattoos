@@ -1,0 +1,59 @@
+/* MI-06 Unterstreichung zeichnen (DESIGN §11.5, KO-03): stroke-dashoffset 1 → 0 in 280 ms `--ease-ink-out`; beim
+   Verlassen nur Ausblenden (150 ms), nie rückwärts „radieren“. Reduzierte Bewegung: global.css setzt die Dauer auf
+   ~0, die Linie erscheint sofort. Der Wirt trägt `data-underline-host` und `position: relative`. */
+.underline {
+  position: absolute;
+  left: -4px;
+  bottom: 2px;
+  width: calc(100% + 8px);
+  height: 8px;
+  overflow: visible;
+  pointer-events: none;
+  color: var(--ink);
+}
+
+.path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--stroke-ink);
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+  /* Verlassen: erst ausblenden, dann (unsichtbar) zurücksetzen. */
+  transition:
+    opacity 150ms var(--ease-calm),
+    stroke-dashoffset 0s linear 150ms;
+}
+
+:global([data-underline-host]:focus-visible) .path,
+:global([data-underline-host]:active) .path {
+  stroke-dashoffset: 0;
+  opacity: 1;
+  transition:
+    stroke-dashoffset var(--dur-underline) var(--ease-ink-out),
+    opacity 0s linear;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :global([data-underline-host]:hover) .path {
+    stroke-dashoffset: 0;
+    opacity: 1;
+    transition:
+      stroke-dashoffset var(--dur-underline) var(--ease-ink-out),
+      opacity 0s linear;
+  }
+}
+
+/* Aktuelle Seite / aktiver Bereich: statisch gezeichnet. */
+:global([data-underline-host][aria-current]) .path {
+  stroke-dashoffset: 0;
+  opacity: 1;
+  transition: none;
+}
+
+@media (forced-colors: active) {
+  .underline {
+    color: CanvasText;
+  }
+}

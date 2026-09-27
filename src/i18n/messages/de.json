@@ -56,7 +56,8 @@
   },
   "legal": {
     "placeholder": "Platzhalter – der verbindliche Text folgt nach Prüfung durch die Kanzlei.",
-    "version": "Stand"
+    "version": "Stand",
+    "placeholderBanner": "PLATZHALTER – nicht rechtsverbindlich"
   },
   "errors": {
     "notFoundTitle": "Coco hat sich losgerissen",
@@ -78,5 +79,13 @@
     "banner": "Vorschau-Datei mit Beispieldaten",
     "notBuilt": "Noch nicht gebaut",
     "seedBanner": "Vorschau mit Beispieldaten"
+  },
+  "ui": {
+    "callout": {
+      "deviationTitle": "Bitte beachten:"
+    },
+    "form": {
+      "requiredNote": "* Pflichtfeld"
+    }
   }
 }
