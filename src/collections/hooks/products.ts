@@ -11,7 +11,7 @@ import { writeAudit } from '@/lib/audit'
 import { revalidateProduct } from '@/lib/cache/revalidate'
 import { LOCALES, type Locale, type ProductCategory, type ProductStatus } from '@/lib/enums'
 import { formatMoney } from '@/lib/money'
-import { getAppContext } from '@/lib/payload/context'
+import { getAppContext, requestNow } from '@/lib/payload/context'
 import { preservingReq } from '@/lib/payload/localReq'
 import {
   applyCategoryDefaults,
@@ -27,7 +27,15 @@ import {
   isReservedItemNumber,
   isValidItemNumber,
 } from '@/lib/products/itemNumber'
-import { pickLocale } from '@/lib/products/localized'
+import { pickLocale, type LocalizedValue } from '@/lib/products/localized'
+import {
+  checkFoodContact,
+  relationId,
+  validateForPublish,
+  type ProductForValidation,
+  type PublishContext,
+  type PublishIssue,
+} from '@/lib/products/validate'
 import {
   appendWarnings,
   containsWarning,
@@ -270,7 +278,146 @@ export const guardProduct: CollectionBeforeChangeHook = async ({
     data.safetyWarnings = appendWarnings(text, keys, locale)
   }
   data.isCustomCommission = false
+  await runPublishChecks(data, original, operation, req)
   return data
+}
+
+/** Übergänge, bei denen das System die Veröffentlichungsprüfung braucht (§6.6.7 P2, P11). */
+const PUBLISH_TRANSITIONS = new Set(['publish', 'returnToStock'])
+/** Lokalisierte Felder, die `validateForPublish` liest. */
+const LOCALIZED_FIELDS = new Set([
+  'title',
+  'description',
+  'juttaSays',
+  'materials',
+  'sizeLabel',
+  'conditionNote',
+  'fiberFreeText',
+  'careInstructions',
+  'metalPartsMaterial',
+  'safetyWarnings',
+  'deviationDescription',
+])
+
+const isObj = (v: unknown): v is Doc => typeof v === 'object' && v !== null && !Array.isArray(v)
+const idList = (v: unknown): (number | string)[] =>
+  Array.isArray(v) ? v.map(relationId).filter((id): id is number | string => id !== null) : []
+const sameIds = (a: unknown, b: unknown) => idList(a).join(',') === idList(b).join(',')
+
+/** Stand nach dem Speichern: alle Sprachen aus der Datenbank, darüber die Änderungen dieser Sprache. */
+async function productView(
+  data: Doc,
+  original: Doc,
+  operation: 'create' | 'update',
+  req: PayloadRequest,
+): Promise<Doc> {
+  const locale = requestLocale(req)
+  const full =
+    operation === 'update' && original.id !== undefined
+      ? ((await preservingReq(req, () =>
+          req.payload.findByID({
+            collection: 'products',
+            id: original.id as number,
+            locale: 'all',
+            depth: 0,
+            overrideAccess: true,
+            req,
+          }),
+        )) as unknown as Doc)
+      : {}
+  const view: Doc = { ...full }
+  for (const [key, value] of Object.entries(data)) {
+    if (LOCALIZED_FIELDS.has(key)) {
+      view[key] = { ...(isObj(full[key]) ? full[key] : {}), [locale]: value }
+    } else if (key === 'dimensions' && isObj(value)) {
+      view[key] = { ...(isObj(full[key]) ? full[key] : {}), ...value }
+    } else {
+      view[key] = value
+    }
+  }
+  return view
+}
+
+/**
+ * `beforeChange` Nr. 4 (§6.6.6): Veröffentlichungsprüfung bei jedem Speichern mit `status ∈ {available, reserved}`
+ * (auch `draft → available`, `sold → available`); „lebensmittelecht“ zusätzlich bei jedem Entwurf und bei
+ * `sold`/`archived`, wenn Lebensmittelkontakt oder Erklärungen geändert werden (AK-7-01, R-044). Reine
+ * Systemschreibvorgänge (Reservierung freigeben, Folge-Updates) prüfen nur bei `publish`/`returnToStock`.
+ */
+async function runPublishChecks(
+  data: Doc,
+  original: Doc,
+  operation: 'create' | 'update',
+  req: PayloadRequest,
+): Promise<void> {
+  const ctx = getAppContext(req)
+  if (ctx.localeSync) return
+  const status = (data.status ?? original.status ?? 'draft') as ProductStatus
+  const systemOnly = !!ctx.system && !PUBLISH_TRANSITIONS.has(ctx.transition ?? '')
+  const live = (status === 'available' || status === 'reserved') && !systemOnly
+  const merged = { ...original, ...data }
+  const foodChanged =
+    (data.foodContact !== undefined && data.foodContact !== original.foodContact) ||
+    (data.conformityDeclarations !== undefined &&
+      !sameIds(data.conformityDeclarations, original.conformityDeclarations))
+  const checkFood =
+    merged.foodContact === 'lebensmittelecht' &&
+    (status === 'draft' || live || ((status === 'sold' || status === 'archived') && foodChanged))
+  if (!live && !checkFood) return
+
+  const view = await productView(data, original, operation, req)
+  const find = (collection: 'media' | 'conformity-declarations', ids: (number | string)[]) =>
+    ids.length === 0
+      ? Promise.resolve([] as Doc[])
+      : preservingReq(req, () =>
+          req.payload.find({
+            collection,
+            where: { id: { in: ids } },
+            locale: 'all',
+            depth: 0,
+            limit: 0,
+            pagination: false,
+            overrideAccess: true,
+            req,
+          }),
+        ).then((r) => r.docs as unknown as Doc[])
+  const declarations = (
+    await find('conformity-declarations', idList(view.conformityDeclarations))
+  ).map((d) => ({
+    id: d.id as number,
+    status: d.status as string,
+    validFrom: d.validFrom as string,
+  }))
+  const now = requestNow(req)
+  let issues: PublishIssue[]
+  if (live) {
+    const images = (await find('media', idList(view.images))).map((m) => ({
+      id: m.id as number,
+      alt: m.alt as LocalizedValue,
+      restricted: m.restricted as boolean | null,
+    }))
+    const settings = req.payload.config.globals.some((g) => g.slug === 'settings')
+      ? ((await preservingReq(req, () =>
+          req.payload.findGlobal({ slug: 'settings', req, depth: 0, overrideAccess: true }),
+        )) as unknown as Doc)
+      : {}
+    const legal = (settings.legal ?? {}) as Doc
+    issues = validateForPublish(view as ProductForValidation, {
+      allowVisibleBlankBrands: legal.allowVisibleBlankBrands === true,
+      business: (settings.business ?? null) as PublishContext['business'],
+      images,
+      declarations,
+      now,
+    })
+  } else {
+    issues = checkFoodContact(view as ProductForValidation, { declarations, now })
+  }
+  if (issues.length > 0) {
+    throw new ValidationError({
+      collection: PRODUCTS_SLUG,
+      errors: issues.map((i) => ({ path: i.field, message: i.message })),
+    })
+  }
 }
 
 /**

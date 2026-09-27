@@ -759,7 +759,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - int `tests/int/products/item-number.int.spec.ts` (DM-PROD-05, AK-7-03, R-041).
   - Ohne Jutta: –
 
-- [ ] **P1.18 Veröffentlichungsprüfung je Kategorie** – `src/lib/products/validate.ts` → `validateForPublish(product,
+- [x] **P1.18 Veröffentlichungsprüfung je Kategorie** – `src/lib/products/validate.ts` → `validateForPublish(product,
   ctx)` setzt die Tabelle DATENMODELL §6.6.6 um (inklusive der Regeln nach R-043–R-048). Sie läuft bei
   `draft → available`, `sold → available` und bei jedem Speichern mit `status ∈ {available, reserved}`. Fehler werden
   gesammelt, deutsch und mit Feldname. Die Lint-Listen V-13 und V-16 liegen in `src/lib/legal/forbidden.ts`.

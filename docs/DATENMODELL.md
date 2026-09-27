@@ -981,18 +981,18 @@ entfernt sind“); der Vorschlag überspringt den Bereich (§13.3).
   nicht bestimmen lässt).
 - Anzeige vor „In den Korb“ (nicht eingeklappt), Format „60 % Baumwolle, 40 % Polyester“; bei 100 %: „100 % Baumwolle“.
 
-`TEXTILE_FIBERS` (Wert → amtliche DE-Bezeichnung / EN-Bezeichnung; Liste vor Umsetzung gegen den EUR-Lex-Text
-von Anhang I prüfen und Abweichungen hier korrigieren):
+`TEXTILE_FIBERS` (Wert → amtliche DE-Bezeichnung / EN-Bezeichnung; gegen den EUR-Lex-Text von Anhang I geprüft am
+27.09.2026 (P1.18, Quelle und Nummern in `src/lib/products/fibers.ts`); Nr. 48 lässt die Bezeichnung nach dem Stoff zu):
 
 | Nr. | Wert | DE | EN |
 |---|---|---|---|
 | 1 | `wool` | Wolle | wool |
-| 2 | `alpaca`, `llama`, `camel`, `cashmere`, `mohair`, `angora`, `vicuna`, `yak`, `guanaco`, `cashgora`, `beaver`, `otter` | Alpaka, Lama, Kamel, Kaschmir, Mohair, Angora, Vikunja, Yak, Guanako, Kaschgora, Biber, Otter | alpaca, llama, camel, cashmere, mohair, angora, vicuna, yak, guanaco, cashgora, beaver, otter |
+| 2 | `alpaca`, `llama`, `camel`, `cashmere`, `mohair`, `angora`, `vicuna`, `yak`, `guanaco`, `cashgora`, `beaver`, `otter` | Alpaka, Lama, Kamel, Kaschmir, Mohair, Angora, Vikunja, Yak, Guanako, Kaschgora, Biber, Fischotter | alpaca, llama, camel, cashmere, mohair, angora, vicuna, yak, guanaco, cashgora, beaver, otter |
 | 3 | `animal_hair`, `horsehair` | Tierhaar, Rosshaar | animal hair, horsehair |
-| 4–18 | `silk`, `cotton`, `kapok`, `flax`, `hemp`, `jute`, `abaca`, `alfa`, `coir`, `broom`, `ramie`, `sisal`, `sunn`, `henequen`, `maguey` | Seide, Baumwolle, Kapok, Leinen (Flachs), Hanf, Jute, Abaca (Manila), Alfa, Kokos, Ginster, Ramie, Sisal, Sunn, Henequen, Maguey | silk, cotton, kapok, flax (linen), hemp, jute, abaca (Manila), alfa, coir (coconut), broom, ramie, sisal, sunn, henequen, maguey |
-| 19–43 | `acetate`, `alginate`, `cupro`, `modal`, `protein`, `triacetate`, `viscose`, `acrylic`, `chlorofibre`, `fluorofibre`, `modacrylic`, `polyamide`, `aramid`, `polyimide`, `lyocell`, `polylactide`, `polyester`, `polyethylene`, `polypropylene`, `polycarbamide`, `polyurethane`, `vinylal`, `trivinyl`, `elastodiene`, `elastane` | Acetat, Alginat, Cupro, Modal, Protein, Triacetat, Viskose, Polyacryl, Chlorofaser, Fluorfaser, Modacryl, Polyamid, Aramid, Polyimid, Lyocell, Polylactid, Polyester, Polyethylen, Polypropylen, Polycarbamid, Polyurethan, Vinylal, Trivinyl, Elastodien, Elasthan | acetate, alginate, cupro, modal, protein, triacetate, viscose, acrylic, chlorofibre, fluorofibre, modacrylic, polyamide, aramid, polyimide, lyocell, polylactide, polyester, polyethylene, polypropylene, polycarbamide, polyurethane, vinylal, trivinyl, elastodiene, elastane |
-| 44–45 | `glass_fibre`, `metal_fibre`, `paper_fibre` | Glasfaser, Metallfaser, Papierfaser | glass fibre, metal fibre, paper fibre |
-| 46–50 | `elastomultiester`, `elastolefin`, `melamine`, `pp_pa_bicomponent`, `polyacrylate` | Elastomultiester, Elastolefin, Melamin, Polypropylen/Polyamid-Bikomponentenfaser, Polyacrylat | elastomultiester, elastolefin, melamine, polypropylene/polyamide bicomponent, polyacrylate |
+| 4–18 | `silk`, `cotton`, `kapok`, `flax`, `hemp`, `jute`, `abaca`, `alfa`, `coir`, `broom`, `ramie`, `sisal`, `sunn`, `henequen`, `maguey` | Seide, Baumwolle, Kapok, Leinen (Flachs), Hanf, Jute, Manila, Alfa, Kokos, Ginster, Ramie, Sisal, Sunn, Henequen, Maguey | silk, cotton, kapok, flax (linen), hemp, jute, abaca (Manila), alfa, coir (coconut), broom, ramie, sisal, sunn, henequen, maguey |
+| 19–43 | `acetate`, `alginate`, `cupro`, `modal`, `protein`, `triacetate`, `viscose`, `acrylic`, `chlorofibre`, `fluorofibre`, `modacrylic`, `polyamide`, `aramid`, `polyimide`, `lyocell`, `polylactide`, `polyester`, `polyethylene`, `polypropylene`, `polycarbamide`, `polyurethane`, `vinylal`, `trivinyl`, `elastodiene`, `elastane` | Acetat, Alginat, Cupro, Modal, Regenerierte Proteinfaser, Triacetat, Viskose, Polyacryl, Polychlorid, Fluorfaser, Modacryl, Polyamid, Aramid, Polyimid, Lyocell, Polylactid, Polyester, Polyethylen, Polypropylen, Polyharnstoff, Polyurethan, Vinylal, Trivinyl, Elastodien, Elasthan | acetate, alginate, cupro, modal, protein, triacetate, viscose, acrylic, chlorofibre, fluorofibre, modacrylic, polyamide, aramid, polyimide, lyocell, polylactide, polyester, polyethylene, polypropylene, polycarbamide, polyurethane, vinylal, trivinyl, elastodiene, elastane |
+| 44, 48 | `glass_fibre`, `metal_fibre`, `paper_fibre` | Glasfaser, Metallfaser, Papierfaser | glass fibre, metal fibre, paper fibre |
+| 45–47, 49, 50 | `elastomultiester`, `elastolefin`, `melamine`, `pp_pa_bicomponent`, `polyacrylate` | Elastomultiester, Elastolefin, Melamin, Polypropylen/Polyamid-Bikomponentenfaser, Polyacrylat | elastomultiester, elastolefin, melamine, polypropylene/polyamide bicomponent, polyacrylate |
 | – | `other_fibres` | sonstige Fasern | other fibres |
 
 #### 6.6.6 Veröffentlichungsregeln (`validateForPublish`, `src/lib/products/validate.ts`)

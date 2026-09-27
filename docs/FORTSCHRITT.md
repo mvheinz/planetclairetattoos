@@ -2,6 +2,14 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P1.18
+
+- `src/lib/products/validate.ts`: `validateForPublish` (Regeltabelle DATENMODELL §6.6.6 inkl. R-043–R-048, gesammelte deutsche Meldungen mit Feldname) und `checkFoodContact` (lebensmittelecht schon beim Entwurf, AK-7-01).
+- `src/lib/products/fibers.ts`: `checkFibers` (Summe genau 100 je Teil, Hauptstoff, keine Doppelten, sonstige Fasern ≤ 15 %, labelMissing ⇒ Fasern und fiberFreeText), Anhang-Nummern mit EUR-Lex-Quelle; deutsche Faserbezeichnungen korrigiert (DATENMODELL §6.6.5 nachgezogen).
+- `src/lib/legal/forbidden.ts`: Lint-Listen V-13 und V-16.
+- Speicher-Hook prüft bei Status available/reserved (auch draft → available, sold → available), lebensmittelecht bei jedem Entwurf; Systemschreibvorgänge nur bei publish/returnToStock.
+- Tests: unit `tests/unit/products/validate.unit.spec.ts` (109, R-042–R-048), int `tests/int/products/publish-validation.int.spec.ts` (34: DM-PROD-01…04, DM-PROD-09, AK-7-01, R-042 inkl. REST); pnpm check, test:int, build grün.
+
 ## 2026-09-27 – P1.17
 
 - `src/lib/products/itemNumber.ts`: `formatItemNumber`/`padItemNumber` (einzige Stelle), `slugify`, `buildProductSlug`, Nummernbereiche und `suggestItemNumber`.
