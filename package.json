@@ -21,7 +21,8 @@
     "test:unit": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.unit.config.mts",
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
-    "check": "pnpm run lint && pnpm run typecheck && pnpm run test:unit"
+    "check": "pnpm run lint && pnpm run typecheck && pnpm run test:unit",
+    "check:versions": "tsx scripts/check-versions.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.90.2",

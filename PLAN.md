@@ -215,7 +215,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: Die YAML-Prüfung deckt ab P1.33 `tests/unit/ci/workflows.unit.spec.ts` ab; bis dahin lokales Parsen.
   - Ohne Jutta: –
 
-- [ ] **P1.1b Versionsprüfung und Next.js-Patch** – ARCHITEKTUR §1.1, §1.3, Anhang C-14 Nr. 5.
+- [x] **P1.1b Versionsprüfung und Next.js-Patch** – ARCHITEKTUR §1.1, §1.3, Anhang C-14 Nr. 5.
   - `scripts/check-versions.ts` (`pnpm check:versions`, ARCHITEKTUR §1.3, §6.10): alle `@payloadcms/*` = `payload`,
     `eslint-config-next` = `next`, `react` = `react-dom`, keine `^`/`~` bei Laufzeit-Abhängigkeiten. Ab P1.3 läuft es
     zusätzlich als Teilprüfung `versions` von `pnpm check:static` und damit in `pnpm check`.
