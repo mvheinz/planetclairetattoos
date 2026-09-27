@@ -1129,7 +1129,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     - unit `tests/unit/seed/data.unit.spec.ts` (zod-Schemas, AK-SEED-12 Mail-Domains).
   - Ohne Jutta: Vollständiger Bestand in P8, höher aufgelöste Bilder aus dem Export (A04, A06).
 
-- [ ] **P1.31 Verwaltung am Handy: Formular-Test und keine Fremd-Requests** – Playwright-Konfiguration nach ARCHITEKTUR
+- [x] **P1.31 Verwaltung am Handy: Formular-Test und keine Fremd-Requests** – Playwright-Konfiguration nach ARCHITEKTUR
   §7.3:
   - Projekte `desktop`, `iphone-15` (WebKit, 390×844; nur wenn die WebKit-Installation in der Cloud scheitert, mit
     `PW_SKIP_WEBKIT=1` als markierte Chromium-Emulation plus OFFENE-PUNKTE-Eintrag; CI immer WebKit), `pixel-7`;

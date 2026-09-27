@@ -15,6 +15,8 @@ const devServer = serverCommand === 'pnpm dev'
 export default defineConfig({
   testDir: './tests/e2e',
   testMatch: '**/*.e2e.spec.ts',
+  // Die Vorschau-Datei läuft offline gegen file:// in eigenem Lauf (`pnpm test:preview-export`, §7.1, §14.10).
+  testIgnore: ['**/preview-export.e2e.spec.ts'],
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
@@ -23,7 +25,10 @@ export default defineConfig({
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : [['list']],
   use: {
     baseURL,
-    trace: 'on-first-retry',
+    // Artefakte nur bei Fehlschlag, kein Video (Videos nur im KUNST-QA-Lauf, ARCHITEKTUR §6.1/§6.2).
+    trace: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+    video: 'off',
     navigationTimeout: devServer ? 60_000 : 15_000,
   },
   projects: [
