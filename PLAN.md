@@ -655,7 +655,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
   - Tests: int `tests/int/collections/private-uploads.int.spec.ts` (DM-PRIV-01/-02, R-136, R-135).
   - Ohne Jutta: –
 
-- [ ] **P1.25 Globals `settings` und `site-texts`** – `src/globals/Settings.ts` und `SiteTexts.ts` laut DATENMODELL §7.
+- [x] **P1.25 Globals `settings` und `site-texts`** – `src/globals/Settings.ts` und `SiteTexts.ts` laut DATENMODELL §7.
   Steht direkt hinter P1.14, weil Stücke, Veröffentlichungsprüfung, Belege und Rechtstexte `settings` brauchen.
   - Validierungen je Feld; `versions: { max: 50 }`.
   - Audit `settings_changed` mit maskiertem Diff, `tax_mode_changed` mit Bestätigungsfeld „mit Steuerberatung

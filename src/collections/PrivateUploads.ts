@@ -28,6 +28,7 @@ import {
   L_06_INVOICES_DEFAULT_YEARS,
   privateUploadRetention,
 } from '@/lib/retention/policy'
+import { parseInvoiceYears } from '@/lib/settings/rules'
 import { uploadStorage } from '@/lib/storage'
 import { formatBerlin } from '@/lib/time'
 import {
@@ -71,11 +72,21 @@ function fail(message: string, path: string): never {
   throw new ValidationError({ collection: SLUG, errors: [{ message, path }] })
 }
 
-/**
- * Aufbewahrung der Beleg-PDFs (L-06): `settings.retention.invoiceYears`, solange das Global fehlt Standard 10.
- */
-export async function resolveInvoiceYears(_req: PayloadRequest): Promise<InvoiceRetentionYears> {
-  return L_06_INVOICES_DEFAULT_YEARS
+/** Das Global `settings` (fehlt z. B. in isolierten Test-Instanzen). */
+function hasSettings(req: PayloadRequest): boolean {
+  return req.payload.config.globals.some((g) => g.slug === 'settings')
+}
+
+/** Aufbewahrung der Beleg-PDFs (L-06): `settings.retention.invoiceYears`, ohne Global Standard 10. */
+export async function resolveInvoiceYears(req: PayloadRequest): Promise<InvoiceRetentionYears> {
+  if (!hasSettings(req)) return L_06_INVOICES_DEFAULT_YEARS
+  const settings = await req.payload.findGlobal({
+    slug: 'settings',
+    req,
+    depth: 0,
+    overrideAccess: true,
+  })
+  return parseInvoiceYears(settings.retention?.invoiceYears) ?? L_06_INVOICES_DEFAULT_YEARS
 }
 
 /** Typprüfung am Inhalt, Größe ≤ 10 MB, Bilder gedreht/verkleinert/ohne Metadaten als JPEG q 85 (R-135). */
@@ -215,6 +226,19 @@ const guardDelete: CollectionBeforeDeleteHook = async ({ id, req }) => {
     )
   }
   const refs = await findUploadReferences(req.payload, SLUG, id, req)
+  if (hasSettings(req)) {
+    // AV-Verträge in `settings.processorAgreements[].file` (DM-40)
+    const settings = await req.payload.findGlobal({
+      slug: 'settings',
+      req,
+      depth: 0,
+      overrideAccess: true,
+    })
+    const used = (settings.processorAgreements ?? []).find(
+      (a) => String(typeof a.file === 'object' && a.file ? a.file.id : a.file) === String(id),
+    )
+    if (used) refs.push({ collection: 'settings', label: 'AV-Vertrag', id, title: used.serviceId })
+  }
   if (refs.length > 0) throw new APIError(formatUploadReferenceMessage(refs), 409, null, true)
 }
 

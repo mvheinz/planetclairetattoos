@@ -7,6 +7,7 @@ import * as migration_20260927_104753_p1_users from './20260927_104753_p1_users'
 import * as migration_20260927_104805_p1_rate_limit from './20260927_104805_p1_rate_limit';
 import * as migration_20260927_112218_p1_media from './20260927_112218_p1_media';
 import * as migration_20260927_113844_p1_documents from './20260927_113844_p1_documents';
+import * as migration_20260927_115819_p1_globals from './20260927_115819_p1_globals';
 
 export const migrations = [
   {
@@ -52,6 +53,11 @@ export const migrations = [
   {
     up: migration_20260927_113844_p1_documents.up,
     down: migration_20260927_113844_p1_documents.down,
-    name: '20260927_113844_p1_documents'
+    name: '20260927_113844_p1_documents',
+  },
+  {
+    up: migration_20260927_115819_p1_globals.up,
+    down: migration_20260927_115819_p1_globals.down,
+    name: '20260927_115819_p1_globals'
   },
 ];

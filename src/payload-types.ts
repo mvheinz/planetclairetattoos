@@ -103,8 +103,14 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('de' | 'en') | ('de' | 'en')[];
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    settings: Setting;
+    'site-texts': SiteText;
+  };
+  globalsSelect: {
+    settings: SettingsSelect<false> | SettingsSelect<true>;
+    'site-texts': SiteTextsSelect<false> | SiteTextsSelect<true>;
+  };
   locale: 'de' | 'en';
   widgets: {
     collections: CollectionsWidget;
@@ -1110,6 +1116,885 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings".
+ */
+export interface Setting {
+  id: number;
+  shop?: {
+    /**
+     * Aus: „In den Korb“ und „Zur Kasse“ sind gesperrt; laufende Kassen und Zahlungen werden normal abgeschlossen.
+     */
+    isOpen?: boolean | null;
+    closedMessage?: string | null;
+    maxItemsPerCheckout?: number | null;
+  };
+  business: {
+    legalName: string;
+    tradeName?: string | null;
+    street: string;
+    postalCode?: string | null;
+    city: string;
+    country?:
+      | (
+          | 'DE'
+          | 'AT'
+          | 'BE'
+          | 'BG'
+          | 'CY'
+          | 'CZ'
+          | 'DK'
+          | 'EE'
+          | 'ES'
+          | 'FI'
+          | 'FR'
+          | 'GR'
+          | 'HR'
+          | 'HU'
+          | 'IE'
+          | 'IT'
+          | 'LT'
+          | 'LU'
+          | 'LV'
+          | 'MT'
+          | 'NL'
+          | 'PL'
+          | 'PT'
+          | 'RO'
+          | 'SE'
+          | 'SI'
+          | 'SK'
+          | 'CH'
+        )
+      | null;
+    email: string;
+    /**
+     * Pflicht zum Start (Impressum, Widerrufsbelehrung, Bestellbestätigung).
+     */
+    phone?: string | null;
+    vatId?: string | null;
+    economicId?: string | null;
+    /**
+     * Nur für Rechnungen – nie öffentlich.
+     */
+    taxNumber?: string | null;
+    /**
+     * Leer = Geschäftsadresse.
+     */
+    returnAddress?: string | null;
+    lucidNumber?: string | null;
+    packagingScheme?: {
+      name?: string | null;
+      contractFrom?: string | null;
+    };
+  };
+  social?: {
+    instagramHandle?: string | null;
+    contactEmail?: string | null;
+  };
+  tax?: {
+    /**
+     * Geltend ist der letzte Eintrag mit „gültig ab“ ≤ heute. Neue Einträge nur mit Begründung und nach Rücksprache mit der Steuerberatung.
+     */
+    modes?:
+      | {
+          mode: 'kleinunternehmer' | 'regelbesteuert';
+          validFrom: string;
+          reason?: string | null;
+          confirmedWithTaxAdvisor?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+    confirmedAt?: string | null;
+    standardRate?: number | null;
+    reducedRate?: number | null;
+  };
+  revenueGuard?: {
+    previousYearLimitCents?: number | null;
+    currentYearLimitCents?: number | null;
+    stageThresholdsCents?: {
+      u1?: number | null;
+      u3?: number | null;
+      u3a?: number | null;
+      u4?: number | null;
+    };
+    manualYearTotals?:
+      | {
+          year: number;
+          amountCents: number;
+          note?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    lastNotified?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+  };
+  retention?: {
+    /**
+     * Achtung: nur nach Antwort von Kanzlei/Steuerberatung (K-33) umstellen. Wirkt nur auf neue Belege.
+     */
+    invoiceYears?: ('8' | '10') | null;
+  };
+  export?: {
+    datev?: {
+      consultantNumber?: string | null;
+      clientNumber?: string | null;
+      fiscalYearStart?: string | null;
+      revenueAccount?: string | null;
+      stripeTransitAccount?: string | null;
+      bankAccount?: string | null;
+      feeAccount?: string | null;
+    };
+  };
+  costs?: {
+    budgetCents?: number | null;
+    warningThresholdCents?: number | null;
+    monthlyEntries?:
+      | {
+          month: string;
+          amountCents: number;
+          note?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  shipping?: {
+    /**
+     * Start nur Deutschland. Andere Länder erst nach der EU-Checkliste und dem Häkchen „EU-Versand geprüft“.
+     */
+    enabledCountries?:
+      | (
+          | 'DE'
+          | 'AT'
+          | 'BE'
+          | 'BG'
+          | 'CY'
+          | 'CZ'
+          | 'DK'
+          | 'EE'
+          | 'ES'
+          | 'FI'
+          | 'FR'
+          | 'GR'
+          | 'HR'
+          | 'HU'
+          | 'IE'
+          | 'IT'
+          | 'LT'
+          | 'LU'
+          | 'LV'
+          | 'MT'
+          | 'NL'
+          | 'PL'
+          | 'PT'
+          | 'RO'
+          | 'SE'
+          | 'SI'
+          | 'SK'
+          | 'CH'
+        )[]
+      | null;
+    euShippingAcknowledged?: boolean | null;
+    euShippingAcknowledgedAt?: string | null;
+    euChecklist?: {
+      authorisedRepresentativeNamed?: boolean | null;
+      ossThresholdChecked?: boolean | null;
+      textileLanguageChecked?: boolean | null;
+      ratesMaintained?: boolean | null;
+      legalTextsAdapted?: boolean | null;
+    };
+    pickupEnabled?: boolean | null;
+    pickupCity?: string | null;
+    rates?:
+      | {
+          zone: 'DE' | 'EU' | 'CH';
+          shippingClass: 'brief' | 'paket_klein' | 'keramik';
+          priceCents: number;
+          id?: string | null;
+        }[]
+      | null;
+    deliveryTimeText?: string | null;
+    insuranceHintThresholdCents?: number | null;
+    trackingUrlTemplates?:
+      | {
+          carrier: 'dhl' | 'deutsche_post' | 'other';
+          urlTemplate: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  pickup?: {
+    instructions?: string | null;
+  };
+  /**
+   * Gewichte sind Schätzwerte – bitte einmal nachwiegen (Verpackungsmeldung).
+   */
+  packaging?: {
+    templates?:
+      | {
+          key: string;
+          name: string;
+          components?:
+            | {
+                material: 'paper_cardboard' | 'plastic' | 'other';
+                grams: number;
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+    defaultsByShippingClass?:
+      | {
+          shippingClass: 'brief' | 'paket_klein' | 'keramik';
+          templateKey: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  payment?: {
+    prepaymentEnabled?: boolean | null;
+    accountHolder?: string | null;
+    /**
+     * Beispiel-IBAN bis zum Start – die Startprüfung meldet sie.
+     */
+    iban?: string | null;
+    bic?: string | null;
+    bankName?: string | null;
+    reservationMinutes?: number | null;
+    prepaymentDays?: number | null;
+    prepaymentReminderHours?: number | null;
+    stripePaymentMethodConfigurationId?: string | null;
+  };
+  tattoo?: {
+    /**
+     * Nur der Bezirk, keine Adresse.
+     */
+    studioDistrict?: string | null;
+    minPriceCents?: number | null;
+    customPriceFromCents?: number | null;
+    customPriceToCents?: number | null;
+    priceNote?: string | null;
+  };
+  legal?: {
+    reviewIntervalDays?: number | null;
+    reviews?:
+      | {
+          type: 'impressum' | 'datenschutz' | 'agb' | 'widerrufsbelehrung' | 'widerrufsformular' | 'versand-zahlung';
+          reviewedAt?: string | null;
+          lastReminderSentAt?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Achtung: nur nach Antwort der Kanzlei (K-13) einschalten. Aus = Stücke mit sichtbarer Fremdmarke lassen sich nicht veröffentlichen.
+     */
+    allowVisibleBlankBrands?: boolean | null;
+  };
+  safetyTemplates?:
+    | {
+        category: 'keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges';
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  careTemplates?:
+    | {
+        category: 'textil' | 'cap';
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  packingChecklists?:
+    | {
+        shippingClass: 'brief' | 'paket_klein' | 'keramik' | 'nur_abholung';
+        items?:
+          | {
+              text: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  processorAgreements?:
+    | {
+        serviceId: string;
+        signedAt?: string | null;
+        documentVersion?: string | null;
+        url?: string | null;
+        file?: (number | null) | PrivateUpload;
+        id?: string | null;
+      }[]
+    | null;
+  analytics?: {
+    enabled?: boolean | null;
+    confirmedAt?: string | null;
+    note?: string | null;
+  };
+  adminNotificationEmail?: string | null;
+  seed?: {
+    exampleDataPresent?: boolean | null;
+    importedAt?: string | null;
+    removedAt?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-texts".
+ */
+export interface SiteText {
+  id: number;
+  navigation?: {
+    mainLinks?:
+      | {
+          target:
+            | 'home'
+            | 'shop'
+            | 'archive'
+            | 'category'
+            | 'tattoo'
+            | 'tattoo_aftercare'
+            | 'about'
+            | 'commissions'
+            | 'contact'
+            | 'conformity'
+            | 'instagram'
+            | 'email';
+          category?: ('keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges') | null;
+          label: string;
+          id?: string | null;
+        }[]
+      | null;
+    menuLinks?:
+      | {
+          target:
+            | 'home'
+            | 'shop'
+            | 'archive'
+            | 'category'
+            | 'tattoo'
+            | 'tattoo_aftercare'
+            | 'about'
+            | 'commissions'
+            | 'contact'
+            | 'conformity'
+            | 'instagram'
+            | 'email';
+          category?: ('keramik' | 'textil' | 'cap' | 'zeichnung' | 'schmuck' | 'sonstiges') | null;
+          label: string;
+          id?: string | null;
+        }[]
+      | null;
+    menuTagline?: string | null;
+  };
+  footer?: {
+    tagline?: string | null;
+    instagramLabel?: string | null;
+  };
+  shop?: {
+    filterAll?: string | null;
+    filterAvailableOnly?: string | null;
+    soldStamp?: string | null;
+    reservedLabel?: string | null;
+    reservedPrepaymentLabel?: string | null;
+    uniqueHint?: string | null;
+    emptyCategory?: string | null;
+    archiveIntro?: string | null;
+  };
+  product?: {
+    addToCart?: string | null;
+    shippingLinkLabel?: string | null;
+    manufacturerHeading?: string | null;
+    deviationHeading?: string | null;
+    fiberHeading?: string | null;
+    labelMissingHint?: string | null;
+  };
+  cart?: {
+    empty?: string | null;
+    countdown?: string | null;
+    reservationExpired?: string | null;
+    pickupOption?: string | null;
+    shippingOption?: string | null;
+  };
+  checkout?: {
+    intro?: string | null;
+    changeLink?: string | null;
+  };
+  thanks?: {
+    heading?: string | null;
+    intro?: string | null;
+  };
+  orderStatus?: {
+    intro?: string | null;
+    linkInvalid?: string | null;
+  };
+  withdrawal?: {
+    intro?: string | null;
+    done?: string | null;
+  };
+  notFound?: {
+    heading?: string | null;
+    intro?: string | null;
+  };
+  errors?: {
+    generic?: string | null;
+    shopClosed?: string | null;
+    alreadyReserved?: string | null;
+  };
+  emails?: {
+    /**
+     * Steht unter jeder Mail an Kund:innen.
+     */
+    signature?: string | null;
+    inquiryResponseTime?: string | null;
+    /**
+     * Leer bzw. ohne Zeile = Standardtext der Vorlage.
+     */
+    templates?:
+      | {
+          template:
+            | 'order_confirmation'
+            | 'prepayment_instructions'
+            | 'prepayment_reminder'
+            | 'prepayment_cancelled'
+            | 'prepayment_received'
+            | 'order_shipped'
+            | 'pickup_ready'
+            | 'withdrawal_receipt'
+            | 'refund_confirmation'
+            | 'oversold_apology'
+            | 'inquiry_receipt'
+            | 'complaint_repair_choice'
+            | 'dispute_vsbg'
+            | 'privacy_access_response'
+            | 'privacy_erasure_response'
+            | 'consent_withdrawal_confirmation'
+            | 'admin_order_placed'
+            | 'admin_prepayment_cancelled'
+            | 'admin_withdrawal_received'
+            | 'admin_inquiry_received'
+            | 'admin_oversold'
+            | 'admin_dispute_opened'
+            | 'admin_refund_failed'
+            | 'admin_revenue_guard'
+            | 'admin_legal_review_due'
+            | 'admin_monthly_close'
+            | 'admin_alert'
+            | 'admin_withdrawal_deadline'
+            | 'admin_password_reset'
+            | 'admin_privacy_request_due'
+            | 'admin_legal_hold_review'
+            | 'admin_compliance_docs_review';
+          subject?: string | null;
+          intro?: string | null;
+          outro?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings_select".
+ */
+export interface SettingsSelect<T extends boolean = true> {
+  shop?:
+    | T
+    | {
+        isOpen?: T;
+        closedMessage?: T;
+        maxItemsPerCheckout?: T;
+      };
+  business?:
+    | T
+    | {
+        legalName?: T;
+        tradeName?: T;
+        street?: T;
+        postalCode?: T;
+        city?: T;
+        country?: T;
+        email?: T;
+        phone?: T;
+        vatId?: T;
+        economicId?: T;
+        taxNumber?: T;
+        returnAddress?: T;
+        lucidNumber?: T;
+        packagingScheme?:
+          | T
+          | {
+              name?: T;
+              contractFrom?: T;
+            };
+      };
+  social?:
+    | T
+    | {
+        instagramHandle?: T;
+        contactEmail?: T;
+      };
+  tax?:
+    | T
+    | {
+        modes?:
+          | T
+          | {
+              mode?: T;
+              validFrom?: T;
+              reason?: T;
+              confirmedWithTaxAdvisor?: T;
+              id?: T;
+            };
+        confirmedAt?: T;
+        standardRate?: T;
+        reducedRate?: T;
+      };
+  revenueGuard?:
+    | T
+    | {
+        previousYearLimitCents?: T;
+        currentYearLimitCents?: T;
+        stageThresholdsCents?:
+          | T
+          | {
+              u1?: T;
+              u3?: T;
+              u3a?: T;
+              u4?: T;
+            };
+        manualYearTotals?:
+          | T
+          | {
+              year?: T;
+              amountCents?: T;
+              note?: T;
+              id?: T;
+            };
+        lastNotified?: T;
+      };
+  retention?:
+    | T
+    | {
+        invoiceYears?: T;
+      };
+  export?:
+    | T
+    | {
+        datev?:
+          | T
+          | {
+              consultantNumber?: T;
+              clientNumber?: T;
+              fiscalYearStart?: T;
+              revenueAccount?: T;
+              stripeTransitAccount?: T;
+              bankAccount?: T;
+              feeAccount?: T;
+            };
+      };
+  costs?:
+    | T
+    | {
+        budgetCents?: T;
+        warningThresholdCents?: T;
+        monthlyEntries?:
+          | T
+          | {
+              month?: T;
+              amountCents?: T;
+              note?: T;
+              id?: T;
+            };
+      };
+  shipping?:
+    | T
+    | {
+        enabledCountries?: T;
+        euShippingAcknowledged?: T;
+        euShippingAcknowledgedAt?: T;
+        euChecklist?:
+          | T
+          | {
+              authorisedRepresentativeNamed?: T;
+              ossThresholdChecked?: T;
+              textileLanguageChecked?: T;
+              ratesMaintained?: T;
+              legalTextsAdapted?: T;
+            };
+        pickupEnabled?: T;
+        pickupCity?: T;
+        rates?:
+          | T
+          | {
+              zone?: T;
+              shippingClass?: T;
+              priceCents?: T;
+              id?: T;
+            };
+        deliveryTimeText?: T;
+        insuranceHintThresholdCents?: T;
+        trackingUrlTemplates?:
+          | T
+          | {
+              carrier?: T;
+              urlTemplate?: T;
+              id?: T;
+            };
+      };
+  pickup?:
+    | T
+    | {
+        instructions?: T;
+      };
+  packaging?:
+    | T
+    | {
+        templates?:
+          | T
+          | {
+              key?: T;
+              name?: T;
+              components?:
+                | T
+                | {
+                    material?: T;
+                    grams?: T;
+                    id?: T;
+                  };
+              id?: T;
+            };
+        defaultsByShippingClass?:
+          | T
+          | {
+              shippingClass?: T;
+              templateKey?: T;
+              id?: T;
+            };
+      };
+  payment?:
+    | T
+    | {
+        prepaymentEnabled?: T;
+        accountHolder?: T;
+        iban?: T;
+        bic?: T;
+        bankName?: T;
+        reservationMinutes?: T;
+        prepaymentDays?: T;
+        prepaymentReminderHours?: T;
+        stripePaymentMethodConfigurationId?: T;
+      };
+  tattoo?:
+    | T
+    | {
+        studioDistrict?: T;
+        minPriceCents?: T;
+        customPriceFromCents?: T;
+        customPriceToCents?: T;
+        priceNote?: T;
+      };
+  legal?:
+    | T
+    | {
+        reviewIntervalDays?: T;
+        reviews?:
+          | T
+          | {
+              type?: T;
+              reviewedAt?: T;
+              lastReminderSentAt?: T;
+              id?: T;
+            };
+        allowVisibleBlankBrands?: T;
+      };
+  safetyTemplates?:
+    | T
+    | {
+        category?: T;
+        text?: T;
+        id?: T;
+      };
+  careTemplates?:
+    | T
+    | {
+        category?: T;
+        text?: T;
+        id?: T;
+      };
+  packingChecklists?:
+    | T
+    | {
+        shippingClass?: T;
+        items?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  processorAgreements?:
+    | T
+    | {
+        serviceId?: T;
+        signedAt?: T;
+        documentVersion?: T;
+        url?: T;
+        file?: T;
+        id?: T;
+      };
+  analytics?:
+    | T
+    | {
+        enabled?: T;
+        confirmedAt?: T;
+        note?: T;
+      };
+  adminNotificationEmail?: T;
+  seed?:
+    | T
+    | {
+        exampleDataPresent?: T;
+        importedAt?: T;
+        removedAt?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-texts_select".
+ */
+export interface SiteTextsSelect<T extends boolean = true> {
+  navigation?:
+    | T
+    | {
+        mainLinks?:
+          | T
+          | {
+              target?: T;
+              category?: T;
+              label?: T;
+              id?: T;
+            };
+        menuLinks?:
+          | T
+          | {
+              target?: T;
+              category?: T;
+              label?: T;
+              id?: T;
+            };
+        menuTagline?: T;
+      };
+  footer?:
+    | T
+    | {
+        tagline?: T;
+        instagramLabel?: T;
+      };
+  shop?:
+    | T
+    | {
+        filterAll?: T;
+        filterAvailableOnly?: T;
+        soldStamp?: T;
+        reservedLabel?: T;
+        reservedPrepaymentLabel?: T;
+        uniqueHint?: T;
+        emptyCategory?: T;
+        archiveIntro?: T;
+      };
+  product?:
+    | T
+    | {
+        addToCart?: T;
+        shippingLinkLabel?: T;
+        manufacturerHeading?: T;
+        deviationHeading?: T;
+        fiberHeading?: T;
+        labelMissingHint?: T;
+      };
+  cart?:
+    | T
+    | {
+        empty?: T;
+        countdown?: T;
+        reservationExpired?: T;
+        pickupOption?: T;
+        shippingOption?: T;
+      };
+  checkout?:
+    | T
+    | {
+        intro?: T;
+        changeLink?: T;
+      };
+  thanks?:
+    | T
+    | {
+        heading?: T;
+        intro?: T;
+      };
+  orderStatus?:
+    | T
+    | {
+        intro?: T;
+        linkInvalid?: T;
+      };
+  withdrawal?:
+    | T
+    | {
+        intro?: T;
+        done?: T;
+      };
+  notFound?:
+    | T
+    | {
+        heading?: T;
+        intro?: T;
+      };
+  errors?:
+    | T
+    | {
+        generic?: T;
+        shopClosed?: T;
+        alreadyReserved?: T;
+      };
+  emails?:
+    | T
+    | {
+        signature?: T;
+        inquiryResponseTime?: T;
+        templates?:
+          | T
+          | {
+              template?: T;
+              subject?: T;
+              intro?: T;
+              outro?: T;
+              id?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -90,12 +90,12 @@ export function pickPublicSettings(raw: unknown, now: Date): Obj {
   return out
 }
 
-/** Öffentliche Einstellungen (Global `settings`, ab P1.25) – nur die Whitelist. */
+/** Öffentliche Einstellungen (Global `settings`) – nur die Whitelist. */
 export async function getPublicSettings(clock: Clock = systemClock): Promise<Obj> {
   const payload = await getPayload({ config })
   // Das Global ist nur für Admins lesbar; die Whitelist ersetzt hier den Feldzugriff (§7.1).
   const raw = await payload.findGlobal({
-    slug: 'settings' as never,
+    slug: 'settings',
     overrideAccess: true,
     depth: 0,
   })

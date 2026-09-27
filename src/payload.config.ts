@@ -16,6 +16,8 @@ import { ConsentLog } from './collections/ConsentLog'
 import { DeletionLog } from './collections/DeletionLog'
 import { EmailLog } from './collections/EmailLog'
 import { WebhookEvents } from './collections/WebhookEvents'
+import { Settings } from './globals/Settings'
+import { SiteTexts } from './globals/SiteTexts'
 import { withJsonPreview } from './admin/jsonPreview'
 import { ADMIN_CUSTOM_DE } from './admin/translations'
 import { isAdmin, isAdminRequest } from './access'
@@ -56,6 +58,7 @@ export default buildConfig({
     WebhookEvents,
     DeletionLog,
   ].map((c) => ({ ...c, fields: withJsonPreview(c.fields) })),
+  globals: [Settings, SiteTexts].map((g) => ({ ...g, fields: withJsonPreview(g.fields) })),
   editor: lexicalEditor(),
   // DATENMODELL §1.2 (E-60, E-61): fehlendes EN zeigt DE.
   localization: {
