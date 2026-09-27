@@ -275,7 +275,7 @@ Migration (`products.currentOrder` in P1.20; Verweise von `orders` auf `invoices
     in `docs/OFFENE-PUNKTE.md` vorkommt.
   - Ohne Jutta: Jutta geht die Liste in P11 durch (A30/A31); nichts blockiert.
 
-- [ ] **P1.3 Umgebungsvariablen, Start-Prüfung und `check:static`** – `src/lib/env.ts` (mit `import 'server-only'`)
+- [x] **P1.3 Umgebungsvariablen, Start-Prüfung und `check:static`** – `src/lib/env.ts` (mit `import 'server-only'`)
   enthält ein zod-4-Schema **aller** Variablen aus ARCHITEKTUR §5.2. Auch spätere Phasen sind enthalten, dann optional.
   Jede Variable hat `.describe()`, einen Standardwert, eine Geheimnis-Kennung und „Seit“.
   - Neu in P1 (Spalte „Seit“ in §5.2): `APP_ENV`, `DATABASE_URL_UNPOOLED`, `DATABASE_URL_TEST`, `DB_POOL_MAX`,

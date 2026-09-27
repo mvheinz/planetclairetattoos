@@ -74,6 +74,39 @@ export default defineConfig([
     rules: { 'no-console': 'error' },
   },
   {
+    // AK-A-5-02: Umgebungsvariablen nur über getEnv() (ARCHITEKTUR §5.1).
+    files: ['src/**/*.{ts,tsx,js,mjs}'],
+    ignores: ['src/lib/env.ts', 'src/instrumentation.ts'],
+    rules: {
+      'no-restricted-properties': [
+        'error',
+        {
+          object: 'process',
+          property: 'env',
+          message: 'process.env nur in src/lib/env.ts – getEnv() nutzen (ARCHITEKTUR §5.1).',
+        },
+      ],
+    },
+  },
+  {
+    // Öffentliche Seiten lesen nur über src/lib/data/* (ARCHITEKTUR §2.2).
+    files: ['src/app/(frontend)/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'payload',
+              importNames: ['getPayload'],
+              message: 'Öffentliche Seiten lesen nur über src/lib/data/*.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ['src/lib/jobs/**', 'src/jobs/**', 'src/lib/legal/**'],
     rules: { 'no-restricted-syntax': ['error', ...noAmbientTime] },
   },

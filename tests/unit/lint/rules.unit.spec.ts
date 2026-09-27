@@ -60,4 +60,13 @@ describe('ESLint-Regeln (ARCHITEKTUR §15)', () => {
     )
     expect(ids).toContain('no-restricted-imports')
   })
+
+  it('AK-A-5-02 process.env außerhalb von src/lib/env.ts ist ein Fehler', async () => {
+    expect(await ruleIds('export const x = process.env.X\n', 'src/lib/foo.ts')).toContain(
+      'no-restricted-properties',
+    )
+    expect(await ruleIds('export const x = process.env.X\n', 'src/lib/env.ts')).not.toContain(
+      'no-restricted-properties',
+    )
+  })
 })

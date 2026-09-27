@@ -10,9 +10,9 @@
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=6144\" next build",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
-    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
-    "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
-    "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
+    "generate:importmap": "cross-env NODE_OPTIONS=\"--no-deprecation --import=./scripts/lib/register-server-only.mjs\" payload generate:importmap",
+    "generate:types": "cross-env NODE_OPTIONS=\"--no-deprecation --import=./scripts/lib/register-server-only.mjs\" payload generate:types",
+    "payload": "cross-env NODE_OPTIONS=\"--no-deprecation --import=./scripts/lib/register-server-only.mjs\" payload",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint . && pnpm run format:check",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
@@ -21,8 +21,10 @@
     "test:unit": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.unit.config.mts",
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
-    "check": "pnpm run lint && pnpm run typecheck && pnpm run test:unit",
-    "check:versions": "tsx scripts/check-versions.ts"
+    "check": "pnpm run lint && pnpm run typecheck && pnpm run check:static && pnpm run test:unit",
+    "check:versions": "tsx scripts/check-versions.ts",
+    "env:example": "tsx --import=./scripts/lib/register-server-only.mjs scripts/gen-env-example.ts",
+    "check:static": "tsx --import=./scripts/lib/register-server-only.mjs scripts/check-static.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.90.2",
@@ -36,7 +38,9 @@
     "payload": "3.90.2",
     "react": "19.2.6",
     "react-dom": "19.2.6",
-    "sharp": "0.35.4"
+    "server-only": "0.0.1",
+    "sharp": "0.35.4",
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "@playwright/test": "1.58.2",

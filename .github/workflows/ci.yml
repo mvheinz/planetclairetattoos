@@ -90,6 +90,9 @@ jobs:
       - name: Typen
         if: steps.mode.outputs.skip != 'true'
         run: pnpm run typecheck
+      - name: Statische Prüfungen
+        if: steps.mode.outputs.skip != 'true'
+        run: pnpm run check:static
       - name: Unit-Tests
         if: steps.mode.outputs.skip != 'true'
         run: pnpm run test:unit
