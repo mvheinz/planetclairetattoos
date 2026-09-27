@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-27 – P2.6
+
+- src/behaviors/types.ts (mount → unmount), Register src/behaviors/index.ts mit mountBehaviors (lädt per import() nur Benötigtes), BehaviorHost im Layout (bindet bei Routenwechsel neu)
+- erstes Modul cart-count: liest pc_cart nur, wenn vorhanden, setzt nichts; MI-07 (scale 1→1.25→1, 240 ms, --ease-stamp), bei reduzierter Bewegung sofort; Vorschau zählt nur im Speicher
+- Tests: unit behaviors/contract (10: AK-A-15-02, AK-A-2-03 inkl. transitiver Importe, AK-DS-18 mit Listener-/Observer-/Timer-/Animations-/Speicher-Protokoll, Gegenproben), cart-count (8), leash/motion (2); pnpm check, test:int, build, E2E (75) grün
+
 ## 2026-09-27 – P2.5
 
 - 18 handgezeichnete Icons (src/art/icons, je ≤ 600 B) → pnpm art:icons → Inline-SVG-Komponente Icon (aria-hidden, mit label role=img)

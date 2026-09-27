@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import React from 'react'
 
+import { BehaviorHost } from '@/components/BehaviorHost'
 import { routing } from '@/i18n/routing'
 import { fontVariables } from '@/styles/fonts'
 
@@ -42,6 +43,7 @@ export default async function LocaleLayout({
     <html lang={locale} className={fontVariables}>
       <body>
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <BehaviorHost />
       </body>
     </html>
   )

@@ -1416,7 +1416,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: unit `tests/unit/design/icons.unit.spec.ts`; e2e-Teil in P2.21.
   - Ohne Jutta: Marken sind vorläufig vektorisiert; P9 verfeinert (E-76).
 
-- [ ] **P2.6 Verhaltensmodule: `mount`/`unmount`-Architektur** – KONZEPT §12.9, ARCHITEKTUR §14.6, DESIGN §9.12.
+- [x] **P2.6 Verhaltensmodule: `mount`/`unmount`-Architektur** – KONZEPT §12.9, ARCHITEKTUR §14.6, DESIGN §9.12.
   - `src/behaviors/types.ts`: `mount(root: Element, ctx?: { mode: 'app' | 'preview' }) → unmount`.
   - `src/behaviors/index.ts`: Register `name → modul`; Dateiname kebab-case = Wert von `data-behavior` (Tabelle DESIGN
     §9.12).
