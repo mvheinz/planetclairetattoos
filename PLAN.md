@@ -1779,7 +1779,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: e2e `privacy.e2e.spec.ts` @privacy (T-03, T-04, R-130, R-131); Skript `scripts/check-external.ts`.
   - Ohne Jutta: –
 
-- [ ] **P2.22 Barrierefreiheit: axe und Tastatur** – `@axe-core/playwright` mit den Tags `wcag2a`, `wcag2aa`,
+- [x] **P2.22 Barrierefreiheit: axe und Tastatur** – `@axe-core/playwright` mit den Tags `wcag2a`, `wcag2aa`,
   `wcag21a`, `wcag21aa`, `wcag22aa` (ARCHITEKTUR §7.5). `tests/e2e/a11y.e2e.spec.ts` @a11y prüft:
   - jede `live`-Route je Sprache;
   - Zustände: offenes Menü, 404, 500, Leerzustand der Startseite (ohne `home`), Rechtsseite mit Platzhalter;

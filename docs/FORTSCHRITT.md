@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P2.22
+
+- `@axe-core/playwright` 4.13.0 exakt gepinnt; `tests/e2e/a11y.e2e.spec.ts` @a11y: axe (wcag2a/2aa/21a/21aa/22aa) auf allen live-Routen DE/EN sowie offenes Menü, 404, 500, Rechtsseite mit Platzhalter und Leerzustand der Startseite (home kurz auf Entwurf, Abruf im Draft-Modus ohne Cache-Schreiben, Advisory-Lock); Gate 0 serious/critical, moderate/minor als Annotation; `lang` je Seite (EN-Rückfall auf Deutsch als `lang="de"`).\n- `tests/e2e/keyboard.e2e.spec.ts`: Skip-Link zuerst und springt zu `#inhalt`, jedes fokussierbare Element per Tab erreichbar (vorwärts/rückwärts), Kopf→Menü (Falle, Esc), Fuß: Schalter „Animationen“ per Leertaste/Enter, Sprachumschalter; Fokus an jedem Halt sichtbar (Screenshot mit/ohne Fokus verschieden; Gegenprobe ohne Fokusring schlägt fehl). WebKit: Alt+Tab (Safari-Tastaturbedienung für Links).\n- Keine Verstöße im Produktcode gefunden.\n- Tests: a11y 84 + keyboard 18 E2E grün in 3 Projekten; Gesamtlauf `pnpm test:e2e` 478 grün.
+
 ## 2026-09-28 – P2.21
 
 - `tests/e2e/privacy.e2e.spec.ts` @privacy: alle live-Routen (R01, R20–R27 je DE/EN, 404/500 je Sprache, Weiterleitung `/`) in frischem Kontext, 3 Projekte: keine Cookies, kein `Set-Cookie`, Local/Session Storage, IndexedDB und Service Worker leer; Requests nur eigener Origin/`data:`/`blob:`, nie Google Fonts; Registry-Abdeckung geprüft.\n- `pnpm check:external --built` prüft jetzt auch Fremd-URLs in öffentlich ausgelieferten Dateien (HTML/RSC + transitiv geladene Chunks), Allowlist Instagram + nie geladene Kennungen.\n- Tests: 72 E2E grün (desktop, iphone-15/WebKit, pixel-7), Unit check-external 2 grün, check:external ok.
