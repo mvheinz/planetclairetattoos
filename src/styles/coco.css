@@ -1,0 +1,183 @@
+/* Coco (DESIGN §10.2–§10.5): Größenklassen, Ebenen, Boil in `steps(1, end)`, reduzierte Bewegung, erzwungene Farben.
+   Die Ebenen-Regeln stehen zusätzlich im Sprite selbst (Klone aus einer externen Datei sehen nur dessen <style>);
+   hier gelten sie für inline eingebettete Symbole (Vorschau-Datei, §9.12). */
+
+.coco {
+  --coco-w: var(--coco-m);
+  --boil-frame: 100ms;
+  position: relative;
+  width: var(--coco-w);
+  aspect-ratio: 4 / 3;
+  flex: none;
+  pointer-events: none;
+  color: var(--ink);
+}
+.coco[data-size='horizon'] {
+  --coco-w: 24px;
+  --coco-stroke: 1.2px;
+}
+.coco[data-size='leash'] {
+  --coco-w: var(--coco-leash);
+}
+.coco[data-size='s'] {
+  --coco-w: var(--coco-s);
+  --coco-stroke: 1.6px;
+}
+.coco[data-size='m'] {
+  --coco-w: var(--coco-m);
+  --coco-stroke: 1.8px;
+}
+.coco[data-size='xl'] {
+  --coco-w: var(--coco-xl);
+  --coco-stroke: 2.2px;
+}
+.coco[data-size='xxl'] {
+  --coco-w: min(var(--coco-xxl), 60vw);
+  --coco-stroke: 2.2px;
+}
+
+.coco__hop {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 93%;
+}
+.coco svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.coco .fur {
+  fill: var(--coco-fur);
+}
+.coco .harness {
+  fill: var(--coco-harness);
+  stroke: var(--ink);
+  stroke-width: var(--coco-stroke);
+}
+.coco .line {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: var(--coco-stroke);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.coco .line path,
+.coco .harness path {
+  vector-effect: non-scaling-stroke;
+}
+.coco .solid {
+  fill: var(--ink);
+}
+.coco .hi {
+  fill: var(--paper);
+}
+
+/* Boil: drei Frames A → B → C; b um 2, c um 1 Frame-Länge vorgespult. */
+.coco .f {
+  animation: coco-boil calc(var(--boil-frame) * 3) steps(1, end) infinite;
+}
+.coco .f-b {
+  animation-delay: calc(var(--boil-frame) * -2);
+}
+.coco .f-c {
+  animation-delay: calc(var(--boil-frame) * -1);
+}
+.coco[data-pose='rennen'],
+.coco[data-pose='springen'],
+.coco[data-pose^='bridge'] {
+  --boil-frame: var(--run-frame);
+}
+.coco[data-pose='schlafen'] {
+  --boil-frame: var(--sleep-frame);
+}
+@keyframes coco-boil {
+  0% {
+    opacity: 1;
+  }
+  33.333% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+/* Boil aus = Animation entfernen (nicht pausieren: eine pausierte Animation kann Frame A auf opacity 0 festhalten). */
+.coco[data-boil='off'] .f {
+  animation: none;
+}
+.coco[data-boil='off'] .f-b,
+.coco[data-boil='off'] .f-c {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion='full']) .coco .f {
+    animation: none;
+  }
+  html:not([data-motion='full']) .coco .f-b,
+  html:not([data-motion='full']) .coco .f-c {
+    opacity: 0;
+  }
+}
+html[data-motion='reduced'] .coco .f {
+  animation: none;
+}
+html[data-motion='reduced'] .coco .f-b,
+html[data-motion='reduced'] .coco .f-c {
+  opacity: 0;
+}
+
+@media (forced-colors: active) {
+  .coco .fur,
+  .coco .harness {
+    fill: none;
+  }
+  .coco .line,
+  .coco .harness {
+    stroke: CanvasText;
+  }
+  .coco .solid {
+    fill: CanvasText;
+  }
+}
+
+/* Coco an der Leinenspitze (journey/about): vor dem Laden der Engine sitzt sie am Linienanfang (Rinnenmitte unter der
+   Kopfleiste, §9.8), danach setzt die Engine `transform`. Ohne JavaScript unsichtbar (`<noscript>` in LeashLayer). */
+.coco[data-leash-coco] {
+  position: absolute;
+  top: 0;
+  left: calc(
+    max(0px, (100% - var(--content-max) - 2 * var(--page-pad)) / 2) + var(--leash-gutter) / 2
+  );
+  z-index: 1;
+  transform: translate(-37.8%, -55.8%);
+  transform-origin: 0 0;
+}
+.coco[data-leash-coco][data-placed] {
+  left: 0;
+}
+
+/* View Transitions (§9.8, ADR 0003): Coco wandert in --dur-page von der alten zur neuen Position; übriger Inhalt
+   blendet in 250 ms über. Nur bei voller Bewegung – die Regel `@view-transition` fehlt sonst ohnehin. */
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-motion='reduced']) .coco[data-leash-coco] {
+    view-transition-name: coco;
+  }
+  ::view-transition-group(coco) {
+    animation-duration: var(--dur-page);
+    animation-timing-function: var(--ease-ink-inout);
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 250ms;
+  }
+}
+
+/* Weiche Navigation: Seiteninhalt (`PageTransition`, Klasse pc-page) blendet in 250 ms über. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(.pc-page),
+  ::view-transition-new(.pc-page) {
+    animation-duration: 250ms;
+  }
+}

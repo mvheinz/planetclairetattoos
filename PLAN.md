@@ -1692,7 +1692,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     es im Job `quality`, P2.28).
   - Ohne Jutta: –
 
-- [ ] **P2.18 Coco-Platzhalter-Sprite und Coco-Steuerung** –
+- [x] **P2.18 Coco-Platzhalter-Sprite und Coco-Steuerung** –
   - `src/art/coco/coco-sprite.svg` mit allen 22 Symbolen: `coco-{rennen|schnueffeln|sitzen|schlafen|springen|
     kopfschief}-{a|b|c}` und `coco-bridge-{bremsen|abspringen|einrollen-1|einrollen-2}` (DESIGN §10.4).
     - `viewBox 0 0 160 120`;

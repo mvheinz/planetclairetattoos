@@ -72,8 +72,14 @@ export function staticHeaderRules(o: { appEnv: AppEnvName; nodeEnv?: string }) {
       headers: toList({ ...baseHeaders(o.appEnv), ...contextHeaders('public', o) }),
     },
     { source: '/api/:path*', headers: toList(contextHeaders('api', o)) },
+    // Versionierte Kunst-Dateien (Versionsnummer im Namen, DESIGN §10.4): dauerhaft cachebar.
+    { source: IMMUTABLE_ART_SOURCE, headers: [{ key: 'Cache-Control', value: IMMUTABLE_CACHE }] },
   ]
 }
+
+/** Coco-Sprite `public/art/coco-sprite.v{N}.svg` – neue Zeichnungen bekommen eine neue Nummer. */
+export const IMMUTABLE_ART_SOURCE = '/art/:file(coco-sprite\\.v\\d+\\.svg)'
+export const IMMUTABLE_CACHE = 'public, max-age=31536000, immutable'
 
 export interface PathContext {
   context: NonceContext

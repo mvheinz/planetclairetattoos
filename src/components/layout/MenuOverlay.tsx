@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
 import { WORDMARK_HEIGHT, WORDMARK_SRC, WORDMARK_WIDTH } from '@/components/brand/WordmarkLink'
+import { Coco } from '@/components/Coco'
 import { Icon } from '@/components/icons/Icon'
 import { instagramUrl, type SiteNavigation } from '@/lib/data/navigation'
 import { WITHDRAWAL_LINK_LABEL } from '@/lib/legal/constants'
@@ -132,12 +133,9 @@ export async function MenuOverlay({ locale, nav }: { locale: Locale; nav: SiteNa
             </li>
           </ul>
         </div>
-        <div
-          className={styles.coco}
-          data-coco-slot=""
-          data-coco-pose="kopfschief"
-          aria-hidden="true"
-        />
+        <div className={styles.coco} data-coco-slot="" aria-hidden="true">
+          <Coco pose="kopfschief" size="m" />
+        </div>
       </div>
     </dialog>
   )

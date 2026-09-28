@@ -157,7 +157,14 @@ describe('T-16 Header je Kontext', () => {
 
   it('next.config-Regeln: alle Pfade public, /api/* api (spätere Regel gewinnt)', () => {
     const rules = staticHeaderRules(PROD)
-    expect(rules.map((r) => r.source)).toEqual(['/:path*', '/api/:path*'])
+    expect(rules.map((r) => r.source)).toEqual([
+      '/:path*',
+      '/api/:path*',
+      '/art/:file(coco-sprite\\.v\\d+\\.svg)',
+    ])
+    expect(rules[2]!.headers).toEqual([
+      { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+    ])
     const all = Object.fromEntries(rules[0]!.headers.map((h) => [h.key, h.value]))
     expect(all['Content-Security-Policy']).toBe(buildCsp('public', PROD))
     expect(all['X-Content-Type-Options']).toBe('nosniff')

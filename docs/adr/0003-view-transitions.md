@@ -30,3 +30,20 @@
 - **Folgen:** Kein neues Paket, kein Konfigurations-Schalter. Test: `tests/e2e/leash.e2e.spec.ts` (Regel auf R01
   vorhanden, auf R26 `calm` nicht). Wieder prüfen, wenn `react` stabil `ViewTransition` exportiert (dann ohne
   Canary-Typen) und in P9 (KUNST-QA: Coco-Übergang 350 ms `--ease-ink-inout`).
+
+## Nachtrag P2.18 (28.09.2026) – Punkt 2 umgesetzt
+
+- **Weiche Navigation:** `src/components/leash/PageTransition.tsx` legt `<ViewTransition default="pc-page">` um den
+  Seiteninhalt in `<main>` (Überblendung 250 ms, `src/styles/coco.css`); `default="none"`, wenn die alte **oder** die neue
+  Seite `calm` ist oder die Bewegung reduziert ist (`useSyncExternalStore` auf `src/leash/motion.ts`). Die Coco an der
+  Leinenspitze (`LeashLayer`, Presets `journey`/`about`) steckt in `<ViewTransition name="coco" share="pc-coco"
+  default="none">` mit dem Routen-Schlüssel als `key` – alte und neue Coco bilden ein Paar und wandern in `--dur-page`
+  (`--ease-ink-inout`). Nachweis: `tests/e2e/coco.e2e.spec.ts` über `window.next.router.push` (R01 → R20: Übergang mit
+  `coco` und Seiteninhalt; zu/von R26 und bei `reduce` keiner). Die Seite nutzt bisher nur `<a href>` (harte Navigation);
+  weiche Navigation entsteht erst mit `next/link`/Router-Aufrufen späterer Phasen – dann greift diese Hülle ohne Änderung.
+- **Harte Navigation:** Das Coco-Element trägt per CSS `view-transition-name: coco` (nur unter
+  `prefers-reduced-motion: no-preference` und ohne `html[data-motion="reduced"]`). Es wird serverseitig am Linienanfang
+  gerendert (ohne JavaScript per `<noscript>`-Stil ausgeblendet), damit es im Schnappschuss der neuen Seite schon steht.
+- **Offen:** `leash-head` (erste 60 px der Linie) ist nicht benannt – die Linie entsteht erst nach LCP + Idle und stünde im
+  neuen Schnappschuss nicht; Prüfung in P9 (KUNST-QA).
+

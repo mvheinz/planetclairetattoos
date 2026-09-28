@@ -3,6 +3,7 @@ import React from 'react'
 
 import { getSiteNavigation } from '@/lib/data/navigation'
 import { LeashLayer } from '@/components/leash/LeashLayer'
+import { PageTransition } from '@/components/leash/PageTransition'
 import type { Locale } from '@/lib/routes/registry'
 
 import styles from './AppShell.module.css'
@@ -36,7 +37,7 @@ export async function AppShell({
       <div className={styles.page}>
         <LeashLayer className={`${styles.lineLayer} u-layer-leash`} />
         <main id="inhalt" tabIndex={-1} className={styles.main}>
-          {children}
+          <PageTransition>{children}</PageTransition>
         </main>
       </div>
       <SiteFooter locale={locale} nav={nav} />

@@ -83,7 +83,20 @@ export interface ModuleBudget {
 export const MODULE_BUDGETS: readonly ModuleBudget[] = [
   { name: 'Engine (Geometrie + Laufzeit)', entry: 'src/leash/runtime.ts', gzipMax: 12_000 },
   { name: 'Statischer Renderer', entry: 'src/leash/static.ts', gzipMax: 4_000 },
+  { name: 'Coco-Steuerung', entry: 'src/leash/coco.ts', gzipMax: 3_000 },
 ]
+
+/** Budget SVG (DESIGN §9.10): Coco-Sprite ≤ 45 KB roh / ≤ 12 KB gz (1 KB = 1000 B). */
+export const SPRITE_BUDGET = {
+  file: 'public/art/coco-sprite.v1.svg',
+  rawMax: 45_000,
+  gzipMax: 12_000,
+}
+
+export function measureFile(file: string): { rawBytes: number; gzipBytes: number } {
+  const data = readFileSync(file)
+  return { rawBytes: data.length, gzipBytes: gzipSync(data, { level: 9 }).length }
+}
 
 export interface ModuleReport extends ModuleBudget {
   rawBytes: number
@@ -147,6 +160,14 @@ async function main(): Promise<void> {
       console.error(`${line} ÜBERSCHRITTEN`)
       failed = true
     }
+  }
+  const sprite = measureFile(SPRITE_BUDGET.file)
+  const spriteLine = `check:bundle: Coco-Sprite ${sprite.rawBytes} B roh / ${sprite.gzipBytes} B gz, Budget ${SPRITE_BUDGET.rawMax} / ${SPRITE_BUDGET.gzipMax} B.`
+  if (sprite.rawBytes <= SPRITE_BUDGET.rawMax && sprite.gzipBytes <= SPRITE_BUDGET.gzipMax)
+    console.log(spriteLine)
+  else {
+    console.error(`${spriteLine} ÜBERSCHRITTEN`)
+    failed = true
   }
   if (failed) process.exit(1)
 }

@@ -43,6 +43,8 @@ export interface MountOptions {
   motion?: Motion
   /** Coco-Anbindung (P2.18, `src/leash/coco.ts`): Position der Leinenspitze je Frame. */
   onCoco?: (state: CocoState) => void
+  /** Tatsächlich gezeigte Pose der Coco-Steuerung (mit Brücken); sonst die Ziel-Pose. */
+  cocoPose?: () => SpritePose | null
 }
 
 export interface LeashDebugState {
@@ -68,6 +70,13 @@ export interface InspectableLeashHandle extends LeashHandle {
   /** Debug: Lesezeile fest setzen (px relativ zur Linien-Ebene, wie `scrollMap.readingY`); `null` = wieder Scroll. */
   setReadingY(y: number | null): void
   setProbe(probe: LeashProbe | null): void
+  /** Posenwechsel der Coco-Steuerung an den Frame-Logger melden (mit Brücke). */
+  notePose(entry: {
+    t: number
+    from: SpritePose | null
+    to: SpritePose
+    bridge: string | null
+  }): void
 }
 
 const SVG_NS = 'http://www.w3.org/2000/svg'
@@ -272,7 +281,8 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   function emitCoco(direction: 1 | -1, moving: boolean) {
     const next = targetPose(moving)
     if (next !== pose && next) {
-      probe?.pose?.({ t: performance.now(), from: pose, to: next, bridge: null })
+      if (!options.cocoPose)
+        probe?.pose?.({ t: performance.now(), from: pose, to: next, bridge: null })
       pose = next
     }
     if (!options.onCoco || !geometry || !pose) return
@@ -504,7 +514,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       cocoLen,
       tier,
       rebuildCount,
-      pose,
+      pose: options.cocoPose?.() ?? pose,
     }),
     setReadingY(y: number | null) {
       readingOverride = y
@@ -512,6 +522,9 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     },
     setProbe(next: LeashProbe | null) {
       probe = next
+    },
+    notePose(entry) {
+      probe?.pose?.(entry)
     },
   }
 }

@@ -13,6 +13,7 @@ import { RouteOverride } from './RouteOverride'
 
 import '@/styles/tokens.css'
 import '@/styles/global.css'
+import '@/styles/coco.css'
 
 // Dokument der öffentlichen Website (DESIGN KO-01): `<html lang>`, `<html data-motion>` über das feste Inline-Skript
 // `pc-motion` im `<head>` (DESIGN §11.7; CSP-Hash in `src/lib/security/inlineScripts.ts`), `<body data-preset>` aus

@@ -167,6 +167,5 @@
   right: var(--page-pad);
   bottom: 0;
   width: var(--coco-m);
-  height: var(--coco-m);
   pointer-events: none;
 }

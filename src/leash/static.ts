@@ -244,5 +244,6 @@ export function mountStaticLeash(
       pose: null,
     }),
     setProbe() {},
+    notePose() {},
   }
 }
