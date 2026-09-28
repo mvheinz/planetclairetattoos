@@ -24,6 +24,7 @@
     "test:perf": "lhci collect --config=tests/perf/lighthouserc.cjs && lhci upload --config=tests/perf/lighthouserc.cjs && tsx scripts/perf/lighthouse-report.ts && lhci assert --config=tests/perf/lighthouserc.cjs",
     "test:visual": "pnpm run db:ensure && pnpm run db:reset --test --seed=all && cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm --import=./scripts/lib/register-server-only.mjs\" playwright test --config=playwright.visual.config.ts",
     "preview:export": "cross-env NODE_OPTIONS=--no-deprecation tsx --import=./scripts/lib/register-server-only.mjs scripts/preview-export/index.ts",
+    "test:preview-export": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm --import=./scripts/lib/register-server-only.mjs\" playwright test --config=playwright.preview.config.ts",
     "check": "pnpm run lint && pnpm run typecheck && pnpm run check:static && pnpm run test:unit",
     "check:versions": "tsx scripts/check-versions.ts",
     "env:example": "tsx --import=./scripts/lib/register-server-only.mjs scripts/gen-env-example.ts",

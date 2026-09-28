@@ -9,6 +9,8 @@ import path from 'node:path'
 
 import dotenv from 'dotenv'
 
+import { ADMIN_VIEWS } from './adminViews'
+import { captureAdminShots } from './adminShots'
 import { assemble, type PreviewMessages } from './assemble'
 import { crawl, createServerFetcher, seedParamProvider, startSet, type CrawlResult } from './crawl'
 import { postgresReachable, prepareExportDatabase } from './db'
@@ -22,9 +24,17 @@ import {
   buildExportEnv,
 } from './env'
 import { CHROMIUM_HELP, ExportError, POSTGRES_HELP } from './errors'
+import { displayPhase, resolvePhase } from './phase'
+import {
+  LIMIT_BYTES,
+  TARGET_BYTES,
+  buildWithinBudget,
+  kindWarnings,
+  serializeReport,
+  type PreviewReport,
+} from './report'
 import { bundleRuntime } from './runtime'
 import { buildApp, startServer, type RunningServer } from './server'
-import { DEFAULT_IMAGE_SETTINGS } from './transform/images'
 import { writeOutput } from './write'
 
 export interface ExportArgs {
@@ -76,7 +86,12 @@ export async function runExport(args: ExportArgs, root = process.cwd()): Promise
   await checkPrerequisites()
   const example = dotenv.parse(readFileSync(path.join(root, '.env.example')))
   const now = new Date()
-  const phase = (process.env.PREVIEW_PHASE || 'px').toLowerCase()
+  const planPath = path.join(root, 'PLAN.md')
+  const phase = resolvePhase({
+    env: process.env.PREVIEW_PHASE,
+    plan: existsSync(planPath) ? readFileSync(planPath, 'utf8') : null,
+  })
+  log(`Phase ${displayPhase(phase)}`)
   const env = buildExportEnv({ source: process.env, example, now, phase })
 
   log(`Datenbank ${env.DATABASE_URL!.replace(/\/\/[^@]*@/, '//…@')} vorbereiten`)
@@ -97,6 +112,7 @@ export async function runExport(args: ExportArgs, root = process.cwd()): Promise
 
   let server: RunningServer | null = null
   let result: CrawlResult
+  let shots: Awaited<ReturnType<typeof captureAdminShots>>
   try {
     log('Server starten')
     server = await startServer(env)
@@ -113,6 +129,16 @@ export async function runExport(args: ExportArgs, root = process.cwd()): Promise
     } finally {
       await fetcher.close()
     }
+    log('Verwaltungs-Fotos')
+    shots = await captureAdminShots({
+      origin: server.origin,
+      adminRoute: EXPORT_ADMIN_ROUTE,
+      email: env.SEED_ADMIN_EMAIL!,
+      password: env.SEED_ADMIN_PASSWORD!,
+      seedNow: env.SEED_NOW!,
+      phase,
+      views: ADMIN_VIEWS,
+    })
   } finally {
     if (server && !args.keepServer) {
       log('Server beenden')
@@ -122,35 +148,47 @@ export async function runExport(args: ExportArgs, root = process.cwd()): Promise
 
   log('Umwandlung')
   const runtime = await bundleRuntime(root)
-  const assembled = await assemble({
-    crawl: result,
-    messages: loadPreviewMessages(root),
-    phase: env.PREVIEW_PHASE!,
-    seedNow: env.SEED_NOW!,
-    imageSettings: DEFAULT_IMAGE_SETTINGS,
-    runtime: runtime.code,
-    origin: EXPORT_ORIGIN,
+  const messages = loadPreviewMessages(root)
+  const built = await buildWithinBudget(async (imageSettings) => {
+    const assembled = await assemble({
+      crawl: result,
+      messages,
+      phase: displayPhase(phase),
+      seedNow: env.SEED_NOW!,
+      imageSettings,
+      runtime: runtime.code,
+      origin: EXPORT_ORIGIN,
+      adminShots: shots.entries,
+    })
+    return { ...assembled, sizeBytes: Buffer.byteLength(assembled.html) }
   })
-  const file = writeOutput(root, OUTPUT_DIR, OUTPUT_HTML, assembled.html)
-  log(`${file} geschrieben (${Buffer.byteLength(assembled.html)} Byte)`)
-  writeOutput(
-    root,
-    OUTPUT_DIR,
-    OUTPUT_REPORT,
-    `${JSON.stringify(
-      {
-        version: 1,
-        phase,
-        gitSha: gitSha(root),
-        seedNow: env.SEED_NOW,
-        sizeBytes: Buffer.byteLength(assembled.html),
-        sizeByKind: assembled.sizeByKind,
-        routes: assembled.routes,
-        warnings: [...result.warnings, ...assembled.warnings],
-      },
-      null,
-      2,
-    )}\n`,
+  const { result: out } = built
+  const file = writeOutput(root, OUTPUT_DIR, OUTPUT_HTML, out.html)
+  log(`${file} geschrieben (${(out.sizeBytes / 1_000_000).toFixed(2)} MB, Budget ${built.budget})`)
+  const report: PreviewReport = {
+    version: 1,
+    file: OUTPUT_HTML,
+    sizeBytes: out.sizeBytes,
+    sizeByKind: out.sizeByKind,
+    imageSettings: built.settings,
+    routes: out.routes,
+    adminViews: shots.entries.map((e) => ({ key: e.key, status: e.image ? 'ok' : 'not-built' })),
+    warnings: [
+      ...result.warnings,
+      ...shots.warnings,
+      ...out.warnings,
+      ...built.warnings,
+      ...kindWarnings(out.sizeByKind),
+    ],
+    phase,
+    gitSha: gitSha(root),
+    seedNow: env.SEED_NOW!,
+    generatedAt: new Date().toISOString(),
+    budget: { limitBytes: LIMIT_BYTES, targetBytes: TARGET_BYTES, result: built.budget },
+  }
+  writeOutput(root, OUTPUT_DIR, OUTPUT_REPORT, serializeReport(report))
+  log(
+    `Bericht ${OUTPUT_REPORT}: ${report.routes.length} Routen, ${report.warnings.length} Warnungen`,
   )
 }
 

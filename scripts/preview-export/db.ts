@@ -79,7 +79,40 @@ export async function prepareExportDatabase(
   rmSync(path.join(root, EXPORT_STORAGE_DIR), { recursive: true, force: true })
   await ensureExportDatabase(url)
   await clearExportDatabase(url)
+  const startedAt = new Date()
   run('pnpm', ['-s', 'payload', 'migrate'], env, 'payload migrate')
   run('pnpm', ['-s', 'seed:base'], env, 'seed:base')
   run('pnpm', ['-s', 'seed:example'], env, 'seed:example')
+  await normalizeRunTimestamps(url, env.SEED_NOW!, startedAt, new Date())
+}
+
+/**
+ * Zeitstempel, die Migration und Seed mit der echten Uhr schreiben (`created_at`/`updated_at` zwischen Start und Ende
+ * dieses Schritts), auf
+ * `SEED_NOW` setzen – nur in der Export-Datenbank. Sonst zeigen die Verwaltungs-Fotos (z. B. Spalte „Geändert“) je
+ * Lauf eine andere Uhrzeit und zwei Läufe am selben Tag wären nicht byte-gleich (AK-A-14-01).
+ */
+export async function normalizeRunTimestamps(
+  exportUrl: string,
+  seedNow: string,
+  from: Date,
+  to: Date,
+): Promise<void> {
+  if (databaseNameFromUrl(exportUrl) !== EXPORT_DB_NAME) {
+    throw new ExportError(1, 'Zeitstempel werden nur in der Export-Datenbank angeglichen.')
+  }
+  await withClient(exportUrl, async (c) => {
+    const cols = await c.query<{ table_name: string; column_name: string }>(
+      `SELECT table_name, column_name FROM information_schema.columns
+       WHERE table_schema = 'public' AND column_name IN ('created_at', 'updated_at')
+         AND data_type LIKE 'timestamp%' ORDER BY table_name, column_name`,
+    )
+    for (const { table_name: t, column_name: col } of cols.rows) {
+      if (!/^[a-z0-9_]+$/.test(t) || !/^[a-z_]+$/.test(col)) continue
+      await c.query(
+        `UPDATE "${t}" SET "${col}" = $1::timestamptz WHERE "${col}" BETWEEN $2 AND $3`,
+        [seedNow, new Date(from.getTime() - 1000), new Date(to.getTime() + 1000)],
+      )
+    }
+  })
 }

@@ -1882,7 +1882,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     `tests/int/preview-export/determinism.int.spec.ts` (AK-A-14-01, AK-A-14-02).
   - Ohne Jutta: –
 
-- [ ] **P2.27 Vorschau-Export: Verwaltungsfotos, Bericht, Phase, Abnahmetest** –
+- [x] **P2.27 Vorschau-Export: Verwaltungsfotos, Bericht, Phase, Abnahmetest** –
   - `adminViews.ts` listet die Ansichten aus KONZEPT §7.3–§7.15 mit Phase. In P2 existiert nur Login/Liste/Formular;
     der Rest erscheint als „kommt in P5“ usw.
   - `adminShots.ts`: Login mit `SEED_ADMIN_*` der Export-DB, 390×844 bei DPR 2, WebP 780 px q70.
