@@ -35,6 +35,7 @@
 
 /* Preisschild links, 8 px Einzug; der Faden beginnt direkt unter dem Foto (Anschlusspunkt der Schnur). */
 .tag {
+  margin-top: var(--space-2);
   margin-left: 8px;
 }
 

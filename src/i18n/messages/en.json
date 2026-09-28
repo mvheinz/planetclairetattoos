@@ -147,7 +147,10 @@
       "contact": "How to reach Planet Claire in Berlin: questions about unique pieces, orders, tattoo appointments or commissioned work – by email or via Instagram.",
       "legal": "Legal information from Planet Claire, Berlin: legal notice, privacy policy, terms, right of withdrawal and shipping and payment for the one-of-a-kind shop.",
       "withdrawal": "Withdraw from a contract with Planet Claire here: identify your order, send your declaration and immediately receive a confirmation of receipt by email.",
-      "conformity": "Declarations of conformity from Planet Claire, Berlin, for handmade ceramics in contact with food – current declarations to view and download."
+      "conformity": "Declarations of conformity from Planet Claire, Berlin, for handmade ceramics in contact with food – current declarations to view and download.",
+      "shop": "Handmade one-offs by Planet Claire from Berlin: painted ceramics, textiles, caps, drawings and jewellery – every piece exists only once.",
+      "category": "Handmade one-offs by Planet Claire from Berlin in this category – every piece is unique, with delivery anywhere within Germany.",
+      "archive": "The Planet Claire archive from Berlin: ceramics, textiles and drawings that have already found a home – to look at and browse."
     }
   },
   "contact": {
@@ -168,7 +171,19 @@
   },
   "shop": {
     "list": {
-      "empty": "Everything is gone right now – new pieces show up on Instagram first."
+      "empty": "Everything is gone right now – new pieces show up on Instagram first.",
+      "intro": "Ceramics, textiles, drawings and jewellery – handmade in Berlin, and every piece exists only once.",
+      "emptyText": "The archive shows what has already moved out.",
+      "emptyAction": "To the archive",
+      "filterLabel": "Filter pieces",
+      "all": "All",
+      "availableOnly": "available only",
+      "filterOn": "(on)",
+      "heading": "Pieces",
+      "more": "Show more",
+      "delivery": "Delivery within Germany · Pick-up in {city} possible",
+      "deliveryNoPickup": "Delivery within Germany",
+      "closedFallback": "The shop is taking a break – ordering is not possible right now."
     },
     "warranty": {
       "title": "Legal guarantee",
@@ -188,6 +203,18 @@
       "reservedLong": "Reserved right now – check back in 30 minutes",
       "secondHand": "Second-Hand / Vintage",
       "smallParts": "Not a toy – small parts can be swallowed"
+    },
+    "category": {
+      "emptyTitle": "Nothing in this corner right now.",
+      "emptyText": "Check back soon – or browse all pieces.",
+      "emptyAction": "All pieces"
     }
+  },
+  "archive": {
+    "lead": "Already moved out – but lovely to look at",
+    "filterLabel": "Filter the archive by category",
+    "emptyTitle": "Nothing sold yet.",
+    "emptyText": "Everything that has found a home moves in here.",
+    "emptyAction": "To the shop"
   }
 }

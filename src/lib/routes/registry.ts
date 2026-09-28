@@ -95,8 +95,8 @@ const page = ({ de, en, scaffoldPhase, ...rest }: PageInit): RouteEntry => ({
 // prettier-ignore
 export const ROUTES: readonly RouteEntry[] = [
   page({ id: 'R01', de: '/', en: '/', pageType: 'home', preset: 'journey', rendering: 'isr', robots: 'index', headerContext: 'public', status: 'live', phase: 2 }),
-  page({ id: 'R02', de: '/shop', en: '/shop', pageType: 'shop', preset: 'shopString', rendering: 'isr', robots: 'index', headerContext: 'public', status: 'planned', phase: 3 }),
-  page({ id: 'R03', de: '/shop/kategorie/[slug]', en: '/shop/category/[slug]', pageType: 'category', preset: 'shopString', rendering: 'isr', robots: 'index', headerContext: 'public', status: 'planned', phase: 3 }),
+  page({ id: 'R02', de: '/shop', en: '/shop', pageType: 'shop', preset: 'shopString', rendering: 'isr', robots: 'index', headerContext: 'public', status: 'live', phase: 3 }),
+  page({ id: 'R03', de: '/shop/kategorie/[slug]', en: '/shop/category/[slug]', pageType: 'category', preset: 'shopString', rendering: 'isr', robots: 'index', headerContext: 'public', status: 'live', phase: 3 }),
   { ...page({ id: 'R04', de: '/shop/[nummer]-[slug]', en: '/shop/[nummer]-[slug]', pageType: 'product', preset: 'product', rendering: 'isr', robots: 'index', headerContext: 'public', status: 'planned', phase: 3 }), key: '/shop/[product]' },
   page({ id: 'R05', de: '/archiv', en: '/archive', pageType: 'archive', preset: 'shopString', rendering: 'isr', robots: 'index', headerContext: 'public', status: 'planned', phase: 3 }),
   page({ id: 'R06', de: '/warenkorb', en: '/cart', pageType: 'cart', preset: 'calm', rendering: 'dynamic', robots: 'noindex', headerContext: 'dynamic', status: 'planned', phase: 4 }),

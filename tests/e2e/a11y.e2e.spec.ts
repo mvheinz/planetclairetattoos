@@ -5,7 +5,7 @@ import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 import pg from 'pg'
 
-import { localizedPath, pageRoutes } from '../../src/lib/routes/paths'
+import { localizedPath, pageRoutes, samplePath } from '../../src/lib/routes/paths'
 import { LOCALES, type Locale } from '../../src/lib/routes/registry'
 import { serverURL } from '../helpers/adminEnv'
 
@@ -59,7 +59,7 @@ const livePages = pageRoutes().filter((r) => r.status === 'live')
 test.describe('axe je live-Route @a11y', () => {
   for (const route of livePages) {
     for (const locale of LOCALES) {
-      const url = localizedPath(route.id, locale)
+      const url = samplePath(route.id, locale)
       test(`T-11 R-191 ${route.id} ${url} @a11y`, async ({ page }) => {
         await open(page, url)
         await expectLang(page, locale)

@@ -160,3 +160,17 @@ export function alternateForMatch(match: RouteMatch | null, locale: Locale): str
   if (!match || 'slug' in match.params) return localizedPath('R01', locale)
   return localizedPath(match.route.id, locale, match.params)
 }
+
+/**
+ * Beispiel-Parameter live geschalteter Routen mit Parametern – für Querschnittsprüfungen (Barrierefreiheit, Datenschutz,
+ * SEO, Tempo, Verbotsmuster), die jede `live`-Route aufrufen. Werte aus dem Grund-Seed (Kategorien, SEED-SPEC §3), der
+ * in jeder Umgebung existiert.
+ */
+export const ROUTE_SAMPLE_PARAMS: Readonly<Record<string, Record<Locale, RouteParams>>> = {
+  R03: { de: { slug: 'keramik' }, en: { slug: 'ceramics' } },
+}
+
+/** Pfad einer Route für Querschnittsprüfungen: ohne Parameter wie `localizedPath`, sonst mit Beispiel-Parametern. */
+export function samplePath(id: string, locale: Locale): string {
+  return localizedPath(id, locale, ROUTE_SAMPLE_PARAMS[id]?.[locale] ?? {})
+}

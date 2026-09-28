@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P3.5
+
+- Shop-Übersicht R02 und Kategorie-Seiten R03 (samt statischer Varianten ?available=1/?page=n aus Spike B-05) über eine gemeinsame Listen-Komponente: H1, Einleitung, Filter-Chips als echte Links (aria-current), Umschalter „nur verfügbare“, Raster aus Produktkarten, „Mehr zeigen“ als Link, Preis-Fußnote und Lieferzeile, Leerzustände KO-17, Hinweis „Shop pausiert“ über dem Raster; Kategorie unbekannt → 404, Slug der anderen Sprache → 308.
+- Leinen-Preset shopString: die Linie läuft als Schnur durch jede Kartenreihe (Serpentine, Durchhang), Coco-Platzhalter am Schnuranfang, jede Reihe zeichnet sich beim Hineinscrollen.
+- Querschnittsprüfungen (Barrierefreiheit, SEO, Datenschutz, Header, Verbotsliste) rufen Routen mit Parametern über Beispiel-Parameter auf (samplePath).
+- Tests: Unit list-page (6) + leash/shop-string (8); E2E tests/e2e/shop/shop.e2e.spec.ts (10 je Projekt, u. a. 25 Fixture-Stücke 975–999, ohne JavaScript, 308/404, Shop pausiert) sowie @a11y/SEO/Privacy/CSP für R02/R03 DE/EN – grün gegen den Produktions-Build.
+
 ## 2026-09-28 – P3.4
 
 - Komponenten `src/components/shop/`: `PriceTag` (KO-05, Varianten hanging/pinned/mini; Drehung, Fadenlänge, Kontur-Wackel und Stempelwinkel deterministisch aus der Nummer in `src/lib/shop/priceTag.ts`; Preis `formatMoney(…, tag)` + Sternchen, `Nr. 017`; Faden-Anker `data-leash-anchor="tag"` für die Schnur), `SoldStamp` (KO-06, aria-hidden, lang=en, rauer Rahmen mit Lücken, Druck-Maske), `Badge` (KO-10, sechs Arten, neue Icons `clock`/`plate-off`), `ProductCard` (KO-07, genau ein Link, aria-label mit Zustand, Foto 4:5 mit srcset thumb/card, erste zwei Karten eager), `src/components/media/ResponsiveImage.tsx` (feste Endhöhe, Dominanzfarbe, Fokuspunkt); Schraffur-Schatten `.u-hatch-shadow`. Callout (KO-22) besteht seit P2 unter `src/components/ui/`.

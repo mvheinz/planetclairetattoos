@@ -114,3 +114,37 @@ export function routeMetadata(routeId: string) {
     return buildMetadata(routeId, isLocale(locale) ? locale : DEFAULT_LOCALE)
   }
 }
+
+export interface ListMetadataOptions extends BuildMetadataOptions {
+  /** Seite der Liste (ab 2 als `?page=n` in canonical und hreflang, KONZEPT §2.3). */
+  page?: number
+}
+
+/**
+ * Metadaten der Listen R02, R03, R05 (KONZEPT §2.3, §3.2–§3.5): canonical ohne `available` und `category`, mit `page`
+ * erst ab Seite 2; hreflang mit denselben Regeln (Kategorie-Slug der jeweiligen Sprache über `alternateParams`).
+ */
+export function buildListMetadata(
+  routeId: 'R02' | 'R03' | 'R05',
+  locale: Locale,
+  params: RouteParams = {},
+  options: ListMetadataOptions = {},
+): Metadata {
+  const metadata = buildMetadata(routeId, locale, params, options)
+  const siteUrl = options.siteUrl ?? getEnv().NEXT_PUBLIC_SITE_URL
+  const query = options.page && options.page >= 2 ? `?page=${options.page}` : ''
+  const urlFor = (l: Locale) =>
+    absoluteUrl(
+      `${localizedPath(routeId, l, l === locale ? params : (options.alternateParams?.[l] ?? params))}${query}`,
+      siteUrl,
+    )
+  metadata.alternates = {
+    canonical: urlFor(locale),
+    languages: {
+      ...Object.fromEntries(LOCALES.map((l) => [l, urlFor(l)])),
+      'x-default': urlFor(DEFAULT_LOCALE),
+    },
+  }
+  if (metadata.openGraph) metadata.openGraph = { ...metadata.openGraph, url: urlFor(locale) }
+  return metadata
+}

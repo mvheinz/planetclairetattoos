@@ -4,6 +4,7 @@ import path from 'node:path'
 import { test, expect, request as playwrightRequest, type APIResponse } from '@playwright/test'
 
 import { serverURL } from '../../helpers/adminEnv'
+import { holdListData } from './fresh'
 
 // P3.2 Spike B-05 (ARCHITEKTUR §9.1, Anhang B; AK-A-9-03): Der Proxy schreibt bekannte Listen-Parameter auf eine
 // statische Variante um. Im Produktions-Build (`E2E_SERVER=start`) kommt die Antwort aus dem Cache
@@ -28,6 +29,9 @@ const cacheOf = (res: APIResponse) => res.headers()['x-nextjs-cache']
 const canonicalOf = (html: string) => /<link rel="canonical" href="([^"]+)"/.exec(html)?.[1] ?? null
 
 test.describe('Listen-Varianten statisch (Spike B-05) @smoke', () => {
+  // Andere Tests ändern den Bestand (exklusiv); jede Änderung erneuert die Tags – der erste Aufruf danach rendert neu
+  // (MISS). Deshalb geteilter Lock und ein Aufwärm-Aufruf vor der Cache-Prüfung.
+  holdListData(test, 'shared')
   test.beforeEach(({ browserName }, testInfo) => {
     // Reine HTTP-Prüfung: einmal im Desktop-Projekt genügt.
     test.skip(
@@ -39,6 +43,7 @@ test.describe('Listen-Varianten statisch (Spike B-05) @smoke', () => {
   test('AK-A-9-03 ?available=1 kommt aus dem Cache, gleiche HTML mit unbekannten/ungültigen Parametern @smoke', async () => {
     const ctx = await playwrightRequest.newContext({ baseURL: serverURL })
     try {
+      await ctx.get('/de/shop?available=1')
       const first = await ctx.get('/de/shop?available=1')
       expect(first.status()).toBe(200)
       expect(first.headers()['set-cookie']).toBeUndefined()

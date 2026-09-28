@@ -254,14 +254,15 @@ export function firstLoadBudget(routeId: string, budgets: Budgets): number {
 /** Seiten für `check:bundle`: jede `live`-Seite der Registry je Sprache, dazu R28 (404) und R29 (500). */
 export async function pageTargets(): Promise<PageTarget[]> {
   const { ROUTES, LOCALES } = await import('../src/lib/routes/registry')
-  const { localizedPath } = await import('../src/lib/routes/paths')
+  const { ROUTE_SAMPLE_PARAMS, samplePath } = await import('../src/lib/routes/paths')
   const out: PageTarget[] = []
   for (const r of ROUTES) {
     if (r.status !== 'live' || r.kind !== 'page') continue
-    // Dynamische Muster (z. B. `[token]`) brauchen Daten – Seiten mit Parametern kommen mit ihren Phasen dazu.
-    if (r.paths && Object.values(r.paths).some((p) => p.includes('['))) continue
+    // Dynamische Muster (z. B. `[token]`) brauchen Daten: nur mit Beispiel-Parametern aus dem Grund-Seed (`R03`).
+    const dynamic = r.paths && Object.values(r.paths).some((p) => p.includes('['))
+    if (dynamic && !ROUTE_SAMPLE_PARAMS[r.id]) continue
     for (const locale of LOCALES)
-      out.push({ routeId: r.id, locale, path: localizedPath(r.id, locale), status: 200 })
+      out.push({ routeId: r.id, locale, path: samplePath(r.id, locale), status: 200 })
   }
   for (const locale of LOCALES) {
     out.push({ routeId: 'R28', locale, path: `/${locale}/gibt-es-nicht-bundle`, status: 404 })

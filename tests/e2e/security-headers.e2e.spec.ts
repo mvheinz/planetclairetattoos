@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test'
 
-import { localizedPath, pageRoutes } from '../../src/lib/routes/paths'
+import { pageRoutes, samplePath } from '../../src/lib/routes/paths'
 import { LOCALES } from '../../src/lib/routes/registry'
 import { adminRoute } from '../helpers/adminEnv'
 import { expect, test } from './fixtures'
@@ -58,7 +58,7 @@ test.describe('Sicherheits-Header', () => {
   }) => {
     const cases = [
       ...livePages.flatMap((r) =>
-        LOCALES.map((l) => ({ path: localizedPath(r.id, l), context: r.headerContext })),
+        LOCALES.map((l) => ({ path: samplePath(r.id, l), context: r.headerContext })),
       ),
       { path: '/de/gibt-es-nicht', context: 'public' as const },
     ]
@@ -119,9 +119,11 @@ test.describe('Keine CSP-Verstöße', () => {
   test('R-131 auf keiner live-Route ein CSP-Verstoß (DE/EN, inkl. 404) @smoke', async ({
     page,
   }) => {
+    // Jede live-Seite nacheinander bis `networkidle` – mit den Listen aus P3 mehr als 30 s
+    test.slow()
     const violations = await watchCsp(page)
     const paths = [
-      ...livePages.flatMap((r) => LOCALES.map((l) => localizedPath(r.id, l))),
+      ...livePages.flatMap((r) => LOCALES.map((l) => samplePath(r.id, l))),
       '/de/gibt-es-nicht',
     ]
     const found: string[] = []

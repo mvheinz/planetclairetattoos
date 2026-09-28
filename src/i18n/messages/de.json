@@ -147,7 +147,10 @@
       "contact": "So erreichst du Planet Claire in Berlin: Fragen zu Unikaten, Bestellungen, Tattoo-Terminen oder Auftragsarbeiten – per Mail oder über Instagram.",
       "legal": "Rechtliche Informationen von Planet Claire, Berlin: Impressum, Datenschutz, AGB, Widerrufsbelehrung sowie Versand und Zahlung für den Unikat-Shop.",
       "withdrawal": "Hier kannst du einen Vertrag mit Planet Claire widerrufen: Bestellung angeben, Erklärung absenden und sofort eine Eingangsbestätigung per E-Mail erhalten.",
-      "conformity": "Konformitätserklärungen von Planet Claire, Berlin, zu handgemachter Keramik mit Lebensmittelkontakt – aktuelle Erklärungen zum Ansehen und Herunterladen."
+      "conformity": "Konformitätserklärungen von Planet Claire, Berlin, zu handgemachter Keramik mit Lebensmittelkontakt – aktuelle Erklärungen zum Ansehen und Herunterladen.",
+      "shop": "Handgemachte Unikate von Planet Claire aus Berlin: bemalte Keramik, Textil, Caps, Zeichnungen und Schmuck – jedes Stück gibt es nur einmal.",
+      "category": "Handgemachte Unikate von Planet Claire aus Berlin in dieser Kategorie – jedes Stück ist ein Einzelstück, Lieferung innerhalb Deutschlands.",
+      "archive": "Archiv von Planet Claire aus Berlin: Keramik, Textil und Zeichnungen, die schon ein Zuhause gefunden haben – zum Anschauen und Stöbern."
     }
   },
   "contact": {
@@ -168,7 +171,19 @@
   },
   "shop": {
     "list": {
-      "empty": "Gerade ist alles weg – neue Stücke kommen auf Instagram zuerst."
+      "empty": "Gerade ist alles weg – neue Stücke kommen auf Instagram zuerst.",
+      "intro": "Keramik, Textil, Zeichnungen und Schmuck – von Hand gemacht in Berlin, und jedes Stück gibt es nur einmal.",
+      "emptyText": "Im Archiv siehst du, was schon ausgezogen ist.",
+      "emptyAction": "Zum Archiv",
+      "filterLabel": "Stücke filtern",
+      "all": "Alle",
+      "availableOnly": "nur verfügbare",
+      "filterOn": "(eingeschaltet)",
+      "heading": "Stücke",
+      "more": "Mehr zeigen",
+      "delivery": "Lieferung innerhalb Deutschlands · Abholung in {city} möglich",
+      "deliveryNoPickup": "Lieferung innerhalb Deutschlands",
+      "closedFallback": "Der Shop macht gerade Pause – bestellen geht im Moment nicht."
     },
     "warranty": {
       "title": "Gesetzliche Gewährleistung",
@@ -188,6 +203,18 @@
       "reservedLong": "Gerade reserviert – schau in 30 Minuten nochmal",
       "secondHand": "Second-Hand / Vintage",
       "smallParts": "Kein Spielzeug – verschluckbare Kleinteile"
+    },
+    "category": {
+      "emptyTitle": "In dieser Ecke ist gerade nichts.",
+      "emptyText": "Schau bald wieder vorbei – oder stöbere bei allen Stücken.",
+      "emptyAction": "Alle Stücke"
     }
+  },
+  "archive": {
+    "lead": "Schon ausgezogen – aber schön anzusehen",
+    "filterLabel": "Archiv nach Kategorie filtern",
+    "emptyTitle": "Noch ist nichts verkauft.",
+    "emptyText": "Alles, was ein Zuhause gefunden hat, zieht hierher um.",
+    "emptyAction": "Zum Shop"
   }
 }

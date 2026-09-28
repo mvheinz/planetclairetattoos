@@ -145,6 +145,19 @@ export async function loadArchiveProducts(query: ArchiveListQuery): Promise<Prod
   return pageOf(docs, page, ids.length)
 }
 
+/** Kategorien, in denen es Archiv-Stücke gibt (Archiv-Chips R05, KONZEPT §3.5). */
+export async function loadArchiveCategoryKeys(): Promise<ProductCategory[]> {
+  const payload = await getPublicPayload()
+  const res = await payload.find({
+    collection: 'products',
+    where: ARCHIVED_SOLD,
+    depth: 0,
+    pagination: false,
+    select: { category: true },
+  })
+  return [...new Set(res.docs.map((d) => d.category))]
+}
+
 /** Öffentliches Stück zur Objektnummer (R04, R31); nicht öffentlich oder unbekannt → `null`. */
 export async function loadPublicProductByItemNumber(
   itemNumber: number,
@@ -219,6 +232,11 @@ export const listShopProducts = cached(loadShopProducts, {
 export const listArchiveProducts = cached(loadArchiveProducts, {
   key: 'archive-products',
   tags: ([q]) => [TAGS.products, ...(q.categoryKey ? [TAGS.category(q.categoryKey)] : [])],
+})
+
+export const listArchiveCategoryKeys = cached(loadArchiveCategoryKeys, {
+  key: 'archive-category-keys',
+  tags: [TAGS.products],
 })
 
 export const getPublicProductByItemNumber = cached(loadPublicProductByItemNumber, {

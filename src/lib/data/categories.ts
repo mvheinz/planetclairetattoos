@@ -112,6 +112,21 @@ export async function loadNavCategories(locale: Locale): Promise<PublicCategory[
   return res.docs.filter((c) => c.slug && c.name).map(toPublicCategory)
 }
 
+/** Alle Kategorien mit Namen und Slug, nach `sortOrder` (Archiv-Chips: auch ohne `showInNavigation`). */
+export async function loadAllCategories(locale: Locale): Promise<PublicCategory[]> {
+  const payload = await getPublicPayload()
+  const res = await payload.find({
+    collection: 'categories',
+    sort: 'sortOrder',
+    locale,
+    fallbackLocale: 'de',
+    depth: 0,
+    limit: 50,
+    pagination: false,
+  })
+  return res.docs.filter((c) => c.slug && c.name).map(toPublicCategory)
+}
+
 export const getCategoryBySlug = cached(loadCategoryBySlug, {
   key: 'category-by-slug',
   tags: [TAGS.categories],
@@ -119,5 +134,10 @@ export const getCategoryBySlug = cached(loadCategoryBySlug, {
 
 export const listNavCategories = cached(loadNavCategories, {
   key: 'nav-categories',
+  tags: [TAGS.categories],
+})
+
+export const listAllCategories = cached(loadAllCategories, {
+  key: 'all-categories',
   tags: [TAGS.categories],
 })

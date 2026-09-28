@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import de from '@/i18n/messages/de.json'
 import en from '@/i18n/messages/en.json'
-import { pageRoutes } from '@/lib/routes/paths'
+import { ROUTE_SAMPLE_PARAMS, pageRoutes } from '@/lib/routes/paths'
 import { LOCALES } from '@/lib/routes/registry'
 import { organizationJsonLd, serializeJsonLd } from '@/lib/seo/jsonLd'
 import { buildMetadata, robotsFor } from '@/lib/seo/metadata'
@@ -23,7 +23,10 @@ describe('buildMetadata', () => {
     )
     for (const route of indexable) {
       for (const locale of LOCALES) {
-        const m = buildMetadata(route.id, locale, {}, { siteUrl: SITE })
+        const m = buildMetadata(route.id, locale, ROUTE_SAMPLE_PARAMS[route.id]?.[locale] ?? {}, {
+          siteUrl: SITE,
+          alternateParams: ROUTE_SAMPLE_PARAMS[route.id],
+        })
         const canonical = String(m.alternates?.canonical)
         expect(canonical.startsWith(`${SITE}/${locale}`), `${route.id} ${locale}`).toBe(true)
         const languages = m.alternates?.languages as Record<string, string>
@@ -150,7 +153,10 @@ describe('robots.txt, X-Robots-Tag, Sitemap', () => {
       en: `${SITE}/en/legal-notice`,
       'x-default': `${SITE}/de/impressum`,
     })
-    expect(map).toHaveLength(livePages.filter((r) => r.robots === 'index').length * 2)
+    // Seiten mit Parametern (Kategorien, Stücke) ergänzt P3.13 mit ihren Daten
+    expect(map).toHaveLength(
+      livePages.filter((r) => r.robots === 'index' && !r.paths!.de.includes('[')).length * 2,
+    )
   })
 })
 

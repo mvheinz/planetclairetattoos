@@ -63,7 +63,140 @@ export interface LeashSamples {
 
 // ---------- Schritt 1–3: Anker, Wegpunkte, Schlaufen ----------
 
+/** Schnur `shopString` (§9.7): Überstand am Reihenende und Toleranz für „gleiche Reihe“. */
+export const STRING_OVERHANG = 12
+const ROW_TOLERANCE = 12
+
+/** Durchhang zwischen zwei Aufhängepunkten (§9.7): `clamp(4, 0.03 × Abstand, 14)` px. */
+export function stringSag(distance: number): number {
+  return Math.min(14, Math.max(4, 0.03 * distance))
+}
+
+/** Faden-Anker (`kind = 'tag'`) zu Reihen gruppiert (oben → unten, je Reihe links → rechts). */
+export function stringRows(anchors: readonly LeashAnchor[]): { y: number; xs: number[] }[] {
+  const tags = anchors
+    .filter((a) => a.kind === 'tag')
+    .map((a) => ({ x: a.x + a.w / 2, y: a.y }))
+    .sort((a, b) => a.y - b.y || a.x - b.x)
+  const rows: { y: number; xs: number[] }[] = []
+  for (const t of tags) {
+    const row = rows[rows.length - 1]
+    if (row && Math.abs(t.y - row.y) <= ROW_TOLERANCE) row.xs.push(t.x)
+    else rows.push({ y: t.y, xs: [t.x] })
+  }
+  for (const row of rows) row.xs.sort((a, b) => a - b)
+  return rows
+}
+
+/**
+ * Preset `shopString` (§9.7, KO-07/KO-08): Die Linie wird zur Schnur. Sie beginnt am Start-Anker (Coco über der ersten
+ * Reihe), läuft im Seitenrand hinunter zur ersten Reihe und dann durch die Faden-Anker aller Karten einer Reihe –
+ * zwischen zwei Ankern mit Durchhang –, am Reihenende 12 px über das Raster hinaus, in einer Kurve (Radius ≤ Seitenrand)
+ * im Rand hinunter zur nächsten Reihe, die in Gegenrichtung läuft (Serpentine). Die Reihen werden als „Stationen“
+ * `row-<n>` gemeldet (Bogenlänge vom Ende der vorigen Reihe bis zum Ende dieser Reihe) – damit zeichnet die Laufzeit je
+ * Reihe beim Eintritt (`draw: 'rowEnter'`) und behält gezeichnete Reihen beim Neuaufbau.
+ * Rastergrenzen: Anker `kind = 'target'` (volle Rasterbreite), sonst aus den Faden-Ankern geschätzt.
+ */
+function planShopString(input: BuildInput): Plan {
+  const { root } = input
+  const startAnchor = input.anchors.find((a) => a.kind === 'start')
+  const bounds = input.anchors.find((a) => a.kind === 'target')
+  const rows = stringRows(input.anchors)
+  const pts: Pt[] = []
+  const loops: LoopMark[] = []
+  const push = (p: Pt) => pts.push(p) - 1
+  /** Gerade senkrecht im Rand: Zwischenpunkte alle ≤ 60 px, damit der Spline nicht nach außen ausbaucht. */
+  const straightDown = (x: number, fromY: number, toY: number) => {
+    const n = Math.floor((toY - fromY) / 60)
+    for (let k = 1; k <= n; k++) push({ x, y: fromY + ((toY - fromY) * k) / (n + 1) })
+  }
+  const start: Pt = startAnchor
+    ? { x: startAnchor.x + startAnchor.w / 2, y: startAnchor.y + startAnchor.h }
+    : { x: 24, y: 0 }
+  push(start)
+  if (rows.length === 0) {
+    // Ohne Karten nur der Leinen-Anschluss (§9.8): kurzes Stück nach unten.
+    push({ x: start.x, y: start.y + 24 })
+    return { pts, loops }
+  }
+  const gridLeft = bounds ? bounds.x : 16
+  const gridRight = bounds ? bounds.x + bounds.w : root.w - 16
+  // Seitenrand links/rechts des Rasters: Überstand 12 px, aber nie über den Rand der Linien-Ebene hinaus.
+  const margin = (edge: number, dir: 1 | -1) => {
+    const room = dir > 0 ? root.w - edge : edge
+    return edge + dir * Math.max(2, Math.min(STRING_OVERHANG, room - 6))
+  }
+  const sideX: Record<'left' | 'right', number> = {
+    left: margin(gridLeft, -1),
+    right: margin(gridRight, 1),
+  }
+  // Kurvenradius im Rand: höchstens der Überstand (≤ Seitenrand), höchstens 10 px.
+  const radius = (side: 'left' | 'right') =>
+    Math.min(10, side === 'left' ? gridLeft - sideX.left : sideX.right - gridRight)
+
+  // Vom Start (Coco) in den linken Rand und hinunter bis kurz vor die erste Reihe.
+  let side: 'left' | 'right' = 'left'
+  const firstY = rows[0]!.y
+  const rStart = radius('left')
+  if (firstY - start.y > 3 * rStart) {
+    push({ x: (start.x + sideX.left) / 2, y: start.y + Math.min(14, (firstY - start.y) / 4) })
+    const y0 = Math.min(firstY - rStart, start.y + 28)
+    push({ x: sideX.left, y: y0 })
+    straightDown(sideX.left, y0, firstY - rStart)
+  }
+  let prevEnd = 0
+  rows.forEach((row, k) => {
+    const dir: 1 | -1 = side === 'left' ? 1 : -1
+    const r = radius(side)
+    const x0 = sideX[side]
+    // Kurve aus dem Rand in die Reihe.
+    push({ x: x0, y: row.y - r })
+    push({ x: x0 + dir * r * 0.35, y: row.y - r * 0.35 })
+    const xs = dir > 0 ? row.xs : [...row.xs].reverse()
+    const exitSide: 'left' | 'right' = side === 'left' ? 'right' : 'left'
+    const exitX = sideX[exitSide]
+    const next = rows[k + 1]
+    const r2 = radius(exitSide)
+    // Letzter Punkt der Reihe: mit Folgereihe kurz vor der Kurve, sonst das Schnurende im Rand (Überstand).
+    const hang = [x0 + dir * r, ...xs, next ? exitX - dir * r2 : exitX]
+    for (let i = 0; i < hang.length; i++) {
+      const x = hang[i]!
+      if (i > 0) {
+        const px = hang[i - 1]!
+        push({ x: (px + x) / 2, y: row.y + stringSag(Math.abs(x - px)) })
+      }
+      push({ x, y: row.y })
+    }
+    const i1 = pts.length - 1
+    loops.push({
+      anchor: {
+        id: `row-${k}`,
+        kind: 'station',
+        x: 0,
+        y: row.y,
+        w: 0,
+        h: 0,
+        loop: 'none',
+      },
+      kind: 'none',
+      i0: prevEnd,
+      i1,
+      dot: false,
+    })
+    prevEnd = i1
+    if (next) {
+      // Kurve im Rand hinunter zur nächsten Reihe (Serpentine).
+      push({ x: exitX - dir * r2 * 0.35, y: row.y + r2 * 0.35 })
+      push({ x: exitX, y: row.y + r2 })
+      straightDown(exitX, row.y + r2, next.y - r2)
+    }
+    side = exitSide
+  })
+  return { pts, loops }
+}
+
 function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
+  if (input.preset === 'shopString') return planShopString(input)
   const cfg = PRESET_CONFIG[input.preset]
   const { viewport, root, gutter } = input
   const desktop = viewport.w >= BP_TABLET
@@ -789,6 +922,13 @@ function buildScrollMap(
     for (const s of stations) {
       raw.push({ readingY: s.y, len: s.loopLen0 })
       raw.push({ readingY: s.y + loopScroll(s.loop, input.viewport.w), len: s.loopLen1 })
+    }
+  } else if (PRESET_CONFIG[input.preset].draw === 'rowEnter') {
+    // Treppe: erreicht die Eintrittslinie eine Reihe, gilt sie als ganz gezeichnet (Laufzeit animiert 500 ms).
+    for (const s of stations) {
+      raw.push({ readingY: s.y, len: s.loopLen0 })
+      // knapp unter der Gesamtlänge, sonst entfiele die Stufe der letzten Reihe (nur der Endpunkt darf `total` sein)
+      raw.push({ readingY: s.y + 1, len: Math.min(s.loopLen1, total - 0.02) })
     }
   }
   raw.push({ readingY: input.root.h, len: total })

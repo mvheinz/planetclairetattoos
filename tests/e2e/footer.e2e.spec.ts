@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 
 import { LEGAL_LINKS } from '../../src/components/layout/navItems'
-import { localizedPath, pageRoutes } from '../../src/lib/routes/paths'
+import { localizedPath, pageRoutes, samplePath } from '../../src/lib/routes/paths'
 import { LOCALES, type Locale } from '../../src/lib/routes/registry'
 import { testPayload } from './fixtures'
 
@@ -92,7 +92,7 @@ test.describe('Fußbereich @smoke', () => {
     page,
   }) => {
     const paths = [
-      ...LIVE_PAGES.flatMap((r) => LOCALES.map((l) => [l, localizedPath(r.id, l)] as const)),
+      ...LIVE_PAGES.flatMap((r) => LOCALES.map((l) => [l, samplePath(r.id, l)] as const)),
       ['de', '/de/gibt-es-nicht'] as const,
       ['en', '/en/does-not-exist'] as const,
     ]

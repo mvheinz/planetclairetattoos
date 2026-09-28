@@ -1,4 +1,4 @@
-import { localizedPath, pageRoutes } from '../../../src/lib/routes/paths'
+import { pageRoutes, samplePath } from '../../../src/lib/routes/paths'
 import { LOCALES, ROUTES } from '../../../src/lib/routes/registry'
 import { getTaxModeAt, type TaxSettings } from '../../../src/lib/tax'
 import {
@@ -27,7 +27,7 @@ const visits: Visit[] = [
     .flatMap((r) =>
       LOCALES.map((locale) => ({
         name: `${r.id} ${locale}`,
-        path: localizedPath(r.id, locale),
+        path: samplePath(r.id, locale),
         status: 200,
       })),
     ),

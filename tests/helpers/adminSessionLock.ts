@@ -17,6 +17,7 @@ import pg from 'pg'
 
 const SESSIONS_LOCK = 7_314_001
 const LOGIN_LOCK = 7_314_002
+const FIXTURE_RANGE_LOCK = 7_314_003
 
 export type ReleaseLock = () => Promise<void>
 
@@ -54,3 +55,10 @@ export async function withLoginLock<T>(fn: () => Promise<T>): Promise<T> {
     await release()
   }
 }
+
+/**
+ * Nummernbereich der E2E-Stücke (975–999): Projekt-Blöcke (`fixtureProducts`) halten ihn geteilt, Listen-Tests mit dem
+ * ganzen Bereich (Paginierung, P3.5) exklusiv – so legen parallele Projekte nie dieselbe Nummer an.
+ */
+export const holdFixtureRange = (mode: 'shared' | 'exclusive'): Promise<ReleaseLock> =>
+  hold(FIXTURE_RANGE_LOCK, mode)

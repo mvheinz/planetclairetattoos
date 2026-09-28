@@ -1,6 +1,6 @@
 import type { Page, Response } from '@playwright/test'
 
-import { localizedPath, pageRoutes } from '../../src/lib/routes/paths'
+import { pageRoutes, samplePath } from '../../src/lib/routes/paths'
 import { LOCALES, ROUTES } from '../../src/lib/routes/registry'
 import { serverURL } from '../helpers/adminEnv'
 import { expect, test } from './fixtures'
@@ -27,7 +27,7 @@ const visits: Visit[] = [
     .flatMap((r) =>
       LOCALES.map((locale) => ({
         name: `${r.id} ${locale}`,
-        path: localizedPath(r.id, locale),
+        path: samplePath(r.id, locale),
         status: 200,
       })),
     ),
