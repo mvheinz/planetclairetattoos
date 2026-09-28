@@ -2,6 +2,20 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P2 Phasen-Abnahme (Designsystem, Tuschelinie, Vorschau-Datei)
+
+- Alle Aufgaben P2.1–P2.29 erledigt: Sprachen/Routen, Design-Tokens, selbst gehostete Schriften, Icons/Wortmarke,
+  Seitenrahmen mit Menü und Fuß (alle Pflichtlinks inkl. „Vertrag widerrufen“), SEO, Sicherheits-Header/CSP,
+  Rechts-/Kontakt-/Widerruf-Gerüste, Tuschelinie A/B/C mit Coco-Platzhalter-Sprite, Fehlerseiten, Startseite,
+  Datenschutz-, a11y-, Tempo- und visuelle Prüfungen, Vorschau-Export, Workflows `ci-full.yml`/`preview-export.yml`.
+- Lokal grün: `pnpm check`, `pnpm test:int`, `pnpm build`, volle E2E-Suite gegen den Produktions-Build (Chromium und
+  echtes WebKit; Leinen-Tests mit Debug-Build), `pnpm test:preview-export` (20 grün), `pnpm test:visual` (16, 3× stabil).
+- Spikes in ARCHITEKTUR Anhang B: B-03 (Rückfall, ADR 0002), B-01 CSP-Teil (erfüllt), B-10 View Transitions (ADR 0003).
+- Visuelle Referenzbilder lokal gegen den Produktions-Build erzeugt, weil das CI-Artefakt aus der Sandbox nicht
+  abrufbar ist (OFFENE-PUNKTE); der CI-Job `quality` prüft sie gegen.
+- Nächster Schritt: Lauf `[ci:full p2]` (quick, e2e-full, quality, Vorschau-Export) grün → Merge, dann P3.1.
+  Stolpersteine: Leinen-E2E brauchen einen Build mit `NEXT_PUBLIC_LEASH_DEBUG=1`; visuelle Tests nur gegen `pnpm start`.
+
 ## 2026-09-28 – P2.29
 
 - `LEGAL_TRACE_PHASE = 2`; neuer R-001-Test prüft R-010, R-011, R-090, R-130, R-131, R-191 samt Gegenprobe mit fehlender P2-ID.\n- Verbotsmuster-E2E über das gerenderte HTML aller live-Routen (DE/EN, 404/500, Weiterleitung): `tests/e2e/legal/forbidden.e2e.spec.ts` (Name laut ANFORDERUNGEN §5 statt `forbidden-html`, OFFENE-PUNKTE), prüft vorher den Kleinunternehmer-Modus; Gegenprobe für OS-Link, „inkl. MwSt.“, Tracker, vorbelegte Checkbox.\n- ANLEITUNGEN: neuer Abschnitt V0 „Vorschau-Datei ansehen“ (Checks → Summary → Artifacts, ZIP entpacken, doppelklicken); G6 nennt den Ablauf „Vorschau-Export“; AUFGABEN A21 verlinkt V0.\n- qa-log: Eintrag zum Kalibrierbogen + INDEX.md; Bogen liegt mit 240 KB über dem Ablagebudget 150 KB (OFFENE-PUNKTE, P9.2).\n- Tests: pnpm check (766) grün, pnpm test:int grün, E2E forbidden desktop + iphone-15 (52) grün.

@@ -1972,23 +1972,23 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Ohne Jutta: Jutta kann die Datei ansehen, muss aber nicht (keine Blockade).
 
 ### Phasen-Abnahme
-- [ ] Alle Aufgaben P2.1–P2.29 sind abgehakt.
-- [ ] Lokal grün: `pnpm check`, `pnpm test:int`, `pnpm test:e2e` (Chromium und WebKit; WebKit nur mit dokumentierter
+- [x] Alle Aufgaben P2.1–P2.29 sind abgehakt.
+- [x] Lokal grün: `pnpm check`, `pnpm test:int`, `pnpm test:e2e` (Chromium und WebKit; WebKit nur mit dokumentierter
   Ausnahme `PW_SKIP_WEBKIT=1`), `pnpm test:preview-export`.
 - [ ] CI grün – erst nach dem grünen Lauf abhaken, in einem Doku-Commit mit `[skip ci]`: Der letzte Commit ohne
   `[skip ci]` trägt `[ci:full p2]` (W-31); `ci.yml` (`quick`), `ci-full.yml` (`e2e-full`, `quality`) und
   `preview-export.yml` sind grün. Damit sind die „(CI-Nachweis)“-Kriterien aus P2.28 belegt.
 - [ ] Artefakt `planet-claire-vorschau-p2-<sha7>` existiert, der PR-Kommentar mit Anleitung ist da, höchstens 3
   Vorschau-Artefakte (AK-12-02, AK-A-6-02) – abgehakt im selben Doku-Commit wie „CI grün“.
-- [ ] DESIGN-Abnahme (DESIGN §13): AK-DS-01 bis AK-DS-09, AK-DS-12 bis AK-DS-16 und AK-DS-18 grün. EK-01 (R01), EK-04,
+- [x] DESIGN-Abnahme (DESIGN §13): AK-DS-01 bis AK-DS-09, AK-DS-12 bis AK-DS-16 und AK-DS-18 grün. EK-01 (R01), EK-04,
   EK-05 (P2-Routen), EK-07 und EK-11 grün.
-- [ ] Querschnittstests T-03, T-04, T-06, T-07, T-09 bis T-13 und T-16 grün. `LEGAL_TRACE_PHASE = 2` grün.
-- [ ] Jeder Pflichtlink im Fußbereich (DE/EN) führt auf eine existierende Seite (kein 404).
-- [ ] Spike B-03, der CSP-Teil von Spike B-01 und der View-Transition-Spike sind in ARCHITEKTUR Anhang B eingetragen
+- [x] Querschnittstests T-03, T-04, T-06, T-07, T-09 bis T-13 und T-16 grün. `LEGAL_TRACE_PHASE = 2` grün.
+- [x] Jeder Pflichtlink im Fußbereich (DE/EN) führt auf eine existierende Seite (kein 404).
+- [x] Spike B-03, der CSP-Teil von Spike B-01 und der View-Transition-Spike sind in ARCHITEKTUR Anhang B eingetragen
   (B-03 und View Transitions mit ADR, B-01 bei Rückfall mit ADR).
-- [ ] Kalibrierbogen `docs/design/qa-log/img/calibration-p2-placeholder.webp` liegt vor. Die visuellen
+- [x] Kalibrierbogen `docs/design/qa-log/img/calibration-p2-placeholder.webp` liegt vor. Die visuellen
   Linux-Referenzen aus dem `[ci:update-snapshots]`-Lauf sind eingecheckt.
-- [ ] Eintrag in `docs/FORTSCHRITT.md` (was, wie getestet, Link zum Artefakt-Lauf). Neue Annahmen stehen in
+- [x] Eintrag in `docs/FORTSCHRITT.md` (was, wie getestet, Link zum Artefakt-Lauf). Neue Annahmen stehen in
   `docs/OFFENE-PUNKTE.md`.
 - [ ] PR-Text (Deutsch) nennt die Vorschau-Datei und die Kurzanleitung, oben „Bitte mergen – CI ist grün“.
 

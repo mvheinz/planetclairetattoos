@@ -16,7 +16,10 @@ process.env.E2E_SERVER = 'start'
 
 export default defineConfig({
   ...base,
-  webServer: base.webServer && !Array.isArray(base.webServer) ? { ...base.webServer, command: 'pnpm start' } : base.webServer,
+  webServer:
+    base.webServer && !Array.isArray(base.webServer)
+      ? { ...base.webServer, command: 'pnpm start' }
+      : base.webServer,
   testDir: './tests/visual',
   testMatch: '**/*.visual.spec.ts',
   testIgnore: [],
