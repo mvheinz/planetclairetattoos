@@ -45,4 +45,24 @@ describe('check:external --built', () => {
       { path: '.next/static/chunks/b.css', url: 'https://fonts.gstatic.com/s/x.woff2' },
     ])
   })
+
+  it('R-049 lässt nur die Gewährleistungs-Seite von „Your Europe“ zu, nie die OS-Plattform', () => {
+    const files = [
+      {
+        path: '.next/server/app/de/agb.html',
+        content:
+          '<a href="https://europa.eu/youreurope/citizens/consumers/shopping/guarantees-returns/index_de.htm">EU</a>' +
+          '<a href="https://europa.eu/youreurope/citizens/consumers/shopping/guarantees-returns/index_en.htm">EU</a>' +
+          '<a href="https://ec.europa.eu/consumers/odr">OS</a>' +
+          '<a href="https://europa.eu/youreurope/citizens/consumers/consumers-dispute-resolution/index_de.htm">x</a>',
+      },
+    ]
+    expect(findForeignUrls(files)).toEqual([
+      { path: '.next/server/app/de/agb.html', url: 'https://ec.europa.eu/consumers/odr' },
+      {
+        path: '.next/server/app/de/agb.html',
+        url: 'https://europa.eu/youreurope/citizens/consumers/consumers-dispute-resolution/index_de.htm',
+      },
+    ])
+  })
 })

@@ -26,6 +26,7 @@ import {
   MEDIA_MIME_TYPES,
   MediaFileError,
   computePlaceholder,
+  imageSizeFilename,
   isCompleteSize,
   normalizeUpload,
 } from '@/lib/media/pipeline'
@@ -37,45 +38,50 @@ import { mediaVisibleInGallery } from '@/lib/tattoo/gallery'
 
 export const DOWNSCALE_UPLOAD_COMPONENT = '/admin/components/DownscaleUpload#DownscaleUpload'
 
-/** Bildgrößen – verbindliche Liste (DATENMODELL §6.2). Unvollständige Größen entfallen (`isCompleteSize`). */
-export const MEDIA_IMAGE_SIZES: ImageSize[] = [
-  {
-    name: 'thumb',
-    width: 400,
-    height: 500,
-    fit: 'cover',
-    withoutEnlargement: true,
-    formatOptions: { format: 'webp', options: { quality: 80 } },
-  },
-  {
-    name: 'card',
-    width: 800,
-    height: 1000,
-    fit: 'cover',
-    withoutEnlargement: true,
-    formatOptions: { format: 'webp', options: { quality: 80 } },
-  },
-  {
-    name: 'detail',
-    width: 1600,
-    withoutEnlargement: true,
-    formatOptions: { format: 'webp', options: { quality: 82 } },
-  },
-  {
-    name: 'zoom',
-    width: 2560,
-    withoutEnlargement: true,
-    formatOptions: { format: 'webp', options: { quality: 85 } },
-  },
-  {
-    name: 'og',
-    width: 1200,
-    height: 630,
-    fit: 'cover',
-    withoutEnlargement: true,
-    formatOptions: { format: 'jpeg', options: { quality: 85 } },
-  },
-]
+/**
+ * Bildgrößen – verbindliche Liste (DATENMODELL §6.2). Unvollständige Größen entfallen (`isCompleteSize`). Jede Größe hat
+ * einen eigenen Dateinamen (`imageSizeFilename`), auch wenn zwei Größen dasselbe Ausgabemaß haben.
+ */
+export const MEDIA_IMAGE_SIZES: ImageSize[] = (
+  [
+    {
+      name: 'thumb',
+      width: 400,
+      height: 500,
+      fit: 'cover',
+      withoutEnlargement: true,
+      formatOptions: { format: 'webp', options: { quality: 80 } },
+    },
+    {
+      name: 'card',
+      width: 800,
+      height: 1000,
+      fit: 'cover',
+      withoutEnlargement: true,
+      formatOptions: { format: 'webp', options: { quality: 80 } },
+    },
+    {
+      name: 'detail',
+      width: 1600,
+      withoutEnlargement: true,
+      formatOptions: { format: 'webp', options: { quality: 82 } },
+    },
+    {
+      name: 'zoom',
+      width: 2560,
+      withoutEnlargement: true,
+      formatOptions: { format: 'webp', options: { quality: 85 } },
+    },
+    {
+      name: 'og',
+      width: 1200,
+      height: 630,
+      fit: 'cover',
+      withoutEnlargement: true,
+      formatOptions: { format: 'jpeg', options: { quality: 85 } },
+    },
+  ] satisfies ImageSize[]
+).map((size) => ({ ...size, generateImageName: imageSizeFilename }))
 
 const ALT_MIN = 5
 const ALT_MAX = 250
