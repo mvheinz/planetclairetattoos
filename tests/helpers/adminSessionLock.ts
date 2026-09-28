@@ -18,6 +18,7 @@ import pg from 'pg'
 const SESSIONS_LOCK = 7_314_001
 const LOGIN_LOCK = 7_314_002
 const FIXTURE_RANGE_LOCK = 7_314_003
+const CONFORMITY_LOCK = 7_314_004
 
 export type ReleaseLock = () => Promise<void>
 
@@ -62,3 +63,10 @@ export async function withLoginLock<T>(fn: () => Promise<T>): Promise<T> {
  */
 export const holdFixtureRange = (mode: 'shared' | 'exclusive'): Promise<ReleaseLock> =>
   hold(FIXTURE_RANGE_LOCK, mode)
+
+/**
+ * Aktive Konformitätserklärungen (R27, Fußlink, Badge „Lebensmittelecht“): Tests, die eine eigene Erklärung anlegen
+ * (P3.8), halten den Lock exklusiv; Tests, die den Bestand zählen (Fußlink), geteilt.
+ */
+export const holdConformityData = (mode: 'shared' | 'exclusive'): Promise<ReleaseLock> =>
+  hold(CONFORMITY_LOCK, mode)

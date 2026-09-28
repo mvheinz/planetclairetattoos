@@ -1,0 +1,189 @@
+/* Produktseite R04, Blöcke 2–6 (KONZEPT §3.4; DESIGN KO-05 `pinned`, KO-10, KO-11, KO-22; §9.7 `product`). */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 44rem;
+  padding-block: var(--space-6) var(--space-8);
+}
+
+.head {
+  position: relative;
+}
+
+.title {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Anker der Titel-Unterstreichung (Tuschelinie `product`): Start links unter der H1, Ende nach höchstens 22rem. */
+.titleLine {
+  position: relative;
+  height: 0;
+}
+
+.lineStart,
+.lineEnd {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.lineStart {
+  top: 2px;
+  left: 0;
+}
+
+.lineEnd {
+  top: 14px;
+  left: min(100%, 22rem);
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--ink-2);
+}
+
+.facts > li + li::before {
+  content: '·';
+  margin-right: var(--space-3);
+  color: var(--ink-3);
+}
+
+.nr,
+.dims {
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  font-variant-numeric: tabular-nums;
+}
+
+.price {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.tagRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  /* Platz für den Faden über dem Schild (`pinned` hängt an der Titel-Unterstreichung). */
+  padding-top: var(--space-2);
+}
+
+/* Reservierte Coco-Box neben dem Preisschild (48 × 40, Hüpfer MI-01 in P9) – feste Größe, kein CLS. */
+.cocoSlot {
+  flex: none;
+  width: 48px;
+  height: 40px;
+  align-self: flex-end;
+}
+
+.delivery {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+.legal {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.legal:empty {
+  display: none;
+}
+
+.rows {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-1) var(--space-4);
+  width: 100%;
+  margin: 0;
+}
+
+.row {
+  display: contents;
+}
+
+.row dt {
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.row dd {
+  margin: 0 0 var(--space-2);
+}
+
+@media (min-width: 768px) {
+  .rows {
+    grid-template-columns: minmax(7rem, max-content) 1fr;
+  }
+
+  .row dd {
+    margin-bottom: 0;
+  }
+}
+
+.note {
+  margin: 0;
+}
+
+.labelMissing {
+  display: block;
+  margin-top: var(--space-1);
+}
+
+.deviation {
+  width: 100%;
+}
+
+.buy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.cta {
+  display: inline-flex;
+  width: 100%;
+}
+
+.cta > * {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .cta,
+  .cta > * {
+    width: auto;
+  }
+}
+
+.soldText {
+  margin: 0;
+  font-weight: 600;
+}
+
+.soldLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.area {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: var(--fs-small);
+}

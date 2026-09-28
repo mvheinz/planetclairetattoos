@@ -15,6 +15,7 @@ describe('Shop-Einstellungen für Listen (KONZEPT §3.2)', () => {
       closedMessage: null,
       pickupEnabled: true,
       pickupCity: null,
+      deliveryTimeText: null,
       taxMode: 'kleinunternehmer',
     })
   })
@@ -23,7 +24,7 @@ describe('Shop-Einstellungen für Listen (KONZEPT §3.2)', () => {
     expect(
       pickShopDisplaySettings({
         shop: { isOpen: false, closedMessage: '  Urlaub bis Montag  ' },
-        shipping: { pickupEnabled: false, pickupCity: 'Berlin' },
+        shipping: { pickupEnabled: false, pickupCity: 'Berlin', deliveryTimeText: '3–4 Werktage' },
         tax: { currentMode: 'regelbesteuert' },
       }),
     ).toEqual({
@@ -31,6 +32,7 @@ describe('Shop-Einstellungen für Listen (KONZEPT §3.2)', () => {
       closedMessage: 'Urlaub bis Montag',
       pickupEnabled: false,
       pickupCity: 'Berlin',
+      deliveryTimeText: '3–4 Werktage',
       taxMode: 'regelbesteuert',
     })
     expect(pickShopDisplaySettings({ tax: { currentMode: 'erfunden' } }).taxMode).toBe(

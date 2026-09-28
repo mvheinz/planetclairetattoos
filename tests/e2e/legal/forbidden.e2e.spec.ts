@@ -36,6 +36,8 @@ const visits: Visit[] = [
     { name: `R29 ${locale}`, path: `/${locale}/__fehler-test`, status: 500 },
   ]),
   { name: 'R30', path: '/', status: 200 },
+  // Kurzlink (P3.7): 307 auf die Produktseite (S01).
+  { name: 'R31', path: '/nr/901', status: 200 },
 ]
 
 /** Muster fürs gerenderte HTML: alle Inhaltsmuster, dazu Einbettungen/CAPTCHA/Tracker und vorbelegte Checkboxen. */

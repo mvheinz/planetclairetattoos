@@ -32,7 +32,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
       {items.length > 0 ? (
         <ul data-conformity-list="">
           {items.map((item) => (
-            <li key={item.id}>
+            <li key={item.id} id={`glaze-${item.id}`}>
               <strong>{item.name}</strong> · {t('validFrom', { date: date(item.validFrom) })}
               {item.pdfUrl ? (
                 <>
