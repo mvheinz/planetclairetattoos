@@ -4,7 +4,7 @@
 import React, { ViewTransition, useEffect, useRef } from 'react'
 
 import { Coco } from '@/components/Coco'
-import { useCurrentRoute } from '@/components/layout/useCurrentRoute'
+import { useCurrentPreset, useCurrentRoute } from '@/components/layout/useCurrentRoute'
 import type { CocoController } from '@/leash/coco'
 import { getMotion, onMotionChange } from '@/leash/motion'
 import { PRESET_CONFIG, REST_POSE, isStaticPreset } from '@/leash/presets'
@@ -37,8 +37,9 @@ export function LeashLayer({ className }: { className?: string }) {
   const ref = useRef<HTMLDivElement>(null)
   const cocoRef = useRef<HTMLDivElement>(null)
   const match = useCurrentRoute()
-  const preset = match?.route.preset ?? null
-  const routeKey = match ? leashRouteKey(match) : ''
+  const preset = useCurrentPreset()
+  // Ohne Registry-Route (404): fester Schlüssel `R28` – gleiche lose Leine auf jeder unbekannten Adresse.
+  const routeKey = match ? leashRouteKey(match) : 'R28'
   const cocoOnLeash = preset !== null && PRESET_CONFIG[preset].coco?.size === 'leash'
 
   useEffect(() => {

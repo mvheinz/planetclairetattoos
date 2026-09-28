@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from 'react'
 
-import { useCurrentRoute } from '@/components/layout/useCurrentRoute'
+import { useCurrentPreset } from '@/components/layout/useCurrentRoute'
 import { getMotion, onMotionChange, type Motion } from '@/leash/motion'
 import { PRESET_CONFIG } from '@/leash/presets'
 
@@ -17,7 +17,7 @@ const MEDIA_ON = '(prefers-reduced-motion: no-preference)'
 
 export function ViewTransitionOptIn() {
   const ref = useRef<HTMLStyleElement>(null)
-  const preset = useCurrentRoute()?.route.preset ?? null
+  const preset = useCurrentPreset()
   const allowed = preset !== null && PRESET_CONFIG[preset].viewTransition
 
   useEffect(() => {

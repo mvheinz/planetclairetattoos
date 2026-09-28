@@ -3,7 +3,7 @@
 
 import React, { ViewTransition, useState, useSyncExternalStore } from 'react'
 
-import { useCurrentRoute } from '@/components/layout/useCurrentRoute'
+import { useCurrentPreset } from '@/components/layout/useCurrentRoute'
 import { getMotion, onMotionChange } from '@/leash/motion'
 import { PRESET_CONFIG } from '@/leash/presets'
 import type { PresetId } from '@/leash/types'
@@ -17,7 +17,7 @@ const serverMotion = () => 'reduced' as const
 const allows = (p: PresetId | null) => p !== null && PRESET_CONFIG[p].viewTransition
 
 export function PageTransition({ children }: { children: React.ReactNode }) {
-  const preset = useCurrentRoute()?.route.preset ?? null
+  const preset = useCurrentPreset()
   const motion = useSyncExternalStore(subscribe, () => getMotion(), serverMotion)
   // Vorherige Route als abgeleiteter Zustand (Übergang nur, wenn beide Seiten ihn erlauben).
   const [route, setRoute] = useState({ current: preset, previous: preset })

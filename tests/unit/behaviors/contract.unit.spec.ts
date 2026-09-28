@@ -39,6 +39,17 @@ const FIXTURES: Record<BehaviorName, { html: string; exercise: (root: Element) =
       vi.runOnlyPendingTimers()
     },
   },
+  lost: {
+    // Linie schon gezeichnet → Schwingen und Weglaufen starten beim Binden (MI-11).
+    html:
+      '<div data-leash-layer data-leash-drawn></div>' +
+      '<div data-behavior="lost"><span data-leash-anchor="start"></span>' +
+      '<svg data-lost-end></svg><div class="coco" data-lost-coco data-boil="off"></div></div>',
+    exercise: () => {
+      document.documentElement.setAttribute('data-motion', 'reduced')
+      document.documentElement.removeAttribute('data-motion')
+    },
+  },
   menu: {
     html:
       '<a href="#fussnavigation" data-menu-trigger aria-controls="menu" aria-expanded="false">Menü</a>' +

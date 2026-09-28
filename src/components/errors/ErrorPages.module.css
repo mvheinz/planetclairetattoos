@@ -1,0 +1,190 @@
+/* KO-18 Fehlerseiten: 404 „Coco hat sich losgerissen“ (Preset `lost`) und 500 „Hoppla – die Leine hat sich
+   verheddert“ (statisch). Szene mit fester Höhe (kein CLS), Text darunter, Links als Reihe. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 44rem;
+}
+
+/* ---------- 404: Szene mit loser Leine ---------- */
+
+.scene {
+  --coil-w: 120px;
+  /* Ende der Schlingen relativ zur Mitte des Ankers: W/2 − 2·W/5.5 (Geometrie `coil`, src/leash/geometry.ts). */
+  --coil-end: calc(var(--coil-w) * 0.5 - var(--coil-w) * 2 / 5.5);
+  --floor: 20px;
+  --horizon: 42%;
+  /* Größe des Leinenendes (viewBox 100 × 44). */
+  --end-scale: 1.15;
+  position: relative;
+  height: 180px;
+}
+
+@media (min-width: 768px) {
+  .scene {
+    --coil-w: 180px;
+    --end-scale: 1.45;
+    height: 240px;
+  }
+}
+
+/* Aufhängepunkt: an der Unterkante der Kopfleiste (Oberkante von <main>), links im Inhalt. */
+.hang {
+  position: absolute;
+  top: calc(-1 * var(--space-6));
+  left: var(--space-5);
+  width: 0;
+  height: 0;
+}
+
+/* Anker der Schlingen (`coil`): Mitte = Mitte der Schlingen, Unterkante = Boden. */
+.coil {
+  position: absolute;
+  left: 38%;
+  bottom: var(--floor);
+  width: var(--coil-w);
+  height: 0;
+  transform: translateX(-50%);
+}
+
+/* Leinenende: Öse (100 × 44, Ansatz bei 3 / 36) genau am Ende der Schlingen. */
+.end {
+  position: absolute;
+  left: calc(38% + var(--coil-end) - 3px * var(--end-scale));
+  bottom: calc(var(--floor) - 8px * var(--end-scale));
+  width: calc(100px * var(--end-scale));
+  height: calc(44px * var(--end-scale));
+  overflow: visible;
+}
+
+.horizonLine {
+  position: absolute;
+  top: var(--horizon);
+  left: 46%;
+  right: 0;
+  height: 8px;
+  overflow: hidden;
+  color: var(--ink-2);
+}
+
+.horizonLine svg {
+  display: block;
+  opacity: 0.45;
+}
+
+.horizonLine path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+/* Rahmen für Coco am Horizont: schneidet sie beim Weglaufen am rechten Bildrand ab. */
+.horizonClip {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  pointer-events: none;
+}
+
+/* Coco winzig (24 px, `data-size="horizon"`), steht auf der Horizontlinie in der Bildmitte – sichtbar nur, solange
+   sie wegläuft (Web Animation im Modul `lost` setzt die Deckkraft); ohne JS und bei reduzierter Bewegung nie. */
+.horizonCoco {
+  position: absolute;
+  top: calc(var(--horizon) - 18px + 4px);
+  left: 58%;
+  opacity: 0;
+}
+
+/* ---------- Text ---------- */
+
+.title {
+  font-family: var(--font-hand);
+  font-size: var(--fs-h1);
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+.text {
+  font-size: var(--fs-lede);
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* ---------- Variante „Zuhause“ (P3) ---------- */
+
+.homeCoco {
+  position: absolute;
+  right: 0;
+  bottom: calc(var(--floor) - 6px);
+}
+
+.tag {
+  width: auto;
+  height: auto;
+  padding: 2px var(--space-3);
+  border: 1.5px solid var(--ink);
+  border-radius: 4px 12px 12px 4px;
+  background: var(--paper-field);
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  transform: rotate(-6deg);
+}
+
+/* ---------- 500: Knäuel ---------- */
+
+.tangle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-4) var(--space-6);
+}
+
+.knot {
+  width: min(320px, 70vw);
+  height: auto;
+}
+
+.cocoSlot {
+  width: var(--coco-xl);
+  flex: none;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4) var(--space-5);
+}
+
+/* Tusche und Geschirr (auch für KnotArt/LeashEndArt). */
+.page :global(.pc-ink) {
+  fill: var(--ink);
+}
+
+.page :global(.pc-harness) {
+  fill: var(--coco-harness);
+  stroke: var(--ink);
+  stroke-width: 0.8;
+  stroke-linejoin: round;
+}
+
+@media (forced-colors: active) {
+  .page :global(.pc-ink) {
+    fill: CanvasText;
+  }
+
+  .page :global(.pc-harness) {
+    fill: none;
+    stroke: CanvasText;
+  }
+}

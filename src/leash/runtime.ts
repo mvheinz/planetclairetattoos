@@ -227,8 +227,22 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     }
   }
 
+  /**
+   * `data-leash-drawn` an der Linien-Ebene, sobald die Linie vollständig steht (Ende der einmaligen Zeichnung bzw.
+   * Stufe C) – Signal für Folgebewegungen wie das Schwingen der losen Leine (MI-11, Modul `lost`).
+   */
+  let drawnFlag = false
+  function flagDrawn() {
+    const full = !!geometry && drawnLen >= geometry.totalLength - 0.5
+    if (full === drawnFlag) return
+    drawnFlag = full
+    if (full) root.setAttribute('data-leash-drawn', '')
+    else root.removeAttribute('data-leash-drawn')
+  }
+
   /** Segment-Zustände: fertig (ohne Maske), aktiv (Maske/Strich aktualisiert), zukünftig (unsichtbar). */
   function applyDrawn() {
+    flagDrawn()
     for (const v of views) {
       const span = v.len1 - v.len0
       const p = tier === 'C' ? 1 : span > 0 ? (drawnLen - v.len0) / span : 1
@@ -493,6 +507,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       resizeObserver?.disconnect()
       intersectionObserver?.disconnect()
       root.replaceChildren()
+      root.removeAttribute('data-leash-drawn')
       views = []
       geometry = null
       m = null

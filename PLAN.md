@@ -1720,7 +1720,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: unit `tests/unit/art/sprite.unit.spec.ts`, `tests/unit/leash/coco.unit.spec.ts`; Budget in `check:bundle`.
   - Ohne Jutta: Platzhalter bis P9. Optional liefert Jutta weitere Coco-Fotos (A05, E-75).
 
-- [ ] **P2.19 Fehlerseiten 404 (R28) und 500 (R29)** – KO-18.
+- [x] **P2.19 Fehlerseiten 404 (R28) und 500 (R29)** – KO-18.
   - `src/app/(frontend)/[locale]/not-found.tsx` + `[locale]/[...rest]/page.tsx` (→ `notFound()`), echter Status 404.
   - Preset `lost`: Linie vom Kopf, `coil`, offener Karabiner, Coco `horizon` rennt einmal weg.
   - H1 „Coco hat sich losgerissen“ / „Coco slipped her leash“, Satz „Diese Seite gibt es nicht (mehr).“, Links Start,

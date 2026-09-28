@@ -75,9 +75,14 @@
     }
   },
   "errors": {
-    "notFoundTitle": "Coco broke loose",
+    "notFoundTitle": "Coco slipped her leash",
     "notFoundText": "This page does not exist (anymore).",
+    "linksLabel": "Where to next",
+    "homeTitle": "This piece has already found a home",
+    "homeText": "It has been sold and lives somewhere else now. There is more waiting in the shop.",
+    "soldStamp": "sold",
     "serverErrorTitle": "Oops – the leash got tangled",
+    "serverErrorText": "Something just went wrong. Please try again in a moment.",
     "retry": "Try again",
     "toHome": "To the home page"
   },

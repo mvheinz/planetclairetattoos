@@ -77,7 +77,12 @@
   "errors": {
     "notFoundTitle": "Coco hat sich losgerissen",
     "notFoundText": "Diese Seite gibt es nicht (mehr).",
+    "linksLabel": "Weiter geht’s",
+    "homeTitle": "Dieses Stück hat schon ein Zuhause gefunden",
+    "homeText": "Es ist verkauft und wohnt jetzt woanders. Im Shop wartet noch mehr.",
+    "soldStamp": "sold",
     "serverErrorTitle": "Hoppla – die Leine hat sich verheddert",
+    "serverErrorText": "Da ist gerade etwas schiefgelaufen. Versuch es gleich noch einmal.",
     "retry": "Nochmal versuchen",
     "toHome": "Zur Startseite"
   },

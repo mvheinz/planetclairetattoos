@@ -64,6 +64,14 @@ const underPrefix = (p: string, prefix: string) => p === prefix || p.startsWith(
 export const pageFileForKey = (key: string) =>
   `src/app/(frontend)/[locale]${key === '/' ? '' : key}/page.tsx`
 
+/**
+ * Seiten unter `[locale]/` ohne eigenes Registry-Muster (P2.19): der Fehler-Auslöser für Tests (`/__fehler-test`,
+ * wirft nur bei `APP_ENV=test`, sonst 404; nicht in Registry, Sitemap oder Crawl).
+ */
+export const NON_REGISTRY_PAGE_FILES: readonly string[] = [
+  'src/app/(frontend)/[locale]/%5F%5Ffehler-test/page.tsx',
+]
+
 export interface RegistryInput {
   routes: readonly RouteEntry[]
   shortLinks: readonly { path: string; routeId: string }[]
@@ -177,7 +185,7 @@ export function checkRouteRegistry(input: RegistryInput): CheckResult {
       if (r.status === 'planned' && files.has(file))
         errors.push(`${r.id} ist 'planned', aber ${file} existiert (Status auf 'live' setzen).`)
     }
-    const known = new Set(pages.map((r) => pageFileForKey(r.key!)))
+    const known = new Set([...pages.map((r) => pageFileForKey(r.key!)), ...NON_REGISTRY_PAGE_FILES])
     for (const f of files) {
       if (!known.has(f)) errors.push(`${f}: Seite ohne Eintrag in der Routen-Registry.`)
     }
