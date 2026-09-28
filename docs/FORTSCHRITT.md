@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P2.25
+
+- `pnpm preview:export` (`scripts/preview-export/`): Ablauf §14.2 mit Exit-Codes 0/1/2 (deutsche Anleitung bei fehlendem Postgres/Chromium), Server immer im `finally` beendet, Optionen `--skip-build`/`--keep-server`.\n- `env.ts` (Export-Umgebung §14.3, `SEED_NOW` = Exportdatum 12:00 Berlin), `db.ts` (`planetclaire_preview_export` anlegen, leeren, migrieren, `seed:base` + `seed:example`), `server.ts` (Build nach `.next-preview` ohne Debug-Flag, `next start -p 3999`, Warten auf `/api/health` ≤ 120 s), `crawl.ts` (Start-Menge aus der Registry + `/de/__404`/`/en/__404`, Breitensuche ≤ 500, Filter §14.4, nur Pfade des Export-Servers).\n- `tsconfig.json` enthält `.next-preview/types`, damit `next build` die Datei nicht umschreibt; `cheerio` als Dev-Abhängigkeit.\n- Tests: unit `preview-export/{env,crawl-filter}` (15), int `preview-export/exit-codes` (3, AK-A-14-03); `pnpm check`, `pnpm test:int` grün; Export lokal gelaufen (20 Seiten).
+
 ## 2026-09-28 – P2.24
 
 - playwright.visual.config.ts (Chromium desktop 1440×900 + mobile 390×844, reduzierte Bewegung, maxDiffPixelRatio 0,01, Referenzen tests/visual/__screenshots__/**/*-linux.png), tests/visual/{helpers,shell,pages}.visual.spec.ts: R01, Impressum, R26, 404, 500, Kopf, offenes Menü, Fuß; Uhr fest, fonts.ready, Fremd-Hosts blockiert; nur Linux

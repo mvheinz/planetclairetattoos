@@ -1833,7 +1833,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     grüner `quality`-Lauf: P2.28).
   - Ohne Jutta: –
 
-- [ ] **P2.25 Vorschau-Export: Umgebung, Datenbank, Server, Crawl** – `scripts/preview-export/` laut ARCHITEKTUR
+- [x] **P2.25 Vorschau-Export: Umgebung, Datenbank, Server, Crawl** – `scripts/preview-export/` laut ARCHITEKTUR
   §14.1–§14.4:
   - `index.ts`: Ablauf §14.2, Exit-Codes 0/1/2, Server im `finally` beenden, Optionen `--skip-build`/`--keep-server`;
   - `env.ts`: Export-Umgebung §14.3, u. a. `PREVIEW_EXPORT=true`, `EMAIL_DRIVER=memory`,
