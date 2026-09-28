@@ -103,15 +103,25 @@ test.describe('Menü @smoke', () => {
     await ready(page)
     await trigger(page).click()
     await expect(dialog(page)).toBeVisible()
-    const longest = await page.evaluate(() =>
-      Math.max(
-        0,
-        ...document.getAnimations().map((a) => {
-          const t = (a.effect as KeyframeEffect).getComputedTiming()
-          return Number(t.endTime)
-        }),
-      ),
+    // Nur die Animationen des Menüs zählen (MI-05). `document.getAnimations()` liefert in WebKit auch den Boil der
+    // Leinen-Coco hinter dem Dialog (CSS `coco-boil`, `iterations: Infinity`, per Boil-Budget DESIGN §10.3 nach 2 s
+    // beendet) – der gehört nicht zu MI-05. Chromium meldet Animationen auf `<use>`-Elementen dort nicht.
+    const menuAnimations = await page.evaluate(() =>
+      document
+        .getAnimations()
+        .filter((a) => {
+          const target = (a.effect as KeyframeEffect | null)?.target
+          return !!target && !!target.closest('dialog#menu')
+        })
+        .map((a) => ({
+          dialog: (a.effect as KeyframeEffect).target?.matches('dialog#menu') ?? false,
+          end: Number((a.effect as KeyframeEffect).getComputedTiming().endTime),
+        })),
     )
+    // Kreis-Öffnung des Dialogs, 7 gestaffelte Links und Coco laufen; die längste endet nach ≤ 700 ms.
+    expect(menuAnimations.filter((a) => a.dialog)).toHaveLength(1)
+    expect(menuAnimations.length).toBeGreaterThanOrEqual(9)
+    const longest = Math.max(...menuAnimations.map((a) => a.end))
     expect(longest).toBeGreaterThan(0)
     expect(longest).toBeLessThanOrEqual(700)
     await dialog(page).locator('[data-menu-close-button]').click()
