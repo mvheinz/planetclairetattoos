@@ -1448,7 +1448,7 @@ Mail `admin_refund_failed` (kein Statuswechsel). Stripe-Refund `pending` → Sta
 - DM-ORD-03: Doppelte Zustellung desselben Webhooks erzeugt genau eine Bestellung, eine Rechnung, eine Bestätigungsmail, einen Verkauf.
 - DM-ORD-04: Status-Seite mit falschem Token → 404; mit richtigem → keine Adresse der Rechnungsempfängerin außer Name, keine internen Felder; nach Stufe B „Link abgelaufen“.
 - DM-ORD-05: `shipping` mit einer `nur_abholung`-Position wird abgelehnt; `shippingCents` = Tarif der höchsten Klasse; `pickup` = 0.
-- DM-ORD-06: Vorkasse-Bestellung Fr 26.09.2026 10:00 Berlin → `reminderDueAt` Mo 29.09. 10:00, `dueAt` Mi 01.10.
+- DM-ORD-06: Vorkasse-Bestellung Sa 26.09.2026 10:00 Berlin → `reminderDueAt` Di 29.09. 10:00, `dueAt` Do 01.10.
   23:59:59 Berlin (21:59:59 UTC); `cancelOverduePrepayments` storniert am 01.10. um 23:59 noch nicht, beim ersten Lauf nach
   `dueAt` genau einmal (KONZEPT AK-8-02).
 - DM-ORD-07: O7 ohne erfasste Verpackung wird abgelehnt; der Jahres-Export (§6.8.8) summiert die Gramm je Material aller
@@ -2514,8 +2514,8 @@ Ein Rabattcode wird **nicht** angeboten (keine Rabattcodes, §1.7).
 Fristen berechnet **eine einzige** Funktion `prepaymentDeadlines(placedAt, settings)` in
 `src/lib/commerce/deadlines.ts` (dort auch die Reservierungszeiten; Kalenderrechnung in Europe/Berlin):
 - `dueAt` = 23:59:59 Europe/Berlin am `prepaymentDays`-ten (Standard 5.) Kalendertag nach dem Berliner Datum von
-  `placedAt`. Beispiel: Bestellung Fr 26.09.2026 10:00 → Frist Mi 01.10.2026 23:59:59 (= 21:59:59 UTC).
-- `reminderDueAt` = `placedAt + prepaymentReminderHours` (Standard 72 h) → Mo 29.09.2026 10:00.
+  `placedAt`. Beispiel: Bestellung Sa 26.09.2026 10:00 → Frist Do 01.10.2026 23:59:59 (= 21:59:59 UTC).
+- `reminderDueAt` = `placedAt + prepaymentReminderHours` (Standard 72 h) → Di 29.09.2026 10:00.
 - Storno durch `cancelOverduePrepayments`, sobald `dueAt < $now`.
 
 Bei `submitCheckout` mit `paymentChoice = prepayment` in derselben Transaktion wie die Bestellanlage (O2):

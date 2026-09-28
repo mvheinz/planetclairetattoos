@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P4.2
+
+- Rechenkern als reine Funktionen ohne DB (`now` immer als Parameter): `computeShipping` vervollständigt (höchste Klasse, `pickup` = 0, `nur_abholung` → „Nr. 023 gibt es nur zur Abholung.“, Land nur aus `settings.shipping.enabledCountries`, GB/US nie – R-060; Anzeigename „DHL Paket (Keramik)“/„Abholung in Berlin“ aus `SHIPPING_OPTION_LABELS`), `computeTotals` (ohne Zahlart-Eingang, R-070), `computeTax` mit Versandaufteilung nach Warenwert (KA-10, `splitShippingByRate`), `deadlines.ts` (`reservationTimes`, `prepaymentDeadlines` in Europe/Berlin), `epc.ts` (`buildEpcPayload` nach EPC069-12, `formatIban`), `qr.ts` (PNG/SVG mit `qrcode` 1.5.4, Byte-Segment, Fehlerkorrektur M, Version ≤ 13).
+- Neue Pakete exakt gepinnt: `qrcode` 1.5.4, dev `@types/qrcode` 1.5.6 und `jsqr` 1.4.0 (ARCHITEKTUR §1.2); `ci-full` (e2e-full) führt die Unit-Tests für `tests/unit/commerce` und `tests/unit/tax` zusätzlich mit `TZ=Europe/Berlin` aus.
+- Doku: Wochentage im Beispiel 26.09.2026 korrigiert (Sa/Di/Do statt Fr/Mo/Mi) in PLAN, KONZEPT, DATENMODELL – Daten und Uhrzeiten unverändert.
+- Tests: `tests/unit/commerce/{shipping,totals,deadlines,epc,qr}.unit.spec.ts`, `tests/unit/tax/compute-tax.unit.spec.ts` (AK-4-01, AK-4-02, AK-4-15, AK-8-02, R-060, R-070, R-071; EPC byte-gleich „EUR53.90“; PNG und gerastertes SVG mit `jsqr` dekodiert) – 118 Tests grün mit `TZ=UTC` und `TZ=Europe/Berlin`; `pnpm check` grün (1055 Unit-Tests).
+
 ## 2026-09-28 – P3.15
 
 - Admin-Endpunkte (publish, unpublish, sell-offline, archive, restore, return-to-stock, adopt) und Speichern in der Verwaltung laufen über den Produkt-Hook → `revalidateProduct`: Statuswechsel sofort (`{ expire: 0 }`), Bearbeitungen/Preis `'max'`; `settings` und `categories` erneuern ihre Tags; bei `context.seed` nichts.\n- `revalidate.ts`: `updateTag` außerhalb von Server-Actions fällt auf `{ expire: 0 }` zurück, Tags entdoppelt; Startseite bekommt Segment-Rückfall `revalidate = 3600`; Kategorie-Wechsel erneuert auch die alte Kategorie sofort bei Statuswechsel. ARCHITEKTUR §9.3 ergänzt.\n- Gemessen im Produktions-Build: Statuswechsel sichtbar nach ≈ 0,4 s (Produktseite, Shop, Kategorie, Startseite), Text-/Versandpreis-Änderung nach ≈ 1,2 s.\n- Tests: `tests/int/shop/revalidate.int.spec.ts` (11, Spy auf `next/cache`, inkl. „R-033 …“ Preis-Historie + kein Vergleichspreis-Feld, Seed-Kontext, Segment-Konfiguration); `tests/e2e/shop/revalidation.e2e.spec.ts` @slow (2, grün gegen `E2E_SERVER=start` und `pnpm dev`); pnpm check, test:int (ohne preview-export), build grün.
