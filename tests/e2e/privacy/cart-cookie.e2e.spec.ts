@@ -2,12 +2,16 @@ import type { Page, Response } from '@playwright/test'
 
 import { decodeCartCookie } from '../../../src/lib/commerce/cartCookie'
 import { expect, test } from '../fixtures'
+import { holdListData } from '../shop/fresh'
 import { ANCHORS, openProduct } from '../shop/productPage'
 
 // P3.11 Korb-Cookie (ARCHITEKTUR §8.7; RECHT R-130; KONZEPT EK-04; §7.4 T-04), in allen drei Projekten: Vor dem ersten
 // „In den Korb“ entsteht kein Endgeräte-Speicher – auch nicht durch die Live-Abfrage `product-status`. Danach gibt es
 // genau `pc_cart` mit `Path=/; SameSite=Lax` (auf localhost ohne `Secure`), `Max-Age` 7 Tage, nicht HttpOnly, Inhalt nur
-// Stück-ID, Preis in Cent und Lieferart. Web-Storage bleibt leer.
+// Stück-ID, Preis in Cent und Lieferart. Web-Storage bleibt leer. Bestand geteilt halten: Tests, die den Shop kurz
+// pausieren, laufen exklusiv (`holdListData`).
+
+holdListData(test, 'shared')
 
 async function storage(page: Page) {
   return page.evaluate(() => ({

@@ -24,6 +24,7 @@ import { listSearch, variantKey, type ListParams } from '@/lib/shop/listParams'
 import styles from './ListPage.module.css'
 import { PriceFootnote } from './PriceFootnote'
 import { ProductCard } from './ProductCard'
+import { statusLabelAttrs } from './statusLabels'
 
 // Listen-Seiten des Shops (KONZEPT §3.2, §3.3, §3.5; DESIGN KO-07, KO-08, KO-17, §9.7 `shopString`): Shop (R02),
 // Kategorie (R03) und Archiv (R05) teilen Aufbau und Verhalten – H1, Einleitung, Filter-Chips als echte Links
@@ -208,9 +209,13 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
           </div>
           <div className={styles.gridWrap}>
             <span className={styles.bounds} id="shop-grid" data-leash-anchor="target" />
+            {/* Shop/Kategorie: Live-Zustand der Karten nach dem Laden (`product-status`, P3.11) mit Stempel-Knall. */}
             <ul
               className={styles.grid}
-              data-behavior={archive ? 'price-tag-swing' : 'price-tag-swing sold-stamp'}
+              data-behavior={
+                archive ? 'price-tag-swing' : 'price-tag-swing sold-stamp product-status'
+              }
+              {...(archive ? {} : statusLabelAttrs((key) => t(`shop.card.${key}`)))}
             >
               {result.docs.map((product, index) => (
                 <li key={product.id}>
