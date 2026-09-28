@@ -151,8 +151,15 @@ test.describe('Schriften-Tor (DESIGN §4.1, P2.20)', () => {
     await page.waitForLoadState('load')
     await expect(page.locator('html')).not.toHaveAttribute('data-fonts')
     await page.evaluate(() => document.fonts.ready)
+    // Maßstab ist der Zeitpunkt, zu dem der Hauptthread das erste inhaltliche Bild berechnet hat (`paintTime`,
+    // Paint Timing: Ende von „update the rendering“) – nicht `startTime`: Chromium setzt dort die Präsentationszeit
+    // (`presentationTime`, Anzeige durch GPU/Compositor), die unter Last > 100 ms später liegen kann. Das Tor öffnet
+    // zwei Frames nach dem ersten Bild auf dem Hauptthread; ein Vergleich mit der Präsentationszeit war daher
+    // lastabhängig (Flake). Die Aussage bleibt streng: Beim Berechnen des ersten Bildes war noch keine Schrift angefragt.
     const r = await page.evaluate(() => {
-      const fcp = performance.getEntriesByName('first-contentful-paint')[0]?.startTime ?? -1
+      const entry = performance.getEntriesByName('first-contentful-paint')[0] as
+        (PerformanceEntry & { paintTime?: number }) | undefined
+      const fcp = typeof entry?.paintTime === 'number' ? entry.paintTime : -1
       const fonts = performance
         .getEntriesByType('resource')
         .filter((e) => e.name.endsWith('.woff2'))
