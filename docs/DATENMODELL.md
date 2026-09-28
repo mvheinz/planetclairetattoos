@@ -2076,7 +2076,7 @@ genau eine Bestellung (O1/O2/O19). **Admin:** Gruppe „System“, nur lesen (Fe
 | `stripe.sessionExpiresAt` | date | S | – | – | Stripe `expires_at` (≥ 30 min nach Erstellung) | – |
 | `stripe.sessionSeq` | number | S | – | 0 | +1 je (Neu-)Anlage der Session; Idempotenz-Schlüssel `checkout:<checkoutRef>:<n>` mit `checkoutRef` = `reservationRef` (§6.25.2, ARCHITEKTUR §3.5) | – |
 | `stripe.livemode` | checkbox | S | – | `false` | – | – |
-| `mock.state` | json | S | – | – | nur `PAYMENTS_DRIVER=mock`: Session-Zustand (`open`/`complete`/`expired`, `paymentStatus`, nächstes Test-Ergebnis) – Zustand liegt in der DB, nicht im Prozess (ARCHITEKTUR §3.5) | – |
+| `mock.state` | json | S | – | – | nur `PAYMENTS_DRIVER=mock`: Session-Zustand (`open`/`complete`/`expired`, `paymentStatus`, nächstes Test-Ergebnis) – Zustand liegt in der DB, nicht im Prozess (ARCHITEKTUR §3.5); schreibt nur der Mock-Treiber (Trigger `checkouts_keep_mock_state`, Migration `p4_mock_state_guard`), kein Client-Secret | – |
 | `order` | relationship → `orders` | S | – | – | gesetzt bei `completed` | – |
 | `closeReason` | select `CheckoutCloseReason` | S | – | – | Pflicht bei `expired`, `cancelled`, `failed` | – |
 | `timestamps.confirmingAt` / `completedAt` / `expiredAt` / `cancelledAt` / `failedAt` | date | S | – | – | `confirmingAt` steuert den Abgleich nach 10 min (KONZEPT §4.10) | – |

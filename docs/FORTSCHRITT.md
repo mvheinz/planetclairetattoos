@@ -2,6 +2,15 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P4.4
+
+- `src/lib/payments/types.ts` nach ARCHITEKTUR §3.5 (unverändert, dazu `PaymentEventShapeError`, `InvalidCheckoutSessionInputError`); `normalize.ts`: eine Normalisierung Stripe-Ereignis → `PaymentEvent` für Stripe und Mock (zehn behandelte Typen, sonst `ignored`; Daten je Typ mit zod geprüft, ohne Personendaten; `paymentEventData()` für typisierten Zugriff); `checkoutSession.ts`: gemeinsame Eingaberegeln (Referenz = UUID statt Token, `metadata` genau `{ checkoutRef, appEnv }`, 1–10 Positionen, ganze Cent, Ablauf 30 min–24 h), Session-Parameter (nur `card`/`paypal`, `elements`), Protokollform ohne `return_url`/E-Mail, Idempotenz-Schlüssel, `clientSecretMissing()` (offene Session ohne Secret → Neuanlage, `sessionSeq + 1`); `stripe/config.ts` mit `STRIPE_API_VERSION = 2026-08-26.dahlia` (Version von `stripe` 22.6.2).
+- Mock-Treiber (`src/lib/payments/mock/`): Zustand in `checkouts.mock.state` (Sessions je Kasse, Erstattungen, Anfechtungen, Ereignisprotokoll; Zeilensperre, `lock_timeout`), Client-Secret aus der Session-ID abgeleitet (nie gespeichert), Ablauf von selbst nach `expires_at`; Ereignisse aus den Fixtures mit ersetzten Werten, HMAC-Signatur `x-pc-mock-signature` (HKDF `pc:mock-webhook:v1`); Test-API `mockPayments.emit(sessionId, type)` (liefert Ereignis, Rohkörper, Header) und `setNextOutcome` (Ergebnis, Zahlart card/paypal mit Wallet, Erstattung, Anfechtung) nur bei `APP_ENV` development/test; `refund` → `succeeded` oder vorgegebenes Ergebnis; `listBalanceTransactions` aus der Fixture.
+- Migration `p4_mock_state_guard`: Trigger `checkouts_keep_mock_state` – nur der Mock schreibt `mock_state`, Payload-Updates der Kasse überschreiben ihn nicht.
+- Fixtures `tests/fixtures/stripe/*.json` (zehn Ereignisse + Balance Transactions, bereinigt, API-Version gepinnt) und `pnpm stripe:fixture <name>|--all [--write]` (prüft; fehlende Dateien werden aus Vorlagen erzeugt).
+- Start-Prüfung: außerhalb von Produktion nur `sk_test_`/`rk_test_` bzw. `pk_test_` (Live-Schlüssel ohnehin Abbruch); `PAYMENTS_DRIVER=mock` in Produktion bricht ab.
+- Tests: `tests/int/adapters/payments.contract.int.spec.ts` (23 grün, 1 übersprungen ohne stripe-mock: Kontrakt-Reihe anlegen/abfragen/beenden/Erstattung/zehn Fixtures/Signatur/R-062, zwei Prozesse, Trigger, alle zehn `emit`-Typen, Test-API), `tests/unit/payments/normalize.unit.spec.ts` (11), `tests/unit/payments/checkout-session.unit.spec.ts` (18), `tests/unit/env/production-rules.unit.spec.ts` (19); `pnpm check` grün (1117 Unit-Tests), `pnpm test:int` grün.
+
 ## 2026-09-28 – P4.1
 
 - Schema-Abgleich: `checkouts` und `orders` entsprechen DATENMODELL §6.25.1/§6.8.1, `src/lib/enums.ts` führt alle Werte aus §4 (13 Bestellstatus, `REFUND_REASONS` inkl. `item_unavailable`/`dispute`); `check:migrations` ohne Drift → keine Migration `p4_checkout` nötig, `payload-types.ts` unverändert.

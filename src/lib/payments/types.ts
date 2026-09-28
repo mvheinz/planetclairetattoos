@@ -62,7 +62,7 @@ export type PaymentEvent = {
   livemode: boolean
   createdAt: Date
   type: PaymentEventType
-  /** Normalisiert, zod-validiert je Typ (P4). */
+  /** Normalisiert, zod-validiert je Typ (`src/lib/payments/normalize.ts`, `paymentEventData`). */
   data: Record<string, unknown>
 }
 
@@ -110,6 +110,22 @@ export class InvalidSignatureError extends Error {
   constructor(message = 'Webhook-Signatur ungültig.') {
     super(message)
     this.name = 'InvalidSignatureError'
+  }
+}
+
+/** Signatur gültig, aber das Ereignis hat nicht die Form der gepinnten API-Version (Normalisierung, zod). */
+export class PaymentEventShapeError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'PaymentEventShapeError'
+  }
+}
+
+/** Eingabe für `createCheckoutSession` verletzt eine Regel aus ARCHITEKTUR §3.1 Nr. 6 / §3.5 (für alle Treiber). */
+export class InvalidCheckoutSessionInputError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'InvalidCheckoutSessionInputError'
   }
 }
 

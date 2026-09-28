@@ -53,9 +53,17 @@ export function collectEnvViolations(env: Env): EnvReport {
   if (!prod) {
     if (/^(sk|rk)_live_/.test(sk))
       errors.push('STRIPE_SECRET_KEY: Live-Schlüssel außerhalb von Produktion verboten.')
+    else if (sk && !/^(sk|rk)_test_/.test(sk))
+      errors.push(
+        'STRIPE_SECRET_KEY muss außerhalb von Produktion mit sk_test_ oder rk_test_ beginnen.',
+      )
     if (/^pk_live_/.test(pk))
       errors.push(
         'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: Live-Schlüssel außerhalb von Produktion verboten.',
+      )
+    else if (pk && !pk.startsWith('pk_test_'))
+      errors.push(
+        'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY muss außerhalb von Produktion mit pk_test_ beginnen.',
       )
     if (
       env.CRON_SECRET !== undefined &&

@@ -645,6 +645,9 @@ export interface PaymentsAdapter {
 - „Erfolg“ erzeugt ein Ereignis aus `tests/fixtures/stripe/checkout.session.completed.json` (Werte ersetzt) und ruft
   **dieselbe** Verarbeitungsfunktion `processPaymentEvent()` auf wie der Webhook-Route-Handler nach der Signaturprüfung.
 - Test-API (nur `APP_ENV ∈ {development, test}`): `mockPayments.emit(sessionId, type)`, `mockPayments.setNextOutcome(...)`.
+  Umsetzung (P4.4): `emit` schreibt den Zustand fort, protokolliert das normalisierte Ereignis in `checkouts.mock.state`
+  (für `listEventsSince`) und liefert `{ event, rawBody, headers }` (signiert) für `processPaymentEvent` bzw. die Webhook-Route;
+  die Ablage in `webhook-events` macht die Verarbeitung. Fixtures prüft/erzeugt `pnpm stripe:fixture <name>|--all`.
 - In Produktion verboten (Startfehler).
 
 **Webhook-Route** `POST /api/stripe/webhook`: Rohkörper (`await req.text()`), `parseWebhook` (Signatur mit

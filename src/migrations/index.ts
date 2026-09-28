@@ -17,6 +17,7 @@ import * as migration_20260927_141511_p1_tattoo from './20260927_141511_p1_tatto
 import * as migration_20260927_143154_p1_content from './20260927_143154_p1_content';
 import * as migration_20260927_144252_p1_private_upload_links from './20260927_144252_p1_private_upload_links';
 import * as migration_20260927_145135_p1_constraints from './20260927_145135_p1_constraints';
+import * as migration_20260928_230534_p4_mock_state_guard from './20260928_230534_p4_mock_state_guard';
 
 export const migrations = [
   {
@@ -112,6 +113,11 @@ export const migrations = [
   {
     up: migration_20260927_145135_p1_constraints.up,
     down: migration_20260927_145135_p1_constraints.down,
-    name: '20260927_145135_p1_constraints'
+    name: '20260927_145135_p1_constraints',
+  },
+  {
+    up: migration_20260928_230534_p4_mock_state_guard.up,
+    down: migration_20260928_230534_p4_mock_state_guard.down,
+    name: '20260928_230534_p4_mock_state_guard'
   },
 ];
