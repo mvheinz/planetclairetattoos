@@ -19,6 +19,10 @@ import { routeMetadata } from '@/lib/seo/metadata'
 
 export const generateMetadata = routeMetadata('R01')
 
+// ISR (ARCHITEKTUR §9.1): gezielt erneuert über die Tags `home`, `products`, `category:<key>`, `page:home` (P3.15);
+// Rückfall nach einer Stunde.
+export const revalidate = 3600
+
 // R01 Startseite (KONZEPT §3.1, DESIGN KO-21/§11.4, Preset `journey`): Kopf-Station „Planet Claire“ (H1 mit
 // Planet-Marke links vor dem Namen, Anker `orbit` für das Intro MI-10 – die Linie kreuzt so keinen Text) und danach die Stationen aus `pages:home` in fester Reihenfolge
 // (Hallo, Keramik, Textil, Zeichnungen, Schmuck, Tattoo, Jutta & Coco). Die Tuschelinie verbindet sie beim Scrollen,

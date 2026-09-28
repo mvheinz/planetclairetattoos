@@ -717,7 +717,11 @@ export const afterProductChange: CollectionAfterChangeHook = async ({
 
   revalidateProduct(doc.id, { context: ctx, category: doc.category, immediate: statusChanged })
   if (previousDoc?.category && previousDoc.category !== doc.category) {
-    revalidateProduct(doc.id, { context: ctx, category: previousDoc.category })
+    revalidateProduct(doc.id, {
+      context: ctx,
+      category: previousDoc.category,
+      immediate: statusChanged,
+    })
   }
   return doc
 }

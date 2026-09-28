@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P3.15
+
+- Admin-Endpunkte (publish, unpublish, sell-offline, archive, restore, return-to-stock, adopt) und Speichern in der Verwaltung laufen über den Produkt-Hook → `revalidateProduct`: Statuswechsel sofort (`{ expire: 0 }`), Bearbeitungen/Preis `'max'`; `settings` und `categories` erneuern ihre Tags; bei `context.seed` nichts.\n- `revalidate.ts`: `updateTag` außerhalb von Server-Actions fällt auf `{ expire: 0 }` zurück, Tags entdoppelt; Startseite bekommt Segment-Rückfall `revalidate = 3600`; Kategorie-Wechsel erneuert auch die alte Kategorie sofort bei Statuswechsel. ARCHITEKTUR §9.3 ergänzt.\n- Gemessen im Produktions-Build: Statuswechsel sichtbar nach ≈ 0,4 s (Produktseite, Shop, Kategorie, Startseite), Text-/Versandpreis-Änderung nach ≈ 1,2 s.\n- Tests: `tests/int/shop/revalidate.int.spec.ts` (11, Spy auf `next/cache`, inkl. „R-033 …“ Preis-Historie + kein Vergleichspreis-Feld, Seed-Kontext, Segment-Konfiguration); `tests/e2e/shop/revalidation.e2e.spec.ts` @slow (2, grün gegen `E2E_SERVER=start` und `pnpm dev`); pnpm check, test:int (ohne preview-export), build grün.
+
 ## 2026-09-28 – P3.12
 
 - Kategorie-Stationen der Startseite zeigen bis zu 4 Stücke (`listStationProducts`, `available`/`reserved`, neueste zuerst, gecacht mit Tag `home`); Textil = textil + cap (KA-17); Karten KO-07 ohne Schnur mit Schild `pinned` am Kartenfuß; „Alle {Kategorie}“ → R03; Leerzustand „Gerade ist hier nichts …“ + Archiv-Link; Preis-Fußnote einmal pro Seite; Live-Zustand per `product-status`. Tattoo-Station unverändert.\n- Tests: E2E `home/stations.e2e.spec.ts` (Anzahl/Status/Sortierung/KA-17 lesend in 3 Projekten, eigene Stücke 975–979 exklusiv, Leerzustand mit Test-Kategorie `sonstiges` exklusiv; 10 grün), `home.e2e` angepasst, Leinen-Tests (AK-DS-13/14) grün; Int home-data +2 (KA-17, Link-Fallback). `pnpm check`, `pnpm build`, `check:bundle` (R01 144–149 KB, R04 144,6 KB) grün.

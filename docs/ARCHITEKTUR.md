@@ -1702,8 +1702,10 @@ damit grün sind. Der Wechsel betrifft nur `cached.ts` und Segment-Konfiguration
 | Beispieldaten entfernt | alle | `revalidatePath('/', 'layout')` | ≤ 60 s |
 
 Alle Aufrufe laufen über `src/lib/cache/revalidate.ts` (`revalidateProduct(id, { immediate })`, `revalidateContent(key)`,
-`revalidateAll()`); bei `context.seed` wird nichts ausgelöst. **Live-Zustand:** Produktseite und Warenkorb holen nach dem
-Laden den aktuellen Zustand über `GET /api/public/product-status` (Verhaltensmodul, ≤ 1 KB) – so stimmt der Kauf-Knopf auch,
+`revalidateAll()`); bei `context.seed` wird nichts ausgelöst. `updateTag` gibt es nur in Server-Actions – außerhalb davon fällt der
+Helfer auf `revalidateTag(tag, { expire: 0 })` zurück. Next führt die Erneuerung am Ende des Requests aus, also nach dem Commit
+der Payload-Transaktion (Nachweis P3.15: `tests/int/shop/revalidate.int.spec.ts`, `tests/e2e/shop/revalidation.e2e.spec.ts`).
+**Live-Zustand:** Produktseite und Warenkorb holen nach dem Laden den aktuellen Zustand über `GET /api/public/product-status` (Verhaltensmodul, ≤ 1 KB) – so stimmt der Kauf-Knopf auch,
 falls eine Seite noch nicht erneuert ist; der Server prüft beim Hinzufügen ohnehin neu (KONZEPT AK-3-08).
 
 ### 9.4 Bilder
