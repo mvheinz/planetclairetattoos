@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="120" viewBox="0 0 320 120" role="img" aria-label="Harmonisierte Mitteilung – Platzhalter – amtliche Grafik folgt">
+  <!-- Platzhalter für die harmonisierte Mitteilung (DVO (EU) 2025/1960, R-049). Vor Go-live durch die amtliche Grafik
+       ersetzen (Gate R-210, OFFENE-PUNKTE P3.3). -->
+  <rect x="1" y="1" width="318" height="118" rx="8" fill="#FFFFFF" stroke="#1F1B16" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="160" y="42" text-anchor="middle" font-family="sans-serif" font-size="18" font-weight="700" fill="#1F1B16">Harmonisierte Mitteilung</text>
+  <text x="160" y="68" text-anchor="middle" font-family="sans-serif" font-size="15" fill="#1F1B16">Gesetzliche Gewährleistung</text>
+  <text x="160" y="96" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#4B463F">Platzhalter – amtliche Grafik folgt</text>
+</svg>

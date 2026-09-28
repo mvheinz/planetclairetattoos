@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P3.3
+
+- `src/lib/legal/snippets.ts`: alle 36 Bausteine aus ANFORDERUNGEN §6 (DE wörtlich, EN sinngemäß, Version `draft-1`, `sha256` des DE-Texts; 7 Schlüssel ohne Arbeitsfassung als Platzhalter laut DATENMODELL §6.28), `LEGAL_SNIPPET_REQUIRES_LAWYER`, `getSnippet` mit Fehler bei unbekanntem/unersetztem Platzhalter.
+- Komponenten `src/components/shop/`: `PriceNote` (Steuermodus über `getTaxModeAt`, Kleinunternehmer-Baustein bzw. „inkl. 19/7 % USt.“ ab `validFrom`), `MoneyAmount`, `ShippingNoteLink` (R25), `DeliveryTime` (Versand/Abholung, R-035), `PriceFootnote` (feste id, einmal je Seite), `WarrantyNotice` (R-049, Platzhalter-Grafik `public/legal/`, EU-Link).
+- `check:static` `money-usage`: `formatMoney` außerhalb `src/lib/` nur in PriceTag/PriceNote/MoneyAmount; Audit-Text der Preisänderung nach `src/lib/shop/priceChange.ts` verschoben. Lieferzeit-Einstellung lehnt vage Angaben ab.
+- Tests: `tests/unit/legal/snippets.unit.spec.ts` (8), `tests/unit/shop/price-note.unit.spec.ts` (10, jsdom), `tests/unit/static/money-usage.unit.spec.ts` (3), `tests/unit/legal/forbidden.unit.spec.ts` (+3) – alle grün; `pnpm check`, `pnpm test:int` (44 Dateien), `pnpm build` grün
+
 ## 2026-09-28 – P3.2
 
 - Spike B-05: Soll erfüllt. `src/proxy.ts` schreibt bekannte Listen-Parameter über `decideListVariant` (`src/lib/shop/listParams.ts`: `parseListParams`, `variantKey`, `parseVariantKey`, `canonicalListUrl`) auf `…/variant/<schlüssel>` um; interne Pfade direkt → 404; Proxy ohne Payload/DB (Import-Graph-Test).

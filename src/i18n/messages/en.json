@@ -169,6 +169,12 @@
   "shop": {
     "list": {
       "empty": "Everything is gone right now – new pieces show up on Instagram first."
+    },
+    "warranty": {
+      "title": "Legal guarantee",
+      "alt": "EU harmonised notice on the legal guarantee (placeholder – the official graphic will follow)",
+      "text": "When you buy goods, EU law gives you a legal guarantee if the goods are faulty. The details are explained on the information page of the European Union.",
+      "link": "EU information on the legal guarantee"
     }
   }
 }

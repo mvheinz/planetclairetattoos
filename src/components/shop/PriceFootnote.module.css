@@ -1,0 +1,10 @@
+/* Sternchen-Auflösung unter dem Raster (R-030). */
+.footnote {
+  margin: var(--space-4) 0 0;
+  font-size: var(--fs-small);
+  color: var(--ink-2);
+}
+
+.note {
+  display: inline;
+}

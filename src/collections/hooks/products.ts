@@ -16,7 +16,6 @@ import { TransitionError } from '@/lib/commerce/transitionError'
 import { isProductTransition, productTransitionId } from '@/lib/commerce/productTransitions'
 import { findMediaReferences } from '@/lib/media/references'
 import { LOCALES, type Locale, type ProductCategory, type ProductStatus } from '@/lib/enums'
-import { formatMoney } from '@/lib/money'
 import { getAppContext, requestNow } from '@/lib/payload/context'
 import { preservingReq } from '@/lib/payload/localReq'
 import {
@@ -35,6 +34,7 @@ import {
   isValidItemNumber,
 } from '@/lib/products/itemNumber'
 import { pickLocale, type LocalizedValue } from '@/lib/products/localized'
+import { priceChangeSummary } from '@/lib/shop/priceChange'
 import {
   checkFoodContact,
   relationId,
@@ -709,7 +709,7 @@ export const afterProductChange: CollectionAfterChangeHook = async ({
         action: 'product_price_changed',
         entityCollection: PRODUCTS_SLUG,
         entityId: doc.id,
-        summary: `${label}: Preis ${formatMoney(previousDoc.priceCents, 'de')} → ${formatMoney(doc.priceCents, 'de')}`,
+        summary: priceChangeSummary(label, previousDoc.priceCents, doc.priceCents),
         changes: { priceCents: [previousDoc.priceCents, doc.priceCents] },
       })
     }
