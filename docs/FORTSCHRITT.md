@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P2.16
+
+- `src/leash/measure.ts` (eine Lesephase), `runtime.ts` → `mountLeash` mit Stufen A (Maske)/B (Feder)/C, Abstufung A → B nur im Speicher, Segment-Zuständen, Lesezeile 0,72, monotoner Tinte, Coco-Glättung, Neuaufbau (ResizeObserver, fonts.ready, load; 150 ms entprellt, < 120 px Höhe ignoriert), IntersectionObserver-Pause, journey-Intro und Leinen-Anschluss.\n- React-Hüllen `src/components/leash/{LeashLayer,Station,ViewTransitionOptIn}.tsx`; Laufzeit lädt nach LCP + 300 ms bzw. load + 1200 ms per Idle (`schedule.ts`), nie auf legal/calm; `window.__leash`-Grundumfang (`debug.ts`) nur bei NEXT_PUBLIC_LEASH_DEBUG=1.\n- Spike View Transitions → ADR 0003 (harte Navigation per @view-transition unter no-preference, ohne calm).\n- Tests: unit runtime (12, AK-DS-18) + motion (3); e2e tests/e2e/leash.e2e.spec.ts (AK-DS-13, AK-DS-15, Chunk-Analyse, legal ohne Laufzeit, View Transitions) gegen dev und start grün; Engine-Chunk 8,6 KB gz.
+
 ## 2026-09-28 – P2.15
 
 - `src/leash/` Kern ohne DOM: `types.ts` (wörtlich DESIGN §9.1), `random.ts` (fnv1a32, mulberry32, valueNoise1D), `presets.ts` (Tabelle §9.7 für alle 11 Presets, Wackel, Rinnen, Scroll-Wege), `poses.ts` (COCO_POSE_TO_SPRITE).\n- `geometry.ts`: buildGeometry mit Schritten 1–11 (§9.3), allen Schlaufenformen (§9.5) inkl. Freiraum-Regel, Tintenpunkten, Verjüngung, Segmenten, LUT und scrollMap (§9.6); dazu mapReadingY/pointAt.\n- Tests: unit tests/unit/leash/{random,geometry,loops,poses}.unit.spec.ts (26 Tests, AK-DS-12); Median journey 390×844 ≈ 3 ms in Node; Pfaddaten ≈ 18 KB mobil / 23 KB Desktop.

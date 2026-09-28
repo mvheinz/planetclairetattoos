@@ -57,6 +57,8 @@ export default defineConfig({
     env: {
       NODE_OPTIONS: '--no-deprecation',
       PAYLOAD_DB_PUSH: 'false',
+      // Test-Schnittstelle `window.__leash` (DESIGN §9.13) auch im lokalen Dev-Server; CI baut mit dem Flag.
+      NEXT_PUBLIC_LEASH_DEBUG: process.env.NEXT_PUBLIC_LEASH_DEBUG || '1',
       ...(testDatabaseUrl ? { DATABASE_URL: testDatabaseUrl } : {}),
     },
   },

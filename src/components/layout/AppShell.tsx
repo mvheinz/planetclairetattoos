@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
 import { getSiteNavigation } from '@/lib/data/navigation'
+import { LeashLayer } from '@/components/leash/LeashLayer'
 import type { Locale } from '@/lib/routes/registry'
 
 import styles from './AppShell.module.css'
@@ -11,7 +12,7 @@ import { SiteFooter } from './SiteFooter'
 import { SiteHeader } from './SiteHeader'
 
 // Seitenrahmen (DESIGN KO-01): Skip-Link → SiteHeader → Vorschau-Banner → `<main id="inhalt">` → SiteFooter.
-// Die Linien-Ebene (LeashLayer, P2.16) ist ein `aria-hidden`-Geschwister von `<main>` in einem
+// Die Linien-Ebene (LeashLayer, DESIGN §9.1) ist ein `aria-hidden`-Geschwister von `<main>` in einem
 // `position: relative`-Seitencontainer, ohne Zeigerereignisse und unter dem Fußbereich. Das Menü (`<dialog>`, KO-03)
 // steht am Ende und öffnet sich im Top-Layer.
 export async function AppShell({
@@ -33,7 +34,7 @@ export async function AppShell({
       <SiteHeader locale={locale} />
       <PreviewBanner locale={locale} state={previewBannerState()} />
       <div className={styles.page}>
-        <div className={`${styles.leash} u-layer-leash`} data-leash-layer="" aria-hidden="true" />
+        <LeashLayer className={`${styles.lineLayer} u-layer-leash`} />
         <main id="inhalt" tabIndex={-1} className={styles.main}>
           {children}
         </main>

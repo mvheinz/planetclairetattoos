@@ -1639,7 +1639,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: unit `tests/unit/leash/{random,geometry,loops,poses}.unit.spec.ts` (AK-DS-12).
   - Ohne Jutta: –
 
-- [ ] **P2.16 Tuschelinie-Laufzeit (Stufen A/B, Scroll-Kopplung)** –
+- [x] **P2.16 Tuschelinie-Laufzeit (Stufen A/B, Scroll-Kopplung)** –
   - `src/leash/measure.ts`: eine Lesephase.
   - `src/leash/runtime.ts` → `mountLeash(root, options): LeashHandle { destroy, rebuild, setMotion }`:
     - Stufenwahl A/B (Abstufung A → B nur im Speicher);

@@ -24,7 +24,7 @@
   position: relative;
 }
 
-.leash {
+.lineLayer {
   position: absolute;
   inset: 0;
   overflow: hidden;

@@ -2,6 +2,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import React from 'react'
 
 import { BehaviorHost } from '@/components/BehaviorHost'
+import { ViewTransitionOptIn } from '@/components/leash/ViewTransitionOptIn'
 import type { Locale } from '@/lib/routes/registry'
 import { MOTION_SCRIPT } from '@/lib/security/inlineScripts'
 import { fontVariables } from '@/styles/fonts'
@@ -40,6 +41,7 @@ export function SiteDocument({
             <AppShell locale={locale}>{children}</AppShell>
           </NextIntlClientProvider>
           <BehaviorHost />
+          <ViewTransitionOptIn />
         </PresetBody>
       </RouteOverride>
     </html>
