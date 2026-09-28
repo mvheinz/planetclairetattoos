@@ -240,9 +240,27 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     else root.removeAttribute('data-leash-drawn')
   }
 
+  /**
+   * `data-leash-reached` an jedem Stations-Anker, den die gezeichnete Linie erreicht hat (einmalig, nie zurückgesetzt
+   * beim Hochscrollen) – Auslöser für Stations-Effekte wie die Stationsmarke „pop“ (MI-12).
+   */
+  const reached = new Set<string>()
+  function flagStations() {
+    if (!geometry || reached.size >= geometry.stations.length) return
+    for (const st of geometry.stations) {
+      if (reached.has(st.id) || drawnLen < st.loopLen0) continue
+      reached.add(st.id)
+      const scope = root.parentElement ?? doc
+      for (const el of Array.from(scope.querySelectorAll<HTMLElement>('[data-leash-station]'))) {
+        if (el.dataset.leashStation === st.id) el.setAttribute('data-leash-reached', '')
+      }
+    }
+  }
+
   /** Segment-Zustände: fertig (ohne Maske), aktiv (Maske/Strich aktualisiert), zukünftig (unsichtbar). */
   function applyDrawn() {
     flagDrawn()
+    flagStations()
     for (const v of views) {
       const span = v.len1 - v.len0
       const p = tier === 'C' ? 1 : span > 0 ? (drawnLen - v.len0) / span : 1

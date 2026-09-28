@@ -30,7 +30,8 @@ export interface SiteNavigation {
 
 export const instagramUrl = (handle: string) => `https://www.instagram.com/${handle}/`
 
-async function loadNavigation(locale: Locale): Promise<SiteNavigation> {
+/** Lädt die Navigationsdaten (ungecacht; Grundlage für `getSiteNavigation` und die Startseite). */
+export async function loadNavigation(locale: Locale): Promise<SiteNavigation> {
   const result: SiteNavigation = {
     categories: [],
     hasActiveConformity: false,

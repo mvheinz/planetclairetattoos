@@ -1740,7 +1740,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: e2e `tests/e2e/error-pages.e2e.spec.ts` @smoke (AK-3-11, R-011).
   - Ohne Jutta: –
 
-- [ ] **P2.20 Startseite R01 mit Beispielinhalten** – `src/app/(frontend)/[locale]/page.tsx` liest `pages` mit
+- [x] **P2.20 Startseite R01 mit Beispielinhalten** – `src/app/(frontend)/[locale]/page.tsx` liest `pages` mit
   `key = home` über `getPublicPayload()`; Geschäftsangaben kommen aus `settings.business` (DATENMODELL; keine eigenen
   Globals für Start- oder Über-mich-Seite).
   - Kopf-Station „Planet Claire“: H1 mit Planet-Marke und `orbit`-Anker.
