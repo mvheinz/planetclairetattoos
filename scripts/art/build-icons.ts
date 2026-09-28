@@ -27,6 +27,9 @@ export const ICON_NAMES = [
   'truck',
   'pickup',
   'withdraw',
+  // ab P3 (KO-10 Badges „reserviert“ und „Deko – nicht für Lebensmittel“)
+  'clock',
+  'plate-off',
 ] as const
 
 const ALLOWED_TAGS = new Set(['path', 'circle', 'ellipse', 'line', 'polyline', 'rect'])

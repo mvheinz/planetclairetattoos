@@ -267,6 +267,23 @@ body[data-preset='margin'] {
   margin-block-start: var(--stack-gap, var(--space-4));
 }
 
+/* Schraffur-Schatten (§6.3): Tusche-Linien 1 px, Abstand 5 px, 40°, Deckkraft 0.3, versetzt 4/5 px, hinter dem Element.
+   Die Schraffur ist eine Maske über `--ink` (keine Farbe im Muster, kein Bild-Request). Das Element braucht
+   `position: relative` und einen eigenen Stapelkontext (z. B. `isolation: isolate`). */
+.u-hatch-shadow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  translate: 4px 5px;
+  background: var(--ink);
+  opacity: 0.3;
+  pointer-events: none;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cpattern id='h' width='5' height='5' patternUnits='userSpaceOnUse' patternTransform='rotate(40)'%3E%3Cpath d='M0 0v5' stroke='%23fff'/%3E%3C/pattern%3E%3Crect width='100%25' height='100%25' fill='url(%23h)'/%3E%3C/svg%3E");
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
 .u-sr-only {
   position: absolute;
   width: 1px;

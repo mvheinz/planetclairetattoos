@@ -349,7 +349,7 @@ Schraffur-Muster als Inline-SVG-Data-URI (≤ 300 Byte), kein Bild-Request.
 ### 6.5 Icons
 
 - Eigenes, handgezeichnetes Set, 24×24-viewBox, Strich 1.75 Einheiten, `stroke-linecap: round`, `stroke-linejoin: round`, Farbe `currentColor`, leicht wackelig (kein Icon-Font, keine Fremd-Bibliothek).
-- Bestand (P2): `basket` (Flohmarkt-Papiertüte mit Henkeln), `menu` (drei ungleich lange Striche), `close`, `arrow-right`, `arrow-left`, `external`, `mail`, `instagram` (Kamera-Umriss, **kein** Instagram-Logo), `copy`, `zoom`, `check`, `warn`, `info`, `planet`, `star`, `truck`, `pickup` (Häuschen), `withdraw` (Pfeil zurück im Kreis).
+- Bestand (P2): `basket` (Flohmarkt-Papiertüte mit Henkeln), `menu` (drei ungleich lange Striche), `close`, `arrow-right`, `arrow-left`, `external`, `mail`, `instagram` (Kamera-Umriss, **kein** Instagram-Logo), `copy`, `zoom`, `check`, `warn`, `info`, `planet`, `star`, `truck`, `pickup` (Häuschen), `withdraw` (Pfeil zurück im Kreis). Ab P3 (Badges KO-10): `clock` (Uhr, „reserviert“), `plate-off` (Teller durchgestrichen, Deko-Hinweis).
 - Icons sind `aria-hidden="true"`; jede Bedienung hat sichtbaren Text oder, nur bei Galerie-Pfeilen und Lightbox-Schließen, ein `aria-label`.
 - Dateien: `src/art/icons/*.svg` (Quelle), je ≤ 600 Byte, eingebunden als **Inline-SVG-React-Komponenten** in
   `src/components/icons/` (Komponente `Icon`, SVG steht direkt im HTML) – kein externes Icon-Sprite, kein `<use href>`. So bleiben sie auch in der Vorschau-Datei

@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P3.4
+
+- Komponenten `src/components/shop/`: `PriceTag` (KO-05, Varianten hanging/pinned/mini; Drehung, Fadenlänge, Kontur-Wackel und Stempelwinkel deterministisch aus der Nummer in `src/lib/shop/priceTag.ts`; Preis `formatMoney(…, tag)` + Sternchen, `Nr. 017`; Faden-Anker `data-leash-anchor="tag"` für die Schnur), `SoldStamp` (KO-06, aria-hidden, lang=en, rauer Rahmen mit Lücken, Druck-Maske), `Badge` (KO-10, sechs Arten, neue Icons `clock`/`plate-off`), `ProductCard` (KO-07, genau ein Link, aria-label mit Zustand, Foto 4:5 mit srcset thumb/card, erste zwei Karten eager), `src/components/media/ResponsiveImage.tsx` (feste Endhöhe, Dominanzfarbe, Fokuspunkt); Schraffur-Schatten `.u-hatch-shadow`. Callout (KO-22) besteht seit P2 unter `src/components/ui/`.
+- Verhaltensmodule `price-tag-swing` (MI-02: Reihen-Eintritt nach 500 ms, 60 ms versetzt, Hover/Fokus) und `sold-stamp` (MI-03 nur bei Ereignis `pc:product-sold`, max. 3 Knalle, 120 ms gestaffelt), im Register und in der Vorschau-Laufzeit; bei reduzierter Bewegung aus.
+- JS-Budget Mikro-Interaktionen jetzt je gemeinsam geladener Modulgruppe ≤ 4 KB (OFFENE-PUNKTE).
+- Tests: `tests/unit/shop/price-tag.unit.spec.ts` (14), `tests/unit/shop/product-card.unit.spec.ts` (8, jsdom, AK-DS-10), `tests/unit/behaviors/price-tag-swing.unit.spec.ts` (6) und `sold-stamp.unit.spec.ts` (6, AK-DS-18), Vertragstest um beide Module erweitert; `tests/visual/shop-components.visual.spec.ts` angelegt (Referenzbilder entstehen in CI mit P3.16); `pnpm check` grün (855 Tests)
+
 ## 2026-09-28 – P3.3
 
 - `src/lib/legal/snippets.ts`: alle 36 Bausteine aus ANFORDERUNGEN §6 (DE wörtlich, EN sinngemäß, Version `draft-1`, `sha256` des DE-Texts; 7 Schlüssel ohne Arbeitsfassung als Platzhalter laut DATENMODELL §6.28), `LEGAL_SNIPPET_REQUIRES_LAWYER`, `getSnippet` mit Fehler bei unbekanntem/unersetztem Platzhalter.

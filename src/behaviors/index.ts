@@ -9,6 +9,8 @@ export const BEHAVIOR_LOADERS = {
   lost: () => import('./lost'),
   menu: () => import('./menu'),
   'motion-toggle': () => import('./motion-toggle'),
+  'price-tag-swing': () => import('./price-tag-swing'),
+  'sold-stamp': () => import('./sold-stamp'),
 } satisfies Record<string, () => Promise<BehaviorModule>>
 
 export type BehaviorName = keyof typeof BEHAVIOR_LOADERS

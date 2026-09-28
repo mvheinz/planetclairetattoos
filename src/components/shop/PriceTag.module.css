@@ -1,0 +1,140 @@
+/* KO-05 Preisschild: Faden → Öse (Drehpunkt) → Schild-Körper. Drehung und Fadenlänge kommen als Variablen aus der
+   Objektnummer (deterministisch). Maße: Breite max(76px, Inhalt + 20px), ab 768 max(92px, Inhalt + 24px); Höhe ≥ 58. */
+.tag {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: top;
+  color: var(--ink);
+}
+
+/* Faden: senkrechter Strich 1.5 px `--ink`, reicht bis an die Öse (über der Oberkante des Schilds). */
+.thread {
+  position: relative;
+  z-index: 2;
+  width: 1.5px;
+  height: calc(var(--tag-thread) + var(--tag-eyelet-y) - 4px);
+  margin-bottom: calc(4px - var(--tag-eyelet-y));
+  border-radius: 1px;
+  background: var(--ink);
+}
+
+.body {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  width: max-content;
+  min-width: var(--tag-min-w);
+  height: var(--tag-h);
+  padding: calc(var(--tag-eyelet-y) + 7px) 10px 6px;
+  transform: rotate(var(--tag-angle));
+  transform-origin: 50% var(--tag-eyelet-y);
+}
+
+/* Schraffur-Schatten (§6.3) in der Form des Anhängers (abgeschrägte Ecken oben). */
+.body::before {
+  clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%, 0 8px);
+}
+
+.outline {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: var(--paper-2);
+  stroke: var(--ink);
+  stroke-width: 1.5px;
+  stroke-linejoin: round;
+}
+
+.outline path {
+  vector-effect: non-scaling-stroke;
+}
+
+/* Öse: Kreis Ø 8 px, Rand 1.5 px `--ink`, Füllung `--paper`. */
+.eyelet {
+  position: absolute;
+  top: calc(var(--tag-eyelet-y) - 4px);
+  left: calc(50% - 4px);
+  z-index: 1;
+  box-sizing: border-box;
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+}
+
+.price {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-hand);
+  font-size: var(--fs-price-tag);
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: lining-nums;
+}
+
+.nr {
+  position: relative;
+  z-index: 1;
+  margin-top: 5px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.2;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+/* Stempel KO-06: über dem Schild, 110 % Schildbreite, Mitte auf der Preiszeile – eine Linie der Höhe 0 auf der
+   Preiszeile, an der der Stempel waagerecht und senkrecht mittig ausgerichtet wird. */
+.stampLine {
+  position: absolute;
+  top: calc(var(--tag-eyelet-y) + 7px + var(--fs-price-tag) / 2);
+  right: 0;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 0;
+}
+
+.pinned .body {
+  padding-inline: 12px;
+}
+
+.mini .body {
+  padding: calc(var(--tag-eyelet-y) + 6px) 8px 4px;
+}
+
+.mini .price {
+  font-size: 1.375rem;
+}
+
+.mini .stampLine {
+  top: calc(var(--tag-eyelet-y) + 6px + 0.6875rem);
+}
+
+@media (min-width: 768px) {
+  .hanging .body,
+  .pinned .body {
+    min-width: max(92px, var(--tag-min-w));
+    padding-inline: 12px;
+  }
+}
+
+@media (forced-colors: active) {
+  .outline {
+    fill: Canvas;
+    stroke: CanvasText;
+  }
+}

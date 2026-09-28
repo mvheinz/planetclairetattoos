@@ -55,13 +55,23 @@ describe('T-09 budgets.json enthält alle Werte aus ARCHITEKTUR §7.7 und DESIGN
   })
 
   it('Lazy-Module: Engine ≤ 12 KB, Coco ≤ 3 KB, Mikro ≤ 4 KB, statischer Renderer ≤ 4 KB', () => {
-    const byEntry = Object.fromEntries(budgets.modules.map((m) => [m.entries.join(','), m.gzipMax]))
+    const byEntry = Object.fromEntries(
+      budgets.modules
+        .filter((m) => !m.name.startsWith('Mikro-Interaktionen'))
+        .map((m) => [m.entries.join(','), m.gzipMax]),
+    )
     expect(byEntry).toEqual({
       'src/leash/runtime.ts': 12_000,
       'src/leash/coco.ts': 3_000,
-      'src/behaviors/*.ts': 4_000,
       'src/leash/static.ts': 4_000,
     })
+    // Mikro-Interaktionen: je gemeinsam geladener Gruppe von Verhaltensmodulen ≤ 4 KB (OFFENE-PUNKTE P3.4)
+    const micro = budgets.modules.filter((m) => m.name.startsWith('Mikro-Interaktionen'))
+    expect(micro.length).toBeGreaterThanOrEqual(2)
+    for (const m of micro) {
+      expect(m.gzipMax).toBe(4_000)
+      expect(m.entries.every((e) => e.startsWith('src/behaviors/'))).toBe(true)
+    }
   })
 
   it('Schriften 3 Dateien ≤ 100 KB; R01-Seitengewicht ≤ 1,5 MB (Ziel 1,0 MB); SVG-Budgets', () => {

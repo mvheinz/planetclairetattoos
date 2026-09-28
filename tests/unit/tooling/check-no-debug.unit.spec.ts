@@ -41,7 +41,22 @@ describe('check:no-debug', () => {
 })
 
 describe('check:bundle – Modul-Budgets (§9.10)', () => {
-  it('Engine ≤ 12 KB gz, statischer Renderer ≤ 4 KB gz, Coco ≤ 3 KB, Mikro-Interaktionen ≤ 4 KB', async () => {
+  it('jedes Verhaltensmodul gehört zu genau einer Mikro-Interaktionen-Gruppe (je Seite gemeinsam geladen)', async () => {
+    const { readdirSync } = await import('node:fs')
+    const behaviors = readdirSync('src/behaviors')
+      .filter((f) => f.endsWith('.ts') && !['index.ts', 'types.ts'].includes(f))
+      .map((f) => `src/behaviors/${f}`)
+    const groups = MODULE_BUDGETS.filter((b) => b.name.startsWith('Mikro-Interaktionen'))
+    expect(groups.length).toBeGreaterThanOrEqual(2)
+    for (const file of behaviors)
+      expect(
+        groups.filter((g) => g.entries.includes(file)).map((g) => g.name),
+        file,
+      ).toHaveLength(1)
+    for (const g of groups) expect(g.gzipMax).toBe(4000)
+  })
+
+  it('Engine ≤ 12 KB gz, statischer Renderer ≤ 4 KB gz, Coco ≤ 3 KB, Mikro-Interaktionen ≤ 4 KB je Gruppe', async () => {
     const reports = await measureModules()
     expect(reports.map((r) => r.name)).toEqual(MODULE_BUDGETS.map((b) => b.name))
     for (const r of reports)

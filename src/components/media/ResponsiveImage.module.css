@@ -1,0 +1,23 @@
+/* Bildrahmen mit fester Endhöhe (aspect-ratio) und Lade-Hintergrund (Dominanzfarbe bzw. Papier mit Schraffur). */
+.frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--img-bg, var(--paper-2));
+}
+
+.hatch {
+  background-image: repeating-linear-gradient(
+    130deg,
+    transparent 0 4px,
+    color-mix(in srgb, var(--ink) 8%, transparent) 4px 5px
+  );
+}
+
+.img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

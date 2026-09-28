@@ -175,6 +175,19 @@
       "alt": "EU harmonised notice on the legal guarantee (placeholder – the official graphic will follow)",
       "text": "When you buy goods, EU law gives you a legal guarantee if the goods are faulty. The details are explained on the information page of the European Union.",
       "link": "EU information on the legal guarantee"
+    },
+    "card": {
+      "stateReserved": "reserved right now",
+      "stateSold": "sold"
+    },
+    "badges": {
+      "unique": "One of a kind",
+      "decorative": "Decorative – not for food use",
+      "foodSafe": "Food-safe – view declaration",
+      "reserved": "reserved",
+      "reservedLong": "Reserved right now – check back in 30 minutes",
+      "secondHand": "Second-Hand / Vintage",
+      "smallParts": "Not a toy – small parts can be swallowed"
     }
   }
 }

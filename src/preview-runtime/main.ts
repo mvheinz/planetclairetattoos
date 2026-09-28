@@ -3,6 +3,8 @@ import * as cartCount from '../behaviors/cart-count'
 import * as lost from '../behaviors/lost'
 import * as menu from '../behaviors/menu'
 import * as motionToggle from '../behaviors/motion-toggle'
+import * as priceTagSwing from '../behaviors/price-tag-swing'
+import * as soldStamp from '../behaviors/sold-stamp'
 import type { BehaviorModule } from '../behaviors/types'
 
 import { createAssetStore } from './assets'
@@ -23,6 +25,8 @@ export const STATIC_BEHAVIORS: Record<(typeof BEHAVIOR_NAMES)[number], BehaviorM
   lost,
   menu,
   'motion-toggle': motionToggle,
+  'price-tag-swing': priceTagSwing,
+  'sold-stamp': soldStamp,
 }
 
 const staticLoader: BehaviorLoader = (name) => Promise.resolve(STATIC_BEHAVIORS[name])

@@ -50,6 +50,26 @@ const FIXTURES: Record<BehaviorName, { html: string; exercise: (root: Element) =
       document.documentElement.removeAttribute('data-motion')
     },
   },
+  'price-tag-swing': {
+    html:
+      '<ul data-behavior="price-tag-swing"><li><a href="/de/shop/017-vase" data-product-card>' +
+      '<span data-price-tag="hanging"><span data-price-tag-swing data-angle="4">45 €</span></span></a></li></ul>',
+    exercise: (root) => {
+      const card = root.querySelector('[data-product-card]')!
+      card.dispatchEvent(new Event('focusin', { bubbles: true }))
+      card.dispatchEvent(new PointerEvent('pointerover', { bubbles: true, pointerType: 'mouse' }))
+    },
+  },
+  'sold-stamp': {
+    html:
+      '<ul data-behavior="sold-stamp"><li><a href="/de/shop/017-vase" data-product-card data-product-id="17">' +
+      '<span data-price-tag="hanging"><span data-price-tag-swing data-angle="4">45 €' +
+      '<span data-sold-stamp data-angle="-13" aria-hidden="true" hidden>sold</span></span></span></a></li></ul>',
+    exercise: () => {
+      document.dispatchEvent(new CustomEvent('pc:product-sold', { detail: { id: 17 } }))
+      vi.advanceTimersByTime(0)
+    },
+  },
   menu: {
     html:
       '<a href="#fussnavigation" data-menu-trigger aria-controls="menu" aria-expanded="false">Menü</a>' +

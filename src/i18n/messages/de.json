@@ -175,6 +175,19 @@
       "alt": "Harmonisierte Mitteilung der EU zur gesetzlichen Gewährleistung (Platzhalter – die amtliche Grafik folgt)",
       "text": "Beim Kauf von Waren hast du nach EU-Recht ein gesetzliches Gewährleistungsrecht, wenn die Ware mangelhaft ist. Die Einzelheiten erklärt die Informationsseite der Europäischen Union.",
       "link": "Informationen der EU zur gesetzlichen Gewährleistung"
+    },
+    "card": {
+      "stateReserved": "gerade reserviert",
+      "stateSold": "verkauft"
+    },
+    "badges": {
+      "unique": "Unikat",
+      "decorative": "Deko – nicht für Lebensmittel",
+      "foodSafe": "Lebensmittelecht – Konformitätserklärung ansehen",
+      "reserved": "reserviert",
+      "reservedLong": "Gerade reserviert – schau in 30 Minuten nochmal",
+      "secondHand": "Second-Hand / Vintage",
+      "smallParts": "Kein Spielzeug – verschluckbare Kleinteile"
     }
   }
 }
