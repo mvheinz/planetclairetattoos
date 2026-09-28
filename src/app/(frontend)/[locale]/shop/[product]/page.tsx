@@ -52,6 +52,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     description: productMetaDescription(product),
     alternateParams: alternate ? { [other]: productParams(alternate, other) } : undefined,
     ogType: 'product',
+    ogImage: false,
   })
 }
 

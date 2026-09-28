@@ -20,8 +20,10 @@ import {
 const MESSAGES = { de, en } as const
 
 export const SITE_NAME = 'Planet Claire'
-/** Standard-Vorschaubild 1200×630 (`pnpm art:brand`, DESIGN §12.6). */
+/** Statisches Standard-Vorschaubild 1200×630 (`pnpm art:brand`, DESIGN §12.6) – Rückfall der OG-Routen. */
 export const DEFAULT_OG_IMAGE = '/og/default.png'
+/** Standard-OG-Bild je Sprache (P3.14, `src/app/(frontend)/[locale]/og-image.png/route.tsx`). */
+export const defaultOgImagePath = (locale: Locale) => `/${locale}/og-image.png`
 const OG_LOCALE: Record<Locale, string> = { de: 'de_DE', en: 'en_GB' }
 
 type Descriptions = (typeof de)['seo']['descriptions']
@@ -35,6 +37,11 @@ export interface BuildMetadataOptions {
    * selbst (`ProductSeo`).
    */
   ogType?: 'website' | 'product'
+  /**
+   * `false`: kein `og:image` in den Metadaten – die Seite hat ein eigenes `opengraph-image` (R04, P3.14), das Next
+   * dann einsetzt. Sonst das Standard-OG-Bild der Sprache.
+   */
+  ogImage?: false
   /** Beschreibung aus dem CMS; sonst Vorlage je Seitentyp. */
   description?: string
   /** Parameter der anderen Sprache, falls sie abweichen (sprachabhängige Slugs ab P3). */
@@ -99,7 +106,19 @@ export function buildMetadata(
       url,
       locale: OG_LOCALE[locale],
       alternateLocale: LOCALES.filter((l) => l !== locale).map((l) => OG_LOCALE[l]),
-      images: [{ url: absoluteUrl(DEFAULT_OG_IMAGE, siteUrl), width: 1200, height: 630 }],
+      ...(options.ogImage === false
+        ? {}
+        : {
+            images: [
+              {
+                url: absoluteUrl(defaultOgImagePath(locale), siteUrl),
+                width: 1200,
+                height: 630,
+                alt: MESSAGES[locale].seo.og.defaultAlt,
+                type: 'image/png',
+              },
+            ],
+          }),
     },
   }
   if (indexable) {

@@ -113,7 +113,7 @@ aus §10–§13 dieses Dokuments); DNS-Umstellung und Start-Checkliste für P11 
 | `next-intl` | 4.x (≥ 4.14) | P2 | Routing DE/EN, Nachrichten; `localeCookie: false` (R-130) |
 | `@fontsource/mansalva`, `@fontsource-variable/bricolage-grotesque`, `@fontsource/ibm-plex-mono` | aktuell | P2 | nur Quelle für das Kopierskript nach `src/styles/fonts/` (DESIGN §4.1) |
 | `subset-font` (dev) | aktuell | P2 | Schrift-Subsetting in `pnpm fonts:copy` (harfbuzz-wasm, ohne Python): beschneidet Bricolage bei Bedarf auf `wght 400–700` (DESIGN §4.1); Skripte bleiben TypeScript über `tsx` |
-| `@fontsource/bricolage-grotesque` (dev), `wawoff2` (dev, MIT; oder gleichwertiger WOFF2→TTF-Wandler aus npm) | aktuell | P3 | `pnpm fonts:copy` erzeugt daraus die TTF-Dateien für OG-Bilder in `src/og/fonts/` (Mansalva 400, Bricolage statisch 600; DESIGN §4.1, P3.14); **kein** Download von fonts.gstatic.com oder anderen Schrift-Servern |
+| `@fontsource/bricolage-grotesque` (dev), `wawoff2` (dev, MIT; oder gleichwertiger WOFF2→TTF-Wandler aus npm) | 5.3.0 / 2.0.1 (exakt gepinnt, P3.14) | P3 | `pnpm fonts:copy` erzeugt daraus die TTF-Dateien für OG-Bilder in `src/og/fonts/` (Mansalva 400, Bricolage statisch 600; DESIGN §4.1, P3.14) und `src/og/fontMetrics.generated.ts` (Abdeckung, Laufweiten); **kein** Download von fonts.gstatic.com oder anderen Schrift-Servern |
 | `@axe-core/playwright` (dev) | 4.x | P2 | Barrierefreiheit |
 | `@lhci/cli` (dev) | aktuelle 0.x | P2 | Lighthouse-CI, nur Ziel `filesystem` (§7.7) |
 | `cheerio` (dev) | 1.x | P2 | HTML-Umwandlung im Vorschau-Export (§14) |
@@ -203,7 +203,7 @@ der Patch nach dem Stichtag, gibt `pnpm check:versions` eine Warnung aus und end
 │  │  │  │  ├─ layout.tsx           <html lang>, Kopf, Fuß, Banner, LeashLayer, Inline-Skript `pc-motion` (§8.1)
 │  │  │  │  ├─ page.tsx             R01 Startseite
 │  │  │  │  ├─ shop/page.tsx        R02 · shop/category/[slug]/page.tsx R03 · shop/[product]/page.tsx R04
-│  │  │  │  │                       (+ actions.ts, opengraph-image.tsx)
+│  │  │  │  │                       (+ actions.ts, opengraph-image.tsx) · og-image.png/route.tsx Standard-OG-Bild (P3.14)
 │  │  │  │  ├─ archive/ cart/ checkout/ thank-you/[token]/ order/[token]/ commissions/
 │  │  │  │  ├─ tattoo/ (flash, offers, prices, gallery, process, aftercare, faq)
 │  │  │  │  ├─ about/ contact/ legal-notice/ privacy/ terms/ right-of-withdrawal/

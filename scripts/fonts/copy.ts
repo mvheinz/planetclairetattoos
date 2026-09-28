@@ -10,12 +10,19 @@
 // - IBM Plex Mono 400: ohne TrueType-Hinting.
 // Außerdem schreibt das Skript die Zeichenabdeckung der Mansalva-Datei nach `src/styles/mansalvaCoverage.generated.ts`
 // (Grundlage für `GlyphFallback`, DESIGN §4.4).
+//
+// P3.14 (DESIGN §12.6, ARCHITEKTUR §1.2): TTF-Dateien für die OG-Bilder nach `src/og/fonts/` – satori liest weder WOFF2
+// noch variable Schriften. Mansalva 400 und Bricolage Grotesque **statisch** 600 (`@fontsource/bricolage-grotesque`)
+// werden offline mit `wawoff2` (WOFF2 → TTF) umgewandelt, ohne Download. Das Skript prüft die Glyphen (Umlaute, ß, €,
+// „“) und schreibt Zeichenabdeckung und Laufweiten nach `src/og/fontMetrics.generated.ts` (Zeilenumbruch und
+// Zeichenfilter der OG-Bilder ohne Schriftbibliothek zur Laufzeit). Die TTF-Dateien gehen nie an den Browser.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 import * as fontkit from 'fontkit'
 import subsetFont from 'subset-font'
+import { decompress } from 'wawoff2'
 
 export interface FontJob {
   /** Dateiname unter `src/styles/fonts/` (= Fontsource-Name). */
@@ -74,6 +81,88 @@ export async function buildFonts(nodeModules: string): Promise<BuiltFont[]> {
   return out
 }
 
+// --- OG-Schriften (P3.14) -------------------------------------------------------------------------------------------
+
+/** Zielordner der OG-Schriften (nur `.ttf`). */
+export const OG_FONT_DIR = 'src/og/fonts'
+/** Erzeugtes Modul mit Abdeckung und Laufweiten. */
+export const OG_METRICS_MODULE = 'src/og/fontMetrics.generated.ts'
+/** Pflicht-Glyphen der OG-Schriften (Umlaute, ß, €, deutsche Anführungszeichen, P3.14). */
+export const OG_REQUIRED_GLYPHS = 'äöüÄÖÜß€„“'
+
+export interface OgFontJob {
+  /** Schlüssel im erzeugten Modul. */
+  key: 'mansalva400' | 'bricolage600'
+  /** Dateiname unter `src/og/fonts/`. */
+  file: string
+  /** WOFF2-Quelle relativ zu `node_modules` (statischer Schnitt). */
+  source: string
+}
+
+export const OG_FONT_JOBS: readonly OgFontJob[] = [
+  {
+    key: 'mansalva400',
+    file: 'mansalva-400.ttf',
+    source: '@fontsource/mansalva/files/mansalva-latin-400-normal.woff2',
+  },
+  {
+    key: 'bricolage600',
+    file: 'bricolage-grotesque-600.ttf',
+    source: '@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-600-normal.woff2',
+  },
+]
+
+export interface BuiltOgFont extends BuiltFont {
+  key: OgFontJob['key']
+}
+
+/** WOFF2 → TTF (offline, deterministisch); wirft bei variabler Schrift oder fehlenden Pflicht-Glyphen. */
+export async function buildOgFonts(nodeModules: string): Promise<BuiltOgFont[]> {
+  const out: BuiltOgFont[] = []
+  for (const job of OG_FONT_JOBS) {
+    // `decompress` gibt eine Sicht auf den WASM-Speicher zurück – sofort kopieren.
+    const data = Buffer.from(await decompress(readFileSync(path.join(nodeModules, job.source))))
+    const font = fontkit.create(data) as fontkit.Font
+    const tables = (font as unknown as { directory: { tables: Record<string, unknown> } }).directory
+      .tables
+    if ('fvar' in tables)
+      throw new Error(`${job.file}: variable Schrift (fvar) – satori braucht statische Schnitte.`)
+    const missing = [...OG_REQUIRED_GLYPHS].filter(
+      (c) => !font.hasGlyphForCodePoint(c.codePointAt(0)!),
+    )
+    if (missing.length > 0) throw new Error(`${job.file}: Glyphen fehlen: ${missing.join(' ')}`)
+    out.push({ key: job.key, file: job.file, data })
+  }
+  return out
+}
+
+/** Laufweiten je Code Point (Einheiten pro em) einer Schrift. */
+export function advanceTable(font: Buffer): { unitsPerEm: number; advances: [number, number][] } {
+  const parsed = fontkit.create(font) as fontkit.Font
+  const points = [...new Set(parsed.characterSet)].sort((a, b) => a - b)
+  return {
+    unitsPerEm: parsed.unitsPerEm,
+    advances: points.map((cp) => [cp, parsed.glyphForCodePoint(cp).advanceWidth]),
+  }
+}
+
+export function ogMetricsModule(fonts: readonly BuiltOgFont[]): string {
+  const entries = fonts.map((f) => {
+    const { unitsPerEm, advances } = advanceTable(f.data)
+    const rows = advances.map(([cp, w]) => `[${cp}, ${w}]`).join(', ')
+    return `  ${f.key}: {\n    file: '${f.file}',\n    unitsPerEm: ${unitsPerEm},\n    advances: [${rows}],\n  },`
+  })
+  return [
+    '// Erzeugt von `pnpm fonts:copy` (scripts/fonts/copy.ts) – nicht von Hand ändern.',
+    '// Abdeckung und Laufweiten (Code Point, Einheiten pro em) der OG-Schriften in src/og/fonts/ (P3.14, DESIGN §12.6).',
+    '/* prettier-ignore */',
+    'export const OG_FONT_METRICS = {',
+    ...entries,
+    '} as const',
+    '',
+  ].join('\n')
+}
+
 /** Zusammenhängende Bereiche der Code Points, die eine Schrift abdeckt. */
 export function coverageRanges(font: Buffer): [number, number][] {
   const parsed = fontkit.create(font) as fontkit.Font
@@ -120,6 +209,17 @@ async function main(): Promise<void> {
     console.error('fonts:copy: Budget verletzt (genau 3 Dateien, ≤ 100 KB, AK-DS-04).')
     process.exit(1)
   }
+
+  const ogDir = path.join(root, OG_FONT_DIR)
+  mkdirSync(ogDir, { recursive: true })
+  const ogFonts = await buildOgFonts(path.join(root, 'node_modules'))
+  for (const font of ogFonts) {
+    writeFileSync(path.join(ogDir, font.file), font.data)
+    console.log(
+      `fonts:copy: ${OG_FONT_DIR}/${font.file} ${(font.data.length / 1000).toFixed(1)} KB (OG, TTF)`,
+    )
+  }
+  writeFileSync(path.join(root, OG_METRICS_MODULE), ogMetricsModule(ogFonts))
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) await main()
