@@ -1,7 +1,8 @@
 import type { LoopKind, PresetId, SpritePose } from './types'
 
 // Preset-Tabelle der Tuschelinie (DESIGN §9.7, Rinnen §5.3, Wackel §9.3 Nr. 6, Scroll-Wege §9.6/§11.4) als Daten.
-// Rein und framework-frei; `geometry.ts` und `runtime.ts` lesen nur von hier.
+// Rein und framework-frei; `geometry.ts` und `runtime.ts` lesen nur von hier. Nur Laufzeitwerte – Routen, Linienform und
+// Notizen je Preset (reine Doku) stehen in `presetDocs.ts`, damit sie nicht in die Engine gebündelt werden (§9.10).
 
 /** Wie die Linie erscheint (§9.7 Spalte „Zeichnen“). */
 export type DrawMode =
@@ -19,9 +20,6 @@ export type DrawMode =
 export type CocoSize = 'leash' | 's' | 'm' | 'xxl' | 'tiny'
 
 export interface PresetConfig {
-  id: PresetId
-  /** Routen laut KONZEPT §2.2 (nur zur Dokumentation und für Tests). */
-  routes: readonly string[]
   /** Rinne in px: mobil / ab 768 (§5.3). */
   gutter: { mobile: number; desktop: number }
   /** Lage der Linie in der Rinne: Mitte (`journey`, `about`) oder Randlinie bei x = 7 bzw. 11 (`legal`, `margin`). */
@@ -37,18 +35,13 @@ export interface PresetConfig {
   wobble: 'normal' | 'calm'
   /** Erlaubte Schlaufen; andere Anker-Schlaufen werden zu `none`. */
   loops: readonly LoopKind[]
-  /** Kurzbeschreibung der Linienform (§9.7 Spalte „Linienform“). */
-  shape: string
   coco: { size: CocoSize; poses: readonly SpritePose[] } | null
   /** View Transitions hinein/hinaus erlaubt (§9.8: nie bei `calm`). */
   viewTransition: boolean
-  notes: string
 }
 
 export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
   journey: {
-    id: 'journey',
-    routes: ['R01'],
     gutter: { mobile: 44, desktop: 64 },
     rail: 'center',
     draw: 'scroll',
@@ -57,17 +50,13 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     width: 'leash',
     wobble: 'normal',
     loops: ['right', 'left', 'spiral', 'lasso', 'orbit', 'contour'],
-    shape: 'Rinnen-Serpentine, Schlaufen je Station (§11.4), ab 1200 zusätzlich lasso',
     coco: {
       size: 'leash',
       poses: ['rennen', 'sitzen', 'schnueffeln', 'kopfschief', 'springen', 'schlafen'],
     },
     viewTransition: true,
-    notes: 'Orbit um die Planet-Marke der Kopf-Station',
   },
   about: {
-    id: 'about',
-    routes: ['R19'],
     gutter: { mobile: 44, desktop: 64 },
     rail: 'center',
     draw: 'scroll',
@@ -76,14 +65,10 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     width: 'leash',
     wobble: 'normal',
     loops: ['right', 'left'],
-    shape: 'wie journey, 3 Stationen (Jutta, Coco, Werkstatt), Schlaufen right/left',
     coco: { size: 'leash', poses: ['sitzen', 'kopfschief', 'schnueffeln'] },
     viewTransition: true,
-    notes: 'Coco läuft ein kurzes Stück mit (KONZEPT §3.12)',
   },
   shopString: {
-    id: 'shopString',
-    routes: ['R02', 'R03', 'R05'],
     gutter: { mobile: 0, desktop: 0 },
     rail: 'none',
     draw: 'rowEnter',
@@ -92,16 +77,10 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     width: 'leash',
     wobble: 'normal',
     loops: [],
-    shape:
-      'Schnur durch die Faden-Anker je Kartenreihe, Durchhang clamp(4, 0.03 × Abstand, 14), Serpentine',
     coco: { size: 'm', poses: ['sitzen'] },
     viewTransition: true,
-    notes:
-      '„Mehr zeigen“ hängt Reihen an; Filterwechsel = Neuaufbau ohne Wiederholung gezeichneter Reihen',
   },
   product: {
-    id: 'product',
-    routes: ['R04'],
     gutter: { mobile: 0, desktop: 0 },
     rail: 'none',
     draw: 'once',
@@ -110,14 +89,10 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     width: 'leash',
     wobble: 'normal',
     loops: ['hook'],
-    shape: 'Unterstreichung der H1, senkrecht am Preisschild vorbei, hook am Knopf „In den Korb“',
     coco: { size: 's', poses: ['sitzen'] },
     viewTransition: true,
-    notes: 'Kauf-Leiste (KO-09a) ohne Linie und ohne Coco',
   },
   calm: {
-    id: 'calm',
-    routes: ['R06', 'R07', 'R09', 'R26'],
     gutter: { mobile: 0, desktop: 0 },
     rail: 'none',
     draw: 'never',
@@ -126,15 +101,10 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     width: 'calm',
     wobble: 'calm',
     loops: [],
-    shape:
-      'Korb: unter der H1 mit Endschleife neben Coco; Kasse: linke Kante der Abschnitte bzw. unter der H1',
     coco: { size: 's', poses: ['sitzen'] },
     viewTransition: false,
-    notes: 'keine View Transition hinein/hinaus',
   },
   stencil: {
-    id: 'stencil',
-    routes: ['R11', 'R12', 'R13', 'R14', 'R15', 'R16', 'R17', 'R18'],
     gutter: { mobile: 0, desktop: 0 },
     rail: 'none',
     draw: 'enter',
@@ -143,14 +113,10 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     width: 'leash',
     wobble: 'normal',
     loops: ['contour'],
-    shape: 'contour um jede Flash-Karte, dann zur nächsten; ohne Flash wie margin',
     coco: { size: 'm', poses: ['kopfschief'] },
     viewTransition: true,
-    notes: 'Linie bleibt --ink; Violett nur als --shadow-stencil an Karten',
   },
   frame: {
-    id: 'frame',
-    routes: ['R10'],
     gutter: { mobile: 0, desktop: 0 },
     rail: 'none',
     draw: 'enter',
@@ -159,14 +125,10 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     width: 'leash',
     wobble: 'normal',
     loops: ['contour'],
-    shape: 'contour um das Formular (KONZEPT §3.10)',
     coco: { size: 'm', poses: ['sitzen'] },
     viewTransition: true,
-    notes: 'Formular selbst ohne Animation',
   },
   legal: {
-    id: 'legal',
-    routes: ['R21', 'R22', 'R23', 'R24', 'R25', 'R27'],
     gutter: { mobile: 16, desktop: 24 },
     rail: 'margin',
     draw: 'never',
@@ -175,14 +137,10 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     width: 'calm',
     wobble: 'calm',
     loops: [],
-    shape: 'ruhige, fast gerade Randlinie links vom Text, keine Schlaufen',
     coco: null,
     viewTransition: true,
-    notes: 'ruhige Randlinie, keine Animation (KONZEPT §3.14)',
   },
   margin: {
-    id: 'margin',
-    routes: ['R20'],
     gutter: { mobile: 16, desktop: 24 },
     rail: 'margin',
     draw: 'scroll',
@@ -191,14 +149,10 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     width: 'leash',
     wobble: 'normal',
     loops: [],
-    shape: 'leise Randlinie, scrollgekoppelt, ohne Schlaufen',
     coco: null,
     viewTransition: true,
-    notes: 'R20 Kontakt und alle sonstigen Inhaltsseiten',
   },
   thanks: {
-    id: 'thanks',
-    routes: ['R08'],
     gutter: { mobile: 0, desktop: 0 },
     rail: 'none',
     draw: 'once',
@@ -207,14 +161,10 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     width: 'leash',
     wobble: 'normal',
     loops: ['heart'],
-    shape: 'ruhiger Bogen vom Kopf zu Coco, endet in heart (MI-09)',
     coco: { size: 'xxl', poses: ['sitzen', 'schlafen'] },
     viewTransition: true,
-    notes: 'Herz 400 ms nach der Linie',
   },
   lost: {
-    id: 'lost',
-    routes: ['R28'],
     gutter: { mobile: 0, desktop: 0 },
     rail: 'none',
     draw: 'once',
@@ -223,11 +173,8 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     width: 'leash',
     wobble: 'normal',
     loops: ['coil'],
-    shape: 'vom Kopf herab, coil am Boden, Ende = offener Karabiner',
     coco: { size: 'tiny', poses: ['rennen', 'sitzen'] },
     viewTransition: true,
-    notes:
-      'danach 2 langsame Schwingungen der losen Schlingen (MI-11); Variante „Zuhause“ mit Mini-Preisschild',
   },
 }
 

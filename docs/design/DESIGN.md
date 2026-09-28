@@ -798,7 +798,8 @@ deshalb unter `src/components/leash/` (ARCHITEKTUR §2.1).
 | `src/leash/types.ts` | Typen (unten) | – |
 | `src/leash/poses.ts` | `COCO_POSE_TO_SPRITE: Record<CocoPose, SpritePose>` (CMS-Wert → Sprite-ID, §10.3); importiert `CocoPose` nur als Typ aus `src/lib/enums.ts` (reines Modul, erlaubt) | rein, Vitest (deckt alle `COCO_POSES` ab) |
 | `src/leash/random.ts` | `fnv1a32(str)`, `mulberry32(seed)`, `valueNoise1D(seed)` | rein, Vitest |
-| `src/leash/presets.ts` | Preset-Tabelle §9.7 als Daten | rein |
+| `src/leash/presets.ts` | Preset-Tabelle §9.7 als Daten (nur Laufzeitwerte) | rein |
+| `src/leash/presetDocs.ts` | Routen, Linienform und Notizen je Preset (Spalten „Routen“/„Linienform“ §9.7) – nur für Tests, nicht in der Engine gebündelt (Budget §9.10) | rein |
 | `src/leash/geometry.ts` | `buildGeometry(input): LeashGeometry` – Wegpunkte, Schlaufen, Glättung, Wackel, Breitenprofil, Umriss, Segmente, LUT, Scroll-Abbildung | **rein, ohne DOM**, Vitest |
 | `src/leash/measure.ts` | liest Anker aus dem DOM (eine Lesephase) | Browser |
 | `src/leash/runtime.ts` | `mountLeash(root, options): LeashHandle` – Stufenwahl, SVG-Aufbau, Scroll/rAF, Coco-Kopplung, Neuaufbau | Browser, dynamisch importiert (in der Vorschau statisch gebündelt) |
