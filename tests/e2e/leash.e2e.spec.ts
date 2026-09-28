@@ -202,7 +202,8 @@ test.describe('Tuschelinie-Laufzeit', () => {
     await page.waitForLoadState('load')
     await page.waitForTimeout(2000)
     expect(runtime).toEqual([])
-    expect(await page.evaluate(() => (window as LeashWindow).__leash)).toBeUndefined()
+    // Nur der statische Renderer (Stufe C, P2.17)
+    expect(await page.evaluate(() => (window as LeashWindow).__leash?.tier())).toBe('C')
   })
 
   test('View Transitions: Regel nur unter no-preference, nicht auf calm-Seiten', async ({

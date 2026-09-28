@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P2.17
+
+- `src/leash/static.ts`: statischer Renderer Stufe C (≈ 2,2 KB gz) – Randlinie auf Rechtsseiten, H1-Unterstreichung auf calm; die Laufzeit nutzt ihn bei reduzierter Bewegung. Rechtsseiten laden die Engine nicht.\n- Reduzierte Bewegung: Linie sofort vollständig, kein Intro, Coco ruht in der Ruhe-Pose (`REST_POSE`, §10.6) an Station 1; Umschalten ohne Neuladen.\n- Debug nur mit `NEXT_PUBLIC_LEASH_DEBUG=1`: `window.__leash` inkl. `pose()`, `setReadingY(y)`; `window.__qa` (frames, loaf, longtasks, shifts, events, poseLog, marks, start/stop/dump). `pnpm check:no-debug` neu; Modul-Budgets in `check:bundle`.\n- Tests: unit runtime (+5), static (4), check-no-debug/Budgets (3); e2e `reduced-motion.e2e.spec.ts` (AK-DS-14, AK-DS-03 R01/R21, Schalter, Rechtsseite ohne Engine) gegen `pnpm start` grün; `check:no-debug` grün (Gegenprobe mit Debug-Build schlägt an).
+
 ## 2026-09-28 – P2.16
 
 - `src/leash/measure.ts` (eine Lesephase), `runtime.ts` → `mountLeash` mit Stufen A (Maske)/B (Feder)/C, Abstufung A → B nur im Speicher, Segment-Zuständen, Lesezeile 0,72, monotoner Tinte, Coco-Glättung, Neuaufbau (ResizeObserver, fonts.ready, load; 150 ms entprellt, < 120 px Höhe ignoriert), IntersectionObserver-Pause, journey-Intro und Leinen-Anschluss.\n- React-Hüllen `src/components/leash/{LeashLayer,Station,ViewTransitionOptIn}.tsx`; Laufzeit lädt nach LCP + 300 ms bzw. load + 1200 ms per Idle (`schedule.ts`), nie auf legal/calm; `window.__leash`-Grundumfang (`debug.ts`) nur bei NEXT_PUBLIC_LEASH_DEBUG=1.\n- Spike View Transitions → ADR 0003 (harte Navigation per @view-transition unter no-preference, ohne calm).\n- Tests: unit runtime (12, AK-DS-18) + motion (3); e2e tests/e2e/leash.e2e.spec.ts (AK-DS-13, AK-DS-15, Chunk-Analyse, legal ohne Laufzeit, View Transitions) gegen dev und start grün; Engine-Chunk 8,6 KB gz.

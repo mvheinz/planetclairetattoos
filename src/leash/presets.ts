@@ -271,6 +271,24 @@ export function railOffset(preset: PresetId, gutter: number): number {
 export const isScrollCoupled = (preset: PresetId): boolean =>
   PRESET_CONFIG[preset].draw === 'scroll'
 
+/**
+ * Ruhe-Pose je Preset (DESIGN §10.6, Frame A): bei reduzierter Bewegung und ohne JS. `journey`/`about`: `sitzen` an der
+ * ersten Station; `lost` (404): nicht sichtbar; Presets ohne Coco: `null`.
+ */
+export const REST_POSE: Readonly<Record<PresetId, SpritePose | null>> = {
+  journey: 'sitzen',
+  about: 'sitzen',
+  shopString: 'sitzen',
+  product: 'sitzen',
+  calm: 'sitzen',
+  stencil: 'kopfschief',
+  frame: 'sitzen',
+  legal: null,
+  margin: null,
+  thanks: 'sitzen',
+  lost: null,
+}
+
 /** Ruhe-Presets ohne Laufzeit (Stufe C, §9.4). */
 export const isStaticPreset = (preset: PresetId): boolean => PRESET_CONFIG[preset].draw === 'never'
 

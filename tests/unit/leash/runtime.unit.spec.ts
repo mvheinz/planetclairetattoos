@@ -251,12 +251,24 @@ describe('leash/runtime – mountLeash', () => {
   it('onCoco meldet Position der Leinenspitze aus der LUT', () => {
     const root = setupDom()
     const coco = vi.fn()
-    const handle = mountLeash(root, { preset: 'margin', routeKey: 'R20', onCoco: coco })
+    const handle = mountLeash(root, { preset: 'journey', routeKey: 'R01', onCoco: coco })
+    advance(1000)
     setScroll(800)
     advance(500)
     const last = coco.mock.calls.at(-1)![0]
     expect(last.len).toBeCloseTo(handle.inspect().cocoLen, 5)
     expect(Number.isFinite(last.x) && Number.isFinite(last.y)).toBe(true)
+    handle.destroy()
+  })
+
+  it('Presets ohne Coco (margin) melden keine Coco-Position und keine Pose', () => {
+    const root = setupDom()
+    const coco = vi.fn()
+    const handle = mountLeash(root, { preset: 'margin', routeKey: 'R20', onCoco: coco })
+    setScroll(800)
+    advance(500)
+    expect(coco).not.toHaveBeenCalled()
+    expect(handle.inspect().pose).toBeNull()
     handle.destroy()
   })
 
@@ -270,6 +282,119 @@ describe('leash/runtime – mountLeash', () => {
     off()
     expect((window as Window & { __leash?: unknown }).__leash).toBeUndefined()
     handle.destroy()
+  })
+})
+
+describe('leash/runtime – reduzierte Bewegung (P2.17, §9.11, §10.6)', () => {
+  it('AK-DS-14 prefers-reduced-motion: Stufe C, sofort vollständig, keine Maske, Coco ruht sitzend an Station 1', () => {
+    stubMatchMedia(true)
+    const root = setupDom()
+    const coco = vi.fn()
+    const handle = mountLeash(root, { preset: 'journey', routeKey: 'R01', onCoco: coco })
+    const s = handle.inspect()
+    expect(s.tier).toBe('C')
+    expect(s.drawnLen).toBe(s.geometry!.totalLength)
+    expect(root.querySelectorAll('[mask], mask').length).toBe(0)
+    expect(s.pose).toBe('sitzen')
+    expect(s.cocoLen).toBe(s.geometry!.stations[0]!.loopLen0)
+    // Scrollen bewegt Coco nicht und startet keine Schleife.
+    setScroll(1500)
+    advance(500)
+    expect(handle.inspect().cocoLen).toBe(s.cocoLen)
+    expect(handle.inspect().pose).toBe('sitzen')
+    expect(coco.mock.calls.at(-1)![0]).toMatchObject({
+      pose: 'sitzen',
+      moving: false,
+      motion: 'reduced',
+    })
+    handle.destroy()
+  })
+
+  it('setMotion: reduziert → Linie sofort vollständig ohne Intro; zurück → Tinte bleibt (monoton)', () => {
+    const root = setupDom()
+    const handle = mountLeash(root, { preset: 'journey', routeKey: 'R01' })
+    expect(handle.inspect().drawnLen).toBe(0) // Intro läuft noch
+    handle.setMotion('reduced')
+    let s = handle.inspect()
+    expect(s.tier).toBe('C')
+    expect(s.drawnLen).toBe(s.geometry!.totalLength)
+    expect(root.querySelectorAll('mask').length).toBe(0)
+    expect(s.pose).toBe('sitzen')
+    handle.setMotion('full')
+    s = handle.inspect()
+    expect(s.tier).toBe('A')
+    expect(s.drawnLen).toBe(s.geometry!.totalLength)
+    handle.destroy()
+  })
+
+  it('Ruhe-Pose je Preset laut §10.6', async () => {
+    const { REST_POSE } = await import('@/leash/presets')
+    expect(REST_POSE).toMatchObject({
+      journey: 'sitzen',
+      about: 'sitzen',
+      stencil: 'kopfschief',
+      calm: 'sitzen',
+      legal: null,
+      margin: null,
+      lost: null,
+    })
+  })
+})
+
+describe('leash/debug – window.__leash und window.__qa (P2.17, §9.13, KUNST-QA §3.1)', () => {
+  type W = Window & {
+    __leash?: {
+      pose(): string | null
+      drawnLen(): number
+      cocoLen(): number
+      setReadingY(y: number | null): void
+      geometry: { scrollMap: { readingY: number; len: number }[] }
+    }
+    __qa?: {
+      poseLog: { from: string | null; to: string; bridge: string | null }[]
+      frames: number[]
+      start(): void
+      stop(): void
+      dump(): { frames: number[]; poseLog: unknown[]; marks: unknown[] }
+      recording: boolean
+    }
+  }
+
+  it('pose(), setReadingY(y) und poseLog', () => {
+    const root = setupDom()
+    const handle = mountLeash(root, { preset: 'journey', routeKey: 'R01' })
+    const off = exposeLeashDebug(handle)
+    const w = window as W
+    const api = w.__leash!
+    w.__qa!.start()
+    advance(1000)
+    expect(api.pose()).not.toBeNull()
+    // Lesezeile ein kurzes Stück weiter (< 300 px Bogenlänge): Coco rennt geglättet hinterher.
+    const near = api.geometry.scrollMap.find((r) => r.len >= api.cocoLen() + 150)!
+    api.setReadingY(near.readingY)
+    advance(16)
+    expect(api.pose()).toBe('rennen')
+    advance(2000)
+    expect(api.pose()).not.toBe('rennen')
+    // Lesezeile fest auf die zweite Station: gezeichnete Länge folgt ohne Scroll.
+    const station = handle.inspect().geometry!.stations[1]!
+    const row = api.geometry.scrollMap.find((r) => r.len >= station.loopLen1)!
+    api.setReadingY(row.readingY)
+    advance(2000)
+    expect(api.drawnLen()).toBeGreaterThanOrEqual(station.loopLen1 - 1)
+    expect(api.cocoLen()).toBeGreaterThan(station.loopLen0)
+    const log = w.__qa!.poseLog
+    expect(log.some((e) => e.to === 'rennen')).toBe(true)
+    expect(log.every((e) => e.bridge === null || typeof e.bridge === 'string')).toBe(true)
+    const dump = w.__qa!.dump()
+    expect(Array.isArray(dump.frames)).toBe(true)
+    expect(JSON.parse(JSON.stringify(dump)).poseLog.length).toBe(log.length)
+    w.__qa!.stop()
+    expect(w.__qa!.recording).toBe(false)
+    off()
+    expect(w.__leash).toBeUndefined()
+    handle.destroy()
+    delete w.__qa
   })
 })
 

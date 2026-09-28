@@ -1670,7 +1670,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     `tests/unit/leash/motion.unit.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P2.17 Reduzierte Bewegung, statischer Renderer, Debug-Schnittstelle** –
+- [x] **P2.17 Reduzierte Bewegung, statischer Renderer, Debug-Schnittstelle** –
   - `src/leash/static.ts`: Stufe C, ≤ 4 KB gz. Wird geladen auf `legal`/`calm`-Seiten und bei reduzierter Bewegung,
     auf R21–R25, R27 eingeschaltet.
   - `setMotion` reagiert auf `matchMedia`-Änderungen und den Schalter: Linie sofort vollständig, kein Intro, Coco

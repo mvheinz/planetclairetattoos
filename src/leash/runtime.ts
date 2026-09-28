@@ -6,11 +6,13 @@ import {
   DOWNGRADE,
   PRESET_CONFIG,
   READING_LINE,
+  REST_POSE,
   TIER_B_USER_AGENTS,
   isStaticPreset,
 } from './presets'
 import { fnv1a32 } from './random'
-import type { LeashGeometry, LeashHandle, PresetId } from './types'
+import { PAD, segmentSvg, staticSegmentSvg } from './static'
+import type { LeashGeometry, LeashHandle, PresetId, SpritePose } from './types'
 
 // Laufzeit der Tuschelinie (DESIGN §9.2, §9.4, §9.6, §9.10): misst (eine Lesephase), baut die SVG-Segmente (eine
 // Schreibphase), koppelt die gezeichnete Länge an die Lesezeile und hält Coco geglättet an der Spitze.
@@ -26,6 +28,11 @@ export interface CocoState {
   angle: number
   /** Laufrichtung auf der Linie: 1 vorwärts, −1 zurück (Hochscrollen). */
   direction: 1 | -1
+  /** Ziel-Pose (Sprite-ID); die Coco-Steuerung wechselt an der nächsten Frame-Grenze (§10.3). */
+  pose: SpritePose
+  /** Coco bewegt sich (Scroll-Aktivität, Glättung, Intro) – Boil-Budget §10.3 (a). */
+  moving: boolean
+  motion: Motion
 }
 
 export interface MountOptions {
@@ -45,15 +52,25 @@ export interface LeashDebugState {
   cocoLen: number
   tier: Tier
   rebuildCount: number
+  /** Aktuelle Coco-Pose (Sprite-ID) bzw. `null` ohne Coco. */
+  pose: SpritePose | null
+}
+
+/** Messpunkte für den Frame-Logger der Debug-Schnittstelle (KUNST-QA §3.1); ohne Debug-Build nie gesetzt. */
+export interface LeashProbe {
+  build?(start: number, end: number): void
+  frame?(start: number, end: number): void
+  pose?(entry: { t: number; from: SpritePose | null; to: SpritePose; bridge: string | null }): void
 }
 
 export interface InspectableLeashHandle extends LeashHandle {
   inspect(): LeashDebugState
+  /** Debug: Lesezeile fest setzen (px relativ zur Linien-Ebene, wie `scrollMap.readingY`); `null` = wieder Scroll. */
+  setReadingY(y: number | null): void
+  setProbe(probe: LeashProbe | null): void
 }
 
 const SVG_NS = 'http://www.w3.org/2000/svg'
-/** Rand der Masken-/SVG-Box um die Segment-Bbox (§9.4). */
-const PAD = 8
 /** Debounce des Neuaufbaus (§9.10). */
 const REBUILD_DEBOUNCE_MS = 150
 /** Viewport-Höhenänderungen darunter lösen keinen Neuaufbau aus (mobile Adressleiste, §9.6). */
@@ -108,6 +125,10 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   let idleId: number | null = null
   let idleTimer: ReturnType<typeof setTimeout> | null = null
   const monitor = { active: 0, frames: 0, slow: 0, done: false }
+  const restPose = cfg.coco ? REST_POSE[options.preset] : null
+  let pose: SpritePose | null = null
+  let readingOverride: number | null = null
+  let probe: LeashProbe | null = null
 
   // ---------- Stufenwahl (§9.4) ----------
 
@@ -130,21 +151,18 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     const forced = !!win.matchMedia?.('(forced-colors: active)').matches
     const frag = doc.createDocumentFragment()
     views = geometry.segments.map((seg, k) => {
+      const base = { L: 0, len0: seg.len0, len1: seg.len1, state: null }
+      if (tier === 'C') {
+        // Stufe C über den statischen Renderer (§9.4, §9.11): Umriss ohne Maske, vollständig.
+        const { svg, ink } = staticSegmentSvg(doc, seg, forced)
+        frag.appendChild(svg)
+        return { svg, ink, reveal: null, maskRef: null, ...base }
+      }
       const x = seg.bbox.x - PAD
       const y = seg.bbox.y - PAD
       const w = seg.bbox.w + 2 * PAD
       const h = seg.bbox.h + 2 * PAD
-      const svg = doc.createElementNS(SVG_NS, 'svg')
-      svg.setAttribute('viewBox', `${x} ${y} ${w} ${h}`)
-      svg.setAttribute('width', String(w))
-      svg.setAttribute('height', String(h))
-      svg.setAttribute('focusable', 'false')
-      svg.setAttribute('aria-hidden', 'true')
-      svg.setAttribute('data-leash-seg', seg.id)
-      svg.style.position = 'absolute'
-      svg.style.left = `${x}px`
-      svg.style.top = `${y}px`
-      svg.style.overflow = 'visible'
+      const svg = segmentSvg(doc, seg)
       const ink = doc.createElementNS(SVG_NS, 'path')
       let reveal: SVGPathElement | null = null
       let maskRef: string | null = null
@@ -159,7 +177,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       } else {
         ink.setAttribute('d', seg.outlineD)
         ink.style.fill = forced ? 'CanvasText' : 'var(--ink)'
-        if (tier === 'A') {
+        {
           const id = `pc-leash-m-${uid}-${k}`
           const defs = doc.createElementNS(SVG_NS, 'defs')
           const mask = doc.createElementNS(SVG_NS, 'mask')
@@ -186,7 +204,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       ink.setAttribute('class', 'ink')
       svg.appendChild(ink)
       frag.appendChild(svg)
-      return { svg, ink, reveal, maskRef, L: 0, len0: seg.len0, len1: seg.len1, state: null }
+      return { svg, ink, reveal, maskRef, ...base }
     })
     root.replaceChildren(frag)
     // Länge der Enthüllungslinie einmal beim Aufbau (§9.4); ohne SVG-Geometrie (jsdom) die Bogenlänge.
@@ -224,6 +242,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   // ---------- Scroll-Kopplung (§9.6) ----------
 
   function readingY(): number {
+    if (readingOverride !== null) return readingOverride
     if (!m) return 0
     return win.scrollY + READING_LINE * m.innerHeight - m.rootTop
   }
@@ -231,14 +250,43 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   function scrollTarget(): number {
     if (!geometry || !m) return 0
     if (cfg.draw !== 'scroll') return geometry.totalLength
-    if (m.maxScroll > 0 && win.scrollY >= m.maxScroll - 2) return geometry.totalLength
+    if (readingOverride === null && m.maxScroll > 0 && win.scrollY >= m.maxScroll - 2)
+      return geometry.totalLength
     return mapReadingY(geometry.scrollMap, readingY())
   }
 
-  function emitCoco(direction: 1 | -1) {
-    if (!options.onCoco || !geometry) return
+  /** Ruheplatz bei reduzierter Bewegung: erste Station (`journey`/`about`, §9.11), sonst Linienanfang. */
+  function restLen(): number {
+    return geometry?.stations[0]?.loopLen0 ?? 0
+  }
+
+  /** Ziel-Pose (§10.3, §10.6): reduziert → Ruhe-Pose; in Bewegung `rennen`; an einer Station deren Pose. */
+  function targetPose(moving: boolean): SpritePose | null {
+    if (!restPose) return null
+    if (motion === 'reduced' || !geometry) return restPose
+    if (moving) return 'rennen'
+    const st = geometry.stations.find((s) => cocoLen >= s.loopLen0 - 2 && cocoLen <= s.loopLen1 + 2)
+    return st?.pose ?? restPose
+  }
+
+  function emitCoco(direction: 1 | -1, moving: boolean) {
+    const next = targetPose(moving)
+    if (next !== pose && next) {
+      probe?.pose?.({ t: performance.now(), from: pose, to: next, bridge: null })
+      pose = next
+    }
+    if (!options.onCoco || !geometry || !pose) return
     const p = pointAt(geometry.lut, cocoLen)
-    options.onCoco({ len: cocoLen, x: p.x, y: p.y, angle: p.angle, direction })
+    options.onCoco({
+      len: cocoLen,
+      x: p.x,
+      y: p.y,
+      angle: p.angle,
+      direction,
+      pose,
+      moving,
+      motion,
+    })
   }
 
   function requestFrame() {
@@ -256,6 +304,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       return
     }
     if (continuous) watchFrameTimes(now, dt)
+    const t0 = performance.now()
     let again = false
     const target = scrollTarget()
     if (intro) {
@@ -269,14 +318,17 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     applyDrawn()
 
     // Coco folgt der Lesezeile auf der gezeichneten Linie, geglättet: 1 − (1 − 0.35)^(dt/16.7).
-    const cocoTarget = Math.min(target, drawnLen)
+    // Bei reduzierter Bewegung bleibt sie an ihrem Ruheplatz (§9.11).
+    const cocoTarget = motion === 'reduced' ? restLen() : Math.min(target, drawnLen)
     const diff = cocoTarget - cocoLen
+    let moving = !!intro
     if (Math.abs(diff) > COCO_JUMP || Math.abs(diff) < 0.1) cocoLen = cocoTarget
     else {
       cocoLen += diff * (1 - Math.pow(0.65, dt / 16.7))
-      again = true
+      again = moving = true
     }
-    emitCoco(diff < 0 ? -1 : 1)
+    emitCoco(diff < 0 ? -1 : 1, moving)
+    probe?.frame?.(t0, performance.now())
     if (again) requestFrame()
     else lastFrame = 0
   }
@@ -302,6 +354,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   // ---------- Aufbau und Neuaufbau ----------
 
   function build(first: boolean) {
+    const t0 = performance.now()
     const prevStations = geometry?.stations ?? []
     const prevTotal = geometry?.totalLength ?? 0
     const prevDrawn = drawnLen
@@ -331,9 +384,10 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       }
       drawnLen = Math.min(total, Math.max(target, keep))
     }
-    cocoLen = intro ? 0 : Math.min(target, drawnLen)
+    cocoLen = motion === 'reduced' ? restLen() : intro ? 0 : Math.min(target, drawnLen)
     applyDrawn()
-    emitCoco(1)
+    emitCoco(1, !!intro)
+    probe?.build?.(t0, performance.now())
     if (intro) requestFrame()
   }
 
@@ -450,6 +504,14 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       cocoLen,
       tier,
       rebuildCount,
+      pose,
     }),
+    setReadingY(y: number | null) {
+      readingOverride = y
+      requestFrame()
+    },
+    setProbe(next: LeashProbe | null) {
+      probe = next
+    },
   }
 }
