@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P2.21
+
+- `tests/e2e/privacy.e2e.spec.ts` @privacy: alle live-Routen (R01, R20–R27 je DE/EN, 404/500 je Sprache, Weiterleitung `/`) in frischem Kontext, 3 Projekte: keine Cookies, kein `Set-Cookie`, Local/Session Storage, IndexedDB und Service Worker leer; Requests nur eigener Origin/`data:`/`blob:`, nie Google Fonts; Registry-Abdeckung geprüft.\n- `pnpm check:external --built` prüft jetzt auch Fremd-URLs in öffentlich ausgelieferten Dateien (HTML/RSC + transitiv geladene Chunks), Allowlist Instagram + nie geladene Kennungen.\n- Tests: 72 E2E grün (desktop, iphone-15/WebKit, pixel-7), Unit check-external 2 grün, check:external ok.
+
 ## 2026-09-28 – P2.20
 
 - Startseite R01 aus `pages:home` (`src/lib/data/home.ts`, öffentlicher Payload, Name aus `settings.business.tradeName`): Kopf-Station „Planet Claire“ mit Planet-Marke (Anker `orbit`, Intro MI-10) und 7 Stationen (`HomeStation`, KO-21): Stationsmarke Planet/Stern mit MI-12-„pop“, Kicker „Station 01“ (Plex Mono), H2 Mansalva, Text, Stationszeichnung (`src/art/stations` bzw. Ersatzzeichnung), Link „Alle …“ (Kategorie-Slugs je Sprache). Schlaufen je Station laut §11.4 (right/lasso/left/spiral/right/contour/left), Coco-Posen aus `cocoPose`; ab 768 Zeichnung links an der Rinne, damit die Linie keinen Text kreuzt. Keine Produktkarten (W-33). Fehlt `home`: Leerzustand (DM-PAGE-01).\n- Engine: `data-leash-reached` an erreichten Stations-Ankern (für MI-12).\n- Tests: int `pages/home-data.int.spec.ts` (4), e2e `home.e2e.spec.ts` (Reihenfolge DE/EN, ohne JS, Linie zeichnet beim Scrollen, mobil LCP < 2,5 s / CLS < 0,1) grün; volle E2E-Suite grün bis auf den vorbestehenden WebKit-Menütest; `pnpm check`, `test:int`, `build`, `check:bundle` grün.

@@ -1766,7 +1766,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     `tests/int/pages/home-data.int.spec.ts`.
   - Ohne Jutta: Seed-Texte in Juttas Ton (E-62). Stationszeichnungen folgen in P8/P9.
 
-- [ ] **P2.21 Datenschutz-E2E: keine Cookies, kein Speicher, keine Fremd-Requests** – Suite `@privacy` in
+- [x] **P2.21 Datenschutz-E2E: keine Cookies, kein Speicher, keine Fremd-Requests** – Suite `@privacy` in
   `tests/e2e/privacy.e2e.spec.ts`. Für alle Registry-Routen mit Status `live` in DE und EN, in allen drei Projekten,
   mit frischem Kontext je Route.
   - Akzeptanz:
