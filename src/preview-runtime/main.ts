@@ -1,5 +1,8 @@
 import { BEHAVIOR_NAMES, mountBehaviors, type BehaviorLoader } from '../behaviors'
+import * as buyBar from '../behaviors/buy-bar'
 import * as cartCount from '../behaviors/cart-count'
+import * as gallery from '../behaviors/gallery'
+import * as lightbox from '../behaviors/lightbox'
 import * as lost from '../behaviors/lost'
 import * as menu from '../behaviors/menu'
 import * as motionToggle from '../behaviors/motion-toggle'
@@ -21,7 +24,10 @@ import type { PvData } from './types'
 
 /** Statisches Register – muss alle Namen aus `src/behaviors/index.ts` enthalten (Unit-Test). */
 export const STATIC_BEHAVIORS: Record<(typeof BEHAVIOR_NAMES)[number], BehaviorModule> = {
+  'buy-bar': buyBar,
   'cart-count': cartCount,
+  gallery,
+  lightbox,
   lost,
   menu,
   'motion-toggle': motionToggle,

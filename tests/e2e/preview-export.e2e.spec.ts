@@ -217,6 +217,27 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
     await expect(trigger).toBeFocused()
   })
 
+  test('P3.10 Produktgalerie: Pfeiltaste, Lightbox mit eingebettetem Foto, Esc – ohne Anfragen', async ({
+    page,
+    watch,
+  }) => {
+    await open(page, '#/de/shop/901-schale-langohr-wuschel')
+    const track = page.locator('#pv-root [data-gallery-track]')
+    await expect(page.locator('#pv-root [data-gallery]')).toHaveAttribute('data-gallery-index', '0')
+    await track.focus()
+    await page.keyboard.press('ArrowRight')
+    await expect(page.locator('#pv-root [data-gallery-counter]')).toHaveText('2 / 2')
+    await page.locator('#pv-root [data-gallery-slide="0"] a').click()
+    const img = page.locator('#pv-root [data-lightbox-img]')
+    await expect(img).toBeVisible()
+    await expect(img).toHaveAttribute('src', /^blob:/)
+    expect(await img.evaluate((i: HTMLImageElement) => i.naturalWidth > 0)).toBe(true)
+    await page.keyboard.press('Escape')
+    await expect(page.locator('#pv-root dialog[data-lightbox]')).toBeHidden()
+    expect(watch.requests).toEqual([])
+    expect(watch.errors).toEqual([])
+  })
+
   test('Nr. 7: „In den Korb“, Bestellknopf und Formular (nur wenn gebaut)', async ({ page }) => {
     await open(page)
     const all = await routes(page)

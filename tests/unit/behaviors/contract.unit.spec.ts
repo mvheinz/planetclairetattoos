@@ -15,11 +15,47 @@ const BEHAVIOR_DIR = path.resolve('src/behaviors')
 const FRAMEWORK_FREE_DIRS = ['src/behaviors', 'src/leash', 'src/preview-runtime']
 const INFRA_FILES = new Set(['index.ts', 'types.ts'])
 
+const GALLERY_HTML =
+  '<section data-behavior="gallery lightbox"><ul data-gallery-track tabindex="0">' +
+  '<li data-gallery-slide="0"><a href="/a.webp" data-zoom-src="/a.webp" data-zoom-w="640"><img alt="A"></a></li>' +
+  '<li data-gallery-slide="1"><a href="/b.webp" data-zoom-src="/b.webp"><img alt="B"></a></li></ul>' +
+  '<button type="button" data-gallery-prev hidden>‹</button><button type="button" data-gallery-next hidden>›</button>' +
+  '<span data-gallery-dot="0"></span><span data-gallery-dot="1"></span><span data-gallery-counter>1 / 2</span>' +
+  '<ul data-gallery-thumbs hidden><li><button type="button" data-gallery-thumb="0">1</button></li>' +
+  '<li><button type="button" data-gallery-thumb="1">2</button></li></ul>' +
+  '<dialog data-lightbox><div data-lightbox-stage></div>' +
+  '<p data-lightbox-counter></p><button type="button" data-lightbox-close>Schließen</button></dialog></section>'
+
 /**
  * Je Modul: Markup und eine Übung, die das Verhalten auslöst (Listener, Timer, Animationen entstehen). Neue Module
  * brauchen hier einen Eintrag – der Vertragstest schlägt sonst fehl.
  */
 const FIXTURES: Record<BehaviorName, { html: string; exercise: (root: Element) => void }> = {
+  gallery: {
+    html: GALLERY_HTML,
+    exercise: (root) => {
+      root.querySelector<HTMLElement>('[data-gallery-next]')!.click()
+      root.querySelector<HTMLElement>('[data-gallery-thumb="0"]')!.click()
+      const track = root.querySelector('[data-gallery-track]')!
+      track.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
+      track.dispatchEvent(new Event('scroll'))
+    },
+  },
+  lightbox: {
+    html: GALLERY_HTML,
+    exercise: (root) => {
+      root.querySelector<HTMLElement>('a[data-zoom-src]')!.click()
+      const dialog = root.querySelector('[data-lightbox]')!
+      dialog.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
+      vi.runOnlyPendingTimers()
+    },
+  },
+  'buy-bar': {
+    html:
+      '<span id="add-to-cart"><button type="button">In den Korb</button></span>' +
+      '<div data-behavior="buy-bar" data-buy-bar hidden><button type="button">In den Korb</button></div>',
+    exercise: () => {},
+  },
   'cart-count': {
     html: '<a href="/de/korb" data-behavior="cart-count">Korb <span data-cart-count hidden></span></a>',
     exercise: () => {
@@ -298,5 +334,42 @@ describe('mountBehaviors (BehaviorHost, Vorschau-Router)', () => {
     loader.mockClear()
     await mountBehaviors(document, { mode: 'app' }, loader).ready
     expect(loader).not.toHaveBeenCalled()
+  })
+})
+
+describe('AFTER_LOAD: Produktseiten-Module erst nach dem load-Ereignis (Erstlade-Budget)', () => {
+  it('Modus app bei laufendem Laden: gallery wartet auf load, cart-count nicht; unmount vorher bindet nichts', async () => {
+    document.body.innerHTML =
+      '<a data-behavior="cart-count"></a><section data-behavior="gallery"></section>'
+    const state = vi.spyOn(document, 'readyState', 'get').mockReturnValue('interactive')
+    const loader = vi.fn(
+      async (name: BehaviorName) => (await BEHAVIOR_LOADERS[name]()) as BehaviorModule,
+    )
+    const mounted = mountBehaviors(document, { mode: 'app' }, loader)
+    await Promise.resolve()
+    expect(loader.mock.calls.map((c) => c[0])).toEqual(['cart-count'])
+    window.dispatchEvent(new Event('load'))
+    await mounted.ready
+    expect(loader.mock.calls.map((c) => c[0])).toEqual(['cart-count', 'gallery'])
+    mounted.unmount()
+
+    loader.mockClear()
+    const early = mountBehaviors(document, { mode: 'app' }, loader)
+    early.unmount()
+    await early.ready
+    expect(loader.mock.calls.map((c) => c[0])).toEqual(['cart-count'])
+    expect(tracker.openListeners()).toEqual([])
+    state.mockRestore()
+  })
+
+  it('Modus preview: sofort', async () => {
+    document.body.innerHTML = '<section data-behavior="gallery"></section>'
+    const state = vi.spyOn(document, 'readyState', 'get').mockReturnValue('loading')
+    const loader = vi.fn(
+      async (name: BehaviorName) => (await BEHAVIOR_LOADERS[name]()) as BehaviorModule,
+    )
+    await mountBehaviors(document, { mode: 'preview' }, loader).ready
+    expect(loader).toHaveBeenCalledWith('gallery')
+    state.mockRestore()
   })
 })

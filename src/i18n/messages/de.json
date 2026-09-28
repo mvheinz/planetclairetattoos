@@ -259,7 +259,19 @@
         "withdrawal": "Infos zu deinem Widerrufsrecht findest du in der <link>Widerrufsbelehrung</link>.",
         "costsLink": "Versand & Zahlung"
       },
-      "more": "Mehr aus {category}"
+      "more": "Mehr aus {category}",
+      "buyBar": "Kaufen"
+    },
+    "gallery": {
+      "label": "Fotos: {title}",
+      "roledescription": "Bildergalerie",
+      "position": "Foto {n} von {total}",
+      "prev": "Vorheriges Foto",
+      "next": "Nächstes Foto",
+      "thumbs": "Alle Fotos",
+      "zoom": "Vergrößern",
+      "close": "Schließen",
+      "dialog": "Foto vergrößert: {title}"
     }
   },
   "archive": {

@@ -43,6 +43,15 @@
       "name": "Mikro-Interaktionen Shop-Listen (price-tag-swing, sold-stamp)",
       "entries": ["src/behaviors/price-tag-swing.ts", "src/behaviors/sold-stamp.ts"],
       "gzipMax": 4000
+    },
+    {
+      "name": "Mikro-Interaktionen Produktseite (gallery, lightbox, buy-bar)",
+      "entries": [
+        "src/behaviors/gallery.ts",
+        "src/behaviors/lightbox.ts",
+        "src/behaviors/buy-bar.ts"
+      ],
+      "gzipMax": 4000
     }
   ],
   "fonts": {

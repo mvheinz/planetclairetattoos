@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P3.10
+
+- ProductGallery (Scroll-Snap 4:5, Fokuspunkt, srcset card/detail, Punkte + Zähler, ab 768 px Pfeile + Miniaturen mit aria-current, erstes Foto fetchpriority=high), Lightbox als <dialog> (größte Größe, Klick/Doppeltipp 1×↔2×, Ziehen, Wischen, Pfeiltasten, Esc/Schließen/Browser-Zurück via pushState, Fokus zurück), mobile Kauf-Leiste (IntersectionObserver, inert wenn verborgen)\n- Module gallery/lightbox/buy-bar (2,4 KB gz, eigene Budget-Gruppe ≤ 4 KB), nach load geladen; Vorschau-Datei ohne Anfragen (Lightbox nutzt eingebettetes Foto)\n- Tests: Unit gallery/lightbox/buy-bar + Vertrag (AK-DS-18), E2E shop/gallery (desktop, iphone-15, reduced motion, ohne JS), @perf Zoom öffnen 72–112 ms (Gate 200), Vorschau-Export-Test ergänzt – grün
+
 ## 2026-09-28 – P3.9
 
 - Produktseite Blöcke 7–11: Beschreibung + „Jutta sagt“, Details-Tabelle (KO-09b, Gewicht via formatWeight), „Herstellerin & Sicherheit“ (R-040, Warnhinweise DE immer, auf /en zusätzlich EN, Pflicht-Bausteine ergänzt), Versand & Rückgabe (Versandklasse mit DE-Preis, Abholung, Widerrufshinweis ohne V-19, Baustein returnCostsNote, Links R24/R25), WarrantyNotice (R-049), „Mehr aus {Kategorie}“ (ohne sold/aktuelles Stück)\n- Neu: src/lib/shop/productInfo.ts, src/components/shop/product/ProductInfo.tsx, getProductInfoSettings\n- Test-Stabilität: Fixture-Block je Projekt per Advisory-Lock serialisiert; Leerzustand-Test exklusiv\n- Tests: Unit product-info (8), E2E legal/gpsr (je Kategorie DE/EN), product-page (+7), forbidden (+R04 je Kategorie, V-31) – grün

@@ -8,7 +8,7 @@ import budgets from '../perf/budgets.json'
 // - Arbeit je Frame der Tuschelinie beim Scrollen ≤ 6 ms (p95 der User-Timing-Messungen `leash:frame`, wie KUNST-QA
 //   PF-03). Die Engine setzt sie immer (`LEASH_MEASURES` in `src/leash/runtime.ts`); gelesen per `PerformanceObserver`,
 //   also ohne Debug-Schnittstelle `window.__leash`/`__qa` – der Job `quality` misst den Produktions-Build (DESIGN §9.13).
-// Die Messwerte stehen als Annotation im Bericht. R02/R04 (In den Korb, Zoom, Filter) kommen mit P3/P4 dazu.
+// Die Messwerte stehen als Annotation im Bericht. R04 „Zoom öffnen“ seit P3.10; R02/R04 (In den Korb, Filter) kommen mit P3/P4 dazu.
 
 const { interaction } = budgets
 
@@ -117,6 +117,33 @@ test.describe('Tempo @perf', () => {
     report(
       testInfo,
       'INP-Ersatz Menü öffnen',
+      `${Math.round(inp)} ms (Gate ≤ ${interaction.inpMs.max} ms, Ziel ≤ ${interaction.inpMs.target} ms${inp > interaction.inpMs.target ? ' – Ziel verfehlt' : ''})`,
+    )
+    expect(inp).toBeLessThanOrEqual(interaction.inpMs.max)
+  })
+
+  test('T-10 INP-Ersatz: Zoom öffnen auf R04 ≤ 200 ms bei 4× CPU-Drosselung @perf (P3.10)', async ({
+    page,
+  }, testInfo) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' })
+    await observe(page)
+    // S01 (Nr. 901) hat zwei Fotos.
+    await page.goto('/de/shop/901-schale-langohr-wuschel')
+    // Das Modul `gallery` ist gebunden, sobald die Knöpfe nicht mehr `hidden` sind; `lightbox` im selben Durchgang.
+    await expect(page.locator('[data-gallery]')).toHaveAttribute('data-gallery-index', '0')
+    await throttle(page)
+    await page.locator('a[data-zoom-src]').first().click()
+    await expect(page.locator('dialog[data-lightbox]')).toBeVisible()
+    await page.evaluate(
+      () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))),
+    )
+    const events = await page.evaluate(() =>
+      (window as unknown as PerfWindow).__perf.events.filter((e) => e.interactionId > 0),
+    )
+    const inp = events.length ? Math.max(...events.map((e) => e.duration)) : 16
+    report(
+      testInfo,
+      'INP-Ersatz Zoom öffnen',
       `${Math.round(inp)} ms (Gate ≤ ${interaction.inpMs.max} ms, Ziel ≤ ${interaction.inpMs.target} ms${inp > interaction.inpMs.target ? ' – Ziel verfehlt' : ''})`,
     )
     expect(inp).toBeLessThanOrEqual(interaction.inpMs.max)

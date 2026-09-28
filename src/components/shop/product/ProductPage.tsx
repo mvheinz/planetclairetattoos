@@ -5,6 +5,7 @@ import { Station } from '@/components/leash/Station'
 import { Badge } from '@/components/shop/Badge'
 // Alias: der Streichpreis-Scan (V-20) prüft den Quelltext auf das HTML-Tag für Streichungen.
 import { DeliveryTime as LeadTime } from '@/components/shop/DeliveryTime'
+import { MoneyAmount } from '@/components/shop/MoneyAmount'
 import { PriceFootnote } from '@/components/shop/PriceFootnote'
 import { PriceTag } from '@/components/shop/PriceTag'
 import { WarrantyNotice } from '@/components/shop/WarrantyNotice'
@@ -37,6 +38,7 @@ import {
 } from '@/lib/shop/format'
 import { safetyWarningTexts } from '@/lib/shop/productInfo'
 
+import { ProductGallery } from './ProductGallery'
 import {
   MoreFromCategory,
   ProductDescription,
@@ -147,6 +149,13 @@ export async function ProductPage({ product, locale }: { product: PublicProduct;
       data-status={state}
       data-category={product.category}
     >
+      {/* 1. Galerie (KO-09) */}
+      <ProductGallery
+        images={product.images}
+        title={product.title ?? categoryName}
+        locale={locale}
+      />
+
       {/* 2. Titel */}
       <header className={styles.head}>
         <h1 className={styles.title} lang={de('title')} data-product-title="">
@@ -404,6 +413,23 @@ export async function ProductPage({ product, locale }: { product: PublicProduct;
         categoryName={categoryName}
         categoryHref={similarHref}
       />
+
+      {/* Kauf-Leiste mobil (KO-09a): nur bei `available`; eingeblendet vom Modul `buy-bar`, ohne JavaScript verborgen. */}
+      {state === 'available' ? (
+        <div
+          className={styles.buyBar}
+          data-behavior="buy-bar"
+          data-buy-bar=""
+          role="region"
+          aria-label={t('buyBar')}
+          hidden
+        >
+          <MoneyAmount cents={product.priceCents} locale={locale} className={styles.buyBarPrice} />
+          <Button variant="primary" disabled={!canAddToCart(state, settings.isOpen)}>
+            {t('addToCart')}
+          </Button>
+        </div>
+      ) : null}
     </article>
   )
 }

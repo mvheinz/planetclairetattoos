@@ -259,7 +259,19 @@
         "withdrawal": "You can find information about your right of withdrawal in the <link>withdrawal policy</link>.",
         "costsLink": "Shipping & payment"
       },
-      "more": "More from {category}"
+      "more": "More from {category}",
+      "buyBar": "Buy"
+    },
+    "gallery": {
+      "label": "Photos: {title}",
+      "roledescription": "Image gallery",
+      "position": "Photo {n} of {total}",
+      "prev": "Previous photo",
+      "next": "Next photo",
+      "thumbs": "All photos",
+      "zoom": "Enlarge",
+      "close": "Close",
+      "dialog": "Enlarged photo: {title}"
     }
   },
   "archive": {

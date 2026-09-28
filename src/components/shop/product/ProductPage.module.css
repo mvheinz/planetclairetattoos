@@ -304,3 +304,54 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+/* Kauf-Leiste mobil (KO-09a): unter 768 px fest unten, Grund `--paper-2`, obere Handlinie; eingeblendet über
+   `data-visible` (Modul `buy-bar`), reduzierte Bewegung: sofort. */
+.buyBar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: calc(var(--buybar-h) + env(safe-area-inset-bottom));
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  border-top: var(--stroke-ui) solid var(--ink);
+  background: var(--paper-2);
+  transform: translateY(100%);
+  transition: transform var(--dur-short) var(--ease-calm);
+}
+
+.buyBar[data-visible] {
+  transform: translateY(0);
+}
+
+.buyBar[hidden] {
+  display: none;
+}
+
+.buyBarPrice {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion='full']) .buyBar {
+    transition: none;
+  }
+}
+
+:root[data-motion='reduced'] .buyBar {
+  transition: none;
+}
+
+@media (min-width: 768px) {
+  .buyBar,
+  .buyBar[data-visible] {
+    display: none;
+  }
+}
