@@ -1,10 +1,8 @@
-import { expect, test } from '@playwright/test'
-
 import { LEGAL_LINKS } from '../../src/components/layout/navItems'
 import { localizedPath, pageRoutes } from '../../src/lib/routes/paths'
 import { LOCALES, type Locale } from '../../src/lib/routes/registry'
 import { expectCalm } from './calm'
-import { testPayload } from './fixtures'
+import { expect, test, testPayload } from './fixtures'
 
 // P2.14 Kontakt R20 (KONZEPT §3.13) und Gerüst „Vertrag widerrufen“ R26 (§3.16): beide DE/EN mit einer `h1` (R-010),
 // R26 `noindex, follow` und ruhig (AK-DS-11), R20 ohne `pages:contact` mit Leerzustand statt 500 (DM-PAGE-01),
@@ -71,8 +69,12 @@ test.describe.serial('Kontakt R20 Inhalt und Leerzustand @smoke', () => {
     ).toBeVisible()
   })
 
+  // Der Statuswechsel läuft wie in der Verwaltung über die REST-API des laufenden Servers: Nur dort löst der Seiten-Hook
+  // die Erneuerung des Zwischenspeichers aus (ARCHITEKTUR §9.3, Statuswechsel sofort). Eine Änderung über die Local API
+  // im Testprozess erreicht den Cache des Produktions-Servers nicht.
   test('DM-PAGE-01 ohne veröffentlichte Seite `contact`: Leerzustand statt 500 @smoke', async ({
-    page,
+    adminPage,
+    browser,
   }) => {
     const payload = await testPayload()
     const { docs } = await payload.find({
@@ -84,16 +86,15 @@ test.describe.serial('Kontakt R20 Inhalt und Leerzustand @smoke', () => {
     })
     const doc = docs[0]
     expect(doc, 'Seed-Seite contact').toBeTruthy()
-    const setStatus = (status: 'draft' | 'published') =>
-      payload.update({
-        collection: 'pages',
-        id: doc!.id,
+    const setStatus = async (status: 'draft' | 'published') => {
+      const res = await adminPage.request.patch(`/api/pages/${doc!.id}`, {
         data: { _status: status },
-        overrideAccess: true,
-        context: { seed: true },
       })
-    // Der Zwischenspeicher (unstable_cache) gilt im Entwicklungsserver nicht für `Cache-Control: no-cache`.
-    await page.setExtraHTTPHeaders({ 'cache-control': 'no-cache' })
+      expect(res.status(), `PATCH pages/${doc!.id} → ${status}`).toBe(200)
+    }
+    // Öffentliche Seiten in einem eigenen Kontext ohne Anmeldung.
+    const visitor = await browser.newContext()
+    const page = await visitor.newPage()
     await setStatus('draft')
     try {
       for (const locale of LOCALES) {
@@ -108,9 +109,18 @@ test.describe.serial('Kontakt R20 Inhalt und Leerzustand @smoke', () => {
       }
     } finally {
       await setStatus('published')
+      // Speichern über die Verwaltung übernimmt die Seite (`seed: false`, `adoptOnSave`) – Seed-Kennzeichen zurück.
+      await payload.update({
+        collection: 'pages',
+        id: doc!.id,
+        data: { seed: true },
+        overrideAccess: true,
+        context: { seed: true },
+      })
     }
     await page.goto('/de/kontakt')
     await expect(page.locator('main [data-empty-state]')).toHaveCount(0)
+    await visitor.close()
   })
 })
 
