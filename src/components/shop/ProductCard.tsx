@@ -16,7 +16,8 @@ import { PriceTag } from './PriceTag'
 // Name „{Titel}, {Preis}{, gerade reserviert | , verkauft}“ (AK-DS-10). Aufbau: Foto 4:5 (Fokuspunkt, Dominanzfarbe als
 // Lade-Hintergrund, `srcset` aus `thumb`/`card`) → Faden-Anker der Schnur → Preisschild `hanging` (8 px Einzug) → Titel
 // (max. 2 Zeilen) → Meta „Keramik · Ø 14 cm“. `reserved`: Badge oben links auf dem Foto; `sold`: Foto gedämpft (0.82),
-// Stempel auf dem Schild, Text ungedämpft. Keine Info nur bei Hover (Hover löst nur MI-02 aus).
+// Stempel auf dem Schild, Text ungedämpft. Keine Info nur bei Hover (Hover löst nur MI-02 aus). Für den Live-Zustand
+// (`product-status`, P3.11) liegen Badge und Stempel verborgen im Markup; `gone` dämpft wie `sold`.
 
 export const CARD_IMAGE_SIZES = '(min-width: 1200px) 25vw, (min-width: 768px) 33vw, 50vw'
 /** Die ersten Karten einer Liste laden ohne `loading="lazy"` (KO-07). */
@@ -79,9 +80,15 @@ export function ProductCard({
           loading={index < EAGER_CARDS ? 'eager' : 'lazy'}
           className={styles.image}
         />
-        {state === 'reserved' ? (
-          <Badge kind="reserved" onPhoto className={styles.reserved} />
-        ) : null}
+        {state === 'sold' ? null : (
+          // Bei `available` verborgen im Markup – `product-status` blendet es beim Live-Wechsel ein (P3.11).
+          <Badge
+            kind="reserved"
+            onPhoto
+            hidden={state !== 'reserved'}
+            className={styles.reserved}
+          />
+        )}
       </span>
       <PriceTag
         itemNumber={product.itemNumber}

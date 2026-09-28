@@ -17,6 +17,11 @@
   white-space: nowrap;
 }
 
+/* Verborgen im Markup (Live-Wechsel, `product-status`). */
+.badge[hidden] {
+  display: none;
+}
+
 a.badge {
   min-height: 44px;
   text-decoration: underline;

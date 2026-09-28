@@ -1,6 +1,6 @@
 import { getMotion, onMotionChange } from '../leash/motion'
 
-import type { BehaviorContext, Unmount } from './types'
+import { SOLD_EVENT, type BehaviorContext, type SoldEventDetail, type Unmount } from './types'
 
 // `data-behavior="sold-stamp"` (DESIGN KO-06, MI-03): Stempel-Knall **nur im Moment des Verkaufs** – wenn eine
 // geöffnete Seite den Wechsel auf `sold` live übernimmt (Modul `product-status`, P3.11) bzw. auf der Danke-Seite
@@ -12,10 +12,7 @@ import type { BehaviorContext, Unmount } from './types'
 // Höchstens 3 Knalle je Seitenansicht, gestaffelt 120 ms. Reduzierte Bewegung: Stempel sofort statisch.
 // Nur `transform`/`opacity`; kein Netz, kein Speicher.
 
-export const SOLD_EVENT = 'pc:product-sold'
-export interface SoldEventDetail {
-  id: number | string
-}
+export { SOLD_EVENT, type SoldEventDetail }
 
 export const STAMP_MS = 260
 export const JOLT_MS = 80

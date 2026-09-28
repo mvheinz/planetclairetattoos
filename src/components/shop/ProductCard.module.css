@@ -23,7 +23,8 @@
   border-radius: var(--r-photo);
 }
 
-.card[data-status='sold'] .image img {
+.card[data-status='sold'] .image img,
+.card[data-status='gone'] .image img {
   opacity: 0.82;
 }
 

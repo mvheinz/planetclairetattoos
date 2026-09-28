@@ -22,10 +22,12 @@ export const SERVER_ONLY_DIRS = [
 ].map((d) => `src/lib/${d}`)
 export const SERVER_ONLY_FILES = ['src/lib/env.ts', 'src/lib/audit.ts']
 /**
- * Ausnahmen (ADR 0002): reine Header-/CSP-Konfiguration ohne Geheimnisse, die `next.config.ts` lädt – dort wirft
- * `server-only` (keine `react-server`-Bedingung).
+ * Ausnahmen: (a) ADR 0002 – reine Header-/CSP-Konfiguration ohne Geheimnisse, die `next.config.ts` lädt (dort wirft
+ * `server-only`, keine `react-server`-Bedingung); (b) PLAN P3.11 – das Format des Korb-Cookies `pc_cart`
+ * (`encodeCartCookie`/`decodeCartCookie`), das auch die Verhaltensmodule im Browser nutzen.
  */
 export const SERVER_ONLY_EXEMPT = [
+  'src/lib/commerce/cartCookie.ts',
   'src/lib/security/csp.ts',
   'src/lib/security/headers.ts',
   'src/lib/security/inlineScripts.ts',

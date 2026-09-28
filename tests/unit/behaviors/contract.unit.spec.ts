@@ -56,6 +56,35 @@ const FIXTURES: Record<BehaviorName, { html: string; exercise: (root: Element) =
       '<div data-behavior="buy-bar" data-buy-bar hidden><button type="button">In den Korb</button></div>',
     exercise: () => {},
   },
+  'add-to-cart': {
+    html:
+      '<div data-buy-area data-buy-state="available"><p id="in-cart" data-in-cart hidden>Liegt schon in deinem Korb ' +
+      '<a href="/de/warenkorb">Zum Korb</a></p><form data-behavior="add-to-cart" data-product-id="17" ' +
+      'data-text-add="In den Korb" data-text-reserved="Gerade reserviert"><input type="hidden" name="productId" ' +
+      'value="17"><input type="hidden" name="itemNumber" value="17"><input type="hidden" name="locale" value="de">' +
+      '<button type="submit"><span>In den Korb</span></button></form><div data-buy-notes aria-live="polite">' +
+      '<p data-buy-confirm hidden>Liegt im Korb</p><p data-buy-note="cart_full" hidden>voll</p></div>' +
+      '<div data-sold-view hidden><p data-sold-text>Schon verkauft</p></div></div>' +
+      '<div class="coco" data-leash-coco><div class="coco__hop"></div></div>',
+    exercise: (root) => {
+      // App ohne hereingereichte Action fiele auf das normale Absenden zurück (in jsdom nicht umgesetzt).
+      ;(root as HTMLFormElement).submit = () => {}
+      root.querySelector<HTMLElement>('button')!.click()
+      document.dispatchEvent(
+        new CustomEvent('pc:product-state', { detail: { id: '17', state: 'reserved' } }),
+      )
+      document.dispatchEvent(
+        new CustomEvent('pc:cart-item', { detail: { id: '17', view: 'in-cart', added: true } }),
+      )
+    },
+  },
+  'product-status': {
+    html:
+      '<ul data-behavior="product-status" data-label-reserved=", gerade reserviert" data-label-sold=", verkauft" ' +
+      'data-label-gone=", nicht mehr da"><li><a href="/de/shop/017-vase" data-product-card data-product-id="17" ' +
+      'data-status="available" aria-label="Vase, 45 €"><span data-badge="reserved" hidden>reserviert</span></a></li></ul>',
+    exercise: () => {},
+  },
   'cart-count': {
     html: '<a href="/de/korb" data-behavior="cart-count">Korb <span data-cart-count hidden></span></a>',
     exercise: () => {

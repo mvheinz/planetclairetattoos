@@ -35,10 +35,19 @@ export interface BadgeProps {
   href?: string
   /** Auf einem Foto: Grund `--paper`. */
   onPhoto?: boolean
+  /** Im Markup, aber verborgen (Live-Wechsel durch `product-status`, P3.11). */
+  hidden?: boolean
   className?: string
 }
 
-export function Badge({ kind, children, href, onPhoto = false, className }: BadgeProps) {
+export function Badge({
+  kind,
+  children,
+  href,
+  onPhoto = false,
+  hidden = false,
+  className,
+}: BadgeProps) {
   const t = useTranslations('shop.badges')
   const icon = ICONS[kind]
   const classes = [styles.badge, styles[kind], onPhoto ? styles.onPhoto : '', className]
@@ -55,7 +64,7 @@ export function Badge({ kind, children, href, onPhoto = false, className }: Badg
       {content}
     </a>
   ) : (
-    <span className={classes} data-badge={kind}>
+    <span className={classes} data-badge={kind} hidden={hidden || undefined}>
       {content}
     </span>
   )

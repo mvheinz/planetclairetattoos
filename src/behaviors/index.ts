@@ -5,6 +5,7 @@ import type { BehaviorContext, BehaviorModule, Unmount } from './types'
 // Vorschau-Laufzeit importiert sie statisch. Framework-frei (AK-A-2-03).
 
 export const BEHAVIOR_LOADERS = {
+  'add-to-cart': () => import('./add-to-cart'),
   'buy-bar': () => import('./buy-bar'),
   'cart-count': () => import('./cart-count'),
   gallery: () => import('./gallery'),
@@ -13,6 +14,7 @@ export const BEHAVIOR_LOADERS = {
   menu: () => import('./menu'),
   'motion-toggle': () => import('./motion-toggle'),
   'price-tag-swing': () => import('./price-tag-swing'),
+  'product-status': () => import('./product-status'),
   'sold-stamp': () => import('./sold-stamp'),
 } satisfies Record<string, () => Promise<BehaviorModule>>
 
@@ -28,13 +30,16 @@ const defaultLoader: BehaviorLoader = (name) => BEHAVIOR_LOADERS[name]()
 
 /**
  * Module, die erst nach dem `load`-Ereignis geladen werden (Modus `app`): Die Produktseite funktioniert bis dahin ohne sie
- * (Galerie per Scrollen, Foto-Link auf die Datei, Kauf-Leiste verborgen). So zählen ihre Chunks nie zum Erstlade-JS
- * (Budget ARCHITEKTUR §7.7) – das `load`-Ereignis wartet auf Fotos und Schriften und käme sonst manchmal später.
+ * (Galerie per Scrollen, Foto-Link auf die Datei, Kauf-Leiste verborgen, „In den Korb“ als normales Formular, Zustand aus
+ * dem Server-HTML). So zählen ihre Chunks nie zum Erstlade-JS (Budget ARCHITEKTUR §7.7) – das `load`-Ereignis wartet auf
+ * Fotos und Schriften und käme sonst manchmal später. `product-status` fragt ohnehin erst „nach dem Laden“ (§9.3).
  */
 export const AFTER_LOAD: ReadonlySet<BehaviorName> = new Set<BehaviorName>([
   'gallery',
   'lightbox',
   'buy-bar',
+  'add-to-cart',
+  'product-status',
 ])
 
 export interface MountedBehaviors {

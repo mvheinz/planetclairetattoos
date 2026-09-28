@@ -195,7 +195,8 @@
     },
     "card": {
       "stateReserved": "gerade reserviert",
-      "stateSold": "verkauft"
+      "stateSold": "verkauft",
+      "stateGone": "nicht mehr da"
     },
     "badges": {
       "unique": "Unikat",
@@ -215,6 +216,16 @@
       "factsLabel": "Kurzdaten",
       "detailsLabel": "Angaben zum Stück",
       "addToCart": "In den Korb",
+      "inCart": "Liegt schon in deinem Korb",
+      "toCart": "Zum Korb",
+      "added": "Liegt im Korb",
+      "notes": {
+        "cart_full": "Dein Korb ist voll – höchstens 20 Stücke passen hinein.",
+        "rate_limited": "Das ging gerade zu schnell. Bitte versuch es in ein paar Minuten noch einmal.",
+        "shop_closed": "Der Shop macht gerade Pause – in den Korb legen geht im Moment nicht.",
+        "product_unavailable": "Dieses Stück ist gerade nicht mehr zu haben.",
+        "invalid": "Das hat nicht geklappt. Bitte lade die Seite neu und versuch es noch einmal."
+      },
       "soldText": "Schon verkauft",
       "similar": "Ähnliche Stücke",
       "archive": "Archiv",

@@ -7,7 +7,7 @@ import {
   CART_COOKIE,
   decodeCartCookie,
   findCartCookie,
-} from '@/lib/shop/cartCookie'
+} from '@/lib/commerce/cartCookie'
 
 // P2.6 `cart-count` (KO-02, DESIGN §9.12, MI-07): liest `pc_cart` nur, wenn es existiert, setzt nichts.
 

@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P3.11
+
+- Endpunkt `GET /api/public/product-status` (zod, ≤ 24 IDs, Rate-Limit `product_status` 120/min, `no-store`, je ID nur available/reserved/sold/gone), Dienst `src/lib/commerce/cart.ts` + Server-Action `addToCart` (Rate-Limit `cart_add`, Shop offen, öffentlich, available, nicht doppelt, < 20; setzt erst dann `pc_cart` nach §8.7). Format `encodeCartCookie`/`decodeCartCookie` in `src/lib/commerce/cartCookie.ts` (auch für `cart-count`).\n- Module `product-status` (Karten-Badges/Name, Kaufbereich, MI-03 über `sold-stamp`) und `add-to-cart` (ohne Seitenwechsel, „Liegt schon in deinem Korb“ + „Zum Korb“, Bestätigung, MI-07, MI-01 Grundfassung; Vorschau nur Anzeige); ohne JavaScript 303 mit `#in-cart` (CSS `:target`).\n- Tests: Unit cart-cookie (21), product-status (10), add-to-cart (21), Vertrag AK-DS-18; Int add-to-cart (13); E2E privacy/cart-cookie @privacy + shop/add-to-cart (je 3 Projekte, 12 grün); Regression shop/legal/privacy/a11y/keyboard/shell/leash/home grün (725). `pnpm check`, `pnpm build` grün.
+
 ## 2026-09-28 – P3.10
 
 - ProductGallery (Scroll-Snap 4:5, Fokuspunkt, srcset card/detail, Punkte + Zähler, ab 768 px Pfeile + Miniaturen mit aria-current, erstes Foto fetchpriority=high), Lightbox als <dialog> (größte Größe, Klick/Doppeltipp 1×↔2×, Ziehen, Wischen, Pfeiltasten, Esc/Schließen/Browser-Zurück via pushState, Fokus zurück), mobile Kauf-Leiste (IntersectionObserver, inert wenn verborgen)\n- Module gallery/lightbox/buy-bar (2,4 KB gz, eigene Budget-Gruppe ≤ 4 KB), nach load geladen; Vorschau-Datei ohne Anfragen (Lightbox nutzt eingebettetes Foto)\n- Tests: Unit gallery/lightbox/buy-bar + Vertrag (AK-DS-18), E2E shop/gallery (desktop, iphone-15, reduced motion, ohne JS), @perf Zoom öffnen 72–112 ms (Gate 200), Vorschau-Export-Test ergänzt – grün

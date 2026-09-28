@@ -1,6 +1,8 @@
 import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
+import { addToCart } from '@/app/(frontend)/[locale]/shop/[product]/actions'
+
 import { Station } from '@/components/leash/Station'
 import { Badge } from '@/components/shop/Badge'
 // Alias: der Streichpreis-Scan (V-20) prüft den Quelltext auf das HTML-Tag für Streichungen.
@@ -8,6 +10,7 @@ import { DeliveryTime as LeadTime } from '@/components/shop/DeliveryTime'
 import { MoneyAmount } from '@/components/shop/MoneyAmount'
 import { PriceFootnote } from '@/components/shop/PriceFootnote'
 import { PriceTag } from '@/components/shop/PriceTag'
+import { statusLabelAttrs } from '@/components/shop/statusLabels'
 import { WarrantyNotice } from '@/components/shop/WarrantyNotice'
 import { Button } from '@/components/ui/Button'
 import { Callout } from '@/components/ui/Callout'
@@ -29,6 +32,7 @@ import type { Locale } from '@/lib/enums'
 import { getSnippet } from '@/lib/legal/snippets'
 import type { FiberRow } from '@/lib/products/fibers'
 import { localizedPath } from '@/lib/routes/paths'
+import { BUY_NOTE_CODES, BUY_NOTE_FRAGMENTS, IN_CART_FRAGMENT } from '@/lib/shop/buyArea'
 import { buyState, canAddToCart, foodContactDisplay } from '@/lib/shop/productState'
 import {
   formatCondition,
@@ -54,7 +58,9 @@ import styles from './ProductPage.module.css'
 // (R-043 bis R-046, Bausteine `product.*`) → Abweichungs-Kasten (R-048 Nr. 1) → Kaufbereich je Zustand samt Satz zum
 // Liefergebiet (R-036). Fehlt ein EN-Text, steht der DE-Text mit `lang="de"`. Tuschelinie `product` (DESIGN §9.7):
 // Start unter der H1 (Unterstreichung), Haken (`hook`) am Knopf „In den Korb“; daneben die reservierte Coco-Box
-// 48 × 40 am Preisschild (Coco-Hüpfer MI-01 folgt in P9). „In den Korb“ bekommt seine Aktion in P3.11. Direkt nach
+// 48 × 40 am Preisschild (Coco-Hüpfer MI-01 als Grundfassung im Modul `add-to-cart`). „In den Korb“ ist ein Formular
+// mit der Server-Action `addToCart` (P3.11): ohne JavaScript 303 zurück mit `#in-cart` bzw. Meldung (CSS `:target`), mit
+// JavaScript ohne Seitenwechsel (`add-to-cart`); Live-Zustand per `product-status` (+ `sold-stamp`). Direkt nach
 // dem Kaufbereich die harmonisierte Mitteilung zur Gewährleistung (R-049, Bereich Preis/Produktangaben), danach die
 // Blöcke 7–11 aus `ProductInfo.tsx` (Beschreibung, Details, „Herstellerin & Sicherheit“, Versand & Rückgabe, „Mehr aus …“).
 
@@ -86,11 +92,12 @@ function Note({ children, name }: { children: React.ReactNode; name: string }) {
 }
 
 export async function ProductPage({ product, locale }: { product: PublicProduct; locale: Locale }) {
-  const [t, tBadges, tList, settings, categories, untranslated, info, related, german] =
+  const [t, tBadges, tList, tCard, settings, categories, untranslated, info, related, german] =
     await Promise.all([
       getTranslations({ locale, namespace: 'shop.product' }),
       getTranslations({ locale, namespace: 'shop.badges' }),
       getTranslations({ locale, namespace: 'shop.list' }),
+      getTranslations({ locale, namespace: 'shop.card' }),
       getShopDisplaySettings(locale),
       listAllCategories(locale),
       getUntranslatedFields(product.itemNumber, locale),
@@ -140,14 +147,47 @@ export async function ProductPage({ product, locale }: { product: PublicProduct;
   const similarHref = category
     ? localizedPath('R03', locale, { slug: category.slug })
     : localizedPath('R02', locale)
+  const cartHref = localizedPath('R06', locale)
+  const canAdd = canAddToCart(state, settings.isOpen)
+  // Server-Action als Formular-Aktion: ohne JavaScript leitet sie per 303 um (Rückgabe nur für `add-to-cart`).
+  const formAction = addToCart as unknown as (formData: FormData) => Promise<void>
+  const cartFields = (
+    <>
+      <input type="hidden" name="productId" value={product.id} />
+      <input type="hidden" name="itemNumber" value={product.itemNumber} />
+      <input type="hidden" name="locale" value={locale} />
+    </>
+  )
+  const soldView = (
+    <>
+      <p className={styles.soldText} data-sold-text="">
+        {t('soldText')}
+      </p>
+      <ul className={styles.soldLinks}>
+        <li>
+          <Button variant="secondary" href={similarHref}>
+            {t('similar')}
+          </Button>
+        </li>
+        <li>
+          <Button variant="secondary" href={localizedPath('R05', locale)}>
+            {t('archive')}
+          </Button>
+        </li>
+      </ul>
+    </>
+  )
 
   return (
     <article
       className={`u-container ${styles.page}`}
       data-product-page=""
+      data-behavior="product-status sold-stamp"
+      data-product-id={product.id}
       data-item-number={product.itemNumber}
       data-status={state}
       data-category={product.category}
+      {...statusLabelAttrs(tCard)}
     >
       {/* 1. Galerie (KO-09) */}
       <ProductGallery
@@ -190,6 +230,7 @@ export async function ProductPage({ product, locale }: { product: PublicProduct;
             locale={locale}
             variant="pinned"
             sold={state === 'sold'}
+            stampSlot
           />
           <span className={styles.cocoSlot} data-product-coco="" aria-hidden="true" />
         </div>
@@ -342,35 +383,54 @@ export async function ProductPage({ product, locale }: { product: PublicProduct;
           </div>
         ) : null}
         {state === 'sold' ? (
-          <>
-            <p className={styles.soldText} data-sold-text="">
-              {t('soldText')}
-            </p>
-            <ul className={styles.soldLinks}>
-              <li>
-                <Button variant="secondary" href={similarHref}>
-                  {t('similar')}
-                </Button>
-              </li>
-              <li>
-                <Button variant="secondary" href={localizedPath('R05', locale)}>
-                  {t('archive')}
-                </Button>
-              </li>
-            </ul>
-          </>
+          soldView
         ) : (
-          <span
-            className={styles.cta}
-            id="add-to-cart"
-            data-add-to-cart=""
-            data-leash-anchor="target"
-            data-leash-loop="hook"
-          >
-            <Button variant="primary" disabled={!canAddToCart(state, settings.isOpen)}>
-              {state === 'reserved' ? tBadges('reservedLong') : t('addToCart')}
-            </Button>
-          </span>
+          <>
+            {/* Ohne JavaScript per `:target` sichtbar (303 mit `#in-cart`), sonst durch `add-to-cart`. */}
+            <p id={IN_CART_FRAGMENT} className={styles.inCart} data-in-cart="" hidden>
+              <span>{t('inCart')}</span>
+              <a className={styles.toCart} href={cartHref}>
+                {t('toCart')}
+              </a>
+            </p>
+            <form
+              action={formAction}
+              className={styles.cta}
+              id="add-to-cart"
+              data-add-to-cart=""
+              data-behavior="add-to-cart"
+              data-product-id={product.id}
+              data-text-add={t('addToCart')}
+              data-text-reserved={tBadges('reservedLong')}
+              data-closed={closed ? '' : undefined}
+              data-leash-anchor="target"
+              data-leash-loop="hook"
+            >
+              {cartFields}
+              <Button variant="primary" type="submit" disabled={!canAdd}>
+                {state === 'reserved' ? tBadges('reservedLong') : t('addToCart')}
+              </Button>
+            </form>
+            <div className={styles.notes} data-buy-notes="" aria-live="polite">
+              <p className={styles.confirm} data-buy-confirm="" hidden>
+                {t('added')}
+              </p>
+              {BUY_NOTE_CODES.map((code) => (
+                <p
+                  key={code}
+                  id={BUY_NOTE_FRAGMENTS[code]}
+                  className={styles.buyNote}
+                  data-buy-note={code}
+                  hidden
+                >
+                  {t(`notes.${code}`)}
+                </p>
+              ))}
+            </div>
+            <div className={styles.soldView} data-sold-view="" hidden>
+              {soldView}
+            </div>
+          </>
         )}
         <p className={styles.area} data-delivery-area="">
           {settings.pickupEnabled
@@ -425,9 +485,23 @@ export async function ProductPage({ product, locale }: { product: PublicProduct;
           hidden
         >
           <MoneyAmount cents={product.priceCents} locale={locale} className={styles.buyBarPrice} />
-          <Button variant="primary" disabled={!canAddToCart(state, settings.isOpen)}>
-            {t('addToCart')}
-          </Button>
+          <form
+            action={formAction}
+            className={styles.buyBarForm}
+            data-behavior="add-to-cart"
+            data-product-id={product.id}
+            data-text-add={t('addToCart')}
+            data-text-reserved={tBadges('reservedLong')}
+            data-closed={closed ? '' : undefined}
+          >
+            {cartFields}
+            <Button variant="primary" type="submit" disabled={!canAdd}>
+              {t('addToCart')}
+            </Button>
+          </form>
+          <a className={styles.buyBarCart} href={cartHref} data-in-cart="" hidden>
+            {t('toCart')}
+          </a>
         </div>
       ) : null}
     </article>

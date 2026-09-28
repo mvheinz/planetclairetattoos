@@ -195,7 +195,8 @@
     },
     "card": {
       "stateReserved": "reserved right now",
-      "stateSold": "sold"
+      "stateSold": "sold",
+      "stateGone": "no longer available"
     },
     "badges": {
       "unique": "One of a kind",
@@ -215,6 +216,16 @@
       "factsLabel": "Key facts",
       "detailsLabel": "About this piece",
       "addToCart": "Add to basket",
+      "inCart": "Already in your basket",
+      "toCart": "Go to basket",
+      "added": "In your basket",
+      "notes": {
+        "cart_full": "Your basket is full – it holds 20 pieces at most.",
+        "rate_limited": "That was a bit too fast. Please try again in a few minutes.",
+        "shop_closed": "The shop is taking a break – adding to the basket is not possible right now.",
+        "product_unavailable": "This piece is no longer available right now.",
+        "invalid": "That did not work. Please reload the page and try again."
+      },
       "soldText": "Already sold",
       "similar": "Similar pieces",
       "archive": "Archive",
