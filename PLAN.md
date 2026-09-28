@@ -1618,7 +1618,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: e2e `tests/e2e/contact-withdraw.e2e.spec.ts` @smoke (DM-PAGE-01, R-090, R-010).
   - Ohne Jutta: –
 
-- [ ] **P2.15 Tuschelinie-Kern (rein, ohne DOM)** – `src/leash/types.ts` wörtlich aus DESIGN §9.1, dazu:
+- [x] **P2.15 Tuschelinie-Kern (rein, ohne DOM)** – `src/leash/types.ts` wörtlich aus DESIGN §9.1, dazu:
   - `random.ts` (`fnv1a32`, `mulberry32`, `valueNoise1D`);
   - `presets.ts`: die ganze Tabelle §9.7 als Daten für alle 11 Presets;
   - `geometry.ts` → `buildGeometry(input)` mit den Schritten 1–11 aus §9.3, allen Schlaufenformen aus §9.5 inklusive

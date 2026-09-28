@@ -17,6 +17,8 @@ test-results/
 playwright-report/
 # Wörtlich aus docs/design/DESIGN.md §7 (P2.3), nicht umformatieren.
 src/styles/tokens.css
+# Wörtlich aus docs/design/DESIGN.md §9.1 (P2.15), nicht umformatieren.
+src/leash/types.ts
 # Von Skripten erzeugt (pnpm fonts:copy, pnpm art:icons, pnpm art:brand).
 src/**/*.generated.ts
 src/art/

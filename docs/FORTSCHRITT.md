@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P2.15
+
+- `src/leash/` Kern ohne DOM: `types.ts` (wörtlich DESIGN §9.1), `random.ts` (fnv1a32, mulberry32, valueNoise1D), `presets.ts` (Tabelle §9.7 für alle 11 Presets, Wackel, Rinnen, Scroll-Wege), `poses.ts` (COCO_POSE_TO_SPRITE).\n- `geometry.ts`: buildGeometry mit Schritten 1–11 (§9.3), allen Schlaufenformen (§9.5) inkl. Freiraum-Regel, Tintenpunkten, Verjüngung, Segmenten, LUT und scrollMap (§9.6); dazu mapReadingY/pointAt.\n- Tests: unit tests/unit/leash/{random,geometry,loops,poses}.unit.spec.ts (26 Tests, AK-DS-12); Median journey 390×844 ≈ 3 ms in Node; Pfaddaten ≈ 18 KB mobil / 23 KB Desktop.
+
 ## 2026-09-27 – P2.14
 
 - Kontakt R20 (Preset margin) aus pages:contact mit Kontaktwegen aus getPublicSettings() (mailto mit Betreff, Instagram-Profil und DM-Link, Studio-Bezirk), Hinweise „Vertrag widerrufen“ und Impressum, kein Formular; ohne Seite neutraler Leerzustand (DM-PAGE-01).\n- „Vertrag widerrufen“ R26 (Preset calm, dynamisch, noindex/follow): h1, Hinweis „noch ohne Funktion – kommt in P6“, Link zur Widerrufsbelehrung, E-Mail als Alternative.\n- Gerüst-Komponente ScaffoldPage entfernt (alle Gerüstseiten ausgebaut).\n- Tests: e2e contact-withdraw (17 grün, 4 nur-desktop übersprungen), Fußlink-Prüfung 7 Links × DE/EN auf allen Live-Seiten = 200; bestehende Frontend-E2E (135) grün; pnpm check, test:int, build grün.
