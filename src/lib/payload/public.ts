@@ -3,6 +3,7 @@ import 'server-only'
 import config from '@payload-config'
 import { getPayload, type Payload } from 'payload'
 
+import type { Locale } from '@/lib/enums'
 import { systemClock, type Clock } from '@/lib/time'
 
 // Frontend-Lesezugriffe (DATENMODELL §1.4 Regel 3): immer `overrideAccess: false`, ohne `user` und ohne `req`,
@@ -90,14 +91,21 @@ export function pickPublicSettings(raw: unknown, now: Date): Obj {
   return out
 }
 
-/** Öffentliche Einstellungen (Global `settings`) – nur die Whitelist. */
-export async function getPublicSettings(clock: Clock = systemClock): Promise<Obj> {
+/**
+ * Öffentliche Einstellungen (Global `settings`) – nur die Whitelist. `locale` wählt die Sprache lokalisierter Felder
+ * (z. B. `shipping.deliveryTimeText`); ohne Angabe Deutsch.
+ */
+export async function getPublicSettings(
+  clock: Clock = systemClock,
+  options: { locale?: Locale } = {},
+): Promise<Obj> {
   const payload = await getPayload({ config })
   // Das Global ist nur für Admins lesbar; die Whitelist ersetzt hier den Feldzugriff (§7.1).
   const raw = await payload.findGlobal({
     slug: 'settings',
     overrideAccess: true,
     depth: 0,
+    ...(options.locale ? { locale: options.locale } : {}),
   })
   return pickPublicSettings(raw, clock.now())
 }

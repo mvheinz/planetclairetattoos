@@ -4,9 +4,10 @@ import { getPayload, type Payload } from 'payload'
 import type { ProductCategory } from '../../src/lib/enums'
 import config from '../../src/payload.config.js'
 import { adminRoute, serverURL } from '../helpers/adminEnv'
+import { holdAdminSessions, withLoginLock } from '../helpers/adminSessionLock'
 import { login } from '../helpers/login'
 
-/** Formular-Login (zählt gegen das Login-Rate-Limit – sparsam verwenden). */
+/** Formular-Login (zählt gegen das Login-Rate-Limit – sparsam verwenden; Aufrufer hält `holdAdminSessions`). */
 export const loginViaForm = (page: Page) => login({ page, user: testUser })
 import { seedTestUser, testUser } from '../helpers/seedUser'
 import {
@@ -98,14 +99,18 @@ export const test = base.extend<Fixtures>({
   ],
 
   adminPage: async ({ page }, provide) => {
+    // Sitzung gegen parallele Anmeldungen und den Passwort-Reset-Test schützen (siehe `adminSessionLock.ts`).
+    const releaseSessions = await holdAdminSessions('shared')
     await seedTestUser()
     // Anmeldung über die Local API statt über das Formular: Das Login-Rate-Limit (10 je 15 min und IP, ARCHITEKTUR
     // §8.5) gilt nur für HTTP-Anfragen; den Formular-Login prüfen `admin.e2e.spec.ts` und `loginViaForm`.
     const payload = await testPayload()
-    const { token } = await payload.login({
-      collection: 'users',
-      data: { email: testUser.email, password: testUser.password },
-    })
+    const { token } = await withLoginLock(() =>
+      payload.login({
+        collection: 'users',
+        data: { email: testUser.email, password: testUser.password },
+      }),
+    )
     if (!token) throw new Error('Anmeldung des Grund-Seed-Admins fehlgeschlagen.')
     await page.context().addCookies([
       {
@@ -118,7 +123,11 @@ export const test = base.extend<Fixtures>({
     ])
     await page.goto(adminRoute)
     await expect(page.locator('.dashboard, [class*="dashboard"]').first()).toBeVisible()
-    await provide(page)
+    try {
+      await provide(page)
+    } finally {
+      await releaseSessions()
+    }
   },
 
   fixtureProducts: async ({}, provide, testInfo) => {

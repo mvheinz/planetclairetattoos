@@ -1,6 +1,11 @@
-import { NextResponse, type NextRequest } from 'next/server'
+import createIntlMiddleware from 'next-intl/middleware'
+import { NextRequest, NextResponse } from 'next/server'
 
+import { routing } from '@/i18n/routing'
 import { getEnv } from '@/lib/env'
+import { decidePublicRoute } from '@/lib/routes/redirects'
+import { createNonce, type NonceContext } from '@/lib/security/csp'
+import { baseHeaders, contextHeaders, nonceContextForPath } from '@/lib/security/headers'
 
 // Verwaltungspfad (ARCHITEKTUR §8.4, E-93, Spike B-01): Der Ordner `src/app/(payload)/admin/` ist nur interner
 // Mount-Punkt. `ADMIN_ROUTE/*` wird intern auf `/admin/*` umgeschrieben; direkte Aufrufe von `/admin` oder `/admin/*`
@@ -24,20 +29,109 @@ export function decideAdminRoute(pathname: string, adminRoute: string): AdminRou
   return { kind: 'next' }
 }
 
+const intlMiddleware = createIntlMiddleware(routing)
+
+/** `www.<apex>` → Apex-Host aus `NEXT_PUBLIC_SITE_URL` (KONZEPT §2.4, Rückfallebene zur Hosting-Konfiguration). */
+export function wwwRedirectTarget(
+  host: string | null,
+  siteUrl: string,
+  pathAndQuery: string,
+): string | null {
+  if (!host) return null
+  const site = new URL(siteUrl)
+  if (host.toLowerCase() !== `www.${site.host}`.toLowerCase()) return null
+  return `${site.origin}${pathAndQuery}`
+}
+
+const redirect = (location: string | URL, status: 307 | 308, vary = false) => {
+  const res = NextResponse.redirect(location, status)
+  if (vary) res.headers.set('vary', 'Accept-Language')
+  return withBaseHeaders(res)
+}
+
+/** Eigene Antworten des Proxys (Weiterleitung, 404) bekommen die allgemeinen Header (§8.1) hier selbst. */
+function withBaseHeaders(res: NextResponse): NextResponse {
+  for (const [key, value] of Object.entries(baseHeaders(getEnv().APP_ENV)))
+    res.headers.set(key, value)
+  return res
+}
+
+/**
+ * Nonce-Kontext (ARCHITEKTUR §8.1): neue Nonce je Anfrage, CSP auch als Anfrage-Header, damit Next die Nonce beim
+ * Rendern an seine Skripte hängt; Antwort-Header überschreiben die statischen Werte aus `next.config.ts`.
+ */
+function nonceHeaders(context: NonceContext, tokenPage: boolean, request: NextRequest) {
+  const env = getEnv()
+  const nonce = createNonce()
+  const response = contextHeaders(context, {
+    appEnv: env.APP_ENV,
+    nodeEnv: env.NODE_ENV,
+    paymentsDriver: env.PAYMENTS_DRIVER,
+    nonce,
+    tokenPage,
+  })
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('content-security-policy', response['Content-Security-Policy']!)
+  requestHeaders.set('x-nonce', nonce)
+  return { requestHeaders, response }
+}
+
+const applyHeaders = (res: NextResponse, headers: Record<string, string>) => {
+  for (const [key, value] of Object.entries(headers)) res.headers.set(key, value)
+  return res
+}
+
+/** Reihenfolge: www → Verwaltung → Schrägstrich/Sprache/Aliasse → next-intl. Setzt nie ein Cookie (R-130). */
 export function proxy(request: NextRequest): NextResponse {
-  const decision = decideAdminRoute(request.nextUrl.pathname, getEnv().ADMIN_ROUTE)
+  const env = getEnv()
+  const { pathname, search } = request.nextUrl
+
+  const www = wwwRedirectTarget(
+    request.headers.get('host'),
+    env.NEXT_PUBLIC_SITE_URL,
+    pathname + search,
+  )
+  if (www) return redirect(www, 308)
+
+  const decision = decideAdminRoute(pathname, env.ADMIN_ROUTE)
   if (decision.kind === 'rewrite') {
     const url = request.nextUrl.clone()
     url.pathname = decision.pathname
-    return NextResponse.rewrite(url)
+    const { requestHeaders, response } = nonceHeaders('admin', false, request)
+    return applyHeaders(
+      NextResponse.rewrite(url, { request: { headers: requestHeaders } }),
+      response,
+    )
   }
   if (decision.kind === 'not-found') {
-    return new NextResponse('Not Found', {
-      status: 404,
-      headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
-    })
+    return withBaseHeaders(
+      new NextResponse('Not Found', {
+        status: 404,
+        headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
+      }),
+    )
   }
-  return NextResponse.next()
+
+  const route = decidePublicRoute(pathname, search, request.headers.get('accept-language'))
+  if (route.kind === 'redirect') {
+    return redirect(new URL(route.location, request.nextUrl), route.status, route.vary)
+  }
+  if (route.kind === 'pass') return NextResponse.next()
+
+  const nonceContext = nonceContextForPath(pathname)
+  if (!nonceContext) {
+    const res = intlMiddleware(request)
+    res.headers.delete('set-cookie')
+    return res
+  }
+  const { requestHeaders, response } = nonceHeaders(
+    nonceContext.context,
+    nonceContext.tokenPage,
+    request,
+  )
+  const res = intlMiddleware(new NextRequest(request, { headers: requestHeaders }))
+  res.headers.delete('set-cookie')
+  return applyHeaders(res, response)
 }
 
 export const config = {

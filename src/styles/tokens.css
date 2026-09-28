@@ -1,0 +1,144 @@
+/* src/styles/tokens.css – Planet Claire Designsystem v1.0 (DESIGN.md §7) */
+:root {
+  color-scheme: only light;
+
+  /* Grund */
+  --paper: #F4EFE6;
+  --paper-2: #EAE2D4;
+  --paper-field: #FBF8F1;
+  --grid-line: rgb(47 107 76 / 0.05);
+  --grid-line-major: rgb(47 107 76 / 0.042);
+
+  /* Tusche und Ton */
+  --ink: #1C1A17;
+  --ink-2: #4B463F;
+  --ink-3: #665F55;
+  --clay: #CBBBA2;
+
+  /* Akzente */
+  --mat: #2F6B4C;
+  --fox: #B84E1A;
+  --fox-text: #A8430F;
+  --stencil: #5A4BC4;
+  --pink: #E58FB0;
+  --warn: #8F5400;
+  --error: #A6261C;
+  --ok: var(--mat);
+
+  /* Kunst */
+  --coco-fur: #E2BF8E;
+  --coco-harness: #C23B2A;
+  --wash-clay: #E3D3BA;
+  --wash-pink: #F4CCDA;
+  --wash-mat: #CFE2D5;
+  --wash-sky: #D6E4EC;
+
+  /* Semantik */
+  --color-bg: var(--paper);
+  --color-surface: var(--paper-2);
+  --color-text: var(--ink);
+  --color-text-muted: var(--ink-2);
+  --color-link: var(--mat);
+  --color-focus: var(--stencil);
+  --color-line: var(--ink);
+  --color-sold: var(--fox);
+  --color-border-ui: var(--ink-2);
+  --color-border-deco: var(--clay);
+
+  /* Schriften (Familien setzt next/font als Variablen) */
+  --font-hand: var(--font-mansalva), "Segoe Print", "Bradley Hand", cursive;
+  --font-body: var(--font-bricolage), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --fs-display: clamp(2.75rem, 1.9674rem + 3.4783vw, 4.75rem);
+  --fs-h1: clamp(2.25rem, 1.7609rem + 2.1739vw, 3.5rem);
+  --fs-h2: clamp(1.875rem, 1.5326rem + 1.5217vw, 2.75rem);
+  --fs-h3: clamp(1.1875rem, 1.1141rem + 0.3261vw, 1.375rem);
+  --fs-lede: clamp(1.125rem, 1.0761rem + 0.2174vw, 1.25rem);
+  --fs-body: clamp(1rem, 0.9755rem + 0.1087vw, 1.0625rem);
+  --fs-small: clamp(0.875rem, 0.8505rem + 0.1087vw, 0.9375rem);
+  --fs-label: 0.9375rem;
+  --fs-button: 1.0625rem;
+  --fs-kicker: clamp(0.75rem, 0.7255rem + 0.1087vw, 0.8125rem);
+  --fs-meta: clamp(0.8125rem, 0.788rem + 0.1087vw, 0.875rem);
+  --fs-price-mono: clamp(0.9375rem, 0.913rem + 0.1087vw, 1rem);
+  --fs-total: clamp(1.125rem, 1.0761rem + 0.2174vw, 1.25rem);
+  --fs-price-tag: clamp(1.75rem, 1.6522rem + 0.4348vw, 2rem);
+  --fs-price-pdp: clamp(2.25rem, 2.0543rem + 0.8696vw, 2.75rem);
+  --fs-stamp: clamp(1.5rem, 1.4022rem + 0.4348vw, 1.75rem);
+  --fs-menu: clamp(2.25rem, 1.9565rem + 1.3043vw, 3rem);
+  --fs-wordmark: clamp(1.5rem, 1.4022rem + 0.4348vw, 1.75rem);
+
+  /* Raum */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px; --space-5: 24px;
+  --space-6: 32px; --space-7: 48px; --space-8: 64px; --space-9: 96px;
+  --page-pad: 16px;
+  --content-max: 1200px;
+  --reading-max: 66ch;
+  --header-h: 56px;
+  --tap-min: 44px;
+  --buybar-h: 72px;
+  --leash-gutter: 0px;          /* je Preset überschrieben, §5.3 */
+
+  /* Formen */
+  --r-photo: 2px;
+  --r-field: 6px 5px 7px 5px;
+  --r-btn: 14px 12px 15px 11px;
+  --r-badge: 12px 10px 13px 9px;
+  --r-card: 3px 14px 4px 12px;
+  --r-tag: 4px 4px 14px 4px;
+  --r-sheet: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  --r-calm: 8px;
+  --stroke-hair: 1px; --stroke-ui: 1.5px; --stroke-ink: 2px; --stroke-stamp: 2.5px;
+  --leash-w: 2.2px;
+  --leash-w-calm: 1.25px;
+  --shadow-press: 3px 3px 0 0 var(--ink);
+  --shadow-press-active: 1px 1px 0 0 var(--ink);
+  --shadow-edge: 0 1px 0 0 var(--clay);
+  --shadow-stencil: 3px 2px 0 0 var(--stencil);
+
+  /* Coco */
+  --coco-leash: 42px;          /* Breite an der Leinenspitze */
+  --coco-s: 40px;
+  --coco-m: 72px;
+  --coco-xl: 180px;
+  --coco-xxl: 240px;
+  --coco-stroke: 1.6px;
+
+  /* Bewegung (§11) */
+  --ease-ink-out: cubic-bezier(0.3, 0.7, 0.2, 1);
+  --ease-ink-in: cubic-bezier(0.5, 0, 0.75, 0.2);
+  --ease-ink-inout: cubic-bezier(0.6, 0, 0.3, 1);
+  --ease-stamp: cubic-bezier(0.18, 1.6, 0.4, 1);
+  --ease-hop-up: cubic-bezier(0.15, 0.75, 0.35, 1);
+  --ease-hop-down: cubic-bezier(0.55, 0, 0.85, 0.35);
+  --ease-swing: cubic-bezier(0.45, 0, 0.55, 1);
+  --ease-calm: cubic-bezier(0.2, 0, 0, 1);
+  --dur-micro: 120ms;
+  --dur-short: 200ms;
+  --dur-medium: 320ms;
+  --dur-long: 600ms;
+  --dur-draw: 900ms;
+  --dur-draw-max: 1200ms;
+  --dur-page: 350ms;
+  --dur-underline: 280ms;
+  --dur-swing: 900ms;
+  --dur-stamp: 260ms;
+  --dur-hop: 360ms;
+  --dur-menu-open: 420ms;
+  --dur-menu-close: 180ms;
+  --stagger: 40ms;
+  --boil-frame: 100ms;         /* 10 fps */
+  --run-frame: 83ms;           /* 12 fps */
+  --sleep-frame: 125ms;        /* 8 fps, Pose schlafen */
+
+  /* Ebenen */
+  --z-leash: 5; --z-sticky: 40; --z-header: 50; --z-skip: 1000;
+}
+
+@media (min-width: 768px) {
+  :root { --page-pad: 24px; --header-h: 64px; --leash-w: 2.6px; --coco-leash: 64px; --coco-stroke: 1.8px; }
+}
+@media (min-width: 1200px) {
+  :root { --page-pad: 32px; }
+}

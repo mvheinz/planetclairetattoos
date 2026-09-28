@@ -1021,7 +1021,9 @@ Produktionsdaten verarbeiten darf (DIENSTE §3.11, LOESCHKONZEPT L-23). Das weic
 Gemeinsam für alle Workflows: `concurrency: { group: <workflow>-${{ github.ref }}, cancel-in-progress: true }` (außer
 `release.yml`); `permissions` minimal (Standard `contents: read`); Actions per Major-Tag, Aktualisierung über Dependabot;
 `timeout-minutes` je Job gesetzt; Node aus `.nvmrc`, pnpm über `pnpm/action-setup`, Cache für pnpm-Store, `.next/cache`
-(Schlüssel: Lockfile + Hash von `src/**`) und Playwright-Browser (`~/.cache/ms-playwright`, Schlüssel: Playwright-Version).
+(Schlüssel: Lockfile + Hash von `src/**`) und Playwright-Browser (`~/.cache/ms-playwright`, Schlüssel: Browser-Satz + Playwright-Version, z. B.
+`playwright-Linux-chromium-webkit-<version>` bzw. `…-chromium-<version>`; der Installationsschritt ruft immer
+`playwright install --with-deps <browser…>` auf – bei Cache-Treffer lädt er nichts nach).
 
 **Was auf `main` läuft:** Bis P10 läuft auf `main` nur `release.yml` (ab dem P10-Merge; es endet nach Sekunden, solange
 `OFFEN_P1_P10 ≠ 0` oder das Release aktuell ist, §6.6) und monatlich `restore-drill.yml`. `ci.yml`, `ci-full.yml` und
@@ -1280,7 +1282,7 @@ Migration, §6.7 Nr. 5), sonst Hotfix-PR. Details im RUNBOOK (P10).
 | Tests | `test` (= `test:unit` + `test:int`), `test:unit`, `test:int`, `test:e2e`, `test:visual`, `test:perf`, `test:preview-export`, `test:coverage` |
 | Daten | `seed` (= `seed:base` + `seed:example`), `seed:base`, `seed:example [--only=<collection,…>] [--refresh-media]`, `seed:remove [--yes] [--drop-texts]` (ohne `--yes` nur Mengenvorschau), `seed:reset` (= `seed:remove --yes --drop-texts` + `seed:base` + `seed:example`; nur Entwicklung, Test, Vorschau-Export), `seed:import-instagram` (`scripts/seed/import-instagram.ts`, P8), `db:ensure`, `db:reset --test [--seed=none\|base\|all]` (Standard `base`) (nur dev/test), `db:mark-production`, `media:regenerate` |
 | Betrieb | `jobs:run [task] [--now=<ISO>]` (`scripts/jobs-run.ts`), `admin:create`, `admin:unlock` (`scripts/admin-*.ts`), `backup:run`, `backup:restore`, `backup:verify`, `retention:replay`, `payments:reconcile [--since=<ISO>]`, `stripe:fixture <name>` |
-| Vorschau/Kunst | `preview:export`, `fonts:copy` (`scripts/fonts/copy.ts`: WOFF2 kopieren, bei Bedarf per `subset-font` beschneiden, ab P3 TTF für OG-Bilder per WOFF2→TTF-Wandler, §1.2, DESIGN §4.1), `art:build`, `art:record`, `art:metrics`, `art:sheets`, `art:check`, `art:bundle`, `art:vectorize`, `art:sprite` (KUNST-QA §3.3), `art:coco-refs` (`scripts/art/coco-refs.ts`, P8), `art:placeholders` (`scripts/art/placeholders.ts`, P8) |
+| Vorschau/Kunst | `preview:export`, `fonts:copy` (`scripts/fonts/copy.ts`: WOFF2 kopieren, bei Bedarf per `subset-font` beschneiden, ab P3 TTF für OG-Bilder per WOFF2→TTF-Wandler, §1.2, DESIGN §4.1), `art:brand` (`scripts/art/build-brand.ts`: Wortmarke, `icon.svg`, `favicon.ico`, `apple-icon.png`, `public/og/default.png` aus `src/art/`, P2.5), `art:icons` (`scripts/art/build-icons.ts`: `src/art/icons/*.svg` → `src/components/icons/icons.generated.ts`, P2.5), `art:build`, `art:record`, `art:metrics`, `art:sheets`, `art:check`, `art:bundle`, `art:vectorize`, `art:sprite` (`scripts/art/build-sprite.ts`: Coco-Sprite → `public/art/coco-sprite.v{N}.svg` + `src/art/coco/coco-sprite.json`, P2.18; KUNST-QA §3.3), `art:coco-placeholder` (`scripts/art/draw-coco-placeholder.ts`: Platzhalter-Zeichnungen bis P9, P2.18), `art:calibration` (`scripts/art/calibration-sheet.ts`: Kalibrierbogen, P2.18), `art:coco-refs` (`scripts/art/coco-refs.ts`, P8), `art:placeholders` (`scripts/art/placeholders.ts`, P8) |
 | Doku | `handbook:shots` (`scripts/handbook/shots.ts`, P10) |
 
 - Alle `seed*`-Befehle laufen über `payload run scripts/seed/cli.ts -- <base|example|remove|reset|all>` (SEED-SPEC §1.4);
@@ -1332,6 +1334,11 @@ ab 1.500 Minuten `MINUTEN_STATUS=knapp`, ab 2.000 `erschoepft` und bei einem API
   `pc_test_baseline`; vor jeder Int-Testdatei stellt `tests/int/setup/restore.ts` ihn wieder her (Tabellen leeren,
   Daten und Sequenzstände zurückspielen). Jede Datei beginnt so im Zustand „nach `db:reset --test`“ – auch in CI, wo die
   Reihenfolge der Dateien mangels Vitest-Cache eine andere ist als lokal.
+- **E2E gegen den Produktions-Build (`E2E_SERVER=start`):** `next build` backt den Datenbank-Stand zur Build-Zeit in die
+  vorgerenderten Seiten; der anschließende Reset (Seed revalidiert nie) oder ein Build gegen eine andere DB ließe den ersten
+  Aufruf den alten Stand zeigen. `tests/e2e/global-setup.ts` erzeugt deshalb nach dem Serverstart jede ISR-Route aus
+  `prerender-manifest.json` per On-Demand-Revalidierung (`x-prerender-revalidate`) neu und bricht ab, wenn eine nicht
+  `REVALIDATED` meldet.
 - **E2E-Fixtures:** Tests, die Stücke kaufen/reservieren, legen eigene Stücke im Seed-Nummernbereich `980–999` an
   (`tests/e2e/fixtures.ts`, Local API, `seed=true`) und setzen sie vor jedem Test zurück; der P8-Beispielbestand bleibt
   unverändert (für Screenshots und Export).
@@ -1404,7 +1411,9 @@ Chromium, Projekte `desktop` (1440×900) und Mobil-Emulation 390×844; `reducedM
 sind maßgeblich; Bilder aus der Cloud-Sandbox oder von lokalen Rechnern werden nie committet): Commit mit
 `[ci:update-snapshots]` oder `gh workflow run ci-full.yml --ref <branch> -f update_snapshots=true` → Job `snapshots`
 (§6.4) → Artefakt `visual-snapshots-<sha7>` → `gh run download <run-id> -n visual-snapshots-<sha7> -D <Referenzordner>` →
-Commit der Referenzen mit Begründung und `[skip ci]`; geprüft werden sie im nächsten Phasenende-Lauf. Auf Windows/macOS
+Commit der Referenzen mit Begründung und `[skip ci]`; geprüft werden sie im nächsten Phasenende-Lauf. Ist noch keine Linux-Referenz eingecheckt, überspringt `quality` den
+Schritt `test:visual` mit Hinweis im Job-Summary (nicht rot; P2.28, OFFENE-PUNKTE); sobald Referenzen da sind, ist jede
+Abweichung rot. Auf Windows/macOS
 werden die visuellen Tests übersprungen. Umfang: je Seitentyp ein Bild pro Projekt,
 Kopf/Menü/Fuß, Preisschild, sold-Stempel, Kasse, 404.
 
@@ -1468,9 +1477,11 @@ geolocation=(), payment=(), usb=(), browsing-topics=()` · in `production`/`stag
 | `api` | `/api/*` (JSON) | `default-src 'none'; frame-ancestors 'none'` | `Cache-Control` je Endpunkt (§2.5) |
 
 **Inline-Skript `pc-motion`** (DESIGN §11.7): Das feste Skript im `<head>` liest `localStorage['pc-motion']` vor dem ersten
-Rendern. Sein Text steht als Konstante in `src/lib/security/inlineScripts.ts`; `csp.ts` berechnet daraus den
+Rendern und öffnet danach das Schriften-Tor `html[data-fonts]` (DESIGN §4.1, P2.20; liest/schreibt keinen Speicher). Sein Text steht als Konstante in `src/lib/security/inlineScripts.ts`; `csp.ts` berechnet daraus den
 `sha256`-Hash für `script-src` im Kontext `public` (ein Unit-Test prüft Hash und Skripttext gegeneinander). In den
-Kontexten `dynamic` und `checkout` trägt das Skript stattdessen die Nonce. `'unsafe-inline'` in `style-src` ist
+Kontexten `dynamic` und `checkout` steht der Hash neben der Nonce (das Skript liegt im gemeinsamen, statischen
+Wurzel-Layout und kennt die Nonce nicht). Ergebnis Spike B-03: Im Kontext `public` gilt die Rückfallebene
+`'unsafe-inline'` ohne Hash (ADR 0002). `'unsafe-inline'` in `style-src` ist
 nur für CSS-Variablen in `style`-Attributen nötig (§15.5) und erlaubt keine fremden Hosts.
 
 In `development` ergänzt die CSP `'unsafe-eval'` (React-Fehlerdarstellung) und lässt `upgrade-insecure-requests` weg.
@@ -1709,7 +1720,10 @@ nicht im Umfang). Auslieferung mit langem Cache (§3.3).
 ### 9.5 Schriften, CSS, JavaScript, Proxy
 
 - Schriften: `next/font/local` aus `src/styles/fonts/` (3 Dateien, ≤ 100 KB), `display: swap`, `adjustFontFallback`,
-  Preload nur Mansalva + Bricolage (DESIGN §4.1).
+  kein Preload; Webschriften erst nach dem ersten Bild über das Schriften-Tor `html[data-fonts]` (DESIGN §4.1, P2.20).
+- Client-Hints: `withPayload` setzt `Accept-CH`/`Critical-CH`/`Vary: Sec-CH-Prefers-Color-Scheme` für alle Pfade;
+  `withoutPublicClientHints` (`src/lib/security/headers.ts`) entfernt sie aus `next.config.ts`, der Proxy setzt sie nur
+  im Kontext `admin` (sonst verwirft Chrome jede erste Anfrage einer öffentlichen Seite und stellt sie neu, P2.20).
 - CSS: `src/styles/tokens.css` + `global.css` + CSS Modules; keine CSS-Laufzeitbibliothek.
 - JavaScript: Server Components als Standard; Client-Komponenten nur als kleine Inseln. Interaktion über
   `src/behaviors/*` (A-11): Eine Client-Komponente `BehaviorHost` sucht nach dem ersten Rendern `[data-behavior]`-Elemente
@@ -2609,15 +2623,16 @@ Kein Spike darf die Phase blockieren: Scheitert das Soll, wird ohne Rückfrage d
 
 | ID | Phase | Frage | Soll | Erfolgskriterium | Rückfallebene | Ergebnis |
 |---|---|---|---|---|---|---|
-| B-01 | P1 | Läuft die Payload-Verwaltung unter `ADMIN_ROUTE` per Proxy-Umschreibung auf den internen Ordner `admin/` – und mit Nonce-CSP (§8.1 Kontext `admin`)? | §8.4, §8.1 | AK-A-8-02; Login, Listen, Bearbeiten, eigene Ansichten, Passwort-Reset-Link, Manifest und Service Worker funktionieren unter `/werkstatt` ohne CSP-Verstoß | Pfad: Ordner heißt wie der Pfad (`src/app/(payload)/werkstatt/`), Startprüfung „Ordner = `ADMIN_ROUTE`“, Produktionspfad per Umbenennung in P11. CSP: `script-src 'self' 'unsafe-inline'` nur im Kontext `admin` (Hosts bleiben `'self'`; R-131, Kanzleifrage K-41), ADR | Ergebnis Pfad: Soll erfüllt – `src/proxy.ts` (Next 16, Node-Laufzeit) schreibt `ADMIN_ROUTE/*` intern auf den Ordner `admin/` um, `/admin` und `/admin/*` antworten mit 404 ohne Weiterleitung (`/admin/` normalisiert Next per 308 auf `/admin` → 404); `routes.admin = ADMIN_ROUTE`, `admin.importMap.importMapFile` zeigt fest auf `app/(payload)/admin/importMap.js`. Login, Übersicht, Liste, Bearbeiten, Weiterleitung auf `/werkstatt/login` und Passwort-Reset-Link `/werkstatt/reset/<token>` funktionieren mit `pnpm dev` und `pnpm start` (Desktop, iPhone 15/WebKit, Pixel 7); der Pfad steht in keiner Datei unter `.next/static` (`pnpm check:external --built`). GraphQL-Routen entfernt (`/api/graphql` → 404). Manifest/Service Worker (PWA) prüft P5.29, den CSP-Teil (Nonce, §8.1 Kontext `admin`) P2.12 (`tests/e2e/admin-route.e2e.spec.ts`, `tests/e2e/admin.e2e.spec.ts`), 27.09.2026, PR #1 |
+| B-01 | P1 | Läuft die Payload-Verwaltung unter `ADMIN_ROUTE` per Proxy-Umschreibung auf den internen Ordner `admin/` – und mit Nonce-CSP (§8.1 Kontext `admin`)? | §8.4, §8.1 | AK-A-8-02; Login, Listen, Bearbeiten, eigene Ansichten, Passwort-Reset-Link, Manifest und Service Worker funktionieren unter `/werkstatt` ohne CSP-Verstoß | Pfad: Ordner heißt wie der Pfad (`src/app/(payload)/werkstatt/`), Startprüfung „Ordner = `ADMIN_ROUTE`“, Produktionspfad per Umbenennung in P11. CSP: `script-src 'self' 'unsafe-inline'` nur im Kontext `admin` (Hosts bleiben `'self'`; R-131, Kanzleifrage K-41), ADR | Ergebnis Pfad: Soll erfüllt – `src/proxy.ts` (Next 16, Node-Laufzeit) schreibt `ADMIN_ROUTE/*` intern auf den Ordner `admin/` um, `/admin` und `/admin/*` antworten mit 404 ohne Weiterleitung (`/admin/` normalisiert Next per 308 auf `/admin` → 404); `routes.admin = ADMIN_ROUTE`, `admin.importMap.importMapFile` zeigt fest auf `app/(payload)/admin/importMap.js`. Login, Übersicht, Liste, Bearbeiten, Weiterleitung auf `/werkstatt/login` und Passwort-Reset-Link `/werkstatt/reset/<token>` funktionieren mit `pnpm dev` und `pnpm start` (Desktop, iPhone 15/WebKit, Pixel 7); der Pfad steht in keiner Datei unter `.next/static` (`pnpm check:external --built`). GraphQL-Routen entfernt (`/api/graphql` → 404). Manifest/Service Worker (PWA) prüft P5.29, den CSP-Teil (Nonce, §8.1 Kontext `admin`) P2.12 (`tests/e2e/admin-route.e2e.spec.ts`, `tests/e2e/admin.e2e.spec.ts`), 27.09.2026, PR #1. Ergebnis CSP-Teil: Soll erfüllt – der Proxy setzt unter `ADMIN_ROUTE` `script-src 'self' 'nonce-…' 'strict-dynamic'`; Login, Liste und Bearbeiten ohne CSP-Verstoß (`tests/e2e/security-headers.e2e.spec.ts`), ADR 0002, 27.09.2026, P2.12 |
 | B-02 | P1 | Funktioniert `@payloadcms/storage-s3` doppelt (öffentlich/privat) inkl. Präfix `private/invoices/` je Dokument und `signedDownloads` 300 s? | §3.3 | DM-PRIV-01 gegen MinIO grün; private Datei nur per signierter URL, nach Ablauf 403 | eine Instanz für alle Collections + eigener Download-Handler mit `@aws-sdk/s3-request-presigner`; Rechnungen notfalls eigener Bucket (C-06) | Ergebnis: Soll erfüllt – zwei Instanzen `@payloadcms/storage-s3` 3.90.2 (`clientCacheKey` je Bucket, `alwaysInsertFields` für gleiches Schema bei `local`), Dokument-Präfix `private/invoices/<Jahr>` wird übernommen, Dateiroute leitet nur die Verwaltung per 302 auf eine signierte URL (300 s) um, anonym 403, abgelaufene Signatur 403; geprüft gegen einen MinIO-kompatiblen Dienst (RustFS, weil das Image `minio/minio` hier nicht erhältlich war), R2 selbst in P11 (`tests/int/adapters/storage.contract.int.spec.ts`), 27.09.2026, PR #1 |
-| B-03 | P2 | Lässt sich `script-src` auf statischen Seiten ohne `'unsafe-inline'` betreiben (`experimental.sri`, Inline-Daten von Next)? | §8.1 Kontext `public` | alle öffentlichen Routen ohne CSP-Verstoß in E2E, Seiten bleiben statisch | `'unsafe-inline'` im Kontext `public` (Hosts bleiben auf `'self'` beschränkt, R-131 erfüllt), ADR | offen |
+| B-03 | P2 | Lässt sich `script-src` auf statischen Seiten ohne `'unsafe-inline'` betreiben (`experimental.sri`, Inline-Daten von Next)? | §8.1 Kontext `public` | alle öffentlichen Routen ohne CSP-Verstoß in E2E, Seiten bleiben statisch | `'unsafe-inline'` im Kontext `public` (Hosts bleiben auf `'self'` beschränkt, R-131 erfüllt), ADR | Ergebnis: Rückfall umgesetzt – mit `experimental.sri` und Hash von `pc-motion` blockiert Chromium auf jeder statischen Seite die Inline-RSC-Daten von Next (`self.__next_f.push(…)`, je Seite/Build anders, nicht per Hash in `next.config.ts` erlaubbar; Nonce erzwänge dynamisches Rendern). Kontext `public` daher `script-src 'self' 'unsafe-inline'` ohne Hash und ohne fremde Hosts, `experimental.sri` aus; `pc-motion` in `dynamic`/`checkout` per Hash neben der Nonce. ADR `docs/adr/0002-csp-script-src.md`, 27.09.2026, P2.12 |
 | B-04 | ab P2, optional | Bringen Cache Components (`cacheComponents: true`) Vorteile ohne Nebenwirkungen? | nein, `unstable_cache` bleibt (§9.2) | Build, Verwaltung und alle Tests grün, messbar besseres LCP/TTFB | Soll beibehalten | offen |
 | B-05 | P3 | Bleiben Listen-Varianten (`?available=1&page=2`) per Proxy-Umschreibung statisch? | §9.1 | AK-A-9-03 | dynamisches Rendern mit Daten-Cache, nur wenn T-10 (LCP) grün bleibt | offen |
 | B-06 | P10 | Reicht der eigene COPY-Dump auf Vercel (Speicher, 300 s, Streaming von age)? | §10.3 | AK-A-10-01 bis -05; zehnfacher Beispielbestand in < 60 s und < 512 MB Speicher | gebündeltes statisches `pg_dump` 17 (`outputFileTracingIncludes`) + `pg_restore`; zweite Ebene: Neon-Wiederherstellung + Backup über den Docker-Pfad | offen |
 | B-07 | P4 | Erlaubt die gepinnte Stripe-API-Version `checkout.sessions.update` mit neuen `shipping_options` bei `ui_mode: 'elements'`? | `updateShipping` → `updated` | Test im Stripe-Testmodus (falls Test-Schlüssel als API-Credential vorhanden) oder Parameter-Test gegen stripe-mock + Doku der gepinnten Version | `recreate_required`: alte Session beenden, neue mit derselben Reservierung (§3.5) | offen |
 | B-08 | P10 | Baut das Docker-Image ohne DB, und rendern die Seiten dann zur Laufzeit korrekt? | §13.2 (`BUILD_WITHOUT_DB=1`, `connection()`) | AK-A-13-01, AK-A-13-02 | Build im Compose-Netz mit laufender, migrierter DB (`DATABASE_URL` als Build-Argument einer Wegwerf-DB) | offen |
 | B-09 | P1 | Stellen `payload.jobs.handleSchedules()` und `payload.jobs.run()` in 3.90.2 die in §9.6 angenommenen Funktionen bereit (auch mit injizierter Zeit)? | §9.6 | Int-Test: geplanter Task wird durch einen Tick mit vorgestellter Uhr eingereiht und ausgeführt | eigene Tabelle `job_schedules (task, next_run_at)` und Einreihen im Tick | Ergebnis: Soll erfüllt – `handleSchedules({ allQueues, req })`, `run({ allQueues, limit, where, req })`, `runByID`, `queue`, `cancel` vorhanden; ein stündlich geplanter Test-Task wird bei vorgestellter Uhr (`Date` gefälscht) mit `waitUntil` = nächste volle Stunde eingereiht, erst danach ausgeführt, nicht doppelt eingereiht; `req.context` (injizierte Zeit `now`) erreicht den Task. Hinweis: erledigte Jobs löscht Payload standardmäßig (`deleteJobOnComplete`) – das Lauf-Protokoll (P5.3) braucht eine eigene Ablage (`tests/int/spikes/b09-jobs.int.spec.ts`), 27.09.2026, PR #1 |
+| B-10 | P2 | View Transitions (DESIGN §9.8): Bieten Next 16.3.6/React 19.2.6 `ViewTransition`, braucht es `experimental.viewTransition`? | Soll: weiche Navigation mit Namen `coco`/`leash-head`, harte per `@view-transition`, nie von/zu `calm`, nicht bei reduzierter Bewegung | Rückfall: ohne Übergang | Ergebnis: umgesetzt mit Einschränkung – `react@19.2.6` exportiert `ViewTransition` nicht, der App Router nutzt aber die mitgelieferte Canary (Export vorhanden); `experimental.viewTransition` existiert in 16.3.6 nicht mehr. Harte Navigation per `@view-transition` (nur Presets mit Übergang), weiche per `<ViewTransition>` um Inhalt und Coco (P2.18); ADR `docs/adr/0003-view-transitions.md`, 2026-09-28, PR #2 |
 
 ---
 

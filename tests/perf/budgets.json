@@ -1,0 +1,93 @@
+{
+  "$comment": "Tempo-Budgets (ARCHITEKTUR §7.7, DESIGN §9.10, AK-DS-04). 1 KB = 1000 B, Grenzen gelten einschließlich. Gelesen von scripts/check-bundle.ts (pnpm check:bundle), tests/perf/lighthouserc.cjs (pnpm test:perf) und tests/e2e/perf.e2e.spec.ts (@perf). Nur Gates blockieren, Ziele werden berichtet.",
+  "firstLoadJs": {
+    "$comment": "JS beim ersten Laden: gzip Stufe 9, Summe aller Skripte aus /_next/static, die vor dem load-Ereignis geladen werden. Schlüssel = Routen-ID der Registry, sonst default (R02–R05, R11–R27 und R28). R06/R07 ohne Stripe.js. R29 (Fehlerzustand, in §7.7 ohne eigene Grenze) lädt die Fehleransicht nach; eigene Grenze laut OFFENE-PUNKTE (P2.23).",
+    "gzipMax": {
+      "default": 150000,
+      "R01": 170000,
+      "R06": 220000,
+      "R07": 220000,
+      "R29": 160000
+    },
+    "gzipTarget": {
+      "R01": 140000
+    }
+  },
+  "modules": [
+    {
+      "name": "Engine (Geometrie + Laufzeit)",
+      "entries": ["src/leash/runtime.ts"],
+      "gzipMax": 12000
+    },
+    {
+      "name": "Statischer Renderer",
+      "entries": ["src/leash/static.ts"],
+      "gzipMax": 4000
+    },
+    {
+      "name": "Coco-Steuerung",
+      "entries": ["src/leash/coco.ts"],
+      "gzipMax": 3000
+    },
+    {
+      "name": "Mikro-Interaktionen (alle Verhaltensmodule zusammen)",
+      "entries": ["src/behaviors/*.ts"],
+      "gzipMax": 4000
+    }
+  ],
+  "fonts": {
+    "files": 3,
+    "maxBytes": 100000
+  },
+  "svg": {
+    "cocoSprite": {
+      "file": "public/art/coco-sprite.v1.svg",
+      "rawMax": 45000,
+      "gzipMax": 12000
+    },
+    "stationRawMax": 8000,
+    "stationGlob": "src/art/stations/*.svg",
+    "iconRawMax": 600,
+    "iconGlob": "src/art/icons/*.svg",
+    "homeTotalRawMax": 60000,
+    "pathDataPerPageMax": 60000
+  },
+  "pageWeight": {
+    "R01": {
+      "max": 1500000,
+      "target": 1000000
+    }
+  },
+  "lighthouse": {
+    "$comment": "Preset mobil (Lighthouse-Standard), Median aus 3 Läufen. Seiten ab P2: R01; R02, R04, R11 kommen mit ihren Phasen dazu.",
+    "routes": ["R01"],
+    "runs": 3,
+    "lcpMs": {
+      "max": 2500,
+      "target": 2000
+    },
+    "cls": {
+      "max": 0.1,
+      "target": 0.05
+    },
+    "tbtMs": {
+      "max": 200,
+      "target": 150
+    }
+  },
+  "interaction": {
+    "$comment": "@perf (pixel-7, CPU 4×): INP-Ersatz je Interaktion (Event Timing), CLS über den Seitenaufbau (layout-shift), Arbeit je Frame der Tuschelinie beim Scrollen (p95 der User-Timing-Messungen leash:frame per PerformanceObserver, auch im Produktions-Build; KUNST-QA PF-03).",
+    "cpuThrottling": 4,
+    "inpMs": {
+      "max": 200,
+      "target": 150
+    },
+    "cls": {
+      "max": 0.1,
+      "target": 0.05
+    },
+    "frameWorkMs": {
+      "max": 6
+    }
+  }
+}

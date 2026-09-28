@@ -13,6 +13,8 @@ export default defineConfig({
   test: {
     environment: 'node',
     setupFiles: ['./vitest.setup.ts'],
-    include: ['tests/unit/**/*.unit.spec.ts'],
+    include: ['tests/unit/**/*.unit.spec.{ts,tsx}'],
+    // next-intl importiert `next/server` ohne Endung; inline gebündelt löst Vite das auf.
+    server: { deps: { inline: ['next-intl'] } },
   },
 })

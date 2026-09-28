@@ -1,0 +1,486 @@
+{
+  "version": 1,
+  "href": "/art/coco-sprite.v1.svg",
+  "viewBox": [
+    0,
+    0,
+    160,
+    120
+  ],
+  "symbols": [
+    {
+      "id": "coco-rennen-a",
+      "pose": "rennen",
+      "frame": "a",
+      "bridge": false,
+      "anchor": {
+        "x": 90.5,
+        "y": 54
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 14,
+        "y": 5.5,
+        "w": 141,
+        "h": 95.5
+      },
+      "fps": 12,
+      "hiddenParts": [
+        "eye-r"
+      ]
+    },
+    {
+      "id": "coco-rennen-b",
+      "pose": "rennen",
+      "frame": "b",
+      "bridge": false,
+      "anchor": {
+        "x": 91,
+        "y": 53
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 31.5,
+        "y": 6.5,
+        "w": 124.5,
+        "h": 104.5
+      },
+      "fps": 12,
+      "hiddenParts": [
+        "eye-r"
+      ]
+    },
+    {
+      "id": "coco-rennen-c",
+      "pose": "rennen",
+      "frame": "c",
+      "bridge": false,
+      "anchor": {
+        "x": 90.5,
+        "y": 52
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 19.5,
+        "y": 3.5,
+        "w": 137,
+        "h": 98.5
+      },
+      "fps": 12,
+      "hiddenParts": [
+        "eye-r"
+      ]
+    },
+    {
+      "id": "coco-schnueffeln-a",
+      "pose": "schnueffeln",
+      "frame": "a",
+      "bridge": false,
+      "anchor": {
+        "x": 88.5,
+        "y": 59.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 31,
+        "y": 42,
+        "w": 116.5,
+        "h": 74.5
+      },
+      "fps": 10,
+      "hiddenParts": [
+        "eye-r"
+      ]
+    },
+    {
+      "id": "coco-schnueffeln-b",
+      "pose": "schnueffeln",
+      "frame": "b",
+      "bridge": false,
+      "anchor": {
+        "x": 88.5,
+        "y": 59.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 30.5,
+        "y": 42,
+        "w": 117,
+        "h": 74.5
+      },
+      "fps": 10,
+      "hiddenParts": [
+        "eye-r"
+      ]
+    },
+    {
+      "id": "coco-schnueffeln-c",
+      "pose": "schnueffeln",
+      "frame": "c",
+      "bridge": false,
+      "anchor": {
+        "x": 88.5,
+        "y": 59.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 31.5,
+        "y": 42,
+        "w": 116.5,
+        "h": 75
+      },
+      "fps": 10,
+      "hiddenParts": [
+        "eye-r"
+      ]
+    },
+    {
+      "id": "coco-sitzen-a",
+      "pose": "sitzen",
+      "frame": "a",
+      "bridge": false,
+      "anchor": {
+        "x": 60.5,
+        "y": 67
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 54.5,
+        "y": 4.5,
+        "w": 53.5,
+        "h": 110.5
+      },
+      "fps": 10,
+      "hiddenParts": [
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-sitzen-b",
+      "pose": "sitzen",
+      "frame": "b",
+      "bridge": false,
+      "anchor": {
+        "x": 60.5,
+        "y": 67
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 54,
+        "y": 4.5,
+        "w": 53.5,
+        "h": 111
+      },
+      "fps": 10,
+      "hiddenParts": [
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-sitzen-c",
+      "pose": "sitzen",
+      "frame": "c",
+      "bridge": false,
+      "anchor": {
+        "x": 60.5,
+        "y": 67
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 53.5,
+        "y": 4.5,
+        "w": 54.5,
+        "h": 111
+      },
+      "fps": 10,
+      "hiddenParts": [
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-schlafen-a",
+      "pose": "schlafen",
+      "frame": "a",
+      "bridge": false,
+      "anchor": {
+        "x": 85,
+        "y": 73
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 17.5,
+        "y": 72,
+        "w": 95,
+        "h": 45
+      },
+      "fps": 8,
+      "hiddenParts": [
+        "eye-r",
+        "leg-fr",
+        "leg-hl",
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-schlafen-b",
+      "pose": "schlafen",
+      "frame": "b",
+      "bridge": false,
+      "anchor": {
+        "x": 85,
+        "y": 73
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 17,
+        "y": 72,
+        "w": 96,
+        "h": 45
+      },
+      "fps": 8,
+      "hiddenParts": [
+        "eye-r",
+        "leg-fr",
+        "leg-hl",
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-schlafen-c",
+      "pose": "schlafen",
+      "frame": "c",
+      "bridge": false,
+      "anchor": {
+        "x": 85,
+        "y": 73
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 17.5,
+        "y": 72,
+        "w": 95,
+        "h": 45.5
+      },
+      "fps": 8,
+      "hiddenParts": [
+        "eye-r",
+        "leg-fr",
+        "leg-hl",
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-springen-a",
+      "pose": "springen",
+      "frame": "a",
+      "bridge": false,
+      "anchor": {
+        "x": 81.5,
+        "y": 53.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 13,
+        "y": 3,
+        "w": 137.5,
+        "h": 97.5
+      },
+      "fps": 12,
+      "hiddenParts": [
+        "eye-r"
+      ]
+    },
+    {
+      "id": "coco-springen-b",
+      "pose": "springen",
+      "frame": "b",
+      "bridge": false,
+      "anchor": {
+        "x": 81.5,
+        "y": 53.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 13.5,
+        "y": 4,
+        "w": 136.5,
+        "h": 96.5
+      },
+      "fps": 12,
+      "hiddenParts": [
+        "eye-r"
+      ]
+    },
+    {
+      "id": "coco-springen-c",
+      "pose": "springen",
+      "frame": "c",
+      "bridge": false,
+      "anchor": {
+        "x": 81.5,
+        "y": 53.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 13.5,
+        "y": 2.5,
+        "w": 137,
+        "h": 97
+      },
+      "fps": 12,
+      "hiddenParts": [
+        "eye-r"
+      ]
+    },
+    {
+      "id": "coco-kopfschief-a",
+      "pose": "kopfschief",
+      "frame": "a",
+      "bridge": false,
+      "anchor": {
+        "x": 60.5,
+        "y": 67
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 54.5,
+        "y": 1.5,
+        "w": 61,
+        "h": 113.5
+      },
+      "fps": 10,
+      "hiddenParts": [
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-kopfschief-b",
+      "pose": "kopfschief",
+      "frame": "b",
+      "bridge": false,
+      "anchor": {
+        "x": 60.5,
+        "y": 67
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 55.5,
+        "y": 0.5,
+        "w": 60,
+        "h": 114.5
+      },
+      "fps": 10,
+      "hiddenParts": [
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-kopfschief-c",
+      "pose": "kopfschief",
+      "frame": "c",
+      "bridge": false,
+      "anchor": {
+        "x": 60.5,
+        "y": 67
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 55,
+        "y": 2,
+        "w": 59.5,
+        "h": 113.5
+      },
+      "fps": 10,
+      "hiddenParts": [
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-bridge-bremsen",
+      "pose": "bremsen",
+      "frame": null,
+      "bridge": true,
+      "anchor": {
+        "x": 84,
+        "y": 55
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 26,
+        "y": 3,
+        "w": 122.5,
+        "h": 111
+      },
+      "fps": 12,
+      "hiddenParts": [
+        "eye-r"
+      ]
+    },
+    {
+      "id": "coco-bridge-abspringen",
+      "pose": "abspringen",
+      "frame": null,
+      "bridge": true,
+      "anchor": {
+        "x": 91.5,
+        "y": 63.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 33,
+        "y": 15.5,
+        "w": 120,
+        "h": 97
+      },
+      "fps": 12,
+      "hiddenParts": [
+        "eye-r"
+      ]
+    },
+    {
+      "id": "coco-bridge-einrollen-1",
+      "pose": "einrollen-1",
+      "frame": null,
+      "bridge": true,
+      "anchor": {
+        "x": 84.5,
+        "y": 81.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 25.5,
+        "y": 25.5,
+        "w": 120.5,
+        "h": 83.7
+      },
+      "fps": 12,
+      "hiddenParts": [
+        "eye-r"
+      ]
+    },
+    {
+      "id": "coco-bridge-einrollen-2",
+      "pose": "einrollen-2",
+      "frame": null,
+      "bridge": true,
+      "anchor": {
+        "x": 85,
+        "y": 72.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 17.5,
+        "y": 60,
+        "w": 96,
+        "h": 57
+      },
+      "fps": 12,
+      "hiddenParts": [
+        "eye-r",
+        "leg-fr",
+        "leg-hl",
+        "leg-hr"
+      ]
+    }
+  ]
+}

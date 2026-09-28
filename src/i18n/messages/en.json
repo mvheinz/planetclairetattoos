@@ -1,0 +1,169 @@
+{
+  "common": {
+    "siteName": "Planet Claire",
+    "claim": "Tattoos, ceramics and drawings from Berlin",
+    "routes": {
+      "R01": "Home",
+      "R02": "Shop",
+      "R03": "Category",
+      "R04": "Piece",
+      "R05": "Archive",
+      "R06": "Basket",
+      "R07": "Checkout",
+      "R08": "Thank you",
+      "R09": "Order status",
+      "R10": "Commissions",
+      "R11": "Tattoo",
+      "R12": "Flash",
+      "R13": "Offers",
+      "R14": "Prices",
+      "R15": "Gallery",
+      "R16": "Process",
+      "R17": "Aftercare",
+      "R18": "FAQ",
+      "R19": "About me & Coco",
+      "R20": "Contact",
+      "R21": "Legal notice",
+      "R22": "Privacy",
+      "R23": "Terms and conditions",
+      "R24": "Right of withdrawal",
+      "R25": "Shipping & payment",
+      "R26": "Withdraw from contract here",
+      "R27": "Declarations of conformity"
+    }
+  },
+  "header": {
+    "home": "planet claire – home page",
+    "shop": "Shop",
+    "tattoo": "Tattoo",
+    "cart": "Basket",
+    "menu": "Menu",
+    "mainNav": "Main navigation"
+  },
+  "menu": {
+    "title": "Menu",
+    "close": "Close menu",
+    "language": "Language"
+  },
+  "footer": {
+    "legalHeading": "Legal",
+    "withdraw": "Withdraw from contract here",
+    "instagram": "Instagram",
+    "language": "Language",
+    "languageSwitch": "Deutsch",
+    "motionOn": "on",
+    "motionOff": "off",
+    "siteNav": "Site overview",
+    "settingsHeading": "Language & settings",
+    "motionLabel": "Animations:",
+    "motionOffSystem": "off (system setting)",
+    "copyright": "© {year} Planet Claire · Berlin"
+  },
+  "legal": {
+    "placeholder": "Placeholder – the binding text will follow after review by the law firm.",
+    "version": "Version",
+    "placeholderBanner": "PLACEHOLDER – not legally binding",
+    "asOf": "Version: {date}",
+    "germanOnly": "Only available in German.",
+    "emptyTitle": "This text is being prepared",
+    "emptyText": "Please check back a little later. If you have questions, you can reach me via the contact page.",
+    "emptyAction": "Go to the contact page",
+    "conformity": {
+      "empty": "Currently all ceramics are labelled as decoration and are not intended for use with food.",
+      "validFrom": "valid from {date}",
+      "pdf": "Declaration as PDF: {name}"
+    }
+  },
+  "errors": {
+    "notFoundTitle": "Coco slipped her leash",
+    "notFoundText": "This page does not exist (anymore).",
+    "linksLabel": "Where to next",
+    "homeTitle": "This piece has already found a home",
+    "homeText": "It has been sold and lives somewhere else now. There is more waiting in the shop.",
+    "soldStamp": "sold",
+    "serverErrorTitle": "Oops – the leash got tangled",
+    "serverErrorText": "Something just went wrong. Please try again in a moment.",
+    "retry": "Try again",
+    "toHome": "To the home page"
+  },
+  "home": {
+    "title": "Planet Claire",
+    "intro": "Tattoos, handmade one-of-a-kind ceramics and drawings from Berlin.",
+    "stationKicker": "Station {number}",
+    "stationMore": "Take a look",
+    "emptyTitle": "We’re rearranging things.",
+    "emptyText": "The home page will be back shortly. In the meantime, here’s how to reach us.",
+    "emptyAction": "Contact"
+  },
+  "a11y": {
+    "skipToContent": "Skip to content",
+    "currentLanguage": "Current language: English",
+    "switchToOther": "Switch to the German page"
+  },
+  "previewExport": {
+    "banner": "Preview file with sample data",
+    "notBuilt": "Not built yet",
+    "seedBanner": "Preview with sample data",
+    "phase": "Phase {phase}",
+    "bannerInternal": "Internal preview – do not share · Sample data · Legal texts are placeholders",
+    "bannerStand": "Preview – nothing can be bought here. As of {date}, phase {phase}.",
+    "allPages": "All pages",
+    "dialogTitle": "Preview – nothing can be bought here",
+    "dialogClose": "Close",
+    "cartDemo": "In the preview, the cart shows an example",
+    "groups": {
+      "start": "Start",
+      "shop": "Shop",
+      "tattoo": "Tattoo",
+      "service": "Service",
+      "legal": "Legal",
+      "admin": "Admin"
+    },
+    "notIncluded": {
+      "title": "This only exists on the real website",
+      "titleShort": "Not included",
+      "text": "This page or file is not part of the preview file – for example PDFs, payment, the admin area or pages that will be built in a later phase.",
+      "back": "Back to the home page"
+    },
+    "admin": {
+      "title": "Admin area on the phone",
+      "titleShort": "Admin",
+      "intro": "Screenshots of the admin area with sample data (phone, 390 × 844). The real admin area is not part of the preview file.",
+      "comingIn": "coming in {phase}"
+    }
+  },
+  "ui": {
+    "callout": {
+      "deviationTitle": "Please note:"
+    },
+    "form": {
+      "requiredNote": "* Required field"
+    }
+  },
+  "seo": {
+    "descriptions": {
+      "default": "Planet Claire from Berlin: tattoos, handmade one-of-a-kind ceramics and drawings by Jutta – unique pieces, tattoo appointments and commissioned work.",
+      "home": "Planet Claire from Berlin: tattoos, handmade one-of-a-kind ceramics and drawings by Jutta. Browse the shop, discover flash designs or ask for a tattoo.",
+      "contact": "How to reach Planet Claire in Berlin: questions about unique pieces, orders, tattoo appointments or commissioned work – by email or via Instagram.",
+      "legal": "Legal information from Planet Claire, Berlin: legal notice, privacy policy, terms, right of withdrawal and shipping and payment for the one-of-a-kind shop.",
+      "withdrawal": "Withdraw from a contract with Planet Claire here: identify your order, send your declaration and immediately receive a confirmation of receipt by email.",
+      "conformity": "Declarations of conformity from Planet Claire, Berlin, for handmade ceramics in contact with food – current declarations to view and download."
+    }
+  },
+  "contact": {
+    "emailLabel": "Email",
+    "instagramLabel": "Instagram",
+    "instagramProfile": "Profile @{handle}",
+    "instagramDm": "Direct message on Instagram",
+    "studio": "Private studio in Berlin-{district}",
+    "withdrawHint": "Want to withdraw from a contract?",
+    "legalNoticeHint": "Provider details:",
+    "emptyTitle": "The contact page is on its way",
+    "emptyText": "Just send me an email or a message on Instagram."
+  },
+  "withdraw": {
+    "previewNotice": "Not yet functional in this preview – coming in P6.",
+    "policyLink": "Go to the right of withdrawal",
+    "emailAlternative": "Alternatively by email:"
+  }
+}

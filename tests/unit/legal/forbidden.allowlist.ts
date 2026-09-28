@@ -25,4 +25,11 @@ export const FORBIDDEN_ALLOWLIST: readonly AllowlistEntry[] = [
     reason:
       'Tattoo-Portfolio, keine Verkaufsware (E-18): Bildunterschrift des Galerie-Tattoos G2 aus dem Manifest (SEED-SPEC §2.1, SE-04).',
   },
+  {
+    file: 'src/components/ui/Choice.tsx',
+    id: 'V-03',
+    match: 'defaultChecked',
+    reason:
+      'Grundbaustein Checkbox/Radio (KO-12, P2.7): hakt nur an, wenn der Aufrufer ausdrücklich `checked === true` übergibt (z. B. Wiederanzeige nach Fehler); `tests/unit/components/ui.unit.spec.tsx` prüft, dass ohne Wert nie `checked` entsteht.',
+  },
 ]

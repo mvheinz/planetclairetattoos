@@ -1,0 +1,10 @@
+/* Rechtsseiten (Preset `legal`, DESIGN §5.3): ruhige Lesespalte, keine Transition (AK-DS-16). */
+.text > * + * {
+  margin-block-start: var(--space-4);
+}
+
+.asOf {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  color: var(--ink-2);
+}

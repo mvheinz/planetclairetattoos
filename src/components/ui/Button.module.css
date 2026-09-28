@@ -1,0 +1,114 @@
+/* KO-11 Knöpfe und Links (DESIGN §8). Zielfläche immer ≥ 44 × 44 px (--tap-min), Knopfhöhe ≥ 48 px. */
+.button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 48px;
+  min-width: var(--tap-min);
+  padding: var(--space-2) var(--space-5);
+  border: var(--stroke-ui) solid var(--ink);
+  border-radius: var(--r-btn);
+  font-family: var(--font-body);
+  font-size: var(--fs-button);
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.label {
+  position: relative;
+}
+
+.icon {
+  flex: none;
+}
+
+/* Primär: Tusche-Grund, gedruckter Schatten; MI-16 beim Drücken (Schatten wechselt diskret). */
+.primary {
+  min-height: 52px;
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: var(--shadow-press);
+  transition: transform 80ms var(--ease-calm);
+}
+
+.primary:visited,
+.primary:hover,
+.primary:focus-visible {
+  color: var(--paper);
+  text-decoration: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .primary:not([aria-disabled='true']):hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 0 var(--ink);
+  }
+}
+
+.primary:not([aria-disabled='true']):active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-press-active);
+}
+
+@media (max-width: 767.98px) {
+  .primary {
+    width: 100%;
+  }
+}
+
+/* Sekundär: Papier, Rand; der Text bekommt die gezeichnete Unterstreichung (MI-06, LinkUnderline). */
+.secondary {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.secondary:visited,
+.secondary:hover,
+.secondary:focus-visible {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+/* Text-Link („Entfernen“, „Ändern“): unterstrichen, Zielfläche 44 px. */
+.link {
+  min-height: var(--tap-min);
+  padding: var(--space-1) var(--space-2);
+  border-color: transparent;
+  background: transparent;
+  color: var(--ink);
+  font-weight: 400;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.link:visited {
+  color: var(--ink);
+}
+
+.link:hover,
+.link:focus-visible {
+  color: var(--ink);
+  text-decoration-thickness: 2px;
+}
+
+/* Deaktiviert: nur über aria-disabled/disabled, nie nur Farbe (Cursor + Text bleibt lesbar, 4,90:1). */
+.button[aria-disabled='true'] {
+  background: var(--paper-2);
+  color: var(--ink-3);
+  border-color: var(--ink-3);
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+}
+
+@media (forced-colors: active) {
+  .button {
+    border-color: ButtonText;
+  }
+}

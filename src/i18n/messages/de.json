@@ -1,0 +1,169 @@
+{
+  "common": {
+    "siteName": "Planet Claire",
+    "claim": "Tattoos, Keramik und Zeichnungen aus Berlin",
+    "routes": {
+      "R01": "Start",
+      "R02": "Shop",
+      "R03": "Kategorie",
+      "R04": "Stück",
+      "R05": "Archiv",
+      "R06": "Korb",
+      "R07": "Kasse",
+      "R08": "Danke",
+      "R09": "Bestellstatus",
+      "R10": "Auftragsarbeiten",
+      "R11": "Tattoo",
+      "R12": "Flash",
+      "R13": "Angebote",
+      "R14": "Preise",
+      "R15": "Galerie",
+      "R16": "Ablauf",
+      "R17": "Aftercare",
+      "R18": "FAQ",
+      "R19": "Über mich & Coco",
+      "R20": "Kontakt",
+      "R21": "Impressum",
+      "R22": "Datenschutz",
+      "R23": "AGB",
+      "R24": "Widerrufsbelehrung",
+      "R25": "Versand & Zahlung",
+      "R26": "Vertrag widerrufen",
+      "R27": "Konformitätserklärungen"
+    }
+  },
+  "header": {
+    "home": "planet claire – Startseite",
+    "shop": "Shop",
+    "tattoo": "Tattoo",
+    "cart": "Korb",
+    "menu": "Menü",
+    "mainNav": "Hauptnavigation"
+  },
+  "menu": {
+    "title": "Menü",
+    "close": "Menü schließen",
+    "language": "Sprache"
+  },
+  "footer": {
+    "legalHeading": "Rechtliches",
+    "withdraw": "Vertrag widerrufen",
+    "instagram": "Instagram",
+    "language": "Sprache",
+    "languageSwitch": "English",
+    "motionOn": "an",
+    "motionOff": "aus",
+    "siteNav": "Seitenübersicht",
+    "settingsHeading": "Sprache & Einstellungen",
+    "motionLabel": "Animationen:",
+    "motionOffSystem": "aus (Systemeinstellung)",
+    "copyright": "© {year} Planet Claire · Berlin"
+  },
+  "legal": {
+    "placeholder": "Platzhalter – der verbindliche Text folgt nach Prüfung durch die Kanzlei.",
+    "version": "Stand",
+    "placeholderBanner": "PLATZHALTER – nicht rechtsverbindlich",
+    "asOf": "Stand: {date}",
+    "germanOnly": "Nur auf Deutsch verfügbar.",
+    "emptyTitle": "Dieser Text wird gerade vorbereitet",
+    "emptyText": "Schau bitte etwas später wieder vorbei. Bei Fragen erreichst du mich über die Kontaktseite.",
+    "emptyAction": "Zur Kontaktseite",
+    "conformity": {
+      "empty": "Derzeit sind alle Keramiken als Dekoration gekennzeichnet und nicht für Lebensmittel bestimmt.",
+      "validFrom": "gültig ab {date}",
+      "pdf": "Erklärung als PDF: {name}"
+    }
+  },
+  "errors": {
+    "notFoundTitle": "Coco hat sich losgerissen",
+    "notFoundText": "Diese Seite gibt es nicht (mehr).",
+    "linksLabel": "Weiter geht’s",
+    "homeTitle": "Dieses Stück hat schon ein Zuhause gefunden",
+    "homeText": "Es ist verkauft und wohnt jetzt woanders. Im Shop wartet noch mehr.",
+    "soldStamp": "sold",
+    "serverErrorTitle": "Hoppla – die Leine hat sich verheddert",
+    "serverErrorText": "Da ist gerade etwas schiefgelaufen. Versuch es gleich noch einmal.",
+    "retry": "Nochmal versuchen",
+    "toHome": "Zur Startseite"
+  },
+  "home": {
+    "title": "Planet Claire",
+    "intro": "Tattoos, handgemachte Unikat-Keramik und Zeichnungen aus Berlin.",
+    "stationKicker": "Station {number}",
+    "stationMore": "Mehr ansehen",
+    "emptyTitle": "Hier wird gerade umgeräumt.",
+    "emptyText": "Die Startseite ist gleich wieder da. Schau so lange bei den Kontaktwegen vorbei.",
+    "emptyAction": "Zum Kontakt"
+  },
+  "a11y": {
+    "skipToContent": "Zum Inhalt springen",
+    "currentLanguage": "Aktuelle Sprache: Deutsch",
+    "switchToOther": "Zur englischen Seite wechseln"
+  },
+  "previewExport": {
+    "banner": "Vorschau-Datei mit Beispieldaten",
+    "notBuilt": "Noch nicht gebaut",
+    "seedBanner": "Vorschau mit Beispieldaten",
+    "phase": "Phase {phase}",
+    "bannerInternal": "Interne Vorschau – nicht weitergeben · Beispieldaten · Rechtstexte sind Platzhalter",
+    "bannerStand": "Vorschau – hier wird nichts gekauft. Stand {date}, Phase {phase}.",
+    "allPages": "Alle Seiten",
+    "dialogTitle": "Vorschau – hier wird nichts gekauft",
+    "dialogClose": "Schließen",
+    "cartDemo": "In der Vorschau zeigt der Korb ein Beispiel",
+    "groups": {
+      "start": "Start",
+      "shop": "Shop",
+      "tattoo": "Tattoo",
+      "service": "Service",
+      "legal": "Recht",
+      "admin": "Verwaltung"
+    },
+    "notIncluded": {
+      "title": "Das gibt es nur auf der echten Website",
+      "titleShort": "Nicht enthalten",
+      "text": "Diese Seite oder Datei ist in der Vorschau-Datei nicht enthalten – zum Beispiel PDFs, die Zahlung, die Verwaltung oder Seiten, die erst in einer späteren Phase gebaut werden.",
+      "back": "Zur Startseite"
+    },
+    "admin": {
+      "title": "Verwaltung auf dem Handy",
+      "titleShort": "Verwaltung",
+      "intro": "Bildschirmfotos der Verwaltung mit Beispieldaten (Handy, 390 × 844). Die echte Verwaltung ist in der Vorschau-Datei nicht enthalten.",
+      "comingIn": "kommt in {phase}"
+    }
+  },
+  "ui": {
+    "callout": {
+      "deviationTitle": "Bitte beachten:"
+    },
+    "form": {
+      "requiredNote": "* Pflichtfeld"
+    }
+  },
+  "seo": {
+    "descriptions": {
+      "default": "Planet Claire aus Berlin: Tattoos, handgemachte Unikat-Keramik und Zeichnungen von Jutta – Einzelstücke, Tattoo-Termine und Auftragsarbeiten.",
+      "home": "Planet Claire aus Berlin: Tattoos, handgemachte Unikat-Keramik und Zeichnungen von Jutta. Stöbere im Shop, entdecke Flash-Motive oder frag ein Tattoo an.",
+      "contact": "So erreichst du Planet Claire in Berlin: Fragen zu Unikaten, Bestellungen, Tattoo-Terminen oder Auftragsarbeiten – per Mail oder über Instagram.",
+      "legal": "Rechtliche Informationen von Planet Claire, Berlin: Impressum, Datenschutz, AGB, Widerrufsbelehrung sowie Versand und Zahlung für den Unikat-Shop.",
+      "withdrawal": "Hier kannst du einen Vertrag mit Planet Claire widerrufen: Bestellung angeben, Erklärung absenden und sofort eine Eingangsbestätigung per E-Mail erhalten.",
+      "conformity": "Konformitätserklärungen von Planet Claire, Berlin, zu handgemachter Keramik mit Lebensmittelkontakt – aktuelle Erklärungen zum Ansehen und Herunterladen."
+    }
+  },
+  "contact": {
+    "emailLabel": "E-Mail",
+    "instagramLabel": "Instagram",
+    "instagramProfile": "Profil @{handle}",
+    "instagramDm": "Direktnachricht auf Instagram",
+    "studio": "Privatstudio in Berlin-{district}",
+    "withdrawHint": "Du willst einen Vertrag widerrufen?",
+    "legalNoticeHint": "Angaben zur Anbieterin:",
+    "emptyTitle": "Die Kontaktseite entsteht gerade",
+    "emptyText": "Schreib mir einfach eine Mail oder auf Instagram."
+  },
+  "withdraw": {
+    "previewNotice": "In dieser Vorschau noch ohne Funktion – kommt in P6.",
+    "policyLink": "Zur Widerrufsbelehrung",
+    "emailAlternative": "Alternativ per E-Mail:"
+  }
+}

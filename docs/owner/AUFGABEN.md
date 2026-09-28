@@ -189,7 +189,7 @@ Punkte haben die längste Vorlaufzeit, deshalb stehen sie oben.
     dir nur privat an. Gib sie nicht weiter und veröffentliche sie nicht, auch nicht auf Instagram. Fotos, auf denen du
     selbst zu sehen bist, kommen erst hinein, wenn du sie freigibst.
   - Aufwand: ca. 20 Min. pro Vorschau
-  - Anleitung: [G6](ANLEITUNGEN.md#g6), [V1](ANLEITUNGEN.md#v1), [V2](ANLEITUNGEN.md#v2)
+  - Anleitung: [V0](ANLEITUNGEN.md#v0), [G6](ANLEITUNGEN.md#g6), [V1](ANLEITUNGEN.md#v1), [V2](ANLEITUNGEN.md#v2)
 
 - [ ] **A22 · (optional) Markenrecherche „Planet Claire“**
   - Warum: So prüfst du, ob jemand den Namen für Keramik, Kleidung oder Tattoo schon als Marke geschützt hat.

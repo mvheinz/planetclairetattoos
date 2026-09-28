@@ -106,6 +106,23 @@ jobs:
       - name: Migrationen
         if: steps.mode.outputs.skip != 'true'
         run: pnpm run db:ensure && pnpm payload migrate && pnpm run check:migrations
+      # Playwright-Chromium vor den Integrationstests: der Vorschau-Export-Test (AK-A-14-01) braucht ihn (ARCHITEKTUR §14.1).
+      - name: Playwright-Version
+        id: pw
+        if: steps.mode.outputs.skip != 'true'
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Playwright-Browser-Cache
+        id: pw-cache
+        if: steps.mode.outputs.skip != 'true'
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-chromium-webkit-${{ steps.pw.outputs.version }}
+      - name: Playwright Chromium + WebKit
+        if: steps.mode.outputs.skip != 'true'
+        # Immer installieren (lädt nichts nach, was im Cache liegt); Schlüssel je Browser-Satz, damit ein
+        # Chromium-only-Cache nie einem WebKit-Job WebKit vorenthält.
+        run: pnpm exec playwright install --with-deps chromium webkit
       - name: Integrationstests
         if: steps.mode.outputs.skip != 'true'
         run: pnpm run test:int
@@ -122,25 +139,6 @@ jobs:
       - name: Budgets
         if: steps.mode.outputs.skip != 'true'
         run: pnpm run check:bundle && pnpm run check:external --built
-      - name: Playwright-Version
-        id: pw
-        if: steps.mode.outputs.skip != 'true'
-        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
-      - name: Playwright-Browser-Cache
-        id: pw-cache
-        if: steps.mode.outputs.skip != 'true'
-        uses: actions/cache@v6
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
-      - name: Playwright Chromium + WebKit
-        if: steps.mode.outputs.skip != 'true'
-        run: |
-          if [ "${{ steps.pw-cache.outputs.cache-hit }}" = "true" ]; then
-            pnpm exec playwright install-deps chromium webkit
-          else
-            pnpm exec playwright install --with-deps chromium webkit
-          fi
       - name: E2E-Rauchtest
         if: steps.mode.outputs.skip != 'true'
         run: pnpm run test:e2e --grep @smoke --project=desktop --project=iphone-15

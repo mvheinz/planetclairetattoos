@@ -1,0 +1,163 @@
+/* KO-02 Kopfleiste: Höhe --header-h (56/64), Seitenrand --page-pad, Grund --paper deckend, sticky ohne Ein-/Ausblenden.
+   Zielflächen ≥ 44 × 44 px; bei 320 px nichts umbrechen oder überlaufen. */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  background: var(--paper);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  height: var(--header-h);
+  max-width: calc(var(--content-max) + 2 * var(--page-pad));
+  margin-inline: auto;
+  padding-inline: var(--page-pad);
+}
+
+.brand {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
+  color: var(--ink);
+  line-height: 0;
+}
+
+.wordmark {
+  display: block;
+  height: var(--fs-wordmark);
+  width: auto;
+}
+
+.planet {
+  display: none;
+  color: var(--ink);
+}
+
+@media (max-width: 374.98px) {
+  .wordmark {
+    display: none;
+  }
+
+  .planet {
+    display: block;
+  }
+}
+
+.nav {
+  flex: none;
+}
+
+.list {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  .list {
+    gap: var(--space-3);
+  }
+}
+
+.link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
+  padding-inline: 5px;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.link:visited,
+.link:hover,
+.link:focus-visible {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.cartIcon {
+  flex: none;
+}
+
+/* Schmale Handys: kompaktere Abstände und 15 px, damit bis 320 px nichts umbricht oder überläuft (KO-02). */
+@media (max-width: 419.98px) {
+  .bar {
+    gap: var(--space-1);
+  }
+
+  .link {
+    gap: 2px;
+    padding-inline: 2px;
+    font-size: 0.9375rem;
+  }
+}
+
+/* Platz der Anzahl ist immer reserviert (20 px), auch ohne Cookie (KO-02, keine Verschiebung). */
+.countSlot {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: var(--stroke-ui) solid var(--ink);
+  border-radius: 52% 46% 50% 44% / 48% 54% 44% 52%;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.count[hidden] {
+  display: none;
+}
+
+.lineWrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 8px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.line {
+  display: block;
+  max-width: none;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: var(--stroke-ui);
+  stroke-linecap: round;
+}
+
+@media (forced-colors: active) {
+  .line {
+    stroke: CanvasText;
+  }
+}

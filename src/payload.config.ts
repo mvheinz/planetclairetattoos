@@ -59,6 +59,17 @@ export default buildConfig({
     user: Users.slug,
     // Kein Gravatar-Request (keine Drittanbieter-Requests, CLAUDE.md §6).
     avatar: 'default',
+    // Eigene Marken statt Payload-Logo (PLAN P2.5, DESIGN §12.6); Favicon vom eigenen Origin.
+    components: {
+      graphics: {
+        Logo: '/admin/components/BrandGraphics#AdminLogo',
+        Icon: '/admin/components/BrandGraphics#AdminIcon',
+      },
+    },
+    meta: {
+      titleSuffix: ' – planet claire',
+      icons: [{ rel: 'icon', type: 'image/svg+xml', url: '/icon.svg' }],
+    },
     importMap: {
       baseDir: path.resolve(dirname),
       // Ordner bleibt `admin/` (interner Mount-Punkt), auch wenn ADMIN_ROUTE anders heißt.

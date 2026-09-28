@@ -50,13 +50,19 @@ test.describe('Verwaltung ohne Fremd-Requests @smoke', () => {
     expect(foreignRequests).toEqual([])
   })
 
-  test('Gegenprobe: der Wächter erkennt und blockiert eine Fremd-Anfrage', async ({
-    page,
-    foreignRequests,
-  }) => {
-    await page.goto(adminPath('/login'))
-    await page.evaluate(() => fetch('https://example.com/probe').catch(() => null))
-    expect(foreignRequests).toEqual(['https://example.com/probe'])
-    foreignRequests.length = 0
+  test.describe('Gegenprobe', () => {
+    // Seit P2.12 blockiert schon die CSP (`connect-src 'self'`) die Anfrage im Browser; für die Gegenprobe des
+    // Netz-Wächters wird sie hier umgangen.
+    test.use({ bypassCSP: true })
+
+    test('Gegenprobe: der Wächter erkennt und blockiert eine Fremd-Anfrage', async ({
+      page,
+      foreignRequests,
+    }) => {
+      await page.goto(adminPath('/login'))
+      await page.evaluate(() => fetch('https://example.com/probe').catch(() => null))
+      expect(foreignRequests).toEqual(['https://example.com/probe'])
+      foreignRequests.length = 0
+    })
   })
 })

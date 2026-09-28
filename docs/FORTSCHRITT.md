@@ -2,6 +2,167 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P2 CI grün
+
+- Phasenende-Lauf `[ci:full p2]` auf PR #2 grün (Kopf `3670d65`): `quick`, `e2e-full` (desktop, iphone-15 WebKit, pixel-7),
+  `quality` (kein Debug im Build, visuelle Referenzen, Lighthouse, `@perf`), `Vorschau-Export`.
+- Artefakt `planet-claire-vorschau-p2-3670d65` (Lauf https://github.com/mvheinz/planetclairetattoos/actions/runs/36416754832),
+  PR-Kommentar mit Anleitung vorhanden, höchstens 3 Vorschau-Artefakte.
+- Unterwegs behoben: Debug-Flag ohne `.env` nicht als Konstante eingesetzt; mobile LCP über 2,5 s (Schriften jetzt nach
+  dem ersten Bild); Playwright-Cache ohne WebKit; `@perf`-Messung brauchte die Debug-Schnittstelle.
+
+## 2026-09-28 – P2 Phasen-Abnahme (Designsystem, Tuschelinie, Vorschau-Datei)
+
+- Alle Aufgaben P2.1–P2.29 erledigt: Sprachen/Routen, Design-Tokens, selbst gehostete Schriften, Icons/Wortmarke,
+  Seitenrahmen mit Menü und Fuß (alle Pflichtlinks inkl. „Vertrag widerrufen“), SEO, Sicherheits-Header/CSP,
+  Rechts-/Kontakt-/Widerruf-Gerüste, Tuschelinie A/B/C mit Coco-Platzhalter-Sprite, Fehlerseiten, Startseite,
+  Datenschutz-, a11y-, Tempo- und visuelle Prüfungen, Vorschau-Export, Workflows `ci-full.yml`/`preview-export.yml`.
+- Lokal grün: `pnpm check`, `pnpm test:int`, `pnpm build`, volle E2E-Suite gegen den Produktions-Build (Chromium und
+  echtes WebKit; Leinen-Tests mit Debug-Build), `pnpm test:preview-export` (20 grün), `pnpm test:visual` (16, 3× stabil).
+- Spikes in ARCHITEKTUR Anhang B: B-03 (Rückfall, ADR 0002), B-01 CSP-Teil (erfüllt), B-10 View Transitions (ADR 0003).
+- Visuelle Referenzbilder lokal gegen den Produktions-Build erzeugt, weil das CI-Artefakt aus der Sandbox nicht
+  abrufbar ist (OFFENE-PUNKTE); der CI-Job `quality` prüft sie gegen.
+- Nächster Schritt: Lauf `[ci:full p2]` (quick, e2e-full, quality, Vorschau-Export) grün → Merge, dann P3.1.
+  Stolpersteine: Leinen-E2E brauchen einen Build mit `NEXT_PUBLIC_LEASH_DEBUG=1`; visuelle Tests nur gegen `pnpm start`.
+
+## 2026-09-28 – P2.29
+
+- `LEGAL_TRACE_PHASE = 2`; neuer R-001-Test prüft R-010, R-011, R-090, R-130, R-131, R-191 samt Gegenprobe mit fehlender P2-ID.\n- Verbotsmuster-E2E über das gerenderte HTML aller live-Routen (DE/EN, 404/500, Weiterleitung): `tests/e2e/legal/forbidden.e2e.spec.ts` (Name laut ANFORDERUNGEN §5 statt `forbidden-html`, OFFENE-PUNKTE), prüft vorher den Kleinunternehmer-Modus; Gegenprobe für OS-Link, „inkl. MwSt.“, Tracker, vorbelegte Checkbox.\n- ANLEITUNGEN: neuer Abschnitt V0 „Vorschau-Datei ansehen“ (Checks → Summary → Artifacts, ZIP entpacken, doppelklicken); G6 nennt den Ablauf „Vorschau-Export“; AUFGABEN A21 verlinkt V0.\n- qa-log: Eintrag zum Kalibrierbogen + INDEX.md; Bogen liegt mit 240 KB über dem Ablagebudget 150 KB (OFFENE-PUNKTE, P9.2).\n- Tests: pnpm check (766) grün, pnpm test:int grün, E2E forbidden desktop + iphone-15 (52) grün.
+
+## 2026-09-28 – P2.28
+
+- `ci-full.yml`: Auslöser pull_request/workflow_dispatch; Job `mode` liest die Kennung ohne Checkout (`gh api`), Ausgaben full/phase/snapshots/art/sha7; Jobs `e2e-full` (Build mit Debug-Flag, desktop/iphone-15/pixel-7 ohne @visual/@perf), `quality` (Build ohne Debug, check:no-debug, test:visual, test:perf, @perf pixel-7), `snapshots` (test:visual --update-snapshots, Pflicht-Upload visual-snapshots-<sha7>, 2 Tage); Fehlerberichte hinter dem Budget-Schritt.\n- `preview-export.yml`: Job `export` nur bei `[ci:full pN]`/Dispatch; preview:export → test:preview-export (eigener Schritt) → Upload planet-claire-vorschau-<phase>-<sha7> (30 Tage) → nur 3 neueste behalten → Kurzanleitung → PR-Kommentar (R-182).\n- Fehlende visuelle Referenzen: Hinweis statt rot (OFFENE-PUNKTE); erste Referenzen per [ci:update-snapshots] stehen noch aus.\n- Tests: workflows.unit.spec.ts 32 grün (Kennungs- und Aufräum-Skripte mit Ersatz-gh in bash ausgeführt); actionlint sauber; pnpm check grün.
+
+## 2026-09-28 – P2.27
+
+- `adminViews.ts` (KONZEPT §7.3–§7.15 mit Phase; in P2 Anmeldung, Liste, Formular – Rest „kommt in P5/P7“) und `adminShots.ts` (Anmeldung mit `SEED_ADMIN_*` aus `.env.example`, 390×844 DPR 2 → WebP 780 px q70, Uhr fest auf `SEED_NOW`, nur Export-Server erreichbar).\n- `report.ts`: `PreviewReport` mit zod, Budget 20/40 MB mit Stufung (q60, dann 1000 px), Richtwert-Warnungen, über 40 MB Exit 1; `phase.ts`: `PREVIEW_PHASE` → PLAN.md (höchste vollständig abgehakte Phase) → `px`, nie Branch-Name.\n- `playwright.preview.config.ts` (`pv-mobile` 390×844, `pv-desktop` 1440×900, offline) und `tests/e2e/preview-export.e2e.spec.ts` (KONZEPT §12.7 Nr. 1–9, CSP-Meta, kein Cookie/Storage, Bericht nennt jede Registry-Route; Nr. 7 mit Shop/Kasse/Formular übersprungen bis P3/P4/P7, Dialog per eingefügtem Formular geprüft); `pnpm test:preview-export`.\n- Export-DB: Uhrzeit-Zeitstempel des Laufs → `SEED_NOW` (byte-gleiche Fotos, OFFENE-PUNKTE).\n- Tests: unit `preview-export/{report,phase}` (13), e2e 20 grün (2 übersprungen: Nr. 7 ab P3/P4/P7), Determinismus-Test mit Fotos grün; `pnpm check`, `pnpm test:int` grün. Datei ≈ 0,88 MB, Budget ok.
+
+## 2026-09-28 – P2.26
+
+- Umwandlung `scripts/preview-export/transform/{html,css,images,fonts,svg,links}.ts` (cheerio): Skripte/Preloads/Next-Daten raus, je Route ein `<template data-route …>`, ein `<style>` mit Schriften als Data-URI, Bilder per sharp (≤ 1200 px, WebP q70, dedupliziert) in `#pv-assets`, Coco-Sprite als `#pv-sprites` mit `<use href="#id">`, Links/Formulare nach KONZEPT §12.5, Zusatzseiten `#/vorschau/nicht-enthalten` und `#/vorschau/verwaltung` (DE/EN, Texte `previewExport.*`), Kopf mit `robots noindex` + CSP-Meta.\n- Laufzeit `src/preview-runtime/{main,router,assets,dialogs,cartDemo,banner,leash,types}.ts` (framework-frei, esbuild iife ≈ 50 KB): Hash-Router mit Aufräumen/Einhängen von Verhaltensmodulen und Tuschelinie, Fokus auf H1, `window.__PV_ROUTES`, Dialog „Vorschau – hier wird nichts gekauft“, Korb nur im Speicher, Banner (R-182) mit „Alle Seiten“.\n- `write.ts` deterministisch (sortiert, keine Zeitstempel); Export-Adresse in Texten → echte Domain.\n- `ci.yml`: Playwright-Chromium wird jetzt vor den Integrationstests installiert (Export-Test braucht ihn).\n- Tests: unit `preview-export/{transform-html,transform-css,links,router}` (31), int `determinism` (AK-A-14-01/02, Build + `--skip-build` byte-gleich, ≈ 2,5 min); `pnpm check`, `pnpm test:int` grün; Datei lokal ≈ 0,76 MB.
+
+## 2026-09-28 – P2.25
+
+- `pnpm preview:export` (`scripts/preview-export/`): Ablauf §14.2 mit Exit-Codes 0/1/2 (deutsche Anleitung bei fehlendem Postgres/Chromium), Server immer im `finally` beendet, Optionen `--skip-build`/`--keep-server`.\n- `env.ts` (Export-Umgebung §14.3, `SEED_NOW` = Exportdatum 12:00 Berlin), `db.ts` (`planetclaire_preview_export` anlegen, leeren, migrieren, `seed:base` + `seed:example`), `server.ts` (Build nach `.next-preview` ohne Debug-Flag, `next start -p 3999`, Warten auf `/api/health` ≤ 120 s), `crawl.ts` (Start-Menge aus der Registry + `/de/__404`/`/en/__404`, Breitensuche ≤ 500, Filter §14.4, nur Pfade des Export-Servers).\n- `tsconfig.json` enthält `.next-preview/types`, damit `next build` die Datei nicht umschreibt; `cheerio` als Dev-Abhängigkeit.\n- Tests: unit `preview-export/{env,crawl-filter}` (15), int `preview-export/exit-codes` (3, AK-A-14-03); `pnpm check`, `pnpm test:int` grün; Export lokal gelaufen (20 Seiten).
+
+## 2026-09-28 – P2.24
+
+- playwright.visual.config.ts (Chromium desktop 1440×900 + mobile 390×844, reduzierte Bewegung, maxDiffPixelRatio 0,01, Referenzen tests/visual/__screenshots__/**/*-linux.png), tests/visual/{helpers,shell,pages}.visual.spec.ts: R01, Impressum, R26, 404, 500, Kopf, offenes Menü, Fuß; Uhr fest, fonts.ready, Fremd-Hosts blockiert; nur Linux
+- pnpm test:visual (für P2.28/Job snapshots); Referenzbilder entstehen erst in CI, lokal erzeugte Probe-Bilder verworfen
+- Lokal geprüft: --update-snapshots 16/16, zweiter Lauf 16/16 stabil; Token --paper absichtlich auf #DDE8F4 → 16/16 scheitern (Ratio 0,72), zurückgesetzt → grün
+- Tests: 3 Unit (Konfiguration T-12), 16 visuelle Tests; pnpm check grün
+
+## 2026-09-28 – P2.23
+
+- tests/perf/budgets.json (alle Grenzen aus ARCHITEKTUR §7.7/DESIGN §9.10), check:bundle misst per Chromium gegen next start jede live-Route DE/EN + R28/R29 (JS vor load, gzip 9), Pfaddaten, SVG der Startseite, Module (inkl. Mikro-Interaktionen), SVG-Dateien, Schriften
+- Erstlade-JS von 170 auf 144 KB gz gesenkt (kein NextIntlClientProvider, Fehleransichten per React.lazy), R01 144 KB (Ziel 140 verfehlt – nur Bericht)
+- Lighthouse-CI @lhci/cli 0.15.1 (tests/perf/lighthouserc.cjs, mobil, 3 Läufe, filesystem, Playwright-Chromium), pnpm test:perf mit Tabellenbericht: R01 LCP 2,28 s, CLS 0, TBT 101 ms, 0,30 MB
+- @perf tests/e2e/perf.e2e.spec.ts (pixel-7, CPU 4×): Menü öffnen 96–120 ms, CLS 0,004, leash:frame p95 2,1 ms
+- ci.yml: Playwright-Installation vor Budgets
+- Tests: 15 Unit (T-09 inkl. CLI-Abbruch mit Fixture-Budget, T-10 Konfig/Bericht), check:bundle grün, test:perf grün, 3 @perf grün; pnpm check, test:int, E2E komplett (481) grün
+
+## 2026-09-28 – P2.22
+
+- `@axe-core/playwright` 4.13.0 exakt gepinnt; `tests/e2e/a11y.e2e.spec.ts` @a11y: axe (wcag2a/2aa/21a/21aa/22aa) auf allen live-Routen DE/EN sowie offenes Menü, 404, 500, Rechtsseite mit Platzhalter und Leerzustand der Startseite (home kurz auf Entwurf, Abruf im Draft-Modus ohne Cache-Schreiben, Advisory-Lock); Gate 0 serious/critical, moderate/minor als Annotation; `lang` je Seite (EN-Rückfall auf Deutsch als `lang="de"`).\n- `tests/e2e/keyboard.e2e.spec.ts`: Skip-Link zuerst und springt zu `#inhalt`, jedes fokussierbare Element per Tab erreichbar (vorwärts/rückwärts), Kopf→Menü (Falle, Esc), Fuß: Schalter „Animationen“ per Leertaste/Enter, Sprachumschalter; Fokus an jedem Halt sichtbar (Screenshot mit/ohne Fokus verschieden; Gegenprobe ohne Fokusring schlägt fehl). WebKit: Alt+Tab (Safari-Tastaturbedienung für Links).\n- Keine Verstöße im Produktcode gefunden.\n- Tests: a11y 84 + keyboard 18 E2E grün in 3 Projekten; Gesamtlauf `pnpm test:e2e` 478 grün.
+
+## 2026-09-28 – P2.21
+
+- `tests/e2e/privacy.e2e.spec.ts` @privacy: alle live-Routen (R01, R20–R27 je DE/EN, 404/500 je Sprache, Weiterleitung `/`) in frischem Kontext, 3 Projekte: keine Cookies, kein `Set-Cookie`, Local/Session Storage, IndexedDB und Service Worker leer; Requests nur eigener Origin/`data:`/`blob:`, nie Google Fonts; Registry-Abdeckung geprüft.\n- `pnpm check:external --built` prüft jetzt auch Fremd-URLs in öffentlich ausgelieferten Dateien (HTML/RSC + transitiv geladene Chunks), Allowlist Instagram + nie geladene Kennungen.\n- Tests: 72 E2E grün (desktop, iphone-15/WebKit, pixel-7), Unit check-external 2 grün, check:external ok.
+
+## 2026-09-28 – P2.20
+
+- Startseite R01 aus `pages:home` (`src/lib/data/home.ts`, öffentlicher Payload, Name aus `settings.business.tradeName`): Kopf-Station „Planet Claire“ mit Planet-Marke (Anker `orbit`, Intro MI-10) und 7 Stationen (`HomeStation`, KO-21): Stationsmarke Planet/Stern mit MI-12-„pop“, Kicker „Station 01“ (Plex Mono), H2 Mansalva, Text, Stationszeichnung (`src/art/stations` bzw. Ersatzzeichnung), Link „Alle …“ (Kategorie-Slugs je Sprache). Schlaufen je Station laut §11.4 (right/lasso/left/spiral/right/contour/left), Coco-Posen aus `cocoPose`; ab 768 Zeichnung links an der Rinne, damit die Linie keinen Text kreuzt. Keine Produktkarten (W-33). Fehlt `home`: Leerzustand (DM-PAGE-01).\n- Engine: `data-leash-reached` an erreichten Stations-Ankern (für MI-12).\n- Tests: int `pages/home-data.int.spec.ts` (4), e2e `home.e2e.spec.ts` (Reihenfolge DE/EN, ohne JS, Linie zeichnet beim Scrollen, mobil LCP < 2,5 s / CLS < 0,1) grün; volle E2E-Suite grün bis auf den vorbestehenden WebKit-Menütest; `pnpm check`, `test:int`, `build`, `check:bundle` grün.
+
+## 2026-09-28 – P2.19
+
+- 404 R28 „Coco hat sich losgerissen“ / „Coco slipped her leash“ (NotFoundContent): Preset `lost` für jede Adresse ohne Registry-Route, Tuschelinie vom Kopf in Schlingen (`coil`), Leinenende = offener Karabiner mit leerem roten Geschirr (Tuschestrich-Zeichnung `src/art/errorArt.ts`), Coco `horizon` rennt einmal weg und die Leine schwingt 2 × (Modul `lost`, MI-11, ≤ 5 s); CMS-Text `not_found` mit Rückfall-Satz; Links Start, Shop, Tattoo; Variante „Zuhause“ als Prop vorbereitet.\n- 500 R29 (`error.tsx`, `global-error.tsx`): Knäuel aus 3 Schlingen, Coco `kopfschief` xl, „Nochmal versuchen“ (`retry()`), Link Start, Fußbereich; ohne Preset, Engine abgebaut, keine Animation (`body[data-page-error]`). Test-Auslöser `/<sprache>/__fehler-test` wirft nur bei APP_ENV=test (Playwright-Webserver setzt es), sonst 404; nicht in Registry/Sitemap.\n- Abweichung: kein `[...rest]` – Next 16.3 liefert dafür nur eine leere Fehler-Hülle; 404 bleibt bei `global-not-found` (OFFENE-PUNKTE).\n- Tests: e2e `error-pages.e2e.spec.ts` 8 Tests × 3 Projekte grün (inkl. ohne JS, reduzierte Bewegung); Unit `art/error-art` + Verhaltensvertrag `lost`; volle E2E-Suite gegen Produktions-Build grün bis auf den vorbestehenden WebKit-Menütest; `pnpm check`, `test:int`, `build` grün.
+
+## 2026-09-28 – P2.18
+
+- Coco-Platzhalter-Sprite mit allen 22 Symbolen (6 Posen × A/B/C + 4 Brücken), gezeichnet im Tuschestrich mit Fell-/Geschirr-Wash, D-Ring-Anker, `data-part`-Gruppen, nur `<path>`; `pnpm art:coco-placeholder` (Generator), `pnpm art:sprite` (SVGO → `public/art/coco-sprite.v1.svg` ≈ 42,9 KB / 11,5 KB gz, `coco-sprite.json`), Kalibrierbogen `docs/design/qa-log/img/calibration-p2-placeholder.webp` (`pnpm art:calibration`).\n- `src/leash/coco.ts` (≈ 1,7 KB gz): Posenwechsel nur an Frame-Grenzen, Brücken (bremsen, abspringen, einrollen), Boil-Budget (höchstens 5 s ohne Aktion), reduzierte Bewegung = Ruhe-Pose Frame A. `src/components/Coco.tsx` + `src/styles/coco.css` (feste Box je Größe, kein CLS, forced-colors).\n- Coco läuft an der Leinenspitze der Startseite, sitzt im Menü (kopfschief) und in leeren Zuständen; Sprite mit `Cache-Control: immutable`.\n- View Transitions mit Coco: weich (React-`<ViewTransition>`, nicht zu/von calm, nicht bei reduzierter Bewegung) und hart (`view-transition-name: coco`); ADR 0003 ergänzt.\n- Tests: unit `tests/unit/art/sprite.unit.spec.ts` (12), `tests/unit/leash/coco.unit.spec.tsx` (11), Budgets in `check:bundle`; e2e `tests/e2e/coco.e2e.spec.ts` (8) – ganze E2E-Suite gegen `pnpm start` grün (266), `check:no-debug` grün.
+
+## 2026-09-28 – P2.17
+
+- `src/leash/static.ts`: statischer Renderer Stufe C (≈ 2,2 KB gz) – Randlinie auf Rechtsseiten, H1-Unterstreichung auf calm; die Laufzeit nutzt ihn bei reduzierter Bewegung. Rechtsseiten laden die Engine nicht.\n- Reduzierte Bewegung: Linie sofort vollständig, kein Intro, Coco ruht in der Ruhe-Pose (`REST_POSE`, §10.6) an Station 1; Umschalten ohne Neuladen.\n- Debug nur mit `NEXT_PUBLIC_LEASH_DEBUG=1`: `window.__leash` inkl. `pose()`, `setReadingY(y)`; `window.__qa` (frames, loaf, longtasks, shifts, events, poseLog, marks, start/stop/dump). `pnpm check:no-debug` neu; Modul-Budgets in `check:bundle`.\n- Tests: unit runtime (+5), static (4), check-no-debug/Budgets (3); e2e `reduced-motion.e2e.spec.ts` (AK-DS-14, AK-DS-03 R01/R21, Schalter, Rechtsseite ohne Engine) gegen `pnpm start` grün; `check:no-debug` grün (Gegenprobe mit Debug-Build schlägt an).
+
+## 2026-09-28 – P2.16
+
+- `src/leash/measure.ts` (eine Lesephase), `runtime.ts` → `mountLeash` mit Stufen A (Maske)/B (Feder)/C, Abstufung A → B nur im Speicher, Segment-Zuständen, Lesezeile 0,72, monotoner Tinte, Coco-Glättung, Neuaufbau (ResizeObserver, fonts.ready, load; 150 ms entprellt, < 120 px Höhe ignoriert), IntersectionObserver-Pause, journey-Intro und Leinen-Anschluss.\n- React-Hüllen `src/components/leash/{LeashLayer,Station,ViewTransitionOptIn}.tsx`; Laufzeit lädt nach LCP + 300 ms bzw. load + 1200 ms per Idle (`schedule.ts`), nie auf legal/calm; `window.__leash`-Grundumfang (`debug.ts`) nur bei NEXT_PUBLIC_LEASH_DEBUG=1.\n- Spike View Transitions → ADR 0003 (harte Navigation per @view-transition unter no-preference, ohne calm).\n- Tests: unit runtime (12, AK-DS-18) + motion (3); e2e tests/e2e/leash.e2e.spec.ts (AK-DS-13, AK-DS-15, Chunk-Analyse, legal ohne Laufzeit, View Transitions) gegen dev und start grün; Engine-Chunk 8,6 KB gz.
+
+## 2026-09-28 – P2.15
+
+- `src/leash/` Kern ohne DOM: `types.ts` (wörtlich DESIGN §9.1), `random.ts` (fnv1a32, mulberry32, valueNoise1D), `presets.ts` (Tabelle §9.7 für alle 11 Presets, Wackel, Rinnen, Scroll-Wege), `poses.ts` (COCO_POSE_TO_SPRITE).\n- `geometry.ts`: buildGeometry mit Schritten 1–11 (§9.3), allen Schlaufenformen (§9.5) inkl. Freiraum-Regel, Tintenpunkten, Verjüngung, Segmenten, LUT und scrollMap (§9.6); dazu mapReadingY/pointAt.\n- Tests: unit tests/unit/leash/{random,geometry,loops,poses}.unit.spec.ts (26 Tests, AK-DS-12); Median journey 390×844 ≈ 3 ms in Node; Pfaddaten ≈ 18 KB mobil / 23 KB Desktop.
+
+## 2026-09-27 – P2.14
+
+- Kontakt R20 (Preset margin) aus pages:contact mit Kontaktwegen aus getPublicSettings() (mailto mit Betreff, Instagram-Profil und DM-Link, Studio-Bezirk), Hinweise „Vertrag widerrufen“ und Impressum, kein Formular; ohne Seite neutraler Leerzustand (DM-PAGE-01).\n- „Vertrag widerrufen“ R26 (Preset calm, dynamisch, noindex/follow): h1, Hinweis „noch ohne Funktion – kommt in P6“, Link zur Widerrufsbelehrung, E-Mail als Alternative.\n- Gerüst-Komponente ScaffoldPage entfernt (alle Gerüstseiten ausgebaut).\n- Tests: e2e contact-withdraw (17 grün, 4 nur-desktop übersprungen), Fußlink-Prüfung 7 Links × DE/EN auf allen Live-Seiten = 200; bestehende Frontend-E2E (135) grün; pnpm check, test:int, build grün.
+
+## 2026-09-27 – P2.13
+
+- Rechtsseiten R21–R25 aus der gültigen legal-texts-Fassung (Loader src/lib/data/legal.ts, Tokens ersetzt, Lexical als Server-HTML mit h1→h2), Platzhalter-Band, „Stand“, EN-Rückfall auf Deutsch, neutraler Leerzustand statt 500; R24 mit Muster-Formular und Link „Vertrag widerrufen“; R25 nur Text (Tabelle P4).\n- R27 mit Einleitung aus pages:conformity (falls vorhanden) und Liste aktiver Erklärungen, sonst fester Satz.\n- Ruhe-Modus: keine Animation/Transition im <main> bei Preset legal/calm (global.css).\n- Tests: e2e legal-pages (48 grün, 3 Geräte), int public-pages (8 grün); pnpm check, test:int, build grün.
+
+## 2026-09-27 – P2.12
+
+- `src/lib/security/csp.ts` (Kontexte `public`, `dynamic`, `checkout`, `admin`, `api` nach §8.1; Fremd-Hosts nur Stripe auf der Kasse bei `PAYMENTS_DRIVER=stripe`; Nonce je Anfrage) und `headers.ts` (allgemeine Header, HSTS nur production/staging, `X-Robots-Tag` außerhalb production, Token-Seiten, Kasse, Verwaltung). Anwendung: `next.config.ts headers()` für alle Pfade (`public`) und `/api/*` (`api`), der Proxy überschreibt für Nonce-Kontexte (R26 jetzt dynamisch gerendert, Verwaltung); genau ein CSP-Header je Antwort.
+- Spike B-03: Soll (SRI + Hash) scheitert an den Inline-RSC-Daten von Next → Rückfall `'unsafe-inline'` im Kontext `public`, nur `'self'` (ADR `docs/adr/0002-csp-script-src.md`, ARCHITEKTUR Anhang B). CSP-Teil B-01: Verwaltung läuft mit Nonce ohne Verstoß (Soll erfüllt).
+- `pc-motion`-Hash aus `inlineScripts.ts` in `dynamic`/`checkout` neben der Nonce; `security/{csp,headers,inlineScripts}.ts` ohne `server-only` (von `next.config.ts` geladen, Ausnahme im Static-Check); Stripe-Hosts nur in diesen Dateien erlaubt. Gegenprobe in `admin-privacy.e2e.spec.ts` umgeht die CSP (`bypassCSP`), weil die CSP die Probe-Anfrage jetzt selbst blockiert.
+- Tests: unit `tests/unit/security/headers.unit.spec.ts` (12; T-16, R-131 gegen DIENSTE-YAML, Hash-Abgleich), e2e `tests/e2e/security-headers.e2e.spec.ts` (AK-A-8-01, R-136, keine CSP-Verstöße auf live-Routen und in Login/Liste/Bearbeiten); volle E2E-Suite 183 grün (Produktions-Build, 3 Projekte), `pnpm check`, `pnpm test:int`, `pnpm build`, `check:external --built` grün.
+
+## 2026-09-27 – P2.11
+
+- `src/lib/seo/metadata.ts` → `buildMetadata(routeId, locale, params)`: Titel „{Seite} · Planet Claire“ (Start „Planet Claire – {Claim}“), Beschreibung je Seitentyp aus den Nachrichten (`seo.descriptions`, 120–160 Zeichen), Open Graph mit Standardbild, `robots` aus der Registry; canonical + hreflang `de`/`en`/`x-default` (absolute Apex-URLs aus `NEXT_PUBLIC_SITE_URL`) nur auf indexierbaren Seiten. Alle Seiten nutzen `routeMetadata(id)`.
+- Organization-JSON-LD auf R01 (Name, URL, Logo, `sameAs` Instagram, ohne Adresse); `https://schema.org` als Bezeichner in die URL-Allowlist von `check:static` aufgenommen.
+- `src/app/robots.ts` + `src/lib/seo/robots.ts` (Produktion `Allow` + Sperrliste aus der Registry + Sitemap, sonst `Disallow: /`, nie `ADMIN_ROUTE`), `src/app/sitemap.ts` (live + indexierbar, beide Sprachen mit Alternates); `X-Robots-Tag: noindex, nofollow` außerhalb der Produktion über `next.config.ts headers()`, für Weiterleitungen/404 des Proxys im Proxy.
+- Tests: unit `tests/unit/seo/metadata.unit.spec.ts` (10), e2e `tests/e2e/seo.e2e.spec.ts` (AK-2-04, AK-2-05, AK-A-4-03, T-07, R26 `noindex, follow`) – 78 E2E grün (3 Projekte, Produktions-Build); `pnpm check`, `pnpm build`, `check:external --built` grün.
+
+## 2026-09-27 – P2.10
+
+- Fußbereich `SiteFooter` (KO-04, liegt wie die übrigen Rahmen-Bausteine unter `src/components/layout/`) in DOM-Reihenfolge: „Vertrag widerrufen“ als Knopf-Link → R26, `LegalFooter` (6 Pflichtlinks, Konformitätserklärungen nur bei aktiver Erklärung), `nav#fussnavigation` mit Menüliste + Instagram, Sprachumschalter, Schalter „Animationen“ (`src/behaviors/motion-toggle.ts`, `aria-pressed`, „aus (Systemeinstellung)“, `pc-motion` erst nach Klick, Vorschau nur im Speicher), Platz für Preis-Fußnote, „© {Berliner Jahr} Planet Claire · Berlin“.
+- Damit der Fuß auch auf 404/500 steht, gibt es minimale Grundformen: `[locale]/not-found.tsx`, `src/app/global-not-found.tsx` (Next `experimental.globalNotFound`, Kopf und Fuß schon im HTML) und `[locale]/error.tsx`; Gestaltung, Coco und Fehler-Auslöser folgen in P2.19. Gemeinsames Dokument `SiteDocument`, `RouteOverride` für 404 ohne Registry-Route.
+- Tests: e2e `footer.e2e.spec.ts` @smoke (R-011, R-090, AK-3-11, AK-DS-09; 390/1440, reduce/no-preference, ohne JS) und `motion-toggle.e2e.spec.ts`; unit `motion-toggle.unit.spec.ts`, `footer-links.unit.spec.ts`; 102 E2E (3 Projekte, gegen Produktions-Build), `pnpm check`, `pnpm test:int`, `pnpm build` grün.
+
+## 2026-09-27 – P2.9
+
+- MenuOverlay (KO-03): serverseitiges <dialog id="menu" aria-label="Menü"> mit Hauptliste (Start · Shop · Archiv · Auftragsarbeiten · Tattoo · Über mich & Coco · Kontakt), Kategorien aus categories (showInNavigation, src/lib/data/navigation.ts, gecacht, ohne DB robust), Tattoo-Unterseiten aus der Registry, unten Sprachumschalter, Instagram und Pflichtlinks inkl. „Vertrag widerrufen“, Coco-Platz\n- Verhaltensmodul src/behaviors/menu.ts: showModal, Fokus auf ersten Link, eigene Tab-Falle (auch Safari), Esc/„Schließen“ mit Fokus zurück, html[data-menu-open] (overflow hidden + scrollbar-gutter stable), MI-05 per WAAPI (≤ 700 ms), Linkklick schließt sofort; bei reduzierter Bewegung ohne Animation\n- LinkUnderline (MI-06, 3 Pfade per Hash des href) an Menü- und Kopflinks; ohne JS führt „Menü“ zu #fussnavigation\n- Tests: e2e tests/e2e/menu.e2e.spec.ts @smoke (AK-DS-08, ohne JS; 21 grün in 3 Projekten inkl. WebKit), Vertragstest AK-DS-18 um menu ergänzt; pnpm check, pnpm build grün
+
+## 2026-09-27 – P2.8
+
+- Seitenrahmen AppShell (KO-01): Skip-Link → SiteHeader → Vorschau-Banner → <main id="inhalt"> mit Linien-Ebene als Geschwister; <body data-preset>/<data-route> aus der Registry über die Layout-Segmente (PresetBody), <html data-motion> per festem Inline-Skript pc-motion (src/lib/security/inlineScripts.ts mit sha256-Hash für P2.12)\n- SiteHeader (KO-02): Wortmarke bzw. unter 375 px Planet-Marke, Shop/Tattoo (aria-current), Korb mit immer reserviertem Platz für die Anzahl (cart-count), Menü-Link #fussnavigation mit aria-controls/-haspopup/-expanded, handgezeichnete Unterkante in 3 Varianten nach Routen-Seed\n- Vorschau-Banner nur bei SEED_PREVIEW_MODE=true und APP_ENV≠production, im Export mit Phase\n- Tests: e2e tests/e2e/shell.e2e.spec.ts @smoke (AK-DS-07 bei 320/360/390/1440, Korb-Cookie, Skip-Link, Banner; 27 grün in desktop/iPhone-WebKit/Pixel), unit tests/unit/layout/shell.unit.spec.ts (15); pnpm check, pnpm build grün
+
+## 2026-09-27 – P2.7
+
+- Grundbausteine unter src/components/ui/: Button (Primär/Sekundär/Text, KO-11), Field/Select/Checkbox/Radio/RadioGroup (KO-12), EmptyState (KO-17-Rahmen mit Coco-Platz), Callout (KO-22), PlaceholderBanner (R-002), LinkUnderline (MI-06, für Sekundärknopf und Menü)\n- Checkbox/Radio haken nur bei ausdrücklichem checked=true an; Knopf-/Auswahl-Zielflächen ≥ 44 px\n- Tests: unit tests/unit/components/ui.unit.spec.tsx (14, jsdom + Testing Library); pnpm check, test:int grün
+
+## 2026-09-27 – P2.6
+
+- src/behaviors/types.ts (mount → unmount), Register src/behaviors/index.ts mit mountBehaviors (lädt per import() nur Benötigtes), BehaviorHost im Layout (bindet bei Routenwechsel neu)
+- erstes Modul cart-count: liest pc_cart nur, wenn vorhanden, setzt nichts; MI-07 (scale 1→1.25→1, 240 ms, --ease-stamp), bei reduzierter Bewegung sofort; Vorschau zählt nur im Speicher
+- Tests: unit behaviors/contract (10: AK-A-15-02, AK-A-2-03 inkl. transitiver Importe, AK-DS-18 mit Listener-/Observer-/Timer-/Animations-/Speicher-Protokoll, Gegenproben), cart-count (8), leash/motion (2); pnpm check, test:int, build, E2E (75) grün
+
+## 2026-09-27 – P2.5
+
+- 18 handgezeichnete Icons (src/art/icons, je ≤ 600 B) → pnpm art:icons → Inline-SVG-Komponente Icon (aria-hidden, mit label role=img)
+- pnpm art:brand: Wortmarke (4,4 KB, Mansalva-Umrisse, Planet als i-Punkt), icon.svg, favicon.ico (16/32), apple-icon.png (180), public/og/default.png (1200×630); Komponente WordmarkLink; Verwaltung mit eigenem Logo/Icon/Favicon
+- Tests: unit icons (9: Bestand, Größe, Attribute, Freshness, aria, Name „planet claire – Startseite“, ICO/PNG-Maße); Build grün, alle Dateien per pnpm start mit 200 vom eigenen Origin geprüft; pnpm check, test:int grün
+
+## 2026-09-27 – P2.4
+
+- Fontsource-Pakete, subset-font, fontkit als Dev-Abhängigkeiten; `pnpm fonts:copy` (scripts/fonts/copy.ts) erzeugt 3 WOFF2 unter src/styles/fonts (98,6 KB) und die Mansalva-Abdeckung
+- next/font/local in src/styles/fonts.ts (Mansalva/Bricolage mit Preload, Plex Mono ohne), Klassen am <html>; GlyphFallback + .glyph-fallback (Bricolage 600)
+- check:bundle prüft AK-DS-04 (genau 3 .woff2, ≤ 100 KB, keine Google-Fonts-Verweise)
+- Tests: unit glyphs (5, AK-DS-05) und fonts/copy (6: Determinismus, Budget, Achse 400–700, eingecheckt = erzeugt, check:bundle); pnpm check, test:int, build + check:bundle grün
+
+## 2026-09-27 – P2.3
+
+- src/styles/tokens.css wörtlich aus DESIGN §7 (von Prettier ausgenommen; Test vergleicht Byte für Byte); src/styles/global.css: Reset, Typografie §4.2/§4.3, Links §3.2, Fokus-Ring, Container/Rinne je Preset (data-preset), Ebenen, Sticky/scroll-padding, Schneidematten-Raster §3.4, Bewegungsreduktion (prefers-reduced-motion und html[data-motion=reduced]), forced-colors, Druck; eingebunden im [locale]-Layout\n- Ruheseiten ohne eigene Routengruppe; Ruheseiten-Ordner kommen aus der Registry (Presets calm/legal)\n- Tests: tests/unit/design/{contrast,lint-colors,lint-shadows,lint-motion}.unit.spec.ts (AK-DS-01, -02, -06, -16; mit Negativproben), Helfer tests/helpers/designLint.ts; pnpm check, test:int, build grün; 390 px geprüft (kein Querscrollen)
+
+## 2026-09-27 – P2.2
+
+- src/proxy.ts: Reihenfolge www→Apex (308) → Verwaltung (ADMIN_ROUTE-Umschreibung, /admin 404) → Schrägstrich (308) → Sprachlogik → next-intl-Middleware; nie Set-Cookie\n- Reine Entscheidung decidePublicRoute (src/lib/routes/redirects.ts): / und unpräfixierte Pfade 307 nach Accept-Language mit Vary (übersetzt), Pfad der anderen Sprache und Aliasse 308; pickLocale als reine Funktion (src/i18n/pickLocale.ts)\n- Sieben Kurz-URLs (R-010) als statische redirects() in next.config.ts (308) aus der Registry; R30 in der Registry live\n- Tests: tests/unit/i18n/pick-locale.unit.spec.ts (26), tests/e2e/routing.e2e.spec.ts @smoke (AK-2-02, R-010, AK-A-2-04, AK-A-8-02; 3 Projekte grün), pnpm check + build grün
+
+## 2026-09-27 – P2.1
+
+- next-intl 4.14.7 exakt gepinnt; Routen-Registry src/lib/routes/registry.ts (R01–R31, shortLinks, aliases) + Pfad-Helfer src/lib/routes/paths.ts (localizedPath, alternatePath, matchRoute)\n- src/i18n/{routing,request,navigation}.ts, Nachrichten de/en (9 Namensräume, EN als Entwurf E-62)\n- App-Ordner [locale]/ mit Startseite (vorläufig) und Gerüsten R20–R27; P0-Platzhalter entfernt\n- check:static: neue Teilprüfungen i18n-parity und route-registry (inkl. Abgleich page.tsx ↔ live-Routen)\n- Tests: tests/unit/i18n/parity.unit.spec.ts (T-06), tests/unit/routes/registry.unit.spec.ts (T-07, AK-2-01); pnpm check + build grün
 ## 2026-09-27 – P1 CI grün
 
 - Phasenende-Lauf `[ci:full p1]` auf PR #1 grün (`CI / quick`, 11 min, Kopf `f266c47`): Lint, Typen, statische

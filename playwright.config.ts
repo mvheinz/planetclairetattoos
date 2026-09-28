@@ -17,6 +17,8 @@ export default defineConfig({
   testMatch: '**/*.e2e.spec.ts',
   // Die Vorschau-Datei läuft offline gegen file:// in eigenem Lauf (`pnpm test:preview-export`, §7.1, §14.10).
   testIgnore: ['**/preview-export.e2e.spec.ts'],
+  // Gegen den Produktions-Build: vorgerenderte Seiten nach dem Start auf den Stand der Test-DB bringen (global-setup.ts).
+  globalSetup: './tests/e2e/global-setup.ts',
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
@@ -57,6 +59,10 @@ export default defineConfig({
     env: {
       NODE_OPTIONS: '--no-deprecation',
       PAYLOAD_DB_PUSH: 'false',
+      // Fehler-Auslöser `/<sprache>/__fehler-test` (R29) wirft nur bei APP_ENV=test (P2.19); CI setzt es ohnehin.
+      APP_ENV: 'test',
+      // Test-Schnittstelle `window.__leash` (DESIGN §9.13) auch im lokalen Dev-Server; CI baut mit dem Flag.
+      NEXT_PUBLIC_LEASH_DEBUG: process.env.NEXT_PUBLIC_LEASH_DEBUG || '1',
       ...(testDatabaseUrl ? { DATABASE_URL: testDatabaseUrl } : {}),
     },
   },

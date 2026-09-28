@@ -1,0 +1,171 @@
+/* KO-03 Menü: Vollbild-Dialog auf Papier mit eigenem Raster; Hauptliste Mansalva --fs-menu, Unterlisten 17 px. */
+.menu {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--ink);
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid-line-major) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line-major) 1px, transparent 1px),
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size:
+    160px 160px,
+    160px 160px,
+    32px 32px,
+    32px 32px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.menu::backdrop {
+  background: transparent;
+}
+
+.inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-height: 100%;
+  max-width: calc(var(--content-max) + 2 * var(--page-pad));
+  margin-inline: auto;
+  padding: 0 var(--page-pad) var(--space-8);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: var(--header-h);
+}
+
+.wordmark {
+  height: var(--fs-wordmark);
+  width: auto;
+}
+
+.close {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
+  padding: 0 var(--space-2);
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.nav {
+  flex: 1 0 auto;
+}
+
+.main,
+.sub,
+.legal,
+.languages {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.main {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.mainLink {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  color: var(--ink);
+  font-family: var(--font-hand);
+  font-size: var(--fs-menu);
+  line-height: 1.1;
+  text-decoration: none;
+}
+
+.mainLink:visited,
+.mainLink:hover,
+.mainLink:focus-visible {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.sub {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-4);
+  padding-inline-start: var(--space-1);
+}
+
+.subLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  color: var(--ink);
+  font-size: 1.0625rem;
+}
+
+.bottom {
+  display: grid;
+  gap: var(--space-2);
+  font-size: var(--fs-small);
+}
+
+.languages,
+.legal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-3);
+}
+
+.languages {
+  gap: 0;
+}
+
+.languages li {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+}
+
+.smallLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--tap-min);
+  color: var(--ink);
+}
+
+.smallLink:visited {
+  color: var(--ink);
+}
+
+.withdraw {
+  font-weight: 600;
+}
+
+.inlineIcon {
+  flex: none;
+}
+
+.coco {
+  position: absolute;
+  right: var(--page-pad);
+  bottom: 0;
+  width: var(--coco-m);
+  pointer-events: none;
+}

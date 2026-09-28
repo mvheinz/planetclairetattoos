@@ -21,6 +21,15 @@ export const SERVER_ONLY_DIRS = [
   'security',
 ].map((d) => `src/lib/${d}`)
 export const SERVER_ONLY_FILES = ['src/lib/env.ts', 'src/lib/audit.ts']
+/**
+ * Ausnahmen (ADR 0002): reine Header-/CSP-Konfiguration ohne Geheimnisse, die `next.config.ts` lädt – dort wirft
+ * `server-only` (keine `react-server`-Bedingung).
+ */
+export const SERVER_ONLY_EXEMPT = [
+  'src/lib/security/csp.ts',
+  'src/lib/security/headers.ts',
+  'src/lib/security/inlineScripts.ts',
+]
 
 const FIRST_IMPORT = /^\s*import\s[^\n]*$/m
 
@@ -33,7 +42,9 @@ export function checkImportRules(files: { path: string; source: string }[]): Che
   const errors: string[] = []
   for (const f of files) {
     const serverOnly =
-      SERVER_ONLY_FILES.includes(f.path) || SERVER_ONLY_DIRS.some((d) => f.path.startsWith(`${d}/`))
+      !SERVER_ONLY_EXEMPT.includes(f.path) &&
+      (SERVER_ONLY_FILES.includes(f.path) ||
+        SERVER_ONLY_DIRS.some((d) => f.path.startsWith(`${d}/`)))
     if (serverOnly && /\.(ts|tsx)$/.test(f.path) && !startsWithServerOnly(f.source)) {
       errors.push(
         `${f.path}: serverseitiges Modul muss mit import 'server-only' beginnen (ARCHITEKTUR §2.2).`,

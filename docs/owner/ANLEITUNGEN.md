@@ -1,6 +1,6 @@
 # Anleitungen
 
-> **Für:** Jutta · **Stand:** 27.09.2026 · Gehört zu deiner Aufgabenliste [AUFGABEN.md](AUFGABEN.md)
+> **Für:** Jutta · **Stand:** 28.09.2026 · Gehört zu deiner Aufgabenliste [AUFGABEN.md](AUFGABEN.md)
 
 Webseiten ändern sich ständig. Wenn ein Knopf etwas anders heißt als hier, such nach etwas Ähnlichem.
 Wo wir uns beim Namen nicht sicher sind, steht **(so ähnlich)**. Genannt werden nur die Startseiten der Anbieter,
@@ -12,7 +12,7 @@ weil sich tiefere Links oft ändern.
 1. GitHub: [G1 Repository anlegen und einstellen](#g1) · [G2 Claude-App](#g2) · [G3 In die Cloud](#g3) ·
    [G4 Dateien hochladen](#g4) · [G5 Pull Request übernehmen](#g5) · [G6 Zwischen-Vorschau](#g6) ·
    [G7 Fertige Vorschau](#g7) · [G8 Dokument lesen oder als PDF speichern](#g8)
-2. Vorschau-Datei: [V1 Öffnen](#v1) · [V2 Worauf achten](#v2)
+2. Vorschau-Datei: [V0 Vorschau-Datei ansehen](#v0) · [V1 Öffnen](#v1) · [V2 Worauf achten](#v2)
 3. Instagram: [I1 Export anfordern](#i1) · [I2 Export hochladen](#i2) · [I3 Links in der Bio](#i3)
 4. [C1 Coco-Fotos](#c1)
 5. [E1 Einwilligungen für Tattoo-Fotos](#e1)
@@ -208,7 +208,7 @@ Am einfachsten geht es über den Pull Request: Dort schreibt GitHub einen Kommen
 Phase P3“ mit einer kurzen Anleitung. Sonst so:
 
 1. Öffne dein Repo (angemeldet) und geh auf den Reiter „Actions“.
-2. Wähl links den Ablauf für die Vorschau (so ähnlich: „Vorschau“ oder „preview-export“).
+2. Wähl links den Ablauf „Vorschau-Export“.
 3. Klick in der Liste auf den obersten Lauf mit grünem Haken.
 4. Scroll auf der Übersichtsseite („Summary“) nach unten bis „Artifacts“.
 5. Klick auf den Namen, zum Beispiel `planet-claire-vorschau-p3-1a2b3c4`. Es lädt eine ZIP-Datei herunter.
@@ -246,6 +246,30 @@ So liest du zum Beispiel die Kanzlei-Mappe, den Abschlussbericht oder die offene
 ## 2. Vorschau-Datei
 
 Die Vorschau ist deine ganze Website in einer einzigen Datei. Sie läuft ohne Internet und ohne Konten.
+
+<a id="v0"></a>
+### V0 · Vorschau-Datei ansehen
+
+Am Ende jeder Phase legt GitHub eine neue Vorschau-Datei an. So kommst du in drei Schritten hin:
+
+1. **Checks:** Öffne den aktuellen Pull Request (Reiter „Pull requests“, dann den obersten Eintrag). Klick oben auf
+   den Reiter „Checks“. Links siehst du eine Liste. Klick dort auf „Vorschau-Export“.
+2. **Summary:** Klick links oben auf „Summary“ (Übersicht). Dort steht auch eine kurze Anleitung auf Deutsch.
+3. **Artifacts:** Scroll ganz nach unten bis „Artifacts“ (das sind die Dateien zum Herunterladen). Klick auf den Namen,
+   zum Beispiel `planet-claire-vorschau-p2-1a2b3c4`. Eine ZIP-Datei lädt herunter. `p2` heißt: Stand nach Phase P2.
+4. **ZIP entpacken:** Unter Windows Rechtsklick auf die ZIP-Datei → „Alle extrahieren“. Am Mac reicht ein Doppelklick.
+5. **Doppelklicken:** Im ausgepackten Ordner `planet-claire-vorschau.html` doppelklicken. Die Seite öffnet sich im
+   Browser, ganz ohne Internet. Mehr dazu in [V1](#v1).
+
+Einfacher geht es oft über den Kommentar im Pull Request: „Neue Vorschau-Datei für Phase …“. Darin ist ein Link direkt
+zur richtigen Seite.
+
+Gut zu wissen:
+
+- Es bleiben immer nur die 3 neuesten Vorschau-Dateien, jede höchstens 30 Tage. Ältere verschwinden von selbst.
+- Die Datei ist **nur für dich**: nur privat ansehen, nicht weitergeben, nicht veröffentlichen. Darin sind
+  Beispieldaten und Rechtstexte, die noch Platzhalter sind (also noch nicht von der Kanzlei geprüft).
+- Du musst sie nicht ansehen. Die Arbeit geht auch ohne dich weiter.
 
 <a id="v1"></a>
 ### V1 · Öffnen

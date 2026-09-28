@@ -1,0 +1,45 @@
+/* KO-22 Hinweis-Kasten. */
+.callout {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-left: 3px solid var(--stencil);
+  border-radius: var(--r-card);
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.info {
+  border-left-color: var(--stencil);
+}
+
+.warn {
+  border-left-color: var(--warn);
+}
+
+.deviation {
+  border-left-color: var(--fox-text);
+}
+
+.icon {
+  flex: none;
+  margin-top: 2px;
+  color: var(--ink);
+}
+
+.warn .icon {
+  color: var(--warn);
+}
+
+.body {
+  min-width: 0;
+}
+
+.title {
+  font-weight: 700;
+}
+
+.content > * + * {
+  margin-top: var(--space-2);
+}

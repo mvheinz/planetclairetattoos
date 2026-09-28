@@ -1,0 +1,20 @@
+/* R-002 Platzhalter-Band: gut sichtbar, statisch, ohne JavaScript. */
+.banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-block: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: var(--stroke-ink) dashed var(--warn);
+  border-radius: var(--r-card);
+  background: var(--paper-2);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  letter-spacing: 0.02em;
+}
+
+.icon {
+  flex: none;
+  color: var(--warn);
+}

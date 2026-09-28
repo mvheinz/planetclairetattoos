@@ -1,0 +1,236 @@
+/* R01 Startseite (DESIGN KO-21, §11.4): Kopf-Station „Planet Claire“ und Stationen. Die Rinne der Tuschelinie hält
+   `.u-container` frei (Preset `journey`, §5.3). */
+
+.home {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* ---------- Kopf-Station ---------- */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 40rem;
+}
+
+.title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  /* Abstand ≥ 0,4 × Markenbreite: der Orbit (rx 0,9 w) bleibt vor dem ersten Buchstaben. */
+  gap: var(--space-2) var(--space-5);
+  font-family: var(--font-hand);
+  font-size: var(--fs-display);
+  font-weight: 400;
+  line-height: 1;
+}
+
+/* Planet-Marke neben der H1 = Anker `orbit` (Intro MI-10); feste Größe, kein CLS. */
+.planet {
+  display: inline-block;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  color: var(--ink);
+}
+
+.planet svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.lede {
+  font-size: var(--fs-lede);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.intro {
+  max-width: 36rem;
+  color: var(--ink-2);
+}
+
+/* ---------- Stationen ---------- */
+
+.stations {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.station {
+  display: grid;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.stationText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 34rem;
+}
+
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 28px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-kicker);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+/* Stationsmarke (§12.5): Planet 28 px, Stern 16 px, links neben dem Kicker. */
+.mark {
+  display: inline-flex;
+  flex: none;
+  color: var(--ink);
+}
+
+.mark[data-station-mark='planet'] svg {
+  width: 28px;
+  height: 28px;
+}
+
+.mark[data-station-mark='star'] svg {
+  width: 16px;
+  height: 16px;
+}
+
+.heading {
+  font-family: var(--font-hand);
+  font-size: var(--fs-h2);
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+.text {
+  font-size: var(--fs-body);
+  line-height: 1.55;
+}
+
+.more {
+  margin-top: var(--space-2);
+}
+
+/* Stationszeichnung: feste Box 4:5 mit 16 px freiem Rand für `contour` (§9.5). */
+.artFrame {
+  width: min(240px, 64vw);
+  padding: var(--space-4);
+}
+
+.art {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--r-card);
+  color: var(--ink);
+}
+
+.art svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.artCoco {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: var(--paper-2);
+}
+
+.artCoco :global(.coco) {
+  --coco-w: 78%;
+  margin-bottom: 12%;
+}
+
+.art .artPlanet {
+  position: absolute;
+  top: 10%;
+  right: 10%;
+  width: 26%;
+  height: auto;
+}
+
+@media (min-width: 768px) {
+  .home,
+  .stations {
+    gap: var(--space-9);
+  }
+
+  /* Zeichnung links an der Rinne, Text rechts: `lasso`/`contour` um die Zeichnung kreuzen so keinen Text. */
+  .station {
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: var(--space-7);
+  }
+
+  .station > .artFrame {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .station > .stationText {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .artFrame {
+    width: 260px;
+  }
+
+  .title {
+    column-gap: var(--space-6);
+  }
+
+  .planet {
+    width: 64px;
+    height: 64px;
+  }
+}
+
+/* MI-12 Stationsmarke „pop“, wenn die Linie sie erreicht (`data-leash-reached` setzt die Engine): Planet
+   `scale 0.6 → 1` 240 ms `--ease-stamp`, Stern `rotate 0 → 15°` 400 ms `--ease-swing`, einmal. Reduziert: aus. */
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-motion='reduced'])
+    .station:has([data-leash-reached])
+    .mark[data-station-mark='planet']
+    svg {
+    animation: pc-mark-pop 240ms var(--ease-stamp) both;
+  }
+
+  html:not([data-motion='reduced'])
+    .station:has([data-leash-reached])
+    .mark[data-station-mark='star']
+    svg {
+    animation: pc-mark-turn 400ms var(--ease-swing) both;
+  }
+}
+
+@keyframes pc-mark-pop {
+  from {
+    transform: scale(0.6);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes pc-mark-turn {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(15deg);
+  }
+}

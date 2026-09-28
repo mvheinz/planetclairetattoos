@@ -1301,7 +1301,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
 
 ### Aufgaben
 
-- [ ] **P2.1 i18n-Grundlage und Routen-Registry** – `next-intl` (≥ 4.14, exakt gepinnt).
+- [x] **P2.1 i18n-Grundlage und Routen-Registry** – `next-intl` (≥ 4.14, exakt gepinnt).
   - Routen-Registry `src/lib/routes/registry.ts` (ARCHITEKTUR §2.3) mit R01–R31 – reine Daten ohne Framework-Importe
     und ohne Pfad-Aliasse. Felder je Eintrag: `id`, DE/EN-Muster (exakt KONZEPT §2.2), `pageType`
     (`PUBLIC_PAGE_TYPES`), `preset`, `rendering`, `robots`, `headerContext` (public/dynamic/checkout), `status`
@@ -1325,7 +1325,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: unit `tests/unit/i18n/parity.unit.spec.ts` (T-06), `tests/unit/routes/registry.unit.spec.ts` (T-07, AK-2-01).
   - Ohne Jutta: EN-Texte als Entwürfe (E-62); Jutta korrigiert später.
 
-- [ ] **P2.2 Proxy, Sprachumleitung und Weiterleitungen** – `src/proxy.ts` verbindet die Admin-Umschreibung (P1.12) mit
+- [x] **P2.2 Proxy, Sprachumleitung und Weiterleitungen** – `src/proxy.ts` verbindet die Admin-Umschreibung (P1.12) mit
   der next-intl-Middleware.
   - Reihenfolge und Codes laut ARCHITEKTUR §2.3:
     - die sieben Kurz-URLs aus `shortLinks` (R-010) → 308 auf die kanonische DE-Route aus KONZEPT §2.2, statisch in
@@ -1349,7 +1349,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     R-010, AK-A-2-04, AK-A-8-02).
   - Ohne Jutta: –
 
-- [ ] **P2.3 Design-Tokens, globale Styles, Raster und Lint-Tests** – `src/styles/tokens.css` wörtlich aus DESIGN §7.
+- [x] **P2.3 Design-Tokens, globale Styles, Raster und Lint-Tests** – `src/styles/tokens.css` wörtlich aus DESIGN §7.
   `src/styles/global.css`:
   - Reset;
   - Typografie §4.2/§4.3;
@@ -1374,7 +1374,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     -16).
   - Ohne Jutta: –
 
-- [ ] **P2.4 Selbst gehostete Schriften** – Pakete `@fontsource/mansalva`, `@fontsource-variable/bricolage-grotesque`,
+- [x] **P2.4 Selbst gehostete Schriften** – Pakete `@fontsource/mansalva`, `@fontsource-variable/bricolage-grotesque`,
   `@fontsource/ibm-plex-mono` als Dev-Abhängigkeiten (E-79).
   - `pnpm fonts:copy` (`scripts/fonts/copy.ts`) kopiert genau 3 `.woff2` nach `src/styles/fonts/` (Schnitte und
     Subsets laut DESIGN §4.1, Plex Mono nur 400, Annahme DA-3). Liegt Bricolage (variabel, Achse `wght`) über 45 KB,
@@ -1396,7 +1396,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     P2.21.
   - Ohne Jutta: Keine eigene Handschrift-Font („Später“).
 
-- [ ] **P2.5 Icons, Wortmarke, Planet-Marke, Favicon, Standard-OG** – Icons nach DESIGN §6.5: Quellen
+- [x] **P2.5 Icons, Wortmarke, Planet-Marke, Favicon, Standard-OG** – Icons nach DESIGN §6.5: Quellen
   `src/art/icons/*.svg` (je ≤ 600 B), eingebunden als Inline-SVG-React-Komponenten in `src/components/icons/`
   (Komponente `Icon`, kein Sprite, kein `<use href>`); Bestand genau laut §6.5: `basket`, `menu`, `close`,
   `arrow-right`, `arrow-left`, `external`, `mail`, `instagram`, `copy`, `zoom`, `check`, `warn`, `info`, `planet`,
@@ -1416,7 +1416,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: unit `tests/unit/design/icons.unit.spec.ts`; e2e-Teil in P2.21.
   - Ohne Jutta: Marken sind vorläufig vektorisiert; P9 verfeinert (E-76).
 
-- [ ] **P2.6 Verhaltensmodule: `mount`/`unmount`-Architektur** – KONZEPT §12.9, ARCHITEKTUR §14.6, DESIGN §9.12.
+- [x] **P2.6 Verhaltensmodule: `mount`/`unmount`-Architektur** – KONZEPT §12.9, ARCHITEKTUR §14.6, DESIGN §9.12.
   - `src/behaviors/types.ts`: `mount(root: Element, ctx?: { mode: 'app' | 'preview' }) → unmount`.
   - `src/behaviors/index.ts`: Register `name → modul`; Dateiname kebab-case = Wert von `data-behavior` (Tabelle DESIGN
     §9.12).
@@ -1436,7 +1436,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     (jsdom).
   - Ohne Jutta: –
 
-- [ ] **P2.7 Grundbausteine KO-11, KO-12, KO-17, KO-22** – `src/components/ui/`:
+- [x] **P2.7 Grundbausteine KO-11, KO-12, KO-17, KO-22** – `src/components/ui/`:
   - `Button` mit den Varianten aus KO-11 (Primär, Sekundär mit MI-06-Unterstreichung, Link), Höhe ≥ 48 px;
   - `Field`, `Checkbox`, `Radio`, `Select` in der Basis von KO-12 (Label, Hilfe, Fehler, `aria-describedby`, nie
     vorbelegte Häkchen);
@@ -1451,7 +1451,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: unit `tests/unit/components/ui.unit.spec.tsx` (jsdom, Testing Library); a11y-Teil in P2.22.
   - Ohne Jutta: –
 
-- [ ] **P2.8 Seitenrahmen, Kopfleiste, Vorschau-Banner** – `src/app/(frontend)/[locale]/layout.tsx` setzt `<html lang>`
+- [x] **P2.8 Seitenrahmen, Kopfleiste, Vorschau-Banner** – `src/app/(frontend)/[locale]/layout.tsx` setzt `<html lang>`
   aus der Route, `<body data-preset>` aus der Registry und `<html data-motion>` über ein Inline-Skript im `<head>`
   (DESIGN §11.7; der Hash wird für die CSP in `src/lib/security/inlineScripts.ts` hinterlegt).
   - `AppShell` (KO-01): Skip-Link „Zum Inhalt springen“ / „Skip to content“ → `SiteHeader` → Vorschau-Banner → `<main
@@ -1474,7 +1474,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: e2e `tests/e2e/shell.e2e.spec.ts` @smoke (AK-DS-07).
   - Ohne Jutta: –
 
-- [ ] **P2.9 Menü (KO-03) als Verhaltensmodul** – `src/components/MenuOverlay.tsx` rendert serverseitig
+- [x] **P2.9 Menü (KO-03) als Verhaltensmodul** – `src/components/MenuOverlay.tsx` rendert serverseitig
   `<dialog id="menu" aria-label="Menü">` mit der Hauptliste aus KONZEPT §3.0.2 (Start · Shop · Archiv ·
   Auftragsarbeiten · Tattoo · Über mich & Coco · Kontakt):
   - Kategorien aus `categories` (`getPublicPayload`, `showInNavigation`);
@@ -1495,7 +1495,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: e2e `tests/e2e/menu.e2e.spec.ts` @smoke (AK-DS-08).
   - Ohne Jutta: –
 
-- [ ] **P2.10 Fußbereich mit Pflichtlinks, Sprachumschalter, Animationen-Schalter** – `src/components/SiteFooter.tsx`
+- [x] **P2.10 Fußbereich mit Pflichtlinks, Sprachumschalter, Animationen-Schalter** – `src/components/SiteFooter.tsx`
   (KO-04) in DOM-Reihenfolge:
   1. „Vertrag widerrufen“ / „Withdraw from contract here“ (R-090, Konstante aus `src/lib/legal/constants.ts`)
      als hervorgehobener Knopf-Link → R26;
@@ -1530,7 +1530,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     unit `tests/unit/legal/footer-links.unit.spec.ts` (R-090: Konstanten DE/EN).
   - Ohne Jutta: –
 
-- [ ] **P2.11 SEO-Grundlagen** – `src/lib/seo/metadata.ts` → `buildMetadata(routeId, locale, params)`:
+- [x] **P2.11 SEO-Grundlagen** – `src/lib/seo/metadata.ts` → `buildMetadata(routeId, locale, params)`:
   - Titel „{Seite} · Planet Claire“, Beschreibung aus den Nachrichten;
   - canonical und drei hreflang-Links (`de`, `en`, `x-default`) mit absoluten Apex-URLs aus `NEXT_PUBLIC_SITE_URL`;
   - `robots` aus der Registry.
@@ -1550,7 +1550,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     T-07).
   - Ohne Jutta: –
 
-- [ ] **P2.12 Sicherheits-Header und CSP (Spike B-03)** – `src/lib/security/headers.ts` und `src/lib/security/csp.ts`
+- [x] **P2.12 Sicherheits-Header und CSP (Spike B-03)** – `src/lib/security/headers.ts` und `src/lib/security/csp.ts`
   (Host-Listen je Kontext) mit den Kontexten `public`, `dynamic`, `checkout`, `admin`, `api` genau nach ARCHITEKTUR
   §8.1.
   - Anwendung: statische Routen über `next.config.ts headers()`, Nonce-Kontexte (`dynamic`, `checkout`, `admin`) über
@@ -1580,7 +1580,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     `tests/e2e/security-headers.e2e.spec.ts` (AK-A-8-01, R-136).
   - Ohne Jutta: –
 
-- [ ] **P2.13 Rechtsseiten-Gerüste R21–R25, R27** – Seiten in `src/app/(frontend)/[locale]/` mit den englischen
+- [x] **P2.13 Rechtsseiten-Gerüste R21–R25, R27** – Seiten in `src/app/(frontend)/[locale]/` mit den englischen
   Ordnernamen laut ARCHITEKTUR §2.1: `legal-notice/`, `privacy/`, `terms/`, `right-of-withdrawal/`,
   `shipping-and-payment/`, `declarations-of-conformity/` (DE-Pfade `/de/impressum` usw. aus der Registry); keine
   Routengruppe.
@@ -1600,7 +1600,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: e2e `tests/e2e/legal-pages.e2e.spec.ts` @smoke (R-010, R-002, AK-DS-11).
   - Ohne Jutta: Kanzlei-Texte folgen in P11 (A08, A28); bis dahin Platzhalter, nicht live schalten.
 
-- [ ] **P2.14 Kontakt R20 und „Vertrag widerrufen“-Gerüst R26** –
+- [x] **P2.14 Kontakt R20 und „Vertrag widerrufen“-Gerüst R26** –
   - R20 (`/de/kontakt`, `/en/contact`, Ordner `contact/`), Preset `margin`: Inhalt aus `pages:contact` (Seed P1.30),
     sonst ein neutraler Leerzustand (DM-PAGE-01). E-Mail-Adresse und Instagram-Link kommen aus `getPublicSettings()`;
     kein Formular (E-51).
@@ -1618,7 +1618,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: e2e `tests/e2e/contact-withdraw.e2e.spec.ts` @smoke (DM-PAGE-01, R-090, R-010).
   - Ohne Jutta: –
 
-- [ ] **P2.15 Tuschelinie-Kern (rein, ohne DOM)** – `src/leash/types.ts` wörtlich aus DESIGN §9.1, dazu:
+- [x] **P2.15 Tuschelinie-Kern (rein, ohne DOM)** – `src/leash/types.ts` wörtlich aus DESIGN §9.1, dazu:
   - `random.ts` (`fnv1a32`, `mulberry32`, `valueNoise1D`);
   - `presets.ts`: die ganze Tabelle §9.7 als Daten für alle 11 Presets;
   - `geometry.ts` → `buildGeometry(input)` mit den Schritten 1–11 aus §9.3, allen Schlaufenformen aus §9.5 inklusive
@@ -1639,7 +1639,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: unit `tests/unit/leash/{random,geometry,loops,poses}.unit.spec.ts` (AK-DS-12).
   - Ohne Jutta: –
 
-- [ ] **P2.16 Tuschelinie-Laufzeit (Stufen A/B, Scroll-Kopplung)** –
+- [x] **P2.16 Tuschelinie-Laufzeit (Stufen A/B, Scroll-Kopplung)** –
   - `src/leash/measure.ts`: eine Lesephase.
   - `src/leash/runtime.ts` → `mountLeash(root, options): LeashHandle { destroy, rebuild, setMotion }`:
     - Stufenwahl A/B (Abstufung A → B nur im Speicher);
@@ -1670,7 +1670,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     `tests/unit/leash/motion.unit.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P2.17 Reduzierte Bewegung, statischer Renderer, Debug-Schnittstelle** –
+- [x] **P2.17 Reduzierte Bewegung, statischer Renderer, Debug-Schnittstelle** –
   - `src/leash/static.ts`: Stufe C, ≤ 4 KB gz. Wird geladen auf `legal`/`calm`-Seiten und bei reduzierter Bewegung,
     auf R21–R25, R27 eingeschaltet.
   - `setMotion` reagiert auf `matchMedia`-Änderungen und den Schalter: Linie sofort vollständig, kein Intro, Coco
@@ -1692,7 +1692,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     es im Job `quality`, P2.28).
   - Ohne Jutta: –
 
-- [ ] **P2.18 Coco-Platzhalter-Sprite und Coco-Steuerung** –
+- [x] **P2.18 Coco-Platzhalter-Sprite und Coco-Steuerung** –
   - `src/art/coco/coco-sprite.svg` mit allen 22 Symbolen: `coco-{rennen|schnueffeln|sitzen|schlafen|springen|
     kopfschief}-{a|b|c}` und `coco-bridge-{bremsen|abspringen|einrollen-1|einrollen-2}` (DESIGN §10.4).
     - `viewBox 0 0 160 120`;
@@ -1720,7 +1720,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: unit `tests/unit/art/sprite.unit.spec.ts`, `tests/unit/leash/coco.unit.spec.ts`; Budget in `check:bundle`.
   - Ohne Jutta: Platzhalter bis P9. Optional liefert Jutta weitere Coco-Fotos (A05, E-75).
 
-- [ ] **P2.19 Fehlerseiten 404 (R28) und 500 (R29)** – KO-18.
+- [x] **P2.19 Fehlerseiten 404 (R28) und 500 (R29)** – KO-18.
   - `src/app/(frontend)/[locale]/not-found.tsx` + `[locale]/[...rest]/page.tsx` (→ `notFound()`), echter Status 404.
   - Preset `lost`: Linie vom Kopf, `coil`, offener Karabiner, Coco `horizon` rennt einmal weg.
   - H1 „Coco hat sich losgerissen“ / „Coco slipped her leash“, Satz „Diese Seite gibt es nicht (mehr).“, Links Start,
@@ -1740,7 +1740,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: e2e `tests/e2e/error-pages.e2e.spec.ts` @smoke (AK-3-11, R-011).
   - Ohne Jutta: –
 
-- [ ] **P2.20 Startseite R01 mit Beispielinhalten** – `src/app/(frontend)/[locale]/page.tsx` liest `pages` mit
+- [x] **P2.20 Startseite R01 mit Beispielinhalten** – `src/app/(frontend)/[locale]/page.tsx` liest `pages` mit
   `key = home` über `getPublicPayload()`; Geschäftsangaben kommen aus `settings.business` (DATENMODELL; keine eigenen
   Globals für Start- oder Über-mich-Seite).
   - Kopf-Station „Planet Claire“: H1 mit Planet-Marke und `orbit`-Anker.
@@ -1766,7 +1766,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     `tests/int/pages/home-data.int.spec.ts`.
   - Ohne Jutta: Seed-Texte in Juttas Ton (E-62). Stationszeichnungen folgen in P8/P9.
 
-- [ ] **P2.21 Datenschutz-E2E: keine Cookies, kein Speicher, keine Fremd-Requests** – Suite `@privacy` in
+- [x] **P2.21 Datenschutz-E2E: keine Cookies, kein Speicher, keine Fremd-Requests** – Suite `@privacy` in
   `tests/e2e/privacy.e2e.spec.ts`. Für alle Registry-Routen mit Status `live` in DE und EN, in allen drei Projekten,
   mit frischem Kontext je Route.
   - Akzeptanz:
@@ -1779,7 +1779,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: e2e `privacy.e2e.spec.ts` @privacy (T-03, T-04, R-130, R-131); Skript `scripts/check-external.ts`.
   - Ohne Jutta: –
 
-- [ ] **P2.22 Barrierefreiheit: axe und Tastatur** – `@axe-core/playwright` mit den Tags `wcag2a`, `wcag2aa`,
+- [x] **P2.22 Barrierefreiheit: axe und Tastatur** – `@axe-core/playwright` mit den Tags `wcag2a`, `wcag2aa`,
   `wcag21a`, `wcag21aa`, `wcag22aa` (ARCHITEKTUR §7.5). `tests/e2e/a11y.e2e.spec.ts` @a11y prüft:
   - jede `live`-Route je Sprache;
   - Zustände: offenes Menü, 404, 500, Leerzustand der Startseite (ohne `home`), Rechtsseite mit Platzhalter;
@@ -1793,7 +1793,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: e2e `a11y.e2e.spec.ts` @a11y (T-11, R-191), `keyboard.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P2.23 Tempo-Budgets: `check:bundle`, Lighthouse-CI, `@perf`** –
+- [x] **P2.23 Tempo-Budgets: `check:bundle`, Lighthouse-CI, `@perf`** –
   - `tests/perf/budgets.json` mit allen Werten aus ARCHITEKTUR §7.7 und DESIGN §9.10:
     - JS: R01 ≤ 170 KB gz, übrige ≤ 150 KB;
     - Engine ≤ 12 KB, Coco ≤ 3 KB, Mikro ≤ 4 KB, statischer Renderer ≤ 4 KB;
@@ -1815,7 +1815,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: `check:bundle` (T-09), `test:perf` (T-10), e2e `perf.e2e.spec.ts` @perf.
   - Ohne Jutta: –
 
-- [ ] **P2.24 Visuelle Referenzen** – `tests/visual/*.visual.spec.ts` (ARCHITEKTUR §7.6):
+- [x] **P2.24 Visuelle Referenzen** – `tests/visual/*.visual.spec.ts` (ARCHITEKTUR §7.6):
   - Chromium `desktop` 1440×900 und Mobil 390×844, `reducedMotion: 'reduce'`;
   - Uhr fest, `document.fonts.ready`, `maxDiffPixelRatio: 0.01`;
   - Umfang P2: R01, Impressum, R26, 404, 500, Kopf, offenes Menü, Fuß.
@@ -1833,7 +1833,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     grüner `quality`-Lauf: P2.28).
   - Ohne Jutta: –
 
-- [ ] **P2.25 Vorschau-Export: Umgebung, Datenbank, Server, Crawl** – `scripts/preview-export/` laut ARCHITEKTUR
+- [x] **P2.25 Vorschau-Export: Umgebung, Datenbank, Server, Crawl** – `scripts/preview-export/` laut ARCHITEKTUR
   §14.1–§14.4:
   - `index.ts`: Ablauf §14.2, Exit-Codes 0/1/2, Server im `finally` beenden, Optionen `--skip-build`/`--keep-server`;
   - `env.ts`: Export-Umgebung §14.3, u. a. `PREVIEW_EXPORT=true`, `EMAIL_DRIVER=memory`,
@@ -1854,7 +1854,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     `tests/int/preview-export/exit-codes.int.spec.ts` (AK-A-14-03, mit unerreichbarem Port).
   - Ohne Jutta: –
 
-- [ ] **P2.26 Vorschau-Export: Umwandlung, Laufzeit, Datei** – `scripts/preview-export/transform/{html,css,images,fonts,
+- [x] **P2.26 Vorschau-Export: Umwandlung, Laufzeit, Datei** – `scripts/preview-export/transform/{html,css,images,fonts,
   svg,links}.ts` mit `cheerio` (§14.5):
   - Skripte, Preloads und Next-Daten entfernen;
   - Templates `<template data-route …>`;
@@ -1882,7 +1882,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     `tests/int/preview-export/determinism.int.spec.ts` (AK-A-14-01, AK-A-14-02).
   - Ohne Jutta: –
 
-- [ ] **P2.27 Vorschau-Export: Verwaltungsfotos, Bericht, Phase, Abnahmetest** –
+- [x] **P2.27 Vorschau-Export: Verwaltungsfotos, Bericht, Phase, Abnahmetest** –
   - `adminViews.ts` listet die Ansichten aus KONZEPT §7.3–§7.15 mit Phase. In P2 existiert nur Login/Liste/Formular;
     der Rest erscheint als „kommt in P5“ usw.
   - `adminShots.ts`: Login mit `SEED_ADMIN_*` der Export-DB, 390×844 bei DPR 2, WebP 780 px q70.
@@ -1911,7 +1911,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: e2e `preview-export.e2e.spec.ts` (T-13, EK-11); unit `tests/unit/preview-export/{report,phase}.unit.spec.ts`.
   - Ohne Jutta: Test-Admin nur für die Fotos (E-03, kein zweites Konto).
 
-- [ ] **P2.28 Workflows `ci-full.yml` und `preview-export.yml`** – Laut ARCHITEKTUR §6.2, §6.4, §6.5, §7.6. Beide
+- [x] **P2.28 Workflows `ci-full.yml` und `preview-export.yml`** – Laut ARCHITEKTUR §6.2, §6.4, §6.5, §7.6. Beide
   Workflows laufen wie `ci.yml` nur bei `pull_request` (Typen wie P1.1a) und `workflow_dispatch`, **nie** bei `push`
   (Arbeitsregeln oben). Ein erster Schritt liest die Nachricht des Head-Commits des PR (z. B.
   `gh api repos/{owner}/{repo}/commits/<head-sha> --jq .commit.message`); danach richten sich die Jobs. Ein Head-Commit
@@ -1956,7 +1956,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     Budget-Schritt); ein Lauf mit `[ci:update-snapshots]`; CI-Nachweis im Phasenende-Lauf `[ci:full p2]`.
   - Ohne Jutta: –
 
-- [ ] **P2.29 Nachverfolgbarkeit Phase 2 und Anleitung für Jutta** –
+- [x] **P2.29 Nachverfolgbarkeit Phase 2 und Anleitung für Jutta** –
   - `LEGAL_TRACE_PHASE = 2` in `tests/unit/legal/traceability.unit.spec.ts`. R-010, R-011, R-090, R-130, R-131 und
     R-191 stehen in Testtiteln (P2.10–P2.22).
   - Verbotsmuster-Test zusätzlich als E2E über das gerenderte HTML aller `live`-Routen:
@@ -1972,25 +1972,25 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Ohne Jutta: Jutta kann die Datei ansehen, muss aber nicht (keine Blockade).
 
 ### Phasen-Abnahme
-- [ ] Alle Aufgaben P2.1–P2.29 sind abgehakt.
-- [ ] Lokal grün: `pnpm check`, `pnpm test:int`, `pnpm test:e2e` (Chromium und WebKit; WebKit nur mit dokumentierter
+- [x] Alle Aufgaben P2.1–P2.29 sind abgehakt.
+- [x] Lokal grün: `pnpm check`, `pnpm test:int`, `pnpm test:e2e` (Chromium und WebKit; WebKit nur mit dokumentierter
   Ausnahme `PW_SKIP_WEBKIT=1`), `pnpm test:preview-export`.
-- [ ] CI grün – erst nach dem grünen Lauf abhaken, in einem Doku-Commit mit `[skip ci]`: Der letzte Commit ohne
+- [x] CI grün – erst nach dem grünen Lauf abhaken, in einem Doku-Commit mit `[skip ci]`: Der letzte Commit ohne
   `[skip ci]` trägt `[ci:full p2]` (W-31); `ci.yml` (`quick`), `ci-full.yml` (`e2e-full`, `quality`) und
   `preview-export.yml` sind grün. Damit sind die „(CI-Nachweis)“-Kriterien aus P2.28 belegt.
-- [ ] Artefakt `planet-claire-vorschau-p2-<sha7>` existiert, der PR-Kommentar mit Anleitung ist da, höchstens 3
+- [x] Artefakt `planet-claire-vorschau-p2-<sha7>` existiert, der PR-Kommentar mit Anleitung ist da, höchstens 3
   Vorschau-Artefakte (AK-12-02, AK-A-6-02) – abgehakt im selben Doku-Commit wie „CI grün“.
-- [ ] DESIGN-Abnahme (DESIGN §13): AK-DS-01 bis AK-DS-09, AK-DS-12 bis AK-DS-16 und AK-DS-18 grün. EK-01 (R01), EK-04,
+- [x] DESIGN-Abnahme (DESIGN §13): AK-DS-01 bis AK-DS-09, AK-DS-12 bis AK-DS-16 und AK-DS-18 grün. EK-01 (R01), EK-04,
   EK-05 (P2-Routen), EK-07 und EK-11 grün.
-- [ ] Querschnittstests T-03, T-04, T-06, T-07, T-09 bis T-13 und T-16 grün. `LEGAL_TRACE_PHASE = 2` grün.
-- [ ] Jeder Pflichtlink im Fußbereich (DE/EN) führt auf eine existierende Seite (kein 404).
-- [ ] Spike B-03, der CSP-Teil von Spike B-01 und der View-Transition-Spike sind in ARCHITEKTUR Anhang B eingetragen
+- [x] Querschnittstests T-03, T-04, T-06, T-07, T-09 bis T-13 und T-16 grün. `LEGAL_TRACE_PHASE = 2` grün.
+- [x] Jeder Pflichtlink im Fußbereich (DE/EN) führt auf eine existierende Seite (kein 404).
+- [x] Spike B-03, der CSP-Teil von Spike B-01 und der View-Transition-Spike sind in ARCHITEKTUR Anhang B eingetragen
   (B-03 und View Transitions mit ADR, B-01 bei Rückfall mit ADR).
-- [ ] Kalibrierbogen `docs/design/qa-log/img/calibration-p2-placeholder.webp` liegt vor. Die visuellen
+- [x] Kalibrierbogen `docs/design/qa-log/img/calibration-p2-placeholder.webp` liegt vor. Die visuellen
   Linux-Referenzen aus dem `[ci:update-snapshots]`-Lauf sind eingecheckt.
-- [ ] Eintrag in `docs/FORTSCHRITT.md` (was, wie getestet, Link zum Artefakt-Lauf). Neue Annahmen stehen in
+- [x] Eintrag in `docs/FORTSCHRITT.md` (was, wie getestet, Link zum Artefakt-Lauf). Neue Annahmen stehen in
   `docs/OFFENE-PUNKTE.md`.
-- [ ] PR-Text (Deutsch) nennt die Vorschau-Datei und die Kurzanleitung, oben „Bitte mergen – CI ist grün“.
+- [x] PR-Text (Deutsch) nennt die Vorschau-Datei und die Kurzanleitung, oben „Bitte mergen – CI ist grün“.
 
 ---
 

@@ -1,0 +1,56 @@
+import pg from 'pg'
+
+// Sitzungen des einen Admin-Kontos (E-03) über parallele Playwright-Worker hinweg schützen.
+//
+// Payload speichert die Sitzungen als Liste am Konto (`users.sessions`, `auth.useSessions`). Jede Anmeldung liest das
+// Konto, hängt eine Sitzung an und schreibt das ganze Konto zurück; ein Passwort-Reset leert die Liste bewusst
+// (alle Geräte abmelden). Laufen die Projekte `desktop`, `iphone-15` und `pixel-7` parallel, gehen dadurch Sitzungen
+// verloren: zwei gleichzeitige Anmeldungen überschreiben sich, und der Reset-Test meldet Tests anderer Worker mitten
+// im Lauf ab (Umleitung zur Login-Seite). Das ist Verhalten der Anwendung, das die Tests respektieren müssen.
+//
+// Lösung ohne Abstriche an den Prüfungen: Postgres-Advisory-Locks in der Test-DB (werden beim Verbindungsende
+// automatisch freigegeben).
+// - `holdAdminSessions('shared')`: solange ein Test eine angemeldete Verwaltungsseite nutzt.
+// - `holdAdminSessions('exclusive')`: für Vorgänge, die alle Sitzungen beenden (Passwort-Reset) – wartet, bis kein
+//   anderer Test mehr angemeldet ist.
+// - `withLoginLock(fn)`: Anmeldungen nacheinander, damit keine Sitzung beim Zurückschreiben verloren geht.
+
+const SESSIONS_LOCK = 7_314_001
+const LOGIN_LOCK = 7_314_002
+
+export type ReleaseLock = () => Promise<void>
+
+async function connect(): Promise<pg.Client> {
+  const connectionString = process.env.DATABASE_URL
+  if (!connectionString) throw new Error('DATABASE_URL fehlt – Advisory-Lock nicht möglich.')
+  const client = new pg.Client({ connectionString })
+  await client.connect()
+  return client
+}
+
+async function hold(key: number, mode: 'shared' | 'exclusive'): Promise<ReleaseLock> {
+  const client = await connect()
+  const fn = mode === 'shared' ? 'pg_advisory_lock_shared' : 'pg_advisory_lock'
+  await client.query(`SELECT ${fn}($1)`, [key])
+  let released = false
+  return async () => {
+    if (released) return
+    released = true
+    // Verbindungsende gibt den Session-Lock frei.
+    await client.end()
+  }
+}
+
+/** Hält den Sitzungs-Lock des Admin-Kontos bis zum Aufruf der zurückgegebenen Funktion. */
+export const holdAdminSessions = (mode: 'shared' | 'exclusive'): Promise<ReleaseLock> =>
+  hold(SESSIONS_LOCK, mode)
+
+/** Führt eine Anmeldung (Formular oder Local API) exklusiv aus. */
+export async function withLoginLock<T>(fn: () => Promise<T>): Promise<T> {
+  const release = await hold(LOGIN_LOCK, 'exclusive')
+  try {
+    return await fn()
+  } finally {
+    await release()
+  }
+}

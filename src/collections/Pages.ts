@@ -1,4 +1,8 @@
-import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
+import type {
+  CollectionAfterChangeHook,
+  CollectionBeforeChangeHook,
+  CollectionConfig,
+} from 'payload'
 
 import { isAdmin, none, publicRead } from '@/access'
 import { PAGE_BLOCKS } from '@/blocks'
@@ -33,6 +37,22 @@ const uniqueStations: CollectionBeforeChangeHook = ({ data }) => {
     seen.add(block.stationId)
   })
   return data
+}
+
+/**
+ * Cache-Tag `page:<key>` erneuern (ARCHITEKTUR §9.3). Inhaltliche Änderungen mit `'max'` (≤ 60 s); ein Statuswechsel
+ * (veröffentlicht ↔ Entwurf) sofort mit `{ expire: 0 }`, wie bei Stücken – eine zurückgezogene Seite darf nicht noch
+ * einmal aus dem Zwischenspeicher ausgeliefert werden (DM-PAGE-01).
+ */
+export const revalidatePage: CollectionAfterChangeHook = ({ doc, previousDoc, req }) => {
+  if (!doc.key) return doc
+  const statusChanged = Boolean(previousDoc) && previousDoc._status !== doc._status
+  const context = getAppContext(req)
+  revalidateContent(TAGS.page(String(doc.key)), { context, immediate: statusChanged })
+  if (previousDoc?.key && previousDoc.key !== doc.key) {
+    revalidateContent(TAGS.page(String(previousDoc.key)), { context, immediate: true })
+  }
+  return doc
 }
 
 export const Pages: CollectionConfig = {
@@ -97,11 +117,6 @@ export const Pages: CollectionConfig = {
   ],
   hooks: {
     beforeChange: [uniqueStations, adoptOnSave],
-    afterChange: [
-      ({ doc, req }) => {
-        if (doc.key) revalidateContent(TAGS.page(String(doc.key)), { context: getAppContext(req) })
-        return doc
-      },
-    ],
+    afterChange: [revalidatePage],
   },
 }

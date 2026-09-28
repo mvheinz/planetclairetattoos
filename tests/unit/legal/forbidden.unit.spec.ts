@@ -14,7 +14,7 @@ import {
 import { FORBIDDEN_ALLOWLIST, type AllowlistEntry } from './forbidden.allowlist'
 
 // RECHT §5 (V-01–V-31): Scan über `src/**` und `content/**` (Groß-/Kleinschreibung egal). Geprüft wird, was sich im
-// Quelltext per Textsuche prüfen lässt; gerenderte Seiten und Mails prüft ab P2 `tests/e2e/legal/forbidden.e2e.spec.ts`.
+// Quelltext per Textsuche prüfen lässt; gerenderte Seiten (ab P2) und Mails prüft `tests/e2e/legal/forbidden.e2e.spec.ts`.
 // V-13 (unbelegte Produktaussagen) setzt die Veröffentlichungsprüfung durch (R-044, R-045); V-18, V-28, V-29 sind
 // manuelle Sichtung; V-09, V-20, V-30, V-31 betreffen gerenderten Text (e2e). Ausnahmen: `forbidden.allowlist.ts`.
 

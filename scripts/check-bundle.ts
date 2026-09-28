@@ -1,24 +1,140 @@
-import { readdirSync, readFileSync, statSync } from 'node:fs'
+import { spawn, type ChildProcess } from 'node:child_process'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { gzipSync } from 'node:zlib'
 
-// `pnpm check:bundle` (ARCHITEKTUR §6.3 Schritt 9, §7.7) – Gerüst aus P1.33: meldet nur die Gesamtgröße der
-// JavaScript-Dateien in `.next/static` (roh und gzip Stufe 9). Die Budgets je Seitentyp (tests/perf/budgets.json,
-// Messung per Playwright gegen `next start`) folgen in P2.23. Scheitert nur, wenn kein Build vorliegt.
+import { build } from 'esbuild'
+
+// `pnpm check:bundle` (ARCHITEKTUR §6.3 Schritt 9, §7.7, PLAN P2.23 / T-09). Alle Grenzen stehen in
+// `tests/perf/budgets.json` (1 KB = 1000 B, einschließlich). Geprüft wird:
+// 1. JS beim ersten Laden je Seite: Chromium (Playwright) lädt jede `live`-Route der Registry in DE und EN sowie die
+//    Fehlerseiten R28/R29 gegen `next start`, liest die Skript-URLs aus `/_next/static`, die vor dem `load`-Ereignis
+//    geladen wurden, und gzipt die zugehörigen Dateien aus `<distDir>/static` mit Stufe 9 (Budget je Routen-ID).
+//    Dazu je Seite die erzeugten Pfaddaten im DOM (DESIGN §9.10) und auf R01 alle SVG der Startseite zusammen.
+// 2. Schriften AK-DS-04 (DESIGN §4.1): genau 3 ausgelieferte `.woff2`, zusammen ≤ 100 KB, kein Google-Fonts-Verweis.
+// 3. Lazy-Module (DESIGN §9.10): jedes Modul einzeln mit esbuild gebündelt und minifiziert (unabhängig von der
+//    Chunk-Aufteilung durch Next), gzip Stufe 9.
+// 4. SVG-Dateien: Coco-Sprite, Stationszeichnungen, Icons.
+//
+// Aufruf: `pnpm check:bundle [--budgets <datei>] [--dist <ordner>] [--base-url <url>] [--port <n>] [--no-pages]`.
+// Ohne `--base-url` startet das Skript selbst `next start` (Port `--port`, Standard 3100) und beendet ihn danach. `--no-pages` prüft nur 2–4 (ohne Server/Browser).
+
+export const DEFAULT_BUDGETS_FILE = 'tests/perf/budgets.json'
+
+export interface ModuleBudget {
+  name: string
+  /** Einstiegsdateien; `*` im Dateinamen erlaubt (z. B. `src/behaviors/*.ts`), dann alle zusammen gebündelt. */
+  entries: string[]
+  /** Höchstgröße gzip in Bytes. */
+  gzipMax: number
+}
+
+export interface Budgets {
+  firstLoadJs: { gzipMax: Record<string, number>; gzipTarget: Record<string, number> }
+  modules: ModuleBudget[]
+  fonts: { files: number; maxBytes: number }
+  svg: {
+    cocoSprite: { file: string; rawMax: number; gzipMax: number }
+    stationRawMax: number
+    stationGlob: string
+    iconRawMax: number
+    iconGlob: string
+    homeTotalRawMax: number
+    pathDataPerPageMax: number
+  }
+  pageWeight: Record<string, { max: number; target: number }>
+  lighthouse: {
+    routes: string[]
+    runs: number
+    lcpMs: { max: number; target: number }
+    cls: { max: number; target: number }
+    tbtMs: { max: number; target: number }
+  }
+  interaction: {
+    cpuThrottling: number
+    inpMs: { max: number; target: number }
+    cls: { max: number; target: number }
+    frameWorkMs: { max: number }
+  }
+}
+
+export function loadBudgets(file: string = DEFAULT_BUDGETS_FILE): Budgets {
+  return JSON.parse(readFileSync(path.resolve(file), 'utf8')) as Budgets
+}
+
+function listFiles(dir: string, match: (name: string) => boolean): string[] {
+  return readdirSync(dir).flatMap((name) => {
+    const abs = path.join(dir, name)
+    if (statSync(abs).isDirectory()) return listFiles(abs, match)
+    return match(name) ? [abs] : []
+  })
+}
+
+const listJs = (dir: string) => listFiles(dir, (n) => n.endsWith('.js'))
+
+/** Einfache Muster nur im Dateinamen (`ordner/*.ts`); ohne `*` die Datei selbst. Sortiert, relativ zum cwd. */
+export function expandGlob(pattern: string): string[] {
+  const base = path.basename(pattern)
+  if (!base.includes('*')) return [pattern]
+  const dir = path.dirname(pattern)
+  if (!existsSync(dir)) return []
+  const re = new RegExp(
+    `^${base
+      .split('*')
+      .map((s) => s.replace(/[.+?^${}()|[\]\\]/g, '\\$&'))
+      .join('[^/]*')}$`,
+  )
+  return readdirSync(dir)
+    .filter((n) => re.test(n))
+    .sort()
+    .map((n) => path.join(dir, n))
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Schriften (AK-DS-04)
+
+/** Budget AK-DS-04: genau so viele Schriftdateien, zusammen höchstens so viele Bytes. */
+export const FONT_FILES = 3
+export const FONT_BUDGET_BYTES = 100 * 1000
+const GOOGLE_FONTS = /fonts\.(googleapis|gstatic)\.com/
+
+export interface FontReport {
+  files: string[]
+  bytes: number
+  errors: string[]
+}
+
+/** AK-DS-04: ausgelieferte WOFF2 in `.next/static` und Google-Fonts-Verweise in Build-Ausgaben. */
+export function checkFonts(
+  staticDir: string,
+  extraDirs: string[] = [],
+  budget: Budgets['fonts'] = { files: FONT_FILES, maxBytes: FONT_BUDGET_BYTES },
+): FontReport {
+  const fonts = listFiles(staticDir, (n) => n.endsWith('.woff2'))
+  const bytes = fonts.reduce((sum, f) => sum + statSync(f).size, 0)
+  const errors: string[] = []
+  if (fonts.length !== budget.files)
+    errors.push(`${fonts.length} .woff2-Dateien ausgeliefert, erwartet genau ${budget.files}.`)
+  if (bytes > budget.maxBytes)
+    errors.push(`Schriften zusammen ${bytes} B, Budget ${budget.maxBytes} B.`)
+  const scanned = [staticDir, ...extraDirs].flatMap((d) =>
+    listFiles(d, (n) => /\.(js|css|html|rsc)$/.test(n)),
+  )
+  for (const file of scanned) {
+    if (GOOGLE_FONTS.test(readFileSync(file, 'utf8')))
+      errors.push(`Google-Fonts-Verweis in ${path.relative(process.cwd(), file)}.`)
+  }
+  return { files: fonts.map((f) => path.basename(f)), bytes, errors }
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Gesamtgröße (Bericht)
 
 export interface BundleReport {
   files: number
   rawBytes: number
   gzipBytes: number
-}
-
-function listJs(dir: string): string[] {
-  return readdirSync(dir).flatMap((name) => {
-    const abs = path.join(dir, name)
-    if (statSync(abs).isDirectory()) return listJs(abs)
-    return name.endsWith('.js') ? [abs] : []
-  })
 }
 
 export function measureBundle(staticDir: string): BundleReport {
@@ -32,20 +148,423 @@ export function measureBundle(staticDir: string): BundleReport {
   return report
 }
 
-const kb = (b: number) => `${(b / 1024).toFixed(1)} KB`
+const kb = (b: number) => `${(b / 1000).toFixed(1)} KB`
 
-function main(): void {
-  const staticDir = path.resolve('.next/static')
-  try {
-    statSync(staticDir)
-  } catch {
-    console.error('check:bundle: .next/static fehlt – zuerst `pnpm build` ausführen.')
-    process.exit(1)
-  }
-  const r = measureBundle(staticDir)
-  console.log(
-    `check:bundle: ${r.files} JS-Dateien in .next/static, zusammen ${kb(r.rawBytes)} (gzip ${kb(r.gzipBytes)}). Budgets je Seite folgen in P2.23.`,
-  )
+export function measureFile(file: string): { rawBytes: number; gzipBytes: number } {
+  const data = readFileSync(file)
+  return { rawBytes: data.length, gzipBytes: gzipSync(data, { level: 9 }).length }
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) main()
+// ---------------------------------------------------------------------------------------------------------------
+// Lazy-Module (DESIGN §9.10)
+
+/** Budgets JS (gzip) laut DESIGN §9.10 aus `tests/perf/budgets.json`. */
+export const MODULE_BUDGETS: readonly ModuleBudget[] = loadBudgets().modules
+
+export interface ModuleReport extends ModuleBudget {
+  files: string[]
+  rawBytes: number
+  gzipBytes: number
+  ok: boolean
+}
+
+/** Bündelt jedes Modul (bzw. alle Dateien eines Musters zusammen; ESM, minifiziert, Browser) und misst roh/gzip. */
+export async function measureModules(
+  budgets: readonly ModuleBudget[] = MODULE_BUDGETS,
+): Promise<ModuleReport[]> {
+  const out: ModuleReport[] = []
+  for (const b of budgets) {
+    const files = b.entries.flatMap(expandGlob)
+    if (files.length === 0) throw new Error(`check:bundle: ${b.name}: keine Datei zu ${b.entries}`)
+    const stdin = {
+      contents: files
+        .map(
+          (f, i) => `export * as m${i} from ${JSON.stringify(`./${f.split(path.sep).join('/')}`)}`,
+        )
+        .join('\n'),
+      resolveDir: process.cwd(),
+      loader: 'ts' as const,
+    }
+    const res = await build({
+      ...(files.length === 1 ? { entryPoints: files } : { stdin }),
+      bundle: true,
+      minify: true,
+      format: 'esm',
+      platform: 'browser',
+      target: 'es2022',
+      write: false,
+      logLevel: 'silent',
+    })
+    const data = res.outputFiles[0]!.contents
+    const gzipBytes = gzipSync(data, { level: 9 }).length
+    out.push({ ...b, files, rawBytes: data.length, gzipBytes, ok: gzipBytes <= b.gzipMax })
+  }
+  return out
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// SVG-Dateien (DESIGN §9.10)
+
+export function checkSvgFiles(svg: Budgets['svg']): { lines: string[]; errors: string[] } {
+  const lines: string[] = []
+  const errors: string[] = []
+  const sprite = measureFile(svg.cocoSprite.file)
+  const spriteLine = `Coco-Sprite ${sprite.rawBytes} B roh / ${sprite.gzipBytes} B gz, Budget ${svg.cocoSprite.rawMax} / ${svg.cocoSprite.gzipMax} B.`
+  if (sprite.rawBytes <= svg.cocoSprite.rawMax && sprite.gzipBytes <= svg.cocoSprite.gzipMax)
+    lines.push(spriteLine)
+  else errors.push(`${spriteLine} ÜBERSCHRITTEN`)
+  const each = (glob: string, max: number, label: string) => {
+    const files = expandGlob(glob)
+    for (const f of files) {
+      const bytes = statSync(f).size
+      if (bytes > max) errors.push(`${label} ${f}: ${bytes} B, Budget ${max} B. ÜBERSCHRITTEN`)
+    }
+    lines.push(`${files.length} ${label}-Dateien, jede ≤ ${max} B.`)
+  }
+  each(svg.stationGlob, svg.stationRawMax, 'Stationszeichnung')
+  each(svg.iconGlob, svg.iconRawMax, 'Icon')
+  return { lines, errors }
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Seiten (JS beim ersten Laden, Pfaddaten, SVG der Startseite)
+
+export interface PageTarget {
+  routeId: string
+  locale: 'de' | 'en'
+  path: string
+  status: number
+}
+
+export interface PageMeasurement extends PageTarget {
+  scripts: { url: string; gzipBytes: number }[]
+  jsGzipBytes: number
+  /** Summe der `d`-Attribute aller `<path>` im DOM (Zeichen = Bytes, ASCII). */
+  pathDataBytes: number
+  /** Inline-`<svg>`-Markup außerhalb der Linien-Ebene + eigene `.svg`-Dateien außer dem Coco-Sprite (roh). */
+  svgRawBytes: number
+}
+
+/** Budget für JS beim ersten Laden einer Route (gzip, Bytes). */
+export function firstLoadBudget(routeId: string, budgets: Budgets): number {
+  const map = budgets.firstLoadJs.gzipMax
+  return map[routeId] ?? map.default!
+}
+
+/** Seiten für `check:bundle`: jede `live`-Seite der Registry je Sprache, dazu R28 (404) und R29 (500). */
+export async function pageTargets(): Promise<PageTarget[]> {
+  const { ROUTES, LOCALES } = await import('../src/lib/routes/registry')
+  const { localizedPath } = await import('../src/lib/routes/paths')
+  const out: PageTarget[] = []
+  for (const r of ROUTES) {
+    if (r.status !== 'live' || r.kind !== 'page') continue
+    // Dynamische Muster (z. B. `[token]`) brauchen Daten – Seiten mit Parametern kommen mit ihren Phasen dazu.
+    if (r.paths && Object.values(r.paths).some((p) => p.includes('['))) continue
+    for (const locale of LOCALES)
+      out.push({ routeId: r.id, locale, path: localizedPath(r.id, locale), status: 200 })
+  }
+  for (const locale of LOCALES) {
+    out.push({ routeId: 'R28', locale, path: `/${locale}/gibt-es-nicht-bundle`, status: 404 })
+    out.push({ routeId: 'R29', locale, path: `/${locale}/__fehler-test`, status: 500 })
+  }
+  return out
+}
+
+export interface PageCheck {
+  lines: string[]
+  errors: string[]
+}
+
+/** Vergleicht Seitenmessungen mit den Budgets (rein, ohne Browser – Test mit Fixture-Budget, T-09). */
+export function evaluatePages(measurements: PageMeasurement[], budgets: Budgets): PageCheck {
+  const lines: string[] = []
+  const errors: string[] = []
+  for (const m of measurements) {
+    const label = `${m.routeId} ${m.locale} (${m.path})`
+    const max = firstLoadBudget(m.routeId, budgets)
+    const target = budgets.firstLoadJs.gzipTarget[m.routeId]
+    const js = `${label}: JS beim ersten Laden ${kb(m.jsGzipBytes)} gz in ${m.scripts.length} Dateien, Budget ${kb(max)}${target ? `, Ziel ${kb(target)}` : ''}.`
+    if (m.jsGzipBytes > max) errors.push(`${js} ÜBERSCHRITTEN`)
+    else lines.push(target && m.jsGzipBytes > target ? `${js} (Ziel verfehlt – nur Bericht)` : js)
+    if (m.pathDataBytes > budgets.svg.pathDataPerPageMax)
+      errors.push(
+        `${label}: Pfaddaten im DOM ${m.pathDataBytes} B, Budget ${budgets.svg.pathDataPerPageMax} B. ÜBERSCHRITTEN`,
+      )
+    if (m.routeId === 'R01') {
+      const svgLine = `${label}: SVG der Startseite zusammen ${m.svgRawBytes} B roh, Budget ${budgets.svg.homeTotalRawMax} B.`
+      if (m.svgRawBytes > budgets.svg.homeTotalRawMax) errors.push(`${svgLine} ÜBERSCHRITTEN`)
+      else lines.push(svgLine)
+    }
+  }
+  return { lines, errors }
+}
+
+/** `/_next/static/…` (ohne Query) → Datei in `<distDir>/static`. */
+export function staticFileFor(url: string, distDir: string): string | null {
+  const { pathname } = new URL(url)
+  const prefix = '/_next/static/'
+  if (!pathname.startsWith(prefix)) return null
+  return path.join(distDir, 'static', decodeURIComponent(pathname.slice(prefix.length)))
+}
+
+interface BrowserSample {
+  scripts: string[]
+  status: number
+  pathDataBytes: number
+  inlineSvgBytes: number
+  svgUrls: string[]
+}
+
+/** Lädt jede Seite in einem frischen Kontext (Chromium, 390 × 844) und misst. */
+export async function measurePages(
+  baseURL: string,
+  distDir: string,
+  targets: PageTarget[],
+  spriteFile: string,
+): Promise<{ measurements: PageMeasurement[]; errors: string[] }> {
+  const { chromium } = await import('@playwright/test')
+  const origin = new URL(baseURL).origin
+  const browser = await chromium.launch()
+  const measurements: PageMeasurement[] = []
+  const errors: string[] = []
+  const gzCache = new Map<string, number>()
+  try {
+    for (const t of targets) {
+      const context = await browser.newContext({ viewport: { width: 390, height: 844 } })
+      // Keine Fremd-Requests (R-131): alles außer dem eigenen Origin wird abgebrochen.
+      await context.route(
+        (url) => url.origin !== origin,
+        (route) => route.abort(),
+      )
+      const page = await context.newPage()
+      try {
+        const res = await page.goto(new URL(t.path, baseURL).href, { waitUntil: 'load' })
+        // Linie und Zeichnungen bauen nach dem LCP im Leerlauf auf – für die Pfaddaten kurz warten.
+        await page.waitForLoadState('networkidle').catch(() => undefined)
+        await page.waitForTimeout(300)
+        const sample: BrowserSample = await page.evaluate(() => {
+          const nav = performance.getEntriesByType('navigation')[0] as
+            PerformanceNavigationTiming | undefined
+          const loadAt = nav?.loadEventStart || Number.POSITIVE_INFINITY
+          const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[]
+          const scripts = resources
+            .filter(
+              (r) =>
+                r.startTime <= loadAt &&
+                new URL(r.name).pathname.startsWith('/_next/static/') &&
+                new URL(r.name).pathname.endsWith('.js'),
+            )
+            .map((r) => r.name)
+          const svgUrls = resources
+            .filter((r) => new URL(r.name).pathname.endsWith('.svg'))
+            .map((r) => r.name)
+          let pathDataBytes = 0
+          for (const p of Array.from(document.querySelectorAll('path')))
+            pathDataBytes += p.getAttribute('d')?.length ?? 0
+          let inlineSvgBytes = 0
+          for (const s of Array.from(document.querySelectorAll('svg'))) {
+            if (s.parentElement?.closest('svg')) continue
+            if (s.closest('[data-leash-layer]')) continue
+            inlineSvgBytes += new TextEncoder().encode(s.outerHTML).length
+          }
+          return { scripts, status: 0, pathDataBytes, inlineSvgBytes, svgUrls }
+        })
+        const status = res?.status() ?? 0
+        if (status !== t.status)
+          errors.push(`${t.routeId} ${t.locale} (${t.path}): HTTP ${status}, erwartet ${t.status}.`)
+        const scripts: PageMeasurement['scripts'] = []
+        for (const url of [...new Set(sample.scripts)]) {
+          const file = staticFileFor(url, distDir)
+          if (!file || !existsSync(file)) {
+            errors.push(
+              `${t.routeId} ${t.locale}: Skript ${url} nicht in ${distDir}/static gefunden.`,
+            )
+            continue
+          }
+          let gz = gzCache.get(file)
+          if (gz === undefined) {
+            gz = measureFile(file).gzipBytes
+            gzCache.set(file, gz)
+          }
+          scripts.push({ url, gzipBytes: gz })
+        }
+        let svgRawBytes = sample.inlineSvgBytes
+        for (const url of [...new Set(sample.svgUrls)]) {
+          const pathname = new URL(url).pathname
+          const file = path.join('public', decodeURIComponent(pathname))
+          if (path.resolve(file) === path.resolve(spriteFile)) continue
+          if (existsSync(file)) svgRawBytes += statSync(file).size
+        }
+        measurements.push({
+          ...t,
+          scripts,
+          jsGzipBytes: scripts.reduce((s, x) => s + x.gzipBytes, 0),
+          pathDataBytes: sample.pathDataBytes,
+          svgRawBytes,
+        })
+      } finally {
+        await context.close()
+      }
+    }
+  } finally {
+    await browser.close()
+  }
+  return { measurements, errors }
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Server
+
+async function waitForServer(url: string, timeoutMs: number, child?: ChildProcess): Promise<void> {
+  const until = Date.now() + timeoutMs
+  while (Date.now() < until) {
+    if (child && child.exitCode !== null)
+      throw new Error(`next start beendet (Code ${child.exitCode}).`)
+    try {
+      const res = await fetch(url, { redirect: 'manual' })
+      await res.arrayBuffer()
+      if (res.status < 500) return
+    } catch {
+      // Server noch nicht bereit.
+    }
+    await new Promise((r) => setTimeout(r, 500))
+  }
+  throw new Error(`Server unter ${url} nicht bereit nach ${timeoutMs} ms.`)
+}
+
+async function startServer(port: number): Promise<{ baseURL: string; stop: () => void }> {
+  const bin = path.resolve('node_modules/.bin/next')
+  const child = spawn(bin, ['start', '-p', String(port)], {
+    stdio: ['ignore', 'ignore', 'inherit'],
+    detached: true,
+    env: {
+      ...process.env,
+      NODE_OPTIONS: '--no-deprecation',
+      // R29 (`__fehler-test`) wirft nur bei APP_ENV=test (P2.19) – wie der E2E-Server.
+      APP_ENV: process.env.APP_ENV === 'production' ? 'production' : 'test',
+    },
+  })
+  const baseURL = `http://localhost:${port}`
+  const stop = () => {
+    try {
+      if (child.pid) process.kill(-child.pid, 'SIGTERM')
+    } catch {
+      // bereits beendet
+    }
+  }
+  try {
+    await waitForServer(`${baseURL}/de`, 120_000, child)
+  } catch (e) {
+    stop()
+    throw e
+  }
+  return { baseURL, stop }
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// CLI
+
+export interface CliOptions {
+  budgetsFile: string
+  distDir: string
+  baseURL: string | null
+  port: number
+  pages: boolean
+}
+
+export function parseArgs(argv: string[]): CliOptions {
+  const opts: CliOptions = {
+    budgetsFile: DEFAULT_BUDGETS_FILE,
+    distDir: process.env.NEXT_DIST_DIR || '.next',
+    baseURL: null,
+    port: 3100,
+    pages: true,
+  }
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i]
+    const value = () => {
+      const v = argv[++i]
+      if (!v) throw new Error(`check:bundle: ${a} braucht einen Wert.`)
+      return v
+    }
+    if (a === '--budgets') opts.budgetsFile = value()
+    else if (a === '--dist') opts.distDir = value()
+    else if (a === '--base-url') opts.baseURL = value()
+    else if (a === '--port') opts.port = Number(value())
+    else if (a === '--no-pages') opts.pages = false
+    else if (a !== '--') throw new Error(`check:bundle: unbekannte Option ${a}`)
+  }
+  return opts
+}
+
+async function main(): Promise<void> {
+  const opts = parseArgs(process.argv.slice(2))
+  const budgets = loadBudgets(opts.budgetsFile)
+  const distDir = path.resolve(opts.distDir)
+  const staticDir = path.join(distDir, 'static')
+  if (!existsSync(staticDir)) {
+    console.error(`check:bundle: ${staticDir} fehlt – zuerst \`pnpm build\` ausführen.`)
+    process.exit(1)
+  }
+  let failed = false
+  const report = (ok: string[], bad: string[]) => {
+    for (const l of ok) console.log(`check:bundle: ${l}`)
+    for (const e of bad) console.error(`check:bundle: ${e}`)
+    if (bad.length) failed = true
+  }
+
+  const r = measureBundle(staticDir)
+  console.log(
+    `check:bundle: ${r.files} JS-Dateien in ${path.relative(process.cwd(), staticDir)}, zusammen ${kb(r.rawBytes)} (gzip ${kb(r.gzipBytes)}) – nur Bericht.`,
+  )
+
+  const serverApp = path.join(distDir, 'server/app')
+  const fonts = checkFonts(staticDir, existsSync(serverApp) ? [serverApp] : [], budgets.fonts)
+  report(
+    [
+      `${fonts.files.length} Schriftdateien, zusammen ${kb(fonts.bytes)} (AK-DS-04, Budget ${kb(budgets.fonts.maxBytes)}).`,
+    ],
+    fonts.errors,
+  )
+
+  for (const m of await measureModules(budgets.modules)) {
+    const line = `${m.name} (${m.entries.join(', ')}) gzip ${m.gzipBytes} B, Budget ${m.gzipMax} B.`
+    report(m.ok ? [line] : [], m.ok ? [] : [`${line} ÜBERSCHRITTEN`])
+  }
+
+  const svg = checkSvgFiles(budgets.svg)
+  report(svg.lines, svg.errors)
+
+  if (opts.pages) {
+    let server: { baseURL: string; stop: () => void } | null = null
+    try {
+      const baseURL = opts.baseURL ?? (server = await startServer(opts.port)).baseURL
+      const targets = await pageTargets()
+      const { measurements, errors } = await measurePages(
+        baseURL,
+        distDir,
+        targets,
+        budgets.svg.cocoSprite.file,
+      )
+      const pages = evaluatePages(measurements, budgets)
+      report(pages.lines, [...errors, ...pages.errors])
+    } finally {
+      server?.stop()
+    }
+  } else {
+    console.log('check:bundle: --no-pages – JS je Seite nicht gemessen.')
+  }
+
+  if (failed) {
+    console.error('check:bundle: Budget überschritten (tests/perf/budgets.json).')
+    process.exit(1)
+  }
+  console.log('check:bundle: alle Budgets eingehalten.')
+}
+
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+  main().catch((e: unknown) => {
+    console.error(`check:bundle: ${e instanceof Error ? e.message : String(e)}`)
+    process.exit(1)
+  })
+}
