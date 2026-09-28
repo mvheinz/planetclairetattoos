@@ -2,6 +2,11 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P3.6
+
+- Archiv R05 (/de/archiv, /en/archive) samt statischer Varianten ?category=/?page=: H1, Satz „Schon ausgezogen – aber schön anzusehen“, Kategorie-Chips nur für Kategorien mit Archiv-Stücken (Slug der Seitensprache), Raster aller verkauften Stücke mit Archiv-Freigabe nach Verkaufsdatum (24 je Seite), Preis und statischer sold-Stempel (kein Knall beim Laden), Leerzustand „Noch ist nichts verkauft.“ mit Shop-Link, Schnur shopString; unbekannte Kategorie wird ignoriert, canonical ohne category.
+- Tests: E2E tests/e2e/shop/archive.e2e.spec.ts (4 lesend je Projekt + 2 mit eigenen Stücken: Fixture analog S08 unsichtbar, Filter DE/EN, Reihenfolge, Leerzustand) und @a11y/SEO/Privacy/CSP für R05 DE/EN – grün gegen den Produktions-Build; Unit registry/transform-html angepasst.
+
 ## 2026-09-28 – P3.5
 
 - Shop-Übersicht R02 und Kategorie-Seiten R03 (samt statischer Varianten ?available=1/?page=n aus Spike B-05) über eine gemeinsame Listen-Komponente: H1, Einleitung, Filter-Chips als echte Links (aria-current), Umschalter „nur verfügbare“, Raster aus Produktkarten, „Mehr zeigen“ als Link, Preis-Fußnote und Lieferzeile, Leerzustände KO-17, Hinweis „Shop pausiert“ über dem Raster; Kategorie unbekannt → 404, Slug der anderen Sprache → 308.

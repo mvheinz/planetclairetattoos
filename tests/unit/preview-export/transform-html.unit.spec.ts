@@ -155,8 +155,9 @@ describe('Vorschau-Export: Seiten-Umwandlung (ARCHITEKTUR §14.5)', () => {
       notBuilt: [{ routeId: 'R21', path: '/de/impressum', lang: 'de' }],
     })
     const routes = nb.map((r) => r.route)
-    expect(routes).toContain('/de/archiv')
+    expect(routes).toContain('/de/warenkorb')
     expect(routes).not.toContain('/de/shop')
+    expect(routes).not.toContain('/de/archiv')
     expect(routes).toContain('/en/cart')
     expect(routes).toContain('/de/impressum')
     expect(routes).not.toContain('/en/legal-notice')

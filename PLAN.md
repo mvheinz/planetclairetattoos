@@ -2051,7 +2051,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: `tests/e2e/shop/shop.e2e.spec.ts` (Filter, `?available=1`, Paginierung mit 25 Fixture-Stücken, Leerzustand über eine Kategorie ohne sichtbare Stücke, Shop pausiert per Local API → `closedMessage` über dem Raster, 308/404, Tastatur durch die Chips, `javaScriptEnabled: false`); `@a11y`-Lauf R02/R03 DE/EN.
   - Ohne Jutta: –.
 
-- [ ] **P3.6 Archiv (R05)** – `src/app/(frontend)/[locale]/archive/page.tsx` (DE `/de/archiv`, EN `/en/archive`): H1 „Archiv“/„Archive“, Satz „Schon ausgezogen – aber schön anzusehen“ (i18n), Kategorie-Chips als `?category=<slug der Seitensprache>` (nur Kategorien mit Archiv-Stücken), Raster aller `sold` mit `showInArchiveAfterSale = true` nach `soldAt` absteigend, 24 je Seite, Karte mit Preis und statischem Stempel (kein MI-03 beim Laden), Leerzustand KO-17 „Noch ist nichts verkauft.“ + Shop-Link, Preset `shopString`. Route R05 in der Registry auf „gebaut“.
+- [x] **P3.6 Archiv (R05)** – `src/app/(frontend)/[locale]/archive/page.tsx` (DE `/de/archiv`, EN `/en/archive`): H1 „Archiv“/„Archive“, Satz „Schon ausgezogen – aber schön anzusehen“ (i18n), Kategorie-Chips als `?category=<slug der Seitensprache>` (nur Kategorien mit Archiv-Stücken), Raster aller `sold` mit `showInArchiveAfterSale = true` nach `soldAt` absteigend, 24 je Seite, Karte mit Preis und statischem Stempel (kein MI-03 beim Laden), Leerzustand KO-17 „Noch ist nichts verkauft.“ + Shop-Link, Preset `shopString`. Route R05 in der Registry auf „gebaut“.
   - Akzeptanz:
     - AK-3-09: kein Stück mit `available`, `reserved`, `draft` oder `archived` im Archiv; unbekannte `category` wird ignoriert.
     - canonical ohne `category`; beim Laden keine laufende Stempel-Animation.
