@@ -1854,7 +1854,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     `tests/int/preview-export/exit-codes.int.spec.ts` (AK-A-14-03, mit unerreichbarem Port).
   - Ohne Jutta: –
 
-- [ ] **P2.26 Vorschau-Export: Umwandlung, Laufzeit, Datei** – `scripts/preview-export/transform/{html,css,images,fonts,
+- [x] **P2.26 Vorschau-Export: Umwandlung, Laufzeit, Datei** – `scripts/preview-export/transform/{html,css,images,fonts,
   svg,links}.ts` mit `cheerio` (§14.5):
   - Skripte, Preloads und Next-Daten entfernen;
   - Templates `<template data-route …>`;

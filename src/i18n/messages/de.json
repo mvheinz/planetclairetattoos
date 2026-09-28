@@ -104,7 +104,33 @@
     "banner": "Vorschau-Datei mit Beispieldaten",
     "notBuilt": "Noch nicht gebaut",
     "seedBanner": "Vorschau mit Beispieldaten",
-    "phase": "Phase {phase}"
+    "phase": "Phase {phase}",
+    "bannerInternal": "Interne Vorschau – nicht weitergeben · Beispieldaten · Rechtstexte sind Platzhalter",
+    "bannerStand": "Vorschau – hier wird nichts gekauft. Stand {date}, Phase {phase}.",
+    "allPages": "Alle Seiten",
+    "dialogTitle": "Vorschau – hier wird nichts gekauft",
+    "dialogClose": "Schließen",
+    "cartDemo": "In der Vorschau zeigt der Korb ein Beispiel",
+    "groups": {
+      "start": "Start",
+      "shop": "Shop",
+      "tattoo": "Tattoo",
+      "service": "Service",
+      "legal": "Recht",
+      "admin": "Verwaltung"
+    },
+    "notIncluded": {
+      "title": "Das gibt es nur auf der echten Website",
+      "titleShort": "Nicht enthalten",
+      "text": "Diese Seite oder Datei ist in der Vorschau-Datei nicht enthalten – zum Beispiel PDFs, die Zahlung, die Verwaltung oder Seiten, die erst in einer späteren Phase gebaut werden.",
+      "back": "Zur Startseite"
+    },
+    "admin": {
+      "title": "Verwaltung auf dem Handy",
+      "titleShort": "Verwaltung",
+      "intro": "Bildschirmfotos der Verwaltung mit Beispieldaten (Handy, 390 × 844). Die echte Verwaltung ist in der Vorschau-Datei nicht enthalten.",
+      "comingIn": "kommt in {phase}"
+    }
   },
   "ui": {
     "callout": {

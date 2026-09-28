@@ -104,7 +104,33 @@
     "banner": "Preview file with sample data",
     "notBuilt": "Not built yet",
     "seedBanner": "Preview with sample data",
-    "phase": "Phase {phase}"
+    "phase": "Phase {phase}",
+    "bannerInternal": "Internal preview – do not share · Sample data · Legal texts are placeholders",
+    "bannerStand": "Preview – nothing can be bought here. As of {date}, phase {phase}.",
+    "allPages": "All pages",
+    "dialogTitle": "Preview – nothing can be bought here",
+    "dialogClose": "Close",
+    "cartDemo": "In the preview, the cart shows an example",
+    "groups": {
+      "start": "Start",
+      "shop": "Shop",
+      "tattoo": "Tattoo",
+      "service": "Service",
+      "legal": "Legal",
+      "admin": "Admin"
+    },
+    "notIncluded": {
+      "title": "This only exists on the real website",
+      "titleShort": "Not included",
+      "text": "This page or file is not part of the preview file – for example PDFs, payment, the admin area or pages that will be built in a later phase.",
+      "back": "Back to the home page"
+    },
+    "admin": {
+      "title": "Admin area on the phone",
+      "titleShort": "Admin",
+      "intro": "Screenshots of the admin area with sample data (phone, 390 × 844). The real admin area is not part of the preview file.",
+      "comingIn": "coming in {phase}"
+    }
   },
   "ui": {
     "callout": {

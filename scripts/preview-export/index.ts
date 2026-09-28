@@ -4,22 +4,28 @@
 import 'dotenv/config'
 
 import { execFileSync } from 'node:child_process'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 
 import dotenv from 'dotenv'
 
+import { assemble, type PreviewMessages } from './assemble'
 import { crawl, createServerFetcher, seedParamProvider, startSet, type CrawlResult } from './crawl'
 import { postgresReachable, prepareExportDatabase } from './db'
 import {
   EXPORT_ADMIN_ROUTE,
   EXPORT_DIST_DIR,
+  EXPORT_ORIGIN,
   OUTPUT_DIR,
+  OUTPUT_HTML,
   OUTPUT_REPORT,
   buildExportEnv,
 } from './env'
 import { CHROMIUM_HELP, ExportError, POSTGRES_HELP } from './errors'
+import { bundleRuntime } from './runtime'
 import { buildApp, startServer, type RunningServer } from './server'
+import { DEFAULT_IMAGE_SETTINGS } from './transform/images'
+import { writeOutput } from './write'
 
 export interface ExportArgs {
   skipBuild: boolean
@@ -114,7 +120,19 @@ export async function runExport(args: ExportArgs, root = process.cwd()): Promise
     } else if (server) log(`Server läuft weiter auf ${server.origin} (--keep-server)`)
   }
 
-  // Bericht bis P2.27 (report.ts): gebaute und nicht gebaute Routen des Crawls.
+  log('Umwandlung')
+  const runtime = await bundleRuntime(root)
+  const assembled = await assemble({
+    crawl: result,
+    messages: loadPreviewMessages(root),
+    phase: env.PREVIEW_PHASE!,
+    seedNow: env.SEED_NOW!,
+    imageSettings: DEFAULT_IMAGE_SETTINGS,
+    runtime: runtime.code,
+    origin: EXPORT_ORIGIN,
+  })
+  const file = writeOutput(root, OUTPUT_DIR, OUTPUT_HTML, assembled.html)
+  log(`${file} geschrieben (${Buffer.byteLength(assembled.html)} Byte)`)
   writeOutput(
     root,
     OUTPUT_DIR,
@@ -125,11 +143,10 @@ export async function runExport(args: ExportArgs, root = process.cwd()): Promise
         phase,
         gitSha: gitSha(root),
         seedNow: env.SEED_NOW,
-        routes: [
-          ...result.pages.map((p) => ({ route: p.path, lang: p.lang, status: 'ok' })),
-          ...result.notBuilt.map((r) => ({ route: r.path, lang: r.lang, status: 'not-built' })),
-        ],
-        warnings: result.warnings,
+        sizeBytes: Buffer.byteLength(assembled.html),
+        sizeByKind: assembled.sizeByKind,
+        routes: assembled.routes,
+        warnings: [...result.warnings, ...assembled.warnings],
       },
       null,
       2,
@@ -137,9 +154,15 @@ export async function runExport(args: ExportArgs, root = process.cwd()): Promise
   )
 }
 
-function writeOutput(root: string, dir: string, file: string, content: string): void {
-  mkdirSync(path.join(root, dir), { recursive: true })
-  writeFileSync(path.join(root, dir, file), content)
+/** Texte `previewExport.*` aus `src/i18n/messages/{de,en}.json`. */
+export function loadPreviewMessages(root: string): Record<'de' | 'en', PreviewMessages> {
+  const read = (lang: 'de' | 'en') =>
+    (
+      JSON.parse(readFileSync(path.join(root, 'src/i18n/messages', `${lang}.json`), 'utf8')) as {
+        previewExport: PreviewMessages
+      }
+    ).previewExport
+  return { de: read('de'), en: read('en') }
 }
 
 async function main(): Promise<number> {
