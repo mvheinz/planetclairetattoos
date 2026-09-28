@@ -4,6 +4,12 @@ import { LOCALES, ROUTES, aliases, type Locale, type RouteEntry } from './regist
 
 export type RouteParams = Record<string, string>
 
+/** Listen mit statischen Varianten (ARCHITEKTUR §9.1, Spike B-05): Shop, Kategorie, Archiv. */
+export const LIST_ROUTE_IDS = ['R02', 'R03', 'R05'] as const
+export type ListRouteId = (typeof LIST_ROUTE_IDS)[number]
+/** Internes Segment der Varianten-Seiten (`[locale]/shop/variant/[variant]`); nie sichtbar. */
+export const LIST_VARIANT_SEGMENT = 'variant'
+
 export const isLocale = (value: string | undefined): value is Locale =>
   (LOCALES as readonly string[]).includes(value ?? '')
 
@@ -136,6 +142,12 @@ export function toFolderPattern(pattern: string, key: string): string {
  */
 export function matchSegments(segments: readonly string[]): RouteMatch | null {
   const parts = segments.filter((s) => s !== '' && !s.startsWith('('))
+  // Interne Listen-Variante (`shop/variant/page-2`) gehört zur Liste selbst (R02, R03, R05).
+  if (parts.length >= 2 && parts[parts.length - 2] === LIST_VARIANT_SEGMENT) {
+    const base = parts.slice(0, -2)
+    const match = matchRoute(base.length === 0 ? '/' : `/${base.join('/')}`, 'en')
+    if (match && (LIST_ROUTE_IDS as readonly string[]).includes(match.route.id)) return match
+  }
   return matchRoute(parts.length === 0 ? '/' : `/${parts.join('/')}`, 'en')
 }
 

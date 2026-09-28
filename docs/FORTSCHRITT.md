@@ -2,6 +2,14 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P3.2
+
+- Spike B-05: Soll erfüllt. `src/proxy.ts` schreibt bekannte Listen-Parameter über `decideListVariant` (`src/lib/shop/listParams.ts`: `parseListParams`, `variantKey`, `parseVariantKey`, `canonicalListUrl`) auf `…/variant/<schlüssel>` um; interne Pfade direkt → 404; Proxy ohne Payload/DB (Import-Graph-Test).
+- Prototyp-Variante R02 `[locale]/shop/variant/[variant]/page.tsx` (`generateStaticParams`, `dynamicParams`, ISR, canonical in Query-Form, bewusst ohne Preise); `matchSegments` ordnet Varianten der Liste zu; `check:static` erlaubt Varianten-Seiten für R02/R03/R05.
+- `available` gilt laut KONZEPT §2.3 nur für R02/R03 (PLAN nennt auch R05; KONZEPT hat Vorrang).
+- Ergebnis in ARCHITEKTUR Anhang B (B-05), OFFENE-PUNKTE §4 erledigt.
+- Tests: `tests/unit/shop/list-params.unit.spec.ts` (11, grün); `tests/e2e/shop/list-variants.e2e.spec.ts` gegen `pnpm start` (3, grün, auch wiederholt: `?available=1` HIT, `?available=1&page=2` MISS→HIT); `pnpm check`, `pnpm build` grün
+
 ## 2026-09-28 – P3.1
 
 - `src/lib/cache/cached.ts` (`cached(fn, { key, tags, revalidate })` über `unstable_cache`, Rückfall 3600 s; außerhalb von Next ungecacht)

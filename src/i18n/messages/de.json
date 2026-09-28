@@ -165,5 +165,10 @@
     "previewNotice": "In dieser Vorschau noch ohne Funktion – kommt in P6.",
     "policyLink": "Zur Widerrufsbelehrung",
     "emailAlternative": "Alternativ per E-Mail:"
+  },
+  "shop": {
+    "list": {
+      "empty": "Gerade ist alles weg – neue Stücke kommen auf Instagram zuerst."
+    }
   }
 }

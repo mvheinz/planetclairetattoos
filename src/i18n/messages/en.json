@@ -165,5 +165,10 @@
     "previewNotice": "Not yet functional in this preview – coming in P6.",
     "policyLink": "Go to the right of withdrawal",
     "emailAlternative": "Alternatively by email:"
+  },
+  "shop": {
+    "list": {
+      "empty": "Everything is gone right now – new pieces show up on Instagram first."
+    }
   }
 }

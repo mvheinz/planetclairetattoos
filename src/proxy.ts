@@ -5,6 +5,7 @@ import { routing } from '@/i18n/routing'
 import { getEnv } from '@/lib/env'
 import { decidePublicRoute } from '@/lib/routes/redirects'
 import { createNonce, type NonceContext } from '@/lib/security/csp'
+import { decideListVariant } from '@/lib/shop/listParams'
 import { baseHeaders, contextHeaders, nonceContextForPath } from '@/lib/security/headers'
 
 // Verwaltungspfad (ARCHITEKTUR §8.4, E-93, Spike B-01): Der Ordner `src/app/(payload)/admin/` ist nur interner
@@ -30,6 +31,18 @@ export function decideAdminRoute(pathname: string, adminRoute: string): AdminRou
 }
 
 const intlMiddleware = createIntlMiddleware(routing)
+
+/** Sprach-Header von next-intl (wie dessen Middleware ihn bei Umschreibungen setzt). */
+const INTL_LOCALE_HEADER = 'X-NEXT-INTL-LOCALE'
+
+/** Schlichte 404 des Proxys (Verwaltungs-Ordner, interne Varianten-Pfade) – ohne Weiterleitung. */
+const notFound = () =>
+  withBaseHeaders(
+    new NextResponse('Not Found', {
+      status: 404,
+      headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
+    }),
+  )
 
 /** `www.<apex>` → Apex-Host aus `NEXT_PUBLIC_SITE_URL` (KONZEPT §2.4, Rückfallebene zur Hosting-Konfiguration). */
 export function wwwRedirectTarget(
@@ -103,20 +116,28 @@ export function proxy(request: NextRequest): NextResponse {
       response,
     )
   }
-  if (decision.kind === 'not-found') {
-    return withBaseHeaders(
-      new NextResponse('Not Found', {
-        status: 404,
-        headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
-      }),
-    )
-  }
+  if (decision.kind === 'not-found') return notFound()
+
+  // Listen-Varianten (§9.1, Spike B-05): interne Pfade sind nie direkt erreichbar.
+  const variant = decideListVariant(pathname, search)
+  if (variant.kind === 'not-found') return notFound()
 
   const route = decidePublicRoute(pathname, search, request.headers.get('accept-language'))
   if (route.kind === 'redirect') {
     return redirect(new URL(route.location, request.nextUrl), route.status, route.vary)
   }
   if (route.kind === 'pass') return NextResponse.next()
+
+  // Bekannte Listen-Parameter → statische Variante; sichtbare URL bleibt die Query-Form. Öffentliche Listen haben den
+  // Header-Kontext `public` (ohne Nonce), die Umschreibung braucht deshalb nur die Sprache für next-intl.
+  if (variant.kind === 'rewrite') {
+    const url = request.nextUrl.clone()
+    url.pathname = variant.pathname
+    url.search = ''
+    const requestHeaders = new Headers(request.headers)
+    requestHeaders.set(INTL_LOCALE_HEADER, variant.pathname.split('/')[1]!)
+    return NextResponse.rewrite(url, { request: { headers: requestHeaders } })
+  }
 
   const nonceContext = nonceContextForPath(pathname)
   if (!nonceContext) {
