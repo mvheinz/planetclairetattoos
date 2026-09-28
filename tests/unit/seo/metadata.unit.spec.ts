@@ -4,8 +4,8 @@ import de from '@/i18n/messages/de.json'
 import en from '@/i18n/messages/en.json'
 import { ROUTE_SAMPLE_PARAMS, pageRoutes } from '@/lib/routes/paths'
 import { LOCALES } from '@/lib/routes/registry'
-import { organizationJsonLd, serializeJsonLd } from '@/lib/seo/jsonLd'
-import { buildMetadata, robotsFor } from '@/lib/seo/metadata'
+import { organizationJsonLd, serializeJsonLd } from '@/lib/seo/jsonld'
+import { buildMetadata, notFoundMetadata, robotsFor } from '@/lib/seo/metadata'
 import { disallowedPaths, robotsRules, xRobotsTag } from '@/lib/seo/robots'
 import { buildSitemap } from '@/lib/seo/sitemap'
 
@@ -156,6 +156,76 @@ describe('robots.txt, X-Robots-Tag, Sitemap', () => {
     // Seiten mit Parametern (Kategorien, Stücke) ergänzt P3.13 mit ihren Daten
     expect(map).toHaveLength(
       livePages.filter((r) => r.robots === 'index' && !r.paths!.de.includes('[')).length * 2,
+    )
+  })
+})
+
+describe('P3.13 Produkt, 404-Varianten, Sitemap mit Daten', () => {
+  it('R04: og:type product (kein website-Typ in den Metadaten), metadataBase = Apex-Domain', () => {
+    const m = buildMetadata(
+      'R04',
+      'en',
+      { nummer: '017', slug: 'bowl' },
+      {
+        siteUrl: SITE,
+        ogType: 'product',
+        alternateParams: { de: { nummer: '017', slug: 'schale' } },
+      },
+    )
+    expect(m.openGraph).not.toHaveProperty('type')
+    expect(m.openGraph?.url).toBe(`${SITE}/en/shop/017-bowl`)
+    expect(m.openGraph?.locale).toBe('en_GB')
+    expect(m.openGraph?.alternateLocale).toEqual(['de_DE'])
+    expect(String(m.metadataBase)).toBe(`${SITE}/`)
+    expect(m.alternates?.languages).toEqual({
+      de: `${SITE}/de/shop/017-schale`,
+      en: `${SITE}/en/shop/017-bowl`,
+      'x-default': `${SITE}/de/shop/017-schale`,
+    })
+    expect(buildMetadata('R02', 'de', {}, { siteUrl: SITE }).openGraph).toMatchObject({
+      type: 'website',
+    })
+  })
+
+  it('404-Varianten: noindex, ohne canonical und hreflang, Titel je Variante', () => {
+    expect(notFoundMetadata('de')).toEqual({
+      title: { absolute: 'Coco hat sich losgerissen · Planet Claire' },
+      robots: { index: false },
+    })
+    expect(notFoundMetadata('en', 'home').title).toEqual({
+      absolute: `${en.errors.homeTitle} · Planet Claire`,
+    })
+    expect(notFoundMetadata('de', 'home')).not.toHaveProperty('alternates')
+  })
+
+  it('Sitemap: Kategorien und Stücke beider Sprachen mit Slug der Sprache, Alternates und lastmod', () => {
+    const map = buildSitemap(SITE, {
+      categories: [
+        { slug: { de: 'keramik', en: 'ceramics' }, updatedAt: '2026-09-01T10:00:00.000Z' },
+      ],
+      products: [
+        {
+          itemNumber: 901,
+          slug: { de: '901-schale', en: '901-bowl' },
+          updatedAt: '2026-09-02T10:00:00.000Z',
+        },
+        { itemNumber: 906, slug: { de: '906-fliese' }, updatedAt: '2026-09-03T10:00:00.000Z' },
+      ],
+    })
+    const byUrl = new Map(map.map((e) => [e.url, e]))
+    expect(byUrl.get(`${SITE}/en/shop/category/ceramics`)?.lastModified).toBe(
+      '2026-09-01T10:00:00.000Z',
+    )
+    expect(byUrl.get(`${SITE}/de/shop/901-schale`)?.alternates?.languages).toEqual({
+      de: `${SITE}/de/shop/901-schale`,
+      en: `${SITE}/en/shop/901-bowl`,
+      'x-default': `${SITE}/de/shop/901-schale`,
+    })
+    // EN fehlt → DE-Slug (KONZEPT §2.3)
+    expect(byUrl.has(`${SITE}/en/shop/906-fliese`)).toBe(true)
+    expect(byUrl.get(`${SITE}/de/shop/906-fliese`)?.lastModified).toBe('2026-09-03T10:00:00.000Z')
+    expect(JSON.stringify(map)).not.toMatch(
+      /warenkorb|cart|kasse|checkout|danke|thank-you|bestellung|order\//,
     )
   })
 })

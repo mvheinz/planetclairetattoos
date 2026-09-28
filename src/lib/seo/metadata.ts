@@ -29,6 +29,12 @@ type Descriptions = (typeof de)['seo']['descriptions']
 export interface BuildMetadataOptions {
   /** Seitentitel statt des Routennamens (z. B. Stücktitel ab P3). */
   title?: string
+  /**
+   * `og:type` (KONZEPT §3.0.5): `website` (Standard) oder `product` (R04). Next kennt `product` nicht als Open-Graph-Typ;
+   * bei `product` fehlt `type` in den Metadaten, und die Seite setzt `<meta property="og:type" content="product">`
+   * selbst (`ProductSeo`).
+   */
+  ogType?: 'website' | 'product'
   /** Beschreibung aus dem CMS; sonst Vorlage je Seitentyp. */
   description?: string
   /** Parameter der anderen Sprache, falls sie abweichen (sprachabhängige Slugs ab P3). */
@@ -81,11 +87,12 @@ export function buildMetadata(
   const url = urlFor(locale)
 
   const metadata: Metadata = {
+    metadataBase: new URL(`${siteUrl}/`),
     title: { absolute: title },
     description,
     robots: robotsFor(route.robots),
     openGraph: {
-      type: 'website',
+      ...(options.ogType === 'product' ? {} : { type: 'website' as const }),
       siteName: SITE_NAME,
       title,
       description,
@@ -105,6 +112,17 @@ export function buildMetadata(
     }
   }
   return metadata
+}
+
+/**
+ * 404-Varianten (KONZEPT §2.5, §3.17, P3.13): Titel „Coco hat sich losgerissen · Planet Claire“ bzw. für verkaufte,
+ * ausgeblendete Stücke „Dieses Stück hat schon ein Zuhause gefunden · Planet Claire“; `noindex`, **kein** canonical und
+ * kein hreflang.
+ */
+export function notFoundMetadata(locale: Locale, variant: 'lost' | 'home' = 'lost'): Metadata {
+  const errors = MESSAGES[locale].errors
+  const title = `${variant === 'home' ? errors.homeTitle : errors.notFoundTitle} · ${SITE_NAME}`
+  return { title: { absolute: title }, robots: robotsFor('noindex') }
 }
 
 /** `generateMetadata` für eine Seite unter `[locale]/` ohne Datenbezug. */

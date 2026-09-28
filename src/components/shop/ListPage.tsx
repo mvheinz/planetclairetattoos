@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import React from 'react'
 
 import { Coco } from '@/components/Coco'
+import { JsonLd } from '@/components/seo/JsonLd'
 import { PageBlocks } from '@/components/content/PageBlocks'
 import { Icon } from '@/components/icons/Icon'
 import { Button } from '@/components/ui/Button'
@@ -19,6 +20,8 @@ import {
 import { getShopDisplaySettings, taxSettingsFor } from '@/lib/data/shopSettings'
 import type { Locale } from '@/lib/enums'
 import { localizedPath } from '@/lib/routes/paths'
+import { breadcrumbItems } from '@/lib/seo/breadcrumbs'
+import { breadcrumbJsonLd } from '@/lib/seo/jsonld'
 import { listSearch, variantKey, type ListParams } from '@/lib/shop/listParams'
 
 import styles from './ListPage.module.css'
@@ -30,7 +33,8 @@ import { ProductCard } from './ProductCard'
 // (`aria-current="page"` am aktiven), Hinweis „Shop pausiert“ über dem Raster (die Stücke bleiben sichtbar), Raster aus
 // Produktkarten (Schnur der Tuschelinie durch die Faden-Anker, Coco-Platzhalter am Schnuranfang), „Mehr zeigen“ als Link
 // `?page=n+1`, Preis-Fußnote einmal je Seite (R-030) und Lieferzeile. Leerzustände nach KO-17. Ohne JavaScript voll
-// bedienbar. Seiten > letzte Seite → 404.
+// bedienbar. Seiten > letzte Seite → 404. JSON-LD `BreadcrumbList` (Start → Shop → Kategorie bzw. Start → Archiv,
+// P3.13).
 
 export type ListRoute = 'R02' | 'R03' | 'R05'
 
@@ -132,6 +136,16 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
       data-list-page={routeId}
       data-list-variant={variantKey(list)}
     >
+      <JsonLd
+        data={breadcrumbJsonLd(
+          breadcrumbItems(
+            routeId === 'R03' && category
+              ? { routeId, category: { name: category.name, slug: category.slug } }
+              : { routeId: routeId === 'R05' ? 'R05' : 'R02' },
+            locale,
+          ),
+        )}
+      />
       <header className={styles.head}>
         <h1 className={styles.title}>{title}</h1>
         {archive ? <p className={styles.intro}>{t('archive.lead')}</p> : null}
