@@ -1911,7 +1911,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: e2e `preview-export.e2e.spec.ts` (T-13, EK-11); unit `tests/unit/preview-export/{report,phase}.unit.spec.ts`.
   - Ohne Jutta: Test-Admin nur für die Fotos (E-03, kein zweites Konto).
 
-- [ ] **P2.28 Workflows `ci-full.yml` und `preview-export.yml`** – Laut ARCHITEKTUR §6.2, §6.4, §6.5, §7.6. Beide
+- [x] **P2.28 Workflows `ci-full.yml` und `preview-export.yml`** – Laut ARCHITEKTUR §6.2, §6.4, §6.5, §7.6. Beide
   Workflows laufen wie `ci.yml` nur bei `pull_request` (Typen wie P1.1a) und `workflow_dispatch`, **nie** bei `push`
   (Arbeitsregeln oben). Ein erster Schritt liest die Nachricht des Head-Commits des PR (z. B.
   `gh api repos/{owner}/{repo}/commits/<head-sha> --jq .commit.message`); danach richten sich die Jobs. Ein Head-Commit

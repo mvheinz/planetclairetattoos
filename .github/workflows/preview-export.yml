@@ -1,0 +1,221 @@
+name: Vorschau-Export
+
+# ARCHITEKTUR §6.2/§6.5/§14 (P2.28, KONZEPT §12.8): nur über den offenen PR oder per Hand, nie bei push auf main.
+# Arbeitet nur, wenn der PR-Kopf-Commit `[ci:full pN]` trägt (Phasenende) – nicht bei `[ci:full]` ohne Phase, nicht bei
+# `[ci:update-snapshots]`; sonst werden alle Schritte nach der Kennung übersprungen (grün, ≤ 1 min).
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: 'Phasen-Kennung, z. B. p2 (leer = aus PLAN.md, §14.9)'
+        type: string
+        default: ''
+
+concurrency:
+  group: preview-export-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    name: export
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Schreibrechte nur hier: alte Vorschau-Artefakte löschen (actions: write), PR-Kommentar (pull-requests: write).
+    permissions:
+      contents: read
+      actions: write
+      pull-requests: write
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: planetclaire_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      APP_ENV: test
+      TZ: UTC
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/planetclaire_test
+      PAYLOAD_SECRET: ci-only-secret-not-used-anywhere-else-0000
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      # Kennung (§6.2) ohne Checkout; Phase per Regex \[ci:full\s+(p\d+)\] (§6.4, W-31).
+      - name: Kennung
+        id: mode
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_PHASE: ${{ inputs.phase }}
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            sha="${{ github.event.pull_request.head.sha }}"
+            msg=$(gh api "repos/${{ github.repository }}/commits/$sha" --jq .commit.message)
+            phase=$(echo "$msg" | grep -oE '\[ci:full\s+(p[0-9]+)\]' | head -n1 | grep -oE 'p[0-9]+' || true)
+            if [ -n "$phase" ]; then run=true; else run=false; fi
+          else
+            sha="${{ github.sha }}"
+            phase=$(echo "$INPUT_PHASE" | grep -oiE '^p[0-9]+$' | tr 'P' 'p' || true)
+            run=true
+          fi
+          {
+            echo "run=$run"
+            echo "phase=$phase"
+            echo "sha=$sha"
+            echo "sha7=${sha:0:7}"
+          } >> "$GITHUB_OUTPUT"
+          if [ "$run" != "true" ]; then
+            echo "Vorschau-Export übersprungen: keine Phasenende-Kennung [ci:full pN] im PR-Kopf-Commit." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - if: steps.mode.outputs.run == 'true'
+        uses: actions/checkout@v7
+        with:
+          # Der geprüfte Kopf-Commit (nicht der Merge-Commit), damit Datei, Bericht und Artefakt-Name übereinstimmen.
+          ref: ${{ steps.mode.outputs.sha }}
+      - if: steps.mode.outputs.run == 'true'
+        uses: pnpm/action-setup@v6
+      - if: steps.mode.outputs.run == 'true'
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Installation
+        if: steps.mode.outputs.run == 'true'
+        run: pnpm install --frozen-lockfile
+      - name: Playwright-Version
+        id: pw
+        if: steps.mode.outputs.run == 'true'
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Playwright-Browser-Cache
+        id: pw-cache
+        if: steps.mode.outputs.run == 'true'
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+      - name: Playwright Chromium
+        if: steps.mode.outputs.run == 'true'
+        run: |
+          if [ "${{ steps.pw-cache.outputs.cache-hit }}" = "true" ]; then
+            pnpm exec playwright install-deps chromium
+          else
+            pnpm exec playwright install --with-deps chromium
+          fi
+      - name: Vorschau exportieren
+        if: steps.mode.outputs.run == 'true'
+        env:
+          PREVIEW_PHASE: ${{ steps.mode.outputs.phase }}
+        run: pnpm run preview:export
+      # Eigener Schritt ohne continue-on-error: ein roter Export-Test lässt den Workflow scheitern (kein Upload).
+      - name: Export-Test
+        if: steps.mode.outputs.run == 'true'
+        run: pnpm run test:preview-export
+      - name: Artefakt-Name
+        id: name
+        if: steps.mode.outputs.run == 'true'
+        run: |
+          phase=$(node -p "require('./dist/planet-claire-vorschau.report.json').phase")
+          echo "phase=$phase" >> "$GITHUB_OUTPUT"
+          echo "artifact=planet-claire-vorschau-$phase-${{ steps.mode.outputs.sha7 }}" >> "$GITHUB_OUTPUT"
+      - name: Vorschau hochladen
+        if: steps.mode.outputs.run == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.name.outputs.artifact }}
+          path: |
+            dist/planet-claire-vorschau.html
+            dist/planet-claire-vorschau.report.json
+          retention-days: 30
+          if-no-files-found: error
+      # Nur die 3 neuesten Vorschau-Artefakte behalten (Artefakt-Speicher 500 MB, §6.1/§6.5).
+      - name: Alte Vorschauen aufräumen
+        if: steps.mode.outputs.run == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/${{ github.repository }}/actions/artifacts?per_page=100" --paginate \
+            --jq '.artifacts[] | select(.expired | not) | select(.name | startswith("planet-claire-vorschau-")) | "\(.created_at) \(.id)"' \
+            | sort -r | tail -n +4 | awk '{print $2}' \
+            | while read -r id; do
+                gh api -X DELETE "repos/${{ github.repository }}/actions/artifacts/$id"
+                echo "Altes Vorschau-Artefakt $id gelöscht."
+              done
+      - name: Kurzanleitung
+        if: steps.mode.outputs.run == 'true'
+        env:
+          ARTIFACT: ${{ steps.name.outputs.artifact }}
+          PHASE: ${{ steps.name.outputs.phase }}
+        run: |
+          label=$(echo "$PHASE" | tr 'p' 'P')
+          {
+            echo "## Neue Vorschau-Datei für Phase $label"
+            echo ""
+            echo "So siehst du sie an:"
+            echo "1. Auf dieser Seite ganz unten bei **Artifacts** auf **$ARTIFACT** klicken – eine ZIP-Datei wird geladen."
+            echo "2. Die ZIP-Datei entpacken (Doppelklick)."
+            echo "3. \`planet-claire-vorschau.html\` doppelklicken – sie öffnet sich im Browser, ganz ohne Internet."
+            echo ""
+            echo "Nur privat ansehen, nicht weitergeben, nicht veröffentlichen – interne Vorschau mit Beispieldaten und Platzhalter-Rechtstexten."
+          } >> "$GITHUB_STEP_SUMMARY"
+      # R-182: Hinweis „nur privat ansehen“; ein Kommentar je PR, bei neuem Export aktualisiert.
+      - name: PR-Kommentar
+        if: steps.mode.outputs.run == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT: ${{ steps.name.outputs.artifact }}
+          PHASE: ${{ steps.name.outputs.phase }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          pr="$PR_NUMBER"
+          if [ -z "$pr" ]; then
+            pr=$(gh pr list --repo "${{ github.repository }}" --head "$BRANCH" --state open --json number --jq '.[0].number // empty')
+          fi
+          if [ -z "$pr" ]; then
+            echo "Kein offener PR für $BRANCH – kein Kommentar." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          label=$(echo "$PHASE" | tr 'p' 'P')
+          marker='<!-- planet-claire-vorschau -->'
+          body=$(printf '%s\n%s\n\n%s\n\n%s\n' \
+            "$marker" \
+            "**Neue Vorschau-Datei für Phase $label** ($ARTIFACT)" \
+            "Seite **Checks → Summary → Artifacts** ([zum Lauf]($RUN_URL)), ZIP herunterladen, entpacken, \`planet-claire-vorschau.html\` doppelklicken." \
+            "Nur privat ansehen, nicht weitergeben, nicht veröffentlichen – interne Vorschau mit Beispieldaten und Platzhalter-Rechtstexten.")
+          existing=$(gh api "repos/${{ github.repository }}/issues/$pr/comments" --paginate \
+            --jq ".[] | select(.body | startswith(\"$marker\")) | .id" | head -n1)
+          if [ -n "$existing" ]; then
+            gh api -X PATCH "repos/${{ github.repository }}/issues/comments/$existing" -f body="$body" > /dev/null
+          else
+            gh api -X POST "repos/${{ github.repository }}/issues/$pr/comments" -f body="$body" > /dev/null
+          fi
+      # Bei Fehler (§6.2/§6.5): kein Vorschau-Upload, nur der Fehlerbericht nach dem Budget-Schritt (2 Tage).
+      - name: Artefakt-Budget
+        id: budget
+        if: failure() && steps.mode.outputs.run == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: pnpm run ci:artifacts
+      - name: Fehlerbericht hochladen
+        if: failure() && steps.budget.outputs.upload_optional == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: preview-export-report-${{ steps.mode.outputs.sha7 }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 2
+          if-no-files-found: ignore

@@ -1,9 +1,11 @@
 name: CI full
 
-# ARCHITEKTUR §6.2/§6.4 – Gerüst aus P1.33: in P1 nur per Hand (`workflow_dispatch`), nie bei push auf main.
-# P2 ergänzt den Auslöser `pull_request` (wie ci.yml), die Kennungs-Auswertung des PR-Kopf-Commits und füllt die Jobs
-# `e2e-full`, `quality` und `snapshots`.
+# ARCHITEKTUR §6.2/§6.4/§7.6 (P2.28): nur über den offenen PR oder per Hand, nie bei push auf main.
+# Kennungen im PR-Kopf-Commit: `[ci:full` (auch `[ci:full pN]`) → e2e-full + quality; `[ci:update-snapshots]` → nur
+# snapshots; ohne Kennung (oder `[ci:art]`) → nur mode. `[skip ci]` startet ohnehin keinen Lauf.
 on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
     inputs:
       update_snapshots:
@@ -15,10 +17,36 @@ concurrency:
   group: ci-full-${{ github.ref }}
   cancel-in-progress: true
 
+# Minimal: Code lesen; `actions: read` für den Budget-Schritt (Artefakt-Liste, §6.2).
 permissions:
   contents: read
+  actions: read
+
+# Testwerte wie ci.yml (§6.3); NEXT_PUBLIC_LEASH_DEBUG setzt nur e2e-full (quality/snapshots bauen ohne Debug).
+env:
+  APP_ENV: test
+  TZ: UTC
+  ADMIN_ROUTE: /werkstatt
+  DATABASE_URL: postgres://postgres:postgres@localhost:5432/planetclaire_test
+  DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/planetclaire_test
+  DB_POOL_MAX: '25'
+  PAYLOAD_SECRET: ci-only-secret-not-used-anywhere-else-0000
+  NEXT_PUBLIC_SITE_URL: http://localhost:3000
+  SEED_PREVIEW_MODE: 'true'
+  SEED_NOW: '2026-10-15T10:00:00+02:00'
+  SEED_ADMIN_EMAIL: admin@example.com
+  SEED_ADMIN_PASSWORD: ci-only-password-2026
+  STORAGE_DRIVER: local
+  EMAIL_DRIVER: file
+  PAYMENTS_DRIVER: mock
+  TRANSLATION_DRIVER: mock
+  CARRIER_DRIVER: manual
+  CRON_SECRET: ci-only-cron-secret-000000000000000000
+  NEXT_TELEMETRY_DISABLED: '1'
+  E2E_SERVER: start
 
 jobs:
+  # Kennung lesen ohne Checkout (§6.2): Ausgaben full, phase, snapshots, art, sha7.
   mode:
     name: mode
     runs-on: ubuntu-latest
@@ -27,19 +55,37 @@ jobs:
       full: ${{ steps.mode.outputs.full }}
       phase: ${{ steps.mode.outputs.phase }}
       snapshots: ${{ steps.mode.outputs.snapshots }}
+      art: ${{ steps.mode.outputs.art }}
+      sha7: ${{ steps.mode.outputs.sha7 }}
     steps:
-      # Kennung (§6.2): bei workflow_dispatch gelten die Eingaben statt der Commit-Nachricht.
       - name: Kennung
         id: mode
+        env:
+          GH_TOKEN: ${{ github.token }}
+          UPDATE_SNAPSHOTS: ${{ inputs.update_snapshots }}
         run: |
-          if [ "${{ inputs.update_snapshots }}" = "true" ]; then
-            echo "full=false" >> "$GITHUB_OUTPUT"
-            echo "snapshots=true" >> "$GITHUB_OUTPUT"
+          full=false; snapshots=false; art=false; phase=px
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            sha="${{ github.event.pull_request.head.sha }}"
+            msg=$(gh api "repos/${{ github.repository }}/commits/$sha" --jq .commit.message)
+            if echo "$msg" | grep -qF '[ci:full'; then full=true; fi
+            if echo "$msg" | grep -qF '[ci:update-snapshots]'; then snapshots=true; full=false; fi
+            if echo "$msg" | grep -qF '[ci:art]'; then art=true; fi
+            p=$(echo "$msg" | grep -oE '\[ci:full\s+(p[0-9]+)\]' | head -n1 | grep -oE 'p[0-9]+' || true)
+            if [ -n "$p" ]; then phase="$p"; fi
           else
-            echo "full=true" >> "$GITHUB_OUTPUT"
-            echo "snapshots=false" >> "$GITHUB_OUTPUT"
+            # workflow_dispatch: die Eingabe gilt statt der Nachricht.
+            sha="${{ github.sha }}"
+            if [ "$UPDATE_SNAPSHOTS" = "true" ]; then snapshots=true; else full=true; fi
           fi
-          echo "phase=px" >> "$GITHUB_OUTPUT"
+          {
+            echo "full=$full"
+            echo "snapshots=$snapshots"
+            echo "art=$art"
+            echo "phase=$phase"
+            echo "sha7=${sha:0:7}"
+          } >> "$GITHUB_OUTPUT"
+          echo "Kennung: full=$full, snapshots=$snapshots, art=$art, phase=$phase" >> "$GITHUB_STEP_SUMMARY"
 
   e2e-full:
     name: e2e-full
@@ -47,8 +93,246 @@ jobs:
     if: needs.mode.outputs.full == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: planetclaire_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      NEXT_PUBLIC_LEASH_DEBUG: '1'
     steps:
-      # Skelett: P2 ergänzt Postgres-Service, Umgebung wie ci.yml, Build mit NEXT_PUBLIC_LEASH_DEBUG=1 und alle
-      # Playwright-Projekte (desktop, iphone-15 mit WebKit, pixel-7) ohne @visual/@perf, inkl. @a11y und @privacy.
-      - name: Gerüst
-        run: echo "e2e-full ist ein Gerüst (P1.33) – P2 füllt diesen Job." >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Installation
+        run: pnpm install --frozen-lockfile
+      - name: Playwright-Version
+        id: pw
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Playwright-Browser-Cache
+        id: pw-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+      - name: Playwright Chromium + WebKit
+        run: |
+          if [ "${{ steps.pw-cache.outputs.cache-hit }}" = "true" ]; then
+            pnpm exec playwright install-deps chromium webkit
+          else
+            pnpm exec playwright install --with-deps chromium webkit
+          fi
+      - name: Migrationen
+        run: pnpm run db:ensure && pnpm payload migrate
+      - name: Next.js-Cache
+        uses: actions/cache@v6
+        with:
+          path: .next/cache
+          key: next-debug-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('src/**') }}
+          restore-keys: next-debug-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+      - name: Seed + Build (mit Debug-Flag)
+        run: pnpm run seed && pnpm run build
+      # Alle Projekte nacheinander (workers: 1 in CI), alle Tests außer @visual/@perf – inkl. @a11y und @privacy.
+      - name: E2E alle Projekte
+        run: pnpm run test:e2e --project=desktop --project=iphone-15 --project=pixel-7 --grep-invert "@visual|@perf"
+      # Bei Fehler (§6.2): erst der Budget-Schritt, dann – nur bei upload_optional=true – der Fehlerbericht (2 Tage).
+      - name: Artefakt-Budget
+        id: budget
+        if: failure()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: pnpm run ci:artifacts
+      - name: Fehlerbericht hochladen
+        if: failure() && steps.budget.outputs.upload_optional == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-full-e2e-report-${{ needs.mode.outputs.sha7 }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 2
+          if-no-files-found: ignore
+
+  quality:
+    name: quality
+    needs: mode
+    if: needs.mode.outputs.full == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: planetclaire_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Installation
+        run: pnpm install --frozen-lockfile
+      - name: Playwright-Version
+        id: pw
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Playwright-Browser-Cache
+        id: pw-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+      - name: Playwright Chromium
+        run: |
+          if [ "${{ steps.pw-cache.outputs.cache-hit }}" = "true" ]; then
+            pnpm exec playwright install-deps chromium
+          else
+            pnpm exec playwright install --with-deps chromium
+          fi
+      - name: Migrationen
+        run: pnpm run db:ensure && pnpm payload migrate
+      - name: Next.js-Cache
+        uses: actions/cache@v6
+        with:
+          path: .next/cache
+          key: next-prod-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('src/**') }}
+          restore-keys: next-prod-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+      - name: Seed + Build (ohne Debug-Flag)
+        run: pnpm run seed && pnpm run build
+      - name: Kein Debug im Build
+        run: pnpm run check:no-debug
+      # §7.6: Referenzen entstehen nur per [ci:update-snapshots]. Solange keine Linux-Referenz eingecheckt ist, steht ein
+      # Hinweis im Job-Summary (nicht rot, OFFENE-PUNKTE); sobald Referenzen da sind, ist jede Abweichung rot.
+      - name: Visuelle Referenzen vorhanden?
+        id: visual-refs
+        run: |
+          count=$(find tests/visual/__screenshots__ -name '*-linux.png' 2>/dev/null | wc -l)
+          if [ "$count" -gt 0 ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "Hinweis: Noch keine visuellen Referenzbilder eingecheckt – test:visual übersprungen. Erzeugen per [ci:update-snapshots] (ARCHITEKTUR §7.6)." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Visuelle Regression
+        if: steps.visual-refs.outputs.present == 'true'
+        run: pnpm run test:visual
+      - name: Lighthouse-CI
+        run: pnpm run test:perf
+      - name: INP-Ersatzmessung
+        run: pnpm run test:e2e --grep @perf --project=pixel-7
+      - name: Artefakt-Budget
+        id: budget
+        if: failure()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: pnpm run ci:artifacts
+      - name: Fehlerbericht hochladen
+        if: failure() && steps.budget.outputs.upload_optional == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-full-quality-report-${{ needs.mode.outputs.sha7 }}
+          path: |
+            playwright-report/
+            test-results/
+            .lighthouseci/
+          retention-days: 2
+          if-no-files-found: ignore
+
+  # §7.6: Referenzbilder erzeugen (Pflicht-Upload, 2 Tage); danach `gh run download` und Commit mit [skip ci].
+  snapshots:
+    name: snapshots
+    needs: mode
+    if: needs.mode.outputs.snapshots == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: planetclaire_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Installation
+        run: pnpm install --frozen-lockfile
+      - name: Playwright-Version
+        id: pw
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Playwright-Browser-Cache
+        id: pw-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+      - name: Playwright Chromium
+        run: |
+          if [ "${{ steps.pw-cache.outputs.cache-hit }}" = "true" ]; then
+            pnpm exec playwright install-deps chromium
+          else
+            pnpm exec playwright install --with-deps chromium
+          fi
+      - name: Migrationen
+        run: pnpm run db:ensure && pnpm payload migrate
+      - name: Next.js-Cache
+        uses: actions/cache@v6
+        with:
+          path: .next/cache
+          key: next-prod-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('src/**') }}
+          restore-keys: next-prod-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+      - name: Seed + Build (ohne Debug-Flag)
+        run: pnpm run seed && pnpm run build
+      - name: Referenzbilder erzeugen
+        run: pnpm run test:visual --update-snapshots
+      - name: Referenzbilder hochladen
+        uses: actions/upload-artifact@v7
+        with:
+          name: visual-snapshots-${{ needs.mode.outputs.sha7 }}
+          path: tests/visual/__screenshots__/
+          retention-days: 2
+          if-no-files-found: error
+      - name: Anleitung
+        run: |
+          {
+            echo "Referenzbilder als Artefakt visual-snapshots-${{ needs.mode.outputs.sha7 }} hochgeladen."
+            echo ""
+            echo "Übernehmen: \`gh run download ${{ github.run_id }} -n visual-snapshots-${{ needs.mode.outputs.sha7 }} -D tests/visual/__screenshots__\`,"
+            echo "dann mit Begründung und [skip ci] committen (ARCHITEKTUR §7.6)."
+          } >> "$GITHUB_STEP_SUMMARY"

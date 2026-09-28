@@ -1409,7 +1409,9 @@ Chromium, Projekte `desktop` (1440×900) und Mobil-Emulation 390×844; `reducedM
 sind maßgeblich; Bilder aus der Cloud-Sandbox oder von lokalen Rechnern werden nie committet): Commit mit
 `[ci:update-snapshots]` oder `gh workflow run ci-full.yml --ref <branch> -f update_snapshots=true` → Job `snapshots`
 (§6.4) → Artefakt `visual-snapshots-<sha7>` → `gh run download <run-id> -n visual-snapshots-<sha7> -D <Referenzordner>` →
-Commit der Referenzen mit Begründung und `[skip ci]`; geprüft werden sie im nächsten Phasenende-Lauf. Auf Windows/macOS
+Commit der Referenzen mit Begründung und `[skip ci]`; geprüft werden sie im nächsten Phasenende-Lauf. Ist noch keine Linux-Referenz eingecheckt, überspringt `quality` den
+Schritt `test:visual` mit Hinweis im Job-Summary (nicht rot; P2.28, OFFENE-PUNKTE); sobald Referenzen da sind, ist jede
+Abweichung rot. Auf Windows/macOS
 werden die visuellen Tests übersprungen. Umfang: je Seitentyp ein Bild pro Projekt,
 Kopf/Menü/Fuß, Preisschild, sold-Stempel, Kasse, 404.
 
