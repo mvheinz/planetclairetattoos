@@ -138,6 +138,42 @@ test.describe('Startseite @smoke', () => {
   })
 })
 
+test.describe('Schriften-Tor (DESIGN §4.1, P2.20)', () => {
+  test('Webschriften erst nach dem ersten Bild angefordert, danach aktiv; kein Preload', async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(
+      browserName !== 'chromium',
+      'Paint Timing (first-contentful-paint) nur in Chromium verlässlich',
+    )
+    await page.goto('/de')
+    await page.waitForLoadState('load')
+    await expect(page.locator('html')).not.toHaveAttribute('data-fonts')
+    await page.evaluate(() => document.fonts.ready)
+    const r = await page.evaluate(() => {
+      const fcp = performance.getEntriesByName('first-contentful-paint')[0]?.startTime ?? -1
+      const fonts = performance
+        .getEntriesByType('resource')
+        .filter((e) => e.name.endsWith('.woff2'))
+        .map((e) => e.startTime)
+      const family = getComputedStyle(document.querySelector('h1')!).fontFamily
+      return {
+        fcp,
+        fonts,
+        family,
+        preload: document.querySelectorAll('link[rel=preload][as=font]').length,
+      }
+    })
+    expect(r.preload).toBe(0)
+    expect(r.fcp).toBeGreaterThan(0)
+    expect(r.fonts.length).toBeGreaterThanOrEqual(2)
+    for (const start of r.fonts) expect(start).toBeGreaterThan(r.fcp)
+    expect(r.family).toMatch(/^["']?mansalva["']?,/i)
+    expect(await page.evaluate(() => document.fonts.check('400 16px mansalva'))).toBe(true)
+  })
+})
+
 test.describe('Startseite ohne JavaScript @smoke', () => {
   test.use({ javaScriptEnabled: false })
 

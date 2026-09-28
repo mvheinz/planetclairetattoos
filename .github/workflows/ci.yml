@@ -117,15 +117,12 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+          key: playwright-${{ runner.os }}-chromium-webkit-${{ steps.pw.outputs.version }}
       - name: Playwright Chromium + WebKit
         if: steps.mode.outputs.skip != 'true'
-        run: |
-          if [ "${{ steps.pw-cache.outputs.cache-hit }}" = "true" ]; then
-            pnpm exec playwright install-deps chromium webkit
-          else
-            pnpm exec playwright install --with-deps chromium webkit
-          fi
+        # Immer installieren (lädt nichts nach, was im Cache liegt); Schlüssel je Browser-Satz, damit ein
+        # Chromium-only-Cache nie einem WebKit-Job WebKit vorenthält.
+        run: pnpm exec playwright install --with-deps chromium webkit
       - name: Integrationstests
         if: steps.mode.outputs.skip != 'true'
         run: pnpm run test:int

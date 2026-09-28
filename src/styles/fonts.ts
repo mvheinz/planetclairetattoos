@@ -3,13 +3,15 @@ import localFont from 'next/font/local'
 // Selbst gehostete Schriften (DESIGN §4.1, E-43, E-79): Dateien aus `pnpm fonts:copy`, nie Google-Fonts-CDN und nie
 // den Google-Lader von next/font. `adjustFontFallback` (Standard „Arial“) erzeugt Metrik-Fallbacks gegen CLS; die Fallback-Stapel
 // laut DESIGN §4.1 stehen zusätzlich in `tokens.css`. Die CSS-Variablen setzt das Wurzel-Layout auf `<html>`.
+// Kein Preload (DESIGN §4.1, P2.20): Die Schriften lädt der Browser erst nach dem ersten Bild (Schriften-Tor
+// `html[data-fonts]` in `global.css`, gesetzt vom Inline-Skript `pc-motion`) – sie zählen so nicht zum LCP-Pfad.
 
 export const mansalva = localFont({
   src: './fonts/mansalva-latin-400-normal.woff2',
   weight: '400',
   style: 'normal',
   display: 'swap',
-  preload: true,
+  preload: false,
   variable: '--font-mansalva',
   fallback: ['Segoe Print', 'Bradley Hand', 'cursive'],
 })
@@ -19,7 +21,7 @@ export const bricolage = localFont({
   weight: '400 700',
   style: 'normal',
   display: 'swap',
-  preload: true,
+  preload: false,
   variable: '--font-bricolage',
   fallback: ['ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
 })

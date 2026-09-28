@@ -1021,7 +1021,9 @@ Produktionsdaten verarbeiten darf (DIENSTE §3.11, LOESCHKONZEPT L-23). Das weic
 Gemeinsam für alle Workflows: `concurrency: { group: <workflow>-${{ github.ref }}, cancel-in-progress: true }` (außer
 `release.yml`); `permissions` minimal (Standard `contents: read`); Actions per Major-Tag, Aktualisierung über Dependabot;
 `timeout-minutes` je Job gesetzt; Node aus `.nvmrc`, pnpm über `pnpm/action-setup`, Cache für pnpm-Store, `.next/cache`
-(Schlüssel: Lockfile + Hash von `src/**`) und Playwright-Browser (`~/.cache/ms-playwright`, Schlüssel: Playwright-Version).
+(Schlüssel: Lockfile + Hash von `src/**`) und Playwright-Browser (`~/.cache/ms-playwright`, Schlüssel: Browser-Satz + Playwright-Version, z. B.
+`playwright-Linux-chromium-webkit-<version>` bzw. `…-chromium-<version>`; der Installationsschritt ruft immer
+`playwright install --with-deps <browser…>` auf – bei Cache-Treffer lädt er nichts nach).
 
 **Was auf `main` läuft:** Bis P10 läuft auf `main` nur `release.yml` (ab dem P10-Merge; es endet nach Sekunden, solange
 `OFFEN_P1_P10 ≠ 0` oder das Release aktuell ist, §6.6) und monatlich `restore-drill.yml`. `ci.yml`, `ci-full.yml` und
@@ -1475,7 +1477,7 @@ geolocation=(), payment=(), usb=(), browsing-topics=()` · in `production`/`stag
 | `api` | `/api/*` (JSON) | `default-src 'none'; frame-ancestors 'none'` | `Cache-Control` je Endpunkt (§2.5) |
 
 **Inline-Skript `pc-motion`** (DESIGN §11.7): Das feste Skript im `<head>` liest `localStorage['pc-motion']` vor dem ersten
-Rendern. Sein Text steht als Konstante in `src/lib/security/inlineScripts.ts`; `csp.ts` berechnet daraus den
+Rendern und öffnet danach das Schriften-Tor `html[data-fonts]` (DESIGN §4.1, P2.20; liest/schreibt keinen Speicher). Sein Text steht als Konstante in `src/lib/security/inlineScripts.ts`; `csp.ts` berechnet daraus den
 `sha256`-Hash für `script-src` im Kontext `public` (ein Unit-Test prüft Hash und Skripttext gegeneinander). In den
 Kontexten `dynamic` und `checkout` steht der Hash neben der Nonce (das Skript liegt im gemeinsamen, statischen
 Wurzel-Layout und kennt die Nonce nicht). Ergebnis Spike B-03: Im Kontext `public` gilt die Rückfallebene
@@ -1718,7 +1720,10 @@ nicht im Umfang). Auslieferung mit langem Cache (§3.3).
 ### 9.5 Schriften, CSS, JavaScript, Proxy
 
 - Schriften: `next/font/local` aus `src/styles/fonts/` (3 Dateien, ≤ 100 KB), `display: swap`, `adjustFontFallback`,
-  Preload nur Mansalva + Bricolage (DESIGN §4.1).
+  kein Preload; Webschriften erst nach dem ersten Bild über das Schriften-Tor `html[data-fonts]` (DESIGN §4.1, P2.20).
+- Client-Hints: `withPayload` setzt `Accept-CH`/`Critical-CH`/`Vary: Sec-CH-Prefers-Color-Scheme` für alle Pfade;
+  `withoutPublicClientHints` (`src/lib/security/headers.ts`) entfernt sie aus `next.config.ts`, der Proxy setzt sie nur
+  im Kontext `admin` (sonst verwirft Chrome jede erste Anfrage einer öffentlichen Seite und stellt sie neu, P2.20).
 - CSS: `src/styles/tokens.css` + `global.css` + CSS Modules; keine CSS-Laufzeitbibliothek.
 - JavaScript: Server Components als Standard; Client-Komponenten nur als kleine Inseln. Interaktion über
   `src/behaviors/*` (A-11): Eine Client-Komponente `BehaviorHost` sucht nach dem ersten Rendern `[data-behavior]`-Elemente

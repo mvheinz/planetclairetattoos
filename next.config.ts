@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url'
 import { localizedPath } from './src/lib/routes/paths'
 import { shortLinks } from './src/lib/routes/registry'
 import type { AppEnvName } from './src/lib/seo/robots'
-import { staticHeaderRules } from './src/lib/security/headers'
+import { staticHeaderRules, withoutPublicClientHints } from './src/lib/security/headers'
 
 const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
@@ -64,4 +64,7 @@ const nextConfig: NextConfig = {
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
-export default withPayload(withNextIntl(nextConfig), { devBundleServerPackages: false })
+// Client-Hints von Payload nur für die Verwaltung (Tempo-Budget R01, P2.20; `withoutPublicClientHints`).
+export default withoutPublicClientHints(
+  withPayload(withNextIntl(nextConfig), { devBundleServerPackages: false }),
+)

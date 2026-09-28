@@ -509,6 +509,8 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     void doc.fonts.ready.then(() => {
       if (!destroyed) scheduleRebuild()
     })
+  // Schriften kommen erst nach dem ersten Bild (Schriften-Tor, DESIGN §4.1) – jeder spätere Tausch misst neu.
+  doc.fonts?.addEventListener?.('loadingdone', onLoad)
 
   return {
     destroy() {
@@ -522,6 +524,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       win.removeEventListener('scroll', onScroll)
       win.removeEventListener('resize', onResize)
       win.removeEventListener('load', onLoad)
+      doc.fonts?.removeEventListener?.('loadingdone', onLoad)
       resizeObserver?.disconnect()
       intersectionObserver?.disconnect()
       root.replaceChildren()
