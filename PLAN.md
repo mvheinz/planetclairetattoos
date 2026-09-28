@@ -1956,7 +1956,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
     Budget-Schritt); ein Lauf mit `[ci:update-snapshots]`; CI-Nachweis im Phasenende-Lauf `[ci:full p2]`.
   - Ohne Jutta: –
 
-- [ ] **P2.29 Nachverfolgbarkeit Phase 2 und Anleitung für Jutta** –
+- [x] **P2.29 Nachverfolgbarkeit Phase 2 und Anleitung für Jutta** –
   - `LEGAL_TRACE_PHASE = 2` in `tests/unit/legal/traceability.unit.spec.ts`. R-010, R-011, R-090, R-130, R-131 und
     R-191 stehen in Testtiteln (P2.10–P2.22).
   - Verbotsmuster-Test zusätzlich als E2E über das gerenderte HTML aller `live`-Routen:

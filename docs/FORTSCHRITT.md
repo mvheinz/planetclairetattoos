@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P2.29
+
+- `LEGAL_TRACE_PHASE = 2`; neuer R-001-Test prüft R-010, R-011, R-090, R-130, R-131, R-191 samt Gegenprobe mit fehlender P2-ID.\n- Verbotsmuster-E2E über das gerenderte HTML aller live-Routen (DE/EN, 404/500, Weiterleitung): `tests/e2e/legal/forbidden.e2e.spec.ts` (Name laut ANFORDERUNGEN §5 statt `forbidden-html`, OFFENE-PUNKTE), prüft vorher den Kleinunternehmer-Modus; Gegenprobe für OS-Link, „inkl. MwSt.“, Tracker, vorbelegte Checkbox.\n- ANLEITUNGEN: neuer Abschnitt V0 „Vorschau-Datei ansehen“ (Checks → Summary → Artifacts, ZIP entpacken, doppelklicken); G6 nennt den Ablauf „Vorschau-Export“; AUFGABEN A21 verlinkt V0.\n- qa-log: Eintrag zum Kalibrierbogen + INDEX.md; Bogen liegt mit 240 KB über dem Ablagebudget 150 KB (OFFENE-PUNKTE, P9.2).\n- Tests: pnpm check (766) grün, pnpm test:int grün, E2E forbidden desktop + iphone-15 (52) grün.
+
 ## 2026-09-28 – P2.28
 
 - `ci-full.yml`: Auslöser pull_request/workflow_dispatch; Job `mode` liest die Kennung ohne Checkout (`gh api`), Ausgaben full/phase/snapshots/art/sha7; Jobs `e2e-full` (Build mit Debug-Flag, desktop/iphone-15/pixel-7 ohne @visual/@perf), `quality` (Build ohne Debug, check:no-debug, test:visual, test:perf, @perf pixel-7), `snapshots` (test:visual --update-snapshots, Pflicht-Upload visual-snapshots-<sha7>, 2 Tage); Fehlerberichte hinter dem Budget-Schritt.\n- `preview-export.yml`: Job `export` nur bei `[ci:full pN]`/Dispatch; preview:export → test:preview-export (eigener Schritt) → Upload planet-claire-vorschau-<phase>-<sha7> (30 Tage) → nur 3 neueste behalten → Kurzanleitung → PR-Kommentar (R-182).\n- Fehlende visuelle Referenzen: Hinweis statt rot (OFFENE-PUNKTE); erste Referenzen per [ci:update-snapshots] stehen noch aus.\n- Tests: workflows.unit.spec.ts 32 grün (Kennungs- und Aufräum-Skripte mit Ersatz-gh in bash ausgeführt); actionlint sauber; pnpm check grün.
