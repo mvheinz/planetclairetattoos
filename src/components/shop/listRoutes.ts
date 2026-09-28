@@ -5,6 +5,7 @@ import { getTranslations } from 'next-intl/server'
 import { notFound, permanentRedirect } from 'next/navigation'
 
 import { getCategoryBySlug, loadAllCategories, type PublicCategory } from '@/lib/data/categories'
+import { getPublicPage } from '@/lib/data/pages'
 import { loadArchiveCategoryKeys, loadArchiveProducts, loadShopProducts } from '@/lib/data/products'
 import { createLogger } from '@/lib/monitoring/logger'
 import { isLocale, localizedPath } from '@/lib/routes/paths'
@@ -46,9 +47,28 @@ export async function resolveCategory(
   return hit.category
 }
 
+/** CMS-Texte der Seite (`pages.seo`, KONZEPT §3.0.5); leer → Vorlage je Seitentyp. */
+async function pageSeo(key: 'shop' | 'archive', locale: Locale) {
+  const seo = (await getPublicPage(key, locale))?.seo
+  const text = (v: string | null | undefined) => (v && v.trim() ? v.trim() : undefined)
+  return { title: text(seo?.metaTitle), description: text(seo?.metaDescription) }
+}
+
 export async function shopMetadata(locale: Locale, list: ListParams): Promise<Metadata> {
-  const t = await getTranslations({ locale, namespace: 'seo.descriptions' })
-  return buildListMetadata('R02', locale, {}, { page: list.page, description: t('shop') })
+  const [t, seo] = await Promise.all([
+    getTranslations({ locale, namespace: 'seo.descriptions' }),
+    pageSeo('shop', locale),
+  ])
+  return buildListMetadata(
+    'R02',
+    locale,
+    {},
+    {
+      page: list.page,
+      title: seo.title,
+      description: seo.description ?? t('shop'),
+    },
+  )
 }
 
 export async function categoryMetadata(
@@ -57,7 +77,8 @@ export async function categoryMetadata(
   list: ListParams,
 ): Promise<Metadata> {
   const hit = await getCategoryBySlug(locale, decodeURIComponent(slug))
-  if (!hit) return {}
+  // Unbekannter Slug: 404-Metadaten aus `not-found.tsx` (noindex, ohne hreflang).
+  if (!hit) notFound()
   const category = hit.category
   const alternateParams: Partial<Record<Locale, { slug: string }>> = {}
   for (const other of LOCALES) {
@@ -80,8 +101,20 @@ export async function categoryMetadata(
 }
 
 export async function archiveMetadata(locale: Locale, list: ListParams): Promise<Metadata> {
-  const t = await getTranslations({ locale, namespace: 'seo.descriptions' })
-  return buildListMetadata('R05', locale, {}, { page: list.page, description: t('archive') })
+  const [t, seo] = await Promise.all([
+    getTranslations({ locale, namespace: 'seo.descriptions' }),
+    pageSeo('archive', locale),
+  ])
+  return buildListMetadata(
+    'R05',
+    locale,
+    {},
+    {
+      page: list.page,
+      title: seo.title,
+      description: seo.description ?? t('archive'),
+    },
+  )
 }
 
 // --- beim Build vorgerenderte Varianten (ARCHITEKTUR §9.1) ----------------------------------------------------------

@@ -11,8 +11,8 @@ import {
   type PublicProduct,
 } from '@/lib/data/products'
 import type { Locale } from '@/lib/enums'
-import { formatItemNumber } from '@/lib/products/itemNumber'
 import { buildMetadata } from '@/lib/seo/metadata'
+import { productMetaDescription, productPageTitle } from '@/lib/seo/product'
 import { parseProductSegment, productParams, productPath, productSegment } from '@/lib/shop/format'
 
 // R04 Produktseite (KONZEPT §2.3, §3.4): Auflösung nur über die führenden Ziffern des Segments. Nicht kanonische Form
@@ -39,26 +39,20 @@ async function resolve(locale: Locale, raw: string): Promise<PublicProduct | nul
   return nr === null ? null : getPublicProductByItemNumber(nr, locale)
 }
 
-/** Erste 155 Zeichen der Beschreibung (KONZEPT §3.4 SEO), an einer Wortgrenze gekürzt. */
-function metaDescription(text: string | null | undefined): string | undefined {
-  const plain = (text ?? '').replace(/\s+/g, ' ').trim()
-  if (!plain) return undefined
-  if (plain.length <= 155) return plain
-  const cut = plain.slice(0, 154)
-  return `${cut.slice(0, Math.max(cut.lastIndexOf(' '), 120))}…`
-}
-
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale: raw, product: segment } = await params
   const locale = toLocale(raw)
   const product = await resolve(locale, segment)
-  if (!product) return {}
+  // 404-Variante: Metadaten aus `not-found.tsx` (noindex, ohne canonical/hreflang, P3.13).
+  if (!product) notFound()
   const other: Locale = locale === 'de' ? 'en' : 'de'
   const alternate = await getPublicProductByItemNumber(product.itemNumber, other)
   return buildMetadata('R04', locale, productParams(product, locale), {
-    title: `${product.title ?? ''} – ${formatItemNumber(product.itemNumber, locale)}`,
-    description: metaDescription(product.description),
+    title: productPageTitle(product, locale),
+    description: productMetaDescription(product),
     alternateParams: alternate ? { [other]: productParams(alternate, other) } : undefined,
+    ogType: 'product',
+    ogImage: false,
   })
 }
 

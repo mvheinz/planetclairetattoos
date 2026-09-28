@@ -157,6 +157,12 @@
       "shop": "Handmade one-offs by Planet Claire from Berlin: painted ceramics, textiles, caps, drawings and jewellery – every piece exists only once.",
       "category": "Handmade one-offs by Planet Claire from Berlin in this category – every piece is unique, with delivery anywhere within Germany.",
       "archive": "The Planet Claire archive from Berlin: ceramics, textiles and drawings that have already found a home – to look at and browse."
+    },
+    "og": {
+      "tagline": "Tattoos & one-offs from Berlin",
+      "priceNote": "Final price plus shipping",
+      "productAlt": "{title} – {number}: photo and price tag",
+      "defaultAlt": "Planet Claire – tattoos & one-offs from Berlin"
     }
   },
   "contact": {

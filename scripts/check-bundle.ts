@@ -12,7 +12,8 @@ import { build } from 'esbuild'
 //    Fehlerseiten R28/R29 gegen `next start`, liest die Skript-URLs aus `/_next/static`, die vor dem `load`-Ereignis
 //    geladen wurden, und gzipt die zugehörigen Dateien aus `<distDir>/static` mit Stufe 9 (Budget je Routen-ID).
 //    Dazu je Seite die erzeugten Pfaddaten im DOM (DESIGN §9.10) und auf R01 alle SVG der Startseite zusammen.
-// 2. Schriften AK-DS-04 (DESIGN §4.1): genau 3 ausgelieferte `.woff2`, zusammen ≤ 100 KB, kein Google-Fonts-Verweis.
+// 2. Schriften AK-DS-04 (DESIGN §4.1): genau 3 ausgelieferte `.woff2`, zusammen ≤ 100 KB, kein Google-Fonts-Verweis;
+//    keine TTF/OTF (OG-Schriften, P3.14).
 // 3. Lazy-Module (DESIGN §9.10): jedes Modul einzeln mit esbuild gebündelt und minifiziert (unabhängig von der
 //    Chunk-Aufteilung durch Next), gzip Stufe 9.
 // 4. SVG-Dateien: Coco-Sprite, Stationszeichnungen, Icons.
@@ -118,6 +119,9 @@ export function checkFonts(
     errors.push(`${fonts.length} .woff2-Dateien ausgeliefert, erwartet genau ${budget.files}.`)
   if (bytes > budget.maxBytes)
     errors.push(`Schriften zusammen ${bytes} B, Budget ${budget.maxBytes} B.`)
+  // P3.14: TTF/OTF (OG-Schriften aus `src/og/fonts/`) gehen nie an den Browser.
+  for (const f of listFiles(staticDir, (n) => /\.(ttf|otf)$/i.test(n)))
+    errors.push(`Server-Schrift ${path.basename(f)} wird ausgeliefert (nur für OG-Bilder).`)
   const scanned = [staticDir, ...extraDirs].flatMap((d) =>
     listFiles(d, (n) => /\.(js|css|html|rsc)$/.test(n)),
   )

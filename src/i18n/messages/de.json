@@ -157,6 +157,12 @@
       "shop": "Handgemachte Unikate von Planet Claire aus Berlin: bemalte Keramik, Textil, Caps, Zeichnungen und Schmuck – jedes Stück gibt es nur einmal.",
       "category": "Handgemachte Unikate von Planet Claire aus Berlin in dieser Kategorie – jedes Stück ist ein Einzelstück, Lieferung innerhalb Deutschlands.",
       "archive": "Archiv von Planet Claire aus Berlin: Keramik, Textil und Zeichnungen, die schon ein Zuhause gefunden haben – zum Anschauen und Stöbern."
+    },
+    "og": {
+      "tagline": "Tattoos & Unikate aus Berlin",
+      "priceNote": "Endpreis zzgl. Versand",
+      "productAlt": "{title} – {number}: Foto und Preisschild",
+      "defaultAlt": "Planet Claire – Tattoos & Unikate aus Berlin"
     }
   },
   "contact": {

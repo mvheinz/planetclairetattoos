@@ -14,7 +14,7 @@ import { listStationProducts } from '@/lib/data/products'
 import { getShopDisplaySettings, taxSettingsFor } from '@/lib/data/shopSettings'
 import { localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
-import { organizationJsonLd, serializeJsonLd } from '@/lib/seo/jsonLd'
+import { organizationJsonLd, serializeJsonLd } from '@/lib/seo/jsonld'
 import { routeMetadata } from '@/lib/seo/metadata'
 
 export const generateMetadata = routeMetadata('R01')
