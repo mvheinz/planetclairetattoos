@@ -24,6 +24,12 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  // Debug-Schalter der Tuschelinie (DESIGN §9.13) immer als Build-Konstante: Next inlinet `NEXT_PUBLIC_*` nur, wenn die
+  // Variable gesetzt ist. Ohne `.env` (CI) bliebe `process.env.NEXT_PUBLIC_LEASH_DEBUG` sonst stehen, der Import von
+  // `@/leash/debug` würde nicht entfernt und `__leash`/`__qa` lägen als Chunk in `.next/static` (check:no-debug).
+  env: {
+    NEXT_PUBLIC_LEASH_DEBUG: process.env.NEXT_PUBLIC_LEASH_DEBUG === '1' ? '1' : '',
+  },
   // 404 mit Seitenrahmen schon im HTML (src/app/global-not-found.tsx): das Wurzel-Layout liegt unter [locale].
   experimental: {
     globalNotFound: true,
