@@ -1332,6 +1332,11 @@ ab 1.500 Minuten `MINUTEN_STATUS=knapp`, ab 2.000 `erschoepft` und bei einem API
   `pc_test_baseline`; vor jeder Int-Testdatei stellt `tests/int/setup/restore.ts` ihn wieder her (Tabellen leeren,
   Daten und Sequenzstände zurückspielen). Jede Datei beginnt so im Zustand „nach `db:reset --test`“ – auch in CI, wo die
   Reihenfolge der Dateien mangels Vitest-Cache eine andere ist als lokal.
+- **E2E gegen den Produktions-Build (`E2E_SERVER=start`):** `next build` backt den Datenbank-Stand zur Build-Zeit in die
+  vorgerenderten Seiten; der anschließende Reset (Seed revalidiert nie) oder ein Build gegen eine andere DB ließe den ersten
+  Aufruf den alten Stand zeigen. `tests/e2e/global-setup.ts` erzeugt deshalb nach dem Serverstart jede ISR-Route aus
+  `prerender-manifest.json` per On-Demand-Revalidierung (`x-prerender-revalidate`) neu und bricht ab, wenn eine nicht
+  `REVALIDATED` meldet.
 - **E2E-Fixtures:** Tests, die Stücke kaufen/reservieren, legen eigene Stücke im Seed-Nummernbereich `980–999` an
   (`tests/e2e/fixtures.ts`, Local API, `seed=true`) und setzen sie vor jedem Test zurück; der P8-Beispielbestand bleibt
   unverändert (für Screenshots und Export).

@@ -17,6 +17,8 @@ export default defineConfig({
   testMatch: '**/*.e2e.spec.ts',
   // Die Vorschau-Datei läuft offline gegen file:// in eigenem Lauf (`pnpm test:preview-export`, §7.1, §14.10).
   testIgnore: ['**/preview-export.e2e.spec.ts'],
+  // Gegen den Produktions-Build: vorgerenderte Seiten nach dem Start auf den Stand der Test-DB bringen (global-setup.ts).
+  globalSetup: './tests/e2e/global-setup.ts',
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
