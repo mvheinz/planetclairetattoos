@@ -2,6 +2,15 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P4.1
+
+- Schema-Abgleich: `checkouts` und `orders` entsprechen DATENMODELL §6.25.1/§6.8.1, `src/lib/enums.ts` führt alle Werte aus §4 (13 Bestellstatus, `REFUND_REASONS` inkl. `item_unavailable`/`dispute`); `check:migrations` ohne Drift → keine Migration `p4_checkout` nötig, `payload-types.ts` unverändert.
+- `src/lib/security/tokens.ts`: `createToken()` (32 Zufallsbytes, base64url, 43 Zeichen), `hashToken`, `matchesHash` (SHA-256-Digests in konstanter Zeit), `sealToken`/`unsealToken` (AES-256-GCM, HKDF `pc:status-token-seal:v1`, `TokenSealError` ohne Token in der Meldung); `randomToken` bleibt als Alias.
+- `src/lib/commerce/createOrderFromCheckout.ts`: einzige Stelle der Bestellanlage (O1 `paid`, O2 `awaiting_prepayment` mit Überweisung und Fristen aus `prepaymentDeadlines`, O19 `refunded`); sperrt die Kasse (`FOR UPDATE`), lehnt Kassen ohne `submittedAt`, mit Bestellung oder außerhalb von `open`/`confirming` ab; übernimmt Snapshot, Summen, Adressen, Rechtsstand, Steuermodus zu `submittedAt`, neuen Status-Token (Hash + Siegel), ersten `statusHistory`-Eintrag; setzt `checkouts.order`; gibt `{ order, statusToken }` zurück.
+- `src/lib/commerce/statusToken.ts`: `issueStatusToken`, `rotateStatusToken` (`rotateToken`, Audit `order_status_link_rotated`), `statusTokenForMail` (Siegel öffnen; scheitert es, neuer Token – bei `seed = true` nie).
+- Statische Prüfung `order-create` in `check:static`: `orders` werden nur in `createOrderFromCheckout.ts` und im Seed angelegt (Local API und SQL).
+- Tests: `tests/unit/security/tokens.unit.spec.ts` (9), `tests/unit/static/order-create.unit.spec.ts` (5), `tests/int/commerce/create-order.int.spec.ts` (11: O1/O2/O19, Snapshot-Treue, DM-ORD-02, Ablehnungen, Parallelität, DB- und Log-Scan ohne Klartext-Token, Rotation, keine Rotation bei Seed); `pnpm check` grün (1069 Unit-Tests), betroffene Int-Tests (13 Dateien) grün.
+
 ## 2026-09-28 – P4.2
 
 - Rechenkern als reine Funktionen ohne DB (`now` immer als Parameter): `computeShipping` vervollständigt (höchste Klasse, `pickup` = 0, `nur_abholung` → „Nr. 023 gibt es nur zur Abholung.“, Land nur aus `settings.shipping.enabledCountries`, GB/US nie – R-060; Anzeigename „DHL Paket (Keramik)“/„Abholung in Berlin“ aus `SHIPPING_OPTION_LABELS`), `computeTotals` (ohne Zahlart-Eingang, R-070), `computeTax` mit Versandaufteilung nach Warenwert (KA-10, `splitShippingByRate`), `deadlines.ts` (`reservationTimes`, `prepaymentDeadlines` in Europe/Berlin), `epc.ts` (`buildEpcPayload` nach EPC069-12, `formatIban`), `qr.ts` (PNG/SVG mit `qrcode` 1.5.4, Byte-Segment, Fehlerkorrektur M, Version ≤ 13).

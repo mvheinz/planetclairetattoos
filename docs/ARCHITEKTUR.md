@@ -245,7 +245,8 @@ der Patch nach dem Stichtag, gibt `pnpm check:versions` eine Warnung aus und end
 │  │  │                             (shipping.ts), Summen, Fristen (deadlines.ts: Reservierung und Vorkasse – einzige
 │  │  │                             Stelle), Statusautomaten (productTransitions.ts, orderTransitions.ts,
 │  │  │                             checkoutTransitions.ts, withdrawalTransitions.ts), Belegnummern (invoiceNumber.ts),
-│  │  │                             EPC-QR (epc.ts, qr.ts)
+│  │  │                             EPC-QR (epc.ts, qr.ts), Bestellanlage (createOrderFromCheckout.ts – einzige Stelle,
+│  │  │                             statische Prüfung `order-create`), Status-Link (statusToken.ts: ausgeben, rotieren)
 │  │  ├─ payments/                  Adapter: types.ts, index.ts, processPaymentEvent.ts, stripe/, mock/ (§3.5)
 │  │  ├─ carrier/                   Versanddienst-Adapter (`CARRIER_DRIVER`): types.ts, index.ts, manual.ts (§3.7)
 │  │  ├─ email/                     Transport-Fabrik, Treiber, Vorlagen (M01–M16, A01–A17), registry.ts, Outbox (§3.4)

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { ipHash } from '@/lib/security/ipHash'
 import { deriveKey, KEY_LABELS } from '@/lib/security/keys'
-import { hashToken, randomToken, safeEqual } from '@/lib/security/tokens'
+import { createToken, hashToken, safeEqual } from '@/lib/security/tokens'
 import { fixedClock } from '@/lib/time'
 
 const secret = 'x'.repeat(64)
@@ -35,11 +35,11 @@ describe('Schlüssel und IP-Hash (ARCHITEKTUR §8.6)', () => {
   })
 
   it('Kunden-Token: 43 Zeichen base64url, zufällig, Vergleich in konstanter Zeit', () => {
-    const t = randomToken()
+    const t = createToken()
     expect(t).toMatch(/^[A-Za-z0-9_-]{43}$/)
-    expect(randomToken()).not.toBe(t)
+    expect(createToken()).not.toBe(t)
     expect(hashToken(t)).toHaveLength(64)
     expect(safeEqual(t, t)).toBe(true)
-    expect(safeEqual(t, randomToken())).toBe(false)
+    expect(safeEqual(t, createToken())).toBe(false)
   })
 })
