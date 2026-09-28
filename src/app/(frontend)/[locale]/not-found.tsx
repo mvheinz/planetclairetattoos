@@ -17,9 +17,19 @@ async function currentLocale(): Promise<Locale> {
 }
 
 // 404 innerhalb von `[locale]` (z. B. unbekannte Kategorie, Listenseite hinter der letzten): `noindex`, ohne
-// canonical/hreflang (P3.13).
-export async function generateMetadata(): Promise<Metadata> {
-  return notFoundMetadata(await currentLocale())
+// canonical/hreflang (P3.13). Die Sprache kommt aus den Parametern – `getLocale()` läse hier Anfrage-Header und machte
+// statische Seiten dynamisch.
+export async function generateMetadata({
+  params,
+}: {
+  params?: Promise<{ locale?: string }>
+}): Promise<Metadata> {
+  const requested = (await params)?.locale
+  const locale: Locale =
+    requested && (LOCALES as readonly string[]).includes(requested)
+      ? (requested as Locale)
+      : await currentLocale()
+  return notFoundMetadata(locale)
 }
 
 export default async function NotFound() {

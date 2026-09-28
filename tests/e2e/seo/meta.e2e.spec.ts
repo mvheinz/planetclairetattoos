@@ -3,7 +3,8 @@ import * as cheerio from 'cheerio'
 
 import { productPath } from '../../../src/lib/shop/format'
 import { expect, test, testPayload } from '../fixtures'
-import { NO_CACHE, refresh } from '../shop/fresh'
+import { refresh } from '../shop/fresh'
+import { CRAWLER } from './crawler'
 
 // P3.13 SEO der Shop-Routen (KONZEPT §2.5, §3.0.5, §3.2–§3.5): canonical, hreflang (AK-2-05), Open Graph je Seitentyp
 // in DE/EN, JSON-LD (`Product` mit `Offer`, `BreadcrumbList`; R-126 kein Steuer-Flag im Kleinunternehmer-Modus) und
@@ -46,7 +47,7 @@ const CASES: Case[] = [
 ]
 
 async function html(request: APIRequestContext, url: string) {
-  const res = await request.get(url, { maxRedirects: 0, headers: NO_CACHE })
+  const res = await request.get(url, { maxRedirects: 0, headers: CRAWLER })
   return { status: res.status(), $: cheerio.load(await res.text()) }
 }
 
@@ -164,7 +165,7 @@ test.describe('P3.13 SEO der Shop-Routen', () => {
   })
 
   test('verkauftes Stück im Archiv (S06): availability SoldOut', async ({ request }) => {
-    const res = await request.get('/de/shop/906', { maxRedirects: 5, headers: NO_CACHE })
+    const res = await request.get('/de/shop/906', { maxRedirects: 5, headers: CRAWLER })
     expect(res.status()).toBe(200)
     const product = jsonLd(cheerio.load(await res.text())).find((b) => b['@type'] === 'Product')
     expect(product).toMatchObject({
