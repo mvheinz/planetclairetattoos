@@ -7,6 +7,7 @@ import { externalUrlsCheck } from './lib/static-checks/external-urls'
 import { generatedFilesCheck } from './lib/static-checks/generated'
 import { i18nParityCheck } from './lib/static-checks/i18n-parity'
 import { importRulesCheck } from './lib/static-checks/import-rules'
+import { moneyUsageCheck } from './lib/static-checks/money-usage'
 import { stripeImportCheck } from './lib/static-checks/stripe-import'
 import { routeRegistryCheck } from './lib/static-checks/route-registry'
 import type { StaticCheck } from './lib/static-checks/types'
@@ -22,6 +23,7 @@ export const CHECKS: StaticCheck[] = [
   generatedFilesCheck,
   i18nParityCheck,
   routeRegistryCheck,
+  moneyUsageCheck,
 ]
 
 async function main(): Promise<void> {

@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P3.1
+
+- `src/lib/cache/cached.ts` (`cached(fn, { key, tags, revalidate })` über `unstable_cache`, Rückfall 3600 s; außerhalb von Next ungecacht)
+- `src/lib/data/products.ts` (Shop-Liste mit zweistufiger Sortierung, Archiv, Einzelstück, verwandte Stücke, Stationen; Admin-Felder entfernt) und `src/lib/data/categories.ts` (Slug inkl. anderer Sprache → redirect, Navigation)
+- `src/lib/shop/format.ts` (Nummer, Maße, Fasern, Zustand, Gewicht DA-9, `productPath`); `check:static` Regel `money-usage` (kein `toFixed`/`Intl.NumberFormat` mit `currency` in Shop, Komponenten, Seiten)
+- Tests: `tests/int/shop/data.int.spec.ts` (9, grün), `tests/unit/shop/format.unit.spec.ts` (11, grün); `pnpm check` grün
+
 ## 2026-09-28 – P2 Phasen-Abnahme (Designsystem, Tuschelinie, Vorschau-Datei)
 
 - Alle Aufgaben P2.1–P2.29 erledigt: Sprachen/Routen, Design-Tokens, selbst gehostete Schriften, Icons/Wortmarke,
