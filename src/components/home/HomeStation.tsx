@@ -2,9 +2,12 @@ import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
 import { Station } from '@/components/leash/Station'
+import { ProductCard } from '@/components/shop/ProductCard'
 import { Button } from '@/components/ui/Button'
 import type { LoopKind } from '@/leash/types'
 import type { HomeStation as HomeStationData } from '@/lib/data/home'
+import type { PublicProduct } from '@/lib/data/products'
+import { localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
 
 import styles from './Home.module.css'
@@ -12,7 +15,9 @@ import { PlanetMark, StarMark } from './SpaceMarks'
 import { StationArt } from './StationArt'
 
 // Station der Startseite (DESIGN KO-21, §11.4): Stationsmarke (Planet/Stern, MI-12) + Kicker „Station 01“ (Plex Mono)
-// · H2 (Mansalva) · Text · Stationszeichnung · Link „Alle …“. Noch ohne Produktkarten (W-33, P3). Anker der Tuschelinie
+// · H2 (Mansalva) · Text · Stationszeichnung · Link „Alle …“. Kategorie-Stationen (P3.12) zeigen darunter bis zu 4 Karten
+// (KO-07 ohne Schnur, Schild `pinned` am Kartenfuß, Fotos `lazy`) und danach „Alle {Kategorie}“ → R03; ohne sichtbare
+// Stücke den Leerzustand „Gerade ist hier nichts …“ mit Link aufs Archiv (KONZEPT §3.1). Anker der Tuschelinie
 // (`data-leash-station`) mit Coco-Pose aus `cocoPose` und der Schlaufe laut Choreografie §11.4: am Kicker bzw. – für
 // `lasso` (Keramik, ab 1200 px) und `contour` (Tattoo) – an der Stationszeichnung.
 
@@ -35,9 +40,12 @@ const onArt = (loop: LoopKind) => loop === 'lasso' || loop === 'contour'
 export async function HomeStation({
   station,
   locale,
+  products = null,
 }: {
   station: HomeStationData
   locale: Locale
+  /** Karten der Kategorie-Station (`listStationProducts`); `null` bei Stationen ohne Stücke (Hallo, Tattoo, …). */
+  products?: PublicProduct[] | null
 }) {
   const t = await getTranslations({ locale, namespace: 'home' })
   const loop = loopFor(station.stationId, station.number)
@@ -54,6 +62,21 @@ export async function HomeStation({
   )
   const art = <StationArt stationId={station.stationId} />
   const pose = station.pose ?? undefined
+  const shelf = station.categories !== null && products !== null
+  const allLink = station.link ? (
+    <p className={shelf ? styles.all : styles.more} data-station-all={shelf ? '' : undefined}>
+      <Button
+        variant="secondary"
+        href={station.link.href}
+        icon={station.link.external ? 'external' : undefined}
+      >
+        {station.link.label ??
+          (shelf && station.categoryName
+            ? t('stationAll', { category: station.categoryName })
+            : t('stationMore'))}
+      </Button>
+    </p>
+  ) : null
 
   return (
     <section
@@ -73,17 +96,7 @@ export async function HomeStation({
           {station.heading}
         </h2>
         {station.text ? <p className={styles.text}>{station.text}</p> : null}
-        {station.link ? (
-          <p className={styles.more}>
-            <Button
-              variant="secondary"
-              href={station.link.href}
-              icon={station.link.external ? 'external' : undefined}
-            >
-              {station.link.label ?? t('stationMore')}
-            </Button>
-          </p>
-        ) : null}
+        {shelf ? null : allLink}
       </div>
       {onArt(loop) ? (
         <Station id={station.stationId} pose={pose} loop={loop} className={styles.artFrame}>
@@ -92,6 +105,37 @@ export async function HomeStation({
       ) : (
         <div className={styles.artFrame}>{art}</div>
       )}
+      {shelf ? (
+        <div className={styles.shelf} data-station-shelf="">
+          {products.length > 0 ? (
+            <ul
+              className={styles.cards}
+              data-behavior="price-tag-swing"
+              aria-label={t('stationProducts', { station: station.heading })}
+            >
+              {products.map((product) => (
+                <li key={product.id}>
+                  <ProductCard
+                    product={product}
+                    locale={locale}
+                    tag="pinned"
+                    lazy
+                    stampSlot={false}
+                  />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className={styles.empty} data-station-empty="">
+              <span>{t('stationEmpty')}</span>
+              <Button variant="secondary" href={localizedPath('R05', locale)}>
+                {t('stationArchive')}
+              </Button>
+            </p>
+          )}
+          {allLink}
+        </div>
+      ) : null}
     </section>
   )
 }

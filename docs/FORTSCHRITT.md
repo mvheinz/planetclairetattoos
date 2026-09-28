@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P3.12
+
+- Kategorie-Stationen der Startseite zeigen bis zu 4 Stücke (`listStationProducts`, `available`/`reserved`, neueste zuerst, gecacht mit Tag `home`); Textil = textil + cap (KA-17); Karten KO-07 ohne Schnur mit Schild `pinned` am Kartenfuß; „Alle {Kategorie}“ → R03; Leerzustand „Gerade ist hier nichts …“ + Archiv-Link; Preis-Fußnote einmal pro Seite; Live-Zustand per `product-status`. Tattoo-Station unverändert.\n- Tests: E2E `home/stations.e2e.spec.ts` (Anzahl/Status/Sortierung/KA-17 lesend in 3 Projekten, eigene Stücke 975–979 exklusiv, Leerzustand mit Test-Kategorie `sonstiges` exklusiv; 10 grün), `home.e2e` angepasst, Leinen-Tests (AK-DS-13/14) grün; Int home-data +2 (KA-17, Link-Fallback). `pnpm check`, `pnpm build`, `check:bundle` (R01 144–149 KB, R04 144,6 KB) grün.
+
 ## 2026-09-28 – P3.11
 
 - Endpunkt `GET /api/public/product-status` (zod, ≤ 24 IDs, Rate-Limit `product_status` 120/min, `no-store`, je ID nur available/reserved/sold/gone), Dienst `src/lib/commerce/cart.ts` + Server-Action `addToCart` (Rate-Limit `cart_add`, Shop offen, öffentlich, available, nicht doppelt, < 20; setzt erst dann `pc_cart` nach §8.7). Format `encodeCartCookie`/`decodeCartCookie` in `src/lib/commerce/cartCookie.ts` (auch für `cart-count`).\n- Module `product-status` (Produktseite und Shop-/Kategorie-Raster: Karten-Badges/Name, Kaufbereich, MI-03 über `sold-stamp`) und `add-to-cart` (ohne Seitenwechsel, „Liegt schon in deinem Korb“ + „Zum Korb“, Bestätigung, MI-07, MI-01 Grundfassung; Vorschau nur Anzeige); ohne JavaScript 303 mit `#in-cart` (CSS `:target`).\n- Tests: Unit cart-cookie (21), product-status (10), add-to-cart (21), Vertrag AK-DS-18; Int add-to-cart (13); E2E privacy/cart-cookie @privacy + shop/add-to-cart (3 Projekte; dazu veraltete Shop-Seite live, desktop; 14 grün); Regression shop/legal/privacy/a11y/keyboard/shell/leash/home grün (725). `pnpm check`, `pnpm build` grün.

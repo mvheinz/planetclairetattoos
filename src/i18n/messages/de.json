@@ -93,6 +93,10 @@
     "intro": "Tattoos, handgemachte Unikat-Keramik und Zeichnungen aus Berlin.",
     "stationKicker": "Station {number}",
     "stationMore": "Mehr ansehen",
+    "stationAll": "Alle {category}",
+    "stationEmpty": "Gerade ist hier nichts – schau bald wieder oder stöbere im Archiv",
+    "stationArchive": "Zum Archiv",
+    "stationProducts": "Stücke: {station}",
     "emptyTitle": "Hier wird gerade umgeräumt.",
     "emptyText": "Die Startseite ist gleich wieder da. Schau so lange bei den Kontaktwegen vorbei.",
     "emptyAction": "Zum Kontakt"

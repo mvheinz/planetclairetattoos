@@ -6,7 +6,7 @@ import { TAGS } from '@/lib/cache/tags'
 import { loadContactInfo, type ContactInfo } from '@/lib/data/contact'
 import { instagramUrl, loadNavigation, type NavCategory } from '@/lib/data/navigation'
 import { loadPublicPage } from '@/lib/data/pages'
-import type { CocoPose, Locale } from '@/lib/enums'
+import { PRODUCT_CATEGORIES, type CocoPose, type Locale, type ProductCategory } from '@/lib/enums'
 import { createLogger } from '@/lib/monitoring/logger'
 import { getPublicSettings } from '@/lib/payload/public'
 import { localizedPath } from '@/lib/routes/paths'
@@ -16,7 +16,9 @@ import type { Page } from '@/payload-types'
 // `getPublicPayload()`, Seed-Filter greift) als Anzeige-Modell – Kopf-Station (Block `hero`) und die Stationen (Blöcke
 // `station`) in der Reihenfolge der Seite, Links aufgelöst. Geschäftsangaben (Name) kommen aus `settings.business`; es
 // gibt keine eigenen Globals für Start- oder Über-mich-Seite. Fehlt `home` oder ist die Datenbank nicht erreichbar,
-// liefert der Loader `null` (neutraler Leerzustand statt 500, DM-PAGE-01). Noch keine Produktkarten (W-33, P3).
+// liefert der Loader `null` (neutraler Leerzustand statt 500, DM-PAGE-01). Die Kategorie-Stationen (Keramik, Textil,
+// Zeichnungen, Schmuck) tragen ihre Kategorien für die Karten (P3.12, `listStationProducts`); die Kategorie kommt aus dem
+// Stations-Link (`link.target = category`), sonst aus der festen Zuordnung – Station Textil = `textil` + `cap` (KA-17).
 
 const log = createLogger()
 
@@ -36,6 +38,29 @@ export const HOME_STATION_IDS = [
   'jutta-und-coco',
 ] as const
 
+/** Kategorien der Produkt-Stationen, wenn der Stations-Link keine Kategorie nennt (KONZEPT §3.1, KA-17). */
+export const STATION_CATEGORIES: Readonly<Record<string, readonly ProductCategory[]>> = {
+  keramik: ['keramik'],
+  textil: ['textil', 'cap'],
+  zeichnungen: ['zeichnung'],
+  schmuck: ['schmuck'],
+}
+
+/**
+ * Kategorien der Karten einer Station: nur die vier Kategorie-Stationen (`sonstiges` hat keine eigene Station). Nennt der
+ * Stations-Link eine Kategorie, gilt sie (Textil zusätzlich mit `cap`, KA-17); sonst die feste Zuordnung.
+ */
+export function stationCategories(
+  stationId: string,
+  link: Pick<StationLink, 'target' | 'category'> | null | undefined,
+): ProductCategory[] | null {
+  const fallback = STATION_CATEGORIES[stationId]
+  if (!fallback) return null
+  const chosen = link?.target === 'category' ? link.category : null
+  if (!chosen || !(PRODUCT_CATEGORIES as readonly string[]).includes(chosen)) return [...fallback]
+  return chosen === 'textil' ? ['textil', 'cap'] : [chosen as ProductCategory]
+}
+
 export interface HomeLink {
   href: string
   label: string | null
@@ -51,6 +76,10 @@ export interface HomeStation {
   pose: CocoPose | null
   ornament: 'planet' | 'star' | 'none'
   link: HomeLink | null
+  /** Kategorien der Karten (Kategorie-Stationen), sonst `null`. */
+  categories: ProductCategory[] | null
+  /** Name der ersten Kategorie für „Alle {Kategorie}“ (Kategorie-Stationen). */
+  categoryName: string | null
 }
 
 export interface HomeView {
@@ -114,7 +143,14 @@ export function toHomeView(page: Page | null, ctx: HomeContext): HomeView | null
   const stations = blocks
     .filter((b): b is StationBlock => b.blockType === 'station')
     .map((b, i): HomeStation => {
-      const href = b.link?.target ? stationLinkHref(b.link, ctx) : null
+      const categories = stationCategories(b.stationId, b.link)
+      const nav = categories ? ctx.categories.find((c) => c.key === categories[0]) : undefined
+      // Kategorie-Station ohne Link: „Alle {Kategorie}“ → R03 (bzw. Shop, wenn die Kategorie nicht in der Navigation ist).
+      const href = b.link?.target
+        ? stationLinkHref(b.link, ctx)
+        : categories
+          ? stationLinkHref({ target: 'category', category: categories[0] }, ctx)
+          : null
       return {
         stationId: b.stationId,
         number: i + 1,
@@ -125,6 +161,8 @@ export function toHomeView(page: Page | null, ctx: HomeContext): HomeView | null
         link: href
           ? { href, label: text(b.link?.label), external: /^(https?:|mailto:)/.test(href) }
           : null,
+        categories,
+        categoryName: nav?.name ?? null,
       }
     })
   return {

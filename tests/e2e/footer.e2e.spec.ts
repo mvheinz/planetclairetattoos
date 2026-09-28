@@ -92,6 +92,8 @@ test.describe('Fußbereich @smoke', () => {
   test('R-090 AK-3-11 „Vertrag widerrufen“ auf jeder öffentlichen Route (DE/EN, inkl. 404) im DOM und sichtbar @smoke', async ({
     page,
   }) => {
+    // Rund 30 Seitenaufrufe in einem Test (WebKit unter Last > 30 s).
+    test.slow()
     const paths = [
       ...LIVE_PAGES.flatMap((r) => LOCALES.map((l) => [l, samplePath(r.id, l)] as const)),
       ['de', '/de/gibt-es-nicht'] as const,

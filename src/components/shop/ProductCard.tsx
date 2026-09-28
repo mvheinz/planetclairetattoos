@@ -17,7 +17,8 @@ import { PriceTag } from './PriceTag'
 // Lade-Hintergrund, `srcset` aus `thumb`/`card`) → Faden-Anker der Schnur → Preisschild `hanging` (8 px Einzug) → Titel
 // (max. 2 Zeilen) → Meta „Keramik · Ø 14 cm“. `reserved`: Badge oben links auf dem Foto; `sold`: Foto gedämpft (0.82),
 // Stempel auf dem Schild, Text ungedämpft. Keine Info nur bei Hover (Hover löst nur MI-02 aus). Für den Live-Zustand
-// (`product-status`, P3.11) liegen Badge und Stempel verborgen im Markup; `gone` dämpft wie `sold`.
+// (`product-status`, P3.11) liegen Badge und Stempel verborgen im Markup; `gone` dämpft wie `sold`. Auf der Startseite
+// (KO-21, P3.12) ohne Schnur: Schild `pinned` am Kartenfuß (`tag="pinned"`).
 
 export const CARD_IMAGE_SIZES = '(min-width: 1200px) 25vw, (min-width: 768px) 33vw, 50vw'
 /** Die ersten Karten einer Liste laden ohne `loading="lazy"` (KO-07). */
@@ -45,11 +46,23 @@ export function ProductCard({
   product,
   locale,
   index = 0,
+  tag = 'hanging',
+  lazy = false,
+  stampSlot = true,
 }: {
   product: ProductCardData
   locale: Locale
   /** Position in der Liste (0-basiert): die ersten zwei laden sofort. */
   index?: number
+  /**
+   * `hanging`: Shop – Schild unter dem Foto am Faden der Schnur. `pinned`: Startseite (KO-21) – ohne Schnur, Schild am
+   * Kartenfuß.
+   */
+  tag?: 'hanging' | 'pinned'
+  /** Alle Fotos `loading="lazy"` (Karten weit unter dem ersten Bildschirm, z. B. Startseite). */
+  lazy?: boolean
+  /** Verborgener Stempel für den Live-Wechsel auf `sold` (MI-03); ohne ihn dämpft `product-status` nur. */
+  stampSlot?: boolean
 }) {
   const t = useTranslations('shop.card')
   const state = cardState(product.status)
@@ -61,6 +74,17 @@ export function ProductCard({
   const categoryName = (locale === 'en' ? label.en : undefined) ?? label.de
   const dims = formatDimensions(product.dimensions, locale)
   const photo = product.images?.find((m): m is Media => typeof m === 'object' && m !== null)
+  const priceTag = (
+    <PriceTag
+      itemNumber={product.itemNumber}
+      priceCents={product.priceCents}
+      locale={locale}
+      variant={tag}
+      sold={state === 'sold'}
+      stampSlot={stampSlot}
+      className={tag === 'pinned' ? styles.tagFoot : styles.tag}
+    />
+  )
   return (
     <a
       className={styles.card}
@@ -77,7 +101,7 @@ export function ProductCard({
           aspectRatio="4 / 5"
           sizes={CARD_IMAGE_SIZES}
           srcSizes={['thumb', 'card']}
-          loading={index < EAGER_CARDS ? 'eager' : 'lazy'}
+          loading={!lazy && index < EAGER_CARDS ? 'eager' : 'lazy'}
           className={styles.image}
         />
         {state === 'sold' ? null : (
@@ -90,17 +114,10 @@ export function ProductCard({
           />
         )}
       </span>
-      <PriceTag
-        itemNumber={product.itemNumber}
-        priceCents={product.priceCents}
-        locale={locale}
-        variant="hanging"
-        sold={state === 'sold'}
-        stampSlot
-        className={styles.tag}
-      />
+      {tag === 'hanging' ? priceTag : null}
       <span className={styles.title}>{title}</span>
       <span className={styles.meta}>{dims ? `${categoryName} · ${dims}` : categoryName}</span>
+      {tag === 'pinned' ? priceTag : null}
     </a>
   )
 }

@@ -93,6 +93,10 @@
     "intro": "Tattoos, handmade one-of-a-kind ceramics and drawings from Berlin.",
     "stationKicker": "Station {number}",
     "stationMore": "Take a look",
+    "stationAll": "All {category}",
+    "stationEmpty": "Nothing here right now – check back soon or browse the archive",
+    "stationArchive": "To the archive",
+    "stationProducts": "Pieces: {station}",
     "emptyTitle": "We’re rearranging things.",
     "emptyText": "The home page will be back shortly. In the meantime, here’s how to reach us.",
     "emptyAction": "Contact"

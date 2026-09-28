@@ -34,6 +34,12 @@
   left: 8px;
 }
 
+/* Startseite (KO-21): ohne Schnur, Schild `pinned` am Kartenfuß (8 px Einzug). */
+.tagFoot {
+  margin-top: var(--space-2);
+  margin-left: 8px;
+}
+
 /* Preisschild links, 8 px Einzug; der Faden beginnt direkt unter dem Foto (Anschlusspunkt der Schnur). */
 .tag {
   margin-top: var(--space-2);

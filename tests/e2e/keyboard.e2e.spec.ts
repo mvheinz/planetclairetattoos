@@ -106,6 +106,8 @@ test.describe('Tastatur-Durchlauf @a11y', () => {
     test(`EK-07 alle Elemente per Tab erreichbar, Fokus überall sichtbar: ${path} @a11y`, async ({
       page,
     }) => {
+      // Zwei Bildschirmfotos je Tab-Halt; die Startseite hat seit P3.12 zusätzlich die Karten der Stationen.
+      test.slow()
       await page.goto(path)
       await expect(page.locator('[data-site-header] [data-menu-trigger]')).toHaveAttribute(
         'role',

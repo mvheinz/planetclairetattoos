@@ -62,9 +62,8 @@ test.describe('Startseite @smoke', () => {
         'data-leash-pose',
         'sniff',
       )
-      // Noch keine Produktkarten (W-33); Links „Alle …“ zu den Bereichen.
-      await expect(page.locator('[data-home-station] article, [data-product-card]')).toHaveCount(0)
-      const keramikLink = page.locator('[data-home-station="keramik"] a')
+      // Karten der Kategorie-Stationen prüft `home/stations.e2e.spec.ts` (P3.12); Links „Alle …“ zu den Bereichen.
+      const keramikLink = page.locator('[data-home-station="keramik"] [data-station-all] a')
       await expect(keramikLink).toHaveAttribute(
         'href',
         locale === 'de' ? '/de/shop/kategorie/keramik' : '/en/shop/category/ceramics',
