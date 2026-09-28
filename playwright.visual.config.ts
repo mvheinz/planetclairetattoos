@@ -6,11 +6,17 @@ import base from './playwright.config'
 // (Mobil-Emulation 390 × 844), `reducedMotion: 'reduce'`, Uhr fest, Schriften geladen, `maxDiffPixelRatio: 0.01`.
 // Server, Test-DB und Revalidierung wie bei E2E (`playwright.config.ts`, §7.2).
 //
-// Referenzbilder gibt es nur für Linux (`tests/visual/__screenshots__/**/*-linux.png`) und sie entstehen nur in CI
-// (`[ci:update-snapshots]` → Artefakt → Commit mit `[skip ci]`, §7.6). Lokal erzeugte Bilder werden nie committet.
-// Auf Windows/macOS werden die Tests übersprungen (tests/visual/helpers.ts).
+// Referenzbilder gibt es nur für Linux (`tests/visual/__screenshots__/**/*-linux.png`) und sollen in CI entstehen
+// (`[ci:update-snapshots]` → Artefakt → Commit mit `[skip ci]`, §7.6). Ausnahme P2 (OFFENE-PUNKTE): Das Artefakt ist aus
+// der Cloud-Sandbox nicht abrufbar; die Bilder entstanden auf Ubuntu 24.04 mit demselben Chromium gegen den
+// Produktions-Build und werden vom CI-Job `quality` gegengeprüft. Auf Windows/macOS werden die Tests übersprungen.
+//
+// Immer gegen den Produktions-Build ohne Debug-Schalter (§7.6) – nie gegen `pnpm dev` (Dev-Werkzeuge im Bild).
+process.env.E2E_SERVER = 'start'
+
 export default defineConfig({
   ...base,
+  webServer: base.webServer && !Array.isArray(base.webServer) ? { ...base.webServer, command: 'pnpm start' } : base.webServer,
   testDir: './tests/visual',
   testMatch: '**/*.visual.spec.ts',
   testIgnore: [],

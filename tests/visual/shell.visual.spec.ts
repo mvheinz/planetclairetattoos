@@ -32,6 +32,8 @@ test.describe('Seitenrahmen', () => {
   test('Fuß', async ({ page }) => {
     await page.goto('/de')
     await settle(page)
+    // Die klebende Kopfleiste (KO-02) liegt je nach Scrollposition über dem Fuß – für diese Aufnahme ausblenden.
+    await page.addStyleTag({ content: '[data-site-header]{visibility:hidden !important}' })
     const footer = page.locator('[data-site-footer]')
     await footer.scrollIntoViewIfNeeded()
     await settle(page)
