@@ -2,6 +2,15 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P2.23
+
+- tests/perf/budgets.json (alle Grenzen aus ARCHITEKTUR §7.7/DESIGN §9.10), check:bundle misst per Chromium gegen next start jede live-Route DE/EN + R28/R29 (JS vor load, gzip 9), Pfaddaten, SVG der Startseite, Module (inkl. Mikro-Interaktionen), SVG-Dateien, Schriften
+- Erstlade-JS von 170 auf 144 KB gz gesenkt (kein NextIntlClientProvider, Fehleransichten per React.lazy), R01 144 KB (Ziel 140 verfehlt – nur Bericht)
+- Lighthouse-CI @lhci/cli 0.15.1 (tests/perf/lighthouserc.cjs, mobil, 3 Läufe, filesystem, Playwright-Chromium), pnpm test:perf mit Tabellenbericht: R01 LCP 2,28 s, CLS 0, TBT 101 ms, 0,30 MB
+- @perf tests/e2e/perf.e2e.spec.ts (pixel-7, CPU 4×): Menü öffnen 96–120 ms, CLS 0,004, leash:frame p95 2,1 ms
+- ci.yml: Playwright-Installation vor Budgets
+- Tests: 15 Unit (T-09 inkl. CLI-Abbruch mit Fixture-Budget, T-10 Konfig/Bericht), check:bundle grün, test:perf grün, 3 @perf grün; pnpm check, test:int, E2E komplett (481) grün
+
 ## 2026-09-28 – P2.22
 
 - `@axe-core/playwright` 4.13.0 exakt gepinnt; `tests/e2e/a11y.e2e.spec.ts` @a11y: axe (wcag2a/2aa/21a/21aa/22aa) auf allen live-Routen DE/EN sowie offenes Menü, 404, 500, Rechtsseite mit Platzhalter und Leerzustand der Startseite (home kurz auf Entwurf, Abruf im Draft-Modus ohne Cache-Schreiben, Advisory-Lock); Gate 0 serious/critical, moderate/minor als Annotation; `lang` je Seite (EN-Rückfall auf Deutsch als `lang="de"`).\n- `tests/e2e/keyboard.e2e.spec.ts`: Skip-Link zuerst und springt zu `#inhalt`, jedes fokussierbare Element per Tab erreichbar (vorwärts/rückwärts), Kopf→Menü (Falle, Esc), Fuß: Schalter „Animationen“ per Leertaste/Enter, Sprachumschalter; Fokus an jedem Halt sichtbar (Screenshot mit/ohne Fokus verschieden; Gegenprobe ohne Fokusring schlägt fehl). WebKit: Alt+Tab (Safari-Tastaturbedienung für Links).\n- Keine Verstöße im Produktcode gefunden.\n- Tests: a11y 84 + keyboard 18 E2E grün in 3 Projekten; Gesamtlauf `pnpm test:e2e` 478 grün.

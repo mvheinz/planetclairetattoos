@@ -1793,7 +1793,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: e2e `a11y.e2e.spec.ts` @a11y (T-11, R-191), `keyboard.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P2.23 Tempo-Budgets: `check:bundle`, Lighthouse-CI, `@perf`** –
+- [x] **P2.23 Tempo-Budgets: `check:bundle`, Lighthouse-CI, `@perf`** –
   - `tests/perf/budgets.json` mit allen Werten aus ARCHITEKTUR §7.7 und DESIGN §9.10:
     - JS: R01 ≤ 170 KB gz, übrige ≤ 150 KB;
     - Engine ≤ 12 KB, Coco ≤ 3 KB, Mikro ≤ 4 KB, statischer Renderer ≤ 4 KB;

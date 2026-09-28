@@ -41,9 +41,9 @@ describe('check:no-debug', () => {
 })
 
 describe('check:bundle – Modul-Budgets (§9.10)', () => {
-  it('Engine ≤ 12 KB gz, statischer Renderer ≤ 4 KB gz', async () => {
+  it('Engine ≤ 12 KB gz, statischer Renderer ≤ 4 KB gz, Coco ≤ 3 KB, Mikro-Interaktionen ≤ 4 KB', async () => {
     const reports = await measureModules()
-    expect(reports.map((r) => r.entry)).toEqual(MODULE_BUDGETS.map((b) => b.entry))
+    expect(reports.map((r) => r.name)).toEqual(MODULE_BUDGETS.map((b) => b.name))
     for (const r of reports)
       expect(r.gzipBytes, `${r.name}: ${r.gzipBytes} B`).toBeLessThanOrEqual(r.gzipMax)
   })

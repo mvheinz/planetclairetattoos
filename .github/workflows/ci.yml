@@ -119,9 +119,6 @@ jobs:
       - name: Seed + Build
         if: steps.mode.outputs.skip != 'true'
         run: pnpm run seed && pnpm run build
-      - name: Budgets
-        if: steps.mode.outputs.skip != 'true'
-        run: pnpm run check:bundle && pnpm run check:external --built
       - name: Playwright-Version
         id: pw
         if: steps.mode.outputs.skip != 'true'
@@ -141,6 +138,9 @@ jobs:
           else
             pnpm exec playwright install --with-deps chromium webkit
           fi
+      - name: Budgets
+        if: steps.mode.outputs.skip != 'true'
+        run: pnpm run check:bundle && pnpm run check:external --built
       - name: E2E-Rauchtest
         if: steps.mode.outputs.skip != 'true'
         run: pnpm run test:e2e --grep @smoke --project=desktop --project=iphone-15

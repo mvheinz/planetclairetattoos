@@ -118,9 +118,15 @@ export default defineConfig([
     files: ['src/behaviors/**', 'src/leash/**', 'src/preview-runtime/**'],
     rules: { 'no-restricted-imports': ['error', frameworkFree] },
   },
+  // CommonJS-Konfigurationen (z. B. tests/perf/lighthouserc.cjs für Lighthouse-CI) laden per require().
+  {
+    files: ['**/*.cjs'],
+    rules: { '@typescript-eslint/no-require-imports': 'off' },
+  },
   globalIgnores([
     '.next/**',
     '.next-preview/**',
+    '.lighthouseci/**',
     'node_modules/**',
     'dist/**',
     'src/payload-types.ts',
