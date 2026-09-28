@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url'
 import { localizedPath } from './src/lib/routes/paths'
 import { shortLinks } from './src/lib/routes/registry'
 import type { AppEnvName } from './src/lib/seo/robots'
-import { staticHeaderRules } from './src/lib/security/headers'
+import { staticHeaderRules, withoutPublicClientHints } from './src/lib/security/headers'
 
 const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
@@ -23,6 +23,12 @@ const nextConfig: NextConfig = {
   // Bildgrößen erzeugt Payload beim Hochladen (DATENMODELL §6.2); keine Laufzeit-Optimierung (ARCHITEKTUR §9.4).
   images: {
     unoptimized: true,
+  },
+  // Debug-Schalter der Tuschelinie (DESIGN §9.13) immer als Build-Konstante: Next inlinet `NEXT_PUBLIC_*` nur, wenn die
+  // Variable gesetzt ist. Ohne `.env` (CI) bliebe `process.env.NEXT_PUBLIC_LEASH_DEBUG` sonst stehen, der Import von
+  // `@/leash/debug` würde nicht entfernt und `__leash`/`__qa` lägen als Chunk in `.next/static` (check:no-debug).
+  env: {
+    NEXT_PUBLIC_LEASH_DEBUG: process.env.NEXT_PUBLIC_LEASH_DEBUG === '1' ? '1' : '',
   },
   // 404 mit Seitenrahmen schon im HTML (src/app/global-not-found.tsx): das Wurzel-Layout liegt unter [locale].
   experimental: {
@@ -58,4 +64,7 @@ const nextConfig: NextConfig = {
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
-export default withPayload(withNextIntl(nextConfig), { devBundleServerPackages: false })
+// Client-Hints von Payload nur für die Verwaltung (Tempo-Budget R01, P2.20; `withoutPublicClientHints`).
+export default withoutPublicClientHints(
+  withPayload(withNextIntl(nextConfig), { devBundleServerPackages: false }),
+)

@@ -55,8 +55,45 @@ export function contextHeaders(context: CspContext, o: ContextHeaderOptions): He
     h['Permissions-Policy'] = PERMISSIONS_POLICY.replace('camera=()', 'camera=(self)')
     h['X-Robots-Tag'] = 'noindex, nofollow'
     h['Cache-Control'] = 'no-store'
+    // Farbschema der Verwaltung beim ersten Rendern (Payload); öffentlich entfernt (`withoutPublicClientHints`).
+    Object.assign(h, ADMIN_CLIENT_HINTS)
   }
   return h
+}
+
+/** Client-Hints, die `withPayload` für alle Pfade setzt; hier nur noch im Kontext `admin` (P2.20). */
+export const ADMIN_CLIENT_HINTS: HeaderMap = {
+  'Accept-CH': 'Sec-CH-Prefers-Color-Scheme',
+  'Critical-CH': 'Sec-CH-Prefers-Color-Scheme',
+  Vary: 'Sec-CH-Prefers-Color-Scheme',
+}
+
+type HeaderRule = { source: string; headers: { key: string; value: string }[] }
+
+/**
+ * Tempo-Budget R01 (ARCHITEKTUR §7.7/§9.5, P2.20): `withPayload` hängt an **alle** Pfade `Accept-CH`, `Critical-CH`
+ * und `Vary: Sec-CH-Prefers-Color-Scheme` (Farbschema der Verwaltung). `Critical-CH` lässt Chrome die erste Anfrage
+ * jeder öffentlichen Seite verwerfen und mit dem Hinweis neu stellen (eine volle Server-Runde vor dem ersten Byte),
+ * `Vary` teilt zusätzlich den Cache. Entfernt genau diese drei Header aus den Regeln von `next.config.ts`; die
+ * Verwaltung bekommt sie über den Proxy (Kontext `admin`). Alle übrigen Header bleiben.
+ */
+export function withoutPublicClientHints<
+  R extends HeaderRule,
+  C extends { headers?: () => R[] | Promise<R[]> },
+>(config: C): C {
+  const inner = config.headers
+  if (!inner) return config
+  const isHint = (h: { key: string; value: string }) =>
+    Object.entries(ADMIN_CLIENT_HINTS).some(
+      ([key, value]) => key.toLowerCase() === h.key.toLowerCase() && value === h.value,
+    )
+  return {
+    ...config,
+    headers: async () =>
+      (await inner())
+        .map((rule) => ({ ...rule, headers: rule.headers.filter((h) => !isHint(h)) }))
+        .filter((rule) => rule.headers.length > 0),
+  }
 }
 
 const toList = (h: HeaderMap) => Object.entries(h).map(([key, value]) => ({ key, value }))

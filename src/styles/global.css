@@ -7,6 +7,17 @@
   --font-plex-mono: ui-monospace;
 }
 
+/* Schriften-Tor (DESIGN §4.1, P2.20): Bis zum zweiten Frame nach dem ersten Bild stehen die von next/font erzeugten,
+   metrisch angeglichenen Ersatzschriften (kein Netzabruf) – die Webschriften werden erst danach angefordert. Das
+   Attribut setzt und entfernt das Inline-Skript `pc-motion` (src/lib/security/inlineScripts.ts); ohne JavaScript fehlt
+   es und die Webschriften laden sofort. */
+:root[data-fonts='wait'] {
+  --font-hand: 'mansalva Fallback', 'Segoe Print', 'Bradley Hand', cursive;
+  --font-body:
+    'bricolage Fallback', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'plexMono Fallback', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+}
+
 /* ---------- Reset ---------- */
 *,
 *::before,

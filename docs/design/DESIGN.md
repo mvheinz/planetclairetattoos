@@ -174,11 +174,20 @@ body {
 
 | Rolle | Familie | Quelle (npm, OFL) | Datei (Subset „latin“) | Achsen/Schnitte | Laden |
 |---|---|---|---|---|---|
-| Display, Preisschild, Menü | **Mansalva** | `@fontsource/mansalva` | `mansalva-latin-400-normal.woff2` | 400 | `preload`, `font-display: swap` |
-| Text, UI, Knöpfe | **Bricolage Grotesque** | `@fontsource-variable/bricolage-grotesque` | `bricolage-grotesque-latin-wght-normal.woff2` | Variable `wght` 200–800 (opsz/wdth auf Standard) | `preload`, `swap` |
-| Nummern, Maße, Preise in Tabellen, Kicker | **IBM Plex Mono** | `@fontsource/ibm-plex-mono` | `ibm-plex-mono-latin-400-normal.woff2` | nur 400 | kein Preload, `swap` |
+| Display, Preisschild, Menü | **Mansalva** | `@fontsource/mansalva` | `mansalva-latin-400-normal.woff2` | 400 | kein Preload, `font-display: swap`, nach dem ersten Bild (Schriften-Tor) |
+| Text, UI, Knöpfe | **Bricolage Grotesque** | `@fontsource-variable/bricolage-grotesque` | `bricolage-grotesque-latin-wght-normal.woff2` | Variable `wght` 200–800 (opsz/wdth auf Standard) | kein Preload, `swap`, nach dem ersten Bild (Schriften-Tor) |
+| Nummern, Maße, Preise in Tabellen, Kicker | **IBM Plex Mono** | `@fontsource/ibm-plex-mono` | `ibm-plex-mono-latin-400-normal.woff2` | nur 400 | kein Preload, `swap`, nach dem ersten Bild (Schriften-Tor) |
 
 - Einbindung mit `next/font/local` aus Dateien, die `pnpm fonts:copy` (`scripts/fonts/`, ARCHITEKTUR §6.10) aus `node_modules/@fontsource*` nach `src/styles/fonts/` kopiert; sie werden eingecheckt (reproduzierbar, offline, für die Vorschau-Datei inline-bar). **Nie** Google-Fonts-CDN, auch nicht `next/font/google` (E-43, E-79).
+- **Schriften-Tor (P2.20, Tempo-Budget §9.10):** Das erste Bild steht mit den metrisch angeglichenen Ersatzschriften von
+  `next/font` (`'mansalva Fallback'`, `'bricolage Fallback'`, `'plexMono Fallback'`, kein Netzabruf); zwei Frames später
+  werden die drei Webschriften angefordert und per `swap` getauscht. Umsetzung: `html[data-fonts="wait"]` (Regel in
+  `global.css`), gesetzt und nach zwei `requestAnimationFrame` (spätestens 2 s) entfernt vom Inline-Skript `pc-motion`
+  (`src/lib/security/inlineScripts.ts`). Kein Tor, wenn die Seite von derselben Website aufgerufen wird (Schriften liegen
+  im Cache), und ohne JavaScript (Vorschau-Datei, Skripte aus) – dann laden die Schriften sofort. Grund: Mit Preload
+  zählen ~100 KB Schriften in Lighthouse (simulierte Drosselung) zum LCP-Pfad der Startseite und reißen das Gate
+  „mobil LCP < 2,5 s“; der Tausch kostet eine Neuberechnung des Layouts nach dem ersten Bild (TBT) und CLS ≈ 0,01.
+  Die Tuschelinie misst nach jedem Schriftwechsel neu (`document.fonts` `loadingdone`).
 - `adjustFontFallback` aktiv (Metrik-Fallback gegen CLS). Fallback-Stapel: Mansalva → `"Segoe Print", "Bradley Hand", cursive`; Bricolage → `ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif`; Plex Mono → `ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace`.
 - Das Subset „latin“ der Fontsource-Dateien enthält U+0000–00FF, Gedankenstriche, typografische Anführungszeichen, € (U+20AC). Mehr wird nicht geladen.
 - `font-synthesis: none` global (kein falsches Fett/Kursiv; Mansalva hat nur 400).

@@ -126,14 +126,11 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+          key: playwright-${{ runner.os }}-chromium-webkit-${{ steps.pw.outputs.version }}
       - name: Playwright Chromium + WebKit
-        run: |
-          if [ "${{ steps.pw-cache.outputs.cache-hit }}" = "true" ]; then
-            pnpm exec playwright install-deps chromium webkit
-          else
-            pnpm exec playwright install --with-deps chromium webkit
-          fi
+        # Immer installieren (lädt nichts nach, was im Cache liegt); Schlüssel je Browser-Satz, damit ein
+        # Chromium-only-Cache nie einem WebKit-Job WebKit vorenthält.
+        run: pnpm exec playwright install --with-deps chromium webkit
       - name: Migrationen
         run: pnpm run db:ensure && pnpm payload migrate
       - name: Next.js-Cache
@@ -204,14 +201,11 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+          key: playwright-${{ runner.os }}-chromium-${{ steps.pw.outputs.version }}
       - name: Playwright Chromium
-        run: |
-          if [ "${{ steps.pw-cache.outputs.cache-hit }}" = "true" ]; then
-            pnpm exec playwright install-deps chromium
-          else
-            pnpm exec playwright install --with-deps chromium
-          fi
+        # Immer installieren (lädt nichts nach, was im Cache liegt); Schlüssel je Browser-Satz, damit ein
+        # Chromium-only-Cache nie einem WebKit-Job WebKit vorenthält.
+        run: pnpm exec playwright install --with-deps chromium
       - name: Migrationen
         run: pnpm run db:ensure && pnpm payload migrate
       - name: Next.js-Cache
@@ -301,14 +295,11 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+          key: playwright-${{ runner.os }}-chromium-${{ steps.pw.outputs.version }}
       - name: Playwright Chromium
-        run: |
-          if [ "${{ steps.pw-cache.outputs.cache-hit }}" = "true" ]; then
-            pnpm exec playwright install-deps chromium
-          else
-            pnpm exec playwright install --with-deps chromium
-          fi
+        # Immer installieren (lädt nichts nach, was im Cache liegt); Schlüssel je Browser-Satz, damit ein
+        # Chromium-only-Cache nie einem WebKit-Job WebKit vorenthält.
+        run: pnpm exec playwright install --with-deps chromium
       - name: Migrationen
         run: pnpm run db:ensure && pnpm payload migrate
       - name: Next.js-Cache

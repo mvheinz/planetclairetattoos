@@ -1,3 +1,7 @@
+import { createHash } from 'node:crypto'
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
 import { HEADER_LINE_PATHS, handLinePath } from '@/art/handLine'
@@ -6,7 +10,6 @@ import { parseEnv } from '@/lib/env'
 import { matchSegments } from '@/lib/routes/paths'
 import { MOTION_SCRIPT, MOTION_SCRIPT_HASH, scriptHash } from '@/lib/security/inlineScripts'
 import { variantOf } from '@/lib/stringHash'
-import { createHash } from 'node:crypto'
 
 // P2.8 Seitenrahmen: reine Helfer (Preset aus Layout-Segmenten, Kopflinie, Vorschau-Banner, Inline-Skript pc-motion).
 
@@ -88,6 +91,8 @@ describe('Vorschau-Banner (KONZEPT §3.0.4, R-002)', () => {
   })
 })
 
+const ROOT = path.resolve(import.meta.dirname, '../../..')
+
 describe('Inline-Skript pc-motion (DESIGN §11.7, ARCHITEKTUR §8.1)', () => {
   it('Hash passt zum Skripttext', () => {
     const expected = `'sha256-${createHash('sha256').update(MOTION_SCRIPT).digest('base64')}'`
@@ -118,5 +123,67 @@ describe('Inline-Skript pc-motion (DESIGN §11.7, ARCHITEKTUR §8.1)', () => {
     expect(run('full')).toEqual({ 'data-motion': 'full' })
     expect(run('<script>')).toEqual({})
     expect(run('reduced', true)).toEqual({})
+  })
+
+  it('P2.20 Schriften-Tor: data-fonts=wait bis 2 Frames nach dem ersten Bild; kein Tor bei Aufruf von derselben Website', () => {
+    const run = (referrer: string, withRaf = true) => {
+      const attrs: Record<string, string> = {}
+      const frames: (() => void)[] = []
+      const timers: { fn: () => void; ms: number }[] = []
+      const window = {
+        localStorage: { getItem: () => null },
+        location: { origin: 'https://planetclairetattoos.com' },
+        setTimeout: (fn: () => void, ms: number) => timers.push({ fn, ms }),
+        ...(withRaf ? { requestAnimationFrame: (fn: () => void) => frames.push(fn) } : {}),
+      }
+      const document = {
+        referrer,
+        documentElement: {
+          setAttribute: (k: string, v: string) => (attrs[k] = v),
+          removeAttribute: (k: string) => delete attrs[k],
+        },
+      }
+      new Function('window', 'document', MOTION_SCRIPT)(window, document)
+      const frame = () => frames.shift()?.()
+      const timer = (ms: number) => {
+        const i = timers.findIndex((t) => t.ms === ms)
+        if (i >= 0) timers.splice(i, 1)[0]!.fn()
+      }
+      return { attrs, frame, timer, timers }
+    }
+    const cold = run('')
+    expect(cold.attrs).toEqual({ 'data-fonts': 'wait' })
+    cold.frame()
+    expect(cold.attrs).toEqual({ 'data-fonts': 'wait' })
+    cold.frame()
+    expect(cold.attrs).toEqual({ 'data-fonts': 'wait' })
+    cold.timer(0)
+    expect(cold.attrs).toEqual({})
+    cold.timer(2000)
+    expect(cold.attrs).toEqual({})
+    // Sicherung: ohne Frames (z. B. Tab im Hintergrund) spätestens nach 2 s.
+    const hidden = run('https://www.instagram.com/')
+    expect(hidden.attrs).toEqual({ 'data-fonts': 'wait' })
+    hidden.timer(2000)
+    expect(hidden.attrs).toEqual({})
+    expect(run('https://planetclairetattoos.com/de/shop').attrs).toEqual({})
+    expect(run('https://planetclairetattoos.com').attrs).toEqual({})
+    expect(run('https://planetclairetattoos.com.evil.example/').attrs).toEqual({
+      'data-fonts': 'wait',
+    })
+    expect(run('', false).attrs).toEqual({})
+  })
+
+  it('P2.20 Schriften: kein Preload, Tor-Regel nutzt die Ersatzschriften von next/font', () => {
+    const fonts = readFileSync(path.join(ROOT, 'src/styles/fonts.ts'), 'utf8')
+    expect(fonts).not.toMatch(/preload:\s*true/)
+    const names = [...fonts.matchAll(/export const (\w+) = localFont\(/g)].map((m) => m[1])
+    expect(names).toEqual(['mansalva', 'bricolage', 'plexMono'])
+    const css = readFileSync(path.join(ROOT, 'src/styles/global.css'), 'utf8')
+    const gate = /:root\[data-fonts='wait'\]\s*\{([^}]*)\}/.exec(css)?.[1] ?? ''
+    const flat = gate.replace(/\s+/g, ' ')
+    expect(flat).toContain("--font-hand: 'mansalva Fallback'")
+    expect(flat).toContain("--font-body: 'bricolage Fallback'")
+    expect(flat).toContain("--font-mono: 'plexMono Fallback'")
   })
 })

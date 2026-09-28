@@ -21,6 +21,7 @@ import {
   contextHeaders,
   nonceContextForPath,
   staticHeaderRules,
+  withoutPublicClientHints,
 } from '@/lib/security/headers'
 import { MOTION_SCRIPT, MOTION_SCRIPT_HASH } from '@/lib/security/inlineScripts'
 
@@ -171,6 +172,36 @@ describe('T-16 Header je Kontext', () => {
     expect(rules[1]!.headers).toEqual([
       { key: 'Content-Security-Policy', value: "default-src 'none'; frame-ancestors 'none'" },
     ])
+  })
+
+  it('P2.20 Client-Hints von Payload nur für die Verwaltung (kein Critical-CH-Neustart öffentlicher Seiten)', async () => {
+    const hint = 'Sec-CH-Prefers-Color-Scheme'
+    const payloadRule = {
+      source: '/:path*',
+      headers: [
+        { key: 'Accept-CH', value: hint },
+        { key: 'Vary', value: hint },
+        { key: 'Critical-CH', value: hint },
+        { key: 'X-Powered-By', value: 'Next.js, Payload' },
+      ],
+    }
+    const onlyHints = { source: '/x', headers: [{ key: 'Critical-CH', value: hint }] }
+    const own = { source: '/y', headers: [{ key: 'Vary', value: 'Accept-Language' }] }
+    const config = withoutPublicClientHints({ headers: () => [own, payloadRule, onlyHints] })
+    const rules = await config.headers!()
+    expect(rules).toEqual([own, { source: '/:path*', headers: [payloadRule.headers[3]] }])
+    expect(withoutPublicClientHints({})).toEqual({})
+    const admin = contextHeaders('admin', { ...PROD, nonce: NONCE })
+    expect(admin['Critical-CH']).toBe(hint)
+    expect(admin['Accept-CH']).toBe(hint)
+    expect(admin.Vary).toBe(hint)
+    for (const ctx of ['public', 'dynamic', 'checkout'] as const) {
+      const h = contextHeaders(ctx, { ...PROD, nonce: NONCE })
+      expect(Object.keys(h)).not.toContain('Critical-CH')
+    }
+    expect(readFileSync(path.join(ROOT, 'next.config.ts'), 'utf8')).toMatch(
+      /withoutPublicClientHints\(\s*withPayload\(/,
+    )
   })
 
   it('jede Registry-Route hat einen Kontext; R26 ist dynamic, R07 checkout', () => {

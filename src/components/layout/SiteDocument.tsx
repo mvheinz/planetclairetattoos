@@ -16,10 +16,11 @@ import '@/styles/tokens.css'
 import '@/styles/global.css'
 import '@/styles/coco.css'
 
-// Dokument der öffentlichen Website (DESIGN KO-01): `<html lang>`, `<html data-motion>` über das feste Inline-Skript
-// `pc-motion` im `<head>` (DESIGN §11.7; CSP-Hash in `src/lib/security/inlineScripts.ts`), `<body data-preset>` aus
-// der Registry (PresetBody) und der Seitenrahmen. Genutzt vom Layout `[locale]` und von `global-not-found` (404 mit
-// Kopf und Fußbereich auch ohne JavaScript, R-011/R-090).
+// Dokument der öffentlichen Website (DESIGN KO-01): `<html lang>`, `<html data-motion>` und das Schriften-Tor
+// `<html data-fonts>` (DESIGN §4.1) über das feste Inline-Skript `pc-motion` im `<head>` (DESIGN §11.7; CSP-Hash in
+// `src/lib/security/inlineScripts.ts`), `<body data-preset>` aus der Registry (PresetBody) und der Seitenrahmen.
+// Genutzt vom Layout `[locale]` und von `global-not-found` (404 mit Kopf und Fußbereich auch ohne JavaScript,
+// R-011/R-090).
 export async function SiteDocument({
   locale,
   children,
@@ -39,7 +40,7 @@ export async function SiteDocument({
     toHome: t('toHome'),
   }
   return (
-    // `data-motion` setzt das Inline-Skript vor der Hydration – daher suppressHydrationWarning.
+    // `data-motion`/`data-fonts` setzt das Inline-Skript vor der Hydration – daher suppressHydrationWarning.
     <html lang={locale} className={fontVariables} suppressHydrationWarning>
       {/* eslint-disable-next-line @next/next/no-head-element -- App Router: Wurzel-Dokument rendert <head> selbst */}
       <head>

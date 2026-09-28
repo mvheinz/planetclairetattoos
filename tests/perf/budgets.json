@@ -86,7 +86,7 @@
     }
   },
   "interaction": {
-    "$comment": "@perf (pixel-7, CPU 4×): INP-Ersatz je Interaktion (Event Timing), CLS über den Seitenaufbau (layout-shift), Arbeit je Frame der Tuschelinie beim Scrollen (p95 von leash:frame aus window.__qa, KUNST-QA PF-03).",
+    "$comment": "@perf (pixel-7, CPU 4×): INP-Ersatz je Interaktion (Event Timing), CLS über den Seitenaufbau (layout-shift), Arbeit je Frame der Tuschelinie beim Scrollen (p95 der User-Timing-Messungen leash:frame per PerformanceObserver, auch im Produktions-Build; KUNST-QA PF-03).",
     "cpuThrottling": 4,
     "inpMs": {
       "max": 200,

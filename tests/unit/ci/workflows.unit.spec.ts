@@ -91,6 +91,41 @@ describe('Workflows allgemein (§6.2)', () => {
     }
   })
 
+  it('Playwright-Browser-Cache: Schlüssel je Browser-Satz, Installation immer mit --with-deps (WebKit nie aus Chromium-Cache)', () => {
+    const jobs = workflowFiles.flatMap((file) =>
+      Object.entries(load(file).jobs).map(([id, job]) => ({ id: `${file}/${id}`, job })),
+    )
+    const keys = { webkit: new Set<string>(), chromium: new Set<string>() }
+    let checked = 0
+    for (const { id, job } of jobs) {
+      const cache = job.steps.find((s) => s.with?.path === '~/.cache/ms-playwright')
+      const install = job.steps.find((s) => /playwright install/.test(s.run ?? ''))
+      if (!cache && !install) continue
+      checked++
+      expect(cache, id).toBeDefined()
+      expect(install, id).toBeDefined()
+      const run = install!.run!.trim()
+      expect(run, id).not.toContain('install-deps')
+      expect(run, id).not.toContain('cache-hit')
+      const m =
+        /^pnpm exec playwright install --with-deps ((?:chromium|webkit)(?: (?:chromium|webkit))*)$/.exec(
+          run,
+        )
+      expect(m, `${id}: ${run}`).not.toBeNull()
+      const browsers = m![1]!.split(' ').sort()
+      const key = String(cache!.with?.key)
+      expect(key, id).toBe(
+        `playwright-\${{ runner.os }}-${browsers.join('-')}-\${{ steps.pw.outputs.version }}`,
+      )
+      keys[browsers.includes('webkit') ? 'webkit' : 'chromium'].add(key)
+      expect(job.steps.indexOf(cache!), id).toBeLessThan(job.steps.indexOf(install!))
+    }
+    expect(checked).toBeGreaterThanOrEqual(5)
+    expect(keys.webkit.size).toBeGreaterThan(0)
+    expect(keys.chromium.size).toBeGreaterThan(0)
+    for (const k of keys.webkit) expect(keys.chromium.has(k)).toBe(false)
+  })
+
   it('Actions sind per Major-Tag eingebunden', () => {
     for (const file of workflowFiles) {
       for (const job of Object.values(load(file).jobs)) {

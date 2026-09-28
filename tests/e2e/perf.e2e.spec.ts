@@ -5,8 +5,9 @@ import budgets from '../perf/budgets.json'
 // P2.23 Tempo im Browser (ARCHITEKTUR §7.7, DESIGN §9.10, KONZEPT EK-01) – Projekt `pixel-7`, CPU 4× gedrosselt (CDP):
 // - INP-Ersatz: Menü öffnen (Event Timing, längste Interaktion) ≤ 200 ms (Ziel 150 ms, nur Bericht);
 // - CLS über den Seitenaufbau (`layout-shift`, Sitzungsfenster wie Web Vitals) ≤ 0,1 (Ziel 0,05);
-// - Arbeit je Frame der Tuschelinie beim Scrollen ≤ 6 ms (p95 der Messungen `leash:frame` aus `window.__qa`, wie
-//   KUNST-QA PF-03; Debug-Build).
+// - Arbeit je Frame der Tuschelinie beim Scrollen ≤ 6 ms (p95 der User-Timing-Messungen `leash:frame`, wie KUNST-QA
+//   PF-03). Die Engine setzt sie immer (`LEASH_MEASURES` in `src/leash/runtime.ts`); gelesen per `PerformanceObserver`,
+//   also ohne Debug-Schnittstelle `window.__leash`/`__qa` – der Job `quality` misst den Produktions-Build (DESIGN §9.13).
 // Die Messwerte stehen als Annotation im Bericht. R02/R04 (In den Korb, Zoom, Filter) kommen mit P3/P4 dazu.
 
 const { interaction } = budgets
@@ -19,7 +20,12 @@ test.beforeEach(({ browserName }, testInfo) => {
 })
 
 type PerfWindow = Window & {
-  __perf: { events: { name: string; duration: number; interactionId: number }[]; shifts: Shift[] }
+  __perf: {
+    events: { name: string; duration: number; interactionId: number }[]
+    shifts: Shift[]
+    /** User-Timing der Tuschelinie (`leash:build`, `leash:frame`). */
+    leash: { name: string; duration: number }[]
+  }
 }
 interface Shift {
   value: number
@@ -30,7 +36,7 @@ interface Shift {
 /** Beobachter vor dem ersten Skript der Seite (gepuffert): Event Timing und Layout-Verschiebungen. */
 async function observe(page: Page) {
   await page.addInitScript(() => {
-    const store: PerfWindow['__perf'] = { events: [], shifts: [] }
+    const store: PerfWindow['__perf'] = { events: [], shifts: [], leash: [] }
     ;(window as unknown as PerfWindow).__perf = store
     new PerformanceObserver((list) => {
       for (const e of list.getEntries() as PerformanceEventTiming[])
@@ -49,6 +55,11 @@ async function observe(page: Page) {
           hadRecentInput: e.hadRecentInput,
         })
     }).observe({ type: 'layout-shift', buffered: true })
+    // Die Engine leert den Puffer von `leash:frame` regelmäßig – der Beobachter sieht trotzdem jede Messung.
+    new PerformanceObserver((list) => {
+      for (const e of list.getEntries())
+        if (e.name.startsWith('leash:')) store.leash.push({ name: e.name, duration: e.duration })
+    }).observe({ type: 'measure', buffered: true })
   })
 }
 
@@ -142,25 +153,27 @@ test.describe('Tempo @perf', () => {
     page,
   }, testInfo) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' })
+    await observe(page)
     await page.goto('/de')
-    await page.waitForFunction(() => {
-      const w = window as Window & { __leash?: { geometry: { totalLength: number } | null } }
-      return !!w.__leash?.geometry && w.__leash.geometry.totalLength > 0
-    })
+    // Engine geladen und Linie aufgebaut (erste `leash:build`-Messung) – ohne Debug-Build erkennbar.
+    await page.waitForFunction(() =>
+      (window as unknown as PerfWindow).__perf.leash.some((e) => e.name === 'leash:build'),
+    )
+    await expect(page.locator('[data-leash-layer] svg path').first()).toBeAttached()
     await throttle(page)
     const frames = await page.evaluate(async () => {
-      const qa = (
-        window as Window & { __qa?: { start(): void; stop(): void; marks: PerformanceEntry[] } }
-      ).__qa!
-      qa.start()
+      const store = (window as unknown as PerfWindow).__perf
+      // Messfenster beginnt hier (bisher `__qa.start()`): frühere Messungen verwerfen.
+      store.leash.length = 0
       const end = document.documentElement.scrollHeight - innerHeight
       for (let y = 0; y <= end; y += 40) {
         scrollTo(0, y)
         // Keine benannten Hilfsfunktionen im Browser-Code (tsx fügt sonst `__name` ein).
         await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
       }
-      qa.stop()
-      return qa.marks.filter((m) => m.name === 'leash:frame').map((m) => m.duration)
+      // Beobachter-Einträge kommen asynchron – einen Task abwarten.
+      await new Promise((r) => setTimeout(r, 50))
+      return store.leash.filter((m) => m.name === 'leash:frame').map((m) => m.duration)
     })
     expect(frames.length, 'die Linie hat beim Scrollen gezeichnet').toBeGreaterThan(10)
     const sorted = [...frames].sort((a, b) => a - b)

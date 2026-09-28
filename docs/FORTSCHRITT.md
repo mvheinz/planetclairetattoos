@@ -42,6 +42,14 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 - `src/lib/data/products.ts` (Shop-Liste mit zweistufiger Sortierung, Archiv, Einzelstück, verwandte Stücke, Stationen; Admin-Felder entfernt) und `src/lib/data/categories.ts` (Slug inkl. anderer Sprache → redirect, Navigation)
 - `src/lib/shop/format.ts` (Nummer, Maße, Fasern, Zustand, Gewicht DA-9, `productPath`); `check:static` Regel `money-usage` (kein `toFixed`/`Intl.NumberFormat` mit `currency` in Shop, Komponenten, Seiten)
 - Tests: `tests/int/shop/data.int.spec.ts` (9, grün), `tests/unit/shop/format.unit.spec.ts` (11, grün); `pnpm check` grün
+## 2026-09-28 – P2 CI grün
+
+- Phasenende-Lauf `[ci:full p2]` auf PR #2 grün (Kopf `3670d65`): `quick`, `e2e-full` (desktop, iphone-15 WebKit, pixel-7),
+  `quality` (kein Debug im Build, visuelle Referenzen, Lighthouse, `@perf`), `Vorschau-Export`.
+- Artefakt `planet-claire-vorschau-p2-3670d65` (Lauf https://github.com/mvheinz/planetclairetattoos/actions/runs/36416754832),
+  PR-Kommentar mit Anleitung vorhanden, höchstens 3 Vorschau-Artefakte.
+- Unterwegs behoben: Debug-Flag ohne `.env` nicht als Konstante eingesetzt; mobile LCP über 2,5 s (Schriften jetzt nach
+  dem ersten Bild); Playwright-Cache ohne WebKit; `@perf`-Messung brauchte die Debug-Schnittstelle.
 
 ## 2026-09-28 – P2 Phasen-Abnahme (Designsystem, Tuschelinie, Vorschau-Datei)
 

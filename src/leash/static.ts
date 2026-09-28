@@ -214,6 +214,8 @@ export function mountStaticLeash(
   observer?.observe(root.parentElement ?? root)
   if (doc.readyState !== 'complete') win.addEventListener('load', schedule, { once: true })
   if (doc.fonts && doc.fonts.status === 'loading') void doc.fonts.ready.then(schedule)
+  // Schriften kommen erst nach dem ersten Bild (Schriften-Tor, DESIGN §4.1) – jeder spätere Tausch misst neu.
+  doc.fonts?.addEventListener?.('loadingdone', schedule)
 
   return {
     destroy() {
@@ -222,6 +224,7 @@ export function mountStaticLeash(
       if (debounce !== null) clearTimeout(debounce)
       debounce = null
       win.removeEventListener('load', schedule)
+      doc.fonts?.removeEventListener?.('loadingdone', schedule)
       observer?.disconnect()
       root.replaceChildren()
       geometry = null

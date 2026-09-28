@@ -1975,10 +1975,10 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
 - [x] Alle Aufgaben P2.1–P2.29 sind abgehakt.
 - [x] Lokal grün: `pnpm check`, `pnpm test:int`, `pnpm test:e2e` (Chromium und WebKit; WebKit nur mit dokumentierter
   Ausnahme `PW_SKIP_WEBKIT=1`), `pnpm test:preview-export`.
-- [ ] CI grün – erst nach dem grünen Lauf abhaken, in einem Doku-Commit mit `[skip ci]`: Der letzte Commit ohne
+- [x] CI grün – erst nach dem grünen Lauf abhaken, in einem Doku-Commit mit `[skip ci]`: Der letzte Commit ohne
   `[skip ci]` trägt `[ci:full p2]` (W-31); `ci.yml` (`quick`), `ci-full.yml` (`e2e-full`, `quality`) und
   `preview-export.yml` sind grün. Damit sind die „(CI-Nachweis)“-Kriterien aus P2.28 belegt.
-- [ ] Artefakt `planet-claire-vorschau-p2-<sha7>` existiert, der PR-Kommentar mit Anleitung ist da, höchstens 3
+- [x] Artefakt `planet-claire-vorschau-p2-<sha7>` existiert, der PR-Kommentar mit Anleitung ist da, höchstens 3
   Vorschau-Artefakte (AK-12-02, AK-A-6-02) – abgehakt im selben Doku-Commit wie „CI grün“.
 - [x] DESIGN-Abnahme (DESIGN §13): AK-DS-01 bis AK-DS-09, AK-DS-12 bis AK-DS-16 und AK-DS-18 grün. EK-01 (R01), EK-04,
   EK-05 (P2-Routen), EK-07 und EK-11 grün.
@@ -1990,7 +1990,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   Linux-Referenzen aus dem `[ci:update-snapshots]`-Lauf sind eingecheckt.
 - [x] Eintrag in `docs/FORTSCHRITT.md` (was, wie getestet, Link zum Artefakt-Lauf). Neue Annahmen stehen in
   `docs/OFFENE-PUNKTE.md`.
-- [ ] PR-Text (Deutsch) nennt die Vorschau-Datei und die Kurzanleitung, oben „Bitte mergen – CI ist grün“.
+- [x] PR-Text (Deutsch) nennt die Vorschau-Datei und die Kurzanleitung, oben „Bitte mergen – CI ist grün“.
 
 ---
 
