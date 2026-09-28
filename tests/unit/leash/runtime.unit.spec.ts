@@ -3,7 +3,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { exposeLeashDebug } from '@/leash/debug'
 import { easeInkOut } from '@/leash/easing'
-import { mountLeash, type InspectableLeashHandle } from '@/leash/runtime'
+import {
+  FRAME_MEASURE_CAP,
+  LEASH_MEASURES,
+  mountLeash,
+  type InspectableLeashHandle,
+} from '@/leash/runtime'
 import { resetLeashSchedule, whenLeashReady } from '@/leash/schedule'
 
 import { installTracker, type Tracker } from '../behaviors/harness'
@@ -269,6 +274,30 @@ describe('leash/runtime – mountLeash', () => {
     advance(500)
     expect(coco).not.toHaveBeenCalled()
     expect(handle.inspect().pose).toBeNull()
+    handle.destroy()
+  })
+
+  it('P2.23 User-Timing ohne Debug-Schnittstelle: leash:build je Aufbau, leash:frame je Frame, Puffer begrenzt (KUNST-QA PF-03)', () => {
+    const measure = vi.spyOn(performance, 'measure')
+    const clear = vi.spyOn(performance, 'clearMeasures')
+    const root = setupDom()
+    const handle = mountLeash(root, { preset: 'journey', routeKey: 'R01' })
+    const names = () => measure.mock.calls.map((c) => c[0])
+    expect(names()).toEqual([LEASH_MEASURES.build])
+    expect(measure.mock.calls[0]![1]).toMatchObject({
+      start: expect.any(Number),
+      end: expect.any(Number),
+    })
+    advance(1000)
+    const frames = names().filter((n) => n === LEASH_MEASURES.frame).length
+    expect(frames).toBeGreaterThan(10)
+    expect((window as Window & { __leash?: unknown }).__leash).toBeUndefined()
+    for (let i = 0; clear.mock.calls.length === 0 && i < FRAME_MEASURE_CAP; i++) {
+      setScroll(i % 2 ? 1200 : 1210)
+      advance(17)
+    }
+    expect(clear).toHaveBeenCalledWith(LEASH_MEASURES.frame)
+    expect(names().filter((n) => n === LEASH_MEASURES.frame).length).toBe(FRAME_MEASURE_CAP)
     handle.destroy()
   })
 

@@ -58,12 +58,21 @@ export interface LeashDebugState {
   pose: SpritePose | null
 }
 
-/** Messpunkte für den Frame-Logger der Debug-Schnittstelle (KUNST-QA §3.1); ohne Debug-Build nie gesetzt. */
+/** Posenwechsel für den Frame-Logger der Debug-Schnittstelle (KUNST-QA §3.1); ohne Debug-Build nie gesetzt. */
 export interface LeashProbe {
-  build?(start: number, end: number): void
-  frame?(start: number, end: number): void
   pose?(entry: { t: number; from: SpritePose | null; to: SpritePose; bridge: string | null }): void
 }
+
+/**
+ * User-Timing-Messungen der Engine (KUNST-QA PF-03/PF-04, DESIGN §9.10): `leash:build` je Aufbau, `leash:frame` je
+ * Frame – immer, auch im Produktions-Build. Sie sind keine Test-Schnittstelle im Sinne von DESIGN §9.13 (kein
+ * globales Debug-Objekt, nichts steuerbar, nichts verlässt den Browser), sondern Standard-Messpunkte wie in den
+ * DevTools; so misst `@perf` im Job `quality` den ausgelieferten Code. Leser nutzen einen `PerformanceObserver`
+ * (`type: 'measure'`): Der Puffer wird nach {@link FRAME_MEASURE_CAP} Frame-Messungen geleert, damit er bei langem
+ * Scrollen nicht wächst.
+ */
+export const LEASH_MEASURES = { build: 'leash:build', frame: 'leash:frame' } as const
+export const FRAME_MEASURE_CAP = 600
 
 export interface InspectableLeashHandle extends LeashHandle {
   inspect(): LeashDebugState
@@ -138,6 +147,15 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   let pose: SpritePose | null = null
   let readingOverride: number | null = null
   let probe: LeashProbe | null = null
+  let frameMeasures = 0
+
+  function timing(name: string, start: number) {
+    try {
+      performance.measure(name, { start, end: performance.now() })
+    } catch {
+      // `performance.measure` mit Optionen fehlt (alte Engines) – dann ohne Messung.
+    }
+  }
 
   // ---------- Stufenwahl (§9.4) ----------
 
@@ -370,7 +388,11 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       again = moving = true
     }
     emitCoco(diff < 0 ? -1 : 1, moving)
-    probe?.frame?.(t0, performance.now())
+    timing(LEASH_MEASURES.frame, t0)
+    if (++frameMeasures >= FRAME_MEASURE_CAP) {
+      frameMeasures = 0
+      performance.clearMeasures?.(LEASH_MEASURES.frame)
+    }
     if (again) requestFrame()
     else lastFrame = 0
   }
@@ -429,7 +451,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     cocoLen = motion === 'reduced' ? restLen() : intro ? 0 : Math.min(target, drawnLen)
     applyDrawn()
     emitCoco(1, !!intro)
-    probe?.build?.(t0, performance.now())
+    timing(LEASH_MEASURES.build, t0)
     if (intro) requestFrame()
   }
 
