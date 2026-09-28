@@ -2,6 +2,15 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P2 CI grün
+
+- Phasenende-Lauf `[ci:full p2]` auf PR #2 grün (Kopf `3670d65`): `quick`, `e2e-full` (desktop, iphone-15 WebKit, pixel-7),
+  `quality` (kein Debug im Build, visuelle Referenzen, Lighthouse, `@perf`), `Vorschau-Export`.
+- Artefakt `planet-claire-vorschau-p2-3670d65` (Lauf https://github.com/mvheinz/planetclairetattoos/actions/runs/36416754832),
+  PR-Kommentar mit Anleitung vorhanden, höchstens 3 Vorschau-Artefakte.
+- Unterwegs behoben: Debug-Flag ohne `.env` nicht als Konstante eingesetzt; mobile LCP über 2,5 s (Schriften jetzt nach
+  dem ersten Bild); Playwright-Cache ohne WebKit; `@perf`-Messung brauchte die Debug-Schnittstelle.
+
 ## 2026-09-28 – P2 Phasen-Abnahme (Designsystem, Tuschelinie, Vorschau-Datei)
 
 - Alle Aufgaben P2.1–P2.29 erledigt: Sprachen/Routen, Design-Tokens, selbst gehostete Schriften, Icons/Wortmarke,
