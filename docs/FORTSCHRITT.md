@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P2.24
+
+- playwright.visual.config.ts (Chromium desktop 1440×900 + mobile 390×844, reduzierte Bewegung, maxDiffPixelRatio 0,01, Referenzen tests/visual/__screenshots__/**/*-linux.png), tests/visual/{helpers,shell,pages}.visual.spec.ts: R01, Impressum, R26, 404, 500, Kopf, offenes Menü, Fuß; Uhr fest, fonts.ready, Fremd-Hosts blockiert; nur Linux
+- pnpm test:visual (für P2.28/Job snapshots); Referenzbilder entstehen erst in CI, lokal erzeugte Probe-Bilder verworfen
+- Lokal geprüft: --update-snapshots 16/16, zweiter Lauf 16/16 stabil; Token --paper absichtlich auf #DDE8F4 → 16/16 scheitern (Ratio 0,72), zurückgesetzt → grün
+- Tests: 3 Unit (Konfiguration T-12), 16 visuelle Tests; pnpm check grün
+
 ## 2026-09-28 – P2.23
 
 - tests/perf/budgets.json (alle Grenzen aus ARCHITEKTUR §7.7/DESIGN §9.10), check:bundle misst per Chromium gegen next start jede live-Route DE/EN + R28/R29 (JS vor load, gzip 9), Pfaddaten, SVG der Startseite, Module (inkl. Mikro-Interaktionen), SVG-Dateien, Schriften

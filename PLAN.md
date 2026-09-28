@@ -1815,7 +1815,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
   - Tests: `check:bundle` (T-09), `test:perf` (T-10), e2e `perf.e2e.spec.ts` @perf.
   - Ohne Jutta: –
 
-- [ ] **P2.24 Visuelle Referenzen** – `tests/visual/*.visual.spec.ts` (ARCHITEKTUR §7.6):
+- [x] **P2.24 Visuelle Referenzen** – `tests/visual/*.visual.spec.ts` (ARCHITEKTUR §7.6):
   - Chromium `desktop` 1440×900 und Mobil 390×844, `reducedMotion: 'reduce'`;
   - Uhr fest, `document.fonts.ready`, `maxDiffPixelRatio: 0.01`;
   - Umfang P2: R01, Impressum, R26, 404, 500, Kopf, offenes Menü, Fuß.
