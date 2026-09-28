@@ -19,6 +19,7 @@ const SESSIONS_LOCK = 7_314_001
 const LOGIN_LOCK = 7_314_002
 const FIXTURE_RANGE_LOCK = 7_314_003
 const CONFORMITY_LOCK = 7_314_004
+const FIXTURE_BLOCK_LOCK_BASE = 7_314_100
 
 export type ReleaseLock = () => Promise<void>
 
@@ -70,3 +71,10 @@ export const holdFixtureRange = (mode: 'shared' | 'exclusive'): Promise<ReleaseL
  */
 export const holdConformityData = (mode: 'shared' | 'exclusive'): Promise<ReleaseLock> =>
   hold(CONFORMITY_LOCK, mode)
+
+/**
+ * Ein Projekt-Block der E2E-Stücke (6 Nummern, `fixtureProducts`) exklusiv: Tests desselben Playwright-Projekts laufen in
+ * mehreren Workern parallel und würden sonst dieselben Nummern anlegen bzw. die Stücke des anderen Tests löschen.
+ */
+export const holdFixtureBlock = (block: number): Promise<ReleaseLock> =>
+  hold(FIXTURE_BLOCK_LOCK_BASE + block, 'exclusive')

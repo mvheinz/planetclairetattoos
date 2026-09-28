@@ -226,7 +226,40 @@
       "condition": "Condition",
       "metalParts": "Metal parts",
       "technique": "Technique and material",
-      "dimensions": "Dimensions"
+      "dimensions": "Dimensions",
+      "descriptionHeading": "Description",
+      "juttaSays": "Jutta says",
+      "detailsHeading": "Details",
+      "details": {
+        "dimensions": "Dimensions",
+        "weight": "Weight",
+        "material": "Material",
+        "technique": "Technique",
+        "size": "Size",
+        "condition": "Condition",
+        "care": "Care"
+      },
+      "safety": {
+        "heading": "Maker & safety",
+        "maker": "Maker",
+        "address": "Postal address",
+        "email": "Email",
+        "productType": "Product type",
+        "productId": "Product identifier",
+        "warnings": "Warnings and safety information",
+        "warningsDe": "In German:",
+        "missing": "[to follow]"
+      },
+      "shipping": {
+        "heading": "Shipping & returns",
+        "parcel": "Shipping: {shippingClass}, {price}",
+        "noRate": "Shipping costs: see <link>Shipping & payment</link>",
+        "pickupOnly": "Collection only in {city} by arrangement",
+        "pickup": "Collection in {city} possible",
+        "withdrawal": "You can find information about your right of withdrawal in the <link>withdrawal policy</link>.",
+        "costsLink": "Shipping & payment"
+      },
+      "more": "More from {category}"
     }
   },
   "archive": {

@@ -4,7 +4,12 @@ import { getPayload, type Payload } from 'payload'
 import type { ProductCategory } from '../../src/lib/enums'
 import config from '../../src/payload.config.js'
 import { adminRoute, serverURL } from '../helpers/adminEnv'
-import { holdAdminSessions, holdFixtureRange, withLoginLock } from '../helpers/adminSessionLock'
+import {
+  holdAdminSessions,
+  holdFixtureBlock,
+  holdFixtureRange,
+  withLoginLock,
+} from '../helpers/adminSessionLock'
 import { login } from '../helpers/login'
 
 /** Formular-Login (zählt gegen das Login-Rate-Limit – sparsam verwenden; Aufrufer hält `holdAdminSessions`). */
@@ -22,7 +27,8 @@ import {
 // - `fixtureProducts`: Stücke im Nummernbereich 980–999 (`seed: true`, Local API), je Playwright-Projekt ein eigener
 //   Block, damit parallele Projekte sich nicht in die Quere kommen; nach jedem Test entfernt. Listen-Tests, die den
 //   ganzen erweiterten Bereich 975–999 brauchen (`LIST_FIXTURE_RANGE`, Paginierung mit 25 Stücken), halten
-//   `holdFixtureRange('exclusive')`; jeder Block hier hält ihn geteilt.
+//   `holdFixtureRange('exclusive')`; jeder Block hier hält ihn geteilt. Innerhalb eines Projekts laufen Tests mit
+//   Fixtures nacheinander (`holdFixtureBlock`), weil mehrere Worker desselben Projekts sonst Nummern doppelt vergeben.
 
 export { expect }
 
@@ -139,6 +145,8 @@ export const test = base.extend<Fixtures>({
     const first = fixtureNumberBase(testInfo)
     const numbers = Array.from({ length: BLOCK_SIZE }, (_, i) => first + i)
     const releaseRange = await holdFixtureRange('shared')
+    // Tests desselben Projekts teilen sich den Block – nacheinander (Lock-Reihenfolge: Bereich, dann Block).
+    const releaseBlock = await holdFixtureBlock(PROJECT_BLOCKS[testInfo.project.name] ?? 0)
     await removeFixtureProducts(payload, numbers)
     let fx: ProductFixtures | undefined
     let next = 0
@@ -159,6 +167,7 @@ export const test = base.extend<Fixtures>({
     try {
       await removeFixtureProducts(payload, numbers)
     } finally {
+      await releaseBlock()
       await releaseRange()
     }
   },

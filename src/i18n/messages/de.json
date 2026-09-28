@@ -226,7 +226,40 @@
       "condition": "Zustand",
       "metalParts": "Metallteile",
       "technique": "Technik und Material",
-      "dimensions": "Maße"
+      "dimensions": "Maße",
+      "descriptionHeading": "Beschreibung",
+      "juttaSays": "Jutta sagt",
+      "detailsHeading": "Details",
+      "details": {
+        "dimensions": "Maße",
+        "weight": "Gewicht",
+        "material": "Material",
+        "technique": "Technik",
+        "size": "Größe",
+        "condition": "Zustand",
+        "care": "Pflege"
+      },
+      "safety": {
+        "heading": "Herstellerin & Sicherheit",
+        "maker": "Herstellerin",
+        "address": "Anschrift",
+        "email": "E-Mail",
+        "productType": "Produktart",
+        "productId": "Produktkennung",
+        "warnings": "Warn- und Sicherheitshinweise",
+        "warningsDe": "Auf Deutsch:",
+        "missing": "[folgt]"
+      },
+      "shipping": {
+        "heading": "Versand & Rückgabe",
+        "parcel": "Versand als {shippingClass} {price}",
+        "noRate": "Versandkosten: siehe <link>Versand & Zahlung</link>",
+        "pickupOnly": "Nur Abholung in {city} nach Absprache",
+        "pickup": "Abholung in {city} möglich",
+        "withdrawal": "Infos zu deinem Widerrufsrecht findest du in der <link>Widerrufsbelehrung</link>.",
+        "costsLink": "Versand & Zahlung"
+      },
+      "more": "Mehr aus {category}"
     }
   },
   "archive": {

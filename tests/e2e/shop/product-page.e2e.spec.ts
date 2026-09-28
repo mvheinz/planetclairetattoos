@@ -325,3 +325,171 @@ test.describe('Produktseite – Shop pausiert (nur desktop)', () => {
     await expect(page.locator('[data-add-to-cart] button')).toBeEnabled()
   })
 })
+
+// P3.9 Blöcke 7–11 (KONZEPT §3.4; DESIGN KO-09b; RECHT R-031, R-049, V-08, V-19): Beschreibung, Details-Tabelle mit
+// Gewicht, „Herstellerin & Sicherheit“ (eigene Datei `legal/gpsr.e2e.spec.ts`), Versand & Rückgabe, „Mehr aus …“.
+test.describe('Produktseite – Beschreibung, Details, Versand & Rückgabe, „Mehr aus …“ (P3.9)', () => {
+  test('Blöcke 7–11 nach dem Kaufbereich, ohne Interaktion sichtbar (S01)', async ({
+    page,
+    request,
+  }) => {
+    await openProduct(page, request, ANCHORS.S01.de)
+    const order = [
+      page.locator('[data-buy-area]'),
+      page.locator('[data-warranty-notice]'),
+      page.locator('[data-product-description]'),
+      page.locator('[data-product-details]'),
+      page.locator('[data-product-safety]'),
+      page.locator('[data-product-shipping]'),
+    ]
+    for (let i = 0; i + 1 < order.length; i++)
+      expect(await isBefore(order[i]!, order[i + 1]!)).toBe(true)
+    for (const block of order.slice(1)) await expect(block).toBeVisible()
+    await expect(page.locator('[data-product-page] details')).toHaveCount(0)
+    await expect(page.locator('[data-product-description] h2')).toHaveText('Beschreibung')
+    await expect(page.locator('[data-product-description] p').first()).toContainText(
+      'Kleine Schale, innen wohnen ein Hase',
+    )
+    await expect(page.locator('[data-jutta-says]')).toContainText('Jutta sagt')
+    await expect(page.locator('[data-jutta-says] blockquote')).toHaveText(
+      'Die beiden sind unzertrennlich. Bitte nicht auseinanderbringen.',
+    )
+  })
+
+  for (const locale of ['de', 'en'] as const) {
+    test(`Details-Tabelle /${locale}: Gewicht „210 g“ (S01, DA-9), Reihenfolge laut KO-09b, keine leeren Zeilen`, async ({
+      page,
+      request,
+    }) => {
+      await openProduct(page, request, ANCHORS.S01[locale])
+      const details = page.locator('[data-product-details]')
+      await expect(details.locator('h2')).toHaveText('Details')
+      const keys = await details
+        .locator('[data-detail]')
+        .evaluateAll((els) => els.map((e) => e.getAttribute('data-detail')))
+      // S01 hat Maße, Gewicht und Material; Größe, Zustand, Pflege fehlen und erzeugen keine Zeile.
+      expect(keys).toEqual(['dimensions', 'weight', 'material'])
+      await expect(details.locator('[data-detail="weight"] dt')).toHaveText(
+        locale === 'de' ? 'Gewicht' : 'Weight',
+      )
+      await expect(details.locator('[data-detail="weight"] dd')).toHaveText('210 g')
+      for (const dd of await details.locator('dd').all()) await expect(dd).not.toBeEmpty()
+    })
+  }
+
+  test('Details-Tabelle Textil (S11): Größe, Zustand und Pflege; Gewicht steht für jede Kategorie', async ({
+    page,
+    request,
+  }) => {
+    await openProduct(page, request, ANCHORS.S11.en)
+    const details = page.locator('[data-product-details]')
+    const keys = await details
+      .locator('[data-detail]')
+      .evaluateAll((els) => els.map((e) => e.getAttribute('data-detail')))
+    expect(keys).toEqual(['dimensions', 'weight', 'material', 'size', 'condition', 'care'])
+    await expect(details.locator('[data-detail="weight"] dd')).toHaveText('200 g')
+    for (const [url, weight] of [
+      [ANCHORS.S20.de, '15 g'],
+      [ANCHORS.S26.de, '4 g'],
+    ] as const) {
+      await openProduct(page, request, url)
+      await expect(page.locator('[data-detail="weight"] dd'), url).toHaveText(weight)
+    }
+    await openProduct(page, request, ANCHORS.S20.de)
+    await expect(page.locator('[data-detail="technique"] dt')).toHaveText('Technik')
+  })
+
+  test('R-031 Versand & Rückgabe: Versandklasse mit Preis, Abholung, Widerrufshinweis ohne V-19 mit Links R24/R25', async ({
+    page,
+    request,
+  }) => {
+    await openProduct(page, request, ANCHORS.S01.de)
+    const block = page.locator('[data-product-shipping]')
+    await expect(block.locator('h2')).toHaveText('Versand & Rückgabe')
+    await expect(block.locator('[data-shipping-class="keramik"]')).toHaveText(
+      'Versand als Keramik-Paket 8,90 €',
+    )
+    await expect(block.locator('[data-pickup]')).toHaveText('Abholung in Berlin möglich')
+    const note = block.locator('[data-withdrawal-note]')
+    await expect(note).toContainText(
+      'Infos zu deinem Widerrufsrecht findest du in der Widerrufsbelehrung.',
+    )
+    await expect(note).toContainText(
+      'Die unmittelbaren Kosten der Rücksendung der Waren trägst du.',
+    )
+    await expect(note.getByRole('link', { name: 'Widerrufsbelehrung' })).toHaveAttribute(
+      'href',
+      '/de/widerrufsbelehrung',
+    )
+    await expect(note.getByRole('link', { name: 'Versand & Zahlung' })).toHaveAttribute(
+      'href',
+      '/de/versand-und-zahlung',
+    )
+    const text = await page.locator('[data-product-page]').innerText()
+    expect(text).not.toMatch(/14\s*Tage\s*(Widerrufs|Rückgabe)recht/i)
+    expect(text).not.toMatch(/kein(e|en)?\s+(Widerruf|Umtausch|Rückgabe|Rücknahme)/i)
+
+    await openProduct(page, request, ANCHORS.S26.en)
+    await expect(page.locator('[data-shipping-class="brief"]')).toHaveText(
+      'Shipping: Letter, €4.50',
+    )
+    await expect(page.locator('[data-product-shipping] [data-pickup]')).toHaveText(
+      'Collection in Berlin possible',
+    )
+  })
+
+  test('R-031 nur Abholung (Fixture analog S30): kein Versandpreis, keine Abhol-Doppelung', async ({
+    page,
+    request,
+    fixtureProducts,
+  }) => {
+    const { itemNumber } = await fixtureProducts.create('sonstiges', {
+      ...PUBLISHED,
+      shippingClass: 'nur_abholung',
+    })
+    await openProduct(page, request, await pathOf(itemNumber, 'de'))
+    const block = page.locator('[data-product-shipping]')
+    await expect(block.locator('[data-shipping-class="nur_abholung"]')).toHaveText(
+      'Nur Abholung in Berlin nach Absprache',
+    )
+    await expect(block.locator('[data-pickup]')).toHaveCount(0)
+    await expect(block).not.toContainText('€')
+  })
+
+  test('„Mehr aus …“: sichtbare Stücke der Kategorie, kein sold, nicht das aktuelle Stück', async ({
+    page,
+    request,
+    fixtureProducts,
+  }) => {
+    const now = new Date().toISOString()
+    const current = await fixtureProducts.create('keramik', { ...PUBLISHED, firstPublishedAt: now })
+    const other = await fixtureProducts.create('keramik', { ...PUBLISHED, firstPublishedAt: now })
+    const sold = await fixtureProducts.create('keramik', {
+      status: 'sold',
+      firstPublishedAt: now,
+      soldAt: now,
+      soldChannel: 'offline',
+      offlineSaleNote: 'Flohmarkt',
+      showInArchiveAfterSale: true,
+    })
+    await openProduct(page, request, await pathOf(current.itemNumber, 'de'))
+    const more = page.locator('[data-product-more]')
+    await expect(more.locator('h2')).toHaveText('Mehr aus Keramik')
+    await expect(more.locator('h2 a')).toHaveAttribute('href', '/de/shop/kategorie/keramik')
+    const cards = more.locator('[data-product-card]')
+    const count = await cards.count()
+    expect(count).toBeGreaterThan(0)
+    expect(count).toBeLessThanOrEqual(4)
+    const numbers = await cards.evaluateAll((els) =>
+      els.map((e) => Number(e.getAttribute('data-item-number'))),
+    )
+    expect(numbers).toContain(other.itemNumber)
+    expect(numbers).not.toContain(current.itemNumber)
+    expect(numbers).not.toContain(sold.itemNumber)
+    await expect(more.locator('[data-product-card][data-status="sold"]')).toHaveCount(0)
+    // S06 (sold) erscheint nie – auch nicht auf der Seite von S01.
+    await openProduct(page, request, ANCHORS.S01.de)
+    await expect(page.locator('[data-product-more] [data-item-number="906"]')).toHaveCount(0)
+    await expect(page.locator('[data-product-more] [data-item-number="901"]')).toHaveCount(0)
+  })
+})

@@ -7,6 +7,7 @@ import {
   type ForbiddenPattern,
 } from '../../helpers/forbiddenPatterns'
 import { expect, test, testPayload } from '../fixtures'
+import { ANCHORS, openProduct } from '../shop/productPage'
 
 // P2.29 (RECHT §5, ergänzt den Quelltext-Scan `tests/unit/legal/forbidden.unit.spec.ts`): Verbotsmuster im gerenderten
 // HTML aller `live`-Routen der Registry in DE und EN – z. B. kein Link/Text zur OS-Plattform (V-01), kein „inkl. MwSt.“
@@ -38,6 +39,15 @@ const visits: Visit[] = [
   { name: 'R30', path: '/', status: 200 },
   // Kurzlink (P3.7): 307 auf die Produktseite (S01).
   { name: 'R31', path: '/nr/901', status: 200 },
+  // Produktseiten (P3.9) je Kategorie und Zustand neben S01 aus der Registry: Textil mit Abweichung (S11), Zeichnung
+  // (S20), Schmuck (S26), reserviert (S27), verkauft (S06) – mit Blöcken 7–11 (Widerrufshinweis V-08/V-19).
+  ...(['S11', 'S20', 'S26', 'S27', 'S06'] as const).flatMap((key) =>
+    LOCALES.map((locale) => ({
+      name: `R04 ${key} ${locale}`,
+      path: ANCHORS[key][locale],
+      status: 200,
+    })),
+  ),
 ]
 
 /** Muster fürs gerenderte HTML: alle Inhaltsmuster, dazu Einbettungen/CAPTCHA/Tracker und vorbelegte Checkboxen. */
@@ -97,3 +107,30 @@ for (const visit of visits) {
     expect(scanHtml(html), visit.path).toEqual([])
   })
 }
+
+test.describe('V-31 Privatadresse nur im GPSR-Block der Produktseite (R04)', () => {
+  for (const key of ['S01', 'S26'] as const) {
+    for (const locale of LOCALES) {
+      test(`V-31 R04 ${key} ${locale}: Straße aus settings.business nur in „Herstellerin & Sicherheit“`, async ({
+        page,
+        request,
+      }) => {
+        const payload = await testPayload()
+        const { business } = (await payload.findGlobal({
+          slug: 'settings',
+          depth: 0,
+          overrideAccess: true,
+        })) as { business: { street: string } }
+        expect(business.street.trim()).not.toBe('')
+        await openProduct(page, request, ANCHORS[key][locale])
+        await expect(page.locator('[data-product-safety]')).toContainText(business.street)
+        const outside = await page.evaluate(() => {
+          const clone = document.body.cloneNode(true) as HTMLElement
+          clone.querySelectorAll('[data-product-safety], script').forEach((el) => el.remove())
+          return clone.textContent ?? ''
+        })
+        expect(outside).not.toContain(business.street)
+      })
+    }
+  }
+})

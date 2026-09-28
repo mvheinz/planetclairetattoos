@@ -146,17 +146,6 @@ test.describe('Shop R02/R03 – lesend (alle Projekte)', () => {
     await expect(toggle).toContainText('(eingeschaltet)')
   })
 
-  test('Leerzustand KO-17: Kategorie ohne sichtbare Stücke → „In dieser Ecke …“ + „Alle Stücke“', async ({
-    page,
-  }) => {
-    // `sonstiges` hat im Mini-Bestand keine Stücke (nicht in der Navigation, per URL erreichbar)
-    await page.goto(localizedPath('R03', 'de', { slug: 'sonstiges' }))
-    const empty = page.locator('[data-empty-state]')
-    await expect(empty.locator('h2')).toHaveText('In dieser Ecke ist gerade nichts.')
-    await expect(empty.getByRole('link', { name: 'Alle Stücke' })).toHaveAttribute('href', shop)
-    await expect(page.locator('[data-product-card]')).toHaveCount(0)
-  })
-
   test('308 auf den Slug der Seitensprache (auch mit Parametern), unbekannter Slug → 404 mit Fußbereich', async ({
     page,
     request,
@@ -366,3 +355,25 @@ async function countPublic(payload: Payload): Promise<number> {
   })
   return res.totalDocs
 }
+
+// Leerzustand braucht eine Kategorie ohne sichtbare Stücke: `sonstiges` ist im Mini-Bestand leer, aber Fixture-Tests
+// (P3.8/P3.9, Fixture analog S30) legen dort kurz Stücke an. Deshalb exklusiv (keine Fixtures gleichzeitig) und mit frisch
+// erzeugter Seite statt einer, die zufällig während eines Fixture-Tests gerendert wurde.
+test.describe('Shop R03 – Leerzustand (exklusiv)', () => {
+  holdListData(test, 'exclusive')
+
+  test('Leerzustand KO-17: Kategorie ohne sichtbare Stücke → „In dieser Ecke …“ + „Alle Stücke“', async ({
+    page,
+    request,
+  }) => {
+    // `sonstiges` hat im Mini-Bestand keine Stücke (nicht in der Navigation, per URL erreichbar)
+    const url = localizedPath('R03', 'de', { slug: 'sonstiges' })
+    await freshPage(page)
+    await refresh(request, [url])
+    await page.goto(url)
+    const empty = page.locator('[data-empty-state]')
+    await expect(empty.locator('h2')).toHaveText('In dieser Ecke ist gerade nichts.')
+    await expect(empty.getByRole('link', { name: 'Alle Stücke' })).toHaveAttribute('href', shop)
+    await expect(page.locator('[data-product-card]')).toHaveCount(0)
+  })
+})

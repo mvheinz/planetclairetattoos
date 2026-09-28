@@ -7,15 +7,22 @@ import { Badge } from '@/components/shop/Badge'
 import { DeliveryTime as LeadTime } from '@/components/shop/DeliveryTime'
 import { PriceFootnote } from '@/components/shop/PriceFootnote'
 import { PriceTag } from '@/components/shop/PriceTag'
+import { WarrantyNotice } from '@/components/shop/WarrantyNotice'
 import { Button } from '@/components/ui/Button'
 import { Callout } from '@/components/ui/Callout'
 import { listAllCategories } from '@/lib/data/categories'
 import {
+  getPublicProductByItemNumber,
   getUntranslatedFields,
+  listRelatedProducts,
   type ProductTextField,
   type PublicProduct,
 } from '@/lib/data/products'
-import { getShopDisplaySettings, taxSettingsFor } from '@/lib/data/shopSettings'
+import {
+  getProductInfoSettings,
+  getShopDisplaySettings,
+  taxSettingsFor,
+} from '@/lib/data/shopSettings'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { Locale } from '@/lib/enums'
 import { getSnippet } from '@/lib/legal/snippets'
@@ -28,16 +35,26 @@ import {
   formatFibers,
   formatItemNumber,
 } from '@/lib/shop/format'
+import { safetyWarningTexts } from '@/lib/shop/productInfo'
 
+import {
+  MoreFromCategory,
+  ProductDescription,
+  ProductDetails,
+  ProductSafetyBlock,
+  ProductShipping,
+} from './ProductInfo'
 import styles from './ProductPage.module.css'
 
-// Produktseite R04, Blöcke 2–6 (KONZEPT §3.4) in verbindlicher DOM-Reihenfolge – Pflichtangaben stehen vor dem
+// Produktseite R04, Blöcke 2–11 (KONZEPT §3.4) in verbindlicher DOM-Reihenfolge – Pflichtangaben stehen vor dem
 // Kaufknopf und nie hinter einem Klick (AK-3-05, AK-3-07): H1 → Kurzdaten (`Nr. 017` · „Unikat“ · Kategorie · Maße) →
 // Preisschild `pinned` mit Steuer-/Versandhinweis und Lieferzeit (R-030, R-031, R-035) → Pflichtangaben je Kategorie
 // (R-043 bis R-046, Bausteine `product.*`) → Abweichungs-Kasten (R-048 Nr. 1) → Kaufbereich je Zustand samt Satz zum
 // Liefergebiet (R-036). Fehlt ein EN-Text, steht der DE-Text mit `lang="de"`. Tuschelinie `product` (DESIGN §9.7):
 // Start unter der H1 (Unterstreichung), Haken (`hook`) am Knopf „In den Korb“; daneben die reservierte Coco-Box
-// 48 × 40 am Preisschild (Coco-Hüpfer MI-01 folgt in P9). „In den Korb“ bekommt seine Aktion in P3.11.
+// 48 × 40 am Preisschild (Coco-Hüpfer MI-01 folgt in P9). „In den Korb“ bekommt seine Aktion in P3.11. Direkt nach
+// dem Kaufbereich die harmonisierte Mitteilung zur Gewährleistung (R-049, Bereich Preis/Produktangaben), danach die
+// Blöcke 7–11 aus `ProductInfo.tsx` (Beschreibung, Details, „Herstellerin & Sicherheit“, Versand & Rückgabe, „Mehr aus …“).
 
 function Row({
   label,
@@ -67,14 +84,19 @@ function Note({ children, name }: { children: React.ReactNode; name: string }) {
 }
 
 export async function ProductPage({ product, locale }: { product: PublicProduct; locale: Locale }) {
-  const [t, tBadges, tList, settings, categories, untranslated] = await Promise.all([
-    getTranslations({ locale, namespace: 'shop.product' }),
-    getTranslations({ locale, namespace: 'shop.badges' }),
-    getTranslations({ locale, namespace: 'shop.list' }),
-    getShopDisplaySettings(locale),
-    listAllCategories(locale),
-    getUntranslatedFields(product.itemNumber, locale),
-  ])
+  const [t, tBadges, tList, settings, categories, untranslated, info, related, german] =
+    await Promise.all([
+      getTranslations({ locale, namespace: 'shop.product' }),
+      getTranslations({ locale, namespace: 'shop.badges' }),
+      getTranslations({ locale, namespace: 'shop.list' }),
+      getShopDisplaySettings(locale),
+      listAllCategories(locale),
+      getUntranslatedFields(product.itemNumber, locale),
+      getProductInfoSettings(locale),
+      listRelatedProducts(product, 4, locale),
+      // Warnhinweise stehen immer auch auf Deutsch (R-040).
+      locale === 'de' ? product : getPublicProductByItemNumber(product.itemNumber, 'de'),
+    ])
   const de = (field: ProductTextField) =>
     locale !== 'de' && untranslated.includes(field) ? 'de' : undefined
 
@@ -92,6 +114,27 @@ export async function ProductPage({ product, locale }: { product: PublicProduct;
   const condition = formatCondition(product.condition, locale)
   const conditionFull = formatCondition(product.condition, locale, product.conditionNote)
   const fibers = formatFibers(product.fiberComposition as FiberRow[] | null | undefined, locale)
+  const pickupCity = settings.pickupCity ?? 'Berlin'
+  const warnings = safetyWarningTexts(
+    {
+      ...product,
+      de: german?.safetyWarnings ?? product.safetyWarnings,
+      translated: de('safetyWarnings') ? null : product.safetyWarnings,
+    },
+    locale,
+    food?.kind === 'decorative'
+      ? {
+          de: getSnippet('product.ceramicsDecorative', 'de').text,
+          en: getSnippet('product.ceramicsDecorative', 'en').text,
+        }
+      : {},
+    product.category === 'schmuck' || product.category === 'keramik'
+      ? {}
+      : {
+          de: getSnippet('product.noSpecialWarnings', 'de').text,
+          en: getSnippet('product.noSpecialWarnings', 'en').text,
+        },
+  )
   const similarHref = category
     ? localizedPath('R03', locale, { slug: category.slug })
     : localizedPath('R02', locale)
@@ -322,10 +365,45 @@ export async function ProductPage({ product, locale }: { product: PublicProduct;
         )}
         <p className={styles.area} data-delivery-area="">
           {settings.pickupEnabled
-            ? t('deliveryArea', { city: settings.pickupCity ?? 'Berlin' })
+            ? t('deliveryArea', { city: pickupCity })
             : t('deliveryAreaNoPickup')}
         </p>
       </div>
+
+      {/* Harmonisierte Mitteilung zur Gewährleistung (R-049) */}
+      <WarrantyNotice locale={locale} />
+
+      {/* 7. Beschreibung und „Jutta sagt“ */}
+      <ProductDescription product={product} locale={locale} langOf={de} />
+
+      {/* 8. Details-Tabelle */}
+      <ProductDetails product={product} locale={locale} langOf={de} />
+
+      {/* 9. Herstellerin & Sicherheit (GPSR) */}
+      <ProductSafetyBlock
+        product={product}
+        locale={locale}
+        business={info.business}
+        categoryName={categoryName}
+        warnings={warnings}
+      />
+
+      {/* 10. Versand & Rückgabe kurz */}
+      <ProductShipping
+        product={product}
+        locale={locale}
+        settings={info}
+        pickupEnabled={settings.pickupEnabled}
+        pickupCity={pickupCity}
+      />
+
+      {/* 11. Mehr aus {Kategorie} */}
+      <MoreFromCategory
+        products={related.filter((p) => p.status !== 'sold' && p.id !== product.id)}
+        locale={locale}
+        categoryName={categoryName}
+        categoryHref={similarHref}
+      />
     </article>
   )
 }

@@ -204,9 +204,13 @@ export async function loadProductGone(itemNumber: number): Promise<boolean> {
   return totalDocs > 0
 }
 
-/** Übersetzbare Texte der Produktseite (Blöcke 2–6), deren EN-Fassung fehlen kann. */
+/** Übersetzbare Texte der Produktseite (Blöcke 2–10), deren EN-Fassung fehlen kann. */
 export const PRODUCT_TEXT_FIELDS = [
   'title',
+  'description',
+  'juttaSays',
+  'careInstructions',
+  'safetyWarnings',
   'materials',
   'sizeLabel',
   'conditionNote',
@@ -237,6 +241,10 @@ export async function loadUntranslatedFields(
     pagination: false,
     select: {
       title: true,
+      description: true,
+      juttaSays: true,
+      careInstructions: true,
+      safetyWarnings: true,
       materials: true,
       sizeLabel: true,
       conditionNote: true,
@@ -250,6 +258,10 @@ export async function loadUntranslatedFields(
   if (!doc) return []
   const value: Record<ProductTextField, unknown> = {
     title: doc.title,
+    description: doc.description,
+    juttaSays: doc.juttaSays,
+    careInstructions: doc.careInstructions,
+    safetyWarnings: doc.safetyWarnings,
     materials: doc.materials,
     sizeLabel: doc.sizeLabel,
     conditionNote: doc.conditionNote,
