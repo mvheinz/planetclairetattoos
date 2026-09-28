@@ -6,7 +6,7 @@ import { Icon } from '@/components/icons/Icon'
 import styles from './Callout.module.css'
 
 // Hinweis-Kasten (DESIGN KO-22): Grund `--paper-2`, linker Rand 3 px, `--r-card`. Varianten `info` (Rand `--stencil`),
-// `warn` (Rand `--warn`, Icon) und `deviation` („Bitte beachten: …“ für abweichende Beschaffenheit, KONZEPT §3.4,
+// `warn` (Rand `--warn`, Icon) und `deviation` („Besonderheit dieses Stücks: …“ für abweichende Beschaffenheit, RECHT R-048,
 // Rand `--fox-text`, Titel Bricolage 700). Zustand nie nur über Farbe: Icon bzw. Titel tragen die Bedeutung mit.
 export type CalloutVariant = 'info' | 'warn' | 'deviation'
 

@@ -779,7 +779,7 @@ Aufbau: Coco (`--coco-xl`, statisch; Boil 2 s nach Eintritt, dann Stillstand) ·
 
 ### KO-22 Hinweis-Kasten (`Callout`)
 
-- Grund `--paper-2`, linker Rand 3 px, `--r-card`. Varianten: `info` (Rand `--stencil`), `warn` (Rand `--warn`, Icon), `deviation` („Bitte beachten: …“ für abweichende Beschaffenheit, KONZEPT §3.4, Rand `--fox-text`, Titel Bricolage 700).
+- Grund `--paper-2`, linker Rand 3 px, `--r-card`. Varianten: `info` (Rand `--stencil`), `warn` (Rand `--warn`, Icon), `deviation` („Besonderheit dieses Stücks: …“, Wortlaut R-048 für abweichende Beschaffenheit, KONZEPT §3.4, Rand `--fox-text`, Titel Bricolage 700).
 
 ---
 

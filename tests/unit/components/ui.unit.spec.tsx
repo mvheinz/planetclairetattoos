@@ -249,7 +249,7 @@ describe('R-002 PlaceholderBanner', () => {
 })
 
 describe('KO-22 Callout und KO-17 EmptyState', () => {
-  it('Callout-Varianten: info/warn mit Icon, deviation mit Titel „Bitte beachten:“', () => {
+  it('Callout-Varianten: info/warn mit Icon, deviation mit Titel „Besonderheit dieses Stücks:“ (R-048)', () => {
     render(
       withIntl(
         <>
@@ -263,7 +263,7 @@ describe('KO-22 Callout und KO-17 EmptyState', () => {
     expect(notes.map((n) => n.getAttribute('data-callout'))).toEqual(['info', 'warn', 'deviation'])
     expect(notes[0]!.querySelector('svg')).not.toBeNull()
     expect(notes[1]!.querySelector('svg')).not.toBeNull()
-    expect(notes[2]!.textContent).toContain('Bitte beachten:')
+    expect(notes[2]!.textContent).toContain('Besonderheit dieses Stücks:')
   })
 
   it('EmptyState: H2, Erklärung, Weiter-Link als Sekundärknopf, Coco-Platz dekorativ', () => {

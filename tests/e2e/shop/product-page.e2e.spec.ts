@@ -148,7 +148,7 @@ test.describe('Produktseite – Aufbau und Reihenfolge', () => {
     await expect(secondHand).toHaveText(
       'Second-Hand/Vintage: gebrauchtes Stück, von Hand bemalt. Zustand: gut.',
     )
-    await expect(deviation).toContainText('Bitte beachten:')
+    await expect(deviation).toContainText('Besonderheit dieses Stücks:')
     await expect(deviation).toContainText('Kleines Loch an der linken Seitennaht')
     for (const el of [fibers, size, condition, secondHand, deviation])
       expect(await isBefore(el, buy)).toBe(true)

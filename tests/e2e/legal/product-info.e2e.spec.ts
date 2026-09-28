@@ -127,14 +127,14 @@ test.describe('Pflichtangaben je Kategorie', () => {
     expect(await isBefore(glass, buyTarget(page))).toBe(true)
   })
 
-  test('R-048 Abweichung: Kasten „Bitte beachten: …“ nahe dem Preis, vor dem Kaufknopf (S11)', async ({
+  test('R-048 Abweichung: Kasten „Besonderheit dieses Stücks: …“ nahe dem Preis, vor dem Kaufknopf (S11)', async ({
     page,
     request,
   }) => {
     await openProduct(page, request, ANCHORS.S11.de)
     const box = page.locator('[data-deviation] [data-callout="deviation"]')
     await expect(box).toBeVisible()
-    await expect(box).toContainText('Bitte beachten:')
+    await expect(box).toContainText('Besonderheit dieses Stücks:')
     await expect(box).toContainText(
       'Kleines Loch an der linken Seitennaht, von mir sichtbar gestopft (ca. 1 cm).',
     )
