@@ -16,6 +16,46 @@ const REPORT = path.resolve('dist/planet-claire-vorschau.report.json')
 const URL_BASE = pathToFileURL(FILE).href
 const FONT_FAMILIES = ['mansalva', 'bricolage', 'plexMono']
 const NOT_INCLUDED = '/vorschau/nicht-enthalten'
+const S01 = '/de/shop/901-schale-langohr-wuschel'
+
+/** Öffentliche Stücke des Beispielbestands (SEED-SPEC): verfügbar, reserviert oder verkauft mit Archiv. */
+function publicSeedNumbers(): number[] {
+  const products = JSON.parse(
+    readFileSync(path.resolve('content/seed/data/products.json'), 'utf8'),
+  ) as {
+    itemNumber: number
+    state: { status: string; showInArchiveAfterSale?: boolean }
+  }[]
+  return products
+    .filter(
+      (p) =>
+        ['available', 'reserved'].includes(p.state.status) ||
+        (p.state.status === 'sold' && p.state.showInArchiveAfterSale === true),
+    )
+    .map((p) => p.itemNumber)
+    .sort((a, b) => a - b)
+}
+
+/** Zählt `fetch`- und XHR-Aufrufe der Seite (die Vorschau-Laufzeit darf keine absetzen, P3.16). */
+async function countNetworkCalls(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __pvNet: string[] }
+    w.__pvNet = []
+    const f = window.fetch
+    window.fetch = (...args: Parameters<typeof fetch>) => {
+      w.__pvNet.push(`fetch ${String(args[0])}`)
+      return f(...args)
+    }
+    const open = XMLHttpRequest.prototype.open
+    XMLHttpRequest.prototype.open = function (this: XMLHttpRequest, ...args: unknown[]) {
+      w.__pvNet.push(`xhr ${String(args[1])}`)
+      return (open as (...a: unknown[]) => void).apply(this, args)
+    } as typeof XMLHttpRequest.prototype.open
+  })
+}
+
+const networkCalls = (page: Page) =>
+  page.evaluate(() => (window as unknown as { __pvNet?: string[] }).__pvNet ?? [])
 
 interface PvRoute {
   route: string
@@ -245,21 +285,18 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
     const shop = localizedPath('R02', 'de')
     const checkout = localizedPath('R07', 'de')
     const commissions = localizedPath('R10', 'de')
-    test.skip(
-      !builtIds.has(shop) && !builtIds.has(checkout) && !builtIds.has(commissions),
-      'Shop, Kasse und Auftragsarbeiten sind noch nicht gebaut – Prüfung ab P3/P4/P7.',
-    )
-    if (builtIds.has(shop)) {
-      await go(page, shop)
+    // Ab P3 ist der Shop gebaut – die Prüfung läuft also immer (Produktseite mit „In den Korb“).
+    expect(builtIds.has(shop)).toBe(true)
+    if (builtIds.has(S01)) {
+      await go(page, S01)
       const add = page
-        .locator('#pv-root [data-pv-add-to-cart], #pv-root [data-behavior~="add-to-cart"]')
+        .locator('#pv-root [data-pv-add-to-cart], #pv-root [data-behavior~="add-to-cart"] button')
         .first()
-      if (await add.count()) {
-        const count = page.locator('#pv-root [data-behavior~="cart-count"]').first()
-        const before = Number((await count.getAttribute('data-count')) ?? '0')
-        await add.click()
-        await expect(count).toHaveAttribute('data-count', String(before + 1))
-      }
+      await expect(add).toBeVisible()
+      const count = page.locator('#pv-root [data-behavior~="cart-count"]').first()
+      const before = Number((await count.getAttribute('data-count')) ?? '0')
+      await add.click()
+      await expect(count).toHaveAttribute('data-count', String(before + 1))
     }
     if (builtIds.has(checkout)) {
       await go(page, checkout)
@@ -274,6 +311,48 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
       await expect(page.locator('#pv-dialog')).toContainText('Vorschau – hier wird nichts gekauft')
       expect(await page.evaluate(() => window.location.hash)).toBe(hash)
     }
+  })
+
+  test('P3.16 Shop im Modus preview: Schild-Schwingen, Galerie/Lightbox, „In den Korb“-Demo – ohne fetch, ohne Anfragen', async ({
+    page,
+    watch,
+  }) => {
+    await countNetworkCalls(page)
+    await page.emulateMedia({ reducedMotion: 'no-preference' })
+    await open(page, `#${localizedPath('R02', 'de')}`)
+    // MI-02: Preisschilder schwingen beim Erscheinen (IntersectionObserver, Web Animations API).
+    await page.waitForFunction(
+      () =>
+        Array.from(document.querySelectorAll('#pv-root [data-price-tag-swing]')).some(
+          (el) => el.getAnimations().length > 0,
+        ),
+      undefined,
+      { timeout: 10_000 },
+    )
+    // Galerie und Lightbox auf der Produktseite (S01, zwei Fotos).
+    await go(page, S01)
+    await page.locator('#pv-root [data-gallery-track]').focus()
+    await page.keyboard.press('ArrowRight')
+    await expect(page.locator('#pv-root [data-gallery-counter]')).toHaveText('2 / 2')
+    await page.locator('#pv-root [data-gallery-slide="1"] a').click()
+    await expect(page.locator('#pv-root [data-lightbox-img]')).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(page.locator('#pv-root dialog[data-lightbox]')).toBeHidden()
+    // „In den Korb“: Korb-Anzeige zählt nur im Speicher hoch, Hinweis der Vorschau erscheint.
+    const count = page.locator('#pv-root [data-behavior~="cart-count"]').first()
+    const before = Number((await count.getAttribute('data-count')) ?? '0')
+    await page.locator('#pv-root [data-behavior~="add-to-cart"] button').first().click()
+    await expect(count).toHaveAttribute('data-count', String(before + 1))
+    await expect(page.locator('#pv-cart-note')).toBeVisible()
+    expect(await networkCalls(page)).toEqual([])
+    expect(watch.requests).toEqual([])
+    expect(watch.errors).toEqual([])
+    const state = await page.evaluate(() => ({
+      cookie: document.cookie,
+      local: window.localStorage.length,
+      session: window.sessionStorage.length,
+    }))
+    expect(state).toEqual({ cookie: '', local: 0, session: 0 })
   })
 
   test('Nr. 7: Formular-Absenden öffnet den Vorschau-Dialog und navigiert nicht', async ({
@@ -356,5 +435,36 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
     }
     expect(listed.has('/de/__404')).toBe(true)
     expect(listed.has('/en/__404')).toBe(true)
+
+    // P3.16 / EK-11: R02–R05 gebaut (DE und EN), Listen-Varianten und alle öffentlichen Seed-Produktseiten enthalten.
+    const built = report.routes.filter((r) => r.status === 'ok')
+    const builtIds = new Set<string>()
+    const products = { de: new Set<number>(), en: new Set<number>() }
+    for (const r of built) {
+      const split = splitLocale(r.route.split('?')[0]!)
+      const match = split ? matchRoute(split.rest, split.locale) : null
+      if (!match) continue
+      builtIds.add(`${match.route.id}:${r.lang}`)
+      if (match.route.id === 'R04') products[r.lang].add(Number(match.params.nummer))
+    }
+    for (const id of ['R02', 'R03', 'R04', 'R05'])
+      for (const lang of LOCALES)
+        expect(builtIds.has(`${id}:${lang}`), `${id} ${lang} gebaut`).toBe(true)
+    for (const variant of [
+      '/de/shop?available=1',
+      '/en/shop?available=1',
+      '/de/shop/kategorie/keramik?available=1',
+      '/en/shop/category/ceramics?available=1',
+      '/de/archiv?category=keramik',
+      '/en/archive?category=ceramics',
+    ])
+      expect(listed.has(variant), `Variante ${variant}`).toBe(true)
+    const seed = publicSeedNumbers()
+    expect(seed.length).toBeGreaterThan(5)
+    for (const lang of LOCALES)
+      expect(
+        [...products[lang]].sort((a, b) => a - b),
+        `Seed-Produktseiten ${lang}`,
+      ).toEqual(expect.arrayContaining(seed))
   })
 })

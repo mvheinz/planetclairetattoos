@@ -1,6 +1,7 @@
 import type { Page } from '@playwright/test'
 
 import { expect, test } from '../fixtures'
+import { holdListData } from './fresh'
 import { ANCHORS, openProduct } from './productPage'
 
 // P3.10 Produktgalerie, Zoom und mobile Kauf-Leiste (DESIGN KO-09, KO-09a; KONZEPT §3.4 Nr. 1): Projekte `desktop` und
@@ -12,6 +13,10 @@ test.beforeEach(({}, testInfo) => {
     'Galerie-Tests laut PLAN P3.10 in den Projekten desktop und iphone-15',
   )
 })
+
+// Seed-Anker S01/S06 und die Kauf-Leiste nicht gleichzeitig mit Tests lesen, die den Bestand kurz ändern (Archiv-
+// Leerzustand, „Shop pausiert“ – beide exklusiv).
+holdListData(test, 'shared')
 
 const gallery = (page: Page) => page.locator('[data-gallery]')
 const counter = (page: Page) => page.locator('[data-gallery-counter]')

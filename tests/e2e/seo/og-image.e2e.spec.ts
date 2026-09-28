@@ -7,7 +7,7 @@ import { pageRoutes, samplePath } from '../../../src/lib/routes/paths'
 import { LOCALES } from '../../../src/lib/routes/registry'
 import { productPath } from '../../../src/lib/shop/format'
 import { expect, test, testPayload } from '../fixtures'
-import { NO_CACHE } from '../shop/fresh'
+import { NO_CACHE, holdListData } from '../shop/fresh'
 import { CRAWLER } from './crawler'
 
 // P3.14 OG-Bilder (DESIGN §12.6, KONZEPT §3.0.5): Für jedes öffentliche Seed-Stück liefert die OG-Route 200,
@@ -116,6 +116,8 @@ test.describe('P3.14 OG-Bilder', () => {
       'Server-Bilder – browserunabhängig, einmal je Lauf',
     )
   })
+  // Öffentliche Seed-Stücke (inkl. S06) nicht während eines exklusiven Bestandstests lesen.
+  holdListData(test, 'shared')
 
   test('jedes öffentliche Seed-Stück: OG-Route 200, image/png, 1200 × 630; sold mit Stempel; EN mit EN-Titel', async ({
     request,

@@ -87,12 +87,18 @@ jobs:
           } >> "$GITHUB_OUTPUT"
           echo "Kennung: full=$full, snapshots=$snapshots, art=$art, phase=$phase" >> "$GITHUB_STEP_SUMMARY"
 
+  # Ab P3.16 je Playwright-Projekt ein paralleler Job (Matrix): die volle Suite hat ~1 400 Tests; nacheinander mit einem
+  # Worker bräuchte sie ~55 min (> timeout). Jeder Job baut einmal mit Debug-Flag und testet sein Projekt.
   e2e-full:
-    name: e2e-full
+    name: e2e-full (${{ matrix.project }})
     needs: mode
     if: needs.mode.outputs.full == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [desktop, iphone-15, pixel-7]
     services:
       postgres:
         image: postgres:17-alpine
@@ -141,9 +147,9 @@ jobs:
           restore-keys: next-debug-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
       - name: Seed + Build (mit Debug-Flag)
         run: pnpm run seed && pnpm run build
-      # Alle Projekte nacheinander (workers: 1 in CI), alle Tests außer @visual/@perf – inkl. @a11y und @privacy.
-      - name: E2E alle Projekte
-        run: pnpm run test:e2e --project=desktop --project=iphone-15 --project=pixel-7 --grep-invert "@visual|@perf"
+      # Ein Projekt je Job (workers: 1 in CI), alle Tests außer @visual/@perf – inkl. @a11y und @privacy.
+      - name: E2E ${{ matrix.project }}
+        run: pnpm run test:e2e --project=${{ matrix.project }} --grep-invert "@visual|@perf"
       # Bei Fehler (§6.2): erst der Budget-Schritt, dann – nur bei upload_optional=true – der Fehlerbericht (2 Tage).
       - name: Artefakt-Budget
         id: budget
@@ -157,7 +163,7 @@ jobs:
         if: failure() && steps.budget.outputs.upload_optional == 'true'
         uses: actions/upload-artifact@v7
         with:
-          name: ci-full-e2e-report-${{ needs.mode.outputs.sha7 }}
+          name: ci-full-e2e-report-${{ matrix.project }}-${{ needs.mode.outputs.sha7 }}
           path: |
             playwright-report/
             test-results/

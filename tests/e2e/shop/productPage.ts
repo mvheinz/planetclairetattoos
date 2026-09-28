@@ -18,6 +18,7 @@ export const ANCHORS = {
     de: '/de/shop/911-t-shirt-coco-fliegt-zum-mond',
     en: '/en/shop/911-t-shirt-coco-flies-to-the-moon',
   },
+  S15: { de: '/de/shop/915-pinke-cap-sometimes', en: '/en/shop/915-pink-cap-sometimes' },
   S20: { de: '/de/shop/920-zwei-figuren-tusche', en: '/en/shop/920-two-figures-ink' },
   S26: { de: '/de/shop/926-fuchs-anhaenger', en: '/en/shop/926-fox-pendant' },
   S27: {

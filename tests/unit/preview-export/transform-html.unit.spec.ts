@@ -92,7 +92,7 @@ describe('Vorschau-Export: Seiten-Umwandlung (ARCHITEKTUR §14.5)', () => {
     expect(page.body).toContain('href="#/en/legal-notice"')
     expect(page.body).toContain('href="#/de/vertrag-widerrufen"')
     expect(page.body).toContain(
-      'href="https://www.instagram.com/planet.claire.tattoos/" target="_blank" rel="noopener"',
+      'href="https://www.instagram.com/planet.claire.tattoos/" target="_blank" rel="noopener noreferrer"',
     )
     expect(page.body).toContain('href="mailto:hallo@example.com"')
   })

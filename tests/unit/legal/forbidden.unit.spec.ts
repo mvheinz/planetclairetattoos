@@ -204,3 +204,55 @@ describe('P3.3 Preis- und Rechtshinweise (V-02, V-19, V-20)', () => {
     expect(ids).toEqual(['V-02', 'V-19', 'V-20', 'V-20', 'V-20'])
   })
 })
+
+// P3.16 (Nachverfolgbarkeit R-001 für P3): R-096 kein Widerrufsausschluss im Shop, R-139 Instagram nur als Link.
+describe('P3.16 R-096 und R-139 im Quelltext', () => {
+  it('R-096 V-08: kein Widerrufsausschluss in src/** und content/**; products ohne Feld „kein Widerrufsrecht“', () => {
+    const { violations } = applyAllowlist(
+      findings.filter((f) => f.id === 'V-08'),
+      FORBIDDEN_ALLOWLIST,
+    )
+    expect(violations.map((v) => `${v.file}:${v.line} „${v.text}“`)).toEqual([])
+    const source = readFileSync(path.join(ROOT, 'src/collections/Products.ts'), 'utf8')
+    const fields = [...source.matchAll(/\bname:\s*'([A-Za-z0-9_]+)'/g)].map((m) => m[1]!)
+    expect(fields).toContain('isCustomCommission')
+    expect(
+      fields.filter((f) =>
+        /withdraw|widerruf|noReturn|nonReturnable|finalSale|customMade|personali[sz]ed/i.test(f),
+      ),
+    ).toEqual([])
+  })
+
+  it('R-139 V-05: Instagram nur als einfacher Link mit rel="noopener noreferrer" – keine Einbettung, kein Bild', () => {
+    const { violations } = applyAllowlist(
+      findings.filter((f) => f.id === 'V-05'),
+      FORBIDDEN_ALLOWLIST,
+    )
+    expect(violations.map((v) => `${v.file}:${v.line} „${v.text}“`)).toEqual([])
+    const tsx = listFiles('src').filter((f) => f.endsWith('.tsx'))
+    const links: string[] = []
+    const bad: string[] = []
+    for (const file of tsx) {
+      const text = readFileSync(path.join(ROOT, file), 'utf8')
+      for (const m of text.matchAll(/href=\{instagram(?:Dm)?Url\(/g)) {
+        const open = text.lastIndexOf('<a', m.index)
+        const close = text.indexOf('>', m.index)
+        const tag = text.slice(open, close + 1)
+        links.push(file)
+        if (open < 0 || !/rel="noopener noreferrer"/.test(tag)) bad.push(`${file}: ${tag}`)
+      }
+      // Keine Instagram-Adresse als geladene Ressource (Bild, Rahmen, Skript, Video); JSON-LD `sameAs` ist ein Verweis.
+      if (/\b(?:src|srcSet|data|poster)=\{?[^}>]*instagram/i.test(text))
+        bad.push(`${file}: Instagram als eingebettete Ressource`)
+    }
+    // Menü, Fuß und Kontakt (Profil + Direktnachricht) verlinken Instagram.
+    expect(new Set(links)).toEqual(
+      new Set([
+        'src/components/content/ContactLinks.tsx',
+        'src/components/layout/MenuOverlay.tsx',
+        'src/components/layout/SiteFooter.tsx',
+      ]),
+    )
+    expect(bad).toEqual([])
+  })
+})

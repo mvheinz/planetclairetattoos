@@ -108,7 +108,7 @@ export async function MenuOverlay({ locale, nav }: { locale: Locale; nav: SiteNa
           <a
             href={instagramUrl(nav.instagramHandle)}
             className={styles.smallLink}
-            rel="noopener"
+            rel="noopener noreferrer"
             data-menu-close=""
           >
             {tFooter('instagram')}

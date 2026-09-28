@@ -76,6 +76,12 @@
     "homeTotalRawMax": 60000,
     "pathDataPerPageMax": 60000
   },
+  "images": {
+    "$comment": "Bild-Budgets (ARCHITEKTUR §7.7, DESIGN §12.2) – nur Bericht, blockieren nicht: Median über den Beispielbestand (Größen thumb und card aus den srcset-Angaben von R02) und das im Profil Pixel 7 tatsächlich geladene LCP-Bild der Produktseite (R04). Gemessen von check:bundle.",
+    "thumbMedianMax": 40000,
+    "cardMedianMax": 90000,
+    "productLcpMax": 120000
+  },
   "pageWeight": {
     "R01": {
       "max": 1500000,
@@ -83,8 +89,8 @@
     }
   },
   "lighthouse": {
-    "$comment": "Preset mobil (Lighthouse-Standard), Median aus 3 Läufen. Seiten ab P2: R01; R02, R04, R11 kommen mit ihren Phasen dazu.",
-    "routes": ["R01"],
+    "$comment": "Preset mobil (Lighthouse-Standard), Median aus 3 Läufen. Seiten: R01 (P2), R02 und R04 (P3); R11 kommt mit P7 dazu. Seitengewicht nur für Routen mit Eintrag in pageWeight (R01), sonst Bericht.",
+    "routes": ["R01", "R02", "R04"],
     "runs": 3,
     "lcpMs": {
       "max": 2500,

@@ -14,6 +14,13 @@ export const MESSAGE_NAMESPACES = [
   'home',
   'a11y',
   'previewExport',
+  // P2.16/P2.18 Kontakt und Widerruf, P3 Shop, Archiv, Bausteine und SEO (P3.16, EK-09)
+  'contact',
+  'withdraw',
+  'ui',
+  'seo',
+  'shop',
+  'archive',
 ] as const
 
 type Json = string | number | boolean | null | Json[] | { [k: string]: Json }

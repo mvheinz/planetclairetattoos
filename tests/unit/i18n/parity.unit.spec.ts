@@ -17,6 +17,10 @@ describe('i18n-Parität (T-06)', () => {
     expect(result.errors).toEqual([])
   })
 
+  it('T-06 EK-09 P3-Namensräume (Shop, Archiv, Bausteine, SEO) sind Pflicht', () => {
+    expect(MESSAGE_NAMESPACES).toEqual(expect.arrayContaining(['shop', 'archive', 'ui', 'seo']))
+  })
+
   it('T-06 alle Namensräume vorhanden', () => {
     const { de, en } = loadMessages(root) as Record<string, Record<string, unknown>>
     for (const ns of MESSAGE_NAMESPACES) {

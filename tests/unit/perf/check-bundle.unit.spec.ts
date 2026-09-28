@@ -6,12 +6,14 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import {
+  evaluateImages,
   evaluatePages,
   expandGlob,
   firstLoadBudget,
   loadBudgets,
   pageTargets,
   parseArgs,
+  sizedImageUrls,
   staticFileFor,
   type Budgets,
   type PageMeasurement,
@@ -88,7 +90,7 @@ describe('T-09 budgets.json enthält alle Werte aus ARCHITEKTUR §7.7 und DESIGN
 
   it('Lighthouse (T-10) und @perf: LCP 2,5 s, CLS 0,1, TBT 200 ms, INP-Ersatz 200 ms, Frame ≤ 6 ms', () => {
     expect(budgets.lighthouse).toMatchObject({
-      routes: ['R01'],
+      routes: ['R01', 'R02', 'R04'],
       runs: 3,
       lcpMs: { max: 2500, target: 2000 },
       cls: { max: 0.1, target: 0.05 },
@@ -123,14 +125,20 @@ describe('T-09 check:bundle – Seitenbudgets', () => {
     expect(res.errors.join('\n')).toMatch(/SVG der Startseite/)
   })
 
-  it('Seiten: jede live-Seite der Registry in DE und EN sowie R28/R29', async () => {
+  it('Seiten: jede live-Seite der Registry in DE und EN sowie R28/R29; P3-Varianten zusätzlich (P3.16)', async () => {
     const targets = await pageTargets()
     const live = ROUTES.filter((r) => r.status === 'live' && r.kind === 'page').map((r) => r.id)
     for (const id of live)
       expect(
-        targets.filter((t) => t.routeId === id).map((t) => t.locale),
+        targets.filter((t) => t.routeId === id && !t.variant).map((t) => t.locale),
         id,
       ).toEqual(['de', 'en'])
+    // T-09: R02–R05 mit Varianten und Zuständen (reserviert, sold) – Budget der Route (≤ 150 KB).
+    const variants = targets.filter((t) => t.variant)
+    expect(variants.map((t) => `${t.routeId} ${t.variant}`)).toEqual(
+      expect.arrayContaining(['R02 nur verfügbare', 'R04 reserviert', 'R04 sold', 'R05 Kategorie']),
+    )
+    for (const t of variants) expect(firstLoadBudget(t.routeId, budgets), t.path).toBe(150_000)
     expect(targets.filter((t) => t.routeId === 'R28').every((t) => t.status === 404)).toBe(true)
     expect(targets.filter((t) => t.routeId === 'R29').every((t) => t.status === 500)).toBe(true)
   })
@@ -201,4 +209,34 @@ describe('T-09 check:bundle – Abbruch mit Fixture-Budget (CLI)', () => {
     expect(bad.stderr).toMatch(/Engine .*ÜBERSCHRITTEN/)
     expect(bad.stderr).toMatch(/Budget überschritten/)
   }, 90_000)
+})
+
+describe('P3.16 Bild-Budgets (DESIGN §12.2) – nur Bericht', () => {
+  it('Median thumb ≤ 40 KB, card ≤ 90 KB, LCP-Bild der Produktseite ≤ 120 KB; Überschreitung nur als Hinweis', () => {
+    expect(budgets.images).toMatchObject({
+      thumbMedianMax: 40_000,
+      cardMedianMax: 90_000,
+      productLcpMax: 120_000,
+    })
+    const ok = evaluateImages(
+      {
+        thumbBytes: [30_000, 10_000, 20_000],
+        cardBytes: [],
+        productLcp: { url: 'http://x/api/media/file/a-detail-1600x2000.webp', bytes: 130_000 },
+      },
+      budgets,
+    )
+    expect(ok[0]).toMatch(/thumb \(Median\): 20\.0 KB aus 3 Bildern, Budget 40\.0 KB\.$/)
+    expect(ok[1]).toMatch(/card \(Median\): keine Datei gefunden aus 0 Bildern – nur Bericht/)
+    expect(ok[2]).toMatch(
+      /LCP-Bild .*130\.0 KB .*a-detail-1600x2000\.webp.*über Budget – nur Bericht/,
+    )
+  })
+
+  it('Größen-URLs aus srcset (Dateiname `{original}-{größe}-{B}x{H}.{ext}`)', () => {
+    const html =
+      '<img srcset="/api/media/file/s01-thumb-400x500.webp 400w, /api/media/file/s01-card-800x1000.webp 800w" src="/api/media/file/s01-thumb-400x500.webp">'
+    expect(sizedImageUrls(html, 'thumb')).toEqual(['/api/media/file/s01-thumb-400x500.webp'])
+    expect(sizedImageUrls(html, 'card')).toEqual(['/api/media/file/s01-card-800x1000.webp'])
+  })
 })

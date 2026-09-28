@@ -1,7 +1,7 @@
 // Links in der Vorschau-Datei (KONZEPT §12.5 Nr. 5, ARCHITEKTUR §14.5): interne Links → Hash-Routen
 // (`/de/shop?available=1` → `#/de/shop?available=1`, Anker angehängt: `#/de/tattoo/flash#f-012`), Seiten-Anker
 // (`#kontakt`) → `#/<aktuelle Route>#kontakt`, nicht exportierte Ziele (API, PDFs, Verwaltung, nicht gebaute Routen) →
-// `#/vorschau/nicht-enthalten`. Externe `https:`-Links bleiben (neuer Tab, `rel="noopener"`), `mailto:`/`tel:` bleiben.
+// `#/vorschau/nicht-enthalten`. Externe `https:`-Links bleiben (neuer Tab, `rel="noopener noreferrer"`, R-139), `mailto:`/`tel:` bleiben.
 import { canonicalPath } from '../crawl'
 
 export const NOT_INCLUDED_ROUTE = '/vorschau/nicht-enthalten'
