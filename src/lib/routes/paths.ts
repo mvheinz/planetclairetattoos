@@ -163,11 +163,15 @@ export function alternateForMatch(match: RouteMatch | null, locale: Locale): str
 
 /**
  * Beispiel-Parameter live geschalteter Routen mit Parametern – für Querschnittsprüfungen (Barrierefreiheit, Datenschutz,
- * SEO, Tempo, Verbotsmuster), die jede `live`-Route aufrufen. Werte aus dem Grund-Seed (Kategorien, SEED-SPEC §3), der
- * in jeder Umgebung existiert.
+ * SEO, Tempo, Verbotsmuster), die jede `live`-Route aufrufen. R03 aus dem Grund-Seed (Kategorien, SEED-SPEC §3), R04
+ * aus dem Beispielbestand (S01 Nr. 901, `pnpm seed` bzw. `--seed=all` in allen Test-Umgebungen).
  */
 export const ROUTE_SAMPLE_PARAMS: Readonly<Record<string, Record<Locale, RouteParams>>> = {
   R03: { de: { slug: 'keramik' }, en: { slug: 'ceramics' } },
+  R04: {
+    de: { nummer: '901', slug: 'schale-langohr-wuschel' },
+    en: { nummer: '901', slug: 'bowl-long-ears-fluff' },
+  },
 }
 
 /** Pfad einer Route für Querschnittsprüfungen: ohne Parameter wie `localizedPath`, sonst mit Beispiel-Parametern. */

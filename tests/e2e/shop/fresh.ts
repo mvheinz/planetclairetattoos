@@ -30,7 +30,12 @@ export function internalPath(url: string): string {
   const split = splitLocale(u.pathname)
   const match = split && matchRoute(split.rest, split.locale)
   if (!split || !match?.route.key) return u.pathname
-  const folder = fillPattern(match.route.key, match.params)
+  // R04: der Ordner `[product]` fasst `[nummer]-[slug]` in einem Segment zusammen.
+  const params =
+    match.route.id === 'R04'
+      ? { product: `${match.params.nummer}-${match.params.slug}` }
+      : match.params
+  const folder = fillPattern(match.route.key, params)
   return folder === '/' ? `/${split.locale}` : `/${split.locale}${folder}`
 }
 

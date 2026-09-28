@@ -78,6 +78,8 @@
     "notFoundTitle": "Coco hat sich losgerissen",
     "notFoundText": "Diese Seite gibt es nicht (mehr).",
     "linksLabel": "Weiter geht’s",
+    "numberLabel": "Du suchst ein Stück? Nummer eingeben",
+    "numberSubmit": "Stück suchen",
     "homeTitle": "Dieses Stück hat schon ein Zuhause gefunden",
     "homeText": "Es ist verkauft und wohnt jetzt woanders. Im Shop wartet noch mehr.",
     "soldStamp": "sold",
@@ -208,6 +210,23 @@
       "emptyTitle": "In dieser Ecke ist gerade nichts.",
       "emptyText": "Schau bald wieder vorbei – oder stöbere bei allen Stücken.",
       "emptyAction": "Alle Stücke"
+    },
+    "product": {
+      "factsLabel": "Kurzdaten",
+      "detailsLabel": "Angaben zum Stück",
+      "addToCart": "In den Korb",
+      "soldText": "Schon verkauft",
+      "similar": "Ähnliche Stücke",
+      "archive": "Archiv",
+      "deliveryArea": "Lieferung nur innerhalb Deutschlands, Abholung in {city} nach Absprache",
+      "deliveryAreaNoPickup": "Lieferung nur innerhalb Deutschlands",
+      "fibers": "Material",
+      "labelMissing": "Etikett fehlt – Material nach bestem Wissen: {text}",
+      "size": "Größe",
+      "condition": "Zustand",
+      "metalParts": "Metallteile",
+      "technique": "Technik und Material",
+      "dimensions": "Maße"
     }
   },
   "archive": {

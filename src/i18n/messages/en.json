@@ -78,6 +78,8 @@
     "notFoundTitle": "Coco slipped her leash",
     "notFoundText": "This page does not exist (anymore).",
     "linksLabel": "Where to next",
+    "numberLabel": "Looking for a piece? Enter its number",
+    "numberSubmit": "Find piece",
     "homeTitle": "This piece has already found a home",
     "homeText": "It has been sold and lives somewhere else now. There is more waiting in the shop.",
     "soldStamp": "sold",
@@ -208,6 +210,23 @@
       "emptyTitle": "Nothing in this corner right now.",
       "emptyText": "Check back soon – or browse all pieces.",
       "emptyAction": "All pieces"
+    },
+    "product": {
+      "factsLabel": "Key facts",
+      "detailsLabel": "About this piece",
+      "addToCart": "Add to basket",
+      "soldText": "Already sold",
+      "similar": "Similar pieces",
+      "archive": "Archive",
+      "deliveryArea": "Delivery within Germany only, collection in {city} by arrangement",
+      "deliveryAreaNoPickup": "Delivery within Germany only",
+      "fibers": "Material",
+      "labelMissing": "Label missing – material to the best of our knowledge: {text}",
+      "size": "Size",
+      "condition": "Condition",
+      "metalParts": "Metal parts",
+      "technique": "Technique and material",
+      "dimensions": "Dimensions"
     }
   },
   "archive": {

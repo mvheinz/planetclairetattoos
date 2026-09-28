@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-28 – P3.7
+
+- Produktseite `shop/[product]`: Auflösung nur über die führenden Ziffern (`parseProductSegment`), nicht kanonische Formen → 308 auf `productPath()`, Entwurf/archiviert/unbekannt → 404, verkauft + ausgeblendet → 404-Variante „Dieses Stück hat schon ein Zuhause gefunden“ (Layout meldet `isProductGone` per Kontext an `not-found.tsx`; Preset `lost` ohne Weglaufen, Links Shop/Archiv). ISR mit `generateStaticParams` (alle öffentlichen Stücke), `dynamicParams`.\n- Kurzlink R31 `/nr/[nummer]` (+ `/nr?nummer=` für das neue Nummernfeld der 404): 307 in die Sprache aus Accept-Language, Vary, no-store, kein Cookie; unbekannt → 404-Seite.\n- R04/R31 in der Registry gebaut; Beispiel-Parameter R04 = S01.\n- Tests: unit `tests/unit/shop/product-routing.unit.spec.ts` (7), int `tests/int/shop/data.int.spec.ts` (+2), E2E `tests/e2e/shop/product-routing.e2e.spec.ts` (6 × 3 Projekte) grün; shop/error-pages/seo/a11y/privacy grün (routing www-Test nur lokal rot: Port 3100 ≠ NEXT_PUBLIC_SITE_URL).
+
 ## 2026-09-28 – P3.6
 
 - Archiv R05 (/de/archiv, /en/archive) samt statischer Varianten ?category=/?page=: H1, Satz „Schon ausgezogen – aber schön anzusehen“, Kategorie-Chips nur für Kategorien mit Archiv-Stücken (Slug der Seitensprache), Raster aller verkauften Stücke mit Archiv-Freigabe nach Verkaufsdatum (24 je Seite), Preis und statischer sold-Stempel (kein Knall beim Laden), Leerzustand „Noch ist nichts verkauft.“ mit Shop-Link, Schnur shopString; unbekannte Kategorie wird ignoriert, canonical ohne category.

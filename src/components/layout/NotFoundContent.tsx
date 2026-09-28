@@ -8,21 +8,29 @@ import { LeashEndArt } from '@/components/errors/ErrorArt'
 import styles from '@/components/errors/ErrorPages.module.css'
 import { Station } from '@/components/leash/Station'
 import { Button } from '@/components/ui/Button'
+import { Field } from '@/components/ui/Field'
 import { getPublicPage } from '@/lib/data/pages'
 import { localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
+
+import { NotFoundMarker } from './notFoundState'
 
 // R28 „Coco hat sich losgerissen“ (DESIGN KO-18, KONZEPT §3.17), Preset `lost`: Die Tuschelinie kommt vom Kopf
 // (Aufhängepunkt `data-leash-anchor="start"`) herab und liegt in lockeren Schlingen (`coil`) am Boden; das Ende ist ein
 // offener Karabiner mit leerem roten Geschirr. Am Horizont rennt Coco (24 px) einmal aus dem Bild; danach schwingt die
 // Leine zweimal (Modul `lost`, MI-11). H1 fest im Code; darunter der Rich Text der Seite `not_found` aus dem CMS
-// (Rückfall: „Diese Seite gibt es nicht (mehr).“); Links Start, Shop, Tattoo. Das Nummernfeld kommt mit R31 (P3).
-// Variante `home` („Dieses Stück hat schon ein Zuhause gefunden“, verkauft + ausgeblendet) ist vorbereitet (P3):
-// Preisschild „sold“ statt Karabiner, Coco sitzt daneben, kein Weglaufen.
+// (Rückfall: „Diese Seite gibt es nicht (mehr).“); Links Start, Shop, Tattoo und das Nummernfeld „Du suchst ein Stück?“
+// (KO-12): ein GET-Formular auf `/nr?nummer=…` (ohne JavaScript bedienbar), das auf `/nr/[nummer]` (R31) weiterleitet.
+// Variante `home` („Dieses Stück hat schon ein Zuhause gefunden“, verkauft + ausgeblendet, R04): Mini-Preisschild
+// „sold“ statt Karabiner, Coco sitzt daneben, kein Weglaufen; Links Shop und Archiv. `NotFoundMarker` stellt Preset und
+// Route auf R28 (`lost`), auch wenn die 404 unter einer Registry-Route (z. B. R04) steht.
 
 export type NotFoundVariant = 'lost' | 'home'
 
-const LINKS = ['R01', 'R02', 'R11'] as const
+const LINKS: Record<NotFoundVariant, readonly string[]> = {
+  lost: ['R01', 'R02', 'R11'],
+  home: ['R02', 'R05'],
+}
 const HORIZON_PATH = handLinePath(29, { length: 1200, y: 4, amplitude: 1.4, step: 70 })
 
 export async function NotFoundContent({
@@ -90,7 +98,7 @@ export async function NotFoundContent({
       )}
       <nav aria-label={t('linksLabel')}>
         <ul className={styles.links}>
-          {LINKS.map((id) => (
+          {LINKS[variant].map((id) => (
             <li key={id}>
               <Button variant="secondary" href={localizedPath(id, locale)}>
                 {tRoutes(id)}
@@ -99,6 +107,24 @@ export async function NotFoundContent({
           ))}
         </ul>
       </nav>
+      {variant === 'lost' ? (
+        <form className={styles.numberForm} action="/nr" method="get" data-number-form="">
+          <Field
+            id="nr-nummer"
+            name="nummer"
+            label={t('numberLabel')}
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={6}
+            autoComplete="off"
+            required
+          />
+          <Button type="submit" variant="secondary">
+            {t('numberSubmit')}
+          </Button>
+        </form>
+      ) : null}
+      <NotFoundMarker />
     </div>
   )
 }

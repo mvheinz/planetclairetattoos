@@ -8,7 +8,9 @@ import {
   PRODUCT_ADMIN_FIELDS,
   SHOP_PAGE_SIZE,
   getPublicProductByItemNumber,
+  isProductGone,
   listArchiveProducts,
+  loadPublicProductSlugs,
   listRelatedProducts,
   listShopProducts,
   listStationProducts,
@@ -171,6 +173,42 @@ describe('Status-/Archiv-Kombinationen (AK-3-03, AK-3-04, AK-3-09, DM-PROD-07)',
     const stations = await listStationProducts(['keramik', 'textil'], 2, 'de')
     expect(numbers(stations)).toEqual([981, 982])
     expectNoAdminFields([...related, ...stations])
+  })
+})
+
+describe('P3.7 Produktseite: 404-Variante und statische Parameter (KONZEPT §2.3, AK-3-04)', () => {
+  it('isProductGone nur für sold ohne Archiv; Seed-Filter wie der öffentliche Zugriff', async () => {
+    setEnv({ SEED_PREVIEW_MODE: 'false' })
+    await piece(980, available(1))
+    await piece(983, sold(1, 10))
+    await piece(985, sold(3, 11, false))
+    await piece(986, { status: 'draft' })
+    await piece(987, { status: 'archived', firstPublishedAt: day(1), archivedAt: day(5) })
+    await piece(988, { ...sold(2, 12, false), seed: true })
+    expect(await isProductGone(985)).toBe(true)
+    for (const nr of [980, 983, 986, 987, 988, 12345])
+      expect(await isProductGone(nr), `${nr}`).toBe(false)
+    setEnv({ SEED_PREVIEW_MODE: 'true', APP_ENV: 'development' })
+    expect(await isProductGone(988)).toBe(true)
+  })
+
+  it('loadPublicProductSlugs: alle öffentlichen Stücke mit Slugs beider Sprachen, ohne draft/archived/sold ohne Archiv', async () => {
+    setEnv({ SEED_PREVIEW_MODE: 'false' })
+    await piece(980, available(1))
+    await payload.update({
+      collection: 'products',
+      where: { itemNumber: { equals: 980 } },
+      locale: 'en',
+      data: { title: 'Test piece 980' } as never,
+      overrideAccess: true,
+    })
+    await piece(983, sold(1, 10))
+    await piece(985, sold(3, 11, false))
+    await piece(986, { status: 'draft' })
+    const slugs = await loadPublicProductSlugs()
+    expect(slugs.map((s) => s.itemNumber).sort()).toEqual([980, 983])
+    const s980 = slugs.find((s) => s.itemNumber === 980)!
+    expect(s980.slug).toMatchObject({ de: '980-teststueck-980', en: '980-test-piece-980' })
   })
 })
 

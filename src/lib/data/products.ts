@@ -1,11 +1,14 @@
 import 'server-only'
 
-import type { Where } from 'payload'
+import config from '@payload-config'
+import { getPayload, type Where } from 'payload'
 
 import { cached } from '@/lib/cache/cached'
 import { TAGS } from '@/lib/cache/tags'
 import type { Locale, ProductCategory } from '@/lib/enums'
+import { seedPreviewModeActive } from '@/lib/env'
 import { getPublicPayload } from '@/lib/payload/public'
+import type { LocalizedValue } from '@/lib/products/localized'
 import type { Product } from '@/payload-types'
 
 // Öffentliche Shop-Datenschicht (ARCHITEKTUR §9.2, KONZEPT §3.2–§3.5): nur über `getPublicPayload()` – der Zugriff der
@@ -178,6 +181,107 @@ export async function loadPublicProductByItemNumber(
   return doc ? toPublicProduct(doc) : null
 }
 
+/**
+ * Verkauft und ausgeblendet (`sold`, `showInArchiveAfterSale = false`)? Für die 404-Variante „Dieses Stück hat schon ein
+ * Zuhause gefunden“ (KONZEPT §2.3, R04). Die öffentliche Leseregel blendet genau diese Stücke aus; deshalb hier – wie
+ * `getPublicSettings` – die Local API mit `overrideAccess`, aber nur als Ja/Nein ohne Felder des Stücks und mit
+ * demselben Seed-Filter wie der öffentliche Zugriff (DATENMODELL §1.4 Regel 4).
+ */
+export async function loadProductGone(itemNumber: number): Promise<boolean> {
+  if (!Number.isInteger(itemNumber) || itemNumber < 1) return false
+  const payload = await getPayload({ config })
+  const clauses: Where[] = [
+    { itemNumber: { equals: itemNumber } },
+    { status: { equals: 'sold' } },
+    { showInArchiveAfterSale: { not_equals: true } },
+  ]
+  if (!seedPreviewModeActive()) clauses.push({ seed: { equals: false } })
+  const { totalDocs } = await payload.count({
+    collection: 'products',
+    where: { and: clauses },
+    overrideAccess: true,
+  })
+  return totalDocs > 0
+}
+
+/** Übersetzbare Texte der Produktseite (Blöcke 2–6), deren EN-Fassung fehlen kann. */
+export const PRODUCT_TEXT_FIELDS = [
+  'title',
+  'materials',
+  'sizeLabel',
+  'conditionNote',
+  'fiberFreeText',
+  'metalPartsMaterial',
+  'deviationDescription',
+  'dimensionsNote',
+] as const
+export type ProductTextField = (typeof PRODUCT_TEXT_FIELDS)[number]
+
+/**
+ * Felder ohne eigene Fassung in `locale` (KONZEPT §3.4: fehlt EN, erscheint DE mit `lang="de"`). Liest das Stück ohne
+ * Rückfall-Sprache; DE ist die Grundsprache und hat nie Lücken.
+ */
+export async function loadUntranslatedFields(
+  itemNumber: number,
+  locale: Locale,
+): Promise<ProductTextField[]> {
+  if (locale === 'de') return []
+  const payload = await getPublicPayload()
+  const res = await payload.find({
+    collection: 'products',
+    where: { itemNumber: { equals: itemNumber } },
+    locale,
+    fallbackLocale: false,
+    depth: 0,
+    limit: 1,
+    pagination: false,
+    select: {
+      title: true,
+      materials: true,
+      sizeLabel: true,
+      conditionNote: true,
+      fiberFreeText: true,
+      metalPartsMaterial: true,
+      deviationDescription: true,
+      dimensions: { note: true },
+    },
+  })
+  const doc = res.docs[0]
+  if (!doc) return []
+  const value: Record<ProductTextField, unknown> = {
+    title: doc.title,
+    materials: doc.materials,
+    sizeLabel: doc.sizeLabel,
+    conditionNote: doc.conditionNote,
+    fiberFreeText: doc.fiberFreeText,
+    metalPartsMaterial: doc.metalPartsMaterial,
+    deviationDescription: doc.deviationDescription,
+    dimensionsNote: doc.dimensions?.note,
+  }
+  return PRODUCT_TEXT_FIELDS.filter((f) => {
+    const v = value[f]
+    return typeof v !== 'string' || !v.trim()
+  })
+}
+
+export interface PublicProductSlug {
+  itemNumber: number
+  slug: LocalizedValue
+}
+
+/** Nummer und Slugs (alle Sprachen) aller öffentlichen Stücke – für `generateStaticParams` von R04. */
+export async function loadPublicProductSlugs(): Promise<PublicProductSlug[]> {
+  const payload = await getPublicPayload()
+  const res = await payload.find({
+    collection: 'products',
+    locale: 'all',
+    depth: 0,
+    pagination: false,
+    select: { itemNumber: true, slug: true },
+  })
+  return res.docs.map((d) => ({ itemNumber: d.itemNumber, slug: d.slug as LocalizedValue }))
+}
+
 /** Bis zu `limit` sichtbare, nicht verkaufte Stücke der Kategorien, neueste zuerst (ohne `excludeId`). */
 async function loadUnsold(
   categoryKeys: readonly string[],
@@ -241,6 +345,16 @@ export const listArchiveCategoryKeys = cached(loadArchiveCategoryKeys, {
 
 export const getPublicProductByItemNumber = cached(loadPublicProductByItemNumber, {
   key: 'public-product',
+  tags: productTags,
+})
+
+export const getUntranslatedFields = cached(loadUntranslatedFields, {
+  key: 'product-untranslated',
+  tags: productTags,
+})
+
+export const isProductGone = cached(loadProductGone, {
+  key: 'product-gone',
   tags: productTags,
 })
 

@@ -1,7 +1,7 @@
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { Locale, TextileCondition } from '@/lib/enums'
 import { formatFibers as formatFiberRows, type FiberRow } from '@/lib/products/fibers'
-import { formatItemNumber, padItemNumber } from '@/lib/products/itemNumber'
+import { formatItemNumber, isValidItemNumber, padItemNumber } from '@/lib/products/itemNumber'
 import { pickLocale, type LocalizedValue } from '@/lib/products/localized'
 import { localizedPath } from '@/lib/routes/paths'
 
@@ -98,8 +98,34 @@ export interface ProductPathInput {
  * §6.6.4); maßgeblich ist aber immer die Nummer.
  */
 export function productPath(product: ProductPathInput, locale: Locale): string {
-  const nr = padItemNumber(product.itemNumber)
+  return localizedPath('R04', locale, productParams(product, locale))
+}
+
+/** Routen-Parameter von R04 (`nummer` 3-stellig, `slug` ohne Nummer; Rückfall `stueck`). */
+export function productParams(
+  product: ProductPathInput,
+  locale: Locale,
+): { nummer: string; slug: string } {
   const slug = pickLocale(product.slug, locale) ?? ''
-  const rest = slug.replace(/^\d+-/, '') || 'stueck'
-  return localizedPath('R04', locale, { nummer: nr, slug: rest })
+  return {
+    nummer: padItemNumber(product.itemNumber),
+    slug: slug.replace(/^\d+-/, '') || 'stueck',
+  }
+}
+
+/** Kanonisches Pfadsegment unter `/shop/` (Ordner `[product]`): `017-schale-mit-hund`. */
+export function productSegment(product: ProductPathInput, locale: Locale): string {
+  const { nummer, slug } = productParams(product, locale)
+  return `${nummer}-${slug}`
+}
+
+/**
+ * Objektnummer aus dem Pfadsegment der Produktseite (KONZEPT §2.3): nur die führenden Ziffern zählen („017-schale“,
+ * „17“, „0017-alter-slug“ → 17). Ohne führende Ziffern oder außerhalb 1–99 999 → `null`.
+ */
+export function parseProductSegment(segment: string): number | null {
+  const digits = /^\d+/.exec(segment)?.[0]
+  if (!digits || digits.length > 6) return null
+  const nr = Number.parseInt(digits, 10)
+  return isValidItemNumber(nr) ? nr : null
 }
