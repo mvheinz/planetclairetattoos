@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P5.7
+
+- Statusautomat der Stücke mit KONZEPT §5.1 abgeglichen: P3/P12 jetzt auch mit Prüfung „keine aktive Reservierung“ (nicht abgelaufene Reservierung → 409); DATENMODELL §6.6.7-Diagramm um P6 ergänzt\n- Tests: tests/int/products/transitions.int.spec.ts (AK-5-01 Matrix als reine Funktion und über alle Admin-Endpunkte inkl. Löschen P15, AK-5-02 Audit mit Auslöser, Erstattungsgründe breakage/admin_cancellation/goodwill), tests/int/legal/offline-sale.int.spec.ts (R-127: keine Bestellung/Rechnung/Umsatz, Vorkasse → 409) – 16 Tests grün; status.int.spec.ts weiter grün
+
 ## 2026-09-29 – P5.25 (Dienst und Endpunkt; Knopf in der Ansicht `/export` offen)
 
 - `src/lib/export/datev.ts`: Buchungsstapel EXTF 700/21 je Monat (Kopfzeile mit Berater-/Mandantennummer, WJ-Beginn, Zeitraum; je Beleg eine Buchung, Stripe-Gebühren eigene Buchungen; Buchungstext ohne Personendaten; nie Beispieldaten), Windows-1252. `datevConfigStatus` prüft `settings.export.datev.*` (Schema seit P1, unverändert) für den ausgegrauten Knopf („Konten mit der Steuerberatung festlegen“).

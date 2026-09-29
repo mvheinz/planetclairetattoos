@@ -2618,7 +2618,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     `tests/e2e/admin/new-piece.e2e.spec.ts` (`iphone-15`, zählt Eingaben für EK-08).
   - Ohne Jutta: –
 
-- [ ] **P5.7 Stück-Statusautomat nach KONZEPT §5.1** – Produkt-Dienst (`src/lib/commerce/productTransitions.ts`) und
+- [x] **P5.7 Stück-Statusautomat nach KONZEPT §5.1** – Produkt-Dienst (`src/lib/commerce/productTransitions.ts`) und
   Endpunkte (`src/endpoints/products/*`, DATENMODELL §6.6.10) an die Übergänge P1–P15 aus KONZEPT §5.1 angleichen; das
   Verhalten von KONZEPT gilt, die Namen von DATENMODELL. Ergänzen: `available → draft` („Offline nehmen“, P3, nur ohne
   aktive Reservierung), `reserved → sold` offline nur bei Reservierungsquelle `checkout_session` mit Warnung und

@@ -1043,6 +1043,7 @@ stateDiagram-v2
   available --> draft: P3 unpublish „Offline nehmen“ (Admin; System bei widerrufener Konformitätserklärung)
   available --> reserved: P4 Kasse gestartet (System)
   reserved --> available: P5 Ablauf / Abbruch / Zahlung gescheitert / Vorkasse storniert (System)
+  reserved --> reserved: P6 Vorkasse bestellt (System)
   reserved --> sold: P7 Zahlung bestätigt / „Zahlung erhalten“ (System, Admin)
   available --> sold: P8 Zahlung für freies Stück (System, Admin) · P9 „Offline verkauft“ (Admin, E-28)
   reserved --> sold: P10 „Offline verkauft“ aus laufender Kasse (Admin, mit Warnung)

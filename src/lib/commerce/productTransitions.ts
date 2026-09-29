@@ -81,6 +81,8 @@ export interface ProductTransitionFacts {
   actor: ProductActor
   soldChannel?: SoldChannel | null
   reservationRef?: string | null
+  /** P3/P12: Gibt es (trotz Status `available`/`draft`) eine aktive Reservierung? Dann kein Offline-Nehmen/Ausblenden. */
+  activeReservation?: boolean
   /** Aktive Reservierung des Stücks mit Kassenstatus. */
   reservation?: {
     ref: string
@@ -143,6 +145,14 @@ export function evaluateProductTransition(
   }
   const no = (message: string): ProductTransitionResult => ({ ok: false, message })
   switch (id) {
+    case 'P3':
+    case 'P12':
+      if (facts.activeReservation) {
+        return no(
+          'Das Stück liegt gerade in einer Kasse – bitte warten, bis die Reservierung endet.',
+        )
+      }
+      break
     case 'P4':
       if (!input.reservationRef || !input.reservedUntil) return no('Reservierung fehlt.')
       break
@@ -220,6 +230,23 @@ async function loadFacts(
     actor,
     soldChannel: (product.soldChannel as SoldChannel | null) ?? null,
     reservationRef: (product.reservationRef as string | null) ?? null,
+  }
+  if (product.status === 'available' || product.status === 'draft') {
+    const active = await preservingReq(req, () =>
+      req.payload.count({
+        collection: 'reservations',
+        where: {
+          and: [
+            { product: { equals: product.id } },
+            { status: { equals: 'active' } },
+            { expiresAt: { greater_than: requestNow(req).toISOString() } },
+          ],
+        },
+        overrideAccess: true,
+        req,
+      }),
+    )
+    facts.activeReservation = active.totalDocs > 0
   }
   if (product.status === 'reserved') {
     const res = await preservingReq(req, () =>
