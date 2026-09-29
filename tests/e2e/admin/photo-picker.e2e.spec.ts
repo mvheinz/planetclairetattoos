@@ -96,7 +96,7 @@ test.describe('Foto-Baustein (P5.5)', () => {
     adminPage: page,
   }, testInfo) => {
     await page.setViewportSize({ width: 390, height: 844 })
-    const nr = formNumber(testInfo.project.name)
+    const nr = formNumber(testInfo.project.name, 2)
     numbers = [nr]
     await removePieces(numbers)
     await page.goto(adminPath('/neues-stueck'))

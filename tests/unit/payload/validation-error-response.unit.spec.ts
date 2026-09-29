@@ -8,7 +8,7 @@ type Args = Parameters<typeof keepValidationErrorData>[0]
 
 const validationError = () =>
   Object.assign(new Error('The following field is invalid: conformityDeclarations'), {
-    name: 'ValidationError',
+    name: 's',
     data: {
       collection: 'products',
       errors: [{ path: 'conformityDeclarations', message: 'Konformitätserklärungen: …' }],

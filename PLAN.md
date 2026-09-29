@@ -2593,7 +2593,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     Fixtures aus `tests/fixtures/images/`, EXIF-Prüfung mit `exifr`).
   - Ohne Jutta: –
 
-- [ ] **P5.6 „Neues Stück“, Teil 2: Formular, Nummernprüfung, Online stellen** – Handy-Formular nach KONZEPT §7.4 mit
+- [x] **P5.6 „Neues Stück“, Teil 2: Formular, Nummernprüfung, Online stellen** – Handy-Formular nach KONZEPT §7.4 mit
   den Feldern aus DATENMODELL §6.6.1 (u. a. `itemNumber`, `materials`, `sizeLabel`, `safetyWarnings`,
   `ownDesignConfirmed`, `showInArchiveAfterSale`, `conformityDeclarations`, `leadFreeGlazeConfirmed`, `framed`/
   `frameHasGlass`, `blankBrandVisible`, bei `textil`/`cap` die ausdrückliche Entscheidung `deviationDecision` mit

@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P5.6
+
+- Handy-Formular „Neues Stück“/„Stück bearbeiten“ (`src/admin/views/pieces/`): Felder je Kategorie mit Vorlagen, Nummernvorschlag + Live-Prüfung `GET /api/products/item-number-status`, Preis per `parseEuroInput` (1–10.000 €), „Als Entwurf speichern“, Vorschau unter `/stuecke/:id/vorschau` (ohne Draft-Mode-Cookie), „Online stellen“ mit Liste „Das fehlt noch:“ und Sprunglinks, Erfolgsseite mit Link/Kurzlink kopieren.
+- REST-Fehler behalten ihre Feldliste (globaler afterError-Hook `src/lib/payload/validationErrorResponse.ts`), damit das Formular deutsche Feldhinweise zeigt.
+- Tests: parse-euro.unit, validation-error-response.unit, item-number.int; E2E new-piece (EK-08 ≤ 10 Eingaben, AK-7-01, AK-7-03) und shell grün (desktop, pixel-7).
+
 ## 2026-09-29 – P5.5
 
 - Foto-Baustein `src/admin/components/PhotoPicker/`: „Foto aufnehmen“ (capture) und „Aus Galerie wählen“ (mehrere), Verkleinerung im Browser auf ≤ 2560 px (JPEG 0,85), ein Bild je Upload (≤ 4,5 MB), 1–12 Fotos mit Hinweis unter 2, Hoch/Runter per Tastatur, Titelbild, Fokuspunkt, Entfernen, Vorschlag für Bildbeschreibungen.
