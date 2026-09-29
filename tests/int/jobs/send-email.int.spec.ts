@@ -59,7 +59,8 @@ describe('Outbox (DATENMODELL §1.5)', () => {
       template: 'admin_alert',
       to: TO,
       locale: 'de',
-      subject: 'Rollback-Test',
+      data: { kind: 'p1_test', summary: 'Rollback-Test' },
+      idempotencyKey: 'admin_alert:p1_test@rollback',
     })
     expect(res.status).toBe('queued')
     expect(res.jobId).not.toBeNull()
@@ -75,7 +76,8 @@ describe('Outbox (DATENMODELL §1.5)', () => {
       template: 'admin_alert',
       to: TO,
       locale: 'de',
-      subject: 'Commit-Test',
+      data: { kind: 'p1_test', summary: 'Commit-Test' },
+      idempotencyKey: 'admin_alert:p1_test@commit',
     })
     await commitTransaction(req)
     const log = await payload.findByID({ collection: 'email-log', id: res.emailLogId })
@@ -96,16 +98,17 @@ describe('Task sendEmail', () => {
       template: 'admin_alert',
       to: TO,
       locale: 'de',
-      subject: 'Warnung: Test',
+      data: { kind: 'p1_test', summary: 'Warnung: Test' },
+      idempotencyKey: 'admin_alert:p1_test@warnung',
     })
     const runReq = await createLocalReq({ context: { now: '2026-10-15T08:00:00.000Z' } }, payload)
     await payload.jobs.runByID({ id: res.jobId as number, req: runReq })
     expect(getMemoryOutbox()).toHaveLength(1)
     expect(getMemoryOutbox()[0]).toMatchObject({
       to: [TO],
-      subject: 'Warnung: Test',
+      subject: 'Technisches Problem: Warnung: Test',
       type: 'admin_alert',
-      idempotencyKey: `admin_alert:email-log:${res.emailLogId}`,
+      idempotencyKey: 'admin_alert:p1_test@warnung',
     })
     expect(getMemoryOutbox()[0]?.text).toContain('Verwaltung')
     const log = await payload.findByID({ collection: 'email-log', id: res.emailLogId })
@@ -117,7 +120,7 @@ describe('Task sendEmail', () => {
     // Ein zweiter Job für dieselbe Zeile (erledigte Jobs löscht Payload): kein weiterer Versand.
     const again = await payload.jobs.queue({
       task: 'sendEmail',
-      input: { emailLogId: res.emailLogId },
+      input: { emailLogId: res.emailLogId, data: { kind: 'p1_test', summary: 'Warnung: Test' } },
       queue: 'email',
     })
     await payload.jobs.runByID({ id: again.id, req: runReq })
@@ -126,20 +129,20 @@ describe('Task sendEmail', () => {
     expect(after.attempts).toBe(1)
   })
 
-  it('Fehler werden mit Versuch und Meldung protokolliert, die Zeile bleibt queued', async () => {
+  it('eine noch nicht umgesetzte Vorlage wird schon beim Einreihen abgelehnt (keine Zeile, kein Job)', async () => {
     const req = await createLocalReq({}, payload)
-    const res = await enqueueEmail(req, {
-      template: 'order_confirmation',
-      to: TO,
-      locale: 'de',
-      subject: 'Deine Bestellung',
-    })
-    await payload.jobs.runByID({ id: res.jobId as number })
-    expect(getMemoryOutbox()).toHaveLength(0)
-    const log = await payload.findByID({ collection: 'email-log', id: res.emailLogId })
-    expect(log).toMatchObject({ status: 'queued', attempts: 1 })
-    expect(log.lastError).toContain('noch nicht umgesetzt')
-    await payload.jobs.cancelByID({ id: res.jobId as number })
+    const before = await payload.count({ collection: 'email-log', overrideAccess: true })
+    await expect(
+      enqueueEmail(req, {
+        template: 'complaint_repair_choice',
+        to: TO,
+        locale: 'de',
+        data: {},
+        idempotencyKey: 'complaint_repair_choice:1:test',
+      }),
+    ).rejects.toThrow(/noch nicht umgesetzt/)
+    const after = await payload.count({ collection: 'email-log', overrideAccess: true })
+    expect(after.totalDocs).toBe(before.totalDocs)
   })
 
   it('pnpm jobs:run sendEmail (runTaskNow) arbeitet wartende sendEmail-Jobs mit injizierter Zeit ab', async () => {
@@ -148,7 +151,8 @@ describe('Task sendEmail', () => {
       template: 'admin_alert',
       to: TO,
       locale: 'de',
-      subject: 'Per jobs:run',
+      data: { kind: 'p1_test', summary: 'Per jobs:run' },
+      idempotencyKey: 'admin_alert:p1_test@jobsrun',
     })
     const result = await runTaskNow(payload, 'sendEmail', {
       now: new Date('2026-10-15T09:30:00.000Z'),

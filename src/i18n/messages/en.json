@@ -317,5 +317,13 @@
       "rate_limited": "That was a bit fast. Please try again in a few minutes.",
       "invalid": "That didn't work. Please reload the page and try again."
     }
+  },
+  "email": {
+    "footer": {
+      "imprint": "Legal notice",
+      "privacy": "Privacy policy",
+      "orderStatus": "Order status",
+      "sender": "Sender"
+    }
   }
 }

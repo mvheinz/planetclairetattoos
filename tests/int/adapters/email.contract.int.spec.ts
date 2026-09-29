@@ -282,7 +282,8 @@ describe('Protokoll: email-log mit suppressed (AK-A-3-04)', () => {
       template: 'admin_alert',
       to: 'erika@example.com',
       locale: 'de',
-      subject: 'Test unterdrückt',
+      data: { kind: 'contract_test', summary: 'Test unterdrückt' },
+      idempotencyKey: 'admin_alert:contract_test@suppressed',
     })
     expect(res).toMatchObject({ status: 'suppressed', jobId: null })
     const log = await payload.findByID({ collection: 'email-log', id: res.emailLogId })

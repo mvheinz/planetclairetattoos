@@ -89,6 +89,16 @@ export const EmailLog: CollectionConfig = {
     },
     { name: 'to', type: 'email', label: 'Empfänger', required: true },
     {
+      // Outbox (DATENMODELL §1.5, KONZEPT §6.1): Mail-Typ + Objekt-ID + Ereignis – dasselbe Ereignis ergibt nie eine
+      // zweite Mail. Leer nur bei Mails, die Payload selbst verschickt (A17 Passwort-Reset).
+      name: 'idempotencyKey',
+      type: 'text',
+      label: 'Idempotenz-Schlüssel',
+      unique: true,
+      maxLength: 200,
+      admin: { readOnly: true },
+    },
+    {
       name: 'locale',
       type: 'select',
       label: 'Sprache',

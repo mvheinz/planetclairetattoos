@@ -317,5 +317,13 @@
       "rate_limited": "Das ging gerade zu schnell. Bitte versuch es in ein paar Minuten noch einmal.",
       "invalid": "Das hat nicht geklappt. Bitte lade die Seite neu und versuch es noch einmal."
     }
+  },
+  "email": {
+    "footer": {
+      "imprint": "Impressum",
+      "privacy": "Datenschutz",
+      "orderStatus": "Bestellstatus",
+      "sender": "Absenderin"
+    }
   }
 }
