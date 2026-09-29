@@ -2,6 +2,19 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P4.23
+
+- Bestellstatus R09 `src/app/(frontend)/[locale]/order/[token]/page.tsx` (DE `/de/bestellung/[token]`, Preset `calm`, Header über den Proxy: `noindex, nofollow`, `no-referrer`, `private, no-store`; Rate-Limit `token_pages`; Suche über `statusTokenHash` + Vergleich in konstanter Zeit; unbekannt → 404): Nummer, Datum, `OrderStatusLine` (KO-16, `<ol>` mit `aria-current="step"`, Varianten Versand/Abholung/Vorkasse, Widerruf/Erstattung als eigene Einträge, `disputed` → `statusBeforeDispute`), Sendungsnummer mit Link aus `trackingUrlTemplates`, Positionen, Summe, Zahlart, bei Vorkasse Bankdaten + Frist + EPC-QR, nur Name/PLZ+Ort/maskierte E-Mail, nur AGB und Widerrufsbelehrung-und-Formular (Hinweis „Deine Rechnung hast du per Mail bekommen“), „Vertrag widerrufen“ → R26 `?order=`, Kontakt. R09 `live`.
+- `GET /api/orders/[token]/documents/[file]` (`src/lib/commerce/tokenPages.ts`): nur die Rechtstext-PDFs aus `legalTextVersions`, Belege gesperrt (`STATUS_PAGE_INVOICE_DOWNLOAD = false`), `private, no-store`. Logger normalisiert Token-Pfade (`normalizeLogPath`: `/de/bestellung/[token]`, `/api/orders/[token]/documents/[file]`).
+- Tests: `tests/int/orders/documents-route.int.spec.ts` (4), `tests/unit/commerce/order-status-line.unit.spec.ts` (7), Logger-Unit-Test, `tests/e2e/order/order-status.e2e.spec.ts` (5: Fixtures analog O01, O03, O10, O13 + EN; Header, Maskierung, keine Beleg-Links, Ruhe-Modus, `@a11y` Desktop und 390 px) grün auf desktop, pixel-7, iphone-15 gegen den Produktions-Build (Port 3200).
+
+## 2026-09-29 – P4.17
+
+- Danke-Seite R08 `src/app/(frontend)/[locale]/thank-you/[token]/page.tsx` (DE `/de/danke/[token]`): Zustände wartet, bezahlt (Mini-Preisschilder, nächste Schritte, S4-Block „Leider schon weg“, Status-Link aus dem Siegel, „Vertrag widerrufen“), Vorkasse (Bankdaten, „IBAN/Verwendungszweck kopieren“, Frist, EPC-QR 168 px), leider schon weg (O19, Text wie M10) und nicht bezahlt („Zurück zur Kasse“ bzw. „Zum Korb“); „Beispiel“ bei Seed-Daten; mit Bestellung werden `pc_cart`/`pc_checkout` gelöscht. R08 `live`, Preset `thanks`.
+- `getThanksState(token, now)` (`src/lib/commerce/thanksState.ts`): Kassen-Token vor Status-Token; bei `confirming` genau eine Anbieter-Abfrage → bezahlt ⇒ `fulfillCheckout` (Rückfall 2), `open` ⇒ Kasse `confirming → open` (S9), sonst wartet (S10). Endpunkt `GET /api/checkout/[token]/state` (nur Zustandscode, `no-store`, 404, 429 über neuen Bucket `token_pages` 60/min).
+- Verhaltensmodule `thanks-poll` (2 s bis 60 s, dann Hinweis „Das dauert länger als sonst“), `thanks-moment` (MI-09 Grundfassung + Stempel-Knall MI-03, reduzierte Bewegung = Endzustand), `copy-button`; neue Budget-Gruppe in `tests/perf/budgets.json`.
+- Tests: `tests/int/commerce/thank-you-fallback.int.spec.ts` (4), `tests/int/api/checkout-state.int.spec.ts` (5), Unit `thanks-poll` (6), `thanks-moment` (3), `copy-button` (2) + Vertragstest AK-DS-18, `tests/e2e/checkout/thank-you.e2e.spec.ts` (6: wartet→bezahlt, nicht bezahlt, Vorkasse analog O13, leider schon weg, EN analog O14, 404; R-066 Header, Cookies, `@a11y`) grün auf desktop, pixel-7, iphone-15; `pnpm check`, `pnpm build` grün.
+
 ## 2026-09-29 – P4.22
 
 - `processPaymentEvent` behandelt jetzt Erstattungen und Anfechtungen (`src/lib/payments/orderEvents.ts`, ersetzt die vorläufige `ignored`-Ablage): `refund.created/updated/failed` → `refunds[].status` über `stripeRefundId` (Rückfall: offene Erstattung gleichen Betrags ohne ID; `pending` überschreibt kein Ergebnis), `failed` → `adminAttention refund_failed` + A08 genau einmal je Erstattung, kein Statuswechsel; `charge.refunded` → offene Erstattungen bis zur erstatteten Summe `succeeded`.
