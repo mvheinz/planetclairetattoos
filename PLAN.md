@@ -2556,7 +2556,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     `tests/int/health/freshness.int.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P5.4 Übersetzungs-Adapter und Knopf „Übersetzen → EN“** – `src/lib/translation/{types,index,mock,deepl}.ts`
+- [x] **P5.4 Übersetzungs-Adapter und Knopf „Übersetzen → EN“** – `src/lib/translation/{types,index,mock,deepl}.ts`
   nach ARCHITEKTUR §3.6 prüfen bzw. anlegen (`TRANSLATION_DRIVER` = `mock` | `deepl`, `DEEPL_API_KEY`; Mock liefert
   `"[EN] " + Text`, ARCHITEKTUR C-21; DeepL: `:fx`-Schlüssel → `api-free.deepl.com`, `target_lang: 'EN-GB'`, höchstens
   50 Texte je Anfrage). Lexical-Rich-Text: Textknoten einsammeln, gebündelt übersetzen, in dieselbe Struktur
