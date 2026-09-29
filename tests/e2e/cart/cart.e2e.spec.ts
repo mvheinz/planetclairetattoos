@@ -5,6 +5,9 @@ import { expectCalm } from '../calm'
 import { expect, test, testPayload } from '../fixtures'
 import { holdListData } from '../shop/fresh'
 import { PUBLISHED } from '../shop/productPage'
+import { sql } from '@payloadcms/db-postgres'
+
+import { cleanupCheckouts, db, startCheckoutFor } from '../checkout/checkoutHelpers'
 import { R06, euro, expectAmount, norm, productByNumber, setCart } from './cartHelpers'
 
 // P4.8 Warenkorb-Seite R06 (KONZEPT §3.6/§4.2, DESIGN KO-13, KO-17): Anzeige, Entfernen, Lieferart, Zustände
@@ -244,6 +247,59 @@ test.describe('Zustände mit Fixture-Stücken', () => {
       `Nr. ${pickupOnly.itemNumber} gibt es nur zur Abholung.`,
     )
     await expectAmount(page, '[data-cart-shipping]', 0)
+  })
+})
+
+test.describe('Countdown KO-15 im Korb (P4.9, V-17)', () => {
+  let used: number[] = []
+  test.afterEach(async () => {
+    await cleanupCheckouts(used)
+    used = []
+  })
+
+  test('V-17 Countdown im Korb nur bei einer echten Reservierung dieser Person, dieselbe Restzeit wie in der Kasse; ohne pc_checkout und nach Ablauf keiner', async ({
+    page,
+    context,
+    fixtureProducts,
+  }) => {
+    const a = await fixtureProducts.create('keramik', PUBLISHED)
+    used.push(a.id)
+    await setCart(context, [{ id: a.id, p: 4500 }])
+    await page.goto(R06.de)
+    await expect(page.locator('[data-countdown]')).toHaveCount(0)
+
+    const started = await startCheckoutFor(context, page, [{ id: a.id, priceCents: 4500 }])
+    const checkoutTimer = page.locator('[data-countdown="full"]').getByRole('timer')
+    await expect(checkoutTimer).toHaveText(/^\d\d:\d\d$/)
+    const expiresAt = await page.locator('[data-countdown="full"]').getAttribute('data-expires-at')
+
+    await page.goto(R06.de)
+    const cartBox = page.locator('[data-countdown="full"]')
+    await expect(cartBox).toBeVisible()
+    await expect(cartBox).toHaveAttribute('data-expires-at', expiresAt!)
+    await expect(cartBox.getByRole('timer')).toHaveText(/^(29|30):\d\d$/)
+
+    // Andere Person (ohne pc_checkout): kein Countdown.
+    const other = await context.browser()!.newContext()
+    try {
+      const otherPage = await other.newPage()
+      await other.addCookies((await context.cookies()).filter((c) => c.name === 'pc_cart'))
+      await otherPage.goto(R06.de)
+      await expect(otherPage.locator('[data-cart-lines]')).toBeVisible()
+      await expect(otherPage.locator('[data-countdown]')).toHaveCount(0)
+    } finally {
+      await other.close()
+    }
+
+    // Nach Ablauf des Countdowns: keiner mehr im Korb.
+    await (
+      await db()
+    ).execute(
+      sql`UPDATE checkouts SET display_expires_at = now() - interval '1 minute' WHERE id = ${started.checkoutId}`,
+    )
+    await page.goto(R06.de)
+    await expect(page.locator('[data-cart-lines]')).toBeVisible()
+    await expect(page.locator('[data-countdown]')).toHaveCount(0)
   })
 })
 

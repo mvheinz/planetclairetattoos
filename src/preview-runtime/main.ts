@@ -9,6 +9,7 @@ import * as menu from '../behaviors/menu'
 import * as motionToggle from '../behaviors/motion-toggle'
 import * as priceTagSwing from '../behaviors/price-tag-swing'
 import * as productStatus from '../behaviors/product-status'
+import * as reservationCountdown from '../behaviors/reservation-countdown'
 import * as soldStamp from '../behaviors/sold-stamp'
 import type { BehaviorModule } from '../behaviors/types'
 
@@ -36,6 +37,7 @@ export const STATIC_BEHAVIORS: Record<(typeof BEHAVIOR_NAMES)[number], BehaviorM
   'motion-toggle': motionToggle,
   'price-tag-swing': priceTagSwing,
   'product-status': productStatus,
+  'reservation-countdown': reservationCountdown,
   'sold-stamp': soldStamp,
 }
 

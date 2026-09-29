@@ -155,6 +155,8 @@ test.describe('Fußlinks ohne 404 @smoke', () => {
     page,
     request,
   }) => {
+    // Alle Live-Seiten nacheinander (seit P4.9 auch die Kasse R07, ohne Kasse 307 auf den Korb) – im Dev-Server langsam.
+    test.slow()
     const checked = new Map<string, number>()
     const live = pageRoutes().filter((r) => r.status === 'live')
     for (const locale of LOCALES) {

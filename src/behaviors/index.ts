@@ -15,6 +15,7 @@ export const BEHAVIOR_LOADERS = {
   'motion-toggle': () => import('./motion-toggle'),
   'price-tag-swing': () => import('./price-tag-swing'),
   'product-status': () => import('./product-status'),
+  'reservation-countdown': () => import('./reservation-countdown'),
   'sold-stamp': () => import('./sold-stamp'),
 } satisfies Record<string, () => Promise<BehaviorModule>>
 

@@ -85,6 +85,18 @@ const FIXTURES: Record<BehaviorName, { html: string; exercise: (root: Element) =
       'data-status="available" aria-label="Vase, 45 €"><span data-badge="reserved" hidden>reserviert</span></a></li></ul>',
     exercise: () => {},
   },
+  'reservation-countdown': {
+    html:
+      '<div data-behavior="reservation-countdown" data-expires-at="2026-10-07T10:30:00.000Z" ' +
+      'data-server-now="2026-10-07T10:24:30.000Z" data-text-warn="Noch 5 Minuten reserviert" ' +
+      'data-text-last="Nur noch 1 Minute" data-announce-5="Noch 5 Minuten." data-announce-expired="Abgelaufen.">' +
+      '<p role="timer" aria-live="off" data-countdown-time>05:30</p>' +
+      '<p data-countdown-text>Dein Stück ist für dich reserviert.</p>' +
+      '<p aria-live="polite" data-countdown-announce></p><div data-countdown-expired hidden>Abgelaufen</div></div>',
+    exercise: () => {
+      vi.advanceTimersByTime(31_000)
+    },
+  },
   'cart-count': {
     html: '<a href="/de/korb" data-behavior="cart-count">Korb <span data-cart-count hidden></span></a>',
     exercise: () => {

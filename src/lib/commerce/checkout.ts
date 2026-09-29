@@ -250,7 +250,10 @@ export async function startCheckout(
   // Kasse desselben Cookies: gleiche Stückliste → wiederverwenden (nie verlängern), sonst ersetzen.
   const existing = await findCheckoutByToken(payload, input.existingToken)
   if (existing && (existing.status === 'open' || existing.status === 'confirming')) {
-    const current = new Date(existing.expiresAt).getTime() > now.getTime()
+    // Reservierung gehalten (`expiresAt`) und Countdown läuft noch (`displayExpiresAt`) → wiederverwenden (S14). Nach dem
+    // Countdown („Nochmal reservieren“, KO-15) wird die noch gehaltene Reservierung ersetzt.
+    const held = new Date(existing.expiresAt).getTime() > now.getTime()
+    const current = held && new Date(existing.displayExpiresAt).getTime() > now.getTime()
     if (current && sameItems(itemIdsOf(existing), ids)) {
       return {
         ok: true,
@@ -264,7 +267,7 @@ export async function startCheckout(
       }
     }
     if (existing.status === 'confirming') return fail('payment_running')
-    if (current) {
+    if (held) {
       const cancelled = await cancelCheckout(existing.id as number, 'replaced', now, {
         ...deps,
         payload,
@@ -460,7 +463,16 @@ export const CART_NOTICE_PARAM = 'hinweis'
 export const CART_NOTICE_ITEMS_PARAM = 'nr'
 export const CART_NOTICE_MAX_PARAM = 'max'
 
-export type CartNoticeCode = StartCheckoutCode | 'pickup_only' | 'rate_limited' | 'invalid'
+export type CartNoticeCode =
+  | StartCheckoutCode
+  | 'pickup_only'
+  | 'rate_limited'
+  | 'invalid'
+  // Rückweg von der Kasse R07 (307, P4.9): Kasse beendet, Korb geändert (S6), Reservierung abgelaufen, keine Kasse.
+  | 'checkout_ended'
+  | 'cart_changed'
+  | 'expired'
+  | 'no_checkout'
 export const CART_NOTICE_CODES: readonly CartNoticeCode[] = [
   'shop_closed',
   'empty',
@@ -472,6 +484,10 @@ export const CART_NOTICE_CODES: readonly CartNoticeCode[] = [
   'pickup_only',
   'rate_limited',
   'invalid',
+  'checkout_ended',
+  'cart_changed',
+  'expired',
+  'no_checkout',
 ]
 
 export interface CartNotice {

@@ -55,7 +55,8 @@ test.describe('Sicherheits-Header', () => {
     ]
     const nonces = new Set<string>()
     for (const { path, context } of cases) {
-      const res = await request.get(path)
+      // Die Kasse ohne `pc_checkout` antwortet mit 307 auf den Korb (P4.9) – die Header gelten schon dieser Antwort.
+      const res = await request.get(path, context === 'checkout' ? { maxRedirects: 0 } : {})
       const h = res.headers()
       expect(h, path).toMatchObject(context === 'checkout' ? CHECKOUT : BASE)
       expect(h['referrer-policy'], path).toBe('strict-origin-when-cross-origin')
@@ -103,11 +104,11 @@ test.describe('Sicherheits-Header', () => {
     for (const r of checkoutRoutes) {
       for (const l of LOCALES) {
         const path = samplePath(r.id, l)
-        const res = await request.get(path)
+        const res = await request.get(path, { maxRedirects: 0 })
         const h = res.headers()
         const csp = h['content-security-policy'] ?? ''
         if (r.status !== 'live') {
-          // Kasse noch nicht gebaut (P4.9): statische Antwort ohne Kassen-Kontext und ohne Stripe.
+          // Kasse noch nicht gebaut: statische Antwort ohne Kassen-Kontext und ohne Stripe.
           expect(csp, path).not.toMatch(/stripe/i)
           continue
         }

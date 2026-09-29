@@ -4,6 +4,7 @@ import { connection } from 'next/server'
 import React from 'react'
 
 import { CartLine } from '@/components/cart/CartLine'
+import { ReservationCountdown } from '@/components/checkout/ReservationCountdown'
 import { Coco } from '@/components/Coco'
 import { DeliveryTime } from '@/components/shop/DeliveryTime'
 import { MoneyAmount } from '@/components/shop/MoneyAmount'
@@ -18,6 +19,7 @@ import { CART_COOKIE } from '@/lib/commerce/cartCookie'
 import { CHECKOUT_COOKIE, parseCartNotice, type CartNotice } from '@/lib/commerce/checkout'
 import type { CartBlocker } from '@/lib/commerce/evaluateCart'
 import { getCartMedia } from '@/lib/data/cart'
+import { activeCheckoutCountdown } from '@/lib/data/checkout'
 import { getShopDisplaySettings, taxSettingsFor } from '@/lib/data/shopSettings'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { Locale } from '@/lib/enums'
@@ -36,7 +38,8 @@ export const generateMetadata = routeMetadata('R06')
 // setzt nie ein Cookie und reserviert nichts (EK-04); jede Position prüft `evaluateCart` serverseitig neu. Alle
 // Bedienelemente sind POST-Formulare mit Server-Actions (ohne JavaScript 303 zurück auf den Korb, ggf. mit Hinweis
 // `?hinweis=…`). Zahlarten und Liefergebiet (Baustein `cart.paymentAndDeliveryInfo`, R-036) stehen vor „Zur Kasse“.
-// Preset `calm`: keine Animation; Coco sitzt statisch neben der Summe. Den Countdown KO-15 ergänzt P4.9.
+// Preset `calm`: keine Animation; Coco sitzt statisch neben der Summe. Countdown KO-15 (P4.9) nur, solange `pc_checkout`
+// auf eine laufende Kasse dieser Person mit aktiver Reservierung zeigt (V-17).
 
 type Search = Promise<Record<string, string | string[] | undefined>>
 
@@ -114,9 +117,10 @@ export default async function Page({
     )
   }
 
-  const media = await getCartMedia(
-    evaluation.lines.flatMap((l) => (l.product?.imageId ? [l.product.imageId] : [])),
-  )
+  const [media, countdown] = await Promise.all([
+    getCartMedia(evaluation.lines.flatMap((l) => (l.product?.imageId ? [l.product.imageId] : []))),
+    activeCheckoutCountdown(jar.get(CHECKOUT_COOKIE)?.value ?? null, now),
+  ])
   const city = display.pickupCity ?? 'Berlin'
   const totals = evaluation.totals
   const pickupOnly = evaluation.pickupOnly.length > 0
@@ -214,6 +218,14 @@ export default async function Page({
             </p>
           ) : null}
         </form>
+      ) : null}
+
+      {countdown ? (
+        <ReservationCountdown
+          locale={locale}
+          displayExpiresAt={countdown.displayExpiresAt}
+          now={now}
+        />
       ) : null}
 
       <section aria-labelledby="cart-summary" className={styles.summary} data-cart-summary="">
