@@ -318,3 +318,351 @@ $pc-bar-height: 64px;
     align-items: center;
   }
 }
+
+// --- Formular „Neues Stück“ / „Stück bearbeiten“ (P5.5/P5.6) ---------------------------------------------------
+.pc-piece {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 48rem;
+
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--theme-elevation-150);
+  }
+  &__heading {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+  &__hint {
+    margin: 4px 0 0;
+    font-size: 0.875rem;
+    color: var(--theme-elevation-800);
+  }
+  &__status {
+    margin: 0;
+  }
+  &__check {
+    display: block;
+    margin-top: 4px;
+    font-weight: 600;
+    &.is-ok {
+      color: var(--theme-success-800);
+    }
+    &.is-bad {
+      color: var(--theme-error-800);
+    }
+  }
+  &__dims {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  &__fiber {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px solid var(--theme-elevation-200);
+    border-radius: 6px;
+  }
+  &__details summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+    &:focus-visible {
+      outline: 3px solid var(--theme-success-500);
+      outline-offset: 2px;
+    }
+  }
+  &__issues {
+    margin: 8px 0 0;
+    padding-left: 20px;
+  }
+  &__result:focus {
+    outline: none;
+  }
+  &__result:empty {
+    display: none;
+  }
+  &__url {
+    overflow-wrap: anywhere;
+    font-family: monospace;
+  }
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    position: sticky;
+    bottom: 0;
+    padding: 12px 0;
+    background: var(--theme-elevation-0);
+    border-top: 1px solid var(--theme-elevation-150);
+  }
+}
+
+@media (max-width: 1024px) {
+  .pc-piece__actions {
+    bottom: calc(#{$pc-bar-height} + env(safe-area-inset-bottom));
+  }
+}
+
+@media (min-width: 600px) {
+  .pc-piece__dims {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .pc-piece__fiber {
+    grid-template-columns: 1fr 1fr 6rem auto;
+    align-items: end;
+  }
+}
+
+.pc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  &__label {
+    font-weight: 600;
+    padding: 0;
+  }
+  &__required {
+    color: var(--theme-error-800);
+  }
+  &__wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  input[type='text'],
+  input[type='search'],
+  select,
+  textarea {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 44px;
+    padding: 8px 12px;
+    font: inherit;
+    font-size: 1rem; // iOS zoomt bei kleinerer Schrift beim Fokussieren
+    color: var(--theme-elevation-1000);
+    background: var(--theme-input-bg, var(--theme-elevation-0));
+    border: 1px solid var(--theme-elevation-400);
+    border-radius: 4px;
+
+    &:focus-visible {
+      outline: 3px solid var(--theme-success-500);
+      outline-offset: 1px;
+    }
+    &[readonly] {
+      background: var(--theme-elevation-100);
+    }
+  }
+  textarea {
+    resize: vertical;
+  }
+  &:focus {
+    outline: none;
+  }
+}
+
+.pc-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pc-choice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 4px 12px 4px 8px;
+  border: 1px solid var(--theme-elevation-300);
+  border-radius: 6px;
+  cursor: pointer;
+
+  input {
+    width: 22px;
+    height: 22px;
+    flex: none;
+    margin: 0;
+    &:focus-visible {
+      outline: 3px solid var(--theme-success-500);
+      outline-offset: 2px;
+    }
+  }
+  &:has(input:checked) {
+    border-color: var(--theme-elevation-900);
+    background: var(--theme-elevation-100);
+    font-weight: 600;
+  }
+}
+
+// --- Foto-Baustein (P5.5) ---------------------------------------------------------------------------------------
+.pc-photos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &:focus {
+    outline: none;
+  }
+  &__pick {
+    position: relative;
+    &.is-disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    &:focus-within {
+      outline: 3px solid var(--theme-success-500);
+      outline-offset: 2px;
+    }
+  }
+  // Datei-Eingabe unsichtbar über dem Knopf (Tastatur: Fokus auf dem Input, Leertaste öffnet die Auswahl).
+  &__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+  &__status:empty {
+    display: none;
+  }
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  &__item {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--theme-elevation-200);
+    border-radius: 6px;
+  }
+  &__thumb {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    img {
+      width: 96px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 4px;
+      background: var(--theme-elevation-100);
+    }
+  }
+  &__nr {
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  &__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .pc-photos__item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// --- „Meine Stücke“ (P5.8) ------------------------------------------------------------------------------------
+.pc-pieces {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 64rem;
+
+  &__filter {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  &__count {
+    margin: 0;
+    font-weight: 600;
+  }
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  &__card {
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1fr);
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--theme-elevation-200);
+    border-radius: 6px;
+  }
+  &__photo img {
+    width: 80px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+  &__nophoto {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 100px;
+    font-size: 0.75rem;
+    background: var(--theme-elevation-100);
+    border-radius: 4px;
+    color: var(--theme-elevation-800);
+  }
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  &__title {
+    margin: 0;
+    font-size: 1.0625rem;
+  }
+  &__nr {
+    white-space: nowrap;
+  }
+  &__meta {
+    margin: 0;
+  }
+  &__actions {
+    margin-top: 4px;
+  }
+  &__pageinfo {
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+@media (min-width: 768px) {
+  .pc-pieces__filter {
+    grid-template-columns: 2fr 1fr 1fr auto;
+    align-items: end;
+  }
+}

@@ -216,7 +216,8 @@ type Doc = Record<string, unknown>
 const idOf = (v: unknown): number | null =>
   v && typeof v === 'object' ? Number((v as { id: unknown }).id) : v == null ? null : Number(v)
 
-async function loadFacts(
+/** Fakten für die Vorbedingungen aus der Datenbank (auch für die Knöpfe in „Meine Stücke“, P5.8). */
+export async function loadProductTransitionFacts(
   req: PayloadRequest,
   product: Doc,
   actor: ProductActor,
@@ -371,7 +372,7 @@ function sideEffects(
 async function cancelCheckoutForOfflineSale(
   req: PayloadRequest,
   productId: number,
-  facts: Awaited<ReturnType<typeof loadFacts>>,
+  facts: Awaited<ReturnType<typeof loadProductTransitionFacts>>,
 ): Promise<void> {
   if (facts.checkoutSession) {
     const result = await getPaymentsAdapter().expireCheckoutSession(facts.checkoutSession)
@@ -445,7 +446,7 @@ export async function transitionProduct(
       req.payload.findByID({ collection: 'products', id, depth: 0, overrideAccess: true, req }),
     )) as unknown as Doc
     const from = product.status as ProductStatus
-    const facts = await loadFacts(req, product, actor)
+    const facts = await loadProductTransitionFacts(req, product, actor)
     const result = evaluateProductTransition(from, transition, facts, input)
     if (!result.ok) throw new TransitionError(result.message)
     if (result.id === 'P10') await cancelCheckoutForOfflineSale(req, id, facts)

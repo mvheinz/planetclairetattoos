@@ -3,7 +3,7 @@ import { notFound, redirect } from 'next/navigation'
 import type { AdminViewServerProps } from 'payload'
 import React from 'react'
 
-import { AdminViewBody } from './AdminViewBody'
+import { AdminViewBody, type AdminViewBodyProps } from './AdminViewBody'
 import { matchAdminView } from './registry'
 
 // Payload-Custom-View für alle Pfade der Ansichten-Registry (PLAN P5.1, `admin.components.views`). Payload behandelt
@@ -44,13 +44,25 @@ export function AdminView(props: AdminViewServerProps) {
         globals: visibleEntities?.globals,
       }}
     >
-      <AdminViewBody match={match} adminRoute={adminRoute} />
+      <AdminViewBody
+        match={match}
+        adminRoute={adminRoute}
+        req={req}
+        searchParams={searchParams as AdminViewBodyProps['searchParams']}
+      />
     </DefaultTemplate>
   )
 }
 
 /** Startseite `ADMIN_ROUTE` (ersetzt Payloads Dashboard; der Rahmen kommt dort von Payload): „Heute“. */
 export function HeuteDashboard(props: AdminViewServerProps) {
-  const adminRoute = props.initPageResult.req.payload.config.routes.admin
-  return <AdminViewBody match={matchAdminView([])!} adminRoute={adminRoute} />
+  const { req } = props.initPageResult
+  return (
+    <AdminViewBody
+      match={matchAdminView([])!}
+      adminRoute={req.payload.config.routes.admin}
+      req={req}
+      searchParams={props.searchParams as AdminViewBodyProps['searchParams']}
+    />
+  )
 }

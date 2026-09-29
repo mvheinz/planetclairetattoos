@@ -1,9 +1,12 @@
 import { Gutter, SetStepNav } from '@payloadcms/ui'
 import Link from 'next/link'
+import type { PayloadRequest } from 'payload'
 import React from 'react'
 
 import { Notice } from '../components/Notice'
 import { adminText } from '../translations'
+import { PieceEditorView } from './pieces/PieceEditorView'
+import { PiecesListView } from './pieces/PiecesListView'
 import { ADMIN_HOME_VIEW, adminView, allDataPath, type AdminViewMatch } from './registry'
 
 // Inhalt einer Verwaltungs-Ansicht (PLAN P5.1). Bis die Aufgabe der Ansicht (`task` in der Registry) sie füllt, zeigt
@@ -13,10 +16,19 @@ import { ADMIN_HOME_VIEW, adminView, allDataPath, type AdminViewMatch } from './
 export interface AdminViewBodyProps {
   match: AdminViewMatch
   adminRoute: string
+  /** Anfrage der angemeldeten Verwaltung (Payload, Nutzer). */
+  req: PayloadRequest
+  searchParams?: Record<string, string | string[] | undefined>
 }
 
+type ViewBody = (props: AdminViewBodyProps) => React.ReactNode | Promise<React.ReactNode>
+
 /** Fertige Ansichten je Registry-Schlüssel (von den Aufgaben P5.4 ff. ergänzt). */
-const VIEW_BODIES: Partial<Record<string, React.ComponentType<AdminViewBodyProps>>> = {}
+const VIEW_BODIES: Partial<Record<string, ViewBody>> = {
+  'neues-stueck': PieceEditorView,
+  stueck: PieceEditorView,
+  stuecke: PiecesListView,
+}
 
 export function AdminViewBody(props: AdminViewBodyProps) {
   const { match, adminRoute } = props

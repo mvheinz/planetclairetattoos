@@ -32,7 +32,11 @@ import {
 import { registerUploadReference } from '@/lib/uploads/references'
 import { productTransitionEndpoints } from '@/endpoints/products/actions'
 import { adoptEndpoint } from '@/endpoints/products/adopt'
-import { computeNextItemNumber, nextItemNumberEndpoint } from '@/endpoints/products/nextItemNumber'
+import {
+  computeNextItemNumber,
+  itemNumberStatusEndpoint,
+  nextItemNumberEndpoint,
+} from '@/endpoints/products/nextItemNumber'
 import { translateEndpoint } from '@/endpoints/products/translate'
 
 import {
@@ -783,6 +787,7 @@ export const Products: CollectionConfig = {
   defaultSort: '-updatedAt',
   endpoints: [
     nextItemNumberEndpoint,
+    itemNumberStatusEndpoint,
     ...productTransitionEndpoints,
     translateEndpoint,
     adoptEndpoint,
