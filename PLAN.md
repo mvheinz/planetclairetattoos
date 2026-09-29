@@ -2155,7 +2155,7 @@ R-010, R-011, R-090, R-130, R-131, R-136 (Header), R-191; KONZEPT §1.4 (EK-01, 
 - [x] Routen-Registry: R02, R03, R04, R05, R31 gebaut; AK-2-01 und AK-2-05 grün.
 - [x] Dokumentation (vor dem Phasen-Lauf committet): Ergebnis Spike B-05 in ARCHITEKTUR Anhang B (ggf. ADR); neue Annahmen in `docs/OFFENE-PUNKTE.md` (Datum, Aufgabe, Annahme, Änderungsweg), z. B. Platzhalter der harmonisierten Mitteilung (falls nötig).
 - [x] Auf keiner P3-Seite: Cookie vor „In den Korb“, Fremd-Request, „inkl. MwSt“, Streichpreis oder Widerrufsausschluss (Suiten grün).
-- [ ] `docs/FORTSCHRITT.md`: Eintrag für Jutta in einfachen Worten (was sie in der Vorschau-Datei jetzt sieht, wie „In den Korb“ wirkt); PR-Beschreibung aktualisiert (Aufgaben, AK-Nachweise, Tests, Link zum Vorschau-Artefakt).
+- [x] `docs/FORTSCHRITT.md`: Eintrag für Jutta in einfachen Worten (was sie in der Vorschau-Datei jetzt sieht, wie „In den Korb“ wirkt); PR-Beschreibung aktualisiert (Aufgaben, AK-Nachweise, Tests, Link zum Vorschau-Artefakt).
 
 ## P4 – Warenkorb, Kasse, Bezahlen
 

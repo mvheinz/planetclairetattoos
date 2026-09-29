@@ -2,6 +2,42 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+
+## 2026-09-29 – P3 Phasen-Abnahme (Shop, Produktseiten, Archiv) – für Jutta
+
+**Was ist neu?** Dein Shop steht – vorerst mit den Beispielstücken (Fotos aus deinem Instagram, Texte als Muster).
+
+**Was du in der Vorschau-Datei jetzt siehst** (Datei herunterladen und doppelklicken, wie in Anleitung V0):
+
+- **Shop:** alle Stücke als Karten mit Foto, Preisschild und Nummer. Oben kannst du nach Kategorie filtern (Keramik,
+  Textil, Caps, Zeichnungen, Schmuck) und „nur verfügbare“ anzeigen lassen. Die Preisschilder schwingen kurz, wenn
+  sie ins Bild kommen – wie Anhänger an einer Schnur.
+- **Reserviert und verkauft:** Ein reserviertes Stück zeigt „Gerade reserviert“, ein verkauftes bekommt den
+  „sold“-Stempel. Verkaufte Stücke, die du zeigen möchtest, stehen zusätzlich im **Archiv** („Schon ausgezogen – aber
+  schön anzusehen“).
+- **Produktseite** für jedes Beispielstück: Fotos zum Wischen, ein Tipp aufs Foto öffnet die große Ansicht zum
+  Heranzoomen. Darunter Preis mit dem Hinweis zur Umsatzsteuer, Versandkosten, Lieferzeit, alle Pflichtangaben je
+  Kategorie (z. B. Material und Pflege bei Textil, „nur zur Deko“ bei Keramik ohne Nachweis), deine Angaben als
+  Herstellerin, Versand & Rückgabe und „Mehr aus …“ mit ähnlichen Stücken.
+- **Kurzlink für Instagram:** `planetclairetattoos.com/nr/<Nummer>` führt direkt zum Stück – praktisch für Stories.
+- **Wenn es ein Stück nicht mehr gibt,** erscheint eine freundliche Seite („Dieses Stück hat schon ein Zuhause
+  gefunden“) mit Links zu Shop und Archiv.
+
+**Wie „In den Korb“ wirkt:** Auf der echten Website legt der Knopf das Stück in den Korb, ohne dass die Seite neu
+lädt; oben zählt der Korb eins hoch, und beim Stück steht „Liegt schon in deinem Korb“. Erst in diesem Moment speichert
+die Seite ein kleines Korb-Cookie – vorher nichts (so will es das Datenschutzrecht). In der Vorschau-Datei zählt der Korb
+nur zum Anschauen hoch und zeigt „In der Vorschau zeigt der Korb ein Beispiel“ – hier wird nichts gekauft und nichts
+gespeichert. Warenkorb, Kasse und Bezahlen kommen in der nächsten Phase (P4).
+
+**Geprüft:** Auf keiner Shop-Seite gibt es ein Cookie vor „In den Korb“, keine Verbindung zu fremden Diensten, kein
+„inkl. MwSt.“, keine durchgestrichenen Preise und keinen Satz wie „kein Umtausch“. Alle Seiten gibt es auf Deutsch und
+Englisch, sie sind per Tastatur bedienbar und für Screenreader geprüft, und Shop und Produktseite laden auf dem Handy
+schnell (Messung wie bei Google, Ziel unter 2,5 Sekunden).
+
+**Was noch fehlt (kommt später oder mit dir in P11):** deine echten Stücke und Fotos in voller Größe (aus dem
+Instagram-Export), die Rechtstexte der Kanzlei und die offizielle Grafik zur Gewährleistung – bis dahin stehen dort
+gekennzeichnete Platzhalter.
+
 ## 2026-09-29 – P3.16
 
 - Querschnittssuiten auf R02–R05 ausgedehnt: @privacy (Request-Log, CSP), @a11y (axe je Kategorie/Zustand, 404-Variante) plus Tastatur-Durchlauf, Verbotsmuster-Scan, JS-Budget (check:bundle), Lighthouse-CI für R02/R04, CLS-Messung (Playwright) jetzt auch für R02 und R04.
