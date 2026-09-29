@@ -100,6 +100,8 @@ export interface BuildInvoiceDataInput {
   items?: readonly InvoiceOrderItem[]
   /** Versand berechnen (Standard: ja, wenn Versandkosten > 0). */
   includeShipping?: boolean
+  /** Abweichender Versandbetrag (S4: Versand der verbleibenden Stücke, ≤ bezahlter Versand). */
+  shippingCents?: number
   paidAt: Date
   /** Leistungszeitpunkt (Zahlungs-/Übergabedatum), Anzeige als Monat. */
   deliveryDate: Date
@@ -111,7 +113,10 @@ export function buildInvoiceData(input: BuildInvoiceDataInput): InvoiceDataV1 {
   const items = input.items ?? order.items
   if (items.length === 0) throw new Error('Rechnung ohne Positionen (O19: keine Rechnung).')
   const address = invoiceRecipientAddress(order)
-  const shippingCents = input.includeShipping === false ? 0 : Math.max(0, order.shippingCents | 0)
+  const shippingCents =
+    input.includeShipping === false
+      ? 0
+      : Math.max(0, (input.shippingCents ?? order.shippingCents) | 0)
   const tax = computeTax(
     items.map((i) => ({ grossCents: i.priceCents, vatCategory: i.vatCategory })),
     taxMode,

@@ -18,7 +18,7 @@ export function actorTypeOf(req: PayloadRequest): ActorType {
   const ctx = getAppContext(req)
   if (ctx.seed) return 'seed'
   if (req.user?.collection === 'users') return 'admin'
-  return 'system'
+  return ctx.actorType ?? 'system'
 }
 
 /** Lehnt Änderungen an `fields` nach dem Anlegen ab (`message` je Feld). */

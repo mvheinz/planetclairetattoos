@@ -39,6 +39,8 @@ export type SessionState = {
   /** Nur bei 'open'; nie gespeichert – bei jedem Laden der Kasse neu geholt. */
   clientSecret?: string
   paymentIntentId?: string
+  /** Belastung (`ch_…`/`py_…`), sobald bezahlt. */
+  chargeId?: string
   amountTotalCents?: number
   paymentMethod?: { type: 'card' | 'paypal'; wallet?: 'apple_pay' | 'google_pay' }
 }

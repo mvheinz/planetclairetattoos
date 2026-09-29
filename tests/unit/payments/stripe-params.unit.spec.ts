@@ -399,6 +399,7 @@ describe('Stripe-Treiber: Versand, Beenden, Abfragen, Erstattung', () => {
         status: 'complete',
         paymentStatus: 'paid',
         paymentIntentId: 'pi_test_1',
+        chargeId: 'ch_test_1',
         amountTotalCents: 7990,
         paymentMethod,
       })

@@ -29,6 +29,8 @@ import { parseInvoiceData } from './schema'
 export interface CreateInvoiceOptions {
   /** IDs der zu berechnenden Positionen (`orders.items[].id`); Standard: alle (bei S4 nur die gelieferten, §8.4). */
   lines?: readonly string[]
+  /** Berechneter Versand (Standard: `order.shippingCents`; bei S4 der Versand der verbleibenden Stücke, §8.4). */
+  shippingCents?: number
   /** Zahlungszeitpunkt (= Leistungszeitpunkt, Anzeige als Monat). */
   paidAt: Date
   /** Injizierte Zeit (Ausstellungsdatum, A-08). */
@@ -93,6 +95,7 @@ export async function createInvoiceForOrder(
       business: businessOf(settings),
       taxMode,
       items,
+      ...(options.shippingCents !== undefined ? { shippingCents: options.shippingCents } : {}),
       paidAt: options.paidAt,
       deliveryDate: options.paidAt,
     })

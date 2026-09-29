@@ -1,0 +1,11 @@
+ACHTUNG: Zahlung angefochten – PC-2026-00017
+
+Betrag: 53,90 €
+Grund laut Stripe: Ware nicht erhalten (product_not_received)
+Antwortfrist: 02.11.2026, 23:59 Uhr
+
+Belege (Sendungsnummer, Rechnung, Packfotos) im Stripe-Dashboard einreichen.
+
+--
+Diese Nachricht hat deine Website automatisch erzeugt.
+Zur Verwaltung: https://planetclairetattoos.com/werkstatt/collections/orders/17

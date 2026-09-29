@@ -93,3 +93,18 @@ export async function deleteLegalTexts(payload: Payload): Promise<void> {
   const db = (payload.db as unknown as { drizzle: Db }).drizzle
   await db.execute(sql`DELETE FROM legal_texts`)
 }
+
+/**
+ * Aktive Test-Fassungen mit gespeicherten PDFs (AGB, Widerrufsbelehrung, Formular) – Voraussetzung für die Anhänge der
+ * Bestellbestätigungen M01/M02 (P4.12). Liefert die Felder für `legalTextVersions`.
+ */
+export async function ensureLegalTextFixturesWithPdfs(payload: Payload) {
+  const versions = await ensureLegalTextFixtures(payload)
+  const { createLocalReq } = await import('payload')
+  const { issueLegalTextPdfs } = await import('@/lib/legal/pdf')
+  for (const id of [versions.agb, versions.widerrufsbelehrung, versions.widerrufsformular]) {
+    const req = await createLocalReq({ context: { system: true } }, payload)
+    await issueLegalTextPdfs(req, id)
+  }
+  return versions
+}

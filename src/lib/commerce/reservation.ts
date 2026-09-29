@@ -2,7 +2,7 @@ import 'server-only'
 
 import config from '@payload-config'
 import { sql } from '@payloadcms/db-postgres'
-import { createLocalReq, getPayload, type Payload } from 'payload'
+import { createLocalReq, getPayload, type Payload, type PayloadRequest } from 'payload'
 
 import { revalidateProduct } from '@/lib/cache/revalidate'
 import { dbFor, type SqlExecutor } from '@/lib/db/tx'
@@ -13,6 +13,7 @@ import { getPaymentsAdapter, type PaymentsAdapter } from '@/lib/payments'
 import type { Checkout } from '@/payload-types'
 
 import { canTransitionCheckout, transitionCheckout } from './checkoutTransitions'
+import { confirmedPaymentFromSession, fulfillCheckout } from './fulfillCheckout'
 
 // Reservierung und Freigabe (DATENMODELL §8.1/§8.2, KONZEPT §4.6, E-22). Das atomare SQL ist die einzige Stelle, an
 // der ein Stück `reserved` wird: `UPDATE … WHERE status = 'available' … RETURNING id` in der Transaktion des Aufrufers –
@@ -101,6 +102,13 @@ export interface ReleaseOptions {
   closeReason?: CheckoutCloseReason
   /** Kontext `inServerAction` für die Cache-Erneuerung. */
   inServerAction?: boolean
+  /**
+   * Abgeschlossene, (noch) unbezahlte Session trotzdem freigeben (Task `releaseExpiredReservations`, PLAN P4.18 a):
+   * die Reservierung ist abgelaufen, eine spätere Zahlung behandelt `fulfillCheckout` als S16.
+   */
+  releaseWhenUnpaid?: boolean
+  /** Nur Reservierungen dieser Quelle freigeben (Task: `checkout_session`, Vorkasse nie). */
+  source?: 'checkout_session'
 }
 
 export type ReleaseOutcome =
@@ -127,6 +135,32 @@ export const CHECKOUT_END_BY_RELEASE: Readonly<
 
 const LIVE_STATES: ReadonlySet<CheckoutStatus> = new Set(['open', 'confirming'])
 
+/** „Bereits bezahlt“ statt Freigabe: `fulfillCheckout` mit dem Anbieter-Zustand; Fehler nur protokollieren (Rückfälle). */
+async function fulfillPaidInsteadOfRelease(
+  payload: Payload,
+  payments: PaymentsAdapter,
+  checkoutId: number,
+  sessionId: string,
+  now: Date,
+): Promise<void> {
+  try {
+    const state = await payments.getCheckoutSession(sessionId)
+    const req = await createLocalReq({ context: { system: true, now: now.toISOString() } }, payload)
+    const result = await fulfillCheckout(checkoutId, req, {
+      now,
+      payment: confirmedPaymentFromSession(state, {
+        driver: payments.driver,
+        livemode: payments.mode === 'live',
+        paidAt: now,
+      }),
+    })
+    await result.afterCommit()
+    log.info('reservation.fulfilled_instead_of_release', { checkoutId, status: result.status })
+  } catch (err) {
+    log.error('reservation.fulfill_failed', { checkoutId, error: (err as Error)?.message })
+  }
+}
+
 async function checkoutByRef(payload: Payload, ref: string): Promise<Checkout | null> {
   const res = await payload.find({
     collection: 'checkouts',
@@ -137,6 +171,66 @@ async function checkoutByRef(payload: Payload, ref: string): Promise<Checkout | 
     overrideAccess: true,
   })
   return (res.docs[0] as Checkout | undefined) ?? null
+}
+
+export interface ReleaseInTransactionInput {
+  ref: string
+  reason: ReservationReleaseReason
+  checkoutId: number | null
+  now: Date
+  closeReason?: CheckoutCloseReason
+  /** Nur Reservierungen dieser Quelle (Webhook: `checkout_session`, DATENMODELL §8.2). */
+  source?: 'checkout_session'
+}
+
+/**
+ * Freigabe-SQL §8.2 in der Transaktion von `req` (ohne Anbieter-Abfrage): Stücke `available`, Reservierungen
+ * `released`, Kasse – sofern noch offen – nach `expired`/`cancelled`/`failed`. Liefert die freigegebenen Stück-IDs;
+ * die Cache-Erneuerung nach dem Commit übernimmt der Aufrufer.
+ */
+export async function releaseInTransaction(
+  req: PayloadRequest,
+  input: ReleaseInTransactionInput,
+): Promise<number[]> {
+  const { ref, reason, checkoutId, now } = input
+  const end = CHECKOUT_END_BY_RELEASE[reason]
+  return inTransaction(req, async () => {
+    const db = await dbFor(req)
+    const at = now.toISOString()
+    const sourceFilter = input.source
+      ? sql` AND id IN (SELECT product_id FROM reservations WHERE ref = ${ref} AND status = 'active'
+                         AND source = ${input.source}::enum_reservations_source)`
+      : sql``
+    const freed = await db.execute(sql`
+      UPDATE products
+         SET status = 'available', reserved_until = NULL, reservation_ref = NULL, current_order_id = NULL,
+             updated_at = ${at}::timestamptz
+       WHERE reservation_ref = ${ref} AND status = 'reserved'${sourceFilter}
+      RETURNING id
+    `)
+    const reservationSource = input.source
+      ? sql` AND source = ${input.source}::enum_reservations_source`
+      : sql``
+    await db.execute(sql`
+      UPDATE reservations
+         SET status = 'released', released_at = ${at}::timestamptz,
+             release_reason = ${reason}::enum_reservations_release_reason, updated_at = ${at}::timestamptz
+       WHERE ref = ${ref} AND status = 'active'${reservationSource}
+    `)
+    if (checkoutId !== null && end) {
+      const current = await db.execute(
+        sql`SELECT status FROM checkouts WHERE id = ${checkoutId} FOR UPDATE`,
+      )
+      const from = current.rows[0]?.status as CheckoutStatus | undefined
+      if (from && canTransitionCheckout(from, end.to)) {
+        await transitionCheckout(req, checkoutId, end.to, {
+          closeReason: input.closeReason ?? end.closeReason,
+          now,
+        })
+      }
+    }
+    return freed.rows.map((r) => Number(r.id))
+  })
 }
 
 /**
@@ -162,11 +256,12 @@ export async function releaseReservation(
     try {
       const result = await payments.expireCheckoutSession(sessionId)
       if (result === 'already_complete_paid') {
-        // P4.16a: hier `fulfillCheckout` aufrufen. Bis dahin bleibt alles reserviert.
+        // Bezahlt: keine Freigabe, sondern Bestellabschluss (DATENMODELL §8.2, KONZEPT §4.6/§4.11 S3).
         log.info('reservation.release_skipped_paid', { checkoutId, reason })
+        await fulfillPaidInsteadOfRelease(payload, payments, checkoutId, sessionId, now)
         return { status: 'paid', checkoutId }
       }
-      if (result === 'already_complete_unpaid') {
+      if (result === 'already_complete_unpaid' && !options.releaseWhenUnpaid) {
         log.info('reservation.release_skipped_pending', { checkoutId, reason })
         return { status: 'payment_pending', checkoutId }
       }
@@ -180,37 +275,14 @@ export async function releaseReservation(
     }
   }
 
-  const end = CHECKOUT_END_BY_RELEASE[reason]
   const req = await createLocalReq({ context: { system: true, now: now.toISOString() } }, payload)
-  const productIds = await inTransaction(req, async () => {
-    const db = await dbFor(req)
-    const at = now.toISOString()
-    const freed = await db.execute(sql`
-      UPDATE products
-         SET status = 'available', reserved_until = NULL, reservation_ref = NULL, current_order_id = NULL,
-             updated_at = ${at}::timestamptz
-       WHERE reservation_ref = ${ref} AND status = 'reserved'
-      RETURNING id
-    `)
-    await db.execute(sql`
-      UPDATE reservations
-         SET status = 'released', released_at = ${at}::timestamptz,
-             release_reason = ${reason}::enum_reservations_release_reason, updated_at = ${at}::timestamptz
-       WHERE ref = ${ref} AND status = 'active'
-    `)
-    if (checkoutId !== null && end) {
-      const current = await db.execute(
-        sql`SELECT status FROM checkouts WHERE id = ${checkoutId} FOR UPDATE`,
-      )
-      const from = current.rows[0]?.status as CheckoutStatus | undefined
-      if (from && canTransitionCheckout(from, end.to)) {
-        await transitionCheckout(req, checkoutId, end.to, {
-          closeReason: options.closeReason ?? end.closeReason,
-          now,
-        })
-      }
-    }
-    return freed.rows.map((r) => Number(r.id))
+  const productIds = await releaseInTransaction(req, {
+    ref,
+    reason,
+    checkoutId,
+    now,
+    closeReason: options.closeReason,
+    source: options.source,
   })
   for (const id of productIds) {
     revalidateProduct(id, { immediate: true, inServerAction: options.inServerAction })
