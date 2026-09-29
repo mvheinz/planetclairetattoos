@@ -2,6 +2,11 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P5.8
+
+- Ansicht „Meine Stücke“ (`/stuecke`): Suche nach Nummer (exakt, auch „017“) oder Titel, Filter Status/Kategorie, 20 Karten je Seite, Status-Badge mit Reservierungs-/Vorkasse-Hinweis, Knöpfe je Status auf die P5.7-Endpunkte, Dialog „offline verkauft“ mit Archiv-Schalter, „Zur Bestellung“, „Im Archiv zeigen“.
+- Tests: pieces-query.int; E2E pieces (Produktions-Build: offline verkauft → nicht mehr in „nur verfügbare“, im Archiv mit Stempel ≤ 5 s; Schalter aus → in keiner Liste; Mini-Satz unverändert; axe 390×844) grün.
+
 ## 2026-09-29 – P5.6
 
 - Handy-Formular „Neues Stück“/„Stück bearbeiten“ (`src/admin/views/pieces/`): Felder je Kategorie mit Vorlagen, Nummernvorschlag + Live-Prüfung `GET /api/products/item-number-status`, Preis per `parseEuroInput` (1–10.000 €), „Als Entwurf speichern“, Vorschau unter `/stuecke/:id/vorschau` (ohne Draft-Mode-Cookie), „Online stellen“ mit Liste „Das fehlt noch:“ und Sprunglinks, Erfolgsseite mit Link/Kurzlink kopieren.

@@ -2647,7 +2647,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     `tests/int/legal/offline-sale.int.spec.ts` (Titel „R-127 …“).
   - Ohne Jutta: –
 
-- [ ] **P5.8 „Meine Stücke“** – Ansicht `/stuecke` (KONZEPT §7.5): Suche nach Nummer (exakt) oder Titel (enthält),
+- [x] **P5.8 „Meine Stücke“** – Ansicht `/stuecke` (KONZEPT §7.5): Suche nach Nummer (exakt) oder Titel (enthält),
   Filter Status (Entwurf, online, reserviert, verkauft, ausgeblendet) und Kategorie, seitenweise 20 Karten. Karte: Foto,
   `Nr. 017`, Titel, Preis, Status-Badge; bei `reserved` „reserviert bis HH:MM“ bzw. „Vorkasse PC-… bis {Datum}“. Knöpfe
   je Status laut KONZEPT §7.5 auf die Endpunkte aus P5.7; Dialog „Nr. 017 als offline verkauft markieren? Es
