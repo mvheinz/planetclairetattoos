@@ -7,7 +7,9 @@ import { createLocalReq, type Payload } from 'payload'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 import { startCheckout, type StartCheckoutResult } from '@/lib/commerce/checkout'
-import { fulfillCheckout } from '@/lib/commerce/fulfillCheckout'
+import { transitionCheckout } from '@/lib/commerce/checkoutTransitions'
+import { createOrderFromCheckout } from '@/lib/commerce/createOrderFromCheckout'
+import { fulfillCheckout, S17_NOTE } from '@/lib/commerce/fulfillCheckout'
 import { __setEmailAdapterForTests, createEmailAdapter } from '@/lib/email'
 import { parseEnv } from '@/lib/env'
 import { ORDER_STATUSES } from '@/lib/enums'
@@ -259,6 +261,88 @@ describe('fulfillCheckout (DATENMODELL §8.3)', () => {
     const order = await orderOf(r.checkoutId)
     expect(order.paymentMethod).toBe('paypal')
     expect(order.stripe?.paymentMethodType).toBe('paypal')
+  })
+})
+
+describe('AK-4-17 bezahlt, aber keine Bestellung möglich (S16/S17, P4.16b)', () => {
+  const alerts = (kind: string) =>
+    count(
+      'email_log',
+      sql`template = 'admin_alert' AND idempotency_key LIKE ${`admin_alert:${kind}@%`}`,
+    )
+
+  beforeEach(async () => {
+    await dbOf(payload).execute(sql`DELETE FROM email_log WHERE template = 'admin_alert'`)
+  })
+
+  for (const [status, closeReason] of [
+    ['expired', 'reservation_expired'],
+    ['cancelled', 'cart_changed'],
+    ['failed', 'payment_failed'],
+  ] as const) {
+    it(`AK-4-17 Kasse ${status} + bezahltes checkout.session.completed → keine Bestellung, keine Rechnung, Stücke und Kasse unverändert, genau eine A12`, async () => {
+      const a = await piece(987)
+      const { r, session } = await submitted([a], { confirming: status === 'failed' })
+      await dbOf(payload).execute(
+        sql`UPDATE checkouts SET status = ${status}::enum_checkouts_status, close_reason = ${closeReason}::enum_checkouts_close_reason WHERE id = ${r.checkoutId}`,
+      )
+      const before = await productRow(payload, a)
+      const emission = await mock.emit(session, 'checkout.session.completed')
+      const res = await processPaymentEvent(emission.event, { payload, payments: mock, now: now() })
+      expect(res).toMatchObject({
+        status: 'processed',
+        action: 'checkout_closed',
+        checkoutId: r.checkoutId,
+      })
+      expect(await count('orders')).toBe(0)
+      expect(await count('invoices')).toBe(0)
+      expect(await productRow(payload, a)).toEqual(before)
+      expect((await checkoutById(payload, r.checkoutId)).status).toBe(status)
+      expect(await alerts('s16_payment_after_checkout_closed')).toBe(1)
+      const log = await payload.find({
+        collection: 'email-log',
+        where: { template: { equals: 'admin_alert' } },
+        depth: 0,
+        overrideAccess: true,
+      })
+      expect(log.docs[0]!.subject).toBe(
+        'Technisches Problem: Zahlung zu einer beendeten Kasse – bitte im Stripe-Dashboard erstatten',
+      )
+      const ev = await dbOf(payload).execute(
+        sql`SELECT status, related_checkout_id FROM webhook_events WHERE event_id = ${emission.event.id}`,
+      )
+      expect(ev.rows[0]).toEqual({ status: 'processed', related_checkout_id: r.checkoutId })
+    })
+  }
+
+  it('AK-4-17 S17 Vorkasse-Kasse (O2) mit bezahlter Session → keine zweite Bestellung, Hinweis an der Vorkasse-Bestellung, genau eine A12', async () => {
+    const a = await piece(988)
+    const { r, session } = await submitted([a], { confirming: false })
+    const req = await createLocalReq({ context: { system: true } }, payload)
+    const { order: pre } = await createOrderFromCheckout(req, r.checkoutId, {
+      transition: 'O2',
+      now: now(),
+    })
+    await transitionCheckout(req, r.checkoutId, 'completed', { now: now() })
+    const emission = await mock.emit(session, 'checkout.session.completed')
+    const res = await processPaymentEvent(emission.event, { payload, payments: mock, now: now() })
+    expect(res).toMatchObject({ status: 'processed', action: 'paid_despite_prepayment' })
+    expect(await count('orders')).toBe(1)
+    expect(await count('invoices')).toBe(0)
+    const order = (await payload.findByID({
+      collection: 'orders',
+      id: pre.id,
+      depth: 0,
+      overrideAccess: true,
+    })) as Order
+    expect(order.status).toBe('awaiting_prepayment')
+    expect(order.adminAttention).toMatchObject({ flag: true, reason: 'manual', note: S17_NOTE })
+    expect(await alerts('s17_paid_despite_prepayment')).toBe(1)
+    // S16/S17 werden nie gedrosselt: eine zweite, andere Zahlung meldet erneut
+    clock.set('2026-10-06T10:01:00.000Z')
+    const second = await mock.emit(session, 'checkout.session.async_payment_succeeded')
+    await processPaymentEvent(second.event, { payload, payments: mock, now: now() })
+    expect(await alerts('s17_paid_despite_prepayment')).toBe(2)
   })
 })
 

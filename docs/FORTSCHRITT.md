@@ -2,6 +2,11 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P4.16b
+
+- `fulfillCheckout` Schritt (1) für bezahlte Sessions ohne mögliche Bestellung: Kasse `expired`/`cancelled`/`failed` (S16) → keine Bestellung, keine Rechnung, Stücke und Kasse unverändert, A12 `s16_payment_after_checkout_closed` („Zahlung zu einer beendeten Kasse – bitte im Stripe-Dashboard erstatten“, Betrag, Session- und Zahlungs-ID), Ereignis `processed` mit `relatedCheckout`; Kasse `completed` mit Vorkasse-Bestellung (S17) → keine zweite Bestellung, `adminAttention` (`manual`, Notiz „Vorkasse bestellt, aber Kartenzahlung eingegangen – bitte eine Zahlung erstatten“) + A12 `s17_paid_despite_prepayment`; beide A12 ungedrosselt, nach dem Commit direkt versendet.
+- Tests: `tests/int/commerce/fulfill-checkout.int.spec.ts` (+4 „AK-4-17 …“: expired/cancelled/failed, S17 mit O2-Fixture); `tests/e2e/checkout/revalidation.e2e.spec.ts` `@slow` (T-21: signiertes Mock-Ereignis an den laufenden Server, Produktseite zeigt „sold“ ≤ 5 s) grün gegen den Produktions-Build (Port 3200); `pnpm build`, `pnpm check` grün.
+
 ## 2026-09-29 – P4.16a
 
 - `src/lib/commerce/fulfillCheckout.ts` `fulfillCheckout(checkoutId, req, { payment, now })` in einer Transaktion (Transaktion des Aufrufers per `dbFor`): Kasse `FOR UPDATE`, Idempotenz über `orders.stripe_checkout_session_id`, nur `open`/`confirming`; Stücke `FOR UPDATE` (`reserved` mit dieser Referenz oder `available`, sonst `OversoldNotHandledError` bis P4.21 → Ereignis `failed`, Wiederholung); `createOrderFromCheckout` (O1, Zahlart card/paypal, `paymentMethodType` card/apple_pay/google_pay/paypal, Session/PaymentIntent/Charge/livemode/amountReceived, Abweichung → `adminAttention payment_amount_mismatch`); Verkaufs-SQL §8.3 (`online`/`pickup`), Reservierungen `converted`, Kasse `completed`; Rechnung; M01 + A01 per Outbox; `afterCommit`: Beleg-PDF, Mails direkt, `revalidateProduct(…, { immediate: true })`.

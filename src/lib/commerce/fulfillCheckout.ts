@@ -5,11 +5,13 @@ import type { Payload, PayloadRequest } from 'payload'
 
 import { revalidateProduct } from '@/lib/cache/revalidate'
 import { dbFor } from '@/lib/db/tx'
+import { sendAdminAlert } from '@/lib/email/alerts'
 import { buildOrderMailData } from '@/lib/email/orderMailData'
 import { enqueueEmail, runEmailJobNow } from '@/lib/email/outbox'
 import type { CheckoutStatus, PaymentProvider } from '@/lib/enums'
 import { createInvoiceForOrder } from '@/lib/invoices/create'
 import { runInvoicePdfJob } from '@/lib/invoices/issue'
+import { money } from '@/lib/email/templates/kit'
 import { createLogger } from '@/lib/monitoring/logger'
 import { preservingReq } from '@/lib/payload/localReq'
 import { inTransaction } from '@/lib/payload/transaction'
@@ -129,22 +131,91 @@ async function lockCheckout(req: PayloadRequest, id: number): Promise<LockedChec
   }
 }
 
+/** Notiz an der Vorkasse-Bestellung bei S17 (DATENMODELL §8.8 Nr. 3, DM-38). */
+export const S17_NOTE =
+  'Vorkasse bestellt, aber Kartenzahlung eingegangen – bitte eine Zahlung erstatten'
+/** Kurzbeschreibung der A12 bei S16 (DM-37). */
+export const S16_SUMMARY = 'Zahlung zu einer beendeten Kasse – bitte im Stripe-Dashboard erstatten'
+
 /**
- * Nicht-offene Kasse (Schritt 1): keine Bestellung, keine Rechnung, Stücke und Kasse unverändert. Meldung an Jutta
- * (A12) und Hinweis an der Vorkasse-Bestellung ergänzt P4.16b.
+ * Nicht-offene Kasse (Schritt 1, KONZEPT §4.10 Nr. 1, §4.11 S16/S17): keine Bestellung, keine Rechnung, Stücke und
+ * Kasse unverändert (kein Übergang, DATENMODELL §6.25.3). S16 (`expired`/`cancelled`/`failed`, auch eine andere
+ * Bestellung): A12. S17 (Kasse per Vorkasse abgeschlossen): Hinweis `adminAttention` an der Vorkasse-Bestellung + A12.
+ * Beide A12-Arten werden nie gedrosselt (`ALWAYS_ALERT_KINDS`).
  */
 async function handleClosed(
-  _req: PayloadRequest,
+  req: PayloadRequest,
   checkout: LockedCheckout,
-  _options: FulfillOptions,
+  options: FulfillOptions,
 ): Promise<FulfillResult> {
-  log.warn('fulfill.checkout_closed', { checkoutId: checkout.id, status: checkout.status })
-  return {
-    status: 'checkout_closed',
+  const { payment, now } = options
+  const amount =
+    payment.amountReceivedCents === null ? 'unbekannt' : money(payment.amountReceivedCents, 'de')
+  const ids = `Session ${payment.sessionId}, Zahlung ${payment.paymentIntentId ?? 'unbekannt'}`
+  let prepaymentOrder: Order | null = null
+  if (checkout.status === 'completed' && checkout.orderId !== null) {
+    const order = (await preservingReq(req, () =>
+      req.payload.findByID({
+        collection: 'orders',
+        id: checkout.orderId!,
+        depth: 0,
+        overrideAccess: true,
+        disableErrors: true,
+        req,
+      }),
+    )) as Order | null
+    if (order?.paymentMethod === 'prepayment') prepaymentOrder = order
+  }
+
+  let alert
+  if (prepaymentOrder) {
+    await preservingReq(req, () =>
+      req.payload.update({
+        collection: 'orders',
+        id: prepaymentOrder.id,
+        data: { adminAttention: { flag: true, reason: 'manual', note: S17_NOTE } } as never,
+        depth: 0,
+        overrideAccess: true,
+        req,
+        context: { ...req.context, system: true, now: now.toISOString() },
+      }),
+    )
+    alert = await sendAdminAlert(req, {
+      kind: 's17_paid_despite_prepayment',
+      summary: 'Vorkasse bestellt, aber Karte/PayPal bezahlt – bitte eine Zahlung erstatten',
+      affected: `Bestellung ${prepaymentOrder.orderNumber}: Betrag ${amount}, ${ids}`,
+      automatic: 'Keine zweite Bestellung; die Vorkasse-Bestellung ist markiert.',
+      todo: 'Bitte eine der beiden Zahlungen erstatten (Karte/PayPal im Stripe-Dashboard).',
+      adminPath: `/collections/orders/${prepaymentOrder.id}`,
+      now,
+    })
+  } else {
+    alert = await sendAdminAlert(req, {
+      kind: 's16_payment_after_checkout_closed',
+      summary: S16_SUMMARY,
+      affected: `Kasse ${checkout.id} (${checkout.status}): Betrag ${amount}, ${ids}`,
+      automatic: 'Keine Bestellung und keine Rechnung; die Stücke sind unverändert.',
+      todo: 'Bitte die Zahlung im Stripe-Dashboard prüfen und erstatten.',
+      now,
+    })
+  }
+  log.warn('fulfill.checkout_closed', {
     checkoutId: checkout.id,
-    orderId: checkout.orderId,
+    status: checkout.status,
+    s17: prepaymentOrder !== null,
+  })
+  const payload: Payload = req.payload
+  const jobId = alert.jobId
+  return {
+    status: prepaymentOrder ? 'paid_despite_prepayment' : 'checkout_closed',
+    checkoutId: checkout.id,
+    orderId: prepaymentOrder?.id ?? null,
     productIds: [],
-    afterCommit: noop,
+    afterCommit: async () => {
+      await runEmailJobNow(payload, jobId, { now }).catch((e: unknown) =>
+        log.error('fulfill.alert_mail_failed', { error: (e as Error)?.message }),
+      )
+    },
   }
 }
 
