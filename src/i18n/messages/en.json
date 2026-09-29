@@ -229,6 +229,8 @@
       "inCart": "Already in your basket",
       "toCart": "Go to basket",
       "added": "In your basket",
+      "inCheckout": "It's in your checkout right now",
+      "toCheckout": "Go to checkout",
       "notes": {
         "cart_full": "Your basket is full – it holds 20 pieces at most.",
         "rate_limited": "That was a bit too fast. Please try again in a few minutes.",
@@ -311,6 +313,7 @@
       "payment_running": "Your payment is in progress – please wait a moment until it's finished.",
       "empty": "Nothing in here yet.",
       "shipping": "Shipping for this cart can't be calculated right now. Please choose pickup or write to me.",
+      "pickup_only": "{items} {count, plural, one {is} other {are}} available for pickup only.",
       "rate_limited": "That was a bit fast. Please try again in a few minutes.",
       "invalid": "That didn't work. Please reload the page and try again."
     }

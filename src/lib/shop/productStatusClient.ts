@@ -1,6 +1,7 @@
 // Abfrage des Live-Zustands im Browser (ARCHITEKTUR §2.5, §9.3; PLAN P3.11). Die App reicht sie über `BehaviorHost` als
 // `ctx.actions.productStatus` an das Modul `product-status` herein – so enthält die Vorschau-Laufzeit keinen Netzcode.
-// Ohne Cookies (`credentials: 'omit'`), ohne Cache. Framework-frei.
+// Nur eigene Cookies (`credentials: 'same-origin'`): der Server erkennt über `pc_checkout` Stücke in der eigenen
+// laufenden Kasse (`reservedByYou`, P4.7); die Abfrage setzt nie ein Cookie. Ohne Cache. Framework-frei.
 
 export const STATUS_ENDPOINT = '/api/public/product-status'
 
@@ -9,7 +10,7 @@ export async function fetchProductStates(
   signal?: AbortSignal,
 ): Promise<Record<string, unknown> | null> {
   const res = await fetch(`${STATUS_ENDPOINT}?ids=${ids.join(',')}`, {
-    credentials: 'omit',
+    credentials: 'same-origin',
     cache: 'no-store',
     headers: { accept: 'application/json' },
     signal,

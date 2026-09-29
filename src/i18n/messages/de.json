@@ -229,6 +229,8 @@
       "inCart": "Liegt schon in deinem Korb",
       "toCart": "Zum Korb",
       "added": "Liegt im Korb",
+      "inCheckout": "Du hast es gerade in der Kasse",
+      "toCheckout": "Zur Kasse",
       "notes": {
         "cart_full": "Dein Korb ist voll – höchstens 20 Stücke passen hinein.",
         "rate_limited": "Das ging gerade zu schnell. Bitte versuch es in ein paar Minuten noch einmal.",
@@ -311,6 +313,7 @@
       "payment_running": "Deine Zahlung läuft gerade – warte bitte kurz, bis sie abgeschlossen ist.",
       "empty": "Hier ist noch nichts drin.",
       "shipping": "Der Versand für diesen Korb lässt sich gerade nicht berechnen. Wähl bitte Abholung oder schreib mir.",
+      "pickup_only": "{items} gibt es nur zur Abholung.",
       "rate_limited": "Das ging gerade zu schnell. Bitte versuch es in ein paar Minuten noch einmal.",
       "invalid": "Das hat nicht geklappt. Bitte lade die Seite neu und versuch es noch einmal."
     }

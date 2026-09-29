@@ -403,7 +403,7 @@ den eigenen Handler trifft.
 | `POST /api/cron/run/[task]` | einen Task sofort ausführen (Tests, Admin „Jetzt ausführen“) | Bearer `CRON_SECRET` oder Admin-Sitzung | – |
 | `GET /api/cron/backup` | nächtliches Datenbank-Backup (§10), nur bei `APP_ENV=production` **und** `BACKUP_ENABLED=true` (bis P11 `false` → 404) | Bearer `CRON_SECRET` | – |
 | `GET /api/payload-jobs/run` | Payload-Standard-Endpunkt (bleibt als Rückfall; `jobs.access.run` = Admin oder Bearer `CRON_SECRET`) | wie links | – |
-| `GET /api/public/product-status?ids=1,2` | Live-Zustand von Stücken (Kauf-Knopf, Warenkorb), max. 24 IDs | öffentlich, Rate-Limit | `no-store` |
+| `GET /api/public/product-status?ids=1,2` | Live-Zustand von Stücken (Kauf-Knopf, Warenkorb), max. 24 IDs; Antwort `{ "12": "reserved", …, "reservedByYou": { "12": true } }` – `reservedByYou` per serverseitigem Abgleich mit der Kasse aus `pc_checkout` (ohne Cookie immer `false`; Abruf mit `credentials: 'same-origin'`, setzt nie ein Cookie; P4.7) | öffentlich, Rate-Limit | `no-store` |
 | `POST /api/uploads/commission` | einzelnes Referenzbild (≤ 4 MB) mit Formular-Token (KONZEPT §10.2) | Formular-Token, Rate-Limit | – |
 | `GET /api/checkout/[token]/state` | Zustand der Kasse bzw. der daraus entstandenen Bestellung für die wartende Danke-Seite (KONZEPT §4.12: Abfrage alle 2 s bis 60 s); Antwort nur Zustandscodes, keine Personendaten | Kassen-Token, Rate-Limit `token_pages` | `no-store` |
 | `GET /api/privacy-export/[token]` | Download des DSGVO-Exports (ZIP aus `privacy-requests.exportFile`, R-150) über den Link aus Mail M14; signierter Token (§8.6) ohne Personendaten, 7 Tage gültig, danach bzw. nach Löschung der Datei (L-17) **410**; liefert die Datei aus dem privaten Speicher (`s3`: Weiterleitung auf eine signierte URL ≤ 300 s, R-136), `Content-Disposition: attachment`, `Referrer-Policy: no-referrer` | signierter Token, Rate-Limit `token_pages` | `private, no-store` |
@@ -1571,7 +1571,7 @@ Umsetzung §3.9 (Postgres, Schlüssel = IP-Hash, Einträge ≤ 24 h). Antwort be
 | Bucket | Stelle | Schlüssel | Grenze |
 |---|---|---|---|
 | `cart_add` | Server-Action „In den Korb“ | IP-Hash | 60 / 10 min |
-| `checkout_start` | „Zur Kasse“ | IP-Hash | 10 / 10 min und 30 / Tag |
+| `checkout_start` | „Zur Kasse“ | IP-Hash | 10 / 10 min und 30 / Tag (zweiter Bucket `checkout_start_day`) |
 | `checkout_submit` | „Zahlungspflichtig bestellen“ | Kassen-Token | 10 / 30 min |
 | `commission_submit` | Auftragsanfrage absenden | IP-Hash | 5 / h und 20 / Tag (KONZEPT §10.3) |
 | `commission_upload` | `POST /api/uploads/commission` | IP-Hash | 15 / h |

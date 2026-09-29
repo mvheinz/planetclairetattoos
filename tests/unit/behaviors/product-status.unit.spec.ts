@@ -55,7 +55,7 @@ afterEach(() => {
 })
 
 describe('Abfrage', () => {
-  it('eine GET-Abfrage für alle IDs (Wurzel + Karten, ohne Doppelte), ohne Cookies und ohne Cache', async () => {
+  it('eine GET-Abfrage für alle IDs (Wurzel + Karten, ohne Doppelte), nur eigene Cookies und ohne Cache', async () => {
     const root = setup(
       `<article data-behavior="product-status" data-product-id="7" data-status="available" ${LABELS}>` +
         `<ul>${card(8)}${card(9)}${card(8)}</ul></article>`,
@@ -66,7 +66,8 @@ describe('Abfrage', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1)
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
     expect(url).toBe(`${STATUS_ENDPOINT}?ids=7,8,9`)
-    expect(init).toMatchObject({ credentials: 'omit', cache: 'no-store' })
+    // P4.7: `same-origin`, damit der Server `pc_checkout` sieht (`reservedByYou`); keine fremden Anfragen
+    expect(init).toMatchObject({ credentials: 'same-origin', cache: 'no-store' })
     expect(root.hasAttribute('data-status-live')).toBe(true)
     unmount()
   })
@@ -154,6 +155,25 @@ describe('Live-Wechsel', () => {
     mount(root, { mode: 'app' })
     await flush()
     expect(events).toEqual([])
+    document.removeEventListener(PRODUCT_STATE_EVENT, on)
+  })
+
+  it('P4.7 reservedByYou: Stück in der eigenen Kasse → Ereignis mit reservedByYou, auch ohne Zustandswechsel', async () => {
+    const root = setup(
+      `<article data-behavior="product-status" data-product-id="5" data-status="reserved" ${LABELS}>` +
+        `<ul>${card(6, 'reserved')}</ul></article>`,
+    )
+    respond({ 5: 'reserved', 6: 'reserved', reservedByYou: { 5: true, 6: false } })
+    const events: unknown[] = []
+    const on = (e: Event) => events.push((e as CustomEvent).detail)
+    document.addEventListener(PRODUCT_STATE_EVENT, on)
+    mount(root, { mode: 'app' })
+    await flush()
+    expect(events).toEqual([{ id: '5', state: 'reserved', reservedByYou: true }])
+    expect(root.hasAttribute('data-reserved-by-you')).toBe(true)
+    expect(
+      document.querySelector('[data-product-card]')!.hasAttribute('data-reserved-by-you'),
+    ).toBe(false)
     document.removeEventListener(PRODUCT_STATE_EVENT, on)
   })
 

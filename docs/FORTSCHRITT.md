@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P4.7
+
+- `src/lib/commerce/cart.ts`: `readCart()` (tolerant, `decodeCartCookie` + zod), `removeFromCart` (offene Kasse → `cancelled`/`cart_changed`, Freigabe `customer_cancelled`, S6; `confirming` oder „bezahlt“ beim Anbieter → abgelehnt `payment_running`; leerer Korb → Cookie löschen), `setDeliveryMethod` (`shipping` mit `nur_abholung` → `pickup_only` mit Nummern, AK-4-02; ohne Korb kein Cookie; Kasse und Reservierung bleiben), `evaluateCart(cart, now)` (DB-Stand je Position, eigene Kasse über `pc_checkout`) mit reinem Kern `src/lib/commerce/evaluateCart.ts` (`available`/`reserved_by_you`/`reserved`/`sold`, `priceChanged`, Summen nur über kaufbare Positionen mit DB-Preis, `canCheckout` + `blockers`), `reservedByYou()`.
+- Server-Actions `removeFromCart`/`setDeliveryMethod` in `src/app/(frontend)/[locale]/cart/actions.ts` (Formular → 303 auf R06 mit Hinweis, `via=script` → Antwort); Hinweis-Code `pickup_only` + Texte DE/EN.
+- `GET /api/public/product-status`: Feld `reservedByYou` (Abgleich mit `pc_checkout`, ohne Cookie `false`, weiter `no-store`); Abruf nun `credentials: 'same-origin'`; `product-status` meldet `reservedByYou`, `add-to-cart` zeigt auf der Produktseite und in der Kauf-Leiste „Du hast es gerade in der Kasse“ + „Zur Kasse“ (R07). ARCHITEKTUR §2.5/§8.5 ergänzt.
+- Tests: `tests/unit/commerce/evaluate-cart.unit.spec.ts` (10), `tests/int/commerce/cart-actions.int.spec.ts` (10: S6 inkl. sofort öffentlich frei, letztes Stück, `confirming`, AK-4-02, Lieferart ohne Freigabe, Preisänderung, eigene/fremde Kasse, `reservedByYou`), Behavior-Unit-Tests erweitert; `add-to-cart.int` angepasst; `pnpm check` grün (1164), betroffene Int-Tests grün.
+
 ## 2026-09-29 – P4.6
 
 - `src/lib/commerce/reservation.ts`: `reserveProducts` (atomares `UPDATE products … WHERE id = ANY(…) AND status = 'available' AND is_custom_commission IS NOT TRUE RETURNING id` + `INSERT INTO reservations … 'checkout_session'`; weniger Zeilen oder UNIQUE-Verletzung → `ReservationConflictError`, Rollback), `releaseReservation(ref, reason, now)` nach §8.2 (Session vorher beenden; `already_complete_paid`/unbezahlt abgeschlossen/Anbieterfehler → keine Freigabe; Kasse je Grund nach `expired`/`cancelled`/`failed`), `releaseExpiredFor` (lazy release, nur `checkout_session`). Übergabe an `fulfillCheckout` bei „bezahlt“ bleibt für P4.16a markiert.

@@ -22,12 +22,15 @@ import {
 //   `closedMessage`) bzw. Meldung (`[data-buy-note="<code>"]`: Korb voll, zu viele Versuche, Fehler).
 // Beim Binden liest es `pc_cart` (nur lesen, nichts setzen) und zeigt „Liegt schon in deinem Korb“, wenn das Stück schon
 // im Korb liegt. Alle Formulare desselben Stücks bleiben gleich (Ereignis `CART_ITEM_EVENT`); `PRODUCT_STATE_EVENT`
-// (Modul `product-status`) übernimmt Live-Wechsel. Im Modus `preview`: keine Server-Aufrufe, kein Cookie, kein Speicher –
+// (Modul `product-status`) übernimmt Live-Wechsel; liegt das Stück in der eigenen laufenden Kasse (`reservedByYou`),
+// zeigt `[data-in-checkout]` „Du hast es gerade in der Kasse“ + „Zur Kasse“ (P4.7, KONZEPT §3.4 Nr. 6).
+// Im Modus `preview`: keine Server-Aufrufe, kein Cookie, kein Speicher –
 // nur Anzeige; die Korb-Anzeige zählt die Vorschau-Laufzeit im Speicher (`cartDemo`, Klick auf dieses Formular).
 
 export const CART_ITEM_EVENT = 'pc:cart-item'
 
-export type BuyView = 'available' | 'in-cart' | 'reserved' | 'sold' | 'gone' | 'closed'
+export type BuyView =
+  'available' | 'in-cart' | 'in-checkout' | 'reserved' | 'sold' | 'gone' | 'closed'
 export type BuyNote = Extract<AddToCartResponse, { ok: false }>['code']
 
 export interface CartItemDetail {
@@ -80,6 +83,7 @@ export function mount(root: Element, ctx: BehaviorContext = { mode: 'app' }): Un
   const button = root.querySelector<HTMLButtonElement>('button[type="submit"], button:not([type])')
   const label = button?.querySelector('span') ?? button
   const inCart = scope.querySelector<HTMLElement>('[data-in-cart]')
+  const inCheckout = scope.querySelector<HTMLElement>('[data-in-checkout]')
   const soldView = scope.querySelector<HTMLElement>('[data-sold-view]')
   const confirm = scope.querySelector<HTMLElement>('[data-buy-confirm]')
   const notes = Array.from(scope.querySelectorAll<HTMLElement>('[data-buy-note]'))
@@ -117,9 +121,10 @@ export function mount(root: Element, ctx: BehaviorContext = { mode: 'app' }): Un
     view = next
     if (next === 'closed') closed = true
     scope.setAttribute('data-buy-state', next)
-    const showForm = next !== 'in-cart' && next !== 'sold'
+    const showForm = next !== 'in-cart' && next !== 'in-checkout' && next !== 'sold'
     form.hidden = !showForm
     if (inCart) inCart.hidden = next !== 'in-cart'
+    if (inCheckout) inCheckout.hidden = next !== 'in-checkout'
     if (soldView) soldView.hidden = next !== 'sold'
     if (label)
       label.textContent = next === 'reserved' && texts.reserved ? texts.reserved : texts.add
@@ -225,7 +230,8 @@ export function mount(root: Element, ctx: BehaviorContext = { mode: 'app' }): Un
     const d = (event as CustomEvent<ProductStateDetail>).detail
     if (!d || d.id !== id) return
     const inBasket = view === 'in-cart'
-    if (d.state === 'available') render(inBasket ? 'in-cart' : closed ? 'closed' : 'available')
+    if (d.reservedByYou) render('in-checkout')
+    else if (d.state === 'available') render(inBasket ? 'in-cart' : closed ? 'closed' : 'available')
     else render(d.state)
     showNote(d.state === 'gone' ? 'product_unavailable' : undefined)
   }

@@ -460,7 +460,7 @@ export const CART_NOTICE_PARAM = 'hinweis'
 export const CART_NOTICE_ITEMS_PARAM = 'nr'
 export const CART_NOTICE_MAX_PARAM = 'max'
 
-export type CartNoticeCode = StartCheckoutCode | 'rate_limited' | 'invalid'
+export type CartNoticeCode = StartCheckoutCode | 'pickup_only' | 'rate_limited' | 'invalid'
 export const CART_NOTICE_CODES: readonly CartNoticeCode[] = [
   'shop_closed',
   'empty',
@@ -469,6 +469,7 @@ export const CART_NOTICE_CODES: readonly CartNoticeCode[] = [
   'reserved',
   'payment_running',
   'shipping',
+  'pickup_only',
   'rate_limited',
   'invalid',
 ]
