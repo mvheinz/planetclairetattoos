@@ -19,6 +19,12 @@ import { systemClock } from '@/lib/time'
 
 import { getPaymentsAdapter } from './index'
 import { paymentEventData, type CheckoutEventData } from './normalize'
+import {
+  handleChargeRefunded,
+  handleDisputeClosed,
+  handleDisputeCreated,
+  handleRefundEvent,
+} from './orderEvents'
 import type { PaymentEvent, PaymentEventType, PaymentsAdapter, SessionState } from './types'
 
 // Ereignisverarbeitung der Zahlungs-Webhooks (DATENMODELL §8.8, KONZEPT §4.10, ARCHITEKTUR §3.5) – dieselbe Funktion
@@ -291,6 +297,28 @@ async function handleCheckoutEvent(
   }
 }
 
+/** Erstattungen und Anfechtungen (P4.22); nicht behandelte Typen → `ignored`. */
+async function handleOrderEvent(
+  req: PayloadRequest,
+  event: PaymentEvent,
+  now: Date,
+): Promise<HandlerOutcome> {
+  switch (event.type) {
+    case 'refund.created':
+    case 'refund.updated':
+    case 'refund.failed':
+      return handleRefundEvent(req, event, now)
+    case 'charge.refunded':
+      return handleChargeRefunded(req, event, now)
+    case 'dispute.created':
+      return handleDisputeCreated(req, event, now)
+    case 'dispute.closed':
+      return handleDisputeClosed(req, event, now)
+    default:
+      return { status: 'ignored', action: 'unhandled_type' }
+  }
+}
+
 /**
  * Verarbeitet ein normalisiertes Zahlungs-Ereignis genau einmal (DATENMODELL §8.8). Wirft bei einem Fehler (die Zeile
  * steht dann auf `failed`); der Webhook antwortet darauf mit 500.
@@ -321,8 +349,7 @@ export async function processPaymentEvent(
     outcome = await inTransaction(req, async () => {
       const result: HandlerOutcome = CHECKOUT_TYPES.has(event.type)
         ? await handleCheckoutEvent(req, event, { payments, now, session })
-        : // Erstattungen und Anfechtungen folgen in P4.22; alle anderen Typen werden nicht behandelt.
-          { status: 'ignored', action: event.type === 'ignored' ? 'unhandled_type' : 'later' }
+        : await handleOrderEvent(req, event, now)
       await finish(await dbFor(req), claimed.id, result, now)
       return result
     })

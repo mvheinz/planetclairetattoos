@@ -118,4 +118,30 @@ describe('orderTransitions (DM-ORD-01)', () => {
       expect(evaluateOrderTransition('withdrawal_received', before, {}).ok).toBe(false)
     }
   })
+
+  it('DM-ORD-01 Paare mit disputed (P4.22): O16 aus genau neun Status, von disputed nur O18 bzw. O17 zum Vorstatus', () => {
+    const into = ORDER_STATUSES.filter((from) => evaluateOrderTransition(from, 'disputed').ok)
+    expect(into.sort()).toEqual(
+      [
+        'paid',
+        'packed',
+        'shipped',
+        'delivered',
+        'ready_for_pickup',
+        'picked_up',
+        'withdrawal_received',
+        'return_received',
+        'partially_refunded',
+      ].sort(),
+    )
+    for (const from of ['awaiting_prepayment', 'cancelled', 'refunded', 'disputed'] as const) {
+      expect(evaluateOrderTransition(from, 'disputed').ok).toBe(false)
+    }
+    for (const before of into) {
+      expect(assertOrderTransition('disputed', 'refunded', { statusBeforeDispute: before })).toBe(
+        'O18',
+      )
+      expect(assertOrderTransition('disputed', before, { statusBeforeDispute: before })).toBe('O17')
+    }
+  })
 })

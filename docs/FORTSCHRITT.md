@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P4.22
+
+- `processPaymentEvent` behandelt jetzt Erstattungen und Anfechtungen (`src/lib/payments/orderEvents.ts`, ersetzt die vorläufige `ignored`-Ablage): `refund.created/updated/failed` → `refunds[].status` über `stripeRefundId` (Rückfall: offene Erstattung gleichen Betrags ohne ID; `pending` überschreibt kein Ergebnis), `failed` → `adminAttention refund_failed` + A08 genau einmal je Erstattung, kein Statuswechsel; `charge.refunded` → offene Erstattungen bis zur erstatteten Summe `succeeded`.
+- Anfechtungen über `transitionOrder()`: `charge.dispute.created` → O16 (nur Stripe/Mock-Zahlung in den neun erlaubten Status; `statusBeforeDispute`, `disputedAt`, `dispute.open`, `adminAttention dispute_open`, A07); `charge.dispute.closed` gewonnen → O17 (zurück auf `statusBeforeDispute`, `won`, Hinweis entfernt, Notiz), verloren → O18 (`refunds[]` `dispute`/`succeeded` mit Gutschrift GS zur Rechnung, Notiz „durch Anfechtung erstattet“, keine M09); sonst kein Statuswechsel + A12 `dispute_not_applicable`.
+- Tests: `tests/int/payments/refund-dispute-events.int.spec.ts` (7, signierte Stripe-Fixtures, doppelte Zustellung), `tests/unit/commerce/order-transitions.unit.spec.ts` (+1 Paare mit `disputed`); `pnpm check` grün, `pnpm test:int` (ohne preview-export) 552 grün.
+
 ## 2026-09-29 – P4.21
 
 - `fulfillCheckout` nach DATENMODELL §8.4 (ersetzt `OversoldNotHandledError`): fehlende Stücke ohne Verkaufsbuchung. **Alle fehlen:** O19 (`refunded`), keine Rechnung, Positionen `refunded`, `refunds[]` (`item_unavailable`, voller Betrag, `includesShipping`, `pending`), Kasse `completed`, M10 + A06. **Einige fehlen:** O1, fehlende Positionen `refunded`/`refundedCents`, Erstattung = Preise + (bezahlter Versand − Versand der höchsten verbleibenden Klasse, höchstens bezahlt), Rechnung nur über Geliefertes und Restversand (`createInvoiceForOrder` mit `lines`/`shippingCents`), keine Gutschrift, Block „Leider schon weg“ in M01, A06. Immer `adminAttention oversold`, Audit `reservation_conflict`; Reservierungen der fehlenden Stücke freigegeben.
