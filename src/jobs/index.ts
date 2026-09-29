@@ -1,5 +1,6 @@
 import type { TaskConfig } from 'payload'
 
+import { releaseExpiredReservationsTask } from './releaseExpiredReservations'
 import { renderInvoicePdfTask } from './renderInvoicePdf'
 import { renderLegalTextPdfTask } from './renderLegalTextPdf'
 import { sendEmailTask } from './sendEmail'
@@ -58,6 +59,7 @@ export function isTaskSlug(value: string): value is TaskSlug {
 /** In payload.config.ts registrierte Tasks (nur umgesetzte). */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const JOB_TASKS: TaskConfig<any>[] = [
+  releaseExpiredReservationsTask,
   sendEmailTask,
   renderInvoicePdfTask,
   renderLegalTextPdfTask,
@@ -68,3 +70,11 @@ export const IMPLEMENTED_TASK_SLUGS = new Set<string>(JOB_TASKS.map((t) => t.slu
 export function isImplementedTask(slug: string): boolean {
   return IMPLEMENTED_TASK_SLUGS.has(slug)
 }
+
+/**
+ * Fristen-Tasks ohne Eingabe, die jeder volle Lauf des Job-Weckers einreiht (Weckzeit bzw. stündliches Netz,
+ * ARCHITEKTUR §9.6 Nr. 3/5): sie entscheiden selbst nach gespeicherten Zeitpunkten, was fällig ist.
+ */
+export const WAKE_TASK_SLUGS: readonly TaskSlug[] = (
+  ['releaseExpiredReservations', 'prepaymentReminders', 'cancelOverduePrepayments'] as const
+).filter((s) => isImplementedTask(s))

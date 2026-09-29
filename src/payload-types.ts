@@ -160,6 +160,7 @@ export interface Config {
   user: User;
   jobs: {
     tasks: {
+      releaseExpiredReservations: TaskReleaseExpiredReservations;
       sendEmail: TaskSendEmail;
       renderInvoicePdf: TaskRenderInvoicePdf;
       renderLegalTextPdf: TaskRenderLegalTextPdf;
@@ -2370,7 +2371,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'sendEmail' | 'renderInvoicePdf' | 'renderLegalTextPdf';
+        taskSlug: 'inline' | 'releaseExpiredReservations' | 'sendEmail' | 'renderInvoicePdf' | 'renderLegalTextPdf';
         taskID: string;
         input?:
           | {
@@ -2403,7 +2404,7 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'sendEmail' | 'renderInvoicePdf' | 'renderLegalTextPdf') | null;
+  taskSlug?: ('inline' | 'releaseExpiredReservations' | 'sendEmail' | 'renderInvoicePdf' | 'renderLegalTextPdf') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -4810,6 +4811,19 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskReleaseExpiredReservations".
+ */
+export interface TaskReleaseExpiredReservations {
+  input?: unknown;
+  output: {
+    released: number;
+    fulfilled: number;
+    reopened: number;
+    skipped: boolean;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

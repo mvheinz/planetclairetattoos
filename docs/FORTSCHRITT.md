@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P4.18
+
+- Task `releaseExpiredReservations` (`src/jobs/releaseExpiredReservations.ts`, Queue `commerce`, Advisory-Lock je Task über `src/lib/jobs/lock.ts`, Dienst `src/lib/commerce/expiry.ts`, jede Aktion eigene Transaktion, `now` injiziert): (a) aktive `checkout_session`-Reservierungen mit `expiresAt < now` → `releaseReservation` (Session beenden; `already_complete_paid` ⇒ `fulfillCheckout` S3; sonst – auch `already_complete_unpaid` – Freigabe `session_expired` + Kasse `expired`/`reservation_expired`), Vorkasse nie; (b) Kassen `confirming` > 10 min: bezahlt ⇒ `fulfillCheckout` (S10), Session offen + Reservierung gültig ⇒ `open`, sonst warten; (c) `jobAlarm.bump` auf die nächste Reservierung bzw. `confirmingAt + 10 min`.
+- Tick: reiht bei jedem vollen Lauf die Fristen-Tasks ein (`WAKE_TASK_SLUGS`, ohne Doppel) und übernimmt von Tasks gesetzte künftige Weckzeiten. `transitionOrder()` (`src/lib/commerce/transitionOrder.ts`) als einziger Weg für Bestell-Statuswechsel vorbereitet; `context.actorType` für den Statusverlauf. Migration `p4_release_job` (Task-Slug-Enum).
+- Tests: `tests/int/jobs/release-expired-reservations.int.spec.ts` (7: AK-4-09/DM-CHK-04, AK-4-10 S3, AK-8-01/T-18, Vorkasse unberührt, ohne Session, Weckzeit, AK-A-9-02 Tick), `tests/int/jobs/reconcile-confirming.int.spec.ts` (4); `pnpm check` grün, Int-Tests jobs/commerce/payments grün.
+
 ## 2026-09-29 – P4.16b
 
 - `fulfillCheckout` Schritt (1) für bezahlte Sessions ohne mögliche Bestellung: Kasse `expired`/`cancelled`/`failed` (S16) → keine Bestellung, keine Rechnung, Stücke und Kasse unverändert, A12 `s16_payment_after_checkout_closed` („Zahlung zu einer beendeten Kasse – bitte im Stripe-Dashboard erstatten“, Betrag, Session- und Zahlungs-ID), Ereignis `processed` mit `relatedCheckout`; Kasse `completed` mit Vorkasse-Bestellung (S17) → keine zweite Bestellung, `adminAttention` (`manual`, Notiz „Vorkasse bestellt, aber Kartenzahlung eingegangen – bitte eine Zahlung erstatten“) + A12 `s17_paid_despite_prepayment`; beide A12 ungedrosselt, nach dem Commit direkt versendet.

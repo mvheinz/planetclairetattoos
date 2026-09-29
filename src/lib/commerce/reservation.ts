@@ -102,6 +102,13 @@ export interface ReleaseOptions {
   closeReason?: CheckoutCloseReason
   /** Kontext `inServerAction` für die Cache-Erneuerung. */
   inServerAction?: boolean
+  /**
+   * Abgeschlossene, (noch) unbezahlte Session trotzdem freigeben (Task `releaseExpiredReservations`, PLAN P4.18 a):
+   * die Reservierung ist abgelaufen, eine spätere Zahlung behandelt `fulfillCheckout` als S16.
+   */
+  releaseWhenUnpaid?: boolean
+  /** Nur Reservierungen dieser Quelle freigeben (Task: `checkout_session`, Vorkasse nie). */
+  source?: 'checkout_session'
 }
 
 export type ReleaseOutcome =
@@ -254,7 +261,7 @@ export async function releaseReservation(
         await fulfillPaidInsteadOfRelease(payload, payments, checkoutId, sessionId, now)
         return { status: 'paid', checkoutId }
       }
-      if (result === 'already_complete_unpaid') {
+      if (result === 'already_complete_unpaid' && !options.releaseWhenUnpaid) {
         log.info('reservation.release_skipped_pending', { checkoutId, reason })
         return { status: 'payment_pending', checkoutId }
       }
@@ -275,6 +282,7 @@ export async function releaseReservation(
     checkoutId,
     now,
     closeReason: options.closeReason,
+    source: options.source,
   })
   for (const id of productIds) {
     revalidateProduct(id, { immediate: true, inServerAction: options.inServerAction })

@@ -22,6 +22,8 @@ export interface AppContext {
   gallerySync?: boolean
   /** Notiz zu einem Statuswechsel (z. B. `orders.statusHistory[].note`, höchstens 300 Zeichen). */
   note?: string
+  /** Auslöser im Statusverlauf, wenn nicht Verwaltung/System (z. B. `webhook`, `job`, `customer`). */
+  actorType?: 'admin' | 'system' | 'webhook' | 'job' | 'customer' | 'seed'
 }
 
 declare module 'payload' {
