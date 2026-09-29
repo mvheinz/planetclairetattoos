@@ -139,10 +139,72 @@ export function renderFixture(
 }
 
 /** Fixture-Daten je umgesetzter Vorlage (für Snapshots und den Werbe-/OS-Scan über alle Vorlagen). */
+export const REMINDER_FIXTURE = {
+  orderId: 17,
+  orderNumber: 'PC-2026-00017',
+  customerName: 'Erika Beispiel',
+  amountCents: 9090,
+  bank: MAIL_FIXTURE_BANK,
+  dueAt: '2026-10-19T21:59:59.000Z',
+}
+export const CANCELLED_FIXTURE = {
+  orderId: 17,
+  orderNumber: 'PC-2026-00017',
+  customerName: 'Erika Beispiel',
+  reason: 'payment_timeout',
+}
+export const OVERSOLD_FIXTURE = {
+  orderId: 17,
+  orderNumber: 'PC-2026-00017',
+  customerName: 'Erika Beispiel',
+  items: [{ itemNumber: 17, title: 'Tasse „Coco schläft“' }],
+  refundedCents: 5190,
+}
+export const ADMIN_ORDER_FIXTURE = {
+  orderId: 17,
+  orderNumber: 'PC-2026-00017',
+  transition: 'O1',
+  totalCents: 5390,
+  fulfillmentMethod: 'shipping',
+  items: [{ itemNumber: 17, title: 'Tasse „Coco schläft“', category: 'keramik' }],
+  customerName: 'Erika Beispiel',
+  city: 'Berlin',
+  paymentMethod: 'card',
+  paymentMethodType: 'card',
+}
+
 export const MAIL_FIXTURE_DATA: Partial<Record<EmailTemplate, Record<string, unknown>>> = {
   order_confirmation: ORDER_MAIL_FIXTURE,
   prepayment_instructions: PREPAYMENT_MAIL_FIXTURE,
   prepayment_received: PREPAYMENT_RECEIVED_FIXTURE,
+  prepayment_reminder: REMINDER_FIXTURE,
+  prepayment_cancelled: CANCELLED_FIXTURE,
+  oversold_apology: OVERSOLD_FIXTURE,
+  admin_order_placed: ADMIN_ORDER_FIXTURE,
+  admin_prepayment_cancelled: {
+    orderId: 17,
+    orderNumber: 'PC-2026-00017',
+    items: [{ itemNumber: 17, title: 'Tasse „Coco schläft“' }],
+  },
+  admin_oversold: {
+    items: [{ itemNumber: 17, title: 'Tasse „Coco schläft“' }],
+    orders: [{ orderId: 18, orderNumber: 'PC-2026-00018' }],
+    refundedCents: 5190,
+    refundStatus: 'succeeded',
+  },
+  admin_dispute_opened: {
+    orderId: 17,
+    orderNumber: 'PC-2026-00017',
+    amountCents: 5390,
+    reason: 'product_not_received',
+    dueBy: '2026-11-02T22:59:59.000Z',
+  },
+  admin_refund_failed: {
+    orderId: 17,
+    orderNumber: 'PC-2026-00017',
+    amountCents: 4500,
+    error: 'expired_or_canceled_card',
+  },
   admin_alert: {
     kind: 'payment_webhook',
     summary: 'Zahlung konnte nicht zugeordnet werden',

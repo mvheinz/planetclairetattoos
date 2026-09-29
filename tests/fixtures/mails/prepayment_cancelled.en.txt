@@ -1,0 +1,30 @@
+Your order has been cancelled
+
+Hi Erika Beispiel,
+
+your order PC-2026-00017 has been cancelled.
+
+Reason: no payment received
+
+[Placeholder – law firm wording to follow] PLACEHOLDER – text to follow from the law firm.
+
+If you have already transferred the money after all, just let me know – I'll transfer it back to you.
+
+You can view your order at any time here:
+Order status: https://planetclairetattoos.com/en/order/__STATUS_TOKEN__
+
+How I handle your data is explained in the privacy policy:
+Privacy policy: https://planetclairetattoos.com/en/privacy
+
+Best wishes
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Legal notice: https://planetclairetattoos.com/en/legal-notice
+Privacy policy: https://planetclairetattoos.com/en/privacy
+Order status: https://planetclairetattoos.com/en/order/__STATUS_TOKEN__
+Withdraw from contract here: https://planetclairetattoos.com/en/withdraw-from-contract

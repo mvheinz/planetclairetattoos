@@ -17,6 +17,8 @@ import {
   renderPrepaymentInstructions,
   renderPrepaymentReceived,
 } from './templates/orderConfirmation'
+import * as adm from './templates/admin'
+import * as pre from './templates/prepayment'
 import type { MailBusiness, MailLinks } from './layout'
 import type { MailAttachment } from './types'
 
@@ -127,6 +129,54 @@ function def<D>(d: TemplateDef<D>): AnyTemplate {
 type OrderMail = z.infer<typeof orderMailDataSchema>
 
 const TEMPLATES: Partial<Record<EmailTemplate, AnyTemplate>> = {
+  prepayment_reminder: def<pre.PrepaymentReminderData>({
+    version: pre.PREPAYMENT_REMINDER_VERSION,
+    schema: pre.prepaymentReminderDataSchema,
+    subject: pre.prepaymentReminderSubject,
+    render: pre.renderPrepaymentReminder,
+  }),
+  prepayment_cancelled: def<pre.PrepaymentCancelledData>({
+    version: pre.PREPAYMENT_CANCELLED_VERSION,
+    schema: pre.prepaymentCancelledDataSchema,
+    subject: pre.prepaymentCancelledSubject,
+    render: pre.renderPrepaymentCancelled,
+  }),
+  oversold_apology: def<pre.OversoldApologyData>({
+    version: pre.OVERSOLD_APOLOGY_VERSION,
+    schema: pre.oversoldApologyDataSchema,
+    subject: pre.oversoldApologySubject,
+    render: pre.renderOversoldApology,
+  }),
+  admin_order_placed: def<adm.AdminOrderPlacedData>({
+    version: adm.ADMIN_ORDER_PLACED_VERSION,
+    schema: adm.adminOrderPlacedDataSchema,
+    subject: adm.adminOrderPlacedSubject,
+    render: adm.renderAdminOrderPlaced,
+  }),
+  admin_prepayment_cancelled: def<adm.AdminPrepaymentCancelledData>({
+    version: adm.ADMIN_PREPAYMENT_CANCELLED_VERSION,
+    schema: adm.adminPrepaymentCancelledDataSchema,
+    subject: adm.adminPrepaymentCancelledSubject,
+    render: adm.renderAdminPrepaymentCancelled,
+  }),
+  admin_oversold: def<adm.AdminOversoldData>({
+    version: adm.ADMIN_OVERSOLD_VERSION,
+    schema: adm.adminOversoldDataSchema,
+    subject: adm.adminOversoldSubject,
+    render: adm.renderAdminOversold,
+  }),
+  admin_dispute_opened: def<adm.AdminDisputeOpenedData>({
+    version: adm.ADMIN_DISPUTE_OPENED_VERSION,
+    schema: adm.adminDisputeOpenedDataSchema,
+    subject: adm.adminDisputeOpenedSubject,
+    render: adm.renderAdminDisputeOpened,
+  }),
+  admin_refund_failed: def<adm.AdminRefundFailedData>({
+    version: adm.ADMIN_REFUND_FAILED_VERSION,
+    schema: adm.adminRefundFailedDataSchema,
+    subject: adm.adminRefundFailedSubject,
+    render: adm.renderAdminRefundFailed,
+  }),
   order_confirmation: def<OrderMail>({
     version: ORDER_CONFIRMATION_VERSION,
     schema: orderMailDataSchema as unknown as z.ZodType<OrderMail>,

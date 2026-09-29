@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P4.15
+
+- Kund:innen-Vorlagen `src/lib/email/templates/prepayment.tsx`: M03 `prepayment_reminder` (offener Betrag, Bankdaten + EPC-QR per CID, Frist, Baustein `email.vorkasse.reminder`, „Hast du schon überwiesen? …“), M04 `prepayment_cancelled` (Grund `payment_timeout` → „keine Zahlung eingegangen“ bzw. Text von Jutta; `withdrawn` vom Schema abgelehnt; Baustein `email.vorkasse.cancellation` als gekennzeichneter Platzhalter; Rücküberweisungs-Satz), M10 `oversold_apology` (Entschuldigung, volle Erstattung über dasselbe Zahlungsmittel in 5–10 Werktagen, Link zum Shop, keine Rechnung, kein Rabattcode) – DE/EN.
+- Verwaltungs-Vorlagen `templates/admin.tsx` (Deutsch, Direktlink `ADMIN_ROUTE/collections/orders/{id}`): A01/A02 `admin_order_placed` (Hinweise Keramik und > 500 €), A03, A06, A07 (Grund laut Stripe, Antwortfrist, Belege-Hinweis), A08; A12 unverändert. Alle in `registry.ts` registriert, Betreffzeilen exakt nach KONZEPT §6.2/§6.4.
+- Tests: `tests/unit/email/templates/{prepayment-reminder,prepayment-cancelled,oversold-apology,admin-mails}.unit.spec.ts` (Snapshot + Pflichtinhalt, R-084, V-09), `tests/unit/email/registry.unit.spec.ts` (Schlüssel ↔ ID, Admin-Empfänger mit Rückfall); `pnpm check` grün.
+
 ## 2026-09-29 – P4.14
 
 - Vorlagen M01 `order_confirmation`, M02 `prepayment_instructions`, M05 `prepayment_received` (DE/EN) in `src/lib/email/templates/orderConfirmation.tsx` mit Abschnitten `orderSections.tsx` (Schema `orderMailDataSchema`, Positionen mit Nr./Titel/Eigenschaften/Abweichung, Versand/Abholung, Gesamt + KU-Satz, Zahlart + „bezahlt am“ bzw. Bankblock mit IBAN in 4er-Gruppen, BIC, Verwendungszweck, Frist, EPC-QR per CID und Baustein `email.vorkasse.paymentInstructions`, Adressen, Lieferzeit bzw. „Ich melde mich wegen der Abholung“, Mängelhaftung mit Link auf R25, Anhänge „in der Fassung vom“, Rücksendekosten, „Vertrag widerrufen“, DHL-Einwilligung nur wenn erteilt, Bestellstatus/Datenschutz, Anbieterkennung mit Telefon nur in M01/M02, Kanzlei-Satz als gekennzeichneter Platzhalter, S4-Block „Leider schon weg“). Baukasten `kit.tsx` (HTML und Text aus denselben Blöcken, `fill` wirft bei fehlenden Werten). Texte `email.*` in de/en.json.
