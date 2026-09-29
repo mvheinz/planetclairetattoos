@@ -278,3 +278,131 @@ describe('Anfechtungen O16–O18 (DM-ORD-01 Teil)', () => {
     expect(await mails(order.id, 'refund_confirmation')).toBe(0)
   })
 })
+
+// P4.25 Randfälle (Abdeckung `src/lib/payments/**`): Ereignisse ohne passende Bestellung bzw. Erstattung, Erstattung vor
+// dem Speichern der Anbieter-ID, Wiederholungen und Anfechtungen, die nicht (mehr) zur Bestellung passen.
+describe('Erstattungen und Anfechtungen – Randfälle (P4.25)', () => {
+  const unknownPay = { charge: 'ch_unknown_p425', payment_intent: 'pi_unknown_p425' }
+
+  it('T-02 Erstattung ohne passende Bestellung bzw. ohne passende Zeile → unverändert; ohne ID über Betrag zugeordnet', async () => {
+    const order = await paidOrder(990)
+    // Unbekannte Zahlung: keine Bestellung, keine Wirkung
+    await signed('refund.updated', {
+      id: 're_unknown_p425',
+      ...unknownPay,
+      amount: 100,
+      status: 'succeeded',
+    }).deliver()
+    await signed('charge.refunded', {
+      id: 'ch_unknown_p425',
+      payment_intent: 'pi_unknown_p425',
+      amount_refunded: 100,
+    }).deliver()
+    // Bekannte Zahlung, aber keine offene Erstattung dieses Betrags
+    await addRefund(order, { amountCents: 4500 })
+    await signed('refund.updated', {
+      id: 're_other_p425',
+      ...pay(order),
+      amount: 1234,
+      status: 'succeeded',
+    }).deliver()
+    expect((await h.order(order.id)).refunds![0]).toMatchObject({ status: 'pending' })
+    // Ereignis vor dem Speichern der Anbieter-ID: offene Erstattung gleichen Betrags ohne ID
+    await signed('refund.created', {
+      id: 're_late_p425',
+      ...pay(order),
+      amount: 4500,
+      status: 'succeeded',
+    }).deliver()
+    expect((await h.order(order.id)).refunds![0]).toMatchObject({
+      status: 'succeeded',
+      stripeRefundId: 're_late_p425',
+    })
+  })
+
+  it('T-02 charge.refunded mit kleinerer Summe als die offene Erstattung → nichts ändert sich', async () => {
+    const order = await paidOrder(991)
+    await addRefund(order, { amountCents: 4500 })
+    await signed('charge.refunded', {
+      id: order.stripe!.chargeId,
+      payment_intent: order.stripe!.paymentIntentId,
+      amount_refunded: 1000,
+    }).deliver()
+    expect((await h.order(order.id)).refunds![0]!.status).toBe('pending')
+  })
+
+  it('Anfechtung zu unbekannter Zahlung → A12, keine Bestellung berührt; doppelte Anfechtung und späte Schließung ohne Wirkung', async () => {
+    const orders = await h.count('orders')
+    await signed('charge.dispute.created', {
+      id: 'du_unknown_p425',
+      ...unknownPay,
+      amount: 100,
+      status: 'needs_response',
+      reason: 'fraudulent',
+    }).deliver()
+    await signed('charge.dispute.closed', {
+      id: 'du_unknown_p425',
+      ...unknownPay,
+      amount: 100,
+      status: 'won',
+    }).deliver()
+    expect(await h.count('orders')).toBe(orders)
+
+    const order = await paidOrder(992)
+    const id = 'du_twice_p425'
+    await disputeCreated(order, id).deliver()
+    await disputeCreated(order, id).deliver()
+    expect((await h.order(order.id)).status).toBe('disputed')
+    // Schließung einer fremden Anfechtungs-ID: kein Statuswechsel
+    await signed('charge.dispute.closed', {
+      id: 'du_other_p425',
+      ...pay(order),
+      amount: order.totalCents,
+      status: 'won',
+    }).deliver()
+    expect((await h.order(order.id)).status).toBe('disputed')
+    // Offen geschlossen (weder gewonnen noch verloren) → Status bleibt
+    await signed('charge.dispute.closed', {
+      id,
+      ...pay(order),
+      amount: order.totalCents,
+      status: 'warning_closed',
+    }).deliver()
+    const won = signed('charge.dispute.closed', {
+      id,
+      ...pay(order),
+      amount: order.totalCents,
+      status: 'won',
+    })
+    await won.deliver()
+    expect((await h.order(order.id)).status).toBe('paid')
+    // Nach dem Ergebnis: weitere Schließung ohne Wirkung
+    await signed('charge.dispute.closed', {
+      id,
+      ...pay(order),
+      amount: order.totalCents,
+      status: 'lost',
+    }).deliver()
+    expect((await h.order(order.id)).status).toBe('paid')
+  })
+
+  const meta = (appEnv: string) => {
+    const ref = randomUUID()
+    return { client_reference_id: ref, metadata: { checkoutRef: ref, appEnv } }
+  }
+
+  it('Kassen-Ereignisse ohne Kasse: fremde Umgebung und abgelaufene Session ohne Wirkung (200, keine Bestellung)', async () => {
+    const orders = await h.count('orders')
+    await signed('checkout.session.completed', {
+      id: 'cs_foreign_p425',
+      payment_status: 'unpaid',
+      ...meta('staging'),
+    }).deliver()
+    await signed('checkout.session.expired', {
+      id: 'cs_unknown2_p425',
+      payment_status: 'unpaid',
+      ...meta('test'),
+    }).deliver()
+    expect(await h.count('orders')).toBe(orders)
+  })
+})

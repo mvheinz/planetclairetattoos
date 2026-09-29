@@ -547,3 +547,116 @@ describe('Stripe-Treiber: Webhooks und Abgleich', () => {
     ])
   })
 })
+
+// P4.25 – Grenzfälle des Stripe-Treibers (Abdeckung `src/lib/payments/**`): Erstattungsstatus, Zahlart der letzten
+// Belastung (Wallet, PayPal, nur ID), unbekannte Status, Pflichtangaben, Webhook-Körper und API-Version.
+describe('Stripe-Treiber: Grenzfälle (P4.25)', () => {
+  it('refund: succeeded/failed/canceled/pending abgebildet; ohne Idempotenz-Schlüssel abgelehnt', async () => {
+    for (const [status, want] of [
+      ['succeeded', 'succeeded'],
+      ['failed', 'failed'],
+      ['canceled', 'failed'],
+      ['requires_action', 'pending'],
+    ] as const) {
+      const { a } = adapter(() => ({
+        body: { id: 're_test_s', object: 'refund', status, amount: 100 },
+      }))
+      expect(
+        (
+          await a.refund({
+            paymentIntentId: 'pi_test_1',
+            amountCents: 100,
+            reason: 'withdrawal',
+            idempotencyKey: `refund:1:${status}`,
+          })
+        ).status,
+      ).toBe(want)
+    }
+    const { a } = adapter(() => ({ body: {} }))
+    await expect(
+      a.refund({ paymentIntentId: 'pi', amountCents: 100, reason: 'x', idempotencyKey: '' }),
+    ).rejects.toThrow(/Idempotenz/)
+  })
+
+  it('getCheckoutSession: Wallet Google Pay, PayPal, Belastung nur als ID, ohne Belastung; unbekannte Status → StripeResponseError', async () => {
+    const pi = (latest_charge: unknown) => ({
+      id: 'pi_test_w',
+      object: 'payment_intent',
+      latest_charge,
+    })
+    const paid = (payment_intent: unknown, over: Record<string, unknown> = {}) =>
+      session({ status: 'complete', payment_status: 'paid', payment_intent, ...over })
+    const cases: [unknown, Record<string, unknown>][] = [
+      [
+        pi({
+          id: 'ch_1',
+          payment_method_details: { type: 'card', card: { wallet: { type: 'google_pay' } } },
+        }),
+        { paymentMethod: { type: 'card', wallet: 'google_pay' }, chargeId: 'ch_1' },
+      ],
+      [
+        pi({
+          id: 'ch_2',
+          payment_method_details: { type: 'card', card: { wallet: { type: 'link' } } },
+        }),
+        { paymentMethod: { type: 'card' } },
+      ],
+      [
+        pi({ id: 'ch_3', payment_method_details: { type: 'paypal' } }),
+        { paymentMethod: { type: 'paypal' } },
+      ],
+      [pi({ id: 'ch_4', payment_method_details: { type: 'sepa_debit' } }), { chargeId: 'ch_4' }],
+      [pi('ch_5'), { chargeId: 'ch_5' }],
+      [pi(null), { paymentIntentId: 'pi_test_w' }],
+    ]
+    for (const [intent, want] of cases) {
+      const { a } = adapter(() => ({ body: paid(intent) }))
+      expect(await a.getCheckoutSession('cs_test_unit1')).toMatchObject(want)
+    }
+    const noAmount = adapter(() => ({ body: paid(null, { amount_total: null }) }))
+    expect(await noAmount.a.getCheckoutSession('cs_test_unit1')).not.toHaveProperty(
+      'amountTotalCents',
+    )
+    const badStatus = adapter(() => ({ body: session({ status: 'weird' }) }))
+    await expect(badStatus.a.getCheckoutSession('cs_test_unit1')).rejects.toBeInstanceOf(
+      StripeResponseError,
+    )
+    const badPay = adapter(() => ({ body: session({ payment_status: 'weird' }) }))
+    await expect(badPay.a.getCheckoutSession('cs_test_unit1')).rejects.toBeInstanceOf(
+      StripeResponseError,
+    )
+  })
+
+  it('updateShipping: leerer Anzeigename abgelehnt; andere Fehler als ungültige Anfrage werden weitergereicht', async () => {
+    const { a } = adapter(() => ({ body: session() }))
+    await expect(
+      a.updateShipping('cs_test_unit1', { label: '  ', amountCents: 0 }),
+    ).rejects.toThrow(/Anzeigename/)
+    const server = adapter(() => ({
+      status: 500,
+      body: { error: { type: 'api_error', message: 'kaputt' } },
+    }))
+    await expect(
+      server.a.updateShipping('cs_test_unit1', { label: 'Paket', amountCents: 690 }),
+    ).rejects.toThrow()
+  })
+
+  it('parseWebhook: kein JSON → PaymentEventShapeError-Weg; abweichende API-Version nur als Warnung', () => {
+    const { a, lines } = adapter(() => ({ body: {} }))
+    const sign = (payload: string) =>
+      new Headers({
+        [STRIPE_SIGNATURE_HEADER]: Stripe.webhooks.generateTestHeaderString({
+          payload,
+          secret: WHSEC,
+          timestamp: NOW_S,
+        }),
+      })
+    expect(() => a.parseWebhook('kein json', sign('kein json'))).toThrow()
+    const raw = JSON.stringify({
+      ...STRIPE_EVENT_FIXTURES['refund.created'],
+      api_version: '2020-01-01',
+    })
+    expect(a.parseWebhook(raw, sign(raw)).type).toBe('refund.created')
+    expect(lines.join('\n')).toContain('payments.stripe.webhook_api_version')
+  })
+})
