@@ -1,0 +1,5 @@
+﻿Belegdatum;Belegart;Belegnummer;Bestellnummer;Zahlart;Betrag brutto;davon Versand;Steuermodus;Steuersatz;Steuerbetrag;Zahlungsdatum;Stripe-Zahlungs-ID bzw. Stripe-Erstattungs-ID;Stripe-Gebühr;Auszahlungs-ID;Auszahlungsdatum
+17.10.2026;Gutschrift;GS-2026-00001;PC-2026-00702;Karte / Apple Pay / Google Pay;-45,00;0,00;Kleinunternehmer;0;0,00;17.10.2026;re_fixture_0001;0,00;po_fixture_0001;18.10.2026
+21.10.2026;Stornorechnung;GS-2026-00002;PC-2026-00703;Vorkasse (Überweisung);-79,90;0,00;Kleinunternehmer;0;0,00;21.10.2026;;;;
+15.10.2026;Rechnung;RE-2026-00002;PC-2026-00702;Karte / Apple Pay / Google Pay;79,90;8,90;Kleinunternehmer;0;0,00;15.10.2026;ch_fixture_0001;1,45;po_fixture_0001;18.10.2026
+20.10.2026;Rechnung;RE-2026-00003;PC-2026-00703;Vorkasse (Überweisung);79,90;8,90;Kleinunternehmer;0;0,00;20.10.2026;;;;

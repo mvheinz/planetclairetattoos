@@ -2,6 +2,14 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P5.24 (Dienste und Endpunkte; Ansicht `/export` offen)
+
+- `src/lib/export/monthlyCsv.ts`: `planetclaire-{JJJJ-MM}.csv` (UTF-8 mit BOM, `;`, CRLF, Dezimalkomma, `TT.MM.JJJJ`, nach Belegnummer) mit den 15 Spalten aus KONZEPT §7.15; Belege aus `src/lib/export/documents.ts` (nur Serien RE/GS, nie `seed = true`, keine Personendaten geladen); Gebühren/Auszahlungen über `payments.listBalanceTransactions` (Mock: Fixtures).
+- `src/lib/export/invoiceZip.ts`: Rechnungs-ZIP mit `fflate` 0.8.2 (ARCHITEKTUR §1.2) – alle RE/GS-PDFs als `{Nummer}.pdf` plus CSV, fester Zeitstempel → byte-identisch; fehlende PDFs → 409.
+- Admin-Endpunkte `GET /api/admin/export/{JJJJ-MM}.csv` und `.zip` (`src/endpoints/export.ts`, nur Verwaltung, `private, no-store`).
+- Offen: Ansicht `/export` (Monats- und Jahresauswahl) und `tests/e2e/admin/export.e2e.spec.ts` – Aufgabe deshalb noch nicht abgehakt.
+- Tests: `tests/int/legal/monthly-export.int.spec.ts` (6, R-124: byte-genau gegen `tests/fixtures/csv/2026-10.csv`, zweiter Export identisch, kein `BSP-` auch mit `SEED_PREVIEW_MODE=true`, kein `@`/Name, ZIP genau die Belege, Endpunkte 401/200/404/409).
+
 ## 2026-09-29 – P5.23
 
 - Reine Rechnung `computeRevenueStatus` (`src/lib/revenue/guard.ts`): Shop = Rechnungen − Gutschriften nach Berliner Belegmonat, plus Monatssummen (inkl. Auftragsarbeiten) und Jahressummen vor dem Shop; Stufen U0–U5 aus `settings.revenueGuard`; Beispieldaten nur bei `seedPreviewModeActive()`.\n- Task `revenueGuardCheck` (Migration `p5_revenue_guard`): A09 `admin_revenue_guard` genau einmal je Stufe und Jahr (`lastNotified` + Idempotenz-Schlüssel), eingereiht vom Job-Wecker ab 07:00 Berlin und nach jedem neuen Beleg bzw. jeder Änderung einer Monatssumme.\n- Offen (UI): Ansicht Einstellungen → Umsatz-Wächter (Balken, Monatstabelle, Eingaben, Verlauf) und Hinweis unter „Heute“ – Daten liefert `getRevenueStatus`.\n- Tests: unit `tests/unit/legal/revenue-guard.unit.spec.ts` (10), A09-Mail + Snapshot; int `tests/int/jobs/revenue-guard.int.spec.ts` (4); invoices/jobs/collections/commerce-Int grün.
