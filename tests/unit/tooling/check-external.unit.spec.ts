@@ -46,6 +46,20 @@ describe('check:external --built', () => {
     ])
   })
 
+  it('P4.25 Kassen-Chunk: Stripe.js-Lader und zod-Schema-Kennungen nur in JS erlaubt; Regex-Literal ist keine Adresse', () => {
+    const js = {
+      path: '.next/static/chunks/k.js',
+      content:
+        'x="https://js.stripe.com/v3";y="http://json-schema.org/draft-07/schema#";z=/^https?:\\/\\/i.test(t);w="https://docs.stripe.com/sdks"',
+    }
+    expect(findForeignUrls([js])).toEqual([])
+    const html = {
+      path: '.next/server/app/de.html',
+      content: '<script src="https://js.stripe.com/v3"></script>',
+    }
+    expect(findForeignUrls([html])).toEqual([{ path: html.path, url: 'https://js.stripe.com/v3' }])
+  })
+
   it('R-049 lässt nur die Gewährleistungs-Seite von „Your Europe“ zu, nie die OS-Plattform', () => {
     const files = [
       {
