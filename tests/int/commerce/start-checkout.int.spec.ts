@@ -24,12 +24,15 @@ import {
   productRow,
   reservationsOf,
   setShop,
+  submitForTest,
   testClock,
   useMemorySystemFiles,
   useMockPayments,
   type TestClock,
 } from '../helpers/checkout'
 import { deleteCommerce } from '../helpers/commerce'
+import { withBusiness } from '../helpers/invoices'
+import { ensureLegalTextFixtures } from '../helpers/legal'
 import { getTestPayload } from '../helpers/payload'
 import { createProductFixtures, deleteProducts, type ProductFixtures } from '../helpers/products'
 
@@ -312,6 +315,45 @@ describe('Lazy release (DATENMODELL §8.1)', () => {
     expect((await productRow(payload, a)).reservation_ref).toBe(first.reservationRef)
     expect((await checkoutById(payload, first.checkoutId)).status).toBe('open')
     expect((await reservationsOf(payload, a)).map((r) => r.status)).toEqual(['active'])
+  })
+
+  it('P4.16a lazy release mit already_complete_paid → genau eine Bestellung statt einer Freigabe', async () => {
+    const restore = await withBusiness(payload)
+    try {
+      const legal = await ensureLegalTextFixtures(payload)
+      const a = await piece(995)
+      const first = ok(await start([a]))
+      await submitForTest(payload, first.checkoutId, { now: clock.now(), confirming: true, legal })
+      const session = (await checkoutById(payload, first.checkoutId)).stripe!.checkoutSessionId!
+      await mock.emit(session, 'checkout.session.completed')
+      clock.set(new Date(Date.parse(T0) + 40 * MIN))
+      expect(await start([a])).toEqual({ ok: false, code: 'reserved', itemNumbers: [995] })
+      const c = await checkoutById(payload, first.checkoutId)
+      expect(c.status).toBe('completed')
+      const orders = await payload.find({
+        collection: 'orders',
+        where: { checkout: { equals: first.checkoutId } },
+        depth: 0,
+        overrideAccess: true,
+      })
+      expect(orders.docs).toHaveLength(1)
+      expect(orders.docs[0]!.status).toBe('paid')
+      expect((await productRow(payload, a)).status).toBe('sold')
+      expect((await reservationsOf(payload, a)).map((r) => r.status)).toEqual(['converted'])
+      // erneuter Anlauf: keine zweite Bestellung
+      await releaseReservation(first.reservationRef, 'session_expired', clock.now(), { payload })
+      expect(
+        (
+          await payload.count({
+            collection: 'orders',
+            where: { checkout: { equals: first.checkoutId } },
+            overrideAccess: true,
+          })
+        ).totalDocs,
+      ).toBe(1)
+    } finally {
+      await restore()
+    }
   })
 
   it('noch gültige fremde Reservierung wird nicht angetastet', async () => {

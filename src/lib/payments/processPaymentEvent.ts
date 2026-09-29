@@ -7,6 +7,7 @@ import { sql } from '@payloadcms/db-postgres'
 import { createLocalReq, getPayload, type Payload, type PayloadRequest } from 'payload'
 
 import { revalidateProduct } from '@/lib/cache/revalidate'
+import { fulfillCheckout } from '@/lib/commerce/fulfillCheckout'
 import { releaseInTransaction } from '@/lib/commerce/reservation'
 import { dbFor, type SqlExecutor } from '@/lib/db/tx'
 import { sendAdminAlert } from '@/lib/email/alerts'
@@ -18,12 +19,7 @@ import { systemClock } from '@/lib/time'
 
 import { getPaymentsAdapter } from './index'
 import { paymentEventData, type CheckoutEventData } from './normalize'
-import {
-  NotImplementedYetError,
-  type PaymentEvent,
-  type PaymentEventType,
-  type PaymentsAdapter,
-} from './types'
+import type { PaymentEvent, PaymentEventType, PaymentsAdapter, SessionState } from './types'
 
 // Ereignisverarbeitung der Zahlungs-Webhooks (DATENMODELL §8.8, KONZEPT §4.10, ARCHITEKTUR §3.5) – dieselbe Funktion
 // für den Stripe-Webhook, den Mock und den Abgleich (`pnpm payments:reconcile`):
@@ -81,14 +77,46 @@ export interface PaidCheckoutHandler {
     event: PaymentEvent,
     data: CheckoutEventData,
     checkout: CheckoutRow,
-    deps: Required<Pick<ProcessDeps, 'payments'>> & { now: Date },
+    deps: PaidDeps,
   ): Promise<HandlerOutcome>
 }
 
-/** Bezahlte Session → Bestellabschluss; verdrahtet P4.16a (`fulfillCheckout`). */
-let paidHandler: PaidCheckoutHandler = async () => {
-  throw new NotImplementedYetError('Bestellabschluss (fulfillCheckout)', 'P4.16a')
+export interface PaidDeps {
+  payments: PaymentsAdapter
+  now: Date
+  /** Zustand der Session beim Anbieter (vor der Transaktion abgefragt: Zahlart, Belastung, Betrag). */
+  session: SessionState | null
 }
+
+/** Bezahlte Session → Bestellabschluss (`fulfillCheckout`, P4.16a). */
+export const fulfillPaidSession: PaidCheckoutHandler = async (req, event, data, checkout, deps) => {
+  const state = deps.session
+  if (!state || state.paymentStatus !== 'paid') {
+    throw new Error(`Session ${data.sessionId}: der Anbieter bestätigt die Zahlung (noch) nicht.`)
+  }
+  const result = await fulfillCheckout(checkout.id, req, {
+    now: deps.now,
+    payment: {
+      sessionId: data.sessionId,
+      provider: event.provider,
+      paymentIntentId: data.paymentIntentId ?? state.paymentIntentId ?? null,
+      chargeId: state.chargeId ?? null,
+      paymentMethod: state.paymentMethod,
+      amountReceivedCents: data.amountTotalCents ?? state.amountTotalCents ?? null,
+      livemode: event.livemode,
+      paidAt: event.createdAt,
+    },
+  })
+  return {
+    status: 'processed',
+    action: result.status,
+    checkoutId: checkout.id,
+    orderId: result.orderId,
+    afterCommit: result.afterCommit,
+  }
+}
+
+let paidHandler: PaidCheckoutHandler = fulfillPaidSession
 
 export function getPaidCheckoutHandler(): PaidCheckoutHandler {
   return paidHandler
@@ -173,6 +201,11 @@ export async function findCheckoutForSession(
 
 const LIVE: ReadonlySet<CheckoutStatus> = new Set(['open', 'confirming'])
 
+const PAID_TYPES: ReadonlySet<PaymentEventType> = new Set([
+  'checkout.completed',
+  'checkout.async_succeeded',
+])
+
 const CHECKOUT_TYPES: ReadonlySet<PaymentEventType> = new Set([
   'checkout.completed',
   'checkout.async_succeeded',
@@ -207,7 +240,7 @@ async function releaseForSession(
 async function handleCheckoutEvent(
   req: PayloadRequest,
   event: PaymentEvent,
-  deps: { payments: PaymentsAdapter; now: Date },
+  deps: PaidDeps,
 ): Promise<HandlerOutcome> {
   const data = paymentEventData(event as PaymentEvent & { type: 'checkout.completed' })
   const db = await dbFor(req)
@@ -276,10 +309,18 @@ export async function processPaymentEvent(
 
   const req = await createLocalReq({ context: { system: true, now: now.toISOString() } }, payload)
   let outcome: HandlerOutcome
+  let session: SessionState | null = null
   try {
+    // Bezahlte Session: Zahlart und Belastung beim Anbieter abfragen – vor der Transaktion (keine Sperre über Netz).
+    if (PAID_TYPES.has(event.type)) {
+      const data = paymentEventData(event as PaymentEvent & { type: 'checkout.completed' })
+      if (data.paymentStatus === 'paid' || event.type === 'checkout.async_succeeded') {
+        session = await payments.getCheckoutSession(data.sessionId)
+      }
+    }
     outcome = await inTransaction(req, async () => {
       const result: HandlerOutcome = CHECKOUT_TYPES.has(event.type)
-        ? await handleCheckoutEvent(req, event, { payments, now })
+        ? await handleCheckoutEvent(req, event, { payments, now, session })
         : // Erstattungen und Anfechtungen folgen in P4.22; alle anderen Typen werden nicht behandelt.
           { status: 'ignored', action: event.type === 'ignored' ? 'unhandled_type' : 'later' }
       await finish(await dbFor(req), claimed.id, result, now)

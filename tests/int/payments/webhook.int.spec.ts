@@ -22,6 +22,9 @@ import {
 import { createStripeAdapter } from '@/lib/payments/stripe'
 import { handleWebhookRequest } from '@/lib/payments/webhook'
 import { __setSystemFilesForTests } from '@/lib/storage/systemFiles'
+import { mockConfirmSuccess } from '@/lib/commerce/mockConfirm'
+import { __setEmailAdapterForTests, createEmailAdapter } from '@/lib/email'
+import { parseEnv } from '@/lib/env'
 
 import {
   cartOf,
@@ -37,7 +40,8 @@ import {
   type TestClock,
 } from '../helpers/checkout'
 import { dbOf, deleteCommerce } from '../helpers/commerce'
-import { ensureLegalTextFixtures } from '../helpers/legal'
+import { withBusiness } from '../helpers/invoices'
+import { ensureLegalTextFixturesWithPdfs } from '../helpers/legal'
 import { getTestPayload } from '../helpers/payload'
 import { createProductFixtures, deleteProducts, type ProductFixtures } from '../helpers/products'
 
@@ -135,17 +139,23 @@ async function orderCount(): Promise<number> {
 }
 async function mailCount(template: string): Promise<number> {
   const r = await dbOf(payload).execute(
-    sql`SELECT count(*)::int AS n FROM email_log WHERE template = ${template}`,
+    sql`SELECT count(*)::int AS n FROM email_log WHERE template = ${template}
+          AND (order_id IS NOT NULL OR template = 'admin_alert')`,
   )
   return Number(r.rows[0]?.n ?? 0)
 }
 
 let originalHandler: PaidCheckoutHandler
+let restoreBusiness: () => Promise<void>
 
 beforeAll(async () => {
   payload = await getTestPayload()
   fx = await createProductFixtures(payload)
-  legal = await ensureLegalTextFixtures(payload)
+  legal = await ensureLegalTextFixturesWithPdfs(payload)
+  restoreBusiness = await withBusiness(payload)
+  __setEmailAdapterForTests(
+    createEmailAdapter(parseEnv({ ...process.env, EMAIL_DRIVER: 'memory' })),
+  )
   originalHandler = getPaidCheckoutHandler()
 })
 
@@ -163,7 +173,9 @@ afterEach(async () => {
   await deleteProducts(payload, NUMBERS)
 })
 
-afterAll(() => {
+afterAll(async () => {
+  await restoreBusiness()
+  __setEmailAdapterForTests(undefined)
   __setPaymentsAdapterForTests(undefined)
   __setSystemFilesForTests(undefined)
 })
@@ -360,5 +372,91 @@ describe('Idempotenz und Fehler (DATENMODELL §8.8)', () => {
     const row = await webhookRow(payload, emission.event.id)
     expect(row).toMatchObject({ status: 'processed', last_error: null })
     expect(Number(row!.attempts)).toBe(3)
+  })
+})
+
+describe('T-02 (Rest) und AK-A-3-03: bezahlte Sessions → genau eine Bestellung paid', () => {
+  /** Signatur vom Stripe-Treiber, Rückfragen zur Session beim Mock (dieselbe Session-ID). */
+  const stripeWithMockLookup = (): PaymentsAdapter => ({
+    ...stripeAdapter(),
+    getCheckoutSession: (id: string) => mock.getCheckoutSession(id),
+  })
+
+  it('checkout.session.completed (paid) als Stripe-Fixture → genau eine Bestellung paid; doppelt → weiterhin eine', async () => {
+    const a = await piece(989)
+    const r = await started([a])
+    await submitForTest(payload, r.checkoutId, { now: now(), confirming: true, legal })
+    const session = await sessionOf(r.checkoutId)
+    await mock.emit(session, 'checkout.session.completed') // Mock-Zustand complete/paid (für die Rückfrage)
+    const s = stripeSigned('checkout.session.completed', {
+      id: session,
+      ref: r.reservationRef,
+      status: 'complete',
+      paymentStatus: 'paid',
+      amount: (await checkoutById(payload, r.checkoutId)).totalCents,
+    })
+    const payments = stripeWithMockLookup()
+    expect((await deliver(s.rawBody, s.headers, payments)).status).toBe(200)
+    expect((await deliver(s.rawBody, s.headers, payments)).status).toBe(200)
+    expect(await orderCount()).toBe(1)
+    const c = await checkoutById(payload, r.checkoutId)
+    expect(c.status).toBe('completed')
+    const order = await payload.findByID({
+      collection: 'orders',
+      id: c.order as number,
+      depth: 0,
+      overrideAccess: true,
+    })
+    expect(order).toMatchObject({ status: 'paid', paymentProvider: 'stripe' })
+    expect((await productRow(payload, a)).status).toBe('sold')
+    expect((await webhookRow(payload, s.eventId))?.related_order_id).toBe(order.id)
+  })
+
+  it('checkout.session.async_payment_succeeded als Stripe-Fixture → genau eine Bestellung paid', async () => {
+    const a = await piece(990)
+    const r = await started([a])
+    await submitForTest(payload, r.checkoutId, { now: now(), confirming: true, legal })
+    const session = await sessionOf(r.checkoutId)
+    await mock.setNextOutcome(session, { result: 'delayed' })
+    await mock.emit(session, 'checkout.session.completed')
+    await mock.emit(session, 'checkout.session.async_payment_succeeded')
+    const s = stripeSigned('checkout.session.async_payment_succeeded', {
+      id: session,
+      ref: r.reservationRef,
+      amount: (await checkoutById(payload, r.checkoutId)).totalCents,
+    })
+    expect((await deliver(s.rawBody, s.headers, stripeWithMockLookup())).status).toBe(200)
+    expect(await orderCount()).toBe(1)
+    expect((await checkoutById(payload, r.checkoutId)).status).toBe('completed')
+    expect((await productRow(payload, a)).status).toBe('sold')
+  })
+
+  it('DM-CHK-03/AK-A-3-03 Mock-„Erfolg“ + signiertes Fixture-Event für dieselbe Kasse → genau eine Bestellung, eine Rechnung, eine M01, ein Verkauf', async () => {
+    const a = await piece(991)
+    const r = await started([a])
+    await submitForTest(payload, r.checkoutId, { now: now(), confirming: true, legal })
+    const session = await sessionOf(r.checkoutId)
+    const ok = await mockConfirmSuccess({ token: r.token, now: now() }, { payload, payments: mock })
+    expect(ok).toMatchObject({ ok: true, redirectTo: `/de/danke/${r.token}` })
+    const s = stripeSigned('checkout.session.completed', {
+      id: session,
+      ref: r.reservationRef,
+      status: 'complete',
+      paymentStatus: 'paid',
+      amount: (await checkoutById(payload, r.checkoutId)).totalCents,
+    })
+    expect((await deliver(s.rawBody, s.headers, stripeWithMockLookup())).status).toBe(200)
+    expect(await orderCount()).toBe(1)
+    const orderId = (await checkoutById(payload, r.checkoutId)).order as number
+    const inv = await dbOf(payload).execute(
+      sql`SELECT count(*)::int AS n FROM invoices WHERE order_id = ${orderId}`,
+    )
+    expect(Number(inv.rows[0]!.n)).toBe(1)
+    expect(await mailCount('order_confirmation')).toBe(1)
+    const sold = await dbOf(payload).execute(
+      sql`SELECT count(*)::int AS n FROM products WHERE current_order_id = ${orderId} AND status = 'sold'`,
+    )
+    expect(Number(sold.rows[0]!.n)).toBe(1)
+    expect((await checkoutById(payload, r.checkoutId)).status).toBe('completed')
   })
 })

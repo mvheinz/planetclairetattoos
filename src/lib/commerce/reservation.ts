@@ -13,6 +13,7 @@ import { getPaymentsAdapter, type PaymentsAdapter } from '@/lib/payments'
 import type { Checkout } from '@/payload-types'
 
 import { canTransitionCheckout, transitionCheckout } from './checkoutTransitions'
+import { confirmedPaymentFromSession, fulfillCheckout } from './fulfillCheckout'
 
 // Reservierung und Freigabe (DATENMODELL §8.1/§8.2, KONZEPT §4.6, E-22). Das atomare SQL ist die einzige Stelle, an
 // der ein Stück `reserved` wird: `UPDATE … WHERE status = 'available' … RETURNING id` in der Transaktion des Aufrufers –
@@ -127,6 +128,32 @@ export const CHECKOUT_END_BY_RELEASE: Readonly<
 
 const LIVE_STATES: ReadonlySet<CheckoutStatus> = new Set(['open', 'confirming'])
 
+/** „Bereits bezahlt“ statt Freigabe: `fulfillCheckout` mit dem Anbieter-Zustand; Fehler nur protokollieren (Rückfälle). */
+async function fulfillPaidInsteadOfRelease(
+  payload: Payload,
+  payments: PaymentsAdapter,
+  checkoutId: number,
+  sessionId: string,
+  now: Date,
+): Promise<void> {
+  try {
+    const state = await payments.getCheckoutSession(sessionId)
+    const req = await createLocalReq({ context: { system: true, now: now.toISOString() } }, payload)
+    const result = await fulfillCheckout(checkoutId, req, {
+      now,
+      payment: confirmedPaymentFromSession(state, {
+        driver: payments.driver,
+        livemode: payments.mode === 'live',
+        paidAt: now,
+      }),
+    })
+    await result.afterCommit()
+    log.info('reservation.fulfilled_instead_of_release', { checkoutId, status: result.status })
+  } catch (err) {
+    log.error('reservation.fulfill_failed', { checkoutId, error: (err as Error)?.message })
+  }
+}
+
 async function checkoutByRef(payload: Payload, ref: string): Promise<Checkout | null> {
   const res = await payload.find({
     collection: 'checkouts',
@@ -222,8 +249,9 @@ export async function releaseReservation(
     try {
       const result = await payments.expireCheckoutSession(sessionId)
       if (result === 'already_complete_paid') {
-        // P4.16a: hier `fulfillCheckout` aufrufen. Bis dahin bleibt alles reserviert.
+        // Bezahlt: keine Freigabe, sondern Bestellabschluss (DATENMODELL §8.2, KONZEPT §4.6/§4.11 S3).
         log.info('reservation.release_skipped_paid', { checkoutId, reason })
+        await fulfillPaidInsteadOfRelease(payload, payments, checkoutId, sessionId, now)
         return { status: 'paid', checkoutId }
       }
       if (result === 'already_complete_unpaid') {
