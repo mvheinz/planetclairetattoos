@@ -3,6 +3,11 @@
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
 
+
+## 2026-09-29 – P3 CI grün
+
+- Phasenlauf `[ci:full p3]` (Commit 32029fc): CI, CI full (e2e desktop/iphone-15/pixel-7, quality) und Vorschau-Export grün; Artefakt `planet-claire-vorschau-p3-32029fc`.
+
 ## 2026-09-29 – P3 Phasen-Abnahme (Shop, Produktseiten, Archiv) – für Jutta
 
 **Was ist neu?** Dein Shop steht – vorerst mit den Beispielstücken (Fotos aus deinem Instagram, Texte als Muster).
