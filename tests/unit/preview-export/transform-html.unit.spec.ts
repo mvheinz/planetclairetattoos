@@ -9,6 +9,7 @@ import * as cheerio from 'cheerio'
 
 import {
   normalizeCountdowns,
+  openOrderButtons,
   PREVIEW_COUNTDOWN_TEXT,
   routeInfo,
   templateHtml,
@@ -240,6 +241,17 @@ describe('P4.25 Korb und Kasse in der Vorschau', () => {
     expect($('[data-countdown="compact"] [data-countdown-time]').text()).toBe(
       'Noch 30:00 reserviert',
     )
+  })
+
+  it('KONZEPT §12.5 Nr. 7: „Zahlungspflichtig bestellen“ ist in der Datei immer klickbar und öffnet den Vorschau-Dialog', () => {
+    const $ = cheerio.load(
+      '<form data-pv-form><button type="submit" data-order-button disabled aria-disabled="true">Zahlungspflichtig bestellen</button></form>',
+    )
+    openOrderButtons($)
+    const b = $('[data-order-button]')
+    expect(b.attr('disabled')).toBeUndefined()
+    expect(b.attr('aria-disabled')).toBeUndefined()
+    expect(b.attr('data-pv-block')).toBe('')
   })
 
   it('Danke- und Statusseiten ohne Seed-Anker: „ab P8“ im Bericht (EK-11)', () => {

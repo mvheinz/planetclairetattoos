@@ -218,6 +218,18 @@ export function normalizeCountdowns($: cheerio.CheerioAPI): void {
   })
 }
 
+/**
+ * Bestellknopf der Kasse (KONZEPT §12.5 Nr. 7): In der Datei zeigt ein Klick immer den Vorschau-Dialog – auch wenn der
+ * Knopf auf der echten Seite noch gesperrt wäre (z. B. bis zur Bestätigung einer Abweichung). `data-pv-block` fängt den
+ * Klick vor der Formularprüfung des Browsers ab.
+ */
+export function openOrderButtons($: cheerio.CheerioAPI): void {
+  $('[data-order-button]')
+    .removeAttr('disabled')
+    .removeAttr('aria-disabled')
+    .attr('data-pv-block', '')
+}
+
 /** Titel, Beschreibung, `<html class>` und `<body>`-Attribute einer erfassten Seite. */
 export function pageMeta($: cheerio.CheerioAPI): PageMeta {
   const bodyAttrs: Record<string, string> = {}
@@ -246,6 +258,7 @@ export function transformPage(
   rewriteSprites($, ctx, page.path)
   rewriteInteractive($, { ...ctx.link, currentRoute: page.path })
   normalizeCountdowns($)
+  openOrderButtons($)
   return {
     ...meta,
     route: page.path,

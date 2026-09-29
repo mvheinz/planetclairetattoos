@@ -30,8 +30,12 @@ export async function captureCartSession(origin: string): Promise<CartSession> {
   const browser = await chromium.launch()
   try {
     const context = await browser.newContext({ baseURL: origin })
+    // Der Export-Server leitet `127.0.0.1` auf `localhost` um (next-intl) – beide Namen desselben Ports sind „eigen“.
+    const port = new URL(origin).port
+    const own = (url: URL) =>
+      url.port === port && ['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname)
     await context.route(
-      (url) => url.origin !== origin,
+      (url) => !own(url),
       (route) => route.abort(),
     )
     const page = await context.newPage()
@@ -45,11 +49,16 @@ export async function captureCartSession(origin: string): Promise<CartSession> {
       await button.click()
       await page.locator('[data-buy-area] [data-in-cart]').first().waitFor({ state: 'visible' })
     }
-    await page.goto(localizedPath('R06', 'de'), { waitUntil: 'load' })
+    // Ab hier dieselbe Adresse wie die Cookies (nach der Umleitung).
+    const base = new URL(page.url()).origin
+    await page.goto(new URL(localizedPath('R06', 'de'), base).href, { waitUntil: 'load' })
     await page.locator('[data-cart-checkout] button[type="submit"]').click()
     await page.waitForURL((url) => url.pathname === localizedPath('R07', 'de'), { timeout: 30_000 })
     for (const path of cartSessionPaths()) {
-      const res = await context.request.get(path, { maxRedirects: 0, failOnStatusCode: false })
+      const res = await context.request.get(new URL(path, base).href, {
+        maxRedirects: 0,
+        failOnStatusCode: false,
+      })
       if (res.status() !== 200) {
         warnings.push(`Korb der Vorschau: ${path} antwortet mit HTTP ${res.status()}.`)
         continue
@@ -59,6 +68,18 @@ export async function captureCartSession(origin: string): Promise<CartSession> {
         contentType: res.headers()['content-type'] ?? '',
         body: await res.body(),
       })
+    }
+    // Reservierung wieder freigeben (Stücke aus dem Korb nehmen → Kasse `cancelled`, KONZEPT §4.3 S6): Die Produkt-
+    // und Listenseiten, die der Crawl danach holt, zeigen S01 und S11 wieder als verfügbar.
+    await page.goto(new URL(localizedPath('R06', 'de'), base).href, { waitUntil: 'load' })
+    const lines = page.locator('[data-cart-remove]')
+    for (let left = await lines.count(); left > 0; left--) {
+      await lines.first().click()
+      await page.waitForFunction(
+        (n) => document.querySelectorAll('[data-cart-remove]').length < n,
+        left,
+        { timeout: 15_000 },
+      )
     }
     await context.close()
   } catch (e) {
