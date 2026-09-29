@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P4.10b
+
+- `changeCheckoutDelivery` (src/lib/commerce/changeDelivery.ts): Versand und Summen neu aus `settings.shipping.rates`, Reservierung bleibt; Session per `updateShipping`, bei `recreate_required` neu mit derselben Reservierung und `sessionSeq + 1` (Rückfall: keine Session → nur Vorkasse). `reopenCheckout` (`confirming → open`, S8).\n- Mock-Wege in src/lib/commerce/mockConfirm.ts (`mockConfirmOutcome`): Abgelehnt → Kasse wieder `open`; Abbruch → Danke-Seite, Session bleibt offen; Verzögert → neue Test-API `completeUnpaidWithoutEvent` (complete/unpaid ohne Ereignis). Server-Actions `submitCheckout`, `mockConfirm`, `reopenCheckout`, `changeCheckoutDelivery` (303, ohne JavaScript bedienbar). Stripe-Client: E-Mail/Adresse über das Checkout-Objekt, `confirm({ returnUrl })`, Fehler → `reopenCheckout`.\n- Tests: tests/int/commerce/change-delivery.int.spec.ts (5 grün, inkl. AK-4-03), tests/int/commerce/mock-confirm.int.spec.ts (+3: S8, S9, S10; keine Bestellung, kein webhook-events-Eintrag).
+
 ## 2026-09-29 – P4.10a
 
 - `submitCheckout` (src/lib/commerce/submitCheckout.ts): prüft Kasse `open`, Ablauf (bei Stripe auch Session), Reservierung mit dieser `reservationRef`, Korb = Snapshot (S6), Lieferart = Kasse, Pflichtfelder über das gemeinsame Schema, Land DE (R-060), Abweichungs-Bestätigungen (fehlt eine → 400); speichert in einer Transaktion Eingaben, `legalTextVersions`, `legalSnippetVersions`, `submittedAt` an der Kasse plus `consent-log` (DHL nur bei Häkchen, Abweichung je Stück). Stripe: `open → confirming` + Weckzeit +10 min; Vorkasse: `placePrepaymentOrder` (P4.19). Rate-Limit `checkout_submit` (10/30 min je Token-Hash). Keine Personendaten im Log.\n- Tests: tests/int/commerce/submit-checkout.int.spec.ts (11 grün: R-013/R-065, R-048, R-060, R-101, DM-CHK-02, S6, S7, Ablauf, erneutes Absenden, Vorkasse, Log-Schwärzung R-137/V-22); tests/unit/commerce/checkout-schema.unit.spec.ts (9).

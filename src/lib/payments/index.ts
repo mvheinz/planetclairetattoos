@@ -71,4 +71,6 @@ function activeMock(): MockPaymentsAdapter {
 export const mockPayments: MockPaymentsTestApi = {
   emit: async (sessionId, type) => activeMock().emit(sessionId, type),
   setNextOutcome: async (sessionId, next) => activeMock().setNextOutcome(sessionId, next),
+  completeUnpaidWithoutEvent: async (sessionId, method) =>
+    activeMock().completeUnpaidWithoutEvent(sessionId, method),
 }

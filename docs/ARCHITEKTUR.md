@@ -665,7 +665,9 @@ export interface PaymentsAdapter {
   **Abbruch (wie PayPal zurück)** · **Verzögert** (Kasse bleibt `confirming`, für Abgleich-Tests).
 - „Erfolg“ erzeugt ein Ereignis aus `tests/fixtures/stripe/checkout.session.completed.json` (Werte ersetzt) und ruft
   **dieselbe** Verarbeitungsfunktion `processPaymentEvent()` auf wie der Webhook-Route-Handler nach der Signaturprüfung.
-- Test-API (nur `APP_ENV ∈ {development, test}`): `mockPayments.emit(sessionId, type)`, `mockPayments.setNextOutcome(...)`.
+- Test-API (nur `APP_ENV ∈ {development, test}`): `mockPayments.emit(sessionId, type)`, `mockPayments.setNextOutcome(...)`,
+  `mockPayments.completeUnpaidWithoutEvent(sessionId, method?)` (Ergebnis „Verzögert“: Session `complete`/`unpaid` ohne
+  Ereignis, P4.10b).
   Umsetzung (P4.4): `emit` schreibt den Zustand fort, protokolliert das normalisierte Ereignis in `checkouts.mock.state`
   (für `listEventsSince`) und liefert `{ event, rawBody, headers }` (signiert) für `processPaymentEvent` bzw. die Webhook-Route;
   die Ablage in `webhook-events` macht die Verarbeitung. Fixtures prüft/erzeugt `pnpm stripe:fixture <name>|--all`.

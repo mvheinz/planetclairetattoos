@@ -38,6 +38,7 @@ import {
   toStoredEvent,
   type MockDispute,
   type MockNextOutcome,
+  type MockPaymentMethod,
   type MockRefund,
   type MockSession,
   type MockState,
@@ -127,6 +128,11 @@ export interface MockPaymentsTestApi {
   emit(sessionId: string, type: StripeEventType): Promise<MockEmission>
   /** Nächstes Test-Ergebnis vorgeben (Zahlung, Zahlart, Erstattung, Anfechtung); wird beim Gebrauch verbraucht. */
   setNextOutcome(sessionId: string, next: MockNextOutcome): Promise<void>
+  /**
+   * Test-Ergebnis „Verzögert“ (KONZEPT §4.7, S10): Session `complete`/`unpaid` **ohne** Ereignis – weder im Protokoll
+   * noch in `webhook-events`; die Kasse bleibt `confirming`, bis der Abgleich sie klärt.
+   */
+  completeUnpaidWithoutEvent(sessionId: string, method?: MockPaymentMethod): Promise<void>
 }
 
 export interface MockPaymentsAdapter extends PaymentsAdapter, MockPaymentsTestApi {
@@ -574,6 +580,22 @@ export function createMockPaymentsAdapter(options: MockPaymentsOptions = {}): Mo
           [MOCK_SIGNATURE_HEADER]: signMockWebhook(rawBody, secret),
         }),
       }
+    },
+
+    async completeUnpaidWithoutEvent(sessionId, method) {
+      requireTestApi()
+      if (method) validateNextOutcome({ paymentMethod: method })
+      await withSession(sessionId, (_state, session) => {
+        if (session.status !== 'open') {
+          throw new MockTransitionError(`Verzögert: die Session ist ${session.status}.`)
+        }
+        session.status = 'complete'
+        session.paymentStatus = 'unpaid'
+        session.paymentIntentId = mockId.paymentIntent()
+        session.paymentMethod = method ?? takeOutcome(session, 'paymentMethod') ?? { type: 'card' }
+        session.completedAt = clock.now().toISOString()
+        return { changed: true, result: undefined }
+      })
     },
 
     async setNextOutcome(sessionId, next) {
