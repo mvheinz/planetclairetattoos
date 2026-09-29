@@ -71,6 +71,13 @@ describe('Vorschau-Export: CSS (KONZEPT §12.5 Nr. 2, ARCHITEKTUR §14.5)', () =
     expect(out).not.toMatch(/url\(["']?\//)
     expect(warnings).toHaveLength(1)
   })
+
+  it('SVG-Daten-URI mit eigenem url(%23id) bleibt unverändert, ohne Warnung', () => {
+    const css = `.h{mask-image:url("data:image/svg+xml,%3Csvg%3E%3Crect fill='url(%23h)'/%3E%3C/svg%3E")}`
+    const warnings: string[] = []
+    expect(inlineCssUrls(css, '/_next/static/chunks/s.css', () => null, warnings)).toBe(css)
+    expect(warnings).toEqual([])
+  })
 })
 
 describe('Vorschau-Export: SVG-Sprites (ARCHITEKTUR §14.5)', () => {
