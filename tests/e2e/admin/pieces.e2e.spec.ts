@@ -140,9 +140,10 @@ test.describe('Meine Stücke (P5.8) @a11y', () => {
     await page.goto(adminPath(`/stuecke?q=${shown.itemNumber}`))
     await cardOf(page, shown.itemNumber).getByTestId('piece-sell-offline').click()
     const dialog = page.getByRole('dialog')
-    await expect(dialog).toContainText(
-      `Nr. ${shown.itemNumber} als offline verkauft markieren? Es verschwindet aus dem Shop.`,
+    await expect(dialog).toHaveAccessibleName(
+      `Nr. ${shown.itemNumber} als offline verkauft markieren?`,
     )
+    await expect(dialog).toHaveAccessibleDescription('Es verschwindet aus dem Shop.')
     await expect(dialog.getByTestId('piece-sell-offline-archive')).toBeChecked()
     await dialog.getByTestId('confirm-dialog-ok').click()
     const sentAt = Date.now()
@@ -151,9 +152,12 @@ test.describe('Meine Stücke (P5.8) @a11y', () => {
       .poll(() => html(request, ARCHIVE), { timeout: LIMIT_MS, intervals: [100, 250, 500] })
       .toContain(`${marker(shown.itemNumber)} data-status="sold"`)
     expect(Date.now() - sentAt).toBeLessThanOrEqual(LIMIT_MS + 2_000)
+    // „Fehlt im Shop“: nicht mehr kaufbar – die Shop-Liste zeigt verkaufte Archiv-Stücke gedämpft mit Stempel
+    // (KONZEPT §3.2), die Liste „nur verfügbare“ (AK-3-03) gar nicht mehr.
     await expect
-      .poll(() => html(request, SHOP), { timeout: LIMIT_MS })
+      .poll(() => html(request, `${SHOP}?available=1`), { timeout: LIMIT_MS })
       .not.toContain(marker(shown.itemNumber))
+    expect(await html(request, SHOP)).toContain(`${marker(shown.itemNumber)} data-status="sold"`)
     await page.goto(ARCHIVE)
     await expect(
       page.locator(`[data-product-card][data-item-number="${shown.itemNumber}"] [data-sold-stamp]`),

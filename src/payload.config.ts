@@ -39,6 +39,7 @@ import { exportEndpoints } from './endpoints/export'
 import { SiteTexts } from './globals/SiteTexts'
 import { withJsonPreview } from './admin/jsonPreview'
 import { noAnyTypesSchema } from './lib/payload/typesSchema'
+import { keepValidationErrorData } from './lib/payload/validationErrorResponse'
 import { ADMIN_CUSTOM_DE } from './admin/translations'
 import { adminViewsConfig } from './admin/views/config'
 import { isAdmin, isAdminRequest } from './access'
@@ -116,6 +117,7 @@ export default buildConfig({
   globals: [Settings, SiteTexts].map((g) => ({ ...g, fields: withJsonPreview(g.fields) })),
   // Admin-Endpunkte ohne Collection (ARCHITEKTUR §2.5): Exporte (P5.24/P5.25).
   endpoints: [...exportEndpoints],
+  hooks: { afterError: [keepValidationErrorData] },
   editor: lexicalEditor(),
   // DATENMODELL §1.2 (E-60, E-61): fehlendes EN zeigt DE.
   localization: {

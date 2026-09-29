@@ -1158,6 +1158,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 interface ControlProps {
   id: string
+  /** Name ohne Pflicht-Sternchen (das Sternchen ist nur Optik, `aria-required` trägt die Information). */
+  'aria-label': string
   'aria-describedby'?: string
   'aria-required'?: boolean
 }
@@ -1183,6 +1185,7 @@ function Field({
       </label>
       {children({
         id,
+        'aria-label': label,
         'aria-describedby': hint ? hintId : undefined,
         'aria-required': required || undefined,
       })}
@@ -1327,6 +1330,8 @@ function Check({
         <input
           id={cid}
           type="checkbox"
+          aria-label={label}
+          aria-required={required || undefined}
           checked={checked}
           disabled={disabled}
           aria-describedby={hint ? `${cid}-hint` : undefined}

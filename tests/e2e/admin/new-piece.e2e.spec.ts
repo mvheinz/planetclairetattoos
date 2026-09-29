@@ -82,7 +82,7 @@ test.describe('Neues Stück (P5.6)', () => {
     await expect(page.getByTestId('piece-public-url')).toHaveText(
       new RegExp(`/de/shop/${padded}-schale-mit-hund$`),
     )
-    await expect(page.getByRole('button', { name: 'Link kopieren' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Link kopieren', exact: true })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Kurzlink kopieren' })).toBeVisible()
     await expect(page.getByTestId('piece-another')).toHaveAttribute(
       'href',
