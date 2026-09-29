@@ -53,9 +53,17 @@ export function collectEnvViolations(env: Env): EnvReport {
   if (!prod) {
     if (/^(sk|rk)_live_/.test(sk))
       errors.push('STRIPE_SECRET_KEY: Live-Schlüssel außerhalb von Produktion verboten.')
+    else if (sk && !/^(sk|rk)_test_/.test(sk))
+      errors.push(
+        'STRIPE_SECRET_KEY muss außerhalb von Produktion mit sk_test_ oder rk_test_ beginnen.',
+      )
     if (/^pk_live_/.test(pk))
       errors.push(
         'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: Live-Schlüssel außerhalb von Produktion verboten.',
+      )
+    else if (pk && !pk.startsWith('pk_test_'))
+      errors.push(
+        'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY muss außerhalb von Produktion mit pk_test_ beginnen.',
       )
     if (
       env.CRON_SECRET !== undefined &&
@@ -81,6 +89,8 @@ export function collectEnvViolations(env: Env): EnvReport {
   }
   if (!pk.startsWith('pk_live_'))
     errors.push('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY muss mit pk_live_ beginnen.')
+  if (env.STRIPE_API_BASE_URL)
+    errors.push('STRIPE_API_BASE_URL ist in Produktion verboten (nur Tests gegen stripe-mock).')
   if (env.PAYLOAD_SECRET.length < 32) errors.push('PAYLOAD_SECRET: mindestens 32 Zeichen.')
   if (env.PAYLOAD_SECRET === EXAMPLE_PAYLOAD_SECRET) {
     errors.push('PAYLOAD_SECRET darf nicht der Wert aus .env.example sein.')

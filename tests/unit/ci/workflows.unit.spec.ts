@@ -500,6 +500,14 @@ describe('ci-full.yml (§6.4, P2.28)', () => {
     expectBudgetBeforeOptionalUpload(job, 'ci-full-quality-report')
   })
 
+  it('P4.2 e2e-full: Unit-Tests des Rechenkerns (commerce, tax) zusätzlich mit TZ=Europe/Berlin', () => {
+    const job = full.jobs['e2e-full']!
+    const step = findStep(job, /^pnpm run test:unit tests\/unit\/commerce tests\/unit\/tax$/)
+    expect(step).toBeGreaterThan(findStep(job, /pnpm install --frozen-lockfile/))
+    expect(job.steps[step]!.env?.TZ).toBe('Europe/Berlin')
+    expect(full.env?.TZ).toBe('UTC')
+  })
+
   it('T-12 quality: fehlende Referenzbilder = Hinweis im Summary (nicht rot), vorhandene werden streng geprüft', () => {
     const job = full.jobs.quality!
     const refs = job.steps.find((s) => s.id === 'visual-refs')!

@@ -448,7 +448,6 @@ async function importCheckouts(req: PayloadRequest, data: SeedData, options: Exa
           })),
           c.fulfillmentMethod,
           settings,
-          c.shippingZone ?? 'DE',
         )
         const subtotal = items.reduce((s, i) => s + (i.priceCents as number), 0)
         return {

@@ -3,6 +3,7 @@ import 'server-only'
 import type { GlobalSlug, Payload, PayloadRequest } from 'payload'
 
 import { LOCALES } from '@/lib/enums'
+import { issueLegalTextPdfs } from '@/lib/legal/pdf'
 
 import { seedOp, seedStep } from './context'
 import {
@@ -149,7 +150,7 @@ async function seedLegalTexts(payload: Payload, base: BaseData, report: SeedRepo
       const content = text.sections
         .map((s) => [`## ${s.heading}`, ...s.paragraphs].join('\n\n'))
         .join('\n\n')
-      await req.payload.create({
+      const created = await req.payload.create({
         collection: 'legal-texts',
         locale: 'de',
         data: {
@@ -166,6 +167,8 @@ async function seedLegalTexts(payload: Payload, base: BaseData, report: SeedRepo
         },
         ...seedOp(req),
       })
+      // PDFs der Platzhalter-Fassungen direkt, ohne Job (P4.12; M01/M02 hängen sie an).
+      await issueLegalTextPdfs(req, created.id)
       report.add('legal-texts', 'created')
     }
   })

@@ -161,6 +161,8 @@ export interface Config {
   jobs: {
     tasks: {
       sendEmail: TaskSendEmail;
+      renderInvoicePdf: TaskRenderInvoicePdf;
+      renderLegalTextPdf: TaskRenderLegalTextPdf;
       inline: {
         input: unknown;
         output: unknown;
@@ -1513,6 +1515,7 @@ export interface EmailLog {
     | 'admin_legal_hold_review'
     | 'admin_compliance_docs_review';
   to: string;
+  idempotencyKey?: string | null;
   locale: 'de' | 'en';
   subject: string;
   status: 'queued' | 'sent' | 'failed' | 'suppressed';
@@ -2367,7 +2370,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'sendEmail';
+        taskSlug: 'inline' | 'sendEmail' | 'renderInvoicePdf' | 'renderLegalTextPdf';
         taskID: string;
         input?:
           | {
@@ -2400,7 +2403,7 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'sendEmail') | null;
+  taskSlug?: ('inline' | 'sendEmail' | 'renderInvoicePdf' | 'renderLegalTextPdf') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -3757,6 +3760,7 @@ export interface AuditLogSelect<T extends boolean = true> {
 export interface EmailLogSelect<T extends boolean = true> {
   template?: T;
   to?: T;
+  idempotencyKey?: T;
   locale?: T;
   subject?: T;
   status?: T;
@@ -4814,9 +4818,43 @@ export interface CollectionsWidget {
 export interface TaskSendEmail {
   input: {
     emailLogId: number;
+    data?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+    waits?: number | null;
   };
   output: {
     status: string;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRenderInvoicePdf".
+ */
+export interface TaskRenderInvoicePdf {
+  input: {
+    invoiceId: number;
+  };
+  output: {
+    status: string;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRenderLegalTextPdf".
+ */
+export interface TaskRenderLegalTextPdf {
+  input: {
+    legalTextId: number;
+  };
+  output: {
+    created: string;
   };
 }
 /**

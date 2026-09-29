@@ -296,6 +296,8 @@ describe('GET /api/public/product-status', () => {
       [s]: 'sold',
       [d]: 'gone',
       '2000000000': 'gone',
+      // P4.7: ohne Cookie `pc_checkout` immer false
+      reservedByYou: { [a]: false, [r]: false, [s]: false, [d]: false, '2000000000': false },
     })
     expect(await productStates(payload, [a])).toEqual({ [a]: 'available' })
   })

@@ -53,4 +53,6 @@ export const PRODUCT_STATE_EVENT = 'pc:product-state'
 export interface ProductStateDetail {
   id: string
   state: ProductLiveState
+  /** Das Stück liegt in der eigenen laufenden Kasse (`reservedByYou`, P4.7). */
+  reservedByYou?: true
 }

@@ -30,6 +30,10 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_LEASH_DEBUG: process.env.NEXT_PUBLIC_LEASH_DEBUG === '1' ? '1' : '',
   },
+  // PDFs (P4.11/P4.12): @react-pdf/renderer serverseitig ungebündelt; die lokalen TTF-Schriften (src/lib/pdf/fonts)
+  // gehören in jedes Server-Bundle, das PDFs rendert (Jobs, Rechtstext-Route).
+  serverExternalPackages: ['@react-pdf/renderer'],
+  outputFileTracingIncludes: { '/**': ['./src/lib/pdf/fonts/*.ttf'] },
   // 404 mit Seitenrahmen schon im HTML (src/app/global-not-found.tsx): das Wurzel-Layout liegt unter [locale].
   experimental: {
     globalNotFound: true,

@@ -42,6 +42,7 @@ describe('computeTax (R-032)', () => {
     expect(computeTax(lines, 'kleinunternehmer')).toEqual({
       mode: 'kleinunternehmer',
       taxLines: [],
+      shippingShares: [],
       totalGrossCents: 17390,
       totalNetCents: 17390,
       totalTaxCents: 0,

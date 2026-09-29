@@ -1,0 +1,111 @@
+{
+  "id": "evt_fixture_checkout_session_expired",
+  "object": "event",
+  "api_version": "2026-08-26.dahlia",
+  "created": 1792053060,
+  "data": {
+    "object": {
+      "id": "cs_test_fixture_session_0001",
+      "object": "checkout.session",
+      "adaptive_pricing": null,
+      "after_expiration": null,
+      "allow_promotion_codes": null,
+      "amount_subtotal": 7300,
+      "amount_total": 7990,
+      "automatic_tax": {
+        "enabled": false,
+        "liability": null,
+        "provider": null,
+        "status": null
+      },
+      "billing_address_collection": null,
+      "cancel_url": null,
+      "client_reference_id": "00000000-0000-4000-8000-000000000000",
+      "client_secret": null,
+      "collected_information": null,
+      "consent": null,
+      "consent_collection": null,
+      "created": 1792051200,
+      "currency": "eur",
+      "currency_conversion": null,
+      "custom_fields": [],
+      "custom_text": {
+        "after_submit": null,
+        "shipping_address": null,
+        "submit": null,
+        "terms_of_service_acceptance": null
+      },
+      "customer": null,
+      "customer_account": null,
+      "customer_creation": "if_required",
+      "customer_details": null,
+      "customer_email": null,
+      "discounts": [],
+      "expires_at": 1792053060,
+      "integration_identifier": null,
+      "invoice": null,
+      "invoice_creation": null,
+      "livemode": false,
+      "locale": "de",
+      "managed_payments": null,
+      "metadata": {
+        "appEnv": "test",
+        "checkoutRef": "00000000-0000-4000-8000-000000000000"
+      },
+      "mode": "payment",
+      "origin_context": null,
+      "payment_intent": null,
+      "payment_link": null,
+      "payment_method_collection": "if_required",
+      "payment_method_configuration_details": null,
+      "payment_method_options": {
+        "card": {
+          "request_three_d_secure": "automatic"
+        }
+      },
+      "payment_method_types": [
+        "card",
+        "paypal"
+      ],
+      "payment_status": "unpaid",
+      "permissions": null,
+      "recovered_from": null,
+      "redirect_on_completion": "always",
+      "return_url": "http://localhost:3000/de/danke/fixture-token",
+      "saved_payment_method_options": null,
+      "setup_intent": null,
+      "shipping_address_collection": null,
+      "shipping_cost": {
+        "amount_subtotal": 690,
+        "amount_tax": 0,
+        "amount_total": 690,
+        "shipping_rate": "shr_fixture_0001"
+      },
+      "shipping_options": [
+        {
+          "shipping_amount": 690,
+          "shipping_rate": "shr_fixture_0001"
+        }
+      ],
+      "status": "expired",
+      "submit_type": null,
+      "subscription": null,
+      "success_url": null,
+      "total_details": {
+        "amount_discount": 0,
+        "amount_shipping": 690,
+        "amount_tax": 0
+      },
+      "ui_mode": "elements",
+      "url": null,
+      "wallet_options": null
+    }
+  },
+  "livemode": false,
+  "pending_webhooks": 1,
+  "request": {
+    "id": null,
+    "idempotency_key": null
+  },
+  "type": "checkout.session.expired"
+}

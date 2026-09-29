@@ -1,0 +1,69 @@
+{
+  "object": "list",
+  "data": [
+    {
+      "id": "txn_fixture_0004",
+      "object": "balance_transaction",
+      "amount": -3345,
+      "available_on": 1792310400,
+      "balance_type": "payments",
+      "created": 1792310400,
+      "currency": "eur",
+      "description": null,
+      "exchange_rate": null,
+      "fee": 0,
+      "fee_details": [],
+      "net": -3345,
+      "reporting_category": "payout",
+      "source": "po_fixture_0001",
+      "status": "available",
+      "type": "payout"
+    },
+    {
+      "id": "txn_fixture_0002",
+      "object": "balance_transaction",
+      "amount": -4500,
+      "available_on": 1792224000,
+      "balance_type": "payments",
+      "created": 1792224000,
+      "currency": "eur",
+      "description": null,
+      "exchange_rate": null,
+      "fee": 0,
+      "fee_details": [],
+      "net": -4500,
+      "reporting_category": "refund",
+      "source": "re_fixture_0001",
+      "status": "available",
+      "type": "refund"
+    },
+    {
+      "id": "txn_fixture_0001",
+      "object": "balance_transaction",
+      "amount": 7990,
+      "available_on": 1792224300,
+      "balance_type": "payments",
+      "created": 1792051500,
+      "currency": "eur",
+      "description": null,
+      "exchange_rate": null,
+      "fee": 145,
+      "fee_details": [
+        {
+          "amount": 145,
+          "application": null,
+          "currency": "eur",
+          "description": "Stripe processing fees",
+          "type": "stripe_fee"
+        }
+      ],
+      "net": 7845,
+      "reporting_category": "charge",
+      "source": "ch_fixture_0001",
+      "status": "available",
+      "type": "charge"
+    }
+  ],
+  "has_more": false,
+  "url": "/v1/balance_transactions"
+}

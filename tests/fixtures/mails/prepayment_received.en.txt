@@ -1,0 +1,31 @@
+Your payment has arrived
+
+Hi Erika Beispiel,
+
+thank you! Your transfer of €90.90 for order PC-2026-00017 has arrived.
+
+Order number: PC-2026-00017
+Ordered on: 14 Oct 2026 at 11:28 (Berlin time)
+
+Next, I'll pack your order carefully and send it off. As soon as it's on its way, you'll get an email.
+
+Your invoice (RE-2026-00043.pdf) is attached.
+
+You can view your order at any time here:
+Order status: https://planetclairetattoos.com/en/order/__STATUS_TOKEN__
+
+How I handle your data is explained in the privacy policy:
+Privacy policy: https://planetclairetattoos.com/en/privacy
+
+Best wishes
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Legal notice: https://planetclairetattoos.com/en/legal-notice
+Privacy policy: https://planetclairetattoos.com/en/privacy
+Order status: https://planetclairetattoos.com/en/order/__STATUS_TOKEN__
+Withdraw from contract here: https://planetclairetattoos.com/en/withdraw-from-contract

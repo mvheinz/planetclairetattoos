@@ -163,6 +163,47 @@ export function ogMetricsModule(fonts: readonly BuiltOgFont[]): string {
   ].join('\n')
 }
 
+// --- PDF-Schriften (P4.11) ------------------------------------------------------------------------------------------
+
+/** Zielordner der PDF-Schriften (`@react-pdf/renderer`, nur `.ttf`, nie im Browser). */
+export const PDF_FONT_DIR = 'src/lib/pdf/fonts'
+
+export interface PdfFontJob {
+  file: string
+  source: string
+}
+
+/** Statische Schnitte (react-pdf liest keine variablen Schriften): Text 400/700, Ziffern/Nummern Mono 400. */
+export const PDF_FONT_JOBS: readonly PdfFontJob[] = [
+  {
+    file: 'bricolage-grotesque-400.ttf',
+    source: '@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-400-normal.woff2',
+  },
+  {
+    file: 'bricolage-grotesque-700.ttf',
+    source: '@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-700-normal.woff2',
+  },
+  {
+    file: 'ibm-plex-mono-400.ttf',
+    source: '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2',
+  },
+]
+
+/** WOFF2 → TTF für die Beleg- und Rechtstext-PDFs (offline); wirft bei fehlenden Pflicht-Glyphen. */
+export async function buildPdfFonts(nodeModules: string): Promise<BuiltFont[]> {
+  const out: BuiltFont[] = []
+  for (const job of PDF_FONT_JOBS) {
+    const data = Buffer.from(await decompress(readFileSync(path.join(nodeModules, job.source))))
+    const font = fontkit.create(data) as fontkit.Font
+    const missing = [...`${OG_REQUIRED_GLYPHS}§`].filter(
+      (c) => !font.hasGlyphForCodePoint(c.codePointAt(0)!),
+    )
+    if (missing.length > 0) throw new Error(`${job.file}: Glyphen fehlen: ${missing.join(' ')}`)
+    out.push({ file: job.file, data })
+  }
+  return out
+}
+
 /** Zusammenhängende Bereiche der Code Points, die eine Schrift abdeckt. */
 export function coverageRanges(font: Buffer): [number, number][] {
   const parsed = fontkit.create(font) as fontkit.Font
@@ -220,6 +261,15 @@ async function main(): Promise<void> {
     )
   }
   writeFileSync(path.join(root, OG_METRICS_MODULE), ogMetricsModule(ogFonts))
+
+  const pdfDir = path.join(root, PDF_FONT_DIR)
+  mkdirSync(pdfDir, { recursive: true })
+  for (const font of await buildPdfFonts(path.join(root, 'node_modules'))) {
+    writeFileSync(path.join(pdfDir, font.file), font.data)
+    console.log(
+      `fonts:copy: ${PDF_FONT_DIR}/${font.file} ${(font.data.length / 1000).toFixed(1)} KB (PDF, TTF)`,
+    )
+  }
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) await main()

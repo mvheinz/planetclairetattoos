@@ -7,6 +7,10 @@ src/payload-types.ts
 src/payload-generated-schema.ts
 src/app/(payload)/admin/importMap.js
 src/migrations/
+# Erzeugt bzw. aufgezeichnet und geprüft von `pnpm stripe:fixture` (Form der Stripe-API, nicht umformatieren).
+tests/fixtures/stripe/
+# Mail-Snapshots (Vitest `toMatchFileSnapshot`, P4.14/P4.15) – byte-genau wie gerendert.
+tests/fixtures/mails/
 public/
 dist/
 .next/
