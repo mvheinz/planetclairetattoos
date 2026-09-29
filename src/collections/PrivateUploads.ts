@@ -55,6 +55,13 @@ export const ORDER_PURPOSES: ReadonlySet<PrivateUploadPurpose> = new Set<Private
 ])
 
 /** Beleg-PDFs mit Bezug auf `invoices` (L-06). */
+/** Zwecke, deren Datei der Server vorab per `putIfAbsent` schreibt (R-122, P5.26). */
+export const PRE_STORED_PURPOSES: ReadonlySet<PrivateUploadPurpose> = new Set([
+  'invoice_pdf',
+  'credit_note_pdf',
+  'monthly_export',
+])
+
 export const INVOICE_PDF_PURPOSES: ReadonlySet<PrivateUploadPurpose> =
   new Set<PrivateUploadPurpose>(['invoice_pdf', 'credit_note_pdf'])
 
@@ -229,9 +236,23 @@ const validateAndCompute: CollectionBeforeChangeHook = async ({
     fail('Das Ausstellungsdatum darf nicht in der Zukunft liegen.', 'documentDate')
   }
 
+  // Datei: bei der Anlage Pflicht – außer vom Server vorab geschriebene Beleg-PDFs und Monatsexporte (R-122)
+  const preStored = operation === 'create' && !req.file && ctx.preStoredFile === true
+  if (operation === 'create' && !req.file) {
+    const ok =
+      preStored &&
+      Boolean(ctx.system) &&
+      PRE_STORED_PURPOSES.has(purpose) &&
+      typeof data.filename === 'string' &&
+      typeof data.sha256 === 'string' &&
+      SHA256_RE.test(data.sha256)
+    if (!ok) fail('Bitte eine Datei hochladen.', 'file')
+  }
+
   // Prüfsumme der gespeicherten Datei
   if (req.file) data.sha256 = sha256Hex(await fileBuffer(req.file))
-  else data.sha256 = (originalDoc as { sha256?: string } | undefined)?.sha256 ?? null
+  else if (!preStored)
+    data.sha256 = (originalDoc as { sha256?: string } | undefined)?.sha256 ?? null
 
   // Beziehungen je Zweck (DATENMODELL §6.4)
   const ids = Object.fromEntries(
@@ -382,7 +403,8 @@ export const PrivateUploads: CollectionConfig = {
   },
   upload: {
     ...uploadStorage('private'),
-    mimeTypes: [...PRIVATE_UPLOAD_MIME_TYPES],
+    // CSV/ZIP nur für Monatsexporte, die der Server selbst ablegt (Uploads prüft `normalizePrivateFile`: nur PDF/Bilder)
+    mimeTypes: [...PRIVATE_UPLOAD_MIME_TYPES, 'text/csv', 'application/zip'],
     imageSizes: [
       {
         name: 'thumb',
@@ -394,6 +416,9 @@ export const PrivateUploads: CollectionConfig = {
     adminThumbnail: 'thumb',
     focalPoint: false,
     crop: false,
+    // Beleg-PDFs und Monatsexporte schreibt der Server selbst per `putIfAbsent` (R-122, P5.26) und legt danach nur den
+    // Datensatz an; alle anderen Anlagen verlangen eine Datei (Prüfung in `validateAndCompute`).
+    filesRequiredOnCreate: false,
   },
   fields: [
     {

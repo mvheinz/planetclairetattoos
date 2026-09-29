@@ -3,6 +3,8 @@ import type { TaskConfig } from 'payload'
 import { instrumentTask } from '@/lib/jobs/instrument'
 
 import { cancelOverduePrepaymentsTask } from './cancelOverduePrepayments'
+import { invoiceIntegrityCheckTask } from './invoiceIntegrityCheck'
+import { monthlyCloseTask } from './monthlyClose'
 import { prepaymentRemindersTask } from './prepaymentReminders'
 import { releaseExpiredReservationsTask } from './releaseExpiredReservations'
 import { renderInvoicePdfTask } from './renderInvoicePdf'
@@ -72,6 +74,8 @@ export const JOB_TASKS: TaskConfig<any>[] = [
   renderInvoicePdfTask,
   renderLegalTextPdfTask,
   revenueGuardCheckTask,
+  monthlyCloseTask,
+  invoiceIntegrityCheckTask,
 ].map((t) => instrumentTask(t, TASK_DEFS[t.slug as TaskSlug].queue))
 
 export const IMPLEMENTED_TASK_SLUGS = new Set<string>(JOB_TASKS.map((t) => t.slug))

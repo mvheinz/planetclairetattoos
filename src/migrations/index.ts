@@ -25,6 +25,7 @@ import * as migration_20260929_031002_p4_release_job from './20260929_031002_p4_
 import * as migration_20260929_032338_p4_prepayment_jobs from './20260929_032338_p4_prepayment_jobs';
 import * as migration_20260929_081932_p5_revenue_guard from './20260929_081932_p5_revenue_guard';
 import * as migration_20260929_102355_p5_job_runs from './20260929_102355_p5_job_runs';
+import * as migration_20260929_104802_p5_monthly_close_jobs from './20260929_104802_p5_monthly_close_jobs';
 
 export const migrations = [
   {
@@ -160,6 +161,11 @@ export const migrations = [
   {
     up: migration_20260929_102355_p5_job_runs.up,
     down: migration_20260929_102355_p5_job_runs.down,
-    name: '20260929_102355_p5_job_runs'
+    name: '20260929_102355_p5_job_runs',
+  },
+  {
+    up: migration_20260929_104802_p5_monthly_close_jobs.up,
+    down: migration_20260929_104802_p5_monthly_close_jobs.down,
+    name: '20260929_104802_p5_monthly_close_jobs'
   },
 ];

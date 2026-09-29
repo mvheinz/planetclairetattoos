@@ -167,6 +167,8 @@ export interface Config {
       renderInvoicePdf: TaskRenderInvoicePdf;
       renderLegalTextPdf: TaskRenderLegalTextPdf;
       revenueGuardCheck: TaskRevenueGuardCheck;
+      monthlyClose: TaskMonthlyClose;
+      invoiceIntegrityCheck: TaskInvoiceIntegrityCheck;
       inline: {
         input: unknown;
         output: unknown;
@@ -2382,7 +2384,9 @@ export interface PayloadJob {
           | 'sendEmail'
           | 'renderInvoicePdf'
           | 'renderLegalTextPdf'
-          | 'revenueGuardCheck';
+          | 'revenueGuardCheck'
+          | 'monthlyClose'
+          | 'invoiceIntegrityCheck';
         taskID: string;
         input?:
           | {
@@ -2425,6 +2429,8 @@ export interface PayloadJob {
         | 'renderInvoicePdf'
         | 'renderLegalTextPdf'
         | 'revenueGuardCheck'
+        | 'monthlyClose'
+        | 'invoiceIntegrityCheck'
       )
     | null;
   queue?: string | null;
@@ -4924,6 +4930,33 @@ export interface TaskRevenueGuardCheck {
   output: {
     notified: number;
     skipped: boolean;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskMonthlyClose".
+ */
+export interface TaskMonthlyClose {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    month?: string | null;
+    uploads?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskInvoiceIntegrityCheck".
+ */
+export interface TaskInvoiceIntegrityCheck {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    checked?: number | null;
+    mismatched?: number | null;
+    missing?: number | null;
   };
 }
 /**

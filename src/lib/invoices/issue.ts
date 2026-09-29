@@ -11,6 +11,7 @@ import { inTransaction } from '@/lib/payload/transaction'
 import { InvoiceDocument } from '@/lib/pdf/InvoiceDocument'
 import { renderPdf, type RenderedPdf } from '@/lib/pdf/render'
 import { invoicePrefix } from '@/lib/storage'
+import { storePrivateFile } from '@/lib/uploads/preStored'
 import type { Invoice } from '@/payload-types'
 
 import { parseInvoiceData } from './schema'
@@ -63,28 +64,16 @@ export async function issueInvoicePdf(
     const now = requestNow(req)
     const context = { ...req.context, system: true, now: now.toISOString() }
     const pdf = await renderInvoicePdfFile(invoice)
-    const upload = await preservingReq(req, () =>
-      req.payload.create({
-        collection: 'private-uploads',
-        data: {
-          purpose: invoice.type === 'invoice' ? 'invoice_pdf' : 'credit_note_pdf',
-          status: 'attached',
-          relatedInvoice: invoice.id,
-          prefix: invoicePrefix(invoice.year),
-          seed: invoice.seed === true,
-        } as never,
-        file: {
-          data: pdf.data,
-          name: `${invoice.number}.pdf`,
-          mimetype: 'application/pdf',
-          size: pdf.data.length,
-        },
-        depth: 0,
-        overrideAccess: true,
-        req,
-        context,
-      }),
-    )
+    // R-122: nur schreiben, wenn die Datei noch nicht existiert (`putIfAbsent`), Pfad `private/invoices/{JJJJ}/{Nummer}.pdf`
+    const upload = await storePrivateFile(req, {
+      purpose: invoice.type === 'invoice' ? 'invoice_pdf' : 'credit_note_pdf',
+      prefix: invoicePrefix(invoice.year),
+      filename: `${invoice.number}.pdf`,
+      bytes: Buffer.from(pdf.data),
+      contentType: 'application/pdf',
+      data: { relatedInvoice: invoice.id, seed: invoice.seed === true },
+      context,
+    })
     await preservingReq(req, () =>
       req.payload.update({
         collection: 'invoices',

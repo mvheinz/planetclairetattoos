@@ -143,8 +143,13 @@ describe('Rechnungs-PDF (R-120)', () => {
       prefix: `private/invoices/2026`,
       mimeType: 'application/pdf',
     })
-    // Dateiname `{Nummer}.pdf`; liegt lokal schon eine Datei gleichen Namens (frühere Testläufe), benennt Payload um.
-    expect(upload.filename).toMatch(/^RE-2026-\d+\.pdf$/)
+    // Dateiname `{Nummer}.pdf`; liegt lokal schon eine verwaiste Datei gleichen Namens mit anderem Inhalt (frühere
+    // Testläufe), wird sie nie überschrieben – dann `{Nummer}-{sha256[0..8]}.pdf` (R-122, `storePrivateFile`).
+    expect(upload.filename).toBe(
+      upload.filename === `${invoice.number}.pdf`
+        ? `${invoice.number}.pdf`
+        : `${invoice.number}-${invoice.sha256!.slice(0, 8)}.pdf`,
+    )
     expect(upload.retainUntil).toBe(invoice.retainUntil)
 
     const again = await payload.jobs.queue({

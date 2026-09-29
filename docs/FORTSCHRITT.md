@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P5.26
+
+- Tasks `monthlyClose` (documents) und `invoiceIntegrityCheck` (maintenance), monatlich am 1. ab 04:00 Berlin über `runOncePer`; Monats-CSV + Rechnungs-ZIP privat (`monthly_export`, L-07), A11 mit Summen und fehlenden Monatssummen, je Monat einmal; Belegprüfung → A12 mit Belegnummern
+- R-122: `putIfAbsent` im Speicher-Adapter, Beleg-PDFs unter `private/invoices/{JJJJ}/{Nummer}.pdf` nur, wenn nicht vorhanden; Migration `p5_monthly_close_jobs` (Task-Enum)
+- Tests: `tests/int/legal/invoice-integrity.int.spec.ts` (5, R-122 local/s3/Manipulation/fehlend), `tests/int/jobs/monthly-close.int.spec.ts` (2, AK-8-01); gesamte Int-Suite ohne Vorschau-Export grün (79 Dateien)
+
 ## 2026-09-29 – P5.3
 
 - Lauf-Protokoll `job_runs` (Migration `p5_job_runs`, CHECK + Index laut DATENMODELL §11), Einträge je Task-Lauf inkl. „Jetzt ausführen“, Fehler geschwärzt (R-137); Fehlschlag in commerce/documents → A12 über `notifyAdmin`

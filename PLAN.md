@@ -3041,7 +3041,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/legal/datev-export.int.spec.ts` (Titel „R-124 DATEV …“).
   - Ohne Jutta: Kontenrahmen und Nummern legt die Steuerberatung fest; Aufgabe als A51 ff. in AUFGABEN ergänzen.
 
-- [ ] **P5.26 Monatsabschluss und Belegprüfung** – Task `monthlyClose` (Queue `documents`, monatlich am 1. ab 04:00
+- [x] **P5.26 Monatsabschluss und Belegprüfung** – Task `monthlyClose` (Queue `documents`, monatlich am 1. ab 04:00
   Berlin): für den Vormonat CSV und Rechnungs-ZIP erzeugen und privat ablegen (`private-uploads`, Zweck
   `monthly_export`, DATENMODELL §6.4; Aufbewahrung L-07), A11 mit Summen und Hinweis, falls manuelle Monatssummen
   fehlen; je Monat nur einmal. Task `invoiceIntegrityCheck` (Queue `maintenance`, monatlich am 1. ab 04:00 nach
