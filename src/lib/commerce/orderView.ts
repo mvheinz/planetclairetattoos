@@ -2,8 +2,8 @@ import 'server-only'
 
 import { createLocalReq, type Payload } from 'payload'
 
+import { isCarrierCode, trackingTemplatesFromSettings } from '@/lib/carrier'
 import { createManualCarrierAdapter } from '@/lib/carrier/manual'
-import type { CarrierCode, TrackingUrlTemplate } from '@/lib/carrier/types'
 import type { Locale, OrderStatus, TaxMode } from '@/lib/enums'
 import { legalAttachmentInfo } from '@/lib/legal/attachments'
 import { createLogger } from '@/lib/monitoring/logger'
@@ -134,14 +134,13 @@ function trackingOf(order: Order, settings: Setting, locale: Locale): OrderView[
   const number = order.shipment?.trackingNumber
   if (!number) return null
   const carrier = order.shipment?.carrier ?? null
-  const templates = (settings.shipping?.trackingUrlTemplates ?? []).filter(
-    (t): t is TrackingUrlTemplate =>
-      !!t && (t.carrier === 'dhl' || t.carrier === 'deutsche_post') && !!t.urlTemplate,
-  )
-  const url =
-    carrier === 'dhl' || carrier === 'deutsche_post'
-      ? createManualCarrierAdapter(templates).trackingUrl(carrier as CarrierCode, number, locale)
-      : null
+  const url = isCarrierCode(carrier)
+    ? createManualCarrierAdapter(trackingTemplatesFromSettings(settings)).trackingUrl(
+        carrier,
+        number,
+        locale,
+      )
+    : null
   return { carrier, number, url }
 }
 
