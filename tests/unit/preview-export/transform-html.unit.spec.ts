@@ -155,10 +155,11 @@ describe('Vorschau-Export: Seiten-Umwandlung (ARCHITEKTUR §14.5)', () => {
       notBuilt: [{ routeId: 'R21', path: '/de/impressum', lang: 'de' }],
     })
     const routes = nb.map((r) => r.route)
-    // R06 ist seit P4.8 gebaut, R07 (Kasse) seit P4.9; R09 (Bestellstatus) noch nicht.
+    // R06–R09 sind seit P4 gebaut; R10 (Auftragsarbeiten) noch nicht.
     expect(routes).not.toContain('/de/warenkorb')
     expect(routes).not.toContain('/de/kasse')
-    expect(routes).toContain('/de/bestellung/[token]')
+    expect(routes).not.toContain('/de/bestellung/[token]')
+    expect(routes).toContain('/de/auftragsarbeiten')
     expect(routes).not.toContain('/de/shop')
     expect(routes).not.toContain('/de/archiv')
     expect(routes).not.toContain('/en/checkout')
