@@ -1,6 +1,11 @@
 import type { APIRequestContext } from '@playwright/test'
 
-import { holdAdminSessions, withLoginLock, type ReleaseLock } from '../../helpers/adminSessionLock'
+import {
+  holdAdminSessions,
+  holdShippingRates,
+  withLoginLock,
+  type ReleaseLock,
+} from '../../helpers/adminSessionLock'
 import { serverURL, testUser } from '../../helpers/adminEnv'
 import { seedTestUser } from '../../helpers/seedUser'
 import { expect, test, testPayload } from '../fixtures'
@@ -199,6 +204,8 @@ test.describe('P3.15 Aktualität nach Änderungen in der Verwaltung', () => {
     })
     const product = await pathOf(nr, 'de')
     const payload = await testPayload()
+    // Versandpreise kurz geändert: R25- und Korb-Tests mit den Grund-Seed-Preisen warten so lange (P4.3).
+    const releaseRates = await holdShippingRates('exclusive')
     type Rate = { zone: string; shippingClass: string; priceCents: number }
     const settings = (await payload.findGlobal({ slug: 'settings', overrideAccess: true })) as {
       shipping?: { rates?: Rate[] | null } | null
@@ -218,7 +225,13 @@ test.describe('P3.15 Aktualität nach Änderungen in der Verwaltung', () => {
     const shippingText = (body: string) =>
       body.match(/data-shipping-class="paket_klein"[^>]*>([^<]*)</)?.[1] ?? ''
 
-    const admin = await adminLogin()
+    let admin: Admin
+    try {
+      admin = await adminLogin()
+    } catch (err) {
+      await releaseRates()
+      throw err
+    }
     try {
       await prime(request, [product])
       const first = await html(request, product)
@@ -262,6 +275,7 @@ test.describe('P3.15 Aktualität nach Änderungen in der Verwaltung', () => {
         test.info().annotations.push({ type: 'cleanup', description: String(err) })
       } finally {
         await admin.release()
+        await releaseRates()
       }
     }
   })

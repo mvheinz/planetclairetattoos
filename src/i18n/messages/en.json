@@ -428,5 +428,40 @@
       "shop": "Back to the shop:",
       "shopLabel": "Shop"
     }
+  },
+  "shippingPayment": {
+    "costsHeading": "Shipping costs",
+    "table": {
+      "caption": "Shipping costs within Germany",
+      "class": "Shipping class",
+      "for": "For",
+      "price": "Price",
+      "carrier": "Carrier",
+      "forClass": {
+        "brief": "Drawings, watercolours and jewellery",
+        "paket_klein": "T-shirts, caps and other small pieces",
+        "keramik": "Bowls, plates, tiles and other ceramics – extra well padded"
+      },
+      "pickup": "Pickup in {city}",
+      "forPickup": "all pieces, appointment by arrangement",
+      "carrierPickup": "in person",
+      "empty": "Shipping prices are being updated right now. You will see the exact amount in your cart before you order."
+    },
+    "highestClassRule": "If you order several pieces, the highest shipping class in your cart applies – you only pay shipping once.",
+    "deliveryTimeHeading": "Delivery time",
+    "areaHeading": "Delivery area",
+    "area": "I only deliver within Germany. Pickup in {city} is possible by arrangement. I don't ship abroad at the moment.",
+    "areaNoPickup": "I only deliver within Germany. I don't ship abroad at the moment.",
+    "paymentHeading": "Payment methods",
+    "paymentStripe": "Credit or debit card, Apple Pay, Google Pay and PayPal – processed by the payment service Stripe.",
+    "paymentPrepayment": "Payment in advance by bank transfer: you'll get the bank details by email after ordering. Your piece stays reserved for you until the end of the {days, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} calendar day after the order date.",
+    "noSurcharge": "All payment methods cost you the same – there are no surcharges.",
+    "chargeHeading": "When will I be charged?",
+    "chargeStripe": "With card, Apple Pay, Google Pay and PayPal, the amount is charged as soon as you click “Order with obligation to pay” and confirm the payment.",
+    "chargePrepayment": "With payment in advance you transfer the amount yourself. I ship your piece or arrange the pickup as soon as the money has arrived.",
+    "damageHeading": "Transport damage",
+    "damage": "If a piece arrives damaged, please get in touch as soon as you can with a few photos of the parcel and the piece – then I can sort it out with the carrier. Your statutory rights remain unaffected.",
+    "returnHeading": "Returns after withdrawal",
+    "withdrawalLink": "Everything about your right of withdrawal is in the <link>withdrawal policy</link>."
   }
 }

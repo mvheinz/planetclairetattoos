@@ -29,6 +29,7 @@ const SESSIONS_LOCK = 7_314_001
 const LOGIN_LOCK = 7_314_002
 const FIXTURE_RANGE_LOCK = 7_314_003
 const CONFORMITY_LOCK = 7_314_004
+const SHIPPING_RATES_LOCK = 7_314_005
 const FIXTURE_BLOCK_LOCK_BASE = 7_314_100
 /** Höchste Wartezeit auf einen Lock, um die die Zeitgrenze des Tests vorübergehend verlängert wird. */
 const MAX_LOCK_WAIT_MS = 5 * 60_000
@@ -161,6 +162,13 @@ export const holdFixtureRange = (mode: 'shared' | 'exclusive'): Promise<ReleaseL
  */
 export const holdConformityData = (mode: 'shared' | 'exclusive'): Promise<ReleaseLock> =>
   hold(CONFORMITY_LOCK, mode)
+
+/**
+ * Versandpreise in `settings.shipping.rates` (R-031): Tests, die einen Klassenpreis kurz ändern, halten den Lock
+ * exklusiv; Tests, die die Grund-Seed-Preise erwarten (R25, Korb), geteilt.
+ */
+export const holdShippingRates = (mode: 'shared' | 'exclusive'): Promise<ReleaseLock> =>
+  hold(SHIPPING_RATES_LOCK, mode)
 
 /**
  * Ein Projekt-Block der E2E-Stücke (6 Nummern, `fixtureProducts`) exklusiv: Tests desselben Playwright-Projekts laufen in

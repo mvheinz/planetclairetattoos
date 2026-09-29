@@ -1,0 +1,17 @@
+/* R25 Versand & Zahlung (Preset `legal`): ruhige Abschnitte unter dem Rechtstext, keine Transition (AK-DS-11). */
+.sections {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.sections > section > * + * {
+  margin-block-start: var(--space-3);
+}
+
+.list {
+  padding-inline-start: var(--space-5);
+}
+
+.list > li + li {
+  margin-block-start: var(--space-2);
+}

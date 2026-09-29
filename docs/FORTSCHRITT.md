@@ -2,7 +2,9 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P4.3
 
+- R25 ersetzt das Gerüst: Rechtstext-Fassung versand-zahlung (Platzhalter-Band), Versandtabelle ShippingTable über computeShipping aus settings.shipping (Zone DE + Abholung 0,00 €), Regel höchste Klasse, Lieferzeit, Liefergebiet, Zahlarten, Belastung, Transportschaden (unberührt), Rücksendekosten, Link R24, WarrantyNotice\n- Loader getShippingPaymentSettings (Tag settings); Test-Lock holdShippingRates; Helfer tests/e2e/{adminApi,axe}.ts\n- Tests: tests/e2e/legal/shipping-page.e2e.spec.ts (R-031, R-035, R-049, V-10/11/12/19/21, @a11y, Preisänderung ≤ 60 s) 3 Projekte grün; legal-pages grün; check, test:int, build grün
 
 ## 2026-09-29 – P3 CI grün
 

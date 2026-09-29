@@ -1,13 +1,13 @@
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import AxeBuilder from '@axe-core/playwright'
 import type { Page } from '@playwright/test'
 import pg from 'pg'
 
 import { localizedPath, pageRoutes, samplePath } from '../../src/lib/routes/paths'
 import { LOCALES, type Locale } from '../../src/lib/routes/registry'
 import { serverURL } from '../helpers/adminEnv'
+import { expectNoSeriousViolations } from './axe'
 import { expect, test } from './fixtures'
 import { holdListData } from './shop/fresh'
 import { P3_PAGES, homeVariant } from './shop/p3Pages'
@@ -19,29 +19,6 @@ import { P3_PAGES, homeVariant } from './shop/p3Pages'
 // Fokus-Sichtbarkeit prüft `keyboard.e2e.spec.ts`.
 // P3.16: zusätzlich R02, R03 und R05 mit ihren Varianten und jeder Kategorie sowie R04 je Kategorie und Zustand
 // (reserviert, verkauft) und die 404-Varianten (unbekannt/Entwurf, „Schon ein Zuhause“, Seite hinter der letzten).
-
-const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
-
-async function expectNoSeriousViolations(page: Page, label: string) {
-  const result = await new AxeBuilder({ page }).withTags(TAGS).analyze()
-  const describe = (v: (typeof result.violations)[number]) =>
-    `${v.id} (${v.impact}): ${v.help} – ${v.nodes
-      .slice(0, 3)
-      .map((n) => n.target.join(' '))
-      .join(' | ')}`
-  for (const v of result.violations.filter(
-    (v) => v.impact !== 'serious' && v.impact !== 'critical',
-  ))
-    test.info().annotations.push({
-      type: `axe ${v.impact ?? 'minor'}`,
-      description: `${label}: ${describe(v)}`,
-    })
-  const blocking = result.violations
-    .filter((v) => v.impact === 'serious' || v.impact === 'critical')
-    .map(describe)
-  expect(blocking, `axe serious/critical: ${label}`).toEqual([])
-  expect(result.passes.length, 'axe hat geprüft').toBeGreaterThan(0)
-}
 
 async function expectLang(page: Page, locale: Locale) {
   await expect(page.locator('html')).toHaveAttribute('lang', locale)
