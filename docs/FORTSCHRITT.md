@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P5.23
+
+- Reine Rechnung `computeRevenueStatus` (`src/lib/revenue/guard.ts`): Shop = Rechnungen − Gutschriften nach Berliner Belegmonat, plus Monatssummen (inkl. Auftragsarbeiten) und Jahressummen vor dem Shop; Stufen U0–U5 aus `settings.revenueGuard`; Beispieldaten nur bei `seedPreviewModeActive()`.\n- Task `revenueGuardCheck` (Migration `p5_revenue_guard`): A09 `admin_revenue_guard` genau einmal je Stufe und Jahr (`lastNotified` + Idempotenz-Schlüssel), eingereiht vom Job-Wecker ab 07:00 Berlin und nach jedem neuen Beleg bzw. jeder Änderung einer Monatssumme.\n- Offen (UI): Ansicht Einstellungen → Umsatz-Wächter (Balken, Monatstabelle, Eingaben, Verlauf) und Hinweis unter „Heute“ – Daten liefert `getRevenueStatus`.\n- Tests: unit `tests/unit/legal/revenue-guard.unit.spec.ts` (10), A09-Mail + Snapshot; int `tests/int/jobs/revenue-guard.int.spec.ts` (4); invoices/jobs/collections/commerce-Int grün.
+
 ## 2026-09-29 – P4.10
 
 - Übersicht unmittelbar über dem Knopf (KONZEPT §4.5, R-063): Positionen aus dem Kassen-Snapshot (Foto 48×60, Titel, Nr., Eigenschaften, Preis), Versand mit Klasse, Gesamt mit Steuerhinweis, Lieferzeit, live Lieferadresse/Rechnungsadresse/E-Mail/Zahlart (bei Vorkasse Frist + „ab Zahlungseingang“), vier „Ändern“-Links (Anker + Fokus aufs erste Feld). Baustein `checkout.legalNotice` mit AGB/Widerrufsbelehrung/Datenschutz als `<dialog>` (ohne JavaScript normale Links) + `withdrawal.returnCostsNote`; je Stück mit Abweichung eine eigene Pflicht-Checkbox, Knopf `disabled` mit Hinweis; Knopf exakt „Zahlungspflichtig bestellen“ / „Order with obligation to pay“ (KO-11 ruhig), Statuszeile `aria-live`, PayPal-Zeile bei Stripe.\n- Tests: tests/e2e/checkout/overview.e2e.spec.ts (R-063, R-064, R-048, S8 „Abgelehnt“, R-137 „Erfolg“ → /de/danke/<Token> ohne Eingaben in der URL), tests/e2e/checkout/legal-dialogs.e2e.spec.ts – desktop, iphone-15, pixel-7 grün.

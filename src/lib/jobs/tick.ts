@@ -3,10 +3,10 @@ import 'server-only'
 import { createLocalReq, getPayload, type Payload, type PayloadRequest } from 'payload'
 
 import { isAdminRequest } from '@/access'
-import { JOB_QUEUE_OF, WAKE_TASK_SLUGS } from '@/jobs/index'
+import { JOB_QUEUE_OF, WAKE_TASK_NOT_BEFORE_HOUR, WAKE_TASK_SLUGS } from '@/jobs/index'
 import { getEnv, type Env } from '@/lib/env'
 import { logger } from '@/lib/monitoring/logger'
-import { systemClock } from '@/lib/time'
+import { formatBerlin, systemClock } from '@/lib/time'
 
 import { jobAlarm } from './alarm'
 import { isCronAuthorized } from './auth'
@@ -53,9 +53,12 @@ async function nextPendingJobAt(payload: Payload, now: Date): Promise<Date | nul
 }
 
 /** Fristen-Tasks einreihen, sofern nicht schon ein offener Job dafür wartet. */
-async function queueWakeTasks(payload: Payload, req: PayloadRequest): Promise<number> {
+async function queueWakeTasks(payload: Payload, req: PayloadRequest, now: Date): Promise<number> {
   let queued = 0
+  const hour = Number(formatBerlin(now, 'H'))
   for (const task of WAKE_TASK_SLUGS) {
+    const notBefore = WAKE_TASK_NOT_BEFORE_HOUR[task]
+    if (notBefore !== undefined && hour < notBefore) continue
     const open = await payload.count({
       collection: 'payload-jobs',
       where: {
@@ -101,7 +104,7 @@ export async function handleTick(request: Request, deps: CronDeps = {}): Promise
   const payload = await (deps.loadPayload ?? defaultLoadPayload)()
   const req = await createLocalReq({ context: { system: true, now: now.toISOString() } }, payload)
   const schedules = await payload.jobs.handleSchedules({ allQueues: true, req })
-  await queueWakeTasks(payload, req)
+  await queueWakeTasks(payload, req, now)
   const run = await payload.jobs.run({ allQueues: true, limit: 50, req })
   const next = await nextWake(payload, now)
   await jobAlarm.markFullRun(now, next)

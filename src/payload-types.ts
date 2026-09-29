@@ -166,6 +166,7 @@ export interface Config {
       sendEmail: TaskSendEmail;
       renderInvoicePdf: TaskRenderInvoicePdf;
       renderLegalTextPdf: TaskRenderLegalTextPdf;
+      revenueGuardCheck: TaskRevenueGuardCheck;
       inline: {
         input: unknown;
         output: unknown;
@@ -2380,7 +2381,8 @@ export interface PayloadJob {
           | 'cancelOverduePrepayments'
           | 'sendEmail'
           | 'renderInvoicePdf'
-          | 'renderLegalTextPdf';
+          | 'renderLegalTextPdf'
+          | 'revenueGuardCheck';
         taskID: string;
         input?:
           | {
@@ -2422,6 +2424,7 @@ export interface PayloadJob {
         | 'sendEmail'
         | 'renderInvoicePdf'
         | 'renderLegalTextPdf'
+        | 'revenueGuardCheck'
       )
     | null;
   queue?: string | null;
@@ -4910,6 +4913,17 @@ export interface TaskRenderLegalTextPdf {
   };
   output: {
     created: string;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRevenueGuardCheck".
+ */
+export interface TaskRevenueGuardCheck {
+  input?: unknown;
+  output: {
+    notified: number;
+    skipped: boolean;
   };
 }
 /**

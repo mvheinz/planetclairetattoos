@@ -44,6 +44,8 @@ export const FORMAT_MONEY_LIB_DIRS = [
   'src/lib/pdf/',
   'src/lib/invoices/',
   'src/lib/shop/',
+  // Umsatz-Wächter: Meldungstexte der Verwaltung (A09, KONZEPT §8.4)
+  'src/lib/revenue/',
 ]
 
 /** Quelltext ohne Kommentare (Zeilen- und Blockkommentare), damit Erwähnungen in Doku-Kommentaren nicht zählen. */

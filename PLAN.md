@@ -2983,7 +2983,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     `@a11y`).
   - Ohne Jutta: Kosten, Vorlagen und Steuer-Bestätigung pflegt Jutta selbst; „Shop öffnen“ in Produktion erst in P11.
 
-- [ ] **P5.23 Umsatz-Wächter** – reine Funktion `computeRevenueStatus({ year, now, … })` in `src/lib/revenue/guard.ts`:
+- [x] **P5.23 Umsatz-Wächter** – reine Funktion `computeRevenueStatus({ year, now, … })` in `src/lib/revenue/guard.ts`:
   Shop-Umsatz = Rechnungen minus Gutschriften nach Belegdatum (Europe/Berlin), plus manuelle Monatssummen
   (`revenue-entries`) plus `revenueGuard.manualYearTotals` für Jahre vor dem Shop; Seed-Daten zählen nur bei
   `seedPreviewModeActive()` (KONZEPT §8.4). Stufen aus KONZEPT §8.4 und R-125 zusammengeführt, Grenzen aus

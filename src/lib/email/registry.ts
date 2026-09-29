@@ -177,6 +177,12 @@ const TEMPLATES: Partial<Record<EmailTemplate, AnyTemplate>> = {
     subject: adm.adminRefundFailedSubject,
     render: adm.renderAdminRefundFailed,
   }),
+  admin_revenue_guard: def<adm.AdminRevenueGuardData>({
+    version: adm.ADMIN_REVENUE_GUARD_VERSION,
+    schema: adm.adminRevenueGuardDataSchema,
+    subject: adm.adminRevenueGuardSubject,
+    render: adm.renderAdminRevenueGuard,
+  }),
   order_confirmation: def<OrderMail>({
     version: ORDER_CONFIRMATION_VERSION,
     schema: orderMailDataSchema as unknown as z.ZodType<OrderMail>,

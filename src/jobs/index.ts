@@ -5,6 +5,7 @@ import { prepaymentRemindersTask } from './prepaymentReminders'
 import { releaseExpiredReservationsTask } from './releaseExpiredReservations'
 import { renderInvoicePdfTask } from './renderInvoicePdf'
 import { renderLegalTextPdfTask } from './renderLegalTextPdf'
+import { revenueGuardCheckTask } from './revenueGuardCheck'
 import { sendEmailTask } from './sendEmail'
 
 // Alle Task-Slugs der Jobs-Queue (ARCHITEKTUR Anhang A.3, DATENMODELL §11) mit Queue und umsetzender Phase.
@@ -67,6 +68,7 @@ export const JOB_TASKS: TaskConfig<any>[] = [
   sendEmailTask,
   renderInvoicePdfTask,
   renderLegalTextPdfTask,
+  revenueGuardCheckTask,
 ]
 
 export const IMPLEMENTED_TASK_SLUGS = new Set<string>(JOB_TASKS.map((t) => t.slug))
@@ -80,5 +82,18 @@ export function isImplementedTask(slug: string): boolean {
  * ARCHITEKTUR §9.6 Nr. 3/5): sie entscheiden selbst nach gespeicherten Zeitpunkten, was fällig ist.
  */
 export const WAKE_TASK_SLUGS: readonly TaskSlug[] = (
-  ['releaseExpiredReservations', 'prepaymentReminders', 'cancelOverduePrepayments'] as const
+  [
+    'releaseExpiredReservations',
+    'prepaymentReminders',
+    'cancelOverduePrepayments',
+    'revenueGuardCheck',
+  ] as const
 ).filter((s) => isImplementedTask(s))
+
+/**
+ * Tägliche Wecker-Tasks: erst ab dieser Berliner Stunde einreihen (KONZEPT §8.1 Nr. 3 „ab 07:00“). Sie sind idempotent
+ * und laufen danach mit jedem Lauf des Weckers (mindestens stündlich) – ohne zusätzliche Datenbank-Weckungen.
+ */
+export const WAKE_TASK_NOT_BEFORE_HOUR: Partial<Record<TaskSlug, number>> = {
+  revenueGuardCheck: 7,
+}

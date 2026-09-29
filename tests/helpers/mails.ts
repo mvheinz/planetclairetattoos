@@ -205,6 +205,20 @@ export const MAIL_FIXTURE_DATA: Partial<Record<EmailTemplate, Record<string, unk
     amountCents: 4500,
     error: 'expired_or_canceled_card',
   },
+  admin_revenue_guard: {
+    year: 2026,
+    stage: 'U1',
+    totalCents: 2_000_000,
+    previousYearTotalCents: 0,
+    thresholds: {
+      u1Cents: 2_000_000,
+      previousYearLimitCents: 2_500_000,
+      u3Cents: 8_000_000,
+      u3aCents: 9_000_000,
+      u4Cents: 9_500_000,
+      currentYearLimitCents: 10_000_000,
+    },
+  },
   admin_alert: {
     kind: 'payment_webhook',
     summary: 'Zahlung konnte nicht zugeordnet werden',
