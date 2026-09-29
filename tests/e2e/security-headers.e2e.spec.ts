@@ -1,5 +1,3 @@
-import type { Page } from '@playwright/test'
-
 import { pageRoutes, hasSamplePath, samplePath } from '../../src/lib/routes/paths'
 import { LOCALES } from '../../src/lib/routes/registry'
 import { adminRoute } from '../helpers/adminEnv'
