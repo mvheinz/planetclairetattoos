@@ -2574,7 +2574,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     `tests/int/products/translate.int.spec.ts`.
   - Ohne Jutta: DeepL-Schlüssel kommt in P11; bis dahin nur Mock.
 
-- [ ] **P5.5 „Neues Stück“, Teil 1: Fotos aufnehmen, verkleinern, sortieren** – Foto-Baustein
+- [x] **P5.5 „Neues Stück“, Teil 1: Fotos aufnehmen, verkleinern, sortieren** – Foto-Baustein
   `src/admin/components/PhotoPicker/` für `/neues-stueck` und `/stuecke/:id`: zwei Knöpfe „Foto aufnehmen“
   (`<input type="file" accept="image/jpeg,image/png,image/webp" capture="environment">`) und „Aus Galerie wählen“ (ohne
   `capture`, `multiple`); iOS wandelt HEIC dadurch selbst um. Verkleinerung im Browser mit `createImageBitmap(file, {

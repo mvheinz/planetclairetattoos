@@ -2,6 +2,11 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P5.5
+
+- Foto-Baustein `src/admin/components/PhotoPicker/`: „Foto aufnehmen“ (capture) und „Aus Galerie wählen“ (mehrere), Verkleinerung im Browser auf ≤ 2560 px (JPEG 0,85), ein Bild je Upload (≤ 4,5 MB), 1–12 Fotos mit Hinweis unter 2, Hoch/Runter per Tastatur, Titelbild, Fokuspunkt, Entfernen, Vorschlag für Bildbeschreibungen.
+- Tests: resize.unit; E2E photo-picker (desktop, pixel-7 bei 390×844): 6000×4000 → ≤ 2560 px, kein GPS in allen Größen, 13. Foto abgelehnt, Reihenfolge/Titelbild gespeichert.
+
 ## 2026-09-29 – P5.4
 
 - Knopf „Übersetzen → EN“ als allgemeine Admin-Komponente `src/admin/components/TranslateButton.tsx` (Rückfrage vor dem Überschreiben = `force`, in Produktion ohne DeepL gesperrt mit Hinweis); im Formular „Neues Stück“ eingebaut (füllt auch die EN-Bildbeschreibungen).
