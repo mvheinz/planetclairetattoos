@@ -155,6 +155,29 @@ describe('Vorschau-Export: Crawl (ARCHITEKTUR §14.4)', () => {
     expect(res.pages.map((p) => p.path)).not.toContain('/de/impressum')
   })
 
+  it('P4.25 vorab geholte Seiten (Kassen-Sitzung) ersetzen den eigenen Abruf – Korb/Kasse mit Cookies', async () => {
+    const { fetcher, requested } = fakeServer({
+      '/de': { html: page('<a href="/de/warenkorb">Korb</a>') },
+      '/de/impressum': { html: page('') },
+      '/de/__404': { status: 404, html: page('') },
+      '/de/warenkorb': { html: page('<p>leer</p>') },
+      '/s.css': { contentType: 'text/css', body: Buffer.from('') },
+    })
+    const pinned = new Map([
+      [
+        '/de/warenkorb',
+        {
+          status: 200,
+          contentType: 'text/html',
+          body: Buffer.from(page('<p data-cart-line>901</p>')),
+        },
+      ],
+    ])
+    const res = await crawl(fetcher, { adminRoute: ADMIN, start, pinned })
+    expect(res.pages.find((p) => p.path === '/de/warenkorb')!.html).toContain('data-cart-line')
+    expect(requested).not.toContain('/de/warenkorb')
+  })
+
   it('ein 5xx beim Crawl ergibt ExportError mit Exit 1', async () => {
     const { fetcher } = fakeServer({
       '/de': { html: page('') },
