@@ -62,6 +62,15 @@
       "name": "Mikro-Interaktionen Korb und Kasse (reservation-countdown)",
       "entries": ["src/behaviors/reservation-countdown.ts"],
       "gzipMax": 4000
+    },
+    {
+      "name": "Mikro-Interaktionen Danke- und Statusseite (thanks-poll, thanks-moment, copy-button)",
+      "entries": [
+        "src/behaviors/thanks-poll.ts",
+        "src/behaviors/thanks-moment.ts",
+        "src/behaviors/copy-button.ts"
+      ],
+      "gzipMax": 4000
     }
   ],
   "fonts": {

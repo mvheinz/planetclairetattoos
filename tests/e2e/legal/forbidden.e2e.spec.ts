@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio'
 
 import { V13_UNPROVEN_CLAIMS, V16_THIRD_PARTY_MARKS } from '../../../src/lib/legal/forbidden'
-import { pageRoutes, samplePath } from '../../../src/lib/routes/paths'
+import { hasSamplePath, pageRoutes, samplePath } from '../../../src/lib/routes/paths'
 import { LOCALES, ROUTES } from '../../../src/lib/routes/registry'
 import { getTaxModeAt, type TaxSettings } from '../../../src/lib/tax'
 import {
@@ -43,7 +43,7 @@ const onlyOnce = (projectName: string) =>
 
 const visits: Visit[] = [
   ...pageRoutes()
-    .filter((r) => r.status === 'live')
+    .filter((r) => r.status === 'live' && hasSamplePath(r))
     .flatMap((r) =>
       LOCALES.map((locale) => ({
         name: `${r.id} ${locale}`,
@@ -150,7 +150,10 @@ function scanP3(html: string): string[] {
 }
 
 test('Registry: alle live-Routen sind im Verbotsmuster-Scan abgedeckt', () => {
-  const live = ROUTES.filter((r) => r.status === 'live').map((r) => r.id)
+  // Token-Seiten (R08, R09) scannen ihre eigenen Suiten mit Fixture-Bestellungen (`scanHtml`).
+  const live = ROUTES.filter((r) => r.status === 'live' && (!r.paths || hasSamplePath(r))).map(
+    (r) => r.id,
+  )
   const covered = new Set(visits.map((v) => v.name.split(' ')[0]))
   expect(live.filter((id) => !covered.has(id))).toEqual([])
 })

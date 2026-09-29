@@ -1,4 +1,4 @@
-import { pageRoutes, samplePath } from '../../src/lib/routes/paths'
+import { pageRoutes, hasSamplePath, samplePath } from '../../src/lib/routes/paths'
 import { LOCALES } from '../../src/lib/routes/registry'
 import { adminRoute } from '../helpers/adminEnv'
 import { watchCsp } from './csp'
@@ -8,7 +8,8 @@ import { expect, test } from './fixtures'
 // (AK-A-8-01/T-16), `/api/health` im Kontext `api` (R-136), keine CSP-Verstöße auf `live`-Routen und in der Verwaltung.
 // P4.5: Kassen-Kontext (Permissions-Policy/COOP, Stripe-Hosts nur mit PAYMENTS_DRIVER=stripe, sonst nirgends).
 
-const livePages = pageRoutes().filter((r) => r.status === 'live')
+// Token-Seiten (R08, R09): Header prüfen `tests/e2e/checkout/thank-you` und `tests/e2e/order/order-status`.
+const livePages = pageRoutes().filter((r) => r.status === 'live' && hasSamplePath(r))
 
 const BASE = {
   'x-content-type-options': 'nosniff',

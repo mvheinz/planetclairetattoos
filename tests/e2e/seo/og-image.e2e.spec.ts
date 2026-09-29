@@ -3,7 +3,7 @@ import * as cheerio from 'cheerio'
 import sharp from 'sharp'
 
 import type { LocalizedValue } from '../../../src/lib/products/localized'
-import { pageRoutes, samplePath } from '../../../src/lib/routes/paths'
+import { pageRoutes, hasSamplePath, samplePath } from '../../../src/lib/routes/paths'
 import { LOCALES } from '../../../src/lib/routes/registry'
 import { productPath } from '../../../src/lib/shop/format'
 import { expect, test, testPayload } from '../fixtures'
@@ -151,7 +151,9 @@ test.describe('P3.14 OG-Bilder', () => {
   test('jede Seite verweist per absolutem og:image auf eine OG-Route (Standardbild DE/EN)', async ({
     request,
   }) => {
-    const live = pageRoutes().filter((r) => r.status === 'live' && r.id !== 'R04')
+    const live = pageRoutes().filter(
+      (r) => r.status === 'live' && r.id !== 'R04' && hasSamplePath(r),
+    )
     const seen = new Set<string>()
     for (const route of live) {
       for (const locale of LOCALES) {

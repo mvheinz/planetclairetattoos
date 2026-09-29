@@ -7,11 +7,16 @@ import { addToCart } from '@/app/(frontend)/[locale]/shop/[product]/actions'
 import { mountBehaviors } from '@/behaviors'
 import type { BehaviorActions } from '@/behaviors/types'
 import { fetchProductStates } from '@/lib/shop/productStatusClient'
+import { fetchThanksState } from '@/lib/shop/thanksStateClient'
 
 // Bindet die Verhaltensmodule (`[data-behavior]` in Kopf, Inhalt und Fuß) im Browser und löst sie bei Routenwechsel
 // und Unmount wieder (DESIGN §9.12, ARCHITEKTUR §14.6). Lädt nur die Module, die die Seite braucht (`import()`).
 // Server-Aufrufe reicht es als `ctx.actions` herein (die Module bleiben framework-frei und ohne Netzcode, AK-A-2-03).
-const ACTIONS: BehaviorActions = { addToCart, productStatus: fetchProductStates }
+const ACTIONS: BehaviorActions = {
+  addToCart,
+  productStatus: fetchProductStates,
+  thanksState: fetchThanksState,
+}
 
 export function BehaviorHost() {
   const pathname = usePathname()

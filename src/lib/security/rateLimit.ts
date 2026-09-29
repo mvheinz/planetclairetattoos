@@ -30,6 +30,8 @@ export const RATE_LIMITS = {
   /** „Zahlungspflichtig bestellen“ je Kassen-Token (Schlüssel: Token-Hash). */
   checkout_submit: { limit: 10, windowMs: 30 * MINUTE },
   product_status: { limit: 120, windowMs: MINUTE },
+  /** R08, R09, `GET /api/checkout/[token]/state`, Dokument-Downloads (P4.17/P4.23). */
+  token_pages: { limit: 60, windowMs: MINUTE },
 } as const satisfies Record<string, RateLimitRule>
 
 export type RateLimitBucket = keyof typeof RATE_LIMITS

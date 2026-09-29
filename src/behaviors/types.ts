@@ -18,6 +18,8 @@ export interface BehaviorActions {
     ids: readonly string[],
     signal?: AbortSignal,
   ) => Promise<Record<string, unknown> | null>
+  /** Zustandscode der Danke-Seite (`GET /api/checkout/[token]/state`, P4.17); `null` bei Fehlern (404, 429, Netz). */
+  thanksState?: (url: string, signal?: AbortSignal) => Promise<string | null>
 }
 
 export interface BehaviorContext {

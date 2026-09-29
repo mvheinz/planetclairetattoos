@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-import { pageRoutes, samplePath } from '../../src/lib/routes/paths'
+import { pageRoutes, hasSamplePath, samplePath } from '../../src/lib/routes/paths'
 import { LOCALES } from '../../src/lib/routes/registry'
 import { adminRoute } from '../helpers/adminEnv'
 
@@ -9,7 +9,8 @@ import { adminRoute } from '../helpers/adminEnv'
 // läuft nie mit `APP_ENV=production`; die Produktionsregeln prüft der Unit-Test.
 
 const SITE = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '')
-const livePages = pageRoutes().filter((r) => r.status === 'live')
+// Token-Seiten (R08, R09) prüfen ihre eigenen Suiten mit Fixture-Bestellungen.
+const livePages = pageRoutes().filter((r) => r.status === 'live' && hasSamplePath(r))
 const indexable = livePages.filter((r) => r.robots === 'index')
 
 test.describe('SEO', () => {
