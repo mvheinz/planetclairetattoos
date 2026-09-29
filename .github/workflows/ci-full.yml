@@ -180,7 +180,7 @@ jobs:
     needs: mode
     if: needs.mode.outputs.full == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 45
     services:
       postgres:
         image: postgres:17-alpine
@@ -219,6 +219,9 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
       - name: Migrationen
         run: pnpm run db:ensure && pnpm payload migrate
+      # §7.8 / P4.25: Abdeckung Unit + Int (setzt die Test-DB zurück; Seed folgt im Build-Schritt).
+      - name: Abdeckung
+        run: pnpm run test:coverage
       - name: Next.js-Cache
         uses: actions/cache@v6
         with:
@@ -313,6 +316,9 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
       - name: Migrationen
         run: pnpm run db:ensure && pnpm payload migrate
+      # §7.8 / P4.25: Abdeckung Unit + Int (setzt die Test-DB zurück; Seed folgt im Build-Schritt).
+      - name: Abdeckung
+        run: pnpm run test:coverage
       - name: Next.js-Cache
         uses: actions/cache@v6
         with:

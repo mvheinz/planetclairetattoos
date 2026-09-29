@@ -9,6 +9,7 @@ import { i18nParityCheck } from './lib/static-checks/i18n-parity'
 import { importRulesCheck } from './lib/static-checks/import-rules'
 import { moneyUsageCheck } from './lib/static-checks/money-usage'
 import { orderCreateCheck } from './lib/static-checks/order-create'
+import { orderStatusCheck } from './lib/static-checks/order-status'
 import { stripeImportCheck } from './lib/static-checks/stripe-import'
 import { routeRegistryCheck } from './lib/static-checks/route-registry'
 import type { StaticCheck } from './lib/static-checks/types'
@@ -26,6 +27,7 @@ export const CHECKS: StaticCheck[] = [
   routeRegistryCheck,
   moneyUsageCheck,
   orderCreateCheck,
+  orderStatusCheck,
 ]
 
 async function main(): Promise<void> {

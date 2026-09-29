@@ -92,7 +92,7 @@ aus §10–§13 dieses Dokuments); DNS-Umstellung und Start-Checkliste für P11 
 | CMS | `payload`, `@payloadcms/next`, `@payloadcms/ui`, `@payloadcms/richtext-lexical`, `@payloadcms/db-postgres` | `3.90.2` | **alle `@payloadcms/*` exakt gleiche Version wie `payload`** (Prüfskript §1.3); nur 3.x; Payload 4 (derzeit Canary) nicht einführen |
 | Sprache | `typescript` | `5.7.3` (wie im Gerüst) | 5.x-Minor-Updates erlaubt; TS 6.0/7.0 nur per ADR, wenn Payload-Vorlage und Next sie offiziell nutzen |
 | Bilder | `sharp` | `0.35.4` | in `pnpm.onlyBuiltDependencies`; kein HEIC (DATENMODELL §6.2) |
-| Unit/Int-Tests | `vitest` 4.0.18, `@vitejs/plugin-react` 4.5.2, `vite-tsconfig-paths` 6.0.5, `jsdom` 28.0.0, `@testing-library/react` 16.3.0 | exakt | Vitest 5 nur als eigenes Update mit grüner CI |
+| Unit/Int-Tests | `vitest` 4.0.18, `@vitejs/plugin-react` 4.5.2, `vite-tsconfig-paths` 6.0.5, `jsdom` 28.0.0, `@testing-library/react` 16.3.0, `@vitest/coverage-v8` 4.0.18 (P4.25, `pnpm test:coverage`, §7.8) | exakt | Vitest 5 nur als eigenes Update mit grüner CI |
 | E2E | `@playwright/test` | `1.58.2` | Minor-Updates erlaubt (Browser danach neu installieren); iPhone-15- und Pixel-7-Deskriptoren sind enthalten |
 | Lint/Format | `eslint` 9 (Flat-Config), `eslint-config-next` 16.3.6, `prettier` 3 | wie `package.json` | `eslint-config-next` immer = `next` |
 | Skripte | `tsx` 4.22.4, `cross-env`, `dotenv` 16.4.7 | exakt | alle Skripte in TypeScript über `tsx`, nie Bash- oder PowerShell-only |
@@ -1469,6 +1469,9 @@ Chrome aus der Playwright-Installation (`chromePath`). Die Research-Ziele (JS �
 
 `pnpm test:coverage` (v8, Unit + Int zusammengeführt) im `ci-full`: `src/lib/commerce/**`, `src/lib/payments/**`,
 `src/lib/security/**`, `src/lib/legal/**` ≥ 90 % Zeilen / ≥ 85 % Zweige; `src/lib/**` gesamt ≥ 70 % Zeilen.
+Konfiguration `vitest.coverage.config.mts` (Projekte Unit + Int, Job `quality` vor dem Seed). Stufenweise: seit P4.25
+sind `commerce` und `payments` Gate; `security`, `legal` und `src/lib/**` gesamt werden bis P10.1 berichtet und dort
+zum Gate (PLAN P10.1).
 
 ### 7.9 Gates
 

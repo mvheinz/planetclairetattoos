@@ -479,11 +479,13 @@ describe('ci-full.yml (§6.4, P2.28)', () => {
     expectBudgetBeforeOptionalUpload(job, 'ci-full-e2e-report-\\$\\{\\{ matrix\\.project \\}\\}')
   })
 
-  it('quality: Build ohne Debug → check:no-debug → test:visual → test:perf → @perf auf pixel-7', () => {
+  it('quality: Abdeckung → Build ohne Debug → check:no-debug → test:visual → test:perf → @perf auf pixel-7', () => {
     const job = full.jobs.quality!
     expect(job.env?.NEXT_PUBLIC_LEASH_DEBUG).toBeUndefined()
     expect(full.env?.NEXT_PUBLIC_LEASH_DEBUG).toBeUndefined()
     const order = [
+      // P4.25 / §7.8: Abdeckung (Unit + Int) vor dem Seed, weil sie die Test-DB zurücksetzt.
+      /^pnpm run test:coverage$/,
       /pnpm run seed && pnpm run build/,
       /^pnpm run check:no-debug$/,
       /^pnpm run test:visual$/,

@@ -168,6 +168,11 @@ export interface CrawlResult {
 export interface CrawlOptions {
   adminRoute: string
   start: StartEntry[]
+  /**
+   * Vorab geholte Seiten (Pfad → Antwort) statt eines eigenen Abrufs – Korb und Kasse mit den Cookies der
+   * Kassen-Sitzung (`cartSession.ts`, PLAN P4.25).
+   */
+  pinned?: ReadonlyMap<string, FetchResult>
   maxPages?: number
   concurrency?: number
 }
@@ -201,7 +206,7 @@ export async function crawl(fetcher: Fetcher, options: CrawlOptions): Promise<Cr
   }
 
   const visit = async (entry: StartEntry, next: StartEntry[]) => {
-    const res = await fetcher(entry.path)
+    const res = options.pinned?.get(entry.path) ?? (await fetcher(entry.path))
     if (res.status >= 500) {
       throw new ExportError(1, `Crawl: ${entry.path} antwortet mit HTTP ${res.status}.`)
     }

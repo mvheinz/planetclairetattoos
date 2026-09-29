@@ -44,6 +44,8 @@ export const PreviewReportSchema = z.object({
       title: z.string(),
       status: z.enum(['ok', 'not-built']),
       bytes: z.number().int().nonnegative(),
+      /** Warum eine Route noch fehlt, z. B. „ab P8“ für Danke-/Statusseiten ohne Seed-Anker (PLAN P4.25). */
+      note: z.string().optional(),
     }),
   ),
   adminViews: z.array(z.object({ key: z.string().min(1), status: z.enum(['ok', 'not-built']) })),
