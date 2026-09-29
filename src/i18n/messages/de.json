@@ -301,5 +301,18 @@
     "emptyTitle": "Noch ist nichts verkauft.",
     "emptyText": "Alles, was ein Zuhause gefunden hat, zieht hierher um.",
     "emptyAction": "Zum Shop"
+  },
+  "cart": {
+    "notes": {
+      "reserved": "{items} {count, plural, one {ist} other {sind}} gerade reserviert – schau in 30 Minuten nochmal.",
+      "unavailable": "{items} {count, plural, one {ist} other {sind}} leider schon verkauft.",
+      "too_many": "Höchstens {max} Stücke pro Bestellung.",
+      "shop_closed": "Der Shop macht gerade Pause – bestellen geht im Moment nicht.",
+      "payment_running": "Deine Zahlung läuft gerade – warte bitte kurz, bis sie abgeschlossen ist.",
+      "empty": "Hier ist noch nichts drin.",
+      "shipping": "Der Versand für diesen Korb lässt sich gerade nicht berechnen. Wähl bitte Abholung oder schreib mir.",
+      "rate_limited": "Das ging gerade zu schnell. Bitte versuch es in ein paar Minuten noch einmal.",
+      "invalid": "Das hat nicht geklappt. Bitte lade die Seite neu und versuch es noch einmal."
+    }
   }
 }

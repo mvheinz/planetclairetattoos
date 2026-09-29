@@ -301,5 +301,18 @@
     "emptyTitle": "Nothing sold yet.",
     "emptyText": "Everything that has found a home moves in here.",
     "emptyAction": "To the shop"
+  },
+  "cart": {
+    "notes": {
+      "reserved": "{items} {count, plural, one {is} other {are}} reserved right now – check back in 30 minutes.",
+      "unavailable": "{items} {count, plural, one {has} other {have}} already been sold, sorry.",
+      "too_many": "At most {max} pieces per order.",
+      "shop_closed": "The shop is taking a break – ordering isn't possible right now.",
+      "payment_running": "Your payment is in progress – please wait a moment until it's finished.",
+      "empty": "Nothing in here yet.",
+      "shipping": "Shipping for this cart can't be calculated right now. Please choose pickup or write to me.",
+      "rate_limited": "That was a bit fast. Please try again in a few minutes.",
+      "invalid": "That didn't work. Please reload the page and try again."
+    }
   }
 }
