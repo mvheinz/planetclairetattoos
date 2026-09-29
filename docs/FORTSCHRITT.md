@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P5.25 (Dienst und Endpunkt; Knopf in der Ansicht `/export` offen)
+
+- `src/lib/export/datev.ts`: Buchungsstapel EXTF 700/21 je Monat (Kopfzeile mit Berater-/Mandantennummer, WJ-Beginn, Zeitraum; je Beleg eine Buchung, Stripe-Gebühren eigene Buchungen; Buchungstext ohne Personendaten; nie Beispieldaten), Windows-1252. `datevConfigStatus` prüft `settings.export.datev.*` (Schema seit P1, unverändert) für den ausgegrauten Knopf („Konten mit der Steuerberatung festlegen“).
+- `GET /api/admin/export/{JJJJ-MM}.datev.csv`: ohne Konten 409 mit fehlenden Feldern; Annahmen zu Kodierung/Feldern in OFFENE-PUNKTE; AUFGABEN A51 ergänzt.
+- Offen: ausgegrauter Knopf mit Hinweis in der Ansicht `/export` (P5.24-Ansicht) – Aufgabe deshalb noch nicht abgehakt.
+- Tests: `tests/int/legal/datev-export.int.spec.ts` (3, „R-124 DATEV …“: 409 ohne Konten, byte-genau gegen `tests/fixtures/csv/2026-10.datev.csv`, zweiter Export identisch, kein `BSP-`/`@`/Name, Windows-1252).
+
 ## 2026-09-29 – P5.24 (Dienste und Endpunkte; Ansicht `/export` offen)
 
 - `src/lib/export/monthlyCsv.ts`: `planetclaire-{JJJJ-MM}.csv` (UTF-8 mit BOM, `;`, CRLF, Dezimalkomma, `TT.MM.JJJJ`, nach Belegnummer) mit den 15 Spalten aus KONZEPT §7.15; Belege aus `src/lib/export/documents.ts` (nur Serien RE/GS, nie `seed = true`, keine Personendaten geladen); Gebühren/Auszahlungen über `payments.listBalanceTransactions` (Mock: Fixtures).

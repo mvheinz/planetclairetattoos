@@ -56,7 +56,16 @@ async function handleExport(req: PayloadRequest): Promise<Response> {
         throw err
       }
     }
-    return error(404, 'DATEV-Export folgt.')
+    const { buildDatevExport, DatevNotConfiguredError } = await import('@/lib/export/datev')
+    try {
+      const res = await buildDatevExport(req.payload, month)
+      return download(res.bytes, res.filename, 'text/csv; charset=windows-1252')
+    } catch (err) {
+      if (err instanceof DatevNotConfiguredError) {
+        return error(409, err.message, { missing: err.missing })
+      }
+      throw err
+    }
   } catch (err) {
     log.error('export.failed', { kind, month, reason: (err as Error)?.message })
     return error(500, 'Export fehlgeschlagen.')
