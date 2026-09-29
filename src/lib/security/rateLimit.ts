@@ -27,6 +27,8 @@ export const RATE_LIMITS = {
   /** „Zur Kasse“: 10 / 10 min und zusätzlich 30 / Tag (zweiter Bucket `checkout_start_day`). */
   checkout_start: { limit: 10, windowMs: 10 * MINUTE },
   checkout_start_day: { limit: 30, windowMs: 24 * HOUR },
+  /** „Zahlungspflichtig bestellen“ je Kassen-Token (Schlüssel: Token-Hash). */
+  checkout_submit: { limit: 10, windowMs: 30 * MINUTE },
   product_status: { limit: 120, windowMs: MINUTE },
 } as const satisfies Record<string, RateLimitRule>
 

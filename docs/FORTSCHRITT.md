@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P4.10a
+
+- `submitCheckout` (src/lib/commerce/submitCheckout.ts): prüft Kasse `open`, Ablauf (bei Stripe auch Session), Reservierung mit dieser `reservationRef`, Korb = Snapshot (S6), Lieferart = Kasse, Pflichtfelder über das gemeinsame Schema, Land DE (R-060), Abweichungs-Bestätigungen (fehlt eine → 400); speichert in einer Transaktion Eingaben, `legalTextVersions`, `legalSnippetVersions`, `submittedAt` an der Kasse plus `consent-log` (DHL nur bei Häkchen, Abweichung je Stück). Stripe: `open → confirming` + Weckzeit +10 min; Vorkasse: `placePrepaymentOrder` (P4.19). Rate-Limit `checkout_submit` (10/30 min je Token-Hash). Keine Personendaten im Log.\n- Tests: tests/int/commerce/submit-checkout.int.spec.ts (11 grün: R-013/R-065, R-048, R-060, R-101, DM-CHK-02, S6, S7, Ablauf, erneutes Absenden, Vorkasse, Log-Schwärzung R-137/V-22); tests/unit/commerce/checkout-schema.unit.spec.ts (9).
+
 ## 2026-09-29 – P4.8
 
 - R06 gebaut (Registry live): Positionen (CartLine: Foto 64×80, Link, Nr./Kategorie, MoneyAmount, Entfernen, Zustandshinweise, gedämpft), Lieferart-Radiogruppe mit Preis bzw. nur_abholung ausgegraut, Versandklassen-Zeile, Summen + PriceNote, Lieferzeit, Baustein cart.paymentAndDeliveryInfo + Zahlarten vor „Zur Kasse“ (aria-disabled mit Hinweis), WarrantyNotice, closedMessage, Leerzustand KO-17, Coco statisch\n- evaluateCart liefert shippingQuoteCents und imageId; dynamische Seiten: Cache-Control private, no-store; Radio disabled, Button ariaDisabled\n- Tests: tests/e2e/cart/cart.e2e.spec.ts, tests/e2e/legal/cart-info.e2e.spec.ts (R-031/035/036/049, AK-DS-11, EK-04, S01+S11 = 117,90 €, ohne JS, @a11y) gegen pnpm start in 3 Projekten grün; Unit evaluate-cart/headers erweitert; check, test:int, build grün
