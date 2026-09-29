@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P4.19
+
+- Dienst `src/lib/commerce/prepayment.ts`: `placePrepaymentOrder(req, checkoutId, { now, checkoutData })` in einer Transaktion (nur bei `settings.payment.prepaymentEnabled`, Kasse `open`): Eingaben an der Kasse (`paymentChoice = prepayment`, `submittedAt`), `createOrderFromCheckout` O2, Reservierung/Stücke nach §8.5 umgestellt (`source = prepayment`, Frist `dueAt`, `order_id`/`current_order_id`), Kasse `completed`, M02 + A02; `afterCommit`: Session beenden (`already_complete_paid` → `adminAttention manual` + A12 S17), Mails direkt, `jobAlarm.bump(reminderDueAt)`. Die Server-Action `submitCheckout` (303 auf die Danke-Seite) ruft den Dienst mit P4.10a auf.
+- Tasks `prepaymentReminders` (M03 genau einmal, `reminderSentAt`) und `cancelOverduePrepayments` (O4 `payment_timeout` über `cancelPrepaymentOrder`, Freigabe `prepayment_overdue`, Revalidierung, M04 + A03, keine Rechnung), beide mit Advisory-Lock, ohne `seed = true`, nächster Weckzeitpunkt; Migration `p4_prepayment_jobs`.
+- Tests: `tests/int/commerce/prepayment.int.spec.ts` (6: Bestellen + Umstellung + nachfolgendes expired, Wechsel nach abgelehntem Kartenversuch, confirming abgelehnt, S13 ohne Session, S17 → A12, Vorkasse aus), `tests/int/jobs/prepayment-deadlines.int.spec.ts` (2: R-071/AK-8-02 mit vorgestellter Uhr + Doppel-Lauf, Gegenprobe `seed = true`); `pnpm check` grün.
+
 ## 2026-09-29 – P4.18
 
 - Task `releaseExpiredReservations` (`src/jobs/releaseExpiredReservations.ts`, Queue `commerce`, Advisory-Lock je Task über `src/lib/jobs/lock.ts`, Dienst `src/lib/commerce/expiry.ts`, jede Aktion eigene Transaktion, `now` injiziert): (a) aktive `checkout_session`-Reservierungen mit `expiresAt < now` → `releaseReservation` (Session beenden; `already_complete_paid` ⇒ `fulfillCheckout` S3; sonst – auch `already_complete_unpaid` – Freigabe `session_expired` + Kasse `expired`/`reservation_expired`), Vorkasse nie; (b) Kassen `confirming` > 10 min: bezahlt ⇒ `fulfillCheckout` (S10), Session offen + Reservierung gültig ⇒ `open`, sonst warten; (c) `jobAlarm.bump` auf die nächste Reservierung bzw. `confirmingAt + 10 min`.

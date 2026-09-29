@@ -22,6 +22,7 @@ import * as migration_20260929_004609_p4_invoice_pdf from './20260929_004609_p4_
 import * as migration_20260929_010331_p4_legal_pdf from './20260929_010331_p4_legal_pdf';
 import * as migration_20260929_011628_p4_email_outbox from './20260929_011628_p4_email_outbox';
 import * as migration_20260929_031002_p4_release_job from './20260929_031002_p4_release_job';
+import * as migration_20260929_032338_p4_prepayment_jobs from './20260929_032338_p4_prepayment_jobs';
 
 export const migrations = [
   {
@@ -142,6 +143,11 @@ export const migrations = [
   {
     up: migration_20260929_031002_p4_release_job.up,
     down: migration_20260929_031002_p4_release_job.down,
-    name: '20260929_031002_p4_release_job'
+    name: '20260929_031002_p4_release_job',
+  },
+  {
+    up: migration_20260929_032338_p4_prepayment_jobs.up,
+    down: migration_20260929_032338_p4_prepayment_jobs.down,
+    name: '20260929_032338_p4_prepayment_jobs'
   },
 ];

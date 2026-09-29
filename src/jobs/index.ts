@@ -1,5 +1,7 @@
 import type { TaskConfig } from 'payload'
 
+import { cancelOverduePrepaymentsTask } from './cancelOverduePrepayments'
+import { prepaymentRemindersTask } from './prepaymentReminders'
 import { releaseExpiredReservationsTask } from './releaseExpiredReservations'
 import { renderInvoicePdfTask } from './renderInvoicePdf'
 import { renderLegalTextPdfTask } from './renderLegalTextPdf'
@@ -60,6 +62,8 @@ export function isTaskSlug(value: string): value is TaskSlug {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const JOB_TASKS: TaskConfig<any>[] = [
   releaseExpiredReservationsTask,
+  prepaymentRemindersTask,
+  cancelOverduePrepaymentsTask,
   sendEmailTask,
   renderInvoicePdfTask,
   renderLegalTextPdfTask,

@@ -161,6 +161,8 @@ export interface Config {
   jobs: {
     tasks: {
       releaseExpiredReservations: TaskReleaseExpiredReservations;
+      prepaymentReminders: TaskPrepaymentReminders;
+      cancelOverduePrepayments: TaskCancelOverduePrepayments;
       sendEmail: TaskSendEmail;
       renderInvoicePdf: TaskRenderInvoicePdf;
       renderLegalTextPdf: TaskRenderLegalTextPdf;
@@ -2371,7 +2373,14 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'releaseExpiredReservations' | 'sendEmail' | 'renderInvoicePdf' | 'renderLegalTextPdf';
+        taskSlug:
+          | 'inline'
+          | 'releaseExpiredReservations'
+          | 'prepaymentReminders'
+          | 'cancelOverduePrepayments'
+          | 'sendEmail'
+          | 'renderInvoicePdf'
+          | 'renderLegalTextPdf';
         taskID: string;
         input?:
           | {
@@ -2404,7 +2413,17 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'releaseExpiredReservations' | 'sendEmail' | 'renderInvoicePdf' | 'renderLegalTextPdf') | null;
+  taskSlug?:
+    | (
+        | 'inline'
+        | 'releaseExpiredReservations'
+        | 'prepaymentReminders'
+        | 'cancelOverduePrepayments'
+        | 'sendEmail'
+        | 'renderInvoicePdf'
+        | 'renderLegalTextPdf'
+      )
+    | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -4822,6 +4841,28 @@ export interface TaskReleaseExpiredReservations {
     released: number;
     fulfilled: number;
     reopened: number;
+    skipped: boolean;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskPrepaymentReminders".
+ */
+export interface TaskPrepaymentReminders {
+  input?: unknown;
+  output: {
+    processed: number;
+    skipped: boolean;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskCancelOverduePrepayments".
+ */
+export interface TaskCancelOverduePrepayments {
+  input?: unknown;
+  output: {
+    processed: number;
     skipped: boolean;
   };
 }

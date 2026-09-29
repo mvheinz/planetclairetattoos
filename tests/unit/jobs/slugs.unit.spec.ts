@@ -40,6 +40,8 @@ describe('Task-Slugs (ARCHITEKTUR Anhang A.3)', () => {
     const registered = JOB_TASKS.map((t) => t.slug)
     expect(registered).toEqual([
       'releaseExpiredReservations',
+      'prepaymentReminders',
+      'cancelOverduePrepayments',
       'sendEmail',
       'renderInvoicePdf',
       'renderLegalTextPdf',
