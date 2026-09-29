@@ -40,6 +40,7 @@ import { SiteTexts } from './globals/SiteTexts'
 import { withJsonPreview } from './admin/jsonPreview'
 import { noAnyTypesSchema } from './lib/payload/typesSchema'
 import { ADMIN_CUSTOM_DE } from './admin/translations'
+import { adminViewsConfig } from './admin/views/config'
 import { isAdmin, isAdminRequest } from './access'
 import { JOB_TASKS } from './jobs'
 import { createMailTransport, parseMailFrom } from './lib/email'
@@ -66,6 +67,11 @@ export default buildConfig({
         Logo: '/admin/components/BrandGraphics#AdminLogo',
         Icon: '/admin/components/BrandGraphics#AdminIcon',
       },
+      // Verwaltungs-Gerüst (PLAN P5.1, KONZEPT §7.2): eigene Ansichten aus der Registry, Seitenleiste mit allen
+      // Ansichten vor Payloads Sammlungen („Alle Daten“), Leiste unten auf dem Handy.
+      views: adminViewsConfig(),
+      beforeNavLinks: ['/admin/components/AdminNavLinks#AdminNavLinks'],
+      header: ['/admin/components/AdminBottomBar#AdminBottomBar'],
     },
     meta: {
       titleSuffix: ' – planet claire',

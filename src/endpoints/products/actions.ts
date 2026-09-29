@@ -1,12 +1,18 @@
 import { APIError, ValidationError, type Endpoint, type PayloadRequest } from 'payload'
 
 import { isAdminRequest } from '@/access'
-import { transitionProduct, type ProductTransition } from '@/lib/commerce/productTransitions'
+import { adminActionResponse, type AdminActionResult } from '@/endpoints/adminResponse'
+import {
+  PRODUCT_TRANSITIONS,
+  transitionProduct,
+  type ProductTransition,
+} from '@/lib/commerce/productTransitions'
 import { createLogger } from '@/lib/monitoring/logger'
 
 // Admin-Endpunkte der Stücke (DATENMODELL §6.6.10, alle `isAdmin`): je Aktion ein Übergang des Statusautomaten.
 // `publish` P2 · `unpublish` P3 · `sell-offline` P9/P10 · `archive` P12 · `archive-after-return` P13 · `restore` P14 ·
-// `return-to-stock` P11. Antwort: `{ doc }` bzw. `{ error, errors? }` mit deutscher Meldung.
+// `return-to-stock` P11. Antwort: `{ doc, unchanged }` bzw. `{ error, errors? }` mit deutscher Meldung. Zustandsbasiert
+// idempotent (P5.1): steht das Stück schon im Zielzustand des Übergangs, 200 `{ unchanged: true }` ohne Wirkung.
 
 const log = createLogger()
 
@@ -36,7 +42,14 @@ export function errorResponse(err: unknown): Response {
   return Response.json({ error: 'Unerwarteter Fehler.' }, { status: 500, headers: noStore })
 }
 
-type Handler = (req: PayloadRequest, id: number, body: Record<string, unknown>) => Promise<unknown>
+type Handler = (
+  req: PayloadRequest,
+  id: number,
+  body: Record<string, unknown>,
+) => Promise<unknown | AdminActionResult<unknown>>
+
+const isActionResult = (v: unknown): v is AdminActionResult<unknown> =>
+  !!v && typeof v === 'object' && 'unchanged' in v && 'doc' in v
 
 /** `POST /api/products/:id/<path>` nur für die Verwaltung. */
 export function productAction(path: string, handler: Handler): Endpoint {
@@ -52,8 +65,8 @@ export function productAction(path: string, handler: Handler): Endpoint {
         return Response.json({ error: 'Unbekanntes Stück.' }, { status: 404, headers: noStore })
       }
       try {
-        const doc = await handler(req, id, await readJsonBody(req))
-        return Response.json({ doc }, { headers: noStore })
+        const result = await handler(req, id, await readJsonBody(req))
+        return adminActionResponse(isActionResult(result) ? result : { doc: result })
       } catch (err) {
         return errorResponse(err)
       }
@@ -61,8 +74,35 @@ export function productAction(path: string, handler: Handler): Endpoint {
   }
 }
 
+/**
+ * Zielzustand schon erreicht (Status = Ziel und kein Ausgangszustand des Übergangs, z. B. „Online stellen“ auf einem
+ * schon verfügbaren Stück)? Dann keine zweite Wirkung. `null` = Übergang ausführen.
+ */
+export async function unchangedProduct(
+  req: PayloadRequest,
+  id: number,
+  transition: ProductTransition,
+): Promise<AdminActionResult<unknown> | null> {
+  const def = PRODUCT_TRANSITIONS[transition]
+  const doc = (await req.payload.findByID({
+    collection: 'products',
+    id,
+    depth: 0,
+    overrideAccess: true,
+    disableErrors: true,
+    req,
+  })) as { status?: string } | null
+  if (!doc?.status || doc.status !== def.to || doc.status in def.from) return null
+  return { doc, unchanged: true }
+}
+
 const transitionAction = (path: string, transition: ProductTransition): Endpoint =>
-  productAction(path, (req, id) => transitionProduct(req, id, transition, { actor: 'admin' }))
+  productAction(
+    path,
+    async (req, id) =>
+      (await unchangedProduct(req, id, transition)) ??
+      transitionProduct(req, id, transition, { actor: 'admin' }),
+  )
 
 export const productTransitionEndpoints: Endpoint[] = [
   transitionAction('publish', 'publish'),
@@ -71,12 +111,15 @@ export const productTransitionEndpoints: Endpoint[] = [
   transitionAction('archive-after-return', 'archiveAfterReturn'),
   transitionAction('restore', 'restore'),
   transitionAction('return-to-stock', 'returnToStock'),
-  productAction('sell-offline', (req, id, body) =>
-    transitionProduct(req, id, 'sellOffline', {
-      actor: 'admin',
-      note: typeof body.note === 'string' ? body.note.slice(0, 120) : null,
-      showInArchive: typeof body.showInArchive === 'boolean' ? body.showInArchive : undefined,
-      confirmReservedCheckout: body.confirmReservedCheckout === true,
-    }),
+  productAction(
+    'sell-offline',
+    async (req, id, body) =>
+      (await unchangedProduct(req, id, 'sellOffline')) ??
+      transitionProduct(req, id, 'sellOffline', {
+        actor: 'admin',
+        note: typeof body.note === 'string' ? body.note.slice(0, 120) : null,
+        showInArchive: typeof body.showInArchive === 'boolean' ? body.showInArchive : undefined,
+        confirmReservedCheckout: body.confirmReservedCheckout === true,
+      }),
   ),
 ]

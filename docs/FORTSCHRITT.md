@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P5.1
+
+- Ansichten-Registry src/admin/views/registry.ts (13 Ansichten + 4 Detailpfade, Titel, Phase, Aufgabe, Symbol, Rückfall „Alle Daten“) als Payload-Custom-Views; ADMIN_ROUTE zeigt „Heute“; Platzhalter bis zur jeweiligen Aufgabe, /tattoo „kommt in P7“; Anmeldeprüfung in der View\n- Navigation: Seitenleiste (beforeNavLinks) mit allen Ansichten vor „Alle Daten“, Handy-Leiste unten „Heute · Neues Stück · Packen · Mehr“ (Mehr öffnet das Menü)\n- Bausteine ActionButton (Doppeltipp-Sperre, Dialog-Pflicht per Typ), ConfirmDialog, StatusBadge, CopyButton (Rückfall), Notice (aria-live), postAdminAction; Endpunkte liefern { unchanged: true } bei erreichtem Zielzustand\n- Mail-Direktlinks auf Registry-Pfade; Vorschau-Liste aus der Registry; Lösch-Recht für veröffentlichte Stücke/Rechtstexte entzogen\n- Tests: unit registry (7) + components (9), int admin/shell (2) + transitions-Matrix angepasst, E2E admin/shell (desktop + pixel-7, @a11y) grün; pnpm check, test:int, build grün
+
 ## 2026-09-29 – P5.26
 
 - Tasks `monthlyClose` (documents) und `invoiceIntegrityCheck` (maintenance), monatlich am 1. ab 04:00 Berlin über `runOncePer`; Monats-CSV + Rechnungs-ZIP privat (`monthly_export`, L-07), A11 mit Summen und fehlenden Monatssummen, je Monat einmal; Belegprüfung → A12 mit Belegnummern

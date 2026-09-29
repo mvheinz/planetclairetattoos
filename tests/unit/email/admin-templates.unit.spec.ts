@@ -71,7 +71,7 @@ describe('Pflichtinhalte (KONZEPT §6.4)', () => {
     expect(m.text).toContain('Eingang: 14.10.2026, 11:12 Uhr')
     expect(m.text).toContain('Erstatten bis: 28.10.2026')
     expect(m.text).toContain('Nr. 017 · Tasse „Coco schläft“')
-    expect(m.html).toContain(`href="${ADMIN}/collections/withdrawals/3"`)
+    expect(m.html).toContain(`href="${ADMIN}/widerrufe/3"`)
     const open = await render('admin_withdrawal_received', {
       ...MAIL_FIXTURE_DATA.admin_withdrawal_received!,
       orderNumber: null,
@@ -85,7 +85,7 @@ describe('Pflichtinhalte (KONZEPT §6.4)', () => {
     expect(m.subject).toBe('Neue Anfrage AA-2026-0007 (Cap)')
     expect(m.text).toContain('Referenz: AA-2026-0007')
     expect(m.text).toContain('Bilder: 2')
-    expect(m.html).toContain(`href="${ADMIN}/collections/inquiries/7"`)
+    expect(m.html).toContain(`href="${ADMIN}/anfragen/7"`)
     expect(m.html).not.toMatch(/<img\b/)
     const schema = getTemplate('admin_inquiry_received').schema
     const base = MAIL_FIXTURE_DATA.admin_inquiry_received!
@@ -103,7 +103,7 @@ describe('Pflichtinhalte (KONZEPT §6.4)', () => {
     const m = await render('admin_legal_review_due')
     expect(m.subject).toBe('Jährliche Erinnerung: Rechtstexte prüfen lassen')
     expect(m.text).toMatch(/AGB.* – zuletzt geprüft am 01\.09\.2025/)
-    expect(m.html).toContain(`href="${ADMIN}/collections/legal-texts"`)
+    expect(m.html).toContain(`href="${ADMIN}/texte"`)
   })
 
   it('A11 Betreff „Monatsexport Oktober 2026 ist bereit“, Summen, Hinweis auf fehlende Monatssummen', async () => {
@@ -125,7 +125,7 @@ describe('Pflichtinhalte (KONZEPT §6.4)', () => {
     expect(m.subject).toBe('Erstattungsfrist läuft ab: WR-2026-00003 (noch 4 Tage)')
     expect(m.text).toContain('Bestellung: PC-2026-00017')
     expect(m.text).toContain('Erstatten bis: 28.10.2026')
-    expect(m.html).toContain(`href="${ADMIN}/collections/withdrawals/3"`)
+    expect(m.html).toContain(`href="${ADMIN}/widerrufe/3"`)
   })
 
   it('A14 Betreff mit Fristdatum, Art der Anfrage', async () => {

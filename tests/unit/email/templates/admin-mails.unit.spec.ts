@@ -17,7 +17,7 @@ import { plain, rawTokens, snapshotPath } from './helpers'
 const render = async (t: EmailTemplate, data: Record<string, unknown> = MAIL_FIXTURE_DATA[t]!) =>
   plain(await renderFixture(t, data, 'de'))
 
-const ORDER_LINK = 'https://planetclairetattoos.com/werkstatt/collections/orders/17'
+const ORDER_LINK = 'https://planetclairetattoos.com/werkstatt/bestellungen/17'
 
 describe('A01/A02 admin_order_placed', () => {
   it('A01 Betreff „Neue Bestellung … – Betrag – Versand“, Positionen, Lieferart, Name und Ort, Zahlart, Hinweis Keramik, Direktlink', async () => {
@@ -72,9 +72,7 @@ describe('A03, A06, A07, A08', () => {
     expect(m.text).toContain('Bestellungen: PC-2026-00018')
     expect(m.text).toContain('Erstattet: 51,90 €')
     expect(m.text).toContain('Erstattungsstatus: erstattet')
-    expect(m.html).toContain(
-      'href="https://planetclairetattoos.com/werkstatt/collections/orders/18"',
-    )
+    expect(m.html).toContain('href="https://planetclairetattoos.com/werkstatt/bestellungen/18"')
   })
 
   it('A07 admin_dispute_opened: Betrag, Grund laut Stripe, Antwortfrist, Belege-Hinweis', async () => {
@@ -98,7 +96,7 @@ describe('A03, A06, A07, A08', () => {
 })
 
 describe('A09 admin_revenue_guard (P5.23, KONZEPT §8.4)', () => {
-  const SETTINGS_LINK = 'https://planetclairetattoos.com/werkstatt/globals/settings'
+  const SETTINGS_LINK = 'https://planetclairetattoos.com/werkstatt/einstellungen'
   it('R-125 A09 U1: Betreff mit Schwelle, Stand, Handlungsempfehlung, Hinweis Steuerberatung, Direktlink', async () => {
     const m = await render('admin_revenue_guard')
     expect(m.subject).toBe('Umsatz-Wächter: U1 – 80 % der Vorjahresgrenze erreicht')

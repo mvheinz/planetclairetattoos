@@ -11,6 +11,14 @@ export function isAdminRequest(req: Pick<PayloadRequest, 'user'> | undefined): b
 
 export const isAdmin: Access = ({ req }) => isAdminRequest(req)
 
+/**
+ * Nur Admin und nur Dokumente, die `where` erfüllen (KONZEPT §7.16): Payload blendet damit in „Alle Daten“ z. B. den
+ * Lösch-Knopf für veröffentlichte Stücke aus. Die `beforeDelete`-Wächter bleiben die eigentliche Sperre.
+ */
+export function adminWhere(where: Where): Access {
+  return ({ req }) => (isAdminRequest(req) ? where : false)
+}
+
 /** Nur Server-Code über die Local API mit `overrideAccess: true`. */
 export const none: Access = () => false
 

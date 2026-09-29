@@ -7,4 +7,4 @@ Bitte die Erstattung in der Bestellung prüfen und bei Bedarf neu anstoßen oder
 
 --
 Diese Nachricht hat deine Website automatisch erzeugt.
-Zur Verwaltung: https://planetclairetattoos.com/werkstatt/collections/orders/17
+Zur Verwaltung: https://planetclairetattoos.com/werkstatt/bestellungen/17

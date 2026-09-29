@@ -1,6 +1,6 @@
 import type { CollectionConfig, Field, FieldHook, Validate, Where } from 'payload'
 
-import { adminField, isAdmin, publicRead } from '@/access'
+import { adminField, adminWhere, isAdmin, publicRead } from '@/access'
 import { moneyField, seedField } from '@/fields'
 import { ENUM_LABELS, enumOptions } from '@/lib/enumLabels'
 import {
@@ -775,7 +775,10 @@ export const Products: CollectionConfig = {
     read: publicRead(PUBLIC_PRODUCT_WHERE),
     create: isAdmin,
     update: isAdmin,
-    delete: isAdmin,
+    // Kein Lösch-Knopf für veröffentlichte Stücke (KONZEPT §7.16); `guardProductDelete` prüft zusätzlich Bestellungen.
+    delete: adminWhere({
+      and: [{ status: { equals: 'draft' } }, { firstPublishedAt: { exists: false } }],
+    }),
   },
   defaultSort: '-updatedAt',
   endpoints: [

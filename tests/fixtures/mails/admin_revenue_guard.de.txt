@@ -11,4 +11,4 @@ Der Wächter ersetzt keine Steuerberatung.
 
 --
 Diese Nachricht hat deine Website automatisch erzeugt.
-Zur Verwaltung: https://planetclairetattoos.com/werkstatt/globals/settings
+Zur Verwaltung: https://planetclairetattoos.com/werkstatt/einstellungen

@@ -8,4 +8,4 @@ Die ganze Anfrage siehst du in der Verwaltung unter „Anfragen“.
 
 --
 Diese Nachricht hat deine Website automatisch erzeugt.
-Zur Verwaltung: https://planetclairetattoos.com/werkstatt/collections/inquiries/7
+Zur Verwaltung: https://planetclairetattoos.com/werkstatt/anfragen/7

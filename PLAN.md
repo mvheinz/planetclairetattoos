@@ -2483,7 +2483,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
 
 ### Aufgaben
 
-- [ ] **P5.1 Verwaltungs-Gerüst: Navigation, Ansichten-Registry, UI-Bausteine** – Registry
+- [x] **P5.1 Verwaltungs-Gerüst: Navigation, Ansichten-Registry, UI-Bausteine** – Registry
   `src/admin/views/registry.ts` (Schlüssel, Pfad, Titel DE, Phase, Symbol) für `/heute`, `/neues-stueck`, `/stuecke`,
   `/packen`, `/vorkasse`, `/versendet`, `/abholung`, `/widerrufe`, `/anfragen`, `/tattoo`, `/texte`, `/einstellungen`,
   `/export` (KONZEPT §7.2) plus Detailpfade `/stuecke/:id`, `/bestellungen/:id`, `/widerrufe/:id`, `/anfragen/:id`;

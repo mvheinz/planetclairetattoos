@@ -246,6 +246,20 @@ const ENDPOINT_OK: Readonly<Record<string, string>> = {
   'archived:restore': 'P14',
 }
 
+/**
+ * P5.1 (ARCHITEKTUR §2.4): Verwaltungs-Aktionen sind zustandsbasiert idempotent – steht das Stück schon im Zielzustand
+ * der Aktion, antwortet der Endpunkt 200 `{ unchanged: true }` ohne Übergang (Doppeltipp, zweiter Tab).
+ */
+const ACTION_TARGET: Readonly<Record<Exclude<Action, 'delete'>, ProductStatus>> = {
+  publish: 'available',
+  unpublish: 'draft',
+  'sell-offline': 'sold',
+  archive: 'archived',
+  'archive-after-return': 'archived',
+  restore: 'draft',
+  'return-to-stock': 'available',
+}
+
 beforeAll(async () => {
   payload = await getTestPayload()
   await deleteCommerce(payload)
@@ -308,6 +322,13 @@ describe('AK-5-01 Produkt – Matrix über die Admin-Endpunkte', () => {
             transition: expected,
             actorType: 'admin',
           })
+        } else if (ACTION_TARGET[action] === status) {
+          expect(res.status, label).toBe(200)
+          expect(((await res.json()) as { unchanged: boolean }).unchanged, label).toBe(true)
+          expect((await byId(id)).status, label).toBe(status)
+          expect((await getStatusHistory('products', id, { payload })).length, label).toBe(
+            before.length,
+          )
         } else {
           expect(res.status, label).toBe(409)
           expect(((await res.json()) as { error: string }).error, label).toBeTruthy()

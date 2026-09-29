@@ -61,6 +61,31 @@ export const ADMIN_CUSTOM_DE = {
   downscaleDone: 'Foto verkleinert auf {{width}} × {{height}} Pixel.',
   downscaleFailed: 'Verkleinern im Browser nicht möglich – das Foto wird unverändert hochgeladen.',
   ruleIdInvalid: 'Regel muss L-xx (z. B. „L-13 a“, „L-05 Stufe C“), DSGVO oder ADMIN sein.',
+  // Verwaltungs-Gerüst (P5.1): Navigation, Platzhalter, Bausteine
+  shellBottomBarLabel: 'Schnellzugriff',
+  shellMore: 'Mehr',
+  shellViewsHeading: 'Ansichten',
+  shellAllData: 'Alle Daten',
+  shellInProgress:
+    'Diese Ansicht wird gerade gebaut. Bis dahin findest du alles unter „Alle Daten“.',
+  shellComesInPhase:
+    'Diese Ansicht kommt in P{{phase}}. Bis dahin findest du alles unter „Alle Daten“.',
+  shellOpenAllData: 'In „Alle Daten“ öffnen',
+  shellNewPiece: 'Neues Stück',
+  actionBusy: 'Wird gespeichert …',
+  actionDone: 'Erledigt.',
+  actionUnchanged: 'Das war schon erledigt – nichts geändert.',
+  actionFailed:
+    'Das hat nicht geklappt: {{message}} Bitte lade die Seite neu und versuche es noch einmal.',
+  actionOffline: 'Keine Verbindung. Bitte prüfe das Internet und versuche es noch einmal.',
+  confirmAbort: 'Abbrechen',
+  confirmOk: 'Ja, weiter',
+  copyLabel: 'Kopieren',
+  copyDone: 'Kopiert.',
+  copyFallbackHint:
+    'Automatisch kopieren ging nicht. Der Text ist markiert – tippe auf „Jetzt kopieren“ oder kopiere ihn von Hand.',
+  copyFallbackButton: 'Jetzt kopieren',
+  copyFallbackFailed: 'Bitte lange auf den markierten Text tippen und „Kopieren“ wählen.',
 } as const
 
 export type AdminCustomKey = keyof typeof ADMIN_CUSTOM_DE
