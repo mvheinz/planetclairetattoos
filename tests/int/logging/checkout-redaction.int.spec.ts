@@ -100,7 +100,7 @@ describe('T-20 Logger-Schwärzung nach einem kompletten Kassen-Durchlauf', () =>
       'Verschwiegene',
       '10999 Berlin',
       r.token,
-      checkout.reservationRef,
+      // Die Reservierungs-Referenz ist eine interne Kennung (auch Stripe-Metadaten) und darf im Log stehen.
     ])
   })
 

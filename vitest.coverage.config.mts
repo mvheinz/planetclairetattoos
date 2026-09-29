@@ -6,12 +6,21 @@ import { defineConfig } from 'vitest/config'
 // (`security`, `legal`, `src/lib/**` gesamt) kommen mit P10.1 als Gate dazu und stehen bis dahin nur im Bericht.
 export default defineConfig({
   test: {
-    projects: ['./vitest.unit.config.mts', './vitest.config.mts'],
+    projects: [
+      { extends: './vitest.unit.config.mts', test: { name: 'unit' } },
+      // Instrumentierung (v8) verlangsamt die Seed-Läufe – großzügigere Zeitgrenzen als `vitest.config.mts`.
+      {
+        extends: './vitest.config.mts',
+        test: { name: 'int', testTimeout: 120_000, hookTimeout: 180_000 },
+      },
+    ],
+    // Eine gemeinsame Test-Datenbank: Dateien nacheinander (wie `vitest.config.mts`).
+    fileParallelism: false,
     coverage: {
       provider: 'v8',
       include: ['src/lib/**/*.{ts,tsx}'],
       exclude: ['src/lib/**/*.d.ts'],
-      reporter: ['text-summary', 'json-summary', 'html'],
+      reporter: ['text-summary', 'json-summary', 'json', 'html'],
       reportsDirectory: 'coverage',
       thresholds: {
         'src/lib/commerce/**': { lines: 90, branches: 85 },
