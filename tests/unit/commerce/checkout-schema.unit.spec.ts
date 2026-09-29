@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { customerStatus } from '@/lib/commerce/orderStatusLine'
 import {
   checkoutRawFromFormData,
   orderedCheckoutErrors,
@@ -164,5 +165,48 @@ describe('checkoutSchema', () => {
       'shippingCity',
       'paymentChoice',
     ])
+  })
+})
+
+// P4.25 Grenzfälle (Abdeckung): Mehrfachwerte aus FormData, fehlende/unbekannte Lieferart, zu lange Felder,
+// Adresszusatz, Statuszeile ohne erledigten Schritt und Anfechtung ohne gespeicherten Vorstatus.
+describe('Kassen-Eingaben – Grenzfälle (P4.25)', () => {
+  const ctx = { deviationProductIds: [], paymentChoices: ['stripe', 'prepayment'] } as const
+  const base = {
+    email: ['Erika@Example.org', 'zweite@example.org'],
+    name: 'Erika Beispiel',
+    shippingLine1: 'Musterstraße 1',
+    shippingLine2: 'Hinterhaus',
+    shippingPostalCode: '10115',
+    shippingCity: 'Berlin',
+    paymentChoice: 'stripe',
+  }
+
+  it('R-060 Lieferart fehlt → required, unbekannt → choice; Mehrfachwert nimmt den ersten; Adresszusatz bleibt', () => {
+    const missing = validateCheckoutInput({ ...base } as never, ctx)
+    expect(missing.ok).toBe(false)
+    expect(!missing.ok && missing.errors.fulfillmentMethod).toBe('required')
+    const unknown = validateCheckoutInput({ ...base, fulfillmentMethod: 'drohne' } as never, ctx)
+    expect(!unknown.ok && unknown.errors.fulfillmentMethod).toBe('choice')
+    const ok = validateCheckoutInput({ ...base, fulfillmentMethod: ['shipping'] } as never, ctx)
+    expect(ok.ok).toBe(true)
+    expect(ok.ok && ok.value.email).toBe('erika@example.org')
+    expect(ok.ok && ok.value.shippingAddress?.addressLine2).toBe('Hinterhaus')
+    const long = validateCheckoutInput(
+      {
+        ...base,
+        fulfillmentMethod: 'shipping',
+        shippingCity: 'B'.repeat(500),
+        email: undefined,
+      } as never,
+      ctx,
+    )
+    expect(!long.ok && long.errors.shippingCity).toBe('tooLong')
+    expect(!long.ok && long.errors.email).toBe('required')
+  })
+
+  it('R-067 Statuszeile: Anfechtung ohne Vorstatus zeigt „bezahlt“', () => {
+    expect(customerStatus('disputed', null)).toBe('paid')
+    expect(customerStatus('disputed', 'shipped')).toBe('shipped')
   })
 })
