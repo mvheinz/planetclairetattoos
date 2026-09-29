@@ -162,6 +162,7 @@ export interface Config {
     tasks: {
       sendEmail: TaskSendEmail;
       renderInvoicePdf: TaskRenderInvoicePdf;
+      renderLegalTextPdf: TaskRenderLegalTextPdf;
       inline: {
         input: unknown;
         output: unknown;
@@ -2368,7 +2369,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'sendEmail' | 'renderInvoicePdf';
+        taskSlug: 'inline' | 'sendEmail' | 'renderInvoicePdf' | 'renderLegalTextPdf';
         taskID: string;
         input?:
           | {
@@ -2401,7 +2402,7 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'sendEmail' | 'renderInvoicePdf') | null;
+  taskSlug?: ('inline' | 'sendEmail' | 'renderInvoicePdf' | 'renderLegalTextPdf') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -4830,6 +4831,18 @@ export interface TaskRenderInvoicePdf {
   };
   output: {
     status: string;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRenderLegalTextPdf".
+ */
+export interface TaskRenderLegalTextPdf {
+  input: {
+    legalTextId: number;
+  };
+  output: {
+    created: string;
   };
 }
 /**

@@ -19,6 +19,7 @@ import * as migration_20260927_144252_p1_private_upload_links from './20260927_1
 import * as migration_20260927_145135_p1_constraints from './20260927_145135_p1_constraints';
 import * as migration_20260928_230534_p4_mock_state_guard from './20260928_230534_p4_mock_state_guard';
 import * as migration_20260929_004609_p4_invoice_pdf from './20260929_004609_p4_invoice_pdf';
+import * as migration_20260929_010331_p4_legal_pdf from './20260929_010331_p4_legal_pdf';
 
 export const migrations = [
   {
@@ -124,6 +125,11 @@ export const migrations = [
   {
     up: migration_20260929_004609_p4_invoice_pdf.up,
     down: migration_20260929_004609_p4_invoice_pdf.down,
-    name: '20260929_004609_p4_invoice_pdf'
+    name: '20260929_004609_p4_invoice_pdf',
+  },
+  {
+    up: migration_20260929_010331_p4_legal_pdf.up,
+    down: migration_20260929_010331_p4_legal_pdf.down,
+    name: '20260929_010331_p4_legal_pdf'
   },
 ];

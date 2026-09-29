@@ -140,8 +140,13 @@ const guardLegalText: CollectionBeforeChangeHook = async ({
           fail(`Statuswechsel ${before} → ${after} ist nicht erlaubt.`, 'status')
         }
         if (before === 'active' || before === 'superseded') {
+          // Text-Prüfsummen darf der PDF-Job (P4.12) nur nachtragen, solange sie fehlen.
+          const fillable = (k: string) =>
+            (k === 'contentSha256De' || k === 'contentSha256En') && !original[k]
           const changed = changedFields(
-            Object.keys(data).filter((k) => !SERVICE_FIELDS_AFTER_ACTIVATION.has(k)),
+            Object.keys(data).filter(
+              (k) => !SERVICE_FIELDS_AFTER_ACTIVATION.has(k) && !fillable(k),
+            ),
             original,
             data as Doc,
           )

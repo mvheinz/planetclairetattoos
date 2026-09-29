@@ -3,6 +3,7 @@ import 'server-only'
 import type { PayloadRequest } from 'payload'
 
 import { LEGAL_TEXT_TRANSITION, VALID_FROM_TOLERANCE_MS } from '@/collections/LegalTexts'
+import { TASK_DEFS } from '@/jobs/index'
 import { writeAudit } from '@/lib/audit'
 import { TransitionError } from '@/lib/commerce/transitionError'
 import type { LegalTextType, Locale } from '@/lib/enums'
@@ -21,7 +22,7 @@ import {
 // (validFrom ≤ jetzt) bzw. `draft` → `scheduled` (validFrom in der Zukunft; der Job `activateScheduledLegalTexts`
 // ruft den Service später erneut auf). Beim Aktivieren wird die bisher aktive Fassung desselben Typs `superseded`;
 // vorher müssen DE- und (falls vorhanden) EN-Text fehlerfrei rendern – sonst ist das Aktivieren gesperrt. PDFs erzeugt
-// der Job `renderLegalTextPdf` (ab P4/P6).
+// der Job `renderLegalTextPdf` (P4.12, eingereiht im selben Commit; Ausbau P6).
 
 export interface ActivateLegalTextOptions {
   /** Text des Bausteins `withdrawal.returnCostsNote` für `{{returnCostsNote}}` (Bausteine ab P3.3/P6). */
@@ -33,6 +34,8 @@ export interface ActivateLegalTextResult {
   type: LegalTextType
   status: 'active' | 'scheduled'
   supersededId: number | null
+  /** Job `renderLegalTextPdf` (nach dem Commit direkt ausführbar); `null` bei `scheduled`. */
+  pdfJobId: number | string | null
 }
 
 type LocalizedContent = Partial<Record<Locale, LexicalContent | null>>
@@ -97,7 +100,7 @@ export async function activateLegalText(
         contentSha256De: hashes.de ?? null,
         contentSha256En: hashes.en ?? null,
       })
-      return { id, type: doc.type, status: 'scheduled', supersededId: null }
+      return { id, type: doc.type, status: 'scheduled', supersededId: null, pdfJobId: null }
     }
 
     const current = await preservingReq(req, () =>
@@ -111,6 +114,7 @@ export async function activateLegalText(
       }),
     )
     let supersededId: number | null = null
+    let pdfJobId: number | string | null = null
     for (const prev of current.docs) {
       if (prev.id === id) continue
       await update(prev.id, { status: 'superseded', supersededAt: now.toISOString() })
@@ -130,6 +134,14 @@ export async function activateLegalText(
       contentSha256De: hashes.de ?? null,
       contentSha256En: hashes.en ?? null,
     })
+    // PDFs DE/EN per Job `renderLegalTextPdf` im selben Commit (P4.12); Werte zum Aktivierungszeitpunkt eingefroren.
+    const job = await req.payload.jobs.queue({
+      task: 'renderLegalTextPdf',
+      input: { legalTextId: id },
+      queue: TASK_DEFS.renderLegalTextPdf.queue,
+      req,
+    })
+    pdfJobId = job.id
     await writeAudit(req, {
       action: 'legal_text_activated',
       entityCollection: 'legal-texts',
@@ -138,6 +150,6 @@ export async function activateLegalText(
       changes: { status: [doc.status, 'active'] },
       transition: LEGAL_TEXT_TRANSITION,
     })
-    return { id, type: doc.type, status: 'active', supersededId }
+    return { id, type: doc.type, status: 'active', supersededId, pdfJobId }
   })
 }
