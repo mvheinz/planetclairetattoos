@@ -1,5 +1,34 @@
 // Eigene Admin-Texte (Admin nur Deutsch, DATENMODELL §1.2). Schlüssel werden im Admin als `custom:<key>` genutzt.
 export const ADMIN_CUSTOM_DE = {
+  orderActionsTitle: 'Aktionen',
+  orderActionsAmount: 'Betrag',
+  orderActionsReference: 'Verwendungszweck',
+  orderActionsDaysLeft: 'noch {{days}} Tage bis Storno',
+  orderActionsDaysLeftOne: 'noch 1 Tag bis Storno',
+  orderActionsDueToday: 'Frist endet heute um 23:59 Uhr – danach automatisch storniert',
+  orderActionsOverdue: 'Frist abgelaufen – wird beim nächsten Lauf storniert',
+  orderActionsPaid: 'Zahlung erhalten',
+  orderActionsPaidConfirm:
+    'Die Kundin bekommt eine Mail mit der Rechnung. Die Stücke gelten dann als verkauft.',
+  orderActionsReceivedAmount: 'Eingegangener Betrag (Euro)',
+  orderActionsReceivedAt: 'Eingangsdatum laut Kontoauszug (optional)',
+  orderActionsMismatch:
+    'Der Betrag weicht von der Summe ab. Trotzdem als bezahlt markieren (die Bestellung wird rot markiert).',
+  orderActionsCancel: 'Stornieren',
+  orderActionsCancelConfirm:
+    'Die Kundin bekommt eine Mail mit deinem Text, dass die Bestellung storniert ist. Die Stücke sind sofort wieder frei.',
+  orderActionsCancelReason: 'Grund (steht in der Mail an die Kundin)',
+  orderActionsLate: 'Nachträglich bezahlt',
+  orderActionsLateConfirm:
+    'Die Stücke werden verkauft, die Kundin bekommt eine Mail mit der Rechnung. Ist ein Stück inzwischen weg, passiert nichts – dann bitte das Geld zurücküberweisen.',
+  orderActionsRefundDone: 'Rücküberweisung erledigt',
+  orderActionsRefundDoneConfirm:
+    'Es wird nur eine Notiz an der Bestellung gespeichert – keine Mail, keine Rechnung.',
+  orderActionsNote: 'Notiz (optional)',
+  orderActionsConfirm: 'Bestätigen',
+  orderActionsAbort: 'Abbrechen',
+  orderActionsBusy: 'Wird gespeichert …',
+  orderActionsError: 'Das hat nicht geklappt: {{message}}',
   euroInputInvalid:
     'Bitte einen Betrag in Euro mit höchstens zwei Nachkommastellen eingeben (z. B. 38,50).',
   euroInputHint: 'Betrag in Euro, z. B. 38,50',

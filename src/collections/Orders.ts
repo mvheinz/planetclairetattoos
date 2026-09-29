@@ -59,6 +59,8 @@ import {
   withdrawalRetainUntil,
 } from '@/lib/retention/policy'
 
+import { orderActionEndpoints } from '@/endpoints/orders/actions'
+
 import { actorTypeOf, failField, groupOf, rejectChanges, SHA256_HEX } from './hooks/commerce'
 import { changedFields } from './hooks/immutable'
 import { assignSequenceNumber } from './hooks/numbers'
@@ -72,6 +74,9 @@ const fail = (message: string, path: string): never => failField(SLUG, message, 
 const ro = { readOnly: true } as const
 
 type Doc = Record<string, unknown>
+
+/** Knöpfe „Zahlung erhalten“, „Stornieren“, „Nachträglich bezahlt“ (PLAN P4.20). */
+export const ORDER_ACTIONS_COMPONENT = '/admin/components/OrderActions#OrderActions'
 
 export const ORDER_NUMBER_RE = /^PC-\d{4}-\d{5,}$/
 /** Platzhalter nach der Anonymisierung (wird nie gemailt, §6.22). */
@@ -479,8 +484,15 @@ export const Orders: CollectionConfig = {
   },
   access: { read: isAdmin, update: isAdmin, create: none, delete: none },
   defaultSort: '-createdAt',
+  endpoints: orderActionEndpoints,
   indexes: [{ fields: ['privacy.legalHold'] }],
   fields: [
+    {
+      name: 'orderActions',
+      type: 'ui',
+      label: 'Aktionen',
+      admin: { components: { Field: ORDER_ACTIONS_COMPONENT } },
+    },
     {
       name: 'orderNumber',
       type: 'text',

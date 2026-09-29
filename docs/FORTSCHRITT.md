@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P4.20
+
+- Endpunkte `src/endpoints/orders/actions.ts` (nur `isAdmin`, an `orders` registriert): `POST /api/orders/:id/prepayment-received` (O3 über `markPrepaymentPaid`: Verkauf über die Vorkasse-Reservierung, `receivedAt`/`receivedAmountCents`, `paidAt`, Rechnung, M05; Betrag ≠ Summe nur mit `confirmMismatch` → `adminAttention payment_amount_mismatch`), `/cancel` (O4 `admin`, Grund Pflicht, Freigabe `order_cancelled`, M04 mit Juttas Text, keine A03), `/late-payment` (`reactivate` → O5 nur wenn alle Stücke `available`, sonst 409 „Stück inzwischen verkauft – bitte Geld zurücküberweisen“; `refund_transfer_done` → Notiz + Audit, keine Rechnung). Doppelaufruf im Zielzustand → 200 `alreadyDone` ohne Nebenwirkungen. `transitionOrder()` prüft Ausgangsstatus.
+- Admin-Komponente `src/admin/components/OrderActions.tsx` (UI-Feld oben in der Bestellung, Logik in `orderActionsModel.ts`): Knöpfe je Status, Bestätigungsdialog mit Folge, Betrag, Verwendungszweck, „noch X Tage bis Storno“, Idempotenz-Schlüssel je Klick, gesperrt während der Anfrage; Texte in `src/admin/translations.ts`; Import-Map erneuert.
+- Tests: `tests/int/endpoints/order-prepayment-actions.int.spec.ts` (7: anonym 403, O3 + Doppelaufruf, Betragsabweichung, O4 Admin, O5, O5 verkauft → 409 + Rücküberweisung, AK-5-01-Matrix), `tests/unit/admin/order-actions.unit.spec.ts` (2), `tests/e2e/admin/order-actions.e2e.spec.ts` (Desktop + 390×844, Dialogtexte, `@a11y`) grün gegen den Produktions-Build (Port 3200); `pnpm build`, `pnpm check` grün.
+
 ## 2026-09-29 – P4.19
 
 - Dienst `src/lib/commerce/prepayment.ts`: `placePrepaymentOrder(req, checkoutId, { now, checkoutData })` in einer Transaktion (nur bei `settings.payment.prepaymentEnabled`, Kasse `open`): Eingaben an der Kasse (`paymentChoice = prepayment`, `submittedAt`), `createOrderFromCheckout` O2, Reservierung/Stücke nach §8.5 umgestellt (`source = prepayment`, Frist `dueAt`, `order_id`/`current_order_id`), Kasse `completed`, M02 + A02; `afterCommit`: Session beenden (`already_complete_paid` → `adminAttention manual` + A12 S17), Mails direkt, `jobAlarm.bump(reminderDueAt)`. Die Server-Action `submitCheckout` (303 auf die Danke-Seite) ruft den Dienst mit P4.10a auf.
