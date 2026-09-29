@@ -64,7 +64,7 @@ const visits: Visit[] = [
   ...P3_PAGES.filter(
     (p) =>
       !pageRoutes()
-        .filter((r) => r.status === 'live')
+        .filter((r) => r.status === 'live' && hasSamplePath(r))
         .some((r) => LOCALES.some((l) => samplePath(r.id, l) === p.path)),
   ).map((p) => ({ name: p.name, path: p.path, status: p.status, once: true })),
 ]
