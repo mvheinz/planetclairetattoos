@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P4.21
+
+- `fulfillCheckout` nach DATENMODELL §8.4 (ersetzt `OversoldNotHandledError`): fehlende Stücke ohne Verkaufsbuchung. **Alle fehlen:** O19 (`refunded`), keine Rechnung, Positionen `refunded`, `refunds[]` (`item_unavailable`, voller Betrag, `includesShipping`, `pending`), Kasse `completed`, M10 + A06. **Einige fehlen:** O1, fehlende Positionen `refunded`/`refundedCents`, Erstattung = Preise + (bezahlter Versand − Versand der höchsten verbleibenden Klasse, höchstens bezahlt), Rechnung nur über Geliefertes und Restversand (`createInvoiceForOrder` mit `lines`/`shippingCents`), keine Gutschrift, Block „Leider schon weg“ in M01, A06. Immer `adminAttention oversold`, Audit `reservation_conflict`; Reservierungen der fehlenden Stücke freigegeben.
+- `src/lib/commerce/refunds.ts`: `executeRefund` nach dem Commit über `adapter.refund` (Idempotenz `refund:<orderId>:<refundSeq>`), Ergebnis in `refunds[].status`/`stripeRefundId`; `setRefundStatus` (bei `failed` `adminAttention refund_failed` + A08 genau einmal) – auch für P4.22.
+- Tests: `tests/int/commerce/oversold.int.spec.ts` (3: AK-4-10/O19 inkl. zweiter Zustellung, Teilfall mit Betrag/Rechnung/ohne Gutschrift/M01-Block, Erstattung failed → A08); Int-Tests jobs/commerce/payments/endpoints/invoices grün; `pnpm check` grün.
+
 ## 2026-09-29 – P4.20
 
 - Endpunkte `src/endpoints/orders/actions.ts` (nur `isAdmin`, an `orders` registriert): `POST /api/orders/:id/prepayment-received` (O3 über `markPrepaymentPaid`: Verkauf über die Vorkasse-Reservierung, `receivedAt`/`receivedAmountCents`, `paidAt`, Rechnung, M05; Betrag ≠ Summe nur mit `confirmMismatch` → `adminAttention payment_amount_mismatch`), `/cancel` (O4 `admin`, Grund Pflicht, Freigabe `order_cancelled`, M04 mit Juttas Text, keine A03), `/late-payment` (`reactivate` → O5 nur wenn alle Stücke `available`, sonst 409 „Stück inzwischen verkauft – bitte Geld zurücküberweisen“; `refund_transfer_done` → Notiz + Audit, keine Rechnung). Doppelaufruf im Zielzustand → 200 `alreadyDone` ohne Nebenwirkungen. `transitionOrder()` prüft Ausgangsstatus.

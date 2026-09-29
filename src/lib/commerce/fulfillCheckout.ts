@@ -3,6 +3,7 @@ import 'server-only'
 import { sql } from '@payloadcms/db-postgres'
 import type { Payload, PayloadRequest } from 'payload'
 
+import { writeAudit } from '@/lib/audit'
 import { revalidateProduct } from '@/lib/cache/revalidate'
 import { dbFor } from '@/lib/db/tx'
 import { sendAdminAlert } from '@/lib/email/alerts'
@@ -15,12 +16,14 @@ import { money } from '@/lib/email/templates/kit'
 import { createLogger } from '@/lib/monitoring/logger'
 import { preservingReq } from '@/lib/payload/localReq'
 import { inTransaction } from '@/lib/payload/transaction'
-import { NotImplementedYetError, type SessionState } from '@/lib/payments/types'
+import type { SessionState } from '@/lib/payments/types'
 import type { Order } from '@/payload-types'
 
 import { transitionCheckout } from './checkoutTransitions'
 import { createOrderFromCheckout, type OrderPaymentInput } from './createOrderFromCheckout'
+import { executeRefund } from './refunds'
 import { intArray } from './reservation'
+import { computeShipping, type ShippingSettings } from './shipping'
 
 // Bestellabschluss nach bestätigter Zahlung (DATENMODELL §8.3, KONZEPT §4.10, PLAN P4.16a) – einzige idempotente
 // Funktion für Stripe-/Mock-Bestellungen. Aufrufer: Webhook (`processPaymentEvent`), Mock-„Erfolg“, Freigabe mit
@@ -54,6 +57,10 @@ export type FulfillStatus =
   /** Kasse beendet (`expired`/`cancelled`/`failed`) bzw. anders abgeschlossen – keine Bestellung (S16/S17, P4.16b). */
   | 'checkout_closed'
   | 'paid_despite_prepayment'
+  /** S4 (P4.21): alle Stücke fehlen – Bestellung `refunded` (O19), Voll-Erstattung. */
+  | 'oversold_refunded'
+  /** S4 (P4.21): einige Stücke fehlen – Bestellung `paid` (O1) mit Teil-Erstattung. */
+  | 'fulfilled_partially'
 
 export interface FulfillResult {
   status: FulfillStatus
@@ -67,13 +74,6 @@ export interface FulfillResult {
 export interface FulfillOptions {
   payment: ConfirmedPayment
   now: Date
-}
-
-/** Oversold (ein Stück fehlt) – die Behandlung nach DATENMODELL §8.4 folgt mit P4.21. */
-export class OversoldNotHandledError extends NotImplementedYetError {
-  constructor(readonly productIds: number[]) {
-    super('Oversold-Behandlung (fehlende Stücke)', 'P4.21')
-  }
 }
 
 const noop = async () => undefined
@@ -264,14 +264,17 @@ export async function fulfillCheckout(
       SELECT id, status, reservation_ref, category FROM products
        WHERE id = ANY(${intArray(productIds)}) ORDER BY id FOR UPDATE
     `)
-    const deliverable = locked.rows.filter(
-      (p) =>
-        (p.status === 'reserved' && p.reservation_ref === checkout.ref) || p.status === 'available',
+    const deliverable = new Set(
+      locked.rows
+        .filter(
+          (p) =>
+            (p.status === 'reserved' && p.reservation_ref === checkout.ref) ||
+            p.status === 'available',
+        )
+        .map((p) => Number(p.id)),
     )
-    if (deliverable.length < productIds.length) {
-      const ok = new Set(deliverable.map((p) => Number(p.id)))
-      throw new OversoldNotHandledError(productIds.filter((id) => !ok.has(id)))
-    }
+    const missing = productIds.filter((id) => !deliverable.has(id))
+    const delivered = productIds.filter((id) => deliverable.has(id))
     const categories = new Map(locked.rows.map((p) => [Number(p.id), String(p.category ?? '')]))
 
     // (3) Bestellung (O1) aus dem Snapshot
@@ -288,6 +291,9 @@ export async function fulfillCheckout(
         livemode: payment.livemode,
         amountReceivedCents: payment.amountReceivedCents,
       },
+    }
+    if (delivered.length === 0) {
+      return fulfillAllMissing(req, checkout, { ...options, paymentInput, productIds, categories })
     }
     const { order } = await createOrderFromCheckout(req, checkoutId, {
       transition: 'O1',
@@ -325,25 +331,33 @@ export async function fulfillCheckout(
          SET status = 'sold', sold_at = ${at}::timestamptz, sold_channel = ${channel}::enum_products_sold_channel,
              current_order_id = ${order.id}, reserved_until = NULL, reservation_ref = NULL,
              updated_at = ${at}::timestamptz
-       WHERE id = ANY(${intArray(productIds)})
+       WHERE id = ANY(${intArray(delivered)})
          AND ((status = 'reserved' AND reservation_ref = ${checkout.ref}) OR status = 'available')
       RETURNING id
     `)
-    if (sold.rows.length !== productIds.length) {
+    if (sold.rows.length !== delivered.length) {
       throw new Error(
-        `Kasse ${checkoutId}: Verkauf unvollständig (${sold.rows.length}/${productIds.length}).`,
+        `Kasse ${checkoutId}: Verkauf unvollständig (${sold.rows.length}/${delivered.length}).`,
       )
     }
     await db.execute(sql`
       UPDATE reservations
          SET status = 'converted', converted_at = ${at}::timestamptz, order_id = ${order.id},
              updated_at = ${at}::timestamptz
-       WHERE ref = ${checkout.ref} AND status = 'active'
+       WHERE ref = ${checkout.ref} AND status = 'active' AND product_id = ANY(${intArray(delivered)})
     `)
     await transitionCheckout(req, checkoutId, 'completed', { now })
 
+    // S4 teilweise (§8.4): fehlende Positionen erstatten, Rechnung nur über das Gelieferte
+    const partial =
+      missing.length > 0 ? await applyPartialOversold(req, order, checkout, { missing, now }) : null
+
     // (5) Rechnung in derselben Transaktion; M01 und A01 einreihen
-    const invoice = await createInvoiceForOrder(req, order, { paidAt: payment.paidAt, now })
+    const invoice = await createInvoiceForOrder(req, order, {
+      paidAt: payment.paidAt,
+      now,
+      ...(partial ? { lines: partial.deliveredLineIds, shippingCents: partial.shippingCents } : {}),
+    })
     const withInvoice = (await preservingReq(req, () =>
       req.payload.findByID({
         collection: 'orders',
@@ -353,7 +367,11 @@ export async function fulfillCheckout(
         req,
       }),
     )) as Order
-    const mailData = await buildOrderMailData(req, withInvoice)
+    const mailData = await buildOrderMailData(
+      req,
+      withInvoice,
+      partial ? { unavailable: partial.unavailable } : {},
+    )
     const m01 = await enqueueEmail(req, {
       template: 'order_confirmation',
       to: withInvoice.customer.email,
@@ -390,11 +408,21 @@ export async function fulfillCheckout(
 
     const payload: Payload = req.payload
     return {
-      status: 'fulfilled',
+      status: partial ? 'fulfilled_partially' : 'fulfilled',
       checkoutId,
       orderId: order.id,
       productIds,
       afterCommit: async () => {
+        if (partial) {
+          await executeRefund(payload, order.id, partial.refundIndex, {
+            now,
+            reason: 'item_unavailable',
+          }).catch((e: unknown) =>
+            log.error('fulfill.refund_failed', { orderId: order.id, error: (e as Error)?.message }),
+          )
+          if (partial.a06)
+            await runEmailJobNow(payload, partial.a06, { now }).catch(() => undefined)
+        }
         // Beleg-PDF zuerst (Anhang der M01), dann die Mails direkt ausführen, danach Cache.
         await runInvoicePdfJob(payload, invoice.jobId, { now }).catch((e: unknown) =>
           log.error('fulfill.invoice_pdf_failed', {
@@ -407,10 +435,238 @@ export async function fulfillCheckout(
             log.error('fulfill.mail_failed', { orderId: order.id, error: (e as Error)?.message }),
           )
         }
-        for (const id of productIds) {
+        for (const id of delivered) {
           revalidateProduct(id, { immediate: true, category: categories.get(id) || null })
         }
       },
     }
   })
+}
+
+// --- S4: bezahlt, aber (teilweise) schon weg (DATENMODELL §8.4, KONZEPT §4.10 Nr. 6, PLAN P4.21) -----------------
+
+type OrderItem = Order['items'][number]
+
+const productOf = (i: OrderItem): number =>
+  typeof i.product === 'object' ? (i.product as { id: number }).id : (i.product as number)
+
+/** Versand der verbleibenden Stücke (höchste Klasse, Tarif der Zone), höchstens der bezahlte Versand. */
+async function remainingShippingCents(req: PayloadRequest, order: Order, remaining: OrderItem[]) {
+  if (order.fulfillmentMethod !== 'shipping' || order.shippingCents === 0)
+    return order.shippingCents
+  const settings = await preservingReq(req, () =>
+    req.payload.findGlobal({ slug: 'settings', depth: 0, overrideAccess: true, req }),
+  )
+  try {
+    const res = computeShipping(
+      remaining.map((i) => ({ itemNumber: i.itemNumber, shippingClass: i.shippingClass })),
+      'shipping',
+      settings as ShippingSettings,
+      { country: order.shippingAddress?.country ?? 'DE' },
+    )
+    return Math.min(order.shippingCents, res.shippingCents)
+  } catch (err) {
+    // Kein Tarif: vorsichtshalber keine Versand-Erstattung (Jutta sieht den Hinweis `oversold`).
+    log.warn('fulfill.remaining_shipping_unknown', {
+      orderId: order.id,
+      error: (err as Error)?.message,
+    })
+    return order.shippingCents
+  }
+}
+
+interface OversoldBooking {
+  missingItems: OrderItem[]
+  refundCents: number
+  includesShipping: boolean
+  now: Date
+  checkoutRef: string
+}
+
+/**
+ * Gemeinsamer Teil beider S4-Fälle in der Transaktion: fehlende Positionen `refunded`, `refunds[]`-Eintrag
+ * (`item_unavailable`, `pending`), `adminAttention oversold`, Reservierungen der fehlenden Stücke freigeben (sie sind
+ * inzwischen anderweitig vergeben), Audit `reservation_conflict`, A06. Liefert Index der Erstattung und A06-Job.
+ */
+async function bookOversold(
+  req: PayloadRequest,
+  order: Order,
+  b: OversoldBooking,
+): Promise<{ refundIndex: number; a06: number | string | null }> {
+  const db = await dbFor(req)
+  const at = b.now.toISOString()
+  const missingIds = new Set(b.missingItems.map((i) => i.id))
+  const current = (await preservingReq(req, () =>
+    req.payload.findByID({
+      collection: 'orders',
+      id: order.id,
+      depth: 0,
+      overrideAccess: true,
+      req,
+    }),
+  )) as Order
+  const refunds = [
+    ...(current.refunds ?? []),
+    {
+      amountCents: b.refundCents,
+      reason: 'item_unavailable',
+      itemIds: b.missingItems.map((i) => i.id),
+      includesShipping: b.includesShipping,
+      status: 'pending',
+      createdAt: at,
+    },
+  ]
+  const itemNumbers = b.missingItems.map((i) => i.itemNumber)
+  await preservingReq(req, () =>
+    req.payload.update({
+      collection: 'orders',
+      id: order.id,
+      data: {
+        items: current.items.map((i) =>
+          missingIds.has(i.id) ? { ...i, status: 'refunded', refundedCents: i.priceCents } : i,
+        ),
+        refunds,
+        adminAttention: {
+          flag: true,
+          reason: 'oversold',
+          note: `Schon weg: Nr. ${itemNumbers.join(', ')} – automatisch erstattet: ${money(b.refundCents, 'de')}.`,
+        },
+      } as never,
+      depth: 0,
+      overrideAccess: true,
+      req,
+      context: { ...req.context, system: true, now: at },
+    }),
+  )
+  const missingProducts = b.missingItems.map(productOf)
+  await db.execute(sql`
+    UPDATE reservations
+       SET status = 'released', released_at = ${at}::timestamptz, release_reason = 'admin',
+           updated_at = ${at}::timestamptz
+     WHERE ref = ${b.checkoutRef} AND status = 'active' AND product_id = ANY(${intArray(missingProducts)})
+  `)
+  await writeAudit(req, {
+    action: 'reservation_conflict',
+    entityCollection: 'orders',
+    entityId: order.id,
+    summary: `Bestellung ${order.orderNumber}: bezahlt, aber Nr. ${itemNumbers.join(', ')} schon weg – ${money(b.refundCents, 'de')} werden erstattet`,
+    changes: { missingProducts: [null, missingProducts] },
+    actorType: 'webhook',
+  })
+  const a06 = await enqueueEmail(req, {
+    template: 'admin_oversold',
+    locale: 'de',
+    data: {
+      items: b.missingItems.map((i) => ({
+        itemNumber: i.itemNumber,
+        title: i.titleDe,
+        category: i.category,
+      })),
+      orders: [{ orderId: order.id, orderNumber: order.orderNumber }],
+      refundedCents: b.refundCents,
+      refundStatus: 'pending',
+    },
+    idempotencyKey: `admin_oversold:${order.id}`,
+    relations: { order: order.id },
+  })
+  return { refundIndex: refunds.length - 1, a06: a06.jobId }
+}
+
+/** S4 teilweise: Bestellung bleibt `paid` (O1); Erstattung = fehlende Stücke + Versanddifferenz. */
+async function applyPartialOversold(
+  req: PayloadRequest,
+  order: Order,
+  checkout: LockedCheckout,
+  input: { missing: number[]; now: Date },
+) {
+  const missing = new Set(input.missing)
+  const missingItems = order.items.filter((i) => missing.has(productOf(i)))
+  const remaining = order.items.filter((i) => !missing.has(productOf(i)))
+  const shippingCents = await remainingShippingCents(req, order, remaining)
+  const shippingDiff = order.shippingCents - shippingCents
+  const refundCents = missingItems.reduce((n, i) => n + i.priceCents, 0) + shippingDiff
+  const booked = await bookOversold(req, order, {
+    missingItems,
+    refundCents,
+    includesShipping: shippingDiff > 0,
+    now: input.now,
+    checkoutRef: checkout.ref,
+  })
+  return {
+    ...booked,
+    shippingCents,
+    deliveredLineIds: remaining.map((i) => i.id!).filter(Boolean),
+    unavailable: missingItems.map((i) => ({
+      itemNumber: i.itemNumber,
+      refundedCents: i.priceCents,
+    })),
+  }
+}
+
+/** S4 alle fehlen: Bestellung direkt `refunded` (O19), keine Rechnung, Voll-Erstattung, M10 + A06. */
+async function fulfillAllMissing(
+  req: PayloadRequest,
+  checkout: LockedCheckout,
+  input: FulfillOptions & {
+    paymentInput: OrderPaymentInput
+    productIds: number[]
+    categories: Map<number, string>
+  },
+): Promise<FulfillResult> {
+  const { now } = input
+  const { order } = await createOrderFromCheckout(req, checkout.id, {
+    transition: 'O19',
+    payment: input.paymentInput,
+    now,
+    actorType: 'webhook',
+  })
+  const booked = await bookOversold(req, order, {
+    missingItems: order.items,
+    refundCents: order.totalCents,
+    includesShipping: true,
+    now,
+    checkoutRef: checkout.ref,
+  })
+  await transitionCheckout(req, checkout.id, 'completed', { now })
+  const m10 = await enqueueEmail(req, {
+    template: 'oversold_apology',
+    to: order.customer.email,
+    locale: order.locale,
+    data: {
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      customerName: order.customer?.name ?? null,
+      items: order.items.map((i) => ({
+        itemNumber: i.itemNumber,
+        title: ((order.locale === 'en' ? i.titleEn : null) || i.titleDe).slice(0, 200),
+      })),
+      refundedCents: order.totalCents,
+    },
+    idempotencyKey: `oversold_apology:${order.id}:O19`,
+    relations: { order: order.id },
+  })
+  log.warn('fulfill.oversold_all', { orderId: order.id, checkoutId: checkout.id })
+  const payload: Payload = req.payload
+  return {
+    status: 'oversold_refunded',
+    checkoutId: checkout.id,
+    orderId: order.id,
+    productIds: input.productIds,
+    afterCommit: async () => {
+      await executeRefund(payload, order.id, booked.refundIndex, {
+        now,
+        reason: 'item_unavailable',
+      }).catch((e: unknown) =>
+        log.error('fulfill.refund_failed', { orderId: order.id, error: (e as Error)?.message }),
+      )
+      for (const job of [m10.jobId, booked.a06]) {
+        await runEmailJobNow(payload, job, { now }).catch((e: unknown) =>
+          log.error('fulfill.mail_failed', { orderId: order.id, error: (e as Error)?.message }),
+        )
+      }
+      for (const id of input.productIds) {
+        revalidateProduct(id, { immediate: true, category: input.categories.get(id) || null })
+      }
+    },
+  }
 }
