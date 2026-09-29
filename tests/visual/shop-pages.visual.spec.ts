@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import type { Payload } from 'payload'
 
 import { localizedPath } from '../../src/lib/routes/paths'
@@ -7,7 +7,7 @@ import { testPayload } from '../e2e/fixtures'
 import { refresh } from '../e2e/shop/fresh'
 import { ANCHORS } from '../e2e/shop/productPage'
 import { completeProduct, createProductFixtures } from '../int/helpers/products'
-import { dynamicMasks, linuxOnly, prepare, settle } from './helpers'
+import { dynamicMasks, linuxOnly, loadAllImages, prepare, settle } from './helpers'
 
 // T-12 Shop-Seiten (ARCHITEKTUR §7.6, PLAN P3.16): Shop R02, Produktseite R04 (S01, zwei Fotos), Archiv R05 und die
 // 404-Variante „Schon ein Zuhause“ (KO-18) – ganzseitig, DE, je Projekt `desktop` (1440 × 900) und `mobile` (390 × 844),
@@ -22,15 +22,6 @@ const PAGES = [
 
 const HOME_VARIANT_NUMBER: Record<string, number> = { desktop: 975, mobile: 976 }
 
-/** Alle Bilder sofort laden und dekodieren (ganzseitige Aufnahme ohne Scrollen, `loading="lazy"`). */
-async function loadAllImages(page: Page) {
-  await page.evaluate(async () => {
-    const imgs = Array.from(document.querySelectorAll<HTMLImageElement>('img'))
-    for (const img of imgs) img.loading = 'eager'
-    await Promise.all(imgs.map((img) => img.decode().catch(() => undefined)))
-  })
-}
-
 test.beforeEach(async ({ page }) => {
   linuxOnly()
   await prepare(page)
@@ -40,6 +31,9 @@ for (const p of PAGES) {
   test(`${p.name} (${p.path})`, async ({ page }) => {
     const res = await page.goto(p.path)
     expect(res?.status()).toBe(200)
+    // Die mobile Kauf-Leiste (KO-09a) ist `position: fixed`; in der ganzseitigen Aufnahme läge sie mitten im Inhalt –
+    // ausblenden (eigene Tests in `tests/e2e/shop/gallery.e2e.spec.ts`).
+    await page.addStyleTag({ content: '[data-buy-bar]{visibility:hidden !important}' })
     await loadAllImages(page)
     await settle(page)
     await expect(page).toHaveScreenshot(`${p.name}.png`, {

@@ -2,6 +2,14 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P3.16
+
+- Querschnittssuiten auf R02–R05 ausgedehnt: @privacy (Request-Log, CSP), @a11y (axe je Kategorie/Zustand, 404-Variante) plus Tastatur-Durchlauf, Verbotsmuster-Scan, JS-Budget (check:bundle), Lighthouse-CI für R02/R04, CLS-Messung (Playwright) jetzt auch für R02 und R04.
+- Visuelle Referenzen für Shop, Produktseite, Archiv, 404-Variante „Schon ein Zuhause“ und Shop-Bausteine (P3.4) lokal gegen den Produktions-Build erzeugt (OFFENE-PUNKTE N-02); R01 (Karten aus P3.12) und 404 (Nummernfeld aus P3.7) erneuert. Mobile Kauf-Leiste in ganzseitigen Aufnahmen ausgeblendet, alle Bilder vor der Aufnahme geladen.
+- Ursache instabiler R01-Aufnahmen behoben: Der Daten-Cache des Produktions-Builds (`.next/cache/fetch-cache`) überlebte Server-Neustarts und `db:reset`, die Seite zeigte Medien-Dateinamen des vorigen Seeds (HTTP 403). Playwright leert ihn jetzt vor `pnpm start` (`startCommand` in `playwright.config.ts`, auch für die visuellen Tests).
+- Vorschau-Datei: R02–R05, Listen-Varianten und alle Seed-Produktseiten enthalten; Test für Schild-Schwingen robuster (Desktop: erste Kartenreihe liegt unter dem Banner, wird hingescrollt).
+- Tests: pnpm check (1022), test:int (413), build, test:e2e (1266, desktop/iphone-15 WebKit/pixel-7), test:visual 34/34 zweimal hintereinander stabil, @perf 6/6, test:preview-export 26/26.
+
 ## 2026-09-28 – P3.15
 
 - Admin-Endpunkte (publish, unpublish, sell-offline, archive, restore, return-to-stock, adopt) und Speichern in der Verwaltung laufen über den Produkt-Hook → `revalidateProduct`: Statuswechsel sofort (`{ expire: 0 }`), Bearbeitungen/Preis `'max'`; `settings` und `categories` erneuern ihre Tags; bei `context.seed` nichts.\n- `revalidate.ts`: `updateTag` außerhalb von Server-Actions fällt auf `{ expire: 0 }` zurück, Tags entdoppelt; Startseite bekommt Segment-Rückfall `revalidate = 3600`; Kategorie-Wechsel erneuert auch die alte Kategorie sofort bei Statuswechsel. ARCHITEKTUR §9.3 ergänzt.\n- Gemessen im Produktions-Build: Statuswechsel sichtbar nach ≈ 0,4 s (Produktseite, Shop, Kategorie, Startseite), Text-/Versandpreis-Änderung nach ≈ 1,2 s.\n- Tests: `tests/int/shop/revalidate.int.spec.ts` (11, Spy auf `next/cache`, inkl. „R-033 …“ Preis-Historie + kein Vergleichspreis-Feld, Seed-Kontext, Segment-Konfiguration); `tests/e2e/shop/revalidation.e2e.spec.ts` @slow (2, grün gegen `E2E_SERVER=start` und `pnpm dev`); pnpm check, test:int (ohne preview-export), build grün.

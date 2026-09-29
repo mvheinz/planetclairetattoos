@@ -318,14 +318,27 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
     watch,
   }) => {
     await countNetworkCalls(page)
+    // Schwing-Animationen mitzählen: das Fenster (500–1400 ms nach dem Erscheinen) ist kurz und kann vor dem ersten
+    // Abfragen schon vorbei sein – deshalb `animate` auf Schildern protokollieren statt `getAnimations()` abzufragen.
+    await page.addInitScript(() => {
+      const w = window as unknown as { __pvSwings: number }
+      w.__pvSwings = 0
+      const orig = Element.prototype.animate
+      Element.prototype.animate = function (
+        this: Element,
+        ...args: Parameters<Element['animate']>
+      ) {
+        if (this.matches('[data-price-tag-swing]')) w.__pvSwings++
+        return orig.apply(this, args)
+      }
+    })
     await page.emulateMedia({ reducedMotion: 'no-preference' })
     await open(page, `#${localizedPath('R02', 'de')}`)
-    // MI-02: Preisschilder schwingen beim Erscheinen (IntersectionObserver, Web Animations API).
+    // MI-02: Preisschilder schwingen beim Erscheinen (IntersectionObserver, Web Animations API). Auf dem Desktop liegt
+    // die erste Kartenreihe unter dem Vorschau-Banner knapp unterhalb des Bildschirms – hinscrollen.
+    await page.locator('#pv-root [data-price-tag-swing]').first().scrollIntoViewIfNeeded()
     await page.waitForFunction(
-      () =>
-        Array.from(document.querySelectorAll('#pv-root [data-price-tag-swing]')).some(
-          (el) => el.getAnimations().length > 0,
-        ),
+      () => (window as unknown as { __pvSwings: number }).__pvSwings > 0,
       undefined,
       { timeout: 10_000 },
     )

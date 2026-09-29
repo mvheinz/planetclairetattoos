@@ -66,3 +66,13 @@ export async function settle(page: Page) {
 export const dynamicMasks = (page: Page): Locator[] => [
   page.locator('[data-site-footer] p', { hasText: '©' }),
 ]
+
+/** Alle Bilder sofort laden und dekodieren – ganzseitige Aufnahmen scrollen nicht, `loading="lazy"` bliebe sonst je
+ * nach Abstand zum Bildschirm leer (nicht deterministisch). */
+export async function loadAllImages(page: Page) {
+  await page.evaluate(async () => {
+    const imgs = Array.from(document.querySelectorAll<HTMLImageElement>('img'))
+    for (const img of imgs) img.loading = 'eager'
+    await Promise.all(imgs.map((img) => img.decode().catch(() => undefined)))
+  })
+}
