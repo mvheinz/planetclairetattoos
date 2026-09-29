@@ -135,3 +135,40 @@ function renderableIn(doc: LegalTextAllLocales, locale: Locale): boolean {
   const c = (doc.content ?? {}) as Partial<Record<Locale, { root?: unknown } | null>>
   return !!c[locale]?.root
 }
+
+export interface LegalAttachmentInfo {
+  /** Dateinamen in Versandreihenfolge (wie `buildLegalAttachments`, ohne zu rendern). */
+  files: string[]
+  agb: { version: number; date: string }
+  withdrawal: { version: number; date: string }
+}
+
+const versionDate = (d: LegalTextAllLocales) => new Date(d.activatedAt ?? d.validFrom).toISOString()
+
+/** Namen und Fassungsdaten der Rechtstext-Anhänge einer Bestellung – für den Mailtext (M01/M02, „in der Fassung vom“). */
+export async function legalAttachmentInfo(
+  req: PayloadRequest,
+  order: OrderLegal,
+): Promise<LegalAttachmentInfo> {
+  const versions = order.legalTextVersions ?? {}
+  const agbId = idOf(versions.agb)
+  const belehrungId = idOf(versions.widerrufsbelehrung)
+  if (agbId === null || belehrungId === null) {
+    throw new Error(`Bestellung ${order.id}: Rechtstext-Fassungen fehlen.`)
+  }
+  const [agb, belehrung] = await Promise.all([
+    loadLegalTextAll(req, agbId),
+    loadLegalTextAll(req, belehrungId),
+  ])
+  const name = `Widerrufsbelehrung-und-Formular_v${belehrung.version}`
+  const files = [`AGB_v${agb.version}.pdf`, `${name}.pdf`]
+  if (order.locale === 'en') {
+    if (agb.pdfEn) files.push(`AGB_v${agb.version}_EN.pdf`)
+    if (renderableIn(belehrung, 'en')) files.push(`${name}_EN.pdf`)
+  }
+  return {
+    files,
+    agb: { version: Number(agb.version), date: versionDate(agb) },
+    withdrawal: { version: Number(belehrung.version), date: versionDate(belehrung) },
+  }
+}

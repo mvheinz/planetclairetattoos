@@ -5,6 +5,18 @@ import { z } from 'zod'
 import { EMAIL_TEMPLATES, type EmailTemplate, type Locale } from '@/lib/enums'
 
 import { renderAdminAlert, ADMIN_ALERT_VERSION, adminAlertDataSchema } from './templates/adminAlert'
+import {
+  ORDER_CONFIRMATION_VERSION,
+  orderConfirmationSubject,
+  orderMailDataSchema,
+  PREPAYMENT_INSTRUCTIONS_VERSION,
+  PREPAYMENT_RECEIVED_VERSION,
+  prepaymentInstructionsSubject,
+  prepaymentReceivedSubject,
+  renderOrderConfirmation,
+  renderPrepaymentInstructions,
+  renderPrepaymentReceived,
+} from './templates/orderConfirmation'
 import type { MailBusiness, MailLinks } from './layout'
 import type { MailAttachment } from './types'
 
@@ -107,7 +119,32 @@ export class TemplateNotImplementedError extends Error {
 
 type AnyTemplate = TemplateDef<never>
 
+/** Typsicher definieren, dann für die Tabelle vereinheitlichen. */
+function def<D>(d: TemplateDef<D>): AnyTemplate {
+  return d as unknown as AnyTemplate
+}
+
+type OrderMail = z.infer<typeof orderMailDataSchema>
+
 const TEMPLATES: Partial<Record<EmailTemplate, AnyTemplate>> = {
+  order_confirmation: def<OrderMail>({
+    version: ORDER_CONFIRMATION_VERSION,
+    schema: orderMailDataSchema as unknown as z.ZodType<OrderMail>,
+    subject: orderConfirmationSubject,
+    render: renderOrderConfirmation,
+  }),
+  prepayment_instructions: def<OrderMail>({
+    version: PREPAYMENT_INSTRUCTIONS_VERSION,
+    schema: orderMailDataSchema as unknown as z.ZodType<OrderMail>,
+    subject: prepaymentInstructionsSubject,
+    render: renderPrepaymentInstructions,
+  }),
+  prepayment_received: def<OrderMail>({
+    version: PREPAYMENT_RECEIVED_VERSION,
+    schema: orderMailDataSchema as unknown as z.ZodType<OrderMail>,
+    subject: prepaymentReceivedSubject,
+    render: renderPrepaymentReceived,
+  }),
   admin_alert: {
     version: ADMIN_ALERT_VERSION,
     schema: adminAlertDataSchema,

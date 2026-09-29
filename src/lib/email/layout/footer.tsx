@@ -22,6 +22,8 @@ export interface MailBusiness {
   postalCode?: string | null
   city: string
   email: string
+  /** Nur für die Anbieterkennung der Bestellbestätigungen M01/M02 (R-021) – nie im Fuß. */
+  phone?: string | null
 }
 
 export interface CustomerFooterInput {

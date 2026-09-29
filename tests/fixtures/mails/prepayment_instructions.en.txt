@@ -1,0 +1,109 @@
+Your order has been received
+
+Hi Erika Beispiel,
+
+thank you for your order PC-2026-00017. You chose payment in advance by bank transfer – the bank details are below.
+
+[Placeholder – law firm wording to follow] PLACEHOLDER – text to follow from the law firm.
+
+Order number: PC-2026-00017
+Ordered on: 14 Oct 2026 at 11:28 (Berlin time)
+
+Your order
+----------
+
+No. 017 · Tasse „Coco schläft“: €45.00
+  Keramik · 300 ml · handbemalt
+  Expressly agreed deviation: kleiner Glasurfehler am Henkel
+No. 023 · Cap „Planet“: €39.00
+  Baumwolle · Einheitsgröße
+Shipping: €6.90
+Total: €90.90
+  No VAT is charged in accordance with Section 19 of the German VAT Act (UStG).
+
+Payment
+-------
+
+Payment method: Payment in advance by bank transfer
+
+Please transfer €90.90 by 19 Oct 2026 at 23:59 (Berlin time) to Jutta Beispiel, IBAN DE36 0000 0000 0000 0000 00, reference: PC-2026-00017.
+
+Bank details
+------------
+
+Account holder: Jutta Beispiel
+IBAN: DE36 0000 0000 0000 0000 00
+BIC: TESTDEFFXXX
+Bank: Beispielbank Berlin
+Amount: €90.90
+Payment reference: PC-2026-00017
+
+You can scan the QR code with your banking app – all details are then filled in for you.
+
+Please transfer by 19 Oct 2026.
+
+Your pieces are reserved for you until 19 Oct 2026. If no payment arrives by then, the order is cancelled automatically.
+
+You'll receive the invoice as soon as your payment has arrived.
+
+Addresses
+---------
+
+Delivery address:
+Erika Beispiel
+Musterstraße 1
+10115 Berlin
+
+Billing address:
+Max Rechnung
+Rechnungsweg 2
+10117 Berlin
+
+Delivery
+--------
+
+Delivery time: 2–5 Werktage (for payment in advance, from receipt of payment)
+
+The statutory legal guarantee (liability for defects) applies to all pieces. The EU-wide harmonised notice on this is on the “Shipping & payment” page:
+Notice on the legal guarantee: https://planetclairetattoos.com/en/shipping-and-payment
+
+Attachments
+-----------
+
+- our terms and conditions, version of 1 Sep 2026 (AGB_v3.pdf)
+- the withdrawal policy with the model withdrawal form, version of 15 Aug 2026 (Widerrufsbelehrung-und-Formular_v2.pdf)
+
+Everything about your right of withdrawal is in the attached withdrawal policy. You can withdraw easily online:
+Withdraw from contract here: https://planetclairetattoos.com/en/withdraw-from-contract
+
+You bear the direct costs of returning the goods.
+
+You agreed that I pass your email address on to DHL so that DHL can inform you about the delivery. You can withdraw this consent at any time – a short email to jutta@planetclairetattoos.com is enough.
+
+You can view your order at any time here:
+Order status: https://planetclairetattoos.com/en/order/__STATUS_TOKEN__
+
+How I handle your data is explained in the privacy policy:
+Privacy policy: https://planetclairetattoos.com/en/privacy
+
+Best wishes
+Planet Claire
+
+Seller
+------
+
+Jutta Beispiel · Planet Claire
+Werkstattweg 7
+10999 Berlin
+Phone: +49 30 1234567
+Email: jutta@planetclairetattoos.com
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Legal notice: https://planetclairetattoos.com/en/legal-notice
+Privacy policy: https://planetclairetattoos.com/en/privacy
+Order status: https://planetclairetattoos.com/en/order/__STATUS_TOKEN__
+Withdraw from contract here: https://planetclairetattoos.com/en/withdraw-from-contract

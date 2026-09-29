@@ -1,0 +1,31 @@
+Deine Zahlung ist angekommen
+
+Hallo Erika Beispiel,
+
+danke! Deine Überweisung über 90,90 € für die Bestellung PC-2026-00017 ist angekommen.
+
+Bestellnummer: PC-2026-00017
+Bestellt am: 14.10.2026, 11:28 Uhr
+
+Als Nächstes packe ich deine Bestellung sorgfältig ein und schicke sie los. Sobald sie unterwegs ist, bekommst du eine Mail.
+
+Deine Rechnung (RE-2026-00043.pdf) findest du im Anhang.
+
+Deine Bestellung kannst du jederzeit hier ansehen:
+Bestellstatus: https://planetclairetattoos.com/de/bestellung/__STATUS_TOKEN__
+
+Wie ich mit deinen Daten umgehe, steht in der Datenschutzerklärung:
+Datenschutzerklärung: https://planetclairetattoos.com/de/datenschutz
+
+Liebe Grüße
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Impressum: https://planetclairetattoos.com/de/impressum
+Datenschutz: https://planetclairetattoos.com/de/datenschutz
+Bestellstatus: https://planetclairetattoos.com/de/bestellung/__STATUS_TOKEN__
+Vertrag widerrufen: https://planetclairetattoos.com/de/vertrag-widerrufen

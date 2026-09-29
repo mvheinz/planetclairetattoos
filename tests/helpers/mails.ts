@@ -29,9 +29,88 @@ export const MAIL_FIXTURE_BUSINESS: MailBusiness = {
   postalCode: '10999',
   city: 'Berlin',
   email: 'jutta@planetclairetattoos.com',
+  phone: '+49 30 1234567',
 }
-/** Telefonnummer der Fixture-Verwaltung – darf in keinem Mail-Fuß stehen (R-021). */
+/** Telefonnummer der Fixture-Verwaltung – nur in der Anbieterkennung von M01/M02, nie im Mail-Fuß (R-021). */
 export const MAIL_FIXTURE_PHONE = '+49 30 1234567'
+/** Seed-IBAN (P4.14 „Ohne Jutta“) und Bankdaten der Vorkasse-Fixtures. */
+export const MAIL_FIXTURE_BANK = {
+  accountHolder: 'Jutta Beispiel',
+  iban: 'DE36000000000000000000',
+  bic: 'TESTDEFFXXX',
+  bankName: 'Beispielbank Berlin',
+}
+
+/** Bestellmail-Daten (M01/M02/M05) wie aus `buildOrderMailData`: zwei Stücke, eines mit vereinbarter Abweichung. */
+export const ORDER_MAIL_FIXTURE = {
+  orderId: 17,
+  orderNumber: 'PC-2026-00017',
+  placedAt: '2026-10-14T09:28:00.000Z',
+  customerName: 'Erika Beispiel',
+  items: [
+    {
+      itemNumber: 17,
+      title: 'Tasse „Coco schläft“',
+      characteristics: 'Keramik · 300 ml · handbemalt',
+      priceCents: 4500,
+      deviationText: 'kleiner Glasurfehler am Henkel',
+    },
+    {
+      itemNumber: 23,
+      title: 'Cap „Planet“',
+      characteristics: 'Baumwolle · Einheitsgröße',
+      priceCents: 3900,
+    },
+  ],
+  fulfillmentMethod: 'shipping',
+  shippingCents: 690,
+  totalCents: 9090,
+  taxMode: 'kleinunternehmer',
+  paymentMethod: 'card',
+  paymentMethodType: 'apple_pay',
+  paidAt: '2026-10-14T09:29:00.000Z',
+  shippingAddress: {
+    name: 'Erika Beispiel',
+    addressLine1: 'Musterstraße 1',
+    postalCode: '10115',
+    city: 'Berlin',
+    country: 'DE',
+  },
+  billingAddress: {
+    name: 'Max Rechnung',
+    addressLine1: 'Rechnungsweg 2',
+    postalCode: '10117',
+    city: 'Berlin',
+    country: 'DE',
+  },
+  deliveryTime: '2–5 Werktage',
+  legal: {
+    agb: { version: 3, date: '2026-09-01T00:00:00.000Z' },
+    withdrawal: { version: 2, date: '2026-08-15T00:00:00.000Z' },
+  },
+  attachmentFiles: ['RE-2026-00042.pdf', 'AGB_v3.pdf', 'Widerrufsbelehrung-und-Formular_v2.pdf'],
+  invoiceNumber: 'RE-2026-00042',
+  carrierEmailConsent: true,
+  unavailable: [],
+}
+
+export const PREPAYMENT_MAIL_FIXTURE = {
+  ...ORDER_MAIL_FIXTURE,
+  paymentMethod: 'prepayment',
+  paymentMethodType: null,
+  paidAt: null,
+  invoiceNumber: null,
+  attachmentFiles: ['AGB_v3.pdf', 'Widerrufsbelehrung-und-Formular_v2.pdf'],
+  bank: MAIL_FIXTURE_BANK,
+  dueAt: '2026-10-19T21:59:59.000Z',
+}
+
+export const PREPAYMENT_RECEIVED_FIXTURE = {
+  ...PREPAYMENT_MAIL_FIXTURE,
+  paidAt: '2026-10-16T08:00:00.000Z',
+  invoiceNumber: 'RE-2026-00043',
+  attachmentFiles: ['RE-2026-00043.pdf'],
+}
 
 export function fixtureLinks(locale: Locale, withStatusLink = false): MailLinks {
   return mailLinks({
@@ -61,6 +140,9 @@ export function renderFixture(
 
 /** Fixture-Daten je umgesetzter Vorlage (für Snapshots und den Werbe-/OS-Scan über alle Vorlagen). */
 export const MAIL_FIXTURE_DATA: Partial<Record<EmailTemplate, Record<string, unknown>>> = {
+  order_confirmation: ORDER_MAIL_FIXTURE,
+  prepayment_instructions: PREPAYMENT_MAIL_FIXTURE,
+  prepayment_received: PREPAYMENT_RECEIVED_FIXTURE,
   admin_alert: {
     kind: 'payment_webhook',
     summary: 'Zahlung konnte nicht zugeordnet werden',
