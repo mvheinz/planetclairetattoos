@@ -68,7 +68,9 @@ export interface CheckoutCookieAttributes {
 }
 
 /** `HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=3600` (ARCHITEKTUR §8.7; `Secure` außer auf localhost). */
-export function checkoutCookieAttributes(host: string | null | undefined): CheckoutCookieAttributes {
+export function checkoutCookieAttributes(
+  host: string | null | undefined,
+): CheckoutCookieAttributes {
   return {
     path: '/',
     sameSite: 'lax',
@@ -79,13 +81,7 @@ export function checkoutCookieAttributes(host: string | null | undefined): Check
 }
 
 export type StartCheckoutCode =
-  | 'shop_closed'
-  | 'empty'
-  | 'too_many'
-  | 'unavailable'
-  | 'reserved'
-  | 'payment_running'
-  | 'shipping'
+  'shop_closed' | 'empty' | 'too_many' | 'unavailable' | 'reserved' | 'payment_running' | 'shipping'
 
 export type StartCheckoutResult =
   | {
@@ -287,9 +283,7 @@ export async function startCheckout(
     depth: 0,
     pagination: false,
   })
-  const byId = new Map(
-    (found.docs as unknown as LoadedProduct[]).map((d) => [d.id, d] as const),
-  )
+  const byId = new Map((found.docs as unknown as LoadedProduct[]).map((d) => [d.id, d] as const))
   const gone = ids.filter((id) => {
     const p = byId.get(id)
     return (
@@ -304,7 +298,9 @@ export async function startCheckout(
   const expired = ids.filter((id) => {
     const p = byId.get(id)!
     return (
-      p.status === 'reserved' && !!p.reservedUntil && new Date(p.reservedUntil).getTime() < now.getTime()
+      p.status === 'reserved' &&
+      !!p.reservedUntil &&
+      new Date(p.reservedUntil).getTime() < now.getTime()
     )
   })
   if (expired.length > 0) await releaseExpiredFor(expired, now, { ...deps, payload })
@@ -329,17 +325,12 @@ export async function startCheckout(
       ...(deviation ? { deviationText: deviation } : {}),
     }
   })
-  const fulfillmentMethod: FulfillmentMethod = items.some(
-    (i) => i.shippingClass === 'nur_abholung',
-  )
+  const fulfillmentMethod: FulfillmentMethod = items.some((i) => i.shippingClass === 'nur_abholung')
     ? 'pickup'
     : cart.delivery
   let totals: ReturnType<typeof computeTotals>
   try {
-    totals = computeTotals(
-      { items, fulfillmentMethod, at: now },
-      raw as unknown as TotalsSettings,
-    )
+    totals = computeTotals({ items, fulfillmentMethod, at: now }, raw as unknown as TotalsSettings)
   } catch (err) {
     if (err instanceof ShippingError) return fail('shipping', { message: err.message })
     throw err

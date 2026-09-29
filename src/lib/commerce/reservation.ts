@@ -6,11 +6,7 @@ import { createLocalReq, getPayload, type Payload } from 'payload'
 
 import { revalidateProduct } from '@/lib/cache/revalidate'
 import { dbFor, type SqlExecutor } from '@/lib/db/tx'
-import type {
-  CheckoutCloseReason,
-  CheckoutStatus,
-  ReservationReleaseReason,
-} from '@/lib/enums'
+import type { CheckoutCloseReason, CheckoutStatus, ReservationReleaseReason } from '@/lib/enums'
 import { createLogger } from '@/lib/monitoring/logger'
 import { inTransaction } from '@/lib/payload/transaction'
 import { getPaymentsAdapter, type PaymentsAdapter } from '@/lib/payments'

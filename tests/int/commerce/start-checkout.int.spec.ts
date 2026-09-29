@@ -45,8 +45,7 @@ const NUMBERS = Array.from({ length: 20 }, (_, i) => 980 + i)
 const T0 = '2026-09-28T10:00:00.000Z'
 const MIN = 60_000
 
-const piece = (nr: number, extra: Record<string, unknown> = {}) =>
-  makePiece(payload, fx, nr, extra)
+const piece = (nr: number, extra: Record<string, unknown> = {}) => makePiece(payload, fx, nr, extra)
 
 const start = (
   items: number[],
@@ -208,7 +207,11 @@ describe('Grenzen und Shop-Pause', () => {
     const restore = await setShop(payload, { isOpen: false, closedMessage: 'Kurz im Urlaub.' })
     try {
       const a = await piece(990)
-      expect(await start([a])).toEqual({ ok: false, code: 'shop_closed', message: 'Kurz im Urlaub.' })
+      expect(await start([a])).toEqual({
+        ok: false,
+        code: 'shop_closed',
+        message: 'Kurz im Urlaub.',
+      })
       expect((await productRow(payload, a)).status).toBe('available')
       expect(await countCheckouts(payload)).toBe(0)
     } finally {
@@ -329,7 +332,7 @@ describe('cancelCheckout / releaseReservation', () => {
     const c = await checkoutById(payload, r.checkoutId)
     expect(c.status).toBe('cancelled')
     expect(c.closeReason).toBe('cart_changed')
-    expect((await productRow(payload, a))).toMatchObject({
+    expect(await productRow(payload, a)).toMatchObject({
       status: 'available',
       reserved_until: null,
       reservation_ref: null,

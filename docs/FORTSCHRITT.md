@@ -2,6 +2,14 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P4.6
+
+- `src/lib/commerce/reservation.ts`: `reserveProducts` (atomares `UPDATE products … WHERE id = ANY(…) AND status = 'available' AND is_custom_commission IS NOT TRUE RETURNING id` + `INSERT INTO reservations … 'checkout_session'`; weniger Zeilen oder UNIQUE-Verletzung → `ReservationConflictError`, Rollback), `releaseReservation(ref, reason, now)` nach §8.2 (Session vorher beenden; `already_complete_paid`/unbezahlt abgeschlossen/Anbieterfehler → keine Freigabe; Kasse je Grund nach `expired`/`cancelled`/`failed`), `releaseExpiredFor` (lazy release, nur `checkout_session`). Übergabe an `fulfillCheckout` bei „bezahlt“ bleibt für P4.16a markiert.
+- `src/lib/commerce/checkout.ts`: `startCheckout({ cart, locale, existingToken, now })` (Shop offen, öffentlich/`available`, ≤ `maxItemsPerCheckout`, S14 Wiederverwendung ohne Verlängerung bzw. `replaced`, lazy release, eine Transaktion Kasse + Reservierung, Session danach mit `sessionSeq = 1`, S13 ohne Session, `jobAlarm.bump`, `revalidateProduct(…, { immediate: true })`), `cancelCheckout`, Cookie-Attribute `pc_checkout`, Rate-Limit `checkout_start` (10/10 min + Bucket `checkout_start_day` 30/Tag), Korb-Hinweis `?hinweis=reserved&nr=17` (Texte `cart.notes.*` DE/EN für P4.8).
+- `transitionCheckout()` in `checkoutTransitions.ts` (Zeilensperre, Tabelle, `context.transition`) als einziger Weg für Kassen-Statuswechsel.
+- Server-Action `src/app/(frontend)/[locale]/cart/actions.ts` `startCheckoutAction`: setzt `pc_checkout` nur bei neuer Kasse, 303 auf R07; Ablehnung 303 auf R06 mit Hinweis.
+- Tests: `tests/int/commerce/start-checkout.int.spec.ts` (16: Gleichheit Referenzen/Zeiten, Snapshot, AK-A-9-02, AK-4-08, S13, S14 inkl. `replaced`, lazy release inkl. „bereits bezahlt“, Limit, Shop geschlossen, Anbieterfehler), `tests/int/commerce/reservation-race.int.spec.ts` (20 parallele Starts × 100 Runden in ≈ 38 s, Pool 25 → kein `@slow` nötig); `pnpm check` grün (1152 Unit-Tests).
+
 ## 2026-09-28 – P4.5
 
 - Spike B-07 zuerst: `stripe` 22.6.2 und `@stripe/stripe-js` 9.17.0 exakt gepinnt; `STRIPE_API_VERSION` = `2026-08-26.dahlia` = Version des SDK (Unit-Test). OpenAPI/SDK-Typen und stripe-mock v0.205.0 (gleiche Version, per `go install` ohne Konto) erlauben `checkout.sessions.update` mit neuen `shipping_options` für jeden `ui_mode` → Soll `updated`, Rückfall `recreate_required` automatisch bei Ablehnung (Schalter `UPDATE_SHIPPING_STRATEGY`); Ergebnis in ARCHITEKTUR Anhang B.
