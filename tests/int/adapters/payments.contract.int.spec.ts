@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import net from 'node:net'
 
 import { sql } from '@payloadcms/db-postgres'
@@ -16,6 +17,7 @@ import {
   mockPayments,
   PaymentSessionNotFoundError,
 } from '@/lib/payments'
+import { checkoutReturnUrl } from '@/lib/payments/checkoutSession'
 import { STRIPE_EVENT_FIXTURES } from '@/lib/payments/fixtures'
 import {
   createMockPaymentsAdapter,
@@ -34,11 +36,14 @@ import {
   STRIPE_EVENT_TYPES,
   type StripeEventType,
 } from '@/lib/payments/normalize'
+import { createStripeAdapter, STRIPE_SIGNATURE_HEADER } from '@/lib/payments/stripe'
+import { Stripe, stripeFetchHttpClient } from '@/lib/payments/stripe/client'
 import type { CreateCheckoutSessionInput, PaymentsAdapter } from '@/lib/payments/types'
 import { createToken } from '@/lib/security/tokens'
 import { fixedClock } from '@/lib/time'
 
 import { checkoutData, dbOf, deleteCommerce } from '../helpers/commerce'
+import { STRIPE_TEST_API_ENV } from '../../setup/network-guard'
 import { getTestPayload } from '../helpers/payload'
 import {
   completeProduct,
@@ -47,9 +52,11 @@ import {
   deleteProducts,
 } from '../helpers/products'
 
-// P4.4 – Kontrakttest Zahlung (ARCHITEKTUR §3.1 Nr. 3, §3.5): dieselbe Reihe für jeden Treiber (hier `mock`, ab P4.5
-// zusätzlich Stripe gegen stripe-mock), dazu Mock-Eigenheiten: Zustand in `checkouts.mock.state` (zwei Prozesse),
-// Ereignisse aus den Fixtures, Test-API nur development/test. Netzwerk-Wächter aktiv (nur 127.0.0.1).
+// P4.4/P4.5 – Kontrakttest Zahlung (ARCHITEKTUR §3.1 Nr. 3, §3.5): dieselbe Reihe für jeden Treiber – `mock` immer,
+// `stripe` gegen stripe-mock, wenn erreichbar (sonst übersprungen mit Hinweis), und im Stripe-Testmodus nur mit
+// `sk_test_…` + ausdrücklicher Freigabe im Netzwerk-Wächter. Kern für alle; Lebenszyklus (Spike B-07) für Treiber mit
+// Zustand; Abschluss/Erstattung nur beim Mock (bei Stripe zahlt die Kundin im Browser). Dazu Mock-Eigenheiten: Zustand
+// in `checkouts.mock.state` (zwei Prozesse), Ereignisse aus den Fixtures, Test-API nur development/test.
 
 const NOW = '2026-10-15T08:00:00.000Z'
 const clock = fixedClock(NOW)
@@ -91,20 +98,23 @@ async function newCheckout(): Promise<{ ref: string; id: number }> {
   return { ref: data.reservationRef as string, id: doc.id as number }
 }
 
+/** Eingabe wie beim Kassenstart; `now` = Zeitbasis des Treibers (fest bei Mock/stripe-mock, echt im Stripe-Testmodus). */
 const input = (
   ref: string,
   token = createToken(),
   over: Partial<CreateCheckoutSessionInput> = {},
+  now: Date = new Date(NOW),
 ): CreateCheckoutSessionInput => ({
   checkoutRef: ref,
+  sessionSeq: 1,
   locale: 'de',
   lineItems: [
     { productId: 981, name: 'Nr. 981 · Schale', amountCents: 4500 },
     { productId: 982, name: 'Nr. 982 · Becher', amountCents: 2800 },
   ],
   shipping: { label: 'DHL Paket (Keramik)', amountCents: 690 },
-  expiresAt: new Date(Date.parse(NOW) + 31 * 60_000),
-  returnUrl: `http://localhost:3000/de/danke/${token}`,
+  expiresAt: new Date(Math.floor(now.getTime() / 1000) * 1000 + 31 * 60_000),
+  returnUrl: checkoutReturnUrl('http://localhost:3000', 'de', token),
   customerEmail: EMAIL,
   metadata: { checkoutRef: ref, appEnv: 'test' },
   ...over,
@@ -124,20 +134,139 @@ interface ContractDriver {
   adapter(): PaymentsAdapter
   /** Neue Kasse, zu der eine Session angelegt werden darf. */
   newRef(): Promise<string>
+  /** Zeitbasis für Eingaben (Ablauf ≥ 30 min nach „jetzt“). */
+  now(): Date
+  /** Kopfzeile der Webhook-Signatur. */
+  signatureHeader: string
   /** Signatur-Header für einen Rohkörper. */
   sign(rawBody: string): Headers
-  /** Session in den Zustand „abgeschlossen“ bringen (treiberspezifisch). */
-  complete(sessionId: string, paymentStatus: 'paid' | 'unpaid'): Promise<void>
   /** Protokollierte bzw. gesendete Session-Parameter (neueste zuletzt). */
   sessionParams(): Record<string, unknown>[]
 }
 
+/** Treiber mit eigenem Zustand (Mock, Stripe-Testmodus) – nicht stripe-mock (zustandslos). */
+type StatefulDriver = ContractDriver
+/** Treiber, der eine Session selbst abschließen kann (nur Mock; bei Stripe zahlt die Kundin im Browser). */
+interface CompletingDriver extends StatefulDriver {
+  complete(sessionId: string, paymentStatus: 'paid' | 'unpaid'): Promise<void>
+}
+
+const sessionParamsFrom = (lines: string[], event: string) => () =>
+  lines
+    .map((l) => JSON.parse(l) as { event: string; params?: Record<string, unknown> })
+    .filter((l) => l.event === event)
+    .map((l) => l.params!)
+
+/** Kern: gilt für jeden Treiber, auch gegen das zustandslose stripe-mock. */
 function paymentsContract(d: ContractDriver) {
   describe(`Zahlung – Kontrakt (${d.name})`, () => {
-    it('anlegen und abfragen: Handle, open/unpaid, clientSecret bei jedem Abruf, Betrag in Cent', async () => {
+    it('anlegen: Handle mit Session-ID, Client-Secret und Ablauf wie angefragt', async () => {
+      const i = input(await d.newRef(), createToken(), {}, d.now())
+      const handle = await d.adapter().createCheckoutSession(i)
+      expect(handle.sessionId).toMatch(/^cs_/)
+      expect(handle.clientSecret).not.toBe('')
+      expect(handle.expiresAt.toISOString()).toBe(i.expiresAt.toISOString())
+    })
+
+    it('Eingaberegeln: Referenz statt Token, metadata genau { checkoutRef, appEnv }, Ablauf 30 min–24 h, Cent', async () => {
       const a = d.adapter()
-      const handle = await a.createCheckoutSession(input(await d.newRef()))
-      expect(handle.expiresAt.toISOString()).toBe('2026-10-15T08:31:00.000Z')
+      const ref = await d.newRef()
+      const token = createToken()
+      const now = d.now()
+      const bad: Partial<CreateCheckoutSessionInput>[] = [
+        { checkoutRef: token, metadata: { checkoutRef: token, appEnv: 'test' } },
+        { metadata: { checkoutRef: ref, appEnv: 'test', token } as never },
+        { metadata: { checkoutRef: FOREIGN_REF, appEnv: 'test' } },
+        { expiresAt: new Date(now.getTime() + 29 * 60_000) },
+        { expiresAt: new Date(now.getTime() + 25 * 3_600_000) },
+        { lineItems: [{ productId: 981, name: 'Nr. 981', amountCents: 12.5 }] },
+        { lineItems: [] },
+        { shipping: { label: 'Paket', amountCents: -1 } },
+        { sessionSeq: 0 },
+        { returnUrl: `http://localhost:3000/de/warenkorb?t=${token}` },
+      ]
+      for (const over of bad) {
+        await expect(a.createCheckoutSession(input(ref, token, over, now))).rejects.toThrow(
+          InvalidCheckoutSessionInputError,
+        )
+      }
+    })
+
+    it('Webhook-Parsing aller zehn Fixtures → PaymentEvent (eigener Typ, ohne Personendaten)', () => {
+      const a = d.adapter()
+      expect(STRIPE_EVENT_NAMES).toHaveLength(10)
+      for (const name of STRIPE_EVENT_NAMES) {
+        const raw = JSON.stringify(STRIPE_EVENT_FIXTURES[name])
+        const event = a.parseWebhook(raw, d.sign(raw))
+        expect(event).toMatchObject({
+          id: STRIPE_EVENT_FIXTURES[name].id,
+          provider: a.driver,
+          livemode: false,
+          type: STRIPE_EVENT_TYPES[name],
+          data: { providerType: name },
+        })
+        expect(event.createdAt.getTime()).toBe(STRIPE_EVENT_FIXTURES[name].created * 1000)
+        expect(JSON.stringify(event.data)).not.toMatch(/@|Kundin|Beispielstraße/)
+      }
+      const unknown = JSON.stringify({
+        ...STRIPE_EVENT_FIXTURES['refund.created'],
+        type: 'payout.paid',
+      })
+      expect(a.parseWebhook(unknown, d.sign(unknown)).type).toBe('ignored')
+    })
+
+    it('falsche Signatur → InvalidSignatureError (auch bei verändertem Körper)', () => {
+      const a = d.adapter()
+      const raw = JSON.stringify(STRIPE_EVENT_FIXTURES['checkout.session.completed'])
+      expect(() => a.parseWebhook(raw, new Headers())).toThrow(InvalidSignatureError)
+      expect(() => a.parseWebhook(raw, new Headers({ [d.signatureHeader]: 'falsch' }))).toThrow(
+        InvalidSignatureError,
+      )
+      expect(() => a.parseWebhook(raw.replace('7990', '1'), d.sign(raw))).toThrow(
+        InvalidSignatureError,
+      )
+    })
+
+    it('R-062 (int): Session-Parameter nur card und paypal; Kennung nur checkoutRef – kein Token, keine Personendaten', async () => {
+      const a = d.adapter()
+      const ref = await d.newRef()
+      const token = createToken()
+      await a.createCheckoutSession(input(ref, token, {}, d.now()))
+      const params = d.sessionParams().at(-1)!
+      expect(params).toMatchObject({
+        ui_mode: 'elements',
+        mode: 'payment',
+        currency: 'eur',
+        payment_method_types: ['card', 'paypal'],
+        client_reference_id: ref,
+        metadata: { checkoutRef: ref, appEnv: 'test' },
+      })
+      expect(Object.keys(params.metadata as object).sort()).toEqual(['appEnv', 'checkoutRef'])
+      for (const key of [
+        'payment_method_configuration',
+        'success_url',
+        'cancel_url',
+        'submit_type',
+        'after_expiration',
+      ]) {
+        expect(params).not.toHaveProperty(key)
+      }
+      const logged = JSON.stringify(params)
+      expect(logged).not.toContain(token)
+      expect(logged).not.toContain(EMAIL)
+      expect(logged).not.toContain('return_url')
+    })
+  })
+}
+
+/** Lebenszyklus einer Session (Mock und Stripe-Testmodus): anlegen, abfragen, Versand ändern (Spike B-07), beenden. */
+function sessionLifecycleContract(d: StatefulDriver) {
+  describe(`Zahlung – Kontrakt Lebenszyklus (${d.name})`, () => {
+    it('anlegen und abfragen: open/unpaid, clientSecret bei jedem Abruf, Betrag in Cent', async () => {
+      const a = d.adapter()
+      const handle = await a.createCheckoutSession(
+        input(await d.newRef(), createToken(), {}, d.now()),
+      )
       const state = await a.getCheckoutSession(handle.sessionId)
       expect(state).toMatchObject({
         sessionId: handle.sessionId,
@@ -152,30 +281,11 @@ function paymentsContract(d: ContractDriver) {
       )
     })
 
-    it('Eingaberegeln: Referenz statt Token, metadata genau { checkoutRef, appEnv }, Ablauf 30 min–24 h, Cent', async () => {
+    it('Spike B-07 – Versand aktualisieren: offen → updated (neuer Betrag), sonst recreate_required', async () => {
       const a = d.adapter()
-      const ref = await d.newRef()
-      const token = createToken()
-      const bad: Partial<CreateCheckoutSessionInput>[] = [
-        { checkoutRef: token, metadata: { checkoutRef: token, appEnv: 'test' } },
-        { metadata: { checkoutRef: ref, appEnv: 'test', token } as never },
-        { metadata: { checkoutRef: FOREIGN_REF, appEnv: 'test' } },
-        { expiresAt: new Date(Date.parse(NOW) + 29 * 60_000) },
-        { expiresAt: new Date(Date.parse(NOW) + 25 * 3_600_000) },
-        { lineItems: [{ productId: 981, name: 'Nr. 981', amountCents: 12.5 }] },
-        { lineItems: [] },
-        { shipping: { label: 'Paket', amountCents: -1 } },
-      ]
-      for (const over of bad) {
-        await expect(a.createCheckoutSession(input(ref, token, over))).rejects.toThrow(
-          InvalidCheckoutSessionInputError,
-        )
-      }
-    })
-
-    it('Versand aktualisieren: offen → updated (neuer Betrag), sonst recreate_required', async () => {
-      const a = d.adapter()
-      const { sessionId } = await a.createCheckoutSession(input(await d.newRef()))
+      const { sessionId } = await a.createCheckoutSession(
+        input(await d.newRef(), createToken(), {}, d.now()),
+      )
       expect(
         await a.updateShipping(sessionId, { label: 'Abholung in Berlin', amountCents: 0 }),
       ).toBe('updated')
@@ -186,15 +296,23 @@ function paymentsContract(d: ContractDriver) {
       )
     })
 
-    it('beenden: expired, already_expired, already_complete_paid, already_complete_unpaid', async () => {
+    it('beenden: expired, danach already_expired; abgelaufene Session ohne Client-Secret', async () => {
       const a = d.adapter()
-      const s1 = await a.createCheckoutSession(input(await d.newRef()))
+      const s1 = await a.createCheckoutSession(input(await d.newRef(), createToken(), {}, d.now()))
       expect(await a.expireCheckoutSession(s1.sessionId)).toBe('expired')
       expect(await a.expireCheckoutSession(s1.sessionId)).toBe('already_expired')
       const expired = await a.getCheckoutSession(s1.sessionId)
       expect(expired.status).toBe('expired')
       expect(expired.clientSecret).toBeUndefined()
+    })
+  })
+}
 
+/** Abschluss, Erstattung (nur Treiber, die selbst abschließen können: Mock). */
+function completionContract(d: CompletingDriver) {
+  describe(`Zahlung – Kontrakt Abschluss und Erstattung (${d.name})`, () => {
+    it('beenden nach Abschluss: already_complete_paid, already_complete_unpaid', async () => {
+      const a = d.adapter()
       const s2 = await a.createCheckoutSession(input(await d.newRef()))
       await d.complete(s2.sessionId, 'paid')
       expect(await a.expireCheckoutSession(s2.sessionId)).toBe('already_complete_paid')
@@ -228,71 +346,6 @@ function paymentsContract(d: ContractDriver) {
       )
       await expect(a.refund({ ...i, idempotencyKey: 'k3', amountCents: 0 })).rejects.toThrow(/Cent/)
     })
-
-    it('Webhook-Parsing aller zehn Fixtures → PaymentEvent (eigener Typ, ohne Personendaten)', () => {
-      const a = d.adapter()
-      expect(STRIPE_EVENT_NAMES).toHaveLength(10)
-      for (const name of STRIPE_EVENT_NAMES) {
-        const raw = JSON.stringify(STRIPE_EVENT_FIXTURES[name])
-        const event = a.parseWebhook(raw, d.sign(raw))
-        expect(event).toMatchObject({
-          id: STRIPE_EVENT_FIXTURES[name].id,
-          provider: a.driver,
-          livemode: false,
-          type: STRIPE_EVENT_TYPES[name],
-          data: { providerType: name },
-        })
-        expect(event.createdAt.getTime()).toBe(STRIPE_EVENT_FIXTURES[name].created * 1000)
-        expect(JSON.stringify(event.data)).not.toMatch(/@|Kundin|Beispielstraße/)
-      }
-      const unknown = JSON.stringify({
-        ...STRIPE_EVENT_FIXTURES['refund.created'],
-        type: 'payout.paid',
-      })
-      expect(a.parseWebhook(unknown, d.sign(unknown)).type).toBe('ignored')
-    })
-
-    it('falsche Signatur → InvalidSignatureError (auch bei verändertem Körper)', () => {
-      const a = d.adapter()
-      const raw = JSON.stringify(STRIPE_EVENT_FIXTURES['checkout.session.completed'])
-      expect(() => a.parseWebhook(raw, new Headers())).toThrow(InvalidSignatureError)
-      expect(() => a.parseWebhook(raw, new Headers({ [MOCK_SIGNATURE_HEADER]: 'falsch' }))).toThrow(
-        InvalidSignatureError,
-      )
-      expect(() => a.parseWebhook(raw.replace('7990', '1'), d.sign(raw))).toThrow(
-        InvalidSignatureError,
-      )
-    })
-
-    it('R-062 (int): Session-Parameter nur card und paypal; Kennung nur checkoutRef – kein Token, keine Personendaten', async () => {
-      const a = d.adapter()
-      const ref = await d.newRef()
-      const token = createToken()
-      await a.createCheckoutSession(input(ref, token))
-      const params = d.sessionParams().at(-1)!
-      expect(params).toMatchObject({
-        ui_mode: 'elements',
-        mode: 'payment',
-        currency: 'eur',
-        payment_method_types: ['card', 'paypal'],
-        client_reference_id: ref,
-        metadata: { checkoutRef: ref, appEnv: 'test' },
-      })
-      expect(Object.keys(params.metadata as object).sort()).toEqual(['appEnv', 'checkoutRef'])
-      for (const key of [
-        'payment_method_configuration',
-        'success_url',
-        'cancel_url',
-        'submit_type',
-        'after_expiration',
-      ]) {
-        expect(params).not.toHaveProperty(key)
-      }
-      const logged = JSON.stringify(params)
-      expect(logged).not.toContain(token)
-      expect(logged).not.toContain(EMAIL)
-      expect(logged).not.toContain('return_url')
-    })
   })
 }
 
@@ -306,22 +359,23 @@ function mockAdapter(over: MockPaymentsOptions = {}): MockPaymentsAdapter {
   return createMockPaymentsAdapter({ ...mockOptions, ...over })
 }
 
-paymentsContract({
+const mockDriver: CompletingDriver = {
   name: 'mock',
   adapter: () => mockAdapter(),
   newRef: async () => (await newCheckout()).ref,
+  now: () => new Date(NOW),
+  signatureHeader: MOCK_SIGNATURE_HEADER,
   sign: (raw) => new Headers({ [MOCK_SIGNATURE_HEADER]: signMockWebhook(raw) }),
   async complete(sessionId, paymentStatus) {
     const m = mockAdapter()
     if (paymentStatus === 'unpaid') await m.setNextOutcome(sessionId, { result: 'delayed' })
     await m.emit(sessionId, 'checkout.session.completed')
   },
-  sessionParams: () =>
-    logLines
-      .map((l) => JSON.parse(l) as { event: string; params?: Record<string, unknown> })
-      .filter((l) => l.event === 'payments.mock.session_created')
-      .map((l) => l.params!),
-})
+  sessionParams: sessionParamsFrom(logLines, 'payments.mock.session_created'),
+}
+paymentsContract(mockDriver)
+sessionLifecycleContract(mockDriver)
+completionContract(mockDriver)
 
 /** Zweiter „Prozess“: eigener Postgres-Pool statt dem von Payload. */
 function secondProcess(): MockPaymentsAdapter {
@@ -636,52 +690,178 @@ describe('Zahlung – Treiberwahl (ARCHITEKTUR §3.1 Nr. 1)', () => {
     ).toThrow(/Produktion verboten/)
   })
 
-  it('stripe mit Testschlüssel: Gerüst (mode test), Umsetzung folgt in P4.5', async () => {
+  it('stripe mit Testschlüssel: Treiber stripe (mode test); Eingabefehler vor jeder Anfrage an Stripe', async () => {
     const a = createPaymentsAdapter(
       env({ APP_ENV: 'test', PAYMENTS_DRIVER: 'stripe', STRIPE_SECRET_KEY: 'sk_test_123' }),
     )
     expect(a).toMatchObject({ driver: 'stripe', mode: 'test' })
-    await expect(a.createCheckoutSession(input(FOREIGN_REF))).rejects.toThrow(/folgt in P4/)
+    // Der Netzwerk-Wächter würde api.stripe.com blockieren – die Prüfung greift vorher.
+    await expect(a.createCheckoutSession(input(createToken()))).rejects.toThrow(
+      InvalidCheckoutSessionInputError,
+    )
   })
 })
 
-// --- stripe-mock (optional; der Stripe-Treiber folgt in P4.5 und läuft dann durch paymentsContract) ---
+// --- Stripe-Treiber gegen stripe-mock (optional, docker compose --profile payments up -d) ---
 
-async function reachable(port: number): Promise<boolean> {
+const STRIPE_MOCK_URL = process.env.STRIPE_API_BASE_URL || 'http://127.0.0.1:12111'
+const WHSEC = 'whsec_contract_test_only'
+
+async function reachable(baseUrl: string): Promise<boolean> {
+  const { hostname, port } = new URL(baseUrl)
   return new Promise((resolve) => {
-    const s = net.connect({ host: '127.0.0.1', port })
+    const s = net.connect({ host: hostname, port: Number(port || 80) })
     s.setTimeout(1000)
     s.once('connect', () => (s.destroy(), resolve(true)))
     s.once('error', () => resolve(false))
     s.once('timeout', () => (s.destroy(), resolve(false)))
   })
 }
-const STRIPE_MOCK_PORT = 12111
-const stripeMockAvailable = await reachable(STRIPE_MOCK_PORT)
+const stripeMockAvailable = await reachable(STRIPE_MOCK_URL)
 if (!stripeMockAvailable) {
   console.warn(
-    `[payments.contract] stripe-mock nicht erreichbar (127.0.0.1:${STRIPE_MOCK_PORT}) – Teil übersprungen (docker compose --profile payments up -d).`,
+    `[payments.contract] stripe-mock nicht erreichbar (${STRIPE_MOCK_URL}) – Stripe-Treiber-Teil übersprungen (docker compose --profile payments up -d).`,
   )
 }
 
-describe.skipIf(!stripeMockAvailable)(
-  'Zahlung – stripe-mock (docker compose --profile payments)',
-  () => {
-    it('stripe-mock antwortet lokal; der Stripe-Treiber bleibt bis P4.5 ein Gerüst', async () => {
-      const res = await fetch(`http://127.0.0.1:${STRIPE_MOCK_PORT}/v1/balance`, {
-        headers: { Authorization: 'Bearer sk_test_123' },
-      })
-      expect(res.status).toBe(200)
-      const a = createPaymentsAdapter(
-        parseEnv({
-          ...process.env,
-          APP_ENV: 'test',
-          PAYMENTS_DRIVER: 'stripe',
-          STRIPE_SECRET_KEY: 'sk_test_123',
-          STRIPE_API_BASE_URL: `http://127.0.0.1:${STRIPE_MOCK_PORT}`,
-        }),
-      )
-      await expect(a.getCheckoutSession('cs_test_1')).rejects.toThrow(/folgt in P4/)
+/**
+ * stripe-mock liefert Antworten aus Fixtures der gepinnten OpenAPI-Version; `client_secret` ist dort leer. Für die
+ * Form-Tests ergänzt dieser `fetch` es bei offenen Sessions – der Treiber selbst bleibt streng (ohne → Fehler).
+ */
+const stripeMockFetch = (async (req: string | URL | Request, init?: RequestInit) => {
+  const res = await fetch(req, init)
+  const text = await res.text()
+  let body = text
+  try {
+    const json = JSON.parse(text) as {
+      object?: string
+      status?: string
+      id?: string
+      client_secret?: string | null
+    }
+    if (json.object === 'checkout.session' && json.status === 'open' && !json.client_secret) {
+      json.client_secret = `${json.id}_secret_stripemock`
+      body = JSON.stringify(json)
+    }
+  } catch {
+    // kein JSON – unverändert
+  }
+  const headers = new Headers(res.headers)
+  headers.delete('content-length')
+  headers.delete('content-encoding')
+  return new Response(body, { status: res.status, headers })
+}) as typeof fetch
+
+const stripeLogLines: string[] = []
+const stripeSign = (raw: string, timestamp = Math.floor(Date.parse(NOW) / 1000)) =>
+  new Headers({
+    [STRIPE_SIGNATURE_HEADER]: Stripe.webhooks.generateTestHeaderString({
+      payload: raw,
+      secret: WHSEC,
+      timestamp,
+    }),
+  })
+
+function stripeMockAdapter(): PaymentsAdapter {
+  return createStripeAdapter(
+    {
+      STRIPE_SECRET_KEY: 'sk_test_123',
+      STRIPE_WEBHOOK_SECRET: WHSEC,
+      STRIPE_API_BASE_URL: STRIPE_MOCK_URL,
+    },
+    {
+      clock,
+      logger: createLogger({ level: 'debug', sink: (l) => stripeLogLines.push(l) }),
+      httpClient: stripeFetchHttpClient(stripeMockFetch),
+    },
+  )
+}
+
+describe.skipIf(!stripeMockAvailable)('Zahlung – Stripe-Treiber gegen stripe-mock', () => {
+  paymentsContract({
+    name: 'stripe (stripe-mock)',
+    adapter: stripeMockAdapter,
+    newRef: async () => randomUUID(),
+    now: () => new Date(NOW),
+    signatureHeader: STRIPE_SIGNATURE_HEADER,
+    sign: (raw) => stripeSign(raw),
+    sessionParams: sessionParamsFrom(stripeLogLines, 'payments.stripe.session_created'),
+  })
+
+  // stripe-mock ist zustandslos: Antworten haben die Form der gepinnten API-Version, aber keine echten Übergänge.
+  describe('Antwortformen der gepinnten API-Version (stripe-mock)', () => {
+    it('Spike B-07: checkout.sessions.update mit neuen shipping_options wird angenommen → updated', async () => {
+      const a = stripeMockAdapter()
+      const { sessionId } = await a.createCheckoutSession(input(randomUUID()))
+      expect(
+        await a.updateShipping(sessionId, { label: 'Abholung in Berlin', amountCents: 0 }),
+      ).toBe('updated')
     })
-  },
-)
+
+    it('abfragen, beenden, erstatten: Antworten lassen sich abbilden', async () => {
+      const a = stripeMockAdapter()
+      const { sessionId } = await a.createCheckoutSession(input(randomUUID()))
+      expect(await a.getCheckoutSession(sessionId)).toMatchObject({
+        sessionId,
+        status: 'open',
+        paymentStatus: 'unpaid',
+      })
+      expect(await a.expireCheckoutSession(sessionId)).toBe('expired')
+      const refund = await a.refund({
+        paymentIntentId: 'pi_stripemock',
+        amountCents: 1500,
+        reason: 'withdrawal',
+        idempotencyKey: `refund:${ITEM}:${randomUUID()}`,
+      })
+      expect(refund.refundId).toMatch(/^re_/)
+      expect(['pending', 'succeeded', 'failed']).toContain(refund.status)
+    })
+
+    it('Abgleich: listEventsSince und listBalanceTransactions liefern eigene Typen', async () => {
+      const a = stripeMockAdapter()
+      for (const e of await a.listEventsSince(new Date(NOW))) {
+        expect(e.provider).toBe('stripe')
+        expect(e.livemode).toBe(false)
+      }
+      for (const t of await a.listBalanceTransactions({
+        from: new Date('2026-10-01T00:00:00.000Z'),
+        to: new Date('2026-11-01T00:00:00.000Z'),
+      })) {
+        expect(Number.isInteger(t.feeCents) && Number.isInteger(t.netCents)).toBe(true)
+        expect(t.id).toMatch(/^txn_/)
+      }
+    })
+  })
+})
+
+// --- Stripe-Testmodus (nur mit sk_test_…/rk_test_… und ausdrücklicher Freigabe von api.stripe.com im Wächter) ---
+
+const testKey = process.env.STRIPE_SECRET_KEY ?? ''
+const stripeTestModeAvailable =
+  /^(sk|rk)_test_/.test(testKey) &&
+  !process.env.STRIPE_API_BASE_URL &&
+  process.env[STRIPE_TEST_API_ENV] === '1'
+if (!stripeTestModeAvailable) {
+  console.warn(
+    `[payments.contract] Stripe-Testmodus übersprungen – dafür STRIPE_SECRET_KEY=sk_test_… und ${STRIPE_TEST_API_ENV}=1 setzen (P11, ARCHITEKTUR §3.5).`,
+  )
+}
+
+describe.skipIf(!stripeTestModeAvailable)('Zahlung – Stripe-Treiber im Stripe-Testmodus', () => {
+  const lines: string[] = []
+  const driver: StatefulDriver = {
+    name: 'stripe (Testmodus)',
+    adapter: () =>
+      createStripeAdapter(
+        { STRIPE_SECRET_KEY: testKey, STRIPE_WEBHOOK_SECRET: WHSEC },
+        { logger: createLogger({ level: 'debug', sink: (l) => lines.push(l) }) },
+      ),
+    newRef: async () => randomUUID(),
+    now: () => new Date(),
+    signatureHeader: STRIPE_SIGNATURE_HEADER,
+    sign: (raw) => stripeSign(raw, Math.floor(Date.now() / 1000)),
+    sessionParams: sessionParamsFrom(lines, 'payments.stripe.session_created'),
+  }
+  paymentsContract(driver)
+  sessionLifecycleContract(driver)
+})

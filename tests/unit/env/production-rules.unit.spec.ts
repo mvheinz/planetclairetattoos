@@ -109,6 +109,15 @@ describe('T-17 Zahlung: Schlüsselregeln', () => {
     ])
   })
 
+  it('T-17 STRIPE_API_BASE_URL (stripe-mock) ist in Produktion verboten, außerhalb erlaubt', () => {
+    expect(errors({ ...prod, STRIPE_API_BASE_URL: 'http://127.0.0.1:12111' })).toEqual([
+      'STRIPE_API_BASE_URL ist in Produktion verboten (nur Tests gegen stripe-mock).',
+    ])
+    for (const appEnv of NON_PROD) {
+      expect(nonProd(appEnv, { STRIPE_API_BASE_URL: 'http://127.0.0.1:12111' })).toEqual([])
+    }
+  })
+
   it('AK-A-3-02 alle Zahlungsverstöße erscheinen gemeinsam in einer Meldung', () => {
     let message = ''
     try {

@@ -1,5 +1,8 @@
 import 'server-only'
 
+import { localizedPath } from '@/lib/routes/paths'
+import { TOKEN_RE } from '@/lib/security/tokens'
+
 import {
   InvalidCheckoutSessionInputError,
   type CreateCheckoutSessionInput,
@@ -7,7 +10,7 @@ import {
 } from './types'
 
 // Gemeinsame Regeln für das Anlegen einer Zahlungs-Session – für jeden Treiber gleich (ARCHITEKTUR §3.1 Nr. 6, §3.5;
-// KONZEPT §4.7; DIENSTE Stripe „Pflicht-Konfiguration“). Der Stripe-Treiber (P4.5) sendet genau `buildSessionParams`;
+// KONZEPT §4.7; DIENSTE Stripe „Pflicht-Konfiguration“). Der Stripe-Treiber sendet genau `buildSessionParams`;
 // der Mock protokolliert dieselben Parameter (ohne `return_url` und E-Mail), damit Kontrakttests sie prüfen können.
 
 /** Nur diese Zahlarten (R-062, E-20); Karte deckt Apple Pay und Google Pay ab. Keine `payment_method_configuration`. */
@@ -21,6 +24,19 @@ export const MAX_LINE_ITEMS = 10
 
 const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
 
+/** Pfad der Danke-Seite (R08) ohne Token: `/de/danke/`, `/en/thank-you/`. */
+function thankYouPrefix(locale: 'de' | 'en'): string {
+  return localizedPath('R08', locale, { token: '_' }).slice(0, -1)
+}
+
+/**
+ * `return_url` der Zahlungs-Session: `{NEXT_PUBLIC_SITE_URL}/de/danke/{token}` bzw. `/en/thank-you/{token}` – die
+ * einzige Stelle, an der der Kassen-Token den Zahlungsanbieter erreicht (ARCHITEKTUR §3.5).
+ */
+export function checkoutReturnUrl(siteUrl: string, locale: 'de' | 'en', token: string): string {
+  return new URL(localizedPath('R08', locale, { token }), siteUrl).toString()
+}
+
 const fail = (message: string): never => {
   throw new InvalidCheckoutSessionInputError(message)
 }
@@ -33,11 +49,15 @@ function assertCentsField(value: unknown, what: string): void {
 
 /**
  * Prüft die Eingabe vor jedem Anbieter-Aufruf: `checkoutRef` ist die Kassen-Referenz (UUID v4, nie ein Token),
- * `metadata` enthält genau `{ checkoutRef, appEnv }`, Beträge in ganzen Cent, 1–10 Positionen, Ablauf 30 min–24 h.
+ * `metadata` enthält genau `{ checkoutRef, appEnv }`, Beträge in ganzen Cent, 1–10 Positionen, Ablauf 30 min–24 h,
+ * `sessionSeq` ≥ 1, `returnUrl` = Danke-Seite der Sprache mit genau einem Token (sonst nirgends ein Token).
  */
 export function assertCheckoutSessionInput(i: CreateCheckoutSessionInput, now: Date): void {
   if (!UUID_V4.test(i.checkoutRef)) {
     fail('checkoutRef muss die Kassen-Referenz (UUID v4) sein – nie ein Token.')
+  }
+  if (!Number.isInteger(i.sessionSeq) || i.sessionSeq < 1) {
+    fail('sessionSeq muss eine ganze Zahl ≥ 1 sein (checkouts.stripe.sessionSeq).')
   }
   const metaKeys = Object.keys(i.metadata).sort()
   if (metaKeys.join(',') !== 'appEnv,checkoutRef') {
@@ -75,6 +95,16 @@ export function assertCheckoutSessionInput(i: CreateCheckoutSessionInput, now: D
   }
   if (url && url.protocol !== 'https:' && url.protocol !== 'http:') {
     fail('returnUrl muss http(s) sein.')
+  }
+  const prefix = thankYouPrefix(i.locale)
+  if (
+    url &&
+    (!url.pathname.startsWith(prefix) ||
+      !TOKEN_RE.test(url.pathname.slice(prefix.length)) ||
+      url.search ||
+      url.hash)
+  ) {
+    fail(`returnUrl muss die Danke-Seite ${prefix}{token} der Sprache ${i.locale} sein.`)
   }
 }
 

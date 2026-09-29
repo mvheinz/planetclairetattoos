@@ -7,6 +7,11 @@ export type PaymentsDriver = 'mock' | 'stripe'
 export interface CreateCheckoutSessionInput {
   /** = checkouts.reservationRef (UUID), nie ein Token (§3.1 Nr. 6). */
   checkoutRef: string
+  /**
+   * = `checkouts.stripe.sessionSeq` dieser (Neu-)Anlage (1 bei der ersten, +1 je Neuanlage mit derselben Reservierung).
+   * Idempotenz-Schlüssel `checkout:<checkoutRef>:<sessionSeq>` (ARCHITEKTUR §3.5).
+   */
+  sessionSeq: number
   locale: 'de' | 'en'
   /** Menge immer 1 (E-10). */
   lineItems: { productId: number; name: string; amountCents: number }[]
@@ -14,7 +19,7 @@ export interface CreateCheckoutSessionInput {
   shipping: { label: string; amountCents: number }
   /** ≥ 30 min nach Erstellung (Stripe). */
   expiresAt: Date
-  /** Danke-Seite mit Kassen-Token – einzige Stelle mit Token. */
+  /** Danke-Seite mit Kassen-Token (`checkoutReturnUrl`) – einzige Stelle mit Token. */
   returnUrl: string
   customerEmail?: string
   /** Nie ein Token (§3.1 Nr. 6). */

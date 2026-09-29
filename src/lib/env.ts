@@ -89,6 +89,8 @@ export function collectEnvViolations(env: Env): EnvReport {
   }
   if (!pk.startsWith('pk_live_'))
     errors.push('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY muss mit pk_live_ beginnen.')
+  if (env.STRIPE_API_BASE_URL)
+    errors.push('STRIPE_API_BASE_URL ist in Produktion verboten (nur Tests gegen stripe-mock).')
   if (env.PAYLOAD_SECRET.length < 32) errors.push('PAYLOAD_SECRET: mindestens 32 Zeichen.')
   if (env.PAYLOAD_SECRET === EXAMPLE_PAYLOAD_SECRET) {
     errors.push('PAYLOAD_SECRET darf nicht der Wert aus .env.example sein.')

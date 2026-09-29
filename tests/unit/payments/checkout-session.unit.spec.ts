@@ -4,6 +4,7 @@ import {
   assertCheckoutSessionInput,
   buildSessionParams,
   checkoutIdempotencyKey,
+  checkoutReturnUrl,
   clientSecretMissing,
   loggableSessionParams,
   refundIdempotencyKey,
@@ -22,6 +23,7 @@ const TOKEN = createToken()
 
 const input = (over: Partial<CreateCheckoutSessionInput> = {}): CreateCheckoutSessionInput => ({
   checkoutRef: REF,
+  sessionSeq: 1,
   locale: 'en',
   lineItems: [{ productId: 17, name: 'No. 017 · Bowl', amountCents: 4500 }],
   shipping: { label: 'DHL parcel (ceramics)', amountCents: 690 },
@@ -128,10 +130,37 @@ describe('Eingaberegeln (assertCheckoutSessionInput)', () => {
     ['Ablauf < 30 min', { expiresAt: new Date(NOW.getTime() + 29 * 60_000) }],
     ['Ablauf > 24 h', { expiresAt: new Date(NOW.getTime() + 25 * 3_600_000) }],
     ['relative returnUrl', { returnUrl: '/de/danke/x' }],
+    ['sessionSeq 0', { sessionSeq: 0 }],
+    ['sessionSeq fehlt', { sessionSeq: undefined as never }],
+    [
+      'returnUrl andere Sprache',
+      { returnUrl: `https://planetclairetattoos.com/de/danke/${TOKEN}` },
+    ],
+    ['returnUrl ohne Token', { returnUrl: 'https://planetclairetattoos.com/en/thank-you/' }],
+    ['returnUrl andere Seite', { returnUrl: `https://planetclairetattoos.com/en/cart/${TOKEN}` }],
+    [
+      'Token zusätzlich in der Query',
+      { returnUrl: `https://planetclairetattoos.com/en/thank-you/${TOKEN}?t=${TOKEN}` },
+    ],
   ])('%s → InvalidCheckoutSessionInputError', (_what, over) => {
     expect(() => assertCheckoutSessionInput(input(over), NOW)).toThrow(
       InvalidCheckoutSessionInputError,
     )
+  })
+})
+
+describe('return_url (ARCHITEKTUR §3.5)', () => {
+  it('Danke-Seite je Sprache mit dem Kassen-Token: /de/danke/{token}, /en/thank-you/{token}', () => {
+    expect(checkoutReturnUrl('https://planetclairetattoos.com', 'de', TOKEN)).toBe(
+      `https://planetclairetattoos.com/de/danke/${TOKEN}`,
+    )
+    expect(checkoutReturnUrl('http://localhost:3000', 'en', TOKEN)).toBe(
+      `http://localhost:3000/en/thank-you/${TOKEN}`,
+    )
+    for (const locale of ['de', 'en'] as const) {
+      const returnUrl = checkoutReturnUrl('http://localhost:3000', locale, TOKEN)
+      expect(() => assertCheckoutSessionInput(input({ locale, returnUrl }), NOW)).not.toThrow()
+    }
   })
 })
 
