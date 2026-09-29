@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – Fehlerbehebung Galerie-Fokus (EK-07, KO-09)
+
+- Fokusring der Galerie-Fotos war in WebKit (iPhone/Safari) unsichtbar: Umriss (`outline-offset: -3px`) und Papier-Halo des Links lagen unter dem Bildrahmen (`position: relative`); der Tastatur-Test bestand nur durch Pixelrauschen der Bildschirmfotos und scheiterte gelegentlich. Der Ring sitzt jetzt auf einer Deckschicht `.zoomLink:focus-visible::after` über dem Foto (mit `forced-colors`-Variante).
+- Menü-Tastaturtest bekommt `test.slow()` wie die Tab-Durchläufe (zwei Bildschirmfotos je Halt, in WebKit an der 30-s-Grenze).
+- Tests: `keyboard.e2e` in desktop, iphone-15, pixel-7 gegen den Produktions-Build grün; `gallery.e2e` grün bis auf den Doppeltipp-Test (iphone-15), der bei hoher Maschinenlast den 300-ms-Abstand überschreitet (unabhängig von dieser Änderung); `pnpm check` grün.
+
 ## 2026-09-29 – P4.23
 
 - Bestellstatus R09 `src/app/(frontend)/[locale]/order/[token]/page.tsx` (DE `/de/bestellung/[token]`, Preset `calm`, Header über den Proxy: `noindex, nofollow`, `no-referrer`, `private, no-store`; Rate-Limit `token_pages`; Suche über `statusTokenHash` + Vergleich in konstanter Zeit; unbekannt → 404): Nummer, Datum, `OrderStatusLine` (KO-16, `<ol>` mit `aria-current="step"`, Varianten Versand/Abholung/Vorkasse, Widerruf/Erstattung als eigene Einträge, `disputed` → `statusBeforeDispute`), Sendungsnummer mit Link aus `trackingUrlTemplates`, Positionen, Summe, Zahlart, bei Vorkasse Bankdaten + Frist + EPC-QR, nur Name/PLZ+Ort/maskierte E-Mail, nur AGB und Widerrufsbelehrung-und-Formular (Hinweis „Deine Rechnung hast du per Mail bekommen“), „Vertrag widerrufen“ → R26 `?order=`, Kontakt. R09 `live`.

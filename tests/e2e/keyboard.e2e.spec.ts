@@ -151,6 +151,8 @@ test.describe('Tastatur-Durchlauf @a11y', () => {
   test('Kopf → Menü per Tastatur: Enter öffnet, Tab bleibt im Dialog, Esc schließt @a11y', async ({
     page,
   }) => {
+    // Zwei Bildschirmfotos je Tab-Halt im Menü; in WebKit liegt das sonst an der 30-s-Grenze.
+    test.slow()
     await page.goto(localizedPath('R01', 'de'))
     const trigger = page.locator('[data-site-header] [data-menu-trigger]')
     await expect(trigger).toHaveAttribute('role', 'button')
