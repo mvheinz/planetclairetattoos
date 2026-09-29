@@ -240,6 +240,7 @@ export function createMockPaymentsAdapter(options: MockPaymentsOptions = {}): Mo
     paymentStatus: s.paymentStatus,
     ...(s.status === 'open' ? { clientSecret: mockClientSecret(s.sessionId, secret) } : {}),
     ...(s.paymentIntentId ? { paymentIntentId: s.paymentIntentId } : {}),
+    ...(s.chargeId ? { chargeId: s.chargeId } : {}),
     amountTotalCents: s.amountTotalCents,
     ...(s.paymentMethod ? { paymentMethod: s.paymentMethod } : {}),
   })

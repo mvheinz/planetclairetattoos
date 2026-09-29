@@ -2,7 +2,7 @@ import 'server-only'
 
 import config from '@payload-config'
 import { sql } from '@payloadcms/db-postgres'
-import { createLocalReq, getPayload, type Payload } from 'payload'
+import { createLocalReq, getPayload, type Payload, type PayloadRequest } from 'payload'
 
 import { revalidateProduct } from '@/lib/cache/revalidate'
 import { dbFor, type SqlExecutor } from '@/lib/db/tx'
@@ -139,6 +139,66 @@ async function checkoutByRef(payload: Payload, ref: string): Promise<Checkout | 
   return (res.docs[0] as Checkout | undefined) ?? null
 }
 
+export interface ReleaseInTransactionInput {
+  ref: string
+  reason: ReservationReleaseReason
+  checkoutId: number | null
+  now: Date
+  closeReason?: CheckoutCloseReason
+  /** Nur Reservierungen dieser Quelle (Webhook: `checkout_session`, DATENMODELL §8.2). */
+  source?: 'checkout_session'
+}
+
+/**
+ * Freigabe-SQL §8.2 in der Transaktion von `req` (ohne Anbieter-Abfrage): Stücke `available`, Reservierungen
+ * `released`, Kasse – sofern noch offen – nach `expired`/`cancelled`/`failed`. Liefert die freigegebenen Stück-IDs;
+ * die Cache-Erneuerung nach dem Commit übernimmt der Aufrufer.
+ */
+export async function releaseInTransaction(
+  req: PayloadRequest,
+  input: ReleaseInTransactionInput,
+): Promise<number[]> {
+  const { ref, reason, checkoutId, now } = input
+  const end = CHECKOUT_END_BY_RELEASE[reason]
+  return inTransaction(req, async () => {
+    const db = await dbFor(req)
+    const at = now.toISOString()
+    const sourceFilter = input.source
+      ? sql` AND id IN (SELECT product_id FROM reservations WHERE ref = ${ref} AND status = 'active'
+                         AND source = ${input.source}::enum_reservations_source)`
+      : sql``
+    const freed = await db.execute(sql`
+      UPDATE products
+         SET status = 'available', reserved_until = NULL, reservation_ref = NULL, current_order_id = NULL,
+             updated_at = ${at}::timestamptz
+       WHERE reservation_ref = ${ref} AND status = 'reserved'${sourceFilter}
+      RETURNING id
+    `)
+    const reservationSource = input.source
+      ? sql` AND source = ${input.source}::enum_reservations_source`
+      : sql``
+    await db.execute(sql`
+      UPDATE reservations
+         SET status = 'released', released_at = ${at}::timestamptz,
+             release_reason = ${reason}::enum_reservations_release_reason, updated_at = ${at}::timestamptz
+       WHERE ref = ${ref} AND status = 'active'${reservationSource}
+    `)
+    if (checkoutId !== null && end) {
+      const current = await db.execute(
+        sql`SELECT status FROM checkouts WHERE id = ${checkoutId} FOR UPDATE`,
+      )
+      const from = current.rows[0]?.status as CheckoutStatus | undefined
+      if (from && canTransitionCheckout(from, end.to)) {
+        await transitionCheckout(req, checkoutId, end.to, {
+          closeReason: input.closeReason ?? end.closeReason,
+          now,
+        })
+      }
+    }
+    return freed.rows.map((r) => Number(r.id))
+  })
+}
+
 /**
  * Freigabe nach DATENMODELL §8.2 für alle aktiven Reservierungen mit `ref`: vorher Session beim Anbieter beenden
  * (bei „bezahlt“ keine Freigabe), dann in einer Transaktion Stücke `available`, Reservierungen `released` und – sofern
@@ -180,37 +240,13 @@ export async function releaseReservation(
     }
   }
 
-  const end = CHECKOUT_END_BY_RELEASE[reason]
   const req = await createLocalReq({ context: { system: true, now: now.toISOString() } }, payload)
-  const productIds = await inTransaction(req, async () => {
-    const db = await dbFor(req)
-    const at = now.toISOString()
-    const freed = await db.execute(sql`
-      UPDATE products
-         SET status = 'available', reserved_until = NULL, reservation_ref = NULL, current_order_id = NULL,
-             updated_at = ${at}::timestamptz
-       WHERE reservation_ref = ${ref} AND status = 'reserved'
-      RETURNING id
-    `)
-    await db.execute(sql`
-      UPDATE reservations
-         SET status = 'released', released_at = ${at}::timestamptz,
-             release_reason = ${reason}::enum_reservations_release_reason, updated_at = ${at}::timestamptz
-       WHERE ref = ${ref} AND status = 'active'
-    `)
-    if (checkoutId !== null && end) {
-      const current = await db.execute(
-        sql`SELECT status FROM checkouts WHERE id = ${checkoutId} FOR UPDATE`,
-      )
-      const from = current.rows[0]?.status as CheckoutStatus | undefined
-      if (from && canTransitionCheckout(from, end.to)) {
-        await transitionCheckout(req, checkoutId, end.to, {
-          closeReason: options.closeReason ?? end.closeReason,
-          now,
-        })
-      }
-    }
-    return freed.rows.map((r) => Number(r.id))
+  const productIds = await releaseInTransaction(req, {
+    ref,
+    reason,
+    checkoutId,
+    now,
+    closeReason: options.closeReason,
   })
   for (const id of productIds) {
     revalidateProduct(id, { immediate: true, inServerAction: options.inServerAction })

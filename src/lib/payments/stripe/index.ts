@@ -114,6 +114,15 @@ function paymentMethodOf(pi: unknown): SessionState['paymentMethod'] {
     : { type: 'card' }
 }
 
+/** ID der letzten Belastung (expandiert oder als ID). */
+function chargeIdOf(pi: unknown): string | undefined {
+  if (!pi || typeof pi !== 'object') return undefined
+  const charge = (pi as { latest_charge?: unknown }).latest_charge
+  if (typeof charge === 'string') return charge
+  if (charge && typeof charge === 'object') return (charge as { id?: string }).id
+  return undefined
+}
+
 export function createStripeAdapter(
   env: StripeEnv,
   options: StripeAdapterOptions = {},
@@ -273,12 +282,14 @@ export function createStripeAdapter(
       }
       const paymentIntentId = idOf(s.payment_intent)
       const paymentMethod = paymentMethodOf(s.payment_intent)
+      const chargeId = chargeIdOf(s.payment_intent)
       return {
         sessionId: s.id,
         status,
         paymentStatus,
         ...(status === 'open' && s.client_secret ? { clientSecret: s.client_secret } : {}),
         ...(paymentIntentId ? { paymentIntentId } : {}),
+        ...(chargeId ? { chargeId } : {}),
         ...(typeof s.amount_total === 'number' ? { amountTotalCents: s.amount_total } : {}),
         ...(paymentMethod ? { paymentMethod } : {}),
       }

@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P4.16
+
+- Route `src/app/(api)/api/stripe/webhook/route.ts` (`nodejs`, `maxDuration = 60`, Rohkörper per `req.text()`) → `handleWebhookRequest` (`src/lib/payments/webhook.ts`: `parseWebhook` des aktiven Treibers, ungültige Signatur/Form → 400, Fehler → 500, Körper nie geloggt, nur SHA-256) → `processPaymentEvent` (`src/lib/payments/processPaymentEvent.ts`): Beanspruchen per `INSERT … ON CONFLICT (event_id) … WHERE status = 'failed'` (zusätzlich hängengebliebene `processing` > 10 min), Verarbeitung + `processed`/`ignored` in einer Transaktion, Fehler → `failed` + `lastError`, ab dem 2. Fehlversuch A12; Kasse über `client_reference_id` bzw. `stripe_checkout_session_id`.
+- Ereignisse: `completed` unbezahlt → nur protokolliert; bezahlt/`async_succeeded` → Übergabe an `fulfillCheckout` (P4.16a); `async_failed` (nur `confirming`) → `failed`/`payment_failed` + Freigabe; `expired` nur bei `open`/`confirming` und derselben Session, nur Reservierungen `checkout_session`; Vorkasse-Kasse `completed` bleibt unberührt; unbekannte Typen → `ignored`. Freigabe-SQL als `releaseInTransaction` aus `reservation.ts` herausgelöst. `SessionState.chargeId` (Stripe/Mock). `pnpm payments:reconcile [--since=<ISO>]` (`scripts/payments-reconcile.ts`).
+- Tests: `tests/int/payments/webhook.int.spec.ts` (10: Signaturen Mock/Stripe inkl. Route, unbekannter Typ, expired, R-065 async_failed per Stripe-Fixture, completed unbezahlt, Vorkasse-Kasse unberührt, alte Session, doppelte Zustellung parallel, Fehler → 500 → A12 → Wiederholung gelingt); `pnpm check` grün, betroffene Int-Tests grün.
+
 ## 2026-09-29 – P4.15
 
 - Kund:innen-Vorlagen `src/lib/email/templates/prepayment.tsx`: M03 `prepayment_reminder` (offener Betrag, Bankdaten + EPC-QR per CID, Frist, Baustein `email.vorkasse.reminder`, „Hast du schon überwiesen? …“), M04 `prepayment_cancelled` (Grund `payment_timeout` → „keine Zahlung eingegangen“ bzw. Text von Jutta; `withdrawn` vom Schema abgelehnt; Baustein `email.vorkasse.cancellation` als gekennzeichneter Platzhalter; Rücküberweisungs-Satz), M10 `oversold_apology` (Entschuldigung, volle Erstattung über dasselbe Zahlungsmittel in 5–10 Werktagen, Link zum Shop, keine Rechnung, kein Rabattcode) – DE/EN.

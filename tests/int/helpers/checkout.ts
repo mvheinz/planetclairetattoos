@@ -139,3 +139,87 @@ export async function setShop(payload: Payload, shop: Record<string, unknown>) {
     })
   }
 }
+
+export interface SubmitForTestOptions {
+  email?: string
+  now: Date
+  /** Nach dem Absenden `confirming` (Stripe-Weg, KONZEPT §4.10). */
+  confirming?: boolean
+  carrierEmailConsent?: boolean
+  legal: Record<string, number>
+}
+
+/**
+ * Kasse wie nach „Zahlungspflichtig bestellen“ (P4.10a folgt): Eingaben, Rechtsstand, `submittedAt`, optional
+ * `confirming` über `transitionCheckout`.
+ */
+export async function submitForTest(
+  payload: Payload,
+  checkoutId: number,
+  o: SubmitForTestOptions,
+): Promise<Checkout> {
+  const { createLocalReq } = await import('payload')
+  const { transitionCheckout } = await import('@/lib/commerce/checkoutTransitions')
+  const current = await checkoutById(payload, checkoutId)
+  const shipping = current.fulfillmentMethod === 'shipping'
+  await payload.update({
+    collection: 'checkouts',
+    id: checkoutId,
+    data: {
+      paymentChoice: 'stripe',
+      customer: { email: o.email ?? 'kundin@planetclaire.local' },
+      ...(shipping
+        ? {
+            shippingAddress: {
+              name: 'Erika Beispiel',
+              addressLine1: 'Musterstraße 1',
+              postalCode: '10115',
+              city: 'Berlin',
+              country: 'DE',
+            },
+          }
+        : {
+            billingAddress: {
+              name: 'Erika Beispiel',
+              addressLine1: 'Musterstraße 1',
+              postalCode: '10115',
+              city: 'Berlin',
+              country: 'DE',
+            },
+          }),
+      carrierEmailConsent: shipping && o.carrierEmailConsent !== false,
+      legalTextVersions: o.legal,
+      legalSnippetVersions: {
+        'checkout.legalNotice': { version: 'draft-1', sha256: 'a'.repeat(64) },
+      },
+      submittedAt: o.now.toISOString(),
+    } as never,
+    depth: 0,
+    overrideAccess: true,
+    context: { system: true, now: o.now.toISOString() },
+  })
+  if (o.confirming) {
+    const req = await createLocalReq({ context: { system: true } }, payload)
+    await transitionCheckout(req, checkoutId, 'confirming', { now: o.now })
+  }
+  return checkoutById(payload, checkoutId)
+}
+
+/** Zeile aus `webhook_events` zur Ereignis-ID. */
+export async function webhookRow(payload: Payload, eventId: string) {
+  const res = await dbOf(payload).execute(
+    sql`SELECT status, attempts, last_error, related_checkout_id, related_order_id, type, provider
+          FROM webhook_events WHERE event_id = ${eventId}`,
+  )
+  return res.rows[0] as
+    | {
+        status: string
+        attempts: string | number
+        last_error: string | null
+        related_checkout_id: number | null
+        related_order_id: number | null
+        type: string
+        provider: string
+      }
+    | undefined
+}
