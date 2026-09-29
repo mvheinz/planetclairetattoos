@@ -57,6 +57,15 @@
       "name": "Mikro-Interaktionen Live-Zustand und Korb (product-status, add-to-cart)",
       "entries": ["src/behaviors/product-status.ts", "src/behaviors/add-to-cart.ts"],
       "gzipMax": 4000
+    },
+    {
+      "name": "Mikro-Interaktionen Danke- und Statusseite (thanks-poll, thanks-moment, copy-button)",
+      "entries": [
+        "src/behaviors/thanks-poll.ts",
+        "src/behaviors/thanks-moment.ts",
+        "src/behaviors/copy-button.ts"
+      ],
+      "gzipMax": 4000
     }
   ],
   "fonts": {

@@ -5,7 +5,7 @@ import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 import pg from 'pg'
 
-import { localizedPath, pageRoutes, samplePath } from '../../src/lib/routes/paths'
+import { localizedPath, pageRoutes, hasSamplePath, samplePath } from '../../src/lib/routes/paths'
 import { LOCALES, type Locale } from '../../src/lib/routes/registry'
 import { serverURL } from '../helpers/adminEnv'
 
@@ -54,7 +54,8 @@ async function open(page: Page, url: string, status = 200) {
   await page.waitForLoadState('networkidle')
 }
 
-const livePages = pageRoutes().filter((r) => r.status === 'live')
+// Token-Seiten (R08, R09) prüfen ihre eigenen Suiten mit Fixture-Bestellungen (`@a11y`).
+const livePages = pageRoutes().filter((r) => r.status === 'live' && hasSamplePath(r))
 
 test.describe('axe je live-Route @a11y', () => {
   for (const route of livePages) {

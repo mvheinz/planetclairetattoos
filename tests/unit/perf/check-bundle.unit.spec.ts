@@ -16,6 +16,7 @@ import {
   type Budgets,
   type PageMeasurement,
 } from '../../../scripts/check-bundle'
+import { hasSamplePath } from '../../../src/lib/routes/paths'
 import { ROUTES } from '../../../src/lib/routes/registry'
 
 // P2.23 Tempo-Budgets (ARCHITEKTUR §7.7, DESIGN §9.10, AK-DS-04): `tests/perf/budgets.json` und `pnpm check:bundle`
@@ -125,7 +126,10 @@ describe('T-09 check:bundle – Seitenbudgets', () => {
 
   it('Seiten: jede live-Seite der Registry in DE und EN sowie R28/R29', async () => {
     const targets = await pageTargets()
-    const live = ROUTES.filter((r) => r.status === 'live' && r.kind === 'page').map((r) => r.id)
+    // Token-Seiten (R08, R09) haben keinen Beispielpfad – ihr JS misst die eigene E2E-Suite nicht über das Budget.
+    const live = ROUTES.filter(
+      (r) => r.status === 'live' && r.kind === 'page' && hasSamplePath(r),
+    ).map((r) => r.id)
     for (const id of live)
       expect(
         targets.filter((t) => t.routeId === id).map((t) => t.locale),

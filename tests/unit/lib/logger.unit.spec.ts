@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { createLogger } from '@/lib/monitoring/logger'
+import { normalizeLogPath } from '@/lib/routes/paths'
 import { redact, redactText } from '@/lib/security/redact'
 
 describe('Logger ohne Personendaten (ARCHITEKTUR §8.11, R-137)', () => {
@@ -59,5 +60,22 @@ describe('Logger ohne Personendaten (ARCHITEKTUR §8.11, R-137)', () => {
   it('redact lässt IDs und Nummern stehen', () => {
     expect(redact({ orderId: 7, count: 3 })).toEqual({ orderId: 7, count: 3 })
     expect(redactText('Bestellung PC-2026-0001')).toBe('Bestellung PC-2026-0001')
+  })
+
+  it('P4.23 Token-Pfade werden normalisiert: /de/bestellung/[token], /api/orders/[token]/documents/[file]', () => {
+    const { lines, logger } = capture()
+    const token = 'A'.repeat(43)
+    logger.info('request', {
+      path: `/de/bestellung/${token}`,
+      url: `/api/orders/${token}/documents/AGB_v1.pdf`,
+      route: `/en/thank-you/${token}?x=1`,
+    })
+    const rec = JSON.parse(lines[0]!)
+    expect(rec.path).toBe('/de/bestellung/[token]')
+    expect(rec.url).toBe('/api/orders/[token]/documents/[file]')
+    expect(rec.route).toBe('/en/thank-you/[token]')
+    expect(lines[0]).not.toContain(token)
+    expect(normalizeLogPath('/api/checkout/abc/state')).toBe('/api/checkout/[token]/state')
+    expect(normalizeLogPath('/de/impressum')).toBe('/de/impressum')
   })
 })

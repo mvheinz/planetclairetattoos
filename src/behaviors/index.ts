@@ -6,6 +6,7 @@ import type { BehaviorContext, BehaviorModule, Unmount } from './types'
 
 export const BEHAVIOR_LOADERS = {
   'add-to-cart': () => import('./add-to-cart'),
+  'copy-button': () => import('./copy-button'),
   'buy-bar': () => import('./buy-bar'),
   'cart-count': () => import('./cart-count'),
   gallery: () => import('./gallery'),
@@ -16,6 +17,8 @@ export const BEHAVIOR_LOADERS = {
   'price-tag-swing': () => import('./price-tag-swing'),
   'product-status': () => import('./product-status'),
   'sold-stamp': () => import('./sold-stamp'),
+  'thanks-moment': () => import('./thanks-moment'),
+  'thanks-poll': () => import('./thanks-poll'),
 } satisfies Record<string, () => Promise<BehaviorModule>>
 
 export type BehaviorName = keyof typeof BEHAVIOR_LOADERS

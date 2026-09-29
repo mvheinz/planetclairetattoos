@@ -28,6 +28,8 @@ export const RATE_LIMITS = {
   checkout_start: { limit: 10, windowMs: 10 * MINUTE },
   checkout_start_day: { limit: 30, windowMs: 24 * HOUR },
   product_status: { limit: 120, windowMs: MINUTE },
+  /** R08, R09, `GET /api/checkout/[token]/state`, Dokument-Downloads (P4.17/P4.23). */
+  token_pages: { limit: 60, windowMs: MINUTE },
 } as const satisfies Record<string, RateLimitRule>
 
 export type RateLimitBucket = keyof typeof RATE_LIMITS

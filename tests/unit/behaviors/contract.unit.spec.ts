@@ -135,6 +135,37 @@ const FIXTURES: Record<BehaviorName, { html: string; exercise: (root: Element) =
       vi.advanceTimersByTime(0)
     },
   },
+  'copy-button': {
+    html:
+      '<p><span id="st" role="status"></span><button type="button" data-behavior="copy-button" ' +
+      'data-copy="DE36000000000000000000" data-copied-text="Kopiert" data-copy-failed-text="Ging nicht" ' +
+      'data-copy-status-id="st" hidden>IBAN kopieren</button></p>',
+    exercise: (root) => {
+      ;(root as HTMLElement).click()
+    },
+  },
+  'thanks-poll': {
+    html:
+      '<div data-behavior="thanks-poll" data-state="waiting" ' +
+      'data-state-url="/api/checkout/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/state">' +
+      '<p data-thanks-long hidden>Das dauert länger als sonst.</p></div>',
+    exercise: () => {
+      vi.advanceTimersByTime(4000)
+    },
+  },
+  'thanks-moment': {
+    html:
+      '<div data-behavior="thanks-moment"><div class="coco" data-thanks-coco data-pose="sitzen" data-boil="off">' +
+      '<div class="coco__hop"><svg><use class="f f-a" href="/art/coco.svg#coco-sitzen-a"></use></svg></div></div>' +
+      '<ul data-behavior="sold-stamp"><li data-product-id="17"><span data-price-tag="mini">' +
+      '<span data-price-tag-swing data-angle="4">45 €<span data-sold-stamp data-angle="-13" hidden>sold</span>' +
+      '</span></span></li></ul></div>',
+    exercise: () => {
+      vi.advanceTimersByTime(1500)
+      document.documentElement.setAttribute('data-motion', 'reduced')
+      document.documentElement.removeAttribute('data-motion')
+    },
+  },
   menu: {
     html:
       '<a href="#fussnavigation" data-menu-trigger aria-controls="menu" aria-expanded="false">Menü</a>' +

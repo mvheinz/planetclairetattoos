@@ -144,6 +144,23 @@ export function notFoundMetadata(locale: Locale, variant: 'lost' | 'home' = 'los
   return { title: { absolute: title }, robots: robotsFor('noindex') }
 }
 
+/**
+ * Token-Seiten R08/R09 (KONZEPT §4.12, P4.17/P4.23): Titel und `noindex, nofollow`, aber weder canonical noch hreflang
+ * noch `og:url` – die URL mit dem Kunden-Token steht nie in den Metadaten.
+ */
+export function tokenPageMetadata(routeId: 'R08' | 'R09') {
+  return async ({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> => {
+    const { locale: raw } = await params
+    const locale = isLocale(raw) ? raw : DEFAULT_LOCALE
+    return {
+      title: { absolute: titleFor(routeId, locale) },
+      description: descriptionFor(getRoute(routeId).pageType, locale),
+      robots: { index: false, follow: false },
+      referrer: 'no-referrer',
+    }
+  }
+}
+
 /** `generateMetadata` für eine Seite unter `[locale]/` ohne Datenbezug. */
 export function routeMetadata(routeId: string) {
   return async ({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> => {
