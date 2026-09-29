@@ -99,7 +99,7 @@ export const ROUTES: readonly RouteEntry[] = [
   page({ id: 'R03', de: '/shop/kategorie/[slug]', en: '/shop/category/[slug]', pageType: 'category', preset: 'shopString', rendering: 'isr', robots: 'index', headerContext: 'public', status: 'live', phase: 3 }),
   { ...page({ id: 'R04', de: '/shop/[nummer]-[slug]', en: '/shop/[nummer]-[slug]', pageType: 'product', preset: 'product', rendering: 'isr', robots: 'index', headerContext: 'public', status: 'live', phase: 3 }), key: '/shop/[product]' },
   page({ id: 'R05', de: '/archiv', en: '/archive', pageType: 'archive', preset: 'shopString', rendering: 'isr', robots: 'index', headerContext: 'public', status: 'live', phase: 3 }),
-  page({ id: 'R06', de: '/warenkorb', en: '/cart', pageType: 'cart', preset: 'calm', rendering: 'dynamic', robots: 'noindex', headerContext: 'dynamic', status: 'planned', phase: 4 }),
+  page({ id: 'R06', de: '/warenkorb', en: '/cart', pageType: 'cart', preset: 'calm', rendering: 'dynamic', robots: 'noindex', headerContext: 'dynamic', status: 'live', phase: 4 }),
   page({ id: 'R07', de: '/kasse', en: '/checkout', pageType: 'checkout', preset: 'calm', rendering: 'dynamic', robots: 'noindex', headerContext: 'checkout', status: 'planned', phase: 4 }),
   page({ id: 'R08', de: '/danke/[token]', en: '/thank-you/[token]', pageType: 'thankYou', preset: 'thanks', rendering: 'dynamic', robots: 'noindex', headerContext: 'dynamic', status: 'planned', phase: 4 }),
   page({ id: 'R09', de: '/bestellung/[token]', en: '/order/[token]', pageType: 'orderStatus', preset: 'calm', rendering: 'dynamic', robots: 'noindex', headerContext: 'dynamic', status: 'planned', phase: 4 }),

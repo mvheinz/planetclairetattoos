@@ -38,6 +38,8 @@ interface ChoiceProps extends Omit<FieldBaseProps, 'label'> {
   label: React.ReactNode
   /** Nur `true` hakt an; fehlt der Wert, ist das Feld leer. */
   checked?: boolean
+  /** Nicht wählbar (z. B. Versand bei einem Stück „nur Abholung“, KO-13); Grund per `hint`. */
+  disabled?: boolean
 }
 
 function Choice({
@@ -50,12 +52,18 @@ function Choice({
   error,
   required,
   checked,
+  disabled,
   className,
 }: ChoiceProps & { type: 'checkbox' | 'radio' }) {
   const { hintId, errorId, describedBy } = fieldIds(id, hint, error)
   return (
     <div
-      className={[styles.choiceField, error ? styles.invalid : null, className]
+      className={[
+        styles.choiceField,
+        error ? styles.invalid : null,
+        disabled ? styles.choiceDisabled : null,
+        className,
+      ]
         .filter(Boolean)
         .join(' ')}
     >
@@ -67,6 +75,7 @@ function Choice({
             name={name}
             value={value}
             required={required}
+            disabled={disabled}
             className={styles.choiceInput}
             defaultChecked={checked === true ? true : undefined}
             aria-describedby={describedBy}

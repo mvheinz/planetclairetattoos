@@ -181,3 +181,9 @@ textarea.control {
     color: CanvasText;
   }
 }
+
+/* Nicht wählbare Option (KO-13): gedämpft, Grund steht als Hinweis darunter. */
+.choiceDisabled .choiceLabel,
+.choiceDisabled .box {
+  opacity: 0.55;
+}

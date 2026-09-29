@@ -316,6 +316,43 @@
       "pickup_only": "{items} {count, plural, one {is} other {are}} available for pickup only.",
       "rate_limited": "That was a bit fast. Please try again in a few minutes.",
       "invalid": "That didn't work. Please reload the page and try again."
+    },
+    "title": "Your cart",
+    "itemsHeading": "Pieces in your cart",
+    "meta": "{number} · {category}",
+    "remove": "Remove",
+    "removeLabel": "Remove {title} from the cart",
+    "state": {
+      "reserved": "Reserved right now – check back in 30 minutes",
+      "sold": "Sorry, already sold",
+      "reserved_by_you": "Waiting for you at checkout",
+      "priceChanged": "Price has been updated"
+    },
+    "soldStamp": "sold",
+    "unknownTitle": "Piece {number}",
+    "deliveryLegend": "Delivery",
+    "deliveryShipping": "Shipping within Germany ({carrier})",
+    "deliveryPickup": "Pickup in {city}",
+    "deliveryApply": "Apply delivery option",
+    "shippingClassLine": "Shipping class: {shippingClass} – the largest class in your cart applies",
+    "summaryHeading": "Summary",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "total": "Total",
+    "shippingUnknown": "not calculated yet",
+    "paymentMethods": "Card · Apple Pay · Google Pay · PayPal · Payment in advance",
+    "toCheckout": "Go to checkout",
+    "blocked": {
+      "unavailable": "Please remove the pieces that aren't available right now first.",
+      "shop_closed": "The shop is taking a break – ordering isn't possible right now.",
+      "too_many": "At most {max} pieces per order.",
+      "shipping": "Shipping for this cart can't be calculated right now. Please choose pickup or write to me.",
+      "empty": "Nothing in here yet."
+    },
+    "empty": {
+      "title": "Nothing in here yet.",
+      "text": "Have a look around the shop – every piece exists only once.",
+      "action": "To the shop"
     }
   },
   "email": {

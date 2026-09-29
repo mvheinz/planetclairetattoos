@@ -316,6 +316,43 @@
       "pickup_only": "{items} gibt es nur zur Abholung.",
       "rate_limited": "Das ging gerade zu schnell. Bitte versuch es in ein paar Minuten noch einmal.",
       "invalid": "Das hat nicht geklappt. Bitte lade die Seite neu und versuch es noch einmal."
+    },
+    "title": "Dein Korb",
+    "itemsHeading": "Stücke in deinem Korb",
+    "meta": "{number} · {category}",
+    "remove": "Entfernen",
+    "removeLabel": "{title} aus dem Korb entfernen",
+    "state": {
+      "reserved": "Gerade reserviert – schau in 30 Minuten nochmal",
+      "sold": "Leider schon verkauft",
+      "reserved_by_you": "Liegt für dich in der Kasse bereit",
+      "priceChanged": "Preis wurde aktualisiert"
+    },
+    "soldStamp": "sold",
+    "unknownTitle": "Stück {number}",
+    "deliveryLegend": "Lieferart",
+    "deliveryShipping": "Versand innerhalb Deutschlands ({carrier})",
+    "deliveryPickup": "Abholung in {city}",
+    "deliveryApply": "Lieferart übernehmen",
+    "shippingClassLine": "Versandklasse: {shippingClass} – die größte Klasse im Korb zählt",
+    "summaryHeading": "Übersicht",
+    "subtotal": "Zwischensumme",
+    "shipping": "Versand",
+    "total": "Gesamt",
+    "shippingUnknown": "wird noch berechnet",
+    "paymentMethods": "Karte · Apple Pay · Google Pay · PayPal · Vorkasse",
+    "toCheckout": "Zur Kasse",
+    "blocked": {
+      "unavailable": "Entferne bitte zuerst die Stücke, die gerade nicht zu haben sind.",
+      "shop_closed": "Der Shop macht gerade Pause – bestellen geht im Moment nicht.",
+      "too_many": "Höchstens {max} Stücke pro Bestellung.",
+      "shipping": "Der Versand für diesen Korb lässt sich gerade nicht berechnen. Wähl bitte Abholung oder schreib mir.",
+      "empty": "Hier ist noch nichts drin."
+    },
+    "empty": {
+      "title": "Hier ist noch nichts drin.",
+      "text": "Schau dich im Shop um – jedes Stück gibt es nur einmal.",
+      "action": "Zum Shop"
     }
   },
   "email": {

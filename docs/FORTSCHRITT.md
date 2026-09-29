@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P4.8
+
+- R06 gebaut (Registry live): Positionen (CartLine: Foto 64×80, Link, Nr./Kategorie, MoneyAmount, Entfernen, Zustandshinweise, gedämpft), Lieferart-Radiogruppe mit Preis bzw. nur_abholung ausgegraut, Versandklassen-Zeile, Summen + PriceNote, Lieferzeit, Baustein cart.paymentAndDeliveryInfo + Zahlarten vor „Zur Kasse“ (aria-disabled mit Hinweis), WarrantyNotice, closedMessage, Leerzustand KO-17, Coco statisch\n- evaluateCart liefert shippingQuoteCents und imageId; dynamische Seiten: Cache-Control private, no-store; Radio disabled, Button ariaDisabled\n- Tests: tests/e2e/cart/cart.e2e.spec.ts, tests/e2e/legal/cart-info.e2e.spec.ts (R-031/035/036/049, AK-DS-11, EK-04, S01+S11 = 117,90 €, ohne JS, @a11y) gegen pnpm start in 3 Projekten grün; Unit evaluate-cart/headers erweitert; check, test:int, build grün
+
 ## 2026-09-29 – P4.3
 
 - R25 ersetzt das Gerüst: Rechtstext-Fassung versand-zahlung (Platzhalter-Band), Versandtabelle ShippingTable über computeShipping aus settings.shipping (Zone DE + Abholung 0,00 €), Regel höchste Klasse, Lieferzeit, Liefergebiet, Zahlarten, Belastung, Transportschaden (unberührt), Rücksendekosten, Link R24, WarrantyNotice\n- Loader getShippingPaymentSettings (Tag settings); Test-Lock holdShippingRates; Helfer tests/e2e/{adminApi,axe}.ts\n- Tests: tests/e2e/legal/shipping-page.e2e.spec.ts (R-031, R-035, R-049, V-10/11/12/19/21, @a11y, Preisänderung ≤ 60 s) 3 Projekte grün; legal-pages grün; check, test:int, build grün

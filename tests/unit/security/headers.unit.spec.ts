@@ -130,6 +130,11 @@ describe('T-16 Header je Kontext', () => {
       'Cache-Control': 'private, no-store',
       'X-Robots-Tag': 'noindex, nofollow',
     })
+    // Alle dynamischen Seiten (z. B. R06 Korb, R26): `private, no-store`, aber ohne Token-Zusätze (§9.1, P4.8).
+    const plain = contextHeaders('dynamic', { ...PROD, nonce: NONCE })
+    expect(plain['Cache-Control']).toBe('private, no-store')
+    expect(plain['Referrer-Policy']).toBeUndefined()
+    expect(plain['X-Robots-Tag']).toBeUndefined()
     expect(nonceContextForPath('/de/danke/abc')).toBeNull()
     expect(nonceContextForPath('/de/impressum')).toBeNull()
     expect(nonceContextForPath('/de/gibt-es-nicht')).toBeNull()

@@ -1,0 +1,108 @@
+/* R06 Warenkorb (DESIGN KO-13, Preset `calm`): ruhig, keine Animation und keine Transition (AK-DS-11). */
+.page {
+  display: grid;
+  gap: var(--space-6);
+  padding-block: var(--space-6) var(--space-8);
+  max-inline-size: 48rem;
+}
+
+.title {
+  font-family: var(--font-hand, inherit);
+}
+
+.lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-block-start: 1px solid var(--ink-3);
+}
+
+.delivery {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+}
+
+.fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.legend {
+  font-weight: 700;
+  margin-block-end: var(--space-2);
+}
+
+.summary {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.sums {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-4);
+  align-items: end;
+}
+
+.totals {
+  margin: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.row dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-price-mono);
+  white-space: nowrap;
+}
+
+.total {
+  padding-block-start: var(--space-2);
+  border-block-start: 1.5px solid var(--ink);
+  font-weight: 700;
+}
+
+.total dd {
+  font-size: var(--fs-total);
+}
+
+.coco {
+  inline-size: var(--coco-m, 64px);
+}
+
+.small {
+  font-size: var(--fs-small);
+}
+
+.info {
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--fs-small);
+}
+
+.methods {
+  font-family: var(--font-mono);
+  color: var(--ink-2);
+}
+
+.checkout {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+}
+
+.hint {
+  font-size: var(--fs-small);
+  color: var(--ink);
+}

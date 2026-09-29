@@ -343,6 +343,12 @@ async function liveReservationRef(
   return checkout.reservationRef
 }
 
+const firstImageId = (images: Product['images']): number | null => {
+  const first = images?.[0]
+  if (typeof first === 'number') return first
+  return first && typeof first === 'object' ? first.id : null
+}
+
 export interface EvaluateCartOptions {
   locale?: Locale
   /** Roher Wert von `pc_checkout` (eigene Kasse erkennen). */
@@ -393,6 +399,7 @@ export async function evaluateCart(
     slug: d.slug,
     category: d.category,
     isCustomCommission: d.isCustomCommission,
+    imageId: firstImageId(d.images),
   }))
   // Nicht (mehr) öffentliche Stücke: nur die Nummer für den Hinweis „Leider schon verkauft“.
   const missing = ids.filter((id) => !products.some((p) => p.id === id))
