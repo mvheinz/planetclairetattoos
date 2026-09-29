@@ -161,6 +161,7 @@ export interface Config {
   jobs: {
     tasks: {
       sendEmail: TaskSendEmail;
+      renderInvoicePdf: TaskRenderInvoicePdf;
       inline: {
         input: unknown;
         output: unknown;
@@ -2367,7 +2368,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'sendEmail';
+        taskSlug: 'inline' | 'sendEmail' | 'renderInvoicePdf';
         taskID: string;
         input?:
           | {
@@ -2400,7 +2401,7 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'sendEmail') | null;
+  taskSlug?: ('inline' | 'sendEmail' | 'renderInvoicePdf') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -4814,6 +4815,18 @@ export interface CollectionsWidget {
 export interface TaskSendEmail {
   input: {
     emailLogId: number;
+  };
+  output: {
+    status: string;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRenderInvoicePdf".
+ */
+export interface TaskRenderInvoicePdf {
+  input: {
+    invoiceId: number;
   };
   output: {
     status: string;

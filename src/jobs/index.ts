@@ -1,5 +1,6 @@
 import type { TaskConfig } from 'payload'
 
+import { renderInvoicePdfTask } from './renderInvoicePdf'
 import { sendEmailTask } from './sendEmail'
 
 // Alle Task-Slugs der Jobs-Queue (ARCHITEKTUR Anhang A.3, DATENMODELL §11) mit Queue und umsetzender Phase.
@@ -55,7 +56,7 @@ export function isTaskSlug(value: string): value is TaskSlug {
 
 /** In payload.config.ts registrierte Tasks (nur umgesetzte). */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const JOB_TASKS: TaskConfig<any>[] = [sendEmailTask]
+export const JOB_TASKS: TaskConfig<any>[] = [sendEmailTask, renderInvoicePdfTask]
 
 export const IMPLEMENTED_TASK_SLUGS = new Set<string>(JOB_TASKS.map((t) => t.slug))
 
