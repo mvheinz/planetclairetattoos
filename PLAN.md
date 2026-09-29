@@ -2511,7 +2511,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     404 unter `/admin`).
   - Ohne Jutta: –
 
-- [ ] **P5.2 Admin-Benachrichtigungen A01–A17** – Renderer für alle Admin-Mails A01–A16 (KONZEPT §6.4) in
+- [x] **P5.2 Admin-Benachrichtigungen A01–A17** – Renderer für alle Admin-Mails A01–A16 (KONZEPT §6.4) in
   `src/lib/email/templates/admin/`, immer Deutsch, kurz, mit Direktlink auf den passenden Admin-Pfad (Pfad aus der
   Registry P5.1). Dienst `notifyAdmin(kind, payload, { now })` schreibt in die Outbox; Empfänger
   `settings.adminNotificationEmail`, Rückfall `ADMIN_NOTIFY_EMAIL`. Nie Kund:innen-Freitexte, nie Anfrage-Bilder, bei

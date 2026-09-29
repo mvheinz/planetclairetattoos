@@ -4,7 +4,6 @@ import { z } from 'zod'
 
 import { EMAIL_TEMPLATES, type EmailTemplate, type Locale } from '@/lib/enums'
 
-import { renderAdminAlert, ADMIN_ALERT_VERSION, adminAlertDataSchema } from './templates/adminAlert'
 import {
   ORDER_CONFIRMATION_VERSION,
   orderConfirmationSubject,
@@ -201,13 +200,89 @@ const TEMPLATES: Partial<Record<EmailTemplate, AnyTemplate>> = {
     subject: prepaymentReceivedSubject,
     render: renderPrepaymentReceived,
   }),
-  admin_alert: {
-    version: ADMIN_ALERT_VERSION,
-    schema: adminAlertDataSchema,
+  admin_withdrawal_received: def<adm.AdminWithdrawalReceivedData>({
+    version: adm.ADMIN_WITHDRAWAL_RECEIVED_VERSION,
+    schema: adm.adminWithdrawalReceivedDataSchema as z.ZodType<adm.AdminWithdrawalReceivedData>,
+    subject: adm.adminWithdrawalReceivedSubject,
+    render: adm.renderAdminWithdrawalReceived,
+  }),
+  admin_inquiry_received: def<adm.AdminInquiryReceivedData>({
+    version: adm.ADMIN_INQUIRY_RECEIVED_VERSION,
+    schema: adm.adminInquiryReceivedDataSchema,
+    subject: adm.adminInquiryReceivedSubject,
+    render: adm.renderAdminInquiryReceived,
+  }),
+  admin_legal_review_due: def<adm.AdminLegalReviewDueData>({
+    version: adm.ADMIN_LEGAL_REVIEW_DUE_VERSION,
+    schema: adm.adminLegalReviewDueDataSchema,
+    subject: adm.adminLegalReviewDueSubject,
+    render: adm.renderAdminLegalReviewDue,
+  }),
+  admin_monthly_close: def<adm.AdminMonthlyCloseData>({
+    version: adm.ADMIN_MONTHLY_CLOSE_VERSION,
+    schema: adm.adminMonthlyCloseDataSchema,
+    subject: adm.adminMonthlyCloseSubject,
+    render: adm.renderAdminMonthlyClose,
+  }),
+  admin_alert: def<adm.AdminAlertData>({
+    version: adm.ADMIN_ALERT_VERSION,
+    schema: adm.adminAlertDataSchema,
     subject: (data) => `Technisches Problem: ${data.summary}`.slice(0, 200),
-    render: renderAdminAlert,
-  } satisfies TemplateDef<z.infer<typeof adminAlertDataSchema>> as unknown as AnyTemplate,
+    render: adm.renderAdminAlert,
+  }),
+  admin_withdrawal_deadline: def<adm.AdminWithdrawalDeadlineData>({
+    version: adm.ADMIN_WITHDRAWAL_DEADLINE_VERSION,
+    schema: adm.adminWithdrawalDeadlineDataSchema,
+    subject: adm.adminWithdrawalDeadlineSubject,
+    render: adm.renderAdminWithdrawalDeadline,
+  }),
+  admin_privacy_request_due: def<adm.AdminPrivacyRequestDueData>({
+    version: adm.ADMIN_PRIVACY_REQUEST_DUE_VERSION,
+    schema: adm.adminPrivacyRequestDueDataSchema,
+    subject: adm.adminPrivacyRequestDueSubject,
+    render: adm.renderAdminPrivacyRequestDue,
+  }),
+  admin_legal_hold_review: def<adm.AdminLegalHoldReviewData>({
+    version: adm.ADMIN_LEGAL_HOLD_REVIEW_VERSION,
+    schema: adm.adminLegalHoldReviewDataSchema,
+    subject: adm.adminLegalHoldReviewSubject,
+    render: adm.renderAdminLegalHoldReview,
+  }),
+  admin_compliance_docs_review: def<adm.AdminComplianceDocsReviewData>({
+    version: adm.ADMIN_COMPLIANCE_DOCS_REVIEW_VERSION,
+    schema: adm.adminComplianceDocsReviewDataSchema,
+    subject: adm.adminComplianceDocsReviewSubject,
+    render: adm.renderAdminComplianceDocsReview,
+  }),
 }
+
+/**
+ * Verwaltungs-Mails: KONZEPT-ID → Schlüssel aus `EMAIL_TEMPLATES` (DATENMODELL §4, KONZEPT §6.4, P5.2). A01/A02 teilen
+ * sich einen Schlüssel (Variante über `transition`). A17 rendert `src/lib/email/render.ts`; Payload verschickt sie.
+ */
+export const ADMIN_MAILS = {
+  A01: 'admin_order_placed',
+  A02: 'admin_order_placed',
+  A03: 'admin_prepayment_cancelled',
+  A04: 'admin_withdrawal_received',
+  A05: 'admin_inquiry_received',
+  A06: 'admin_oversold',
+  A07: 'admin_dispute_opened',
+  A08: 'admin_refund_failed',
+  A09: 'admin_revenue_guard',
+  A10: 'admin_legal_review_due',
+  A11: 'admin_monthly_close',
+  A12: 'admin_alert',
+  A13: 'admin_withdrawal_deadline',
+  A14: 'admin_privacy_request_due',
+  A15: 'admin_legal_hold_review',
+  A16: 'admin_compliance_docs_review',
+  A17: 'admin_password_reset',
+} as const satisfies Record<`A${string}`, EmailTemplate>
+
+export type AdminMailId = keyof typeof ADMIN_MAILS
+/** Verwaltungs-Mails, die über die Outbox gehen (alle außer A17). */
+export type AdminTemplate = Exclude<(typeof ADMIN_MAILS)[AdminMailId], 'admin_password_reset'>
 
 const overrides = new Map<EmailTemplate, AnyTemplate | undefined>()
 

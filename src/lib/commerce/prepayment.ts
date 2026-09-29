@@ -6,6 +6,7 @@ import { createLocalReq, type Payload, type PayloadRequest } from 'payload'
 import { revalidateProduct } from '@/lib/cache/revalidate'
 import { dbFor, type SqlExecutor } from '@/lib/db/tx'
 import { sendAdminAlert } from '@/lib/email/alerts'
+import { notifyAdmin } from '@/lib/email/notifyAdmin'
 import { buildOrderMailData } from '@/lib/email/orderMailData'
 import { enqueueEmail, runEmailJobNow } from '@/lib/email/outbox'
 import { money } from '@/lib/email/templates/kit'
@@ -186,10 +187,10 @@ export async function placePrepaymentOrder(
       idempotencyKey: `prepayment_instructions:${order.id}:O2`,
       relations: { order: order.id },
     })
-    const a02 = await enqueueEmail(req, {
-      template: 'admin_order_placed',
-      locale: 'de',
-      data: {
+    const a02 = await notifyAdmin(
+      req,
+      'admin_order_placed',
+      {
         orderId: order.id,
         orderNumber: order.orderNumber,
         transition: 'O2',
@@ -204,9 +205,8 @@ export async function placePrepaymentOrder(
         paymentMethod: 'prepayment',
         dueAt: new Date(dueAt).toISOString(),
       },
-      idempotencyKey: `admin_order_placed:${order.id}:O2`,
-      relations: { order: order.id },
-    })
+      { idempotencyKey: `admin_order_placed:${order.id}:O2`, relations: { order: order.id } },
+    )
     return { order, statusToken, sessionId, jobs: [m02.jobId, a02.jobId] }
   })
 
@@ -327,13 +327,15 @@ export async function cancelPrepaymentOrder(
     })
     const jobs: JobId[] = [m04.jobId]
     if (reason === 'payment_timeout') {
-      const a03 = await enqueueEmail(req, {
-        template: 'admin_prepayment_cancelled',
-        locale: 'de',
-        data: { orderId: order.id, orderNumber: order.orderNumber, items: adminItems(order) },
-        idempotencyKey: `admin_prepayment_cancelled:${order.id}:O4`,
-        relations: { order: order.id },
-      })
+      const a03 = await notifyAdmin(
+        req,
+        'admin_prepayment_cancelled',
+        { orderId: order.id, orderNumber: order.orderNumber, items: adminItems(order) },
+        {
+          idempotencyKey: `admin_prepayment_cancelled:${order.id}:O4`,
+          relations: { order: order.id },
+        },
+      )
       jobs.push(a03.jobId)
     }
     return { order, productIds, jobs }

@@ -219,6 +219,72 @@ export const MAIL_FIXTURE_DATA: Partial<Record<EmailTemplate, Record<string, unk
       currentYearLimitCents: 10_000_000,
     },
   },
+  admin_withdrawal_received: {
+    withdrawalId: 3,
+    reference: 'WR-2026-00003',
+    orderNumber: 'PC-2026-00017',
+    receivedAt: '2026-10-14T09:12:00.000Z',
+    items: [{ itemNumber: 17, title: 'Tasse „Coco schläft“' }],
+    refundDueAt: '2026-10-28T09:12:00.000Z',
+  },
+  admin_inquiry_received: {
+    inquiryId: 7,
+    reference: 'AA-2026-0007',
+    objectType: 'cap',
+    imageCount: 2,
+  },
+  admin_legal_review_due: {
+    texts: [
+      { type: 'agb', lastReviewedAt: '2025-09-01T08:00:00.000Z' },
+      { type: 'datenschutz', lastReviewedAt: '2025-08-15T08:00:00.000Z' },
+    ],
+  },
+  admin_monthly_close: {
+    month: '2026-10',
+    invoiceCount: 12,
+    invoiceTotalCents: 64_890,
+    creditNoteCount: 1,
+    creditNoteTotalCents: 4_500,
+    missingManualSources: ['tattoo', 'flohmarkt'],
+  },
+  admin_withdrawal_deadline: {
+    withdrawalId: 3,
+    reference: 'WR-2026-00003',
+    orderNumber: 'PC-2026-00017',
+    refundDueAt: '2026-10-28T09:12:00.000Z',
+    daysLeft: 4,
+  },
+  admin_privacy_request_due: {
+    privacyRequestId: 1,
+    reference: 'DS-2026-0001',
+    type: 'access',
+    dueAt: '2026-10-21T21:59:59.000Z',
+  },
+  admin_legal_hold_review: {
+    holds: [
+      {
+        kind: 'order',
+        id: 17,
+        reference: 'PC-2026-00017',
+        reason: 'Streit über Bruchschaden, Unterlagen aufheben',
+        since: '2026-03-02T10:00:00.000Z',
+      },
+    ],
+  },
+  admin_compliance_docs_review: {
+    documents: [
+      {
+        kind: 'conformity_declaration',
+        title: 'Konformitätserklärung Keramik-Glasur',
+        keepUntil: null,
+      },
+      {
+        kind: 'lab_report',
+        title: 'Prüfbericht Blei/Cadmium 2026',
+        keepUntil: '2036-10-14T09:30:00.000Z',
+      },
+    ],
+  },
   admin_alert: {
     kind: 'payment_webhook',
     summary: 'Zahlung konnte nicht zugeordnet werden',

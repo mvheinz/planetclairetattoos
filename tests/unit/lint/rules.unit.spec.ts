@@ -11,10 +11,14 @@ async function ruleIds(code: string, file: string): Promise<string[]> {
   return (result?.messages ?? []).map((m) => m.ruleId ?? 'parse')
 }
 
-describe('ESLint-Regeln (ARCHITEKTUR §15)', () => {
-  beforeAll(() => {
+// Laufzeit: Der erste `lintText` lädt Konfiguration, Plugins und den TypeScript-Parser (unter Last > 5 s) – das passiert
+// jetzt im `beforeAll` (eigenes Zeitlimit). Einzelne Regelprüfungen brauchen danach wenige 100 ms; 20 s je Test geben
+// Luft, wenn parallel Build oder E2E laufen.
+describe('ESLint-Regeln (ARCHITEKTUR §15)', { timeout: 20_000 }, () => {
+  beforeAll(async () => {
     eslint = new ESLint({ cwd: root })
-  })
+    await eslint.lintText('export {}\n', { filePath: path.join(root, 'src/lib/example.ts') })
+  }, 120_000)
 
   it('AK-A-15-01 console.log in src/ ist ein Fehler', async () => {
     expect(await ruleIds("console.log('x')\n", 'src/lib/example.ts')).toContain('no-console')

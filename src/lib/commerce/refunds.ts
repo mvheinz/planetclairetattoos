@@ -2,7 +2,8 @@ import 'server-only'
 
 import { createLocalReq, type Payload, type PayloadRequest } from 'payload'
 
-import { enqueueEmail, runEmailJobNow } from '@/lib/email/outbox'
+import { runEmailJobNow } from '@/lib/email/outbox'
+import { notifyAdmin } from '@/lib/email/notifyAdmin'
 import type { RefundStatus } from '@/lib/enums'
 import { createLogger } from '@/lib/monitoring/logger'
 import { inTransaction } from '@/lib/payload/transaction'
@@ -75,18 +76,20 @@ export async function setRefundStatus(
       input.now,
     )
     if (!failedNow) return null
-    const a08 = await enqueueEmail(req, {
-      template: 'admin_refund_failed',
-      locale: 'de',
-      data: {
+    const a08 = await notifyAdmin(
+      req,
+      'admin_refund_failed',
+      {
         orderId,
         orderNumber: order.orderNumber,
         amountCents: row.amountCents,
         error: input.error?.slice(0, 300) ?? null,
       },
-      idempotencyKey: `admin_refund_failed:${orderId}:${input.stripeRefundId ?? row.stripeRefundId ?? index + 1}`,
-      relations: { order: orderId },
-    })
+      {
+        idempotencyKey: `admin_refund_failed:${orderId}:${input.stripeRefundId ?? row.stripeRefundId ?? index + 1}`,
+        relations: { order: orderId },
+      },
+    )
     return a08.jobId
   })
 }

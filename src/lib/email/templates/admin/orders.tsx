@@ -11,13 +11,15 @@ import {
   stageMessage,
 } from '@/lib/revenue/guard'
 
-import type { RenderedMail, TemplateRenderInput } from '../registry'
+import type { RenderedMail, TemplateRenderInput } from '../../registry'
 
-import { block, fmtDate, fmtDateTime, money, renderAdminMail, type Block } from './kit'
+import { block, fmtDate, fmtDateTime, money, renderAdminMail, type Block } from '../kit'
+
+import { ADMIN_MAIL_PATHS } from './paths'
 
 // Verwaltungs-Mails (KONZEPT §6.4, P4.15): immer Deutsch, kurz, Direktlink in die Verwaltung, keine Kund:innen-Freitexte
 // (nur Name und Ort bei A01). A01/A02 `admin_order_placed`, A03 `admin_prepayment_cancelled`, A06 `admin_oversold`,
-// A07 `admin_dispute_opened`, A08 `admin_refund_failed`, A09 `admin_revenue_guard` (P5.23); A12 `admin_alert` steht in `adminAlert.tsx`.
+// A07 `admin_dispute_opened`, A08 `admin_refund_failed`, A09 `admin_revenue_guard` (P5.23); A12 `admin_alert` steht in `alert.tsx`.
 
 export const ADMIN_ORDER_PLACED_VERSION = 'a01-v1'
 export const ADMIN_PREPAYMENT_CANCELLED_VERSION = 'a03-v1'
@@ -37,7 +39,7 @@ const item = z.object({
   category: z.string().max(40).optional(),
 })
 
-const orderPath = (id: number) => `/collections/orders/${id}`
+const orderPath = ADMIN_MAIL_PATHS.order
 const nr = (n: number) => `Nr. ${padItemNumber(n)}`
 const itemLine = (i: z.infer<typeof item>) => `${nr(i.itemNumber)} · ${i.title}`
 const shortDate = (d: string) => fmtDate(d, 'de').slice(0, 6)
@@ -338,6 +340,6 @@ export async function renderAdminRevenueGuard(
       block.p(REVENUE_GUARD_DISCLAIMER),
     ],
     links,
-    adminPath: '/globals/settings',
+    adminPath: ADMIN_MAIL_PATHS.settings(),
   })
 }

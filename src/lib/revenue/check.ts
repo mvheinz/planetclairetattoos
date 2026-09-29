@@ -5,7 +5,8 @@ import { createLocalReq, type Payload, type PayloadRequest } from 'payload'
 
 import { TASK_DEFS } from '@/jobs/index'
 import { dbFor } from '@/lib/db/tx'
-import { enqueueEmail, runEmailJobNow } from '@/lib/email/outbox'
+import { runEmailJobNow } from '@/lib/email/outbox'
+import { notifyAdmin } from '@/lib/email/notifyAdmin'
 import { seedPreviewModeActive } from '@/lib/env'
 import { jobAlarm } from '@/lib/jobs/alarm'
 import { createLogger } from '@/lib/monitoring/logger'
@@ -128,18 +129,18 @@ export async function runRevenueGuardCheck(
     if (status.pending.length === 0) return { status, jobs: [] as (number | string | null)[] }
     const jobs: (number | string | null)[] = []
     for (const s of status.pending) {
-      const mail = await enqueueEmail(req, {
-        template: 'admin_revenue_guard',
-        locale: 'de',
-        data: {
+      const mail = await notifyAdmin(
+        req,
+        'admin_revenue_guard',
+        {
           year: status.year,
           stage: s.stage,
           totalCents: status.totalCents,
           previousYearTotalCents: status.previousYearTotalCents,
           thresholds: status.thresholds,
         },
-        idempotencyKey: `admin_revenue_guard:${status.year}:${s.stage}`,
-      })
+        { idempotencyKey: `admin_revenue_guard:${status.year}:${s.stage}` },
+      )
       jobs.push(mail.jobId)
     }
     const last = withNotified(

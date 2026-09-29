@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P5.2
+
+- Verwaltungs-Mails A04, A05, A10, A11, A13–A16 neu (`src/lib/email/templates/admin/`: records, reminders; A01–A09/A12 dorthin verschoben), strikte Schemata (A05 ohne Name/E-Mail/Freitext/Bilder, R-160)
+- `ADMIN_MAILS` in `src/lib/email/registry.ts`: A01–A17 → Schlüssel laut DATENMODELL §4; Dienst `notifyAdmin` (`src/lib/email/notifyAdmin.ts`), A01–A03, A06–A09 darauf umgestellt
+- Tests: `tests/unit/email/admin-templates.unit.spec.ts` (26, Snapshots A01–A17, AK-6-03), `tests/int/email/notify-admin.int.spec.ts` (6, Rückfall ADMIN_NOTIFY_EMAIL, A12-Drosselung mit vorgestellter Uhr); Lint-Test: ESLint-Aufwärmen im beforeAll (Timeout unter Last)
+
 ## 2026-09-29 – P5.7
 
 - Statusautomat der Stücke mit KONZEPT §5.1 abgeglichen: P3/P12 jetzt auch mit Prüfung „keine aktive Reservierung“ (nicht abgelaufene Reservierung → 409); DATENMODELL §6.6.7-Diagramm um P6 ergänzt\n- Tests: tests/int/products/transitions.int.spec.ts (AK-5-01 Matrix als reine Funktion und über alle Admin-Endpunkte inkl. Löschen P15, AK-5-02 Audit mit Auslöser, Erstattungsgründe breakage/admin_cancellation/goodwill), tests/int/legal/offline-sale.int.spec.ts (R-127: keine Bestellung/Rechnung/Umsatz, Vorkasse → 409) – 16 Tests grün; status.int.spec.ts weiter grün
