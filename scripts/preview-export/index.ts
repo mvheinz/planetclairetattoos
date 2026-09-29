@@ -117,6 +117,18 @@ export async function runExport(args: ExportArgs, root = process.cwd()): Promise
   try {
     log('Server starten')
     server = await startServer(env)
+    // Verwaltungs-Fotos vor dem Korb: Reservierung und Freigabe von S01/S11 setzen `updatedAt` auf die Wanduhr – die
+    // Stückliste (sortiert und mit Datumsspalte) wäre sonst von Lauf zu Lauf verschieden (AK-A-14-01).
+    log('Verwaltungs-Fotos')
+    shots = await captureAdminShots({
+      origin: server.origin,
+      adminRoute: EXPORT_ADMIN_ROUTE,
+      email: env.SEED_ADMIN_EMAIL!,
+      password: env.SEED_ADMIN_PASSWORD!,
+      seedNow: env.SEED_NOW!,
+      phase,
+      views: ADMIN_VIEWS,
+    })
     log('Korb und Kasse (S01 + S11, „Zur Kasse“)')
     const cart = await captureCartSession(server.origin)
     const fetcher = await createServerFetcher(server.origin)
@@ -134,16 +146,6 @@ export async function runExport(args: ExportArgs, root = process.cwd()): Promise
     } finally {
       await fetcher.close()
     }
-    log('Verwaltungs-Fotos')
-    shots = await captureAdminShots({
-      origin: server.origin,
-      adminRoute: EXPORT_ADMIN_ROUTE,
-      email: env.SEED_ADMIN_EMAIL!,
-      password: env.SEED_ADMIN_PASSWORD!,
-      seedNow: env.SEED_NOW!,
-      phase,
-      views: ADMIN_VIEWS,
-    })
   } finally {
     if (server && !args.keepServer) {
       log('Server beenden')
