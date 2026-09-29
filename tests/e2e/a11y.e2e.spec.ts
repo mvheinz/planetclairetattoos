@@ -2,18 +2,23 @@ import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 
 import AxeBuilder from '@axe-core/playwright'
-import { expect, test, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
 import pg from 'pg'
 
-import { localizedPath, pageRoutes } from '../../src/lib/routes/paths'
+import { localizedPath, pageRoutes, samplePath } from '../../src/lib/routes/paths'
 import { LOCALES, type Locale } from '../../src/lib/routes/registry'
 import { serverURL } from '../helpers/adminEnv'
+import { expect, test } from './fixtures'
+import { holdListData } from './shop/fresh'
+import { P3_PAGES, homeVariant } from './shop/p3Pages'
 
 // P2.22 Barrierefreiheit (ARCHITEKTUR §7.5, KONZEPT EK-07, RECHT R-191, T-11): axe mit den Tags `wcag2a`, `wcag2aa`,
 // `wcag21a`, `wcag21aa`, `wcag22aa` auf jeder `live`-Route je Sprache und in den Zuständen offenes Menü, 404, 500,
 // Leerzustand der Startseite (ohne `pages:home`) und Rechtsseite mit Platzhalter. Gate: 0 Verstöße `serious`/`critical`;
 // `moderate`/`minor` erscheinen als Annotation im Report. Dazu: `lang` je Seite korrekt. Den Tastatur-Durchlauf und die
 // Fokus-Sichtbarkeit prüft `keyboard.e2e.spec.ts`.
+// P3.16: zusätzlich R02, R03 und R05 mit ihren Varianten und jeder Kategorie sowie R04 je Kategorie und Zustand
+// (reserviert, verkauft) und die 404-Varianten (unbekannt/Entwurf, „Schon ein Zuhause“, Seite hinter der letzten).
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
 
@@ -59,13 +64,54 @@ const livePages = pageRoutes().filter((r) => r.status === 'live')
 test.describe('axe je live-Route @a11y', () => {
   for (const route of livePages) {
     for (const locale of LOCALES) {
-      const url = localizedPath(route.id, locale)
+      const url = samplePath(route.id, locale)
       test(`T-11 R-191 ${route.id} ${url} @a11y`, async ({ page }) => {
         await open(page, url)
         await expectLang(page, locale)
         await expectNoSeriousViolations(page, url)
       })
     }
+  }
+})
+
+test.describe('axe P3: Varianten und Zustände von R02–R05 @a11y', () => {
+  // Je Route prüft die Suite oben alle drei Projekte; die Varianten und Zustände laufen im Desktop- und im Mobil-Layout
+  // (desktop, pixel-7) – axe prüft das DOM, iphone-15 hätte dasselbe Mobil-Layout (CI-Minuten, OFFENE-PUNKTE P3.16).
+  test.beforeEach(({}, testInfo) => {
+    test.skip(
+      testInfo.project.name === 'iphone-15',
+      'P3-Varianten: desktop und pixel-7 (Mobil-Layout)',
+    )
+  })
+  // Seed-Anker (S06 verkauft, Listen) nicht während eines exklusiven Bestandstests lesen.
+  holdListData(test, 'shared')
+
+  for (const p of P3_PAGES) {
+    test(`T-11 R-191 EK-07 ${p.name} ${p.path} @a11y`, async ({ page }) => {
+      await open(page, p.path, p.status)
+      if (p.routeId === 'R31') {
+        // Kurzlink ohne Sprachpräfix: Sprache per Accept-Language des Browsers – `lang` passt zur Zielseite.
+        const lang = (await page.locator('html').getAttribute('lang')) as Locale
+        expect(LOCALES).toContain(lang)
+        const target = new URL(page.url()).pathname.split('/')[1]
+        if (p.status === 200) expect(target).toBe(lang)
+      } else await expectLang(page, p.locale)
+      await expectNoSeriousViolations(page, `${p.name} ${p.path}`)
+    })
+  }
+
+  for (const locale of LOCALES) {
+    test(`T-11 R-191 R04 404-Variante „Schon ein Zuhause“ (Fixture analog S08) ${locale} @a11y`, async ({
+      page,
+      fixtureProducts,
+      request,
+    }) => {
+      const url = await homeVariant(fixtureProducts, request, locale)
+      await open(page, url, 404)
+      await expect(page.locator('[data-not-found]')).toHaveAttribute('data-variant', 'home')
+      await expectLang(page, locale)
+      await expectNoSeriousViolations(page, `Zuhause ${locale}`)
+    })
   }
 })
 

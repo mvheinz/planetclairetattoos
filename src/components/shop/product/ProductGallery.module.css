@@ -1,0 +1,237 @@
+/* Produktgalerie und Lightbox (DESIGN KO-09): Scroll-Snap ohne Bibliothek, Punkte + Zähler, ab 768 px Pfeile und
+   Miniaturen; Lightbox im Vollbild auf `--paper-field` (kein Schwarz), öffnet ohne Animation. */
+.gallery {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+/* Ab 768 px höchstens 36rem breit (4:5-Foto passt so neben Kopf und Preis in den ersten Bildschirm). */
+@media (min-width: 768px) {
+  .gallery {
+    max-width: 36rem;
+  }
+}
+
+.viewport {
+  position: relative;
+}
+
+.track {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  border-radius: var(--r-photo);
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+.track:focus-visible {
+  outline-offset: 3px;
+}
+
+.slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.zoomLink {
+  position: relative;
+  display: block;
+  color: var(--ink);
+  cursor: zoom-in;
+}
+
+.zoomLink:focus-visible {
+  outline-offset: -3px;
+  box-shadow: inset 0 0 0 5px var(--paper);
+}
+
+.zoomHint {
+  position: absolute;
+  right: var(--space-2);
+  bottom: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: var(--r-btn);
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  font-size: var(--fs-small);
+  font-weight: 500;
+}
+
+.arrow {
+  position: absolute;
+  top: 50%;
+  display: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-top: -22px;
+  padding: 0;
+  border: var(--stroke-ui) solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.arrow[aria-disabled='true'] {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.prev {
+  left: var(--space-2);
+}
+
+.next {
+  right: var(--space-2);
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.dots {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border: 1.25px solid var(--ink-2);
+  border-radius: 50% 45% 55% 48%;
+}
+
+.dot[data-active] {
+  border-color: var(--ink);
+  background: var(--ink);
+}
+
+.counter {
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+}
+
+.thumbs {
+  display: none;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.thumb {
+  display: block;
+  width: 64px;
+  padding: 0;
+  border: var(--stroke-ui) solid transparent;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+}
+
+.thumb[aria-current='true'] {
+  border-color: var(--ink);
+}
+
+@media (min-width: 768px) {
+  .arrow:not([hidden]) {
+    display: grid;
+  }
+
+  .thumbs:not([hidden]) {
+    display: flex;
+  }
+}
+
+/* Lightbox (`<dialog>`): Vollbild, Grund `--paper-field`, natives Pinch-Zoom, Zoom 1× ↔ 2× per `transform`. */
+.lightbox {
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--paper-field);
+  color: var(--ink);
+}
+
+.lightbox::backdrop {
+  background: var(--paper-field);
+}
+
+.stage {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: pinch-zoom pan-x pan-y;
+}
+
+.zoomImg {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  cursor: zoom-in;
+  user-select: none;
+}
+
+.stage[data-zoomed] {
+  touch-action: none;
+}
+
+.stage[data-zoomed] .zoomImg {
+  cursor: grab;
+}
+
+.close {
+  position: absolute;
+  top: calc(var(--space-3) + env(safe-area-inset-top));
+  right: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: var(--stroke-ui) solid var(--ink);
+  border-radius: var(--r-btn);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lightboxCounter {
+  position: absolute;
+  bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
+  right: 0;
+  left: 0;
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+}

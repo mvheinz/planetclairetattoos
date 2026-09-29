@@ -1,8 +1,9 @@
 import { expect, test, type Page } from '@playwright/test'
 
 import { LEGAL_LINKS } from '../../src/components/layout/navItems'
-import { localizedPath, pageRoutes } from '../../src/lib/routes/paths'
+import { localizedPath, pageRoutes, samplePath } from '../../src/lib/routes/paths'
 import { LOCALES, type Locale } from '../../src/lib/routes/registry'
+import { holdConformityData } from '../helpers/adminSessionLock'
 import { testPayload } from './fixtures'
 
 // P2.10 Fußbereich (DESIGN KO-04, KONZEPT §3.0.3): Pflichtlinks (R-011), „Vertrag widerrufen“ (R-090, AK-3-11,
@@ -91,8 +92,10 @@ test.describe('Fußbereich @smoke', () => {
   test('R-090 AK-3-11 „Vertrag widerrufen“ auf jeder öffentlichen Route (DE/EN, inkl. 404) im DOM und sichtbar @smoke', async ({
     page,
   }) => {
+    // Rund 30 Seitenaufrufe in einem Test (WebKit unter Last > 30 s).
+    test.slow()
     const paths = [
-      ...LIVE_PAGES.flatMap((r) => LOCALES.map((l) => [l, localizedPath(r.id, l)] as const)),
+      ...LIVE_PAGES.flatMap((r) => LOCALES.map((l) => [l, samplePath(r.id, l)] as const)),
       ['de', '/de/gibt-es-nicht'] as const,
       ['en', '/en/does-not-exist'] as const,
     ]
@@ -113,14 +116,20 @@ test.describe('Fußbereich @smoke', () => {
     page,
   }) => {
     const payload = await testPayload()
-    const { totalDocs } = await payload.count({
-      collection: 'conformity-declarations',
-      where: { status: { equals: 'active' } },
-      overrideAccess: true,
-    })
-    await page.goto('/de/impressum')
-    const link = page.locator('[data-site-footer] [data-legal-link="R27"]')
-    await expect(link).toHaveCount(totalDocs > 0 ? 1 : 0)
+    // Kein anderer Test legt währenddessen eine Erklärung an (Produktseite P3.8, `holdConformityData`).
+    const release = await holdConformityData('shared')
+    try {
+      const { totalDocs } = await payload.count({
+        collection: 'conformity-declarations',
+        where: { status: { equals: 'active' } },
+        overrideAccess: true,
+      })
+      await page.goto('/de/impressum')
+      const link = page.locator('[data-site-footer] [data-legal-link="R27"]')
+      await expect(link).toHaveCount(totalDocs > 0 ? 1 : 0)
+    } finally {
+      await release()
+    }
     // Die Seite selbst bleibt erreichbar.
     expect((await page.goto('/de/konformitaetserklaerungen'))?.status()).toBe(200)
   })
@@ -145,7 +154,8 @@ test.describe('Fußbereich @smoke', () => {
     ])
     const insta = nav.getByRole('link', { name: /Instagram/ })
     await expect(insta).toHaveAttribute('href', /^https:\/\/www\.instagram\.com\/[a-z0-9._]+\/$/)
-    await expect(insta).toHaveAttribute('rel', /noopener/)
+    // R-139: Instagram nur als einfacher Link mit rel="noopener noreferrer"
+    await expect(insta).toHaveAttribute('rel', 'noopener noreferrer')
 
     const switcher = page.locator('[data-site-footer] [data-language-switcher]')
     const en = switcher.getByRole('link', { name: 'English' })

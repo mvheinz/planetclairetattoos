@@ -39,6 +39,7 @@ type MediaDoc = Awaited<ReturnType<Payload['findByID']>> & {
       width: number | null
       height: number | null
       mimeType: string | null
+      filesize?: number | null
     }
   >
 }
@@ -236,6 +237,48 @@ describe('media – Bildgrößen (DATENMODELL §6.2, DESIGN §12.2 Schritte 3, 7
     const base = doc.filename.replace(/\.webp$/, '')
     const onDisk = (await readdir(uploadStaticDir('media'))).filter((f) => f.startsWith(base))
     expect(onDisk).toEqual([doc.filename])
+  })
+
+  it('DM-MEDIA-02 eigene Datei je Größe: 800×1000-Original – card bleibt die card-Kodierung (AK-A-14-01)', async () => {
+    // card, detail und zoom haben hier dasselbe Ausgabemaß 800×1000. Mit Payloads Standardnamen landeten alle drei
+    // (q 80/82/85, parallel geschrieben) in derselben Datei – ihr Inhalt hinge vom Zufall ab.
+    const art = await sharp({
+      create: {
+        width: 800,
+        height: 1000,
+        channels: 3,
+        background: '#808080',
+        noise: { type: 'gaussian', mean: 128, sigma: 40 },
+      },
+    })
+      .png()
+      .toBuffer()
+    const doc = await upload(
+      'hochformat.png',
+      { alt: 'Graues Rauschen als Test' },
+      'image/png',
+      art,
+    )
+    const { thumb, card } = doc.sizes
+    expect(thumb?.filename).toMatch(/-thumb-400x500\.webp$/)
+    expect(card?.filename).toMatch(/-card-800x1000\.webp$/)
+    for (const name of ['detail', 'zoom', 'og']) {
+      expect(doc.sizes[name]?.filename ?? null, name).toBeNull()
+    }
+    const cardFile = await readFile(stored(card!.filename!))
+    expect(cardFile.length).toBe(card!.filesize)
+    const base = doc.filename.replace(/\.webp$/, '')
+    const onDisk = (await readdir(uploadStaticDir('media'))).filter((f) => f.startsWith(base))
+    expect(onDisk.sort()).toEqual([doc.filename, card!.filename!, thumb!.filename!].sort())
+
+    const again = await upload(
+      'hochformat.png',
+      { alt: 'Graues Rauschen als Test' },
+      'image/png',
+      art,
+    )
+    expect(again.sizes.card?.filename).not.toBe(card!.filename)
+    expect((await readFile(stored(again.sizes.card!.filename!))).equals(cardFile)).toBe(true)
   })
 
   it('DM-MEDIA-02 Instagram-Format 640×640: nur thumb entsteht (DESIGN §12.2)', async () => {

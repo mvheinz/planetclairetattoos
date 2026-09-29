@@ -10,6 +10,7 @@ import { isAdmin } from '@/access'
 import { moneyField } from '@/fields'
 import { writeAudit } from '@/lib/audit'
 import { revalidateContent } from '@/lib/cache/revalidate'
+import { validateDeliveryTimeText } from '@/lib/shop/deliveryTime'
 import { TAGS } from '@/lib/cache/tags'
 import { ENUM_LABELS, enumOptions } from '@/lib/enumLabels'
 import {
@@ -440,6 +441,8 @@ const shippingGroup: Field = {
       label: 'Lieferzeit',
       localized: true,
       maxLength: 60,
+      // R-035: keine vagen Angaben wie „ca.“ oder „in der Regel“.
+      validate: validateDeliveryTimeText,
       defaultValue: ({ locale }) => localized(TEXT_DEFAULTS.deliveryTimeText)(locale),
     },
     moneyField('insuranceHintThresholdCents', {

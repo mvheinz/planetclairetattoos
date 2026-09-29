@@ -1,0 +1,186 @@
+/* Listen-Seiten R02/R03/R05 (KO-07, KO-08, §5.4 Shop-Raster, §9.7 shopString). */
+.page {
+  padding-block: var(--space-6) var(--space-8);
+}
+
+.head {
+  max-width: 60ch;
+}
+
+.title {
+  margin: 0;
+}
+
+.intro {
+  margin-top: var(--space-3);
+  color: var(--ink-2);
+}
+
+/* KO-08 Filter-Chips: mobil seitlich scrollbar mit Fade-Rand rechts, Chips sind Links. */
+.filters {
+  position: relative;
+  margin-top: var(--space-5);
+  margin-inline: calc(-1 * var(--page-pad));
+}
+
+.filters::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  right: 0;
+  width: var(--space-6);
+  background: linear-gradient(to right, transparent, var(--paper));
+  pointer-events: none;
+}
+
+.chips {
+  display: flex;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 2px var(--space-6) 2px var(--page-pad);
+  overflow-x: auto;
+  list-style: none;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.chips > li {
+  flex: none;
+  scroll-snap-align: start;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  min-height: 40px;
+  margin: 2px 0;
+  padding: 0 14px;
+  border: 1.5px solid var(--ink);
+  border-radius: var(--r-btn);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.chip[aria-current='page'],
+.toggle[data-active] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.chip:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.box {
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid currentColor;
+  border-radius: 4px 3px 5px 3px;
+}
+
+.closed {
+  margin-top: var(--space-5);
+  max-width: 60ch;
+}
+
+.listing {
+  margin-top: var(--space-4);
+}
+
+/* Schnuranfang: Coco (--coco-m) sitzt links über der ersten Reihe, der Anker liegt am D-Ring des Geschirrs. */
+.stringStart {
+  display: flex;
+  align-items: flex-end;
+  height: calc(var(--coco-m) * 0.75);
+}
+
+.coco {
+  position: relative;
+  display: block;
+  width: var(--coco-m);
+}
+
+.startAnchor {
+  position: absolute;
+  top: 55.8%;
+  left: 37.8%;
+  width: 0;
+  height: 0;
+}
+
+.gridWrap {
+  position: relative;
+  margin-top: var(--space-4);
+}
+
+.bounds {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 0;
+}
+
+/* §5.4 Shop-Raster: 2 Spalten mobil, 3 ab 768, 4 ab 1200; Zeilenabstand 32 / 48. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6) 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.more {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-7);
+}
+
+.notes {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-7);
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+@media (min-width: 768px) {
+  .filters {
+    margin-inline: 0;
+  }
+
+  .filters::after {
+    display: none;
+  }
+
+  .chips {
+    flex-wrap: wrap;
+    padding-inline: 0;
+    overflow-x: visible;
+  }
+
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-7) 20px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-7) 24px;
+  }
+}

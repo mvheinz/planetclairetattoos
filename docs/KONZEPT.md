@@ -497,7 +497,7 @@ Filter-Chip mit `aria-current="page"`. Unbekannter Slug → 404. SEO-Titel `{Kat
      - `zeichnung`: Technik und Papier stehen in `materials` (z. B. „Aquarell auf Papier 300 g“), Maße; bei `framed` und
        `frameHasGlass` automatisch der Warnhinweis zum Glasrahmen (R-046).
      - Abweichende Beschaffenheit (falls `hasDeviation` gesetzt, z. B. Fleck, Riss, Glasurfehler): hervorgehobener
-       Kasten „Bitte beachten: {`deviationDescription`}“ (wird in der Kasse gesondert bestätigt, §4.4).
+       Kasten „Besonderheit dieses Stücks: {`deviationDescription`}“ (Wortlaut laut RECHT R-048 Nr. 1) (wird in der Kasse gesondert bestätigt, §4.4).
   6. **Kaufknopf je Zustand:**
      - Shop pausiert (`settings.shop.isOpen = false`, §4.2) und Stück nicht `sold` → Knopf „In den Korb“ deaktiviert,
        darüber der Text aus `settings.shop.closedMessage`.

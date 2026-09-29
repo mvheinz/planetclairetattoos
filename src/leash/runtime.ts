@@ -93,6 +93,8 @@ const SVG_NS = 'http://www.w3.org/2000/svg'
 const REBUILD_DEBOUNCE_MS = 150
 /** Viewport-Höhenänderungen darunter lösen keinen Neuaufbau aus (mobile Adressleiste, §9.6). */
 const MIN_VIEWPORT_DH = 120
+/** Eintrittslinie der Kartenreihen (`shopString`): Anteil der Viewport-Höhe von oben (§9.7, IO-Schwelle ≈ 0.3). */
+const ROW_ENTER_LINE = 0.95
 /** Coco springt statt zu rennen, wenn sie weiter zurückliegt (§9.6). */
 const COCO_JUMP = 300
 
@@ -308,10 +310,17 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
 
   function scrollTarget(): number {
     if (!geometry || !m) return 0
-    if (cfg.draw !== 'scroll') return geometry.totalLength
+    const rows = cfg.draw === 'rowEnter'
+    if (cfg.draw !== 'scroll' && !rows) return geometry.totalLength
     if (readingOverride === null && m.maxScroll > 0 && win.scrollY >= m.maxScroll - 2)
       return geometry.totalLength
-    return mapReadingY(geometry.scrollMap, readingY())
+    // Kartenreihen (§9.7): Reihe gilt als eingetreten, wenn ihre Schnur die Eintrittslinie erreicht.
+    return mapReadingY(
+      geometry.scrollMap,
+      rows
+        ? (readingOverride ?? win.scrollY + ROW_ENTER_LINE * m.innerHeight - m.rootTop)
+        : readingY(),
+    )
   }
 
   /** Ruheplatz bei reduzierter Bewegung: erste Station (`journey`/`about`, §9.11), sonst Linienanfang. */
@@ -369,12 +378,18 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     const target = scrollTarget()
     if (intro) {
       if (intro.start === null) intro.start = now
-      if (cfg.draw === 'scroll') intro.to = Math.max(intro.to, target)
+      if (cfg.draw === 'scroll' || cfg.draw === 'rowEnter') intro.to = Math.max(intro.to, target)
       const t = Math.min(1, (now - intro.start) / intro.dur)
       drawnLen = Math.max(drawnLen, intro.from + (intro.to - intro.from) * easeInkOut(t))
       if (t >= 1) intro = null
       else again = true
-    } else if (tier !== 'C') drawnLen = Math.max(drawnLen, target)
+    } else if (tier !== 'C') {
+      if (cfg.draw === 'rowEnter' && target > drawnLen + 0.5) {
+        // Neue Reihe im Sichtbereich: ihre Schnur zeichnet sich in `durationMs` (500 ms, `--ease-ink-out`).
+        intro = { from: drawnLen, to: target, start: now, dur: 500 }
+        again = true
+      } else drawnLen = Math.max(drawnLen, target)
+    }
     applyDrawn()
 
     // Coco folgt der Lesezeile auf der gezeichneten Linie, geglättet: 1 − (1 − 0.35)^(dt/16.7).

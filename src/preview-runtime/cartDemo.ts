@@ -1,7 +1,8 @@
 import { CART_CHANGE_EVENT, type CartChangeDetail } from '../behaviors/cart-count'
 
-// Korb der Vorschau (KONZEPT §12.5 Nr. 7, ARCHITEKTUR §14.6): „In den Korb“ (`[data-pv-add-to-cart]` bzw. das
-// Verhaltensmodul `add-to-cart`, ab P3) zählt die Korb-Anzeige **nur im Speicher** hoch (Ereignis
+// Korb der Vorschau (KONZEPT §12.5 Nr. 7, ARCHITEKTUR §14.6): „In den Korb“ (`[data-pv-add-to-cart]` bzw. der Knopf im
+// Formular des Verhaltensmoduls `add-to-cart`, P3.11 – das Modul selbst zeigt nur an) zählt die Korb-Anzeige **nur im
+// Speicher** hoch (Ereignis
 // `CART_CHANGE_EVENT` mit `detail.count`, das `cart-count` im Modus `preview` liest) und zeigt kurz „In der Vorschau zeigt
 // der Korb ein Beispiel“. Kein Cookie, kein Web-Storage, kein Netz.
 
@@ -12,7 +13,7 @@ export interface CartDemo {
   destroy(): void
 }
 
-const TRIGGER = '[data-pv-add-to-cart], [data-behavior~="add-to-cart"]'
+const TRIGGER = '[data-pv-add-to-cart], [data-behavior~="add-to-cart"] button'
 const NOTE_MS = 3200
 
 export function installCartDemo(doc: Document): CartDemo {

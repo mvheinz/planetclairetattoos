@@ -4,6 +4,12 @@ import { LOCALES, ROUTES, aliases, type Locale, type RouteEntry } from './regist
 
 export type RouteParams = Record<string, string>
 
+/** Listen mit statischen Varianten (ARCHITEKTUR §9.1, Spike B-05): Shop, Kategorie, Archiv. */
+export const LIST_ROUTE_IDS = ['R02', 'R03', 'R05'] as const
+export type ListRouteId = (typeof LIST_ROUTE_IDS)[number]
+/** Internes Segment der Varianten-Seiten (`[locale]/shop/variant/[variant]`); nie sichtbar. */
+export const LIST_VARIANT_SEGMENT = 'variant'
+
 export const isLocale = (value: string | undefined): value is Locale =>
   (LOCALES as readonly string[]).includes(value ?? '')
 
@@ -136,6 +142,12 @@ export function toFolderPattern(pattern: string, key: string): string {
  */
 export function matchSegments(segments: readonly string[]): RouteMatch | null {
   const parts = segments.filter((s) => s !== '' && !s.startsWith('('))
+  // Interne Listen-Variante (`shop/variant/page-2`) gehört zur Liste selbst (R02, R03, R05).
+  if (parts.length >= 2 && parts[parts.length - 2] === LIST_VARIANT_SEGMENT) {
+    const base = parts.slice(0, -2)
+    const match = matchRoute(base.length === 0 ? '/' : `/${base.join('/')}`, 'en')
+    if (match && (LIST_ROUTE_IDS as readonly string[]).includes(match.route.id)) return match
+  }
   return matchRoute(parts.length === 0 ? '/' : `/${parts.join('/')}`, 'en')
 }
 
@@ -147,4 +159,22 @@ export function matchSegments(segments: readonly string[]): RouteMatch | null {
 export function alternateForMatch(match: RouteMatch | null, locale: Locale): string {
   if (!match || 'slug' in match.params) return localizedPath('R01', locale)
   return localizedPath(match.route.id, locale, match.params)
+}
+
+/**
+ * Beispiel-Parameter live geschalteter Routen mit Parametern – für Querschnittsprüfungen (Barrierefreiheit, Datenschutz,
+ * SEO, Tempo, Verbotsmuster), die jede `live`-Route aufrufen. R03 aus dem Grund-Seed (Kategorien, SEED-SPEC §3), R04
+ * aus dem Beispielbestand (S01 Nr. 901, `pnpm seed` bzw. `--seed=all` in allen Test-Umgebungen).
+ */
+export const ROUTE_SAMPLE_PARAMS: Readonly<Record<string, Record<Locale, RouteParams>>> = {
+  R03: { de: { slug: 'keramik' }, en: { slug: 'ceramics' } },
+  R04: {
+    de: { nummer: '901', slug: 'schale-langohr-wuschel' },
+    en: { nummer: '901', slug: 'bowl-long-ears-fluff' },
+  },
+}
+
+/** Pfad einer Route für Querschnittsprüfungen: ohne Parameter wie `localizedPath`, sonst mit Beispiel-Parametern. */
+export function samplePath(id: string, locale: Locale): string {
+  return localizedPath(id, locale, ROUTE_SAMPLE_PARAMS[id]?.[locale] ?? {})
 }

@@ -10,8 +10,15 @@ const { chromium } = require('@playwright/test')
 
 const budgets = require('./budgets.json')
 
-/** Pfade je Routen-ID (DE, wie in src/lib/routes/registry.ts; ein Unit-Test prüft die Übereinstimmung). */
-const ROUTE_PATHS = { R01: '/de' }
+/**
+ * Pfade je Routen-ID (DE, wie in src/lib/routes/registry.ts; ein Unit-Test prüft die Übereinstimmung). R04 misst die
+ * Produktseite des Seed-Ankers S01 (verfügbar, zwei Fotos) – dieselbe Beispiel-Adresse wie `samplePath('R04', 'de')`.
+ */
+const ROUTE_PATHS = {
+  R01: '/de',
+  R02: '/de/shop',
+  R04: '/de/shop/901-schale-langohr-wuschel',
+}
 
 const baseURL = 'http://localhost:3000'
 const urls = budgets.lighthouse.routes.map((id) => {
@@ -21,7 +28,15 @@ const urls = budgets.lighthouse.routes.map((id) => {
 })
 
 const lh = budgets.lighthouse
-const weight = budgets.pageWeight.R01
+
+/** Seitengewicht (`total-byte-weight`) nur für Routen mit eigenem Budget (ARCHITEKTUR §7.7: R01). */
+const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+const weighted = lh.routes
+  .filter((id) => budgets.pageWeight[id])
+  .map((id) => ({
+    pattern: `^${escapeRegex(`${baseURL}${ROUTE_PATHS[id]}`)}$`,
+    weight: budgets.pageWeight[id],
+  }))
 
 /** @param {'max' | 'target'} key */
 const numeric = (key) => ({
@@ -68,26 +83,28 @@ module.exports = {
     },
     assert: {
       assertMatrix: [
-        {
-          matchingUrlPattern: '.*',
-          assertions: {
-            ...assertions('error', 'max'),
-            'total-byte-weight': [
-              'error',
-              { maxNumericValue: weight.max, aggregationMethod: 'median' },
-            ],
+        { matchingUrlPattern: '.*', assertions: assertions('error', 'max') },
+        { matchingUrlPattern: '.*', assertions: assertions('warn', 'target') },
+        ...weighted.flatMap(({ pattern, weight }) => [
+          {
+            matchingUrlPattern: pattern,
+            assertions: {
+              'total-byte-weight': [
+                'error',
+                { maxNumericValue: weight.max, aggregationMethod: 'median' },
+              ],
+            },
           },
-        },
-        {
-          matchingUrlPattern: '.*',
-          assertions: {
-            ...assertions('warn', 'target'),
-            'total-byte-weight': [
-              'warn',
-              { maxNumericValue: weight.target, aggregationMethod: 'median' },
-            ],
+          {
+            matchingUrlPattern: pattern,
+            assertions: {
+              'total-byte-weight': [
+                'warn',
+                { maxNumericValue: weight.target, aggregationMethod: 'median' },
+              ],
+            },
           },
-        },
+        ]),
       ],
     },
     upload: {

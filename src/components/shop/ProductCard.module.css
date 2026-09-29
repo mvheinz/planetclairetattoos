@@ -1,0 +1,74 @@
+/* KO-07 Produktkarte: ein einziger Link, Fokus-Ring um die ganze Karte. */
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  color: var(--ink);
+  text-decoration: none;
+  border-radius: var(--r-card);
+}
+
+.card:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 4px;
+}
+
+.photo {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.image {
+  border-radius: var(--r-photo);
+}
+
+.card[data-status='sold'] .image img,
+.card[data-status='gone'] .image img {
+  opacity: 0.82;
+}
+
+.reserved {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+}
+
+/* Startseite (KO-21): ohne Schnur, Schild `pinned` am Kartenfuß (8 px Einzug). */
+.tagFoot {
+  margin-top: var(--space-2);
+  margin-left: 8px;
+}
+
+/* Preisschild links, 8 px Einzug; der Faden beginnt direkt unter dem Foto (Anschlusspunkt der Schnur). */
+.tag {
+  margin-top: var(--space-2);
+  margin-left: 8px;
+}
+
+.title {
+  display: -webkit-box;
+  margin-top: var(--space-3);
+  overflow: hidden;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.meta {
+  margin-top: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  line-height: 1.35;
+  color: var(--ink-2);
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: 16px;
+  }
+}

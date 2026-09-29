@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 
@@ -20,6 +21,12 @@ export interface ProductFixtures {
 }
 
 /** Bild mit Alt-Text DE und EN. */
+// Eindeutige Dateinamen je Aufruf: Payload macht Namen per „-1, -2 …“ eindeutig, prüft das aber nicht atomar – legen
+// parallele E2E-Worker gleichzeitig `schale.jpg` an, scheitert einer am Unique-Index (`filename`).
+function uniqueName(base: string, ext: string): string {
+  return `${base}-${randomUUID().slice(0, 8)}.${ext}`
+}
+
 export async function createTestImage(
   payload: Payload,
   alt = 'Blaue Schale mit Hund',
@@ -28,7 +35,7 @@ export async function createTestImage(
   const doc = await payload.create({
     collection: 'media',
     data: { alt } as never,
-    file: { data, name: 'schale.jpg', mimetype: 'image/jpeg', size: data.length },
+    file: { data, name: uniqueName('schale', 'jpg'), mimetype: 'image/jpeg', size: data.length },
     overrideAccess: true,
   })
   await payload.update({
@@ -46,7 +53,12 @@ export async function createProductFixtures(payload: Payload): Promise<ProductFi
   const evidence = await payload.create({
     collection: 'private-uploads',
     data: { purpose: 'nickel_evidence', complianceCategory: 'schmuck' } as never,
-    file: { data: PDF, name: 'nickel.pdf', mimetype: 'application/pdf', size: PDF.length },
+    file: {
+      data: PDF,
+      name: uniqueName('nickel', 'pdf'),
+      mimetype: 'application/pdf',
+      size: PDF.length,
+    },
     overrideAccess: true,
   })
   return { mediaId, nickelEvidenceId: evidence.id as number }

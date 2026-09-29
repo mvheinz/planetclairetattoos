@@ -1,0 +1,62 @@
+/* KO-10 Badges. */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1.5px solid var(--badge-color, var(--ink));
+  border-radius: var(--r-badge);
+  background: transparent;
+  color: var(--badge-color, var(--ink));
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* Verborgen im Markup (Live-Wechsel, `product-status`). */
+.badge[hidden] {
+  display: none;
+}
+
+a.badge {
+  min-height: 44px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: normal;
+}
+
+.icon {
+  flex: none;
+}
+
+.onPhoto {
+  background: var(--paper);
+}
+
+.unique {
+  --badge-color: var(--ink);
+}
+
+.decorative {
+  --badge-color: var(--stencil);
+}
+
+.foodSafe {
+  --badge-color: var(--mat);
+}
+
+.reserved {
+  --badge-color: var(--warn);
+}
+
+.secondHand {
+  --badge-color: var(--ink-2);
+}
+
+.smallParts {
+  --badge-color: var(--fox-text);
+}

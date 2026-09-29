@@ -6,6 +6,7 @@ import { useMemo } from 'react'
 import { getRoute, matchSegments, type RouteMatch } from '@/lib/routes/paths'
 import type { PresetId } from '@/lib/routes/registry'
 
+import { useNotFoundShown } from './notFoundState'
 import { usePageError } from './pageError'
 import { useRouteOverride } from './RouteOverride'
 
@@ -17,11 +18,14 @@ import { useRouteOverride } from './RouteOverride'
  */
 export function useCurrentRoute(): RouteMatch | null {
   const override = useRouteOverride()
+  const notFoundShown = useNotFoundShown()
   const segments = useSelectedLayoutSegments()
   const key = segments.join('/')
   // eslint-disable-next-line react-hooks/exhaustive-deps -- `key` bildet die Segmente vollständig ab
   const match = useMemo(() => matchSegments(segments), [key])
-  return override === undefined ? match : override
+  if (override !== undefined) return override
+  // 404-Inhalt unter einer Registry-Route (`notFound()` einer Seite): keine Route → R28, Preset `lost`.
+  return notFoundShown ? null : match
 }
 
 /** Preset von R28 (404): gilt für jede Adresse ohne Registry-Route (`[...rest]`, `global-not-found`). */

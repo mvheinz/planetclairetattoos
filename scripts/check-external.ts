@@ -6,9 +6,10 @@
 // aus `build-manifest.json`, Client-Manifeste der öffentlichen Routen, Verweise aus HTML/RSC, transitiv über
 // nachgeladene Chunks). Die Chunks der Verwaltung (Payload, nur unter ADMIN_ROUTE) sind ausgenommen; deren
 // Fremd-Requests prüft `tests/e2e/admin-privacy.e2e.spec.ts` zur Laufzeit.
-// Erlaubt (EXTERNAL_ALLOWLIST): Instagram als Linkziel, eigene Adresse (NEXT_PUBLIC_SITE_URL), Namensraum-/Vokabular-
-// Kennungen, die nie geladen werden (SVG/XLink/XHTML/MathML, Sitemap-Schema, JSON-LD `https://schema.org`), und in
-// Framework-JS eingebaute Fehlertext-Verweise (react.dev/errors, nextjs.org/docs, core-js-Lizenz) – nur in `.js`.
+// Erlaubt (EXTERNAL_ALLOWLIST): Instagram und die Gewährleistungs-Seite von „Your Europe“ (R-049) als Linkziele,
+// eigene Adresse (NEXT_PUBLIC_SITE_URL), Namensraum-/Vokabular-Kennungen, die nie geladen werden (SVG/XLink/XHTML/
+// MathML, Sitemap-Schema, JSON-LD `https://schema.org`), und in Framework-JS eingebaute Fehlertext-Verweise
+// (react.dev/errors, nextjs.org/docs, core-js-Lizenz) – nur in `.js`. Die OS-Plattform bleibt verboten (CLAUDE.md §6).
 import 'dotenv/config'
 
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
@@ -86,6 +87,10 @@ export function collectPublicFiles(distDir: string): BuiltFile[] {
 export const EXTERNAL_ALLOWLIST: readonly { prefix: string; why: string; jsOnly?: boolean }[] = [
   { prefix: 'https://www.instagram.com/', why: 'Linkziel Instagram (E-43)' },
   { prefix: 'https://ig.me/m/', why: 'Linkziel Instagram-Direktnachricht (Kontakt)' },
+  {
+    prefix: 'https://europa.eu/youreurope/citizens/consumers/shopping/guarantees-returns/',
+    why: 'Linkziel der harmonisierten Gewährleistungs-Mitteilung (R-049), kein Request',
+  },
   { prefix: 'http://www.w3.org/2000/svg', why: 'SVG-Namensraum' },
   { prefix: 'http://www.w3.org/1999/xlink', why: 'XLink-Namensraum' },
   { prefix: 'http://www.w3.org/1999/xhtml', why: 'XHTML-Namensraum' },

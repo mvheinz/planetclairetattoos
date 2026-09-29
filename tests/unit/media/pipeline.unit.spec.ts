@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { downscaleDimensions, downscaledName, needsDownscale } from '@/lib/media/downscale'
-import { hashedName, isCompleteSize } from '@/lib/media/pipeline'
+import { hashedName, imageSizeFilename, isCompleteSize } from '@/lib/media/pipeline'
 
 // DESIGN §12.2 Schritte 1, 3, 7 (DATENMODELL §6.2).
 describe('Bildpipeline – reine Funktionen', () => {
@@ -31,6 +31,19 @@ describe('Bildpipeline – reine Funktionen', () => {
     expect(isCompleteSize(detail, { filename: 'a-640x427.webp', width: 640, height: 427 })).toBe(
       false,
     )
+  })
+
+  it('DM-MEDIA-02 Dateiname je Größe eindeutig, auch bei gleichem Ausgabemaß', () => {
+    const at = (sizeName: string) =>
+      imageSizeFilename({
+        originalName: 'vase-0123456789',
+        sizeName,
+        width: 800,
+        height: 1000,
+        extension: 'webp',
+      })
+    expect(at('card')).toBe('vase-0123456789-card-800x1000.webp')
+    expect(new Set(['card', 'detail', 'zoom'].map(at)).size).toBe(3)
   })
 
   it('Dateiname mit Inhalts-Hash (Auslieferung immutable)', () => {

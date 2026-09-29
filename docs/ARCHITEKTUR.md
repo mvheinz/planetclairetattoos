@@ -113,7 +113,7 @@ aus §10–§13 dieses Dokuments); DNS-Umstellung und Start-Checkliste für P11 
 | `next-intl` | 4.x (≥ 4.14) | P2 | Routing DE/EN, Nachrichten; `localeCookie: false` (R-130) |
 | `@fontsource/mansalva`, `@fontsource-variable/bricolage-grotesque`, `@fontsource/ibm-plex-mono` | aktuell | P2 | nur Quelle für das Kopierskript nach `src/styles/fonts/` (DESIGN §4.1) |
 | `subset-font` (dev) | aktuell | P2 | Schrift-Subsetting in `pnpm fonts:copy` (harfbuzz-wasm, ohne Python): beschneidet Bricolage bei Bedarf auf `wght 400–700` (DESIGN §4.1); Skripte bleiben TypeScript über `tsx` |
-| `@fontsource/bricolage-grotesque` (dev), `wawoff2` (dev, MIT; oder gleichwertiger WOFF2→TTF-Wandler aus npm) | aktuell | P3 | `pnpm fonts:copy` erzeugt daraus die TTF-Dateien für OG-Bilder in `src/og/fonts/` (Mansalva 400, Bricolage statisch 600; DESIGN §4.1, P3.14); **kein** Download von fonts.gstatic.com oder anderen Schrift-Servern |
+| `@fontsource/bricolage-grotesque` (dev), `wawoff2` (dev, MIT; oder gleichwertiger WOFF2→TTF-Wandler aus npm) | 5.3.0 / 2.0.1 (exakt gepinnt, P3.14) | P3 | `pnpm fonts:copy` erzeugt daraus die TTF-Dateien für OG-Bilder in `src/og/fonts/` (Mansalva 400, Bricolage statisch 600; DESIGN §4.1, P3.14) und `src/og/fontMetrics.generated.ts` (Abdeckung, Laufweiten); **kein** Download von fonts.gstatic.com oder anderen Schrift-Servern |
 | `@axe-core/playwright` (dev) | 4.x | P2 | Barrierefreiheit |
 | `@lhci/cli` (dev) | aktuelle 0.x | P2 | Lighthouse-CI, nur Ziel `filesystem` (§7.7) |
 | `cheerio` (dev) | 1.x | P2 | HTML-Umwandlung im Vorschau-Export (§14) |
@@ -203,7 +203,7 @@ der Patch nach dem Stichtag, gibt `pnpm check:versions` eine Warnung aus und end
 │  │  │  │  ├─ layout.tsx           <html lang>, Kopf, Fuß, Banner, LeashLayer, Inline-Skript `pc-motion` (§8.1)
 │  │  │  │  ├─ page.tsx             R01 Startseite
 │  │  │  │  ├─ shop/page.tsx        R02 · shop/category/[slug]/page.tsx R03 · shop/[product]/page.tsx R04
-│  │  │  │  │                       (+ actions.ts, opengraph-image.tsx)
+│  │  │  │  │                       (+ actions.ts, opengraph-image.tsx) · og-image.png/route.tsx Standard-OG-Bild (P3.14)
 │  │  │  │  ├─ archive/ cart/ checkout/ thank-you/[token]/ order/[token]/ commissions/
 │  │  │  │  ├─ tattoo/ (flash, offers, prices, gallery, process, aftercare, faq)
 │  │  │  │  ├─ about/ contact/ legal-notice/ privacy/ terms/ right-of-withdrawal/
@@ -1105,7 +1105,7 @@ Artefakt `ci-report-<sha7>` mit `retention-days: 2` (§6.2).
 
 | Job | Inhalt | Gate |
 |---|---|---|
-| `e2e-full` | ein Build (`NEXT_PUBLIC_LEASH_DEBUG=1`), dann nacheinander alle Playwright-Projekte `desktop`, `iphone-15` (WebKit), `pixel-7` mit allen Tests außer `@visual`, `@perf`; enthält die Suiten `@a11y` (axe, §7.5) und `@privacy` (No-Cookie, No-Third-Party, §7.4 T-03/T-04) | alle grün |
+| `e2e-full` | ab P3.16 Matrix je Playwright-Projekt `desktop`, `iphone-15` (WebKit), `pixel-7` (drei parallele Jobs, `fail-fast: false`): je Job ein Build (`NEXT_PUBLIC_LEASH_DEBUG=1`), dann das Projekt mit allen Tests außer `@visual`, `@perf`; enthält die Suiten `@a11y` (axe, §7.5) und `@privacy` (No-Cookie, No-Third-Party, §7.4 T-03/T-04). Grund: ~1 400 Tests bräuchten nacheinander mit einem Worker ~55 min (> `timeout-minutes: 40`) | alle grün |
 | `quality` | Produktions-Build **ohne** Debug-Schalter; `pnpm check:no-debug` (String `__leash` kommt im Build nicht vor, DESIGN §9.13); `pnpm test:visual` (Chromium, §7.6); `pnpm test:perf` (Lighthouse-CI, §7.7); `pnpm test:e2e --grep @perf --project=pixel-7` (INP-Ersatzmessung) | alle grün |
 | `docker` (ab P10) | `docker build` (Standalone, `BUILD_WITHOUT_DB=1`), `docker compose -f docker-compose.prod.yml up -d` mit Testwerten, warten auf `/api/health`, `GET /de` = 200, `down -v` (§13) | grün |
 | `snapshots` | nur bei `[ci:update-snapshots]` bzw. Dispatch mit `update_snapshots = true`: Produktions-Build ohne Debug-Schalter, `pnpm test:visual --update-snapshots` (ab P9 zusätzlich die Standbild-Referenzen aus `tests/art/`, KUNST-QA §8), Upload der Referenzordner als Artefakt `visual-snapshots-<sha7>` (`retention-days: 2`, Pflicht-Upload) | Upload vorhanden |
@@ -1238,7 +1238,7 @@ laufen dank `[skip ci]` ohne CI, §6.7 Nr. 2; auf `main` läuft bis zum P10-Merg
 | Posten | Annahme | Minuten |
 |---|---|---|
 | Phasenende P1 | nur `quick` (`ci-full` ist in P1 ein Gerüst nur mit `workflow_dispatch`, Export erst ab P2) | ~15 |
-| Phasenende P2–P10 | 9 × (`quick` ~15 + `e2e-full` ~30 + `quality` ~20 + `export` ~12 + `mode` ~1); P10 zusätzlich `docker` ~10, Release-Probelauf ~15 und `restore-drill` im PR ~10 | ~740 |
+| Phasenende P2–P10 | 9 × (`quick` ~15 + `e2e-full` ~30 (ab P3: 3 Matrix-Jobs zusammen ~60) + `quality` ~20 + `export` ~12 + `mode` ~1); P10 zusätzlich `docker` ~10, Release-Probelauf ~15 und `restore-drill` im PR ~10 | ~740 (ab P3 real ~1 000) |
 | Wiederholung roter Phasenende-Läufe | ~3 × ~40 (`gh run rerun <id> --failed` wiederholt nur die roten Jobs) | ~120 |
 | Zwischenläufe `[ci:full]` | höchstens 1 je Phase, realistisch P4, P5, P6 × ~65 | ~195 |
 | Referenzbilder `[ci:update-snapshots]` bzw. Dispatch (§7.6) | ~3 × ~15 (nur Job `snapshots`, kein `quick`) | ~45 |
@@ -1428,7 +1428,7 @@ Kopf/Menü/Fuß, Preisschild, sold-Stempel, Kasse, 404.
 | JS beim ersten Laden (gzip, Summe aller vor `load` geladenen Skripte) | R01 ≤ 170 KB; R02–R05, R11–R18, R19–R27 ≤ 150 KB; R06/R07 ≤ 220 KB (ohne Stripe.js) | R01 ≤ 140 KB | `pnpm check:bundle` (Playwright lädt die Seite gegen `next start`, liest die Skript-URLs, gzipt die Dateien aus `.next/static` mit Stufe 9) | alle Seitentypen |
 | Lazy-Chunks | DESIGN §9.10: Engine ≤ 12 KB gz, Coco ≤ 3 KB, Mikro-Interaktionen ≤ 4 KB, statischer Renderer ≤ 4 KB; GSAP-Chunk (falls ADR) ≤ 30 KB | – | `check:bundle` | – |
 | Schriften | genau 3 woff2, zusammen ≤ 100 KB | – | DESIGN AK-DS-04 | – |
-| Bilder | LCP-Bild der Produktseite ≤ 120 KB (`pixel-7`); Median `thumb` ≤ 40 KB, `card` ≤ 90 KB | – | DESIGN §12.2 | – |
+| Bilder | LCP-Bild der Produktseite ≤ 120 KB (`pixel-7`); Median `thumb` ≤ 40 KB, `card` ≤ 90 KB | – | DESIGN §12.2; nur Bericht in `check:bundle` (Median aus den `srcset`-Größen von R02, LCP-Bild von R04 im Profil Pixel 7; `images` in budgets.json) | R02, R04 |
 | Seitengewicht erster Aufruf | R01 ≤ 1,5 MB | ≤ 1,0 MB | Lighthouse `total-byte-weight` | R01 |
 | Vorschau-Datei | ≤ 40 MB (Abbruch) | ≤ 20 MB (per Mail versendbar; darüber Warnung und Hinweis im Release-Text, §14.8) | Export-Bericht | – |
 
@@ -1702,8 +1702,10 @@ damit grün sind. Der Wechsel betrifft nur `cached.ts` und Segment-Konfiguration
 | Beispieldaten entfernt | alle | `revalidatePath('/', 'layout')` | ≤ 60 s |
 
 Alle Aufrufe laufen über `src/lib/cache/revalidate.ts` (`revalidateProduct(id, { immediate })`, `revalidateContent(key)`,
-`revalidateAll()`); bei `context.seed` wird nichts ausgelöst. **Live-Zustand:** Produktseite und Warenkorb holen nach dem
-Laden den aktuellen Zustand über `GET /api/public/product-status` (Verhaltensmodul, ≤ 1 KB) – so stimmt der Kauf-Knopf auch,
+`revalidateAll()`); bei `context.seed` wird nichts ausgelöst. `updateTag` gibt es nur in Server-Actions – außerhalb davon fällt der
+Helfer auf `revalidateTag(tag, { expire: 0 })` zurück. Next führt die Erneuerung am Ende des Requests aus, also nach dem Commit
+der Payload-Transaktion (Nachweis P3.15: `tests/int/shop/revalidate.int.spec.ts`, `tests/e2e/shop/revalidation.e2e.spec.ts`).
+**Live-Zustand:** Produktseite und Warenkorb holen nach dem Laden den aktuellen Zustand über `GET /api/public/product-status` (Verhaltensmodul, ≤ 1 KB) – so stimmt der Kauf-Knopf auch,
 falls eine Seite noch nicht erneuert ist; der Server prüft beim Hinzufügen ohnehin neu (KONZEPT AK-3-08).
 
 ### 9.4 Bilder
@@ -2627,7 +2629,7 @@ Kein Spike darf die Phase blockieren: Scheitert das Soll, wird ohne Rückfrage d
 | B-02 | P1 | Funktioniert `@payloadcms/storage-s3` doppelt (öffentlich/privat) inkl. Präfix `private/invoices/` je Dokument und `signedDownloads` 300 s? | §3.3 | DM-PRIV-01 gegen MinIO grün; private Datei nur per signierter URL, nach Ablauf 403 | eine Instanz für alle Collections + eigener Download-Handler mit `@aws-sdk/s3-request-presigner`; Rechnungen notfalls eigener Bucket (C-06) | Ergebnis: Soll erfüllt – zwei Instanzen `@payloadcms/storage-s3` 3.90.2 (`clientCacheKey` je Bucket, `alwaysInsertFields` für gleiches Schema bei `local`), Dokument-Präfix `private/invoices/<Jahr>` wird übernommen, Dateiroute leitet nur die Verwaltung per 302 auf eine signierte URL (300 s) um, anonym 403, abgelaufene Signatur 403; geprüft gegen einen MinIO-kompatiblen Dienst (RustFS, weil das Image `minio/minio` hier nicht erhältlich war), R2 selbst in P11 (`tests/int/adapters/storage.contract.int.spec.ts`), 27.09.2026, PR #1 |
 | B-03 | P2 | Lässt sich `script-src` auf statischen Seiten ohne `'unsafe-inline'` betreiben (`experimental.sri`, Inline-Daten von Next)? | §8.1 Kontext `public` | alle öffentlichen Routen ohne CSP-Verstoß in E2E, Seiten bleiben statisch | `'unsafe-inline'` im Kontext `public` (Hosts bleiben auf `'self'` beschränkt, R-131 erfüllt), ADR | Ergebnis: Rückfall umgesetzt – mit `experimental.sri` und Hash von `pc-motion` blockiert Chromium auf jeder statischen Seite die Inline-RSC-Daten von Next (`self.__next_f.push(…)`, je Seite/Build anders, nicht per Hash in `next.config.ts` erlaubbar; Nonce erzwänge dynamisches Rendern). Kontext `public` daher `script-src 'self' 'unsafe-inline'` ohne Hash und ohne fremde Hosts, `experimental.sri` aus; `pc-motion` in `dynamic`/`checkout` per Hash neben der Nonce. ADR `docs/adr/0002-csp-script-src.md`, 27.09.2026, P2.12 |
 | B-04 | ab P2, optional | Bringen Cache Components (`cacheComponents: true`) Vorteile ohne Nebenwirkungen? | nein, `unstable_cache` bleibt (§9.2) | Build, Verwaltung und alle Tests grün, messbar besseres LCP/TTFB | Soll beibehalten | offen |
-| B-05 | P3 | Bleiben Listen-Varianten (`?available=1&page=2`) per Proxy-Umschreibung statisch? | §9.1 | AK-A-9-03 | dynamisches Rendern mit Daten-Cache, nur wenn T-10 (LCP) grün bleibt | offen |
+| B-05 | P3 | Bleiben Listen-Varianten (`?available=1&page=2`) per Proxy-Umschreibung statisch? | §9.1 | AK-A-9-03 | dynamisches Rendern mit Daten-Cache, nur wenn T-10 (LCP) grün bleibt | Ergebnis: Soll erfüllt – `src/proxy.ts` übersetzt über `decideListVariant` (`src/lib/shop/listParams.ts`, ohne Payload/DB) bekannte Parameter in `/{locale}/<Ordner>/variant/<schlüssel>` (Schlüssel alphabetisch, z. B. `available-1.page-2`; `available` nur R02/R03, `category` nur R05 laut KONZEPT §2.3) und schreibt intern dorthin um; unbekannte/ungültige Parameter → keine Umschreibung (gleiche Antwort wie ohne). Im Produktions-Build liefert `/de/shop?available=1` die vorgerenderte Variante (`x-nextjs-cache: HIT`, Eintrag im Prerender-Manifest, byte-gleich mit `?available=1&foo=bar`); nicht vorgerenderte Varianten (`?available=1&page=2`) entstehen beim ersten Aufruf (`dynamicParams`, MISS) und kommen danach aus dem Cache (HIT). Interne Pfade `…/variant/…` antworten direkt mit 404 (keine doppelten Inhalte); Anfragen mit `x-prerender-revalidate` umgehen den Proxy und erreichen sie weiterhin (E2E-Vorwärmen). canonical = Query-Form ohne `available`/`category`, `page` ab 2. Layout-Segmente `…/variant/<k>` gehören zur Liste (`matchSegments`, Preset `shopString`); `check:static` erlaubt Varianten-Seiten nur für R02/R03/R05. Prototyp: R02-Variante (`[locale]/shop/variant/[variant]/page.tsx`); R03/R05-Varianten mit P3.5/P3.6 umgesetzt, in P3.16 von `@privacy`, `@a11y`, Verbotsmuster-Scan, `check:bundle` und Vorschau-Export mitgeprüft (`tests/unit/shop/list-params.unit.spec.ts`, `tests/e2e/shop/list-variants.e2e.spec.ts`), 28.09.2026, PR #3 |
 | B-06 | P10 | Reicht der eigene COPY-Dump auf Vercel (Speicher, 300 s, Streaming von age)? | §10.3 | AK-A-10-01 bis -05; zehnfacher Beispielbestand in < 60 s und < 512 MB Speicher | gebündeltes statisches `pg_dump` 17 (`outputFileTracingIncludes`) + `pg_restore`; zweite Ebene: Neon-Wiederherstellung + Backup über den Docker-Pfad | offen |
 | B-07 | P4 | Erlaubt die gepinnte Stripe-API-Version `checkout.sessions.update` mit neuen `shipping_options` bei `ui_mode: 'elements'`? | `updateShipping` → `updated` | Test im Stripe-Testmodus (falls Test-Schlüssel als API-Credential vorhanden) oder Parameter-Test gegen stripe-mock + Doku der gepinnten Version | `recreate_required`: alte Session beenden, neue mit derselben Reservierung (§3.5) | offen |
 | B-08 | P10 | Baut das Docker-Image ohne DB, und rendern die Seiten dann zur Laufzeit korrekt? | §13.2 (`BUILD_WITHOUT_DB=1`, `connection()`) | AK-A-13-01, AK-A-13-02 | Build im Compose-Netz mit laufender, migrierter DB (`DATABASE_URL` als Build-Argument einer Wegwerf-DB) | offen |

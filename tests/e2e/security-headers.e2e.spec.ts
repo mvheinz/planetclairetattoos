@@ -1,8 +1,7 @@
-import type { Page } from '@playwright/test'
-
-import { localizedPath, pageRoutes } from '../../src/lib/routes/paths'
+import { pageRoutes, samplePath } from '../../src/lib/routes/paths'
 import { LOCALES } from '../../src/lib/routes/registry'
 import { adminRoute } from '../helpers/adminEnv'
+import { watchCsp } from './csp'
 import { expect, test } from './fixtures'
 
 // P2.12 Sicherheits-Header und CSP (ARCHITEKTUR §8.1, Spike B-03, CSP-Teil von B-01): Header je Kontext
@@ -30,35 +29,13 @@ const CSP_CORE = [
   "object-src 'none'",
 ]
 
-/** Sammelt CSP-Verstöße (`securitypolicyviolation` der aktuellen Seite) und CSP-Konsolenfehler seit dem letzten Aufruf. */
-async function watchCsp(page: Page) {
-  const logged: string[] = []
-  page.on('console', (msg) => {
-    if (msg.type() === 'error' && /Content[ -]Security[ -]Policy/i.test(msg.text()))
-      logged.push(msg.text())
-  })
-  await page.addInitScript(() => {
-    const w = window as unknown as { __csp: string[] }
-    w.__csp = []
-    document.addEventListener('securitypolicyviolation', (e) => {
-      w.__csp.push(`${e.violatedDirective} ${e.blockedURI}`)
-    })
-  })
-  return async () => {
-    const events = await page.evaluate(
-      () => (window as unknown as { __csp?: string[] }).__csp ?? [],
-    )
-    return [...events, ...logged.splice(0)]
-  }
-}
-
 test.describe('Sicherheits-Header', () => {
   test('AK-A-8-01 T-16 jede live-Route trägt die Header ihres Kontexts (DE/EN, inkl. 404) @smoke', async ({
     request,
   }) => {
     const cases = [
       ...livePages.flatMap((r) =>
-        LOCALES.map((l) => ({ path: localizedPath(r.id, l), context: r.headerContext })),
+        LOCALES.map((l) => ({ path: samplePath(r.id, l), context: r.headerContext })),
       ),
       { path: '/de/gibt-es-nicht', context: 'public' as const },
     ]
@@ -119,9 +96,11 @@ test.describe('Keine CSP-Verstöße', () => {
   test('R-131 auf keiner live-Route ein CSP-Verstoß (DE/EN, inkl. 404) @smoke', async ({
     page,
   }) => {
+    // Jede live-Seite nacheinander bis `networkidle` – mit den Listen aus P3 mehr als 30 s
+    test.slow()
     const violations = await watchCsp(page)
     const paths = [
-      ...livePages.flatMap((r) => LOCALES.map((l) => localizedPath(r.id, l))),
+      ...livePages.flatMap((r) => LOCALES.map((l) => samplePath(r.id, l))),
       '/de/gibt-es-nicht',
     ]
     const found: string[] = []

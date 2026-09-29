@@ -1,5 +1,5 @@
 import { LEGAL_LINKS } from '../../src/components/layout/navItems'
-import { localizedPath, pageRoutes } from '../../src/lib/routes/paths'
+import { localizedPath, pageRoutes, samplePath } from '../../src/lib/routes/paths'
 import { LOCALES, type Locale } from '../../src/lib/routes/registry'
 import { expectCalm } from './calm'
 import { expect, test, testPayload } from './fixtures'
@@ -161,7 +161,7 @@ test.describe('Fußlinks ohne 404 @smoke', () => {
       const expected = [...LEGAL_LINKS, 'R26'].map((id) => localizedPath(id, locale))
       expect(expected).toHaveLength(7)
       for (const route of live) {
-        const path = localizedPath(route.id, locale)
+        const path = samplePath(route.id, locale)
         await page.goto(path)
         const hrefs = await page
           .locator('[data-site-footer] a[href]')

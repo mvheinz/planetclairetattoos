@@ -3,14 +3,20 @@
 import { usePathname } from 'next/navigation'
 import { useEffect } from 'react'
 
+import { addToCart } from '@/app/(frontend)/[locale]/shop/[product]/actions'
 import { mountBehaviors } from '@/behaviors'
+import type { BehaviorActions } from '@/behaviors/types'
+import { fetchProductStates } from '@/lib/shop/productStatusClient'
 
 // Bindet die Verhaltensmodule (`[data-behavior]` in Kopf, Inhalt und Fuß) im Browser und löst sie bei Routenwechsel
 // und Unmount wieder (DESIGN §9.12, ARCHITEKTUR §14.6). Lädt nur die Module, die die Seite braucht (`import()`).
+// Server-Aufrufe reicht es als `ctx.actions` herein (die Module bleiben framework-frei und ohne Netzcode, AK-A-2-03).
+const ACTIONS: BehaviorActions = { addToCart, productStatus: fetchProductStates }
+
 export function BehaviorHost() {
   const pathname = usePathname()
   useEffect(() => {
-    const mounted = mountBehaviors(document, { mode: 'app' })
+    const mounted = mountBehaviors(document, { mode: 'app', actions: ACTIONS })
     return () => mounted.unmount()
   }, [pathname])
   return null

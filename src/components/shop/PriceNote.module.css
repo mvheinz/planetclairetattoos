@@ -1,0 +1,15 @@
+/* Steuerhinweis am Preis (R-030): kleine, gut lesbare Zeile in `--ink-2`. */
+.note {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-size: var(--fs-small);
+  color: var(--ink-2);
+}
+
+.amount {
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}

@@ -10,6 +10,7 @@ import {
   shortLinks,
   type RouteEntry,
 } from '../../../src/lib/routes/registry'
+import { LIST_ROUTE_IDS, LIST_VARIANT_SEGMENT } from '../../../src/lib/routes/paths'
 import { listFiles } from './files'
 import type { CheckResult, StaticCheck } from './types'
 
@@ -63,6 +64,10 @@ const underPrefix = (p: string, prefix: string) => p === prefix || p.startsWith(
 /** Ordner unter `[locale]/` für einen Registry-Schlüssel. */
 export const pageFileForKey = (key: string) =>
   `src/app/(frontend)/[locale]${key === '/' ? '' : key}/page.tsx`
+
+/** Interne Varianten-Seite einer Liste (ARCHITEKTUR §9.1, Spike B-05): `shop/variant/[variant]/page.tsx`. */
+export const variantPageFileForKey = (key: string) =>
+  `src/app/(frontend)/[locale]${key === '/' ? '' : key}/${LIST_VARIANT_SEGMENT}/[variant]/page.tsx`
 
 /**
  * Seiten unter `[locale]/` ohne eigenes Registry-Muster (P2.19): der Fehler-Auslöser für Tests (`/__fehler-test`,
@@ -185,7 +190,14 @@ export function checkRouteRegistry(input: RegistryInput): CheckResult {
       if (r.status === 'planned' && files.has(file))
         errors.push(`${r.id} ist 'planned', aber ${file} existiert (Status auf 'live' setzen).`)
     }
-    const known = new Set([...pages.map((r) => pageFileForKey(r.key!)), ...NON_REGISTRY_PAGE_FILES])
+    const variants = pages
+      .filter((r) => (LIST_ROUTE_IDS as readonly string[]).includes(r.id))
+      .map((r) => variantPageFileForKey(r.key!))
+    const known = new Set([
+      ...pages.map((r) => pageFileForKey(r.key!)),
+      ...variants,
+      ...NON_REGISTRY_PAGE_FILES,
+    ])
     for (const f of files) {
       if (!known.has(f)) errors.push(`${f}: Seite ohne Eintrag in der Routen-Registry.`)
     }

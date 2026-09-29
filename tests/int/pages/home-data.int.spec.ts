@@ -1,7 +1,7 @@
 import type { Payload } from 'payload'
 import { beforeAll, describe, expect, it } from 'vitest'
 
-import { HOME_STATION_IDS, loadHomeView, toHomeView } from '@/lib/data/home'
+import { HOME_STATION_IDS, loadHomeView, stationCategories, toHomeView } from '@/lib/data/home'
 import { loadSeedData } from '@/lib/seed/loader'
 import { runSeed } from '@/lib/seed/run'
 import { CANONICAL_SEED_NOW } from '@/lib/seed/time'
@@ -87,6 +87,51 @@ describe('Startseite (P2.20)', () => {
     )
     expect(view!.stations[0]!.link?.href).toBe('/de/shop')
     expect(view!.hero).toBeNull()
+  })
+
+  it('P3.12 KA-17 Kategorien der Stationen: Textil = textil + cap, nur Kategorie-Stationen, Link-Kategorie gilt', async () => {
+    const view = await loadHomeView('de')
+    const byId = Object.fromEntries(view!.stations.map((s) => [s.stationId, s]))
+    expect(byId.keramik!.categories).toEqual(['keramik'])
+    expect(byId.textil!.categories).toEqual(['textil', 'cap'])
+    expect(byId.zeichnungen!.categories).toEqual(['zeichnung'])
+    expect(byId.schmuck!.categories).toEqual(['schmuck'])
+    for (const id of ['hallo', 'tattoo', 'jutta-und-coco']) expect(byId[id]!.categories).toBeNull()
+    expect(byId.keramik!.categoryName).toBe('Keramik')
+    // Link auf eine andere Kategorie (Test-Kategorie) bzw. kein Kategorie-Link → feste Zuordnung.
+    expect(stationCategories('schmuck', { target: 'category', category: 'sonstiges' })).toEqual([
+      'sonstiges',
+    ])
+    expect(stationCategories('textil', { target: 'shop', category: null })).toEqual([
+      'textil',
+      'cap',
+    ])
+    expect(stationCategories('tattoo', { target: 'category', category: 'keramik' })).toBeNull()
+  })
+
+  it('P3.12 Kategorie-Station ohne Link bekommt „Alle {Kategorie}“ → R03', () => {
+    const view = toHomeView(
+      {
+        id: 1,
+        key: 'home',
+        title: 'x',
+        layout: [{ blockType: 'station', stationId: 'keramik', heading: 'Keramik' }],
+        updatedAt: '',
+        createdAt: '',
+      },
+      {
+        locale: 'de',
+        categories: [{ key: 'keramik', name: 'Keramik', slug: 'keramik' }],
+        contact: { email: null, instagramHandle: 'planet.claire.tattoos' },
+        tradeName: null,
+      },
+    )
+    expect(view!.stations[0]!.link).toEqual({
+      href: '/de/shop/kategorie/keramik',
+      label: null,
+      external: false,
+    })
+    expect(view!.stations[0]!.categoryName).toBe('Keramik')
   })
 
   it('DM-PAGE-01 fehlt `pages:home`, liefert der Loader null statt eines Fehlers', async () => {

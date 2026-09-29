@@ -78,6 +78,8 @@
     "notFoundTitle": "Coco slipped her leash",
     "notFoundText": "This page does not exist (anymore).",
     "linksLabel": "Where to next",
+    "numberLabel": "Looking for a piece? Enter its number",
+    "numberSubmit": "Find piece",
     "homeTitle": "This piece has already found a home",
     "homeText": "It has been sold and lives somewhere else now. There is more waiting in the shop.",
     "soldStamp": "sold",
@@ -91,6 +93,10 @@
     "intro": "Tattoos, handmade one-of-a-kind ceramics and drawings from Berlin.",
     "stationKicker": "Station {number}",
     "stationMore": "Take a look",
+    "stationAll": "All {category}",
+    "stationEmpty": "Nothing here right now – check back soon or browse the archive",
+    "stationArchive": "To the archive",
+    "stationProducts": "Pieces: {station}",
     "emptyTitle": "We’re rearranging things.",
     "emptyText": "The home page will be back shortly. In the meantime, here’s how to reach us.",
     "emptyAction": "Contact"
@@ -134,7 +140,7 @@
   },
   "ui": {
     "callout": {
-      "deviationTitle": "Please note:"
+      "deviationTitle": "Special feature of this piece:"
     },
     "form": {
       "requiredNote": "* Required field"
@@ -147,7 +153,16 @@
       "contact": "How to reach Planet Claire in Berlin: questions about unique pieces, orders, tattoo appointments or commissioned work – by email or via Instagram.",
       "legal": "Legal information from Planet Claire, Berlin: legal notice, privacy policy, terms, right of withdrawal and shipping and payment for the one-of-a-kind shop.",
       "withdrawal": "Withdraw from a contract with Planet Claire here: identify your order, send your declaration and immediately receive a confirmation of receipt by email.",
-      "conformity": "Declarations of conformity from Planet Claire, Berlin, for handmade ceramics in contact with food – current declarations to view and download."
+      "conformity": "Declarations of conformity from Planet Claire, Berlin, for handmade ceramics in contact with food – current declarations to view and download.",
+      "shop": "Handmade one-offs by Planet Claire from Berlin: painted ceramics, textiles, caps, drawings and jewellery – every piece exists only once.",
+      "category": "Handmade one-offs by Planet Claire from Berlin in this category – every piece is unique, with delivery anywhere within Germany.",
+      "archive": "The Planet Claire archive from Berlin: ceramics, textiles and drawings that have already found a home – to look at and browse."
+    },
+    "og": {
+      "tagline": "Tattoos & one-offs from Berlin",
+      "priceNote": "Final price plus shipping",
+      "productAlt": "{title} – {number}: photo and price tag",
+      "defaultAlt": "Planet Claire – tattoos & one-offs from Berlin"
     }
   },
   "contact": {
@@ -165,5 +180,126 @@
     "previewNotice": "Not yet functional in this preview – coming in P6.",
     "policyLink": "Go to the right of withdrawal",
     "emailAlternative": "Alternatively by email:"
+  },
+  "shop": {
+    "list": {
+      "empty": "Everything is gone right now – new pieces show up on Instagram first.",
+      "intro": "Ceramics, textiles, drawings and jewellery – handmade in Berlin, and every piece exists only once.",
+      "emptyText": "The archive shows what has already moved out.",
+      "emptyAction": "To the archive",
+      "filterLabel": "Filter pieces",
+      "all": "All",
+      "availableOnly": "available only",
+      "filterOn": "(on)",
+      "heading": "Pieces",
+      "more": "Show more",
+      "delivery": "Delivery within Germany · Pick-up in {city} possible",
+      "deliveryNoPickup": "Delivery within Germany",
+      "closedFallback": "The shop is taking a break – ordering is not possible right now."
+    },
+    "warranty": {
+      "title": "Legal guarantee",
+      "alt": "EU harmonised notice on the legal guarantee (placeholder – the official graphic will follow)",
+      "text": "When you buy goods, EU law gives you a legal guarantee if the goods are faulty. The details are explained on the information page of the European Union.",
+      "link": "EU information on the legal guarantee"
+    },
+    "card": {
+      "stateReserved": "reserved right now",
+      "stateSold": "sold",
+      "stateGone": "no longer available"
+    },
+    "badges": {
+      "unique": "One of a kind",
+      "decorative": "Decorative – not for food use",
+      "foodSafe": "Food-safe – view declaration",
+      "reserved": "reserved",
+      "reservedLong": "Reserved right now – check back in 30 minutes",
+      "secondHand": "Second-Hand / Vintage",
+      "smallParts": "Not a toy – small parts can be swallowed"
+    },
+    "category": {
+      "emptyTitle": "Nothing in this corner right now.",
+      "emptyText": "Check back soon – or browse all pieces.",
+      "emptyAction": "All pieces"
+    },
+    "product": {
+      "factsLabel": "Key facts",
+      "detailsLabel": "About this piece",
+      "addToCart": "Add to basket",
+      "inCart": "Already in your basket",
+      "toCart": "Go to basket",
+      "added": "In your basket",
+      "notes": {
+        "cart_full": "Your basket is full – it holds 20 pieces at most.",
+        "rate_limited": "That was a bit too fast. Please try again in a few minutes.",
+        "shop_closed": "The shop is taking a break – adding to the basket is not possible right now.",
+        "product_unavailable": "This piece is no longer available right now.",
+        "invalid": "That did not work. Please reload the page and try again."
+      },
+      "soldText": "Already sold",
+      "similar": "Similar pieces",
+      "archive": "Archive",
+      "deliveryArea": "Delivery within Germany only, collection in {city} by arrangement",
+      "deliveryAreaNoPickup": "Delivery within Germany only",
+      "fibers": "Material",
+      "labelMissing": "Label missing – material to the best of our knowledge: {text}",
+      "size": "Size",
+      "condition": "Condition",
+      "metalParts": "Metal parts",
+      "technique": "Technique and material",
+      "dimensions": "Dimensions",
+      "descriptionHeading": "Description",
+      "juttaSays": "Jutta says",
+      "detailsHeading": "Details",
+      "details": {
+        "dimensions": "Dimensions",
+        "weight": "Weight",
+        "material": "Material",
+        "technique": "Technique",
+        "size": "Size",
+        "condition": "Condition",
+        "care": "Care"
+      },
+      "safety": {
+        "heading": "Maker & safety",
+        "maker": "Maker",
+        "address": "Postal address",
+        "email": "Email",
+        "productType": "Product type",
+        "productId": "Product identifier",
+        "warnings": "Warnings and safety information",
+        "warningsDe": "In German:",
+        "missing": "[to follow]"
+      },
+      "shipping": {
+        "heading": "Shipping & returns",
+        "parcel": "Shipping: {shippingClass}, {price}",
+        "noRate": "Shipping costs: see <link>Shipping & payment</link>",
+        "pickupOnly": "Collection only in {city} by arrangement",
+        "pickup": "Collection in {city} possible",
+        "withdrawal": "You can find information about your right of withdrawal in the <link>withdrawal policy</link>.",
+        "costsLink": "Shipping & payment"
+      },
+      "more": "More from {category}",
+      "buyBar": "Buy"
+    },
+    "gallery": {
+      "label": "Photos: {title}",
+      "roledescription": "Image gallery",
+      "position": "Photo {n} of {total}",
+      "prev": "Previous photo",
+      "next": "Next photo",
+      "thumbs": "All photos",
+      "zoom": "Enlarge",
+      "close": "Close",
+      "dialog": "Enlarged photo: {title}"
+    }
+  },
+  "archive": {
+    "lead": "Already moved out – but lovely to look at",
+    "filterLabel": "Filter the archive by category",
+    "emptyTitle": "Nothing sold yet.",
+    "emptyText": "Everything that has found a home moves in here.",
+    "emptyAction": "To the shop"
   }
 }

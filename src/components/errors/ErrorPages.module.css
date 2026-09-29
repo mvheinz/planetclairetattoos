@@ -188,3 +188,17 @@
     stroke: CanvasText;
   }
 }
+
+/* ---------- 404: Nummernfeld (KO-12) → /nr/[nummer] (R31) ---------- */
+
+.numberForm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3) var(--space-4);
+  max-width: 28rem;
+}
+
+.numberForm > :first-child {
+  flex: 1 1 12rem;
+}

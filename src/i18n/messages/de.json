@@ -78,6 +78,8 @@
     "notFoundTitle": "Coco hat sich losgerissen",
     "notFoundText": "Diese Seite gibt es nicht (mehr).",
     "linksLabel": "Weiter geht’s",
+    "numberLabel": "Du suchst ein Stück? Nummer eingeben",
+    "numberSubmit": "Stück suchen",
     "homeTitle": "Dieses Stück hat schon ein Zuhause gefunden",
     "homeText": "Es ist verkauft und wohnt jetzt woanders. Im Shop wartet noch mehr.",
     "soldStamp": "sold",
@@ -91,6 +93,10 @@
     "intro": "Tattoos, handgemachte Unikat-Keramik und Zeichnungen aus Berlin.",
     "stationKicker": "Station {number}",
     "stationMore": "Mehr ansehen",
+    "stationAll": "Alle {category}",
+    "stationEmpty": "Gerade ist hier nichts – schau bald wieder oder stöbere im Archiv",
+    "stationArchive": "Zum Archiv",
+    "stationProducts": "Stücke: {station}",
     "emptyTitle": "Hier wird gerade umgeräumt.",
     "emptyText": "Die Startseite ist gleich wieder da. Schau so lange bei den Kontaktwegen vorbei.",
     "emptyAction": "Zum Kontakt"
@@ -134,7 +140,7 @@
   },
   "ui": {
     "callout": {
-      "deviationTitle": "Bitte beachten:"
+      "deviationTitle": "Besonderheit dieses Stücks:"
     },
     "form": {
       "requiredNote": "* Pflichtfeld"
@@ -147,7 +153,16 @@
       "contact": "So erreichst du Planet Claire in Berlin: Fragen zu Unikaten, Bestellungen, Tattoo-Terminen oder Auftragsarbeiten – per Mail oder über Instagram.",
       "legal": "Rechtliche Informationen von Planet Claire, Berlin: Impressum, Datenschutz, AGB, Widerrufsbelehrung sowie Versand und Zahlung für den Unikat-Shop.",
       "withdrawal": "Hier kannst du einen Vertrag mit Planet Claire widerrufen: Bestellung angeben, Erklärung absenden und sofort eine Eingangsbestätigung per E-Mail erhalten.",
-      "conformity": "Konformitätserklärungen von Planet Claire, Berlin, zu handgemachter Keramik mit Lebensmittelkontakt – aktuelle Erklärungen zum Ansehen und Herunterladen."
+      "conformity": "Konformitätserklärungen von Planet Claire, Berlin, zu handgemachter Keramik mit Lebensmittelkontakt – aktuelle Erklärungen zum Ansehen und Herunterladen.",
+      "shop": "Handgemachte Unikate von Planet Claire aus Berlin: bemalte Keramik, Textil, Caps, Zeichnungen und Schmuck – jedes Stück gibt es nur einmal.",
+      "category": "Handgemachte Unikate von Planet Claire aus Berlin in dieser Kategorie – jedes Stück ist ein Einzelstück, Lieferung innerhalb Deutschlands.",
+      "archive": "Archiv von Planet Claire aus Berlin: Keramik, Textil und Zeichnungen, die schon ein Zuhause gefunden haben – zum Anschauen und Stöbern."
+    },
+    "og": {
+      "tagline": "Tattoos & Unikate aus Berlin",
+      "priceNote": "Endpreis zzgl. Versand",
+      "productAlt": "{title} – {number}: Foto und Preisschild",
+      "defaultAlt": "Planet Claire – Tattoos & Unikate aus Berlin"
     }
   },
   "contact": {
@@ -165,5 +180,126 @@
     "previewNotice": "In dieser Vorschau noch ohne Funktion – kommt in P6.",
     "policyLink": "Zur Widerrufsbelehrung",
     "emailAlternative": "Alternativ per E-Mail:"
+  },
+  "shop": {
+    "list": {
+      "empty": "Gerade ist alles weg – neue Stücke kommen auf Instagram zuerst.",
+      "intro": "Keramik, Textil, Zeichnungen und Schmuck – von Hand gemacht in Berlin, und jedes Stück gibt es nur einmal.",
+      "emptyText": "Im Archiv siehst du, was schon ausgezogen ist.",
+      "emptyAction": "Zum Archiv",
+      "filterLabel": "Stücke filtern",
+      "all": "Alle",
+      "availableOnly": "nur verfügbare",
+      "filterOn": "(eingeschaltet)",
+      "heading": "Stücke",
+      "more": "Mehr zeigen",
+      "delivery": "Lieferung innerhalb Deutschlands · Abholung in {city} möglich",
+      "deliveryNoPickup": "Lieferung innerhalb Deutschlands",
+      "closedFallback": "Der Shop macht gerade Pause – bestellen geht im Moment nicht."
+    },
+    "warranty": {
+      "title": "Gesetzliche Gewährleistung",
+      "alt": "Harmonisierte Mitteilung der EU zur gesetzlichen Gewährleistung (Platzhalter – die amtliche Grafik folgt)",
+      "text": "Beim Kauf von Waren hast du nach EU-Recht ein gesetzliches Gewährleistungsrecht, wenn die Ware mangelhaft ist. Die Einzelheiten erklärt die Informationsseite der Europäischen Union.",
+      "link": "Informationen der EU zur gesetzlichen Gewährleistung"
+    },
+    "card": {
+      "stateReserved": "gerade reserviert",
+      "stateSold": "verkauft",
+      "stateGone": "nicht mehr da"
+    },
+    "badges": {
+      "unique": "Unikat",
+      "decorative": "Deko – nicht für Lebensmittel",
+      "foodSafe": "Lebensmittelecht – Konformitätserklärung ansehen",
+      "reserved": "reserviert",
+      "reservedLong": "Gerade reserviert – schau in 30 Minuten nochmal",
+      "secondHand": "Second-Hand / Vintage",
+      "smallParts": "Kein Spielzeug – verschluckbare Kleinteile"
+    },
+    "category": {
+      "emptyTitle": "In dieser Ecke ist gerade nichts.",
+      "emptyText": "Schau bald wieder vorbei – oder stöbere bei allen Stücken.",
+      "emptyAction": "Alle Stücke"
+    },
+    "product": {
+      "factsLabel": "Kurzdaten",
+      "detailsLabel": "Angaben zum Stück",
+      "addToCart": "In den Korb",
+      "inCart": "Liegt schon in deinem Korb",
+      "toCart": "Zum Korb",
+      "added": "Liegt im Korb",
+      "notes": {
+        "cart_full": "Dein Korb ist voll – höchstens 20 Stücke passen hinein.",
+        "rate_limited": "Das ging gerade zu schnell. Bitte versuch es in ein paar Minuten noch einmal.",
+        "shop_closed": "Der Shop macht gerade Pause – in den Korb legen geht im Moment nicht.",
+        "product_unavailable": "Dieses Stück ist gerade nicht mehr zu haben.",
+        "invalid": "Das hat nicht geklappt. Bitte lade die Seite neu und versuch es noch einmal."
+      },
+      "soldText": "Schon verkauft",
+      "similar": "Ähnliche Stücke",
+      "archive": "Archiv",
+      "deliveryArea": "Lieferung nur innerhalb Deutschlands, Abholung in {city} nach Absprache",
+      "deliveryAreaNoPickup": "Lieferung nur innerhalb Deutschlands",
+      "fibers": "Material",
+      "labelMissing": "Etikett fehlt – Material nach bestem Wissen: {text}",
+      "size": "Größe",
+      "condition": "Zustand",
+      "metalParts": "Metallteile",
+      "technique": "Technik und Material",
+      "dimensions": "Maße",
+      "descriptionHeading": "Beschreibung",
+      "juttaSays": "Jutta sagt",
+      "detailsHeading": "Details",
+      "details": {
+        "dimensions": "Maße",
+        "weight": "Gewicht",
+        "material": "Material",
+        "technique": "Technik",
+        "size": "Größe",
+        "condition": "Zustand",
+        "care": "Pflege"
+      },
+      "safety": {
+        "heading": "Herstellerin & Sicherheit",
+        "maker": "Herstellerin",
+        "address": "Anschrift",
+        "email": "E-Mail",
+        "productType": "Produktart",
+        "productId": "Produktkennung",
+        "warnings": "Warn- und Sicherheitshinweise",
+        "warningsDe": "Auf Deutsch:",
+        "missing": "[folgt]"
+      },
+      "shipping": {
+        "heading": "Versand & Rückgabe",
+        "parcel": "Versand als {shippingClass} {price}",
+        "noRate": "Versandkosten: siehe <link>Versand & Zahlung</link>",
+        "pickupOnly": "Nur Abholung in {city} nach Absprache",
+        "pickup": "Abholung in {city} möglich",
+        "withdrawal": "Infos zu deinem Widerrufsrecht findest du in der <link>Widerrufsbelehrung</link>.",
+        "costsLink": "Versand & Zahlung"
+      },
+      "more": "Mehr aus {category}",
+      "buyBar": "Kaufen"
+    },
+    "gallery": {
+      "label": "Fotos: {title}",
+      "roledescription": "Bildergalerie",
+      "position": "Foto {n} von {total}",
+      "prev": "Vorheriges Foto",
+      "next": "Nächstes Foto",
+      "thumbs": "Alle Fotos",
+      "zoom": "Vergrößern",
+      "close": "Schließen",
+      "dialog": "Foto vergrößert: {title}"
+    }
+  },
+  "archive": {
+    "lead": "Schon ausgezogen – aber schön anzusehen",
+    "filterLabel": "Archiv nach Kategorie filtern",
+    "emptyTitle": "Noch ist nichts verkauft.",
+    "emptyText": "Alles, was ein Zuhause gefunden hat, zieht hierher um.",
+    "emptyAction": "Zum Shop"
   }
 }

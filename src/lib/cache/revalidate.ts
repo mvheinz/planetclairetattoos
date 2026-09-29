@@ -5,7 +5,11 @@ import type { AppContext } from '@/lib/payload/context'
 
 import { productTags } from './tags'
 
-// Einziger Weg zur Cache-Erneuerung (ARCHITEKTUR §9.3). Bei `context.seed` wird nichts ausgelöst.
+// Einziger Weg zur Cache-Erneuerung (ARCHITEKTUR §9.3, PLAN P3.15). Bei `context.seed` wird nichts ausgelöst.
+// - Statuswechsel (`immediate`): `revalidateTag(tag, { expire: 0 })` – die nächste Anfrage rendert blockierend neu
+//   (Route-Handler, Payload-Endpunkte und -Hooks, Jobs); in Server-Actions `updateTag(tag)` (read-your-own-writes).
+// - Bearbeitungen: `revalidateTag(tag, 'max')` – stale-while-revalidate, sichtbar ≤ 60 s.
+// Next führt die Erneuerung erst am Ende des Requests aus, also nach dem Commit der Payload-Transaktion.
 const log = createLogger()
 
 export interface RevalidateOptions {
@@ -17,18 +21,31 @@ export interface RevalidateOptions {
   inServerAction?: boolean
 }
 
+const skipped = (tag: string, err: unknown) =>
+  log.warn('cache.revalidate_skipped', { tag, reason: (err as Error)?.message })
+
+/** `updateTag` gibt es nur in Server-Actions; anderswo (Route-Handler) greift `{ expire: 0 }` mit gleicher Wirkung. */
+function expireNow(tag: string): void {
+  try {
+    updateTag(tag)
+  } catch {
+    revalidateTag(tag, { expire: 0 })
+  }
+}
+
 /** Tags erneuern; außerhalb eines Next-Requests (Skripte, Tests) nur Warnung, kein Abbruch. */
 function expireTags(tags: string[], opts: RevalidateOptions): string[] {
   if (opts.context?.seed) return []
-  for (const tag of tags) {
+  const unique = [...new Set(tags)]
+  for (const tag of unique) {
     try {
-      if (opts.inServerAction) updateTag(tag)
+      if (opts.inServerAction) expireNow(tag)
       else revalidateTag(tag, opts.immediate ? { expire: 0 } : 'max')
     } catch (err) {
-      log.warn('cache.revalidate_skipped', { tag, reason: (err as Error).message })
+      skipped(tag, err)
     }
   }
-  return tags
+  return unique
 }
 
 /** Stück geändert: `product:<id>`, `products`, `home`, `sitemap` und ggf. `category:<key>`. */
@@ -51,7 +68,7 @@ export function revalidateAll(opts: Pick<RevalidateOptions, 'context'> = {}): bo
   try {
     revalidatePath('/', 'layout')
   } catch (err) {
-    log.warn('cache.revalidate_skipped', { tag: '*', reason: (err as Error).message })
+    skipped('*', err)
   }
   return true
 }

@@ -16,6 +16,8 @@ import type { FullConfig } from '@playwright/test'
 // `x-prerender-revalidate` mit der geheimen `previewModeId` aus dem Build, nie öffentlich). Dabei liest `unstable_cache`
 // nicht aus dem Daten-Cache, sondern frisch aus der Test-Datenbank. Erst danach laufen die Tests; jede Seite antwortet
 // ab dem ersten Aufruf mit dem Stand der Test-Datenbank und muss nichts mehr rechnen.
+// Anfragen mit `x-prerender-revalidate` umgehen den Proxy – deshalb erreichen sie auch die internen Pfade der
+// Listen-Varianten (`/de/shop/variant/available-1`, Spike B-05), die sonst mit 404 antworten.
 
 interface PrerenderManifest {
   preview: { previewModeId: string }

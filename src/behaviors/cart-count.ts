@@ -1,7 +1,12 @@
 import { getMotion } from '../leash/motion'
-import { cartCountFromCookies, findCartCookie } from '../lib/shop/cartCookie'
+import { cartCountFromCookies, findCartCookie } from '../lib/commerce/cartCookie'
 
-import type { BehaviorContext, Unmount } from './types'
+import {
+  CART_CHANGE_EVENT,
+  type BehaviorContext,
+  type CartChangeDetail,
+  type Unmount,
+} from './types'
 
 // `data-behavior="cart-count"` (KO-02, DESIGN §9.12): Korb-Anzahl im Kopf. Liest `pc_cart` nur, wenn das Cookie
 // existiert, und setzt nie etwas (ARCHITEKTUR §8.7, R-130). Ändert sich die Anzahl, hüpft die Zahl (MI-07:
@@ -10,10 +15,7 @@ import type { BehaviorContext, Unmount } from './types'
 // Änderungen melden andere Module (z. B. `add-to-cart`) mit dem Ereignis `CART_CHANGE_EVENT` am `document`; im
 // Modus `preview` trägt es die neue Anzahl (`detail.count`, nur im Speicher), in der App wird das Cookie neu gelesen.
 
-export const CART_CHANGE_EVENT = 'pc:cart-change'
-export interface CartChangeDetail {
-  count?: number
-}
+export { CART_CHANGE_EVENT, type CartChangeDetail }
 
 const BOUNCE_MS = 240
 const FALLBACK_EASE = 'cubic-bezier(0.18, 1.6, 0.4, 1)'

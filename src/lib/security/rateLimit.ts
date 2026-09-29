@@ -23,6 +23,8 @@ const HOUR = 60 * MINUTE
 export const RATE_LIMITS = {
   admin_login: { limit: 10, windowMs: 15 * MINUTE },
   forgot_password: { limit: 3, windowMs: HOUR },
+  cart_add: { limit: 60, windowMs: 10 * MINUTE },
+  product_status: { limit: 120, windowMs: MINUTE },
 } as const satisfies Record<string, RateLimitRule>
 
 export type RateLimitBucket = keyof typeof RATE_LIMITS

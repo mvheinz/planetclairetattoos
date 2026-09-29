@@ -10,6 +10,7 @@ import {
   pointAt,
 } from '@/leash/geometry'
 import { PRESET_CONFIG, READING_LINE, isScrollCoupled, loopScroll } from '@/leash/presets'
+import { PRESET_DOCS } from '@/leash/presetDocs'
 import type { BuildInput, PresetId } from '@/leash/types'
 import { PRESETS, ROUTES } from '@/lib/routes/registry'
 
@@ -185,13 +186,13 @@ describe('leash/presets', () => {
     expect(Object.keys(PRESET_CONFIG).sort()).toEqual([...PRESETS].sort())
     const ids: PresetId[] = [...PRESETS]
     expect(ids).toHaveLength(11)
-    for (const id of ids) expect(PRESET_CONFIG[id].id).toBe(id)
+    expect(Object.keys(PRESET_DOCS).sort()).toEqual([...PRESETS].sort())
   })
 
   it('Routen je Preset stimmen mit der Registry überein', () => {
     for (const route of ROUTES) {
       if (!route.preset || route.kind !== 'page') continue
-      expect(PRESET_CONFIG[route.preset].routes, route.id).toContain(route.id)
+      expect(PRESET_DOCS[route.preset].routes, route.id).toContain(route.id)
     }
   })
 

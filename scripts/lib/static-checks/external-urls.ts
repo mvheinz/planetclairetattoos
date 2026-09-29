@@ -14,6 +14,7 @@ export const URL_ALLOWLIST: RegExp[] = [
   /^https:\/\/www\.dhl\.de\/[a-z]{2}\/privatkunden\/pakete-empfangen\/verfolgen\.html/, // Link zur Sendungsverfolgung in Versandmails, kein Request (DATENMODELL §7.1)
   /^https:\/\/planetclairetattoos\.com$/,
   /^https:\/\/schema\.org$/, // JSON-LD-`@context` (KONZEPT §3.0.5), Bezeichner, kein Request
+  /^https:\/\/europa\.eu\/youreurope\/citizens\/consumers\/shopping\/guarantees-returns\/index_(de|en)\.htm$/, // Textlink der harmonisierten Mitteilung (R-049), kein Request
 ]
 
 /**

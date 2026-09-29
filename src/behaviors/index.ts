@@ -5,10 +5,17 @@ import type { BehaviorContext, BehaviorModule, Unmount } from './types'
 // Vorschau-Laufzeit importiert sie statisch. Framework-frei (AK-A-2-03).
 
 export const BEHAVIOR_LOADERS = {
+  'add-to-cart': () => import('./add-to-cart'),
+  'buy-bar': () => import('./buy-bar'),
   'cart-count': () => import('./cart-count'),
+  gallery: () => import('./gallery'),
+  lightbox: () => import('./lightbox'),
   lost: () => import('./lost'),
   menu: () => import('./menu'),
   'motion-toggle': () => import('./motion-toggle'),
+  'price-tag-swing': () => import('./price-tag-swing'),
+  'product-status': () => import('./product-status'),
+  'sold-stamp': () => import('./sold-stamp'),
 } satisfies Record<string, () => Promise<BehaviorModule>>
 
 export type BehaviorName = keyof typeof BEHAVIOR_LOADERS
@@ -20,6 +27,20 @@ export const isBehaviorName = (name: string): name is BehaviorName =>
   Object.prototype.hasOwnProperty.call(BEHAVIOR_LOADERS, name)
 
 const defaultLoader: BehaviorLoader = (name) => BEHAVIOR_LOADERS[name]()
+
+/**
+ * Module, die erst nach dem `load`-Ereignis geladen werden (Modus `app`): Die Produktseite funktioniert bis dahin ohne sie
+ * (Galerie per Scrollen, Foto-Link auf die Datei, Kauf-Leiste verborgen, „In den Korb“ als normales Formular, Zustand aus
+ * dem Server-HTML). So zählen ihre Chunks nie zum Erstlade-JS (Budget ARCHITEKTUR §7.7) – das `load`-Ereignis wartet auf
+ * Fotos und Schriften und käme sonst manchmal später. `product-status` fragt ohnehin erst „nach dem Laden“ (§9.3).
+ */
+export const AFTER_LOAD: ReadonlySet<BehaviorName> = new Set<BehaviorName>([
+  'gallery',
+  'lightbox',
+  'buy-bar',
+  'add-to-cart',
+  'product-status',
+])
 
 export interface MountedBehaviors {
   /** Erfüllt, sobald alle beim Aufruf gefundenen Elemente gebunden sind. */
@@ -40,20 +61,35 @@ export function mountBehaviors(
   const unmounts: Unmount[] = []
   let active = true
   const jobs: Promise<void>[] = []
+  const doc = scope instanceof Document ? scope : ((scope as Node).ownerDocument ?? document)
+  const win = doc.defaultView
+  let stopWaiting = () => {}
+  const loaded =
+    ctx.mode === 'app' && win && doc.readyState !== 'complete'
+      ? new Promise<void>((resolve) => {
+          const onLoad = () => resolve()
+          win.addEventListener('load', onLoad, { once: true })
+          stopWaiting = () => {
+            win.removeEventListener('load', onLoad)
+            resolve()
+          }
+        })
+      : Promise.resolve()
   for (const el of Array.from(scope.querySelectorAll('[data-behavior]'))) {
     for (const name of (el.getAttribute('data-behavior') ?? '').split(/\s+/).filter(Boolean)) {
       if (!isBehaviorName(name)) continue
-      jobs.push(
+      const bind = () =>
         load(name).then((mod) => {
           if (active && el.isConnected) unmounts.push(mod.mount(el, ctx))
-        }),
-      )
+        })
+      jobs.push(AFTER_LOAD.has(name) ? loaded.then(() => (active ? bind() : undefined)) : bind())
     }
   }
   return {
     ready: Promise.all(jobs).then(() => undefined),
     unmount: () => {
       active = false
+      stopWaiting()
       for (const u of unmounts.splice(0).reverse()) u()
     },
   }

@@ -2,6 +2,130 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+
+
+## 2026-09-29 – P3 CI grün
+
+- Phasenlauf `[ci:full p3]` (Commit 32029fc): CI, CI full (e2e desktop/iphone-15/pixel-7, quality) und Vorschau-Export grün; Artefakt `planet-claire-vorschau-p3-32029fc`.
+
+## 2026-09-29 – P3 Phasen-Abnahme (Shop, Produktseiten, Archiv) – für Jutta
+
+**Was ist neu?** Dein Shop steht – vorerst mit den Beispielstücken (Fotos aus deinem Instagram, Texte als Muster).
+
+**Was du in der Vorschau-Datei jetzt siehst** (Datei herunterladen und doppelklicken, wie in Anleitung V0):
+
+- **Shop:** alle Stücke als Karten mit Foto, Preisschild und Nummer. Oben kannst du nach Kategorie filtern (Keramik,
+  Textil, Caps, Zeichnungen, Schmuck) und „nur verfügbare“ anzeigen lassen. Die Preisschilder schwingen kurz, wenn
+  sie ins Bild kommen – wie Anhänger an einer Schnur.
+- **Reserviert und verkauft:** Ein reserviertes Stück zeigt „Gerade reserviert“, ein verkauftes bekommt den
+  „sold“-Stempel. Verkaufte Stücke, die du zeigen möchtest, stehen zusätzlich im **Archiv** („Schon ausgezogen – aber
+  schön anzusehen“).
+- **Produktseite** für jedes Beispielstück: Fotos zum Wischen, ein Tipp aufs Foto öffnet die große Ansicht zum
+  Heranzoomen. Darunter Preis mit dem Hinweis zur Umsatzsteuer, Versandkosten, Lieferzeit, alle Pflichtangaben je
+  Kategorie (z. B. Material und Pflege bei Textil, „nur zur Deko“ bei Keramik ohne Nachweis), deine Angaben als
+  Herstellerin, Versand & Rückgabe und „Mehr aus …“ mit ähnlichen Stücken.
+- **Kurzlink für Instagram:** `planetclairetattoos.com/nr/<Nummer>` führt direkt zum Stück – praktisch für Stories.
+- **Wenn es ein Stück nicht mehr gibt,** erscheint eine freundliche Seite („Dieses Stück hat schon ein Zuhause
+  gefunden“) mit Links zu Shop und Archiv.
+
+**Wie „In den Korb“ wirkt:** Auf der echten Website legt der Knopf das Stück in den Korb, ohne dass die Seite neu
+lädt; oben zählt der Korb eins hoch, und beim Stück steht „Liegt schon in deinem Korb“. Erst in diesem Moment speichert
+die Seite ein kleines Korb-Cookie – vorher nichts (so will es das Datenschutzrecht). In der Vorschau-Datei zählt der Korb
+nur zum Anschauen hoch und zeigt „In der Vorschau zeigt der Korb ein Beispiel“ – hier wird nichts gekauft und nichts
+gespeichert. Warenkorb, Kasse und Bezahlen kommen in der nächsten Phase (P4).
+
+**Geprüft:** Auf keiner Shop-Seite gibt es ein Cookie vor „In den Korb“, keine Verbindung zu fremden Diensten, kein
+„inkl. MwSt.“, keine durchgestrichenen Preise und keinen Satz wie „kein Umtausch“. Alle Seiten gibt es auf Deutsch und
+Englisch, sie sind per Tastatur bedienbar und für Screenreader geprüft, und Shop und Produktseite laden auf dem Handy
+schnell (Messung wie bei Google, Ziel unter 2,5 Sekunden).
+
+**Was noch fehlt (kommt später oder mit dir in P11):** deine echten Stücke und Fotos in voller Größe (aus dem
+Instagram-Export), die Rechtstexte der Kanzlei und die offizielle Grafik zur Gewährleistung – bis dahin stehen dort
+gekennzeichnete Platzhalter.
+
+## 2026-09-29 – P3.16
+
+- Querschnittssuiten auf R02–R05 ausgedehnt: @privacy (Request-Log, CSP), @a11y (axe je Kategorie/Zustand, 404-Variante) plus Tastatur-Durchlauf, Verbotsmuster-Scan, JS-Budget (check:bundle), Lighthouse-CI für R02/R04, CLS-Messung (Playwright) jetzt auch für R02 und R04.
+- Visuelle Referenzen für Shop, Produktseite, Archiv, 404-Variante „Schon ein Zuhause“ und Shop-Bausteine (P3.4) lokal gegen den Produktions-Build erzeugt (OFFENE-PUNKTE N-02); R01 (Karten aus P3.12) und 404 (Nummernfeld aus P3.7) erneuert. Mobile Kauf-Leiste in ganzseitigen Aufnahmen ausgeblendet, alle Bilder vor der Aufnahme geladen.
+- Ursache instabiler R01-Aufnahmen behoben: Der Daten-Cache des Produktions-Builds (`.next/cache/fetch-cache`) überlebte Server-Neustarts und `db:reset`, die Seite zeigte Medien-Dateinamen des vorigen Seeds (HTTP 403). Playwright leert ihn jetzt vor `pnpm start` (`startCommand` in `playwright.config.ts`, auch für die visuellen Tests).
+- Vorschau-Datei: R02–R05, Listen-Varianten und alle Seed-Produktseiten enthalten; Test für Schild-Schwingen robuster (Desktop: erste Kartenreihe liegt unter dem Banner, wird hingescrollt).
+- Tests: pnpm check (1022), test:int (413), build, test:e2e (1266, desktop/iphone-15 WebKit/pixel-7), test:visual 34/34 zweimal hintereinander stabil, @perf 6/6, test:preview-export 26/26.
+
+## 2026-09-28 – P3.15
+
+- Admin-Endpunkte (publish, unpublish, sell-offline, archive, restore, return-to-stock, adopt) und Speichern in der Verwaltung laufen über den Produkt-Hook → `revalidateProduct`: Statuswechsel sofort (`{ expire: 0 }`), Bearbeitungen/Preis `'max'`; `settings` und `categories` erneuern ihre Tags; bei `context.seed` nichts.\n- `revalidate.ts`: `updateTag` außerhalb von Server-Actions fällt auf `{ expire: 0 }` zurück, Tags entdoppelt; Startseite bekommt Segment-Rückfall `revalidate = 3600`; Kategorie-Wechsel erneuert auch die alte Kategorie sofort bei Statuswechsel. ARCHITEKTUR §9.3 ergänzt.\n- Gemessen im Produktions-Build: Statuswechsel sichtbar nach ≈ 0,4 s (Produktseite, Shop, Kategorie, Startseite), Text-/Versandpreis-Änderung nach ≈ 1,2 s.\n- Tests: `tests/int/shop/revalidate.int.spec.ts` (11, Spy auf `next/cache`, inkl. „R-033 …“ Preis-Historie + kein Vergleichspreis-Feld, Seed-Kontext, Segment-Konfiguration); `tests/e2e/shop/revalidation.e2e.spec.ts` @slow (2, grün gegen `E2E_SERVER=start` und `pnpm dev`); pnpm check, test:int (ohne preview-export), build grün.
+
+## 2026-09-28 – P3.12
+
+- Kategorie-Stationen der Startseite zeigen bis zu 4 Stücke (`listStationProducts`, `available`/`reserved`, neueste zuerst, gecacht mit Tag `home`); Textil = textil + cap (KA-17); Karten KO-07 ohne Schnur mit Schild `pinned` am Kartenfuß; „Alle {Kategorie}“ → R03; Leerzustand „Gerade ist hier nichts …“ + Archiv-Link; Preis-Fußnote einmal pro Seite; Live-Zustand per `product-status`. Tattoo-Station unverändert.\n- Tests: E2E `home/stations.e2e.spec.ts` (Anzahl/Status/Sortierung/KA-17 lesend in 3 Projekten, eigene Stücke 975–979 exklusiv, Leerzustand mit Test-Kategorie `sonstiges` exklusiv; 10 grün), `home.e2e` angepasst, Leinen-Tests (AK-DS-13/14) grün; Int home-data +2 (KA-17, Link-Fallback). `pnpm check`, `pnpm build`, `check:bundle` (R01 144–149 KB, R04 144,6 KB) grün.
+
+## 2026-09-28 – P3.11
+
+- Endpunkt `GET /api/public/product-status` (zod, ≤ 24 IDs, Rate-Limit `product_status` 120/min, `no-store`, je ID nur available/reserved/sold/gone), Dienst `src/lib/commerce/cart.ts` + Server-Action `addToCart` (Rate-Limit `cart_add`, Shop offen, öffentlich, available, nicht doppelt, < 20; setzt erst dann `pc_cart` nach §8.7). Format `encodeCartCookie`/`decodeCartCookie` in `src/lib/commerce/cartCookie.ts` (auch für `cart-count`).\n- Module `product-status` (Produktseite und Shop-/Kategorie-Raster: Karten-Badges/Name, Kaufbereich, MI-03 über `sold-stamp`) und `add-to-cart` (ohne Seitenwechsel, „Liegt schon in deinem Korb“ + „Zum Korb“, Bestätigung, MI-07, MI-01 Grundfassung; Vorschau nur Anzeige); ohne JavaScript 303 mit `#in-cart` (CSS `:target`).\n- Tests: Unit cart-cookie (21), product-status (10), add-to-cart (21), Vertrag AK-DS-18; Int add-to-cart (13); E2E privacy/cart-cookie @privacy + shop/add-to-cart (3 Projekte; dazu veraltete Shop-Seite live, desktop; 14 grün); Regression shop/legal/privacy/a11y/keyboard/shell/leash/home grün (725). `pnpm check`, `pnpm build` grün.
+## 2026-09-28 – P3.14
+
+- OG-Produktbild `src/app/(frontend)/[locale]/shop/[product]/opengraph-image.tsx` (`next/og`, 1200 × 630, DESIGN §12.6): erstes Foto 504 × 630 am Fokuspunkt aus der lokal gespeicherten Größe (`card` → Original-Zuschnitt → `thumb`, `src/og/photo.ts`, `src/lib/storage/read.ts`), Titel Bricolage 600 höchstens 3 Zeilen mit „…“ (`src/og/text.ts`), Preisschild (`formatTagPrice`) mit Sternchen, `Nr. 017`, „* Endpreis zzgl. Versand“ (DA-6), kleine Wortmarke, Tuschelinie von der Öse zur Wortmarke, verkauft mit Stempel „sold“; `generateImageMetadata` für Alt-Text je Stück/Sprache, Next setzt `og:image` (absolut über `metadataBase`), `:alt`, `:width`, `:height`, `:type`; Daten mit Tag `product:<id>` (`src/lib/data/ogProduct.ts`).\n- Standard-OG-Bild `/de/og-image.png`, `/en/og-image.png` (Route `[locale]/og-image.png`, statisch): Papier-Raster, Tuschelinie mit Orbit um die Planet-Marke, Wortmarke, Zeile „Tattoos & Unikate aus Berlin“ / „Tattoos & one-offs from Berlin“, Coco `rennen` an der Linienspitze; alle übrigen Seiten verweisen absolut darauf; Rückfall `public/og/default.png` bei Fehlern.\n- Schriften: `pnpm fonts:copy` erzeugt offline `src/og/fonts/mansalva-400.ttf` und `bricolage-grotesque-600.ttf` aus `@fontsource/mansalva` bzw. neu `@fontsource/bricolage-grotesque` 5.3.0 (statisch) mit `wawoff2` 2.0.1 (beide exakt gepinnte Dev-Abhängigkeiten, ARCHITEKTUR §1.2), prüft Glyphen (Umlaute, ß, €, „“) und schreibt `src/og/fontMetrics.generated.ts` (Abdeckung + Laufweiten); Zeichen ohne Glyphe fallen im Bild weg, damit satori nie Schriften/Emoji aus dem Netz lädt. `check:bundle` meldet TTF/OTF unter `.next/static`.\n- Tests: unit `seo/og-text` (7, Titelkürzung), `fonts/og-fonts` (5: TTF, keine fvar, Glyphen, byte-gleich, ohne fetch, keine TTF in public/), `seo/og-render` (5: PNG 1200 × 630 DE/EN, Stempel nur bei sold, keine Netz-Anfrage); e2e `seo/og-image` (alle öffentlichen Seed-Stücke DE/EN: 200, image/png, 1200 × 630, sold mit Stempel, EN-Titel im Alt-Text und eigenes Bild; alle live-Seiten mit absolutem `og:image`) – grün gegen `pnpm dev` und gegen `next start` (dort og:image mit `NEXT_PUBLIC_SITE_URL`); `seo/*`, `seo.e2e`, `shop/product-routing`, `error-pages` grün; `pnpm check`, `pnpm build`, `check:versions`, `check:bundle --no-pages` grün; `test:int` grün bis auf das schon vorher rote `preview-export/determinism`. `check:external --built` meldet nur den schon vorhandenen Linkziel-Treffer `europa.eu/youreurope` (Gewährleistungs-Hinweis aus P3.3/P3.9), sonst keine Fremd-URL.
+
+## 2026-09-28 – P3.13
+
+- Metadaten R02–R05: Titel nach KONZEPT (Produkt `{Titel} – Nr. 017 · Planet Claire`, CMS-Titel hat Vorrang), Beschreibung aus `seo.metaDescription` bzw. erste 155 Zeichen (Wortgrenze, „…“), Listen aus `pages.seo` (shop/archive) bzw. Kategorie-SEO, sonst Vorlage; canonical/hreflang (de, en, x-default) absolut mit `NEXT_PUBLIC_SITE_URL`, `metadataBase`; Open Graph mit `og:type` product (R04, per `<meta>` aus `ProductSeo` im Produkt-Layout) bzw. website, `og:locale` + Alternate.\n- 404-Varianten (Produkt unbekannt/Entwurf/archiviert/„Zuhause“, unbekannte Kategorie, Seite hinter der letzten): `generateMetadata` in den `not-found.tsx` (`notFoundMetadata`), noindex, ohne canonical/hreflang.\n- JSON-LD `src/lib/seo/jsonld.ts` (umbenannt von `jsonLd.ts`): `Product` mit `Offer` (Preis als Zeichenkette aus Cent, InStock/SoldOut, Used/NewCondition, Marke, sku 3-stellig; Regelbesteuerung `priceSpecification.valueAddedTaxIncluded`, KU ohne Steuerangabe R-126), `BreadcrumbList` (`src/lib/seo/breadcrumbs.ts`) auf R02–R05.\n- Sitemap: öffentliche Stücke (available/reserved/sold mit Archiv) und alle Kategorien beider Sprachen mit Alternates und `lastmod` (`src/lib/data/sitemap.ts`, Tag `sitemap`, ISR 1 h, ohne DB nur feste Seiten); Seed nur außerhalb Produktion (öffentlicher Zugriff + eigener Filter).\n- Tests: unit `seo/jsonld` (Snapshot je Zustand × Steuermodus, Preis, Brotkrumen, Produkttexte), `seo/metadata` (+3); e2e `seo/meta` (canonical, hreflang, og je Seitentyp DE/EN, JSON-LD, 404-Varianten) und `seo/sitemap` (XML geparst: S01/S06 ja, S09/S18/Fixture analog S08 nein, EN-Slug, Alternates, kein Verwaltungspfad) grün; `seo.e2e` und `shop/*` (desktop) grün; `pnpm check`, `pnpm build` grün. `test:int`: alles grün außer `preview-export/determinism` (zwei Platzhalter-Zeichnungen `ph:shirt-*` unterscheiden sich zwischen zwei Export-Läufen – schon auf dem Ausgangsstand b4f650b rot, nicht SEO-bezogen).
+
+## 2026-09-28 – P3.10
+
+- ProductGallery (Scroll-Snap 4:5, Fokuspunkt, srcset card/detail, Punkte + Zähler, ab 768 px Pfeile + Miniaturen mit aria-current, erstes Foto fetchpriority=high), Lightbox als <dialog> (größte Größe, Klick/Doppeltipp 1×↔2×, Ziehen, Wischen, Pfeiltasten, Esc/Schließen/Browser-Zurück via pushState, Fokus zurück), mobile Kauf-Leiste (IntersectionObserver, inert wenn verborgen)\n- Module gallery/lightbox/buy-bar (2,4 KB gz, eigene Budget-Gruppe ≤ 4 KB), nach load geladen; Vorschau-Datei ohne Anfragen (Lightbox nutzt eingebettetes Foto)\n- Tests: Unit gallery/lightbox/buy-bar + Vertrag (AK-DS-18), E2E shop/gallery (desktop, iphone-15, reduced motion, ohne JS), @perf Zoom öffnen 72–112 ms (Gate 200), Vorschau-Export-Test ergänzt – grün
+
+## 2026-09-28 – P3.9
+
+- Produktseite Blöcke 7–11: Beschreibung + „Jutta sagt“, Details-Tabelle (KO-09b, Gewicht via formatWeight), „Herstellerin & Sicherheit“ (R-040, Warnhinweise DE immer, auf /en zusätzlich EN, Pflicht-Bausteine ergänzt), Versand & Rückgabe (Versandklasse mit DE-Preis, Abholung, Widerrufshinweis ohne V-19, Baustein returnCostsNote, Links R24/R25), WarrantyNotice (R-049), „Mehr aus {Kategorie}“ (ohne sold/aktuelles Stück)\n- Neu: src/lib/shop/productInfo.ts, src/components/shop/product/ProductInfo.tsx, getProductInfoSettings\n- Test-Stabilität: Fixture-Block je Projekt per Advisory-Lock serialisiert; Leerzustand-Test exklusiv\n- Tests: Unit product-info (8), E2E legal/gpsr (je Kategorie DE/EN), product-page (+7), forbidden (+R04 je Kategorie, V-31) – grün
+
+## 2026-09-28 – P3.8
+
+- `ProductPage` (Blöcke 2–6 in fester DOM-Reihenfolge): H1, Kurzdaten (Nr. · Unikat · Kategorie · Maße), `PriceTag` pinned + Steuer-/Versandhinweis + Lieferzeit (Abhol-Baustein bei `nur_abholung`), Pflichtangaben je Kategorie mit Bausteinen `product.*` (Keramik Deko/lebensmittelecht mit Link R27 `#glaze-<id>` nur bei aktiver Erklärung, Textil/Cap Fasern/Etikett fehlt/Größe/Zustand/Second-Hand, Schmuck Metallteile/Nickel/Kleinteile, Zeichnung Technik/Maße/Glasrahmen), Abweichungs-Kasten, Kaufbereich je Zustand (available/reserved/sold, Shop pausiert mit closedMessage) samt Liefergebiet-Satz (R-036). EN-Lücken mit `lang="de"` (`getUntranslatedFields`). Leinen-Preset `product`: Start unter der H1, `hook` am Knopf; Coco-Box 48×40. Engine unverändert 11 093 B gz.\n- R27-Einträge mit Anker `glaze-<id>`; Lock `holdConformityData` für Tests mit eigener Erklärung (Fußlink-Test geteilt); R31 im Verbotsmuster-Scan.\n- Tests: unit `tests/unit/shop/product-state.unit.spec.ts` (2) + Einstellungen; E2E `tests/e2e/shop/product-page.e2e.spec.ts` (10) und `tests/e2e/legal/product-info.e2e.spec.ts` (6, R-043/044/045/046/048, AK-3-07) in 3 Projekten grün; shop/legal/leash/home/perf/a11y/seo/privacy/footer/error-pages grün mit Debug-Build (Schriften-Tor-Test in home flackert unter Last, isoliert grün).
+
+## 2026-09-28 – P3.7
+
+- Produktseite `shop/[product]`: Auflösung nur über die führenden Ziffern (`parseProductSegment`), nicht kanonische Formen → 308 auf `productPath()`, Entwurf/archiviert/unbekannt → 404, verkauft + ausgeblendet → 404-Variante „Dieses Stück hat schon ein Zuhause gefunden“ (Layout meldet `isProductGone` per Kontext an `not-found.tsx`; Preset `lost` ohne Weglaufen, Links Shop/Archiv). ISR mit `generateStaticParams` (alle öffentlichen Stücke), `dynamicParams`.\n- Kurzlink R31 `/nr/[nummer]` (+ `/nr?nummer=` für das neue Nummernfeld der 404): 307 in die Sprache aus Accept-Language, Vary, no-store, kein Cookie; unbekannt → 404-Seite.\n- R04/R31 in der Registry gebaut; Beispiel-Parameter R04 = S01.\n- Tests: unit `tests/unit/shop/product-routing.unit.spec.ts` (7), int `tests/int/shop/data.int.spec.ts` (+2), E2E `tests/e2e/shop/product-routing.e2e.spec.ts` (6 × 3 Projekte) grün; shop/error-pages/seo/a11y/privacy grün (routing www-Test nur lokal rot: Port 3100 ≠ NEXT_PUBLIC_SITE_URL).
+
+## 2026-09-28 – P3.6
+
+- Archiv R05 (/de/archiv, /en/archive) samt statischer Varianten ?category=/?page=: H1, Satz „Schon ausgezogen – aber schön anzusehen“, Kategorie-Chips nur für Kategorien mit Archiv-Stücken (Slug der Seitensprache), Raster aller verkauften Stücke mit Archiv-Freigabe nach Verkaufsdatum (24 je Seite), Preis und statischer sold-Stempel (kein Knall beim Laden), Leerzustand „Noch ist nichts verkauft.“ mit Shop-Link, Schnur shopString; unbekannte Kategorie wird ignoriert, canonical ohne category.
+- Tests: E2E tests/e2e/shop/archive.e2e.spec.ts (4 lesend je Projekt + 2 mit eigenen Stücken: Fixture analog S08 unsichtbar, Filter DE/EN, Reihenfolge, Leerzustand) und @a11y/SEO/Privacy/CSP für R05 DE/EN – grün gegen den Produktions-Build; Unit registry/transform-html angepasst.
+
+## 2026-09-28 – P3.5
+
+- Shop-Übersicht R02 und Kategorie-Seiten R03 (samt statischer Varianten ?available=1/?page=n aus Spike B-05) über eine gemeinsame Listen-Komponente: H1, Einleitung, Filter-Chips als echte Links (aria-current), Umschalter „nur verfügbare“, Raster aus Produktkarten, „Mehr zeigen“ als Link, Preis-Fußnote und Lieferzeile, Leerzustände KO-17, Hinweis „Shop pausiert“ über dem Raster; Kategorie unbekannt → 404, Slug der anderen Sprache → 308.
+- Leinen-Preset shopString: die Linie läuft als Schnur durch jede Kartenreihe (Serpentine, Durchhang), Coco-Platzhalter am Schnuranfang, jede Reihe zeichnet sich beim Hineinscrollen.
+- Querschnittsprüfungen (Barrierefreiheit, SEO, Datenschutz, Header, Verbotsliste) rufen Routen mit Parametern über Beispiel-Parameter auf (samplePath).
+- Tests: Unit list-page (6) + leash/shop-string (8); E2E tests/e2e/shop/shop.e2e.spec.ts (10 je Projekt, u. a. 25 Fixture-Stücke 975–999, ohne JavaScript, 308/404, Shop pausiert) sowie @a11y/SEO/Privacy/CSP für R02/R03 DE/EN – grün gegen den Produktions-Build.
+
+## 2026-09-28 – P3.4
+
+- Komponenten `src/components/shop/`: `PriceTag` (KO-05, Varianten hanging/pinned/mini; Drehung, Fadenlänge, Kontur-Wackel und Stempelwinkel deterministisch aus der Nummer in `src/lib/shop/priceTag.ts`; Preis `formatMoney(…, tag)` + Sternchen, `Nr. 017`; Faden-Anker `data-leash-anchor="tag"` für die Schnur), `SoldStamp` (KO-06, aria-hidden, lang=en, rauer Rahmen mit Lücken, Druck-Maske), `Badge` (KO-10, sechs Arten, neue Icons `clock`/`plate-off`), `ProductCard` (KO-07, genau ein Link, aria-label mit Zustand, Foto 4:5 mit srcset thumb/card, erste zwei Karten eager), `src/components/media/ResponsiveImage.tsx` (feste Endhöhe, Dominanzfarbe, Fokuspunkt); Schraffur-Schatten `.u-hatch-shadow`. Callout (KO-22) besteht seit P2 unter `src/components/ui/`.
+- Verhaltensmodule `price-tag-swing` (MI-02: Reihen-Eintritt nach 500 ms, 60 ms versetzt, Hover/Fokus) und `sold-stamp` (MI-03 nur bei Ereignis `pc:product-sold`, max. 3 Knalle, 120 ms gestaffelt), im Register und in der Vorschau-Laufzeit; bei reduzierter Bewegung aus.
+- JS-Budget Mikro-Interaktionen jetzt je gemeinsam geladener Modulgruppe ≤ 4 KB (OFFENE-PUNKTE).
+- Tests: `tests/unit/shop/price-tag.unit.spec.ts` (14), `tests/unit/shop/product-card.unit.spec.ts` (8, jsdom, AK-DS-10), `tests/unit/behaviors/price-tag-swing.unit.spec.ts` (6) und `sold-stamp.unit.spec.ts` (6, AK-DS-18), Vertragstest um beide Module erweitert; `tests/visual/shop-components.visual.spec.ts` angelegt (Referenzbilder entstehen in CI mit P3.16); `pnpm check` grün (855 Tests)
+
+## 2026-09-28 – P3.3
+
+- `src/lib/legal/snippets.ts`: alle 36 Bausteine aus ANFORDERUNGEN §6 (DE wörtlich, EN sinngemäß, Version `draft-1`, `sha256` des DE-Texts; 7 Schlüssel ohne Arbeitsfassung als Platzhalter laut DATENMODELL §6.28), `LEGAL_SNIPPET_REQUIRES_LAWYER`, `getSnippet` mit Fehler bei unbekanntem/unersetztem Platzhalter.
+- Komponenten `src/components/shop/`: `PriceNote` (Steuermodus über `getTaxModeAt`, Kleinunternehmer-Baustein bzw. „inkl. 19/7 % USt.“ ab `validFrom`), `MoneyAmount`, `ShippingNoteLink` (R25), `DeliveryTime` (Versand/Abholung, R-035), `PriceFootnote` (feste id, einmal je Seite), `WarrantyNotice` (R-049, Platzhalter-Grafik `public/legal/`, EU-Link).
+- `check:static` `money-usage`: `formatMoney` außerhalb `src/lib/` nur in PriceTag/PriceNote/MoneyAmount; Audit-Text der Preisänderung nach `src/lib/shop/priceChange.ts` verschoben. Lieferzeit-Einstellung lehnt vage Angaben ab.
+- Tests: `tests/unit/legal/snippets.unit.spec.ts` (8), `tests/unit/shop/price-note.unit.spec.ts` (10, jsdom), `tests/unit/static/money-usage.unit.spec.ts` (3), `tests/unit/legal/forbidden.unit.spec.ts` (+3) – alle grün; `pnpm check`, `pnpm test:int` (44 Dateien), `pnpm build` grün
+
+## 2026-09-28 – P3.2
+
+- Spike B-05: Soll erfüllt. `src/proxy.ts` schreibt bekannte Listen-Parameter über `decideListVariant` (`src/lib/shop/listParams.ts`: `parseListParams`, `variantKey`, `parseVariantKey`, `canonicalListUrl`) auf `…/variant/<schlüssel>` um; interne Pfade direkt → 404; Proxy ohne Payload/DB (Import-Graph-Test).
+- Prototyp-Variante R02 `[locale]/shop/variant/[variant]/page.tsx` (`generateStaticParams`, `dynamicParams`, ISR, canonical in Query-Form, bewusst ohne Preise); `matchSegments` ordnet Varianten der Liste zu; `check:static` erlaubt Varianten-Seiten für R02/R03/R05.
+- `available` gilt laut KONZEPT §2.3 nur für R02/R03 (PLAN nennt auch R05; KONZEPT hat Vorrang).
+- Ergebnis in ARCHITEKTUR Anhang B (B-05), OFFENE-PUNKTE §4 erledigt.
+- Tests: `tests/unit/shop/list-params.unit.spec.ts` (11, grün); `tests/e2e/shop/list-variants.e2e.spec.ts` gegen `pnpm start` (3, grün, auch wiederholt: `?available=1` HIT, `?available=1&page=2` MISS→HIT); `pnpm check`, `pnpm build` grün
+
+## 2026-09-28 – P3.1
+
+- `src/lib/cache/cached.ts` (`cached(fn, { key, tags, revalidate })` über `unstable_cache`, Rückfall 3600 s; außerhalb von Next ungecacht)
+- `src/lib/data/products.ts` (Shop-Liste mit zweistufiger Sortierung, Archiv, Einzelstück, verwandte Stücke, Stationen; Admin-Felder entfernt) und `src/lib/data/categories.ts` (Slug inkl. anderer Sprache → redirect, Navigation)
+- `src/lib/shop/format.ts` (Nummer, Maße, Fasern, Zustand, Gewicht DA-9, `productPath`); `check:static` Regel `money-usage` (kein `toFixed`/`Intl.NumberFormat` mit `currency` in Shop, Komponenten, Seiten)
+- Tests: `tests/int/shop/data.int.spec.ts` (9, grün), `tests/unit/shop/format.unit.spec.ts` (11, grün); `pnpm check` grün
 ## 2026-09-28 – P2 CI grün
 
 - Phasenende-Lauf `[ci:full p2]` auf PR #2 grün (Kopf `3670d65`): `quick`, `e2e-full` (desktop, iphone-15 WebKit, pixel-7),

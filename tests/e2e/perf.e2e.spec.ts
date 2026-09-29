@@ -8,7 +8,7 @@ import budgets from '../perf/budgets.json'
 // - Arbeit je Frame der Tuschelinie beim Scrollen ≤ 6 ms (p95 der User-Timing-Messungen `leash:frame`, wie KUNST-QA
 //   PF-03). Die Engine setzt sie immer (`LEASH_MEASURES` in `src/leash/runtime.ts`); gelesen per `PerformanceObserver`,
 //   also ohne Debug-Schnittstelle `window.__leash`/`__qa` – der Job `quality` misst den Produktions-Build (DESIGN §9.13).
-// Die Messwerte stehen als Annotation im Bericht. R02/R04 (In den Korb, Zoom, Filter) kommen mit P3/P4 dazu.
+// Die Messwerte stehen als Annotation im Bericht. R04 „Zoom öffnen“ seit P3.10; R02/R04 (In den Korb, Filter) kommen mit P3/P4 dazu.
 
 const { interaction } = budgets
 
@@ -122,32 +122,66 @@ test.describe('Tempo @perf', () => {
     expect(inp).toBeLessThanOrEqual(interaction.inpMs.max)
   })
 
-  test('T-10 CLS über den Seitenaufbau von R01 ≤ 0,1 bei 4× CPU-Drosselung @perf', async ({
+  test('T-10 INP-Ersatz: Zoom öffnen auf R04 ≤ 200 ms bei 4× CPU-Drosselung @perf (P3.10)', async ({
     page,
   }, testInfo) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' })
     await observe(page)
+    // S01 (Nr. 901) hat zwei Fotos.
+    await page.goto('/de/shop/901-schale-langohr-wuschel')
+    // Das Modul `gallery` ist gebunden, sobald die Knöpfe nicht mehr `hidden` sind; `lightbox` im selben Durchgang.
+    await expect(page.locator('[data-gallery]')).toHaveAttribute('data-gallery-index', '0')
     await throttle(page)
-    await page.goto('/de', { waitUntil: 'load' })
-    // Einmal bis zum Fuß und zurück: Stationen, Zeichnungen, Linie und Coco bauen auf.
-    await page.evaluate(async () => {
-      const step = Math.round(innerHeight * 0.8)
-      for (let y = 0; y < document.documentElement.scrollHeight; y += step) {
-        scrollTo(0, y)
-        await new Promise((r) => setTimeout(r, 120))
-      }
-      scrollTo(0, 0)
-      await new Promise((r) => setTimeout(r, 300))
-    })
-    const shifts = await page.evaluate(() => (window as unknown as PerfWindow).__perf.shifts)
-    const cls = cumulativeLayoutShift(shifts)
+    await page.locator('a[data-zoom-src]').first().click()
+    await expect(page.locator('dialog[data-lightbox]')).toBeVisible()
+    await page.evaluate(
+      () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))),
+    )
+    const events = await page.evaluate(() =>
+      (window as unknown as PerfWindow).__perf.events.filter((e) => e.interactionId > 0),
+    )
+    const inp = events.length ? Math.max(...events.map((e) => e.duration)) : 16
     report(
       testInfo,
-      'CLS R01',
-      `${cls.toFixed(3)} (Gate ≤ ${interaction.cls.max}, Ziel ≤ ${interaction.cls.target}${cls > interaction.cls.target ? ' – Ziel verfehlt' : ''})`,
+      'INP-Ersatz Zoom öffnen',
+      `${Math.round(inp)} ms (Gate ≤ ${interaction.inpMs.max} ms, Ziel ≤ ${interaction.inpMs.target} ms${inp > interaction.inpMs.target ? ' – Ziel verfehlt' : ''})`,
     )
-    expect(cls).toBeLessThanOrEqual(interaction.cls.max)
+    expect(inp).toBeLessThanOrEqual(interaction.inpMs.max)
   })
+
+  // ARCHITEKTUR §7.7: CLS per Playwright auf R01 und (P3.16) R02, R04.
+  for (const [id, path] of [
+    ['R01', '/de'],
+    ['R02', '/de/shop'],
+    ['R04', '/de/shop/901-schale-langohr-wuschel'],
+  ] as const) {
+    test(`T-10 CLS über den Seitenaufbau von ${id} ≤ 0,1 bei 4× CPU-Drosselung @perf`, async ({
+      page,
+    }, testInfo) => {
+      await page.emulateMedia({ reducedMotion: 'no-preference' })
+      await observe(page)
+      await throttle(page)
+      await page.goto(path, { waitUntil: 'load' })
+      // Einmal bis zum Fuß und zurück: Stationen/Karten, Zeichnungen, Linie und Coco bauen auf.
+      await page.evaluate(async () => {
+        const step = Math.round(innerHeight * 0.8)
+        for (let y = 0; y < document.documentElement.scrollHeight; y += step) {
+          scrollTo(0, y)
+          await new Promise((r) => setTimeout(r, 120))
+        }
+        scrollTo(0, 0)
+        await new Promise((r) => setTimeout(r, 300))
+      })
+      const shifts = await page.evaluate(() => (window as unknown as PerfWindow).__perf.shifts)
+      const cls = cumulativeLayoutShift(shifts)
+      report(
+        testInfo,
+        `CLS ${id}`,
+        `${cls.toFixed(3)} (Gate ≤ ${interaction.cls.max}, Ziel ≤ ${interaction.cls.target}${cls > interaction.cls.target ? ' – Ziel verfehlt' : ''})`,
+      )
+      expect(cls).toBeLessThanOrEqual(interaction.cls.max)
+    })
+  }
 
   test('DESIGN §9.10: Arbeit je Frame der Tuschelinie beim Scrollen ≤ 6 ms bei 4× Drosselung @perf', async ({
     page,

@@ -358,7 +358,7 @@ Schraffur-Muster als Inline-SVG-Data-URI (≤ 300 Byte), kein Bild-Request.
 ### 6.5 Icons
 
 - Eigenes, handgezeichnetes Set, 24×24-viewBox, Strich 1.75 Einheiten, `stroke-linecap: round`, `stroke-linejoin: round`, Farbe `currentColor`, leicht wackelig (kein Icon-Font, keine Fremd-Bibliothek).
-- Bestand (P2): `basket` (Flohmarkt-Papiertüte mit Henkeln), `menu` (drei ungleich lange Striche), `close`, `arrow-right`, `arrow-left`, `external`, `mail`, `instagram` (Kamera-Umriss, **kein** Instagram-Logo), `copy`, `zoom`, `check`, `warn`, `info`, `planet`, `star`, `truck`, `pickup` (Häuschen), `withdraw` (Pfeil zurück im Kreis).
+- Bestand (P2): `basket` (Flohmarkt-Papiertüte mit Henkeln), `menu` (drei ungleich lange Striche), `close`, `arrow-right`, `arrow-left`, `external`, `mail`, `instagram` (Kamera-Umriss, **kein** Instagram-Logo), `copy`, `zoom`, `check`, `warn`, `info`, `planet`, `star`, `truck`, `pickup` (Häuschen), `withdraw` (Pfeil zurück im Kreis). Ab P3 (Badges KO-10): `clock` (Uhr, „reserviert“), `plate-off` (Teller durchgestrichen, Deko-Hinweis).
 - Icons sind `aria-hidden="true"`; jede Bedienung hat sichtbaren Text oder, nur bei Galerie-Pfeilen und Lightbox-Schließen, ein `aria-label`.
 - Dateien: `src/art/icons/*.svg` (Quelle), je ≤ 600 Byte, eingebunden als **Inline-SVG-React-Komponenten** in
   `src/components/icons/` (Komponente `Icon`, SVG steht direkt im HTML) – kein externes Icon-Sprite, kein `<use href>`. So bleiben sie auch in der Vorschau-Datei
@@ -779,7 +779,7 @@ Aufbau: Coco (`--coco-xl`, statisch; Boil 2 s nach Eintritt, dann Stillstand) ·
 
 ### KO-22 Hinweis-Kasten (`Callout`)
 
-- Grund `--paper-2`, linker Rand 3 px, `--r-card`. Varianten: `info` (Rand `--stencil`), `warn` (Rand `--warn`, Icon), `deviation` („Bitte beachten: …“ für abweichende Beschaffenheit, KONZEPT §3.4, Rand `--fox-text`, Titel Bricolage 700).
+- Grund `--paper-2`, linker Rand 3 px, `--r-card`. Varianten: `info` (Rand `--stencil`), `warn` (Rand `--warn`, Icon), `deviation` („Besonderheit dieses Stücks: …“, Wortlaut R-048 für abweichende Beschaffenheit, KONZEPT §3.4, Rand `--fox-text`, Titel Bricolage 700).
 
 ---
 
@@ -798,7 +798,8 @@ deshalb unter `src/components/leash/` (ARCHITEKTUR §2.1).
 | `src/leash/types.ts` | Typen (unten) | – |
 | `src/leash/poses.ts` | `COCO_POSE_TO_SPRITE: Record<CocoPose, SpritePose>` (CMS-Wert → Sprite-ID, §10.3); importiert `CocoPose` nur als Typ aus `src/lib/enums.ts` (reines Modul, erlaubt) | rein, Vitest (deckt alle `COCO_POSES` ab) |
 | `src/leash/random.ts` | `fnv1a32(str)`, `mulberry32(seed)`, `valueNoise1D(seed)` | rein, Vitest |
-| `src/leash/presets.ts` | Preset-Tabelle §9.7 als Daten | rein |
+| `src/leash/presets.ts` | Preset-Tabelle §9.7 als Daten (nur Laufzeitwerte) | rein |
+| `src/leash/presetDocs.ts` | Routen, Linienform und Notizen je Preset (Spalten „Routen“/„Linienform“ §9.7) – nur für Tests, nicht in der Engine gebündelt (Budget §9.10) | rein |
 | `src/leash/geometry.ts` | `buildGeometry(input): LeashGeometry` – Wegpunkte, Schlaufen, Glättung, Wackel, Breitenprofil, Umriss, Segmente, LUT, Scroll-Abbildung | **rein, ohne DOM**, Vitest |
 | `src/leash/measure.ts` | liest Anker aus dem DOM (eine Lesephase) | Browser |
 | `src/leash/runtime.ts` | `mountLeash(root, options): LeashHandle` – Stufenwahl, SVG-Aufbau, Scroll/rAF, Coco-Kopplung, Neuaufbau | Browser, dynamisch importiert (in der Vorschau statisch gebündelt) |

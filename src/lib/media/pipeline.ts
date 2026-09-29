@@ -132,3 +132,19 @@ export function isCompleteSize(spec: SizeSpec, size: SizeData | null | undefined
   if (spec.height && size.height !== spec.height) return false
   return true
 }
+
+/**
+ * Dateiname einer Bildgröße `{original}-{größe}-{B}x{H}.{ext}` (`generateImageName`). Payloads Standard
+ * `{original}-{B}x{H}` gibt Größen mit gleichem Ausgabemaß denselben Namen – bei einem 800×1000-Original `card`,
+ * `detail` und `zoom` (`withoutEnlargement`). Payload schreibt alle Größen parallel; welche Kodierung (q 80/82/85) dann
+ * in der Datei der behaltenen Größe `card` stünde, hinge vom Zufall ab (Vorschau-Datei nicht byte-gleich, AK-A-14-01).
+ */
+export function imageSizeFilename(args: {
+  originalName: string
+  sizeName: string
+  width: number
+  height: number
+  extension: string
+}): string {
+  return `${args.originalName}-${args.sizeName}-${args.width}x${args.height}.${args.extension}`
+}

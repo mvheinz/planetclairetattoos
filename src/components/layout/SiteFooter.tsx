@@ -61,7 +61,11 @@ export async function SiteFooter({
               </li>
             ))}
             <li>
-              <a href={instagramUrl(nav.instagramHandle)} className={styles.link} rel="noopener">
+              <a
+                href={instagramUrl(nav.instagramHandle)}
+                className={styles.link}
+                rel="noopener noreferrer"
+              >
                 {t('instagram')}
                 <Icon name="external" size={16} className={styles.inlineIcon} />
               </a>

@@ -1,8 +1,15 @@
 import { BEHAVIOR_NAMES, mountBehaviors, type BehaviorLoader } from '../behaviors'
+import * as addToCart from '../behaviors/add-to-cart'
+import * as buyBar from '../behaviors/buy-bar'
 import * as cartCount from '../behaviors/cart-count'
+import * as gallery from '../behaviors/gallery'
+import * as lightbox from '../behaviors/lightbox'
 import * as lost from '../behaviors/lost'
 import * as menu from '../behaviors/menu'
 import * as motionToggle from '../behaviors/motion-toggle'
+import * as priceTagSwing from '../behaviors/price-tag-swing'
+import * as productStatus from '../behaviors/product-status'
+import * as soldStamp from '../behaviors/sold-stamp'
 import type { BehaviorModule } from '../behaviors/types'
 
 import { createAssetStore } from './assets'
@@ -19,10 +26,17 @@ import type { PvData } from './types'
 
 /** Statisches Register – muss alle Namen aus `src/behaviors/index.ts` enthalten (Unit-Test). */
 export const STATIC_BEHAVIORS: Record<(typeof BEHAVIOR_NAMES)[number], BehaviorModule> = {
+  'add-to-cart': addToCart,
+  'buy-bar': buyBar,
   'cart-count': cartCount,
+  gallery,
+  lightbox,
   lost,
   menu,
   'motion-toggle': motionToggle,
+  'price-tag-swing': priceTagSwing,
+  'product-status': productStatus,
+  'sold-stamp': soldStamp,
 }
 
 const staticLoader: BehaviorLoader = (name) => Promise.resolve(STATIC_BEHAVIORS[name])

@@ -58,10 +58,27 @@ describe('Routen-Registry (T-07, AK-2-01)', () => {
     expect(bad.errors.join('\n')).toMatch(/Pfad \/de\/warenkorb doppelt/)
   })
 
-  it('P2: live sind R01, R20–R29', () => {
+  it('P3: live sind R01–R05, R20–R29 (R31 als Weiterleitung)', () => {
     expect(
       ROUTES.filter((r) => r.status === 'live' && r.kind !== 'redirect').map((r) => r.id),
-    ).toEqual(['R01', 'R20', 'R21', 'R22', 'R23', 'R24', 'R25', 'R26', 'R27', 'R28', 'R29'])
+    ).toEqual([
+      'R01',
+      'R02',
+      'R03',
+      'R04',
+      'R05',
+      'R20',
+      'R21',
+      'R22',
+      'R23',
+      'R24',
+      'R25',
+      'R26',
+      'R27',
+      'R28',
+      'R29',
+    ])
+    expect(ROUTES.find((r) => r.id === 'R31')?.status).toBe('live')
   })
 
   it('R-010 genau sieben Kurz-URLs mit kanonischem DE-Ziel', () => {

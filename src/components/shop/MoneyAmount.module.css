@@ -1,0 +1,5 @@
+/* Beträge mit gleich breiten Ziffern, damit Summen untereinander stehen. */
+.amount {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}

@@ -269,14 +269,19 @@ export async function assemble(input: AssembleInput): Promise<Assembled> {
     routes,
   }
 
-  const assetTable = new Map(imageAssets)
+  const templates = allPages.map(templateHtml)
+  // Nur Bilder, auf die eine Seite verweist (`data-pv-src`): `srcset`-Kandidaten werden mitgeladen, die Vorschau nutzt
+  // aber nur `src` – ungenutzte Größen würden die Datei aufblähen (und ihren Inhalt vom Bildbestand abhängig machen).
+  const referenced = new Set<string>()
+  for (const t of templates)
+    for (const m of t.matchAll(/data-pv-src="([0-9a-f]+)"/g)) referenced.add(m[1]!)
+  const assetTable = new Map([...imageAssets].filter(([hash]) => referenced.has(hash)))
   let adminBytes = 0
   for (const s of shots) {
     if (!s.image || assetTable.has(s.image.hash)) continue
     assetTable.set(s.image.hash, s.image.dataUri)
     adminBytes += s.image.dataUri.length
   }
-  const templates = allPages.map(templateHtml)
   const html = buildDocument({
     htmlClass,
     title: 'Planet Claire – Vorschau',
@@ -289,7 +294,7 @@ export async function assemble(input: AssembleInput): Promise<Assembled> {
   })
 
   let imageBytes = cssImageBytes
-  for (const v of imageAssets.values()) imageBytes += v.length
+  for (const [hash, v] of imageAssets) if (referenced.has(hash)) imageBytes += v.length
   const templateBytes = templates.reduce((n, t) => n + byteLen(t), 0) + byteLen(sprites)
   const sizeByKind: SizeByKind = {
     images: imageBytes,

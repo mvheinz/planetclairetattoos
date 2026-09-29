@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-import { localizedPath, pageRoutes } from '../../src/lib/routes/paths'
+import { pageRoutes, samplePath } from '../../src/lib/routes/paths'
 import { LOCALES } from '../../src/lib/routes/registry'
 import { adminRoute } from '../helpers/adminEnv'
 
@@ -18,7 +18,7 @@ test.describe('SEO', () => {
   }) => {
     for (const route of indexable) {
       for (const locale of LOCALES) {
-        const path = localizedPath(route.id, locale)
+        const path = samplePath(route.id, locale)
         await page.goto(path)
         await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
           'href',
@@ -32,9 +32,9 @@ test.describe('SEO', () => {
             ),
           )
         expect(alternates, path).toEqual({
-          de: `${SITE}${localizedPath(route.id, 'de')}`,
-          en: `${SITE}${localizedPath(route.id, 'en')}`,
-          'x-default': `${SITE}${localizedPath(route.id, 'de')}`,
+          de: `${SITE}${samplePath(route.id, 'de')}`,
+          en: `${SITE}${samplePath(route.id, 'en')}`,
+          'x-default': `${SITE}${samplePath(route.id, 'de')}`,
         })
         await expect(page).toHaveTitle(/ · Planet Claire$| – /)
         await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /.{120,}/)
@@ -73,7 +73,7 @@ test.describe('SEO', () => {
     }
     for (const route of livePages) {
       for (const locale of LOCALES) {
-        const path = localizedPath(route.id, locale)
+        const path = samplePath(route.id, locale)
         bodies.push([path, await (await request.get(path)).text()])
       }
     }

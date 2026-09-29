@@ -1,5 +1,5 @@
 {
-  "$comment": "Tempo-Budgets (ARCHITEKTUR §7.7, DESIGN §9.10, AK-DS-04). 1 KB = 1000 B, Grenzen gelten einschließlich. Gelesen von scripts/check-bundle.ts (pnpm check:bundle), tests/perf/lighthouserc.cjs (pnpm test:perf) und tests/e2e/perf.e2e.spec.ts (@perf). Nur Gates blockieren, Ziele werden berichtet.",
+  "$comment": "Tempo-Budgets (ARCHITEKTUR §7.7, DESIGN §9.10, AK-DS-04). 1 KB = 1000 B, Grenzen gelten einschließlich. Gelesen von scripts/check-bundle.ts (pnpm check:bundle), tests/perf/lighthouserc.cjs (pnpm test:perf) und tests/e2e/perf.e2e.spec.ts (@perf). Nur Gates blockieren, Ziele werden berichtet. Mikro-Interaktionen (DESIGN §9.10 ≤ 4 KB) gelten je Gruppe von Verhaltensmodulen, die eine Seite gemeinsam lädt (Module sind einzelne Lazy-Chunks); jede Datei unter src/behaviors/ gehört zu genau einer Gruppe (OFFENE-PUNKTE P3.4).",
   "firstLoadJs": {
     "$comment": "JS beim ersten Laden: gzip Stufe 9, Summe aller Skripte aus /_next/static, die vor dem load-Ereignis geladen werden. Schlüssel = Routen-ID der Registry, sonst default (R02–R05, R11–R27 und R28). R06/R07 ohne Stripe.js. R29 (Fehlerzustand, in §7.7 ohne eigene Grenze) lädt die Fehleransicht nach; eigene Grenze laut OFFENE-PUNKTE (P2.23).",
     "gzipMax": {
@@ -30,8 +30,32 @@
       "gzipMax": 3000
     },
     {
-      "name": "Mikro-Interaktionen (alle Verhaltensmodule zusammen)",
-      "entries": ["src/behaviors/*.ts"],
+      "name": "Mikro-Interaktionen Seitenrahmen (auf jeder Seite: cart-count, menu, motion-toggle; 404: lost)",
+      "entries": [
+        "src/behaviors/cart-count.ts",
+        "src/behaviors/menu.ts",
+        "src/behaviors/motion-toggle.ts",
+        "src/behaviors/lost.ts"
+      ],
+      "gzipMax": 4000
+    },
+    {
+      "name": "Mikro-Interaktionen Shop-Listen (price-tag-swing, sold-stamp)",
+      "entries": ["src/behaviors/price-tag-swing.ts", "src/behaviors/sold-stamp.ts"],
+      "gzipMax": 4000
+    },
+    {
+      "name": "Mikro-Interaktionen Produktseite (gallery, lightbox, buy-bar)",
+      "entries": [
+        "src/behaviors/gallery.ts",
+        "src/behaviors/lightbox.ts",
+        "src/behaviors/buy-bar.ts"
+      ],
+      "gzipMax": 4000
+    },
+    {
+      "name": "Mikro-Interaktionen Live-Zustand und Korb (product-status, add-to-cart)",
+      "entries": ["src/behaviors/product-status.ts", "src/behaviors/add-to-cart.ts"],
       "gzipMax": 4000
     }
   ],
@@ -52,6 +76,12 @@
     "homeTotalRawMax": 60000,
     "pathDataPerPageMax": 60000
   },
+  "images": {
+    "$comment": "Bild-Budgets (ARCHITEKTUR §7.7, DESIGN §12.2) – nur Bericht, blockieren nicht: Median über den Beispielbestand (Größen thumb und card aus den srcset-Angaben von R02) und das im Profil Pixel 7 tatsächlich geladene LCP-Bild der Produktseite (R04). Gemessen von check:bundle.",
+    "thumbMedianMax": 40000,
+    "cardMedianMax": 90000,
+    "productLcpMax": 120000
+  },
   "pageWeight": {
     "R01": {
       "max": 1500000,
@@ -59,8 +89,8 @@
     }
   },
   "lighthouse": {
-    "$comment": "Preset mobil (Lighthouse-Standard), Median aus 3 Läufen. Seiten ab P2: R01; R02, R04, R11 kommen mit ihren Phasen dazu.",
-    "routes": ["R01"],
+    "$comment": "Preset mobil (Lighthouse-Standard), Median aus 3 Läufen. Seiten: R01 (P2), R02 und R04 (P3); R11 kommt mit P7 dazu. Seitengewicht nur für Routen mit Eintrag in pageWeight (R01), sonst Bericht.",
+    "routes": ["R01", "R02", "R04"],
     "runs": 3,
     "lcpMs": {
       "max": 2500,
