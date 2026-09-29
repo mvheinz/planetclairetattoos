@@ -7,7 +7,12 @@ const testDatabaseUrl = process.env.DATABASE_URL_TEST
 if (testDatabaseUrl) process.env.DATABASE_URL = testDatabaseUrl
 
 const baseURL = process.env.E2E_BASE_URL || 'http://localhost:3000'
-const serverCommand = process.env.E2E_SERVER === 'start' ? 'pnpm start' : 'pnpm dev'
+// Gegen den Produktions-Build vorher den Daten-Cache (`unstable_cache`, ARCHITEKTUR §9.2) auf der Platte leeren: Er
+// überlebt Server-Neustarts, `db:reset` erneuert ihn nicht, und die On-Demand-Revalidierung in `global-setup.ts` liest
+// ihn trotzdem – sonst zeigte z. B. R01 nach dem zweiten Lauf Medien-Dateinamen des vorigen Seeds (HTTP 403, P3.16).
+const distDir = process.env.NEXT_DIST_DIR || '.next'
+export const startCommand = `node -e "require('node:fs').rmSync('${distDir}/cache/fetch-cache',{recursive:true,force:true})" && pnpm start`
+const serverCommand = process.env.E2E_SERVER === 'start' ? startCommand : 'pnpm dev'
 const skipWebkit = process.env.PW_SKIP_WEBKIT === '1'
 // `pnpm dev` übersetzt jede Seite beim ersten Aufruf – großzügigere Zeitgrenzen als gegen den Produktions-Build.
 const devServer = serverCommand === 'pnpm dev'

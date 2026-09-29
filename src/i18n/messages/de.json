@@ -422,6 +422,43 @@
       "pickup_only": "{items} gibt es nur zur Abholung.",
       "rate_limited": "Das ging gerade zu schnell. Bitte versuch es in ein paar Minuten noch einmal.",
       "invalid": "Das hat nicht geklappt. Bitte lade die Seite neu und versuch es noch einmal."
+    },
+    "title": "Dein Korb",
+    "itemsHeading": "Stücke in deinem Korb",
+    "meta": "{number} · {category}",
+    "remove": "Entfernen",
+    "removeLabel": "{title} aus dem Korb entfernen",
+    "state": {
+      "reserved": "Gerade reserviert – schau in 30 Minuten nochmal",
+      "sold": "Leider schon verkauft",
+      "reserved_by_you": "Liegt für dich in der Kasse bereit",
+      "priceChanged": "Preis wurde aktualisiert"
+    },
+    "soldStamp": "sold",
+    "unknownTitle": "Stück {number}",
+    "deliveryLegend": "Lieferart",
+    "deliveryShipping": "Versand innerhalb Deutschlands ({carrier})",
+    "deliveryPickup": "Abholung in {city}",
+    "deliveryApply": "Lieferart übernehmen",
+    "shippingClassLine": "Versandklasse: {shippingClass} – die größte Klasse im Korb zählt",
+    "summaryHeading": "Übersicht",
+    "subtotal": "Zwischensumme",
+    "shipping": "Versand",
+    "total": "Gesamt",
+    "shippingUnknown": "wird noch berechnet",
+    "paymentMethods": "Karte · Apple Pay · Google Pay · PayPal · Vorkasse",
+    "toCheckout": "Zur Kasse",
+    "blocked": {
+      "unavailable": "Entferne bitte zuerst die Stücke, die gerade nicht zu haben sind.",
+      "shop_closed": "Der Shop macht gerade Pause – bestellen geht im Moment nicht.",
+      "too_many": "Höchstens {max} Stücke pro Bestellung.",
+      "shipping": "Der Versand für diesen Korb lässt sich gerade nicht berechnen. Wähl bitte Abholung oder schreib mir.",
+      "empty": "Hier ist noch nichts drin."
+    },
+    "empty": {
+      "title": "Hier ist noch nichts drin.",
+      "text": "Schau dich im Shop um – jedes Stück gibt es nur einmal.",
+      "action": "Zum Shop"
     }
   },
   "email": {
@@ -534,5 +571,40 @@
       "shop": "Hier geht es zurück zum Shop:",
       "shopLabel": "Shop"
     }
+  },
+  "shippingPayment": {
+    "costsHeading": "Versandkosten",
+    "table": {
+      "caption": "Versandkosten innerhalb Deutschlands",
+      "class": "Versandklasse",
+      "for": "Wofür",
+      "price": "Preis",
+      "carrier": "Versanddienst",
+      "forClass": {
+        "brief": "Zeichnungen, Aquarelle und Schmuck",
+        "paket_klein": "T-Shirts, Caps und andere kleine Stücke",
+        "keramik": "Schalen, Teller, Fliesen und andere Keramik – extra gut gepolstert"
+      },
+      "pickup": "Abholung in {city}",
+      "forPickup": "alle Stücke, Termin nach Absprache",
+      "carrierPickup": "persönlich bei mir",
+      "empty": "Die Versandpreise werden gerade aktualisiert. Den genauen Betrag siehst du im Korb, bevor du bestellst."
+    },
+    "highestClassRule": "Bestellst du mehrere Stücke, zählt die höchste Versandklasse im Korb – du zahlst den Versand nur einmal.",
+    "deliveryTimeHeading": "Lieferzeit",
+    "areaHeading": "Liefergebiet",
+    "area": "Ich liefere nur innerhalb Deutschlands. Abholung in {city} ist nach Absprache möglich. Ins Ausland liefere ich derzeit nicht.",
+    "areaNoPickup": "Ich liefere nur innerhalb Deutschlands. Ins Ausland liefere ich derzeit nicht.",
+    "paymentHeading": "Zahlarten",
+    "paymentStripe": "Kredit- oder Debitkarte, Apple Pay, Google Pay und PayPal – abgewickelt über den Zahlungsdienst Stripe.",
+    "paymentPrepayment": "Vorkasse per Überweisung: Die Bankdaten bekommst du nach der Bestellung per E-Mail. Dein Stück bleibt bis zum Ende des {days}. Kalendertags nach dem Bestelltag für dich reserviert.",
+    "noSurcharge": "Alle Zahlarten kosten dich gleich viel – es gibt keine Zuschläge.",
+    "chargeHeading": "Wann wird abgebucht?",
+    "chargeStripe": "Bei Karte, Apple Pay, Google Pay und PayPal wird der Betrag belastet, sobald du „Zahlungspflichtig bestellen“ klickst und die Zahlung bestätigst.",
+    "chargePrepayment": "Bei Vorkasse überweist du den Betrag selbst. Ich verschicke dein Stück bzw. mache den Abholtermin aus, sobald das Geld da ist.",
+    "damageHeading": "Transportschäden",
+    "damage": "Kommt ein Stück beschädigt bei dir an, melde dich bitte möglichst schnell mit ein paar Fotos von Paket und Stück – dann kann ich mich beim Versanddienst darum kümmern. Deine gesetzlichen Rechte bleiben davon unberührt.",
+    "returnHeading": "Rücksendung bei Widerruf",
+    "withdrawalLink": "Alles zu deinem Widerrufsrecht steht in der <link>Widerrufsbelehrung</link>."
   }
 }

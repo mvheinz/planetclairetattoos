@@ -2,6 +2,7 @@ import { appendFileSync, existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 
+import { matchRoute, splitLocale } from '../../src/lib/routes/paths'
 import { loadBudgets, type Budgets } from '../check-bundle'
 
 // Bericht zu `pnpm test:perf` (ARCHITEKTUR §7.7, T-10): liest die von `lhci upload --target=filesystem` abgelegten
@@ -22,12 +23,26 @@ export interface Metric {
   target: number
 }
 
-export function metrics(b: Budgets): Metric[] {
+/** Routen-ID eines gemessenen Pfads (`/de` → R01, `/de/shop` → R02, Produktseite → R04); unbekannt → `null`. */
+export function routeIdOf(url: string): string | null {
+  const split = splitLocale(new URL(url).pathname)
+  return split ? (matchRoute(split.rest, split.locale)?.route.id ?? null) : null
+}
+
+/** Messgrößen je Seite; das Seitengewicht hat nur ein Gate, wo budgets.json eines nennt (R01), sonst nur Bericht. */
+export function metrics(b: Budgets, routeId: string | null = 'R01'): Metric[] {
+  const weight = routeId ? b.pageWeight[routeId] : undefined
   return [
     { label: 'LCP', audit: 'largest-contentful-paint', unit: 'ms', ...b.lighthouse.lcpMs },
     { label: 'CLS', audit: 'cumulative-layout-shift', unit: '', ...b.lighthouse.cls },
     { label: 'TBT', audit: 'total-blocking-time', unit: 'ms', ...b.lighthouse.tbtMs },
-    { label: 'Seitengewicht', audit: 'total-byte-weight', unit: 'B', ...b.pageWeight.R01! },
+    {
+      label: 'Seitengewicht',
+      audit: 'total-byte-weight',
+      unit: 'B',
+      max: weight?.max ?? Number.POSITIVE_INFINITY,
+      target: weight?.target ?? Number.POSITIVE_INFINITY,
+    },
   ]
 }
 
@@ -59,10 +74,13 @@ export function buildReport(
     '|---|---|---|---|---|---|',
   ]
   for (const [url, runs] of byUrl) {
-    for (const m of metrics(b)) {
+    const routeId = routeIdOf(url)
+    for (const m of metrics(b, routeId)) {
       const v = median(runs.map((r) => r[m.audit] ?? Number.NaN))
+      const limit = (x: number) => (Number.isFinite(x) ? `≤ ${fmt(x, m.unit)}` : '–')
+      const result = Number.isFinite(m.max) ? verdict(v, m) : 'nur Bericht'
       rows.push(
-        `| ${new URL(url).pathname} (${runs.length} Läufe) | ${m.label} | ${fmt(v, m.unit)} | ≤ ${fmt(m.max, m.unit)} | ≤ ${fmt(m.target, m.unit)} | ${verdict(v, m)} |`,
+        `| ${new URL(url).pathname}${routeId ? ` (${routeId})` : ''} (${runs.length} Läufe) | ${m.label} | ${fmt(v, m.unit)} | ${limit(m.max)} | ${limit(m.target)} | ${result} |`,
       )
     }
   }

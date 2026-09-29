@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 
 import { loadBudgets } from '../../../scripts/check-bundle'
 import { buildReport, median, verdict } from '../../../scripts/perf/lighthouse-report'
-import { localizedPath } from '../../../src/lib/routes/paths'
+import { localizedPath, samplePath } from '../../../src/lib/routes/paths'
 
 // P2.23 Lighthouse-CI (ARCHITEKTUR §7.7, T-10): Konfiguration ohne Fremddienste, Grenzen aus budgets.json, Bericht.
 
@@ -42,26 +42,41 @@ describe('T-10 tests/perf/lighthouserc.cjs', () => {
     expect(pkg.scripts['test:perf']).toMatch(/lhci collect .*lhci upload .*lhci assert/)
   })
 
-  it('Preset mobil (Lighthouse-Standard, kein desktop-Preset), Median aus 3 Läufen, Seiten P2: R01', () => {
+  it('Preset mobil (Lighthouse-Standard, kein desktop-Preset), Median aus 3 Läufen, Seiten R01, R02, R04 (P3.16)', () => {
     expect(config.ci.collect.settings.preset).toBeUndefined()
     expect(config.ci.collect.numberOfRuns).toBe(3)
     expect(config.ci.collect.url.map((u) => new URL(u).pathname)).toEqual([
       localizedPath('R01', 'de'),
+      localizedPath('R02', 'de'),
+      samplePath('R04', 'de'),
     ])
   })
 
-  it('Gates (error): LCP ≤ 2,5 s, CLS ≤ 0,1, TBT ≤ 200 ms, Gewicht ≤ 1,5 MB; Ziele nur warn', () => {
-    const [gates, targets] = config.ci.assert.assertMatrix
+  it('EK-01 Gates (error) auf allen Seiten: LCP ≤ 2,5 s, CLS ≤ 0,1, TBT ≤ 200 ms; Gewicht ≤ 1,5 MB nur R01; Ziele nur warn', () => {
+    const [gates, targets, weightGate, weightTarget] = config.ci.assert.assertMatrix as {
+      matchingUrlPattern: string
+      assertions: Record<string, [string, Record<string, unknown>]>
+    }[]
+    expect(gates!.matchingUrlPattern).toBe('.*')
     expect(gates!.assertions).toEqual({
       'largest-contentful-paint': ['error', { maxNumericValue: 2500, aggregationMethod: 'median' }],
       'cumulative-layout-shift': ['error', { maxNumericValue: 0.1, aggregationMethod: 'median' }],
       'total-blocking-time': ['error', { maxNumericValue: 200, aggregationMethod: 'median' }],
-      'total-byte-weight': ['error', { maxNumericValue: 1_500_000, aggregationMethod: 'median' }],
     })
     expect(Object.values(targets!.assertions).every(([level]) => level === 'warn')).toBe(true)
     expect(targets!.assertions['largest-contentful-paint']![1]).toMatchObject({
       maxNumericValue: 2000,
     })
+    // Seitengewicht nur für R01 (ARCHITEKTUR §7.7).
+    const r01 = new RegExp(weightGate!.matchingUrlPattern)
+    expect(
+      config.ci.collect.url.filter((u) => r01.test(u)).map((u) => new URL(u).pathname),
+    ).toEqual(['/de'])
+    expect(weightGate!.assertions).toEqual({
+      'total-byte-weight': ['error', { maxNumericValue: 1_500_000, aggregationMethod: 'median' }],
+    })
+    expect(weightTarget!.assertions['total-byte-weight']![0]).toBe('warn')
+    expect(config.ci.assert.assertMatrix).toHaveLength(4)
   })
 })
 
@@ -86,7 +101,15 @@ describe('T-10 Lighthouse-Bericht', () => {
     })
     const rows = buildReport([run(1800), run(2300), run(2700)], budgets)
     expect(rows).toHaveLength(2 + 4)
-    expect(rows[2]).toMatch(/\/de \(3 Läufe\) \| LCP \| 2300 ms .*Ziel verfehlt/)
-    expect(rows.join('\n')).toMatch(/Seitengewicht \| 0\.30 MB/)
+    expect(rows[2]).toMatch(/\/de \(R01\) \(3 Läufe\) \| LCP \| 2300 ms .*Ziel verfehlt/)
+    expect(rows.join('\n')).toMatch(/Seitengewicht \| 0\.30 MB \| ≤ 1\.50 MB/)
+    // R04 ohne Gewichts-Budget: Seitengewicht nur als Bericht.
+    const product = buildReport(
+      [{ ...run(2000), url: `http://localhost:3000${samplePath('R04', 'de')}` }],
+      budgets,
+    )
+    expect(product.join('\n')).toMatch(
+      /\(R04\).*Seitengewicht \| 0\.30 MB \| – \| – \| nur Bericht/,
+    )
   })
 })

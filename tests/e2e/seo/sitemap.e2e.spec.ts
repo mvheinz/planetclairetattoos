@@ -4,7 +4,7 @@ import type { LocalizedValue } from '../../../src/lib/products/localized'
 import { productPath } from '../../../src/lib/shop/format'
 import { adminRoute } from '../../helpers/adminEnv'
 import { expect, test, testPayload } from '../fixtures'
-import { NO_CACHE, refresh } from '../shop/fresh'
+import { NO_CACHE, holdListData, refresh } from '../shop/fresh'
 
 // P3.13 `sitemap.xml` (KONZEPT §2.5): öffentliche Stücke (`available`, `reserved`, `sold` mit Archiv), Kategorien und
 // feste Seiten beider Sprachen mit `xhtml:link`-Alternates und `lastmod`. Seed-Anker: S01 (901, available) und S06 (906,
@@ -57,6 +57,8 @@ test.describe('P3.13 sitemap.xml', () => {
   test.beforeEach(({}, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop', 'Server-XML – browserunabhängig, einmal je Lauf')
   })
+  // Seed-Anker S01/S06 nicht während eines exklusiven Bestandstests (Archiv-Leerzustand blendet S06 aus) lesen.
+  holdListData(test, 'shared')
 
   test('Stücke, Kategorien und Seiten mit Alternates und lastmod; nie Entwürfe, Archiviertes, Korb, Kasse, Verwaltung', async ({
     request,

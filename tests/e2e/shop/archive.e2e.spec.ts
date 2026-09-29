@@ -11,11 +11,15 @@ import {
 } from '../../int/helpers/products'
 import { LIST_FIXTURE_RANGE, expect, test, testPayload } from '../fixtures'
 import { freshPage, holdListData, refresh } from './fresh'
+import { ANCHORS } from './productPage'
 
 // P3.6 Archiv R05 (KONZEPT §3.5; DESIGN KO-06, KO-08, KO-17, §9.7 `shopString`; AK-3-09).
 // Grundlage: Mini-Beispielbestand – S06 (Nr. 906) `sold` mit Archiv; S01 (901) `available`, S27 (927) `reserved`,
 // S18/S25 (918/925) `draft`, S09 (909) `archived`. Den echten Anker S08 (`sold`, nicht im Archiv) prüft P8.21; hier ein
 // Fixture-Stück analog S08. Eigene Stücke im Bereich 975–999, nur im Projekt `desktop`, exklusiv (`holdFixtureRange`).
+// Der Leerzustand braucht ein leeres Archiv und blendet S06 dafür kurz aus (exklusiv); alle Tests, die S06 oder die
+// Listen lesen (Shop, Produktseite, Galerie, SEO, Verbotsmuster, Querschnitts-Suiten), halten den Bestand geteilt
+// (`holdListData`) und sehen das Fenster nie (P3.16, Wettlauf mit den Produktseiten-Tests behoben).
 
 const archive = localizedPath('R05', 'de')
 const archiveEn = localizedPath('R05', 'en')
@@ -23,6 +27,15 @@ const HIDDEN_SOLD = LIST_FIXTURE_RANGE.from // analog S08
 const TEXTIL_SOLD = LIST_FIXTURE_RANGE.from + 1
 const OWN = [HIDDEN_SOLD, TEXTIL_SOLD]
 const day = (d: number) => new Date(Date.UTC(2026, 8, d, 10)).toISOString()
+/** Seiten, auf denen S06 erscheint (Shop, Kategorie Keramik, Produktseite) – DE und EN. */
+const S06_PAGES = [
+  localizedPath('R02', 'de'),
+  localizedPath('R02', 'en'),
+  localizedPath('R03', 'de', { slug: 'keramik' }),
+  localizedPath('R03', 'en', { slug: 'ceramics' }),
+  ANCHORS.S06.de,
+  ANCHORS.S06.en,
+]
 
 const cardNumbers = (page: Page) =>
   page
@@ -242,7 +255,9 @@ test.describe('Archiv R05 – mit eigenen Stücken (nur desktop)', () => {
       await expect(page.locator('[data-empty-state] h2')).toHaveText('Nothing sold yet.')
     } finally {
       await hide(true)
-      await refresh(request, [archive, archiveEn])
+      // Alles, was S06 zeigt, frisch erzeugen – falls eine dieser Seiten im Fenster (z. B. nach einer Cache-Erneuerung
+      // durch einen anderen Test) ohne S06 neu entstanden ist. Leser von S06 halten den Bestand geteilt und warten.
+      await refresh(request, [archive, archiveEn, ...S06_PAGES])
     }
   })
 })

@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test'
 
-import base from './playwright.config'
+import base, { startCommand } from './playwright.config'
 
 // Visuelle Regression (ARCHITEKTUR §7.6, PLAN P2.24, T-12): Chromium, Projekte `desktop` (1440 × 900) und `mobile`
 // (Mobil-Emulation 390 × 844), `reducedMotion: 'reduce'`, Uhr fest, Schriften geladen, `maxDiffPixelRatio: 0.01`.
@@ -18,7 +18,7 @@ export default defineConfig({
   ...base,
   webServer:
     base.webServer && !Array.isArray(base.webServer)
-      ? { ...base.webServer, command: 'pnpm start' }
+      ? { ...base.webServer, command: startCommand }
       : base.webServer,
   testDir: './tests/visual',
   testMatch: '**/*.visual.spec.ts',

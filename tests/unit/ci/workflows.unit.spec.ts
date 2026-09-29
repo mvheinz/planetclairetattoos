@@ -39,6 +39,7 @@ type Job = {
   steps: Step[]
   permissions?: Record<string, string>
   outputs?: Record<string, string>
+  strategy?: { 'fail-fast'?: boolean; matrix?: Record<string, unknown> }
 }
 type Workflow = {
   name: string
@@ -456,22 +457,26 @@ describe('ci-full.yml (§6.4, P2.28)', () => {
     }
   })
 
-  it('e2e-full: ein Build mit Debug-Flag, dann desktop, iphone-15 (WebKit), pixel-7 ohne @visual/@perf', () => {
+  it('e2e-full: je Projekt desktop, iphone-15 (WebKit), pixel-7 ein Matrix-Job mit einem Build (Debug-Flag), ohne @visual/@perf (P3.16)', () => {
     const job = full.jobs['e2e-full']!
     expect(job.env?.NEXT_PUBLIC_LEASH_DEBUG).toBe('1')
+    expect(job.strategy?.['fail-fast']).toBe(false)
+    expect(job.strategy?.matrix?.project).toEqual(['desktop', 'iphone-15', 'pixel-7'])
+    expect(job.name).toContain('${{ matrix.project }}')
+    expect(job['timeout-minutes']).toBeLessThanOrEqual(40)
     const build = findStep(job, /pnpm run seed && pnpm run build/)
     const e2e = findStep(job, /pnpm run test:e2e/)
     expect(build).toBeGreaterThan(0)
     expect(e2e).toBeGreaterThan(build)
     expect(job.steps.filter((s) => /pnpm run build/.test(s.run ?? ''))).toHaveLength(1)
     const cmd = job.steps[e2e]!.run!
-    expect(cmd).toContain('--project=desktop --project=iphone-15 --project=pixel-7')
+    expect(cmd).toContain('--project=${{ matrix.project }}')
     expect(cmd).toContain('--grep-invert "@visual|@perf"')
     expect(cmd).not.toMatch(/--grep[ =]"?@/)
     expect(job.steps.find((s) => /playwright install/.test(s.run ?? ''))?.run).toMatch(
       /chromium webkit/,
     )
-    expectBudgetBeforeOptionalUpload(job, 'ci-full-e2e-report')
+    expectBudgetBeforeOptionalUpload(job, 'ci-full-e2e-report-\\$\\{\\{ matrix\\.project \\}\\}')
   })
 
   it('quality: Build ohne Debug → check:no-debug → test:visual → test:perf → @perf auf pixel-7', () => {

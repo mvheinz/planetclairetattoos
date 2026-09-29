@@ -154,7 +154,8 @@ test.describe('Fußbereich @smoke', () => {
     ])
     const insta = nav.getByRole('link', { name: /Instagram/ })
     await expect(insta).toHaveAttribute('href', /^https:\/\/www\.instagram\.com\/[a-z0-9._]+\/$/)
-    await expect(insta).toHaveAttribute('rel', /noopener/)
+    // R-139: Instagram nur als einfacher Link mit rel="noopener noreferrer"
+    await expect(insta).toHaveAttribute('rel', 'noopener noreferrer')
 
     const switcher = page.locator('[data-site-footer] [data-language-switcher]')
     const en = switcher.getByRole('link', { name: 'English' })

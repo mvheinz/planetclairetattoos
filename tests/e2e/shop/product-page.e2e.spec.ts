@@ -2,7 +2,7 @@ import type { Payload } from 'payload'
 
 import { holdFixtureRange, type ReleaseLock } from '../../helpers/adminSessionLock'
 import { expect, test, testPayload } from '../fixtures'
-import { freshPage, refresh } from './fresh'
+import { freshPage, holdListData, refresh } from './fresh'
 import {
   ANCHORS,
   PUBLISHED,
@@ -23,6 +23,9 @@ import {
 const FORBIDDEN_LABELS = /^(jetzt kaufen|kaufen|bestellen|weiter zur zahlung|buy now|buy|order)$/i
 
 test.describe('Produktseite – Aufbau und Reihenfolge', () => {
+  // Liest Seed-Anker (S06 sold, Kaufbereich): nicht gleichzeitig mit Tests, die den Bestand kurz ändern (Archiv-
+  // Leerzustand blendet S06 aus, „Shop pausiert“ schließt den Shop) – die halten den Listen-Bestand exklusiv.
+  holdListData(test, 'shared')
   test('Blöcke 2–6 in DOM-Reihenfolge: H1 → Kurzdaten → Preisschild/Hinweise → Pflichtangaben → Kaufknopf (S01)', async ({
     page,
     request,
@@ -329,6 +332,7 @@ test.describe('Produktseite – Shop pausiert (nur desktop)', () => {
 // P3.9 Blöcke 7–11 (KONZEPT §3.4; DESIGN KO-09b; RECHT R-031, R-049, V-08, V-19): Beschreibung, Details-Tabelle mit
 // Gewicht, „Herstellerin & Sicherheit“ (eigene Datei `legal/gpsr.e2e.spec.ts`), Versand & Rückgabe, „Mehr aus …“.
 test.describe('Produktseite – Beschreibung, Details, Versand & Rückgabe, „Mehr aus …“ (P3.9)', () => {
+  holdListData(test, 'shared')
   test('Blöcke 7–11 nach dem Kaufbereich, ohne Interaktion sichtbar (S01)', async ({
     page,
     request,

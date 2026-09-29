@@ -186,7 +186,7 @@ export function rewriteInteractive($: cheerio.CheerioAPI, link: LinkContext): vo
     el.attr('href', res.href)
     if (res.kind === 'external') {
       el.attr('target', '_blank')
-      el.attr('rel', 'noopener')
+      el.attr('rel', 'noopener noreferrer')
     }
   })
   $('form').each((_, node) => {

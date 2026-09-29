@@ -17,6 +17,9 @@ import { build } from 'esbuild'
 // 3. Lazy-Module (DESIGN §9.10): jedes Modul einzeln mit esbuild gebündelt und minifiziert (unabhängig von der
 //    Chunk-Aufteilung durch Next), gzip Stufe 9.
 // 4. SVG-Dateien: Coco-Sprite, Stationszeichnungen, Icons.
+// 5. Bild-Budgets (DESIGN §12.2, ARCHITEKTUR §7.7) – nur Bericht: Median der Größen `thumb`/`card` über den
+//    Beispielbestand (aus den `srcset`-Angaben von R02) und das im Profil Pixel 7 geladene LCP-Bild der Produktseite.
+// Seiten ab P3.16 zusätzlich mit Varianten und Zuständen (R02 „nur verfügbare“, R05 mit Kategorie, R04 reserviert/sold).
 //
 // Aufruf: `pnpm check:bundle [--budgets <datei>] [--dist <ordner>] [--base-url <url>] [--port <n>] [--no-pages]`.
 // Ohne `--base-url` startet das Skript selbst `next start` (Port `--port`, Standard 3100) und beendet ihn danach. `--no-pages` prüft nur 2–4 (ohne Server/Browser).
@@ -45,6 +48,7 @@ export interface Budgets {
     pathDataPerPageMax: number
   }
   pageWeight: Record<string, { max: number; target: number }>
+  images: { thumbMedianMax: number; cardMedianMax: number; productLcpMax: number }
   lighthouse: {
     routes: string[]
     runs: number
@@ -238,7 +242,50 @@ export interface PageTarget {
   locale: 'de' | 'en'
   path: string
   status: number
+  /** Variante oder Zustand neben der Beispiel-Adresse (P3.16), z. B. `sold`. */
+  variant?: string
 }
+
+/**
+ * Varianten und Zustände der P3-Routen (Seed-Anker des Mini-Beispielbestands, SEED-SPEC): gleiche Budgets wie die Route.
+ */
+export const P3_VARIANT_TARGETS: readonly PageTarget[] = [
+  {
+    routeId: 'R02',
+    locale: 'de',
+    path: '/de/shop?available=1',
+    status: 200,
+    variant: 'nur verfügbare',
+  },
+  {
+    routeId: 'R05',
+    locale: 'en',
+    path: '/en/archive?category=ceramics',
+    status: 200,
+    variant: 'Kategorie',
+  },
+  {
+    routeId: 'R04',
+    locale: 'de',
+    path: '/de/shop/927-anhaenger-coco-mit-planetenring',
+    status: 200,
+    variant: 'reserviert',
+  },
+  {
+    routeId: 'R04',
+    locale: 'de',
+    path: '/de/shop/906-fliese-auftritt',
+    status: 200,
+    variant: 'sold',
+  },
+  {
+    routeId: 'R04',
+    locale: 'en',
+    path: '/en/shop/906-tile-on-stage',
+    status: 200,
+    variant: 'sold',
+  },
+]
 
 export interface PageMeasurement extends PageTarget {
   scripts: { url: string; gzipBytes: number }[]
@@ -272,6 +319,7 @@ export async function pageTargets(): Promise<PageTarget[]> {
     out.push({ routeId: 'R28', locale, path: `/${locale}/gibt-es-nicht-bundle`, status: 404 })
     out.push({ routeId: 'R29', locale, path: `/${locale}/__fehler-test`, status: 500 })
   }
+  out.push(...P3_VARIANT_TARGETS)
   return out
 }
 
@@ -285,7 +333,7 @@ export function evaluatePages(measurements: PageMeasurement[], budgets: Budgets)
   const lines: string[] = []
   const errors: string[] = []
   for (const m of measurements) {
-    const label = `${m.routeId} ${m.locale} (${m.path})`
+    const label = `${m.routeId}${m.variant ? ` ${m.variant}` : ''} ${m.locale} (${m.path})`
     const max = firstLoadBudget(m.routeId, budgets)
     const target = budgets.firstLoadJs.gzipTarget[m.routeId]
     const js = `${label}: JS beim ersten Laden ${kb(m.jsGzipBytes)} gz in ${m.scripts.length} Dateien, Budget ${kb(max)}${target ? `, Ziel ${kb(target)}` : ''}.`
@@ -467,6 +515,108 @@ async function startServer(port: number): Promise<{ baseURL: string; stop: () =>
 }
 
 // ---------------------------------------------------------------------------------------------------------------
+// Bild-Budgets (nur Bericht)
+
+export interface ImageSample {
+  /** Dateigrößen (Bytes) der Größe `thumb` bzw. `card` je Bild des Beispielbestands. */
+  thumbBytes: number[]
+  cardBytes: number[]
+  /** LCP-Bild der Produktseite im Profil Pixel 7: URL und Bytes (`null`, wenn das LCP kein Bild ist). */
+  productLcp: { url: string; bytes: number } | null
+}
+
+const medianOf = (values: number[]): number | null => {
+  if (values.length === 0) return null
+  const s = [...values].sort((a, b) => a - b)
+  const mid = Math.floor((s.length - 1) / 2)
+  return s.length % 2 === 1 ? s[mid]! : (s[mid]! + s[mid + 1]!) / 2
+}
+
+/** Berichtszeilen der Bild-Budgets (DESIGN §12.2) – blockieren nie, Überschreitung als Hinweis. */
+export function evaluateImages(sample: ImageSample, budgets: Budgets): string[] {
+  const b = budgets.images
+  const line = (name: string, value: number | null, max: number, extra = '') =>
+    value === null
+      ? `Bild-Budget ${name}: keine Datei gefunden${extra} – nur Bericht.`
+      : `Bild-Budget ${name}: ${kb(value)}${extra}, Budget ${kb(max)}${value > max ? ' (über Budget – nur Bericht)' : ''}.`
+  return [
+    line(
+      'thumb (Median)',
+      medianOf(sample.thumbBytes),
+      b.thumbMedianMax,
+      ` aus ${sample.thumbBytes.length} Bildern`,
+    ),
+    line(
+      'card (Median)',
+      medianOf(sample.cardBytes),
+      b.cardMedianMax,
+      ` aus ${sample.cardBytes.length} Bildern`,
+    ),
+    line(
+      'LCP-Bild der Produktseite (Pixel 7)',
+      sample.productLcp?.bytes ?? null,
+      b.productLcpMax,
+      sample.productLcp ? ` (${new URL(sample.productLcp.url).pathname})` : '',
+    ),
+  ]
+}
+
+/** URLs aller Bildgrößen `-<größe>-<B>x<H>.<ext>` aus `srcset`/`src` eines HTML-Texts. */
+export function sizedImageUrls(html: string, size: string): string[] {
+  const out = new Set<string>()
+  const re = new RegExp(`(/[^\\s"',]*-${size}-\\d+x\\d+\\.[a-z0-9]+)`, 'gi')
+  for (const m of html.replaceAll('&amp;', '&').matchAll(re)) out.add(m[1]!)
+  return [...out]
+}
+
+/** Misst die Bild-Budgets gegen den laufenden Server (Chromium, Profil Pixel 7 für das LCP-Bild). */
+export async function measureImages(baseURL: string): Promise<ImageSample> {
+  const { chromium, devices } = await import('@playwright/test')
+  const bytesOf = async (url: string) => {
+    const res = await fetch(new URL(url, baseURL))
+    return res.ok ? (await res.arrayBuffer()).byteLength : null
+  }
+  const listing = await fetch(new URL('/de/shop', baseURL)).then((r) => r.text())
+  const sizes = async (size: string) =>
+    (await Promise.all(sizedImageUrls(listing, size).map(bytesOf))).filter(
+      (b): b is number => b !== null,
+    )
+  const [thumbBytes, cardBytes] = [await sizes('thumb'), await sizes('card')]
+
+  const origin = new URL(baseURL).origin
+  const browser = await chromium.launch()
+  let productLcp: ImageSample['productLcp'] = null
+  try {
+    const { defaultBrowserType: _ignored, ...pixel7 } = devices['Pixel 7']
+    const context = await browser.newContext(pixel7)
+    await context.route(
+      (url) => url.origin !== origin,
+      (route) => route.abort(),
+    )
+    const page = await context.newPage()
+    const { samplePath } = await import('../src/lib/routes/paths')
+    await page.goto(new URL(samplePath('R04', 'de'), baseURL).href, { waitUntil: 'load' })
+    const url = await page.evaluate(
+      () =>
+        new Promise<string | null>((resolve) => {
+          new PerformanceObserver((list) => {
+            const entries = list.getEntries() as (PerformanceEntry & { url?: string })[]
+            resolve(entries.at(-1)?.url || null)
+          }).observe({ type: 'largest-contentful-paint', buffered: true })
+          setTimeout(() => resolve(null), 3000)
+        }),
+    )
+    if (url) {
+      const bytes = await bytesOf(url)
+      if (bytes !== null) productLcp = { url, bytes }
+    }
+    await context.close()
+  } finally {
+    await browser.close()
+  }
+  return { thumbBytes, cardBytes, productLcp }
+}
+
 // CLI
 
 export interface CliOptions {
@@ -553,6 +703,7 @@ async function main(): Promise<void> {
       )
       const pages = evaluatePages(measurements, budgets)
       report(pages.lines, [...errors, ...pages.errors])
+      report(evaluateImages(await measureImages(baseURL), budgets), [])
     } finally {
       server?.stop()
     }

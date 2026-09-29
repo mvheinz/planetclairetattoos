@@ -1,12 +1,12 @@
 import { expect, test } from '@playwright/test'
 
 import { localizedPath } from '../../src/lib/routes/paths'
-import { linuxOnly, prepare, settle } from './helpers'
+import { linuxOnly, loadAllImages, prepare, settle } from './helpers'
 
 // T-12 Shop-Bausteine (PLAN P3.4, DESIGN KO-05/KO-06/KO-07): Preisschild normal und verkauft, Produktkarte verfügbar,
 // reserviert und verkauft – auf der Shop-Übersicht (R02, P3.5) mit dem Mini-Beispielbestand: S01 (Nr. 901, verfügbar),
 // S27 (Nr. 927, reserviert), S06 (Nr. 906, verkauft, im Archiv sichtbar). Reduzierte Bewegung (kein Schwingen/Knall).
-// Die Linux-Referenzbilder entstehen nur in CI (`[ci:update-snapshots]`, gesammelt mit denen aus P3.16).
+// Linux-Referenzbilder lokal gegen den Produktions-Build (P3.16, OFFENE-PUNKTE N-02); die CI-Qualitätsprüfung vergleicht.
 
 const CARDS = [
   { name: 'karte-verfuegbar', nr: 901 },
@@ -24,6 +24,7 @@ test.beforeEach(async ({ page }) => {
   await prepare(page)
   const res = await page.goto(localizedPath('R02', 'de'))
   expect(res?.status()).toBe(200)
+  await loadAllImages(page)
   await settle(page)
 })
 

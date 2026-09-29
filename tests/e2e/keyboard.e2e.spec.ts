@@ -2,6 +2,8 @@ import { expect, test, type Page } from '@playwright/test'
 
 import { localizedPath } from '../../src/lib/routes/paths'
 import type { Locale } from '../../src/lib/routes/registry'
+import { holdListData } from './shop/fresh'
+import { ANCHORS } from './shop/productPage'
 
 // P2.22 Tastatur-Durchlauf (ARCHITEKTUR §7.5, KONZEPT EK-07, RECHT R-191, DESIGN AK-DS-08): Skip-Link, Kopf, Menü,
 // Fuß, Schalter „Animationen“ und Sprachumschalter sind allein mit der Tastatur erreichbar und bedienbar; jedes
@@ -85,6 +87,40 @@ async function expectVisibleFocus(page: Page, label: string) {
   )
 }
 
+/**
+ * Tab-Durchlauf (EK-07): jedes fokussierbare Element wird per Tab erreicht, an jedem Halt ist der Fokus sichtbar, und
+ * rückwärts kommt man vom letzten Element wieder zum Anfang (keine Falle außerhalb des Menüs).
+ */
+async function tabWalk(page: Page, path: string) {
+  await page.goto(path)
+  await expect(page.locator('[data-site-header] [data-menu-trigger]')).toHaveAttribute(
+    'role',
+    'button',
+  )
+  await page.waitForLoadState('networkidle')
+  const expected = await tabbables(page)
+  expect(expected.length).toBeGreaterThan(10)
+
+  const visited: string[] = []
+  for (let i = 0; i < expected.length + 5; i++) {
+    await page.keyboard.press(tabKey(page))
+    const key = await activeKey(page)
+    if (key === null || visited.includes(key)) break
+    visited.push(key)
+    const label = expected.find((e) => e.key === key)?.label ?? key
+    await expectVisibleFocus(page, `${path} #${i + 1} ${label}`)
+  }
+  const missing = expected.filter((e) => !visited.includes(e.key)).map((e) => e.label)
+  expect(missing, 'nicht per Tab erreichbar').toEqual([])
+
+  await page.evaluate(
+    (k) => document.querySelector<HTMLElement>(`[data-kbd="${k}"]`)!.focus(),
+    visited.at(-1)!,
+  )
+  for (let i = 0; i < visited.length - 1; i++) await page.keyboard.press(tabKey(page, true))
+  expect(await activeKey(page)).toBe(visited[0])
+}
+
 test.describe('Tastatur-Durchlauf @a11y', () => {
   test.use({ contextOptions: { reducedMotion: 'reduce' } })
 
@@ -108,34 +144,7 @@ test.describe('Tastatur-Durchlauf @a11y', () => {
     }) => {
       // Zwei Bildschirmfotos je Tab-Halt; die Startseite hat seit P3.12 zusätzlich die Karten der Stationen.
       test.slow()
-      await page.goto(path)
-      await expect(page.locator('[data-site-header] [data-menu-trigger]')).toHaveAttribute(
-        'role',
-        'button',
-      )
-      await page.waitForLoadState('networkidle')
-      const expected = await tabbables(page)
-      expect(expected.length).toBeGreaterThan(10)
-
-      const visited: string[] = []
-      for (let i = 0; i < expected.length + 5; i++) {
-        await page.keyboard.press(tabKey(page))
-        const key = await activeKey(page)
-        if (key === null || visited.includes(key)) break
-        visited.push(key)
-        const label = expected.find((e) => e.key === key)?.label ?? key
-        await expectVisibleFocus(page, `${path} #${i + 1} ${label}`)
-      }
-      const missing = expected.filter((e) => !visited.includes(e.key)).map((e) => e.label)
-      expect(missing, 'nicht per Tab erreichbar').toEqual([])
-
-      // Rückwärts kommt man vom letzten Element wieder zum Anfang (keine Falle außerhalb des Menüs).
-      await page.evaluate(
-        (k) => document.querySelector<HTMLElement>(`[data-kbd="${k}"]`)!.focus(),
-        visited.at(-1)!,
-      )
-      for (let i = 0; i < visited.length - 1; i++) await page.keyboard.press(tabKey(page, true))
-      expect(await activeKey(page)).toBe(visited[0])
+      await tabWalk(page, path)
     })
   }
 
@@ -197,4 +206,25 @@ test.describe('Tastatur-Durchlauf @a11y', () => {
     await expect(page).toHaveURL(new RegExp(`${localizedPath('R21', 'en')}$`))
     await expect(page.locator('html')).toHaveAttribute('lang', 'en')
   })
+})
+
+// P3.16 Tastatur-Durchlauf auf den Shop-Seiten (T-11, EK-07, R-191): Shop mit Filter-Chips und Karten, Produktseite
+// (Galerie, Kaufknopf, Blöcke 7–11, „Mehr aus …“) und Archiv.
+test.describe('Tastatur-Durchlauf Shop P3 @a11y', () => {
+  test.use({ contextOptions: { reducedMotion: 'reduce' } })
+  // desktop (Chromium) und iphone-15 (WebKit, Alt+Tab); pixel-7 ist dieselbe Engine wie desktop (CI-Minuten).
+  test.beforeEach(({}, testInfo) => {
+    test.skip(testInfo.project.name === 'pixel-7', 'Shop-Tastatur: desktop und iphone-15 (WebKit)')
+  })
+  // Seed-Anker (S01, S06) nicht während eines exklusiven Bestandstests lesen.
+  holdListData(test, 'shared')
+
+  for (const path of [localizedPath('R02', 'de'), ANCHORS.S01.de, localizedPath('R05', 'en')]) {
+    test(`EK-07 R-191 alle Elemente per Tab erreichbar, Fokus überall sichtbar: ${path} @a11y`, async ({
+      page,
+    }) => {
+      test.slow()
+      await tabWalk(page, path)
+    })
+  }
 })

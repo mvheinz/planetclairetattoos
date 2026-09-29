@@ -15,6 +15,60 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 - Verhaltensmodule `thanks-poll` (2 s bis 60 s, dann Hinweis „Das dauert länger als sonst“), `thanks-moment` (MI-09 Grundfassung + Stempel-Knall MI-03, reduzierte Bewegung = Endzustand), `copy-button`; neue Budget-Gruppe in `tests/perf/budgets.json`.
 - Tests: `tests/int/commerce/thank-you-fallback.int.spec.ts` (4), `tests/int/api/checkout-state.int.spec.ts` (5), Unit `thanks-poll` (6), `thanks-moment` (3), `copy-button` (2) + Vertragstest AK-DS-18, `tests/e2e/checkout/thank-you.e2e.spec.ts` (6: wartet→bezahlt, nicht bezahlt, Vorkasse analog O13, leider schon weg, EN analog O14, 404; R-066 Header, Cookies, `@a11y`) grün auf desktop, pixel-7, iphone-15; `pnpm check`, `pnpm build` grün.
 
+## 2026-09-29 – P4.8
+
+- R06 gebaut (Registry live): Positionen (CartLine: Foto 64×80, Link, Nr./Kategorie, MoneyAmount, Entfernen, Zustandshinweise, gedämpft), Lieferart-Radiogruppe mit Preis bzw. nur_abholung ausgegraut, Versandklassen-Zeile, Summen + PriceNote, Lieferzeit, Baustein cart.paymentAndDeliveryInfo + Zahlarten vor „Zur Kasse“ (aria-disabled mit Hinweis), WarrantyNotice, closedMessage, Leerzustand KO-17, Coco statisch\n- evaluateCart liefert shippingQuoteCents und imageId; dynamische Seiten: Cache-Control private, no-store; Radio disabled, Button ariaDisabled\n- Tests: tests/e2e/cart/cart.e2e.spec.ts, tests/e2e/legal/cart-info.e2e.spec.ts (R-031/035/036/049, AK-DS-11, EK-04, S01+S11 = 117,90 €, ohne JS, @a11y) gegen pnpm start in 3 Projekten grün; Unit evaluate-cart/headers erweitert; check, test:int, build grün
+
+## 2026-09-29 – P4.3
+
+- R25 ersetzt das Gerüst: Rechtstext-Fassung versand-zahlung (Platzhalter-Band), Versandtabelle ShippingTable über computeShipping aus settings.shipping (Zone DE + Abholung 0,00 €), Regel höchste Klasse, Lieferzeit, Liefergebiet, Zahlarten, Belastung, Transportschaden (unberührt), Rücksendekosten, Link R24, WarrantyNotice\n- Loader getShippingPaymentSettings (Tag settings); Test-Lock holdShippingRates; Helfer tests/e2e/{adminApi,axe}.ts\n- Tests: tests/e2e/legal/shipping-page.e2e.spec.ts (R-031, R-035, R-049, V-10/11/12/19/21, @a11y, Preisänderung ≤ 60 s) 3 Projekte grün; legal-pages grün; check, test:int, build grün
+
+## 2026-09-29 – P3 CI grün
+
+- Phasenlauf `[ci:full p3]` (Commit 32029fc): CI, CI full (e2e desktop/iphone-15/pixel-7, quality) und Vorschau-Export grün; Artefakt `planet-claire-vorschau-p3-32029fc`.
+
+## 2026-09-29 – P3 Phasen-Abnahme (Shop, Produktseiten, Archiv) – für Jutta
+
+**Was ist neu?** Dein Shop steht – vorerst mit den Beispielstücken (Fotos aus deinem Instagram, Texte als Muster).
+
+**Was du in der Vorschau-Datei jetzt siehst** (Datei herunterladen und doppelklicken, wie in Anleitung V0):
+
+- **Shop:** alle Stücke als Karten mit Foto, Preisschild und Nummer. Oben kannst du nach Kategorie filtern (Keramik,
+  Textil, Caps, Zeichnungen, Schmuck) und „nur verfügbare“ anzeigen lassen. Die Preisschilder schwingen kurz, wenn
+  sie ins Bild kommen – wie Anhänger an einer Schnur.
+- **Reserviert und verkauft:** Ein reserviertes Stück zeigt „Gerade reserviert“, ein verkauftes bekommt den
+  „sold“-Stempel. Verkaufte Stücke, die du zeigen möchtest, stehen zusätzlich im **Archiv** („Schon ausgezogen – aber
+  schön anzusehen“).
+- **Produktseite** für jedes Beispielstück: Fotos zum Wischen, ein Tipp aufs Foto öffnet die große Ansicht zum
+  Heranzoomen. Darunter Preis mit dem Hinweis zur Umsatzsteuer, Versandkosten, Lieferzeit, alle Pflichtangaben je
+  Kategorie (z. B. Material und Pflege bei Textil, „nur zur Deko“ bei Keramik ohne Nachweis), deine Angaben als
+  Herstellerin, Versand & Rückgabe und „Mehr aus …“ mit ähnlichen Stücken.
+- **Kurzlink für Instagram:** `planetclairetattoos.com/nr/<Nummer>` führt direkt zum Stück – praktisch für Stories.
+- **Wenn es ein Stück nicht mehr gibt,** erscheint eine freundliche Seite („Dieses Stück hat schon ein Zuhause
+  gefunden“) mit Links zu Shop und Archiv.
+
+**Wie „In den Korb“ wirkt:** Auf der echten Website legt der Knopf das Stück in den Korb, ohne dass die Seite neu
+lädt; oben zählt der Korb eins hoch, und beim Stück steht „Liegt schon in deinem Korb“. Erst in diesem Moment speichert
+die Seite ein kleines Korb-Cookie – vorher nichts (so will es das Datenschutzrecht). In der Vorschau-Datei zählt der Korb
+nur zum Anschauen hoch und zeigt „In der Vorschau zeigt der Korb ein Beispiel“ – hier wird nichts gekauft und nichts
+gespeichert. Warenkorb, Kasse und Bezahlen kommen in der nächsten Phase (P4).
+
+**Geprüft:** Auf keiner Shop-Seite gibt es ein Cookie vor „In den Korb“, keine Verbindung zu fremden Diensten, kein
+„inkl. MwSt.“, keine durchgestrichenen Preise und keinen Satz wie „kein Umtausch“. Alle Seiten gibt es auf Deutsch und
+Englisch, sie sind per Tastatur bedienbar und für Screenreader geprüft, und Shop und Produktseite laden auf dem Handy
+schnell (Messung wie bei Google, Ziel unter 2,5 Sekunden).
+
+**Was noch fehlt (kommt später oder mit dir in P11):** deine echten Stücke und Fotos in voller Größe (aus dem
+Instagram-Export), die Rechtstexte der Kanzlei und die offizielle Grafik zur Gewährleistung – bis dahin stehen dort
+gekennzeichnete Platzhalter.
+
+## 2026-09-29 – P3.16
+
+- Querschnittssuiten auf R02–R05 ausgedehnt: @privacy (Request-Log, CSP), @a11y (axe je Kategorie/Zustand, 404-Variante) plus Tastatur-Durchlauf, Verbotsmuster-Scan, JS-Budget (check:bundle), Lighthouse-CI für R02/R04, CLS-Messung (Playwright) jetzt auch für R02 und R04.
+- Visuelle Referenzen für Shop, Produktseite, Archiv, 404-Variante „Schon ein Zuhause“ und Shop-Bausteine (P3.4) lokal gegen den Produktions-Build erzeugt (OFFENE-PUNKTE N-02); R01 (Karten aus P3.12) und 404 (Nummernfeld aus P3.7) erneuert. Mobile Kauf-Leiste in ganzseitigen Aufnahmen ausgeblendet, alle Bilder vor der Aufnahme geladen.
+- Ursache instabiler R01-Aufnahmen behoben: Der Daten-Cache des Produktions-Builds (`.next/cache/fetch-cache`) überlebte Server-Neustarts und `db:reset`, die Seite zeigte Medien-Dateinamen des vorigen Seeds (HTTP 403). Playwright leert ihn jetzt vor `pnpm start` (`startCommand` in `playwright.config.ts`, auch für die visuellen Tests).
+- Vorschau-Datei: R02–R05, Listen-Varianten und alle Seed-Produktseiten enthalten; Test für Schild-Schwingen robuster (Desktop: erste Kartenreihe liegt unter dem Banner, wird hingescrollt).
+- Tests: pnpm check (1022), test:int (413), build, test:e2e (1266, desktop/iphone-15 WebKit/pixel-7), test:visual 34/34 zweimal hintereinander stabil, @perf 6/6, test:preview-export 26/26.
 ## 2026-09-29 – P4.22
 
 - `processPaymentEvent` behandelt jetzt Erstattungen und Anfechtungen (`src/lib/payments/orderEvents.ts`, ersetzt die vorläufige `ignored`-Ablage): `refund.created/updated/failed` → `refunds[].status` über `stripeRefundId` (Rückfall: offene Erstattung gleichen Betrags ohne ID; `pending` überschreibt kein Ergebnis), `failed` → `adminAttention refund_failed` + A08 genau einmal je Erstattung, kein Statuswechsel; `charge.refunded` → offene Erstattungen bis zur erstatteten Summe `succeeded`.

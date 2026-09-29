@@ -3,7 +3,12 @@ import 'server-only'
 import type { ShippingClass, VatCategory } from '@/lib/enums'
 
 import type { CartCookie, CartDelivery } from './cartCookie'
-import { ShippingError, type ShippingErrorCode, type ShippingLabel } from './shipping'
+import {
+  computeShipping,
+  ShippingError,
+  type ShippingErrorCode,
+  type ShippingLabel,
+} from './shipping'
 import { computeTotals, type TotalsSettings } from './totals'
 
 // Bewertung des Warenkorbs für die Anzeige (KONZEPT §4.2, PLAN P4.7): Das Cookie ist nur eine Merkliste – jede
@@ -27,6 +32,8 @@ export interface CartProductFacts {
   slug?: string | null
   category?: string | null
   isCustomCommission?: boolean | null
+  /** ID des ersten Fotos (Korbzeile, Foto 64×80). */
+  imageId?: number | null
 }
 
 export interface CartLine {
@@ -60,6 +67,11 @@ export interface CartEvaluation {
     label: ShippingLabel
   } | null
   shippingError: ShippingErrorCode | null
+  /**
+   * Versandpreis, falls „Versand“ gewählt wäre (Radiogruppe im Korb, KO-13) – auch bei gewählter Abholung; `null`, wenn
+   * ein Stück nur zur Abholung ist oder kein Tarif passt.
+   */
+  shippingQuoteCents: number | null
   count: number
   maxItemsPerCheckout: number
   shopOpen: boolean
@@ -162,6 +174,22 @@ export function evaluateCartItems(input: EvaluateCartInput): CartEvaluation {
     }
   }
 
+  let shippingQuoteCents: number | null = null
+  if (buyable.length > 0 && pickupOnly.length === 0) {
+    try {
+      shippingQuoteCents = computeShipping(
+        buyable.map((l) => ({
+          itemNumber: l.product!.itemNumber,
+          shippingClass: l.product!.shippingClass,
+        })),
+        'shipping',
+        settings,
+      ).shippingCents
+    } catch (err) {
+      if (!(err instanceof ShippingError)) throw err
+    }
+  }
+
   const blockers: CartBlocker[] = []
   if (!shopOpen) blockers.push('shop_closed')
   if (lines.length === 0) blockers.push('empty')
@@ -175,6 +203,7 @@ export function evaluateCartItems(input: EvaluateCartInput): CartEvaluation {
     pickupOnly,
     totals,
     shippingError,
+    shippingQuoteCents,
     count: lines.length,
     maxItemsPerCheckout,
     shopOpen,

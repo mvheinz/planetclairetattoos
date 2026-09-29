@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test'
 import { pageRoutes, hasSamplePath, samplePath } from '../../src/lib/routes/paths'
 import { LOCALES } from '../../src/lib/routes/registry'
 import { adminRoute } from '../helpers/adminEnv'
+import { watchCsp } from './csp'
 import { expect, test } from './fixtures'
 
 // P2.12 Sicherheits-Header und CSP (ARCHITEKTUR §8.1, Spike B-03, CSP-Teil von B-01): Header je Kontext
@@ -44,28 +45,6 @@ const CSP_CORE = [
   "base-uri 'self'",
   "object-src 'none'",
 ]
-
-/** Sammelt CSP-Verstöße (`securitypolicyviolation` der aktuellen Seite) und CSP-Konsolenfehler seit dem letzten Aufruf. */
-async function watchCsp(page: Page) {
-  const logged: string[] = []
-  page.on('console', (msg) => {
-    if (msg.type() === 'error' && /Content[ -]Security[ -]Policy/i.test(msg.text()))
-      logged.push(msg.text())
-  })
-  await page.addInitScript(() => {
-    const w = window as unknown as { __csp: string[] }
-    w.__csp = []
-    document.addEventListener('securitypolicyviolation', (e) => {
-      w.__csp.push(`${e.violatedDirective} ${e.blockedURI}`)
-    })
-  })
-  return async () => {
-    const events = await page.evaluate(
-      () => (window as unknown as { __csp?: string[] }).__csp ?? [],
-    )
-    return [...events, ...logged.splice(0)]
-  }
-}
 
 test.describe('Sicherheits-Header', () => {
   test('AK-A-8-01 T-16 jede live-Route trägt die Header ihres Kontexts (DE/EN, inkl. 404) @smoke', async ({

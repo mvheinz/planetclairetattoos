@@ -1,16 +1,22 @@
-import type { Page, Response } from '@playwright/test'
+import type { BrowserContext, Page, Response } from '@playwright/test'
 
 import { pageRoutes, samplePath } from '../../src/lib/routes/paths'
 import { LOCALES, ROUTES } from '../../src/lib/routes/registry'
 import { serverURL } from '../helpers/adminEnv'
+import { watchCsp } from './csp'
 import { expect, test } from './fixtures'
+import { holdListData } from './shop/fresh'
+import { P3_PAGES, homeVariant } from './shop/p3Pages'
 
 // P2.21 Datenschutz (ARCHITEKTUR §7.4 T-03/T-04, §8.7; RECHT R-130/R-131; KONZEPT EK-04/EK-05; DESIGN AK-DS-04):
 // Jede Registry-Route mit Status `live` in DE und EN, in allen drei Projekten, jeweils in einem frischen Browser-Kontext
 // (Playwright legt ihn je Test neu an). Ohne Nutzeraktion entsteht kein Endgeräte-Speicher (kein Cookie, kein
 // `Set-Cookie`, kein Local/Session Storage, keine IndexedDB, kein Service Worker), und die Seite lädt nur vom eigenen
 // Origin (plus `data:`/`blob:`). Die einzige Ausnahme vor dem Warenkorb – `localStorage['pc-motion']` nach Klick auf
-// den Schalter „Animationen“ (R-130 a) – prüft `motion-toggle.e2e.spec.ts`.
+// den Schalter „Animationen“ (R-130 a) – prüft `motion-toggle.e2e.spec.ts`. Ein CSP-Verstoß (Ereignis
+// `securitypolicyviolation` oder CSP-Fehler auf der Konsole) lässt den Test ebenfalls scheitern (P3.16).
+// P3.16 dehnt die Suite auf die Varianten und Zustände von R02–R05 aus (`P3_PAGES`: Listen-Varianten, jede Kategorie,
+// Produktseite je Kategorie, reserviert, verkauft, 404-Varianten inkl. „Schon ein Zuhause“).
 
 const ORIGIN = new URL(serverURL).origin
 const GOOGLE_FONTS = /(^|\.)(fonts\.googleapis\.com|fonts\.gstatic\.com)$/
@@ -81,6 +87,63 @@ async function deviceStorage(page: Page) {
   })
 }
 
+/** Ruft `path` in einem frischen Kontext auf und prüft Speicher, Cookies, Requests und CSP (T-03/T-04). */
+async function expectPrivate(
+  page: Page,
+  context: BrowserContext,
+  foreignRequests: string[],
+  path: string,
+  status: number,
+) {
+  const requests: string[] = []
+  context.on('request', (req) => requests.push(req.url()))
+  const setCookies: Promise<{ url: string; value: string | null }>[] = []
+  const onResponse = (res: Response) =>
+    setCookies.push(res.headerValue('set-cookie').then((value) => ({ url: res.url(), value })))
+  context.on('response', onResponse)
+  const csp = await watchCsp(page)
+
+  const response = await page.goto(path)
+  expect(response?.status(), 'Statuscode').toBe(status)
+  await page.waitForLoadState('networkidle')
+  await exercise(page)
+
+  // T-04/R-130/EK-04: kein Endgeräte-Speicher ohne Nutzeraktion.
+  expect(await context.cookies(), 'Cookies').toEqual([])
+  const storage = await deviceStorage(page)
+  expect(storage).toEqual({
+    cookie: '',
+    local: [],
+    session: [],
+    indexedDB: storage.indexedDB === null ? null : [],
+    serviceWorkers: [],
+    controlled: false,
+  })
+  if (storage.indexedDB === null)
+    test.info().annotations.push({
+      type: 'hinweis',
+      description: 'indexedDB.databases() fehlt in diesem Browser – IndexedDB nicht auflistbar',
+    })
+  context.off('response', onResponse)
+  const withCookie = (await Promise.all(setCookies)).filter((c) => c.value !== null)
+  expect(withCookie, 'Set-Cookie').toEqual([])
+
+  // T-03/R-131/EK-05: nur eigener Origin, `data:` und `blob:`.
+  expect(requests.length).toBeGreaterThan(0)
+  const foreign = requests.filter((url) => {
+    if (url.startsWith('data:') || url.startsWith('blob:')) return false
+    return new URL(url).origin !== ORIGIN
+  })
+  expect(foreign, 'Fremd-Requests').toEqual([])
+  expect(foreignRequests, 'blockierte Fremd-Requests').toEqual([])
+  // AK-DS-04: nie Google Fonts.
+  expect(
+    requests.filter((url) => /^https?:/.test(url) && GOOGLE_FONTS.test(new URL(url).hostname)),
+  ).toEqual([])
+  // CSP-Verstöße lassen den Test scheitern.
+  expect(await csp(), 'CSP-Verstöße').toEqual([])
+}
+
 test.describe('Datenschutz: keine Cookies, kein Speicher, keine Fremd-Requests @privacy', () => {
   for (const visit of visits) {
     test(`T-03/T-04 R-130/R-131 ${visit.name} ${visit.path} @privacy`, async ({
@@ -88,50 +151,44 @@ test.describe('Datenschutz: keine Cookies, kein Speicher, keine Fremd-Requests @
       context,
       foreignRequests,
     }) => {
-      const requests: string[] = []
-      context.on('request', (req) => requests.push(req.url()))
-      const setCookies: Promise<{ url: string; value: string | null }>[] = []
-      const onResponse = (res: Response) =>
-        setCookies.push(res.headerValue('set-cookie').then((value) => ({ url: res.url(), value })))
-      context.on('response', onResponse)
+      await expectPrivate(page, context, foreignRequests, visit.path, visit.status)
+    })
+  }
+})
 
-      const response = await page.goto(visit.path)
-      expect(response?.status(), 'Statuscode').toBe(visit.status)
-      await page.waitForLoadState('networkidle')
-      await exercise(page)
+test.describe('Datenschutz P3: Varianten und Zustände von R02–R05 @privacy', () => {
+  // Je Route prüft die Suite oben alle drei Projekte; die Varianten und Zustände laufen in Chromium (desktop) und echtem
+  // WebKit (iphone-15) – pixel-7 ist dieselbe Engine wie desktop (CI-Minuten, OFFENE-PUNKTE P3.16).
+  test.beforeEach(({}, testInfo) => {
+    test.skip(
+      testInfo.project.name === 'pixel-7',
+      'P3-Varianten: desktop (Chromium) und iphone-15 (WebKit)',
+    )
+  })
+  // Seed-Anker (S06 verkauft, Listen) nicht während eines exklusiven Bestandstests lesen.
+  holdListData(test, 'shared')
 
-      // T-04/R-130/EK-04: kein Endgeräte-Speicher ohne Nutzeraktion.
-      expect(await context.cookies(), 'Cookies').toEqual([])
-      const storage = await deviceStorage(page)
-      expect(storage).toEqual({
-        cookie: '',
-        local: [],
-        session: [],
-        indexedDB: storage.indexedDB === null ? null : [],
-        serviceWorkers: [],
-        controlled: false,
-      })
-      if (storage.indexedDB === null)
-        test.info().annotations.push({
-          type: 'hinweis',
-          description: 'indexedDB.databases() fehlt in diesem Browser – IndexedDB nicht auflistbar',
-        })
-      context.off('response', onResponse)
-      const withCookie = (await Promise.all(setCookies)).filter((c) => c.value !== null)
-      expect(withCookie, 'Set-Cookie').toEqual([])
+  for (const p of P3_PAGES) {
+    test(`T-03/T-04 R-130/R-131 EK-04 EK-05 ${p.name} ${p.path} @privacy`, async ({
+      page,
+      context,
+      foreignRequests,
+    }) => {
+      await expectPrivate(page, context, foreignRequests, p.path, p.status)
+    })
+  }
 
-      // T-03/R-131/EK-05: nur eigener Origin, `data:` und `blob:`.
-      expect(requests.length).toBeGreaterThan(0)
-      const foreign = requests.filter((url) => {
-        if (url.startsWith('data:') || url.startsWith('blob:')) return false
-        return new URL(url).origin !== ORIGIN
-      })
-      expect(foreign, 'Fremd-Requests').toEqual([])
-      expect(foreignRequests, 'blockierte Fremd-Requests').toEqual([])
-      // AK-DS-04: nie Google Fonts.
-      expect(
-        requests.filter((url) => /^https?:/.test(url) && GOOGLE_FONTS.test(new URL(url).hostname)),
-      ).toEqual([])
+  for (const locale of LOCALES) {
+    test(`T-03/T-04 R-130/R-131 R04 404-Variante „Schon ein Zuhause“ (Fixture analog S08) ${locale} @privacy`, async ({
+      page,
+      context,
+      foreignRequests,
+      fixtureProducts,
+      request,
+    }) => {
+      const url = await homeVariant(fixtureProducts, request, locale)
+      await expectPrivate(page, context, foreignRequests, url, 404)
+      await expect(page.locator('[data-not-found]')).toHaveAttribute('data-variant', 'home')
     })
   }
 })

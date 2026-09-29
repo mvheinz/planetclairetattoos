@@ -92,7 +92,7 @@ describe('Vorschau-Export: Seiten-Umwandlung (ARCHITEKTUR §14.5)', () => {
     expect(page.body).toContain('href="#/en/legal-notice"')
     expect(page.body).toContain('href="#/de/vertrag-widerrufen"')
     expect(page.body).toContain(
-      'href="https://www.instagram.com/planet.claire.tattoos/" target="_blank" rel="noopener"',
+      'href="https://www.instagram.com/planet.claire.tattoos/" target="_blank" rel="noopener noreferrer"',
     )
     expect(page.body).toContain('href="mailto:hallo@example.com"')
   })
@@ -155,10 +155,12 @@ describe('Vorschau-Export: Seiten-Umwandlung (ARCHITEKTUR §14.5)', () => {
       notBuilt: [{ routeId: 'R21', path: '/de/impressum', lang: 'de' }],
     })
     const routes = nb.map((r) => r.route)
-    expect(routes).toContain('/de/warenkorb')
+    // R06 ist seit P4.8 gebaut, R07 (Kasse) noch nicht.
+    expect(routes).not.toContain('/de/warenkorb')
+    expect(routes).toContain('/de/kasse')
     expect(routes).not.toContain('/de/shop')
     expect(routes).not.toContain('/de/archiv')
-    expect(routes).toContain('/en/cart')
+    expect(routes).toContain('/en/checkout')
     expect(routes).toContain('/de/impressum')
     expect(routes).not.toContain('/en/legal-notice')
   })

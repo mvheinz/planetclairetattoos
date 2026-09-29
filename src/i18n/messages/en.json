@@ -422,6 +422,43 @@
       "pickup_only": "{items} {count, plural, one {is} other {are}} available for pickup only.",
       "rate_limited": "That was a bit fast. Please try again in a few minutes.",
       "invalid": "That didn't work. Please reload the page and try again."
+    },
+    "title": "Your cart",
+    "itemsHeading": "Pieces in your cart",
+    "meta": "{number} · {category}",
+    "remove": "Remove",
+    "removeLabel": "Remove {title} from the cart",
+    "state": {
+      "reserved": "Reserved right now – check back in 30 minutes",
+      "sold": "Sorry, already sold",
+      "reserved_by_you": "Waiting for you at checkout",
+      "priceChanged": "Price has been updated"
+    },
+    "soldStamp": "sold",
+    "unknownTitle": "Piece {number}",
+    "deliveryLegend": "Delivery",
+    "deliveryShipping": "Shipping within Germany ({carrier})",
+    "deliveryPickup": "Pickup in {city}",
+    "deliveryApply": "Apply delivery option",
+    "shippingClassLine": "Shipping class: {shippingClass} – the largest class in your cart applies",
+    "summaryHeading": "Summary",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "total": "Total",
+    "shippingUnknown": "not calculated yet",
+    "paymentMethods": "Card · Apple Pay · Google Pay · PayPal · Payment in advance",
+    "toCheckout": "Go to checkout",
+    "blocked": {
+      "unavailable": "Please remove the pieces that aren't available right now first.",
+      "shop_closed": "The shop is taking a break – ordering isn't possible right now.",
+      "too_many": "At most {max} pieces per order.",
+      "shipping": "Shipping for this cart can't be calculated right now. Please choose pickup or write to me.",
+      "empty": "Nothing in here yet."
+    },
+    "empty": {
+      "title": "Nothing in here yet.",
+      "text": "Have a look around the shop – every piece exists only once.",
+      "action": "To the shop"
     }
   },
   "email": {
@@ -534,5 +571,40 @@
       "shop": "Back to the shop:",
       "shopLabel": "Shop"
     }
+  },
+  "shippingPayment": {
+    "costsHeading": "Shipping costs",
+    "table": {
+      "caption": "Shipping costs within Germany",
+      "class": "Shipping class",
+      "for": "For",
+      "price": "Price",
+      "carrier": "Carrier",
+      "forClass": {
+        "brief": "Drawings, watercolours and jewellery",
+        "paket_klein": "T-shirts, caps and other small pieces",
+        "keramik": "Bowls, plates, tiles and other ceramics – extra well padded"
+      },
+      "pickup": "Pickup in {city}",
+      "forPickup": "all pieces, appointment by arrangement",
+      "carrierPickup": "in person",
+      "empty": "Shipping prices are being updated right now. You will see the exact amount in your cart before you order."
+    },
+    "highestClassRule": "If you order several pieces, the highest shipping class in your cart applies – you only pay shipping once.",
+    "deliveryTimeHeading": "Delivery time",
+    "areaHeading": "Delivery area",
+    "area": "I only deliver within Germany. Pickup in {city} is possible by arrangement. I don't ship abroad at the moment.",
+    "areaNoPickup": "I only deliver within Germany. I don't ship abroad at the moment.",
+    "paymentHeading": "Payment methods",
+    "paymentStripe": "Credit or debit card, Apple Pay, Google Pay and PayPal – processed by the payment service Stripe.",
+    "paymentPrepayment": "Payment in advance by bank transfer: you'll get the bank details by email after ordering. Your piece stays reserved for you until the end of the {days, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} calendar day after the order date.",
+    "noSurcharge": "All payment methods cost you the same – there are no surcharges.",
+    "chargeHeading": "When will I be charged?",
+    "chargeStripe": "With card, Apple Pay, Google Pay and PayPal, the amount is charged as soon as you click “Order with obligation to pay” and confirm the payment.",
+    "chargePrepayment": "With payment in advance you transfer the amount yourself. I ship your piece or arrange the pickup as soon as the money has arrived.",
+    "damageHeading": "Transport damage",
+    "damage": "If a piece arrives damaged, please get in touch as soon as you can with a few photos of the parcel and the piece – then I can sort it out with the carrier. Your statutory rights remain unaffected.",
+    "returnHeading": "Returns after withdrawal",
+    "withdrawalLink": "Everything about your right of withdrawal is in the <link>withdrawal policy</link>."
   }
 }

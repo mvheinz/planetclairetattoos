@@ -156,6 +156,21 @@ describe('Preis und Summen (KONZEPT §4.2)', () => {
     expect(forced.totals?.shippingCents).toBe(0)
   })
 
+  it('P4.8 Versandpreis für die Radiogruppe auch bei gewählter Abholung; null bei nur_abholung', () => {
+    const pickup = evaluate(cart([{ id: 1 }, { id: 2 }], 'pickup'), [
+      product(1, { shippingClass: 'brief' }),
+      product(2),
+    ])
+    expect(pickup.totals?.shippingCents).toBe(0)
+    expect(pickup.totals?.shippingClass).toBe('keramik')
+    expect(pickup.shippingQuoteCents).toBe(890)
+    const forced = evaluate(cart([{ id: 1 }, { id: 23 }]), [
+      product(1),
+      product(23, { shippingClass: 'nur_abholung' }),
+    ])
+    expect(forced.shippingQuoteCents).toBeNull()
+  })
+
   it('fehlender Versandtarif → kein stilles 0 €, „Zur Kasse“ gesperrt', () => {
     const r = evaluate(cart([{ id: 1 }]), [product(1, { shippingClass: 'paket_klein' })])
     expect(r.totals).toBeNull()

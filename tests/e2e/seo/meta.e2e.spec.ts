@@ -3,7 +3,7 @@ import * as cheerio from 'cheerio'
 
 import { productPath } from '../../../src/lib/shop/format'
 import { expect, test, testPayload } from '../fixtures'
-import { refresh } from '../shop/fresh'
+import { holdListData, refresh } from '../shop/fresh'
 import { CRAWLER } from './crawler'
 
 // P3.13 SEO der Shop-Routen (KONZEPT §2.5, §3.0.5, §3.2–§3.5): canonical, hreflang (AK-2-05), Open Graph je Seitentyp
@@ -79,6 +79,8 @@ test.describe('P3.13 SEO der Shop-Routen', () => {
       'Server-HTML – browserunabhängig, einmal je Lauf',
     )
   })
+  // Seed-Anker S01/S06 (Verfügbarkeit) nicht während eines exklusiven Bestandstests lesen.
+  holdListData(test, 'shared')
 
   test('AK-2-05 canonical, hreflang und Open Graph je Seitentyp in DE und EN', async ({
     request,
