@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-09-29 – P5.3
+
+- Lauf-Protokoll `job_runs` (Migration `p5_job_runs`, CHECK + Index laut DATENMODELL §11), Einträge je Task-Lauf inkl. „Jetzt ausführen“, Fehler geschwärzt (R-137); Fehlschlag in commerce/documents → A12 über `notifyAdmin`
+- Tick unter Advisory-Lock `tick` (parallele Ticks → genau ein Lauf), `POST /api/cron/run/[task]` jetzt 501 für spätere Phasen; `runOncePer(task, 'day'|'month', Stunde, now)` (Berliner Datum/Monat, sommerzeitfest); `GET /api/health/freshness` ohne DB (jobs/backup ok|late|off, 60 s Cache, Wartungsmodus 200)
+- Tests: `tests/int/jobs/cron.int.spec.ts` (7), `run-once.int.spec.ts` (5, 29.03./25.10.2026), `tests/int/health/freshness.int.spec.ts` (5), `tick.int.spec.ts` angepasst, `tests/unit/jobs/slugs.unit.spec.ts`; jobs/email/commerce/payments/db-Int grün (212)
+
 ## 2026-09-29 – P5.2
 
 - Verwaltungs-Mails A04, A05, A10, A11, A13–A16 neu (`src/lib/email/templates/admin/`: records, reminders; A01–A09/A12 dorthin verschoben), strikte Schemata (A05 ohne Name/E-Mail/Freitext/Bilder, R-160)

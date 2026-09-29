@@ -3,17 +3,30 @@ import 'server-only'
 import { createLocalReq, getPayload, type Payload, type PayloadRequest } from 'payload'
 
 import { isAdminRequest } from '@/access'
-import { JOB_QUEUE_OF, WAKE_TASK_NOT_BEFORE_HOUR, WAKE_TASK_SLUGS } from '@/jobs/index'
+import {
+  JOB_QUEUE_OF,
+  WAKE_TASK_NOT_BEFORE_HOUR,
+  WAKE_TASK_PERIOD,
+  WAKE_TASK_SLUGS,
+} from '@/jobs/index'
 import { getEnv, type Env } from '@/lib/env'
 import { logger } from '@/lib/monitoring/logger'
 import { formatBerlin, systemClock } from '@/lib/time'
 
 import { jobAlarm } from './alarm'
 import { isCronAuthorized } from './auth'
+import { withTaskLock } from './lock'
+import { hasOkRunForPeriod, poolDb } from './runLog'
+import { periodOf } from './runOnce'
 import { TaskNotImplementedError, UnknownTaskError, runTaskNow } from './runTask'
 
 // Route-Handler-Logik für `GET /api/cron/tick` und `POST /api/cron/run/[task]` (ARCHITEKTUR §2.5, §9.6).
-// Gerüst aus P1.9: P5.3 ergänzt Lauf-Protokoll, Locks und die vollständige Weckzeit-Berechnung.
+// P1.9/P5.3: Tick ohne Fälliges ohne DB (204); sonst unter dem Lock `tick` Zeitpläne, Wecker-Tasks und Jobs ausführen,
+// neuen Weckzeitpunkt schreiben. Einzelner Task: 401 ohne Berechtigung, 404 unbekannter Slug, 501 noch nicht umgesetzt.
+// Lauf-Protokoll `job_runs` schreibt jeder Task selbst (`instrumentTask`).
+
+/** Advisory-Lock-Schlüssel des Ticks (ARCHITEKTUR §9.6 Nr. 8). */
+export const TICK_LOCK = 'tick'
 
 export interface CronDeps {
   env?: Env
@@ -59,6 +72,11 @@ async function queueWakeTasks(payload: Payload, req: PayloadRequest, now: Date):
   for (const task of WAKE_TASK_SLUGS) {
     const notBefore = WAKE_TASK_NOT_BEFORE_HOUR[task]
     if (notBefore !== undefined && hour < notBefore) continue
+    const period = WAKE_TASK_PERIOD[task]
+    if (period) {
+      const { period: key, reached } = periodOf(period.per, period.berlinHour, now)
+      if (!reached || (await hasOkRunForPeriod(poolDb(payload), task, key))) continue
+    }
     const open = await payload.count({
       collection: 'payload-jobs',
       where: {
@@ -102,15 +120,28 @@ export async function handleTick(request: Request, deps: CronDeps = {}): Promise
   if (!(await jobAlarm.isDue(now))) return new Response(null, { status: 204 })
 
   const payload = await (deps.loadPayload ?? defaultLoadPayload)()
-  const req = await createLocalReq({ context: { system: true, now: now.toISOString() } }, payload)
-  const schedules = await payload.jobs.handleSchedules({ allQueues: true, req })
-  await queueWakeTasks(payload, req, now)
-  const run = await payload.jobs.run({ allQueues: true, limit: 50, req })
-  const next = await nextWake(payload, now)
-  await jobAlarm.markFullRun(now, next)
-  const ran = Object.keys(run.jobStatus ?? {}).length
-  logger.info('cron.tick', { ran, scheduled: schedules.queued.length })
-  return json({ status: 'ran', ran, scheduled: schedules.queued.length }, 200)
+  // Der Tick läuft höchstens einmal gleichzeitig (Lock `tick`, ARCHITEKTUR §9.6 Nr. 8); ein paralleler Tick endet mit 204.
+  const locked = await withTaskLock(payload, TICK_LOCK, async () => {
+    // Nochmals unter dem Lock prüfen: Ein paralleler Tick kann den vollen Lauf gerade beendet haben.
+    const state = await jobAlarm.read()
+    const last = state.lastFullRunAt ? Date.parse(state.lastFullRunAt) : NaN
+    if ((!Number.isNaN(last) && last >= now.getTime()) || !jobAlarm.isDueState(state, now)) {
+      return null
+    }
+    const req = await createLocalReq({ context: { system: true, now: now.toISOString() } }, payload)
+    const schedules = await payload.jobs.handleSchedules({ allQueues: true, req })
+    await queueWakeTasks(payload, req, now)
+    const run = await payload.jobs.run({ allQueues: true, limit: 50, req })
+    const next = await nextWake(payload, now)
+    await jobAlarm.markFullRun(now, next)
+    return { ran: Object.keys(run.jobStatus ?? {}).length, scheduled: schedules.queued.length }
+  })
+  if (locked.status === 'locked' || locked.result === null) {
+    logger.info('cron.tick_locked', {})
+    return new Response(null, { status: 204 })
+  }
+  logger.info('cron.tick', locked.result)
+  return json({ status: 'ran', ...locked.result }, 200)
 }
 
 export async function handleRunTask(
@@ -133,7 +164,7 @@ export async function handleRunTask(
     return json({ status: 'ran', ...result }, 200)
   } catch (e) {
     if (e instanceof UnknownTaskError) return json({ error: e.message }, 404)
-    if (e instanceof TaskNotImplementedError) return json({ error: e.message, phase: e.phase }, 409)
+    if (e instanceof TaskNotImplementedError) return json({ error: e.message, phase: e.phase }, 501)
     throw e
   }
 }

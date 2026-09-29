@@ -24,6 +24,7 @@ import * as migration_20260929_011628_p4_email_outbox from './20260929_011628_p4
 import * as migration_20260929_031002_p4_release_job from './20260929_031002_p4_release_job';
 import * as migration_20260929_032338_p4_prepayment_jobs from './20260929_032338_p4_prepayment_jobs';
 import * as migration_20260929_081932_p5_revenue_guard from './20260929_081932_p5_revenue_guard';
+import * as migration_20260929_102355_p5_job_runs from './20260929_102355_p5_job_runs';
 
 export const migrations = [
   {
@@ -154,6 +155,11 @@ export const migrations = [
   {
     up: migration_20260929_081932_p5_revenue_guard.up,
     down: migration_20260929_081932_p5_revenue_guard.down,
-    name: '20260929_081932_p5_revenue_guard'
+    name: '20260929_081932_p5_revenue_guard',
+  },
+  {
+    up: migration_20260929_102355_p5_job_runs.up,
+    down: migration_20260929_102355_p5_job_runs.down,
+    name: '20260929_102355_p5_job_runs'
   },
 ];

@@ -2533,7 +2533,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     `tests/int/email/notify-admin.int.spec.ts` (Drosselung mit vorgestellter Uhr, Rückfall auf `ADMIN_NOTIFY_EMAIL`).
   - Ohne Jutta: –
 
-- [ ] **P5.3 Jobs: Job-Wecker, Cron-Endpunkte, Lauf-Protokoll, Frische-Prüfung** – vervollständigen, was P1/P4
+- [x] **P5.3 Jobs: Job-Wecker, Cron-Endpunkte, Lauf-Protokoll, Frische-Prüfung** – vervollständigen, was P1/P4
   angelegt haben (ARCHITEKTUR §9.6, §2.5, §11.3, Anhang A.3): `GET /api/cron/tick` (Bearer `CRON_SECRET`; liest
   `job-alarm.json` ohne DB, `204`, wenn nichts fällig ist; sonst `handleSchedules` + `run`, danach neuen Weckzeitpunkt
   schreiben), `POST /api/cron/run/[task]` (Bearer `CRON_SECRET` oder Admin-Sitzung; ohne Berechtigung 401, unbekannter

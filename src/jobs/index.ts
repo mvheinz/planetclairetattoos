@@ -1,5 +1,7 @@
 import type { TaskConfig } from 'payload'
 
+import { instrumentTask } from '@/lib/jobs/instrument'
+
 import { cancelOverduePrepaymentsTask } from './cancelOverduePrepayments'
 import { prepaymentRemindersTask } from './prepaymentReminders'
 import { releaseExpiredReservationsTask } from './releaseExpiredReservations'
@@ -9,7 +11,8 @@ import { revenueGuardCheckTask } from './revenueGuardCheck'
 import { sendEmailTask } from './sendEmail'
 
 // Alle Task-Slugs der Jobs-Queue (ARCHITEKTUR Anhang A.3, DATENMODELL §11) mit Queue und umsetzender Phase.
-// Registriert werden nur umgesetzte Tasks (JOB_TASKS). Der Unit-Test tests/unit/jobs/slugs.unit.spec.ts gleicht die
+// Registriert werden nur umgesetzte Tasks (JOB_TASKS), jeweils mit Lauf-Protokoll `job_runs` und A12 bei Fehlschlag
+// (`instrumentTask`, P5.3). Der Unit-Test tests/unit/jobs/slugs.unit.spec.ts gleicht die
 // Liste mit der Tabelle in ARCHITEKTUR Anhang A.3 ab.
 
 export const JOB_QUEUES = ['commerce', 'email', 'documents', 'maintenance'] as const
@@ -69,7 +72,7 @@ export const JOB_TASKS: TaskConfig<any>[] = [
   renderInvoicePdfTask,
   renderLegalTextPdfTask,
   revenueGuardCheckTask,
-]
+].map((t) => instrumentTask(t, TASK_DEFS[t.slug as TaskSlug].queue))
 
 export const IMPLEMENTED_TASK_SLUGS = new Set<string>(JOB_TASKS.map((t) => t.slug))
 
@@ -87,6 +90,8 @@ export const WAKE_TASK_SLUGS: readonly TaskSlug[] = (
     'prepaymentReminders',
     'cancelOverduePrepayments',
     'revenueGuardCheck',
+    'monthlyClose',
+    'invoiceIntegrityCheck',
   ] as const
 ).filter((s) => isImplementedTask(s))
 
@@ -96,4 +101,16 @@ export const WAKE_TASK_SLUGS: readonly TaskSlug[] = (
  */
 export const WAKE_TASK_NOT_BEFORE_HOUR: Partial<Record<TaskSlug, number>> = {
   revenueGuardCheck: 7,
+}
+
+/**
+ * Tägliche/monatliche Wecker-Tasks mit `runOncePer` (KONZEPT §8.1 Nr. 3): der Wecker reiht sie nur ein, solange ihr
+ * Zeitraum erreicht und noch nicht erledigt ist (ein erfolgreicher Lauf in `job_runs`) – sonst kein Job und kein
+ * Protokolleintrag je Stunde. Die Tasks prüfen dasselbe unter ihrem Lock noch einmal.
+ */
+export const WAKE_TASK_PERIOD: Partial<
+  Record<TaskSlug, { per: 'day' | 'month'; berlinHour: number }>
+> = {
+  monthlyClose: { per: 'month', berlinHour: 4 },
+  invoiceIntegrityCheck: { per: 'month', berlinHour: 4 },
 }
