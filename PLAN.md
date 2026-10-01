@@ -2664,7 +2664,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/e2e/admin/pieces.e2e.spec.ts` (`iphone-15`, `@a11y`), `tests/int/admin/pieces-query.int.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P5.9 Bestell-Detail und Aktions-Grundlage für Bestellungen** – gemeinsame Ansicht `/bestellungen/:id` für
+- [x] **P5.9 Bestell-Detail und Aktions-Grundlage für Bestellungen** – gemeinsame Ansicht `/bestellungen/:id` für
   Packen, Vorkasse, Versendet, Abholung: Positionen mit Foto, `Nr.`, Titel, Preis; Lieferart, Empfänger:in, Zahlart,
   Beträge, Status mit Historie, Hinweise (`adminAttention`, Anfechtung: Status `disputed` mit `statusBeforeDispute`
   und `dispute.status`), interne Notiz, Mail-Protokoll der Bestellung

@@ -88,7 +88,8 @@ test('@a11y „Zu packen“: Liste, Hinweise, Adresse kopieren, Gepackt (Doppelt
     await expect(card.getByTestId('copy-line')).toHaveCount(3)
 
     await card.getByTestId('mark-packed').dblclick()
-    await expect(card.getByText('Erledigt.')).toBeVisible()
+    // nach dem Neuladen ist die Karte „gepackt“ (ohne Knopf „Gepackt“)
+    await expect(card).toHaveAttribute('data-status', 'packed')
     await expect.poll(async () => (await orderStatus(payload, paid.id)).status).toBe('packed')
     const history = (await orderStatus(payload, paid.id)).statusHistory ?? []
     expect(history.filter((h) => h.transition === 'O6')).toHaveLength(1)

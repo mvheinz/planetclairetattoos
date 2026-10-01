@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-01 – P5.9
+
+- Bestell-Detail /bestellungen/:id (Positionen mit Foto, Nr., Preis; Lieferung, Zahlart, Beträge, Statusverlauf, Hinweise inkl. Anfechtung, interne Notiz, Mail-Protokoll) und Aktions-Rahmen src/endpoints/orders/_action.ts (Admin-Pflicht, eine Transaktion, ORDER_TRANSITIONS → 409, Historie actorType admin + O-Nummer, Audit, Mails nur über die Outbox)
+- „Erneut senden“ M01/M02/M05 (M06/M07 mit P5.15/P5.17) mit Dialog-Schlüssel: ein Dialog = höchstens eine Mail
+- Tests: tests/int/orders/admin-action.int.spec.ts (4), tests/e2e/admin/order-detail.e2e.spec.ts (Desktop + 390×844, axe) grün
+
 ## 2026-09-29 – P5.8
 
 - Ansicht „Meine Stücke“ (`/stuecke`): Suche nach Nummer (exakt, auch „017“) oder Titel, Filter Status/Kategorie, 20 Karten je Seite, Status-Badge mit Reservierungs-/Vorkasse-Hinweis, Knöpfe je Status auf die P5.7-Endpunkte, Dialog „offline verkauft“ mit Archiv-Schalter, „Zur Bestellung“, „Im Archiv zeigen“.
