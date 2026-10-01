@@ -2838,7 +2838,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/jobs/mark-delivered.int.spec.ts`, `tests/e2e/admin/shipped.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P5.17 Abholung: „Bereit zur Abholung“ (O8, M07) und „Abgeholt“ (O9)** – Ansicht `/abholung` (KONZEPT §7.9):
+- [x] **P5.17 Abholung: „Bereit zur Abholung“ (O8, M07) und „Abgeholt“ (O9)** – Ansicht `/abholung` (KONZEPT §7.9):
   `paid` mit Abholung und `ready_for_pickup` mit Wartetagen, mehr als 14 Tage markiert. „Bereit zur Abholung“: Textfeld
   vorbelegt aus `settings.pickup.instructions` (Sprache der Bestellung) plus Abholadresse aus `settings.business`,
   editierbar, gespeichert an der Bestellung (`orders.pickup.messageText`, DATENMODELL §6.8.1, seit P1 im Schema) → O8,

@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-01 – P5.17
+
+- Ansicht `/abholung`: bezahlte Abholungen und abholbereite mit Wartetagen (> 14 markiert); „Bereit zur Abholung“ mit vorbelegtem Text (settings.pickup.instructions + Adresse aus settings.business, editierbar, gespeichert in pickup.messageText) → O8 + M07; „Abgeholt“ → O9
+- `src/lib/legal/periods.ts`: withdrawalPeriodEnd (Erhalt + 14 Tage, Ende Berliner Tag), warrantyStart
+- Tests: tests/int/legal/pickup.int.spec.ts (6, R-083/R-102, Snapshots M07 DE/EN), tests/e2e/admin/pickup.e2e.spec.ts (desktop + pixel-7)
+
 ## 2026-10-01 – P5.16
 
 - Ansicht `/versendet`: shipped + delivered (30 Tage) mit Versanddatum, Nummer als Link, Status, „geschätzt“; Knöpfe Zugestellt (O10 manual), Sendungsnummer korrigieren/nachtragen (Rückfrage „Versandmail erneut senden?“ ja/nein), Reklamation (Bruch) → Texte
