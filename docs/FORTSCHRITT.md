@@ -2,6 +2,14 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-01 – P4.25
+
+- Qualitätsgates P4: `@privacy` (R06–R09, R25), Header je Kontext, axe, AK-DS-11, JS-Budget R06/R07 (R07 mit Kasse 170 KB gz nach `zod/mini`, R02 Zier-Module nach dem Laden), CLS, Logger-Schwärzung nach Kassen-Durchlauf, Verbotsmuster über P4-Seiten und Mails, Statusliste nur `ORDER_STATUSES`.
+- Abdeckung (`pnpm test:coverage`): commerce 93,4 % Zeilen / 85,1 % Zweige, payments 96,4 % / 89,2 %.
+- Visuelle Referenzen Korb, Kasse, Danke, Status (lokal gegen Produktions-Build, Suite seriell wie CI; CI-Artefakt hier nicht abrufbar).
+- Vorschau-Datei: Korb (S01 + S11) und Kasse je Sprache mit Zahlungsfeld-Platzhalter, Demo-Countdown ab 30:00, Vorschau-Dialog statt Bestellen, nichts gespeichert; Danke/Status „ab P8“. Crawler wartet vor „In den Korb“ auf den Live-Zustand (sonst unter Last leerer Korb); SVG-Fragmente in CSS-Daten-URIs bleiben intakt.
+- Tests: `pnpm check` (1332 Unit), `pnpm test:int` (73 Dateien, 599 Tests inkl. Determinismus des Exports), `pnpm build`, `pnpm test:preview-export` 28/28, visual 42/42 (3×), E2E desktop 526/0 rot, iphone-15 (WebKit) 402/0, pixel-7 394/0, @perf pixel-7 8/8, `check:bundle`, `check:external`.
+
 ## 2026-09-29 – P4.24
 
 - Kaufpfad Ende-zu-Ende mit Mock unter `tests/e2e/purchase/` (nur `iphone-15` und `pixel-7`; `desktop` ignoriert den Ordner): Produktseite → „In den Korb“ → Korb → „Zur Kasse“ → Kasse → Danke in 4 Seiten (EK-02) für Karte mit Versand, Wallet (Mock Apple Pay) mit Abholung, PayPal „Abbruch“ → „Zurück zur Kasse“ → „Erfolg“, „Abgelehnt“ → erneuter Versuch, „Abgelehnt“ → Vorkasse (genau eine Bestellung `awaiting_prepayment`), „Verzögert“ → wartet → Testhilfe setzt die Session auf bezahlt → „bezahlt“ (Rückfall `getCheckoutSession`), Vorkasse mit Versand → Verwaltung „Zahlung erhalten“ → M05, Abholung mit Vorkasse (Rechnungsadresse Pflicht).
