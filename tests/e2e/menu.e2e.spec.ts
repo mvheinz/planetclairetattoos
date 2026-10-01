@@ -101,14 +101,33 @@ test.describe('Menü @smoke', () => {
     await page.emulateMedia({ reducedMotion: 'no-preference' })
     await page.goto('/de')
     await ready(page)
+    // Jede per `Element.animate` gestartete Animation mitschreiben: `document.getAnimations()` kennt beendete
+    // Animationen nicht mehr – unter Last war der erste gestaffelte Link schon fertig, bevor die Abfrage lief (P4.25).
+    await page.evaluate(() => {
+      const w = window as Window & { __menuAnimations?: Animation[] }
+      const started: Animation[] = (w.__menuAnimations = [])
+      const animate = Element.prototype.animate
+      Element.prototype.animate = function (
+        this: Element,
+        ...args: Parameters<Element['animate']>
+      ) {
+        const a = animate.apply(this, args)
+        started.push(a)
+        return a
+      }
+    })
     await trigger(page).click()
     await expect(dialog(page)).toBeVisible()
     // Nur die Animationen des Menüs zählen (MI-05). `document.getAnimations()` liefert in WebKit auch den Boil der
     // Leinen-Coco hinter dem Dialog (CSS `coco-boil`, `iterations: Infinity`, per Boil-Budget DESIGN §10.3 nach 2 s
     // beendet) – der gehört nicht zu MI-05. Chromium meldet Animationen auf `<use>`-Elementen dort nicht.
     const menuAnimations = await page.evaluate(() =>
-      document
-        .getAnimations()
+      [
+        ...new Set([
+          ...((window as Window & { __menuAnimations?: Animation[] }).__menuAnimations ?? []),
+          ...document.getAnimations(),
+        ]),
+      ]
         .filter((a) => {
           const target = (a.effect as KeyframeEffect | null)?.target
           return !!target && !!target.closest('dialog#menu')
