@@ -2739,7 +2739,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Ohne Jutta: Echte Verpackungsgewichte wiegt Jutta beim ersten Packen (KA-29); Aufgabe als A51 ff. in
     `docs/owner/AUFGABEN.md` ergänzen, soweit nicht vorhanden.
 
-- [ ] **P5.12 Packzettel, Etikett und Beileger als PDF** – `src/lib/pdf/PackingSlip.tsx`: A4, **ohne Preise**:
+- [x] **P5.12 Packzettel, Etikett und Beileger als PDF** – `src/lib/pdf/PackingSlip.tsx`: A4, **ohne Preise**:
   Bestellnummer, Datum, Empfänger:in, Positionen mit Foto, `Nr.`, Titel, Lagerort (`storageLocation`),
   Verpackungs-Checkliste, Beileger-Block je Stück (Herstellerin mit Name, Anschrift, E-Mail aus `settings.business`,
   `Nr.`, Warn-/Sicherheitshinweise, Pflegehinweise – GPSR), Platz für eine handschriftliche Karte (KONZEPT §7.6).

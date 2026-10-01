@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-01 – P5.12
+
+- Packzettel (src/lib/pdf/PackingSlip.tsx, ohne Preise, Beileger je Stück mit Herstellerin, Warn-/Pflegehinweisen, EN zusätzlich bei EN-Bestellungen) und Etikett/Beileger (src/lib/pdf/ProductLabel.tsx mit QR-Code zur Produktseite, „Nur Deko – nicht für Lebensmittel“); nur lokale Schriften
+- Endpunkte GET /api/orders/:id/packing-slip.pdf und GET /api/products/:id/label.pdf (nur Verwaltung); Knöpfe in „Zu packen“, Bestell-Detail und „Meine Stücke“
+- Tests: tests/int/pdf/packing-slip.int.spec.ts (3), tests/int/legal/gpsr-label.int.spec.ts (2) grün; pnpm check, test:int (89 Dateien), build grün
+
 ## 2026-10-01 – P5.11
 
 - Checkliste je Versandklasse + Punkte für alle Sendungen (packingChecklistState), Verpackung vorbelegt aus settings.packaging (Vorlage, Material, Gramm änderbar; Wertkopie mit „Gepackt“ bzw. „Versendet melden“), Packfotos über die Kamera (privat)
