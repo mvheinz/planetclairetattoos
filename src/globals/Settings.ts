@@ -7,6 +7,7 @@ import {
 } from 'payload'
 
 import { isAdmin } from '@/access'
+import { settingsAdminEndpoints } from '@/endpoints/settings/admin'
 import { moneyField } from '@/fields'
 import { writeAudit } from '@/lib/audit'
 import { revalidateContent } from '@/lib/cache/revalidate'
@@ -1160,6 +1161,7 @@ export const Settings: GlobalConfig = {
     readVersions: isAdmin,
   },
   versions: { max: 50 },
+  endpoints: settingsAdminEndpoints,
   fields: [
     {
       type: 'tabs',

@@ -16,6 +16,7 @@ import { InquiryDetailView } from './inquiries/InquiryDetailView'
 import { PieceEditorView } from './pieces/PieceEditorView'
 import { PiecesListView } from './pieces/PiecesListView'
 import { ProductSafetyView } from './settings/ProductSafetyView'
+import { SettingsView } from './settings/SettingsView'
 import { WithdrawalDetailView } from './withdrawals/WithdrawalDetailView'
 import { WithdrawalsListView } from './withdrawals/WithdrawalsListView'
 import { ADMIN_HOME_VIEW, adminView, allDataPath, type AdminViewMatch } from './registry'
@@ -50,6 +51,7 @@ const VIEW_BODIES: Partial<Record<string, ViewBody>> = {
   anfragen: InquiriesListView,
   anfrage: InquiryDetailView,
   produktsicherheit: ProductSafetyView,
+  einstellungen: SettingsView,
 }
 
 export function AdminViewBody(props: AdminViewBodyProps) {
@@ -95,18 +97,6 @@ export function AdminViewBody(props: AdminViewBodyProps) {
                 className="pc-admin-btn pc-admin-btn--primary"
               >
                 {adminText('shellNewPiece')}
-              </Link>
-            </p>
-          ) : null}
-          {view.key === 'einstellungen' ? (
-            <p>
-              <Link
-                href={`${adminRoute}${adminView('produktsicherheit').path}`}
-                prefetch={false}
-                className="pc-admin-btn pc-admin-btn--secondary"
-                data-testid="settings-product-safety"
-              >
-                {adminText('settingsProductSafety')}
               </Link>
             </p>
           ) : null}

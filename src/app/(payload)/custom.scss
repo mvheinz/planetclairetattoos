@@ -896,3 +896,39 @@ $pc-bar-height: 64px;
     display: none;
   }
 }
+
+// --- Einstellungen (P5.21) und Feldfehler ----------------------------------------------------------------------
+.pc-field__error {
+  margin: 0;
+  color: var(--theme-error-800);
+  font-weight: 600;
+}
+.pc-field [aria-invalid='true'] {
+  border-color: var(--theme-error-700) !important;
+}
+.pc-settings {
+  &__areas {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
+  }
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 40rem;
+    min-width: 0;
+  }
+  section {
+    scroll-margin-top: 72px;
+  }
+}
