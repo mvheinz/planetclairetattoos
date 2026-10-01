@@ -13,7 +13,7 @@ import { AddressCopy } from './AddressCopy'
 import { loadOrderDetail } from './orderQuery'
 import { OrderResend } from './OrderResend'
 import { PackingPanel } from './PackingPanel'
-import { HintBadges, ItemThumbs } from './PackingListView'
+import { HintBadges } from './PackingListView'
 
 // Bestell-Detail `/bestellungen/:id` (PLAN P5.9, KONZEPT §7.6 ff.): gemeinsame Ansicht für Packen, Vorkasse,
 // Versendet und Abholung – Positionen mit Foto, `Nr.`, Titel, Preis; Lieferart, Empfänger:in, Zahlart, Beträge,
@@ -212,8 +212,7 @@ export async function OrderDetailView({ adminRoute, req, match }: AdminViewBodyP
         <ol className="pc-order__history" data-testid="order-history">
           {detail.history.map((h, i) => (
             <li key={i}>
-              <span className="pc-order__muted">{h.at}</span>{' '}
-              {h.from ? `${h.from} → ` : ''}
+              <span className="pc-order__muted">{h.at}</span> {h.from ? `${h.from} → ` : ''}
               <strong>{h.to}</strong> {adminText('orderHistoryBy', { actor: h.actor })}
               {h.transition ? ` (${h.transition})` : ''}
               {h.note ? ` – ${h.note}` : ''}

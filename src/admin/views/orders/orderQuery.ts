@@ -252,7 +252,10 @@ async function packingPhotos(req: PayloadRequest, value: unknown): Promise<Photo
   })
 }
 
-export async function loadOrderDetail(req: PayloadRequest, id: number): Promise<OrderDetail | null> {
+export async function loadOrderDetail(
+  req: PayloadRequest,
+  id: number,
+): Promise<OrderDetail | null> {
   const order = (await req.payload.findByID({
     collection: 'orders',
     id,
@@ -299,7 +302,8 @@ export async function loadOrderDetail(req: PayloadRequest, id: number): Promise<
       photos: await packingPhotos(req, order.packingPhotos),
       canPack: order.status === 'paid',
       canShip: packable,
-      defaultCarrier: (order.shipment?.carrier as CarrierCode | null) ?? defaultCarrierFor(order.shippingClass),
+      defaultCarrier:
+        (order.shipment?.carrier as CarrierCode | null) ?? defaultCarrierFor(order.shippingClass),
       trackingNumber: order.shipment?.trackingNumber ?? null,
     }
   }

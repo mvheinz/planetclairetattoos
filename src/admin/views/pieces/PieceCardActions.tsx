@@ -271,6 +271,15 @@ export function PieceCardActions({
           {adminText('piecesDelete')}
         </ActionButton>
       ) : null}
+      <a
+        className="pc-admin-btn pc-admin-btn--secondary"
+        href={`/api/products/${id}/label.pdf`}
+        target="_blank"
+        rel="noopener"
+        data-testid="piece-label"
+      >
+        {adminText('orderLabel', { nr })}
+      </a>
     </div>
   )
 }

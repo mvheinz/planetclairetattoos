@@ -348,7 +348,8 @@ export const ADMIN_CUSTOM_DE = {
   packingPackagingRecorded: 'Erfasst am {{date}}',
   packingPackagingNotRecorded: 'Noch nicht gespeichert – wird mit „Gepackt“ gespeichert.',
   packingPhotos: 'Packfotos',
-  packingPhotosHint: 'Empfohlen: zwei Fotos vor dem Zukleben (höchstens {{max}}). Nur für dich sichtbar.',
+  packingPhotosHint:
+    'Empfohlen: zwei Fotos vor dem Zukleben (höchstens {{max}}). Nur für dich sichtbar.',
   packingPhotoTake: 'Packfoto aufnehmen',
   packingPhotoRemove: 'Packfoto {{n}} entfernen',
   packingPhotoAlt: 'Packfoto {{n}}',

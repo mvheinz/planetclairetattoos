@@ -316,7 +316,9 @@ function Photos({ props }: { props: PackingPanelProps }) {
       ) : null}
       {props.canShip ? (
         full ? (
-          <p className="pc-order__muted">{adminText('packingPhotoMax', { max: props.photosMax })}</p>
+          <p className="pc-order__muted">
+            {adminText('packingPhotoMax', { max: props.photosMax })}
+          </p>
         ) : (
           <>
             <input
@@ -463,7 +465,9 @@ function ShipForm({
       >
         {feedback?.tone === 'error' ? <Notice tone="error">{feedback.text}</Notice> : null}
       </ConfirmDialog>
-      {feedback && open === null ? <Notice tone={feedback.tone === 'error' ? 'error' : 'success'}>{feedback.text}</Notice> : null}
+      {feedback && open === null ? (
+        <Notice tone={feedback.tone === 'error' ? 'error' : 'success'}>{feedback.text}</Notice>
+      ) : null}
     </section>
   )
 }
@@ -488,9 +492,7 @@ export function PackingPanel(props: PackingPanelProps) {
         <p className="pc-admin-row">
           <ActionButton
             data-testid="mark-packed"
-            action={() =>
-              postAdminAction(`/api/orders/${props.orderId}/packed`, { packaging })
-            }
+            action={() => postAdminAction(`/api/orders/${props.orderId}/packed`, { packaging })}
             onDone={() => router.refresh()}
           >
             {adminText('packingPacked')}

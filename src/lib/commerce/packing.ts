@@ -2,7 +2,6 @@ import 'server-only'
 
 import type { PackagingMaterial, ShippingClass } from '@/lib/enums'
 import { PACKAGING_MATERIALS, SHIPPING_CLASS_RANK } from '@/lib/enums'
-import { formatMoney } from '@/lib/money'
 
 import { carrierEmailConsentActive, type AddressOrderLike } from './address'
 
@@ -35,7 +34,9 @@ export interface PackingOrderLike extends AddressOrderLike {
 
 /** „500 €“ bei ganzen Euro, sonst „500,50 €“ (Text der Hinweise wie in KONZEPT §7.6). */
 export function euroLabel(cents: number): string {
-  return cents % 100 === 0 ? `${cents / 100} €` : formatMoney(cents, 'de').replace(/ /g, ' ')
+  const euros = Math.trunc(cents / 100)
+  const rest = cents % 100
+  return rest === 0 ? `${euros} €` : `${euros},${String(rest).padStart(2, '0')} €`
 }
 
 /** Versandklassen der Positionen (höchste zuerst, ohne `nur_abholung`). */
