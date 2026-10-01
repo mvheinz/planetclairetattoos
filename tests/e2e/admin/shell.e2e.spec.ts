@@ -53,7 +53,9 @@ test.describe('Verwaltungs-Gerüst (P5.1) @a11y', () => {
   test('AK-2-04 alle 13 Pfade antworten angemeldet mit 200, /admin/heute mit 404; Header admin', async ({
     adminPage: page,
     request,
+    fixtureProducts,
   }) => {
+    const piece = await fixtureProducts.create('keramik')
     for (const view of ADMIN_VIEWS) {
       const res = await page.goto(adminPath(view.path))
       expect(res?.status(), view.path).toBe(200)
@@ -71,7 +73,7 @@ test.describe('Verwaltungs-Gerüst (P5.1) @a11y', () => {
     expect((await page.goto(adminPath('/bestellungen/999999999')))?.status()).toBe(200)
     await expect(page.getByTestId('order-not-found')).toBeVisible()
     // „Stück bearbeiten“ ist seit P5.6 fertig (Formular statt Platzhalter).
-    expect((await page.goto(adminPath('/stuecke/1')))?.status(), '/stuecke/1').toBe(200)
+    expect((await page.goto(adminPath(`/stuecke/${piece.id}`)))?.status(), '/stuecke/:id').toBe(200)
     await expect(page.getByTestId('piece-save')).toBeVisible()
     // ADMIN_ROUTE selbst zeigt „Heute“.
     await page.goto(adminPath(''))
@@ -185,9 +187,17 @@ test.describe('Verwaltungs-Gerüst (P5.1) @a11y', () => {
 
     // Tastatur: Link fokussieren, sichtbarer Fokus, Enter öffnet die Ansicht.
     const link = side.getByRole('link', { name: 'Vorkasse offen' })
-    await side.getByRole('link', { name: 'Zu packen' }).focus()
-    await page.keyboard.press('Tab')
-    await expect(link).toBeFocused()
+    // Unter Last kann ein spätes Neu-Rendern den Fokus verwerfen oder die Leiste (gespeicherte Einstellung) wieder
+    // einklappen (`inert`) – dann aufklappen und Fokus + Tab wiederholen.
+    await expect(async () => {
+      if ((await aside.getAttribute('inert')) !== null) {
+        await page.getByRole('button', { name: 'Öffnen Menü' }).click()
+        await expect(aside).not.toHaveAttribute('inert', '', { timeout: 2_000 })
+      }
+      await side.getByRole('link', { name: 'Zu packen' }).focus()
+      await page.keyboard.press('Tab')
+      await expect(link).toBeFocused({ timeout: 1_000 })
+    }).toPass({ timeout: 15_000 })
     const outline = await link.evaluate((el) => getComputedStyle(el).outlineStyle)
     expect(outline).not.toBe('none')
     await page.keyboard.press('Enter')

@@ -84,7 +84,11 @@ test('@a11y „Anfragen“: Liste, Detail mit Bild, Status, Notiz, Antworten und
     await expect(page.getByTestId('inquiry-status')).toHaveText('in Bearbeitung')
     await expect(page.getByTestId('inquiry-history')).toContainText('in Bearbeitung')
     // Notiz
-    await page.getByTestId('notes-text').fill('Größe nachfragen.')
+    // Vor dem Hydrieren eingetippter Text ginge verloren – so lange füllen, bis „Notiz speichern“ aktiv ist.
+    await expect(async () => {
+      await page.getByTestId('notes-text').fill('Größe nachfragen.')
+      await expect(page.getByTestId('notes-save')).toBeEnabled({ timeout: 1_000 })
+    }).toPass({ timeout: 15_000 })
     await page.getByTestId('notes-save').click()
     await expect(page.getByTestId('notes-editor')).toContainText('Notiz gespeichert')
     await expectAccessible(page, '.pc-admin-view')

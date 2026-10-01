@@ -119,7 +119,11 @@ test('@a11y „Widerrufe“: W3, W4, W5 offen, „nicht zugeordnet“, erstatten
     await expect(declaration.locator('input, textarea')).toHaveCount(0)
     await expect(page.getByTestId('withdrawal-unmatched')).toBeVisible()
     await expect(page.getByTestId('withdrawal-actions-later')).toContainText('Bearbeitung ab P6')
-    await page.getByTestId('notes-text').fill('Rudi per Mail antworten.')
+    // Vor dem Hydrieren eingetippter Text ginge verloren – so lange füllen, bis „Notiz speichern“ aktiv ist.
+    await expect(async () => {
+      await page.getByTestId('notes-text').fill('Rudi per Mail antworten.')
+      await expect(page.getByTestId('notes-save')).toBeEnabled({ timeout: 1_000 })
+    }).toPass({ timeout: 15_000 })
     await page.getByTestId('notes-save').click()
     await expect(page.getByTestId('notes-editor')).toContainText('Notiz gespeichert')
     const saved = await payload.findByID({
