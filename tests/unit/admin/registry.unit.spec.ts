@@ -54,6 +54,9 @@ describe('Ansichten-Registry (P5.1)', () => {
       '/bestellungen/:id',
       '/widerrufe/:id',
       '/einstellungen/produktsicherheit',
+      '/einstellungen/versand',
+      '/einstellungen/umsatz-waechter',
+      '/einstellungen/system',
       '/anfragen/:id',
     ])
     for (const v of ALL_ADMIN_VIEWS) {

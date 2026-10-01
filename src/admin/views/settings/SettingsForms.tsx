@@ -16,7 +16,7 @@ import { SETTINGS_SECTIONS, type SettingsFieldSpec, type SettingsSectionKey } fr
 type Errors = Record<string, string>
 type Feedback = { tone: 'success' | 'error'; text: string } | null
 
-async function postSettings(
+export async function postSettings(
   url: string,
   body: Record<string, unknown>,
 ): Promise<{ ok: boolean; unchanged?: boolean; error?: string; errors: Errors }> {
@@ -40,7 +40,7 @@ async function postSettings(
   }
 }
 
-function useSave() {
+export function useSave() {
   const running = useRef(false)
   const [busy, setBusy] = useState(false)
   const [errors, setErrors] = useState<Errors>({})

@@ -2,32 +2,78 @@ import Link from 'next/link'
 import React from 'react'
 
 import { ENUM_LABELS, enumOptions } from '@/lib/enumLabels'
-import { COUNTRY_CODES, LEGAL_TEXT_TYPES, TAX_MODES, type TaxMode } from '@/lib/enums'
+import {
+  COUNTRY_CODES,
+  LEGAL_TEXT_TYPES,
+  PRODUCT_CATEGORIES,
+  TAX_MODES,
+  type TaxMode,
+} from '@/lib/enums'
+import { getEnv } from '@/lib/env'
 import { getPaymentsAdapter } from '@/lib/payments'
+import { seedSummary } from '@/lib/seed/remove'
+import { startklarStatus } from '@/lib/settings/readiness'
+import { translationAvailability } from '@/lib/translation'
 import { berlinDateKey, formatBerlin } from '@/lib/time'
 import type { Setting } from '@/payload-types'
 
-import { Notice } from '../../components/Notice'
 import { StatusBadge } from '../../components/StatusBadge'
 import { adminText } from '../../translations'
 import type { AdminViewBodyProps } from '../AdminViewBody'
 import { adminView } from '../registry'
+import {
+  AnalyticsForm,
+  CostsForm,
+  LegalForm,
+  ShopForm,
+  TaxConfirmForm,
+  TemplatesForm,
+  YearTotalsForm,
+} from './AreaForms'
+import { areaText, initialAreaValues, type Obj } from './settingsAreas'
 import { getPath, SETTINGS_SECTIONS, type SettingsSectionKey } from './settingsForm'
 import { PasswordForm, SettingsSectionForm, TaxModeForm } from './SettingsForms'
 
 // Ansicht „Einstellungen“ `/einstellungen` (PLAN P5.21, KONZEPT §7.14): Bereiche als Handy-Formulare über dem Global
 // `settings` – Stammdaten & Impressum, Steuer (Modus-Verlauf mit „gilt ab“, Aufbewahrung 8/10 Jahre), Zahlung
 // (Bankdaten; Zahlungsanbieter und Vorkasse-Fristen nur Anzeige), Benachrichtigungen, Rechtstexte (Übersicht, P6),
-// Konto (Passwort ändern, Abmelden). Versand, Beispieldaten und System folgen in P5.22.
+// Konto (Passwort ändern, Abmelden). Teil 2 und 3 (P5.22/P5.22a): Shop, Kosten, Vorlagen, Steuer-Bestätigung mit
+// Jahressummen vor dem Shop, Datenschutz & Dienste (Statistik), Rechtstexte (Intervall, Marken-Schalter), Beispieldaten
+// (Anzahl je Collection; Entfernen kommt in P8). Versand, Umsatz-Wächter, System und Produktsicherheit haben eigene
+// Unterseiten.
 
 const AREAS = [
   ['stammdaten', 'settingsAreaBusiness'],
   ['steuer', 'settingsAreaTax'],
   ['zahlung', 'settingsAreaPayment'],
-  ['benachrichtigungen', 'settingsAreaNotifications'],
+  ['shop', 'settingsAreaShop'],
+  ['kosten', 'settingsAreaCosts'],
+  ['vorlagen', 'settingsAreaTemplates'],
+  ['datenschutz', 'settingsAreaPrivacy'],
   ['rechtstexte', 'settingsAreaLegal'],
+  ['benachrichtigungen', 'settingsAreaNotifications'],
+  ['beispieldaten', 'settingsAreaSeed'],
   ['konto', 'settingsAreaAccount'],
 ] as const
+
+const SUBVIEWS = [
+  ['versand', 'settings-shipping'],
+  ['umsatz-waechter', 'settings-revenue'],
+  ['system', 'settings-system'],
+  ['produktsicherheit', 'settings-product-safety'],
+] as const
+
+function collectionLabel(req: AdminViewBodyProps['req'], slug: string): string {
+  const collections = req.payload.collections as Record<
+    string,
+    { config: { labels?: unknown } } | undefined
+  >
+  const labels = collections[slug]?.config.labels as { plural?: unknown } | undefined
+  const plural = labels?.plural
+  if (typeof plural === 'string') return plural
+  if (plural && typeof plural === 'object' && 'de' in plural) return String(plural.de)
+  return slug
+}
 
 function initialOf(settings: Setting, section: SettingsSectionKey): Record<string, string> {
   return Object.fromEntries(
@@ -54,17 +100,33 @@ function paymentsModeLabel(): string {
 }
 
 export async function SettingsView({ adminRoute, req }: AdminViewBodyProps) {
-  const settings = (await req.payload.findGlobal({
-    slug: 'settings',
-    depth: 0,
-    locale: 'de',
-    overrideAccess: true,
-    req,
-  })) as Setting
+  const load = (locale: 'de' | 'en') =>
+    req.payload.findGlobal({
+      slug: 'settings',
+      depth: 0,
+      locale,
+      fallbackLocale: false,
+      overrideAccess: true,
+      req,
+    })
+  const settings = (await load('de')) as Setting
+  const settingsEn = (await load('en')) as Setting
+  const area = initialAreaValues(settings as unknown as Obj, settingsEn as unknown as Obj)
   const now = new Date()
   const modes = [...(settings.tax?.modes ?? [])]
   const payment = settings.payment ?? {}
   const countries = enumOptions(COUNTRY_CODES, ENUM_LABELS.COUNTRY_CODES)
+  const production = getEnv().APP_ENV === 'production'
+  const startklar = startklarStatus()
+  const translation = translationAvailability()
+  const seedCounts = Object.entries(await seedSummary(req.payload))
+  const categories = PRODUCT_CATEGORIES.map((c) => ({
+    value: c,
+    label: ENUM_LABELS.PRODUCT_CATEGORIES[c].de,
+  }))
+  const confirmedAt = settings.tax?.confirmedAt
+    ? formatBerlin(new Date(settings.tax.confirmedAt), 'dd.MM.yyyy')
+    : null
 
   return (
     <div className="pc-order pc-settings" data-testid="settings">
@@ -77,19 +139,20 @@ export async function SettingsView({ adminRoute, req }: AdminViewBodyProps) {
               </a>
             </li>
           ))}
-          <li>
-            <Link
-              href={`${adminRoute}${adminView('produktsicherheit').path}`}
-              prefetch={false}
-              className="pc-admin-link"
-              data-testid="settings-product-safety"
-            >
-              {adminText('settingsProductSafety')}
-            </Link>
-          </li>
+          {SUBVIEWS.map(([key, testId]) => (
+            <li key={key}>
+              <Link
+                href={`${adminRoute}${adminView(key).path}`}
+                prefetch={false}
+                className="pc-admin-link"
+                data-testid={testId}
+              >
+                {adminView(key).title}
+              </Link>
+            </li>
+          ))}
         </ul>
       </nav>
-
       <section id="stammdaten" className="pc-order__section" aria-labelledby="settings-business">
         <h2 id="settings-business">{adminText('settingsAreaBusiness')}</h2>
         <p className="pc-order__muted">{adminText('settingsBusinessIntro')}</p>
@@ -148,6 +211,10 @@ export async function SettingsView({ adminRoute, req }: AdminViewBodyProps) {
             consequence: adminText('settingsRetentionConfirm'),
           }}
         />
+        <h3>{areaText('taxConfirmTitle')}</h3>
+        <TaxConfirmForm confirmedAt={confirmedAt} />
+        <h3>{areaText('yearTotals')}</h3>
+        <YearTotalsForm initial={area.yearTotals} idPrefix="settings-tax" />
       </section>
 
       <section id="zahlung" className="pc-order__section" aria-labelledby="settings-payment">
@@ -172,6 +239,31 @@ export async function SettingsView({ adminRoute, req }: AdminViewBodyProps) {
         <SettingsSectionForm section="payment" initial={initialOf(settings, 'payment')} />
       </section>
 
+      <section id="shop" className="pc-order__section" aria-labelledby="settings-shop">
+        <h2 id="settings-shop">{adminText('settingsAreaShop')}</h2>
+        <ShopForm
+          initial={area.shop}
+          blocked={production && !startklar.ready ? startklar.openItems : null}
+          translateDisabled={translation.enabled ? null : (translation.reason ?? null)}
+        />
+      </section>
+
+      <section id="kosten" className="pc-order__section" aria-labelledby="settings-costs">
+        <h2 id="settings-costs">{adminText('settingsAreaCosts')}</h2>
+        <CostsForm initial={area.costs} />
+      </section>
+
+      <section id="vorlagen" className="pc-order__section" aria-labelledby="settings-templates">
+        <h2 id="settings-templates">{adminText('settingsAreaTemplates')}</h2>
+        <TemplatesForm initial={area.templates} categories={categories} />
+      </section>
+
+      <section id="datenschutz" className="pc-order__section" aria-labelledby="settings-privacy">
+        <h2 id="settings-privacy">{adminText('settingsAreaPrivacy')}</h2>
+        <h3>{adminText('settingsAnalyticsTitle')}</h3>
+        <AnalyticsForm initial={area.analytics} />
+      </section>
+
       <section
         id="benachrichtigungen"
         className="pc-order__section"
@@ -194,7 +286,37 @@ export async function SettingsView({ adminRoute, req }: AdminViewBodyProps) {
             </li>
           ))}
         </ul>
-        <p className="pc-order__muted">{adminText('settingsLegalReviewLater')}</p>
+        <LegalForm initial={area.legal} />
+      </section>
+
+      <section id="beispieldaten" className="pc-order__section" aria-labelledby="settings-seed">
+        <h2 id="settings-seed">{adminText('settingsAreaSeed')}</h2>
+        {seedCounts.length === 0 ? (
+          <p data-testid="settings-seed-none">{adminText('settingsSeedNone')}</p>
+        ) : (
+          <dl className="pc-order__facts" data-testid="settings-seed-counts">
+            {seedCounts.map(([slug, count]) => (
+              <React.Fragment key={slug}>
+                <dt>{collectionLabel(req, slug)}</dt>
+                <dd>{count}</dd>
+              </React.Fragment>
+            ))}
+          </dl>
+        )}
+        <p className="pc-admin-row">
+          <button
+            type="button"
+            className="pc-admin-btn pc-admin-btn--secondary"
+            disabled
+            aria-describedby="settings-seed-later"
+            data-testid="settings-seed-remove"
+          >
+            {adminText('settingsSeedRemove')}
+          </button>
+        </p>
+        <p id="settings-seed-later" className="pc-order__muted">
+          {adminText('settingsSeedLater')}
+        </p>
       </section>
 
       <section id="konto" className="pc-order__section" aria-labelledby="settings-account">
@@ -211,8 +333,6 @@ export async function SettingsView({ adminRoute, req }: AdminViewBodyProps) {
           </a>
         </p>
       </section>
-
-      <Notice tone="info">{adminText('settingsMoreLater')}</Notice>
     </div>
   )
 }

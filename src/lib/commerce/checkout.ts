@@ -333,7 +333,17 @@ export async function startCheckout(
     : cart.delivery
   let totals: ReturnType<typeof computeTotals>
   try {
-    totals = computeTotals({ items, fulfillmentMethod, at: now }, raw as unknown as TotalsSettings)
+    totals = computeTotals(
+      {
+        items: items.map((i, n) => ({
+          ...i,
+          foodContact: (products[n]!.foodContact as string | null | undefined) ?? null,
+        })),
+        fulfillmentMethod,
+        at: now,
+      },
+      raw as unknown as TotalsSettings,
+    )
   } catch (err) {
     if (err instanceof ShippingError) return fail('shipping', { message: err.message })
     throw err

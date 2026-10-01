@@ -16,7 +16,10 @@ import { InquiryDetailView } from './inquiries/InquiryDetailView'
 import { PieceEditorView } from './pieces/PieceEditorView'
 import { PiecesListView } from './pieces/PiecesListView'
 import { ProductSafetyView } from './settings/ProductSafetyView'
+import { RevenueGuardView } from './settings/RevenueGuardView'
 import { SettingsView } from './settings/SettingsView'
+import { ShippingSettingsView } from './settings/ShippingSettingsView'
+import { SystemView } from './settings/SystemView'
 import { WithdrawalDetailView } from './withdrawals/WithdrawalDetailView'
 import { WithdrawalsListView } from './withdrawals/WithdrawalsListView'
 import { ADMIN_HOME_VIEW, adminView, allDataPath, type AdminViewMatch } from './registry'
@@ -52,6 +55,9 @@ const VIEW_BODIES: Partial<Record<string, ViewBody>> = {
   anfrage: InquiryDetailView,
   produktsicherheit: ProductSafetyView,
   einstellungen: SettingsView,
+  versand: ShippingSettingsView,
+  'umsatz-waechter': RevenueGuardView,
+  system: SystemView,
 }
 
 export function AdminViewBody(props: AdminViewBodyProps) {

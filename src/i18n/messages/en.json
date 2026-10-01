@@ -595,6 +595,7 @@
         "deviation_missing": "Please confirm the special feature of each marked piece.",
         "prepayment_disabled": "Payment in advance is currently not available.",
         "legal_missing": "Ordering is not possible right now. Please try again later.",
+        "not_orderable_in_country": "An item in your cart cannot be delivered to this country.",
         "rate_limited": "That was a bit too fast. Please try again in a few minutes.",
         "failed": "That did not work. Please try again."
       }

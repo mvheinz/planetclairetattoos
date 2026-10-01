@@ -45,6 +45,7 @@ import {
   type FieldIssue,
   type TaxModeEntry,
 } from '@/lib/settings/rules'
+import { shopOpenBlockedMessage, startklarStatus } from '@/lib/settings/readiness'
 import { formatBerlin } from '@/lib/time'
 
 import {
@@ -939,6 +940,18 @@ const validateSettings: GlobalBeforeChangeHook = ({ data, originalDoc, req }) =>
   const privileged = Boolean(ctx.system || ctx.seed)
   const now = requestNow(req)
   const issues: FieldIssue[] = []
+
+  // Go-live-Sperre (DATENMODELL §13.7, P5.22a): „Shop öffnen“ in Produktion nur mit grüner Startklar-Prüfung.
+  const shop = group(data, 'shop')
+  if (
+    shop.isOpen === true &&
+    group(originalDoc, 'shop').isOpen === false &&
+    !ctx.seed &&
+    getEnv().APP_ENV === 'production'
+  ) {
+    const status = startklarStatus()
+    if (!status.ready) issues.push({ path: 'shop.isOpen', message: shopOpenBlockedMessage(status) })
+  }
 
   // Steuermodus (R-032)
   const tax = group(data, 'tax')

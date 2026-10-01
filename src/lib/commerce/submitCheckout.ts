@@ -34,6 +34,7 @@ import {
   type CheckoutRawInput,
 } from './checkoutSchema'
 import { transitionCheckout } from './checkoutTransitions'
+import { isOrderableInCountry } from './orderable'
 import { placePrepaymentOrder, PrepaymentError } from './prepayment'
 import { intArray } from './reservation'
 import { hit } from '@/lib/security/rateLimit'
@@ -65,6 +66,7 @@ export type SubmitCheckoutCode =
   | 'deviation_missing'
   | 'prepayment_disabled'
   | 'legal_missing'
+  | 'not_orderable_in_country'
 
 export type SubmitCheckoutResult =
   | {
@@ -317,11 +319,22 @@ export async function submitCheckout(
       const db = await dbFor(req)
       // Reservierung: alle Stücke noch mit dieser Referenz reserviert (sonst S5/S6 – Korb hat sich geändert).
       const held = await db.execute(sql`
-        SELECT id FROM products
+        SELECT id, food_contact FROM products
          WHERE reservation_ref = ${checkout.reservationRef} AND status = 'reserved' AND id = ANY(${intArray(items)})
          FOR UPDATE
       `)
       if (held.rows.length !== items.length) throw new SubmitAbort(fail(409, 'cart_changed'))
+      // Länder-Sperre je Stück (R-202): lebensmittelechte Keramik nicht nach NL/LU.
+      const country = value.shippingAddress?.country
+      if (
+        value.fulfillmentMethod === 'shipping' &&
+        country &&
+        held.rows.some(
+          (r) => !isOrderableInCountry({ foodContact: r.food_contact as string | null }, country),
+        )
+      ) {
+        throw new SubmitAbort(fail(409, 'not_orderable_in_country'))
+      }
 
       const legalTextVersions = await activeLegalVersions(req, now)
       const data = {

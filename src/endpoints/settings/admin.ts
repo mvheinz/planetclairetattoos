@@ -9,6 +9,11 @@ import {
   type SettingsSectionKey,
 } from '@/admin/views/settings/settingsForm'
 import { isAdminRequest } from '@/access'
+import {
+  settingsAreaEndpoint,
+  settingsRevenueEntryEndpoint,
+  settingsTranslateEndpoint,
+} from '@/endpoints/settings/areas'
 import { ADMIN_NO_STORE } from '@/endpoints/adminResponse'
 import { readJsonBody } from '@/endpoints/products/actions'
 import { TAX_MODES, type TaxMode } from '@/lib/enums'
@@ -228,6 +233,9 @@ export const settingsPasswordEndpoint: Endpoint = {
 
 export const settingsAdminEndpoints: Endpoint[] = [
   settingsSectionEndpoint,
+  settingsAreaEndpoint,
+  settingsTranslateEndpoint,
+  settingsRevenueEntryEndpoint,
   settingsTaxModeEndpoint,
   settingsPasswordEndpoint,
 ]

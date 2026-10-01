@@ -12,6 +12,8 @@ import {
 import { formatItemNumber } from '@/lib/products/itemNumber'
 import { zoneForCountry } from '@/lib/settings/rules'
 
+import { isOrderableInCountry } from './orderable'
+
 // Versandkosten (E-24, E-25, DATENMODELL §6.8.1, DM-ORD-05, KONZEPT §4.5): die höchste Versandklasse im Korb bestimmt
 // den Tarif aus `settings.shipping.rates`; Abholung kostet nichts; `nur_abholung` wird nie versendet; Versand nur in
 // Länder aus `settings.shipping.enabledCountries` (R-060, GB/US gibt es im Enum nicht). Reine Funktion ohne DB.
@@ -19,6 +21,8 @@ import { zoneForCountry } from '@/lib/settings/rules'
 export interface ShippingItem {
   itemNumber?: number | null
   shippingClass: ShippingClass
+  /** Lebensmittelkontakt (Keramik); `lebensmittelecht` ist für NL/LU gesperrt (R-202). */
+  foodContact?: string | null
 }
 
 export interface ShippingRate {
@@ -51,7 +55,8 @@ export interface ShippingResult {
   label: ShippingLabel
 }
 
-export type ShippingErrorCode = 'empty' | 'pickup_only' | 'no_rate' | 'country_not_enabled'
+export type ShippingErrorCode =
+  'empty' | 'pickup_only' | 'no_rate' | 'country_not_enabled' | 'not_orderable_in_country'
 
 export class ShippingError extends Error {
   constructor(
@@ -138,6 +143,17 @@ export function computeShipping(
     throw new ShippingError('pickup_only', `${label} gibt es nur zur Abholung.`)
   }
   const country = assertShippingCountry(options.country ?? 'DE', settings)
+  const blocked = items.find((i) => !isOrderableInCountry(i, country))
+  if (blocked) {
+    const label =
+      typeof blocked.itemNumber === 'number'
+        ? formatItemNumber(blocked.itemNumber, 'de')
+        : 'Ein Stück'
+    throw new ShippingError(
+      'not_orderable_in_country',
+      `${label} kann nicht nach ${country} geliefert werden (lebensmittelechte Keramik).`,
+    )
+  }
   const zone = zoneForCountry(country)
   const rate = (settings.shipping?.rates ?? []).find(
     (r) => r.zone === zone && r.shippingClass === shippingClass,

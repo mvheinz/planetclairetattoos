@@ -595,6 +595,7 @@
         "deviation_missing": "Bitte bestätige die Besonderheit bei jedem markierten Stück.",
         "prepayment_disabled": "Vorkasse ist gerade nicht verfügbar.",
         "legal_missing": "Bestellen geht gerade nicht. Bitte versuch es später noch einmal.",
+        "not_orderable_in_country": "Ein Stück in deinem Korb kann nicht in dieses Land geliefert werden.",
         "rate_limited": "Das ging gerade zu schnell. Bitte versuch es in ein paar Minuten noch einmal.",
         "failed": "Das hat nicht geklappt. Bitte versuch es noch einmal."
       }
