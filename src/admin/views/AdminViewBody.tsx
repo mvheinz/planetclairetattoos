@@ -11,6 +11,8 @@ import { PickupListView } from './orders/PickupListView'
 import { PrepaymentListView } from './orders/PrepaymentListView'
 import { ShippedListView } from './orders/ShippedListView'
 import { ExportView } from './export/ExportView'
+import { InquiriesListView } from './inquiries/InquiriesListView'
+import { InquiryDetailView } from './inquiries/InquiryDetailView'
 import { PieceEditorView } from './pieces/PieceEditorView'
 import { PiecesListView } from './pieces/PiecesListView'
 import { ProductSafetyView } from './settings/ProductSafetyView'
@@ -45,6 +47,8 @@ const VIEW_BODIES: Partial<Record<string, ViewBody>> = {
   export: ExportView,
   widerrufe: WithdrawalsListView,
   widerruf: WithdrawalDetailView,
+  anfragen: InquiriesListView,
+  anfrage: InquiryDetailView,
   produktsicherheit: ProductSafetyView,
 }
 

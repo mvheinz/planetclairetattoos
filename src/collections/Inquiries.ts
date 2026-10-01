@@ -7,10 +7,12 @@ import type {
 
 import { isAdmin, none } from '@/access'
 import { adminNotesEndpoint } from '@/endpoints/adminNotes'
+import { inquiryActionEndpoints } from '@/endpoints/inquiries/actions'
 import { privacyFields, seedField } from '@/fields'
 import { writeAudit } from '@/lib/audit'
 import { ENUM_LABELS, enumOptions } from '@/lib/enumLabels'
-import { INQUIRY_OBJECT_TYPES, INQUIRY_STATUSES, LOCALES } from '@/lib/enums'
+import { INQUIRY_OBJECT_TYPES, INQUIRY_STATUSES, LOCALES, type InquiryStatus } from '@/lib/enums'
+import { canTransitionInquiry } from '@/lib/inquiries/transitions'
 import { getActiveLegalText } from '@/lib/legal/getActive'
 import { getAppContext, requestNow } from '@/lib/payload/context'
 import { preservingReq } from '@/lib/payload/localReq'
@@ -23,7 +25,8 @@ import { assignSequenceNumber } from './hooks/numbers'
 
 // DATENMODELL §6.17 – Anfragen Auftragsarbeiten (E-11). Anlage nur über den Route-Handler des Formulars (P7,
 // `create: none` für REST); die Nummer AA-JJJJ-NNNN kommt aus `inquiry_number_seq` (§8.7). Mails
-// (`inquiry_receipt`, `admin_inquiry_received`) und die Statusübergänge (`INQUIRY_TRANSITIONS`) folgen in P7.
+// (`inquiry_receipt`, `admin_inquiry_received`) folgen in P7; Statuswechsel nur über `INQUIRY_TRANSITIONS`
+// (`src/lib/inquiries/transitions.ts`) mit den Knöpfen der Ansicht „Anfragen“ (P5.20).
 // Löschung `createdAt + 6 Monate` (L-10), unabhängig vom Bearbeitungsstand; nur verkürzbar.
 
 const SLUG = 'inquiries'
@@ -113,9 +116,14 @@ const guardInquiry: CollectionBeforeChangeHook = async ({ data, originalDoc, ope
     data as Doc,
     'Angaben der Anfrage sind unveränderlich.',
   )
-  // Status nur über die Übergänge (INQUIRY_TRANSITIONS, P7)
-  if ('status' in data && data.status !== original.status && !ctx.transition) {
-    fail('Den Status ändert nur die Bearbeitung der Anfrage.', 'status')
+  // Status nur über die Übergänge (INQUIRY_TRANSITIONS, Knöpfe in „Anfragen“, P5.20)
+  if ('status' in data && data.status !== original.status && !ctx.seed) {
+    if (!ctx.transition) fail('Den Status ändert nur die Bearbeitung der Anfrage.', 'status')
+    const from = original.status as InquiryStatus
+    const to = data.status as InquiryStatus
+    if (!canTransitionInquiry(from, to)) {
+      fail(`Die Anfrage kann nicht von „${from}“ nach „${to}“ wechseln.`, 'status')
+    }
   }
   // Löschfrist: nur verkürzbar (Legal Hold schiebt die Löschung im Task auf)
   const before = toDate(original.deleteAfter)
@@ -267,7 +275,8 @@ export const Inquiries: CollectionConfig = {
       defaultValue: 'new',
       index: true,
       options: enumOptions(INQUIRY_STATUSES, ENUM_LABELS.INQUIRY_STATUSES),
-      admin: { position: 'sidebar' },
+      // Wechsel nur über die Status-Knöpfe der Ansicht „Anfragen“ (P5.20)
+      admin: { position: 'sidebar', readOnly: true },
     },
     {
       name: 'lastActivityAt',
@@ -288,7 +297,7 @@ export const Inquiries: CollectionConfig = {
     privacyFields(),
     ...seedField(),
   ],
-  endpoints: [adminNotesEndpoint(SLUG, 3000)],
+  endpoints: [adminNotesEndpoint(SLUG, 3000), ...inquiryActionEndpoints],
   hooks: {
     beforeValidate: [assignSequenceNumber('reference', 'inquiry')],
     beforeChange: [guardInquiry],

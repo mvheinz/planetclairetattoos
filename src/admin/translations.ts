@@ -529,6 +529,32 @@ export const ADMIN_CUSTOM_DE = {
   withdrawalActions: 'Bearbeitung',
   withdrawalActionsLater:
     'Bearbeitung ab P6: Zuordnen, „Ware ist zurück“, Erstatten und Abschließen kommen mit der Widerrufsfunktion.',
+  // „Anfragen“ (P5.20)
+  inquiriesEmpty: 'Gerade gibt es keine Anfragen.',
+  inquiriesCount: '{{count}} Anfragen',
+  inquiriesCountOne: '1 Anfrage',
+  inquiryDeleteAfter: 'wird gelöscht am {{date}}',
+  inquiryLastActivity: 'zuletzt bearbeitet {{date}}',
+  inquiryNotFound: 'Diese Anfrage gibt es nicht (mehr).',
+  inquiryBack: 'Zur Liste der Anfragen',
+  inquiryData: 'Angaben',
+  inquiryObject: 'Gegenstand',
+  inquiryIdea: 'Idee',
+  inquiryTimeframe: 'Wunschzeitraum',
+  inquiryBudget: 'Budget',
+  inquiryImages: 'Referenzbilder',
+  inquiryNoImages: 'Keine Bilder mitgeschickt.',
+  inquiryImageAlt: 'Referenzbild {{n}} (öffnet in neuem Tab)',
+  inquiryStatusTitle: 'Status',
+  inquirySetStatus: '„{{status}}“',
+  inquiryReopen: 'Wieder öffnen',
+  inquiryReply: 'Antworten',
+  inquiryDeleteNow: 'Jetzt löschen',
+  inquiryDeleteTitle: 'Anfrage {{reference}} jetzt löschen?',
+  inquiryDeleteConsequence:
+    'Die Anfrage und alle Bilder werden sofort und endgültig gelöscht. Im Löschprotokoll steht nur die Nummer.',
+  inquiryDeleted: 'Anfrage {{reference}} ist gelöscht.',
+  inquiryLegalHold: 'Gesperrt (Aufbewahrungspflicht) – Löschen geht erst nach Aufheben der Sperre.',
 } as const
 
 export type AdminCustomKey = keyof typeof ADMIN_CUSTOM_DE
