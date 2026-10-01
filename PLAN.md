@@ -2776,7 +2776,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/legal/compliance-docs.int.spec.ts` (Titel „R-203 Dokumentablage …“), Erweiterung T-15.
   - Ohne Jutta: Unterlagen lädt Jutta vor P11 hoch (Owner-Aufgabe R-203 aus ANFORDERUNGEN §8).
 
-- [ ] **P5.14 Versanddienst-Adapter, Sendungsverfolgung und Barcode-Scan** – Adapter-Gerüst
+- [x] **P5.14 Versanddienst-Adapter, Sendungsverfolgung und Barcode-Scan** – Adapter-Gerüst
   `src/lib/carrier/{types,index,manual}.ts` aus P1 nach ARCHITEKTUR §3.7 vervollständigen, `CARRIER_DRIVER=manual` in
   `src/lib/env.ts`, `.env.example` und ARCHITEKTUR §5.2 prüfen.
   `validateTrackingNumber`: Großbuchstaben, ohne Leerzeichen, `^[A-Z0-9]{8,35}$` (DATENMODELL §6.8); `trackingUrl` aus

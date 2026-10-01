@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-01 – P5.14
+
+- Scan-Baustein `src/admin/components/TrackingScanner.tsx`: Kamera erst nach Tipp, natives BarcodeDetector (Code 128/39, ITF, Data Matrix, Rückkamera), sonst Foto (`capture=environment`) über `@zxing/browser` als dynamischer Chunk nur in der Versand-Ansicht; Texteingabe bleibt
+- Pakete exakt gepinnt: @zxing/browser 0.2.1, @zxing/library 0.23.0, bwip-js 4.11.4 (dev), ARCHITEKTUR §1.2; Fixtures `pnpm fixtures:barcodes` → tests/fixtures/barcodes/*.png (mit zxing-Selbstprüfung)
+- Tests: tests/e2e/admin/tracking-scan.e2e.spec.ts (Foto-Rückfall ohne BarcodeDetector, zxing-Chunk nicht auf /heute, keine fremden Hosts; desktop + pixel-7)
+
 ## 2026-10-01 – P5.15
 
 - `POST /api/orders/:id/ship` reiht M06 (`order_shipped`, DE/EN) in derselben Transaktion ein, Schlüssel `order_shipped:<id>:<Nummer|none>`, direkt nach dem Commit zugestellt; Brief ohne Nummer ohne Verfolgungslink
