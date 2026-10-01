@@ -12,9 +12,12 @@ async function ruleIds(code: string, file: string): Promise<string[]> {
 }
 
 describe('ESLint-Regeln (ARCHITEKTUR §15)', () => {
-  beforeAll(() => {
+  // Der erste `lintText` lädt Konfiguration, Plugins und TypeScript-Parser (unter Coverage-Instrumentierung > 5 s) –
+  // das gehört in die Vorbereitung mit eigener Zeitgrenze, nicht in den ersten Test.
+  beforeAll(async () => {
     eslint = new ESLint({ cwd: root })
-  })
+    await ruleIds('export {}\n', 'src/lib/example.ts')
+  }, 120_000)
 
   it('AK-A-15-01 console.log in src/ ist ein Fehler', async () => {
     expect(await ruleIds("console.log('x')\n", 'src/lib/example.ts')).toContain('no-console')
