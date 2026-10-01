@@ -72,6 +72,28 @@ async function handleExport(req: PayloadRequest): Promise<Response> {
   }
 }
 
+/** `GET /api/admin/packaging-report?year=JJJJ` – Verpackungsmengen eines Jahres (PLAN P5.11, R-201). */
+async function handlePackagingReport(req: PayloadRequest): Promise<Response> {
+  if (!isAdminRequest(req)) return error(401, 'Nur für die Verwaltung.')
+  try {
+    const { buildPackagingReport, parseYear, InvalidYearError } =
+      await import('@/lib/export/packagingReport')
+    let year: number
+    try {
+      year = parseYear(req.searchParams?.get('year'))
+    } catch (err) {
+      if (err instanceof InvalidYearError) return error(400, err.message)
+      throw err
+    }
+    const res = await buildPackagingReport(req.payload, year)
+    return download(res.bytes, res.filename, 'text/csv; charset=utf-8')
+  } catch (err) {
+    log.error('export.packaging_failed', { reason: (err as Error)?.message })
+    return error(500, 'Export fehlgeschlagen.')
+  }
+}
+
 export const exportEndpoints: Endpoint[] = [
   { path: '/admin/export/:file', method: 'get', handler: handleExport },
+  { path: '/admin/packaging-report', method: 'get', handler: handlePackagingReport },
 ]

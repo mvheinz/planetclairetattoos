@@ -32,6 +32,7 @@ import {
 import { registerUploadReference } from '@/lib/uploads/references'
 import { productTransitionEndpoints } from '@/endpoints/products/actions'
 import { adoptEndpoint } from '@/endpoints/products/adopt'
+import { productLabelEndpoint } from '@/endpoints/products/label'
 import {
   computeNextItemNumber,
   itemNumberStatusEndpoint,
@@ -791,6 +792,7 @@ export const Products: CollectionConfig = {
     ...productTransitionEndpoints,
     translateEndpoint,
     adoptEndpoint,
+    productLabelEndpoint,
   ],
   // §6.6.11: Index (category, status); UNIQUE item_number und (slug, _locale) über die Felder.
   indexes: [{ fields: ['category', 'status'] }],

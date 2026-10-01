@@ -20,3 +20,17 @@ export function adminActionResponse<T>(
     { headers: ADMIN_NO_STORE },
   )
 }
+
+/** PDF für die Verwaltung (Packzettel, Etikett; nie im geteilten Cache). */
+export function pdfResponse(data: Buffer, filename: string): Response {
+  return new Response(new Uint8Array(data), {
+    status: 200,
+    headers: {
+      ...ADMIN_NO_STORE,
+      'content-type': 'application/pdf',
+      'content-disposition': `inline; filename="${filename}"`,
+      'content-length': String(data.length),
+      'x-content-type-options': 'nosniff',
+    },
+  })
+}
