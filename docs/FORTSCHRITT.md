@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-01 – P5.10
+
+- Ansicht „Zu packen“ /packen: paid/packed mit Versand (älteste zuerst; Widerruf vor dem Versand mit Hinweis), Karte mit Fotos, Nr., Versandklasse, Name/Ort und Hinweisen wörtlich laut KONZEPT §7.6
+- formatShippingAddress() (src/lib/commerce/address.ts) + virtuelles Feld copyAddressText; „Adresse kopieren“ mit Kopier-Symbol je Zeile; „Einwilligung widerrufen“ (consent-log withdrawnAt + Widerrufs-Eintrag, Audit); „Gepackt“ = O6
+- Tests: tests/unit/legal/address-formatter.unit.spec.ts (4), tests/int/legal/packing-hints.int.spec.ts (5), tests/e2e/admin/packing.e2e.spec.ts (Desktop, Pixel 7) grün
+
 ## 2026-10-01 – P5.9
 
 - Bestell-Detail /bestellungen/:id (Positionen mit Foto, Nr., Preis; Lieferung, Zahlart, Beträge, Statusverlauf, Hinweise inkl. Anfechtung, interne Notiz, Mail-Protokoll) und Aktions-Rahmen src/endpoints/orders/_action.ts (Admin-Pflicht, eine Transaktion, ORDER_TRANSITIONS → 409, Historie actorType admin + O-Nummer, Audit, Mails nur über die Outbox)

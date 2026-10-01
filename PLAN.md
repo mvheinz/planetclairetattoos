@@ -2681,7 +2681,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/orders/admin-action.int.spec.ts`, `tests/e2e/admin/order-detail.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P5.10 „Zu packen“: Liste, Hinweise, Adresse kopieren, Gepackt** – Ansicht `/packen` (KONZEPT §7.6):
+- [x] **P5.10 „Zu packen“: Liste, Hinweise, Adresse kopieren, Gepackt** – Ansicht `/packen` (KONZEPT §7.6):
   Bestellungen `paid` und `packed` mit `fulfillmentMethod = shipping`, älteste zuerst. Karte: Bestellnummer, Datum, Fotos
   und `Nr.` der Stücke, Versandklasse, Name und Ort. Hinweise wörtlich laut KONZEPT §7.6: „Keramik – Karton in Karton“
   (Versandklasse `keramik`), „Warenwert > 500 € – Transportversicherung buchen“ (Zwischensumme >
