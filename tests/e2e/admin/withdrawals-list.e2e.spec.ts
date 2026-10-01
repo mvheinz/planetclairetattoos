@@ -32,7 +32,10 @@ test('@a11y „Widerrufe“: W3, W4, W5 offen, „nicht zugeordnet“, erstatten
   fixtureProducts,
 }) => {
   const payload = await testPayload()
-  const live = { status: 'available', firstPublishedAt: new Date(Date.now() - 20 * DAY).toISOString() }
+  const live = {
+    status: 'available',
+    firstPublishedAt: new Date(Date.now() - 20 * DAY).toISOString(),
+  }
   const a = await fixtureProducts.create('keramik', live)
   const b = await fixtureProducts.create('keramik', live)
   const o4 = await fixtureOrder(

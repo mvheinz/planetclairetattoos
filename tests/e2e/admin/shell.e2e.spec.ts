@@ -59,10 +59,13 @@ test.describe('Verwaltungs-Gerüst (P5.1) @a11y', () => {
       expect(res?.status(), view.path).toBe(200)
       await expect(page.locator('h1').first(), view.path).toHaveText(view.title)
     }
-    // Detailansichten (Direktlinks der Verwaltungs-Mails)
-    for (const p of ['/widerrufe/1', '/anfragen/1']) {
+    // Detailansichten (Direktlinks der Verwaltungs-Mails) sind seit P5.19/P5.20 fertig: unbekannte ID → Hinweis.
+    for (const [p, testId] of [
+      ['/widerrufe/999999999', 'withdrawal-not-found'],
+      ['/anfragen/999999999', 'inquiry-not-found'],
+    ] as const) {
       expect((await page.goto(adminPath(p)))?.status(), p).toBe(200)
-      await expect(page.getByTestId('admin-view-placeholder')).toBeVisible()
+      await expect(page.getByTestId(testId)).toBeVisible()
     }
     // Bestell-Detail ist seit P5.9 fertig: unbekannte Bestellung → Hinweis statt Platzhalter.
     expect((await page.goto(adminPath('/bestellungen/999999999')))?.status()).toBe(200)
@@ -193,7 +196,8 @@ test.describe('Verwaltungs-Gerüst (P5.1) @a11y', () => {
       'aria-current',
       'page',
     )
-    // Platzhalter führt in „Alle Daten“.
+    // Platzhalter („Heute“ bis P5.28) führt in „Alle Daten“.
+    await page.goto(adminPath('/heute'))
     await page.getByRole('link', { name: 'In „Alle Daten“ öffnen' }).click()
     await expect(page).toHaveURL(new RegExp(`${adminPath('/collections/orders')}`))
     await expectNoSeriousViolations(page, 'Alle Daten: Bestellungen (Desktop)')

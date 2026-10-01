@@ -4,7 +4,7 @@ import type { PayloadRequest } from 'payload'
 
 import { daysUntilCancel } from '@/admin/components/orderActionsModel'
 import { formatIban } from '@/lib/commerce/epc'
-import { formatMoney } from '@/lib/money'
+import { formatEuroInput } from '@/lib/money'
 import { formatItemNumber } from '@/lib/products/itemNumber'
 import { formatBerlin } from '@/lib/time'
 import type { Order, Product, Setting } from '@/payload-types'
@@ -72,7 +72,7 @@ export function bankDataText(bank: BankData, amountCents: number, reference: str
     `Kontoinhaberin: ${bank.accountHolder}`,
     `IBAN: ${bank.iban}`,
     bank.bic ? `BIC: ${bank.bic}` : null,
-    `Betrag: ${formatMoney(amountCents, 'de')}`,
+    `Betrag: ${formatEuroInput(amountCents)} €`,
     `Verwendungszweck: ${reference}`,
   ]
     .filter(Boolean)

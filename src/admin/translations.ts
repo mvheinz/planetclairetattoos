@@ -475,8 +475,9 @@ export const ADMIN_CUSTOM_DE = {
   prepaymentReference: 'Verwendungszweck',
   prepaymentAmount: 'Eingegangener Betrag (Euro, laut Kontoauszug)',
   prepaymentReceivedAt: 'Eingangsdatum (optional, sonst heute)',
-  prepaymentMismatch:
-    'Achtung: {{amount}} weicht vom Gesamtbetrag {{total}} ab. Bitte Kontoauszug prüfen.',
+  prepaymentMismatch: 'Achtung: Der Betrag weicht vom Gesamtbetrag ab',
+  prepaymentMismatchInstead: 'statt',
+  prepaymentMismatchCheck: 'Bitte Kontoauszug prüfen.',
   prepaymentMismatchConfirm:
     'Trotzdem als bezahlt markieren (die Bestellung wird rot markiert, damit du dich um den Rest kümmerst)',
   prepaymentCancel: 'Stornieren',
@@ -503,7 +504,7 @@ export const ADMIN_CUSTOM_DE = {
   // „Widerrufe“ (P5.19)
   withdrawalsOpen: 'Offen',
   withdrawalsDone: 'Erledigt (zuletzt)',
-  withdrawalsEmpty: 'Gerade ist kein Widerruf offen.',
+  withdrawalsEmpty: 'Gerade sind alle Widerrufe erledigt.',
   withdrawalsCount: '{{count}} offene Widerrufe',
   withdrawalsCountOne: '1 offener Widerruf',
   withdrawalNeverAuto:

@@ -8,7 +8,8 @@ import { AdminActionError, postAdminAction } from '../../components/adminAction'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { CopyButton } from '../../components/CopyButton'
 import { Notice } from '../../components/Notice'
-import { formatEuroInput, formatMoney, parseEuroInput } from '@/lib/money'
+import { MoneyAmount } from '@/components/shop/MoneyAmount'
+import { formatEuroInput, parseEuroInput } from '@/lib/money'
 import { adminText } from '../../translations'
 
 // Knöpfe einer Karte in „Vorkasse offen“ (PLAN P5.18, KONZEPT §7.7, §4.8) über die Endpunkte aus P4.20:
@@ -134,7 +135,9 @@ export function PrepaymentOpenActions(props: PrepaymentOpenActionsProps) {
       >
         <dl className="pc-order__facts">
           <dt>{adminText('prepaymentExpected')}</dt>
-          <dd data-testid="prepayment-expected">{formatMoney(props.totalCents, 'de')}</dd>
+          <dd data-testid="prepayment-expected">
+            <MoneyAmount cents={props.totalCents} locale="de" />
+          </dd>
           <dt>{adminText('prepaymentReference')}</dt>
           <dd>
             <strong>{props.orderNumber}</strong>
@@ -165,10 +168,10 @@ export function PrepaymentOpenActions(props: PrepaymentOpenActionsProps) {
         {mismatch ? (
           <div data-testid="prepayment-mismatch">
             <Notice tone="warning">
-              {adminText('prepaymentMismatch', {
-                amount: formatMoney(cents!, 'de'),
-                total: formatMoney(props.totalCents, 'de'),
-              })}
+              {adminText('prepaymentMismatch')} (<MoneyAmount cents={cents!} locale="de" />{' '}
+              {adminText('prepaymentMismatchInstead')}{' '}
+              <MoneyAmount cents={props.totalCents} locale="de" />
+              ). {adminText('prepaymentMismatchCheck')}
             </Notice>
             <label className="pc-choice">
               <input
