@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-01 – P5.15
+
+- `POST /api/orders/:id/ship` reiht M06 (`order_shipped`, DE/EN) in derselben Transaktion ein, Schlüssel `order_shipped:<id>:<Nummer|none>`, direkt nach dem Commit zugestellt; Brief ohne Nummer ohne Verfolgungslink
+- Vorlage `src/lib/email/templates/fulfillment.tsx` (Positionen, Versanddienst, Nummer, Link, „meist 1–3 Werktage“, Baustein email.shipping.damageNotice „unberührt“); „Erneut senden“ für M06/M07 in resendEmail.ts; Dialogtexte „mit/ohne Sendungsnummer“
+- Tests: tests/unit/legal/shipping-mail.unit.spec.ts (7, Snapshots DE/EN mit/ohne Nummer), tests/int/orders/ship.int.spec.ts (4), tests/e2e/admin/ship-order.e2e.spec.ts (AK-7-05, 4 Taps, desktop + pixel-7)
+
 ## 2026-10-01 – P5.13
 
 - Einstellungen → „Produktsicherheit“ (`/einstellungen/produktsicherheit`): Unterlagen je Kategorie mit Frist, Hinweis „Technische Unterlagen fehlen“, Hochladen nur PDF (Kennung %PDF- im Browser und am Server), Beispiel-Kennzeichen

@@ -2798,7 +2798,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     `tests/e2e/admin/tracking-scan.e2e.spec.ts`.
   - Ohne Jutta: Echte DHL-/Post-Nummern und Links prüft Jutta in P11 mit der ersten Sendung.
 
-- [ ] **P5.15 „Versendet melden“ (O7, Mail M06)** – Endpunkt `POST /api/orders/:id/ship` (`{ carrier, trackingNumber?,
+- [x] **P5.15 „Versendet melden“ (O7, Mail M06)** – Endpunkt `POST /api/orders/:id/ship` (`{ carrier, trackingNumber?,
   confirmWithoutPackingPhoto? }`) über den Rahmen aus P5.9: nur `paid`/`packed` mit Versand, Verpackung erfasst und
   Packfoto-Rückfrage (P5.11), Sendungsnummer Pflicht bei Versandklasse `paket_klein` und `keramik`, bei `brief` optional
   (KONZEPT O7, DATENMODELL §6.8.5); setzt `shipment.carrier`, `shipment.trackingNumber`, `shipment.trackingUrl` (nur mit
