@@ -7,6 +7,7 @@ import { ActionButton } from '../../components/ActionButton'
 import { AdminActionError, postAdminAction } from '../../components/adminAction'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { Notice } from '../../components/Notice'
+import { TrackingScanner } from '../../components/TrackingScanner'
 import {
   isAcceptedPhotoType,
   isUploadTooLarge,
@@ -432,6 +433,7 @@ function ShipForm({
         <p id={hintId} className="pc-order__muted">
           {adminText('packingTrackingHint')}
         </p>
+        <TrackingScanner disabled={busy} onDetected={setTracking} />
       </div>
       <p className="pc-admin-row">
         <button

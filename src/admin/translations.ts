@@ -409,6 +409,17 @@ export const ADMIN_CUSTOM_DE = {
   safetyUploadButton: 'Hochladen',
   safetyUploaded: 'Gespeichert.',
   settingsProductSafety: 'Produktsicherheit (Unterlagen je Kategorie)',
+  // Sendungsnummer scannen (P5.14)
+  scanStart: 'Scannen',
+  scanStop: 'Scannen beenden',
+  scanPhoto: 'Foto vom Barcode wählen',
+  scanCameraHint: 'Halte den Barcode des Etiketts in die Kamera.',
+  scanCameraUnavailable: 'Die Kamera ist nicht verfügbar – mach stattdessen ein Foto vom Barcode.',
+  scanReading: 'Barcode wird gelesen …',
+  scanFound: 'Gelesen: {{value}} – bitte kurz prüfen.',
+  scanNotFound:
+    'Kein Barcode erkannt. Bitte noch ein Foto (näher und scharf) oder die Nummer eintippen.',
+  scanVideoLabel: 'Kamerabild zum Scannen',
 } as const
 
 export type AdminCustomKey = keyof typeof ADMIN_CUSTOM_DE
