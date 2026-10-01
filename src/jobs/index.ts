@@ -5,6 +5,7 @@ import { instrumentTask } from '@/lib/jobs/instrument'
 import { cancelOverduePrepaymentsTask } from './cancelOverduePrepayments'
 import { complianceDocsReviewTask } from './complianceDocsReview'
 import { invoiceIntegrityCheckTask } from './invoiceIntegrityCheck'
+import { markDeliveredTask } from './markDelivered'
 import { monthlyCloseTask } from './monthlyClose'
 import { prepaymentRemindersTask } from './prepaymentReminders'
 import { releaseExpiredReservationsTask } from './releaseExpiredReservations'
@@ -74,6 +75,7 @@ export const JOB_TASKS: TaskConfig<any>[] = [
   sendEmailTask,
   renderInvoicePdfTask,
   renderLegalTextPdfTask,
+  markDeliveredTask,
   revenueGuardCheckTask,
   monthlyCloseTask,
   invoiceIntegrityCheckTask,
@@ -95,6 +97,7 @@ export const WAKE_TASK_SLUGS: readonly TaskSlug[] = (
     'releaseExpiredReservations',
     'prepaymentReminders',
     'cancelOverduePrepayments',
+    'markDelivered',
     'revenueGuardCheck',
     'monthlyClose',
     'invoiceIntegrityCheck',
@@ -121,4 +124,5 @@ export const WAKE_TASK_PERIOD: Partial<
   monthlyClose: { per: 'month', berlinHour: 4 },
   invoiceIntegrityCheck: { per: 'month', berlinHour: 4 },
   complianceDocsReview: { per: 'month', berlinHour: 8, berlinMinute: 10 },
+  markDelivered: { per: 'day', berlinHour: 3 },
 }

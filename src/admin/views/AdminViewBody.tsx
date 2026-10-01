@@ -7,6 +7,8 @@ import { Notice } from '../components/Notice'
 import { adminText } from '../translations'
 import { OrderDetailView } from './orders/OrderDetailView'
 import { PackingListView } from './orders/PackingListView'
+import { PickupListView } from './orders/PickupListView'
+import { ShippedListView } from './orders/ShippedListView'
 import { ExportView } from './export/ExportView'
 import { PieceEditorView } from './pieces/PieceEditorView'
 import { PiecesListView } from './pieces/PiecesListView'
@@ -33,6 +35,8 @@ const VIEW_BODIES: Partial<Record<string, ViewBody>> = {
   stueck: PieceEditorView,
   stuecke: PiecesListView,
   packen: PackingListView,
+  versendet: ShippedListView,
+  abholung: PickupListView,
   bestellung: OrderDetailView,
   export: ExportView,
   produktsicherheit: ProductSafetyView,

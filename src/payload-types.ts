@@ -166,6 +166,7 @@ export interface Config {
       sendEmail: TaskSendEmail;
       renderInvoicePdf: TaskRenderInvoicePdf;
       renderLegalTextPdf: TaskRenderLegalTextPdf;
+      markDelivered: TaskMarkDelivered;
       revenueGuardCheck: TaskRevenueGuardCheck;
       monthlyClose: TaskMonthlyClose;
       invoiceIntegrityCheck: TaskInvoiceIntegrityCheck;
@@ -2386,6 +2387,7 @@ export interface PayloadJob {
           | 'sendEmail'
           | 'renderInvoicePdf'
           | 'renderLegalTextPdf'
+          | 'markDelivered'
           | 'revenueGuardCheck'
           | 'monthlyClose'
           | 'invoiceIntegrityCheck'
@@ -2431,6 +2433,7 @@ export interface PayloadJob {
         | 'sendEmail'
         | 'renderInvoicePdf'
         | 'renderLegalTextPdf'
+        | 'markDelivered'
         | 'revenueGuardCheck'
         | 'monthlyClose'
         | 'invoiceIntegrityCheck'
@@ -4924,6 +4927,19 @@ export interface TaskRenderLegalTextPdf {
   };
   output: {
     created: string;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskMarkDelivered".
+ */
+export interface TaskMarkDelivered {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    delivered?: number | null;
+    errors?: number | null;
   };
 }
 /**

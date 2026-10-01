@@ -1,0 +1,36 @@
+Deine Bestellung ist abholbereit
+
+Hallo Erika Beispiel,
+
+Dein Stück ist bereit zur Abholung. Ort und Terminvorschläge:
+
+Abholung im Atelier nach Absprache, meist Di–Do 16–19 Uhr.
+Planet Claire, Musterstraße 1, 10115 Berlin
+
+Zum Abholen
+-----------
+
+- Nr. 017 · Tasse „Coco schläft“
+
+Bestellnummer: PC-2026-00017
+
+Antworte einfach auf diese Mail, um einen Termin auszumachen.
+
+Deine Bestellung kannst du jederzeit hier ansehen:
+Bestellstatus: https://planetclairetattoos.com/de/bestellung/__STATUS_TOKEN__
+
+Wie ich mit deinen Daten umgehe, steht in der Datenschutzerklärung:
+Datenschutzerklärung: https://planetclairetattoos.com/de/datenschutz
+
+Liebe Grüße
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Impressum: https://planetclairetattoos.com/de/impressum
+Datenschutz: https://planetclairetattoos.com/de/datenschutz
+Bestellstatus: https://planetclairetattoos.com/de/bestellung/__STATUS_TOKEN__
+Vertrag widerrufen: https://planetclairetattoos.com/de/vertrag-widerrufen

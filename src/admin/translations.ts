@@ -420,6 +420,46 @@ export const ADMIN_CUSTOM_DE = {
   scanNotFound:
     'Kein Barcode erkannt. Bitte noch ein Foto (näher und scharf) oder die Nummer eintippen.',
   scanVideoLabel: 'Kamerabild zum Scannen',
+  // Versendet (P5.16)
+  shippedEmpty: 'Gerade ist nichts unterwegs.',
+  shippedCount: '{{count}} Sendungen',
+  shippedCountOne: '1 Sendung',
+  shippedAt: 'Versendet am {{date}}',
+  shippedDeliveredAt: 'zugestellt am {{date}}',
+  shippedEstimated: 'geschätzt',
+  shippedTrackingLink: 'Sendung {{number}} verfolgen',
+  shippedNoTracking: 'Ohne Sendungsnummer',
+  shippedDelivered: 'Zugestellt',
+  shippedFixTracking: 'Sendungsnummer korrigieren',
+  shippedAddTracking: 'Sendungsnummer nachtragen',
+  shippedTrackingSave: 'Speichern',
+  shippedResendTitle: 'Versandmail erneut senden?',
+  shippedResendConsequence:
+    'Bei „Ja“ bekommt die Kundin zu {{order}} eine neue Versandmail mit der neuen Sendungsnummer. Bei „Nein“ wird nur die Nummer gespeichert.',
+  shippedResendYes: 'Ja, Mail senden',
+  shippedResendNo: 'Nein, nur speichern',
+  shippedTrackingSaved: 'Sendungsnummer gespeichert.',
+  shippedTrackingSavedMail: 'Sendungsnummer gespeichert, Versandmail verschickt.',
+  shippedComplaint: 'Reklamation (Bruch)',
+  // Abholung (P5.17)
+  pickupEmpty: 'Gerade wartet keine Abholung.',
+  pickupCount: '{{count}} Abholungen',
+  pickupCountOne: '1 Abholung',
+  pickupWaiting: 'wartet seit {{days}} Tagen',
+  pickupWaitingOne: 'wartet seit 1 Tag',
+  pickupOverdue: 'wartet seit {{days}} Tagen – bitte nachfragen',
+  pickupText: 'Abholtext (steht so in der Mail)',
+  pickupTextHint:
+    'Mit Adresse und möglichen Zeiten. Die Adresse steht nur in dieser Mail – nirgends öffentlich.',
+  pickupReady: 'Bereit zur Abholung',
+  pickupReadyTitle: '{{order}} bereit zur Abholung?',
+  pickupReadyConsequence:
+    'Die Kundin bekommt eine Mail mit diesem Text und der Adresse. Der Text wird an der Bestellung gespeichert.',
+  pickupSentText: 'Verschickter Abholtext',
+  pickupDone: 'Abgeholt',
+  pickupDoneTitle: '{{order}} abgeholt?',
+  pickupDoneConsequence:
+    'Das heutige Datum gilt als Übergabe – ab dann laufen Widerrufsfrist und Gewährleistung.',
 } as const
 
 export type AdminCustomKey = keyof typeof ADMIN_CUSTOM_DE

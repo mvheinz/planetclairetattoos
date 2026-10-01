@@ -27,6 +27,7 @@ import * as migration_20260929_081932_p5_revenue_guard from './20260929_081932_p
 import * as migration_20260929_102355_p5_job_runs from './20260929_102355_p5_job_runs';
 import * as migration_20260929_104802_p5_monthly_close_jobs from './20260929_104802_p5_monthly_close_jobs';
 import * as migration_20261001_193246_p5_compliance_docs_job from './20261001_193246_p5_compliance_docs_job';
+import * as migration_20261001_195941_p5_mark_delivered_job from './20261001_195941_p5_mark_delivered_job';
 
 export const migrations = [
   {
@@ -172,6 +173,11 @@ export const migrations = [
   {
     up: migration_20261001_193246_p5_compliance_docs_job.up,
     down: migration_20261001_193246_p5_compliance_docs_job.down,
-    name: '20261001_193246_p5_compliance_docs_job'
+    name: '20261001_193246_p5_compliance_docs_job',
+  },
+  {
+    up: migration_20261001_195941_p5_mark_delivered_job.up,
+    down: migration_20261001_195941_p5_mark_delivered_job.down,
+    name: '20261001_195941_p5_mark_delivered_job'
   },
 ];

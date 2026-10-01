@@ -12,6 +12,10 @@ import { adminOrderAction, loadAdminOrder, orderActionError } from './_action'
 // `POST /api/orders/:id/withdraw-carrier-consent` – DHL-Einwilligung widerrufen (P5.10, R-101),
 // `POST /api/orders/:id/ship` `{ carrier?, trackingNumber?, confirmWithoutPackingPhoto?, packaging? }` – O7 mit
 // Versandmail M06 (P5.11/P5.15),
+// `POST /api/orders/:id/delivered` – „Zugestellt“ (O10, manuell, P5.16),
+// `POST /api/orders/:id/tracking` `{ carrier?, trackingNumber, resendMail }` – Sendungsnummer korrigieren (P5.16),
+// `POST /api/orders/:id/pickup-ready` `{ messageText }` – „Bereit zur Abholung“ (O8, M07, P5.17),
+// `POST /api/orders/:id/picked-up` – „Abgeholt“ (O9, P5.17),
 // `GET /api/orders/:id/packing-slip.pdf` – Packzettel ohne Preise (P5.12).
 // Dienste werden dynamisch geladen (sie hängen über die Outbox bzw. die Reservierung an der Payload-Konfiguration).
 
@@ -84,6 +88,50 @@ const shipEndpoint = adminOrderAction('ship', async ({ req, order, body, now }) 
   }
 })
 
+const deliveredEndpoint = adminOrderAction('delivered', async ({ req, order, now }) => {
+  const { markDeliveredByAdmin } = await import('@/lib/commerce/shipped')
+  const res = await markDeliveredByAdmin(req, order, now)
+  return { doc: res.order, unchanged: res.unchanged }
+})
+
+const trackingEndpoint = adminOrderAction('tracking', async ({ req, order, body, now }) => {
+  const { fixTrackingNumber } = await import('@/lib/commerce/shipped')
+  const res = await fixTrackingNumber(
+    req,
+    order,
+    { carrier: body.carrier, trackingNumber: body.trackingNumber, resendMail: body.resendMail },
+    now,
+  )
+  return {
+    doc: res.order,
+    unchanged: res.unchanged,
+    extra: { mailQueued: res.mailJobId !== null },
+    afterCommit: async () => {
+      const { runEmailJobNow } = await import('@/lib/email/outbox')
+      await runEmailJobNow(req.payload, res.mailJobId, { now })
+    },
+  }
+})
+
+const pickupReadyEndpoint = adminOrderAction('pickup-ready', async ({ req, order, body, now }) => {
+  const { markReadyForPickup } = await import('@/lib/commerce/pickup')
+  const res = await markReadyForPickup(req, order, { messageText: body.messageText }, now)
+  return {
+    doc: res.order,
+    unchanged: res.unchanged,
+    afterCommit: async () => {
+      const { runEmailJobNow } = await import('@/lib/email/outbox')
+      await runEmailJobNow(req.payload, res.mailJobId, { now })
+    },
+  }
+})
+
+const pickedUpEndpoint = adminOrderAction('picked-up', async ({ req, order, now }) => {
+  const { markPickedUp } = await import('@/lib/commerce/pickup')
+  const res = await markPickedUp(req, order, now)
+  return { doc: res.order, unchanged: res.unchanged }
+})
+
 function packagingOf(body: Record<string, unknown>) {
   const p = body.packaging
   return p && typeof p === 'object' && !Array.isArray(p)
@@ -117,5 +165,9 @@ export const orderAdminEndpoints: Endpoint[] = [
   packingEndpoint,
   withdrawConsentEndpoint,
   shipEndpoint,
+  deliveredEndpoint,
+  trackingEndpoint,
+  pickupReadyEndpoint,
+  pickedUpEndpoint,
   packingSlipEndpoint,
 ]
