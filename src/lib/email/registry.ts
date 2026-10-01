@@ -17,6 +17,7 @@ import {
   renderPrepaymentReceived,
 } from './templates/orderConfirmation'
 import * as adm from './templates/admin'
+import * as ful from './templates/fulfillment'
 import * as pre from './templates/prepayment'
 import type { MailBusiness, MailLinks } from './layout'
 import type { MailAttachment } from './types'
@@ -128,6 +129,18 @@ function def<D>(d: TemplateDef<D>): AnyTemplate {
 type OrderMail = z.infer<typeof orderMailDataSchema>
 
 const TEMPLATES: Partial<Record<EmailTemplate, AnyTemplate>> = {
+  order_shipped: def<ful.OrderShippedData>({
+    version: ful.ORDER_SHIPPED_VERSION,
+    schema: ful.orderShippedDataSchema,
+    subject: ful.orderShippedSubject,
+    render: ful.renderOrderShipped,
+  }),
+  pickup_ready: def<ful.PickupReadyData>({
+    version: ful.PICKUP_READY_VERSION,
+    schema: ful.pickupReadyDataSchema,
+    subject: ful.pickupReadySubject,
+    render: ful.renderPickupReady,
+  }),
   prepayment_reminder: def<pre.PrepaymentReminderData>({
     version: pre.PREPAYMENT_REMINDER_VERSION,
     schema: pre.prepaymentReminderDataSchema,

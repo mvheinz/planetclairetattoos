@@ -735,6 +735,29 @@
       "noContract": "You won't receive an invoice for this order, and there is nothing else you need to do.",
       "shop": "Back to the shop:",
       "shopLabel": "Shop"
+    },
+    "orderShipped": {
+      "subject": "Your parcel is on its way – {orderNumber}",
+      "title": "Your parcel is on its way",
+      "intro": "your order {orderNumber} was sent on {date}.",
+      "itemsHeading": "In the parcel",
+      "shippedAt": "Date of dispatch",
+      "carrier": "Carrier",
+      "trackingNumber": "Tracking number",
+      "trackingIntro": "You can track the parcel here:",
+      "trackingLabel": "Parcel tracking",
+      "noTracking": "This item is sent without parcel tracking.",
+      "transitTime": "Delivery usually takes 1–3 working days.",
+      "carriers": {
+        "dhl": "DHL",
+        "deutsche_post": "Deutsche Post"
+      }
+    },
+    "pickupReady": {
+      "subject": "Ready for pickup: order {orderNumber}",
+      "title": "Your order is ready for pickup",
+      "itemsHeading": "Ready for pickup",
+      "reply": "Just reply to this email to arrange a time."
     }
   },
   "shippingPayment": {

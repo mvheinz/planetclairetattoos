@@ -10,8 +10,8 @@ import { adminOrderAction, loadAdminOrder, orderActionError } from './_action'
 // `POST /api/orders/:id/packed` `{ packaging? }` – „Gepackt“ (O6) mit Verpackungserfassung (P5.10/P5.11),
 // `POST /api/orders/:id/packing` `{ checklist?, packaging?, packingPhotos? }` – Packen speichern (P5.11),
 // `POST /api/orders/:id/withdraw-carrier-consent` – DHL-Einwilligung widerrufen (P5.10, R-101),
-// `POST /api/orders/:id/ship` `{ carrier?, trackingNumber?, confirmWithoutPackingPhoto?, packaging? }` – O7 (P5.11;
-// Mail M06 ergänzt P5.15),
+// `POST /api/orders/:id/ship` `{ carrier?, trackingNumber?, confirmWithoutPackingPhoto?, packaging? }` – O7 mit
+// Versandmail M06 (P5.11/P5.15),
 // `GET /api/orders/:id/packing-slip.pdf` – Packzettel ohne Preise (P5.12).
 // Dienste werden dynamisch geladen (sie hängen über die Outbox bzw. die Reservierung an der Payload-Konfiguration).
 
@@ -74,7 +74,14 @@ const shipEndpoint = adminOrderAction('ship', async ({ req, order, body, now }) 
     },
     now,
   )
-  return { doc: res.order, unchanged: res.unchanged }
+  return {
+    doc: res.order,
+    unchanged: res.unchanged,
+    afterCommit: async () => {
+      const { runEmailJobNow } = await import('@/lib/email/outbox')
+      await runEmailJobNow(req.payload, res.mailJobId, { now })
+    },
+  }
 })
 
 function packagingOf(body: Record<string, unknown>) {

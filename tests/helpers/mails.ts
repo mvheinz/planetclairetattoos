@@ -14,6 +14,8 @@ import {
 import { getTemplate, type RenderedMail, type TemplateDef } from '@/lib/email/registry'
 import type { EmailTemplate } from '@/lib/enums'
 
+import { DEFAULT_TRACKING_URL_TEMPLATES } from '@/lib/carrier'
+
 import { FORBIDDEN_CONTENT_PATTERNS } from './forbiddenPatterns'
 
 // Snapshot-Hilfe für Mails (P4.13, KONZEPT §6.1 „Tests“): Vorlagen mit festen Fixture-Daten rendern (feste Zeit, feste
@@ -173,7 +175,37 @@ export const ADMIN_ORDER_FIXTURE = {
   paymentMethodType: 'card',
 }
 
+export const SHIPPED_FIXTURE = {
+  orderId: 17,
+  orderNumber: 'PC-2026-00017',
+  customerName: 'Erika Beispiel',
+  items: [{ itemNumber: 17, title: 'Tasse „Coco schläft“' }],
+  carrier: 'dhl',
+  trackingNumber: '0034043431234567890',
+  trackingUrl:
+    'https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode=0034043431234567890',
+  shippedAt: '2026-10-14T08:00:00.000Z',
+}
+/** Brief ohne Sendungsnummer (DM-ORD-08, vorläufig bis K-40). */
+export const SHIPPED_LETTER_FIXTURE = {
+  ...SHIPPED_FIXTURE,
+  items: [{ itemNumber: 21, title: 'Zeichnung „Coco am Fenster“' }],
+  carrier: 'deutsche_post',
+  trackingNumber: null,
+  trackingUrl: null,
+}
+export const PICKUP_READY_FIXTURE = {
+  orderId: 17,
+  orderNumber: 'PC-2026-00017',
+  customerName: 'Erika Beispiel',
+  items: [{ itemNumber: 17, title: 'Tasse „Coco schläft“' }],
+  messageText:
+    'Abholung im Atelier nach Absprache, meist Di–Do 16–19 Uhr.\nPlanet Claire, Musterstraße 1, 10115 Berlin',
+}
+
 export const MAIL_FIXTURE_DATA: Partial<Record<EmailTemplate, Record<string, unknown>>> = {
+  order_shipped: SHIPPED_FIXTURE,
+  pickup_ready: PICKUP_READY_FIXTURE,
   order_confirmation: ORDER_MAIL_FIXTURE,
   prepayment_instructions: PREPAYMENT_MAIL_FIXTURE,
   prepayment_received: PREPAYMENT_RECEIVED_FIXTURE,
@@ -348,6 +380,13 @@ export const V09_PATTERNS: readonly RegExp[] = [
   /[?&](fbclid|gclid|mc_eid|mc_cid)=/i,
 ]
 
+/** Hosts der Sendungsverfolgung (Standardvorlagen `settings.shipping.trackingUrlTemplates`). */
+export const CARRIER_TRACKING_HOSTS: ReadonlySet<string> = new Set(
+  DEFAULT_TRACKING_URL_TEMPLATES.map(
+    (t) => new URL(t.urlTemplate.replace('{trackingNumber}', 'X')).host,
+  ),
+)
+
 /** Verstöße einer gerenderten Mail (leer = in Ordnung). */
 export function scanMail(
   mail: { html: string; text: string },
@@ -363,13 +402,14 @@ export function scanMail(
   for (const m of mail.html.matchAll(/<img\b[^>]*\bsrc="([^"]*)"/gi)) {
     if (!m[1]!.startsWith('cid:')) out.push(`img ${m[1]}`)
   }
-  // Links nur auf die eigene Domain bzw. mailto:
+  // Links nur auf die eigene Domain bzw. mailto: – Ausnahme: Sendungsverfolgung des Versanddienstes (M06, R-082)
   const own = new URL(siteUrl).host
   for (const m of mail.html.matchAll(/\bhref="([^"]*)"/gi)) {
-    const href = m[1]!
+    const href = m[1]!.replace(/&amp;/g, '&')
     if (href.startsWith('mailto:')) continue
     try {
-      if (new URL(href).host !== own) out.push(`link ${href}`)
+      const host = new URL(href).host
+      if (host !== own && !CARRIER_TRACKING_HOSTS.has(host)) out.push(`link ${href}`)
     } catch {
       out.push(`link ${href}`)
     }

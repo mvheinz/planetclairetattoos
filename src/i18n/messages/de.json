@@ -735,6 +735,29 @@
       "noContract": "Für diese Bestellung bekommst du keine Rechnung, und du musst nichts weiter tun.",
       "shop": "Hier geht es zurück zum Shop:",
       "shopLabel": "Shop"
+    },
+    "orderShipped": {
+      "subject": "Dein Paket ist unterwegs – {orderNumber}",
+      "title": "Dein Paket ist unterwegs",
+      "intro": "deine Bestellung {orderNumber} ist am {date} verschickt worden.",
+      "itemsHeading": "Im Paket",
+      "shippedAt": "Versanddatum",
+      "carrier": "Versanddienst",
+      "trackingNumber": "Sendungsnummer",
+      "trackingIntro": "Hier kannst du die Sendung verfolgen:",
+      "trackingLabel": "Sendungsverfolgung",
+      "noTracking": "Diese Sendung geht ohne Sendungsverfolgung auf die Reise.",
+      "transitTime": "Die Laufzeit beträgt meist 1–3 Werktage.",
+      "carriers": {
+        "dhl": "DHL",
+        "deutsche_post": "Deutsche Post"
+      }
+    },
+    "pickupReady": {
+      "subject": "Abholbereit: Bestellung {orderNumber}",
+      "title": "Deine Bestellung ist abholbereit",
+      "itemsHeading": "Zum Abholen",
+      "reply": "Antworte einfach auf diese Mail, um einen Termin auszumachen."
     }
   },
   "shippingPayment": {

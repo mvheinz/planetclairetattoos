@@ -5,6 +5,11 @@ import type { PayloadRequest } from 'payload'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { EmailTemplate } from '@/lib/enums'
 import { enqueueEmail, type EnqueueEmailResult } from '@/lib/email/outbox'
+import {
+  buildPickupReadyMailData,
+  buildShippedMailData,
+  FulfillmentMailError,
+} from '@/lib/email/fulfillmentMailData'
 import { buildOrderMailData } from '@/lib/email/orderMailData'
 import { isTemplateImplemented } from '@/lib/email/registry'
 import { preservingReq } from '@/lib/payload/localReq'
@@ -30,11 +35,13 @@ export const isResendable = (v: unknown): v is ResendableTemplate =>
 
 type DataBuilder = (req: PayloadRequest, order: Order) => Promise<Record<string, unknown>>
 
-/** Mail-Daten je Vorlage. M06 ergänzt P5.15 („Versendet melden“), M07 P5.17 („Bereit zur Abholung“). */
+/** Mail-Daten je Vorlage: M06 aus dem aktuellen Versandstand (P5.15), M07 aus dem bestätigten Abholtext (P5.17). */
 const BUILDERS: Partial<Record<ResendableTemplate, DataBuilder>> = {
   order_confirmation: async (req, order) => ({ ...(await buildOrderMailData(req, order)) }),
   prepayment_instructions: async (req, order) => ({ ...(await buildOrderMailData(req, order)) }),
   prepayment_received: async (req, order) => ({ ...(await buildOrderMailData(req, order)) }),
+  order_shipped: async (_req, order) => ({ ...buildShippedMailData(order) }),
+  pickup_ready: async (_req, order) => ({ ...buildPickupReadyMailData(order) }),
 }
 
 /** Für spätere Aufgaben (M06/M07): Daten-Erzeuger für „Erneut senden“ eintragen. */
@@ -111,11 +118,18 @@ export async function resendOrderEmail(
   if (order.privacy?.anonymizedAt) {
     throw new ResendError(409, 'Die Bestellung ist anonymisiert – keine Mail möglich.')
   }
+  let data: Record<string, unknown>
+  try {
+    data = await builder(req, order)
+  } catch (err) {
+    if (err instanceof FulfillmentMailError) throw new ResendError(409, err.message)
+    throw err
+  }
   const result = await enqueueEmail(req, {
     template,
     to: order.customer.email,
     locale: order.locale,
-    data: await builder(req, order),
+    data,
     idempotencyKey: `${template}:${order.id}:resend-${dialogKey}`,
     relations: { order: order.id },
   })

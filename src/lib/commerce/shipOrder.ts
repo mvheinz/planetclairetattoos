@@ -11,6 +11,8 @@ import {
   trackingTemplatesFromSettings,
   type CarrierCode,
 } from '@/lib/carrier'
+import { buildShippedMailData } from '@/lib/email/fulfillmentMailData'
+import { enqueueEmail } from '@/lib/email/outbox'
 import { inTransaction } from '@/lib/payload/transaction'
 import type { Order } from '@/payload-types'
 
@@ -23,7 +25,8 @@ import { loadOrder, lockOrder, transitionOrder } from './transitionOrder'
 // Verpackung erfasst (Pflicht, DM-ORD-07 – wird hier mit der übergebenen bzw. vorbelegten Vorlage erfasst, falls
 // „Gepackt“ übersprungen wurde). Keramik ohne Packfoto: kein Zwang, aber Rückfrage „Ohne Packfoto versenden?“ – erst
 // mit `confirmWithoutPackingPhoto: true` wird versendet und Audit `packing_photo_skipped` geschrieben (R-100).
-// Die Versandmail M06 ergänzt P5.15 (über die Outbox in derselben Transaktion).
+// Versandmail M06 (P5.15) über die Outbox in derselben Transaktion; Idempotenz-Schlüssel
+// `order_shipped:<Bestell-ID>:<Sendungsnummer | none>` – ein Doppeltipp erzeugt keine zweite Mail.
 
 export const SHIP_WITHOUT_PHOTO_QUESTION = 'Ohne Packfoto versenden?'
 export const SHIP_WITHOUT_PHOTO_CODE = 'packing_photo_missing'
@@ -48,16 +51,23 @@ export interface ShipInput {
 
 const TRACKING_REQUIRED = new Set(['paket_klein', 'keramik'])
 
+export interface ShipResult {
+  order: Order
+  unchanged: boolean
+  /** Job der Versandmail M06 (nach dem Commit sofort ausführen); `null` ohne neue Mail. */
+  mailJobId: number | string | null
+}
+
 export async function shipOrder(
   req: PayloadRequest,
   order: Order,
   input: ShipInput,
   now: Date,
-): Promise<{ order: Order; unchanged: boolean }> {
+): Promise<ShipResult> {
   return inTransaction(req, async () => {
     const locked = await lockOrder(req, order.id)
     if (locked.status === 'shipped')
-      return { order: await loadOrder(req, order.id), unchanged: true }
+      return { order: await loadOrder(req, order.id), unchanged: true, mailJobId: null }
     if (order.fulfillmentMethod !== 'shipping') {
       throw new ShipError(409, '„Versendet melden“ gibt es nur bei Bestellungen mit Versand.')
     }
@@ -124,6 +134,19 @@ export async function shipOrder(
         summary: `Bestellung ${order.orderNumber}: Keramik ohne Packfoto versendet (Rückfrage bestätigt am ${now.toISOString()})`,
       })
     }
-    return { order: res.order, unchanged: false }
+    const mail = await enqueueEmail(req, {
+      template: 'order_shipped',
+      to: res.order.customer.email,
+      locale: res.order.locale,
+      data: buildShippedMailData(res.order) as unknown as Record<string, unknown>,
+      idempotencyKey: shippedMailKey(order.id, trackingNumber),
+      relations: { order: order.id },
+    })
+    return { order: res.order, unchanged: false, mailJobId: mail.jobId }
   })
+}
+
+/** Idempotenz-Schlüssel der Versandmail M06 (`order_shipped:<id>:<Sendungsnummer | none>`). */
+export function shippedMailKey(orderId: number, trackingNumber: string | null): string {
+  return `order_shipped:${orderId}:${trackingNumber ?? 'none'}`
 }

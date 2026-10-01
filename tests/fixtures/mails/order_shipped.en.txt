@@ -1,0 +1,41 @@
+Your parcel is on its way
+
+Hi Erika Beispiel,
+
+your order PC-2026-00017 was sent on 14 Oct 2026.
+
+In the parcel
+-------------
+
+- No. 017 · Tasse „Coco schläft“
+
+Order number: PC-2026-00017
+Date of dispatch: 14 Oct 2026
+Carrier: DHL
+Tracking number: 0034043431234567890
+
+You can track the parcel here:
+Parcel tracking: https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode=0034043431234567890
+
+Delivery usually takes 1–3 working days.
+
+If your parcel arrives damaged: please get in touch as soon as possible with photos at jutta@planetclairetattoos.com. Your statutory rights remain unaffected.
+
+You can view your order at any time here:
+Order status: https://planetclairetattoos.com/en/order/__STATUS_TOKEN__
+
+How I handle your data is explained in the privacy policy:
+Privacy policy: https://planetclairetattoos.com/en/privacy
+
+Best wishes
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Legal notice: https://planetclairetattoos.com/en/legal-notice
+Privacy policy: https://planetclairetattoos.com/en/privacy
+Order status: https://planetclairetattoos.com/en/order/__STATUS_TOKEN__
+Withdraw from contract here: https://planetclairetattoos.com/en/withdraw-from-contract

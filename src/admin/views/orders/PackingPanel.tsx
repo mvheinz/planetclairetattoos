@@ -447,7 +447,9 @@ function ShipForm({
       <ConfirmDialog
         open={open === 'ship'}
         title={adminText('packingShipTitle', { order: props.orderNumber })}
-        consequence={adminText('packingShipConsequence')}
+        consequence={adminText(
+          tracking.trim() ? 'packingShipConsequence' : 'packingShipConsequenceNoTracking',
+        )}
         busy={busy}
         onConfirm={() => void run(false)}
         onCancel={() => setOpen(null)}

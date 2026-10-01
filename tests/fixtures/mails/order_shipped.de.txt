@@ -1,0 +1,41 @@
+Dein Paket ist unterwegs
+
+Hallo Erika Beispiel,
+
+deine Bestellung PC-2026-00017 ist am 14.10.2026 verschickt worden.
+
+Im Paket
+--------
+
+- Nr. 017 · Tasse „Coco schläft“
+
+Bestellnummer: PC-2026-00017
+Versanddatum: 14.10.2026
+Versanddienst: DHL
+Sendungsnummer: 0034043431234567890
+
+Hier kannst du die Sendung verfolgen:
+Sendungsverfolgung: https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode=0034043431234567890
+
+Die Laufzeit beträgt meist 1–3 Werktage.
+
+Falls dein Paket beschädigt ankommt: Bitte melde dich möglichst schnell mit Fotos bei jutta@planetclairetattoos.com. Deine gesetzlichen Rechte bleiben davon unberührt.
+
+Deine Bestellung kannst du jederzeit hier ansehen:
+Bestellstatus: https://planetclairetattoos.com/de/bestellung/__STATUS_TOKEN__
+
+Wie ich mit deinen Daten umgehe, steht in der Datenschutzerklärung:
+Datenschutzerklärung: https://planetclairetattoos.com/de/datenschutz
+
+Liebe Grüße
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Impressum: https://planetclairetattoos.com/de/impressum
+Datenschutz: https://planetclairetattoos.com/de/datenschutz
+Bestellstatus: https://planetclairetattoos.com/de/bestellung/__STATUS_TOKEN__
+Vertrag widerrufen: https://planetclairetattoos.com/de/vertrag-widerrufen

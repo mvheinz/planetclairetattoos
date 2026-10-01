@@ -357,13 +357,14 @@ export const ADMIN_CUSTOM_DE = {
   packingPhotoMax: 'Es sind schon {{max}} Packfotos da.',
   packingShip: 'Versendet melden',
   packingShipTitle: '{{order}} als versendet melden?',
-  packingShipConsequence: 'Die Bestellung wird als versendet markiert.',
+  packingShipConsequence: 'Die Kundin bekommt eine Versandmail mit Sendungsnummer.',
+  packingShipConsequenceNoTracking: 'Die Kundin bekommt eine Versandmail ohne Sendungsnummer.',
   packingCarrier: 'Versanddienst',
   packingTracking: 'Sendungsnummer',
   packingTrackingHint: '8–35 Buchstaben oder Ziffern; bei Briefen freiwillig.',
   packingNoPhotoTitle: 'Ohne Packfoto versenden?',
   packingNoPhotoConsequence:
-    'Bei Keramik helfen Packfotos bei Bruch. Du kannst trotzdem versenden – das wird mit Zeitpunkt protokolliert.',
+    'Bei Keramik helfen Packfotos bei Bruch. Du kannst trotzdem versenden – das wird mit Zeitpunkt protokolliert. Die Kundin bekommt eine Versandmail mit Sendungsnummer.',
   packingNoPhotoConfirm: 'Ja, ohne Packfoto versenden',
   // Export (P5.11)
   exportPackagingTitle: 'Verpackungsmengen (Jahr)',
