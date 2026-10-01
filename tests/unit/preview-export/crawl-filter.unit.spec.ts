@@ -82,6 +82,12 @@ describe('Vorschau-Export: Crawl-Filter (ARCHITEKTUR §14.4)', () => {
       '/a.png',
       'x.woff2',
     ])
+    // Fragment in einer SVG-Daten-URI (Schraffur des Verkauft-Stempels) ist keine Datei.
+    expect(
+      cssUrls(
+        `s{background:url("data:image/svg+xml,%3Csvg%3E%3Crect fill='url(%23h)'/%3E%3C/svg%3E")}`,
+      ),
+    ).toEqual([])
     const refs = assetRefs(
       '<html><head><link rel="stylesheet" href="/s.css"></head><body><img src="/i.webp" srcset="/i-2.webp 2x"><svg><use href="/art/coco.v1.svg#coco-a"></use><use href="#local"></use></svg></body></html>',
     )

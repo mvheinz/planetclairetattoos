@@ -311,12 +311,15 @@ export function assetRefs(html: string): string[] {
   return [...refs].filter((r) => !r.startsWith('data:')).sort()
 }
 
-/** `url(…)`-Verweise in CSS (ohne `data:`). */
+/**
+ * `url(…)`-Verweise in CSS (ohne `data:` und ohne Fragment-Verweise). `url(%23id)` steht in SVG-Daten-URIs (z. B. die
+ * Schraffur des Verkauft-Stempels) und meint ein Element im selben SVG, keine Datei.
+ */
 export function cssUrls(css: string): string[] {
   const out: string[] = []
   for (const m of css.matchAll(/url\(\s*(['"]?)([^'")]+)\1\s*\)/g)) {
     const u = m[2]!.trim()
-    if (!u.startsWith('data:') && !u.startsWith('#')) out.push(u)
+    if (!u.startsWith('data:') && !u.startsWith('#') && !/^%23/i.test(u)) out.push(u)
   }
   return out
 }
