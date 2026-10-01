@@ -41,6 +41,9 @@ export async function captureCartSession(origin: string): Promise<CartSession> {
     const page = await context.newPage()
     for (const nr of CART_ANCHORS) {
       await page.goto(`/nr/${nr}`, { waitUntil: 'load' })
+      // Erst klicken, wenn die Module gebunden sind und der Live-Zustand geladen ist (`data-status-live`, wie die
+      // Kaufweg-E2E): Ein Klick davor geht unter Last ins Leere bzw. an die Server-Action ohne JavaScript.
+      await page.locator('[data-product-page][data-status-live]').waitFor({ state: 'attached' })
       const button = page.locator('[data-add-to-cart] button').first()
       if (!(await button.count())) {
         warnings.push(`Korb der Vorschau: Stück ${nr} ist nicht bestellbar – Korb bleibt leer.`)
