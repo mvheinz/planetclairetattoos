@@ -89,7 +89,7 @@ export const s = StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 18 },
   title: { fontSize: 18, fontWeight: 700, marginBottom: 4 },
   mono: { fontFamily: PDF_FONT.mono, fontSize: 9 },
-  label: { fontSize: 8, color: MUTED, textTransform: 'uppercase', marginBottom: 3 },
+  label: { fontSize: 8.5, fontWeight: 700, color: MUTED, marginBottom: 3 },
   muted: { color: MUTED },
   section: { marginBottom: 16 },
   recipient: { fontSize: 11 },
