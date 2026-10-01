@@ -20,6 +20,7 @@ export type AdminIconName =
   | 'download'
   | 'more'
   | 'data'
+  | 'copy'
 
 export interface AdminViewDef {
   /** Schlüssel (auch Payload-View-Schlüssel und Bildschirmfoto-Schlüssel). */

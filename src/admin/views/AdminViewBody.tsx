@@ -5,6 +5,9 @@ import React from 'react'
 
 import { Notice } from '../components/Notice'
 import { adminText } from '../translations'
+import { OrderDetailView } from './orders/OrderDetailView'
+import { PackingListView } from './orders/PackingListView'
+import { ExportView } from './export/ExportView'
 import { PieceEditorView } from './pieces/PieceEditorView'
 import { PiecesListView } from './pieces/PiecesListView'
 import { ADMIN_HOME_VIEW, adminView, allDataPath, type AdminViewMatch } from './registry'
@@ -28,6 +31,9 @@ const VIEW_BODIES: Partial<Record<string, ViewBody>> = {
   'neues-stueck': PieceEditorView,
   stueck: PieceEditorView,
   stuecke: PiecesListView,
+  packen: PackingListView,
+  bestellung: OrderDetailView,
+  export: ExportView,
 }
 
 export function AdminViewBody(props: AdminViewBodyProps) {

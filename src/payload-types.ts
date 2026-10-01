@@ -738,6 +738,7 @@ export interface Order {
     | null;
   carrierEmailConsent?: boolean | null;
   carrierEmailConsentRevokedAt?: string | null;
+  copyAddressText?: string | null;
   invoice?: (number | null) | Invoice;
   creditNotes?: {
     docs?: (number | Invoice)[];
@@ -3204,6 +3205,7 @@ export interface OrdersSelect<T extends boolean = true> {
   legalSnippetVersions?: T;
   carrierEmailConsent?: T;
   carrierEmailConsentRevokedAt?: T;
+  copyAddressText?: T;
   invoice?: T;
   creditNotes?: T;
   withdrawals?: T;

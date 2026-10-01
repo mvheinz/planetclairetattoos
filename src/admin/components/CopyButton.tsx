@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 
 import { adminText } from '../translations'
+import { AdminIcon } from './AdminIcon'
 
 // Kopier-Knopf (PLAN P5.1, z. B. Adresse fürs Versandportal, KONZEPT §7.6): Clipboard-API; geht das nicht (älterer
 // Browser, keine Berechtigung), erscheint der Text markiert in einem Feld mit „Jetzt kopieren“ (execCommand) – klappt
@@ -13,10 +14,13 @@ type State = 'idle' | 'done' | 'fallback' | 'manual'
 export function CopyButton({
   text,
   label = adminText('copyLabel'),
+  iconOnly = false,
   'data-testid': testId,
 }: {
   text: string
   label?: string
+  /** Nur Kopier-Symbol (Beschriftung als `aria-label`), z. B. je Adresszeile (KONZEPT §7.6). */
+  iconOnly?: boolean
   'data-testid'?: string
 }) {
   const [state, setState] = useState<State>('idle')
@@ -57,10 +61,12 @@ export function CopyButton({
     <span className="pc-admin-copy" data-testid={testId}>
       <button
         type="button"
-        className="pc-admin-btn pc-admin-btn--secondary"
+        className={`pc-admin-btn pc-admin-btn--secondary${iconOnly ? ' pc-admin-btn--icon' : ''}`}
         onClick={() => void copy()}
+        aria-label={iconOnly ? label : undefined}
+        title={iconOnly ? label : undefined}
       >
-        {label}
+        {iconOnly ? <AdminIcon name="copy" size={20} /> : label}
       </button>
       {state === 'fallback' || state === 'manual' ? (
         <span className="pc-admin-copy__fallback">

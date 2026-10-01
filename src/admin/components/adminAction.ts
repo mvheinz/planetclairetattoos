@@ -15,6 +15,8 @@ export class AdminActionError extends Error {
   constructor(
     message: string,
     readonly status: number,
+    /** Maschinenlesbarer Grund (z. B. `packing_photo_missing` → Rückfrage). */
+    readonly code?: string,
   ) {
     super(message)
     this.name = 'AdminActionError'
@@ -47,11 +49,13 @@ export async function postAdminAction<T extends Record<string, unknown> = Record
   } catch {
     throw new AdminActionError(adminText('actionOffline'), 0)
   }
-  const json = (await res.json().catch(() => ({}))) as T & AdminActionOutcome & { error?: string }
+  const json = (await res.json().catch(() => ({}))) as T &
+    AdminActionOutcome & { error?: string; code?: string }
   if (!res.ok) {
     throw new AdminActionError(
       adminText('actionFailed', { message: json.error ?? res.statusText ?? String(res.status) }),
       res.status,
+      typeof json.code === 'string' ? json.code : undefined,
     )
   }
   return json

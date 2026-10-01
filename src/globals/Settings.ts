@@ -507,6 +507,15 @@ const packagingGroup: Field = {
   },
   fields: [
     {
+      // Laufende Jahressumme ohne Beispieldaten (PLAN P5.11, R-201); Datei unter „Export“.
+      name: 'packagingYearTotal',
+      type: 'ui',
+      label: 'Verpackung im laufenden Jahr',
+      admin: {
+        components: { Field: '/admin/components/PackagingYearTotal#PackagingYearTotalField' },
+      },
+    },
+    {
       name: 'templates',
       type: 'array',
       dbName: 'settings_pkg_templates',

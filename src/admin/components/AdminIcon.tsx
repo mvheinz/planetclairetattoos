@@ -21,6 +21,7 @@ const PATHS: Record<AdminIconName, string> = {
   gear: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1',
   download: 'M12 3v12M7 10l5 5 5-5M4 20h16',
   more: 'M5 12h.01M12 12h.01M19 12h.01',
+  copy: 'M9 9h11v11H9zM5 15H4V4h11v1',
   data: 'M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3',
 }
 
