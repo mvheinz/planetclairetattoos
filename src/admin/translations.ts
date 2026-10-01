@@ -460,6 +460,40 @@ export const ADMIN_CUSTOM_DE = {
   pickupDoneTitle: '{{order}} abgeholt?',
   pickupDoneConsequence:
     'Das heutige Datum gilt als Übergabe – ab dann laufen Widerrufsfrist und Gewährleistung.',
+  // „Vorkasse offen“ (P5.18)
+  prepaymentEmpty: 'Gerade ist keine Vorkasse offen.',
+  prepaymentCount: '{{count}} Bestellungen warten auf Überweisung',
+  prepaymentCountOne: '1 Bestellung wartet auf Überweisung',
+  prepaymentDueDate: 'Frist bis {{date}}',
+  prepaymentReminderSent: 'Erinnerung verschickt am {{date}}',
+  prepaymentReminderNotSent: 'Erinnerung noch nicht verschickt',
+  prepaymentReceived: 'Zahlung erhalten',
+  prepaymentReceivedTitle: 'Zahlung für {{order}} erhalten?',
+  prepaymentReceivedConsequence:
+    'Die Stücke gelten dann als verkauft, und die Kundin bekommt eine Mail mit der Rechnung.',
+  prepaymentExpected: 'Erwarteter Betrag',
+  prepaymentReference: 'Verwendungszweck',
+  prepaymentAmount: 'Eingegangener Betrag (Euro, laut Kontoauszug)',
+  prepaymentReceivedAt: 'Eingangsdatum (optional, sonst heute)',
+  prepaymentMismatch:
+    'Achtung: {{amount}} weicht vom Gesamtbetrag {{total}} ab. Bitte Kontoauszug prüfen.',
+  prepaymentMismatchConfirm:
+    'Trotzdem als bezahlt markieren (die Bestellung wird rot markiert, damit du dich um den Rest kümmerst)',
+  prepaymentCancel: 'Stornieren',
+  prepaymentCancelTitle: '{{order}} stornieren?',
+  prepaymentCancelConsequence:
+    'Die Kundin bekommt eine Mail mit deinem Grund, dass die Bestellung storniert ist. Die Stücke sind sofort wieder frei.',
+  prepaymentCancelReason: 'Grund (steht in der Mail an die Kundin, mindestens 3 Zeichen)',
+  prepaymentCopyBank: 'Bankdaten kopieren',
+  prepaymentNoBank: 'Bankdaten fehlen – bitte unter Einstellungen → Zahlung eintragen.',
+  prepaymentRecentlyCancelled: 'Kürzlich automatisch storniert (30 Tage)',
+  prepaymentRecentlyCancelledEmpty: 'In den letzten 30 Tagen wurde nichts automatisch storniert.',
+  prepaymentCancelledAt: 'storniert am {{date}}',
+  prepaymentLateTitle: '{{order}} nachträglich bezahlt?',
+  prepaymentGone: 'Stück ist schon weg – bitte Geld zurücküberweisen.',
+  prepaymentIbanTemplate: 'Vorlage „Bitte um IBAN“ öffnen',
+  prepaymentRefundDoneTitle: 'Rücküberweisung für {{order}} erledigt?',
+  prepaymentRefundNoted: 'Rücküberweisung ist als erledigt notiert.',
 } as const
 
 export type AdminCustomKey = keyof typeof ADMIN_CUSTOM_DE
