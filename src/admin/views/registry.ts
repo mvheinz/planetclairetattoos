@@ -215,6 +215,17 @@ export const ADMIN_DETAIL_VIEWS = [
     parent: 'widerrufe',
   },
   {
+    key: 'produktsicherheit',
+    path: '/einstellungen/produktsicherheit',
+    title: 'Produktsicherheit',
+    phase: 5,
+    task: 'P5.13',
+    icon: 'gear',
+    ref: 'KONZEPT §7.14, RECHT R-203',
+    allData: '/collections/private-uploads',
+    parent: 'einstellungen',
+  },
+  {
     key: 'anfrage',
     path: '/anfragen/:id',
     title: 'Anfrage',

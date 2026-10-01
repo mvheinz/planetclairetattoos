@@ -188,6 +188,8 @@ const COMPLIANCE_KINDS = [
 )[]
 
 export const adminComplianceDocsReviewDataSchema = z.strictObject({
+  /** Kategorien (Anzeigename) mit Stücken, aber ohne technische Unterlagen (R-203). */
+  missingCategories: z.array(z.string().min(1).max(60)).max(20).default([]),
   documents: z
     .array(
       z.strictObject({
@@ -195,6 +197,8 @@ export const adminComplianceDocsReviewDataSchema = z.strictObject({
         title: z.string().min(1).max(200),
         /** Ende der 10-Jahres-Frist nach dem letzten betroffenen Stück; `null` = Stück noch im Verkauf. */
         keepUntil: iso.nullable(),
+        /** Frist abgelaufen – „kann gelöscht werden“ (keine automatische Löschung). */
+        deletable: z.boolean().default(false),
       }),
     )
     .max(500),
@@ -215,22 +219,49 @@ export async function renderAdminComplianceDocsReview(
   input: TemplateRenderInput<AdminComplianceDocsReviewData>,
 ): Promise<RenderedMail> {
   const { data: d, links } = input
-  const blocks: Block[] =
-    d.documents.length === 0
-      ? [block.p('Es sind keine Unterlagen hinterlegt.')]
-      : [
-          block.p('Diese Unterlagen musst du aufbewahren:'),
-          block.list(
-            d.documents.map(
-              (doc) =>
-                `${COMPLIANCE_KIND_LABEL[doc.kind]}: ${doc.title} – ${
-                  doc.keepUntil
-                    ? `aufbewahren bis ${fmtDate(doc.keepUntil, 'de')}`
-                    : 'Stück noch im Verkauf'
-                }`,
-            ),
-          ),
-        ]
+  const line = (doc: AdminComplianceDocsReviewData['documents'][number]) =>
+    `${COMPLIANCE_KIND_LABEL[doc.kind]}: ${doc.title}`
+  const deletable = d.documents.filter((doc) => doc.deletable)
+  const keep = d.documents.filter((doc) => !doc.deletable)
+  const blocks: Block[] = []
+  if (d.missingCategories.length > 0) {
+    blocks.push(
+      block.p('Für diese Kategorien fehlen noch technische Unterlagen (Risikoanalyse):'),
+      block.list(d.missingCategories),
+      block.p(
+        'Eine Vorlage zum Ausfüllen findest du in der Verwaltung unter Einstellungen → Produktsicherheit.',
+      ),
+    )
+  }
+  if (deletable.length > 0) {
+    blocks.push(
+      block.p(
+        'Bei diesen Unterlagen ist die 10-Jahres-Frist abgelaufen – sie können gelöscht werden:',
+      ),
+      block.list(
+        deletable.map(
+          (doc) =>
+            `${line(doc)}${doc.keepUntil ? ` – Frist endete am ${fmtDate(doc.keepUntil, 'de')}` : ''}`,
+        ),
+      ),
+    )
+  }
+  if (keep.length > 0) {
+    blocks.push(
+      block.p('Diese Unterlagen musst du aufbewahren:'),
+      block.list(
+        keep.map(
+          (doc) =>
+            `${line(doc)} – ${
+              doc.keepUntil
+                ? `aufbewahren bis ${fmtDate(doc.keepUntil, 'de')}`
+                : 'Stück noch im Verkauf'
+            }`,
+        ),
+      ),
+    )
+  }
+  if (blocks.length === 0) blocks.push(block.p('Es sind keine Unterlagen hinterlegt.'))
   blocks.push(
     block.p(
       'Unterlagen zu Produktsicherheit bleiben 10 Jahre nach dem letzten verkauften Stück aufbewahrt. Das ist nur eine Erinnerung – es wird nichts gelöscht.',
@@ -240,6 +271,6 @@ export async function renderAdminComplianceDocsReview(
     subject: adminComplianceDocsReviewSubject(),
     blocks,
     links,
-    adminPath: ADMIN_MAIL_PATHS.privateUploads(),
+    adminPath: ADMIN_MAIL_PATHS.productSafety(),
   })
 }

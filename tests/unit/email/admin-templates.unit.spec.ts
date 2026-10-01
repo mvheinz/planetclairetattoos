@@ -149,6 +149,17 @@ describe('Pflichtinhalte (KONZEPT §6.4)', () => {
     )
     expect(m.text).toContain('es wird nichts gelöscht')
   })
+
+  it('A16 (P5.13) Kategorien ohne technische Unterlagen und Unterlagen mit abgelaufener Frist („kann gelöscht werden“), Link Produktsicherheit', async () => {
+    const m = await render('admin_compliance_docs_review')
+    expect(m.text).toContain('Für diese Kategorien fehlen noch technische Unterlagen')
+    expect(m.text).toContain('- Textil')
+    expect(m.text).toContain('sie können gelöscht werden')
+    expect(m.text).toContain(
+      'Lieferantenerklärung: Datenblatt Glasur 2015 – Frist endete am 01.05.2025',
+    )
+    expect(m.html).toContain('/werkstatt/einstellungen/produktsicherheit')
+  })
 })
 
 describe('AK-6-01/AK-6-03: Snapshots DE A01–A17, keine Werbung, kein OS-Link, keine externen Bilder', () => {

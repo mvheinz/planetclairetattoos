@@ -272,7 +272,14 @@ export const MAIL_FIXTURE_DATA: Partial<Record<EmailTemplate, Record<string, unk
     ],
   },
   admin_compliance_docs_review: {
+    missingCategories: ['Textil'],
     documents: [
+      {
+        kind: 'supplier_document',
+        title: 'Datenblatt Glasur 2015',
+        keepUntil: '2025-05-01T10:00:00.000Z',
+        deletable: true,
+      },
       {
         kind: 'conformity_declaration',
         title: 'Konformitätserklärung Keramik-Glasur',

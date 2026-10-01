@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-01 – P5.13
+
+- Einstellungen → „Produktsicherheit“ (`/einstellungen/produktsicherheit`): Unterlagen je Kategorie mit Frist, Hinweis „Technische Unterlagen fehlen“, Hochladen nur PDF (Kennung %PDF- im Browser und am Server), Beispiel-Kennzeichen
+- Vorlage `GET /api/admin/compliance/template.pdf?category=` (Gliederung, keine Rechtsberatung); `technical_file` nur mit Kategorie und als PDF
+- Task `complianceDocsReview` (maintenance, monatlich am 1. ab 08:10 Berlin, runOncePer mit Minute): A16 mit fehlenden Kategorien und löschbaren Unterlagen, ohne Beispieldaten; Migration p5_compliance_docs_job
+- Tests: tests/int/legal/compliance-docs.int.spec.ts (5, inkl. T-15-Erweiterung), A16-Unit/Snapshot, Registry/Slugs-Unit
+
 ## 2026-10-01 – P5.12
 
 - Packzettel (src/lib/pdf/PackingSlip.tsx, ohne Preise, Beileger je Stück mit Herstellerin, Warn-/Pflegehinweisen, EN zusätzlich bei EN-Bestellungen) und Etikett/Beileger (src/lib/pdf/ProductLabel.tsx mit QR-Code zur Produktseite, „Nur Deko – nicht für Lebensmittel“); nur lokale Schriften

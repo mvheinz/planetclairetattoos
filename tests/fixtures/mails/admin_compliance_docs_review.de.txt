@@ -1,5 +1,15 @@
 Produktsicherheits-Unterlagen prüfen
 
+Für diese Kategorien fehlen noch technische Unterlagen (Risikoanalyse):
+
+- Textil
+
+Eine Vorlage zum Ausfüllen findest du in der Verwaltung unter Einstellungen → Produktsicherheit.
+
+Bei diesen Unterlagen ist die 10-Jahres-Frist abgelaufen – sie können gelöscht werden:
+
+- Lieferantenerklärung: Datenblatt Glasur 2015 – Frist endete am 01.05.2025
+
 Diese Unterlagen musst du aufbewahren:
 
 - Konformitätserklärung: Konformitätserklärung Keramik-Glasur – Stück noch im Verkauf
@@ -9,4 +19,4 @@ Unterlagen zu Produktsicherheit bleiben 10 Jahre nach dem letzten verkauften St�
 
 --
 Diese Nachricht hat deine Website automatisch erzeugt.
-Zur Verwaltung: https://planetclairetattoos.com/werkstatt/collections/private-uploads
+Zur Verwaltung: https://planetclairetattoos.com/werkstatt/einstellungen/produktsicherheit

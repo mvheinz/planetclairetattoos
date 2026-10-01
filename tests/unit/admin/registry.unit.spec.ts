@@ -53,10 +53,11 @@ describe('Ansichten-Registry (P5.1)', () => {
       '/stuecke/:id',
       '/bestellungen/:id',
       '/widerrufe/:id',
+      '/einstellungen/produktsicherheit',
       '/anfragen/:id',
     ])
     for (const v of ALL_ADMIN_VIEWS) {
-      expect(v.path).toMatch(/^\/[a-z-]+(\/:id)?$/)
+      expect(v.path).toMatch(/^\/[a-z-]+(\/(:id|[a-z-]+))?$/)
       expect(v.title.length).toBeGreaterThan(2)
       expect(v.phase).toBeGreaterThanOrEqual(5)
       expect(v.task).toMatch(/^P\d+\.\d+[a-z]?$/)

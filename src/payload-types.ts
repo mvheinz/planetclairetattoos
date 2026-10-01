@@ -169,6 +169,7 @@ export interface Config {
       revenueGuardCheck: TaskRevenueGuardCheck;
       monthlyClose: TaskMonthlyClose;
       invoiceIntegrityCheck: TaskInvoiceIntegrityCheck;
+      complianceDocsReview: TaskComplianceDocsReview;
       inline: {
         input: unknown;
         output: unknown;
@@ -2387,7 +2388,8 @@ export interface PayloadJob {
           | 'renderLegalTextPdf'
           | 'revenueGuardCheck'
           | 'monthlyClose'
-          | 'invoiceIntegrityCheck';
+          | 'invoiceIntegrityCheck'
+          | 'complianceDocsReview';
         taskID: string;
         input?:
           | {
@@ -2432,6 +2434,7 @@ export interface PayloadJob {
         | 'revenueGuardCheck'
         | 'monthlyClose'
         | 'invoiceIntegrityCheck'
+        | 'complianceDocsReview'
       )
     | null;
   queue?: string | null;
@@ -4959,6 +4962,20 @@ export interface TaskInvoiceIntegrityCheck {
     checked?: number | null;
     mismatched?: number | null;
     missing?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskComplianceDocsReview".
+ */
+export interface TaskComplianceDocsReview {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    sent?: boolean | null;
+    missing?: number | null;
+    deletable?: number | null;
   };
 }
 /**

@@ -32,6 +32,7 @@ import { parseInvoiceYears } from '@/lib/settings/rules'
 import { uploadStorage } from '@/lib/storage'
 import { formatBerlin } from '@/lib/time'
 import {
+  PDF_MIME,
   PRIVATE_UPLOAD_MIME_TYPES,
   fileBuffer,
   normalizePrivateFile,
@@ -247,6 +248,11 @@ const validateAndCompute: CollectionBeforeChangeHook = async ({
       typeof data.sha256 === 'string' &&
       SHA256_RE.test(data.sha256)
     if (!ok) fail('Bitte eine Datei hochladen.', 'file')
+  }
+
+  // Technische Unterlagen nur als PDF (Kennung `%PDF-` am Inhalt erkannt, `normalizeIncomingFile`; ARCHITEKTUR §8.8)
+  if (purpose === 'technical_file' && req.file && req.file.mimetype !== PDF_MIME) {
+    fail('Technische Unterlagen bitte als PDF hochladen.', 'file')
   }
 
   // Prüfsumme der gespeicherten Datei

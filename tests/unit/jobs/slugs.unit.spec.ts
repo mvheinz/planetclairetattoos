@@ -48,6 +48,7 @@ describe('Task-Slugs (ARCHITEKTUR Anhang A.3)', () => {
       'revenueGuardCheck',
       'monthlyClose',
       'invoiceIntegrityCheck',
+      'complianceDocsReview',
     ])
     for (const slug of registered) expect(TASK_SLUGS).toContain(slug)
   })

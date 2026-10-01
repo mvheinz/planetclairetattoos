@@ -10,6 +10,7 @@ import { PackingListView } from './orders/PackingListView'
 import { ExportView } from './export/ExportView'
 import { PieceEditorView } from './pieces/PieceEditorView'
 import { PiecesListView } from './pieces/PiecesListView'
+import { ProductSafetyView } from './settings/ProductSafetyView'
 import { ADMIN_HOME_VIEW, adminView, allDataPath, type AdminViewMatch } from './registry'
 
 // Inhalt einer Verwaltungs-Ansicht (PLAN P5.1). Bis die Aufgabe der Ansicht (`task` in der Registry) sie füllt, zeigt
@@ -34,6 +35,7 @@ const VIEW_BODIES: Partial<Record<string, ViewBody>> = {
   packen: PackingListView,
   bestellung: OrderDetailView,
   export: ExportView,
+  produktsicherheit: ProductSafetyView,
 }
 
 export function AdminViewBody(props: AdminViewBodyProps) {
@@ -79,6 +81,18 @@ export function AdminViewBody(props: AdminViewBodyProps) {
                 className="pc-admin-btn pc-admin-btn--primary"
               >
                 {adminText('shellNewPiece')}
+              </Link>
+            </p>
+          ) : null}
+          {view.key === 'einstellungen' ? (
+            <p>
+              <Link
+                href={`${adminRoute}${adminView('produktsicherheit').path}`}
+                prefetch={false}
+                className="pc-admin-btn pc-admin-btn--secondary"
+                data-testid="settings-product-safety"
+              >
+                {adminText('settingsProductSafety')}
               </Link>
             </p>
           ) : null}

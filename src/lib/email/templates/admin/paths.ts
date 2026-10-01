@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { adminViewPath } from '@/admin/views/registry'
+import { adminView, adminViewPath } from '@/admin/views/registry'
 
 // Direktlinks der Verwaltungs-Mails (KONZEPT §6.4): Pfade unterhalb von `ADMIN_ROUTE`, an einer Stelle gesammelt. Wo
 // es eine eigene Ansicht gibt, kommt der Pfad aus der Ansichten-Registry (PLAN P5.1); solange eine Ansicht noch
@@ -18,4 +18,5 @@ export const ADMIN_MAIL_PATHS = {
   orders: () => '/collections/orders',
   privateUploads: () => '/collections/private-uploads',
   settings: () => adminViewPath('einstellungen'),
+  productSafety: () => adminView('produktsicherheit').path,
 } as const

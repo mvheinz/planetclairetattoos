@@ -74,7 +74,12 @@ async function queueWakeTasks(payload: Payload, req: PayloadRequest, now: Date):
     if (notBefore !== undefined && hour < notBefore) continue
     const period = WAKE_TASK_PERIOD[task]
     if (period) {
-      const { period: key, reached } = periodOf(period.per, period.berlinHour, now)
+      const { period: key, reached } = periodOf(
+        period.per,
+        period.berlinHour,
+        now,
+        period.berlinMinute ?? 0,
+      )
       if (!reached || (await hasOkRunForPeriod(poolDb(payload), task, key))) continue
     }
     const open = await payload.count({

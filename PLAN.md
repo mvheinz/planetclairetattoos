@@ -2756,7 +2756,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     PDF-Text mit `pdf-parse`, falls aus P4 nicht vorhanden als devDependency ergänzen).
   - Ohne Jutta: Stammdaten sind bis P11 Platzhalter („[Name folgt]“); Kennzeichnung der Stücke ist Owner-Aufgabe (R-203).
 
-- [ ] **P5.13 Ablage für Produktsicherheits-Unterlagen** – Dokumentablage nach R-203 und LOESCHKONZEPT L-24 über
+- [x] **P5.13 Ablage für Produktsicherheits-Unterlagen** – Dokumentablage nach R-203 und LOESCHKONZEPT L-24 über
   `private-uploads` (DATENMODELL §6.4): Zwecke `technical_file` (Risikoanalyse, technische Unterlagen je Kategorie),
   `supplier_document` (Lieferantenerklärungen, Sicherheitsdatenblätter), `lab_report` (Prüfberichte), `nickel_evidence`;
   Felder `complianceCategory` (bei `technical_file` Pflicht), `documentVersion`, `documentDate`, `note`; nur Admin,

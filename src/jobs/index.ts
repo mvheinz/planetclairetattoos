@@ -3,6 +3,7 @@ import type { TaskConfig } from 'payload'
 import { instrumentTask } from '@/lib/jobs/instrument'
 
 import { cancelOverduePrepaymentsTask } from './cancelOverduePrepayments'
+import { complianceDocsReviewTask } from './complianceDocsReview'
 import { invoiceIntegrityCheckTask } from './invoiceIntegrityCheck'
 import { monthlyCloseTask } from './monthlyClose'
 import { prepaymentRemindersTask } from './prepaymentReminders'
@@ -76,6 +77,7 @@ export const JOB_TASKS: TaskConfig<any>[] = [
   revenueGuardCheckTask,
   monthlyCloseTask,
   invoiceIntegrityCheckTask,
+  complianceDocsReviewTask,
 ].map((t) => instrumentTask(t, TASK_DEFS[t.slug as TaskSlug].queue))
 
 export const IMPLEMENTED_TASK_SLUGS = new Set<string>(JOB_TASKS.map((t) => t.slug))
@@ -96,6 +98,7 @@ export const WAKE_TASK_SLUGS: readonly TaskSlug[] = (
     'revenueGuardCheck',
     'monthlyClose',
     'invoiceIntegrityCheck',
+    'complianceDocsReview',
   ] as const
 ).filter((s) => isImplementedTask(s))
 
@@ -113,8 +116,9 @@ export const WAKE_TASK_NOT_BEFORE_HOUR: Partial<Record<TaskSlug, number>> = {
  * Protokolleintrag je Stunde. Die Tasks prüfen dasselbe unter ihrem Lock noch einmal.
  */
 export const WAKE_TASK_PERIOD: Partial<
-  Record<TaskSlug, { per: 'day' | 'month'; berlinHour: number }>
+  Record<TaskSlug, { per: 'day' | 'month'; berlinHour: number; berlinMinute?: number }>
 > = {
   monthlyClose: { per: 'month', berlinHour: 4 },
   invoiceIntegrityCheck: { per: 'month', berlinHour: 4 },
+  complianceDocsReview: { per: 'month', berlinHour: 8, berlinMinute: 10 },
 }

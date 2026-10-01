@@ -35,6 +35,7 @@ import { DeletionLog } from './collections/DeletionLog'
 import { EmailLog } from './collections/EmailLog'
 import { WebhookEvents } from './collections/WebhookEvents'
 import { Settings } from './globals/Settings'
+import { complianceTemplateEndpoint } from './endpoints/compliance'
 import { exportEndpoints } from './endpoints/export'
 import { SiteTexts } from './globals/SiteTexts'
 import { withJsonPreview } from './admin/jsonPreview'
@@ -116,7 +117,7 @@ export default buildConfig({
   ].map((c) => ({ ...c, fields: withJsonPreview(c.fields) })),
   globals: [Settings, SiteTexts].map((g) => ({ ...g, fields: withJsonPreview(g.fields) })),
   // Admin-Endpunkte ohne Collection (ARCHITEKTUR §2.5): Exporte (P5.24/P5.25).
-  endpoints: [...exportEndpoints],
+  endpoints: [...exportEndpoints, complianceTemplateEndpoint],
   hooks: { afterError: [keepValidationErrorData] },
   editor: lexicalEditor(),
   // DATENMODELL §1.2 (E-60, E-61): fehlendes EN zeigt DE.

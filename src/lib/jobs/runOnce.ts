@@ -20,16 +20,19 @@ export interface RunOnceDecision {
   reason: 'due' | 'too_early' | 'done'
 }
 
-/** Rein: Zeitraum-Schlüssel und ob die Berliner Uhrzeit erreicht ist (Monat: ab dem 1. um `berlinHour`). */
+/** Rein: Zeitraum-Schlüssel und ob die Berliner Uhrzeit erreicht ist (Monat: ab dem 1. um `berlinHour:berlinMinute`). */
 export function periodOf(
   per: RunPeriod,
   berlinHour: number,
   now: Date,
+  berlinMinute = 0,
 ): { period: string; reached: boolean } {
   const hour = Number(formatBerlin(now, 'H'))
-  if (per === 'day') return { period: berlinDateKey(now), reached: hour >= berlinHour }
+  const minute = Number(formatBerlin(now, 'm'))
+  const timeReached = hour > berlinHour || (hour === berlinHour && minute >= berlinMinute)
+  if (per === 'day') return { period: berlinDateKey(now), reached: timeReached }
   const day = Number(formatBerlin(now, 'd'))
-  return { period: berlinMonthKey(now), reached: day > 1 || hour >= berlinHour }
+  return { period: berlinMonthKey(now), reached: day > 1 || timeReached }
 }
 
 export async function runOncePer(
@@ -38,8 +41,9 @@ export async function runOncePer(
   per: RunPeriod,
   berlinHour: number,
   now: Date,
+  berlinMinute = 0,
 ): Promise<RunOnceDecision> {
-  const { period, reached } = periodOf(per, berlinHour, now)
+  const { period, reached } = periodOf(per, berlinHour, now, berlinMinute)
   if (!reached) return { due: false, period, reason: 'too_early' }
   if (await hasOkRunForPeriod(db, task, period)) return { due: false, period, reason: 'done' }
   return { due: true, period, reason: 'due' }
