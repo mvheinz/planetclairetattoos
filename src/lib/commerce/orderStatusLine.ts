@@ -5,7 +5,7 @@ import type { OrderStatus } from '@/lib/enums'
 // Statusverlauf der Bestellstatus-Seite R09 (DESIGN KO-16, KONZEPT §4.12 Nr. 1, DATENMODELL §6.8.2): reine Funktionen
 // ohne DB. Hauptlinie je Variante (Versand, Abholung; bei Vorkasse heißt „bezahlt“ „Zahlung eingegangen“), Widerruf,
 // Rücksendung, Erstattung und Storno als eigene Einträge. Eine Anfechtung (`disputed`) sieht die Kund:in nicht – gezeigt
-// wird der Status aus `statusBeforeDispute`. Außerdem die maskierte E-Mail (`j•••@outlook.de`).
+// wird der Status aus `statusBeforeDispute`. Außerdem die maskierte E-Mail (`e•••@example.com`).
 
 export type StatusStepKey =
   | 'ordered'
@@ -123,7 +123,7 @@ export function buildStatusLine(input: StatusLineInput): StatusStep[] {
   return steps
 }
 
-/** `jutta.dollmann@outlook.de` → `j•••@outlook.de` (R-067: keine volle E-Mail auf der Statusseite). */
+/** `erika.beispiel@example.com` → `e•••@example.com` (R-067: keine volle E-Mail auf der Statusseite). */
 export function maskEmail(email: string | null | undefined): string | null {
   if (!email) return null
   const at = email.lastIndexOf('@')

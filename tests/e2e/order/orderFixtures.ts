@@ -65,7 +65,7 @@ export async function submittedCheckout(
     now,
     confirming: o.confirming ?? false,
     legal,
-    email: 'jutta.dollmann@outlook.de',
+    email: 'erika.beispiel@example.com',
   })
   if (o.seed)
     await dbOf(payload).execute(sql`UPDATE checkouts SET seed = true WHERE id = ${r.checkoutId}`)

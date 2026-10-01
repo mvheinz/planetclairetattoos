@@ -128,8 +128,8 @@ describe('buildStatusLine', () => {
 })
 
 describe('maskEmail', () => {
-  it('R-067: j•••@outlook.de', () => {
-    expect(maskEmail('jutta.dollmann@outlook.de')).toBe('j•••@outlook.de')
+  it('R-067: e•••@example.com', () => {
+    expect(maskEmail('erika.beispiel@example.com')).toBe('e•••@example.com')
     expect(maskEmail('')).toBeNull()
     expect(maskEmail('kaputt')).toBeNull()
   })
