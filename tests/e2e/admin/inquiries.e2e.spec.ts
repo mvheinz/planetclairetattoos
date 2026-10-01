@@ -79,10 +79,10 @@ test('@a11y „Anfragen“: Liste, Detail mit Bild, Status, Notiz, Antworten und
       `mailto:erika@example.com?subject=${encodeURIComponent(`Your request ${reference}`)}`,
     )
 
-    // Status: neu → in Arbeit
+    // Status: neu → in Bearbeitung
     await page.getByTestId('inquiry-status-in_progress').click()
-    await expect(page.getByTestId('inquiry-status')).toHaveText('in Arbeit')
-    await expect(page.getByTestId('inquiry-history')).toContainText('in Arbeit')
+    await expect(page.getByTestId('inquiry-status')).toHaveText('in Bearbeitung')
+    await expect(page.getByTestId('inquiry-history')).toContainText('in Bearbeitung')
     // Notiz
     await page.getByTestId('notes-text').fill('Größe nachfragen.')
     await page.getByTestId('notes-save').click()
