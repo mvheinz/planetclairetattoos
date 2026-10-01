@@ -100,8 +100,8 @@ describe('Abholung (P5.17)', () => {
     expect((await post(order.id, 'pickup-ready', { messageText: text })).json.unchanged).toBe(true)
     const rows = await m07Rows(order.id)
     expect(rows.map((r) => r.idempotencyKey)).toEqual([`pickup_ready:${order.id}:O8`])
-    const mails = (await readOutbox({ to: EMAIL, type: 'pickup_ready' }, h.outboxDir)).filter(
-      (m) => m.subject.includes(order.orderNumber),
+    const mails = (await readOutbox({ to: EMAIL, type: 'pickup_ready' }, h.outboxDir)).filter((m) =>
+      m.subject.includes(order.orderNumber),
     )
     expect(mails).toHaveLength(1)
     expect(mails[0]!.subject).toBe(`Abholbereit: Bestellung ${order.orderNumber}`)
