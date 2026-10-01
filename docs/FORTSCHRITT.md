@@ -2,6 +2,57 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+
+## 2026-10-01 – P4 Phasen-Abnahme (Korb, Kasse, Bezahlen) – für Jutta
+
+**Was ist neu?** Man kann jetzt richtig einkaufen: Stück in den Korb, zur Kasse, bezahlen – bisher nur mit einer
+Test-Zahlung, es fließt also noch kein Geld.
+
+**Was du in der Vorschau-Datei jetzt siehst** (Datei herunterladen und doppelklicken, wie in Anleitung V0):
+
+- **Korb:** Darin liegen als Beispiel die Schale Nr. 901 und das T-Shirt Nr. 911 – mit Foto, Preis, Versandkosten,
+  Summe und dem Hinweis zur Umsatzsteuer. Du kannst zwischen Versand und Abholung in Berlin wählen.
+- **Kasse:** alle Felder (E-Mail, Name, Adresse, bei Abholung die Rechnungsadresse), die Wahl zwischen Karte/PayPal
+  und Vorkasse, die Übersicht direkt über dem Knopf „Zahlungspflichtig bestellen“ und die Häkchen-Frage beim T-Shirt
+  mit der beschriebenen Besonderheit. Oben läuft eine Uhr ab 30:00 herunter: So lange ist ein Stück für eine Kundin
+  reserviert, niemand anderes kann es in der Zeit kaufen. In der Vorschau-Datei läuft die Uhr nur zum Anschauen, und
+  statt des Zahlungsfelds steht ein Platzhalter. Ein Klick auf „Zahlungspflichtig bestellen“ zeigt „Vorschau – hier
+  wird nichts gekauft“ – es wird nichts gespeichert.
+- **Danke-Seite und Bestellstatus** (die Seite, die Kundinnen über ihren Link sehen): Die zeigt die Vorschau-Datei ab
+  Phase P8, wenn es die Beispielbestellungen gibt. In der Liste „Alle Seiten“ steht bei ihnen „noch nicht gebaut“.
+- **Versand & Zahlung:** Die Seite mit allen Versandkosten, Lieferzeiten und Zahlarten.
+
+**Was auf der echten Seite schon funktioniert** (geprüft mit einer Test-Zahlung, die sich wie Stripe verhält):
+
+- **Bezahlen mit Karte, Apple Pay/Google Pay und PayPal:** Nach der Zahlung kommt die Danke-Seite mit Bestellnummer,
+  deinen nächsten Schritten und dem Link zum Bestellstatus. Die Kundin bekommt sofort eine Bestätigungsmail mit
+  Rechnung (als PDF) und den Rechtstexten, du bekommst eine Mail „Neue Bestellung“.
+- **Wenn etwas schiefgeht:** Lehnt die Bank die Karte ab, sieht die Kundin eine Meldung und kann es noch einmal
+  versuchen oder auf Vorkasse wechseln. Bricht sie bei PayPal ab, führt „Zurück zur Kasse“ sie wieder hinein – ihre
+  Eingaben sind noch da. Dauert die Bestätigung länger, wartet die Danke-Seite kurz und zeigt dann „bezahlt“.
+- **Vorkasse:** Die Kundin sieht deine Bankdaten, den Verwendungszweck (die Bestellnummer), die Frist und einen
+  QR-Code für die Banking-App; das steht auch in ihrer Mail. Sobald das Geld da ist, klickst du in der Verwaltung bei
+  der Bestellung auf „Zahlung erhalten“ – dann bekommt sie ihre Rechnung. Kommt nichts, erinnert die Seite sie einmal
+  und storniert nach Ablauf der Frist.
+- **Nie doppelt verkauft:** Wollen zwei Leute gleichzeitig dasselbe Stück kaufen, bekommt nur eine die Kasse; die
+  andere sieht „gerade reserviert – schau in 30 Minuten nochmal“. Läuft die Reservierung ab, ist das Stück wieder frei.
+- **Datenschutz:** Erst mit „In den Korb“ speichert die Seite ein kleines Korb-Cookie, mit „Zur Kasse“ ein zweites für
+  die Kasse – vorher nichts. Nach der Bestellung löscht die Danke-Seite beide. Keine Verbindung zu fremden Diensten;
+  Stripe wird später nur auf der Kasse geladen.
+
+**Was du in P11 (Start-Tag) dafür erledigst** (Liste in deinen Aufgaben):
+
+- **A23** Stripe-Konto verifizieren (Ausweis, IBAN, Steuernummer – gibst du selbst ein; kann ein paar Tage dauern).
+- **A24** PayPal in Stripe verbinden (geht erst nach A23).
+- **A26** Stammdaten und Bankverbindung für die Vorkasse bereitlegen (Name, Adresse, IBAN, Abhol-Infos).
+- **A33** Konten verbinden und Schlüssel sicher hinterlegen – dabei auch die Stripe-Schlüssel.
+- **A38** Stripe live schalten – ab dann fließt echtes Geld.
+- Danach machen wir zusammen einen echten Testkauf mit Widerruf und Erstattung (**A39**).
+
+**Noch offen (Platzhalter bis P11):** deine echte Bankverbindung (bis dahin eine Beispiel-IBAN), die Rechtstexte der
+Kanzlei und die Frage an die Kanzlei, ob die Rechnungsadresse bei Abholung Pflicht sein muss (so ist es jetzt
+eingestellt).
+
 ## 2026-10-01 – P4.25
 
 - Qualitätsgates P4: `@privacy` (R06–R09, R25), Header je Kontext, axe, AK-DS-11, JS-Budget R06/R07 (R07 mit Kasse 170 KB gz nach `zod/mini`, R02 Zier-Module nach dem Laden), CLS, Logger-Schwärzung nach Kassen-Durchlauf, Verbotsmuster über P4-Seiten und Mails, Statusliste nur `ORDER_STATUSES`.
