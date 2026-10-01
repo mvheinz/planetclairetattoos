@@ -2886,7 +2886,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/e2e/admin/withdrawals-list.e2e.spec.ts`, `tests/int/withdrawals/notes.int.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P5.20 „Anfragen“ (Auftragsarbeiten) in der Verwaltung** – Ansicht `/anfragen` (KONZEPT §7.11): Referenz
+- [x] **P5.20 „Anfragen“ (Auftragsarbeiten) in der Verwaltung** – Ansicht `/anfragen` (KONZEPT §7.11): Referenz
   `AA-…`, Datum, Name, Gegenstand, Status, „wird gelöscht am {deleteAfter}“. Detail `/anfragen/:id`: alle Angaben,
   Referenzbilder nur über die angemeldete Dateiroute bzw. signierte URL ≤ 300 s (ARCHITEKTUR §8.3), interne Notizen,
   Status-Knöpfe mit den Werten aus `INQUIRY_STATUSES` (DATENMODELL §4) und den Übergängen aus KONZEPT §5.5 als Tabelle

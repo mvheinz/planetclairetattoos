@@ -2,6 +2,11 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-01 – P5.20
+
+- Ansicht „Anfragen“ (/anfragen, /anfragen/:id): Liste mit „wird gelöscht am“, Detail mit Referenzbildern über die angemeldete Dateiroute, Notizen, Status-Knöpfe nach INQUIRY_TRANSITIONS (src/lib/inquiries/transitions.ts, Audit inquiry_status_changed, lastActivityAt statt deleteAfter), „Antworten“ per mailto je Sprache, „Jetzt löschen“ (Anfrage + Bilder, Audit inquiry_deleted, deletion-log ADMIN/admin).
+- Tests: tests/int/inquiries/admin.int.spec.ts (4, AK-5-01 Anfrage, AK-10-04), tests/e2e/admin/inquiries.e2e.spec.ts.
+
 ## 2026-10-01 – P5.19
 
 - Ansicht „Widerrufe“ (/widerrufe, /widerrufe/:id), nur lesend: WR-Nummer, Eingang (Berlin), Name, Bestellung bzw. „nicht zugeordnet“, Kanal, Status, „erstatten bis“ (Eingang + 14 Tage, ab Tag 10 rot); Detail mit unveränderlicher Erklärung, Bestellung mit Positionen und Zahlart, Notizen separat speicherbar (POST /api/withdrawals/:id/notes); Aktionen „Bearbeitung ab P6“.
