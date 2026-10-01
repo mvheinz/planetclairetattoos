@@ -23,6 +23,9 @@ export default defineConfig({
   testDir: './tests/visual',
   testMatch: '**/*.visual.spec.ts',
   testIgnore: [],
+  // Nacheinander wie in CI: `checkout-pages.visual.spec.ts` legt verfügbare Fixture-Stücke (980–989) an, die parallel
+  // laufende Seiten mit Stück-Listen (R01, R02, R04 „Mehr Stücke“) sonst kurzzeitig mit abbilden würden.
+  workers: 1,
   snapshotPathTemplate:
     '{testDir}/__screenshots__/{testFilePath}/{arg}-{projectName}-{platform}{ext}',
   expect: {
