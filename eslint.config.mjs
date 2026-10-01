@@ -127,6 +127,7 @@ export default defineConfig([
     '.next/**',
     '.next-preview/**',
     '.lighthouseci/**',
+    'coverage/**',
     'node_modules/**',
     'dist/**',
     'src/payload-types.ts',

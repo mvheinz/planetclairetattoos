@@ -434,6 +434,28 @@ describe('AFTER_LOAD: Produktseiten-Module erst nach dem load-Ereignis (Erstlade
     state.mockRestore()
   })
 
+  it('Stück-Listen: price-tag-swing und sold-stamp warten wie product-status auf load (R02-Budget, P4.25)', async () => {
+    document.body.innerHTML =
+      '<a data-behavior="menu"></a><ul data-behavior="price-tag-swing sold-stamp product-status"></ul>'
+    const state = vi.spyOn(document, 'readyState', 'get').mockReturnValue('interactive')
+    const loader = vi.fn(
+      async (name: BehaviorName) => (await BEHAVIOR_LOADERS[name]()) as BehaviorModule,
+    )
+    const mounted = mountBehaviors(document, { mode: 'app' }, loader)
+    await Promise.resolve()
+    expect(loader.mock.calls.map((c) => c[0])).toEqual(['menu'])
+    window.dispatchEvent(new Event('load'))
+    await mounted.ready
+    expect(loader.mock.calls.map((c) => c[0])).toEqual([
+      'menu',
+      'price-tag-swing',
+      'sold-stamp',
+      'product-status',
+    ])
+    mounted.unmount()
+    state.mockRestore()
+  })
+
   it('Modus preview: sofort', async () => {
     document.body.innerHTML = '<section data-behavior="gallery"></section>'
     const state = vi.spyOn(document, 'readyState', 'get').mockReturnValue('loading')

@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import * as z from 'zod/mini'
 
 // Gemeinsames Schema der Kasse (KONZEPT §4.4, DATENMODELL §6.25.1, RECHT R-060/R-061, PLAN P4.9): dieselbe Prüfung im
 // Browser (vor dem Absenden, Fehler am Feld + Zusammenfassung) und auf dem Server (`submitCheckout`, P4.10a). Reines
@@ -134,9 +134,10 @@ const LIMITS = {
   city: { min: 2, max: 60 },
 } as const
 
-// E-Mail: zod-Prüfung plus Längengrenze (RFC 5321, KONZEPT §4.4).
+// E-Mail: zod-Prüfung plus Längengrenze (RFC 5321, KONZEPT §4.4). `zod/mini` (gleiche Prüfungen wie `zod`, aber
+// baumschüttelbar): das Modul läuft auch im Browser, das volle `zod` brächte ~95 KB gz in die Kasse (T-09, P4.25).
 const emailSchema = z.email()
-const postalCodeSchema = z.string().regex(/^\d{5}$/)
+const postalCodeSchema = z.string().check(z.regex(/^\d{5}$/))
 
 const one = (v: string | string[] | null | undefined): string =>
   (Array.isArray(v) ? (v[0] ?? '') : (v ?? '')).trim()

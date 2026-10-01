@@ -103,12 +103,12 @@ export const EXTERNAL_ALLOWLIST: readonly { prefix: string; why: string; jsOnly?
   { prefix: 'https://github.com/zloirock/core-js', why: 'core-js-Lizenzhinweis', jsOnly: true },
   {
     prefix: 'http://json-schema.org/',
-    why: 'zod: `$schema`-Kennungen der JSON-Schema-Ausgabe (Kassen-Formular), nie geladen',
+    why: 'zod: `$schema`-Kennungen der JSON-Schema-Ausgabe (Verwaltungs-Bundle), nie geladen',
     jsOnly: true,
   },
   {
     prefix: 'https://json-schema.org/',
-    why: 'zod: `$schema`-Kennungen der JSON-Schema-Ausgabe (Kassen-Formular), nie geladen',
+    why: 'zod: `$schema`-Kennungen der JSON-Schema-Ausgabe (Verwaltungs-Bundle), nie geladen',
     jsOnly: true,
   },
   {

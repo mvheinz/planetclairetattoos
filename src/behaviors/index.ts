@@ -37,6 +37,8 @@ const defaultLoader: BehaviorLoader = (name) => BEHAVIOR_LOADERS[name]()
  * (Galerie per Scrollen, Foto-Link auf die Datei, Kauf-Leiste verborgen, „In den Korb“ als normales Formular, Zustand aus
  * dem Server-HTML). So zählen ihre Chunks nie zum Erstlade-JS (Budget ARCHITEKTUR §7.7) – das `load`-Ereignis wartet auf
  * Fotos und Schriften und käme sonst manchmal später. `product-status` fragt ohnehin erst „nach dem Laden“ (§9.3).
+ * Ebenso die Zierde der Stück-Listen (Schild-Schwingen MI-02, Stempel MI-03; P4.25): Schild und Stempel stehen statisch im
+ * Server-HTML, die Bewegung kommt dazu, sobald die Seite geladen ist – sonst lag R02 je nach Ladereihenfolge über 150 KB.
  */
 export const AFTER_LOAD: ReadonlySet<BehaviorName> = new Set<BehaviorName>([
   'gallery',
@@ -44,6 +46,8 @@ export const AFTER_LOAD: ReadonlySet<BehaviorName> = new Set<BehaviorName>([
   'buy-bar',
   'add-to-cart',
   'product-status',
+  'price-tag-swing',
+  'sold-stamp',
 ])
 
 export interface MountedBehaviors {
