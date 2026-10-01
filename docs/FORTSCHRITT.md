@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-01 – P5.16
+
+- Ansicht `/versendet`: shipped + delivered (30 Tage) mit Versanddatum, Nummer als Link, Status, „geschätzt“; Knöpfe Zugestellt (O10 manual), Sendungsnummer korrigieren/nachtragen (Rückfrage „Versandmail erneut senden?“ ja/nein), Reklamation (Bruch) → Texte
+- Endpunkte `delivered`, `tracking`; Task `markDelivered` (commerce, täglich ab 03:00 Berlin, ≥ 10 Kalendertage, auto, ohne Mail), Migration p5_mark_delivered_job; Tick führt Jobs jetzt nacheinander aus (Pool-Erschöpfung bei 8 Wecker-Tasks)
+- Tests: tests/int/jobs/mark-delivered.int.spec.ts (3, AK-8-01), tests/e2e/admin/shipped.e2e.spec.ts (desktop + pixel-7)
+
 ## 2026-10-01 – P5.14
 
 - Scan-Baustein `src/admin/components/TrackingScanner.tsx`: Kamera erst nach Tipp, natives BarcodeDetector (Code 128/39, ITF, Data Matrix, Rückkamera), sonst Foto (`capture=environment`) über `@zxing/browser` als dynamischer Chunk nur in der Versand-Ansicht; Texteingabe bleibt

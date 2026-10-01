@@ -2824,7 +2824,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     `tests/unit/legal/shipping-mail.unit.spec.ts` (Titel „R-082 …“, Snapshots DE/EN), `tests/int/orders/ship.int.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P5.16 „Versendet“, „Zugestellt“ und Job `markDelivered`** – Ansicht `/versendet` (KONZEPT §7.8): alle
+- [x] **P5.16 „Versendet“, „Zugestellt“ und Job `markDelivered`** – Ansicht `/versendet` (KONZEPT §7.8): alle
   `shipped` und `delivered` der letzten 30 Tage mit Versanddatum, Sendungsnummer als Link (sofern vorhanden), Status.
   Knöpfe „Zugestellt“ (O10, `shipment.deliveredSource = manual`), „Sendungsnummer korrigieren“ bzw. „nachtragen“ (Dialog
   „Versandmail erneut senden?“ ja/nein; bei ja neue M06 mit neuem Idempotenz-Schlüssel), „Reklamation (Bruch)“ (bis P6
