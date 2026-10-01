@@ -136,7 +136,9 @@ export async function handleTick(request: Request, deps: CronDeps = {}): Promise
     const req = await createLocalReq({ context: { system: true, now: now.toISOString() } }, payload)
     const schedules = await payload.jobs.handleSchedules({ allQueues: true, req })
     await queueWakeTasks(payload, req, now)
-    const run = await payload.jobs.run({ allQueues: true, limit: 50, req })
+    // Nacheinander: jeder Task hält eigene Verbindungen (Task-Lock, Transaktion) – parallel erschöpfen die Wecker-Tasks
+    // den Pool (Vercel 5, lokal 10) und blockieren sich gegenseitig (P5.13/P5.16).
+    const run = await payload.jobs.run({ allQueues: true, limit: 50, req, sequential: true })
     const next = await nextWake(payload, now)
     await jobAlarm.markFullRun(now, next)
     return { ran: Object.keys(run.jobStatus ?? {}).length, scheduled: schedules.queued.length }
