@@ -2872,7 +2872,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/orders/prepayment-admin.int.spec.ts` (Titel „R-071 …“), `tests/e2e/admin/prepayment.e2e.spec.ts`.
   - Ohne Jutta: Bankdaten sind bis P11 die Beispiel-IBAN aus dem Grund-Seed.
 
-- [ ] **P5.19 „Widerrufe“ (Liste und Detail, nur lesend)** – Ansicht `/widerrufe` (KONZEPT §7.10) mit DATENMODELL-Namen
+- [x] **P5.19 „Widerrufe“ (Liste und Detail, nur lesend)** – Ansicht `/widerrufe` (KONZEPT §7.10) mit DATENMODELL-Namen
   (§6.11): Vorgangsnummer `WR-…`, Eingang (Datum und Uhrzeit Europe/Berlin), Name, Bestellung oder „nicht zugeordnet“,
   Kanal (`channel`), Status, „erstatten bis {`refundDueAt`}“ (= Eingang + 14 Tage, ab Tag 10 rot). Detail
   `/widerrufe/:id`: unveränderliche Erklärung

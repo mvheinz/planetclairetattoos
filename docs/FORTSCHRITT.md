@@ -2,6 +2,11 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-01 – P5.19
+
+- Ansicht „Widerrufe“ (/widerrufe, /widerrufe/:id), nur lesend: WR-Nummer, Eingang (Berlin), Name, Bestellung bzw. „nicht zugeordnet“, Kanal, Status, „erstatten bis“ (Eingang + 14 Tage, ab Tag 10 rot); Detail mit unveränderlicher Erklärung, Bestellung mit Positionen und Zahlart, Notizen separat speicherbar (POST /api/withdrawals/:id/notes); Aktionen „Bearbeitung ab P6“.
+- Tests: tests/int/withdrawals/notes.int.spec.ts (3, inkl. DM-WDR-03), tests/e2e/admin/withdrawals-list.e2e.spec.ts.
+
 ## 2026-10-01 – P5.18
 
 - Ansicht „Vorkasse offen“ (/vorkasse): Frist „noch X Tage bis Storno“ (letzter Tag rot), Erinnerung, Bankdaten kopieren; „Zahlung erhalten“ (O3, Betrag Pflicht, Abweichungs-Warnung) → paid, Rechnung RE, M05; „Stornieren“ (O4, Grund Pflicht) → M04; „Kürzlich automatisch storniert“ mit „Nachträglich bezahlt“ (O5, 409 wenn ein Stück weg ist, sonst Hinweis „bitte Geld zurücküberweisen“).
