@@ -159,6 +159,11 @@ function previewModeId(): string {
 }
 
 test.describe('axe Leerzustand der Startseite @a11y', () => {
+  // Exklusiv gegenüber dem Listen-Bestand: Specs, die die Startseite erneuern (`refresh` in `home/stations`) oder Stücke
+  // anlegen, würden sonst den Leerzustand in den Seiten-Cache schreiben – parallele Startseiten-Tests sahen dann eine
+  // Station statt acht (P4.25).
+  holdListData(test, 'exclusive')
+
   for (const locale of LOCALES) {
     test(`T-11 DM-PAGE-01 Startseite ohne home (${locale}) @a11y`, async ({ page, context }) => {
       const db = new pg.Client({ connectionString: process.env.DATABASE_URL })
