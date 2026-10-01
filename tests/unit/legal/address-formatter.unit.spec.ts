@@ -46,10 +46,9 @@ describe('formatShippingAddress', () => {
   })
 
   it('R-101 nie eine Telefonnummer – auch nicht, wenn die Daten eine enthalten', () => {
-    const text = formatShippingAddress(
-      { ...base, carrierEmailConsent: true } as never,
-      { includeEmail: true },
-    )
+    const text = formatShippingAddress({ ...base, carrierEmailConsent: true } as never, {
+      includeEmail: true,
+    })
     expect(text).not.toMatch(/\+49|0176|1234567/)
   })
 

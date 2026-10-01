@@ -94,12 +94,18 @@ describe('Aktions-Rahmen der Bestellungen (P5.9)', () => {
     const order = await paidOrder(983)
     expect(await mails(order.id, 'order_confirmation')).toBe(1)
     const dialogKey = crypto.randomUUID()
-    const first = await post(order.id, 'resend-email', { template: 'order_confirmation', dialogKey })
+    const first = await post(order.id, 'resend-email', {
+      template: 'order_confirmation',
+      dialogKey,
+    })
     expect(first.status).toBe(200)
     expect(first.json.unchanged).toBe(false)
     expect(await mails(order.id, 'order_confirmation')).toBe(2)
 
-    const again = await post(order.id, 'resend-email', { template: 'order_confirmation', dialogKey })
+    const again = await post(order.id, 'resend-email', {
+      template: 'order_confirmation',
+      dialogKey,
+    })
     expect(again.status).toBe(200)
     expect(again.json.unchanged).toBe(true)
     expect(await mails(order.id, 'order_confirmation')).toBe(2)

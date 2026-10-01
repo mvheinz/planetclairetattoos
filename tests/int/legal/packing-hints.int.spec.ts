@@ -191,7 +191,11 @@ describe('„Zu packen“ (P5.10)', () => {
     const card = (await list()).find((c) => c.id === o.id)
     expect(hint(card, 'carrierEmail')).toBe('E-Mail an DHL: nein')
     expect(card?.addressLines.join('\n')).not.toContain('@')
-    const reread = await h.payload.findByID({ collection: 'orders', id: o.id, overrideAccess: true })
+    const reread = await h.payload.findByID({
+      collection: 'orders',
+      id: o.id,
+      overrideAccess: true,
+    })
     expect((reread as unknown as { copyAddressText: string }).copyAddressText).not.toContain('@')
     // zweiter Tipp: nichts mehr zu tun
     const again = await post(o.id, 'withdraw-carrier-consent')
