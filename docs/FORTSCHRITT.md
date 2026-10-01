@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-01 – P5.11
+
+- Checkliste je Versandklasse + Punkte für alle Sendungen (packingChecklistState), Verpackung vorbelegt aus settings.packaging (Vorlage, Material, Gramm änderbar; Wertkopie mit „Gepackt“ bzw. „Versendet melden“), Packfotos über die Kamera (privat)
+- „Versendet melden“ (O7, POST /api/orders/:id/ship) mit Verpackungs-Pflicht und Rückfrage „Ohne Packfoto versenden?“ (Audit packing_photo_skipped); M06 folgt in P5.15
+- Jahres-Export GET /api/admin/packaging-report?year=JJJJ (ohne Beispieldaten/Abholungen), Download unter /export, Jahressumme unter Einstellungen → Versand; Owner-Aufgabe A52 (Verpackungen wiegen)
+- Tests: tests/int/legal/packaging-report.int.spec.ts (4), tests/int/legal/transport-risk.int.spec.ts (4), tests/e2e/admin/packing-photos.e2e.spec.ts grün
+
 ## 2026-10-01 – P5.10
 
 - Ansicht „Zu packen“ /packen: paid/packed mit Versand (älteste zuerst; Widerruf vor dem Versand mit Hinweis), Karte mit Fotos, Nr., Versandklasse, Name/Ort und Hinweisen wörtlich laut KONZEPT §7.6

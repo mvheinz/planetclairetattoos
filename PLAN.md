@@ -2706,7 +2706,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     (Titel „R-100 Versicherungshinweis …“), `tests/e2e/admin/packing.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P5.11 Verpackungs-Checkliste, Verpackungsmengen und Packfotos** – Checkliste je Versandklasse aus
+- [x] **P5.11 Verpackungs-Checkliste, Verpackungsmengen und Packfotos** – Checkliste je Versandklasse aus
   `settings.packingChecklists` (Seed laut SEED-SPEC §3.2) plus Punkte für alle Sendungen; Häkchen je Bestellung in
   `packingChecklistState` (KONZEPT §7.6). Verpackungsmengen (E-47, R-201, DATENMODELL §6.8.8): beim Packen ist
   `packaging` mit der Standard-Vorlage der Versandklasse vorbelegt (`settings.packaging.defaultsByShippingClass` →
