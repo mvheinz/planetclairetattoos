@@ -2854,7 +2854,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/legal/pickup.int.spec.ts` (Titel „R-083 …“, „R-102 …“), `tests/e2e/admin/pickup.e2e.spec.ts`.
   - Ohne Jutta: Abholtext ist Seed-Vorlage; Jutta passt ihn in den Einstellungen an.
 
-- [ ] **P5.18 „Vorkasse offen“: Zahlung erhalten, Stornieren, Nachträglich bezahlt** – Ansicht `/vorkasse` (KONZEPT
+- [x] **P5.18 „Vorkasse offen“: Zahlung erhalten, Stornieren, Nachträglich bezahlt** – Ansicht `/vorkasse` (KONZEPT
   §7.7, §4.8): `awaiting_prepayment` nach `prepayment.dueAt`, Bestellnummer (= Verwendungszweck), Betrag, Bestelldatum,
   „noch X Tage bis Storno“ (am letzten Tag rot), Erinnerung ja/nein. „Zahlung erhalten“ (O3; Dialog mit Betrag und
   Verwendungszweck, `prepayment.receivedAmountCents` Pflicht, Abweichung vom Gesamtbetrag → Warnung, optional

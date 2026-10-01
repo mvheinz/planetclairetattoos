@@ -2,6 +2,11 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-01 – P5.18
+
+- Ansicht „Vorkasse offen“ (/vorkasse): Frist „noch X Tage bis Storno“ (letzter Tag rot), Erinnerung, Bankdaten kopieren; „Zahlung erhalten“ (O3, Betrag Pflicht, Abweichungs-Warnung) → paid, Rechnung RE, M05; „Stornieren“ (O4, Grund Pflicht) → M04; „Kürzlich automatisch storniert“ mit „Nachträglich bezahlt“ (O5, 409 wenn ein Stück weg ist, sonst Hinweis „bitte Geld zurücküberweisen“).
+- Tests: tests/int/orders/prepayment-admin.int.spec.ts (R-071, 2), AK-8-02 grün (tests/int/jobs/prepayment-deadlines.int.spec.ts), tests/e2e/admin/prepayment.e2e.spec.ts (Desktop + Pixel 7).
+
 ## 2026-10-01 – P5.17
 
 - Ansicht `/abholung`: bezahlte Abholungen und abholbereite mit Wartetagen (> 14 markiert); „Bereit zur Abholung“ mit vorbelegtem Text (settings.pickup.instructions + Adresse aus settings.business, editierbar, gespeichert in pickup.messageText) → O8 + M07; „Abgeholt“ → O9
