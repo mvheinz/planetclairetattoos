@@ -2,6 +2,11 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-01 – P5.21
+
+- Ansicht „Einstellungen“ Teil 1 (/einstellungen): Stammdaten & Impressum (Postfach abgelehnt R-020, Telefonformat R-021, Steuernummer „nie öffentlich“), Steuer (neuer Modus mit „gilt ab“, Aufbewahrung 8/10 mit K-33-Rückfrage, Audit retention_setting_changed), Zahlung (IBAN mod 97, BIC, Anbieter-Anzeige), Benachrichtigungen, Rechtstexte „kommt in P6“, Konto (Passwort ≥ 12, Abmelden); Speichern je Bereich mit Audit settings_changed (maskiert).
+- Tests: tests/unit/payments/iban.unit.spec.ts (3), tests/int/legal/business-profile.int.spec.ts (6, R-020, R-021), tests/e2e/admin/settings.e2e.spec.ts (390×844, axe).
+
 ## 2026-10-01 – P5.20
 
 - Ansicht „Anfragen“ (/anfragen, /anfragen/:id): Liste mit „wird gelöscht am“, Detail mit Referenzbildern über die angemeldete Dateiroute, Notizen, Status-Knöpfe nach INQUIRY_TRANSITIONS (src/lib/inquiries/transitions.ts, Audit inquiry_status_changed, lastActivityAt statt deleteAfter), „Antworten“ per mailto je Sprache, „Jetzt löschen“ (Anfrage + Bilder, Audit inquiry_deleted, deletion-log ADMIN/admin).

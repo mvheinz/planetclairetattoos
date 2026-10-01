@@ -2904,7 +2904,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/inquiries/admin.int.spec.ts` (Titel „AK-5-01 Anfrage …“), `tests/e2e/admin/inquiries.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P5.21 Einstellungen, Teil 1: Stammdaten, Steuer, Zahlung, Benachrichtigungen, Konto** – Ansicht
+- [x] **P5.21 Einstellungen, Teil 1: Stammdaten, Steuer, Zahlung, Benachrichtigungen, Konto** – Ansicht
   `/einstellungen` mit Bereichen (KONZEPT §7.14) als Handy-Formulare über dem Global `settings` (DATENMODELL §7.1):
   Stammdaten & Impressum (`business.*`, `tattoo.studioDistrict`, `social.instagramHandle`, `social.contactEmail`;
   Postfach-Adressen abgelehnt mit `/postfach|\bpf\.?\s?\d/i`, R-020; Telefon `business.phone` mit Formatprüfung
