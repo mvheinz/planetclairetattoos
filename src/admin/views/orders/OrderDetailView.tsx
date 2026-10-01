@@ -3,7 +3,7 @@ import React from 'react'
 import { MoneyAmount } from '@/components/shop/MoneyAmount'
 import { PACKING_PHOTOS_UI_MAX } from '@/lib/commerce/packOrder'
 import { ENUM_LABELS } from '@/lib/enumLabels'
-import { CARRIERS, PACKAGING_MATERIALS } from '@/lib/enums'
+import { PACKAGING_MATERIALS } from '@/lib/enums'
 
 import { Notice } from '../../components/Notice'
 import { StatusBadge } from '../../components/StatusBadge'
@@ -14,6 +14,9 @@ import { loadOrderDetail } from './orderQuery'
 import { OrderResend } from './OrderResend'
 import { PackingPanel } from './PackingPanel'
 import { HintBadges } from './PackingListView'
+
+/** Versanddienste mit Sendungsverfolgung (Carrier-Adapter, P5.14). */
+const SHIP_CARRIERS = ['dhl', 'deutsche_post'] as const
 
 // Bestell-Detail `/bestellungen/:id` (PLAN P5.9, KONZEPT §7.6 ff.): gemeinsame Ansicht für Packen, Vorkasse,
 // Versendet und Abholung – Positionen mit Foto, `Nr.`, Titel, Preis; Lieferart, Empfänger:in, Zahlart, Beträge,
@@ -200,7 +203,7 @@ export async function OrderDetailView({ adminRoute, req, match }: AdminViewBodyP
             }))}
             photos={p.photos}
             photosMax={PACKING_PHOTOS_UI_MAX}
-            carriers={CARRIERS.map((c) => ({ value: c, label: ENUM_LABELS.CARRIERS[c].de }))}
+            carriers={SHIP_CARRIERS.map((c) => ({ value: c, label: ENUM_LABELS.CARRIERS[c].de }))}
             defaultCarrier={p.defaultCarrier}
             trackingNumber={p.trackingNumber}
           />

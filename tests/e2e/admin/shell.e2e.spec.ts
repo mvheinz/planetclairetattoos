@@ -60,10 +60,13 @@ test.describe('Verwaltungs-Gerüst (P5.1) @a11y', () => {
       await expect(page.locator('h1').first(), view.path).toHaveText(view.title)
     }
     // Detailansichten (Direktlinks der Verwaltungs-Mails)
-    for (const p of ['/bestellungen/1', '/widerrufe/1', '/anfragen/1']) {
+    for (const p of ['/widerrufe/1', '/anfragen/1']) {
       expect((await page.goto(adminPath(p)))?.status(), p).toBe(200)
       await expect(page.getByTestId('admin-view-placeholder')).toBeVisible()
     }
+    // Bestell-Detail ist seit P5.9 fertig: unbekannte Bestellung → Hinweis statt Platzhalter.
+    expect((await page.goto(adminPath('/bestellungen/999999999')))?.status()).toBe(200)
+    await expect(page.getByTestId('order-not-found')).toBeVisible()
     // „Stück bearbeiten“ ist seit P5.6 fertig (Formular statt Platzhalter).
     expect((await page.goto(adminPath('/stuecke/1')))?.status(), '/stuecke/1').toBe(200)
     await expect(page.getByTestId('piece-save')).toBeVisible()

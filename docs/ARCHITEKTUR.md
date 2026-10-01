@@ -422,6 +422,8 @@ den eigenen Handler trifft.
 |---|---|---|
 | `/api/products/…` (u. a. `GET /api/products/next-item-number`, `GET /api/products/item-number-status?n=`, `POST /api/products/:id/publish`) | Nummernvorschlag, Live-Prüfung der Objektnummer („✓ frei“ / „✗ vergeben: Nr. 017 …“), Statuswechsel und Aktionen je Stück | DATENMODELL §6.6.4, §6.6.10 |
 | `GET /api/products/:id/label.pdf` | Etikett und Beileger je Stück (R-203) | KONZEPT §7.6 |
+| `POST /api/orders/:id/{packed,packing,ship,resend-email,withdraw-carrier-consent}` | Bestell-Aktionen über den Aktions-Rahmen `src/endpoints/orders/_action.ts` (eine Transaktion, Prüfung gegen `ORDER_TRANSITIONS` → 409, Historie mit `actorType = admin`, Mails nur über die Outbox; ohne Sitzung 403 wie P4.20): „Gepackt“ (O6), Checkliste/Verpackung/Packfotos speichern, „Versendet melden“ (O7, Rückfrage `packing_photo_missing`), Mail erneut senden (`dialogKey`), DHL-Einwilligung widerrufen | KONZEPT §6.1, §7.6; DATENMODELL §6.8.5, §6.23 |
+| `GET /api/orders/:id/packing-slip.pdf` | Packzettel ohne Preise mit Beileger je Stück (R-203) | KONZEPT §7.6 |
 | `GET /api/admin/packaging-report?year=JJJJ` | Jahres-CSV der Verpackungsmengen nach Material (R-201, E-47) | DATENMODELL §6.8.8 |
 | `GET /api/admin/compliance/template.pdf?category=` | Vorlage „Technische Unterlagen je Kategorie“ (R-203) | DATENMODELL §6.4 |
 | `GET /api/admin/export/{JJJJ-MM}.csv` · `.zip` · `.datev.csv` | Monats-CSV, Rechnungs-ZIP, DATEV-Stapel (R-124); Exporte enthalten nie Beispieldaten, auch nicht im Vorschau-Modus | KONZEPT §7.15 |
