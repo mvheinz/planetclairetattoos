@@ -7,6 +7,7 @@ import type {
 } from 'payload'
 
 import { isAdmin, none } from '@/access'
+import { adminNotesEndpoint } from '@/endpoints/adminNotes'
 import { privacyFields, seedField } from '@/fields'
 import { writeAudit } from '@/lib/audit'
 import {
@@ -397,6 +398,7 @@ export const Withdrawals: CollectionConfig = {
     },
     ...seedField(),
   ],
+  endpoints: [adminNotesEndpoint(SLUG, 2000)],
   hooks: {
     beforeValidate: [assignSequenceNumber('reference', 'withdrawal')],
     beforeChange: [guardWithdrawal],

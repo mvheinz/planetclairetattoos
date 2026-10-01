@@ -6,6 +6,7 @@ import type {
 } from 'payload'
 
 import { isAdmin, none } from '@/access'
+import { adminNotesEndpoint } from '@/endpoints/adminNotes'
 import { privacyFields, seedField } from '@/fields'
 import { writeAudit } from '@/lib/audit'
 import { ENUM_LABELS, enumOptions } from '@/lib/enumLabels'
@@ -287,6 +288,7 @@ export const Inquiries: CollectionConfig = {
     privacyFields(),
     ...seedField(),
   ],
+  endpoints: [adminNotesEndpoint(SLUG, 3000)],
   hooks: {
     beforeValidate: [assignSequenceNumber('reference', 'inquiry')],
     beforeChange: [guardInquiry],

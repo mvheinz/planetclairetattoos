@@ -14,6 +14,8 @@ import { ExportView } from './export/ExportView'
 import { PieceEditorView } from './pieces/PieceEditorView'
 import { PiecesListView } from './pieces/PiecesListView'
 import { ProductSafetyView } from './settings/ProductSafetyView'
+import { WithdrawalDetailView } from './withdrawals/WithdrawalDetailView'
+import { WithdrawalsListView } from './withdrawals/WithdrawalsListView'
 import { ADMIN_HOME_VIEW, adminView, allDataPath, type AdminViewMatch } from './registry'
 
 // Inhalt einer Verwaltungs-Ansicht (PLAN P5.1). Bis die Aufgabe der Ansicht (`task` in der Registry) sie füllt, zeigt
@@ -41,6 +43,8 @@ const VIEW_BODIES: Partial<Record<string, ViewBody>> = {
   abholung: PickupListView,
   bestellung: OrderDetailView,
   export: ExportView,
+  widerrufe: WithdrawalsListView,
+  widerruf: WithdrawalDetailView,
   produktsicherheit: ProductSafetyView,
 }
 

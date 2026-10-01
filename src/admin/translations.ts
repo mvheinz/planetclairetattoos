@@ -494,6 +494,41 @@ export const ADMIN_CUSTOM_DE = {
   prepaymentIbanTemplate: 'Vorlage „Bitte um IBAN“ öffnen',
   prepaymentRefundDoneTitle: 'Rücküberweisung für {{order}} erledigt?',
   prepaymentRefundNoted: 'Rücküberweisung ist als erledigt notiert.',
+  // Notizen (P5.19/P5.20)
+  notesTitle: 'Interne Notizen',
+  notesLabel: 'Notiz (nur für dich)',
+  notesHint: 'Wird nie an Kund:innen geschickt.',
+  notesSave: 'Notiz speichern',
+  notesSaved: 'Notiz gespeichert.',
+  // „Widerrufe“ (P5.19)
+  withdrawalsOpen: 'Offen',
+  withdrawalsDone: 'Erledigt (zuletzt)',
+  withdrawalsEmpty: 'Gerade ist kein Widerruf offen.',
+  withdrawalsCount: '{{count}} offene Widerrufe',
+  withdrawalsCountOne: '1 offener Widerruf',
+  withdrawalNeverAuto:
+    'Widerrufe werden nie automatisch abgelehnt – auch nicht nach Ablauf der regulären Frist.',
+  withdrawalReceived: 'Eingang {{date}}',
+  withdrawalUnmatched: 'nicht zugeordnet',
+  withdrawalRefundDue: 'erstatten bis {{date}}',
+  withdrawalNotFound: 'Diesen Widerruf gibt es nicht (mehr).',
+  withdrawalBack: 'Zur Liste der Widerrufe',
+  withdrawalDeclaration: 'Erklärung',
+  withdrawalImmutable: 'So wie abgeschickt – unveränderlich.',
+  withdrawalReceivedLabel: 'Eingang',
+  withdrawalChannel: 'Kanal',
+  withdrawalName: 'Name',
+  withdrawalEmail: 'E-Mail',
+  withdrawalContract: 'Angaben zum Vertrag',
+  withdrawalItems: 'Betroffene Waren',
+  withdrawalReason: 'Grund (freiwillig)',
+  withdrawalLanguage: 'Sprache',
+  withdrawalOrder: 'Bestellung',
+  withdrawalRegularDeadline: 'Reguläre Widerrufsfrist (nur Info)',
+  withdrawalRegularDeadlineOpen: 'noch nicht zugestellt bzw. übergeben',
+  withdrawalActions: 'Bearbeitung',
+  withdrawalActionsLater:
+    'Bearbeitung ab P6: Zuordnen, „Ware ist zurück“, Erstatten und Abschließen kommen mit der Widerrufsfunktion.',
 } as const
 
 export type AdminCustomKey = keyof typeof ADMIN_CUSTOM_DE
