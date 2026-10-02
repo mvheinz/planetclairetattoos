@@ -52,11 +52,11 @@
       "orderNumber": "PC-2026-90001",
       "status": "refunded",
       "locale": "de",
-      "customer": "customers:C01",
+      "customer": "C01",
       "fulfillmentMethod": "shipping",
       "items": [
         {
-          "product": "products:S07",
+          "product": "S07",
           "status": "refunded",
           "refundedCents": 5800
         }
@@ -93,18 +93,21 @@
           "status": "succeeded",
           "createdAt": "D-37@09:15"
         }
-      ]
+      ],
+      "packaging": {
+        "templateKey": "keramik-doppelkarton"
+      }
     },
     {
       "key": "O02",
       "orderNumber": "PC-2026-90002",
       "status": "picked_up",
       "locale": "de",
-      "customer": "customers:C02",
+      "customer": "C02",
       "fulfillmentMethod": "pickup",
       "items": [
         {
-          "product": "products:S19"
+          "product": "S19"
         }
       ],
       "payment": {
@@ -127,11 +130,11 @@
       "orderNumber": "PC-2026-90003",
       "status": "disputed",
       "locale": "de",
-      "customer": "customers:C03",
+      "customer": "C03",
       "fulfillmentMethod": "shipping",
       "items": [
         {
-          "product": "products:S21"
+          "product": "S21"
         }
       ],
       "payment": {
@@ -162,18 +165,22 @@
         "flag": true,
         "reason": "dispute_open",
         "note": "Anfechtung ‚nicht erhalten‘ – Einlieferungsbeleg und Packfotos heraussuchen."
-      }
+      },
+      "packaging": {
+        "templateKey": "brief-karton"
+      },
+      "checkout": "checkouts:O03"
     },
     {
       "key": "O04",
       "orderNumber": "PC-2026-90004",
       "status": "return_received",
       "locale": "de",
-      "customer": "customers:C04",
+      "customer": "C04",
       "fulfillmentMethod": "shipping",
       "items": [
         {
-          "product": "products:S16",
+          "product": "S16",
           "status": "returned"
         }
       ],
@@ -195,21 +202,25 @@
         "carrier": "dhl",
         "trackingNumber": "SEEDDHL9000000000004"
       },
-      "notes": "Erstattung per Überweisung: Kontoverbindung per Mail erfragt. IBAN nicht im System speichern."
+      "notes": "Erstattung per Überweisung: Kontoverbindung per Mail erfragt. IBAN nicht im System speichern.",
+      "packaging": {
+        "templateKey": "tasche-papier"
+      },
+      "checkout": "checkouts:O04"
     },
     {
       "key": "O05",
       "orderNumber": "PC-2026-90005",
       "status": "partially_refunded",
       "locale": "de",
-      "customer": "customers:C05",
+      "customer": "C05",
       "fulfillmentMethod": "shipping",
       "items": [
         {
-          "product": "products:S10"
+          "product": "S10"
         },
         {
-          "product": "products:S04",
+          "product": "S04",
           "status": "refunded",
           "refundedCents": 3800
         }
@@ -246,18 +257,22 @@
           "status": "succeeded",
           "createdAt": "D-7@10:05"
         }
-      ]
+      ],
+      "packaging": {
+        "templateKey": "keramik-doppelkarton"
+      },
+      "checkout": "checkouts:O05"
     },
     {
       "key": "O06",
       "orderNumber": "PC-2026-90006",
       "status": "withdrawal_received",
       "locale": "en",
-      "customer": "customers:C06",
+      "customer": "C06",
       "fulfillmentMethod": "shipping",
       "items": [
         {
-          "product": "products:S13"
+          "product": "S13"
         }
       ],
       "payment": {
@@ -278,18 +293,22 @@
       "shipment": {
         "carrier": "dhl",
         "trackingNumber": "SEEDDHL9000000000006"
-      }
+      },
+      "packaging": {
+        "templateKey": "tasche-papier"
+      },
+      "checkout": "checkouts:O06"
     },
     {
       "key": "O07",
       "orderNumber": "PC-2026-90007",
       "status": "cancelled",
       "locale": "de",
-      "customer": "customers:C07",
+      "customer": "C07",
       "fulfillmentMethod": "shipping",
       "items": [
         {
-          "product": "products:S12"
+          "product": "S12"
         }
       ],
       "payment": {
@@ -304,18 +323,19 @@
       "prepayment": {
         "reminderSentAt": "D-6@11:00"
       },
-      "cancelReason": "payment_timeout"
+      "cancelReason": "payment_timeout",
+      "checkout": "checkouts:O07"
     },
     {
       "key": "O08",
       "orderNumber": "PC-2026-90008",
       "status": "refunded",
       "locale": "de",
-      "customer": "customers:C08",
+      "customer": "C08",
       "fulfillmentMethod": "shipping",
       "items": [
         {
-          "product": "products:S09",
+          "product": "S09",
           "status": "refunded",
           "refundedCents": 8500
         }
@@ -344,18 +364,19 @@
           "createdAt": "D-6@09:30"
         }
       ],
-      "notes": "Fliese beim Packen zerbrochen. Kunde per Mail informiert, nicht versendet, voll erstattet."
+      "notes": "Fliese beim Packen zerbrochen. Kunde per Mail informiert, nicht versendet, voll erstattet.",
+      "checkout": "checkouts:O08"
     },
     {
       "key": "O09",
       "orderNumber": "PC-2026-90009",
       "status": "ready_for_pickup",
       "locale": "de",
-      "customer": "customers:C09",
+      "customer": "C09",
       "fulfillmentMethod": "pickup",
       "items": [
         {
-          "product": "products:S30"
+          "product": "S30"
         }
       ],
       "payment": {
@@ -367,18 +388,19 @@
         "placedAt": "D-7@13:20",
         "paidAt": "D-6@11:00",
         "readyForPickupAt": "D-6@11:05"
-      }
+      },
+      "checkout": "checkouts:O09"
     },
     {
       "key": "O10",
       "orderNumber": "PC-2026-90010",
       "status": "shipped",
       "locale": "de",
-      "customer": "customers:C10",
+      "customer": "C10",
       "fulfillmentMethod": "shipping",
       "items": [
         {
-          "product": "products:S02"
+          "product": "S02"
         }
       ],
       "payment": {
@@ -397,18 +419,22 @@
       "shipment": {
         "carrier": "dhl",
         "trackingNumber": "SEEDDHL9000000000010"
-      }
+      },
+      "packaging": {
+        "templateKey": "keramik-doppelkarton"
+      },
+      "checkout": "checkouts:O10"
     },
     {
       "key": "O11",
       "orderNumber": "PC-2026-90011",
       "status": "delivered",
       "locale": "de",
-      "customer": "customers:C11",
+      "customer": "C11",
       "fulfillmentMethod": "shipping",
       "items": [
         {
-          "product": "products:S08"
+          "product": "S08"
         }
       ],
       "payment": {
@@ -430,18 +456,22 @@
         "trackingNumber": "SEEDDHL9000000000011",
         "deliveredSource": "manual"
       },
-      "notes": "Kundin hat per Mail geschrieben, dass der Teller heil angekommen ist."
+      "notes": "Kundin hat per Mail geschrieben, dass der Teller heil angekommen ist.",
+      "packaging": {
+        "templateKey": "keramik-doppelkarton"
+      },
+      "checkout": "checkouts:O11"
     },
     {
       "key": "O12",
       "orderNumber": "PC-2026-90012",
       "status": "packed",
       "locale": "de",
-      "customer": "customers:C12",
+      "customer": "C12",
       "fulfillmentMethod": "shipping",
       "items": [
         {
-          "product": "products:S03"
+          "product": "S03"
         }
       ],
       "payment": {
@@ -459,18 +489,22 @@
       "packingPhotos": [
         "private-uploads:O12:packing-1",
         "private-uploads:O12:packing-2"
-      ]
+      ],
+      "packaging": {
+        "templateKey": "keramik-doppelkarton"
+      },
+      "checkout": "checkouts:O12"
     },
     {
       "key": "O13",
       "orderNumber": "PC-2026-90013",
       "status": "awaiting_prepayment",
       "locale": "de",
-      "customer": "customers:C13",
+      "customer": "C13",
       "fulfillmentMethod": "shipping",
       "items": [
         {
-          "product": "products:S14"
+          "product": "S14"
         }
       ],
       "payment": {
@@ -480,18 +514,19 @@
       "carrierEmailConsent": false,
       "timeline": {
         "placedAt": "D-2@15:37"
-      }
+      },
+      "checkout": "checkouts:O13"
     },
     {
       "key": "O14",
       "orderNumber": "PC-2026-90014",
       "status": "paid",
       "locale": "en",
-      "customer": "customers:C14",
+      "customer": "C14",
       "fulfillmentMethod": "shipping",
       "items": [
         {
-          "product": "products:S24"
+          "product": "S24"
         }
       ],
       "payment": {
@@ -504,7 +539,8 @@
       "timeline": {
         "placedAt": "D-1@22:05",
         "paidAt": "D-1@22:07"
-      }
+      },
+      "checkout": "checkouts:O14"
     }
   ],
   "reservations": [

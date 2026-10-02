@@ -20,6 +20,7 @@ import type { SeedReport } from './report'
 import type { PageBlockSeed, ProductSeed } from './schemas'
 import { seedIso } from './time'
 import { seedReservationRef } from './orderPlan'
+import { importInvoices } from './invoices'
 import { importCheckouts, importOrders, importReservations } from './orders'
 import { findBySeedKey, upsertBySeedKey } from './upsert'
 
@@ -38,6 +39,7 @@ export const EXAMPLE_STEPS = [
   'checkouts',
   'orders',
   'reservations',
+  'invoices',
 ] as const
 
 export interface ExampleOptions {
@@ -446,6 +448,8 @@ export async function importExample(
   if (run('reservations')) {
     await seedStep(payload, (req) => importReservations(req, data, process))
   }
+  // Schritt 6: Belege je Serie nach issueAt, danach orders.invoice / refunds[].creditNote
+  if (run('invoices')) await seedStep(payload, (req) => importInvoices(req, data, process))
   // Schritt 9: settings.seed
   await seedStep(payload, (req) =>
     req.payload.updateGlobal({

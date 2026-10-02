@@ -348,12 +348,20 @@ export const orderSeedSchema = z.strictObject({
   orderNumber: z.string().regex(/^PC-2026-900\d{2}$/, 'Seed-Nummern PC-2026-900NN (§2.5)'),
   status: z.enum(ORDER_STATUSES),
   locale: z.enum(LOCALES),
-  customer: ref('customers'),
+  /** Kund:in aus customers.json (`C10`, SEED-SPEC §2.6) → intern `customers:C10`. */
+  customer: z
+    .string()
+    .regex(/^C\d{2}$/)
+    .transform((k) => `customers:${k}`),
   fulfillmentMethod: z.enum(FULFILLMENT_METHODS),
   items: z
     .array(
       z.strictObject({
-        product: ref('products'),
+        /** Stück (`S02`, §2.6) → intern `products:S02`. */
+        product: z
+          .string()
+          .regex(/^S\d{2}$/)
+          .transform((k) => `products:${k}`),
         status: z.enum(ORDER_ITEM_STATUSES).optional(),
         refundedCents: cents.optional(),
       }),
@@ -396,7 +404,11 @@ export const orderSeedSchema = z.strictObject({
   adminAttention: z
     .strictObject({ flag: z.boolean(), reason: z.enum(ATTENTION_REASONS), note: text() })
     .optional(),
+  /** Standard-Verpackungsvorlage der Versandklasse (Kontrolle; der Seed nimmt sie aus `settings.packaging`, §7.1). */
+  packaging: z.strictObject({ templateKey: text() }).optional(),
   packingPhotos: z.array(ref('private-uploads')).optional(),
+  /** Kasse der Bestellung (`checkouts:<Key>`), solange sie nach L-03 noch existiert (§7.3); fehlt bei O01/O02. */
+  checkout: ref('checkouts').optional(),
   notes: text().optional(),
 })
 export type OrderSeed = z.infer<typeof orderSeedSchema>

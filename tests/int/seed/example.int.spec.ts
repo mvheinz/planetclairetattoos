@@ -147,9 +147,16 @@ describe('Mini-Beispielbestand (DM-P1-04, AK-11-01, AK-11-02, AK-SEED-06, AK-SEE
     await seed('all')
     await seed('example')
     expect(await countsBySeed()).toEqual(first)
-    // Mengen nur aus SEED_EXPECTED_COUNTS (SEED-SPEC §0.1); Seiten/FAQ folgen mit P8.7, Beleg-PDFs mit P8.4a
+    // Mengen nur aus SEED_EXPECTED_COUNTS (SEED-SPEC §0.1); Seiten/FAQ folgen mit P8.7, Beleg-PDFs zählen zu private-uploads
     const data = await loadSeedData({ now })
-    for (const c of ['products', 'checkouts', 'orders', 'reservations', 'media'] as const) {
+    for (const c of [
+      'products',
+      'checkouts',
+      'orders',
+      'reservations',
+      'media',
+      'invoices',
+    ] as const) {
       expect(first[c], c).toBe(expectedCount(c))
     }
     expect(first.pages).toBe(data.pages.length)
@@ -325,6 +332,8 @@ describe('Entfernen (AK-11-03, AK-SEED-14, AK-SEED-15)', () => {
     expect(await all('pages', { key: { in: ['home', 'contact'] } })).toHaveLength(0)
     expect(await all('checkouts')).toHaveLength(0)
     expect(await all('reservations')).toHaveLength(0)
+    expect(await all('orders')).toHaveLength(0)
+    expect(await all('invoice-counters', { series: { in: ['BSP-RE', 'BSP-GS'] } })).toHaveLength(0)
     expect(await baseState()).toEqual(before)
     expect((await baseState()).placeholders).toBe(LEGAL_TEXT_TYPES.length)
     const settings = (await payload.findGlobal({ slug: 'settings', overrideAccess: true })) as {

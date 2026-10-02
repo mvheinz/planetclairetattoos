@@ -166,6 +166,9 @@ export function crossCheck(data: SeedData, now: Date): string[] {
       issues.push(`${where}: orderNumber muss PC-2026-900${o.key.slice(1)} sein (§2.5)`)
     }
     if (!customerKeys.has(o.customer)) issues.push(`${where}: ${o.customer} fehlt`)
+    if (o.checkout && o.checkout !== `checkouts:${o.key}`) {
+      issues.push(`${where}: checkout muss checkouts:${o.key} sein (§2.5)`)
+    }
     for (const item of o.items) {
       if (!productByKey.has(item.product)) issues.push(`${where}: ${item.product} fehlt`)
     }

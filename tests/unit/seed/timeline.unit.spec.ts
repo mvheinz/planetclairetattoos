@@ -137,5 +137,10 @@ describe('AK-SEED-09 Zeitlogik der Beispiel-Bestellungen', () => {
       SEED_EXPECTED_COUNTS.reservations,
     ])
     expect(plans.filter((p) => !p.checkout).map((p) => p.key)).toEqual(['O01', 'O02'])
+    // `checkout` in orders.json (Form §2.6) stimmt bei kanonischem N mit dem Filter überein
+    for (const o of data.orders.orders) {
+      const plan = plans.find((p) => p.key === o.key)!
+      expect(o.checkout ?? null, o.key).toBe(plan.checkout ? `checkouts:${o.key}` : null)
+    }
   })
 })

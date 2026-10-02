@@ -752,6 +752,8 @@ export const ADMIN_CUSTOM_DE = {
   // „Alle Daten“-Listen: Name der Auswahl-Kästchen (Barrierefreiheit)
   listSelectRow: 'Zeile {{n}} auswählen',
   listSelectRowPlain: 'Zeile auswählen',
+  listPagePrev: 'Vorherige Seite',
+  listPageNext: 'Nächste Seite',
   // Einstellungen, Teil 2 und 3 (P5.22/P5.22a)
   settingsAreaShop: 'Shop',
   settingsAreaCosts: 'Kosten',

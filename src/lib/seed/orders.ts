@@ -45,7 +45,6 @@ import { findBySeedKey, upsertBySeedKey } from './upsert'
 // Token nur deterministisch aus dem seedKey (`seedToken`, §2.5). Alles create-only (§1.3).
 
 type Obj = Record<string, unknown>
-type Doc = Obj & { id: number }
 
 export interface OrderImportOptions {
   report: SeedReport
@@ -484,6 +483,11 @@ export async function importOrders(
         const packed = ts.packedAt
         const template = packed ? defaultTemplateFor(snap.shippingClass, settings) : null
         if (packed && !template) throw new Error(`${order.key}: keine Verpackungsvorlage`)
+        if (order.packaging && order.packaging.templateKey !== template?.key) {
+          throw new Error(
+            `${order.key}: Verpackung ${order.packaging.templateKey} ≠ Standard ${template?.key ?? '–'} (§7.1)`,
+          )
+        }
         const checkout = plan.checkout
           ? await findBySeedKey(req, 'checkouts', `checkouts:${order.key}`)
           : null
