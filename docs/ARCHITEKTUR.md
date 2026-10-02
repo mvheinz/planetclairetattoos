@@ -1755,7 +1755,7 @@ Payload erzeugt alle Größen; **verbindlich ist `media.imageSizes` aus DATENMOD
 ergänzt (dann gilt sie überall gleich). **Keine** Next-Bildoptimierung (`images.unoptimized: true`, seit P0 in
 `next.config.ts`); `srcset` laut DESIGN §12.2 (z. B. Galerie aus `card` 800w und `detail` 1600w). Komponente `<ResponsiveImage>` rendert `<img srcset sizes width height alt decoding="async">`
 mit fester `aspect-ratio`, `placeholderDataUrl` bzw. `dominantColor` als Hintergrund; das LCP-Bild (erstes Produktfoto,
-Stationsbild oben) mit `fetchpriority="high"` und ohne `loading="lazy"`, alle anderen `loading="lazy"`. Format WebP (AVIF
+Stationsbild oben) mit `fetchpriority="high"`, `decoding="sync"` und ohne `loading="lazy"`, alle anderen `loading="lazy"`. Format WebP (AVIF
 nicht im Umfang). Auslieferung mit langem Cache (§3.3).
 
 ### 9.5 Schriften, CSS, JavaScript, Proxy
