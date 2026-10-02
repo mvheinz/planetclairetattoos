@@ -72,7 +72,7 @@ async function expectBase(page: import('@playwright/test').Page, locale: 'de' | 
   await expect(page.locator('h1')).toHaveCount(1)
   await expect(page.locator('h1')).toHaveText(locale === 'de' ? 'Auftragsarbeiten' : 'Commissions')
   await expect(page.locator('[data-commission-notice]')).toContainText(
-    locale === 'de' ? 'Bezahlung' : 'payment',
+    locale === 'de' ? 'bezahlt wird nicht hier im Shop' : "payment doesn't go through this shop",
   )
   await expect(page.locator('[data-commission-notice]')).toContainText(
     locale === 'de' ? 'kein Online-Vertrag' : 'no online contract',

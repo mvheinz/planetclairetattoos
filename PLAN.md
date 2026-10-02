@@ -3891,7 +3891,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
   - Tests: `tests/int/tattoo/texts-admin.int.spec.ts`, `tests/e2e/admin/tattoo-texts.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P7.10 R10 Auftragsarbeiten-Seite** – Seite `commissions` (DE `/de/auftragsarbeiten`) aus `pages` Schlüssel
+- [x] **P7.10 R10 Auftragsarbeiten-Seite** – Seite `commissions` (DE `/de/auftragsarbeiten`) aus `pages` Schlüssel
   `commissions` (DATENMODELL §6.19): H1 „Auftragsarbeiten“/„Commissions“,
   `processSteps` „So läuft’s“, `imageGallery` (3–9 Beispiele mit Bildunterschrift), Hinweis „individuell vereinbart,
   Bezahlung nicht im Shop, kein Online-Vertrag“, Formular-Block `commissionForm` (Formular folgt in P7.13; bis dahin

@@ -2,6 +2,11 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P7.10
+
+- R10 Auftragsarbeiten (`src/app/(frontend)/[locale]/commissions/page.tsx`): H1, „So läuft’s“, Beispiele mit Bildunterschrift, Hinweis „individuell vereinbart, Bezahlung nicht im Shop, kein Online-Vertrag“, Formular-Block mit Kontur (Preset `frame`, Coco `sitzen`), FAQ `commissions`, Kontaktalternative; Seite wird ungecacht gelesen, ohne Seite Leerzustand statt 500; Registry R10 `live`.
+- Tests: `tests/e2e/commission/page.e2e.spec.ts` (6 grün, desktop + pixel-7), dazu a11y/security-headers/seo/privacy/forbidden für alle Live-Routen grün.
+
 ## 2026-10-02 – P7.9
 
 - Reiter Texte: Preise (`settings.tattoo.*`, Bereich `tattooPrices`), Blöcke der Seiten `tattoo`/`tattoo_aftercare` (Stil, Preise, Ablauf, Pflege-Phasen, Hinweise; Rich Text als Klartext), FAQ Tattoo/Aftercare (sortierbar), alles mit „Übersetzen“ (`POST /api/pages/:id/translate`, `/api/faqs/:id/translate`; `translateDocumentFields` kann jetzt Listen/Blöcke).
