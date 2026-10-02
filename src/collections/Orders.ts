@@ -50,6 +50,12 @@ import {
   type OrderCancelReason,
   type OrderStatus,
 } from '@/lib/enums'
+import {
+  handoverAt,
+  repairChosenForOrder,
+  warrantyEndsAt,
+  type OrderHandover,
+} from '@/lib/legal/complaints'
 import { getAppContext, requestNow } from '@/lib/payload/context'
 import { preservingReq } from '@/lib/payload/localReq'
 import {
@@ -69,7 +75,7 @@ import { assignSequenceNumber } from './hooks/numbers'
 
 // DATENMODELL §6.8 – Bestellungen (Gastbestellungen, E-30) mit unveränderlichem Snapshot. Eine Bestellung entsteht
 // erst mit bestätigter Zahlung (O1/O19) oder beim Vorkasse-Abschluss (O2) über createOrderFromCheckout() (P4).
-// Verweise auf `invoices`/`withdrawals` seit P1.21, `legalTextVersions` seit P1.22; `complaints` folgt in P6.
+// Verweise auf `invoices`/`withdrawals` seit P1.21, `legalTextVersions` seit P1.22; `complaints` seit P6.1.
 
 const SLUG = 'orders'
 const fail = (message: string, path: string): never => failField(SLUG, message, path)
@@ -816,6 +822,32 @@ export const Orders: CollectionConfig = {
       label: 'Mails',
       collection: 'email-log',
       on: 'order',
+    },
+    {
+      name: 'complaints',
+      type: 'join',
+      label: 'Reklamationen',
+      collection: 'complaints',
+      on: 'order',
+    },
+    {
+      // Virtuell (DATENMODELL §6.8.1, R-110, R-111): Übergabe + 2 Jahre; + 12 Monate, wenn in einer Reklamation die
+      // Kund:in Reparatur gewählt hat.
+      name: 'warrantyEndsAt',
+      type: 'date',
+      label: 'Gewährleistung bis',
+      virtual: true,
+      admin: ro,
+      hooks: {
+        afterRead: [
+          async ({ data, req }) => {
+            const ts = (data?.timestamps ?? null) as OrderHandover | null
+            if (!data?.id || !handoverAt(ts)) return null
+            const repair = await repairChosenForOrder(req, data.id as number)
+            return warrantyEndsAt(ts, repair)?.toISOString() ?? null
+          },
+        ],
+      },
     },
     {
       name: 'refunds',

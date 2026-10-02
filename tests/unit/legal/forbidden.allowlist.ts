@@ -32,4 +32,16 @@ export const FORBIDDEN_ALLOWLIST: readonly AllowlistEntry[] = [
     reason:
       'Grundbaustein Checkbox/Radio (KO-12, P2.7): hakt nur an, wenn der Aufrufer ausdrücklich `checked === true` übergibt (z. B. Wiederanzeige nach Fehler); `tests/unit/components/ui.unit.spec.tsx` prüft, dass ohne Wert nie `checked` entsteht.',
   },
+  {
+    file: 'src/lib/legal/publishChecks.ts',
+    id: 'V-01',
+    reason:
+      'Die Veröffentlichungsprüfung selbst (KONZEPT §7.13): Muster, das Rechtstexte mit Verweis auf die EU-OS-Plattform sperrt.',
+  },
+  {
+    file: 'src/lib/legal/publishChecks.ts',
+    id: 'V-02',
+    reason:
+      'Die Veröffentlichungsprüfung selbst (KONZEPT §7.13): Muster, das Steuerhinweise im Kleinunternehmer-Modus sperrt.',
+  },
 ]

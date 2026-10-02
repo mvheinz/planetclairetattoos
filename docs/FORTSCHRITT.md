@@ -2,7 +2,9 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.1
 
+- Collections `legal-snippets` (öffentlich nur aktive Fassung, Update nur Entwürfe, Tokens je Schlüssel geprüft) und `complaints`; `private-uploads.relatedComplaint`, Join `orders.complaints`; Migrationen `p6_legal_snippets_complaints` + `…_constraints` (eine aktive Fassung je Schlüssel, seed_key-Index).\n- Grund-Seed: 36 Bausteine v1 aktiv (Arbeitsfassung `draft` bzw. Platzhalter); `getSnippet` liest die Collection (Speicherstand, Version „1“), Rückfall Seed-Text `draft-1`; `activateLegalSnippet` mit Audit.\n- Rechtsfelder aus P1 geprüft (legal-texts, settings, withdrawals, Enums) – vorhanden.\n- Tests: snippets.int (3), Zugriffsmatrix (T-15, 29 Collections), pg-objects (T-14), check:migrations ohne Drift.
 
 ## 2026-10-02 – P4 CI grün
 

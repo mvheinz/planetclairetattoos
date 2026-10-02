@@ -219,7 +219,8 @@ export const LegalTexts: CollectionConfig = {
   access: {
     read: publicRead({ status: { in: ['active', 'superseded'] } }),
     create: isAdmin,
-    update: isAdmin,
+    // Veröffentlichte, geplante und abgelöste Fassungen: nur lesen (403, R-012); `guardLegalText` bleibt die Sperre.
+    update: adminWhere({ status: { equals: 'draft' } }),
     // Veröffentlichte Fassungen nur lesen, kein Lösch-Knopf (KONZEPT §7.16); `guardDelete` bleibt die Sperre.
     delete: adminWhere({ status: { equals: 'draft' } }),
   },

@@ -4,9 +4,11 @@ import { describe, expect, it } from 'vitest'
 
 import { LEGAL_SNIPPET_KEYS, type LegalSnippetKey } from '@/lib/enums'
 import { LEGAL_TOKENS } from '@/lib/legal/render'
+import { LEGAL_SNIPPET_SEED } from '@/lib/legal/snippetSeed'
 import {
-  LEGAL_SNIPPETS,
   LEGAL_SNIPPET_DRAFT_VERSION,
+  SNIPPET_CONTEXT_TOKENS_BY_KEY,
+  invalidSnippetTokens,
   LEGAL_SNIPPET_REQUIRES_LAWYER,
   SNIPPET_CONTEXT_TOKENS,
   SNIPPET_PLACEHOLDER_TEXT,
@@ -16,7 +18,10 @@ import {
   snippetTokens,
 } from '@/lib/legal/snippets'
 
-// P3.3 Rechtsbausteine als Arbeitsfassung (RECHT ANFORDERUNGEN §6, DATENMODELL §6.28, R-012).
+// P3.3/P6.1 Rechtsbausteine: Grund-Seed-Texte (RECHT ANFORDERUNGEN §6, DATENMODELL §6.28, R-012). Ohne geladene
+// Collection (Unit-Test) liefert `getSnippet` die Seed-Texte mit der Version `draft-1` aus P3–P5.
+
+const sha = (t: string) => createHash('sha256').update(t, 'utf8').digest('hex')
 
 /** Schlüssel ohne Arbeitsfassung in ANFORDERUNGEN §6 („– (Kanzlei)“) → Platzhalter wie im Grund-Seed ab P6. */
 const WITHOUT_DRAFT: LegalSnippetKey[] = [
@@ -29,40 +34,59 @@ const WITHOUT_DRAFT: LegalSnippetKey[] = [
   'privacyRequest.erasureResponse',
 ]
 
-describe('LEGAL_SNIPPETS (ANFORDERUNGEN §6)', () => {
-  it('R-012 jeder Schlüssel hat DE und EN, origin, Version draft-1 und sha256 des DE-Texts', () => {
-    expect(Object.keys(LEGAL_SNIPPETS).sort()).toEqual([...LEGAL_SNIPPET_KEYS].sort())
+describe('LEGAL_SNIPPET_SEED (ANFORDERUNGEN §6)', () => {
+  it('R-012 jeder Schlüssel hat DE und EN und origin; Rückfall mit Version draft-1 und sha256 des DE-Texts', () => {
+    expect(Object.keys(LEGAL_SNIPPET_SEED).sort()).toEqual([...LEGAL_SNIPPET_KEYS].sort())
     for (const key of LEGAL_SNIPPET_KEYS) {
-      const s = LEGAL_SNIPPETS[key]
+      const s = LEGAL_SNIPPET_SEED[key]
       expect(s.de.trim().length, key).toBeGreaterThan(5)
       expect(s.en.trim().length, key).toBeGreaterThan(5)
-      expect(s.version, key).toBe(LEGAL_SNIPPET_DRAFT_VERSION)
-      expect(s.sha256, key).toBe(createHash('sha256').update(s.de, 'utf8').digest('hex'))
       expect(s.origin, key).toBe(WITHOUT_DRAFT.includes(key) ? 'placeholder' : 'draft')
+      if (s.de.includes('{{')) continue
+      const r = getSnippet(key, 'de')
+      expect(r.version, key).toBe(LEGAL_SNIPPET_DRAFT_VERSION)
+      expect(r.sha256, key).toBe(sha(s.de))
     }
   })
 
   it('Arbeitsfassungen wörtlich aus ANFORDERUNGEN §6; ohne Arbeitsfassung der Platzhaltertext', () => {
-    expect(LEGAL_SNIPPETS['price.kleinunternehmerNote'].de).toBe(
+    expect(LEGAL_SNIPPET_SEED['price.kleinunternehmerNote'].de).toBe(
       'Endpreis · gemäß § 19 UStG wird keine Umsatzsteuer berechnet',
     )
-    expect(LEGAL_SNIPPETS['price.shippingNote'].de).toBe('zzgl. Versandkosten')
-    expect(LEGAL_SNIPPETS['delivery.timeShipping'].de).toBe(
+    expect(LEGAL_SNIPPET_SEED['price.shippingNote'].de).toBe('zzgl. Versandkosten')
+    expect(LEGAL_SNIPPET_SEED['delivery.timeShipping'].de).toBe(
       'Lieferzeit: {{deliveryTime}} (bei Vorkasse ab Zahlungseingang)',
     )
     for (const key of WITHOUT_DRAFT) {
-      expect(LEGAL_SNIPPETS[key].de).toBe(SNIPPET_PLACEHOLDER_TEXT.de)
-      expect(LEGAL_SNIPPETS[key].en).toBe(SNIPPET_PLACEHOLDER_TEXT.en)
+      expect(LEGAL_SNIPPET_SEED[key].de).toBe(SNIPPET_PLACEHOLDER_TEXT.de)
+      expect(LEGAL_SNIPPET_SEED[key].en).toBe(SNIPPET_PLACEHOLDER_TEXT.en)
     }
   })
 
   it('Tokens: nur R-012 plus Kontext-Tokens, DE und EN mit denselben Platzhaltern', () => {
     const allowed = new Set<string>([...LEGAL_TOKENS, ...SNIPPET_CONTEXT_TOKENS])
     for (const key of LEGAL_SNIPPET_KEYS) {
-      const de = snippetTokens(LEGAL_SNIPPETS[key].de)
+      const de = snippetTokens(LEGAL_SNIPPET_SEED[key].de)
       for (const t of de) expect(allowed.has(t), `${key}: ${t}`).toBe(true)
-      expect(snippetTokens(LEGAL_SNIPPETS[key].en).sort(), key).toEqual([...de].sort())
+      expect(snippetTokens(LEGAL_SNIPPET_SEED[key].en).sort(), key).toEqual([...de].sort())
     }
+  })
+
+  it('R-012 Kontext-Tokens je Schlüssel nur aus der Arbeitsfassung; andere Tokens werden abgelehnt', () => {
+    expect(SNIPPET_CONTEXT_TOKENS_BY_KEY['checkout.deviationAgreement']).toEqual([
+      'itemTitle',
+      'objectNumber',
+      'deviationText',
+    ])
+    expect(SNIPPET_CONTEXT_TOKENS_BY_KEY['price.shippingNote']).toEqual([])
+    expect(invalidSnippetTokens('price.shippingNote', 'zzgl. {{deliveryTime}}')).toEqual([])
+    expect(invalidSnippetTokens('price.shippingNote', 'für {{orderNumber}}')).toEqual([
+      '{{orderNumber}}',
+    ])
+    expect(
+      invalidSnippetTokens('email.vorkasse.reminder', '{{orderNumber}} {{STEUERNUMMER}}'),
+    ).toEqual(['{{STEUERNUMMER}}'])
+    expect(invalidSnippetTokens('price.shippingNote', 'kaputt {{name')).toEqual(['{{…}}'])
   })
 
   it('LEGAL_SNIPPET_REQUIRES_LAWYER = Spalte „Kanzlei: ja“', () => {
@@ -84,7 +108,7 @@ describe('getSnippet (Muster R-012)', () => {
       version: 'draft-1',
       origin: 'draft',
     })
-    expect(s.sha256).toBe(LEGAL_SNIPPETS['delivery.timeShipping'].sha256)
+    expect(s.sha256).toBe(sha(LEGAL_SNIPPET_SEED['delivery.timeShipping'].de))
     expect(getSnippet('checkout.vorkasseInfo', 'en', { vorkasseDays: 7 }).text).toContain(
       'for 7 days',
     )

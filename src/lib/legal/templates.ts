@@ -5,7 +5,7 @@ import type { Locale } from '@/lib/enums'
 import { formatMoney } from '@/lib/money'
 import { addBerlinDays, formatBerlin } from '@/lib/time'
 
-import { LEGAL_SNIPPETS } from './snippets'
+import { getSnippet } from './snippets'
 
 // Vorlagen zum Öffnen im Mailprogramm (PLAN P5.27, KONZEPT §7.13, R-084): Antworten, die Jutta selbst aus ihrem
 // Mailprogramm schickt – ohne Rechtspflicht, nicht über die Outbox, nicht protokolliert. Alle Texte sind
@@ -230,7 +230,7 @@ export function templateVars(ctx: AdminTemplateContext): Record<string, string> 
     orderNumber: order.orderNumber,
     signature: ctx.signature.trim(),
     amount: formatMoney(order.prepayment?.receivedAmountCents ?? order.totalCents, locale),
-    vsbgText: LEGAL_SNIPPETS['dispute.vsbg37'][locale],
+    vsbgText: getSnippet('dispute.vsbg37', locale).text,
   }
   const carrier = order.shipment?.carrier
   vars.carrier =

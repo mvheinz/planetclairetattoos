@@ -9,40 +9,20 @@ import { getEnv } from '@/lib/env'
 import { preservingReq } from '@/lib/payload/localReq'
 import { shippingTableText, type ShippingTableSettings } from '@/lib/shop/shippingTable'
 
+import {
+  LEGAL_TOKENS,
+  LEGAL_TOKENS_MAY_BE_EMPTY,
+  WITHDRAWAL_PATHS,
+  type LegalToken,
+} from './tokens'
+import { getSnippet } from './snippets'
+
 // Renderer der Rechtstexte (DATENMODELL §6.12, RECHT R-012): ersetzt genau die Tokens der kanonischen Liste
 // (gleichlautend mit KANZLEI-BRIEFING §16.3). Keine Aliase, keine weiteren Schreibweisen. Ein unbekanntes oder nicht
 // ersetzbares Token ist ein Render-Fehler (Aktivieren gesperrt, öffentliche Seiten zeigen nie rohe Tokens).
 // `{{STEUERNUMMER}}` gibt es bewusst nicht (E-46, R-020). Nur `{{wIdNr}}`/`{{ustIdNr}}` dürfen leer ersetzt werden.
 
-export const LEGAL_TOKENS = [
-  'name',
-  'street',
-  'postalCode',
-  'city',
-  'email',
-  'phone',
-  'wIdNr',
-  'ustIdNr',
-  'siteUrl',
-  'withdrawalUrl',
-  'shippingTable',
-  'deliveryTime',
-  'vorkasseDays',
-  'returnCostsNote',
-] as const
-export type LegalToken = (typeof LEGAL_TOKENS)[number]
-
-/** Die einzigen Tokens, die leer ersetzt werden dürfen (R-012). */
-export const LEGAL_TOKENS_MAY_BE_EMPTY: ReadonlySet<LegalToken> = new Set<LegalToken>([
-  'wIdNr',
-  'ustIdNr',
-])
-
-/** Pfad der Widerrufsfunktion R26 je Sprache (KONZEPT §2.2). */
-export const WITHDRAWAL_PATHS: Readonly<Record<Locale, string>> = Object.freeze({
-  de: '/de/vertrag-widerrufen',
-  en: '/en/withdraw-from-contract',
-})
+export { LEGAL_TOKENS, LEGAL_TOKENS_MAY_BE_EMPTY, WITHDRAWAL_PATHS, type LegalToken }
 
 const KNOWN = new Set<string>(LEGAL_TOKENS)
 const TOKEN_RE = /\{\{([^{}]*)\}\}/g
@@ -198,10 +178,7 @@ export interface LegalTokenInput {
   /** `NEXT_PUBLIC_SITE_URL` ohne `/` am Ende. */
   siteUrl: string
   locale: Locale
-  /**
-   * Text des aktiven Bausteins `withdrawal.returnCostsNote` (RECHT §6). Bausteine gibt es ab P3.3
-   * (`src/lib/legal/snippets.ts`) bzw. P6 (`legal-snippets`); ohne Wert ist `{{returnCostsNote}}` nicht ersetzbar.
-   */
+  /** Text des aktiven Bausteins `withdrawal.returnCostsNote` (RECHT §6); ohne Wert ist `{{returnCostsNote}}` nicht ersetzbar. */
   returnCostsNote?: string | null
 }
 
@@ -244,6 +221,18 @@ export async function loadLegalTokenValues(
     settings: settings as unknown as LegalTokenSettings,
     siteUrl: getEnv().NEXT_PUBLIC_SITE_URL,
     locale,
-    returnCostsNote: options.returnCostsNote,
+    returnCostsNote:
+      options.returnCostsNote !== undefined
+        ? options.returnCostsNote
+        : activeReturnCostsNote(locale),
   })
+}
+
+/** Text des aktiven Bausteins `withdrawal.returnCostsNote` (RECHT §6, R-095); ohne darstellbaren Text `null`. */
+export function activeReturnCostsNote(locale: Locale): string | null {
+  try {
+    return getSnippet('withdrawal.returnCostsNote', locale).text
+  } catch {
+    return null
+  }
 }

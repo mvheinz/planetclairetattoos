@@ -202,6 +202,33 @@ beforeAll(async () => {
     false,
   )
 
+  // §6.28: aktive Grund-Seed-Fassung sichtbar, Entwurf nicht
+  const activeSnippet = await payload.find({
+    collection: 'legal-snippets',
+    where: { status: { equals: 'active' } },
+    limit: 1,
+    depth: 0,
+    overrideAccess: true,
+  })
+  ;(fixtures['legal-snippets'] ??= { visible: [], hidden: [] }).visible.push(
+    activeSnippet.docs[0]!.id,
+  )
+  await track(
+    'legal-snippets',
+    payload.create({
+      collection: 'legal-snippets',
+      data: {
+        key: 'price.shippingNote',
+        validFrom: NOW,
+        text: 'zzgl. Versand (Entwurf)',
+        origin: 'draft',
+      } as never,
+      overrideAccess: true,
+      context: { now: NOW },
+    }),
+    false,
+  )
+
   await track(
     'faqs',
     payload.create({
@@ -246,7 +273,7 @@ afterAll(async () => {
 describe('Zugriffsmatrix (T-15, DM-P1-03)', () => {
   it('DM-P1-03 jede Collection und jedes Global aus payload.config hat genau einen Matrix-Eintrag', () => {
     expect(Object.keys(COLLECTION_ACCESS).sort()).toEqual(configSlugs().sort())
-    expect(configSlugs()).toHaveLength(27)
+    expect(configSlugs()).toHaveLength(29)
     expect(Object.keys(GLOBAL_ACCESS).sort()).toEqual(
       payload.config.globals.map((g) => g.slug).sort(),
     )

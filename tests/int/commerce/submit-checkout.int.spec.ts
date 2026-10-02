@@ -7,7 +7,7 @@ import type { CheckoutRawInput } from '@/lib/commerce/checkoutSchema'
 import { transitionCheckout } from '@/lib/commerce/checkoutTransitions'
 import { submitCheckout } from '@/lib/commerce/submitCheckout'
 import { jobAlarm } from '@/lib/jobs/alarm'
-import { LEGAL_SNIPPETS } from '@/lib/legal/snippets'
+import { getSnippet } from '@/lib/legal/snippets'
 
 import { checkoutById, productRow } from '../helpers/checkout'
 import { dbOf } from '../helpers/commerce'
@@ -97,11 +97,11 @@ describe('submitCheckout (P4.10a)', () => {
     expect(c.legalTextVersions).toMatchObject(h.legal)
     const snippets = c.legalSnippetVersions as Record<string, { version: string; sha256: string }>
     expect(snippets['checkout.legalNotice']).toEqual({
-      version: LEGAL_SNIPPETS['checkout.legalNotice'].version,
-      sha256: LEGAL_SNIPPETS['checkout.legalNotice'].sha256,
+      version: getSnippet('checkout.legalNotice', 'de').version,
+      sha256: getSnippet('checkout.legalNotice', 'de').sha256,
     })
     expect(snippets['checkout.dhlEmailConsent']?.sha256).toBe(
-      LEGAL_SNIPPETS['checkout.dhlEmailConsent'].sha256,
+      getSnippet('checkout.dhlEmailConsent', 'de').sha256,
     )
     expect(snippets['checkout.deviationAgreement']).toBeUndefined()
     const alarm = (await jobAlarm.read()).nextDueAt
@@ -123,7 +123,7 @@ describe('submitCheckout (P4.10a)', () => {
     expect(log[0]).toMatchObject({
       purpose: 'carrier_email_forwarding',
       snippet_key: 'checkout.dhlEmailConsent',
-      snippet_version: 'draft-1',
+      snippet_version: '1',
       email: 'erika.beispiel@planetclaire.local',
     })
     expect(log[0]!.text_snapshot).toContain('DHL')

@@ -157,12 +157,12 @@ describe('legal-texts (DATENMODELL §6.12)', () => {
   })
 
   it('DM-LEG-03 Inhaltsänderung an einer aktiven (und abgelösten) Fassung wird abgelehnt', async () => {
-    const d = await draft({ type: 'widerrufsbelehrung' })
+    const d = await draft({ type: 'widerrufsbelehrung', content: lexical('{{withdrawalUrl}}') })
     // Entwurf ist änderbar
     const edited = await payload.update({
       collection: 'legal-texts',
       id: d.id,
-      data: { content: lexical('Neuer Entwurf') },
+      data: { content: lexical('Neuer Entwurf', 'Widerruf über {{withdrawalUrl}}') },
       overrideAccess: true,
       context: ctx(),
     })

@@ -28,6 +28,8 @@ import * as migration_20260929_102355_p5_job_runs from './20260929_102355_p5_job
 import * as migration_20260929_104802_p5_monthly_close_jobs from './20260929_104802_p5_monthly_close_jobs';
 import * as migration_20261001_193246_p5_compliance_docs_job from './20261001_193246_p5_compliance_docs_job';
 import * as migration_20261001_195941_p5_mark_delivered_job from './20261001_195941_p5_mark_delivered_job';
+import * as migration_20261002_020524_p6_legal_snippets_complaints from './20261002_020524_p6_legal_snippets_complaints';
+import * as migration_20261002_020601_p6_legal_snippets_complaints_constraints from './20261002_020601_p6_legal_snippets_complaints_constraints';
 
 export const migrations = [
   {
@@ -178,6 +180,16 @@ export const migrations = [
   {
     up: migration_20261001_195941_p5_mark_delivered_job.up,
     down: migration_20261001_195941_p5_mark_delivered_job.down,
-    name: '20261001_195941_p5_mark_delivered_job'
+    name: '20261001_195941_p5_mark_delivered_job',
+  },
+  {
+    up: migration_20261002_020524_p6_legal_snippets_complaints.up,
+    down: migration_20261002_020524_p6_legal_snippets_complaints.down,
+    name: '20261002_020524_p6_legal_snippets_complaints',
+  },
+  {
+    up: migration_20261002_020601_p6_legal_snippets_complaints_constraints.up,
+    down: migration_20261002_020601_p6_legal_snippets_complaints_constraints.down,
+    name: '20261002_020601_p6_legal_snippets_complaints_constraints'
   },
 ];

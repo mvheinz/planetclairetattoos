@@ -7,7 +7,8 @@ import de from '@/i18n/messages/de.json'
 import en from '@/i18n/messages/en.json'
 import { LEGAL_SNIPPET_KEYS } from '@/lib/enums'
 import { V16_THIRD_PARTY_MARKS } from '@/lib/legal/forbidden'
-import { LEGAL_SNIPPETS, snippetTokens } from '@/lib/legal/snippets'
+import { LEGAL_SNIPPET_SEED } from '@/lib/legal/snippetSeed'
+import { snippetTokens } from '@/lib/legal/snippets'
 
 import {
   FORBIDDEN_CONTENT_PATTERNS,
@@ -157,7 +158,7 @@ describe('P3.3 Preis- und Rechtshinweise (V-02, V-19, V-20)', () => {
     const hits: string[] = []
     for (const key of LEGAL_SNIPPET_KEYS) {
       for (const locale of ['de', 'en'] as const) {
-        const text = LEGAL_SNIPPETS[key][locale]
+        const text = LEGAL_SNIPPET_SEED[key][locale]
         const rendered = snippetTokens(text).reduce(
           (t, tok) => t.split(`{{${tok}}}`).join('X'),
           text,

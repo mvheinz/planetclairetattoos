@@ -3178,7 +3178,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
 
 ### Aufgaben
 
-- [ ] **P6.1 Datenmodell Recht, Teil 1: Migration Rechtsbausteine und Reklamationen, Prüfung der Rechtsfelder** –
+- [x] **P6.1 Datenmodell Recht, Teil 1: Migration Rechtsbausteine und Reklamationen, Prüfung der Rechtsfelder** –
   Migration `p6_legal_snippets_complaints` (DATENMODELL §10.1): Collections `legal-snippets`
   (`src/collections/LegalSnippets.ts`, Felder, Access und Indizes laut DATENMODELL §6.28: `key` aus
   `LEGAL_SNIPPET_KEYS`, `version`, `status`, `validFrom`, `text` lokalisiert, `origin`, `changeNote`,

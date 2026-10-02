@@ -579,7 +579,8 @@
           "heading": "Widerruf über die Website",
           "paragraphs": [
             "Text folgt von der Kanzlei.",
-            "{{withdrawalUrl}}"
+            "{{withdrawalUrl}}",
+            "Telefon: {{phone}}"
           ]
         },
         {

@@ -2768,7 +2768,7 @@ Migrationen späterer Phasen gibt es nur für:
 | Phase | Migration | Inhalt |
 |---|---|---|
 | P5 | `p5_job_runs` | SQL-Tabelle `job_runs` (§11) |
-| P6 | `p6_legal_snippets_complaints` | Collections `legal-snippets` (§6.28) und `complaints` (§6.29); Feld `private-uploads.relatedComplaint`; Join `orders.complaints`; SQL aus §9.3 (aktive Fassung je Schlüssel, `seed_key`-Index `complaints`); Grund-Seed der Bausteine (`seed:base`) |
+| P6 | `p6_legal_snippets_complaints` | Collections `legal-snippets` (§6.28) und `complaints` (§6.29); Feld `private-uploads.relatedComplaint`; Join `orders.complaints`; SQL aus §9.3 (aktive Fassung je Schlüssel, `seed_key`-Index `complaints`; als eigene Migration `p6_legal_snippets_complaints_constraints`, Regel 2); Grund-Seed der Bausteine (`seed:base`) |
 | P8 | `p8_media_owner_approved` | Feld `media.ownerApproved` (§6.2) samt Zugriffsregel (R-181) |
 
 Neue Werte oder Felder, die eine Phase darüber hinaus braucht, kommen per eigener Migration dieser Phase **und**
