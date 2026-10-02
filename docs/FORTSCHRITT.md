@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.4
+
+- Texte → Rechtstexte: je Typ aktive Fassung (Stand, Herkunft, Alter, Bestellungen je Fassung, letzte Prüfung), frühere/geplante Fassungen, „Neue Version“ (HTML/Text DE, EN optional, bereinigt → Lexical), Vorschau mit Fehlerliste ohne Speichern, Veröffentlichen sofort/ab Datum mit Rückfrage, „Geprüft, keine Änderung“; Bausteine nach Schlüssel mit Spalte Kanzlei ja/nein\n- Endpunkte /api/legal-texts|legal-snippets/{preview,publish}-version, /api/legal-texts/confirm-review\n- Tests: int legal-texts-admin (9), E2E admin/legal-texts (390×844, axe) grün
+
 ## 2026-10-02 – P6.20
 
 - Task `legalReviewReminder` (täglich ab 08:30 Berlin, `runOncePer`), Logik `src/lib/legal/review.ts`: Alter je Typ = jüngeres Datum aus `activatedAt` und `reviewedAt` (Berliner Kalendertage), A10 mit allen fälligen Typen, Wiederholung alle 30 Tage über `lastReminderSentAt`; Migration `p6_legal_review_job` (Task-Enum)\n- „Heute“-Kachel „Rechtstexte“ je Typ (Version, gültig ab, Herkunft, Alter; Warnung bei fehlendem Typ, Herkunft ≠ Kanzlei, > Intervall)\n- Tests: tests/int/jobs/legal-review.int.spec.ts (4, R-014 Tag 364/365/380/395), Slug-Test angepasst

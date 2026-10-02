@@ -3253,7 +3253,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     (Titel „R-095 …“), `tests/int/jobs/activate-legal-texts.int.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P6.4 Rechtstexte und Bausteine in der Verwaltung** – Bereich „Rechtstexte“ unter `/texte` (KONZEPT §7.13): je
+- [x] **P6.4 Rechtstexte und Bausteine in der Verwaltung** – Bereich „Rechtstexte“ unter `/texte` (KONZEPT §7.13): je
   Typ aktuelle Version, „Stand“, Herkunft (Platzhalter/Arbeitsfassung/Kanzlei), Alter, Anzahl Bestellungen mit dieser
   Version (`orders.legalTextVersions.*`). „Neue Version“: Text DE einfügen, EN optional (HTML oder Text), „Vorschau“
   (gerendert mit Tokens, Fehlerliste), „Veröffentlichen“ sofort oder ab Datum (Dialog „Ab {Datum} gilt dieser Text für
