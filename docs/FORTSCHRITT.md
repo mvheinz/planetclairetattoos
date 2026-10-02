@@ -2,6 +2,11 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P7.15
+
+- `tests/e2e/tattoo/no-purchase.e2e.spec.ts` (AK-9-01, AK-9-05, R-139 auf R11–R18 DE/EN), `tests/int/legal/tattoo-cart.int.spec.ts` (R-170), `tests/unit/legal/tattoo-content.unit.spec.ts` (V-15/V-24/V-25, R-034); ANFORDERUNGEN §3 Nachweise für P7-Zeilen, `LEGAL_TRACE_PHASE = 7`.
+- Tests: alle grün (e2e desktop + pixel-7; `pnpm check`, `test:int` ohne preview-export, `pnpm build`).
+
 ## 2026-10-02 – P7.14
 
 - Durchstich Formular → M11/A05 → Verwaltung → „Jetzt löschen“; Anfrage-Detail mit Abschnitt „Angebot“ (Vorlage `commission.offer` kopieren bzw. `mailto:`, Hinweis Umsatz-Wächter); `commission.offer` als Platzhalter mit Gliederung (R-161 in ANFORDERUNGEN §7 abgehakt).

@@ -3982,7 +3982,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
   - Tests: `tests/int/legal/retention-inquiries.int.spec.ts` (Titel „R-154 L-10 …“), `tests/e2e/commission/flow.e2e.spec.ts`.
   - Ohne Jutta: Kanzleitext für `commission.offer` kommt in P11 (Kanzleifrage K-24).
 
-- [ ] **P7.15 Rechtliche Prüfungen Tattoo und Nachverfolgbarkeit bis P7** – `tests/e2e/tattoo/no-purchase.e2e.spec.ts`:
+- [x] **P7.15 Rechtliche Prüfungen Tattoo und Nachverfolgbarkeit bis P7** – `tests/e2e/tattoo/no-purchase.e2e.spec.ts`:
   auf allen Tattoo-Routen DE/EN kein „In den Korb“, kein `<form>`, kein Stripe-Request (AK-9-01); keine Straße aus den
   Stammdaten (AK-9-05, V-31); Instagram nur als Link (R-139, V-05). Int-Test: Warenkorb-Aktion mit Flash- oder
   Angebots-ID wird abgelehnt (R-170). Unit-Scan der Tattoo-Inhalte (Seed-Dateien unter `content/seed/data/` und
