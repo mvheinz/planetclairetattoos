@@ -370,9 +370,9 @@ export type Carrier = (typeof CARRIERS)[number]
 export const PACKAGING_MATERIALS = ['paper_cardboard', 'plastic', 'other'] as const // E-47, R-201
 export type PackagingMaterial = (typeof PACKAGING_MATERIALS)[number]
 // KONZEPT §5.3; breakage = Stück vor dem Versand beschädigt, admin_cancellation = Storno einer bezahlten Bestellung
-// durch Jutta (beide O15, DM-39)
+// durch Jutta (beide O15, DM-39); correction = Gutschrift zur Berichtigung, danach neue Rechnung (R-152, P6.18)
 export const REFUND_REASONS = ['withdrawal', 'goodwill', 'complaint', 'breakage', 'admin_cancellation',
-  'item_unavailable', 'dispute'] as const
+  'item_unavailable', 'dispute', 'correction'] as const
 export type RefundReason = (typeof REFUND_REASONS)[number]
 export const REFUND_STATUSES = ['pending', 'succeeded', 'failed'] as const
 export type RefundStatus = (typeof REFUND_STATUSES)[number]
@@ -1498,6 +1498,7 @@ fehlenden Stücken nur über die gelieferten Stücke (§8.4).
 | `status` | select `InvoiceStatus` | S, R | – | `pending_pdf` | `pending_pdf → issued` genau einmal | – |
 | `order` | relationship → `orders` | R | – | – | – | – |
 | `relatedInvoice` | relationship → `invoices` | R bei `credit_note` | – | – | muss `type = invoice` derselben Bestellung sein | – |
+| `replacesInvoice` | relationship → `invoices` | – | – | – | nur bei `type = invoice`: ersetzt eine per Gutschrift (`reason = correction`) stornierte Rechnung derselben Bestellung (Berichtigung, R-152, P6.18); jede Rechnung höchstens einmal ersetzt | PDF „ersetzt Rechnung …“ |
 | `issueDate` | date | S, R | – | heute (Europe/Berlin) | – | – |
 | `deliveryDate` | date | S, R | – | Zahlungs-/Übergabedatum | – | Leistungszeitpunkt; PDF und `data.deliveryMonth` zeigen den Monat („Oktober 2026“, R-120) |
 | `taxMode` | select `TaxMode` | S, R | – | gültiger Modus am `issueDate` | – | – |
@@ -1529,7 +1530,7 @@ von `pending_pdf`) sowie nach Fristende die Anonymisierung (`data.buyer`, `pdf`,
 Zusätzlich schützt ein **DB-Trigger** (§9.4) gegen jede andere Änderung und jedes Löschen (außer Seed).
 
 **Access:** `read`: `isAdmin` · `create`/`update`/`delete`: `none` (nur Services/Jobs).
-**Indizes:** `number` UNIQUE · partieller UNIQUE `(order_id) WHERE type = 'invoice'` · Index (`year`, `type`) ·
+**Indizes:** `number` UNIQUE · partieller UNIQUE `(order_id) WHERE type = 'invoice' AND replaces_invoice_id IS NULL` (seit P6.18; Berichtigungsrechnungen verweisen auf die ersetzte) · partieller UNIQUE `(replaces_invoice_id)` · Index (`year`, `type`) ·
 Index `issue_date` · Index `seed`.
 
 **Akzeptanzkriterien**

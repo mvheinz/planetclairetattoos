@@ -916,7 +916,7 @@
       "kept": "{area}: aufbewahrt bis {date}, weil die Daten zur Geltendmachung oder Abwehr von Rechtsansprüchen nötig sind (Art. 17 Abs. 3 lit. e DSGVO)",
       "unchanged": "{area}: unverändert – Rechnungen und Gutschriften muss ich nach Steuerrecht bis {date} aufbewahren, danach werden sie anonymisiert",
       "restrictedMeaning": "„Eingeschränkt“ heißt: Ich nutze diese Daten nur noch, um gesetzliche Pflichten zu erfüllen, und schicke dir dazu keine Mails mehr.",
-      "recipients": "Eine Einwilligung zur Weitergabe deiner E-Mail-Adresse an DHL ist widerrufen. Bei Zahlungen per Karte oder PayPal verarbeiten Stripe bzw. PayPal Daten in eigener Verantwortung – wende dich dafür bitte direkt an deren Datenschutz-Kontakt. Protokolle des Mail-Anbieters und Datensicherungen laufen automatisch ab.",
+      "recipients": "Falls du der Weitergabe deiner E-Mail-Adresse an DHL zugestimmt hattest, ist diese Einwilligung widerrufen. Bei Zahlungen per Karte oder PayPal verarbeiten Stripe bzw. PayPal Daten in eigener Verantwortung – wende dich dafür bitte direkt an deren Datenschutz-Kontakt. Protokolle des Mail-Anbieters und Datensicherungen laufen automatisch ab.",
       "complaint": "Du kannst dich bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel bei der Berliner Beauftragten für Datenschutz und Informationsfreiheit, Alt-Moabit 59–61, 10555 Berlin.",
       "reply": "Wenn du Fragen hast, antworte einfach auf diese Mail."
     },

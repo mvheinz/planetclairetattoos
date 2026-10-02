@@ -125,7 +125,26 @@ export const privacySendAccessEndpoint = privacyAction('send-access', async (req
   return { doc: res.request, unchanged: res.unchanged, jobs: [res.jobId] }
 })
 
+export const privacyErasureEndpoint = privacyAction('erasure', async (req, id, body, now) => {
+  const { applyErasure } = await import('@/lib/privacy/erasure')
+  const res = await applyErasure(
+    req,
+    id,
+    { decisions: body.decisions, query: personQuery(body), notify: body.notify !== false },
+    now,
+  )
+  return { doc: res.request, extra: { outcomes: res.outcomes }, jobs: [res.jobId] }
+})
+
+export const privacyRectifyEndpoint = privacyAction('rectify', async (req, id, body, now) => {
+  const { rectifyOrder } = await import('@/lib/privacy/rectify')
+  const res = await rectifyOrder(req, id, body, now)
+  return { doc: res.request, extra: { reissued: res.reissued }, jobs: res.jobs }
+})
+
 export const PRIVACY_ADMIN_ENDPOINTS: Endpoint[] = [
+  privacyErasureEndpoint,
+  privacyRectifyEndpoint,
   privacyIntakeEndpoint,
   privacySaveEndpoint,
   privacySearchEndpoint,

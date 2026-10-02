@@ -916,7 +916,7 @@
       "kept": "{area}: kept until {date} because the data is needed to establish, exercise or defend legal claims (Art. 17(3)(e) GDPR)",
       "unchanged": "{area}: unchanged – tax law requires me to keep invoices and credit notes until {date}, then they are anonymised",
       "restrictedMeaning": "“Restricted” means: I only use this data to meet legal obligations and will not send you any emails about it.",
-      "recipients": "Any consent to pass your email address to DHL has been withdrawn. For card or PayPal payments, Stripe or PayPal process data as independent controllers – please contact their data protection team directly. Logs of the email provider and backups expire automatically.",
+      "recipients": "If you had agreed to me passing your email address to DHL, that consent has been withdrawn. For card or PayPal payments, Stripe or PayPal process data as independent controllers – please contact their data protection team directly. Logs of the email provider and backups expire automatically.",
       "complaint": "You can lodge a complaint with a data protection supervisory authority, for example the Berlin Commissioner for Data Protection and Freedom of Information, Alt-Moabit 59–61, 10555 Berlin, Germany.",
       "reply": "If you have any questions, just reply to this email."
     },

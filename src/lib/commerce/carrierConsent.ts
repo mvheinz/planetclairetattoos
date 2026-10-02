@@ -12,8 +12,8 @@ import { loadOrder, updateOrderFields } from './transitionOrder'
 // Widerruf der DHL-Einwilligung (PLAN P5.10, DATENMODELL §6.23, R-101, R-152; `POST /api/orders/:id/withdraw-carrier-
 // consent`): in einer Transaktion `orders.carrierEmailConsentRevokedAt = now`, `withdrawnAt` am ursprünglichen
 // `consent-log`-Eintrag (Zweck `carrier_email_forwarding`), ein neuer Eintrag mit `granted = false` und Audit
-// `carrier_consent_withdrawn`. Ab sofort gibt „Adresse kopieren“ keine E-Mail mehr aus. Die Bestätigungsmail M16 folgt
-// in P6.
+// `carrier_consent_withdrawn`. Ab sofort gibt „Adresse kopieren“ keine E-Mail mehr aus. Auf Wunsch Bestätigung M16
+// (`consent_withdrawal_confirmation`, P6.18).
 
 export const CARRIER_CONSENT_WITHDRAWN_NOTE = 'Widerruf über die Verwaltung (Bestellung {{order}})'
 
@@ -29,8 +29,9 @@ export async function withdrawCarrierConsent(
   req: PayloadRequest,
   order: Order,
   now: Date,
-): Promise<{ order: Order; unchanged: boolean }> {
-  if (order.carrierEmailConsentRevokedAt) return { order, unchanged: true }
+  options: { confirmationMail?: boolean } = {},
+): Promise<{ order: Order; unchanged: boolean; mailJobId: number | string | null }> {
+  if (order.carrierEmailConsentRevokedAt) return { order, unchanged: true, mailJobId: null }
   if (order.carrierEmailConsent !== true) {
     throw new CarrierConsentError(
       'Zu dieser Bestellung gibt es keine Einwilligung zur DHL-Weitergabe.',
@@ -96,6 +97,25 @@ export async function withdrawCarrierConsent(
       entityId: order.id,
       summary: `Bestellung ${order.orderNumber}: Einwilligung zur E-Mail-Weitergabe an DHL widerrufen`,
     })
-    return { order: await loadOrder(req, order.id), unchanged: false }
+    // Bestätigung M16 auf Wunsch (R-152, LOESCHKONZEPT §5.10); eingeschränkte Bestellungen unterdrückt die Outbox
+    let mailJobId: number | string | null = null
+    if (options.confirmationMail) {
+      const { enqueueEmail } = await import('@/lib/email/outbox')
+      const mail = await enqueueEmail(req, {
+        template: 'consent_withdrawal_confirmation',
+        to: order.customer.email,
+        locale: order.locale,
+        data: {
+          purpose: 'carrier_email_forwarding',
+          withdrawnAt: at,
+          name: order.customer.name ?? null,
+          orderNumber: order.orderNumber,
+        },
+        idempotencyKey: `consent_withdrawal_confirmation:${order.id}:carrier_email_forwarding`,
+        relations: { order: order.id },
+      })
+      mailJobId = mail.jobId
+    }
+    return { order: await loadOrder(req, order.id), unchanged: false, mailJobId }
   })
 }

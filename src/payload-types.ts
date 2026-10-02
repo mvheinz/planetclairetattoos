@@ -789,7 +789,14 @@ export interface Order {
     | {
         amountCents: number;
         reason:
-          'withdrawal' | 'goodwill' | 'complaint' | 'breakage' | 'admin_cancellation' | 'item_unavailable' | 'dispute';
+          | 'withdrawal'
+          | 'goodwill'
+          | 'complaint'
+          | 'breakage'
+          | 'admin_cancellation'
+          | 'item_unavailable'
+          | 'dispute'
+          | 'correction';
         itemIds?:
           | {
               [k: string]: unknown;
@@ -1412,6 +1419,10 @@ export interface Invoice {
   status: 'pending_pdf' | 'issued';
   order: number | Order;
   relatedInvoice?: (number | null) | Invoice;
+  /**
+   * Berichtigung (R-152): diese Rechnung ersetzt die stornierte.
+   */
+  replacesInvoice?: (number | null) | Invoice;
   issueDate: string;
   deliveryDate: string;
   taxMode: 'kleinunternehmer' | 'regelbesteuert';
@@ -1432,7 +1443,16 @@ export interface Invoice {
   sha256?: string | null;
   renderedAt?: string | null;
   reason?:
-    | ('withdrawal' | 'goodwill' | 'complaint' | 'breakage' | 'admin_cancellation' | 'item_unavailable' | 'dispute')
+    | (
+        | 'withdrawal'
+        | 'goodwill'
+        | 'complaint'
+        | 'breakage'
+        | 'admin_cancellation'
+        | 'item_unavailable'
+        | 'dispute'
+        | 'correction'
+      )
     | null;
   retainUntil: string;
   anonymizedAt?: string | null;
@@ -3489,6 +3509,7 @@ export interface InvoicesSelect<T extends boolean = true> {
   status?: T;
   order?: T;
   relatedInvoice?: T;
+  replacesInvoice?: T;
   issueDate?: T;
   deliveryDate?: T;
   taxMode?: T;

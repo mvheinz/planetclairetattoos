@@ -219,13 +219,33 @@ const guardOrder: CollectionBeforeChangeHook = ({ data, originalDoc, operation, 
   if (ctx.seed) return data
   const transition = ctx.transition
   const isAnonymize = transition === 'anonymize'
+  // Berichtigung nach Art. 16 DSGVO (P6.18, R-152): Name/Adresse/E-Mail auch nach dem Versand; Vermerk im Verlauf
+  // (genau ein angehängter Eintrag ohne Statuswechsel, bisherige Einträge unverändert)
+  const isRectify = transition === 'rectify'
   rejectChanges(
     SLUG,
-    IMMUTABLE.filter((f) => !(isAnonymize && f === 'statusHistory')),
+    IMMUTABLE.filter((f) => !((isAnonymize || isRectify) && f === 'statusHistory')),
     original,
     data,
     'Nach der Anlage der Bestellung unveränderlich.',
   )
+  if (isRectify && 'statusHistory' in data) {
+    const before = (original.statusHistory ?? []) as Doc[]
+    const after = (data.statusHistory ?? []) as Doc[]
+    const last = after[after.length - 1]
+    if (
+      after.length !== before.length + 1 ||
+      changedFields(
+        ['statusHistory'],
+        { statusHistory: before },
+        { statusHistory: after.slice(0, -1) },
+      ).length > 0 ||
+      last?.from !== original.status ||
+      last?.to !== original.status
+    ) {
+      fail('Bei der Berichtigung kommt nur ein Vermerk im Verlauf hinzu.', 'statusHistory')
+    }
+  }
   checkItems(original, data)
 
   // Kasse: nur Leeren (retentionAbandonedCheckouts, §6.25.5)
@@ -256,6 +276,7 @@ const guardOrder: CollectionBeforeChangeHook = ({ data, originalDoc, operation, 
   // Adressen nur vor Versand/Abholung
   if (
     !isAnonymize &&
+    !isRectify &&
     changedFields(['shippingAddress', 'billingAddress'], original, data).length > 0
   ) {
     if (!ADDRESS_EDITABLE.has(original.status as OrderStatus)) {

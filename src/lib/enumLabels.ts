@@ -360,6 +360,7 @@ export const ENUM_LABELS = {
     admin_cancellation: l('Stornierung durch Jutta', 'cancelled by the shop'),
     item_unavailable: l('Stück nicht mehr verfügbar', 'item no longer available'),
     dispute: l('Zahlungsanfechtung', 'payment dispute'),
+    correction: l('Berichtigung (neue Rechnung)', 'correction (new invoice)'),
   } satisfies Labels<E.RefundReason>,
   REFUND_STATUSES: {
     pending: l('läuft'),

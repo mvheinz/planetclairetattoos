@@ -224,6 +224,8 @@ export async function anonymizeOrder(
   id: number,
   now: Date,
   taskSlug: string,
+  /** DSGVO-Löschung (P6.18): Einträge mit `trigger = privacy_request`, `ruleId = DSGVO` und Anfragenummer. */
+  privacyRequestRef?: string,
 ): Promise<number> {
   const db = await dbFor(req)
   const order = (await preservingReq(req, () =>
@@ -234,10 +236,11 @@ export async function anonymizeOrder(
     writeDeletionLog(req, {
       entityCollection: collection,
       entityId,
-      ruleId,
+      ruleId: privacyRequestRef ? 'DSGVO' : ruleId,
       action: 'deleted',
-      trigger: 'job',
-      taskSlug,
+      ...(privacyRequestRef
+        ? { trigger: 'privacy_request' as const, privacyRequestRef }
+        : { trigger: 'job' as const, taskSlug }),
       storageObjectsCount: count,
       executedAt: now,
     })
@@ -388,14 +391,19 @@ const withdrawalsStep: RetentionStep = {
     return byRetainUntil(res.rows)
   },
   async apply(req, id) {
-    const db = await dbFor(req)
-    // Eingangsbestätigungen gehören zur Erklärung (L-08)
-    await db.execute(sql`UPDATE withdrawals SET confirmation_email_id = NULL WHERE id = ${id}`)
-    await db.execute(sql`DELETE FROM email_log WHERE withdrawal_id = ${id}`)
-    await preservingReq(req, () =>
-      req.payload.delete({ collection: 'withdrawals', id, overrideAccess: true, req }),
-    )
+    await deleteWithdrawalRecord(req, Number(id))
   },
+}
+
+/** Widerruf samt Eingangsbestätigungen im Mail-Protokoll löschen (L-08; auch DSGVO-Löschung, P6.18). */
+export async function deleteWithdrawalRecord(req: PayloadRequest, id: number): Promise<void> {
+  const db = await dbFor(req)
+  // Eingangsbestätigungen gehören zur Erklärung (L-08)
+  await db.execute(sql`UPDATE withdrawals SET confirmation_email_id = NULL WHERE id = ${id}`)
+  await db.execute(sql`DELETE FROM email_log WHERE withdrawal_id = ${id}`)
+  await preservingReq(req, () =>
+    req.payload.delete({ collection: 'withdrawals', id, overrideAccess: true, req }),
+  )
 }
 
 // --- Teil 2 (PLAN P6.15) ----------------------------------------------------------------------------------------
@@ -441,19 +449,24 @@ const inquiriesStep: RetentionStep = {
     return byEvent(L_10_INQUIRIES, res.rows, until)
   },
   async apply(req, id) {
-    const db = await dbFor(req)
-    const images = await db.execute(sql`
-      SELECT private_uploads_id AS id FROM inquiries_rels WHERE parent_id = ${id} AND private_uploads_id IS NOT NULL
-      UNION SELECT id FROM private_uploads WHERE related_inquiry_id = ${id}`)
-    let files = 0
-    for (const img of images.rows) files += await deletePrivateUpload(req, Number(img.id))
-    await db.execute(sql`DELETE FROM email_log WHERE inquiry_id = ${id}`)
-    await db.execute(sql`DELETE FROM consent_log WHERE inquiry_id = ${id}`)
-    await preservingReq(req, () =>
-      req.payload.delete({ collection: 'inquiries', id, overrideAccess: true, req }),
-    )
-    return { storageObjectsCount: files }
+    return { storageObjectsCount: await deleteInquiryRecord(req, Number(id)) }
   },
+}
+
+/** Anfrage samt Referenzbildern, Mail- und Einwilligungsnachweisen löschen (L-10; auch DSGVO-Löschung, P6.18). */
+export async function deleteInquiryRecord(req: PayloadRequest, id: number): Promise<number> {
+  const db = await dbFor(req)
+  const images = await db.execute(sql`
+    SELECT private_uploads_id AS id FROM inquiries_rels WHERE parent_id = ${id} AND private_uploads_id IS NOT NULL
+    UNION SELECT id FROM private_uploads WHERE related_inquiry_id = ${id}`)
+  let files = 0
+  for (const img of images.rows) files += await deletePrivateUpload(req, Number(img.id))
+  await db.execute(sql`DELETE FROM email_log WHERE inquiry_id = ${id}`)
+  await db.execute(sql`DELETE FROM consent_log WHERE inquiry_id = ${id}`)
+  await preservingReq(req, () =>
+    req.payload.delete({ collection: 'inquiries', id, overrideAccess: true, req }),
+  )
+  return files
 }
 
 // L-12 Mail-Protokoll: Frist steht als `retain_until` am Eintrag (wie Bezugsobjekt, ohne Bezug 90 Tage); Einträge

@@ -38,6 +38,8 @@ import * as migration_20261002_043628_p6_legal_review_job from './20261002_04362
 import * as migration_20261002_091942_p6_withdrawal_inbox_refunds from './20261002_091942_p6_withdrawal_inbox_refunds';
 import * as migration_20261002_101152_p6_withdrawal_deadlines_task from './20261002_101152_p6_withdrawal_deadlines_task';
 import * as migration_20261002_122832_p6_privacy_requests_task from './20261002_122832_p6_privacy_requests_task';
+import * as migration_20261002_130126_p6_invoice_reissue from './20261002_130126_p6_invoice_reissue';
+import * as migration_20261002_130238_p6_invoice_reissue_constraints from './20261002_130238_p6_invoice_reissue_constraints';
 
 export const migrations = [
   {
@@ -238,6 +240,16 @@ export const migrations = [
   {
     up: migration_20261002_122832_p6_privacy_requests_task.up,
     down: migration_20261002_122832_p6_privacy_requests_task.down,
-    name: '20261002_122832_p6_privacy_requests_task'
+    name: '20261002_122832_p6_privacy_requests_task',
+  },
+  {
+    up: migration_20261002_130126_p6_invoice_reissue.up,
+    down: migration_20261002_130126_p6_invoice_reissue.down,
+    name: '20261002_130126_p6_invoice_reissue',
+  },
+  {
+    up: migration_20261002_130238_p6_invoice_reissue_constraints.up,
+    down: migration_20261002_130238_p6_invoice_reissue_constraints.down,
+    name: '20261002_130238_p6_invoice_reissue_constraints'
   },
 ];

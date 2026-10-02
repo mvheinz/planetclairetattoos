@@ -3,7 +3,7 @@ import type { PayloadRequest, TaskConfig } from 'payload'
 import { getEmailAdapter } from '@/lib/email'
 import { sendAdminAlert } from '@/lib/email/alerts'
 import { AttachmentNotReadyError } from '@/lib/email/errors'
-import { EMAIL_QUEUE } from '@/lib/email/outbox'
+import { EMAIL_QUEUE, isOrderRestricted } from '@/lib/email/outbox'
 import { prepareMail } from '@/lib/email/prepare'
 import { templateMeta } from '@/lib/email/registry'
 import { jobAlarm } from '@/lib/jobs/alarm'
@@ -174,6 +174,16 @@ export const sendEmailTask: TaskConfig<SendEmailIO> = {
       req,
     })
     if (entry.status !== 'queued') return { output: { status: entry.status } }
+    // Inzwischen eingeschränkte Bestellung (Art. 18, P6.18): Kund:innen-Mail nicht mehr versenden
+    const orderId = idOf(entry.order)
+    if (
+      orderId !== null &&
+      templateMeta(entry.template).recipient === 'customer' &&
+      (await isOrderRestricted(req, orderId))
+    ) {
+      await update(req, entry.id, { status: 'suppressed', lastError: 'processing_restricted' })
+      return { output: { status: 'suppressed' } }
+    }
     const attempts = (entry.attempts ?? 0) + 1
     const data = (input.data ?? {}) as Record<string, unknown>
     const adapter = getEmailAdapter()

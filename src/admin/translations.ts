@@ -985,6 +985,46 @@ export const ADMIN_CUSTOM_DE = {
   privacyArea_consentLog: 'Einwilligungs-Protokoll',
   privacyArea_privacyRequests: 'Frühere Datenschutz-Anfragen',
   privacyArea_files: 'Dateien',
+  packingConsentWithdrawMail: 'Bestätigung an die Kundin schicken',
+  // Löschen/Einschränken, Berichtigung, Einwilligungen (P6.18)
+  privacyErasureTitle: 'Löschen/Einschränken',
+  privacyErasureHint:
+    'Je Datensatz die Regel aus dem Löschkonzept und die Aktion. Belege bleiben unverändert bis Fristende. Jede Aktion steht im Löschprotokoll; danach geht die Antwort an die Person.',
+  privacyErasureNone: 'Erst nach Personen suchen – dann erscheint hier der Plan.',
+  privacyErasureColRecord: 'Datensatz',
+  privacyErasureColRule: 'Regel',
+  privacyErasureColUntil: 'Aufbewahren bis',
+  privacyErasureColAction: 'Aktion',
+  privacyErasureReason: 'Begründung (Art. 17 Abs. 3 lit. e)',
+  privacyErasureNotify: 'Antwort an die Person schicken',
+  privacyErasureButton: 'Plan ausführen',
+  privacyErasureConfirm: 'Plan ausführen?',
+  privacyErasureConsequence:
+    'Gelöschte Daten lassen sich nicht wiederherstellen. Eingeschränkte Bestellungen bekommen keine Mails mehr.',
+  privacyErasureDone: 'Erledigt – {{count}} Datensätze bearbeitet.',
+  privacyActionDelete: 'sofort löschen',
+  privacyActionRestrict: 'einschränken',
+  privacyActionKeep: 'behalten (Sperre)',
+  privacyActionNone: 'keine Aktion',
+  privacyRectifyTitle: 'Berichtigung',
+  privacyRectifyHint:
+    'Name, E-Mail oder Adresse einer gefundenen Bestellung berichtigen. Gibt es schon eine Rechnung, entstehen automatisch eine Gutschrift und eine neue Rechnung.',
+  privacyRectifyOrder: 'Bestellung',
+  privacyRectifyName: 'Name',
+  privacyRectifyEmail: 'E-Mail',
+  privacyRectifyStreet: 'Straße und Hausnummer',
+  privacyRectifyPostalCode: 'PLZ',
+  privacyRectifyCity: 'Ort',
+  privacyRectifyButton: 'Berichtigen',
+  privacyRectifyConfirm: 'Bestellung berichtigen?',
+  privacyRectifyConsequence:
+    'Die Angaben werden geändert und im Verlauf vermerkt. Mit Rechnung: Gutschrift über den vollen Betrag und neue Rechnung.',
+  privacyRectifyDone: 'Berichtigt.',
+  privacyConsentTitle: 'Einwilligungen',
+  privacyConsentHint:
+    'DHL-Weitergabe: an der Bestellung unter „Adresse kopieren“ widerrufen (mit Bestätigung). Portfolio-Fotos widerrufst du am Galerie-Eintrag.',
+  privacyConsentActive: 'DHL-Einwilligung aktiv – Bestellung öffnen',
+  privacyConsentNone: 'Keine aktive DHL-Einwilligung gefunden.',
   textsOrderActive: 'Eingesetzt: {{number}} (Sprache der Bestellung: {{locale}}).',
 } as const
 
