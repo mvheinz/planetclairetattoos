@@ -65,6 +65,8 @@
     "placeholderBanner": "PLACEHOLDER – not legally binding",
     "asOf": "Version: {date}",
     "germanOnly": "Only available in German.",
+    "pdf": "Download as PDF",
+    "pdfForm": "Download the model withdrawal form as PDF",
     "emptyTitle": "This text is being prepared",
     "emptyText": "Please check back a little later. If you have questions, you can reach me via the contact page.",
     "emptyAction": "Go to the contact page",
@@ -194,7 +196,10 @@
     "withdrawHint": "Want to withdraw from a contract?",
     "legalNoticeHint": "Provider details:",
     "emptyTitle": "The contact page is on its way",
-    "emptyText": "Just send me an email or a message on Instagram."
+    "emptyText": "Just send me an email or a message on Instagram.",
+    "copyEmail": "Copy address",
+    "copied": "Copied",
+    "copyFailed": "Copying didn't work – please select and copy."
   },
   "withdraw": {
     "previewNotice": "Not yet functional in this preview – coming in P6.",

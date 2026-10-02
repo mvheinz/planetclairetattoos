@@ -10,7 +10,8 @@ import styles from './ContactLinks.module.css'
 
 // Block `contactLinks` (KONZEPT §3.13): E-Mail als `mailto:` (optional mit Betreff), Instagram-Profil und
 // Direktnachricht, „Privatstudio in Berlin-{Bezirk}“. Werte nur aus `getPublicSettings()`; kein Formular (E-51).
-// „Adresse kopieren“ ist ein Verhaltensmodul und folgt mit der vollständigen Kontaktseite (P6).
+// „Adresse kopieren“ (Modul `copy-button`, ohne JavaScript verborgen – die Adresse steht als markierbarer Text daneben;
+// P6.5, R-023).
 export interface ContactLinksProps {
   locale: Locale
   contact: ContactInfo
@@ -44,6 +45,25 @@ export async function ContactLinks({
             <a href={mailto} className={styles.link} data-contact-email="">
               {contact.email}
             </a>
+            <button
+              type="button"
+              className={styles.copy}
+              data-behavior="copy-button"
+              data-copy={contact.email ?? ''}
+              data-copied-text={t('copied')}
+              data-copy-failed-text={t('copyFailed')}
+              data-copy-status-id="contact-copy-status"
+              data-contact-copy=""
+              hidden
+            >
+              {t('copyEmail')}
+            </button>
+            <span
+              id="contact-copy-status"
+              className={styles.copyStatus}
+              role="status"
+              aria-live="polite"
+            />
           </li>
         ) : null}
         {showInstagram !== false ? (

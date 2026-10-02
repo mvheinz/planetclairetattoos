@@ -65,6 +65,8 @@
     "placeholderBanner": "PLATZHALTER – nicht rechtsverbindlich",
     "asOf": "Stand: {date}",
     "germanOnly": "Nur auf Deutsch verfügbar.",
+    "pdf": "Als PDF herunterladen",
+    "pdfForm": "Muster-Widerrufsformular als PDF herunterladen",
     "emptyTitle": "Dieser Text wird gerade vorbereitet",
     "emptyText": "Schau bitte etwas später wieder vorbei. Bei Fragen erreichst du mich über die Kontaktseite.",
     "emptyAction": "Zur Kontaktseite",
@@ -194,7 +196,10 @@
     "withdrawHint": "Du willst einen Vertrag widerrufen?",
     "legalNoticeHint": "Angaben zur Anbieterin:",
     "emptyTitle": "Die Kontaktseite entsteht gerade",
-    "emptyText": "Schreib mir einfach eine Mail oder auf Instagram."
+    "emptyText": "Schreib mir einfach eine Mail oder auf Instagram.",
+    "copyEmail": "Adresse kopieren",
+    "copied": "Kopiert",
+    "copyFailed": "Kopieren hat nicht geklappt – bitte markieren und kopieren."
   },
   "withdraw": {
     "previewNotice": "In dieser Vorschau noch ohne Funktion – kommt in P6.",

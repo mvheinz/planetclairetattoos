@@ -139,7 +139,8 @@ export async function renderWithdrawalReceipt(
     title: t.title,
     links,
     business,
-    orderMail: false,
+    // Fuß mit „Vertrag widerrufen“ wie alle bestellbezogenen Mails M01–M09 (PLAN P6.6, R-090); kein Status-Link.
+    orderMail: true,
     blocks: [
       greetingBlock(locale, d.name),
       block.p(getSnippet('withdrawal.receiptNotice', locale).text),
