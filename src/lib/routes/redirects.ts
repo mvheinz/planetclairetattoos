@@ -11,6 +11,8 @@ export type PublicRouteDecision =
   | { kind: 'intl' }
   /** Nicht Sache der Sprachlogik (Dateien, /nr, Sitemap, robots.txt). */
   | { kind: 'pass' }
+  /** Unbekannte Datei direkt unter `/` (z. B. `/sw.js`, `/manifest.webmanifest`) → schlichte 404 (P5.29, T-04). */
+  | { kind: 'not-found' }
 
 /** Ausgenommen von der Spracherkennung (KONZEPT §2.4): Dateien, Systempfade, R31. */
 export function isExcludedPath(pathname: string): boolean {
@@ -19,6 +21,25 @@ export function isExcludedPath(pathname: string): boolean {
   const last = pathname.split('/').pop() ?? ''
   return last.includes('.')
 }
+
+/**
+ * Dateien, die es direkt unter `/` wirklich gibt: Metadaten-Routen aus `src/app/` (`robots.ts`, `sitemap.ts`, `icon.svg`,
+ * `apple-icon.png`, `favicon.ico`). Jede andere Datei auf erster Ebene (`/sw.js`, `/manifest.webmanifest`, `/foo.txt`)
+ * landete sonst in der ISR-Startseite `[locale]` und endete dort mit 500 („static to dynamic“). `dynamicParams = false`
+ * auf der Startseite ist keine Lösung: Nach `revalidateTag('home')` lieferte Next.js 16.3 dann auch `/de` als 404.
+ * Ein Unit-Test gleicht die Liste mit `src/app/` und `public/` ab.
+ */
+export const ROOT_FILES: ReadonlySet<string> = new Set([
+  '/robots.txt',
+  '/sitemap.xml',
+  '/favicon.ico',
+  '/icon.svg',
+  '/apple-icon.png',
+])
+
+/** Unbekannte Datei auf erster Ebene (Punkt im einzigen Segment, nicht in `ROOT_FILES`)? */
+export const isUnknownRootFile = (pathname: string): boolean =>
+  /^\/[^/]*\.[^/]*$/.test(pathname) && !ROOT_FILES.has(pathname)
 
 /**
  * Entscheidet für `pathname` (ohne Query; `search` wird angehängt):
@@ -38,6 +59,7 @@ export function decidePublicRoute(
       location: (pathname.replace(/\/+$/, '') || '/') + search,
     }
   }
+  if (isUnknownRootFile(pathname)) return { kind: 'not-found' }
   if (isExcludedPath(pathname)) return { kind: 'pass' }
 
   const split = splitLocale(pathname)

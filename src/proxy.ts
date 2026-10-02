@@ -35,7 +35,7 @@ const intlMiddleware = createIntlMiddleware(routing)
 /** Sprach-Header von next-intl (wie dessen Middleware ihn bei Umschreibungen setzt). */
 const INTL_LOCALE_HEADER = 'X-NEXT-INTL-LOCALE'
 
-/** Schlichte 404 des Proxys (Verwaltungs-Ordner, interne Varianten-Pfade) – ohne Weiterleitung. */
+/** Schlichte 404 des Proxys (Verwaltungs-Ordner, interne Varianten-Pfade, unbekannte Wurzel-Dateien) – ohne Weiterleitung. */
 const notFound = () =>
   withBaseHeaders(
     new NextResponse('Not Found', {
@@ -126,6 +126,7 @@ export function proxy(request: NextRequest): NextResponse {
   if (route.kind === 'redirect') {
     return redirect(new URL(route.location, request.nextUrl), route.status, route.vary)
   }
+  if (route.kind === 'not-found') return notFound()
   if (route.kind === 'pass') return NextResponse.next()
 
   // Bekannte Listen-Parameter → statische Variante; sichtbare URL bleibt die Query-Form. Öffentliche Listen haben den
