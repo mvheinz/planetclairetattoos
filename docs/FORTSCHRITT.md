@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.18
+
+- Löschplan je Datensatz (`src/lib/privacy/erasure.ts`, Regel aus LOESCHKONZEPT): Bestellungen nach Fristende anonymisiert (Stufe D), sonst eingeschränkt (`processingRestricted`, Notizen/Packfotos weg, DHL-Einwilligung widerrufen) oder behalten (Sperre mit Begründung); Kassen, Anfragen, Nachweise ohne Bezug gelöscht; Belege unverändert; `deletion-log` (`privacy_request`/`DSGVO`/`privacyRequestRef`); M15\n- Outbox und `sendEmail` unterdrücken Kund:innen-Mails zu eingeschränkten Bestellungen (`suppressed`)\n- Berichtigung: ohne Rechnung direkt (Vermerk im Verlauf, Kontext `rectify`), sonst `reissueInvoice` (GS `correction` + neue RE mit `replacesInvoice`); Migrationen `p6_invoice_reissue` (+ `_constraints`: partieller UNIQUE, GoBD-Trigger)\n- M16 beim DHL-Widerruf auf Wunsch; M14–M16 DE/EN\n- Tests: `tests/int/legal/privacy-erasure.int.spec.ts` (4), `tests/unit/legal/p6-mails.unit.spec.ts` (R-084 M14–M16)
+
 ## 2026-10-02 – P6.17
 
 - Personensuche (`src/lib/privacy/search.ts`): E-Mail normalisiert, Bestellnummer oder Name über Bestellungen, Kassen, Belege, Widerrufe, Anfragen (inkl. Bilder), Reklamationen, Mail-/Einwilligungs-Protokoll und frühere Anfragen; Treffer in `matched*`\n- Auskunft-Export (`src/lib/privacy/export.ts`): ZIP mit `daten.json`, `auskunft.html` (Art. 15 lit. a–h, Empfänger aus DIENSTE, Fristen aus `policy.ts`, Berliner Beauftragte) und Kopien der Bilder/PDFs; privat (`data_export`), Audit `data_exported`; ohne interne Notizen, Verwaltungs-Mails und Token-Merkmale\n- M14 `privacy_access_response` mit signiertem Link `GET /api/privacy-export/[token]` (HMAC `pc:privacy-export:v1`, 7 Tage, danach 410; Token erst beim Versand eingesetzt, nie im `email-log`); Ansicht „Personensuche und Auskunft“ im Anfrage-Detail\n- Tests: `tests/int/legal/privacy-export.int.spec.ts` (3, R-150/R-137, Zählvergleich), Mail-Fixtures M14–M16; pnpm check grün

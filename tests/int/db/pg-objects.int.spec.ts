@@ -34,7 +34,11 @@ const CHECKS: [table: string, name: string][] = [
 const PARTIAL_INDEXES: [table: string, name: string, where: RegExp][] = [
   ['reservations', 'reservations_one_active_per_product', /WHERE \(status = 'active'/],
   ['legal_texts', 'legal_texts_one_active_per_type', /WHERE \(status = 'active'/],
-  ['invoices', 'invoices_one_invoice_per_order', /WHERE \(type = 'invoice'/],
+  [
+    'invoices',
+    'invoices_one_invoice_per_order',
+    /WHERE \(\(type = 'invoice'.*replaces_invoice_id IS NULL/,
+  ],
   // P6.1 (DATENMODELL §9.3, §10.1)
   ['legal_snippets', 'legal_snippets_one_active_per_key', /\(key\) WHERE \(status = 'active'/],
 ]
@@ -147,6 +151,10 @@ describe('Postgres-Objekte (DATENMODELL §9)', () => {
     const seedTables = await rows<{ table_name: string }>(
       `SELECT table_name FROM information_schema.columns
         WHERE table_schema = 'public' AND column_name = 'seed_key' AND table_name NOT LIKE '\\_%'`,
+    )
+    // P6.18 (Berichtigung, R-152): jede Rechnung wird höchstens einmal ersetzt
+    expect(byName.get('invoices_replaced_once')?.indexdef).toMatch(
+      /^CREATE UNIQUE INDEX .*\(replaces_invoice_id\) WHERE \(replaces_invoice_id IS NOT NULL\)$/,
     )
     expect(seedTables.length).toBeGreaterThanOrEqual(22)
     for (const { table_name: t } of seedTables) {

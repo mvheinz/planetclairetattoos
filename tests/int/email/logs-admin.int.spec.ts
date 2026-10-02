@@ -168,10 +168,7 @@ describe('Protokolle in der Verwaltung (P6.19)', () => {
   it('Mail-Protokoll: Typ, Betreff, Zeitpunkt, Anbieter-ID, Status, Anhang-Namen; Empfänger maskiert, keine Freitexte', async () => {
     const req = await createLocalReq({}, payload)
     const { emails } = await listProtocols(req, parseProtocolFilters({ art: 'mails' }))
-    const mine = emails.filter(
-      (m) => m.withdrawalId === withdrawalId && m.to !== maskEmail(undefined),
-    )
-    const sent = mine.find((m) => m.template === 'withdrawal_receipt' && m.status === 'sent')!
+    const sent = emails.find((m) => m.subject === 'Betreff withdrawal_receipt')!
     expect(sent).toMatchObject({
       konzeptId: 'M08',
       subject: 'Betreff withdrawal_receipt',

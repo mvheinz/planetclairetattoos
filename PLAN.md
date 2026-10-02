@@ -3565,7 +3565,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
   - Tests: `tests/int/legal/privacy-export.int.spec.ts` (Titel „R-150 …“).
   - Ohne Jutta: –
 
-- [ ] **P6.18 DSGVO: Löschen/Einschränken, Berichtigung, Widerspruch, Einwilligungswiderruf** – Knopf
+- [x] **P6.18 DSGVO: Löschen/Einschränken, Berichtigung, Widerspruch, Einwilligungswiderruf** – Knopf
   „Löschen/Einschränken“ je Person (R-151): Plan je Datensatz mit Regel aus LOESCHKONZEPT und Aktion „sofort löschen“
   (inkl. Speicherobjekten und Mail-Protokoll), „einschränken bis {Datum}“ (`privacy.processingRestricted = true`, nicht
   nötige Felder sofort entfernen: Telefon, Notizen, Packfotos; Outbox unterdrückt Mails an eingeschränkte Bestellungen)

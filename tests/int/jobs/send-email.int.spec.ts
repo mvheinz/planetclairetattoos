@@ -134,11 +134,11 @@ describe('Task sendEmail', () => {
     const before = await payload.count({ collection: 'email-log', overrideAccess: true })
     await expect(
       enqueueEmail(req, {
-        template: 'privacy_access_response',
+        template: 'admin_password_reset',
         to: TO,
         locale: 'de',
         data: {},
-        idempotencyKey: 'privacy_access_response:1:test',
+        idempotencyKey: 'admin_password_reset:1:test',
       }),
     ).rejects.toThrow(/noch nicht umgesetzt/)
     const after = await payload.count({ collection: 'email-log', overrideAccess: true })
