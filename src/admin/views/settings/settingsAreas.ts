@@ -13,6 +13,7 @@ export const SETTINGS_AREAS = [
   'taxConfirm',
   'yearTotals',
   'analytics',
+  'processorAgreements',
   'legal',
   'mailTexts',
 ] as const
@@ -124,6 +125,50 @@ export interface AnalyticsValues {
   confirmedAt: string
   note: string
 }
+/** Auftragsverarbeitung (P6.21, DIENSTE §6, R-155): je Dienst mit `avv: required` eine feste Zeile. */
+export interface ProcessorAgreementFormRow {
+  id?: string
+  serviceId: string
+  /** Anzeigename aus der Dienstliste (nur Beschriftung, wird nicht gespeichert). */
+  name: string
+  signedAt: string
+  documentVersion: string
+  url: string
+  /** ID der AVV-Datei in `private-uploads` (Zweck `processor_agreement`) oder leer. */
+  file: string
+}
+export interface ProcessorAgreementsValues {
+  rows: ProcessorAgreementFormRow[]
+}
+
+/** Startwerte: eine Zeile je Dienst der Liste, gefüllt aus `settings.processorAgreements` (gleiche `serviceId`). */
+export function initialProcessorAgreements(
+  services: readonly { id: string; name: string }[],
+  stored: unknown,
+): ProcessorAgreementsValues {
+  const rows = list(stored)
+  return {
+    rows: services.map((svc) => {
+      const r = rows.find((x) => x.serviceId === svc.id) ?? {}
+      const file = r.file
+      return {
+        ...id(r),
+        serviceId: svc.id,
+        name: svc.name,
+        signedAt: dateKey(r.signedAt),
+        documentVersion: s(r.documentVersion),
+        url: s(r.url),
+        file:
+          typeof file === 'number'
+            ? String(file)
+            : file && typeof file === 'object' && 'id' in file
+              ? String((file as { id: unknown }).id)
+              : '',
+      }
+    }),
+  }
+}
+
 export interface LegalValues {
   reviewIntervalDays: string
   allowVisibleBlankBrands: boolean
@@ -362,7 +407,17 @@ export const AREA_TEXT = {
     'Wirkt nur, wenn zusätzlich NEXT_PUBLIC_ANALYTICS_ENABLED=true gesetzt ist. Einschalten nur mit Datum und Notiz zur Entscheidung (R-132).',
   analyticsConfirmedAt: 'Entscheidung dokumentiert am',
   analyticsNote: 'Notiz zur Entscheidung',
-  analyticsLater: 'Auftragsverarbeitung (Verträge je Dienst) folgt in P6.',
+  // Auftragsverarbeitung (P6.21)
+  avvTitle: 'Auftragsverarbeitung',
+  avvHint:
+    'Für jeden Dienst, der Daten in deinem Auftrag verarbeitet, brauchst du einen Vertrag (AVV). Nach dem Abschluss hier Datum, Fassung bzw. Adresse und optional das PDF eintragen. Vor dem Shop-Start müssen alle Dienste eingetragen sein.',
+  avvSignedAt: 'Abgeschlossen am',
+  avvVersion: 'Fassung',
+  avvUrl: 'Adresse des Vertrags (beginnt mit https)',
+  avvFile: 'Vertrag als PDF',
+  avvFileNone: 'keine Datei',
+  avvUploadTitle: 'AVV-PDF hochladen',
+  avvUploadHint: 'Nur PDF. Danach oben beim Dienst auswählen.',
   // Rechtstexte
   legalInterval: 'Prüf-Erinnerung nach (Tagen)',
   legalIntervalHint: 'Standard 365, erlaubt 30 bis 730.',

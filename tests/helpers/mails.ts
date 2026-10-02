@@ -203,7 +203,88 @@ export const PICKUP_READY_FIXTURE = {
     'Abholung im Atelier nach Absprache, meist Di–Do 16–19 Uhr.\nPlanet Claire, Musterstraße 1, 10115 Berlin',
 }
 
+export const WITHDRAWAL_RECEIPT_FIXTURE = {
+  withdrawalId: 3,
+  reference: 'WR-2026-00003',
+  receivedAt: '2026-10-12T12:03:00.000Z',
+  refundDueAt: '2026-10-26T12:03:00.000Z',
+  name: 'Erika Beispiel',
+  contractIdentification: 'PC-2026-00017',
+  email: 'erika@example.com',
+  itemsText: null,
+  items: [{ itemNumber: 17, title: 'Tasse „Coco schläft“' }],
+  reason: 'Passt farblich doch nicht.',
+  unpaidOrderCancelled: false,
+  returnAddress: null,
+}
+
+export const REFUND_CONFIRMATION_FIXTURE = {
+  orderId: 17,
+  orderNumber: 'PC-2026-00017',
+  customerName: 'Erika Beispiel',
+  amountCents: 4040,
+  shippingCents: 240,
+  paymentMethod: 'card',
+  items: [{ itemNumber: 17, title: 'Tasse „Coco schläft“' }],
+  withdrawalReference: 'WR-2026-00003',
+  creditNoteId: 5,
+  creditNoteNumber: 'GS-2026-00002',
+}
+
+/** M12 (P6.11): Reklamation zu PC-2026-00017, Transportschaden an der Tasse. */
+export const COMPLAINT_REPAIR_CHOICE_FIXTURE = {
+  orderId: 17,
+  orderNumber: 'PC-2026-00017',
+  complaintId: 4,
+  customerName: 'Erika Beispiel',
+  kind: 'transport_damage',
+  receivedAt: '2026-10-16T08:15:00.000Z',
+  items: [{ itemNumber: 17, title: 'Tasse „Coco schläft“' }],
+}
+
+/** M13 (P6.11): Hinweis zur Streitbeilegung zur selben Reklamation. */
+export const DISPUTE_VSBG_FIXTURE = {
+  orderId: 17,
+  orderNumber: 'PC-2026-00017',
+  complaintId: 4,
+  customerName: 'Erika Beispiel',
+  receivedAt: '2026-10-16T08:15:00.000Z',
+}
+
+/** M14 (P6.17): Antwort auf eine Auskunft (Seed-Kundin „Mara“, DS-2026-0001). */
+export const PRIVACY_ACCESS_RESPONSE_FIXTURE = {
+  privacyRequestId: 5,
+  reference: 'DS-2026-0001',
+  name: 'Mara Beispiel',
+  linkExpiresAt: '2026-10-21T09:30:00.000Z',
+  fileDeleteAt: '2026-11-13T09:30:00.000Z',
+}
+
+/** M15 (P6.18): Antwort auf eine Löschanfrage – gelöscht, eingeschränkt, Belege unverändert. */
+export const PRIVACY_ERASURE_RESPONSE_FIXTURE = {
+  privacyRequestId: 6,
+  reference: 'DS-2026-0002',
+  name: 'Mara Beispiel',
+  areas: [
+    { area: 'inquiries', outcome: 'deleted' },
+    { area: 'checkouts', outcome: 'deleted' },
+    { area: 'orders', outcome: 'restricted', until: '2033-01-01T00:00:00.000+01:00' },
+    { area: 'invoices', outcome: 'unchanged', until: '2037-01-01T00:00:00.000+01:00' },
+  ],
+}
+
+/** M16 (P6.18): Widerruf der DHL-Einwilligung. */
+export const CONSENT_WITHDRAWAL_FIXTURE = {
+  purpose: 'carrier_email_forwarding',
+  withdrawnAt: '2026-10-14T09:30:00.000Z',
+  name: 'Erika Beispiel',
+  orderNumber: 'PC-2026-00017',
+}
+
 export const MAIL_FIXTURE_DATA: Partial<Record<EmailTemplate, Record<string, unknown>>> = {
+  privacy_access_response: PRIVACY_ACCESS_RESPONSE_FIXTURE,
+  privacy_erasure_response: PRIVACY_ERASURE_RESPONSE_FIXTURE,
+  consent_withdrawal_confirmation: CONSENT_WITHDRAWAL_FIXTURE,
   order_shipped: SHIPPED_FIXTURE,
   pickup_ready: PICKUP_READY_FIXTURE,
   order_confirmation: ORDER_MAIL_FIXTURE,
@@ -211,7 +292,11 @@ export const MAIL_FIXTURE_DATA: Partial<Record<EmailTemplate, Record<string, unk
   prepayment_received: PREPAYMENT_RECEIVED_FIXTURE,
   prepayment_reminder: REMINDER_FIXTURE,
   prepayment_cancelled: CANCELLED_FIXTURE,
+  withdrawal_receipt: WITHDRAWAL_RECEIPT_FIXTURE,
   oversold_apology: OVERSOLD_FIXTURE,
+  refund_confirmation: REFUND_CONFIRMATION_FIXTURE,
+  complaint_repair_choice: COMPLAINT_REPAIR_CHOICE_FIXTURE,
+  dispute_vsbg: DISPUTE_VSBG_FIXTURE,
   admin_order_placed: ADMIN_ORDER_FIXTURE,
   admin_prepayment_cancelled: {
     orderId: 17,

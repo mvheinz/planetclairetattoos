@@ -1,17 +1,21 @@
 import React from 'react'
 
+import { emailLogsFor } from '@/lib/privacy/logs'
+
 import { NotesEditor } from '../../components/NotesEditor'
 import { Notice } from '../../components/Notice'
 import { StatusBadge } from '../../components/StatusBadge'
 import { adminText } from '../../translations'
 import type { AdminViewBodyProps } from '../AdminViewBody'
+import { EmailLogTable } from '../logs/LogTables'
 import { adminViewPath } from '../registry'
 import { InquiryReplyAndDelete, InquiryStatusButtons } from './InquiryActions'
 import { inquiryReplyHref, loadInquiryDetail } from './inquiryQuery'
 
 // Anfrage-Detail `/anfragen/:id` (PLAN P5.20, KONZEPT §7.11): alle Angaben, Referenzbilder (nur angemeldete
 // Dateiroute), interne Notizen, Status-Knöpfe (KONZEPT §5.5) mit Statusverlauf (Audit, DM-21), „Antworten“ (`mailto:`)
-// und „Jetzt löschen“. Statuswechsel und Notizen setzen „zuletzt bearbeitet“, nie die Löschfrist (L-10).
+// und „Jetzt löschen“. Statuswechsel und Notizen setzen „zuletzt bearbeitet“, nie die Löschfrist (L-10). Mail-Protokoll
+// zur Anfrage (P6.19).
 
 export const INQUIRY_NOTES_MAX = 3000
 
@@ -112,6 +116,16 @@ export async function InquiryDetailView({ adminRoute, req, match }: AdminViewBod
             ))}
           </ol>
         ) : null}
+      </section>
+
+      <section className="pc-order__section" aria-labelledby="inquiry-emails">
+        <h2 id="inquiry-emails">{adminText('logsMailsTitle')}</h2>
+        <EmailLogTable
+          rows={await emailLogsFor(req, { inquiry: { equals: card.id } })}
+          adminRoute={adminRoute}
+          caption={adminText('logsMailsTitle')}
+          testId="inquiry-email-log"
+        />
       </section>
 
       <section className="pc-order__section" aria-labelledby="inquiry-notes">

@@ -28,6 +28,20 @@ export function fixedClock(iso: string | Date): Clock {
 const inBerlin = (d: Date) => new TZDate(d.getTime(), APP_TIME_ZONE)
 const toDate = (d: TZDate) => new Date(d.getTime())
 
+const LOCAL_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/
+
+/**
+ * Berliner Ortszeit ohne Zone (z. B. aus `<input type="datetime-local">`: „2026-09-28T10:15“) → UTC-Zeitpunkt,
+ * unabhängig von der Zeitzone des Geräts. `null` bei anderem Format.
+ */
+export function parseBerlinLocal(value: string): Date | null {
+  const m = LOCAL_RE.exec(value.trim())
+  if (!m) return null
+  const [y, mo, d, h, mi, sec] = m.slice(1).map((v) => Number(v ?? 0))
+  const t = new TZDate(y!, mo! - 1, d!, h!, mi!, sec ?? 0, 0, APP_TIME_ZONE)
+  return Number.isNaN(t.getTime()) ? null : new Date(t.getTime())
+}
+
 /** Beginn des Berliner Kalendertags (00:00 Europe/Berlin) als UTC-Zeitpunkt. */
 export function berlinDayStart(d: Date): Date {
   return toDate(startOfDay(inBerlin(d)))
@@ -75,4 +89,22 @@ const LOCALES: Record<'de' | 'en', DateFnsLocale> = { de, en: enGB }
 /** Anzeige immer in Europe/Berlin (date-fns-Muster, z. B. `dd.MM.yyyy HH:mm`). */
 export function formatBerlin(d: Date, pattern: string, locale: 'de' | 'en' = 'de'): string {
   return format(inBerlin(d), pattern, { locale: LOCALES[locale] })
+}
+
+/** Kurzname der Berliner Zeitzone zum Zeitpunkt: DE „MEZ“/„MESZ“, EN „CET“/„CEST“ (Sommerzeit = UTC+2). */
+export function berlinZoneName(d: Date, locale: 'de' | 'en' = 'de'): string {
+  const summer = format(inBerlin(d), 'xxx') === '+02:00'
+  if (locale === 'en') return summer ? 'CEST' : 'CET'
+  return summer ? 'MESZ' : 'MEZ'
+}
+
+/**
+ * Datum und Uhrzeit mit Zeitzone, z. B. DE „12.10.2026, 14:03 Uhr (MESZ)“, EN „12 Oct 2026, 14:03 (CEST)“
+ * (Eingang eines Widerrufs, R-093).
+ */
+export function formatBerlinWithZone(d: Date, locale: 'de' | 'en' = 'de'): string {
+  const zone = berlinZoneName(d, locale)
+  return locale === 'en'
+    ? `${formatBerlin(d, 'd MMM yyyy, HH:mm', 'en')} (${zone})`
+    : `${formatBerlin(d, 'dd.MM.yyyy, HH:mm')} Uhr (${zone})`
 }

@@ -220,7 +220,12 @@ describe('Rechtstext-PDFs (P4.12)', () => {
     // neue AGB v2 und Belehrung v2 aktivieren
     const agb2 = await draft('agb', lexical('§ 1 Neue AGB Fassung zwei', '{{name}}'), {}, LATER)
     await activateWithPdf(agb2.id, LATER)
-    const bel2 = await draft('widerrufsbelehrung', lexical('Belehrung Fassung zwei'), {}, LATER)
+    const bel2 = await draft(
+      'widerrufsbelehrung',
+      lexical('Belehrung Fassung zwei', 'Widerruf über {{withdrawalUrl}}'),
+      {},
+      LATER,
+    )
     await activateWithPdf(bel2.id, LATER)
     const after = await buildLegalAttachments(await createLocalReq({}, payload), order)
     expect(after.map((a) => a.filename)).toEqual([

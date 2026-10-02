@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import type { FullConfig } from '@playwright/test'
 
@@ -32,11 +33,12 @@ export function revalidatableRoutes(manifest: PrerenderManifest): string[] {
     .sort()
 }
 
-export default async function globalSetup(config: FullConfig) {
+export default async function globalSetup(_config: FullConfig) {
   if (process.env.E2E_SERVER !== 'start') return
   const distDir = process.env.NEXT_DIST_DIR || '.next'
   const manifestPath = path.join(
-    config.configFile ? path.dirname(config.configFile) : process.cwd(),
+    // Repo-Wurzel relativ zu dieser Datei (auch für Konfigurationen außerhalb der Wurzel, z. B. scripts/legal/)
+    path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..'),
     distDir,
     'prerender-manifest.json',
   )

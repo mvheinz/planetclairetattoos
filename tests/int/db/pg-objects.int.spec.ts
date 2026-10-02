@@ -2,6 +2,7 @@ import pg from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { CENT_COLUMNS, down, up } from '@/migrations/20260927_145135_p1_constraints'
+import * as p6 from '@/migrations/20261002_020601_p6_legal_snippets_complaints_constraints'
 
 // P1.26 (T-14, DM-P1-02): Alle eigenen Postgres-Objekte aus DATENMODELL §9 existieren – geprüft über die Kataloge
 // pg_sequences, pg_constraint, pg_indexes und pg_trigger; `down` entfernt alles (in einer zurückgerollten Transaktion).
@@ -33,8 +34,17 @@ const CHECKS: [table: string, name: string][] = [
 const PARTIAL_INDEXES: [table: string, name: string, where: RegExp][] = [
   ['reservations', 'reservations_one_active_per_product', /WHERE \(status = 'active'/],
   ['legal_texts', 'legal_texts_one_active_per_type', /WHERE \(status = 'active'/],
-  ['invoices', 'invoices_one_invoice_per_order', /WHERE \(type = 'invoice'/],
+  [
+    'invoices',
+    'invoices_one_invoice_per_order',
+    /WHERE \(\(type = 'invoice'.*replaces_invoice_id IS NULL/,
+  ],
+  // P6.1 (DATENMODELL §9.3, §10.1)
+  ['legal_snippets', 'legal_snippets_one_active_per_key', /\(key\) WHERE \(status = 'active'/],
 ]
+
+/** Indizes späterer Migrationen (nicht Teil von `p1_constraints`). */
+const LATER_INDEXES = ['legal_snippets_one_active_per_key', 'complaints_seed_key_unique']
 
 let client: pg.Client
 
@@ -53,8 +63,9 @@ async function objectCounts() {
   )
   const [idx] = await rows<{ n: string }>(
     `SELECT count(*) AS n FROM pg_indexes WHERE schemaname = 'public'
-       AND (indexname = ANY($1) OR indexname LIKE '%\\_seed\\_key\\_unique')`,
-    [PARTIAL_INDEXES.map((i) => i[1])],
+       AND (indexname = ANY($1) OR indexname LIKE '%\\_seed\\_key\\_unique')
+       AND indexname <> ALL($2)`,
+    [PARTIAL_INDEXES.map((i) => i[1]), LATER_INDEXES],
   )
   const [trg] = await rows<{ n: string }>(
     `SELECT count(*) AS n FROM pg_trigger WHERE tgname = 'invoices_guard' AND NOT tgisinternal`,
@@ -141,6 +152,10 @@ describe('Postgres-Objekte (DATENMODELL §9)', () => {
       `SELECT table_name FROM information_schema.columns
         WHERE table_schema = 'public' AND column_name = 'seed_key' AND table_name NOT LIKE '\\_%'`,
     )
+    // P6.18 (Berichtigung, R-152): jede Rechnung wird höchstens einmal ersetzt
+    expect(byName.get('invoices_replaced_once')?.indexdef).toMatch(
+      /^CREATE UNIQUE INDEX .*\(replaces_invoice_id\) WHERE \(replaces_invoice_id IS NOT NULL\)$/,
+    )
     expect(seedTables.length).toBeGreaterThanOrEqual(22)
     for (const { table_name: t } of seedTables) {
       const found = byName.get(`${t}_seed_key_unique`)
@@ -185,5 +200,35 @@ describe('Postgres-Objekte (DATENMODELL §9)', () => {
       await client.query('ROLLBACK')
     }
     expect(await objectCounts()).toEqual(before)
+  })
+
+  it('T-14 p6_legal_snippets_complaints_constraints: down entfernt die P6-Indizes, up legt sie wieder an', async () => {
+    const count = async () =>
+      Number(
+        (
+          await rows<{ n: string }>(
+            `SELECT count(*) AS n FROM pg_indexes WHERE schemaname = 'public' AND indexname = ANY($1)`,
+            [LATER_INDEXES],
+          )
+        )[0]!.n,
+      )
+    expect(await count()).toBe(2)
+    const db = {
+      execute: (q: unknown) => {
+        const chunks = (q as { queryChunks: { value?: string[] }[] }).queryChunks
+        return client.query(
+          chunks.map((c) => (Array.isArray(c.value) ? c.value.join('') : '')).join(''),
+        )
+      },
+    }
+    await client.query('BEGIN')
+    try {
+      await p6.down({ db } as never)
+      expect(await count()).toBe(0)
+      await p6.up({ db } as never)
+      expect(await count()).toBe(2)
+    } finally {
+      await client.query('ROLLBACK')
+    }
   })
 })

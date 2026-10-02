@@ -48,7 +48,7 @@ export interface ShopHarness {
   piece(nr: number, extra?: Record<string, unknown>): Promise<number>
   start(
     ids: number[],
-    o?: { delivery?: 'shipping' | 'pickup'; payments?: PaymentsAdapter },
+    o?: { delivery?: 'shipping' | 'pickup'; payments?: PaymentsAdapter; locale?: 'de' | 'en' },
   ): Promise<StartedOk>
   submitted(
     ids: number[],
@@ -131,7 +131,7 @@ export function shopHarness(o: { start: string; numbers: number[]; tag: string }
             ids.map((id) => ({ id })),
             s.delivery ?? 'shipping',
           ),
-          locale: 'de',
+          locale: s.locale ?? 'de',
           existingToken: null,
           now: clock.now(),
         },

@@ -8,11 +8,22 @@ import { StatusBadge } from '../../components/StatusBadge'
 import { adminText } from '../../translations'
 import type { AdminViewBodyProps } from '../AdminViewBody'
 import { adminViewPath } from '../registry'
+import { ENUM_LABELS } from '@/lib/enumLabels'
+import { WITHDRAWAL_CLOSE_REASONS } from '@/lib/enums'
+
+import { refundDialogData } from '@/lib/commerce/refundOrder'
+import { emailLogsFor } from '@/lib/privacy/logs'
+
+import { EmailLogTable } from '../logs/LogTables'
+import { RefundDialog } from '../orders/RefundDialog'
+import { ReceiptCopyButton } from './ReceiptCopyButton'
+import { WithdrawalActions } from './WithdrawalActions'
 import { loadWithdrawalDetail } from './withdrawalQuery'
 
 // Widerruf-Detail `/widerrufe/:id` (PLAN P5.19, KONZEPT §7.10): unveränderliche Erklärung (Snapshot beim Eingang,
 // DM-WDR-03), zugeordnete Bestellung mit Positionen und Zahlart, Info zur regulären Widerrufsfrist (nie automatisch
-// ablehnen, R-094), interne Notizen (separat speicherbar). Aktionen folgen in P6.9/P6.10.
+// ablehnen, R-094), interne Notizen (separat speicherbar), Aktionen (P6.9), „Erstatten“ (P6.10) und Mail-Protokoll mit
+// „Kopie an mich“ für M08 (P6.19).
 
 export const WITHDRAWAL_NOTES_MAX = 2000
 
@@ -33,6 +44,10 @@ export async function WithdrawalDetailView({ adminRoute, req, match }: AdminView
     )
   }
   const { card, declaration: d, order } = detail
+  const refund =
+    order && ['received', 'goods_returned', 'partially_refunded'].includes(card.status)
+      ? await refundDialogData(req, order.id, { affectedItemIds: detail.affectedItemIds })
+      : null
   return (
     <div className="pc-order pc-order--detail" data-testid="withdrawal-detail">
       <p className="pc-order__meta">
@@ -124,9 +139,59 @@ export async function WithdrawalDetailView({ adminRoute, req, match }: AdminView
 
       <section className="pc-order__section" aria-labelledby="withdrawal-actions">
         <h2 id="withdrawal-actions">{adminText('withdrawalActions')}</h2>
-        <Notice tone="info" data-testid="withdrawal-actions-later">
-          {adminText('withdrawalActionsLater')}
-        </Notice>
+        {detail.returnProofText ? (
+          <p data-testid="withdrawal-proof-done">
+            {adminText('withdrawalProofDone', { date: detail.returnProofText })}
+          </p>
+        ) : null}
+        {detail.returnConditionNote ? (
+          <p data-testid="withdrawal-return-note">
+            {adminText('withdrawalReturnNote')}: {detail.returnConditionNote}
+          </p>
+        ) : null}
+        <WithdrawalActions
+          id={card.id}
+          reference={card.reference}
+          status={card.status}
+          orderId={order?.id ?? null}
+          returnProofReceivedAt={detail.returnProofReceivedAt}
+          items={(order?.items ?? []).map((i) => ({
+            productId: i.productId,
+            nr: i.nr,
+            status: i.status,
+          }))}
+          refund={
+            refund ? (
+              <RefundDialog
+                orderId={refund.orderId}
+                orderNumber={refund.orderNumber}
+                prepayment={refund.prepayment}
+                items={refund.items}
+                proposal={refund.proposal}
+                pending={refund.pending}
+                refundable={refund.refundable}
+                withdrawalId={card.id}
+              />
+            ) : undefined
+          }
+          closeReasons={WITHDRAWAL_CLOSE_REASONS.filter((r) => r !== 'unpaid_order_cancelled').map(
+            (r) => ({ value: r, label: ENUM_LABELS.WITHDRAWAL_CLOSE_REASONS[r].de }),
+          )}
+        />
+      </section>
+
+      <section className="pc-order__section" aria-labelledby="withdrawal-emails">
+        <h2 id="withdrawal-emails">{adminText('logsMailsTitle')}</h2>
+        <EmailLogTable
+          rows={await emailLogsFor(req, { withdrawal: { equals: card.id } })}
+          adminRoute={adminRoute}
+          caption={adminText('logsMailsTitle')}
+          testId="withdrawal-email-log"
+        />
+        <p className="pc-order__muted">{adminText('logsReceiptCopyHint')}</p>
+        <p className="pc-admin-row">
+          <ReceiptCopyButton id={card.id} />
+        </p>
       </section>
 
       <section className="pc-order__section" aria-labelledby="withdrawal-notes">

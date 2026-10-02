@@ -8,3 +8,13 @@
   font-size: var(--fs-small);
   color: var(--ink-2);
 }
+
+/* PDF-Download: Textlink mit ausreichender Trefferfläche (≥ 44 px). */
+.pdf {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}

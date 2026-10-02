@@ -47,8 +47,9 @@ test.describe('Rechtsseiten @smoke', () => {
           })
           expect(bannerFirst, 'Band steht über der h1').toBe(true)
           await expect(page.locator('[data-legal-text]').first()).toBeVisible()
+          // Datum der gültigen Fassung (der Grund-Seed gilt ab 1. Januar 2026; P6.4-Tests veröffentlichen neuere).
           await expect(page.locator('[data-legal-as-of]').first()).toContainText(
-            locale === 'de' ? 'Stand: 1. Januar 2026' : 'Version: January 1, 2026',
+            locale === 'de' ? /Stand: \d{1,2}\. \S+ 20\d\d/ : /Version: \S+ \d{1,2}, 20\d\d/,
           )
           if (locale === 'en') {
             // Grund-Seed hat nur deutsche Platzhalter → deutscher Text mit Hinweis (R-015).

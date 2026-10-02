@@ -36,6 +36,8 @@ export type LegalTextView =
       isPlaceholder: boolean
       /** EN-Seite ohne EN-Fassung: deutscher Text (R-015). */
       germanOnly: boolean
+      /** Gespeichertes PDF der Fassung vorhanden (Download über `/api/legal/<type>.pdf`). */
+      hasPdf: boolean
     }
   | { state: 'missing' | 'unavailable'; type: LegalTextType }
 
@@ -77,6 +79,7 @@ export async function loadLegalText(
       validFrom: new Date(doc.validFrom).toISOString(),
       isPlaceholder: doc.origin !== 'lawyer',
       germanOnly: textLocale !== locale,
+      hasPdf: !!doc.pdfDe,
     }
   } catch (err) {
     if (err instanceof LegalRenderError) {

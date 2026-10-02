@@ -1,19 +1,21 @@
 import type { FieldHook, GroupField } from 'payload'
 
 import { adminText } from '@/admin/translations'
+import { requestNow } from '@/lib/payload/context'
 
 // Einschränkung und Legal Hold (DATENMODELL §5, LOESCHKONZEPT §1 Nr. 2, §4 Regel 3). Audit-Einträge
-// (`legal_hold_changed`, `processing_restricted`) schreiben die Collections, die den Baustein nutzen.
+// (`legal_hold_changed`, `processing_restricted`) schreibt `auditPrivacyFlags` (src/collections/hooks/privacy.ts) in
+// den Collections, die den Baustein nutzen (orders, withdrawals, inquiries).
 
 type PrivacyData = { legalHold?: boolean; processingRestricted?: boolean }
 
 /** Setzt einen Zeitstempel, wenn ein Häkchen von aus auf an wechselt; leert ihn beim Ausschalten. */
 function stampWhen(flag: keyof PrivacyData): FieldHook {
-  return ({ value, siblingData, originalDoc }) => {
+  return ({ value, siblingData, originalDoc, req }) => {
     const now = siblingData?.[flag] === true
     const before = (originalDoc?.privacy as PrivacyData | undefined)?.[flag] === true
     if (!now) return null
-    if (!before) return new Date().toISOString()
+    if (!before) return requestNow(req).toISOString()
     return value
   }
 }

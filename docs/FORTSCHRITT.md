@@ -2,7 +2,104 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.23
 
+- ANFORDERUNGEN §3 um Spalte „Nachweis“ (Testdatei-Pfade, bis P6 gefüllt); Parser liest Spalten über die Kopfzeile und prüft, dass jeder Pfad existiert; `LEGAL_TRACE_PHASE = 6`\n- §7 Teil A: R-095 abgehakt (02.10.2026)\n- Tests: `tests/unit/legal/traceability.unit.spec.ts` (9, inkl. Gegenproben Titel/Pfad)
+
+## 2026-10-02 – P6.19
+
+- Mail-Protokoll (Typ, Betreff, Zeitpunkt, Anbieter-ID, Status, Anhänge; Empfänger maskiert) an Widerrufen, Anfragen und Datenschutz-Anfragen; Einwilligungs-Protokoll an Bestellungen\n- Gesamtliste `/export/protokolle` mit Filtern (Art, Zeitraum, Status, Typ), ohne Inhalte/Freitexte\n- „Kopie an mich“ für M08 (`POST /api/withdrawals/:id/receipt-copy`) nur an die Verwaltungs-Adresse\n- Tests: `tests/int/email/logs-admin.int.spec.ts` (4), `tests/e2e/admin/logs.e2e.spec.ts`, `tests/e2e/admin/privacy-requests.e2e.spec.ts` (desktop + pixel-7 grün)
+
+## 2026-10-02 – P6.18
+
+- Löschplan je Datensatz (`src/lib/privacy/erasure.ts`, Regel aus LOESCHKONZEPT): Bestellungen nach Fristende anonymisiert (Stufe D), sonst eingeschränkt (`processingRestricted`, Notizen/Packfotos weg, DHL-Einwilligung widerrufen) oder behalten (Sperre mit Begründung); Kassen, Anfragen, Nachweise ohne Bezug gelöscht; Belege unverändert; `deletion-log` (`privacy_request`/`DSGVO`/`privacyRequestRef`); M15\n- Outbox und `sendEmail` unterdrücken Kund:innen-Mails zu eingeschränkten Bestellungen (`suppressed`)\n- Berichtigung: ohne Rechnung direkt (Vermerk im Verlauf, Kontext `rectify`), sonst `reissueInvoice` (GS `correction` + neue RE mit `replacesInvoice`); Migrationen `p6_invoice_reissue` (+ `_constraints`: partieller UNIQUE, GoBD-Trigger)\n- M16 beim DHL-Widerruf auf Wunsch; M14–M16 DE/EN\n- Tests: `tests/int/legal/privacy-erasure.int.spec.ts` (4), `tests/unit/legal/p6-mails.unit.spec.ts` (R-084 M14–M16)
+
+## 2026-10-02 – P6.17
+
+- Personensuche (`src/lib/privacy/search.ts`): E-Mail normalisiert, Bestellnummer oder Name über Bestellungen, Kassen, Belege, Widerrufe, Anfragen (inkl. Bilder), Reklamationen, Mail-/Einwilligungs-Protokoll und frühere Anfragen; Treffer in `matched*`\n- Auskunft-Export (`src/lib/privacy/export.ts`): ZIP mit `daten.json`, `auskunft.html` (Art. 15 lit. a–h, Empfänger aus DIENSTE, Fristen aus `policy.ts`, Berliner Beauftragte) und Kopien der Bilder/PDFs; privat (`data_export`), Audit `data_exported`; ohne interne Notizen, Verwaltungs-Mails und Token-Merkmale\n- M14 `privacy_access_response` mit signiertem Link `GET /api/privacy-export/[token]` (HMAC `pc:privacy-export:v1`, 7 Tage, danach 410; Token erst beim Versand eingesetzt, nie im `email-log`); Ansicht „Personensuche und Auskunft“ im Anfrage-Detail\n- Tests: `tests/int/legal/privacy-export.int.spec.ts` (3, R-150/R-137, Zählvergleich), Mail-Fixtures M14–M16; pnpm check grün
+
+## 2026-10-02 – P6.16
+
+- Ansicht `/export/datenschutz` (Liste offen/abgeschlossen, „Anfrage erfassen“) und Detail `/export/datenschutz/:id` (Status, Identität, Verlängerung, Abschluss); Endpunkte `/api/privacy-requests/intake` und `/:id/save`\n- Task `privacyRequestsDeadlineReminder` (ab 08:00, A14 genau an Tag −7 und −1 vor `extendedDueAt ?? dueAt`, Beispieldaten ausgenommen), Migration `p6_privacy_requests_task`; Hinweis unter „Heute“ (auch Beispieldaten)\n- Tests: `tests/unit/legal/gdpr-deadline.unit.spec.ts` (DM-PRQ-01, R-153), `tests/int/legal/privacy-requests.int.spec.ts` (7 Tests), pnpm check grün
+
+## 2026-10-02 – P6.13
+
+- Quelltext-Scans je Verbot (V-01, V-03–V-07, V-16, V-20–V-23, V-25, V-30), Schema-Scan V-23 und R-096, gerenderte Mails (V-01, V-02, V-09, V-11, V-18); Allowlist als JSON mit Pflicht-Begründung\n- Crawl aller live-Routen DE/EN inkl. V-27 (externe Links), V-28 (kein Audio), V-31 (Straße nur auf erlaubten Seiten); Gegenproben je Verbot\n- @privacy T-03/T-04 auch für Verwaltungsansichten (R-130, R-131)\n- Tests: forbidden.unit, forbidden.e2e, privacy-Suiten auf desktop und pixel-7 grün
+
+## 2026-10-02 – P6.12
+
+- Prüf-Suite für den Kaufweg: Knopf-Text, Übersicht vor dem Knopf, Zahlarten/Lieferbeschränkungen am Anfang, „Ändern“-Links, AGB/Widerruf abrufbar und speicherbar (R-012, R-036, R-063–R-065)\n- Vertragsschluss über den Kassen-Datensatz; gescheiterte Zahlung → keine Bestellung, keine M01; M01 mit genau drei PDFs in der Bestellfassung, EN zusätzlich EN-PDFs (AK-6-02, R-013, R-015, R-081)\n- Keine Lücken im Kaufweg gefunden\n- Tests: contract-confirmation.int (4), checkout-compliance.e2e auf desktop und pixel-7 grün (iphone-15 läuft in CI)
+
+## 2026-10-02 – P6.11
+
+- Reklamationsakte im Bestell-Detail und über „Reklamation (Bruch)“ in „Versendet“ (Art, Eingang, bis 6 Fotos, Beschreibung, betroffene Stücke, DHL-Frist, carrierClaimFiledAt)\n- „Reklamation beantworten“ sendet M12 (Wahlrecht Reparatur/Ersatz, Unikat-Hinweis, +12 Monate) über die Outbox; Kund:innen-Wahl, warrantyEndsAt +2 Jahre bzw. +12 Monate bei Reparatur\n- Streitfall: M13 mit Universalschlichtungsstelle (Anschrift, URL), kein OS-Link; vsbgNoticeSentAt\n- Tests: complaints.int (R-110, R-111, R-112), vsbg.unit (R-112), p6-mails.unit (R-084, Snapshots DE/EN), E2E admin/complaints (desktop, pixel-7) grün
+
+## 2026-10-02 – P6.10
+
+- Dialog „Erstatten“ im Widerruf und in der Bestellung: Positionen wählen, Vorschlag nach KONZEPT §5.3 (`refundAmount.ts`, Teil-Widerruf mit Versanddifferenz, Hinweis K-09), nur erhöhbar mit Notiz, nie über den Rest; Pflicht-Grund in der Bestellung (Storno, Bruch, Kulanz, Reklamation).
+- Karte/PayPal über den Zahlungsadapter (Idempotenz `refund:<orderId>:<Nr>`), Erfolg (Mock/Webhook) → Gutschrift GS mit demselben Grund, O13/O14/O15/O21, Widerruf W4/W6, M09 `refund_confirmation` mit GS-PDF; Fehlschlag → A08; Vorkasse „Erstattung überwiesen“ ohne IBAN.
+- Tests: `tests/unit/commerce/refund-amount.unit.spec.ts` (9), `tests/int/legal/refund.int.spec.ts` (8); P4.22-Test angepasst (Erfolg schließt jetzt ab).
+
+## 2026-10-02 – P6.9
+
+- Widerrufs-Posteingang mit Aktionen: Bestellung zuordnen (Suche, O11/O4), Ware ist zurück (O12, Zustandsnotiz `returnConditionNote`, Fotos), Rücksendenachweis, Ohne Erstattung abschließen (O20 nur ohne weiteren offenen Widerruf), Ablehnen und Test/Spam (nur manuell, Begründung Pflicht), Stück wieder verkaufen/ausblenden; manuelle Erfassung per Mail/Brief (`POST /api/withdrawals/manual`, Berliner Ortszeit, M08 nur mit E-Mail und Haken).
+- „erstatten bis“ jetzt 14 Berliner Kalendertage (`addBerlinDays`), Task `withdrawalDeadlines` (A13 einmal ab Tag 10, ohne Beispieldaten); Migrationen `p6_withdrawal_inbox_refunds`, `p6_withdrawal_deadlines_task`.
+- Tests: `tests/int/legal/withdrawal-inbox.int.spec.ts` (11), `tests/int/jobs/withdrawal-deadlines.int.spec.ts` (1), `tests/e2e/admin/withdrawal-inbox.e2e.spec.ts` (3 je Projekt).
+
+## 2026-10-02 – P6.22
+
+- Anlage E erzeugt: `docs/recht/anlagen/E-01…E-06.png` (390 px, DE, Mock, 68–145 KB) mit `scripts/legal/briefing-screenshots.ts`; M08 wird vorab außerhalb von Playwright gerendert, Konfiguration löst Pfade zur Repo-Wurzel auf.
+- Tests: `tests/unit/legal/briefing.unit.spec.ts` prüft jetzt alle sechs Dateien (PNG, ≤ 300 KB) statt `it.todo`.
+
+## 2026-10-02 – P6.8
+
+- R26 als zweistufige Widerrufsfunktion (Server Action mit `useActionState`, ohne JavaScript nutzbar): Schritt 1 → Auswahl der Stücke (nur bei passender Bestellnummer + E-Mail, keine Checkbox angehakt) → Schritt 2 mit „Ändern“ und „Widerruf bestätigen“ → Bestätigungsseite mit allen Angaben, Eingang (MEZ/MESZ), Vorgangsnummer, Mail-Hinweis, Drucken.
+- Eingaben reisen im signierten Formular-Token (HMAC, HKDF `pc:form-token:v1`, 6 h) per POST, nie in URL oder Cookie; Einmal-Kennung verhindert doppelte Datensätze bei Doppelklick.
+- Tests: `tests/int/legal/withdrawal-form.int.spec.ts` (7), `tests/e2e/legal/withdrawal-flow.e2e.spec.ts` (7 je Projekt, desktop + pixel-7, inkl. ohne JS, Tastatur, axe).
+
+## 2026-10-02 – P6.21
+
+- E2E legal/processor-table (R-155, DE/EN, ohne JS) grün; Tabellen-Container per Tastatur erreichbar (axe R22)
+
+## 2026-10-02 – P6.15
+
+- E2E admin/deletion-preview (390×844, axe) desktop+pixel-7 grün
+
+## 2026-10-02 – P6.6
+
+- Fuß mit „Vertrag widerrufen“ und Pflichtlinks auf jeder Registry-Route DE/EN inkl. Danke/Status (Fixture), 404, 500; M08 zeigt den Link jetzt auch\n- Tests: E2E legal/footer (390/1440 × reduce/no-preference, elementFromPoint, ≥ 44 px), unit mail-withdrawal-link (M01–M09) grün
+
+## 2026-10-02 – P6.5
+
+- Rechtsseiten: PDF-Download je Text (außer Impressum), translation.disclaimer auf EN mit EN-Fassung, Anker-IDs der Datenschutzerklärung (§11.10), Seite neu bei nachgetragenem PDF; Kontakt mit „Adresse kopieren“\n- Startseite: dynamicParams=false entfernt (Neuerzeugung nach Tag-Erneuerung lieferte dauerhaft 404)\n- Tests: unit phone (R-021), anchors; E2E legal/pages (R-010/R-002/R-015/R-020/R-021/R-023/R-049) desktop+pixel-7 grün
+
+## 2026-10-02 – P6.4
+
+- Texte → Rechtstexte: je Typ aktive Fassung (Stand, Herkunft, Alter, Bestellungen je Fassung, letzte Prüfung), frühere/geplante Fassungen, „Neue Version“ (HTML/Text DE, EN optional, bereinigt → Lexical), Vorschau mit Fehlerliste ohne Speichern, Veröffentlichen sofort/ab Datum mit Rückfrage, „Geprüft, keine Änderung“; Bausteine nach Schlüssel mit Spalte Kanzlei ja/nein\n- Endpunkte /api/legal-texts|legal-snippets/{preview,publish}-version, /api/legal-texts/confirm-review\n- Tests: int legal-texts-admin (9), E2E admin/legal-texts (390×844, axe) grün
+
+## 2026-10-02 – P6.20
+
+- Task `legalReviewReminder` (täglich ab 08:30 Berlin, `runOncePer`), Logik `src/lib/legal/review.ts`: Alter je Typ = jüngeres Datum aus `activatedAt` und `reviewedAt` (Berliner Kalendertage), A10 mit allen fälligen Typen, Wiederholung alle 30 Tage über `lastReminderSentAt`; Migration `p6_legal_review_job` (Task-Enum)\n- „Heute“-Kachel „Rechtstexte“ je Typ (Version, gültig ab, Herkunft, Alter; Warnung bei fehlendem Typ, Herkunft ≠ Kanzlei, > Intervall)\n- Tests: tests/int/jobs/legal-review.int.spec.ts (4, R-014 Tag 364/365/380/395), Slug-Test angepasst
+
+## 2026-10-02 – P6.14
+
+- Runner src/lib/retention/runner.ts (≤ 500/Lauf, je Datensatz eigene Transaktion, deletion-log, Legal Hold, Trockenlauf, 3 Fehlschläge → A12 über Tabelle retention_failures)\n- Tasks retentionAbandonedCheckouts, retentionOrderMinimize, retentionOrders, retentionInvoices (pc.now, GoBD-Trigger), retentionWithdrawals; policy.ts um isDue/eventCutoff ergänzt\n- Migrationen p6_retention_failures, p6_retention_jobs\n- Tests: tests/unit/legal/retention-rules.unit.spec.ts (7), tests/int/legal/retention.int.spec.ts Teil 1 (10) – grün
+
+## 2026-10-02 – P6.7
+
+- submitWithdrawal (src/lib/legal/withdrawal.ts): Honeypot, Rate-Limit withdrawal_submit 30/h je IP-Hash, zod, unveränderlicher Datensatz ohne IP, Auto-Zuordnung (Bestellnummer + E-Mail ohne Groß/Klein), O11 bzw. O4 withdrawn + W5, M08 + A04 direkt nach Commit\n- M08-Vorlage withdrawal_receipt (MEZ/MESZ), A04 mit Kopie der Erklärung, sendEmail-Kette für M08 (≤ 5 min bis 24 h, A12 ab 2. Fehlversuch und nach 24 h), Hinweis unter „Heute“\n- Tests: tests/int/legal/withdrawal.int.spec.ts (8), tests/int/email/withdrawal-retry.int.spec.ts (2), Unit M08 (7) – grün
+
+## 2026-10-02 – P6.3
+
+- Geschlossene Token-Liste in `src/lib/legal/tokens.ts` (= R-012 = DATENMODELL §6.12 = KANZLEI-BRIEFING §16.3, Unit-Abgleich); `{{returnCostsNote}}` aus dem aktiven Baustein; Bausteine nur R-012- plus eigene Kontext-Tokens.\n- Prüfungen vor dem Veröffentlichen (`checkLegalText`/`checkLegalSnippet`): Widerrufs-URL Pflicht (R-095), OS-Link (V-01) und Steuerhinweis im KU-Modus (V-02) gesperrt; `activateLegalText(req, id, { validFrom, now })` und `activateLegalSnippet` planen bzw. aktivieren, `jobAlarm.bump(validFrom)`.\n- Task `activateScheduledLegalTexts` (Migration `p6_activate_legal_job`, im Job-Wecker); HTML-Bereinigung `sanitize-html` 2.18.0 mit Allowlist KANZLEI-BRIEFING §1.2; Platzhalter-Belehrung mit `Telefon: {{phone}}`.\n- Tests: render-tokens.unit (5), legal-texts.int (+4 R-012), activate-legal-texts.int; volle Int-Suite 105 Dateien grün (ohne preview-export).
+
+## 2026-10-02 – P6.2
+
+- Geprüft: `privacy-requests` (§6.26), `deletion-log` + `writeDeletionLog` (§6.27), `privacyFields()` an orders/withdrawals/inquiries, `orders.timestamps.finalStatusAt` – vorhanden seit P1.\n- Verdrahtet: Audit `legal_hold_changed`/`processing_restricted` (ohne Begründungstext), Zeitstempel über die Request-Uhr; Reklamationen mit `carrierClaimDueAt` (Zustellung + 7 Tage) und `warrantyEndsAt` (+ 12 Monate bei Reparatur), Audit `complaint_changed`; virtuelles `orders.warrantyEndsAt`.\n- Tests: no-versions.unit (R-154, 12), complaints-model.int (4), Zugriffsmatrix (privacy-requests, deletion-log, complaints anonym 403).
+
+## 2026-10-02 – P6.1
+
+- Collections `legal-snippets` (öffentlich nur aktive Fassung, Update nur Entwürfe, Tokens je Schlüssel geprüft) und `complaints`; `private-uploads.relatedComplaint`, Join `orders.complaints`; Migrationen `p6_legal_snippets_complaints` + `…_constraints` (eine aktive Fassung je Schlüssel, seed_key-Index).\n- Grund-Seed: 36 Bausteine v1 aktiv (Arbeitsfassung `draft` bzw. Platzhalter); `getSnippet` liest die Collection (Speicherstand, Version „1“), Rückfall Seed-Text `draft-1`; `activateLegalSnippet` mit Audit.\n- Rechtsfelder aus P1 geprüft (legal-texts, settings, withdrawals, Enums) – vorhanden.\n- Tests: snippets.int (3), Zugriffsmatrix (T-15, 29 Collections), pg-objects (T-14), check:migrations ohne Drift.
 
 
 

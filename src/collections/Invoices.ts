@@ -52,6 +52,7 @@ const CORE_FIELDS = [
   'sequenceNumber',
   'order',
   'relatedInvoice',
+  'replacesInvoice',
   'issueDate',
   'deliveryDate',
   'taxMode',
@@ -102,6 +103,25 @@ const guardInvoice: CollectionBeforeChangeHook = async ({ data, originalDoc, ope
       )
       if (!parent || parent.type !== 'invoice' || idOf(parent.order) !== idOf(data.order)) {
         fail('Bezug muss eine Rechnung derselben Bestellung sein.', 'relatedInvoice')
+      }
+    }
+    // Berichtigung (R-152): neue Rechnung ersetzt eine stornierte Rechnung derselben Bestellung
+    const replacedId = idOf(data.replacesInvoice)
+    if (replacedId !== null) {
+      if (type !== 'invoice')
+        fail('Nur eine Rechnung kann eine Rechnung ersetzen.', 'replacesInvoice')
+      const replaced = await preservingReq(req, () =>
+        req.payload.findByID({
+          collection: SLUG,
+          id: replacedId,
+          depth: 0,
+          overrideAccess: true,
+          disableErrors: true,
+          req,
+        }),
+      )
+      if (!replaced || replaced.type !== 'invoice' || idOf(replaced.order) !== idOf(data.order)) {
+        fail('Ersetzt werden kann nur eine Rechnung derselben Bestellung.', 'replacesInvoice')
       }
     }
     const gross = data.totalGrossCents as number
@@ -281,6 +301,13 @@ export const Invoices: CollectionConfig = {
       label: 'Bezugsrechnung',
       relationTo: 'invoices',
       admin: ro,
+    },
+    {
+      name: 'replacesInvoice',
+      type: 'relationship',
+      label: 'Ersetzt Rechnung',
+      relationTo: 'invoices',
+      admin: { ...ro, description: 'Berichtigung (R-152): diese Rechnung ersetzt die stornierte.' },
     },
     {
       name: 'issueDate',

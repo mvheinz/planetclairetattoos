@@ -383,16 +383,16 @@ describe('settings – AV-Verträge (R-155)', () => {
       overrideAccess: true,
     })) as unknown as { id: number }
     await expect(
-      update({ processorAgreements: [{ serviceId: 'hosting', file: other.id }] }, {}, admin),
+      update({ processorAgreements: [{ serviceId: 'vercel', file: other.id }] }, {}, admin),
     ).rejects.toThrow()
     await rejects(
-      update({ processorAgreements: [{ serviceId: 'hosting', url: 'http://example.com' }] }),
+      update({ processorAgreements: [{ serviceId: 'vercel', url: 'http://example.com' }] }),
       /https/,
     )
     await update(
       {
         processorAgreements: [
-          { serviceId: 'hosting', url: 'https://example.com/avv', file: avv.id },
+          { serviceId: 'vercel', url: 'https://example.com/avv', file: avv.id },
         ],
       },
       {},

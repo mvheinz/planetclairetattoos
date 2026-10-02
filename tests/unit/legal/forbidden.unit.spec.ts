@@ -3,24 +3,40 @@ import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
+import { isTemplateImplemented, TEMPLATE_META } from '@/lib/email/registry'
 import de from '@/i18n/messages/de.json'
 import en from '@/i18n/messages/en.json'
-import { LEGAL_SNIPPET_KEYS } from '@/lib/enums'
+import { LEGAL_SNIPPET_KEYS, type EmailTemplate } from '@/lib/enums'
 import { V16_THIRD_PARTY_MARKS } from '@/lib/legal/forbidden'
-import { LEGAL_SNIPPETS, snippetTokens } from '@/lib/legal/snippets'
+import { LEGAL_SNIPPET_SEED } from '@/lib/legal/snippetSeed'
+import { snippetTokens } from '@/lib/legal/snippets'
 
 import {
   FORBIDDEN_CONTENT_PATTERNS,
   FORBIDDEN_SOURCE_PATTERNS,
   type ForbiddenPattern,
 } from '../../helpers/forbiddenPatterns'
+import { MAIL_FIXTURE_DATA, renderFixture, scanMail } from '../../helpers/mails'
 
-import { FORBIDDEN_ALLOWLIST, type AllowlistEntry } from './forbidden.allowlist'
+import allowlistJson from './forbidden.allowlist.json'
 
 // RECHT §5 (V-01–V-31): Scan über `src/**` und `content/**` (Groß-/Kleinschreibung egal). Geprüft wird, was sich im
-// Quelltext per Textsuche prüfen lässt; gerenderte Seiten (ab P2) und Mails prüft `tests/e2e/legal/forbidden.e2e.spec.ts`.
-// V-13 (unbelegte Produktaussagen) setzt die Veröffentlichungsprüfung durch (R-044, R-045); V-18, V-28, V-29 sind
-// manuelle Sichtung; V-09, V-20, V-30, V-31 betreffen gerenderten Text (e2e). Ausnahmen: `forbidden.allowlist.ts`.
+// Quelltext per Textsuche prüfen lässt; gerenderte Seiten (ab P2) prüft `tests/e2e/legal/forbidden.e2e.spec.ts`.
+// V-13 (unbelegte Produktaussagen) setzt die Veröffentlichungsprüfung durch (R-044, R-045); V-28, V-29 sind manuelle
+// Sichtung. P6.13 ergänzt V-20/V-25/V-30 im öffentlichen Code und in `messages`, den Schema-Scan V-23 und die
+// gerenderten Mail-Vorlagen (V-01, V-02 im KU-Modus, V-09, V-11, V-18). Ausnahmen: `forbidden.allowlist.json`.
+
+export interface AllowlistEntry {
+  /** Pfad relativ zum Repo, mit `/`. */
+  file: string
+  id: string
+  /** Teilstring des Treffers; ohne Angabe gilt der Eintrag für alle Treffer dieser ID in der Datei. */
+  match?: string
+  /** Pflicht-Begründung. */
+  reason: string
+}
+
+const FORBIDDEN_ALLOWLIST: readonly AllowlistEntry[] = allowlistJson.entries
 
 const ROOT = path.resolve(__dirname, '../../..')
 const TEXT_EXT = /\.(ts|tsx|js|mjs|cjs|json|css|scss|md|mdx|txt|html|svg|yml|yaml)$/i
@@ -53,10 +69,35 @@ const v16 = V16_THIRD_PARTY_MARKS.map((r): ForbiddenPattern => ({
   re: new RegExp(r.pattern.source, 'iu'),
 }))
 
+const p = (id: string, re: RegExp): ForbiddenPattern => ({ id, re })
+
+/** V-20 Streich-, Rabatt- und „statt“-Preise: Texte (`messages`) bzw. Markup/Stile öffentlicher Komponenten. */
+const V20_TEXT = p('V-20', /\bstatt\b|\bUVP\b|\bSale\b|-\d+\s*%/iu)
+const V20_MARKUP = p('V-20', /<del\b|<s>|<s\s|line-through/iu)
+/** V-23 Zahlungsdaten von Kund:innen: Schema-Felder (Ausnahme `settings.payment`, Allowlist). */
+const V23_SCHEMA = p('V-23', /\bname:\s*'(iban|cardNumber|creditCard|cvc|cvv)'/iu)
+/** V-25 Gesundheitsdaten in Formular-Labels. */
+const V25 = p('V-25', /Allergi|Krankheit|Medikament|Schwanger|Hauterkrank/iu)
+/** V-30 Funktionen für „später“ im öffentlichen UI. */
+const V30 = p(
+  'V-30',
+  /Newsletter|Warteliste|Benachrichtige\s+mich|Mein\s+Konto|Registrieren|Gutschein/iu,
+)
+
+const isMessages = (f: string) => f.startsWith('src/i18n/messages/')
+const isPublicCode = (f: string) =>
+  f.startsWith('src/components/') || f.startsWith('src/app/(frontend)/')
+const isSchema = (f: string) => /^src\/(collections|globals|fields)\//.test(f)
+
 /** Muster je Datei: Inhalte zusätzlich mit der Marken-/Figurenliste V-16 (Seed-Texte zu Verkaufsware). */
 export function patternsFor(file: string): readonly ForbiddenPattern[] {
-  const base = [...FORBIDDEN_CONTENT_PATTERNS, ...FORBIDDEN_SOURCE_PATTERNS]
-  return file.startsWith('content/') ? [...base, ...v16] : base
+  const out = [...FORBIDDEN_CONTENT_PATTERNS, ...FORBIDDEN_SOURCE_PATTERNS]
+  if (file.startsWith('content/')) out.push(...v16)
+  if (isMessages(file)) out.push(V20_TEXT, V25, V30)
+  if (isPublicCode(file))
+    out.push(V25, V30, ...(/\.(tsx|css|scss)$/.test(file) ? [V20_MARKUP] : []))
+  if (isSchema(file)) out.push(V23_SCHEMA, ...(file.endsWith('Inquiries.ts') ? [V25] : []))
+  return out
 }
 
 /** Alle Treffer einer Datei (eine Zeile kann mehrere IDs treffen). */
@@ -157,7 +198,7 @@ describe('P3.3 Preis- und Rechtshinweise (V-02, V-19, V-20)', () => {
     const hits: string[] = []
     for (const key of LEGAL_SNIPPET_KEYS) {
       for (const locale of ['de', 'en'] as const) {
-        const text = LEGAL_SNIPPETS[key][locale]
+        const text = LEGAL_SNIPPET_SEED[key][locale]
         const rendered = snippetTokens(text).reduce(
           (t, tok) => t.split(`{{${tok}}}`).join('X'),
           text,
@@ -254,5 +295,129 @@ describe('P3.16 R-096 und R-139 im Quelltext', () => {
       ]),
     )
     expect(bad).toEqual([])
+  })
+})
+
+// P6.13 – Verbotsprüfungen je ID (Nachverfolgbarkeit), Schema-Scan V-23 und gerenderte Mails.
+describe('P6.13 Quelltext-Scans je Verbot', () => {
+  const violationsOf = (id: string) =>
+    applyAllowlist(
+      findings.filter((f) => f.id === id),
+      FORBIDDEN_ALLOWLIST,
+    ).violations.map((v) => `${v.file}:${v.line} „${v.text}“`)
+
+  const SOURCE_SCANS: readonly [string, string][] = [
+    ['V-01', 'kein Link/Text zur EU-OS-Plattform in src/** und content/**'],
+    ['V-03', 'keine vorbelegten Häkchen (defaultChecked / checked={true})'],
+    ['V-04', 'keine externen Schriften und CDNs'],
+    ['V-05', 'keine Einbettungen Dritter'],
+    ['V-06', 'keine CAPTCHA-Dienste'],
+    ['V-07', 'keine Tracker'],
+    ['V-16', 'keine fremden Figuren/Marken in Produkttexten des Seeds'],
+    ['V-20', 'keine Streich-/„statt“-Preise in messages und öffentlichen Komponenten'],
+    ['V-21', 'keine Aufschläge für Zahlarten'],
+    ['V-22', 'keine Personenfelder aus searchParams'],
+    ['V-23', 'keine Zahlungsdaten-Felder außerhalb der Stammdaten'],
+    ['V-25', 'keine Gesundheitsfragen in Formular-Labels'],
+    ['V-30', 'kein Newsletter/Konto/Gutschein im öffentlichen Code und in messages'],
+  ]
+  for (const [id, what] of SOURCE_SCANS) {
+    it(`${id} ${what}`, () => {
+      expect(violationsOf(id)).toEqual([])
+    })
+  }
+
+  it('V-23 Schema-Scan: `iban` nur in settings.payment (Juttas eigene Bankverbindung), sonst keine Zahlungsdaten', () => {
+    const hits = findings.filter((f) => f.id === 'V-23')
+    expect(hits.map((h) => h.file)).toEqual(['src/globals/Settings.ts'])
+    const lines = readFileSync(path.join(ROOT, 'src/globals/Settings.ts'), 'utf8').split('\n')
+    const payment = lines.findIndex((l) => /name:\s*'payment'/.test(l))
+    const groups = lines
+      .map((l, i) => ({ i, top: /^ {0,2}name:\s*'[a-zA-Z]+'/.test(l) }))
+      .filter((g) => g.top && g.i > payment)
+    const end = groups[0]?.i ?? lines.length
+    expect(payment).toBeGreaterThan(-1)
+    for (const h of hits) {
+      expect(h.line - 1).toBeGreaterThan(payment)
+      expect(h.line - 1).toBeLessThan(end)
+    }
+  })
+
+  it('V-20 V-23 V-25 V-30 Gegenprobe: Streichpreis, IBAN-Feld, Gesundheitsfrage und Newsletter werden erkannt', () => {
+    const ids = (file: string, text: string) =>
+      scanText(file, text, patternsFor(file)).map((f) => f.id)
+    expect(ids('src/i18n/messages/de.json', '"price": "45 € statt 59 €"')).toEqual(['V-20'])
+    expect(ids('src/components/shop/X.tsx', '<del>59 €</del>')).toEqual(['V-20'])
+    expect(ids('src/collections/Orders.ts', "{ name: 'iban', type: 'text' }")).toEqual(['V-23'])
+    expect(ids('src/components/forms/X.tsx', '<label>Allergien</label>')).toEqual(['V-25'])
+    expect(ids('src/i18n/messages/en.json', '"cta": "Newsletter abonnieren"')).toEqual(['V-30'])
+    // Verwaltungscode und Tests sind nicht „öffentlich“
+    expect(ids('src/admin/views/X.tsx', 'Newsletter')).toEqual([])
+  })
+})
+
+/** V-11 (RECHT §5): Rügefristen, die Rechte verkürzen. */
+const V11 =
+  /(innerhalb|binnen|within)\s+(von\s+)?\d+\s+(Tag(en)?|days?).{0,60}(sonst|andernfalls|ausgeschlossen|erlischt|verfällt|otherwise|excluded|expires?)/iu
+/** V-18 (RECHT §5): „Garantie“ für die gesetzliche Gewährleistung. */
+const V18 = /Garantie|garantiert/iu
+
+/** Verstöße einer gerenderten Mail: V-01, V-02 (Kleinunternehmer-Fixtures), V-09 (Werbung/Tracking), V-11, V-18. */
+export function mailViolations(mail: { html: string; text: string; subject?: string }): string[] {
+  const all = `${mail.subject ?? ''}\n${mail.text}\n${mail.html}`
+  const out = scanMail({ html: mail.html, text: `${mail.subject ?? ''}\n${mail.text}` })
+  if (V11.test(all)) out.push('V-11')
+  if (V18.test(all)) out.push('V-18')
+  return out
+}
+
+const RENDERED = (Object.keys(TEMPLATE_META) as EmailTemplate[]).filter(
+  (t) => isTemplateImplemented(t) && MAIL_FIXTURE_DATA[t],
+)
+
+describe('P6.13 gerenderte Mails (V-01, V-02 im KU-Modus, V-09, V-11, V-18)', () => {
+  it('V-09 alle umgesetzten Vorlagen haben Fixture-Daten und werden gescannt', () => {
+    const missing = (Object.keys(TEMPLATE_META) as EmailTemplate[]).filter(
+      (t) => isTemplateImplemented(t) && !MAIL_FIXTURE_DATA[t],
+    )
+    expect(missing).toEqual([])
+    expect(RENDERED.length).toBeGreaterThanOrEqual(25)
+  })
+
+  for (const template of RENDERED) {
+    it(`V-01 V-02 V-09 V-11 V-18 ${TEMPLATE_META[template].konzeptId} ${template} DE/EN ohne Verbotsmuster`, async () => {
+      for (const locale of ['de', 'en'] as const) {
+        const mail = await renderFixture(template, MAIL_FIXTURE_DATA[template]!, locale)
+        expect(mailViolations(mail), `${template} ${locale}`).toEqual([])
+      }
+    })
+  }
+
+  it('V-01 V-02 Gegenprobe: eine Mail-Fixture mit OS-Link bzw. „inkl. MwSt.“ fällt durch', async () => {
+    const mail = await renderFixture(
+      'refund_confirmation',
+      MAIL_FIXTURE_DATA.refund_confirmation!,
+      'de',
+    )
+    expect(mailViolations(mail)).toEqual([])
+    const os = {
+      ...mail,
+      html: mail.html.replace(
+        '</p>',
+        ' <a href="https://ec.europa.eu/consumers/odr/">OS-Plattform</a></p>',
+      ),
+    }
+    expect(mailViolations(os)).toContain('V-01')
+    const tax = { ...mail, text: `${mail.text}\nGesamt 45,00 € inkl. MwSt.` }
+    expect(mailViolations(tax)).toContain('V-02')
+    const promo = { ...mail, text: `${mail.text}\nFolge mir auf Instagram!` }
+    expect(mailViolations(promo).some((f) => f.startsWith('V-09'))).toBe(true)
+    const guarantee = { ...mail, text: `${mail.text}\n2 Jahre Garantie` }
+    expect(mailViolations(guarantee)).toContain('V-18')
+    const deadline = {
+      ...mail,
+      text: `${mail.text}\nMängel bitte innerhalb von 7 Tagen melden, sonst erlischt der Anspruch.`,
+    }
+    expect(mailViolations(deadline)).toContain('V-11')
   })
 })

@@ -1,0 +1,41 @@
+Your withdrawal has arrived
+
+Hi Erika Beispiel,
+
+This email confirms receipt of your notice of withdrawal. It does not yet confirm whether the withdrawal is valid.
+
+Reference: WR-2026-00003
+Received on: 12 Oct 2026, 14:03 (CEST)
+
+Your declaration
+----------------
+
+Name: Erika Beispiel
+Contract details: PC-2026-00017
+Pieces concerned: No. 017 · Tasse „Coco schläft“
+Reason: Passt farblich doch nicht.
+Email: erika@example.com
+
+What happens next
+-----------------
+
+Please send the goods to: Jutta Beispiel · Planet Claire, Werkstattweg 7, 10999 Berlin. You bear the direct costs of returning the goods.
+
+You will receive the refund via the same means of payment you used – no later than 14 days after receipt of your withdrawal (by 26 Oct 2026). I may withhold it until I have received the goods back or you have provided proof that you have sent them.
+
+Please keep this email – it is your proof of receipt.
+
+How I handle your data is explained in the privacy policy:
+Privacy policy: https://planetclairetattoos.com/en/privacy
+
+Best wishes
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Legal notice: https://planetclairetattoos.com/en/legal-notice
+Privacy policy: https://planetclairetattoos.com/en/privacy
+Withdraw from contract here: https://planetclairetattoos.com/en/withdraw-from-contract

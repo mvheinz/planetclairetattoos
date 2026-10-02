@@ -2,15 +2,42 @@ import type { TaskConfig } from 'payload'
 
 import { instrumentTask } from '@/lib/jobs/instrument'
 
+import { activateScheduledLegalTextsTask } from './activateScheduledLegalTexts'
 import { cancelOverduePrepaymentsTask } from './cancelOverduePrepayments'
 import { complianceDocsReviewTask } from './complianceDocsReview'
 import { invoiceIntegrityCheckTask } from './invoiceIntegrityCheck'
+import {
+  legalReviewReminderTask,
+  LEGAL_REVIEW_TASK_BERLIN_HOUR,
+  LEGAL_REVIEW_TASK_BERLIN_MINUTE,
+} from './legalReviewReminder'
 import { markDeliveredTask } from './markDelivered'
 import { monthlyCloseTask } from './monthlyClose'
 import { prepaymentRemindersTask } from './prepaymentReminders'
+import {
+  PRIVACY_REMINDER_BERLIN_HOUR,
+  privacyRequestsDeadlineReminderTask,
+} from './privacyRequestsDeadlineReminder'
 import { releaseExpiredReservationsTask } from './releaseExpiredReservations'
 import { renderInvoicePdfTask } from './renderInvoicePdf'
 import { renderLegalTextPdfTask } from './renderLegalTextPdf'
+import { WITHDRAWAL_DEADLINES_BERLIN_HOUR, withdrawalDeadlinesTask } from './withdrawalDeadlines'
+import {
+  legalHoldReviewTask,
+  LEGAL_HOLD_REVIEW_BERLIN_HOUR,
+  RETENTION_SCHEDULE,
+  retentionAbandonedCheckoutsTask,
+  retentionCommissionInquiriesTask,
+  retentionConsentEvidenceTask,
+  retentionDeletionLogTask,
+  retentionEmailLogTask,
+  retentionInvoicesTask,
+  retentionOrderMinimizeTask,
+  retentionOrdersTask,
+  retentionPrivacyRequestsTask,
+  retentionTechnicalTask,
+  retentionWithdrawalsTask,
+} from './retention'
 import { revenueGuardCheckTask } from './revenueGuardCheck'
 import { sendEmailTask } from './sendEmail'
 
@@ -76,10 +103,26 @@ export const JOB_TASKS: TaskConfig<any>[] = [
   renderInvoicePdfTask,
   renderLegalTextPdfTask,
   markDeliveredTask,
+  withdrawalDeadlinesTask,
   revenueGuardCheckTask,
   monthlyCloseTask,
   invoiceIntegrityCheckTask,
   complianceDocsReviewTask,
+  activateScheduledLegalTextsTask,
+  retentionAbandonedCheckoutsTask,
+  retentionOrderMinimizeTask,
+  retentionOrdersTask,
+  retentionInvoicesTask,
+  retentionWithdrawalsTask,
+  retentionCommissionInquiriesTask,
+  retentionEmailLogTask,
+  retentionPrivacyRequestsTask,
+  retentionConsentEvidenceTask,
+  retentionDeletionLogTask,
+  retentionTechnicalTask,
+  legalHoldReviewTask,
+  legalReviewReminderTask,
+  privacyRequestsDeadlineReminderTask,
 ].map((t) => instrumentTask(t, TASK_DEFS[t.slug as TaskSlug].queue))
 
 export const IMPLEMENTED_TASK_SLUGS = new Set<string>(JOB_TASKS.map((t) => t.slug))
@@ -98,10 +141,17 @@ export const WAKE_TASK_SLUGS: readonly TaskSlug[] = (
     'prepaymentReminders',
     'cancelOverduePrepayments',
     'markDelivered',
+    'withdrawalDeadlines',
     'revenueGuardCheck',
     'monthlyClose',
     'invoiceIntegrityCheck',
     'complianceDocsReview',
+    'activateScheduledLegalTexts',
+    ...(Object.keys(RETENTION_SCHEDULE) as (keyof typeof RETENTION_SCHEDULE)[]),
+    'retentionTechnical',
+    'legalHoldReview',
+    'legalReviewReminder',
+    'privacyRequestsDeadlineReminder',
   ] as const
 ).filter((s) => isImplementedTask(s))
 
@@ -125,4 +175,18 @@ export const WAKE_TASK_PERIOD: Partial<
   invoiceIntegrityCheck: { per: 'month', berlinHour: 4 },
   complianceDocsReview: { per: 'month', berlinHour: 8, berlinMinute: 10 },
   markDelivered: { per: 'day', berlinHour: 3 },
+  withdrawalDeadlines: { per: 'day', berlinHour: WITHDRAWAL_DEADLINES_BERLIN_HOUR },
+  ...(Object.fromEntries(
+    Object.entries(RETENTION_SCHEDULE).map(([slug, t]) => [
+      slug,
+      { per: 'day', berlinHour: t.berlinHour, berlinMinute: t.berlinMinute },
+    ]),
+  ) as Partial<Record<TaskSlug, { per: 'day'; berlinHour: number; berlinMinute: number }>>),
+  legalHoldReview: { per: 'day', berlinHour: LEGAL_HOLD_REVIEW_BERLIN_HOUR },
+  legalReviewReminder: {
+    per: 'day',
+    berlinHour: LEGAL_REVIEW_TASK_BERLIN_HOUR,
+    berlinMinute: LEGAL_REVIEW_TASK_BERLIN_MINUTE,
+  },
+  privacyRequestsDeadlineReminder: { per: 'day', berlinHour: PRIVACY_REMINDER_BERLIN_HOUR },
 }

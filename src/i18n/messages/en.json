@@ -65,6 +65,8 @@
     "placeholderBanner": "PLACEHOLDER – not legally binding",
     "asOf": "Version: {date}",
     "germanOnly": "Only available in German.",
+    "pdf": "Download as PDF",
+    "pdfForm": "Download the model withdrawal form as PDF",
     "emptyTitle": "This text is being prepared",
     "emptyText": "Please check back a little later. If you have questions, you can reach me via the contact page.",
     "emptyAction": "Go to the contact page",
@@ -72,6 +74,26 @@
       "empty": "Currently all ceramics are labelled as decoration and are not intended for use with food.",
       "validFrom": "valid from {date}",
       "pdf": "Declaration as PDF: {name}"
+    },
+    "processors": {
+      "title": "Processors and other recipients",
+      "intro": "These services are used to run the website and the shop; the “Role” column shows how they process data.",
+      "colName": "Name",
+      "colRole": "Role",
+      "colSeat": "Registered office",
+      "colThirdCountry": "Third country",
+      "agreementSigned": "agreement under Art. 28 GDPR",
+      "role": {
+        "processor": "Processor",
+        "controller": "Independent controller",
+        "processorAndController": "Processor and independent controller",
+        "none": "No personal data"
+      },
+      "thirdCountry": {
+        "US": "USA",
+        "EU": "no (EU)",
+        "none": "no"
+      }
     }
   },
   "errors": {
@@ -174,12 +196,57 @@
     "withdrawHint": "Want to withdraw from a contract?",
     "legalNoticeHint": "Provider details:",
     "emptyTitle": "The contact page is on its way",
-    "emptyText": "Just send me an email or a message on Instagram."
+    "emptyText": "Just send me an email or a message on Instagram.",
+    "copyEmail": "Copy address",
+    "copied": "Copied",
+    "copyFailed": "Copying didn't work – please select and copy."
   },
   "withdraw": {
-    "previewNotice": "Not yet functional in this preview – coming in P6.",
     "policyLink": "Go to the right of withdrawal",
-    "emailAlternative": "Alternatively by email:"
+    "emailAlternative": "Alternatively by email:",
+    "intro": "Here you can withdraw from a contract with me – no account and no reason needed. First enter your details, then confirm them.",
+    "stepForm": "Step 1 of 2: Your declaration",
+    "stepSelect": "Which pieces are you withdrawing?",
+    "stepConfirm": "Step 2 of 2: Check and confirm",
+    "stepDone": "Your withdrawal has been received",
+    "nameLabel": "Name",
+    "contractLabel": "Order number or other details of the contract",
+    "contractHint": "e.g. PC-2026-00017 or order date and piece",
+    "emailLabel": "Email for the confirmation of receipt",
+    "emailHint": "I will send the confirmation there right away.",
+    "itemsTextLabel": "Only certain pieces? Then name their numbers",
+    "itemsTextHint": "Optional. Leave empty if you withdraw from the whole contract.",
+    "reasonLabel": "Reason",
+    "reasonHint": "Optional – you don't have to give a reason.",
+    "honeypotLabel": "Please leave this field empty",
+    "privacy": "What happens to your details is explained in the {link}.",
+    "privacyLink": "privacy policy",
+    "next": "Continue",
+    "edit": "Change",
+    "selectIntro": "I found your order. If you only want to withdraw from single pieces, tick them.",
+    "selectWhole": "If you tick nothing, the withdrawal applies to the whole contract.",
+    "selectLegend": "Pieces in your order",
+    "confirmIntro": "Please check your details. Your withdrawal is only submitted with the button below.",
+    "summaryItems": "Pieces withdrawn",
+    "summaryWhole": "Whole contract",
+    "summaryEmpty": "–",
+    "receivedAt": "Received on",
+    "reference": "Reference number",
+    "mailNote": "A confirmation is on its way by email.",
+    "printNote": "You can print this page or save it as a PDF.",
+    "print": "Print / save as PDF",
+    "unpaidCancelled": "Your unpaid order has been cancelled – you don't need to transfer anything.",
+    "spamDone": "Thank you, your details have arrived.",
+    "again": "Declare another withdrawal",
+    "errorSummary": "Please check your details:",
+    "errorRequired": "Please fill in.",
+    "errorInvalid": "This doesn't look right yet.",
+    "errorEmail": "Please enter a valid email address.",
+    "noticeRateLimited": "A lot of withdrawals have just come from your connection. Please try again in an hour or send me an email – the receipt of the email counts too.",
+    "noticeExpired": "The form has expired. Please enter your details again.",
+    "noticeFailed": "That didn't work just now. Please try again or send me an email – the receipt of the email counts too.",
+    "busy": "Sending …",
+    "requiredNote": "* Required field"
   },
   "shop": {
     "list": {
@@ -759,6 +826,111 @@
       "title": "Your order is ready for pickup",
       "itemsHeading": "Ready for pickup",
       "reply": "Just reply to this email to arrange a time."
+    },
+    "withdrawalReceipt": {
+      "subject": "Confirmation of receipt of your withdrawal {reference} ({date}, {time})",
+      "title": "Your withdrawal has arrived",
+      "reference": "Reference",
+      "receivedAt": "Received on",
+      "declarationHeading": "Your declaration",
+      "name": "Name",
+      "contract": "Contract details",
+      "items": "Pieces concerned",
+      "itemsAll": "the whole contract (no individual pieces given)",
+      "reason": "Reason",
+      "email": "Email",
+      "nextHeading": "What happens next",
+      "returnAddress": "Please send the goods to: {address}",
+      "refund": "You will receive the refund via the same means of payment you used – no later than 14 days after receipt of your withdrawal (by {date}). I may withhold it until I have received the goods back or you have provided proof that you have sent them.",
+      "unpaidCancelled": "Your order is therefore cancelled. Please do not transfer any money.",
+      "keep": "Please keep this email – it is your proof of receipt."
+    },
+    "refundConfirmation": {
+      "subject": "Your refund for {orderNumber}",
+      "title": "Your money is on its way",
+      "introWithdrawal": "your withdrawal {reference} has been processed. I have refunded {amount} to you.",
+      "introOther": "I have refunded {amount} for your order.",
+      "itemsTitle": "Refunded for:",
+      "shippingIncluded": "This includes {amount} shipping costs.",
+      "card": "The money goes back to the same payment method you used. Depending on your bank it usually takes 5–10 working days until you see it.",
+      "prepayment": "I have transferred the amount to the account your payment came from.",
+      "creditNote": "The credit note {number} is attached as a PDF.",
+      "amount": "Refunded"
+    },
+    "complaintRepairChoice": {
+      "subject": "Your complaint about order {orderNumber}: repair or replacement",
+      "title": "Repair or replacement – your choice",
+      "intro": "thank you for your message about your order {orderNumber}. I am sorry that something is wrong with your piece.",
+      "receivedAt": "Complaint received on",
+      "kind": "Type",
+      "kindLabel": {
+        "transport_damage": "damaged in transit",
+        "defect": "defect"
+      },
+      "itemsTitle": "Affected:",
+      "choice": "You can choose whether I should repair the piece or whether you would like a replacement. I will cover the costs, including shipping.",
+      "unique": "Since every one of my pieces is one of a kind, an identical replacement is usually not possible. If a replacement is not possible, we will talk about the other options together.",
+      "extension": "If you choose the repair, your statutory liability period for defects for the piece is extended by 12 months.",
+      "rights": "Your statutory rights remain unaffected.",
+      "reply": "Just reply to this email and let me know what you prefer."
+    },
+    "disputeVsbg": {
+      "subject": "Your complaint about order {orderNumber}: information on dispute resolution",
+      "title": "Information on consumer dispute resolution",
+      "intro": "unfortunately we could not reach an agreement about your order {orderNumber}. In this case, the law requires me to inform you about a competent consumer dispute resolution body.",
+      "receivedAt": "Complaint received on",
+      "bodyName": "Consumer dispute resolution body",
+      "address": "Address",
+      "website": "Website",
+      "reply": "If you have any questions, just reply to this email."
+    },
+    "privacyAccessResponse": {
+      "subject": "Your data protection request {reference}: access",
+      "title": "Your information is ready",
+      "intro": "thank you for your data protection request {reference}. Here is the information about the data I have stored about you.",
+      "download": "You can download the copy of your data (a ZIP with “auskunft.html”, “daten.json” and your images and documents) here:",
+      "downloadLabel": "Download your data",
+      "validity": "The link works until {date}. I will delete the file on {deleteDate} at the latest.",
+      "contents": "The file “auskunft.html” explains what I use your data for, who receives it, how long I keep it, where it comes from and which rights you have. “daten.json” contains your data in a machine-readable format.",
+      "rights": "You can ask for rectification, erasure or restriction at any time, object to processing and withdraw any consent. You can also lodge a complaint with a data protection supervisory authority, for example the Berlin Commissioner for Data Protection and Freedom of Information, Alt-Moabit 59–61, 10555 Berlin, Germany.",
+      "reply": "If you have any questions, just reply to this email."
+    },
+    "privacyErasureResponse": {
+      "subject": "Your data protection request {reference}: erasure",
+      "title": "Your erasure request has been handled",
+      "intro": "thank you for your data protection request {reference}. This is what I have done with your data:",
+      "areas": {
+        "orders": "Orders",
+        "checkouts": "Checkout sessions",
+        "invoices": "Invoices and credit notes",
+        "withdrawals": "Withdrawals",
+        "inquiries": "Commission requests",
+        "complaints": "Complaints",
+        "emailLog": "Delivery records of emails",
+        "consentLog": "Consent records",
+        "privacyRequests": "Earlier data protection requests",
+        "files": "Files (images, documents)"
+      },
+      "deleted": "{area}: deleted",
+      "restricted": "{area}: restricted until {date} because of statutory retention duties, then deleted or anonymised automatically",
+      "kept": "{area}: kept until {date} because the data is needed to establish, exercise or defend legal claims (Art. 17(3)(e) GDPR)",
+      "unchanged": "{area}: unchanged – tax law requires me to keep invoices and credit notes until {date}, then they are anonymised",
+      "restrictedMeaning": "“Restricted” means: I only use this data to meet legal obligations and will not send you any emails about it.",
+      "recipients": "If you had agreed to me passing your email address to DHL, that consent has been withdrawn. For card or PayPal payments, Stripe or PayPal process data as independent controllers – please contact their data protection team directly. Logs of the email provider and backups expire automatically.",
+      "complaint": "You can lodge a complaint with a data protection supervisory authority, for example the Berlin Commissioner for Data Protection and Freedom of Information, Alt-Moabit 59–61, 10555 Berlin, Germany.",
+      "reply": "If you have any questions, just reply to this email."
+    },
+    "consentWithdrawalConfirmation": {
+      "subject": "Your withdrawal of consent has been recorded",
+      "title": "Withdrawal recorded",
+      "carrier_email_forwarding": "You have withdrawn your consent to me passing your email address to DHL.",
+      "portfolio": "You have withdrawn your consent to me showing the photo of your tattoo in the portfolio.",
+      "withdrawnAt": "Withdrawn on",
+      "orderNumber": "Order number",
+      "effect_carrier_email_forwarding": "The withdrawal applies immediately: I will no longer pass your email address to DHL.",
+      "effect_portfolio": "The withdrawal applies immediately: the photo is no longer shown and will be deleted.",
+      "past": "Anything that happened before the withdrawal remains lawful.",
+      "reply": "If you have any questions, just reply to this email."
     }
   },
   "shippingPayment": {
@@ -795,5 +967,87 @@
     "damage": "If a piece arrives damaged, please get in touch as soon as you can with a few photos of the parcel and the piece – then I can sort it out with the carrier. Your statutory rights remain unaffected.",
     "returnHeading": "Returns after withdrawal",
     "withdrawalLink": "Everything about your right of withdrawal is in the <link>withdrawal policy</link>."
+  },
+  "privacyExport": {
+    "title": "Information about your data",
+    "subtitle": "under Art. 15 GDPR for your data protection request {reference}",
+    "createdAt": "Created on {date}",
+    "intro": "This page lists the data I have stored about you, what I use it for, who receives it and how long I keep it. The complete copy of your data is in the file “daten.json” (machine-readable, Art. 20 GDPR); images and documents are in the folder “dateien”.",
+    "controllerHeading": "Controller",
+    "summaryHeading": "Data found",
+    "summaryNone": "I have not found any stored data for the details you gave.",
+    "areas": {
+      "orders": "Orders",
+      "checkouts": "Checkout sessions",
+      "invoices": "Invoices and credit notes",
+      "withdrawals": "Withdrawals",
+      "inquiries": "Commission requests",
+      "complaints": "Complaints",
+      "emailLog": "Delivery records of emails to you",
+      "consentLog": "Consent records",
+      "privacyRequests": "Earlier data protection requests",
+      "files": "Files (images, documents)"
+    },
+    "purposesHeading": "a) What I use your data for",
+    "purposes": [
+      "Processing your orders: purchase contract, shipping or pick-up, payment, invoice (Art. 6(1)(b) GDPR)",
+      "Withdrawal, complaints and statutory warranty (Art. 6(1)(b) and (c) GDPR)",
+      "Replying to your commission request (Art. 6(1)(b) GDPR)",
+      "Keeping invoices and business records as required by tax and commercial law (Art. 6(1)(c) GDPR)",
+      "Passing your email address to DHL only with your consent (Art. 6(1)(a) GDPR)",
+      "Records of emails sent and consents given (Art. 6(1)(c) and (f) GDPR)"
+    ],
+    "categoriesHeading": "b) Which data",
+    "categories": [
+      "Name and email address",
+      "Shipping and billing address",
+      "Order data: pieces, amounts, dates, status",
+      "Payment data: payment method and payment references (no card numbers)",
+      "Documents: invoices and credit notes",
+      "Details from withdrawals, complaints and requests, including images",
+      "Delivery records of emails and consent records"
+    ],
+    "recipientsHeading": "c) Who receives your data",
+    "recipientsIntro": "These service providers process data on my behalf or as independent controllers:",
+    "role": {
+      "processor": "on my behalf",
+      "controller": "independent controller",
+      "processorAndController": "on my behalf and as independent controller",
+      "none": "–"
+    },
+    "thirdCountry": {
+      "US": "based in the USA (transfer under the EU-US Data Privacy Framework or standard contractual clauses)",
+      "EU": "EU/EEA",
+      "none": "no transfer to third countries"
+    },
+    "retentionHeading": "d) How long I keep your data",
+    "retention": {
+      "orders": "Orders: shipping address and photos are deleted step by step; the remaining details are anonymised {years} years after the end of the year the order was completed.",
+      "invoices": "Invoices and credit notes: {years} years after the end of the year of issue (tax law), then anonymised.",
+      "withdrawals": "Withdrawals: {years} years after the end of the year of receipt.",
+      "inquiries": "Commission requests including images: {months} months after receipt.",
+      "checkouts": "Checkout sessions without an order: {days} days.",
+      "emailLog": "Delivery records of emails: as long as the related matter, without one {days} days.",
+      "consentLog": "Consent records: as long as the related order, without an order {days} days.",
+      "privacyRequests": "Data protection requests: {years} years after the end of the year of the reply; the export file {days} days after the reply."
+    },
+    "rightsHeading": "e) Your rights",
+    "rights": [
+      "Rectification of inaccurate data (Art. 16 GDPR)",
+      "Erasure (Art. 17 GDPR)",
+      "Restriction of processing (Art. 18 GDPR)",
+      "Data portability (Art. 20 GDPR)",
+      "Objection to processing based on legitimate interests (Art. 21 GDPR)",
+      "Withdrawal of consent with effect for the future (Art. 7(3) GDPR)"
+    ],
+    "complaintHeading": "f) Complaint to the supervisory authority",
+    "complaint": "You can lodge a complaint with a data protection supervisory authority, for example the Berlin Commissioner for Data Protection and Freedom of Information (Berliner Beauftragte für Datenschutz und Informationsfreiheit), Alt-Moabit 59–61, 10555 Berlin, Germany.",
+    "sourceHeading": "g) Where the data comes from",
+    "source": "The data comes from you (checkout, forms, emails). Payment providers report the payment status, the carrier reports the delivery status.",
+    "automatedHeading": "h) Automated decisions",
+    "automated": "I do not make automated decisions or create profiles. For payments, Stripe runs an automated fraud and risk check as an independent controller; Stripe provides information about it.",
+    "notesHint": "Internal notes that may also concern other people are not included in the file. I reviewed them before sending; anything that concerns you is in my reply.",
+    "noteHeading": "Note",
+    "placeholderMark": "[Placeholder – law firm wording to follow]"
   }
 }

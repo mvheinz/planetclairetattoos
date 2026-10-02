@@ -271,7 +271,8 @@ async function flagPaidDespitePrepayment(
 
 export interface CancelPrepaymentOptions {
   now: Date
-  reason: 'payment_timeout' | 'admin'
+  /** `withdrawn`: zugeordneter Widerruf (KONZEPT §5.3 O4/§5.4 W1) – ohne M04/A03, Hinweis steht in M08 (P6.7). */
+  reason: 'payment_timeout' | 'admin' | 'withdrawn'
   /** Pflicht bei `admin` (Juttas Text in M04, `cancelNote`). */
   note?: string
   actorType?: ActorType
@@ -297,7 +298,12 @@ export async function cancelPrepaymentOrder(
       now,
       expectedFrom: ['awaiting_prepayment'],
       actorType: options.actorType,
-      note: reason === 'admin' ? note : 'Zahlungsfrist abgelaufen',
+      note:
+        reason === 'admin'
+          ? note
+          : reason === 'withdrawn'
+            ? (note ?? 'Widerruf vor Zahlung')
+            : 'Zahlungsfrist abgelaufen',
       data: {
         cancelReason: reason,
         ...(reason === 'admin' ? { cancelNote: note!.slice(0, 300) } : {}),
@@ -312,6 +318,7 @@ export async function cancelPrepaymentOrder(
           now,
         })
       : []
+    if (reason === 'withdrawn') return { order, productIds, jobs: [] as JobId[] }
     const base = {
       orderId: order.id,
       orderNumber: order.orderNumber,

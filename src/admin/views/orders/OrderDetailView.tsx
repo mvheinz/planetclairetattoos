@@ -2,18 +2,27 @@ import React from 'react'
 
 import { MoneyAmount } from '@/components/shop/MoneyAmount'
 import { PACKING_PHOTOS_UI_MAX } from '@/lib/commerce/packOrder'
+import { refundDialogData } from '@/lib/commerce/refundOrder'
 import { ENUM_LABELS } from '@/lib/enumLabels'
-import { PACKAGING_MATERIALS } from '@/lib/enums'
+import { COMPLAINT_KINDS, PACKAGING_MATERIALS } from '@/lib/enums'
+import { consentLogsFor } from '@/lib/privacy/logs'
 
 import { Notice } from '../../components/Notice'
 import { StatusBadge } from '../../components/StatusBadge'
 import { adminText } from '../../translations'
 import type { AdminViewBodyProps } from '../AdminViewBody'
+import { ConsentLogTable } from '../logs/LogTables'
 import { AddressCopy } from './AddressCopy'
+import { loadOrderComplaints } from './complaintQuery'
+import { ComplaintsPanel } from './ComplaintsPanel'
 import { loadOrderDetail } from './orderQuery'
 import { OrderResend } from './OrderResend'
 import { PackingPanel } from './PackingPanel'
+import { RefundDialog } from './RefundDialog'
 import { HintBadges } from './PackingListView'
+
+/** Gründe für „Erstatten“ aus der Bestellung (O15/O21, KONZEPT §5.3); Widerrufe erstattet Jutta im Widerruf. */
+const ORDER_REFUND_REASONS = ['admin_cancellation', 'breakage', 'goodwill', 'complaint'] as const
 
 /** Versanddienste mit Sendungsverfolgung (Carrier-Adapter, P5.14). */
 const SHIP_CARRIERS = ['dhl', 'deutsche_post'] as const
@@ -39,6 +48,8 @@ export async function OrderDetailView({ adminRoute, req, match }: AdminViewBodyP
   }
   const p = detail.packing
   const resend = detail.resend.filter((o) => o.sentBefore)
+  const refund = await refundDialogData(req, detail.id)
+  const complaints = await loadOrderComplaints(req, detail.id)
   return (
     <div className="pc-order pc-order--detail" data-testid="order-detail">
       <p className="pc-order__meta">
@@ -173,6 +184,47 @@ export async function OrderDetailView({ adminRoute, req, match }: AdminViewBodyP
         </dl>
       </section>
 
+      {refund.refundable ? (
+        <section className="pc-order__section" aria-labelledby="order-refund">
+          <h2 id="order-refund">{adminText('refundTitle')}</h2>
+          <RefundDialog
+            orderId={refund.orderId}
+            orderNumber={refund.orderNumber}
+            prepayment={refund.prepayment}
+            items={refund.items}
+            proposal={refund.proposal}
+            pending={refund.pending}
+            refundable={refund.refundable}
+            reasons={ORDER_REFUND_REASONS.map((r) => ({
+              value: r,
+              label: ENUM_LABELS.REFUND_REASONS[r].de,
+            }))}
+          />
+        </section>
+      ) : null}
+
+      {complaints && (complaints.allowed || complaints.complaints.length > 0) ? (
+        <section
+          className="pc-order__section"
+          aria-labelledby="order-complaints-title"
+          id="order-complaints"
+          data-testid="order-complaints"
+        >
+          <h2 id="order-complaints-title">{adminText('complaintsTitle')}</h2>
+          <ComplaintsPanel
+            orderId={detail.id}
+            adminRoute={adminRoute}
+            allowed={complaints.allowed}
+            kinds={COMPLAINT_KINDS.map((k) => ({
+              value: k,
+              label: ENUM_LABELS.COMPLAINT_KINDS[k].de,
+            }))}
+            items={complaints.items}
+            complaints={complaints.complaints}
+          />
+        </section>
+      ) : null}
+
       {p ? (
         <section className="pc-order__section" aria-labelledby="order-packing">
           <h2 id="order-packing">{adminText('orderPackingTitle')}</h2>
@@ -227,6 +279,16 @@ export async function OrderDetailView({ adminRoute, req, match }: AdminViewBodyP
       <section className="pc-order__section" aria-labelledby="order-notes">
         <h2 id="order-notes">{adminText('orderNotes')}</h2>
         <p className="pc-order__notes">{detail.notes || adminText('orderNoNotes')}</p>
+      </section>
+
+      <section className="pc-order__section" aria-labelledby="order-consents">
+        <h2 id="order-consents">{adminText('logsConsentsTitle')}</h2>
+        <ConsentLogTable
+          rows={await consentLogsFor(req, { order: { equals: detail.id } })}
+          adminRoute={adminRoute}
+          caption={adminText('logsConsentsTitle')}
+          testId="order-consent-log"
+        />
       </section>
 
       <section className="pc-order__section" aria-labelledby="order-emails">

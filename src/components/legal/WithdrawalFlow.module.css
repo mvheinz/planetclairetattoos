@@ -1,0 +1,115 @@
+/* Widerrufsfunktion R26 (DESIGN KO-12, Preset `calm`): keine Animation, keine Übergänge (AK-DS-11). Druck: nur die
+   Bestätigung (Kopf, Fuß und Knöpfe ausgeblendet). */
+.step {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.stepTitle:focus {
+  outline: none;
+}
+
+.stepTitle:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.form {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 40rem;
+}
+
+.fieldset {
+  display: grid;
+  gap: var(--space-2);
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.legend {
+  font-weight: 700;
+  margin-bottom: var(--space-2);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.small {
+  font-size: var(--step--1, 0.9rem);
+}
+
+.live:empty {
+  display: none;
+}
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-left: 3px solid var(--warn);
+  border-radius: var(--r-card);
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.noticeIcon {
+  flex: none;
+  margin-top: 2px;
+  color: var(--warn);
+}
+
+.noticeTitle {
+  font-weight: 700;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+  max-width: 40rem;
+}
+
+.summary dt {
+  font-weight: 700;
+  margin-top: var(--space-2);
+}
+
+.summary dd {
+  margin: 0;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.summary ul {
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+@media (min-width: 768px) {
+  .summary {
+    grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr);
+  }
+
+  .summary dt {
+    margin-top: 0;
+  }
+}
+
+/* Honeypot: für Menschen unsichtbar und nicht per Tab erreichbar (R-134). */
+.honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

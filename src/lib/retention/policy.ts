@@ -1,7 +1,7 @@
 import 'server-only'
 
 import { TZDate } from '@date-fns/tz'
-import { addDays, addMonths, addYears } from 'date-fns'
+import { addDays, addMonths, addYears, subDays, subMonths, subYears } from 'date-fns'
 
 import type {
   AuditAction,
@@ -421,6 +421,33 @@ export function retainUntil(r: Pick<RetentionRule, 'duration' | 'start'>, eventA
   if (months) d = addMonths(d, months)
   if (days) d = addDays(d, days)
   return new Date(d.getTime() + hours * 3_600_000)
+}
+
+/** Ist die Frist einer Regel für ein Ereignis bis `until` abgelaufen (Löschen/Anonymisieren erlaubt)? */
+export function isDue(
+  r: Pick<RetentionRule, 'duration' | 'start'>,
+  eventAt: Date,
+  until: Date,
+): boolean {
+  return retainUntil(r, eventAt).getTime() <= until.getTime()
+}
+
+/**
+ * Großzügiger Vorfilter für SQL: Ereignisse nach diesem Zeitpunkt sind bis `until` sicher noch nicht fällig
+ * (Umkehrung von `retainUntil` in Berliner Kalenderrechnung plus 1 Tag Spielraum für Monatsenden und Zeitumstellung).
+ * Die genaue Prüfung macht danach `isDue`.
+ */
+export function eventCutoff(r: Pick<RetentionRule, 'duration' | 'start'>, until: Date): Date {
+  const { years = 0, months = 0, days = 0, hours = 0 } = r.duration
+  if (r.start === 'endOfYear') {
+    // fällig ab 01.01.(Jahr + N + 1) → Ereignisjahr ≤ Jahr(until) − N − 1, also vor dem 01.01.(Jahr(until) − N)
+    return new Date(new TZDate(berlinYear(until) - years, 0, 1, 0, 0, 0, APP_TIME_ZONE).getTime())
+  }
+  let d: Date = new TZDate(until.getTime() - hours * 3_600_000, APP_TIME_ZONE)
+  if (days) d = subDays(d, days)
+  if (months) d = subMonths(d, months)
+  if (years) d = subYears(d, years)
+  return new Date(d.getTime() + 86_400_000)
 }
 
 /** Rechnungen/Gutschriften: 01.01.(Ausstellungsjahr + invoiceYears + 1) Berlin (L-06, beim Anlegen eingefroren). */

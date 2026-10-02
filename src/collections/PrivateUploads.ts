@@ -42,7 +42,7 @@ import { findUploadReferences, formatUploadReferenceMessage } from '@/lib/upload
 
 // DATENMODELL §6.4 – private Dateien (Referenzbilder, Packfotos, Nachweise, Beleg-PDFs, Exporte). Privater Speicher
 // (`.data/private` bzw. S3_PRIVATE_BUCKET), Auslieferung nur angemeldet (bei `s3` signiert, ≤ 300 s; R-136).
-// Keine Versionen/Drafts (Personendaten, R-154). `relatedComplaint` ergänzt P6 (DATENMODELL §10.1).
+// Keine Versionen/Drafts (Personendaten, R-154). `relatedComplaint` seit P6.1 (DATENMODELL §10.1).
 
 const SLUG = 'private-uploads'
 const SHA256_RE = /^[a-f0-9]{64}$/
@@ -56,11 +56,12 @@ export const ORDER_PURPOSES: ReadonlySet<PrivateUploadPurpose> = new Set<Private
 ])
 
 /** Beleg-PDFs mit Bezug auf `invoices` (L-06). */
-/** Zwecke, deren Datei der Server vorab per `putIfAbsent` schreibt (R-122, P5.26). */
+/** Zwecke, deren Datei der Server vorab per `putIfAbsent` schreibt (R-122, P5.26; DSGVO-Export P6.17). */
 export const PRE_STORED_PURPOSES: ReadonlySet<PrivateUploadPurpose> = new Set([
   'invoice_pdf',
   'credit_note_pdf',
   'monthly_export',
+  'data_export',
 ])
 
 export const INVOICE_PDF_PURPOSES: ReadonlySet<PrivateUploadPurpose> =
@@ -259,6 +260,29 @@ const validateAndCompute: CollectionBeforeChangeHook = async ({
   if (req.file) data.sha256 = sha256Hex(await fileBuffer(req.file))
   else if (!preStored)
     data.sha256 = (originalDoc as { sha256?: string } | undefined)?.sha256 ?? null
+
+  // Reklamationsfotos (DATENMODELL §6.4, §6.29): Reklamation Pflicht; die Bestellung (Frist L-09) folgt aus ihr.
+  const prev = (original ?? {}) as Record<string, unknown>
+  const complaintId = relId(
+    data.relatedComplaint !== undefined ? data.relatedComplaint : prev.relatedComplaint,
+  )
+  if (purpose === 'complaint_photo') {
+    if (complaintId === null) fail('Bitte die Reklamation wählen.', 'relatedComplaint')
+    if (relId(data.relatedOrder !== undefined ? data.relatedOrder : prev.relatedOrder) === null) {
+      const complaint = await req.payload.findByID({
+        collection: 'complaints',
+        id: complaintId!,
+        req,
+        depth: 0,
+        overrideAccess: true,
+        disableErrors: true,
+      })
+      if (!complaint) fail('Reklamation nicht gefunden.', 'relatedComplaint')
+      data.relatedOrder = relId(complaint!.order)
+    }
+  } else if (complaintId !== null) {
+    fail('Die Reklamation gibt es nur bei Reklamationsfotos.', 'relatedComplaint')
+  }
 
   // Beziehungen je Zweck (DATENMODELL §6.4)
   const ids = Object.fromEntries(
@@ -561,6 +585,14 @@ export const PrivateUploads: CollectionConfig = {
       label: 'Datenschutz-Anfrage',
       relationTo: 'privacy-requests',
       admin: { condition: (data) => data?.purpose === 'data_export' },
+    },
+    {
+      name: 'relatedComplaint',
+      type: 'relationship',
+      label: 'Reklamation',
+      relationTo: 'complaints',
+      index: true,
+      admin: { condition: (data) => data?.purpose === 'complaint_photo' },
     },
     {
       name: 'relatedGalleryItem',

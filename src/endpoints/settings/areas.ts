@@ -3,6 +3,7 @@ import { ValidationError, type Endpoint, type PayloadRequest } from 'payload'
 import { isAdminRequest } from '@/access'
 import { ADMIN_NO_STORE } from '@/endpoints/adminResponse'
 import { readJsonBody } from '@/endpoints/products/actions'
+import { isKnownServiceId } from '@/lib/legal/services'
 import { EU_CHECKLIST_KEYS } from '@/lib/settings/rules'
 import { parseEuroInput } from '@/lib/money'
 import { inTransaction } from '@/lib/payload/transaction'
@@ -294,6 +295,46 @@ const AREAS: Record<SettingsArea, AreaBuilder> = {
       doc.emails = emails
     }
     return { de: set('de'), en: set('en'), siteTexts: { de: setTexts('de'), en: setTexts('en') } }
+  },
+
+  // Auftragsverarbeitung (P6.21, DIENSTE §6, R-155): je Dienst eine Zeile; leere Zeilen werden nicht gespeichert,
+  // Einträge anderer Dienste bleiben erhalten. Datei = ID in `private-uploads` (Zweck prüft `filterOptions`).
+  processorAgreements: (v, c) => {
+    const rows = list(v.rows).map((r, i) => {
+      const serviceId = str(r.serviceId)
+      if (!isKnownServiceId(serviceId)) {
+        c.errors.push({ path: `processorAgreements.${i}`, message: 'Unbekannter Dienst.' })
+      }
+      const date = str(r.signedAt).trim()
+      if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        c.errors.push({
+          path: `processorAgreements.${i}.signedAt`,
+          message: 'Bitte ein Datum wählen.',
+        })
+      }
+      const file = c.int(`processorAgreements.${i}.file`, r.file, false)
+      return {
+        serviceId,
+        signedAt: date ? berlinDayStart(new Date(`${date}T12:00:00Z`)).toISOString() : null,
+        documentVersion: text(r.documentVersion),
+        url: text(r.url),
+        file,
+      }
+    })
+    const submitted = new Set(rows.map((r) => r.serviceId))
+    return {
+      de: (doc) => {
+        const existing = list(doc.processorAgreements)
+        const keep = existing.filter((e) => !submitted.has(str(e.serviceId)))
+        const next = rows
+          .filter((r) => r.signedAt || r.documentVersion || r.url || r.file !== null)
+          .map((r) => {
+            const old = existing.find((e) => e.serviceId === r.serviceId)
+            return { ...(old && rowId(old.id) ? { id: rowId(old.id) } : {}), ...r }
+          })
+        doc.processorAgreements = [...keep, ...next]
+      },
+    }
   },
 
   legal: (v, c) => {

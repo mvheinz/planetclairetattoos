@@ -66,6 +66,15 @@ export async function adminRecipient(req: PayloadRequest): Promise<string> {
   return settings?.adminNotificationEmail || getEnv().ADMIN_NOTIFY_EMAIL
 }
 
+/** Ist die Verarbeitung der Bestellung eingeschränkt (`privacy.processingRestricted`, LOESCHKONZEPT §5.7)? */
+export async function isOrderRestricted(req: PayloadRequest, orderId: number): Promise<boolean> {
+  const db = await dbFor(req)
+  const res = await db.execute(
+    sql`SELECT privacy_processing_restricted AS r FROM orders WHERE id = ${orderId}`,
+  )
+  return res.rows[0]?.r === true
+}
+
 export async function enqueueEmail(
   req: PayloadRequest,
   input: EnqueueEmailInput,
@@ -105,6 +114,11 @@ export async function enqueueEmail(
     const to = meta.recipient === 'admin' ? (input.to ?? (await adminRecipient(req))) : input.to
     if (!to) throw new InvalidEmailRequestError(`${input.template}: Empfänger fehlt.`)
 
+    // Eingeschränkte Bestellung (Art. 18, P6.18): keine Kund:innen-Mails mehr – Protokoll `suppressed`
+    const restricted =
+      meta.recipient === 'customer' && input.relations?.order
+        ? await isOrderRestricted(req, input.relations.order)
+        : false
     const system = withSystem(req)
     const log = await preservingReq(req, () =>
       req.payload.create({
@@ -115,7 +129,7 @@ export async function enqueueEmail(
           locale,
           subject: def.subject(parsed.data, locale).slice(0, 200),
           idempotencyKey: key,
-          status: 'queued',
+          status: restricted ? 'suppressed' : 'queued',
           attempts: 0,
           order: input.relations?.order ?? undefined,
           withdrawal: input.relations?.withdrawal ?? undefined,

@@ -370,9 +370,9 @@ export type Carrier = (typeof CARRIERS)[number]
 export const PACKAGING_MATERIALS = ['paper_cardboard', 'plastic', 'other'] as const // E-47, R-201
 export type PackagingMaterial = (typeof PACKAGING_MATERIALS)[number]
 // KONZEPT §5.3; breakage = Stück vor dem Versand beschädigt, admin_cancellation = Storno einer bezahlten Bestellung
-// durch Jutta (beide O15, DM-39)
+// durch Jutta (beide O15, DM-39); correction = Gutschrift zur Berichtigung, danach neue Rechnung (R-152, P6.18)
 export const REFUND_REASONS = ['withdrawal', 'goodwill', 'complaint', 'breakage', 'admin_cancellation',
-  'item_unavailable', 'dispute'] as const
+  'item_unavailable', 'dispute', 'correction'] as const
 export type RefundReason = (typeof REFUND_REASONS)[number]
 export const REFUND_STATUSES = ['pending', 'succeeded', 'failed'] as const
 export type RefundStatus = (typeof REFUND_STATUSES)[number]
@@ -1280,6 +1280,8 @@ sind gefilterte Listen dieser Collection.
 | ↳ `status` | select `RefundStatus` | R | – | `pending` | – | – |
 | ↳ `stripeRefundId` | text | – | – | – | – | – |
 | ↳ `manualTransferConfirmedAt` | date | – | – | – | Vorkasse-Erstattung per Überweisung | – |
+| ↳ `withdrawal` | relationship → `withdrawals` | – | – | – | Erstattung zu diesem Widerruf (W4/W6 nach Erfolg, P6.10) | – |
+| ↳ `note` | text | – | – | – | ≤ 300; Pflicht, wenn der Betrag über dem Vorschlag liegt (P6.10) | – |
 | ↳ `creditNote` | relationship → `invoices` | – | – | – | – | – |
 | ↳ `createdAt` | date | R | – | now | – | – |
 | `dispute.status` | select `DisputeStatus` | S | – | `none` | – | – |
@@ -1496,6 +1498,7 @@ fehlenden Stücken nur über die gelieferten Stücke (§8.4).
 | `status` | select `InvoiceStatus` | S, R | – | `pending_pdf` | `pending_pdf → issued` genau einmal | – |
 | `order` | relationship → `orders` | R | – | – | – | – |
 | `relatedInvoice` | relationship → `invoices` | R bei `credit_note` | – | – | muss `type = invoice` derselben Bestellung sein | – |
+| `replacesInvoice` | relationship → `invoices` | – | – | – | nur bei `type = invoice`: ersetzt eine per Gutschrift (`reason = correction`) stornierte Rechnung derselben Bestellung (Berichtigung, R-152, P6.18); jede Rechnung höchstens einmal ersetzt | PDF „ersetzt Rechnung …“ |
 | `issueDate` | date | S, R | – | heute (Europe/Berlin) | – | – |
 | `deliveryDate` | date | S, R | – | Zahlungs-/Übergabedatum | – | Leistungszeitpunkt; PDF und `data.deliveryMonth` zeigen den Monat („Oktober 2026“, R-120) |
 | `taxMode` | select `TaxMode` | S, R | – | gültiger Modus am `issueDate` | – | – |
@@ -1527,7 +1530,7 @@ von `pending_pdf`) sowie nach Fristende die Anonymisierung (`data.buyer`, `pdf`,
 Zusätzlich schützt ein **DB-Trigger** (§9.4) gegen jede andere Änderung und jedes Löschen (außer Seed).
 
 **Access:** `read`: `isAdmin` · `create`/`update`/`delete`: `none` (nur Services/Jobs).
-**Indizes:** `number` UNIQUE · partieller UNIQUE `(order_id) WHERE type = 'invoice'` · Index (`year`, `type`) ·
+**Indizes:** `number` UNIQUE · partieller UNIQUE `(order_id) WHERE type = 'invoice' AND replaces_invoice_id IS NULL` (seit P6.18; Berichtigungsrechnungen verweisen auf die ersetzte) · partieller UNIQUE `(replaces_invoice_id)` · Index (`year`, `type`) ·
 Index `issue_date` · Index `seed`.
 
 **Akzeptanzkriterien**
@@ -1581,6 +1584,7 @@ Auch Erklärungen ohne passende Bestellung werden angenommen und manuell zugeord
 | `returnTrackingNumber` | text | – | – | – | ≤ 40 | – |
 | `returnProofReceivedAt` | date | – | – | – | ≤ heute | „Rücksendenachweis liegt vor“ – beendet wie `goodsReturnedAt` das Zurückbehaltungsrecht (R-072, § 357 Abs. 4 BGB) |
 | `goodsReturnedAt` / `refundedAt` / `closedAt` / `rejectedAt` | date | S | – | – | beim jeweiligen Statuswechsel | – |
+| `returnConditionNote` | textarea | – | – | – | ≤ 500 | Zustandsnotiz bei „Ware ist zurück“ (W3, P6.9) |
 | `closeReason` | select `WithdrawalCloseReason` | R bei `closed` | – | – | – | Grund „ohne Erstattung abgeschlossen“ (KONZEPT §5.4 W5) |
 | `closeNote` | text | R bei `rejected` und bei `closeReason = other` | – | – | 10–300 | Begründung |
 | `deadlineReminderSentAt` | date | S | – | – | einmalig durch Task `withdrawalDeadlines` (Tag 10 ohne Erstattung) | – |
@@ -2771,6 +2775,9 @@ Migrationen späterer Phasen gibt es nur für:
 | P5 | `p5_job_runs` | SQL-Tabelle `job_runs` (§11) |
 | P5 | `p5_revenue_guard`, `p5_monthly_close_jobs`, `p5_compliance_docs_job`, `p5_mark_delivered_job` | nachgetragen: nur `ALTER TYPE … ADD VALUE` der Payload-Job-Enums um die P5-Task-Slugs (`revenueGuardCheck`, `monthlyClose`, `invoiceIntegrityCheck`, `complianceDocsReview`, `markDelivered`; ARCHITEKTUR Anhang A.3) – Payload legt für `jobs.tasks` ein Postgres-Enum an, jeder neue Task-Slug braucht daher eine generierte Migration; rein erweiternd (ARCHITEKTUR §6.7 Nr. 5) |
 | P6 | `p6_legal_snippets_complaints` | Collections `legal-snippets` (§6.28) und `complaints` (§6.29); Feld `private-uploads.relatedComplaint`; Join `orders.complaints`; SQL aus §9.3 (aktive Fassung je Schlüssel, `seed_key`-Index `complaints`); Grund-Seed der Bausteine (`seed:base`) |
+| P6 | `p6_legal_snippets_complaints` | Collections `legal-snippets` (§6.28) und `complaints` (§6.29); Feld `private-uploads.relatedComplaint`; Join `orders.complaints`; SQL aus §9.3 (aktive Fassung je Schlüssel, `seed_key`-Index `complaints`; als eigene Migration `p6_legal_snippets_complaints_constraints`, Regel 2); Grund-Seed der Bausteine (`seed:base`) |
+| P6 | `p6_retention_failures` | SQL-Tabelle `retention_failures` (`task`, `entity_collection`, `entity_id`, `failures`, `last_error`, `last_failed_at`, `alerted_at`; PK aus den ersten drei): Fehlschläge der Löschjobs je Datensatz, nach 3 Fehlschlägen A12 (LOESCHKONZEPT §4 Regel 2, P6.14); nur IDs und geschwärzte Fehlertexte |
+| P6 | `p6_retention_jobs` | Task-Slugs der Löschjobs und `legalHoldReview` im Enum der Jobs-Queue (P6.14/P6.15) |
 | P8 | `p8_media_owner_approved` | Feld `media.ownerApproved` (§6.2) samt Zugriffsregel (R-181) |
 
 Neue Task-Slugs (Anhang A.3 der ARCHITEKTUR) erweitern die Payload-Job-Enums immer per generierter Migration der Phase, die den Task registriert. Neue Werte oder Felder, die eine Phase darüber hinaus braucht, kommen per eigener Migration dieser Phase **und**

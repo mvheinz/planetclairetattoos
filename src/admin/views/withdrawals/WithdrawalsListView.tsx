@@ -1,14 +1,17 @@
 import React from 'react'
 
+import { ENUM_LABELS } from '@/lib/enumLabels'
+
 import { StatusBadge } from '../../components/StatusBadge'
 import { adminText } from '../../translations'
 import type { AdminViewBodyProps } from '../AdminViewBody'
 import { adminViewPath } from '../registry'
+import { ManualWithdrawalForm } from './ManualWithdrawalForm'
 import { loadWithdrawalList, type WithdrawalCard } from './withdrawalQuery'
 
 // Ansicht „Widerrufe“ `/widerrufe` (PLAN P5.19, KONZEPT §7.10): offene Widerrufe (älteste zuerst) mit Vorgangsnummer,
 // Eingang (Datum und Uhrzeit, Berlin), Name, Bestellung oder „nicht zugeordnet“, Kanal, Status und „erstatten bis“
-// (Eingang + 14 Tage, ab Tag 10 rot); darunter die zuletzt erledigten. Nur lesend – Knöpfe ab P6.
+// (Eingang + 14 Tage, ab Tag 10 rot); darunter die zuletzt erledigten. Oben „Widerruf manuell erfassen“ (P6.9).
 
 function Card({ card, adminRoute }: { card: WithdrawalCard; adminRoute: string }) {
   return (
@@ -61,6 +64,12 @@ export async function WithdrawalsListView({ adminRoute, req }: AdminViewBodyProp
   return (
     <div className="pc-order">
       <p className="pc-order__muted">{adminText('withdrawalNeverAuto')}</p>
+      <ManualWithdrawalForm
+        channels={(['email', 'letter', 'other'] as const).map((c) => ({
+          value: c,
+          label: ENUM_LABELS.WITHDRAWAL_CHANNELS[c].de,
+        }))}
+      />
       <section className="pc-order__section" aria-labelledby="withdrawals-open">
         <h2 id="withdrawals-open">{adminText('withdrawalsOpen')}</h2>
         <p role="status" className="pc-order__count" data-testid="withdrawals-count">

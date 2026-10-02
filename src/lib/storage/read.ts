@@ -1,9 +1,9 @@
 import 'server-only'
 
-import { readFile } from 'node:fs/promises'
+import { readFile, rm } from 'node:fs/promises'
 import path from 'node:path'
 
-import { GetObjectCommand } from '@aws-sdk/client-s3'
+import { DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
 
 import { getEnv, type Env } from '@/lib/env'
 
@@ -55,4 +55,32 @@ export async function readStoredFile(
   } catch {
     return null
   }
+}
+
+/**
+ * Löscht eine gespeicherte Upload-Datei ohne den Datensatz (Löschjobs, z. B. Portfolio-Bilder nach Widerruf der
+ * Einwilligung, L-20). `true`, wenn die Datei danach nicht mehr existiert (auch wenn sie schon fehlte).
+ */
+export async function deleteStoredFile(
+  area: UploadArea,
+  filename: string,
+  prefix: string | null | undefined,
+  env: Env = getEnv(),
+): Promise<boolean> {
+  if (!filename || filename.includes('/') || filename.includes('\\') || filename.startsWith('.'))
+    return false
+  if (env.STORAGE_DRIVER === 'local') {
+    const dir = uploadStaticDir(area, env)
+    const file = path.resolve(dir, filename)
+    if (!file.startsWith(dir + path.sep)) return false
+    await rm(file, { force: true })
+    return true
+  }
+  await getS3Client(env).send(
+    new DeleteObjectCommand({
+      Bucket: (area === 'private' ? env.S3_PRIVATE_BUCKET : env.S3_BUCKET)!,
+      Key: path.posix.join(prefix || STORAGE_PREFIX[area], filename),
+    }),
+  )
+  return true
 }
