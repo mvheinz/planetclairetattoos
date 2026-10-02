@@ -58,7 +58,7 @@ describe('Routen-Registry (T-07, AK-2-01)', () => {
     expect(bad.errors.join('\n')).toMatch(/Pfad \/de\/warenkorb doppelt/)
   })
 
-  it('P7: live sind R01–R09, R11–R18, R20–R29 (R31 als Weiterleitung)', () => {
+  it('P7: live sind R01–R18, R20–R29 (R31 als Weiterleitung)', () => {
     expect(
       ROUTES.filter((r) => r.status === 'live' && r.kind !== 'redirect').map((r) => r.id),
     ).toEqual([
@@ -71,6 +71,7 @@ describe('Routen-Registry (T-07, AK-2-01)', () => {
       'R07',
       'R08',
       'R09',
+      'R10',
       'R11',
       'R12',
       'R13',
