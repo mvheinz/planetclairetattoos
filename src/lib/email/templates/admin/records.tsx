@@ -14,6 +14,7 @@ import { ADMIN_MAIL_PATHS } from './paths'
 // Verwaltungs-Mails zu einzelnen Vorgängen (KONZEPT §6.4, P5.2): A04 Widerruf eingegangen, A05 neue Anfrage, A13
 // Erstattungsfrist, A14 Datenschutz-Frist. Immer Deutsch, kurz, Direktlink. Die Schemata sind strikt: Felder, die nicht
 // vorgesehen sind (Namen, E-Mail-Adressen, Freitexte, Bilder), werden abgelehnt – bei A05 besonders wichtig (R-160).
+// Ausnahme A04: KONZEPT §6.4 verlangt eine Kopie des M08-Inhalts (`declaration`, P6.7) – Juttas Nachweis des Eingangs.
 
 export const ADMIN_WITHDRAWAL_RECEIVED_VERSION = 'a04-v1'
 export const ADMIN_INQUIRY_RECEIVED_VERSION = 'a05-v1'
@@ -43,6 +44,18 @@ export const adminWithdrawalReceivedDataSchema = z.strictObject({
   items: z.array(item).max(50).default([]),
   /** Späteste Erstattung (§ 357 Abs. 1 BGB: 14 Tage ab Eingang). */
   refundDueAt: iso,
+  /** Kopie der Erklärung wie in M08 (KONZEPT §6.4 A04). */
+  declaration: z
+    .strictObject({
+      name: z.string().min(1).max(100),
+      contractIdentification: z.string().min(1).max(500),
+      email: z.string().min(3).max(254),
+      itemsText: z.string().max(1000).nullish(),
+      reason: z.string().max(2000).nullish(),
+      receivedAtText: z.string().min(1).max(80),
+      unpaidOrderCancelled: z.boolean().default(false),
+    })
+    .nullish(),
 })
 export type AdminWithdrawalReceivedData = z.infer<typeof adminWithdrawalReceivedDataSchema>
 
@@ -63,6 +76,26 @@ export async function renderAdminWithdrawalReceived(
     ...(d.items.length > 0
       ? [block.p('Widerrufene Stücke:'), block.list(d.items.map(itemLine))]
       : [block.p('Widerrufen: ganze Bestellung (keine einzelnen Stücke angegeben).')]),
+    ...(d.declaration
+      ? [
+          block.p('Kopie der Erklärung (wie in der Eingangsbestätigung):'),
+          block.rows([
+            ['Eingang', d.declaration.receivedAtText],
+            ['Name', d.declaration.name],
+            ['Angaben zum Vertrag', d.declaration.contractIdentification],
+            ['Stücke (Freitext)', d.declaration.itemsText?.trim() || '–'],
+            ['Grund', d.declaration.reason?.trim() || '–'],
+            ['E-Mail', d.declaration.email],
+          ]),
+          ...(d.declaration.unpaidOrderCancelled
+            ? [
+                block.p(
+                  'Die Bestellung war noch nicht bezahlt und ist damit storniert; die Stücke sind wieder frei.',
+                ),
+              ]
+            : []),
+        ]
+      : []),
     block.p(
       'Die Eingangsbestätigung ist automatisch an die Kundin bzw. den Kunden gegangen. Details unter „Widerrufe“.',
     ),

@@ -44,7 +44,7 @@ const ro = { readOnly: true } as const
 type Doc = Record<string, unknown>
 
 export const WITHDRAWAL_REFERENCE_RE = /^WR-\d{4}-\d{5,}$/
-const ORDER_NUMBER_IN_TEXT = /PC-\d{4}-\d{5}/
+const ORDER_NUMBER_IN_TEXT = /PC-\d{4}-\d{5}/i
 
 /** Unveränderlich nach dem Eingang (DM-WDR-03). */
 export const WITHDRAWAL_IMMUTABLE = [
@@ -133,8 +133,11 @@ const guardWithdrawal: CollectionBeforeChangeHook = async ({
       const match = ORDER_NUMBER_IN_TEXT.exec(String(data.contractIdentification ?? ''))
       const email = typeof data.email === 'string' ? data.email.trim().toLowerCase() : null
       const order =
-        match && email ? await findOrder(req, { orderNumber: { equals: match[0] } }) : null
-      if (order && order.customer?.email === email) {
+        match && email
+          ? await findOrder(req, { orderNumber: { equals: match[0].toUpperCase() } })
+          : null
+      // E-Mail ohne Groß-/Kleinschreibung (R-093); die Bestellung speichert sie wie eingegeben
+      if (order && order.customer?.email?.trim().toLowerCase() === email) {
         data.order = order.id
         data.matchStatus = 'auto_matched'
       } else if (data.order) {

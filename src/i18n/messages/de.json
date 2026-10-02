@@ -759,6 +759,24 @@
       "title": "Deine Bestellung ist abholbereit",
       "itemsHeading": "Zum Abholen",
       "reply": "Antworte einfach auf diese Mail, um einen Termin auszumachen."
+    },
+    "withdrawalReceipt": {
+      "subject": "Eingangsbestätigung deines Widerrufs {reference} vom {date}, {time} Uhr",
+      "title": "Dein Widerruf ist angekommen",
+      "reference": "Vorgangsnummer",
+      "receivedAt": "Eingegangen am",
+      "declarationHeading": "Deine Erklärung",
+      "name": "Name",
+      "contract": "Angaben zum Vertrag",
+      "items": "Betroffene Stücke",
+      "itemsAll": "der ganze Vertrag (keine einzelnen Stücke angegeben)",
+      "reason": "Grund",
+      "email": "E-Mail",
+      "nextHeading": "So geht es weiter",
+      "returnAddress": "Bitte sende die Ware an: {address}",
+      "refund": "Die Erstattung bekommst du über dasselbe Zahlungsmittel, mit dem du bezahlt hast – spätestens 14 Tage nach Eingang deines Widerrufs (bis {date}). Ich darf sie zurückhalten, bis die Ware wieder bei mir ist oder du nachweist, dass du sie abgeschickt hast.",
+      "unpaidCancelled": "Deine Bestellung ist damit storniert. Bitte nichts überweisen.",
+      "keep": "Bitte bewahre diese E-Mail auf – sie ist dein Nachweis für den Eingang."
     }
   },
   "shippingPayment": {

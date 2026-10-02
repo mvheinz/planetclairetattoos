@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.7
+
+- submitWithdrawal (src/lib/legal/withdrawal.ts): Honeypot, Rate-Limit withdrawal_submit 30/h je IP-Hash, zod, unveränderlicher Datensatz ohne IP, Auto-Zuordnung (Bestellnummer + E-Mail ohne Groß/Klein), O11 bzw. O4 withdrawn + W5, M08 + A04 direkt nach Commit\n- M08-Vorlage withdrawal_receipt (MEZ/MESZ), A04 mit Kopie der Erklärung, sendEmail-Kette für M08 (≤ 5 min bis 24 h, A12 ab 2. Fehlversuch und nach 24 h), Hinweis unter „Heute“\n- Tests: tests/int/legal/withdrawal.int.spec.ts (8), tests/int/email/withdrawal-retry.int.spec.ts (2), Unit M08 (7) – grün
+
 ## 2026-10-02 – P6.3
 
 - Geschlossene Token-Liste in `src/lib/legal/tokens.ts` (= R-012 = DATENMODELL §6.12 = KANZLEI-BRIEFING §16.3, Unit-Abgleich); `{{returnCostsNote}}` aus dem aktiven Baustein; Bausteine nur R-012- plus eigene Kontext-Tokens.\n- Prüfungen vor dem Veröffentlichen (`checkLegalText`/`checkLegalSnippet`): Widerrufs-URL Pflicht (R-095), OS-Link (V-01) und Steuerhinweis im KU-Modus (V-02) gesperrt; `activateLegalText(req, id, { validFrom, now })` und `activateLegalSnippet` planen bzw. aktivieren, `jobAlarm.bump(validFrom)`.\n- Task `activateScheduledLegalTexts` (Migration `p6_activate_legal_job`, im Job-Wecker); HTML-Bereinigung `sanitize-html` 2.18.0 mit Allowlist KANZLEI-BRIEFING §1.2; Platzhalter-Belehrung mit `Telefon: {{phone}}`.\n- Tests: render-tokens.unit (5), legal-texts.int (+4 R-012), activate-legal-texts.int; volle Int-Suite 105 Dateien grün (ohne preview-export).

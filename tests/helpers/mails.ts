@@ -203,6 +203,21 @@ export const PICKUP_READY_FIXTURE = {
     'Abholung im Atelier nach Absprache, meist Di–Do 16–19 Uhr.\nPlanet Claire, Musterstraße 1, 10115 Berlin',
 }
 
+export const WITHDRAWAL_RECEIPT_FIXTURE = {
+  withdrawalId: 3,
+  reference: 'WR-2026-00003',
+  receivedAt: '2026-10-12T12:03:00.000Z',
+  refundDueAt: '2026-10-26T12:03:00.000Z',
+  name: 'Erika Beispiel',
+  contractIdentification: 'PC-2026-00017',
+  email: 'erika@example.com',
+  itemsText: null,
+  items: [{ itemNumber: 17, title: 'Tasse „Coco schläft“' }],
+  reason: 'Passt farblich doch nicht.',
+  unpaidOrderCancelled: false,
+  returnAddress: null,
+}
+
 export const MAIL_FIXTURE_DATA: Partial<Record<EmailTemplate, Record<string, unknown>>> = {
   order_shipped: SHIPPED_FIXTURE,
   pickup_ready: PICKUP_READY_FIXTURE,
@@ -211,6 +226,7 @@ export const MAIL_FIXTURE_DATA: Partial<Record<EmailTemplate, Record<string, unk
   prepayment_received: PREPAYMENT_RECEIVED_FIXTURE,
   prepayment_reminder: REMINDER_FIXTURE,
   prepayment_cancelled: CANCELLED_FIXTURE,
+  withdrawal_receipt: WITHDRAWAL_RECEIPT_FIXTURE,
   oversold_apology: OVERSOLD_FIXTURE,
   admin_order_placed: ADMIN_ORDER_FIXTURE,
   admin_prepayment_cancelled: {

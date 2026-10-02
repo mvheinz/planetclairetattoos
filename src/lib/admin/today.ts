@@ -150,6 +150,7 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
     seed,
     jobRuns,
     missingSources,
+    stuckReceipts,
   ] = await inSequence([
     () =>
       count('orders', {
@@ -241,6 +242,15 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
     () => seedSummary(payload),
     () => listJobRuns(poolDb(payload), { since: new Date(now.getTime() - DAY), limit: 500 }),
     () => missingManualSources(payload, previousMonth(now)),
+    // M08 hängt (R-093): ab dem 2. Fehlversuch Hinweis, bis der Versand gelingt oder nach 24 h aufgegeben wird
+    () =>
+      count('email-log', {
+        and: [
+          { template: { equals: 'withdrawal_receipt' } },
+          { status: { equals: 'queued' } },
+          { attempts: { greater_than_equal: 2 } },
+        ],
+      }),
   ])
   const s = settings as Setting
 
@@ -293,6 +303,20 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
       text: `Zahlung angefochten: Bestellung ${o.orderNumber}. Bitte Unterlagen beim Zahlungsanbieter einreichen.`,
       href: `/bestellungen/${o.id}`,
       linkLabel: 'Bestellung öffnen',
+    })
+  }
+
+  // Eingangsbestätigung eines Widerrufs hängt (rot, R-093)
+  if (stuckReceipts > 0) {
+    hint({
+      id: 'withdrawal-receipt-stuck',
+      tone: 'error',
+      text:
+        stuckReceipts === 1
+          ? 'Die Eingangsbestätigung eines Widerrufs konnte noch nicht verschickt werden – sie wird alle 5 Minuten erneut versucht.'
+          : `${stuckReceipts} Eingangsbestätigungen von Widerrufen konnten noch nicht verschickt werden – sie werden alle 5 Minuten erneut versucht.`,
+      href: '/widerrufe',
+      linkLabel: 'Widerrufe öffnen',
     })
   }
 

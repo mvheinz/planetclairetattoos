@@ -759,6 +759,24 @@
       "title": "Your order is ready for pickup",
       "itemsHeading": "Ready for pickup",
       "reply": "Just reply to this email to arrange a time."
+    },
+    "withdrawalReceipt": {
+      "subject": "Confirmation of receipt of your withdrawal {reference} ({date}, {time})",
+      "title": "Your withdrawal has arrived",
+      "reference": "Reference",
+      "receivedAt": "Received on",
+      "declarationHeading": "Your declaration",
+      "name": "Name",
+      "contract": "Contract details",
+      "items": "Pieces concerned",
+      "itemsAll": "the whole contract (no individual pieces given)",
+      "reason": "Reason",
+      "email": "Email",
+      "nextHeading": "What happens next",
+      "returnAddress": "Please send the goods to: {address}",
+      "refund": "You will receive the refund via the same means of payment you used – no later than 14 days after receipt of your withdrawal (by {date}). I may withhold it until I have received the goods back or you have provided proof that you have sent them.",
+      "unpaidCancelled": "Your order is therefore cancelled. Please do not transfer any money.",
+      "keep": "Please keep this email – it is your proof of receipt."
     }
   },
   "shippingPayment": {

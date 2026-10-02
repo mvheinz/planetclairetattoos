@@ -3316,7 +3316,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     `tests/unit/legal/mail-withdrawal-link.unit.spec.ts` (Titel „R-090 Mails …“).
   - Ohne Jutta: –
 
-- [ ] **P6.7 Widerrufs-Dienst: speichern, zuordnen, sofort bestätigen** – `src/lib/legal/withdrawal.ts`
+- [x] **P6.7 Widerrufs-Dienst: speichern, zuordnen, sofort bestätigen** – `src/lib/legal/withdrawal.ts`
   `submitWithdrawal(input, { now })` (KONZEPT §5.4, R-093, DATENMODELL §6.11): zod-Prüfung; unveränderlicher Datensatz
   mit `reference` `WR-JJJJ-NNNNN` aus `withdrawal_number_seq`, `receivedAt` = Serverzeit, Name, Vertragsangaben,
   E-Mail, Stück-Auswahl bzw. Freitext, Grund, Sprache, `channel = online_form`, `submissionSnapshot`, `refundDueAt`;

@@ -76,3 +76,21 @@ const LOCALES: Record<'de' | 'en', DateFnsLocale> = { de, en: enGB }
 export function formatBerlin(d: Date, pattern: string, locale: 'de' | 'en' = 'de'): string {
   return format(inBerlin(d), pattern, { locale: LOCALES[locale] })
 }
+
+/** Kurzname der Berliner Zeitzone zum Zeitpunkt: DE „MEZ“/„MESZ“, EN „CET“/„CEST“ (Sommerzeit = UTC+2). */
+export function berlinZoneName(d: Date, locale: 'de' | 'en' = 'de'): string {
+  const summer = format(inBerlin(d), 'xxx') === '+02:00'
+  if (locale === 'en') return summer ? 'CEST' : 'CET'
+  return summer ? 'MESZ' : 'MEZ'
+}
+
+/**
+ * Datum und Uhrzeit mit Zeitzone, z. B. DE „12.10.2026, 14:03 Uhr (MESZ)“, EN „12 Oct 2026, 14:03 (CEST)“
+ * (Eingang eines Widerrufs, R-093).
+ */
+export function formatBerlinWithZone(d: Date, locale: 'de' | 'en' = 'de'): string {
+  const zone = berlinZoneName(d, locale)
+  return locale === 'en'
+    ? `${formatBerlin(d, 'd MMM yyyy, HH:mm', 'en')} (${zone})`
+    : `${formatBerlin(d, 'dd.MM.yyyy, HH:mm')} Uhr (${zone})`
+}
