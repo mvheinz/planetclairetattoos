@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P8.4a
+
+- `src/lib/seed/invoices.ts`: Rechnung je bezahlter Bestellung (issueAt = Zahlung) und Gutschrift je Erstattung (Grund der Erstattung) über den normalen Zähler (`createInvoiceForOrder`/`createCreditNote`, Serien `BSP-RE`/`BSP-GS`), je Serie streng nach issueAt; PDF direkt mit dem P4-Renderer (Wasserzeichen, ohne Job) als `private-uploads` `invoice-pdf:<Nummer>`; `orders.invoice` und `refunds[].creditNote` verknüpft.
+- Ergebnis wie SEED-SPEC §9: BSP-RE-2026-00001…00012, BSP-GS-2026-00001…00003 (O08 mit Grund `breakage`), Zähler BSP-RE = 12, BSP-GS = 3, RE/GS unberührt; `seed:remove` löscht die BSP-Zählerzeilen.
+- Tests: `tests/int/seed/invoices.int.spec.ts` (3: AK-SEED-08 gegen die Tabelle §9, Verknüpfungen, PDF-Text mit Wasserzeichen/sha256/issued) grün.
+
 ## 2026-10-02 – P8.4
 
 - `content/seed/data/customers.json` (24 erfundene Personen, SEED-SPEC §6) und `orders.json` mit O01–O14 (Form §2.6: Zeitleiste, Zahlung, Sendung, Erstattungen, Anfechtung) sowie den Kassen ohne Bestellung KS1 (`expired`, `reservation_expired`) und KS2 (`open`). Neu `src/lib/seed/orderPlan.ts` (reine Ableitung: Statusverlauf über `evaluateOrderTransition`, Vorkasse-Fristen aus `prepaymentDeadlines`, `finalStatusAt`/`retainUntil` wie der Hook, Kasse T0 = placedAt − 4 min, Reservierungen; Filter L-02/L-03 aus `retention/policy`, SE-12) und `src/lib/seed/orders.ts` (Snapshot mit `buildCharacteristics`/`computeShipping`, Verpackung aus `settings.packaging`, Tracking-Link aus den Vorlagen, Rechtstexte v1, Bausteine `draft-1`, Token nur aus `seedToken`, Verknüpfungen Kasse/Bestellung/Reservierung/Stück/Packfotos).

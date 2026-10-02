@@ -4174,7 +4174,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     für O13, O14 öffnen die Seiten mit „Beispiel“; fremder Token → 404).
   - Ohne Jutta: vollständig mit `PAYMENTS_DRIVER=mock`. P11-Nacharbeit: –
 
-- [ ] **P8.4a Belege des Beispielbestands** – `invoices` nach SEED-SPEC §9 über den normalen Zähler mit den Serien
+- [x] **P8.4a Belege des Beispielbestands** – `invoices` nach SEED-SPEC §9 über den normalen Zähler mit den Serien
   `BSP-RE`/`BSP-GS`, je Serie streng nach `issueAt`; Snapshot-Felder mit denselben Funktionen wie die Kasse (SEED-SPEC
   §2.6). Beleg-PDFs rendert der Seed direkt mit dem P4-Renderer (ohne Job) mit dem Wasserzeichen „BEISPIELBELEG – kein
   echter Beleg“ und legt sie als `private-uploads` `invoice-pdf:<Nummer>` ab. Danach `orders.invoice` und
