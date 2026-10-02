@@ -19,6 +19,7 @@ import type { PageBlockSeed, ProductSeed } from './schemas'
 import { seedIso } from './time'
 import { seedReservationRef } from './orderPlan'
 import { importInvoices } from './invoices'
+import { importFlash, importGallery, importOffers } from './tattoo'
 import { importPrivateUpload } from './uploads'
 import { importCheckouts, importOrders, importReservations } from './orders'
 import {
@@ -42,6 +43,9 @@ export const EXAMPLE_STEPS = [
   'media',
   'private-uploads',
   'products',
+  'flash',
+  'tattoo-offers',
+  'tattoo-gallery',
   'pages',
   'faqs',
   'checkouts',
@@ -277,6 +281,28 @@ async function productData(
 
 /** Nummernkollision mit einem echten Stück → Abbruch vor dem ersten Schreiben (§1.3). */
 export async function assertNoNumberCollision(payload: Payload, data: SeedData): Promise<void> {
+  if (data.tattoo.flash.length > 0) {
+    const flash = await payload.find({
+      collection: 'flash',
+      where: { number: { in: data.tattoo.flash.map((f) => f.number) } },
+      limit: 0,
+      pagination: false,
+      depth: 0,
+      overrideAccess: true,
+      select: { number: true, seedKey: true },
+    })
+    const clash = flash.docs.filter((doc) => {
+      const expected = data.tattoo.flash.find((f) => f.number === doc.number)
+      return expected && doc.seedKey !== `flash:${expected.key}`
+    })
+    if (clash.length > 0) {
+      throw new Error(
+        `Nummernkollision mit echten Flash-Motiven: ${clash
+          .map((d) => `F-${d.number}`)
+          .join(', ')} – nichts wurde geschrieben.`,
+      )
+    }
+  }
   if (data.products.length === 0) return
   const res = await payload.find({
     collection: 'products',
@@ -561,6 +587,14 @@ export async function importExample(
   }
   // Schritt 4: Stücke → (Flash, Angebote, Galerie ab P8) → Seiten → (FAQ ab P8)
   if (run('products')) await seedStep(payload, (req) => importProducts(req, data, options))
+  const tattoo = { report: options.report, now: options.now }
+  if (run('flash')) await seedStep(payload, (req) => importFlash(req, data, tattoo), options.now)
+  if (run('tattoo-offers')) {
+    await seedStep(payload, (req) => importOffers(req, data, tattoo), options.now)
+  }
+  if (run('tattoo-gallery')) {
+    await seedStep(payload, (req) => importGallery(req, data, tattoo), options.now)
+  }
   if (run('pages')) await seedStep(payload, (req) => importPages(req, data, options))
   if (run('faqs')) await seedStep(payload, (req) => importFaqs(req, data, options))
   // Schritt 5: Kassen → (Bestellungen ab P8) → Reservierungen

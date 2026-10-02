@@ -1,1 +1,344 @@
-{ "flash": [], "offers": [], "gallery": [] }
+{
+  "flash": [
+    {
+      "key": "F901",
+      "number": 901,
+      "title": {
+        "de": "Kelch mit Schlange",
+        "en": "Chalice with snake"
+      },
+      "sizeCm": 9,
+      "priceCents": 12000,
+      "repeatable": false,
+      "status": "available",
+      "image": "media:ig:DbJ1QRrjCcb",
+      "sortOrder": 10
+    },
+    {
+      "key": "F902",
+      "number": 902,
+      "title": {
+        "de": "Hasen-Trio",
+        "en": "Bunny trio"
+      },
+      "sizeCm": 6,
+      "sizeNote": {
+        "de": "Größe anpassbar",
+        "en": "size adjustable"
+      },
+      "priceCents": 9000,
+      "repeatable": true,
+      "status": "available",
+      "image": "media:ph:flash-902",
+      "sortOrder": 20
+    },
+    {
+      "key": "F903",
+      "number": 903,
+      "title": {
+        "de": "Fuchs mit Kulleraugen",
+        "en": "Googly-eyed fox"
+      },
+      "sizeCm": 7,
+      "priceCents": 11000,
+      "repeatable": false,
+      "status": "claimed",
+      "claimedAt": "D-12@15:00",
+      "image": "media:ph:flash-903",
+      "sortOrder": 30
+    },
+    {
+      "key": "F904",
+      "number": 904,
+      "title": {
+        "de": "Schmetterling mit Tupfen",
+        "en": "Spotted butterfly"
+      },
+      "sizeCm": 9,
+      "priceCents": 14000,
+      "repeatable": false,
+      "status": "available",
+      "image": "media:ph:flash-904",
+      "sortOrder": 40
+    },
+    {
+      "key": "F905",
+      "number": 905,
+      "title": {
+        "de": "Schnecke mit Planetenhaus",
+        "en": "Snail with a planet shell"
+      },
+      "sizeCm": 8,
+      "priceCents": 13000,
+      "repeatable": false,
+      "status": "claimed",
+      "claimedAt": "D-26@13:00",
+      "image": "media:ph:flash-905",
+      "sortOrder": 50
+    },
+    {
+      "key": "F906",
+      "number": 906,
+      "title": {
+        "de": "Coco sitzt",
+        "en": "Coco sitting"
+      },
+      "sizeCm": 5,
+      "sizeNote": {
+        "de": "Größe anpassbar",
+        "en": "size adjustable"
+      },
+      "priceCents": 8000,
+      "repeatable": true,
+      "status": "available",
+      "image": "media:ph:flash-906",
+      "sortOrder": 60
+    },
+    {
+      "key": "F907",
+      "number": 907,
+      "title": {
+        "de": "Winziger Planet",
+        "en": "Tiny planet"
+      },
+      "sizeCm": 3,
+      "priceCents": 8000,
+      "repeatable": true,
+      "status": "available",
+      "image": "media:ph:flash-907",
+      "sortOrder": 70
+    },
+    {
+      "key": "F908",
+      "number": 908,
+      "title": {
+        "de": "Reh mit Tupfen",
+        "en": "Spotted deer"
+      },
+      "sizeCm": 10,
+      "priceCents": 16000,
+      "repeatable": false,
+      "status": "available",
+      "image": "media:ph:flash-908",
+      "sortOrder": 80
+    },
+    {
+      "key": "F909",
+      "number": 909,
+      "title": {
+        "de": "Flammenwesen",
+        "en": "Flame creature"
+      },
+      "sizeCm": 12,
+      "priceCents": 22000,
+      "repeatable": false,
+      "status": "available",
+      "image": "media:ph:flash-909",
+      "sortOrder": 90
+    },
+    {
+      "key": "F910",
+      "number": 910,
+      "title": {
+        "de": "Herz mit Beinen",
+        "en": "Heart with legs"
+      },
+      "sizeCm": 4,
+      "priceCents": 8000,
+      "repeatable": true,
+      "status": "available",
+      "image": "media:ph:flash-910",
+      "sortOrder": 100
+    }
+  ],
+  "offers": [
+    {
+      "key": "TO1",
+      "type": "flash_day",
+      "title": {
+        "de": "Flash-Day: kleine Motive ab 80 €",
+        "en": "Flash day: small designs from 80 €"
+      },
+      "description": {
+        "de": "Ein Tag, vier kleine Motive, Kaffee und Coco. Such dir ein Motiv aus, schreib mir vorher per Mail oder DM, dann halte ich dir eine Uhrzeit frei.",
+        "en": "One day, four small designs, coffee and Coco. Pick a design, message me by email or DM beforehand and I'll keep a time slot for you."
+      },
+      "startsAt": "SAT>=D+56@12:00",
+      "endsAt": "SAT>=D+56@19:00",
+      "priceNote": {
+        "de": "Hasen-Trio 90 €, Coco sitzt 80 €, Winziger Planet 80 €, Herz mit Beinen 80 € (Gesamtpreise)",
+        "en": "Bunny trio 90 €, Coco sitting 80 €, tiny planet 80 €, heart with legs 80 € (total prices)"
+      },
+      "flashes": [
+        "flash:F902",
+        "flash:F906",
+        "flash:F907",
+        "flash:F910"
+      ]
+    },
+    {
+      "key": "TO2",
+      "type": "aktion",
+      "title": {
+        "de": "Spontane Lücken: winzige Planeten",
+        "en": "Last-minute gaps: tiny planets"
+      },
+      "description": {
+        "de": "Diese Woche habe ich ein paar freie Stunden. Winzige Planeten (F-907) passen perfekt rein – einfach per DM fragen.",
+        "en": "I've got a few free hours this week. Tiny planets (F-907) fit in perfectly – just ask by DM."
+      },
+      "startsAt": "D-3@00:00",
+      "endsAt": "D+4@23:59",
+      "priceNote": {
+        "de": "Winziger Planet 80 € (Gesamtpreis)",
+        "en": "Tiny planet 80 € (total price)"
+      },
+      "flashes": [
+        "flash:F907"
+      ]
+    },
+    {
+      "key": "TO3",
+      "type": "flash_day",
+      "title": {
+        "de": "Flash-Day im Spätsommer",
+        "en": "Late summer flash day"
+      },
+      "description": {
+        "de": "Kleine Motive, großer Spaß – danke an alle, die da waren!",
+        "en": "Small designs, big fun – thanks to everyone who came!"
+      },
+      "startsAt": "SAT>=D-50@12:00",
+      "endsAt": "SAT>=D-50@19:00",
+      "priceNote": {
+        "de": "Motive ab 80 €",
+        "en": "designs from 80 €"
+      },
+      "flashes": [
+        "flash:F902",
+        "flash:F906"
+      ]
+    }
+  ],
+  "gallery": [
+    {
+      "key": "G1",
+      "image": "media:ig:DOZTG7PjLAD",
+      "kind": "healed",
+      "healedDurationMonths": 42,
+      "healedLabel": {
+        "de": "3,5 Jahre verheilt",
+        "en": "3.5 years healed"
+      },
+      "caption": {
+        "de": "Fine Line am Unterarm, ein paar Jahre später",
+        "en": "Fine line on a forearm, a few years later"
+      },
+      "placement": {
+        "de": "Unterarm",
+        "en": "forearm"
+      },
+      "showsCustomer": true,
+      "consentGiven": false,
+      "published": true,
+      "featured": true,
+      "sortOrder": 10
+    },
+    {
+      "key": "G2",
+      "image": "media:ig:DZqBCSZDDiE",
+      "kind": "fresh",
+      "caption": {
+        "de": "Godzilla and the bunnies",
+        "en": "Godzilla and the bunnies"
+      },
+      "placement": {
+        "de": "Wade",
+        "en": "calf"
+      },
+      "showsCustomer": true,
+      "consentGiven": false,
+      "published": true,
+      "featured": false,
+      "sortOrder": 20
+    },
+    {
+      "key": "G3",
+      "image": "media:ph:tattoo-01",
+      "kind": "fresh",
+      "caption": {
+        "de": "Hasen-Trio, frisch gestochen",
+        "en": "Bunny trio, freshly done"
+      },
+      "placement": {
+        "de": "Knöchel",
+        "en": "ankle"
+      },
+      "flash": "flash:F902",
+      "showsCustomer": false,
+      "consentGiven": false,
+      "published": true,
+      "featured": false,
+      "sortOrder": 30
+    },
+    {
+      "key": "G4",
+      "image": "media:ph:tattoo-02",
+      "kind": "healed",
+      "healedDurationMonths": 12,
+      "caption": {
+        "de": "Winziger Planet, ein Jahr später",
+        "en": "Tiny planet, one year on"
+      },
+      "placement": {
+        "de": "Handgelenk",
+        "en": "wrist"
+      },
+      "flash": "flash:F907",
+      "showsCustomer": false,
+      "consentGiven": false,
+      "published": true,
+      "featured": true,
+      "sortOrder": 40
+    },
+    {
+      "key": "G5",
+      "image": "media:ph:tattoo-03",
+      "kind": "fresh",
+      "caption": {
+        "de": "Coco sitzt – jetzt für immer",
+        "en": "Coco sitting – now forever"
+      },
+      "placement": {
+        "de": "Oberarm",
+        "en": "upper arm"
+      },
+      "flash": "flash:F906",
+      "showsCustomer": false,
+      "consentGiven": false,
+      "published": true,
+      "featured": false,
+      "sortOrder": 50
+    },
+    {
+      "key": "G6",
+      "image": "media:ph:tattoo-04",
+      "kind": "healed",
+      "healedDurationMonths": 8,
+      "caption": {
+        "de": "Herz mit Beinen, acht Monate später",
+        "en": "Heart with legs, eight months on"
+      },
+      "placement": {
+        "de": "Schienbein",
+        "en": "shin"
+      },
+      "flash": "flash:F910",
+      "showsCustomer": false,
+      "consentGiven": false,
+      "published": true,
+      "featured": false,
+      "sortOrder": 60
+    }
+  ]
+}

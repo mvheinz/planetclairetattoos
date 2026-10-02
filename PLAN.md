@@ -4242,7 +4242,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     (alle Status).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P8.6 Tattoo-Bestand: Flash, Angebote, Galerie** – `content/seed/data/tattoo.json` nach SEED-SPEC §12.1
+- [x] **P8.6 Tattoo-Bestand: Flash, Angebote, Galerie** – `content/seed/data/tattoo.json` nach SEED-SPEC §12.1
   (Flash mit Nummern 901–910, wiederholbare Motive laut Tabelle, F903/F905 vergeben mit Feld `status = claimed`, alle
   übrigen `status = available`), §12.2 (TO1 künftig, TO2 laufend, TO3 abgelaufen) und §12.3 (Galerie; G1/G2 echte
   Kundenfotos mit `consentGiven = false`, G3–G6 Platzhalter); Mengen laut SEED-SPEC §0.1. In der
