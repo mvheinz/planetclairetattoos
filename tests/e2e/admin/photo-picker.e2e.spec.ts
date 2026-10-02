@@ -27,7 +27,10 @@ test.describe('Foto-Baustein (P5.5)', () => {
   test('AK-7-02 6000×4000 kommt mit ≤ 2560 px an; GPS in keiner Größe; Hinweis unter 2 Fotos', async ({
     adminPage: page,
     request,
-  }) => {
+  }, testInfo) => {
+    // Dateinamen je Geräteprofil: `media.filename` ist eindeutig, und Payload prüft den Namen vor dem Einfügen ohne
+    // Sperre – laufen Profile parallel, kollidieren gleichnamige Uploads sonst („Wert muss einzigartig sein“).
+    const tag = testInfo.project.name
     await page.setViewportSize({ width: 390, height: 844 })
     // Maße der hochgeladenen Datei im Browser selbst messen: WebKit liefert Playwright den Datei-Teil einer
     // multipart-Anfrage (Blob) nicht mit (`postDataBuffer()` ohne Inhalt) – das Mitschneiden muss im Seitenkontext
@@ -72,12 +75,12 @@ test.describe('Foto-Baustein (P5.5)', () => {
     await expect(camera).toHaveAttribute('accept', 'image/jpeg,image/png,image/webp')
     await expect(page.getByTestId('photo-gallery')).toHaveAttribute('multiple', '')
 
-    await camera.setInputFiles({ name: 'gps.jpg', mimeType: 'image/jpeg', buffer: GPS_JPEG })
+    await camera.setInputFiles({ name: `gps-${tag}.jpg`, mimeType: 'image/jpeg', buffer: GPS_JPEG })
     await expect(page.getByTestId('photo-list').locator('li')).toHaveCount(1)
     await expect(page.getByTestId('photo-few')).toHaveText('Mindestens 2 Fotos empfohlen.')
 
     await page.getByTestId('photo-gallery').setInputFiles({
-      name: 'gross.jpg',
+      name: `gross-${tag}.jpg`,
       mimeType: 'image/jpeg',
       buffer: await jpeg(6000, 4000),
     })
@@ -123,14 +126,14 @@ test.describe('Foto-Baustein (P5.5)', () => {
     await removePieces(numbers)
     await page.goto(adminPath('/neues-stueck'))
     const files = Array.from({ length: 13 }, (_, i) => ({
-      name: `foto-${i + 1}.jpg`,
+      name: `foto-${testInfo.project.name}-${i + 1}.jpg`,
       mimeType: 'image/jpeg',
       buffer: SMALL_JPEG,
     }))
     await page.getByTestId('photo-gallery').setInputFiles(files)
     await expect(page.getByTestId('photo-list').locator('li')).toHaveCount(12, { timeout: 60_000 })
     await expect(page.getByTestId('photo-feedback-error')).toContainText(
-      'Höchstens 12 Fotos je Stück – „foto-13.jpg“ wurde nicht hinzugefügt.',
+      `Höchstens 12 Fotos je Stück – „foto-${testInfo.project.name}-13.jpg“ wurde nicht hinzugefügt.`,
     )
     await expect(page.getByTestId('photo-gallery')).toBeDisabled()
     const before = await listedMediaIds(page)
