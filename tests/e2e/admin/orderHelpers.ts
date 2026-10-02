@@ -75,11 +75,24 @@ export async function expectAccessible(page: Page, selector: string): Promise<vo
 
 /** Kein horizontales Scrollen der Seite. */
 export async function expectNoHorizontalScroll(page: Page): Promise<void> {
-  const overflow = await page.evaluate(() => {
+  const { overflow, wide } = await page.evaluate(() => {
     const el = document.scrollingElement ?? document.documentElement
-    return el.scrollWidth - el.clientWidth
+    return {
+      overflow: el.scrollWidth - el.clientWidth,
+      // Diagnose bei Rot: die ersten Elemente, die rechts über den Rand ragen.
+      wide: [...document.querySelectorAll('body *')]
+        .filter((e) => e.getBoundingClientRect().right > el.clientWidth + 1)
+        .slice(0, 6)
+        .map((e) => {
+          const r = e.getBoundingClientRect()
+          return `${e.tagName.toLowerCase()}.${[...e.classList].join('.')} L${Math.round(r.left)} R${Math.round(r.right)}`
+        }),
+    }
   })
-  expect(overflow).toBeLessThanOrEqual(0)
+  expect(
+    overflow,
+    `kein horizontales Scrollen auf ${page.url()} (${wide.join(' | ')})`,
+  ).toBeLessThanOrEqual(0)
 }
 
 export const orderStatus = async (payload: Payload, id: number) =>
