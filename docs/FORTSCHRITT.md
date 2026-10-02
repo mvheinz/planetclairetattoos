@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.21
+
+- E2E legal/processor-table (R-155, DE/EN, ohne JS) grün; Tabellen-Container per Tastatur erreichbar (axe R22)
+
 ## 2026-10-02 – P6.15
 
 - E2E admin/deletion-preview (390×844, axe) desktop+pixel-7 grün

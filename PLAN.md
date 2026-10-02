@@ -3608,7 +3608,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
   - Tests: `tests/int/jobs/legal-review.int.spec.ts` (Titel „R-014 …“).
   - Ohne Jutta: Jährliche Prüfung ist Owner-Aufgabe (ANFORDERUNGEN §8).
 
-- [ ] **P6.21 Dienste-Daten, Auftragsverarbeitung und Verarbeitungsverzeichnis** – Generator
+- [x] **P6.21 Dienste-Daten, Auftragsverarbeitung und Verarbeitungsverzeichnis** – Generator
   `scripts/legal/gen-services.ts` liest die YAML aus DIENSTE §7 und schreibt `src/lib/legal/services.generated.ts`;
   `pnpm check:static` prüft, dass die Datei aktuell ist. Einstellungen → „Auftragsverarbeitung“ (DIENSTE §6): Liste aller
   Dienste mit `avv: required` mit Eingabe in `settings.processorAgreements` (Felder laut DATENMODELL §7.1, u. a. die
