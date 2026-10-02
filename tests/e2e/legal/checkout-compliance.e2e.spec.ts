@@ -109,7 +109,8 @@ test('R-063 wesentliche Eigenschaften, Einzelpreis, Versandkosten, Gesamtpreis m
   await expect(row.locator('[data-overview-characteristics]')).not.toBeEmpty()
   expect(norm(await row.locator('[data-overview-price]').innerText())).toBe(norm(euro(4500)))
   await expect(overview.locator('[data-overview-shipping] dd')).not.toBeEmpty()
-  await expect(overview.locator('[data-overview-total]')).toContainText('§ 19 UStG')
+  expect(norm(await overview.locator('[data-overview-total]').innerText())).toMatch(/\d+,\d{2}\s?€/)
+  await expect(overview).toContainText('§ 19 UStG')
   await expect(overview.locator('[data-overview-delivery-time]')).toContainText('Werktage')
   await expect(overview).not.toContainText(/inkl\.?\s*MwSt/i)
   // Unmittelbar: der Bestellbereich folgt direkt auf die Übersicht (DOM und Anzeige, auch mobil).

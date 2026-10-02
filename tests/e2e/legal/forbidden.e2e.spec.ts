@@ -396,6 +396,8 @@ test.describe('P4.25 Verbotsmuster: Korb, Kasse, Danke, Status und Mails', () =>
     fixtureProducts,
   }, testInfo) => {
     onlyOnce(testInfo.project.name)
+    // Nur Mails dieses Laufs (der Postausgang bleibt über Läufe hinweg stehen; IDs wiederholen sich nach `db:reset`).
+    const startedAt = new Date(Date.now() - 1000).toISOString()
     const release = await holdShippingRates('shared')
     const pieces: number[] = []
     const pages: { id: string; url: string; html: string }[] = []
@@ -522,6 +524,7 @@ test.describe('P4.25 Verbotsmuster: Korb, Kasse, Danke, Status und Mails', () =>
       const orderIds = [(await h.ordersOf([a.id]))[0]!.id, ...vorkasse.map((v) => v.orderId)]
       const adminMails = (await readOutbox()).filter(
         (m) =>
+          m.date >= startedAt &&
           m.type.startsWith('admin_') &&
           orderIds.some((id) => m.idempotencyKey.includes(`:${id}:`)),
       )
