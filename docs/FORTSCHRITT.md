@@ -3,6 +3,11 @@
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
 
+
+## 2026-10-02 – P4 CI grün
+
+- Phasenlauf `[ci:full p4]` (Commit aeef4fc): CI, CI full (e2e desktop/iphone-15/pixel-7, quality) und Vorschau-Export grün; Artefakt `planet-claire-vorschau-p4-aeef4fc`. Davor (6ec1f2c) war nur der Vorschau-Test rot, der noch den P3-Stand der Verwaltungsfotos erwartete – jetzt phasenunabhängig.
+
 ## 2026-10-01 – P4 Phasen-Abnahme (Korb, Kasse, Bezahlen) – für Jutta
 
 **Was ist neu?** Man kann jetzt richtig einkaufen: Stück in den Korb, zur Kasse, bezahlen – bisher nur mit einer
