@@ -1,10 +1,11 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 
 import { ActionButton } from '../../components/ActionButton'
 import { newIdempotencyKey, postAdminAction } from '../../components/adminAction'
+import { Notice } from '../../components/Notice'
 import { adminText } from '../../translations'
 
 // Knöpfe der Ansicht Einstellungen → System (PLAN P5.22, ARCHITEKTUR §11.5): „Jetzt ausführen“ je Task
@@ -39,10 +40,12 @@ export function ResendFailedMailButton({
   orderId,
   template,
   label,
+  onSent,
 }: {
   orderId: number
   template: string
   label: string
+  onSent?: () => void
 }) {
   const router = useRouter()
   const dialogKey = useRef(newIdempotencyKey())
@@ -62,8 +65,9 @@ export function ResendFailedMailButton({
         })
         return { ...res, message: res.unchanged ? undefined : adminText('orderResendDone') }
       }}
-      onDone={() => {
+      onDone={(outcome) => {
         dialogKey.current = newIdempotencyKey()
+        if (!outcome.unchanged) onSent?.()
         router.refresh()
       }}
     >
@@ -71,4 +75,48 @@ export function ResendFailedMailButton({
       <span className="pc-visually-hidden"> {label}</span>
     </ActionButton>
   )
+}
+
+/**
+ * Aktionsspalte einer fehlgeschlagenen Mail. Nach „Erneut senden“ lädt `router.refresh()` die Liste neu; die Zeile
+ * zeigt dann „erneut gesendet am …“ statt des Knopfes. Damit die Rückmeldung „Die Mail ist unterwegs.“ dabei nicht
+ * mit dem Knopf verschwindet, hält diese Komponente (gleicher Platz im Baum, Zustand bleibt erhalten) sie selbst.
+ */
+export function FailedMailAction({
+  orderId,
+  template,
+  label,
+  resentText,
+  resentTestId,
+  notHereText,
+}: {
+  orderId?: number | null
+  template: string
+  label: string
+  resentText?: string
+  resentTestId: string
+  notHereText?: string
+}) {
+  const [sent, setSent] = useState(false)
+  if (resentText) {
+    return (
+      <span className="pc-admin-action">
+        <span className="pc-order__muted" data-testid={resentTestId}>
+          {resentText}
+        </span>
+        {sent ? <Notice tone="success">{adminText('orderResendDone')}</Notice> : null}
+      </span>
+    )
+  }
+  if (orderId && !notHereText) {
+    return (
+      <ResendFailedMailButton
+        orderId={orderId}
+        template={template}
+        label={label}
+        onSent={() => setSent(true)}
+      />
+    )
+  }
+  return <span className="pc-order__muted">{notHereText}</span>
 }
