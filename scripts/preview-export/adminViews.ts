@@ -49,6 +49,14 @@ const SUBPAGE_CAPTION_EN: Record<string, string> = {
   versand: 'Settings: shipping',
   'umsatz-waechter': 'Settings: revenue guard',
   system: 'Settings: system',
+  datenschutz: 'Export and privacy tools: privacy requests',
+  protokolle: 'Export and privacy tools: mail and consent logs',
+}
+
+/** Bildunterschrift-Präfix je Elternansicht (Unterseiten von „Export und Datenschutz“ nicht als „Einstellungen“). */
+const SUBPAGE_PREFIX_DE: Record<string, string> = {
+  einstellungen: 'Einstellungen',
+  export: 'Export und Datenschutz',
 }
 
 export const ADMIN_VIEWS: readonly AdminView[] = [
@@ -85,7 +93,10 @@ export const ADMIN_VIEWS: readonly AdminView[] = [
   ...SUBPAGES.map((v) => ({
     key: v.key,
     path: v.path,
-    caption: { de: `Einstellungen: ${v.title}`, en: SUBPAGE_CAPTION_EN[v.key] ?? v.title },
+    caption: {
+      de: `${SUBPAGE_PREFIX_DE[v.parent ?? ''] ?? 'Einstellungen'}: ${v.title}`,
+      en: SUBPAGE_CAPTION_EN[v.key] ?? v.title,
+    },
     phase: v.phase,
     ref: v.ref,
   })),
