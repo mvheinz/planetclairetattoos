@@ -18,9 +18,10 @@ import { adminText } from '../../translations'
 import type { AdminViewBodyProps } from '../AdminViewBody'
 import { MailTextsForm } from '../settings/AreaForms'
 import { initialMailTexts, type Obj } from '../settings/settingsAreas'
+import { LegalTextsArea } from './LegalTextsArea'
 
 // Ansicht „Texte“ `/texte` (PLAN P5.27, KONZEPT §7.13): Übersicht mit den Bereichen Seiten und FAQ (kommt in P8),
-// Rechtstexte (kommt in P6), Mail-Bausteine (Signatur, Abhol-Vorlage, Antwortzeit-Satz – DE/EN mit „Übersetzen“) und
+// Rechtstexte (P6.4, `LegalTextsArea`), Mail-Bausteine (Signatur, Abhol-Vorlage, Antwortzeit-Satz – DE/EN mit „Übersetzen“) und
 // Vorlagen zum Öffnen im Mailprogramm (`mailto:`) bzw. zum Kopieren. Mit einer Bestellnummer (`?bestellung=…`) werden
 // Name, Nummer, Betrag und Signatur eingesetzt; ohne zeigt die Ansicht die Vorlagen mit Platzhaltern.
 
@@ -97,7 +98,7 @@ function TemplateCard({
   )
 }
 
-export async function TextsView({ adminRoute, req, searchParams }: AdminViewBodyProps) {
+export async function TextsView({ adminRoute, req, searchParams, match }: AdminViewBodyProps) {
   const [settingsDe, settingsEn, textsDe, textsEn] = await Promise.all([
     loadGlobal(req, 'settings', 'de'),
     loadGlobal(req, 'settings', 'en'),
@@ -149,18 +150,13 @@ export async function TextsView({ adminRoute, req, searchParams }: AdminViewBody
         </Notice>
       </section>
 
-      <section className="pc-order__section" aria-labelledby="texts-legal">
+      <section
+        className="pc-order__section"
+        aria-labelledby="texts-legal"
+        data-testid="texts-legal"
+      >
         <h2 id="texts-legal">{adminText('textsLegal')}</h2>
-        <Notice
-          tone="info"
-          action={{
-            href: allData('/collections/legal-texts'),
-            label: adminText('shellOpenAllData'),
-          }}
-          data-testid="texts-legal-later"
-        >
-          {adminText('textsLegalLater')}
-        </Notice>
+        <LegalTextsArea adminRoute={adminRoute} req={req} match={match} />
       </section>
 
       <section className="pc-order__section" aria-labelledby="texts-mail" data-testid="texts-mail">

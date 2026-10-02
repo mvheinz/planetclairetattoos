@@ -182,30 +182,51 @@ export async function runLegalReviewReminder(
     { now, idempotencyKey: `admin_legal_review_due:${berlinDateKey(now)}:annual` },
   )
   const types = due.map((s) => s.type)
-  // Direkt in den Zeilen: ein Speichern über die Global-API würde alle Einstellungen erneut prüfen und auditieren.
+  await setLegalReviewDates(req, types, 'lastReminderSentAt', now)
+  return {
+    sent: 'status' in res && res.status === 'queued',
+    due: types,
+    reminded: types,
+  }
+}
+
+/**
+ * Setzt `reviewedAt` bzw. `lastReminderSentAt` in `settings.legal.reviews` für die Typen. Direkt in den Zeilen: ein
+ * Speichern über die Global-API würde alle Einstellungen erneut prüfen und auditieren. Fehlende Zeilen (sollte es laut
+ * Standardwert nicht geben) ergänzt die Global-API ohne Audit.
+ */
+export async function setLegalReviewDates(
+  req: PayloadRequest,
+  types: readonly LegalTextType[],
+  field: 'reviewedAt' | 'lastReminderSentAt',
+  at: Date,
+): Promise<void> {
+  if (types.length === 0) return
+  const column = sql.identifier(field === 'reviewedAt' ? 'reviewed_at' : 'last_reminder_sent_at')
   const db = poolDb(req.payload)
   const updated = await db.execute(sql`
-    UPDATE settings_legal_reviews SET last_reminder_sent_at = ${now.toISOString()}::timestamptz
+    UPDATE settings_legal_reviews SET ${column} = ${at.toISOString()}::timestamptz
      WHERE type::text IN (${sql.join(
        types.map((t) => sql`${t}`),
        sql`, `,
      )})
   `)
   const rowCount = (updated as unknown as { rowCount?: number }).rowCount ?? 0
-  if (rowCount < types.length) {
-    // Fehlende Zeilen (sollte es laut Standardwert nicht geben): über die Global-API ergänzen.
-    const settings = (await req.payload.findGlobal({
-      slug: 'settings',
-      depth: 0,
-      overrideAccess: true,
-      req,
-    })) as unknown as SettingsLegal
-    const rows = [...(settings.legal?.reviews ?? [])]
-    for (const type of types) {
-      const row = rows.find((r) => r.type === type)
-      if (row) row.lastReminderSentAt = now.toISOString()
-      else rows.push({ type, lastReminderSentAt: now.toISOString() })
-    }
+  if (rowCount >= types.length) return
+  const settings = (await req.payload.findGlobal({
+    slug: 'settings',
+    depth: 0,
+    overrideAccess: true,
+    req,
+  })) as unknown as SettingsLegal
+  const rows = [...(settings.legal?.reviews ?? [])]
+  for (const type of types) {
+    const row = rows.find((r) => r.type === type)
+    if (row) row[field] = at.toISOString()
+    else rows.push({ type, [field]: at.toISOString() })
+  }
+  const previous = req.context
+  try {
     await req.payload.updateGlobal({
       slug: 'settings',
       data: { legal: { ...(settings.legal ?? {}), reviews: rows } } as never,
@@ -214,10 +235,7 @@ export async function runLegalReviewReminder(
       req,
       context: { ...req.context, system: true, skipAudit: true },
     })
-  }
-  return {
-    sent: 'status' in res && res.status === 'queued',
-    due: types,
-    reminded: types,
+  } finally {
+    req.context = previous
   }
 }

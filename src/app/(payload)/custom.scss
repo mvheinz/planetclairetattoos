@@ -1067,6 +1067,33 @@ $pc-bar-height: 64px;
   border-radius: 4px;
 }
 
+// --- „Texte“ → Rechtstexte (P6.4): Eckdaten als umbrechende Liste, Vorschau wie ein Blatt (390 px ohne Querscrollen).
+.pc-legal__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0 0 8px;
+
+  div {
+    display: flex;
+    gap: 6px;
+  }
+  dt {
+    font-weight: 600;
+  }
+  dd {
+    margin: 0;
+  }
+}
+.pc-texts__preview {
+  margin: 8px 0;
+  padding: 10px 14px;
+  overflow-wrap: anywhere;
+  background: var(--theme-elevation-50);
+  border-left: 3px solid var(--theme-elevation-400);
+  border-radius: 4px;
+}
+
 // --- „Heute“ (P5.28): Kacheln mit Zahl und Link (2 Spalten am Handy, ≥ 44 px Tipp-Fläche), Hinweise mit Farbkante.
 .pc-today {
   &__tiles {

@@ -7,6 +7,7 @@ import {
   type CollectionConfig,
 } from 'payload'
 
+import { legalSnippetAdminEndpoints } from '@/endpoints/legal/admin'
 import { adminWhere, isAdmin, isAdminRequest } from '@/access'
 import { revalidateAll } from '@/lib/cache/revalidate'
 import { ENUM_LABELS, enumOptions } from '@/lib/enumLabels'
@@ -283,6 +284,7 @@ export const LegalSnippets: CollectionConfig = {
       admin: { ...ro, position: 'sidebar' },
     },
   ],
+  endpoints: legalSnippetAdminEndpoints,
   hooks: {
     beforeChange: [guardSnippet],
     beforeDelete: [guardDelete],

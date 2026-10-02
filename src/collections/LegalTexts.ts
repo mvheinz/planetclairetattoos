@@ -5,6 +5,7 @@ import {
   type CollectionConfig,
 } from 'payload'
 
+import { legalTextAdminEndpoints } from '@/endpoints/legal/admin'
 import { adminWhere, isAdmin, publicRead } from '@/access'
 import { legalRichTextEditor, seedField } from '@/fields'
 import { revalidateContent } from '@/lib/cache/revalidate'
@@ -339,6 +340,7 @@ export const LegalTexts: CollectionConfig = {
     },
     ...seedField(),
   ],
+  endpoints: legalTextAdminEndpoints,
   hooks: {
     beforeChange: [guardLegalText],
     beforeDelete: [guardDelete],
