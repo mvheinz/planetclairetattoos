@@ -165,7 +165,9 @@ function rewriteImages($: cheerio.CheerioAPI, ctx: TransformContext, pagePath: s
 function rewriteSprites($: cheerio.CheerioAPI, ctx: TransformContext, pagePath: string): void {
   $('use').each((_, node) => {
     const el = $(node)
-    const href = el.attr('href') ?? el.attr('xlink:href')
+    // `data-href` (Coco im geschlossenen Menü, `Coco deferSprite`) bleibt `data-href`; das Menü-Modul setzt `href`.
+    const deferred = el.attr('href') === undefined && el.attr('xlink:href') === undefined
+    const href = el.attr('href') ?? el.attr('xlink:href') ?? el.attr('data-href')
     if (!href || href.startsWith('#')) return
     const target = spriteUseTarget(href)
     const file = target ? resolveAssetPath(target.file, pagePath) : null
@@ -174,7 +176,7 @@ function rewriteSprites($: cheerio.CheerioAPI, ctx: TransformContext, pagePath: 
       return
     }
     el.removeAttr('xlink:href')
-    el.attr('href', `#${target.id}`)
+    el.attr(deferred ? 'data-href' : 'href', `#${target.id}`)
   })
 }
 

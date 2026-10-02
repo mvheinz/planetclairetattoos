@@ -22,9 +22,14 @@ export interface CocoProps {
   /** Weitere `data-*`-Attribute (z. B. `data-leash-coco`). */
   data?: Record<`data-${string}`, string>
   ref?: React.Ref<HTMLDivElement>
+  /**
+   * Sprite erst nach dem ersten Bild laden: `<use data-href>` statt `href` – für Coco in Elementen, die beim Laden
+   * unsichtbar sind (geschlossenes Menü-`<dialog>`). Das Verhaltensmodul des Elements setzt `href` (`activateSpriteUses` in `src/behaviors/menu.ts`).
+   */
+  deferSprite?: boolean
 }
 
-export function Coco({ pose, size, className, data, ref }: CocoProps) {
+export function Coco({ pose, size, className, data, ref, deferSprite = false }: CocoProps) {
   return (
     <div
       ref={ref}
@@ -41,7 +46,12 @@ export function Coco({ pose, size, className, data, ref }: CocoProps) {
             <use
               key={f}
               className={`f f-${f}`}
-              href={cocoHref(poseSymbol(pose, f), COCO_SPRITE_HREF)}
+              {...{
+                [deferSprite ? 'data-href' : 'href']: cocoHref(
+                  poseSymbol(pose, f),
+                  COCO_SPRITE_HREF,
+                ),
+              }}
             />
           ))}
         </svg>
