@@ -3801,7 +3801,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
   - Tests: `tests/e2e/tattoo/info-pages.e2e.spec.ts` (Titel „R-034 …“).
   - Ohne Jutta: Texte sind Entwürfe (E-62, SEED-SPEC §13.5/§13.6); Jutta passt Aftercare an ihre Methode an.
 
-- [ ] **P7.5 R15 Galerie mit Einwilligungsregel überall** – zentrale Regel `isPubliclyVisible(entry)` in
+- [x] **P7.5 R15 Galerie mit Einwilligungsregel überall** – zentrale Regel `isPubliclyVisible(entry)` in
   `src/lib/tattoo/visibility.ts` nach KONZEPT §9.7 mit DATENMODELL-Namen: sichtbar, wenn `published` und
   (`showsCustomer = false` oder `consentGiven = true`) oder (`seed = true` und `seedPreviewModeActive()` =
   `SEED_PREVIEW_MODE === 'true'` und `APP_ENV ≠ production`). Angewendet in Galerie-Abfragen, Teasern (R11, Startseite),

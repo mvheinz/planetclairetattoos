@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P7.5
+
+- Zentrale Regel isPubliclyVisible/isMediaPubliclyVisible (src/lib/tattoo/visibility.ts) in Galerie-Abfragen, Teasern (R11), media.read und im Datei-Handler: nicht sichtbare Dateien 404 statt 403 (auch erratene URL), Verwaltung privat; Seed-/Kund:innen-Medien Cache public, max-age=300
+- R15 Galerie: Filter ?kind=fresh|healed (statische Variante), Raster ohne Preise, Vollbild mit Bildunterschrift (lightbox), „3,5 Jahre verheilt“, Etikett „intern – Einwilligung fehlt“, Leerzustand
+- Tests: tests/int/legal/gallery-consent.int.spec.ts (R-172, AK-9-04, G1–G6; Umgebung injiziert), tests/e2e/tattoo/gallery.e2e.spec.ts (grün); Querschnitt a11y/SEO/Verbotsmuster/Header/Datenschutz über die neuen live-Routen grün
+
 ## 2026-10-02 – P7.4
 
 - R14 Preise (Mindestpreis, Preisrahmen, Flash-Hinweis, Anzahlung persönlich ohne Verfallsklausel, Fußnote, Kontakt „eigene Idee“), R16 Ablauf (5 Schritte, ab 18, Bezirk), R17 Aftercare (Blöcke der Seite tattoo_aftercare, Warnzeichen, Safer-Tattoo-Link, Druck-CSS ohne Kopf/Navigation/Linie/Coco), R18 FAQ als details
