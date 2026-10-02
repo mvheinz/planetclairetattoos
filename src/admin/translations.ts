@@ -1025,6 +1025,9 @@ export const ADMIN_CUSTOM_DE = {
     'DHL-Weitergabe: an der Bestellung unter „Adresse kopieren“ widerrufen (mit Bestätigung). Portfolio-Fotos widerrufst du am Galerie-Eintrag.',
   privacyConsentActive: 'DHL-Einwilligung aktiv – Bestellung öffnen',
   privacyConsentNone: 'Keine aktive DHL-Einwilligung gefunden.',
+  privacyGalleryConsentLink: 'Galerie-Einwilligung widerrufen',
+  privacyGalleryConsentHint:
+    'Öffnet die Galerie: am Foto „Einwilligung widerrufen“ wählen (nimmt es sofort offline; Bestätigung an eine eingetippte Adresse optional).',
   exportLogsOpen: 'Mail- und Einwilligungs-Protokolle',
   // Protokolle (P6.19, KONZEPT §6.1)
   logsIntro:

@@ -1,5 +1,11 @@
 import type { Locale } from '@/lib/enums'
-import { addBerlinDays, berlinDateKey, berlinDayStart, formatBerlin } from '@/lib/time'
+import {
+  addBerlinDays,
+  berlinDateKey,
+  berlinDayStart,
+  formatBerlin,
+  parseBerlinLocal,
+} from '@/lib/time'
 
 // Tattoo-Angebote (DATENMODELL §6.15, E-53): ohne Angabe endet ein Angebot am Starttag um 23:59 Uhr (Europe/Berlin).
 // Öffentlich sichtbar nur `published = true` und `endsAt > jetzt`; einen gespeicherten Status gibt es nicht – „kommt“,
@@ -137,4 +143,76 @@ export function boundariesBetween(offers: OfferTimes[], after: Date | null, unti
     }
   }
   return n
+}
+
+// --- Formular „Neues Angebot“ (PLAN P7.7, KONZEPT §7.12) -----------------------------------------------------------
+
+/** Eingaben des Formulars: Datum `YYYY-MM-DD`, Uhrzeiten `HH:mm` (leer = ganztägig). */
+export interface OfferDateInput {
+  startDate: string
+  /** Leer = eintägig (gleiches Datum wie der Beginn). */
+  endDate?: string
+  startTime?: string
+  endTime?: string
+}
+
+export interface OfferDateIssue {
+  path: 'startDate' | 'endDate' | 'startTime' | 'endTime'
+  message: string
+}
+
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/
+
+/**
+ * Formular → `startsAt`/`endsAt` (UTC) in Europe/Berlin: ohne Uhrzeit beginnt das Angebot um 00:00 und endet am
+ * Enddatum um 23:59:59; „Sa 12.12.2026, 12–19 Uhr“ → 11:00 bzw. 18:00 UTC. Fehler je Feld (deutsche Meldungen).
+ */
+export function offerTimesFromInput(
+  input: OfferDateInput,
+): { startsAt: Date; endsAt: Date } | { issues: OfferDateIssue[] } {
+  const issues: OfferDateIssue[] = []
+  const startDate = input.startDate?.trim() ?? ''
+  const endDate = input.endDate?.trim() || startDate
+  const startTime = input.startTime?.trim() ?? ''
+  const endTime = input.endTime?.trim() ?? ''
+  if (!DATE_RE.test(startDate))
+    issues.push({ path: 'startDate', message: 'Bitte ein Startdatum wählen.' })
+  if (!DATE_RE.test(endDate))
+    issues.push({ path: 'endDate', message: 'Bitte ein gültiges Enddatum wählen.' })
+  if (startTime && !TIME_RE.test(startTime))
+    issues.push({ path: 'startTime', message: 'Uhrzeit wie 12:00 eingeben.' })
+  if (endTime && !TIME_RE.test(endTime))
+    issues.push({ path: 'endTime', message: 'Uhrzeit wie 19:00 eingeben.' })
+  if (issues.length > 0) return { issues }
+  const startsAt = parseBerlinLocal(`${startDate}T${startTime || '00:00'}`)
+  const endsAt = parseBerlinLocal(endTime ? `${endDate}T${endTime}` : `${endDate}T23:59:59`)
+  if (!startsAt) return { issues: [{ path: 'startDate', message: 'Bitte ein Startdatum wählen.' }] }
+  if (!endsAt)
+    return { issues: [{ path: 'endDate', message: 'Bitte ein gültiges Enddatum wählen.' }] }
+  if (endsAt.getTime() <= startsAt.getTime()) {
+    return {
+      issues: [
+        endDate < startDate
+          ? { path: 'endDate', message: 'Das Enddatum liegt vor dem Startdatum.' }
+          : { path: 'endTime', message: 'Das Ende muss nach dem Beginn liegen.' },
+      ],
+    }
+  }
+  return { startsAt, endsAt }
+}
+
+/** Umkehrung für „Angebot bearbeiten“: gespeicherte Zeitpunkte → Formularwerte (Berliner Ortszeit). */
+export function offerInputFromTimes(offer: OfferTimes): Required<OfferDateInput> {
+  const start = toDate(offer.startsAt)
+  const end = toDate(offer.endsAt)
+  const startTime = formatBerlin(start, 'HH:mm')
+  const endClock = formatBerlin(end, 'HH:mm')
+  const allDayEnd = endClock === '23:59'
+  return {
+    startDate: berlinDateKey(start),
+    endDate: berlinDateKey(end),
+    startTime: startTime === '00:00' && allDayEnd ? '' : startTime,
+    endTime: allDayEnd ? '' : endClock,
+  }
 }

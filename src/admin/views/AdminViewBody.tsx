@@ -22,6 +22,7 @@ import { RevenueGuardView } from './settings/RevenueGuardView'
 import { SettingsView } from './settings/SettingsView'
 import { ShippingSettingsView } from './settings/ShippingSettingsView'
 import { SystemView } from './settings/SystemView'
+import { TattooView } from './tattoo/TattooView'
 import { TextsView } from './texts/TextsView'
 import { TodayView } from './today/TodayView'
 import { WithdrawalDetailView } from './withdrawals/WithdrawalDetailView'
@@ -30,7 +31,7 @@ import { ADMIN_HOME_VIEW, adminView, allDataPath, type AdminViewMatch } from './
 
 // Inhalt einer Verwaltungs-Ansicht (PLAN P5.1). Bis die Aufgabe der Ansicht (`task` in der Registry) sie füllt, zeigt
 // sie einen Platzhalter mit Link in „Alle Daten“ – so funktionieren auch die Direktlinks der Verwaltungs-Mails schon
-// heute. „Tattoo“ zeigt bis P7 „kommt in P7“. Die Aufgaben ersetzen den Platzhalter über `VIEW_BODIES`.
+// heute. Die Aufgaben ersetzen den Platzhalter über `VIEW_BODIES` („Tattoo“ seit P7.6).
 
 export interface AdminViewBodyProps {
   match: AdminViewMatch
@@ -67,6 +68,7 @@ const VIEW_BODIES: Partial<Record<string, ViewBody>> = {
   datenschutz: PrivacyRequestsView,
   'datenschutz-anfrage': PrivacyRequestDetailView,
   protokolle: ProtocolsView,
+  tattoo: TattooView,
 }
 
 export function AdminViewBody(props: AdminViewBodyProps) {

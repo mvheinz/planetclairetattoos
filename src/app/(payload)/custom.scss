@@ -1188,3 +1188,84 @@ $pc-bar-height: 64px;
   font-size: 0.85em;
   word-break: break-all;
 }
+
+// --- Tattoo-Verwaltung `/tattoo` (P7.6–P7.9): Reiter, Status-Chip, abgelaufene Angebote ---------------------------
+.pc-tattoo {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 64rem;
+
+  &__tabs ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  &__tab {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--theme-elevation-400);
+    border-radius: 22px;
+    color: var(--theme-elevation-1000);
+    text-decoration: none;
+    font-weight: 600;
+
+    &[aria-current='page'] {
+      background: var(--theme-elevation-1000);
+      border-color: var(--theme-elevation-1000);
+      color: var(--theme-elevation-0);
+    }
+    &:focus-visible {
+      outline: 3px solid var(--theme-success-500);
+      outline-offset: 2px;
+    }
+  }
+  &__card--nophoto {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  &__card--ended {
+    opacity: 0.65;
+    background: var(--theme-elevation-50);
+  }
+  &__checks {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+  &__faq > summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+}
+
+.pc-tattoo-editor {
+  max-width: 48rem;
+}
+
+.pc-chip {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 8px;
+  border-radius: 50%;
+
+  &--available {
+    background: var(--theme-success-500);
+  }
+  &--claimed {
+    background: var(--theme-elevation-800);
+  }
+}
+
+@media (min-width: 600px) {
+  .pc-tattoo__checks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

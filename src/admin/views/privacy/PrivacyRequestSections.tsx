@@ -180,6 +180,14 @@ export async function PrivacyRequestSections(props: PrivacyRequestSectionsProps)
             ))}
           </ul>
         )}
+        {/* Galerie-Einwilligung (P7.8, LOESCHKONZEPT §5.10): Widerruf am Galerie-Eintrag; Bestätigung M16 optional. */}
+        <p data-testid="privacy-gallery-consent">
+          {link(
+            `${adminViewPath('tattoo')}?reiter=galerie`,
+            adminText('privacyGalleryConsentLink'),
+          )}{' '}
+          <span className="pc-order__muted">{adminText('privacyGalleryConsentHint')}</span>
+        </p>
       </section>
       <section className="pc-order__section" aria-labelledby="privacy-mails-title">
         <h2 id="privacy-mails-title">{adminText('logsMailsTitle')}</h2>

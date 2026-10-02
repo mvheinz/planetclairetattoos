@@ -43,7 +43,8 @@ async function loadTemplates(payload: Payload): Promise<CategoryTemplateTexts> {
   return { safety: toMap(settings.safetyTemplates), care: toMap(settings.careTemplates) }
 }
 
-async function loadPhotos(payload: Payload, ids: number[]): Promise<PiecePhoto[]> {
+/** Fotos mit Alt-Texten DE/EN und Fokuspunkt (auch für Flash und Galerie, P7.6/P7.8). */
+export async function loadPhotos(payload: Payload, ids: number[]): Promise<PiecePhoto[]> {
   const photos: PiecePhoto[] = []
   for (const id of ids) {
     const read = (locale: 'de' | 'en') =>
