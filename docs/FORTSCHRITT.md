@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P8.5
+
+- Widerrufe W1–W7 (`withdrawals.json`, SEED-SPEC §10), Anfragen A1–A7 (`inquiries.json`, §11, Skizze nur bei A2), Umsätze M-9…M-1 (`revenue.json`, §15); Import in `src/lib/seed/cases.ts` (Schritt 7, Hooks sehen N als Request-Zeit über `seedStep(…, now)`), Datums-Token `{{date:…}}` (`withDateTokens`), Umsatz-Seed überspringt belegte (Monat, Quelle).\n- Anker-Tabelle „Heute“ `SEED_TODAY_ANCHORS` in `src/lib/seed/expected.ts`.\n- Tests: `tests/int/seed/withdrawals-inquiries.int.spec.ts` (9), `tests/int/seed/revenue.int.spec.ts` (5: Wächter grün nur mit Vorschau-Modus, Verdrängen, Überspringen, AK-SEED-15, AK-SEED-21 Exporte ohne Seed) – grün.
+
 ## 2026-10-02 – P8.4a
 
 - `src/lib/seed/invoices.ts`: Rechnung je bezahlter Bestellung (issueAt = Zahlung) und Gutschrift je Erstattung (Grund der Erstattung) über den normalen Zähler (`createInvoiceForOrder`/`createCreditNote`, Serien `BSP-RE`/`BSP-GS`), je Serie streng nach issueAt; PDF direkt mit dem P4-Renderer (Wasserzeichen, ohne Job) als `private-uploads` `invoice-pdf:<Nummer>`; `orders.invoice` und `refunds[].creditNote` verknüpft.

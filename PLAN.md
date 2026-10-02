@@ -4187,7 +4187,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Tests: `tests/int/seed/invoices.int.spec.ts`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P8.5 Widerrufe, Anfragen und Umsätze** – `content/seed/data/withdrawals.json` (SEED-SPEC §10, W1–W7 inkl.
+- [x] **P8.5 Widerrufe, Anfragen und Umsätze** – `content/seed/data/withdrawals.json` (SEED-SPEC §10, W1–W7 inkl.
   `submissionSnapshot`, `refundDueAt`, unveränderlicher Texte; W6 `closed` mit `closeReason = duplicate`, W7 `rejected`
   mit `closeNote` und `spam.*`), `inquiries.json` (§11, A1–A7; Referenzbild nur bei A2 aus
   `private-uploads:A2:sketch-1`; `deleteAfter`), `revenue.json` (Einträge `M-9`…`M-1`, §15); Mengen laut SEED-SPEC

@@ -10,18 +10,25 @@ import type { Locale } from '@/lib/enums'
 import type { Clock } from '@/lib/time'
 
 import { seedOp, seedStep } from './context'
-import { seedDrawing } from './drawings'
 import { placeholderArtWebp } from './fallbackArt'
 import { pickLocaleTree } from './globals'
-import { toLexical } from './lexical'
+import { seedRichText, withDateTokens } from './lexical'
 import type { SeedData } from './loader'
-import { simplePdf } from './pdf'
 import type { SeedReport } from './report'
 import type { PageBlockSeed, ProductSeed } from './schemas'
 import { seedIso } from './time'
 import { seedReservationRef } from './orderPlan'
 import { importInvoices } from './invoices'
+import { importPrivateUpload } from './uploads'
 import { importCheckouts, importOrders, importReservations } from './orders'
+import {
+  importComplaints,
+  importInquiries,
+  importPrivacyRequests,
+  importRevenue,
+  importWithdrawals,
+  linkCaseUploads,
+} from './cases'
 import { findBySeedKey, upsertBySeedKey } from './upsert'
 
 // Beispielbestand (SEED-SPEC §1.7 Schritte 3–9). P1 legt nur den Mini-Satz an (W-21, DATENMODELL §13.1); P8 ergänzt
@@ -36,10 +43,16 @@ export const EXAMPLE_STEPS = [
   'private-uploads',
   'products',
   'pages',
+  'faqs',
   'checkouts',
   'orders',
   'reservations',
   'invoices',
+  'withdrawals',
+  'complaints',
+  'inquiries',
+  'privacy-requests',
+  'revenue-entries',
 ] as const
 
 export interface ExampleOptions {
@@ -68,7 +81,16 @@ export function hasExampleData(data: SeedData): boolean {
       data.products.length +
       data.orders.checkouts.length +
       data.orders.orders.length +
-      data.pages.length >
+      data.pages.length +
+      data.faqs.length +
+      data.withdrawals.length +
+      data.complaints.length +
+      data.inquiries.length +
+      data.privacyRequests.length +
+      data.revenue.length +
+      data.tattoo.flash.length +
+      data.tattoo.offers.length +
+      data.tattoo.gallery.length >
     0
   )
 }
@@ -189,34 +211,9 @@ async function importMedia(req: PayloadRequest, data: SeedData, options: Example
 
 async function importPrivateUploads(req: PayloadRequest, data: SeedData, options: ExampleOptions) {
   for (const entry of data.privateUploads) {
-    await upsertBySeedKey({
-      req,
-      report: options.report,
-      collection: 'private-uploads',
-      seedKey: `private-uploads:${entry.key}`,
-      group: 'process',
-      create: () => ({
-        purpose: entry.purpose,
-        ...(entry.complianceCategory ? { complianceCategory: entry.complianceCategory } : {}),
-        ...(entry.note ? { note: entry.note } : {}),
-      }),
-      file: async () => {
-        const name = entry.key.replace(/[^A-Za-z0-9_-]/g, '-')
-        if (entry.image) {
-          const ext = entry.image.format === 'png' ? 'png' : 'jpg'
-          return fileOf(
-            await seedDrawing(entry.image),
-            `${name}.${ext}`,
-            `image/${entry.image.format}`,
-          )
-        }
-        return fileOf(
-          simplePdf('BEISPIELDOKUMENT', entry.pdfText ?? ''),
-          `${name}.pdf`,
-          'application/pdf',
-        )
-      },
-    })
+    // Reklamationsfotos brauchen ihre Reklamation schon beim Anlegen → Schritt 7 (`importComplaints`).
+    if (entry.relatedComplaint) continue
+    await importPrivateUpload(req, entry, options.report)
   }
 }
 
@@ -334,8 +331,17 @@ async function importProducts(req: PayloadRequest, data: SeedData, options: Exam
 // ---------------------------------------------------------------------------------------------------------------
 // Seiten (§13)
 
-function blockData(block: PageBlockSeed, locale: Locale): Obj {
-  const pick = (v: { de: string; en: string } | undefined) => (v ? v[locale] : undefined)
+type Loc = { de: string; en: string }
+
+/** Block der Datendatei → Payload-Daten in `locale` (Klartext → Lexical, Datums-Token, Medien-IDs). */
+async function blockData(
+  req: PayloadRequest,
+  block: PageBlockSeed,
+  locale: Locale,
+  now: Date,
+): Promise<Obj> {
+  const pick = (v: Loc | undefined) => (v ? withDateTokens(v[locale], locale, now) : undefined)
+  const rich = (v: Loc) => seedRichText(v[locale], locale, now)
   switch (block.blockType) {
     case 'hero':
       return {
@@ -363,7 +369,7 @@ function blockData(block: PageBlockSeed, locale: Locale): Obj {
           : {}),
       }
     case 'richText':
-      return { blockType: 'richText', content: toLexical(block.content[locale]) }
+      return { blockType: 'richText', content: rich(block.content) }
     case 'contactLinks':
       return {
         blockType: 'contactLinks',
@@ -374,14 +380,97 @@ function blockData(block: PageBlockSeed, locale: Locale): Obj {
         emailSubject: pick(block.emailSubject),
       }
     case 'callout':
-      return { blockType: 'callout', text: block.text[locale], tone: block.tone }
+      return { blockType: 'callout', text: pick(block.text), tone: block.tone }
     case 'faqList':
       return { blockType: 'faqList', heading: pick(block.heading), category: block.category }
+    case 'imageText':
+      return {
+        blockType: 'imageText',
+        image: await idOf(req, block.image),
+        content: rich(block.content),
+        imagePosition: block.imagePosition,
+      }
+    case 'imageGallery':
+      return {
+        blockType: 'imageGallery',
+        images: await Promise.all(block.images.map((k) => idOf(req, k))),
+        caption: pick(block.caption),
+      }
+    case 'categoryTeaser':
+      return {
+        blockType: 'categoryTeaser',
+        heading: pick(block.heading),
+        categories: block.categories,
+      }
+    case 'processSteps':
+      return {
+        blockType: 'processSteps',
+        heading: pick(block.heading),
+        steps: block.steps.map((st) => ({ title: pick(st.title), text: pick(st.text) })),
+      }
+    case 'commissionForm':
+      return {
+        blockType: 'commissionForm',
+        heading: pick(block.heading),
+        intro: pick(block.intro),
+        successText: pick(block.successText),
+      }
+    case 'offersList':
+      return {
+        blockType: 'offersList',
+        heading: pick(block.heading),
+        emptyText: pick(block.emptyText),
+      }
+    case 'flashGrid':
+      return {
+        blockType: 'flashGrid',
+        heading: pick(block.heading),
+        showClaimed: block.showClaimed,
+      }
+    case 'tattooGallery':
+      return {
+        blockType: 'tattooGallery',
+        heading: pick(block.heading),
+        filter: block.filter,
+        limit: block.limit,
+      }
+    case 'priceInfo':
+      return { blockType: 'priceInfo', heading: pick(block.heading), content: rich(block.content) }
+    case 'aftercareSteps':
+      return {
+        blockType: 'aftercareSteps',
+        heading: pick(block.heading),
+        phases: block.phases.map((ph) => ({ title: pick(ph.title), content: rich(ph.content) })),
+      }
   }
 }
 
-async function writePageEn(req: PayloadRequest, doc: Doc, page: SeedData['pages'][number]) {
-  const layout = (doc.layout ?? []) as { id?: string }[]
+const layoutData = (
+  req: PayloadRequest,
+  page: SeedData['pages'][number],
+  locale: Locale,
+  now: Date,
+) => Promise.all(page.layout.map((b) => blockData(req, b, locale, now)))
+
+/** Englische Fassung: gleiche Block- und Zeilen-IDs wie die deutsche (Blöcke selbst sind nicht lokalisiert). */
+async function writePageEn(
+  req: PayloadRequest,
+  doc: Doc,
+  page: SeedData['pages'][number],
+  now: Date,
+) {
+  const layout = (doc.layout ?? []) as (Obj & { id?: string })[]
+  const en = await layoutData(req, page, 'en', now)
+  const withIds = en.map((block, i) => {
+    const current = layout[i] ?? {}
+    const out: Obj = { ...block, id: current.id }
+    for (const arr of ['steps', 'phases'] as const) {
+      const rows = block[arr] as Obj[] | undefined
+      const ids = (current[arr] as { id?: string }[] | undefined) ?? []
+      if (rows) out[arr] = rows.map((r, j) => ({ ...r, id: ids[j]?.id }))
+    }
+    return out
+  })
   await req.payload.update({
     collection: 'pages',
     id: doc.id,
@@ -389,7 +478,8 @@ async function writePageEn(req: PayloadRequest, doc: Doc, page: SeedData['pages'
     data: {
       title: page.title.en,
       _status: 'published',
-      layout: page.layout.map((b, i) => ({ ...blockData(b, 'en'), id: layout[i]?.id })),
+      layout: withIds,
+      ...(page.seo?.metaTitle ? { seo: { metaTitle: page.seo.metaTitle.en } } : {}),
     } as never,
     ...seedOp(req),
   })
@@ -397,11 +487,13 @@ async function writePageEn(req: PayloadRequest, doc: Doc, page: SeedData['pages'
 
 async function importPages(req: PayloadRequest, data: SeedData, options: ExampleOptions) {
   for (const page of data.pages) {
+    const layout = await layoutData(req, page, 'de', options.now)
     const de = {
       key: page.key,
       title: page.title.de,
       _status: 'published',
-      layout: page.layout.map((b) => blockData(b, 'de')),
+      layout,
+      ...(page.seo?.metaTitle ? { seo: { metaTitle: page.seo.metaTitle.de } } : {}),
     }
     // Nicht übernommen: Titel und Blöcke neu schreiben; EN danach mit den Block-IDs der deutschen Fassung.
     const res = await upsertBySeedKey({
@@ -411,9 +503,42 @@ async function importPages(req: PayloadRequest, data: SeedData, options: Example
       seedKey: `pages:${page.key}`,
       group: 'content',
       create: () => de,
-      update: () => ({ de: { title: de.title, _status: 'published', layout: de.layout } }),
+      update: () => {
+        const { key: _key, ...patch } = de
+        return { de: patch }
+      },
     })
-    if (res.outcome !== 'skipped') await writePageEn(req, res.doc, page)
+    if (res.outcome !== 'skipped') await writePageEn(req, res.doc, page, options.now)
+  }
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// FAQ (§14)
+
+async function importFaqs(req: PayloadRequest, data: SeedData, options: ExampleOptions) {
+  for (const f of data.faqs) {
+    const loc = (l: Locale) => ({
+      question: f.question[l],
+      answer: seedRichText(f.answer[l], l, options.now),
+    })
+    await upsertBySeedKey({
+      req,
+      report: options.report,
+      collection: 'faqs',
+      seedKey: `faqs:${f.key}`,
+      group: 'content',
+      create: () => ({
+        ...loc('de'),
+        category: f.category,
+        sortOrder: f.sortOrder,
+        published: true,
+      }),
+      en: loc('en'),
+      update: () => ({
+        de: { ...loc('de'), category: f.category, sortOrder: f.sortOrder },
+        en: loc('en'),
+      }),
+    })
   }
 }
 
@@ -437,6 +562,7 @@ export async function importExample(
   // Schritt 4: Stücke → (Flash, Angebote, Galerie ab P8) → Seiten → (FAQ ab P8)
   if (run('products')) await seedStep(payload, (req) => importProducts(req, data, options))
   if (run('pages')) await seedStep(payload, (req) => importPages(req, data, options))
+  if (run('faqs')) await seedStep(payload, (req) => importFaqs(req, data, options))
   // Schritt 5: Kassen → (Bestellungen ab P8) → Reservierungen
   const process = {
     report: options.report,
@@ -450,6 +576,22 @@ export async function importExample(
   }
   // Schritt 6: Belege je Serie nach issueAt, danach orders.invoice / refunds[].creditNote
   if (run('invoices')) await seedStep(payload, (req) => importInvoices(req, data, process))
+  // Schritt 7: Widerrufe → Reklamationen → Anfragen → Datenschutz-Anfragen → Umsätze, danach Dateien verknüpfen
+  // (mit N als Request-Zeit der Hooks)
+  const cases = { report: options.report, now: options.now }
+  const at = options.now
+  if (run('withdrawals')) {
+    await seedStep(payload, (req) => importWithdrawals(req, data, cases), at)
+  }
+  if (run('complaints')) await seedStep(payload, (req) => importComplaints(req, data, cases), at)
+  if (run('inquiries')) await seedStep(payload, (req) => importInquiries(req, data, cases), at)
+  if (run('privacy-requests')) {
+    await seedStep(payload, (req) => importPrivacyRequests(req, data, cases), at)
+  }
+  if (run('revenue-entries')) {
+    await seedStep(payload, (req) => importRevenue(req, data, cases), at)
+  }
+  await seedStep(payload, (req) => linkCaseUploads(req, data), at)
   // Schritt 9: settings.seed
   await seedStep(payload, (req) =>
     req.payload.updateGlobal({

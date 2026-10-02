@@ -9,6 +9,26 @@ import {
   CHECKOUT_PAYMENT_CHOICES,
   CHECKOUT_STATUSES,
   COCO_POSES,
+  COMPLAINT_KINDS,
+  COMPLAINT_REMEDIES,
+  COMPLAINT_STATUSES,
+  CONSENT_PURPOSES,
+  ACTOR_TYPES,
+  AUDIT_ACTIONS,
+  EMAIL_TEMPLATES,
+  FLASH_STATUSES,
+  IDENTITY_CHECK_METHODS,
+  INQUIRY_OBJECT_TYPES,
+  INQUIRY_STATUSES,
+  PRIVACY_REQUEST_CHANNELS,
+  PRIVACY_REQUEST_STATUSES,
+  PRIVACY_REQUEST_TYPES,
+  REVENUE_SOURCES,
+  TATTOO_OFFER_TYPES,
+  TATTOO_PHOTO_KINDS,
+  WITHDRAWAL_CLOSE_REASONS,
+  WITHDRAWAL_MATCH_STATUSES,
+  WITHDRAWAL_STATUSES,
   DELIVERED_SOURCES,
   DEVIATION_DECISIONS,
   DISPUTE_STATUSES,
@@ -431,6 +451,8 @@ const linkSchema = z.strictObject({
   label: l10nBoth,
 })
 
+const stepSchema = z.strictObject({ title: l10nBoth, text: l10nBoth })
+
 export const pageBlockSchema = z.discriminatedUnion('blockType', [
   z.strictObject({
     blockType: z.literal('hero'),
@@ -466,6 +488,62 @@ export const pageBlockSchema = z.discriminatedUnion('blockType', [
     heading: l10nBoth.optional(),
     category: z.enum(FAQ_CATEGORIES),
   }),
+  z.strictObject({
+    blockType: z.literal('imageText'),
+    image: ref('media'),
+    content: l10nBoth,
+    imagePosition: z.enum(['left', 'right']),
+  }),
+  z.strictObject({
+    blockType: z.literal('imageGallery'),
+    images: z.array(ref('media')).min(1).max(12),
+    caption: l10nBoth.optional(),
+  }),
+  z.strictObject({
+    blockType: z.literal('categoryTeaser'),
+    heading: l10nBoth.optional(),
+    categories: z.array(z.enum(PRODUCT_CATEGORIES)).min(1),
+  }),
+  z.strictObject({
+    blockType: z.literal('processSteps'),
+    heading: l10nBoth.optional(),
+    steps: z.array(stepSchema).min(1).max(8),
+  }),
+  z.strictObject({
+    blockType: z.literal('commissionForm'),
+    heading: l10nBoth.optional(),
+    intro: l10nBoth.optional(),
+    successText: l10nBoth,
+  }),
+  z.strictObject({
+    blockType: z.literal('offersList'),
+    heading: l10nBoth.optional(),
+    emptyText: l10nBoth.optional(),
+  }),
+  z.strictObject({
+    blockType: z.literal('flashGrid'),
+    heading: l10nBoth.optional(),
+    showClaimed: z.boolean(),
+  }),
+  z.strictObject({
+    blockType: z.literal('tattooGallery'),
+    heading: l10nBoth.optional(),
+    filter: z.enum(['all', 'fresh', 'healed']),
+    limit: z.number().int().min(1).max(48),
+  }),
+  z.strictObject({
+    blockType: z.literal('priceInfo'),
+    heading: l10nBoth.optional(),
+    content: l10nBoth,
+  }),
+  z.strictObject({
+    blockType: z.literal('aftercareSteps'),
+    heading: l10nBoth.optional(),
+    phases: z
+      .array(z.strictObject({ title: l10nBoth, content: l10nBoth }))
+      .min(1)
+      .max(8),
+  }),
 ])
 export type PageBlockSeed = z.infer<typeof pageBlockSchema>
 
@@ -474,9 +552,258 @@ export const pagesSchema = z.array(
     key: z.enum(PAGE_KEYS),
     title: l10nBoth,
     layout: z.array(pageBlockSchema).max(40),
+    seo: z
+      .strictObject({
+        metaTitle: z.strictObject({ de: text().max(60), en: text().max(60) }).optional(),
+      })
+      .optional(),
   }),
 )
 export type PagesData = z.infer<typeof pagesSchema>
+
+// ---------------------------------------------------------------------------------------------------------------
+// faqs.json (§14)
+
+export const faqsSchema = z.array(
+  z.strictObject({
+    key: z.string().regex(/^FAQ\d{2}$/),
+    category: z.enum(FAQ_CATEGORIES),
+    sortOrder: z.number().int().min(0),
+    question: l10nBoth,
+    /** Klartext → `toLexical()` (§2.4). */
+    answer: l10nBoth,
+  }),
+)
+export type FaqsData = z.infer<typeof faqsSchema>
+
+// ---------------------------------------------------------------------------------------------------------------
+// withdrawals.json (§10)
+
+const customerKey = z.string().regex(/^C\d{2}$/)
+/** Position einer Bestellung `<Order>-L<n>` (§2.5). */
+const itemId = z.string().regex(/^O\d{2}-L\d+$/)
+
+export const withdrawalSeedSchema = z.strictObject({
+  key: z.string().regex(/^W\d$/),
+  reference: z.string().regex(/^WR-2026-9000\d$/, 'Seed-Nummern WR-2026-9000N (§2.5)'),
+  order: ref('orders').optional(),
+  customer: customerKey,
+  receivedAt: timeExpr,
+  matchStatus: z.enum(WITHDRAWAL_MATCH_STATUSES),
+  status: z.enum(WITHDRAWAL_STATUSES),
+  contractIdentification: text(3),
+  itemsText: text().optional(),
+  reason: text().optional(),
+  adminNotes: text().optional(),
+  affectedItemIds: z.array(itemId).optional(),
+  returnTrackingNumber: z
+    .string()
+    .regex(/^[A-Z0-9]{8,35}$/)
+    .optional(),
+  goodsReturnedAt: timeExpr.optional(),
+  refundedAt: timeExpr.optional(),
+  closedAt: timeExpr.optional(),
+  rejectedAt: timeExpr.optional(),
+  closeReason: z.enum(WITHDRAWAL_CLOSE_REASONS).optional(),
+  closeNote: text(10).optional(),
+  spam: z.strictObject({ markedAt: timeExpr, reason: text(10) }).optional(),
+})
+export type WithdrawalSeed = z.infer<typeof withdrawalSeedSchema>
+export const withdrawalsSchema = z.array(withdrawalSeedSchema)
+
+// ---------------------------------------------------------------------------------------------------------------
+// complaints.json (§10a)
+
+export const complaintSeedSchema = z.strictObject({
+  key: z.string().regex(/^RK\d$/),
+  order: ref('orders'),
+  affectedItemIds: z.array(itemId).min(1),
+  kind: z.enum(COMPLAINT_KINDS),
+  receivedAt: timeExpr,
+  status: z.enum(COMPLAINT_STATUSES),
+  remedy: z.enum(COMPLAINT_REMEDIES).optional(),
+  photos: z.array(ref('private-uploads')).max(6).optional(),
+  repairChoiceSentAt: timeExpr.optional(),
+  customerChoice: z.enum(COMPLAINT_REMEDIES).optional(),
+  customerChoiceAt: timeExpr.optional(),
+  vsbgNoticeSentAt: timeExpr.optional(),
+  description: text(),
+  notes: text().optional(),
+})
+export type ComplaintSeed = z.infer<typeof complaintSeedSchema>
+export const complaintsSchema = z.array(complaintSeedSchema)
+
+// ---------------------------------------------------------------------------------------------------------------
+// inquiries.json (§11)
+
+export const inquirySeedSchema = z.strictObject({
+  key: z.string().regex(/^A\d$/),
+  reference: z.string().regex(/^AA-2026-900\d$/, 'Seed-Nummern AA-2026-900N (§2.5)'),
+  customer: customerKey,
+  objectType: z.enum(INQUIRY_OBJECT_TYPES),
+  status: z.enum(INQUIRY_STATUSES),
+  createdAt: timeExpr,
+  lastActivityAt: timeExpr,
+  idea: text(10),
+  desiredTimeframe: text().optional(),
+  budget: text().optional(),
+  adminNotes: text().optional(),
+  referenceImages: z.array(ref('private-uploads')).optional(),
+})
+export type InquirySeed = z.infer<typeof inquirySeedSchema>
+export const inquiriesSchema = z.array(inquirySeedSchema)
+
+// ---------------------------------------------------------------------------------------------------------------
+// privacy-requests.json (§11a)
+
+export const privacyRequestSeedSchema = z.strictObject({
+  key: z.string().regex(/^DS\d$/),
+  reference: z.string().regex(/^DS-2026-900\d$/, 'Seed-Nummern DS-2026-900N (§2.5)'),
+  types: z.array(z.enum(PRIVACY_REQUEST_TYPES)).min(1),
+  channel: z.enum(PRIVACY_REQUEST_CHANNELS),
+  customer: customerKey,
+  receivedAt: timeExpr,
+  status: z.enum(PRIVACY_REQUEST_STATUSES),
+  identityVerified: z.boolean(),
+  identityMethod: z.enum(IDENTITY_CHECK_METHODS).optional(),
+  identityVerifiedAt: timeExpr.optional(),
+  matchedOrders: z.array(ref('orders')).optional(),
+  matchedWithdrawals: z.array(ref('withdrawals')).optional(),
+  answeredAt: timeExpr.optional(),
+  resultNote: text(10).optional(),
+  adminNotes: text().optional(),
+})
+export type PrivacyRequestSeed = z.infer<typeof privacyRequestSeedSchema>
+export const privacyRequestsSchema = z.array(privacyRequestSeedSchema)
+
+// ---------------------------------------------------------------------------------------------------------------
+// revenue.json (§15)
+
+export const revenueSchema = z.array(
+  z.strictObject({
+    month: timeExpr.refine((v) => /^M-\d+$/.test(v), 'Monatsausdruck M-<k> (§2.2)'),
+    source: z.enum(REVENUE_SOURCES),
+    amountCents: cents,
+    note: text().optional(),
+  }),
+)
+export type RevenueData = z.infer<typeof revenueSchema>
+
+// ---------------------------------------------------------------------------------------------------------------
+// tattoo.json (§12)
+
+export const tattooSchema = z.strictObject({
+  flash: z.array(
+    z.strictObject({
+      key: z.string().regex(/^F9\d{2}$/),
+      number: z.number().int().min(901).max(910),
+      title: l10nBoth,
+      sizeCm: cm,
+      sizeNote: l10nBoth.optional(),
+      priceCents: cents.min(1000),
+      repeatable: z.boolean(),
+      status: z.enum(FLASH_STATUSES),
+      claimedAt: timeExpr.optional(),
+      image: ref('media'),
+      sortOrder: z.number().int().min(0),
+    }),
+  ),
+  offers: z.array(
+    z.strictObject({
+      key: z.string().regex(/^TO\d$/),
+      type: z.enum(TATTOO_OFFER_TYPES),
+      title: l10nBoth,
+      description: l10nBoth,
+      startsAt: timeExpr,
+      endsAt: timeExpr,
+      priceNote: l10nBoth.optional(),
+      flashes: z.array(ref('flash')),
+    }),
+  ),
+  gallery: z.array(
+    z.strictObject({
+      key: z.string().regex(/^G\d$/),
+      image: ref('media'),
+      kind: z.enum(TATTOO_PHOTO_KINDS),
+      healedDurationMonths: z.number().int().min(1).max(600).optional(),
+      healedLabel: l10nBoth.optional(),
+      caption: l10nBoth,
+      placement: l10nBoth,
+      flash: ref('flash').optional(),
+      showsCustomer: z.boolean(),
+      consentGiven: z.boolean(),
+      published: z.boolean(),
+      featured: z.boolean(),
+      sortOrder: z.number().int().min(0),
+    }),
+  ),
+})
+export type TattooData = z.infer<typeof tattooSchema>
+
+// ---------------------------------------------------------------------------------------------------------------
+// logs.json (§16): Ableitungsregeln (Mails, Einwilligungen) und die Audit-Einträge
+
+/** Ereignisse, aus denen Mails entstehen (§16.1). */
+export const EMAIL_EVENTS = [
+  'order.paidAt',
+  'order.placedAt',
+  'order.prepayment.reminderSentAt',
+  'order.cancelledAt',
+  'order.shippedAt',
+  'order.readyForPickupAt',
+  'order.refunds.createdAt',
+  'order.disputedAt',
+  'withdrawal.receivedAt',
+  'inquiry.createdAt',
+  'complaint.repairChoiceSentAt',
+  'complaint.vsbgNoticeSentAt',
+  'privacyRequest.answeredAt',
+] as const
+export type EmailEvent = (typeof EMAIL_EVENTS)[number]
+
+export const logsSchema = z.strictObject({
+  email: z.array(
+    z.strictObject({
+      event: z.enum(EMAIL_EVENTS),
+      /** Nur bei diesen Zahlarten (Bestellungen). */
+      paymentMethods: z.array(z.enum(PAYMENT_METHODS)).optional(),
+      /** Nur bei diesen Arten (Datenschutz-Anfragen). */
+      privacyTypes: z.array(z.enum(PRIVACY_REQUEST_TYPES)).optional(),
+      templates: z.array(z.enum(EMAIL_TEMPLATES)).min(1),
+    }),
+  ),
+  consent: z.array(
+    z.strictObject({
+      purpose: z.enum(CONSENT_PURPOSES),
+      snippet: z.enum([
+        'checkout.dhlEmailConsent',
+        'checkout.deviationAgreement',
+        'inquiry.privacyNotice',
+      ]),
+      orders: z.array(ref('orders')).optional(),
+      inquiries: z.array(ref('inquiries')).optional(),
+      /** Stück mit Abweichung (nur `deviation_agreement`). */
+      product: ref('products').optional(),
+    }),
+  ),
+  audit: z.array(
+    z.strictObject({
+      key: localKey,
+      action: z.enum(AUDIT_ACTIONS),
+      actorType: z.enum(ACTOR_TYPES),
+      /** Bezug als seedKey; `settings` für den Seed-Lauf. */
+      entity: z.union([
+        z.literal('settings'),
+        z.string().regex(/^[a-z-]+:[A-Za-z0-9:#._-]{1,80}$/),
+      ]),
+      /** Zeitausdruck; fehlt = Zeitpunkt des Seed-Laufs (Uhr). */
+      at: timeExpr.optional(),
+      /** Platzhalter `{<collection>}` = Anzahl angelegter Beispiel-Datensätze. */
+      summary: text().max(300),
+    }),
+  ),
+})
+export type LogsData = z.infer<typeof logsSchema>
 
 // ---------------------------------------------------------------------------------------------------------------
 // Registry
@@ -489,5 +816,13 @@ export const SEED_FILE_SCHEMAS = {
   'products.json': productsSchema,
   'orders.json': ordersSchema,
   'pages.json': pagesSchema,
+  'faqs.json': faqsSchema,
+  'withdrawals.json': withdrawalsSchema,
+  'complaints.json': complaintsSchema,
+  'inquiries.json': inquiriesSchema,
+  'privacy-requests.json': privacyRequestsSchema,
+  'revenue.json': revenueSchema,
+  'tattoo.json': tattooSchema,
+  'logs.json': logsSchema,
 } as const
 export type SeedFileName = keyof typeof SEED_FILE_SCHEMAS

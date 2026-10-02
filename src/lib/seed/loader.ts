@@ -8,14 +8,23 @@ import type { z } from 'zod'
 import {
   SEED_FILE_SCHEMAS,
   type BaseData,
+  type ComplaintSeed,
   type CustomersData,
+  type FaqsData,
+  type InquirySeed,
+  type LogsData,
   type MediaData,
   type OrdersData,
   type PagesData,
+  type PrivacyRequestSeed,
   type PrivateUploadsData,
   type ProductSeed,
+  type RevenueData,
   type SeedFileName,
+  type TattooData,
+  type WithdrawalSeed,
 } from './schemas'
+import { dateTokenExprs } from './lexical'
 import { planOrder, seedReservationRef } from './orderPlan'
 import { resolveSeedTime } from './time'
 
@@ -33,6 +42,14 @@ export interface SeedData {
   products: ProductSeed[]
   orders: OrdersData
   pages: PagesData
+  faqs: FaqsData
+  withdrawals: WithdrawalSeed[]
+  complaints: ComplaintSeed[]
+  inquiries: InquirySeed[]
+  privacyRequests: PrivacyRequestSeed[]
+  revenue: RevenueData
+  tattoo: TattooData
+  logs: LogsData
 }
 
 export class SeedDataError extends Error {
@@ -51,6 +68,14 @@ const EMPTY: Omit<SeedData, 'base'> = {
   products: [],
   orders: { checkouts: [], orders: [], reservations: [] },
   pages: [],
+  faqs: [],
+  withdrawals: [],
+  complaints: [],
+  inquiries: [],
+  privacyRequests: [],
+  revenue: [],
+  tattoo: { flash: [], offers: [], gallery: [] },
+  logs: { email: [], consent: [], audit: [] },
 }
 
 async function readJson(file: string): Promise<unknown | undefined> {
@@ -112,6 +137,20 @@ export function crossCheck(data: SeedData, now: Date): string[] {
     ['customers.json', data.customers.map((c) => c.key)],
     ['orders.json reservations', data.orders.reservations.map((r) => r.key)],
     ['pages.json', data.pages.map((p) => p.key)],
+    ['faqs.json', data.faqs.map((f) => f.key)],
+    ['withdrawals.json', data.withdrawals.map((w) => w.key)],
+    ['withdrawals.json reference', data.withdrawals.map((w) => w.reference)],
+    ['complaints.json', data.complaints.map((c) => c.key)],
+    ['inquiries.json', data.inquiries.map((i) => i.key)],
+    ['inquiries.json reference', data.inquiries.map((i) => i.reference)],
+    ['privacy-requests.json', data.privacyRequests.map((r) => r.key)],
+    ['privacy-requests.json reference', data.privacyRequests.map((r) => r.reference)],
+    ['revenue.json', data.revenue.map((r) => `${r.month}:${r.source}`)],
+    ['tattoo.json flash', data.tattoo.flash.map((f) => f.key)],
+    ['tattoo.json flash number', data.tattoo.flash.map((f) => String(f.number))],
+    ['tattoo.json offers', data.tattoo.offers.map((o) => o.key)],
+    ['tattoo.json gallery', data.tattoo.gallery.map((g) => g.key)],
+    ['logs.json audit', data.logs.audit.map((a) => a.key)],
   ]
   for (const [file, keys] of dupLists) {
     for (const d of duplicates(keys)) issues.push(`${file}: Schlüssel ${d} doppelt`)
@@ -211,6 +250,151 @@ export function crossCheck(data: SeedData, now: Date): string[] {
       time(`${where} ${f}`, r[f])
     }
   }
+  issues.push(...crossCheckCases(data, now, { mediaKeys, uploadKeys, orderKeys, customerKeys }))
+  return issues
+}
+
+/** Verweise und Zeitausdrücke der Vorgänge, Tattoo-Daten, Seiten und Protokolle (P8.5–P8.8). */
+function crossCheckCases(
+  data: SeedData,
+  now: Date,
+  keys: {
+    mediaKeys: Set<string>
+    uploadKeys: Set<string>
+    orderKeys: Set<string>
+    customerKeys: Set<string>
+  },
+): string[] {
+  const issues: string[] = []
+  const has = (set: Set<string>, where: string, key: string | undefined) => {
+    if (key !== undefined && !set.has(key)) issues.push(`${where}: ${key} fehlt`)
+  }
+  const time = (where: string, expr: string | undefined) => {
+    if (expr === undefined) return
+    try {
+      resolveSeedTime(expr, { now })
+    } catch (e) {
+      issues.push(`${where}: ${(e as Error).message}`)
+    }
+  }
+  const customer = (where: string, key: string) => has(keys.customerKeys, where, `customers:${key}`)
+  const orderByKey = new Map(data.orders.orders.map((o) => [`orders:${o.key}`, o]))
+  const items = (where: string, order: string | undefined, ids: readonly string[] | undefined) => {
+    for (const id of ids ?? []) {
+      const o = order ? orderByKey.get(order) : undefined
+      const n = Number(id.split('-L')[1])
+      if (!o || !id.startsWith(`${o.key}-L`) || n < 1 || n > o.items.length) {
+        issues.push(`${where}: Position ${id} gibt es nicht`)
+      }
+    }
+  }
+  const withdrawalKeys = new Set(data.withdrawals.map((w) => `withdrawals:${w.key}`))
+  const inquiryKeys = new Set(data.inquiries.map((i) => `inquiries:${i.key}`))
+  const complaintKeys = new Set(data.complaints.map((c) => `complaints:${c.key}`))
+  const flashKeys = new Set(data.tattoo.flash.map((f) => `flash:${f.key}`))
+
+  for (const w of data.withdrawals) {
+    const where = `withdrawals.json ${w.key}`
+    if (w.reference !== `WR-2026-9000${w.key.slice(1)}`) {
+      issues.push(`${where}: reference muss WR-2026-9000${w.key.slice(1)} sein (§2.5)`)
+    }
+    has(keys.orderKeys, where, w.order)
+    customer(where, w.customer)
+    items(where, w.order, w.affectedItemIds)
+    for (const f of [
+      'receivedAt',
+      'goodsReturnedAt',
+      'refundedAt',
+      'closedAt',
+      'rejectedAt',
+    ] as const) {
+      time(`${where} ${f}`, w[f])
+    }
+    time(`${where} spam.markedAt`, w.spam?.markedAt)
+    if ((w.matchStatus === 'auto_matched' || w.matchStatus === 'manually_matched') !== !!w.order) {
+      issues.push(`${where}: zugeordnet genau dann, wenn eine Bestellung angegeben ist`)
+    }
+  }
+  for (const c of data.complaints) {
+    const where = `complaints.json ${c.key}`
+    has(keys.orderKeys, where, c.order)
+    items(where, c.order, c.affectedItemIds)
+    for (const p of c.photos ?? []) has(keys.uploadKeys, where, p)
+    for (const f of [
+      'receivedAt',
+      'repairChoiceSentAt',
+      'customerChoiceAt',
+      'vsbgNoticeSentAt',
+    ] as const) {
+      time(`${where} ${f}`, c[f])
+    }
+  }
+  for (const i of data.inquiries) {
+    const where = `inquiries.json ${i.key}`
+    if (i.reference !== `AA-2026-900${i.key.slice(1)}`) {
+      issues.push(`${where}: reference muss AA-2026-900${i.key.slice(1)} sein (§2.5)`)
+    }
+    customer(where, i.customer)
+    for (const p of i.referenceImages ?? []) has(keys.uploadKeys, where, p)
+    time(`${where} createdAt`, i.createdAt)
+    time(`${where} lastActivityAt`, i.lastActivityAt)
+  }
+  for (const r of data.privacyRequests) {
+    const where = `privacy-requests.json ${r.key}`
+    if (r.reference !== `DS-2026-900${r.key.slice(2)}`) {
+      issues.push(`${where}: reference muss DS-2026-900${r.key.slice(2)} sein (§2.5)`)
+    }
+    customer(where, r.customer)
+    for (const o of r.matchedOrders ?? []) has(keys.orderKeys, where, o)
+    for (const w of r.matchedWithdrawals ?? []) has(withdrawalKeys, where, w)
+    for (const f of ['receivedAt', 'identityVerifiedAt', 'answeredAt'] as const) {
+      time(`${where} ${f}`, r[f])
+    }
+  }
+  for (const r of data.revenue) time(`revenue.json ${r.month}:${r.source}`, r.month)
+  for (const u of data.privateUploads) {
+    has(inquiryKeys, `private-uploads.json ${u.key}`, u.relatedInquiry)
+    has(complaintKeys, `private-uploads.json ${u.key}`, u.relatedComplaint)
+  }
+  for (const f of data.tattoo.flash) {
+    const where = `tattoo.json ${f.key}`
+    if (f.number !== Number(f.key.slice(1)))
+      issues.push(`${where}: number muss ${f.key.slice(1)} sein`)
+    has(keys.mediaKeys, where, f.image)
+    time(`${where} claimedAt`, f.claimedAt)
+    if ((f.status === 'claimed') !== !!f.claimedAt) {
+      issues.push(`${where}: claimedAt genau bei status = claimed`)
+    }
+  }
+  for (const o of data.tattoo.offers) {
+    const where = `tattoo.json ${o.key}`
+    for (const f of o.flashes) has(flashKeys, where, f)
+    time(`${where} startsAt`, o.startsAt)
+    time(`${where} endsAt`, o.endsAt)
+  }
+  for (const g of data.tattoo.gallery) {
+    const where = `tattoo.json ${g.key}`
+    has(keys.mediaKeys, where, g.image)
+    has(flashKeys, where, g.flash)
+    if (g.showsCustomer && g.consentGiven) {
+      issues.push(`${where}: Seed-Galerie hat nie eine Einwilligung (§12.3)`)
+    }
+  }
+  for (const p of data.pages) {
+    for (const b of p.layout) {
+      const refs =
+        b.blockType === 'imageText' ? [b.image] : b.blockType === 'imageGallery' ? b.images : []
+      for (const r of refs) has(keys.mediaKeys, `pages.json ${p.key}`, r)
+    }
+  }
+  for (const c of data.logs.consent) {
+    for (const o of c.orders ?? []) has(keys.orderKeys, 'logs.json consent', o)
+    for (const i of c.inquiries ?? []) has(inquiryKeys, 'logs.json consent', i)
+  }
+  for (const a of data.logs.audit) time(`logs.json audit ${a.key}`, a.at)
+  // Datums-Token in allen Texten (§2.4)
+  const { base: _base, ...texts } = data
+  for (const expr of new Set(dateTokenExprs(JSON.stringify(texts)))) time(`{{date:${expr}}}`, expr)
   return issues
 }
 
@@ -249,6 +433,15 @@ export async function loadSeedData(options: LoadOptions): Promise<SeedData> {
     products: (parse('products.json') as ProductSeed[] | undefined) ?? EMPTY.products,
     orders: (parse('orders.json') as OrdersData | undefined) ?? EMPTY.orders,
     pages: (parse('pages.json') as PagesData | undefined) ?? EMPTY.pages,
+    faqs: (parse('faqs.json') as FaqsData | undefined) ?? EMPTY.faqs,
+    withdrawals: (parse('withdrawals.json') as WithdrawalSeed[] | undefined) ?? EMPTY.withdrawals,
+    complaints: (parse('complaints.json') as ComplaintSeed[] | undefined) ?? EMPTY.complaints,
+    inquiries: (parse('inquiries.json') as InquirySeed[] | undefined) ?? EMPTY.inquiries,
+    privacyRequests:
+      (parse('privacy-requests.json') as PrivacyRequestSeed[] | undefined) ?? EMPTY.privacyRequests,
+    revenue: (parse('revenue.json') as RevenueData | undefined) ?? EMPTY.revenue,
+    tattoo: (parse('tattoo.json') as TattooData | undefined) ?? EMPTY.tattoo,
+    logs: (parse('logs.json') as LogsData | undefined) ?? EMPTY.logs,
   }
   if (issues.length === 0) issues.push(...crossCheck(data, options.now))
   if (issues.length > 0) throw new SeedDataError(issues)

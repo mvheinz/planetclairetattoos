@@ -101,3 +101,26 @@ export function expectedCount(collection: SeedExpectedCollection): number {
   const v = SEED_EXPECTED_COUNTS[collection] as number | CountRange
   return typeof v === 'number' ? v : v.max
 }
+
+/**
+ * Anker der Verwaltung „Heute“ bei kanonischem `N` (SEED-SPEC §17, PLAN P8.5/P8.5a) – Soll-Werte für Tests von
+ * `getTodaySummary()`; „Versendet“ zählt die Bestellungen im Status `shipped`.
+ */
+export const SEED_TODAY_ANCHORS = {
+  packen: 2,
+  vorkasse: 1,
+  abholung: 1,
+  versendet: 1,
+  /** Offene Widerrufe (W3, W4, W5); W6/W7 sind abgeschlossen. Nächste Frist: W3 (Erstattung `D+5`). */
+  widerrufe: 3,
+  nextWithdrawalReference: 'WR-2026-90003',
+  nextWithdrawalDue: 'D+5@19:30',
+  anfragen: 1,
+  /** Rote Hinweise an Bestellungen im Status `disputed`. */
+  disputedOrders: ['PC-2026-90003'],
+  /** Offene Datenschutz-Anfragen (DS3, DS4, DS5); nächste Frist DS3 `D+26`. */
+  privacyOpen: 3,
+  nextPrivacyReference: 'DS-2026-9003',
+  /** Hinweis „Beispieldaten vorhanden“. */
+  seedHint: true,
+} as const
