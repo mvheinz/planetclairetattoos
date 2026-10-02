@@ -3,7 +3,7 @@
 // verkleinert jede Datei auf höchstens 300 KB (Palette-PNG). Aufruf: pnpm exec tsx scripts/legal/briefing-screenshots.ts
 // Voraussetzung: Test-DB mit Grund-Seed (`pnpm db:reset --test`), Widerrufsfunktion R26 (PLAN P6.8).
 import { spawnSync } from 'node:child_process'
-import { existsSync, readFileSync, statSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -36,7 +36,14 @@ async function shrink(file: string): Promise<number> {
   return size
 }
 
+/** Gerenderte M08 (Fixture) für E-06 – außerhalb von Playwright, dessen JSX-Umwandlung React-Mails nicht rendert. */
+export const BRIEFING_M08_HTML = path.join(ROOT, 'test-results/briefing-m08.html')
+
 async function main(): Promise<void> {
+  const { renderFixture, WITHDRAWAL_RECEIPT_FIXTURE } = await import('../../tests/helpers/mails')
+  const mail = await renderFixture('withdrawal_receipt', WITHDRAWAL_RECEIPT_FIXTURE, 'de')
+  mkdirSync(path.dirname(BRIEFING_M08_HTML), { recursive: true })
+  writeFileSync(BRIEFING_M08_HTML, mail.html)
   const res = spawnSync(
     'pnpm',
     ['exec', 'playwright', 'test', '--config', 'scripts/legal/briefing-screenshots.config.ts'],

@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -95,7 +95,16 @@ describe('Kanzlei-Mappe (P6.22)', () => {
     expect(BRIEFING).toContain('**Vor dem Versand von der Mandantin zu ergänzen:**')
   })
 
-  // Die Dateien entstehen mit `scripts/legal/briefing-screenshots.ts`, sobald die Widerrufsfunktion R26 (PLAN P6.8)
-  // gebaut ist (OFFENE-PUNKTE P6.22); dann hier prüfen: alle sechs vorhanden, je ≤ 300 KB.
-  it.todo('E-01 … E-06 vorhanden und je ≤ 300 KB (nach P6.8)')
+  // Die Dateien erzeugt `scripts/legal/briefing-screenshots.ts` (Playwright, Mock-Treiber, 390 px, DE) und werden
+  // committet; die Prüfung liest nur die Dateien (ohne Server).
+  it('E-01 … E-06 vorhanden, echte PNG und je ≤ 300 KB', () => {
+    for (const n of ['E-01', 'E-02', 'E-03', 'E-04', 'E-05', 'E-06']) {
+      const file = path.join(ROOT, 'docs/recht/anlagen', `${n}.png`)
+      expect(existsSync(file), n).toBe(true)
+      const bytes = readFileSync(file)
+      expect(bytes.subarray(1, 4).toString('latin1'), n).toBe('PNG')
+      expect(statSync(file).size, n).toBeLessThanOrEqual(300 * 1024)
+      expect(statSync(file).size, n).toBeGreaterThan(5 * 1024)
+    }
+  })
 })

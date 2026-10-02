@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
 import { expect, test, testPayload } from '../../tests/e2e/fixtures'
@@ -10,7 +11,6 @@ import {
 } from '../../tests/e2e/checkout/checkoutHelpers'
 import { PUBLISHED } from '../../tests/e2e/shop/productPage'
 import { createOrder, orderData } from '../../tests/int/helpers/commerce'
-import { renderFixture, WITHDRAWAL_RECEIPT_FIXTURE } from '../../tests/helpers/mails'
 import { localizedPath } from '../../src/lib/routes/paths'
 
 // Bildschirmfotos der Kanzlei-Mappe, Anlage E (PLAN P6.22, KANZLEI-BRIEFING §18): 390 px, Deutsch, Mock-Treiber,
@@ -82,7 +82,11 @@ test('E-02 bis E-05 Widerrufsfunktion', async ({ page, fixtureProducts }) => {
 })
 
 test('E-06 Eingangsbestätigung M08', async ({ page }) => {
-  const mail = await renderFixture('withdrawal_receipt', WITHDRAWAL_RECEIPT_FIXTURE, 'de')
-  await page.setContent(mail.html, { waitUntil: 'load' })
+  // Vorab von `briefing-screenshots.ts` gerendert (Fixture `WITHDRAWAL_RECEIPT_FIXTURE`, Deutsch)
+  const html = readFileSync(
+    path.resolve(import.meta.dirname, '../../test-results/briefing-m08.html'),
+    'utf8',
+  )
+  await page.setContent(html, { waitUntil: 'load' })
   await page.screenshot({ path: shot('E-06'), fullPage: true, animations: 'disabled' })
 })

@@ -3631,7 +3631,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     T-16.
   - Ohne Jutta: AVVs schließt Jutta in P11 ab (A35).
 
-- [ ] **P6.22 Kanzlei-Mappe fertigstellen (neue Version)** – `docs/recht/KANZLEI-BRIEFING.md` an die Umsetzung
+- [x] **P6.22 Kanzlei-Mappe fertigstellen (neue Version)** – `docs/recht/KANZLEI-BRIEFING.md` an die Umsetzung
   angleichen: Tokenliste §16.3 unverändert geschlossen (kanonische Tokens ohne weitere Schreibweisen, kein Token für
   die Auftragsverarbeiter-Tabelle; die Mappe nennt die Tabelle als Komponente unter der Datenschutzerklärung, P6.21),
   Cookie-/Speicherliste §11.3 = ARCHITEKTUR §8.7

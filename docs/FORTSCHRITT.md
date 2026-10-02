@@ -2,6 +2,11 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.22
+
+- Anlage E erzeugt: `docs/recht/anlagen/E-01…E-06.png` (390 px, DE, Mock, 68–145 KB) mit `scripts/legal/briefing-screenshots.ts`; M08 wird vorab außerhalb von Playwright gerendert, Konfiguration löst Pfade zur Repo-Wurzel auf.
+- Tests: `tests/unit/legal/briefing.unit.spec.ts` prüft jetzt alle sechs Dateien (PNG, ≤ 300 KB) statt `it.todo`.
+
 ## 2026-10-02 – P6.8
 
 - R26 als zweistufige Widerrufsfunktion (Server Action mit `useActionState`, ohne JavaScript nutzbar): Schritt 1 → Auswahl der Stücke (nur bei passender Bestellnummer + E-Mail, keine Checkbox angehakt) → Schritt 2 mit „Ändern“ und „Widerruf bestätigen“ → Bestätigungsseite mit allen Angaben, Eingang (MEZ/MESZ), Vorgangsnummer, Mail-Hinweis, Drucken.
