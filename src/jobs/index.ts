@@ -2,6 +2,7 @@ import type { TaskConfig } from 'payload'
 
 import { instrumentTask } from '@/lib/jobs/instrument'
 
+import { activateScheduledLegalTextsTask } from './activateScheduledLegalTexts'
 import { cancelOverduePrepaymentsTask } from './cancelOverduePrepayments'
 import { complianceDocsReviewTask } from './complianceDocsReview'
 import { invoiceIntegrityCheckTask } from './invoiceIntegrityCheck'
@@ -80,6 +81,7 @@ export const JOB_TASKS: TaskConfig<any>[] = [
   monthlyCloseTask,
   invoiceIntegrityCheckTask,
   complianceDocsReviewTask,
+  activateScheduledLegalTextsTask,
 ].map((t) => instrumentTask(t, TASK_DEFS[t.slug as TaskSlug].queue))
 
 export const IMPLEMENTED_TASK_SLUGS = new Set<string>(JOB_TASKS.map((t) => t.slug))
@@ -102,6 +104,7 @@ export const WAKE_TASK_SLUGS: readonly TaskSlug[] = (
     'monthlyClose',
     'invoiceIntegrityCheck',
     'complianceDocsReview',
+    'activateScheduledLegalTexts',
   ] as const
 ).filter((s) => isImplementedTask(s))
 

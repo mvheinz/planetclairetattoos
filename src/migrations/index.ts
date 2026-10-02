@@ -30,6 +30,7 @@ import * as migration_20261001_193246_p5_compliance_docs_job from './20261001_19
 import * as migration_20261001_195941_p5_mark_delivered_job from './20261001_195941_p5_mark_delivered_job';
 import * as migration_20261002_020524_p6_legal_snippets_complaints from './20261002_020524_p6_legal_snippets_complaints';
 import * as migration_20261002_020601_p6_legal_snippets_complaints_constraints from './20261002_020601_p6_legal_snippets_complaints_constraints';
+import * as migration_20261002_023800_p6_activate_legal_job from './20261002_023800_p6_activate_legal_job';
 
 export const migrations = [
   {
@@ -190,6 +191,11 @@ export const migrations = [
   {
     up: migration_20261002_020601_p6_legal_snippets_complaints_constraints.up,
     down: migration_20261002_020601_p6_legal_snippets_complaints_constraints.down,
-    name: '20261002_020601_p6_legal_snippets_complaints_constraints'
+    name: '20261002_020601_p6_legal_snippets_complaints_constraints',
+  },
+  {
+    up: migration_20261002_023800_p6_activate_legal_job.up,
+    down: migration_20261002_023800_p6_activate_legal_job.down,
+    name: '20261002_023800_p6_activate_legal_job'
   },
 ];

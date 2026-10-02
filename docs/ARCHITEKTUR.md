@@ -129,6 +129,7 @@ aus §10–§13 dieses Dokuments); DNS-Umstellung und Start-Checkliste für P11 
 | `qrcode`, `@types/qrcode` (dev) | 1.5.4 / 1.5.6 (exakt gepinnt, P4.2) | P4 | EPC-QR (GiroCode) als PNG/SVG, serverseitig, ohne Netz (`src/lib/commerce/qr.ts`; Byte-Segment, Fehlerkorrektur M, Version ≤ 13 nach EPC069-12) |
 | `jsqr` (dev) | 1.4.0 (exakt gepinnt, P4.2) | P4 | Test: erzeugten EPC-QR (PNG und mit `sharp` gerastertes SVG) dekodieren und byte-gleich mit der Payload aus `buildEpcPayload` vergleichen |
 | `pdf-parse` (dev) | aktuell | P4 | Tests: Text aus erzeugten PDFs lesen (Rechnung, Gutschrift, Rechtstext-PDF; R-120, R-002) |
+| `sanitize-html`, `@types/sanitize-html` (dev) | 2.18.0 / 2.16.2 (exakt gepinnt, P6.3) | P6 | Bereinigung eingefügter Rechtstexte (`src/lib/legal/sanitize.ts`): Allowlist aus KANZLEI-BRIEFING §1.2, keine Styles/Klassen/Skripte |
 | `fflate` | 0.8.2 (exakt gepinnt, P5.24) | P5 | Rechnungs-ZIP je Monat (`src/lib/export/invoiceZip.ts`), feste Zeitstempel für byte-identische Archive |
 | `@aws-sdk/client-s3`, `@aws-sdk/lib-storage` | 3.x | P10 | Backup-Upload (§10); ist über `storage-s3` ohnehin im Baum |
 | `age-encryption` | aktuell | P10 | Backup-Verschlüsselung (X25519, age-Format) |
