@@ -3127,18 +3127,18 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
 
 ### Phasen-Abnahme
 
-- [ ] Alle Aufgaben P5.1–P5.29 (inkl. P5.22a) erledigt; `pnpm check`, `pnpm test:int`, `pnpm test:e2e` (Projekte
+- [x] Alle Aufgaben P5.1–P5.29 (inkl. P5.22a) erledigt; `pnpm check`, `pnpm test:int`, `pnpm test:e2e` (Projekte
   `desktop` und `iphone-15`) und `pnpm build` lokal grün.
-- [ ] Einzige P5-Migration `p5_job_runs` (DATENMODELL §10.1) rückwärtsverträglich (ARCHITEKTUR §6.7 Nr. 5),
+- [x] Einzige P5-Migration `p5_job_runs` (DATENMODELL §10.1) rückwärtsverträglich (ARCHITEKTUR §6.7 Nr. 5),
   `pnpm check:migrations` ohne Drift, `pnpm generate:types` und `pnpm generate:importmap` committet; geprüft, dass die
   übrigen genutzten Strukturen seit P1 im Schema liegen (DATENMODELL §10.1: `orders.pickup.messageText`,
   `settings.export.datev.*`, `site-texts.emails.signature`/`inquiryResponseTime`, `REFUND_REASONS` mit `breakage` und
   `admin_cancellation`, `AUDIT_ACTIONS` mit `inquiry_status_changed`) und die Admin-Endpunkte
   (`item-number-status`, `packaging-report`, `compliance/template.pdf`, `export`) in ARCHITEKTUR §2.5 stehen; ARCHITEKTUR
   §1.2 (`@zxing/browser`, `fflate`, `bwip-js`) nachgezogen; `CARRIER_DRIVER=manual` in `.env.example` vorhanden.
-- [ ] `LEGAL_TRACE_PHASE = 5` in `tests/unit/legal/traceability.unit.spec.ts`; der Test ist grün (jede R-ID mit
+- [x] `LEGAL_TRACE_PHASE = 5` in `tests/unit/legal/traceability.unit.spec.ts`; der Test ist grün (jede R-ID mit
   frühester Phase ≤ 5 und Test-Art ≠ nur „manuell“ steht in mindestens einem Testtitel).
-- [ ] Nachweise im PR-Text: AK-5-01/AK-5-02 (Produkt, Bestellung, Anfrage), AK-6-01 (A01–A17), AK-7-01 bis AK-7-06,
+- [x] Nachweise im PR-Text: AK-5-01/AK-5-02 (Produkt, Bestellung, Anfrage), AK-6-01 (A01–A17), AK-7-01 bis AK-7-06,
   AK-8-01, AK-8-02, AK-8-04, EK-08 sowie die R-IDs aus „Referenzen“ je mit Testdatei.
 - [ ] CI grün: Der Phasenende-Commit (z. B. `chore(P5): finish phase [ci:full p5]`, der letzte Commit ohne
   `[skip ci]`) hat `CI / quick`, `ci-full` (`e2e-full` inkl. `@a11y` und `@privacy`, `quality`) und `preview-export`
