@@ -276,7 +276,8 @@ describe('P3.16 R-096 und R-139 im Quelltext', () => {
     for (const file of tsx) {
       const text = readFileSync(path.join(ROOT, file), 'utf8')
       for (const m of text.matchAll(/href=\{instagram(?:Dm)?Url\(/g)) {
-        const open = text.lastIndexOf('<a', m.index)
+        // Einfacher Link `<a …>` oder Knopf-Link `<Button href=… rel=…>` (Tattoo-Bereich, P7).
+        const open = Math.max(text.lastIndexOf('<a', m.index), text.lastIndexOf('<Button', m.index))
         const close = text.indexOf('>', m.index)
         const tag = text.slice(open, close + 1)
         links.push(file)
@@ -286,12 +287,15 @@ describe('P3.16 R-096 und R-139 im Quelltext', () => {
       if (/\b(?:src|srcSet|data|poster)=\{?[^}>]*instagram/i.test(text))
         bad.push(`${file}: Instagram als eingebettete Ressource`)
     }
-    // Menü, Fuß und Kontakt (Profil + Direktnachricht) verlinken Instagram.
+    // Menü, Fuß und Kontakt (Profil + Direktnachricht) verlinken Instagram; der Tattoo-Bereich die DM (P7).
     expect(new Set(links)).toEqual(
       new Set([
         'src/components/content/ContactLinks.tsx',
         'src/components/layout/MenuOverlay.tsx',
         'src/components/layout/SiteFooter.tsx',
+        'src/components/tattoo/FlashCard.tsx',
+        'src/components/tattoo/OfferCard.tsx',
+        'src/components/tattoo/TattooContactBlock.tsx',
       ]),
     )
     expect(bad).toEqual([])

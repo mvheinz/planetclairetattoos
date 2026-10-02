@@ -32,9 +32,19 @@ interface CommonProps {
 
 export type ButtonProps = CommonProps &
   (
-    | { href: string; type?: never; name?: never; value?: never; form?: never; onClick?: never }
+    | {
+        href: string
+        /** Externe Links (Instagram): `noopener noreferrer` (R-139). */
+        rel?: string
+        type?: never
+        name?: never
+        value?: never
+        form?: never
+        onClick?: never
+      }
     | {
         href?: undefined
+        rel?: never
         type?: 'button' | 'submit' | 'reset'
         name?: string
         value?: string
@@ -42,7 +52,7 @@ export type ButtonProps = CommonProps &
         /** Nur in Client-Komponenten (z. B. „Nochmal versuchen“ auf R29). */
         onClick?: React.MouseEventHandler<HTMLButtonElement>
       }
-  ) & { 'data-behavior'?: string }
+  ) & { 'data-behavior'?: string; data?: Readonly<Record<`data-${string}`, string>> }
 
 const VARIANT_CLASS: Record<ButtonVariant, string | undefined> = {
   primary: styles.primary,
@@ -89,11 +99,17 @@ export function Button(props: ButtonProps) {
     'data-behavior': props['data-behavior'],
     'aria-disabled': disabled || ariaDisabled ? ('true' as const) : undefined,
     'aria-describedby': describedBy,
+    ...props.data,
   }
 
   if (props.href !== undefined) {
     return (
-      <a {...shared} href={disabled ? undefined : props.href} role={disabled ? 'link' : undefined}>
+      <a
+        {...shared}
+        href={disabled ? undefined : props.href}
+        rel={props.rel}
+        role={disabled ? 'link' : undefined}
+      >
         {content}
       </a>
     )

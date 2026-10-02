@@ -176,6 +176,11 @@ export const EXTERNAL_LINK_ALLOWLIST: readonly { host: RegExp; reason: string }[
     host: /^(www\.)?safer-tattoo\.de$/,
     reason: 'Safer-Tattoo-Infoseite (Tattoo-Bereich, RECHT V-27).',
   },
+  {
+    host: /^www\.bundesumweltministerium\.de$/,
+    reason:
+      'Safer-Tattoo-Checklisten des Bundesumweltministeriums auf R17 (KONZEPT §9.2, RECHT V-27).',
+  },
 ]
 /** V-31: Seiten, auf denen die Straße aus den Stammdaten stehen darf (Impressum, Rechtstexte, Konformitätserklärungen). */
 export const STREET_ALLOWED_ROUTES: readonly { routeId: string; reason: string }[] = [

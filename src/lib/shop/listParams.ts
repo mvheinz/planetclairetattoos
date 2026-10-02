@@ -16,20 +16,31 @@ import {
 } from '../routes/paths'
 export { LIST_ROUTE_IDS, LIST_VARIANT_SEGMENT, type ListRouteId }
 
-/** Parameter je Liste (KONZEPT §2.3): `available` nur R02/R03, `category` nur R05, `page` überall. */
+/**
+ * Parameter je Liste (KONZEPT §2.3, §9.2): `available` R02/R03/R12, `category` nur R05, `kind` nur R15 (Galerie
+ * `fresh`/`healed`), `page` bei den Shop-Listen (Flash und Galerie zeigen alles auf einer Seite).
+ */
 export const LIST_PARAMS: Readonly<Record<ListRouteId, readonly ListParamName[]>> = {
   R02: ['available', 'page'],
   R03: ['available', 'page'],
   R05: ['category', 'page'],
+  R12: ['available'],
+  R15: ['kind'],
 }
 
-export type ListParamName = 'available' | 'category' | 'page'
+export type ListParamName = 'available' | 'category' | 'kind' | 'page'
+
+/** Galerie-Filter (R15, `?kind=`). */
+export const GALLERY_KINDS = ['fresh', 'healed'] as const
+export type GalleryKindParam = (typeof GALLERY_KINDS)[number]
 
 export interface ListParams {
   /** `?available=1`: nur nicht verkaufte Stücke. */
   available?: true
   /** `?category=<slug der Seiten-Sprache>` (nur R05). */
   category?: string
+  /** `?kind=fresh|healed` (nur R15). */
+  kind?: GalleryKindParam
   /** `?page=n` ab 2 (Seite 1 ist die Grundform ohne Parameter). */
   page?: number
 }
@@ -68,7 +79,11 @@ export function parseListParams(routeId: ListRouteId, source: ParamSource): List
     const c = sp.get('category')
     if (c && c.length <= CATEGORY_MAX && CATEGORY_RE.test(c)) out.category = c
   }
-  const p = sp.get('page')
+  if (allowed.includes('kind')) {
+    const k = sp.get('kind')
+    if (k && (GALLERY_KINDS as readonly string[]).includes(k)) out.kind = k as GalleryKindParam
+  }
+  const p = allowed.includes('page') ? sp.get('page') : null
   if (p && PAGE_RE.test(p)) {
     const n = Number(p)
     if (n >= 2 && n <= MAX_LIST_PAGE) out.page = n
@@ -81,6 +96,7 @@ export function variantKey(params: ListParams): string {
   const parts: string[] = []
   if (params.available) parts.push('available-1')
   if (params.category) parts.push(`category-${params.category}`)
+  if (params.kind) parts.push(`kind-${params.kind}`)
   if (params.page && params.page >= 2) parts.push(`page-${params.page}`)
   return parts.join('.')
 }
@@ -111,6 +127,7 @@ export function listSearch(params: ListParams): string {
   const sp = new URLSearchParams()
   if (params.available) sp.set('available', '1')
   if (params.category) sp.set('category', params.category)
+  if (params.kind) sp.set('kind', params.kind)
   if (params.page && params.page >= 2) sp.set('page', String(params.page))
   const s = sp.toString()
   return s ? `?${s}` : ''

@@ -62,15 +62,35 @@ export function robotsFor(mode: RobotsMode): NonNullable<Metadata['robots']> {
   return { index: false }
 }
 
-export function descriptionFor(pageType: PublicPageType | null, locale: Locale): string {
+export function descriptionFor(
+  pageType: PublicPageType | null,
+  locale: Locale,
+  routeId?: string,
+): string {
   const texts: Descriptions = MESSAGES[locale].seo.descriptions
+  // Tattoo-Seiten R11–R18 je eine eigene Beschreibung (P7.1).
+  const tattoo = routeId ? (MESSAGES[locale].seo.tattoo as Record<string, string>)[routeId] : null
+  if (tattoo) return tattoo
   return (pageType && (texts as Record<string, string>)[pageType]) || texts.default
 }
+
+/** Unterseiten des Tattoo-Bereichs (R12–R18) tragen „Tattoo“ im Titel (PLAN P7.1). */
+const TATTOO_SUBPAGES: ReadonlySet<string> = new Set([
+  'R12',
+  'R13',
+  'R14',
+  'R15',
+  'R16',
+  'R17',
+  'R18',
+])
 
 export function titleFor(routeId: string, locale: Locale, pageTitle?: string): string {
   const common = MESSAGES[locale].common
   if (routeId === 'R01' && !pageTitle) return `${SITE_NAME} – ${common.claim}`
   const name = pageTitle ?? (common.routes as Record<string, string>)[routeId] ?? SITE_NAME
+  // `{Seitentitel} · Tattoo · Planet Claire` (R11 selbst: „Tattoo · Planet Claire“).
+  if (TATTOO_SUBPAGES.has(routeId)) return `${name} · ${common.routes.R11} · ${SITE_NAME}`
   return `${name} · ${SITE_NAME}`
 }
 
@@ -84,7 +104,7 @@ export function buildMetadata(
   const route = getRoute(routeId)
   const siteUrl = options.siteUrl ?? getEnv().NEXT_PUBLIC_SITE_URL
   const title = titleFor(routeId, locale, options.title)
-  const description = options.description ?? descriptionFor(route.pageType, locale)
+  const description = options.description ?? descriptionFor(route.pageType, locale, routeId)
   const indexable = route.robots === 'index'
   const urlFor = (l: Locale) =>
     absoluteUrl(
