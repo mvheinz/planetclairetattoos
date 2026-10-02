@@ -3736,7 +3736,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
   - Tests: `tests/unit/tattoo/mailto.unit.spec.ts` (Titel „AK-9-02 …“, „R-170 Betreff …“).
   - Ohne Jutta: –
 
-- [ ] **P7.2 R11 Übersicht und R12 Flash** – R11 (KONZEPT §9.2): H1 „Tattoo“, Block „Mein Stil“, laufendes bzw.
+- [x] **P7.2 R11 Übersicht und R12 Flash** – R11 (KONZEPT §9.2): H1 „Tattoo“, Block „Mein Stil“, laufendes bzw.
   nächstes Angebot als Karte, 3 verfügbare Flash-Motive, 3 Galerie-Bilder (bevorzugt `healed`, nur sichtbare), Links zu
   allen Unterseiten mit je einem Satz, Kontakt-Block; leere Blöcke entfallen. R12 (KONZEPT §9.3, KO-20): Einleitung,
   Filter „alle“/„verfügbar“ (`?available=1`, gleiche Technik wie der Shop-Filter nach Spike B-05), Raster 2 Spalten

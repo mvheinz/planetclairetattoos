@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P7.2
+
+- R11 Übersicht (Mein Stil, Angebots-Teaser, 3 freie Flash-Motive, 3 Galerie-Bilder bevorzugt healed, Links zu allen Unterseiten) und R12 Flash (Filter ?available=1 als statische Variante, Raster 2/3 Spalten, Karten mit F-012, Größe, Preis „120 €*“, einmalig/wiederholbar, Mail/DM/Baustein; vergeben: Stempel in --stencil ohne Knöpfe, Anker #f-012, MI-14 ohne Übergang)
+- Registry R11–R18 live; LIST_ROUTE_IDS um R12/R15 erweitert; Tuschelinie stencil mit Konturen und Endpunkt unter dem Raster (Feinschliff P9, OFFENE-PUNKTE)
+- Tests: tests/int/tattoo/flash-data.int.spec.ts (3), tests/e2e/tattoo/flash.e2e.spec.ts (AK-9-02, R-034, @a11y; desktop + pixel-7 grün)
+
 ## 2026-10-02 – P7.1
 
 - Tattoo-Grundgerüst: Unter-Navigation (TattooSubNav, Chips, aria-current), Kontakt-Block (Mail-Knopf mit Vorlage, Instagram-DM mit rel noopener noreferrer, Adresse kopieren mit Rückfall Markieren), Rahmen TattooShell, Preis-Fußnote price.tattooNote

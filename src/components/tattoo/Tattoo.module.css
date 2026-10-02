@@ -682,3 +682,10 @@
   flex-direction: column;
   gap: var(--space-4);
 }
+
+/* Endpunkt der Tuschelinie (Preset `stencil`) */
+.leashEnd {
+  display: block;
+  width: 0;
+  height: 0;
+}
