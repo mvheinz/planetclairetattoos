@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.19
+
+- Mail-Protokoll (Typ, Betreff, Zeitpunkt, Anbieter-ID, Status, Anhänge; Empfänger maskiert) an Widerrufen, Anfragen und Datenschutz-Anfragen; Einwilligungs-Protokoll an Bestellungen\n- Gesamtliste `/export/protokolle` mit Filtern (Art, Zeitraum, Status, Typ), ohne Inhalte/Freitexte\n- „Kopie an mich“ für M08 (`POST /api/withdrawals/:id/receipt-copy`) nur an die Verwaltungs-Adresse\n- Tests: `tests/int/email/logs-admin.int.spec.ts` (4), `tests/e2e/admin/logs.e2e.spec.ts`, `tests/e2e/admin/privacy-requests.e2e.spec.ts` (desktop + pixel-7 grün)
+
 ## 2026-10-02 – P6.18
 
 - Löschplan je Datensatz (`src/lib/privacy/erasure.ts`, Regel aus LOESCHKONZEPT): Bestellungen nach Fristende anonymisiert (Stufe D), sonst eingeschränkt (`processingRestricted`, Notizen/Packfotos weg, DHL-Einwilligung widerrufen) oder behalten (Sperre mit Begründung); Kassen, Anfragen, Nachweise ohne Bezug gelöscht; Belege unverändert; `deletion-log` (`privacy_request`/`DSGVO`/`privacyRequestRef`); M15\n- Outbox und `sendEmail` unterdrücken Kund:innen-Mails zu eingeschränkten Bestellungen (`suppressed`)\n- Berichtigung: ohne Rechnung direkt (Vermerk im Verlauf, Kontext `rectify`), sonst `reissueInvoice` (GS `correction` + neue RE mit `replacesInvoice`); Migrationen `p6_invoice_reissue` (+ `_constraints`: partieller UNIQUE, GoBD-Trigger)\n- M16 beim DHL-Widerruf auf Wunsch; M14–M16 DE/EN\n- Tests: `tests/int/legal/privacy-erasure.int.spec.ts` (4), `tests/unit/legal/p6-mails.unit.spec.ts` (R-084 M14–M16)

@@ -3587,7 +3587,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     `tests/unit/legal/p6-mails.unit.spec.ts` (Titel „R-084 …“, Snapshots M14–M16).
   - Ohne Jutta: –
 
-- [ ] **P6.19 Einwilligungs- und Mail-Protokolle in der Verwaltung** – Anzeige `consent-log` an Bestellungen (Zweck,
+- [x] **P6.19 Einwilligungs- und Mail-Protokolle in der Verwaltung** – Anzeige `consent-log` an Bestellungen (Zweck,
   Zeitpunkt, Baustein-Version, Widerruf) und `email-log` an Widerrufen und Anfragen (Typ, Betreff, Zeitpunkt,
   Anbieter-ID, Status, Anhang-Namen). Gesamtliste `/export/protokolle` mit Filtern (Art, Zeitraum, Status), Empfänger
   teilweise maskiert. M08 lässt sich nur als Kopie an Jutta erneut senden (KONZEPT §6.1).
