@@ -3269,7 +3269,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
   - Tests: `tests/e2e/admin/legal-texts.e2e.spec.ts`, `tests/int/legal/legal-texts-admin.int.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P6.5 Rechtsseiten R21–R24, R27, Kontakt R20 und Kurz-URLs** – Seiten `legal-notice`, `privacy`, `terms`,
+- [x] **P6.5 Rechtsseiten R21–R24, R27, Kontakt R20 und Kurz-URLs** – Seiten `legal-notice`, `privacy`, `terms`,
   `right-of-withdrawal`, `declarations-of-conformity`, `contact` unter `src/app/(frontend)/[locale]/` (Registry-Status
   von `planned` auf gebaut): statisch mit Tag `legal:<type>`, ohne JavaScript vollständig lesbar, genau eine `h1`, „Stand:
   {Datum der Version}“, PDF-Download der aktuellen Version (außer Impressum), Preset `legal` der Tuschelinie (DESIGN

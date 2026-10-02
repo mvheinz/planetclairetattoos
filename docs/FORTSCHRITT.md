@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.5
+
+- Rechtsseiten: PDF-Download je Text (außer Impressum), translation.disclaimer auf EN mit EN-Fassung, Anker-IDs der Datenschutzerklärung (§11.10), Seite neu bei nachgetragenem PDF; Kontakt mit „Adresse kopieren“\n- Startseite: dynamicParams=false entfernt (Neuerzeugung nach Tag-Erneuerung lieferte dauerhaft 404)\n- Tests: unit phone (R-021), anchors; E2E legal/pages (R-010/R-002/R-015/R-020/R-021/R-023/R-049) desktop+pixel-7 grün
+
 ## 2026-10-02 – P6.4
 
 - Texte → Rechtstexte: je Typ aktive Fassung (Stand, Herkunft, Alter, Bestellungen je Fassung, letzte Prüfung), frühere/geplante Fassungen, „Neue Version“ (HTML/Text DE, EN optional, bereinigt → Lexical), Vorschau mit Fehlerliste ohne Speichern, Veröffentlichen sofort/ab Datum mit Rückfrage, „Geprüft, keine Änderung“; Bausteine nach Schlüssel mit Spalte Kanzlei ja/nein\n- Endpunkte /api/legal-texts|legal-snippets/{preview,publish}-version, /api/legal-texts/confirm-review\n- Tests: int legal-texts-admin (9), E2E admin/legal-texts (390×844, axe) grün
