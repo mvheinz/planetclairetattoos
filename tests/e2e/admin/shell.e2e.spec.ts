@@ -206,10 +206,11 @@ test.describe('Verwaltungs-Gerüst (P5.1) @a11y', () => {
       'aria-current',
       'page',
     )
-    // Platzhalter („Heute“ bis P5.28) führt in „Alle Daten“.
-    await page.goto(adminPath('/heute'))
+    // Platzhalter („Tattoo“ bis P7) führt in „Alle Daten“.
+    await page.goto(adminPath('/tattoo'))
     await page.getByRole('link', { name: 'In „Alle Daten“ öffnen' }).click()
-    await expect(page).toHaveURL(new RegExp(`${adminPath('/collections/orders')}`))
+    await expect(page).toHaveURL(new RegExp(`${adminPath('/collections/flash')}`))
+    await page.goto(adminPath('/collections/orders'))
     await expectNoSeriousViolations(page, 'Alle Daten: Bestellungen (Desktop)')
     await page.goto(adminPath('/heute'))
     await expectNoSeriousViolations(page, 'Heute (Desktop)')

@@ -2,6 +2,14 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P5.29
+
+- Verwaltung als Web-App: ADMIN_ROUTE/manifest.webmanifest, ADMIN_ROUTE/sw.js (ohne Cache, ohne Push), Icons 192/512 maskierbar + Apple 180 auf Matte-Grün (pnpm art:admin-icons, src/admin/pwa/, ausgeliefert unter ADMIN_ROUTE/pwa/…); Manifest-Link und Registrierung nur in der Verwaltung\n- /manifest.webmanifest, /sw.js, /admin/… → 404 (Startseite: dynamicParams = false); Verwaltungspfad nicht in public/ und .next/static (check:external)\n- Tests: tests/unit/admin/sw.unit.spec.ts (4), tests/e2e/admin/pwa.e2e.spec.ts (AK-7-06 per CDP Page.getInstallabilityErrors, T-04)
+
+## 2026-10-02 – P5.28
+
+- Start-Ansicht „Heute“ (/heute und ADMIN_ROUTE): Kacheln Zu packen, Vorkasse offen (davon heute fällig), Abholung, Widerrufe offen (nächste Frist), Neue Anfragen; Hinweise rot/gelb mit Link (Umsatz-Wächter, Rechtstexte-Prüfung je Typ, adminAttention an Stück/Bestellung, Aufbewahrungssperren ≥ 6 Monate, fehlgeschlagene Mails/Jobs 24 h, Anfechtungen, Abholung > 14 Tage, fehlende Monatssummen Vormonat, Kostenwarnung ≥ Schwelle, Beispieldaten), Startklar-Platzhalter, letzte 5 Bestellungen, Schnellknopf „Neues Stück“\n- Dienst getTodaySummary(now, payload) in src/lib/admin/today.ts; Regel legalHoldReviewDue für P6.15\n- Tests: tests/int/admin/today.int.spec.ts (6), tests/e2e/admin/today.e2e.spec.ts (Heute + Texte, desktop/pixel-7, axe, 390 px)
+
 ## 2026-10-02 – P5.27
 
 - Ansicht „Texte“ (/texte): Seiten/FAQ (kommt in P8), Rechtstexte (kommt in P6), Mail-Bausteine DE/EN mit Übersetzen (Signatur, Abhol-Vorlage, Antwortzeit-Satz; Bereich mailTexts im Einstellungs-Endpunkt, schreibt settings + site-texts), Vorlagen fürs Mailprogramm mit Bestellnummer, mailto: und Kopieren\n- src/lib/legal/templates.ts: 4 Arbeitsfassungen (Bruch/Fotos mit Reklamationsfrist für Jutta = Versanddatum + 7 Tage, Reparatur/Ersatz, § 37 VSBG, Bitte um IBAN)\n- Signatur aus site-texts.emails.signature steht jetzt unter allen Kund:innen-Mails (closingBlock)\n- Tests: tests/unit/legal/admin-templates.unit.spec.ts (13), tests/int/email/signature.int.spec.ts (3)

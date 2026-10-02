@@ -3076,7 +3076,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/unit/legal/admin-templates.unit.spec.ts`, `tests/int/email/signature.int.spec.ts`.
   - Ohne Jutta: Texte sind Entwürfe in Juttas Ton (E-62); sie passt sie selbst an.
 
-- [ ] **P5.28 „Heute“** – Start-Ansicht `/heute` (KONZEPT §7.3) über einen Dienst `getTodaySummary(now)` in
+- [x] **P5.28 „Heute“** – Start-Ansicht `/heute` (KONZEPT §7.3) über einen Dienst `getTodaySummary(now)` in
   `src/lib/admin/today.ts` (wenige gebündelte Abfragen): Kacheln mit Zahl und Link – Zu packen, Vorkasse offen (davon
   heute fällig), Abholung, Widerrufe offen (nächste Frist), Neue Anfragen. Hinweise rot/gelb mit Link (KONZEPT §7.3):
   Umsatz-Wächter-Stufe, Rechtstexte älter als 1 Jahr (ab P6 je Typ), Stücke und Bestellungen mit `adminAttention`
@@ -3106,7 +3106,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/admin/today.int.spec.ts`, `tests/e2e/admin/today.e2e.spec.ts` (`@a11y`).
   - Ohne Jutta: –
 
-- [ ] **P5.29 Verwaltung als installierbare Web-App (PWA)** – Route-Handler
+- [x] **P5.29 Verwaltung als installierbare Web-App (PWA)** – Route-Handler
   `src/app/(payload)/admin/manifest.webmanifest/route.ts` und `src/app/(payload)/admin/sw.js/route.ts` (ARCHITEKTUR
   §2.1, §8.4), ausgeliefert unter `ADMIN_ROUTE/manifest.webmanifest`
   und `ADMIN_ROUTE/sw.js`: Name „Planet Claire Werkstatt“, Kurzname „Werkstatt“, `start_url` = `ADMIN_ROUTE/heute`,

@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import React from 'react'
 
@@ -12,7 +13,7 @@ import { getHomeView } from '@/lib/data/home'
 import { getSiteNavigation, instagramUrl } from '@/lib/data/navigation'
 import { listStationProducts } from '@/lib/data/products'
 import { getShopDisplaySettings, taxSettingsFor } from '@/lib/data/shopSettings'
-import { localizedPath } from '@/lib/routes/paths'
+import { isLocale, localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
 import { organizationJsonLd, serializeJsonLd } from '@/lib/seo/jsonld'
 import { routeMetadata } from '@/lib/seo/metadata'
@@ -22,6 +23,9 @@ export const generateMetadata = routeMetadata('R01')
 // ISR (ARCHITEKTUR §9.1): gezielt erneuert über die Tags `home`, `products`, `category:<key>`, `page:home` (P3.15);
 // Rückfall nach einer Stunde.
 export const revalidate = 3600
+// Nur `/de` und `/en` (generateStaticParams im Layout): unbekannte Wurzelpfade wie `/sw.js` oder
+// `/manifest.webmanifest` antworten mit 404, statt die ISR-Seite dynamisch zu rendern (P5.29, T-04).
+export const dynamicParams = false
 
 // R01 Startseite (KONZEPT §3.1, DESIGN KO-21/§11.4, Preset `journey`): Kopf-Station „Planet Claire“ (H1 mit
 // Planet-Marke links vor dem Namen, Anker `orbit` für das Intro MI-10 – die Linie kreuzt so keinen Text) und danach die Stationen aus `pages:home` in fester Reihenfolge
@@ -32,7 +36,9 @@ export const revalidate = 3600
 // `home`); Preis-Fußnote einmal pro Seite, Live-Zustand der Karten nach dem Laden (`product-status`). Die
 // Tattoo-Station bleibt bis P7 ohne Motive.
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
-  const locale = (await params).locale as Locale
+  const requested = (await params).locale
+  if (!isLocale(requested)) notFound()
+  const locale: Locale = requested
   setRequestLocale(locale)
   const [t, tCard, nav, home, settings] = await Promise.all([
     getTranslations({ locale, namespace: 'home' }),
