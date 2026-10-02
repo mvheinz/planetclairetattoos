@@ -456,7 +456,13 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
     await list.locator('a[href="#/vorschau/verwaltung"]').click()
     await expect(page.locator('#pv-root h1')).toHaveText('Verwaltung auf dem Handy')
     await expect(page.locator('#pv-root [data-admin-view="login"] img')).toBeVisible()
-    await expect(page.locator('#pv-root [data-admin-view="heute"]')).toContainText('kommt in P5')
+    // Jede Verwaltungsansicht hat entweder ein Foto oder den Hinweis „kommt in P<n>“ (welche, hängt von der Phase ab).
+    const views = page.locator('#pv-root [data-admin-view]')
+    expect(await views.count()).toBeGreaterThan(1)
+    for (const view of await views.all()) {
+      if ((await view.locator('img').count()) === 0)
+        await expect(view).toContainText(/kommt in P\d+/)
+    }
   })
 
   test('nach allen Interaktionen: kein Cookie, leerer Web-Storage', async ({ page }) => {
