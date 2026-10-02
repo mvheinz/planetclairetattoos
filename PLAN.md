@@ -3145,7 +3145,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   grün durchlaufen. Dieses Häkchen setzt ein reiner Doku-Commit mit `[skip ci]`, nachdem der Lauf grün ist.
 - [ ] Vorschau-Artefakt `planet-claire-vorschau-p5-<sha7>` enthält Bildschirmfotos aller in P5 gebauten Admin-Ansichten
   (390×844); `/tattoo` erscheint als „kommt in P7“.
-- [ ] `docs/FORTSCHRITT.md` mit Phasen-Eintrag; PR-Beschreibung nach Vorlage aktualisiert; neue Annahmen in
+- [x] `docs/FORTSCHRITT.md` mit Phasen-Eintrag; PR-Beschreibung nach Vorlage aktualisiert; neue Annahmen in
   `docs/OFFENE-PUNKTE.md` (mindestens: Deutsche-Post-Tracking-Vorlage, DATEV-Format, Verpackungsgewichte,
   zusammengeführte Umsatz-Wächter-Stufen, Telefon-Platzhalter speicherbar, Kostenwarnung ab Erreichen der Schwelle,
   „Shop öffnen“ in Produktion bis P10.14 gesperrt); neue Jutta-Aufgaben als A51 ff. in

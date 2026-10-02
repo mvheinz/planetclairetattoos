@@ -4,6 +4,50 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 
 
 
+
+## 2026-10-02 – P5 Phasen-Abnahme (deine Werkstatt, also die Verwaltung) – für Jutta
+
+**Was ist neu?** Deine Verwaltung ist fertig gebaut – gemacht fürs Handy. Du erreichst sie über deinen geheimen
+Verwaltungs-Link und kannst sie wie eine App auf den Startbildschirm legen („Zum Home-Bildschirm“). Alles ist auf
+Deutsch, mit großen Knöpfen, und vor jeder wichtigen Aktion fragt sie kurz nach, was passieren wird.
+
+**Was du in deiner Verwaltung jetzt kannst:**
+
+- **Heute:** Die Startseite zeigt dir auf einen Blick, was zu tun ist – Bestellungen zum Packen, offene
+  Vorkasse-Zahlungen, Abholungen, neue Anfragen und Widerrufe – plus die letzten Bestellungen.
+- **Neues Stück:** Fotos direkt mit dem Handy aufnehmen oder aus der Galerie wählen (werden automatisch verkleinert,
+  Standortdaten fliegen raus), Kategorie antippen, Titel und Preis eingeben, „Online stellen“. Die Objektnummer wird
+  dir vorgeschlagen und sofort geprüft („✓ frei“). Mit „Übersetzen → EN“ bekommst du einen englischen Vorschlag.
+- **Meine Stücke:** alle Stücke mit Suche und Filter; „Bearbeiten“, „Offline verkauft“ (z. B. auf dem Flohmarkt)
+  und ein Etikett als PDF.
+- **Zu packen → Versendet:** Liste der bezahlten Bestellungen, Adresse kopieren, Packfotos und Checkliste, Packzettel
+  und Beileger als PDF, dann die Sendungsnummer eintippen oder mit der Kamera scannen und „Versendet melden“ – die
+  Kundin bekommt automatisch ihre Versandmail. Nach 10 Tagen gilt die Sendung von selbst als zugestellt.
+- **Abholung:** „Bereit zur Abholung“ schickt der Kundin deinen Abholtext, „Abgeholt“ schließt die Bestellung ab.
+- **Vorkasse offen:** sehen, wer noch überweisen muss und bis wann; „Zahlung erhalten“ verschickt die Rechnung.
+- **Widerrufe** (zum Nachlesen) und **Anfragen** für Auftragsarbeiten (mit Bild, Status, Notiz und Antwort).
+- **Texte:** deine Mail-Bausteine auf Deutsch und Englisch, deine Grußformel und fertige Vorlagen fürs Mailprogramm.
+- **Einstellungen:** deine Daten, Steuer, Zahlung, Versand (EU-Versand erst nach fünf Häkchen), Produktsicherheit
+  (hier legst du die Unterlagen je Kategorie ab – mit Vorlage als PDF), der **Umsatz-Wächter** (zeigt dir, wie nah du
+  an der Kleinunternehmer-Grenze bist, und warnt rechtzeitig per Mail) und „System“ für die Technik.
+- **Export:** pro Monat eine Tabelle und alle Rechnungen als ZIP für deine Steuerberatung, auf Wunsch auch als
+  DATEV-Datei – nie mit Namen oder Adressen, nie mit Beispieldaten. Dazu die Jahresmengen der Verpackung für LUCID.
+- **Erinnerungen per Mail an dich:** z. B. bei neuer Bestellung, Anfrage, Widerruf, einmal im Monat zum
+  Monatsabschluss und zu den Produktsicherheits-Unterlagen.
+
+**So schaust du dir die Vorschau-Datei an:** Die Datei „planet-claire-vorschau.html“ herunterladen und doppelklicken
+(wie in Anleitung V0) – sie öffnet sich im Browser, ohne Internet. Unter „Verwaltung“ siehst du jetzt Bildschirmfotos
+aller neuen Ansichten so, wie sie auf dem Handy aussehen (Heute, Neues Stück, Meine Stücke, Zu packen, Vorkasse,
+Versendet, Abholung, Widerrufe, Anfragen, Texte, Einstellungen mit Produktsicherheit, Versand, Umsatz-Wächter und
+System, Export). Nur „Tattoo“ steht dort noch als „kommt in P7“. Die Fotos sind Bilder – klicken kannst du darin nichts.
+
+**Kleine Reparatur nebenbei:** Bei der Abnahme haben wir gemerkt, dass die Startseite nach einer Reservierung kurz
+verschwinden konnte. Das ist behoben und wird jetzt automatisch geprüft.
+
+**Was bis zum Start (P11) noch von dir kommt:** die Unterlagen zur Produktsicherheit hochladen, die DATEV-Konten mit
+deiner Steuerberatung festlegen und deine echten Daten (Adresse, Bankverbindung, Telefon) eintragen – alles steht in
+deiner Aufgabenliste.
+
 ## 2026-10-02 – P4 CI grün
 
 - Phasenlauf `[ci:full p4]` (Commit aeef4fc): CI, CI full (e2e desktop/iphone-15/pixel-7, quality) und Vorschau-Export grün; Artefakt `planet-claire-vorschau-p4-aeef4fc`. Davor (6ec1f2c) war nur der Vorschau-Test rot, der noch den P3-Stand der Verwaltungsfotos erwartete – jetzt phasenunabhängig.
