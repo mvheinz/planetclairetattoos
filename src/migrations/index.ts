@@ -31,6 +31,8 @@ import * as migration_20261001_195941_p5_mark_delivered_job from './20261001_195
 import * as migration_20261002_020524_p6_legal_snippets_complaints from './20261002_020524_p6_legal_snippets_complaints';
 import * as migration_20261002_020601_p6_legal_snippets_complaints_constraints from './20261002_020601_p6_legal_snippets_complaints_constraints';
 import * as migration_20261002_023800_p6_activate_legal_job from './20261002_023800_p6_activate_legal_job';
+import * as migration_20261002_032940_p6_retention_failures from './20261002_032940_p6_retention_failures';
+import * as migration_20261002_033402_p6_retention_jobs from './20261002_033402_p6_retention_jobs';
 
 export const migrations = [
   {
@@ -196,6 +198,16 @@ export const migrations = [
   {
     up: migration_20261002_023800_p6_activate_legal_job.up,
     down: migration_20261002_023800_p6_activate_legal_job.down,
-    name: '20261002_023800_p6_activate_legal_job'
+    name: '20261002_023800_p6_activate_legal_job',
+  },
+  {
+    up: migration_20261002_032940_p6_retention_failures.up,
+    down: migration_20261002_032940_p6_retention_failures.down,
+    name: '20261002_032940_p6_retention_failures',
+  },
+  {
+    up: migration_20261002_033402_p6_retention_jobs.up,
+    down: migration_20261002_033402_p6_retention_jobs.down,
+    name: '20261002_033402_p6_retention_jobs'
   },
 ];

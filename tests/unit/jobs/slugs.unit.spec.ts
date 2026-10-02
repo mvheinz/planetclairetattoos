@@ -51,6 +51,11 @@ describe('Task-Slugs (ARCHITEKTUR Anhang A.3)', () => {
       'invoiceIntegrityCheck',
       'complianceDocsReview',
       'activateScheduledLegalTexts',
+      'retentionAbandonedCheckouts',
+      'retentionOrderMinimize',
+      'retentionOrders',
+      'retentionInvoices',
+      'retentionWithdrawals',
     ])
     for (const slug of registered) expect(TASK_SLUGS).toContain(slug)
   })

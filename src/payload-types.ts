@@ -177,6 +177,11 @@ export interface Config {
       invoiceIntegrityCheck: TaskInvoiceIntegrityCheck;
       complianceDocsReview: TaskComplianceDocsReview;
       activateScheduledLegalTexts: TaskActivateScheduledLegalTexts;
+      retentionAbandonedCheckouts: TaskRetentionAbandonedCheckouts;
+      retentionOrderMinimize: TaskRetentionOrderMinimize;
+      retentionOrders: TaskRetentionOrders;
+      retentionInvoices: TaskRetentionInvoices;
+      retentionWithdrawals: TaskRetentionWithdrawals;
       inline: {
         input: unknown;
         output: unknown;
@@ -2521,7 +2526,12 @@ export interface PayloadJob {
           | 'monthlyClose'
           | 'invoiceIntegrityCheck'
           | 'complianceDocsReview'
-          | 'activateScheduledLegalTexts';
+          | 'activateScheduledLegalTexts'
+          | 'retentionAbandonedCheckouts'
+          | 'retentionOrderMinimize'
+          | 'retentionOrders'
+          | 'retentionInvoices'
+          | 'retentionWithdrawals';
         taskID: string;
         input?:
           | {
@@ -2569,6 +2579,11 @@ export interface PayloadJob {
         | 'invoiceIntegrityCheck'
         | 'complianceDocsReview'
         | 'activateScheduledLegalTexts'
+        | 'retentionAbandonedCheckouts'
+        | 'retentionOrderMinimize'
+        | 'retentionOrders'
+        | 'retentionInvoices'
+        | 'retentionWithdrawals'
       )
     | null;
   queue?: string | null;
@@ -5192,6 +5207,71 @@ export interface TaskActivateScheduledLegalTexts {
     activated?: number | null;
     failed?: number | null;
     nextDueAt?: string | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionAbandonedCheckouts".
+ */
+export interface TaskRetentionAbandonedCheckouts {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    processed?: number | null;
+    failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionOrderMinimize".
+ */
+export interface TaskRetentionOrderMinimize {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    processed?: number | null;
+    failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionOrders".
+ */
+export interface TaskRetentionOrders {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    processed?: number | null;
+    failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionInvoices".
+ */
+export interface TaskRetentionInvoices {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    processed?: number | null;
+    failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionWithdrawals".
+ */
+export interface TaskRetentionWithdrawals {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    processed?: number | null;
+    failed?: number | null;
   };
 }
 /**
