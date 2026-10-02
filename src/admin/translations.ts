@@ -372,7 +372,18 @@ export const ADMIN_CUSTOM_DE = {
     'Für LUCID und das duale System: kg je Material aller versendeten Bestellungen im Jahr (ohne Beispieldaten, ohne Abholungen).',
   exportPackagingYear: 'Jahr',
   exportPackagingDownload: 'CSV herunterladen',
-  exportMoreLater: 'Monats-CSV, Rechnungs-ZIP und DATEV folgen hier; bis dahin über „Alle Daten“.',
+  exportMonthTitle: 'Buchhaltung (Monat)',
+  exportMonthIntro:
+    'Für die Steuerberatung: Belege eines Monats als Tabelle (CSV), alle Rechnungen und Gutschriften als ZIP und der DATEV-Buchungsstapel. Ohne Namen, Adressen und E-Mails, nie mit Beispieldaten.',
+  exportMonth: 'Monat',
+  exportCsv: 'Monats-CSV herunterladen',
+  exportZip: 'Rechnungs-ZIP herunterladen',
+  exportDatev: 'DATEV-Datei herunterladen',
+  exportDatevMissing:
+    'DATEV: Konten mit der Steuerberatung festlegen (Alle Daten → Einstellungen, Bereich „Export“). Es fehlen: {{fields}}.',
+  exportMonthHint:
+    'Fehlt noch eine Rechnungs-PDF, sagt der Download, welche – dann später noch einmal.',
+  exportPrivacyLater: 'Die Datenschutz-Werkzeuge (Auskunft, Löschung) folgen in P6.',
   packagingYearTotal: 'Verpackung {{year}} bisher: {{shipments}} Sendungen',
   packagingYearNone: 'Noch keine versendeten Bestellungen in {{year}}.',
   // Produktsicherheit (P5.13)
