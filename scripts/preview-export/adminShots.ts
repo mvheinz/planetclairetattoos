@@ -15,6 +15,8 @@ export const SHOT_VIEWPORT = { width: 390, height: 844 } as const
 export const SHOT_DPR = 2
 export const SHOT_WIDTH = 780
 export const SHOT_QUALITY = 70
+/** Höchstzahl der Seitenaufrufe je Ansicht, bis zwei hintereinander das gleiche Bild liefern. */
+export const LOADS_PER_VIEW = 4
 
 /** Ansichten, die in dieser Phase schon existieren können (bis zur laufenden Phase); der Rest ist „kommt in P<n>“. */
 export function viewsToCapture(views: readonly AdminView[], phase: string): AdminView[] {
@@ -94,19 +96,37 @@ export async function captureAdminShots(
     await page.clock.setFixedTime(new Date(options.seedNow))
     const base = `${options.origin}${options.adminRoute}`
 
-    const shoot = async (view: AdminView) => {
+    /** Ansicht laden und stabil fotografieren; `null` = 404 („kommt in P<n>“). */
+    const load = async (view: AdminView): Promise<Buffer | null> => {
       const res = await page.goto(`${base}${view.path}`, { waitUntil: 'networkidle' })
-      if (!res || res.status() === 404) {
+      if (!res || res.status() === 404) return null
+      if (res.status() >= 500) {
+        throw new ExportError(1, `Verwaltung: ${view.key} antwortet mit HTTP ${res.status()}.`)
+      }
+      await page.evaluate(() => document.fonts.ready)
+      // Maus aus der Seite: Sonst bleibt sie dort stehen, wo der Anmelde-Knopf war, und je nach Zeitpunkt der
+      // Hover-Aktualisierung von Chromium ist das Element darunter (z. B. eine Kategorie-Kachel) hervorgehoben oder nicht.
+      // Schon ein Pixel Unterschied ändert über die globale Segmentierung von WebP das ganze Bild (AK-A-14-01).
+      await page.mouse.move(0, 0)
+      return stableScreenshot(page)
+    }
+
+    const shoot = async (view: AdminView) => {
+      // Unter Last rastert Chromium Fließtext gelegentlich um Bruchteile eines Pixels versetzt (je Seitenaufruf, nicht
+      // je Aufnahme). Deshalb erst zwei aufeinanderfolgende Aufrufe mit gleichem Bild übernehmen (höchstens vier).
+      let previous = await load(view)
+      if (!previous) {
         warnings.push(
           `Verwaltung: ${view.key} (${view.path || '/'}) antwortet mit 404 – „kommt in P${view.phase}“.`,
         )
         return
       }
-      if (res.status() >= 500) {
-        throw new ExportError(1, `Verwaltung: ${view.key} antwortet mit HTTP ${res.status()}.`)
+      for (let i = 1; i < LOADS_PER_VIEW; i++) {
+        const next = await load(view)
+        if (!next || next.equals(previous)) break
+        previous = next
       }
-      await page.evaluate(() => document.fonts.ready)
-      images.set(view.key, await encodeShot(await stableScreenshot(page)))
+      images.set(view.key, await encodeShot(previous))
     }
 
     const anonymous = options.views.filter((v) => v.anonymous && capture.has(v.key))
