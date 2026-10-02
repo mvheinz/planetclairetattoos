@@ -29,6 +29,33 @@ export interface LegalSnippetSeedText {
 const draft = (de: string, en: string) => ({ de, en, origin: 'draft' as const })
 const placeholder = () => ({ ...SNIPPET_PLACEHOLDER_TEXT, origin: 'placeholder' as const })
 
+/**
+ * Platzhalter `commission.offer` (R-161, PLAN P7.14) mit der Gliederung, die der Kanzleitext (K-24, P11) füllen muss –
+ * Jutta kopiert ihn im Anfrage-Detail als Gerüst für ihr Angebot per Mail. Bleibt `origin = 'placeholder'`.
+ */
+export const COMMISSION_OFFER_PLACEHOLDER: Readonly<Record<Locale, string>> = Object.freeze({
+  de: [
+    SNIPPET_PLACEHOLDER_TEXT.de,
+    'Gliederung des Angebots per Mail:',
+    '1. Wesentliche Eigenschaften (Gegenstand, Motiv, Material, Größe, Farben).',
+    '2. Gesamtpreis inkl. Versandkosten (mit Hinweis nach § 19 UStG, solange Kleinunternehmerin).',
+    '3. Lieferzeit.',
+    '4. Zahlungsweg (Überweisung außerhalb des Shops).',
+    '5. Herstellerangaben und Warnhinweise (GPSR).',
+    '6. Widerrufsinformation: Ausschluss nur, wenn das Stück nach individuellen Vorgaben angefertigt wird (§ 312g Abs. 2 Nr. 1 BGB); sonst Widerrufsbelehrung und Muster-Widerrufsformular beifügen.',
+  ].join('\n'),
+  en: [
+    SNIPPET_PLACEHOLDER_TEXT.en,
+    'Structure of the offer by email:',
+    '1. Main characteristics (object, motif, material, size, colours).',
+    '2. Total price including shipping (with the note under Section 19 UStG while the small-business scheme applies).',
+    '3. Delivery time.',
+    '4. Payment method (bank transfer outside the shop).',
+    '5. Manufacturer details and safety warnings (GPSR).',
+    '6. Withdrawal information: excluded only if the piece is made to individual specifications (Section 312g (2) no. 1 BGB); otherwise attach the withdrawal policy and the model withdrawal form.',
+  ].join('\n'),
+})
+
 const TEXTS: Record<LegalSnippetKey, LegalSnippetSeedText> = {
   'price.kleinunternehmerNote': draft(
     'Endpreis · gemäß § 19 UStG wird keine Umsatzsteuer berechnet',
@@ -140,7 +167,7 @@ const TEXTS: Record<LegalSnippetKey, LegalSnippetSeedText> = {
     'I only use your details and images to answer your request. They are deleted automatically 6 months after receipt. More in the privacy policy.',
   ),
   'inquiry.autoReply': placeholder(),
-  'commission.offer': placeholder(),
+  'commission.offer': { ...COMMISSION_OFFER_PLACEHOLDER, origin: 'placeholder' },
   'translation.disclaimer': draft(
     'This English version is provided for convenience only. Only the German version is legally binding.',
     'This English version is provided for convenience only. Only the German version is legally binding.',

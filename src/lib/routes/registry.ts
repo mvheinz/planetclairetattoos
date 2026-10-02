@@ -103,7 +103,7 @@ export const ROUTES: readonly RouteEntry[] = [
   page({ id: 'R07', de: '/kasse', en: '/checkout', pageType: 'checkout', preset: 'calm', rendering: 'dynamic', robots: 'noindex', headerContext: 'checkout', status: 'live', phase: 4 }),
   page({ id: 'R08', de: '/danke/[token]', en: '/thank-you/[token]', pageType: 'thankYou', preset: 'thanks', rendering: 'dynamic', robots: 'noindex', headerContext: 'dynamic', status: 'live', phase: 4 }),
   page({ id: 'R09', de: '/bestellung/[token]', en: '/order/[token]', pageType: 'orderStatus', preset: 'calm', rendering: 'dynamic', robots: 'noindex', headerContext: 'dynamic', status: 'live', phase: 4 }),
-  page({ id: 'R10', de: '/auftragsarbeiten', en: '/commissions', pageType: 'commissions', preset: 'frame', rendering: 'dynamic', robots: 'index', headerContext: 'dynamic', status: 'planned', phase: 7 }),
+  page({ id: 'R10', de: '/auftragsarbeiten', en: '/commissions', pageType: 'commissions', preset: 'frame', rendering: 'dynamic', robots: 'index', headerContext: 'dynamic', status: 'live', phase: 7 }),
   page({ id: 'R11', de: '/tattoo', en: '/tattoo', pageType: 'tattoo', preset: 'stencil', rendering: 'static', robots: 'index', headerContext: 'public', status: 'live', phase: 7 }),
   page({ id: 'R12', de: '/tattoo/flash', en: '/tattoo/flash', pageType: 'tattoo', preset: 'stencil', rendering: 'static', robots: 'index', headerContext: 'public', status: 'live', phase: 7 }),
   page({ id: 'R13', de: '/tattoo/angebote', en: '/tattoo/offers', pageType: 'tattoo', preset: 'stencil', rendering: 'static', robots: 'index', headerContext: 'public', status: 'live', phase: 7 }),

@@ -18,6 +18,7 @@ import {
 } from './templates/orderConfirmation'
 import * as adm from './templates/admin'
 import * as cmp from './templates/complaint'
+import * as inq from './templates/inquiry'
 import * as ful from './templates/fulfillment'
 import * as pre from './templates/prepayment'
 import * as prv from './templates/privacy'
@@ -168,6 +169,12 @@ const TEMPLATES: Partial<Record<EmailTemplate, AnyTemplate>> = {
     schema: wdr.withdrawalReceiptDataSchema as unknown as z.ZodType<wdr.WithdrawalReceiptData>,
     subject: wdr.withdrawalReceiptSubject,
     render: wdr.renderWithdrawalReceipt,
+  }),
+  inquiry_receipt: def<inq.InquiryReceiptData>({
+    version: inq.INQUIRY_RECEIPT_VERSION,
+    schema: inq.inquiryReceiptDataSchema as unknown as z.ZodType<inq.InquiryReceiptData>,
+    subject: inq.inquiryReceiptSubject,
+    render: inq.renderInquiryReceipt,
   }),
   refund_confirmation: def<rfd.RefundConfirmationData>({
     version: rfd.REFUND_CONFIRMATION_VERSION,
