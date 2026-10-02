@@ -3396,7 +3396,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     `tests/int/jobs/withdrawal-deadlines.int.spec.ts`, `tests/e2e/admin/withdrawal-inbox.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P6.10 Erstattungen über den Zahlungsadapter** – Dialog „Erstatten“ im Widerrufs-Detail und (O15) im
+- [x] **P6.10 Erstattungen über den Zahlungsadapter** – Dialog „Erstatten“ im Widerrufs-Detail und (O15) im
   Bestell-Detail (KONZEPT §5.3) mit Pflicht-Grund aus `REFUND_REASONS` (DATENMODELL §4): `admin_cancellation` für das
   Storno einer bezahlten Bestellung durch Jutta (Stück vor Versand/Übergabe danach wieder verkaufbar, P11, KA-37),
   `breakage` für ein vor dem Versand beschädigtes Stück (danach nur „Ausblenden“, P13), `goodwill` (Kulanz),

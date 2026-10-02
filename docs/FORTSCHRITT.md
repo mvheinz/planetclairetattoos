@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.10
+
+- Dialog „Erstatten“ im Widerruf und in der Bestellung: Positionen wählen, Vorschlag nach KONZEPT §5.3 (`refundAmount.ts`, Teil-Widerruf mit Versanddifferenz, Hinweis K-09), nur erhöhbar mit Notiz, nie über den Rest; Pflicht-Grund in der Bestellung (Storno, Bruch, Kulanz, Reklamation).
+- Karte/PayPal über den Zahlungsadapter (Idempotenz `refund:<orderId>:<Nr>`), Erfolg (Mock/Webhook) → Gutschrift GS mit demselben Grund, O13/O14/O15/O21, Widerruf W4/W6, M09 `refund_confirmation` mit GS-PDF; Fehlschlag → A08; Vorkasse „Erstattung überwiesen“ ohne IBAN.
+- Tests: `tests/unit/commerce/refund-amount.unit.spec.ts` (9), `tests/int/legal/refund.int.spec.ts` (8); P4.22-Test angepasst (Erfolg schließt jetzt ab).
+
 ## 2026-10-02 – P6.9
 
 - Widerrufs-Posteingang mit Aktionen: Bestellung zuordnen (Suche, O11/O4), Ware ist zurück (O12, Zustandsnotiz `returnConditionNote`, Fotos), Rücksendenachweis, Ohne Erstattung abschließen (O20 nur ohne weiteren offenen Widerruf), Ablehnen und Test/Spam (nur manuell, Begründung Pflicht), Stück wieder verkaufen/ausblenden; manuelle Erfassung per Mail/Brief (`POST /api/withdrawals/manual`, Berliner Ortszeit, M08 nur mit E-Mail und Haken).
