@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P7.1
+
+- Tattoo-Grundgerüst: Unter-Navigation (TattooSubNav, Chips, aria-current), Kontakt-Block (Mail-Knopf mit Vorlage, Instagram-DM mit rel noopener noreferrer, Adresse kopieren mit Rückfall Markieren), Rahmen TattooShell, Preis-Fußnote price.tattooNote
+- src/lib/tattoo/mailto.ts (RFC 6068, Betreffe Flash/Angebot/allgemein/eigene Idee DE/EN, Gesundheits-Hinweis), gecachte Lesefunktionen src/lib/data/tattoo.ts (Tags flash, tattoo-offers, tattoo-gallery, faqs, page:tattoo, page:tattoo_aftercare, settings)
+- SEO-Titel „{Seite} · Tattoo · Planet Claire“ und eigene Beschreibungen R11–R18; SE-09 geklärt (vorhandene PAGE_KEYS reichen)
+- Tests: tests/unit/tattoo/mailto.unit.spec.ts (AK-9-02, R-170), copy-button-Rückfall (Unit)
+
 ## 2026-10-02 – P6.23
 
 - ANFORDERUNGEN §3 um Spalte „Nachweis“ (Testdatei-Pfade, bis P6 gefüllt); Parser liest Spalten über die Kopfzeile und prüft, dass jeder Pfad existiert; `LEGAL_TRACE_PHASE = 6`\n- §7 Teil A: R-095 abgehakt (02.10.2026)\n- Tests: `tests/unit/legal/traceability.unit.spec.ts` (9, inkl. Gegenproben Titel/Pfad)

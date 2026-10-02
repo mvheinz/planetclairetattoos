@@ -3713,7 +3713,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
 
 ### Aufgaben
 
-- [ ] **P7.1 Tattoo-Grundgerüst: Unter-Navigation, Kontakt-Block, Mail-Links, Datenzugriff** – Unter-Navigation
+- [x] **P7.1 Tattoo-Grundgerüst: Unter-Navigation, Kontakt-Block, Mail-Links, Datenzugriff** – Unter-Navigation
   `src/components/tattoo/TattooSubNav.tsx` (Übersicht · Flash · Angebote · Preise · Galerie · Ablauf · Aftercare · FAQ,
   Chip-Optik wie KO-08, `aria-current`); Kontakt-Block `TattooContactBlock` (KO-20): „Mail schreiben“ (`mailto:`),
   „Instagram-DM“ (`https://ig.me/m/{social.instagramHandle}`, `rel="noopener noreferrer"`, R-139), E-Mail
