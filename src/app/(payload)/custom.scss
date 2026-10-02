@@ -1066,3 +1066,89 @@ $pc-bar-height: 64px;
   background: var(--theme-elevation-50);
   border-radius: 4px;
 }
+
+// --- „Heute“ (P5.28): Kacheln mit Zahl und Link (2 Spalten am Handy, ≥ 44 px Tipp-Fläche), Hinweise mit Farbkante.
+.pc-today {
+  &__tiles {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
+  }
+  &__tile {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      'icon count'
+      'label label'
+      'detail detail';
+    align-items: center;
+    gap: 2px 8px;
+    min-height: 88px;
+    padding: 12px;
+    border: 1px solid var(--theme-elevation-200);
+    border-radius: 6px;
+    color: var(--theme-text);
+    text-decoration: none;
+    min-width: 0;
+    overflow-wrap: anywhere;
+
+    &:hover {
+      border-color: var(--theme-elevation-500);
+    }
+    &:focus-visible {
+      outline: 3px solid var(--theme-success-500);
+      outline-offset: 2px;
+    }
+  }
+  &__tileicon {
+    grid-area: icon;
+    display: inline-flex;
+  }
+  &__count {
+    grid-area: count;
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  &__label {
+    grid-area: label;
+    font-weight: 600;
+  }
+  &__detail {
+    grid-area: detail;
+    font-size: 0.875rem;
+    color: var(--theme-elevation-800);
+  }
+  &__hints {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  &__hint {
+    padding: 8px 10px;
+    border-left: 4px solid var(--theme-elevation-400);
+    background: var(--theme-elevation-50);
+    border-radius: 4px;
+    overflow-wrap: anywhere;
+
+    &--error {
+      border-left-color: var(--theme-error-500);
+    }
+    &--warning {
+      border-left-color: var(--theme-warning-500);
+    }
+  }
+  &__order {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    min-height: 44px;
+  }
+}

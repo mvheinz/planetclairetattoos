@@ -36,7 +36,7 @@ export interface MonthlyCloseResult {
 /** Vormonat (Berliner Kalender) zum Zeitpunkt `now`. */
 export const previousMonth = (now: Date) => berlinMonthKey(addBerlinMonths(now, -1))
 
-async function missingManualSources(payload: Payload, month: string): Promise<RevenueSource[]> {
+export async function missingManualSources(payload: Payload, month: string): Promise<RevenueSource[]> {
   const res = await payload.find({
     collection: 'revenue-entries',
     where: { month: { equals: month } },

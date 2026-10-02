@@ -1,5 +1,4 @@
 import { Gutter, SetStepNav } from '@payloadcms/ui'
-import Link from 'next/link'
 import type { PayloadRequest } from 'payload'
 import React from 'react'
 
@@ -21,6 +20,7 @@ import { SettingsView } from './settings/SettingsView'
 import { ShippingSettingsView } from './settings/ShippingSettingsView'
 import { SystemView } from './settings/SystemView'
 import { TextsView } from './texts/TextsView'
+import { TodayView } from './today/TodayView'
 import { WithdrawalDetailView } from './withdrawals/WithdrawalDetailView'
 import { WithdrawalsListView } from './withdrawals/WithdrawalsListView'
 import { ADMIN_HOME_VIEW, adminView, allDataPath, type AdminViewMatch } from './registry'
@@ -60,6 +60,7 @@ const VIEW_BODIES: Partial<Record<string, ViewBody>> = {
   'umsatz-waechter': RevenueGuardView,
   system: SystemView,
   texte: TextsView,
+  heute: TodayView,
 }
 
 export function AdminViewBody(props: AdminViewBodyProps) {
@@ -97,17 +98,6 @@ export function AdminViewBody(props: AdminViewBodyProps) {
               ? adminText('shellComesInPhase', { phase: view.phase })
               : adminText('shellInProgress')}
           </Notice>
-          {view.key === 'heute' ? (
-            <p>
-              <Link
-                href={`${adminRoute}${adminView('neues-stueck').path}`}
-                prefetch={false}
-                className="pc-admin-btn pc-admin-btn--primary"
-              >
-                {adminText('shellNewPiece')}
-              </Link>
-            </p>
-          ) : null}
         </>
       )}
     </Gutter>
