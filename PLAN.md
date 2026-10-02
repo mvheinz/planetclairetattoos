@@ -3879,7 +3879,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
     …“), `tests/e2e/admin/tattoo-gallery.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P7.9 Tattoo-Texte in der Verwaltung** – Reiter „Texte“: Preise (`settings.tattoo.*`, DE/EN), Stil, Ablauf,
+- [x] **P7.9 Tattoo-Texte in der Verwaltung** – Reiter „Texte“: Preise (`settings.tattoo.*`, DE/EN), Stil, Ablauf,
   Aftercare (Blöcke der Seiten `tattoo` und `tattoo_aftercare`) und FAQ der Kategorien `tattoo`/`aftercare`
   (sortierbar) mit „Übersetzen“ (`POST /api/pages/:id/translate`, `POST /api/faqs/:id/translate` über
   `translateDocumentFields`, Blöcke strukturgleich). Beim Speichern Warnung (Speichern bleibt möglich) bei V-24-Mustern

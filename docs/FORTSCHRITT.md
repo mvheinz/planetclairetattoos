@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P7.9
+
+- Reiter Texte: Preise (`settings.tattoo.*`, Bereich `tattooPrices`), Blöcke der Seiten `tattoo`/`tattoo_aftercare` (Stil, Preise, Ablauf, Pflege-Phasen, Hinweise; Rich Text als Klartext), FAQ Tattoo/Aftercare (sortierbar), alles mit „Übersetzen“ (`POST /api/pages/:id/translate`, `/api/faqs/:id/translate`; `translateDocumentFields` kann jetzt Listen/Blöcke).
+- Warnung bei V-24/V-15 beim Speichern, Speichern bleibt möglich; keine Gesundheitsfelder (V-25).
+- Tests: `tests/int/tattoo/texts-admin.int.spec.ts` (3), `tests/e2e/admin/tattoo-texts.e2e.spec.ts`; Int gesamt 880 grün, Build grün.
+
 ## 2026-10-02 – P7.8
 
 - Reiter Galerie: Einwilligungs-Häkchen je Foto, Formular (Felder §6.16, Nachweis privat, Instagram-Hinweis), „Online“ ohne Einwilligung gesperrt („Ohne Einwilligung der Kundin/des Kunden nicht veröffentlichen“, auch im Hook).
