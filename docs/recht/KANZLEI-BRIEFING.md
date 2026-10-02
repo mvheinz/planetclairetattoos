@@ -2,7 +2,7 @@
 
 > **Mandantin:** [Vorname Nachname] („Jutta“), Künstlerin und Tätowiererin, Berlin – Geschäftsbezeichnung
 > [z. B. „Planet Claire“]
-> **Stand:** 26.09.2026 · **Version:** 1.3 · **Vertraulich**
+> **Stand:** 02.10.2026 · **Version:** 1.4 · **Vertraulich**
 > **Erstellt** mit KI-Unterstützung (Claude, Anthropic) auf Grundlage eines Interviews mit der Mandantin und einer
 > Recherche mit Quellen (Stand September 2026). Das Briefing ist keine Rechtsberatung; alle rechtlichen Einordnungen
 > darin sind Arbeitshypothesen, um deren Prüfung wir bitten.
@@ -282,13 +282,31 @@ Keine Aufschläge je Zahlart. Kein Klarna, keine SEPA-Lastschrift, kein Rechnung
   `https://planetclairetattoos.com/en/withdraw-from-contract`; die Kurzadresse
   `https://planetclairetattoos.com/vertrag-widerrufen` leitet dauerhaft dorthin weiter, in der Widerrufsbelehrung
   steht die vollständige Adresse):
-  - Link „Vertrag widerrufen“ auf jeder Seite (Footer, hervorgehoben), in jeder Bestellmail, auf Danke- und
-    Statusseite; ohne Login, dauerhaft verfügbar, auch für Vorkasse- und Abholbestellungen.
-  - Schritt 1: Name, Angaben zum Vertrag (Bestellnummer oder Freitext), E-Mail für die Bestätigung; optional
-    Auswahl einzelner Stücke und ein freiwilliger Grund. Kein CAPTCHA, kein Login.
-  - Schritt 2: Zusammenfassung und Button „Widerruf bestätigen“.
-  - Danach sofort Eingangsbestätigung per E-Mail mit dem Inhalt der Erklärung, Datum und Uhrzeit des Eingangs,
-    Rücksendeadresse und Hinweis zu den Rücksendekosten; Kopie an die Mandantin.
+  - Link „Vertrag widerrufen“ (englisch „Withdraw from contract here“) auf jeder Seite (Footer, hervorgehoben), in
+    jeder Bestellmail, auf Danke- und Statusseite; ohne Login, dauerhaft verfügbar, auch für Vorkasse- und
+    Abholbestellungen.
+  - **Schritt 1** (Formular): Pflichtfelder Name, Angaben zum Vertrag (Bestellnummer oder z. B. Bestelldatum und
+    Stück) und E-Mail für die Eingangsbestätigung; freiwillig „Nur bestimmte Stücke?“ (Freitext) und ein Grund (klar
+    als freiwillig gekennzeichnet); Link zur Datenschutzerklärung. Kein CAPTCHA, kein Login; Missbrauchsschutz nur
+    über ein unsichtbares Feld und eine Begrenzung der Anfragen je Stunde.
+  - **Auswahl** (nur wenn Bestellnummer und E-Mail zu einer Bestellung passen): je Stück eine Checkbox, keine
+    vorangekreuzt; keine Auswahl bedeutet Widerruf des ganzen Vertrags (so erklärt).
+  - **Schritt 2**: Zusammenfassung aller Angaben mit „Ändern“ und Button „Widerruf bestätigen“ (englisch „Confirm
+    withdrawal“). Erst dieser Klick legt die Erklärung an; vorher wird nichts gespeichert. Die Eingaben stehen nie
+    in der Adresse (URL).
+  - **Bestätigungsseite**: alle Angaben, Datum und Uhrzeit des Eingangs mit Zeitzone (z. B. „12.10.2026, 14:03 Uhr
+    (MESZ)“), Vorgangsnummer `WR-JJJJ-NNNNN` und der Hinweis, dass die Bestätigung per E-Mail unterwegs ist;
+    druckbar.
+  - **Eingangsbestätigung** (Mail M08) sofort: gesamter Inhalt der Erklärung, Datum und Uhrzeit des Eingangs,
+    Vorgangsnummer, Rücksendeadresse, Hinweis zu Rücksendung und Rücksendekosten (Bausteine
+    `withdrawal.receiptNotice`, `withdrawal.returnInfo`) und zur Erstattung; bei noch nicht bezahlter Vorkasse der Satz
+    „Deine Bestellung ist damit storniert. Bitte nichts überweisen.“ Scheitert der Versand, wird er bis 24 Stunden nach
+    Eingang wiederholt und die Mandantin benachrichtigt. Kopie an die Mandantin (Mail A04).
+  - **Gespeicherte Felder** je Erklärung: Vorgangsnummer, Eingangszeit (Serverzeit), Name, Angaben zum Vertrag,
+    E-Mail, Stückauswahl bzw. Freitext, Grund, Sprache, Eingangsweg; der Datensatz ist unveränderlich. **Keine**
+    IP-Adresse, kein IP-Hash, kein Browser-Kennzeichen. Eine automatische Zuordnung zur Bestellung erfolgt nur, wenn
+    Bestellnummer **und** E-Mail passen; sonst ordnet die Mandantin manuell zu. Unbekannte Bestellnummern werden
+    angenommen und bestätigt.
 - **Erstattung** über dasselbe Zahlungsmittel (Stripe-Erstattung; bei Vorkasse Rücküberweisung auf das Absenderkonto)
   innerhalb von 14 Tagen; Zurückbehaltung bis Rücksendung oder Nachweis. Beim Widerruf nur einzelner Stücke wird
   vorläufig neben dem Warenwert die Differenz zwischen den bezahlten Versandkosten und den Versandkosten für die
@@ -354,11 +372,12 @@ Keine Aufschläge je Zahlart. Kein Klarna, keine SEPA-Lastschrift, kein Rechnung
 | `pc_checkout` | Zuordnung des laufenden Bezahlvorgangs und der Reservierung (zufällige Kassen-Kennung; nicht per Skript lesbar) | nach Klick auf „Zur Kasse“ | 1 Stunde | eigen |
 | `__stripe_mid` | Betrugsprävention bei der Zahlung | nur auf der Kassenseite | ca. 1 Jahr (laut Stripe) | Stripe (First-Party-Cookie) |
 | `__stripe_sid` | Betrugsprävention bei der Zahlung | nur auf der Kassenseite | ca. 30 Minuten (laut Stripe) | Stripe (First-Party-Cookie) |
-| localStorage-Eintrag `pc-motion` | Einstellung des Schalters „Animationen“ (weniger/volle Bewegung) | nur wenn die Person den Schalter betätigt | bis zur Löschung | eigen |
-| Anmelde-Cookie der Verwaltung | Login der Mandantin | nur im Verwaltungsbereich | ≤ 7 Tage | eigen |
+| localStorage-Eintrag `pc-motion` (`localStorage['pc-motion']`) | Einstellung des Schalters „Animationen“ (weniger/volle Bewegung) | nur wenn die Person den Schalter betätigt | bis zur Löschung | eigen |
+| `payload-token` (Anmelde-Cookie der Verwaltung) | Login der Mandantin | nur im Verwaltungsbereich | ≤ 7 Tage | eigen |
 
 Es gibt keinen serverseitigen Warenkorb (K-38). Vercel Web Analytics setzt keine Cookies (siehe 11.2); die Sprache wird
-nicht gespeichert.
+nicht gespeichert. Die Liste entspricht der technischen Festlegung (Anlage B/Architektur §8.7) und wird automatisch
+mit ihr abgeglichen. Sonst entsteht nichts: kein Sprach- oder Statistik-Cookie, kein Service Worker, keine IndexedDB.
 
 ### 11.4 Verarbeitungen
 
@@ -367,10 +386,10 @@ Rechtsgrundlagen sind **Vorschläge** zur Prüfung.
 | Nr. | Verarbeitung | Betroffene, Daten | Zweck | Rechtsgrundlage (Vorschlag) | Empfänger | Speicherdauer |
 |---|---|---|---|---|---|---|
 | V1 | Aufruf der Website | Besucher:innen: IP, URL, User-Agent, Zeit | Auslieferung, Sicherheit | Art. 6 Abs. 1 lit. f | Vercel | Logs nach Anbieter-Plan, eigene ≤ 14 Tage |
-| V2 | Warenkorb und Kasse (Cookies) | Nummern der Stücke, Preis beim Hinzufügen, Lieferart; zufällige Kassen-Kennung | Warenkorb, Zuordnung des Bezahlvorgangs | Art. 6 Abs. 1 lit. b; § 25 Abs. 2 Nr. 2 TDDDG (K-38) | Vercel | Warenkorb-Cookie 7 Tage, Kassen-Cookie 1 Stunde; kein serverseitiger Warenkorb |
+| V2 | Warenkorb und Kasse (Cookies), Einstellung „Animationen“ | Nummern der Stücke, Preis beim Hinzufügen, Lieferart; zufällige Kassen-Kennung; `pc-motion` (nur im Browser) | Warenkorb, Zuordnung des Bezahlvorgangs, Bewegungs-Einstellung | Art. 6 Abs. 1 lit. b; § 25 Abs. 2 Nr. 2 TDDDG (K-38) | Vercel | Warenkorb-Cookie 7 Tage, Kassen-Cookie 1 Stunde; kein serverseitiger Warenkorb |
 | V3 | Bestellung, Vertragsabwicklung, Bestellstatus-Link | Name, E-Mail, Adressen, Bestelldaten (kein Telefon) | Vertrag | Art. 6 Abs. 1 lit. b, c | Vercel, Neon, Lettermint | 6 Jahre (gestuft), Kassen-Daten (auch abgebrochene Vorgänge) 30 Tage |
 | V4 | Zahlung | Name, E-Mail, Adresse, Betrag, Zahlungsdaten (nur beim Anbieter), Betrugssignale | Zahlung, Betrugsprävention | Art. 6 Abs. 1 lit. b, c, f | Stripe (AV und eigene Verantwortung), PayPal, Apple/Google (Wallets), Bank (Vorkasse) | beim Anbieter nach dessen Pflichten |
-| V5 | Versand | Name, Lieferadresse; E-Mail nur mit Einwilligung | Zustellung | Art. 6 Abs. 1 lit. b; lit. a (E-Mail) | DHL Paket GmbH / Deutsche Post AG | mit der Bestellung |
+| V5 | Versand | Name, Lieferadresse; E-Mail nur mit Einwilligung | Zustellung | Art. 6 Abs. 1 lit. b; lit. a (E-Mail) | DHL Paket GmbH / Deutsche Post AG (ohne Schnittstelle: die Mandantin überträgt die Daten selbst) | mit der Bestellung |
 | V6 | Transaktions-E-Mails | E-Mail, Name, Mailinhalt, Zustellprotokoll | Bestätigungen, Pflichtinformationen | Art. 6 Abs. 1 lit. b, c | Lettermint | Protokoll wie Bezugsobjekt |
 | V7 | Rechnungen, Buchhaltung | Name, Anschrift, Beträge | gesetzliche Aufbewahrung | Art. 6 Abs. 1 lit. c | Finanzamt (bei Prüfung) | 10 Jahre (K-33) |
 | V8 | Widerrufsfunktion | Name, Vertragsangaben, E-Mail, Grund (freiwillig) | Widerruf, Eingangsbestätigung | Art. 6 Abs. 1 lit. c | Lettermint | 6 Jahre |
@@ -385,6 +404,9 @@ Rechtsgrundlagen sind **Vorschläge** zur Prüfung.
 | V17 | Backups | alle Daten | Wiederherstellung | Art. 6 Abs. 1 lit. c, f; Art. 32 | R2 (EU, vor dem Upload verschlüsselt, eigener Backup-Speicher; nicht über GitHub) | 30 Tage / 12 Monate |
 | V18 | Übersetzung (DeepL) | **keine** personenbezogenen Daten | Übersetzung eigener Texte | – | DeepL SE | – |
 | V19 | Instagram-Profil | Daten der Nutzer:innen bei Meta | Präsentation | Art. 6 Abs. 1 lit. f; ggf. Art. 26 (K-29) | Meta Platforms Ireland Ltd. | nach Meta |
+| V20 | Verwaltung (Konto, Sitzung, Verwaltungsprotokoll) | Mandantin: Konto, Sitzung; Protokoll mit maskierten Personendaten | Betrieb, Nachvollziehbarkeit | Art. 6 Abs. 1 lit. b, c, f | Vercel, Neon | Sitzung ≤ 7 Tage; Protokoll 3 bzw. 10 Jahre |
+
+Die Tabelle entspricht dem Verzeichnis von Verarbeitungstätigkeiten (`docs/recht/VVT.md`, gleiche Nummern V1–V20).
 
 Es gibt **keine** Kundenkonten, keinen Newsletter, kein Kontaktformular, keine Bewertungen, kein Profiling und keine
 automatisierten Entscheidungen durch die Mandantin (Stripe führt eigene Risikoprüfungen durch).
@@ -411,22 +433,26 @@ kommen nur nach Entscheidung der Mandantin hinzu.
 
 ### 11.6 Speicherdauer (Kurzfassung von Anlage C)
 
-| Daten | Dauer |
-|---|---|
-| Warenkorb (nur Cookie im Browser) | 7 Tage; Kassen-Cookie 1 Stunde |
-| Kassen-Daten (abgebrochene und abgeschlossene Bezahlvorgänge) | 30 Tage |
-| Bestellungen | gestuft: Status-Link 180 Tage nach Abschluss, Pack- und Rückgabefotos 12 Monate nach Versand bzw. Rückgabe, Rest 6 Jahre ab Jahresende, dann anonymisiert |
-| Stornierte Vorkasse-Bestellungen | nach 30 Tagen reduziert, 6 Jahre ab Jahresende |
-| Rechnungen, Gutschriften | 10 Jahre ab Jahresende, umstellbar auf 8 Jahre (gesetzliche Mindestfrist; K-33) |
-| Monatsexporte | 10 Jahre ab Jahresende |
-| Widerrufserklärungen | 6 Jahre ab Jahresende |
-| Anfragen Auftragsarbeiten inkl. Bilder | 6 Monate ab Eingang |
-| E-Mail-Protokoll | wie der Vorgang; ohne Bezug 90 Tage |
-| Technische Protokolle | 24 Stunden bis 14 Tage (Webhook-Kennungen und Job-Protokoll ohne Personenbezug 90 Tage; Verwaltungsprotokoll mit maskierten Personendaten 3 Jahre, bei Beleg-, Bestell-, Widerrufs- und Rechtstext-Vorgängen 10 Jahre) |
-| Löschprotokoll (ohne Inhalte) | 3 Jahre |
-| Datenschutz-Anfragen | 3 Jahre ab Jahresende |
-| Portfolio-Einwilligungen | Dauer der Veröffentlichung + 3 Jahre |
-| Backups | 30 Tage (täglich), 12 Monate (monatlich); Wiederherstellungsfenster beim Datenbank-Anbieter höchstens 7 Tage |
+| Daten | Dauer | Anlage C |
+|---|---|---|
+| Warenkorb (nur Cookie im Browser) | 7 Tage; Kassen-Cookie 1 Stunde | L-01 |
+| Reservierungen (ohne Personendaten) | 7 Tage | L-02 |
+| Kassen-Daten (abgebrochene und abgeschlossene Bezahlvorgänge) | 30 Tage | L-03 |
+| Bestellungen inkl. Reklamationen | gestuft: Status-Link 180 Tage nach Abschluss, Pack- und Rückgabefotos 12 Monate nach Versand bzw. Rückgabe, Rest 6 Jahre ab Jahresende, dann anonymisiert | L-05, L-09 |
+| Stornierte Vorkasse-Bestellungen | nach 30 Tagen reduziert, 6 Jahre ab Jahresende | L-04 |
+| Rechnungen, Gutschriften | 10 Jahre ab Jahresende, umstellbar auf 8 Jahre (gesetzliche Mindestfrist; K-33) | L-06 |
+| Monatsexporte | 10 Jahre ab Jahresende | L-07 |
+| Widerrufserklärungen | 6 Jahre ab Jahresende (als Test/Spam markiert: 30 Tage) | L-08 |
+| Anfragen Auftragsarbeiten inkl. Bilder | 6 Monate ab Eingang | L-10 |
+| Postfach der Mandantin | manuell: Benachrichtigungen 6 Monate, Geschäftsbriefe 6 Jahre (Empfehlung) | L-11 |
+| E-Mail-Protokoll | wie der Vorgang; ohne Bezug 90 Tage | L-12 |
+| Technische Protokolle | 24 Stunden bis 14 Tage (Webhook-Kennungen und Job-Protokoll ohne Personenbezug 90 Tage; Verwaltungsprotokoll mit maskierten Personendaten 3 Jahre, bei Beleg-, Bestell-, Widerrufs- und Rechtstext-Vorgängen 10 Jahre) | L-13 |
+| Fehlerüberwachung, Statistik | kürzeste Einstellung beim Anbieter; Statistik-Hash 24 Stunden | L-14, L-15 |
+| Datenschutz-Anfragen | 3 Jahre ab Jahresende; Exportdateien 30 Tage nach Antwort | L-17 |
+| Löschprotokoll (ohne Inhalte) | 3 Jahre | L-18 |
+| Einwilligungsnachweise | mit der Bestellung bzw. Kasse; Portfolio: Dauer der Veröffentlichung + 3 Jahre | L-19 |
+| Portfolio-Fotos | bis Widerruf; Dateien spätestens 24 Stunden danach gelöscht | L-20 |
+| Backups | 30 Tage (täglich), 12 Monate (monatlich); Wiederherstellungsfenster beim Datenbank-Anbieter höchstens 7 Tage | L-23 |
 
 ### 11.7 Betroffenenrechte
 
@@ -456,9 +482,9 @@ reCAPTCHA/Turnstile, Newsletter-Dienste, Kundenkonten, Chat- oder Bewertungs-Wid
 
 | Formular | Felder | Besonderheiten |
 |---|---|---|
-| Kasse | E-Mail, Name („Vor- und Nachname“ in einem Feld), bei Versand Lieferadresse (Pflicht); abweichende Rechnungsadresse über ein nicht vorangekreuztes Häkchen; bei Abholung Rechnungsadresse Pflicht (K-07); Adresszusatz/Packstation (optional) | kein Telefonfeld, keine Anrede, kein Firmen- oder Titelfeld, kein Geburtsdatum, kein Passwort; DHL-Checkbox optional und nicht vorangekreuzt; Abweichungs-Checkbox je betroffenem Stück |
-| Widerrufsfunktion | Name, Angaben zum Vertrag, E-Mail für die Eingangsbestätigung (Pflicht); Stückauswahl, Grund (optional, klar als freiwillig gekennzeichnet) | kein Login, kein CAPTCHA, keine Bestätigungsschleife; unbekannte Bestellnummern werden angenommen; sofortige Eingangsbestätigung; keine IP-Adresse im Datensatz |
-| Anfrage Auftragsarbeiten | Name, E-Mail, Beschreibung (20–3000 Zeichen) und Gegenstand (Pflicht); Wunschzeitraum, Budget, bis zu 5 Bilder (optional) | Hinweis „keine Fotos von Personen, keine Gesundheitsangaben“; Bilder privat gespeichert, Metadaten entfernt; Benachrichtigung an die Mandantin nur mit Referenznummer, Gegenstand und Anzahl der Bilder (ohne Namen und Text); automatische Antwort; Löschung nach 6 Monaten |
+| Kasse | E-Mail, Name („Vor- und Nachname“ in einem Feld), bei Versand Lieferadresse (Pflicht); abweichende Rechnungsadresse über ein nicht vorangekreuztes Häkchen; bei Abholung Rechnungsadresse Pflicht (K-07); Adresszusatz/Packstation (optional) | kein Telefonfeld, keine Anrede, kein Firmen- oder Titelfeld, kein Geburtsdatum, kein Passwort; DHL-Checkbox optional und nicht vorangekreuzt; Abweichungs-Checkbox je betroffenem Stück; Übersicht mit Button „Zahlungspflichtig bestellen“ (Anlage E-01) |
+| Widerrufsfunktion | Name, Angaben zum Vertrag, E-Mail für die Eingangsbestätigung (Pflicht); „Nur bestimmte Stücke?“ bzw. Stückauswahl, Grund (optional, klar als freiwillig gekennzeichnet) | Ablauf Schritt 1 → ggf. Auswahl → Schritt 2 → Bestätigungsseite (§8, Anlage E-02 bis E-05); kein Login, kein CAPTCHA, keine Bestätigungsschleife per E-Mail; unbekannte Bestellnummern werden angenommen; sofortige Eingangsbestätigung (Anlage E-06); keine IP-Adresse im Datensatz |
+| Anfrage Auftragsarbeiten | Name, E-Mail, Beschreibung (20–3000 Zeichen) und Gegenstand (Pflicht); Wunschzeitraum, Budget, höchstens 5 Bilder (optional) | **keine Einwilligungs-Checkbox** (Rechtsgrundlage Vertragsanbahnung, K-25), stattdessen Datenschutzhinweis mit Link; gespeichert wird, welche Fassung der Datenschutzerklärung galt; Hinweis „keine Fotos von Personen, keine Gesundheitsangaben“; Bilder privat gespeichert, Metadaten entfernt; Benachrichtigung an die Mandantin nur mit Referenznummer, Gegenstand und Anzahl der Bilder (ohne Namen und Text); automatische Antwort; Löschung nach 6 Monaten |
 
 Weitere Formulare gibt es nicht.
 
@@ -516,9 +542,10 @@ Bitte verwenden Sie für änderbare Angaben diese Platzhalter; das System setzt 
 Weitere Platzhalter oder andere Schreibweisen gibt es nicht; ein unbekannter Platzhalter verhindert die
 Veröffentlichung. Für die Steuernummer gibt es bewusst keinen Platzhalter, weil sie nie öffentlich erscheinen soll.
 
-Die Tabelle der Auftragsverarbeiter und weiteren Empfänger (§11.5, Anlage B) erzeugt das System selbst und zeigt sie
-unter bzw. neben der Datenschutzerklärung; sie ist kein Platzhalter. Bitte verweisen Sie im Abschnitt `empfaenger`
-(§11.10) auf diese Tabelle.
+Die Tabelle der Auftragsverarbeiter und weiteren Empfänger (§11.5, Anlage B) erzeugt das System selbst als
+Komponente unter der Datenschutzerklärung (Spalten Name, Rolle, Sitz, Drittland; Überschrift mit der Anker-ID
+`auftragsverarbeiter-tabelle`); sie ist **kein** Platzhalter und erscheint auch, solange noch der Platzhaltertext
+steht. Bitte verweisen Sie im Abschnitt `empfaenger` (§11.10) auf diese Tabelle.
 
 ### 16.4 Feste Beschriftungen
 „Zahlungspflichtig bestellen“, „Vertrag widerrufen“ und „Widerruf bestätigen“ sind fest im Code; englisch vorgesehen:
@@ -686,7 +713,8 @@ Zu jeder Frage steht in Klammern die **vorläufige Umsetzung**, die bis zu Ihrer
 | B | `docs/recht/DIENSTE.md` – Dienstleister mit Rolle, Sitz, AVV und Drittlandtransfer |
 | C | `docs/recht/LOESCHKONZEPT.md` – Speicherfristen, Löschjobs, Verfahren für Betroffenenrechte |
 | D | Konzeptseite der Mandantin (auf Wunsch als PDF) |
-| E | Nach Fertigstellung: Vorschau-Datei der Website und Bildschirmfotos der Kasse und der Widerrufsfunktion |
+| E | Bildschirmfotos (Handy, 390 px, Deutsch, mit Beispiel- und Testdaten) – erzeugt mit `scripts/legal/briefing-screenshots.ts`: [E-01 Kassen-Übersicht mit Bestellknopf](anlagen/E-01.png), [E-02 Widerruf Schritt 1](anlagen/E-02.png), [E-03 Auswahl der Stücke](anlagen/E-03.png), [E-04 Widerruf Schritt 2](anlagen/E-04.png), [E-05 Bestätigungsseite](anlagen/E-05.png), [E-06 Eingangsbestätigung M08](anlagen/E-06.png); dazu nach Fertigstellung die Vorschau-Datei der Website |
+| F | `docs/recht/VVT.md` – Verzeichnis von Verarbeitungstätigkeiten (V1–V20, §11.4) |
 
 Die Anlagen A bis C sind technische Arbeitsdokumente für die Entwicklung. Maßgeblich für Ihre Prüfung sind dieses
 Briefing und die dort genannten Arbeitsfassungen; Abweichungen zwischen Briefing und Anlagen bitten wir uns mitzuteilen.
@@ -706,6 +734,7 @@ Briefing und die dort genannten Arbeitsfassungen; Abweichungen zwischen Briefing
 | 26.09.2026 | 1.1 | Widerrufs-URL `https://planetclairetattoos.com/de/vertrag-widerrufen` (T4, §8, §16.3); Cookie-Liste und Warenkorb ohne Server-Speicher (§11.2, §11.3, §11.4 V2, §11.6) mit neuer Frage K-38; Frage K-39 zu Privatadresse und Studio-Ort (E-40/E-50); Vorkasse-Frist präzisiert (§5.2, §6, K-02); Verpackung nach Entscheidung der Mandantin (§7, K-35); Beispielbestand (§15) |
 | 26.09.2026 | 1.2 | Kasse ohne Telefonfeld, Name in einem Feld, Rechnungsadresse per Häkchen (§5.1, §12, §11.4); Bestellung erst nach Zahlung (§5.2); keine Rechnung über den Status-Link (§5.3); Versandnachweise mit neuer Frage K-40 (§7); Verpackung nur noch Detailfragen (§7, K-35); vorläufige Teilwiderrufs-Regel (§8, K-09); Widerruf im Wartungsmodus (§8); Browser-Fehler-Endpunkt (§11.2, K-30 c); CSP mit neuer Frage K-41 (§11.2); Speicherdauern (§11.6); Baustein `withdrawal.returnCostsNote` und abschließende Platzhalterliste (§1.4, §16.3); Kennzeichnung der Fassungen (§16.1) |
 | 26.09.2026 | 1.3 | Warenkorb-Cookie mit Preis beim Hinzufügen (§5.1, §11.3, §11.4 V2, K-38); Empfänger-Tabelle wird vom System erzeugt, Platzhalterliste unverändert (§16.3); CSP-Rückfall auch für die Verwaltung (K-41) |
+| 02.10.2026 | 1.4 | An die Umsetzung angeglichen (P6.22): Widerrufsablauf mit Schritten, Feldern, Eingangsbestätigung und englischer Beschriftung (§8); Cookie-/Speicherliste mit den technischen Namen `payload-token` und `pc-motion` (§11.3); Verarbeitungen = Verzeichnis `VVT.md` inkl. V20 Verwaltung, Versand ohne Schnittstelle (§11.4); Speicherdauern mit Verweis auf Anlage C (§11.6); Formulare: Kasse mit Bestellknopf, Widerruf mit Auswahl, Anfrage ohne Einwilligungs-Checkbox mit höchstens 5 Bildern (§12); Empfänger-Tabelle als Komponente, Platzhalterliste unverändert geschlossen (§16.3); Anlage E (Bildschirmfotos) und F (VVT) (§18) |
 
 Für Rückfragen steht Ihnen die Mandantin gern zur Verfügung. Vielen Dank für Ihre Unterstützung.
 
