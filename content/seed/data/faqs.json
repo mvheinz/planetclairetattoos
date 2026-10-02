@@ -1,1 +1,158 @@
-[]
+[
+  {
+    "key": "FAQ01",
+    "category": "tattoo",
+    "sortOrder": 10,
+    "question": {
+      "de": "Ab wie vielen Jahren tätowierst du?",
+      "en": "How old do I need to be?"
+    },
+    "answer": {
+      "de": "Ab 18. Bring zum Termin bitte deinen Ausweis mit.",
+      "en": "18 and up. Please bring your ID to the appointment."
+    }
+  },
+  {
+    "key": "FAQ02",
+    "category": "tattoo",
+    "sortOrder": 20,
+    "question": {
+      "de": "Wo ist dein Studio?",
+      "en": "Where is your studio?"
+    },
+    "answer": {
+      "de": "In meinem Privatstudio in Berlin. Den Bezirk findest du auf der Tattoo-Seite, die genaue Adresse schicke ich dir mit der Terminbestätigung.",
+      "en": "In my private studio in Berlin. You'll find the district on the tattoo page, and I'll send you the exact address with your appointment confirmation."
+    }
+  },
+  {
+    "key": "FAQ03",
+    "category": "tattoo",
+    "sortOrder": 30,
+    "question": {
+      "de": "Brauche ich eine Anzahlung?",
+      "en": "Do I need to pay a deposit?"
+    },
+    "answer": {
+      "de": "Ja, für jeden Termin. Wie hoch und wie wir das machen, besprechen wir persönlich per Mail – online zahlst du hier nichts.",
+      "en": "Yes, for every appointment. We'll agree on the amount and how it works personally by email – you don't pay anything online here."
+    }
+  },
+  {
+    "key": "FAQ04",
+    "category": "tattoo",
+    "sortOrder": 40,
+    "question": {
+      "de": "Ich kann nicht zum Termin – was jetzt?",
+      "en": "I can't make my appointment – what now?"
+    },
+    "answer": {
+      "de": "Sag mir so früh wie möglich Bescheid, per Mail oder DM. Dann suchen wir einen neuen Termin. Was mit der Anzahlung passiert, haben wir vorher gemeinsam abgemacht.",
+      "en": "Let me know as early as you can by email or DM, and we'll find a new date. What happens to the deposit is whatever we agreed on together beforehand."
+    }
+  },
+  {
+    "key": "FAQ05",
+    "category": "tattoo",
+    "sortOrder": 50,
+    "question": {
+      "de": "Ist Coco beim Tätowieren dabei?",
+      "en": "Is Coco around during the session?"
+    },
+    "answer": {
+      "de": "Coco ist oft im Studio, schläft aber meistens in ihrem Körbchen. Wenn du Hunde nicht verträgst oder lieber ohne sie bist, sag's mir vorher – dann hat sie an dem Tag frei.",
+      "en": "Coco is often in the studio, but she mostly naps in her basket. If dogs don't agree with you or you'd rather be without her, tell me beforehand – she'll take the day off."
+    }
+  },
+  {
+    "key": "FAQ06",
+    "category": "tattoo",
+    "sortOrder": 60,
+    "question": {
+      "de": "Machst du auch Farbe?",
+      "en": "Do you do colour?"
+    },
+    "answer": {
+      "de": "Mein Ding ist schwarze Fine Line. Kleine Farbtupfer gehen manchmal – frag einfach mit deiner Idee.",
+      "en": "My thing is black fine line. Small touches of colour sometimes work – just ask with your idea."
+    }
+  },
+  {
+    "key": "FAQ07",
+    "category": "tattoo",
+    "sortOrder": 70,
+    "question": {
+      "de": "Machst du Cover-ups?",
+      "en": "Do you do cover-ups?"
+    },
+    "answer": {
+      "de": "Eher selten, weil feine Linien wenig abdecken. Schick mir ein Foto vom alten Tattoo per Mail, dann sag ich dir ehrlich, ob es passt.",
+      "en": "Rarely, because fine lines don't cover much. Email me a photo of the old tattoo and I'll tell you honestly whether it works."
+    }
+  },
+  {
+    "key": "FAQ08",
+    "category": "tattoo",
+    "sortOrder": 80,
+    "question": {
+      "de": "Mail oder DM – was ist besser?",
+      "en": "Email or DM – which is better?"
+    },
+    "answer": {
+      "de": "Beides geht. Per Mail geht nichts unter, und du kannst Bilder in Ruhe anhängen. Für Flash schick einfach die Nummer mit, zum Beispiel F-902.",
+      "en": "Both work. Nothing gets lost by email, and you can attach pictures easily. For flash, just include the number, for example F-902."
+    }
+  },
+  {
+    "key": "FAQ09",
+    "category": "aftercare",
+    "sortOrder": 10,
+    "question": {
+      "de": "Wie lange dauert das Abheilen?",
+      "en": "How long does healing take?"
+    },
+    "answer": {
+      "de": "Die Oberfläche ist meist nach zwei bis drei Wochen zu, ganz durch ist die Haut nach etwa vier bis sechs Wochen. Die Schritte stehen oben auf dieser Seite.",
+      "en": "The surface usually closes after two to three weeks; the skin is fully through after about four to six weeks. The steps are listed above on this page."
+    }
+  },
+  {
+    "key": "FAQ10",
+    "category": "shop",
+    "sortOrder": 10,
+    "question": {
+      "de": "Warum steht bei der Keramik „Deko“?",
+      "en": "Why is the ceramic labelled “decorative”?"
+    },
+    "answer": {
+      "de": "Weil es für meine Glasuren noch keine Konformitätserklärung gibt. Bis dahin steht bei jedem Stück: Deko – nicht für Lebensmittel. Für Schlüssel, Ringe, Pinsel und Kleinkram sind sie super.",
+      "en": "Because there's no declaration of conformity for my glazes yet. Until then, every piece says: decorative – not for food. They're great for keys, rings, brushes and odds and ends."
+    }
+  },
+  {
+    "key": "FAQ11",
+    "category": "shipping",
+    "sortOrder": 10,
+    "question": {
+      "de": "Wohin verschickst du, und was kostet der Versand?",
+      "en": "Where do you ship, and what does shipping cost?"
+    },
+    "answer": {
+      "de": "Zurzeit nur innerhalb Deutschlands. Was der Versand kostet, hängt vom Stück ab (Brief, kleines Paket oder Keramik-Paket) – im Warenkorb gilt immer die höchste Versandart. Alles Weitere steht unter Versand & Zahlung. Abholen in Berlin kostet nichts.",
+      "en": "Only within Germany for now. The shipping cost depends on the piece (letter, small parcel or ceramics parcel) – in the cart, the highest one applies. Details are on the Shipping & payment page. Pickup in Berlin is free."
+    }
+  },
+  {
+    "key": "FAQ12",
+    "category": "commissions",
+    "sortOrder": 10,
+    "question": {
+      "de": "Kann ich etwas Eigenes bestellen?",
+      "en": "Can I order something custom?"
+    },
+    "answer": {
+      "de": "Ja! Eine Cap mit deinem Hund, ein Teller zur Hochzeit, eine Zeichnung – schreib mir über das Formular bei den Auftragsarbeiten. Ich antworte mit einem Angebot per Mail; bezahlt wird nicht über den Shop. Fremde Figuren aus Comics, Filmen oder von Marken male ich nicht.",
+      "en": "Yes! A cap with your dog, a plate for a wedding, a drawing – write to me via the form on the commissions page. I'll reply with an offer by email; payment doesn't go through the shop. I don't paint characters from comics, films or brands."
+    }
+  }
+]

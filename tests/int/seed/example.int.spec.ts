@@ -368,7 +368,8 @@ describe('Entfernen (AK-11-03, AK-SEED-14, AK-SEED-15)', () => {
     ])
     // Ein weiterer Seed-Lauf überspringt übernommene Seiten.
     const { report } = await seed('example')
-    expect(report.get('pages', 'skipped')).toBe(2)
+    expect(report.get('pages', 'skipped')).toBe(expectedCount('pages'))
     expect(report.get('pages', 'created')).toBe(0)
+    expect(report.get('faqs', 'skipped')).toBe(expectedCount('faqs'))
   })
 })

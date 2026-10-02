@@ -5,7 +5,7 @@ import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
 
 import { SEED_KEY_REGEX } from '@/fields/seed'
-import { PRODUCT_CATEGORIES, PRODUCT_STATUSES } from '@/lib/enums'
+import { PAGE_KEYS, PRODUCT_CATEGORIES, PRODUCT_STATUSES } from '@/lib/enums'
 import { lintProductText } from '@/lib/legal/forbidden'
 import { cropPixels } from '@/lib/seed/example'
 import { fallbackArtSvg, placeholderArtWebp } from '@/lib/seed/fallbackArt'
@@ -42,17 +42,19 @@ describe('Seed-Datendateien (zod, SEED-SPEC §2.1)', () => {
     expect(data.orders.orders).toHaveLength(expectedCount('orders'))
     expect(data.orders.checkouts.map((c) => c.key)).toEqual(['KS1', 'KS2'])
     expect(data.orders.reservations.map((r) => r.key)).toEqual(['KS1', 'KS2'])
-    // §4.4: Nachweise (P1), Packfotos O12 und Skizze A2 (P8.2); Reklamationsfotos folgen mit P8.5a
-    expect(data.privateUploads.map((u) => u.key)).toEqual(
-      expect.arrayContaining([
-        'nickel-demo',
-        'glaze-demo',
-        'O12:packing-1',
-        'O12:packing-2',
-        'A2:sketch-1',
-      ]),
-    )
-    expect(data.pages.map((p) => p.key)).toEqual(['home', 'contact'])
+    // §4.4: Nachweise (P1), Packfotos O12 und Skizze A2 (P8.2), Reklamationsfotos (P8.5a)
+    expect(data.privateUploads.map((u) => u.key)).toEqual([
+      'nickel-demo',
+      'glaze-demo',
+      'O12:packing-1',
+      'O12:packing-2',
+      'A2:sketch-1',
+      'RK1:photo-1',
+      'RK2:photo-1',
+    ])
+    // §13/§14 (P8.7): alle PAGE_KEYS, 12 FAQ
+    expect([...data.pages.map((p) => p.key)].sort()).toEqual([...PAGE_KEYS].sort())
+    expect(data.faqs).toHaveLength(expectedCount('faqs'))
     // Alle abgeleiteten seedKeys erfüllen das Format (§1.2).
     const keys = [
       ...data.media.instagram.map((m) => `media:${m.key}`),
@@ -64,6 +66,15 @@ describe('Seed-Datendateien (zod, SEED-SPEC §2.1)', () => {
       ...data.customers.map((c) => `customers:${c.key}`),
       ...data.orders.reservations.map((r) => `reservations:${r.key}`),
       ...data.pages.map((p) => `pages:${p.key}`),
+      ...data.faqs.map((f) => `faqs:${f.key}`),
+      ...data.withdrawals.map((w) => `withdrawals:${w.key}`),
+      ...data.complaints.map((c) => `complaints:${c.key}`),
+      ...data.inquiries.map((i) => `inquiries:${i.key}`),
+      ...data.privacyRequests.map((r) => `privacy-requests:${r.key}`),
+      ...data.revenue.map((r) => `revenue-entries:${r.month}:${r.source}`),
+      ...data.tattoo.flash.map((f) => `flash:${f.key}`),
+      ...data.tattoo.offers.map((o) => `tattoo-offers:${o.key}`),
+      ...data.tattoo.gallery.map((g) => `tattoo-gallery:${g.key}`),
     ]
     for (const k of keys) expect(k).toMatch(SEED_KEY_REGEX)
   })

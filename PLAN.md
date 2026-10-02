@@ -4262,7 +4262,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Ohne Jutta: G1/G2 erscheinen nur im Vorschau-Modus. P11-Nacharbeit: Einwilligungen (A13) – ohne sie werden G1/G2
     beim Entfernen der Beispieldaten gelöscht.
 
-- [ ] **P8.7 Seiten und FAQ** – `content/seed/data/pages.json` für alle `PAGE_KEYS` nach SEED-SPEC §13
+- [x] **P8.7 Seiten und FAQ** – `content/seed/data/pages.json` für alle `PAGE_KEYS` nach SEED-SPEC §13
   (Startseite `hero` + 7 `station`-Blöcke mit `stationId`, `cocoPose`, `ornament`, Links; `about`, `contact`,
   `commissions`, `tattoo`, `tattoo_aftercare`, `shop`, `archive`, `conformity`, `withdrawal`, `order_status`, `thanks`,
   `not_found`) und `faqs.json` nach §14. Klartext → Lexical über `toLexical()` (Absätze, `- `-Listen, `**fett**`,

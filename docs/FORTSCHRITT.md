@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P8.7
+
+- `content/seed/data/pages.json` für alle 13 `PAGE_KEYS` (SEED-SPEC §13, Juttas Ton, du-Form; keine Rechtstexte) und `faqs.json` (12 FAQ, §14); Seiten-Import kann jetzt alle Blocktypen (Bilder über seedKey, Schritte/Phasen mit gleichen Zeilen-IDs in DE/EN, `seo.metaTitle` der Startseite), FAQ-Import (Inhalt-Gruppe, übernommene FAQ werden übersprungen).\n- Datums-Token `{{date:<expr>}}` + `seedRichText` in `src/lib/seed/lexical.ts`.\n- Tests: `tests/unit/seed/lexical.unit.spec.ts` (6), `tests/int/seed/pages-faqs.int.spec.ts` (6: Mengen, AK-SEED-17, AK-SEED-18, Feldgrenzen, V-28, EN-Texte) grün; E2E `tests/e2e/seed-pages.e2e.spec.ts` (DE/EN der gebauten Routen).
+
 ## 2026-10-02 – P8.6
 
 - Tattoo-Bestand `content/seed/data/tattoo.json` (SEED-SPEC §12): Flash F901–F910 (F903/F905 vergeben, F901 mit Instagram-Bild), Angebote TO1–TO3, Galerie G1–G6 (G1/G2 Kundenfotos ohne Einwilligung, nur im Vorschau-Modus); Import `src/lib/seed/tattoo.ts` (Inhalt-Gruppe, Nummernkollision auch für `flash.number`).\n- Hook `tattoo-gallery`: Anlegen ohne Einwilligung im Seed-Kontext erlaubt (SEED-SPEC §1.6), sichtbar weiter nur mit wirksamem Vorschau-Modus. Allowlist-Eintrag „Godzilla“ für `tattoo.json` (E-18).\n- E2E `tests/e2e/tattoo/offers.e2e.spec.ts`: Testangebot beginnt vor TO2, damit es im Teaser steht.\n- Tests: `tests/int/seed/tattoo.int.spec.ts` (8, mit vorgestellter Uhr, Einwilligungsregel, Betreff) grün; E2E `tests/e2e/tattoo/seed-tattoo.e2e.spec.ts` (Betreff, Sichtbarkeit mit Seed-Daten).
