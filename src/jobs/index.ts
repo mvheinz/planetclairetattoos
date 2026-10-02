@@ -6,6 +6,11 @@ import { activateScheduledLegalTextsTask } from './activateScheduledLegalTexts'
 import { cancelOverduePrepaymentsTask } from './cancelOverduePrepayments'
 import { complianceDocsReviewTask } from './complianceDocsReview'
 import { invoiceIntegrityCheckTask } from './invoiceIntegrityCheck'
+import {
+  legalReviewReminderTask,
+  LEGAL_REVIEW_TASK_BERLIN_HOUR,
+  LEGAL_REVIEW_TASK_BERLIN_MINUTE,
+} from './legalReviewReminder'
 import { markDeliveredTask } from './markDelivered'
 import { monthlyCloseTask } from './monthlyClose'
 import { prepaymentRemindersTask } from './prepaymentReminders'
@@ -110,6 +115,7 @@ export const JOB_TASKS: TaskConfig<any>[] = [
   retentionDeletionLogTask,
   retentionTechnicalTask,
   legalHoldReviewTask,
+  legalReviewReminderTask,
 ].map((t) => instrumentTask(t, TASK_DEFS[t.slug as TaskSlug].queue))
 
 export const IMPLEMENTED_TASK_SLUGS = new Set<string>(JOB_TASKS.map((t) => t.slug))
@@ -136,6 +142,7 @@ export const WAKE_TASK_SLUGS: readonly TaskSlug[] = (
     ...(Object.keys(RETENTION_SCHEDULE) as (keyof typeof RETENTION_SCHEDULE)[]),
     'retentionTechnical',
     'legalHoldReview',
+    'legalReviewReminder',
   ] as const
 ).filter((s) => isImplementedTask(s))
 
@@ -166,4 +173,9 @@ export const WAKE_TASK_PERIOD: Partial<
     ]),
   ) as Partial<Record<TaskSlug, { per: 'day'; berlinHour: number; berlinMinute: number }>>),
   legalHoldReview: { per: 'day', berlinHour: LEGAL_HOLD_REVIEW_BERLIN_HOUR },
+  legalReviewReminder: {
+    per: 'day',
+    berlinHour: LEGAL_REVIEW_TASK_BERLIN_HOUR,
+    berlinMinute: LEGAL_REVIEW_TASK_BERLIN_MINUTE,
+  },
 }

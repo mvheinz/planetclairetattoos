@@ -1,6 +1,8 @@
 import React from 'react'
 
 import { getTodaySummary, type TodayHint, type TodaySummary } from '@/lib/admin/today'
+import { ENUM_LABELS } from '@/lib/enumLabels'
+import type { LegalReviewWarning } from '@/lib/legal/review'
 import { formatEuroInput } from '@/lib/money'
 import { formatBerlin } from '@/lib/time'
 
@@ -42,6 +44,79 @@ const TONE_LABEL: Record<TodayHint['tone'], AdminCustomKey> = {
   error: 'todayToneError',
   warning: 'todayToneWarning',
   info: 'todayToneInfo',
+}
+
+const LEGAL_WARNING_LABEL: Record<LegalReviewWarning, AdminCustomKey> = {
+  missing: 'todayLegalWarnMissing',
+  not_lawyer: 'todayLegalWarnNotLawyer',
+  overdue: 'todayLegalWarnOverdue',
+}
+
+/** Kachel „Rechtstexte“ (PLAN P6.20, R-014): je Typ Version, gültig ab, Herkunft, Alter; Warnungen gelb. */
+function LegalTextsTile({ rows, href }: { rows: TodaySummary['legalTexts']; href: string }) {
+  return (
+    <section
+      className="pc-order__section"
+      aria-labelledby="today-legal-title"
+      data-testid="today-legal"
+    >
+      <h2 id="today-legal-title">
+        <a href={href} className="pc-admin-link">
+          {adminText('todayLegalTitle')}
+        </a>
+      </h2>
+      <div
+        className="pc-revenue__scroll"
+        tabIndex={0}
+        role="region"
+        aria-labelledby="today-legal-title"
+      >
+        <table className="pc-revenue__table">
+          <thead>
+            <tr>
+              <th scope="col">{adminText('todayLegalType')}</th>
+              <th scope="col">{adminText('todayLegalVersion')}</th>
+              <th scope="col">{adminText('todayLegalValidFrom')}</th>
+              <th scope="col">{adminText('todayLegalOrigin')}</th>
+              <th scope="col">{adminText('todayLegalAge')}</th>
+              <th scope="col">
+                <span className="pc-visually-hidden">{adminText('todayToneWarning')}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr
+                key={r.type}
+                data-testid="today-legal-row"
+                data-type={r.type}
+                data-warnings={r.warnings.join(' ')}
+              >
+                <th scope="row">{ENUM_LABELS.LEGAL_TEXT_TYPES[r.type].de}</th>
+                <td>{r.present ? (r.version ?? '–') : adminText('todayLegalMissing')}</td>
+                <td>{r.validFrom ? formatBerlin(new Date(r.validFrom), 'dd.MM.yyyy') : '–'}</td>
+                <td>{r.origin ? ENUM_LABELS.LEGAL_TEXT_ORIGINS[r.origin].de : '–'}</td>
+                <td>
+                  {r.ageDays === null ? '–' : adminText('todayLegalAgeDays', { days: r.ageDays })}
+                </td>
+                <td>
+                  {r.warnings.length === 0 ? (
+                    <StatusBadge tone="success">{adminText('todayLegalOk')}</StatusBadge>
+                  ) : (
+                    r.warnings.map((w) => (
+                      <StatusBadge key={w} tone="warning">
+                        {adminText(LEGAL_WARNING_LABEL[w])}
+                      </StatusBadge>
+                    ))
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )
 }
 
 export async function TodayView({ adminRoute, req }: AdminViewBodyProps) {
@@ -120,6 +195,8 @@ export async function TodayView({ adminRoute, req }: AdminViewBodyProps) {
           {adminText('todayStartklarLater')}
         </p>
       </section>
+
+      <LegalTextsTile rows={summary.legalTexts} href={href(adminViewPath('texte'))} />
 
       <section className="pc-order__section" aria-labelledby="today-recent-title">
         <h2 id="today-recent-title">{adminText('todayRecent')}</h2>

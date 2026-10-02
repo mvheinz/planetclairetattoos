@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.20
+
+- Task `legalReviewReminder` (täglich ab 08:30 Berlin, `runOncePer`), Logik `src/lib/legal/review.ts`: Alter je Typ = jüngeres Datum aus `activatedAt` und `reviewedAt` (Berliner Kalendertage), A10 mit allen fälligen Typen, Wiederholung alle 30 Tage über `lastReminderSentAt`; Migration `p6_legal_review_job` (Task-Enum)\n- „Heute“-Kachel „Rechtstexte“ je Typ (Version, gültig ab, Herkunft, Alter; Warnung bei fehlendem Typ, Herkunft ≠ Kanzlei, > Intervall)\n- Tests: tests/int/jobs/legal-review.int.spec.ts (4, R-014 Tag 364/365/380/395), Slug-Test angepasst
+
 ## 2026-10-02 – P6.14
 
 - Runner src/lib/retention/runner.ts (≤ 500/Lauf, je Datensatz eigene Transaktion, deletion-log, Legal Hold, Trockenlauf, 3 Fehlschläge → A12 über Tabelle retention_failures)\n- Tasks retentionAbandonedCheckouts, retentionOrderMinimize, retentionOrders, retentionInvoices (pc.now, GoBD-Trigger), retentionWithdrawals; policy.ts um isDue/eventCutoff ergänzt\n- Migrationen p6_retention_failures, p6_retention_jobs\n- Tests: tests/unit/legal/retention-rules.unit.spec.ts (7), tests/int/legal/retention.int.spec.ts Teil 1 (10) – grün

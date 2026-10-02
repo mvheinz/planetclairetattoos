@@ -4,6 +4,12 @@ import type { Payload, Where } from 'payload'
 
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { AttentionReason, OrderStatus, RevenueGuardStage } from '@/lib/enums'
+import {
+  legalReviewStates,
+  type ActiveLegalTextRow,
+  type LegalReviewRow,
+  type LegalReviewState,
+} from '@/lib/legal/review'
 import { missingManualSources, previousMonth } from '@/lib/export/monthlyClose'
 import { listJobRuns, poolDb } from '@/lib/jobs/runLog'
 import { formatEuroInput } from '@/lib/money'
@@ -62,6 +68,8 @@ export interface TodaySummary {
     widerrufe: { count: number; nextDueAt: string | null; nextReference: string | null }
     anfragen: { count: number }
   }
+  /** Kachel „Rechtstexte“ (PLAN P6.20): je Typ Version, gültig ab, Herkunft, Alter, Warnungen. */
+  legalTexts: LegalReviewState[]
   hints: TodayHint[]
   recentOrders: {
     id: number
@@ -236,7 +244,7 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
       find<LegalText>({
         collection: 'legal-texts',
         where: { status: { equals: 'active' } },
-        select: { type: true, activatedAt: true, validFrom: true },
+        select: { type: true, version: true, origin: true, activatedAt: true, validFrom: true },
       }),
     () => payload.findGlobal({ slug: 'settings', depth: 0, overrideAccess: true }),
     () => seedSummary(payload),
@@ -379,23 +387,22 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
     })
   }
 
-  // Rechtstexte-Prüfung fällig (R-014, je Typ)
+  // Rechtstexte-Prüfung fällig (R-014, je Typ; dieselbe Rechnung wie der Task `legalReviewReminder`)
   const intervalDays = s.legal?.reviewIntervalDays ?? DEFAULT_LEGAL_REVIEW_DAYS
-  const reviews = s.legal?.reviews ?? []
-  const dueTypes = activeLegal
-    .filter((t) => {
-      const reviewed = reviews
-        .filter((r) => r.type === t.type && r.reviewedAt)
-        .map((r) => Date.parse(r.reviewedAt!))
-      const last = Math.max(Date.parse(t.activatedAt ?? t.validFrom), ...reviewed)
-      return now.getTime() - last >= intervalDays * DAY
-    })
+  const legalTexts = legalReviewStates(
+    activeLegal as unknown as ActiveLegalTextRow[],
+    (s.legal?.reviews ?? []) as LegalReviewRow[],
+    now,
+    intervalDays,
+  )
+  const dueTypes = legalTexts
+    .filter((t) => t.due)
     .map((t) => ENUM_LABELS.LEGAL_TEXT_TYPES[t.type].de)
   if (dueTypes.length > 0) {
     hint({
       id: 'legal-review',
       tone: 'warning',
-      text: `Rechtstexte prüfen (letzte Prüfung vor über ${intervalDays} Tagen): ${[...new Set(dueTypes)].join(', ')}.`,
+      text: `Rechtstexte prüfen (letzte Prüfung vor über ${intervalDays} Tagen): ${dueTypes.join(', ')}.`,
       href: '/texte',
       linkLabel: 'Texte öffnen',
     })
@@ -473,6 +480,7 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
       },
       anfragen: { count: anfragen },
     },
+    legalTexts,
     hints,
     recentOrders: recent.map((o) => ({
       id: o.id,

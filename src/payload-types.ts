@@ -189,6 +189,7 @@ export interface Config {
       retentionDeletionLog: TaskRetentionDeletionLog;
       retentionTechnical: TaskRetentionTechnical;
       legalHoldReview: TaskLegalHoldReview;
+      legalReviewReminder: TaskLegalReviewReminder;
       inline: {
         input: unknown;
         output: unknown;
@@ -2545,7 +2546,8 @@ export interface PayloadJob {
           | 'retentionConsentEvidence'
           | 'retentionDeletionLog'
           | 'retentionTechnical'
-          | 'legalHoldReview';
+          | 'legalHoldReview'
+          | 'legalReviewReminder';
         taskID: string;
         input?:
           | {
@@ -2605,6 +2607,7 @@ export interface PayloadJob {
         | 'retentionDeletionLog'
         | 'retentionTechnical'
         | 'legalHoldReview'
+        | 'legalReviewReminder'
       )
     | null;
   queue?: string | null;
@@ -5383,6 +5386,19 @@ export interface TaskLegalHoldReview {
     period?: string | null;
     sent?: boolean | null;
     holds?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskLegalReviewReminder".
+ */
+export interface TaskLegalReviewReminder {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    sent?: boolean | null;
+    due?: number | null;
   };
 }
 /**

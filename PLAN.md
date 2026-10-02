@@ -3597,7 +3597,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
   - Tests: `tests/int/email/logs-admin.int.spec.ts`, `tests/e2e/admin/logs.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P6.20 Jährliche Prüf-Erinnerung Rechtstexte** – Task `legalReviewReminder` (ARCHITEKTUR Anhang A.3,
+- [x] **P6.20 Jährliche Prüf-Erinnerung Rechtstexte** – Task `legalReviewReminder` (ARCHITEKTUR Anhang A.3,
   DATENMODELL §11), täglich ab 08:30: je Typ Alter = jüngeres Datum aus `activatedAt` der aktiven Fassung und
   `legal.reviews[type].reviewedAt`; ab 365 Tagen A10 (`admin_legal_review_due`) einmal mit allen fälligen Typen, danach
   alle 30 Tage erneut (`legal.reviews[type].lastReminderSentAt`), bis neue Version oder „geprüft“ (R-014).

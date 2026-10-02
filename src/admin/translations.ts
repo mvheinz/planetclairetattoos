@@ -731,6 +731,19 @@ export const ADMIN_CUSTOM_DE = {
   todayRecent: 'Letzte Bestellungen',
   todayRecentNone: 'Noch keine Bestellungen.',
   todaySeed: 'Beispiel',
+  // Heute: Kachel Rechtstexte (P6.20, R-014)
+  todayLegalTitle: 'Rechtstexte',
+  todayLegalType: 'Text',
+  todayLegalVersion: 'Version',
+  todayLegalValidFrom: 'Gültig ab',
+  todayLegalOrigin: 'Herkunft',
+  todayLegalAge: 'Alter',
+  todayLegalAgeDays: '{{days}} Tage',
+  todayLegalMissing: 'fehlt',
+  todayLegalWarnMissing: 'Kein aktiver Text',
+  todayLegalWarnNotLawyer: 'Nicht von der Kanzlei',
+  todayLegalWarnOverdue: 'Prüfung fällig',
+  todayLegalOk: 'In Ordnung',
   textsOrderActive: 'Eingesetzt: {{number}} (Sprache der Bestellung: {{locale}}).',
 } as const
 

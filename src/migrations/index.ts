@@ -34,6 +34,7 @@ import * as migration_20261002_023800_p6_activate_legal_job from './20261002_023
 import * as migration_20261002_032940_p6_retention_failures from './20261002_032940_p6_retention_failures';
 import * as migration_20261002_033402_p6_retention_jobs from './20261002_033402_p6_retention_jobs';
 import * as migration_20261002_041023_p6_retention_jobs_part2 from './20261002_041023_p6_retention_jobs_part2';
+import * as migration_20261002_043628_p6_legal_review_job from './20261002_043628_p6_legal_review_job';
 
 export const migrations = [
   {
@@ -214,6 +215,11 @@ export const migrations = [
   {
     up: migration_20261002_041023_p6_retention_jobs_part2.up,
     down: migration_20261002_041023_p6_retention_jobs_part2.down,
-    name: '20261002_041023_p6_retention_jobs_part2'
+    name: '20261002_041023_p6_retention_jobs_part2',
+  },
+  {
+    up: migration_20261002_043628_p6_legal_review_job.up,
+    down: migration_20261002_043628_p6_legal_review_job.down,
+    name: '20261002_043628_p6_legal_review_job'
   },
 ];
