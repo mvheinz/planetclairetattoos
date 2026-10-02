@@ -2,12 +2,14 @@ import React from 'react'
 
 import { OPEN_PRIVACY_REQUEST_STATUSES } from '@/lib/privacy/deadlines'
 import { buildErasurePlan } from '@/lib/privacy/erasure'
+import { emailLogsFor, privacyRequestMailsWhere } from '@/lib/privacy/logs'
 import { formatBerlin } from '@/lib/time'
 import type { Inquiry, Order, PrivacyRequest, PrivateUpload, Withdrawal } from '@/payload-types'
 
 import { adminText } from '../../translations'
 import type { AdminViewBodyProps } from '../AdminViewBody'
 import { adminViewPath } from '../registry'
+import { EmailLogTable } from '../logs/LogTables'
 import { PrivacyAccessPanel } from './PrivacyAccessPanel'
 import { PrivacyErasurePanel, PrivacyRectifyPanel } from './PrivacyErasurePanel'
 
@@ -64,6 +66,7 @@ export async function PrivacyRequestSections(props: PrivacyRequestSectionsProps)
   const consentOrders = orders.filter(
     (o) => o.carrierEmailConsent && !o.carrierEmailConsentRevokedAt,
   )
+  const mails = await emailLogsFor(req, privacyRequestMailsWhere(r.id))
   const link = (path: string, label: string) => (
     <a href={`${adminRoute}${path}`} className="pc-admin-link">
       {label}
@@ -177,6 +180,15 @@ export async function PrivacyRequestSections(props: PrivacyRequestSectionsProps)
             ))}
           </ul>
         )}
+      </section>
+      <section className="pc-order__section" aria-labelledby="privacy-mails-title">
+        <h2 id="privacy-mails-title">{adminText('logsMailsTitle')}</h2>
+        <EmailLogTable
+          rows={mails}
+          adminRoute={adminRoute}
+          caption={adminText('logsMailsTitle')}
+          testId="privacy-email-log"
+        />
       </section>
     </>
   )

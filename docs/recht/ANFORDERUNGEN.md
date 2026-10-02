@@ -98,115 +98,118 @@ Tattoo-Seiten (alle), Über mich & Coco, Konformitätserklärungen (mit und ohne
 
 ## 3. Übersicht aller Anforderungen (maschinenlesbar)
 
-Diese Tabelle ist die Datenquelle für R-001. Format je Zeile: `| R-### | Titel | Phase | Test | Owner |`.
+Diese Tabelle ist die Datenquelle für R-001. Format je Zeile: `| R-### | Titel | Phase | Test | Owner | Nachweis |`.
+`Nachweis` nennt die Testdateien (Pfade ab Repository-Wurzel, Komma-Liste), bei rein manuellen Punkten „§7“; Pflicht
+für alle Zeilen mit frühester Phase ≤ aktueller Phase (`LEGAL_TRACE_PHASE`, P6.23), sonst „–“. Der R-001-Test liest
+die Spalten über die Kopfzeile und prüft, dass jeder genannte Pfad existiert.
 `Test` ist eine Komma-Liste aus `unit`, `int`, `e2e`, `manuell`. Maßgeblich für R-001 ist die **früheste** Phase.
 Lücken in der Nummerierung sind Reserve.
 
-| ID | Titel | Phase | Test | Owner |
-|---|---|---|---|---|
-| R-001 | Nachverfolgbarkeit Anforderung ↔ Test | P1 | unit | nein |
-| R-002 | Keine selbst formulierten Rechtstexte, Platzhalter-Kennzeichnung | P6 | unit, e2e | ja |
-| R-010 | Pflichtseiten und stabile URLs | P2, P6 | e2e | nein |
-| R-011 | Footer mit Pflichtlinks auf jeder Seite | P2 | e2e | nein |
-| R-012 | Rechtstexte und Textbausteine versioniert im CMS | P1, P6 | int | nein |
-| R-013 | Bestellung speichert Rechtstext-Versionen und Snapshot | P4 | int | nein |
-| R-014 | Jährliche Prüf-Erinnerung Rechtstexte | P6 | int | ja |
-| R-015 | Englische Rechtstexte als unverbindliche Übersetzung | P6 | e2e | nein |
-| R-020 | Impressum aus Stammdaten | P6 | int, e2e | ja |
-| R-021 | Telefonnummer für Impressum und Widerrufsbelehrung | P6 | unit | ja |
-| R-022 | Impressum-Link im Instagram-Profil | P11 | manuell | ja |
-| R-023 | Kontaktseite ohne Formular und ohne Karte | P6 | e2e | nein |
-| R-030 | Kleinunternehmer-Preishinweis an jedem Preis | P3 | unit, e2e | nein |
-| R-031 | Versandkosten vor dem Warenkorb erkennbar | P3 | e2e | nein |
-| R-032 | Steuermodus-Schalter mit Gültig-ab | P1 | unit, int | nein |
-| R-033 | Keine Streich- und Rabattpreise, Preis-Historie | P3 | unit, int | nein |
-| R-034 | Tattoo-Preise als Gesamtpreise | P7 | unit, e2e | nein |
-| R-035 | Lieferzeit-Angabe | P3 | e2e | nein |
-| R-036 | Zahlarten und Lieferbeschränkungen zu Beginn des Bestellvorgangs | P4 | e2e | nein |
-| R-040 | Block „Herstellerin & Produktsicherheit“ (GPSR) | P3 | e2e | nein |
-| R-041 | Objektnummer als Produktkennung | P1 | unit, int | nein |
-| R-042 | Veröffentlichungs-Validierung je Kategorie | P1 | int | nein |
-| R-043 | Textil: Faserzusammensetzung, Größe, Zustand, Second-Hand | P1, P3 | unit, e2e | nein |
-| R-044 | Keramik: Lebensmittelkontakt-Status und Konformitätserklärung | P1, P3 | unit, int, e2e | ja |
-| R-045 | Schmuck: Nickel-Nachweis, bleifreie Glasur, Kleinteile-Warnung | P1, P3 | int | ja |
-| R-046 | Zeichnungen und Aquarelle | P1, P3 | int | nein |
-| R-047 | Nur eigene Motive, keine fremden Marken | P1 | unit, int | nein |
-| R-048 | Abweichende Beschaffenheit ausdrücklich und gesondert vereinbaren | P1, P4 | int, e2e | nein |
-| R-049 | Harmonisierte Mitteilung zur gesetzlichen Gewährleistung | P3, P6 | e2e | nein |
-| R-060 | Liefergebiet und Länder-Whitelist | P4 | unit, int | nein |
-| R-061 | Gastbestellung mit minimalen Pflichtfeldern | P4 | e2e | nein |
-| R-062 | Stripe nur auf der Kasse, Zahlarten technisch begrenzt | P4 | unit, int, e2e | nein |
-| R-063 | Bestellübersicht unmittelbar vor dem Button | P4 | e2e | nein |
-| R-064 | Bestell-Button „Zahlungspflichtig bestellen“ | P4 | e2e | nein |
-| R-065 | Vertragsschluss-Mechanik | P4 | int | nein |
-| R-066 | Danke-Seite | P4 | e2e | nein |
-| R-067 | Bestellstatus-Seite per geheimem Link | P4 | int, e2e | nein |
-| R-070 | Zahlarten ohne Aufschläge | P4 | unit | nein |
-| R-071 | Vorkasse: Zahlungsdaten, Erinnerung, automatische Stornierung | P4, P5 | int | ja |
-| R-072 | Erstattung über dasselbe Zahlungsmittel | P6 | int | nein |
-| R-080 | Transaktionsmails: Absender, Anbieterkennung, keine Werbung | P4 | unit | nein |
-| R-081 | Bestellbestätigung (Eingangs- und Vertragsbestätigung) | P4 | int | nein |
-| R-082 | Versandmail | P5 | unit, int | nein |
-| R-083 | Abholmail und Übergabe | P5 | int | nein |
-| R-084 | Weitere Pflichtmails | P4 | unit | nein |
-| R-090 | Link „Vertrag widerrufen“ überall | P2, P6 | unit, e2e | nein |
-| R-091 | Widerrufsfunktion Schritt 1: Erklärung erfassen | P6 | e2e | nein |
-| R-092 | Widerrufsfunktion Schritt 2: „Widerruf bestätigen“ | P6 | e2e | nein |
-| R-093 | Widerruf speichern und sofort bestätigen | P6 | int, e2e | nein |
-| R-094 | Widerrufs-Posteingang in der Verwaltung | P6 | int | nein |
-| R-095 | Widerrufsbelehrung, Muster-Formular, Rücksendekosten | P6 | unit, manuell | ja |
-| R-096 | Kein Widerrufsausschluss im Shop | P3, P6 | unit | nein |
-| R-100 | Transportrisiko trägt die Verkäuferin | P5 | int | nein |
-| R-101 | E-Mail-Adresse an DHL nur mit Einwilligung | P4, P5 | unit, e2e | nein |
-| R-102 | Abholung in Berlin | P4, P5 | int | nein |
-| R-110 | Gesetzliche Mängelhaftung, keine „Garantie“, Reklamationsakte | P6 | int | nein |
-| R-111 | Reklamationsvorlage „Recht auf Reparatur“ | P6 | int | nein |
-| R-112 | Streitbeilegung: § 37 VSBG-Vorlage, kein OS-Link | P6 | unit | nein |
-| R-120 | Rechnung je bezahlter Bestellung (§ 34a UStDV) | P4, P5 | int | ja |
-| R-121 | Lückenloser Nummernkreis, Storno statt Löschen | P4 | int | nein |
-| R-122 | Unveränderbarkeit der Rechnungs-PDFs | P5 | int | nein |
-| R-123 | Aufbewahrung von Rechnungen und Aufzeichnungen | P5, P6 | int | nein |
-| R-124 | Monatsexport ohne Kundendaten | P5 | int | nein |
-| R-125 | Umsatz-Wächter Kleinunternehmergrenzen | P5 | unit, int | ja |
-| R-126 | Kein Umsatzsteuerausweis im Kleinunternehmer-Modus | P3 | unit, e2e | nein |
-| R-127 | „Offline verkauft“ ohne Kassenfunktion | P5 | int | nein |
-| R-130 | Kein Speichern/Auslesen auf dem Endgerät vor Nutzeraktion | P2, P4 | e2e | nein |
-| R-131 | Keine Drittanbieter-Requests, CSP, selbst gehostete Schriften | P2 | unit, e2e | nein |
-| R-132 | Statistik (Vercel Web Analytics) nur nach Freigabe | P10 | unit, e2e | ja |
-| R-133 | Fehlerüberwachung ohne Personenbezug | P10 | unit, e2e | nein |
-| R-134 | Spamschutz ohne Drittanbieter | P6, P7 | int | nein |
-| R-135 | Metadaten aus allen Bild-Uploads entfernen | P1, P7 | int | nein |
-| R-136 | Technisch-organisatorische Maßnahmen | P1, P10 | int, e2e | nein |
-| R-137 | Keine personenbezogenen Daten in URLs und Logs | P4 | unit, e2e | nein |
-| R-138 | Datenschutzhinweise am Ort der Erhebung | P4, P6, P7 | e2e | nein |
-| R-139 | Instagram nur als Link | P3 | unit | nein |
-| R-150 | Auskunft und Datenübertragbarkeit (Art. 15, 20 DSGVO) | P6 | int | nein |
-| R-151 | Löschen und Einschränken mit Aufbewahrungssperre (Art. 17, 18) | P6 | int | nein |
-| R-152 | Berichtigung, Widerspruch, Widerruf von Einwilligungen | P6 | int | nein |
-| R-153 | Fristüberwachung Betroffenenanfragen | P6 | int | nein |
-| R-154 | Automatische Löschjobs | P6 | int | nein |
-| R-155 | Auftragsverarbeitungsverträge vor Go-live | P10, P11 | unit, manuell | ja |
-| R-156 | Verzeichnis von Verarbeitungstätigkeiten | P6 | manuell | ja |
-| R-157 | Prozess Datenpanne | P10 | manuell | ja |
-| R-160 | Anfrageformular Auftragsarbeiten | P7 | int, e2e | nein |
-| R-161 | Verträge über Auftragsarbeiten außerhalb des Shops | P7, P11 | manuell | ja |
-| R-162 | Keine weiteren Datenerhebungen | P10 | e2e | nein |
-| R-170 | Tattoo-Bereich ohne Online-Vertragsschluss | P7 | unit, int, e2e | nein |
-| R-171 | Abgelaufene Flash-Days/Aktionen ausblenden | P7 | int | nein |
-| R-172 | Portfolio-Fotos nur mit Einwilligung | P7 | int | ja |
-| R-180 | Beispielbestand kennzeichnen und entfernbar | P8 | int | nein |
-| R-181 | `SEED_PREVIEW_MODE` nie in Produktion | P8 | unit, int | nein |
-| R-182 | Vorschau-Datei als interne Datei | P10 | unit | nein |
-| R-190 | BFSG-Ausnahme dokumentiert, keine Konformitätsbehauptung | P10 | manuell | nein |
-| R-191 | Freiwillige Barrierearmut (Ziel WCAG 2.2 AA) | P2, P10 | e2e | nein |
-| R-200 | LUCID-Registrierung und Systembeteiligung | P10, P11 | unit, manuell | ja |
-| R-201 | Verpackungsmengen erfassen (je Sendung, Jahres-Export) | P5 | int | nein |
-| R-202 | EU-Länder nur mit Pflicht-Bestätigung freischaltbar | P5 | int | nein |
-| R-203 | GPSR-Herstellerpflichten am Produkt, Etiketten und Beileger | P5, P11 | int, manuell | ja |
-| R-204 | Markenrecherche „Planet Claire“ (empfohlen) | P11 | manuell | ja |
-| R-205 | Stammdaten und steuerliche Klärung | P11 | manuell | ja |
-| R-210 | Startklar-Prüfung (Go-live-Gate) | P10, P11 | unit | ja |
-| R-211 | Produktions-Rauchtest Recht | P11 | manuell | ja |
+| ID | Titel | Phase | Test | Owner | Nachweis |
+|---|---|---|---|---|---|
+| R-001 | Nachverfolgbarkeit Anforderung ↔ Test | P1 | unit | nein | `tests/unit/legal/traceability.unit.spec.ts` |
+| R-002 | Keine selbst formulierten Rechtstexte, Platzhalter-Kennzeichnung | P6 | unit, e2e | ja | `tests/int/legal/legal-pdf.int.spec.ts`, `tests/int/legal/legal-texts.int.spec.ts`, `tests/int/legal/public-pages.int.spec.ts`, `tests/e2e/legal-pages.e2e.spec.ts` |
+| R-010 | Pflichtseiten und stabile URLs | P2, P6 | e2e | nein | `tests/e2e/legal-pages.e2e.spec.ts`, `tests/e2e/legal/pages.e2e.spec.ts`, `tests/unit/routes/registry.unit.spec.ts`, `tests/e2e/contact-withdraw.e2e.spec.ts` |
+| R-011 | Footer mit Pflichtlinks auf jeder Seite | P2 | e2e | nein | `tests/unit/legal/footer-links.unit.spec.ts`, `tests/e2e/legal/footer.e2e.spec.ts`, `tests/e2e/contact-withdraw.e2e.spec.ts`, `tests/e2e/error-pages.e2e.spec.ts` |
+| R-012 | Rechtstexte und Textbausteine versioniert im CMS | P1, P6 | int | nein | `tests/unit/legal/briefing.unit.spec.ts`, `tests/unit/legal/render-tokens.unit.spec.ts`, `tests/unit/legal/snippets.unit.spec.ts`, `tests/int/legal/legal-texts-admin.int.spec.ts` |
+| R-013 | Bestellung speichert Rechtstext-Versionen und Snapshot | P4 | int | nein | `tests/int/legal/contract-confirmation.int.spec.ts`, `tests/e2e/legal/checkout-compliance.e2e.spec.ts`, `tests/int/commerce/submit-checkout.int.spec.ts` |
+| R-014 | Jährliche Prüf-Erinnerung Rechtstexte | P6 | int | ja | `tests/int/legal/legal-texts-admin.int.spec.ts`, `tests/int/jobs/legal-review.int.spec.ts` |
+| R-015 | Englische Rechtstexte als unverbindliche Übersetzung | P6 | e2e | nein | `tests/int/legal/contract-confirmation.int.spec.ts`, `tests/int/legal/public-pages.int.spec.ts`, `tests/e2e/legal/pages.e2e.spec.ts` |
+| R-020 | Impressum aus Stammdaten | P6 | int, e2e | ja | `tests/int/legal/business-profile.int.spec.ts`, `tests/e2e/legal/pages.e2e.spec.ts`, `tests/unit/settings/rules.unit.spec.ts` |
+| R-021 | Telefonnummer für Impressum und Widerrufsbelehrung | P6 | unit | ja | `tests/unit/legal/phone.unit.spec.ts`, `tests/int/legal/business-profile.int.spec.ts`, `tests/e2e/legal/pages.e2e.spec.ts`, `tests/unit/email/layout.unit.spec.ts` |
+| R-022 | Impressum-Link im Instagram-Profil | P11 | manuell | ja | – |
+| R-023 | Kontaktseite ohne Formular und ohne Karte | P6 | e2e | nein | `tests/e2e/legal/pages.e2e.spec.ts` |
+| R-030 | Kleinunternehmer-Preishinweis an jedem Preis | P3 | unit, e2e | nein | `tests/unit/shop/list-page.unit.spec.ts`, `tests/unit/shop/price-note.unit.spec.ts`, `tests/unit/static/money-usage.unit.spec.ts` |
+| R-031 | Versandkosten vor dem Warenkorb erkennbar | P3 | e2e | nein | `tests/e2e/legal/cart-info.e2e.spec.ts`, `tests/e2e/legal/shipping-page.e2e.spec.ts`, `tests/unit/shop/price-note.unit.spec.ts`, `tests/unit/shop/product-info.unit.spec.ts` |
+| R-032 | Steuermodus-Schalter mit Gültig-ab | P1 | unit, int | nein | `tests/unit/legal/constants.unit.spec.ts`, `tests/unit/settings/rules.unit.spec.ts`, `tests/unit/shop/price-note.unit.spec.ts`, `tests/unit/tax/tax-mode.unit.spec.ts` |
+| R-033 | Keine Streich- und Rabattpreise, Preis-Historie | P3 | unit, int | nein | `tests/int/shop/revalidate.int.spec.ts` |
+| R-034 | Tattoo-Preise als Gesamtpreise | P7 | unit, e2e | nein | – |
+| R-035 | Lieferzeit-Angabe | P3 | e2e | nein | `tests/e2e/legal/cart-info.e2e.spec.ts`, `tests/e2e/legal/shipping-page.e2e.spec.ts`, `tests/unit/shop/price-note.unit.spec.ts` |
+| R-036 | Zahlarten und Lieferbeschränkungen zu Beginn des Bestellvorgangs | P4 | e2e | nein | `tests/e2e/legal/cart-info.e2e.spec.ts`, `tests/e2e/legal/checkout-compliance.e2e.spec.ts` |
+| R-040 | Block „Herstellerin & Produktsicherheit“ (GPSR) | P3 | e2e | nein | `tests/e2e/legal/gpsr.e2e.spec.ts`, `tests/unit/shop/product-info.unit.spec.ts` |
+| R-041 | Objektnummer als Produktkennung | P1 | unit, int | nein | `tests/unit/products/item-number.unit.spec.ts`, `tests/unit/shop/format.unit.spec.ts`, `tests/int/products/item-number.int.spec.ts` |
+| R-042 | Veröffentlichungs-Validierung je Kategorie | P1 | int | nein | `tests/unit/products/validate.unit.spec.ts`, `tests/int/products/publish-validation.int.spec.ts` |
+| R-043 | Textil: Faserzusammensetzung, Größe, Zustand, Second-Hand | P1, P3 | unit, e2e | nein | `tests/e2e/legal/product-info.e2e.spec.ts`, `tests/unit/products/validate.unit.spec.ts`, `tests/unit/shop/format.unit.spec.ts`, `tests/int/products/publish-validation.int.spec.ts` |
+| R-044 | Keramik: Lebensmittelkontakt-Status und Konformitätserklärung | P1, P3 | unit, int, e2e | ja | `tests/e2e/legal/product-info.e2e.spec.ts`, `tests/unit/products/validate.unit.spec.ts`, `tests/unit/shop/product-state.unit.spec.ts`, `tests/int/collections/conformity.int.spec.ts` |
+| R-045 | Schmuck: Nickel-Nachweis, bleifreie Glasur, Kleinteile-Warnung | P1, P3 | int | ja | `tests/e2e/legal/product-info.e2e.spec.ts`, `tests/unit/products/validate.unit.spec.ts`, `tests/int/products/publish-validation.int.spec.ts` |
+| R-046 | Zeichnungen und Aquarelle | P1, P3 | int | nein | `tests/e2e/legal/product-info.e2e.spec.ts`, `tests/unit/products/validate.unit.spec.ts`, `tests/int/collections/products-fields.int.spec.ts`, `tests/int/products/publish-validation.int.spec.ts` |
+| R-047 | Nur eigene Motive, keine fremden Marken | P1 | unit, int | nein | `tests/unit/products/validate.unit.spec.ts`, `tests/int/globals/settings.int.spec.ts`, `tests/int/products/publish-validation.int.spec.ts` |
+| R-048 | Abweichende Beschaffenheit ausdrücklich und gesondert vereinbaren | P1, P4 | int, e2e | nein | `tests/e2e/legal/product-info.e2e.spec.ts`, `tests/unit/commerce/checkout-schema.unit.spec.ts`, `tests/unit/components/ui.unit.spec.tsx`, `tests/unit/products/validate.unit.spec.ts` |
+| R-049 | Harmonisierte Mitteilung zur gesetzlichen Gewährleistung | P3, P6 | e2e | nein | `tests/e2e/legal/cart-info.e2e.spec.ts`, `tests/e2e/legal/pages.e2e.spec.ts`, `tests/e2e/legal/shipping-page.e2e.spec.ts`, `tests/unit/email/templates/order-confirmation.unit.spec.ts` |
+| R-060 | Liefergebiet und Länder-Whitelist | P4 | unit, int | nein | `tests/int/legal/eu-activation.int.spec.ts`, `tests/unit/commerce/checkout-schema.unit.spec.ts`, `tests/unit/commerce/shipping.unit.spec.ts`, `tests/unit/commerce/totals.unit.spec.ts` |
+| R-061 | Gastbestellung mit minimalen Pflichtfeldern | P4 | e2e | nein | `tests/e2e/legal/checkout-fields.e2e.spec.ts`, `tests/unit/commerce/checkout-schema.unit.spec.ts`, `tests/int/invoices/pdf.int.spec.ts` |
+| R-062 | Stripe nur auf der Kasse, Zahlarten technisch begrenzt | P4 | unit, int, e2e | nein | `tests/unit/payments/checkout-session.unit.spec.ts`, `tests/unit/payments/stripe-params.unit.spec.ts`, `tests/unit/security/stripe-imports.unit.spec.ts`, `tests/int/adapters/payments.contract.int.spec.ts` |
+| R-063 | Bestellübersicht unmittelbar vor dem Button | P4 | e2e | nein | `tests/e2e/legal/checkout-compliance.e2e.spec.ts`, `tests/e2e/checkout/overview.e2e.spec.ts` |
+| R-064 | Bestell-Button „Zahlungspflichtig bestellen“ | P4 | e2e | nein | `tests/e2e/legal/checkout-compliance.e2e.spec.ts`, `tests/e2e/checkout/overview.e2e.spec.ts`, `tests/e2e/shop/product-page.e2e.spec.ts` |
+| R-065 | Vertragsschluss-Mechanik | P4 | int | nein | `tests/int/legal/contract-confirmation.int.spec.ts`, `tests/e2e/legal/checkout-compliance.e2e.spec.ts`, `tests/int/commerce/fulfill-checkout.int.spec.ts`, `tests/int/commerce/submit-checkout.int.spec.ts` |
+| R-066 | Danke-Seite | P4 | e2e | nein | `tests/unit/commerce/order-view.unit.spec.ts`, `tests/e2e/checkout/thank-you.e2e.spec.ts` |
+| R-067 | Bestellstatus-Seite per geheimem Link | P4 | int, e2e | nein | `tests/unit/commerce/checkout-schema.unit.spec.ts`, `tests/unit/commerce/order-status-line.unit.spec.ts`, `tests/unit/commerce/order-view.unit.spec.ts`, `tests/unit/security/tokens.unit.spec.ts` |
+| R-070 | Zahlarten ohne Aufschläge | P4 | unit | nein | `tests/unit/commerce/order-view.unit.spec.ts`, `tests/unit/commerce/totals.unit.spec.ts` |
+| R-071 | Vorkasse: Zahlungsdaten, Erinnerung, automatische Stornierung | P4, P5 | int | ja | `tests/unit/commerce/deadlines.unit.spec.ts`, `tests/unit/commerce/epc.unit.spec.ts`, `tests/unit/email/templates/prepayment-instructions.unit.spec.ts`, `tests/int/jobs/prepayment-deadlines.int.spec.ts` |
+| R-072 | Erstattung über dasselbe Zahlungsmittel | P6 | int | nein | `tests/int/legal/refund.int.spec.ts`, `tests/unit/commerce/refund-amount.unit.spec.ts` |
+| R-080 | Transaktionsmails: Absender, Anbieterkennung, keine Werbung | P4 | unit | nein | `tests/e2e/legal/forbidden.e2e.spec.ts`, `tests/unit/email/layout.unit.spec.ts`, `tests/unit/email/templates/order-confirmation.unit.spec.ts` |
+| R-081 | Bestellbestätigung (Eingangs- und Vertragsbestätigung) | P4 | int | nein | `tests/int/legal/contract-confirmation.int.spec.ts`, `tests/e2e/legal/checkout-compliance.e2e.spec.ts`, `tests/unit/email/templates/order-confirmation.unit.spec.ts`, `tests/unit/email/templates/prepayment-instructions.unit.spec.ts` |
+| R-082 | Versandmail | P5 | unit, int | nein | `tests/unit/legal/shipping-mail.unit.spec.ts` |
+| R-083 | Abholmail und Übergabe | P5 | int | nein | `tests/int/legal/pickup.int.spec.ts` |
+| R-084 | Weitere Pflichtmails | P4 | unit | nein | `tests/unit/legal/admin-templates.unit.spec.ts`, `tests/unit/legal/p6-mails.unit.spec.ts`, `tests/unit/email/templates/order-confirmation.unit.spec.ts`, `tests/unit/email/templates/oversold-apology.unit.spec.ts` |
+| R-090 | Link „Vertrag widerrufen“ überall | P2, P6 | unit, e2e | nein | `tests/unit/legal/constants.unit.spec.ts`, `tests/unit/legal/footer-links.unit.spec.ts`, `tests/unit/legal/mail-withdrawal-link.unit.spec.ts`, `tests/e2e/legal-pages.e2e.spec.ts` |
+| R-091 | Widerrufsfunktion Schritt 1: Erklärung erfassen | P6 | e2e | nein | `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts` |
+| R-092 | Widerrufsfunktion Schritt 2: „Widerruf bestätigen“ | P6 | e2e | nein | `tests/unit/legal/constants.unit.spec.ts`, `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts` |
+| R-093 | Widerruf speichern und sofort bestätigen | P6 | int, e2e | nein | `tests/int/legal/withdrawal.int.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts`, `tests/unit/email/templates/withdrawal-receipt.unit.spec.ts`, `tests/int/email/logs-admin.int.spec.ts` |
+| R-094 | Widerrufs-Posteingang in der Verwaltung | P6 | int | nein | `tests/int/legal/withdrawal-inbox.int.spec.ts`, `tests/int/collections/withdrawals.int.spec.ts`, `tests/e2e/admin/withdrawal-inbox.e2e.spec.ts` |
+| R-095 | Widerrufsbelehrung, Muster-Formular, Rücksendekosten | P6 | unit, manuell | ja | `tests/unit/legal/render-tokens.unit.spec.ts`, `tests/int/legal/legal-texts.int.spec.ts`, `tests/e2e/legal/pages.e2e.spec.ts` |
+| R-096 | Kein Widerrufsausschluss im Shop | P3, P6 | unit | nein | `tests/unit/legal/forbidden.unit.spec.ts`, `tests/e2e/legal/forbidden.e2e.spec.ts` |
+| R-100 | Transportrisiko trägt die Verkäuferin | P5 | int | nein | `tests/int/legal/packing-hints.int.spec.ts`, `tests/int/legal/transport-risk.int.spec.ts` |
+| R-101 | E-Mail-Adresse an DHL nur mit Einwilligung | P4, P5 | unit, e2e | nein | `tests/unit/legal/address-formatter.unit.spec.ts`, `tests/int/legal/packing-hints.int.spec.ts`, `tests/e2e/legal/checkout-fields.e2e.spec.ts`, `tests/int/commerce/submit-checkout.int.spec.ts` |
+| R-102 | Abholung in Berlin | P4, P5 | int | nein | `tests/int/legal/pickup.int.spec.ts`, `tests/int/commerce/pickup.int.spec.ts` |
+| R-110 | Gesetzliche Mängelhaftung, keine „Garantie“, Reklamationsakte | P6 | int | nein | `tests/int/legal/complaints.int.spec.ts` |
+| R-111 | Reklamationsvorlage „Recht auf Reparatur“ | P6 | int | nein | `tests/unit/legal/p6-mails.unit.spec.ts`, `tests/int/legal/complaints.int.spec.ts` |
+| R-112 | Streitbeilegung: § 37 VSBG-Vorlage, kein OS-Link | P6 | unit | nein | `tests/unit/legal/vsbg.unit.spec.ts`, `tests/int/legal/complaints.int.spec.ts` |
+| R-120 | Rechnung je bezahlter Bestellung (§ 34a UStDV) | P4, P5 | int | ja | `tests/int/invoices/pdf.int.spec.ts`, `tests/int/orders/prepayment-admin.int.spec.ts` |
+| R-121 | Lückenloser Nummernkreis, Storno statt Löschen | P4 | int | nein | `tests/int/invoices/numbering.int.spec.ts`, `tests/int/invoices/pdf.int.spec.ts` |
+| R-122 | Unveränderbarkeit der Rechnungs-PDFs | P5 | int | nein | `tests/int/legal/invoice-integrity.int.spec.ts` |
+| R-123 | Aufbewahrung von Rechnungen und Aufzeichnungen | P5, P6 | int | nein | `tests/int/legal/retention.int.spec.ts` |
+| R-124 | Monatsexport ohne Kundendaten | P5 | int | nein | `tests/int/legal/datev-export.int.spec.ts`, `tests/int/legal/monthly-export.int.spec.ts` |
+| R-125 | Umsatz-Wächter Kleinunternehmergrenzen | P5 | unit, int | ja | `tests/unit/legal/revenue-guard.unit.spec.ts`, `tests/unit/email/templates/admin-mails.unit.spec.ts`, `tests/int/jobs/revenue-guard.int.spec.ts` |
+| R-126 | Kein Umsatzsteuerausweis im Kleinunternehmer-Modus | P3 | unit, e2e | nein | `tests/unit/seo/jsonld.unit.spec.ts`, `tests/unit/shop/price-note.unit.spec.ts`, `tests/e2e/seo/meta.e2e.spec.ts` |
+| R-127 | „Offline verkauft“ ohne Kassenfunktion | P5 | int | nein | `tests/int/legal/offline-sale.int.spec.ts` |
+| R-130 | Kein Speichern/Auslesen auf dem Endgerät vor Nutzeraktion | P2, P4 | e2e | nein | `tests/unit/behaviors/motion-toggle.unit.spec.ts`, `tests/e2e/motion-toggle.e2e.spec.ts`, `tests/e2e/privacy.e2e.spec.ts`, `tests/e2e/privacy/cart-cookie.e2e.spec.ts` |
+| R-131 | Keine Drittanbieter-Requests, CSP, selbst gehostete Schriften | P2 | unit, e2e | nein | `tests/unit/legal/services.unit.spec.ts`, `tests/unit/security/csp.unit.spec.ts`, `tests/unit/security/headers.unit.spec.ts`, `tests/unit/tooling/check-external.unit.spec.ts` |
+| R-132 | Statistik (Vercel Web Analytics) nur nach Freigabe | P10 | unit, e2e | ja | – |
+| R-133 | Fehlerüberwachung ohne Personenbezug | P10 | unit, e2e | nein | – |
+| R-134 | Spamschutz ohne Drittanbieter | P6, P7 | int | nein | `tests/int/legal/retention.int.spec.ts`, `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/int/legal/withdrawal.int.spec.ts`, `tests/unit/lib/keys.unit.spec.ts` |
+| R-135 | Metadaten aus allen Bild-Uploads entfernen | P1, P7 | int | nein | `tests/int/collections/media.int.spec.ts`, `tests/int/collections/private-uploads.int.spec.ts`, `tests/e2e/admin-product-form.e2e.spec.ts` |
+| R-136 | Technisch-organisatorische Maßnahmen | P1, P10 | int, e2e | nein | `tests/int/access/access-matrix.int.spec.ts`, `tests/int/adapters/storage.contract.int.spec.ts`, `tests/int/collections/private-uploads.int.spec.ts`, `tests/int/collections/users.int.spec.ts` |
+| R-137 | Keine personenbezogenen Daten in URLs und Logs | P4 | unit, e2e | nein | `tests/int/legal/privacy-export.int.spec.ts`, `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts`, `tests/unit/lib/logger.unit.spec.ts` |
+| R-138 | Datenschutzhinweise am Ort der Erhebung | P4, P6, P7 | e2e | nein | `tests/e2e/legal/checkout-fields.e2e.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts` |
+| R-139 | Instagram nur als Link | P3 | unit | nein | `tests/unit/legal/forbidden.unit.spec.ts`, `tests/e2e/legal/forbidden.e2e.spec.ts` |
+| R-150 | Auskunft und Datenübertragbarkeit (Art. 15, 20 DSGVO) | P6 | int | nein | `tests/unit/legal/p6-mails.unit.spec.ts`, `tests/int/legal/privacy-export.int.spec.ts` |
+| R-151 | Löschen und Einschränken mit Aufbewahrungssperre (Art. 17, 18) | P6 | int | nein | `tests/unit/legal/p6-mails.unit.spec.ts`, `tests/int/legal/privacy-erasure.int.spec.ts` |
+| R-152 | Berichtigung, Widerspruch, Widerruf von Einwilligungen | P6 | int | nein | `tests/unit/legal/p6-mails.unit.spec.ts`, `tests/int/legal/privacy-erasure.int.spec.ts` |
+| R-153 | Fristüberwachung Betroffenenanfragen | P6 | int | nein | `tests/unit/legal/gdpr-deadline.unit.spec.ts`, `tests/int/legal/privacy-requests.int.spec.ts` |
+| R-154 | Automatische Löschjobs | P6 | int | nein | `tests/unit/legal/no-versions.unit.spec.ts`, `tests/int/legal/retention.int.spec.ts` |
+| R-155 | Auftragsverarbeitungsverträge vor Go-live | P10, P11 | unit, manuell | ja | – |
+| R-156 | Verzeichnis von Verarbeitungstätigkeiten | P6 | manuell | ja | `tests/unit/legal/briefing.unit.spec.ts`, `tests/unit/legal/services.unit.spec.ts` |
+| R-157 | Prozess Datenpanne | P10 | manuell | ja | – |
+| R-160 | Anfrageformular Auftragsarbeiten | P7 | int, e2e | nein | – |
+| R-161 | Verträge über Auftragsarbeiten außerhalb des Shops | P7, P11 | manuell | ja | – |
+| R-162 | Keine weiteren Datenerhebungen | P10 | e2e | nein | – |
+| R-170 | Tattoo-Bereich ohne Online-Vertragsschluss | P7 | unit, int, e2e | nein | – |
+| R-171 | Abgelaufene Flash-Days/Aktionen ausblenden | P7 | int | nein | – |
+| R-172 | Portfolio-Fotos nur mit Einwilligung | P7 | int | ja | – |
+| R-180 | Beispielbestand kennzeichnen und entfernbar | P8 | int | nein | – |
+| R-181 | `SEED_PREVIEW_MODE` nie in Produktion | P8 | unit, int | nein | – |
+| R-182 | Vorschau-Datei als interne Datei | P10 | unit | nein | – |
+| R-190 | BFSG-Ausnahme dokumentiert, keine Konformitätsbehauptung | P10 | manuell | nein | – |
+| R-191 | Freiwillige Barrierearmut (Ziel WCAG 2.2 AA) | P2, P10 | e2e | nein | `tests/e2e/a11y.e2e.spec.ts`, `tests/e2e/keyboard.e2e.spec.ts` |
+| R-200 | LUCID-Registrierung und Systembeteiligung | P10, P11 | unit, manuell | ja | – |
+| R-201 | Verpackungsmengen erfassen (je Sendung, Jahres-Export) | P5 | int | nein | `tests/int/legal/packaging-report.int.spec.ts`, `tests/unit/settings/rules.unit.spec.ts`, `tests/int/globals/settings.int.spec.ts` |
+| R-202 | EU-Länder nur mit Pflicht-Bestätigung freischaltbar | P5 | int | nein | `tests/int/legal/eu-activation.int.spec.ts`, `tests/unit/settings/rules.unit.spec.ts`, `tests/int/globals/settings.int.spec.ts` |
+| R-203 | GPSR-Herstellerpflichten am Produkt, Etiketten und Beileger | P5, P11 | int, manuell | ja | `tests/int/legal/compliance-docs.int.spec.ts`, `tests/int/legal/gpsr-label.int.spec.ts` |
+| R-204 | Markenrecherche „Planet Claire“ (empfohlen) | P11 | manuell | ja | – |
+| R-205 | Stammdaten und steuerliche Klärung | P11 | manuell | ja | – |
+| R-210 | Startklar-Prüfung (Go-live-Gate) | P10, P11 | unit | ja | – |
+| R-211 | Produktions-Rauchtest Recht | P11 | manuell | ja | – |
 
 ---
 
@@ -1820,7 +1823,7 @@ Arbeitsfassung sinngemäß (`origin: 'draft'`).
 
 **Teil A – vor Abschluss von P10 (Cloud-Session hakt ab, Eintrag in `docs/FORTSCHRITT.md`):**
 - [ ] R-049: Harmonisierte Mitteilung mit amtlicher Vorlage verglichen (oder Platzhalter in OFFENE-PUNKTE).
-- [ ] R-095: Platzhalter-Widerrufsbelehrung enthält Token `{{withdrawalUrl}}` und `{{phone}}`.
+- [x] R-095: Platzhalter-Widerrufsbelehrung enthält Token `{{withdrawalUrl}}` und `{{phone}}`. (02.10.2026, P6.23; Grund-Seed `content/seed/data/base.json`, Prüfung `tests/unit/legal/render-tokens.unit.spec.ts`)
 - [x] R-156: `docs/recht/VVT.md` vollständig. (02.10.2026, P6.21)
 - [ ] R-157: Datenpannen-Abschnitt im RUNBOOK und Owner-Anleitung vorhanden.
 - [ ] R-161: Vorlage `commission.offer` als Platzhalter vorhanden.

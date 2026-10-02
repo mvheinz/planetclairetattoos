@@ -372,7 +372,7 @@ export async function applyErasure(
 
   for (const row of plan) {
     const d = decisions.find((x) => x.collection === row.collection && x.id === row.id)
-    const action: ErasureAction = d?.action ?? (row.actions.length === 1 ? row.actions[0]! : 'none')
+    const action: ErasureAction = d?.action ?? 'none'
     if (action !== 'none' && !row.actions.includes(action)) {
       throw new PrivacyActionError(400, `„${row.label}“: Aktion nicht erlaubt.`)
     }

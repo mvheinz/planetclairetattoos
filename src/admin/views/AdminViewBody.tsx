@@ -12,6 +12,7 @@ import { ShippedListView } from './orders/ShippedListView'
 import { ExportView } from './export/ExportView'
 import { InquiriesListView } from './inquiries/InquiriesListView'
 import { InquiryDetailView } from './inquiries/InquiryDetailView'
+import { ProtocolsView } from './logs/ProtocolsView'
 import { PieceEditorView } from './pieces/PieceEditorView'
 import { PrivacyRequestDetailView } from './privacy/PrivacyRequestDetailView'
 import { PrivacyRequestsView } from './privacy/PrivacyRequestsView'
@@ -65,6 +66,7 @@ const VIEW_BODIES: Partial<Record<string, ViewBody>> = {
   heute: TodayView,
   datenschutz: PrivacyRequestsView,
   'datenschutz-anfrage': PrivacyRequestDetailView,
+  protokolle: ProtocolsView,
 }
 
 export function AdminViewBody(props: AdminViewBodyProps) {

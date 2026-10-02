@@ -143,7 +143,32 @@ export const withdrawalManualEndpoint: Endpoint = {
   },
 }
 
+/** „Kopie an mich“: M08 erneut – ausschließlich an die Verwaltungs-Adresse (P6.19, KONZEPT §6.1). */
+export const withdrawalReceiptCopyEndpoint: Endpoint = {
+  path: '/:id/receipt-copy',
+  method: 'post',
+  handler: async (req) => {
+    if (!isAdminRequest(req)) return json(403, 'Nicht erlaubt.')
+    const id = Number(req.routeParams?.id)
+    if (!Number.isSafeInteger(id) || id < 1) return json(404, 'Unbekannter Widerruf.')
+    try {
+      const now = requestNow(req)
+      const { sendWithdrawalReceiptCopy } = await import('@/lib/legal/withdrawalReceiptCopy')
+      const click = req.headers.get('idempotency-key') ?? ''
+      const res = await inTransaction(req, () => sendWithdrawalReceiptCopy(req, id, click, now))
+      const { runEmailJobNow } = await outbox()
+      await runEmailJobNow(req.payload, res.jobId, { now }).catch((e: unknown) =>
+        log.error('withdrawals.copy_mail_failed', { id, reason: (e as Error)?.message }),
+      )
+      return adminActionResponse({ doc: res.withdrawal })
+    } catch (err) {
+      return errorResponse(err, 'receipt-copy')
+    }
+  },
+}
+
 export const WITHDRAWAL_ADMIN_ENDPOINTS: Endpoint[] = [
+  withdrawalReceiptCopyEndpoint,
   withdrawalOrderSearchEndpoint,
   withdrawalManualEndpoint,
   withdrawalMatchEndpoint,

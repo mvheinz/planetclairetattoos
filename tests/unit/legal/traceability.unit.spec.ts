@@ -1,13 +1,15 @@
-import { readdirSync, readFileSync, statSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
 // R-001 (RECHT §4.1): Jede Anforderung mit Test-Art `unit`, `int` oder `e2e` ist durch mindestens einen automatisierten
 // Test abgedeckt, dessen Titel die ID enthält. Quelle ist die Tabelle in docs/recht/ANFORDERUNGEN.md §3. Geprüft
-// werden nur IDs, deren früheste Phase ≤ LEGAL_TRACE_PHASE ist; jede Phase erhöht den Wert auf ihre Nummer.
+// werden nur IDs, deren früheste Phase ≤ LEGAL_TRACE_PHASE ist; jede Phase erhöht den Wert auf ihre Nummer. Seit P6.23
+// liest der Parser die Spalten über die Kopfzeile (`| ID | Titel | Phase | Test | Owner | Nachweis |`); jede Zeile bis
+// zur aktuellen Phase nennt in „Nachweis“ Testdateien (die existieren müssen) bzw. „§7“ für manuelle Punkte (EK-06).
 
-export const LEGAL_TRACE_PHASE = 4
+export const LEGAL_TRACE_PHASE = 6
 
 const ROOT = path.resolve(__dirname, '../../..')
 const AUTOMATED = new Set(['unit', 'int', 'e2e'])
@@ -17,33 +19,81 @@ export interface Requirement {
   title: string
   earliestPhase: number
   tests: string[]
+  /** Spalte „Nachweis“: Testdatei-Pfade, `§7` (manuell) oder leer/„–“ (spätere Phase). */
+  evidence: string[]
 }
 
-/** Zeilen `| R-### | Titel | Phase | Test | Owner |` aus §3. */
+const COLUMNS = {
+  id: 'ID',
+  title: 'Titel',
+  phase: 'Phase',
+  tests: 'Test',
+  evidence: 'Nachweis',
+} as const
+
+const cellsOf = (line: string) =>
+  line
+    .trim()
+    .replace(/^\|/, '')
+    .replace(/\|$/, '')
+    .split('|')
+    .map((c) => c.trim())
+
+/** Zeilen der Tabelle §3; Spalten über die Kopfzeile (Reihenfolge egal, „Nachweis“ optional für ältere Fassungen). */
 export function parseRequirementTable(markdown: string): Requirement[] {
   const start = markdown.indexOf('## 3. Übersicht aller Anforderungen')
   const end = markdown.indexOf('\n## 4.', start)
   if (start === -1) throw new Error('ANFORDERUNGEN §3 nicht gefunden')
+  const lines = markdown.slice(start, end === -1 ? undefined : end).split('\n')
+  const header = lines.find((l) => /^\|\s*ID\s*\|/.test(l))
+  if (!header) throw new Error('ANFORDERUNGEN §3: Kopfzeile fehlt')
+  const names = cellsOf(header)
+  const col = (name: string) => names.indexOf(name)
+  for (const name of [COLUMNS.id, COLUMNS.title, COLUMNS.phase, COLUMNS.tests]) {
+    if (col(name) === -1) throw new Error(`ANFORDERUNGEN §3: Spalte „${name}“ fehlt`)
+  }
   const out: Requirement[] = []
-  for (const line of markdown.slice(start, end === -1 ? undefined : end).split('\n')) {
+  for (const line of lines) {
     if (!line.startsWith('| R-')) continue
-    const cells = line.split('|').map((c) => c.trim())
-    const [, id, title, phase, tests] = cells
-    const phases = [...(phase ?? '').matchAll(/P(\d+)/g)].map((m) => Number(m[1]))
-    if (!id || !/^R-\d{3}$/.test(id) || phases.length === 0) {
+    const cells = cellsOf(line)
+    const get = (name: string) => (col(name) === -1 ? '' : (cells[col(name)] ?? ''))
+    const id = get(COLUMNS.id)
+    const phases = [...get(COLUMNS.phase).matchAll(/P(\d+)/g)].map((m) => Number(m[1]))
+    if (!/^R-\d{3}$/.test(id) || phases.length === 0 || cells.length !== names.length) {
       throw new Error(`Ungültige Zeile in ANFORDERUNGEN §3: ${line}`)
     }
     out.push({
       id,
-      title: title ?? '',
+      title: get(COLUMNS.title),
       earliestPhase: Math.min(...phases),
-      tests: (tests ?? '')
+      tests: get(COLUMNS.tests)
         .split(',')
         .map((t) => t.trim())
         .filter(Boolean),
+      evidence: get(COLUMNS.evidence)
+        .split(',')
+        .map((t) => t.trim().replace(/^`|`$/g, ''))
+        .filter((t) => t !== '' && t !== '–'),
     })
   }
   return out
+}
+
+/** Zeilen bis `phase` ohne Nachweis (EK-06). */
+export function missingEvidence(requirements: Requirement[], phase: number): string[] {
+  return requirements
+    .filter((r) => r.earliestPhase <= phase && r.evidence.length === 0)
+    .map((r) => r.id)
+}
+
+/** Genannte Nachweis-Pfade, die es nicht gibt (`§7` = manuell, ANFORDERUNGEN §7). */
+export function missingEvidencePaths(
+  requirements: Requirement[],
+  exists: (rel: string) => boolean,
+): string[] {
+  return requirements.flatMap((r) =>
+    r.evidence.filter((e) => e !== '§7' && !exists(e)).map((e) => `${r.id}: ${e}`),
+  )
 }
 
 /** IDs, die bis `phase` durch automatisierte Tests abgedeckt sein müssen. */
@@ -74,9 +124,9 @@ function listTestFiles(dir: string): string[] {
   })
 }
 
-const requirements = parseRequirementTable(
-  readFileSync(path.join(ROOT, 'docs/recht/ANFORDERUNGEN.md'), 'utf8'),
-)
+const markdown = readFileSync(path.join(ROOT, 'docs/recht/ANFORDERUNGEN.md'), 'utf8')
+const requirements = parseRequirementTable(markdown)
+const fileExists = (rel: string) => existsSync(path.join(ROOT, rel))
 const titles = listTestFiles('tests').flatMap((f) =>
   extractTestTitles(readFileSync(path.join(ROOT, f), 'utf8')),
 )
@@ -181,5 +231,70 @@ describe('R-001 Nachverfolgbarkeit Anforderung ↔ Test', () => {
     expect(
       extractTestTitles(`it('R-777 a', () => {}); test.describe("R-778 b", () => {})`),
     ).toEqual(['R-777 a', 'R-778 b'])
+  })
+
+  it('R-001 Phase 6 (P6.23): Rechts-, Widerrufs- und Datenschutz-Anforderungen stehen in Testtiteln', () => {
+    const p6 = [
+      'R-002',
+      'R-014',
+      'R-090',
+      'R-091',
+      'R-092',
+      'R-093',
+      'R-094',
+      'R-095',
+      'R-110',
+      'R-111',
+      'R-112',
+      'R-150',
+      'R-151',
+      'R-152',
+      'R-153',
+      'R-154',
+      'R-155',
+    ]
+    const required = requiredIds(requirements, 6)
+    for (const id of ['R-002', 'R-150', 'R-151', 'R-152', 'R-153']) expect(required).toContain(id)
+    expect(requiredIds(requirements, 5)).not.toContain('R-153')
+    expect(missingIds(p6, titles)).toEqual([])
+    // Gegenprobe mit einer P6-ID: fehlt sie in allen Titeln, ist R-001 rot.
+    const without = titles.map((t) => t.replace(/R-153\b/g, 'R-xxx'))
+    expect(missingIds(required, without)).toEqual(['R-153'])
+  })
+
+  it(`R-001 EK-06 jede Anforderung bis Phase P${LEGAL_TRACE_PHASE} hat einen Nachweis, jeder genannte Pfad existiert`, () => {
+    expect(missingEvidence(requirements, LEGAL_TRACE_PHASE)).toEqual([])
+    expect(missingEvidencePaths(requirements, fileExists)).toEqual([])
+  })
+
+  it('R-001 Gegenprobe Nachweis: umbenannter Pfad bzw. fehlender Nachweis ergibt rot', () => {
+    const renamed = markdown.replace(
+      '`tests/unit/legal/gdpr-deadline.unit.spec.ts`',
+      '`tests/unit/legal/gdpr-deadline-umbenannt.unit.spec.ts`',
+    )
+    expect(renamed).not.toBe(markdown)
+    expect(missingEvidencePaths(parseRequirementTable(renamed), fileExists)).toEqual([
+      'R-153: tests/unit/legal/gdpr-deadline-umbenannt.unit.spec.ts',
+    ])
+    const emptied = markdown.replace(/^(\| R-153 \|(?:[^|]*\|){4})[^|]*\|$/m, '$1 – |')
+    expect(missingEvidence(parseRequirementTable(emptied), LEGAL_TRACE_PHASE)).toEqual(['R-153'])
+    // Kopfzeile bestimmt die Spalten: Tabelle mit vertauschten Spalten „Test“/„Owner“
+    const reordered = [
+      '## 3. Übersicht aller Anforderungen',
+      '| ID | Titel | Phase | Owner | Test | Nachweis |',
+      '|---|---|---|---|---|---|',
+      '| R-999 | Beispiel | P6 | nein | unit | `tests/unit/legal/traceability.unit.spec.ts` |',
+      '',
+      '## 4. Ende',
+    ].join('\n')
+    expect(parseRequirementTable(reordered)).toEqual([
+      {
+        id: 'R-999',
+        title: 'Beispiel',
+        earliestPhase: 6,
+        tests: ['unit'],
+        evidence: ['tests/unit/legal/traceability.unit.spec.ts'],
+      },
+    ])
   })
 })

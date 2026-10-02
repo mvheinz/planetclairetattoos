@@ -5,11 +5,13 @@ import { PACKING_PHOTOS_UI_MAX } from '@/lib/commerce/packOrder'
 import { refundDialogData } from '@/lib/commerce/refundOrder'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import { COMPLAINT_KINDS, PACKAGING_MATERIALS } from '@/lib/enums'
+import { consentLogsFor } from '@/lib/privacy/logs'
 
 import { Notice } from '../../components/Notice'
 import { StatusBadge } from '../../components/StatusBadge'
 import { adminText } from '../../translations'
 import type { AdminViewBodyProps } from '../AdminViewBody'
+import { ConsentLogTable } from '../logs/LogTables'
 import { AddressCopy } from './AddressCopy'
 import { loadOrderComplaints } from './complaintQuery'
 import { ComplaintsPanel } from './ComplaintsPanel'
@@ -277,6 +279,16 @@ export async function OrderDetailView({ adminRoute, req, match }: AdminViewBodyP
       <section className="pc-order__section" aria-labelledby="order-notes">
         <h2 id="order-notes">{adminText('orderNotes')}</h2>
         <p className="pc-order__notes">{detail.notes || adminText('orderNoNotes')}</p>
+      </section>
+
+      <section className="pc-order__section" aria-labelledby="order-consents">
+        <h2 id="order-consents">{adminText('logsConsentsTitle')}</h2>
+        <ConsentLogTable
+          rows={await consentLogsFor(req, { order: { equals: detail.id } })}
+          adminRoute={adminRoute}
+          caption={adminText('logsConsentsTitle')}
+          testId="order-consent-log"
+        />
       </section>
 
       <section className="pc-order__section" aria-labelledby="order-emails">

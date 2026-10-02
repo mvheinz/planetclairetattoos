@@ -1181,3 +1181,10 @@ $pc-bar-height: 64px;
     min-height: 44px;
   }
 }
+
+// Protokoll-Tabellen (P6.19): Anbieter-IDs umbrechen statt die Tabelle zu verbreitern
+.pc-order__mono {
+  font-family: monospace;
+  font-size: 0.85em;
+  word-break: break-all;
+}

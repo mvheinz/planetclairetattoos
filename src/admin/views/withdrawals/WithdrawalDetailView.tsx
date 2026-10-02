@@ -12,14 +12,18 @@ import { ENUM_LABELS } from '@/lib/enumLabels'
 import { WITHDRAWAL_CLOSE_REASONS } from '@/lib/enums'
 
 import { refundDialogData } from '@/lib/commerce/refundOrder'
+import { emailLogsFor } from '@/lib/privacy/logs'
 
+import { EmailLogTable } from '../logs/LogTables'
 import { RefundDialog } from '../orders/RefundDialog'
+import { ReceiptCopyButton } from './ReceiptCopyButton'
 import { WithdrawalActions } from './WithdrawalActions'
 import { loadWithdrawalDetail } from './withdrawalQuery'
 
 // Widerruf-Detail `/widerrufe/:id` (PLAN P5.19, KONZEPT §7.10): unveränderliche Erklärung (Snapshot beim Eingang,
 // DM-WDR-03), zugeordnete Bestellung mit Positionen und Zahlart, Info zur regulären Widerrufsfrist (nie automatisch
-// ablehnen, R-094), interne Notizen (separat speicherbar), Aktionen (P6.9) und „Erstatten“ (P6.10).
+// ablehnen, R-094), interne Notizen (separat speicherbar), Aktionen (P6.9), „Erstatten“ (P6.10) und Mail-Protokoll mit
+// „Kopie an mich“ für M08 (P6.19).
 
 export const WITHDRAWAL_NOTES_MAX = 2000
 
@@ -174,6 +178,20 @@ export async function WithdrawalDetailView({ adminRoute, req, match }: AdminView
             (r) => ({ value: r, label: ENUM_LABELS.WITHDRAWAL_CLOSE_REASONS[r].de }),
           )}
         />
+      </section>
+
+      <section className="pc-order__section" aria-labelledby="withdrawal-emails">
+        <h2 id="withdrawal-emails">{adminText('logsMailsTitle')}</h2>
+        <EmailLogTable
+          rows={await emailLogsFor(req, { withdrawal: { equals: card.id } })}
+          adminRoute={adminRoute}
+          caption={adminText('logsMailsTitle')}
+          testId="withdrawal-email-log"
+        />
+        <p className="pc-order__muted">{adminText('logsReceiptCopyHint')}</p>
+        <p className="pc-admin-row">
+          <ReceiptCopyButton id={card.id} />
+        </p>
       </section>
 
       <section className="pc-order__section" aria-labelledby="withdrawal-notes">

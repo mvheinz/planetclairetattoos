@@ -94,6 +94,13 @@ export async function ExportView({ req, adminRoute }: AdminViewBodyProps) {
           >
             {adminText('exportPrivacyOpen')}
           </a>
+          <a
+            href={`${adminRoute}${adminView('protokolle').path}`}
+            className="pc-admin-btn pc-admin-btn--secondary"
+            data-testid="export-logs-link"
+          >
+            {adminText('exportLogsOpen')}
+          </a>
         </p>
       </section>
     </div>
