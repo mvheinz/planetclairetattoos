@@ -1003,6 +1003,8 @@ $pc-bar-height: 64px;
   }
   &__scroll {
     // Breite Tabelle scrollt in sich; `contain` hält sie aus der Breitenberechnung der Seite heraus (390 px).
+    // `position: relative`: absolut positionierte Kinder (`.pc-visually-hidden` im Tabellenkopf) bleiben im Container.
+    position: relative;
     width: 100%;
     max-width: 100%;
     overflow-x: auto;

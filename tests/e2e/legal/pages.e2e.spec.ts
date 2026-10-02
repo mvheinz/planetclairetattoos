@@ -241,7 +241,13 @@ test.describe.serial('Stammdaten im Impressum und Telefonnummer @smoke', () => {
     }
     const b = settings.business
     for (const locale of LOCALES) {
-      await page.goto(localizedPath('R21', locale))
+      // Einstellungen erneuern die Seiten per stale-while-revalidate (ARCHITEKTUR §9.3): neu laden, bis sie da sind.
+      await expect(async () => {
+        await page.goto(localizedPath('R21', locale))
+        await expect(page.locator('[data-legal-text="impressum"]')).toContainText(PHONE, {
+          timeout: 1000,
+        })
+      }).toPass({ timeout: 30_000 })
       const text = page.locator('[data-legal-text="impressum"]')
       for (const key of ['legalName', 'street', 'postalCode', 'city', 'email', 'phone']) {
         if (b[key]) await expect(text, `${locale} ${key}`).toContainText(b[key]!)
@@ -258,8 +264,10 @@ test.describe.serial('Stammdaten im Impressum und Telefonnummer @smoke', () => {
       ['R21', 'R24'].flatMap((id) => LOCALES.map((l) => localizedPath(id, l))),
     )
     for (const path of allowed) {
-      await page.goto(path)
-      await expect(page.locator('main'), path).toContainText(PHONE)
+      await expect(async () => {
+        await page.goto(path)
+        await expect(page.locator('main'), path).toContainText(PHONE, { timeout: 1000 })
+      }).toPass({ timeout: 30_000 })
     }
     const others = pageRoutes()
       .filter((r) => r.status === 'live' && hasSamplePath(r))

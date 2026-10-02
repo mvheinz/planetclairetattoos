@@ -145,6 +145,23 @@ test('@a11y P6.4 neue AGB-Version bei 390×844: Vorschau mit Token-Fehler speich
     ).toHaveText(String(now.get(before.id) ?? 0))
     await expectNoHorizontalScroll(page)
 
+    // PDF der neuen Fassung wie im Betrieb über den Job `renderLegalTextPdf` (Seite zeigt danach den Download).
+    const run = await page.request.post('/api/cron/run/renderLegalTextPdf')
+    expect(run.status(), await run.text()).toBe(200)
+    await expect
+      .poll(
+        async () =>
+          !!(
+            await payload.findByID({
+              collection: 'legal-texts',
+              id: after.id,
+              depth: 0,
+              overrideAccess: true,
+            })
+          ).pdfDe,
+      )
+      .toBe(true)
+
     // Veröffentlichte Fassung nicht mehr änderbar (KONZEPT §7.16).
     const patch = await page.request.patch(`/api/legal-texts/${after.id}`, {
       data: { changeNote: 'nachträglich geändert' },

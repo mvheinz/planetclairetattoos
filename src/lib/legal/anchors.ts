@@ -1,3 +1,5 @@
+import 'server-only'
+
 // Anker-IDs der Datenschutzerklärung (KANZLEI-BRIEFING §11.10, PLAN P6.5): Formulare und Hinweise verlinken direkt auf
 // Abschnitte (`/de/datenschutz#bestellung`). Eingefügte Texte verlieren `id`-Attribute bei der Bereinigung, deshalb
 // leitet die Seite die IDs aus den `h2`-Überschriften ab (DE und EN, erste passende Regel, jede ID höchstens einmal).
