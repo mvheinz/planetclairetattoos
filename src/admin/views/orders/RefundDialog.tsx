@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import React, { useId, useState } from 'react'
 
-import { formatMoney } from '@/lib/money'
+import { MoneyAmount } from '@/components/shop/MoneyAmount'
 
 import { ActionButton } from '../../components/ActionButton'
 import { postAdminAction } from '../../components/adminAction'
@@ -44,7 +44,7 @@ export interface RefundDialogProps {
   reasons?: { value: string; label: string }[]
 }
 
-const euro = (c: number) => formatMoney(c, 'de')
+const Euro = ({ c }: { c: number }) => <MoneyAmount cents={c} locale="de" />
 
 export function RefundDialog(props: RefundDialogProps) {
   const router = useRouter()
@@ -134,18 +134,18 @@ export function RefundDialog(props: RefundDialogProps) {
               onChange={(e) => void toggle(i.id, e.target.checked)}
               data-testid={`refund-item-${i.id}`}
             />{' '}
-            {i.label} · {euro(i.priceCents)}
+            {i.label} · <Euro c={i.priceCents} />
             {i.refunded ? ` (${adminText('refundItemDone')})` : ''}
           </label>
         ))}
       </fieldset>
       <p data-testid="refund-proposal">
-        {adminText('refundProposal', {
-          items: euro(proposal.itemsCents),
-          shipping: euro(proposal.shippingCents),
-          total: euro(proposal.proposedCents),
-          max: euro(proposal.maxCents),
-        })}
+        {adminText('refundProposalItems')} <Euro c={proposal.itemsCents} /> +{' '}
+        {adminText('refundProposalShipping')} <Euro c={proposal.shippingCents} /> ={' '}
+        <strong data-testid="refund-proposal-total">
+          <Euro c={proposal.proposedCents} />
+        </strong>{' '}
+        ({adminText('refundProposalMax')} <Euro c={proposal.maxCents} />)
       </p>
       {proposal.partial ? (
         <Notice tone="info" data-testid="refund-k09">
@@ -194,10 +194,7 @@ export function RefundDialog(props: RefundDialogProps) {
           disabled={!valid}
           effects={['money', 'mail']}
           confirm={{
-            title: adminText('refundConfirm', {
-              amount: euro(amount ?? 0),
-              order: props.orderNumber,
-            }),
+            title: adminText('refundConfirm', { order: props.orderNumber }),
             consequence: adminText(
               props.prepayment ? 'refundConsequencePrepayment' : 'refundConsequenceCard',
             ),

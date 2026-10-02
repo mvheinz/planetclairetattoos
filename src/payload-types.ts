@@ -172,6 +172,7 @@ export interface Config {
       renderInvoicePdf: TaskRenderInvoicePdf;
       renderLegalTextPdf: TaskRenderLegalTextPdf;
       markDelivered: TaskMarkDelivered;
+      withdrawalDeadlines: TaskWithdrawalDeadlines;
       revenueGuardCheck: TaskRevenueGuardCheck;
       monthlyClose: TaskMonthlyClose;
       invoiceIntegrityCheck: TaskInvoiceIntegrityCheck;
@@ -2536,6 +2537,7 @@ export interface PayloadJob {
           | 'renderInvoicePdf'
           | 'renderLegalTextPdf'
           | 'markDelivered'
+          | 'withdrawalDeadlines'
           | 'revenueGuardCheck'
           | 'monthlyClose'
           | 'invoiceIntegrityCheck'
@@ -2596,6 +2598,7 @@ export interface PayloadJob {
         | 'renderInvoicePdf'
         | 'renderLegalTextPdf'
         | 'markDelivered'
+        | 'withdrawalDeadlines'
         | 'revenueGuardCheck'
         | 'monthlyClose'
         | 'invoiceIntegrityCheck'
@@ -5175,6 +5178,18 @@ export interface TaskMarkDelivered {
     period?: string | null;
     delivered?: number | null;
     errors?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskWithdrawalDeadlines".
+ */
+export interface TaskWithdrawalDeadlines {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    reminded?: number | null;
   };
 }
 /**

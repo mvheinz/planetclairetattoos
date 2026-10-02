@@ -4,9 +4,9 @@ import type { PayloadRequest } from 'payload'
 
 import { canTransitionWithdrawal } from '@/lib/commerce/withdrawalTransitions'
 import { enqueueEmail } from '@/lib/email/outbox'
+import { money } from '@/lib/email/templates/kit'
 import type { RefundReason, WithdrawalStatus } from '@/lib/enums'
 import { createCreditNote } from '@/lib/invoices/create'
-import { formatMoney } from '@/lib/money'
 import { createLogger } from '@/lib/monitoring/logger'
 import { preservingReq } from '@/lib/payload/localReq'
 import type { Invoice, Order, Withdrawal } from '@/payload-types'
@@ -105,7 +105,7 @@ export async function finalizeRefund(
   )
   const full = succeededCents(order) >= order.totalCents
   const target = full ? 'refunded' : 'partially_refunded'
-  const note = `Erstattung ${index + 1}: ${formatMoney(row.amountCents, 'de')}`
+  const note = `Erstattung ${index + 1}: ${money(row.amountCents, 'de')}`
   if (order.status !== target && order.status !== 'refunded' && order.status !== 'disputed') {
     await transitionOrder(req, orderId, target, { now, note, data: { items, refunds } })
   } else {

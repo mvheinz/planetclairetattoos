@@ -568,7 +568,7 @@ export const ADMIN_CUSTOM_DE = {
   withdrawalCloseButton: 'Ohne Erstattung abschließen',
   withdrawalCloseConfirm: 'Widerruf {{ref}} ohne Erstattung abschließen?',
   withdrawalCloseConsequence:
-    'Der Widerruf ist danach erledigt. Ist sonst kein Widerruf zur Bestellung offen, bekommt sie ihren Status von vorher zurück.',
+    'Der Widerruf ist danach erledigt. Ist zur Bestellung sonst nichts mehr offen, bekommt sie ihren Status von vorher zurück.',
   withdrawalRejectTitle: 'Ablehnen',
   withdrawalRejectNote: 'Begründung (Pflicht, 10–300 Zeichen), z. B. „Frist eindeutig abgelaufen“',
   withdrawalRejectButton: 'Ablehnen',
@@ -611,8 +611,9 @@ export const ADMIN_CUSTOM_DE = {
   refundReason: 'Grund der Erstattung',
   refundItems: 'Welche Stücke?',
   refundItemDone: 'schon erstattet',
-  refundProposal:
-    'Vorschlag: Stücke {{items}} + Versand {{shipping}} = {{total}} (noch erstattbar: {{max}})',
+  refundProposalItems: 'Vorschlag: Stücke',
+  refundProposalShipping: 'Versand',
+  refundProposalMax: 'noch erstattbar:',
   refundPartialHint:
     'Teil-Widerruf: Der Versandanteil ist vorläufig kundenfreundlich berechnet – die Kanzlei klärt das noch (Frage K-09).',
   refundAmount: 'Betrag',
@@ -622,7 +623,7 @@ export const ADMIN_CUSTOM_DE = {
   refundTransferredCheck: 'Ich habe den Betrag auf das Absenderkonto zurücküberwiesen.',
   refundButton: 'Erstatten',
   refundButtonPrepayment: 'Erstattung überwiesen',
-  refundConfirm: '{{amount}} zu {{order}} erstatten?',
+  refundConfirm: 'Den eingetragenen Betrag zu {{order}} erstatten?',
   refundConsequenceCard:
     'Das Geld geht über den Zahlungsanbieter auf dasselbe Zahlungsmittel zurück. Danach entstehen die Gutschrift und die Mail an die Kundin.',
   refundConsequencePrepayment:
