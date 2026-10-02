@@ -5,14 +5,15 @@ import { expectAccessible, expectNoHorizontalScroll } from './orderHelpers'
 // (Magic Bytes) mit Pflicht-Kategorie bei technischen Unterlagen. Qualitäts-Gate der Phasen-Abnahme P5: 390×844 ohne
 // horizontales Scrollen, per Tastatur bedienbar, axe ohne serious/critical.
 
+// Kleinste gültige PDF (wie in den Int-Tests): Payload prüft die Datei beim Hochladen.
 const PDF = Buffer.from(
-  '%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[]/Count 0>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n',
+  '%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\nxref\n0 2\n0000000000 65535 f \n0000000009 00000 n \ntrailer<</Size 2/Root 1 0 R>>\nstartxref\n40\n%%EOF\n',
 )
 
 test('@a11y R-203 Produktsicherheit: Kategorien, Vorlage, Hochladen nur PDF mit Kategorie, 390 px, Tastatur', async ({
   adminPage: page,
 }, testInfo) => {
-  const tag = `E2E-${testInfo.project.name}`
+  const tag = `E2E-${testInfo.project.name}-${testInfo.repeatEachIndex}-${testInfo.retry}`
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(adminPath('/einstellungen/produktsicherheit'))
   const view = page.getByTestId('product-safety')
@@ -31,7 +32,7 @@ test('@a11y R-203 Produktsicherheit: Kategorien, Vorlage, Hochladen nur PDF mit 
   const upload = page.getByTestId('compliance-upload')
   const submit = page.getByTestId('compliance-upload-submit')
   const fileInput = upload.locator('input[type="file"]')
-  const status = upload.getByRole('status')
+  const status = upload.getByRole('status').first()
 
   // Technische Unterlage ohne Kategorie → Hinweis am Formular, nichts hochgeladen
   await fileInput.setInputFiles({ name: 'risiko.pdf', mimeType: 'application/pdf', buffer: PDF })
