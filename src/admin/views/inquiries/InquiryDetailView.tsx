@@ -1,6 +1,9 @@
 import React from 'react'
 
+import { getSnippet } from '@/lib/legal/snippets'
 import { emailLogsFor } from '@/lib/privacy/logs'
+
+import { CopyButton } from '../../components/CopyButton'
 
 import { NotesEditor } from '../../components/NotesEditor'
 import { Notice } from '../../components/Notice'
@@ -8,14 +11,15 @@ import { StatusBadge } from '../../components/StatusBadge'
 import { adminText } from '../../translations'
 import type { AdminViewBodyProps } from '../AdminViewBody'
 import { EmailLogTable } from '../logs/LogTables'
-import { adminViewPath } from '../registry'
+import { adminView, adminViewPath } from '../registry'
 import { InquiryReplyAndDelete, InquiryStatusButtons } from './InquiryActions'
-import { inquiryReplyHref, loadInquiryDetail } from './inquiryQuery'
+import { inquiryOfferHref, inquiryReplyHref, loadInquiryDetail } from './inquiryQuery'
 
 // Anfrage-Detail `/anfragen/:id` (PLAN P5.20, KONZEPT §7.11): alle Angaben, Referenzbilder (nur angemeldete
 // Dateiroute), interne Notizen, Status-Knöpfe (KONZEPT §5.5) mit Statusverlauf (Audit, DM-21), „Antworten“ (`mailto:`)
 // und „Jetzt löschen“. Statuswechsel und Notizen setzen „zuletzt bearbeitet“, nie die Löschfrist (L-10). Mail-Protokoll
-// zur Anfrage (P6.19).
+// zur Anfrage (P6.19). Abschnitt „Angebot“ (R-161, P7.14): Vorlage `commission.offer` (Platzhalter bis zum Kanzleitext)
+// zum Kopieren bzw. als `mailto:` mit Referenz im Betreff, dazu der Hinweis auf die Monatssumme im Umsatz-Wächter (R-125).
 
 export const INQUIRY_NOTES_MAX = 3000
 
@@ -34,6 +38,12 @@ export async function InquiryDetailView({ adminRoute, req, match }: AdminViewBod
     )
   }
   const { card } = detail
+  const offer = getSnippet('commission.offer', detail.locale)
+  const offerSubject = adminText(
+    detail.locale === 'en' ? 'inquiryOfferSubjectEn' : 'inquiryOfferSubjectDe',
+    { reference: card.reference },
+  )
+  const offerText = `${offerSubject}\n\n${offer.text}`
   return (
     <div className="pc-order pc-order--detail" data-testid="inquiry-detail">
       <p className="pc-order__meta">
@@ -101,6 +111,40 @@ export async function InquiryDetailView({ adminRoute, req, match }: AdminViewBod
             ))}
           </ul>
         )}
+      </section>
+
+      <section
+        className="pc-order__section"
+        aria-labelledby="inquiry-offer"
+        data-testid="inquiry-offer"
+      >
+        <h2 id="inquiry-offer">{adminText('inquiryOfferTitle')}</h2>
+        <p className="pc-order__muted">{adminText('inquiryOfferIntro')}</p>
+        {offer.origin === 'placeholder' ? (
+          <p className="pc-order__muted" data-testid="inquiry-offer-placeholder">
+            {adminText('inquiryOfferPlaceholder')}
+          </p>
+        ) : null}
+        <div className="pc-admin-row">
+          <CopyButton
+            text={offerText}
+            label={adminText('inquiryOfferCopy')}
+            data-testid="inquiry-offer-copy"
+          />
+          <a
+            className="pc-admin-btn pc-admin-btn--secondary"
+            href={inquiryOfferHref(detail.email, offerSubject, offer.text)}
+            data-testid="inquiry-offer-mail"
+          >
+            {adminText('inquiryOfferMail')}
+          </a>
+        </div>
+        <p data-testid="inquiry-revenue-hint">
+          {adminText('inquiryRevenueHint')}{' '}
+          <a className="pc-admin-link" href={`${adminRoute}${adminView('umsatz-waechter').path}`}>
+            {adminText('inquiryRevenueLink')}
+          </a>
+        </p>
       </section>
 
       <section className="pc-order__section" aria-labelledby="inquiry-status-title">

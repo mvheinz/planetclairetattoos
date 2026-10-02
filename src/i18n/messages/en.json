@@ -955,7 +955,7 @@
       "images": "Images",
       "empty": "–",
       "responseTime": "I usually get back to you within a week.",
-      "offerByMail": "The offer and payment are handled by email, not through the shop.",
+      "offerByMail": "Your request does not yet create a contract, and you don't pay anything. The offer and payment are handled by email, not through the shop.",
       "deletion": "Your request and your images will be deleted 6 months after receipt at the latest (on {date}).",
       "objectTypes": {
         "cap": "Cap",

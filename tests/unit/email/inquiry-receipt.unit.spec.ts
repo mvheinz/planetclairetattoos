@@ -30,6 +30,7 @@ describe('M11 inquiry_receipt', () => {
       'Budget: ca. 80 €',
       'Bilder: 2',
       'Ich melde mich meist innerhalb einer Woche.',
+      'Mit deiner Anfrage kommt noch kein Vertrag zustande, und du zahlst nichts.',
       'Angebot und Bezahlung laufen per Mail, nicht über den Shop.',
       '[Platzhalter – Kanzlei-Wortlaut folgt]',
       'spätestens 6 Monate nach Eingang gelöscht (am 12.04.2027)',

@@ -955,7 +955,7 @@
       "images": "Bilder",
       "empty": "–",
       "responseTime": "Ich melde mich meist innerhalb einer Woche.",
-      "offerByMail": "Angebot und Bezahlung laufen per Mail, nicht über den Shop.",
+      "offerByMail": "Mit deiner Anfrage kommt noch kein Vertrag zustande, und du zahlst nichts. Angebot und Bezahlung laufen per Mail, nicht über den Shop.",
       "deletion": "Deine Anfrage und deine Bilder werden spätestens 6 Monate nach Eingang gelöscht (am {date}).",
       "objectTypes": {
         "cap": "Cap",

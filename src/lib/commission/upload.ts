@@ -135,7 +135,11 @@ export async function handleCommissionUpload(
   try {
     const doc = await payload.create({
       collection: 'private-uploads',
-      data: { purpose: 'commission_reference', status: 'pending' } as never,
+      data: {
+        purpose: 'commission_reference',
+        status: 'pending',
+        createdAt: now.toISOString(),
+      } as never,
       file: {
         data: bytes,
         name: `anfrage.${format === 'jpeg' ? 'jpg' : format}`,
