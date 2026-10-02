@@ -40,6 +40,7 @@ import * as migration_20261002_101152_p6_withdrawal_deadlines_task from './20261
 import * as migration_20261002_122832_p6_privacy_requests_task from './20261002_122832_p6_privacy_requests_task';
 import * as migration_20261002_130126_p6_invoice_reissue from './20261002_130126_p6_invoice_reissue';
 import * as migration_20261002_130238_p6_invoice_reissue_constraints from './20261002_130238_p6_invoice_reissue_constraints';
+import * as migration_20261002_143151_p7_revalidate_offers_task from './20261002_143151_p7_revalidate_offers_task';
 
 export const migrations = [
   {
@@ -250,6 +251,11 @@ export const migrations = [
   {
     up: migration_20261002_130238_p6_invoice_reissue_constraints.up,
     down: migration_20261002_130238_p6_invoice_reissue_constraints.down,
-    name: '20261002_130238_p6_invoice_reissue_constraints'
+    name: '20261002_130238_p6_invoice_reissue_constraints',
+  },
+  {
+    up: migration_20261002_143151_p7_revalidate_offers_task.up,
+    down: migration_20261002_143151_p7_revalidate_offers_task.down,
+    name: '20261002_143151_p7_revalidate_offers_task'
   },
 ];

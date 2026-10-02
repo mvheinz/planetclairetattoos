@@ -675,3 +675,10 @@
     font-size: 0.85em;
   }
 }
+
+/* Tattoo-Station der Startseite */
+.teaser {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}

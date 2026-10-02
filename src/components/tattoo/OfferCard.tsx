@@ -32,7 +32,7 @@ export async function OfferCard({
   settings: TattooSettings
   now: Date
   headingLevel?: 'h2' | 'h3'
-  /** Teaser (R11, Startseite): ohne Motive und Knöpfe, Titel verlinkt R13. */
+  /** Teaser (R11, Startseite): ohne Motive, Preis-Info und Knöpfe, Titel verlinkt R13. */
   compact?: boolean
 }) {
   const [t, tContact] = await Promise.all([
@@ -81,7 +81,7 @@ export async function OfferCard({
         <ul className={styles.offerFacts}>
           {time ? <li data-offer-time="">{t('time', time)}</li> : null}
           {location ? <li data-offer-location="">{location}</li> : null}
-          {offer.priceNote ? <li data-offer-price="">{offer.priceNote}</li> : null}
+          {offer.priceNote && !compact ? <li data-offer-price="">{offer.priceNote}</li> : null}
         </ul>
         {!compact && offer.flashes.length > 0 ? (
           <div className={styles.offerFlash}>

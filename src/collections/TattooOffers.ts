@@ -21,8 +21,9 @@ import { registerMediaReference } from '@/lib/media/references'
 import { failField } from './hooks/commerce'
 
 // DATENMODELL §6.15 – Angebote (Flash-Days, Aktionen, E-53): verschwinden nach `endsAt` aus öffentlichen Abfragen
-// (Uhr injizierbar über `req.context.now`). Keine Buchung, keine Anzahlung, keine Termine. Die Revalidierung nach
-// Ablauf (Task `revalidateEndedOffers`) folgt in P7.
+// (Uhr injizierbar über `req.context.now`). Keine Buchung, keine Anzahlung, keine Termine. Nach Beginn und Ende
+// erneuert der Task `revalidateEndedOffers` die statischen Seiten (P7.3); beim Speichern trägt `afterChange` die
+// Weckzeiten ein.
 
 const SLUG = 'tattoo-offers'
 const fail = (message: string, path: string): never => failField(SLUG, message, path)
@@ -89,6 +90,18 @@ const guardOffer: CollectionBeforeChangeHook = async ({ data, originalDoc, opera
     if (district) data.locationNote = LOCATION_DEFAULT[req.locale === 'en' ? 'en' : 'de'](district)
   }
   return data
+}
+
+/** Künftige Zeitpunkte (Beginn, Ende) als Weckzeit eintragen; Fehler im Wecker blockieren das Speichern nicht. */
+async function bumpOfferAlarm(doc: Doc, now: Date): Promise<void> {
+  if (doc.published === false) return
+  const { jobAlarm } = await import('@/lib/jobs/alarm')
+  for (const value of [doc.startsAt, doc.endsAt]) {
+    const at = new Date(String(value ?? ''))
+    if (!Number.isNaN(at.getTime()) && at.getTime() > now.getTime()) {
+      await jobAlarm.bump(at).catch(() => undefined)
+    }
+  }
 }
 
 const len =
@@ -200,8 +213,12 @@ export const TattooOffers: CollectionConfig = {
     beforeValidate: [defaultEnd],
     beforeChange: [guardOffer],
     afterChange: [
-      ({ doc, req }) => {
-        revalidateContent(TAGS.tattooOffers, { context: getAppContext(req) })
+      async ({ doc, req }) => {
+        const ctx = getAppContext(req)
+        revalidateContent(TAGS.tattooOffers, { context: ctx })
+        revalidateContent(TAGS.home, { context: ctx })
+        // Weckzeiten an Beginn und Ende (Task `revalidateEndedOffers`, DM-OFF-01 „spätestens 15 min“).
+        if (!ctx.seed) await bumpOfferAlarm(doc as Doc, requestNow(req))
         return doc
       },
     ],
