@@ -30,6 +30,7 @@ import { formatBerlin } from '@/lib/time'
 
 import { failField, groupOf, idOf, rejectChanges } from './hooks/commerce'
 import { assignSequenceNumber } from './hooks/numbers'
+import { auditPrivacyFlags } from './hooks/privacy'
 
 // DATENMODELL §6.11 – Widerrufe (§ 356a BGB, E-44): jede Erklärung unveränderlich mit Server-Zeitstempel, ohne IP und
 // User-Agent (R-093). Anlage nur über die Widerrufsfunktion (R26, P6) bzw. die manuelle Erfassung (R-094, P6).
@@ -402,7 +403,7 @@ export const Withdrawals: CollectionConfig = {
   hooks: {
     beforeValidate: [assignSequenceNumber('reference', 'withdrawal')],
     beforeChange: [guardWithdrawal],
-    afterChange: [afterWithdrawalChange],
+    afterChange: [afterWithdrawalChange, auditPrivacyFlags(SLUG)],
   },
 }
 

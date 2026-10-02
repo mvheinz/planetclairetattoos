@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.2
+
+- Geprüft: `privacy-requests` (§6.26), `deletion-log` + `writeDeletionLog` (§6.27), `privacyFields()` an orders/withdrawals/inquiries, `orders.timestamps.finalStatusAt` – vorhanden seit P1.\n- Verdrahtet: Audit `legal_hold_changed`/`processing_restricted` (ohne Begründungstext), Zeitstempel über die Request-Uhr; Reklamationen mit `carrierClaimDueAt` (Zustellung + 7 Tage) und `warrantyEndsAt` (+ 12 Monate bei Reparatur), Audit `complaint_changed`; virtuelles `orders.warrantyEndsAt`.\n- Tests: no-versions.unit (R-154, 12), complaints-model.int (4), Zugriffsmatrix (privacy-requests, deletion-log, complaints anonym 403).
+
 ## 2026-10-02 – P6.1
 
 - Collections `legal-snippets` (öffentlich nur aktive Fassung, Update nur Entwürfe, Tokens je Schlüssel geprüft) und `complaints`; `private-uploads.relatedComplaint`, Join `orders.complaints`; Migrationen `p6_legal_snippets_complaints` + `…_constraints` (eine aktive Fassung je Schlüssel, seed_key-Index).\n- Grund-Seed: 36 Bausteine v1 aktiv (Arbeitsfassung `draft` bzw. Platzhalter); `getSnippet` liest die Collection (Speicherstand, Version „1“), Rückfall Seed-Text `draft-1`; `activateLegalSnippet` mit Audit.\n- Rechtsfelder aus P1 geprüft (legal-texts, settings, withdrawals, Enums) – vorhanden.\n- Tests: snippets.int (3), Zugriffsmatrix (T-15, 29 Collections), pg-objects (T-14), check:migrations ohne Drift.

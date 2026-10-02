@@ -71,6 +71,7 @@ import { formatShippingAddress } from '@/lib/commerce/address'
 
 import { actorTypeOf, failField, groupOf, rejectChanges, SHA256_HEX } from './hooks/commerce'
 import { changedFields } from './hooks/immutable'
+import { auditPrivacyFlags } from './hooks/privacy'
 import { assignSequenceNumber } from './hooks/numbers'
 
 // DATENMODELL §6.8 – Bestellungen (Gastbestellungen, E-30) mit unveränderlichem Snapshot. Eine Bestellung entsteht
@@ -952,7 +953,7 @@ export const Orders: CollectionConfig = {
   hooks: {
     beforeValidate: [assignSequenceNumber('orderNumber', 'order'), prepareOrder],
     beforeChange: [guardOrder],
-    afterChange: [afterOrderChange],
+    afterChange: [afterOrderChange, auditPrivacyFlags('orders')],
     beforeDelete: [guardOrderDelete],
   },
 }

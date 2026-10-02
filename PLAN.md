@@ -3204,7 +3204,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
   - Tests: `tests/int/legal/snippets.int.spec.ts` (Titel „R-012 Bausteine …“), Erweiterung T-14/T-15.
   - Ohne Jutta: Kanzlei-Wortlaut kommt in P11; bis dahin Arbeitsfassungen (`origin = draft`) bzw. Platzhalter.
 
-- [ ] **P6.2 Datenmodell Recht, Teil 2: Datenschutz-Anfragen, Löschprotokoll, Reklamationen, Legal Hold** – prüfen
+- [x] **P6.2 Datenmodell Recht, Teil 2: Datenschutz-Anfragen, Löschprotokoll, Reklamationen, Legal Hold** – prüfen
   und verdrahten, was seit P1 im Schema liegt (LOESCHKONZEPT §5): `privacy-requests` (DATENMODELL §6.26: `reference`
   `DS-JJJJ-NNNN`, `types`, `channel`, `receivedAt`, `dueAt`, `extendedDueAt` mit `extensionReason`/
   `extensionNotifiedAt`, `status` aus `PRIVACY_REQUEST_STATUSES`, Identitätsprüfung, `exportFile` `data_export`,
