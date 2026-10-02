@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.15
+
+- E2E admin/deletion-preview (390×844, axe) desktop+pixel-7 grün
+
 ## 2026-10-02 – P6.6
 
 - Fuß mit „Vertrag widerrufen“ und Pflichtlinks auf jeder Registry-Route DE/EN inkl. Danke/Status (Fixture), 404, 500; M08 zeigt den Link jetzt auch\n- Tests: E2E legal/footer (390/1440 × reduce/no-preference, elementFromPoint, ≥ 44 px), unit mail-withdrawal-link (M01–M09) grün

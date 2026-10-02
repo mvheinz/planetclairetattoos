@@ -3509,7 +3509,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     …“ usw., „R-123 …“).
   - Ohne Jutta: Frist 10 Jahre (`retention.invoiceYears`) bleibt bis zur Antwort auf Kanzleifrage K-33.
 
-- [ ] **P6.15 Löschjobs, Teil 2, Löschvorschau und `retention:replay`** – Tasks `retentionCommissionInquiries` (L-10:
+- [x] **P6.15 Löschjobs, Teil 2, Löschvorschau und `retention:replay`** – Tasks `retentionCommissionInquiries` (L-10:
   6 Monate nach `createdAt` inkl. Referenzbildern, unabhängig von der Aktivität), `retentionEmailLog` (L-12: wie
   Bezugsobjekt, ohne Bezug 90 Tage), `retentionPrivacyRequests` (L-17: Datensatz 3 Jahre ab Ende des Abschlussjahres,
   Exportdateien 30 Tage nach Antwort), `retentionConsentEvidence` (L-19/L-20: Nachweise 3 Jahre nach Widerruf bzw. Ende
