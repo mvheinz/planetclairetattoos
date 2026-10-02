@@ -1,11 +1,9 @@
 import { readFileSync } from 'node:fs'
 
 import exifr from 'exifr'
-import sharp from 'sharp'
-
 import { serverURL } from '../../helpers/adminEnv'
 import { adminPath, expect, test, testPayload } from '../fixtures'
-import { formNumber, jpeg, listedMediaIds, multipartFile, removePieces } from './pieceHelpers'
+import { formNumber, jpeg, listedMediaIds, removePieces } from './pieceHelpers'
 
 // P5.5 – Foto-Baustein „Neues Stück“ (KONZEPT §7.4, ARCHITEKTUR §8.8): Kamera- und Galerie-Knopf, Verkleinerung im
 // Browser auf ≤ 2560 px lange Kante (ein Bild je Anfrage), GPS-EXIF in keiner Größe (AK-7-02, R-135), höchstens 12
@@ -31,17 +29,41 @@ test.describe('Foto-Baustein (P5.5)', () => {
     request,
   }) => {
     await page.setViewportSize({ width: 390, height: 844 })
-    const sent: { width?: number; height?: number }[] = []
-    page.on('request', (r) => {
-      if (r.method() !== 'POST' || !new URL(r.url()).pathname.endsWith('/api/media')) return
-      const file = multipartFile(r)
-      if (file) sent.push({})
-      if (file)
-        void sharp(file)
-          .metadata()
-          .then((m) => Object.assign(sent[sent.length - 1]!, { width: m.width, height: m.height }))
-          .catch(() => undefined)
+    // Maße der hochgeladenen Datei im Browser selbst messen: WebKit liefert Playwright den Datei-Teil einer
+    // multipart-Anfrage (Blob) nicht mit (`postDataBuffer()` ohne Inhalt) – das Mitschneiden muss im Seitenkontext
+    // geschehen, damit der Nachweis „Browser hat verkleinert“ auf allen Geräteprofilen gleich funktioniert.
+    await page.addInitScript(() => {
+      const w = window as unknown as { __pcUploads: { width?: number; height?: number }[] }
+      w.__pcUploads = []
+      const original = window.fetch.bind(window)
+      window.fetch = (input, init) => {
+        const url =
+          typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
+        const file = init?.body instanceof FormData ? init.body.get('file') : null
+        if (
+          init?.method === 'POST' &&
+          new URL(url, location.href).pathname.endsWith('/api/media') &&
+          file instanceof Blob
+        ) {
+          const entry: { width?: number; height?: number } = {}
+          w.__pcUploads.push(entry)
+          void createImageBitmap(file)
+            .then((bm) => {
+              entry.width = bm.width
+              entry.height = bm.height
+              bm.close()
+            })
+            .catch(() => undefined)
+        }
+        return original(input, init)
+      }
     })
+    const sent = (): Promise<{ width?: number; height?: number }[]> =>
+      page.evaluate(
+        () =>
+          (window as unknown as { __pcUploads?: { width?: number; height?: number }[] })
+            .__pcUploads ?? [],
+      )
     await page.goto(adminPath('/neues-stueck'))
     await expect(page.getByRole('heading', { name: /Fotos \(0 von 12\)/ })).toBeVisible()
     // Kamera-Knopf: nur Bilder, Rückkamera
@@ -65,9 +87,9 @@ test.describe('Foto-Baustein (P5.5)', () => {
     uploaded.push(...ids)
 
     // Browser hat verkleinert (Anfrage) und der Server speichert ≤ 2560 px.
-    await expect.poll(() => sent.length).toBe(2)
-    await expect.poll(() => sent[1]?.width).toBe(2560)
-    expect(sent[1]!.height).toBe(1707)
+    await expect.poll(async () => (await sent()).length).toBe(2)
+    await expect.poll(async () => (await sent())[1]?.width).toBe(2560)
+    expect((await sent())[1]!.height).toBe(1707)
     const payload = await testPayload()
     const big = await payload.findByID({ collection: 'media', id: ids[1]!, overrideAccess: true })
     expect(Math.max(big.width ?? 0, big.height ?? 0)).toBeLessThanOrEqual(2560)
