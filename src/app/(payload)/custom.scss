@@ -1054,3 +1054,15 @@ $pc-bar-height: 64px;
 .app-header__content {
   min-width: 0;
 }
+
+// --- „Texte“ (P5.27): Vorlagen umbrechen statt horizontal scrollen (390 px).
+.pc-texts__body {
+  margin: 0;
+  padding: 10px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  background: var(--theme-elevation-50);
+  border-radius: 4px;
+}

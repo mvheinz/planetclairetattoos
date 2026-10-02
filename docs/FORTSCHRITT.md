@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P5.27
+
+- Ansicht „Texte“ (/texte): Seiten/FAQ (kommt in P8), Rechtstexte (kommt in P6), Mail-Bausteine DE/EN mit Übersetzen (Signatur, Abhol-Vorlage, Antwortzeit-Satz; Bereich mailTexts im Einstellungs-Endpunkt, schreibt settings + site-texts), Vorlagen fürs Mailprogramm mit Bestellnummer, mailto: und Kopieren\n- src/lib/legal/templates.ts: 4 Arbeitsfassungen (Bruch/Fotos mit Reklamationsfrist für Jutta = Versanddatum + 7 Tage, Reparatur/Ersatz, § 37 VSBG, Bitte um IBAN)\n- Signatur aus site-texts.emails.signature steht jetzt unter allen Kund:innen-Mails (closingBlock)\n- Tests: tests/unit/legal/admin-templates.unit.spec.ts (13), tests/int/email/signature.int.spec.ts (3)
+
 ## 2026-10-02 – P5.25
 
 - DATEV-Knopf in /export: ausgegraut mit Hinweis „Konten mit der Steuerberatung festlegen“ und fehlenden Feldern, mit Konten als Download\n- Tests: e2e export, int datev-export grün

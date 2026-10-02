@@ -100,6 +100,24 @@ async function loadAttachments(
   return out
 }
 
+/** Mail-Baustein „Grußformel und Signatur“ (`site-texts.emails.signature`, P5.27) in der Sprache der Mail. */
+export async function mailSignature(
+  req: PayloadRequest,
+  locale: 'de' | 'en',
+): Promise<string | null> {
+  const texts = (await preservingReq(req, () =>
+    req.payload.findGlobal({
+      slug: 'site-texts',
+      locale,
+      depth: 0,
+      overrideAccess: true,
+      req,
+    }),
+  )) as { emails?: { signature?: string | null } | null }
+  const signature = texts.emails?.signature?.trim()
+  return signature ? signature : null
+}
+
 export async function prepareMail(
   req: PayloadRequest,
   log: EmailLog,
@@ -133,6 +151,7 @@ export async function prepareMail(
       req,
     }),
   )
+  const signature = await mailSignature(req, log.locale)
   const links = mailLinks({
     siteUrl: env.NEXT_PUBLIC_SITE_URL,
     adminRoute: env.ADMIN_ROUTE,
@@ -143,7 +162,7 @@ export async function prepareMail(
     locale: log.locale,
     data: parsed,
     links,
-    business: settings.business as MailBusiness,
+    business: { ...(settings.business as MailBusiness), signature },
     now,
   })
   const bodySha256 = bodyHash(rendered.text, rendered.html)

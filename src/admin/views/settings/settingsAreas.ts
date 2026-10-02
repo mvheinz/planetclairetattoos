@@ -14,6 +14,7 @@ export const SETTINGS_AREAS = [
   'yearTotals',
   'analytics',
   'legal',
+  'mailTexts',
 ] as const
 export type SettingsArea = (typeof SETTINGS_AREAS)[number]
 
@@ -126,6 +127,35 @@ export interface AnalyticsValues {
 export interface LegalValues {
   reviewIntervalDays: string
   allowVisibleBlankBrands: boolean
+}
+
+/** Mail-Bausteine (P5.27, KONZEPT §7.13): Abhol-Vorlage im Global `settings`, Signatur und Antwortzeit in `site-texts`. */
+export interface MailTextsValues {
+  pickupInstructions: Localized
+  signature: Localized
+  inquiryResponseTime: Localized
+}
+
+/** Höchstlängen laut Schema (`settings.pickup.instructions`, `site-texts.emails.*`). */
+export const MAIL_TEXT_MAX = 600
+
+/** Startwerte der Mail-Bausteine aus `settings` und `site-texts` (je Sprache, `fallbackLocale: false`). */
+export function initialMailTexts(
+  settings: { de: Obj; en: Obj },
+  texts: { de: Obj; en: Obj },
+): MailTextsValues {
+  const emails = (o: Obj) => obj(o.emails)
+  return {
+    pickupInstructions: pair(
+      obj(settings.de.pickup).instructions,
+      obj(settings.en.pickup).instructions,
+    ),
+    signature: pair(emails(texts.de).signature, emails(texts.en).signature),
+    inquiryResponseTime: pair(
+      emails(texts.de).inquiryResponseTime,
+      emails(texts.en).inquiryResponseTime,
+    ),
+  }
 }
 
 const id = (r: Obj) => (typeof r.id === 'string' ? { id: r.id } : {})
@@ -339,6 +369,14 @@ export const AREA_TEXT = {
   legalBrands: 'Sichtbare Marken auf Textil/Caps erlauben',
   legalBrandsHint:
     'Achtung: erst nach Antwort auf Kanzleifrage K-13 umstellen (R-047). Aus = Stücke mit sichtbarer Fremdmarke lassen sich nicht veröffentlichen.',
+  // Mail-Bausteine (P5.27)
+  mailSignature: 'Grußformel und Signatur',
+  mailSignatureHint: 'Steht unter jeder Mail an Kund:innen (eine Zeile je Zeile).',
+  mailPickup: 'Abhol-Vorlage',
+  mailPickupHint:
+    'Steht in der Mail „Kann abgeholt werden“. Bitte mit Abholadresse und wie man einen Termin ausmacht.',
+  mailResponseTime: 'Antwortzeit-Satz der Anfrage-Bestätigung',
+  mailResponseTimeHint: 'Zum Beispiel „Ich melde mich meist innerhalb einer Woche.“',
 } as const
 export type AreaTextKey = keyof typeof AREA_TEXT
 

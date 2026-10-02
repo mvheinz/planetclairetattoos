@@ -46,7 +46,7 @@ const rowId = (v: unknown): string | undefined =>
 
 /** Übersetzbare Texte (Fehlerpfade bekommen das Sprach-Suffix). */
 const LOCALIZED_PATH_RE =
-  /^(shop\.closedMessage|shipping\.deliveryTimeText|safetyTemplates\.\d+\.text|careTemplates\.\d+\.text)$/
+  /^(shop\.closedMessage|shipping\.deliveryTimeText|safetyTemplates\.\d+\.text|careTemplates\.\d+\.text|pickup\.instructions|emails\.signature|emails\.inquiryResponseTime)$/
 
 const INT_MESSAGE = 'Bitte eine ganze Zahl eingeben.'
 const EURO_MESSAGE = 'Bitte einen Betrag wie 12,50 eingeben.'
@@ -84,6 +84,8 @@ interface AreaPlan {
   de: (doc: Obj, now: Date) => void
   /** Englische Texte; `saved` ist das in `de` gespeicherte Dokument (für Zeilen-IDs neuer Zeilen). */
   en?: (doc: Obj, saved: Obj) => void
+  /** Zusätzlich im Global `site-texts` (Mail-Bausteine, P5.27): je Sprache. */
+  siteTexts?: Record<Locale, (doc: Obj) => void>
 }
 
 type AreaBuilder = (values: Obj, c: Collector) => AreaPlan
@@ -279,6 +281,21 @@ const AREAS: Record<SettingsArea, AreaBuilder> = {
     }
   },
 
+  mailTexts: (v) => {
+    const set = (locale: Locale) => (doc: Obj) => {
+      const pickup = obj(doc.pickup)
+      pickup.instructions = loc(v.pickupInstructions, locale)
+      doc.pickup = pickup
+    }
+    const setTexts = (locale: Locale) => (doc: Obj) => {
+      const emails = obj(doc.emails)
+      emails.signature = loc(v.signature, locale)
+      emails.inquiryResponseTime = loc(v.inquiryResponseTime, locale)
+      doc.emails = emails
+    }
+    return { de: set('de'), en: set('en'), siteTexts: { de: setTexts('de'), en: setTexts('en') } }
+  },
+
   legal: (v, c) => {
     const days = c.int('legal.reviewIntervalDays', v.reviewIntervalDays)
     return {
@@ -292,9 +309,15 @@ const AREAS: Record<SettingsArea, AreaBuilder> = {
   },
 }
 
-async function loadDoc(req: PayloadRequest, locale: Locale): Promise<Obj> {
+type GlobalSlug = 'settings' | 'site-texts'
+
+async function loadDoc(
+  req: PayloadRequest,
+  locale: Locale,
+  slug: GlobalSlug = 'settings',
+): Promise<Obj> {
   const current = (await req.payload.findGlobal({
-    slug: 'settings',
+    slug,
     depth: 0,
     locale,
     fallbackLocale: false,
@@ -306,9 +329,14 @@ async function loadDoc(req: PayloadRequest, locale: Locale): Promise<Obj> {
   return data
 }
 
-async function save(req: PayloadRequest, data: Obj, locale: Locale): Promise<Obj> {
+async function save(
+  req: PayloadRequest,
+  data: Obj,
+  locale: Locale,
+  slug: GlobalSlug = 'settings',
+): Promise<Obj> {
   return (await req.payload.updateGlobal({
-    slug: 'settings',
+    slug,
     data: data as never,
     depth: 0,
     locale,
@@ -367,6 +395,16 @@ export const settingsAreaEndpoint: Endpoint = {
             await save(req, en, 'en')
           } catch (err) {
             if (err instanceof ValidationError) throw new LocaleValidationError('en', err)
+            throw err
+          }
+        }
+        for (const locale of plan.siteTexts ? (['de', 'en'] as const) : []) {
+          const doc = await loadDoc(req, locale, 'site-texts')
+          plan.siteTexts![locale](doc)
+          try {
+            await save(req, doc, locale, 'site-texts')
+          } catch (err) {
+            if (err instanceof ValidationError) throw new LocaleValidationError(locale, err)
             throw err
           }
         }

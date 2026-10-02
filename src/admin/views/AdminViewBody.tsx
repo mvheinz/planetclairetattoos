@@ -20,6 +20,7 @@ import { RevenueGuardView } from './settings/RevenueGuardView'
 import { SettingsView } from './settings/SettingsView'
 import { ShippingSettingsView } from './settings/ShippingSettingsView'
 import { SystemView } from './settings/SystemView'
+import { TextsView } from './texts/TextsView'
 import { WithdrawalDetailView } from './withdrawals/WithdrawalDetailView'
 import { WithdrawalsListView } from './withdrawals/WithdrawalsListView'
 import { ADMIN_HOME_VIEW, adminView, allDataPath, type AdminViewMatch } from './registry'
@@ -58,6 +59,7 @@ const VIEW_BODIES: Partial<Record<string, ViewBody>> = {
   versand: ShippingSettingsView,
   'umsatz-waechter': RevenueGuardView,
   system: SystemView,
+  texte: TextsView,
 }
 
 export function AdminViewBody(props: AdminViewBodyProps) {

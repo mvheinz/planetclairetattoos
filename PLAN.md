@@ -3058,7 +3058,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/legal/invoice-integrity.int.spec.ts` (Titel „R-122 …“), `tests/int/jobs/monthly-close.int.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P5.27 „Texte“: Mail-Bausteine und Vorlagen** – Ansicht `/texte` (KONZEPT §7.13) als Übersicht mit Bereichen
+- [x] **P5.27 „Texte“: Mail-Bausteine und Vorlagen** – Ansicht `/texte` (KONZEPT §7.13) als Übersicht mit Bereichen
   Seiten und FAQ („kommt in P8“), Rechtstexte („kommt in P6“), Mail-Bausteine und Vorlagen. Mail-Bausteine DE/EN mit
   Übersetzen-Knopf: Signatur, Abhol-Vorlage (`settings.pickup.instructions`), Antwortzeit-Satz der
   Anfrage-Bestätigung (Standard „Ich melde mich meist innerhalb einer Woche.“) in den Feldern `site-texts.emails.signature`

@@ -24,6 +24,11 @@ export interface MailBusiness {
   email: string
   /** Nur für die Anbieterkennung der Bestellbestätigungen M01/M02 (R-021) – nie im Fuß. */
   phone?: string | null
+  /**
+   * Grußformel und Signatur aus `site-texts.emails.signature` in der Sprache der Mail (P5.27, Mail-Baustein); leer →
+   * Standard-Grußformel mit Geschäftsname. Nie im Fuß.
+   */
+  signature?: string | null
 }
 
 export interface CustomerFooterInput {

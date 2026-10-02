@@ -680,6 +680,27 @@ export const ADMIN_CUSTOM_DE = {
   revenueYearsTitle: 'Umsätze vor dem Shop',
   revenueHistory: 'Verlauf der Hinweise',
   revenueHistoryNone: 'Bisher keine Hinweise.',
+  // Texte (P5.27)
+  textsPages: 'Seiten und FAQ',
+  textsPagesLater: 'Seiten und FAQ bearbeiten kommt in P8. Bis dahin unter „Alle Daten“.',
+  textsLegal: 'Rechtstexte',
+  textsLegalLater:
+    'Neue Fassungen einspielen, Vorschau und Veröffentlichen kommt in P6. Bis dahin unter „Alle Daten“.',
+  textsMail: 'Mail-Bausteine',
+  textsMailHint:
+    'Diese Texte stehen in den automatischen Mails. Änderungen gelten ab der nächsten Mail.',
+  textsTemplates: 'Vorlagen fürs Mailprogramm',
+  textsTemplatesHint:
+    'Arbeitsfassungen zum Anpassen – keine geprüften Rechtstexte. Mit Bestellnummer werden Name, Nummer, Betrag und Signatur eingesetzt; dann „Im Mailprogramm öffnen“ oder kopieren.',
+  textsTemplateFits: 'Passt zu: {{fits}}',
+  textsSubject: 'Betreff:',
+  textsOpenMail: 'Im Mailprogramm öffnen',
+  textsCopy: 'Text kopieren',
+  textsOrderLabel: 'Bestellnummer',
+  textsOrderHint: 'Zum Beispiel PC-2026-00017.',
+  textsOrderApply: 'Einsetzen',
+  textsOrderMissing: 'Keine Bestellung mit der Nummer {{number}} gefunden.',
+  textsOrderActive: 'Eingesetzt: {{number}} (Sprache der Bestellung: {{locale}}).',
 } as const
 
 export type AdminCustomKey = keyof typeof ADMIN_CUSTOM_DE

@@ -17,6 +17,8 @@ import {
   type EuChecklistKey,
   type LegalValues,
   type Localized,
+  MAIL_TEXT_MAX,
+  type MailTextsValues,
   type PackingValues,
   type SettingsArea,
   type ShippingValues,
@@ -1008,5 +1010,76 @@ export function RevenueEntryForm({
         {feedback ? <Notice tone={feedback.tone}>{feedback.text}</Notice> : null}
       </form>
     </Ctx.Provider>
+  )
+}
+
+// --- Mail-Bausteine (P5.27, „Texte“) ------------------------------------------------------------------------------
+
+type MailTextKey = keyof MailTextsValues
+
+const MAIL_TEXT_FIELDS: readonly {
+  key: MailTextKey
+  path: string
+  label: AreaTextKey
+  hint: AreaTextKey
+}[] = [
+  {
+    key: 'signature',
+    path: 'emails.signature',
+    label: 'mailSignature',
+    hint: 'mailSignatureHint',
+  },
+  {
+    key: 'pickupInstructions',
+    path: 'pickup.instructions',
+    label: 'mailPickup',
+    hint: 'mailPickupHint',
+  },
+  {
+    key: 'inquiryResponseTime',
+    path: 'emails.inquiryResponseTime',
+    label: 'mailResponseTime',
+    hint: 'mailResponseTimeHint',
+  },
+]
+
+/** Mail-Bausteine DE/EN mit „Übersetzen → EN“ je Baustein; gespeichert über den Bereich `mailTexts`. */
+export function MailTextsForm({
+  initial,
+  translateDisabled,
+}: {
+  initial: MailTextsValues
+  translateDisabled: string | null
+}) {
+  const [v, setV] = useState(initial)
+  return (
+    <AreaForm area="mailTexts" values={v}>
+      {MAIL_TEXT_FIELDS.map((f) => (
+        <div key={f.key} data-testid={`mail-text-${f.key}`}>
+          <LocalizedField
+            path={f.path}
+            label={areaText(f.label)}
+            hint={areaText(f.hint)}
+            multiline
+            maxLength={MAIL_TEXT_MAX}
+            value={v[f.key]}
+            onChange={(next) => setV((cur) => ({ ...cur, [f.key]: next }))}
+          />
+          <TranslateButton<{ text?: string }>
+            endpoint={null}
+            hasEnglish={v[f.key].en.trim() !== ''}
+            disabledReason={translateDisabled}
+            prepare={async () =>
+              v[f.key].de.trim()
+                ? `/api/globals/settings/translate?text=${encodeURIComponent(v[f.key].de)}`
+                : null
+            }
+            onTranslated={(r) =>
+              setV((cur) => ({ ...cur, [f.key]: { ...cur[f.key], en: r.text ?? '' } }))
+            }
+          />
+        </div>
+      ))}
+    </AreaForm>
   )
 }
