@@ -42,6 +42,7 @@ export async function removeOrder(payload: Payload, id: number): Promise<void> {
     END $$`),
   )
   await db.execute(sql`DELETE FROM email_log WHERE order_id = ${id}`)
+  await db.execute(sql`DELETE FROM complaints WHERE order_id = ${id}`)
   await db.execute(sql`DELETE FROM consent_log WHERE order_id = ${id}`)
   const photos = await payload.find({
     collection: 'private-uploads',
