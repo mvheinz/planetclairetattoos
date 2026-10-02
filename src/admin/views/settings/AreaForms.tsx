@@ -20,6 +20,7 @@ import {
   MAIL_TEXT_MAX,
   type MailTextsValues,
   type PackingValues,
+  type ProcessorAgreementsValues,
   type SettingsArea,
   type ShippingValues,
   type ShopValues,
@@ -905,7 +906,63 @@ export function AnalyticsForm({ initial }: { initial: AnalyticsValues }) {
         value={v.note}
         onChange={(note) => setV({ ...v, note })}
       />
-      <p className="pc-order__muted">{areaText('analyticsLater')}</p>
+    </AreaForm>
+  )
+}
+
+/** Einstellungen → „Auftragsverarbeitung“ (P6.21, DIENSTE §6, R-155): je Dienst mit `avv: required` eine Zeile. */
+export function ProcessorAgreementsForm({
+  initial,
+  files,
+}: {
+  initial: ProcessorAgreementsValues
+  files: readonly Option[]
+}) {
+  const [v, setV] = useState(initial)
+  const fileOptions: Option[] = [{ value: '', label: areaText('avvFileNone') }, ...files]
+  return (
+    <AreaForm area="processorAgreements" values={v}>
+      <Rows
+        path="processorAgreements"
+        legend={areaText('avvTitle')}
+        hint={areaText('avvHint')}
+        rows={v.rows}
+        fixed
+        rowTitle={(r) => r.name}
+        onChange={(rows) => setV({ rows })}
+        render={(r, i, set) => (
+          <div data-testid={`avv-row-${r.serviceId}`}>
+            <TextField
+              path={`processorAgreements.${i}.signedAt`}
+              label={areaText('avvSignedAt')}
+              type="date"
+              value={r.signedAt}
+              onChange={(signedAt) => set({ ...r, signedAt })}
+            />
+            <TextField
+              path={`processorAgreements.${i}.documentVersion`}
+              label={areaText('avvVersion')}
+              maxLength={40}
+              value={r.documentVersion}
+              onChange={(documentVersion) => set({ ...r, documentVersion })}
+            />
+            <TextField
+              path={`processorAgreements.${i}.url`}
+              label={areaText('avvUrl')}
+              type="url"
+              value={r.url}
+              onChange={(url) => set({ ...r, url })}
+            />
+            <SelectField
+              path={`processorAgreements.${i}.file`}
+              label={areaText('avvFile')}
+              value={r.file}
+              options={fileOptions}
+              onChange={(file) => set({ ...r, file })}
+            />
+          </div>
+        )}
+      />
     </AreaForm>
   )
 }

@@ -72,6 +72,26 @@
       "empty": "Currently all ceramics are labelled as decoration and are not intended for use with food.",
       "validFrom": "valid from {date}",
       "pdf": "Declaration as PDF: {name}"
+    },
+    "processors": {
+      "title": "Processors and other recipients",
+      "intro": "These services are used to run the website and the shop; the “Role” column shows how they process data.",
+      "colName": "Name",
+      "colRole": "Role",
+      "colSeat": "Registered office",
+      "colThirdCountry": "Third country",
+      "agreementSigned": "agreement under Art. 28 GDPR",
+      "role": {
+        "processor": "Processor",
+        "controller": "Independent controller",
+        "processorAndController": "Processor and independent controller",
+        "none": "No personal data"
+      },
+      "thirdCountry": {
+        "US": "USA",
+        "EU": "no (EU)",
+        "none": "no"
+      }
     }
   },
   "errors": {

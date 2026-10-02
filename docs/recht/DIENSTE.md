@@ -1,6 +1,6 @@
 # Dienste und Auftragsverarbeiter – planetclairetattoos.com
 
-> **Stand:** 26.09.2026 · **Version:** 1.3 · **Status:** verbindliches Fachdokument (Rang wie ANFORDERUNGEN.md)
+> **Stand:** 02.10.2026 · **Version:** 1.4 · **Status:** verbindliches Fachdokument (Rang wie ANFORDERUNGEN.md)
 > **Zweck:** Einzige Quelle für alle externen Dienste: Datenschutzerklärung (Kanzlei), Verzeichnis von
 > Verarbeitungstätigkeiten (R-156), AVV-Abschluss (R-155), Content-Security-Policy (R-131) und Go-live-Gate (R-210).
 > **Grundlage:** ENTSCHEIDUNGEN E-20, E-21, E-26, E-61, E-90–E-96; `docs/research/tech-stack.md`,
@@ -238,7 +238,9 @@
 - **Rechtsträger:** DHL Paket GmbH, Sträßchensweg 10, 53113 Bonn (Pakete); Deutsche Post AG,
   Charles-de-Gaulle-Straße 20, 53113 Bonn (Briefe/Einschreiben, Post & DHL App). **Prüfen P11.**
 - **Zweck:** Zustellung der Sendungen (E-26). Labels erstellt Jutta manuell (Online-Frankierung/App); keine
-  Schnittstelle bis „Später“.
+  Schnittstelle bis „Später“. Technisch: Versandtreiber `CARRIER_DRIVER=manual` (ARCHITEKTUR §3.7) – die Website
+  überträgt nichts an DHL/Deutsche Post; Jutta trägt Name und Lieferadresse selbst ein und die Sendungsnummer in
+  der Verwaltung nach.
 - **Daten:** Name, Lieferadresse, Sendungsnummer; **E-Mail nur mit Einwilligung** (R-101); nie Telefonnummer.
 - **Rolle:** eigene Verantwortung (Transportdienstleister); kein AVV.
 - **Rechtsgrundlage (Vorschlag):** Art. 6 Abs. 1 lit. b (Adresse), lit. a (E-Mail-Adresse).
@@ -255,6 +257,13 @@
 | Meta Platforms Ireland Ltd., Merrion Road, Dublin 4, Irland | Instagram-Profil; die Website verlinkt nur | keine Übermittlung durch die Website; Profil-Insights ggf. gemeinsame Verantwortung (K-29) | eV / ggf. Art. 26 |
 | SumUp o. ä. (Flohmarkt, E-28) | Kartenzahlung vor Ort | keine Verbindung zur Website | nicht Teil der Website-DSE |
 
+### 3.14 Endgeräte-Speicher ohne Dienst
+
+Kein Fremddienst, aber für Datenschutzerklärung und VVT zu nennen (vollständige Liste ARCHITEKTUR §8.7):
+`localStorage['pc-motion']` (`reduced`/`full`) entsteht erst nach Klick auf den Schalter „Animationen“ (DESIGN §11.7,
+R-130 a), bleibt im Browser und wird nie an den Server oder Dritte übertragen. Die Cookies `pc_cart`, `pc_checkout`
+und `payload-token` sind eigene Cookies der Website; Stripe-Cookies nur auf der Kasse (§3.5).
+
 ## 4. Lokale Ersatzdienste bis P11
 
 Maßgeblich sind `.env.example` und `docs/ARCHITEKTUR.md`; die Tabelle ordnet die Dienste zu.
@@ -269,7 +278,7 @@ Maßgeblich sind `.env.example` und `docs/ARCHITEKTUR.md`; die Tabelle ordnet di
 | Sentry | `SENTRY_DSN` | leer | aus |
 | Vercel Web Analytics | `NEXT_PUBLIC_ANALYTICS_ENABLED` (ab P1 in `.env.example`) | `false` | aus |
 | Vercel Cron | `CRON_SECRET` (≥ 32 Zeichen), `BACKUP_ENABLED` | Entwicklungswert, `false` | Jobs lokal per `JOBS_AUTORUN=true`, in Tests per `pnpm jobs:run <task>`; Job-Wecker `/api/cron/tick` und Backup `/api/cron/backup` erst auf Vercel (Backup nur bei `APP_ENV=production` **und** `BACKUP_ENABLED=true`, eingeschaltet in P11; Wiederherstellungsprobe in GitHub Actions nur mit synthetischen Daten) |
-| DHL | – | – | kein Dienst (manuell) |
+| DHL | `CARRIER_DRIVER` | `manual` | kein Dienst: manueller Versand ohne Dienstleister-Schnittstelle, auch im Livebetrieb (§3.12) |
 
 Mocks machen **keine** Netzwerk-Anfragen an echte Anbieter (per Test geprüft). Seed-Adressen sind nur
 `@example.com`/`@example.org` (R-180); der Mailversand unterdrückt `example.com`, `example.org`, `example.net`,
@@ -318,7 +327,8 @@ Wird von Unit-Tests gelesen: CSP-Abgleich (R-131), AVV-Gate (R-155, R-210); der 
 Empfänger-Tabelle, die als generierte Komponente unter bzw. neben dem Datenschutztext gerendert wird (alle Einträge
 mit `production: true`, AVV-Stand aus `settings.processorAgreements`; **kein** Platzhalter-Token, R-012,
 KANZLEI-BRIEFING §16.3). Braucht die Komponente weitere Angaben (z. B. Sitz, Zweck), ergänzt die Phase, die sie baut,
-die Felder hier aus §2/§3. Der Block ist der **einzige** YAML-Block dieser Datei. Felder: `id` (= `serviceId` in `settings.processorAgreements`), `name`, `role`
+die Felder hier aus §2/§3. Der Block ist der **einzige** YAML-Block dieser Datei. Felder: `id` (= `serviceId` in `settings.processorAgreements`), `name`, `seat` (`de`/`en`: Sitz laut §2, Spalte
+„Sitz“ der Empfänger-Tabelle, ergänzt in P6.21), `role`
 (`processor` | `controller` | `processorAndController` | `none`), `avv` (`required` | `coveredBy` | `notRequired` |
 `notAvailable`), `avvCoveredBy`, `production` (im Livebetrieb aktiv), `personalData` (`yes` | `minimal` | `no`),
 `thirdCountry`, `activeFrom`, `driverEnv`, `csp.<kontext>.<direktive>` (erlaubte Fremd-Hosts; Kontexte laut
@@ -331,6 +341,7 @@ version: 1
 services:
   - id: vercel
     name: Vercel (Hosting, CDN, Funktionen, Cron)
+    seat: { de: 'Covina (CA), USA', en: 'Covina (CA), USA' }
     role: processor
     avv: required
     production: true
@@ -342,6 +353,7 @@ services:
     serverHosts: []
   - id: vercelAnalytics
     name: Vercel Web Analytics
+    seat: { de: 'Covina (CA), USA', en: 'Covina (CA), USA' }
     role: processor
     avv: coveredBy
     avvCoveredBy: vercel
@@ -354,6 +366,7 @@ services:
     serverHosts: []
   - id: neon
     name: Neon Postgres (aws-eu-central-1)
+    seat: { de: 'San Francisco, USA; Daten in Frankfurt', en: 'San Francisco, USA; data in Frankfurt' }
     role: processor
     avv: required
     production: true
@@ -365,6 +378,7 @@ services:
     serverHosts: ['*.eu-central-1.aws.neon.tech']
   - id: cloudflareR2
     name: Cloudflare R2 (EU-Jurisdiktion)
+    seat: { de: 'San Francisco, USA; EU-Jurisdiktion', en: 'San Francisco, USA; EU jurisdiction' }
     role: processor
     avv: required
     production: true
@@ -376,6 +390,7 @@ services:
     serverHosts: ['*.eu.r2.cloudflarestorage.com']
   - id: stripe
     name: Stripe Payments Europe
+    seat: { de: 'Dublin, Irland', en: 'Dublin, Ireland' }
     role: processorAndController
     avv: required
     production: true
@@ -391,6 +406,7 @@ services:
     serverHosts: ['api.stripe.com', 'files.stripe.com']
   - id: paypal
     name: PayPal (Europe)
+    seat: { de: 'Luxemburg', en: 'Luxembourg' }
     role: controller
     avv: notRequired
     production: true
@@ -402,6 +418,7 @@ services:
     serverHosts: []
   - id: lettermint
     name: Lettermint B.V.
+    seat: { de: 'Zwolle, Niederlande', en: 'Zwolle, Netherlands' }
     role: processor
     avv: required
     production: true
@@ -413,6 +430,7 @@ services:
     serverHosts: ['smtp.lettermint.co']
   - id: ionos
     name: IONOS SE (Domain, DNS, Postfach)
+    seat: { de: 'Montabaur, Deutschland', en: 'Montabaur, Germany' }
     role: processor
     avv: required
     production: true
@@ -424,6 +442,7 @@ services:
     serverHosts: []
   - id: deepl
     name: DeepL SE (API Free)
+    seat: { de: 'Köln, Deutschland', en: 'Cologne, Germany' }
     role: none
     avv: notAvailable
     production: true
@@ -435,6 +454,7 @@ services:
     serverHosts: ['api-free.deepl.com']
   - id: sentry
     name: Sentry (EU-Region)
+    seat: { de: 'San Francisco, USA; EU-Region', en: 'San Francisco, USA; EU region' }
     role: processor
     avv: required
     production: true
@@ -446,6 +466,7 @@ services:
     serverHosts: ['*.ingest.de.sentry.io']
   - id: github
     name: GitHub (nur Entwicklung)
+    seat: { de: 'San Francisco, USA', en: 'San Francisco, USA' }
     role: none
     avv: notRequired
     production: false
@@ -457,13 +478,14 @@ services:
     serverHosts: []
   - id: dhl
     name: DHL Paket GmbH / Deutsche Post AG
+    seat: { de: 'Bonn, Deutschland', en: 'Bonn, Germany' }
     role: controller
     avv: notRequired
     production: true
     personalData: 'yes'
     thirdCountry: none
     activeFrom: P11
-    driverEnv: null
+    driverEnv: CARRIER_DRIVER
     csp: {}
     serverHosts: []
 ```
@@ -482,3 +504,4 @@ CSP-Rückfall mit `'unsafe-inline'` in den Kontexten `public` oder `admin` (R-13
 | 26.09.2026 | 1.1 | Angleichung an ARCHITEKTUR: §3.4 Rechnungsablage laut C-06 (Präfix `private/invoices/` im privaten Bucket, Bucket-Sperre soweit verfügbar, keine Versionierung; eigener Bucket als Rückfallebene), Buckets und Backups laut §3.3/§10; Cron-Endpunkte (§3.1, §4); Backups nie über GitHub Actions (§3.11, §5); Stripe-Metadaten (§3.5); Mail-Unterdrückung reservierter Domains (§4) |
 | 26.09.2026 | 1.2 | Backup erst mit `BACKUP_ENABLED` in P11 (§3.1, §4); Neon-Wiederherstellungsfenster (§3.3); Stripe-Metadaten nur Kassen-Referenz und `appEnv`, kein Token, Test-Schlüssel (§3.5, §4); Lettermint-Zwecke (§3.7); DeepL-Allowlist (§3.9); Browser-Fehler-Endpunkt (§3.10); Seed-Bilder mit DATENMODELL-Feldern (§3.11); CSP-Kontexte laut ARCHITEKTUR §8.1 und `settings.processorAgreements` (§7) |
 | 26.09.2026 | 1.3 | Empfänger-Tabelle als generierte Komponente aus der YAML, kein Token (§7); Lettermint-Zwecke inkl. Datenschutz-Antworten und Passwort-Zurücksetzen (§3.7); CSP-Rückfall `public`/`admin` (§7) |
+| 02.10.2026 | 1.4 | P6.21: YAML-Feld `seat` (DE/EN) für die generierte Empfänger-Tabelle (`src/lib/legal/services.generated.ts`, Generator `scripts/legal/gen-services.ts`); DHL mit `driverEnv: CARRIER_DRIVER` und Versand ohne Dienstleister-Schnittstelle (§3.12, §4); Endgeräte-Speicher `pc-motion` (§3.14); VVT `docs/recht/VVT.md` |

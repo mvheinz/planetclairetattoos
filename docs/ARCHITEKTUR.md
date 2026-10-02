@@ -1314,7 +1314,7 @@ Migration, §6.7 Nr. 5), sonst Hotfix-PR. Details im RUNBOOK (P10).
 |---|---|
 | Entwicklung | `dev`, `build`, `start`, `lint`, `typecheck`, `format`, `format:check`, `generate:types`, `generate:importmap`, `payload` |
 | CI-Hilfen | `ci:minutes` (`scripts/ci/minutes.ts`, Minuten-Wächter §6.8, P1.33a; gleichwertig `pnpm exec tsx scripts/ci/minutes.ts`), `ci:artifacts` (`scripts/ci/artifact-budget.ts`, Budget-Schritt §6.2, P1) |
-| Prüfungen | `check` (= `lint` + `typecheck` + `check:static` + `test:unit`), `check:static` (`scripts/check-static.ts`; Teilprüfungen u. a. Versionen, `.env.example`, i18n-Parität, Routen-Registry, Stripe-Importe, Fremd-URLs, Aktualität von `src/lib/legal/services.generated.ts`), `check:versions` (`scripts/check-versions.ts`, §1.3; auch Teil von `check:static`), `check:migrations` (`scripts/check-migration-drift.ts`), `check:bundle`, `check:external`, `check:no-debug`, `check:golive` (Startklar-Prüfung R-210/KONZEPT §7.16/DATENMODELL §13.7, Exit-Code ≠ 0 bei jedem roten Punkt; P10), `env:example` (`scripts/gen-env-example.ts`) |
+| Prüfungen | `check` (= `lint` + `typecheck` + `check:static` + `test:unit`), `check:static` (`scripts/check-static.ts`; Teilprüfungen u. a. Versionen, `.env.example`, i18n-Parität, Routen-Registry, Stripe-Importe, Fremd-URLs, Aktualität von `src/lib/legal/services.generated.ts`), `check:versions` (`scripts/check-versions.ts`, §1.3; auch Teil von `check:static`), `check:migrations` (`scripts/check-migration-drift.ts`), `check:bundle`, `check:external`, `check:no-debug`, `check:golive` (Startklar-Prüfung R-210/KONZEPT §7.16/DATENMODELL §13.7, Exit-Code ≠ 0 bei jedem roten Punkt; P10), `env:example` (`scripts/gen-env-example.ts`), `legal:services` (`scripts/legal/gen-services.ts`: DIENSTE-YAML → `src/lib/legal/services.generated.ts`, P6.21) |
 | Tests | `test` (= `test:unit` + `test:int`), `test:unit`, `test:int`, `test:e2e`, `test:visual`, `test:perf`, `test:preview-export`, `test:coverage` |
 | Daten | `seed` (= `seed:base` + `seed:example`), `seed:base`, `seed:example [--only=<collection,…>] [--refresh-media]`, `seed:remove [--yes] [--drop-texts]` (ohne `--yes` nur Mengenvorschau), `seed:reset` (= `seed:remove --yes --drop-texts` + `seed:base` + `seed:example`; nur Entwicklung, Test, Vorschau-Export), `seed:import-instagram` (`scripts/seed/import-instagram.ts`, P8), `db:ensure`, `db:reset --test [--seed=none\|base\|all]` (Standard `base`) (nur dev/test), `db:mark-production`, `media:regenerate` |
 | Betrieb | `jobs:run [task] [--now=<ISO>]` (`scripts/jobs-run.ts`), `admin:create`, `admin:unlock` (`scripts/admin-*.ts`), `backup:run`, `backup:restore`, `backup:verify`, `retention:replay`, `payments:reconcile [--since=<ISO>]`, `stripe:fixture <name>` |
@@ -1324,7 +1324,7 @@ Migration, §6.7 Nr. 5), sonst Hotfix-PR. Details im RUNBOOK (P10).
 - Alle `seed*`-Befehle laufen über `payload run scripts/seed/cli.ts -- <base|example|remove|reset|all>` (SEED-SPEC §1.4);
   zerstörerische Befehle beachten die Produktionssperre (§4.8).
 - Hilfsskripte ohne eigenen Namen (z. B. `scripts/art/build-brand.ts`, `scripts/art/admin-icons.ts`,
-  `scripts/art/calibration-sheet.ts`, `scripts/legal/gen-services.ts`, `scripts/legal/briefing-screenshots.ts`,
+  `scripts/art/calibration-sheet.ts`, `scripts/legal/briefing-screenshots.ts`,
   `scripts/fixtures/*.ts`) laufen mit `pnpm exec tsx <datei>`. Braucht CI oder ein Fachdokument einen festen Aufruf, bekommt
   das Skript einen Namen – im selben PR in diese Tabelle eintragen. Namen, die hier fehlen, gibt es nicht.
 

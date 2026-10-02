@@ -1,0 +1,38 @@
+/* Auftragsverarbeiter-Tabelle unter der Datenschutzerklärung (P6.21): ruhig, ohne Transition (Preset `legal`,
+   AK-DS-11). Mobil scrollt nur die Tabelle. */
+.section > * + * {
+  margin-block-start: var(--space-3);
+}
+
+.intro {
+  color: var(--ink-2);
+}
+
+.wrap {
+  overflow-x: auto;
+  max-inline-size: 100%;
+}
+
+.table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-small);
+}
+
+.table th,
+.table td {
+  text-align: start;
+  vertical-align: top;
+  padding: var(--space-2) var(--space-3) var(--space-2) 0;
+  border-block-end: 1px solid var(--ink-3);
+}
+
+.table thead th {
+  font-weight: 700;
+  border-block-end-width: 1.5px;
+  border-block-end-color: var(--ink);
+}
+
+.table tbody th {
+  font-weight: 600;
+}

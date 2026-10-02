@@ -28,6 +28,7 @@
     "test:preview-export": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm --import=./scripts/lib/register-server-only.mjs\" playwright test --config=playwright.preview.config.ts",
     "check": "pnpm run lint && pnpm run typecheck && pnpm run check:static && pnpm run test:unit",
     "check:versions": "tsx scripts/check-versions.ts",
+    "legal:services": "tsx scripts/legal/gen-services.ts",
     "env:example": "tsx --import=./scripts/lib/register-server-only.mjs scripts/gen-env-example.ts",
     "check:static": "tsx --import=./scripts/lib/register-server-only.mjs scripts/check-static.ts",
     "db:ensure": "tsx --import=./scripts/lib/register-server-only.mjs scripts/db-ensure.ts",

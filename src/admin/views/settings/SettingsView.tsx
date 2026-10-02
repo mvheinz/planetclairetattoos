@@ -10,6 +10,7 @@ import {
   type TaxMode,
 } from '@/lib/enums'
 import { getEnv } from '@/lib/env'
+import { processorAgreementServices } from '@/lib/legal/services'
 import { getPaymentsAdapter } from '@/lib/payments'
 import { previewRetention, type RetentionPreviewRow } from '@/lib/retention/jobs'
 import { seedSummary } from '@/lib/seed/remove'
@@ -26,12 +27,14 @@ import {
   AnalyticsForm,
   CostsForm,
   LegalForm,
+  ProcessorAgreementsForm,
   ShopForm,
   TaxConfirmForm,
   TemplatesForm,
   YearTotalsForm,
 } from './AreaForms'
-import { areaText, initialAreaValues, type Obj } from './settingsAreas'
+import { ProcessorAgreementUpload } from './ProcessorAgreementUpload'
+import { areaText, initialAreaValues, initialProcessorAgreements, type Obj } from './settingsAreas'
 import { getPath, SETTINGS_SECTIONS, type SettingsSectionKey } from './settingsForm'
 import { PasswordForm, SettingsSectionForm, TaxModeForm } from './SettingsForms'
 
@@ -190,6 +193,25 @@ export async function SettingsView({ adminRoute, req }: AdminViewBodyProps) {
     value: c,
     label: ENUM_LABELS.PRODUCT_CATEGORIES[c].de,
   }))
+  const avv = initialProcessorAgreements(
+    processorAgreementServices().map((x) => ({ id: x.id, name: x.name })),
+    settings.processorAgreements,
+  )
+  const avvFiles = (
+    await req.payload.find({
+      collection: 'private-uploads',
+      where: { purpose: { equals: 'processor_agreement' } },
+      select: { filename: true, createdAt: true },
+      sort: '-createdAt',
+      limit: 200,
+      depth: 0,
+      overrideAccess: true,
+      req,
+    })
+  ).docs.map((d) => ({
+    value: String(d.id),
+    label: `${d.filename ?? `#${d.id}`} (${formatBerlin(new Date(d.createdAt), 'dd.MM.yyyy')})`,
+  }))
   const confirmedAt = settings.tax?.confirmedAt
     ? formatBerlin(new Date(settings.tax.confirmedAt), 'dd.MM.yyyy')
     : null
@@ -328,6 +350,9 @@ export async function SettingsView({ adminRoute, req }: AdminViewBodyProps) {
         <h2 id="settings-privacy">{adminText('settingsAreaPrivacy')}</h2>
         <h3>{adminText('settingsAnalyticsTitle')}</h3>
         <AnalyticsForm initial={area.analytics} />
+        <h3 id="auftragsverarbeitung">{areaText('avvTitle')}</h3>
+        <ProcessorAgreementsForm initial={avv} files={avvFiles} />
+        <ProcessorAgreementUpload />
         <DeletionPreview
           rows={deletionPreview}
           now={now}

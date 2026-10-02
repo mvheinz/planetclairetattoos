@@ -24,6 +24,8 @@ export const URL_ALLOWLIST: RegExp[] = [
 export const FILE_URL_ALLOWLIST: Record<string, RegExp[]> = {
   'src/lib/security/csp.ts': [/^https:\/\/(\*\.)?(js|hooks|api)\.stripe\.com$/],
   'src/lib/security/headers.ts': [/^https:\/\/js\.stripe\.com$/],
+  // Erzeugte Dienstliste (P6.21): CSP-Hosts aus der DIENSTE-YAML für den T-16-Abgleich – Deklaration, kein Request
+  'src/lib/legal/services.generated.ts': [/^https:\/\/(\*\.)?(js|hooks|api)\.stripe\.com$/],
 }
 
 const URL_RE = /https?:\/\/[^\s'"`)<>\]}]+/g

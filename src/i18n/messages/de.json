@@ -72,6 +72,26 @@
       "empty": "Derzeit sind alle Keramiken als Dekoration gekennzeichnet und nicht für Lebensmittel bestimmt.",
       "validFrom": "gültig ab {date}",
       "pdf": "Erklärung als PDF: {name}"
+    },
+    "processors": {
+      "title": "Auftragsverarbeiter und weitere Empfänger",
+      "intro": "Diese Dienste werden für den Betrieb der Website und des Shops eingesetzt; die Spalte „Rolle“ zeigt, wie sie Daten verarbeiten.",
+      "colName": "Name",
+      "colRole": "Rolle",
+      "colSeat": "Sitz",
+      "colThirdCountry": "Drittland",
+      "agreementSigned": "Vertrag nach Art. 28 DSGVO",
+      "role": {
+        "processor": "Auftragsverarbeiter",
+        "controller": "eigene Verantwortung",
+        "processorAndController": "Auftragsverarbeiter und eigene Verantwortung",
+        "none": "keine personenbezogenen Daten"
+      },
+      "thirdCountry": {
+        "US": "USA",
+        "EU": "nein (EU)",
+        "none": "nein"
+      }
     }
   },
   "errors": {

@@ -1821,7 +1821,7 @@ Arbeitsfassung sinngemäß (`origin: 'draft'`).
 **Teil A – vor Abschluss von P10 (Cloud-Session hakt ab, Eintrag in `docs/FORTSCHRITT.md`):**
 - [ ] R-049: Harmonisierte Mitteilung mit amtlicher Vorlage verglichen (oder Platzhalter in OFFENE-PUNKTE).
 - [ ] R-095: Platzhalter-Widerrufsbelehrung enthält Token `{{withdrawalUrl}}` und `{{phone}}`.
-- [ ] R-156: `docs/recht/VVT.md` vollständig.
+- [x] R-156: `docs/recht/VVT.md` vollständig. (02.10.2026, P6.21)
 - [ ] R-157: Datenpannen-Abschnitt im RUNBOOK und Owner-Anleitung vorhanden.
 - [ ] R-161: Vorlage `commission.offer` als Platzhalter vorhanden.
 - [ ] R-190: Keine Barrierefreiheits-/Zertifikatsbehauptungen in Texten.
