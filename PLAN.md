@@ -4121,7 +4121,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Ohne Jutta: vollständig machbar; Material-, Faser- und Maßangaben sind Annahmen (SE-06, steht in OFFENE-PUNKTE),
     Bildinhalte S04–S06 neutral betitelt (SE-01). P11-Nacharbeit: –
 
-- [ ] **P8.4 Bestellungen, Kassen und Reservierungen** – `content/seed/data/customers.json` (erfundene
+- [x] **P8.4 Bestellungen, Kassen und Reservierungen** – `content/seed/data/customers.json` (erfundene
   Personen, SEED-SPEC §6) und `orders.json` mit den Bestellungen und Kassen aus SEED-SPEC §7.1–§7.3 (Zeitleisten,
   Zahlungen, Sendungen, Erstattungen, Anfechtung). Es gilt das Kassen-Modell (KONZEPT §4, §5.2, §5.3; DATENMODELL §6.25,
   §13.2): Vorgänge ohne Bestellung – die abgebrochene PayPal-Kasse und die laufende Kasse – legt der Seed als

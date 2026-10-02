@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P8.4
+
+- `content/seed/data/customers.json` (24 erfundene Personen, SEED-SPEC §6) und `orders.json` mit O01–O14 (Form §2.6: Zeitleiste, Zahlung, Sendung, Erstattungen, Anfechtung) sowie den Kassen ohne Bestellung KS1 (`expired`, `reservation_expired`) und KS2 (`open`). Neu `src/lib/seed/orderPlan.ts` (reine Ableitung: Statusverlauf über `evaluateOrderTransition`, Vorkasse-Fristen aus `prepaymentDeadlines`, `finalStatusAt`/`retainUntil` wie der Hook, Kasse T0 = placedAt − 4 min, Reservierungen; Filter L-02/L-03 aus `retention/policy`, SE-12) und `src/lib/seed/orders.ts` (Snapshot mit `buildCharacteristics`/`computeShipping`, Verpackung aus `settings.packaging`, Tracking-Link aus den Vorlagen, Rechtstexte v1, Bausteine `draft-1`, Token nur aus `seedToken`, Verknüpfungen Kasse/Bestellung/Reservierung/Stück/Packfotos).
+- Nach `pnpm seed:reset` (kanonisch): 14 Bestellungen (alle 13 Status, alle Zahlarten, Versand + Abholung), 14 Kassen, 10 Reservierungen; Summen wie §7.1. E2E-Anker auf den vollen Bestand nachgezogen (Startseite Textil-Station, Archiv- und Shop-Listen, Leerzustände blenden Seed-Stücke kurz aus); „Alle Daten“-Listen: Blätter-Pfeile mit Namen (axe).
+- Tests: `tests/int/seed/orders.int.spec.ts` (8), `tests/unit/seed/timeline.unit.spec.ts` (7, AK-SEED-09), `persons.unit.spec.ts` (2, AK-SEED-12), `tokens.unit.spec.ts` (3), `tests/e2e/seed-status.e2e.spec.ts` (7 je Projekt, AK-SEED-20) grün; `pnpm check`, `test:int` (138 Dateien, ohne preview-export), `pnpm build`, betroffene E2E (desktop + pixel-7) grün.
+
 ## 2026-10-02 – P8.3
 
 - `content/seed/data/products.json` mit allen 30 Stücken nach SEED-SPEC §5.1–§5.4 (Texte DE/EN inkl. `juttaSays`, Maße/Gewichte/Faserangaben, gemeinsame Werte §5.2, Verkaufsfelder §5.3 nur beim Anlegen); die 10 Stücke des Mini-Satzes blieben unverändert. `reservationRef` reservierter Stücke (S14 → Kasse O13, S27 → KS2) aus `seedReservationRef()` (§2.5); `currentOrder` setzt P8.4.
