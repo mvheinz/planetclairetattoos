@@ -6,6 +6,12 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 
 
 
+
+## 2026-10-02 – P5 CI-Reparaturen (2)
+
+- Schneller CI-Lauf lief seit P5 ins 30-Minuten-Limit (als „abgebrochen“ gemeldet) → Limit 45 min, Beschleunigung als offener Punkt.
+- Produktseite R04: Coco-Bild des Menüs lädt erst nach dem ersten Bild (spart 90–150 ms bis zum Hauptfoto).
+
 ## 2026-10-02 – P5 CI-Reparaturen
 
 - Phasenlauf 1 (18a10e2): Abdeckung (Randfall-Tests Packen/Versand/Abholung ergänzt) und iphone-15 Foto-Upload-Test (WebKit liefert Upload-Inhalt nicht an Playwright) behoben.
