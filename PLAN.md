@@ -3962,7 +3962,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
     „T-05 …“; Testbilder zur Laufzeit mit sharp erzeugt), Projekte `iphone-15` und `desktop`.
   - Ohne Jutta: –
 
-- [ ] **P7.14 Anfragen Ende-zu-Ende, 6-Monats-Löschung und Vorlage `commission.offer`** – Durchstich Formular →
+- [x] **P7.14 Anfragen Ende-zu-Ende, 6-Monats-Löschung und Vorlage `commission.offer`** – Durchstich Formular →
   Mails → „Anfragen“ (P5.20) → „Jetzt löschen“. Löschung prüfen: `retentionCommissionInquiries` löscht Datensatz und
   Bilder 6 Monate nach Eingang ohne Verlängerung, die Verwaltung zeigt „wird gelöscht am {Eingang + 6 Monate}“;
   `retentionTechnical` löscht nicht abgeschickte Uploads nach 24 h. Die Seed-Anfragen A1–A7 legt erst P8.5 an: hier nur

@@ -2,6 +2,11 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P7.14
+
+- Durchstich Formular → M11/A05 → Verwaltung → „Jetzt löschen“; Anfrage-Detail mit Abschnitt „Angebot“ (Vorlage `commission.offer` kopieren bzw. `mailto:`, Hinweis Umsatz-Wächter); `commission.offer` als Platzhalter mit Gliederung (R-161 in ANFORDERUNGEN §7 abgehakt).
+- Tests: `tests/int/legal/retention-inquiries.int.spec.ts` (4), `tests/e2e/commission/flow.e2e.spec.ts` (desktop + pixel-7 grün).
+
 ## 2026-10-02 – P7.13
 
 - `src/components/commission/CommissionForm.tsx`: Pflichtfelder, Fehlerzusammenfassung mit Sprunglinks, FileDrop (≤ 5 Bilder, ≤ 15 MB, Verkleinerung im Browser ≤ 2560 px/≤ 4 MB, Upload einzeln mit Fortschritt, Fehler je Bild), Datenschutz-Hinweis mit Link, keine Checkbox, Erfolg ersetzt das Formular; ohne JavaScript ohne Bilder.
