@@ -1,0 +1,68 @@
+[
+  {
+    "key": "DS1",
+    "reference": "DS-2026-9001",
+    "types": ["access"],
+    "channel": "email",
+    "customer": "C01",
+    "receivedAt": "D-36",
+    "status": "answered",
+    "identityVerified": true,
+    "identityMethod": "stored_email",
+    "identityVerifiedAt": "D-36@10:00",
+    "matchedOrders": ["orders:O01"],
+    "matchedWithdrawals": ["withdrawals:W1"],
+    "answeredAt": "D-33@17:00"
+  },
+  {
+    "key": "DS2",
+    "reference": "DS-2026-9002",
+    "types": ["erasure"],
+    "channel": "instagram_dm",
+    "customer": "C24",
+    "receivedAt": "D-25",
+    "status": "rejected",
+    "identityVerified": false,
+    "identityMethod": "other",
+    "answeredAt": "D-10@10:00",
+    "resultNote": "Abgelehnt: Die Nachricht bat darum, die Daten einer anderen Person zu löschen. Eine Vollmacht haben wir am {{date:D-25}} erbeten; bis {{date:D-11}} kam keine. Ohne Nachweis dürfen wir für diese Person nichts löschen und keine Auskunft geben (Art. 12 Abs. 6 DSGVO). Antwort per E-Mail mit Begründung, dem Hinweis, dass sich die betroffene Person selbst melden kann, und dem Beschwerderecht bei der Berliner Beauftragten für Datenschutz und Informationsfreiheit. Keine Daten herausgegeben, nichts gelöscht.",
+    "adminNotes": "Kam per Instagram-Nachricht; auf E-Mail verwiesen (LOESCHKONZEPT §5.1)."
+  },
+  {
+    "key": "DS3",
+    "reference": "DS-2026-9003",
+    "types": ["erasure"],
+    "channel": "email",
+    "customer": "C08",
+    "receivedAt": "D-5",
+    "status": "in_progress",
+    "identityVerified": true,
+    "identityMethod": "stored_email",
+    "identityVerifiedAt": "D-5@11:20",
+    "matchedOrders": ["orders:O08"],
+    "adminNotes": "Bestellung PC-2026-90008 mit Rechnung und Gutschrift: Belege bleiben bis Fristende (L-06), die Bestellung wird eingeschränkt statt gelöscht (L-05, LOESCHKONZEPT §5.6). Antwort M15 nach der Umsetzung."
+  },
+  {
+    "key": "DS4",
+    "reference": "DS-2026-9004",
+    "types": ["access"],
+    "channel": "letter",
+    "customer": "C15",
+    "receivedAt": "D-2",
+    "status": "identity_check",
+    "identityVerified": false,
+    "identityMethod": "stored_email",
+    "matchedWithdrawals": ["withdrawals:W4", "withdrawals:W6"],
+    "adminNotes": "Brief ohne Nachweis, dass er von der Person hinter der gespeicherten Adresse kommt: Bestätigung über die gespeicherte E-Mail-Adresse erbeten (LOESCHKONZEPT §5.2). Treffer: zwei Widerrufserklärungen ohne Bestellung."
+  },
+  {
+    "key": "DS5",
+    "reference": "DS-2026-9005",
+    "types": ["access"],
+    "channel": "email",
+    "customer": "C14",
+    "receivedAt": "D+0",
+    "status": "received",
+    "identityVerified": false
+  }
+]

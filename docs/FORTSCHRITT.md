@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P8.5a
+
+- Reklamationen RK1–RK4 (`complaints.json`, SEED-SPEC §10a; Fotos RK1/RK2 als erzeugte Linienzeichnungen, angelegt mit Pflichtbezug auf die Reklamation) und Datenschutz-Anfragen DS1–DS5 (`privacy-requests.json`, §11a, ohne Exportdatei).\n- Hook `privacy-requests`: im Seed-Kontext bleibt `identityVerifiedAt` aus den Daten (SEED-SPEC §1.6); `seedField()` war schon vorhanden (keine Migration).\n- Tests: `tests/int/seed/complaints-privacy.int.spec.ts` (8: Status-Abdeckung, DM-CMP-01, DM-PRQ-01, „Heute“, Fristen-Jobs ohne Mail, Idempotenz, Entfernen) + AK-SEED-22 in `withdrawals-inquiries.int.spec.ts` – grün.
+
 ## 2026-10-02 – P8.5
 
 - Widerrufe W1–W7 (`withdrawals.json`, SEED-SPEC §10), Anfragen A1–A7 (`inquiries.json`, §11, Skizze nur bei A2), Umsätze M-9…M-1 (`revenue.json`, §15); Import in `src/lib/seed/cases.ts` (Schritt 7, Hooks sehen N als Request-Zeit über `seedStep(…, now)`), Datums-Token `{{date:…}}` (`withDateTokens`), Umsatz-Seed überspringt belegte (Monat, Quelle).\n- Anker-Tabelle „Heute“ `SEED_TODAY_ANCHORS` in `src/lib/seed/expected.ts`.\n- Tests: `tests/int/seed/withdrawals-inquiries.int.spec.ts` (9), `tests/int/seed/revenue.int.spec.ts` (5: Wächter grün nur mit Vorschau-Modus, Verdrängen, Überspringen, AK-SEED-15, AK-SEED-21 Exporte ohne Seed) – grün.

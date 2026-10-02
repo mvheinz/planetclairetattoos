@@ -50,5 +50,31 @@
     },
     "relatedInquiry": "inquiries:A2",
     "note": "Beispielbild (Beispielbestand) – Skizze zur Anfrage AA-2026-9002."
+  },
+  {
+    "key": "RK1:photo-1",
+    "purpose": "complaint_photo",
+    "image": {
+      "format": "jpeg",
+      "width": 1200,
+      "height": 900,
+      "motif": "complaint-bowl-crack",
+      "label": "BEISPIEL-REKLAMATIONSFOTO"
+    },
+    "relatedComplaint": "complaints:RK1",
+    "note": "Beispielbild (Beispielbestand) – Schale mit Sprung im eingedrückten Karton, Reklamation zu PC-2026-90010."
+  },
+  {
+    "key": "RK2:photo-1",
+    "purpose": "complaint_photo",
+    "image": {
+      "format": "jpeg",
+      "width": 1200,
+      "height": 900,
+      "motif": "complaint-shirt-faded",
+      "label": "BEISPIEL-REKLAMATIONSFOTO"
+    },
+    "relatedComplaint": "complaints:RK2",
+    "note": "Beispielbild (Beispielbestand) – T-Shirt mit verblasster Stelle an der Schulter, Reklamation zu PC-2026-90005."
   }
 ]

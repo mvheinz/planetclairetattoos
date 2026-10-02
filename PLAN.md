@@ -4214,7 +4214,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     Überspringen, Exporte ohne Seed).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P8.5a Reklamationen, Datenschutz-Anfragen und Status-Abdeckung** – Ergänzungen des Beispielbestands laut
+- [x] **P8.5a Reklamationen, Datenschutz-Anfragen und Status-Abdeckung** – Ergänzungen des Beispielbestands laut
   SEED-SPEC (Mengen in §0.1): Reklamationen RK1–RK4 (`complaints`, DATENMODELL §6.29, SEED-SPEC §10a) – je Wert aus
   `COMPLAINT_STATUSES` eine, jeweils an einer bezahlten Seed-Bestellung nach Versand bzw. Übergabe; Datenschutz-Anfragen
   DS1–DS5 (`privacy-requests`, DATENMODELL §6.26, SEED-SPEC §11a) – je Wert aus `PRIVACY_REQUEST_STATUSES` eine, ohne
