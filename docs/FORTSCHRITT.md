@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.3
+
+- Geschlossene Token-Liste in `src/lib/legal/tokens.ts` (= R-012 = DATENMODELL §6.12 = KANZLEI-BRIEFING §16.3, Unit-Abgleich); `{{returnCostsNote}}` aus dem aktiven Baustein; Bausteine nur R-012- plus eigene Kontext-Tokens.\n- Prüfungen vor dem Veröffentlichen (`checkLegalText`/`checkLegalSnippet`): Widerrufs-URL Pflicht (R-095), OS-Link (V-01) und Steuerhinweis im KU-Modus (V-02) gesperrt; `activateLegalText(req, id, { validFrom, now })` und `activateLegalSnippet` planen bzw. aktivieren, `jobAlarm.bump(validFrom)`.\n- Task `activateScheduledLegalTexts` (Migration `p6_activate_legal_job`, im Job-Wecker); HTML-Bereinigung `sanitize-html` 2.18.0 mit Allowlist KANZLEI-BRIEFING §1.2; Platzhalter-Belehrung mit `Telefon: {{phone}}`.\n- Tests: render-tokens.unit (5), legal-texts.int (+4 R-012), activate-legal-texts.int; volle Int-Suite 105 Dateien grün (ohne preview-export).
+
 ## 2026-10-02 – P6.2
 
 - Geprüft: `privacy-requests` (§6.26), `deletion-log` + `writeDeletionLog` (§6.27), `privacyFields()` an orders/withdrawals/inquiries, `orders.timestamps.finalStatusAt` – vorhanden seit P1.\n- Verdrahtet: Audit `legal_hold_changed`/`processing_restricted` (ohne Begründungstext), Zeitstempel über die Request-Uhr; Reklamationen mit `carrierClaimDueAt` (Zustellung + 7 Tage) und `warrantyEndsAt` (+ 12 Monate bei Reparatur), Audit `complaint_changed`; virtuelles `orders.warrantyEndsAt`.\n- Tests: no-versions.unit (R-154, 12), complaints-model.int (4), Zugriffsmatrix (privacy-requests, deletion-log, complaints anonym 403).

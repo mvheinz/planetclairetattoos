@@ -3225,7 +3225,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     Erweiterung T-14/T-15.
   - Ohne Jutta: –
 
-- [ ] **P6.3 Rechtstext-Renderer: Tokens, Bereinigung, Aktivierung, PDF** – `src/lib/legal/render.ts` (vorhandene
+- [x] **P6.3 Rechtstext-Renderer: Tokens, Bereinigung, Aktivierung, PDF** – `src/lib/legal/render.ts` (vorhandene
   Teile aus P4 wiederverwenden). Kanonische Tokens nach R-012 und KANZLEI-BRIEFING §16.3: `{{name}}`, `{{street}}`,
   `{{postalCode}}`, `{{city}}`, `{{email}}`, `{{phone}}`, `{{wIdNr}}`, `{{ustIdNr}}`, `{{siteUrl}}`, `{{withdrawalUrl}}`
   (absolute URL von R26 in der Sprache der Fassung), `{{shippingTable}}`, `{{deliveryTime}}`, `{{vorkasseDays}}`,
