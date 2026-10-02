@@ -2,6 +2,11 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P7.12
+
+- Dienst `src/lib/commission/submit.ts` + Server Action `submitCommissionInquiry`: Honeypot/Zeitfalle (< 3 s) → Schein-Erfolg, Rate-Limits 5/h und 20/Tag → 429, Grenzen laut DATENMODELL, Anlage AA-JJJJ-NNNN, Bilder nur mit Ticket (gleiche Frist L-10), M11 (neue Vorlage `inquiry_receipt`) und A05 über die Outbox, doppeltes Absenden → ein Datensatz.
+- Tests: `tests/int/commission/submit.int.spec.ts` (6), `tests/unit/email/inquiry-receipt.unit.spec.ts` (5, Snapshots DE/EN).
+
 ## 2026-10-02 – P7.11
 
 - `POST /api/uploads/commission` (`src/lib/commission/upload.ts`): Formular-Token (HKDF `pc:form-token:v1`, 2 h, Kopf `x-form-token`), Rate-Limit `commission_upload` 15/h, > 4,5 MB → 413, Typ am Inhalt (sharp) sonst 415, Neukodierung ohne EXIF/GPS, `private-uploads` `pending` mit Löschung nach 24 h, Antwort `{ uploadId, ticket }`, 6. Upload je Formular → 409.

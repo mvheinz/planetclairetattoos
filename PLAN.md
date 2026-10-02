@@ -3920,7 +3920,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
   - Tests: `tests/int/commission/upload.int.spec.ts` (Titel „R-135 …“, „AK-10-04 …“).
   - Ohne Jutta: –
 
-- [ ] **P7.12 Anfrage absenden: Server Action und Dienst** – Server Action `submitCommissionInquiry` (progressiv) und
+- [x] **P7.12 Anfrage absenden: Server Action und Dienst** – Server Action `submitCommissionInquiry` (progressiv) und
   Dienst `src/lib/commission/submit.ts` (KONZEPT §10, R-160, DATENMODELL §6.17): Felder mit DATENMODELL-Namen und
   -Grenzen: `name` 2–100, `email` gültig ≤ 254, `objectType` aus `INQUIRY_OBJECT_TYPES` (Auswahl-Texte: Cap, Shirt,
   Textil sonstiges, Teller, Schale, Tasse, Fliese, Zeichnung/Bild, Schmuck, Etwas anderes), `objectTypeOther` 2–80 bei
