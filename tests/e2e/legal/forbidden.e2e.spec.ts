@@ -155,6 +155,87 @@ function scanP3(html: string): string[] {
   return [...out, ...instagramFindings(html)]
 }
 
+// P6.13 (PLAN „Automatische Verbotsprüfungen“): weitere Muster über alle gecrawlten Seiten.
+/** V-27: erlaubte Ziele externer Links (RECHT §5: Instagram, DHL-Sendungsverfolgung, EU-Infoseite, Schlichtungsstelle). */
+export const EXTERNAL_LINK_ALLOWLIST: readonly { host: RegExp; reason: string }[] = [
+  {
+    host: /^(www\.)?instagram\.com$/,
+    reason: 'Instagram-Profil als einfacher Link (E-51, R-139).',
+  },
+  { host: /^ig\.me$/, reason: 'Instagram-Direktnachricht (E-51).' },
+  { host: /^www\.dhl\.de$/, reason: 'Sendungsverfolgung (R-082).' },
+  {
+    host: /^europa\.eu$/,
+    reason: 'EU-Infoseite der harmonisierten Gewährleistungs-Mitteilung (R-049).',
+  },
+  {
+    host: /^www\.universalschlichtungsstelle\.de$/,
+    reason: 'Verbraucherschlichtung (§ 37 VSBG, R-112).',
+  },
+  {
+    host: /^(www\.)?safer-tattoo\.de$/,
+    reason: 'Safer-Tattoo-Infoseite (Tattoo-Bereich, RECHT V-27).',
+  },
+]
+/** V-31: Seiten, auf denen die Straße aus den Stammdaten stehen darf (Impressum, Rechtstexte, Konformitätserklärungen). */
+export const STREET_ALLOWED_ROUTES: readonly { routeId: string; reason: string }[] = [
+  { routeId: 'R21', reason: 'Impressum (§ 5 DDG).' },
+  { routeId: 'R22', reason: 'Datenschutzerklärung: Verantwortliche (Art. 13 DSGVO).' },
+  { routeId: 'R23', reason: 'AGB: Anbieterin.' },
+  { routeId: 'R24', reason: 'Widerrufsbelehrung und Muster-Formular: Adressatin des Widerrufs.' },
+  { routeId: 'R25', reason: 'Versand & Zahlung (Rechtstext): Abholung/Rücksendung.' },
+  { routeId: 'R27', reason: 'Konformitätserklärungen: Herstellerangaben (GPSR).' },
+]
+const V11_PAGE =
+  /(innerhalb|binnen)\s+(von\s+)?\d+\s+Tag(en)?.{0,60}(sonst|andernfalls|ausgeschlossen|erlischt|verfällt)/iu
+const V18_PAGE = /Garantie|garantiert/iu
+
+let street: Promise<string> | undefined
+const businessStreet = () =>
+  (street ??= testPayload()
+    .then((payload) => payload.findGlobal({ slug: 'settings', depth: 0, overrideAccess: true }))
+    .then((s) => ((s as { business?: { street?: string } }).business?.street ?? '').trim()))
+
+/** P6.13-Muster: V-11/V-18 im sichtbaren Text, V-27 externe Links, V-28 Audio, V-31 Straße außerhalb der Pflichtorte. */
+function scanP6(html: string, routeId: string, streetName: string): string[] {
+  const out: string[] = []
+  const text = visibleText(html).all
+  if (V11_PAGE.test(text)) out.push('V-11 Rügefrist')
+  const g = V18_PAGE.exec(text)
+  if (g) out.push(`V-18 „${g[0]}“ … ${text.slice(Math.max(0, g.index - 40), g.index + 40)}`)
+  const $ = cheerio.load(html)
+  $('a[href]').each((_, a) => {
+    const href = $(a).attr('href') ?? ''
+    if (!/^https?:\/\//i.test(href)) return
+    const host = new URL(href).hostname
+    if (/^(localhost|127\.0\.0\.1)$|(^|\.)planetclairetattoos\.com$/.test(host)) return
+    if (!EXTERNAL_LINK_ALLOWLIST.some((e) => e.host.test(host))) out.push(`V-27 ${href}`)
+  })
+  if ($('audio').length > 0 || /<audio\b/i.test(html)) out.push('V-28 audio')
+  if (streetName && !STREET_ALLOWED_ROUTES.some((r) => r.routeId === routeId)) {
+    const $$ = cheerio.load(html)
+    $$('script, style, noscript, template, [data-product-safety]').remove()
+    if ($$('body').text().includes(streetName)) out.push(`V-31 Straße „${streetName}“`)
+  }
+  return out
+}
+
+test('V-27 V-28 V-31 V-11 V-18 Gegenprobe: Fremdlink, Audio, Straße, Rügefrist und „Garantie“ werden erkannt', () => {
+  const page = (body: string) => `<html><body>${body}</body></html>`
+  const ids = (body: string, route = 'R01') =>
+    scanP6(page(body), route, 'Werkstattweg 7').map((f) => f.split(' ')[0])
+  expect(ids('<a href="https://mystaelectric.com/">Link</a>')).toEqual(['V-27'])
+  expect(ids('<a href="https://www.instagram.com/planet.claire.tattoos/">IG</a>')).toEqual([])
+  expect(ids('<audio src="/planet-claire.mp3"></audio>')).toEqual(['V-28'])
+  expect(ids('<p>Werkstattweg 7, 10999 Berlin</p>')).toEqual(['V-31'])
+  expect(ids('<p>Werkstattweg 7, 10999 Berlin</p>', 'R21')).toEqual([])
+  expect(ids('<div data-product-safety><p>Werkstattweg 7</p></div>', 'R04')).toEqual([])
+  expect(ids('<p>Mängel innerhalb von 7 Tagen melden, sonst erlischt der Anspruch.</p>')).toEqual([
+    'V-11',
+  ])
+  expect(ids('<p>2 Jahre Garantie</p>')).toEqual(['V-18'])
+})
+
 test('Registry: alle live-Routen sind im Verbotsmuster-Scan abgedeckt', () => {
   // Token-Seiten (R08, R09) scannen ihre eigenen Suiten mit Fixture-Bestellungen (`scanHtml`).
   const live = ROUTES.filter((r) => r.status === 'live' && (!r.paths || hasSamplePath(r))).map(
@@ -207,7 +288,7 @@ test('Steuermodus der Test-Datenbank ist Kleinunternehmer (Voraussetzung für V-
 })
 
 for (const visit of visits) {
-  test(`RECHT §5 V-01/V-02 kein Verbotsmuster im HTML: ${visit.name}`, async ({
+  test(`V-01 V-02 V-03 V-05–V-08 V-10–V-21 V-26–V-28 V-31 kein Verbotsmuster im HTML: ${visit.name}`, async ({
     request,
   }, testInfo) => {
     if (visit.once) onlyOnce(testInfo.project.name)
@@ -218,6 +299,8 @@ for (const visit of visits) {
     expect(scanHtml(html), visit.path).toEqual([])
     // P3.16 auf allen Seiten: sichtbarer Text und Markup (V-13, V-16, V-20, EK-09, R-139).
     expect(scanP3(html), visit.path).toEqual([])
+    // P6.13: V-11, V-18, V-27 (externe Links nur aus der Allowlist), V-28 (kein Audio), V-31 (Straße nur an Pflichtorten).
+    expect(scanP6(html, visit.name.split(' ')[0]!, await businessStreet()), visit.path).toEqual([])
   })
 }
 
@@ -416,7 +499,8 @@ test.describe('P4.25 Verbotsmuster: Korb, Kasse, Danke, Status und Mails', () =>
         [vorkasse[0]!.email]: ['prepayment_instructions', 'prepayment_received'],
         [vorkasse[1]!.email]: ['prepayment_cancelled', 'prepayment_instructions'],
       }
-      const site = new URL(page.url()).origin
+      // Links der Mails baut der Server aus NEXT_PUBLIC_SITE_URL (unabhängig vom Port des Testservers).
+      const site = process.env.NEXT_PUBLIC_SITE_URL || new URL(page.url()).origin
       const mailFindings: string[] = []
       for (const [email, types] of Object.entries(want)) {
         await expect

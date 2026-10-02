@@ -2,8 +2,8 @@ import 'server-only'
 
 // Streitbeilegung nach § 37 VSBG (R-112, KONZEPT M13): zuständige Stelle für ungelöste Streitfälle in Textform ist die
 // Universalschlichtungsstelle des Bundes. Diese Angaben stehen im Baustein `dispute.vsbg37`; fehlen Anschrift oder URL
-// in einer späteren Fassung, ergänzt die Mail M13 sie aus diesen Konstanten. Kein Link und kein Text zur
-// EU-OS-Plattform (V-01, OS-Plattform seit 20.07.2025 abgeschaltet).
+// in einer späteren Fassung, ergänzt die Mail M13 sie aus diesen Konstanten. Nie ein Verweis auf die abgeschaltete
+// EU-Streitbeilegungsplattform (V-01, seit 20.07.2025 abgeschaltet).
 
 export const UNIVERSAL_SCHLICHTUNGSSTELLE = Object.freeze({
   name: 'Universalschlichtungsstelle des Bundes, Zentrum für Schlichtung e. V.',

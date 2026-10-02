@@ -52,7 +52,7 @@ test('Registry: alle live-Routen sind abgedeckt @privacy', () => {
 
 test.describe('Datenschutz: keine Cookies, kein Speicher, keine Fremd-Requests @privacy', () => {
   for (const visit of visits) {
-    test(`T-03/T-04 R-130/R-131 ${visit.name} ${visit.path} @privacy`, async ({
+    test(`R-130 R-131 T-03/T-04 ${visit.name} ${visit.path} @privacy`, async ({
       page,
       context,
       foreignRequests,
@@ -75,7 +75,7 @@ test.describe('Datenschutz P3: Varianten und Zustände von R02–R05 @privacy', 
   holdListData(test, 'shared')
 
   for (const p of P3_PAGES) {
-    test(`T-03/T-04 R-130/R-131 EK-04 EK-05 ${p.name} ${p.path} @privacy`, async ({
+    test(`R-130 R-131 T-03/T-04 EK-04 EK-05 ${p.name} ${p.path} @privacy`, async ({
       page,
       context,
       foreignRequests,
@@ -85,7 +85,7 @@ test.describe('Datenschutz P3: Varianten und Zustände von R02–R05 @privacy', 
   }
 
   for (const locale of LOCALES) {
-    test(`T-03/T-04 R-130/R-131 R04 404-Variante „Schon ein Zuhause“ (Fixture analog S08) ${locale} @privacy`, async ({
+    test(`R-130 R-131 T-03/T-04 R04 404-Variante „Schon ein Zuhause“ (Fixture analog S08) ${locale} @privacy`, async ({
       page,
       context,
       foreignRequests,
