@@ -8,6 +8,11 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 
 
 
+
+## 2026-10-02 – P5 CI grün
+
+- Phasenlauf `[ci:full p5]` (ed37101): CI full (e2e desktop/iphone-15/pixel-7, quality inkl. Lighthouse) und Vorschau-Export grün, Artefakt `planet-claire-vorschau-p5-ed37101`; schneller Lauf nach gitleaks-Ausnahme (47a0605) grün.
+
 ## 2026-10-02 – P5 CI-Reparaturen (3)
 
 - Phasenlauf 4 (ed37101): CI full und Vorschau-Export grün (Artefakt `planet-claire-vorschau-p5-ed37101`); im schnellen Lauf meldete der Geheimnis-Scan einen Fehlalarm (Vorlagen-Kennung `dispute_vsbg37`) → eng begrenzte Ausnahme in `.gitleaks.toml`, lokal 241 Commits ohne Fund.

@@ -3140,10 +3140,10 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   frühester Phase ≤ 5 und Test-Art ≠ nur „manuell“ steht in mindestens einem Testtitel).
 - [x] Nachweise im PR-Text: AK-5-01/AK-5-02 (Produkt, Bestellung, Anfrage), AK-6-01 (A01–A17), AK-7-01 bis AK-7-06,
   AK-8-01, AK-8-02, AK-8-04, EK-08 sowie die R-IDs aus „Referenzen“ je mit Testdatei.
-- [ ] CI grün: Der Phasenende-Commit (z. B. `chore(P5): finish phase [ci:full p5]`, der letzte Commit ohne
+- [x] CI grün: Der Phasenende-Commit (z. B. `chore(P5): finish phase [ci:full p5]`, der letzte Commit ohne
   `[skip ci]`) hat `CI / quick`, `ci-full` (`e2e-full` inkl. `@a11y` und `@privacy`, `quality`) und `preview-export`
   grün durchlaufen. Dieses Häkchen setzt ein reiner Doku-Commit mit `[skip ci]`, nachdem der Lauf grün ist.
-- [ ] Vorschau-Artefakt `planet-claire-vorschau-p5-<sha7>` enthält Bildschirmfotos aller in P5 gebauten Admin-Ansichten
+- [x] Vorschau-Artefakt `planet-claire-vorschau-p5-<sha7>` enthält Bildschirmfotos aller in P5 gebauten Admin-Ansichten
   (390×844); `/tattoo` erscheint als „kommt in P7“.
 - [x] `docs/FORTSCHRITT.md` mit Phasen-Eintrag; PR-Beschreibung nach Vorlage aktualisiert; neue Annahmen in
   `docs/OFFENE-PUNKTE.md` (mindestens: Deutsche-Post-Tracking-Vorlage, DATEV-Format, Verpackungsgewichte,
