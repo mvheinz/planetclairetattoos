@@ -139,7 +139,8 @@ describe('Widerruf annehmen (R-093)', () => {
       channel: 'online_form',
       status: 'received',
       receivedAt: T_SUMMER,
-      refundDueAt: '2026-10-26T12:03:27.000Z',
+      // 14 Berliner Kalendertage (P6.9): 26.10. 14:03 MEZ – über die Zeitumstellung am 25.10.
+      refundDueAt: '2026-10-26T13:03:27.000Z',
       locale: 'de',
     })
     expect(doc.submissionSnapshot).toMatchObject({

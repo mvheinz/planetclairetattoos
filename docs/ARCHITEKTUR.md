@@ -2602,7 +2602,7 @@ widersprüchlichen Fristen gilt für Löschungen LOESCHKONZEPT, für Abläufe KO
 | `activateScheduledLegalTexts` | maintenance | Weckzeit `validFrom` | – | `activateScheduledLegalTexts` | – |
 | `revalidateEndedOffers` | maintenance | Weckzeit exakt `startsAt` bzw. `endsAt` jedes Angebots; tägliches Sicherheitsnetz ab 00:05 Berlin | `offers-expiry` | `revalidateEndedOffers` | – |
 | `markDelivered` | commerce | täglich (automatisch 10 Berliner Kalendertage nach dem Versandtag, `deliveredSource = auto`) | `mark-delivered` | – (fehlt) | – |
-| `withdrawalDeadlines` | commerce | täglich | `withdrawal-deadlines` | – (fehlt) | – |
+| `withdrawalDeadlines` | commerce | täglich ab 08:00 Berlin (A13 je Widerruf einmal ab Tag 10, ohne Beispieldaten) | `withdrawal-deadlines` | – (fehlt) | – |
 | `legalReviewReminder` | maintenance | täglich | `legal-review-reminder` | `legalReviewReminder` | `legalTextsAnnualReview` |
 | `revenueGuardCheck` | maintenance | täglich und bei Bedarf | `revenue-watchdog` | `revenueGuardCheck` | `revenueWatchdog` |
 | `monthlyClose` | documents | monatlich am 1. | `monthly-close` (ohne Prüfsummen) | – (fehlt) | – |

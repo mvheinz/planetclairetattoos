@@ -1280,6 +1280,8 @@ sind gefilterte Listen dieser Collection.
 | ↳ `status` | select `RefundStatus` | R | – | `pending` | – | – |
 | ↳ `stripeRefundId` | text | – | – | – | – | – |
 | ↳ `manualTransferConfirmedAt` | date | – | – | – | Vorkasse-Erstattung per Überweisung | – |
+| ↳ `withdrawal` | relationship → `withdrawals` | – | – | – | Erstattung zu diesem Widerruf (W4/W6 nach Erfolg, P6.10) | – |
+| ↳ `note` | text | – | – | – | ≤ 300; Pflicht, wenn der Betrag über dem Vorschlag liegt (P6.10) | – |
 | ↳ `creditNote` | relationship → `invoices` | – | – | – | – | – |
 | ↳ `createdAt` | date | R | – | now | – | – |
 | `dispute.status` | select `DisputeStatus` | S | – | `none` | – | – |
@@ -1581,6 +1583,7 @@ Auch Erklärungen ohne passende Bestellung werden angenommen und manuell zugeord
 | `returnTrackingNumber` | text | – | – | – | ≤ 40 | – |
 | `returnProofReceivedAt` | date | – | – | – | ≤ heute | „Rücksendenachweis liegt vor“ – beendet wie `goodsReturnedAt` das Zurückbehaltungsrecht (R-072, § 357 Abs. 4 BGB) |
 | `goodsReturnedAt` / `refundedAt` / `closedAt` / `rejectedAt` | date | S | – | – | beim jeweiligen Statuswechsel | – |
+| `returnConditionNote` | textarea | – | – | – | ≤ 500 | Zustandsnotiz bei „Ware ist zurück“ (W3, P6.9) |
 | `closeReason` | select `WithdrawalCloseReason` | R bei `closed` | – | – | – | Grund „ohne Erstattung abgeschlossen“ (KONZEPT §5.4 W5) |
 | `closeNote` | text | R bei `rejected` und bei `closeReason = other` | – | – | 10–300 | Begründung |
 | `deadlineReminderSentAt` | date | S | – | – | einmalig durch Task `withdrawalDeadlines` (Tag 10 ohne Erstattung) | – |

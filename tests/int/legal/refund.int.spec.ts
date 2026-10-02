@@ -118,6 +118,8 @@ const creditNote = async (id: unknown) =>
 beforeAll(async () => {
   payload = await getTestPayload()
   await deleteCommerce(payload)
+  // Gutschrift-PDFs früherer Läufe (Nummern beginnen nach dem Löschen wieder bei 1, R-122 überschreibt nie)
+  await dbOf(payload).execute(sql`DELETE FROM private_uploads WHERE purpose = 'credit_note_pdf'`)
   await deleteProducts(payload, NUMBERS)
   restoreBusiness = await withBusiness(payload)
   const fx = await createProductFixtures(payload)
