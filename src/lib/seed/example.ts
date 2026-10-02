@@ -6,10 +6,7 @@ import path from 'node:path'
 import type { CollectionSlug, Payload, PayloadRequest } from 'payload'
 import sharp from 'sharp'
 
-import { computeShipping, type ShippingSettings } from '@/lib/commerce/shipping'
-import type { Locale, ShippingClass } from '@/lib/enums'
-import { buildCharacteristics, type CharacteristicsInput } from '@/lib/products/characteristics'
-import { pickLocale, type LocalizedValue } from '@/lib/products/localized'
+import type { Locale } from '@/lib/enums'
 import type { Clock } from '@/lib/time'
 
 import { seedOp, seedStep } from './context'
@@ -22,7 +19,8 @@ import { simplePdf } from './pdf'
 import type { SeedReport } from './report'
 import type { PageBlockSeed, ProductSeed } from './schemas'
 import { seedIso } from './time'
-import { seedTokenHash } from './tokens'
+import { seedReservationRef } from './orderPlan'
+import { importCheckouts, importOrders, importReservations } from './orders'
 import { findBySeedKey, upsertBySeedKey } from './upsert'
 
 // Beispielbestand (SEED-SPEC §1.7 Schritte 3–9). P1 legt nur den Mini-Satz an (W-21, DATENMODELL §13.1); P8 ergänzt
@@ -38,6 +36,7 @@ export const EXAMPLE_STEPS = [
   'products',
   'pages',
   'checkouts',
+  'orders',
   'reservations',
 ] as const
 
@@ -49,6 +48,8 @@ export interface ExampleOptions {
   clock: Clock
   refreshMedia?: boolean
   only?: readonly string[]
+  /** `APP_ENV` (Mock-Zustand der Kassen). */
+  appEnv?: string
   /** Projektwurzel (Instagram-Bilder, Platzhalter-SVGs); Standard `process.cwd()`. */
   root?: string
 }
@@ -64,6 +65,7 @@ export function hasExampleData(data: SeedData): boolean {
       data.privateUploads.length +
       data.products.length +
       data.orders.checkouts.length +
+      data.orders.orders.length +
       data.pages.length >
     0
   )
@@ -257,9 +259,6 @@ async function productData(
   if (typeof note === 'string') en.dimensions = { note }
 
   const t = (expr: string | undefined) => (expr ? seedIso(expr, now) : undefined)
-  const checkout = state.reservationCheckout
-    ? data.orders.checkouts.find((c) => `checkouts:${c.key}` === state.reservationCheckout)
-    : undefined
   const sale: Obj = {
     status: state.status,
     firstPublishedAt: t(state.firstPublishedAt),
@@ -269,7 +268,9 @@ async function productData(
     offlineSaleNote: state.offlineSaleNote,
     showInArchiveAfterSale: state.showInArchiveAfterSale ?? true,
     reservedUntil: t(state.reservedUntil),
-    reservationRef: checkout?.reservationRef,
+    reservationRef: state.reservationCheckout
+      ? seedReservationRef(state.reservationCheckout.slice('checkouts:'.length))
+      : undefined,
   }
   for (const k of Object.keys(sale)) if (sale[k] === undefined) delete sale[k]
   return { de, en, sale }
@@ -415,119 +416,6 @@ async function importPages(req: PayloadRequest, data: SeedData, options: Example
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-// Kassen und Reservierungen (§7.3, §8)
-
-async function importCheckouts(req: PayloadRequest, data: SeedData, options: ExampleOptions) {
-  const t = (expr: string | undefined) => (expr ? seedIso(expr, options.now) : undefined)
-  const settings = (await req.payload.findGlobal({
-    slug: 'settings',
-    ...seedOp(req),
-  })) as unknown as ShippingSettings
-  for (const c of data.orders.checkouts) {
-    await upsertBySeedKey({
-      req,
-      report: options.report,
-      collection: 'checkouts',
-      seedKey: `checkouts:${c.key}`,
-      group: 'process',
-      create: async () => {
-        const items = []
-        for (const key of c.items) {
-          const id = await idOf(req, key)
-          const p = (await req.payload.findByID({
-            collection: 'products',
-            id,
-            locale: 'all',
-            ...seedOp(req),
-          })) as unknown as Obj & CharacteristicsInput
-          items.push({
-            product: id,
-            itemNumber: p.itemNumber,
-            titleDe: pickLocale(p.title as LocalizedValue, 'de'),
-            titleEn: pickLocale(p.title as LocalizedValue, 'en') || undefined,
-            category: p.category,
-            priceCents: p.priceCents,
-            vatCategory: p.vatCategory,
-            shippingClass: p.shippingClass,
-            characteristicsDe: buildCharacteristics(p, 'de'),
-            characteristicsEn: buildCharacteristics(p, 'en'),
-            ...(p.hasDeviation
-              ? { deviationText: pickLocale(p.deviationDescription as LocalizedValue, 'de') }
-              : {}),
-          })
-        }
-        const shipping = computeShipping(
-          items.map((i) => ({
-            itemNumber: i.itemNumber as number,
-            shippingClass: i.shippingClass as ShippingClass,
-          })),
-          c.fulfillmentMethod,
-          settings,
-        )
-        const subtotal = items.reduce((s, i) => s + (i.priceCents as number), 0)
-        return {
-          tokenHash: seedTokenHash(`checkouts:${c.key}`, 'checkout'),
-          status: c.status,
-          locale: c.locale,
-          reservationRef: c.reservationRef,
-          items,
-          fulfillmentMethod: c.fulfillmentMethod,
-          shippingZone: shipping.zone ?? undefined,
-          shippingClass: shipping.shippingClass,
-          subtotalCents: subtotal,
-          shippingCents: shipping.shippingCents,
-          totalCents: subtotal + shipping.shippingCents,
-          expiresAt: t(c.expiresAt),
-          displayExpiresAt: t(c.displayExpiresAt),
-          ...(c.paymentChoice ? { paymentChoice: c.paymentChoice } : {}),
-          ...(c.submittedAt ? { submittedAt: t(c.submittedAt) } : {}),
-          ...(c.closeReason ? { closeReason: c.closeReason } : {}),
-          stripe: {
-            checkoutSessionId: c.stripe.checkoutSessionId,
-            sessionExpiresAt: t(c.stripe.sessionExpiresAt),
-            sessionSeq: c.stripe.sessionSeq,
-            livemode: false,
-          },
-          mock: { state: { status: c.status, sessionId: c.stripe.checkoutSessionId } },
-          createdAt: t(c.createdAt),
-        }
-      },
-    })
-  }
-}
-
-async function importReservations(req: PayloadRequest, data: SeedData, options: ExampleOptions) {
-  const t = (expr: string | undefined) => (expr ? seedIso(expr, options.now) : undefined)
-  for (const r of data.orders.reservations) {
-    await upsertBySeedKey({
-      req,
-      report: options.report,
-      collection: 'reservations',
-      seedKey: `reservations:${r.key}`,
-      group: 'process',
-      create: async () => {
-        const checkout = data.orders.checkouts.find((c) => `checkouts:${c.key}` === r.checkout)
-        const out: Obj = {
-          ref: checkout?.reservationRef,
-          checkout: await idOf(req, r.checkout),
-          product: await idOf(req, r.product),
-          source: r.source,
-          status: r.status,
-          expiresAt: t(r.expiresAt),
-          displayExpiresAt: t(r.displayExpiresAt),
-          convertedAt: t(r.convertedAt),
-          releasedAt: t(r.releasedAt),
-          releaseReason: r.releaseReason,
-          createdAt: t(r.createdAt),
-        }
-        for (const k of Object.keys(out)) if (out[k] === undefined) delete out[k]
-        return out
-      },
-    })
-  }
-}
-
-// ---------------------------------------------------------------------------------------------------------------
 
 export async function importExample(
   payload: Payload,
@@ -548,9 +436,15 @@ export async function importExample(
   if (run('products')) await seedStep(payload, (req) => importProducts(req, data, options))
   if (run('pages')) await seedStep(payload, (req) => importPages(req, data, options))
   // Schritt 5: Kassen → (Bestellungen ab P8) → Reservierungen
-  if (run('checkouts')) await seedStep(payload, (req) => importCheckouts(req, data, options))
+  const process = {
+    report: options.report,
+    now: options.now,
+    appEnv: options.appEnv ?? 'development',
+  }
+  if (run('checkouts')) await seedStep(payload, (req) => importCheckouts(req, data, process))
+  if (run('orders')) await seedStep(payload, (req) => importOrders(req, data, process))
   if (run('reservations')) {
-    await seedStep(payload, (req) => importReservations(req, data, options))
+    await seedStep(payload, (req) => importReservations(req, data, process))
   }
   // Schritt 9: settings.seed
   await seedStep(payload, (req) =>

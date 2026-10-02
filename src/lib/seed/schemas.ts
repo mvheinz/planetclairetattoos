@@ -3,11 +3,15 @@ import 'server-only'
 import { z } from 'zod'
 
 import {
+  ATTENTION_REASONS,
+  CARRIERS,
   CHECKOUT_CLOSE_REASONS,
   CHECKOUT_PAYMENT_CHOICES,
   CHECKOUT_STATUSES,
   COCO_POSES,
+  DELIVERED_SOURCES,
   DEVIATION_DECISIONS,
+  DISPUTE_STATUSES,
   EN_TRANSLATION_STATUSES,
   FAQ_CATEGORIES,
   FIBER_COMPONENTS,
@@ -16,10 +20,17 @@ import {
   INTERNAL_LINK_TARGETS,
   LEGAL_TEXT_TYPES,
   LOCALES,
+  ORDER_CANCEL_REASONS,
+  ORDER_ITEM_STATUSES,
+  ORDER_STATUSES,
   PAGE_KEYS,
+  PAYMENT_METHODS,
+  PAYMENT_PROVIDERS,
   PRIVATE_UPLOAD_PURPOSES,
   PRODUCT_CATEGORIES,
   PRODUCT_STATUSES,
+  REFUND_REASONS,
+  REFUND_STATUSES,
   RESERVATION_RELEASE_REASONS,
   RESERVATION_SOURCES,
   RESERVATION_STATUSES,
@@ -245,8 +256,29 @@ export type ProductSeed = z.infer<typeof productSchema>
 // ---------------------------------------------------------------------------------------------------------------
 // orders.json (§7, §8): Kassen, Bestellungen (ab P8) und Reservierungen
 
+/** Erfundene Kund:innen (SEED-SPEC §6), nur Seed-intern; E-Mail nur `@example.com`/`@example.org` (AK-SEED-12). */
+export const customersSchema = z.array(
+  z.strictObject({
+    key: z.string().regex(/^C\d{2}$/),
+    name: text(),
+    email: z
+      .email()
+      .refine((m) => /@example\.(com|org)$/.test(m), 'nur @example.com oder @example.org (R-180)'),
+    address: z
+      .strictObject({
+        addressLine1: text(),
+        postalCode: z.string().regex(/^\d{5}$/),
+        city: text(),
+      })
+      .optional(),
+    locale: z.enum(LOCALES),
+  }),
+)
+export type CustomersData = z.infer<typeof customersSchema>
+
+/** Kasse ohne Bestellung (SEED-SPEC §7.3: KS1 abgelaufen, KS2 offen); Kassen der Bestellungen leitet der Seed ab. */
 export const checkoutSeedSchema = z.strictObject({
-  key: localKey,
+  key: z.string().regex(/^KS\d$/),
   status: z.enum(CHECKOUT_STATUSES),
   locale: z.enum(LOCALES),
   items: z.array(ref('products')).min(1).max(10),
@@ -254,10 +286,15 @@ export const checkoutSeedSchema = z.strictObject({
   shippingZone: z.enum(SHIPPING_ZONES).optional(),
   paymentChoice: z.enum(CHECKOUT_PAYMENT_CHOICES).optional(),
   reservationRef: z.uuid(),
+  /** Kund:in (erst nach dem Absenden bekannt). */
+  customer: ref('customers').optional(),
+  carrierEmailConsent: z.boolean().optional(),
   createdAt: timeExpr,
   displayExpiresAt: timeExpr,
   expiresAt: timeExpr,
   submittedAt: timeExpr.optional(),
+  confirmingAt: timeExpr.optional(),
+  expiredAt: timeExpr.optional(),
   closeReason: z.enum(CHECKOUT_CLOSE_REASONS).optional(),
   stripe: z.strictObject({
     checkoutSessionId: z.string().regex(/^cs_seed_[a-z0-9_]+$/),
@@ -280,10 +317,95 @@ export const reservationSeedSchema = z.strictObject({
   releaseReason: z.enum(RESERVATION_RELEASE_REASONS).optional(),
 })
 
+/** Zeitleiste einer Bestellung (SEED-SPEC §7.2) → `timestamps.*` und `statusHistory`. */
+export const ORDER_TIMELINE_KEYS = [
+  'placedAt',
+  'paidAt',
+  'packedAt',
+  'shippedAt',
+  'deliveredAt',
+  'readyForPickupAt',
+  'pickedUpAt',
+  'withdrawalReceivedAt',
+  'returnReceivedAt',
+  'refundedAt',
+  'cancelledAt',
+  'disputedAt',
+] as const
+export type OrderTimelineKey = (typeof ORDER_TIMELINE_KEYS)[number]
+
+const orderTimeline = z
+  .strictObject(
+    Object.fromEntries(ORDER_TIMELINE_KEYS.map((k) => [k, timeExpr.optional()])) as Record<
+      OrderTimelineKey,
+      z.ZodOptional<typeof timeExpr>
+    >,
+  )
+  .refine((t) => t.placedAt !== undefined, 'placedAt fehlt')
+
+export const orderSeedSchema = z.strictObject({
+  key: z.string().regex(/^O\d{2}$/),
+  orderNumber: z.string().regex(/^PC-2026-900\d{2}$/, 'Seed-Nummern PC-2026-900NN (§2.5)'),
+  status: z.enum(ORDER_STATUSES),
+  locale: z.enum(LOCALES),
+  customer: ref('customers'),
+  fulfillmentMethod: z.enum(FULFILLMENT_METHODS),
+  items: z
+    .array(
+      z.strictObject({
+        product: ref('products'),
+        status: z.enum(ORDER_ITEM_STATUSES).optional(),
+        refundedCents: cents.optional(),
+      }),
+    )
+    .min(1),
+  payment: z.strictObject({
+    method: z.enum(PAYMENT_METHODS),
+    provider: z.enum(PAYMENT_PROVIDERS),
+    /** `stripe.paymentMethodType` (card, apple_pay, google_pay, paypal). */
+    methodType: z.enum(['card', 'apple_pay', 'google_pay', 'paypal']).optional(),
+    feeCents: cents.optional(),
+  }),
+  carrierEmailConsent: z.boolean(),
+  timeline: orderTimeline,
+  prepayment: z.strictObject({ reminderSentAt: timeExpr.optional() }).optional(),
+  shipment: z
+    .strictObject({
+      carrier: z.enum(CARRIERS),
+      trackingNumber: z.string().regex(/^[A-Z0-9]{8,35}$/),
+      deliveredSource: z.enum(DELIVERED_SOURCES).optional(),
+    })
+    .optional(),
+  refunds: z
+    .array(
+      z.strictObject({
+        amountCents: cents.positive(),
+        reason: z.enum(REFUND_REASONS),
+        /** Positionen `<Order>-L<n>`. */
+        itemIds: z.array(z.string().regex(/^O\d{2}-L\d+$/)).min(1),
+        includesShipping: z.boolean(),
+        status: z.enum(REFUND_STATUSES),
+        createdAt: timeExpr,
+      }),
+    )
+    .optional(),
+  cancelReason: z.enum(ORDER_CANCEL_REASONS).optional(),
+  dispute: z
+    .strictObject({ status: z.enum(DISPUTE_STATUSES), stripeDisputeId: z.string() })
+    .optional(),
+  adminAttention: z
+    .strictObject({ flag: z.boolean(), reason: z.enum(ATTENTION_REASONS), note: text() })
+    .optional(),
+  packingPhotos: z.array(ref('private-uploads')).optional(),
+  notes: text().optional(),
+})
+export type OrderSeed = z.infer<typeof orderSeedSchema>
+
 export const ordersSchema = z.strictObject({
   checkouts: z.array(checkoutSeedSchema),
-  /** Bestellungen O01–O14 folgen in P8 (SEED-SPEC §7). */
-  orders: z.array(z.never()).max(0),
+  /** Bestellungen O01–O14 (SEED-SPEC §7); ihre Kassen und Reservierungen leitet der Seed ab (§7.3, §8). */
+  orders: z.array(orderSeedSchema),
+  /** Reservierungen der Kassen ohne Bestellung (KS1, KS2). */
   reservations: z.array(reservationSeedSchema),
 })
 export type OrdersData = z.infer<typeof ordersSchema>
@@ -349,6 +471,7 @@ export type PagesData = z.infer<typeof pagesSchema>
 
 export const SEED_FILE_SCHEMAS = {
   'base.json': baseSchema,
+  'customers.json': customersSchema,
   'media.json': mediaSchema,
   'private-uploads.json': privateUploadsSchema,
   'products.json': productsSchema,

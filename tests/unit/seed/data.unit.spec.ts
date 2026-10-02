@@ -9,6 +9,7 @@ import { PRODUCT_CATEGORIES, PRODUCT_STATUSES } from '@/lib/enums'
 import { lintProductText } from '@/lib/legal/forbidden'
 import { cropPixels } from '@/lib/seed/example'
 import { fallbackArtSvg, placeholderArtWebp } from '@/lib/seed/fallbackArt'
+import { expectedCount } from '@/lib/seed/expected'
 import { loadSeedData, SEED_DATA_DIR } from '@/lib/seed/loader'
 import { SEED_FILE_SCHEMAS } from '@/lib/seed/schemas'
 import { CANONICAL_SEED_NOW } from '@/lib/seed/time'
@@ -23,8 +24,6 @@ const now = new Date(CANONICAL_SEED_NOW)
 const dir = path.join(process.cwd(), SEED_DATA_DIR)
 const EXAMPLE_FILES = Object.keys(SEED_FILE_SCHEMAS).filter((f) => f !== 'base.json')
 
-const MINI = ['S01', 'S06', 'S09', 'S11', 'S15', 'S18', 'S20', 'S25', 'S26', 'S27']
-
 async function raw(file: string): Promise<string> {
   return readFile(path.join(dir, file), 'utf8')
 }
@@ -32,13 +31,17 @@ async function raw(file: string): Promise<string> {
 describe('Seed-Datendateien (zod, SEED-SPEC §2.1)', () => {
   it('alle Dateien bestehen ihr zod-Schema und die dateiübergreifende Prüfung', async () => {
     const data = await loadSeedData({ dir, now, requireBase: true })
-    expect(data.products.map((p) => p.key)).toEqual(MINI)
-    expect(new Set(data.products.map((p) => p.state.status))).toEqual(new Set(PRODUCT_STATUSES))
-    expect(new Set(data.products.map((p) => p.category))).toEqual(
-      new Set(PRODUCT_CATEGORIES.filter((c) => c !== 'sonstiges')),
+    expect(data.products.map((p) => p.key)).toEqual(
+      Array.from(
+        { length: expectedCount('products') },
+        (_, i) => `S${String(i + 1).padStart(2, '0')}`,
+      ),
     )
-    expect(data.orders.checkouts.map((c) => c.key)).toEqual(['KS2'])
-    expect(data.orders.reservations.map((r) => r.key)).toEqual(['KS2'])
+    expect(new Set(data.products.map((p) => p.state.status))).toEqual(new Set(PRODUCT_STATUSES))
+    expect(new Set(data.products.map((p) => p.category))).toEqual(new Set(PRODUCT_CATEGORIES))
+    expect(data.orders.orders).toHaveLength(expectedCount('orders'))
+    expect(data.orders.checkouts.map((c) => c.key)).toEqual(['KS1', 'KS2'])
+    expect(data.orders.reservations.map((r) => r.key)).toEqual(['KS1', 'KS2'])
     // §4.4: Nachweise (P1), Packfotos O12 und Skizze A2 (P8.2); Reklamationsfotos folgen mit P8.5a
     expect(data.privateUploads.map((u) => u.key)).toEqual(
       expect.arrayContaining([
@@ -57,6 +60,8 @@ describe('Seed-Datendateien (zod, SEED-SPEC §2.1)', () => {
       ...data.privateUploads.map((u) => `private-uploads:${u.key}`),
       ...data.products.map((p) => `products:${p.key}`),
       ...data.orders.checkouts.map((c) => `checkouts:${c.key}`),
+      ...data.orders.orders.map((o) => `orders:${o.key}`),
+      ...data.customers.map((c) => `customers:${c.key}`),
       ...data.orders.reservations.map((r) => `reservations:${r.key}`),
       ...data.pages.map((p) => `pages:${p.key}`),
     ]

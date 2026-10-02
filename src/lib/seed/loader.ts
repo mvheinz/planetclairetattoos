@@ -8,6 +8,7 @@ import type { z } from 'zod'
 import {
   SEED_FILE_SCHEMAS,
   type BaseData,
+  type CustomersData,
   type MediaData,
   type OrdersData,
   type PagesData,
@@ -15,6 +16,7 @@ import {
   type ProductSeed,
   type SeedFileName,
 } from './schemas'
+import { planOrder, seedReservationRef } from './orderPlan'
 import { resolveSeedTime } from './time'
 
 // Lader der Datendateien (SEED-SPEC §1.7 Schritt 1): alles oder nichts. Jede Datei wird mit ihrem zod-Schema geprüft,
@@ -25,6 +27,7 @@ export const SEED_DATA_DIR = path.join('content', 'seed', 'data')
 
 export interface SeedData {
   base: BaseData | null
+  customers: CustomersData
   media: MediaData
   privateUploads: PrivateUploadsData
   products: ProductSeed[]
@@ -42,6 +45,7 @@ export class SeedDataError extends Error {
 }
 
 const EMPTY: Omit<SeedData, 'base'> = {
+  customers: [],
   media: { instagram: [], placeholders: [] },
   privateUploads: [],
   products: [],
@@ -88,7 +92,13 @@ export function crossCheck(data: SeedData, now: Date): string[] {
   )
   const uploadKeys = new Set(data.privateUploads.map((u) => `private-uploads:${u.key}`))
   const productKeys = new Set(data.products.map((p) => `products:${p.key}`))
-  const checkoutKeys = new Set(data.orders.checkouts.map((c) => `checkouts:${c.key}`))
+  const checkoutKeys = new Set([
+    ...data.orders.checkouts.map((c) => `checkouts:${c.key}`),
+    ...data.orders.orders.map((o) => `checkouts:${o.key}`),
+  ])
+  const orderKeys = new Set(data.orders.orders.map((o) => `orders:${o.key}`))
+  const customerKeys = new Set(data.customers.map((c) => `customers:${c.key}`))
+  const productByKey = new Map(data.products.map((p) => [`products:${p.key}`, p]))
 
   const dupLists: [string, string[]][] = [
     ['media.json', [...mediaKeys.values()]],
@@ -97,6 +107,9 @@ export function crossCheck(data: SeedData, now: Date): string[] {
     ['products.json', data.products.map((p) => p.key)],
     ['products.json itemNumber', data.products.map((p) => String(p.itemNumber))],
     ['orders.json checkouts', data.orders.checkouts.map((c) => c.key)],
+    ['orders.json orders', data.orders.orders.map((o) => o.key)],
+    ['orders.json orderNumber', data.orders.orders.map((o) => o.orderNumber)],
+    ['customers.json', data.customers.map((c) => c.key)],
     ['orders.json reservations', data.orders.reservations.map((r) => r.key)],
     ['pages.json', data.pages.map((p) => p.key)],
   ]
@@ -130,13 +143,56 @@ export function crossCheck(data: SeedData, now: Date): string[] {
       time(`${where} state.${f}`, s[f])
     }
   }
+  for (const u of data.privateUploads) {
+    if (u.relatedOrder && !orderKeys.has(u.relatedOrder)) {
+      issues.push(`private-uploads.json ${u.key}: Bestellung ${u.relatedOrder} fehlt`)
+    }
+  }
   for (const c of data.orders.checkouts) {
     const where = `orders.json checkouts ${c.key}`
     for (const item of c.items) if (!productKeys.has(item)) issues.push(`${where}: ${item} fehlt`)
+    if (c.customer && !customerKeys.has(c.customer)) issues.push(`${where}: ${c.customer} fehlt`)
+    if (c.reservationRef !== seedReservationRef(c.key)) {
+      issues.push(`${where}: reservationRef muss ${seedReservationRef(c.key)} sein (§2.5)`)
+    }
     for (const f of ['createdAt', 'displayExpiresAt', 'expiresAt', 'submittedAt'] as const) {
       time(`${where} ${f}`, c[f])
     }
     time(`${where} stripe.sessionExpiresAt`, c.stripe.sessionExpiresAt)
+  }
+  for (const o of data.orders.orders) {
+    const where = `orders.json orders ${o.key}`
+    if (o.orderNumber !== `PC-2026-900${o.key.slice(1)}`) {
+      issues.push(`${where}: orderNumber muss PC-2026-900${o.key.slice(1)} sein (§2.5)`)
+    }
+    if (!customerKeys.has(o.customer)) issues.push(`${where}: ${o.customer} fehlt`)
+    for (const item of o.items) {
+      if (!productByKey.has(item.product)) issues.push(`${where}: ${item.product} fehlt`)
+    }
+    for (const k of o.packingPhotos ?? []) {
+      if (!uploadKeys.has(k)) issues.push(`${where}: ${k} fehlt`)
+    }
+    for (const [f, expr] of Object.entries(o.timeline)) time(`${where} timeline.${f}`, expr)
+    time(`${where} prepayment.reminderSentAt`, o.prepayment?.reminderSentAt)
+    for (const r of o.refunds ?? []) {
+      time(`${where} refunds.createdAt`, r.createdAt)
+      for (const id of r.itemIds) {
+        const n = Number(id.split('-L')[1])
+        if (!id.startsWith(`${o.key}-L`) || n < 1 || n > o.items.length) {
+          issues.push(`${where}: Position ${id} gibt es nicht`)
+        }
+      }
+    }
+    if (issues.length === 0) {
+      try {
+        planOrder(o, now, null)
+      } catch (e) {
+        issues.push(`${where}: ${(e as Error).message}`)
+      }
+    }
+    if (o.status === 'cancelled' && o.cancelReason !== 'payment_timeout') {
+      issues.push(`${where}: cancelled nur mit cancelReason payment_timeout (§7.1)`)
+    }
   }
   for (const r of data.orders.reservations) {
     const where = `orders.json reservations ${r.key}`
@@ -183,6 +239,7 @@ export async function loadSeedData(options: LoadOptions): Promise<SeedData> {
   if (options.requireBase && raw['base.json'] === undefined) issues.push('base.json fehlt')
   const data: SeedData = {
     base: base as BaseData | null,
+    customers: (parse('customers.json') as CustomersData | undefined) ?? EMPTY.customers,
     media: (parse('media.json') as MediaData | undefined) ?? EMPTY.media,
     privateUploads:
       (parse('private-uploads.json') as PrivateUploadsData | undefined) ?? EMPTY.privateUploads,

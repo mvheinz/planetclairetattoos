@@ -56,6 +56,7 @@ export async function runSeed(payload: Payload, options: RunSeedOptions): Promis
       clock: options.clock,
       refreshMedia: options.refreshMedia,
       only: options.only,
+      appEnv: options.appEnv,
     })
   const remove = async (keepTexts: boolean) => {
     const r = await removeSeedData(payload, { keepTexts, clock: options.clock })
