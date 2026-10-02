@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.8
+
+- R26 als zweistufige Widerrufsfunktion (Server Action mit `useActionState`, ohne JavaScript nutzbar): Schritt 1 → Auswahl der Stücke (nur bei passender Bestellnummer + E-Mail, keine Checkbox angehakt) → Schritt 2 mit „Ändern“ und „Widerruf bestätigen“ → Bestätigungsseite mit allen Angaben, Eingang (MEZ/MESZ), Vorgangsnummer, Mail-Hinweis, Drucken.
+- Eingaben reisen im signierten Formular-Token (HMAC, HKDF `pc:form-token:v1`, 6 h) per POST, nie in URL oder Cookie; Einmal-Kennung verhindert doppelte Datensätze bei Doppelklick.
+- Tests: `tests/int/legal/withdrawal-form.int.spec.ts` (7), `tests/e2e/legal/withdrawal-flow.e2e.spec.ts` (7 je Projekt, desktop + pixel-7, inkl. ohne JS, Tastatur, axe).
+
 ## 2026-10-02 – P6.21
 
 - E2E legal/processor-table (R-155, DE/EN, ohne JS) grün; Tabellen-Container per Tastatur erreichbar (axe R22)

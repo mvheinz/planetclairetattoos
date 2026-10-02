@@ -3342,7 +3342,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     `tests/int/email/withdrawal-retry.int.spec.ts` (Mail-Treiber mit Fehlermodus, vorgestellte Uhr).
   - Ohne Jutta: –
 
-- [ ] **P6.8 Widerrufsfunktion R26: Schritt 1, Auswahl, Schritt 2, Bestätigung** – Seite `withdraw-from-contract`
+- [x] **P6.8 Widerrufsfunktion R26: Schritt 1, Auswahl, Schritt 2, Bestätigung** – Seite `withdraw-from-contract`
   (DE `/de/vertrag-widerrufen`) mit Server Actions, funktioniert ohne JavaScript (KONZEPT §3.16, R-091, R-092): Schritt 1
   Pflichtfelder Name, Angaben zum Vertrag (Hinweis „z. B. PC-2026-00017 oder Bestelldatum und Stück“), E-Mail für die
   Eingangsbestätigung; optional „Nur bestimmte Stücke?“ (Freitext) und „Grund“ (klar freiwillig); Link zur

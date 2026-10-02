@@ -1,10 +1,12 @@
 import 'server-only'
 
 import config from '@payload-config'
+import { sql } from '@payloadcms/db-postgres'
 import { createLocalReq, getPayload, type Payload, type PayloadRequest } from 'payload'
 import { z } from 'zod'
 
 import { cancelPrepaymentOrder } from '@/lib/commerce/prepayment'
+import { dbFor } from '@/lib/db/tx'
 import { ORDER_TRANSITIONS } from '@/lib/commerce/orderTransitions'
 import { loadOrder, transitionOrder, updateOrderFields } from '@/lib/commerce/transitionOrder'
 import { notifyAdmin } from '@/lib/email/notifyAdmin'
@@ -90,6 +92,11 @@ export interface SubmitWithdrawalOptions {
   /** Client-IP nur für den Rate-Limit-Schlüssel (täglich wechselnder Hash, nie gespeichert am Datensatz). */
   ip?: string | null
   payload?: Payload
+  /**
+   * Einmal-Kennung des Formulars (R26, P6.8): ein zweites Absenden desselben Schritts 2 (Doppelklick, erneutes POST)
+   * liefert den schon gespeicherten Widerruf statt eines zweiten Datensatzes (ohne zweite Mail).
+   */
+  formNonce?: string | null
 }
 
 const isFilled = (v: unknown) => typeof v === 'string' && v.trim() !== ''
@@ -246,7 +253,38 @@ export async function submitWithdrawal(
   const receivedAt = now.toISOString()
 
   const req = await createLocalReq({ context: { system: true, now: receivedAt } }, payload)
+  const formNonce = options.formNonce?.slice(0, 64) || null
   const tx = await inTransaction(req, async () => {
+    if (formNonce) {
+      const db = await dbFor(req)
+      await db.execute(
+        sql`SELECT pg_advisory_xact_lock(hashtext(${`withdrawal-form:${formNonce}`}))`,
+      )
+      const dup = await db.execute(
+        sql`SELECT id FROM withdrawals WHERE submission_snapshot->>'formNonce' = ${formNonce} LIMIT 1`,
+      )
+      const dupId = dup.rows[0]?.id
+      if (dupId !== undefined) {
+        const doc = (await preservingReq(req, () =>
+          req.payload.findByID({
+            collection: 'withdrawals',
+            id: Number(dupId),
+            depth: 0,
+            overrideAccess: true,
+            req,
+          }),
+        )) as Withdrawal
+        return {
+          doc,
+          effect: {
+            unpaidOrderCancelled: doc.closeReason === 'unpaid_order_cancelled',
+            selectedItems: [],
+          },
+          items: [] as { itemNumber: number; title: string }[],
+          jobs: [] as (number | string)[],
+        }
+      }
+    }
     const created = (await preservingReq(req, () =>
       req.payload.create({
         collection: 'withdrawals',
@@ -268,6 +306,7 @@ export async function submitWithdrawal(
             locale: value.locale,
             receivedAt,
             receivedAtBerlin: formatBerlinWithZone(now, 'de'),
+            ...(formNonce ? { formNonce } : {}),
           },
         } as never,
         depth: 0,
