@@ -66,7 +66,6 @@ function TemplateCard({
       </h3>
       <p className="pc-order__meta">{def.purpose}</p>
       <p className="pc-order__muted">{adminText('textsTemplateFits', { fits: def.fits })}</p>
-      {def.replacedBy ? <p className="pc-order__muted">{def.replacedBy}</p> : null}
       {rendered?.ownerNote ? (
         <Notice tone="warning" data-testid="text-template-owner-note">
           {rendered.ownerNote}

@@ -94,7 +94,7 @@ test('@a11y „Texte“: Bereiche, Mail-Bausteine DE/EN, Vorlagen mit Bestellnum
       await expect(mail.getByTestId(`mail-text-${key}`).locator('textarea')).toHaveCount(2)
     }
     await expect(page.getByTestId('area-save-mailTexts')).toBeVisible()
-    await expect(page.getByTestId('text-template')).toHaveCount(4)
+    await expect(page.getByTestId('text-template')).toHaveCount(2)
     await expect(page.getByTestId('text-template').first()).toContainText('Arbeitsfassung')
     await expectNoHorizontalScroll(page)
     await expectAccessible(page, '.pc-admin-view')

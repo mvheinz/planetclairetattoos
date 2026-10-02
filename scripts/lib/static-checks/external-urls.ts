@@ -26,6 +26,8 @@ export const FILE_URL_ALLOWLIST: Record<string, RegExp[]> = {
   'src/lib/security/headers.ts': [/^https:\/\/js\.stripe\.com$/],
   // Erzeugte Dienstliste (P6.21): CSP-Hosts aus der DIENSTE-YAML für den T-16-Abgleich – Deklaration, kein Request
   'src/lib/legal/services.generated.ts': [/^https:\/\/(\*\.)?(js|hooks|api)\.stripe\.com$/],
+  // Website der Universalschlichtungsstelle in der Mail M13 (§ 37 VSBG, R-112) – Textangabe, kein Request
+  'src/lib/legal/vsbg.ts': [/^https:\/\/www\.universalschlichtungsstelle\.de$/],
 }
 
 const URL_RE = /https?:\/\/[^\s'"`)<>\]}]+/g

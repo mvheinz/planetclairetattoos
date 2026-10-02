@@ -5,12 +5,10 @@ import type { Locale } from '@/lib/enums'
 import { formatMoney } from '@/lib/money'
 import { addBerlinDays, formatBerlin } from '@/lib/time'
 
-import { getSnippet } from './snippets'
-
 // Vorlagen zum Öffnen im Mailprogramm (PLAN P5.27, KONZEPT §7.13, R-084): Antworten, die Jutta selbst aus ihrem
 // Mailprogramm schickt – ohne Rechtspflicht, nicht über die Outbox, nicht protokolliert. Alle Texte sind
-// **Arbeitsfassungen** in Juttas Ton (E-62); sie passt sie selbst an. P6.11 ersetzt „Reparatur/Ersatz“ und „§ 37 VSBG“
-// durch die protokollierten Mails M12 `complaint_repair_choice` und M13 `dispute_vsbg`.
+// **Arbeitsfassungen** in Juttas Ton (E-62); sie passt sie selbst an. „Reparatur/Ersatz“ und „§ 37 VSBG“ sind seit
+// P6.11 die protokollierten Mails M12 `complaint_repair_choice` und M13 `dispute_vsbg` (Reklamationsakte).
 // Keine Werbung (V-09), kein OS-Hinweis (V-01), keine Rügefrist gegenüber Kund:innen (V-11) – die 7-Tage-Frist bei
 // Transportschäden ist nur Juttas eigene Erinnerung für die Reklamation beim Versanddienst.
 
@@ -20,12 +18,7 @@ export const ADMIN_TEMPLATE_STATUS = 'Arbeitsfassung'
 /** Tage nach dem Versanddatum, bis zu denen Jutta einen Transportschaden beim Versanddienst meldet. */
 export const CARRIER_CLAIM_DAYS = 7
 
-export const ADMIN_TEMPLATE_KEYS = [
-  'breakage_photos',
-  'repair_or_replacement',
-  'dispute_vsbg37',
-  'prepayment_refund_iban',
-] as const
+export const ADMIN_TEMPLATE_KEYS = ['breakage_photos', 'prepayment_refund_iban'] as const
 export type AdminTemplateKey = (typeof ADMIN_TEMPLATE_KEYS)[number]
 
 type L10n = Readonly<Record<Locale, string>>
@@ -38,8 +31,6 @@ interface AdminTemplateDef {
   purpose: string
   /** Welche Bestellung passt (Verwaltung). */
   fits: string
-  /** Wird in P6 durch eine protokollierte Mail ersetzt. */
-  replacedBy?: string
   subject: L10n
   body: L10n
   /** Nur für Jutta (nicht in der Mail), Deutsch. */
@@ -82,72 +73,6 @@ const DEFS: readonly AdminTemplateDef[] = [
     },
     ownerNote:
       'Für dich: bis {{claimDeadline}} bei {{carrier}} reklamieren (Versanddatum {{shippedDate}} + 7 Tage).',
-  },
-  {
-    key: 'repair_or_replacement',
-    title: 'Hinweis Reparatur oder Ersatz',
-    purpose: 'Nach einer Reklamation die Wahl zwischen Reparatur und Ersatz anbieten.',
-    fits: 'versendete Bestellung',
-    replacedBy: 'P6: protokollierte Mail M12 „Reparatur oder Ersatz“',
-    subject: {
-      de: 'Deine Bestellung {{orderNumber}} – Reparatur oder Ersatz',
-      en: 'Your order {{orderNumber}} – repair or replacement',
-    },
-    body: {
-      de: [
-        '{{greeting}}',
-        '',
-        'danke für deine Nachricht zu deiner Bestellung {{orderNumber}}.',
-        '',
-        'Du kannst wählen, ob ich das Stück reparieren soll oder ob du einen Ersatz möchtest. Weil jedes Stück ein Unikat ist, gibt es nicht immer ein gleiches Ersatzstück – dann sprechen wir gemeinsam über die weiteren Möglichkeiten. Die Kosten dafür, auch für den Versand, übernehme ich.',
-        '',
-        'Deine gesetzlichen Rechte bleiben unberührt. Sag mir einfach, was dir lieber ist.',
-        '',
-        '{{signature}}',
-      ].join('\n'),
-      en: [
-        '{{greeting}}',
-        '',
-        'thank you for your message about your order {{orderNumber}}.',
-        '',
-        'You can choose whether I should repair the piece or whether you would like a replacement. Since every piece is one of a kind, an identical replacement is not always available – in that case we will talk about the other options together. I will cover the costs, including shipping.',
-        '',
-        'Your statutory rights remain unaffected. Just let me know what you prefer.',
-        '',
-        '{{signature}}',
-      ].join('\n'),
-    },
-  },
-  {
-    key: 'dispute_vsbg37',
-    title: 'Hinweis Verbraucherschlichtung (§ 37 VSBG)',
-    purpose: 'Wenn ihr euch bei einer Beschwerde nicht einigen konntet.',
-    fits: 'Bestellung mit ungelöster Beschwerde',
-    replacedBy: 'P6: protokollierte Mail M13 „Verbraucherschlichtung“',
-    subject: {
-      de: 'Deine Bestellung {{orderNumber}} – Hinweis zur Verbraucherschlichtung',
-      en: 'Your order {{orderNumber}} – information on consumer dispute resolution',
-    },
-    body: {
-      de: [
-        '{{greeting}}',
-        '',
-        'leider konnten wir uns zu deiner Bestellung {{orderNumber}} nicht einigen. Das Gesetz sieht vor, dass ich dich in diesem Fall auf eine zuständige Verbraucherschlichtungsstelle hinweise:',
-        '',
-        '{{vsbgText}}',
-        '',
-        '{{signature}}',
-      ].join('\n'),
-      en: [
-        '{{greeting}}',
-        '',
-        'unfortunately we could not reach an agreement about your order {{orderNumber}}. In this case, the law requires me to inform you about a competent consumer dispute resolution body:',
-        '',
-        '{{vsbgText}}',
-        '',
-        '{{signature}}',
-      ].join('\n'),
-    },
   },
   {
     key: 'prepayment_refund_iban',
@@ -230,7 +155,6 @@ export function templateVars(ctx: AdminTemplateContext): Record<string, string> 
     orderNumber: order.orderNumber,
     signature: ctx.signature.trim(),
     amount: formatMoney(order.prepayment?.receivedAmountCents ?? order.totalCents, locale),
-    vsbgText: getSnippet('dispute.vsbg37', locale).text,
   }
   const carrier = order.shipment?.carrier
   vars.carrier =

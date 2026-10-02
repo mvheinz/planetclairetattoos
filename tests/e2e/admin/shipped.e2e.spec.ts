@@ -66,7 +66,10 @@ test('@a11y „Versendet“: Liste, Sendungsnummer korrigieren (nein/ja), Zugest
       'href',
       /piececode=JJD000390007123456/,
     )
-    await expect(card.getByTestId('complaint-link')).toHaveAttribute('href', /\/texte$/)
+    await expect(card.getByTestId('complaint-link')).toHaveAttribute(
+      'href',
+      new RegExp(`/bestellungen/${order.id}#order-complaints$`),
+    )
     await expectNoHorizontalScroll(page)
     await expectAccessible(page, '[data-testid="shipped-list"]')
 

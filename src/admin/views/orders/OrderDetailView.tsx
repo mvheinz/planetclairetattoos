@@ -4,13 +4,15 @@ import { MoneyAmount } from '@/components/shop/MoneyAmount'
 import { PACKING_PHOTOS_UI_MAX } from '@/lib/commerce/packOrder'
 import { refundDialogData } from '@/lib/commerce/refundOrder'
 import { ENUM_LABELS } from '@/lib/enumLabels'
-import { PACKAGING_MATERIALS } from '@/lib/enums'
+import { COMPLAINT_KINDS, PACKAGING_MATERIALS } from '@/lib/enums'
 
 import { Notice } from '../../components/Notice'
 import { StatusBadge } from '../../components/StatusBadge'
 import { adminText } from '../../translations'
 import type { AdminViewBodyProps } from '../AdminViewBody'
 import { AddressCopy } from './AddressCopy'
+import { loadOrderComplaints } from './complaintQuery'
+import { ComplaintsPanel } from './ComplaintsPanel'
 import { loadOrderDetail } from './orderQuery'
 import { OrderResend } from './OrderResend'
 import { PackingPanel } from './PackingPanel'
@@ -45,6 +47,7 @@ export async function OrderDetailView({ adminRoute, req, match }: AdminViewBodyP
   const p = detail.packing
   const resend = detail.resend.filter((o) => o.sentBefore)
   const refund = await refundDialogData(req, detail.id)
+  const complaints = await loadOrderComplaints(req, detail.id)
   return (
     <div className="pc-order pc-order--detail" data-testid="order-detail">
       <p className="pc-order__meta">
@@ -194,6 +197,28 @@ export async function OrderDetailView({ adminRoute, req, match }: AdminViewBodyP
               value: r,
               label: ENUM_LABELS.REFUND_REASONS[r].de,
             }))}
+          />
+        </section>
+      ) : null}
+
+      {complaints && (complaints.allowed || complaints.complaints.length > 0) ? (
+        <section
+          className="pc-order__section"
+          aria-labelledby="order-complaints-title"
+          id="order-complaints"
+          data-testid="order-complaints"
+        >
+          <h2 id="order-complaints-title">{adminText('complaintsTitle')}</h2>
+          <ComplaintsPanel
+            orderId={detail.id}
+            adminRoute={adminRoute}
+            allowed={complaints.allowed}
+            kinds={COMPLAINT_KINDS.map((k) => ({
+              value: k,
+              label: ENUM_LABELS.COMPLAINT_KINDS[k].de,
+            }))}
+            items={complaints.items}
+            complaints={complaints.complaints}
           />
         </section>
       ) : null}

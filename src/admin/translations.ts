@@ -629,6 +629,37 @@ export const ADMIN_CUSTOM_DE = {
   refundConsequencePrepayment:
     'Du bestätigst, dass du überwiesen hast. Sofort entstehen die Gutschrift und die Mail an die Kundin.',
   refundPending: 'Erstattung läuft – der Zahlungsanbieter meldet sich gleich.',
+  // Reklamationen (P6.11, KONZEPT §7.8, R-110–R-112)
+  complaintsTitle: 'Reklamationen',
+  complaintsNone: 'Keine Reklamation zu dieser Bestellung.',
+  complaintsNotPaid: 'Reklamationen gibt es nur zu bezahlten Bestellungen.',
+  complaintNew: 'Reklamation anlegen',
+  complaintKind: 'Art',
+  complaintReceivedAt: 'Eingang der Reklamation (leer = heute)',
+  complaintDescription: 'Kurze Beschreibung (keine Gesundheitsangaben)',
+  complaintItems: 'Betroffene Stücke',
+  complaintCreate: 'Reklamation anlegen',
+  complaintCreated:
+    'Reklamation angelegt. Fotos, Abhilfe und Wahl der Kundin trägst du in der Akte ein.',
+  complaintReceived: 'Eingang {{date}}',
+  complaintCarrierDue: 'Für dich: bis {{date}} bei DHL reklamieren.',
+  complaintCarrierFiled: 'Bei DHL reklamiert am {{date}}.',
+  complaintWarranty: 'Gewährleistung bis {{date}}',
+  complaintWarrantyOpen: 'Gewährleistung: beginnt mit der Zustellung bzw. Abholung',
+  complaintRemedy: 'Abhilfe: {{remedy}}',
+  complaintChoice: 'Wahl der Kundin: {{choice}}',
+  complaintPhotos: '{{count}} Fotos',
+  complaintReplySent: 'Reparatur/Ersatz angeboten am {{date}} (Mail M12).',
+  complaintVsbgSent: 'Streitbeilegungshinweis gesendet am {{date}} (Mail M13).',
+  complaintOpen: 'Akte öffnen (Fotos, Abhilfe, Wahl, DHL)',
+  complaintReply: 'Reklamation beantworten',
+  complaintReplyConfirm: 'Reparatur oder Ersatz anbieten?',
+  complaintReplyConsequence:
+    'Die Kundin bekommt eine Mail: Sie kann zwischen Reparatur und Ersatz wählen, bei Unikaten ist Ersatz meist nicht möglich, eine Reparatur verlängert die Gewährleistung um 12 Monate.',
+  complaintDispute: 'Streitbeilegungshinweis senden',
+  complaintDisputeConfirm: 'Hinweis zur Verbraucherschlichtung senden?',
+  complaintDisputeConsequence:
+    'Nur wenn ihr euch nicht einigen konntet: Die Kundin bekommt eine Mail mit der Universalschlichtungsstelle des Bundes (Anschrift und Website).',
   // „Anfragen“ (P5.20)
   inquiriesEmpty: 'Gerade gibt es keine Anfragen.',
   inquiriesCount: '{{count}} Anfragen',

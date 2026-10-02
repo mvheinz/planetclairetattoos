@@ -856,6 +856,33 @@
       "prepayment": "I have transferred the amount to the account your payment came from.",
       "creditNote": "The credit note {number} is attached as a PDF.",
       "amount": "Refunded"
+    },
+    "complaintRepairChoice": {
+      "subject": "Your complaint about order {orderNumber}: repair or replacement",
+      "title": "Repair or replacement – your choice",
+      "intro": "thank you for your message about your order {orderNumber}. I am sorry that something is wrong with your piece.",
+      "receivedAt": "Complaint received on",
+      "kind": "Type",
+      "kindLabel": {
+        "transport_damage": "damaged in transit",
+        "defect": "defect"
+      },
+      "itemsTitle": "Affected:",
+      "choice": "You can choose whether I should repair the piece or whether you would like a replacement. I will cover the costs, including shipping.",
+      "unique": "Since every one of my pieces is one of a kind, an identical replacement is usually not possible. If a replacement is not possible, we will talk about the other options together.",
+      "extension": "If you choose the repair, your statutory liability period for defects for the piece is extended by 12 months.",
+      "rights": "Your statutory rights remain unaffected.",
+      "reply": "Just reply to this email and let me know what you prefer."
+    },
+    "disputeVsbg": {
+      "subject": "Your complaint about order {orderNumber}: information on dispute resolution",
+      "title": "Information on consumer dispute resolution",
+      "intro": "unfortunately we could not reach an agreement about your order {orderNumber}. In this case, the law requires me to inform you about a competent consumer dispute resolution body.",
+      "receivedAt": "Complaint received on",
+      "bodyName": "Consumer dispute resolution body",
+      "address": "Address",
+      "website": "Website",
+      "reply": "If you have any questions, just reply to this email."
     }
   },
   "shippingPayment": {

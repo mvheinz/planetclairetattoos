@@ -87,6 +87,16 @@ const computeComplaint: CollectionBeforeChangeHook = async ({
     fail('Reklamationen gibt es nur zu bezahlten Bestellungen.', 'order')
   }
 
+  const affected = data.affectedItemIds ?? original.affectedItemIds
+  if (Array.isArray(affected) && affected.length > 0) {
+    const known = new Set(
+      ((order!.items ?? []) as { id?: unknown }[]).map((i) => String(i.id ?? '')),
+    )
+    if (affected.some((id) => !known.has(String(id)))) {
+      fail('Betroffene Stücke müssen zur Bestellung gehören.', 'affectedItemIds')
+    }
+  }
+
   const receivedAt = toDate(data.receivedAt ?? original.receivedAt) ?? now
   if (receivedAt.getTime() > now.getTime() + 60_000) {
     fail('Der Eingang darf nicht in der Zukunft liegen.', 'receivedAt')

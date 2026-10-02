@@ -17,6 +17,7 @@ import {
   renderPrepaymentReceived,
 } from './templates/orderConfirmation'
 import * as adm from './templates/admin'
+import * as cmp from './templates/complaint'
 import * as ful from './templates/fulfillment'
 import * as pre from './templates/prepayment'
 import * as rfd from './templates/refund'
@@ -172,6 +173,19 @@ const TEMPLATES: Partial<Record<EmailTemplate, AnyTemplate>> = {
     schema: rfd.refundConfirmationDataSchema as unknown as z.ZodType<rfd.RefundConfirmationData>,
     subject: rfd.refundConfirmationSubject,
     render: rfd.renderRefundConfirmation,
+  }),
+  complaint_repair_choice: def<cmp.ComplaintRepairChoiceData>({
+    version: cmp.COMPLAINT_REPAIR_CHOICE_VERSION,
+    schema:
+      cmp.complaintRepairChoiceDataSchema as unknown as z.ZodType<cmp.ComplaintRepairChoiceData>,
+    subject: cmp.complaintRepairChoiceSubject,
+    render: cmp.renderComplaintRepairChoice,
+  }),
+  dispute_vsbg: def<cmp.DisputeVsbgData>({
+    version: cmp.DISPUTE_VSBG_VERSION,
+    schema: cmp.disputeVsbgDataSchema,
+    subject: cmp.disputeVsbgSubject,
+    render: cmp.renderDisputeVsbg,
   }),
   admin_order_placed: def<adm.AdminOrderPlacedData>({
     version: adm.ADMIN_ORDER_PLACED_VERSION,

@@ -231,6 +231,26 @@ export const REFUND_CONFIRMATION_FIXTURE = {
   creditNoteNumber: 'GS-2026-00002',
 }
 
+/** M12 (P6.11): Reklamation zu PC-2026-00017, Transportschaden an der Tasse. */
+export const COMPLAINT_REPAIR_CHOICE_FIXTURE = {
+  orderId: 17,
+  orderNumber: 'PC-2026-00017',
+  complaintId: 4,
+  customerName: 'Erika Beispiel',
+  kind: 'transport_damage',
+  receivedAt: '2026-10-16T08:15:00.000Z',
+  items: [{ itemNumber: 17, title: 'Tasse „Coco schläft“' }],
+}
+
+/** M13 (P6.11): Hinweis zur Streitbeilegung zur selben Reklamation. */
+export const DISPUTE_VSBG_FIXTURE = {
+  orderId: 17,
+  orderNumber: 'PC-2026-00017',
+  complaintId: 4,
+  customerName: 'Erika Beispiel',
+  receivedAt: '2026-10-16T08:15:00.000Z',
+}
+
 export const MAIL_FIXTURE_DATA: Partial<Record<EmailTemplate, Record<string, unknown>>> = {
   order_shipped: SHIPPED_FIXTURE,
   pickup_ready: PICKUP_READY_FIXTURE,
@@ -242,6 +262,8 @@ export const MAIL_FIXTURE_DATA: Partial<Record<EmailTemplate, Record<string, unk
   withdrawal_receipt: WITHDRAWAL_RECEIPT_FIXTURE,
   oversold_apology: OVERSOLD_FIXTURE,
   refund_confirmation: REFUND_CONFIRMATION_FIXTURE,
+  complaint_repair_choice: COMPLAINT_REPAIR_CHOICE_FIXTURE,
+  dispute_vsbg: DISPUTE_VSBG_FIXTURE,
   admin_order_placed: ADMIN_ORDER_FIXTURE,
   admin_prepayment_cancelled: {
     orderId: 17,

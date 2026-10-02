@@ -856,6 +856,33 @@
       "prepayment": "Ich habe den Betrag auf das Konto überwiesen, von dem deine Zahlung kam.",
       "creditNote": "Die Gutschrift {number} hängt als PDF an.",
       "amount": "Erstattet"
+    },
+    "complaintRepairChoice": {
+      "subject": "Deine Reklamation zu {orderNumber}: Reparatur oder Ersatz",
+      "title": "Reparatur oder Ersatz – du hast die Wahl",
+      "intro": "danke für deine Nachricht zu deiner Bestellung {orderNumber}. Es tut mir leid, dass mit deinem Stück etwas nicht stimmt.",
+      "receivedAt": "Reklamation eingegangen am",
+      "kind": "Art",
+      "kindLabel": {
+        "transport_damage": "beim Versand beschädigt",
+        "defect": "Mangel"
+      },
+      "itemsTitle": "Betroffen:",
+      "choice": "Du kannst wählen, ob ich das Stück reparieren soll (Nachbesserung) oder ob du ein Ersatzstück möchtest (Ersatzlieferung). Die Kosten dafür, auch für den Versand, übernehme ich.",
+      "unique": "Weil jedes meiner Stücke ein Unikat ist, gibt es in der Regel kein gleiches Ersatzstück. Ist ein Ersatz nicht möglich, sprechen wir gemeinsam über die weiteren Möglichkeiten.",
+      "extension": "Wählst du die Reparatur, verlängert sich deine gesetzliche Gewährleistung für das Stück um 12 Monate.",
+      "rights": "Deine gesetzlichen Rechte bleiben unberührt.",
+      "reply": "Antworte einfach auf diese Mail und sag mir, was dir lieber ist."
+    },
+    "disputeVsbg": {
+      "subject": "Deine Reklamation zu {orderNumber}: Hinweis zur Streitbeilegung",
+      "title": "Hinweis zur Verbraucherschlichtung",
+      "intro": "leider konnten wir uns zu deiner Bestellung {orderNumber} nicht einigen. Das Gesetz sieht vor, dass ich dich in diesem Fall auf eine zuständige Verbraucherschlichtungsstelle hinweise.",
+      "receivedAt": "Reklamation eingegangen am",
+      "bodyName": "Verbraucherschlichtungsstelle",
+      "address": "Anschrift",
+      "website": "Website",
+      "reply": "Wenn du noch Fragen hast, antworte einfach auf diese Mail."
     }
   },
   "shippingPayment": {
