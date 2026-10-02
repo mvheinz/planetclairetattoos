@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.13
+
+- Quelltext-Scans je Verbot (V-01, V-03–V-07, V-16, V-20–V-23, V-25, V-30), Schema-Scan V-23 und R-096, gerenderte Mails (V-01, V-02, V-09, V-11, V-18); Allowlist als JSON mit Pflicht-Begründung\n- Crawl aller live-Routen DE/EN inkl. V-27 (externe Links), V-28 (kein Audio), V-31 (Straße nur auf erlaubten Seiten); Gegenproben je Verbot\n- @privacy T-03/T-04 auch für Verwaltungsansichten (R-130, R-131)\n- Tests: forbidden.unit, forbidden.e2e, privacy-Suiten auf desktop und pixel-7 grün
+
 ## 2026-10-02 – P6.12
 
 - Prüf-Suite für den Kaufweg: Knopf-Text, Übersicht vor dem Knopf, Zahlarten/Lieferbeschränkungen am Anfang, „Ändern“-Links, AGB/Widerruf abrufbar und speicherbar (R-012, R-036, R-063–R-065)\n- Vertragsschluss über den Kassen-Datensatz; gescheiterte Zahlung → keine Bestellung, keine M01; M01 mit genau drei PDFs in der Bestellfassung, EN zusätzlich EN-PDFs (AK-6-02, R-013, R-015, R-081)\n- Keine Lücken im Kaufweg gefunden\n- Tests: contract-confirmation.int (4), checkout-compliance.e2e auf desktop und pixel-7 grün (iphone-15 läuft in CI)

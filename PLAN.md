@@ -3462,7 +3462,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
   - Tests: `tests/e2e/legal/checkout-compliance.e2e.spec.ts`, `tests/int/legal/contract-confirmation.int.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P6.13 Automatische Verbotsprüfungen und Privatsphäre-Suite** – `tests/unit/legal/forbidden.unit.spec.ts`:
+- [x] **P6.13 Automatische Verbotsprüfungen und Privatsphäre-Suite** – `tests/unit/legal/forbidden.unit.spec.ts`:
   Quelltext-Scans (V-01; V-03 `defaultChecked`/`checked` ohne Nutzeraktion; V-04–V-07 Fremd-Hosts; V-16 in Produkttexten
   des Seeds; V-20; V-21; V-22 `searchParams.get` mit Personenfeldern; V-23 Schema-Scan auf `iban`/`cardNumber` außerhalb
   der Stammdaten; V-25 Formular-Labels; V-30 in öffentlichem Code und `messages`) und gerenderte Mails (V-01, V-02 im
