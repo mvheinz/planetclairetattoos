@@ -3906,7 +3906,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
   - Tests: `tests/e2e/commission/page.e2e.spec.ts`.
   - Ohne Jutta: Beispielbilder sind ab P8.7 Seed-Ausschnitte (SEED-SPEC §13.4).
 
-- [ ] **P7.11 Upload-Endpunkt `POST /api/uploads/commission`** – Route-Handler (ARCHITEKTUR §2.5, §8.8, KONZEPT §10.2,
+- [x] **P7.11 Upload-Endpunkt `POST /api/uploads/commission`** – Route-Handler (ARCHITEKTUR §2.5, §8.8, KONZEPT §10.2,
   §10.3): Formular-Token (signiert `{ iat, purpose: 'commission', nonce }`, 2 h gültig, HKDF `pc:form-token:v1`, beim
   Rendern der Seite erzeugt) Pflicht; Rate-Limit `commission_upload` 15/h je IP-Hash; Anfragekörper > 4,5 MB → 413 mit
   Text; Typprüfung über den Inhalt (sharp: JPEG/PNG/WebP), sonst 415; Neukodierung mit angewendeter Orientierung, ohne

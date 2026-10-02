@@ -2,6 +2,11 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P7.11
+
+- `POST /api/uploads/commission` (`src/lib/commission/upload.ts`): Formular-Token (HKDF `pc:form-token:v1`, 2 h, Kopf `x-form-token`), Rate-Limit `commission_upload` 15/h, > 4,5 MB → 413, Typ am Inhalt (sharp) sonst 415, Neukodierung ohne EXIF/GPS, `private-uploads` `pending` mit Löschung nach 24 h, Antwort `{ uploadId, ticket }`, 6. Upload je Formular → 409.
+- Tests: `tests/int/commission/upload.int.spec.ts` (6 grün).
+
 ## 2026-10-02 – P7.10
 
 - R10 Auftragsarbeiten (`src/app/(frontend)/[locale]/commissions/page.tsx`): H1, „So läuft’s“, Beispiele mit Bildunterschrift, Hinweis „individuell vereinbart, Bezahlung nicht im Shop, kein Online-Vertrag“, Formular-Block mit Kontur (Preset `frame`, Coco `sitzen`), FAQ `commissions`, Kontaktalternative; Seite wird ungecacht gelesen, ohne Seite Leerzustand statt 500; Registry R10 `live`.
