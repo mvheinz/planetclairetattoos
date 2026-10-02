@@ -11,3 +11,5 @@
 *.woff2 binary
 *.zip binary
 *.mp4 binary
+# Export-Fixtures byte-genau (CRLF, BOM, Windows-1252) – keine Zeilenende-Umwandlung (P5.24/P5.25)
+tests/fixtures/csv/** binary

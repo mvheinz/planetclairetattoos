@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import React from 'react'
 
@@ -12,7 +13,7 @@ import { getHomeView } from '@/lib/data/home'
 import { getSiteNavigation, instagramUrl } from '@/lib/data/navigation'
 import { listStationProducts } from '@/lib/data/products'
 import { getShopDisplaySettings, taxSettingsFor } from '@/lib/data/shopSettings'
-import { localizedPath } from '@/lib/routes/paths'
+import { isLocale, localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
 import { organizationJsonLd, serializeJsonLd } from '@/lib/seo/jsonld'
 import { routeMetadata } from '@/lib/seo/metadata'
@@ -32,7 +33,9 @@ export const revalidate = 3600
 // `home`); Preis-Fußnote einmal pro Seite, Live-Zustand der Karten nach dem Laden (`product-status`). Die
 // Tattoo-Station bleibt bis P7 ohne Motive.
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
-  const locale = (await params).locale as Locale
+  const requested = (await params).locale
+  if (!isLocale(requested)) notFound()
+  const locale: Locale = requested
   setRequestLocale(locale)
   const [t, tCard, nav, home, settings] = await Promise.all([
     getTranslations({ locale, namespace: 'home' }),

@@ -2483,7 +2483,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
 
 ### Aufgaben
 
-- [ ] **P5.1 Verwaltungs-Gerüst: Navigation, Ansichten-Registry, UI-Bausteine** – Registry
+- [x] **P5.1 Verwaltungs-Gerüst: Navigation, Ansichten-Registry, UI-Bausteine** – Registry
   `src/admin/views/registry.ts` (Schlüssel, Pfad, Titel DE, Phase, Symbol) für `/heute`, `/neues-stueck`, `/stuecke`,
   `/packen`, `/vorkasse`, `/versendet`, `/abholung`, `/widerrufe`, `/anfragen`, `/tattoo`, `/texte`, `/einstellungen`,
   `/export` (KONZEPT §7.2) plus Detailpfade `/stuecke/:id`, `/bestellungen/:id`, `/widerrufe/:id`, `/anfragen/:id`;
@@ -2511,7 +2511,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     404 unter `/admin`).
   - Ohne Jutta: –
 
-- [ ] **P5.2 Admin-Benachrichtigungen A01–A17** – Renderer für alle Admin-Mails A01–A16 (KONZEPT §6.4) in
+- [x] **P5.2 Admin-Benachrichtigungen A01–A17** – Renderer für alle Admin-Mails A01–A16 (KONZEPT §6.4) in
   `src/lib/email/templates/admin/`, immer Deutsch, kurz, mit Direktlink auf den passenden Admin-Pfad (Pfad aus der
   Registry P5.1). Dienst `notifyAdmin(kind, payload, { now })` schreibt in die Outbox; Empfänger
   `settings.adminNotificationEmail`, Rückfall `ADMIN_NOTIFY_EMAIL`. Nie Kund:innen-Freitexte, nie Anfrage-Bilder, bei
@@ -2533,7 +2533,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     `tests/int/email/notify-admin.int.spec.ts` (Drosselung mit vorgestellter Uhr, Rückfall auf `ADMIN_NOTIFY_EMAIL`).
   - Ohne Jutta: –
 
-- [ ] **P5.3 Jobs: Job-Wecker, Cron-Endpunkte, Lauf-Protokoll, Frische-Prüfung** – vervollständigen, was P1/P4
+- [x] **P5.3 Jobs: Job-Wecker, Cron-Endpunkte, Lauf-Protokoll, Frische-Prüfung** – vervollständigen, was P1/P4
   angelegt haben (ARCHITEKTUR §9.6, §2.5, §11.3, Anhang A.3): `GET /api/cron/tick` (Bearer `CRON_SECRET`; liest
   `job-alarm.json` ohne DB, `204`, wenn nichts fällig ist; sonst `handleSchedules` + `run`, danach neuen Weckzeitpunkt
   schreiben), `POST /api/cron/run/[task]` (Bearer `CRON_SECRET` oder Admin-Sitzung; ohne Berechtigung 401, unbekannter
@@ -2556,7 +2556,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     `tests/int/health/freshness.int.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P5.4 Übersetzungs-Adapter und Knopf „Übersetzen → EN“** – `src/lib/translation/{types,index,mock,deepl}.ts`
+- [x] **P5.4 Übersetzungs-Adapter und Knopf „Übersetzen → EN“** – `src/lib/translation/{types,index,mock,deepl}.ts`
   nach ARCHITEKTUR §3.6 prüfen bzw. anlegen (`TRANSLATION_DRIVER` = `mock` | `deepl`, `DEEPL_API_KEY`; Mock liefert
   `"[EN] " + Text`, ARCHITEKTUR C-21; DeepL: `:fx`-Schlüssel → `api-free.deepl.com`, `target_lang: 'EN-GB'`, höchstens
   50 Texte je Anfrage). Lexical-Rich-Text: Textknoten einsammeln, gebündelt übersetzen, in dieselbe Struktur
@@ -2574,7 +2574,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     `tests/int/products/translate.int.spec.ts`.
   - Ohne Jutta: DeepL-Schlüssel kommt in P11; bis dahin nur Mock.
 
-- [ ] **P5.5 „Neues Stück“, Teil 1: Fotos aufnehmen, verkleinern, sortieren** – Foto-Baustein
+- [x] **P5.5 „Neues Stück“, Teil 1: Fotos aufnehmen, verkleinern, sortieren** – Foto-Baustein
   `src/admin/components/PhotoPicker/` für `/neues-stueck` und `/stuecke/:id`: zwei Knöpfe „Foto aufnehmen“
   (`<input type="file" accept="image/jpeg,image/png,image/webp" capture="environment">`) und „Aus Galerie wählen“ (ohne
   `capture`, `multiple`); iOS wandelt HEIC dadurch selbst um. Verkleinerung im Browser mit `createImageBitmap(file, {
@@ -2593,7 +2593,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     Fixtures aus `tests/fixtures/images/`, EXIF-Prüfung mit `exifr`).
   - Ohne Jutta: –
 
-- [ ] **P5.6 „Neues Stück“, Teil 2: Formular, Nummernprüfung, Online stellen** – Handy-Formular nach KONZEPT §7.4 mit
+- [x] **P5.6 „Neues Stück“, Teil 2: Formular, Nummernprüfung, Online stellen** – Handy-Formular nach KONZEPT §7.4 mit
   den Feldern aus DATENMODELL §6.6.1 (u. a. `itemNumber`, `materials`, `sizeLabel`, `safetyWarnings`,
   `ownDesignConfirmed`, `showInArchiveAfterSale`, `conformityDeclarations`, `leadFreeGlazeConfirmed`, `framed`/
   `frameHasGlass`, `blankBrandVisible`, bei `textil`/`cap` die ausdrückliche Entscheidung `deviationDecision` mit
@@ -2618,7 +2618,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     `tests/e2e/admin/new-piece.e2e.spec.ts` (`iphone-15`, zählt Eingaben für EK-08).
   - Ohne Jutta: –
 
-- [ ] **P5.7 Stück-Statusautomat nach KONZEPT §5.1** – Produkt-Dienst (`src/lib/commerce/productTransitions.ts`) und
+- [x] **P5.7 Stück-Statusautomat nach KONZEPT §5.1** – Produkt-Dienst (`src/lib/commerce/productTransitions.ts`) und
   Endpunkte (`src/endpoints/products/*`, DATENMODELL §6.6.10) an die Übergänge P1–P15 aus KONZEPT §5.1 angleichen; das
   Verhalten von KONZEPT gilt, die Namen von DATENMODELL. Ergänzen: `available → draft` („Offline nehmen“, P3, nur ohne
   aktive Reservierung), `reserved → sold` offline nur bei Reservierungsquelle `checkout_session` mit Warnung und
@@ -2647,7 +2647,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     `tests/int/legal/offline-sale.int.spec.ts` (Titel „R-127 …“).
   - Ohne Jutta: –
 
-- [ ] **P5.8 „Meine Stücke“** – Ansicht `/stuecke` (KONZEPT §7.5): Suche nach Nummer (exakt) oder Titel (enthält),
+- [x] **P5.8 „Meine Stücke“** – Ansicht `/stuecke` (KONZEPT §7.5): Suche nach Nummer (exakt) oder Titel (enthält),
   Filter Status (Entwurf, online, reserviert, verkauft, ausgeblendet) und Kategorie, seitenweise 20 Karten. Karte: Foto,
   `Nr. 017`, Titel, Preis, Status-Badge; bei `reserved` „reserviert bis HH:MM“ bzw. „Vorkasse PC-… bis {Datum}“. Knöpfe
   je Status laut KONZEPT §7.5 auf die Endpunkte aus P5.7; Dialog „Nr. 017 als offline verkauft markieren? Es
@@ -2664,7 +2664,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/e2e/admin/pieces.e2e.spec.ts` (`iphone-15`, `@a11y`), `tests/int/admin/pieces-query.int.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P5.9 Bestell-Detail und Aktions-Grundlage für Bestellungen** – gemeinsame Ansicht `/bestellungen/:id` für
+- [x] **P5.9 Bestell-Detail und Aktions-Grundlage für Bestellungen** – gemeinsame Ansicht `/bestellungen/:id` für
   Packen, Vorkasse, Versendet, Abholung: Positionen mit Foto, `Nr.`, Titel, Preis; Lieferart, Empfänger:in, Zahlart,
   Beträge, Status mit Historie, Hinweise (`adminAttention`, Anfechtung: Status `disputed` mit `statusBeforeDispute`
   und `dispute.status`), interne Notiz, Mail-Protokoll der Bestellung
@@ -2681,7 +2681,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/orders/admin-action.int.spec.ts`, `tests/e2e/admin/order-detail.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P5.10 „Zu packen“: Liste, Hinweise, Adresse kopieren, Gepackt** – Ansicht `/packen` (KONZEPT §7.6):
+- [x] **P5.10 „Zu packen“: Liste, Hinweise, Adresse kopieren, Gepackt** – Ansicht `/packen` (KONZEPT §7.6):
   Bestellungen `paid` und `packed` mit `fulfillmentMethod = shipping`, älteste zuerst. Karte: Bestellnummer, Datum, Fotos
   und `Nr.` der Stücke, Versandklasse, Name und Ort. Hinweise wörtlich laut KONZEPT §7.6: „Keramik – Karton in Karton“
   (Versandklasse `keramik`), „Warenwert > 500 € – Transportversicherung buchen“ (Zwischensumme >
@@ -2706,7 +2706,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     (Titel „R-100 Versicherungshinweis …“), `tests/e2e/admin/packing.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P5.11 Verpackungs-Checkliste, Verpackungsmengen und Packfotos** – Checkliste je Versandklasse aus
+- [x] **P5.11 Verpackungs-Checkliste, Verpackungsmengen und Packfotos** – Checkliste je Versandklasse aus
   `settings.packingChecklists` (Seed laut SEED-SPEC §3.2) plus Punkte für alle Sendungen; Häkchen je Bestellung in
   `packingChecklistState` (KONZEPT §7.6). Verpackungsmengen (E-47, R-201, DATENMODELL §6.8.8): beim Packen ist
   `packaging` mit der Standard-Vorlage der Versandklasse vorbelegt (`settings.packaging.defaultsByShippingClass` →
@@ -2739,7 +2739,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Ohne Jutta: Echte Verpackungsgewichte wiegt Jutta beim ersten Packen (KA-29); Aufgabe als A51 ff. in
     `docs/owner/AUFGABEN.md` ergänzen, soweit nicht vorhanden.
 
-- [ ] **P5.12 Packzettel, Etikett und Beileger als PDF** – `src/lib/pdf/PackingSlip.tsx`: A4, **ohne Preise**:
+- [x] **P5.12 Packzettel, Etikett und Beileger als PDF** – `src/lib/pdf/PackingSlip.tsx`: A4, **ohne Preise**:
   Bestellnummer, Datum, Empfänger:in, Positionen mit Foto, `Nr.`, Titel, Lagerort (`storageLocation`),
   Verpackungs-Checkliste, Beileger-Block je Stück (Herstellerin mit Name, Anschrift, E-Mail aus `settings.business`,
   `Nr.`, Warn-/Sicherheitshinweise, Pflegehinweise – GPSR), Platz für eine handschriftliche Karte (KONZEPT §7.6).
@@ -2756,7 +2756,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     PDF-Text mit `pdf-parse`, falls aus P4 nicht vorhanden als devDependency ergänzen).
   - Ohne Jutta: Stammdaten sind bis P11 Platzhalter („[Name folgt]“); Kennzeichnung der Stücke ist Owner-Aufgabe (R-203).
 
-- [ ] **P5.13 Ablage für Produktsicherheits-Unterlagen** – Dokumentablage nach R-203 und LOESCHKONZEPT L-24 über
+- [x] **P5.13 Ablage für Produktsicherheits-Unterlagen** – Dokumentablage nach R-203 und LOESCHKONZEPT L-24 über
   `private-uploads` (DATENMODELL §6.4): Zwecke `technical_file` (Risikoanalyse, technische Unterlagen je Kategorie),
   `supplier_document` (Lieferantenerklärungen, Sicherheitsdatenblätter), `lab_report` (Prüfberichte), `nickel_evidence`;
   Felder `complianceCategory` (bei `technical_file` Pflicht), `documentVersion`, `documentDate`, `note`; nur Admin,
@@ -2776,7 +2776,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/legal/compliance-docs.int.spec.ts` (Titel „R-203 Dokumentablage …“), Erweiterung T-15.
   - Ohne Jutta: Unterlagen lädt Jutta vor P11 hoch (Owner-Aufgabe R-203 aus ANFORDERUNGEN §8).
 
-- [ ] **P5.14 Versanddienst-Adapter, Sendungsverfolgung und Barcode-Scan** – Adapter-Gerüst
+- [x] **P5.14 Versanddienst-Adapter, Sendungsverfolgung und Barcode-Scan** – Adapter-Gerüst
   `src/lib/carrier/{types,index,manual}.ts` aus P1 nach ARCHITEKTUR §3.7 vervollständigen, `CARRIER_DRIVER=manual` in
   `src/lib/env.ts`, `.env.example` und ARCHITEKTUR §5.2 prüfen.
   `validateTrackingNumber`: Großbuchstaben, ohne Leerzeichen, `^[A-Z0-9]{8,35}$` (DATENMODELL §6.8); `trackingUrl` aus
@@ -2798,7 +2798,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     `tests/e2e/admin/tracking-scan.e2e.spec.ts`.
   - Ohne Jutta: Echte DHL-/Post-Nummern und Links prüft Jutta in P11 mit der ersten Sendung.
 
-- [ ] **P5.15 „Versendet melden“ (O7, Mail M06)** – Endpunkt `POST /api/orders/:id/ship` (`{ carrier, trackingNumber?,
+- [x] **P5.15 „Versendet melden“ (O7, Mail M06)** – Endpunkt `POST /api/orders/:id/ship` (`{ carrier, trackingNumber?,
   confirmWithoutPackingPhoto? }`) über den Rahmen aus P5.9: nur `paid`/`packed` mit Versand, Verpackung erfasst und
   Packfoto-Rückfrage (P5.11), Sendungsnummer Pflicht bei Versandklasse `paket_klein` und `keramik`, bei `brief` optional
   (KONZEPT O7, DATENMODELL §6.8.5); setzt `shipment.carrier`, `shipment.trackingNumber`, `shipment.trackingUrl` (nur mit
@@ -2824,7 +2824,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     `tests/unit/legal/shipping-mail.unit.spec.ts` (Titel „R-082 …“, Snapshots DE/EN), `tests/int/orders/ship.int.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P5.16 „Versendet“, „Zugestellt“ und Job `markDelivered`** – Ansicht `/versendet` (KONZEPT §7.8): alle
+- [x] **P5.16 „Versendet“, „Zugestellt“ und Job `markDelivered`** – Ansicht `/versendet` (KONZEPT §7.8): alle
   `shipped` und `delivered` der letzten 30 Tage mit Versanddatum, Sendungsnummer als Link (sofern vorhanden), Status.
   Knöpfe „Zugestellt“ (O10, `shipment.deliveredSource = manual`), „Sendungsnummer korrigieren“ bzw. „nachtragen“ (Dialog
   „Versandmail erneut senden?“ ja/nein; bei ja neue M06 mit neuem Idempotenz-Schlüssel), „Reklamation (Bruch)“ (bis P6
@@ -2838,7 +2838,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/jobs/mark-delivered.int.spec.ts`, `tests/e2e/admin/shipped.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P5.17 Abholung: „Bereit zur Abholung“ (O8, M07) und „Abgeholt“ (O9)** – Ansicht `/abholung` (KONZEPT §7.9):
+- [x] **P5.17 Abholung: „Bereit zur Abholung“ (O8, M07) und „Abgeholt“ (O9)** – Ansicht `/abholung` (KONZEPT §7.9):
   `paid` mit Abholung und `ready_for_pickup` mit Wartetagen, mehr als 14 Tage markiert. „Bereit zur Abholung“: Textfeld
   vorbelegt aus `settings.pickup.instructions` (Sprache der Bestellung) plus Abholadresse aus `settings.business`,
   editierbar, gespeichert an der Bestellung (`orders.pickup.messageText`, DATENMODELL §6.8.1, seit P1 im Schema) → O8,
@@ -2854,7 +2854,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/legal/pickup.int.spec.ts` (Titel „R-083 …“, „R-102 …“), `tests/e2e/admin/pickup.e2e.spec.ts`.
   - Ohne Jutta: Abholtext ist Seed-Vorlage; Jutta passt ihn in den Einstellungen an.
 
-- [ ] **P5.18 „Vorkasse offen“: Zahlung erhalten, Stornieren, Nachträglich bezahlt** – Ansicht `/vorkasse` (KONZEPT
+- [x] **P5.18 „Vorkasse offen“: Zahlung erhalten, Stornieren, Nachträglich bezahlt** – Ansicht `/vorkasse` (KONZEPT
   §7.7, §4.8): `awaiting_prepayment` nach `prepayment.dueAt`, Bestellnummer (= Verwendungszweck), Betrag, Bestelldatum,
   „noch X Tage bis Storno“ (am letzten Tag rot), Erinnerung ja/nein. „Zahlung erhalten“ (O3; Dialog mit Betrag und
   Verwendungszweck, `prepayment.receivedAmountCents` Pflicht, Abweichung vom Gesamtbetrag → Warnung, optional
@@ -2872,7 +2872,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/orders/prepayment-admin.int.spec.ts` (Titel „R-071 …“), `tests/e2e/admin/prepayment.e2e.spec.ts`.
   - Ohne Jutta: Bankdaten sind bis P11 die Beispiel-IBAN aus dem Grund-Seed.
 
-- [ ] **P5.19 „Widerrufe“ (Liste und Detail, nur lesend)** – Ansicht `/widerrufe` (KONZEPT §7.10) mit DATENMODELL-Namen
+- [x] **P5.19 „Widerrufe“ (Liste und Detail, nur lesend)** – Ansicht `/widerrufe` (KONZEPT §7.10) mit DATENMODELL-Namen
   (§6.11): Vorgangsnummer `WR-…`, Eingang (Datum und Uhrzeit Europe/Berlin), Name, Bestellung oder „nicht zugeordnet“,
   Kanal (`channel`), Status, „erstatten bis {`refundDueAt`}“ (= Eingang + 14 Tage, ab Tag 10 rot). Detail
   `/widerrufe/:id`: unveränderliche Erklärung
@@ -2886,7 +2886,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/e2e/admin/withdrawals-list.e2e.spec.ts`, `tests/int/withdrawals/notes.int.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P5.20 „Anfragen“ (Auftragsarbeiten) in der Verwaltung** – Ansicht `/anfragen` (KONZEPT §7.11): Referenz
+- [x] **P5.20 „Anfragen“ (Auftragsarbeiten) in der Verwaltung** – Ansicht `/anfragen` (KONZEPT §7.11): Referenz
   `AA-…`, Datum, Name, Gegenstand, Status, „wird gelöscht am {deleteAfter}“. Detail `/anfragen/:id`: alle Angaben,
   Referenzbilder nur über die angemeldete Dateiroute bzw. signierte URL ≤ 300 s (ARCHITEKTUR §8.3), interne Notizen,
   Status-Knöpfe mit den Werten aus `INQUIRY_STATUSES` (DATENMODELL §4) und den Übergängen aus KONZEPT §5.5 als Tabelle
@@ -2904,7 +2904,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/inquiries/admin.int.spec.ts` (Titel „AK-5-01 Anfrage …“), `tests/e2e/admin/inquiries.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P5.21 Einstellungen, Teil 1: Stammdaten, Steuer, Zahlung, Benachrichtigungen, Konto** – Ansicht
+- [x] **P5.21 Einstellungen, Teil 1: Stammdaten, Steuer, Zahlung, Benachrichtigungen, Konto** – Ansicht
   `/einstellungen` mit Bereichen (KONZEPT §7.14) als Handy-Formulare über dem Global `settings` (DATENMODELL §7.1):
   Stammdaten & Impressum (`business.*`, `tattoo.studioDistrict`, `social.instagramHandle`, `social.contactEmail`;
   Postfach-Adressen abgelehnt mit `/postfach|\bpf\.?\s?\d/i`, R-020; Telefon `business.phone` mit Formatprüfung
@@ -2930,7 +2930,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     Postfach …“, „R-021 Telefonformat …“), `tests/e2e/admin/settings.e2e.spec.ts`.
   - Ohne Jutta: Alle Werte bleiben Platzhalter bzw. Seed bis P11.
 
-- [ ] **P5.22 Einstellungen, Teil 2: Versand mit EU-Sperre, Beispieldaten, System** – Versand: Tarife je Zone und Klasse
+- [x] **P5.22 Einstellungen, Teil 2: Versand mit EU-Sperre, Beispieldaten, System** – Versand: Tarife je Zone und Klasse
   (`shipping.rates`), Lieferzeit-Text DE/EN, Abholung an/aus, Tracking-Vorlagen, Checklisten, Verpackungsvorlagen
   (`settings.packaging.*`) und laufende Jahressumme (P5.11). Länderliste (`shipping.enabledCountries`): nur DE aktiv;
   Aktivieren eines EU-Landes verlangt die fünf Häkchen der Gruppe `shipping.euChecklist` (R-202:
@@ -2952,7 +2952,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/legal/eu-activation.int.spec.ts` (Titel „R-202 …“), `tests/e2e/admin/settings-system.e2e.spec.ts`.
   - Ohne Jutta: EU bleibt aus; Freischaltung ist eine spätere Entscheidung.
 
-- [ ] **P5.22a Einstellungen, Teil 3: Shop, Kosten, Vorlagen, Steuer-Bestätigung, Statistik, Rechtstexte** – restliche
+- [x] **P5.22a Einstellungen, Teil 3: Shop, Kosten, Vorlagen, Steuer-Bestätigung, Statistik, Rechtstexte** – restliche
   Bereiche aus KONZEPT §7.14 als Handy-Formulare über `settings` (Feldnamen und Grenzen DATENMODELL §7.1, seit P1 im
   Schema; Audit `settings_changed` wie P5.21):
   Shop (Schalter „Shop geöffnet“ `shop.isOpen`, Pausen-Text `shop.closedMessage` DE/EN ≤ 300 Zeichen mit
@@ -2983,7 +2983,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     `@a11y`).
   - Ohne Jutta: Kosten, Vorlagen und Steuer-Bestätigung pflegt Jutta selbst; „Shop öffnen“ in Produktion erst in P11.
 
-- [ ] **P5.23 Umsatz-Wächter** – reine Funktion `computeRevenueStatus({ year, now, … })` in `src/lib/revenue/guard.ts`:
+- [x] **P5.23 Umsatz-Wächter** – reine Funktion `computeRevenueStatus({ year, now, … })` in `src/lib/revenue/guard.ts`:
   Shop-Umsatz = Rechnungen minus Gutschriften nach Belegdatum (Europe/Berlin), plus manuelle Monatssummen
   (`revenue-entries`) plus `revenueGuard.manualYearTotals` für Jahre vor dem Shop; Seed-Daten zählen nur bei
   `seedPreviewModeActive()` (KONZEPT §8.4). Stufen aus KONZEPT §8.4 und R-125 zusammengeführt, Grenzen aus
@@ -3005,7 +3005,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     (Titel „AK-8-04 …“).
   - Ohne Jutta: Monatliche Summen trägt Jutta ein (A45); Schwellen sind Standardwerte bis zur Steuerberatung.
 
-- [ ] **P5.24 Export: Monats-CSV und Rechnungs-ZIP** – `src/lib/export/monthlyCsv.ts`: Monat wählen → Datei
+- [x] **P5.24 Export: Monats-CSV und Rechnungs-ZIP** – `src/lib/export/monthlyCsv.ts`: Monat wählen → Datei
   `planetclaire-{JJJJ-MM}.csv`, UTF-8 mit BOM, Trennzeichen `;`, Zeilenende CRLF, Dezimalkomma, Datum `TT.MM.JJJJ`,
   sortiert nach Belegnummer. Spalten laut KONZEPT §7.15: Belegdatum; Belegart (Rechnung/Stornorechnung/Gutschrift);
   Belegnummer; Bestellnummer; Zahlart; Betrag brutto; davon Versand; Steuermodus; Steuersatz; Steuerbetrag (0 im
@@ -3026,7 +3026,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/legal/monthly-export.int.spec.ts` (Titel „R-124 …“), `tests/e2e/admin/export.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P5.25 DATEV-Buchungsstapel** – `src/lib/export/datev.ts`: Buchungsstapel im Format EXTF (Version 700,
+- [x] **P5.25 DATEV-Buchungsstapel** – `src/lib/export/datev.ts`: Buchungsstapel im Format EXTF (Version 700,
   Kategorie 21) je Monat: Kopfzeile mit Berater-/Mandantennummer, Wirtschaftsjahr-Beginn, Zeitraum; je Beleg eine
   Buchung (Umsatz, Soll/Haben, Konto, Gegenkonto, Belegdatum, Belegfeld 1 = Belegnummer, Buchungstext ohne
   Personendaten), Stripe-Gebühren als eigene Buchungen; nie Beispieldaten, auch nicht bei wirksamem
@@ -3041,7 +3041,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/legal/datev-export.int.spec.ts` (Titel „R-124 DATEV …“).
   - Ohne Jutta: Kontenrahmen und Nummern legt die Steuerberatung fest; Aufgabe als A51 ff. in AUFGABEN ergänzen.
 
-- [ ] **P5.26 Monatsabschluss und Belegprüfung** – Task `monthlyClose` (Queue `documents`, monatlich am 1. ab 04:00
+- [x] **P5.26 Monatsabschluss und Belegprüfung** – Task `monthlyClose` (Queue `documents`, monatlich am 1. ab 04:00
   Berlin): für den Vormonat CSV und Rechnungs-ZIP erzeugen und privat ablegen (`private-uploads`, Zweck
   `monthly_export`, DATENMODELL §6.4; Aufbewahrung L-07), A11 mit Summen und Hinweis, falls manuelle Monatssummen
   fehlen; je Monat nur einmal. Task `invoiceIntegrityCheck` (Queue `maintenance`, monatlich am 1. ab 04:00 nach
@@ -3058,7 +3058,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/legal/invoice-integrity.int.spec.ts` (Titel „R-122 …“), `tests/int/jobs/monthly-close.int.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P5.27 „Texte“: Mail-Bausteine und Vorlagen** – Ansicht `/texte` (KONZEPT §7.13) als Übersicht mit Bereichen
+- [x] **P5.27 „Texte“: Mail-Bausteine und Vorlagen** – Ansicht `/texte` (KONZEPT §7.13) als Übersicht mit Bereichen
   Seiten und FAQ („kommt in P8“), Rechtstexte („kommt in P6“), Mail-Bausteine und Vorlagen. Mail-Bausteine DE/EN mit
   Übersetzen-Knopf: Signatur, Abhol-Vorlage (`settings.pickup.instructions`), Antwortzeit-Satz der
   Anfrage-Bestätigung (Standard „Ich melde mich meist innerhalb einer Woche.“) in den Feldern `site-texts.emails.signature`
@@ -3076,7 +3076,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/unit/legal/admin-templates.unit.spec.ts`, `tests/int/email/signature.int.spec.ts`.
   - Ohne Jutta: Texte sind Entwürfe in Juttas Ton (E-62); sie passt sie selbst an.
 
-- [ ] **P5.28 „Heute“** – Start-Ansicht `/heute` (KONZEPT §7.3) über einen Dienst `getTodaySummary(now)` in
+- [x] **P5.28 „Heute“** – Start-Ansicht `/heute` (KONZEPT §7.3) über einen Dienst `getTodaySummary(now)` in
   `src/lib/admin/today.ts` (wenige gebündelte Abfragen): Kacheln mit Zahl und Link – Zu packen, Vorkasse offen (davon
   heute fällig), Abholung, Widerrufe offen (nächste Frist), Neue Anfragen. Hinweise rot/gelb mit Link (KONZEPT §7.3):
   Umsatz-Wächter-Stufe, Rechtstexte älter als 1 Jahr (ab P6 je Typ), Stücke und Bestellungen mit `adminAttention`
@@ -3106,7 +3106,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/admin/today.int.spec.ts`, `tests/e2e/admin/today.e2e.spec.ts` (`@a11y`).
   - Ohne Jutta: –
 
-- [ ] **P5.29 Verwaltung als installierbare Web-App (PWA)** – Route-Handler
+- [x] **P5.29 Verwaltung als installierbare Web-App (PWA)** – Route-Handler
   `src/app/(payload)/admin/manifest.webmanifest/route.ts` und `src/app/(payload)/admin/sw.js/route.ts` (ARCHITEKTUR
   §2.1, §8.4), ausgeliefert unter `ADMIN_ROUTE/manifest.webmanifest`
   und `ADMIN_ROUTE/sw.js`: Name „Planet Claire Werkstatt“, Kurzname „Werkstatt“, `start_url` = `ADMIN_ROUTE/heute`,
@@ -3127,25 +3127,25 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
 
 ### Phasen-Abnahme
 
-- [ ] Alle Aufgaben P5.1–P5.29 (inkl. P5.22a) erledigt; `pnpm check`, `pnpm test:int`, `pnpm test:e2e` (Projekte
+- [x] Alle Aufgaben P5.1–P5.29 (inkl. P5.22a) erledigt; `pnpm check`, `pnpm test:int`, `pnpm test:e2e` (Projekte
   `desktop` und `iphone-15`) und `pnpm build` lokal grün.
-- [ ] Einzige P5-Migration `p5_job_runs` (DATENMODELL §10.1) rückwärtsverträglich (ARCHITEKTUR §6.7 Nr. 5),
+- [x] Einzige P5-Migration `p5_job_runs` (DATENMODELL §10.1) rückwärtsverträglich (ARCHITEKTUR §6.7 Nr. 5),
   `pnpm check:migrations` ohne Drift, `pnpm generate:types` und `pnpm generate:importmap` committet; geprüft, dass die
   übrigen genutzten Strukturen seit P1 im Schema liegen (DATENMODELL §10.1: `orders.pickup.messageText`,
   `settings.export.datev.*`, `site-texts.emails.signature`/`inquiryResponseTime`, `REFUND_REASONS` mit `breakage` und
   `admin_cancellation`, `AUDIT_ACTIONS` mit `inquiry_status_changed`) und die Admin-Endpunkte
   (`item-number-status`, `packaging-report`, `compliance/template.pdf`, `export`) in ARCHITEKTUR §2.5 stehen; ARCHITEKTUR
   §1.2 (`@zxing/browser`, `fflate`, `bwip-js`) nachgezogen; `CARRIER_DRIVER=manual` in `.env.example` vorhanden.
-- [ ] `LEGAL_TRACE_PHASE = 5` in `tests/unit/legal/traceability.unit.spec.ts`; der Test ist grün (jede R-ID mit
+- [x] `LEGAL_TRACE_PHASE = 5` in `tests/unit/legal/traceability.unit.spec.ts`; der Test ist grün (jede R-ID mit
   frühester Phase ≤ 5 und Test-Art ≠ nur „manuell“ steht in mindestens einem Testtitel).
-- [ ] Nachweise im PR-Text: AK-5-01/AK-5-02 (Produkt, Bestellung, Anfrage), AK-6-01 (A01–A17), AK-7-01 bis AK-7-06,
+- [x] Nachweise im PR-Text: AK-5-01/AK-5-02 (Produkt, Bestellung, Anfrage), AK-6-01 (A01–A17), AK-7-01 bis AK-7-06,
   AK-8-01, AK-8-02, AK-8-04, EK-08 sowie die R-IDs aus „Referenzen“ je mit Testdatei.
-- [ ] CI grün: Der Phasenende-Commit (z. B. `chore(P5): finish phase [ci:full p5]`, der letzte Commit ohne
+- [x] CI grün: Der Phasenende-Commit (z. B. `chore(P5): finish phase [ci:full p5]`, der letzte Commit ohne
   `[skip ci]`) hat `CI / quick`, `ci-full` (`e2e-full` inkl. `@a11y` und `@privacy`, `quality`) und `preview-export`
   grün durchlaufen. Dieses Häkchen setzt ein reiner Doku-Commit mit `[skip ci]`, nachdem der Lauf grün ist.
-- [ ] Vorschau-Artefakt `planet-claire-vorschau-p5-<sha7>` enthält Bildschirmfotos aller in P5 gebauten Admin-Ansichten
+- [x] Vorschau-Artefakt `planet-claire-vorschau-p5-<sha7>` enthält Bildschirmfotos aller in P5 gebauten Admin-Ansichten
   (390×844); `/tattoo` erscheint als „kommt in P7“.
-- [ ] `docs/FORTSCHRITT.md` mit Phasen-Eintrag; PR-Beschreibung nach Vorlage aktualisiert; neue Annahmen in
+- [x] `docs/FORTSCHRITT.md` mit Phasen-Eintrag; PR-Beschreibung nach Vorlage aktualisiert; neue Annahmen in
   `docs/OFFENE-PUNKTE.md` (mindestens: Deutsche-Post-Tracking-Vorlage, DATEV-Format, Verpackungsgewichte,
   zusammengeführte Umsatz-Wächter-Stufen, Telefon-Platzhalter speicherbar, Kostenwarnung ab Erreichen der Schwelle,
   „Shop öffnen“ in Produktion bis P10.14 gesperrt); neue Jutta-Aufgaben als A51 ff. in

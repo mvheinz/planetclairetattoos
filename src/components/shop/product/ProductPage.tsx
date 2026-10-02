@@ -91,7 +91,16 @@ function Note({ children, name }: { children: React.ReactNode; name: string }) {
   )
 }
 
-export async function ProductPage({ product, locale }: { product: PublicProduct; locale: Locale }) {
+export async function ProductPage({
+  product,
+  locale,
+  preview = false,
+}: {
+  product: PublicProduct
+  locale: Locale
+  /** Entwurfs-Vorschau in der Verwaltung (PLAN P5.6): Kaufknopf gesperrt, keine Kauf-Leiste. */
+  preview?: boolean
+}) {
   const [t, tBadges, tList, tCard, settings, categories, untranslated, info, related, german] =
     await Promise.all([
       getTranslations({ locale, namespace: 'shop.product' }),
@@ -149,7 +158,7 @@ export async function ProductPage({ product, locale }: { product: PublicProduct;
     : localizedPath('R02', locale)
   const cartHref = localizedPath('R06', locale)
   const checkoutHref = localizedPath('R07', locale)
-  const canAdd = canAddToCart(state, settings.isOpen)
+  const canAdd = !preview && canAddToCart(state, settings.isOpen)
   // Server-Action als Formular-Aktion: ohne JavaScript leitet sie per 303 um (Rückgabe nur für `add-to-cart`).
   const formAction = addToCart as unknown as (formData: FormData) => Promise<void>
   const cartFields = (
@@ -483,7 +492,7 @@ export async function ProductPage({ product, locale }: { product: PublicProduct;
       />
 
       {/* Kauf-Leiste mobil (KO-09a): nur bei `available`; eingeblendet vom Modul `buy-bar`, ohne JavaScript verborgen. */}
-      {state === 'available' ? (
+      {state === 'available' && !preview ? (
         <div
           className={styles.buyBar}
           data-behavior="buy-bar"

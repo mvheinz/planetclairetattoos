@@ -15,6 +15,17 @@ export const SHOT_VIEWPORT = { width: 390, height: 844 } as const
 export const SHOT_DPR = 2
 export const SHOT_WIDTH = 780
 export const SHOT_QUALITY = 70
+/**
+ * Die Verwaltung nutzt den System-Schriftstapel (`-apple-system, …, Arial, sans-serif`). Unter Linux löste Chromium ihn
+ * von Seitenaufruf zu Seitenaufruf verschieden auf (gleiche Arial-kompatible Zeichen, aber andere Metriken → Fließtext
+ * um Bruchteile eines Pixels versetzt; gemessen: 2 Varianten in 12 Aufrufen). Fest auf „Liberation Sans“ (das, was
+ * ohnehin gerendert wird; Rückfall Arial) gibt es nur noch eine Variante (12/12). Code-Schrift bleibt unverändert.
+ */
+export const PIN_FONT_CSS =
+  'body, body *:not(code):not(pre):not(kbd):not(samp) { font-family: "Liberation Sans", Arial, sans-serif !important; }'
+
+/** Höchstzahl der Seitenaufrufe je Ansicht, bis zwei hintereinander das gleiche Bild liefern. */
+export const LOADS_PER_VIEW = 4
 
 /** Ansichten, die in dieser Phase schon existieren können (bis zur laufenden Phase); der Rest ist „kommt in P<n>“. */
 export function viewsToCapture(views: readonly AdminView[], phase: string): AdminView[] {
@@ -36,6 +47,24 @@ export async function encodeShot(png: Buffer): Promise<NonNullable<AdminShotEntr
   }
 }
 
+type ShotPage = {
+  screenshot: (o: object) => Promise<Buffer>
+  waitForTimeout: (ms: number) => Promise<void>
+}
+
+/** Bildschirmfoto erst, wenn zwei aufeinanderfolgende Aufnahmen byte-gleich sind (wie `toHaveScreenshot`). */
+export async function stableScreenshot(page: ShotPage, attempts = 6): Promise<Buffer> {
+  const shot = () => page.screenshot({ animations: 'disabled', caret: 'hide', scale: 'device' })
+  let previous = await shot()
+  for (let i = 1; i < attempts; i++) {
+    await page.waitForTimeout(150)
+    const next = await shot()
+    if (next.equals(previous)) return next
+    previous = next
+  }
+  return previous
+}
+
 export interface AdminShotOptions {
   origin: string
   adminRoute: string
@@ -53,7 +82,9 @@ export async function captureAdminShots(
   const warnings: string[] = []
   const capture = new Set(viewsToCapture(options.views, options.phase).map((v) => v.key))
   const images = new Map<string, AdminShotEntry['image']>()
-  const browser = await chromium.launch()
+  // Graustufen-Kantenglättung statt LCD-Text: Ob Chromium Text subpixel-geglättet rastert, hängt davon ab, ob eine
+  // Ebene gerade zusammengesetzt wird – unter Last schwankte das zwischen zwei Läufen (AK-A-14-01).
+  const browser = await chromium.launch({ args: ['--disable-lcd-text'] })
   try {
     const context = await browser.newContext({
       viewport: SHOT_VIEWPORT,
@@ -74,20 +105,37 @@ export async function captureAdminShots(
     await page.clock.setFixedTime(new Date(options.seedNow))
     const base = `${options.origin}${options.adminRoute}`
 
-    const shoot = async (view: AdminView) => {
+    /** Ansicht laden und stabil fotografieren; `null` = 404 („kommt in P<n>“). */
+    const load = async (view: AdminView): Promise<Buffer | null> => {
       const res = await page.goto(`${base}${view.path}`, { waitUntil: 'networkidle' })
-      if (!res || res.status() === 404) {
+      if (!res || res.status() === 404) return null
+      if (res.status() >= 500) {
+        throw new ExportError(1, `Verwaltung: ${view.key} antwortet mit HTTP ${res.status()}.`)
+      }
+      await page.addStyleTag({ content: PIN_FONT_CSS })
+      await page.evaluate(() => document.fonts.ready)
+      // Maus aus der Seite: Sonst bleibt sie dort stehen, wo der Anmelde-Knopf war, und je nach Zeitpunkt der
+      // Hover-Aktualisierung von Chromium ist das Element darunter (z. B. eine Kategorie-Kachel) hervorgehoben oder nicht.
+      // Schon ein Pixel Unterschied ändert über die globale Segmentierung von WebP das ganze Bild (AK-A-14-01).
+      await page.mouse.move(0, 0)
+      return stableScreenshot(page)
+    }
+
+    const shoot = async (view: AdminView) => {
+      // Sicherheitsnetz: erst zwei aufeinanderfolgende Seitenaufrufe mit gleichem Bild übernehmen (höchstens vier).
+      let previous = await load(view)
+      if (!previous) {
         warnings.push(
           `Verwaltung: ${view.key} (${view.path || '/'}) antwortet mit 404 – „kommt in P${view.phase}“.`,
         )
         return
       }
-      if (res.status() >= 500) {
-        throw new ExportError(1, `Verwaltung: ${view.key} antwortet mit HTTP ${res.status()}.`)
+      for (let i = 1; i < LOADS_PER_VIEW; i++) {
+        const next = await load(view)
+        if (!next || next.equals(previous)) break
+        previous = next
       }
-      await page.evaluate(() => document.fonts.ready)
-      const png = await page.screenshot({ animations: 'disabled', caret: 'hide', scale: 'device' })
-      images.set(view.key, await encodeShot(png))
+      images.set(view.key, await encodeShot(previous))
     }
 
     const anonymous = options.views.filter((v) => v.anonymous && capture.has(v.key))

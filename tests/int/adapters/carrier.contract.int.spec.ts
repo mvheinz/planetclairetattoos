@@ -1,9 +1,16 @@
 import { describe, expect, it } from 'vitest'
 
-import { getCarrierAdapter, normalizeTrackingNumber } from '@/lib/carrier'
+import { getTestPayload } from '../helpers/payload'
+
+import {
+  __setCarrierAdapterForTests,
+  getCarrierAdapter,
+  getCarrierAdapterFromSettings,
+  normalizeTrackingNumber,
+} from '@/lib/carrier'
 import { createManualCarrierAdapter } from '@/lib/carrier/manual'
 
-// P1.10 – Kontrakttest Versand (ARCHITEKTUR §3.7): Treiber `manual`, keine API, keine Netzwerk-Anfrage.
+// P1.10/P5.14 – Kontrakttest Versand (ARCHITEKTUR §3.7): Treiber `manual`, keine API, keine Netzwerk-Anfrage.
 
 describe('Versand – manual', () => {
   const carrier = getCarrierAdapter()
@@ -20,7 +27,8 @@ describe('Versand – manual', () => {
     expect(carrier.validateTrackingNumber('dhl', '1234567')).toBe(false) // < 8
     expect(carrier.validateTrackingNumber('dhl', 'A'.repeat(36))).toBe(false) // > 35
     expect(carrier.validateTrackingNumber('dhl', '0034043416#123')).toBe(false)
-    expect(normalizeTrackingNumber(' jj12 3456-78 ')).toBe('JJ12345678')
+    expect(normalizeTrackingNumber(' jj12 3456 78 ')).toBe('JJ12345678')
+    expect(carrier.validateTrackingNumber('dhl', 'JJ12-3456-78')).toBe(false) // Sonderzeichen (P5.14)
   })
 
   it('trackingUrl aus der Vorlage, normalisierte Nummer; ohne Nummer null', () => {
@@ -46,5 +54,32 @@ describe('Versand – manual', () => {
       { carrier: 'dhl', urlTemplate: 'https://www.dhl.de/' },
     ])
     expect(broken.trackingUrl('dhl', '00340434161234567890', 'de')).toBeNull()
+  })
+})
+
+describe('Versand – Vorlagen aus den Einstellungen (P5.14, DATENMODELL §7.1, DM-12)', () => {
+  it('Grund-Seed enthält die Vorlagen für dhl und deutsche_post (DHL-Sendungsverfolgung, Annahme DM-12)', async () => {
+    const payload = await getTestPayload()
+    const settings = await payload.findGlobal({ slug: 'settings', overrideAccess: true })
+    const templates = settings.shipping?.trackingUrlTemplates ?? []
+    const dhl =
+      'https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode={trackingNumber}'
+    expect(templates.map((t) => [t.carrier, t.urlTemplate]).sort()).toEqual([
+      ['deutsche_post', dhl],
+      ['dhl', dhl],
+    ])
+  })
+
+  it('getCarrierAdapterFromSettings: Link DE/EN aus den Einstellungen; kein Request an fremde Hosts', async () => {
+    const payload = await getTestPayload()
+    __setCarrierAdapterForTests(undefined)
+    const carrier = await getCarrierAdapterFromSettings(payload)
+    expect(carrier.driver).toBe('manual')
+    expect(carrier.trackingUrl('deutsche_post', '00340 4343 1234 5678 90', 'de')).toBe(
+      'https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode=0034043431234567890',
+    )
+    expect(carrier.trackingUrl('dhl', '0034043431234567890', 'en')).toBe(
+      'https://www.dhl.de/en/privatkunden/pakete-empfangen/verfolgen.html?piececode=0034043431234567890',
+    )
   })
 })

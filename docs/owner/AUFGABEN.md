@@ -40,7 +40,7 @@ und den machen wir zusammen.
 | 2. Während der Cloud-Phasen | A06–A22 | 550 Min., verteilt über mehrere Wochen (plus Optionales) | Nein |
 | 3. Vor dem Start (P11) | A23–A32 | 295 Min. plus ca. 25 Min. pro Stück | Nein, aber P11 braucht die Ergebnisse |
 | 4. Am Start-Tag (P11, mit Claude) | A33–A41 (mit A33a und A36a) | 300 Min. plus ca. 10 Min. pro Stück | – |
-| 5. Nach dem Start | A42–A50 | laufend | – |
+| 5. Nach dem Start | A42–A52 | laufend | – |
 
 ---
 
@@ -396,6 +396,19 @@ Die genaue Bedienung erklärt dein Handbuch, das in P10 in diesen Ordner kommt.
     ist. Beides nimmst du ernst.
   - Aufwand: ca. 5 Min. pro Monat
 
+- [ ] **A51 · Optional, mit der Steuerberatung:** DATEV-Konten festlegen und den ersten DATEV-Export prüfen lassen
+  - Warum: Der Shop kann deine Buchungen für das Programm deiner Steuerberatung (DATEV) als Datei ausgeben. Welche
+    Konten und Nummern dort stehen (Berater- und Mandantennummer, Erlös-, Stripe-, Bank- und Gebührenkonto, Beginn
+    des Wirtschaftsjahres), legt die Steuerberatung fest. Du trägst sie unter Einstellungen → Export ein. Vorher ist der
+    Knopf grau. Die erste Datei schickst du der Steuerberatung zur Probe.
+  - Aufwand: ca. 15 Min. einmalig
+
+- [ ] **A52 · Beim ersten Packen: deine Verpackungen einmal wiegen**
+  - Warum: Die Verwaltung schlägt je Versandart eine Verpackung mit Gewicht vor (Kartonumschlag, Papier-Versandtasche,
+    Karton in Karton). Diese Gewichte sind nur geschätzt. Wiege jede Verpackungsart einmal mit der Küchenwaage und
+    trage die Gramm unter Einstellungen → Versand → Verpackung ein. Dann stimmt deine Jahresmeldung (A46).
+  - Aufwand: ca. 10 Min. einmalig
+
 ---
 
 ## Für Claude-Sessions (Jutta kann das überspringen)
@@ -440,3 +453,5 @@ Die genaue Bedienung erklärt dein Handbuch, das in P10 in diesen Ordner kommt.
 | A40 | R-022 | – | – |
 | A41 | E-63, R-180, R-210 | „Beispieldaten entfernen“, `pnpm check:golive` | – |
 | A45 | E-45 | Umsatz-Wächter: `revenue-entries` (manuelle Monatssummen je Quelle `tattoo`, `flohmarkt`, `auftragsarbeiten`, `sonstiges`) | – |
+| A51 | E-04, R-124 | `settings.export.datev.*` (`consultantNumber`, `clientNumber`, `fiscalYearStart`, `revenueAccount`, `stripeTransitAccount`, `bankAccount`, `feeAccount`); `GET /api/admin/export/{JJJJ-MM}.datev.csv` (P5.25) | Knopf ausgegraut, Endpunkt 409 |
+| A52 | E-47, R-201, KA-29 | `settings.packaging.templates[].components[].grams` (Schätzwerte aus dem Grund-Seed); Vorbelegung je Sendung `orders.packaging.*` beim Packen (P5.11) | Schätzwerte bleiben stehen |

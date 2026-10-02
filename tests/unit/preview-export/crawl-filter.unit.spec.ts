@@ -89,9 +89,9 @@ describe('Vorschau-Export: Crawl-Filter (ARCHITEKTUR §14.4)', () => {
       ),
     ).toEqual([])
     const refs = assetRefs(
-      '<html><head><link rel="stylesheet" href="/s.css"></head><body><img src="/i.webp" srcset="/i-2.webp 2x"><svg><use href="/art/coco.v1.svg#coco-a"></use><use href="#local"></use></svg></body></html>',
+      '<html><head><link rel="stylesheet" href="/s.css"></head><body><img src="/i.webp" srcset="/i-2.webp 2x"><svg><use href="/art/coco.v1.svg#coco-a"></use><use href="#local"></use><use data-href="/art/menu.v1.svg#coco-b"></use></svg></body></html>',
     )
-    expect(refs).toEqual(['/art/coco.v1.svg', '/i-2.webp', '/i.webp', '/s.css'])
+    expect(refs).toEqual(['/art/coco.v1.svg', '/art/menu.v1.svg', '/i-2.webp', '/i.webp', '/s.css'])
   })
 })
 

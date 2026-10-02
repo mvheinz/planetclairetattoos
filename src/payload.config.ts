@@ -35,10 +35,15 @@ import { DeletionLog } from './collections/DeletionLog'
 import { EmailLog } from './collections/EmailLog'
 import { WebhookEvents } from './collections/WebhookEvents'
 import { Settings } from './globals/Settings'
+import { complianceTemplateEndpoint } from './endpoints/compliance'
+import { exportEndpoints } from './endpoints/export'
 import { SiteTexts } from './globals/SiteTexts'
 import { withJsonPreview } from './admin/jsonPreview'
+import { pwaPaths } from './admin/pwa/manifest'
 import { noAnyTypesSchema } from './lib/payload/typesSchema'
+import { keepValidationErrorData } from './lib/payload/validationErrorResponse'
 import { ADMIN_CUSTOM_DE } from './admin/translations'
+import { adminViewsConfig } from './admin/views/config'
 import { isAdmin, isAdminRequest } from './access'
 import { JOB_TASKS } from './jobs'
 import { createMailTransport, parseMailFrom } from './lib/email'
@@ -65,10 +70,30 @@ export default buildConfig({
         Logo: '/admin/components/BrandGraphics#AdminLogo',
         Icon: '/admin/components/BrandGraphics#AdminIcon',
       },
+      // Verwaltungs-Gerüst (PLAN P5.1, KONZEPT §7.2): eigene Ansichten aus der Registry, Seitenleiste mit allen
+      // Ansichten vor Payloads Sammlungen („Alle Daten“), Leiste unten auf dem Handy.
+      views: adminViewsConfig(),
+      beforeNavLinks: ['/admin/components/AdminNavLinks#AdminNavLinks'],
+      header: [
+        '/admin/components/AdminBottomBar#AdminBottomBar',
+        // Namen für Payloads Auswahl-Kästchen in „Alle Daten“-Listen (axe „label“).
+        '/admin/components/ListA11yFixes#ListA11yFixes',
+        // Verwaltung als installierbare Web-App (P5.29): Service Worker nur hier registrieren.
+        '/admin/components/PwaRegister#PwaRegister',
+      ],
     },
     meta: {
       titleSuffix: ' – planet claire',
-      icons: [{ rel: 'icon', type: 'image/svg+xml', url: '/icon.svg' }],
+      icons: [
+        { rel: 'icon', type: 'image/svg+xml', url: '/icon.svg' },
+        {
+          rel: 'apple-touch-icon',
+          sizes: '180x180',
+          url: pwaPaths(env.ADMIN_ROUTE).icon('apple-touch-icon.png'),
+        },
+      ],
+      // Web-App-Manifest nur für die Verwaltung (P5.29, KONZEPT §7.1), ausgeliefert unter ADMIN_ROUTE.
+      manifest: pwaPaths(env.ADMIN_ROUTE).manifest,
     },
     importMap: {
       baseDir: path.resolve(dirname),
@@ -107,6 +132,9 @@ export default buildConfig({
     DeletionLog,
   ].map((c) => ({ ...c, fields: withJsonPreview(c.fields) })),
   globals: [Settings, SiteTexts].map((g) => ({ ...g, fields: withJsonPreview(g.fields) })),
+  // Admin-Endpunkte ohne Collection (ARCHITEKTUR §2.5): Exporte (P5.24/P5.25).
+  endpoints: [...exportEndpoints, complianceTemplateEndpoint],
+  hooks: { afterError: [keepValidationErrorData] },
   editor: lexicalEditor(),
   // DATENMODELL §1.2 (E-60, E-61): fehlendes EN zeigt DE.
   localization: {

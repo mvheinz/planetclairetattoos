@@ -60,6 +60,8 @@ import {
 } from '@/lib/retention/policy'
 
 import { orderActionEndpoints } from '@/endpoints/orders/actions'
+import { orderAdminEndpoints } from '@/endpoints/orders/admin'
+import { formatShippingAddress } from '@/lib/commerce/address'
 
 import { actorTypeOf, failField, groupOf, rejectChanges, SHA256_HEX } from './hooks/commerce'
 import { changedFields } from './hooks/immutable'
@@ -484,7 +486,7 @@ export const Orders: CollectionConfig = {
   },
   access: { read: isAdmin, update: isAdmin, create: none, delete: none },
   defaultSort: '-createdAt',
-  endpoints: orderActionEndpoints,
+  endpoints: [...orderActionEndpoints, ...orderAdminEndpoints],
   indexes: [{ fields: ['privacy.legalHold'] }],
   fields: [
     {
@@ -774,6 +776,23 @@ export const Orders: CollectionConfig = {
       type: 'date',
       label: 'DHL-Einwilligung widerrufen am',
       admin: ro,
+    },
+    {
+      // Virtuell (DATENMODELL §6.8.1, PLAN P5.10): Text für „Adresse kopieren“ – E-Mail nur mit wirksamer
+      // DHL-Einwilligung, nie Telefon (R-101).
+      name: 'copyAddressText',
+      type: 'textarea',
+      label: 'Adresse für die DHL-App',
+      virtual: true,
+      admin: { ...ro, condition: (data) => data?.fulfillmentMethod === 'shipping' },
+      hooks: {
+        afterRead: [
+          ({ data }) =>
+            data?.fulfillmentMethod === 'shipping'
+              ? formatShippingAddress(data, { includeEmail: true })
+              : null,
+        ],
+      },
     },
     { name: 'invoice', type: 'relationship', label: 'Rechnung', relationTo: 'invoices', admin: ro },
     {

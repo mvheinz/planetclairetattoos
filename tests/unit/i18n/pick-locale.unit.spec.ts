@@ -1,7 +1,9 @@
+import { readdirSync } from 'node:fs'
+
 import { describe, expect, it } from 'vitest'
 
 import { pickLocale } from '@/i18n/pickLocale'
-import { decidePublicRoute, isExcludedPath } from '@/lib/routes/redirects'
+import { ROOT_FILES, decidePublicRoute, isExcludedPath } from '@/lib/routes/redirects'
 import { wwwRedirectTarget } from '@/proxy'
 
 // KONZEPT §2.4, AK-2-02 (R30): Spracherkennung über Accept-Language, q-Werte beachten, Rückfall de, kein Cookie.
@@ -110,5 +112,38 @@ describe('wwwRedirectTarget', () => {
     expect(wwwRedirectTarget('www.localhost:3000', 'http://localhost:3000', '/de')).toBe(
       'http://localhost:3000/de',
     )
+  })
+})
+
+describe('Unbekannte Dateien auf erster Ebene (P5.29, T-04)', () => {
+  it('T-04 /sw.js, /manifest.webmanifest, /foo.txt → 404 im Proxy; echte Wurzel-Dateien und tiefere Dateien → weiter', () => {
+    for (const p of ['/sw.js', '/manifest.webmanifest', '/foo.txt', '/.env'])
+      expect(decidePublicRoute(p, '', 'de')).toEqual({ kind: 'not-found' })
+    for (const p of [
+      '/robots.txt',
+      '/sitemap.xml',
+      '/icon.svg',
+      '/apple-icon.png',
+      '/de/og-image.png',
+    ])
+      expect(decidePublicRoute(p, '', 'de')).toEqual({ kind: 'pass' })
+    expect(decidePublicRoute('/de', '', 'de')).toEqual({ kind: 'intl' })
+  })
+
+  it('T-04 ROOT_FILES deckt alle Metadaten-Dateien in src/app/ und alle Dateien in public/ ab', () => {
+    const metadata = readdirSync('src/app', { withFileTypes: true })
+      .filter((e) => e.isFile() && /^(robots|sitemap|favicon|icon|apple-icon)\./.test(e.name))
+      .map((e) =>
+        e.name === 'robots.ts'
+          ? '/robots.txt'
+          : e.name === 'sitemap.ts'
+            ? '/sitemap.xml'
+            : `/${e.name}`,
+      )
+    const publicFiles = readdirSync('public', { withFileTypes: true })
+      .filter((e) => e.isFile() && !e.name.startsWith('.'))
+      .map((e) => `/${e.name}`)
+    for (const f of [...metadata, ...publicFiles]) expect(ROOT_FILES.has(f), f).toBe(true)
+    expect(metadata.length).toBeGreaterThanOrEqual(4)
   })
 })

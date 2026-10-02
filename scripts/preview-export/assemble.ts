@@ -134,12 +134,12 @@ export async function assemble(input: AssembleInput): Promise<Assembled> {
   const warnings: string[] = []
   const assets = [...crawl.assets.values()]
 
-  // Sprites: SVG-Dateien, auf die `<use href="…svg#id">` zeigt.
+  // Sprites: SVG-Dateien, auf die `<use href="…svg#id">` (oder `data-href`, `Coco deferSprite`) zeigt.
   const spritePaths = new Set<string>()
   for (const page of crawl.pages) {
     const $ = cheerio.load(page.html)
     $('use').each((_, el) => {
-      const href = $(el).attr('href') ?? $(el).attr('xlink:href') ?? ''
+      const href = $(el).attr('href') ?? $(el).attr('xlink:href') ?? $(el).attr('data-href') ?? ''
       const t = spriteUseTarget(href)
       if (t) spritePaths.add(new URL(t.file, `http://x${page.path}`).pathname)
     })

@@ -12,4 +12,4 @@ Die Kundin bzw. der Kunde hat automatisch eine Entschuldigung bekommen.
 
 --
 Diese Nachricht hat deine Website automatisch erzeugt.
-Zur Verwaltung: https://planetclairetattoos.com/werkstatt/collections/orders/18
+Zur Verwaltung: https://planetclairetattoos.com/werkstatt/bestellungen/18

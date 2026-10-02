@@ -305,8 +305,16 @@ export async function renderAdminMail(input: AdminMailInput): Promise<RenderedMa
   return { subject: input.subject, html, text, images: [] }
 }
 
-/** Grußformel (Baustein „Grußformel und Signatur“ folgt mit den pflegbaren Mail-Bausteinen). */
+/** Grußformel: Mail-Baustein „Grußformel und Signatur“ (P5.27), sonst Standard-Grußformel mit Geschäftsname. */
 export function closingBlock(locale: Locale, business: MailBusiness): Block {
+  const signature = business.signature?.trim()
+  if (signature)
+    return block.lines(
+      signature
+        .split(/\r?\n/)
+        .map((l) => l.trim())
+        .filter(Boolean),
+    )
   const name = business.tradeName || business.legalName
   return block.lines([mailTexts(locale).common.closing, name])
 }

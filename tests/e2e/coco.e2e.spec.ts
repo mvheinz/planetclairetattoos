@@ -103,7 +103,11 @@ test.describe('Coco', () => {
 
   test('Menü: Coco kopfschief in Größe m (72 px) mit fester Box', async ({ page }) => {
     await page.goto('/de')
-    await page.locator('[data-site-header] [data-menu-trigger]').click()
+    const trigger = page.locator('[data-site-header] [data-menu-trigger]')
+    // Erst klicken, wenn das Menü-Modul gebunden ist (wie in menu.e2e.spec.ts) – sonst geht der Klick vor dem Laden
+    // des nachgeladenen Moduls ins Leere (auf der Startseite lädt zuerst die Tuschelinie).
+    await expect(trigger).toHaveAttribute('role', 'button')
+    await trigger.click()
     const coco = page.locator('dialog .coco')
     await expect(coco).toBeVisible()
     await expect(coco).toHaveAttribute('data-pose', 'kopfschief')

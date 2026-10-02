@@ -1,0 +1,36 @@
+Your order is ready for pickup
+
+Hi Erika Beispiel,
+
+Your piece is ready for collection. Location and suggested appointments:
+
+Abholung im Atelier nach Absprache, meist Di–Do 16–19 Uhr.
+Planet Claire, Musterstraße 1, 10115 Berlin
+
+Ready for pickup
+----------------
+
+- No. 017 · Tasse „Coco schläft“
+
+Order number: PC-2026-00017
+
+Just reply to this email to arrange a time.
+
+You can view your order at any time here:
+Order status: https://planetclairetattoos.com/en/order/__STATUS_TOKEN__
+
+How I handle your data is explained in the privacy policy:
+Privacy policy: https://planetclairetattoos.com/en/privacy
+
+Best wishes
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Legal notice: https://planetclairetattoos.com/en/legal-notice
+Privacy policy: https://planetclairetattoos.com/en/privacy
+Order status: https://planetclairetattoos.com/en/order/__STATUS_TOKEN__
+Withdraw from contract here: https://planetclairetattoos.com/en/withdraw-from-contract

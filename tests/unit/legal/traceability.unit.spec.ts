@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest'
 // Test abgedeckt, dessen Titel die ID enthält. Quelle ist die Tabelle in docs/recht/ANFORDERUNGEN.md §3. Geprüft
 // werden nur IDs, deren früheste Phase ≤ LEGAL_TRACE_PHASE ist; jede Phase erhöht den Wert auf ihre Nummer.
 
-export const LEGAL_TRACE_PHASE = 4
+export const LEGAL_TRACE_PHASE = 5
 
 const ROOT = path.resolve(__dirname, '../../..')
 const AUTOMATED = new Set(['unit', 'int', 'e2e'])

@@ -164,6 +164,46 @@ describe('Objektnummer (DM-PROD-05, R-041)', () => {
   })
 })
 
+describe('Live-Prüfung der Objektnummer (P5.6, ARCHITEKTUR §2.5)', () => {
+  const status = (q: string) =>
+    rest('GET', `/products/item-number-status?${q}`, undefined, { authorization: `JWT ${token}` })
+
+  it('„✓ frei“ bzw. „✗ vergeben: Nr. 017 Schale mit Hund“; eigenes Stück zählt nicht; nur Verwaltung', async () => {
+    await deleteProducts(payload)
+    const own = await draft(17, { title: 'Schale mit Hund' })
+    const taken = await status('n=17')
+    expect(taken.status).toBe(200)
+    expect(taken.headers.get('cache-control')).toContain('no-store')
+    expect(await taken.json()).toMatchObject({
+      n: 17,
+      status: 'taken',
+      message: '✗ vergeben: Nr. 017 Schale mit Hund',
+      product: { id: own.id, itemNumber: 17, title: 'Schale mit Hund' },
+      nextFree: 18,
+    })
+    expect(await (await status('n=017')).json()).toMatchObject({ n: 17, status: 'taken' })
+    expect(await (await status('n=18')).json()).toEqual({
+      n: 18,
+      status: 'free',
+      message: '✓ frei',
+    })
+    expect(await (await status(`n=17&exclude=${own.id}`)).json()).toMatchObject({ status: 'free' })
+    expect(await (await status('n=abc')).json()).toMatchObject({ status: 'invalid', n: null })
+    expect(await (await status('n=100000')).json()).toMatchObject({ status: 'invalid' })
+    expect((await rest('GET', '/products/item-number-status?n=17')).status).toBe(403)
+  })
+
+  it('901–999 bei vorhandenen Beispieldaten als gesperrt gemeldet', async () => {
+    await setExampleData(true)
+    expect(await (await status('n=950')).json()).toMatchObject({
+      status: 'reserved',
+      nextFree: 1000,
+    })
+    await setExampleData(false)
+    expect(await (await status('n=950')).json()).toMatchObject({ status: 'free' })
+  })
+})
+
 describe('Slug je Sprache (R-041, §6.6.8)', () => {
   it('„<nr3>-<slugify(titel)>“, EN aus dem EN-Titel, sonst aus dem deutschen', async () => {
     const doc = await draft(17_017, { title: 'Schale „Fuchs“ Nr. 1' })

@@ -17,6 +17,8 @@ export interface TotalsItem {
   priceCents: number
   vatCategory: VatCategory
   shippingClass: ShippingClass
+  /** Lebensmittelkontakt (Keramik), für die Länder-Sperre R-202. */
+  foodContact?: string | null
 }
 
 export interface TotalsInput {

@@ -1,8 +1,15 @@
 // Verwaltungs-Ansichten für die Bildschirmfotos der Vorschau-Datei (ARCHITEKTUR §14.7, KONZEPT §12.5 Nr. 9): je Ansicht
 // aus KONZEPT §7.3–§7.15 Schlüssel, Pfad relativ zu `ADMIN_ROUTE`, Bildunterschrift DE/EN und die Phase, ab der sie
 // existiert. In P2 gibt es nur Anmeldung, Liste und Formular der Standard-Verwaltung (P1); die eigenen Handy-Ansichten
-// baut P5 (P5.1 ergänzt die Pfade der Ansichten-Registry), „Tattoo“ P7. Noch nicht gebaute Ansichten erscheinen als
-// „kommt in P<n>“.
+// kommen aus der Ansichten-Registry (`src/admin/views/registry.ts`, P5.1: Pfad, Titel, Phase), „Tattoo“ P7. Noch nicht
+// gebaute Ansichten erscheinen als „kommt in P<n>“. Detailansichten (`/bestellungen/:id` …) brauchen eine ID und
+// werden nicht einzeln aufgenommen; Unterseiten ohne ID (Einstellungen → Versand …) schon.
+
+import {
+  ADMIN_DETAIL_VIEWS,
+  ADMIN_HOME_VIEW,
+  ADMIN_VIEWS as REGISTRY_VIEWS,
+} from '../../src/admin/views/registry'
 
 export interface AdminView {
   key: string
@@ -15,6 +22,33 @@ export interface AdminView {
   anonymous?: boolean
   /** Quelle in KONZEPT. */
   ref: string
+}
+
+/** Englische Bildunterschriften der Registry-Ansichten (die Verwaltung selbst ist nur Deutsch). */
+const CAPTION_EN: Record<(typeof REGISTRY_VIEWS)[number]['key'], string> = {
+  heute: 'Today',
+  'neues-stueck': 'New piece',
+  stuecke: 'My pieces',
+  packen: 'To pack',
+  vorkasse: 'Awaiting bank transfer',
+  versendet: 'Shipped',
+  abholung: 'Pick-up',
+  widerrufe: 'Withdrawals',
+  anfragen: 'Requests (commissions)',
+  tattoo: 'Tattoo',
+  texte: 'Texts',
+  einstellungen: 'Settings',
+  export: 'Export and privacy tools',
+}
+
+/** Unterseiten ohne ID (Einstellungen → …) werden wie Hauptansichten aufgenommen; Detailansichten mit `:id` nicht. */
+const SUBPAGES = ADMIN_DETAIL_VIEWS.filter((v) => !v.path.includes(':'))
+
+const SUBPAGE_CAPTION_EN: Record<string, string> = {
+  produktsicherheit: 'Settings: product safety',
+  versand: 'Settings: shipping',
+  'umsatz-waechter': 'Settings: revenue guard',
+  system: 'Settings: system',
 }
 
 export const ADMIN_VIEWS: readonly AdminView[] = [
@@ -40,89 +74,19 @@ export const ADMIN_VIEWS: readonly AdminView[] = [
     phase: 1,
     ref: 'KONZEPT §7.16',
   },
-  { key: 'heute', path: '', caption: { de: 'Heute', en: 'Today' }, phase: 5, ref: 'KONZEPT §7.3' },
-  {
-    key: 'neues-stueck',
-    path: '/neues-stueck',
-    caption: { de: 'Neues Stück', en: 'New piece' },
-    phase: 5,
-    ref: 'KONZEPT §7.4',
-  },
-  {
-    key: 'stuecke',
-    path: '/stuecke',
-    caption: { de: 'Meine Stücke', en: 'My pieces' },
-    phase: 5,
-    ref: 'KONZEPT §7.5',
-  },
-  {
-    key: 'packen',
-    path: '/packen',
-    caption: { de: 'Zu packen', en: 'To pack' },
-    phase: 5,
-    ref: 'KONZEPT §7.6',
-  },
-  {
-    key: 'vorkasse',
-    path: '/vorkasse',
-    caption: { de: 'Vorkasse offen', en: 'Awaiting bank transfer' },
-    phase: 5,
-    ref: 'KONZEPT §7.7',
-  },
-  {
-    key: 'versendet',
-    path: '/versendet',
-    caption: { de: 'Versendet', en: 'Shipped' },
-    phase: 5,
-    ref: 'KONZEPT §7.8',
-  },
-  {
-    key: 'abholung',
-    path: '/abholung',
-    caption: { de: 'Abholung', en: 'Pick-up' },
-    phase: 5,
-    ref: 'KONZEPT §7.9',
-  },
-  {
-    key: 'widerrufe',
-    path: '/widerrufe',
-    caption: { de: 'Widerrufe', en: 'Withdrawals' },
-    phase: 5,
-    ref: 'KONZEPT §7.10',
-  },
-  {
-    key: 'anfragen',
-    path: '/anfragen',
-    caption: { de: 'Anfragen (Auftragsarbeiten)', en: 'Requests (commissions)' },
-    phase: 5,
-    ref: 'KONZEPT §7.11',
-  },
-  {
-    key: 'tattoo',
-    path: '/tattoo',
-    caption: { de: 'Tattoo', en: 'Tattoo' },
-    phase: 7,
-    ref: 'KONZEPT §7.12',
-  },
-  {
-    key: 'texte',
-    path: '/texte',
-    caption: { de: 'Texte', en: 'Texts' },
-    phase: 5,
-    ref: 'KONZEPT §7.13',
-  },
-  {
-    key: 'einstellungen',
-    path: '/einstellungen',
-    caption: { de: 'Einstellungen', en: 'Settings' },
-    phase: 5,
-    ref: 'KONZEPT §7.14',
-  },
-  {
-    key: 'export',
-    path: '/export',
-    caption: { de: 'Export und Datenschutz-Werkzeuge', en: 'Export and privacy tools' },
-    phase: 5,
-    ref: 'KONZEPT §7.15',
-  },
+  // „Heute“ als Startseite der Verwaltung (`ADMIN_ROUTE` selbst), alle übrigen unter ihrem Registry-Pfad.
+  ...REGISTRY_VIEWS.map((v) => ({
+    key: v.key,
+    path: v.key === ADMIN_HOME_VIEW ? '' : v.path,
+    caption: { de: v.title, en: CAPTION_EN[v.key] },
+    phase: v.phase,
+    ref: v.ref,
+  })),
+  ...SUBPAGES.map((v) => ({
+    key: v.key,
+    path: v.path,
+    caption: { de: `Einstellungen: ${v.title}`, en: SUBPAGE_CAPTION_EN[v.key] ?? v.title },
+    phase: v.phase,
+    ref: v.ref,
+  })),
 ]

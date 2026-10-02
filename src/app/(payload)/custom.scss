@@ -1,0 +1,1154 @@
+// Verwaltungs-Gerüst (PLAN P5.1, KONZEPT §7.1/§7.2, DESIGN §3.3): nur Payload-Variablen `--theme-*`, keine eigenen
+// Animationen oder Übergänge, Tipp-Flächen ≥ 44 px, sichtbarer Fokus. Payloads Umbruch Handy/Seitenleiste: 1024 px.
+
+$pc-bar-height: 64px;
+
+.pc-admin-icon {
+  flex: none;
+}
+
+// Fokus sichtbar für alle eigenen Bedienelemente (WCAG 2.4.7).
+.pc-admin-btn,
+.pc-admin-link,
+.pc-admin-nav__link,
+.pc-admin-bottombar__item,
+.pc-admin-copy__field {
+  &:focus-visible {
+    outline: 3px solid var(--theme-success-500);
+    outline-offset: 2px;
+  }
+}
+
+// --- Knöpfe ---------------------------------------------------------------------------------------------------
+.pc-admin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 10px 18px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  transition: none;
+
+  &:disabled,
+  &[aria-busy='true'] {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  &--primary {
+    background: var(--theme-elevation-900);
+    color: var(--theme-elevation-0);
+  }
+  &--secondary {
+    background: var(--theme-elevation-0);
+    color: var(--theme-elevation-900);
+    border-color: var(--theme-elevation-400);
+  }
+  &--danger {
+    background: var(--theme-error-800);
+    color: var(--theme-elevation-0);
+  }
+}
+
+.pc-admin-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.pc-admin-action {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.pc-admin-link {
+  color: inherit;
+  text-decoration: underline;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+// --- Rückmeldung und Status -----------------------------------------------------------------------------------
+.pc-admin-notice {
+  border: 1px solid var(--theme-elevation-300);
+  border-left-width: 4px;
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin: 0 0 16px;
+  background: var(--theme-elevation-50);
+  color: var(--theme-elevation-1000);
+  max-width: 48rem;
+  overflow-wrap: anywhere;
+
+  p {
+    margin: 0;
+  }
+  &__action {
+    margin-top: 4px !important;
+  }
+  &--success {
+    border-color: var(--theme-success-600);
+    background: var(--theme-success-100);
+  }
+  &--error {
+    border-color: var(--theme-error-600);
+    background: var(--theme-error-100);
+  }
+  &--warning {
+    border-color: var(--theme-warning-600);
+    background: var(--theme-warning-100);
+  }
+}
+
+.pc-admin-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--theme-elevation-400);
+  background: var(--theme-elevation-50);
+  color: var(--theme-elevation-1000);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+
+  &--success {
+    border-color: var(--theme-success-600);
+    background: var(--theme-success-100);
+    color: var(--theme-success-800);
+  }
+  &--warning {
+    border-color: var(--theme-warning-600);
+    background: var(--theme-warning-100);
+    color: var(--theme-warning-800);
+  }
+  &--error {
+    border-color: var(--theme-error-600);
+    background: var(--theme-error-100);
+    color: var(--theme-error-800);
+  }
+  &--info {
+    border-color: var(--theme-elevation-500);
+  }
+}
+
+// --- Dialog und Kopieren --------------------------------------------------------------------------------------
+.pc-admin-dialog {
+  width: min(32rem, calc(100vw - 32px));
+  box-sizing: border-box;
+  border: 1px solid var(--theme-elevation-300);
+  border-radius: 8px;
+  padding: 20px;
+  background: var(--theme-elevation-0);
+  color: var(--theme-elevation-1000);
+
+  &::backdrop {
+    background: rgb(0 0 0 / 0.45);
+  }
+  &__title {
+    margin: 0 0 8px;
+    font-size: 1.25rem;
+  }
+  &__consequence {
+    margin: 0 0 16px;
+  }
+}
+
+.pc-admin-copy {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 100%;
+
+  &__fallback {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+  &__field {
+    width: min(100%, 28rem);
+    box-sizing: border-box;
+    font: inherit;
+    padding: 8px;
+    background: var(--theme-input-bg, var(--theme-elevation-0));
+    color: var(--theme-elevation-1000);
+    border: 1px solid var(--theme-elevation-400);
+  }
+  &__status:empty {
+    display: none;
+  }
+}
+
+// --- Ansichten -------------------------------------------------------------------------------------------------
+.pc-admin-view {
+  padding-top: 16px;
+  padding-bottom: 32px;
+
+  &__title {
+    margin: 0 0 16px;
+  }
+}
+
+// --- Navigation: Ansichten vor „Alle Daten“ -------------------------------------------------------------------
+.pc-admin-nav {
+  margin-bottom: 8px;
+
+  &__heading {
+    margin: 12px 0 4px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--theme-elevation-700);
+  }
+  &__heading--data {
+    margin-top: 20px;
+    padding-top: 12px;
+    border-top: 1px solid var(--theme-elevation-150);
+  }
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  &__link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 4px 8px;
+    margin: 0 -8px;
+    border-radius: 6px;
+    color: var(--theme-elevation-900);
+    text-decoration: none;
+
+    &:hover {
+      background: var(--theme-elevation-100);
+    }
+    &[aria-current='page'] {
+      background: var(--theme-elevation-150);
+      font-weight: 600;
+    }
+  }
+}
+
+// Payload-Standardtexte mit zu wenig Kontrast (axe color-contrast, WCAG 1.4.3): Gruppen-Überschriften unter
+// „Alle Daten“ (`--theme-elevation-400`) und die Beschriftung „Sprache:“ (`--theme-elevation-500`) – dunkler, sonst
+// unverändert.
+.nav-group__toggle,
+.localizer-button__label {
+  color: var(--theme-elevation-700);
+}
+
+// --- Leiste unten (Handy) --------------------------------------------------------------------------------------
+.pc-admin-bottombar {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .pc-admin-bottombar {
+    display: block;
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 45; // über Payloads Menü (40), damit „Mehr“ es auch wieder schließt; unter Dialogen (50)
+    background: var(--theme-elevation-0);
+    border-top: 1px solid var(--theme-elevation-200);
+    padding-bottom: env(safe-area-inset-bottom);
+
+    &__list {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    &__item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      width: 100%;
+      min-height: $pc-bar-height;
+      padding: 6px 2px;
+      border: 0;
+      background: none;
+      color: var(--theme-elevation-800);
+      font: inherit;
+      font-size: 0.8125rem;
+      line-height: 1.2;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+
+      &[aria-current='page'],
+      &[aria-expanded='true'] {
+        color: var(--theme-elevation-1000);
+        font-weight: 700;
+        box-shadow: inset 0 3px 0 var(--theme-elevation-1000);
+      }
+    }
+  }
+
+  // Platz für die Leiste: Inhalt und Menü enden über ihr.
+  .template-default__wrap {
+    padding-bottom: calc(#{$pc-bar-height} + env(safe-area-inset-bottom));
+  }
+  .template-default .nav__scroll {
+    padding-bottom: calc(#{$pc-bar-height} + 24px + env(safe-area-inset-bottom));
+  }
+  // Payloads Menü-Einträge auf dem Handy mit großer Tipp-Fläche (KONZEPT §7.1).
+  .template-default .nav__link {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+// --- Formular „Neues Stück“ / „Stück bearbeiten“ (P5.5/P5.6) ---------------------------------------------------
+.pc-piece {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 48rem;
+
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--theme-elevation-150);
+  }
+  &__heading {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+  &__hint {
+    margin: 4px 0 0;
+    font-size: 0.875rem;
+    color: var(--theme-elevation-800);
+  }
+  &__status {
+    margin: 0;
+  }
+  &__check {
+    display: block;
+    margin-top: 4px;
+    font-weight: 600;
+    &.is-ok {
+      color: var(--theme-success-800);
+    }
+    &.is-bad {
+      color: var(--theme-error-800);
+    }
+  }
+  &__dims {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  &__fiber {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px solid var(--theme-elevation-200);
+    border-radius: 6px;
+  }
+  &__details summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+    &:focus-visible {
+      outline: 3px solid var(--theme-success-500);
+      outline-offset: 2px;
+    }
+  }
+  &__issues {
+    margin: 8px 0 0;
+    padding-left: 20px;
+  }
+  &__result:focus {
+    outline: none;
+  }
+  &__result:empty {
+    display: none;
+  }
+  &__url {
+    overflow-wrap: anywhere;
+    font-family: monospace;
+  }
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    position: sticky;
+    bottom: 0;
+    padding: 12px 0;
+    background: var(--theme-elevation-0);
+    border-top: 1px solid var(--theme-elevation-150);
+  }
+}
+
+@media (max-width: 1024px) {
+  .pc-piece__actions {
+    bottom: calc(#{$pc-bar-height} + env(safe-area-inset-bottom));
+  }
+}
+
+@media (min-width: 600px) {
+  .pc-piece__dims {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .pc-piece__fiber {
+    grid-template-columns: 1fr 1fr 6rem auto;
+    align-items: end;
+  }
+}
+
+.pc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  &__label {
+    font-weight: 600;
+    padding: 0;
+  }
+  &__required {
+    color: var(--theme-error-800);
+  }
+  &__wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  input[type='text'],
+  input[type='search'],
+  input[type='date'],
+  input[type='email'],
+  input[type='tel'],
+  input[type='password'],
+  select,
+  textarea {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 44px;
+    padding: 8px 12px;
+    font: inherit;
+    font-size: 1rem; // iOS zoomt bei kleinerer Schrift beim Fokussieren
+    color: var(--theme-elevation-1000);
+    background: var(--theme-input-bg, var(--theme-elevation-0));
+    border: 1px solid var(--theme-elevation-400);
+    border-radius: 4px;
+
+    &:focus-visible {
+      outline: 3px solid var(--theme-success-500);
+      outline-offset: 1px;
+    }
+    &[readonly] {
+      background: var(--theme-elevation-100);
+    }
+  }
+  textarea {
+    resize: vertical;
+  }
+  &:focus {
+    outline: none;
+  }
+}
+
+.pc-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pc-choice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 4px 12px 4px 8px;
+  border: 1px solid var(--theme-elevation-300);
+  border-radius: 6px;
+  cursor: pointer;
+
+  input {
+    width: 22px;
+    height: 22px;
+    flex: none;
+    margin: 0;
+    &:focus-visible {
+      outline: 3px solid var(--theme-success-500);
+      outline-offset: 2px;
+    }
+  }
+  &:has(input:checked) {
+    border-color: var(--theme-elevation-900);
+    background: var(--theme-elevation-100);
+    font-weight: 600;
+  }
+}
+
+// --- Foto-Baustein (P5.5) ---------------------------------------------------------------------------------------
+.pc-photos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &:focus {
+    outline: none;
+  }
+  &__pick {
+    position: relative;
+    &.is-disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    &:focus-within {
+      outline: 3px solid var(--theme-success-500);
+      outline-offset: 2px;
+    }
+  }
+  // Datei-Eingabe unsichtbar über dem Knopf (Tastatur: Fokus auf dem Input, Leertaste öffnet die Auswahl).
+  &__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+  &__status:empty {
+    display: none;
+  }
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  &__item {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--theme-elevation-200);
+    border-radius: 6px;
+  }
+  &__thumb {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    img {
+      width: 96px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 4px;
+      background: var(--theme-elevation-100);
+    }
+  }
+  &__nr {
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  &__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .pc-photos__item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// --- „Meine Stücke“ (P5.8) ------------------------------------------------------------------------------------
+.pc-pieces {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 64rem;
+
+  &__filter {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  &__count {
+    margin: 0;
+    font-weight: 600;
+  }
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  &__card {
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1fr);
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--theme-elevation-200);
+    border-radius: 6px;
+  }
+  &__photo img {
+    width: 80px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+  &__nophoto {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 100px;
+    font-size: 0.75rem;
+    background: var(--theme-elevation-100);
+    border-radius: 4px;
+    color: var(--theme-elevation-800);
+  }
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  &__title {
+    margin: 0;
+    font-size: 1.0625rem;
+  }
+  &__nr {
+    white-space: nowrap;
+  }
+  &__meta {
+    margin: 0;
+  }
+  &__actions {
+    margin-top: 4px;
+  }
+  &__pageinfo {
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+@media (min-width: 768px) {
+  .pc-pieces__filter {
+    grid-template-columns: 2fr 1fr 1fr auto;
+    align-items: end;
+  }
+}
+
+// --- Bestellungen: „Zu packen“, Bestell-Detail, Export (P5.9–P5.11) -------------------------------------------
+.pc-admin-btn--icon {
+  padding: 8px;
+}
+
+.pc-order {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 64rem;
+  min-width: 0;
+
+  h2,
+  h3 {
+    margin: 0 0 8px;
+  }
+  h2 {
+    font-size: 1.25rem;
+  }
+  h3 {
+    font-size: 1.0625rem;
+  }
+  &__count,
+  &__meta {
+    margin: 0;
+  }
+  &__muted {
+    margin: 0;
+    color: var(--theme-elevation-800);
+  }
+  &__list,
+  &__items,
+  &__hints,
+  &__checklist,
+  &__components,
+  &__photos,
+  &__history,
+  &__emails,
+  &__resend {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+  &__hints {
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    .pc-admin-badge {
+      white-space: normal;
+    }
+  }
+  &__card,
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid var(--theme-elevation-200);
+    border-radius: 6px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  &__cardtitle {
+    margin: 0;
+    font-size: 1.0625rem;
+  }
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+
+    img {
+      width: 56px;
+      height: 70px;
+      object-fit: cover;
+      border-radius: 4px;
+      flex: none;
+    }
+  }
+  &__itembody {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  &__nophoto {
+    display: block;
+    width: 56px;
+    height: 70px;
+    flex: none;
+    border-radius: 4px;
+    background: var(--theme-elevation-100);
+  }
+  &__nr {
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  &__facts {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px 16px;
+    margin: 0;
+
+    dt {
+      font-weight: 600;
+    }
+    dd {
+      margin: 0 0 6px;
+    }
+  }
+  &__line {
+    display: block;
+  }
+  &__component {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--theme-elevation-100);
+  }
+  &__photos {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  &__photo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    img {
+      width: 96px;
+      height: 96px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+  }
+  &__file {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  &__email {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--theme-elevation-100);
+  }
+  &__notes {
+    white-space: pre-wrap;
+    margin: 0;
+  }
+  &__form {
+    align-items: flex-end;
+  }
+}
+
+.pc-order-address {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+
+  &__lines {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  &__line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+    max-width: 28rem;
+  }
+  &__text {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+.pc-packaging-total {
+  p,
+  ul {
+    margin: 0 0 4px;
+  }
+}
+
+@media (min-width: 768px) {
+  .pc-order__facts {
+    grid-template-columns: 12rem minmax(0, 1fr);
+  }
+  .pc-order__component {
+    grid-template-columns: 2fr 1fr auto;
+    align-items: end;
+  }
+}
+
+// Sendungsnummer scannen (P5.14)
+.pc-scan {
+  margin-top: 0.5rem;
+
+  &__video {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: var(--style-radius-s, 4px);
+    background: var(--theme-elevation-100);
+  }
+
+  &__video[hidden] {
+    display: none;
+  }
+}
+
+// --- Einstellungen (P5.21) und Feldfehler ----------------------------------------------------------------------
+.pc-field__error {
+  margin: 0;
+  color: var(--theme-error-800);
+  font-weight: 600;
+}
+.pc-field [aria-invalid='true'] {
+  border-color: var(--theme-error-700) !important;
+}
+.pc-settings {
+  &__areas {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
+  }
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 40rem;
+    min-width: 0;
+  }
+  section {
+    scroll-margin-top: 72px;
+  }
+}
+
+// --- Einstellungen, Teil 2 und 3 (P5.22/P5.22a), Umsatz-Wächter (P5.23) -------------------------------------------
+.pc-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.pc-settings {
+  &__group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+  }
+  &__row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    margin: 0;
+    padding: 12px;
+    border: 1px solid var(--theme-elevation-300);
+    border-radius: 6px;
+
+    > legend {
+      font-weight: 600;
+      padding: 0 4px;
+    }
+  }
+  > .pc-order__section {
+    min-width: 0;
+    max-width: 100%;
+  }
+  &__task {
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+.pc-revenue {
+  &__bar {
+    position: relative;
+    height: 20px;
+    max-width: 40rem;
+    border: 1px solid var(--theme-elevation-500);
+    border-radius: 4px;
+    background: var(--theme-elevation-100);
+    overflow: hidden;
+  }
+  &__fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--theme-elevation-800);
+  }
+  &__mark {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    margin-left: -1px;
+    background: var(--theme-error-700);
+  }
+  &__scroll {
+    // Breite Tabelle scrollt in sich; `contain` hält sie aus der Breitenberechnung der Seite heraus (390 px).
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    contain: inline-size;
+
+    &:focus-visible {
+      outline: 3px solid var(--theme-success-500);
+      outline-offset: 2px;
+    }
+  }
+  &__table {
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+
+    th,
+    td {
+      padding: 6px 10px;
+      text-align: right;
+      white-space: nowrap;
+      border-bottom: 1px solid var(--theme-elevation-200);
+    }
+    th[scope='row'],
+    thead th:first-child {
+      text-align: left;
+    }
+  }
+}
+
+// --- „Alle Daten“-Listen (Payload-Standard): Kontrast der Spaltenköpfe (WCAG 1.4.3) und Mindestgröße der
+// Sortierknöpfe (WCAG 2.5.8, 24 × 24 px). Die Namen der Auswahl-Kästchen ergänzt `ListA11yFixes`.
+.table thead {
+  color: var(--theme-elevation-800);
+}
+.sort-column__button {
+  min-width: 24px;
+  min-height: 24px;
+  opacity: 0.6;
+
+  &.sort-column--active {
+    opacity: 1;
+  }
+}
+
+// Lange Brotkrumen (z. B. „Einstellungen / Umsatz-Wächter“) dürfen den Kopf bei 390 px nicht verbreitern.
+.app-header__step-nav-wrapper {
+  min-width: 0;
+  overflow: hidden;
+}
+.app-header__content {
+  min-width: 0;
+}
+
+// --- „Texte“ (P5.27): Vorlagen umbrechen statt horizontal scrollen (390 px).
+.pc-texts__body {
+  margin: 0;
+  padding: 10px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  background: var(--theme-elevation-50);
+  border-radius: 4px;
+}
+
+// --- „Heute“ (P5.28): Kacheln mit Zahl und Link (2 Spalten am Handy, ≥ 44 px Tipp-Fläche), Hinweise mit Farbkante.
+.pc-today {
+  &__tiles {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
+  }
+  &__tile {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      'icon count'
+      'label label'
+      'detail detail';
+    align-items: center;
+    gap: 2px 8px;
+    min-height: 88px;
+    padding: 12px;
+    border: 1px solid var(--theme-elevation-200);
+    border-radius: 6px;
+    color: var(--theme-text);
+    text-decoration: none;
+    min-width: 0;
+    overflow-wrap: anywhere;
+
+    &:hover {
+      border-color: var(--theme-elevation-500);
+    }
+    &:focus-visible {
+      outline: 3px solid var(--theme-success-500);
+      outline-offset: 2px;
+    }
+  }
+  &__tileicon {
+    grid-area: icon;
+    display: inline-flex;
+  }
+  &__count {
+    grid-area: count;
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  &__label {
+    grid-area: label;
+    font-weight: 600;
+  }
+  &__detail {
+    grid-area: detail;
+    font-size: 0.875rem;
+    color: var(--theme-elevation-800);
+  }
+  &__hints {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  &__hint {
+    padding: 8px 10px;
+    border-left: 4px solid var(--theme-elevation-400);
+    background: var(--theme-elevation-50);
+    border-radius: 4px;
+    overflow-wrap: anywhere;
+
+    &--error {
+      border-left-color: var(--theme-error-500);
+    }
+    &--warning {
+      border-left-color: var(--theme-warning-500);
+    }
+  }
+  &__order {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    min-height: 44px;
+  }
+}

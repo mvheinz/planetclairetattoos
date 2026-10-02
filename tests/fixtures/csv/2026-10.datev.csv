@@ -1,0 +1,7 @@
+"EXTF";700;21;"Buchungsstapel";13;20261031235959000;;"RE";"planetclaire";"";1234567;10001;20260101;4;20261001;20261031;"Buchungsstapel 2026-10";"";1;0;0;"EUR";;"";;;"";;;"";""
+Umsatz (ohne Soll/Haben-Kz);Soll/Haben-Kennzeichen;WKZ Umsatz;Kurs;Basis-Umsatz;WKZ Basis-Umsatz;Konto;Gegenkonto (ohne BU-Schlüssel);BU-Schlüssel;Belegdatum;Belegfeld 1;Belegfeld 2;Skonto;Buchungstext
+45,00;"H";"EUR";;;"";1361;8195;"";1710;"GS-2026-00001";"";;"Gutschrift GS-2026-00001"
+79,90;"H";"EUR";;;"";1200;8195;"";2110;"GS-2026-00002";"";;"Stornorechnung GS-2026-00002"
+79,90;"S";"EUR";;;"";1361;8195;"";1510;"RE-2026-00002";"";;"Rechnung RE-2026-00002"
+1,45;"S";"EUR";;;"";4970;1361;"";1510;"RE-2026-00002";"";;"Stripe-Gebühr RE-2026-00002"
+79,90;"S";"EUR";;;"";1200;8195;"";2010;"RE-2026-00003";"";;"Rechnung RE-2026-00003"

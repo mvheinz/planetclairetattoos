@@ -1,14 +1,22 @@
 import type { TaskConfig } from 'payload'
 
+import { instrumentTask } from '@/lib/jobs/instrument'
+
 import { cancelOverduePrepaymentsTask } from './cancelOverduePrepayments'
+import { complianceDocsReviewTask } from './complianceDocsReview'
+import { invoiceIntegrityCheckTask } from './invoiceIntegrityCheck'
+import { markDeliveredTask } from './markDelivered'
+import { monthlyCloseTask } from './monthlyClose'
 import { prepaymentRemindersTask } from './prepaymentReminders'
 import { releaseExpiredReservationsTask } from './releaseExpiredReservations'
 import { renderInvoicePdfTask } from './renderInvoicePdf'
 import { renderLegalTextPdfTask } from './renderLegalTextPdf'
+import { revenueGuardCheckTask } from './revenueGuardCheck'
 import { sendEmailTask } from './sendEmail'
 
 // Alle Task-Slugs der Jobs-Queue (ARCHITEKTUR Anhang A.3, DATENMODELL §11) mit Queue und umsetzender Phase.
-// Registriert werden nur umgesetzte Tasks (JOB_TASKS). Der Unit-Test tests/unit/jobs/slugs.unit.spec.ts gleicht die
+// Registriert werden nur umgesetzte Tasks (JOB_TASKS), jeweils mit Lauf-Protokoll `job_runs` und A12 bei Fehlschlag
+// (`instrumentTask`, P5.3). Der Unit-Test tests/unit/jobs/slugs.unit.spec.ts gleicht die
 // Liste mit der Tabelle in ARCHITEKTUR Anhang A.3 ab.
 
 export const JOB_QUEUES = ['commerce', 'email', 'documents', 'maintenance'] as const
@@ -67,7 +75,12 @@ export const JOB_TASKS: TaskConfig<any>[] = [
   sendEmailTask,
   renderInvoicePdfTask,
   renderLegalTextPdfTask,
-]
+  markDeliveredTask,
+  revenueGuardCheckTask,
+  monthlyCloseTask,
+  invoiceIntegrityCheckTask,
+  complianceDocsReviewTask,
+].map((t) => instrumentTask(t, TASK_DEFS[t.slug as TaskSlug].queue))
 
 export const IMPLEMENTED_TASK_SLUGS = new Set<string>(JOB_TASKS.map((t) => t.slug))
 
@@ -80,5 +93,36 @@ export function isImplementedTask(slug: string): boolean {
  * ARCHITEKTUR §9.6 Nr. 3/5): sie entscheiden selbst nach gespeicherten Zeitpunkten, was fällig ist.
  */
 export const WAKE_TASK_SLUGS: readonly TaskSlug[] = (
-  ['releaseExpiredReservations', 'prepaymentReminders', 'cancelOverduePrepayments'] as const
+  [
+    'releaseExpiredReservations',
+    'prepaymentReminders',
+    'cancelOverduePrepayments',
+    'markDelivered',
+    'revenueGuardCheck',
+    'monthlyClose',
+    'invoiceIntegrityCheck',
+    'complianceDocsReview',
+  ] as const
 ).filter((s) => isImplementedTask(s))
+
+/**
+ * Tägliche Wecker-Tasks: erst ab dieser Berliner Stunde einreihen (KONZEPT §8.1 Nr. 3 „ab 07:00“). Sie sind idempotent
+ * und laufen danach mit jedem Lauf des Weckers (mindestens stündlich) – ohne zusätzliche Datenbank-Weckungen.
+ */
+export const WAKE_TASK_NOT_BEFORE_HOUR: Partial<Record<TaskSlug, number>> = {
+  revenueGuardCheck: 7,
+}
+
+/**
+ * Tägliche/monatliche Wecker-Tasks mit `runOncePer` (KONZEPT §8.1 Nr. 3): der Wecker reiht sie nur ein, solange ihr
+ * Zeitraum erreicht und noch nicht erledigt ist (ein erfolgreicher Lauf in `job_runs`) – sonst kein Job und kein
+ * Protokolleintrag je Stunde. Die Tasks prüfen dasselbe unter ihrem Lock noch einmal.
+ */
+export const WAKE_TASK_PERIOD: Partial<
+  Record<TaskSlug, { per: 'day' | 'month'; berlinHour: number; berlinMinute?: number }>
+> = {
+  monthlyClose: { per: 'month', berlinHour: 4 },
+  invoiceIntegrityCheck: { per: 'month', berlinHour: 4 },
+  complianceDocsReview: { per: 'month', berlinHour: 8, berlinMinute: 10 },
+  markDelivered: { per: 'day', berlinHour: 3 },
+}

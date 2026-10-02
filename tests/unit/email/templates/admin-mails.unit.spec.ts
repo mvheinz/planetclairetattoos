@@ -17,7 +17,7 @@ import { plain, rawTokens, snapshotPath } from './helpers'
 const render = async (t: EmailTemplate, data: Record<string, unknown> = MAIL_FIXTURE_DATA[t]!) =>
   plain(await renderFixture(t, data, 'de'))
 
-const ORDER_LINK = 'https://planetclairetattoos.com/werkstatt/collections/orders/17'
+const ORDER_LINK = 'https://planetclairetattoos.com/werkstatt/bestellungen/17'
 
 describe('A01/A02 admin_order_placed', () => {
   it('A01 Betreff „Neue Bestellung … – Betrag – Versand“, Positionen, Lieferart, Name und Ort, Zahlart, Hinweis Keramik, Direktlink', async () => {
@@ -72,9 +72,7 @@ describe('A03, A06, A07, A08', () => {
     expect(m.text).toContain('Bestellungen: PC-2026-00018')
     expect(m.text).toContain('Erstattet: 51,90 €')
     expect(m.text).toContain('Erstattungsstatus: erstattet')
-    expect(m.html).toContain(
-      'href="https://planetclairetattoos.com/werkstatt/collections/orders/18"',
-    )
+    expect(m.html).toContain('href="https://planetclairetattoos.com/werkstatt/bestellungen/18"')
   })
 
   it('A07 admin_dispute_opened: Betrag, Grund laut Stripe, Antwortfrist, Belege-Hinweis', async () => {
@@ -97,6 +95,38 @@ describe('A03, A06, A07, A08', () => {
   })
 })
 
+describe('A09 admin_revenue_guard (P5.23, KONZEPT §8.4)', () => {
+  const SETTINGS_LINK = 'https://planetclairetattoos.com/werkstatt/einstellungen'
+  it('R-125 A09 U1: Betreff mit Schwelle, Stand, Handlungsempfehlung, Hinweis Steuerberatung, Direktlink', async () => {
+    const m = await render('admin_revenue_guard')
+    expect(m.subject).toBe('Umsatz-Wächter: U1 – 80 % der Vorjahresgrenze erreicht')
+    expect(m.text).toContain('Stand 2026: 20.000 €')
+    expect(m.text).toContain('Schwelle: U1 · 20.000 €')
+    expect(m.text).toContain('ab 1. Januar 2027 die Regelbesteuerung')
+    expect(m.text).toContain('Der Wächter ersetzt keine Steuerberatung.')
+    expect(m.html).toContain(`href="${SETTINGS_LINK}"`)
+  })
+
+  it('R-125 A09 U0 zeigt den Vorjahresumsatz, U4 den Rest bis zur Jahresgrenze', async () => {
+    const base = MAIL_FIXTURE_DATA.admin_revenue_guard!
+    const u0 = await render('admin_revenue_guard', {
+      ...base,
+      year: 2027,
+      stage: 'U0',
+      totalCents: 0,
+      previousYearTotalCents: 2_600_000,
+    })
+    expect(u0.text).toContain('Umsatz 2026: 26.000 €')
+    expect(u0.text).toContain('Dieses Jahr gilt die Kleinunternehmerregelung nicht')
+    const u4 = await render('admin_revenue_guard', {
+      ...base,
+      stage: 'U4',
+      totalCents: 9_600_050,
+    })
+    expect(u4.text).toContain('Nur noch 3.999,50 € bis 100.000 €')
+  })
+})
+
 describe('AK-6-01/AK-6-03 Snapshots (DE) und Verbote', () => {
   const templates: EmailTemplate[] = [
     'admin_order_placed',
@@ -104,6 +134,7 @@ describe('AK-6-01/AK-6-03 Snapshots (DE) und Verbote', () => {
     'admin_oversold',
     'admin_dispute_opened',
     'admin_refund_failed',
+    'admin_revenue_guard',
   ]
   for (const t of templates) {
     it(`${t}: Snapshot, keine unersetzten Tokens, V-09, immer Deutsch`, async () => {

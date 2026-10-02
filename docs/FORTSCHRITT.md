@@ -4,6 +4,72 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 
 
 
+
+
+
+
+
+## 2026-10-02 – P5 CI grün
+
+- Phasenlauf `[ci:full p5]` (ed37101): CI full (e2e desktop/iphone-15/pixel-7, quality inkl. Lighthouse) und Vorschau-Export grün, Artefakt `planet-claire-vorschau-p5-ed37101`; schneller Lauf nach gitleaks-Ausnahme (47a0605) grün.
+
+## 2026-10-02 – P5 CI-Reparaturen (3)
+
+- Phasenlauf 4 (ed37101): CI full und Vorschau-Export grün (Artefakt `planet-claire-vorschau-p5-ed37101`); im schnellen Lauf meldete der Geheimnis-Scan einen Fehlalarm (Vorlagen-Kennung `dispute_vsbg37`) → eng begrenzte Ausnahme in `.gitleaks.toml`, lokal 241 Commits ohne Fund.
+
+## 2026-10-02 – P5 CI-Reparaturen (2)
+
+- Schneller CI-Lauf lief seit P5 ins 30-Minuten-Limit (als „abgebrochen“ gemeldet) → Limit 45 min, Beschleunigung als offener Punkt.
+- Produktseite R04: Coco-Bild des Menüs lädt erst nach dem ersten Bild (spart 90–150 ms bis zum Hauptfoto).
+
+## 2026-10-02 – P5 CI-Reparaturen
+
+- Phasenlauf 1 (18a10e2): Abdeckung (Randfall-Tests Packen/Versand/Abholung ergänzt) und iphone-15 Foto-Upload-Test (WebKit liefert Upload-Inhalt nicht an Playwright) behoben.
+- Phasenlauf 2 (edbfb30): „Erneut senden“-Hinweis in Einstellungen → System verschwand nach dem Neuladen (echter Fehler, behoben); Produktseite R04: zweites Galeriefoto lädt erst nach dem Hauptfoto, Hauptfoto `decoding=sync` → LCP lokal ca. 2,0 s statt 2,24 s.
+
+## 2026-10-02 – P5 Phasen-Abnahme (deine Werkstatt, also die Verwaltung) – für Jutta
+
+**Was ist neu?** Deine Verwaltung ist fertig gebaut – gemacht fürs Handy. Du erreichst sie über deinen geheimen
+Verwaltungs-Link und kannst sie wie eine App auf den Startbildschirm legen („Zum Home-Bildschirm“). Alles ist auf
+Deutsch, mit großen Knöpfen, und vor jeder wichtigen Aktion fragt sie kurz nach, was passieren wird.
+
+**Was du in deiner Verwaltung jetzt kannst:**
+
+- **Heute:** Die Startseite zeigt dir auf einen Blick, was zu tun ist – Bestellungen zum Packen, offene
+  Vorkasse-Zahlungen, Abholungen, neue Anfragen und Widerrufe – plus die letzten Bestellungen.
+- **Neues Stück:** Fotos direkt mit dem Handy aufnehmen oder aus der Galerie wählen (werden automatisch verkleinert,
+  Standortdaten fliegen raus), Kategorie antippen, Titel und Preis eingeben, „Online stellen“. Die Objektnummer wird
+  dir vorgeschlagen und sofort geprüft („✓ frei“). Mit „Übersetzen → EN“ bekommst du einen englischen Vorschlag.
+- **Meine Stücke:** alle Stücke mit Suche und Filter; „Bearbeiten“, „Offline verkauft“ (z. B. auf dem Flohmarkt)
+  und ein Etikett als PDF.
+- **Zu packen → Versendet:** Liste der bezahlten Bestellungen, Adresse kopieren, Packfotos und Checkliste, Packzettel
+  und Beileger als PDF, dann die Sendungsnummer eintippen oder mit der Kamera scannen und „Versendet melden“ – die
+  Kundin bekommt automatisch ihre Versandmail. Nach 10 Tagen gilt die Sendung von selbst als zugestellt.
+- **Abholung:** „Bereit zur Abholung“ schickt der Kundin deinen Abholtext, „Abgeholt“ schließt die Bestellung ab.
+- **Vorkasse offen:** sehen, wer noch überweisen muss und bis wann; „Zahlung erhalten“ verschickt die Rechnung.
+- **Widerrufe** (zum Nachlesen) und **Anfragen** für Auftragsarbeiten (mit Bild, Status, Notiz und Antwort).
+- **Texte:** deine Mail-Bausteine auf Deutsch und Englisch, deine Grußformel und fertige Vorlagen fürs Mailprogramm.
+- **Einstellungen:** deine Daten, Steuer, Zahlung, Versand (EU-Versand erst nach fünf Häkchen), Produktsicherheit
+  (hier legst du die Unterlagen je Kategorie ab – mit Vorlage als PDF), der **Umsatz-Wächter** (zeigt dir, wie nah du
+  an der Kleinunternehmer-Grenze bist, und warnt rechtzeitig per Mail) und „System“ für die Technik.
+- **Export:** pro Monat eine Tabelle und alle Rechnungen als ZIP für deine Steuerberatung, auf Wunsch auch als
+  DATEV-Datei – nie mit Namen oder Adressen, nie mit Beispieldaten. Dazu die Jahresmengen der Verpackung für LUCID.
+- **Erinnerungen per Mail an dich:** z. B. bei neuer Bestellung, Anfrage, Widerruf, einmal im Monat zum
+  Monatsabschluss und zu den Produktsicherheits-Unterlagen.
+
+**So schaust du dir die Vorschau-Datei an:** Die Datei „planet-claire-vorschau.html“ herunterladen und doppelklicken
+(wie in Anleitung V0) – sie öffnet sich im Browser, ohne Internet. Unter „Verwaltung“ siehst du jetzt Bildschirmfotos
+aller neuen Ansichten so, wie sie auf dem Handy aussehen (Heute, Neues Stück, Meine Stücke, Zu packen, Vorkasse,
+Versendet, Abholung, Widerrufe, Anfragen, Texte, Einstellungen mit Produktsicherheit, Versand, Umsatz-Wächter und
+System, Export). Nur „Tattoo“ steht dort noch als „kommt in P7“. Die Fotos sind Bilder – klicken kannst du darin nichts.
+
+**Kleine Reparatur nebenbei:** Bei der Abnahme haben wir gemerkt, dass die Startseite nach einer Reservierung kurz
+verschwinden konnte. Das ist behoben und wird jetzt automatisch geprüft.
+
+**Was bis zum Start (P11) noch von dir kommt:** die Unterlagen zur Produktsicherheit hochladen, die DATEV-Konten mit
+deiner Steuerberatung festlegen und deine echten Daten (Adresse, Bankverbindung, Telefon) eintragen – alles steht in
+deiner Aufgabenliste.
+
 ## 2026-10-02 – P4 CI grün
 
 - Phasenlauf `[ci:full p4]` (Commit aeef4fc): CI, CI full (e2e desktop/iphone-15/pixel-7, quality) und Vorschau-Export grün; Artefakt `planet-claire-vorschau-p4-aeef4fc`. Davor (6ec1f2c) war nur der Vorschau-Test rot, der noch den P3-Stand der Verwaltungsfotos erwartete – jetzt phasenunabhängig.
@@ -73,6 +139,176 @@ eingestellt).
 - Je Fall: keine Bestellung vor der Zahlung bzw. dem Vorkasse-Klick, nur Kassen `cancelled`/`expired` bei Abbruch/Ablauf, Mails im Datei-Treiber (`readOutbox`), keine Konsolenfehler, keine CSP-Verstöße. AK-3-10: geänderter Klassenpreis gleich auf R25, im Korb und in einer neuen Kasse (einmal je Lauf, `pixel-7`, Lock exklusiv).
 - `@smoke`: Kartenkauf und Vorkassekauf (laufen in `ci.yml` auf `iphone-15`). Stripe-Testmodus (`stripe-testmode.e2e.spec.ts`, `@stripe`) angelegt, läuft nur mit `PAYMENTS_DRIVER=stripe` und `sk_test_`-Schlüssel – hier übersprungen (OFFENE-PUNKTE).
 - Tests: 22 E2E grün (11 × iphone-15 WebKit/pixel-7, Produktions-Build), Reservierungs-Suite 3× wiederholt stabil; `pnpm check` grün.
+## 2026-10-02 – P5.29
+
+- Verwaltung als Web-App: ADMIN_ROUTE/manifest.webmanifest, ADMIN_ROUTE/sw.js (ohne Cache, ohne Push), Icons 192/512 maskierbar + Apple 180 auf Matte-Grün (pnpm art:admin-icons, src/admin/pwa/, ausgeliefert unter ADMIN_ROUTE/pwa/…); Manifest-Link und Registrierung nur in der Verwaltung\n- /manifest.webmanifest, /sw.js, /admin/… → 404 (Startseite: dynamicParams = false); Verwaltungspfad nicht in public/ und .next/static (check:external)\n- Tests: tests/unit/admin/sw.unit.spec.ts (4), tests/e2e/admin/pwa.e2e.spec.ts (AK-7-06 per CDP Page.getInstallabilityErrors, T-04)
+
+## 2026-10-02 – P5.28
+
+- Start-Ansicht „Heute“ (/heute und ADMIN_ROUTE): Kacheln Zu packen, Vorkasse offen (davon heute fällig), Abholung, Widerrufe offen (nächste Frist), Neue Anfragen; Hinweise rot/gelb mit Link (Umsatz-Wächter, Rechtstexte-Prüfung je Typ, adminAttention an Stück/Bestellung, Aufbewahrungssperren ≥ 6 Monate, fehlgeschlagene Mails/Jobs 24 h, Anfechtungen, Abholung > 14 Tage, fehlende Monatssummen Vormonat, Kostenwarnung ≥ Schwelle, Beispieldaten), Startklar-Platzhalter, letzte 5 Bestellungen, Schnellknopf „Neues Stück“\n- Dienst getTodaySummary(now, payload) in src/lib/admin/today.ts; Regel legalHoldReviewDue für P6.15\n- Tests: tests/int/admin/today.int.spec.ts (6), tests/e2e/admin/today.e2e.spec.ts (Heute + Texte, desktop/pixel-7, axe, 390 px)
+
+## 2026-10-02 – P5.27
+
+- Ansicht „Texte“ (/texte): Seiten/FAQ (kommt in P8), Rechtstexte (kommt in P6), Mail-Bausteine DE/EN mit Übersetzen (Signatur, Abhol-Vorlage, Antwortzeit-Satz; Bereich mailTexts im Einstellungs-Endpunkt, schreibt settings + site-texts), Vorlagen fürs Mailprogramm mit Bestellnummer, mailto: und Kopieren\n- src/lib/legal/templates.ts: 4 Arbeitsfassungen (Bruch/Fotos mit Reklamationsfrist für Jutta = Versanddatum + 7 Tage, Reparatur/Ersatz, § 37 VSBG, Bitte um IBAN)\n- Signatur aus site-texts.emails.signature steht jetzt unter allen Kund:innen-Mails (closingBlock)\n- Tests: tests/unit/legal/admin-templates.unit.spec.ts (13), tests/int/email/signature.int.spec.ts (3)
+
+## 2026-10-02 – P5.25
+
+- DATEV-Knopf in /export: ausgegraut mit Hinweis „Konten mit der Steuerberatung festlegen“ und fehlenden Feldern, mit Konten als Download\n- Tests: e2e export, int datev-export grün
+
+## 2026-10-02 – P5.24
+
+- Ansicht /export: Monatsauswahl (25 Monate), Monats-CSV und Rechnungs-ZIP als Download, Jahresauswahl Verpackung\n- Tests: e2e export (desktop/pixel-7) grün; int monthly-export bestehend
+
+## 2026-10-02 – P5.22a
+
+- Bereiche Shop (inkl. Übersetzen, Go-live-Sperre in Produktion), Kosten, Vorlagen, Steuer-Bestätigung + Jahressummen, Statistik (R-132), Rechtstexte über POST /api/globals/settings/area (DE+EN in einer Transaktion)\n- Umsatz-Wächter-Ansicht (/einstellungen/umsatz-waechter, P5.23): Balken, Monatstabelle, Monatssummen-Eingabe, Jahressummen, Verlauf, Hinweissatz\n- Tests: int settings-part3 (7), e2e settings-part3 (2) grün
+
+## 2026-10-02 – P5.22
+
+- Einstellungen → Versand (/einstellungen/versand): Lieferländer mit EU-Sperre (fünf Häkchen, „EU-Versand geprüft“ mit Datum, R-202), Tarife, Lieferzeit DE/EN, Abholung, Sendungsverfolgung, Checklisten, Verpackungsvorlagen, Jahressumme\n- isOrderableInCountry: lebensmittelechte Keramik nicht nach NL/LU (computeShipping/Summen, Absenden der Kasse)\n- Beispieldaten-Anzahl (Entfernen in P8); System (/einstellungen/system): Version, APP_ENV, Job-Wecker, Jetzt ausführen, Lauf-Protokoll 90 Tage, fehlgeschlagene Mails erneut senden, Webhooks\n- Tests: int eu-activation (3), e2e settings-system (3 × desktop/pixel-7) grün
+
+## 2026-10-01 – P5.21
+
+- Ansicht „Einstellungen“ Teil 1 (/einstellungen): Stammdaten & Impressum (Postfach abgelehnt R-020, Telefonformat R-021, Steuernummer „nie öffentlich“), Steuer (neuer Modus mit „gilt ab“, Aufbewahrung 8/10 mit K-33-Rückfrage, Audit retention_setting_changed), Zahlung (IBAN mod 97, BIC, Anbieter-Anzeige), Benachrichtigungen, Rechtstexte „kommt in P6“, Konto (Passwort ≥ 12, Abmelden); Speichern je Bereich mit Audit settings_changed (maskiert).
+- Tests: tests/unit/payments/iban.unit.spec.ts (3), tests/int/legal/business-profile.int.spec.ts (6, R-020, R-021), tests/e2e/admin/settings.e2e.spec.ts (390×844, axe).
+
+## 2026-10-01 – P5.20
+
+- Ansicht „Anfragen“ (/anfragen, /anfragen/:id): Liste mit „wird gelöscht am“, Detail mit Referenzbildern über die angemeldete Dateiroute, Notizen, Status-Knöpfe nach INQUIRY_TRANSITIONS (src/lib/inquiries/transitions.ts, Audit inquiry_status_changed, lastActivityAt statt deleteAfter), „Antworten“ per mailto je Sprache, „Jetzt löschen“ (Anfrage + Bilder, Audit inquiry_deleted, deletion-log ADMIN/admin).
+- Tests: tests/int/inquiries/admin.int.spec.ts (4, AK-5-01 Anfrage, AK-10-04), tests/e2e/admin/inquiries.e2e.spec.ts.
+
+## 2026-10-01 – P5.19
+
+- Ansicht „Widerrufe“ (/widerrufe, /widerrufe/:id), nur lesend: WR-Nummer, Eingang (Berlin), Name, Bestellung bzw. „nicht zugeordnet“, Kanal, Status, „erstatten bis“ (Eingang + 14 Tage, ab Tag 10 rot); Detail mit unveränderlicher Erklärung, Bestellung mit Positionen und Zahlart, Notizen separat speicherbar (POST /api/withdrawals/:id/notes); Aktionen „Bearbeitung ab P6“.
+- Tests: tests/int/withdrawals/notes.int.spec.ts (3, inkl. DM-WDR-03), tests/e2e/admin/withdrawals-list.e2e.spec.ts.
+
+## 2026-10-01 – P5.18
+
+- Ansicht „Vorkasse offen“ (/vorkasse): Frist „noch X Tage bis Storno“ (letzter Tag rot), Erinnerung, Bankdaten kopieren; „Zahlung erhalten“ (O3, Betrag Pflicht, Abweichungs-Warnung) → paid, Rechnung RE, M05; „Stornieren“ (O4, Grund Pflicht) → M04; „Kürzlich automatisch storniert“ mit „Nachträglich bezahlt“ (O5, 409 wenn ein Stück weg ist, sonst Hinweis „bitte Geld zurücküberweisen“).
+- Tests: tests/int/orders/prepayment-admin.int.spec.ts (R-071, 2), AK-8-02 grün (tests/int/jobs/prepayment-deadlines.int.spec.ts), tests/e2e/admin/prepayment.e2e.spec.ts (Desktop + Pixel 7).
+
+## 2026-10-01 – P5.17
+
+- Ansicht `/abholung`: bezahlte Abholungen und abholbereite mit Wartetagen (> 14 markiert); „Bereit zur Abholung“ mit vorbelegtem Text (settings.pickup.instructions + Adresse aus settings.business, editierbar, gespeichert in pickup.messageText) → O8 + M07; „Abgeholt“ → O9
+- `src/lib/legal/periods.ts`: withdrawalPeriodEnd (Erhalt + 14 Tage, Ende Berliner Tag), warrantyStart
+- Tests: tests/int/legal/pickup.int.spec.ts (6, R-083/R-102, Snapshots M07 DE/EN), tests/e2e/admin/pickup.e2e.spec.ts (desktop + pixel-7)
+
+## 2026-10-01 – P5.16
+
+- Ansicht `/versendet`: shipped + delivered (30 Tage) mit Versanddatum, Nummer als Link, Status, „geschätzt“; Knöpfe Zugestellt (O10 manual), Sendungsnummer korrigieren/nachtragen (Rückfrage „Versandmail erneut senden?“ ja/nein), Reklamation (Bruch) → Texte
+- Endpunkte `delivered`, `tracking`; Task `markDelivered` (commerce, täglich ab 03:00 Berlin, ≥ 10 Kalendertage, auto, ohne Mail), Migration p5_mark_delivered_job; Tick führt Jobs jetzt nacheinander aus (Pool-Erschöpfung bei 8 Wecker-Tasks)
+- Tests: tests/int/jobs/mark-delivered.int.spec.ts (3, AK-8-01), tests/e2e/admin/shipped.e2e.spec.ts (desktop + pixel-7)
+
+## 2026-10-01 – P5.14
+
+- Scan-Baustein `src/admin/components/TrackingScanner.tsx`: Kamera erst nach Tipp, natives BarcodeDetector (Code 128/39, ITF, Data Matrix, Rückkamera), sonst Foto (`capture=environment`) über `@zxing/browser` als dynamischer Chunk nur in der Versand-Ansicht; Texteingabe bleibt
+- Pakete exakt gepinnt: @zxing/browser 0.2.1, @zxing/library 0.23.0, bwip-js 4.11.4 (dev), ARCHITEKTUR §1.2; Fixtures `pnpm fixtures:barcodes` → tests/fixtures/barcodes/*.png (mit zxing-Selbstprüfung)
+- Tests: tests/e2e/admin/tracking-scan.e2e.spec.ts (Foto-Rückfall ohne BarcodeDetector, zxing-Chunk nicht auf /heute, keine fremden Hosts; desktop + pixel-7)
+
+## 2026-10-01 – P5.15
+
+- `POST /api/orders/:id/ship` reiht M06 (`order_shipped`, DE/EN) in derselben Transaktion ein, Schlüssel `order_shipped:<id>:<Nummer|none>`, direkt nach dem Commit zugestellt; Brief ohne Nummer ohne Verfolgungslink
+- Vorlage `src/lib/email/templates/fulfillment.tsx` (Positionen, Versanddienst, Nummer, Link, „meist 1–3 Werktage“, Baustein email.shipping.damageNotice „unberührt“); „Erneut senden“ für M06/M07 in resendEmail.ts; Dialogtexte „mit/ohne Sendungsnummer“
+- Tests: tests/unit/legal/shipping-mail.unit.spec.ts (7, Snapshots DE/EN mit/ohne Nummer), tests/int/orders/ship.int.spec.ts (4), tests/e2e/admin/ship-order.e2e.spec.ts (AK-7-05, 4 Taps, desktop + pixel-7)
+
+## 2026-10-01 – P5.13
+
+- Einstellungen → „Produktsicherheit“ (`/einstellungen/produktsicherheit`): Unterlagen je Kategorie mit Frist, Hinweis „Technische Unterlagen fehlen“, Hochladen nur PDF (Kennung %PDF- im Browser und am Server), Beispiel-Kennzeichen
+- Vorlage `GET /api/admin/compliance/template.pdf?category=` (Gliederung, keine Rechtsberatung); `technical_file` nur mit Kategorie und als PDF
+- Task `complianceDocsReview` (maintenance, monatlich am 1. ab 08:10 Berlin, runOncePer mit Minute): A16 mit fehlenden Kategorien und löschbaren Unterlagen, ohne Beispieldaten; Migration p5_compliance_docs_job
+- Tests: tests/int/legal/compliance-docs.int.spec.ts (5, inkl. T-15-Erweiterung), A16-Unit/Snapshot, Registry/Slugs-Unit
+
+## 2026-10-01 – P5.12
+
+- Packzettel (src/lib/pdf/PackingSlip.tsx, ohne Preise, Beileger je Stück mit Herstellerin, Warn-/Pflegehinweisen, EN zusätzlich bei EN-Bestellungen) und Etikett/Beileger (src/lib/pdf/ProductLabel.tsx mit QR-Code zur Produktseite, „Nur Deko – nicht für Lebensmittel“); nur lokale Schriften
+- Endpunkte GET /api/orders/:id/packing-slip.pdf und GET /api/products/:id/label.pdf (nur Verwaltung); Knöpfe in „Zu packen“, Bestell-Detail und „Meine Stücke“
+- Tests: tests/int/pdf/packing-slip.int.spec.ts (3), tests/int/legal/gpsr-label.int.spec.ts (2) grün; pnpm check, test:int (89 Dateien), build grün
+
+## 2026-10-01 – P5.11
+
+- Checkliste je Versandklasse + Punkte für alle Sendungen (packingChecklistState), Verpackung vorbelegt aus settings.packaging (Vorlage, Material, Gramm änderbar; Wertkopie mit „Gepackt“ bzw. „Versendet melden“), Packfotos über die Kamera (privat)
+- „Versendet melden“ (O7, POST /api/orders/:id/ship) mit Verpackungs-Pflicht und Rückfrage „Ohne Packfoto versenden?“ (Audit packing_photo_skipped); M06 folgt in P5.15
+- Jahres-Export GET /api/admin/packaging-report?year=JJJJ (ohne Beispieldaten/Abholungen), Download unter /export, Jahressumme unter Einstellungen → Versand; Owner-Aufgabe A52 (Verpackungen wiegen)
+- Tests: tests/int/legal/packaging-report.int.spec.ts (4), tests/int/legal/transport-risk.int.spec.ts (4), tests/e2e/admin/packing-photos.e2e.spec.ts grün
+
+## 2026-10-01 – P5.10
+
+- Ansicht „Zu packen“ /packen: paid/packed mit Versand (älteste zuerst; Widerruf vor dem Versand mit Hinweis), Karte mit Fotos, Nr., Versandklasse, Name/Ort und Hinweisen wörtlich laut KONZEPT §7.6
+- formatShippingAddress() (src/lib/commerce/address.ts) + virtuelles Feld copyAddressText; „Adresse kopieren“ mit Kopier-Symbol je Zeile; „Einwilligung widerrufen“ (consent-log withdrawnAt + Widerrufs-Eintrag, Audit); „Gepackt“ = O6
+- Tests: tests/unit/legal/address-formatter.unit.spec.ts (4), tests/int/legal/packing-hints.int.spec.ts (5), tests/e2e/admin/packing.e2e.spec.ts (Desktop, Pixel 7) grün
+
+## 2026-10-01 – P5.9
+
+- Bestell-Detail /bestellungen/:id (Positionen mit Foto, Nr., Preis; Lieferung, Zahlart, Beträge, Statusverlauf, Hinweise inkl. Anfechtung, interne Notiz, Mail-Protokoll) und Aktions-Rahmen src/endpoints/orders/_action.ts (Admin-Pflicht, eine Transaktion, ORDER_TRANSITIONS → 409, Historie actorType admin + O-Nummer, Audit, Mails nur über die Outbox)
+- „Erneut senden“ M01/M02/M05 (M06/M07 mit P5.15/P5.17) mit Dialog-Schlüssel: ein Dialog = höchstens eine Mail
+- Tests: tests/int/orders/admin-action.int.spec.ts (4), tests/e2e/admin/order-detail.e2e.spec.ts (Desktop + 390×844, axe) grün
+
+## 2026-09-29 – P5.8
+
+- Ansicht „Meine Stücke“ (`/stuecke`): Suche nach Nummer (exakt, auch „017“) oder Titel, Filter Status/Kategorie, 20 Karten je Seite, Status-Badge mit Reservierungs-/Vorkasse-Hinweis, Knöpfe je Status auf die P5.7-Endpunkte, Dialog „offline verkauft“ mit Archiv-Schalter, „Zur Bestellung“, „Im Archiv zeigen“.
+- Tests: pieces-query.int; E2E pieces (Produktions-Build: offline verkauft → nicht mehr in „nur verfügbare“, im Archiv mit Stempel ≤ 5 s; Schalter aus → in keiner Liste; Mini-Satz unverändert; axe 390×844) grün.
+
+## 2026-09-29 – P5.6
+
+- Handy-Formular „Neues Stück“/„Stück bearbeiten“ (`src/admin/views/pieces/`): Felder je Kategorie mit Vorlagen, Nummernvorschlag + Live-Prüfung `GET /api/products/item-number-status`, Preis per `parseEuroInput` (1–10.000 €), „Als Entwurf speichern“, Vorschau unter `/stuecke/:id/vorschau` (ohne Draft-Mode-Cookie), „Online stellen“ mit Liste „Das fehlt noch:“ und Sprunglinks, Erfolgsseite mit Link/Kurzlink kopieren.
+- REST-Fehler behalten ihre Feldliste (globaler afterError-Hook `src/lib/payload/validationErrorResponse.ts`), damit das Formular deutsche Feldhinweise zeigt.
+- Tests: parse-euro.unit, validation-error-response.unit, item-number.int; E2E new-piece (EK-08 ≤ 10 Eingaben, AK-7-01, AK-7-03) und shell grün (desktop, pixel-7).
+
+## 2026-09-29 – P5.5
+
+- Foto-Baustein `src/admin/components/PhotoPicker/`: „Foto aufnehmen“ (capture) und „Aus Galerie wählen“ (mehrere), Verkleinerung im Browser auf ≤ 2560 px (JPEG 0,85), ein Bild je Upload (≤ 4,5 MB), 1–12 Fotos mit Hinweis unter 2, Hoch/Runter per Tastatur, Titelbild, Fokuspunkt, Entfernen, Vorschlag für Bildbeschreibungen.
+- Tests: resize.unit; E2E photo-picker (desktop, pixel-7 bei 390×844): 6000×4000 → ≤ 2560 px, kein GPS in allen Größen, 13. Foto abgelehnt, Reihenfolge/Titelbild gespeichert.
+
+## 2026-09-29 – P5.4
+
+- Knopf „Übersetzen → EN“ als allgemeine Admin-Komponente `src/admin/components/TranslateButton.tsx` (Rückfrage vor dem Überschreiben = `force`, in Produktion ohne DeepL gesperrt mit Hinweis); im Formular „Neues Stück“ eingebaut (füllt auch die EN-Bildbeschreibungen).
+- Dienst, Treiber und Endpunkt stammen aus dem vorigen P5.4-Commit.
+- Tests: translation.contract.int, lexical.unit, products/translate.int grün; E2E new-piece (Übersetzen-Schritt) grün.
+
+## 2026-09-29 – P5.1
+
+- Ansichten-Registry src/admin/views/registry.ts (13 Ansichten + 4 Detailpfade, Titel, Phase, Aufgabe, Symbol, Rückfall „Alle Daten“) als Payload-Custom-Views; ADMIN_ROUTE zeigt „Heute“; Platzhalter bis zur jeweiligen Aufgabe, /tattoo „kommt in P7“; Anmeldeprüfung in der View\n- Navigation: Seitenleiste (beforeNavLinks) mit allen Ansichten vor „Alle Daten“, Handy-Leiste unten „Heute · Neues Stück · Packen · Mehr“ (Mehr öffnet das Menü)\n- Bausteine ActionButton (Doppeltipp-Sperre, Dialog-Pflicht per Typ), ConfirmDialog, StatusBadge, CopyButton (Rückfall), Notice (aria-live), postAdminAction; Endpunkte liefern { unchanged: true } bei erreichtem Zielzustand\n- Mail-Direktlinks auf Registry-Pfade; Vorschau-Liste aus der Registry; Lösch-Recht für veröffentlichte Stücke/Rechtstexte entzogen\n- Tests: unit registry (7) + components (9), int admin/shell (2) + transitions-Matrix angepasst, E2E admin/shell (desktop + pixel-7, @a11y) grün; pnpm check, test:int, build grün
+
+## 2026-09-29 – P5.26
+
+- Tasks `monthlyClose` (documents) und `invoiceIntegrityCheck` (maintenance), monatlich am 1. ab 04:00 Berlin über `runOncePer`; Monats-CSV + Rechnungs-ZIP privat (`monthly_export`, L-07), A11 mit Summen und fehlenden Monatssummen, je Monat einmal; Belegprüfung → A12 mit Belegnummern
+- R-122: `putIfAbsent` im Speicher-Adapter, Beleg-PDFs unter `private/invoices/{JJJJ}/{Nummer}.pdf` nur, wenn nicht vorhanden; Migration `p5_monthly_close_jobs` (Task-Enum)
+- Tests: `tests/int/legal/invoice-integrity.int.spec.ts` (5, R-122 local/s3/Manipulation/fehlend), `tests/int/jobs/monthly-close.int.spec.ts` (2, AK-8-01); gesamte Int-Suite ohne Vorschau-Export grün (79 Dateien)
+
+## 2026-09-29 – P5.3
+
+- Lauf-Protokoll `job_runs` (Migration `p5_job_runs`, CHECK + Index laut DATENMODELL §11), Einträge je Task-Lauf inkl. „Jetzt ausführen“, Fehler geschwärzt (R-137); Fehlschlag in commerce/documents → A12 über `notifyAdmin`
+- Tick unter Advisory-Lock `tick` (parallele Ticks → genau ein Lauf), `POST /api/cron/run/[task]` jetzt 501 für spätere Phasen; `runOncePer(task, 'day'|'month', Stunde, now)` (Berliner Datum/Monat, sommerzeitfest); `GET /api/health/freshness` ohne DB (jobs/backup ok|late|off, 60 s Cache, Wartungsmodus 200)
+- Tests: `tests/int/jobs/cron.int.spec.ts` (7), `run-once.int.spec.ts` (5, 29.03./25.10.2026), `tests/int/health/freshness.int.spec.ts` (5), `tick.int.spec.ts` angepasst, `tests/unit/jobs/slugs.unit.spec.ts`; jobs/email/commerce/payments/db-Int grün (212)
+
+## 2026-09-29 – P5.2
+
+- Verwaltungs-Mails A04, A05, A10, A11, A13–A16 neu (`src/lib/email/templates/admin/`: records, reminders; A01–A09/A12 dorthin verschoben), strikte Schemata (A05 ohne Name/E-Mail/Freitext/Bilder, R-160)
+- `ADMIN_MAILS` in `src/lib/email/registry.ts`: A01–A17 → Schlüssel laut DATENMODELL §4; Dienst `notifyAdmin` (`src/lib/email/notifyAdmin.ts`), A01–A03, A06–A09 darauf umgestellt
+- Tests: `tests/unit/email/admin-templates.unit.spec.ts` (26, Snapshots A01–A17, AK-6-03), `tests/int/email/notify-admin.int.spec.ts` (6, Rückfall ADMIN_NOTIFY_EMAIL, A12-Drosselung mit vorgestellter Uhr); Lint-Test: ESLint-Aufwärmen im beforeAll (Timeout unter Last)
+
+## 2026-09-29 – P5.7
+
+- Statusautomat der Stücke mit KONZEPT §5.1 abgeglichen: P3/P12 jetzt auch mit Prüfung „keine aktive Reservierung“ (nicht abgelaufene Reservierung → 409); DATENMODELL §6.6.7-Diagramm um P6 ergänzt\n- Tests: tests/int/products/transitions.int.spec.ts (AK-5-01 Matrix als reine Funktion und über alle Admin-Endpunkte inkl. Löschen P15, AK-5-02 Audit mit Auslöser, Erstattungsgründe breakage/admin_cancellation/goodwill), tests/int/legal/offline-sale.int.spec.ts (R-127: keine Bestellung/Rechnung/Umsatz, Vorkasse → 409) – 16 Tests grün; status.int.spec.ts weiter grün
+
+## 2026-09-29 – P5.25 (Dienst und Endpunkt; Knopf in der Ansicht `/export` offen)
+
+- `src/lib/export/datev.ts`: Buchungsstapel EXTF 700/21 je Monat (Kopfzeile mit Berater-/Mandantennummer, WJ-Beginn, Zeitraum; je Beleg eine Buchung, Stripe-Gebühren eigene Buchungen; Buchungstext ohne Personendaten; nie Beispieldaten), Windows-1252. `datevConfigStatus` prüft `settings.export.datev.*` (Schema seit P1, unverändert) für den ausgegrauten Knopf („Konten mit der Steuerberatung festlegen“).
+- `GET /api/admin/export/{JJJJ-MM}.datev.csv`: ohne Konten 409 mit fehlenden Feldern; Annahmen zu Kodierung/Feldern in OFFENE-PUNKTE; AUFGABEN A51 ergänzt.
+- Offen: ausgegrauter Knopf mit Hinweis in der Ansicht `/export` (P5.24-Ansicht) – Aufgabe deshalb noch nicht abgehakt.
+- Tests: `tests/int/legal/datev-export.int.spec.ts` (3, „R-124 DATEV …“: 409 ohne Konten, byte-genau gegen `tests/fixtures/csv/2026-10.datev.csv`, zweiter Export identisch, kein `BSP-`/`@`/Name, Windows-1252).
+
+## 2026-09-29 – P5.24 (Dienste und Endpunkte; Ansicht `/export` offen)
+
+- `src/lib/export/monthlyCsv.ts`: `planetclaire-{JJJJ-MM}.csv` (UTF-8 mit BOM, `;`, CRLF, Dezimalkomma, `TT.MM.JJJJ`, nach Belegnummer) mit den 15 Spalten aus KONZEPT §7.15; Belege aus `src/lib/export/documents.ts` (nur Serien RE/GS, nie `seed = true`, keine Personendaten geladen); Gebühren/Auszahlungen über `payments.listBalanceTransactions` (Mock: Fixtures).
+- `src/lib/export/invoiceZip.ts`: Rechnungs-ZIP mit `fflate` 0.8.2 (ARCHITEKTUR §1.2) – alle RE/GS-PDFs als `{Nummer}.pdf` plus CSV, fester Zeitstempel → byte-identisch; fehlende PDFs → 409.
+- Admin-Endpunkte `GET /api/admin/export/{JJJJ-MM}.csv` und `.zip` (`src/endpoints/export.ts`, nur Verwaltung, `private, no-store`).
+- Offen: Ansicht `/export` (Monats- und Jahresauswahl) und `tests/e2e/admin/export.e2e.spec.ts` – Aufgabe deshalb noch nicht abgehakt.
+- Tests: `tests/int/legal/monthly-export.int.spec.ts` (6, R-124: byte-genau gegen `tests/fixtures/csv/2026-10.csv`, zweiter Export identisch, kein `BSP-` auch mit `SEED_PREVIEW_MODE=true`, kein `@`/Name, ZIP genau die Belege, Endpunkte 401/200/404/409).
+
+## 2026-09-29 – P5.23
+
+- Reine Rechnung `computeRevenueStatus` (`src/lib/revenue/guard.ts`): Shop = Rechnungen − Gutschriften nach Berliner Belegmonat, plus Monatssummen (inkl. Auftragsarbeiten) und Jahressummen vor dem Shop; Stufen U0–U5 aus `settings.revenueGuard`; Beispieldaten nur bei `seedPreviewModeActive()`.\n- Task `revenueGuardCheck` (Migration `p5_revenue_guard`): A09 `admin_revenue_guard` genau einmal je Stufe und Jahr (`lastNotified` + Idempotenz-Schlüssel), eingereiht vom Job-Wecker ab 07:00 Berlin und nach jedem neuen Beleg bzw. jeder Änderung einer Monatssumme.\n- Offen (UI): Ansicht Einstellungen → Umsatz-Wächter (Balken, Monatstabelle, Eingaben, Verlauf) und Hinweis unter „Heute“ – Daten liefert `getRevenueStatus`.\n- Tests: unit `tests/unit/legal/revenue-guard.unit.spec.ts` (10), A09-Mail + Snapshot; int `tests/int/jobs/revenue-guard.int.spec.ts` (4); invoices/jobs/collections/commerce-Int grün.
 
 ## 2026-09-29 – P4.10
 

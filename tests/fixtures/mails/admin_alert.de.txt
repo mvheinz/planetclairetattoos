@@ -1,0 +1,11 @@
+Technisches Problem: Zahlung konnte nicht zugeordnet werden
+
+Betroffen: Bestellung PC-2026-00017
+
+Automatisch passiert: Die Zahlung wurde gespeichert, die Bestellung ist markiert.
+
+Zu tun: Bitte in der Verwaltung prüfen.
+
+--
+Diese Nachricht hat deine Website automatisch erzeugt.
+Zur Verwaltung: https://planetclairetattoos.com/werkstatt/collections/orders/17

@@ -119,7 +119,8 @@ aus §10–§13 dieses Dokuments); DNS-Umstellung und Start-Checkliste für P11 
 | `cheerio` (dev) | 1.x | P2 | HTML-Umwandlung im Vorschau-Export (§14) |
 | `esbuild` (dev, explizit) | = Version im Lockfile | P2 | Vorschau-Laufzeit bündeln (§14) |
 | `svgo` (dev), `fontkit` oder `opentype.js` (dev) | aktuell | P2 | SVG-Optimierung, Glyphen-Test (DESIGN AK-DS-05) |
-| `bwip-js` (dev) | aktuell | P5 | nur für Barcode-Test-Fixtures (`scripts/fixtures/barcodes.ts`) |
+| `bwip-js` (dev) | 4.11.4 (exakt gepinnt, P5.14) | P5 | nur für Barcode-Test-Fixtures (`scripts/fixtures/barcodes.ts`) |
+| `@zxing/browser`, `@zxing/library` | 0.2.1 / 0.23.0 (exakt gepinnt, P5.14) | P5 | Rückfall des Barcode-Scans über ein Foto (`src/admin/components/TrackingScanner.tsx`), nur als dynamisch importierter Chunk in der Versand-Ansicht (Bestell-Detail); zuerst natives `BarcodeDetector`; keine Netz-Anfragen |
 | `potrace` (dev) | aktuell | P8 | Vektorisierung der Stationszeichnungen (`art:vectorize`, DESIGN §12.4); GPL → **nur** devDependency, nie im Client-Bundle |
 | `gsap` | 3.15.x | optional | kostenlos inkl. DrawSVG/ScrollTrigger. **Nur** gemäß DESIGN §9.10/DA-4: Standard ist eigener Code + WAAPI; GSAP nur per ADR als Lazy-Chunk auf R01 (≤ 30 KB gz) |
 | `stripe` (Node) | 22.6.2 (exakt gepinnt, P4.5) | P4 | `apiVersion` fest gepinnt (§3.5): `2026-08-26.dahlia` = `Stripe.API_VERSION` des SDK |
@@ -128,6 +129,7 @@ aus §10–§13 dieses Dokuments); DNS-Umstellung und Start-Checkliste für P11 
 | `qrcode`, `@types/qrcode` (dev) | 1.5.4 / 1.5.6 (exakt gepinnt, P4.2) | P4 | EPC-QR (GiroCode) als PNG/SVG, serverseitig, ohne Netz (`src/lib/commerce/qr.ts`; Byte-Segment, Fehlerkorrektur M, Version ≤ 13 nach EPC069-12) |
 | `jsqr` (dev) | 1.4.0 (exakt gepinnt, P4.2) | P4 | Test: erzeugten EPC-QR (PNG und mit `sharp` gerastertes SVG) dekodieren und byte-gleich mit der Payload aus `buildEpcPayload` vergleichen |
 | `pdf-parse` (dev) | aktuell | P4 | Tests: Text aus erzeugten PDFs lesen (Rechnung, Gutschrift, Rechtstext-PDF; R-120, R-002) |
+| `fflate` | 0.8.2 (exakt gepinnt, P5.24) | P5 | Rechnungs-ZIP je Monat (`src/lib/export/invoiceZip.ts`), feste Zeitstempel für byte-identische Archive |
 | `@aws-sdk/client-s3`, `@aws-sdk/lib-storage` | 3.x | P10 | Backup-Upload (§10); ist über `storage-s3` ohnehin im Baum |
 | `age-encryption` | aktuell | P10 | Backup-Verschlüsselung (X25519, age-Format) |
 | `pg-copy-streams` | 7.x | P10 | Datenbank-Dump und -Wiederherstellung per `COPY` ohne `pg_dump`-Binärdatei (§10.3) |
@@ -421,6 +423,12 @@ den eigenen Handler trifft.
 |---|---|---|
 | `/api/products/…` (u. a. `GET /api/products/next-item-number`, `GET /api/products/item-number-status?n=`, `POST /api/products/:id/publish`) | Nummernvorschlag, Live-Prüfung der Objektnummer („✓ frei“ / „✗ vergeben: Nr. 017 …“), Statuswechsel und Aktionen je Stück | DATENMODELL §6.6.4, §6.6.10 |
 | `GET /api/products/:id/label.pdf` | Etikett und Beileger je Stück (R-203) | KONZEPT §7.6 |
+| `POST /api/orders/:id/{packed,packing,ship,delivered,tracking,pickup-ready,picked-up,resend-email,withdraw-carrier-consent}` | Bestell-Aktionen über den Aktions-Rahmen `src/endpoints/orders/_action.ts` (eine Transaktion, Prüfung gegen `ORDER_TRANSITIONS` → 409, Historie mit `actorType = admin`, Mails nur über die Outbox; ohne Sitzung 403 wie P4.20): „Gepackt“ (O6), Checkliste/Verpackung/Packfotos speichern, „Versendet melden“ (O7 mit M06, Rückfrage `packing_photo_missing`), „Zugestellt“ (O10 manuell), Sendungsnummer korrigieren (optional neue M06), „Bereit zur Abholung“ (O8 mit M07), „Abgeholt“ (O9), Mail erneut senden (`dialogKey`), DHL-Einwilligung widerrufen | KONZEPT §6.1, §7.6; DATENMODELL §6.8.5, §6.23 |
+| `POST /api/orders/:id/{prepayment-received,cancel,late-payment}` | Vorkasse: „Zahlung erhalten“ (O3), „Stornieren“ (O4, Grund Pflicht), „Nachträglich bezahlt“ (O5, 409 wenn ein Stück nicht mehr frei ist) bzw. „Rücküberweisung erledigt“; genutzt von der Ansicht „Vorkasse offen“ (P5.18) | KONZEPT §4.8, §7.7 |
+| `POST /api/{withdrawals,inquiries}/:id/notes` | Interne Notiz (`adminNotes`) separat speichern; alle anderen Angaben bleiben unberührt (Widerruf-Erklärung unveränderlich, DM-WDR-03) | KONZEPT §7.10, §7.11 |
+| `POST /api/inquiries/:id/{status,delete-now}` | Anfrage-Status nach `INQUIRY_TRANSITIONS` (409 sonst; Audit `inquiry_status_changed`, `lastActivityAt`) bzw. „Jetzt löschen“ mit Referenz als Bestätigung (Anfrage + Bilder, Audit `inquiry_deleted`, `deletion-log` `ADMIN`/`admin`) | KONZEPT §5.5, §7.11 |
+| `POST /api/globals/settings/{section,tax-mode,password}` | Einstellungen Teil 1 je Bereich speichern (Whitelist, ganzes Global, Audit über die Hooks), neuer Steuermodus, eigenes Passwort ändern (≥ 12 Zeichen, bisheriges Passwort nötig) | KONZEPT §7.14; DATENMODELL §7.1 |
+| `GET /api/orders/:id/packing-slip.pdf` | Packzettel ohne Preise mit Beileger je Stück (R-203) | KONZEPT §7.6 |
 | `GET /api/admin/packaging-report?year=JJJJ` | Jahres-CSV der Verpackungsmengen nach Material (R-201, E-47) | DATENMODELL §6.8.8 |
 | `GET /api/admin/compliance/template.pdf?category=` | Vorlage „Technische Unterlagen je Kategorie“ (R-203) | DATENMODELL §6.4 |
 | `GET /api/admin/export/{JJJJ-MM}.csv` · `.zip` · `.datev.csv` | Monats-CSV, Rechnungs-ZIP, DATEV-Stapel (R-124); Exporte enthalten nie Beispieldaten, auch nicht im Vorschau-Modus | KONZEPT §7.15 |
@@ -1747,7 +1755,7 @@ Payload erzeugt alle Größen; **verbindlich ist `media.imageSizes` aus DATENMOD
 ergänzt (dann gilt sie überall gleich). **Keine** Next-Bildoptimierung (`images.unoptimized: true`, seit P0 in
 `next.config.ts`); `srcset` laut DESIGN §12.2 (z. B. Galerie aus `card` 800w und `detail` 1600w). Komponente `<ResponsiveImage>` rendert `<img srcset sizes width height alt decoding="async">`
 mit fester `aspect-ratio`, `placeholderDataUrl` bzw. `dominantColor` als Hintergrund; das LCP-Bild (erstes Produktfoto,
-Stationsbild oben) mit `fetchpriority="high"` und ohne `loading="lazy"`, alle anderen `loading="lazy"`. Format WebP (AVIF
+Stationsbild oben) mit `fetchpriority="high"`, `decoding="sync"` und ohne `loading="lazy"`, alle anderen `loading="lazy"`. Format WebP (AVIF
 nicht im Umfang). Auslieferung mit langem Cache (§3.3).
 
 ### 9.5 Schriften, CSS, JavaScript, Proxy

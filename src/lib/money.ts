@@ -47,8 +47,29 @@ export function formatMoney(
   return parts.map((p) => (p.type === 'fraction' ? cent : p.value)).join('')
 }
 
-/** Parst Eingaben wie „38,50“, „38.50“, „38“ oder „1.234,50“ zu Cent; `null` bei ungültiger Eingabe. */
-export function parseEuroInput(input: string): number | null {
+/** Erlaubter Preis eines Stücks: 1,00–10.000,00 € (DATENMODELL §6.6.1 `priceCents`, KONZEPT §7.4). */
+export const PRICE_CENTS_RANGE = { min: 100, max: 1_000_000 } as const
+
+export interface EuroInputRange {
+  /** Kleinster erlaubter Betrag in Cent (einschließlich). */
+  min?: number
+  /** Größter erlaubter Betrag in Cent (einschließlich). */
+  max?: number
+}
+
+/**
+ * Parst Eingaben wie „38,50“, „38.50“, „38“ oder „1.234,50“ zu Cent; `null` bei ungültiger Eingabe oder außerhalb von
+ * `range` (z. B. `PRICE_CENTS_RANGE`: „0,99“ und „10.000,01“ → `null`).
+ */
+export function parseEuroInput(input: string, range: EuroInputRange = {}): number | null {
+  const cents = parseEuroCents(input)
+  if (cents === null) return null
+  if (range.min !== undefined && cents < range.min) return null
+  if (range.max !== undefined && cents > range.max) return null
+  return cents
+}
+
+function parseEuroCents(input: string): number | null {
   const s = input.trim().replace(/\s|€/g, '')
   if (s === '') return null
   // Deutsche Schreibweise mit Tausenderpunkten und Komma

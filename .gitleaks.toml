@@ -19,3 +19,16 @@ regexTarget = "match"
 regexes = [
   '''ci-only-[A-Za-z0-9-]+''',
 ]
+
+[[allowlists]]
+# generic-api-key hält Schlüssel-Namen wie `key: 'dispute_vsbg37'` (Kennung einer Textvorlage, kein Geheimnis)
+# für einen API-Schlüssel. Eng begrenzt: nur diese Datei UND nur reine snake_case-Kennungen hinter `key:`.
+description = "Kennungen (snake_case) der Rechtstext-Vorlagen in src/lib/legal/templates.ts"
+condition = "AND"
+regexTarget = "match"
+paths = [
+  '''^src/lib/legal/templates\.ts$''',
+]
+regexes = [
+  '''^key:\s*'[a-z][a-z0-9_]*'$''',
+]

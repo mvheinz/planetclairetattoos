@@ -45,6 +45,14 @@
   scroll-snap-stop: always;
 }
 
+/* Fotos 2…n während des Schriften-Tors (erste zwei Frames, `global.css`) nicht rendern: Chrome fordert `loading="lazy"`
+   schon beim ersten Layout an, wenn das Bild im Lade-Abstand liegt – das Nachbarfoto rechts liegt immer darin und
+   konkurrierte so mit dem LCP-Foto (R04, P5). Der Rahmen behält seine Größe (`aspect-ratio`, Dominanzfarbe), es
+   verschiebt sich nichts; danach laden die Fotos zusammen mit den Webschriften. Ohne JavaScript gibt es kein Tor. */
+:global(:root[data-fonts='wait']) .slide:not(:first-child) img {
+  display: none;
+}
+
 .zoomLink {
   position: relative;
   display: block;

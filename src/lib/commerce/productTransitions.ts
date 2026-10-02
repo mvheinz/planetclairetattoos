@@ -81,6 +81,8 @@ export interface ProductTransitionFacts {
   actor: ProductActor
   soldChannel?: SoldChannel | null
   reservationRef?: string | null
+  /** P3/P12: Gibt es (trotz Status `available`/`draft`) eine aktive Reservierung? Dann kein Offline-Nehmen/Ausblenden. */
+  activeReservation?: boolean
   /** Aktive Reservierung des Stücks mit Kassenstatus. */
   reservation?: {
     ref: string
@@ -143,6 +145,14 @@ export function evaluateProductTransition(
   }
   const no = (message: string): ProductTransitionResult => ({ ok: false, message })
   switch (id) {
+    case 'P3':
+    case 'P12':
+      if (facts.activeReservation) {
+        return no(
+          'Das Stück liegt gerade in einer Kasse – bitte warten, bis die Reservierung endet.',
+        )
+      }
+      break
     case 'P4':
       if (!input.reservationRef || !input.reservedUntil) return no('Reservierung fehlt.')
       break
@@ -206,7 +216,8 @@ type Doc = Record<string, unknown>
 const idOf = (v: unknown): number | null =>
   v && typeof v === 'object' ? Number((v as { id: unknown }).id) : v == null ? null : Number(v)
 
-async function loadFacts(
+/** Fakten für die Vorbedingungen aus der Datenbank (auch für die Knöpfe in „Meine Stücke“, P5.8). */
+export async function loadProductTransitionFacts(
   req: PayloadRequest,
   product: Doc,
   actor: ProductActor,
@@ -220,6 +231,23 @@ async function loadFacts(
     actor,
     soldChannel: (product.soldChannel as SoldChannel | null) ?? null,
     reservationRef: (product.reservationRef as string | null) ?? null,
+  }
+  if (product.status === 'available' || product.status === 'draft') {
+    const active = await preservingReq(req, () =>
+      req.payload.count({
+        collection: 'reservations',
+        where: {
+          and: [
+            { product: { equals: product.id } },
+            { status: { equals: 'active' } },
+            { expiresAt: { greater_than: requestNow(req).toISOString() } },
+          ],
+        },
+        overrideAccess: true,
+        req,
+      }),
+    )
+    facts.activeReservation = active.totalDocs > 0
   }
   if (product.status === 'reserved') {
     const res = await preservingReq(req, () =>
@@ -344,7 +372,7 @@ function sideEffects(
 async function cancelCheckoutForOfflineSale(
   req: PayloadRequest,
   productId: number,
-  facts: Awaited<ReturnType<typeof loadFacts>>,
+  facts: Awaited<ReturnType<typeof loadProductTransitionFacts>>,
 ): Promise<void> {
   if (facts.checkoutSession) {
     const result = await getPaymentsAdapter().expireCheckoutSession(facts.checkoutSession)
@@ -418,7 +446,7 @@ export async function transitionProduct(
       req.payload.findByID({ collection: 'products', id, depth: 0, overrideAccess: true, req }),
     )) as unknown as Doc
     const from = product.status as ProductStatus
-    const facts = await loadFacts(req, product, actor)
+    const facts = await loadProductTransitionFacts(req, product, actor)
     const result = evaluateProductTransition(from, transition, facts, input)
     if (!result.ok) throw new TransitionError(result.message)
     if (result.id === 'P10') await cancelCheckoutForOfflineSale(req, id, facts)

@@ -14,6 +14,8 @@ import {
 import { getTemplate, type RenderedMail, type TemplateDef } from '@/lib/email/registry'
 import type { EmailTemplate } from '@/lib/enums'
 
+import { DEFAULT_TRACKING_URL_TEMPLATES } from '@/lib/carrier'
+
 import { FORBIDDEN_CONTENT_PATTERNS } from './forbiddenPatterns'
 
 // Snapshot-Hilfe für Mails (P4.13, KONZEPT §6.1 „Tests“): Vorlagen mit festen Fixture-Daten rendern (feste Zeit, feste
@@ -173,7 +175,37 @@ export const ADMIN_ORDER_FIXTURE = {
   paymentMethodType: 'card',
 }
 
+export const SHIPPED_FIXTURE = {
+  orderId: 17,
+  orderNumber: 'PC-2026-00017',
+  customerName: 'Erika Beispiel',
+  items: [{ itemNumber: 17, title: 'Tasse „Coco schläft“' }],
+  carrier: 'dhl',
+  trackingNumber: '0034043431234567890',
+  trackingUrl:
+    'https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode=0034043431234567890',
+  shippedAt: '2026-10-14T08:00:00.000Z',
+}
+/** Brief ohne Sendungsnummer (DM-ORD-08, vorläufig bis K-40). */
+export const SHIPPED_LETTER_FIXTURE = {
+  ...SHIPPED_FIXTURE,
+  items: [{ itemNumber: 21, title: 'Zeichnung „Coco am Fenster“' }],
+  carrier: 'deutsche_post',
+  trackingNumber: null,
+  trackingUrl: null,
+}
+export const PICKUP_READY_FIXTURE = {
+  orderId: 17,
+  orderNumber: 'PC-2026-00017',
+  customerName: 'Erika Beispiel',
+  items: [{ itemNumber: 17, title: 'Tasse „Coco schläft“' }],
+  messageText:
+    'Abholung im Atelier nach Absprache, meist Di–Do 16–19 Uhr.\nPlanet Claire, Musterstraße 1, 10115 Berlin',
+}
+
 export const MAIL_FIXTURE_DATA: Partial<Record<EmailTemplate, Record<string, unknown>>> = {
+  order_shipped: SHIPPED_FIXTURE,
+  pickup_ready: PICKUP_READY_FIXTURE,
   order_confirmation: ORDER_MAIL_FIXTURE,
   prepayment_instructions: PREPAYMENT_MAIL_FIXTURE,
   prepayment_received: PREPAYMENT_RECEIVED_FIXTURE,
@@ -204,6 +236,93 @@ export const MAIL_FIXTURE_DATA: Partial<Record<EmailTemplate, Record<string, unk
     orderNumber: 'PC-2026-00017',
     amountCents: 4500,
     error: 'expired_or_canceled_card',
+  },
+  admin_revenue_guard: {
+    year: 2026,
+    stage: 'U1',
+    totalCents: 2_000_000,
+    previousYearTotalCents: 0,
+    thresholds: {
+      u1Cents: 2_000_000,
+      previousYearLimitCents: 2_500_000,
+      u3Cents: 8_000_000,
+      u3aCents: 9_000_000,
+      u4Cents: 9_500_000,
+      currentYearLimitCents: 10_000_000,
+    },
+  },
+  admin_withdrawal_received: {
+    withdrawalId: 3,
+    reference: 'WR-2026-00003',
+    orderNumber: 'PC-2026-00017',
+    receivedAt: '2026-10-14T09:12:00.000Z',
+    items: [{ itemNumber: 17, title: 'Tasse „Coco schläft“' }],
+    refundDueAt: '2026-10-28T09:12:00.000Z',
+  },
+  admin_inquiry_received: {
+    inquiryId: 7,
+    reference: 'AA-2026-0007',
+    objectType: 'cap',
+    imageCount: 2,
+  },
+  admin_legal_review_due: {
+    texts: [
+      { type: 'agb', lastReviewedAt: '2025-09-01T08:00:00.000Z' },
+      { type: 'datenschutz', lastReviewedAt: '2025-08-15T08:00:00.000Z' },
+    ],
+  },
+  admin_monthly_close: {
+    month: '2026-10',
+    invoiceCount: 12,
+    invoiceTotalCents: 64_890,
+    creditNoteCount: 1,
+    creditNoteTotalCents: 4_500,
+    missingManualSources: ['tattoo', 'flohmarkt'],
+  },
+  admin_withdrawal_deadline: {
+    withdrawalId: 3,
+    reference: 'WR-2026-00003',
+    orderNumber: 'PC-2026-00017',
+    refundDueAt: '2026-10-28T09:12:00.000Z',
+    daysLeft: 4,
+  },
+  admin_privacy_request_due: {
+    privacyRequestId: 1,
+    reference: 'DS-2026-0001',
+    type: 'access',
+    dueAt: '2026-10-21T21:59:59.000Z',
+  },
+  admin_legal_hold_review: {
+    holds: [
+      {
+        kind: 'order',
+        id: 17,
+        reference: 'PC-2026-00017',
+        reason: 'Streit über Bruchschaden, Unterlagen aufheben',
+        since: '2026-03-02T10:00:00.000Z',
+      },
+    ],
+  },
+  admin_compliance_docs_review: {
+    missingCategories: ['Textil'],
+    documents: [
+      {
+        kind: 'supplier_document',
+        title: 'Datenblatt Glasur 2015',
+        keepUntil: '2025-05-01T10:00:00.000Z',
+        deletable: true,
+      },
+      {
+        kind: 'conformity_declaration',
+        title: 'Konformitätserklärung Keramik-Glasur',
+        keepUntil: null,
+      },
+      {
+        kind: 'lab_report',
+        title: 'Prüfbericht Blei/Cadmium 2026',
+        keepUntil: '2036-10-14T09:30:00.000Z',
+      },
+    ],
   },
   admin_alert: {
     kind: 'payment_webhook',
@@ -261,6 +380,13 @@ export const V09_PATTERNS: readonly RegExp[] = [
   /[?&](fbclid|gclid|mc_eid|mc_cid)=/i,
 ]
 
+/** Hosts der Sendungsverfolgung (Standardvorlagen `settings.shipping.trackingUrlTemplates`). */
+export const CARRIER_TRACKING_HOSTS: ReadonlySet<string> = new Set(
+  DEFAULT_TRACKING_URL_TEMPLATES.map(
+    (t) => new URL(t.urlTemplate.replace('{trackingNumber}', 'X')).host,
+  ),
+)
+
 /** Verstöße einer gerenderten Mail (leer = in Ordnung). */
 export function scanMail(
   mail: { html: string; text: string },
@@ -276,13 +402,14 @@ export function scanMail(
   for (const m of mail.html.matchAll(/<img\b[^>]*\bsrc="([^"]*)"/gi)) {
     if (!m[1]!.startsWith('cid:')) out.push(`img ${m[1]}`)
   }
-  // Links nur auf die eigene Domain bzw. mailto:
+  // Links nur auf die eigene Domain bzw. mailto: – Ausnahme: Sendungsverfolgung des Versanddienstes (M06, R-082)
   const own = new URL(siteUrl).host
   for (const m of mail.html.matchAll(/\bhref="([^"]*)"/gi)) {
-    const href = m[1]!
+    const href = m[1]!.replace(/&amp;/g, '&')
     if (href.startsWith('mailto:')) continue
     try {
-      if (new URL(href).host !== own) out.push(`link ${href}`)
+      const host = new URL(href).host
+      if (host !== own && !CARRIER_TRACKING_HOSTS.has(host)) out.push(`link ${href}`)
     } catch {
       out.push(`link ${href}`)
     }

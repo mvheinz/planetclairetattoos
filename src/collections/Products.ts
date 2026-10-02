@@ -1,6 +1,6 @@
 import type { CollectionConfig, Field, FieldHook, Validate, Where } from 'payload'
 
-import { adminField, isAdmin, publicRead } from '@/access'
+import { adminField, adminWhere, isAdmin, publicRead } from '@/access'
 import { moneyField, seedField } from '@/fields'
 import { ENUM_LABELS, enumOptions } from '@/lib/enumLabels'
 import {
@@ -32,7 +32,12 @@ import {
 import { registerUploadReference } from '@/lib/uploads/references'
 import { productTransitionEndpoints } from '@/endpoints/products/actions'
 import { adoptEndpoint } from '@/endpoints/products/adopt'
-import { computeNextItemNumber, nextItemNumberEndpoint } from '@/endpoints/products/nextItemNumber'
+import { productLabelEndpoint } from '@/endpoints/products/label'
+import {
+  computeNextItemNumber,
+  itemNumberStatusEndpoint,
+  nextItemNumberEndpoint,
+} from '@/endpoints/products/nextItemNumber'
 import { translateEndpoint } from '@/endpoints/products/translate'
 
 import {
@@ -775,14 +780,19 @@ export const Products: CollectionConfig = {
     read: publicRead(PUBLIC_PRODUCT_WHERE),
     create: isAdmin,
     update: isAdmin,
-    delete: isAdmin,
+    // Kein Lösch-Knopf für veröffentlichte Stücke (KONZEPT §7.16); `guardProductDelete` prüft zusätzlich Bestellungen.
+    delete: adminWhere({
+      and: [{ status: { equals: 'draft' } }, { firstPublishedAt: { exists: false } }],
+    }),
   },
   defaultSort: '-updatedAt',
   endpoints: [
     nextItemNumberEndpoint,
+    itemNumberStatusEndpoint,
     ...productTransitionEndpoints,
     translateEndpoint,
     adoptEndpoint,
+    productLabelEndpoint,
   ],
   // §6.6.11: Index (category, status); UNIQUE item_number und (slug, _locale) über die Felder.
   indexes: [{ fields: ['category', 'status'] }],
