@@ -36,6 +36,24 @@ export async function encodeShot(png: Buffer): Promise<NonNullable<AdminShotEntr
   }
 }
 
+type ShotPage = {
+  screenshot: (o: object) => Promise<Buffer>
+  waitForTimeout: (ms: number) => Promise<void>
+}
+
+/** Bildschirmfoto erst, wenn zwei aufeinanderfolgende Aufnahmen byte-gleich sind (wie `toHaveScreenshot`). */
+export async function stableScreenshot(page: ShotPage, attempts = 6): Promise<Buffer> {
+  const shot = () => page.screenshot({ animations: 'disabled', caret: 'hide', scale: 'device' })
+  let previous = await shot()
+  for (let i = 1; i < attempts; i++) {
+    await page.waitForTimeout(150)
+    const next = await shot()
+    if (next.equals(previous)) return next
+    previous = next
+  }
+  return previous
+}
+
 export interface AdminShotOptions {
   origin: string
   adminRoute: string
@@ -53,7 +71,9 @@ export async function captureAdminShots(
   const warnings: string[] = []
   const capture = new Set(viewsToCapture(options.views, options.phase).map((v) => v.key))
   const images = new Map<string, AdminShotEntry['image']>()
-  const browser = await chromium.launch()
+  // Graustufen-Kantenglättung statt LCD-Text: Ob Chromium Text subpixel-geglättet rastert, hängt davon ab, ob eine
+  // Ebene gerade zusammengesetzt wird – unter Last schwankte das zwischen zwei Läufen (AK-A-14-01).
+  const browser = await chromium.launch({ args: ['--disable-lcd-text'] })
   try {
     const context = await browser.newContext({
       viewport: SHOT_VIEWPORT,
@@ -86,8 +106,7 @@ export async function captureAdminShots(
         throw new ExportError(1, `Verwaltung: ${view.key} antwortet mit HTTP ${res.status()}.`)
       }
       await page.evaluate(() => document.fonts.ready)
-      const png = await page.screenshot({ animations: 'disabled', caret: 'hide', scale: 'device' })
-      images.set(view.key, await encodeShot(png))
+      images.set(view.key, await encodeShot(await stableScreenshot(page)))
     }
 
     const anonymous = options.views.filter((v) => v.anonymous && capture.has(v.key))
