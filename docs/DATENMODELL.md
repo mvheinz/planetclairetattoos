@@ -2767,11 +2767,13 @@ Migrationen späterer Phasen gibt es nur für:
 
 | Phase | Migration | Inhalt |
 |---|---|---|
+| P4 | `p4_mock_state_guard`, `p4_invoice_pdf`, `p4_legal_pdf`, `p4_email_outbox`, `p4_release_job`, `p4_prepayment_jobs` | nachgetragen: Trigger `checkouts_keep_mock_state`, Spalte `email-log.idempotencyKey` (eindeutig) sowie Erweiterungen der Payload-Job-Enums (`enum_payload_jobs_task_slug`, `enum_payload_jobs_log_task_slug`) um die P4-Task-Slugs |
 | P5 | `p5_job_runs` | SQL-Tabelle `job_runs` (§11) |
+| P5 | `p5_revenue_guard`, `p5_monthly_close_jobs`, `p5_compliance_docs_job`, `p5_mark_delivered_job` | nachgetragen: nur `ALTER TYPE … ADD VALUE` der Payload-Job-Enums um die P5-Task-Slugs (`revenueGuardCheck`, `monthlyClose`, `invoiceIntegrityCheck`, `complianceDocsReview`, `markDelivered`; ARCHITEKTUR Anhang A.3) – Payload legt für `jobs.tasks` ein Postgres-Enum an, jeder neue Task-Slug braucht daher eine generierte Migration; rein erweiternd (ARCHITEKTUR §6.7 Nr. 5) |
 | P6 | `p6_legal_snippets_complaints` | Collections `legal-snippets` (§6.28) und `complaints` (§6.29); Feld `private-uploads.relatedComplaint`; Join `orders.complaints`; SQL aus §9.3 (aktive Fassung je Schlüssel, `seed_key`-Index `complaints`); Grund-Seed der Bausteine (`seed:base`) |
 | P8 | `p8_media_owner_approved` | Feld `media.ownerApproved` (§6.2) samt Zugriffsregel (R-181) |
 
-Neue Werte oder Felder, die eine Phase darüber hinaus braucht, kommen per eigener Migration dieser Phase **und**
+Neue Task-Slugs (Anhang A.3 der ARCHITEKTUR) erweitern die Payload-Job-Enums immer per generierter Migration der Phase, die den Task registriert. Neue Werte oder Felder, die eine Phase darüber hinaus braucht, kommen per eigener Migration dieser Phase **und**
 Aktualisierung dieses Dokuments im selben PR (Kopf dieses Dokuments).
 
 ---
