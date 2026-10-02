@@ -5,6 +5,12 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 
 
 
+
+## 2026-10-02 – P5 CI-Reparaturen
+
+- Phasenlauf 1 (18a10e2): Abdeckung (Randfall-Tests Packen/Versand/Abholung ergänzt) und iphone-15 Foto-Upload-Test (WebKit liefert Upload-Inhalt nicht an Playwright) behoben.
+- Phasenlauf 2 (edbfb30): „Erneut senden“-Hinweis in Einstellungen → System verschwand nach dem Neuladen (echter Fehler, behoben); Produktseite R04: zweites Galeriefoto lädt erst nach dem Hauptfoto, Hauptfoto `decoding=sync` → LCP lokal ca. 2,0 s statt 2,24 s.
+
 ## 2026-10-02 – P5 Phasen-Abnahme (deine Werkstatt, also die Verwaltung) – für Jutta
 
 **Was ist neu?** Deine Verwaltung ist fertig gebaut – gemacht fürs Handy. Du erreichst sie über deinen geheimen
