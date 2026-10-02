@@ -39,6 +39,7 @@ import { complianceTemplateEndpoint } from './endpoints/compliance'
 import { exportEndpoints } from './endpoints/export'
 import { SiteTexts } from './globals/SiteTexts'
 import { withJsonPreview } from './admin/jsonPreview'
+import { pwaPaths } from './admin/pwa/manifest'
 import { noAnyTypesSchema } from './lib/payload/typesSchema'
 import { keepValidationErrorData } from './lib/payload/validationErrorResponse'
 import { ADMIN_CUSTOM_DE } from './admin/translations'
@@ -77,11 +78,22 @@ export default buildConfig({
         '/admin/components/AdminBottomBar#AdminBottomBar',
         // Namen für Payloads Auswahl-Kästchen in „Alle Daten“-Listen (axe „label“).
         '/admin/components/ListA11yFixes#ListA11yFixes',
+        // Verwaltung als installierbare Web-App (P5.29): Service Worker nur hier registrieren.
+        '/admin/components/PwaRegister#PwaRegister',
       ],
     },
     meta: {
       titleSuffix: ' – planet claire',
-      icons: [{ rel: 'icon', type: 'image/svg+xml', url: '/icon.svg' }],
+      icons: [
+        { rel: 'icon', type: 'image/svg+xml', url: '/icon.svg' },
+        {
+          rel: 'apple-touch-icon',
+          sizes: '180x180',
+          url: pwaPaths(env.ADMIN_ROUTE).icon('apple-touch-icon.png'),
+        },
+      ],
+      // Web-App-Manifest nur für die Verwaltung (P5.29, KONZEPT §7.1), ausgeliefert unter ADMIN_ROUTE.
+      manifest: pwaPaths(env.ADMIN_ROUTE).manifest,
     },
     importMap: {
       baseDir: path.resolve(dirname),
