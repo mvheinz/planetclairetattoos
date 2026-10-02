@@ -100,3 +100,10 @@ export const orderStatus = async (payload: Payload, id: number) =>
     status: string
     statusHistory?: { transition?: string | null }[] | null
   }
+
+/** Wartet, bis das Pack-Panel gebunden ist; vorher Getipptes ginge beim Hydrieren verloren (WebKit unter Last). */
+export async function packingPanelReady(page: Page) {
+  const panel = page.locator('[data-testid="packing-panel"][data-hydrated="true"]')
+  await expect(panel).toBeVisible()
+  return panel
+}
