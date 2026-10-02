@@ -31,7 +31,13 @@ export function ProcessorTableView({
     >
       <h2 id="auftragsverarbeiter-tabelle">{t('title')}</h2>
       <p className={styles.intro}>{t('intro')}</p>
-      <div className={styles.wrap}>
+      {/* Breite Tabelle scrollt in sich: per Tastatur erreichbar (axe scrollable-region-focusable, R-191). */}
+      <div
+        className={styles.wrap}
+        tabIndex={0}
+        role="region"
+        aria-labelledby="auftragsverarbeiter-tabelle"
+      >
         <table className={styles.table}>
           <thead>
             <tr>

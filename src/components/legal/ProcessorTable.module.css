@@ -36,3 +36,8 @@
 .table tbody th {
   font-weight: 600;
 }
+
+.wrap:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
