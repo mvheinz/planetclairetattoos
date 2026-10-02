@@ -2,6 +2,7 @@ import React from 'react'
 
 import { MoneyAmount } from '@/components/shop/MoneyAmount'
 import { PACKING_PHOTOS_UI_MAX } from '@/lib/commerce/packOrder'
+import { refundDialogData } from '@/lib/commerce/refundOrder'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import { PACKAGING_MATERIALS } from '@/lib/enums'
 
@@ -13,7 +14,11 @@ import { AddressCopy } from './AddressCopy'
 import { loadOrderDetail } from './orderQuery'
 import { OrderResend } from './OrderResend'
 import { PackingPanel } from './PackingPanel'
+import { RefundDialog } from './RefundDialog'
 import { HintBadges } from './PackingListView'
+
+/** Gründe für „Erstatten“ aus der Bestellung (O15/O21, KONZEPT §5.3); Widerrufe erstattet Jutta im Widerruf. */
+const ORDER_REFUND_REASONS = ['admin_cancellation', 'breakage', 'goodwill', 'complaint'] as const
 
 /** Versanddienste mit Sendungsverfolgung (Carrier-Adapter, P5.14). */
 const SHIP_CARRIERS = ['dhl', 'deutsche_post'] as const
@@ -39,6 +44,7 @@ export async function OrderDetailView({ adminRoute, req, match }: AdminViewBodyP
   }
   const p = detail.packing
   const resend = detail.resend.filter((o) => o.sentBefore)
+  const refund = await refundDialogData(req, detail.id)
   return (
     <div className="pc-order pc-order--detail" data-testid="order-detail">
       <p className="pc-order__meta">
@@ -172,6 +178,25 @@ export async function OrderDetailView({ adminRoute, req, match }: AdminViewBodyP
           ) : null}
         </dl>
       </section>
+
+      {refund.refundable ? (
+        <section className="pc-order__section" aria-labelledby="order-refund">
+          <h2 id="order-refund">{adminText('refundTitle')}</h2>
+          <RefundDialog
+            orderId={refund.orderId}
+            orderNumber={refund.orderNumber}
+            prepayment={refund.prepayment}
+            items={refund.items}
+            proposal={refund.proposal}
+            pending={refund.pending}
+            refundable={refund.refundable}
+            reasons={ORDER_REFUND_REASONS.map((r) => ({
+              value: r,
+              label: ENUM_LABELS.REFUND_REASONS[r].de,
+            }))}
+          />
+        </section>
+      ) : null}
 
       {p ? (
         <section className="pc-order__section" aria-labelledby="order-packing">

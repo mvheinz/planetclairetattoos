@@ -218,6 +218,19 @@ export const WITHDRAWAL_RECEIPT_FIXTURE = {
   returnAddress: null,
 }
 
+export const REFUND_CONFIRMATION_FIXTURE = {
+  orderId: 17,
+  orderNumber: 'PC-2026-00017',
+  customerName: 'Erika Beispiel',
+  amountCents: 4040,
+  shippingCents: 240,
+  paymentMethod: 'card',
+  items: [{ itemNumber: 17, title: 'Tasse „Coco schläft“' }],
+  withdrawalReference: 'WR-2026-00003',
+  creditNoteId: 5,
+  creditNoteNumber: 'GS-2026-00002',
+}
+
 export const MAIL_FIXTURE_DATA: Partial<Record<EmailTemplate, Record<string, unknown>>> = {
   order_shipped: SHIPPED_FIXTURE,
   pickup_ready: PICKUP_READY_FIXTURE,
@@ -228,6 +241,7 @@ export const MAIL_FIXTURE_DATA: Partial<Record<EmailTemplate, Record<string, unk
   prepayment_cancelled: CANCELLED_FIXTURE,
   withdrawal_receipt: WITHDRAWAL_RECEIPT_FIXTURE,
   oversold_apology: OVERSOLD_FIXTURE,
+  refund_confirmation: REFUND_CONFIRMATION_FIXTURE,
   admin_order_placed: ADMIN_ORDER_FIXTURE,
   admin_prepayment_cancelled: {
     orderId: 17,

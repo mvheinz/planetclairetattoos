@@ -55,15 +55,13 @@ function withdrawalAction(path: string, handler: Handler): Endpoint {
         const body = await readJsonBody(req)
         const now = requestNow(req)
         const result = await inTransaction(req, () => handler(req, id, body, now))
-        await result
-          .afterCommit?.()
-          .catch((e: unknown) =>
-            log.error('withdrawals.after_commit_failed', {
-              id,
-              path,
-              reason: (e as Error)?.message,
-            }),
-          )
+        await result.afterCommit?.().catch((e: unknown) =>
+          log.error('withdrawals.after_commit_failed', {
+            id,
+            path,
+            reason: (e as Error)?.message,
+          }),
+        )
         log.info('withdrawals.admin_action', { id, path, unchanged: !!result.unchanged })
         return adminActionResponse({ doc: result.doc, unchanged: result.unchanged })
       } catch (err) {

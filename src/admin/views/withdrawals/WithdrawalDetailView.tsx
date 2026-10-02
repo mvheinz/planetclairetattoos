@@ -11,6 +11,9 @@ import { adminViewPath } from '../registry'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import { WITHDRAWAL_CLOSE_REASONS } from '@/lib/enums'
 
+import { refundDialogData } from '@/lib/commerce/refundOrder'
+
+import { RefundDialog } from '../orders/RefundDialog'
 import { WithdrawalActions } from './WithdrawalActions'
 import { loadWithdrawalDetail } from './withdrawalQuery'
 
@@ -37,6 +40,10 @@ export async function WithdrawalDetailView({ adminRoute, req, match }: AdminView
     )
   }
   const { card, declaration: d, order } = detail
+  const refund =
+    order && ['received', 'goods_returned', 'partially_refunded'].includes(card.status)
+      ? await refundDialogData(req, order.id, { affectedItemIds: detail.affectedItemIds })
+      : null
   return (
     <div className="pc-order pc-order--detail" data-testid="withdrawal-detail">
       <p className="pc-order__meta">
@@ -149,6 +156,20 @@ export async function WithdrawalDetailView({ adminRoute, req, match }: AdminView
             nr: i.nr,
             status: i.status,
           }))}
+          refund={
+            refund ? (
+              <RefundDialog
+                orderId={refund.orderId}
+                orderNumber={refund.orderNumber}
+                prepayment={refund.prepayment}
+                items={refund.items}
+                proposal={refund.proposal}
+                pending={refund.pending}
+                refundable={refund.refundable}
+                withdrawalId={card.id}
+              />
+            ) : undefined
+          }
           closeReasons={WITHDRAWAL_CLOSE_REASONS.filter((r) => r !== 'unpaid_order_cancelled').map(
             (r) => ({ value: r, label: ENUM_LABELS.WITHDRAWAL_CLOSE_REASONS[r].de }),
           )}

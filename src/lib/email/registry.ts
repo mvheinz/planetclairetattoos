@@ -19,6 +19,7 @@ import {
 import * as adm from './templates/admin'
 import * as ful from './templates/fulfillment'
 import * as pre from './templates/prepayment'
+import * as rfd from './templates/refund'
 import * as wdr from './templates/withdrawal'
 import type { MailBusiness, MailLinks } from './layout'
 import type { MailAttachment } from './types'
@@ -165,6 +166,12 @@ const TEMPLATES: Partial<Record<EmailTemplate, AnyTemplate>> = {
     schema: wdr.withdrawalReceiptDataSchema as unknown as z.ZodType<wdr.WithdrawalReceiptData>,
     subject: wdr.withdrawalReceiptSubject,
     render: wdr.renderWithdrawalReceipt,
+  }),
+  refund_confirmation: def<rfd.RefundConfirmationData>({
+    version: rfd.REFUND_CONFIRMATION_VERSION,
+    schema: rfd.refundConfirmationDataSchema as unknown as z.ZodType<rfd.RefundConfirmationData>,
+    subject: rfd.refundConfirmationSubject,
+    render: rfd.renderRefundConfirmation,
   }),
   admin_order_placed: def<adm.AdminOrderPlacedData>({
     version: adm.ADMIN_ORDER_PLACED_VERSION,

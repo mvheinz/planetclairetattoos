@@ -844,6 +844,18 @@
       "refund": "You will receive the refund via the same means of payment you used – no later than 14 days after receipt of your withdrawal (by {date}). I may withhold it until I have received the goods back or you have provided proof that you have sent them.",
       "unpaidCancelled": "Your order is therefore cancelled. Please do not transfer any money.",
       "keep": "Please keep this email – it is your proof of receipt."
+    },
+    "refundConfirmation": {
+      "subject": "Your refund for {orderNumber}",
+      "title": "Your money is on its way",
+      "introWithdrawal": "your withdrawal {reference} has been processed. I have refunded {amount} to you.",
+      "introOther": "I have refunded {amount} for your order.",
+      "itemsTitle": "Refunded for:",
+      "shippingIncluded": "This includes {amount} shipping costs.",
+      "card": "The money goes back to the same payment method you used. Depending on your bank it usually takes 5–10 working days until you see it.",
+      "prepayment": "I have transferred the amount to the account your payment came from.",
+      "creditNote": "The credit note {number} is attached as a PDF.",
+      "amount": "Refunded"
     }
   },
   "shippingPayment": {

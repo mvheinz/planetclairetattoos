@@ -3,6 +3,7 @@ import 'server-only'
 import { createLocalReq, type Payload, type PayloadRequest } from 'payload'
 
 import { runEmailJobNow } from '@/lib/email/outbox'
+import { runInvoicePdfJob } from '@/lib/invoices/issue'
 import { notifyAdmin } from '@/lib/email/notifyAdmin'
 import type { RefundStatus } from '@/lib/enums'
 import { createLogger } from '@/lib/monitoring/logger'
@@ -10,6 +11,7 @@ import { inTransaction } from '@/lib/payload/transaction'
 import { getPaymentsAdapter, type PaymentsAdapter } from '@/lib/payments'
 import type { Order } from '@/payload-types'
 
+import { finalizeRefund, newRefundEffects, type RefundEffects } from './refundFinalize'
 import { lockOrder, loadOrder, updateOrderFields } from './transitionOrder'
 
 // Erstattungen über den Zahlungsanbieter (DATENMODELL §6.8.5, KONZEPT §4.10 Nr. 6, PLAN P4.21/P4.22): Ausführung nach
@@ -35,7 +37,14 @@ export async function setRefundStatus(
   req: PayloadRequest,
   orderId: number,
   index: number,
-  input: { status: RefundStatus; stripeRefundId?: string | null; error?: string | null; now: Date },
+  input: {
+    status: RefundStatus
+    stripeRefundId?: string | null
+    error?: string | null
+    now: Date
+    /** Sammelt Gutschrift-PDF und M09, wenn eine Erstattung aus dem Dialog erfolgreich wird (P6.10). */
+    effects?: RefundEffects
+  },
 ): Promise<number | string | null> {
   return inTransaction(req, async () => {
     await lockOrder(req, orderId)
@@ -75,6 +84,9 @@ export async function setRefundStatus(
       },
       input.now,
     )
+    if (status === 'succeeded' && row.status !== 'succeeded') {
+      await finalizeRefund(req, orderId, index, input.now, input.effects ?? newRefundEffects())
+    }
     if (!failedNow) return null
     const a08 = await notifyAdmin(
       req,
@@ -135,16 +147,33 @@ export async function executeRefund(
     error = (err as Error)?.message ?? String(err)
     log.error('refund.provider_failed', { orderId, refundSeq: index + 1, error })
   }
+  const effects = newRefundEffects()
   const job = await setRefundStatus(req, orderId, index, {
     status,
     stripeRefundId: refundId,
     error,
     now,
+    effects,
   })
-  if (job !== null) {
-    await runEmailJobNow(payload, job, { now }).catch((e: unknown) =>
-      log.error('refund.alert_mail_failed', { orderId, error: (e as Error)?.message }),
+  if (job !== null) effects.mailJobs.push(job)
+  await runRefundEffects(payload, effects, now)
+  return status
+}
+
+/** Nach dem Commit: Gutschrift-PDFs rendern, dann Mails (M09 mit Anhang, A08) zustellen. Fehler nur loggen. */
+export async function runRefundEffects(
+  payload: Payload,
+  effects: RefundEffects,
+  now: Date,
+): Promise<void> {
+  for (const job of effects.pdfJobs) {
+    await runInvoicePdfJob(payload, job, { now }).catch((e: unknown) =>
+      log.error('refund.credit_note_pdf_failed', { error: (e as Error)?.message }),
     )
   }
-  return status
+  for (const job of effects.mailJobs) {
+    await runEmailJobNow(payload, job, { now }).catch((e: unknown) =>
+      log.error('refund.mail_failed', { error: (e as Error)?.message }),
+    )
+  }
 }

@@ -606,6 +606,28 @@ export const ADMIN_CUSTOM_DE = {
     'Der Widerruf wird mit dem angegebenen Eingang gespeichert; die Kundin bekommt sofort die Eingangsbestätigung.',
   withdrawalManualCreated: 'Erfasst als {{ref}}.',
   withdrawalReturnNote: 'Zustand der Rücksendung',
+  // „Erstatten“ (P6.10)
+  refundTitle: 'Erstatten',
+  refundReason: 'Grund der Erstattung',
+  refundItems: 'Welche Stücke?',
+  refundItemDone: 'schon erstattet',
+  refundProposal:
+    'Vorschlag: Stücke {{items}} + Versand {{shipping}} = {{total}} (noch erstattbar: {{max}})',
+  refundPartialHint:
+    'Teil-Widerruf: Der Versandanteil ist vorläufig kundenfreundlich berechnet – die Kanzlei klärt das noch (Frage K-09).',
+  refundAmount: 'Betrag',
+  refundAmountInvalid: 'Bitte einen Betrag wie 12,50 eingeben.',
+  refundNote: 'Notiz (optional)',
+  refundNoteRequired: 'Notiz – warum mehr als der Vorschlag? (Pflicht)',
+  refundTransferredCheck: 'Ich habe den Betrag auf das Absenderkonto zurücküberwiesen.',
+  refundButton: 'Erstatten',
+  refundButtonPrepayment: 'Erstattung überwiesen',
+  refundConfirm: '{{amount}} zu {{order}} erstatten?',
+  refundConsequenceCard:
+    'Das Geld geht über den Zahlungsanbieter auf dasselbe Zahlungsmittel zurück. Danach entstehen die Gutschrift und die Mail an die Kundin.',
+  refundConsequencePrepayment:
+    'Du bestätigst, dass du überwiesen hast. Sofort entstehen die Gutschrift und die Mail an die Kundin.',
+  refundPending: 'Erstattung läuft – der Zahlungsanbieter meldet sich gleich.',
   // „Anfragen“ (P5.20)
   inquiriesEmpty: 'Gerade gibt es keine Anfragen.',
   inquiriesCount: '{{count}} Anfragen',

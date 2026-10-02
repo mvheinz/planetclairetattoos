@@ -844,6 +844,18 @@
       "refund": "Die Erstattung bekommst du über dasselbe Zahlungsmittel, mit dem du bezahlt hast – spätestens 14 Tage nach Eingang deines Widerrufs (bis {date}). Ich darf sie zurückhalten, bis die Ware wieder bei mir ist oder du nachweist, dass du sie abgeschickt hast.",
       "unpaidCancelled": "Deine Bestellung ist damit storniert. Bitte nichts überweisen.",
       "keep": "Bitte bewahre diese E-Mail auf – sie ist dein Nachweis für den Eingang."
+    },
+    "refundConfirmation": {
+      "subject": "Deine Erstattung zu {orderNumber}",
+      "title": "Dein Geld ist unterwegs",
+      "introWithdrawal": "dein Widerruf {reference} ist bearbeitet. Ich habe dir {amount} erstattet.",
+      "introOther": "ich habe dir zu deiner Bestellung {amount} erstattet.",
+      "itemsTitle": "Erstattet für:",
+      "shippingIncluded": "Darin enthalten: {amount} Versandkosten.",
+      "card": "Das Geld geht auf dasselbe Zahlungsmittel zurück, mit dem du bezahlt hast. Je nach Bank dauert es meist 5–10 Werktage, bis du es siehst.",
+      "prepayment": "Ich habe den Betrag auf das Konto überwiesen, von dem deine Zahlung kam.",
+      "creditNote": "Die Gutschrift {number} hängt als PDF an.",
+      "amount": "Erstattet"
     }
   },
   "shippingPayment": {

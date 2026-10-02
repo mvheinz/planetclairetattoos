@@ -3,7 +3,8 @@ import 'server-only'
 import { sql } from '@payloadcms/db-postgres'
 import type { Payload, PayloadRequest } from 'payload'
 
-import { setRefundStatus } from '@/lib/commerce/refunds'
+import { newRefundEffects } from '@/lib/commerce/refundFinalize'
+import { runRefundEffects, setRefundStatus } from '@/lib/commerce/refunds'
 import { loadOrder, transitionOrder, updateOrderFields } from '@/lib/commerce/transitionOrder'
 import { dbFor } from '@/lib/db/tx'
 import { sendAdminAlert } from '@/lib/email/alerts'
@@ -124,17 +125,21 @@ export async function handleRefundEvent(
     log.info('payments.refund_unmatched', { refundId: data.refundId, status })
     return { status: 'processed', action: 'refund_unmatched', orderId }
   }
+  const effects = newRefundEffects()
   const job = await setRefundStatus(req, orderId, index, {
     status,
     stripeRefundId: data.refundId,
     error: data.failureReason ?? data.providerStatus,
     now,
+    effects,
   })
+  if (job !== null) effects.mailJobs.push(job)
+  const payload = req.payload
   return {
     status: 'processed',
     action: `refund_${status}`,
     orderId,
-    afterCommit: mailsAfterCommit(req.payload, [job], now),
+    afterCommit: () => runRefundEffects(payload, effects, now),
   }
 }
 
@@ -155,14 +160,21 @@ export async function handleChargeRefunded(
     .filter((r) => r.status === 'succeeded')
     .reduce((n, r) => n + r.amountCents, 0)
   let changed = 0
+  const effects = newRefundEffects()
   for (let i = 0; i < refunds.length; i++) {
     const r = refunds[i]!
     if (r.status !== 'pending' || covered + r.amountCents > data.amountRefundedCents) continue
     covered += r.amountCents
-    await setRefundStatus(req, orderId, i, { status: 'succeeded', now })
+    await setRefundStatus(req, orderId, i, { status: 'succeeded', now, effects })
     changed += 1
   }
-  return { status: 'processed', action: changed > 0 ? 'refund_succeeded' : 'refund_noop', orderId }
+  const payload = req.payload
+  return {
+    status: 'processed',
+    action: changed > 0 ? 'refund_succeeded' : 'refund_noop',
+    orderId,
+    afterCommit: () => runRefundEffects(payload, effects, now),
+  }
 }
 
 // --- Anfechtungen -----------------------------------------------------------------------------------------------

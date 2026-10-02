@@ -67,6 +67,7 @@ import {
 
 import { orderActionEndpoints } from '@/endpoints/orders/actions'
 import { orderAdminEndpoints } from '@/endpoints/orders/admin'
+import { orderRefundEndpoints } from '@/endpoints/orders/refund'
 import { formatShippingAddress } from '@/lib/commerce/address'
 
 import { actorTypeOf, failField, groupOf, rejectChanges, SHA256_HEX } from './hooks/commerce'
@@ -493,7 +494,7 @@ export const Orders: CollectionConfig = {
   },
   access: { read: isAdmin, update: isAdmin, create: none, delete: none },
   defaultSort: '-createdAt',
-  endpoints: [...orderActionEndpoints, ...orderAdminEndpoints],
+  endpoints: [...orderActionEndpoints, ...orderAdminEndpoints, ...orderRefundEndpoints],
   indexes: [{ fields: ['privacy.legalHold'] }],
   fields: [
     {
