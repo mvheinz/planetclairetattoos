@@ -3856,7 +3856,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
   - Tests: `tests/int/tattoo/offers-admin.int.spec.ts`, `tests/e2e/admin/tattoo-offers.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P7.8 Tattoo-Verwaltung: Galerie und Einwilligung** – Reiter „Galerie“: Liste mit Einwilligungs-Häkchen je Foto
+- [x] **P7.8 Tattoo-Verwaltung: Galerie und Einwilligung** – Reiter „Galerie“: Liste mit Einwilligungs-Häkchen je Foto
   (E-42); „Veröffentlichen“ ohne Einwilligung bei `showsCustomer` gesperrt mit Text „Ohne Einwilligung der Kundin/des
   Kunden nicht veröffentlichen“; Felder laut DATENMODELL §6.16 (`consentScope`, `consentDate`, `consentNote`,
   `consentEvidence` privat, `creditHandleAllowed`, `creditHandle`) und `consentWithdrawnAt` (Fristbeginn für L-19 b/L-20;

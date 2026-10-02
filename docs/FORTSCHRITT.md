@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P7.8
+
+- Reiter Galerie: Einwilligungs-Häkchen je Foto, Formular (Felder §6.16, Nachweis privat, Instagram-Hinweis), „Online“ ohne Einwilligung gesperrt („Ohne Einwilligung der Kundin/des Kunden nicht veröffentlichen“, auch im Hook).
+- `POST /api/tattoo-gallery/:id/withdraw-consent`: offline, Bilder gesperrt (Datei 404), sofortige Revalidierung, Audit, Nachweis-Frist 3 Jahre (L-19 b); Dateien löscht `retentionConsentEvidence` nach 24 h (L-20); M16 Portfolio nur an eingetippte Adresse. Link im DSGVO-Werkzeug.
+- Tests: `tests/int/legal/gallery-withdraw.int.spec.ts` (5), `tests/e2e/admin/tattoo-gallery.e2e.spec.ts` (2).
+
 ## 2026-10-02 – P7.7
 
 - Reiter Angebote: Zustand kommt/läuft/abgelaufen (abgelaufen grau), „Neues Angebot“ mit Datum + optionalen Uhrzeiten → `startsAt`/`endsAt` Europe/Berlin (`offerTimesFromInput`, ohne Uhrzeit 00:00–23:59:59), Ort ohne Straße aus den Stammdaten (`containsStreet`, E-50), Preis-Info, Flash-Motive, Bild, „Übersetzen“ (`POST /api/tattoo-offers/:id/translate`); Weckzeiten setzt der Hook (P7.3).
