@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.11
+
+- Reklamationsakte im Bestell-Detail und über „Reklamation (Bruch)“ in „Versendet“ (Art, Eingang, bis 6 Fotos, Beschreibung, betroffene Stücke, DHL-Frist, carrierClaimFiledAt)\n- „Reklamation beantworten“ sendet M12 (Wahlrecht Reparatur/Ersatz, Unikat-Hinweis, +12 Monate) über die Outbox; Kund:innen-Wahl, warrantyEndsAt +2 Jahre bzw. +12 Monate bei Reparatur\n- Streitfall: M13 mit Universalschlichtungsstelle (Anschrift, URL), kein OS-Link; vsbgNoticeSentAt\n- Tests: complaints.int (R-110, R-111, R-112), vsbg.unit (R-112), p6-mails.unit (R-084, Snapshots DE/EN), E2E admin/complaints (desktop, pixel-7) grün
+
 ## 2026-10-02 – P6.10
 
 - Dialog „Erstatten“ im Widerruf und in der Bestellung: Positionen wählen, Vorschlag nach KONZEPT §5.3 (`refundAmount.ts`, Teil-Widerruf mit Versanddifferenz, Hinweis K-09), nur erhöhbar mit Notiz, nie über den Rest; Pflicht-Grund in der Bestellung (Storno, Bruch, Kulanz, Reklamation).

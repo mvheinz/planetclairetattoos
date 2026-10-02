@@ -3422,7 +3422,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
   - Tests: `tests/unit/commerce/refund-amount.unit.spec.ts`, `tests/int/legal/refund.int.spec.ts` (Titel „R-072 …“).
   - Ohne Jutta: –
 
-- [ ] **P6.11 Reklamationen, „Recht auf Reparatur“ und § 37 VSBG** – Reklamation je Bestellung (Collection
+- [x] **P6.11 Reklamationen, „Recht auf Reparatur“ und § 37 VSBG** – Reklamation je Bestellung (Collection
   `complaints`, DATENMODELL §6.29) im Bestell-Detail und über „Reklamation (Bruch)“ in `/versendet`: `kind`,
   `receivedAt`, `photos` (`complaint_photo`, max. 6), `description`, betroffene Stücke; Hinweis für Jutta „bis
   {`carrierClaimDueAt`} bei DHL reklamieren“ und Feld `carrierClaimFiledAt`. „Reklamation beantworten“ sendet die Mail
