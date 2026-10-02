@@ -967,6 +967,10 @@ $pc-bar-height: 64px;
       padding: 0 4px;
     }
   }
+  > .pc-order__section {
+    min-width: 0;
+    max-width: 100%;
+  }
   &__task {
     flex-wrap: wrap;
     gap: 8px;
@@ -998,8 +1002,11 @@ $pc-bar-height: 64px;
     background: var(--theme-error-700);
   }
   &__scroll {
+    // Breite Tabelle scrollt in sich; `contain` hält sie aus der Breitenberechnung der Seite heraus (390 px).
+    width: 100%;
     max-width: 100%;
     overflow-x: auto;
+    contain: inline-size;
 
     &:focus-visible {
       outline: 3px solid var(--theme-success-500);
@@ -1022,4 +1029,28 @@ $pc-bar-height: 64px;
       text-align: left;
     }
   }
+}
+
+// --- „Alle Daten“-Listen (Payload-Standard): Kontrast der Spaltenköpfe (WCAG 1.4.3) und Mindestgröße der
+// Sortierknöpfe (WCAG 2.5.8, 24 × 24 px). Die Namen der Auswahl-Kästchen ergänzt `ListA11yFixes`.
+.table thead {
+  color: var(--theme-elevation-800);
+}
+.sort-column__button {
+  min-width: 24px;
+  min-height: 24px;
+  opacity: 0.6;
+
+  &.sort-column--active {
+    opacity: 1;
+  }
+}
+
+// Lange Brotkrumen (z. B. „Einstellungen / Umsatz-Wächter“) dürfen den Kopf bei 390 px nicht verbreitern.
+.app-header__step-nav-wrapper {
+  min-width: 0;
+  overflow: hidden;
+}
+.app-header__content {
+  min-width: 0;
 }

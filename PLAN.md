@@ -2930,7 +2930,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     Postfach …“, „R-021 Telefonformat …“), `tests/e2e/admin/settings.e2e.spec.ts`.
   - Ohne Jutta: Alle Werte bleiben Platzhalter bzw. Seed bis P11.
 
-- [ ] **P5.22 Einstellungen, Teil 2: Versand mit EU-Sperre, Beispieldaten, System** – Versand: Tarife je Zone und Klasse
+- [x] **P5.22 Einstellungen, Teil 2: Versand mit EU-Sperre, Beispieldaten, System** – Versand: Tarife je Zone und Klasse
   (`shipping.rates`), Lieferzeit-Text DE/EN, Abholung an/aus, Tracking-Vorlagen, Checklisten, Verpackungsvorlagen
   (`settings.packaging.*`) und laufende Jahressumme (P5.11). Länderliste (`shipping.enabledCountries`): nur DE aktiv;
   Aktivieren eines EU-Landes verlangt die fünf Häkchen der Gruppe `shipping.euChecklist` (R-202:
@@ -2952,7 +2952,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/legal/eu-activation.int.spec.ts` (Titel „R-202 …“), `tests/e2e/admin/settings-system.e2e.spec.ts`.
   - Ohne Jutta: EU bleibt aus; Freischaltung ist eine spätere Entscheidung.
 
-- [ ] **P5.22a Einstellungen, Teil 3: Shop, Kosten, Vorlagen, Steuer-Bestätigung, Statistik, Rechtstexte** – restliche
+- [x] **P5.22a Einstellungen, Teil 3: Shop, Kosten, Vorlagen, Steuer-Bestätigung, Statistik, Rechtstexte** – restliche
   Bereiche aus KONZEPT §7.14 als Handy-Formulare über `settings` (Feldnamen und Grenzen DATENMODELL §7.1, seit P1 im
   Schema; Audit `settings_changed` wie P5.21):
   Shop (Schalter „Shop geöffnet“ `shop.isOpen`, Pausen-Text `shop.closedMessage` DE/EN ≤ 300 Zeichen mit
@@ -3005,7 +3005,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
     (Titel „AK-8-04 …“).
   - Ohne Jutta: Monatliche Summen trägt Jutta ein (A45); Schwellen sind Standardwerte bis zur Steuerberatung.
 
-- [ ] **P5.24 Export: Monats-CSV und Rechnungs-ZIP** – `src/lib/export/monthlyCsv.ts`: Monat wählen → Datei
+- [x] **P5.24 Export: Monats-CSV und Rechnungs-ZIP** – `src/lib/export/monthlyCsv.ts`: Monat wählen → Datei
   `planetclaire-{JJJJ-MM}.csv`, UTF-8 mit BOM, Trennzeichen `;`, Zeilenende CRLF, Dezimalkomma, Datum `TT.MM.JJJJ`,
   sortiert nach Belegnummer. Spalten laut KONZEPT §7.15: Belegdatum; Belegart (Rechnung/Stornorechnung/Gutschrift);
   Belegnummer; Bestellnummer; Zahlart; Betrag brutto; davon Versand; Steuermodus; Steuersatz; Steuerbetrag (0 im
@@ -3026,7 +3026,7 @@ T-15, T-18), §8.1, §8.4, §8.8, §9.6, §11.3, §11.5, §14.7, Anhang A.3; DES
   - Tests: `tests/int/legal/monthly-export.int.spec.ts` (Titel „R-124 …“), `tests/e2e/admin/export.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P5.25 DATEV-Buchungsstapel** – `src/lib/export/datev.ts`: Buchungsstapel im Format EXTF (Version 700,
+- [x] **P5.25 DATEV-Buchungsstapel** – `src/lib/export/datev.ts`: Buchungsstapel im Format EXTF (Version 700,
   Kategorie 21) je Monat: Kopfzeile mit Berater-/Mandantennummer, Wirtschaftsjahr-Beginn, Zeitraum; je Beleg eine
   Buchung (Umsatz, Soll/Haben, Konto, Gegenkonto, Belegdatum, Belegfeld 1 = Belegnummer, Buchungstext ohne
   Personendaten), Stripe-Gebühren als eigene Buchungen; nie Beispieldaten, auch nicht bei wirksamem

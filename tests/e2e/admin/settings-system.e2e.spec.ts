@@ -49,6 +49,14 @@ test('@a11y System: „Jetzt ausführen“ markDelivered schreibt job_runs; fehl
     overrideAccess: true,
     context: { system: true, skipAudit: true },
   })
+  // Reservierte Domains werden beim Anlegen unterdrückt (R-180) – Status danach auf „gescheitert“ setzen.
+  await payload.update({
+    collection: 'email-log',
+    id: failed.id,
+    data: { status: 'failed' } as never,
+    overrideAccess: true,
+    context: { system: true, skipAudit: true },
+  })
   const mails = async () =>
     Number(
       (

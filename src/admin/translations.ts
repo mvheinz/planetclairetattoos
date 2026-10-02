@@ -616,6 +616,9 @@ export const ADMIN_CUSTOM_DE = {
   settingsPasswordShort: 'Mindestens 12 Zeichen.',
   settingsPasswordSave: 'Passwort ändern',
   settingsLogout: 'Abmelden',
+  // „Alle Daten“-Listen: Name der Auswahl-Kästchen (Barrierefreiheit)
+  listSelectRow: 'Zeile {{n}} auswählen',
+  listSelectRowPlain: 'Zeile auswählen',
   // Einstellungen, Teil 2 und 3 (P5.22/P5.22a)
   settingsAreaShop: 'Shop',
   settingsAreaCosts: 'Kosten',

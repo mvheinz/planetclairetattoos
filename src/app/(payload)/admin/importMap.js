@@ -27,6 +27,7 @@ import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997e
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { PackagingYearTotalField as PackagingYearTotalField_524252d33ba08c71759fc84ebce39c4c } from '../../../admin/components/PackagingYearTotal'
 import { AdminBottomBar as AdminBottomBar_79b662d92771cd8bd64d51e645b326a7 } from '../../../admin/components/AdminBottomBar'
+import { ListA11yFixes as ListA11yFixes_57c0188e3519670f33f56b5acc86deb2 } from '../../../admin/components/ListA11yFixes'
 import { AdminIcon as AdminIcon_ad0a14593a8ebf0f9b651e59ffb2c553 } from '../../../admin/components/BrandGraphics'
 import { AdminLogo as AdminLogo_ad0a14593a8ebf0f9b651e59ffb2c553 } from '../../../admin/components/BrandGraphics'
 import { AdminNavLinks as AdminNavLinks_6ae97b8946294f1171a02eff43e28c97 } from '../../../admin/components/AdminNavLinks'
@@ -66,6 +67,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "/admin/components/PackagingYearTotal#PackagingYearTotalField": PackagingYearTotalField_524252d33ba08c71759fc84ebce39c4c,
   "/admin/components/AdminBottomBar#AdminBottomBar": AdminBottomBar_79b662d92771cd8bd64d51e645b326a7,
+  "/admin/components/ListA11yFixes#ListA11yFixes": ListA11yFixes_57c0188e3519670f33f56b5acc86deb2,
   "/admin/components/BrandGraphics#AdminIcon": AdminIcon_ad0a14593a8ebf0f9b651e59ffb2c553,
   "/admin/components/BrandGraphics#AdminLogo": AdminLogo_ad0a14593a8ebf0f9b651e59ffb2c553,
   "/admin/components/AdminNavLinks#AdminNavLinks": AdminNavLinks_6ae97b8946294f1171a02eff43e28c97,

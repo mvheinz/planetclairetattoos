@@ -73,7 +73,11 @@ export default buildConfig({
       // Ansichten vor Payloads Sammlungen („Alle Daten“), Leiste unten auf dem Handy.
       views: adminViewsConfig(),
       beforeNavLinks: ['/admin/components/AdminNavLinks#AdminNavLinks'],
-      header: ['/admin/components/AdminBottomBar#AdminBottomBar'],
+      header: [
+        '/admin/components/AdminBottomBar#AdminBottomBar',
+        // Namen für Payloads Auswahl-Kästchen in „Alle Daten“-Listen (axe „label“).
+        '/admin/components/ListA11yFixes#ListA11yFixes',
+      ],
     },
     meta: {
       titleSuffix: ' – planet claire',

@@ -2,6 +2,22 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P5.25
+
+- DATEV-Knopf in /export: ausgegraut mit Hinweis „Konten mit der Steuerberatung festlegen“ und fehlenden Feldern, mit Konten als Download\n- Tests: e2e export, int datev-export grün
+
+## 2026-10-02 – P5.24
+
+- Ansicht /export: Monatsauswahl (25 Monate), Monats-CSV und Rechnungs-ZIP als Download, Jahresauswahl Verpackung\n- Tests: e2e export (desktop/pixel-7) grün; int monthly-export bestehend
+
+## 2026-10-02 – P5.22a
+
+- Bereiche Shop (inkl. Übersetzen, Go-live-Sperre in Produktion), Kosten, Vorlagen, Steuer-Bestätigung + Jahressummen, Statistik (R-132), Rechtstexte über POST /api/globals/settings/area (DE+EN in einer Transaktion)\n- Umsatz-Wächter-Ansicht (/einstellungen/umsatz-waechter, P5.23): Balken, Monatstabelle, Monatssummen-Eingabe, Jahressummen, Verlauf, Hinweissatz\n- Tests: int settings-part3 (7), e2e settings-part3 (2) grün
+
+## 2026-10-02 – P5.22
+
+- Einstellungen → Versand (/einstellungen/versand): Lieferländer mit EU-Sperre (fünf Häkchen, „EU-Versand geprüft“ mit Datum, R-202), Tarife, Lieferzeit DE/EN, Abholung, Sendungsverfolgung, Checklisten, Verpackungsvorlagen, Jahressumme\n- isOrderableInCountry: lebensmittelechte Keramik nicht nach NL/LU (computeShipping/Summen, Absenden der Kasse)\n- Beispieldaten-Anzahl (Entfernen in P8); System (/einstellungen/system): Version, APP_ENV, Job-Wecker, Jetzt ausführen, Lauf-Protokoll 90 Tage, fehlgeschlagene Mails erneut senden, Webhooks\n- Tests: int eu-activation (3), e2e settings-system (3 × desktop/pixel-7) grün
+
 ## 2026-10-01 – P5.21
 
 - Ansicht „Einstellungen“ Teil 1 (/einstellungen): Stammdaten & Impressum (Postfach abgelehnt R-020, Telefonformat R-021, Steuernummer „nie öffentlich“), Steuer (neuer Modus mit „gilt ab“, Aufbewahrung 8/10 mit K-33-Rückfrage, Audit retention_setting_changed), Zahlung (IBAN mod 97, BIC, Anbieter-Anzeige), Benachrichtigungen, Rechtstexte „kommt in P6“, Konto (Passwort ≥ 12, Abmelden); Speichern je Bereich mit Audit settings_changed (maskiert).
