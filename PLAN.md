@@ -3444,7 +3444,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     (Titel „R-112 …“), `tests/unit/legal/p6-mails.unit.spec.ts` (Titel „R-084 …“, Snapshots DE/EN).
   - Ohne Jutta: Wortlaute sind Arbeitsfassungen bzw. Platzhalter bis zur Kanzlei (Kanzleifragen K-20, K-22).
 
-- [ ] **P6.12 Prüf-Suite Bestellprozess (§ 312j, § 312i, § 312f BGB)** – Nachweise für den in P4 gebauten Kaufweg
+- [x] **P6.12 Prüf-Suite Bestellprozess (§ 312j, § 312i, § 312f BGB)** – Nachweise für den in P4 gebauten Kaufweg
   bündeln und Lücken sofort beheben: § 312j (Knopf exakt „Zahlungspflichtig bestellen“ / „Order with obligation to pay“,
   Übersicht mit wesentlichen Eigenschaften, Gesamtpreis, Versandkosten und Lieferzeit unmittelbar vor dem Knopf; Zahlarten
   und Lieferbeschränkungen spätestens zu Beginn des Bestellvorgangs – R-036, R-063, R-064), § 312i (Eingabefehler über

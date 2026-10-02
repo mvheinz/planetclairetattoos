@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.12
+
+- Prüf-Suite für den Kaufweg: Knopf-Text, Übersicht vor dem Knopf, Zahlarten/Lieferbeschränkungen am Anfang, „Ändern“-Links, AGB/Widerruf abrufbar und speicherbar (R-012, R-036, R-063–R-065)\n- Vertragsschluss über den Kassen-Datensatz; gescheiterte Zahlung → keine Bestellung, keine M01; M01 mit genau drei PDFs in der Bestellfassung, EN zusätzlich EN-PDFs (AK-6-02, R-013, R-015, R-081)\n- Keine Lücken im Kaufweg gefunden\n- Tests: contract-confirmation.int (4), checkout-compliance.e2e auf desktop und pixel-7 grün (iphone-15 läuft in CI)
+
 ## 2026-10-02 – P6.11
 
 - Reklamationsakte im Bestell-Detail und über „Reklamation (Bruch)“ in „Versendet“ (Art, Eingang, bis 6 Fotos, Beschreibung, betroffene Stücke, DHL-Frist, carrierClaimFiledAt)\n- „Reklamation beantworten“ sendet M12 (Wahlrecht Reparatur/Ersatz, Unikat-Hinweis, +12 Monate) über die Outbox; Kund:innen-Wahl, warrantyEndsAt +2 Jahre bzw. +12 Monate bei Reparatur\n- Streitfall: M13 mit Universalschlichtungsstelle (Anschrift, URL), kein OS-Link; vsbgNoticeSentAt\n- Tests: complaints.int (R-110, R-111, R-112), vsbg.unit (R-112), p6-mails.unit (R-084, Snapshots DE/EN), E2E admin/complaints (desktop, pixel-7) grün
