@@ -126,6 +126,7 @@ export function proxy(request: NextRequest): NextResponse {
   if (route.kind === 'redirect') {
     return redirect(new URL(route.location, request.nextUrl), route.status, route.vary)
   }
+  if (route.kind === 'not-found') return notFound()
   if (route.kind === 'pass') return NextResponse.next()
 
   // Bekannte Listen-Parameter → statische Variante; sichtbare URL bleibt die Query-Form. Öffentliche Listen haben den

@@ -1,7 +1,15 @@
+import { readdirSync } from 'node:fs'
+import { resolve } from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
 import { pickLocale } from '@/i18n/pickLocale'
-import { decidePublicRoute, isExcludedPath } from '@/lib/routes/redirects'
+import {
+  decidePublicRoute,
+  FILE_PREFIXES,
+  isExcludedPath,
+  ROOT_FILES,
+} from '@/lib/routes/redirects'
 import { wwwRedirectTarget } from '@/proxy'
 
 // KONZEPT §2.4, AK-2-02 (R30): Spracherkennung über Accept-Language, q-Werte beachten, Rückfall de, kein Cookie.
@@ -95,6 +103,29 @@ describe('decidePublicRoute (ARCHITEKTUR §2.3)', () => {
       expect(decidePublicRoute(p, '', null), p).toEqual({ kind: 'pass' })
     }
     expect(isExcludedPath('/nrw')).toBe(false)
+  })
+
+  it('T-04 unbekannte Dateien außerhalb von Sprache/System/public → 404 im Proxy (kein Rendern in [locale])', () => {
+    for (const p of ['/manifest.webmanifest', '/sw.js', '/wp-login.php', '/foo.bar/x.js']) {
+      expect(decidePublicRoute(p, '', null), p).toEqual({ kind: 'not-found' })
+    }
+    for (const p of ['/de/og-image.png', '/apple-icon.png', '/_next/x.js', '/legal/a.pdf']) {
+      expect(decidePublicRoute(p, '', null), p).toEqual({ kind: 'pass' })
+    }
+  })
+
+  it('FILE_PREFIXES enthält alle Ordner aus public/, ROOT_FILES alle Dateien direkt in src/app/', () => {
+    const dirs = readdirSync(resolve(process.cwd(), 'public'), { withFileTypes: true })
+    for (const d of dirs) {
+      if (d.isDirectory()) expect(FILE_PREFIXES.has(d.name), d.name).toBe(true)
+      else if (!d.name.startsWith('.')) expect(ROOT_FILES.has(`/${d.name}`), d.name).toBe(true)
+    }
+    for (const f of readdirSync(resolve(process.cwd(), 'src/app'))) {
+      const m = /^(favicon\.ico|icon\.svg|apple-icon\.png|robots|sitemap)/.exec(f)
+      if (!m) continue
+      const name = f === 'robots.ts' ? 'robots.txt' : f === 'sitemap.ts' ? 'sitemap.xml' : f
+      expect(ROOT_FILES.has(`/${name}`), f).toBe(true)
+    }
   })
 })
 

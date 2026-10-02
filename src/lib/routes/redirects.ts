@@ -11,6 +11,8 @@ export type PublicRouteDecision =
   | { kind: 'intl' }
   /** Nicht Sache der Sprachlogik (Dateien, /nr, Sitemap, robots.txt). */
   | { kind: 'pass' }
+  /** Datei-Pfad, den es nicht gibt (z. B. `/manifest.webmanifest`, `/sw.js`) → schlichte 404 des Proxys. */
+  | { kind: 'not-found' }
 
 /** Ausgenommen von der Spracherkennung (KONZEPT §2.4): Dateien, Systempfade, R31. */
 export function isExcludedPath(pathname: string): boolean {
@@ -18,6 +20,38 @@ export function isExcludedPath(pathname: string): boolean {
   if (pathname === '/sitemap.xml' || pathname === '/robots.txt') return true
   const last = pathname.split('/').pop() ?? ''
   return last.includes('.')
+}
+
+/** Echte Dateien direkt unter `/` (Next-Metadaten-Routen in `src/app/`; `favicon.ico` schließt der Matcher aus). */
+export const ROOT_FILES: ReadonlySet<string> = new Set([
+  '/favicon.ico',
+  '/icon.svg',
+  '/apple-icon.png',
+  '/robots.txt',
+  '/sitemap.xml',
+])
+
+/** Erste Pfadsegmente, unter denen Dateien liegen dürfen: Systempfade und die Ordner in `public/`. */
+export const FILE_PREFIXES: ReadonlySet<string> = new Set([
+  'api',
+  '_next',
+  'nr',
+  'art',
+  'legal',
+  'og',
+])
+
+/**
+ * Datei-Pfad, den es sicher nicht gibt (P5.29, T-04): Ohne diese Prüfung fiele z. B. `/manifest.webmanifest` in das
+ * dynamische Wurzel-Segment `[locale]` (statisch nur `de`/`en`, ISR ohne `dynamicParams = false`, P6.5); dessen
+ * `not-found` liest dann Anfrage-Header und Next bricht mit 500 „Page changed from static to dynamic“ ab.
+ */
+export function isUnknownFilePath(pathname: string): boolean {
+  if (!isExcludedPath(pathname)) return false
+  if (ROOT_FILES.has(pathname)) return false
+  const first = pathname.split('/')[1] ?? ''
+  if (FILE_PREFIXES.has(first)) return false
+  return !(LOCALES as readonly string[]).includes(first)
 }
 
 /**
@@ -38,6 +72,7 @@ export function decidePublicRoute(
       location: (pathname.replace(/\/+$/, '') || '/') + search,
     }
   }
+  if (isUnknownFilePath(pathname)) return { kind: 'not-found' }
   if (isExcludedPath(pathname)) return { kind: 'pass' }
 
   const split = splitLocale(pathname)

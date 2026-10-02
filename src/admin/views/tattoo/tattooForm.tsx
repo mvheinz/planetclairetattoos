@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useId } from 'react'
+import React, { useEffect, useId, useRef } from 'react'
 
 import type { PiecePhoto } from '../../components/PhotoPicker/photoList'
 import { adminText } from '../../translations'
@@ -83,12 +83,23 @@ export function TextInput(props: {
   disabled?: boolean
 }) {
   const id = useId()
+  const ref = useRef<HTMLInputElement & HTMLTextAreaElement>(null)
+  const { onChange } = props
+  // Eingaben vor der Hydrierung (Seite per Link geladen, Eingabe schneller als das Skript) übernehmen: React lässt den
+  // Wert im DOM stehen, der Zustand bliebe aber leer und „Speichern“ meldete Pflichtfeld-Fehler (P7.7).
+  useEffect(() => {
+    const dom = ref.current?.value
+    if (dom !== undefined && dom !== props.value) onChange(dom)
+    // nur einmal nach dem Einhängen
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const error = props.errors[props.path]
   const describedBy =
     [props.hint ? `${id}-hint` : null, error ? `${id}-err` : null].filter(Boolean).join(' ') ||
     undefined
   const common = {
     id,
+    ref,
     name: props.path,
     value: props.value,
     maxLength: props.maxLength,
@@ -151,6 +162,11 @@ export function LocInput(props: {
   maxLength?: number
   required?: boolean
 }) {
+  // Neuester Wert auch zwischen zwei Renderings (beide Sprachfelder können im selben Durchlauf melden).
+  const latest = useRef(props.value)
+  useEffect(() => {
+    latest.current = props.value
+  })
   return (
     <fieldset className="pc-field pc-settings__group">
       <legend className="pc-field__label">{props.label}</legend>
@@ -166,7 +182,10 @@ export function LocInput(props: {
           required={props.required && l === 'de'}
           hint={l === 'de' ? props.hint : undefined}
           errors={props.errors}
-          onChange={(v) => props.onChange({ ...props.value, [l]: v })}
+          onChange={(v) => {
+            latest.current = { ...latest.current, [l]: v }
+            props.onChange(latest.current)
+          }}
         />
       ))}
     </fieldset>
