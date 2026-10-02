@@ -24,8 +24,8 @@ export const generateMetadata = routeMetadata('R01')
 // Rückfall nach einer Stunde.
 export const revalidate = 3600
 // Nur `/de` und `/en` (generateStaticParams im Layout): unbekannte Wurzelpfade wie `/sw.js` oder
-// `/manifest.webmanifest` antworten mit 404, statt die ISR-Seite dynamisch zu rendern (P5.29, T-04).
-export const dynamicParams = false
+// `/manifest.webmanifest` antworten über `notFound()` mit 404 (P5.29, T-04). Kein `dynamicParams = false`: damit
+// beantwortete Next die Neuerzeugung nach einer Tag-Erneuerung (`home`, `products`) dauerhaft mit 404 (NoFallbackError).
 
 // R01 Startseite (KONZEPT §3.1, DESIGN KO-21/§11.4, Preset `journey`): Kopf-Station „Planet Claire“ (H1 mit
 // Planet-Marke links vor dem Namen, Anker `orbit` für das Intro MI-10 – die Linie kreuzt so keinen Text) und danach die Stationen aus `pages:home` in fester Reihenfolge
