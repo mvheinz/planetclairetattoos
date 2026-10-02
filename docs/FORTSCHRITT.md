@@ -2,6 +2,14 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P8.1
+
+- Soll-Mengen als einzige Quelle in `src/lib/seed/expected.ts` (`SEED_EXPECTED_COUNTS` je Zeile aus SEED-SPEC §0.1, dazu Aufteilungen und Verteilungen je Kategorie/Status/Verkaufskanal); offene SE-Punkte (SE-01–07, SE-10, SE-12, SE-14) in OFFENE-PUNKTE §4.1 mit „Standard“, „Entscheidet“, „So änderbar“.
+- Abgleich Code ↔ SEED-SPEC §0.3/DATENMODELL §13.3: Nummern 901–930, Belegserien `BSP-RE`/`BSP-GS` (Hook `invoices`), Etikett „Beispiel“ (`ExampleNote`, Verwaltung), Beispiel-IBAN als Standard in `settings`, Keramik nur `deko`, Kassen-Modell (`checkouts` für Vorgänge ohne Bestellung) – keine Abweichung im vorhandenen Code; Bestellungen fehlten noch (P8.4).
+- Ist/Soll nach `pnpm seed:reset` (kanonisches `SEED_NOW`), Stand vor P8.2: media 11/47 · private-uploads 2/22 (7 Dateien + 15 Beleg-PDFs) · products 10/30 · checkouts 1/14 · orders 0/14 · reservations 1/10 · invoices 0/15 · invoice-counters (BSP) 0/2 · withdrawals 0/7 · complaints 0/4 · inquiries 0/7 · privacy-requests 0/5 · flash 0/10 · tattoo-offers 0/3 · tattoo-gallery 0/6 · pages 2/13 · faqs 0/12 · revenue-entries 0/18 · email-log 0/78 · consent-log 0/14 · audit-log 0/8 · webhook-events/documents/conformity-declarations 0/0 · Grund-Seed: categories 6/6, legal-texts 6/6, settings/site-texts 1/1, users 1/0–1.
+- Folgeaufgaben: P8.2 bauen (Medien ergänzen, Packfotos/Skizze erzeugen) · P8.3 bauen (20 Stücke fehlen) · P8.4 bauen (Bestellungen, Kassen, Reservierungen) · P8.4a bauen (Seed-Anbindung des P4-Renderers) · P8.5 bauen · P8.5a bauen · P8.6 bauen · P8.7 ergänzen (2 von 13 Seiten, FAQ fehlen) · P8.8 bauen · P8.9 nur prüfen/ergänzen (Guard, Entfernen, Reset und Idempotenz aus P1 vorhanden).
+- Tests: `tests/unit/seed/expected.unit.spec.ts` (2, liest §0.1 per Markdown-Parser) grün.
+
 ## 2026-10-02 – P7.15
 
 - `tests/e2e/tattoo/no-purchase.e2e.spec.ts` (AK-9-01, AK-9-05, R-139 auf R11–R18 DE/EN), `tests/int/legal/tattoo-cart.int.spec.ts` (R-170), `tests/unit/legal/tattoo-content.unit.spec.ts` (V-15/V-24/V-25, R-034); ANFORDERUNGEN §3 Nachweise für P7-Zeilen, `LEGAL_TRACE_PHASE = 7`.

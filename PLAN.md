@@ -4050,7 +4050,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
 
 ### Aufgaben
 
-- [ ] **P8.1 Bestandsaufnahme Beispielbestand und Abgleich der Seed-Festlegungen** – Nach `pnpm seed:reset`
+- [x] **P8.1 Bestandsaufnahme Beispielbestand und Abgleich der Seed-Festlegungen** – Nach `pnpm seed:reset`
   (kanonisches `SEED_NOW`) Datendateien `content/seed/data/*.json`, Schemas und Mengen mit SEED-SPEC §0.1 vergleichen
   (`pnpm seed:remove` ohne `--yes` liefert die Mengenvorschau). Soll-Mengen als einzige Quelle für Tests in
   `src/lib/seed/expected.ts` (`SEED_EXPECTED_COUNTS`) anlegen. In `docs/FORTSCHRITT.md` je folgender Datenaufgabe

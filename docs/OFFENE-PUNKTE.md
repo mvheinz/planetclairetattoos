@@ -268,6 +268,26 @@ SEED-SPEC SE-11, SE-13.
 | ARCHITEKTUR B-08 (P10) | Spike: Docker-Image ohne DB bauen, Seiten rendern zur Laufzeit korrekt | Soll laut §13.2 (`BUILD_WITHOUT_DB=1`, `connection()`); offen | Rückfall: Build im Compose-Netz mit laufender, migrierter Wegwerf-DB |
 | ARCHITEKTUR B-09 (P1) · erledigt 27.09.2026 | Spike: `payload.jobs.handleSchedules()` und `payload.jobs.run()` in 3.90.2, auch mit injizierter Zeit | Soll laut §9.6; offen | Rückfall: eigene Tabelle `job_schedules (task, next_run_at)` und Einreihen im Tick |
 
+### 4.1 Offene Punkte des Beispielbestands (SEED-SPEC §20, übertragen in P8.1 am 2026-10-02)
+
+Übertragen sind alle SE-Zeilen, die in SEED-SPEC §20 nicht als geklärt vermerkt sind; SE-08, SE-11 und SE-13 sind dort
+geklärt, SE-09 hat P7.1 erledigt. Der Standard gilt, bis entschieden ist; er bringt nichts Riskantes online (alles nur
+im Beispielbestand, nie in Produktion). Für Jutta stehen die Punkte zusätzlich in einfachen Worten in §2.3 (J-21 bis
+J-24), §2.1 (J-10) und §2.2 (J-19).
+
+| ID | Thema | Standard | Entscheidet | So änderbar | Status |
+|---|---|---|---|---|---|
+| SE-01 | Bildinhalte S04–S06: Handschrift auf den Schmetterlings-Schälchen evtl. Liedzeilen, Fliese S06 evtl. reale Person/fremder Text | neutrale Titel und Alt-Texte, keine Zitate; Fotos nur im Beispielbestand | Jutta (J-21) | S04–S06 in `products.json`/`media.json` auf Platzhalter (§4.2) umstellen, `pnpm seed:reset` | wartet auf Jutta |
+| SE-02 | Graue Cap `DdHXUQsDjqm`: ungeschnittenes Foto zeigt Jutta | nur der gesichtsfreie Ausschnitt `#cap` als Produktbild S16; nie auf „Über mich“ | Jutta (J-22) | Foto aus dem Instagram-Export oder von Jutta, gleicher `seedKey`, `--refresh-media` | wartet auf Jutta |
+| SE-03 | Kund:innen-Tattoofotos G1/G2 im privaten Repository und in der Vorschau-Datei | nur bei wirksamem `SEED_PREVIEW_MODE`, Etikett „intern – Einwilligung fehlt“, beim Entfernen immer gelöscht | Kanzlei (K-34), Jutta (J-10) | G1/G2 samt Medien aus `tattoo.json`/`media.json` entfernen und durch Platzhalter ersetzen | wartet auf Kanzlei |
+| SE-04 | Allowlist des Verbotsmuster-Tests: fremder Figurenname in der Bildunterschrift von G2 | Original-Bildunterschrift bleibt, genau ein begründeter Allowlist-Eintrag (E-18) | Jutta (J-23); Kanzlei bei Bedenken | neutrale Bildunterschrift in `tattoo.json`, Allowlist-Eintrag löschen | wartet auf Jutta |
+| SE-05 | Straßennamen der erfundenen Kund:innen (besonders „Musterstraße“ in Berlin) | erfundene Namen wie SEED-SPEC §6; alle übrigen Adressen außerhalb Berlins. Der Abgleich mit dem Berliner Straßenverzeichnis ist offline nicht möglich und bleibt für P11 | Entwicklung (P8/P11) | Namen in `content/seed/data/customers.json` ersetzen, `pnpm seed:reset` | Annahme gilt |
+| SE-06 | Material-, Faser- und Maßangaben (Steinzeug, Glasuren, Edelstahl 316L, 300-g-Papier, Fasern S15/S16, Maße, Gewichte) | Annahmen nach bestem Wissen (SEED-SPEC §5.2, §5.3) | Jutta (J-24) | im Admin korrigieren bzw. in `products.json` | wartet auf Jutta |
+| SE-07 | Aftercare-Methode und FAQ-Aussagen (Farbe, Cover-ups, Coco im Studio, Anzahlung, Absagen, Mindestalter) | Entwürfe in Juttas Ton ohne Heilversprechen (V-15) und ohne Verfallsklausel (V-24) | Jutta (J-19); Kanzlei K-26 | Jutta übernimmt die Texte durch Bearbeiten im Admin (adopt) | wartet auf Jutta |
+| SE-10 | Teil-Widerruf O05: Erstattung der Versand-Mehrkosten (240 ct) | Betrag 4040 und Gutschrift `BSP-GS-2026-00002` wie SEED-SPEC §7.2/§9 | Kanzlei (K-09) | Betrag von O05 in `orders.json` anpassen, `pnpm seed:reset` | wartet auf Kanzlei |
+| SE-12 | Kassen und Reservierungen nach den Löschfristen L-02/L-03 | der Seed legt nur an, was bei `N` noch existieren würde (14 Kassen, 10 Reservierungen; O01/O02 ohne Kasse); Filter mit den Fristen aus `src/lib/retention/policy.ts` | Entwicklung (P8.4); bei Friständerung LOESCHKONZEPT | Filter in `src/lib/seed/orders.ts` anpassen, Mengen in SEED-SPEC §0.1 und `src/lib/seed/expected.ts` nachziehen | Annahme gilt |
+| SE-14 | Beispiel-Begründungen für Ablehnungen und Abschlüsse (RK4, DS2, W7) | interne Notizen im Beispielbestand, kein Rechtstext, keine Vorlage für echte Fälle | Kanzlei bei Bedenken, Jutta | Texte in `complaints.json`, `privacy-requests.json` bzw. `withdrawals.json` ändern, `pnpm seed:reset` | Annahme gilt |
+
 ---
 
 ## 5. Laufendes Protokoll der Sessions
