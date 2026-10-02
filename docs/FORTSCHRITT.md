@@ -2,6 +2,11 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P7.4
+
+- R14 Preise (Mindestpreis, Preisrahmen, Flash-Hinweis, Anzahlung persönlich ohne Verfallsklausel, Fußnote, Kontakt „eigene Idee“), R16 Ablauf (5 Schritte, ab 18, Bezirk), R17 Aftercare (Blöcke der Seite tattoo_aftercare, Warnzeichen, Safer-Tattoo-Link, Druck-CSS ohne Kopf/Navigation/Linie/Coco), R18 FAQ als details
+- Tests: tests/e2e/tattoo/info-pages.e2e.spec.ts (R-034, V-24, Druck, Tastatur; grün)
+
 ## 2026-10-02 – P7.3
 
 - R13 Angebote: Zustand aus startsAt/endsAt (läuft gerade / in X Tagen), Datums-Badge, Uhrzeit, Ort nur Bezirk, Motive mit Link auf R12#f-…, Mail-Betreff „Anfrage … am …“; Teaser auf R11 und Startseite (gleiche Abfrage)

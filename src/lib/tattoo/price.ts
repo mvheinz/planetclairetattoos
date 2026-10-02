@@ -9,8 +9,3 @@ import { formatMoney } from '@/lib/money'
 export function formatTattooPrice(cents: number, locale: Locale): string {
   return formatMoney(cents, locale, { style: 'tag' })
 }
-
-/** „120 €*“ – Preis mit Sternchen als reiner Text (Mindestpreis, Preisrahmen). */
-export function tattooPriceWithStar(cents: number, locale: Locale): string {
-  return `${formatTattooPrice(cents, locale)}*`
-}

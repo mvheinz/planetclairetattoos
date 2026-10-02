@@ -8,7 +8,7 @@ import { TattooShell } from '@/components/tattoo/TattooShell'
 import { tattooLocale, tattooMetadata } from '@/components/tattoo/tattooRoute'
 import { blocksOfType, getTattooPage, getTattooSettings } from '@/lib/data/tattoo'
 import { localizedPath } from '@/lib/routes/paths'
-import { tattooPriceWithStar } from '@/lib/tattoo/price'
+import { formatTattooPrice } from '@/lib/tattoo/price'
 
 // R14 Preise (KONZEPT §9.2, §9.6, R-034): Mindestpreis aus `settings.tattoo.minPriceCents` („Mindestpreis 80 €*“),
 // Preisrahmen eigener Ideen aus `customPriceFromCents`/`customPriceToCents` und `priceNote`, Flash-Hinweis mit Link auf
@@ -27,7 +27,8 @@ export default async function PricesPage({ params }: { params: Promise<{ locale:
     getTattooSettings(locale),
     getTattooPage(locale),
   ])
-  const money = (cents: number) => tattooPriceWithStar(cents, locale)
+  // Betrag ohne Sternchen; die Vorlage setzt es einmal hinter den Preis bzw. Preisrahmen („150–400 €*“).
+  const money = (cents: number) => formatTattooPrice(cents, locale)
   const info = blocksOfType(page, 'priceInfo')
   const { minPriceCents: min, customPriceFromCents: from, customPriceToCents: to } = settings
 

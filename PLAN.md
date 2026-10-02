@@ -3784,7 +3784,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
     ruft `POST /api/cron/run/revalidateEndedOffers` mit `CRON_SECRET`).
   - Ohne Jutta: –
 
-- [ ] **P7.4 R14 Preise, R16 Ablauf, R17 Aftercare, R18 FAQ** – R14 (KONZEPT §9.6, R-034): Mindestpreis aus
+- [x] **P7.4 R14 Preise, R16 Ablauf, R17 Aftercare, R18 FAQ** – R14 (KONZEPT §9.6, R-034): Mindestpreis aus
   `settings.tattoo.minPriceCents` („Mindestpreis 80 €*“), Preisrahmen eigene Ideen aus `customPriceFromCents`/
   `customPriceToCents` und `priceNote`, Flash-Hinweis mit Link R12, Anzahlung „vereinbaren wir persönlich, außerhalb der
   Website“ ohne Verfall-/Nicht-Erstattungs-Klauseln (V-24), Fußnote `price.tattooNote`, Kontakt-Block mit Betreff

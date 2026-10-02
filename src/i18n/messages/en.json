@@ -1132,10 +1132,10 @@
     "prices": {
       "intro": "All prices are total prices – that's what you pay in the end, nothing more.",
       "minHeading": "Minimum price",
-      "minPrice": "Minimum price {amount}",
+      "minPrice": "Minimum price {amount}*",
       "customHeading": "Custom ideas",
-      "customRange": "Usually {from}–{to}, depending on size and effort.",
-      "customFrom": "From {from}, depending on size and effort.",
+      "customRange": "Usually {from}–{to}*, depending on size and effort.",
+      "customFrom": "From {from}*, depending on size and effort.",
       "customAsk": "I'm happy to tell you the price for your custom idea by email.",
       "flashHeading": "Flash",
       "flashText": "Every flash design has a fixed price – it's shown right next to it.",

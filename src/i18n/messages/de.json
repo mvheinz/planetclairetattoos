@@ -1132,10 +1132,10 @@
     "prices": {
       "intro": "Alle Preise sind Gesamtpreise – so viel zahlst du am Ende, nicht mehr.",
       "minHeading": "Mindestpreis",
-      "minPrice": "Mindestpreis {amount}",
+      "minPrice": "Mindestpreis {amount}*",
       "customHeading": "Eigene Ideen",
-      "customRange": "Meist {from}–{to}, je nach Größe und Aufwand.",
-      "customFrom": "Ab {from}, je nach Größe und Aufwand.",
+      "customRange": "Meist {from}–{to}*, je nach Größe und Aufwand.",
+      "customFrom": "Ab {from}*, je nach Größe und Aufwand.",
       "customAsk": "Den Preis für deine eigene Idee nenne ich dir gern per Mail.",
       "flashHeading": "Flash",
       "flashText": "Jedes Flash-Motiv hat einen Festpreis – er steht direkt am Motiv.",
