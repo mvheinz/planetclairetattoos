@@ -1448,7 +1448,7 @@ Mail `admin_refund_failed` (kein Statuswechsel). Stripe-Refund `pending` → Sta
 - DM-ORD-03: Doppelte Zustellung desselben Webhooks erzeugt genau eine Bestellung, eine Rechnung, eine Bestätigungsmail, einen Verkauf.
 - DM-ORD-04: Status-Seite mit falschem Token → 404; mit richtigem → keine Adresse der Rechnungsempfängerin außer Name, keine internen Felder; nach Stufe B „Link abgelaufen“.
 - DM-ORD-05: `shipping` mit einer `nur_abholung`-Position wird abgelehnt; `shippingCents` = Tarif der höchsten Klasse; `pickup` = 0.
-- DM-ORD-06: Vorkasse-Bestellung Fr 26.09.2026 10:00 Berlin → `reminderDueAt` Mo 29.09. 10:00, `dueAt` Mi 01.10.
+- DM-ORD-06: Vorkasse-Bestellung Sa 26.09.2026 10:00 Berlin → `reminderDueAt` Di 29.09. 10:00, `dueAt` Do 01.10.
   23:59:59 Berlin (21:59:59 UTC); `cancelOverduePrepayments` storniert am 01.10. um 23:59 noch nicht, beim ersten Lauf nach
   `dueAt` genau einmal (KONZEPT AK-8-02).
 - DM-ORD-07: O7 ohne erfasste Verpackung wird abgelehnt; der Jahres-Export (§6.8.8) summiert die Gramm je Material aller
@@ -1982,6 +1982,7 @@ Geschrieben ausschließlich über `writeAudit(req, entry)` (`src/lib/audit.ts`, 
 |---|---|---|---|
 | `template` | select `EmailTemplate` | R | – |
 | `to` | email | R | – |
+| `idempotencyKey` | text | S | UNIQUE, ≤ 200; Mail-Typ + Objekt-ID + Ereignis (KONZEPT §6.1), z. B. `order_confirmation:17:O1`, A12 `admin_alert:<Fehlerart>@<ISO-Zeit>`; leer nur bei A17 (Payload versendet selbst). Gleicher Schlüssel → keine zweite Mail (P4.13) |
 | `locale` | select `de`, `en` | R | – |
 | `subject` | text | R | ≤ 200 |
 | `status` | select `EmailStatus` | R | `queued → sent/failed`; `suppressed` für Empfänger-Domains `example.com`, `example.org`, `example.net` und Endungen `.invalid`, `.test` – in **allen** Umgebungen (Schutz für Seed-Daten, R-180, ARCHITEKTUR §3.4) |
@@ -2076,7 +2077,7 @@ genau eine Bestellung (O1/O2/O19). **Admin:** Gruppe „System“, nur lesen (Fe
 | `stripe.sessionExpiresAt` | date | S | – | – | Stripe `expires_at` (≥ 30 min nach Erstellung) | – |
 | `stripe.sessionSeq` | number | S | – | 0 | +1 je (Neu-)Anlage der Session; Idempotenz-Schlüssel `checkout:<checkoutRef>:<n>` mit `checkoutRef` = `reservationRef` (§6.25.2, ARCHITEKTUR §3.5) | – |
 | `stripe.livemode` | checkbox | S | – | `false` | – | – |
-| `mock.state` | json | S | – | – | nur `PAYMENTS_DRIVER=mock`: Session-Zustand (`open`/`complete`/`expired`, `paymentStatus`, nächstes Test-Ergebnis) – Zustand liegt in der DB, nicht im Prozess (ARCHITEKTUR §3.5) | – |
+| `mock.state` | json | S | – | – | nur `PAYMENTS_DRIVER=mock`: Session-Zustand (`open`/`complete`/`expired`, `paymentStatus`, nächstes Test-Ergebnis) – Zustand liegt in der DB, nicht im Prozess (ARCHITEKTUR §3.5); schreibt nur der Mock-Treiber (Trigger `checkouts_keep_mock_state`, Migration `p4_mock_state_guard`), kein Client-Secret | – |
 | `order` | relationship → `orders` | S | – | – | gesetzt bei `completed` | – |
 | `closeReason` | select `CheckoutCloseReason` | S | – | – | Pflicht bei `expired`, `cancelled`, `failed` | – |
 | `timestamps.confirmingAt` / `completedAt` / `expiredAt` / `cancelledAt` / `failedAt` | date | S | – | – | `confirmingAt` steuert den Abgleich nach 10 min (KONZEPT §4.10) | – |
@@ -2514,8 +2515,8 @@ Ein Rabattcode wird **nicht** angeboten (keine Rabattcodes, §1.7).
 Fristen berechnet **eine einzige** Funktion `prepaymentDeadlines(placedAt, settings)` in
 `src/lib/commerce/deadlines.ts` (dort auch die Reservierungszeiten; Kalenderrechnung in Europe/Berlin):
 - `dueAt` = 23:59:59 Europe/Berlin am `prepaymentDays`-ten (Standard 5.) Kalendertag nach dem Berliner Datum von
-  `placedAt`. Beispiel: Bestellung Fr 26.09.2026 10:00 → Frist Mi 01.10.2026 23:59:59 (= 21:59:59 UTC).
-- `reminderDueAt` = `placedAt + prepaymentReminderHours` (Standard 72 h) → Mo 29.09.2026 10:00.
+  `placedAt`. Beispiel: Bestellung Sa 26.09.2026 10:00 → Frist Do 01.10.2026 23:59:59 (= 21:59:59 UTC).
+- `reminderDueAt` = `placedAt + prepaymentReminderHours` (Standard 72 h) → Di 29.09.2026 10:00.
 - Storno durch `cancelOverduePrepayments`, sobald `dueAt < $now`.
 
 Bei `submitCheckout` mit `paymentChoice = prepayment` in derselben Transaktion wie die Bestellanlage (O2):
@@ -2802,7 +2803,7 @@ KONZEPT §8.2.
 
 | Task-Slug | Queue | Auslösung | Eingabe | Verhalten | Retries |
 |---|---|---|---|---|---|
-| `sendEmail` | email | direkt nach dem Commit; Wiederholung per `waitUntil` + Weckzeit | `{ emailLogId }` | Vorlage rendern, über `EMAIL_DRIVER` senden, `email-log` auf `sent`/`failed`; Empfänger `example.com`, `example.org`, `example.net`, `*.invalid`, `*.test` → `suppressed` (nie versendet). Fehlt ein Pflicht-Anhang noch (Rechnung `pending_pdf`, Rechtstext-PDF), wird der Job ohne Fehlversuch mit `waitUntil = $now + 1 min` neu eingereiht (max. 30×, dann `failed` + `admin_alert`). Wiederholung nach 1, 5, 15, 60, 240 min, danach `failed` + `admin_alert`; `withdrawal_receipt` (R-093): Wiederholung im Abstand von höchstens 5 min bis 24 h nach Eingang des Widerrufs, `admin_alert` (A12) schon nach dem 2. Fehlversuch und erneut, wenn nach 24 h `failed` gesetzt wird | 5 (bei `withdrawal_receipt` bis 24 h) |
+| `sendEmail` | email | direkt nach dem Commit; Wiederholung per `waitUntil` + Weckzeit | `{ emailLogId, data, waits }` (`data` = Vorlagen-Daten ohne Tokens; `waits` = Anzahl Anhang-Wartezyklen) | Vorlage rendern, über `EMAIL_DRIVER` senden, `email-log` auf `sent`/`failed`; Empfänger `example.com`, `example.org`, `example.net`, `*.invalid`, `*.test` → `suppressed` (nie versendet). Fehlt ein Pflicht-Anhang noch (Rechnung `pending_pdf`, Rechtstext-PDF), wird der Job ohne Fehlversuch mit `waitUntil = $now + 1 min` neu eingereiht (max. 30×, dann `failed` + `admin_alert`). Wiederholung nach 1, 5, 15, 60, 240 min, danach `failed` + `admin_alert`; `withdrawal_receipt` (R-093): Wiederholung im Abstand von höchstens 5 min bis 24 h nach Eingang des Widerrufs, `admin_alert` (A12) schon nach dem 2. Fehlversuch und erneut, wenn nach 24 h `failed` gesetzt wird | 5 (bei `withdrawal_receipt` bis 24 h) |
 | `renderInvoicePdf` | documents | bei Bedarf | `{ invoiceId }` | PDF aus `invoice.data` rendern, als `private-upload` speichern, `pdf`/`sha256`/`renderedAt`/`status = issued` setzen | 5 |
 | `renderLegalTextPdf` | documents | bei Bedarf | `{ legalTextId }` | PDFs DE/EN (Tokens aufgelöst) → `documents`, Hash setzen | 5 |
 | `monthlyClose` | documents | monatlich am 1. ab 04:00 | – | für den Vormonat: Monatsexport-CSV (KONZEPT §7.15, ohne Beispieldaten – auch im Vorschau-Modus; **keine** Namen, Adressen oder E-Mail-Adressen; mit Steuermodus und Stripe-Zahlungs- bzw. Erstattungs-ID; gleiche Eingaben ergeben eine byte-identische Datei, R-124) und Rechnungs-ZIP als `private-uploads` (`monthly_export`, L-07) ablegen; Mail `admin_monthly_close` inkl. Hinweis auf fehlende `revenue-entries` | 3 |

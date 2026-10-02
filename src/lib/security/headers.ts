@@ -38,9 +38,10 @@ export interface ContextHeaderOptions extends CspOptions {
 /** Header, die ein Kontext zusätzlich zu `baseHeaders` setzt bzw. überschreibt (inkl. CSP). */
 export function contextHeaders(context: CspContext, o: ContextHeaderOptions): HeaderMap {
   const h: HeaderMap = { 'Content-Security-Policy': buildCsp(context, o) }
+  // Dynamische Seiten (R06, R08, R09, R10, R26) sind je Person: nie in geteilten Caches (ARCHITEKTUR §9.1, P4.8).
+  if (context === 'dynamic') h['Cache-Control'] = 'private, no-store'
   if (context === 'dynamic' && o.tokenPage) {
     h['Referrer-Policy'] = 'no-referrer'
-    h['Cache-Control'] = 'private, no-store'
     h['X-Robots-Tag'] = 'noindex, nofollow'
   }
   if (context === 'checkout') {

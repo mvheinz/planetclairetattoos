@@ -1,0 +1,10 @@
+ACHTUNG: Erstattung fehlgeschlagen – PC-2026-00017
+
+Betrag: 45,00 €
+Fehlermeldung: expired_or_canceled_card
+
+Bitte die Erstattung in der Bestellung prüfen und bei Bedarf neu anstoßen oder überweisen.
+
+--
+Diese Nachricht hat deine Website automatisch erzeugt.
+Zur Verwaltung: https://planetclairetattoos.com/werkstatt/collections/orders/17

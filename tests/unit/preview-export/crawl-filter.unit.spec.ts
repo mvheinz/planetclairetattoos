@@ -82,6 +82,12 @@ describe('Vorschau-Export: Crawl-Filter (ARCHITEKTUR §14.4)', () => {
       '/a.png',
       'x.woff2',
     ])
+    // Fragment in einer SVG-Daten-URI (Schraffur des Verkauft-Stempels) ist keine Datei.
+    expect(
+      cssUrls(
+        `s{background:url("data:image/svg+xml,%3Csvg%3E%3Crect fill='url(%23h)'/%3E%3C/svg%3E")}`,
+      ),
+    ).toEqual([])
     const refs = assetRefs(
       '<html><head><link rel="stylesheet" href="/s.css"></head><body><img src="/i.webp" srcset="/i-2.webp 2x"><svg><use href="/art/coco.v1.svg#coco-a"></use><use href="#local"></use></svg></body></html>',
     )
@@ -153,6 +159,29 @@ describe('Vorschau-Export: Crawl (ARCHITEKTUR §14.4)', () => {
     const res = await crawl(fetcher, { adminRoute: ADMIN, start })
     expect(res.notBuilt).toEqual([{ routeId: 'R21', path: '/de/impressum', lang: 'de' }])
     expect(res.pages.map((p) => p.path)).not.toContain('/de/impressum')
+  })
+
+  it('P4.25 vorab geholte Seiten (Kassen-Sitzung) ersetzen den eigenen Abruf – Korb/Kasse mit Cookies', async () => {
+    const { fetcher, requested } = fakeServer({
+      '/de': { html: page('<a href="/de/warenkorb">Korb</a>') },
+      '/de/impressum': { html: page('') },
+      '/de/__404': { status: 404, html: page('') },
+      '/de/warenkorb': { html: page('<p>leer</p>') },
+      '/s.css': { contentType: 'text/css', body: Buffer.from('') },
+    })
+    const pinned = new Map([
+      [
+        '/de/warenkorb',
+        {
+          status: 200,
+          contentType: 'text/html',
+          body: Buffer.from(page('<p data-cart-line>901</p>')),
+        },
+      ],
+    ])
+    const res = await crawl(fetcher, { adminRoute: ADMIN, start, pinned })
+    expect(res.pages.find((p) => p.path === '/de/warenkorb')!.html).toContain('data-cart-line')
+    expect(requested).not.toContain('/de/warenkorb')
   })
 
   it('ein 5xx beim Crawl ergibt ExportError mit Exit 1', async () => {

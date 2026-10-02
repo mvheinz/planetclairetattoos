@@ -168,6 +168,11 @@ export interface CrawlResult {
 export interface CrawlOptions {
   adminRoute: string
   start: StartEntry[]
+  /**
+   * Vorab geholte Seiten (Pfad → Antwort) statt eines eigenen Abrufs – Korb und Kasse mit den Cookies der
+   * Kassen-Sitzung (`cartSession.ts`, PLAN P4.25).
+   */
+  pinned?: ReadonlyMap<string, FetchResult>
   maxPages?: number
   concurrency?: number
 }
@@ -201,7 +206,7 @@ export async function crawl(fetcher: Fetcher, options: CrawlOptions): Promise<Cr
   }
 
   const visit = async (entry: StartEntry, next: StartEntry[]) => {
-    const res = await fetcher(entry.path)
+    const res = options.pinned?.get(entry.path) ?? (await fetcher(entry.path))
     if (res.status >= 500) {
       throw new ExportError(1, `Crawl: ${entry.path} antwortet mit HTTP ${res.status}.`)
     }
@@ -306,12 +311,15 @@ export function assetRefs(html: string): string[] {
   return [...refs].filter((r) => !r.startsWith('data:')).sort()
 }
 
-/** `url(…)`-Verweise in CSS (ohne `data:`). */
+/**
+ * `url(…)`-Verweise in CSS (ohne `data:` und ohne Fragment-Verweise). `url(%23id)` steht in SVG-Daten-URIs (z. B. die
+ * Schraffur des Verkauft-Stempels) und meint ein Element im selben SVG, keine Datei.
+ */
 export function cssUrls(css: string): string[] {
   const out: string[] = []
   for (const m of css.matchAll(/url\(\s*(['"]?)([^'")]+)\1\s*\)/g)) {
     const u = m[2]!.trim()
-    if (!u.startsWith('data:') && !u.startsWith('#')) out.push(u)
+    if (!u.startsWith('data:') && !u.startsWith('#') && !/^%23/i.test(u)) out.push(u)
   }
   return out
 }

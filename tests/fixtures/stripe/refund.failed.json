@@ -1,0 +1,47 @@
+{
+  "id": "evt_fixture_refund_failed",
+  "object": "event",
+  "api_version": "2026-08-26.dahlia",
+  "created": 1792483200,
+  "data": {
+    "object": {
+      "id": "re_fixture_0001",
+      "object": "refund",
+      "amount": 4500,
+      "balance_transaction": "txn_fixture_0002",
+      "charge": "ch_fixture_0001",
+      "created": 1792224000,
+      "currency": "eur",
+      "customer": null,
+      "customer_account": null,
+      "destination_details": {
+        "card": {
+          "reference_status": "pending",
+          "reference_type": "acquirer_reference_number",
+          "type": "refund"
+        },
+        "type": "card"
+      },
+      "failure_balance_transaction": "txn_fixture_0003",
+      "failure_reason": "expired_or_canceled_card",
+      "metadata": {},
+      "payment_intent": "pi_fixture_0001",
+      "payment_method": "pm_fixture_0001",
+      "reason": "requested_by_customer",
+      "receipt_number": null,
+      "source_transfer_reversal": null,
+      "status": "failed",
+      "transfer_reversal": null
+    },
+    "previous_attributes": {
+      "status": "succeeded"
+    }
+  },
+  "livemode": false,
+  "pending_webhooks": 1,
+  "request": {
+    "id": null,
+    "idempotency_key": null
+  },
+  "type": "refund.failed"
+}

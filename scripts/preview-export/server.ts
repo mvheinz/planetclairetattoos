@@ -2,8 +2,10 @@
 // `.next-preview` (ohne NEXT_PUBLIC_LEASH_DEBUG, also ohne `__leash`), danach `next start -p 3999` auf 127.0.0.1 und
 // Warten auf `/api/health` (höchstens 120 s). `stop()` beendet die ganze Prozessgruppe.
 import { spawn, spawnSync, type ChildProcess } from 'node:child_process'
+import { rmSync } from 'node:fs'
+import path from 'node:path'
 
-import { EXPORT_ORIGIN, EXPORT_PORT } from './env'
+import { EXPORT_DIST_DIR, EXPORT_ORIGIN, EXPORT_PORT } from './env'
 import { ExportError } from './errors'
 
 export const HEALTH_TIMEOUT_MS = 120_000
@@ -56,6 +58,13 @@ export async function startServer(env: Record<string, string>): Promise<RunningS
       `Port ${EXPORT_PORT} ist schon belegt (läuft noch ein Export mit --keep-server?). Bitte den Prozess beenden.`,
     )
   }
+  // Daten-Cache (`unstable_cache`, ARCHITEKTUR §9.2) des Builds leeren: Er überlebt Server-Neustarts, die Export-DB wird
+  // aber je Lauf neu angelegt. Mit `--skip-build` zeigte die Produktseite sonst den Stand des Vorlaufs (andere IDs,
+  // S01/S11 noch reserviert) – „In den Korb“ schlug fehl und der zweite Lauf war nicht byte-gleich (AK-A-14-01).
+  rmSync(path.join(process.cwd(), EXPORT_DIST_DIR, 'cache', 'fetch-cache'), {
+    recursive: true,
+    force: true,
+  })
   const child: ChildProcess = spawn(
     'pnpm',
     // Ohne `-H`: mit `-H 127.0.0.1` schreibt next-intl intern auf `localhost` um, Next leitet das als fremde Adresse

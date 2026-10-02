@@ -148,6 +148,7 @@ export async function ProductPage({ product, locale }: { product: PublicProduct;
     ? localizedPath('R03', locale, { slug: category.slug })
     : localizedPath('R02', locale)
   const cartHref = localizedPath('R06', locale)
+  const checkoutHref = localizedPath('R07', locale)
   const canAdd = canAddToCart(state, settings.isOpen)
   // Server-Action als Formular-Aktion: ohne JavaScript leitet sie per 303 um (Rückgabe nur für `add-to-cart`).
   const formAction = addToCart as unknown as (formData: FormData) => Promise<void>
@@ -393,6 +394,13 @@ export async function ProductPage({ product, locale }: { product: PublicProduct;
                 {t('toCart')}
               </a>
             </p>
+            {/* P4.7: Stück liegt in der eigenen laufenden Kasse (`reservedByYou`, Modul `product-status`). */}
+            <p className={styles.inCart} data-in-checkout="" hidden>
+              <span>{t('inCheckout')}</span>
+              <a className={styles.toCart} href={checkoutHref}>
+                {t('toCheckout')}
+              </a>
+            </p>
             <form
               action={formAction}
               className={styles.cta}
@@ -501,6 +509,9 @@ export async function ProductPage({ product, locale }: { product: PublicProduct;
           </form>
           <a className={styles.buyBarCart} href={cartHref} data-in-cart="" hidden>
             {t('toCart')}
+          </a>
+          <a className={styles.buyBarCart} href={checkoutHref} data-in-checkout="" hidden>
+            {t('toCheckout')}
           </a>
         </div>
       ) : null}

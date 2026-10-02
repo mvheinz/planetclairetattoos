@@ -692,6 +692,20 @@ export const ENUM_LABELS = {
 
 export type EnumName = keyof typeof ENUM_LABELS
 
+/**
+ * Anzeigename der einen Versandoption einer Kasse (KONZEPT §4.7 „DHL Paket (Keramik)“ bzw. „Abholung in Berlin“):
+ * Stripe `shipping_options`, Kassen-Übersicht, Belege. Schlüssel = Versandklasse bzw. `pickup` (P4.2).
+ */
+export const SHIPPING_OPTION_LABELS: Record<
+  Exclude<E.ShippingClass, 'nur_abholung'> | 'pickup',
+  { de: string; en: string }
+> = {
+  brief: { de: 'Deutsche Post (Brief)', en: 'Deutsche Post (letter)' },
+  paket_klein: { de: 'DHL Paket (klein)', en: 'DHL parcel (small)' },
+  keramik: { de: 'DHL Paket (Keramik)', en: 'DHL parcel (ceramics)' },
+  pickup: { de: 'Abholung in Berlin', en: 'Pickup in Berlin' },
+}
+
 /** Enums, deren Werte Besucher:innen sehen – brauchen ein EN-Label. */
 export const PUBLIC_ENUMS: readonly EnumName[] = [
   'LOCALES',

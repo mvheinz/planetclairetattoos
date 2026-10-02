@@ -1,0 +1,19 @@
+/* R07 Kasse (DESIGN KO-14, Preset `calm`): ruhig, keine Animation und keine Transition (AK-DS-11). */
+.page {
+  display: grid;
+  gap: var(--space-5);
+  padding-block: var(--space-6) var(--space-8);
+  max-inline-size: 48rem;
+  min-width: 0;
+}
+
+@media (min-width: 1200px) {
+  .page {
+    max-inline-size: 72rem;
+  }
+}
+
+.title {
+  font-family: var(--font-hand, inherit);
+  margin: 0;
+}

@@ -1,5 +1,6 @@
 import type { Page } from '@playwright/test'
 
+import { DOUBLE_TAP_MS } from '../../../src/behaviors/lightbox'
 import { expect, test } from '../fixtures'
 import { holdListData } from './fresh'
 import { ANCHORS, openProduct } from './productPage'
@@ -135,8 +136,28 @@ test.describe('KO-09 Galerie', () => {
       await img.click()
       await expect(stage).not.toHaveAttribute('data-zoomed', '')
     } else {
+      // Doppeltipp: zwei Touch-Tipps in einem Zug (das Modul wertet die Zeitstempel der Ereignisse aus, Fenster 300 ms).
+      // Zwei getrennte `tap()` lagen unter Maschinenlast bis knapp an das Fenster heran (P4.25) – das prüfte die
+      // Auslastung des Testrechners, nicht die Seite. Ein einzelner echter Tipp zoomt nicht.
       await img.tap()
-      await img.tap()
+      await page.waitForTimeout(DOUBLE_TAP_MS + 50)
+      await expect(stage).not.toHaveAttribute('data-zoomed', '')
+      await img.evaluate((el) => {
+        const r = el.getBoundingClientRect()
+        const at = { clientX: r.left + r.width / 2, clientY: r.top + r.height / 2 }
+        for (let i = 0; i < 2; i++)
+          for (const type of ['pointerdown', 'pointerup'])
+            el.dispatchEvent(
+              new PointerEvent(type, {
+                ...at,
+                bubbles: true,
+                cancelable: true,
+                pointerType: 'touch',
+                pointerId: 7,
+                isPrimary: true,
+              }),
+            )
+      })
       await expect(stage).toHaveAttribute('data-zoomed', '')
     }
     await page.getByRole('button', { name: 'Schließen' }).click()

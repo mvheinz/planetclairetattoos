@@ -1,0 +1,87 @@
+/* Korbzeile (DESIGN KO-13, Preset `calm`): keine Animation, keine Transition (AK-DS-11). */
+.line {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: var(--space-3);
+  align-items: start;
+  padding-block: var(--space-4);
+  border-block-end: 1px solid var(--ink-3);
+}
+
+.photo {
+  inline-size: 64px;
+}
+
+.body {
+  display: grid;
+  gap: var(--space-1);
+  min-inline-size: 0;
+}
+
+.title {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.title a {
+  color: inherit;
+}
+
+.meta {
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  color: var(--ink-2);
+}
+
+.price {
+  font-family: var(--font-mono);
+  font-size: var(--fs-price-mono);
+  text-align: end;
+  white-space: nowrap;
+}
+
+.note {
+  font-size: var(--fs-small);
+  color: var(--ink);
+}
+
+.soldRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.stamp {
+  font-family: var(--font-mono);
+  font-size: max(24px, var(--fs-stamp));
+  font-weight: 700;
+  line-height: 1;
+  text-transform: lowercase;
+  color: var(--fox);
+}
+
+.muted .photo,
+.muted .price,
+.muted .meta {
+  opacity: 0.6;
+}
+
+.remove {
+  margin: 0;
+}
+
+.removeButton {
+  min-block-size: 44px;
+  min-inline-size: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-small);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  text-align: start;
+}

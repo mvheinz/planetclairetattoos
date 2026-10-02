@@ -3,8 +3,7 @@ import 'server-only'
 import type { PayloadRequest } from 'payload'
 
 import { CONFORMITY_REVOKE_TRANSITION } from '@/collections/ConformityDeclarations'
-import { enqueueEmail } from '@/lib/email/outbox'
-import { getEnv } from '@/lib/env'
+import { sendAdminAlert } from '@/lib/email/alerts'
 import { requestNow } from '@/lib/payload/context'
 import { preservingReq } from '@/lib/payload/localReq'
 import { inTransaction } from '@/lib/payload/transaction'
@@ -131,21 +130,23 @@ export async function revokeConformityDeclaration(
 
     let emailLogId: number | null = null
     if (unpublished.length > 0) {
-      const settings = req.payload.config.globals.some((g) => g.slug === 'settings')
-        ? await preservingReq(req, () =>
-            req.payload.findGlobal({ slug: 'settings', depth: 0, overrideAccess: true, req }),
-          )
-        : null
-      const to = settings?.adminNotificationEmail || getEnv().ADMIN_NOTIFY_EMAIL
-      const mail = await enqueueEmail(req, {
-        template: 'admin_alert',
-        to,
-        locale: 'de',
-        subject:
-          `Konformitätserklärung widerrufen – ${unpublished.length} Stück(e) offline: ${labels.join(', ')}`.slice(
+      const summary =
+        `Konformitätserklärung widerrufen – ${unpublished.length} Stück(e) offline: ${labels.join(', ')}`.slice(
+          0,
+          140,
+        )
+      const mail = await sendAdminAlert(req, {
+        kind: `conformity_revoked.${declarationId}`,
+        summary,
+        affected:
+          `Konformitätserklärung „${declaration.name}“; offline: ${labels.join(', ')}.`.slice(
             0,
-            200,
+            1000,
           ),
+        automatic: 'Die betroffenen Keramik-Stücke wurden offline genommen.',
+        todo: 'Neue Erklärung verknüpfen oder die Stücke auf „Deko“ umstellen.',
+        adminPath: `/collections/conformity-declarations/${declarationId}`,
+        now: requestNow(req),
       })
       emailLogId = mail.emailLogId
     }

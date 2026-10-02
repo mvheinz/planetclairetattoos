@@ -2,6 +2,7 @@ import { BEHAVIOR_NAMES, mountBehaviors, type BehaviorLoader } from '../behavior
 import * as addToCart from '../behaviors/add-to-cart'
 import * as buyBar from '../behaviors/buy-bar'
 import * as cartCount from '../behaviors/cart-count'
+import * as copyButton from '../behaviors/copy-button'
 import * as gallery from '../behaviors/gallery'
 import * as lightbox from '../behaviors/lightbox'
 import * as lost from '../behaviors/lost'
@@ -9,7 +10,10 @@ import * as menu from '../behaviors/menu'
 import * as motionToggle from '../behaviors/motion-toggle'
 import * as priceTagSwing from '../behaviors/price-tag-swing'
 import * as productStatus from '../behaviors/product-status'
+import * as reservationCountdown from '../behaviors/reservation-countdown'
 import * as soldStamp from '../behaviors/sold-stamp'
+import * as thanksMoment from '../behaviors/thanks-moment'
+import * as thanksPoll from '../behaviors/thanks-poll'
 import type { BehaviorModule } from '../behaviors/types'
 
 import { createAssetStore } from './assets'
@@ -29,6 +33,7 @@ export const STATIC_BEHAVIORS: Record<(typeof BEHAVIOR_NAMES)[number], BehaviorM
   'add-to-cart': addToCart,
   'buy-bar': buyBar,
   'cart-count': cartCount,
+  'copy-button': copyButton,
   gallery,
   lightbox,
   lost,
@@ -36,7 +41,10 @@ export const STATIC_BEHAVIORS: Record<(typeof BEHAVIOR_NAMES)[number], BehaviorM
   'motion-toggle': motionToggle,
   'price-tag-swing': priceTagSwing,
   'product-status': productStatus,
+  'reservation-countdown': reservationCountdown,
   'sold-stamp': soldStamp,
+  'thanks-moment': thanksMoment,
+  'thanks-poll': thanksPoll,
 }
 
 const staticLoader: BehaviorLoader = (name) => Promise.resolve(STATIC_BEHAVIORS[name])

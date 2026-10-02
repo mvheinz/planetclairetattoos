@@ -67,6 +67,7 @@ export interface AssembledRoute {
   title: string
   status: 'ok' | 'not-built'
   bytes: number
+  note?: string
 }
 
 export interface Assembled {
@@ -256,7 +257,7 @@ export async function assemble(input: AssembleInput): Promise<Assembled> {
       group: p.group as PvGroup,
       built: true,
     })),
-    ...notBuilt.map((r) => ({ ...r, built: false })),
+    ...notBuilt.map(({ note: _note, ...r }) => ({ ...r, built: false })),
   ]
 
   const data: PvData = {
@@ -341,11 +342,14 @@ function pickTexts(m: PreviewMessages): PvTexts {
   }
 }
 
+/** Hinweis im Bericht für Danke- und Statusseiten, solange die Seed-Anker fehlen (PLAN P4.25, P8.4). */
+export const TOKEN_PAGES_NOTE = 'ab P8 (Seed-Anker der Kassen und Bestellungen, P8.4)'
+
 /** Registry-Routen ohne Template: `planned` und beim Crawl mit 404 beantwortete (je Sprache). */
 export function notBuiltRoutes(
   crawl: Pick<CrawlResult, 'pages' | 'notBuilt'>,
-): { route: string; lang: Locale; title: string; group: PvGroup }[] {
-  const out: { route: string; lang: Locale; title: string; group: PvGroup }[] = []
+): { route: string; lang: Locale; title: string; group: PvGroup; note?: string }[] {
+  const out: { route: string; lang: Locale; title: string; group: PvGroup; note?: string }[] = []
   const builtIds = new Set<string>()
   for (const p of crawl.pages) if (p.routeId) builtIds.add(`${p.routeId}:${p.lang}`)
   const seen = new Set<string>()
@@ -359,7 +363,14 @@ export function notBuiltRoutes(
       if (builtIds.has(`${r.id}:${lang}`) && !failed) continue
       if (seen.has(route)) continue
       seen.add(route)
-      out.push({ route, lang, title: `${r.id} ${route}`, group: groupForPageType(r.pageType) })
+      const token = r.pageType === 'thankYou' || r.pageType === 'orderStatus'
+      out.push({
+        route,
+        lang,
+        title: `${r.id} ${route}`,
+        group: groupForPageType(r.pageType),
+        ...(token && r.status !== 'planned' ? { note: TOKEN_PAGES_NOTE } : {}),
+      })
     }
   }
   return out

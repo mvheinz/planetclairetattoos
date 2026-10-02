@@ -18,6 +18,7 @@ import {
   type Budgets,
   type PageMeasurement,
 } from '../../../scripts/check-bundle'
+import { hasSamplePath } from '../../../src/lib/routes/paths'
 import { ROUTES } from '../../../src/lib/routes/registry'
 
 // P2.23 Tempo-Budgets (ARCHITEKTUR §7.7, DESIGN §9.10, AK-DS-04): `tests/perf/budgets.json` und `pnpm check:bundle`
@@ -125,9 +126,12 @@ describe('T-09 check:bundle – Seitenbudgets', () => {
     expect(res.errors.join('\n')).toMatch(/SVG der Startseite/)
   })
 
-  it('Seiten: jede live-Seite der Registry in DE und EN sowie R28/R29; P3-Varianten zusätzlich (P3.16)', async () => {
+  it('T-09 Seiten: jede live-Seite der Registry in DE und EN sowie R28/R29; P3-Varianten (P3.16), Korb/Kasse gefüllt (P4.25)', async () => {
     const targets = await pageTargets()
-    const live = ROUTES.filter((r) => r.status === 'live' && r.kind === 'page').map((r) => r.id)
+    // Token-Seiten (R08, R09) haben keinen Beispielpfad – ihr JS misst die eigene E2E-Suite nicht über das Budget.
+    const live = ROUTES.filter(
+      (r) => r.status === 'live' && r.kind === 'page' && hasSamplePath(r),
+    ).map((r) => r.id)
     for (const id of live)
       expect(
         targets.filter((t) => t.routeId === id && !t.variant).map((t) => t.locale),
@@ -138,7 +142,17 @@ describe('T-09 check:bundle – Seitenbudgets', () => {
     expect(variants.map((t) => `${t.routeId} ${t.variant}`)).toEqual(
       expect.arrayContaining(['R02 nur verfügbare', 'R04 reserviert', 'R04 sold', 'R05 Kategorie']),
     )
-    for (const t of variants) expect(firstLoadBudget(t.routeId, budgets), t.path).toBe(150_000)
+    for (const t of variants.filter((v) => !v.session))
+      expect(firstLoadBudget(t.routeId, budgets), t.path).toBe(150_000)
+    // T-09 (P4.25): Korb gefüllt und Kasse mit echter Kasse (Sitzung S01 + S11) je Sprache, Budget 220 KB ohne Stripe.js.
+    const session = targets.filter((t) => t.session === 'checkout')
+    expect(session.map((t) => `${t.routeId} ${t.locale} ${t.variant}`)).toEqual([
+      'R06 de gefüllt',
+      'R07 de mit Kasse',
+      'R06 en gefüllt',
+      'R07 en mit Kasse',
+    ])
+    for (const t of session) expect(firstLoadBudget(t.routeId, budgets), t.path).toBe(220_000)
     expect(targets.filter((t) => t.routeId === 'R28').every((t) => t.status === 404)).toBe(true)
     expect(targets.filter((t) => t.routeId === 'R29').every((t) => t.status === 500)).toBe(true)
   })

@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 
 import { LEGAL_LINKS } from '../../src/components/layout/navItems'
-import { localizedPath, pageRoutes, samplePath } from '../../src/lib/routes/paths'
+import { hasSamplePath, localizedPath, pageRoutes, samplePath } from '../../src/lib/routes/paths'
 import { LOCALES, type Locale } from '../../src/lib/routes/registry'
 import { holdConformityData } from '../helpers/adminSessionLock'
 import { testPayload } from './fixtures'
@@ -26,7 +26,8 @@ const PAGE_TYPES: { type: string; path: (l: Locale) => string }[] = [
   },
 ]
 
-const LIVE_PAGES = pageRoutes().filter((r) => r.status === 'live')
+// Token-Seiten (R08, R09) ohne Beispiel-Adresse prüft `privacy/p4-pages.e2e.spec.ts` mit Fixture-Bestellungen.
+const LIVE_PAGES = pageRoutes().filter((r) => r.status === 'live' && hasSamplePath(r))
 
 const VIEWPORTS = [
   { width: 390, height: 844 },

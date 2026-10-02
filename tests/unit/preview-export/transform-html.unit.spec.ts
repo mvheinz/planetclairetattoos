@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest'
 
-import { notBuiltRoutes, specialPage } from '../../../scripts/preview-export/assemble'
 import {
+  notBuiltRoutes,
+  specialPage,
+  TOKEN_PAGES_NOTE,
+} from '../../../scripts/preview-export/assemble'
+import * as cheerio from 'cheerio'
+
+import {
+  normalizeCountdowns,
+  openOrderButtons,
+  PREVIEW_COUNTDOWN_TEXT,
   routeInfo,
   templateHtml,
   transformPage,
@@ -155,10 +164,14 @@ describe('Vorschau-Export: Seiten-Umwandlung (ARCHITEKTUR §14.5)', () => {
       notBuilt: [{ routeId: 'R21', path: '/de/impressum', lang: 'de' }],
     })
     const routes = nb.map((r) => r.route)
-    expect(routes).toContain('/de/warenkorb')
+    // R06–R09 sind seit P4 gebaut; R10 (Auftragsarbeiten) noch nicht.
+    expect(routes).not.toContain('/de/warenkorb')
+    expect(routes).not.toContain('/de/kasse')
+    expect(routes).not.toContain('/de/bestellung/[token]')
+    expect(routes).toContain('/de/auftragsarbeiten')
     expect(routes).not.toContain('/de/shop')
     expect(routes).not.toContain('/de/archiv')
-    expect(routes).toContain('/en/cart')
+    expect(routes).not.toContain('/en/checkout')
     expect(routes).toContain('/de/impressum')
     expect(routes).not.toContain('/en/legal-notice')
   })
@@ -210,4 +223,47 @@ describe('Vorschau-Laufzeit: Bündel (ARCHITEKTUR §14.6, AK-A-2-03)', () => {
     expect(bundle.code).not.toContain('__leash')
     expect(bundle.code).not.toMatch(/XMLHttpRequest|\bfetch\(/)
   }, 30_000)
+})
+
+describe('P4.25 Korb und Kasse in der Vorschau', () => {
+  it('Countdown: Demo ab 30:00, ohne echte Zeitpunkte des Export-Laufs (AK-A-14-01, KONZEPT §12.5 Nr. 7)', () => {
+    const $ = cheerio.load(`<section data-behavior="reservation-countdown" data-countdown="full"
+      data-expires-at="2026-09-29T10:30:00.000Z" data-server-now="2026-09-29T10:00:01.000Z" data-level="warn">
+      <p data-countdown-time>04:59</p><p data-countdown-text hidden>x</p><div data-countdown-expired></div></section>
+      <div data-countdown="compact" data-time-template="Noch {time} reserviert" data-expires-at="x" data-server-now="y">
+      <p data-countdown-time>Noch 29:59 reserviert</p></div>`)
+    normalizeCountdowns($)
+    expect($('[data-expires-at], [data-server-now]')).toHaveLength(0)
+    expect($('[data-countdown="full"]').attr('data-level')).toBe('normal')
+    expect($('[data-countdown="full"] [data-countdown-time]').text()).toBe(PREVIEW_COUNTDOWN_TEXT)
+    expect($('[data-countdown="full"] [data-countdown-text]').attr('hidden')).toBeUndefined()
+    expect($('[data-countdown="full"] [data-countdown-expired]').attr('hidden')).toBeDefined()
+    expect($('[data-countdown="compact"] [data-countdown-time]').text()).toBe(
+      'Noch 30:00 reserviert',
+    )
+  })
+
+  it('KONZEPT §12.5 Nr. 7: „Zahlungspflichtig bestellen“ ist in der Datei immer klickbar und öffnet den Vorschau-Dialog', () => {
+    const $ = cheerio.load(
+      '<form data-pv-form><button type="submit" data-order-button disabled aria-disabled="true">Zahlungspflichtig bestellen</button></form>',
+    )
+    openOrderButtons($)
+    const b = $('[data-order-button]')
+    expect(b.attr('disabled')).toBeUndefined()
+    expect(b.attr('aria-disabled')).toBeUndefined()
+    expect(b.attr('data-pv-block')).toBe('')
+  })
+
+  it('Danke- und Statusseiten ohne Seed-Anker: „ab P8“ im Bericht (EK-11)', () => {
+    const nb = notBuiltRoutes({
+      pages: [],
+      notBuilt: [
+        { routeId: 'R08', path: '/de/danke/abc', lang: 'de' },
+        { routeId: 'R09', path: '/en/order/abc', lang: 'en' },
+      ],
+    })
+    expect(nb.find((r) => r.route === '/de/danke/[token]')?.note).toBe(TOKEN_PAGES_NOTE)
+    expect(nb.find((r) => r.route === '/en/order/[token]')?.note).toBe(TOKEN_PAGES_NOTE)
+    expect(TOKEN_PAGES_NOTE).toMatch(/^ab P8/)
+  })
 })

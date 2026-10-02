@@ -1,6 +1,7 @@
 import { DownscaleUpload as DownscaleUpload_60428e1d0e1d797dec143ee1805fc4e3 } from '../../../admin/components/DownscaleUpload'
 import { EuroInput as EuroInput_85a9e8de8381e199937d3ef07e44d52a } from '../../../admin/components/EuroInput'
 import { JsonPreview as JsonPreview_8c4063ec2bb3d8d4a131991061a488f8 } from '../../../admin/components/JsonPreview'
+import { OrderActions as OrderActions_3a7e21027e39a0e378080172b55c97b0 } from '../../../admin/components/OrderActions'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
@@ -34,6 +35,7 @@ export const importMap = {
   "/admin/components/DownscaleUpload#DownscaleUpload": DownscaleUpload_60428e1d0e1d797dec143ee1805fc4e3,
   "/admin/components/EuroInput#EuroInput": EuroInput_85a9e8de8381e199937d3ef07e44d52a,
   "/admin/components/JsonPreview#JsonPreview": JsonPreview_8c4063ec2bb3d8d4a131991061a488f8,
+  "/admin/components/OrderActions#OrderActions": OrderActions_3a7e21027e39a0e378080172b55c97b0,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,

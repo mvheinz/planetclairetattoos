@@ -13,7 +13,8 @@ import {
 // `AFTER_LOAD`) fragt es einmal `GET /api/public/product-status?ids=…` für alle `[data-product-id]` in der Wurzel (und
 // die Wurzel selbst) ab – höchstens 24 IDs, über den hereingereichten Aufruf `ctx.actions.productStatus`
 // (`src/lib/shop/productStatusClient.ts`, ohne Cookies; das Modul selbst enthält keinen Netzcode). Weicht der Zustand
-// vom Server-HTML (`data-status`) ab: Karten bekommen Badge „reserviert“, Dämpfung (`data-status`) und zugänglichen
+// vom Server-HTML (`data-status`) ab – oder liegt das Stück in der eigenen laufenden Kasse (`reservedByYou`, P4.7:
+// „Du hast es gerade in der Kasse“ + „Zur Kasse“ im Kaufbereich) –: Karten bekommen Badge „reserviert“, Dämpfung (`data-status`) und zugänglichen
 // Namen neu (Zusätze aus `data-label-reserved|sold|gone` der Wurzel); für jedes Stück geht `PRODUCT_STATE_EVENT` an den
 // Kaufbereich (`add-to-cart`) und beim Wechsel auf `sold` `SOLD_EVENT` an `sold-stamp` (Knall MI-03). Danach trägt die
 // Wurzel `data-status-live`. Im Modus `preview` keine Abfrage. Fehler (Netz, 429) ändern nichts.
@@ -63,21 +64,27 @@ export function mount(root: Element, ctx: BehaviorContext = { mode: 'app' }): Un
   }
 
   const apply = (states: Record<string, unknown>) => {
-    const changed = new Map<string, ProductLiveState>()
+    // P4.7: `reservedByYou` – Stücke in der eigenen laufenden Kasse (Server gleicht mit `pc_checkout` ab).
+    const mine = (states.reservedByYou ?? {}) as Record<string, unknown>
+    const changed = new Map<string, ProductStateDetail>()
     for (const host of hosts) {
       const id = host.getAttribute('data-product-id') ?? ''
       const next = states[id]
       const from = host.getAttribute('data-status') || 'available'
-      if (!isState(next) || next === from) continue
-      host.setAttribute('data-status', next)
-      if (host.hasAttribute('data-product-card')) updateCard(host, from, next)
-      changed.set(id, next)
+      if (!isState(next)) continue
+      const byYou = next === 'reserved' && mine[id] === true
+      if (byYou) host.setAttribute('data-reserved-by-you', '')
+      else host.removeAttribute('data-reserved-by-you')
+      if (next === from && !byYou) continue
+      if (next !== from) {
+        host.setAttribute('data-status', next)
+        if (host.hasAttribute('data-product-card')) updateCard(host, from, next)
+      }
+      changed.set(id, byYou ? { id, state: next, reservedByYou: true } : { id, state: next })
     }
-    for (const [id, state] of changed) {
-      doc.dispatchEvent(
-        new CustomEvent<ProductStateDetail>(PRODUCT_STATE_EVENT, { detail: { id, state } }),
-      )
-      if (state === 'sold')
+    for (const [id, detail] of changed) {
+      doc.dispatchEvent(new CustomEvent<ProductStateDetail>(PRODUCT_STATE_EVENT, { detail }))
+      if (detail.state === 'sold')
         doc.dispatchEvent(new CustomEvent<SoldEventDetail>(SOLD_EVENT, { detail: { id } }))
     }
   }

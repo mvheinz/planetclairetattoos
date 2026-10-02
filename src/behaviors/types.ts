@@ -18,6 +18,8 @@ export interface BehaviorActions {
     ids: readonly string[],
     signal?: AbortSignal,
   ) => Promise<Record<string, unknown> | null>
+  /** Zustandscode der Danke-Seite (`GET /api/checkout/[token]/state`, P4.17); `null` bei Fehlern (404, 429, Netz). */
+  thanksState?: (url: string, signal?: AbortSignal) => Promise<string | null>
 }
 
 export interface BehaviorContext {
@@ -53,4 +55,6 @@ export const PRODUCT_STATE_EVENT = 'pc:product-state'
 export interface ProductStateDetail {
   id: string
   state: ProductLiveState
+  /** Das Stück liegt in der eigenen laufenden Kasse (`reservedByYou`, P4.7). */
+  reservedByYou?: true
 }

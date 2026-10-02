@@ -1,0 +1,84 @@
+/* KO-15 Countdown mit Coco: Kasten `--paper-2`, `--r-card`; Zeit Plex Mono 28 px `tabular-nums`. Farbwechsel an den
+   Schwellen ohne Übergang (keine Transition, keine Animation, AK-DS-11). */
+.box {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  background: var(--paper-2);
+  border-radius: var(--r-card);
+  color: var(--ink);
+}
+
+.coco {
+  inline-size: var(--coco-m, 72px);
+}
+
+.note {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.time {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.text,
+.expiredText {
+  margin: 0;
+}
+
+.box[data-level='warn'] .time,
+.box[data-level='warn'] .text {
+  color: var(--warn);
+}
+
+.box[data-level='last'] .time,
+.box[data-level='last'] .text {
+  color: var(--fox-text);
+}
+
+.expired {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+}
+
+.expired[hidden] {
+  display: none;
+}
+
+.again {
+  margin: 0;
+}
+
+.toCart {
+  color: var(--ink);
+  min-block-size: var(--tap-min, 44px);
+  display: inline-flex;
+  align-items: center;
+}
+
+.compact {
+  margin: 0;
+}
+
+.compactTime {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.compact[data-level='warn'] .compactTime {
+  color: var(--warn);
+}
+
+.compact[data-level='last'] .compactTime,
+.compact[data-level='expired'] .compactTime {
+  color: var(--fox-text);
+}

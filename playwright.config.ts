@@ -41,6 +41,8 @@ export default defineConfig({
   projects: [
     {
       name: 'desktop',
+      // Der Kaufpfad Ende-zu-Ende läuft auf den Geräteprofilen `iphone-15` und `pixel-7` (PLAN P4.24).
+      testIgnore: ['**/preview-export.e2e.spec.ts', '**/purchase/**'],
       use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } },
     },
     {

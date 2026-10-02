@@ -123,14 +123,20 @@ describe('T-16 Header je Kontext', () => {
       context: 'dynamic',
       tokenPage: false,
     })
-    // R08 ist noch `planned` → kein Nonce-Kontext (404 statisch); Regel selbst:
+    // R08/R09 sind seit P4.17/P4.23 `live` → Nonce-Kontext `dynamic` als Token-Seite:
+    expect(nonceContextForPath('/de/danke/abc')).toEqual({ context: 'dynamic', tokenPage: true })
+    expect(nonceContextForPath('/en/order/abc')).toEqual({ context: 'dynamic', tokenPage: true })
     const h = contextHeaders('dynamic', { ...PROD, nonce: NONCE, tokenPage: true })
     expect(h).toMatchObject({
       'Referrer-Policy': 'no-referrer',
       'Cache-Control': 'private, no-store',
       'X-Robots-Tag': 'noindex, nofollow',
     })
-    expect(nonceContextForPath('/de/danke/abc')).toBeNull()
+    // Alle dynamischen Seiten (z. B. R06 Korb, R26): `private, no-store`, aber ohne Token-Zusätze (§9.1, P4.8).
+    const plain = contextHeaders('dynamic', { ...PROD, nonce: NONCE })
+    expect(plain['Cache-Control']).toBe('private, no-store')
+    expect(plain['Referrer-Policy']).toBeUndefined()
+    expect(plain['X-Robots-Tag']).toBeUndefined()
     expect(nonceContextForPath('/de/impressum')).toBeNull()
     expect(nonceContextForPath('/de/gibt-es-nicht')).toBeNull()
   })

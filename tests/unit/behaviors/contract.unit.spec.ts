@@ -85,6 +85,18 @@ const FIXTURES: Record<BehaviorName, { html: string; exercise: (root: Element) =
       'data-status="available" aria-label="Vase, 45 €"><span data-badge="reserved" hidden>reserviert</span></a></li></ul>',
     exercise: () => {},
   },
+  'reservation-countdown': {
+    html:
+      '<div data-behavior="reservation-countdown" data-expires-at="2026-10-07T10:30:00.000Z" ' +
+      'data-server-now="2026-10-07T10:24:30.000Z" data-text-warn="Noch 5 Minuten reserviert" ' +
+      'data-text-last="Nur noch 1 Minute" data-announce-5="Noch 5 Minuten." data-announce-expired="Abgelaufen.">' +
+      '<p role="timer" aria-live="off" data-countdown-time>05:30</p>' +
+      '<p data-countdown-text>Dein Stück ist für dich reserviert.</p>' +
+      '<p aria-live="polite" data-countdown-announce></p><div data-countdown-expired hidden>Abgelaufen</div></div>',
+    exercise: () => {
+      vi.advanceTimersByTime(31_000)
+    },
+  },
   'cart-count': {
     html: '<a href="/de/korb" data-behavior="cart-count">Korb <span data-cart-count hidden></span></a>',
     exercise: () => {
@@ -133,6 +145,37 @@ const FIXTURES: Record<BehaviorName, { html: string; exercise: (root: Element) =
     exercise: () => {
       document.dispatchEvent(new CustomEvent('pc:product-sold', { detail: { id: 17 } }))
       vi.advanceTimersByTime(0)
+    },
+  },
+  'copy-button': {
+    html:
+      '<p><span id="st" role="status"></span><button type="button" data-behavior="copy-button" ' +
+      'data-copy="DE36000000000000000000" data-copied-text="Kopiert" data-copy-failed-text="Ging nicht" ' +
+      'data-copy-status-id="st" hidden>IBAN kopieren</button></p>',
+    exercise: (root) => {
+      ;(root as HTMLElement).click()
+    },
+  },
+  'thanks-poll': {
+    html:
+      '<div data-behavior="thanks-poll" data-state="waiting" ' +
+      'data-state-url="/api/checkout/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/state">' +
+      '<p data-thanks-long hidden>Das dauert länger als sonst.</p></div>',
+    exercise: () => {
+      vi.advanceTimersByTime(4000)
+    },
+  },
+  'thanks-moment': {
+    html:
+      '<div data-behavior="thanks-moment"><div class="coco" data-thanks-coco data-pose="sitzen" data-boil="off">' +
+      '<div class="coco__hop"><svg><use class="f f-a" href="/art/coco.svg#coco-sitzen-a"></use></svg></div></div>' +
+      '<ul data-behavior="sold-stamp"><li data-product-id="17"><span data-price-tag="mini">' +
+      '<span data-price-tag-swing data-angle="4">45 €<span data-sold-stamp data-angle="-13" hidden>sold</span>' +
+      '</span></span></li></ul></div>',
+    exercise: () => {
+      vi.advanceTimersByTime(1500)
+      document.documentElement.setAttribute('data-motion', 'reduced')
+      document.documentElement.removeAttribute('data-motion')
     },
   },
   menu: {
@@ -388,6 +431,28 @@ describe('AFTER_LOAD: Produktseiten-Module erst nach dem load-Ereignis (Erstlade
     await early.ready
     expect(loader.mock.calls.map((c) => c[0])).toEqual(['cart-count'])
     expect(tracker.openListeners()).toEqual([])
+    state.mockRestore()
+  })
+
+  it('Stück-Listen: price-tag-swing und sold-stamp warten wie product-status auf load (R02-Budget, P4.25)', async () => {
+    document.body.innerHTML =
+      '<a data-behavior="menu"></a><ul data-behavior="price-tag-swing sold-stamp product-status"></ul>'
+    const state = vi.spyOn(document, 'readyState', 'get').mockReturnValue('interactive')
+    const loader = vi.fn(
+      async (name: BehaviorName) => (await BEHAVIOR_LOADERS[name]()) as BehaviorModule,
+    )
+    const mounted = mountBehaviors(document, { mode: 'app' }, loader)
+    await Promise.resolve()
+    expect(loader.mock.calls.map((c) => c[0])).toEqual(['menu'])
+    window.dispatchEvent(new Event('load'))
+    await mounted.ready
+    expect(loader.mock.calls.map((c) => c[0])).toEqual([
+      'menu',
+      'price-tag-swing',
+      'sold-stamp',
+      'product-status',
+    ])
+    mounted.unmount()
     state.mockRestore()
   })
 

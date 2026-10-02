@@ -92,7 +92,7 @@ aus §10–§13 dieses Dokuments); DNS-Umstellung und Start-Checkliste für P11 
 | CMS | `payload`, `@payloadcms/next`, `@payloadcms/ui`, `@payloadcms/richtext-lexical`, `@payloadcms/db-postgres` | `3.90.2` | **alle `@payloadcms/*` exakt gleiche Version wie `payload`** (Prüfskript §1.3); nur 3.x; Payload 4 (derzeit Canary) nicht einführen |
 | Sprache | `typescript` | `5.7.3` (wie im Gerüst) | 5.x-Minor-Updates erlaubt; TS 6.0/7.0 nur per ADR, wenn Payload-Vorlage und Next sie offiziell nutzen |
 | Bilder | `sharp` | `0.35.4` | in `pnpm.onlyBuiltDependencies`; kein HEIC (DATENMODELL §6.2) |
-| Unit/Int-Tests | `vitest` 4.0.18, `@vitejs/plugin-react` 4.5.2, `vite-tsconfig-paths` 6.0.5, `jsdom` 28.0.0, `@testing-library/react` 16.3.0 | exakt | Vitest 5 nur als eigenes Update mit grüner CI |
+| Unit/Int-Tests | `vitest` 4.0.18, `@vitejs/plugin-react` 4.5.2, `vite-tsconfig-paths` 6.0.5, `jsdom` 28.0.0, `@testing-library/react` 16.3.0, `@vitest/coverage-v8` 4.0.18 (P4.25, `pnpm test:coverage`, §7.8) | exakt | Vitest 5 nur als eigenes Update mit grüner CI |
 | E2E | `@playwright/test` | `1.58.2` | Minor-Updates erlaubt (Browser danach neu installieren); iPhone-15- und Pixel-7-Deskriptoren sind enthalten |
 | Lint/Format | `eslint` 9 (Flat-Config), `eslint-config-next` 16.3.6, `prettier` 3 | wie `package.json` | `eslint-config-next` immer = `next` |
 | Skripte | `tsx` 4.22.4, `cross-env`, `dotenv` 16.4.7 | exakt | alle Skripte in TypeScript über `tsx`, nie Bash- oder PowerShell-only |
@@ -122,11 +122,11 @@ aus §10–§13 dieses Dokuments); DNS-Umstellung und Start-Checkliste für P11 
 | `bwip-js` (dev) | aktuell | P5 | nur für Barcode-Test-Fixtures (`scripts/fixtures/barcodes.ts`) |
 | `potrace` (dev) | aktuell | P8 | Vektorisierung der Stationszeichnungen (`art:vectorize`, DESIGN §12.4); GPL → **nur** devDependency, nie im Client-Bundle |
 | `gsap` | 3.15.x | optional | kostenlos inkl. DrawSVG/ScrollTrigger. **Nur** gemäß DESIGN §9.10/DA-4: Standard ist eigener Code + WAAPI; GSAP nur per ADR als Lazy-Chunk auf R01 (≤ 30 KB gz) |
-| `stripe` (Node) | 22.x | P4 | `apiVersion` fest gepinnt (§3.5) |
-| `@stripe/stripe-js` | 9.x | P4 | **nur** `@stripe/stripe-js/pure`, nur im Kassenmodul (R-062) |
+| `stripe` (Node) | 22.6.2 (exakt gepinnt, P4.5) | P4 | `apiVersion` fest gepinnt (§3.5): `2026-08-26.dahlia` = `Stripe.API_VERSION` des SDK |
+| `@stripe/stripe-js` | 9.17.0 (exakt gepinnt, P4.5) | P4 | **nur** `@stripe/stripe-js/pure`, nur im Kassenmodul (R-062) |
 | `@react-pdf/renderer` | 4.x | P4 | Rechnung, Gutschrift, Packzettel, Rechtstext-PDF; nur lokale TTF-Schriften |
-| `qrcode` | 1.x | P4 | EPC-QR (GiroCode) als PNG/SVG, serverseitig |
-| `jsqr` (dev) | 1.x | P4 | Test: erzeugten EPC-QR dekodieren und mit der Payload aus `buildEpcPayload` vergleichen |
+| `qrcode`, `@types/qrcode` (dev) | 1.5.4 / 1.5.6 (exakt gepinnt, P4.2) | P4 | EPC-QR (GiroCode) als PNG/SVG, serverseitig, ohne Netz (`src/lib/commerce/qr.ts`; Byte-Segment, Fehlerkorrektur M, Version ≤ 13 nach EPC069-12) |
+| `jsqr` (dev) | 1.4.0 (exakt gepinnt, P4.2) | P4 | Test: erzeugten EPC-QR (PNG und mit `sharp` gerastertes SVG) dekodieren und byte-gleich mit der Payload aus `buildEpcPayload` vergleichen |
 | `pdf-parse` (dev) | aktuell | P4 | Tests: Text aus erzeugten PDFs lesen (Rechnung, Gutschrift, Rechtstext-PDF; R-120, R-002) |
 | `@aws-sdk/client-s3`, `@aws-sdk/lib-storage` | 3.x | P10 | Backup-Upload (§10); ist über `storage-s3` ohnehin im Baum |
 | `age-encryption` | aktuell | P10 | Backup-Verschlüsselung (X25519, age-Format) |
@@ -245,7 +245,8 @@ der Patch nach dem Stichtag, gibt `pnpm check:versions` eine Warnung aus und end
 │  │  │                             (shipping.ts), Summen, Fristen (deadlines.ts: Reservierung und Vorkasse – einzige
 │  │  │                             Stelle), Statusautomaten (productTransitions.ts, orderTransitions.ts,
 │  │  │                             checkoutTransitions.ts, withdrawalTransitions.ts), Belegnummern (invoiceNumber.ts),
-│  │  │                             EPC-QR (epc.ts, qr.ts)
+│  │  │                             EPC-QR (epc.ts, qr.ts), Bestellanlage (createOrderFromCheckout.ts – einzige Stelle,
+│  │  │                             statische Prüfung `order-create`), Status-Link (statusToken.ts: ausgeben, rotieren)
 │  │  ├─ payments/                  Adapter: types.ts, index.ts, processPaymentEvent.ts, stripe/, mock/ (§3.5)
 │  │  ├─ carrier/                   Versanddienst-Adapter (`CARRIER_DRIVER`): types.ts, index.ts, manual.ts (§3.7)
 │  │  ├─ email/                     Transport-Fabrik, Treiber, Vorlagen (M01–M16, A01–A17), registry.ts, Outbox (§3.4)
@@ -402,7 +403,7 @@ den eigenen Handler trifft.
 | `POST /api/cron/run/[task]` | einen Task sofort ausführen (Tests, Admin „Jetzt ausführen“) | Bearer `CRON_SECRET` oder Admin-Sitzung | – |
 | `GET /api/cron/backup` | nächtliches Datenbank-Backup (§10), nur bei `APP_ENV=production` **und** `BACKUP_ENABLED=true` (bis P11 `false` → 404) | Bearer `CRON_SECRET` | – |
 | `GET /api/payload-jobs/run` | Payload-Standard-Endpunkt (bleibt als Rückfall; `jobs.access.run` = Admin oder Bearer `CRON_SECRET`) | wie links | – |
-| `GET /api/public/product-status?ids=1,2` | Live-Zustand von Stücken (Kauf-Knopf, Warenkorb), max. 24 IDs | öffentlich, Rate-Limit | `no-store` |
+| `GET /api/public/product-status?ids=1,2` | Live-Zustand von Stücken (Kauf-Knopf, Warenkorb), max. 24 IDs; Antwort `{ "12": "reserved", …, "reservedByYou": { "12": true } }` – `reservedByYou` per serverseitigem Abgleich mit der Kasse aus `pc_checkout` (ohne Cookie immer `false`; Abruf mit `credentials: 'same-origin'`, setzt nie ein Cookie; P4.7) | öffentlich, Rate-Limit | `no-store` |
 | `POST /api/uploads/commission` | einzelnes Referenzbild (≤ 4 MB) mit Formular-Token (KONZEPT §10.2) | Formular-Token, Rate-Limit | – |
 | `GET /api/checkout/[token]/state` | Zustand der Kasse bzw. der daraus entstandenen Bestellung für die wartende Danke-Seite (KONZEPT §4.12: Abfrage alle 2 s bis 60 s); Antwort nur Zustandscodes, keine Personendaten | Kassen-Token, Rate-Limit `token_pages` | `no-store` |
 | `GET /api/privacy-export/[token]` | Download des DSGVO-Exports (ZIP aus `privacy-requests.exportFile`, R-150) über den Link aus Mail M14; signierter Token (§8.6) ohne Personendaten, 7 Tage gültig, danach bzw. nach Löschung der Datei (L-17) **410**; liefert die Datei aus dem privaten Speicher (`s3`: Weiterleitung auf eine signierte URL ≤ 300 s, R-136), `Content-Disposition: attachment`, `Referrer-Policy: no-referrer` | signierter Token, Rate-Limit `token_pages` | `private, no-store` |
@@ -567,10 +568,11 @@ export interface EmailAdapter {
 export type PaymentsDriver = 'mock' | 'stripe'
 export interface CreateCheckoutSessionInput {
   checkoutRef: string; locale: 'de' | 'en'                                 // = checkouts.reservationRef (UUID), kein Token
+  sessionSeq: number                                                       // = checkouts.stripe.sessionSeq (≥ 1), Idempotenz (P4.5)
   lineItems: { productId: number; name: string; amountCents: number }[]   // Menge immer 1 (E-10)
   shipping: { label: string; amountCents: number }                         // genau eine Option (KONZEPT §4.7)
   expiresAt: Date                                                          // ≥ 30 min nach Erstellung (Stripe)
-  returnUrl: string; customerEmail?: string                                // returnUrl = Danke-Seite mit Kassen-Token
+  returnUrl: string; customerEmail?: string                                // returnUrl = Danke-Seite mit Kassen-Token (checkoutReturnUrl)
   metadata: { checkoutRef: string; appEnv: string }                        // nie ein Token (§3.1 Nr. 6)
 }
 export interface CheckoutSessionHandle { sessionId: string; clientSecret: string; expiresAt: Date }
@@ -616,23 +618,43 @@ export interface PaymentsAdapter {
   (`{NEXT_PUBLIC_SITE_URL}/de/danke/{token}` bzw. `/en/thank-you/{token}` – die einzige Stelle, an der der Kassen-Token
   Stripe erreicht), eine `shipping_options[0].shipping_rate_data` mit `fixed_amount`. Kein `success_url`, `cancel_url`,
   `submit_type`, `after_expiration` (bei `elements` unzulässig).
-- Idempotenz-Schlüssel: `checkout:<checkoutRef>:<n>` (Anlage, `n` = `checkouts.stripe.sessionSeq`),
-  `refund:<orderId>:<refundSeq>` (Erstattung).
+- Idempotenz-Schlüssel: `checkout:<checkoutRef>:<n>` (Anlage, `n` = `checkouts.stripe.sessionSeq`, übergeben als
+  `CreateCheckoutSessionInput.sessionSeq`), `refund:<orderId>:<refundSeq>` (Erstattung).
+- Umsetzung (P4.5): `src/lib/payments/stripe/{config,client,index}.ts`. Parameter nur aus `buildSessionParams`
+  (`src/lib/payments/checkoutSession.ts`, dieselben Regeln wie beim Mock; `return_url` über `checkoutReturnUrl`, die
+  Eingabeprüfung verlangt die Danke-Seite der Sprache mit genau einem Token). `telemetry: false`. Session ohne
+  `client_secret` → Fehler. `expireCheckoutSession`: lehnt Stripe ab, entscheidet der abgefragte Zustand
+  (`expired` → `already_expired`, `complete` + `unpaid` → `already_complete_unpaid`, sonst `already_complete_paid`).
+  `getCheckoutSession` expandiert `payment_intent.latest_charge` (Zahlart, Wallet). `parseWebhook`:
+  `stripe.webhooks.constructEvent` (Kopfzeile `stripe-signature`, Toleranz 300 s, injizierte Uhr); fehlt
+  `STRIPE_WEBHOOK_SECRET` → `ConfigError`; abweichende `api_version` → Warnung im Protokoll. `listEventsSince`: nur die
+  zehn behandelten Typen, älteste zuerst. `listBalanceTransactions`: Buchungen des Zeitraums ohne `payout`, Auszahlung
+  über automatische Payouts (`balance_transactions?payout=…`), Datum = `arrival_date`. `STRIPE_API_BASE_URL` ist in
+  Produktion und mit Live-Schlüssel verboten.
 - **Client-Secret:** wird nie in der Datenbank gespeichert (kein Feld in `checkouts`); die Kasse holt es bei jedem
   Seitenaufruf serverseitig über `getCheckoutSession` (`SessionState.clientSecret`). Fehlt es bei einer offenen Session,
   wird die Session mit derselben Reservierung neu angelegt (`stripe.sessionSeq + 1`, wie bei `recreate_required`).
 - Versandänderung **[Spike B-07]**: `checkout.sessions.update` mit neuer `shipping_options`, falls die gepinnte API-Version das für
   `elements` erlaubt; sonst Rückgabe `recreate_required` → alte Session beenden, neue mit **derselben** Reservierung anlegen
-  (KONZEPT §4.2 „die Reservierung bleibt“).
+  (KONZEPT §4.2 „die Reservierung bleibt“). Ergebnis (Anhang B): Soll `update`; lehnt Stripe mit
+  `invalid_request_error` ab oder ist die Session nicht mehr offen → `recreate_required`. Schalter
+  `UPDATE_SHIPPING_STRATEGY` in `stripe/config.ts` (`'recreate'` = Rückfall fest). Im Browser ruft die Kasse die
+  Server-Aktion innerhalb von `checkout.runServerUpdate(…)` (Stripe.js 9.x) auf, damit das Zahlungsfeld den neuen Betrag lädt.
 - Browser: `loadStripe` aus `@stripe/stripe-js/pure`, nur in `src/components/checkout/StripePaymentField.tsx`, dynamisch
   importiert; Kundendaten und Adresse werden über das Checkout-Objekt von Stripe.js gesetzt (Methodennamen laut Doku der
-  gepinnten Stripe.js-Version, z. B. `updateEmail`, `updateShippingAddress`), dann `confirm({ returnUrl })`.
+  gepinnten Stripe.js-Version, z. B. `updateEmail`, `updateShippingAddress`), dann `confirm({ returnUrl })`. In 9.17.0:
+  `stripe.initCheckoutElementsSdk({ clientSecret, … })` für `ui_mode: 'elements'`; Aktionen `updateEmail`,
+  `updateShippingAddress`, `runServerUpdate`, `confirm`.
 - Schlüsselregeln (`assertProductionEnv`): `sk_live_…`/`rk_live_…` nur bei `APP_ENV=production`; in Produktion **nur**
   Live-Schlüssel. Außerhalb von Produktion nur `sk_test_…`/`rk_test_…` (inkl. Platzhalter `sk_test_proxy`, §4.5); der
   Treiber bricht ab, wenn die erste Stripe-Antwort `livemode: true` meldet. Nie Live-Schlüssel vor P11. Empfohlen: eingeschränkter Schlüssel `rk_…` mit Rechten Checkout Sessions (write), PaymentIntents (read),
   Refunds (write), Events (read), Balance Transactions (read), Payouts (read).
 - Test gegen **stripe-mock** (optional): `STRIPE_API_BASE_URL=http://127.0.0.1:12111` stellt Host/Port des SDK um; Profil
-  `payments` in `docker-compose.yml` (`stripe/stripe-mock`). Nur Form-/Parameter-Tests (stripe-mock ist zustandslos).
+  `payments` in `docker-compose.yml` (`stripe/stripe-mock:v0.205.0`, OpenAPI = gepinnte Version). Nur Form-/Parameter-Tests
+  (stripe-mock ist zustandslos; seine Fixtures haben kein `client_secret`, der Kontrakttest ergänzt es). Der
+  Kontrakttest `tests/int/adapters/payments.contract.int.spec.ts` läuft den Kern gegen stripe-mock, wenn erreichbar
+  (sonst übersprungen mit Hinweis), und Kern + Lebenszyklus im Stripe-Testmodus nur mit `sk_test_…`/`rk_test_…` und
+  `PC_TEST_ALLOW_STRIPE_API=1` (einzige Ausnahme im Netzwerk-Wächter, §7.2).
 
 **Mock-Treiber** (`src/lib/payments/mock/`, KONZEPT §4.7):
 - IDs: `cs_mock_<uuid>`, `pi_mock_<uuid>`, `re_mock_<uuid>`, `evt_mock_<uuid>`; `clientSecret = mock_secret_<uuid>`.
@@ -643,7 +665,12 @@ export interface PaymentsAdapter {
   **Abbruch (wie PayPal zurück)** · **Verzögert** (Kasse bleibt `confirming`, für Abgleich-Tests).
 - „Erfolg“ erzeugt ein Ereignis aus `tests/fixtures/stripe/checkout.session.completed.json` (Werte ersetzt) und ruft
   **dieselbe** Verarbeitungsfunktion `processPaymentEvent()` auf wie der Webhook-Route-Handler nach der Signaturprüfung.
-- Test-API (nur `APP_ENV ∈ {development, test}`): `mockPayments.emit(sessionId, type)`, `mockPayments.setNextOutcome(...)`.
+- Test-API (nur `APP_ENV ∈ {development, test}`): `mockPayments.emit(sessionId, type)`, `mockPayments.setNextOutcome(...)`,
+  `mockPayments.completeUnpaidWithoutEvent(sessionId, method?)` (Ergebnis „Verzögert“: Session `complete`/`unpaid` ohne
+  Ereignis, P4.10b).
+  Umsetzung (P4.4): `emit` schreibt den Zustand fort, protokolliert das normalisierte Ereignis in `checkouts.mock.state`
+  (für `listEventsSince`) und liefert `{ event, rawBody, headers }` (signiert) für `processPaymentEvent` bzw. die Webhook-Route;
+  die Ablage in `webhook-events` macht die Verarbeitung. Fixtures prüft/erzeugt `pnpm stripe:fixture <name>|--all`.
 - In Produktion verboten (Startfehler).
 
 **Webhook-Route** `POST /api/stripe/webhook`: Rohkörper (`await req.text()`), `parseWebhook` (Signatur mit
@@ -753,7 +780,7 @@ Pflicht (sonst Abbruch mit Liste aller Verstöße):
 | Prüfung | Bedingung |
 |---|---|
 | Treiber | `STORAGE_DRIVER=s3`, `EMAIL_DRIVER=smtp`, `PAYMENTS_DRIVER=stripe`; `TRANSLATION_DRIVER=deepl` **oder** Warnung (Knopf deaktiviert) |
-| Stripe | `STRIPE_SECRET_KEY` beginnt mit `sk_live_` oder `rk_live_`; `STRIPE_WEBHOOK_SECRET` beginnt mit `whsec_`; `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` mit `pk_live_` |
+| Stripe | `STRIPE_SECRET_KEY` beginnt mit `sk_live_` oder `rk_live_`; `STRIPE_WEBHOOK_SECRET` beginnt mit `whsec_`; `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` mit `pk_live_`; `STRIPE_API_BASE_URL` leer (P4.5) |
 | Geheimnisse | `PAYLOAD_SECRET` ≥ 32 Zeichen und ≠ Wert aus `.env.example`; `CRON_SECRET` ≥ 32 Zeichen |
 | Admin-Pfad | `ADMIN_ROUTE` ≠ `/admin`, ≠ `/werkstatt`, beginnt mit `/`, nur `[a-z0-9-]`, 6–40 Zeichen |
 | URL | `NEXT_PUBLIC_SITE_URL` = `https://planetclairetattoos.com` (ohne `/` am Ende) |
@@ -1347,7 +1374,8 @@ ab 1.500 Minuten `MINUTEN_STATUS=knapp`, ab 2.000 `erschoepft` und bei einem API
   `TZ=Europe/Berlin` im `ci-full` (Zeitzonen-Unabhängigkeit).
 - **Netz:** `tests/setup/network-guard.ts` (in beiden Vitest-Konfigurationen über `vitest.setup.ts` eingebunden) installiert
   einen Wächter (undici-Dispatcher + `net.Socket.connect`-Hook), der Verbindungen zu anderen Hosts als
-  `127.0.0.1`/`localhost`/`::1` mit Fehler abbricht. Playwright blockiert per `context.route` alle
+  `127.0.0.1`/`localhost`/`::1` mit Fehler abbricht (einzige Ausnahme: `api.stripe.com`, nur mit ausdrücklich gesetztem
+  `PC_TEST_ALLOW_STRIPE_API=1` für den Stripe-Testmodus im Zahlungs-Kontrakttest, P4.5). Playwright blockiert per `context.route` alle
   Fremd-Hosts außer in ausdrücklich markierten Stripe-Test-Specs.
 - **Flakiness:** CI wiederholt E2E höchstens 2-mal (`retries: 2`); ein Test, der nur mit Wiederholung grün wird, wird im
   selben PR repariert oder mit `test.fixme` + Eintrag in `docs/OFFENE-PUNKTE.md` markiert (nicht bei Kasse/Reservierung/
@@ -1441,6 +1469,9 @@ Chrome aus der Playwright-Installation (`chromePath`). Die Research-Ziele (JS �
 
 `pnpm test:coverage` (v8, Unit + Int zusammengeführt) im `ci-full`: `src/lib/commerce/**`, `src/lib/payments/**`,
 `src/lib/security/**`, `src/lib/legal/**` ≥ 90 % Zeilen / ≥ 85 % Zweige; `src/lib/**` gesamt ≥ 70 % Zeilen.
+Konfiguration `vitest.coverage.config.mts` (Projekte Unit + Int, Job `quality` vor dem Seed). Stufenweise: seit P4.25
+sind `commerce` und `payments` Gate; `security`, `legal` und `src/lib/**` gesamt werden bis P10.1 berichtet und dort
+zum Gate (PLAN P10.1).
 
 ### 7.9 Gates
 
@@ -1545,7 +1576,7 @@ Umsetzung §3.9 (Postgres, Schlüssel = IP-Hash, Einträge ≤ 24 h). Antwort be
 | Bucket | Stelle | Schlüssel | Grenze |
 |---|---|---|---|
 | `cart_add` | Server-Action „In den Korb“ | IP-Hash | 60 / 10 min |
-| `checkout_start` | „Zur Kasse“ | IP-Hash | 10 / 10 min und 30 / Tag |
+| `checkout_start` | „Zur Kasse“ | IP-Hash | 10 / 10 min und 30 / Tag (zweiter Bucket `checkout_start_day`) |
 | `checkout_submit` | „Zahlungspflichtig bestellen“ | Kassen-Token | 10 / 30 min |
 | `commission_submit` | Auftragsanfrage absenden | IP-Hash | 5 / h und 20 / Tag (KONZEPT §10.3) |
 | `commission_upload` | `POST /api/uploads/commission` | IP-Hash | 15 / h |
@@ -2631,7 +2662,7 @@ Kein Spike darf die Phase blockieren: Scheitert das Soll, wird ohne Rückfrage d
 | B-04 | ab P2, optional | Bringen Cache Components (`cacheComponents: true`) Vorteile ohne Nebenwirkungen? | nein, `unstable_cache` bleibt (§9.2) | Build, Verwaltung und alle Tests grün, messbar besseres LCP/TTFB | Soll beibehalten | offen |
 | B-05 | P3 | Bleiben Listen-Varianten (`?available=1&page=2`) per Proxy-Umschreibung statisch? | §9.1 | AK-A-9-03 | dynamisches Rendern mit Daten-Cache, nur wenn T-10 (LCP) grün bleibt | Ergebnis: Soll erfüllt – `src/proxy.ts` übersetzt über `decideListVariant` (`src/lib/shop/listParams.ts`, ohne Payload/DB) bekannte Parameter in `/{locale}/<Ordner>/variant/<schlüssel>` (Schlüssel alphabetisch, z. B. `available-1.page-2`; `available` nur R02/R03, `category` nur R05 laut KONZEPT §2.3) und schreibt intern dorthin um; unbekannte/ungültige Parameter → keine Umschreibung (gleiche Antwort wie ohne). Im Produktions-Build liefert `/de/shop?available=1` die vorgerenderte Variante (`x-nextjs-cache: HIT`, Eintrag im Prerender-Manifest, byte-gleich mit `?available=1&foo=bar`); nicht vorgerenderte Varianten (`?available=1&page=2`) entstehen beim ersten Aufruf (`dynamicParams`, MISS) und kommen danach aus dem Cache (HIT). Interne Pfade `…/variant/…` antworten direkt mit 404 (keine doppelten Inhalte); Anfragen mit `x-prerender-revalidate` umgehen den Proxy und erreichen sie weiterhin (E2E-Vorwärmen). canonical = Query-Form ohne `available`/`category`, `page` ab 2. Layout-Segmente `…/variant/<k>` gehören zur Liste (`matchSegments`, Preset `shopString`); `check:static` erlaubt Varianten-Seiten nur für R02/R03/R05. Prototyp: R02-Variante (`[locale]/shop/variant/[variant]/page.tsx`); R03/R05-Varianten mit P3.5/P3.6 umgesetzt, in P3.16 von `@privacy`, `@a11y`, Verbotsmuster-Scan, `check:bundle` und Vorschau-Export mitgeprüft (`tests/unit/shop/list-params.unit.spec.ts`, `tests/e2e/shop/list-variants.e2e.spec.ts`), 28.09.2026, PR #3 |
 | B-06 | P10 | Reicht der eigene COPY-Dump auf Vercel (Speicher, 300 s, Streaming von age)? | §10.3 | AK-A-10-01 bis -05; zehnfacher Beispielbestand in < 60 s und < 512 MB Speicher | gebündeltes statisches `pg_dump` 17 (`outputFileTracingIncludes`) + `pg_restore`; zweite Ebene: Neon-Wiederherstellung + Backup über den Docker-Pfad | offen |
-| B-07 | P4 | Erlaubt die gepinnte Stripe-API-Version `checkout.sessions.update` mit neuen `shipping_options` bei `ui_mode: 'elements'`? | `updateShipping` → `updated` | Test im Stripe-Testmodus (falls Test-Schlüssel als API-Credential vorhanden) oder Parameter-Test gegen stripe-mock + Doku der gepinnten Version | `recreate_required`: alte Session beenden, neue mit derselben Reservierung (§3.5) | offen |
+| B-07 | P4 | Erlaubt die gepinnte Stripe-API-Version `checkout.sessions.update` mit neuen `shipping_options` bei `ui_mode: 'elements'`? | `updateShipping` → `updated` | Test im Stripe-Testmodus (falls Test-Schlüssel als API-Credential vorhanden) oder Parameter-Test gegen stripe-mock + Doku der gepinnten Version | `recreate_required`: alte Session beenden, neue mit derselben Reservierung (§3.5) | Ergebnis: Soll umgesetzt, im Stripe-Testmodus noch unbestätigt – SDK `stripe` 22.6.2 bringt `ApiVersion` `2026-08-26.dahlia`; deren OpenAPI (SDK-Typen `Checkout.SessionUpdateParams`, stripe-mock v0.205.0 mit identischer Version) führt `shipping_options` bei `POST /v1/checkout/sessions/{id}` ohne Einschränkung auf einen `ui_mode` (nur `collected_information` ist auf embedded/custom beschränkt); stripe-mock nimmt die Anfrage mit `shipping_options[0][shipping_rate_data]` (`fixed_amount`) an, ungültige Formen lehnt es ab. Stripe.js 9.17.0 hat für `ui_mode: 'elements'` `runServerUpdate`. `updateShipping` sendet daher das Update → `updated`; lehnt Stripe ab (`invalid_request_error`) oder ist die Session nicht mehr offen → `recreate_required` (Rückfall automatisch; fest einschaltbar über `UPDATE_SHIPPING_STRATEGY = 'recreate'`). Ohne Testschlüssel nicht belegbar: echte Annahme durch Stripe und Betragsaktualisierung im Zahlungsfeld → vor Go-live im Stripe-Testmodus prüfen (P11, OFFENE-PUNKTE; Kontrakttest-Lebenszyklus mit `PC_TEST_ALLOW_STRIPE_API=1`). Tests: `tests/unit/payments/stripe-params.unit.spec.ts`, `tests/int/adapters/payments.contract.int.spec.ts` (stripe-mock), 28.09.2026, P4.5 (PR folgt mit Phase P4) |
 | B-08 | P10 | Baut das Docker-Image ohne DB, und rendern die Seiten dann zur Laufzeit korrekt? | §13.2 (`BUILD_WITHOUT_DB=1`, `connection()`) | AK-A-13-01, AK-A-13-02 | Build im Compose-Netz mit laufender, migrierter DB (`DATABASE_URL` als Build-Argument einer Wegwerf-DB) | offen |
 | B-09 | P1 | Stellen `payload.jobs.handleSchedules()` und `payload.jobs.run()` in 3.90.2 die in §9.6 angenommenen Funktionen bereit (auch mit injizierter Zeit)? | §9.6 | Int-Test: geplanter Task wird durch einen Tick mit vorgestellter Uhr eingereiht und ausgeführt | eigene Tabelle `job_schedules (task, next_run_at)` und Einreihen im Tick | Ergebnis: Soll erfüllt – `handleSchedules({ allQueues, req })`, `run({ allQueues, limit, where, req })`, `runByID`, `queue`, `cancel` vorhanden; ein stündlich geplanter Test-Task wird bei vorgestellter Uhr (`Date` gefälscht) mit `waitUntil` = nächste volle Stunde eingereiht, erst danach ausgeführt, nicht doppelt eingereiht; `req.context` (injizierte Zeit `now`) erreicht den Task. Hinweis: erledigte Jobs löscht Payload standardmäßig (`deleteJobOnComplete`) – das Lauf-Protokoll (P5.3) braucht eine eigene Ablage (`tests/int/spikes/b09-jobs.int.spec.ts`), 27.09.2026, PR #1 |
 | B-10 | P2 | View Transitions (DESIGN §9.8): Bieten Next 16.3.6/React 19.2.6 `ViewTransition`, braucht es `experimental.viewTransition`? | Soll: weiche Navigation mit Namen `coco`/`leash-head`, harte per `@view-transition`, nie von/zu `calm`, nicht bei reduzierter Bewegung | Rückfall: ohne Übergang | Ergebnis: umgesetzt mit Einschränkung – `react@19.2.6` exportiert `ViewTransition` nicht, der App Router nutzt aber die mitgelieferte Canary (Export vorhanden); `experimental.viewTransition` existiert in 16.3.6 nicht mehr. Harte Navigation per `@view-transition` (nur Presets mit Übergang), weiche per `<ViewTransition>` um Inhalt und Coco (P2.18); ADR `docs/adr/0003-view-transitions.md`, 2026-09-28, PR #2 |

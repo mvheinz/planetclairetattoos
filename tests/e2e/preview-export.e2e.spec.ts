@@ -313,6 +313,53 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
     }
   })
 
+  test('P4.25 Korb (S01 + S11) und Kasse je Sprache: Positionen, Zahlungsfeld-Platzhalter, Demo-Countdown ab 30:00, Bestellknopf und Formulare öffnen den Vorschau-Dialog – nichts gespeichert', async ({
+    page,
+    watch,
+  }) => {
+    await page.clock.install()
+    await open(page)
+    for (const lang of LOCALES) {
+      const cart = localizedPath('R06', lang)
+      await go(page, cart)
+      const lines = page.locator('#pv-root [data-cart-line]')
+      await expect(lines).toHaveCount(2)
+      await expect(lines.nth(0)).toContainText('901')
+      await expect(lines.nth(1)).toContainText('911')
+
+      const checkout = localizedPath('R07', lang)
+      await go(page, checkout)
+      await expect(page.locator('#pv-root [data-payment-field="preview"]')).toBeVisible()
+      await expect(page.locator('#pv-root [data-payment-field="mock"]')).toHaveCount(0)
+      await expect(page.locator('#pv-root [data-overview-item]')).toHaveCount(2)
+      const timer = page.locator('#pv-root [data-countdown="full"] [data-countdown-time]')
+      await expect(timer).toHaveText('30:00')
+      await page.clock.runFor(65_000)
+      await expect(timer).toHaveText('28:55')
+      const hash = await page.evaluate(() => window.location.hash)
+      await page
+        .getByRole('button', {
+          name: lang === 'de' ? 'Zahlungspflichtig bestellen' : 'Order with obligation to pay',
+        })
+        .click()
+      await expect(page.locator('#pv-dialog')).toContainText(
+        lang === 'de'
+          ? 'Vorschau – hier wird nichts gekauft'
+          : 'Preview – nothing can be bought here',
+      )
+      await page.locator('#pv-dialog button').click()
+      expect(await page.evaluate(() => window.location.hash)).toBe(hash)
+    }
+    const state = await page.evaluate(() => ({
+      cookie: document.cookie,
+      local: localStorage.length,
+      session: sessionStorage.length,
+    }))
+    expect(state).toEqual({ cookie: '', local: 0, session: 0 })
+    expect(watch.requests).toEqual([])
+    expect(watch.errors).toEqual([])
+  })
+
   test('P3.16 Shop im Modus preview: Schild-Schwingen, Galerie/Lightbox, „In den Korb“-Demo – ohne fetch, ohne Anfragen', async ({
     page,
     watch,
@@ -409,7 +456,13 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
     await list.locator('a[href="#/vorschau/verwaltung"]').click()
     await expect(page.locator('#pv-root h1')).toHaveText('Verwaltung auf dem Handy')
     await expect(page.locator('#pv-root [data-admin-view="login"] img')).toBeVisible()
-    await expect(page.locator('#pv-root [data-admin-view="heute"]')).toContainText('kommt in P5')
+    // Jede Verwaltungsansicht hat entweder ein Foto oder den Hinweis „kommt in P<n>“ (welche, hängt von der Phase ab).
+    const views = page.locator('#pv-root [data-admin-view]')
+    expect(await views.count()).toBeGreaterThan(1)
+    for (const view of await views.all()) {
+      if ((await view.locator('img').count()) === 0)
+        await expect(view).toContainText(/kommt in P\d+/)
+    }
   })
 
   test('nach allen Interaktionen: kein Cookie, leerer Web-Storage', async ({ page }) => {
@@ -460,9 +513,20 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
       builtIds.add(`${match.route.id}:${r.lang}`)
       if (match.route.id === 'R04') products[r.lang].add(Number(match.params.nummer))
     }
-    for (const id of ['R02', 'R03', 'R04', 'R05'])
+    for (const id of ['R02', 'R03', 'R04', 'R05', 'R06', 'R07', 'R25'])
       for (const lang of LOCALES)
         expect(builtIds.has(`${id}:${lang}`), `${id} ${lang} gebaut`).toBe(true)
+    // P4.25 EK-11: Danke- und Statusseiten gebaut, sobald ihre Seed-Anker existieren (P8.4) – vorher „ab P8“ vermerkt.
+    for (const id of ['R08', 'R09'])
+      for (const lang of LOCALES) {
+        if (builtIds.has(`${id}:${lang}`)) continue
+        const entry = report.routes.find((r) => {
+          const split = splitLocale(r.route)
+          return r.lang === lang && split && matchRoute(split.rest, split.locale)?.route.id === id
+        })
+        expect(entry, `${id} ${lang} im Bericht`).toMatchObject({ status: 'not-built' })
+        expect(entry!.note, `${id} ${lang}`).toMatch(/^ab P8/)
+      }
     for (const variant of [
       '/de/shop?available=1',
       '/en/shop?available=1',

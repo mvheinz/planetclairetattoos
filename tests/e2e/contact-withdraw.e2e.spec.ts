@@ -1,5 +1,5 @@
 import { LEGAL_LINKS } from '../../src/components/layout/navItems'
-import { localizedPath, pageRoutes, samplePath } from '../../src/lib/routes/paths'
+import { hasSamplePath, localizedPath, pageRoutes, samplePath } from '../../src/lib/routes/paths'
 import { LOCALES, type Locale } from '../../src/lib/routes/registry'
 import { expectCalm } from './calm'
 import { expect, test, testPayload } from './fixtures'
@@ -155,8 +155,11 @@ test.describe('Fußlinks ohne 404 @smoke', () => {
     page,
     request,
   }) => {
+    // Alle Live-Seiten nacheinander (seit P4.9 auch die Kasse R07, ohne Kasse 307 auf den Korb) – im Dev-Server langsam.
+    test.slow()
     const checked = new Map<string, number>()
-    const live = pageRoutes().filter((r) => r.status === 'live')
+    // Token-Seiten (R08, R09) ohne Beispiel-Adresse prüft `privacy/p4-pages.e2e.spec.ts` mit Fixture-Bestellungen.
+    const live = pageRoutes().filter((r) => r.status === 'live' && hasSamplePath(r))
     for (const locale of LOCALES) {
       const expected = [...LEGAL_LINKS, 'R26'].map((id) => localizedPath(id, locale))
       expect(expected).toHaveLength(7)

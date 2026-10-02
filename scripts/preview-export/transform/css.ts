@@ -42,8 +42,11 @@ export function inlineCssUrls(
   resolve: (path: string) => string | null,
   warnings: string[],
 ): string {
-  return css.replace(/url\(\s*(['"]?)([^'")]+)\1\s*\)/g, (whole, _q: string, ref: string) => {
-    const u = ref.trim()
+  // Gequotete Werte als Ganzes: Ein SVG-Daten-URI enthält selbst `'` und `url(%23id)` – das darf nicht als eigene
+  // Adresse gelesen werden (sonst `url("data:,")` mitten im Muster).
+  const re = /url\(\s*(?:"([^"]*)"|'([^']*)'|([^'")\s]+))\s*\)/g
+  return css.replace(re, (whole, dq?: string, sq?: string, bare?: string) => {
+    const u = (dq ?? sq ?? bare ?? '').trim()
     if (u.startsWith('data:') || u.startsWith('#')) return whole
     const path = resolveAssetPath(u, from)
     const data = path ? resolve(path) : null

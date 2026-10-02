@@ -312,6 +312,24 @@ describe('Live-Zustand (product-status)', () => {
     expect(q('[data-sold-view]').hidden).toBe(false)
   })
 
+  it('P4.7 reservedByYou → „Du hast es gerade in der Kasse“ + „Zur Kasse“, Formular ausgeblendet', () => {
+    document.body.innerHTML = area(17, 'reserved').replace(
+      '<form',
+      '<p data-in-checkout hidden>Du hast es gerade in der Kasse <a href="/de/kasse">Zur Kasse</a></p><form',
+    )
+    const f = document.querySelector<HTMLFormElement>('form')!
+    mount(f, app(ok()).ctx)
+    document.dispatchEvent(
+      new CustomEvent(PRODUCT_STATE_EVENT, {
+        detail: { id: '17', state: 'reserved', reservedByYou: true },
+      }),
+    )
+    expect(f.hidden).toBe(true)
+    expect(q('[data-in-checkout]').hidden).toBe(false)
+    expect(q('[data-in-cart]').hidden).toBe(true)
+    expect(q('[data-buy-area]').getAttribute('data-buy-state')).toBe('in-checkout')
+  })
+
   it('anderes Stück → keine Änderung; Shop pausiert bleibt deaktiviert', () => {
     const [f] = setup(area(17, 'closed', ' data-closed'))
     mount(f!, app(ok()).ctx)

@@ -1,10 +1,7 @@
-import type { BrowserContext, Page, Response } from '@playwright/test'
-
-import { pageRoutes, samplePath } from '../../src/lib/routes/paths'
+import { hasSamplePath, pageRoutes, samplePath } from '../../src/lib/routes/paths'
 import { LOCALES, ROUTES } from '../../src/lib/routes/registry'
-import { serverURL } from '../helpers/adminEnv'
-import { watchCsp } from './csp'
 import { expect, test } from './fixtures'
+import { expectPrivate } from './privacy/privacyHelpers'
 import { holdListData } from './shop/fresh'
 import { P3_PAGES, homeVariant } from './shop/p3Pages'
 
@@ -18,9 +15,6 @@ import { P3_PAGES, homeVariant } from './shop/p3Pages'
 // P3.16 dehnt die Suite auf die Varianten und Zustände von R02–R05 aus (`P3_PAGES`: Listen-Varianten, jede Kategorie,
 // Produktseite je Kategorie, reserviert, verkauft, 404-Varianten inkl. „Schon ein Zuhause“).
 
-const ORIGIN = new URL(serverURL).origin
-const GOOGLE_FONTS = /(^|\.)(fonts\.googleapis\.com|fonts\.gstatic\.com)$/
-
 interface Visit {
   name: string
   path: string
@@ -28,8 +22,9 @@ interface Visit {
 }
 
 const visits: Visit[] = [
+  // Token-Seiten (R08, R09) ohne Beispiel-Adresse: `privacy/p4-pages.e2e.spec.ts` mit Fixture-Bestellungen.
   ...pageRoutes()
-    .filter((r) => r.status === 'live')
+    .filter((r) => r.status === 'live' && hasSamplePath(r))
     .flatMap((r) =>
       LOCALES.map((locale) => ({
         name: `${r.id} ${locale}`,
@@ -48,101 +43,12 @@ const visits: Visit[] = [
 ]
 
 test('Registry: alle live-Routen sind abgedeckt @privacy', () => {
-  const live = ROUTES.filter((r) => r.status === 'live').map((r) => r.id)
+  const live = ROUTES.filter((r) => r.status === 'live' && (!r.paths || hasSamplePath(r))).map(
+    (r) => r.id,
+  )
   const covered = new Set(visits.map((v) => v.name.split(' ')[0]))
   expect(live.filter((id) => !covered.has(id))).toEqual([])
 })
-
-/** Scrollt einmal bis zum Fuß und zurück (IntersectionObserver-gesteuerte Teile wie Linie und Coco laufen an). */
-async function exercise(page: Page) {
-  await page.evaluate(async () => {
-    const step = Math.max(200, Math.floor(window.innerHeight * 0.8))
-    for (let y = 0; y <= document.documentElement.scrollHeight; y += step) {
-      window.scrollTo(0, y)
-      await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 30)))
-    }
-    window.scrollTo(0, 0)
-  })
-  await page.waitForLoadState('networkidle')
-}
-
-async function deviceStorage(page: Page) {
-  return page.evaluate(async () => {
-    const idb =
-      typeof indexedDB !== 'undefined' && typeof indexedDB.databases === 'function'
-        ? (await indexedDB.databases()).map((d) => d.name ?? '?')
-        : null
-    const sw =
-      'serviceWorker' in navigator
-        ? (await navigator.serviceWorker.getRegistrations()).map((r) => r.scope)
-        : []
-    return {
-      cookie: document.cookie,
-      local: Object.keys(localStorage),
-      session: Object.keys(sessionStorage),
-      indexedDB: idb,
-      serviceWorkers: sw,
-      controlled: 'serviceWorker' in navigator && !!navigator.serviceWorker.controller,
-    }
-  })
-}
-
-/** Ruft `path` in einem frischen Kontext auf und prüft Speicher, Cookies, Requests und CSP (T-03/T-04). */
-async function expectPrivate(
-  page: Page,
-  context: BrowserContext,
-  foreignRequests: string[],
-  path: string,
-  status: number,
-) {
-  const requests: string[] = []
-  context.on('request', (req) => requests.push(req.url()))
-  const setCookies: Promise<{ url: string; value: string | null }>[] = []
-  const onResponse = (res: Response) =>
-    setCookies.push(res.headerValue('set-cookie').then((value) => ({ url: res.url(), value })))
-  context.on('response', onResponse)
-  const csp = await watchCsp(page)
-
-  const response = await page.goto(path)
-  expect(response?.status(), 'Statuscode').toBe(status)
-  await page.waitForLoadState('networkidle')
-  await exercise(page)
-
-  // T-04/R-130/EK-04: kein Endgeräte-Speicher ohne Nutzeraktion.
-  expect(await context.cookies(), 'Cookies').toEqual([])
-  const storage = await deviceStorage(page)
-  expect(storage).toEqual({
-    cookie: '',
-    local: [],
-    session: [],
-    indexedDB: storage.indexedDB === null ? null : [],
-    serviceWorkers: [],
-    controlled: false,
-  })
-  if (storage.indexedDB === null)
-    test.info().annotations.push({
-      type: 'hinweis',
-      description: 'indexedDB.databases() fehlt in diesem Browser – IndexedDB nicht auflistbar',
-    })
-  context.off('response', onResponse)
-  const withCookie = (await Promise.all(setCookies)).filter((c) => c.value !== null)
-  expect(withCookie, 'Set-Cookie').toEqual([])
-
-  // T-03/R-131/EK-05: nur eigener Origin, `data:` und `blob:`.
-  expect(requests.length).toBeGreaterThan(0)
-  const foreign = requests.filter((url) => {
-    if (url.startsWith('data:') || url.startsWith('blob:')) return false
-    return new URL(url).origin !== ORIGIN
-  })
-  expect(foreign, 'Fremd-Requests').toEqual([])
-  expect(foreignRequests, 'blockierte Fremd-Requests').toEqual([])
-  // AK-DS-04: nie Google Fonts.
-  expect(
-    requests.filter((url) => /^https?:/.test(url) && GOOGLE_FONTS.test(new URL(url).hostname)),
-  ).toEqual([])
-  // CSP-Verstöße lassen den Test scheitern.
-  expect(await csp(), 'CSP-Verstöße').toEqual([])
-}
 
 test.describe('Datenschutz: keine Cookies, kein Speicher, keine Fremd-Requests @privacy', () => {
   for (const visit of visits) {

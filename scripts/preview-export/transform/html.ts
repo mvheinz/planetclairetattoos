@@ -197,6 +197,39 @@ export function rewriteInteractive($: cheerio.CheerioAPI, link: LinkContext): vo
   $('button[formaction], input[formaction]').removeAttr('formaction')
 }
 
+/** Startwert des Demo-Countdowns in der Vorschau (Verhaltensmodul `reservation-countdown`, Modus `preview`). */
+export const PREVIEW_COUNTDOWN_TEXT = '30:00'
+
+/**
+ * Countdown der Reservierung (KO-15; KONZEPT §12.5 Nr. 7): In der Vorschau läuft er als Demo ab 30:00. Die echten
+ * Zeitpunkte des Export-Laufs (`data-expires-at`, `data-server-now`) und die Restzeit beim Rendern fallen weg, damit zwei
+ * Läufe am selben Tag byte-gleich bleiben (AK-A-14-01) und nichts auf eine echte Reservierung verweist.
+ */
+export function normalizeCountdowns($: cheerio.CheerioAPI): void {
+  $('[data-countdown]').each((_, node) => {
+    const el = $(node)
+    el.removeAttr('data-expires-at').removeAttr('data-server-now').attr('data-level', 'normal')
+    const template = el.attr('data-time-template')
+    el.find('[data-countdown-time]').text(
+      template ? template.replace('{time}', PREVIEW_COUNTDOWN_TEXT) : PREVIEW_COUNTDOWN_TEXT,
+    )
+    el.find('[data-countdown-text]').removeAttr('hidden')
+    el.find('[data-countdown-expired]').attr('hidden', '')
+  })
+}
+
+/**
+ * Bestellknopf der Kasse (KONZEPT §12.5 Nr. 7): In der Datei zeigt ein Klick immer den Vorschau-Dialog – auch wenn der
+ * Knopf auf der echten Seite noch gesperrt wäre (z. B. bis zur Bestätigung einer Abweichung). `data-pv-block` fängt den
+ * Klick vor der Formularprüfung des Browsers ab.
+ */
+export function openOrderButtons($: cheerio.CheerioAPI): void {
+  $('[data-order-button]')
+    .removeAttr('disabled')
+    .removeAttr('aria-disabled')
+    .attr('data-pv-block', '')
+}
+
 /** Titel, Beschreibung, `<html class>` und `<body>`-Attribute einer erfassten Seite. */
 export function pageMeta($: cheerio.CheerioAPI): PageMeta {
   const bodyAttrs: Record<string, string> = {}
@@ -224,6 +257,8 @@ export function transformPage(
   rewriteImages($, ctx, page.path)
   rewriteSprites($, ctx, page.path)
   rewriteInteractive($, { ...ctx.link, currentRoute: page.path })
+  normalizeCountdowns($)
+  openOrderButtons($)
   return {
     ...meta,
     route: page.path,

@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest'
 // Test abgedeckt, dessen Titel die ID enthält. Quelle ist die Tabelle in docs/recht/ANFORDERUNGEN.md §3. Geprüft
 // werden nur IDs, deren früheste Phase ≤ LEGAL_TRACE_PHASE ist; jede Phase erhöht den Wert auf ihre Nummer.
 
-export const LEGAL_TRACE_PHASE = 3
+export const LEGAL_TRACE_PHASE = 4
 
 const ROOT = path.resolve(__dirname, '../../..')
 const AUTOMATED = new Set(['unit', 'int', 'e2e'])
@@ -134,6 +134,44 @@ describe('R-001 Nachverfolgbarkeit Anforderung ↔ Test', () => {
     // Gegenprobe mit einer P3-ID: fehlt sie in allen Titeln, ist R-001 rot.
     const without = titles.map((t) => t.replace(/R-139\b/g, 'R-xxx'))
     expect(missingIds(required, without)).toEqual(['R-139'])
+  })
+
+  it('R-001 Phase 4 (P4.25): Kassen-, Zahlungs- und Mail-Anforderungen stehen in Testtiteln', () => {
+    const p4 = [
+      'R-013',
+      'R-031',
+      'R-035',
+      'R-036',
+      'R-048',
+      'R-060',
+      'R-061',
+      'R-062',
+      'R-063',
+      'R-064',
+      'R-065',
+      'R-066',
+      'R-067',
+      'R-070',
+      'R-071',
+      'R-080',
+      'R-081',
+      'R-084',
+      'R-101',
+      'R-102',
+      'R-120',
+      'R-121',
+      'R-126',
+      'R-130',
+      'R-137',
+      'R-138',
+    ]
+    expect(missingIds(p4, titles)).toEqual([])
+    const required = requiredIds(requirements, 4)
+    for (const id of ['R-060', 'R-064', 'R-066', 'R-080', 'R-101', 'R-102', 'R-137'])
+      expect(required).toContain(id)
+    // Gegenprobe mit einer P4-ID: fehlt sie in allen Titeln, ist R-001 rot.
+    const without = titles.map((t) => t.replace(/R-102\b/g, 'R-xxx'))
+    expect(missingIds(required, without)).toEqual(['R-102'])
   })
 
   it('R-001 Gegenprobe: eine aus den Titeln entfernte ID ergibt rot', () => {

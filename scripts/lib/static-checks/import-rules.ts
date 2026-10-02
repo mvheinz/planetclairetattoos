@@ -24,10 +24,12 @@ export const SERVER_ONLY_FILES = ['src/lib/env.ts', 'src/lib/audit.ts']
 /**
  * Ausnahmen: (a) ADR 0002 – reine Header-/CSP-Konfiguration ohne Geheimnisse, die `next.config.ts` lädt (dort wirft
  * `server-only`, keine `react-server`-Bedingung); (b) PLAN P3.11 – das Format des Korb-Cookies `pc_cart`
- * (`encodeCartCookie`/`decodeCartCookie`), das auch die Verhaltensmodule im Browser nutzen.
+ * (`encodeCartCookie`/`decodeCartCookie`), das auch die Verhaltensmodule im Browser nutzen; (c) PLAN P4.9 – das
+ * gemeinsame zod-Schema der Kasse (Client + Server).
  */
 export const SERVER_ONLY_EXEMPT = [
   'src/lib/commerce/cartCookie.ts',
+  'src/lib/commerce/checkoutSchema.ts',
   'src/lib/security/csp.ts',
   'src/lib/security/headers.ts',
   'src/lib/security/inlineScripts.ts',

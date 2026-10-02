@@ -89,6 +89,8 @@ test.describe('Verwaltung: Formular „Stück“ am Handy', () => {
   test('DM-P1-07 bei 375 px zeigt das Formular je Kategorie genau die Pflichtangaben (R-043–R-048)', async ({
     adminPage: page,
   }) => {
+    // Sechs Kategorien mit je einem Formular-Abgleich am Server: in WebKit (iphone-15) knapp an der 30-s-Grenze.
+    test.slow()
     await page.setViewportSize({ width: 375, height: 812 })
     await page.goto(adminPath('/collections/products/create'))
     await page.waitForLoadState('networkidle')

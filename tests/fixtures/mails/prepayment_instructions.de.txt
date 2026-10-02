@@ -1,0 +1,109 @@
+Deine Bestellung ist eingegangen
+
+Hallo Erika Beispiel,
+
+danke für deine Bestellung PC-2026-00017. Du hast Vorkasse per Überweisung gewählt – die Bankdaten stehen unten.
+
+[Platzhalter – Kanzlei-Wortlaut folgt] PLATZHALTER – Text folgt von der Kanzlei.
+
+Bestellnummer: PC-2026-00017
+Bestellt am: 14.10.2026, 11:28 Uhr
+
+Deine Bestellung
+----------------
+
+Nr. 017 · Tasse „Coco schläft“: 45,00 €
+  Keramik · 300 ml · handbemalt
+  Ausdrücklich vereinbarte Abweichung: kleiner Glasurfehler am Henkel
+Nr. 023 · Cap „Planet“: 39,00 €
+  Baumwolle · Einheitsgröße
+Versand: 6,90 €
+Gesamt: 90,90 €
+  Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.
+
+Zahlung
+-------
+
+Zahlart: Vorkasse per Überweisung
+
+Bitte überweise 90,90 € bis 19.10.2026, 23:59 Uhr an Jutta Beispiel, IBAN DE36 0000 0000 0000 0000 00, Verwendungszweck: PC-2026-00017.
+
+Bankverbindung
+--------------
+
+Kontoinhaberin: Jutta Beispiel
+IBAN: DE36 0000 0000 0000 0000 00
+BIC: TESTDEFFXXX
+Bank: Beispielbank Berlin
+Betrag: 90,90 €
+Verwendungszweck: PC-2026-00017
+
+Mit deiner Banking-App kannst du den QR-Code scannen – dann sind alle Angaben schon ausgefüllt.
+
+Bitte überweise bis 19.10.2026.
+
+Deine Stücke sind bis 19.10.2026 für dich reserviert. Kommt bis dahin keine Zahlung an, wird die Bestellung automatisch storniert.
+
+Die Rechnung bekommst du, sobald deine Zahlung angekommen ist.
+
+Adressen
+--------
+
+Lieferadresse:
+Erika Beispiel
+Musterstraße 1
+10115 Berlin
+
+Rechnungsadresse:
+Max Rechnung
+Rechnungsweg 2
+10117 Berlin
+
+Lieferung
+---------
+
+Lieferzeit: 2–5 Werktage (bei Vorkasse ab Zahlungseingang)
+
+Für alle Stücke gilt das gesetzliche Mängelhaftungsrecht (Gewährleistung). Die EU-weit einheitliche Mitteilung dazu findest du auf der Seite „Versand & Zahlung“:
+Mitteilung zur gesetzlichen Gewährleistung: https://planetclairetattoos.com/de/versand-und-zahlung
+
+Anhänge
+-------
+
+- unsere AGB in der Fassung vom 01.09.2026 (AGB_v3.pdf)
+- die Widerrufsbelehrung mit Muster-Widerrufsformular in der Fassung vom 15.08.2026 (Widerrufsbelehrung-und-Formular_v2.pdf)
+
+Alles zu deinem Widerrufsrecht steht in der Widerrufsbelehrung im Anhang. Widerrufen kannst du ganz einfach online:
+Vertrag widerrufen: https://planetclairetattoos.com/de/vertrag-widerrufen
+
+Die unmittelbaren Kosten der Rücksendung der Waren trägst du.
+
+Du hast eingewilligt, dass ich deine E-Mail-Adresse an DHL weitergebe, damit DHL dich über die Zustellung informieren kann. Du kannst diese Einwilligung jederzeit widerrufen – eine kurze Mail an jutta@planetclairetattoos.com genügt.
+
+Deine Bestellung kannst du jederzeit hier ansehen:
+Bestellstatus: https://planetclairetattoos.com/de/bestellung/__STATUS_TOKEN__
+
+Wie ich mit deinen Daten umgehe, steht in der Datenschutzerklärung:
+Datenschutzerklärung: https://planetclairetattoos.com/de/datenschutz
+
+Liebe Grüße
+Planet Claire
+
+Anbieterin
+----------
+
+Jutta Beispiel · Planet Claire
+Werkstattweg 7
+10999 Berlin
+Telefon: +49 30 1234567
+E-Mail: jutta@planetclairetattoos.com
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Impressum: https://planetclairetattoos.com/de/impressum
+Datenschutz: https://planetclairetattoos.com/de/datenschutz
+Bestellstatus: https://planetclairetattoos.com/de/bestellung/__STATUS_TOKEN__
+Vertrag widerrufen: https://planetclairetattoos.com/de/vertrag-widerrufen

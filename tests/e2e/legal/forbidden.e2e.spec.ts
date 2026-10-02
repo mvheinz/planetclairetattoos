@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio'
 
 import { V13_UNPROVEN_CLAIMS, V16_THIRD_PARTY_MARKS } from '../../../src/lib/legal/forbidden'
-import { pageRoutes, samplePath } from '../../../src/lib/routes/paths'
+import { hasSamplePath, pageRoutes, samplePath } from '../../../src/lib/routes/paths'
 import { LOCALES, ROUTES } from '../../../src/lib/routes/registry'
 import { getTaxModeAt, type TaxSettings } from '../../../src/lib/tax'
 import {
@@ -9,10 +9,16 @@ import {
   FORBIDDEN_SOURCE_PATTERNS,
   type ForbiddenPattern,
 } from '../../helpers/forbiddenPatterns'
+import { holdShippingRates } from '../../helpers/adminSessionLock'
+import { scanMail } from '../../helpers/mails'
+import { readOutbox } from '../../helpers/outbox'
+import { adminCall, adminLogin } from '../adminApi'
+import { cleanupCheckouts } from '../checkout/checkoutHelpers'
 import { expect, test, testPayload } from '../fixtures'
+import * as h from '../purchase/purchaseHelpers'
 import { holdListData } from '../shop/fresh'
 import { P3_PAGES, homeVariant } from '../shop/p3Pages'
-import { ANCHORS, openProduct } from '../shop/productPage'
+import { ANCHORS, openProduct, PUBLISHED } from '../shop/productPage'
 
 // P2.29 (RECHT §5, ergänzt den Quelltext-Scan `tests/unit/legal/forbidden.unit.spec.ts`): Verbotsmuster im gerenderten
 // HTML aller `live`-Routen der Registry in DE und EN – z. B. kein Link/Text zur OS-Plattform (V-01), kein „inkl. MwSt.“
@@ -43,7 +49,7 @@ const onlyOnce = (projectName: string) =>
 
 const visits: Visit[] = [
   ...pageRoutes()
-    .filter((r) => r.status === 'live')
+    .filter((r) => r.status === 'live' && hasSamplePath(r))
     .flatMap((r) =>
       LOCALES.map((locale) => ({
         name: `${r.id} ${locale}`,
@@ -64,7 +70,7 @@ const visits: Visit[] = [
   ...P3_PAGES.filter(
     (p) =>
       !pageRoutes()
-        .filter((r) => r.status === 'live')
+        .filter((r) => r.status === 'live' && hasSamplePath(r))
         .some((r) => LOCALES.some((l) => samplePath(r.id, l) === p.path)),
   ).map((p) => ({ name: p.name, path: p.path, status: p.status, once: true })),
 ]
@@ -150,7 +156,10 @@ function scanP3(html: string): string[] {
 }
 
 test('Registry: alle live-Routen sind im Verbotsmuster-Scan abgedeckt', () => {
-  const live = ROUTES.filter((r) => r.status === 'live').map((r) => r.id)
+  // Token-Seiten (R08, R09) scannen ihre eigenen Suiten mit Fixture-Bestellungen (`scanHtml`).
+  const live = ROUTES.filter((r) => r.status === 'live' && (!r.paths || hasSamplePath(r))).map(
+    (r) => r.id,
+  )
   const covered = new Set(visits.map((v) => v.name.split(' ')[0]))
   expect(live.filter((id) => !covered.has(id))).toEqual([])
 })
@@ -269,4 +278,179 @@ test.describe('V-31 Privatadresse nur im GPSR-Block der Produktseite (R04)', () 
       })
     }
   }
+})
+
+// P4.25 Verbotsmuster über die Seiten der Phase P4 und die dabei gerenderten Mails (RECHT §5): Korb gefüllt, Kasse (auch
+// mit Fehlern), Danke-Seiten (bezahlt, Vorkasse), Bestellstatus, dazu M01/M02/M04/M05 und die Verwaltungsmails aus
+// echten Kaufwegen (Mock, Vorkasse, Verwaltung „Zahlung erhalten“/„Stornieren“ über die Admin-Endpunkte).
+// Seiten: V-01, V-02, V-03, V-17, V-21 (Inhaltsmuster), V-11 (Rügefristen), V-22 (keine Eingaben in URLs), V-23 (keine
+// Zahlungsdaten der Kundin im Formular), V-31 (Privatstraße nie auf Korb, Kasse, Danke, Status). Mails: dieselben
+// Inhaltsmuster, V-09 (Werbung/Tracking, `scanMail`), V-11; die Anbieterkennung mit Straße im Mail-Fuß ist laut V-31 ein
+// Pflichtort (R-080) und muss dort stehen. V-17: Countdown nur auf Kasse und Korb (Allowlist unten).
+
+/** V-17-Allowlist: Seiten, auf denen der Reservierungs-Countdown stehen darf. */
+export const COUNTDOWN_ALLOWLIST: readonly { routeId: string; reason: string }[] = [
+  { routeId: 'R07', reason: 'Kasse: echte Reservierung dieser Person (KO-15, KONZEPT §4.6).' },
+  {
+    routeId: 'R06',
+    reason: 'Countdown im Korb = dieselbe echte Reservierung wie in der Kasse, KO-13.',
+  },
+]
+
+const V11_RE =
+  /(innerhalb|binnen)\s+(von\s+)?\d+\s+Tag(en)?.{0,60}(sonst|andernfalls|ausgeschlossen|erlischt|verfällt)/iu
+/** V-23: Eingabefelder für Zahlungsdaten der Kundin (IBAN, Kartennummer, Prüfziffer). */
+const V23_FIELDS =
+  /<input\b[^>]*\bname="[^"]*(iban|cardNumber|creditCard|card_number|cvc|cvv)[^"]*"/iu
+
+test.describe('P4.25 Verbotsmuster: Korb, Kasse, Danke, Status und Mails', () => {
+  test.describe.configure({ timeout: 180_000 })
+
+  test('RECHT §5 V-01 V-02 V-03 V-09 V-11 V-17 V-21 V-22 V-23 V-31 R-080 auf P4-Seiten und in den gerenderten Mails', async ({
+    page,
+    context,
+    request,
+    fixtureProducts,
+  }, testInfo) => {
+    onlyOnce(testInfo.project.name)
+    const release = await holdShippingRates('shared')
+    const pieces: number[] = []
+    const pages: { id: string; url: string; html: string }[] = []
+    const capture = async (id: string) =>
+      pages.push({ id, url: page.url(), html: await page.content() })
+    try {
+      const payload = await testPayload()
+      const { business } = (await payload.findGlobal({
+        slug: 'settings',
+        depth: 0,
+        overrideAccess: true,
+      })) as { business: { street: string } }
+      const street = business.street.trim()
+      expect(street).not.toBe('')
+
+      // Kaufweg 1: Karte „Erfolg“ – Korb, Kasse (leer und mit Fehlern), Danke „bezahlt“, Bestellstatus.
+      const a = await fixtureProducts.create('keramik', { ...PUBLISHED, priceCents: 4500 })
+      pieces.push(a.id)
+      const b1 = await h.buyer(context, page)
+      await h.addToCartFromProduct(page, request, a.itemNumber)
+      await capture('R06')
+      const t1 = await h.goToCheckout(context, page)
+      await capture('R07')
+      await h.orderButton(page).click()
+      await expect(page.locator('[data-error-summary]')).toBeFocused()
+      await capture('R07')
+      await h.fillShipping(page, b1.email)
+      await h.choosePayment(page, 'stripe')
+      await h.chooseMock(page, 'success', 'card')
+      await expect(await h.orderAndThank(page, t1)).toHaveAttribute('data-thanks-state', 'paid')
+      await capture('R08')
+      await page.getByRole('link', { name: 'Bestellstatus ansehen' }).click()
+      await expect(page).toHaveURL(/\/de\/bestellung\/[A-Za-z0-9_-]{43}$/)
+      await capture('R09')
+
+      // Kaufweg 2 und 3: Vorkasse – Danke „Vorkasse“, dann „Zahlung erhalten“ (M05) bzw. „Stornieren“ (M04).
+      const vorkasse: { email: string; orderId: number; totalCents: number }[] = []
+      for (const n of [0, 1]) {
+        const p = await fixtureProducts.create('keramik', { ...PUBLISHED, priceCents: 4500 })
+        pieces.push(p.id)
+        await context.clearCookies()
+        const bn = await h.buyer(context, page)
+        await h.addToCartFromProduct(page, request, p.itemNumber)
+        const t = await h.goToCheckout(context, page)
+        await h.fillShipping(page, bn.email)
+        await h.choosePayment(page, 'prepayment')
+        await expect(await h.orderAndThank(page, t)).toHaveAttribute(
+          'data-thanks-state',
+          'prepayment',
+        )
+        if (n === 0) {
+          await capture('R08')
+          await page.getByRole('link', { name: 'Bestellstatus ansehen' }).click()
+          await expect(page).toHaveURL(/\/de\/bestellung\//)
+          await capture('R09')
+        }
+        const [order] = await h.ordersOf([p.id])
+        vorkasse.push({ email: bn.email, orderId: order!.id, totalCents: 5390 })
+      }
+      const admin = await adminLogin()
+      try {
+        await adminCall(
+          request,
+          admin,
+          'post',
+          `/orders/${vorkasse[0]!.orderId}/prepayment-received`,
+          {
+            amountCents: vorkasse[0]!.totalCents,
+          },
+        )
+        await adminCall(request, admin, 'post', `/orders/${vorkasse[1]!.orderId}/cancel`, {
+          reason: 'Test: Stück doch nicht verfügbar',
+        })
+      } finally {
+        await admin.release()
+      }
+
+      // Seiten: Inhaltsmuster, V-11, V-23, V-31, V-17 (Countdown nur laut Allowlist), V-22 (URLs ohne Eingaben).
+      const allowed = new Set(COUNTDOWN_ALLOWLIST.map((e) => e.routeId))
+      const findings: string[] = []
+      for (const p of pages) {
+        for (const f of scanHtml(p.html)) findings.push(`${p.id} ${p.url}: ${f}`)
+        const text = visibleText(p.html).all
+        if (V11_RE.test(text)) findings.push(`${p.id}: V-11`)
+        if (V23_FIELDS.test(p.html)) findings.push(`${p.id}: V-23`)
+        if (text.includes(street)) findings.push(`${p.id}: V-31 Straße „${street}“`)
+        if (!allowed.has(p.id) && /data-countdown=/.test(p.html))
+          findings.push(`${p.id}: V-17 Countdown außerhalb der Allowlist`)
+        if (/%40|@|Erika|Musterstra|10115/i.test(decodeURIComponent(p.url)))
+          findings.push(`${p.id}: V-22 Eingabe in der URL ${p.url}`)
+      }
+      expect(pages.map((p) => p.id)).toEqual(['R06', 'R07', 'R07', 'R08', 'R09', 'R08', 'R09'])
+      expect(pages.filter((p) => p.id === 'R07').every((p) => /data-countdown=/.test(p.html))).toBe(
+        true,
+      )
+      expect(findings).toEqual([])
+
+      // Mails der Kundinnen (M01, M02, M05, M04) und die Verwaltungsmails dieser Bestellungen.
+      const want: Record<string, string[]> = {
+        [b1.email]: ['order_confirmation'],
+        [vorkasse[0]!.email]: ['prepayment_instructions', 'prepayment_received'],
+        [vorkasse[1]!.email]: ['prepayment_cancelled', 'prepayment_instructions'],
+      }
+      const site = new URL(page.url()).origin
+      const mailFindings: string[] = []
+      for (const [email, types] of Object.entries(want)) {
+        await expect
+          .poll(async () => (await readOutbox({ to: email })).map((r) => r.type).sort(), {
+            timeout: 15_000,
+          })
+          .toEqual(types)
+        for (const m of await readOutbox({ to: email })) {
+          const html = m.html ?? ''
+          const text = m.text ?? ''
+          for (const f of scanMail({ html, text }, site)) mailFindings.push(`${m.type}: ${f}`)
+          for (const f of FORBIDDEN_CONTENT_PATTERNS.filter((x) => ['V-17', 'V-21'].includes(x.id)))
+            if (f.re.test(`${html}\n${text}`)) mailFindings.push(`${m.type}: ${f.id}`)
+          if (V11_RE.test(text)) mailFindings.push(`${m.type}: V-11`)
+          // R-080 / V-31: die Anbieterkennung mit Straße steht im Fuß jeder Kundenmail (Pflichtort).
+          if (!text.includes(street)) mailFindings.push(`${m.type}: R-080 Anbieterkennung fehlt`)
+        }
+      }
+      const orderIds = [(await h.ordersOf([a.id]))[0]!.id, ...vorkasse.map((v) => v.orderId)]
+      const adminMails = (await readOutbox()).filter(
+        (m) =>
+          m.type.startsWith('admin_') &&
+          orderIds.some((id) => m.idempotencyKey.includes(`:${id}:`)),
+      )
+      expect(adminMails.map((m) => m.type).sort()).toEqual(
+        expect.arrayContaining(['admin_order_placed']),
+      )
+      for (const m of adminMails)
+        for (const f of scanMail({ html: m.html ?? '', text: m.text ?? '' }, site))
+          mailFindings.push(`${m.type}: ${f}`)
+      expect(mailFindings).toEqual([])
+    } finally {
+      await cleanupCheckouts(pieces)
+      await release()
+    }
+  })
 })

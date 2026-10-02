@@ -1,8 +1,9 @@
 import 'server-only'
 
-import { createLocalReq, getPayload, type Payload } from 'payload'
+import { createLocalReq, getPayload, type Payload, type PayloadRequest } from 'payload'
 
 import { isAdminRequest } from '@/access'
+import { JOB_QUEUE_OF, WAKE_TASK_SLUGS } from '@/jobs/index'
 import { getEnv, type Env } from '@/lib/env'
 import { logger } from '@/lib/monitoring/logger'
 import { systemClock } from '@/lib/time'
@@ -51,6 +52,44 @@ async function nextPendingJobAt(payload: Payload, now: Date): Promise<Date | nul
   return min === null ? null : new Date(Math.max(min, now.getTime()))
 }
 
+/** Fristen-Tasks einreihen, sofern nicht schon ein offener Job dafür wartet. */
+async function queueWakeTasks(payload: Payload, req: PayloadRequest): Promise<number> {
+  let queued = 0
+  for (const task of WAKE_TASK_SLUGS) {
+    const open = await payload.count({
+      collection: 'payload-jobs',
+      where: {
+        and: [
+          { taskSlug: { equals: task } },
+          { completedAt: { exists: false } },
+          { hasError: { not_equals: true } },
+        ],
+      },
+      overrideAccess: true,
+    })
+    if (open.totalDocs > 0) continue
+    await payload.jobs.queue({
+      task: task as 'sendEmail',
+      input: {} as never,
+      queue: JOB_QUEUE_OF[task],
+      req,
+    })
+    queued += 1
+  }
+  return queued
+}
+
+/** Weckzeit nach dem Lauf: offene Jobs und von Tasks gesetzte künftige Weckzeiten (`jobAlarm.bump`). */
+async function nextWake(payload: Payload, now: Date): Promise<Date | null> {
+  const pending = await nextPendingJobAt(payload, now)
+  const state = await jobAlarm.read()
+  const bumped = state.nextDueAt ? new Date(state.nextDueAt) : null
+  const future = bumped && bumped.getTime() > now.getTime() ? bumped : null
+  if (!pending) return future
+  if (!future) return pending
+  return pending.getTime() <= future.getTime() ? pending : future
+}
+
 export async function handleTick(request: Request, deps: CronDeps = {}): Promise<Response> {
   const env = deps.env ?? getEnv()
   if (!isCronAuthorized(request.headers, env)) return unauthorized()
@@ -62,8 +101,9 @@ export async function handleTick(request: Request, deps: CronDeps = {}): Promise
   const payload = await (deps.loadPayload ?? defaultLoadPayload)()
   const req = await createLocalReq({ context: { system: true, now: now.toISOString() } }, payload)
   const schedules = await payload.jobs.handleSchedules({ allQueues: true, req })
+  await queueWakeTasks(payload, req)
   const run = await payload.jobs.run({ allQueues: true, limit: 50, req })
-  const next = await nextPendingJobAt(payload, now)
+  const next = await nextWake(payload, now)
   await jobAlarm.markFullRun(now, next)
   const ran = Object.keys(run.jobStatus ?? {}).length
   logger.info('cron.tick', { ran, scheduled: schedules.queued.length })

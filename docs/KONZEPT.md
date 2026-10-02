@@ -955,7 +955,7 @@ verfügbar.
 5. Weiterleitung auf die Danke-Seite; Warenkorb-Cookie wird dort gelöscht.
 
 **Bankdaten** (`settings.payment`): Kontoinhaberin, IBAN (Anzeige in 4er-Gruppen), BIC, Betrag, **Verwendungszweck = exakt die
-Bestellnummer** (`PC-2026-00017`), Zahlungsfrist als Datum („bis Mi 01.10.2026“). Zusätzlich ein **EPC-QR-Code
+Bestellnummer** (`PC-2026-00017`), Zahlungsfrist als Datum („bis Do 01.10.2026“). Zusätzlich ein **EPC-QR-Code
 (GiroCode)** mit denselben Daten auf Danke-Seite, Bestellstatus und in M02 (als eingebettetes Bild).
 
 **Fristen:** 72 h nach der Bestellung (`timestamps.placedAt + 72 h`) ohne Zahlung Erinnerung M03 (E-23: „nach 3 Tagen“;
@@ -1977,7 +1977,7 @@ Server- und Hosting-Logs mit IP (L-13 e) regelt die Hosting-Einstellung außerha
 - Hinweistext in der Ansicht: „Der Wächter ersetzt keine Steuerberatung.“
 
 **AK-8-01** Jeder Job ist mit vorgestellter Uhr getestet, inklusive Doppel-Lauf (Idempotenz).
-**AK-8-02** Vorkasse (Bestellung Fr 26.09. 10:00): bis Mo 29.09. 09:59 keine Mail, ab 10:00 genau eine M03; Mi 01.10. 23:59 noch offen, Do 02.10. 00:00 (nächster Joblauf) Storno + M04 + A03, Stück `available`.
+**AK-8-02** Vorkasse (Bestellung Sa 26.09. 10:00): bis Di 29.09. 09:59 keine Mail, ab 10:00 genau eine M03; Do 01.10. 23:59 noch offen, Fr 02.10. 00:00 (nächster Joblauf) Storno + M04 + A03, Stück `available`.
 **AK-8-03** Retention: Eine Anfrage wird samt Bildern am Tag nach Eingang + 6 Monate gelöscht, auch wenn `lastActivityAt` jünger ist; mit Aufbewahrungssperre bleibt sie; je Anfrage ein `deletion-log`-Eintrag ohne Inhalte.
 **AK-8-04** Umsatz-Wächter: 19.999 € (keine Meldung), 20.000 € (U1), 25.001 € (U2), 80.000 € (U3), 90.000 € (U3a), 95.000 € (U4), 100.001 € (U5) – je Stufe genau eine A09 im Jahr; Neujahrsprüfung U0.
 

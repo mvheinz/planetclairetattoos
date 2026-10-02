@@ -101,6 +101,26 @@ export const EXTERNAL_ALLOWLIST: readonly { prefix: string; why: string; jsOnly?
   { prefix: 'https://react.dev/errors/', why: 'React-Fehlertext', jsOnly: true },
   { prefix: 'https://nextjs.org/docs/', why: 'Next.js-Fehlertext', jsOnly: true },
   { prefix: 'https://github.com/zloirock/core-js', why: 'core-js-Lizenzhinweis', jsOnly: true },
+  {
+    prefix: 'http://json-schema.org/',
+    why: 'zod: `$schema`-Kennungen der JSON-Schema-Ausgabe (Verwaltungs-Bundle), nie geladen',
+    jsOnly: true,
+  },
+  {
+    prefix: 'https://json-schema.org/',
+    why: 'zod: `$schema`-Kennungen der JSON-Schema-Ausgabe (Verwaltungs-Bundle), nie geladen',
+    jsOnly: true,
+  },
+  {
+    prefix: 'https://js.stripe.com',
+    why: 'Stripe.js-Lader im Kassen-Chunk: lädt nur auf R07 und nur mit PAYMENTS_DRIVER=stripe (CSP `checkout`, DIENSTE-YAML, P4.25)',
+    jsOnly: true,
+  },
+  {
+    prefix: 'https://docs.stripe.com/',
+    why: 'Stripe.js-Fehlertext (Versionshinweis), kein Request',
+    jsOnly: true,
+  },
 ]
 
 // Absolute (`https://…`) und protokoll-relative (`//host.tld/…`) URLs mit Punkt im Host.
@@ -120,6 +140,8 @@ export function findForeignUrls(
       // `a//b.cd` in Minifikaten ist kein URL-Anfang: nur Treffer am Wortanfang zählen.
       const before = f.content[m.index - 1] ?? ''
       if (!url.includes(':') && /[\w.]/.test(before)) continue
+      // `/^https?:\/\/i.test(…)` in Minifikaten: maskierte Schrägstriche eines Regex-Literals, keine Adresse.
+      if (!url.includes(':') && before === '\\') continue
       const absolute = url.startsWith('//') ? `https:${url}` : url
       if (ownOrigins.some((o) => absolute === o || absolute.startsWith(`${o}/`))) continue
       if (EXTERNAL_ALLOWLIST.some((a) => absolute.startsWith(a.prefix) && (!a.jsOnly || isJs)))

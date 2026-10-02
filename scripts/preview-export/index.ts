@@ -12,6 +12,7 @@ import dotenv from 'dotenv'
 import { ADMIN_VIEWS } from './adminViews'
 import { captureAdminShots } from './adminShots'
 import { assemble, type PreviewMessages } from './assemble'
+import { captureCartSession } from './cartSession'
 import { crawl, createServerFetcher, seedParamProvider, startSet, type CrawlResult } from './crawl'
 import { postgresReachable, prepareExportDatabase } from './db'
 import {
@@ -116,19 +117,8 @@ export async function runExport(args: ExportArgs, root = process.cwd()): Promise
   try {
     log('Server starten')
     server = await startServer(env)
-    const fetcher = await createServerFetcher(server.origin)
-    try {
-      log('Crawl')
-      result = await crawl(fetcher.fetch, {
-        adminRoute: EXPORT_ADMIN_ROUTE,
-        start: startSet(undefined, seedParamProvider),
-      })
-      log(
-        `${result.pages.length} Seiten, ${result.assets.size} Dateien, ${result.notBuilt.length} Routen noch nicht gebaut`,
-      )
-    } finally {
-      await fetcher.close()
-    }
+    // Verwaltungs-Fotos vor dem Korb: Reservierung und Freigabe von S01/S11 setzen `updatedAt` auf die Wanduhr – die
+    // Stückliste (sortiert und mit Datumsspalte) wäre sonst von Lauf zu Lauf verschieden (AK-A-14-01).
     log('Verwaltungs-Fotos')
     shots = await captureAdminShots({
       origin: server.origin,
@@ -139,6 +129,23 @@ export async function runExport(args: ExportArgs, root = process.cwd()): Promise
       phase,
       views: ADMIN_VIEWS,
     })
+    log('Korb und Kasse (S01 + S11, „Zur Kasse“)')
+    const cart = await captureCartSession(server.origin)
+    const fetcher = await createServerFetcher(server.origin)
+    try {
+      log('Crawl')
+      result = await crawl(fetcher.fetch, {
+        adminRoute: EXPORT_ADMIN_ROUTE,
+        start: startSet(undefined, seedParamProvider),
+        pinned: cart.pages,
+      })
+      result.warnings.unshift(...cart.warnings)
+      log(
+        `${result.pages.length} Seiten, ${result.assets.size} Dateien, ${result.notBuilt.length} Routen noch nicht gebaut`,
+      )
+    } finally {
+      await fetcher.close()
+    }
   } finally {
     if (server && !args.keepServer) {
       log('Server beenden')

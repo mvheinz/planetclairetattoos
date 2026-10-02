@@ -244,7 +244,40 @@ export interface PageTarget {
   status: number
   /** Variante oder Zustand neben der Beispiel-Adresse (P3.16), z. B. `sold`. */
   variant?: string
+  /**
+   * P4.25: in der gemeinsamen Kassen-Sitzung messen – vorher legt Chromium wie eine Kundin S01 + S11 in den Korb und
+   * klickt „Zur Kasse“ (gefüllter Korb R06, Kasse R07 mit echter Kasse statt 307 auf den Korb).
+   */
+  session?: 'checkout'
 }
+
+/** Seed-Anker im Korb der Messung (SEED-SPEC: S01 Keramik, S11 Textil). */
+export const CHECKOUT_SESSION_ITEMS = [901, 911] as const
+
+/**
+ * Korb und Kasse gefüllt (T-09, PLAN P4.25): R06/R07 ≤ 220 KB gz ohne Stripe.js (mit `PAYMENTS_DRIVER=mock` lädt die
+ * Kasse ohnehin kein Stripe.js). Die Messung legt eine echte Kasse an (Reservierung 30 min in der Datenbank des Servers).
+ */
+export const P4_SESSION_TARGETS: readonly PageTarget[] = (['de', 'en'] as const).flatMap(
+  (locale) => [
+    {
+      routeId: 'R06',
+      locale,
+      path: locale === 'de' ? '/de/warenkorb' : '/en/cart',
+      status: 200,
+      variant: 'gefüllt',
+      session: 'checkout' as const,
+    },
+    {
+      routeId: 'R07',
+      locale,
+      path: locale === 'de' ? '/de/kasse' : '/en/checkout',
+      status: 200,
+      variant: 'mit Kasse',
+      session: 'checkout' as const,
+    },
+  ],
+)
 
 /**
  * Varianten und Zustände der P3-Routen (Seed-Anker des Mini-Beispielbestands, SEED-SPEC): gleiche Budgets wie die Route.
@@ -319,7 +352,7 @@ export async function pageTargets(): Promise<PageTarget[]> {
     out.push({ routeId: 'R28', locale, path: `/${locale}/gibt-es-nicht-bundle`, status: 404 })
     out.push({ routeId: 'R29', locale, path: `/${locale}/__fehler-test`, status: 500 })
   }
-  out.push(...P3_VARIANT_TARGETS)
+  out.push(...P3_VARIANT_TARGETS, ...P4_SESSION_TARGETS)
   return out
 }
 
@@ -381,14 +414,26 @@ export async function measurePages(
   const measurements: PageMeasurement[] = []
   const errors: string[] = []
   const gzCache = new Map<string, number>()
+  const newContext = async () => {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 } })
+    // Keine Fremd-Requests (R-131): alles außer dem eigenen Origin wird abgebrochen.
+    await context.route(
+      (url) => url.origin !== origin,
+      (route) => route.abort(),
+    )
+    return context
+  }
+  let session: Awaited<ReturnType<typeof newContext>> | null = null
   try {
     for (const t of targets) {
-      const context = await browser.newContext({ viewport: { width: 390, height: 844 } })
-      // Keine Fremd-Requests (R-131): alles außer dem eigenen Origin wird abgebrochen.
-      await context.route(
-        (url) => url.origin !== origin,
-        (route) => route.abort(),
-      )
+      let context: Awaited<ReturnType<typeof newContext>>
+      if (t.session) {
+        if (!session) {
+          session = await newContext()
+          await prepareCheckoutSession(session, baseURL)
+        }
+        context = session
+      } else context = await newContext()
       const page = await context.newPage()
       try {
         const res = await page.goto(new URL(t.path, baseURL).href, { waitUntil: 'load' })
@@ -456,13 +501,35 @@ export async function measurePages(
           svgRawBytes,
         })
       } finally {
-        await context.close()
+        if (context === session) await page.close()
+        else await context.close()
       }
     }
   } finally {
+    await session?.close()
     await browser.close()
   }
   return { measurements, errors }
+}
+
+/** Korb mit S01 + S11 füllen (Produktseite, „In den Korb“) und „Zur Kasse“ klicken – wie eine Kundin. */
+async function prepareCheckoutSession(
+  context: import('@playwright/test').BrowserContext,
+  baseURL: string,
+): Promise<void> {
+  const page = await context.newPage()
+  try {
+    for (const nr of CHECKOUT_SESSION_ITEMS) {
+      await page.goto(new URL(`/nr/${nr}`, baseURL).href, { waitUntil: 'load' })
+      await page.locator('[data-add-to-cart] button').first().click()
+      await page.locator('[data-buy-area] [data-in-cart]').first().waitFor({ state: 'visible' })
+    }
+    await page.goto(new URL('/de/warenkorb', baseURL).href, { waitUntil: 'load' })
+    await page.locator('[data-cart-checkout] button[type="submit"]').click()
+    await page.waitForURL((u) => u.pathname === '/de/kasse', { timeout: 30_000 })
+  } finally {
+    await page.close()
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------------

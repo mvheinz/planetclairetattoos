@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto'
 import { sql } from '@payloadcms/db-postgres'
 import type { Payload, RequestContext } from 'payload'
 
-import { hashToken, randomToken } from '@/lib/security/tokens'
+import { createToken, hashToken } from '@/lib/security/tokens'
 
 import { ensureLegalTextFixtures } from './legal'
 
@@ -98,7 +98,7 @@ export function checkoutData(items: ItemInput[], overrides: Record<string, unkno
     return rest
   })
   const subtotal = rows.reduce((n, r) => n + r.priceCents, 0)
-  const token = randomToken()
+  const token = createToken()
   return {
     token,
     data: {
@@ -123,6 +123,7 @@ export async function deleteCommerce(payload: Payload): Promise<void> {
   const db = dbOf(payload)
   await db.execute(sql`UPDATE products SET current_order_id = NULL`)
   for (const table of [
+    'webhook_events',
     'withdrawals',
     'invoices',
     'invoice_counters',

@@ -174,7 +174,39 @@ export const ROUTE_SAMPLE_PARAMS: Readonly<Record<string, Record<Locale, RoutePa
   },
 }
 
+/**
+ * Hat die Route einen Beispielpfad für Querschnittsprüfungen? Routen mit Kunden-Token (R08, R09) haben keinen – ihre
+ * Header, Barrierefreiheit und Verbotsmuster prüfen eigene Suiten mit Fixture-Bestellungen (P4.17, P4.23).
+ */
+export function hasSamplePath(route: RouteEntry): boolean {
+  if (!route.paths) return false
+  return !Object.values(route.paths).some((p) => p.includes('[')) || !!ROUTE_SAMPLE_PARAMS[route.id]
+}
+
 /** Pfad einer Route für Querschnittsprüfungen: ohne Parameter wie `localizedPath`, sonst mit Beispiel-Parametern. */
 export function samplePath(id: string, locale: Locale): string {
   return localizedPath(id, locale, ROUTE_SAMPLE_PARAMS[id]?.[locale] ?? {})
+}
+
+/** API-Pfade mit Kunden-Token (ARCHITEKTUR §2.5) → Muster für Logs. */
+const TOKEN_API_PATHS: readonly [RegExp, string][] = [
+  [/^\/api\/checkout\/[^/]+\/state\/?$/, '/api/checkout/[token]/state'],
+  [/^\/api\/orders\/[^/]+\/documents\/[^/]+$/, '/api/orders/[token]/documents/[file]'],
+  [/^\/api\/privacy-export\/[^/]+$/, '/api/privacy-export/[token]'],
+]
+
+/**
+ * Pfad für Logs ohne Token (P4.23, R-137, ARCHITEKTUR §8.11): `/de/bestellung/<token>` → `/de/bestellung/[token]`,
+ * `/api/orders/<token>/documents/<datei>` → `/api/orders/[token]/documents/[file]`. Query und Fragment entfallen bei
+ * Token-Pfaden; andere Pfade bleiben unverändert.
+ */
+export function normalizeLogPath(value: string): string {
+  const cut = value.search(/[?#]/)
+  const pathname = cut >= 0 ? value.slice(0, cut) : value
+  for (const [re, pattern] of TOKEN_API_PATHS) if (re.test(pathname)) return pattern
+  const split = splitLocale(pathname)
+  if (!split) return value
+  const match = matchRoute(split.rest, split.locale)
+  if (!match || !('token' in match.params)) return value
+  return `/${split.locale}${match.route.paths![split.locale]}`
 }

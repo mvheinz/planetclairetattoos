@@ -1,0 +1,412 @@
+/* R07 Kasse (DESIGN KO-14, Preset `calm`): Abschnitte als Kästen `--paper-2`, `--r-card`; keine Animation und keine
+   Transition (AK-DS-11, AK-DS-16). Ab 1200 px Formular 7/12 links, Übersicht 5/12 rechts (sticky). */
+.layout {
+  min-width: 0;
+}
+
+.form {
+  display: grid;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.main,
+.aside {
+  display: grid;
+  gap: var(--space-5);
+  min-width: 0;
+  align-content: start;
+}
+
+@media (min-width: 1200px) {
+  .form {
+    grid-template-columns: 7fr 5fr;
+    column-gap: var(--space-6);
+    align-items: start;
+  }
+}
+
+.errorSummary {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 2px solid var(--error);
+  border-radius: var(--r-card);
+  background: var(--paper);
+}
+
+.errorTitle {
+  margin: 0;
+  font-weight: 700;
+  color: var(--error);
+}
+
+.errorList {
+  margin: 0;
+  padding-inline-start: var(--space-5);
+  display: grid;
+  gap: var(--space-1);
+}
+
+.errorList a {
+  color: var(--ink);
+}
+
+.section {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--paper-2);
+  border-radius: var(--r-card);
+  min-width: 0;
+  scroll-margin-top: var(--space-6);
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding: var(--space-5);
+    border-inline-start: 1.25px solid var(--ink);
+  }
+}
+
+.section [hidden] {
+  display: none;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  color: var(--ink-2);
+  margin-inline-end: var(--space-1);
+}
+
+.fieldset {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.legend {
+  padding: 0;
+  margin-block-end: var(--space-2);
+  font-weight: 500;
+}
+
+.row2 {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 480px) {
+  .row2 {
+    grid-template-columns: 8rem 1fr;
+  }
+}
+
+.country {
+  margin: 0;
+}
+
+.countryLabel {
+  font-weight: 500;
+}
+
+.note {
+  margin: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.note p {
+  margin: 0;
+}
+
+.small {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+.textLink,
+.inlineLink {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+.textLink {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--tap-min);
+}
+
+.textLink:hover,
+.inlineLink:hover {
+  text-decoration-thickness: 2px;
+}
+
+.secondaryButton,
+.textButton {
+  justify-self: start;
+  min-block-size: 48px;
+  padding: var(--space-2) var(--space-5);
+  border: var(--stroke-ui, 1.5px) solid var(--ink);
+  border-radius: var(--r-btn);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.textButton {
+  min-block-size: var(--tap-min);
+  padding: var(--space-1) var(--space-3);
+  border: 0;
+  background: transparent;
+  text-decoration: underline;
+}
+
+.paymentField {
+  display: grid;
+  gap: var(--space-3);
+  min-block-size: 240px;
+  padding: var(--space-4);
+  background: var(--paper-field, var(--paper));
+  border: var(--stroke-ui, 1.5px) solid var(--ink-2);
+  border-radius: var(--r-calm);
+  align-content: start;
+}
+
+.mockTitle {
+  margin: 0;
+  font-weight: 700;
+}
+
+.fieldError {
+  margin: 0;
+  color: var(--error);
+  font-size: 0.875rem;
+}
+
+/* Übersicht */
+.overview {
+  gap: var(--space-4);
+}
+
+.items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.itemPhoto {
+  inline-size: 48px;
+}
+
+.itemBody {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.itemTitle,
+.itemMeta,
+.itemFacts,
+.itemPrice {
+  margin: 0;
+}
+
+.itemTitle {
+  font-weight: 600;
+}
+
+.itemMeta {
+  font-family: var(--font-mono);
+  color: var(--ink-2);
+  font-size: 0.875rem;
+}
+
+.itemFacts {
+  font-size: 0.875rem;
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+}
+
+.itemPrice {
+  font-family: var(--font-mono);
+}
+
+.totals {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.sumList {
+  margin: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.sumRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.sumRow dt,
+.sumRow dd {
+  margin: 0;
+}
+
+.sumTotal {
+  padding-block-start: var(--space-2);
+  border-block-start: 1.5px solid var(--ink);
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+.sumLabel {
+  font-weight: 500;
+}
+
+.overviewBlocks {
+  margin: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.block {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0 var(--space-3);
+  padding-block-start: var(--space-2);
+  border-block-start: 1px solid var(--ink-3);
+}
+
+.block dt {
+  grid-column: 1 / -1;
+  font-weight: 500;
+}
+
+.block dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.missing {
+  color: var(--ink-2);
+  font-style: italic;
+}
+
+.legalNotice {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.legalNotice p {
+  margin: 0;
+}
+
+.deviations {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.dialog {
+  inline-size: min(40rem, calc(100vw - 32px));
+  max-block-size: calc(100dvh - 32px);
+  padding: 0;
+  border: 1.5px solid var(--ink);
+  border-radius: var(--r-card);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.dialog::backdrop {
+  background: rgb(28 26 23 / 0.45);
+}
+
+.dialogHead {
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--paper);
+  border-block-end: 1px solid var(--ink-3);
+}
+
+.dialogTitle {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.dialogBody {
+  padding: var(--space-4);
+}
+
+/* Bestellbereich: KO-11 „Bestellen (ruhig)“ */
+.orderArea {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.orderButton {
+  inline-size: 100%;
+  max-inline-size: 480px;
+  min-block-size: 56px;
+  padding: var(--space-2) var(--space-5);
+  border: 0;
+  border-radius: var(--r-calm);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.orderButton:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.orderButton:disabled {
+  background: var(--paper-2);
+  color: var(--ink-3);
+  border: 1.5px solid var(--ink-3);
+  cursor: not-allowed;
+}
+
+.orderHint {
+  margin: 0;
+  color: var(--warn);
+  font-size: 0.875rem;
+}
+
+.status {
+  margin: 0;
+  min-block-size: 1.4em;
+  font-size: 0.875rem;
+}

@@ -1,7 +1,7 @@
 import http from 'node:http'
 import { describe, expect, it } from 'vitest'
 
-import { isAllowedHost } from '../../setup/network-guard'
+import { isAllowedHost, STRIPE_TEST_API_ENV } from '../../setup/network-guard'
 
 describe('Netzwerk-Wächter (ARCHITEKTUR §7.2, AK-A-3-01)', () => {
   it('AK-A-3-01 fetch auf https://example.org scheitert mit klarer Meldung', async () => {
@@ -25,5 +25,20 @@ describe('Netzwerk-Wächter (ARCHITEKTUR §7.2, AK-A-3-01)', () => {
     expect(isAllowedHost('127.0.0.1')).toBe(true)
     expect(isAllowedHost('::1')).toBe(true)
     expect(isAllowedHost('example.org')).toBe(false)
+  })
+
+  it('P4.5 api.stripe.com nur mit ausdrücklicher Freigabe (Stripe-Testmodus), sonst blockiert', () => {
+    const before = process.env[STRIPE_TEST_API_ENV]
+    try {
+      delete process.env[STRIPE_TEST_API_ENV]
+      expect(isAllowedHost('api.stripe.com')).toBe(false)
+      process.env[STRIPE_TEST_API_ENV] = '1'
+      expect(isAllowedHost('api.stripe.com')).toBe(true)
+      expect(isAllowedHost('js.stripe.com')).toBe(false)
+      expect(isAllowedHost('example.org')).toBe(false)
+    } finally {
+      if (before === undefined) delete process.env[STRIPE_TEST_API_ENV]
+      else process.env[STRIPE_TEST_API_ENV] = before
+    }
   })
 })

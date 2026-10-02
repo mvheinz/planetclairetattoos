@@ -1,13 +1,13 @@
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import AxeBuilder from '@axe-core/playwright'
 import type { Page } from '@playwright/test'
 import pg from 'pg'
 
-import { localizedPath, pageRoutes, samplePath } from '../../src/lib/routes/paths'
+import { localizedPath, pageRoutes, hasSamplePath, samplePath } from '../../src/lib/routes/paths'
 import { LOCALES, type Locale } from '../../src/lib/routes/registry'
 import { serverURL } from '../helpers/adminEnv'
+import { expectNoSeriousViolations } from './axe'
 import { expect, test } from './fixtures'
 import { holdListData } from './shop/fresh'
 import { P3_PAGES, homeVariant } from './shop/p3Pages'
@@ -19,29 +19,6 @@ import { P3_PAGES, homeVariant } from './shop/p3Pages'
 // Fokus-Sichtbarkeit prüft `keyboard.e2e.spec.ts`.
 // P3.16: zusätzlich R02, R03 und R05 mit ihren Varianten und jeder Kategorie sowie R04 je Kategorie und Zustand
 // (reserviert, verkauft) und die 404-Varianten (unbekannt/Entwurf, „Schon ein Zuhause“, Seite hinter der letzten).
-
-const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
-
-async function expectNoSeriousViolations(page: Page, label: string) {
-  const result = await new AxeBuilder({ page }).withTags(TAGS).analyze()
-  const describe = (v: (typeof result.violations)[number]) =>
-    `${v.id} (${v.impact}): ${v.help} – ${v.nodes
-      .slice(0, 3)
-      .map((n) => n.target.join(' '))
-      .join(' | ')}`
-  for (const v of result.violations.filter(
-    (v) => v.impact !== 'serious' && v.impact !== 'critical',
-  ))
-    test.info().annotations.push({
-      type: `axe ${v.impact ?? 'minor'}`,
-      description: `${label}: ${describe(v)}`,
-    })
-  const blocking = result.violations
-    .filter((v) => v.impact === 'serious' || v.impact === 'critical')
-    .map(describe)
-  expect(blocking, `axe serious/critical: ${label}`).toEqual([])
-  expect(result.passes.length, 'axe hat geprüft').toBeGreaterThan(0)
-}
 
 async function expectLang(page: Page, locale: Locale) {
   await expect(page.locator('html')).toHaveAttribute('lang', locale)
@@ -59,7 +36,8 @@ async function open(page: Page, url: string, status = 200) {
   await page.waitForLoadState('networkidle')
 }
 
-const livePages = pageRoutes().filter((r) => r.status === 'live')
+// Token-Seiten (R08, R09) prüfen ihre eigenen Suiten mit Fixture-Bestellungen (`@a11y`).
+const livePages = pageRoutes().filter((r) => r.status === 'live' && hasSamplePath(r))
 
 test.describe('axe je live-Route @a11y', () => {
   for (const route of livePages) {
@@ -181,6 +159,11 @@ function previewModeId(): string {
 }
 
 test.describe('axe Leerzustand der Startseite @a11y', () => {
+  // Exklusiv gegenüber dem Listen-Bestand: Specs, die die Startseite erneuern (`refresh` in `home/stations`) oder Stücke
+  // anlegen, würden sonst den Leerzustand in den Seiten-Cache schreiben – parallele Startseiten-Tests sahen dann eine
+  // Station statt acht (P4.25).
+  holdListData(test, 'exclusive')
+
   for (const locale of LOCALES) {
     test(`T-11 DM-PAGE-01 Startseite ohne home (${locale}) @a11y`, async ({ page, context }) => {
       const db = new pg.Client({ connectionString: process.env.DATABASE_URL })

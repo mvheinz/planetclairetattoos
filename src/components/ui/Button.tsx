@@ -22,6 +22,12 @@ interface CommonProps {
   id?: string
   /** Seed der Unterstreichung (Sekundär); Standard: `href` bzw. Text. */
   underlineSeed?: string
+  /**
+   * Nur `aria-disabled="true"` (bleibt fokussierbar und liest den Grund aus `describedBy` vor, z. B. „Zur Kasse“ im Korb,
+   * KO-13); der Server lehnt die Aktion ohnehin ab.
+   */
+  ariaDisabled?: boolean
+  describedBy?: string
 }
 
 export type ButtonProps = CommonProps &
@@ -52,7 +58,17 @@ const textOf = (node: React.ReactNode): string =>
       : ''
 
 export function Button(props: ButtonProps) {
-  const { variant = 'primary', children, icon, disabled, className, id, underlineSeed } = props
+  const {
+    variant = 'primary',
+    children,
+    icon,
+    disabled,
+    className,
+    id,
+    underlineSeed,
+    ariaDisabled,
+    describedBy,
+  } = props
   const classes = [styles.button, VARIANT_CLASS[variant], className].filter(Boolean).join(' ')
   const content = (
     <>
@@ -71,7 +87,8 @@ export function Button(props: ButtonProps) {
     'data-variant': variant,
     'data-underline-host': variant === 'secondary' ? '' : undefined,
     'data-behavior': props['data-behavior'],
-    'aria-disabled': disabled ? ('true' as const) : undefined,
+    'aria-disabled': disabled || ariaDisabled ? ('true' as const) : undefined,
+    'aria-describedby': describedBy,
   }
 
   if (props.href !== undefined) {

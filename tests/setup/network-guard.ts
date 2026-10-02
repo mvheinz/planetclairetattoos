@@ -1,4 +1,5 @@
-// Netzwerk-Wächter für Unit- und Int-Tests (ARCHITEKTUR §7.2, AK-A-3-01): nur 127.0.0.1, localhost und ::1.
+// Netzwerk-Wächter für Unit- und Int-Tests (ARCHITEKTUR §7.2, AK-A-3-01): nur 127.0.0.1, localhost und ::1
+// (Ausnahme: Stripe-Testmodus nur auf ausdrücklichen Wunsch, siehe `STRIPE_TEST_API_ENV`).
 import http from 'node:http'
 import https from 'node:https'
 import net from 'node:net'
@@ -14,9 +15,19 @@ export class BlockedNetworkError extends Error {
   }
 }
 
+/**
+ * Einzige Ausnahme (P4.5, ARCHITEKTUR §7.2): der Stripe-Testmodus im Zahlungs-Kontrakttest – nur `api.stripe.com` und
+ * nur, wenn `PC_TEST_ALLOW_STRIPE_API=1` ausdrücklich gesetzt ist (dazu ein `sk_test_…`; Live-Schlüssel verbietet die
+ * Start-Prüfung außerhalb von Produktion).
+ */
+export const STRIPE_TEST_API_ENV = 'PC_TEST_ALLOW_STRIPE_API'
+export const STRIPE_TEST_API_HOST = 'api.stripe.com'
+
 export function isAllowedHost(host: string | undefined): boolean {
   if (!host) return true // Unix-Sockets / Pfade
-  return ALLOWED_HOSTS.has(host.toLowerCase())
+  const h = host.toLowerCase()
+  if (ALLOWED_HOSTS.has(h)) return true
+  return h === STRIPE_TEST_API_HOST && process.env[STRIPE_TEST_API_ENV] === '1'
 }
 
 type ConnectArgs = Parameters<net.Socket['connect']>

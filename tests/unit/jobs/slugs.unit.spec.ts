@@ -38,7 +38,14 @@ describe('Task-Slugs (ARCHITEKTUR Anhang A.3)', () => {
 
   it('registriert werden nur umgesetzte Tasks, und nur Slugs aus A.3', () => {
     const registered = JOB_TASKS.map((t) => t.slug)
-    expect(registered).toEqual(['sendEmail'])
+    expect(registered).toEqual([
+      'releaseExpiredReservations',
+      'prepaymentReminders',
+      'cancelOverduePrepayments',
+      'sendEmail',
+      'renderInvoicePdf',
+      'renderLegalTextPdf',
+    ])
     for (const slug of registered) expect(TASK_SLUGS).toContain(slug)
   })
 })

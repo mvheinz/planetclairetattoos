@@ -7,7 +7,7 @@ import { hashToken } from '@/lib/security/tokens'
 
 // Deterministische Kassen-, Danke- und Status-Token nur für den Beispielbestand (SEED-SPEC §2.5, DATENMODELL §6.8.2).
 // Eingabe ist immer der `seedKey` (z. B. `orders:O10`, `checkouts:KS2`), nie die Bestellnummer und nie ein Schlüssel
-// wie `PAYLOAD_SECRET` (ARCHITEKTUR §8.6). Echte Token bleiben zufällig (`randomToken()`).
+// wie `PAYLOAD_SECRET` (ARCHITEKTUR §8.6). Echte Token bleiben zufällig (`createToken()`).
 
 export type SeedTokenPurpose = 'checkout' | 'status'
 

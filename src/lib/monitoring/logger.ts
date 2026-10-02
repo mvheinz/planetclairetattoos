@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { getEnv } from '../env'
+import { normalizeLogPath } from '../routes/paths'
 import { redact } from '../security/redact'
 
 // Einziger Logger (ARCHITEKTUR §8.11): JSON-Zeilen nach stdout, ohne Personendaten.
@@ -8,6 +9,19 @@ export type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 const ORDER: Record<LogLevel, number> = { debug: 10, info: 20, warn: 30, error: 40 }
 
 export type LogFields = Record<string, unknown>
+
+/** Felder mit Pfaden: Token-Segmente werden zu `[token]` bzw. `[file]` (P4.23, R-137), bevor geschwärzt wird. */
+const PATH_FIELDS = new Set(['path', 'pathname', 'url', 'route'])
+
+function normalizePaths(fields: LogFields): LogFields {
+  let out: LogFields | null = null
+  for (const [key, value] of Object.entries(fields)) {
+    if (!PATH_FIELDS.has(key) || typeof value !== 'string') continue
+    const normalized = normalizeLogPath(value)
+    if (normalized !== value) (out ??= { ...fields })[key] = normalized
+  }
+  return out ?? fields
+}
 export type LogSink = (line: string, level: LogLevel) => void
 
 const defaultSink: LogSink = (line, level) => {
@@ -30,7 +44,12 @@ export function createLogger(
   const now = options.now ?? (() => new Date())
   const write = (level: LogLevel, event: string, fields: LogFields = {}) => {
     if (ORDER[level] < min) return
-    const record = { level, time: now().toISOString(), event, ...(redact(fields) as LogFields) }
+    const record = {
+      level,
+      time: now().toISOString(),
+      event,
+      ...(redact(normalizePaths(fields)) as LogFields),
+    }
     sink(JSON.stringify(record), level)
   }
   return {
