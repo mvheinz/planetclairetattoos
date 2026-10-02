@@ -7,6 +7,11 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 
 
 
+
+## 2026-10-02 – P5 CI-Reparaturen (3)
+
+- Phasenlauf 4 (ed37101): CI full und Vorschau-Export grün (Artefakt `planet-claire-vorschau-p5-ed37101`); im schnellen Lauf meldete der Geheimnis-Scan einen Fehlalarm (Vorlagen-Kennung `dispute_vsbg37`) → eng begrenzte Ausnahme in `.gitleaks.toml`, lokal 241 Commits ohne Fund.
+
 ## 2026-10-02 – P5 CI-Reparaturen (2)
 
 - Schneller CI-Lauf lief seit P5 ins 30-Minuten-Limit (als „abgebrochen“ gemeldet) → Limit 45 min, Beschleunigung als offener Punkt.
