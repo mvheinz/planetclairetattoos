@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.23
+
+- ANFORDERUNGEN §3 um Spalte „Nachweis“ (Testdatei-Pfade, bis P6 gefüllt); Parser liest Spalten über die Kopfzeile und prüft, dass jeder Pfad existiert; `LEGAL_TRACE_PHASE = 6`\n- §7 Teil A: R-095 abgehakt (02.10.2026)\n- Tests: `tests/unit/legal/traceability.unit.spec.ts` (9, inkl. Gegenproben Titel/Pfad)
+
 ## 2026-10-02 – P6.19
 
 - Mail-Protokoll (Typ, Betreff, Zeitpunkt, Anbieter-ID, Status, Anhänge; Empfänger maskiert) an Widerrufen, Anfragen und Datenschutz-Anfragen; Einwilligungs-Protokoll an Bestellungen\n- Gesamtliste `/export/protokolle` mit Filtern (Art, Zeitraum, Status, Typ), ohne Inhalte/Freitexte\n- „Kopie an mich“ für M08 (`POST /api/withdrawals/:id/receipt-copy`) nur an die Verwaltungs-Adresse\n- Tests: `tests/int/email/logs-admin.int.spec.ts` (4), `tests/e2e/admin/logs.e2e.spec.ts`, `tests/e2e/admin/privacy-requests.e2e.spec.ts` (desktop + pixel-7 grün)

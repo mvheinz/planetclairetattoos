@@ -3649,7 +3649,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
   - Tests: `tests/unit/legal/briefing.unit.spec.ts`.
   - Ohne Jutta: Versand an die Kanzlei ist Owner-Aufgabe (A08/A28).
 
-- [ ] **P6.23 Nachverfolgbarkeit: Spalte „Nachweis“ und `LEGAL_TRACE_PHASE = 6`** – Tabelle ANFORDERUNGEN §3 um die
+- [x] **P6.23 Nachverfolgbarkeit: Spalte „Nachweis“ und `LEGAL_TRACE_PHASE = 6`** – Tabelle ANFORDERUNGEN §3 um die
   Spalte „Nachweis“ erweitern (`| R-### | Titel | Phase | Test | Owner | Nachweis |`, Testdatei-Pfade, bei manuellen
   Punkten „§7“) und für alle Zeilen mit frühester Phase ≤ 6 füllen. Parser in `tests/unit/legal/traceability.unit.spec.ts`
   liest Spalten über die Kopfzeile statt über Positionen; zusätzlich prüft er, dass jeder genannte Pfad existiert.
