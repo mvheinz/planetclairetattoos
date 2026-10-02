@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.6
+
+- Fuß mit „Vertrag widerrufen“ und Pflichtlinks auf jeder Registry-Route DE/EN inkl. Danke/Status (Fixture), 404, 500; M08 zeigt den Link jetzt auch\n- Tests: E2E legal/footer (390/1440 × reduce/no-preference, elementFromPoint, ≥ 44 px), unit mail-withdrawal-link (M01–M09) grün
+
 ## 2026-10-02 – P6.5
 
 - Rechtsseiten: PDF-Download je Text (außer Impressum), translation.disclaimer auf EN mit EN-Fassung, Anker-IDs der Datenschutzerklärung (§11.10), Seite neu bei nachgetragenem PDF; Kontakt mit „Adresse kopieren“\n- Startseite: dynamicParams=false entfernt (Neuerzeugung nach Tag-Erneuerung lieferte dauerhaft 404)\n- Tests: unit phone (R-021), anchors; E2E legal/pages (R-010/R-002/R-015/R-020/R-021/R-023/R-049) desktop+pixel-7 grün

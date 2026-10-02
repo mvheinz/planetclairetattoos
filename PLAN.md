@@ -3301,7 +3301,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     Widerrufsbelehrung, M01-Anbieterkennung, Snapshots der übrigen Kund:innen-Mails ohne Nummer).
   - Ohne Jutta: Kanzleitexte werden in P11 eingespielt; Stammdaten sind Platzhalter.
 
-- [ ] **P6.6 Footer und „Vertrag widerrufen“ überall** – KO-04 `SiteFooter` mit der Unterkomponente `LegalFooter` mit
+- [x] **P6.6 Footer und „Vertrag widerrufen“ überall** – KO-04 `SiteFooter` mit der Unterkomponente `LegalFooter` mit
   echten Zielen fertigstellen (DESIGN §13 Zeile P6): „Vertrag widerrufen“ als hervorgehobener Knopf-Link,
   EN-Beschriftung „Withdraw from contract here“ (R-090), Links Impressum, Datenschutz, AGB, Widerrufsbelehrung, Versand &
   Zahlung, Kontakt, Konformitätserklärungen (Fußlink nur, wenn Erklärungen existieren); auch in `not-found.tsx`,
