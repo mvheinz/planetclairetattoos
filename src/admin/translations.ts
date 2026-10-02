@@ -628,6 +628,19 @@ export const ADMIN_CUSTOM_DE = {
   settingsAreaShipping: 'Versand und Lieferländer',
   settingsAreaPacking: 'Packen und Verpackung',
   settingsAnalyticsTitle: 'Statistik',
+  // Löschvorschau (P6.15, LOESCHKONZEPT §4 Regel 5)
+  deletionPreviewTitle: 'Löschvorschau',
+  deletionPreviewIntro:
+    'Was die Löschfristen in den nächsten {{days}} Tagen automatisch löschen bzw. anonymisieren (Stand {{date}}). Datensätze mit Aufbewahrungssperre sind nicht dabei.',
+  deletionPreviewRule: 'Regel',
+  deletionPreviewArea: 'Bereich',
+  deletionPreviewAction: 'Aktion',
+  deletionPreviewCount: 'Anzahl',
+  deletionPreviewNone: 'In den nächsten {{days}} Tagen wird nichts gelöscht.',
+  deletionPreviewDeleted: 'löschen',
+  deletionPreviewAnonymized: 'anonymisieren',
+  deletionPreviewFiles: 'Dateien löschen',
+  deletionPreviewRestricted: 'einschränken',
   settingsSeedNone: 'Keine Beispieldaten vorhanden.',
   settingsSeedRemove: 'Beispieldaten entfernen',
   settingsSeedLater:

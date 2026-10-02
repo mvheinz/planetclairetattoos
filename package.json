@@ -39,6 +39,7 @@
     "seed:remove": "cross-env NODE_OPTIONS=\"--no-deprecation --import=./scripts/lib/register-server-only.mjs\" payload run scripts/seed/cli.ts -- remove",
     "seed:reset": "cross-env NODE_OPTIONS=\"--no-deprecation --import=./scripts/lib/register-server-only.mjs\" payload run scripts/seed/cli.ts -- reset",
     "jobs:run": "tsx --import=./scripts/lib/register-server-only.mjs scripts/jobs-run.ts",
+    "retention:replay": "tsx --import=./scripts/lib/register-server-only.mjs scripts/retention-replay.ts",
     "payments:reconcile": "tsx --import=./scripts/lib/register-server-only.mjs scripts/payments-reconcile.ts",
     "stripe:fixture": "tsx --import=./scripts/lib/register-server-only.mjs scripts/stripe-fixture.ts",
     "admin:create": "tsx --import=./scripts/lib/register-server-only.mjs scripts/admin-create.ts",

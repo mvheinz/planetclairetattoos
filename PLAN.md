@@ -3482,7 +3482,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     `tests/e2e/privacy/*.e2e.spec.ts` (`@privacy`).
   - Ohne Jutta: –
 
-- [ ] **P6.14 Löschjobs, Teil 1: Bestellungen, Belege, Widerrufe** – Fristfunktionen in `src/lib/retention/policy.ts`
+- [x] **P6.14 Löschjobs, Teil 1: Bestellungen, Belege, Widerrufe** – Fristfunktionen in `src/lib/retention/policy.ts`
   (seit P1 die einzige Stelle für Fristen; hier um Kalenderjahresende Europe/Berlin, „ab Ereignis“, Monatsenden und
   Sommerzeit vervollständigen) und gemeinsamer Runner (LOESCHKONZEPT §4 „Regeln für alle Löschjobs“, DATENMODELL §11:
   idempotent, höchstens 500 Datensätze je Lauf, erst Speicherobjekte, dann Datensatz, nach 3 Fehlschlägen A12

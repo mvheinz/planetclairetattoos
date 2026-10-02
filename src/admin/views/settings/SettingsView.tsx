@@ -11,6 +11,7 @@ import {
 } from '@/lib/enums'
 import { getEnv } from '@/lib/env'
 import { getPaymentsAdapter } from '@/lib/payments'
+import { previewRetention, type RetentionPreviewRow } from '@/lib/retention/jobs'
 import { seedSummary } from '@/lib/seed/remove'
 import { startklarStatus } from '@/lib/settings/readiness'
 import { translationAvailability } from '@/lib/translation'
@@ -99,6 +100,70 @@ function paymentsModeLabel(): string {
   }
 }
 
+/** Tage der Löschvorschau (LOESCHKONZEPT §4 Regel 5). */
+export const DELETION_PREVIEW_DAYS = 30
+
+const ACTION_KEY = {
+  deleted: 'deletionPreviewDeleted',
+  anonymized: 'deletionPreviewAnonymized',
+  files_deleted: 'deletionPreviewFiles',
+  restricted: 'deletionPreviewRestricted',
+} as const
+
+/** Löschvorschau (Einstellungen → Datenschutz, PLAN P6.15): Trockenlauf aller Löschjobs, je Regel die Anzahl. */
+function DeletionPreview({
+  rows,
+  now,
+  label,
+}: {
+  rows: RetentionPreviewRow[]
+  now: Date
+  label: (slug: string) => string
+}) {
+  const due = rows.filter((r) => r.count > 0)
+  return (
+    <div data-testid="deletion-preview">
+      <h3 id="deletion-preview">{adminText('deletionPreviewTitle')}</h3>
+      <p className="pc-order__muted">
+        {adminText('deletionPreviewIntro', {
+          days: DELETION_PREVIEW_DAYS,
+          date: formatBerlin(now, 'dd.MM.yyyy, HH:mm'),
+        })}
+      </p>
+      {due.length === 0 ? (
+        <p data-testid="deletion-preview-none">
+          {adminText('deletionPreviewNone', { days: DELETION_PREVIEW_DAYS })}
+        </p>
+      ) : (
+        <table className="pc-revenue__table" aria-labelledby="deletion-preview">
+          <thead>
+            <tr>
+              <th scope="col">{adminText('deletionPreviewRule')}</th>
+              <th scope="col">{adminText('deletionPreviewArea')}</th>
+              <th scope="col">{adminText('deletionPreviewAction')}</th>
+              <th scope="col">{adminText('deletionPreviewCount')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {due.map((r) => (
+              <tr key={`${r.task}-${r.ruleId}-${r.collection}`} data-rule={r.ruleId}>
+                <td>{r.ruleId}</td>
+                <td>{label(r.collection)}</td>
+                <td>
+                  {adminText(
+                    ACTION_KEY[r.action as keyof typeof ACTION_KEY] ?? 'deletionPreviewDeleted',
+                  )}
+                </td>
+                <td>{r.count}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  )
+}
+
 export async function SettingsView({ adminRoute, req }: AdminViewBodyProps) {
   const load = (locale: 'de' | 'en') =>
     req.payload.findGlobal({
@@ -113,6 +178,7 @@ export async function SettingsView({ adminRoute, req }: AdminViewBodyProps) {
   const settingsEn = (await load('en')) as Setting
   const area = initialAreaValues(settings as unknown as Obj, settingsEn as unknown as Obj)
   const now = new Date()
+  const deletionPreview = await previewRetention(req.payload, now, DELETION_PREVIEW_DAYS)
   const modes = [...(settings.tax?.modes ?? [])]
   const payment = settings.payment ?? {}
   const countries = enumOptions(COUNTRY_CODES, ENUM_LABELS.COUNTRY_CODES)
@@ -262,6 +328,11 @@ export async function SettingsView({ adminRoute, req }: AdminViewBodyProps) {
         <h2 id="settings-privacy">{adminText('settingsAreaPrivacy')}</h2>
         <h3>{adminText('settingsAnalyticsTitle')}</h3>
         <AnalyticsForm initial={area.analytics} />
+        <DeletionPreview
+          rows={deletionPreview}
+          now={now}
+          label={(slug) => collectionLabel(req, slug)}
+        />
       </section>
 
       <section

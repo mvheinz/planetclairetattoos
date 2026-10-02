@@ -12,13 +12,17 @@ import { runTaskNow } from '@/lib/jobs/runTask'
 import { ANONYMIZED_EMAIL, runRetentionTask, type RetentionTaskSlug } from '@/lib/retention/jobs'
 import { runRetentionSteps, type RetentionStep } from '@/lib/retention/runner'
 import {
+  L_02_RESERVATIONS,
   L_03_CHECKOUTS,
+  L_10_INQUIRIES,
+  L_13D_WEBHOOK_EVENTS,
   L_04_CANCELLED_PREPAYMENT_STAGE_1,
   L_05_ORDERS_STAGE_B,
   L_05_ORDERS_STAGE_C,
   retainUntil,
 } from '@/lib/retention/policy'
 import { readStoredFile } from '@/lib/storage/read'
+import { runLegalHoldReview } from '@/lib/retention/jobs'
 import type { Invoice, Order } from '@/payload-types'
 
 import { checkoutData, createOrder, dbOf, deleteCommerce, orderData } from '../helpers/commerce'
@@ -28,6 +32,7 @@ import {
   completeProduct,
   createProduct,
   createProductFixtures,
+  createTestImage,
   deleteProducts,
 } from '../helpers/products'
 
@@ -543,5 +548,276 @@ describe('Löschjobs Teil 1 (R-154)', () => {
     })
     expect(dry.steps[0]).toMatchObject({ count: 1, ids: [424242], failed: 0 })
     expect(await logsFor('checkouts', 424242)).toHaveLength(0)
+  })
+})
+
+describe('Löschjobs Teil 2 (R-154, R-134)', () => {
+  it('R-154 L-10 Anfrage: 6 Monate nach Eingang gelöscht – auch bei frischer Aktivität – samt Referenzbild', async () => {
+    const created = new Date('2026-03-31T08:00:00.000Z')
+    const png = await readFile(PHOTO)
+    const image = await payload.create({
+      collection: 'private-uploads',
+      data: { purpose: 'commission_reference' } as never,
+      file: { data: png, name: 'idee.jpg', mimetype: 'image/jpeg', size: png.length },
+      overrideAccess: true,
+    })
+    const q = await payload.create({
+      collection: 'inquiries',
+      data: {
+        reference: 'AA-2026-0981',
+        name: 'Erika Beispiel',
+        email: 'erika@planetclaire.local',
+        idea: 'Eine Tasse mit meinem Hund im Planet-Claire-Stil, gern in Blau.',
+        objectType: 'tasse',
+        locale: 'de',
+        referenceImages: [image.id],
+        createdAt: iso(created),
+      } as never,
+      overrideAccess: true,
+      context: { seed: true },
+    })
+    const due = retainUntil(L_10_INQUIRIES, created)
+    // frische Aktivität kurz vor Fristende ändert nichts
+    await dbOf(payload).execute(
+      sql`UPDATE inquiries SET created_at = ${iso(created)}::timestamptz,
+                               last_activity_at = ${iso(plus(due, -2 * DAY))}::timestamptz WHERE id = ${q.id}`,
+    )
+    await run('retentionCommissionInquiries', plus(due, -DAY))
+    expect(await exists('inquiries', q.id as number)).toBe(true)
+    await run('retentionCommissionInquiries', plus(due, DAY))
+    expect(await exists('inquiries', q.id as number)).toBe(false)
+    expect(await exists('private_uploads', image.id as number)).toBe(false)
+    expect(await fileExists(image)).toBe(false)
+    expect((await logsFor('inquiries', q.id as number))[0]).toMatchObject({
+      ruleId: 'L-10',
+      storageObjectsCount: 1,
+    })
+  })
+
+  it('R-154 L-12 Mail-Protokoll nach retainUntil gelöscht; L-19 a Einwilligungsnachweis ebenso', async () => {
+    const until = new Date('2027-01-05T10:00:00.000Z')
+    const mail = await dbOf(payload).execute(sql`
+      INSERT INTO email_log (template, "to", locale, subject, status, attempts, retain_until, seed, updated_at, created_at)
+      VALUES ('admin_alert', 'jutta@planetclaire.local', 'de', 'Test', 'sent', 1, ${iso(until)}::timestamptz, false,
+              now(), now()) RETURNING id`)
+    const consent = await dbOf(payload).execute(sql`
+      INSERT INTO consent_log (purpose, granted, text_snapshot, text_sha256, locale, email, retain_until, seed, updated_at, created_at)
+      VALUES ('carrier_email_forwarding', true, 'Text', ${'c'.repeat(64)}, 'de', 'erika@planetclaire.local',
+              ${iso(until)}::timestamptz, false, now(), now()) RETURNING id`)
+    const mailId = Number(mail.rows[0]!.id)
+    const consentId = Number(consent.rows[0]!.id)
+    await run('retentionEmailLog', plus(until, -DAY))
+    await run('retentionConsentEvidence', plus(until, -DAY))
+    expect(await exists('email_log', mailId)).toBe(true)
+    expect(await exists('consent_log', consentId)).toBe(true)
+    await run('retentionEmailLog', plus(until, DAY))
+    await run('retentionConsentEvidence', plus(until, DAY))
+    expect(await exists('email_log', mailId)).toBe(false)
+    expect(await exists('consent_log', consentId)).toBe(false)
+    expect((await logsFor('email-log', mailId))[0]?.ruleId).toBe('L-12')
+    expect((await logsFor('consent-log', consentId))[0]?.ruleId).toBe('L-19 a')
+  })
+
+  it('R-154 L-17 Datenschutz-Anfrage: Exportdatei 30 Tage nach Antwort, Datensatz nach retainUntil', async () => {
+    const answered = new Date('2026-10-01T10:00:00.000Z')
+    const until = new Date('2029-12-31T23:00:00.000Z')
+    const exportFile = await payload.create({
+      collection: 'private-uploads',
+      data: { purpose: 'data_export' } as never,
+      file: { data: PDF, name: 'auskunft.pdf', mimetype: 'application/pdf', size: PDF.length },
+      overrideAccess: true,
+    })
+    const req = await payload.create({
+      collection: 'privacy-requests',
+      data: {
+        reference: 'DS-2026-0981',
+        types: ['access'],
+        contactEmail: 'erika@planetclaire.local',
+      } as never,
+      overrideAccess: true,
+      context: { now: '2026-09-20T10:00:00.000Z' },
+    })
+    await dbOf(payload).execute(sql`
+      UPDATE privacy_requests SET answered_at = ${iso(answered)}::timestamptz, retain_until = ${iso(until)}::timestamptz,
+             export_file_id = ${exportFile.id} WHERE id = ${req.id}`)
+    const fileDue = plus(answered, 30 * DAY)
+    await run('retentionPrivacyRequests', plus(fileDue, -DAY))
+    expect(await exists('private_uploads', exportFile.id as number)).toBe(true)
+    await run('retentionPrivacyRequests', plus(fileDue, 2 * DAY))
+    expect(await exists('private_uploads', exportFile.id as number)).toBe(false)
+    expect(await exists('privacy_requests', req.id as number)).toBe(true)
+    await run('retentionPrivacyRequests', plus(until, -DAY))
+    expect(await exists('privacy_requests', req.id as number)).toBe(true)
+    await run('retentionPrivacyRequests', plus(until, DAY))
+    expect(await exists('privacy_requests', req.id as number)).toBe(false)
+    expect((await logsFor('privacy-requests', req.id as number))[0]?.ruleId).toBe('L-17')
+  })
+
+  it('R-154 L-20 Portfolio-Foto: Dateien 24 h nach Widerruf der Einwilligung gelöscht, Eintrag bleibt als Nachweis', async () => {
+    const mediaId = await createTestImage(payload, 'Tattoo am Unterarm')
+    const withdrawn = new Date('2026-10-10T12:00:00.000Z')
+    const g = await payload.create({
+      collection: 'tattoo-gallery',
+      data: {
+        image: mediaId,
+        kind: 'fresh',
+        showsCustomer: true,
+        consentGiven: true,
+        consentDate: '2026-05-01T00:00:00.000Z',
+        consentNote: 'per DM bestätigt',
+        published: false,
+      } as never,
+      overrideAccess: true,
+      context: { seed: true },
+    })
+    await dbOf(payload).execute(sql`
+      UPDATE tattoo_gallery SET consent_withdrawn_at = ${iso(withdrawn)}::timestamptz WHERE id = ${g.id}`)
+    const media = await payload.findByID({ collection: 'media', id: mediaId, overrideAccess: true })
+    const original = () => readStoredFile('media', media.filename ?? '', media.prefix)
+    expect(await original()).not.toBeNull()
+    await run('retentionConsentEvidence', plus(withdrawn, 23 * 3_600_000))
+    expect(await original()).not.toBeNull()
+    await run('retentionConsentEvidence', plus(withdrawn, 25 * 3_600_000))
+    expect(await original()).toBeNull()
+    const thumb = (media.sizes as { thumb?: { filename?: string | null } } | undefined)?.thumb
+      ?.filename
+    if (thumb) expect(await readStoredFile('media', thumb, media.prefix)).toBeNull()
+    expect(await exists('tattoo_gallery', g.id as number)).toBe(true)
+    const after = await dbOf(payload).execute(
+      sql`SELECT restricted FROM media WHERE id = ${mediaId}`,
+    )
+    expect(after.rows[0]?.restricted).toBe(true)
+    const logs = await logsFor('media', mediaId)
+    expect(logs).toHaveLength(1)
+    expect(logs[0]).toMatchObject({ ruleId: 'L-20', action: 'files_deleted' })
+    // idempotent
+    await run('retentionConsentEvidence', plus(withdrawn, 26 * 3_600_000))
+    expect(await logsFor('media', mediaId)).toHaveLength(1)
+    await dbOf(payload).execute(sql`DELETE FROM tattoo_gallery WHERE id = ${g.id}`)
+  })
+
+  it('R-154 L-18 Löschprotokoll nach 3 Jahren gelöscht, ohne eigenen Eintrag', async () => {
+    const old = await dbOf(payload).execute(sql`
+      INSERT INTO deletion_log (entity_collection, entity_id, rule_id, action, trigger, task_slug, storage_objects_count,
+                                executed_at, retain_until, updated_at, created_at)
+      VALUES ('checkouts', '9999981', 'L-03', 'deleted', 'job', 'retentionAbandonedCheckouts', 0,
+              '2023-01-01T00:00:00Z', '2026-01-01T00:00:00Z', now(), now()) RETURNING id`)
+    const id = Number(old.rows[0]!.id)
+    const count = async () =>
+      Number(
+        (await dbOf(payload).execute(sql`SELECT count(*)::int AS n FROM deletion_log`)).rows[0]!.n,
+      )
+    await run('retentionDeletionLog', new Date('2025-12-30T00:00:00.000Z'))
+    expect(await exists('deletion_log', id)).toBe(true)
+    const before = await count()
+    await run('retentionDeletionLog', new Date('2026-01-02T00:00:00.000Z'))
+    expect(await exists('deletion_log', id)).toBe(false)
+    expect(await count()).toBe(before - 1)
+  })
+
+  it('R-134 rate_limit_hits nach 24 h weg; L-02, L-13 d/f/g/h im stündlichen retentionTechnical', async () => {
+    const now = new Date('2027-02-10T12:00:00.000Z')
+    const db = dbOf(payload)
+    await db.execute(sql`DELETE FROM rate_limit_hits`)
+    await db.execute(sql`
+      INSERT INTO rate_limit_hits (bucket, key_hash, window_start, count) VALUES
+        ('withdrawal_submit', ${'d'.repeat(64)}, ${iso(plus(now, -25 * 3_600_000))}::timestamptz, 3),
+        ('withdrawal_submit', ${'e'.repeat(64)}, ${iso(plus(now, -23 * 3_600_000))}::timestamptz, 1)`)
+    const released = plus(now, -8 * DAY)
+    const holder = await payload.create({
+      collection: 'checkouts',
+      data: checkoutData([item]).data as never,
+      overrideAccess: true,
+    })
+    const reservation = await db.execute(sql`
+      INSERT INTO reservations (ref, checkout_id, product_id, source, status, expires_at, display_expires_at, released_at, release_reason, seed, updated_at, created_at)
+      VALUES (gen_random_uuid()::text, ${holder.id}, ${item.id}, 'checkout_session', 'released', ${iso(released)}::timestamptz,
+              ${iso(released)}::timestamptz, ${iso(released)}::timestamptz, 'session_expired', false, now(), now()) RETURNING id`)
+    const fresh = await db.execute(sql`
+      INSERT INTO reservations (ref, checkout_id, product_id, source, status, expires_at, display_expires_at, released_at, release_reason, seed, updated_at, created_at)
+      VALUES (gen_random_uuid()::text, ${holder.id}, ${item.id}, 'checkout_session', 'released', ${iso(plus(now, -6 * DAY))}::timestamptz,
+              ${iso(plus(now, -6 * DAY))}::timestamptz, ${iso(plus(now, -6 * DAY))}::timestamptz, 'session_expired', false, now(), now()) RETURNING id`)
+    const hook = await db.execute(sql`
+      INSERT INTO webhook_events (provider, event_id, type, livemode, status, attempts, received_at, updated_at, created_at)
+      VALUES ('stripe', 'evt_retention_981', 'checkout.session.completed', false, 'processed', 1,
+              ${iso(plus(now, -91 * DAY))}::timestamptz, now(), now()) RETURNING id`)
+    const run91 = await db.execute(sql`
+      INSERT INTO job_runs (task, started_at, finished_at, status)
+      VALUES ('markDelivered', ${iso(plus(now, -91 * DAY))}::timestamptz, ${iso(plus(now, -91 * DAY))}::timestamptz, 'ok')
+      RETURNING id`)
+    const audit = await db.execute(sql`
+      INSERT INTO audit_log (action, actor_type, entity_collection, entity_id, summary, retain_until, seed, updated_at, created_at)
+      VALUES ('settings_changed', 'admin', 'settings', '1', 'Test', ${iso(plus(now, -DAY))}::timestamptz, false, now(), now())
+      RETURNING id`)
+    const pending = await payload.create({
+      collection: 'private-uploads',
+      data: { purpose: 'commission_reference', status: 'pending' } as never,
+      file: { data: await readFile(PHOTO), name: 'offen.jpg', mimetype: 'image/jpeg', size: 1 },
+      overrideAccess: true,
+      context: { now: iso(plus(now, -25 * 3_600_000)) },
+    })
+    await db.execute(sql`
+      UPDATE private_uploads SET status = 'pending', created_at = ${iso(plus(now, -25 * 3_600_000))}::timestamptz
+       WHERE id = ${pending.id}`)
+
+    const res = await run('retentionTechnical', now)
+    expect(res.failed).toBe(0)
+    const hits = await db.execute(sql`SELECT key_hash FROM rate_limit_hits`)
+    expect(hits.rows.map((r) => r.key_hash)).toEqual(['e'.repeat(64)])
+    expect(await exists('reservations', Number(reservation.rows[0]!.id))).toBe(false)
+    expect(await exists('reservations', Number(fresh.rows[0]!.id))).toBe(true)
+    expect(await exists('webhook_events', Number(hook.rows[0]!.id))).toBe(false)
+    expect(await exists('job_runs', Number(run91.rows[0]!.id))).toBe(false)
+    expect(await exists('audit_log', Number(audit.rows[0]!.id))).toBe(false)
+    expect(await exists('private_uploads', pending.id as number)).toBe(false)
+    expect(
+      res.steps
+        .filter((s) => s.count > 0)
+        .map((s) => s.ruleId)
+        .sort(),
+    ).toEqual(['L-02', 'L-13 a', 'L-13 d', 'L-13 f', 'L-13 g', 'L-13 h'])
+    expect(retainUntil(L_02_RESERVATIONS, released).getTime()).toBeLessThan(now.getTime())
+    expect(retainUntil(L_13D_WEBHOOK_EVENTS, plus(now, -91 * DAY)).getTime()).toBeLessThan(
+      now.getTime(),
+    )
+    await db.execute(sql`DELETE FROM reservations WHERE id = ${Number(fresh.rows[0]!.id)}`)
+  })
+
+  it('legalHoldReview: Sperre ≥ 6 Monate ohne Prüfung → A15 und legalHoldReviewedAt; Beispieldaten ohne Mail', async () => {
+    const since = '2026-01-10T10:00:00.000Z'
+    const o = await order({
+      status: 'delivered',
+      privacy: {
+        legalHold: true,
+        legalHoldReason: 'Streit über Bruchschaden',
+        legalHoldSince: since,
+      },
+    })
+    const seedOrder = await order({
+      status: 'delivered',
+      seed: true,
+      privacy: {
+        legalHold: true,
+        legalHoldReason: 'Beispiel für die Sperre',
+        legalHoldSince: since,
+      },
+    })
+    await dbOf(payload).execute(sql`
+      UPDATE orders SET privacy_legal_hold_since = ${since}::timestamptz, privacy_legal_hold_reviewed_at = NULL
+       WHERE id IN (${o.id}, ${seedOrder.id})`)
+    const now = new Date('2026-07-15T06:00:00.000Z')
+    const req = await createLocalReq({ context: { system: true, now: iso(now) } }, payload)
+    const res = await runLegalHoldReview(req, now)
+    expect(res.sent).toBe(true)
+    const a15 = await payload.find({
+      collection: 'email-log',
+      where: { template: { equals: 'admin_legal_hold_review' } },
+      overrideAccess: true,
+    })
+    expect(a15.totalDocs).toBe(1)
+    expect((await orderRow(o.id))?.privacy_legal_hold_reviewed_at).not.toBeNull()
+    expect((await orderRow(seedOrder.id))?.privacy_legal_hold_reviewed_at).toBeNull()
+    const again = await runLegalHoldReview(req, plus(now, DAY))
+    expect(again.sent).toBe(false)
   })
 })

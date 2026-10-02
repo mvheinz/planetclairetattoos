@@ -182,6 +182,13 @@ export interface Config {
       retentionOrders: TaskRetentionOrders;
       retentionInvoices: TaskRetentionInvoices;
       retentionWithdrawals: TaskRetentionWithdrawals;
+      retentionCommissionInquiries: TaskRetentionCommissionInquiries;
+      retentionEmailLog: TaskRetentionEmailLog;
+      retentionPrivacyRequests: TaskRetentionPrivacyRequests;
+      retentionConsentEvidence: TaskRetentionConsentEvidence;
+      retentionDeletionLog: TaskRetentionDeletionLog;
+      retentionTechnical: TaskRetentionTechnical;
+      legalHoldReview: TaskLegalHoldReview;
       inline: {
         input: unknown;
         output: unknown;
@@ -2531,7 +2538,14 @@ export interface PayloadJob {
           | 'retentionOrderMinimize'
           | 'retentionOrders'
           | 'retentionInvoices'
-          | 'retentionWithdrawals';
+          | 'retentionWithdrawals'
+          | 'retentionCommissionInquiries'
+          | 'retentionEmailLog'
+          | 'retentionPrivacyRequests'
+          | 'retentionConsentEvidence'
+          | 'retentionDeletionLog'
+          | 'retentionTechnical'
+          | 'legalHoldReview';
         taskID: string;
         input?:
           | {
@@ -2584,6 +2598,13 @@ export interface PayloadJob {
         | 'retentionOrders'
         | 'retentionInvoices'
         | 'retentionWithdrawals'
+        | 'retentionCommissionInquiries'
+        | 'retentionEmailLog'
+        | 'retentionPrivacyRequests'
+        | 'retentionConsentEvidence'
+        | 'retentionDeletionLog'
+        | 'retentionTechnical'
+        | 'legalHoldReview'
       )
     | null;
   queue?: string | null;
@@ -5272,6 +5293,96 @@ export interface TaskRetentionWithdrawals {
     period?: string | null;
     processed?: number | null;
     failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionCommissionInquiries".
+ */
+export interface TaskRetentionCommissionInquiries {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    processed?: number | null;
+    failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionEmailLog".
+ */
+export interface TaskRetentionEmailLog {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    processed?: number | null;
+    failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionPrivacyRequests".
+ */
+export interface TaskRetentionPrivacyRequests {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    processed?: number | null;
+    failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionConsentEvidence".
+ */
+export interface TaskRetentionConsentEvidence {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    processed?: number | null;
+    failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionDeletionLog".
+ */
+export interface TaskRetentionDeletionLog {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    processed?: number | null;
+    failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionTechnical".
+ */
+export interface TaskRetentionTechnical {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    processed?: number | null;
+    failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskLegalHoldReview".
+ */
+export interface TaskLegalHoldReview {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    sent?: boolean | null;
+    holds?: number | null;
   };
 }
 /**

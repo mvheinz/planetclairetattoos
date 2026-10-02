@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.14
+
+- Runner src/lib/retention/runner.ts (≤ 500/Lauf, je Datensatz eigene Transaktion, deletion-log, Legal Hold, Trockenlauf, 3 Fehlschläge → A12 über Tabelle retention_failures)\n- Tasks retentionAbandonedCheckouts, retentionOrderMinimize, retentionOrders, retentionInvoices (pc.now, GoBD-Trigger), retentionWithdrawals; policy.ts um isDue/eventCutoff ergänzt\n- Migrationen p6_retention_failures, p6_retention_jobs\n- Tests: tests/unit/legal/retention-rules.unit.spec.ts (7), tests/int/legal/retention.int.spec.ts Teil 1 (10) – grün
+
 ## 2026-10-02 – P6.7
 
 - submitWithdrawal (src/lib/legal/withdrawal.ts): Honeypot, Rate-Limit withdrawal_submit 30/h je IP-Hash, zod, unveränderlicher Datensatz ohne IP, Auto-Zuordnung (Bestellnummer + E-Mail ohne Groß/Klein), O11 bzw. O4 withdrawn + W5, M08 + A04 direkt nach Commit\n- M08-Vorlage withdrawal_receipt (MEZ/MESZ), A04 mit Kopie der Erklärung, sendEmail-Kette für M08 (≤ 5 min bis 24 h, A12 ab 2. Fehlversuch und nach 24 h), Hinweis unter „Heute“\n- Tests: tests/int/legal/withdrawal.int.spec.ts (8), tests/int/email/withdrawal-retry.int.spec.ts (2), Unit M08 (7) – grün

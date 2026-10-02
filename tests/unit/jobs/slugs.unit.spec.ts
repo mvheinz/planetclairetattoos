@@ -56,6 +56,13 @@ describe('Task-Slugs (ARCHITEKTUR Anhang A.3)', () => {
       'retentionOrders',
       'retentionInvoices',
       'retentionWithdrawals',
+      'retentionCommissionInquiries',
+      'retentionEmailLog',
+      'retentionPrivacyRequests',
+      'retentionConsentEvidence',
+      'retentionDeletionLog',
+      'retentionTechnical',
+      'legalHoldReview',
     ])
     for (const slug of registered) expect(TASK_SLUGS).toContain(slug)
   })

@@ -13,11 +13,19 @@ import { releaseExpiredReservationsTask } from './releaseExpiredReservations'
 import { renderInvoicePdfTask } from './renderInvoicePdf'
 import { renderLegalTextPdfTask } from './renderLegalTextPdf'
 import {
+  legalHoldReviewTask,
+  LEGAL_HOLD_REVIEW_BERLIN_HOUR,
   RETENTION_SCHEDULE,
   retentionAbandonedCheckoutsTask,
+  retentionCommissionInquiriesTask,
+  retentionConsentEvidenceTask,
+  retentionDeletionLogTask,
+  retentionEmailLogTask,
   retentionInvoicesTask,
   retentionOrderMinimizeTask,
   retentionOrdersTask,
+  retentionPrivacyRequestsTask,
+  retentionTechnicalTask,
   retentionWithdrawalsTask,
 } from './retention'
 import { revenueGuardCheckTask } from './revenueGuardCheck'
@@ -95,6 +103,13 @@ export const JOB_TASKS: TaskConfig<any>[] = [
   retentionOrdersTask,
   retentionInvoicesTask,
   retentionWithdrawalsTask,
+  retentionCommissionInquiriesTask,
+  retentionEmailLogTask,
+  retentionPrivacyRequestsTask,
+  retentionConsentEvidenceTask,
+  retentionDeletionLogTask,
+  retentionTechnicalTask,
+  legalHoldReviewTask,
 ].map((t) => instrumentTask(t, TASK_DEFS[t.slug as TaskSlug].queue))
 
 export const IMPLEMENTED_TASK_SLUGS = new Set<string>(JOB_TASKS.map((t) => t.slug))
@@ -119,6 +134,8 @@ export const WAKE_TASK_SLUGS: readonly TaskSlug[] = (
     'complianceDocsReview',
     'activateScheduledLegalTexts',
     ...(Object.keys(RETENTION_SCHEDULE) as (keyof typeof RETENTION_SCHEDULE)[]),
+    'retentionTechnical',
+    'legalHoldReview',
   ] as const
 ).filter((s) => isImplementedTask(s))
 
@@ -148,4 +165,5 @@ export const WAKE_TASK_PERIOD: Partial<
       { per: 'day', berlinHour: t.berlinHour, berlinMinute: t.berlinMinute },
     ]),
   ) as Partial<Record<TaskSlug, { per: 'day'; berlinHour: number; berlinMinute: number }>>),
+  legalHoldReview: { per: 'day', berlinHour: LEGAL_HOLD_REVIEW_BERLIN_HOUR },
 }
