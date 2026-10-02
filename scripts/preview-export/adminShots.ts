@@ -15,6 +15,15 @@ export const SHOT_VIEWPORT = { width: 390, height: 844 } as const
 export const SHOT_DPR = 2
 export const SHOT_WIDTH = 780
 export const SHOT_QUALITY = 70
+/**
+ * Die Verwaltung nutzt den System-Schriftstapel (`-apple-system, …, Arial, sans-serif`). Unter Linux löste Chromium ihn
+ * von Seitenaufruf zu Seitenaufruf verschieden auf (gleiche Arial-kompatible Zeichen, aber andere Metriken → Fließtext
+ * um Bruchteile eines Pixels versetzt; gemessen: 2 Varianten in 12 Aufrufen). Fest auf „Liberation Sans“ (das, was
+ * ohnehin gerendert wird; Rückfall Arial) gibt es nur noch eine Variante (12/12). Code-Schrift bleibt unverändert.
+ */
+export const PIN_FONT_CSS =
+  'body, body *:not(code):not(pre):not(kbd):not(samp) { font-family: "Liberation Sans", Arial, sans-serif !important; }'
+
 /** Höchstzahl der Seitenaufrufe je Ansicht, bis zwei hintereinander das gleiche Bild liefern. */
 export const LOADS_PER_VIEW = 4
 
@@ -103,6 +112,7 @@ export async function captureAdminShots(
       if (res.status() >= 500) {
         throw new ExportError(1, `Verwaltung: ${view.key} antwortet mit HTTP ${res.status()}.`)
       }
+      await page.addStyleTag({ content: PIN_FONT_CSS })
       await page.evaluate(() => document.fonts.ready)
       // Maus aus der Seite: Sonst bleibt sie dort stehen, wo der Anmelde-Knopf war, und je nach Zeitpunkt der
       // Hover-Aktualisierung von Chromium ist das Element darunter (z. B. eine Kategorie-Kachel) hervorgehoben oder nicht.
@@ -112,8 +122,7 @@ export async function captureAdminShots(
     }
 
     const shoot = async (view: AdminView) => {
-      // Unter Last rastert Chromium Fließtext gelegentlich um Bruchteile eines Pixels versetzt (je Seitenaufruf, nicht
-      // je Aufnahme). Deshalb erst zwei aufeinanderfolgende Aufrufe mit gleichem Bild übernehmen (höchstens vier).
+      // Sicherheitsnetz: erst zwei aufeinanderfolgende Seitenaufrufe mit gleichem Bild übernehmen (höchstens vier).
       let previous = await load(view)
       if (!previous) {
         warnings.push(
