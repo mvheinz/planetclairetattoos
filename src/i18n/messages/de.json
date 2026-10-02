@@ -883,6 +883,54 @@
       "address": "Anschrift",
       "website": "Website",
       "reply": "Wenn du noch Fragen hast, antworte einfach auf diese Mail."
+    },
+    "privacyAccessResponse": {
+      "subject": "Deine Datenschutz-Anfrage {reference}: Auskunft",
+      "title": "Deine Auskunft ist fertig",
+      "intro": "danke für deine Datenschutz-Anfrage {reference}. Hier ist die Auskunft über die Daten, die ich über dich gespeichert habe.",
+      "download": "Die Kopie deiner Daten (ZIP mit „auskunft.html“, „daten.json“ und deinen Bildern und Belegen) kannst du hier herunterladen:",
+      "downloadLabel": "Auskunft herunterladen",
+      "validity": "Der Link funktioniert bis {date}. Spätestens am {deleteDate} lösche ich die Datei wieder.",
+      "contents": "In der Datei „auskunft.html“ steht, wofür ich deine Daten nutze, an wen sie gehen, wie lange ich sie aufbewahre, woher sie stammen und welche Rechte du hast. „daten.json“ enthält deine Daten in einem maschinenlesbaren Format.",
+      "rights": "Du kannst jederzeit Berichtigung, Löschung oder Einschränkung verlangen, der Verarbeitung widersprechen und eine Einwilligung widerrufen. Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel bei der Berliner Beauftragten für Datenschutz und Informationsfreiheit, Alt-Moabit 59–61, 10555 Berlin.",
+      "reply": "Wenn du Fragen hast, antworte einfach auf diese Mail."
+    },
+    "privacyErasureResponse": {
+      "subject": "Deine Datenschutz-Anfrage {reference}: Löschung",
+      "title": "Deine Löschanfrage ist erledigt",
+      "intro": "danke für deine Datenschutz-Anfrage {reference}. So bin ich mit deinen Daten umgegangen:",
+      "areas": {
+        "orders": "Bestellungen",
+        "checkouts": "Kassenvorgänge",
+        "invoices": "Rechnungen und Gutschriften",
+        "withdrawals": "Widerrufe",
+        "inquiries": "Anfragen zu Auftragsarbeiten",
+        "complaints": "Reklamationen",
+        "emailLog": "Versandnachweise von Mails",
+        "consentLog": "Einwilligungsnachweise",
+        "privacyRequests": "Frühere Datenschutz-Anfragen",
+        "files": "Dateien (Bilder, Belege)"
+      },
+      "deleted": "{area}: gelöscht",
+      "restricted": "{area}: eingeschränkt bis {date} wegen gesetzlicher Aufbewahrungspflichten, danach automatisch gelöscht bzw. anonymisiert",
+      "kept": "{area}: aufbewahrt bis {date}, weil die Daten zur Geltendmachung oder Abwehr von Rechtsansprüchen nötig sind (Art. 17 Abs. 3 lit. e DSGVO)",
+      "unchanged": "{area}: unverändert – Rechnungen und Gutschriften muss ich nach Steuerrecht bis {date} aufbewahren, danach werden sie anonymisiert",
+      "restrictedMeaning": "„Eingeschränkt“ heißt: Ich nutze diese Daten nur noch, um gesetzliche Pflichten zu erfüllen, und schicke dir dazu keine Mails mehr.",
+      "recipients": "Eine Einwilligung zur Weitergabe deiner E-Mail-Adresse an DHL ist widerrufen. Bei Zahlungen per Karte oder PayPal verarbeiten Stripe bzw. PayPal Daten in eigener Verantwortung – wende dich dafür bitte direkt an deren Datenschutz-Kontakt. Protokolle des Mail-Anbieters und Datensicherungen laufen automatisch ab.",
+      "complaint": "Du kannst dich bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel bei der Berliner Beauftragten für Datenschutz und Informationsfreiheit, Alt-Moabit 59–61, 10555 Berlin.",
+      "reply": "Wenn du Fragen hast, antworte einfach auf diese Mail."
+    },
+    "consentWithdrawalConfirmation": {
+      "subject": "Dein Widerruf der Einwilligung ist eingetragen",
+      "title": "Widerruf eingetragen",
+      "carrier_email_forwarding": "Du hast deine Einwilligung widerrufen, dass ich deine E-Mail-Adresse an DHL weitergebe.",
+      "portfolio": "Du hast deine Einwilligung widerrufen, dass ich das Foto deines Tattoos im Portfolio zeige.",
+      "withdrawnAt": "Widerrufen am",
+      "orderNumber": "Bestellnummer",
+      "effect_carrier_email_forwarding": "Der Widerruf gilt ab sofort: DHL bekommt deine E-Mail-Adresse von mir nicht mehr.",
+      "effect_portfolio": "Der Widerruf gilt ab sofort: Das Foto ist nicht mehr zu sehen und wird gelöscht.",
+      "past": "Was vor dem Widerruf geschehen ist, bleibt rechtmäßig.",
+      "reply": "Wenn du Fragen hast, antworte einfach auf diese Mail."
     }
   },
   "shippingPayment": {
@@ -919,5 +967,87 @@
     "damage": "Kommt ein Stück beschädigt bei dir an, melde dich bitte möglichst schnell mit ein paar Fotos von Paket und Stück – dann kann ich mich beim Versanddienst darum kümmern. Deine gesetzlichen Rechte bleiben davon unberührt.",
     "returnHeading": "Rücksendung bei Widerruf",
     "withdrawalLink": "Alles zu deinem Widerrufsrecht steht in der <link>Widerrufsbelehrung</link>."
+  },
+  "privacyExport": {
+    "title": "Auskunft über deine Daten",
+    "subtitle": "nach Art. 15 DSGVO zu deiner Datenschutz-Anfrage {reference}",
+    "createdAt": "Erstellt am {date}",
+    "intro": "Hier steht, welche Daten ich über dich gespeichert habe, wofür ich sie nutze, an wen sie gehen und wie lange ich sie aufbewahre. Die vollständige Kopie deiner Daten steht in der Datei „daten.json“ (maschinenlesbar, Art. 20 DSGVO); Bilder und Belege liegen im Ordner „dateien“.",
+    "controllerHeading": "Verantwortliche",
+    "summaryHeading": "Gefundene Daten",
+    "summaryNone": "Zu deinen Angaben habe ich keine gespeicherten Daten gefunden.",
+    "areas": {
+      "orders": "Bestellungen",
+      "checkouts": "Kassenvorgänge",
+      "invoices": "Rechnungen und Gutschriften",
+      "withdrawals": "Widerrufe",
+      "inquiries": "Anfragen zu Auftragsarbeiten",
+      "complaints": "Reklamationen",
+      "emailLog": "Versandnachweise von Mails an dich",
+      "consentLog": "Einwilligungsnachweise",
+      "privacyRequests": "Frühere Datenschutz-Anfragen",
+      "files": "Dateien (Bilder, Belege)"
+    },
+    "purposesHeading": "a) Wofür ich deine Daten nutze",
+    "purposes": [
+      "Abwicklung deiner Bestellungen: Kaufvertrag, Versand oder Abholung, Zahlung, Rechnung (Art. 6 Abs. 1 lit. b DSGVO)",
+      "Widerruf, Reklamation und gesetzliche Gewährleistung (Art. 6 Abs. 1 lit. b und c DSGVO)",
+      "Antworten auf deine Anfrage zu einer Auftragsarbeit (Art. 6 Abs. 1 lit. b DSGVO)",
+      "Aufbewahrung von Rechnungen und Geschäftsunterlagen nach Steuer- und Handelsrecht (Art. 6 Abs. 1 lit. c DSGVO)",
+      "Weitergabe deiner E-Mail-Adresse an DHL nur mit deiner Einwilligung (Art. 6 Abs. 1 lit. a DSGVO)",
+      "Nachweis versendeter Mails und erteilter Einwilligungen (Art. 6 Abs. 1 lit. c und f DSGVO)"
+    ],
+    "categoriesHeading": "b) Welche Daten",
+    "categories": [
+      "Name und E-Mail-Adresse",
+      "Liefer- und Rechnungsadresse",
+      "Bestelldaten: Stücke, Beträge, Zeitpunkte, Status",
+      "Zahlungsdaten: Zahlart und Zahlungs-Kennungen (keine Kartennummern)",
+      "Belege: Rechnungen und Gutschriften",
+      "Angaben aus Widerruf, Reklamation und Anfrage, auch Bilder",
+      "Versandnachweise von Mails und Einwilligungsnachweise"
+    ],
+    "recipientsHeading": "c) Wer deine Daten bekommt",
+    "recipientsIntro": "Diese Dienstleister verarbeiten Daten in meinem Auftrag oder in eigener Verantwortung:",
+    "role": {
+      "processor": "im Auftrag",
+      "controller": "eigene Verantwortung",
+      "processorAndController": "im Auftrag und in eigener Verantwortung",
+      "none": "–"
+    },
+    "thirdCountry": {
+      "US": "Sitz in den USA (Übermittlung auf Grundlage des EU-US Data Privacy Framework bzw. von Standardvertragsklauseln)",
+      "EU": "EU/EWR",
+      "none": "keine Übermittlung in Drittländer"
+    },
+    "retentionHeading": "d) Wie lange ich deine Daten aufbewahre",
+    "retention": {
+      "orders": "Bestellungen: Lieferadresse und Fotos werden schrittweise gelöscht; die übrigen Angaben werden {years} Jahre nach Ende des Jahres des Abschlusses anonymisiert.",
+      "invoices": "Rechnungen und Gutschriften: {years} Jahre nach Ende des Ausstellungsjahres (Steuerrecht), danach anonymisiert.",
+      "withdrawals": "Widerrufe: {years} Jahre nach Ende des Eingangsjahres.",
+      "inquiries": "Anfragen zu Auftragsarbeiten samt Bildern: {months} Monate nach Eingang.",
+      "checkouts": "Kassenvorgänge ohne Bestellung: {days} Tage.",
+      "emailLog": "Versandnachweise von Mails: so lange wie der zugehörige Vorgang, ohne Bezug {days} Tage.",
+      "consentLog": "Einwilligungsnachweise: so lange wie die zugehörige Bestellung, ohne Bestellung {days} Tage.",
+      "privacyRequests": "Datenschutz-Anfragen: {years} Jahre nach Ende des Jahres der Antwort; die Export-Datei {days} Tage nach der Antwort."
+    },
+    "rightsHeading": "e) Deine Rechte",
+    "rights": [
+      "Berichtigung unrichtiger Daten (Art. 16 DSGVO)",
+      "Löschung (Art. 17 DSGVO)",
+      "Einschränkung der Verarbeitung (Art. 18 DSGVO)",
+      "Datenübertragbarkeit (Art. 20 DSGVO)",
+      "Widerspruch gegen Verarbeitungen aus berechtigtem Interesse (Art. 21 DSGVO)",
+      "Widerruf erteilter Einwilligungen mit Wirkung für die Zukunft (Art. 7 Abs. 3 DSGVO)"
+    ],
+    "complaintHeading": "f) Beschwerde bei der Aufsichtsbehörde",
+    "complaint": "Du kannst dich bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel bei der Berliner Beauftragten für Datenschutz und Informationsfreiheit, Alt-Moabit 59–61, 10555 Berlin.",
+    "sourceHeading": "g) Woher die Daten stammen",
+    "source": "Die Daten stammen von dir selbst (Kasse, Formulare, Mails). Den Zahlungsstatus melden die Zahlungsdienstleister, den Zustellstatus der Versanddienstleister.",
+    "automatedHeading": "h) Automatisierte Entscheidungen",
+    "automated": "Ich treffe keine automatisierten Entscheidungen und erstelle kein Profiling. Stripe führt bei Zahlungen in eigener Verantwortung eine automatisierte Betrugs- und Risikoprüfung durch; Auskunft dazu gibt Stripe selbst.",
+    "notesHint": "Interne Notizen, die auch andere Personen betreffen können, sind nicht in der Datei enthalten. Ich habe sie vor dem Versand geprüft; was dich betrifft, steht in meiner Antwort.",
+    "noteHeading": "Hinweis",
+    "placeholderMark": "[Platzhalter – Kanzlei-Wortlaut folgt]"
   }
 }

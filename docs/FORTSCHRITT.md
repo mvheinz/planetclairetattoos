@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.17
+
+- Personensuche (`src/lib/privacy/search.ts`): E-Mail normalisiert, Bestellnummer oder Name über Bestellungen, Kassen, Belege, Widerrufe, Anfragen (inkl. Bilder), Reklamationen, Mail-/Einwilligungs-Protokoll und frühere Anfragen; Treffer in `matched*`\n- Auskunft-Export (`src/lib/privacy/export.ts`): ZIP mit `daten.json`, `auskunft.html` (Art. 15 lit. a–h, Empfänger aus DIENSTE, Fristen aus `policy.ts`, Berliner Beauftragte) und Kopien der Bilder/PDFs; privat (`data_export`), Audit `data_exported`; ohne interne Notizen, Verwaltungs-Mails und Token-Merkmale\n- M14 `privacy_access_response` mit signiertem Link `GET /api/privacy-export/[token]` (HMAC `pc:privacy-export:v1`, 7 Tage, danach 410; Token erst beim Versand eingesetzt, nie im `email-log`); Ansicht „Personensuche und Auskunft“ im Anfrage-Detail\n- Tests: `tests/int/legal/privacy-export.int.spec.ts` (3, R-150/R-137, Zählvergleich), Mail-Fixtures M14–M16; pnpm check grün
+
 ## 2026-10-02 – P6.16
 
 - Ansicht `/export/datenschutz` (Liste offen/abgeschlossen, „Anfrage erfassen“) und Detail `/export/datenschutz/:id` (Status, Identität, Verlängerung, Abschluss); Endpunkte `/api/privacy-requests/intake` und `/:id/save`\n- Task `privacyRequestsDeadlineReminder` (ab 08:00, A14 genau an Tag −7 und −1 vor `extendedDueAt ?? dueAt`, Beispieldaten ausgenommen), Migration `p6_privacy_requests_task`; Hinweis unter „Heute“ (auch Beispieldaten)\n- Tests: `tests/unit/legal/gdpr-deadline.unit.spec.ts` (DM-PRQ-01, R-153), `tests/int/legal/privacy-requests.int.spec.ts` (7 Tests), pnpm check grün

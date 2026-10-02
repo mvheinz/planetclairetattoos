@@ -3548,7 +3548,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
   - Tests: `tests/int/legal/privacy-requests.int.spec.ts` (Titel „R-153 …“), `tests/unit/legal/gdpr-deadline.unit.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P6.17 DSGVO: Personensuche und Auskunft-Export** – Suche nach E-Mail (normalisiert, ohne Groß-/Kleinschreibung),
+- [x] **P6.17 DSGVO: Personensuche und Auskunft-Export** – Suche nach E-Mail (normalisiert, ohne Groß-/Kleinschreibung),
   Bestellnummer oder Name über Kassen, Bestellungen (inkl. Snapshots, Status-Historie, gesendeter Mails), Belege,
   Widerrufe, Anfragen (inkl. Bilder), Reklamationen, `email-log`, `consent-log` und frühere Anfragen (R-150); Treffer
   in `matchedOrders`/`matchedWithdrawals`/`matchedInquiries` der Anfrage. Export als ZIP

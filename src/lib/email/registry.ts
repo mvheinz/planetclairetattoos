@@ -20,6 +20,7 @@ import * as adm from './templates/admin'
 import * as cmp from './templates/complaint'
 import * as ful from './templates/fulfillment'
 import * as pre from './templates/prepayment'
+import * as prv from './templates/privacy'
 import * as rfd from './templates/refund'
 import * as wdr from './templates/withdrawal'
 import type { MailBusiness, MailLinks } from './layout'
@@ -186,6 +187,24 @@ const TEMPLATES: Partial<Record<EmailTemplate, AnyTemplate>> = {
     schema: cmp.disputeVsbgDataSchema,
     subject: cmp.disputeVsbgSubject,
     render: cmp.renderDisputeVsbg,
+  }),
+  privacy_access_response: def<prv.PrivacyAccessResponseData>({
+    version: prv.PRIVACY_ACCESS_RESPONSE_VERSION,
+    schema: prv.privacyAccessResponseDataSchema,
+    subject: prv.privacyAccessResponseSubject,
+    render: prv.renderPrivacyAccessResponse,
+  }),
+  privacy_erasure_response: def<prv.PrivacyErasureResponseData>({
+    version: prv.PRIVACY_ERASURE_RESPONSE_VERSION,
+    schema: prv.privacyErasureResponseDataSchema,
+    subject: prv.privacyErasureResponseSubject,
+    render: prv.renderPrivacyErasureResponse,
+  }),
+  consent_withdrawal_confirmation: def<prv.ConsentWithdrawalConfirmationData>({
+    version: prv.CONSENT_WITHDRAWAL_CONFIRMATION_VERSION,
+    schema: prv.consentWithdrawalConfirmationDataSchema,
+    subject: prv.consentWithdrawalConfirmationSubject,
+    render: prv.renderConsentWithdrawalConfirmation,
   }),
   admin_order_placed: def<adm.AdminOrderPlacedData>({
     version: adm.ADMIN_ORDER_PLACED_VERSION,

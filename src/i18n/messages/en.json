@@ -883,6 +883,54 @@
       "address": "Address",
       "website": "Website",
       "reply": "If you have any questions, just reply to this email."
+    },
+    "privacyAccessResponse": {
+      "subject": "Your data protection request {reference}: access",
+      "title": "Your information is ready",
+      "intro": "thank you for your data protection request {reference}. Here is the information about the data I have stored about you.",
+      "download": "You can download the copy of your data (a ZIP with “auskunft.html”, “daten.json” and your images and documents) here:",
+      "downloadLabel": "Download your data",
+      "validity": "The link works until {date}. I will delete the file on {deleteDate} at the latest.",
+      "contents": "The file “auskunft.html” explains what I use your data for, who receives it, how long I keep it, where it comes from and which rights you have. “daten.json” contains your data in a machine-readable format.",
+      "rights": "You can ask for rectification, erasure or restriction at any time, object to processing and withdraw any consent. You can also lodge a complaint with a data protection supervisory authority, for example the Berlin Commissioner for Data Protection and Freedom of Information, Alt-Moabit 59–61, 10555 Berlin, Germany.",
+      "reply": "If you have any questions, just reply to this email."
+    },
+    "privacyErasureResponse": {
+      "subject": "Your data protection request {reference}: erasure",
+      "title": "Your erasure request has been handled",
+      "intro": "thank you for your data protection request {reference}. This is what I have done with your data:",
+      "areas": {
+        "orders": "Orders",
+        "checkouts": "Checkout sessions",
+        "invoices": "Invoices and credit notes",
+        "withdrawals": "Withdrawals",
+        "inquiries": "Commission requests",
+        "complaints": "Complaints",
+        "emailLog": "Delivery records of emails",
+        "consentLog": "Consent records",
+        "privacyRequests": "Earlier data protection requests",
+        "files": "Files (images, documents)"
+      },
+      "deleted": "{area}: deleted",
+      "restricted": "{area}: restricted until {date} because of statutory retention duties, then deleted or anonymised automatically",
+      "kept": "{area}: kept until {date} because the data is needed to establish, exercise or defend legal claims (Art. 17(3)(e) GDPR)",
+      "unchanged": "{area}: unchanged – tax law requires me to keep invoices and credit notes until {date}, then they are anonymised",
+      "restrictedMeaning": "“Restricted” means: I only use this data to meet legal obligations and will not send you any emails about it.",
+      "recipients": "Any consent to pass your email address to DHL has been withdrawn. For card or PayPal payments, Stripe or PayPal process data as independent controllers – please contact their data protection team directly. Logs of the email provider and backups expire automatically.",
+      "complaint": "You can lodge a complaint with a data protection supervisory authority, for example the Berlin Commissioner for Data Protection and Freedom of Information, Alt-Moabit 59–61, 10555 Berlin, Germany.",
+      "reply": "If you have any questions, just reply to this email."
+    },
+    "consentWithdrawalConfirmation": {
+      "subject": "Your withdrawal of consent has been recorded",
+      "title": "Withdrawal recorded",
+      "carrier_email_forwarding": "You have withdrawn your consent to me passing your email address to DHL.",
+      "portfolio": "You have withdrawn your consent to me showing the photo of your tattoo in the portfolio.",
+      "withdrawnAt": "Withdrawn on",
+      "orderNumber": "Order number",
+      "effect_carrier_email_forwarding": "The withdrawal applies immediately: I will no longer pass your email address to DHL.",
+      "effect_portfolio": "The withdrawal applies immediately: the photo is no longer shown and will be deleted.",
+      "past": "Anything that happened before the withdrawal remains lawful.",
+      "reply": "If you have any questions, just reply to this email."
     }
   },
   "shippingPayment": {
@@ -919,5 +967,87 @@
     "damage": "If a piece arrives damaged, please get in touch as soon as you can with a few photos of the parcel and the piece – then I can sort it out with the carrier. Your statutory rights remain unaffected.",
     "returnHeading": "Returns after withdrawal",
     "withdrawalLink": "Everything about your right of withdrawal is in the <link>withdrawal policy</link>."
+  },
+  "privacyExport": {
+    "title": "Information about your data",
+    "subtitle": "under Art. 15 GDPR for your data protection request {reference}",
+    "createdAt": "Created on {date}",
+    "intro": "This page lists the data I have stored about you, what I use it for, who receives it and how long I keep it. The complete copy of your data is in the file “daten.json” (machine-readable, Art. 20 GDPR); images and documents are in the folder “dateien”.",
+    "controllerHeading": "Controller",
+    "summaryHeading": "Data found",
+    "summaryNone": "I have not found any stored data for the details you gave.",
+    "areas": {
+      "orders": "Orders",
+      "checkouts": "Checkout sessions",
+      "invoices": "Invoices and credit notes",
+      "withdrawals": "Withdrawals",
+      "inquiries": "Commission requests",
+      "complaints": "Complaints",
+      "emailLog": "Delivery records of emails to you",
+      "consentLog": "Consent records",
+      "privacyRequests": "Earlier data protection requests",
+      "files": "Files (images, documents)"
+    },
+    "purposesHeading": "a) What I use your data for",
+    "purposes": [
+      "Processing your orders: purchase contract, shipping or pick-up, payment, invoice (Art. 6(1)(b) GDPR)",
+      "Withdrawal, complaints and statutory warranty (Art. 6(1)(b) and (c) GDPR)",
+      "Replying to your commission request (Art. 6(1)(b) GDPR)",
+      "Keeping invoices and business records as required by tax and commercial law (Art. 6(1)(c) GDPR)",
+      "Passing your email address to DHL only with your consent (Art. 6(1)(a) GDPR)",
+      "Records of emails sent and consents given (Art. 6(1)(c) and (f) GDPR)"
+    ],
+    "categoriesHeading": "b) Which data",
+    "categories": [
+      "Name and email address",
+      "Shipping and billing address",
+      "Order data: pieces, amounts, dates, status",
+      "Payment data: payment method and payment references (no card numbers)",
+      "Documents: invoices and credit notes",
+      "Details from withdrawals, complaints and requests, including images",
+      "Delivery records of emails and consent records"
+    ],
+    "recipientsHeading": "c) Who receives your data",
+    "recipientsIntro": "These service providers process data on my behalf or as independent controllers:",
+    "role": {
+      "processor": "on my behalf",
+      "controller": "independent controller",
+      "processorAndController": "on my behalf and as independent controller",
+      "none": "–"
+    },
+    "thirdCountry": {
+      "US": "based in the USA (transfer under the EU-US Data Privacy Framework or standard contractual clauses)",
+      "EU": "EU/EEA",
+      "none": "no transfer to third countries"
+    },
+    "retentionHeading": "d) How long I keep your data",
+    "retention": {
+      "orders": "Orders: shipping address and photos are deleted step by step; the remaining details are anonymised {years} years after the end of the year the order was completed.",
+      "invoices": "Invoices and credit notes: {years} years after the end of the year of issue (tax law), then anonymised.",
+      "withdrawals": "Withdrawals: {years} years after the end of the year of receipt.",
+      "inquiries": "Commission requests including images: {months} months after receipt.",
+      "checkouts": "Checkout sessions without an order: {days} days.",
+      "emailLog": "Delivery records of emails: as long as the related matter, without one {days} days.",
+      "consentLog": "Consent records: as long as the related order, without an order {days} days.",
+      "privacyRequests": "Data protection requests: {years} years after the end of the year of the reply; the export file {days} days after the reply."
+    },
+    "rightsHeading": "e) Your rights",
+    "rights": [
+      "Rectification of inaccurate data (Art. 16 GDPR)",
+      "Erasure (Art. 17 GDPR)",
+      "Restriction of processing (Art. 18 GDPR)",
+      "Data portability (Art. 20 GDPR)",
+      "Objection to processing based on legitimate interests (Art. 21 GDPR)",
+      "Withdrawal of consent with effect for the future (Art. 7(3) GDPR)"
+    ],
+    "complaintHeading": "f) Complaint to the supervisory authority",
+    "complaint": "You can lodge a complaint with a data protection supervisory authority, for example the Berlin Commissioner for Data Protection and Freedom of Information (Berliner Beauftragte für Datenschutz und Informationsfreiheit), Alt-Moabit 59–61, 10555 Berlin, Germany.",
+    "sourceHeading": "g) Where the data comes from",
+    "source": "The data comes from you (checkout, forms, emails). Payment providers report the payment status, the carrier reports the delivery status.",
+    "automatedHeading": "h) Automated decisions",
+    "automated": "I do not make automated decisions or create profiles. For payments, Stripe runs an automated fraud and risk check as an independent controller; Stripe provides information about it.",
+    "notesHint": "Internal notes that may also concern other people are not included in the file. I reviewed them before sending; anything that concerns you is in my reply.",
+    "noteHeading": "Note",
+    "placeholderMark": "[Placeholder – law firm wording to follow]"
   }
 }

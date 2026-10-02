@@ -56,11 +56,12 @@ export const ORDER_PURPOSES: ReadonlySet<PrivateUploadPurpose> = new Set<Private
 ])
 
 /** Beleg-PDFs mit Bezug auf `invoices` (L-06). */
-/** Zwecke, deren Datei der Server vorab per `putIfAbsent` schreibt (R-122, P5.26). */
+/** Zwecke, deren Datei der Server vorab per `putIfAbsent` schreibt (R-122, P5.26; DSGVO-Export P6.17). */
 export const PRE_STORED_PURPOSES: ReadonlySet<PrivateUploadPurpose> = new Set([
   'invoice_pdf',
   'credit_note_pdf',
   'monthly_export',
+  'data_export',
 ])
 
 export const INVOICE_PDF_PURPOSES: ReadonlySet<PrivateUploadPurpose> =

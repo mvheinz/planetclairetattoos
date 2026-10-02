@@ -98,4 +98,37 @@ export const privacySaveEndpoint = privacyAction('save', async (req, id, body, n
   (await requests()).savePrivacyRequest(req, id, body, now),
 )
 
-export const PRIVACY_ADMIN_ENDPOINTS: Endpoint[] = [privacyIntakeEndpoint, privacySaveEndpoint]
+const exporter = () => import('@/lib/privacy/export')
+
+const personQuery = (body: Record<string, unknown>) => ({
+  email: typeof body.email === 'string' ? body.email : null,
+  orderNumber: typeof body.orderNumber === 'string' ? body.orderNumber : null,
+  name: typeof body.name === 'string' ? body.name : null,
+})
+
+export const privacySearchEndpoint = privacyAction('search', async (req, id, body, now) => {
+  const { searchForRequest } = await exporter()
+  const { countMatches } = await import('@/lib/privacy/search')
+  const res = await searchForRequest(req, id, personQuery(body), now)
+  return { doc: res.request, extra: { counts: countMatches(res.matches) } }
+})
+
+export const privacyExportEndpoint = privacyAction('export', async (req, id, body, now) => {
+  const { createPrivacyExport } = await exporter()
+  const res = await createPrivacyExport(req, id, personQuery(body), now)
+  return { doc: res.request, extra: { counts: res.counts, exportFileId: res.upload.id } }
+})
+
+export const privacySendAccessEndpoint = privacyAction('send-access', async (req, id, _b, now) => {
+  const { sendAccessResponse } = await exporter()
+  const res = await sendAccessResponse(req, id, now)
+  return { doc: res.request, unchanged: res.unchanged, jobs: [res.jobId] }
+})
+
+export const PRIVACY_ADMIN_ENDPOINTS: Endpoint[] = [
+  privacyIntakeEndpoint,
+  privacySaveEndpoint,
+  privacySearchEndpoint,
+  privacyExportEndpoint,
+  privacySendAccessEndpoint,
+]

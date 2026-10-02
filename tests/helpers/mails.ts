@@ -251,7 +251,40 @@ export const DISPUTE_VSBG_FIXTURE = {
   receivedAt: '2026-10-16T08:15:00.000Z',
 }
 
+/** M14 (P6.17): Antwort auf eine Auskunft (Seed-Kundin „Mara“, DS-2026-0001). */
+export const PRIVACY_ACCESS_RESPONSE_FIXTURE = {
+  privacyRequestId: 5,
+  reference: 'DS-2026-0001',
+  name: 'Mara Beispiel',
+  linkExpiresAt: '2026-10-21T09:30:00.000Z',
+  fileDeleteAt: '2026-11-13T09:30:00.000Z',
+}
+
+/** M15 (P6.18): Antwort auf eine Löschanfrage – gelöscht, eingeschränkt, Belege unverändert. */
+export const PRIVACY_ERASURE_RESPONSE_FIXTURE = {
+  privacyRequestId: 6,
+  reference: 'DS-2026-0002',
+  name: 'Mara Beispiel',
+  areas: [
+    { area: 'inquiries', outcome: 'deleted' },
+    { area: 'checkouts', outcome: 'deleted' },
+    { area: 'orders', outcome: 'restricted', until: '2033-01-01T00:00:00.000+01:00' },
+    { area: 'invoices', outcome: 'unchanged', until: '2037-01-01T00:00:00.000+01:00' },
+  ],
+}
+
+/** M16 (P6.18): Widerruf der DHL-Einwilligung. */
+export const CONSENT_WITHDRAWAL_FIXTURE = {
+  purpose: 'carrier_email_forwarding',
+  withdrawnAt: '2026-10-14T09:30:00.000Z',
+  name: 'Erika Beispiel',
+  orderNumber: 'PC-2026-00017',
+}
+
 export const MAIL_FIXTURE_DATA: Partial<Record<EmailTemplate, Record<string, unknown>>> = {
+  privacy_access_response: PRIVACY_ACCESS_RESPONSE_FIXTURE,
+  privacy_erasure_response: PRIVACY_ERASURE_RESPONSE_FIXTURE,
+  consent_withdrawal_confirmation: CONSENT_WITHDRAWAL_FIXTURE,
   order_shipped: SHIPPED_FIXTURE,
   pickup_ready: PICKUP_READY_FIXTURE,
   order_confirmation: ORDER_MAIL_FIXTURE,
