@@ -104,6 +104,7 @@ test('EK-02 Abholung mit Vorkasse: ohne Rechnungsadresse Fehler, mit Rechnungsad
   await choosePayment(page, 'prepayment')
   await orderButton(page).click()
   const summary = page.locator('[data-error-summary]')
+  await expect(summary).toBeFocused()
   for (const key of ['billingLine1', 'billingPostalCode', 'billingCity']) {
     await expect(summary.locator(`[data-error-link="${key}"]`)).toBeVisible()
   }
