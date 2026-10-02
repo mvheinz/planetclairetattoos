@@ -2,6 +2,11 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P7.13
+
+- `src/components/commission/CommissionForm.tsx`: Pflichtfelder, Fehlerzusammenfassung mit Sprunglinks, FileDrop (≤ 5 Bilder, ≤ 15 MB, Verkleinerung im Browser ≤ 2560 px/≤ 4 MB, Upload einzeln mit Fortschritt, Fehler je Bild), Datenschutz-Hinweis mit Link, keine Checkbox, Erfolg ersetzt das Formular; ohne JavaScript ohne Bilder.
+- Tests: `tests/e2e/commission/form.e2e.spec.ts` (5 je Projekt, desktop + pixel-7 grün).
+
 ## 2026-10-02 – P7.12
 
 - Dienst `src/lib/commission/submit.ts` + Server Action `submitCommissionInquiry`: Honeypot/Zeitfalle (< 3 s) → Schein-Erfolg, Rate-Limits 5/h und 20/Tag → 429, Grenzen laut DATENMODELL, Anlage AA-JJJJ-NNNN, Bilder nur mit Ticket (gleiche Frist L-10), M11 (neue Vorlage `inquiry_receipt`) und A05 über die Outbox, doppeltes Absenden → ein Datensatz.

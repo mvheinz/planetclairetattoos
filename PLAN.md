@@ -3942,7 +3942,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
     `tests/unit/email/inquiry-receipt.unit.spec.ts` (Snapshots M11 DE/EN).
   - Ohne Jutta: Antwortzeit-Satz ist Seed-Vorlage.
 
-- [ ] **P7.13 Formular im Browser: Bildauswahl, Verkleinerung, Fehlerfälle** –
+- [x] **P7.13 Formular im Browser: Bildauswahl, Verkleinerung, Fehlerfälle** –
   `src/components/commission/CommissionForm.tsx` mit den Formularbausteinen aus KO-12: Pflichtfelder mit „*“,
   Fehlerzusammenfassung mit Sprunglinks, FileDrop mit
   echtem `<input type="file" multiple accept="image/jpeg,image/png,image/webp">`, höchstens 5 Bilder (6. mit Hinweis
