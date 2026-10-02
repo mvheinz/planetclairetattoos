@@ -66,7 +66,7 @@ test.beforeAll(async ({ request }) => {
     collection: 'faqs',
     data: {
       question: QUESTIONS[1],
-      answer: lexical('Meistens schläft Coco nebenan. Sag Bescheid, wenn du eine Allergie hast.'),
+      answer: lexical('Meistens schläft Coco nebenan. Sag Bescheid, wenn dich ein Hund stört.'),
       category: 'tattoo',
       sortOrder: 20,
       published: true,
