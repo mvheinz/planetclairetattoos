@@ -1228,9 +1228,10 @@ $pc-bar-height: 64px;
   &__card--nophoto {
     grid-template-columns: minmax(0, 1fr);
   }
+  // abgelaufen: grau hinterlegt, gestrichelter Rand (Text bleibt kontrastreich, WCAG 1.4.3)
   &__card--ended {
-    opacity: 0.65;
-    background: var(--theme-elevation-50);
+    background: var(--theme-elevation-100);
+    border-style: dashed;
   }
   &__checks {
     display: grid;

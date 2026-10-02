@@ -149,6 +149,14 @@ afterAll(async () => {
 })
 
 describe('Galerie: Einwilligung widerrufen (P7.8)', () => {
+  it('DATENMODELL §1.6/§10.1 tattoo-gallery ohne Versionen/Entwürfe; consentWithdrawnAt im Schema', () => {
+    const config = payload.collections['tattoo-gallery'].config
+    expect(config.versions).toBeFalsy()
+    expect(config.flattenedFields.some((f) => 'name' in f && f.name === 'consentWithdrawnAt')).toBe(
+      true,
+    )
+  })
+
   it('DM-GAL-01 published = true ohne Einwilligung bei showsCustomer wird abgelehnt (Text der Verwaltung)', async () => {
     const media = await customerPhoto('Frisches Tattoo an der Wade')
     const res = await rest(

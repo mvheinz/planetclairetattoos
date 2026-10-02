@@ -34,6 +34,16 @@
       "id": "V-23",
       "match": "iban",
       "reason": "Juttas eigene Bankverbindung für Vorkasse in `settings.payment` (DATENMODELL §7.1) – keine Zahlungsdaten von Kund:innen (RECHT V-23 nennt diese Ausnahme)."
+    },
+    {
+      "file": "src/lib/tattoo/textWarnings.ts",
+      "id": "V-24",
+      "reason": "Die Warn-Prüfung der Tattoo-Texte selbst (PLAN P7.9, KONZEPT §9.6): Muster und Warntexte, mit denen die Verwaltung beim Speichern warnt."
+    },
+    {
+      "file": "src/lib/tattoo/textWarnings.ts",
+      "id": "V-15",
+      "reason": "Die Warn-Prüfung der Tattoo-Texte selbst (PLAN P7.9, KONZEPT §9.6): Muster und Warntexte, mit denen die Verwaltung beim Speichern warnt."
     }
   ]
 }

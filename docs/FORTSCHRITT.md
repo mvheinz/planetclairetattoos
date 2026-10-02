@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P7.6
+
+- Ansicht `/tattoo` mit Reitern Flash · Angebote · Galerie · Texte (Links `?reiter=…`, `aria-current`), ersetzt den Platzhalter; je Reiter Weg in „Alle Daten“.
+- Flash: Liste mit Status-Chip (antippen + bestätigen = 2 Taps, `POST /api/flash/:id/status`), „Offline nehmen“, „Neuer Flash“ mit Foto-Baustein (max. 5, Alt-Text DE Pflicht), Nummernvorschlag ohne Seed/Fixtures (`GET /api/flash/next-number`), Titel DE/EN + „Übersetzen“ (`POST /api/flash/:id/translate`).
+- Wiederholbare Motive: Ablehnung mit Hinweis auf „Offline nehmen“ (Hook + DB-CHECK).
+- Tests: `tests/int/tattoo/flash-admin.int.spec.ts` (3), `tests/e2e/admin/tattoo-flash.e2e.spec.ts` (2 × desktop/pixel-7), Unit `tests/unit/admin/tattoo-admin.unit.spec.ts`.
+
 ## 2026-10-02 – P7.5
 
 - Zentrale Regel isPubliclyVisible/isMediaPubliclyVisible (src/lib/tattoo/visibility.ts) in Galerie-Abfragen, Teasern (R11), media.read und im Datei-Handler: nicht sichtbare Dateien 404 statt 403 (auch erratene URL), Verwaltung privat; Seed-/Kund:innen-Medien Cache public, max-age=300

@@ -3827,7 +3827,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
     injiziert), `tests/e2e/tattoo/gallery.e2e.spec.ts`.
   - Ohne Jutta: Echte Einwilligungen holt Jutta nach (A13/A48).
 
-- [ ] **P7.6 Tattoo-Verwaltung: Flash** – Ansicht `/tattoo` (KONZEPT §7.12) mit Reitern Flash · Angebote · Galerie ·
+- [x] **P7.6 Tattoo-Verwaltung: Flash** – Ansicht `/tattoo` (KONZEPT §7.12) mit Reitern Flash · Angebote · Galerie ·
   Texte (ersetzt „kommt in P7“). Flash: Liste mit Status-Chips; Wechsel „verfügbar ↔ vergeben“ in höchstens 2 Taps
   (Chip antippen, bestätigen; Feld `status` `available` ↔ `claimed`, setzt/leert `claimedAt`). Wiederholbare Motive
   lassen sich nicht auf „vergeben“ stellen

@@ -148,7 +148,7 @@ export const TATTOO_TEXT = {
   // Texte (P7.9)
   textsPrices: 'Preise',
   textsMarkupHint:
-    'Leerzeile = neuer Absatz, Zeile mit „- “ = Liste, **fett**, [Linktext](https://…).',
+    'Leerzeile = neuer Absatz, Zeile mit „- “ = Liste, **fett**, [Linktext](Adresse).',
   textsNoBlocks: 'Noch keine Texte – füge unten einen Abschnitt hinzu.',
   textsPageMissing: 'Die Seite gibt es noch nicht; sie entsteht beim ersten Speichern.',
   textsBlockElsewhere: 'Dieser Abschnitt bleibt unverändert (bearbeitbar in „Alle Daten“).',
