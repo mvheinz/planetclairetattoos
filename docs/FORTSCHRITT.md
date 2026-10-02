@@ -2,6 +2,11 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P7.7
+
+- Reiter Angebote: Zustand kommt/läuft/abgelaufen (abgelaufen grau), „Neues Angebot“ mit Datum + optionalen Uhrzeiten → `startsAt`/`endsAt` Europe/Berlin (`offerTimesFromInput`, ohne Uhrzeit 00:00–23:59:59), Ort ohne Straße aus den Stammdaten (`containsStreet`, E-50), Preis-Info, Flash-Motive, Bild, „Übersetzen“ (`POST /api/tattoo-offers/:id/translate`); Weckzeiten setzt der Hook (P7.3).
+- Tests: `tests/int/tattoo/offers-admin.int.spec.ts` (2), `tests/e2e/admin/tattoo-offers.e2e.spec.ts`.
+
 ## 2026-10-02 – P7.6
 
 - Ansicht `/tattoo` mit Reitern Flash · Angebote · Galerie · Texte (Links `?reiter=…`, `aria-current`), ersetzt den Platzhalter; je Reiter Weg in „Alle Daten“.

@@ -3843,7 +3843,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
   - Tests: `tests/e2e/admin/tattoo-flash.e2e.spec.ts`, `tests/int/tattoo/flash-admin.int.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P7.7 Tattoo-Verwaltung: Angebote** – Reiter „Angebote“: Liste mit Zustand kommt/läuft/abgelaufen (abgelaufen
+- [x] **P7.7 Tattoo-Verwaltung: Angebote** – Reiter „Angebote“: Liste mit Zustand kommt/läuft/abgelaufen (abgelaufen
   grau); Formular „Neues Angebot“ (KONZEPT §7.12, DATENMODELL §6.15): Art (`flash_day`/`aktion`), Titel und Text DE/EN
   mit „Übersetzen“, Startdatum, Enddatum (eintägig = gleiches Datum), optionale Uhrzeiten; gespeichert als `startsAt`/
   `endsAt` in Europe/Berlin (ohne Uhrzeit 00:00 bzw. 23:59:59), Ort-Text (Prüfung: enthält nicht `business.street`, E-50),
