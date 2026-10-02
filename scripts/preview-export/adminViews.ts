@@ -3,9 +3,13 @@
 // existiert. In P2 gibt es nur Anmeldung, Liste und Formular der Standard-Verwaltung (P1); die eigenen Handy-Ansichten
 // kommen aus der Ansichten-Registry (`src/admin/views/registry.ts`, P5.1: Pfad, Titel, Phase), „Tattoo“ P7. Noch nicht
 // gebaute Ansichten erscheinen als „kommt in P<n>“. Detailansichten (`/bestellungen/:id` …) brauchen eine ID und
-// werden nicht einzeln aufgenommen.
+// werden nicht einzeln aufgenommen; Unterseiten ohne ID (Einstellungen → Versand …) schon.
 
-import { ADMIN_HOME_VIEW, ADMIN_VIEWS as REGISTRY_VIEWS } from '../../src/admin/views/registry'
+import {
+  ADMIN_DETAIL_VIEWS,
+  ADMIN_HOME_VIEW,
+  ADMIN_VIEWS as REGISTRY_VIEWS,
+} from '../../src/admin/views/registry'
 
 export interface AdminView {
   key: string
@@ -37,6 +41,16 @@ const CAPTION_EN: Record<(typeof REGISTRY_VIEWS)[number]['key'], string> = {
   export: 'Export and privacy tools',
 }
 
+/** Unterseiten ohne ID (Einstellungen → …) werden wie Hauptansichten aufgenommen; Detailansichten mit `:id` nicht. */
+const SUBPAGES = ADMIN_DETAIL_VIEWS.filter((v) => !v.path.includes(':'))
+
+const SUBPAGE_CAPTION_EN: Record<string, string> = {
+  produktsicherheit: 'Settings: product safety',
+  versand: 'Settings: shipping',
+  'umsatz-waechter': 'Settings: revenue guard',
+  system: 'Settings: system',
+}
+
 export const ADMIN_VIEWS: readonly AdminView[] = [
   {
     key: 'login',
@@ -65,6 +79,13 @@ export const ADMIN_VIEWS: readonly AdminView[] = [
     key: v.key,
     path: v.key === ADMIN_HOME_VIEW ? '' : v.path,
     caption: { de: v.title, en: CAPTION_EN[v.key] },
+    phase: v.phase,
+    ref: v.ref,
+  })),
+  ...SUBPAGES.map((v) => ({
+    key: v.key,
+    path: v.path,
+    caption: { de: `Einstellungen: ${v.title}`, en: SUBPAGE_CAPTION_EN[v.key] ?? v.title },
     phase: v.phase,
     ref: v.ref,
   })),

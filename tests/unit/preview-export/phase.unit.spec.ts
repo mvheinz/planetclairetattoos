@@ -77,5 +77,17 @@ describe('Vorschau-Export: Verwaltungs-Ansichten je Phase (ARCHITEKTUR §14.7)',
     expect(viewsToCapture(ADMIN_VIEWS, 'px').map((v) => v.key)).toHaveLength(3)
     expect(viewsToCapture(ADMIN_VIEWS, 'p4').some((v) => v.key === 'heute')).toBe(true)
     expect(viewsToCapture(ADMIN_VIEWS, 'p5').some((v) => v.key === 'tattoo')).toBe(false)
+    // P5: alle Registry-Ansichten der Phase 5 samt Einstellungs-Unterseiten, ohne Detailansichten mit ID
+    const p5 = viewsToCapture(ADMIN_VIEWS, 'p5').map((v) => v.key)
+    for (const key of [
+      'heute',
+      'export',
+      'versand',
+      'system',
+      'umsatz-waechter',
+      'produktsicherheit',
+    ])
+      expect(p5).toContain(key)
+    expect(p5).not.toContain('bestellung')
   })
 })
