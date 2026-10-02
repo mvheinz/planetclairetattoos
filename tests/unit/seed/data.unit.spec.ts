@@ -39,7 +39,16 @@ describe('Seed-Datendateien (zod, SEED-SPEC §2.1)', () => {
     )
     expect(data.orders.checkouts.map((c) => c.key)).toEqual(['KS2'])
     expect(data.orders.reservations.map((r) => r.key)).toEqual(['KS2'])
-    expect(data.privateUploads.map((u) => u.key)).toEqual(['nickel-demo', 'glaze-demo'])
+    // §4.4: Nachweise (P1), Packfotos O12 und Skizze A2 (P8.2); Reklamationsfotos folgen mit P8.5a
+    expect(data.privateUploads.map((u) => u.key)).toEqual(
+      expect.arrayContaining([
+        'nickel-demo',
+        'glaze-demo',
+        'O12:packing-1',
+        'O12:packing-2',
+        'A2:sketch-1',
+      ]),
+    )
     expect(data.pages.map((p) => p.key)).toEqual(['home', 'contact'])
     // Alle abgeleiteten seedKeys erfüllen das Format (§1.2).
     const keys = [

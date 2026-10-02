@@ -13,6 +13,7 @@ import { pickLocale, type LocalizedValue } from '@/lib/products/localized'
 import type { Clock } from '@/lib/time'
 
 import { seedOp, seedStep } from './context'
+import { seedDrawing } from './drawings'
 import { placeholderArtWebp } from './fallbackArt'
 import { pickLocaleTree } from './globals'
 import { toLexical } from './lexical'
@@ -195,8 +196,22 @@ async function importPrivateUploads(req: PayloadRequest, data: SeedData, options
         ...(entry.complianceCategory ? { complianceCategory: entry.complianceCategory } : {}),
         ...(entry.note ? { note: entry.note } : {}),
       }),
-      file: async () =>
-        fileOf(simplePdf('BEISPIELDOKUMENT', entry.pdfText), `${entry.key}.pdf`, 'application/pdf'),
+      file: async () => {
+        const name = entry.key.replace(/[^A-Za-z0-9_-]/g, '-')
+        if (entry.image) {
+          const ext = entry.image.format === 'png' ? 'png' : 'jpg'
+          return fileOf(
+            await seedDrawing(entry.image),
+            `${name}.${ext}`,
+            `image/${entry.image.format}`,
+          )
+        }
+        return fileOf(
+          simplePdf('BEISPIELDOKUMENT', entry.pdfText ?? ''),
+          `${name}.pdf`,
+          'application/pdf',
+        )
+      },
     })
   }
 }

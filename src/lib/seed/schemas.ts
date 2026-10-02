@@ -32,6 +32,7 @@ import {
   VAT_CATEGORIES,
 } from '@/lib/enums'
 
+import { SEED_DRAWING_MOTIFS } from './drawings'
 import { isSeedTimeExpr } from './time'
 
 // zod-Schemas je Datendatei (SEED-SPEC §2.1, §2.6). Enum-Werte kommen nur aus `src/lib/enums.ts`. Alle Zeitwerte
@@ -139,14 +140,32 @@ export type MediaData = z.infer<typeof mediaSchema>
 // private-uploads.json (§4.4)
 
 export const privateUploadsSchema = z.array(
-  z.strictObject({
-    key: localKey,
-    purpose: z.enum(PRIVATE_UPLOAD_PURPOSES),
-    complianceCategory: z.enum(PRODUCT_CATEGORIES).optional(),
-    /** Inhalt des vom Seed erzeugten Beispieldokuments (eine Seite). */
-    pdfText: text(10),
-    note: text().optional(),
-  }),
+  z
+    .strictObject({
+      key: localKey,
+      purpose: z.enum(PRIVATE_UPLOAD_PURPOSES),
+      complianceCategory: z.enum(PRODUCT_CATEGORIES).optional(),
+      /** Inhalt des vom Seed erzeugten Beispieldokuments (PDF, eine Seite). */
+      pdfText: text(10).optional(),
+      /** Vom Seed erzeugtes Beispielbild (Linienzeichnung, §4.4). */
+      image: z
+        .strictObject({
+          format: z.enum(['jpeg', 'png']),
+          width: z.number().int().min(100).max(4000),
+          height: z.number().int().min(100).max(4000),
+          motif: z.enum(SEED_DRAWING_MOTIFS),
+          label: text().optional(),
+        })
+        .optional(),
+      /** Bezug, den der Seed nach dem Anlegen der Vorgänge setzt (§1.7 Schritte 5 und 7). */
+      relatedOrder: ref('orders').optional(),
+      relatedInquiry: ref('inquiries').optional(),
+      relatedComplaint: ref('complaints').optional(),
+      note: text().optional(),
+    })
+    .refine((u) => (u.pdfText === undefined) !== (u.image === undefined), {
+      message: 'genau eines von pdfText oder image angeben',
+    }),
 )
 export type PrivateUploadsData = z.infer<typeof privateUploadsSchema>
 

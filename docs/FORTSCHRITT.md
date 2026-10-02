@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P8.2
+
+- `content/seed/data/media.json` vollständig nach SEED-SPEC §4.1/§4.2 (17 Instagram-Ausschnitte mit `crop`/`focal` in Prozent und Alt-Texten DE/EN, 30 Platzhalter mit Wash und Alt „Platzhalter-Zeichnung: …“); Ausschnitte per sharp vor dem Upload, danach dieselbe Pipeline wie Juttas Uploads; Platzhalter aus `fallbackArt.ts` (WebP 800×1000), solange `src/art/placeholders/` fehlt.
+- `private-uploads.json` nach §4.4 um `O12:packing-1/-2` (JPEG 1200×900, Schriftzug „BEISPIEL-PACKFOTO 1/2“ bzw. „2/2“) und `A2:sketch-1` (PNG 1000×1000 ohne Text) ergänzt; Linienzeichnungen in `src/lib/seed/drawings.ts`; Schema mit `pdfText` **oder** `image` und Bezügen (`relatedOrder`/`relatedInquiry`/`relatedComplaint`, gesetzt nach den Vorgängen).
+- Tests: `tests/unit/seed/crop.unit.spec.ts` (3, jede Zeile §4.1 Prozent → Pixel gegen die echten Quellen), `tests/int/seed/media.int.spec.ts` (6: Mengen aus `SEED_EXPECTED_COUNTS`, Felder, Ausschnitt-Maße, AK-SEED-19 per SHA-256, DM-MEDIA-04 404 ohne Vorschau-Modus, keine Hochskalierung/kein EXIF, R-136) grün.
+
 ## 2026-10-02 – P8.1
 
 - Soll-Mengen als einzige Quelle in `src/lib/seed/expected.ts` (`SEED_EXPECTED_COUNTS` je Zeile aus SEED-SPEC §0.1, dazu Aufteilungen und Verteilungen je Kategorie/Status/Verkaufskanal); offene SE-Punkte (SE-01–07, SE-10, SE-12, SE-14) in OFFENE-PUNKTE §4.1 mit „Standard“, „Entscheidet“, „So änderbar“.

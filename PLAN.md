@@ -4077,7 +4077,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: Jutta entscheidet die SE-Zeilen in OFFENE-PUNKTE (z. B. SE-01
     mögliche Liedzeilen auf S04–S06, SE-02 Cap-Foto, SE-06 Material- und Maßangaben, SE-07 Aftercare/FAQ).
 
-- [ ] **P8.2 Medien und private Dateien des Beispielbestands** – `content/seed/data/media.json` exakt nach SEED-SPEC
+- [x] **P8.2 Medien und private Dateien des Beispielbestands** – `content/seed/data/media.json` exakt nach SEED-SPEC
   §4.1 (Instagram-Ausschnitte mit `crop`/`focal` in Prozent, Alt-Texte DE/EN, `showsPerson`, `restricted`,
   `sourceRef`) und §4.2 (Platzhalter mit Wash-Farbe und Alt „Platzhalter-Zeichnung: {Objekt}“ / “Placeholder
   drawing: {object}”), `content/seed/data/private-uploads.json` nach §4.4 (`nickel-demo`, `glaze-demo`,
