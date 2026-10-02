@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P7.3
+
+- R13 Angebote: Zustand aus startsAt/endsAt (läuft gerade / in X Tagen), Datums-Badge, Uhrzeit, Ort nur Bezirk, Motive mit Link auf R12#f-…, Mail-Betreff „Anfrage … am …“; Teaser auf R11 und Startseite (gleiche Abfrage)
+- Task revalidateEndedOffers (maintenance, Wecker an Beginn/Ende per jobAlarm.bump beim Speichern und im Task, Sicherheitsnetz täglich ab 00:05), erneuert tattoo-offers/home und R01/R11/R13; Migration p7_revalidate_offers_task (Task-Slug-Enum)
+- Tests: tests/int/tattoo/offers.int.spec.ts (R-171), tests/int/jobs/revalidate-offers.int.spec.ts (AK-8-01), tests/e2e/tattoo/offers.e2e.spec.ts (AK-9-03, Cron-Route mit CRON_SECRET; grün)
+
 ## 2026-10-02 – P7.2
 
 - R11 Übersicht (Mein Stil, Angebots-Teaser, 3 freie Flash-Motive, 3 Galerie-Bilder bevorzugt healed, Links zu allen Unterseiten) und R12 Flash (Filter ?available=1 als statische Variante, Raster 2/3 Spalten, Karten mit F-012, Größe, Preis „120 €*“, einmalig/wiederholbar, Mail/DM/Baustein; vergeben: Stempel in --stencil ohne Knöpfe, Anker #f-012, MI-14 ohne Übergang)

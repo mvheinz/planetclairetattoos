@@ -3760,7 +3760,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
   - Tests: `tests/e2e/tattoo/flash.e2e.spec.ts` (Titel „AK-9-02 …“, „R-034 …“, `@a11y`), `tests/int/tattoo/flash-data.int.spec.ts`.
   - Ohne Jutta: Bis P8 zeigen die Tests Fixture-Motive, ab P8.6 den Seed-Flash F-901–F-910; echte Motive pflegt Jutta.
 
-- [ ] **P7.3 R13 Angebote und Task `revalidateEndedOffers`** – Zustand abgeleitet aus `startsAt`/`endsAt` nach
+- [x] **P7.3 R13 Angebote und Task `revalidateEndedOffers`** – Zustand abgeleitet aus `startsAt`/`endsAt` nach
   Europe/Berlin (KONZEPT §5.6: kommt, läuft, vorbei), kein gespeicherter Status; öffentliche Abfrage nur `published`
   und `endsAt > now` (DATENMODELL §6.15; R-171 wird über Filter + Task erfüllt). Karte (KONZEPT §9.5, KO-20):
   Datums-Badge in Mansalva im

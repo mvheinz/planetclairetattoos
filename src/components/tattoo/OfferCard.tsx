@@ -42,8 +42,11 @@ export async function OfferCard({
   const Heading = headingLevel
   const state = offerState(offer, now)
   const time = offerTimeParts(offer, locale)
+  // Platzhalter wie „Privatstudio in [Bezirk folgt]“ (Grund-Seed) nie öffentlich zeigen.
+  const note =
+    offer.locationNote && !/\[[^\]]*\]/.test(offer.locationNote) ? offer.locationNote : null
   const location =
-    offer.locationNote ??
+    note ??
     (settings.studioDistrict ? tContact('studio', { district: settings.studioDistrict }) : null)
   const mailto = tattooMailto(
     settings.email,
