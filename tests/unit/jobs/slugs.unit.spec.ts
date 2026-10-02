@@ -65,6 +65,7 @@ describe('Task-Slugs (ARCHITEKTUR Anhang A.3)', () => {
       'retentionTechnical',
       'legalHoldReview',
       'legalReviewReminder',
+      'privacyRequestsDeadlineReminder',
     ])
     for (const slug of registered) expect(TASK_SLUGS).toContain(slug)
   })

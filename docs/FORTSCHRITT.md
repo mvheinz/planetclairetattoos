@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.16
+
+- Ansicht `/export/datenschutz` (Liste offen/abgeschlossen, „Anfrage erfassen“) und Detail `/export/datenschutz/:id` (Status, Identität, Verlängerung, Abschluss); Endpunkte `/api/privacy-requests/intake` und `/:id/save`\n- Task `privacyRequestsDeadlineReminder` (ab 08:00, A14 genau an Tag −7 und −1 vor `extendedDueAt ?? dueAt`, Beispieldaten ausgenommen), Migration `p6_privacy_requests_task`; Hinweis unter „Heute“ (auch Beispieldaten)\n- Tests: `tests/unit/legal/gdpr-deadline.unit.spec.ts` (DM-PRQ-01, R-153), `tests/int/legal/privacy-requests.int.spec.ts` (7 Tests), pnpm check grün
+
 ## 2026-10-02 – P6.13
 
 - Quelltext-Scans je Verbot (V-01, V-03–V-07, V-16, V-20–V-23, V-25, V-30), Schema-Scan V-23 und R-096, gerenderte Mails (V-01, V-02, V-09, V-11, V-18); Allowlist als JSON mit Pflicht-Begründung\n- Crawl aller live-Routen DE/EN inkl. V-27 (externe Links), V-28 (kein Audio), V-31 (Straße nur auf erlaubten Seiten); Gegenproben je Verbot\n- @privacy T-03/T-04 auch für Verwaltungsansichten (R-130, R-131)\n- Tests: forbidden.unit, forbidden.e2e, privacy-Suiten auf desktop und pixel-7 grün

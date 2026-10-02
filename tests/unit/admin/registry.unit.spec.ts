@@ -58,9 +58,12 @@ describe('Ansichten-Registry (P5.1)', () => {
       '/einstellungen/umsatz-waechter',
       '/einstellungen/system',
       '/anfragen/:id',
+      '/export/datenschutz',
+      '/export/datenschutz/:id',
+      '/export/protokolle',
     ])
     for (const v of ALL_ADMIN_VIEWS) {
-      expect(v.path).toMatch(/^\/[a-z-]+(\/(:id|[a-z-]+))?$/)
+      expect(v.path).toMatch(/^\/[a-z-]+(\/[a-z-]+)?(\/:id)?$/)
       expect(v.title.length).toBeGreaterThan(2)
       expect(v.phase).toBeGreaterThanOrEqual(5)
       expect(v.task).toMatch(/^P\d+\.\d+[a-z]?$/)

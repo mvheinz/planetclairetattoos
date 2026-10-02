@@ -191,6 +191,7 @@ export interface Config {
       retentionTechnical: TaskRetentionTechnical;
       legalHoldReview: TaskLegalHoldReview;
       legalReviewReminder: TaskLegalReviewReminder;
+      privacyRequestsDeadlineReminder: TaskPrivacyRequestsDeadlineReminder;
       inline: {
         input: unknown;
         output: unknown;
@@ -2555,7 +2556,8 @@ export interface PayloadJob {
           | 'retentionDeletionLog'
           | 'retentionTechnical'
           | 'legalHoldReview'
-          | 'legalReviewReminder';
+          | 'legalReviewReminder'
+          | 'privacyRequestsDeadlineReminder';
         taskID: string;
         input?:
           | {
@@ -2617,6 +2619,7 @@ export interface PayloadJob {
         | 'retentionTechnical'
         | 'legalHoldReview'
         | 'legalReviewReminder'
+        | 'privacyRequestsDeadlineReminder'
       )
     | null;
   queue?: string | null;
@@ -5423,6 +5426,18 @@ export interface TaskLegalReviewReminder {
     period?: string | null;
     sent?: boolean | null;
     due?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskPrivacyRequestsDeadlineReminder".
+ */
+export interface TaskPrivacyRequestsDeadlineReminder {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    reminded?: number | null;
   };
 }
 /**

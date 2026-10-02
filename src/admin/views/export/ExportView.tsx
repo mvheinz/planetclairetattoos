@@ -7,12 +7,13 @@ import type { Setting } from '@/payload-types'
 import { PackagingYearTotal } from '../../components/PackagingYearTotal'
 import { adminText } from '../../translations'
 import type { AdminViewBodyProps } from '../AdminViewBody'
+import { adminView } from '../registry'
 import { MonthExport } from './MonthExport'
 
 // „Export und Datenschutz“ `/export` (KONZEPT §7.15): Monats-CSV und Rechnungs-ZIP (PLAN P5.24, R-124) und
 // DATEV-Buchungsstapel (P5.25) mit Monatsauswahl; Jahres-Export der Verpackungsmengen (P5.11, R-201) als einfaches
-// GET-Formular (funktioniert ohne JavaScript). Exporte enthalten nie Beispieldaten. Die Datenschutz-Werkzeuge folgen
-// in P6.
+// GET-Formular (funktioniert ohne JavaScript). Exporte enthalten nie Beispieldaten. Darunter die Datenschutz-Werkzeuge
+// (`/export/datenschutz`, P6.16–P6.18) und die Mail- und Einwilligungs-Protokolle (`/export/protokolle`, P6.19).
 
 const MONTH_NAMES = [
   'Januar',
@@ -29,7 +30,7 @@ const MONTH_NAMES = [
   'Dezember',
 ]
 
-export async function ExportView({ req }: AdminViewBodyProps) {
+export async function ExportView({ req, adminRoute }: AdminViewBodyProps) {
   const now = new Date()
   const current = berlinYear(now)
   const years = [current, current - 1, current - 2]
@@ -82,7 +83,19 @@ export async function ExportView({ req }: AdminViewBodyProps) {
           </button>
         </form>
       </section>
-      <p className="pc-order__muted">{adminText('exportPrivacyLater')}</p>
+      <section className="pc-order__section" aria-labelledby="export-privacy">
+        <h2 id="export-privacy">{adminText('exportPrivacyTitle')}</h2>
+        <p>{adminText('exportPrivacyIntro')}</p>
+        <p className="pc-admin-row">
+          <a
+            href={`${adminRoute}${adminView('datenschutz').path}`}
+            className="pc-admin-btn pc-admin-btn--secondary"
+            data-testid="export-privacy-link"
+          >
+            {adminText('exportPrivacyOpen')}
+          </a>
+        </p>
+      </section>
     </div>
   )
 }

@@ -383,7 +383,10 @@ export const ADMIN_CUSTOM_DE = {
     'DATEV: Konten mit der Steuerberatung festlegen (Alle Daten → Einstellungen, Bereich „Export“). Es fehlen: {{fields}}.',
   exportMonthHint:
     'Fehlt noch eine Rechnungs-PDF, sagt der Download, welche – dann später noch einmal.',
-  exportPrivacyLater: 'Die Datenschutz-Werkzeuge (Auskunft, Löschung) folgen in P6.',
+  exportPrivacyTitle: 'Datenschutz',
+  exportPrivacyIntro:
+    'Anfragen zu Auskunft, Löschung, Berichtigung oder Widerspruch erfassen und beantworten – Antwort binnen eines Monats.',
+  exportPrivacyOpen: 'Datenschutz-Anfragen öffnen',
   packagingYearTotal: 'Verpackung {{year}} bisher: {{shipments}} Sendungen',
   packagingYearNone: 'Noch keine versendeten Bestellungen in {{year}}.',
   // Produktsicherheit (P5.13)
@@ -906,6 +909,53 @@ export const ADMIN_CUSTOM_DE = {
   todayLegalWarnNotLawyer: 'Nicht von der Kanzlei',
   todayLegalWarnOverdue: 'Prüfung fällig',
   todayLegalOk: 'In Ordnung',
+  // Datenschutz-Anfragen (P6.16–P6.18, KONZEPT §7.15, LOESCHKONZEPT §5)
+  privacyIntro:
+    'Jede Anfrage zählt – egal ob per Mail, Brief, Instagram oder mündlich. Bitte innerhalb eines Werktags erfassen; die Antwort ist binnen eines Monats fällig (auch während du die Identität prüfst).',
+  privacyIntakeTitle: 'Anfrage erfassen',
+  privacyIntakeIntro:
+    'Eingangsdatum ist der Tag, an dem die Anfrage angekommen ist. Nummer und Frist vergibt das System.',
+  privacyIntakeButton: 'Anfrage anlegen',
+  privacyIntakeCreated: 'Anfrage {{ref}} angelegt.',
+  privacyTypes: 'Art der Anfrage',
+  privacyReceivedAt: 'Eingangsdatum',
+  privacyChannel: 'Eingangskanal',
+  privacyContactEmail: 'E-Mail der Person',
+  privacyContactName: 'Name (optional)',
+  privacyLocale: 'Sprache der Antwort',
+  privacyReceived: 'Eingang {{date}}',
+  privacyDue: 'Antwort bis {{date}}',
+  privacyDueLabel: 'Antwort bis',
+  privacyExtended: '(verlängert)',
+  privacyExtendedFrom: '(verlängert, ursprünglich {{date}})',
+  privacyOpen: 'Offen',
+  privacyOpenNone: 'Keine offenen Anfragen.',
+  privacyOpenCount: '{{count}} offen',
+  privacyDone: 'Zuletzt abgeschlossen',
+  privacyStatus: 'Status',
+  privacyStatusTitle: 'Status',
+  privacyStatusTo: '„{{status}}“',
+  privacyStatusNone: 'Die Anfrage ist abgeschlossen.',
+  privacyIdentityTitle: 'Identität',
+  privacyIdentityHint:
+    'Antworten mit Daten gehen nur an eine Adresse, die in den Daten gespeichert ist. Sonst Bestätigung von dieser Adresse oder zwei Kontrollangaben (Bestellnummer und Rechnungsbetrag) erbitten – keine Ausweiskopie.',
+  privacyIdentityVerified: 'Identität geprüft',
+  privacyIdentityMethod: 'Wie geprüft',
+  privacyIdentityOpen: 'noch nicht geprüft',
+  privacySave: 'Speichern',
+  privacyExtensionTitle: 'Frist verlängern',
+  privacyExtensionHint:
+    'Höchstens um zwei weitere Monate – nur bei vielen oder komplizierten Anfragen. Die Person muss innerhalb des ersten Monats mit Grund informiert werden.',
+  privacyExtendedDueAt: 'Neue Frist',
+  privacyExtensionReason: 'Grund (10–300 Zeichen)',
+  privacyExtensionNotifiedAt: 'Person informiert am',
+  privacyCloseTitle: 'Abschließen',
+  privacyCloseHint:
+    'Antwortdatum und Ergebnis festhalten (bei Ablehnung Pflicht). Bei einem Widerspruch hier das Prüfergebnis notieren.',
+  privacyAnsweredAt: 'Beantwortet am',
+  privacyResultNote: 'Ergebnis',
+  privacyCloseConsequence:
+    'Die Anfrage wird abgeschlossen und 3 Jahre nach Ende des Jahres aufbewahrt, danach automatisch gelöscht.',
   textsOrderActive: 'Eingesetzt: {{number}} (Sprache der Bestellung: {{locale}}).',
 } as const
 

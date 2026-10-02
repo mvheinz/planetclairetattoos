@@ -3533,7 +3533,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     `tests/e2e/admin/deletion-preview.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P6.16 DSGVO-Anfragen: Erfassung und Fristen** – Ansicht `/export/datenschutz` (KONZEPT §7.15, LOESCHKONZEPT §5):
+- [x] **P6.16 DSGVO-Anfragen: Erfassung und Fristen** – Ansicht `/export/datenschutz` (KONZEPT §7.15, LOESCHKONZEPT §5):
   Anfrage anlegen (`types`, `receivedAt` = Tag des Zugangs, `channel`, `contactEmail`, `locale`; Nummer `DS-JJJJ-NNNN`,
   DATENMODELL §6.26); `dueAt` = Eingang + 1 Monat (Art. 12 Abs. 3 DSGVO; 31.01. → 28./29.02.); Verlängerung um höchstens
   2 Monate nur mit `extensionReason` und `extensionNotifiedAt` innerhalb des ersten Monats; Status aus

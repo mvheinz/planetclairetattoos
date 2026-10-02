@@ -14,11 +14,26 @@ import { missingManualSources, previousMonth } from '@/lib/export/monthlyClose'
 import { listJobRuns, poolDb } from '@/lib/jobs/runLog'
 import { formatEuroInput } from '@/lib/money'
 import { formatItemNumber } from '@/lib/products/itemNumber'
+import { OPEN_PRIVACY_REQUEST_STATUSES, privacyRequestTarget } from '@/lib/privacy/deadlines'
 import { getRevenueStatus } from '@/lib/revenue/check'
 import { stageMessage } from '@/lib/revenue/guard'
 import { seedSummary } from '@/lib/seed/remove'
-import { addBerlinDays, addBerlinMonths, berlinDayStart, formatBerlin } from '@/lib/time'
-import type { Inquiry, LegalText, Order, Product, Setting, Withdrawal } from '@/payload-types'
+import {
+  addBerlinDays,
+  addBerlinMonths,
+  berlinDateKey,
+  berlinDayStart,
+  formatBerlin,
+} from '@/lib/time'
+import type {
+  Inquiry,
+  LegalText,
+  Order,
+  PrivacyRequest,
+  Product,
+  Setting,
+  Withdrawal,
+} from '@/payload-types'
 
 import { OPEN_WITHDRAWAL_STATUSES } from '@/admin/views/withdrawals/withdrawalQuery'
 
@@ -104,7 +119,14 @@ const attentionLabel = (reason: string | null | undefined) =>
     : 'Bitte prüfen'
 
 interface FindArgs {
-  collection: 'orders' | 'products' | 'withdrawals' | 'inquiries' | 'legal-texts' | 'email-log'
+  collection:
+    | 'orders'
+    | 'products'
+    | 'withdrawals'
+    | 'inquiries'
+    | 'legal-texts'
+    | 'email-log'
+    | 'privacy-requests'
   where: Where
   limit?: number
   sort?: string
@@ -159,6 +181,7 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
     jobRuns,
     missingSources,
     stuckReceipts,
+    privacyRequests,
   ] = await inSequence([
     () =>
       count('orders', {
@@ -259,6 +282,14 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
           { attempts: { greater_than_equal: 2 } },
         ],
       }),
+    // Offene Datenschutz-Anfragen (P6.16, R-153) – auch Beispieldaten (nur der Fristen-Job überspringt sie)
+    () =>
+      find<PrivacyRequest>({
+        collection: 'privacy-requests',
+        where: { status: { in: [...OPEN_PRIVACY_REQUEST_STATUSES] } },
+        sort: 'dueAt',
+        select: { reference: true, dueAt: true, extendedDueAt: true },
+      }),
   ])
   const s = settings as Setting
 
@@ -350,6 +381,23 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
       text: `Hintergrund-Aufgaben in den letzten 24 Stunden fehlgeschlagen: ${tasks}.`,
       href: '/einstellungen/system',
       linkLabel: 'System öffnen',
+    })
+  }
+
+  // Offene Datenschutz-Anfragen (P6.16, R-153): rot, wenn die Frist in höchstens 7 Tagen endet
+  if (privacyRequests.length > 0) {
+    const targets = privacyRequests.map((r) => ({ ref: r.reference, at: privacyRequestTarget(r) }))
+    const next = targets.reduce((a, b) => (b.at.getTime() < a.at.getTime() ? b : a))
+    const soon = berlinDateKey(next.at) <= berlinDateKey(addBerlinDays(now, 7))
+    hint({
+      id: 'privacy-requests',
+      tone: soon ? 'error' : 'warning',
+      text:
+        privacyRequests.length === 1
+          ? `1 offene Datenschutz-Anfrage – Antwort bis ${date(next.at.toISOString())} (${next.ref}).`
+          : `${privacyRequests.length} offene Datenschutz-Anfragen – nächste Frist ${date(next.at.toISOString())} (${next.ref}).`,
+      href: '/export/datenschutz',
+      linkLabel: 'Datenschutz-Anfragen öffnen',
     })
   }
 

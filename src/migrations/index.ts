@@ -37,6 +37,7 @@ import * as migration_20261002_041023_p6_retention_jobs_part2 from './20261002_0
 import * as migration_20261002_043628_p6_legal_review_job from './20261002_043628_p6_legal_review_job';
 import * as migration_20261002_091942_p6_withdrawal_inbox_refunds from './20261002_091942_p6_withdrawal_inbox_refunds';
 import * as migration_20261002_101152_p6_withdrawal_deadlines_task from './20261002_101152_p6_withdrawal_deadlines_task';
+import * as migration_20261002_122832_p6_privacy_requests_task from './20261002_122832_p6_privacy_requests_task';
 
 export const migrations = [
   {
@@ -232,6 +233,11 @@ export const migrations = [
   {
     up: migration_20261002_101152_p6_withdrawal_deadlines_task.up,
     down: migration_20261002_101152_p6_withdrawal_deadlines_task.down,
-    name: '20261002_101152_p6_withdrawal_deadlines_task'
+    name: '20261002_101152_p6_withdrawal_deadlines_task',
+  },
+  {
+    up: migration_20261002_122832_p6_privacy_requests_task.up,
+    down: migration_20261002_122832_p6_privacy_requests_task.down,
+    name: '20261002_122832_p6_privacy_requests_task'
   },
 ];

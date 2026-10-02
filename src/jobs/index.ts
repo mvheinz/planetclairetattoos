@@ -14,6 +14,10 @@ import {
 import { markDeliveredTask } from './markDelivered'
 import { monthlyCloseTask } from './monthlyClose'
 import { prepaymentRemindersTask } from './prepaymentReminders'
+import {
+  PRIVACY_REMINDER_BERLIN_HOUR,
+  privacyRequestsDeadlineReminderTask,
+} from './privacyRequestsDeadlineReminder'
 import { releaseExpiredReservationsTask } from './releaseExpiredReservations'
 import { renderInvoicePdfTask } from './renderInvoicePdf'
 import { renderLegalTextPdfTask } from './renderLegalTextPdf'
@@ -118,6 +122,7 @@ export const JOB_TASKS: TaskConfig<any>[] = [
   retentionTechnicalTask,
   legalHoldReviewTask,
   legalReviewReminderTask,
+  privacyRequestsDeadlineReminderTask,
 ].map((t) => instrumentTask(t, TASK_DEFS[t.slug as TaskSlug].queue))
 
 export const IMPLEMENTED_TASK_SLUGS = new Set<string>(JOB_TASKS.map((t) => t.slug))
@@ -146,6 +151,7 @@ export const WAKE_TASK_SLUGS: readonly TaskSlug[] = (
     'retentionTechnical',
     'legalHoldReview',
     'legalReviewReminder',
+    'privacyRequestsDeadlineReminder',
   ] as const
 ).filter((s) => isImplementedTask(s))
 
@@ -182,4 +188,5 @@ export const WAKE_TASK_PERIOD: Partial<
     berlinHour: LEGAL_REVIEW_TASK_BERLIN_HOUR,
     berlinMinute: LEGAL_REVIEW_TASK_BERLIN_MINUTE,
   },
+  privacyRequestsDeadlineReminder: { per: 'day', berlinHour: PRIVACY_REMINDER_BERLIN_HOUR },
 }
