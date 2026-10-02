@@ -8,6 +8,7 @@ import type {
 
 import { isAdmin, none } from '@/access'
 import { adminNotesEndpoint } from '@/endpoints/adminNotes'
+import { WITHDRAWAL_ADMIN_ENDPOINTS } from '@/endpoints/withdrawals/actions'
 import { privacyFields, seedField } from '@/fields'
 import { writeAudit } from '@/lib/audit'
 import {
@@ -26,7 +27,7 @@ import {
 import { getAppContext, requestNow } from '@/lib/payload/context'
 import { preservingReq } from '@/lib/payload/localReq'
 import { withdrawalRetainUntil } from '@/lib/retention/policy'
-import { formatBerlin } from '@/lib/time'
+import { addBerlinDays, formatBerlin } from '@/lib/time'
 
 import { failField, groupOf, idOf, rejectChanges } from './hooks/commerce'
 import { assignSequenceNumber } from './hooks/numbers'
@@ -158,7 +159,8 @@ const guardWithdrawal: CollectionBeforeChangeHook = async ({
         receivedAtBerlin: `${formatBerlin(receivedAt, 'dd.MM.yyyy, HH:mm:ss')} Uhr (Europe/Berlin)`,
       }
     }
-    data.refundDueAt = new Date(receivedAt.getTime() + 14 * 86_400_000).toISOString()
+    // 14 Berliner Kalendertage (gleiche Uhrzeit, auch über die Zeitumstellung, R-094)
+    data.refundDueAt = addBerlinDays(receivedAt, 14).toISOString()
   } else if (!ctx.seed) {
     rejectChanges(SLUG, WITHDRAWAL_IMMUTABLE, original, data, 'Der Widerruf ist unveränderlich.')
     const from = original.status as WithdrawalStatus
@@ -367,10 +369,20 @@ export const Withdrawals: CollectionConfig = {
       name: 'returnProofReceivedAt',
       type: 'date',
       label: 'Rücksendenachweis liegt vor seit',
-      validate: (v: unknown) =>
-        !v || new Date(String(v)).getTime() <= Date.now() + 60_000 ? true : 'Nicht in der Zukunft.',
+      // „≤ heute“ gegen die Uhr des Requests (injizierte Zeit in Tests und Jobs)
+      validate: (v: unknown, { req }: { req: PayloadRequest }) =>
+        !v || new Date(String(v)).getTime() <= requestNow(req).getTime() + 60_000
+          ? true
+          : 'Nicht in der Zukunft.',
     },
     { name: 'goodsReturnedAt', type: 'date', label: 'Ware zurück am', admin: ro },
+    {
+      name: 'returnConditionNote',
+      type: 'textarea',
+      label: 'Zustand der Rücksendung',
+      maxLength: 500,
+      admin: { description: 'Notiz bei „Ware ist zurück“ (KONZEPT §7.10).' },
+    },
     { name: 'refundedAt', type: 'date', label: 'Erstattet am', admin: ro },
     { name: 'closedAt', type: 'date', label: 'Abgeschlossen am', admin: ro },
     { name: 'rejectedAt', type: 'date', label: 'Abgelehnt am', admin: ro },
@@ -402,7 +414,7 @@ export const Withdrawals: CollectionConfig = {
     },
     ...seedField(),
   ],
-  endpoints: [adminNotesEndpoint(SLUG, 2000)],
+  endpoints: [...WITHDRAWAL_ADMIN_ENDPOINTS, adminNotesEndpoint(SLUG, 2000)],
   hooks: {
     beforeValidate: [assignSequenceNumber('reference', 'withdrawal')],
     beforeChange: [guardWithdrawal],

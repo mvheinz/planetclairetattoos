@@ -17,6 +17,7 @@ import { prepaymentRemindersTask } from './prepaymentReminders'
 import { releaseExpiredReservationsTask } from './releaseExpiredReservations'
 import { renderInvoicePdfTask } from './renderInvoicePdf'
 import { renderLegalTextPdfTask } from './renderLegalTextPdf'
+import { WITHDRAWAL_DEADLINES_BERLIN_HOUR, withdrawalDeadlinesTask } from './withdrawalDeadlines'
 import {
   legalHoldReviewTask,
   LEGAL_HOLD_REVIEW_BERLIN_HOUR,
@@ -98,6 +99,7 @@ export const JOB_TASKS: TaskConfig<any>[] = [
   renderInvoicePdfTask,
   renderLegalTextPdfTask,
   markDeliveredTask,
+  withdrawalDeadlinesTask,
   revenueGuardCheckTask,
   monthlyCloseTask,
   invoiceIntegrityCheckTask,
@@ -134,6 +136,7 @@ export const WAKE_TASK_SLUGS: readonly TaskSlug[] = (
     'prepaymentReminders',
     'cancelOverduePrepayments',
     'markDelivered',
+    'withdrawalDeadlines',
     'revenueGuardCheck',
     'monthlyClose',
     'invoiceIntegrityCheck',
@@ -166,6 +169,7 @@ export const WAKE_TASK_PERIOD: Partial<
   invoiceIntegrityCheck: { per: 'month', berlinHour: 4 },
   complianceDocsReview: { per: 'month', berlinHour: 8, berlinMinute: 10 },
   markDelivered: { per: 'day', berlinHour: 3 },
+  withdrawalDeadlines: { per: 'day', berlinHour: WITHDRAWAL_DEADLINES_BERLIN_HOUR },
   ...(Object.fromEntries(
     Object.entries(RETENTION_SCHEDULE).map(([slug, t]) => [
       slug,

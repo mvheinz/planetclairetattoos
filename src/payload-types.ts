@@ -802,6 +802,8 @@ export interface Order {
         stripeRefundId?: string | null;
         manualTransferConfirmedAt?: string | null;
         creditNote?: (number | null) | Invoice;
+        withdrawal?: (number | null) | Withdrawal;
+        note?: string | null;
         createdAt: string;
         id?: string | null;
       }[]
@@ -1479,6 +1481,10 @@ export interface Withdrawal {
   returnTrackingNumber?: string | null;
   returnProofReceivedAt?: string | null;
   goodsReturnedAt?: string | null;
+  /**
+   * Notiz bei „Ware ist zurück“ (KONZEPT §7.10).
+   */
+  returnConditionNote?: string | null;
   refundedAt?: string | null;
   closedAt?: string | null;
   rejectedAt?: string | null;
@@ -3408,6 +3414,8 @@ export interface OrdersSelect<T extends boolean = true> {
         stripeRefundId?: T;
         manualTransferConfirmedAt?: T;
         creditNote?: T;
+        withdrawal?: T;
+        note?: T;
         createdAt?: T;
         id?: T;
       };
@@ -3530,6 +3538,7 @@ export interface WithdrawalsSelect<T extends boolean = true> {
   returnTrackingNumber?: T;
   returnProofReceivedAt?: T;
   goodsReturnedAt?: T;
+  returnConditionNote?: T;
   refundedAt?: T;
   closedAt?: T;
   rejectedAt?: T;

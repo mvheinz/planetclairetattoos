@@ -46,6 +46,7 @@ describe('Task-Slugs (ARCHITEKTUR Anhang A.3)', () => {
       'renderInvoicePdf',
       'renderLegalTextPdf',
       'markDelivered',
+      'withdrawalDeadlines',
       'revenueGuardCheck',
       'monthlyClose',
       'invoiceIntegrityCheck',

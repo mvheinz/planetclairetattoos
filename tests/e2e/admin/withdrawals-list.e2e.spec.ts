@@ -14,7 +14,7 @@ import {
 // P5.19 – „Widerrufe“ `/widerrufe` und `/widerrufe/:id` (KONZEPT §7.10): Fixtures analog W3 (`goods_returned`), W4
 // (`received`, `needs_manual_match`) und W5 (`received`, Eingang vor einem Tag) erscheinen als offen, W4 „nicht
 // zugeordnet“, W5 „erstatten bis“ Eingang + 14 Tage; Detail mit unveränderlicher Erklärung, Bestellung und Notizen
-// (separat speicherbar); Knöpfe erst ab P6. Handy 390 px, axe.
+// (separat speicherbar); Knöpfe seit P6.9 (Ablauf: `withdrawal-inbox.e2e.spec.ts`). Handy 390 px, axe.
 
 const DAY = 86_400_000
 
@@ -118,7 +118,7 @@ test('@a11y „Widerrufe“: W3, W4, W5 offen, „nicht zugeordnet“, erstatten
     await expect(declaration).toContainText('Tasse mit Hund')
     await expect(declaration.locator('input, textarea')).toHaveCount(0)
     await expect(page.getByTestId('withdrawal-unmatched')).toBeVisible()
-    await expect(page.getByTestId('withdrawal-actions-later')).toContainText('Bearbeitung ab P6')
+    await expect(page.getByTestId('withdrawal-match')).toBeVisible()
     // Vor dem Hydrieren eingetippter Text ginge verloren – so lange füllen, bis „Notiz speichern“ aktiv ist.
     await expect(async () => {
       await page.getByTestId('notes-text').fill('Rudi per Mail antworten.')

@@ -41,17 +41,19 @@ export async function lockOrder(
 ): Promise<{
   status: OrderStatus
   statusBeforeDispute: OrderStatus | null
+  statusBeforeWithdrawal: OrderStatus | null
   cancelReason: OrderCancelReason | null
 }> {
   const db = await dbFor(req)
   const res = await db.execute(
-    sql`SELECT status, status_before_dispute, cancel_reason FROM orders WHERE id = ${orderId} FOR UPDATE`,
+    sql`SELECT status, status_before_dispute, status_before_withdrawal, cancel_reason FROM orders WHERE id = ${orderId} FOR UPDATE`,
   )
   const row = res.rows[0]
   if (!row) throw new TransitionError(`Bestellung ${orderId} gibt es nicht.`)
   return {
     status: row.status as OrderStatus,
     statusBeforeDispute: (row.status_before_dispute as OrderStatus | null) ?? null,
+    statusBeforeWithdrawal: (row.status_before_withdrawal as OrderStatus | null) ?? null,
     cancelReason: (row.cancel_reason as OrderCancelReason | null) ?? null,
   }
 }
@@ -72,6 +74,7 @@ export async function transitionOrder(
       (options.data?.cancelReason as OrderCancelReason | undefined) ?? locked.cancelReason
     const result = evaluateOrderTransition(from, to, {
       statusBeforeDispute: locked.statusBeforeDispute,
+      statusBeforeWithdrawal: locked.statusBeforeWithdrawal,
       cancelReason,
     })
     if (!result.ok) throw new TransitionError(result.message)

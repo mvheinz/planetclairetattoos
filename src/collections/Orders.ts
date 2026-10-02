@@ -874,6 +874,13 @@ export const Orders: CollectionConfig = {
         { name: 'stripeRefundId', type: 'text', label: 'Stripe-Erstattung' },
         { name: 'manualTransferConfirmedAt', type: 'date', label: 'Überweisung bestätigt am' },
         { name: 'creditNote', type: 'relationship', label: 'Gutschrift', relationTo: 'invoices' },
+        {
+          name: 'withdrawal',
+          type: 'relationship',
+          label: 'Widerruf',
+          relationTo: 'withdrawals',
+        },
+        { name: 'note', type: 'text', label: 'Notiz (z. B. Erhöhung)', maxLength: 300 },
         { name: 'createdAt', type: 'date', label: 'Angelegt am', required: true },
       ],
     },

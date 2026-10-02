@@ -135,7 +135,7 @@ type OrderItem = Order['items'][number]
 const itemTitle = (i: OrderItem, locale: Locale) =>
   (locale === 'en' ? i.titleEn || i.titleDe : i.titleDe) ?? `Nr. ${i.itemNumber}`
 
-interface OrderEffect {
+export interface OrderEffect {
   unpaidOrderCancelled: boolean
   selectedItems: OrderItem[]
   afterCommit?: () => Promise<void>
@@ -146,7 +146,7 @@ interface OrderEffect {
  * `statusBeforeWithdrawal` und den gewählten (bzw. allen aktiven) Positionen `withdrawn`. Steht die Bestellung schon
  * in `withdrawal_received` (zweiter Widerruf), werden nur die Positionen markiert.
  */
-async function applyToOrder(
+export async function applyWithdrawalToOrder(
   req: PayloadRequest,
   withdrawal: Withdrawal,
   orderId: number,
@@ -317,7 +317,7 @@ export async function submitWithdrawal(
     )) as Withdrawal
     const orderId = created.matchStatus === 'auto_matched' ? idOf(created.order) : null
     const effect: OrderEffect = orderId
-      ? await applyToOrder(req, created, orderId, value.affectedItemIds, now)
+      ? await applyWithdrawalToOrder(req, created, orderId, value.affectedItemIds, now)
       : { unpaidOrderCancelled: false, selectedItems: [] }
     const order = orderId ? await loadOrder(req, orderId) : null
 
@@ -432,4 +432,152 @@ export async function submitWithdrawal(
       unpaidOrderCancelled: tx.effect.unpaidOrderCancelled,
     },
   }
+}
+
+// ---------- Manuelle Erfassung (R-094, PLAN P6.9) ----------
+
+/** Per E-Mail, Brief o. Ä. eingegangener Widerruf, den Jutta erfasst (`POST /api/withdrawals/manual`). */
+export const manualWithdrawalSchema = z.object({
+  channel: z.enum(['email', 'letter', 'other']),
+  /** Zugangszeitpunkt laut Jutta (ISO), nicht in der Zukunft. */
+  receivedAt: z.iso.datetime({ offset: true }),
+  name: z.string().trim().min(2).max(100),
+  contractIdentification: z.string().trim().min(3).max(500),
+  email: z
+    .string()
+    .trim()
+    .max(254)
+    .nullish()
+    .transform((v) => (v ? v : null))
+    .pipe(z.email().nullable()),
+  itemsText: optionalText(1000),
+  reason: optionalText(2000),
+  locale: z.enum(LOCALES).default('de'),
+  /** Eingangsbestätigung M08 senden – nur mit E-Mail und nur, wenn Jutta es anhakt (nie vorausgewählt). */
+  sendReceipt: z.boolean().default(false),
+})
+export type ManualWithdrawalInput = z.input<typeof manualWithdrawalSchema>
+
+export class ManualWithdrawalError extends Error {
+  constructor(
+    readonly status: number,
+    message: string,
+  ) {
+    super(message)
+    this.name = 'ManualWithdrawalError'
+  }
+}
+
+/**
+ * Legt einen manuell erfassten Widerruf in der Transaktion von `req` an (Kanal und Zugangszeitpunkt von Jutta, keine
+ * IP). Automatische Zuordnung wie online (Hook), Bestellung O11 bzw. O4 + W5. M08 nur bei E-Mail **und**
+ * `sendReceipt`; keine Admin-Kopie (Jutta hat ihn selbst erfasst). Liefert Datensatz, Mail-Job und Nachlauf.
+ */
+export async function recordManualWithdrawal(
+  req: PayloadRequest,
+  input: unknown,
+  now: Date,
+): Promise<{ doc: Withdrawal; jobs: (number | string)[]; afterCommit?: () => Promise<void> }> {
+  const parsed = manualWithdrawalSchema.safeParse(input)
+  if (!parsed.success) {
+    throw new ManualWithdrawalError(
+      400,
+      `Bitte prüfen: ${[...new Set(parsed.error.issues.map((i) => String(i.path[0])))].join(', ')}.`,
+    )
+  }
+  const v = parsed.data
+  const receivedAt = new Date(v.receivedAt)
+  if (receivedAt.getTime() > now.getTime() + 60_000) {
+    throw new ManualWithdrawalError(400, 'Der Zugang darf nicht in der Zukunft liegen.')
+  }
+  if (v.sendReceipt && !v.email) {
+    throw new ManualWithdrawalError(400, 'Eine Eingangsbestätigung geht nur mit E-Mail-Adresse.')
+  }
+  return inTransaction(req, async () => {
+    const context = { ...req.context, system: true, now: now.toISOString() }
+    const created = (await preservingReq(req, () =>
+      req.payload.create({
+        collection: 'withdrawals',
+        data: {
+          channel: v.channel,
+          receivedAt: receivedAt.toISOString(),
+          name: v.name,
+          contractIdentification: v.contractIdentification,
+          email: v.email,
+          itemsText: v.itemsText,
+          reason: v.reason,
+          locale: v.locale,
+          submissionSnapshot: {
+            channel: v.channel,
+            name: v.name,
+            contractIdentification: v.contractIdentification,
+            email: v.email,
+            itemsText: v.itemsText,
+            reason: v.reason,
+            locale: v.locale,
+            receivedAt: receivedAt.toISOString(),
+            receivedAtBerlin: formatBerlinWithZone(receivedAt, 'de'),
+            recordedAt: now.toISOString(),
+          },
+        } as never,
+        depth: 0,
+        overrideAccess: true,
+        req,
+        context,
+      }),
+    )) as Withdrawal
+    const orderId = created.matchStatus === 'auto_matched' ? idOf(created.order) : null
+    const effect: OrderEffect = orderId
+      ? await applyWithdrawalToOrder(req, created, orderId, [], now)
+      : { unpaidOrderCancelled: false, selectedItems: [] }
+    const jobs: (number | string)[] = []
+    if (v.sendReceipt && v.email) {
+      const settings = await preservingReq(req, () =>
+        req.payload.findGlobal({ slug: 'settings', depth: 0, overrideAccess: true, req }),
+      )
+      const m08 = await enqueueEmail(req, {
+        template: 'withdrawal_receipt',
+        to: v.email,
+        locale: v.locale,
+        data: {
+          withdrawalId: created.id,
+          reference: created.reference,
+          receivedAt: created.receivedAt,
+          refundDueAt: created.refundDueAt,
+          name: v.name,
+          contractIdentification: v.contractIdentification,
+          email: v.email,
+          itemsText: v.itemsText,
+          items: [],
+          reason: v.reason,
+          unpaidOrderCancelled: effect.unpaidOrderCancelled,
+          returnAddress: settings.business?.returnAddress ?? null,
+        },
+        idempotencyKey: `withdrawal_receipt:${created.id}:manual`,
+        relations: { withdrawal: created.id },
+      })
+      await preservingReq(req, () =>
+        req.payload.update({
+          collection: 'withdrawals',
+          id: created.id,
+          data: { confirmationEmail: m08.emailLogId },
+          depth: 0,
+          overrideAccess: true,
+          req,
+          context,
+        }),
+      )
+      if (m08.jobId !== null) jobs.push(m08.jobId)
+    }
+    const doc = (await preservingReq(req, () =>
+      req.payload.findByID({
+        collection: 'withdrawals',
+        id: created.id,
+        depth: 0,
+        overrideAccess: true,
+        req,
+      }),
+    )) as Withdrawal
+    return { doc, jobs, afterCommit: effect.afterCommit }
+  })
 }
