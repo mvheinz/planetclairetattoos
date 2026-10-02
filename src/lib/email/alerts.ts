@@ -8,7 +8,7 @@ import { requestNow } from '@/lib/payload/context'
 import { inTransaction } from '@/lib/payload/transaction'
 
 import { enqueueEmail, type EnqueueEmailResult } from './outbox'
-import type { AdminAlertData } from './templates/adminAlert'
+import type { AdminAlertData } from './templates/admin'
 
 // A12 `admin_alert` (KONZEPT §6.4): höchstens eine Mail je Fehlerart und Stunde (gleitend, nach injizierter Zeit).
 // Ausnahmen, die immer gehen, weil Geld zu erstatten ist bzw. eine Frist läuft: Zahlung zu einer beendeten Kasse

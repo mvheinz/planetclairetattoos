@@ -2,9 +2,9 @@ import 'server-only'
 
 import { z } from 'zod'
 
-import { AdminFooter, adminFooterText, EmailLayout, renderMailHtml } from '../layout'
-import type { RenderedMail, TemplateRenderInput } from '../registry'
-import { S } from '../layout/styles'
+import { AdminFooter, adminFooterText, EmailLayout, renderMailHtml } from '../../layout'
+import type { RenderedMail, TemplateRenderInput } from '../../registry'
+import { S } from '../../layout/styles'
 
 // A12 `admin_alert` (KONZEPT §6.4): „Technisches Problem: {Kurzbeschreibung}“ – was betroffen ist, was automatisch
 // passiert ist, was zu tun ist; Direktlink in die Verwaltung. Immer Deutsch, ohne Kund:innen-Freitexte.

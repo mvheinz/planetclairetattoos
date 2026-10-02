@@ -2,15 +2,24 @@ import 'server-only'
 
 import { z } from 'zod'
 
+import { REVENUE_GUARD_STAGES } from '@/lib/enums'
 import { padItemNumber } from '@/lib/products/itemNumber'
+import {
+  formatSignedEuro,
+  REVENUE_GUARD_DISCLAIMER,
+  STAGE_TITLES,
+  stageMessage,
+} from '@/lib/revenue/guard'
 
-import type { RenderedMail, TemplateRenderInput } from '../registry'
+import type { RenderedMail, TemplateRenderInput } from '../../registry'
 
-import { block, fmtDate, fmtDateTime, money, renderAdminMail, type Block } from './kit'
+import { block, fmtDate, fmtDateTime, money, renderAdminMail, type Block } from '../kit'
+
+import { ADMIN_MAIL_PATHS } from './paths'
 
 // Verwaltungs-Mails (KONZEPT §6.4, P4.15): immer Deutsch, kurz, Direktlink in die Verwaltung, keine Kund:innen-Freitexte
 // (nur Name und Ort bei A01). A01/A02 `admin_order_placed`, A03 `admin_prepayment_cancelled`, A06 `admin_oversold`,
-// A07 `admin_dispute_opened`, A08 `admin_refund_failed`; A12 `admin_alert` steht in `adminAlert.tsx`.
+// A07 `admin_dispute_opened`, A08 `admin_refund_failed`, A09 `admin_revenue_guard` (P5.23); A12 `admin_alert` steht in `alert.tsx`.
 
 export const ADMIN_ORDER_PLACED_VERSION = 'a01-v1'
 export const ADMIN_PREPAYMENT_CANCELLED_VERSION = 'a03-v1'
@@ -30,7 +39,7 @@ const item = z.object({
   category: z.string().max(40).optional(),
 })
 
-const orderPath = (id: number) => `/collections/orders/${id}`
+const orderPath = ADMIN_MAIL_PATHS.order
 const nr = (n: number) => `Nr. ${padItemNumber(n)}`
 const itemLine = (i: z.infer<typeof item>) => `${nr(i.itemNumber)} · ${i.title}`
 const shortDate = (d: string) => fmtDate(d, 'de').slice(0, 6)
@@ -265,5 +274,72 @@ export async function renderAdminRefundFailed(
     ],
     links,
     adminPath: orderPath(d.orderId),
+  })
+}
+
+// --- A09 -------------------------------------------------------------------------------------------------------
+
+export const ADMIN_REVENUE_GUARD_VERSION = 'a09-v1'
+
+const cents = z.number().int()
+export const adminRevenueGuardDataSchema = z.object({
+  year: z.number().int().min(2000).max(2100),
+  stage: z.enum(REVENUE_GUARD_STAGES),
+  /** Gesamtumsatz des Jahres (bei U0: des Vorjahres). */
+  totalCents: cents,
+  previousYearTotalCents: cents,
+  thresholds: z.object({
+    u1Cents: cents.nonnegative(),
+    previousYearLimitCents: cents.nonnegative(),
+    u3Cents: cents.nonnegative(),
+    u3aCents: cents.nonnegative(),
+    u4Cents: cents.nonnegative(),
+    currentYearLimitCents: cents.nonnegative(),
+  }),
+})
+export type AdminRevenueGuardData = z.infer<typeof adminRevenueGuardDataSchema>
+
+const stageThreshold = (d: AdminRevenueGuardData): number => {
+  const t = d.thresholds
+  const byStage: Record<AdminRevenueGuardData['stage'], number> = {
+    U0: t.previousYearLimitCents,
+    U1: t.u1Cents,
+    U2: t.previousYearLimitCents,
+    U3: t.u3Cents,
+    U3a: t.u3aCents,
+    U4: t.u4Cents,
+    U5: t.currentYearLimitCents,
+  }
+  return byStage[d.stage]
+}
+
+export const adminRevenueGuardSubject = (d: AdminRevenueGuardData) =>
+  `Umsatz-Wächter: ${d.stage} – ${STAGE_TITLES[d.stage]} erreicht`
+
+export async function renderAdminRevenueGuard(
+  input: TemplateRenderInput<AdminRevenueGuardData>,
+): Promise<RenderedMail> {
+  const { data: d, links } = input
+  const isU0 = d.stage === 'U0'
+  return renderAdminMail({
+    subject: adminRevenueGuardSubject(d),
+    blocks: [
+      block.rows([
+        [
+          isU0 ? `Umsatz ${d.year - 1}` : `Stand ${d.year}`,
+          formatSignedEuro(isU0 ? d.previousYearTotalCents : d.totalCents),
+        ],
+        ['Schwelle', `${d.stage} · ${formatSignedEuro(stageThreshold(d))}`],
+      ]),
+      block.p(
+        stageMessage(d.stage, { year: d.year, totalCents: d.totalCents, thresholds: d.thresholds }),
+      ),
+      block.p(
+        'Stand, Monatstabelle und manuelle Summen (Tattoo, Flohmarkt, Auftragsarbeiten, Sonstiges) findest du unter Einstellungen → Umsatz-Wächter.',
+      ),
+      block.p(REVENUE_GUARD_DISCLAIMER),
+    ],
+    links,
+    adminPath: ADMIN_MAIL_PATHS.settings(),
   })
 }

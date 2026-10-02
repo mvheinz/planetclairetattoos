@@ -7,6 +7,7 @@ import { writeAudit } from '@/lib/audit'
 import { revalidateProduct } from '@/lib/cache/revalidate'
 import { dbFor } from '@/lib/db/tx'
 import { sendAdminAlert } from '@/lib/email/alerts'
+import { notifyAdmin } from '@/lib/email/notifyAdmin'
 import { buildOrderMailData } from '@/lib/email/orderMailData'
 import { enqueueEmail, runEmailJobNow } from '@/lib/email/outbox'
 import type { CheckoutStatus, PaymentProvider } from '@/lib/enums'
@@ -380,10 +381,10 @@ export async function fulfillCheckout(
       idempotencyKey: `order_confirmation:${order.id}:O1`,
       relations: { order: order.id },
     })
-    const a01 = await enqueueEmail(req, {
-      template: 'admin_order_placed',
-      locale: 'de',
-      data: {
+    const a01 = await notifyAdmin(
+      req,
+      'admin_order_placed',
+      {
         orderId: order.id,
         orderNumber: order.orderNumber,
         transition: 'O1',
@@ -402,9 +403,8 @@ export async function fulfillCheckout(
         paymentMethod: order.paymentMethod,
         paymentMethodType: pm.type,
       },
-      idempotencyKey: `admin_order_placed:${order.id}:O1`,
-      relations: { order: order.id },
-    })
+      { idempotencyKey: `admin_order_placed:${order.id}:O1`, relations: { order: order.id } },
+    )
 
     const payload: Payload = req.payload
     return {
@@ -553,10 +553,10 @@ async function bookOversold(
     changes: { missingProducts: [null, missingProducts] },
     actorType: 'webhook',
   })
-  const a06 = await enqueueEmail(req, {
-    template: 'admin_oversold',
-    locale: 'de',
-    data: {
+  const a06 = await notifyAdmin(
+    req,
+    'admin_oversold',
+    {
       items: b.missingItems.map((i) => ({
         itemNumber: i.itemNumber,
         title: i.titleDe,
@@ -566,9 +566,8 @@ async function bookOversold(
       refundedCents: b.refundCents,
       refundStatus: 'pending',
     },
-    idempotencyKey: `admin_oversold:${order.id}`,
-    relations: { order: order.id },
-  })
+    { idempotencyKey: `admin_oversold:${order.id}`, relations: { order: order.id } },
+  )
   return { refundIndex: refunds.length - 1, a06: a06.jobId }
 }
 

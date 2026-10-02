@@ -1,4 +1,4 @@
-import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
+import type { CollectionBeforeChangeHook, CollectionConfig, PayloadRequest } from 'payload'
 
 import { isAdmin } from '@/access'
 import { moneyField, seedField } from '@/fields'
@@ -13,7 +13,7 @@ import { failField } from './hooks/commerce'
 
 // DATENMODELL §6.20 – manuelle Monatsumsätze außerhalb des Shops (E-45) für den Umsatz-Wächter (R-125). Ein echter
 // Eintrag ersetzt einen Seed-Eintrag mit gleichem (Monat, Quelle) in derselben Transaktion. Das Einreihen des Jobs
-// `revenueGuardCheck` folgt mit dem Umsatz-Wächter in P5.
+// `revenueGuardCheck` nach jeder Änderung (P5.23).
 
 const SLUG = 'revenue-entries'
 const fail = (message: string, path: string): never => failField(SLUG, message, path)
@@ -80,6 +80,13 @@ const guardRevenue: CollectionBeforeChangeHook = async ({ data, originalDoc, req
   return data
 }
 
+/** Umsatz-Wächter nach jeder Änderung einer Monatssumme neu prüfen (P5.23, KONZEPT §8.4). */
+const queueGuard = async <T>({ doc, req }: { doc: T; req: PayloadRequest }): Promise<T> => {
+  const { queueRevenueGuardCheck } = await import('@/lib/revenue/check')
+  await queueRevenueGuardCheck(req)
+  return doc
+}
+
 export const RevenueEntries: CollectionConfig = {
   slug: SLUG,
   labels: { singular: 'Umsatz (manuell)', plural: 'Umsätze (manuell)' },
@@ -119,5 +126,9 @@ export const RevenueEntries: CollectionConfig = {
     { name: 'note', type: 'text', label: 'Notiz', maxLength: 200 },
     ...seedField(),
   ],
-  hooks: { beforeChange: [guardRevenue] },
+  hooks: {
+    beforeChange: [guardRevenue],
+    afterChange: [queueGuard],
+    afterDelete: [queueGuard],
+  },
 }

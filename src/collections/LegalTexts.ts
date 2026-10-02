@@ -5,7 +5,7 @@ import {
   type CollectionConfig,
 } from 'payload'
 
-import { isAdmin, publicRead } from '@/access'
+import { adminWhere, isAdmin, publicRead } from '@/access'
 import { legalRichTextEditor, seedField } from '@/fields'
 import { revalidateContent } from '@/lib/cache/revalidate'
 import { TAGS } from '@/lib/cache/tags'
@@ -220,7 +220,8 @@ export const LegalTexts: CollectionConfig = {
     read: publicRead({ status: { in: ['active', 'superseded'] } }),
     create: isAdmin,
     update: isAdmin,
-    delete: isAdmin,
+    // Veröffentlichte Fassungen nur lesen, kein Lösch-Knopf (KONZEPT §7.16); `guardDelete` bleibt die Sperre.
+    delete: adminWhere({ status: { equals: 'draft' } }),
   },
   defaultSort: '-validFrom',
   indexes: [{ fields: ['type', 'version'], unique: true }],

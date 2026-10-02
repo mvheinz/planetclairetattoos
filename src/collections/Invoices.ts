@@ -172,8 +172,18 @@ const guardInvoice: CollectionBeforeChangeHook = async ({ data, originalDoc, ope
   return data
 }
 
-const afterInvoiceChange: CollectionAfterChangeHook = async ({ doc, previousDoc, req }) => {
+const afterInvoiceChange: CollectionAfterChangeHook = async ({
+  doc,
+  previousDoc,
+  operation,
+  req,
+}) => {
   if (getAppContext(req).seed) return doc
+  // Umsatz-Wächter nach jedem neuen Beleg (P5.23); dynamisch wegen der Mail-Outbox (lädt die Konfiguration).
+  if (operation === 'create') {
+    const { queueRevenueGuardCheck } = await import('@/lib/revenue/check')
+    await queueRevenueGuardCheck(req)
+  }
   if (doc.status === 'issued' && previousDoc?.status !== 'issued') {
     await writeAudit(req, {
       action: doc.type === 'invoice' ? 'invoice_issued' : 'credit_note_issued',

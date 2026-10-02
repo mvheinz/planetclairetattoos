@@ -46,6 +46,11 @@ export function invoicePrefix(year: number): string {
   return `${STORAGE_PREFIX.private}/invoices/${year}`
 }
 
+/** Präfix der Monatsexporte (P5.26, L-07): `private/exports/<Jahr>`. */
+export function exportPrefix(year: number): string {
+  return `${STORAGE_PREFIX.private}/exports/${year}`
+}
+
 /** Absoluter Wurzelordner des Treibers `local` (außerhalb von `public/`). */
 export function localStorageRoot(env: Pick<Env, 'STORAGE_LOCAL_DIR'> = getEnv()): string {
   return path.resolve(process.cwd(), env.STORAGE_LOCAL_DIR)

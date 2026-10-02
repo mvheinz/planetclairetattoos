@@ -7,6 +7,7 @@ import {
 } from 'payload'
 
 import { isAdmin } from '@/access'
+import { settingsAdminEndpoints } from '@/endpoints/settings/admin'
 import { moneyField } from '@/fields'
 import { writeAudit } from '@/lib/audit'
 import { revalidateContent } from '@/lib/cache/revalidate'
@@ -44,6 +45,7 @@ import {
   type FieldIssue,
   type TaxModeEntry,
 } from '@/lib/settings/rules'
+import { shopOpenBlockedMessage, startklarStatus } from '@/lib/settings/readiness'
 import { formatBerlin } from '@/lib/time'
 
 import {
@@ -507,6 +509,15 @@ const packagingGroup: Field = {
   },
   fields: [
     {
+      // Laufende Jahressumme ohne Beispieldaten (PLAN P5.11, R-201); Datei unter „Export“.
+      name: 'packagingYearTotal',
+      type: 'ui',
+      label: 'Verpackung im laufenden Jahr',
+      admin: {
+        components: { Field: '/admin/components/PackagingYearTotal#PackagingYearTotalField' },
+      },
+    },
+    {
       name: 'templates',
       type: 'array',
       dbName: 'settings_pkg_templates',
@@ -930,6 +941,18 @@ const validateSettings: GlobalBeforeChangeHook = ({ data, originalDoc, req }) =>
   const now = requestNow(req)
   const issues: FieldIssue[] = []
 
+  // Go-live-Sperre (DATENMODELL §13.7, P5.22a): „Shop öffnen“ in Produktion nur mit grüner Startklar-Prüfung.
+  const shop = group(data, 'shop')
+  if (
+    shop.isOpen === true &&
+    group(originalDoc, 'shop').isOpen === false &&
+    !ctx.seed &&
+    getEnv().APP_ENV === 'production'
+  ) {
+    const status = startklarStatus()
+    if (!status.ready) issues.push({ path: 'shop.isOpen', message: shopOpenBlockedMessage(status) })
+  }
+
   // Steuermodus (R-032)
   const tax = group(data, 'tax')
   const modes = (Array.isArray(tax.modes) ? tax.modes : []) as TaxModeEntry[]
@@ -1151,6 +1174,7 @@ export const Settings: GlobalConfig = {
     readVersions: isAdmin,
   },
   versions: { max: 50 },
+  endpoints: settingsAdminEndpoints,
   fields: [
     {
       type: 'tabs',

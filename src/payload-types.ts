@@ -166,6 +166,11 @@ export interface Config {
       sendEmail: TaskSendEmail;
       renderInvoicePdf: TaskRenderInvoicePdf;
       renderLegalTextPdf: TaskRenderLegalTextPdf;
+      markDelivered: TaskMarkDelivered;
+      revenueGuardCheck: TaskRevenueGuardCheck;
+      monthlyClose: TaskMonthlyClose;
+      invoiceIntegrityCheck: TaskInvoiceIntegrityCheck;
+      complianceDocsReview: TaskComplianceDocsReview;
       inline: {
         input: unknown;
         output: unknown;
@@ -735,6 +740,7 @@ export interface Order {
     | null;
   carrierEmailConsent?: boolean | null;
   carrierEmailConsentRevokedAt?: string | null;
+  copyAddressText?: string | null;
   invoice?: (number | null) | Invoice;
   creditNotes?: {
     docs?: (number | Invoice)[];
@@ -2380,7 +2386,12 @@ export interface PayloadJob {
           | 'cancelOverduePrepayments'
           | 'sendEmail'
           | 'renderInvoicePdf'
-          | 'renderLegalTextPdf';
+          | 'renderLegalTextPdf'
+          | 'markDelivered'
+          | 'revenueGuardCheck'
+          | 'monthlyClose'
+          | 'invoiceIntegrityCheck'
+          | 'complianceDocsReview';
         taskID: string;
         input?:
           | {
@@ -2422,6 +2433,11 @@ export interface PayloadJob {
         | 'sendEmail'
         | 'renderInvoicePdf'
         | 'renderLegalTextPdf'
+        | 'markDelivered'
+        | 'revenueGuardCheck'
+        | 'monthlyClose'
+        | 'invoiceIntegrityCheck'
+        | 'complianceDocsReview'
       )
     | null;
   queue?: string | null;
@@ -3195,6 +3211,7 @@ export interface OrdersSelect<T extends boolean = true> {
   legalSnippetVersions?: T;
   carrierEmailConsent?: T;
   carrierEmailConsentRevokedAt?: T;
+  copyAddressText?: T;
   invoice?: T;
   creditNotes?: T;
   withdrawals?: T;
@@ -4910,6 +4927,71 @@ export interface TaskRenderLegalTextPdf {
   };
   output: {
     created: string;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskMarkDelivered".
+ */
+export interface TaskMarkDelivered {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    delivered?: number | null;
+    errors?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRevenueGuardCheck".
+ */
+export interface TaskRevenueGuardCheck {
+  input?: unknown;
+  output: {
+    notified: number;
+    skipped: boolean;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskMonthlyClose".
+ */
+export interface TaskMonthlyClose {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    month?: string | null;
+    uploads?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskInvoiceIntegrityCheck".
+ */
+export interface TaskInvoiceIntegrityCheck {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    checked?: number | null;
+    mismatched?: number | null;
+    missing?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskComplianceDocsReview".
+ */
+export interface TaskComplianceDocsReview {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    sent?: boolean | null;
+    missing?: number | null;
+    deletable?: number | null;
   };
 }
 /**

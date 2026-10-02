@@ -31,6 +31,27 @@ export function createTranslationAdapter(
   return createMockTranslationAdapter()
 }
 
+export const TRANSLATION_NOT_CONFIGURED = 'Übersetzen ist noch nicht eingerichtet'
+
+export interface TranslationAvailability {
+  enabled: boolean
+  driver: TranslationAdapter['driver']
+  /** Hinweis am deaktivierten Knopf. */
+  reason?: string
+}
+
+/**
+ * Knopf „Übersetzen → EN“ (ARCHITEKTUR §3.6): in Produktion mit dem Mock deaktiviert („Übersetzen ist noch nicht
+ * eingerichtet“), sonst aktiv. Der Endpunkt prüft dasselbe, damit kein „[EN] …“ auf die echte Seite gelangt.
+ */
+export function translationAvailability(env: Env = getEnv()): TranslationAvailability {
+  const driver = env.TRANSLATION_DRIVER === 'deepl' && env.DEEPL_API_KEY ? 'deepl' : 'mock'
+  if (env.APP_ENV === 'production' && driver === 'mock') {
+    return { enabled: false, driver, reason: TRANSLATION_NOT_CONFIGURED }
+  }
+  return { enabled: true, driver }
+}
+
 let instance: TranslationAdapter | undefined
 
 export function getTranslationAdapter(): TranslationAdapter {

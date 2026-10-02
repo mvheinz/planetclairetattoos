@@ -1,6 +1,7 @@
 import { APIError, ValidationError, type Endpoint, type PayloadRequest } from 'payload'
 
 import { isAdminRequest } from '@/access'
+import { adminActionResponse } from '@/endpoints/adminResponse'
 import { readJsonBody } from '@/endpoints/products/actions'
 import { writeAudit } from '@/lib/audit'
 import type { PrepaymentErrorCode } from '@/lib/commerce/prepayment'
@@ -112,9 +113,10 @@ function orderAction(path: string, handler: Handler): Endpoint {
         const result = await handler(req, order, await readJsonBody(req), requestNow(req))
         if (result.afterCommit) await result.afterCommit()
         log.info('orders.action', { orderId: id, path, key, alreadyDone: !!result.alreadyDone })
-        return Response.json(
-          { doc: result.doc, alreadyDone: result.alreadyDone === true },
-          { headers: noStore },
+        // `unchanged` (P5.1, einheitlich für alle Verwaltungs-Aktionen); `alreadyDone` bleibt für die P4-Aufrufer.
+        return adminActionResponse(
+          { doc: result.doc, unchanged: result.alreadyDone === true },
+          { alreadyDone: result.alreadyDone === true },
         )
       } catch (err) {
         return errorResponse(err)

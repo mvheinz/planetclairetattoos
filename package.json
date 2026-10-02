@@ -51,9 +51,11 @@
     "fonts:copy": "tsx scripts/fonts/copy.ts",
     "art:brand": "tsx scripts/art/build-brand.ts",
     "art:icons": "tsx scripts/art/build-icons.ts",
+    "art:admin-icons": "tsx scripts/art/admin-icons.ts",
     "art:coco-placeholder": "tsx scripts/art/draw-coco-placeholder.ts",
     "art:sprite": "tsx scripts/art/build-sprite.ts",
-    "art:calibration": "tsx scripts/art/calibration-sheet.ts"
+    "art:calibration": "tsx scripts/art/calibration-sheet.ts",
+    "fixtures:barcodes": "tsx scripts/fixtures/barcodes.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1141.0",
@@ -68,9 +70,12 @@
     "@payloadcms/ui": "3.90.2",
     "@react-pdf/renderer": "4.9.0",
     "@stripe/stripe-js": "9.17.0",
+    "@zxing/browser": "0.2.1",
+    "@zxing/library": "0.23.0",
     "cross-env": "7.0.3",
     "date-fns": "4.1.0",
     "dotenv": "16.4.7",
+    "fflate": "0.8.2",
     "graphql": "16.14.2",
     "next": "16.3.6",
     "next-intl": "4.14.7",
@@ -104,6 +109,7 @@
     "@types/smtp-server": "3.5.13",
     "@vitejs/plugin-react": "4.5.2",
     "@vitest/coverage-v8": "4.0.18",
+    "bwip-js": "4.11.4",
     "cheerio": "1.1.2",
     "esbuild": "0.28.2",
     "eslint": "9.39.5",

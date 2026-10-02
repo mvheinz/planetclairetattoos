@@ -7,7 +7,8 @@ import { setRefundStatus } from '@/lib/commerce/refunds'
 import { loadOrder, transitionOrder, updateOrderFields } from '@/lib/commerce/transitionOrder'
 import { dbFor } from '@/lib/db/tx'
 import { sendAdminAlert } from '@/lib/email/alerts'
-import { enqueueEmail, runEmailJobNow } from '@/lib/email/outbox'
+import { notifyAdmin } from '@/lib/email/notifyAdmin'
+import { runEmailJobNow } from '@/lib/email/outbox'
 import { money } from '@/lib/email/templates/kit'
 import type { OrderStatus, RefundStatus } from '@/lib/enums'
 import { createCreditNote } from '@/lib/invoices/create'
@@ -231,19 +232,21 @@ export async function handleDisputeCreated(
       },
     },
   })
-  const a07 = await enqueueEmail(req, {
-    template: 'admin_dispute_opened',
-    locale: 'de',
-    data: {
+  const a07 = await notifyAdmin(
+    req,
+    'admin_dispute_opened',
+    {
       orderId: order.id,
       orderNumber: order.orderNumber,
       amountCents: data.amountCents,
       reason: reasonCode(data.reason),
       dueBy: null,
     },
-    idempotencyKey: `admin_dispute_opened:${order.id}:${data.disputeId}`,
-    relations: { order: order.id },
-  })
+    {
+      idempotencyKey: `admin_dispute_opened:${order.id}:${data.disputeId}`,
+      relations: { order: order.id },
+    },
+  )
   return {
     status: 'processed',
     action: 'dispute_opened',

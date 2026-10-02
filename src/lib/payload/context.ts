@@ -22,6 +22,8 @@ export interface AppContext {
   gallerySync?: boolean
   /** Notiz zu einem Statuswechsel (z. B. `orders.statusHistory[].note`, höchstens 300 Zeichen). */
   note?: string
+  /** `private-uploads`: Datei liegt schon im Speicher (`putIfAbsent`), nur den Datensatz anlegen (R-122, P5.26). */
+  preStoredFile?: boolean
   /** Auslöser im Statusverlauf, wenn nicht Verwaltung/System (z. B. `webhook`, `job`, `customer`). */
   actorType?: 'admin' | 'system' | 'webhook' | 'job' | 'customer' | 'seed'
 }
