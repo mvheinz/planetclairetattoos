@@ -4281,7 +4281,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Ohne Jutta: Texte sind Entwürfe (E-62), Jutta übernimmt sie durch Bearbeiten. P11-Nacharbeit: Texte in der
     Produktion gegenlesen (P11.10).
 
-- [ ] **P8.8 Protokolle: Mail-, Einwilligungs- und Audit-Log** – `content/seed/data/logs.json` mit den
+- [x] **P8.8 Protokolle: Mail-, Einwilligungs- und Audit-Log** – `content/seed/data/logs.json` mit den
   Ableitungsregeln aus SEED-SPEC §16: `email-log`-Einträge aus den Zeitleisten (§16.1: `status = sent`,
   `transport = file`, `attempts = 1`, `messageId` nach §2.5, `bodySha256`, Betreff aus `site-texts.emails` mit Nummer,
   Admin-Mails an `ADMIN_NOTIFY_EMAIL` in `de`), `consent-log`-Einträge (§16.2: `textSnapshot` = gerenderter

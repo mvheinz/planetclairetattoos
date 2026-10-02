@@ -19,6 +19,7 @@ import type { PageBlockSeed, ProductSeed } from './schemas'
 import { seedIso } from './time'
 import { seedReservationRef } from './orderPlan'
 import { importInvoices } from './invoices'
+import { importAuditLog, importConsentLog, importEmailLog } from './logs'
 import { importFlash, importGallery, importOffers } from './tattoo'
 import { importPrivateUpload } from './uploads'
 import { importCheckouts, importOrders, importReservations } from './orders'
@@ -57,6 +58,9 @@ export const EXAMPLE_STEPS = [
   'inquiries',
   'privacy-requests',
   'revenue-entries',
+  'email-log',
+  'consent-log',
+  'audit-log',
 ] as const
 
 export interface ExampleOptions {
@@ -626,6 +630,11 @@ export async function importExample(
     await seedStep(payload, (req) => importRevenue(req, data, cases), at)
   }
   await seedStep(payload, (req) => linkCaseUploads(req, data), at)
+  // Schritt 8: Protokolle (nur Einträge, kein Versand)
+  const logs = { report: options.report, now: options.now, clock: options.clock }
+  if (run('email-log')) await seedStep(payload, (req) => importEmailLog(req, data, logs), at)
+  if (run('consent-log')) await seedStep(payload, (req) => importConsentLog(req, data, logs), at)
+  if (run('audit-log')) await seedStep(payload, (req) => importAuditLog(req, data, logs), at)
   // Schritt 9: settings.seed
   await seedStep(payload, (req) =>
     req.payload.updateGlobal({

@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P8.8
+
+- `content/seed/data/logs.json` mit den Ableitungsregeln (Ereignis → Vorlagen aus `EMAIL_TEMPLATES`), den Einwilligungen und den 8 Audit-Einträgen (SEED-SPEC §16); Import `src/lib/seed/logs.ts` (Schritt 8): 78 Mail-Einträge (Anzahl je Bezug wie §16.1, Betreff aus den Mail-Texten mit Nummer, Admin-Mails an die Verwaltung auf Deutsch, `messageId` §2.5), 14 Einwilligungen mit gerendertem Baustein (`getSnippet`, kein erfundener Rechtstext), 8 Audit-Einträge; `withdrawals.confirmationEmail` zeigt auf die Eingangsbestätigung.\n- `email-log`: im Seed-Kontext bleibt `status = sent` (sonst `suppressed` für example.*).\n- Tests: `tests/int/seed/logs.int.spec.ts` (7, inkl. AK-SEED-05 mit Spionen) grün.
+
 ## 2026-10-02 – P8.7
 
 - `content/seed/data/pages.json` für alle 13 `PAGE_KEYS` (SEED-SPEC §13, Juttas Ton, du-Form; keine Rechtstexte) und `faqs.json` (12 FAQ, §14); Seiten-Import kann jetzt alle Blocktypen (Bilder über seedKey, Schritte/Phasen mit gleichen Zeilen-IDs in DE/EN, `seo.metaTitle` der Startseite), FAQ-Import (Inhalt-Gruppe, übernommene FAQ werden übersprungen).\n- Datums-Token `{{date:<expr>}}` + `seedRichText` in `src/lib/seed/lexical.ts`.\n- Tests: `tests/unit/seed/lexical.unit.spec.ts` (6), `tests/int/seed/pages-faqs.int.spec.ts` (6: Mengen, AK-SEED-17, AK-SEED-18, Feldgrenzen, V-28, EN-Texte) grün; E2E `tests/e2e/seed-pages.e2e.spec.ts` (DE/EN der gebauten Routen).
