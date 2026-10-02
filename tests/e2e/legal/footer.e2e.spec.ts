@@ -1,32 +1,22 @@
-import { expect, test, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
 
-import { LEGAL_LINKS } from '../../src/components/layout/navItems'
-import { hasSamplePath, localizedPath, pageRoutes, samplePath } from '../../src/lib/routes/paths'
-import { LOCALES, type Locale } from '../../src/lib/routes/registry'
-import { holdConformityData } from '../helpers/adminSessionLock'
-import { testPayload } from './fixtures'
+import { LEGAL_LINKS } from '../../../src/components/layout/navItems'
+import { hasSamplePath, localizedPath, pageRoutes, samplePath } from '../../../src/lib/routes/paths'
+import { LOCALES, type Locale } from '../../../src/lib/routes/registry'
+import { holdConformityData } from '../../helpers/adminSessionLock'
+import { expect, test, testPayload } from '../fixtures'
+import { cleanup, fixtureOrder, submittedCheckout } from '../order/orderFixtures'
 
-// P2.10 Fußbereich (DESIGN KO-04, KONZEPT §3.0.3): Pflichtlinks (R-011), „Vertrag widerrufen“ (R-090, AK-3-11,
-// AK-DS-09), Sprachumschalter. Die 500-Seite (R29) folgt mit ihrem Test-Auslöser in P2.19.
+// P2.10/P6.6 Fußbereich (DESIGN KO-04, KONZEPT §3.0.3): Pflichtlinks (R-011), „Vertrag widerrufen“ als Knopf-Link
+// (R-090, AK-3-11, AK-DS-09) auf jeder Registry-Route DE/EN – inkl. Kasse, Danke und Bestellstatus (Fixture-Bestellung),
+// 404 und 500 –, bei 390×844 und 1440×900, mit `reducedMotion` `reduce` und `no-preference`; Sprachumschalter.
 
 const WITHDRAW: Record<Locale, string> = {
   de: 'Vertrag widerrufen',
   en: 'Withdraw from contract here',
 }
 
-/** Ein Vertreter je `live`-Seitentyp (R-011) plus 404. */
-const PAGE_TYPES: { type: string; path: (l: Locale) => string }[] = [
-  ...['R01', 'R20', 'R21', 'R26', 'R27'].map((id) => ({
-    type: id,
-    path: (l: Locale) => localizedPath(id, l),
-  })),
-  {
-    type: 'R28 (404)',
-    path: (l: Locale) => `/${l}/${l === 'de' ? 'gibt-es-nicht' : 'does-not-exist'}`,
-  },
-]
-
-// Token-Seiten (R08, R09) ohne Beispiel-Adresse prüft `privacy/p4-pages.e2e.spec.ts` mit Fixture-Bestellungen.
+// Token-Seiten (R08, R09) ohne Beispiel-Adresse: eigener Block mit Fixture-Bestellung (unten).
 const LIVE_PAGES = pageRoutes().filter((r) => r.status === 'live' && hasSamplePath(r))
 
 const VIEWPORTS = [
@@ -46,50 +36,101 @@ async function hitTest(page: Page, selector: string) {
   }, selector)
 }
 
+/** Alle 6 Pflichtlinks bei beiden Größen und beiden Bewegungs-Einstellungen sichtbar, getroffen, Knopf ≥ 44 px. */
+async function expectFooterLinks(page: Page, locale: Locale, label: string) {
+  const expected = [
+    ...LEGAL_LINKS.filter((id) => id !== 'R20').map((id) => localizedPath(id, locale)),
+    localizedPath('R26', locale),
+  ]
+  expect(expected).toHaveLength(6)
+  for (const viewport of VIEWPORTS) {
+    await page.setViewportSize(viewport)
+    for (const reducedMotion of ['reduce', 'no-preference'] as const) {
+      await page.emulateMedia({ reducedMotion })
+      await page.evaluate(() =>
+        window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }),
+      )
+      const where = `${label} ${viewport.width} ${reducedMotion}`
+      const footer = page.locator('[data-site-footer]')
+      for (const href of expected) {
+        const link = footer.locator(`a[href="${href}"]`).first()
+        await expect(link, `${where} ${href}`).toBeVisible()
+        const isWithdraw = href === localizedPath('R26', locale)
+        const sel = isWithdraw
+          ? '[data-site-footer] [data-withdraw-link]'
+          : `[data-site-footer] a[href="${href}"]`
+        const hit = await hitTest(page, sel)
+        expect(hit, `${where} ${href}`).toMatchObject({ found: true, hit: true })
+        expect(hit.height, `${where} ${href} Höhe`).toBeGreaterThanOrEqual(44)
+      }
+      await expect(footer.locator('[data-withdraw-link]')).toHaveText(WITHDRAW[locale])
+      // Kontakt steht zusätzlich im Pflichtlink-Block.
+      await expect(
+        footer.locator(`[data-legal-link="R20"][href="${localizedPath('R20', locale)}"]`),
+      ).toBeVisible()
+    }
+  }
+}
+
 test.describe('Fußbereich @smoke', () => {
   for (const locale of LOCALES) {
-    test(`R-011 AK-DS-09 ${locale}: 6 Pflichtlinks je Seitentyp, sichtbar und getroffen (390/1440, reduce/no-preference) @smoke`, async ({
+    for (const route of LIVE_PAGES) {
+      const path = samplePath(route.id, locale)
+      test(`R-011 AK-DS-09 AK-3-11 ${route.id} ${path}: 6 Pflichtlinks sichtbar und getroffen (390/1440, reduce/no-preference) @smoke`, async ({
+        page,
+      }) => {
+        const res = await page.goto(path)
+        expect(res?.status(), path).toBeLessThan(400)
+        await expectFooterLinks(page, locale, route.id)
+      })
+    }
+    test(`R-011 AK-3-11 ${locale}: 404 und 500 mit Pflichtlinks @smoke`, async ({ page }) => {
+      const missing = `/${locale}/${locale === 'de' ? 'gibt-es-nicht' : 'does-not-exist'}`
+      expect((await page.goto(missing))?.status()).toBe(404)
+      await expectFooterLinks(page, locale, 'R28')
+      expect((await page.goto(`/${locale}/__fehler-test`))?.status()).toBe(500)
+      await expectFooterLinks(page, locale, 'R29')
+    })
+  }
+})
+
+test.describe('Fußbereich auf Danke und Bestellstatus @smoke', () => {
+  const checkouts: number[] = []
+  test.afterEach(async () => {
+    await cleanup(await testPayload(), checkouts.splice(0))
+  })
+
+  for (const locale of LOCALES) {
+    test(`R-011 R-090 AK-3-11 ${locale}: R08 Danke und R09 Bestellstatus (Fixture-Bestellung) @smoke`, async ({
       page,
+      fixtureProducts,
     }) => {
-      const expected = [
-        ...LEGAL_LINKS.filter((id) => id !== 'R20').map((id) => localizedPath(id, locale)),
-        localizedPath('R26', locale),
-      ]
-      expect(expected).toHaveLength(6)
-      for (const pageType of PAGE_TYPES) {
-        await page.goto(pageType.path(locale))
-        for (const viewport of VIEWPORTS) {
-          await page.setViewportSize(viewport)
-          for (const reducedMotion of ['reduce', 'no-preference'] as const) {
-            await page.emulateMedia({ reducedMotion })
-            await page.evaluate(() =>
-              window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }),
-            )
-            const label = `${pageType.type} ${viewport.width} ${reducedMotion}`
-            const footer = page.locator('[data-site-footer]')
-            for (const href of expected) {
-              const link = footer.locator(`a[href="${href}"]`).first()
-              await expect(link, `${label} ${href}`).toBeVisible()
-              const sel =
-                href === localizedPath('R26', locale)
-                  ? '[data-site-footer] [data-withdraw-link]'
-                  : `[data-site-footer] a[href="${href}"]`
-              const hit = await hitTest(page, sel)
-              expect(hit, `${label} ${href}`).toMatchObject({ found: true, hit: true })
-              expect(hit.height, `${label} ${href} Höhe`).toBeGreaterThanOrEqual(44)
-            }
-            const withdraw = footer.locator('[data-withdraw-link]')
-            await expect(withdraw).toHaveText(WITHDRAW[locale])
-            // Kontakt steht zusätzlich im Pflichtlink-Block.
-            await expect(
-              footer.locator(`[data-legal-link="R20"][href="${localizedPath('R20', locale)}"]`),
-            ).toBeVisible()
-          }
-        }
+      test.slow()
+      const payload = await testPayload()
+      const piece = await fixtureProducts.create('keramik', {
+        status: 'available',
+        firstPublishedAt: new Date(Date.now() - 86_400_000).toISOString(),
+      })
+      const c = await submittedCheckout(payload, [piece.id], { seed: true, locale })
+      checkouts.push(c.checkoutId)
+      const { statusToken } = await fixtureOrder(payload, c.checkoutId, 'O1')
+      for (const [id, token] of [
+        ['R08', c.token],
+        ['R09', statusToken],
+      ] as const) {
+        const path = localizedPath(id, locale, { token })
+        expect((await page.goto(path))?.status(), path).toBe(200)
+        await expectFooterLinks(page, locale, id)
+        // Danke- und Statusseite verlinken „Vertrag widerrufen“ zusätzlich im Inhalt (KONZEPT §4.10).
+        await expect(
+          page.locator(`main a[href^="${localizedPath('R26', locale)}"]`).first(),
+        ).toBeVisible()
       }
     })
   }
+})
 
+test.describe('Fußbereich – weitere Prüfungen @smoke', () => {
   test('R-090 AK-3-11 „Vertrag widerrufen“ auf jeder öffentlichen Route (DE/EN, inkl. 404) im DOM und sichtbar @smoke', async ({
     page,
   }) => {

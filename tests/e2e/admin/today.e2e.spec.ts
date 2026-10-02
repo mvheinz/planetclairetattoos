@@ -87,7 +87,8 @@ test('@a11y „Texte“: Bereiche, Mail-Bausteine DE/EN, Vorlagen mit Bestellnum
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto(adminPath('/texte'))
     await expect(page.getByTestId('texts-pages-later')).toContainText('P8')
-    await expect(page.getByTestId('texts-legal-later')).toContainText('P6')
+    // Rechtstexte seit P6.4: je Typ eine Karte (Ablauf prüft `admin/legal-texts.e2e.spec.ts`).
+    await expect(page.getByTestId('legal-type')).toHaveCount(6)
     const mail = page.getByTestId('texts-mail')
     for (const key of ['signature', 'pickupInstructions', 'inquiryResponseTime']) {
       await expect(mail.getByTestId(`mail-text-${key}`).locator('textarea')).toHaveCount(2)
