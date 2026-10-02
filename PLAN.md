@@ -4100,7 +4100,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     `tests/int/seed/media.int.spec.ts` (Mengen, Felder, AK-SEED-19, 404 für eingeschränkte Bilder ohne Login).
   - Ohne Jutta: mit den 640-px-Bildern aus `content/seed/instagram/`. P11-Nacharbeit: –
 
-- [ ] **P8.3 Stücke mit allen Pflichtangaben** – `content/seed/data/products.json` nach SEED-SPEC §2.6 (Form),
+- [x] **P8.3 Stücke mit allen Pflichtangaben** – `content/seed/data/products.json` nach SEED-SPEC §2.6 (Form),
   §5.1 (Übersicht), §5.2 (gemeinsame Werte), §5.3 (Maße, Gewicht, Textilangaben, Verkaufsfelder) und §5.4 (Texte DE/EN
   inkl. `juttaSays`). Status, Verkaufsfelder und Zeitstempel nur beim Anlegen setzen (SEED-SPEC §1.3, §1.6);
   `validateForPublish` läuft für `available`/`reserved`. Verweise `currentOrder`/`reservationRef` setzt P8.4.

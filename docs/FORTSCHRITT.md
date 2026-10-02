@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P8.3
+
+- `content/seed/data/products.json` mit allen 30 Stücken nach SEED-SPEC §5.1–§5.4 (Texte DE/EN inkl. `juttaSays`, Maße/Gewichte/Faserangaben, gemeinsame Werte §5.2, Verkaufsfelder §5.3 nur beim Anlegen); die 10 Stücke des Mini-Satzes blieben unverändert. `reservationRef` reservierter Stücke (S14 → Kasse O13, S27 → KS2) aus `seedReservationRef()` (§2.5); `currentOrder` setzt P8.4.
+- Material-, Faser- und Maßangaben sind Annahmen (SE-06, OFFENE-PUNKTE §4.1), S04–S06 neutral betitelt (SE-01).
+- Tests: `tests/int/seed/products.int.spec.ts` (4: Mengen/Verteilungen aus `SEED_EXPECTED_*`, Verkaufsfelder, AK-SEED-06, Sonderfälle S11/S14/S22/S26–S30/S23); Verbotsmuster über `content/seed/**` (`tests/unit/legal/forbidden.unit.spec.ts`, `data.unit.spec.ts`) grün.
+
 ## 2026-10-02 – P8.2
 
 - `content/seed/data/media.json` vollständig nach SEED-SPEC §4.1/§4.2 (17 Instagram-Ausschnitte mit `crop`/`focal` in Prozent und Alt-Texten DE/EN, 30 Platzhalter mit Wash und Alt „Platzhalter-Zeichnung: …“); Ausschnitte per sharp vor dem Upload, danach dieselbe Pipeline wie Juttas Uploads; Platzhalter aus `fallbackArt.ts` (WebP 800×1000), solange `src/art/placeholders/` fehlt.

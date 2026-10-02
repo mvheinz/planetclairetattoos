@@ -41,6 +41,160 @@
     "enStatus": "reviewed"
   },
   {
+    "key": "S02",
+    "itemNumber": 902,
+    "category": "keramik",
+    "title": {
+      "de": "Schale „Zwei Hunde“",
+      "en": "Bowl “Two Dogs”"
+    },
+    "description": {
+      "de": "Zwei Hunde in einer Schale: einer hell mit Schlappohren, einer schwarz und sehr aufgeregt. Handgeformt, weiß glasiert, innen bemalt.",
+      "en": "Two dogs in one bowl: a light one with floppy ears and a black one who is very excited. Hand-formed, white glaze, painted inside."
+    },
+    "priceCents": 4800,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
+      "en": "Stoneware, underglaze colours, clear glaze"
+    },
+    "dimensions": {
+      "diameterCm": 12,
+      "heightCm": 5.5
+    },
+    "weightGrams": 240,
+    "shippingClass": "keramik",
+    "foodContact": "deko",
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ig:DdUPhoZOoMW#b",
+      "media:ig:DdUPhoZOoMW"
+    ],
+    "state": {
+      "status": "sold",
+      "firstPublishedAt": "D-30@18:00",
+      "soldAt": "D-3@18:26",
+      "soldChannel": "online"
+    },
+    "storageLocation": "Regal K",
+    "enStatus": "reviewed"
+  },
+  {
+    "key": "S03",
+    "itemNumber": 903,
+    "category": "keramik",
+    "title": {
+      "de": "Schale „Hund & schwarzer Hase“",
+      "en": "Bowl “Dog & Black Bunny”"
+    },
+    "description": {
+      "de": "Ein heller Hund mit Kulleraugen trifft einen schwarzen Hasen mit Riesenohren. Wer hier wen erschreckt, ist noch nicht geklärt.",
+      "en": "A light dog with googly eyes meets a black bunny with giant ears. Who's scaring whom is still up for debate."
+    },
+    "priceCents": 4500,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
+      "en": "Stoneware, underglaze colours, clear glaze"
+    },
+    "dimensions": {
+      "diameterCm": 11.5,
+      "heightCm": 5
+    },
+    "weightGrams": 220,
+    "shippingClass": "keramik",
+    "foodContact": "deko",
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ig:DdUPhoZOoMW#c",
+      "media:ig:DdUPhoZOoMW"
+    ],
+    "state": {
+      "status": "sold",
+      "firstPublishedAt": "D-30@18:00",
+      "soldAt": "D-2@07:49",
+      "soldChannel": "online"
+    },
+    "storageLocation": "Regal K",
+    "enStatus": "reviewed"
+  },
+  {
+    "key": "S04",
+    "itemNumber": 904,
+    "category": "keramik",
+    "title": {
+      "de": "Schmetterlings-Schälchen, rund",
+      "en": "Round butterfly dish"
+    },
+    "description": {
+      "de": "Flaches rundes Schälchen mit einem Schmetterling aus meinem Skizzenbuch und einer handgeschriebenen Zeile. Rundherum kleine Punkte am Rand. Für Ohrringe, Ringe oder einfach zum Angucken.",
+      "en": "A flat round dish with a butterfly from my sketchbook and a handwritten line. Little dots all around the rim. For earrings, rings or just to look at."
+    },
+    "priceCents": 3800,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
+      "en": "Stoneware, underglaze colours, clear glaze"
+    },
+    "dimensions": {
+      "diameterCm": 10,
+      "heightCm": 2
+    },
+    "weightGrams": 120,
+    "shippingClass": "keramik",
+    "foodContact": "deko",
+    "internalNote": "Rückläufer aus PC-2026-90005 (Teil-Widerruf), unbeschädigt, wieder online.",
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ig:DcrENrOjlGP#a",
+      "media:ig:DcrENrOjlGP"
+    ],
+    "state": {
+      "status": "available",
+      "firstPublishedAt": "D-46@18:00"
+    },
+    "storageLocation": "Regal K",
+    "enStatus": "reviewed"
+  },
+  {
+    "key": "S05",
+    "itemNumber": 905,
+    "category": "keramik",
+    "title": {
+      "de": "Schmetterlings-Schälchen zum Aufhängen",
+      "en": "Butterfly dish for hanging"
+    },
+    "description": {
+      "de": "Flaches Schälchen mit Lasche: ein zart gefärbter Schmetterling, drumherum handgeschriebene Worte. Hängt am Nagel genauso schön, wie es auf dem Tisch liegt.",
+      "en": "A flat dish with a tab: a softly coloured butterfly with handwritten words around it. Looks just as good on a nail as it does on a table."
+    },
+    "priceCents": 4200,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
+      "en": "Stoneware, underglaze colours, clear glaze"
+    },
+    "dimensions": {
+      "widthCm": 12,
+      "heightCm": 11,
+      "depthCm": 1.5
+    },
+    "weightGrams": 110,
+    "shippingClass": "keramik",
+    "foodContact": "deko",
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ig:DcrENrOjlGP#b",
+      "media:ig:DcrENrOjlGP"
+    ],
+    "state": {
+      "status": "available",
+      "firstPublishedAt": "D-46@18:00"
+    },
+    "storageLocation": "Regal K",
+    "enStatus": "reviewed"
+  },
+  {
     "key": "S06",
     "itemNumber": 906,
     "category": "keramik",
@@ -82,6 +236,87 @@
     "enStatus": "reviewed"
   },
   {
+    "key": "S07",
+    "itemNumber": 907,
+    "category": "keramik",
+    "title": {
+      "de": "Teller „Hasen-Reigen“",
+      "en": "Plate “Bunny Round Dance”"
+    },
+    "description": {
+      "de": "Fünf Hasen laufen im Kreis um den Teller, und keiner weiß mehr, wer angefangen hat. In der Mitte parkt ein kleiner Planet. Zum Hinstellen oder Aufhängen (Aufhänger nicht dabei).",
+      "en": "Five bunnies running in circles around the plate, and nobody remembers who started it. A little planet is parked in the middle. To stand up or hang (hanger not included)."
+    },
+    "juttaSays": {
+      "de": "Der war schon einmal unterwegs und ist zurückgekommen. Ganz heil, nur etwas reiseerfahrener.",
+      "en": "This one went on a trip and came back. Perfectly fine, just a bit more well-travelled."
+    },
+    "priceCents": 5800,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
+      "en": "Stoneware, underglaze colours, clear glaze"
+    },
+    "dimensions": {
+      "diameterCm": 22,
+      "heightCm": 2.5
+    },
+    "weightGrams": 520,
+    "shippingClass": "keramik",
+    "foodContact": "deko",
+    "internalNote": "Rückläufer aus PC-2026-90001 (Widerruf), unbeschädigt, wieder online.",
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ph:teller-01"
+    ],
+    "state": {
+      "status": "available",
+      "firstPublishedAt": "D-60@18:00"
+    },
+    "storageLocation": "Regal K",
+    "enStatus": "reviewed"
+  },
+  {
+    "key": "S08",
+    "itemNumber": 908,
+    "category": "keramik",
+    "title": {
+      "de": "Kleiner Teller „Fuchs auf dem Mond“",
+      "en": "Small plate “Fox on the Moon”"
+    },
+    "description": {
+      "de": "Ein Fuchs macht es sich in der Mondsichel gemütlich, drei Sterne gucken zu. Kleiner Deko-Teller.",
+      "en": "A fox getting cosy in a crescent moon while three stars watch. Small decorative plate."
+    },
+    "priceCents": 4900,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
+      "en": "Stoneware, underglaze colours, clear glaze"
+    },
+    "dimensions": {
+      "diameterCm": 17,
+      "heightCm": 2
+    },
+    "weightGrams": 330,
+    "shippingClass": "keramik",
+    "foodContact": "deko",
+    "internalNote": "Käuferin möchte den Teller verschenken – bitte nicht im Archiv zeigen.",
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ph:teller-02"
+    ],
+    "state": {
+      "status": "sold",
+      "firstPublishedAt": "D-45@18:00",
+      "soldAt": "D-3@19:11",
+      "soldChannel": "online",
+      "showInArchiveAfterSale": false
+    },
+    "storageLocation": "Regal K",
+    "enStatus": "reviewed"
+  },
+  {
     "key": "S09",
     "itemNumber": 909,
     "category": "keramik",
@@ -118,6 +353,60 @@
       "archivedAt": "D-6@09:35"
     },
     "storageLocation": "Regal K",
+    "enStatus": "reviewed"
+  },
+  {
+    "key": "S10",
+    "itemNumber": 910,
+    "category": "textil",
+    "title": {
+      "de": "T-Shirt „Hasen-Parade“",
+      "en": "T-shirt “Bunny Parade”"
+    },
+    "description": {
+      "de": "Weißes Second-Hand-Shirt, vorne marschieren vier Hasen im Gleichschritt. Von Hand bemalt, schön weich gewaschen.",
+      "en": "White second-hand tee with four bunnies marching in step across the front. Painted by hand, nice and soft from washing."
+    },
+    "priceCents": 6800,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Second-Hand-T-Shirt, bemalt mit Textilfarbe",
+      "en": "Second-hand T-shirt, painted with fabric paint"
+    },
+    "dimensions": {
+      "note": {
+        "de": "Brustweite 52 cm, Länge 70 cm",
+        "en": "Chest width 52 cm, length 70 cm"
+      }
+    },
+    "weightGrams": 180,
+    "shippingClass": "paket_klein",
+    "sizeLabel": {
+      "de": "M",
+      "en": "M"
+    },
+    "isSecondHand": true,
+    "condition": "very_good",
+    "fiberComposition": [
+      {
+        "component": "main",
+        "fiber": "cotton",
+        "percent": 100
+      }
+    ],
+    "blankBrandVisible": false,
+    "deviationDecision": "none",
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ph:shirt-01"
+    ],
+    "state": {
+      "status": "sold",
+      "firstPublishedAt": "D-40@18:00",
+      "soldAt": "D-22@12:31",
+      "soldChannel": "online"
+    },
+    "storageLocation": "Stange T",
     "enStatus": "reviewed"
   },
   {
@@ -191,6 +480,182 @@
     "enStatus": "reviewed"
   },
   {
+    "key": "S12",
+    "itemNumber": 912,
+    "category": "textil",
+    "title": {
+      "de": "Ringer-Shirt „Fuchs“",
+      "en": "Ringer tee “Fox”"
+    },
+    "description": {
+      "de": "Ringer-Shirt mit roten Bündchen und einem Fuchs mit Kulleraugen auf der Brust. Kaum getragen.",
+      "en": "Ringer tee with red trims and a googly-eyed fox on the chest. Barely worn."
+    },
+    "priceCents": 7200,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Second-Hand-T-Shirt, bemalt mit Textilfarbe",
+      "en": "Second-hand T-shirt, painted with fabric paint"
+    },
+    "dimensions": {
+      "note": {
+        "de": "Brustweite 46 cm, Länge 64 cm",
+        "en": "Chest width 46 cm, length 64 cm"
+      }
+    },
+    "weightGrams": 150,
+    "shippingClass": "paket_klein",
+    "sizeLabel": {
+      "de": "S",
+      "en": "S"
+    },
+    "isSecondHand": true,
+    "condition": "like_new",
+    "fiberComposition": [
+      {
+        "component": "main",
+        "fiber": "cotton",
+        "percent": 100
+      }
+    ],
+    "blankBrandVisible": false,
+    "deviationDecision": "none",
+    "internalNote": "War für PC-2026-90007 reserviert, Vorkasse kam nicht.",
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ph:shirt-03"
+    ],
+    "state": {
+      "status": "available",
+      "firstPublishedAt": "D-25@18:00"
+    },
+    "storageLocation": "Stange T",
+    "enStatus": "reviewed"
+  },
+  {
+    "key": "S13",
+    "itemNumber": 913,
+    "category": "textil",
+    "title": {
+      "de": "Kleid „Hasen-Bordüre“",
+      "en": "Dress “Bunny Border”"
+    },
+    "description": {
+      "de": "Leichtes Sommerkleid, am Saum eine gemalte Bordüre aus Hasenköpfen und Tupfen. Mit Futter, Second-Hand.",
+      "en": "Light summer dress with a painted border of bunny heads and dots along the hem. Lined, second-hand."
+    },
+    "priceCents": 14500,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Second-Hand-Kleid, bemalt mit Textilfarbe",
+      "en": "Second-hand dress, painted with fabric paint"
+    },
+    "dimensions": {
+      "note": {
+        "de": "Brustweite 46 cm, Länge 98 cm",
+        "en": "Chest width 46 cm, length 98 cm"
+      }
+    },
+    "weightGrams": 260,
+    "shippingClass": "paket_klein",
+    "sizeLabel": {
+      "de": "EU 38",
+      "en": "EU 38"
+    },
+    "isSecondHand": true,
+    "condition": "very_good",
+    "fiberComposition": [
+      {
+        "component": "main",
+        "fiber": "viscose",
+        "percent": 100
+      },
+      {
+        "component": "lining",
+        "fiber": "polyester",
+        "percent": 100
+      }
+    ],
+    "blankBrandVisible": false,
+    "deviationDecision": "none",
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ph:kleid-01"
+    ],
+    "state": {
+      "status": "sold",
+      "firstPublishedAt": "D-33@18:00",
+      "soldAt": "D-13@20:41",
+      "soldChannel": "online"
+    },
+    "storageLocation": "Stange T",
+    "enStatus": "reviewed"
+  },
+  {
+    "key": "S14",
+    "itemNumber": 914,
+    "category": "textil",
+    "title": {
+      "de": "Kleid „Planeten-Nacht“",
+      "en": "Dress “Planet Night”"
+    },
+    "description": {
+      "de": "Dunkelblaues Kleid mit langen Ärmeln, übersät mit Planeten und Sternen. Das Etikett fehlt – nach bestem Wissen Baumwolle.",
+      "en": "Dark blue long-sleeved dress scattered with planets and stars. The label is missing – to the best of my knowledge it's cotton."
+    },
+    "priceCents": 12800,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Second-Hand-Kleid, bemalt mit Textilfarbe",
+      "en": "Second-hand dress, painted with fabric paint"
+    },
+    "dimensions": {
+      "note": {
+        "de": "Brustweite 48 cm, Länge 105 cm",
+        "en": "Chest width 48 cm, length 105 cm"
+      }
+    },
+    "weightGrams": 380,
+    "shippingClass": "paket_klein",
+    "sizeLabel": {
+      "de": "ca. M (EU 38–40)",
+      "en": "approx. M (EU 38–40)"
+    },
+    "isSecondHand": true,
+    "condition": "good",
+    "fiberComposition": [
+      {
+        "component": "main",
+        "fiber": "cotton",
+        "percent": 100
+      }
+    ],
+    "labelMissing": true,
+    "fiberFreeText": {
+      "de": "Baumwolle (nach bestem Wissen)",
+      "en": "cotton (to the best of my knowledge)"
+    },
+    "blankBrandVisible": false,
+    "deviationDecision": "described",
+    "hasDeviation": true,
+    "deviationDescription": {
+      "de": "Am Saum hinten ist eine Stelle heller ausgeblichen (ca. 4 × 2 cm).",
+      "en": "There's a lighter faded patch on the back hem (approx. 4 × 2 cm)."
+    },
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ph:kleid-02"
+    ],
+    "state": {
+      "status": "reserved",
+      "firstPublishedAt": "D-10@18:00",
+      "reservedUntil": "D+3@23:59:59",
+      "reservationCheckout": "checkouts:O13"
+    },
+    "storageLocation": "Stange T",
+    "enStatus": "reviewed"
+  },
+  {
     "key": "S15",
     "itemNumber": 915,
     "category": "cap",
@@ -247,6 +712,112 @@
     "enStatus": "reviewed"
   },
   {
+    "key": "S16",
+    "itemNumber": 916,
+    "category": "cap",
+    "title": {
+      "de": "Graue Cap „Flammenwesen“",
+      "en": "Grey cap “Flame Creature”"
+    },
+    "description": {
+      "de": "Grau gewaschene Cap, vorne springt ein schwarzes Wesen durch bunte Flammen. Mit Schriftzug auf dem Schirm.",
+      "en": "Washed grey cap with a black creature leaping through colourful flames. Lettering on the brim."
+    },
+    "priceCents": 8900,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Second-Hand-Cap, bemalt mit Textilfarbe",
+      "en": "Second-hand cap, painted with fabric paint"
+    },
+    "dimensions": {
+      "note": {
+        "de": "Kopfumfang ca. 54–60 cm",
+        "en": "Head size approx. 54–60 cm"
+      }
+    },
+    "weightGrams": 110,
+    "shippingClass": "paket_klein",
+    "sizeLabel": {
+      "de": "Einheitsgröße, verstellbar",
+      "en": "One size, adjustable"
+    },
+    "isSecondHand": true,
+    "condition": "good",
+    "fiberComposition": [
+      {
+        "component": "main",
+        "fiber": "cotton",
+        "percent": 100
+      }
+    ],
+    "blankBrandVisible": false,
+    "deviationDecision": "none",
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ig:DdHXUQsDjqm#cap"
+    ],
+    "state": {
+      "status": "sold",
+      "firstPublishedAt": "D-35@18:00",
+      "soldAt": "D-22@14:00",
+      "soldChannel": "online"
+    },
+    "storageLocation": "Kiste C",
+    "enStatus": "reviewed"
+  },
+  {
+    "key": "S17",
+    "itemNumber": 917,
+    "category": "cap",
+    "title": {
+      "de": "Cap „Coco-Kopf“",
+      "en": "Cap “Coco Head”"
+    },
+    "description": {
+      "de": "Sandfarbene Cap, vorne guckt Coco mit ihren Riesenohren raus. Wie neu.",
+      "en": "Sand-coloured cap with Coco and her giant ears peeking out from the front. Like new."
+    },
+    "priceCents": 7900,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Second-Hand-Cap, bemalt mit Textilfarbe",
+      "en": "Second-hand cap, painted with fabric paint"
+    },
+    "dimensions": {
+      "note": {
+        "de": "Kopfumfang ca. 54–60 cm",
+        "en": "Head size approx. 54–60 cm"
+      }
+    },
+    "weightGrams": 100,
+    "shippingClass": "paket_klein",
+    "sizeLabel": {
+      "de": "Einheitsgröße, verstellbar",
+      "en": "One size, adjustable"
+    },
+    "isSecondHand": true,
+    "condition": "like_new",
+    "fiberComposition": [
+      {
+        "component": "main",
+        "fiber": "cotton",
+        "percent": 100
+      }
+    ],
+    "blankBrandVisible": false,
+    "deviationDecision": "none",
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ph:cap-01"
+    ],
+    "state": {
+      "status": "available",
+      "firstPublishedAt": "D-6@18:00"
+    },
+    "storageLocation": "Kiste C",
+    "enStatus": "reviewed"
+  },
+  {
     "key": "S18",
     "itemNumber": 918,
     "category": "cap",
@@ -294,6 +865,45 @@
     "enStatus": "reviewed"
   },
   {
+    "key": "S19",
+    "itemNumber": 919,
+    "category": "zeichnung",
+    "title": {
+      "de": "„Fuchs“, Aquarell",
+      "en": "“Fox”, watercolour"
+    },
+    "description": {
+      "de": "Ein Fuchs mit großen Augen und langen Schnurrhaaren, leuchtend orange auf Grün und Pink. Original-Aquarell, ungerahmt.",
+      "en": "A fox with big eyes and long whiskers, bright orange on green and pink. Original watercolour, unframed."
+    },
+    "priceCents": 12000,
+    "vatCategory": "reduced_art",
+    "materials": {
+      "de": "Aquarell auf Papier (300 g/m²)",
+      "en": "Watercolour on paper (300 gsm)"
+    },
+    "dimensions": {
+      "widthCm": 20,
+      "heightCm": 30
+    },
+    "weightGrams": 30,
+    "shippingClass": "paket_klein",
+    "framed": false,
+    "frameHasGlass": false,
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ig:DaDz8yljp3i"
+    ],
+    "state": {
+      "status": "sold",
+      "firstPublishedAt": "D-111@18:00",
+      "soldAt": "D-41@19:14",
+      "soldChannel": "pickup"
+    },
+    "storageLocation": "Mappe Z",
+    "enStatus": "reviewed"
+  },
+  {
     "key": "S20",
     "itemNumber": 920,
     "category": "zeichnung",
@@ -326,6 +936,167 @@
     "state": {
       "status": "available",
       "firstPublishedAt": "D-109@18:00"
+    },
+    "storageLocation": "Mappe Z",
+    "enStatus": "reviewed"
+  },
+  {
+    "key": "S21",
+    "itemNumber": 921,
+    "category": "zeichnung",
+    "title": {
+      "de": "„Kelch mit Schlange“, Tusche",
+      "en": "“Chalice with Snake”, ink"
+    },
+    "description": {
+      "de": "Aus einem Kelch windet sich eine Schlange. Klare schwarze Linie auf Weiß. Das Motiv gibt es auch als Flash F-901.",
+      "en": "A snake winding its way out of a chalice. Clean black line on white. The design is also available as flash F-901."
+    },
+    "priceCents": 8000,
+    "vatCategory": "reduced_art",
+    "materials": {
+      "de": "Tusche auf Papier",
+      "en": "Ink on paper"
+    },
+    "dimensions": {
+      "widthCm": 18,
+      "heightCm": 24
+    },
+    "weightGrams": 12,
+    "shippingClass": "brief",
+    "framed": false,
+    "frameHasGlass": false,
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ig:DbJ1QRrjCcb"
+    ],
+    "state": {
+      "status": "sold",
+      "firstPublishedAt": "D-84@18:00",
+      "soldAt": "D-30@21:05",
+      "soldChannel": "online"
+    },
+    "storageLocation": "Mappe Z",
+    "enStatus": "reviewed"
+  },
+  {
+    "key": "S22",
+    "itemNumber": 922,
+    "category": "zeichnung",
+    "title": {
+      "de": "„Reh“, Aquarell aus dem Skizzenbuch",
+      "en": "“Deer”, sketchbook watercolour"
+    },
+    "description": {
+      "de": "Ein Rehkitz mit großen Ohren und hellen Tupfen, direkt aus meinem Skizzenbuch getrennt.",
+      "en": "A fawn with big ears and pale spots, taken straight out of my sketchbook."
+    },
+    "juttaSays": {
+      "de": "Die Welle im Papier kommt vom Wasser. Das gehört beim Aquarell dazu.",
+      "en": "The wave in the paper comes from the water. That's just watercolour."
+    },
+    "priceCents": 11000,
+    "vatCategory": "reduced_art",
+    "materials": {
+      "de": "Aquarell im Skizzenbuch, Seite herausgetrennt",
+      "en": "Watercolour on a sketchbook page, removed from the book"
+    },
+    "dimensions": {
+      "widthCm": 14,
+      "heightCm": 21
+    },
+    "weightGrams": 10,
+    "shippingClass": "brief",
+    "framed": false,
+    "frameHasGlass": false,
+    "hasDeviation": true,
+    "deviationDescription": {
+      "de": "Linker Rand mit Perforation vom Skizzenbuch, Papier leicht gewellt.",
+      "en": "Perforated left edge from the sketchbook, paper slightly wavy."
+    },
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ig:DblvrTRiUqi"
+    ],
+    "state": {
+      "status": "available",
+      "firstPublishedAt": "D-73@18:00"
+    },
+    "storageLocation": "Mappe Z",
+    "enStatus": "reviewed"
+  },
+  {
+    "key": "S23",
+    "itemNumber": 923,
+    "category": "zeichnung",
+    "title": {
+      "de": "„Coco auf dem Mond“, Tusche",
+      "en": "“Coco on the Moon”, ink"
+    },
+    "description": {
+      "de": "Coco sitzt auf dem Mond und lässt die Beine baumeln. Tusche auf festem Papier.",
+      "en": "Coco sits on the moon and lets her legs dangle. Ink on firm paper."
+    },
+    "priceCents": 14000,
+    "vatCategory": "reduced_art",
+    "materials": {
+      "de": "Tusche auf Papier",
+      "en": "Ink on paper"
+    },
+    "dimensions": {
+      "widthCm": 24,
+      "heightCm": 30
+    },
+    "weightGrams": 25,
+    "shippingClass": "paket_klein",
+    "framed": false,
+    "frameHasGlass": false,
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ph:zeichnung-01"
+    ],
+    "state": {
+      "status": "available",
+      "firstPublishedAt": "D-8@18:00"
+    },
+    "storageLocation": "Mappe Z",
+    "enStatus": "machine"
+  },
+  {
+    "key": "S24",
+    "itemNumber": 924,
+    "category": "zeichnung",
+    "title": {
+      "de": "„Flammenwesen“, Aquarell",
+      "en": "“Flame Creature”, watercolour"
+    },
+    "description": {
+      "de": "Das Wesen von der grauen Cap hat sein eigenes Blatt bekommen: schwarz, mit einer Mähne aus bunten Flammen.",
+      "en": "The creature from the grey cap got its own sheet: black, with a mane of colourful flames."
+    },
+    "priceCents": 18000,
+    "vatCategory": "reduced_art",
+    "materials": {
+      "de": "Aquarell auf Papier (300 g/m²)",
+      "en": "Watercolour on paper (300 gsm)"
+    },
+    "dimensions": {
+      "widthCm": 24,
+      "heightCm": 32
+    },
+    "weightGrams": 35,
+    "shippingClass": "paket_klein",
+    "framed": false,
+    "frameHasGlass": false,
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ph:zeichnung-02"
+    ],
+    "state": {
+      "status": "sold",
+      "firstPublishedAt": "D-29@18:00",
+      "soldAt": "D-1@22:07",
+      "soldChannel": "online"
     },
     "storageLocation": "Mappe Z",
     "enStatus": "reviewed"
@@ -454,6 +1225,137 @@
       "reservationCheckout": "checkouts:KS2"
     },
     "storageLocation": "Kästchen S",
+    "enStatus": "reviewed"
+  },
+  {
+    "key": "S28",
+    "itemNumber": 928,
+    "category": "schmuck",
+    "title": {
+      "de": "Mini-Planet-Anhänger",
+      "en": "Mini planet pendant"
+    },
+    "description": {
+      "de": "Ein Planet mit Ring, kleiner als eine Fingerkuppe. Weiß glasiert, der Ring in Pink.",
+      "en": "A planet with a ring, smaller than a fingertip. White glaze, pink ring."
+    },
+    "priceCents": 2400,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Steinzeug, glasiert; Öse aus Edelstahl",
+      "en": "Stoneware, glazed; stainless steel loop"
+    },
+    "dimensions": {
+      "widthCm": 1.2,
+      "heightCm": 1.2
+    },
+    "weightGrams": 3,
+    "shippingClass": "brief",
+    "metalPartsMaterial": {
+      "de": "Öse: Edelstahl 316L",
+      "en": "Loop: stainless steel 316L"
+    },
+    "nickelFreeConfirmed": true,
+    "nickelEvidence": "private-uploads:nickel-demo",
+    "leadFreeGlazeConfirmed": true,
+    "smallPartsWarning": true,
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ph:anhaenger-02"
+    ],
+    "state": {
+      "status": "available",
+      "firstPublishedAt": "D-18@18:00"
+    },
+    "storageLocation": "Kästchen S",
+    "enStatus": "reviewed"
+  },
+  {
+    "key": "S29",
+    "itemNumber": 929,
+    "category": "schmuck",
+    "title": {
+      "de": "Reh-Köpfchen-Anhänger"
+    },
+    "description": {
+      "de": "Ein Rehköpfchen mit großen Ohren und Tupfen auf der Stirn. Keramik, glasiert, mit Öse."
+    },
+    "priceCents": 2900,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Steinzeug, glasiert; Öse aus Edelstahl",
+      "en": "Stoneware, glazed; stainless steel loop"
+    },
+    "dimensions": {
+      "widthCm": 1.5,
+      "heightCm": 1.8
+    },
+    "weightGrams": 4,
+    "shippingClass": "brief",
+    "metalPartsMaterial": {
+      "de": "Öse: Edelstahl 316L",
+      "en": "Loop: stainless steel 316L"
+    },
+    "nickelFreeConfirmed": true,
+    "nickelEvidence": "private-uploads:nickel-demo",
+    "leadFreeGlazeConfirmed": true,
+    "smallPartsWarning": true,
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ph:anhaenger-03"
+    ],
+    "state": {
+      "status": "available",
+      "firstPublishedAt": "D-5@18:00"
+    },
+    "storageLocation": "Kästchen S",
+    "enStatus": "missing"
+  },
+  {
+    "key": "S30",
+    "itemNumber": 930,
+    "category": "sonstiges",
+    "title": {
+      "de": "Flohmarkt-Spiegel „Hasen-Rahmen“",
+      "en": "Flea-market mirror “Bunny Frame”"
+    },
+    "description": {
+      "de": "Alter Holzspiegel vom Flohmarkt, auf dem Rahmen gucken Hasen über die Kante. Zu schwer und zu zerbrechlich für die Post – nur Abholung in Berlin.",
+      "en": "An old wooden mirror from the flea market, with bunnies peeking over the edge of the frame. Too heavy and fragile to post – pickup in Berlin only."
+    },
+    "juttaSays": {
+      "de": "Die Hasen gucken dir beim Zähneputzen zu. Sorry.",
+      "en": "The bunnies will watch you brush your teeth. Sorry."
+    },
+    "priceCents": 9800,
+    "vatCategory": "standard",
+    "materials": {
+      "de": "Spiegelglas, alter Holzrahmen, bemalt mit Acrylfarbe, Klarlack",
+      "en": "Mirror glass, old wooden frame, painted with acrylic, clear varnish"
+    },
+    "dimensions": {
+      "widthCm": 45,
+      "heightCm": 60,
+      "depthCm": 3
+    },
+    "weightGrams": 2400,
+    "shippingClass": "nur_abholung",
+    "isSecondHand": true,
+    "safetyWarnings": {
+      "de": "Spiegelglas kann bei Stößen brechen. Nur an einer geeigneten Wand sicher aufhängen.",
+      "en": "Mirror glass can break if knocked. Only hang securely on a suitable wall."
+    },
+    "ownDesignConfirmed": true,
+    "images": [
+      "media:ph:spiegel-01"
+    ],
+    "state": {
+      "status": "sold",
+      "firstPublishedAt": "D-27@18:00",
+      "soldAt": "D-6@11:00",
+      "soldChannel": "pickup"
+    },
+    "storageLocation": "Flur",
     "enStatus": "reviewed"
   }
 ]
