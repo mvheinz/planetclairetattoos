@@ -262,6 +262,8 @@ export async function submitCommission(
           budget: value.budget,
           locale: value.locale,
           referenceImages: uploads,
+          // Eingang = Serverzeit der injizierten Uhr (Grundlage der Löschung L-10)
+          createdAt: receivedAt,
         } as never,
         depth: 0,
         overrideAccess: true,
@@ -274,7 +276,12 @@ export async function submitCommission(
         req.payload.update({
           collection: 'private-uploads',
           id,
-          data: { status: 'attached', relatedInquiry: created.id } as never,
+          // gleiche Frist wie die Anfrage (L-10)
+          data: {
+            status: 'attached',
+            relatedInquiry: created.id,
+            deleteAfter: created.deleteAfter,
+          } as never,
           depth: 0,
           overrideAccess: true,
           req,
