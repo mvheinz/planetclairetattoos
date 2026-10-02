@@ -3363,7 +3363,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     „R-137 Widerruf …“, „R-138 Widerruf …“; Projekte `iphone-15` und `desktop`).
   - Ohne Jutta: –
 
-- [ ] **P6.9 Widerrufs-Posteingang: Aktionen und Fristen-Job** – Aktionen in `/widerrufe/:id` (KONZEPT §7.10, §5.4,
+- [x] **P6.9 Widerrufs-Posteingang: Aktionen und Fristen-Job** – Aktionen in `/widerrufe/:id` (KONZEPT §7.10, §5.4,
   R-094) mit Status und Übergängen aus DATENMODELL §6.11 (`src/lib/commerce/withdrawalTransitions.ts`): „Bestellung
   zuordnen“ (Suche nach Nummer, E-Mail, Name; W2 → O11 bzw. O4; `matchStatus = manually_matched`, Widerrufsstatus
   bleibt), „Ware ist zurück“ (W3/O12, `goods_returned`, `goodsReturnedAt`, Zustandsnotiz, optional Fotos

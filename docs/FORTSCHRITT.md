@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-02 – P6.9
+
+- Widerrufs-Posteingang mit Aktionen: Bestellung zuordnen (Suche, O11/O4), Ware ist zurück (O12, Zustandsnotiz `returnConditionNote`, Fotos), Rücksendenachweis, Ohne Erstattung abschließen (O20 nur ohne weiteren offenen Widerruf), Ablehnen und Test/Spam (nur manuell, Begründung Pflicht), Stück wieder verkaufen/ausblenden; manuelle Erfassung per Mail/Brief (`POST /api/withdrawals/manual`, Berliner Ortszeit, M08 nur mit E-Mail und Haken).
+- „erstatten bis“ jetzt 14 Berliner Kalendertage (`addBerlinDays`), Task `withdrawalDeadlines` (A13 einmal ab Tag 10, ohne Beispieldaten); Migrationen `p6_withdrawal_inbox_refunds`, `p6_withdrawal_deadlines_task`.
+- Tests: `tests/int/legal/withdrawal-inbox.int.spec.ts` (11), `tests/int/jobs/withdrawal-deadlines.int.spec.ts` (1), `tests/e2e/admin/withdrawal-inbox.e2e.spec.ts` (3 je Projekt).
+
 ## 2026-10-02 – P6.22
 
 - Anlage E erzeugt: `docs/recht/anlagen/E-01…E-06.png` (390 px, DE, Mock, 68–145 KB) mit `scripts/legal/briefing-screenshots.ts`; M08 wird vorab außerhalb von Playwright gerendert, Konfiguration löst Pfade zur Repo-Wurzel auf.

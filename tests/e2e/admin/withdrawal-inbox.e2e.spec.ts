@@ -102,7 +102,7 @@ test('@a11y R-094 zuordnen (Suche) → O11, ohne Erstattung abschließen → O20
     await page.getByTestId('withdrawal-close-button').click()
     await confirm(page)
     await expect(page.getByTestId('withdrawal-detail')).toContainText(
-      'ohne Erstattung abgeschlossen',
+      'Dieser Widerruf ist abgeschlossen',
     )
     const after = await payload.findByID({
       collection: 'orders',

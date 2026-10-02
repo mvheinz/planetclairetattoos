@@ -8,7 +8,7 @@ import { postAdminAction } from '../../components/adminAction'
 import { adminText } from '../../translations'
 
 // „Widerruf manuell erfassen“ in `/widerrufe` (PLAN P6.9, R-094, DM-WDR-04): Kanal (E-Mail, Brief, Sonstiges),
-// Zugangszeitpunkt (Datum und Uhrzeit in Berlin, vom Browser in UTC umgerechnet), Name, Vertrag, optional E-Mail,
+// Zugangszeitpunkt (Datum und Uhrzeit in Berlin, vom Server in UTC umgerechnet), Name, Vertrag, optional E-Mail,
 // Stücke und Grund. „Eingangsbestätigung senden“ ist nie vorausgewählt und geht nur mit E-Mail.
 
 export function ManualWithdrawalForm({
@@ -110,8 +110,8 @@ export function ManualWithdrawalForm({
               '/api/withdrawals/manual',
               {
                 ...v,
-                // `datetime-local` ist Ortszeit des Geräts (Berlin) → ISO in UTC
-                receivedAt: new Date(v.receivedAt).toISOString(),
+                // `datetime-local` als Berliner Ortszeit; der Server rechnet in UTC um (unabhängig vom Gerät)
+                receivedAt: v.receivedAt,
                 email: v.email.trim() || null,
                 sendReceipt: send && v.email.trim() !== '',
               },

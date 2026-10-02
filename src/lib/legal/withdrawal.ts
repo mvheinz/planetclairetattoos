@@ -17,7 +17,7 @@ import { preservingReq } from '@/lib/payload/localReq'
 import { inTransaction } from '@/lib/payload/transaction'
 import { ipHash } from '@/lib/security/ipHash'
 import { hit, retryAfterSeconds } from '@/lib/security/rateLimit'
-import { formatBerlinWithZone } from '@/lib/time'
+import { formatBerlinWithZone, parseBerlinLocal } from '@/lib/time'
 import type { Order, Withdrawal } from '@/payload-types'
 
 // Widerrufs-Dienst (PLAN P6.7, KONZEPT §5.4 W1, R-093, DATENMODELL §6.11): nimmt die über „Widerruf bestätigen“
@@ -439,8 +439,20 @@ export async function submitWithdrawal(
 /** Per E-Mail, Brief o. Ä. eingegangener Widerruf, den Jutta erfasst (`POST /api/withdrawals/manual`). */
 export const manualWithdrawalSchema = z.object({
   channel: z.enum(['email', 'letter', 'other']),
-  /** Zugangszeitpunkt laut Jutta (ISO), nicht in der Zukunft. */
-  receivedAt: z.iso.datetime({ offset: true }),
+  /** Zugangszeitpunkt laut Jutta: ISO mit Zone oder Berliner Ortszeit „JJJJ-MM-TTTHH:mm“; nicht in der Zukunft. */
+  receivedAt: z
+    .string()
+    .trim()
+    .transform((v, ctx) => {
+      const d =
+        parseBerlinLocal(v) ??
+        (z.iso.datetime({ offset: true }).safeParse(v).success ? new Date(v) : null)
+      if (!d || Number.isNaN(d.getTime())) {
+        ctx.addIssue({ code: 'custom', message: 'Zugangszeitpunkt ungültig.' })
+        return z.NEVER
+      }
+      return d.toISOString()
+    }),
   name: z.string().trim().min(2).max(100),
   contractIdentification: z.string().trim().min(3).max(500),
   email: z

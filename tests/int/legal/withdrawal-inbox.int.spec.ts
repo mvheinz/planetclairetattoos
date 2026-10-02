@@ -149,7 +149,7 @@ describe('R-094 Posteingang', () => {
         req,
         {
           channel: 'letter',
-          receivedAt: '2026-10-19T08:00:00.000Z',
+          receivedAt: '2026-10-19T10:00', // Berliner Ortszeit aus dem Formular (MESZ)
           name: 'Brief Schreiberin',
           contractIdentification: 'Brief vom 17.10., Tasse',
           sendReceipt: false,
