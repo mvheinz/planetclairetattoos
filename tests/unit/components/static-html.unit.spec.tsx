@@ -78,10 +78,13 @@ describe('StaticHtml (TBT P7)', () => {
   it('P7 Client-Komponenten und Sonderformen brechen ab', async () => {
     const ClientRef = { $$typeof: Symbol.for('react.client.reference') } as unknown as React.FC
     await expect(resolveServerTree(<ClientRef />)).rejects.toThrow(/Client-Komponente/)
-    const Memo = React.memo(() => <b />)
+    const Memo = React.memo(function Bold() {
+      return <b />
+    })
     await expect(resolveServerTree(<Memo />)).rejects.toThrow(/nicht unterstützter Elementtyp/)
   })
 
+  /* eslint-disable @next/next/no-img-element -- Prüfung des statischen Markups, kein Seiten-Bild */
   it('P7 eifrige Bilder brechen ab (React würde sie mitten im <body> vorladen), faule sind erlaubt', async () => {
     await expect(renderResolvedToHtml(<img src="/a.svg" alt="" />)).rejects.toThrow(
       /loading="lazy"/,
@@ -93,6 +96,7 @@ describe('StaticHtml (TBT P7)', () => {
       '<img src="/a.svg" alt="" fetchPriority="low"/>',
     )
   })
+  /* eslint-enable @next/next/no-img-element */
 
   it('P7 vorhandenes dangerouslySetInnerHTML bleibt unverändert', async () => {
     const html = await renderResolvedToHtml(
