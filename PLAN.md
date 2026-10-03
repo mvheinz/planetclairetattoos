@@ -4489,7 +4489,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Tests: `tests/e2e/home.e2e.spec.ts` (Stationen, Stücke, Badge, Links DE/EN).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P8.18 Über mich & Coco (R19) mit Preset `about`** – Route `/de/ueber-mich` · `/en/about` aus `pages.about`
+- [x] **P8.18 Über mich & Coco (R19) mit Preset `about`** – Route `/de/ueber-mich` · `/en/about` aus `pages.about`
   (Blöcke nach SEED-SPEC §13.2; KONZEPT §3.12): H1 „Jutta & Coco“, Text über Jutta, Coco-Abschnitt mit Coco-Zeichnung,
   „Was ich mache“ (Shop, Tattoo, Auftragsarbeiten), Instagram-Link mit `rel="noopener noreferrer"` (R-139). Fotos mit
   `showsPerson = jutta` nur mit Freigabe (P8.20). Tuschelinie Preset `about` (DESIGN §9.7: 3 Stationen Jutta/Coco/

@@ -187,7 +187,8 @@
       "conformity": "Konformitätserklärungen von Planet Claire, Berlin, zu handgemachter Keramik mit Lebensmittelkontakt – aktuelle Erklärungen zum Ansehen und Herunterladen.",
       "shop": "Handgemachte Unikate von Planet Claire aus Berlin: bemalte Keramik, Textil, Caps, Zeichnungen und Schmuck – jedes Stück gibt es nur einmal.",
       "category": "Handgemachte Unikate von Planet Claire aus Berlin in dieser Kategorie – jedes Stück ist ein Einzelstück, Lieferung innerhalb Deutschlands.",
-      "archive": "Archiv von Planet Claire aus Berlin: Keramik, Textil und Zeichnungen, die schon ein Zuhause gefunden haben – zum Anschauen und Stöbern."
+      "archive": "Archiv von Planet Claire aus Berlin: Keramik, Textil und Zeichnungen, die schon ein Zuhause gefunden haben – zum Anschauen und Stöbern.",
+      "about": "Jutta und Coco von Planet Claire in Berlin: Fine-Line-Tattoos, bemalte Keramik, Shirts und Zeichnungen – wer hinter den Unikaten steckt und wie sie entstehen."
     },
     "og": {
       "tagline": "Tattoos & Unikate aus Berlin",
@@ -1375,5 +1376,18 @@
       "invalid": "Es kam kein Bild an.",
       "failed": "Das Bild konnte nicht gespeichert werden."
     }
+  },
+  "about": {
+    "title": "Jutta & Coco",
+    "lead": "Tattoos, Keramik, Shirts und Zeichnungen aus Berlin – und ein kleiner Hund mit sehr großen Ohren.",
+    "whatHeading": "Was ich mache",
+    "whatShop": "Shop",
+    "whatTattoo": "Tattoo",
+    "whatCommissions": "Auftragsarbeiten",
+    "instagram": "Mehr von uns auf Instagram",
+    "cocoAlt": "Coco, gezeichnet",
+    "emptyTitle": "Hier zieht gerade etwas um.",
+    "emptyText": "Die Seite über Jutta und Coco ist gleich wieder da. Bis dahin: schau im Shop vorbei oder auf Instagram.",
+    "emptyAction": "Zum Shop"
   }
 }

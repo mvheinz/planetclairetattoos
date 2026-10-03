@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-03 – P8.18
+
+- Neue Route R19 /de/ueber-mich · /en/about (src/app/(frontend)/[locale]/about, Registry-Status live, ISR mit Tag pages): H1 „Jutta & Coco“, Blöcke aus pages:about in Reihenfolge (Text, Bild und Text, Coco mit Coco-Zeichnung, Bildergalerie, „Was ich mache“ mit Kategorien + Shop/Tattoo/Auftragsarbeiten, Kontaktwege), Instagram-Link rel=noopener noreferrer; Leerzustand ohne Seite (DM-PAGE-01). SEO-Beschreibung DE/EN, Sitemap, canonical/hreflang über routeMetadata, OG-Bild wie alle Seiten.\n- Tuschelinie Preset about: drei Stationen jutta → coco → werkstatt (Schlaufen right/left/right, Posen sitzen/kopfschief/schnueffeln); Bilder von Jutta ausgeblendet bis zur Freigabe (P8.20).\n- Tests: neu tests/e2e/about.e2e.spec.ts (desktop + pixel-7 16/16: Inhalt DE/EN, canonical + 3 hreflang, Sitemap, keine Jutta-Bilder, Instagram rel, Linie überdeckt keinen Text, reducedMotion → Stufe C vollständig und 0 Animationen, axe); neu tests/unit/leash/about.unit.spec.ts (Preset-Daten und Geometrie 390/1440); Registry-Test auf R19 live angepasst.
+
 ## 2026-10-03 – P8.17
 
 - Startseite liest Stationen aus pages.home (bereits seit P2/P3/P7); ergänzt: Station „Jutta & Coco“ mit Links Mehr über uns (R19), Auftragsarbeiten (R10) und Instagram (rel=noopener noreferrer, i18n home.stationCommissions/stationInstagram).\n- Geprüft gegen SEED-SPEC §5.1/§12.2: Keramik S01/S04/S05/S07, Textil 4 aus S11/S12/S14/S15/S17, Zeichnungen S20/S22/S23, Schmuck S26–S29; Tattoo-Station mit TO2 „läuft gerade“ als Datums-Badge, TO3 nicht, ≤ 3 freie Flash; Preisfußnote einmal; JSON-LD Organization ohne Adresse.\n- Visuelle Referenz r01-start (desktop, mobile) mit vollem Beispielbestand erneuert (lokal, Linux).\n- Tests: tests/e2e/home.e2e.spec.ts +2 (DE/EN), home- und Stationen-E2E desktop + pixel-7 25/25 grün inkl. LCP < 2,5 s / CLS < 0,1 (mobil); Lighthouse lokal R01 mobil (3 Läufe, Median): LCP 2,18 s, CLS 0,009, TBT 148 ms – innerhalb der Gates; Lighthouse-CI (EK-01) bestätigt im CI-Job.

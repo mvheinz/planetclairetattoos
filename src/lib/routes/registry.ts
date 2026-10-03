@@ -112,7 +112,7 @@ export const ROUTES: readonly RouteEntry[] = [
   page({ id: 'R16', de: '/tattoo/ablauf', en: '/tattoo/process', pageType: 'tattoo', preset: 'stencil', rendering: 'static', robots: 'index', headerContext: 'public', status: 'live', phase: 7 }),
   page({ id: 'R17', de: '/tattoo/aftercare', en: '/tattoo/aftercare', pageType: 'tattoo', preset: 'stencil', rendering: 'static', robots: 'index', headerContext: 'public', status: 'live', phase: 7 }),
   page({ id: 'R18', de: '/tattoo/faq', en: '/tattoo/faq', pageType: 'tattoo', preset: 'stencil', rendering: 'static', robots: 'index', headerContext: 'public', status: 'live', phase: 7 }),
-  page({ id: 'R19', de: '/ueber-mich', en: '/about', pageType: 'about', preset: 'about', rendering: 'static', robots: 'index', headerContext: 'public', status: 'planned', phase: 8 }),
+  page({ id: 'R19', de: '/ueber-mich', en: '/about', pageType: 'about', preset: 'about', rendering: 'static', robots: 'index', headerContext: 'public', status: 'live', phase: 8 }),
   page({ id: 'R20', de: '/kontakt', en: '/contact', pageType: 'contact', preset: 'margin', rendering: 'static', robots: 'index', headerContext: 'public', status: 'live', phase: 6, scaffoldPhase: 2 }),
   page({ id: 'R21', de: '/impressum', en: '/legal-notice', pageType: 'legal', preset: 'legal', rendering: 'static', robots: 'index', headerContext: 'public', status: 'live', phase: 6, scaffoldPhase: 2 }),
   page({ id: 'R22', de: '/datenschutz', en: '/privacy', pageType: 'legal', preset: 'legal', rendering: 'static', robots: 'index', headerContext: 'public', status: 'live', phase: 6, scaffoldPhase: 2 }),

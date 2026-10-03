@@ -1,0 +1,108 @@
+/* R19 Über mich & Coco (KONZEPT §3.12, DESIGN §9.7 Preset `about`): Textspalte in der Mitte, Bild-Text-Paare ab 768 px
+   nebeneinander. Die Tuschelinie läuft in der Rinne links (44/64 px) – Inhalt hält Abstand, nichts liegt unter der Linie. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding-block: var(--space-5) var(--space-7);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.lead {
+  max-width: 60ch;
+  font-size: var(--fs-lead, 1.125rem);
+  line-height: 1.5;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 68ch;
+}
+
+.sectionHeading {
+  margin: 0;
+}
+
+.imageText {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+@media (min-width: 768px) {
+  .imageText {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    max-width: none;
+  }
+
+  .imageText[data-image-position='left'] .imageTextMedia {
+    order: -1;
+  }
+
+  .imageText[data-image-position='left'] {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  }
+}
+
+.coco {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 68ch;
+}
+
+@media (min-width: 768px) {
+  .coco {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+.cocoArt {
+  flex: none;
+  width: var(--coco-xl, 120px);
+}
+
+.gallery {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.galleryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  .galleryGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.caption {
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
