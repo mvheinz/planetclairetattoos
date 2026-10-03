@@ -1,5 +1,5 @@
 import { easeInkOut } from './easing'
-import { buildGeometry, mapReadingY, pointAt } from './geometry'
+import { buildGeometry, geometrySteps, mapReadingY, pointAt } from './geometry'
 import { measure, type Measurement } from './measure'
 import { getMotion, type Motion } from './motion'
 import {
@@ -79,6 +79,8 @@ export interface LeashProbe {
  * Scrollen nicht wächst.
  */
 export const LEASH_MEASURES = { build: 'leash:build', frame: 'leash:frame' } as const
+/** Höchste Dauer einer Geometrie-Scheibe beim Aufbau in Teilstücken (`phased`): × 4 bleibt unter 50 ms (PF-04). */
+const PHASE_SLICE_MS = 8
 export const FRAME_MEASURE_CAP = 600
 
 export interface InspectableLeashHandle extends LeashHandle {
@@ -480,10 +482,22 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     }
     step(() => {
       const mm = measure(root, options.preset)
-      step(() => {
-        const g = buildGeometry({ preset: options.preset, seed, ...mm.input })
-        step(() => commit(first || !committed, mm, g, t0, () => work + performance.now()))
-      })
+      const steps = geometrySteps({ preset: options.preset, seed, ...mm.input })
+      // Geometrie in Scheiben von ≤ PHASE_SLICE_MS, dann eine eigene Aufgabe zum Zeichnen.
+      const slice = () => {
+        const s = performance.now()
+        for (;;) {
+          const r = steps.next()
+          if (r.done) {
+            const g = r.value.geometry
+            step(() => commit(first || !committed, mm, g, t0, () => work + performance.now()))
+            return
+          }
+          if (performance.now() - s >= PHASE_SLICE_MS) break
+        }
+        step(slice)
+      }
+      step(slice)
     })
   }
 

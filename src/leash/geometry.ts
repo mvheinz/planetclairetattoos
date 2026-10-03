@@ -644,10 +644,17 @@ function polyD(xs: number[], ys: number[], close: boolean): string {
 // ---------- Hauptfunktion ----------
 
 /** `buildGeometry` plus die abgetasteten Punkte und Breiten (Tests, Stufe C). */
-export function buildGeometryWithSamples(input: BuildInput): {
+export interface GeometryResult {
   geometry: LeashGeometry
   samples: LeashSamples
-} {
+}
+
+/**
+ * Geometrie in Teilschritten (Generator): hält nach Abtastung, Wackel/Normalen, Breitenprofil und jedem Segment an.
+ * Ergebnis identisch zu `buildGeometryWithSamples`; die Laufzeit (`phased`) verteilt die Schritte auf Aufgaben ≤ 50 ms
+ * bei 4× (KUNST-QA PF-04).
+ */
+export function* geometrySteps(input: BuildInput): Generator<void, GeometryResult, void> {
   const cfg = PRESET_CONFIG[input.preset]
   const { viewport, baseWidth: bw } = input
   const desktop = viewport.w >= BP_TABLET
@@ -664,6 +671,7 @@ export function buildGeometryWithSamples(input: BuildInput): {
   const fine = flatten(catmullRom(plan.pts))
   const { sx, sy, ss, tx, ty, total } = resample(fine, SAMPLE_STEP)
   const n = ss.length
+  yield
 
   // Schritt 6: Wackel entlang der Normalen.
   const n1 = valueNoise1D(input.seed ^ 0x9e3779b9)
@@ -695,6 +703,7 @@ export function buildGeometryWithSamples(input: BuildInput): {
     ny[i] = dx / d
     ang[i] = Math.atan2(dy, dx)
   }
+  yield
   const theta = new Float64Array(n)
   let prevRaw = 0
   for (let i = 0; i < n; i++) {
@@ -729,6 +738,7 @@ export function buildGeometryWithSamples(input: BuildInput): {
     }
     w[i] = width
   }
+  yield
 
   // Schritt 9: Segmente – Schnitt an Schlaufen-Enden und spätestens alle max(600, 1.25 × Viewport-Höhe).
   const knotLen = (i: number) => fine.knot[Math.min(i, fine.knot.length - 1)]!
@@ -759,6 +769,7 @@ export function buildGeometryWithSamples(input: BuildInput): {
     const i1 = k === bounds.length - 2 ? n - 1 : idxAt(bounds[k + 1]! + SEGMENT_OVERLAP)
     if (i1 <= i0) continue
     segments.push(buildSegment(`s${k}`, i0, i1, { wx, wy, nx, ny, ang, w, ss }, dots))
+    yield
   }
 
   // Schritt 10: LUT je 4 px Bogenlänge.
@@ -798,6 +809,15 @@ export function buildGeometryWithSamples(input: BuildInput): {
       scrollMap,
     },
     samples: { s: ss, x: wx, y: wy, w },
+  }
+}
+
+/** Alle Teilschritte am Stück. */
+export function buildGeometryWithSamples(input: BuildInput): GeometryResult {
+  const steps = geometrySteps(input)
+  for (;;) {
+    const r = steps.next()
+    if (r.done) return r.value
   }
 }
 
