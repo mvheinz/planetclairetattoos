@@ -4667,7 +4667,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: `tests/e2e/qa-mode.e2e.spec.ts` (mit/ohne Schalter); Unit-Test der Parameter-Auswertung.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.2 Aufnahme-Grundgerüst und Kalibrierbogen** – `playwright.art.config.ts` mit Projekten `art-iphone15`
+- [x] **P9.2 Aufnahme-Grundgerüst und Kalibrierbogen** – `playwright.art.config.ts` mit Projekten `art-iphone15`
   (WebKit, `devices['iPhone 15']`, Viewport aus dem Deskriptor), `art-pixel7` (Chromium, `devices['Pixel 7']`, CPU 4×
   per CDP nur in Tempo-Läufen), `art-desktop` (1440×900) und den Varianten `motion`/`reduced` (KUNST-QA §4.2). Helfer
   in `tests/art/helpers/` für die deterministische Aufnahme (§4.4: `scrollTo` + 2 rAF bzw. `__leash.setReadingY`,
