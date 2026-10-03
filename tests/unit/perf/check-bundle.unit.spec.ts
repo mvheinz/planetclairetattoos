@@ -9,6 +9,7 @@ import {
   evaluateImages,
   evaluatePages,
   expandGlob,
+  findDevOnlyStrings,
   firstLoadBudget,
   loadBudgets,
   pageTargets,
@@ -252,5 +253,20 @@ describe('P3.16 Bild-Budgets (DESIGN §12.2) – nur Bericht', () => {
       '<img srcset="/api/media/file/s01-thumb-400x500.webp 400w, /api/media/file/s01-card-800x1000.webp 800w" src="/api/media/file/s01-thumb-400x500.webp">'
     expect(sizedImageUrls(html, 'thumb')).toEqual(['/api/media/file/s01-thumb-400x500.webp'])
     expect(sizedImageUrls(html, 'card')).toEqual(['/api/media/file/s01-card-800x1000.webp'])
+  })
+})
+
+describe('P8.14: potrace nie im Client-Bundle', () => {
+  it('findDevOnlyStrings findet „potrace“ in einem Chunk und sonst nichts', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'pc-static-'))
+    try {
+      mkdirSync(path.join(dir, 'chunks'))
+      writeFileSync(path.join(dir, 'chunks', 'a.js'), 'console.log("ok")')
+      expect(findDevOnlyStrings(dir)).toEqual([])
+      writeFileSync(path.join(dir, 'chunks', 'b.js'), 'var Potrace = require("potrace")')
+      expect(findDevOnlyStrings(dir).map((f) => path.basename(f))).toEqual(['b.js'])
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
   })
 })
