@@ -11,8 +11,8 @@ interface LeashApi {
 }
 type LeashWindow = Window & { __leash?: LeashApi }
 
-/** Unverwechselbarer Text aus `src/leash/runtime.ts` (Masken-ID-Präfix) für die Chunk-Analyse. */
-const RUNTIME_MARKER = 'pc-leash-m-'
+/** Unverwechselbarer Text aus `src/leash/runtime.ts` (Stufenwahl nach Kernzahl) für die Chunk-Analyse. */
+const RUNTIME_MARKER = 'hardwareConcurrency'
 
 const layer = (page: Page) => page.locator('[data-leash-layer]')
 
