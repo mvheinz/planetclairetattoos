@@ -3671,11 +3671,11 @@ ANFORDERUNGEN §3, §5, §6, §7.
   ARCHITEKTUR §1.2 (`sanitize-html`) und DIENSTE nachgezogen; geprüft, dass KONZEPT §8.3/AK-8-03 auf L-10 verweisen.
 - [x] `LEGAL_TRACE_PHASE = 6`, Spalte „Nachweis“ vollständig bis P6; Nachweise im PR-Text: AK-3-11, AK-3-12, AK-6-04,
   AK-DS-09, AK-5-01 Widerruf, EK-04, EK-05, EK-06.
-- [ ] CI grün: Der Phasenende-Commit (z. B. `chore(P6): finish phase [ci:full p6]`, der letzte Commit ohne
+- [x] CI grün: Der Phasenende-Commit (z. B. `chore(P6): finish phase [ci:full p6]`, der letzte Commit ohne
   `[skip ci]`) hat `CI / quick`, `ci-full` (`e2e-full` inkl. `@a11y` und `@privacy`, `quality` mit visuellen Referenzen
   für die neuen Seitentypen Rechtsseite, Widerruf Schritt 1/2/Bestätigung, Kontakt) und `preview-export` grün
   durchlaufen. Dieses Häkchen setzt ein reiner Doku-Commit mit `[skip ci]`, nachdem der Lauf grün ist.
-- [ ] Vorschau-Artefakt `planet-claire-vorschau-p6-<sha7>` enthält alle Rechtsseiten DE/EN mit Platzhalter-Banner,
+- [x] Vorschau-Artefakt `planet-claire-vorschau-p6-<sha7>` enthält alle Rechtsseiten DE/EN mit Platzhalter-Banner,
   R26 mit Schritten, Kontakt und die Admin-Fotos von Widerrufe, Texte → Rechtstexte, Datenschutz-Anfragen, Löschvorschau.
 - [x] `docs/recht/KANZLEI-BRIEFING.md` in neuer Version mit Eintrag in §19 und `docs/recht/VVT.md` vorhanden;
   ANFORDERUNGEN §7 Teil A für R-095 und R-156 abgehakt.

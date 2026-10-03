@@ -3,6 +3,11 @@
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
 
+
+## 2026-10-03 – P6 CI grün
+
+- Phasenlauf `[ci:full p6]` (7823d67): CI, CI full (e2e desktop/iphone-15/pixel-7, quality inkl. Lighthouse über HTTP/2) und Vorschau-Export grün; Artefakt `planet-claire-vorschau-p6-7823d67`.
+
 ## 2026-10-03 – P6 CI-Reparatur (Tempo R04)
 
 - Phasenlauf (26d07e2): nur Lighthouse R04 (LCP) rot. Produktseite trägt die 404-Varianten nicht mehr in den Inline-Daten (ein JS-Chunk weniger); Lighthouse misst jetzt wie die Produktion über HTTP/2 (lokaler TLS-Vorschaltserver `scripts/perf/serve-h2.mjs`, Grenzen unverändert) – R04 LCP lokal Median ≈ 1,55 s statt zweigipflig bis 2,6 s.
