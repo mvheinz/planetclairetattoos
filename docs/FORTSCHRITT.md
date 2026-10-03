@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-03 – P8.19
+
+- Einstellungen → Beispieldaten (`SeedArea`): Anzahl je Bereich, „Beispieldaten entfernen“ mit Dialog (Mengen, „Seitentexte und FAQ behalten“ vorausgewählt, Eintippen von „ENTFERNEN“), Sperre mit Platzhalter-Rechtstexten (Text „Bitte zuerst die Texte der Kanzlei einsetzen …“ + Typen), „Übernehmen“ je Stück/Flash/Galerie/Bild.
+- Endpunkte `GET /api/admin/seed/summary`, `POST /api/admin/seed/remove` (`src/endpoints/seed.ts`, Logik `removeSeedData`, danach `revalidateAll`), `POST /api/{products,flash,tattoo-gallery,media}/:id/adopt` (`src/lib/seed/adopt.ts`, Audit `product_adopted`, Medien mit).
+- Tests: `tests/int/seed/admin-remove.int.spec.ts` (6: 403, Zählung, Sperre/Freigabe mit Fixture-Rechtstexten, falsches Wort 400, Übernahme, AK-11-03/R-180 zweimal); `tests/e2e/admin-seed.e2e.spec.ts` (390 px, axe; Entfernen-Aufruf abgefangen, siehe OFFENE-PUNKTE).
+
 ## 2026-10-03 – P8.18
 
 - Neue Route R19 /de/ueber-mich · /en/about (src/app/(frontend)/[locale]/about, Registry-Status live, ISR mit Tag pages): H1 „Jutta & Coco“, Blöcke aus pages:about in Reihenfolge (Text, Bild und Text, Coco mit Coco-Zeichnung, Bildergalerie, „Was ich mache“ mit Kategorien + Shop/Tattoo/Auftragsarbeiten, Kontaktwege), Instagram-Link rel=noopener noreferrer; Leerzustand ohne Seite (DM-PAGE-01). SEO-Beschreibung DE/EN, Sitemap, canonical/hreflang über routeMetadata, OG-Bild wie alle Seiten.\n- Tuschelinie Preset about: drei Stationen jutta → coco → werkstatt (Schlaufen right/left/right, Posen sitzen/kopfschief/schnueffeln); Bilder von Jutta ausgeblendet bis zur Freigabe (P8.20).\n- Tests: neu tests/e2e/about.e2e.spec.ts (desktop + pixel-7 16/16: Inhalt DE/EN, canonical + 3 hreflang, Sitemap, keine Jutta-Bilder, Instagram rel, Linie überdeckt keinen Text, reducedMotion → Stufe C vollständig und 0 Animationen, axe); neu tests/unit/leash/about.unit.spec.ts (Preset-Daten und Geometrie 390/1440); Registry-Test auf R19 live angepasst.

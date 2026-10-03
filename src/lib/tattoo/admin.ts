@@ -712,7 +712,9 @@ export async function savePageTexts(
     seo: input.seo ?? {},
     title: (current) => {
       const de = input.title?.de?.trim() || current.de || def.title.de
-      return { de, en: input.title?.en?.trim() || current.en || de }
+      // Leeres englisches Feld = deutscher Titel (öffentliche Rückfall-Sprache; „Übersetzen“ füllt ihn danach).
+      const en = input.title ? input.title.en?.trim() || de : current.en || de
+      return { de, en }
     },
   })
   const tattoo = key === 'tattoo' || key === 'tattoo_aftercare'

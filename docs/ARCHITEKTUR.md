@@ -438,7 +438,9 @@ den eigenen Handler trifft.
 | `GET /api/admin/packaging-report?year=JJJJ` | Jahres-CSV der Verpackungsmengen nach Material (R-201, E-47) | DATENMODELL §6.8.8 |
 | `GET /api/admin/compliance/template.pdf?category=` | Vorlage „Technische Unterlagen je Kategorie“ (R-203) | DATENMODELL §6.4 |
 | `GET /api/admin/export/{JJJJ-MM}.csv` · `.zip` · `.datev.csv` | Monats-CSV, Rechnungs-ZIP, DATEV-Stapel (R-124); Exporte enthalten nie Beispieldaten, auch nicht im Vorschau-Modus | KONZEPT §7.15 |
-| `GET /api/admin/seed/summary` · `POST /api/admin/seed/remove` | Beispieldaten zählen bzw. entfernen | DATENMODELL §13.5 |
+| `GET /api/admin/seed/summary` · `POST /api/admin/seed/remove` | Beispieldaten zählen bzw. entfernen (`{ keepTexts, confirm: 'ENTFERNEN' }`; 400 ohne Bestätigungswort, 409 mit Platzhalter-Rechtstexten, P8.19) | DATENMODELL §13.5 |
+| `POST /api/{products,flash,tattoo-gallery,media}/:id/adopt` | Beispiel übernehmen (`seed = false`, referenzierte Medien mit, Audit `product_adopted`; zweites Mal 409, P8.19) | DATENMODELL §13.4 |
+| `POST /api/pages/texts` · `POST /api/faqs/texts-save` | Verwaltung „Texte“ → „Seiten und FAQ“: Titel, SEO und Textblöcke jeder Seite bzw. FAQ aller Kategorien DE/EN speichern (Übernahme `seed = false`, P8.19a) | KONZEPT §7.13 |
 
 GraphQL ist abgeschaltet (`graphQL.disable: true`; Routen `graphql` und `graphql-playground` werden in P1 gelöscht).
 

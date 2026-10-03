@@ -4503,7 +4503,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Tests: `tests/e2e/about.e2e.spec.ts`; Unit-Test der Preset-Daten `about` in der Engine-Suite.
   - Ohne Jutta: ohne Fotos von Jutta. P11-Nacharbeit: Jutta kann ein eigenes Foto hochladen und freigeben.
 
-- [ ] **P8.19 Verwaltung „Beispieldaten“: zählen, entfernen, übernehmen** – Einstellungen → Beispieldaten
+- [x] **P8.19 Verwaltung „Beispieldaten“: zählen, entfernen, übernehmen** – Einstellungen → Beispieldaten
   (handytauglich, KONZEPT §7.14, §11.3; ersetzt den Hinweis „kommt in P8“ aus P5.22): Anzahl `seed = true` je
   Collection über `GET /api/admin/seed/summary`; Knopf „Beispieldaten entfernen“ mit Dialog (Mengen, Checkbox „Seitentexte und FAQ behalten“ vorausgewählt, Bestätigung durch
   Eintippen von `ENTFERNEN`) → `POST /api/admin/seed/remove` (`{ keepTexts }`, dieselbe Logik wie `seed:remove`,

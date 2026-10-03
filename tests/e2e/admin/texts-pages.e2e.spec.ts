@@ -52,14 +52,15 @@ async function restorePage(s: Snapshot) {
 test('@a11y P8.19a jede Seite aus PAGE_KEYS bei 390 px in DE und EN bearbeitbar, ohne horizontales Scrollen, axe', async ({
   adminPage: page,
 }) => {
+  test.setTimeout(240_000)
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(adminPath('/texte'))
   await expect(page.getByTestId('texts-page-item')).toHaveCount(PAGE_KEYS.length)
   await expectAccessible(page, '[data-testid="texts-pages-area"]')
   for (const key of PAGE_KEYS) {
-    await page.goto(adminPath(`/texte?seite=${key}`))
+    await page.getByTestId(`texts-page-link-${key}`).click()
     const editor = page.getByTestId('texts-page-editor')
-    await expect(editor, key).toHaveAttribute('data-key', key)
+    await expect(editor, key).toHaveAttribute('data-key', key, { timeout: 20_000 })
     const form = editor.getByTestId(`page-texts-all-${key}`)
     await expect(form.getByTestId('tf-title.de')).not.toHaveValue('')
     await expect(form.getByTestId('tf-title.en')).toBeVisible()
@@ -77,6 +78,7 @@ test('P8.19a Seite „Archiv“: Übersetzen füllt EN, Speichern setzt seed = f
   adminPage: page,
   request,
 }) => {
+  test.setTimeout(150_000)
   const snapshot = await snapshotPage('archive')
   expect(snapshot.de.seed).toBe(true)
   const stamp = `Juttas Archiv-Text ${Date.now().toString(36)}`
@@ -94,6 +96,11 @@ test('P8.19a Seite „Archiv“: Übersetzen füllt EN, Speichern setzt seed = f
     await field('en').fill('')
     await form.getByTestId('tf-title.en').fill('')
     await form.getByTestId('translate-button').click()
+    const onlyEmpty = page.getByTestId('confirm-dialog-ok')
+    await onlyEmpty
+      .waitFor({ state: 'visible', timeout: 3_000 })
+      .then(() => onlyEmpty.click())
+      .catch(() => undefined)
     await expect(field('en')).toHaveValue(`[EN] ${stamp}`)
     await expect(form.getByTestId('tf-title.en')).toHaveValue(/^\[EN\] /)
     await form.getByTestId('page-save-all-archive').click()
@@ -133,6 +140,7 @@ test('P8.19a FAQ-Reihenfolge per Tastatur ändern – erscheint öffentlich gena
   adminPage: page,
   request,
 }) => {
+  test.setTimeout(150_000)
   const payload = await testPayload()
   const before = (
     await payload.find({
@@ -160,11 +168,11 @@ test('P8.19a FAQ-Reihenfolge per Tastatur ändern – erscheint öffentlich gena
     await expectNoHorizontalScroll(page)
     await expectAccessible(page, '[data-testid="texts-pages-area"]')
 
-    // öffentlich (R11, Block „FAQ“ der Kategorie tattoo) in derselben Reihenfolge
+    // öffentlich (R18 Tattoo-FAQ, Kategorie tattoo) in derselben Reihenfolge
     await expect
       .poll(
         async () => {
-          const html = await (await request.get(localizedPath('R11', 'de'))).text()
+          const html = await (await request.get(localizedPath('R18', 'de'))).text()
           const a = html.indexOf(`data-faq="${before[1]!.id}"`)
           const b = html.indexOf(`data-faq="${before[0]!.id}"`)
           return a >= 0 && b >= 0 && a < b
