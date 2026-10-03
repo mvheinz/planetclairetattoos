@@ -55,6 +55,15 @@ export function LeashLayer({
   const routeKey = routeKeyOverride ?? (match ? leashRouteKey(match) : 'R28')
   const cocoOnLeash = preset !== null && PRESET_CONFIG[preset].coco?.size === 'leash'
 
+  // Frame-Logger `__qa` auch ohne Linie (Grundlinie `?leash=off`, Seiten ohne Preset; nur Debug-Build, KUNST-QA §4.6).
+  useEffect(() => {
+    // eslint-disable-next-line no-restricted-properties -- öffentliche Build-Konstante, kein getEnv() im Browser
+    if (process.env.NEXT_PUBLIC_LEASH_DEBUG === '1')
+      void import('@/leash/debug').then(({ exposeQa }) => {
+        exposeQa()
+      })
+  }, [])
+
   useEffect(() => {
     const el = ref.current
     if (!el || !preset) return

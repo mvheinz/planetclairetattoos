@@ -61,6 +61,8 @@ export interface FrameOptions {
   /** Nur dieses Element (sonst Sichtbereich). */
   element?: Locator
   fullPage?: boolean
+  /** `css`: ein Bildpunkt je CSS-Pixel (Sequenzen, spart Zeit bei DPR 3); Standard `device`. */
+  scale?: 'css' | 'device'
 }
 
 export class ArtSession {
@@ -120,7 +122,12 @@ export class ArtSession {
   /** Ein Standbild (PNG → WebP q 90) unter `frames/<SC>/<profil>/<variante>/<nnn>-<label>.webp`. */
   async frame(label: string, opts: FrameOptions = {}): Promise<string> {
     this.n++
-    const shot = { type: 'png' as const, caret: 'hide' as const, animations: 'allow' as const }
+    const shot = {
+      type: 'png' as const,
+      caret: 'hide' as const,
+      animations: 'allow' as const,
+      scale: opts.scale ?? ('device' as const),
+    }
     const png = opts.element
       ? await opts.element.screenshot(shot)
       : await this.page.screenshot({ ...shot, fullPage: opts.fullPage ?? false })
@@ -191,7 +198,13 @@ export class ArtSession {
       if (t > 0) await this.page.clock.runFor(opts.stepMs)
       await seekAnimations(this.page, t)
       const label = `${opts.prefix ? `${opts.prefix}-` : ''}t${String(Math.round(t)).padStart(4, '0')}`
-      out.push(await this.frame(label, opts.element ? { element: opts.element } : {}))
+      // Bewegungssequenzen in CSS-Pixeln (Zeitbudget ≤ 25 min, KUNST-QA §9); Standbilder bleiben in Geräteauflösung.
+      out.push(
+        await this.frame(label, {
+          ...(opts.element ? { element: opts.element } : {}),
+          scale: 'css',
+        }),
+      )
     }
     await this.resumeClock()
     return out
@@ -275,7 +288,8 @@ async function openSession(
   const external: string[] = []
   await guardHosts(context, (u) => external.push(u))
   const page = await context.newPage()
-  await page.clock.install({ time: ART_CLOCK })
+  // Tempo-Läufe (SC-18) messen echte Frames: dort keine Playwright-Clock (sie ersetzt rAF und performance.now).
+  if (meta.variant !== 'tempo') await page.clock.install({ time: ART_CLOCK })
   return { session: new ArtSession(page, context, meta, sc, testInfo), external }
 }
 
