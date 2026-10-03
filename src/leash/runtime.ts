@@ -411,7 +411,8 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     const start = m?.input.anchors.find((a) => a.kind === 'start')
     if (!m || !start || cfg.rail !== 'center') return null
     const g = m.input.gutter
-    const hero = stationState()?.id === 'planet-claire' && m.input.anchors.find((a) => a.id === 'planet-claire')
+    const st = stationState()
+    const hero = st?.inside && st.id === 'planet-claire' && m.input.anchors.find((a) => a.id === st.id)
     return [start.x - g / 2, hero ? hero.x + hero.w : start.x + g / 2, hero ? 200 : 40]
   }
 
