@@ -4402,7 +4402,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     gilt auch für P8.13).
   - Ohne Jutta: vollständig machbar; Feinschliff in P9 (Rubrik ≥ 4). P11-Nacharbeit: –
 
-- [ ] **P8.13 Platzhalter-Zeichnungen II: Flash- und Tattoo-Platzhalter** – Mit dem Werkzeug aus P8.12
+- [x] **P8.13 Platzhalter-Zeichnungen II: Flash- und Tattoo-Platzhalter** – Mit dem Werkzeug aus P8.12
   `flash-902` … `flash-910` (ohne Wash, Grund `--paper-2`, Stencil-Anmutung, klare Kontur) und `tattoo-01` …
   `tattoo-04` (Körperumriss Knöchel, Handgelenk, Oberarm, Schienbein mit dem verknüpften Flash-Motiv, Wash
   `--wash-clay`, „frisch“ mit etwas kräftigerer Linie) nach SEED-SPEC §4.2; `pnpm seed:example --refresh-media`.

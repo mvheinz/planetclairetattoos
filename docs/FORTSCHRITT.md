@@ -2,6 +2,14 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-03 – P8.13
+
+- Flash-Platzhalter flash-902 … flash-910 (ohne Wash, Grund Papier-2, klare Kontur): Hasen-Trio, Fuchs mit Kulleraugen, Schmetterling mit Tupfen, Schnecke mit Planetenhaus, Coco sitzt (mit rotem Geschirr), winziger Planet, Reh mit Tupfen, Flammenwesen, Herz mit Beinen – passend zu den Titeln SEED-SPEC §12.1.
+- Tattoo-Platzhalter tattoo-01 … tattoo-04 (Wash --wash-clay): Knöchel/Fuß mit Hasen-Trio (F902, frisch, Linie 3), Handgelenk mit winzigem Planeten (F907, verheilt, Linie 1,8), Oberarm mit Coco (F906, frisch, Linie 3), Schienbein mit Herz mit Beinen (F910, verheilt, Linie 2); Körperumriss in 2,4.
+- pnpm seed:example --refresh-media: Flash-Raster (R12) und Galerie (R15) zeigen die Zeichnungen statt fallbackArt.
+- Prüf-Linse (gleicher Lauf wie P8.12, Kontaktbogen mit allen 30): alle Flash-/Tattoo-Motive „lesbar: ja“, Coco (flash-906, tattoo-03) „ja“.
+- Tests: tests/unit/art/placeholders.unit.spec.ts deckt Flash (0 Wash-Flächen) und Tattoo (eigene Linienstärke nur im Tattoo) ab; tests/int/seed/media.int.spec.ts „kein Platzhalter stammt mehr aus fallbackArt“ (alle 30 aus src/art/placeholders, Pixelvergleich) – 7/7 grün.
+
 ## 2026-10-03 – P8.12
 
 - Werkzeug scripts/art/lib/handline.ts (gesäter Wackel quer zur Richtung, offene Enden/Überstände bei geschlossenen Formen, Absetzer bei langen Strichen, Doppelkonturen, Schatten aus 5–7 Schraffurstrichen unter 40°, eine um 3–4 Einheiten versetzte Wash-Fläche, gefüllt nur Pupillen/Nase/Tupfen, Glanzpunkte in Papier) und Generator pnpm art:placeholders (scripts/art/placeholders.ts, optional --sheet/--png).
