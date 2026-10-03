@@ -259,4 +259,25 @@ describe('Inline-Skript pc-motion (DESIGN §11.7, ARCHITEKTUR §8.1)', () => {
     expect(flat).toContain("--font-body: 'bricolage Fallback'")
     expect(flat).toContain("--font-mono: 'plexMono Fallback'")
   })
+
+  it('P2.20 Schriften: Metrik-Ersatzschriften greifen auch ohne Arial (Liberation Sans/Arimo), TBT §7.7', () => {
+    const fonts = readFileSync(path.join(ROOT, 'src/styles/fonts.ts'), 'utf8')
+    const css = readFileSync(path.join(ROOT, 'src/styles/global.css'), 'utf8')
+    const faces = [...css.matchAll(/@font-face\s*\{([^}]*)\}/g)].map((m) =>
+      m[1]!.replace(/\s+/g, ' '),
+    )
+    for (const name of ['mansalva', 'bricolage', 'plexMono']) {
+      const block =
+        new RegExp(`export const ${name} = localFont\\(\\{([\\s\\S]*?)\\n\\}\\)`).exec(
+          fonts,
+        )?.[1] ?? ''
+      // next/font erzeugt keine eigene Fläche mehr; der Stapel beginnt mit der Fläche aus global.css.
+      expect(block).toMatch(/adjustFontFallback:\s*false/)
+      expect(block).toMatch(new RegExp(`fallback:\\s*\\[\\s*'${name} Fallback',`))
+      const face = faces.find((f) => f.includes(`font-family: '${name} Fallback'`)) ?? ''
+      expect(face).toMatch(/src: local\('Arial'\).*local\('Liberation Sans'\).*local\('Arimo'\)/)
+      expect(face).toMatch(/size-adjust: \d+(\.\d+)?%/)
+      expect(face).toMatch(/ascent-override: \d+(\.\d+)?%/)
+    }
+  })
 })

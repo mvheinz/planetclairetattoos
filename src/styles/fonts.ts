@@ -1,8 +1,12 @@
 import localFont from 'next/font/local'
 
 // Selbst gehostete Schriften (DESIGN §4.1, E-43, E-79): Dateien aus `pnpm fonts:copy`, nie Google-Fonts-CDN und nie
-// den Google-Lader von next/font. `adjustFontFallback` (Standard „Arial“) erzeugt Metrik-Fallbacks gegen CLS; die Fallback-Stapel
-// laut DESIGN §4.1 stehen zusätzlich in `tokens.css`. Die CSS-Variablen setzt das Wurzel-Layout auf `<html>`.
+// den Google-Lader von next/font. Metrik-Fallbacks gegen CLS (DESIGN §4.1 „adjustFontFallback“): die Flächen
+// `<name> Fallback` stehen nicht mehr von next/font (`adjustFontFallback: false`), sondern in `global.css` – mit denselben
+// Arial-Metriken, aber neben `local(Arial)` auch den metrisch gleichen Arial-Nachbauten Liberation Sans/Arimo. Grund: Fehlt
+// Arial (Linux, auch der Lighthouse-Rechner), ist die Fläche leer und Chrome fragt für jede Familie im Stapel den
+// Systemschrift-Dienst synchron ab – ~60 Abfragen, ~15–30 ms im ersten Layout (TBT, ARCHITEKTUR §7.7). Die Fallback-
+// Stapel laut DESIGN §4.1 stehen zusätzlich in `tokens.css`. Die CSS-Variablen setzt das Wurzel-Layout auf `<html>`.
 // Kein Preload (DESIGN §4.1, P2.20): Die Schriften lädt der Browser erst nach dem ersten Bild (Schriften-Tor
 // `html[data-fonts]` in `global.css`, gesetzt vom Inline-Skript `pc-motion`) – sie zählen so nicht zum LCP-Pfad.
 
@@ -13,7 +17,8 @@ export const mansalva = localFont({
   display: 'swap',
   preload: false,
   variable: '--font-mansalva',
-  fallback: ['Segoe Print', 'Bradley Hand', 'cursive'],
+  adjustFontFallback: false,
+  fallback: ['mansalva Fallback', 'Segoe Print', 'Bradley Hand', 'cursive'],
 })
 
 export const bricolage = localFont({
@@ -23,7 +28,15 @@ export const bricolage = localFont({
   display: 'swap',
   preload: false,
   variable: '--font-bricolage',
-  fallback: ['ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
+  adjustFontFallback: false,
+  fallback: [
+    'bricolage Fallback',
+    'ui-sans-serif',
+    'system-ui',
+    '-apple-system',
+    'Segoe UI',
+    'sans-serif',
+  ],
 })
 
 export const plexMono = localFont({
@@ -33,7 +46,15 @@ export const plexMono = localFont({
   display: 'swap',
   preload: false,
   variable: '--font-plex-mono',
-  fallback: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
+  adjustFontFallback: false,
+  fallback: [
+    'plexMono Fallback',
+    'ui-monospace',
+    'SFMono-Regular',
+    'Menlo',
+    'Consolas',
+    'monospace',
+  ],
 })
 
 /** Klassen für `<html>`: setzen `--font-mansalva`, `--font-bricolage`, `--font-plex-mono`. */
