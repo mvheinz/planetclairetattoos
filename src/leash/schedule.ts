@@ -70,6 +70,14 @@ export function whenLeashReady(cb: () => void, win: Window = window): () => void
   }
 }
 
+/**
+ * Nächste Aufgabe (`setTimeout` 0): trennt Modul-Auswertung, Coco- und Linien-Aufbau in eigene Aufgaben, damit keine
+ * einzelne den Hauptthread > 50 ms belegt (KUNST-QA PF-04, TBT ARCHITEKTUR §7.7).
+ */
+export function nextTask<T>(value: T): Promise<T> {
+  return new Promise((resolve) => setTimeout(() => resolve(value), 0))
+}
+
 /** Nur für Tests: Zustand „erste Seite geladen“ zurücksetzen. */
 export function resetLeashSchedule(): void {
   firstDone = false

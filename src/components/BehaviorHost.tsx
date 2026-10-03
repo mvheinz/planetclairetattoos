@@ -22,7 +22,17 @@ export function BehaviorHost() {
   const pathname = usePathname()
   useEffect(() => {
     const mounted = mountBehaviors(document, { mode: 'app', actions: ACTIONS })
-    return () => mounted.unmount()
+    const root = document.documentElement
+    let active = true
+    // Alle Module gebunden (erst nach `load`): Marker für Tests und Messskripte (`check:bundle`), sonst ohne Wirkung.
+    void mounted.ready.then(() => {
+      if (active) root.setAttribute('data-behaviors-ready', '')
+    })
+    return () => {
+      active = false
+      root.removeAttribute('data-behaviors-ready')
+      mounted.unmount()
+    }
   }, [pathname])
   return null
 }

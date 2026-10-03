@@ -1,3 +1,4 @@
+import { isImplementedTask, TASK_SLUGS } from '@/jobs/index'
 import { mkdtemp, rm } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
@@ -102,9 +103,11 @@ describe('POST /api/cron/run/[task]', () => {
     expect((await run('releaseExpiredReservations')).status).toBe(401)
     expect((await run('releaseExpiredReservations', 'Bearer falsch')).status).toBe(401)
     expect((await run('dropDatabase', `Bearer ${SECRET}`)).status).toBe(404)
-    const later = await run('revalidateEndedOffers', `Bearer ${SECRET}`)
-    expect(later.status).toBe(501)
-    expect(await later.json()).toMatchObject({ phase: 'P7' })
+    // Seit P7 sind alle Slugs aus Anhang A.3 umgesetzt; 501 gibt es nur noch für künftige Einträge.
+    const pending = TASK_SLUGS.filter((s) => !isImplementedTask(s))
+    for (const slug of pending) expect((await run(slug, `Bearer ${SECRET}`)).status).toBe(501)
+    const p7 = await run('revalidateEndedOffers', `Bearer ${SECRET}`)
+    expect(p7.status).toBe(200)
   })
 
   it('„Jetzt ausführen“ mit Bearer bzw. Admin-Sitzung → 200 und je Lauf ein Eintrag in job_runs', async () => {

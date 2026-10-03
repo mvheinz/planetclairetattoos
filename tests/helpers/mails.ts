@@ -218,6 +218,21 @@ export const WITHDRAWAL_RECEIPT_FIXTURE = {
   returnAddress: null,
 }
 
+export const INQUIRY_RECEIPT_FIXTURE = {
+  inquiryId: 7,
+  reference: 'AA-2026-0007',
+  receivedAt: '2026-10-12T12:03:00.000Z',
+  deleteAfter: '2027-04-12T12:03:00.000Z',
+  name: 'Erika Beispiel',
+  objectType: 'cap',
+  objectTypeOther: null,
+  idea: 'Eine Cap mit meinem Dackel Bruno, gern in Grün und mit kleinen Sternen drumherum.',
+  desiredTimeframe: 'bis Weihnachten',
+  budget: 'ca. 80 €',
+  imageCount: 2,
+  responseTime: null,
+}
+
 export const REFUND_CONFIRMATION_FIXTURE = {
   orderId: 17,
   orderNumber: 'PC-2026-00017',
@@ -293,6 +308,7 @@ export const MAIL_FIXTURE_DATA: Partial<Record<EmailTemplate, Record<string, unk
   prepayment_reminder: REMINDER_FIXTURE,
   prepayment_cancelled: CANCELLED_FIXTURE,
   withdrawal_receipt: WITHDRAWAL_RECEIPT_FIXTURE,
+  inquiry_receipt: INQUIRY_RECEIPT_FIXTURE,
   oversold_apology: OVERSOLD_FIXTURE,
   refund_confirmation: REFUND_CONFIRMATION_FIXTURE,
   complaint_repair_choice: COMPLAINT_REPAIR_CHOICE_FIXTURE,

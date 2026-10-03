@@ -185,6 +185,16 @@
       "priceNote": "Final price plus shipping",
       "productAlt": "{title} – {number}: photo and price tag",
       "defaultAlt": "Planet Claire – tattoos & one-offs from Berlin"
+    },
+    "tattoo": {
+      "R11": "Tattoos by Planet Claire in Berlin: fine line with a sense of humour in a private studio. Flash with fixed prices, offers, prices, gallery, requests by email.",
+      "R12": "Flash designs by Planet Claire, Berlin: ready-made fine line drawings with a fixed price, one-off or repeatable – ask by email or Instagram direct message.",
+      "R13": "Flash days and tattoo offers by Planet Claire in Berlin: dates, designs and prices of current and upcoming offers in the private studio at a glance.",
+      "R14": "Tattoo prices at Planet Claire, Berlin: minimum price, fixed prices for flash, price range for custom ideas and how we agree on the deposit in person.",
+      "R15": "Gallery of Planet Claire, Berlin: freshly tattooed and healed fine line tattoos – shown only with the consent of the people who wear them.",
+      "R16": "How a tattoo appointment with Planet Claire in Berlin works: request by email or DM, appointment, deposit, tattooing in the private studio and aftercare.",
+      "R17": "Tattoo aftercare by Planet Claire, Berlin: care in phases from right after to long term, warning signs for seeing a doctor – printable as well.",
+      "R18": "Common questions for Planet Claire in Berlin: minimum age, private studio, deposit, rescheduling, Coco in the studio, colour, cover-ups, email or DM."
     }
   },
   "contact": {
@@ -931,6 +941,34 @@
       "effect_portfolio": "The withdrawal applies immediately: the photo is no longer shown and will be deleted.",
       "past": "Anything that happened before the withdrawal remains lawful.",
       "reply": "If you have any questions, just reply to this email."
+    },
+    "inquiryReceipt": {
+      "subject": "Your request {reference} has arrived",
+      "title": "Request received",
+      "intro": "thank you for your request! Here's what you sent me:",
+      "reference": "Reference",
+      "receivedAt": "Received on",
+      "object": "Object",
+      "idea": "Your idea",
+      "timeframe": "Preferred timeframe",
+      "budget": "Budget",
+      "images": "Images",
+      "empty": "–",
+      "responseTime": "I usually get back to you within a week.",
+      "offerByMail": "Your request does not yet create a contract, and you don't pay anything. The offer and payment are handled by email, not through the shop.",
+      "deletion": "Your request and your images will be deleted 6 months after receipt at the latest (on {date}).",
+      "objectTypes": {
+        "cap": "Cap",
+        "shirt": "Shirt",
+        "textil_sonstiges": "Other textile (clothing, fabric)",
+        "teller": "Plate",
+        "schale": "Bowl",
+        "tasse": "Cup",
+        "fliese": "Tile",
+        "zeichnung": "Drawing/picture",
+        "schmuck": "Jewellery",
+        "sonstiges": "Something else"
+      }
     }
   },
   "shippingPayment": {
@@ -1049,5 +1087,284 @@
     "notesHint": "Internal notes that may also concern other people are not included in the file. I reviewed them before sending; anything that concerns you is in my reply.",
     "noteHeading": "Note",
     "placeholderMark": "[Placeholder – law firm wording to follow]"
+  },
+  "tattoo": {
+    "subnavLabel": "Tattoo section",
+    "subnavOverview": "Overview",
+    "star": "*",
+    "overview": {
+      "lead": "Fine line with a sense of humour, tattooed in my private studio in Berlin. Here you'll find available designs, offers, prices and everything about your appointment.",
+      "styleHeading": "My style",
+      "offerHeading": "Next offer",
+      "offersAll": "All offers",
+      "flashHeading": "Flash – available now",
+      "flashAll": "All flash designs",
+      "galleryHeading": "Fresh & healed",
+      "galleryAll": "To the gallery",
+      "pagesHeading": "Everything about tattoos",
+      "pageHints": {
+        "R12": "Ready-made designs with a fixed price – pick one.",
+        "R13": "Flash days and offers, while they last.",
+        "R14": "Minimum price, price range for custom ideas and the deposit.",
+        "R15": "Freshly tattooed and healed.",
+        "R16": "From your request to aftercare in five steps.",
+        "R17": "How your tattoo heals in peace – printable too.",
+        "R18": "Answers to the most common questions."
+      }
+    },
+    "flash": {
+      "intro": "Ready-made designs with a fixed price. One-off designs are tattooed only once, repeatable ones more often. Just ask by email or DM.",
+      "filterLabel": "Filter flash designs",
+      "all": "All",
+      "available": "available",
+      "filterOn": "(on)",
+      "listHeading": "Flash designs",
+      "size": "approx. {size} cm",
+      "once": "one-off",
+      "repeatable": "repeatable",
+      "statusAvailable": "available",
+      "taken": "taken",
+      "takenText": "Already taken – have a look at the others",
+      "mail": "Ask by email",
+      "dm": "Ask by DM",
+      "snippetHint": "Send me this in your DM",
+      "copy": "Copy",
+      "copied": "Copied",
+      "copyFailed": "Selected – copy now",
+      "price": "Price",
+      "emptyTitle": "No flash designs online right now",
+      "emptyText": "Have a look on Instagram – that's where new designs show up first.",
+      "emptyAction": "To Instagram",
+      "allTakenTitle": "All flash designs are taken right now.",
+      "allTakenText": "Have a look at the offers or send me your own idea.",
+      "allTakenAction": "To the offers"
+    },
+    "offers": {
+      "intro": "Flash days and offers. Once an offer is over, it disappears from here.",
+      "listHeading": "Current and upcoming offers",
+      "running": "on now",
+      "startsIn": "{days, plural, =0 {today} one {tomorrow} other {in # days}}",
+      "time": "{from}–{to}",
+      "dateLabel": "Date",
+      "flashHeading": "Designs for this offer",
+      "mail": "Ask by email",
+      "dm": "Ask by DM",
+      "types": {
+        "flash_day": "Flash day",
+        "aktion": "Offer"
+      },
+      "emptyTitle": "No offers right now",
+      "emptyText": "Follow @{handle} so you don't miss anything.",
+      "emptyAction": "To Instagram"
+    },
+    "prices": {
+      "intro": "All prices are total prices – that's what you pay in the end, nothing more.",
+      "minHeading": "Minimum price",
+      "minPrice": "Minimum price {amount}*",
+      "customHeading": "Custom ideas",
+      "customRange": "Usually {from}–{to}*, depending on size and effort.",
+      "customFrom": "From {from}*, depending on size and effort.",
+      "customAsk": "I'm happy to tell you the price for your custom idea by email.",
+      "flashHeading": "Flash",
+      "flashText": "Every flash design has a fixed price – it's shown right next to it.",
+      "flashLink": "To the flash designs",
+      "depositHeading": "Deposit",
+      "depositText": "We agree on the deposit personally by email, outside this website. You don't pay anything on this website.",
+      "totalPrice": "Total price"
+    },
+    "gallery": {
+      "intro": "Freshly tattooed and healed – I only show photos whose wearers have agreed.",
+      "filterLabel": "Filter photos",
+      "all": "All",
+      "fresh": "fresh",
+      "healed": "healed",
+      "listHeading": "Photos",
+      "freshLabel": "freshly tattooed",
+      "healedYears": "{years} years healed",
+      "healedYearOne": "1 year healed",
+      "healedMonths": "{months, plural, one {# month} other {# months}} healed",
+      "credit": "Worn by @{handle}",
+      "internal": "internal – consent missing",
+      "open": "View large",
+      "dialog": "Large photo",
+      "close": "Close",
+      "emptyTitle": "Photos are coming soon",
+      "emptyText": "Until then you'll find fresh tattoos on Instagram.",
+      "emptyAction": "To Instagram"
+    },
+    "process": {
+      "intro": "How it works from the first hello to aftercare – no online booking.",
+      "stepsHeading": "In five steps",
+      "steps": {
+        "1": {
+          "title": "Request",
+          "text": "Email or DM me: your idea or the flash number, placement, rough size."
+        },
+        "2": {
+          "title": "Appointment",
+          "text": "We find a date. You'll get the exact address with the confirmation."
+        },
+        "3": {
+          "title": "Deposit",
+          "text": "We sort that out personally by email, not on this website."
+        },
+        "4": {
+          "title": "Tattooing",
+          "text": "Bring your ID, come well rested and with something in your stomach."
+        },
+        "5": {
+          "title": "Aftercare",
+          "text": "You'll get the aftercare steps to take home, and everything's on the aftercare page too."
+        }
+      },
+      "ageHint": "Tattoos for 18+ only.",
+      "placeHeading": "Where?",
+      "place": "Private studio in Berlin-{district}. You'll get the exact address with the appointment confirmation.",
+      "placeNoDistrict": "Private studio in Berlin. You'll get the exact address with the appointment confirmation."
+    },
+    "aftercare": {
+      "intro": "A fresh tattoo is a small wound. These steps help it heal in peace – and if you're unsure, just message me.",
+      "emptyText": "I'll give you the aftercare steps at your appointment. If you have questions, just message me.",
+      "warnHeading": "Warning signs – when to see a doctor?",
+      "warnText": "If the redness keeps spreading after three days, the area gets hot or very swollen, pus comes out, red streaks appear or you get a fever. Please let me know afterwards, too.",
+      "saferHint": "Further reading (in German):",
+      "saferLink": "Safer Tattoo checklists by the German Environment Ministry"
+    },
+    "faq": {
+      "intro": "The most common questions about your appointment. Something missing? Message me.",
+      "emptyTitle": "No questions yet",
+      "emptyText": "Just ask me by email or DM."
+    },
+    "contact": {
+      "heading": "Ask by email or DM",
+      "intro": "No form, no online booking – just message me.",
+      "mail": "Write an email",
+      "dm": "Instagram DM",
+      "emailLabel": "Email address",
+      "copy": "Copy address",
+      "copied": "Copied",
+      "copyFailed": "Selected – copy now"
+    },
+    "mail": {
+      "subjectFlash": "Flash request {number} – {title}",
+      "subjectOffer": "Request {title} on {date}",
+      "subjectGeneral": "Tattoo request",
+      "subjectCustom": "Tattoo request – custom idea",
+      "greeting": "Hi Jutta,",
+      "introFlash": "I'm interested in flash {number} (“{title}”).",
+      "introOffer": "I'm interested in “{title}” on {date}.",
+      "introGeneral": "I'm interested in a tattoo.",
+      "introCustom": "I have my own idea for a tattoo.",
+      "fieldIdea": "My idea:",
+      "fieldPlacement": "Placement:",
+      "fieldSize": "Rough size:",
+      "fieldTime": "Preferred timeframe:",
+      "health": "(Please no health information – we'll sort that out in person.)",
+      "closing": "Best wishes"
+    }
+  },
+  "commission": {
+    "lead": "A cap with your dog on it, a plate with your own words, a picture for someone you like: tell me your idea – I'll paint it for you.",
+    "stepsHeading": "How it works",
+    "steps": {
+      "1": {
+        "title": "Request",
+        "text": "Use the form to tell me what you'd like: object, motif, timeframe."
+      },
+      "2": {
+        "title": "Offer",
+        "text": "I'll reply by email with a price and a rough timeframe."
+      },
+      "3": {
+        "title": "Payment",
+        "text": "If it all works for you, you pay by bank transfer outside the shop."
+      },
+      "4": {
+        "title": "Making it",
+        "text": "I paint, send you a photo, and then your piece is on its way."
+      }
+    },
+    "examplesHeading": "Examples",
+    "notice": "Commissions are agreed individually: we sort out the offer and details by email, payment doesn't go through this shop, and no online contract is concluded on this page.",
+    "formHeading": "Your idea",
+    "formIntro": "Tell me what you have in mind. Please no photos of people and no health information.",
+    "formPlaceholder": "The form is coming soon. Until then, feel free to send me an email.",
+    "faqHeading": "Questions about commissions",
+    "contactHeading": "Rather write directly?",
+    "contactText": "You can also send me your idea by email or as an Instagram message.",
+    "emailSubject": "Commission – my idea",
+    "form": {
+      "requiredNote": "* Required field",
+      "nameLabel": "Name",
+      "emailLabel": "Email",
+      "emailHint": "That's where I'll send the confirmation and later my offer.",
+      "objectTypeLabel": "What should it be?",
+      "objectTypeEmpty": "Please choose",
+      "objectTypes": {
+        "cap": "Cap",
+        "shirt": "Shirt",
+        "textil_sonstiges": "Other textile (clothing, fabric)",
+        "teller": "Plate",
+        "schale": "Bowl",
+        "tasse": "Cup",
+        "fliese": "Tile",
+        "zeichnung": "Drawing/picture",
+        "schmuck": "Jewellery",
+        "sonstiges": "Something else"
+      },
+      "objectTypeOtherLabel": "Something else – what?",
+      "ideaLabel": "What do you have in mind?",
+      "ideaHint": "Motif, colours, text, size – anything that helps. Please no health information and no photos of people.",
+      "timeframeLabel": "Preferred timeframe",
+      "timeframeHint": "Optional, e.g. “by Christmas”.",
+      "budgetLabel": "Budget",
+      "budgetHint": "Optional, e.g. “around €80”.",
+      "imagesLabel": "Images",
+      "imagesHint": "Please no photos in which people can be recognised, and no health information.",
+      "imagesChoose": "Choose images (optional, up to 5)",
+      "imagesRules": "JPEG, PNG or WebP, up to 15 MB each. Large images are made smaller before uploading.",
+      "imagesNoJs": "Images only work with JavaScript – you can still send your request without images.",
+      "imageRemove": "Remove",
+      "imageRemoveLabel": "Remove image {n}",
+      "imageAlt": "Preview of image {n}",
+      "imagePreparing": "Image {n}: preparing …",
+      "imageUploading": "Image {n}: uploading … {percent} %",
+      "imageDone": "Image {n}: uploaded",
+      "imageFailed": "Image {n}: the upload didn't work. You can still send your request without this image.",
+      "imageRemoved": "Image {n} removed.",
+      "imageTooMany": "Up to 5 images – I didn't add “{name}”.",
+      "imageTooBig": "“{name}” is larger than 15 MB.",
+      "imageWrongType": "“{name}” is not a JPEG, PNG or WebP image.",
+      "imagesPending": "One moment – the images are still uploading.",
+      "honeypotLabel": "Please leave this field empty",
+      "submit": "Send request",
+      "busy": "Sending …",
+      "privacyLink": "More in the privacy policy",
+      "errorSummary": "Please check your details:",
+      "errors": {
+        "required": "Please fill in.",
+        "name": "Please use 2–100 characters.",
+        "email": "Please enter a valid email address.",
+        "objectType": "Please choose what it should be.",
+        "objectTypeOther": "Please use 2–80 characters.",
+        "idea": "Please use 20–3000 characters.",
+        "desiredTimeframe": "At most 120 characters.",
+        "budget": "At most 60 characters."
+      },
+      "success": "Thank you! Your request {reference} has arrived. You'll get a confirmation by email shortly.",
+      "successGeneric": "Thank you! Your request has arrived. You'll get a confirmation by email shortly.",
+      "noticeRateLimited": "You've just sent several requests – please try again later or send me an email.",
+      "noticeExpired": "The form was open for too long. Your details are still here – please send it again (and choose your images again).",
+      "noticeFailed": "That didn't work just now. Your details are still here – please try again or send me an email."
+    },
+    "upload": {
+      "token": "The form has expired. Please reload the page.",
+      "rate_limited": "Lots of images just came from your connection. Please try again later.",
+      "too_large": "The image is too large (at most 4.5 MB per image after resizing).",
+      "type": "Only JPEG, PNG or WebP images are allowed.",
+      "too_many": "At most 5 images per request.",
+      "invalid": "No image arrived.",
+      "failed": "The image could not be saved."
+    }
   }
 }

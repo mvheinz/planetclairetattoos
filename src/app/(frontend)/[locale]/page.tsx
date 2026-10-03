@@ -7,21 +7,25 @@ import styles from '@/components/home/Home.module.css'
 import { PlanetMark } from '@/components/home/SpaceMarks'
 import { Station } from '@/components/leash/Station'
 import { PriceFootnote } from '@/components/shop/PriceFootnote'
+import { StaticHtml } from '@/components/StaticHtml'
 import { statusLabelAttrs } from '@/components/shop/statusLabels'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { getHomeView } from '@/lib/data/home'
 import { getSiteNavigation, instagramUrl } from '@/lib/data/navigation'
 import { listStationProducts } from '@/lib/data/products'
+import { getTattooSettings, listFlash, listOffers } from '@/lib/data/tattoo'
 import { getShopDisplaySettings, taxSettingsFor } from '@/lib/data/shopSettings'
 import { isLocale, localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
 import { organizationJsonLd, serializeJsonLd } from '@/lib/seo/jsonld'
 import { routeMetadata } from '@/lib/seo/metadata'
+import { currentOrNextOffer } from '@/lib/tattoo/offers'
 
 export const generateMetadata = routeMetadata('R01')
 
-// ISR (ARCHITEKTUR §9.1): gezielt erneuert über die Tags `home`, `products`, `category:<key>`, `page:home` (P3.15);
-// Rückfall nach einer Stunde.
+// ISR (ARCHITEKTUR §9.1): gezielt erneuert über die Tags `home`, `products`, `category:<key>`, `page:home` (P3.15),
+// `flash` und `tattoo-offers` (Tattoo-Station, P7.3: Task `revalidateEndedOffers` an Beginn/Ende); Rückfall nach einer
+// Stunde.
 export const revalidate = 3600
 
 // R01 Startseite (KONZEPT §3.1, DESIGN KO-21/§11.4, Preset `journey`): Kopf-Station „Planet Claire“ (H1 mit
@@ -31,7 +35,7 @@ export const revalidate = 3600
 // lesbar (reines Server-HTML). Fehlt `home`: neutraler Leerzustand (DM-PAGE-01). Organization-JSON-LD (KONZEPT
 // §3.0.5, ohne Adresse, E-50). Kategorie-Stationen mit bis zu 4 Stücken (P3.12, `listStationProducts`, gecacht mit Tag
 // `home`); Preis-Fußnote einmal pro Seite, Live-Zustand der Karten nach dem Laden (`product-status`). Die
-// Tattoo-Station bleibt bis P7 ohne Motive.
+// Tattoo-Station zeigt das laufende bzw. nächste Angebot und bis zu 3 freie Flash-Motive (P7.3, ohne Preise).
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const requested = (await params).locale
   if (!isLocale(requested)) notFound()
@@ -52,6 +56,19 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     ),
   )
   const hasCards = shelves.some((p) => !!p?.length)
+  const hasTattoo = (home?.stations ?? []).some((s) => s.stationId === 'tattoo')
+  const [offers, flash, tattooSettings] = hasTattoo
+    ? await Promise.all([listOffers(locale), listFlash(locale), getTattooSettings(locale)])
+    : [[], [], null]
+  const now = new Date()
+  const tattoo = tattooSettings
+    ? {
+        offer: currentOrNextOffer(offers, now),
+        flash: flash.filter((f) => f.status === 'available').slice(0, 3),
+        settings: tattooSettings,
+        now,
+      }
+    : null
 
   return (
     <div className={`u-container ${styles.home}`} data-home="">
@@ -85,7 +102,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </header>
 
       {home && home.stations.length > 0 ? (
-        <div
+        // Stationen als statisches HTML (nicht hydriert, Lighthouse-TBT P7): reines Server-Markup, Bilder alle
+        // `loading="lazy"`; Live-Zustand der Karten und Linie laufen über DOM-Module.
+        <StaticHtml
+          as="div"
           className={styles.stations}
           data-home-stations=""
           data-behavior={hasCards ? 'product-status' : undefined}
@@ -97,9 +117,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               station={station}
               locale={locale}
               products={shelves[i] ?? null}
+              tattoo={station.stationId === 'tattoo' ? tattoo : null}
             />
           ))}
-        </div>
+        </StaticHtml>
       ) : (
         <EmptyState
           title={t('emptyTitle')}

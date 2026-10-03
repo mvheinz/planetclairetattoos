@@ -5,6 +5,7 @@ import { moneyField, seedField, sortOrderField } from '@/fields'
 import { revalidateContent } from '@/lib/cache/revalidate'
 import { TAGS } from '@/lib/cache/tags'
 import { ENUM_LABELS, enumOptions } from '@/lib/enumLabels'
+import { flashAdminEndpoints } from '@/endpoints/tattoo'
 import { FLASH_STATUSES } from '@/lib/enums'
 import { getAppContext, requestNow } from '@/lib/payload/context'
 import { preservingReq } from '@/lib/payload/localReq'
@@ -71,7 +72,7 @@ const guardFlash: CollectionBeforeChangeHook = async ({ data, originalDoc, opera
   // Wiederholbare Motive werden nie „vergeben“ (Pause = offline nehmen).
   if (merged.repeatable === true && merged.status === 'claimed') {
     fail(
-      'Ein wiederholbares Motiv kann nicht „vergeben“ sein – nimm es stattdessen offline.',
+      'Ein wiederholbares Motiv kann nicht „vergeben“ sein. Zum Pausieren nutze „Offline nehmen“.',
       'status',
     )
   }
@@ -122,6 +123,7 @@ export const Flash: CollectionConfig = {
   },
   versions: { maxPerDoc: 10 },
   defaultSort: 'sortOrder',
+  endpoints: flashAdminEndpoints,
   indexes: [{ fields: ['published', 'status'] }],
   fields: [
     {

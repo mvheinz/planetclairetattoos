@@ -11,7 +11,9 @@ const baseURL = process.env.E2E_BASE_URL || 'http://localhost:3000'
 // überlebt Server-Neustarts, `db:reset` erneuert ihn nicht, und die On-Demand-Revalidierung in `global-setup.ts` liest
 // ihn trotzdem – sonst zeigte z. B. R01 nach dem zweiten Lauf Medien-Dateinamen des vorigen Seeds (HTTP 403, P3.16).
 const distDir = process.env.NEXT_DIST_DIR || '.next'
-export const startCommand = `node -e "require('node:fs').rmSync('${distDir}/cache/fetch-cache',{recursive:true,force:true})" && pnpm start`
+// `--keepAliveTimeout`: Node schließt freie Keep-alive-Verbindungen sonst nach 5 s; trifft das mit einer neuen Anfrage
+// des Playwright-API-Kontexts auf derselben Verbindung zusammen, endet sie mit ECONNRESET (gelegentlich unter Last).
+export const startCommand = `node -e "require('node:fs').rmSync('${distDir}/cache/fetch-cache',{recursive:true,force:true})" && pnpm start --keepAliveTimeout 75000`
 const serverCommand = process.env.E2E_SERVER === 'start' ? startCommand : 'pnpm dev'
 const skipWebkit = process.env.PW_SKIP_WEBKIT === '1'
 // `pnpm dev` übersetzt jede Seite beim ersten Aufruf – großzügigere Zeitgrenzen als gegen den Produktions-Build.

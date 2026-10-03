@@ -1,5 +1,6 @@
 import type { CollectionSlug, GlobalSlug, Where } from 'payload'
 
+import { readMedia } from '@/collections/Media'
 import { PUBLIC_PRODUCT_WHERE } from '@/collections/Products'
 import { GALLERY_PUBLIC_WHERE } from '@/lib/tattoo/gallery'
 
@@ -74,8 +75,8 @@ const pub = (
 export const COLLECTION_ACCESS: Record<CollectionSlug, CollectionAccessEntry> = {
   // §6.1: create nur ohne Konto; read/update eigenes Konto; delete none
   users: { ...deny, post: 'firstAccountOnly' },
-  // §6.2: nicht gesperrte Bilder (+ Seed-Filter); P8 ergänzt showsPerson/ownerApproved
-  media: pub(publicRead({ restricted: { not_equals: true } })),
+  // §6.2: nicht gesperrte Bilder (+ Seed-Filter; im Vorschau-Modus alle Seed-Bilder, P7.5); P8 ergänzt ownerApproved
+  media: pub(readMedia as unknown as (ctx: PublicContext) => Where | null),
   // §6.3: öffentlich (+ Seed-Filter)
   documents: pub(publicRead()),
   // §6.4: alles isAdmin (R-136)

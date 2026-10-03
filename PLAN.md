@@ -3713,7 +3713,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
 
 ### Aufgaben
 
-- [ ] **P7.1 Tattoo-Grundgerüst: Unter-Navigation, Kontakt-Block, Mail-Links, Datenzugriff** – Unter-Navigation
+- [x] **P7.1 Tattoo-Grundgerüst: Unter-Navigation, Kontakt-Block, Mail-Links, Datenzugriff** – Unter-Navigation
   `src/components/tattoo/TattooSubNav.tsx` (Übersicht · Flash · Angebote · Preise · Galerie · Ablauf · Aftercare · FAQ,
   Chip-Optik wie KO-08, `aria-current`); Kontakt-Block `TattooContactBlock` (KO-20): „Mail schreiben“ (`mailto:`),
   „Instagram-DM“ (`https://ig.me/m/{social.instagramHandle}`, `rel="noopener noreferrer"`, R-139), E-Mail
@@ -3736,7 +3736,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
   - Tests: `tests/unit/tattoo/mailto.unit.spec.ts` (Titel „AK-9-02 …“, „R-170 Betreff …“).
   - Ohne Jutta: –
 
-- [ ] **P7.2 R11 Übersicht und R12 Flash** – R11 (KONZEPT §9.2): H1 „Tattoo“, Block „Mein Stil“, laufendes bzw.
+- [x] **P7.2 R11 Übersicht und R12 Flash** – R11 (KONZEPT §9.2): H1 „Tattoo“, Block „Mein Stil“, laufendes bzw.
   nächstes Angebot als Karte, 3 verfügbare Flash-Motive, 3 Galerie-Bilder (bevorzugt `healed`, nur sichtbare), Links zu
   allen Unterseiten mit je einem Satz, Kontakt-Block; leere Blöcke entfallen. R12 (KONZEPT §9.3, KO-20): Einleitung,
   Filter „alle“/„verfügbar“ (`?available=1`, gleiche Technik wie der Shop-Filter nach Spike B-05), Raster 2 Spalten
@@ -3760,7 +3760,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
   - Tests: `tests/e2e/tattoo/flash.e2e.spec.ts` (Titel „AK-9-02 …“, „R-034 …“, `@a11y`), `tests/int/tattoo/flash-data.int.spec.ts`.
   - Ohne Jutta: Bis P8 zeigen die Tests Fixture-Motive, ab P8.6 den Seed-Flash F-901–F-910; echte Motive pflegt Jutta.
 
-- [ ] **P7.3 R13 Angebote und Task `revalidateEndedOffers`** – Zustand abgeleitet aus `startsAt`/`endsAt` nach
+- [x] **P7.3 R13 Angebote und Task `revalidateEndedOffers`** – Zustand abgeleitet aus `startsAt`/`endsAt` nach
   Europe/Berlin (KONZEPT §5.6: kommt, läuft, vorbei), kein gespeicherter Status; öffentliche Abfrage nur `published`
   und `endsAt > now` (DATENMODELL §6.15; R-171 wird über Filter + Task erfüllt). Karte (KONZEPT §9.5, KO-20):
   Datums-Badge in Mansalva im
@@ -3784,7 +3784,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
     ruft `POST /api/cron/run/revalidateEndedOffers` mit `CRON_SECRET`).
   - Ohne Jutta: –
 
-- [ ] **P7.4 R14 Preise, R16 Ablauf, R17 Aftercare, R18 FAQ** – R14 (KONZEPT §9.6, R-034): Mindestpreis aus
+- [x] **P7.4 R14 Preise, R16 Ablauf, R17 Aftercare, R18 FAQ** – R14 (KONZEPT §9.6, R-034): Mindestpreis aus
   `settings.tattoo.minPriceCents` („Mindestpreis 80 €*“), Preisrahmen eigene Ideen aus `customPriceFromCents`/
   `customPriceToCents` und `priceNote`, Flash-Hinweis mit Link R12, Anzahlung „vereinbaren wir persönlich, außerhalb der
   Website“ ohne Verfall-/Nicht-Erstattungs-Klauseln (V-24), Fußnote `price.tattooNote`, Kontakt-Block mit Betreff
@@ -3801,7 +3801,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
   - Tests: `tests/e2e/tattoo/info-pages.e2e.spec.ts` (Titel „R-034 …“).
   - Ohne Jutta: Texte sind Entwürfe (E-62, SEED-SPEC §13.5/§13.6); Jutta passt Aftercare an ihre Methode an.
 
-- [ ] **P7.5 R15 Galerie mit Einwilligungsregel überall** – zentrale Regel `isPubliclyVisible(entry)` in
+- [x] **P7.5 R15 Galerie mit Einwilligungsregel überall** – zentrale Regel `isPubliclyVisible(entry)` in
   `src/lib/tattoo/visibility.ts` nach KONZEPT §9.7 mit DATENMODELL-Namen: sichtbar, wenn `published` und
   (`showsCustomer = false` oder `consentGiven = true`) oder (`seed = true` und `seedPreviewModeActive()` =
   `SEED_PREVIEW_MODE === 'true'` und `APP_ENV ≠ production`). Angewendet in Galerie-Abfragen, Teasern (R11, Startseite),
@@ -3827,7 +3827,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
     injiziert), `tests/e2e/tattoo/gallery.e2e.spec.ts`.
   - Ohne Jutta: Echte Einwilligungen holt Jutta nach (A13/A48).
 
-- [ ] **P7.6 Tattoo-Verwaltung: Flash** – Ansicht `/tattoo` (KONZEPT §7.12) mit Reitern Flash · Angebote · Galerie ·
+- [x] **P7.6 Tattoo-Verwaltung: Flash** – Ansicht `/tattoo` (KONZEPT §7.12) mit Reitern Flash · Angebote · Galerie ·
   Texte (ersetzt „kommt in P7“). Flash: Liste mit Status-Chips; Wechsel „verfügbar ↔ vergeben“ in höchstens 2 Taps
   (Chip antippen, bestätigen; Feld `status` `available` ↔ `claimed`, setzt/leert `claimedAt`). Wiederholbare Motive
   lassen sich nicht auf „vergeben“ stellen
@@ -3843,7 +3843,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
   - Tests: `tests/e2e/admin/tattoo-flash.e2e.spec.ts`, `tests/int/tattoo/flash-admin.int.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P7.7 Tattoo-Verwaltung: Angebote** – Reiter „Angebote“: Liste mit Zustand kommt/läuft/abgelaufen (abgelaufen
+- [x] **P7.7 Tattoo-Verwaltung: Angebote** – Reiter „Angebote“: Liste mit Zustand kommt/läuft/abgelaufen (abgelaufen
   grau); Formular „Neues Angebot“ (KONZEPT §7.12, DATENMODELL §6.15): Art (`flash_day`/`aktion`), Titel und Text DE/EN
   mit „Übersetzen“, Startdatum, Enddatum (eintägig = gleiches Datum), optionale Uhrzeiten; gespeichert als `startsAt`/
   `endsAt` in Europe/Berlin (ohne Uhrzeit 00:00 bzw. 23:59:59), Ort-Text (Prüfung: enthält nicht `business.street`, E-50),
@@ -3856,7 +3856,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
   - Tests: `tests/int/tattoo/offers-admin.int.spec.ts`, `tests/e2e/admin/tattoo-offers.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P7.8 Tattoo-Verwaltung: Galerie und Einwilligung** – Reiter „Galerie“: Liste mit Einwilligungs-Häkchen je Foto
+- [x] **P7.8 Tattoo-Verwaltung: Galerie und Einwilligung** – Reiter „Galerie“: Liste mit Einwilligungs-Häkchen je Foto
   (E-42); „Veröffentlichen“ ohne Einwilligung bei `showsCustomer` gesperrt mit Text „Ohne Einwilligung der Kundin/des
   Kunden nicht veröffentlichen“; Felder laut DATENMODELL §6.16 (`consentScope`, `consentDate`, `consentNote`,
   `consentEvidence` privat, `creditHandleAllowed`, `creditHandle`) und `consentWithdrawnAt` (Fristbeginn für L-19 b/L-20;
@@ -3879,7 +3879,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
     …“), `tests/e2e/admin/tattoo-gallery.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P7.9 Tattoo-Texte in der Verwaltung** – Reiter „Texte“: Preise (`settings.tattoo.*`, DE/EN), Stil, Ablauf,
+- [x] **P7.9 Tattoo-Texte in der Verwaltung** – Reiter „Texte“: Preise (`settings.tattoo.*`, DE/EN), Stil, Ablauf,
   Aftercare (Blöcke der Seiten `tattoo` und `tattoo_aftercare`) und FAQ der Kategorien `tattoo`/`aftercare`
   (sortierbar) mit „Übersetzen“ (`POST /api/pages/:id/translate`, `POST /api/faqs/:id/translate` über
   `translateDocumentFields`, Blöcke strukturgleich). Beim Speichern Warnung (Speichern bleibt möglich) bei V-24-Mustern
@@ -3891,7 +3891,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
   - Tests: `tests/int/tattoo/texts-admin.int.spec.ts`, `tests/e2e/admin/tattoo-texts.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P7.10 R10 Auftragsarbeiten-Seite** – Seite `commissions` (DE `/de/auftragsarbeiten`) aus `pages` Schlüssel
+- [x] **P7.10 R10 Auftragsarbeiten-Seite** – Seite `commissions` (DE `/de/auftragsarbeiten`) aus `pages` Schlüssel
   `commissions` (DATENMODELL §6.19): H1 „Auftragsarbeiten“/„Commissions“,
   `processSteps` „So läuft’s“, `imageGallery` (3–9 Beispiele mit Bildunterschrift), Hinweis „individuell vereinbart,
   Bezahlung nicht im Shop, kein Online-Vertrag“, Formular-Block `commissionForm` (Formular folgt in P7.13; bis dahin
@@ -3906,7 +3906,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
   - Tests: `tests/e2e/commission/page.e2e.spec.ts`.
   - Ohne Jutta: Beispielbilder sind ab P8.7 Seed-Ausschnitte (SEED-SPEC §13.4).
 
-- [ ] **P7.11 Upload-Endpunkt `POST /api/uploads/commission`** – Route-Handler (ARCHITEKTUR §2.5, §8.8, KONZEPT §10.2,
+- [x] **P7.11 Upload-Endpunkt `POST /api/uploads/commission`** – Route-Handler (ARCHITEKTUR §2.5, §8.8, KONZEPT §10.2,
   §10.3): Formular-Token (signiert `{ iat, purpose: 'commission', nonce }`, 2 h gültig, HKDF `pc:form-token:v1`, beim
   Rendern der Seite erzeugt) Pflicht; Rate-Limit `commission_upload` 15/h je IP-Hash; Anfragekörper > 4,5 MB → 413 mit
   Text; Typprüfung über den Inhalt (sharp: JPEG/PNG/WebP), sonst 415; Neukodierung mit angewendeter Orientierung, ohne
@@ -3920,7 +3920,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
   - Tests: `tests/int/commission/upload.int.spec.ts` (Titel „R-135 …“, „AK-10-04 …“).
   - Ohne Jutta: –
 
-- [ ] **P7.12 Anfrage absenden: Server Action und Dienst** – Server Action `submitCommissionInquiry` (progressiv) und
+- [x] **P7.12 Anfrage absenden: Server Action und Dienst** – Server Action `submitCommissionInquiry` (progressiv) und
   Dienst `src/lib/commission/submit.ts` (KONZEPT §10, R-160, DATENMODELL §6.17): Felder mit DATENMODELL-Namen und
   -Grenzen: `name` 2–100, `email` gültig ≤ 254, `objectType` aus `INQUIRY_OBJECT_TYPES` (Auswahl-Texte: Cap, Shirt,
   Textil sonstiges, Teller, Schale, Tasse, Fliese, Zeichnung/Bild, Schmuck, Etwas anderes), `objectTypeOther` 2–80 bei
@@ -3942,7 +3942,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
     `tests/unit/email/inquiry-receipt.unit.spec.ts` (Snapshots M11 DE/EN).
   - Ohne Jutta: Antwortzeit-Satz ist Seed-Vorlage.
 
-- [ ] **P7.13 Formular im Browser: Bildauswahl, Verkleinerung, Fehlerfälle** –
+- [x] **P7.13 Formular im Browser: Bildauswahl, Verkleinerung, Fehlerfälle** –
   `src/components/commission/CommissionForm.tsx` mit den Formularbausteinen aus KO-12: Pflichtfelder mit „*“,
   Fehlerzusammenfassung mit Sprunglinks, FileDrop mit
   echtem `<input type="file" multiple accept="image/jpeg,image/png,image/webp">`, höchstens 5 Bilder (6. mit Hinweis
@@ -3962,7 +3962,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
     „T-05 …“; Testbilder zur Laufzeit mit sharp erzeugt), Projekte `iphone-15` und `desktop`.
   - Ohne Jutta: –
 
-- [ ] **P7.14 Anfragen Ende-zu-Ende, 6-Monats-Löschung und Vorlage `commission.offer`** – Durchstich Formular →
+- [x] **P7.14 Anfragen Ende-zu-Ende, 6-Monats-Löschung und Vorlage `commission.offer`** – Durchstich Formular →
   Mails → „Anfragen“ (P5.20) → „Jetzt löschen“. Löschung prüfen: `retentionCommissionInquiries` löscht Datensatz und
   Bilder 6 Monate nach Eingang ohne Verlängerung, die Verwaltung zeigt „wird gelöscht am {Eingang + 6 Monate}“;
   `retentionTechnical` löscht nicht abgeschickte Uploads nach 24 h. Die Seed-Anfragen A1–A7 legt erst P8.5 an: hier nur
@@ -3982,7 +3982,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
   - Tests: `tests/int/legal/retention-inquiries.int.spec.ts` (Titel „R-154 L-10 …“), `tests/e2e/commission/flow.e2e.spec.ts`.
   - Ohne Jutta: Kanzleitext für `commission.offer` kommt in P11 (Kanzleifrage K-24).
 
-- [ ] **P7.15 Rechtliche Prüfungen Tattoo und Nachverfolgbarkeit bis P7** – `tests/e2e/tattoo/no-purchase.e2e.spec.ts`:
+- [x] **P7.15 Rechtliche Prüfungen Tattoo und Nachverfolgbarkeit bis P7** – `tests/e2e/tattoo/no-purchase.e2e.spec.ts`:
   auf allen Tattoo-Routen DE/EN kein „In den Korb“, kein `<form>`, kein Stripe-Request (AK-9-01); keine Straße aus den
   Stammdaten (AK-9-05, V-31); Instagram nur als Link (R-139, V-05). Int-Test: Warenkorb-Aktion mit Flash- oder
   Angebots-ID wird abgelehnt (R-170). Unit-Scan der Tattoo-Inhalte (Seed-Dateien unter `content/seed/data/` und
@@ -4000,22 +4000,22 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
 
 ### Phasen-Abnahme
 
-- [ ] Alle Aufgaben P7.1–P7.15 erledigt; `pnpm check`, `pnpm test:int`, `pnpm test:e2e` und `pnpm build` lokal grün.
-- [ ] P7 braucht keine eigene Schema-Migration (DATENMODELL §10.1); `pnpm check:migrations` ohne Drift, Typen und
+- [x] Alle Aufgaben P7.1–P7.15 erledigt; `pnpm check`, `pnpm test:int`, `pnpm test:e2e` und `pnpm build` lokal grün.
+- [x] P7 braucht keine eigene Schema-Migration (DATENMODELL §10.1); `pnpm check:migrations` ohne Drift, Typen und
   Importmap committet; geprüft, dass `tattoo-gallery.consentWithdrawnAt` (DATENMODELL §6.16) seit P1 im Schema liegt und `tattoo-gallery` keine Versionen
   hat; geprüft, dass KONZEPT AK-8-03 und SEED-SPEC §11 die Löschung 6 Monate nach Eingang nennen; SEED-SPEC SE-09 als
   geklärt vermerkt.
-- [ ] `LEGAL_TRACE_PHASE = 7`; Nachweise im PR-Text: AK-9-01 bis AK-9-05, AK-10-01 bis AK-10-04, T-05, R-IDs aus
+- [x] `LEGAL_TRACE_PHASE = 7`; Nachweise im PR-Text: AK-9-01 bis AK-9-05, AK-10-01 bis AK-10-04, T-05, R-IDs aus
   „Referenzen“ je mit Testdatei.
-- [ ] CI grün: Der Phasenende-Commit (z. B. `chore(P7): finish phase [ci:full p7]`, der letzte Commit ohne
+- [x] CI grün: Der Phasenende-Commit (z. B. `chore(P7): finish phase [ci:full p7]`, der letzte Commit ohne
   `[skip ci]`) hat `CI / quick`, `ci-full` (`e2e-full` inkl. `@a11y` und `@privacy`; `quality` mit Lighthouse-CI für
   `/de/tattoo` innerhalb EK-01 und visuellen Referenzen für Flash, Angebote, Galerie, Auftragsarbeiten) und
   `preview-export` grün durchlaufen. Dieses Häkchen setzt ein reiner Doku-Commit mit `[skip ci]`, nachdem der Lauf grün
   ist.
-- [ ] Vorschau-Artefakt `planet-claire-vorschau-p7-<sha7>` enthält R10–R18 DE/EN mit dem Mini-Bestand bzw. den
+- [x] Vorschau-Artefakt `planet-claire-vorschau-p7-<sha7>` enthält R10–R18 DE/EN mit dem Mini-Bestand bzw. den
   Leerzuständen und die Admin-Fotos des Bereichs „Tattoo“; Flash, Angebote und Galerie des Beispielbestands (G1/G2 mit
   Etikett „intern – Einwilligung fehlt“, TO3 unsichtbar) zeigt die Vorschau erst ab P8.21.
-- [ ] `docs/FORTSCHRITT.md` mit Phasen-Eintrag; PR-Beschreibung aktualisiert; neue Annahmen in `docs/OFFENE-PUNKTE.md`
+- [x] `docs/FORTSCHRITT.md` mit Phasen-Eintrag; PR-Beschreibung aktualisiert; neue Annahmen in `docs/OFFENE-PUNKTE.md`
   (mindestens: Pausieren wiederholbarer Flash über „Offline nehmen“, Anfrage-Löschung ab Eingang, M16-Portfolio nur an
   eine im Dialog eingetippte Adresse); neue
   Jutta-Aufgaben als A51 ff. in `docs/owner/AUFGABEN.md`, soweit nicht schon vorhanden.

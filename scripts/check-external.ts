@@ -6,7 +6,8 @@
 // aus `build-manifest.json`, Client-Manifeste der öffentlichen Routen, Verweise aus HTML/RSC, transitiv über
 // nachgeladene Chunks). Die Chunks der Verwaltung (Payload, nur unter ADMIN_ROUTE) sind ausgenommen; deren
 // Fremd-Requests prüft `tests/e2e/admin-privacy.e2e.spec.ts` zur Laufzeit.
-// Erlaubt (EXTERNAL_ALLOWLIST): Instagram und die Gewährleistungs-Seite von „Your Europe“ (R-049) als Linkziele,
+// Erlaubt (EXTERNAL_ALLOWLIST): Instagram, die Gewährleistungs-Seite von „Your Europe“ (R-049) und die Safer-Tattoo-
+// Checklisten (R17, P7.4) als Linkziele,
 // eigene Adresse (NEXT_PUBLIC_SITE_URL), Namensraum-/Vokabular-Kennungen, die nie geladen werden (SVG/XLink/XHTML/
 // MathML, Sitemap-Schema, JSON-LD `https://schema.org`), und in Framework-JS eingebaute Fehlertext-Verweise
 // (react.dev/errors, nextjs.org/docs, core-js-Lizenz) – nur in `.js`. Die OS-Plattform bleibt verboten (CLAUDE.md §6).
@@ -90,6 +91,10 @@ export const EXTERNAL_ALLOWLIST: readonly { prefix: string; why: string; jsOnly?
   {
     prefix: 'https://europa.eu/youreurope/citizens/consumers/shopping/guarantees-returns/',
     why: 'Linkziel der harmonisierten Gewährleistungs-Mitteilung (R-049), kein Request',
+  },
+  {
+    prefix: 'https://www.bundesumweltministerium.de/safer-tattoo',
+    why: 'Linkziel Safer-Tattoo-Checklisten auf R17 Aftercare (PLAN P7.4, V-27-Allowlist), kein Request',
   },
   { prefix: 'http://www.w3.org/2000/svg', why: 'SVG-Namensraum' },
   { prefix: 'http://www.w3.org/1999/xlink', why: 'XLink-Namensraum' },

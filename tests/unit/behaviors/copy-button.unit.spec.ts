@@ -57,4 +57,20 @@ describe('copy-button', () => {
     expect(vi.getTimerCount()).toBe(0)
     expect(tracker.sensitive).toEqual([])
   })
+
+  it('P7.1 Rückfall: ohne Zwischenablage wird der Wert markiert („Jetzt kopieren“)', async () => {
+    Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true })
+    document.body.innerHTML =
+      '<p><span id="addr">jutta@example.com</span><button type="button" data-copy="jutta@example.com" ' +
+      'data-copy-select="addr" data-copied-text="Kopiert" data-copy-failed-text="Markiert – jetzt kopieren" ' +
+      'data-copy-status-id="st" hidden>Adresse kopieren</button><span id="st" aria-live="polite"></span></p>'
+    const b = document.querySelector('button')!
+    const unmount = mount(b, { mode: 'app' })
+    b.click()
+    await vi.advanceTimersByTimeAsync(0)
+    expect(window.getSelection()?.toString()).toBe('jutta@example.com')
+    expect(document.getElementById('st')!.textContent).toBe('Markiert – jetzt kopieren')
+    unmount()
+    expect(vi.getTimerCount()).toBe(0)
+  })
 })

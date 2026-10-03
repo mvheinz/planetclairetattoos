@@ -1,6 +1,6 @@
-import { useTranslations } from 'next-intl'
 import React from 'react'
 
+import { translatorFor } from '@/i18n/translator'
 import type { Locale } from '@/lib/enums'
 import { WARRANTY_INFO_URL, WARRANTY_NOTICE_GRAPHIC } from '@/lib/legal/warranty'
 
@@ -11,7 +11,7 @@ import styles from './WarrantyNotice.module.css'
 // Kennzeichnung und keine Werbung mit Selbstverständlichkeiten (V-19). Solange die amtliche Grafik fehlt, zeigt die
 // Grafik den Platzhalter (`data-placeholder`, Gate R-210).
 export function WarrantyNotice({ locale, className }: { locale: Locale; className?: string }) {
-  const t = useTranslations('shop.warranty')
+  const t = translatorFor(locale, 'shop.warranty')
   const graphic = WARRANTY_NOTICE_GRAPHIC[locale]
   return (
     <section

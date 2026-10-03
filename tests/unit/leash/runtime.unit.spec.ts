@@ -301,6 +301,52 @@ describe('leash/runtime – mountLeash', () => {
     handle.destroy()
   })
 
+  it('PF-04 phased: Messen, Geometrie und Zeichnen je als eigene Aufgabe; leash:build misst nur die Arbeit; Intro bleibt', () => {
+    const measure = vi.spyOn(performance, 'measure')
+    const root = setupDom()
+    const handle = mountLeash(root, { preset: 'journey', routeKey: 'R01', phased: true })
+    // Beim Einhängen noch nichts gebaut (kein langes Stück im Aufruf selbst).
+    expect(handle.inspect().geometry).toBeNull()
+    expect(root.querySelector('svg')).toBeNull()
+    vi.advanceTimersToNextTimer() // Messen
+    expect(handle.inspect().geometry).toBeNull()
+    vi.advanceTimersToNextTimer() // Geometrie
+    expect(handle.inspect().geometry).toBeNull()
+    vi.advanceTimersToNextTimer() // Zeichnen
+    expect(handle.inspect().geometry).not.toBeNull()
+    expect(root.querySelectorAll('svg').length).toBeGreaterThan(0)
+    const build = measure.mock.calls.filter((c) => c[0] === LEASH_MEASURES.build)
+    expect(build).toHaveLength(1)
+    expect(build[0]![1]).toMatchObject({ start: expect.any(Number), duration: expect.any(Number) })
+    // journey-Intro wie beim synchronen Aufbau: startet bei 0 und zeichnet dann.
+    expect(handle.inspect().drawnLen).toBe(0)
+    advance(1000)
+    expect(handle.inspect().drawnLen).toBeGreaterThan(0)
+    handle.destroy()
+  })
+
+  it('PF-04 phased: destroy() und überholte Teilstücke bauen nichts mehr; Neuaufbau vor dem ersten bleibt „erster“', () => {
+    const root = setupDom()
+    const gone = mountLeash(root, { preset: 'journey', routeKey: 'R01', phased: true })
+    vi.advanceTimersToNextTimer()
+    gone.destroy()
+    advance(100)
+    expect(gone.inspect().geometry).toBeNull()
+    expect(root.querySelector('svg')).toBeNull()
+
+    const root2 = setupDom()
+    const handle = mountLeash(root2, { preset: 'journey', routeKey: 'R01', phased: true })
+    vi.advanceTimersToNextTimer()
+    // Synchroner Neuaufbau (Debug-API) mitten im Aufbau: verwirft die Teilstücke, gilt aber noch als erster Aufbau.
+    handle.rebuild()
+    expect(handle.inspect().geometry).not.toBeNull()
+    expect(handle.inspect().drawnLen).toBe(0)
+    const svgs = root2.querySelectorAll('svg').length
+    advance(50)
+    expect(root2.querySelectorAll('svg').length).toBe(svgs)
+    handle.destroy()
+  })
+
   it('exposeLeashDebug stellt window.__leash bereit und räumt es wieder ab', () => {
     const root = setupDom()
     const handle = mountLeash(root, { preset: 'margin', routeKey: 'R20' })

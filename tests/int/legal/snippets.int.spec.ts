@@ -83,8 +83,11 @@ describe('R-012 Bausteine (legal-snippets)', () => {
       const doc = all.docs.find((d) => d.key === key)!
       expect(doc.origin).toBe('placeholder')
       expect((doc.text as unknown as { de: string }).de).toBe(
-        'PLATZHALTER – Text folgt von der Kanzlei.',
+        key === 'commission.offer'
+          ? LEGAL_SNIPPET_SEED[key].de
+          : 'PLATZHALTER – Text folgt von der Kanzlei.',
       )
+      expect((doc.text as unknown as { de: string }).de).toMatch(/^PLATZHALTER – /)
     }
     // getSnippet liest jetzt die Collection (Version „1“ statt der P3-Konstante „draft-1“)
     const s = getSnippet(KEY, 'de')

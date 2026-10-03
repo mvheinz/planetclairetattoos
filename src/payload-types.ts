@@ -178,6 +178,7 @@ export interface Config {
       invoiceIntegrityCheck: TaskInvoiceIntegrityCheck;
       complianceDocsReview: TaskComplianceDocsReview;
       activateScheduledLegalTexts: TaskActivateScheduledLegalTexts;
+      revalidateEndedOffers: TaskRevalidateEndedOffers;
       retentionAbandonedCheckouts: TaskRetentionAbandonedCheckouts;
       retentionOrderMinimize: TaskRetentionOrderMinimize;
       retentionOrders: TaskRetentionOrders;
@@ -2564,6 +2565,7 @@ export interface PayloadJob {
           | 'invoiceIntegrityCheck'
           | 'complianceDocsReview'
           | 'activateScheduledLegalTexts'
+          | 'revalidateEndedOffers'
           | 'retentionAbandonedCheckouts'
           | 'retentionOrderMinimize'
           | 'retentionOrders'
@@ -2626,6 +2628,7 @@ export interface PayloadJob {
         | 'invoiceIntegrityCheck'
         | 'complianceDocsReview'
         | 'activateScheduledLegalTexts'
+        | 'revalidateEndedOffers'
         | 'retentionAbandonedCheckouts'
         | 'retentionOrderMinimize'
         | 'retentionOrders'
@@ -5279,6 +5282,22 @@ export interface TaskActivateScheduledLegalTexts {
     activated?: number | null;
     failed?: number | null;
     nextDueAt?: string | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRevalidateEndedOffers".
+ */
+export interface TaskRevalidateEndedOffers {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    revalidated?: boolean | null;
+    boundaries?: number | null;
+    period?: string | null;
+    handledUntil?: string | null;
+    nextDueAt?: string | null;
+    targets?: number | null;
   };
 }
 /**

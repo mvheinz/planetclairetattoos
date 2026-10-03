@@ -20,6 +20,7 @@ const ROUTE_PATHS = {
   R01: '/de',
   R02: '/de/shop',
   R04: '/de/shop/901-schale-langohr-wuschel',
+  R11: '/de/tattoo',
 }
 
 const baseURL = `https://localhost:${process.env.PERF_PORT || 3000}`

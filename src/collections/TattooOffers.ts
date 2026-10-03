@@ -7,6 +7,7 @@ import type {
 } from 'payload'
 
 import { isAdmin, isAdminRequest, NOT_SEED } from '@/access'
+import { offerAdminEndpoints } from '@/endpoints/tattoo'
 import { seedField } from '@/fields'
 import { revalidateContent } from '@/lib/cache/revalidate'
 import { TAGS } from '@/lib/cache/tags'
@@ -21,8 +22,9 @@ import { registerMediaReference } from '@/lib/media/references'
 import { failField } from './hooks/commerce'
 
 // DATENMODELL §6.15 – Angebote (Flash-Days, Aktionen, E-53): verschwinden nach `endsAt` aus öffentlichen Abfragen
-// (Uhr injizierbar über `req.context.now`). Keine Buchung, keine Anzahlung, keine Termine. Die Revalidierung nach
-// Ablauf (Task `revalidateEndedOffers`) folgt in P7.
+// (Uhr injizierbar über `req.context.now`). Keine Buchung, keine Anzahlung, keine Termine. Nach Beginn und Ende
+// erneuert der Task `revalidateEndedOffers` die statischen Seiten (P7.3); beim Speichern trägt `afterChange` die
+// Weckzeiten ein.
 
 const SLUG = 'tattoo-offers'
 const fail = (message: string, path: string): never => failField(SLUG, message, path)
@@ -40,6 +42,23 @@ registerMediaReference({
 /** Straßenangaben oder Postleitzahlen im Ortshinweis (E-50: öffentlich nur der Bezirk). */
 const ADDRESS_RE =
   /\b\d{5}\b|(stra(ß|ss)e|str\.|weg|allee|platz|damm|ufer|gasse|ring|chaussee)\s*\d+/i
+
+const ADDRESS_MESSAGE =
+  'Bitte keine Adresse angeben – nur den Bezirk (z. B. „Privatstudio in Neukölln“).'
+
+/** Straßenname aus `settings.business.street` (ohne Hausnummer) im Text? Groß/klein und „ß“/„ss“ egal. */
+export function containsStreet(text: string, street: string | null | undefined): boolean {
+  const norm = (v: string) => v.toLowerCase().replace(/ß/g, 'ss').replace(/\s+/g, ' ').trim()
+  const name = norm((street ?? '').replace(/\s*\d+\s*[a-z]?(\s*[-–/]\s*\d+\s*[a-z]?)?\s*$/i, ''))
+  if (name.length < 3) return false
+  const variants = new Set([
+    name,
+    name.replace(/strasse\b/, 'str.'),
+    name.replace(/str\.$/, 'strasse'),
+  ])
+  const hay = norm(text)
+  return [...variants].some((v) => hay.includes(v))
+}
 
 const LOCATION_DEFAULT = {
   de: (district: string) => `Privatstudio in ${district}`,
@@ -74,21 +93,37 @@ const guardOffer: CollectionBeforeChangeHook = async ({ data, originalDoc, opera
     fail('Das Ende muss nach dem Beginn liegen.', 'endsAt')
 
   const note = data.locationNote
-  if (typeof note === 'string' && ADDRESS_RE.test(note)) {
-    fail(
-      'Bitte keine Adresse angeben – nur den Bezirk (z. B. „Privatstudio in Neukölln“).',
-      'locationNote',
-    )
+  if (typeof note === 'string' && ADDRESS_RE.test(note)) fail(ADDRESS_MESSAGE, 'locationNote')
+  const needsSettings =
+    (typeof note === 'string' && note.trim() !== '') || (operation === 'create' && !note)
+  if (!needsSettings) return data
+  const settings = (await preservingReq(req, () =>
+    req.payload.findGlobal({ slug: 'settings', depth: 0, overrideAccess: true, req }),
+  )) as {
+    tattoo?: { studioDistrict?: string | null }
+    business?: { street?: string | null }
+  }
+  // E-50: auch ohne Hausnummer nie die Straße aus den Stammdaten
+  if (typeof note === 'string' && containsStreet(note, settings.business?.street)) {
+    fail(ADDRESS_MESSAGE, 'locationNote')
   }
   if (operation === 'create' && !note) {
-    const settings = await preservingReq(req, () =>
-      req.payload.findGlobal({ slug: 'settings', depth: 0, overrideAccess: true, req }),
-    )
-    const district = (settings as { tattoo?: { studioDistrict?: string | null } }).tattoo
-      ?.studioDistrict
+    const district = settings.tattoo?.studioDistrict
     if (district) data.locationNote = LOCATION_DEFAULT[req.locale === 'en' ? 'en' : 'de'](district)
   }
   return data
+}
+
+/** Künftige Zeitpunkte (Beginn, Ende) als Weckzeit eintragen; Fehler im Wecker blockieren das Speichern nicht. */
+async function bumpOfferAlarm(doc: Doc, now: Date): Promise<void> {
+  if (doc.published === false) return
+  const { jobAlarm } = await import('@/lib/jobs/alarm')
+  for (const value of [doc.startsAt, doc.endsAt]) {
+    const at = new Date(String(value ?? ''))
+    if (!Number.isNaN(at.getTime()) && at.getTime() > now.getTime()) {
+      await jobAlarm.bump(at).catch(() => undefined)
+    }
+  }
 }
 
 const len =
@@ -117,6 +152,7 @@ export const TattooOffers: CollectionConfig = {
   },
   versions: { maxPerDoc: 10 },
   defaultSort: '-startsAt',
+  endpoints: offerAdminEndpoints,
   fields: [
     {
       name: 'type',
@@ -200,8 +236,12 @@ export const TattooOffers: CollectionConfig = {
     beforeValidate: [defaultEnd],
     beforeChange: [guardOffer],
     afterChange: [
-      ({ doc, req }) => {
-        revalidateContent(TAGS.tattooOffers, { context: getAppContext(req) })
+      async ({ doc, req }) => {
+        const ctx = getAppContext(req)
+        revalidateContent(TAGS.tattooOffers, { context: ctx })
+        revalidateContent(TAGS.home, { context: ctx })
+        // Weckzeiten an Beginn und Ende (Task `revalidateEndedOffers`, DM-OFF-01 „spätestens 15 min“).
+        if (!ctx.seed) await bumpOfferAlarm(doc as Doc, requestNow(req))
         return doc
       },
     ],

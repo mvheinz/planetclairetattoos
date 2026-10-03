@@ -54,13 +54,14 @@ describe('T-10 tests/perf/lighthouserc.cjs', () => {
     expect(config.ci.collect.settings.chromeFlags).toMatch(/--ignore-certificate-errors/)
   })
 
-  it('Preset mobil (Lighthouse-Standard, kein desktop-Preset), Median aus 3 Läufen, Seiten R01, R02, R04 (P3.16)', () => {
+  it('Preset mobil (Lighthouse-Standard, kein desktop-Preset), Median aus 3 Läufen, Seiten R01, R02, R04 (P3.16) und R11 (P7)', () => {
     expect(config.ci.collect.settings.preset).toBeUndefined()
     expect(config.ci.collect.numberOfRuns).toBe(3)
     expect(config.ci.collect.url.map((u) => new URL(u).pathname)).toEqual([
       localizedPath('R01', 'de'),
       localizedPath('R02', 'de'),
       samplePath('R04', 'de'),
+      localizedPath('R11', 'de'),
     ])
   })
 

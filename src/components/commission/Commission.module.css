@@ -1,0 +1,216 @@
+/* R10 Auftragsarbeiten (KONZEPT §3.10, DESIGN KO-12, §9.7 Preset `frame`): ruhig, das Formular selbst ohne Animation;
+   die Tuschelinie legt einmal eine Kontur um die Formular-Karte (Engine). Datei-Kacheln 72 px (4:5). */
+.page {
+  padding-block: var(--space-6) var(--space-8);
+}
+
+.head {
+  max-width: 60ch;
+}
+
+.title {
+  margin: 0;
+}
+
+.lead {
+  margin-top: var(--space-3);
+  color: var(--ink-2);
+  font-size: var(--fs-lede);
+}
+
+.body {
+  margin-top: var(--space-6);
+}
+
+.body > * + * {
+  margin-top: var(--space-7);
+}
+
+.examples {
+  margin: 0;
+}
+
+.caption {
+  margin-top: var(--space-3);
+  color: var(--ink-2);
+}
+
+.contact {
+  max-width: 60ch;
+}
+
+.contact > * + * {
+  margin-top: var(--space-3);
+}
+
+/* ---------- Formular-Block ---------- */
+.formSection {
+  max-width: 44rem;
+}
+
+.formSection > * + * {
+  margin-top: var(--space-4);
+}
+
+.formTitle {
+  margin: 0;
+}
+
+.cocoAnchor {
+  display: inline-block;
+}
+
+.frame {
+  padding: var(--space-5) var(--space-4);
+  border-radius: var(--r-card);
+  background: var(--paper);
+}
+
+@media (min-width: 768px) {
+  .frame {
+    padding: var(--space-6);
+  }
+}
+
+.lineEnd {
+  display: block;
+  width: 0;
+  height: 0;
+}
+
+.form {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.fieldset {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.legend {
+  padding: 0;
+  font-size: var(--fs-label);
+  font-weight: 500;
+}
+
+.drop {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1.5px dashed var(--ink-2);
+  border-radius: 12px 10px 14px 9px / 9px 14px 10px 12px;
+  background: var(--paper-field);
+}
+
+.dropLabel {
+  font-weight: 600;
+}
+
+.fileInput {
+  width: 100%;
+  min-height: 44px;
+  font: inherit;
+  font-size: 1rem;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tile {
+  display: grid;
+  gap: var(--space-1);
+  justify-items: start;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  min-width: 0;
+}
+
+.thumb {
+  display: block;
+  width: 72px;
+  height: 90px;
+  object-fit: cover;
+  border: 1.5px solid var(--ink-2);
+  border-radius: 6px;
+  background: var(--paper-2);
+}
+
+.tileFailed .thumb {
+  border: 2px solid var(--error);
+}
+
+.tileStatus {
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+}
+
+.tileFailed .tileStatus {
+  color: var(--error);
+}
+
+.remove {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.small {
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+.messages:empty,
+.live:empty {
+  display: none;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.success {
+  padding: var(--space-4);
+  border-left: 3px solid var(--stencil);
+  border-radius: var(--r-card);
+  background: var(--paper-2);
+  font-size: var(--fs-lede);
+}
+
+.success:focus {
+  outline: none;
+}
+
+.success:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}

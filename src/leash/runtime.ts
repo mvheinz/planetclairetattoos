@@ -1,5 +1,5 @@
 import { easeInkOut } from './easing'
-import { buildGeometry, mapReadingY, pointAt } from './geometry'
+import { buildGeometry, geometrySteps, mapReadingY, pointAt } from './geometry'
 import { measure, type Measurement } from './measure'
 import { getMotion, type Motion } from './motion'
 import {
@@ -45,6 +45,13 @@ export interface MountOptions {
   onCoco?: (state: CocoState) => void
   /** Tatsächlich gezeigte Pose der Coco-Steuerung (mit Brücken); sonst die Ziel-Pose. */
   cocoPose?: () => SpritePose | null
+  /**
+   * Aufbau in Teilstücken (KUNST-QA PF-04 „bei 4× kein einzelnes Teilstück > 50 ms“, TBT ARCHITEKTUR §7.7): erster
+   * Aufbau und geplante Neuaufbauten (Größe, `load`, Schriften) laufen als eigene Aufgaben – Messen → Geometrie →
+   * Zeichnen –, statt den Hauptthread in einem Stück zu belegen. Ohne die Option (Tests, Vorschau-Datei) synchron.
+   * `rebuild()` und `setMotion()` bleiben immer synchron.
+   */
+  phased?: boolean
 }
 
 export interface LeashDebugState {
@@ -72,6 +79,8 @@ export interface LeashProbe {
  * Scrollen nicht wächst.
  */
 export const LEASH_MEASURES = { build: 'leash:build', frame: 'leash:frame' } as const
+/** Höchste Dauer einer Geometrie-Scheibe beim Aufbau in Teilstücken (`phased`): × 4 bleibt unter 50 ms (PF-04). */
+const PHASE_SLICE_MS = 8
 export const FRAME_MEASURE_CAP = 600
 
 export interface InspectableLeashHandle extends LeashHandle {
@@ -151,9 +160,12 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   let probe: LeashProbe | null = null
   let frameMeasures = 0
 
-  function timing(name: string, start: number) {
+  function timing(name: string, start: number, duration?: number) {
     try {
-      performance.measure(name, { start, end: performance.now() })
+      performance.measure(
+        name,
+        duration === undefined ? { start, end: performance.now() } : { start, duration },
+      )
     } catch {
       // `performance.measure` mit Optionen fehlt (alte Engines) – dann ohne Messung.
     }
@@ -432,13 +444,82 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
 
   // ---------- Aufbau und Neuaufbau ----------
 
+  /** Erster Aufbau noch nicht übernommen: auch ein vorgezogener Neuaufbau zählt dann als erster (Intro, §9.3). */
+  let committed = false
+  /** Laufender Aufbau in Teilstücken (`phased`): Zähler verwirft überholte Teilstücke, Timer für `destroy()`. */
+  let phaseToken = 0
+  let phaseTimer: ReturnType<typeof setTimeout> | null = null
+
+  function cancelPhases() {
+    phaseToken++
+    if (phaseTimer !== null) clearTimeout(phaseTimer)
+    phaseTimer = null
+  }
+
   function build(first: boolean) {
+    cancelPhases()
     const t0 = performance.now()
+    const mm = measure(root, options.preset)
+    const g = buildGeometry({ preset: options.preset, seed, ...mm.input })
+    commit(first, mm, g, t0, null)
+  }
+
+  /** Wie `build`, aber Messen, Geometrie und Zeichnen je als eigene Aufgabe (`setTimeout` 0). */
+  function buildPhased(first: boolean) {
+    cancelPhases()
+    const token = phaseToken
+    let work = 0
+    let t0 = 0
+    const step = (fn: () => void) => {
+      phaseTimer = setTimeout(() => {
+        phaseTimer = null
+        if (destroyed || token !== phaseToken) return
+        const s = performance.now()
+        if (work === 0) t0 = s
+        fn()
+        work += performance.now() - s
+      }, 0)
+    }
+    step(() => {
+      const mm = measure(root, options.preset)
+      const steps = geometrySteps({ preset: options.preset, seed, ...mm.input })
+      // Geometrie in Scheiben von ≤ PHASE_SLICE_MS, dann eine eigene Aufgabe zum Zeichnen.
+      const slice = () => {
+        const s = performance.now()
+        for (;;) {
+          const r = steps.next()
+          if (r.done) {
+            const g = r.value.geometry
+            step(() => commit(first || !committed, mm, g, t0, () => work + performance.now()))
+            return
+          }
+          if (performance.now() - s >= PHASE_SLICE_MS) break
+        }
+        step(slice)
+      }
+      step(slice)
+    })
+  }
+
+  /**
+   * Übernimmt eine fertige Messung + Geometrie: Stufe, SVG (eine Schreibphase), gezeichneter Stand, Coco.
+   * `workUntil` (nur `phased`): liefert die Summe der Arbeitszeit aller Teilstücke bis jetzt, abzüglich der Wartezeit
+   * dazwischen – `leash:build` misst so wie im synchronen Fall nur die Arbeit.
+   */
+  function commit(
+    first: boolean,
+    mm: Measurement,
+    g: LeashGeometry,
+    t0: number,
+    workUntil: (() => number) | null,
+  ) {
+    const s = performance.now()
+    committed = true
     const prevStations = geometry?.stations ?? []
     const prevTotal = geometry?.totalLength ?? 0
     const prevDrawn = drawnLen
-    m = measure(root, options.preset)
-    geometry = buildGeometry({ preset: options.preset, seed, ...m.input })
+    m = mm
+    geometry = g
     tier = chooseTier()
     render()
     const total = geometry.totalLength
@@ -466,7 +547,8 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     cocoLen = motion === 'reduced' ? restLen() : intro ? 0 : Math.min(target, drawnLen)
     applyDrawn()
     emitCoco(1, !!intro)
-    timing(LEASH_MEASURES.build, t0)
+    if (workUntil) timing(LEASH_MEASURES.build, t0, workUntil() - s)
+    else timing(LEASH_MEASURES.build, t0)
     if (intro) requestFrame()
   }
 
@@ -479,22 +561,23 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
         idleId = win.requestIdleCallback(
           () => {
             idleId = null
-            rebuild()
+            rebuild(options.phased)
           },
           { timeout: 300 },
         )
       } else
         idleTimer = setTimeout(() => {
           idleTimer = null
-          rebuild()
+          rebuild(options.phased)
         }, 1)
     }, REBUILD_DEBOUNCE_MS)
   }
 
-  function rebuild() {
+  function rebuild(phased = false) {
     if (destroyed) return
     rebuildCount++
-    build(false)
+    if (phased) buildPhased(!committed)
+    else build(!committed)
   }
 
   // ---------- Ereignisse ----------
@@ -536,7 +619,8 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
         })
       : null
 
-  build(true)
+  if (options.phased) buildPhased(true)
+  else build(true)
   win.addEventListener('scroll', onScroll, { passive: true })
   win.addEventListener('resize', onResize, { passive: true })
   if (doc.readyState !== 'complete') win.addEventListener('load', onLoad, { once: true })
@@ -553,6 +637,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     destroy() {
       if (destroyed) return
       destroyed = true
+      cancelPhases()
       if (rafId !== null) win.cancelAnimationFrame(rafId)
       if (debounce !== null) clearTimeout(debounce)
       if (idleTimer !== null) clearTimeout(idleTimer)

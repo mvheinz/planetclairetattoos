@@ -6,6 +6,7 @@ import {
   LUT_STEP,
   buildGeometry,
   buildGeometryWithSamples,
+  geometrySteps,
   mapReadingY,
   pointAt,
 } from '@/leash/geometry'
@@ -206,5 +207,26 @@ describe('leash/presets', () => {
     expect(isScrollCoupled('lost')).toBe(false)
     expect(PRESET_CONFIG.journey.gutter).toEqual({ mobile: 44, desktop: 64 })
     expect(PRESET_CONFIG.legal.gutter).toEqual({ mobile: 16, desktop: 24 })
+  })
+})
+
+describe('leash/geometry – Teilschritte (KUNST-QA PF-04)', () => {
+  it('geometrySteps hält mehrfach an und liefert dieselbe Geometrie wie buildGeometryWithSamples', () => {
+    for (const vp of [
+      { w: 390, h: 844 },
+      { w: 1280, h: 800 },
+    ]) {
+      const input = journeyInput(vp)
+      const steps = geometrySteps(input)
+      let pauses = 0
+      let r = steps.next()
+      while (!r.done) {
+        pauses++
+        r = steps.next()
+      }
+      // Abtastung, Wackel/Normalen, Breite und je Segment ein Halt.
+      expect(pauses).toBeGreaterThanOrEqual(3 + r.value.geometry.segments.length)
+      expect(r.value).toEqual(buildGeometryWithSamples(input))
+    }
   })
 })

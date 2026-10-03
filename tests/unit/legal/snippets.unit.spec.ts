@@ -58,8 +58,24 @@ describe('LEGAL_SNIPPET_SEED (ANFORDERUNGEN §6)', () => {
       'Lieferzeit: {{deliveryTime}} (bei Vorkasse ab Zahlungseingang)',
     )
     for (const key of WITHOUT_DRAFT) {
+      if (key === 'commission.offer') continue
       expect(LEGAL_SNIPPET_SEED[key].de).toBe(SNIPPET_PLACEHOLDER_TEXT.de)
       expect(LEGAL_SNIPPET_SEED[key].en).toBe(SNIPPET_PLACEHOLDER_TEXT.en)
+    }
+    // R-161 (P7.14): Platzhalter mit Gliederung des Angebots
+    const offer = LEGAL_SNIPPET_SEED['commission.offer']
+    expect(offer.de.startsWith(SNIPPET_PLACEHOLDER_TEXT.de)).toBe(true)
+    expect(offer.en.startsWith(SNIPPET_PLACEHOLDER_TEXT.en)).toBe(true)
+    for (const part of [
+      'Wesentliche Eigenschaften',
+      'Gesamtpreis inkl. Versandkosten',
+      'Lieferzeit',
+      'Zahlungsweg',
+      'Warnhinweise (GPSR)',
+      '§ 312g Abs. 2 Nr. 1 BGB',
+      'Muster-Widerrufsformular',
+    ]) {
+      expect(offer.de).toContain(part)
     }
   })
 

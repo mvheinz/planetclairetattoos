@@ -1,3 +1,4 @@
+import { isImplementedTask, TASK_SLUGS } from '@/jobs/index'
 import { mkdtemp, rm } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
@@ -135,9 +136,10 @@ describe('POST /api/cron/run/[task]', () => {
 
   it('nur Slugs aus Anhang A.3: unbekannt 404, noch nicht umgesetzt 501, sendEmail 200', async () => {
     expect((await run('dropDatabase', `Bearer ${SECRET}`)).status).toBe(404)
-    const notYet = await run('revalidateEndedOffers', `Bearer ${SECRET}`)
-    expect(notYet.status).toBe(501)
-    expect(await notYet.json()).toMatchObject({ phase: 'P7' })
+    // Seit P7 ist jeder Slug aus Anhang A.3 umgesetzt; 501 prüft der Fall künftiger Einträge.
+    for (const slug of TASK_SLUGS.filter((s) => !isImplementedTask(s))) {
+      expect((await run(slug, `Bearer ${SECRET}`)).status).toBe(501)
+    }
     const ok = await run('sendEmail', `Bearer ${SECRET}`)
     expect(ok.status).toBe(200)
     expect(await ok.json()).toMatchObject({ status: 'ran', task: 'sendEmail' })

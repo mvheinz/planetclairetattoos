@@ -1,4 +1,7 @@
+import { sql } from '@payloadcms/db-postgres'
 import type { PayloadRequest, TaskConfig } from 'payload'
+
+import { dbFor } from '@/lib/db/tx'
 
 import { getEmailAdapter } from '@/lib/email'
 import { sendAdminAlert } from '@/lib/email/alerts'
@@ -9,6 +12,7 @@ import { templateMeta } from '@/lib/email/registry'
 import { jobAlarm } from '@/lib/jobs/alarm'
 import { jobNow } from '@/lib/jobs/now'
 import { createLogger } from '@/lib/monitoring/logger'
+import { inTransaction } from '@/lib/payload/transaction'
 import type { EmailLog } from '@/payload-types'
 
 // Task `sendEmail` (DATENMODELL §11, Queue `email`): versendet eine `email-log`-Zeile im Status `queued`.
@@ -164,101 +168,115 @@ export const sendEmailTask: TaskConfig<SendEmailIO> = {
     { name: 'waits', type: 'number' },
   ],
   outputSchema: [{ name: 'status', type: 'text', required: true }],
-  handler: async ({ input, req }) => {
-    const now = jobNow(req)
-    const entry = await req.payload.findByID({
-      collection: 'email-log',
-      id: input.emailLogId,
-      depth: 0,
-      overrideAccess: true,
-      req,
-    })
-    if (entry.status !== 'queued') return { output: { status: entry.status } }
-    // Inzwischen eingeschränkte Bestellung (Art. 18, P6.18): Kund:innen-Mail nicht mehr versenden
-    const orderId = idOf(entry.order)
-    if (
-      orderId !== null &&
-      templateMeta(entry.template).recipient === 'customer' &&
-      (await isOrderRestricted(req, orderId))
-    ) {
-      await update(req, entry.id, { status: 'suppressed', lastError: 'processing_restricted' })
-      return { output: { status: 'suppressed' } }
-    }
-    const attempts = (entry.attempts ?? 0) + 1
-    const data = (input.data ?? {}) as Record<string, unknown>
-    const adapter = getEmailAdapter()
+  // Laufen zwei Läufe denselben Job (Payload beansprucht in `jobs.run` nicht atomar), versendet nur der erste: Sperre je
+  // `email-log`-Zeile in einer Transaktion bis nach dem Status-Update; der zweite sieht danach nicht mehr `queued`.
+  handler: async ({ input, req }) =>
+    inTransaction(req, async () => {
+      const db = await dbFor(req)
+      await db.execute(
+        sql`SELECT pg_advisory_xact_lock(hashtext(${`send-email:${input.emailLogId}`}))`,
+      )
+      return sendQueued(input, req)
+    }),
+}
 
-    try {
-      const mail = await prepareMail(req, entry, data, now)
-      const result = await adapter.send({
-        to: entry.to,
-        subject: mail.subject,
-        text: mail.text,
-        html: mail.html,
-        attachments: mail.attachments,
-        type: entry.template,
-        idempotencyKey: entry.idempotencyKey ?? `${entry.template}:email-log:${entry.id}`,
+async function sendQueued(
+  input: SendEmailInput,
+  req: PayloadRequest,
+): Promise<{ output: { status: string } }> {
+  const now = jobNow(req)
+  const entry = await req.payload.findByID({
+    collection: 'email-log',
+    id: input.emailLogId,
+    depth: 0,
+    overrideAccess: true,
+    req,
+  })
+  if (entry.status !== 'queued') return { output: { status: entry.status } }
+  // Inzwischen eingeschränkte Bestellung (Art. 18, P6.18): Kund:innen-Mail nicht mehr versenden
+  const orderId = idOf(entry.order)
+  if (
+    orderId !== null &&
+    templateMeta(entry.template).recipient === 'customer' &&
+    (await isOrderRestricted(req, orderId))
+  ) {
+    await update(req, entry.id, { status: 'suppressed', lastError: 'processing_restricted' })
+    return { output: { status: 'suppressed' } }
+  }
+  const attempts = (entry.attempts ?? 0) + 1
+  const data = (input.data ?? {}) as Record<string, unknown>
+  const adapter = getEmailAdapter()
+
+  try {
+    const mail = await prepareMail(req, entry, data, now)
+    const result = await adapter.send({
+      to: entry.to,
+      subject: mail.subject,
+      text: mail.text,
+      html: mail.html,
+      attachments: mail.attachments,
+      type: entry.template,
+      idempotencyKey: entry.idempotencyKey ?? `${entry.template}:email-log:${entry.id}`,
+    })
+    const status = result.suppressed ? 'suppressed' : 'sent'
+    await update(req, entry.id, {
+      status,
+      transport: adapter.driver,
+      messageId: result.messageId || undefined,
+      smtpResponse: result.response?.slice(0, 300),
+      sentAt: status === 'sent' ? now.toISOString() : undefined,
+      attempts,
+      lastError: null,
+      templateVersion: mail.templateVersion,
+      bodySha256: mail.bodySha256,
+      attachments: mail.attachmentLog,
+    })
+    const withdrawalId = idOf(entry.withdrawal)
+    if (entry.template === 'withdrawal_receipt' && status === 'sent' && withdrawalId) {
+      await req.payload.update({
+        collection: 'withdrawals',
+        id: withdrawalId,
+        data: { confirmationSentAt: now.toISOString(), confirmationEmail: entry.id },
+        depth: 0,
+        overrideAccess: true,
+        context: { ...ctxOf(req), now: now.toISOString() },
+        req,
       })
-      const status = result.suppressed ? 'suppressed' : 'sent'
-      await update(req, entry.id, {
-        status,
-        transport: adapter.driver,
-        messageId: result.messageId || undefined,
-        smtpResponse: result.response?.slice(0, 300),
-        sentAt: status === 'sent' ? now.toISOString() : undefined,
-        attempts,
-        lastError: null,
-        templateVersion: mail.templateVersion,
-        bodySha256: mail.bodySha256,
-        attachments: mail.attachmentLog,
-      })
-      const withdrawalId = idOf(entry.withdrawal)
-      if (entry.template === 'withdrawal_receipt' && status === 'sent' && withdrawalId) {
-        await req.payload.update({
-          collection: 'withdrawals',
-          id: withdrawalId,
-          data: { confirmationSentAt: now.toISOString(), confirmationEmail: entry.id },
-          depth: 0,
-          overrideAccess: true,
-          context: { ...ctxOf(req), now: now.toISOString() },
-          req,
-        })
+    }
+    return { output: { status } }
+  } catch (e) {
+    const message = (e instanceof Error ? e.message : String(e)).slice(0, 1000)
+    if (e instanceof AttachmentNotReadyError) {
+      const waits = (input.waits ?? 0) + 1
+      if (waits <= MAX_ATTACHMENT_WAITS) {
+        await update(req, entry.id, { lastError: message })
+        await requeue(req, { ...input, waits }, minutes(now, ATTACHMENT_WAIT_MIN))
+        return { output: { status: 'waiting' } }
       }
-      return { output: { status } }
-    } catch (e) {
-      const message = (e instanceof Error ? e.message : String(e)).slice(0, 1000)
-      if (e instanceof AttachmentNotReadyError) {
-        const waits = (input.waits ?? 0) + 1
-        if (waits <= MAX_ATTACHMENT_WAITS) {
-          await update(req, entry.id, { lastError: message })
-          await requeue(req, { ...input, waits }, minutes(now, ATTACHMENT_WAIT_MIN))
-          return { output: { status: 'waiting' } }
-        }
-        await giveUp(req, entry, now, { status: 'failed', lastError: message })
-        return { output: { status: 'failed' } }
-      }
-      log.warn('mail.send_failed', { emailLogId: entry.id, attempts, error: message })
-      if (entry.template === 'withdrawal_receipt') {
-        const next = await nextWithdrawalAttempt(req, entry, attempts, now)
-        if (next) {
-          await update(req, entry.id, { attempts, lastError: message })
-          if (attempts === 2) {
-            await withdrawalAlert(req, entry, now, 'withdrawal_receipt_second_failure')
-          }
-          await requeue(req, input, next)
-          return { output: { status: 'retry' } }
-        }
-        await giveUp(req, entry, now, { status: 'failed', attempts, lastError: message })
-        return { output: { status: 'failed' } }
-      }
-      const delay = RETRY_DELAYS_MIN[attempts - 1]
-      if (delay !== undefined) {
+      await giveUp(req, entry, now, { status: 'failed', lastError: message })
+      return { output: { status: 'failed' } }
+    }
+    log.warn('mail.send_failed', { emailLogId: entry.id, attempts, error: message })
+    if (entry.template === 'withdrawal_receipt') {
+      const next = await nextWithdrawalAttempt(req, entry, attempts, now)
+      if (next) {
         await update(req, entry.id, { attempts, lastError: message })
-        await requeue(req, input, minutes(now, delay))
+        if (attempts === 2) {
+          await withdrawalAlert(req, entry, now, 'withdrawal_receipt_second_failure')
+        }
+        await requeue(req, input, next)
         return { output: { status: 'retry' } }
       }
       await giveUp(req, entry, now, { status: 'failed', attempts, lastError: message })
       return { output: { status: 'failed' } }
     }
-  },
+    const delay = RETRY_DELAYS_MIN[attempts - 1]
+    if (delay !== undefined) {
+      await update(req, entry.id, { attempts, lastError: message })
+      await requeue(req, input, minutes(now, delay))
+      return { output: { status: 'retry' } }
+    }
+    await giveUp(req, entry, now, { status: 'failed', attempts, lastError: message })
+    return { output: { status: 'failed' } }
+  }
 }

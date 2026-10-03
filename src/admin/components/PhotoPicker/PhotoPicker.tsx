@@ -34,6 +34,12 @@ export interface PhotoPickerProps {
   /** Uploads laufen (Speichern so lange gesperrt). */
   onBusyChange?: (busy: boolean) => void
   disabled?: boolean
+  /** Höchstzahl (Standard 12 wie bei Stücken; Flash/Galerie: 5 = Bild + 4 weitere). */
+  max?: number
+  /** Unter dieser Zahl erscheint der Hinweis „mehr Fotos“ (Standard 2). */
+  recommended?: number
+  /** Zusätzliche Felder beim Hochladen (z. B. `showsPerson: 'customer'` → Bild bleibt gesperrt, R-172). */
+  uploadData?: Record<string, unknown>
 }
 
 type Feedback = { tone: 'error' | 'success' | 'info'; text: string } | null
@@ -46,10 +52,14 @@ interface MediaDoc {
   focalY?: number | null
 }
 
-async function uploadPhoto(file: File, alt: string): Promise<MediaDoc> {
+async function uploadPhoto(
+  file: File,
+  alt: string,
+  extra: Record<string, unknown> = {},
+): Promise<MediaDoc> {
   const body = new FormData()
   body.append('file', file)
-  body.append('_payload', JSON.stringify({ alt, showsPerson: 'none', source: 'upload' }))
+  body.append('_payload', JSON.stringify({ alt, showsPerson: 'none', source: 'upload', ...extra }))
   let res: Response
   try {
     res = await fetch('/api/media?locale=de&depth=0', {
@@ -79,6 +89,9 @@ export function PhotoPicker({
   onRemoved,
   onBusyChange,
   disabled = false,
+  max = MAX_PHOTOS,
+  recommended = RECOMMENDED_PHOTOS,
+  uploadData,
 }: PhotoPickerProps) {
   const cameraRef = useRef<HTMLInputElement>(null)
   const galleryRef = useRef<HTMLInputElement>(null)
@@ -94,12 +107,10 @@ export function PhotoPicker({
   const addFiles = async (list: FileList | null) => {
     const files = Array.from(list ?? [])
     if (files.length === 0) return
-    const slots = freeSlots(count.current)
+    const slots = Math.min(freeSlots(count.current), Math.max(0, max - count.current))
     const accepted = files.slice(0, slots)
     const rejected = files.slice(slots)
-    const errors: string[] = rejected.map((f) =>
-      adminText('photoTooMany', { max: MAX_PHOTOS, name: f.name }),
-    )
+    const errors: string[] = rejected.map((f) => adminText('photoTooMany', { max, name: f.name }))
     setFeedback(null)
     setBusy({ done: 0, total: accepted.length })
     onBusyChange?.(true)
@@ -113,7 +124,7 @@ export function PhotoPicker({
           if (isUploadTooLarge(prepared.file.size)) throw new Error(adminText('photoTooLarge'))
           const index = count.current + 1
           const alt = suggestAlt({ ...altInfo, index, total: index })
-          const doc = await uploadPhoto(prepared.file, alt)
+          const doc = await uploadPhoto(prepared.file, alt, uploadData)
           count.current = index
           added++
           setPhotos((prev) => [
@@ -184,13 +195,13 @@ export function PhotoPicker({
       })),
     )
 
-  const full = photos.length >= MAX_PHOTOS
+  const full = photos.length >= max
   const locked = disabled || busy !== null
 
   return (
     <section className="pc-photos" aria-labelledby={headingId} id="pf-images" tabIndex={-1}>
       <h2 id={headingId} className="pc-piece__heading">
-        {adminText('photoHeading', { count: photos.length, max: MAX_PHOTOS })}
+        {adminText('photoHeading', { count: photos.length, max })}
       </h2>
       <div className="pc-admin-row">
         <label
@@ -240,10 +251,10 @@ export function PhotoPicker({
         {busy
           ? adminText('photoUploading', { current: busy.done + 1, total: busy.total })
           : full
-            ? adminText('photoFull', { max: MAX_PHOTOS })
+            ? adminText('photoFull', { max })
             : ''}
       </div>
-      {photos.length > 0 && photos.length < RECOMMENDED_PHOTOS ? (
+      {photos.length > 0 && photos.length < recommended ? (
         <Notice tone="warning" data-testid="photo-few">
           {adminText('photoFew')}
         </Notice>

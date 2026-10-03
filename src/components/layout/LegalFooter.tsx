@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
 import { Icon } from '@/components/icons/Icon'
+import { StaticHtml } from '@/components/StaticHtml'
 import { WITHDRAWAL_LINK_LABEL } from '@/lib/legal/constants'
 import { localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
@@ -12,7 +13,7 @@ import { CONFORMITY_ROUTE, LEGAL_LINKS, WITHDRAWAL_ROUTE } from './navItems'
 // Pflichtlink-Block (R-011, R-090, DESIGN KO-04 Punkte 1 und 2): hervorgehobener Knopf-Link „Vertrag widerrufen“
 // (Wortlaut als Konstante, § 356a BGB) → R26, darunter Impressum · Datenschutz · AGB · Widerrufsbelehrung · Versand &
 // Zahlung · Kontakt und – nur bei mindestens einer aktiven Erklärung – Konformitätserklärungen. Reines Server-HTML:
-// ohne JavaScript sichtbar, nie animiert, nie über das CMS entfernbar.
+// ohne JavaScript sichtbar, nie animiert, nie über das CMS entfernbar; nicht hydriert (`StaticHtml`, TBT P7).
 export async function LegalFooter({
   locale,
   hasActiveConformity,
@@ -26,7 +27,7 @@ export async function LegalFooter({
   ])
   const links = [...LEGAL_LINKS, ...(hasActiveConformity ? [CONFORMITY_ROUTE] : [])]
   return (
-    <div className={styles.legalBlock} data-legal-footer="">
+    <StaticHtml as="div" className={styles.legalBlock} data-legal-footer="">
       <a
         href={localizedPath(WITHDRAWAL_ROUTE, locale)}
         className={styles.withdraw}
@@ -47,6 +48,6 @@ export async function LegalFooter({
           ))}
         </ul>
       </nav>
-    </div>
+    </StaticHtml>
   )
 }

@@ -1,8 +1,10 @@
 import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
+import { ICON_EXTERNAL } from '@/components/icons/icons.generated'
 import { Station } from '@/components/leash/Station'
 import { ProductCard } from '@/components/shop/ProductCard'
+import { TattooTeaser, type TattooTeaserData } from '@/components/tattoo/TattooTeaser'
 import { Button } from '@/components/ui/Button'
 import type { LoopKind } from '@/leash/types'
 import type { HomeStation as HomeStationData } from '@/lib/data/home'
@@ -41,9 +43,12 @@ export async function HomeStation({
   station,
   locale,
   products = null,
+  tattoo = null,
 }: {
   station: HomeStationData
   locale: Locale
+  /** Tattoo-Station (KONZEPT §3.1 Nr. 7): laufendes/nächstes Angebot und bis zu 3 freie Flash-Motive (P7.3). */
+  tattoo?: TattooTeaserData | null
   /** Karten der Kategorie-Station (`listStationProducts`); `null` bei Stationen ohne Stücke (Hallo, Tattoo, …). */
   products?: PublicProduct[] | null
 }) {
@@ -68,7 +73,7 @@ export async function HomeStation({
       <Button
         variant="secondary"
         href={station.link.href}
-        icon={station.link.external ? 'external' : undefined}
+        icon={station.link.external ? ICON_EXTERNAL : undefined}
       >
         {station.link.label ??
           (shelf && station.categoryName
@@ -96,6 +101,7 @@ export async function HomeStation({
           {station.heading}
         </h2>
         {station.text ? <p className={styles.text}>{station.text}</p> : null}
+        {tattoo ? <TattooTeaser data={tattoo} locale={locale} /> : null}
         {shelf ? null : allLink}
       </div>
       {onArt(loop) ? (

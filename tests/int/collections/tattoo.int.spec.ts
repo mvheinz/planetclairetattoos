@@ -226,7 +226,10 @@ describe('tattoo-gallery (DATENMODELL §6.16)', () => {
     payload.findByID({ collection: 'media', id, depth: 0, overrideAccess: true })
 
   it('DM-GAL-01 published ohne Einwilligung bei showsCustomer wird abgelehnt; media.restricted folgt', async () => {
-    await rejects(entry({ published: true }), /nur mit Einwilligung/)
+    await rejects(
+      entry({ published: true }),
+      /Ohne Einwilligung der Kundin\/des Kunden nicht veröffentlichen/,
+    )
     await rejects(
       entry({ published: true, consentGiven: true, consentDate: '2026-10-02T00:00:00.000Z' }),
       /Einwilligung erteilt|5–300/,
@@ -283,7 +286,7 @@ describe('tattoo-gallery (DATENMODELL §6.16)', () => {
         data: { consentGiven: false },
         overrideAccess: true,
       }),
-      /nur mit Einwilligung/,
+      /Ohne Einwilligung der Kundin\/des Kunden/,
     )
     await rejects(
       payload.update({
@@ -301,7 +304,7 @@ describe('tattoo-gallery (DATENMODELL §6.16)', () => {
     setEnv({ SEED_PREVIEW_MODE: 'false', APP_ENV: 'development' })
     await rejects(
       entry({ image: imageB, seed: true, published: true }, { seed: true }),
-      /nur mit Einwilligung/,
+      /Ohne Einwilligung der Kundin\/des Kunden/,
     )
     // Vorschau (nicht Produktion): Beispiel-Eintrag ohne Einwilligung erlaubt und sichtbar
     setEnv({ SEED_PREVIEW_MODE: 'true', APP_ENV: 'development' })

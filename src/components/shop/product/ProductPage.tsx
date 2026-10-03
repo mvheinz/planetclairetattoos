@@ -14,6 +14,7 @@ import { statusLabelAttrs } from '@/components/shop/statusLabels'
 import { WarrantyNotice } from '@/components/shop/WarrantyNotice'
 import { Button } from '@/components/ui/Button'
 import { Callout } from '@/components/ui/Callout'
+import { StaticHtml } from '@/components/StaticHtml'
 import { listAllCategories } from '@/lib/data/categories'
 import {
   getPublicProductByItemNumber,
@@ -221,7 +222,7 @@ export async function ProductPage({
       <ul className={styles.facts} aria-label={t('factsLabel')} data-product-facts="">
         <li className={styles.nr}>{formatItemNumber(product.itemNumber, locale)}</li>
         <li>
-          <Badge kind="unique" />
+          <Badge locale={locale} kind="unique" />
         </li>
         <li>{categoryName}</li>
         {dims ? (
@@ -264,6 +265,7 @@ export async function ProductPage({
           food.kind === 'foodSafe' ? (
             <>
               <Badge
+                locale={locale}
                 kind="foodSafe"
                 href={`${localizedPath('R27', locale)}#glaze-${food.declaration.id}`}
               />
@@ -273,7 +275,7 @@ export async function ProductPage({
             </>
           ) : (
             <>
-              <Badge kind="decorative" />
+              <Badge locale={locale} kind="decorative" />
               <Note name="ceramicsDecorative">
                 {getSnippet('product.ceramicsDecorative', locale).text}
               </Note>
@@ -317,7 +319,7 @@ export async function ProductPage({
             ) : null}
             {product.isSecondHand ? (
               <>
-                <Badge kind="secondHand" />
+                <Badge locale={locale} kind="secondHand" />
                 {condition ? (
                   <Note name="textileSecondHand">
                     {getSnippet('product.textileSecondHand', locale, { condition }).text}
@@ -346,7 +348,7 @@ export async function ProductPage({
                 }
               </Note>
             ) : null}
-            <Badge kind="smallParts" />
+            <Badge locale={locale} kind="smallParts" />
             <Note name="jewelrySmallParts">
               {getSnippet('product.jewelrySmallParts', locale).text}
             </Note>
@@ -456,40 +458,54 @@ export async function ProductPage({
         </p>
       </div>
 
+      {/* Ab hier reines Server-Markup ohne Formulare: statisches HTML, nicht hydriert (`StaticHtml`, TBT P7). */}
+
       {/* Harmonisierte Mitteilung zur Gewährleistung (R-049) */}
-      <WarrantyNotice locale={locale} />
+      <StaticHtml>
+        <WarrantyNotice locale={locale} />
+      </StaticHtml>
 
       {/* 7. Beschreibung und „Jutta sagt“ */}
-      <ProductDescription product={product} locale={locale} langOf={de} />
+      <StaticHtml>
+        <ProductDescription product={product} locale={locale} langOf={de} />
+      </StaticHtml>
 
       {/* 8. Details-Tabelle */}
-      <ProductDetails product={product} locale={locale} langOf={de} />
+      <StaticHtml>
+        <ProductDetails product={product} locale={locale} langOf={de} />
+      </StaticHtml>
 
       {/* 9. Herstellerin & Sicherheit (GPSR) */}
-      <ProductSafetyBlock
-        product={product}
-        locale={locale}
-        business={info.business}
-        categoryName={categoryName}
-        warnings={warnings}
-      />
+      <StaticHtml>
+        <ProductSafetyBlock
+          product={product}
+          locale={locale}
+          business={info.business}
+          categoryName={categoryName}
+          warnings={warnings}
+        />
+      </StaticHtml>
 
       {/* 10. Versand & Rückgabe kurz */}
-      <ProductShipping
-        product={product}
-        locale={locale}
-        settings={info}
-        pickupEnabled={settings.pickupEnabled}
-        pickupCity={pickupCity}
-      />
+      <StaticHtml>
+        <ProductShipping
+          product={product}
+          locale={locale}
+          settings={info}
+          pickupEnabled={settings.pickupEnabled}
+          pickupCity={pickupCity}
+        />
+      </StaticHtml>
 
       {/* 11. Mehr aus {Kategorie} */}
-      <MoreFromCategory
-        products={related.filter((p) => p.status !== 'sold' && p.id !== product.id)}
-        locale={locale}
-        categoryName={categoryName}
-        categoryHref={similarHref}
-      />
+      <StaticHtml>
+        <MoreFromCategory
+          products={related.filter((p) => p.status !== 'sold' && p.id !== product.id)}
+          locale={locale}
+          categoryName={categoryName}
+          categoryHref={similarHref}
+        />
+      </StaticHtml>
 
       {/* Kauf-Leiste mobil (KO-09a): nur bei `available`; eingeblendet vom Modul `buy-bar`, ohne JavaScript verborgen. */}
       {state === 'available' && !preview ? (

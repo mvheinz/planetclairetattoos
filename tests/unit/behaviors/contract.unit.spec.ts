@@ -409,8 +409,8 @@ describe('mountBehaviors (BehaviorHost, Vorschau-Router)', () => {
   })
 })
 
-describe('AFTER_LOAD: Produktseiten-Module erst nach dem load-Ereignis (Erstlade-Budget)', () => {
-  it('Modus app bei laufendem Laden: gallery wartet auf load, cart-count nicht; unmount vorher bindet nichts', async () => {
+describe('AFTER_LOAD: alle Module erst nach dem load-Ereignis (Erstlade-Budget)', () => {
+  it('Modus app bei laufendem Laden: gallery und cart-count warten auf load; unmount vorher bindet nichts', async () => {
     document.body.innerHTML =
       '<a data-behavior="cart-count"></a><section data-behavior="gallery"></section>'
     const state = vi.spyOn(document, 'readyState', 'get').mockReturnValue('interactive')
@@ -419,7 +419,7 @@ describe('AFTER_LOAD: Produktseiten-Module erst nach dem load-Ereignis (Erstlade
     )
     const mounted = mountBehaviors(document, { mode: 'app' }, loader)
     await Promise.resolve()
-    expect(loader.mock.calls.map((c) => c[0])).toEqual(['cart-count'])
+    expect(loader).not.toHaveBeenCalled()
     window.dispatchEvent(new Event('load'))
     await mounted.ready
     expect(loader.mock.calls.map((c) => c[0])).toEqual(['cart-count', 'gallery'])
@@ -429,7 +429,7 @@ describe('AFTER_LOAD: Produktseiten-Module erst nach dem load-Ereignis (Erstlade
     const early = mountBehaviors(document, { mode: 'app' }, loader)
     early.unmount()
     await early.ready
-    expect(loader.mock.calls.map((c) => c[0])).toEqual(['cart-count'])
+    expect(loader).not.toHaveBeenCalled()
     expect(tracker.openListeners()).toEqual([])
     state.mockRestore()
   })
@@ -443,7 +443,7 @@ describe('AFTER_LOAD: Produktseiten-Module erst nach dem load-Ereignis (Erstlade
     )
     const mounted = mountBehaviors(document, { mode: 'app' }, loader)
     await Promise.resolve()
-    expect(loader.mock.calls.map((c) => c[0])).toEqual(['menu'])
+    expect(loader).not.toHaveBeenCalled()
     window.dispatchEvent(new Event('load'))
     await mounted.ready
     expect(loader.mock.calls.map((c) => c[0])).toEqual([

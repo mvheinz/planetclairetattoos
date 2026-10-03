@@ -47,7 +47,7 @@ const rowId = (v: unknown): string | undefined =>
 
 /** Übersetzbare Texte (Fehlerpfade bekommen das Sprach-Suffix). */
 const LOCALIZED_PATH_RE =
-  /^(shop\.closedMessage|shipping\.deliveryTimeText|safetyTemplates\.\d+\.text|careTemplates\.\d+\.text|pickup\.instructions|emails\.signature|emails\.inquiryResponseTime)$/
+  /^(shop\.closedMessage|shipping\.deliveryTimeText|safetyTemplates\.\d+\.text|careTemplates\.\d+\.text|pickup\.instructions|emails\.signature|emails\.inquiryResponseTime|tattoo\.priceNote)$/
 
 const INT_MESSAGE = 'Bitte eine ganze Zahl eingeben.'
 const EURO_MESSAGE = 'Bitte einen Betrag wie 12,50 eingeben.'
@@ -333,6 +333,29 @@ const AREAS: Record<SettingsArea, AreaBuilder> = {
             return { ...(old && rowId(old.id) ? { id: rowId(old.id) } : {}), ...r }
           })
         doc.processorAgreements = [...keep, ...next]
+      },
+    }
+  },
+
+  // Tattoo-Preise (P7.9, KONZEPT §9.6): Beträge optional (leer = nicht angezeigt), Hinweis DE/EN; „bis ≥ ab“ prüft
+  // der Hook des Globals.
+  tattooPrices: (v, c) => {
+    const min = c.cents('tattoo.minPriceCents', v.minPrice, false)
+    const from = c.cents('tattoo.customPriceFromCents', v.customFrom, false)
+    const to = c.cents('tattoo.customPriceToCents', v.customTo, false)
+    return {
+      de: (doc) => {
+        const t = obj(doc.tattoo)
+        t.minPriceCents = min
+        t.customPriceFromCents = from
+        t.customPriceToCents = to
+        t.priceNote = loc(v.priceNote, 'de')
+        doc.tattoo = t
+      },
+      en: (doc) => {
+        const t = obj(doc.tattoo)
+        t.priceNote = loc(v.priceNote, 'en')
+        doc.tattoo = t
       },
     }
   },

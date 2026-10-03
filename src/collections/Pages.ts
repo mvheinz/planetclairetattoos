@@ -6,6 +6,7 @@ import type {
 
 import { isAdmin, none, publicRead } from '@/access'
 import { PAGE_BLOCKS } from '@/blocks'
+import { pageAdminEndpoints } from '@/endpoints/tattoo'
 import { seedField } from '@/fields'
 import { revalidateContent } from '@/lib/cache/revalidate'
 import { TAGS } from '@/lib/cache/tags'
@@ -71,6 +72,7 @@ export const Pages: CollectionConfig = {
     readVersions: isAdmin,
   },
   versions: { drafts: true, maxPerDoc: 25 },
+  endpoints: pageAdminEndpoints,
   fields: [
     {
       name: 'key',

@@ -4,22 +4,24 @@ import path from 'node:path'
 import {
   APIError,
   ValidationError,
+  type Access,
   type CollectionBeforeChangeHook,
   type CollectionBeforeOperationHook,
   type CollectionConfig,
   type ImageSize,
   type PayloadRequest,
   type TextFieldSingleValidation,
+  type Where,
 } from 'payload'
 
-import { isAdmin, publicRead } from '@/access'
+import { isAdmin, isAdminRequest, NOT_SEED } from '@/access'
 import { adminText } from '@/admin/translations'
 import { seedField } from '@/fields'
 import { revalidateContent } from '@/lib/cache/revalidate'
 import { TAGS } from '@/lib/cache/tags'
 import { ENUM_LABELS, enumOptions } from '@/lib/enumLabels'
 import { MEDIA_SOURCES, SHOWS_PERSON } from '@/lib/enums'
-import { getEnv } from '@/lib/env'
+import { getEnv, seedPreviewModeActive } from '@/lib/env'
 import { findMediaReferences, formatReferenceMessage } from '@/lib/media/references'
 import {
   MEDIA_MAX_EDGE,
@@ -35,6 +37,21 @@ import { uploadStaticDir, uploadStorage } from '@/lib/storage'
 import { mediaVisibleInGallery } from '@/lib/tattoo/gallery'
 
 // DATENMODELL §6.2 – öffentliche Bilder mit Bildpipeline (DESIGN §12.2 Schritte 1–3, 7, 8).
+
+/**
+ * Öffentlich lesbar (KONZEPT §9.7, `isMediaPubliclyVisible`): nicht gesperrte Bilder ohne Seed; im Vorschau-Modus
+ * zusätzlich alle Seed-Bilder (auch gesperrte Seed-Tattoofotos, R-181). Dateiabrufe (`isReadingStaticFile`) lässt die
+ * Regel durch – die Sichtbarkeit prüft der Datei-Handler (`fileResponseHandler`) und antwortet mit 404 statt 403, damit
+ * eine erratene URL nichts verrät (P7.5).
+ */
+export const readMedia: Access = ({ req, isReadingStaticFile }) => {
+  if (isAdminRequest(req)) return true
+  if (isReadingStaticFile) return true
+  if (seedPreviewModeActive()) {
+    return { or: [{ restricted: { not_equals: true } }, { seed: { equals: true } }] } as Where
+  }
+  return { and: [{ restricted: { not_equals: true } }, NOT_SEED] } as Where
+}
 
 export const DOWNSCALE_UPLOAD_COMPONENT = '/admin/components/DownscaleUpload#DownscaleUpload'
 
@@ -199,8 +216,8 @@ export const Media: CollectionConfig = {
       'Bilder für Shop, Seiten und Galerie. Große Fotos werden vor dem Hochladen verkleinert; Standortdaten werden entfernt.',
   },
   access: {
-    // Öffentlich nur nicht gesperrte Bilder (+ Seed-Filter); Payload prüft das auch bei Dateiabrufen.
-    read: publicRead({ restricted: { not_equals: true } }),
+    // Öffentlich nur sichtbare Bilder (+ Seed-Filter); Dateiabrufe prüft der Datei-Handler (404).
+    read: readMedia,
     create: isAdmin,
     update: isAdmin,
     delete: isAdmin,
