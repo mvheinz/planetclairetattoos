@@ -2,6 +2,27 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-03 – P9.10
+
+- `rennen` mit drei echten Gangphasen (A Streckung, B Sammlung, C Flug; IoU 0,59–0,66, Anker ± 1,5), `schnueffeln` (Nase am Boden, C 1 Einheit Schnüffel-Zucken), `springen` (Luftbogen, Ballen sichtbar wie in Juttas Sprung-Skizze), Brücken `bremsen`, `abspringen` – alle 22 Symbole final.
+- PF-10 Sprite 42,4 KB roh / 10,7 KB gz (≤ 45/12), PF-09 Coco-Steuerung 1,7 KB gz; MO-03 PASS (12/10/8 fps, Seek 0/1/2 → a/b/c).
+- Tests: Erweiterung `sprite.unit.spec.ts` (COCO_POSE_TO_SPRITE, fps, Budgets, B/C neu gezeichnet, Schlaf-Schraffur).
+
+## 2026-10-03 – P9.9
+
+- Neuer Zeichen-Generator `scripts/art/draw-coco.ts` (`pnpm art:coco`, ersetzt den Platzhalter-Generator): Frame A je Pose von Hand gesetzt (Stützpunkte, keine Primitive), B/C jede Linie neu nachgezeichnet (0,5–1,5 Einheiten), Juttas Strich: offene Konturen, Haken an Strichenden, offene Augenringe mit Seitenblick, ferne Beine als ein Strich; `sitzen`, `kopfschief` (rechtes Ohr an der Spitze geknickt), `schlafen` (Augen als Bögen, 5 Schraffurstriche), Brücken `einrollen-1/-2`.
+- Sprite v2: `public/art/coco-sprite.v2.svg` 42,4 KB / 10,7 KB gz; Version nur in `SPRITE_VERSION` (build-sprite.ts) – art:check, check-bundle, Tests lesen den Pfad aus `coco-sprite.json`/`coco-anchors.json`; v1 gelöscht.
+- `art:check` (Lauf 20261003-iter18-09c99dd, SC-12): CO-01, CO-02, CO-04, CO-05, CO-06, CO-07, CO-08, MO-03 PASS. CO-02 gilt laut KUNST-QA nicht für `schlafen` (Checker korrigiert, OFFENE-PUNKTE).
+- Prüf-Linse auf dem Coco-Bogen: Coco in allen 22 Frames erkennbar; Geschirr überall, wo Rücken/Brust sichtbar; D-Ring nach Vergrößerung/Anbindung an den Rückensteg; Hinweis: Nase im Schlafgesicht klein. Stilnote 3.
+- Tests: `tests/unit/art/sprite.unit.spec.ts` (21 inkl. Charakterblatt), `pnpm check` (1817), Int (1006), E2E Coco/Leash (13 bestanden, 13 projektbedingt übersprungen).
+
+## 2026-10-03 – P9.8
+
+- Coco-Charakterblatt `content/art/coco/character-sheet.svg` + `.webp` (219 KB) mit `pnpm art:character-sheet` (`scripts/art/character-sheet.ts`): Seitenansicht (stehend) mit K-Hilfslinien (Boden, Widerrist 1,3 K, Ohrspitze, K-Raster), ¾-Ansicht (sitzen), 9 nummerierte Merkmale, Messtabelle (gemessen wie art:check CO-02: Ohr 0,88/0,92, Auge 0,19, Schnauze 0,34/0,37, Nase 0,10/0,14, Bein 0,14 – alle im Bereich), Wash-Versatz, Strich-Regeln, Gesten aller 6 Posen + 4 Brücken. Kein `<image>`, nicht in `public/`, nicht im Build.
+- Grundlage ohne eigene Fotos: Juttas Skizzen + 9 Highlights (Annahme in OFFENE-PUNKTE); kein Instagram-Export vorhanden.
+- Frische Prüf-Linse (4 getrennte Headless-Läufe, KUNST-QA §6.1 Nr. 5): letzte Iteration „Coco erkennbar? ja (eingeschränkt)“; CO-03: Ohren groß/aufrecht ja (Knick bei kopfschief im Blatt-Thumbnail schwer sichtbar), Augen mit Glanzpunkt ja, kurze Schnauze ja, schwarze Nase ja, schlanke Beine ja, Sichelschwanz ja, Geschirr mit D-Ring ja (D-Ring klein). Stilnote CO-09: 3 (Ziel ≥ 4 erst P9.13). Offene Hinweise der Linse: Ohren eher fennekartig, Fell-Wash heller als Cocos Goldton, Strich zu gleichmäßig – Nacharbeit P9.13/P11 (Jutta).
+- Tests: `tests/unit/art/character-sheet.unit.spec.ts` (5, grün).
+
 ## 2026-10-03 – P9.6
 
 - pnpm art:check um MO-01…10/13…15, LG-01…04, PF-01…12, A11Y-01…07, CT-01…03, RZ-01/02 ergänzt (Sonden: getAnimations mit Easing, poseLog, data-boil, Textzeilen per Range.getClientRects, Fokusring, Zusatzmessungen Intro/Folgen/Lesezeile/Tab-Reihenfolge/200 %/qa-jank/verborgener Tab/Desktop-Messungen); PF gegen perf.json (P9.4); --evidence führt AK-DS-01/AK-DS-17 aus

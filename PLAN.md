@@ -4780,7 +4780,7 @@ KUNST-QA §0–§10 (vollständig).
     Budget-Schritt).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.8 Coco-Charakterblatt aus den Referenzfotos** – `content/art/coco/character-sheet.svg` und gerendert
+- [x] **P9.8 Coco-Charakterblatt aus den Referenzfotos** – `content/art/coco/character-sheet.svg` und gerendert
   `content/art/coco/character-sheet.webp` (≤ 300 KB): Seiten- und ¾-Ansicht mit Hilfslinien in der Einheit K
   (Kopflänge, DESIGN §10.1), alle Merkmale (große aufrechte, asymmetrische Ohren mit Innenohr-Linie; große dunkle Augen mit
   Glanzpunkt; kurze helle Schnauze; schwarze, leicht herzförmige Nase; Blesse; tiefe helle Brust; dünne Beine mit
@@ -4802,7 +4802,7 @@ KUNST-QA §0–§10 (vollständig).
   - Ohne Jutta: Highlights (150 px) als Referenz. P11-Nacharbeit: Jutta beantwortet „Ist das Coco?“ (KUNST-QA §10
     Nr. 4); Korrekturen an Ohren, Farbe, Geschirr als Nacharbeit.
 
-- [ ] **P9.9 Coco-Posen I: `sitzen`, `kopfschief`, `schlafen` + Brücken `einrollen-1`, `einrollen-2`** – Frame A je
+- [x] **P9.9 Coco-Posen I: `sitzen`, `kopfschief`, `schlafen` + Brücken `einrollen-1`, `einrollen-2`** – Frame A je
   Pose als gezeichnete Pfade (keine Formen-Primitive), Frames B und C als echte Nachzeichnungen (jede Linie neu,
   Abweichung 0,5–1,5 Einheiten, gleiche Anatomie, Anker ± 2) nach DESIGN §10.2–§10.4 und §10.7 in
   `src/art/coco/coco-sprite.svg` (Ebenen `fur`/`harness`/`line`/`solid`/`hi`, `data-part`-Gruppen,
@@ -4821,7 +4821,7 @@ KUNST-QA §0–§10 (vollständig).
     aus `coco-sprite.json`).
   - Ohne Jutta: nach Charakterblatt. P11-Nacharbeit: siehe P9.8.
 
-- [ ] **P9.10 Coco-Posen II: `rennen`, `schnueffeln`, `springen` + Brücken `bremsen`, `abspringen`** – `rennen` mit
+- [x] **P9.10 Coco-Posen II: `rennen`, `schnueffeln`, `springen` + Brücken `bremsen`, `abspringen`** – `rennen` mit
   drei echten Gangphasen (A Streckung, B Sammlung, C Flug; Silhouette wechselt deutlich, Anker am Rücken ± 3),
   `schnueffeln` (Nase am Boden, in C 1 Einheit Schnüffel-Zucken), `springen` (Luftbogen) und die Brücken; damit sind
   alle 22 Symbole final. `pnpm art:sprite` erneut, Größen-Budget prüfen.
