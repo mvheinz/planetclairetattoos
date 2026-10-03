@@ -74,6 +74,14 @@
   fill: var(--paper);
 }
 
+/* Vorab angelegte Posen-Gruppen der Steuerung (`coco.ts`): nur die Gruppe mit `data-on` ist sichtbar und boilt. */
+.coco .cg:not([data-on]) {
+  visibility: hidden;
+}
+.coco .cg:not([data-on]) .f {
+  animation: none;
+}
+
 /* Boil: drei Frames A → B → C; b um 2, c um 1 Frame-Länge vorgespult. */
 .coco .f {
   animation: coco-boil calc(var(--boil-frame) * 3) steps(1, end) infinite;

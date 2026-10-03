@@ -24,8 +24,9 @@ let tracker: Tracker
 let el: HTMLElement
 let events: PoseEvent[]
 
+/** Sichtbare Frames: die Gruppe mit `data-on` (vorab angelegte Posen-Gruppen, PF-05). */
 const hrefs = () =>
-  [...el.querySelectorAll('use')].map((u) => u.getAttribute('href')!.split('#')[1])
+  [...el.querySelectorAll('.cg[data-on] use')].map((u) => u.getAttribute('href')!.split('#')[1])
 const advance = (ms: number) => vi.advanceTimersByTime(ms)
 
 function mount(

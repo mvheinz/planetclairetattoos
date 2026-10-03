@@ -24,5 +24,7 @@
   height: 100%;
   width: 100cqw;
   height: 100cqh;
+  /* `max-width: 100%` aus dem Reset ist prozentual – dann rechnet Chromium nach dem Laden doch neu. */
+  max-width: none;
   object-fit: cover;
 }

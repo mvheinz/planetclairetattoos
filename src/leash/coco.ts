@@ -3,7 +3,6 @@ import {
   COCO_FRAMES,
   COCO_SPRITE_HREF,
   COCO_VIEWBOX,
-  bridgeSymbol,
   cocoHref,
   poseSymbol,
   type CocoBridge,
@@ -106,10 +105,47 @@ export function createCocoElement(
   return el
 }
 
+/** Symbole einer Pose bzw. Brücke (Schlüssel wie in `COCO_ANCHORS`: Pose oder `bridge-…`). */
+const groupIds = (key: string): string[] =>
+  key.startsWith('bridge-')
+    ? COCO_FRAMES.map(() => `coco-${key}`)
+    : COCO_FRAMES.map((f) => poseSymbol(key as SpritePose, f))
+
+/**
+ * Alle Posen und Brücken als vorab angelegte Gruppen (`<g class="cg">` mit drei `<use>`); sichtbar ist nur die Gruppe
+ * mit `data-on`. Ein Posenwechsel schaltet nur dieses Attribut um – ein neues `href` würde den Schatten-Baum des
+ * `<use>` neu aufbauen und je Wechsel ein Layout auslösen (KUNST-QA PF-05).
+ */
+function buildGroups(el: HTMLElement, href: string, shown: string): Map<string, Element> {
+  const svg = el.querySelector('svg')
+  const groups = new Map<string, Element>()
+  if (!svg) return groups
+  const doc = el.ownerDocument
+  const existing = Array.from(svg.querySelectorAll('use'))
+  for (const key of Object.keys(COCO_ANCHORS)) {
+    const g = doc.createElementNS(SVG_NS, 'g')
+    g.setAttribute('class', 'cg')
+    const ids = groupIds(key)
+    COCO_FRAMES.forEach((f, i) => {
+      const use = key === shown && existing[i] ? existing[i] : doc.createElementNS(SVG_NS, 'use')
+      use.setAttribute('class', `f f-${f}`)
+      use.setAttribute('href', cocoHref(ids[i]!, href))
+      use.removeAttribute('data-href')
+      g.appendChild(use)
+    })
+    groups.set(key, g)
+    svg.appendChild(g)
+  }
+  for (const u of existing) if (u.parentNode === svg) u.remove()
+  groups.get(shown)?.setAttribute('data-on', '')
+  return groups
+}
+
 export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController {
   const now = options.now ?? (() => performance.now())
   const href = options.href ?? COCO_SPRITE_HREF
-  const uses = Array.from(el.querySelectorAll('use'))
+  const groups = buildGroups(el, href, options.pose)
+  let on: Element | null = groups.get(options.pose) ?? null
   const hop = el.querySelector<HTMLElement>('.coco__hop')
   let motion: Motion = options.motion ?? 'full'
   let shown: SpritePose = options.pose
@@ -138,8 +174,13 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     return null
   }
 
-  function show(ids: string[], pose: string) {
-    uses.forEach((u, i) => u.setAttribute('href', cocoHref(ids[i] ?? ids[0]!, href)))
+  function show(pose: string) {
+    const next = groups.get(pose) ?? null
+    if (next !== on) {
+      on?.removeAttribute('data-on')
+      next?.setAttribute('data-on', '')
+      on = next
+    }
     el.setAttribute('data-pose', pose)
   }
 
@@ -174,10 +215,7 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
   function finish(from: SpritePose, used: CocoBridge[] | null) {
     bridge = null
     shown = target
-    show(
-      COCO_FRAMES.map((f) => poseSymbol(shown, f)),
-      shown,
-    )
+    show(shown)
     if (used === null && hop && motion === 'full') {
       hop.style.transform = 'scaleY(0.94)'
       squashTimer = setTimeout(() => {
@@ -194,7 +232,7 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     const next = queue.shift()
     if (next) {
       bridge = next
-      show([bridgeSymbol(next)], `bridge-${next}`)
+      show(`bridge-${next}`)
       stepTimer = setTimeout(() => step(from, queue, used), BRIDGE_MS)
     } else finish(from, used)
   }
@@ -222,10 +260,7 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
       if (motion === 'reduced') {
         const from = shown
         shown = pose
-        show(
-          COCO_FRAMES.map((f) => poseSymbol(pose, f)),
-          pose,
-        )
+        show(pose)
         options.onPose?.({ t: now(), from, to: pose, bridge: null })
         return
       }
@@ -253,10 +288,7 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
         boilUntil = 0
         setBoil(false)
         target = shown = restPose ?? shown
-        show(
-          COCO_FRAMES.map((f) => poseSymbol(shown, f)),
-          shown,
-        )
+        show(shown)
       } else boil(BOIL.afterPose)
     },
     destroy() {

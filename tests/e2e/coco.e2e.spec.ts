@@ -83,7 +83,7 @@ test.describe('Coco', () => {
     expect(await coco.evaluate((el) => getComputedStyle(el).pointerEvents)).toBe('none')
     const pose = await page.evaluate(() => (window as LeashWindow).__leash?.pose())
     expect(SPRITE_POSES).toContain(pose)
-    const href = await coco.locator('use.f-a').getAttribute('href')
+    const href = await coco.locator('.cg[data-on] use.f-a').getAttribute('href')
     expect(href).toMatch(new RegExp(`^${SPRITE.replace(/\./g, '\\.')}#coco-[a-z-]+$`))
     // Boil-Budget (§10.3, WCAG 2.2.2): spätestens 5 s nach der letzten Aktion steht Frame A.
     await page.waitForTimeout(5200)
