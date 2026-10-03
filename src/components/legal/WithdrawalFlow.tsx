@@ -6,10 +6,9 @@ import { withdrawalAction } from '@/app/(frontend)/[locale]/withdraw-from-contra
 import { Icon } from '@/components/icons/Icon'
 import { Button } from '@/components/ui/Button'
 import { Checkbox } from '@/components/ui/Choice'
-import { Field, RequiredNote } from '@/components/ui/Field'
+import { Field, type FieldProps, RequiredNote } from '@/components/ui/Field'
 import type de from '@/i18n/messages/de.json'
 import type { WithdrawalFlowState, WithdrawalNotice } from '@/lib/legal/withdrawalForm'
-import { formatItemNumber } from '@/lib/products/itemNumber'
 
 import styles from './WithdrawalFlow.module.css'
 
@@ -33,6 +32,16 @@ export interface WithdrawalFlowProps {
 
 const FIELD_ORDER = ['name', 'contractIdentification', 'email', 'itemsText', 'reason'] as const
 type FieldKey = (typeof FIELD_ORDER)[number]
+
+// Eingabe-Eigenschaften je Feld (Reihenfolge = FIELD_ORDER); als Tabelle statt fünf ausgeschriebener `<Field>` – hält
+// den Client-Chunk von R26 im Budget (firstLoadJs, tests/perf/budgets.json).
+const FIELD_PROPS: Record<FieldKey, Partial<FieldProps>> = {
+  name: { required: true, autoComplete: 'name', maxLength: 100 },
+  contractIdentification: { required: true, multiline: true, rows: 3, maxLength: 500 },
+  email: { required: true, type: 'email', autoComplete: 'email', maxLength: 254 },
+  itemsText: { multiline: true, rows: 3, maxLength: 1000 },
+  reason: { multiline: true, rows: 4, maxLength: 2000 },
+}
 
 function NoticeBox({ children }: { children: React.ReactNode }) {
   return (
@@ -82,6 +91,12 @@ export function WithdrawalFlow(props: WithdrawalFlowProps) {
     itemsText: m.itemsTextLabel,
     reason: m.reasonLabel,
   }
+  const hint: Partial<Record<FieldKey, string>> = {
+    contractIdentification: m.contractHint,
+    email: m.emailHint,
+    itemsText: m.itemsTextHint,
+    reason: m.reasonHint,
+  }
 
   const hidden = (stage: string) => (
     <>
@@ -96,6 +111,37 @@ export function WithdrawalFlow(props: WithdrawalFlowProps) {
       <a href={`mailto:${props.contactEmail}`}>{props.contactEmail}</a>
     </>
   ) : null
+
+  // Zusammenfassung (Schritt 2 und Bestätigung): Angaben in Formular-Reihenfolge, Stücke nur, wenn bekannt.
+  const summaryRows = (
+    d: {
+      name: string
+      contractIdentification: string
+      email: string
+      itemsText?: string | null
+      reason?: string | null
+    },
+    items: React.ReactNode,
+  ) => (
+    <>
+      <dt>{m.nameLabel}</dt>
+      <dd>{d.name}</dd>
+      <dt>{m.contractLabel}</dt>
+      <dd>{d.contractIdentification}</dd>
+      <dt>{m.emailLabel}</dt>
+      <dd>{d.email}</dd>
+      {items ? (
+        <>
+          <dt>{m.summaryItems}</dt>
+          <dd>{items}</dd>
+        </>
+      ) : null}
+      <dt>{m.itemsTextLabel}</dt>
+      <dd>{d.itemsText?.trim() || m.summaryEmpty}</dd>
+      <dt>{m.reasonLabel}</dt>
+      <dd>{d.reason?.trim() || m.summaryEmpty}</dd>
+    </>
+  )
 
   const heading = (text: string) => (
     <h2 ref={headingRef} tabIndex={-1} className={styles.stepTitle} data-withdraw-step-title="">
@@ -145,62 +191,18 @@ export function WithdrawalFlow(props: WithdrawalFlowProps) {
         >
           {hidden('form')}
           <RequiredNote>{m.requiredNote}</RequiredNote>
-          <Field
-            id="widerruf-name"
-            name="name"
-            label={m.nameLabel}
-            required
-            autoComplete="name"
-            maxLength={100}
-            defaultValue={v.name}
-            error={errors.name ? errorText('name') : undefined}
-          />
-          <Field
-            id="widerruf-contractIdentification"
-            name="contractIdentification"
-            label={m.contractLabel}
-            hint={m.contractHint}
-            required
-            multiline
-            rows={3}
-            maxLength={500}
-            defaultValue={v.contractIdentification}
-            error={errors.contractIdentification ? errorText('contractIdentification') : undefined}
-          />
-          <Field
-            id="widerruf-email"
-            name="email"
-            type="email"
-            label={m.emailLabel}
-            hint={m.emailHint}
-            required
-            autoComplete="email"
-            maxLength={254}
-            defaultValue={v.email}
-            error={errors.email ? errorText('email') : undefined}
-          />
-          <Field
-            id="widerruf-itemsText"
-            name="itemsText"
-            label={m.itemsTextLabel}
-            hint={m.itemsTextHint}
-            multiline
-            rows={3}
-            maxLength={1000}
-            defaultValue={v.itemsText}
-            error={errors.itemsText ? errorText('itemsText') : undefined}
-          />
-          <Field
-            id="widerruf-reason"
-            name="reason"
-            label={m.reasonLabel}
-            hint={m.reasonHint}
-            multiline
-            rows={4}
-            maxLength={2000}
-            defaultValue={v.reason}
-            error={errors.reason ? errorText('reason') : undefined}
-          />
+          {FIELD_ORDER.map((k) => (
+            <Field
+              key={k}
+              id={`widerruf-${k}`}
+              name={k}
+              label={label[k]}
+              hint={hint[k]}
+              defaultValue={v[k]}
+              error={errors[k] ? errorText(k) : undefined}
+              {...FIELD_PROPS[k]}
+            />
+          ))}
           <div className={styles.honeypot} aria-hidden="true">
             <label htmlFor="widerruf-website">{m.honeypotLabel}</label>
             <input
@@ -281,32 +283,20 @@ export function WithdrawalFlow(props: WithdrawalFlowProps) {
         ) : null}
         <p>{m.confirmIntro}</p>
         <dl className={styles.summary} data-withdraw-summary="">
-          <dt>{m.nameLabel}</dt>
-          <dd>{v.name}</dd>
-          <dt>{m.contractLabel}</dt>
-          <dd>{v.contractIdentification}</dd>
-          <dt>{m.emailLabel}</dt>
-          <dd>{v.email}</dd>
-          {state.matched ? (
-            <>
-              <dt>{m.summaryItems}</dt>
-              <dd>
-                {items ? (
-                  <ul>
-                    {items.map((l) => (
-                      <li key={l}>{l}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  m.summaryWhole
-                )}
-              </dd>
-            </>
-          ) : null}
-          <dt>{m.itemsTextLabel}</dt>
-          <dd>{v.itemsText.trim() || m.summaryEmpty}</dd>
-          <dt>{m.reasonLabel}</dt>
-          <dd>{v.reason.trim() || m.summaryEmpty}</dd>
+          {summaryRows(
+            v,
+            state.matched ? (
+              items ? (
+                <ul>
+                  {items.map((l) => (
+                    <li key={l}>{l}</li>
+                  ))}
+                </ul>
+              ) : (
+                m.summaryWhole
+              )
+            ) : null,
+          )}
         </dl>
         <form action={dispatch} onSubmit={guard} className={styles.form} data-withdraw-form="">
           {hidden('confirm')}
@@ -338,30 +328,16 @@ export function WithdrawalFlow(props: WithdrawalFlowProps) {
             <dd data-withdraw-reference="">{r.reference}</dd>
             <dt>{m.receivedAt}</dt>
             <dd data-withdraw-received-at="">{r.receivedAtText}</dd>
-            <dt>{m.nameLabel}</dt>
-            <dd>{r.name}</dd>
-            <dt>{m.contractLabel}</dt>
-            <dd>{r.contractIdentification}</dd>
-            <dt>{m.emailLabel}</dt>
-            <dd>{r.email}</dd>
-            {r.items.length > 0 ? (
-              <>
-                <dt>{m.summaryItems}</dt>
-                <dd>
-                  <ul>
-                    {r.items.map((i) => (
-                      <li key={i.itemNumber}>
-                        {formatItemNumber(i.itemNumber, locale)} · {i.title}
-                      </li>
-                    ))}
-                  </ul>
-                </dd>
-              </>
-            ) : null}
-            <dt>{m.itemsTextLabel}</dt>
-            <dd>{r.itemsText?.trim() || m.summaryEmpty}</dd>
-            <dt>{m.reasonLabel}</dt>
-            <dd>{r.reason?.trim() || m.summaryEmpty}</dd>
+            {summaryRows(
+              r,
+              state.itemLabels.length > 0 ? (
+                <ul>
+                  {state.itemLabels.map((l) => (
+                    <li key={l}>{l}</li>
+                  ))}
+                </ul>
+              ) : null,
+            )}
           </dl>
           {r.unpaidOrderCancelled ? <p data-withdraw-unpaid="">{m.unpaidCancelled}</p> : null}
           <p data-withdraw-mail-note="">{m.mailNote}</p>

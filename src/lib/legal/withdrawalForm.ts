@@ -89,7 +89,13 @@ export type WithdrawalFlowState =
       matched: boolean
       notice?: WithdrawalNotice
     }
-  | { step: 'done'; rev: number; receipt: WithdrawalReceipt | null }
+  | {
+      step: 'done'
+      rev: number
+      receipt: WithdrawalReceipt | null
+      /** Betroffene Stücke als fertige Zeilen („Nr. 986 · Titel“) – auf dem Server formatiert, nicht im Client-Bundle. */
+      itemLabels: string[]
+    }
 
 export const emptyWithdrawalValues = (contractIdentification = ''): WithdrawalFormValues => ({
   name: '',
@@ -316,7 +322,13 @@ export async function withdrawalStep(
     } catch {
       return confirmState(body, rev, now, 'failed')
     }
-    if (result.ok) return { step: 'done', rev, receipt: result.spam ? null : result.receipt }
+    if (result.ok) {
+      const receipt = result.spam ? null : result.receipt
+      const itemLabels = (receipt?.items ?? []).map(
+        (i) => `${formatItemNumber(i.itemNumber, body.locale)} · ${i.title}`,
+      )
+      return { step: 'done', rev, receipt, itemLabels }
+    }
     if (result.status === 429) {
       return confirmState(body, rev, now, 'rate_limited')
     }

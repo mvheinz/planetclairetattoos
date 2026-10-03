@@ -218,6 +218,7 @@ describe('Ablauf (R-091, R-092)', () => {
     if (done.step !== 'done' || !done.receipt) throw new Error('kein Ergebnis')
     expect(done.receipt.matchStatus).toBe('auto_matched')
     expect(done.receipt.items.map((i) => i.itemNumber)).toEqual([986])
+    expect(done.itemLabels).toEqual([`Nr. 986 · ${done.receipt.items[0]!.title}`])
     const doc = await payload.findByID({
       collection: 'withdrawals',
       id: done.receipt.id,
