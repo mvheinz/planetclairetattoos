@@ -1,7 +1,7 @@
 import { createLocalReq, type Payload } from 'payload'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { activateLegalText } from '@/lib/legal/activate'
+import { activateLegalText, checkLegalText } from '@/lib/legal/activate'
 import { getActiveLegalText } from '@/lib/legal/getActive'
 import {
   buildLegalTokenValues,
@@ -11,6 +11,7 @@ import {
   type LegalTokenSettings,
 } from '@/lib/legal/render'
 
+import { resetAdmin } from '../helpers/admin'
 import { deleteCommerce } from '../helpers/commerce'
 import { deleteLegalTexts, lexical } from '../helpers/legal'
 import { getTestPayload } from '../helpers/payload'
@@ -157,12 +158,12 @@ describe('legal-texts (DATENMODELL §6.12)', () => {
   })
 
   it('DM-LEG-03 Inhaltsänderung an einer aktiven (und abgelösten) Fassung wird abgelehnt', async () => {
-    const d = await draft({ type: 'widerrufsbelehrung' })
+    const d = await draft({ type: 'widerrufsbelehrung', content: lexical('{{withdrawalUrl}}') })
     // Entwurf ist änderbar
     const edited = await payload.update({
       collection: 'legal-texts',
       id: d.id,
-      data: { content: lexical('Neuer Entwurf') },
+      data: { content: lexical('Neuer Entwurf', 'Widerruf über {{withdrawalUrl}}') },
       overrideAccess: true,
       context: ctx(),
     })
@@ -364,5 +365,94 @@ describe('legal-texts (DATENMODELL §6.12)', () => {
     expect(body.docs.length).toBeGreaterThan(0)
     for (const d of body.docs) expect(['active', 'superseded']).toContain(d.status)
     expect((await rest('POST', '/legal-texts', { type: 'agb' })).status).toBe(403)
+  })
+})
+
+describe('R-012 Renderer, Prüfungen und Aktivierung (P6.3)', () => {
+  const errorText = (e: unknown) => {
+    const err = e as Err & { status?: number }
+    return [err.message ?? '', ...(err.data?.errors ?? []).map((x) => x.message)].join(' | ')
+  }
+
+  it('R-012 v1 aktivieren, Update → 403; v2 aktivieren → v1 superseded; contentSha256De stimmt', async () => {
+    const { userId } = await resetAdmin(payload)
+    const user = await payload.findByID({ collection: 'users', id: userId, overrideAccess: true })
+    const v1 = await draft({ type: 'datenschutz', content: lexical('Verantwortlich: {{name}}') })
+    await activate(v1.id)
+    const err = await payload
+      .update({
+        collection: 'legal-texts',
+        id: v1.id,
+        data: { changeNote: 'nachträglich' },
+        user: { ...user, collection: 'users' } as never,
+        overrideAccess: false,
+      })
+      .then(
+        () => null,
+        (e: unknown) => e as { status?: number },
+      )
+    expect(err?.status).toBe(403)
+
+    const v2 = await draft({ type: 'datenschutz', content: lexical('Neu: {{name}}, {{city}}') })
+    const res = await activate(v2.id)
+    expect(res).toMatchObject({ status: 'active', supersededId: v1.id })
+    expect((await byId(v1.id)).status).toBe('superseded')
+    const active = await byId(v2.id)
+    const req = await createLocalReq({ context: ctx() }, payload)
+    const values = await (await import('@/lib/legal/render')).loadLegalTokenValues(req, 'de')
+    const rendered = renderLegalContent(active.content as never, values)
+    expect(active.contentSha256De).toBe(rendered.sha256)
+    expect(rendered.plainText).not.toMatch(/\{\{/)
+  })
+
+  it('R-012 {{unknown}}, {{NAME}}, {{processorTable}} oder {{STEUERNUMMER}} → Render-Fehler, Veröffentlichen gesperrt', async () => {
+    for (const bad of ['{{unknown}}', '{{NAME}}', '{{processorTable}}', '{{STEUERNUMMER}}']) {
+      const d = await draft({ type: 'agb', content: lexical(`Text ${bad}`) })
+      const e = await activate(d.id).then(
+        () => null,
+        (x: unknown) => x,
+      )
+      expect(e, bad).not.toBeNull()
+      expect(errorText(e)).toMatch(/unbekannte Platzhalter/)
+      expect((await byId(d.id)).status).toBe('draft')
+      await payload.delete({ collection: 'legal-texts', id: d.id, overrideAccess: true })
+    }
+  })
+
+  it('R-095/V-01/V-02 Prüfungen vor dem Veröffentlichen: Widerrufs-URL Pflicht, OS-Link und Steuerhinweis im KU-Modus gesperrt', async () => {
+    const req = await createLocalReq({ context: ctx() }, payload)
+    const check = (type: string, ...paragraphs: string[]) =>
+      checkLegalText(req, {
+        type: type as never,
+        validFrom: NOW,
+        content: { de: lexical(...paragraphs) },
+      })
+
+    expect((await check('widerrufsbelehrung', 'Widerrufsrecht')).errors.join(' ')).toMatch(
+      /withdrawalUrl/,
+    )
+    expect((await check('widerrufsbelehrung', 'Online: {{withdrawalUrl}}')).errors).toEqual([])
+    // feste R26-Adresse statt Token ist ebenfalls zulässig
+    const url = `${(await import('@/lib/env')).getEnv().NEXT_PUBLIC_SITE_URL.replace(/\/+$/, '')}/de/vertrag-widerrufen`
+    expect((await check('widerrufsbelehrung', `Online: ${url}`)).errors).toEqual([])
+    expect(
+      (await check('impressum', 'Plattform: https://ec.europa.eu/consumers/odr')).errors.join(' '),
+    ).toMatch(/OS-Plattform/)
+    expect((await check('agb', 'Alle Preise inkl. MwSt.')).errors.join(' ')).toMatch(/V-02/)
+    // Fehlerliste ohne zu speichern (Vorschau P6.4)
+    expect((await check('agb', 'Text {{unknown}}')).errors.join(' ')).toMatch(/unknown/)
+  })
+
+  it('R-012 activateLegalText mit validFrom: in der Zukunft geplant, sonst sofort aktiv', async () => {
+    const d = await draft({
+      type: 'versand-zahlung',
+      content: lexical('Lieferzeit {{deliveryTime}}'),
+    })
+    const req = await createLocalReq({ context: ctx() }, payload)
+    const res = await activateLegalText(req, d.id, { validFrom: new Date(LATER) })
+    expect(res.status).toBe('scheduled')
+    const doc = await byId(d.id)
+    expect(doc.status).toBe('scheduled')
+    expect(new Date(doc.validFrom).toISOString()).toBe(LATER)
   })
 })

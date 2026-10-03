@@ -6,7 +6,7 @@ import { GALLERY_PUBLIC_WHERE } from '@/lib/tattoo/gallery'
 // T-15 / DM-P1-03: Zugriffsmatrix aller Collections und Globals für anonyme REST-Aufrufe (DATENMODELL §1.4 und die
 // „Access“-Abschnitte je Collection in §6/§7). Der Test `access-matrix.int.spec.ts` prüft jeden Eintrag gegen den
 // laufenden REST-Handler und scheitert, wenn eine Collection bzw. ein Global aus `payload.config` hier fehlt.
-// `legal-snippets` und `complaints` ergänzt P6 (DATENMODELL §10.1) – dann hier eintragen.
+// `legal-snippets` und `complaints` seit P6.1 (DATENMODELL §10.1).
 
 export interface PublicContext {
   /** Serverzeit der Anfrage (für zeitabhängige Filter wie `tattoo-offers.endsAt`). */
@@ -112,6 +112,10 @@ export const COLLECTION_ACCESS: Record<CollectionSlug, CollectionAccessEntry> = 
   withdrawals: deny,
   // §6.12: aktive und abgelöste Fassungen (+ Seed-Filter)
   'legal-texts': pub(publicRead({ status: { in: ['active', 'superseded'] } })),
+  // §6.28: nur die aktive Fassung je Schlüssel, kein Seed-Flag
+  'legal-snippets': pub(() => ({ status: { equals: 'active' } })),
+  // §6.29: Reklamationen nur Admin
+  complaints: deny,
   // §6.14: veröffentlichte Motive
   flash: pub(publicRead({ published: { equals: true } })),
   // §6.15: veröffentlicht und noch nicht beendet

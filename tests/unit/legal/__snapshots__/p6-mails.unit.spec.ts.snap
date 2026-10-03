@@ -1,0 +1,505 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`R-084 P6-Kund:innen-Mails > R-084 M08 withdrawal_receipt (de) rendert ohne offene Tokens 1`] = `
+"Dein Widerruf ist angekommen
+
+Hallo Erika Beispiel,
+
+Diese E-Mail bestätigt den Eingang deiner Widerrufserklärung. Sie ist noch keine Prüfung, ob der Widerruf wirksam ist.
+
+Vorgangsnummer: WR-2026-00003
+Eingegangen am: 12.10.2026, 14:03 Uhr (MESZ)
+
+Deine Erklärung
+---------------
+
+Name: Erika Beispiel
+Angaben zum Vertrag: PC-2026-00017
+Betroffene Stücke: Nr. 017 · Tasse „Coco schläft“
+Grund: Passt farblich doch nicht.
+E-Mail: erika@example.com
+
+So geht es weiter
+-----------------
+
+Bitte sende die Ware an: Jutta Beispiel · Planet Claire, Werkstattweg 7, 10999 Berlin. Die unmittelbaren Kosten der Rücksendung trägst du.
+
+Die Erstattung bekommst du über dasselbe Zahlungsmittel, mit dem du bezahlt hast – spätestens 14 Tage nach Eingang deines Widerrufs (bis 26.10.2026). Ich darf sie zurückhalten, bis die Ware wieder bei mir ist oder du nachweist, dass du sie abgeschickt hast.
+
+Bitte bewahre diese E-Mail auf – sie ist dein Nachweis für den Eingang.
+
+Wie ich mit deinen Daten umgehe, steht in der Datenschutzerklärung:
+Datenschutzerklärung: https://planetclairetattoos.com/de/datenschutz
+
+Liebe Grüße
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Impressum: https://planetclairetattoos.com/de/impressum
+Datenschutz: https://planetclairetattoos.com/de/datenschutz
+Vertrag widerrufen: https://planetclairetattoos.com/de/vertrag-widerrufen
+"
+`;
+
+exports[`R-084 P6-Kund:innen-Mails > R-084 M08 withdrawal_receipt (en) rendert ohne offene Tokens 1`] = `
+"Your withdrawal has arrived
+
+Hi Erika Beispiel,
+
+This email confirms receipt of your notice of withdrawal. It does not yet confirm whether the withdrawal is valid.
+
+Reference: WR-2026-00003
+Received on: 12 Oct 2026, 14:03 (CEST)
+
+Your declaration
+----------------
+
+Name: Erika Beispiel
+Contract details: PC-2026-00017
+Pieces concerned: No. 017 · Tasse „Coco schläft“
+Reason: Passt farblich doch nicht.
+Email: erika@example.com
+
+What happens next
+-----------------
+
+Please send the goods to: Jutta Beispiel · Planet Claire, Werkstattweg 7, 10999 Berlin. You bear the direct costs of returning the goods.
+
+You will receive the refund via the same means of payment you used – no later than 14 days after receipt of your withdrawal (by 26 Oct 2026). I may withhold it until I have received the goods back or you have provided proof that you have sent them.
+
+Please keep this email – it is your proof of receipt.
+
+How I handle your data is explained in the privacy policy:
+Privacy policy: https://planetclairetattoos.com/en/privacy
+
+Best wishes
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Legal notice: https://planetclairetattoos.com/en/legal-notice
+Privacy policy: https://planetclairetattoos.com/en/privacy
+Withdraw from contract here: https://planetclairetattoos.com/en/withdraw-from-contract
+"
+`;
+
+exports[`R-084 P6-Kund:innen-Mails > R-084 M09 refund_confirmation (de) rendert ohne offene Tokens 1`] = `
+"Dein Geld ist unterwegs
+
+Hallo Erika Beispiel,
+
+dein Widerruf WR-2026-00003 ist bearbeitet. Ich habe dir 40,40 € erstattet.
+
+Bestellnummer: PC-2026-00017
+Erstattet: 40,40 €
+
+Erstattet für:
+
+- Nr. 017 · Tasse „Coco schläft“
+
+Darin enthalten: 2,40 € Versandkosten.
+
+Das Geld geht auf dasselbe Zahlungsmittel zurück, mit dem du bezahlt hast. Je nach Bank dauert es meist 5–10 Werktage, bis du es siehst.
+
+Die Gutschrift GS-2026-00002 hängt als PDF an.
+
+Wie ich mit deinen Daten umgehe, steht in der Datenschutzerklärung:
+Datenschutzerklärung: https://planetclairetattoos.com/de/datenschutz
+
+Liebe Grüße
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Impressum: https://planetclairetattoos.com/de/impressum
+Datenschutz: https://planetclairetattoos.com/de/datenschutz
+Vertrag widerrufen: https://planetclairetattoos.com/de/vertrag-widerrufen
+"
+`;
+
+exports[`R-084 P6-Kund:innen-Mails > R-084 M09 refund_confirmation (en) rendert ohne offene Tokens 1`] = `
+"Your money is on its way
+
+Hi Erika Beispiel,
+
+your withdrawal WR-2026-00003 has been processed. I have refunded €40.40 to you.
+
+Order number: PC-2026-00017
+Refunded: €40.40
+
+Refunded for:
+
+- No. 017 · Tasse „Coco schläft“
+
+This includes €2.40 shipping costs.
+
+The money goes back to the same payment method you used. Depending on your bank it usually takes 5–10 working days until you see it.
+
+The credit note GS-2026-00002 is attached as a PDF.
+
+How I handle your data is explained in the privacy policy:
+Privacy policy: https://planetclairetattoos.com/en/privacy
+
+Best wishes
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Legal notice: https://planetclairetattoos.com/en/legal-notice
+Privacy policy: https://planetclairetattoos.com/en/privacy
+Withdraw from contract here: https://planetclairetattoos.com/en/withdraw-from-contract
+"
+`;
+
+exports[`R-084 P6-Kund:innen-Mails > R-084 M12 complaint_repair_choice (de) rendert ohne offene Tokens 1`] = `
+"Reparatur oder Ersatz – du hast die Wahl
+
+Hallo Erika Beispiel,
+
+danke für deine Nachricht zu deiner Bestellung PC-2026-00017. Es tut mir leid, dass mit deinem Stück etwas nicht stimmt.
+
+Bestellnummer: PC-2026-00017
+Reklamation eingegangen am: 16.10.2026
+Art: beim Versand beschädigt
+
+Betroffen:
+
+- Nr. 017 · Tasse „Coco schläft“
+
+Du kannst wählen, ob ich das Stück reparieren soll (Nachbesserung) oder ob du ein Ersatzstück möchtest (Ersatzlieferung). Die Kosten dafür, auch für den Versand, übernehme ich.
+
+Weil jedes meiner Stücke ein Unikat ist, gibt es in der Regel kein gleiches Ersatzstück. Ist ein Ersatz nicht möglich, sprechen wir gemeinsam über die weiteren Möglichkeiten.
+
+Wählst du die Reparatur, verlängert sich deine gesetzliche Gewährleistung für das Stück um 12 Monate.
+
+Deine gesetzlichen Rechte bleiben unberührt.
+
+Antworte einfach auf diese Mail und sag mir, was dir lieber ist.
+
+Wie ich mit deinen Daten umgehe, steht in der Datenschutzerklärung:
+Datenschutzerklärung: https://planetclairetattoos.com/de/datenschutz
+
+Liebe Grüße
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Impressum: https://planetclairetattoos.com/de/impressum
+Datenschutz: https://planetclairetattoos.com/de/datenschutz
+Vertrag widerrufen: https://planetclairetattoos.com/de/vertrag-widerrufen
+"
+`;
+
+exports[`R-084 P6-Kund:innen-Mails > R-084 M12 complaint_repair_choice (en) rendert ohne offene Tokens 1`] = `
+"Repair or replacement – your choice
+
+Hi Erika Beispiel,
+
+thank you for your message about your order PC-2026-00017. I am sorry that something is wrong with your piece.
+
+Order number: PC-2026-00017
+Complaint received on: 16 Oct 2026
+Type: damaged in transit
+
+Affected:
+
+- No. 017 · Tasse „Coco schläft“
+
+You can choose whether I should repair the piece or whether you would like a replacement. I will cover the costs, including shipping.
+
+Since every one of my pieces is one of a kind, an identical replacement is usually not possible. If a replacement is not possible, we will talk about the other options together.
+
+If you choose the repair, your statutory liability period for defects for the piece is extended by 12 months.
+
+Your statutory rights remain unaffected.
+
+Just reply to this email and let me know what you prefer.
+
+How I handle your data is explained in the privacy policy:
+Privacy policy: https://planetclairetattoos.com/en/privacy
+
+Best wishes
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Legal notice: https://planetclairetattoos.com/en/legal-notice
+Privacy policy: https://planetclairetattoos.com/en/privacy
+Withdraw from contract here: https://planetclairetattoos.com/en/withdraw-from-contract
+"
+`;
+
+exports[`R-084 P6-Kund:innen-Mails > R-084 M13 dispute_vsbg (de) rendert ohne offene Tokens 1`] = `
+"Hinweis zur Verbraucherschlichtung
+
+Hallo Erika Beispiel,
+
+leider konnten wir uns zu deiner Bestellung PC-2026-00017 nicht einigen. Das Gesetz sieht vor, dass ich dich in diesem Fall auf eine zuständige Verbraucherschlichtungsstelle hinweise.
+
+Bestellnummer: PC-2026-00017
+Reklamation eingegangen am: 16.10.2026
+
+Zuständig ist die Universalschlichtungsstelle des Bundes, Zentrum für Schlichtung e. V., Straßburger Straße 8, 77694 Kehl am Rhein, www.universalschlichtungsstelle.de. Ich bin nicht bereit und nicht verpflichtet, an einem Streitbeilegungsverfahren teilzunehmen.
+
+Wenn du noch Fragen hast, antworte einfach auf diese Mail.
+
+Wie ich mit deinen Daten umgehe, steht in der Datenschutzerklärung:
+Datenschutzerklärung: https://planetclairetattoos.com/de/datenschutz
+
+Liebe Grüße
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Impressum: https://planetclairetattoos.com/de/impressum
+Datenschutz: https://planetclairetattoos.com/de/datenschutz
+Vertrag widerrufen: https://planetclairetattoos.com/de/vertrag-widerrufen
+"
+`;
+
+exports[`R-084 P6-Kund:innen-Mails > R-084 M13 dispute_vsbg (en) rendert ohne offene Tokens 1`] = `
+"Information on consumer dispute resolution
+
+Hi Erika Beispiel,
+
+unfortunately we could not reach an agreement about your order PC-2026-00017. In this case, the law requires me to inform you about a competent consumer dispute resolution body.
+
+Order number: PC-2026-00017
+Complaint received on: 16 Oct 2026
+
+The competent body is the Universalschlichtungsstelle des Bundes, Zentrum für Schlichtung e. V., Straßburger Straße 8, 77694 Kehl am Rhein, www.universalschlichtungsstelle.de. I am neither willing nor obliged to participate in dispute resolution proceedings.
+
+If you have any questions, just reply to this email.
+
+How I handle your data is explained in the privacy policy:
+Privacy policy: https://planetclairetattoos.com/en/privacy
+
+Best wishes
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Legal notice: https://planetclairetattoos.com/en/legal-notice
+Privacy policy: https://planetclairetattoos.com/en/privacy
+Withdraw from contract here: https://planetclairetattoos.com/en/withdraw-from-contract
+"
+`;
+
+exports[`R-084 P6-Kund:innen-Mails > R-084 M14 privacy_access_response (de) rendert ohne offene Tokens 1`] = `
+"Deine Auskunft ist fertig
+
+Hallo Mara Beispiel,
+
+danke für deine Datenschutz-Anfrage DS-2026-0001. Hier ist die Auskunft über die Daten, die ich über dich gespeichert habe.
+
+Die Kopie deiner Daten (ZIP mit „auskunft.html“, „daten.json“ und deinen Bildern und Belegen) kannst du hier herunterladen:
+Auskunft herunterladen: https://planetclairetattoos.com/api/privacy-export/__PRIVACY_EXPORT_TOKEN__
+
+Der Link funktioniert bis 21.10.2026. Spätestens am 13.11.2026 lösche ich die Datei wieder.
+
+In der Datei „auskunft.html“ steht, wofür ich deine Daten nutze, an wen sie gehen, wie lange ich sie aufbewahre, woher sie stammen und welche Rechte du hast. „daten.json“ enthält deine Daten in einem maschinenlesbaren Format.
+
+[Platzhalter – Kanzlei-Wortlaut folgt] PLATZHALTER – Text folgt von der Kanzlei.
+
+Du kannst jederzeit Berichtigung, Löschung oder Einschränkung verlangen, der Verarbeitung widersprechen und eine Einwilligung widerrufen. Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel bei der Berliner Beauftragten für Datenschutz und Informationsfreiheit, Alt-Moabit 59–61, 10555 Berlin.
+
+Wenn du Fragen hast, antworte einfach auf diese Mail.
+
+Liebe Grüße
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Impressum: https://planetclairetattoos.com/de/impressum
+Datenschutz: https://planetclairetattoos.com/de/datenschutz
+"
+`;
+
+exports[`R-084 P6-Kund:innen-Mails > R-084 M14 privacy_access_response (en) rendert ohne offene Tokens 1`] = `
+"Your information is ready
+
+Hi Mara Beispiel,
+
+thank you for your data protection request DS-2026-0001. Here is the information about the data I have stored about you.
+
+You can download the copy of your data (a ZIP with “auskunft.html”, “daten.json” and your images and documents) here:
+Download your data: https://planetclairetattoos.com/api/privacy-export/__PRIVACY_EXPORT_TOKEN__
+
+The link works until 21 Oct 2026. I will delete the file on 13 Nov 2026 at the latest.
+
+The file “auskunft.html” explains what I use your data for, who receives it, how long I keep it, where it comes from and which rights you have. “daten.json” contains your data in a machine-readable format.
+
+[Placeholder – law firm wording to follow] PLACEHOLDER – text to follow from the law firm.
+
+You can ask for rectification, erasure or restriction at any time, object to processing and withdraw any consent. You can also lodge a complaint with a data protection supervisory authority, for example the Berlin Commissioner for Data Protection and Freedom of Information, Alt-Moabit 59–61, 10555 Berlin, Germany.
+
+If you have any questions, just reply to this email.
+
+Best wishes
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Legal notice: https://planetclairetattoos.com/en/legal-notice
+Privacy policy: https://planetclairetattoos.com/en/privacy
+"
+`;
+
+exports[`R-084 P6-Kund:innen-Mails > R-084 M15 privacy_erasure_response (de) rendert ohne offene Tokens 1`] = `
+"Deine Löschanfrage ist erledigt
+
+Hallo Mara Beispiel,
+
+danke für deine Datenschutz-Anfrage DS-2026-0002. So bin ich mit deinen Daten umgegangen:
+
+- Anfragen zu Auftragsarbeiten: gelöscht
+- Kassenvorgänge: gelöscht
+- Bestellungen: eingeschränkt bis 01.01.2033 wegen gesetzlicher Aufbewahrungspflichten, danach automatisch gelöscht bzw. anonymisiert
+- Rechnungen und Gutschriften: unverändert – Rechnungen und Gutschriften muss ich nach Steuerrecht bis 01.01.2037 aufbewahren, danach werden sie anonymisiert
+
+„Eingeschränkt“ heißt: Ich nutze diese Daten nur noch, um gesetzliche Pflichten zu erfüllen, und schicke dir dazu keine Mails mehr.
+
+[Platzhalter – Kanzlei-Wortlaut folgt] PLATZHALTER – Text folgt von der Kanzlei.
+
+Falls du der Weitergabe deiner E-Mail-Adresse an DHL zugestimmt hattest, ist diese Einwilligung widerrufen. Bei Zahlungen per Karte oder PayPal verarbeiten Stripe bzw. PayPal Daten in eigener Verantwortung – wende dich dafür bitte direkt an deren Datenschutz-Kontakt. Protokolle des Mail-Anbieters und Datensicherungen laufen automatisch ab.
+
+Du kannst dich bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel bei der Berliner Beauftragten für Datenschutz und Informationsfreiheit, Alt-Moabit 59–61, 10555 Berlin.
+
+Wenn du Fragen hast, antworte einfach auf diese Mail.
+
+Liebe Grüße
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Impressum: https://planetclairetattoos.com/de/impressum
+Datenschutz: https://planetclairetattoos.com/de/datenschutz
+"
+`;
+
+exports[`R-084 P6-Kund:innen-Mails > R-084 M15 privacy_erasure_response (en) rendert ohne offene Tokens 1`] = `
+"Your erasure request has been handled
+
+Hi Mara Beispiel,
+
+thank you for your data protection request DS-2026-0002. This is what I have done with your data:
+
+- Commission requests: deleted
+- Checkout sessions: deleted
+- Orders: restricted until 1 Jan 2033 because of statutory retention duties, then deleted or anonymised automatically
+- Invoices and credit notes: unchanged – tax law requires me to keep invoices and credit notes until 1 Jan 2037, then they are anonymised
+
+“Restricted” means: I only use this data to meet legal obligations and will not send you any emails about it.
+
+[Placeholder – law firm wording to follow] PLACEHOLDER – text to follow from the law firm.
+
+If you had agreed to me passing your email address to DHL, that consent has been withdrawn. For card or PayPal payments, Stripe or PayPal process data as independent controllers – please contact their data protection team directly. Logs of the email provider and backups expire automatically.
+
+You can lodge a complaint with a data protection supervisory authority, for example the Berlin Commissioner for Data Protection and Freedom of Information, Alt-Moabit 59–61, 10555 Berlin, Germany.
+
+If you have any questions, just reply to this email.
+
+Best wishes
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Legal notice: https://planetclairetattoos.com/en/legal-notice
+Privacy policy: https://planetclairetattoos.com/en/privacy
+"
+`;
+
+exports[`R-084 P6-Kund:innen-Mails > R-084 M16 consent_withdrawal_confirmation (de) rendert ohne offene Tokens 1`] = `
+"Widerruf eingetragen
+
+Hallo Erika Beispiel,
+
+Du hast deine Einwilligung widerrufen, dass ich deine E-Mail-Adresse an DHL weitergebe.
+
+Widerrufen am: 14.10.2026
+Bestellnummer: PC-2026-00017
+
+Der Widerruf gilt ab sofort: DHL bekommt deine E-Mail-Adresse von mir nicht mehr.
+
+Was vor dem Widerruf geschehen ist, bleibt rechtmäßig.
+
+Wenn du Fragen hast, antworte einfach auf diese Mail.
+
+Liebe Grüße
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Impressum: https://planetclairetattoos.com/de/impressum
+Datenschutz: https://planetclairetattoos.com/de/datenschutz
+"
+`;
+
+exports[`R-084 P6-Kund:innen-Mails > R-084 M16 consent_withdrawal_confirmation (en) rendert ohne offene Tokens 1`] = `
+"Withdrawal recorded
+
+Hi Erika Beispiel,
+
+You have withdrawn your consent to me passing your email address to DHL.
+
+Withdrawn on: 14 Oct 2026
+Order number: PC-2026-00017
+
+The withdrawal applies immediately: I will no longer pass your email address to DHL.
+
+Anything that happened before the withdrawal remains lawful.
+
+If you have any questions, just reply to this email.
+
+Best wishes
+Planet Claire
+
+--
+Jutta Beispiel · Planet Claire
+Werkstattweg 7, 10999 Berlin
+jutta@planetclairetattoos.com
+
+Legal notice: https://planetclairetattoos.com/en/legal-notice
+Privacy policy: https://planetclairetattoos.com/en/privacy
+"
+`;

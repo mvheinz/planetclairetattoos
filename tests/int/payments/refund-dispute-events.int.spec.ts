@@ -137,7 +137,10 @@ describe('Erstattungsstatus (P4.22)', () => {
     const after = await h.order(order.id)
     expect(after.refunds).toHaveLength(1)
     expect(after.refunds![0]!.status).toBe('succeeded')
-    expect(after.status).toBe('paid')
+    // Seit P6.10 schließt eine erfolgreiche Erstattung ab (O15 → teilweise erstattet), genau einmal trotz doppelter
+    // Zustellung; ohne Rechnung keine Gutschrift und keine M09.
+    expect(after.status).toBe('partially_refunded')
+    expect(after.statusHistory?.filter((e) => e.to === 'partially_refunded')).toHaveLength(1)
     // ein späteres „pending“ überschreibt ein Ergebnis nicht
     await pending.deliver()
     expect((await h.order(order.id)).refunds![0]!.status).toBe('succeeded')

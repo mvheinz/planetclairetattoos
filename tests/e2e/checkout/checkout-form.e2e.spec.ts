@@ -99,6 +99,7 @@ test.describe('Kasse R07 – Formular', () => {
     await expect(page.locator('#checkout-billing-line1')).toBeVisible()
     await orderButton(page).click()
     const summary = page.locator('[data-error-summary]')
+    await expect(summary).toBeFocused()
     for (const key of ['billingLine1', 'billingPostalCode', 'billingCity']) {
       await expect(summary.locator(`[data-error-link="${key}"]`)).toBeVisible()
     }

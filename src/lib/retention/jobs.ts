@@ -1,0 +1,846 @@
+import 'server-only'
+
+import { sql } from '@payloadcms/db-postgres'
+import type { Payload, PayloadRequest } from 'payload'
+
+import { dbFor, type SqlExecutor } from '@/lib/db/tx'
+import { notifyAdmin } from '@/lib/email/notifyAdmin'
+import { preservingReq } from '@/lib/payload/localReq'
+import { purgeRateLimits } from '@/lib/security/rateLimit'
+import { deleteStoredFile } from '@/lib/storage/read'
+import { addBerlinMonths } from '@/lib/time'
+import type { Order } from '@/payload-types'
+
+import { writeDeletionLog } from './log'
+import {
+  eventCutoff,
+  isDue,
+  L_02_RESERVATIONS,
+  L_03_CHECKOUTS,
+  L_10_INQUIRIES,
+  L_13D_WEBHOOK_EVENTS,
+  L_13F_PENDING_UPLOADS,
+  L_13G_JOB_RUNS,
+  L_17_EXPORT_FILES,
+  L_19B_PORTFOLIO_CONSENT,
+  L_20_GALLERY_FILES_AFTER_WITHDRAWAL,
+  L_04_CANCELLED_PREPAYMENT_STAGE_1,
+  L_05_ORDERS_STAGE_B,
+  L_05_ORDERS_STAGE_C,
+  retainUntil,
+  type RetentionRule,
+} from './policy'
+import {
+  runRetentionSteps,
+  type RetentionCandidate,
+  type RetentionRunOptions,
+  type RetentionRunResult,
+  type RetentionStep,
+} from './runner'
+
+// Löschjobs Teil 1 (PLAN P6.14, LOESCHKONZEPT §2–§4, DATENMODELL §11/§12): Kassen (L-03), Minimierung der Bestellungen
+// (L-04 Stufe 1, L-05 Stufen B/C), Anonymisierung der Bestellungen (L-04 Stufe 2, L-05 Stufe D, L-09), Belege (L-06,
+// L-07) und Widerrufe (L-08). Fristen ausschließlich aus `policy.ts`; Datensätze mit Legal Hold fallen schon in der
+// Kandidaten-Abfrage heraus. Stufe A (Telefon) hat keine Wirkung – es gibt kein Telefonfeld (DM-28).
+
+/** Platzhalter-E-Mail anonymisierter Bestellungen (LOESCHKONZEPT §1 Nr. 2, DATENMODELL §6.8.3 Nr. 6). */
+export const ANONYMIZED_EMAIL = 'anonymisiert@example.invalid'
+
+type Row = Record<string, unknown>
+const iso = (d: Date) => d.toISOString()
+const asDate = (v: unknown) => (v instanceof Date ? v : new Date(String(v)))
+
+/** Kandidaten aus SQL (`id`, `event_at`) exakt nach der Regel filtern (Kalenderrechnung Berlin). */
+function byEvent(rule: Pick<RetentionRule, 'duration' | 'start'>, rows: Row[], until: Date) {
+  const out: RetentionCandidate[] = []
+  for (const r of rows) {
+    const at = asDate(r.event_at)
+    if (isDue(rule, at, until)) out.push({ id: Number(r.id), dueAt: retainUntil(rule, at) })
+  }
+  return out
+}
+/** Kandidaten mit gespeicherter Frist (`retain_until`). */
+const byRetainUntil = (rows: Row[]): RetentionCandidate[] =>
+  rows.map((r) => ({ id: Number(r.id), dueAt: asDate(r.due_at) }))
+
+// --- Speicherobjekte --------------------------------------------------------------------------------------------
+
+/**
+ * Private Datei löschen: Verweise der Bestellung/Reklamation entfernen, dann Datei + Datensatz über die Local API
+ * (Payload löscht erst die Datei, dann die Zeile; scheitert die Datei, rollt die Transaktion zurück).
+ */
+export async function deletePrivateUpload(req: PayloadRequest, id: number): Promise<number> {
+  const db = await dbFor(req)
+  const exists = await db.execute(sql`SELECT id FROM private_uploads WHERE id = ${id}`)
+  if (!exists.rows[0]) return 0
+  await db.execute(sql`DELETE FROM orders_rels WHERE private_uploads_id = ${id}`)
+  await db.execute(sql`DELETE FROM complaints_rels WHERE private_uploads_id = ${id}`)
+  await db.execute(sql`DELETE FROM inquiries_rels WHERE private_uploads_id = ${id}`)
+  await db.execute(
+    sql`UPDATE privacy_requests SET export_file_id = NULL WHERE export_file_id = ${id}`,
+  )
+  await db.execute(
+    sql`UPDATE tattoo_gallery SET consent_evidence_id = NULL WHERE consent_evidence_id = ${id}`,
+  )
+  await preservingReq(req, () =>
+    req.payload.delete({
+      collection: 'private-uploads',
+      id,
+      overrideAccess: true,
+      req,
+      context: { ...req.context, system: true, skipAudit: true },
+    }),
+  )
+  return 1
+}
+
+// --- L-03 Kassen ------------------------------------------------------------------------------------------------
+
+const checkoutsStep: RetentionStep = {
+  ruleId: L_03_CHECKOUTS.id,
+  collection: 'checkouts',
+  action: 'deleted',
+  async candidates(db, until, limit) {
+    const res = await db.execute(sql`
+      SELECT id, created_at AS event_at FROM checkouts
+       WHERE created_at <= ${iso(eventCutoff(L_03_CHECKOUTS, until))}::timestamptz
+       ORDER BY created_at, id LIMIT ${limit}`)
+    return byEvent(L_03_CHECKOUTS, res.rows, until)
+  },
+  async apply(req, id) {
+    const db = await dbFor(req)
+    // Bestellung behält ihren eigenen Snapshot (DM-05); der Danke-Link endet, der Status-Link bleibt
+    await db.execute(sql`UPDATE orders SET checkout_id = NULL WHERE checkout_id = ${id}`)
+    await preservingReq(req, () =>
+      req.payload.delete({ collection: 'checkouts', id, overrideAccess: true, req }),
+    )
+  },
+}
+
+// --- Bestellungen minimieren (L-04 Stufe 1, L-05 Stufen B und C) -----------------------------------------------
+
+const NO_HOLD = sql`privacy_legal_hold IS NOT TRUE AND privacy_anonymized_at IS NULL`
+
+const cancelledMinimizeStep: RetentionStep = {
+  ruleId: L_04_CANCELLED_PREPAYMENT_STAGE_1.id,
+  collection: 'orders',
+  action: 'anonymized',
+  async candidates(db, until, limit) {
+    const res = await db.execute(sql`
+      SELECT id, timestamps_cancelled_at AS event_at FROM orders
+       WHERE status = 'cancelled' AND timestamps_cancelled_at IS NOT NULL AND ${NO_HOLD}
+         AND timestamps_cancelled_at <= ${iso(eventCutoff(L_04_CANCELLED_PREPAYMENT_STAGE_1, until))}::timestamptz
+         AND (shipping_address_name IS NOT NULL OR shipping_address_address_line1 IS NOT NULL
+              OR billing_address_name IS NOT NULL OR billing_address_address_line1 IS NOT NULL
+              OR carrier_email_consent IS TRUE)
+       ORDER BY timestamps_cancelled_at, id LIMIT ${limit}`)
+    return byEvent(L_04_CANCELLED_PREPAYMENT_STAGE_1, res.rows, until)
+  },
+  async apply(req, id, now) {
+    const db = await dbFor(req)
+    await db.execute(sql`
+      UPDATE orders SET
+        shipping_address_name = NULL, shipping_address_address_line1 = NULL,
+        shipping_address_address_line2 = NULL, shipping_address_postal_code = NULL, shipping_address_city = NULL,
+        billing_address_name = NULL, billing_address_address_line1 = NULL, billing_address_address_line2 = NULL,
+        billing_address_postal_code = NULL, billing_address_city = NULL,
+        carrier_email_consent = false, updated_at = ${iso(now)}::timestamptz
+       WHERE id = ${id}`)
+  },
+}
+
+const tokenStep: RetentionStep = {
+  ruleId: L_05_ORDERS_STAGE_B.id,
+  collection: 'orders',
+  action: 'anonymized',
+  async candidates(db, until, limit) {
+    const res = await db.execute(sql`
+      SELECT id, timestamps_final_status_at AS event_at FROM orders
+       WHERE timestamps_final_status_at IS NOT NULL AND ${NO_HOLD}
+         AND timestamps_final_status_at <= ${iso(eventCutoff(L_05_ORDERS_STAGE_B, until))}::timestamptz
+         AND (status_token_hash IS NOT NULL OR status_token_sealed IS NOT NULL)
+       ORDER BY timestamps_final_status_at, id LIMIT ${limit}`)
+    return byEvent(L_05_ORDERS_STAGE_B, res.rows, until)
+  },
+  async apply(req, id, now) {
+    const db = await dbFor(req)
+    // Hash und Siegel gemeinsam – der Status-Link zeigt danach „abgelaufen“ (R-067)
+    await db.execute(sql`
+      UPDATE orders SET status_token_hash = NULL, status_token_sealed = NULL, updated_at = ${iso(now)}::timestamptz
+       WHERE id = ${id}`)
+  },
+}
+
+/** Bestellung der Datei: `relatedOrder` bzw. Verweis aus `orders.packingPhotos`/`returnPhotos`. */
+const UPLOAD_ORDER = sql`COALESCE(pu.related_order_id,
+  (SELECT r.parent_id FROM orders_rels r WHERE r.private_uploads_id = pu.id LIMIT 1))`
+
+/** Pack-/Rückgabefotos bleiben bei Legal Hold, offener Reklamation oder offener Anfechtung (LOESCHKONZEPT §3.1 C). */
+const PHOTO_BLOCKERS = sql`o.privacy_legal_hold IS NOT TRUE
+  AND o.dispute_status IS DISTINCT FROM 'open'
+  AND NOT EXISTS (SELECT 1 FROM complaints c WHERE c.order_id = o.id AND c.status IN ('open', 'waiting_customer'))`
+
+const photosStep: RetentionStep = {
+  ruleId: L_05_ORDERS_STAGE_C.id,
+  collection: 'private-uploads',
+  action: 'deleted',
+  async candidates(db, until, limit) {
+    const cutoff = iso(eventCutoff(L_05_ORDERS_STAGE_C, until))
+    const res = await db.execute(sql`
+      SELECT pu.id, CASE WHEN pu.purpose = 'packing_photo'
+                         THEN COALESCE(o.timestamps_shipped_at, o.timestamps_picked_up_at)
+                         ELSE o.timestamps_return_received_at END AS event_at
+        FROM private_uploads pu JOIN orders o ON o.id = ${UPLOAD_ORDER}
+       WHERE pu.purpose IN ('packing_photo', 'return_photo') AND ${PHOTO_BLOCKERS}
+         AND CASE WHEN pu.purpose = 'packing_photo'
+                  THEN COALESCE(o.timestamps_shipped_at, o.timestamps_picked_up_at)
+                  ELSE o.timestamps_return_received_at END <= ${cutoff}::timestamptz
+       ORDER BY event_at, pu.id LIMIT ${limit}`)
+    return byEvent(L_05_ORDERS_STAGE_C, res.rows, until)
+  },
+  async apply(req, id) {
+    return { storageObjectsCount: await deletePrivateUpload(req, Number(id)) }
+  },
+}
+
+// --- Bestellungen anonymisieren (L-04 Stufe 2, L-05 Stufe D, L-09) -----------------------------------------------
+
+const EMPTY_ADDRESS = {
+  name: null,
+  addressLine1: null,
+  addressLine2: null,
+  postalCode: null,
+  city: null,
+}
+
+/**
+ * Stufe D (LOESCHKONZEPT §3.1): Personenfelder leeren bzw. Platzhalter, Freitexte (auch im Statusverlauf) leeren,
+ * DHL-Einwilligung und Status-Token entfernen; Pack- und Rückgabefotos, Reklamationen samt Fotos (L-09),
+ * zugeordnete `email-log`- und `consent-log`-Einträge (L-12, L-19 a) löschen. Bleibt: Nummer, Daten, Statusverlauf
+ * ohne Freitext, Positionen, Beträge, Zahlart-Typ, Belegverweise, Rechtstext- und Bausteinfassungen.
+ */
+export async function anonymizeOrder(
+  req: PayloadRequest,
+  id: number,
+  now: Date,
+  taskSlug: string,
+  /** DSGVO-Löschung (P6.18): Einträge mit `trigger = privacy_request`, `ruleId = DSGVO` und Anfragenummer. */
+  privacyRequestRef?: string,
+): Promise<number> {
+  const db = await dbFor(req)
+  const order = (await preservingReq(req, () =>
+    req.payload.findByID({ collection: 'orders', id, depth: 0, overrideAccess: true, req }),
+  )) as Order
+  let files = 0
+  const log = (collection: string, entityId: number, ruleId: string, count = 0) =>
+    writeDeletionLog(req, {
+      entityCollection: collection,
+      entityId,
+      ruleId: privacyRequestRef ? 'DSGVO' : ruleId,
+      action: 'deleted',
+      ...(privacyRequestRef
+        ? { trigger: 'privacy_request' as const, privacyRequestRef }
+        : { trigger: 'job' as const, taskSlug }),
+      storageObjectsCount: count,
+      executedAt: now,
+    })
+
+  // Reklamationen samt Fotos (L-09)
+  const complaints = await db.execute(sql`SELECT id FROM complaints WHERE order_id = ${id}`)
+  for (const c of complaints.rows) {
+    const cid = Number(c.id)
+    const photos = await db.execute(sql`
+      SELECT private_uploads_id AS id FROM complaints_rels WHERE parent_id = ${cid} AND private_uploads_id IS NOT NULL
+      UNION SELECT id FROM private_uploads WHERE related_complaint_id = ${cid}`)
+    let count = 0
+    for (const p of photos.rows) count += await deletePrivateUpload(req, Number(p.id))
+    await preservingReq(req, () =>
+      req.payload.delete({ collection: 'complaints', id: cid, overrideAccess: true, req }),
+    )
+    await log('complaints', cid, 'L-09', count)
+    files += count
+  }
+  // Pack- und Rückgabefotos
+  const photos = await db.execute(sql`
+    SELECT private_uploads_id AS id FROM orders_rels WHERE parent_id = ${id} AND private_uploads_id IS NOT NULL
+    UNION SELECT id FROM private_uploads WHERE related_order_id = ${id} AND purpose IN ('packing_photo', 'return_photo')`)
+  for (const p of photos.rows) {
+    const n = await deletePrivateUpload(req, Number(p.id))
+    if (n) await log('private-uploads', Number(p.id), 'L-05 Stufe D', n)
+    files += n
+  }
+  // Mail- und Einwilligungsnachweise der Bestellung (L-12, L-19 a)
+  const mails = await db.execute(sql`DELETE FROM email_log WHERE order_id = ${id} RETURNING id`)
+  for (const m of mails.rows) await log('email-log', Number(m.id), 'L-12')
+  const consents = await db.execute(
+    sql`DELETE FROM consent_log WHERE order_id = ${id} RETURNING id`,
+  )
+  for (const c of consents.rows) await log('consent-log', Number(c.id), 'L-19 a')
+
+  await preservingReq(req, () =>
+    req.payload.update({
+      collection: 'orders',
+      id,
+      data: {
+        customer: { name: null, email: ANONYMIZED_EMAIL },
+        shippingAddress: { ...order.shippingAddress, ...EMPTY_ADDRESS },
+        billingAddress: { ...order.billingAddress, ...EMPTY_ADDRESS },
+        pickup: { ...(order.pickup ?? {}), messageText: null },
+        notes: null,
+        cancelNote: null,
+        adminAttention: { ...(order.adminAttention ?? {}), note: null },
+        carrierEmailConsent: false,
+        statusHistory: (order.statusHistory ?? []).map((h) => ({ ...h, note: null })),
+        statusTokenHash: null,
+        statusTokenSealed: null,
+        privacy: { ...(order.privacy ?? {}), anonymizedAt: iso(now) },
+      } as never,
+      depth: 0,
+      overrideAccess: true,
+      req,
+      context: { ...req.context, system: true, transition: 'anonymize', now: iso(now) },
+    }),
+  )
+  return files
+}
+
+const ANONYMIZE_CANDIDATES = (paid: boolean) => sql`
+  SELECT id, retain_until AS due_at FROM orders
+   WHERE retain_until IS NOT NULL AND ${NO_HOLD}
+     AND ${paid ? sql`NOT (status = 'cancelled' AND timestamps_paid_at IS NULL)` : sql`status = 'cancelled' AND timestamps_paid_at IS NULL`}`
+
+function anonymizeStep(ruleId: string, paid: boolean): RetentionStep {
+  return {
+    ruleId,
+    collection: 'orders',
+    action: 'anonymized',
+    async candidates(db, until, limit) {
+      const res = await db.execute(sql`
+        ${ANONYMIZE_CANDIDATES(paid)} AND retain_until <= ${iso(until)}::timestamptz
+        ORDER BY retain_until, id LIMIT ${limit}`)
+      return byRetainUntil(res.rows)
+    },
+    async apply(req, id, now) {
+      return {
+        storageObjectsCount: await anonymizeOrder(req, Number(id), now, 'retentionOrders'),
+      }
+    },
+  }
+}
+
+// --- Belege (L-06, L-07) ----------------------------------------------------------------------------------------
+
+const invoicesStep: RetentionStep = {
+  ruleId: 'L-06',
+  collection: 'invoices',
+  action: 'anonymized',
+  async candidates(db, until, limit) {
+    const res = await db.execute(sql`
+      SELECT i.id, i.retain_until AS due_at FROM invoices i LEFT JOIN orders o ON o.id = i.order_id
+       WHERE i.status = 'issued' AND i.anonymized_at IS NULL
+         AND i.retain_until <= ${iso(until)}::timestamptz
+         AND o.privacy_legal_hold IS NOT TRUE
+       ORDER BY i.retain_until, i.id LIMIT ${limit}`)
+    return byRetainUntil(res.rows)
+  },
+  async apply(req, id, now) {
+    const db = await dbFor(req)
+    // Der Trigger pc_guard_invoices (DATENMODELL §9.4) erlaubt das Anonymisieren nur mit `pc.now` ≥ retain_until
+    await db.execute(sql`SELECT set_config('pc.now', ${iso(now)}, true)`)
+    const before = await db.execute(sql`SELECT pdf_id FROM invoices WHERE id = ${id}`)
+    const pdfId = before.rows[0]?.pdf_id
+    await db.execute(sql`
+      UPDATE invoices SET
+        data = jsonb_set(data, '{buyer}', jsonb_build_object(
+          'name', NULL, 'addressLine1', NULL, 'addressLine2', NULL, 'postalCode', NULL, 'city', NULL,
+          'country', data->'buyer'->'country', 'email', NULL)),
+        pdf_id = NULL, anonymized_at = ${iso(now)}::timestamptz, updated_at = ${iso(now)}::timestamptz
+       WHERE id = ${id}`)
+    const files = pdfId ? await deletePrivateUpload(req, Number(pdfId)) : 0
+    return { storageObjectsCount: files }
+  },
+}
+
+const monthlyExportsStep: RetentionStep = {
+  ruleId: 'L-07',
+  collection: 'private-uploads',
+  action: 'deleted',
+  async candidates(db, until, limit) {
+    const res = await db.execute(sql`
+      SELECT id, retain_until AS due_at FROM private_uploads
+       WHERE purpose = 'monthly_export' AND retain_until <= ${iso(until)}::timestamptz
+       ORDER BY retain_until, id LIMIT ${limit}`)
+    return byRetainUntil(res.rows)
+  },
+  async apply(req, id) {
+    return { storageObjectsCount: await deletePrivateUpload(req, Number(id)) }
+  },
+}
+
+// --- Widerrufe (L-08) -------------------------------------------------------------------------------------------
+
+const withdrawalsStep: RetentionStep = {
+  ruleId: 'L-08',
+  collection: 'withdrawals',
+  action: 'deleted',
+  async candidates(db, until, limit) {
+    const res = await db.execute(sql`
+      SELECT id, retain_until AS due_at FROM withdrawals
+       WHERE retain_until <= ${iso(until)}::timestamptz AND privacy_legal_hold IS NOT TRUE
+       ORDER BY retain_until, id LIMIT ${limit}`)
+    return byRetainUntil(res.rows)
+  },
+  async apply(req, id) {
+    await deleteWithdrawalRecord(req, Number(id))
+  },
+}
+
+/** Widerruf samt Eingangsbestätigungen im Mail-Protokoll löschen (L-08; auch DSGVO-Löschung, P6.18). */
+export async function deleteWithdrawalRecord(req: PayloadRequest, id: number): Promise<void> {
+  const db = await dbFor(req)
+  // Eingangsbestätigungen gehören zur Erklärung (L-08)
+  await db.execute(sql`UPDATE withdrawals SET confirmation_email_id = NULL WHERE id = ${id}`)
+  await db.execute(sql`DELETE FROM email_log WHERE withdrawal_id = ${id}`)
+  await preservingReq(req, () =>
+    req.payload.delete({ collection: 'withdrawals', id, overrideAccess: true, req }),
+  )
+}
+
+// --- Teil 2 (PLAN P6.15) ----------------------------------------------------------------------------------------
+
+/** Einfacher Löschschritt: Zeilen mit gespeicherter Frist bzw. Ereignis per SQL löschen (keine Speicherobjekte). */
+function sqlDeleteStep(
+  ruleId: string,
+  collection: string,
+  table: string,
+  query: (until: Date, limit: number) => ReturnType<typeof sql>,
+  rule?: Pick<RetentionRule, 'duration' | 'start'>,
+): RetentionStep {
+  return {
+    ruleId,
+    collection,
+    action: 'deleted',
+    async candidates(db, until, limit) {
+      const res = await db.execute(query(until, limit))
+      return rule ? byEvent(rule, res.rows, until) : byRetainUntil(res.rows)
+    },
+    async apply(req, id) {
+      const db = await dbFor(req)
+      const res = await db.execute(
+        sql`DELETE FROM ${sql.raw(`"${table}"`)} WHERE id = ${id} RETURNING id`,
+      )
+      return { changed: res.rows.length > 0 }
+    },
+  }
+}
+
+// L-10 Anfragen Auftragsarbeiten: 6 Monate nach Eingang, unabhängig von der Aktivität, samt Referenzbildern,
+// Eingangsbestätigung und Nachweis des Datenschutzhinweises
+const inquiriesStep: RetentionStep = {
+  ruleId: L_10_INQUIRIES.id,
+  collection: 'inquiries',
+  action: 'deleted',
+  async candidates(db, until, limit) {
+    const res = await db.execute(sql`
+      SELECT id, created_at AS event_at FROM inquiries
+       WHERE privacy_legal_hold IS NOT TRUE
+         AND created_at <= ${iso(eventCutoff(L_10_INQUIRIES, until))}::timestamptz
+       ORDER BY created_at, id LIMIT ${limit}`)
+    return byEvent(L_10_INQUIRIES, res.rows, until)
+  },
+  async apply(req, id) {
+    return { storageObjectsCount: await deleteInquiryRecord(req, Number(id)) }
+  },
+}
+
+/** Anfrage samt Referenzbildern, Mail- und Einwilligungsnachweisen löschen (L-10; auch DSGVO-Löschung, P6.18). */
+export async function deleteInquiryRecord(req: PayloadRequest, id: number): Promise<number> {
+  const db = await dbFor(req)
+  const images = await db.execute(sql`
+    SELECT private_uploads_id AS id FROM inquiries_rels WHERE parent_id = ${id} AND private_uploads_id IS NOT NULL
+    UNION SELECT id FROM private_uploads WHERE related_inquiry_id = ${id}`)
+  let files = 0
+  for (const img of images.rows) files += await deletePrivateUpload(req, Number(img.id))
+  await db.execute(sql`DELETE FROM email_log WHERE inquiry_id = ${id}`)
+  await db.execute(sql`DELETE FROM consent_log WHERE inquiry_id = ${id}`)
+  await preservingReq(req, () =>
+    req.payload.delete({ collection: 'inquiries', id, overrideAccess: true, req }),
+  )
+  return files
+}
+
+// L-12 Mail-Protokoll: Frist steht als `retain_until` am Eintrag (wie Bezugsobjekt, ohne Bezug 90 Tage); Einträge
+// eines Bezugsobjekts unter Legal Hold bleiben
+const emailLogStep = sqlDeleteStep(
+  'L-12',
+  'email-log',
+  'email_log',
+  (until, limit) => sql`
+    SELECT e.id, e.retain_until AS due_at FROM email_log e
+      LEFT JOIN orders o ON o.id = e.order_id
+      LEFT JOIN withdrawals w ON w.id = e.withdrawal_id
+      LEFT JOIN inquiries q ON q.id = e.inquiry_id
+     WHERE e.retain_until <= ${iso(until)}::timestamptz
+       AND o.privacy_legal_hold IS NOT TRUE AND w.privacy_legal_hold IS NOT TRUE AND q.privacy_legal_hold IS NOT TRUE
+     ORDER BY e.retain_until, e.id LIMIT ${limit}`,
+)
+
+// L-17 Datenschutz-Anfragen: Exportdateien 30 Tage nach Antwort, Datensatz nach `retain_until`
+const privacyExportsStep: RetentionStep = {
+  ruleId: L_17_EXPORT_FILES.id,
+  collection: 'private-uploads',
+  action: 'deleted',
+  async candidates(db, until, limit) {
+    const res = await db.execute(sql`
+      SELECT pu.id, pr.answered_at AS event_at FROM private_uploads pu
+        JOIN privacy_requests pr ON pr.id = COALESCE(pu.related_privacy_request_id,
+          (SELECT x.id FROM privacy_requests x WHERE x.export_file_id = pu.id LIMIT 1))
+       WHERE pu.purpose = 'data_export' AND pr.answered_at IS NOT NULL
+         AND pr.answered_at <= ${iso(eventCutoff(L_17_EXPORT_FILES, until))}::timestamptz
+       ORDER BY pr.answered_at, pu.id LIMIT ${limit}`)
+    return byEvent(L_17_EXPORT_FILES, res.rows, until)
+  },
+  async apply(req, id) {
+    return { storageObjectsCount: await deletePrivateUpload(req, Number(id)) }
+  },
+}
+
+const privacyRequestsStep: RetentionStep = {
+  ruleId: 'L-17',
+  collection: 'privacy-requests',
+  action: 'deleted',
+  async candidates(db, until, limit) {
+    const res = await db.execute(sql`
+      SELECT id, retain_until AS due_at FROM privacy_requests
+       WHERE retain_until IS NOT NULL AND retain_until <= ${iso(until)}::timestamptz
+       ORDER BY retain_until, id LIMIT ${limit}`)
+    return byRetainUntil(res.rows)
+  },
+  async apply(req, id) {
+    const db = await dbFor(req)
+    const file = await db.execute(sql`SELECT export_file_id FROM privacy_requests WHERE id = ${id}`)
+    const fileId = file.rows[0]?.export_file_id
+    const files = fileId ? await deletePrivateUpload(req, Number(fileId)) : 0
+    await preservingReq(req, () =>
+      req.payload.delete({ collection: 'privacy-requests', id, overrideAccess: true, req }),
+    )
+    return { storageObjectsCount: files }
+  },
+}
+
+// L-19 a Einwilligungs- und Vereinbarungsnachweise mit `retain_until` (Bestellung Stufe D bzw. Kasse 30 Tage)
+const consentLogStep = sqlDeleteStep(
+  'L-19 a',
+  'consent-log',
+  'consent_log',
+  (until, limit) => sql`
+    SELECT c.id, c.retain_until AS due_at FROM consent_log c LEFT JOIN orders o ON o.id = c.order_id
+     WHERE c.retain_until <= ${iso(until)}::timestamptz AND o.privacy_legal_hold IS NOT TRUE
+     ORDER BY c.retain_until, c.id LIMIT ${limit}`,
+)
+
+/** Dateien eines Medien-Eintrags (Original + Bildgrößen). */
+async function deleteMediaFiles(db: SqlExecutor, mediaId: number): Promise<number> {
+  const res = await db.execute(sql`
+    SELECT prefix, filename, sizes_thumb_filename, sizes_card_filename, sizes_detail_filename, sizes_zoom_filename,
+           sizes_og_filename FROM media WHERE id = ${mediaId}`)
+  const row = res.rows[0]
+  if (!row) return 0
+  const names = [
+    row.filename,
+    row.sizes_thumb_filename,
+    row.sizes_card_filename,
+    row.sizes_detail_filename,
+    row.sizes_zoom_filename,
+    row.sizes_og_filename,
+  ].filter((n): n is string => typeof n === 'string' && n.length > 0)
+  let count = 0
+  for (const name of new Set(names)) {
+    if (await deleteStoredFile('media', name, row.prefix as string | null)) count += 1
+  }
+  return count
+}
+
+// L-20 Portfolio-Fotos: Bilddateien samt Varianten spätestens 24 h nach Widerruf der Einwilligung; der Eintrag bleibt
+// unveröffentlicht als Nachweis (L-19 b), das Bild `restricted`
+const galleryFilesStep: RetentionStep = {
+  ruleId: L_20_GALLERY_FILES_AFTER_WITHDRAWAL.id,
+  collection: 'media',
+  action: 'files_deleted',
+  async candidates(db, until, limit) {
+    const res = await db.execute(sql`
+      SELECT DISTINCT m.id, g.consent_withdrawn_at AS event_at
+        FROM tattoo_gallery g
+        JOIN media m ON m.id = g.image_id
+             OR m.id IN (SELECT r.media_id FROM tattoo_gallery_rels r WHERE r.parent_id = g.id)
+       WHERE g.consent_withdrawn_at IS NOT NULL
+         AND g.consent_withdrawn_at <= ${iso(eventCutoff(L_20_GALLERY_FILES_AFTER_WITHDRAWAL, until))}::timestamptz
+         AND NOT EXISTS (SELECT 1 FROM deletion_log d WHERE d.entity_collection = 'media'
+                          AND d.entity_id = m.id::text AND d.rule_id = 'L-20')
+       ORDER BY event_at, m.id LIMIT ${limit}`)
+    return byEvent(L_20_GALLERY_FILES_AFTER_WITHDRAWAL, res.rows, until)
+  },
+  async apply(req, id, now) {
+    const db = await dbFor(req)
+    await db.execute(sql`
+      UPDATE media SET restricted = true, updated_at = ${iso(now)}::timestamptz WHERE id = ${id}`)
+    return { storageObjectsCount: await deleteMediaFiles(db, Number(id)) }
+  },
+}
+
+// L-19 b Portfolio-Einwilligungsnachweise: 3 Jahre nach Widerruf bzw. Ende der Veröffentlichung (`deleteAfter`)
+const consentEvidenceStep: RetentionStep = {
+  ruleId: L_19B_PORTFOLIO_CONSENT.id,
+  collection: 'private-uploads',
+  action: 'deleted',
+  async candidates(db, until, limit) {
+    const res = await db.execute(sql`
+      SELECT id, delete_after AS due_at FROM private_uploads
+       WHERE purpose = 'consent_evidence' AND delete_after IS NOT NULL
+         AND delete_after <= ${iso(until)}::timestamptz
+       ORDER BY delete_after, id LIMIT ${limit}`)
+    return byRetainUntil(res.rows)
+  },
+  async apply(req, id) {
+    return { storageObjectsCount: await deletePrivateUpload(req, Number(id)) }
+  },
+}
+
+// L-18 Löschprotokoll: 3 Jahre (ohne eigenen Protokolleintrag)
+const deletionLogStep = sqlDeleteStep(
+  'L-18',
+  'deletion-log',
+  'deletion_log',
+  (until, limit) => sql`
+    SELECT id, retain_until AS due_at FROM deletion_log
+     WHERE retain_until <= ${iso(until)}::timestamptz ORDER BY retain_until, id LIMIT ${limit}`,
+)
+
+// --- retentionTechnical (stündlich): L-02, L-13 a/d/f/g/h -------------------------------------------------------
+
+const reservationsStep = sqlDeleteStep(
+  L_02_RESERVATIONS.id,
+  'reservations',
+  'reservations',
+  (until, limit) => sql`
+    SELECT id, COALESCE(released_at, converted_at) AS event_at FROM reservations
+     WHERE status <> 'active' AND COALESCE(released_at, converted_at) IS NOT NULL
+       AND COALESCE(released_at, converted_at) <= ${iso(eventCutoff(L_02_RESERVATIONS, until))}::timestamptz
+     ORDER BY event_at, id LIMIT ${limit}`,
+  L_02_RESERVATIONS,
+)
+
+const webhookEventsStep = sqlDeleteStep(
+  L_13D_WEBHOOK_EVENTS.id,
+  'webhook-events',
+  'webhook_events',
+  (until, limit) => sql`
+    SELECT id, received_at AS event_at FROM webhook_events
+     WHERE received_at <= ${iso(eventCutoff(L_13D_WEBHOOK_EVENTS, until))}::timestamptz
+     ORDER BY received_at, id LIMIT ${limit}`,
+  L_13D_WEBHOOK_EVENTS,
+)
+
+const pendingUploadsStep: RetentionStep = {
+  ruleId: L_13F_PENDING_UPLOADS.id,
+  collection: 'private-uploads',
+  action: 'deleted',
+  async candidates(db, until, limit) {
+    const res = await db.execute(sql`
+      SELECT id, created_at AS event_at FROM private_uploads
+       WHERE status = 'pending'
+         AND created_at <= ${iso(eventCutoff(L_13F_PENDING_UPLOADS, until))}::timestamptz
+       ORDER BY created_at, id LIMIT ${limit}`)
+    return byEvent(L_13F_PENDING_UPLOADS, res.rows, until)
+  },
+  async apply(req, id) {
+    return { storageObjectsCount: await deletePrivateUpload(req, Number(id)) }
+  },
+}
+
+const auditLogStep = sqlDeleteStep(
+  'L-13 h',
+  'audit-log',
+  'audit_log',
+  (until, limit) => sql`
+    SELECT id, retain_until AS due_at FROM audit_log
+     WHERE retain_until <= ${iso(until)}::timestamptz ORDER BY retain_until, id LIMIT ${limit}`,
+)
+
+/**
+ * Technische Tabellen ohne Collection (L-13 a `rate_limit_hits`, L-13 g `job_runs`): nur Zähler bzw. IDs, keine
+ * Personendaten – gesammelt gelöscht, ein Protokolleintrag je Lauf mit der Anzahl (`entityId` = Tabellenname).
+ */
+function bulkTableStep(ruleId: string, table: 'rate_limit_hits' | 'job_runs'): RetentionStep {
+  const cutoff = (until: Date) =>
+    table === 'rate_limit_hits'
+      ? new Date(until.getTime() - 24 * 3_600_000)
+      : new Date(eventCutoff(L_13G_JOB_RUNS, until).getTime() - 86_400_000)
+  const column = table === 'rate_limit_hits' ? 'window_start' : 'started_at'
+  return {
+    ruleId,
+    collection: table.replace(/_/g, '-'),
+    action: 'deleted',
+    async candidates(db, until) {
+      const res = await db.execute(sql`
+        SELECT count(*)::int AS n, min(${sql.raw(column)}) AS oldest FROM ${sql.raw(table)}
+         WHERE ${sql.raw(column)} < ${iso(cutoff(until))}::timestamptz`)
+      const n = Number(res.rows[0]?.n ?? 0)
+      return n > 0 ? [{ id: table, dueAt: asDate(res.rows[0]?.oldest) }] : []
+    },
+    async apply(req, _id, now) {
+      if (table === 'rate_limit_hits') {
+        const n = await purgeRateLimits(now, req.payload)
+        return { changed: n > 0 }
+      }
+      const db = await dbFor(req)
+      const res = await db.execute(sql`
+        DELETE FROM job_runs WHERE started_at < ${iso(cutoff(now))}::timestamptz RETURNING id`)
+      return { changed: res.rows.length > 0 }
+    },
+  }
+}
+
+// --- legalHoldReview (Erinnerung, keine Löschung) ---------------------------------------------------------------
+
+/** Erinnerungsabstand für Legal Holds (DATENMODELL §11, LOESCHKONZEPT §4). */
+export const LEGAL_HOLD_REVIEW_MONTHS = 6
+
+const HOLD_SOURCES = [
+  { kind: 'order', table: 'orders', collection: 'orders', ref: 'order_number' },
+  { kind: 'withdrawal', table: 'withdrawals', collection: 'withdrawals', ref: 'reference' },
+  { kind: 'inquiry', table: 'inquiries', collection: 'inquiries', ref: 'reference' },
+] as const
+
+export interface LegalHoldReviewResult {
+  sent: boolean
+  holds: number
+}
+
+/**
+ * Legal Holds, deren letzte Prüfung (`legalHoldReviewedAt`, sonst `legalHoldSince`) mindestens 6 Monate her ist: eine
+ * Mail A15 mit allen, danach `legalHoldReviewedAt = now`. Beispieldaten (`seed = true`) lösen keine Mail aus.
+ */
+export async function runLegalHoldReview(
+  req: PayloadRequest,
+  now: Date,
+): Promise<LegalHoldReviewResult> {
+  const db = await dbFor(req)
+  const limit = addBerlinMonths(now, -LEGAL_HOLD_REVIEW_MONTHS)
+  const holds: {
+    kind: (typeof HOLD_SOURCES)[number]['kind']
+    id: number
+    reference: string
+    reason: string
+    since: string
+    table: string
+  }[] = []
+  for (const src of HOLD_SOURCES) {
+    const res = await db.execute(sql`
+      SELECT id, ${sql.raw(src.ref)} AS reference, privacy_legal_hold_reason AS reason,
+             privacy_legal_hold_since AS since
+        FROM ${sql.raw(src.table)}
+       WHERE privacy_legal_hold IS TRUE AND seed IS NOT TRUE
+         AND COALESCE(privacy_legal_hold_reviewed_at, privacy_legal_hold_since) <= ${iso(limit)}::timestamptz
+       ORDER BY id LIMIT 200`)
+    for (const r of res.rows) {
+      holds.push({
+        kind: src.kind,
+        id: Number(r.id),
+        reference: String(r.reference ?? r.id),
+        reason: String(r.reason ?? '–').slice(0, 300) || '–',
+        since: asDate(r.since).toISOString(),
+        table: src.table,
+      })
+    }
+  }
+  if (holds.length === 0) return { sent: false, holds: 0 }
+  await notifyAdmin(
+    req,
+    'admin_legal_hold_review',
+    { holds: holds.slice(0, 200).map(({ table: _t, ...h }) => h) },
+    { now, idempotencyKey: `admin_legal_hold_review:all:${iso(now).slice(0, 10)}` },
+  )
+  for (const h of holds) {
+    await db.execute(sql`
+      UPDATE ${sql.raw(h.table)} SET privacy_legal_hold_reviewed_at = ${iso(now)}::timestamptz
+       WHERE id = ${h.id}`)
+  }
+  return { sent: true, holds: holds.length }
+}
+
+// --- Tasks ------------------------------------------------------------------------------------------------------
+
+export const RETENTION_TASK_STEPS = {
+  retentionAbandonedCheckouts: [checkoutsStep],
+  retentionOrderMinimize: [cancelledMinimizeStep, tokenStep, photosStep],
+  retentionOrders: [anonymizeStep('L-04 Stufe 2', false), anonymizeStep('L-05 Stufe D', true)],
+  retentionInvoices: [invoicesStep, monthlyExportsStep],
+  retentionWithdrawals: [withdrawalsStep],
+  retentionCommissionInquiries: [inquiriesStep],
+  retentionEmailLog: [emailLogStep],
+  retentionPrivacyRequests: [privacyExportsStep, privacyRequestsStep],
+  retentionConsentEvidence: [consentLogStep, galleryFilesStep, consentEvidenceStep],
+  retentionDeletionLog: [deletionLogStep],
+  retentionTechnical: [
+    reservationsStep,
+    bulkTableStep('L-13 a', 'rate_limit_hits'),
+    webhookEventsStep,
+    pendingUploadsStep,
+    bulkTableStep('L-13 g', 'job_runs'),
+    auditLogStep,
+  ],
+} as const satisfies Record<string, readonly RetentionStep[]>
+
+export type RetentionTaskSlug = keyof typeof RETENTION_TASK_STEPS
+
+/** Einen Löschjob ausführen (bzw. im Trockenlauf auflisten). */
+export function runRetentionTask(
+  payload: Payload,
+  task: RetentionTaskSlug,
+  options: RetentionRunOptions,
+): Promise<RetentionRunResult> {
+  return runRetentionSteps(payload, task, RETENTION_TASK_STEPS[task], {
+    ...options,
+    // L-18: das Löschen des Löschprotokolls schreibt keinen eigenen Eintrag
+    skipDeletionLog: options.skipDeletionLog ?? task === 'retentionDeletionLog',
+  })
+}
+
+export const RETENTION_TASK_SLUGS = Object.keys(RETENTION_TASK_STEPS) as RetentionTaskSlug[]
+
+/** Löschvorschau (Einstellungen → Datenschutz): Trockenlauf je Regel für die nächsten `days` Tage. */
+export interface RetentionPreviewRow {
+  task: RetentionTaskSlug
+  ruleId: string
+  collection: string
+  action: string
+  count: number
+}
+
+export async function previewRetention(
+  payload: Payload,
+  now: Date,
+  days = 30,
+): Promise<RetentionPreviewRow[]> {
+  const rows: RetentionPreviewRow[] = []
+  for (const task of RETENTION_TASK_SLUGS) {
+    const res = await runRetentionTask(payload, task, {
+      now,
+      dryRun: true,
+      horizonMs: days * 86_400_000,
+    })
+    for (const s of res.steps) {
+      rows.push({
+        task,
+        ruleId: s.ruleId,
+        collection: s.collection,
+        action: s.action,
+        count: s.count,
+      })
+    }
+  }
+  return rows
+}
+
+export type { SqlExecutor }

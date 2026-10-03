@@ -65,6 +65,8 @@
     "placeholderBanner": "PLATZHALTER – nicht rechtsverbindlich",
     "asOf": "Stand: {date}",
     "germanOnly": "Nur auf Deutsch verfügbar.",
+    "pdf": "Als PDF herunterladen",
+    "pdfForm": "Muster-Widerrufsformular als PDF herunterladen",
     "emptyTitle": "Dieser Text wird gerade vorbereitet",
     "emptyText": "Schau bitte etwas später wieder vorbei. Bei Fragen erreichst du mich über die Kontaktseite.",
     "emptyAction": "Zur Kontaktseite",
@@ -72,6 +74,26 @@
       "empty": "Derzeit sind alle Keramiken als Dekoration gekennzeichnet und nicht für Lebensmittel bestimmt.",
       "validFrom": "gültig ab {date}",
       "pdf": "Erklärung als PDF: {name}"
+    },
+    "processors": {
+      "title": "Auftragsverarbeiter und weitere Empfänger",
+      "intro": "Diese Dienste werden für den Betrieb der Website und des Shops eingesetzt; die Spalte „Rolle“ zeigt, wie sie Daten verarbeiten.",
+      "colName": "Name",
+      "colRole": "Rolle",
+      "colSeat": "Sitz",
+      "colThirdCountry": "Drittland",
+      "agreementSigned": "Vertrag nach Art. 28 DSGVO",
+      "role": {
+        "processor": "Auftragsverarbeiter",
+        "controller": "eigene Verantwortung",
+        "processorAndController": "Auftragsverarbeiter und eigene Verantwortung",
+        "none": "keine personenbezogenen Daten"
+      },
+      "thirdCountry": {
+        "US": "USA",
+        "EU": "nein (EU)",
+        "none": "nein"
+      }
     }
   },
   "errors": {
@@ -174,12 +196,57 @@
     "withdrawHint": "Du willst einen Vertrag widerrufen?",
     "legalNoticeHint": "Angaben zur Anbieterin:",
     "emptyTitle": "Die Kontaktseite entsteht gerade",
-    "emptyText": "Schreib mir einfach eine Mail oder auf Instagram."
+    "emptyText": "Schreib mir einfach eine Mail oder auf Instagram.",
+    "copyEmail": "Adresse kopieren",
+    "copied": "Kopiert",
+    "copyFailed": "Kopieren hat nicht geklappt – bitte markieren und kopieren."
   },
   "withdraw": {
-    "previewNotice": "In dieser Vorschau noch ohne Funktion – kommt in P6.",
     "policyLink": "Zur Widerrufsbelehrung",
-    "emailAlternative": "Alternativ per E-Mail:"
+    "emailAlternative": "Alternativ per E-Mail:",
+    "intro": "Hier widerrufst du einen Vertrag mit mir – ohne Konto und ohne Begründung. Zuerst trägst du deine Angaben ein, dann bestätigst du sie.",
+    "stepForm": "Schritt 1 von 2: Deine Erklärung",
+    "stepSelect": "Welche Stücke widerrufst du?",
+    "stepConfirm": "Schritt 2 von 2: Prüfen und bestätigen",
+    "stepDone": "Dein Widerruf ist eingegangen",
+    "nameLabel": "Name",
+    "contractLabel": "Bestellnummer oder andere Angaben zum Vertrag",
+    "contractHint": "z. B. PC-2026-00017 oder Bestelldatum und Stück",
+    "emailLabel": "E-Mail für die Eingangsbestätigung",
+    "emailHint": "Dorthin schicke ich sofort die Bestätigung.",
+    "itemsTextLabel": "Nur bestimmte Stücke? Dann nenne die Nummern",
+    "itemsTextHint": "Freiwillig. Leer lassen, wenn du den ganzen Vertrag widerrufst.",
+    "reasonLabel": "Grund",
+    "reasonHint": "Freiwillig – du musst keinen Grund nennen.",
+    "honeypotLabel": "Dieses Feld bitte leer lassen",
+    "privacy": "Was mit deinen Angaben passiert, steht in der {link}.",
+    "privacyLink": "Datenschutzerklärung",
+    "next": "Weiter",
+    "edit": "Ändern",
+    "selectIntro": "Deine Bestellung habe ich gefunden. Wenn du nur einzelne Stücke widerrufen willst, hake sie an.",
+    "selectWhole": "Hakst du nichts an, gilt der Widerruf für den ganzen Vertrag.",
+    "selectLegend": "Stücke aus deiner Bestellung",
+    "confirmIntro": "Bitte prüf deine Angaben. Erst mit dem Knopf unten ist dein Widerruf abgegeben.",
+    "summaryItems": "Widerrufene Stücke",
+    "summaryWhole": "Ganzer Vertrag",
+    "summaryEmpty": "–",
+    "receivedAt": "Eingegangen am",
+    "reference": "Vorgangsnummer",
+    "mailNote": "Eine Bestätigung ist per E-Mail unterwegs.",
+    "printNote": "Du kannst diese Seite drucken oder als PDF sichern.",
+    "print": "Drucken / als PDF sichern",
+    "unpaidCancelled": "Deine noch nicht bezahlte Bestellung ist damit storniert – du musst nichts überweisen.",
+    "spamDone": "Danke, deine Angaben sind angekommen.",
+    "again": "Weiteren Widerruf erklären",
+    "errorSummary": "Bitte prüf deine Angaben:",
+    "errorRequired": "Bitte ausfüllen.",
+    "errorInvalid": "Das passt so noch nicht.",
+    "errorEmail": "Bitte gib eine gültige E-Mail-Adresse an.",
+    "noticeRateLimited": "Gerade kamen sehr viele Widerrufe von deinem Anschluss. Bitte versuch es in einer Stunde noch einmal oder schreib mir eine E-Mail – auch der Eingang der E-Mail zählt.",
+    "noticeExpired": "Das Formular ist abgelaufen. Bitte trag deine Angaben noch einmal ein.",
+    "noticeFailed": "Das hat gerade nicht geklappt. Bitte versuch es noch einmal oder schreib mir eine E-Mail – auch der Eingang der E-Mail zählt.",
+    "busy": "Wird gesendet …",
+    "requiredNote": "* Pflichtfeld"
   },
   "shop": {
     "list": {
@@ -759,6 +826,111 @@
       "title": "Deine Bestellung ist abholbereit",
       "itemsHeading": "Zum Abholen",
       "reply": "Antworte einfach auf diese Mail, um einen Termin auszumachen."
+    },
+    "withdrawalReceipt": {
+      "subject": "Eingangsbestätigung deines Widerrufs {reference} vom {date}, {time} Uhr",
+      "title": "Dein Widerruf ist angekommen",
+      "reference": "Vorgangsnummer",
+      "receivedAt": "Eingegangen am",
+      "declarationHeading": "Deine Erklärung",
+      "name": "Name",
+      "contract": "Angaben zum Vertrag",
+      "items": "Betroffene Stücke",
+      "itemsAll": "der ganze Vertrag (keine einzelnen Stücke angegeben)",
+      "reason": "Grund",
+      "email": "E-Mail",
+      "nextHeading": "So geht es weiter",
+      "returnAddress": "Bitte sende die Ware an: {address}",
+      "refund": "Die Erstattung bekommst du über dasselbe Zahlungsmittel, mit dem du bezahlt hast – spätestens 14 Tage nach Eingang deines Widerrufs (bis {date}). Ich darf sie zurückhalten, bis die Ware wieder bei mir ist oder du nachweist, dass du sie abgeschickt hast.",
+      "unpaidCancelled": "Deine Bestellung ist damit storniert. Bitte nichts überweisen.",
+      "keep": "Bitte bewahre diese E-Mail auf – sie ist dein Nachweis für den Eingang."
+    },
+    "refundConfirmation": {
+      "subject": "Deine Erstattung zu {orderNumber}",
+      "title": "Dein Geld ist unterwegs",
+      "introWithdrawal": "dein Widerruf {reference} ist bearbeitet. Ich habe dir {amount} erstattet.",
+      "introOther": "ich habe dir zu deiner Bestellung {amount} erstattet.",
+      "itemsTitle": "Erstattet für:",
+      "shippingIncluded": "Darin enthalten: {amount} Versandkosten.",
+      "card": "Das Geld geht auf dasselbe Zahlungsmittel zurück, mit dem du bezahlt hast. Je nach Bank dauert es meist 5–10 Werktage, bis du es siehst.",
+      "prepayment": "Ich habe den Betrag auf das Konto überwiesen, von dem deine Zahlung kam.",
+      "creditNote": "Die Gutschrift {number} hängt als PDF an.",
+      "amount": "Erstattet"
+    },
+    "complaintRepairChoice": {
+      "subject": "Deine Reklamation zu {orderNumber}: Reparatur oder Ersatz",
+      "title": "Reparatur oder Ersatz – du hast die Wahl",
+      "intro": "danke für deine Nachricht zu deiner Bestellung {orderNumber}. Es tut mir leid, dass mit deinem Stück etwas nicht stimmt.",
+      "receivedAt": "Reklamation eingegangen am",
+      "kind": "Art",
+      "kindLabel": {
+        "transport_damage": "beim Versand beschädigt",
+        "defect": "Mangel"
+      },
+      "itemsTitle": "Betroffen:",
+      "choice": "Du kannst wählen, ob ich das Stück reparieren soll (Nachbesserung) oder ob du ein Ersatzstück möchtest (Ersatzlieferung). Die Kosten dafür, auch für den Versand, übernehme ich.",
+      "unique": "Weil jedes meiner Stücke ein Unikat ist, gibt es in der Regel kein gleiches Ersatzstück. Ist ein Ersatz nicht möglich, sprechen wir gemeinsam über die weiteren Möglichkeiten.",
+      "extension": "Wählst du die Reparatur, verlängert sich deine gesetzliche Gewährleistung für das Stück um 12 Monate.",
+      "rights": "Deine gesetzlichen Rechte bleiben unberührt.",
+      "reply": "Antworte einfach auf diese Mail und sag mir, was dir lieber ist."
+    },
+    "disputeVsbg": {
+      "subject": "Deine Reklamation zu {orderNumber}: Hinweis zur Streitbeilegung",
+      "title": "Hinweis zur Verbraucherschlichtung",
+      "intro": "leider konnten wir uns zu deiner Bestellung {orderNumber} nicht einigen. Das Gesetz sieht vor, dass ich dich in diesem Fall auf eine zuständige Verbraucherschlichtungsstelle hinweise.",
+      "receivedAt": "Reklamation eingegangen am",
+      "bodyName": "Verbraucherschlichtungsstelle",
+      "address": "Anschrift",
+      "website": "Website",
+      "reply": "Wenn du noch Fragen hast, antworte einfach auf diese Mail."
+    },
+    "privacyAccessResponse": {
+      "subject": "Deine Datenschutz-Anfrage {reference}: Auskunft",
+      "title": "Deine Auskunft ist fertig",
+      "intro": "danke für deine Datenschutz-Anfrage {reference}. Hier ist die Auskunft über die Daten, die ich über dich gespeichert habe.",
+      "download": "Die Kopie deiner Daten (ZIP mit „auskunft.html“, „daten.json“ und deinen Bildern und Belegen) kannst du hier herunterladen:",
+      "downloadLabel": "Auskunft herunterladen",
+      "validity": "Der Link funktioniert bis {date}. Spätestens am {deleteDate} lösche ich die Datei wieder.",
+      "contents": "In der Datei „auskunft.html“ steht, wofür ich deine Daten nutze, an wen sie gehen, wie lange ich sie aufbewahre, woher sie stammen und welche Rechte du hast. „daten.json“ enthält deine Daten in einem maschinenlesbaren Format.",
+      "rights": "Du kannst jederzeit Berichtigung, Löschung oder Einschränkung verlangen, der Verarbeitung widersprechen und eine Einwilligung widerrufen. Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel bei der Berliner Beauftragten für Datenschutz und Informationsfreiheit, Alt-Moabit 59–61, 10555 Berlin.",
+      "reply": "Wenn du Fragen hast, antworte einfach auf diese Mail."
+    },
+    "privacyErasureResponse": {
+      "subject": "Deine Datenschutz-Anfrage {reference}: Löschung",
+      "title": "Deine Löschanfrage ist erledigt",
+      "intro": "danke für deine Datenschutz-Anfrage {reference}. So bin ich mit deinen Daten umgegangen:",
+      "areas": {
+        "orders": "Bestellungen",
+        "checkouts": "Kassenvorgänge",
+        "invoices": "Rechnungen und Gutschriften",
+        "withdrawals": "Widerrufe",
+        "inquiries": "Anfragen zu Auftragsarbeiten",
+        "complaints": "Reklamationen",
+        "emailLog": "Versandnachweise von Mails",
+        "consentLog": "Einwilligungsnachweise",
+        "privacyRequests": "Frühere Datenschutz-Anfragen",
+        "files": "Dateien (Bilder, Belege)"
+      },
+      "deleted": "{area}: gelöscht",
+      "restricted": "{area}: eingeschränkt bis {date} wegen gesetzlicher Aufbewahrungspflichten, danach automatisch gelöscht bzw. anonymisiert",
+      "kept": "{area}: aufbewahrt bis {date}, weil die Daten zur Geltendmachung oder Abwehr von Rechtsansprüchen nötig sind (Art. 17 Abs. 3 lit. e DSGVO)",
+      "unchanged": "{area}: unverändert – Rechnungen und Gutschriften muss ich nach Steuerrecht bis {date} aufbewahren, danach werden sie anonymisiert",
+      "restrictedMeaning": "„Eingeschränkt“ heißt: Ich nutze diese Daten nur noch, um gesetzliche Pflichten zu erfüllen, und schicke dir dazu keine Mails mehr.",
+      "recipients": "Falls du der Weitergabe deiner E-Mail-Adresse an DHL zugestimmt hattest, ist diese Einwilligung widerrufen. Bei Zahlungen per Karte oder PayPal verarbeiten Stripe bzw. PayPal Daten in eigener Verantwortung – wende dich dafür bitte direkt an deren Datenschutz-Kontakt. Protokolle des Mail-Anbieters und Datensicherungen laufen automatisch ab.",
+      "complaint": "Du kannst dich bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel bei der Berliner Beauftragten für Datenschutz und Informationsfreiheit, Alt-Moabit 59–61, 10555 Berlin.",
+      "reply": "Wenn du Fragen hast, antworte einfach auf diese Mail."
+    },
+    "consentWithdrawalConfirmation": {
+      "subject": "Dein Widerruf der Einwilligung ist eingetragen",
+      "title": "Widerruf eingetragen",
+      "carrier_email_forwarding": "Du hast deine Einwilligung widerrufen, dass ich deine E-Mail-Adresse an DHL weitergebe.",
+      "portfolio": "Du hast deine Einwilligung widerrufen, dass ich das Foto deines Tattoos im Portfolio zeige.",
+      "withdrawnAt": "Widerrufen am",
+      "orderNumber": "Bestellnummer",
+      "effect_carrier_email_forwarding": "Der Widerruf gilt ab sofort: DHL bekommt deine E-Mail-Adresse von mir nicht mehr.",
+      "effect_portfolio": "Der Widerruf gilt ab sofort: Das Foto ist nicht mehr zu sehen und wird gelöscht.",
+      "past": "Was vor dem Widerruf geschehen ist, bleibt rechtmäßig.",
+      "reply": "Wenn du Fragen hast, antworte einfach auf diese Mail."
     }
   },
   "shippingPayment": {
@@ -795,5 +967,87 @@
     "damage": "Kommt ein Stück beschädigt bei dir an, melde dich bitte möglichst schnell mit ein paar Fotos von Paket und Stück – dann kann ich mich beim Versanddienst darum kümmern. Deine gesetzlichen Rechte bleiben davon unberührt.",
     "returnHeading": "Rücksendung bei Widerruf",
     "withdrawalLink": "Alles zu deinem Widerrufsrecht steht in der <link>Widerrufsbelehrung</link>."
+  },
+  "privacyExport": {
+    "title": "Auskunft über deine Daten",
+    "subtitle": "nach Art. 15 DSGVO zu deiner Datenschutz-Anfrage {reference}",
+    "createdAt": "Erstellt am {date}",
+    "intro": "Hier steht, welche Daten ich über dich gespeichert habe, wofür ich sie nutze, an wen sie gehen und wie lange ich sie aufbewahre. Die vollständige Kopie deiner Daten steht in der Datei „daten.json“ (maschinenlesbar, Art. 20 DSGVO); Bilder und Belege liegen im Ordner „dateien“.",
+    "controllerHeading": "Verantwortliche",
+    "summaryHeading": "Gefundene Daten",
+    "summaryNone": "Zu deinen Angaben habe ich keine gespeicherten Daten gefunden.",
+    "areas": {
+      "orders": "Bestellungen",
+      "checkouts": "Kassenvorgänge",
+      "invoices": "Rechnungen und Gutschriften",
+      "withdrawals": "Widerrufe",
+      "inquiries": "Anfragen zu Auftragsarbeiten",
+      "complaints": "Reklamationen",
+      "emailLog": "Versandnachweise von Mails an dich",
+      "consentLog": "Einwilligungsnachweise",
+      "privacyRequests": "Frühere Datenschutz-Anfragen",
+      "files": "Dateien (Bilder, Belege)"
+    },
+    "purposesHeading": "a) Wofür ich deine Daten nutze",
+    "purposes": [
+      "Abwicklung deiner Bestellungen: Kaufvertrag, Versand oder Abholung, Zahlung, Rechnung (Art. 6 Abs. 1 lit. b DSGVO)",
+      "Widerruf, Reklamation und gesetzliche Gewährleistung (Art. 6 Abs. 1 lit. b und c DSGVO)",
+      "Antworten auf deine Anfrage zu einer Auftragsarbeit (Art. 6 Abs. 1 lit. b DSGVO)",
+      "Aufbewahrung von Rechnungen und Geschäftsunterlagen nach Steuer- und Handelsrecht (Art. 6 Abs. 1 lit. c DSGVO)",
+      "Weitergabe deiner E-Mail-Adresse an DHL nur mit deiner Einwilligung (Art. 6 Abs. 1 lit. a DSGVO)",
+      "Nachweis versendeter Mails und erteilter Einwilligungen (Art. 6 Abs. 1 lit. c und f DSGVO)"
+    ],
+    "categoriesHeading": "b) Welche Daten",
+    "categories": [
+      "Name und E-Mail-Adresse",
+      "Liefer- und Rechnungsadresse",
+      "Bestelldaten: Stücke, Beträge, Zeitpunkte, Status",
+      "Zahlungsdaten: Zahlart und Zahlungs-Kennungen (keine Kartennummern)",
+      "Belege: Rechnungen und Gutschriften",
+      "Angaben aus Widerruf, Reklamation und Anfrage, auch Bilder",
+      "Versandnachweise von Mails und Einwilligungsnachweise"
+    ],
+    "recipientsHeading": "c) Wer deine Daten bekommt",
+    "recipientsIntro": "Diese Dienstleister verarbeiten Daten in meinem Auftrag oder in eigener Verantwortung:",
+    "role": {
+      "processor": "im Auftrag",
+      "controller": "eigene Verantwortung",
+      "processorAndController": "im Auftrag und in eigener Verantwortung",
+      "none": "–"
+    },
+    "thirdCountry": {
+      "US": "Sitz in den USA (Übermittlung auf Grundlage des EU-US Data Privacy Framework bzw. von Standardvertragsklauseln)",
+      "EU": "EU/EWR",
+      "none": "keine Übermittlung in Drittländer"
+    },
+    "retentionHeading": "d) Wie lange ich deine Daten aufbewahre",
+    "retention": {
+      "orders": "Bestellungen: Lieferadresse und Fotos werden schrittweise gelöscht; die übrigen Angaben werden {years} Jahre nach Ende des Jahres des Abschlusses anonymisiert.",
+      "invoices": "Rechnungen und Gutschriften: {years} Jahre nach Ende des Ausstellungsjahres (Steuerrecht), danach anonymisiert.",
+      "withdrawals": "Widerrufe: {years} Jahre nach Ende des Eingangsjahres.",
+      "inquiries": "Anfragen zu Auftragsarbeiten samt Bildern: {months} Monate nach Eingang.",
+      "checkouts": "Kassenvorgänge ohne Bestellung: {days} Tage.",
+      "emailLog": "Versandnachweise von Mails: so lange wie der zugehörige Vorgang, ohne Bezug {days} Tage.",
+      "consentLog": "Einwilligungsnachweise: so lange wie die zugehörige Bestellung, ohne Bestellung {days} Tage.",
+      "privacyRequests": "Datenschutz-Anfragen: {years} Jahre nach Ende des Jahres der Antwort; die Export-Datei {days} Tage nach der Antwort."
+    },
+    "rightsHeading": "e) Deine Rechte",
+    "rights": [
+      "Berichtigung unrichtiger Daten (Art. 16 DSGVO)",
+      "Löschung (Art. 17 DSGVO)",
+      "Einschränkung der Verarbeitung (Art. 18 DSGVO)",
+      "Datenübertragbarkeit (Art. 20 DSGVO)",
+      "Widerspruch gegen Verarbeitungen aus berechtigtem Interesse (Art. 21 DSGVO)",
+      "Widerruf erteilter Einwilligungen mit Wirkung für die Zukunft (Art. 7 Abs. 3 DSGVO)"
+    ],
+    "complaintHeading": "f) Beschwerde bei der Aufsichtsbehörde",
+    "complaint": "Du kannst dich bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel bei der Berliner Beauftragten für Datenschutz und Informationsfreiheit, Alt-Moabit 59–61, 10555 Berlin.",
+    "sourceHeading": "g) Woher die Daten stammen",
+    "source": "Die Daten stammen von dir selbst (Kasse, Formulare, Mails). Den Zahlungsstatus melden die Zahlungsdienstleister, den Zustellstatus der Versanddienstleister.",
+    "automatedHeading": "h) Automatisierte Entscheidungen",
+    "automated": "Ich treffe keine automatisierten Entscheidungen und erstelle kein Profiling. Stripe führt bei Zahlungen in eigener Verantwortung eine automatisierte Betrugs- und Risikoprüfung durch; Auskunft dazu gibt Stripe selbst.",
+    "notesHint": "Interne Notizen, die auch andere Personen betreffen können, sind nicht in der Datei enthalten. Ich habe sie vor dem Versand geprüft; was dich betrifft, steht in meiner Antwort.",
+    "noteHeading": "Hinweis",
+    "placeholderMark": "[Platzhalter – Kanzlei-Wortlaut folgt]"
   }
 }

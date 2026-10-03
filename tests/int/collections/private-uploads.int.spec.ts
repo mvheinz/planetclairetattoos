@@ -434,6 +434,7 @@ describe('private-uploads – Bezüge zu Bestellung, Stück und Beleg (DATENMODE
         status: 'shipped',
         timestamps: {
           placedAt: '2026-09-27T10:00:00.000Z',
+          paidAt: '2026-09-27T10:05:00.000Z',
           shippedAt: '2026-10-01T08:00:00.000Z',
         },
         retainUntil: '2033-12-31T23:00:00.000Z',
@@ -470,19 +471,25 @@ describe('private-uploads – Bezüge zu Bestellung, Stück und Beleg (DATENMODE
     expect(doc.deleteAfter).toBe('2027-10-01T08:00:00.000Z')
   })
 
-  it('Reklamationsfoto: deleteAfter = orders.retainUntil (L-09); ohne Bestellung zunächst leer', async () => {
-    const doc = await createPrivate({ purpose: 'complaint_photo', relatedOrder: shipped.id })
-    expect(doc.deleteAfter).toBe('2033-12-31T23:00:00.000Z')
-    const loose = await createPrivate({ purpose: 'complaint_photo' })
-    expect(loose.deleteAfter ?? null).toBeNull()
-    // spätere Zuordnung zieht die Frist nach
-    const linked = await payload.update({
-      collection: 'private-uploads',
-      id: loose.id,
-      data: { relatedOrder: shipped.id } as never,
+  it('Reklamationsfoto: Reklamation Pflicht (P6.1); Bestellung und deleteAfter = orders.retainUntil (L-09) über die Reklamation', async () => {
+    const complaint = await payload.create({
+      collection: 'complaints',
+      data: { order: shipped.id, kind: 'transport_damage' } as never,
       overrideAccess: true,
     })
-    expect(linked.deleteAfter).toBe('2033-12-31T23:00:00.000Z')
+    const doc = (await createPrivate({
+      purpose: 'complaint_photo',
+      relatedComplaint: complaint.id,
+    })) as PrivateDoc & { relatedOrder?: { id: number } | number }
+    expect(doc.deleteAfter).toBe('2033-12-31T23:00:00.000Z')
+    expect(typeof doc.relatedOrder === 'object' ? doc.relatedOrder?.id : doc.relatedOrder).toBe(
+      shipped.id,
+    )
+    // ohne Reklamation abgelehnt; andere Zwecke dürfen keine Reklamation tragen
+    await expect(createPrivate({ purpose: 'complaint_photo' })).rejects.toThrow()
+    await expect(
+      createPrivate({ purpose: 'packing_photo', relatedComplaint: complaint.id }),
+    ).rejects.toThrow()
   })
 
   it('L-06 Beleg-PDF mit Beleg: retainUntil = invoices.retainUntil; spätere Zuordnung verlängert nur', async () => {

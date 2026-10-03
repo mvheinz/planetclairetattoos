@@ -34,3 +34,32 @@
   text-underline-offset: 0.2em;
   overflow-wrap: anywhere;
 }
+
+/* „Adresse kopieren“ (copy-button): ohne JavaScript verborgen. */
+.copy {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  padding: 0 var(--space-3);
+  border: 1.5px solid var(--ink-2);
+  border-radius: var(--r-card);
+  background: var(--paper-field);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-small);
+  cursor: pointer;
+}
+
+.copy[hidden] {
+  display: none;
+}
+
+.copy:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.copyStatus {
+  font-size: var(--fs-small);
+  color: var(--mat);
+}

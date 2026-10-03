@@ -28,6 +28,18 @@ import * as migration_20260929_102355_p5_job_runs from './20260929_102355_p5_job
 import * as migration_20260929_104802_p5_monthly_close_jobs from './20260929_104802_p5_monthly_close_jobs';
 import * as migration_20261001_193246_p5_compliance_docs_job from './20261001_193246_p5_compliance_docs_job';
 import * as migration_20261001_195941_p5_mark_delivered_job from './20261001_195941_p5_mark_delivered_job';
+import * as migration_20261002_020524_p6_legal_snippets_complaints from './20261002_020524_p6_legal_snippets_complaints';
+import * as migration_20261002_020601_p6_legal_snippets_complaints_constraints from './20261002_020601_p6_legal_snippets_complaints_constraints';
+import * as migration_20261002_023800_p6_activate_legal_job from './20261002_023800_p6_activate_legal_job';
+import * as migration_20261002_032940_p6_retention_failures from './20261002_032940_p6_retention_failures';
+import * as migration_20261002_033402_p6_retention_jobs from './20261002_033402_p6_retention_jobs';
+import * as migration_20261002_041023_p6_retention_jobs_part2 from './20261002_041023_p6_retention_jobs_part2';
+import * as migration_20261002_043628_p6_legal_review_job from './20261002_043628_p6_legal_review_job';
+import * as migration_20261002_091942_p6_withdrawal_inbox_refunds from './20261002_091942_p6_withdrawal_inbox_refunds';
+import * as migration_20261002_101152_p6_withdrawal_deadlines_task from './20261002_101152_p6_withdrawal_deadlines_task';
+import * as migration_20261002_122832_p6_privacy_requests_task from './20261002_122832_p6_privacy_requests_task';
+import * as migration_20261002_130126_p6_invoice_reissue from './20261002_130126_p6_invoice_reissue';
+import * as migration_20261002_130238_p6_invoice_reissue_constraints from './20261002_130238_p6_invoice_reissue_constraints';
 
 export const migrations = [
   {
@@ -178,6 +190,66 @@ export const migrations = [
   {
     up: migration_20261001_195941_p5_mark_delivered_job.up,
     down: migration_20261001_195941_p5_mark_delivered_job.down,
-    name: '20261001_195941_p5_mark_delivered_job'
+    name: '20261001_195941_p5_mark_delivered_job',
+  },
+  {
+    up: migration_20261002_020524_p6_legal_snippets_complaints.up,
+    down: migration_20261002_020524_p6_legal_snippets_complaints.down,
+    name: '20261002_020524_p6_legal_snippets_complaints',
+  },
+  {
+    up: migration_20261002_020601_p6_legal_snippets_complaints_constraints.up,
+    down: migration_20261002_020601_p6_legal_snippets_complaints_constraints.down,
+    name: '20261002_020601_p6_legal_snippets_complaints_constraints',
+  },
+  {
+    up: migration_20261002_023800_p6_activate_legal_job.up,
+    down: migration_20261002_023800_p6_activate_legal_job.down,
+    name: '20261002_023800_p6_activate_legal_job',
+  },
+  {
+    up: migration_20261002_032940_p6_retention_failures.up,
+    down: migration_20261002_032940_p6_retention_failures.down,
+    name: '20261002_032940_p6_retention_failures',
+  },
+  {
+    up: migration_20261002_033402_p6_retention_jobs.up,
+    down: migration_20261002_033402_p6_retention_jobs.down,
+    name: '20261002_033402_p6_retention_jobs',
+  },
+  {
+    up: migration_20261002_041023_p6_retention_jobs_part2.up,
+    down: migration_20261002_041023_p6_retention_jobs_part2.down,
+    name: '20261002_041023_p6_retention_jobs_part2',
+  },
+  {
+    up: migration_20261002_043628_p6_legal_review_job.up,
+    down: migration_20261002_043628_p6_legal_review_job.down,
+    name: '20261002_043628_p6_legal_review_job',
+  },
+  {
+    up: migration_20261002_091942_p6_withdrawal_inbox_refunds.up,
+    down: migration_20261002_091942_p6_withdrawal_inbox_refunds.down,
+    name: '20261002_091942_p6_withdrawal_inbox_refunds',
+  },
+  {
+    up: migration_20261002_101152_p6_withdrawal_deadlines_task.up,
+    down: migration_20261002_101152_p6_withdrawal_deadlines_task.down,
+    name: '20261002_101152_p6_withdrawal_deadlines_task',
+  },
+  {
+    up: migration_20261002_122832_p6_privacy_requests_task.up,
+    down: migration_20261002_122832_p6_privacy_requests_task.down,
+    name: '20261002_122832_p6_privacy_requests_task',
+  },
+  {
+    up: migration_20261002_130126_p6_invoice_reissue.up,
+    down: migration_20261002_130126_p6_invoice_reissue.down,
+    name: '20261002_130126_p6_invoice_reissue',
+  },
+  {
+    up: migration_20261002_130238_p6_invoice_reissue_constraints.up,
+    down: migration_20261002_130238_p6_invoice_reissue_constraints.down,
+    name: '20261002_130238_p6_invoice_reissue_constraints'
   },
 ];

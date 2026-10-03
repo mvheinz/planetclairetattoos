@@ -1,6 +1,6 @@
 import { adminPath, expect, test, testPayload } from '../fixtures'
 import { createOrder, orderData } from '../../int/helpers/commerce'
-import { expectAccessible, orderStatus, removeOrder } from './orderHelpers'
+import { expectAccessible, orderStatus, packingPanelReady, removeOrder } from './orderHelpers'
 
 // P5.15 – AK-7-05: Bestellung analog O14 (`paid`, Versand, ohne Keramik) → „Gepackt“ (Verpackung aus der Vorlage) →
 // Sendungsnummer eingeben → „Versendet melden“ → Status `shipped`, M06 im Mail-Log – in höchstens 5 Taps plus
@@ -37,8 +37,7 @@ test('@a11y AK-7-05 „Gepackt“ → Sendungsnummer → „Versendet melden“:
     await page.goto(adminPath('/packen'))
     const card = page.locator(`[data-order-number="${order.orderNumber}"]`)
     await tap(() => card.getByRole('link', { name: order.orderNumber }).click())
-    const panel = page.getByTestId('packing-panel')
-    await expect(panel).toBeVisible()
+    const panel = await packingPanelReady(page)
     await tap(() => panel.getByTestId('mark-packed').click())
     await expect.poll(async () => (await orderStatus(payload, order.id)).status).toBe('packed')
 

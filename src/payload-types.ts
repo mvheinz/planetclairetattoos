@@ -81,6 +81,8 @@ export interface Config {
     'invoice-counters': InvoiceCounter;
     withdrawals: Withdrawal;
     'legal-texts': LegalText;
+    'legal-snippets': LegalSnippet;
+    complaints: Complaint;
     flash: Flash;
     'tattoo-offers': TattooOffer;
     'tattoo-gallery': TattooGallery;
@@ -105,6 +107,7 @@ export interface Config {
       creditNotes: 'invoices';
       withdrawals: 'withdrawals';
       emails: 'email-log';
+      complaints: 'complaints';
     };
   };
   collectionsSelect: {
@@ -122,6 +125,8 @@ export interface Config {
     'invoice-counters': InvoiceCountersSelect<false> | InvoiceCountersSelect<true>;
     withdrawals: WithdrawalsSelect<false> | WithdrawalsSelect<true>;
     'legal-texts': LegalTextsSelect<false> | LegalTextsSelect<true>;
+    'legal-snippets': LegalSnippetsSelect<false> | LegalSnippetsSelect<true>;
+    complaints: ComplaintsSelect<false> | ComplaintsSelect<true>;
     flash: FlashSelect<false> | FlashSelect<true>;
     'tattoo-offers': TattooOffersSelect<false> | TattooOffersSelect<true>;
     'tattoo-gallery': TattooGallerySelect<false> | TattooGallerySelect<true>;
@@ -167,10 +172,26 @@ export interface Config {
       renderInvoicePdf: TaskRenderInvoicePdf;
       renderLegalTextPdf: TaskRenderLegalTextPdf;
       markDelivered: TaskMarkDelivered;
+      withdrawalDeadlines: TaskWithdrawalDeadlines;
       revenueGuardCheck: TaskRevenueGuardCheck;
       monthlyClose: TaskMonthlyClose;
       invoiceIntegrityCheck: TaskInvoiceIntegrityCheck;
       complianceDocsReview: TaskComplianceDocsReview;
+      activateScheduledLegalTexts: TaskActivateScheduledLegalTexts;
+      retentionAbandonedCheckouts: TaskRetentionAbandonedCheckouts;
+      retentionOrderMinimize: TaskRetentionOrderMinimize;
+      retentionOrders: TaskRetentionOrders;
+      retentionInvoices: TaskRetentionInvoices;
+      retentionWithdrawals: TaskRetentionWithdrawals;
+      retentionCommissionInquiries: TaskRetentionCommissionInquiries;
+      retentionEmailLog: TaskRetentionEmailLog;
+      retentionPrivacyRequests: TaskRetentionPrivacyRequests;
+      retentionConsentEvidence: TaskRetentionConsentEvidence;
+      retentionDeletionLog: TaskRetentionDeletionLog;
+      retentionTechnical: TaskRetentionTechnical;
+      legalHoldReview: TaskLegalHoldReview;
+      legalReviewReminder: TaskLegalReviewReminder;
+      privacyRequestsDeadlineReminder: TaskPrivacyRequestsDeadlineReminder;
       inline: {
         input: unknown;
         output: unknown;
@@ -398,6 +419,7 @@ export interface PrivateUpload {
   relatedInvoice?: (number | null) | Invoice;
   relatedInquiry?: (number | null) | Inquiry;
   relatedPrivacyRequest?: (number | null) | PrivacyRequest;
+  relatedComplaint?: (number | null) | Complaint;
   relatedGalleryItem?: (number | null) | TattooGallery;
   note?: string | null;
   seed?: boolean | null;
@@ -757,11 +779,24 @@ export interface Order {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  complaints?: {
+    docs?: (number | Complaint)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  warrantyEndsAt?: string | null;
   refunds?:
     | {
         amountCents: number;
         reason:
-          'withdrawal' | 'goodwill' | 'complaint' | 'breakage' | 'admin_cancellation' | 'item_unavailable' | 'dispute';
+          | 'withdrawal'
+          | 'goodwill'
+          | 'complaint'
+          | 'breakage'
+          | 'admin_cancellation'
+          | 'item_unavailable'
+          | 'dispute'
+          | 'correction';
         itemIds?:
           | {
               [k: string]: unknown;
@@ -776,6 +811,8 @@ export interface Order {
         stripeRefundId?: string | null;
         manualTransferConfirmedAt?: string | null;
         creditNote?: (number | null) | Invoice;
+        withdrawal?: (number | null) | Withdrawal;
+        note?: string | null;
         createdAt: string;
         id?: string | null;
       }[]
@@ -1382,6 +1419,10 @@ export interface Invoice {
   status: 'pending_pdf' | 'issued';
   order: number | Order;
   relatedInvoice?: (number | null) | Invoice;
+  /**
+   * Berichtigung (R-152): diese Rechnung ersetzt die stornierte.
+   */
+  replacesInvoice?: (number | null) | Invoice;
   issueDate: string;
   deliveryDate: string;
   taxMode: 'kleinunternehmer' | 'regelbesteuert';
@@ -1402,7 +1443,16 @@ export interface Invoice {
   sha256?: string | null;
   renderedAt?: string | null;
   reason?:
-    | ('withdrawal' | 'goodwill' | 'complaint' | 'breakage' | 'admin_cancellation' | 'item_unavailable' | 'dispute')
+    | (
+        | 'withdrawal'
+        | 'goodwill'
+        | 'complaint'
+        | 'breakage'
+        | 'admin_cancellation'
+        | 'item_unavailable'
+        | 'dispute'
+        | 'correction'
+      )
     | null;
   retainUntil: string;
   anonymizedAt?: string | null;
@@ -1453,6 +1503,10 @@ export interface Withdrawal {
   returnTrackingNumber?: string | null;
   returnProofReceivedAt?: string | null;
   goodsReturnedAt?: string | null;
+  /**
+   * Notiz bei „Ware ist zurück“ (KONZEPT §7.10).
+   */
+  returnConditionNote?: string | null;
   refundedAt?: string | null;
   closedAt?: string | null;
   rejectedAt?: string | null;
@@ -1601,6 +1655,58 @@ export interface Inquiry {
     legalHoldReviewedAt?: string | null;
     anonymizedAt?: string | null;
   };
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Reklamationsakte je Bestellung (Transportschaden oder Mangel).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "complaints".
+ */
+export interface Complaint {
+  id: number;
+  order: number | Order;
+  kind: 'transport_damage' | 'defect';
+  receivedAt: string;
+  /**
+   * Kurze Beschreibung; keine Gesundheitsangaben.
+   */
+  description?: string | null;
+  affectedItemIds?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  photos?: (number | PrivateUpload)[] | null;
+  /**
+   * Zustellung + 7 Tage (R-100, § 438 HGB).
+   */
+  carrierClaimDueAt?: string | null;
+  carrierClaimFiledAt?: string | null;
+  remedy?: ('repair' | 'replacement' | 'refund' | 'price_reduction' | 'none') | null;
+  /**
+   * Mail „Reklamation beantworten“ (R-111).
+   */
+  repairChoiceSentAt?: string | null;
+  customerChoice?: ('repair' | 'replacement' | 'refund' | 'price_reduction') | null;
+  customerChoiceAt?: string | null;
+  /**
+   * Übergabe + 2 Jahre; + 12 Monate bei gewählter Reparatur.
+   */
+  warrantyEndsAt?: string | null;
+  /**
+   * Mail § 37 VSBG (R-112).
+   */
+  vsbgNoticeSentAt?: string | null;
+  status: 'open' | 'waiting_customer' | 'resolved' | 'rejected';
+  notes?: string | null;
   seed?: boolean | null;
   seedKey?: string | null;
   updatedAt: string;
@@ -1820,6 +1926,70 @@ export interface InvoiceCounter {
   series: string;
   year: number;
   lastNumber: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Kurze Rechtstexte (Preis-, Liefer-, Kassen-, Mail- und Widerrufshinweise). Jede Fassung ist ein eigenes Dokument; veröffentlichte Fassungen lassen sich nicht mehr ändern.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legal-snippets".
+ */
+export interface LegalSnippet {
+  id: number;
+  key:
+    | 'price.kleinunternehmerNote'
+    | 'price.shippingNote'
+    | 'price.tattooNote'
+    | 'delivery.timeShipping'
+    | 'delivery.timePickup'
+    | 'cart.paymentAndDeliveryInfo'
+    | 'checkout.legalNotice'
+    | 'checkout.dhlEmailConsent'
+    | 'checkout.deviationAgreement'
+    | 'checkout.vorkasseInfo'
+    | 'product.ceramicsDecorative'
+    | 'product.ceramicsFoodSafe'
+    | 'product.jewelrySmallParts'
+    | 'product.jewelryNickel'
+    | 'product.textileSecondHand'
+    | 'product.textileLabelMissing'
+    | 'product.noSpecialWarnings'
+    | 'product.glassFrame'
+    | 'email.orderConfirmation.contractSentence'
+    | 'email.vorkasse.paymentInstructions'
+    | 'email.vorkasse.reminder'
+    | 'email.vorkasse.cancellation'
+    | 'email.shipping.damageNotice'
+    | 'email.pickup.ready'
+    | 'withdrawal.intro'
+    | 'withdrawal.receiptNotice'
+    | 'withdrawal.returnInfo'
+    | 'withdrawal.returnCostsNote'
+    | 'complaint.repairChoice'
+    | 'dispute.vsbg37'
+    | 'inquiry.privacyNotice'
+    | 'inquiry.autoReply'
+    | 'commission.offer'
+    | 'translation.disclaimer'
+    | 'privacyRequest.accessResponse'
+    | 'privacyRequest.erasureResponse';
+  version?: number | null;
+  status: 'draft' | 'scheduled' | 'active' | 'superseded';
+  validFrom: string;
+  /**
+   * Deutsch ist verbindlich, Englisch eine Übersetzung. Erlaubt sind nur die Platzhalter aus der Liste (z. B. {{deliveryTime}}).
+   */
+  text?: string | null;
+  /**
+   * Herkunft des Textes (R-002).
+   */
+  origin: 'placeholder' | 'draft' | 'lawyer';
+  changeNote?: string | null;
+  sha256De?: string | null;
+  sha256En?: string | null;
+  activatedAt?: string | null;
+  supersededAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2388,10 +2558,26 @@ export interface PayloadJob {
           | 'renderInvoicePdf'
           | 'renderLegalTextPdf'
           | 'markDelivered'
+          | 'withdrawalDeadlines'
           | 'revenueGuardCheck'
           | 'monthlyClose'
           | 'invoiceIntegrityCheck'
-          | 'complianceDocsReview';
+          | 'complianceDocsReview'
+          | 'activateScheduledLegalTexts'
+          | 'retentionAbandonedCheckouts'
+          | 'retentionOrderMinimize'
+          | 'retentionOrders'
+          | 'retentionInvoices'
+          | 'retentionWithdrawals'
+          | 'retentionCommissionInquiries'
+          | 'retentionEmailLog'
+          | 'retentionPrivacyRequests'
+          | 'retentionConsentEvidence'
+          | 'retentionDeletionLog'
+          | 'retentionTechnical'
+          | 'legalHoldReview'
+          | 'legalReviewReminder'
+          | 'privacyRequestsDeadlineReminder';
         taskID: string;
         input?:
           | {
@@ -2434,10 +2620,26 @@ export interface PayloadJob {
         | 'renderInvoicePdf'
         | 'renderLegalTextPdf'
         | 'markDelivered'
+        | 'withdrawalDeadlines'
         | 'revenueGuardCheck'
         | 'monthlyClose'
         | 'invoiceIntegrityCheck'
         | 'complianceDocsReview'
+        | 'activateScheduledLegalTexts'
+        | 'retentionAbandonedCheckouts'
+        | 'retentionOrderMinimize'
+        | 'retentionOrders'
+        | 'retentionInvoices'
+        | 'retentionWithdrawals'
+        | 'retentionCommissionInquiries'
+        | 'retentionEmailLog'
+        | 'retentionPrivacyRequests'
+        | 'retentionConsentEvidence'
+        | 'retentionDeletionLog'
+        | 'retentionTechnical'
+        | 'legalHoldReview'
+        | 'legalReviewReminder'
+        | 'privacyRequestsDeadlineReminder'
       )
     | null;
   queue?: string | null;
@@ -2508,6 +2710,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'legal-texts';
         value: number | LegalText;
+      } | null)
+    | ({
+        relationTo: 'legal-snippets';
+        value: number | LegalSnippet;
+      } | null)
+    | ({
+        relationTo: 'complaints';
+        value: number | Complaint;
       } | null)
     | ({
         relationTo: 'flash';
@@ -2758,6 +2968,7 @@ export interface PrivateUploadsSelect<T extends boolean = true> {
   relatedInvoice?: T;
   relatedInquiry?: T;
   relatedPrivacyRequest?: T;
+  relatedComplaint?: T;
   relatedGalleryItem?: T;
   note?: T;
   seed?: T;
@@ -3216,6 +3427,8 @@ export interface OrdersSelect<T extends boolean = true> {
   creditNotes?: T;
   withdrawals?: T;
   emails?: T;
+  complaints?: T;
+  warrantyEndsAt?: T;
   refunds?:
     | T
     | {
@@ -3227,6 +3440,8 @@ export interface OrdersSelect<T extends boolean = true> {
         stripeRefundId?: T;
         manualTransferConfirmedAt?: T;
         creditNote?: T;
+        withdrawal?: T;
+        note?: T;
         createdAt?: T;
         id?: T;
       };
@@ -3294,6 +3509,7 @@ export interface InvoicesSelect<T extends boolean = true> {
   status?: T;
   order?: T;
   relatedInvoice?: T;
+  replacesInvoice?: T;
   issueDate?: T;
   deliveryDate?: T;
   taxMode?: T;
@@ -3349,6 +3565,7 @@ export interface WithdrawalsSelect<T extends boolean = true> {
   returnTrackingNumber?: T;
   returnProofReceivedAt?: T;
   goodsReturnedAt?: T;
+  returnConditionNote?: T;
   refundedAt?: T;
   closedAt?: T;
   rejectedAt?: T;
@@ -3401,6 +3618,51 @@ export interface LegalTextsSelect<T extends boolean = true> {
   contentSha256En?: T;
   activatedAt?: T;
   supersededAt?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legal-snippets_select".
+ */
+export interface LegalSnippetsSelect<T extends boolean = true> {
+  key?: T;
+  version?: T;
+  status?: T;
+  validFrom?: T;
+  text?: T;
+  origin?: T;
+  changeNote?: T;
+  sha256De?: T;
+  sha256En?: T;
+  activatedAt?: T;
+  supersededAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "complaints_select".
+ */
+export interface ComplaintsSelect<T extends boolean = true> {
+  order?: T;
+  kind?: T;
+  receivedAt?: T;
+  description?: T;
+  affectedItemIds?: T;
+  photos?: T;
+  carrierClaimDueAt?: T;
+  carrierClaimFiledAt?: T;
+  remedy?: T;
+  repairChoiceSentAt?: T;
+  customerChoice?: T;
+  customerChoiceAt?: T;
+  warrantyEndsAt?: T;
+  vsbgNoticeSentAt?: T;
+  status?: T;
+  notes?: T;
   seed?: T;
   seedKey?: T;
   updatedAt?: T;
@@ -4944,6 +5206,18 @@ export interface TaskMarkDelivered {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskWithdrawalDeadlines".
+ */
+export interface TaskWithdrawalDeadlines {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    reminded?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "TaskRevenueGuardCheck".
  */
 export interface TaskRevenueGuardCheck {
@@ -4992,6 +5266,199 @@ export interface TaskComplianceDocsReview {
     sent?: boolean | null;
     missing?: number | null;
     deletable?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskActivateScheduledLegalTexts".
+ */
+export interface TaskActivateScheduledLegalTexts {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    activated?: number | null;
+    failed?: number | null;
+    nextDueAt?: string | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionAbandonedCheckouts".
+ */
+export interface TaskRetentionAbandonedCheckouts {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    processed?: number | null;
+    failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionOrderMinimize".
+ */
+export interface TaskRetentionOrderMinimize {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    processed?: number | null;
+    failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionOrders".
+ */
+export interface TaskRetentionOrders {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    processed?: number | null;
+    failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionInvoices".
+ */
+export interface TaskRetentionInvoices {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    processed?: number | null;
+    failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionWithdrawals".
+ */
+export interface TaskRetentionWithdrawals {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    processed?: number | null;
+    failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionCommissionInquiries".
+ */
+export interface TaskRetentionCommissionInquiries {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    processed?: number | null;
+    failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionEmailLog".
+ */
+export interface TaskRetentionEmailLog {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    processed?: number | null;
+    failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionPrivacyRequests".
+ */
+export interface TaskRetentionPrivacyRequests {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    processed?: number | null;
+    failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionConsentEvidence".
+ */
+export interface TaskRetentionConsentEvidence {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    processed?: number | null;
+    failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionDeletionLog".
+ */
+export interface TaskRetentionDeletionLog {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    processed?: number | null;
+    failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRetentionTechnical".
+ */
+export interface TaskRetentionTechnical {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    processed?: number | null;
+    failed?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskLegalHoldReview".
+ */
+export interface TaskLegalHoldReview {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    sent?: boolean | null;
+    holds?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskLegalReviewReminder".
+ */
+export interface TaskLegalReviewReminder {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    sent?: boolean | null;
+    due?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskPrivacyRequestsDeadlineReminder".
+ */
+export interface TaskPrivacyRequestsDeadlineReminder {
+  input?: unknown;
+  output: {
+    skipped: boolean;
+    period?: string | null;
+    reminded?: number | null;
   };
 }
 /**

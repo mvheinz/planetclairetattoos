@@ -135,9 +135,9 @@ describe('POST /api/cron/run/[task]', () => {
 
   it('nur Slugs aus Anhang A.3: unbekannt 404, noch nicht umgesetzt 501, sendEmail 200', async () => {
     expect((await run('dropDatabase', `Bearer ${SECRET}`)).status).toBe(404)
-    const notYet = await run('retentionTechnical', `Bearer ${SECRET}`)
+    const notYet = await run('revalidateEndedOffers', `Bearer ${SECRET}`)
     expect(notYet.status).toBe(501)
-    expect(await notYet.json()).toMatchObject({ phase: 'P6' })
+    expect(await notYet.json()).toMatchObject({ phase: 'P7' })
     const ok = await run('sendEmail', `Bearer ${SECRET}`)
     expect(ok.status).toBe(200)
     expect(await ok.json()).toMatchObject({ status: 'ran', task: 'sendEmail' })

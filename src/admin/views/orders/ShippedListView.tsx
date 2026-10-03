@@ -3,18 +3,16 @@ import React from 'react'
 import { StatusBadge } from '../../components/StatusBadge'
 import { adminText } from '../../translations'
 import type { AdminViewBodyProps } from '../AdminViewBody'
-import { adminViewPath } from '../registry'
 import { loadShippedList } from './fulfillmentQuery'
 import { ShippedActions } from './ShippedActions'
 
 // Ansicht „Versendet“ `/versendet` (PLAN P5.16, KONZEPT §7.8): alle `shipped` und die `delivered` der letzten 30 Tage
 // mit Versanddatum, Sendungsnummer als Link (sofern vorhanden) und Status; automatisch gesetzte Zustellung mit
 // Kennzeichen „geschätzt“. Knöpfe „Zugestellt“ (O10), „Sendungsnummer korrigieren“/„nachtragen“ (Rückfrage
-// „Versandmail erneut senden?“) und „Reklamation (Bruch)“ (bis P6: Sprung zu den Mail-Vorlagen unter „Texte“).
+// „Versandmail erneut senden?“) und „Reklamation (Bruch)“ (P6.11: Sprung zur Reklamationsakte im Bestell-Detail).
 
 export async function ShippedListView({ adminRoute, req }: AdminViewBodyProps) {
   const cards = await loadShippedList(req, new Date())
-  const complaintHref = `${adminRoute}${adminViewPath('texte')}`
   return (
     <div className="pc-order">
       <p role="status" className="pc-order__count" data-testid="shipped-count">
@@ -89,7 +87,7 @@ export async function ShippedListView({ adminRoute, req }: AdminViewBodyProps) {
               status={card.status}
               carrier={card.carrier}
               trackingNumber={card.trackingNumber}
-              complaintHref={complaintHref}
+              complaintHref={`${adminRoute}/bestellungen/${card.id}#order-complaints`}
             />
           </li>
         ))}

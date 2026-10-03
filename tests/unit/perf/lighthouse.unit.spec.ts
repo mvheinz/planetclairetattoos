@@ -18,6 +18,8 @@ interface LhciConfig {
       url: string[]
       numberOfRuns: number
       chromePath: string
+      startServerCommand: string
+      startServerReadyPattern: string
       settings: { onlyCategories: string[]; chromeFlags: string; preset?: string }
     }
     assert: { assertMatrix: { assertions: Record<string, [string, Record<string, unknown>]> }[] }
@@ -40,6 +42,16 @@ describe('T-10 tests/perf/lighthouserc.cjs', () => {
     }
     expect(pkg.devDependencies['@lhci/cli']).toMatch(/^\d+\.\d+\.\d+$/)
     expect(pkg.scripts['test:perf']).toMatch(/lhci collect .*lhci upload .*lhci assert/)
+  })
+
+  it('misst über HTTP/2 wie die Produktion: Vorschaltserver vor next start, https, Zertifikat nur hier ignoriert', () => {
+    expect(config.ci.collect.startServerCommand).toBe('node scripts/perf/serve-h2.mjs')
+    const server = readFileSync('scripts/perf/serve-h2.mjs', 'utf8')
+    expect(server).toContain('http2')
+    expect(server).toContain('allowHTTP1: true')
+    expect(server).toContain(config.ci.collect.startServerReadyPattern)
+    expect(config.ci.collect.url.every((u) => new URL(u).protocol === 'https:')).toBe(true)
+    expect(config.ci.collect.settings.chromeFlags).toMatch(/--ignore-certificate-errors/)
   })
 
   it('Preset mobil (Lighthouse-Standard, kein desktop-Preset), Median aus 3 Läufen, Seiten R01, R02, R04 (P3.16)', () => {

@@ -90,11 +90,10 @@ describe('Vorlagen fürs Mailprogramm (P5.27, R-084)', () => {
     expect(r.ownerNote).toContain('nicht in der Verwaltung speichern')
   })
 
-  it('§ 37 VSBG: Text der Arbeitsfassung `dispute.vsbg37`; Reparatur und VSBG werden in P6 ersetzt', () => {
-    const r = renderAdminTemplate('dispute_vsbg37', { order: SHIPPED, signature: 'Jutta' })
-    expect(r.body).toContain('Universalschlichtungsstelle des Bundes')
-    expect(ADMIN_TEMPLATES.dispute_vsbg37.replacedBy).toContain('M13')
-    expect(ADMIN_TEMPLATES.repair_or_replacement.replacedBy).toContain('M12')
+  it('P6.11: Reparatur/Ersatz und § 37 VSBG sind keine mailto-Vorlagen mehr (protokollierte Mails M12/M13)', () => {
+    expect([...ADMIN_TEMPLATE_KEYS]).toEqual(['breakage_photos', 'prepayment_refund_iban'])
+    expect(Object.keys(ADMIN_TEMPLATES)).not.toContain('dispute_vsbg37')
+    expect(Object.keys(ADMIN_TEMPLATES)).not.toContain('repair_or_replacement')
   })
 
   it('Vorlagen passen nur zu passenden Bestellungen; fehlende Werte → Fehler statt offener Platzhalter', () => {
@@ -104,7 +103,7 @@ describe('Vorlagen fürs Mailprogramm (P5.27, R-084)', () => {
       renderAdminTemplate('breakage_photos', { order: CANCELLED_PREPAYMENT, signature: 'J' }),
     ).toThrow(AdminTemplateError)
     expect(() =>
-      renderAdminTemplate('repair_or_replacement', { order: SHIPPED, signature: ' ' }),
+      renderAdminTemplate('breakage_photos', { order: SHIPPED, signature: ' ' }),
     ).toThrow(AdminTemplateError)
   })
 

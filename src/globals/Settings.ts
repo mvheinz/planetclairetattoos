@@ -46,6 +46,7 @@ import {
   type TaxModeEntry,
 } from '@/lib/settings/rules'
 import { shopOpenBlockedMessage, startklarStatus } from '@/lib/settings/readiness'
+import { isKnownServiceId } from '@/lib/legal/services'
 import { formatBerlin } from '@/lib/time'
 
 import {
@@ -727,7 +728,18 @@ const processorAgreementsField: Field = {
   label: 'Auftragsverarbeitungsverträge',
   defaultValue: [],
   fields: [
-    { name: 'serviceId', type: 'text', label: 'Dienst (ID)', required: true, maxLength: 60 },
+    {
+      name: 'serviceId',
+      type: 'text',
+      label: 'Dienst (ID)',
+      required: true,
+      maxLength: 60,
+      // ID aus docs/recht/DIENSTE.md §7 (über `services.generated.ts`, P6.21)
+      validate: (value: unknown) =>
+        value === null || value === undefined || value === '' || isKnownServiceId(value)
+          ? true
+          : 'Unbekannter Dienst – erlaubt sind nur die IDs aus der Dienstliste (DIENSTE.md).',
+    },
     { name: 'signedAt', type: 'date', label: 'Abgeschlossen am' },
     { name: 'documentVersion', type: 'text', label: 'Fassung', maxLength: 40 },
     { name: 'url', type: 'text', label: 'Adresse', validate: httpsUrl() },

@@ -102,9 +102,9 @@ describe('POST /api/cron/run/[task]', () => {
     expect((await run('releaseExpiredReservations')).status).toBe(401)
     expect((await run('releaseExpiredReservations', 'Bearer falsch')).status).toBe(401)
     expect((await run('dropDatabase', `Bearer ${SECRET}`)).status).toBe(404)
-    const later = await run('legalHoldReview', `Bearer ${SECRET}`)
+    const later = await run('revalidateEndedOffers', `Bearer ${SECRET}`)
     expect(later.status).toBe(501)
-    expect(await later.json()).toMatchObject({ phase: 'P6' })
+    expect(await later.json()).toMatchObject({ phase: 'P7' })
   })
 
   it('„Jetzt ausführen“ mit Bearer bzw. Admin-Sitzung → 200 und je Lauf ein Eintrag in job_runs', async () => {

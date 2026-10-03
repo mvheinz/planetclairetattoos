@@ -17,8 +17,12 @@ import {
   renderPrepaymentReceived,
 } from './templates/orderConfirmation'
 import * as adm from './templates/admin'
+import * as cmp from './templates/complaint'
 import * as ful from './templates/fulfillment'
 import * as pre from './templates/prepayment'
+import * as prv from './templates/privacy'
+import * as rfd from './templates/refund'
+import * as wdr from './templates/withdrawal'
 import type { MailBusiness, MailLinks } from './layout'
 import type { MailAttachment } from './types'
 
@@ -158,6 +162,49 @@ const TEMPLATES: Partial<Record<EmailTemplate, AnyTemplate>> = {
     schema: pre.oversoldApologyDataSchema,
     subject: pre.oversoldApologySubject,
     render: pre.renderOversoldApology,
+  }),
+  withdrawal_receipt: def<wdr.WithdrawalReceiptData>({
+    version: wdr.WITHDRAWAL_RECEIPT_VERSION,
+    schema: wdr.withdrawalReceiptDataSchema as unknown as z.ZodType<wdr.WithdrawalReceiptData>,
+    subject: wdr.withdrawalReceiptSubject,
+    render: wdr.renderWithdrawalReceipt,
+  }),
+  refund_confirmation: def<rfd.RefundConfirmationData>({
+    version: rfd.REFUND_CONFIRMATION_VERSION,
+    schema: rfd.refundConfirmationDataSchema as unknown as z.ZodType<rfd.RefundConfirmationData>,
+    subject: rfd.refundConfirmationSubject,
+    render: rfd.renderRefundConfirmation,
+  }),
+  complaint_repair_choice: def<cmp.ComplaintRepairChoiceData>({
+    version: cmp.COMPLAINT_REPAIR_CHOICE_VERSION,
+    schema:
+      cmp.complaintRepairChoiceDataSchema as unknown as z.ZodType<cmp.ComplaintRepairChoiceData>,
+    subject: cmp.complaintRepairChoiceSubject,
+    render: cmp.renderComplaintRepairChoice,
+  }),
+  dispute_vsbg: def<cmp.DisputeVsbgData>({
+    version: cmp.DISPUTE_VSBG_VERSION,
+    schema: cmp.disputeVsbgDataSchema,
+    subject: cmp.disputeVsbgSubject,
+    render: cmp.renderDisputeVsbg,
+  }),
+  privacy_access_response: def<prv.PrivacyAccessResponseData>({
+    version: prv.PRIVACY_ACCESS_RESPONSE_VERSION,
+    schema: prv.privacyAccessResponseDataSchema,
+    subject: prv.privacyAccessResponseSubject,
+    render: prv.renderPrivacyAccessResponse,
+  }),
+  privacy_erasure_response: def<prv.PrivacyErasureResponseData>({
+    version: prv.PRIVACY_ERASURE_RESPONSE_VERSION,
+    schema: prv.privacyErasureResponseDataSchema,
+    subject: prv.privacyErasureResponseSubject,
+    render: prv.renderPrivacyErasureResponse,
+  }),
+  consent_withdrawal_confirmation: def<prv.ConsentWithdrawalConfirmationData>({
+    version: prv.CONSENT_WITHDRAWAL_CONFIRMATION_VERSION,
+    schema: prv.consentWithdrawalConfirmationDataSchema,
+    subject: prv.consentWithdrawalConfirmationSubject,
+    render: prv.renderConsentWithdrawalConfirmation,
   }),
   admin_order_placed: def<adm.AdminOrderPlacedData>({
     version: adm.ADMIN_ORDER_PLACED_VERSION,

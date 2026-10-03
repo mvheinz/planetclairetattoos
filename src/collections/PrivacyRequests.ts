@@ -5,6 +5,7 @@ import type {
 } from 'payload'
 
 import { isAdmin, none } from '@/access'
+import { PRIVACY_ADMIN_ENDPOINTS } from '@/endpoints/privacy/actions'
 import { seedField } from '@/fields'
 import { writeAudit } from '@/lib/audit'
 import { ENUM_LABELS, enumOptions } from '@/lib/enumLabels'
@@ -30,8 +31,9 @@ import { assignSequenceNumber } from './hooks/numbers'
 // DATENMODELL §6.26 – Datenschutz-Anfragen (L-17, R-150 bis R-153, LOESCHKONZEPT §5). Jutta legt jede Anfrage an; Frist
 // `receivedAt + 1 Monat` (kalendergenau, Europe/Berlin), keine Fristhemmung während der Identitätsprüfung. Keine
 // Versionen, kein Löschen außer durch den Task `retentionPrivacyRequests`. Die Nummer DS-JJJJ-NNNN kommt aus
-// `privacy_request_number_seq` (§8.7). Oberfläche, Such-/Export-Aktionen (mit `deletion-log`, `trigger =
-// privacy_request`) und der Erinnerungs-Task folgen in P6.
+// `privacy_request_number_seq` (§8.7). Oberfläche `/export/datenschutz` und Aktionen (`src/endpoints/privacy/actions.ts`,
+// Lösch-/Einschränkungsaktionen mit `deletion-log`, `trigger = privacy_request`) sowie der Erinnerungs-Task
+// `privacyRequestsDeadlineReminder` aus P6.16–P6.18.
 
 const SLUG = 'privacy-requests'
 const fail = (message: string, path: string): never => failField(SLUG, message, path)
@@ -230,6 +232,7 @@ export const PrivacyRequests: CollectionConfig = {
   },
   access: { read: isAdmin, create: isAdmin, update: isAdmin, delete: none },
   defaultSort: 'dueAt',
+  endpoints: PRIVACY_ADMIN_ENDPOINTS,
   fields: [
     {
       name: 'reference',

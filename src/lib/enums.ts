@@ -187,6 +187,7 @@ export const REFUND_REASONS = [
   'admin_cancellation',
   'item_unavailable',
   'dispute',
+  'correction', // Gutschrift zur Berichtigung, danach neue Rechnung (R-152, P6.18)
 ] as const
 export type RefundReason = (typeof REFUND_REASONS)[number]
 export const REFUND_STATUSES = ['pending', 'succeeded', 'failed'] as const

@@ -124,6 +124,7 @@ export async function deleteCommerce(payload: Payload): Promise<void> {
   await db.execute(sql`UPDATE products SET current_order_id = NULL`)
   for (const table of [
     'webhook_events',
+    'complaints',
     'withdrawals',
     'invoices',
     'invoice_counters',

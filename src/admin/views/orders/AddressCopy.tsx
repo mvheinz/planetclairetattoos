@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import React from 'react'
+import React, { useState } from 'react'
 
 import { ActionButton } from '../../components/ActionButton'
 import { postAdminAction } from '../../components/adminAction'
@@ -10,7 +10,7 @@ import { adminText } from '../../translations'
 
 // „Adresse kopieren“ (PLAN P5.10, KONZEPT §7.6, R-101): ganzer Block für die DHL-App plus Kopier-Symbol je Zeile; die
 // Zeilen kommen vom Server (E-Mail nur mit wirksamer DHL-Einwilligung, nie Telefon). „Einwilligung widerrufen“ nur bei
-// wirksamer Einwilligung.
+// wirksamer Einwilligung, auf Wunsch (nie vorausgewählt) mit Bestätigung M16 an die Kundin (P6.18).
 
 export interface AddressCopyProps {
   orderId: number
@@ -21,6 +21,7 @@ export interface AddressCopyProps {
 
 export function AddressCopy({ orderId, lines, consentActive, consentRevokedAt }: AddressCopyProps) {
   const router = useRouter()
+  const [confirmMail, setConfirmMail] = useState(false)
   return (
     <div className="pc-order-address" data-testid="order-address">
       <ul className="pc-order-address__lines" aria-label={adminText('packingAddress')}>
@@ -43,6 +44,17 @@ export function AddressCopy({ orderId, lines, consentActive, consentRevokedAt }:
           data-testid="copy-address"
         />
         {consentActive ? (
+          <label className="pc-choice">
+            <input
+              type="checkbox"
+              checked={confirmMail}
+              onChange={(e) => setConfirmMail(e.target.checked)}
+              data-testid="withdraw-carrier-consent-mail"
+            />{' '}
+            {adminText('packingConsentWithdrawMail')}
+          </label>
+        ) : null}
+        {consentActive ? (
           <ActionButton
             variant="secondary"
             data-testid="withdraw-carrier-consent"
@@ -50,7 +62,11 @@ export function AddressCopy({ orderId, lines, consentActive, consentRevokedAt }:
               title: adminText('packingConsentWithdrawTitle'),
               consequence: adminText('packingConsentWithdrawConsequence'),
             }}
-            action={() => postAdminAction(`/api/orders/${orderId}/withdraw-carrier-consent`)}
+            action={() =>
+              postAdminAction(`/api/orders/${orderId}/withdraw-carrier-consent`, {
+                confirmationMail: confirmMail,
+              })
+            }
             onDone={() => router.refresh()}
           >
             {adminText('packingConsentWithdraw')}

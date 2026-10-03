@@ -8,6 +8,7 @@ import type {
 
 import { isAdmin, none } from '@/access'
 import { adminNotesEndpoint } from '@/endpoints/adminNotes'
+import { WITHDRAWAL_ADMIN_ENDPOINTS } from '@/endpoints/withdrawals/actions'
 import { privacyFields, seedField } from '@/fields'
 import { writeAudit } from '@/lib/audit'
 import {
@@ -26,10 +27,11 @@ import {
 import { getAppContext, requestNow } from '@/lib/payload/context'
 import { preservingReq } from '@/lib/payload/localReq'
 import { withdrawalRetainUntil } from '@/lib/retention/policy'
-import { formatBerlin } from '@/lib/time'
+import { addBerlinDays, formatBerlin } from '@/lib/time'
 
 import { failField, groupOf, idOf, rejectChanges } from './hooks/commerce'
 import { assignSequenceNumber } from './hooks/numbers'
+import { auditPrivacyFlags } from './hooks/privacy'
 
 // DATENMODELL §6.11 – Widerrufe (§ 356a BGB, E-44): jede Erklärung unveränderlich mit Server-Zeitstempel, ohne IP und
 // User-Agent (R-093). Anlage nur über die Widerrufsfunktion (R26, P6) bzw. die manuelle Erfassung (R-094, P6).
@@ -43,7 +45,7 @@ const ro = { readOnly: true } as const
 type Doc = Record<string, unknown>
 
 export const WITHDRAWAL_REFERENCE_RE = /^WR-\d{4}-\d{5,}$/
-const ORDER_NUMBER_IN_TEXT = /PC-\d{4}-\d{5}/
+const ORDER_NUMBER_IN_TEXT = /PC-\d{4}-\d{5}/i
 
 /** Unveränderlich nach dem Eingang (DM-WDR-03). */
 export const WITHDRAWAL_IMMUTABLE = [
@@ -132,8 +134,11 @@ const guardWithdrawal: CollectionBeforeChangeHook = async ({
       const match = ORDER_NUMBER_IN_TEXT.exec(String(data.contractIdentification ?? ''))
       const email = typeof data.email === 'string' ? data.email.trim().toLowerCase() : null
       const order =
-        match && email ? await findOrder(req, { orderNumber: { equals: match[0] } }) : null
-      if (order && order.customer?.email === email) {
+        match && email
+          ? await findOrder(req, { orderNumber: { equals: match[0].toUpperCase() } })
+          : null
+      // E-Mail ohne Groß-/Kleinschreibung (R-093); die Bestellung speichert sie wie eingegeben
+      if (order && order.customer?.email?.trim().toLowerCase() === email) {
         data.order = order.id
         data.matchStatus = 'auto_matched'
       } else if (data.order) {
@@ -154,7 +159,8 @@ const guardWithdrawal: CollectionBeforeChangeHook = async ({
         receivedAtBerlin: `${formatBerlin(receivedAt, 'dd.MM.yyyy, HH:mm:ss')} Uhr (Europe/Berlin)`,
       }
     }
-    data.refundDueAt = new Date(receivedAt.getTime() + 14 * 86_400_000).toISOString()
+    // 14 Berliner Kalendertage (gleiche Uhrzeit, auch über die Zeitumstellung, R-094)
+    data.refundDueAt = addBerlinDays(receivedAt, 14).toISOString()
   } else if (!ctx.seed) {
     rejectChanges(SLUG, WITHDRAWAL_IMMUTABLE, original, data, 'Der Widerruf ist unveränderlich.')
     const from = original.status as WithdrawalStatus
@@ -363,10 +369,20 @@ export const Withdrawals: CollectionConfig = {
       name: 'returnProofReceivedAt',
       type: 'date',
       label: 'Rücksendenachweis liegt vor seit',
-      validate: (v: unknown) =>
-        !v || new Date(String(v)).getTime() <= Date.now() + 60_000 ? true : 'Nicht in der Zukunft.',
+      // „≤ heute“ gegen die Uhr des Requests (injizierte Zeit in Tests und Jobs)
+      validate: (v: unknown, { req }: { req: PayloadRequest }) =>
+        !v || new Date(String(v)).getTime() <= requestNow(req).getTime() + 60_000
+          ? true
+          : 'Nicht in der Zukunft.',
     },
     { name: 'goodsReturnedAt', type: 'date', label: 'Ware zurück am', admin: ro },
+    {
+      name: 'returnConditionNote',
+      type: 'textarea',
+      label: 'Zustand der Rücksendung',
+      maxLength: 500,
+      admin: { description: 'Notiz bei „Ware ist zurück“ (KONZEPT §7.10).' },
+    },
     { name: 'refundedAt', type: 'date', label: 'Erstattet am', admin: ro },
     { name: 'closedAt', type: 'date', label: 'Abgeschlossen am', admin: ro },
     { name: 'rejectedAt', type: 'date', label: 'Abgelehnt am', admin: ro },
@@ -398,11 +414,11 @@ export const Withdrawals: CollectionConfig = {
     },
     ...seedField(),
   ],
-  endpoints: [adminNotesEndpoint(SLUG, 2000)],
+  endpoints: [...WITHDRAWAL_ADMIN_ENDPOINTS, adminNotesEndpoint(SLUG, 2000)],
   hooks: {
     beforeValidate: [assignSequenceNumber('reference', 'withdrawal')],
     beforeChange: [guardWithdrawal],
-    afterChange: [afterWithdrawalChange],
+    afterChange: [afterWithdrawalChange, auditPrivacyFlags(SLUG)],
   },
 }
 

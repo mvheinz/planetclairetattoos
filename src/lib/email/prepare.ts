@@ -6,6 +6,7 @@ import type { PayloadRequest } from 'payload'
 
 import { statusTokenForMail } from '@/lib/commerce/statusToken'
 import { getEnv } from '@/lib/env'
+import { signPrivacyExportToken } from '@/lib/privacy/exportToken'
 import { buildLegalAttachments } from '@/lib/legal/attachments'
 import { preservingReq } from '@/lib/payload/localReq'
 import { readStoredFile } from '@/lib/storage/read'
@@ -14,6 +15,7 @@ import type { EmailLog, Invoice, Order } from '@/payload-types'
 import { AttachmentNotReadyError } from './errors'
 import { mailLinks, STATUS_TOKEN_PLACEHOLDER, type MailBusiness } from './layout'
 import { getTemplate, templateMeta, type RequiredAttachment } from './registry'
+import { PRIVACY_EXPORT_TOKEN_PLACEHOLDER } from './templates/privacy'
 import type { MailAttachment } from './types'
 
 // Mail für den Versand vorbereiten (Task `sendEmail`, P4.13): Vorlage rendern, Status-Link aus dem Siegel der
@@ -166,7 +168,19 @@ export async function prepareMail(
     now,
   })
   const bodySha256 = bodyHash(rendered.text, rendered.html)
-  const insert = (s: string) => (token ? s.split(STATUS_TOKEN_PLACEHOLDER).join(token) : s)
+  // M14: Download-Token des DSGVO-Exports erst jetzt signieren (R-137) – nie in Job-Daten oder `email-log`
+  const exportToken =
+    log.template === 'privacy_access_response'
+      ? signPrivacyExportToken({
+          requestId: Number(parsed.privacyRequestId),
+          expiresAt: new Date(String(parsed.linkExpiresAt)),
+        })
+      : null
+  const insert = (s: string) => {
+    let out = token ? s.split(STATUS_TOKEN_PLACEHOLDER).join(token) : s
+    if (exportToken) out = out.split(PRIVACY_EXPORT_TOKEN_PLACEHOLDER).join(exportToken)
+    return out
+  }
   const files = await loadAttachments(req, meta.attachments, order, parsed)
   return {
     subject: rendered.subject,

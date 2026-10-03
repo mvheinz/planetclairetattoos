@@ -4,7 +4,7 @@ import { LOCALES, type Locale } from '../../src/lib/routes/registry'
 import { expectCalm } from './calm'
 import { expect, test, testPayload } from './fixtures'
 
-// P2.14 Kontakt R20 (KONZEPT §3.13) und Gerüst „Vertrag widerrufen“ R26 (§3.16): beide DE/EN mit einer `h1` (R-010),
+// P2.14 Kontakt R20 (KONZEPT §3.13) und „Vertrag widerrufen“ R26 (§3.16, Funktion seit P6.8): beide DE/EN mit einer `h1` (R-010),
 // R26 `noindex, follow` und ruhig (AK-DS-11), R20 ohne `pages:contact` mit Leerzustand statt 500 (DM-PAGE-01),
 // Fußlinks (6 Pflichtlinks aus R-011 plus Kontakt) führen nie auf 404 (R-090).
 
@@ -126,7 +126,7 @@ test.describe.serial('Kontakt R20 Inhalt und Leerzustand @smoke', () => {
 
 test.describe('Vertrag widerrufen R26 @smoke', () => {
   for (const locale of LOCALES) {
-    test(`R-090 R-010 AK-DS-11 ${locale}: 200, h1, noindex/follow, Hinweis, Link zur Belehrung, E-Mail @smoke`, async ({
+    test(`R-090 R-010 AK-DS-11 ${locale}: 200, h1, noindex/follow, Formular, Link zur Belehrung, E-Mail @smoke`, async ({
       page,
     }) => {
       const path = localizedPath('R26', locale)
@@ -138,13 +138,13 @@ test.describe('Vertrag widerrufen R26 @smoke', () => {
         'content',
         'noindex, follow',
       )
-      await expect(page.locator('[data-withdraw-preview-notice]')).toContainText('P6')
       await expect(page.locator('[data-withdraw-policy-link]')).toHaveAttribute(
         'href',
         localizedPath('R24', locale),
       )
       await expect(page.locator('[data-withdraw-email]')).toHaveAttribute('href', `mailto:${EMAIL}`)
-      await expect(page.locator('main form')).toHaveCount(0)
+      // Seit P6.8 die zweistufige Widerrufsfunktion (Ablauf: `legal/withdrawal-flow.e2e.spec.ts`)
+      await expect(page.locator('main form[data-withdraw-form]')).toHaveCount(1)
       await expectCalm(page, path)
     })
   }
@@ -165,7 +165,8 @@ test.describe('Fußlinks ohne 404 @smoke', () => {
       expect(expected).toHaveLength(7)
       for (const route of live) {
         const path = samplePath(route.id, locale)
-        await page.goto(path)
+        // Nur die Fußlinks zählen – nicht auf Bilder warten (WebKit unter Last > 15 s bis „load“).
+        await page.goto(path, { waitUntil: 'domcontentloaded' })
         const hrefs = await page
           .locator('[data-site-footer] a[href]')
           .evaluateAll((els) => els.map((e) => e.getAttribute('href') ?? ''))

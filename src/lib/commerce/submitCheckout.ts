@@ -9,7 +9,7 @@ import { getEnv } from '@/lib/env'
 import type { LegalSnippetKey, Locale } from '@/lib/enums'
 import { jobAlarm } from '@/lib/jobs/alarm'
 import { getActiveLegalText } from '@/lib/legal/getActive'
-import { getSnippet, type RenderedSnippet } from '@/lib/legal/snippets'
+import { getSnippet, loadLegalSnippets, type RenderedSnippet } from '@/lib/legal/snippets'
 import { createLogger } from '@/lib/monitoring/logger'
 import { preservingReq } from '@/lib/payload/localReq'
 import { inTransaction } from '@/lib/payload/transaction'
@@ -262,6 +262,8 @@ export async function submitCheckout(
 ): Promise<SubmitCheckoutResult> {
   const payload = deps.payload ?? (await getPayload({ config }))
   const { now } = input
+  // Gespeichert wird die Baustein-Fassung zum Zeitpunkt des Klicks: Speicherstand frisch lesen (R-013).
+  await loadLegalSnippets(payload)
   const checkout = await findCheckoutByToken(payload, input.token)
   if (!checkout) return fail(404, 'not_found')
   const checkoutId = checkout.id as number

@@ -4,15 +4,36 @@ import type { Payload, Where } from 'payload'
 
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { AttentionReason, OrderStatus, RevenueGuardStage } from '@/lib/enums'
+import {
+  legalReviewStates,
+  type ActiveLegalTextRow,
+  type LegalReviewRow,
+  type LegalReviewState,
+} from '@/lib/legal/review'
 import { missingManualSources, previousMonth } from '@/lib/export/monthlyClose'
 import { listJobRuns, poolDb } from '@/lib/jobs/runLog'
 import { formatEuroInput } from '@/lib/money'
 import { formatItemNumber } from '@/lib/products/itemNumber'
+import { OPEN_PRIVACY_REQUEST_STATUSES, privacyRequestTarget } from '@/lib/privacy/deadlines'
 import { getRevenueStatus } from '@/lib/revenue/check'
 import { stageMessage } from '@/lib/revenue/guard'
 import { seedSummary } from '@/lib/seed/remove'
-import { addBerlinDays, addBerlinMonths, berlinDayStart, formatBerlin } from '@/lib/time'
-import type { Inquiry, LegalText, Order, Product, Setting, Withdrawal } from '@/payload-types'
+import {
+  addBerlinDays,
+  addBerlinMonths,
+  berlinDateKey,
+  berlinDayStart,
+  formatBerlin,
+} from '@/lib/time'
+import type {
+  Inquiry,
+  LegalText,
+  Order,
+  PrivacyRequest,
+  Product,
+  Setting,
+  Withdrawal,
+} from '@/payload-types'
 
 import { OPEN_WITHDRAWAL_STATUSES } from '@/admin/views/withdrawals/withdrawalQuery'
 
@@ -62,6 +83,8 @@ export interface TodaySummary {
     widerrufe: { count: number; nextDueAt: string | null; nextReference: string | null }
     anfragen: { count: number }
   }
+  /** Kachel „Rechtstexte“ (PLAN P6.20): je Typ Version, gültig ab, Herkunft, Alter, Warnungen. */
+  legalTexts: LegalReviewState[]
   hints: TodayHint[]
   recentOrders: {
     id: number
@@ -96,7 +119,14 @@ const attentionLabel = (reason: string | null | undefined) =>
     : 'Bitte prüfen'
 
 interface FindArgs {
-  collection: 'orders' | 'products' | 'withdrawals' | 'inquiries' | 'legal-texts' | 'email-log'
+  collection:
+    | 'orders'
+    | 'products'
+    | 'withdrawals'
+    | 'inquiries'
+    | 'legal-texts'
+    | 'email-log'
+    | 'privacy-requests'
   where: Where
   limit?: number
   sort?: string
@@ -150,6 +180,8 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
     seed,
     jobRuns,
     missingSources,
+    stuckReceipts,
+    privacyRequests,
   ] = await inSequence([
     () =>
       count('orders', {
@@ -235,12 +267,29 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
       find<LegalText>({
         collection: 'legal-texts',
         where: { status: { equals: 'active' } },
-        select: { type: true, activatedAt: true, validFrom: true },
+        select: { type: true, version: true, origin: true, activatedAt: true, validFrom: true },
       }),
     () => payload.findGlobal({ slug: 'settings', depth: 0, overrideAccess: true }),
     () => seedSummary(payload),
     () => listJobRuns(poolDb(payload), { since: new Date(now.getTime() - DAY), limit: 500 }),
     () => missingManualSources(payload, previousMonth(now)),
+    // M08 hängt (R-093): ab dem 2. Fehlversuch Hinweis, bis der Versand gelingt oder nach 24 h aufgegeben wird
+    () =>
+      count('email-log', {
+        and: [
+          { template: { equals: 'withdrawal_receipt' } },
+          { status: { equals: 'queued' } },
+          { attempts: { greater_than_equal: 2 } },
+        ],
+      }),
+    // Offene Datenschutz-Anfragen (P6.16, R-153) – auch Beispieldaten (nur der Fristen-Job überspringt sie)
+    () =>
+      find<PrivacyRequest>({
+        collection: 'privacy-requests',
+        where: { status: { in: [...OPEN_PRIVACY_REQUEST_STATUSES] } },
+        sort: 'dueAt',
+        select: { reference: true, dueAt: true, extendedDueAt: true },
+      }),
   ])
   const s = settings as Setting
 
@@ -296,6 +345,20 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
     })
   }
 
+  // Eingangsbestätigung eines Widerrufs hängt (rot, R-093)
+  if (stuckReceipts > 0) {
+    hint({
+      id: 'withdrawal-receipt-stuck',
+      tone: 'error',
+      text:
+        stuckReceipts === 1
+          ? 'Die Eingangsbestätigung eines Widerrufs konnte noch nicht verschickt werden – sie wird alle 5 Minuten erneut versucht.'
+          : `${stuckReceipts} Eingangsbestätigungen von Widerrufen konnten noch nicht verschickt werden – sie werden alle 5 Minuten erneut versucht.`,
+      href: '/widerrufe',
+      linkLabel: 'Widerrufe öffnen',
+    })
+  }
+
   // Fehlgeschlagene Mails und Jobs (rot)
   if (failedMails > 0) {
     hint({
@@ -318,6 +381,23 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
       text: `Hintergrund-Aufgaben in den letzten 24 Stunden fehlgeschlagen: ${tasks}.`,
       href: '/einstellungen/system',
       linkLabel: 'System öffnen',
+    })
+  }
+
+  // Offene Datenschutz-Anfragen (P6.16, R-153): rot, wenn die Frist in höchstens 7 Tagen endet
+  if (privacyRequests.length > 0) {
+    const targets = privacyRequests.map((r) => ({ ref: r.reference, at: privacyRequestTarget(r) }))
+    const next = targets.reduce((a, b) => (b.at.getTime() < a.at.getTime() ? b : a))
+    const soon = berlinDateKey(next.at) <= berlinDateKey(addBerlinDays(now, 7))
+    hint({
+      id: 'privacy-requests',
+      tone: soon ? 'error' : 'warning',
+      text:
+        privacyRequests.length === 1
+          ? `1 offene Datenschutz-Anfrage – Antwort bis ${date(next.at.toISOString())} (${next.ref}).`
+          : `${privacyRequests.length} offene Datenschutz-Anfragen – nächste Frist ${date(next.at.toISOString())} (${next.ref}).`,
+      href: '/export/datenschutz',
+      linkLabel: 'Datenschutz-Anfragen öffnen',
     })
   }
 
@@ -355,23 +435,22 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
     })
   }
 
-  // Rechtstexte-Prüfung fällig (R-014, je Typ)
+  // Rechtstexte-Prüfung fällig (R-014, je Typ; dieselbe Rechnung wie der Task `legalReviewReminder`)
   const intervalDays = s.legal?.reviewIntervalDays ?? DEFAULT_LEGAL_REVIEW_DAYS
-  const reviews = s.legal?.reviews ?? []
-  const dueTypes = activeLegal
-    .filter((t) => {
-      const reviewed = reviews
-        .filter((r) => r.type === t.type && r.reviewedAt)
-        .map((r) => Date.parse(r.reviewedAt!))
-      const last = Math.max(Date.parse(t.activatedAt ?? t.validFrom), ...reviewed)
-      return now.getTime() - last >= intervalDays * DAY
-    })
+  const legalTexts = legalReviewStates(
+    activeLegal as unknown as ActiveLegalTextRow[],
+    (s.legal?.reviews ?? []) as LegalReviewRow[],
+    now,
+    intervalDays,
+  )
+  const dueTypes = legalTexts
+    .filter((t) => t.due)
     .map((t) => ENUM_LABELS.LEGAL_TEXT_TYPES[t.type].de)
   if (dueTypes.length > 0) {
     hint({
       id: 'legal-review',
       tone: 'warning',
-      text: `Rechtstexte prüfen (letzte Prüfung vor über ${intervalDays} Tagen): ${[...new Set(dueTypes)].join(', ')}.`,
+      text: `Rechtstexte prüfen (letzte Prüfung vor über ${intervalDays} Tagen): ${dueTypes.join(', ')}.`,
       href: '/texte',
       linkLabel: 'Texte öffnen',
     })
@@ -449,6 +528,7 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
       },
       anfragen: { count: anfragen },
     },
+    legalTexts,
     hints,
     recentOrders: recent.map((o) => ({
       id: o.id,

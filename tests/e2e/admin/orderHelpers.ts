@@ -42,6 +42,7 @@ export async function removeOrder(payload: Payload, id: number): Promise<void> {
     END $$`),
   )
   await db.execute(sql`DELETE FROM email_log WHERE order_id = ${id}`)
+  await db.execute(sql`DELETE FROM complaints WHERE order_id = ${id}`)
   await db.execute(sql`DELETE FROM consent_log WHERE order_id = ${id}`)
   const photos = await payload.find({
     collection: 'private-uploads',
@@ -74,11 +75,24 @@ export async function expectAccessible(page: Page, selector: string): Promise<vo
 
 /** Kein horizontales Scrollen der Seite. */
 export async function expectNoHorizontalScroll(page: Page): Promise<void> {
-  const overflow = await page.evaluate(() => {
+  const { overflow, wide } = await page.evaluate(() => {
     const el = document.scrollingElement ?? document.documentElement
-    return el.scrollWidth - el.clientWidth
+    return {
+      overflow: el.scrollWidth - el.clientWidth,
+      // Diagnose bei Rot: die ersten Elemente, die rechts über den Rand ragen.
+      wide: [...document.querySelectorAll('body *')]
+        .filter((e) => e.getBoundingClientRect().right > el.clientWidth + 1)
+        .slice(0, 6)
+        .map((e) => {
+          const r = e.getBoundingClientRect()
+          return `${e.tagName.toLowerCase()}.${[...e.classList].join('.')} L${Math.round(r.left)} R${Math.round(r.right)}`
+        }),
+    }
   })
-  expect(overflow).toBeLessThanOrEqual(0)
+  expect(
+    overflow,
+    `kein horizontales Scrollen auf ${page.url()} (${wide.join(' | ')})`,
+  ).toBeLessThanOrEqual(0)
 }
 
 export const orderStatus = async (payload: Payload, id: number) =>
@@ -86,3 +100,10 @@ export const orderStatus = async (payload: Payload, id: number) =>
     status: string
     statusHistory?: { transition?: string | null }[] | null
   }
+
+/** Wartet, bis das Pack-Panel gebunden ist; vorher Getipptes ginge beim Hydrieren verloren (WebKit unter Last). */
+export async function packingPanelReady(page: Page) {
+  const panel = page.locator('[data-testid="packing-panel"][data-hydrated="true"]')
+  await expect(panel).toBeVisible()
+  return panel
+}

@@ -21,6 +21,8 @@ import { Invoices } from './collections/Invoices'
 import { InvoiceCounters } from './collections/InvoiceCounters'
 import { Withdrawals } from './collections/Withdrawals'
 import { LegalTexts } from './collections/LegalTexts'
+import { LegalSnippets } from './collections/LegalSnippets'
+import { Complaints } from './collections/Complaints'
 import { Flash } from './collections/Flash'
 import { TattooOffers } from './collections/TattooOffers'
 import { TattooGallery } from './collections/TattooGallery'
@@ -50,6 +52,7 @@ import { createMailTransport, parseMailFrom } from './lib/email'
 import { getEnv } from './lib/env'
 import { isCronAuthorized } from './lib/jobs/auth'
 import { storagePlugins } from './lib/storage'
+import { initLegalSnippets } from './lib/legal/snippets'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -117,6 +120,8 @@ export default buildConfig({
     InvoiceCounters,
     Withdrawals,
     LegalTexts,
+    LegalSnippets,
+    Complaints,
     Flash,
     TattooOffers,
     TattooGallery,
@@ -135,6 +140,8 @@ export default buildConfig({
   // Admin-Endpunkte ohne Collection (ARCHITEKTUR §2.5): Exporte (P5.24/P5.25).
   endpoints: [...exportEndpoints, complianceTemplateEndpoint],
   hooks: { afterError: [keepValidationErrorData] },
+  // Rechtsbausteine in den Speicher laden (`getSnippet` bleibt synchron, DATENMODELL §6.28).
+  onInit: initLegalSnippets,
   editor: lexicalEditor(),
   // DATENMODELL §1.2 (E-60, E-61): fehlendes EN zeigt DE.
   localization: {

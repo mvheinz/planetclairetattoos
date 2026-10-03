@@ -5,6 +5,7 @@ import {
   type CollectionConfig,
 } from 'payload'
 
+import { legalTextAdminEndpoints } from '@/endpoints/legal/admin'
 import { adminWhere, isAdmin, publicRead } from '@/access'
 import { legalRichTextEditor, seedField } from '@/fields'
 import { revalidateContent } from '@/lib/cache/revalidate'
@@ -219,7 +220,8 @@ export const LegalTexts: CollectionConfig = {
   access: {
     read: publicRead({ status: { in: ['active', 'superseded'] } }),
     create: isAdmin,
-    update: isAdmin,
+    // Veröffentlichte, geplante und abgelöste Fassungen: nur lesen (403, R-012); `guardLegalText` bleibt die Sperre.
+    update: adminWhere({ status: { equals: 'draft' } }),
     // Veröffentlichte Fassungen nur lesen, kein Lösch-Knopf (KONZEPT §7.16); `guardDelete` bleibt die Sperre.
     delete: adminWhere({ status: { equals: 'draft' } }),
   },
@@ -338,13 +340,22 @@ export const LegalTexts: CollectionConfig = {
     },
     ...seedField(),
   ],
+  endpoints: legalTextAdminEndpoints,
   hooks: {
     beforeChange: [guardLegalText],
     beforeDelete: [guardDelete],
     afterChange: [
       ({ doc, previousDoc, req }) => {
-        // Rechtsseiten sofort erneuern, sobald sich die veröffentlichte Fassung ändert.
-        if (doc.status !== previousDoc?.status && doc.status !== 'draft') {
+        // Rechtsseiten sofort erneuern, sobald sich die veröffentlichte Fassung ändert – auch wenn der Job
+        // `renderLegalTextPdf` das PDF nachträgt (Download-Link auf der Seite, P6.5).
+        const idOf = (v: unknown) => (typeof v === 'object' && v ? (v as { id: unknown }).id : v)
+        const pdfChanged =
+          idOf(doc.pdfDe) !== idOf(previousDoc?.pdfDe) ||
+          idOf(doc.pdfEn) !== idOf(previousDoc?.pdfEn)
+        if (
+          doc.status !== 'draft' &&
+          (doc.status !== previousDoc?.status || (doc.status === 'active' && pdfChanged))
+        ) {
           revalidateContent(TAGS.legal(String(doc.type)), { context: getAppContext(req) })
         }
         return doc

@@ -8,6 +8,9 @@ import { expect, test, type Page } from '@playwright/test'
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
 
 export async function expectNoSeriousViolations(page: Page, label: string) {
+  // Während `router.refresh()`/Navigation ersetzt Next den <title> kurz (gestreamte Metadaten). Erst prüfen, wenn er
+  // wieder steht – fehlt er dauerhaft, schlägt schon diese Erwartung fehl.
+  await expect(page, `${label}: <title> vorhanden`).toHaveTitle(/\S/)
   const result = await new AxeBuilder({ page }).withTags(TAGS).analyze()
   const describe = (v: (typeof result.violations)[number]) =>
     `${v.id} (${v.impact}): ${v.help} – ${v.nodes

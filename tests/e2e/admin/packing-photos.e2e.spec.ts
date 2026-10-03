@@ -4,7 +4,13 @@ import { request as pwRequest } from '@playwright/test'
 
 import { serverURL } from '../../helpers/adminEnv'
 import { adminPath, expect, test, testPayload } from '../fixtures'
-import { expectAccessible, fixtureOrder, orderStatus, removeOrder } from './orderHelpers'
+import {
+  expectAccessible,
+  fixtureOrder,
+  orderStatus,
+  packingPanelReady,
+  removeOrder,
+} from './orderHelpers'
 
 // P5.11 – Packen im Bestell-Detail: Checkliste aus `settings.packingChecklists`, Verpackung vorbelegt mit der
 // Standard-Vorlage der Versandklasse, Packfoto über die Kamera (`capture="environment"`, privat – ohne Anmeldung nicht
@@ -27,7 +33,7 @@ test('@a11y Packfotos, Checkliste, Verpackung und Rückfrage „Ohne Packfoto ve
   const without = await fixtureOrder(payload, b, 90_000 + b.itemNumber * 10 + 3)
   try {
     await page.goto(adminPath(`/bestellungen/${withPhoto.id}`))
-    const panel = page.getByTestId('packing-panel')
+    const panel = await packingPanelReady(page)
     await expect(panel.getByTestId('packing-checklist')).toContainText('Schütteltest')
     await expect(panel.getByTestId('packing-checklist')).toContainText(
       'zwei Fotos vor dem Zukleben',
@@ -39,7 +45,7 @@ test('@a11y Packfotos, Checkliste, Verpackung und Rückfrage „Ohne Packfoto ve
 
     // Häkchen werden sofort gespeichert
     await panel.getByLabel('Schütteltest').check()
-    await expect(panel.getByText('Gespeichert.')).toBeVisible()
+    await expect(panel.getByText('Gespeichert.', { exact: true })).toBeVisible()
 
     const input = panel.getByTestId('packing-photo-input')
     await expect(input).toHaveAttribute('capture', 'environment')
@@ -75,7 +81,7 @@ test('@a11y Packfotos, Checkliste, Verpackung und Rückfrage „Ohne Packfoto ve
 
     // Ohne Packfoto: Rückfrage, nach Bestätigung versendet
     await page.goto(adminPath(`/bestellungen/${without.id}`))
-    const panel2 = page.getByTestId('packing-panel')
+    const panel2 = await packingPanelReady(page)
     await panel2.getByLabel('Sendungsnummer').fill('00340434312345678902')
     await panel2.getByTestId('ship-order').click()
     const ask = page.locator('dialog[open]')

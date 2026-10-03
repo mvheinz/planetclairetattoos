@@ -2,8 +2,14 @@ import 'server-only'
 
 import type { GlobalSlug, Payload, PayloadRequest } from 'payload'
 
-import { LOCALES } from '@/lib/enums'
+import { LEGAL_SNIPPET_KEYS, LOCALES } from '@/lib/enums'
 import { issueLegalTextPdfs } from '@/lib/legal/pdf'
+import {
+  LEGAL_SNIPPET_SEED,
+  LEGAL_SNIPPET_SEED_VALID_FROM,
+  LEGAL_SNIPPET_SEED_VERSION,
+} from '@/lib/legal/snippetSeed'
+import { loadLegalSnippets, sha256Text } from '@/lib/legal/snippets'
 
 import { seedOp, seedStep } from './context'
 import {
@@ -18,8 +24,8 @@ import { toLexical } from './lexical'
 import type { SeedReport } from './report'
 import type { BaseData } from './schemas'
 
-// Grund-Seed (SEED-SPEC §3, DATENMODELL §13.1): `settings`, `site-texts`, 6 Kategorien, 6 Rechtstext-Platzhalter und
-// das Admin-Konto. `seed = false`, create-if-missing: nur fehlende Dokumente anlegen bzw. leere Felder füllen, nie
+// Grund-Seed (SEED-SPEC §3, DATENMODELL §13.1): `settings`, `site-texts`, 6 Kategorien, 6 Rechtstext-Platzhalter,
+// die Rechtsbausteine v1 (§6.28) und das Admin-Konto. `seed = false`, create-if-missing: nur fehlende Dokumente anlegen bzw. leere Felder füllen, nie
 // vorhandene Werte überschreiben (§1.3). In Produktion erlaubt (Erstbefüllung P11), das Admin-Konto dort nie.
 
 export interface BaseOptions {
@@ -174,6 +180,55 @@ async function seedLegalTexts(payload: Payload, base: BaseData, report: SeedRepo
   })
 }
 
+/**
+ * Rechtsbausteine (DATENMODELL §6.28, ab P6): je Schlüssel eine aktive Fassung v1 ab 2026-01-01 – Arbeitsfassung
+ * (`origin = draft`) bzw. Platzhalter (`origin = placeholder`). Nur Schlüssel ohne jede Fassung werden angelegt.
+ */
+async function seedLegalSnippets(payload: Payload, report: SeedReport) {
+  await seedStep(payload, async (req) => {
+    for (const key of LEGAL_SNIPPET_KEYS) {
+      const existing = await req.payload.count({
+        collection: 'legal-snippets',
+        where: { key: { equals: key } },
+        overrideAccess: true,
+        req,
+      })
+      if (existing.totalDocs > 0) {
+        report.add('legal-snippets', 'skipped')
+        continue
+      }
+      const seed = LEGAL_SNIPPET_SEED[key]
+      const validFrom = new Date(LEGAL_SNIPPET_SEED_VALID_FROM).toISOString()
+      const created = await req.payload.create({
+        collection: 'legal-snippets',
+        locale: 'de',
+        data: {
+          key,
+          version: LEGAL_SNIPPET_SEED_VERSION,
+          status: 'active',
+          origin: seed.origin,
+          validFrom,
+          activatedAt: validFrom,
+          text: seed.de,
+          sha256De: sha256Text(seed.de),
+          sha256En: sha256Text(seed.en),
+        },
+        ...seedOp(req),
+      })
+      await req.payload.update({
+        collection: 'legal-snippets',
+        id: created.id,
+        locale: 'en',
+        data: { text: seed.en },
+        ...seedOp(req),
+      })
+      report.add('legal-snippets', 'created')
+    }
+  })
+  // Rechtstext-PDFs im selben Lauf lesen `{{returnCostsNote}}` schon aus der Collection.
+  await loadLegalSnippets(payload)
+}
+
 async function seedAdmin(payload: Payload, options: BaseOptions) {
   const { email, password } = options.admin ?? {}
   if (options.appEnv === 'production') {
@@ -211,6 +266,7 @@ export async function importBase(
   await seedGlobal(payload, 'settings', base.settings as Obj, options.report)
   await seedGlobal(payload, 'site-texts', {}, options.report)
   await seedCategories(payload, base, options.report)
+  await seedLegalSnippets(payload, options.report)
   await seedLegalTexts(payload, base, options.report)
   await seedAdmin(payload, options)
 }

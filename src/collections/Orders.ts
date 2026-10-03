@@ -50,6 +50,12 @@ import {
   type OrderCancelReason,
   type OrderStatus,
 } from '@/lib/enums'
+import {
+  handoverAt,
+  repairChosenForOrder,
+  warrantyEndsAt,
+  type OrderHandover,
+} from '@/lib/legal/complaints'
 import { getAppContext, requestNow } from '@/lib/payload/context'
 import { preservingReq } from '@/lib/payload/localReq'
 import {
@@ -61,15 +67,18 @@ import {
 
 import { orderActionEndpoints } from '@/endpoints/orders/actions'
 import { orderAdminEndpoints } from '@/endpoints/orders/admin'
+import { orderComplaintEndpoints } from '@/endpoints/orders/complaints'
+import { orderRefundEndpoints } from '@/endpoints/orders/refund'
 import { formatShippingAddress } from '@/lib/commerce/address'
 
 import { actorTypeOf, failField, groupOf, rejectChanges, SHA256_HEX } from './hooks/commerce'
 import { changedFields } from './hooks/immutable'
+import { auditPrivacyFlags } from './hooks/privacy'
 import { assignSequenceNumber } from './hooks/numbers'
 
 // DATENMODELL §6.8 – Bestellungen (Gastbestellungen, E-30) mit unveränderlichem Snapshot. Eine Bestellung entsteht
 // erst mit bestätigter Zahlung (O1/O19) oder beim Vorkasse-Abschluss (O2) über createOrderFromCheckout() (P4).
-// Verweise auf `invoices`/`withdrawals` seit P1.21, `legalTextVersions` seit P1.22; `complaints` folgt in P6.
+// Verweise auf `invoices`/`withdrawals` seit P1.21, `legalTextVersions` seit P1.22; `complaints` seit P6.1.
 
 const SLUG = 'orders'
 const fail = (message: string, path: string): never => failField(SLUG, message, path)
@@ -210,13 +219,33 @@ const guardOrder: CollectionBeforeChangeHook = ({ data, originalDoc, operation, 
   if (ctx.seed) return data
   const transition = ctx.transition
   const isAnonymize = transition === 'anonymize'
+  // Berichtigung nach Art. 16 DSGVO (P6.18, R-152): Name/Adresse/E-Mail auch nach dem Versand; Vermerk im Verlauf
+  // (genau ein angehängter Eintrag ohne Statuswechsel, bisherige Einträge unverändert)
+  const isRectify = transition === 'rectify'
   rejectChanges(
     SLUG,
-    IMMUTABLE.filter((f) => !(isAnonymize && f === 'statusHistory')),
+    IMMUTABLE.filter((f) => !((isAnonymize || isRectify) && f === 'statusHistory')),
     original,
     data,
     'Nach der Anlage der Bestellung unveränderlich.',
   )
+  if (isRectify && 'statusHistory' in data) {
+    const before = (original.statusHistory ?? []) as Doc[]
+    const after = (data.statusHistory ?? []) as Doc[]
+    const last = after[after.length - 1]
+    if (
+      after.length !== before.length + 1 ||
+      changedFields(
+        ['statusHistory'],
+        { statusHistory: before },
+        { statusHistory: after.slice(0, -1) },
+      ).length > 0 ||
+      last?.from !== original.status ||
+      last?.to !== original.status
+    ) {
+      fail('Bei der Berichtigung kommt nur ein Vermerk im Verlauf hinzu.', 'statusHistory')
+    }
+  }
   checkItems(original, data)
 
   // Kasse: nur Leeren (retentionAbandonedCheckouts, §6.25.5)
@@ -247,6 +276,7 @@ const guardOrder: CollectionBeforeChangeHook = ({ data, originalDoc, operation, 
   // Adressen nur vor Versand/Abholung
   if (
     !isAnonymize &&
+    !isRectify &&
     changedFields(['shippingAddress', 'billingAddress'], original, data).length > 0
   ) {
     if (!ADDRESS_EDITABLE.has(original.status as OrderStatus)) {
@@ -486,7 +516,12 @@ export const Orders: CollectionConfig = {
   },
   access: { read: isAdmin, update: isAdmin, create: none, delete: none },
   defaultSort: '-createdAt',
-  endpoints: [...orderActionEndpoints, ...orderAdminEndpoints],
+  endpoints: [
+    ...orderActionEndpoints,
+    ...orderAdminEndpoints,
+    ...orderRefundEndpoints,
+    ...orderComplaintEndpoints,
+  ],
   indexes: [{ fields: ['privacy.legalHold'] }],
   fields: [
     {
@@ -818,6 +853,32 @@ export const Orders: CollectionConfig = {
       on: 'order',
     },
     {
+      name: 'complaints',
+      type: 'join',
+      label: 'Reklamationen',
+      collection: 'complaints',
+      on: 'order',
+    },
+    {
+      // Virtuell (DATENMODELL §6.8.1, R-110, R-111): Übergabe + 2 Jahre; + 12 Monate, wenn in einer Reklamation die
+      // Kund:in Reparatur gewählt hat.
+      name: 'warrantyEndsAt',
+      type: 'date',
+      label: 'Gewährleistung bis',
+      virtual: true,
+      admin: ro,
+      hooks: {
+        afterRead: [
+          async ({ data, req }) => {
+            const ts = (data?.timestamps ?? null) as OrderHandover | null
+            if (!data?.id || !handoverAt(ts)) return null
+            const repair = await repairChosenForOrder(req, data.id as number)
+            return warrantyEndsAt(ts, repair)?.toISOString() ?? null
+          },
+        ],
+      },
+    },
+    {
       name: 'refunds',
       type: 'array',
       label: 'Erstattungen',
@@ -841,6 +902,13 @@ export const Orders: CollectionConfig = {
         { name: 'stripeRefundId', type: 'text', label: 'Stripe-Erstattung' },
         { name: 'manualTransferConfirmedAt', type: 'date', label: 'Überweisung bestätigt am' },
         { name: 'creditNote', type: 'relationship', label: 'Gutschrift', relationTo: 'invoices' },
+        {
+          name: 'withdrawal',
+          type: 'relationship',
+          label: 'Widerruf',
+          relationTo: 'withdrawals',
+        },
+        { name: 'note', type: 'text', label: 'Notiz (z. B. Erhöhung)', maxLength: 300 },
         { name: 'createdAt', type: 'date', label: 'Angelegt am', required: true },
       ],
     },
@@ -920,7 +988,7 @@ export const Orders: CollectionConfig = {
   hooks: {
     beforeValidate: [assignSequenceNumber('orderNumber', 'order'), prepareOrder],
     beforeChange: [guardOrder],
-    afterChange: [afterOrderChange],
+    afterChange: [afterOrderChange, auditPrivacyFlags('orders')],
     beforeDelete: [guardOrderDelete],
   },
 }

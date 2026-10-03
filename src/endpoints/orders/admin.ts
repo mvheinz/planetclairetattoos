@@ -9,7 +9,8 @@ import { adminOrderAction, loadAdminOrder, orderActionError } from './_action'
 // `POST /api/orders/:id/resend-email` `{ template, dialogKey }` – M01/M02/M05/M06/M07 erneut senden (P5.9),
 // `POST /api/orders/:id/packed` `{ packaging? }` – „Gepackt“ (O6) mit Verpackungserfassung (P5.10/P5.11),
 // `POST /api/orders/:id/packing` `{ checklist?, packaging?, packingPhotos? }` – Packen speichern (P5.11),
-// `POST /api/orders/:id/withdraw-carrier-consent` – DHL-Einwilligung widerrufen (P5.10, R-101),
+// `POST /api/orders/:id/withdraw-carrier-consent` `{ confirmationMail? }` – DHL-Einwilligung widerrufen (P5.10, R-101),
+// auf Wunsch mit Bestätigung M16 (P6.18),
 // `POST /api/orders/:id/ship` `{ carrier?, trackingNumber?, confirmWithoutPackingPhoto?, packaging? }` – O7 mit
 // Versandmail M06 (P5.11/P5.15),
 // `POST /api/orders/:id/delivered` – „Zugestellt“ (O10, manuell, P5.16),
@@ -58,10 +59,19 @@ const packingEndpoint = adminOrderAction('packing', async ({ req, order, body, n
 
 const withdrawConsentEndpoint = adminOrderAction(
   'withdraw-carrier-consent',
-  async ({ req, order, now }) => {
+  async ({ req, order, body, now }) => {
     const { withdrawCarrierConsent } = await import('@/lib/commerce/carrierConsent')
-    const res = await withdrawCarrierConsent(req, order, now)
-    return { doc: res.order, unchanged: res.unchanged }
+    const res = await withdrawCarrierConsent(req, order, now, {
+      confirmationMail: body.confirmationMail === true,
+    })
+    return {
+      doc: res.order,
+      unchanged: res.unchanged,
+      afterCommit: async () => {
+        const { runEmailJobNow } = await import('@/lib/email/outbox')
+        await runEmailJobNow(req.payload, res.mailJobId, { now })
+      },
+    }
   },
 )
 

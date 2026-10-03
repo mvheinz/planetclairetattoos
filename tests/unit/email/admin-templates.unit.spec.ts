@@ -132,7 +132,7 @@ describe('Pflichtinhalte (KONZEPT §6.4)', () => {
     const m = await render('admin_privacy_request_due')
     expect(m.subject).toBe('Datenschutz-Anfrage DS-2026-0001: Frist endet am 21.10.2026')
     expect(m.text).toMatch(/Art der Anfrage: Auskunft/)
-    expect(m.html).toContain(`href="${ADMIN}/collections/privacy-requests/1"`)
+    expect(m.html).toContain(`href="${ADMIN}/export/datenschutz/1"`)
   })
 
   it('A15 Betreff mit Anzahl, Vorgänge mit Grund und Datum', async () => {

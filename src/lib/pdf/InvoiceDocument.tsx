@@ -199,7 +199,7 @@ export function InvoiceDocument(props: InvoiceDocumentProps) {
             </View>
             {data.relatedInvoiceNumber ? (
               <View style={s.metaRow}>
-                <Text>zu Rechnung</Text>
+                <Text>{type === 'invoice' ? 'ersetzt Rechnung' : 'zu Rechnung'}</Text>
                 <Text style={s.mono}>{data.relatedInvoiceNumber}</Text>
               </View>
             ) : null}

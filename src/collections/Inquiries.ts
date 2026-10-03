@@ -22,6 +22,7 @@ import { registerUploadReference } from '@/lib/uploads/references'
 
 import { failField, idOf, rejectChanges } from './hooks/commerce'
 import { assignSequenceNumber } from './hooks/numbers'
+import { auditPrivacyFlags } from './hooks/privacy'
 
 // DATENMODELL §6.17 – Anfragen Auftragsarbeiten (E-11). Anlage nur über den Route-Handler des Formulars (P7,
 // `create: none` für REST); die Nummer AA-JJJJ-NNNN kommt aus `inquiry_number_seq` (§8.7). Mails
@@ -301,7 +302,7 @@ export const Inquiries: CollectionConfig = {
   hooks: {
     beforeValidate: [assignSequenceNumber('reference', 'inquiry')],
     beforeChange: [guardInquiry],
-    afterChange: [auditStatus],
+    afterChange: [auditStatus, auditPrivacyFlags(SLUG)],
     beforeDelete: [deleteImages],
   },
 }

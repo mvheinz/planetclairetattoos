@@ -27,7 +27,10 @@ export class StoredFileConflictError extends Error {
 }
 
 export interface StorePrivateFileInput {
-  purpose: Extract<PrivateUploadPurpose, 'invoice_pdf' | 'credit_note_pdf' | 'monthly_export'>
+  purpose: Extract<
+    PrivateUploadPurpose,
+    'invoice_pdf' | 'credit_note_pdf' | 'monthly_export' | 'data_export'
+  >
   prefix: string
   filename: string
   bytes: Buffer

@@ -1,0 +1,39 @@
+{
+  "_hinweis": "Allowlist zum Verbotsmuster-Scan (RECHT §5, tests/unit/legal/forbidden.unit.spec.ts, PLAN P1.32/P6.13): je Eintrag Datei (relativ zum Repo), Verbots-ID, optional ein Teilstring des Treffers (`match`) und eine Pflicht-Begründung (`reason`). Nicht mehr gebrauchte Einträge lassen den Test scheitern. P8.6 trägt hier z. B. den Figurennamen der Seed-Galerie G2 nach, falls er an weiteren Stellen auftaucht.",
+  "entries": [
+    {
+      "file": "src/lib/legal/forbidden.ts",
+      "id": "V-15",
+      "match": "allergiefrei",
+      "reason": "Die Lint-Liste V-13 selbst: Muster, mit denen Produkttexte geprüft werden (DATENMODELL §6.6.6)."
+    },
+    {
+      "file": "content/seed/instagram/manifest.json",
+      "id": "V-16",
+      "match": "Godzilla",
+      "reason": "Tattoo-Portfolio, keine Verkaufsware (E-18): Bildunterschrift des Galerie-Tattoos G2 aus dem Manifest (SEED-SPEC §2.1, SE-04)."
+    },
+    {
+      "file": "src/components/ui/Choice.tsx",
+      "id": "V-03",
+      "match": "defaultChecked",
+      "reason": "Grundbaustein Checkbox/Radio (KO-12, P2.7): hakt nur an, wenn der Aufrufer ausdrücklich `checked === true` übergibt (z. B. Wiederanzeige nach Fehler); `tests/unit/components/ui.unit.spec.tsx` prüft, dass ohne Wert nie `checked` entsteht."
+    },
+    {
+      "file": "src/lib/legal/publishChecks.ts",
+      "id": "V-01",
+      "reason": "Die Veröffentlichungsprüfung selbst (KONZEPT §7.13): Muster, das Rechtstexte mit Verweis auf die EU-OS-Plattform sperrt."
+    },
+    {
+      "file": "src/lib/legal/publishChecks.ts",
+      "id": "V-02",
+      "reason": "Die Veröffentlichungsprüfung selbst (KONZEPT §7.13): Muster, das Steuerhinweise im Kleinunternehmer-Modus sperrt."
+    },
+    {
+      "file": "src/globals/Settings.ts",
+      "id": "V-23",
+      "match": "iban",
+      "reason": "Juttas eigene Bankverbindung für Vorkasse in `settings.payment` (DATENMODELL §7.1) – keine Zahlungsdaten von Kund:innen (RECHT V-23 nennt diese Ausnahme)."
+    }
+  ]
+}

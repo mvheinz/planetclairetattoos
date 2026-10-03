@@ -6,6 +6,8 @@ import { Callout } from '@/components/ui/Callout'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { PlaceholderBanner } from '@/components/ui/PlaceholderBanner'
 import { getLegalText, type LegalTextView } from '@/lib/data/legal'
+import { anchorAssigner, privacyAnchorFor } from '@/lib/legal/anchors'
+import { getSnippet } from '@/lib/legal/snippets'
 import type { LegalTextType } from '@/lib/enums'
 import { localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
@@ -15,8 +17,9 @@ import styles from './LegalPage.module.css'
 // Rechtsseiten R21–R25 (KONZEPT §3.14, Gerüst P2.13): serverseitig gerendert aus der gültigen `legal-texts`-Fassung,
 // Tokens ersetzt (R-012), genau eine `h1` (R-010). Band „PLATZHALTER – nicht rechtsverbindlich“ oben, solange ein
 // gezeigter Text nicht von der Kanzlei stammt oder ein Text fehlt (R-002). Fehlt eine Fassung: neutraler Leerzustand.
-// Preset `legal`: keine Animation, keine Transition (AK-DS-11). PDF-Downloads und der Übersetzungs-Hinweis
-// `translation.disclaimer` folgen in P6.
+// Preset `legal`: keine Animation, keine Transition (AK-DS-11). Je Text ein PDF-Download der gültigen Fassung (außer
+// Impressum; P6.5), auf EN-Seiten mit EN-Fassung der Baustein `translation.disclaimer`, ohne sie der deutsche Text mit
+// „Only available in German“ (R-015). Die Datenschutzerklärung trägt die Anker-IDs aus KANZLEI-BRIEFING §11.10.
 
 export async function LegalPage({
   params,
@@ -69,6 +72,8 @@ async function LegalTextSection({ view, locale }: { view: LegalTextView; locale:
     dateStyle: 'long',
     timeZone: 'Europe/Berlin',
   })
+  const disclaimer = locale === 'en' && !view.germanOnly ? translationDisclaimer() : null
+  const pdfHref = `/api/legal/${view.type}.pdf?locale=${locale}`
   return (
     <section className={styles.text} data-legal-text={view.type}>
       {view.germanOnly ? (
@@ -76,12 +81,41 @@ async function LegalTextSection({ view, locale }: { view: LegalTextView; locale:
           <p>{t('germanOnly')}</p>
         </Callout>
       ) : null}
+      {disclaimer ? (
+        <Callout variant="info">
+          <p data-translation-disclaimer="">{disclaimer}</p>
+        </Callout>
+      ) : null}
       <p className={styles.asOf} data-legal-as-of="">
         {t('asOf', { date })}
       </p>
       <div lang={view.germanOnly ? 'de' : undefined}>
-        <RichTextContent data={view.content} />
+        <RichTextContent
+          data={view.content}
+          headingId={view.type === 'datenschutz' ? anchorAssigner(privacyAnchorFor) : undefined}
+        />
       </div>
+      {view.hasPdf && view.type !== 'impressum' ? (
+        <p>
+          <a
+            href={pdfHref}
+            className={styles.pdf}
+            data-legal-pdf={view.type}
+            type="application/pdf"
+          >
+            {t(view.type === 'widerrufsformular' ? 'pdfForm' : 'pdf')}
+          </a>
+        </p>
+      ) : null}
     </section>
   )
+}
+
+/** Baustein `translation.disclaimer` (EN); ohne darstellbaren Baustein kein Hinweis statt eines Fehlers. */
+function translationDisclaimer(): string | null {
+  try {
+    return getSnippet('translation.disclaimer', 'en').text
+  } catch {
+    return null
+  }
 }

@@ -5,12 +5,12 @@ import type { PayloadRequest } from 'payload'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { WithdrawalStatus } from '@/lib/enums'
 import { formatItemNumber } from '@/lib/products/itemNumber'
-import { berlinDateKey, formatBerlin } from '@/lib/time'
+import { addBerlinDays, berlinDateKey, formatBerlin } from '@/lib/time'
 import type { Order, Withdrawal } from '@/payload-types'
 
-// Daten der Ansicht „Widerrufe“ `/widerrufe` und `/widerrufe/:id` (PLAN P5.19, KONZEPT §7.10, DATENMODELL §6.11). Nur
-// lesend; Notizen über `POST /api/withdrawals/:id/notes`. Aktionen (Zuordnen, Ware zurück, Erstatten, Abschließen)
-// folgen in P6.9/P6.10. Nie automatisch ablehnen (R-094).
+// Daten der Ansicht „Widerrufe“ `/widerrufe` und `/widerrufe/:id` (PLAN P5.19, KONZEPT §7.10, DATENMODELL §6.11).
+// Aktionen (P6.9/P6.10) laufen über `/api/withdrawals/:id/*`; Notizen über `POST /api/withdrawals/:id/notes`. Nie
+// automatisch ablehnen (R-094).
 
 const DAY = 86_400_000
 /** Offen (SEED-SPEC §17 „Widerrufe offen“): noch nicht erstattet, abgeschlossen oder abgelehnt. */
@@ -144,8 +144,18 @@ export interface WithdrawalOrder {
   orderNumber: string
   statusLabel: string
   paymentLabel: string
-  items: { nr: string; title: string; priceCents: number }[]
+  items: {
+    id: string
+    nr: string
+    title: string
+    priceCents: number
+    status: string
+    productId: number | null
+  }[]
   totalCents: number
+  shippingCents: number
+  paymentMethod: Order['paymentMethod']
+  status: Order['status']
   /** Reguläre Widerrufsfrist (Zustellung bzw. Übergabe + 14 Tage), nur Info – nie automatisch ablehnen (R-094). */
   regularDeadline: string | null
   regularDeadlineEstimated: boolean
@@ -156,6 +166,11 @@ export interface WithdrawalDetail {
   declaration: WithdrawalDeclaration
   order: WithdrawalOrder | null
   adminNotes: string
+  returnProofReceivedAt: string | null
+  returnProofText: string | null
+  returnConditionNote: string | null
+  affectedItemIds: string[]
+  closeNote: string | null
 }
 
 type Snapshot = Partial<Record<keyof WithdrawalDeclaration | 'receivedAtBerlin', string | null>>
@@ -209,14 +224,18 @@ export async function loadWithdrawalDetail(
       statusLabel: ENUM_LABELS.ORDER_STATUSES[order.status].de,
       paymentLabel: ENUM_LABELS.PAYMENT_METHODS[order.paymentMethod].de,
       items: order.items.map((i) => ({
+        id: String(i.id ?? ''),
         nr: formatItemNumber(i.itemNumber, 'de'),
         title: i.titleDe,
         priceCents: i.priceCents,
+        status: i.status ?? 'active',
+        productId: typeof i.product === 'object' && i.product ? i.product.id : (i.product ?? null),
       })),
       totalCents: order.totalCents,
-      regularDeadline: handover
-        ? date(new Date(Date.parse(handover) + 14 * DAY).toISOString())
-        : null,
+      shippingCents: order.shippingCents ?? 0,
+      paymentMethod: order.paymentMethod,
+      status: order.status,
+      regularDeadline: handover ? date(addBerlinDays(new Date(handover), 14).toISOString()) : null,
       regularDeadlineEstimated:
         Boolean(order.timestamps?.deliveredAt) && order.shipment?.deliveredSource === 'auto',
     }
@@ -226,5 +245,12 @@ export async function loadWithdrawalDetail(
     declaration,
     order: orderView,
     adminNotes: w.adminNotes ?? '',
+    returnProofReceivedAt: w.returnProofReceivedAt ?? null,
+    returnProofText: w.returnProofReceivedAt ? dateTime(w.returnProofReceivedAt) : null,
+    returnConditionNote: w.returnConditionNote ?? null,
+    affectedItemIds: Array.isArray(w.affectedItemIds)
+      ? (w.affectedItemIds as unknown[]).map(String)
+      : [],
+    closeNote: w.closeNote ?? null,
   }
 }

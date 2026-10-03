@@ -10,10 +10,11 @@ import { stripAnyTsTypes } from '@/lib/payload/typesSchema'
 // P1.32: check:static erzeugt Typen und Import-Map neu und meldet Abweichungen; DM-P1-06: keine `any`-Typen.
 
 describe('check:static generated-files (P1.32)', () => {
-  it('prüft payload-types.ts und importMap.js', () => {
+  it('prüft payload-types.ts, importMap.js und die Dienste-Daten (P6.21)', () => {
     expect(GENERATED_FILES.map((g) => g.file)).toEqual([
       'src/payload-types.ts',
       'src/app/(payload)/admin/importMap.js',
+      'src/lib/legal/services.generated.ts',
     ])
   })
 

@@ -3178,7 +3178,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
 
 ### Aufgaben
 
-- [ ] **P6.1 Datenmodell Recht, Teil 1: Migration Rechtsbausteine und Reklamationen, Prüfung der Rechtsfelder** –
+- [x] **P6.1 Datenmodell Recht, Teil 1: Migration Rechtsbausteine und Reklamationen, Prüfung der Rechtsfelder** –
   Migration `p6_legal_snippets_complaints` (DATENMODELL §10.1): Collections `legal-snippets`
   (`src/collections/LegalSnippets.ts`, Felder, Access und Indizes laut DATENMODELL §6.28: `key` aus
   `LEGAL_SNIPPET_KEYS`, `version`, `status`, `validFrom`, `text` lokalisiert, `origin`, `changeNote`,
@@ -3204,7 +3204,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
   - Tests: `tests/int/legal/snippets.int.spec.ts` (Titel „R-012 Bausteine …“), Erweiterung T-14/T-15.
   - Ohne Jutta: Kanzlei-Wortlaut kommt in P11; bis dahin Arbeitsfassungen (`origin = draft`) bzw. Platzhalter.
 
-- [ ] **P6.2 Datenmodell Recht, Teil 2: Datenschutz-Anfragen, Löschprotokoll, Reklamationen, Legal Hold** – prüfen
+- [x] **P6.2 Datenmodell Recht, Teil 2: Datenschutz-Anfragen, Löschprotokoll, Reklamationen, Legal Hold** – prüfen
   und verdrahten, was seit P1 im Schema liegt (LOESCHKONZEPT §5): `privacy-requests` (DATENMODELL §6.26: `reference`
   `DS-JJJJ-NNNN`, `types`, `channel`, `receivedAt`, `dueAt`, `extendedDueAt` mit `extensionReason`/
   `extensionNotifiedAt`, `status` aus `PRIVACY_REQUEST_STATUSES`, Identitätsprüfung, `exportFile` `data_export`,
@@ -3225,7 +3225,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     Erweiterung T-14/T-15.
   - Ohne Jutta: –
 
-- [ ] **P6.3 Rechtstext-Renderer: Tokens, Bereinigung, Aktivierung, PDF** – `src/lib/legal/render.ts` (vorhandene
+- [x] **P6.3 Rechtstext-Renderer: Tokens, Bereinigung, Aktivierung, PDF** – `src/lib/legal/render.ts` (vorhandene
   Teile aus P4 wiederverwenden). Kanonische Tokens nach R-012 und KANZLEI-BRIEFING §16.3: `{{name}}`, `{{street}}`,
   `{{postalCode}}`, `{{city}}`, `{{email}}`, `{{phone}}`, `{{wIdNr}}`, `{{ustIdNr}}`, `{{siteUrl}}`, `{{withdrawalUrl}}`
   (absolute URL von R26 in der Sprache der Fassung), `{{shippingTable}}`, `{{deliveryTime}}`, `{{vorkasseDays}}`,
@@ -3253,7 +3253,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     (Titel „R-095 …“), `tests/int/jobs/activate-legal-texts.int.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P6.4 Rechtstexte und Bausteine in der Verwaltung** – Bereich „Rechtstexte“ unter `/texte` (KONZEPT §7.13): je
+- [x] **P6.4 Rechtstexte und Bausteine in der Verwaltung** – Bereich „Rechtstexte“ unter `/texte` (KONZEPT §7.13): je
   Typ aktuelle Version, „Stand“, Herkunft (Platzhalter/Arbeitsfassung/Kanzlei), Alter, Anzahl Bestellungen mit dieser
   Version (`orders.legalTextVersions.*`). „Neue Version“: Text DE einfügen, EN optional (HTML oder Text), „Vorschau“
   (gerendert mit Tokens, Fehlerliste), „Veröffentlichen“ sofort oder ab Datum (Dialog „Ab {Datum} gilt dieser Text für
@@ -3269,7 +3269,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
   - Tests: `tests/e2e/admin/legal-texts.e2e.spec.ts`, `tests/int/legal/legal-texts-admin.int.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P6.5 Rechtsseiten R21–R24, R27, Kontakt R20 und Kurz-URLs** – Seiten `legal-notice`, `privacy`, `terms`,
+- [x] **P6.5 Rechtsseiten R21–R24, R27, Kontakt R20 und Kurz-URLs** – Seiten `legal-notice`, `privacy`, `terms`,
   `right-of-withdrawal`, `declarations-of-conformity`, `contact` unter `src/app/(frontend)/[locale]/` (Registry-Status
   von `planned` auf gebaut): statisch mit Tag `legal:<type>`, ohne JavaScript vollständig lesbar, genau eine `h1`, „Stand:
   {Datum der Version}“, PDF-Download der aktuellen Version (außer Impressum), Preset `legal` der Tuschelinie (DESIGN
@@ -3301,7 +3301,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     Widerrufsbelehrung, M01-Anbieterkennung, Snapshots der übrigen Kund:innen-Mails ohne Nummer).
   - Ohne Jutta: Kanzleitexte werden in P11 eingespielt; Stammdaten sind Platzhalter.
 
-- [ ] **P6.6 Footer und „Vertrag widerrufen“ überall** – KO-04 `SiteFooter` mit der Unterkomponente `LegalFooter` mit
+- [x] **P6.6 Footer und „Vertrag widerrufen“ überall** – KO-04 `SiteFooter` mit der Unterkomponente `LegalFooter` mit
   echten Zielen fertigstellen (DESIGN §13 Zeile P6): „Vertrag widerrufen“ als hervorgehobener Knopf-Link,
   EN-Beschriftung „Withdraw from contract here“ (R-090), Links Impressum, Datenschutz, AGB, Widerrufsbelehrung, Versand &
   Zahlung, Kontakt, Konformitätserklärungen (Fußlink nur, wenn Erklärungen existieren); auch in `not-found.tsx`,
@@ -3316,7 +3316,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     `tests/unit/legal/mail-withdrawal-link.unit.spec.ts` (Titel „R-090 Mails …“).
   - Ohne Jutta: –
 
-- [ ] **P6.7 Widerrufs-Dienst: speichern, zuordnen, sofort bestätigen** – `src/lib/legal/withdrawal.ts`
+- [x] **P6.7 Widerrufs-Dienst: speichern, zuordnen, sofort bestätigen** – `src/lib/legal/withdrawal.ts`
   `submitWithdrawal(input, { now })` (KONZEPT §5.4, R-093, DATENMODELL §6.11): zod-Prüfung; unveränderlicher Datensatz
   mit `reference` `WR-JJJJ-NNNNN` aus `withdrawal_number_seq`, `receivedAt` = Serverzeit, Name, Vertragsangaben,
   E-Mail, Stück-Auswahl bzw. Freitext, Grund, Sprache, `channel = online_form`, `submissionSnapshot`, `refundDueAt`;
@@ -3342,7 +3342,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     `tests/int/email/withdrawal-retry.int.spec.ts` (Mail-Treiber mit Fehlermodus, vorgestellte Uhr).
   - Ohne Jutta: –
 
-- [ ] **P6.8 Widerrufsfunktion R26: Schritt 1, Auswahl, Schritt 2, Bestätigung** – Seite `withdraw-from-contract`
+- [x] **P6.8 Widerrufsfunktion R26: Schritt 1, Auswahl, Schritt 2, Bestätigung** – Seite `withdraw-from-contract`
   (DE `/de/vertrag-widerrufen`) mit Server Actions, funktioniert ohne JavaScript (KONZEPT §3.16, R-091, R-092): Schritt 1
   Pflichtfelder Name, Angaben zum Vertrag (Hinweis „z. B. PC-2026-00017 oder Bestelldatum und Stück“), E-Mail für die
   Eingangsbestätigung; optional „Nur bestimmte Stücke?“ (Freitext) und „Grund“ (klar freiwillig); Link zur
@@ -3363,7 +3363,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     „R-137 Widerruf …“, „R-138 Widerruf …“; Projekte `iphone-15` und `desktop`).
   - Ohne Jutta: –
 
-- [ ] **P6.9 Widerrufs-Posteingang: Aktionen und Fristen-Job** – Aktionen in `/widerrufe/:id` (KONZEPT §7.10, §5.4,
+- [x] **P6.9 Widerrufs-Posteingang: Aktionen und Fristen-Job** – Aktionen in `/widerrufe/:id` (KONZEPT §7.10, §5.4,
   R-094) mit Status und Übergängen aus DATENMODELL §6.11 (`src/lib/commerce/withdrawalTransitions.ts`): „Bestellung
   zuordnen“ (Suche nach Nummer, E-Mail, Name; W2 → O11 bzw. O4; `matchStatus = manually_matched`, Widerrufsstatus
   bleibt), „Ware ist zurück“ (W3/O12, `goods_returned`, `goodsReturnedAt`, Zustandsnotiz, optional Fotos
@@ -3396,7 +3396,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     `tests/int/jobs/withdrawal-deadlines.int.spec.ts`, `tests/e2e/admin/withdrawal-inbox.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P6.10 Erstattungen über den Zahlungsadapter** – Dialog „Erstatten“ im Widerrufs-Detail und (O15) im
+- [x] **P6.10 Erstattungen über den Zahlungsadapter** – Dialog „Erstatten“ im Widerrufs-Detail und (O15) im
   Bestell-Detail (KONZEPT §5.3) mit Pflicht-Grund aus `REFUND_REASONS` (DATENMODELL §4): `admin_cancellation` für das
   Storno einer bezahlten Bestellung durch Jutta (Stück vor Versand/Übergabe danach wieder verkaufbar, P11, KA-37),
   `breakage` für ein vor dem Versand beschädigtes Stück (danach nur „Ausblenden“, P13), `goodwill` (Kulanz),
@@ -3422,7 +3422,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
   - Tests: `tests/unit/commerce/refund-amount.unit.spec.ts`, `tests/int/legal/refund.int.spec.ts` (Titel „R-072 …“).
   - Ohne Jutta: –
 
-- [ ] **P6.11 Reklamationen, „Recht auf Reparatur“ und § 37 VSBG** – Reklamation je Bestellung (Collection
+- [x] **P6.11 Reklamationen, „Recht auf Reparatur“ und § 37 VSBG** – Reklamation je Bestellung (Collection
   `complaints`, DATENMODELL §6.29) im Bestell-Detail und über „Reklamation (Bruch)“ in `/versendet`: `kind`,
   `receivedAt`, `photos` (`complaint_photo`, max. 6), `description`, betroffene Stücke; Hinweis für Jutta „bis
   {`carrierClaimDueAt`} bei DHL reklamieren“ und Feld `carrierClaimFiledAt`. „Reklamation beantworten“ sendet die Mail
@@ -3444,7 +3444,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     (Titel „R-112 …“), `tests/unit/legal/p6-mails.unit.spec.ts` (Titel „R-084 …“, Snapshots DE/EN).
   - Ohne Jutta: Wortlaute sind Arbeitsfassungen bzw. Platzhalter bis zur Kanzlei (Kanzleifragen K-20, K-22).
 
-- [ ] **P6.12 Prüf-Suite Bestellprozess (§ 312j, § 312i, § 312f BGB)** – Nachweise für den in P4 gebauten Kaufweg
+- [x] **P6.12 Prüf-Suite Bestellprozess (§ 312j, § 312i, § 312f BGB)** – Nachweise für den in P4 gebauten Kaufweg
   bündeln und Lücken sofort beheben: § 312j (Knopf exakt „Zahlungspflichtig bestellen“ / „Order with obligation to pay“,
   Übersicht mit wesentlichen Eigenschaften, Gesamtpreis, Versandkosten und Lieferzeit unmittelbar vor dem Knopf; Zahlarten
   und Lieferbeschränkungen spätestens zu Beginn des Bestellvorgangs – R-036, R-063, R-064), § 312i (Eingabefehler über
@@ -3462,7 +3462,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
   - Tests: `tests/e2e/legal/checkout-compliance.e2e.spec.ts`, `tests/int/legal/contract-confirmation.int.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P6.13 Automatische Verbotsprüfungen und Privatsphäre-Suite** – `tests/unit/legal/forbidden.unit.spec.ts`:
+- [x] **P6.13 Automatische Verbotsprüfungen und Privatsphäre-Suite** – `tests/unit/legal/forbidden.unit.spec.ts`:
   Quelltext-Scans (V-01; V-03 `defaultChecked`/`checked` ohne Nutzeraktion; V-04–V-07 Fremd-Hosts; V-16 in Produkttexten
   des Seeds; V-20; V-21; V-22 `searchParams.get` mit Personenfeldern; V-23 Schema-Scan auf `iban`/`cardNumber` außerhalb
   der Stammdaten; V-25 Formular-Labels; V-30 in öffentlichem Code und `messages`) und gerenderte Mails (V-01, V-02 im
@@ -3482,7 +3482,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     `tests/e2e/privacy/*.e2e.spec.ts` (`@privacy`).
   - Ohne Jutta: –
 
-- [ ] **P6.14 Löschjobs, Teil 1: Bestellungen, Belege, Widerrufe** – Fristfunktionen in `src/lib/retention/policy.ts`
+- [x] **P6.14 Löschjobs, Teil 1: Bestellungen, Belege, Widerrufe** – Fristfunktionen in `src/lib/retention/policy.ts`
   (seit P1 die einzige Stelle für Fristen; hier um Kalenderjahresende Europe/Berlin, „ab Ereignis“, Monatsenden und
   Sommerzeit vervollständigen) und gemeinsamer Runner (LOESCHKONZEPT §4 „Regeln für alle Löschjobs“, DATENMODELL §11:
   idempotent, höchstens 500 Datensätze je Lauf, erst Speicherobjekte, dann Datensatz, nach 3 Fehlschlägen A12
@@ -3509,7 +3509,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     …“ usw., „R-123 …“).
   - Ohne Jutta: Frist 10 Jahre (`retention.invoiceYears`) bleibt bis zur Antwort auf Kanzleifrage K-33.
 
-- [ ] **P6.15 Löschjobs, Teil 2, Löschvorschau und `retention:replay`** – Tasks `retentionCommissionInquiries` (L-10:
+- [x] **P6.15 Löschjobs, Teil 2, Löschvorschau und `retention:replay`** – Tasks `retentionCommissionInquiries` (L-10:
   6 Monate nach `createdAt` inkl. Referenzbildern, unabhängig von der Aktivität), `retentionEmailLog` (L-12: wie
   Bezugsobjekt, ohne Bezug 90 Tage), `retentionPrivacyRequests` (L-17: Datensatz 3 Jahre ab Ende des Abschlussjahres,
   Exportdateien 30 Tage nach Antwort), `retentionConsentEvidence` (L-19/L-20: Nachweise 3 Jahre nach Widerruf bzw. Ende
@@ -3533,7 +3533,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     `tests/e2e/admin/deletion-preview.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P6.16 DSGVO-Anfragen: Erfassung und Fristen** – Ansicht `/export/datenschutz` (KONZEPT §7.15, LOESCHKONZEPT §5):
+- [x] **P6.16 DSGVO-Anfragen: Erfassung und Fristen** – Ansicht `/export/datenschutz` (KONZEPT §7.15, LOESCHKONZEPT §5):
   Anfrage anlegen (`types`, `receivedAt` = Tag des Zugangs, `channel`, `contactEmail`, `locale`; Nummer `DS-JJJJ-NNNN`,
   DATENMODELL §6.26); `dueAt` = Eingang + 1 Monat (Art. 12 Abs. 3 DSGVO; 31.01. → 28./29.02.); Verlängerung um höchstens
   2 Monate nur mit `extensionReason` und `extensionNotifiedAt` innerhalb des ersten Monats; Status aus
@@ -3548,7 +3548,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
   - Tests: `tests/int/legal/privacy-requests.int.spec.ts` (Titel „R-153 …“), `tests/unit/legal/gdpr-deadline.unit.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P6.17 DSGVO: Personensuche und Auskunft-Export** – Suche nach E-Mail (normalisiert, ohne Groß-/Kleinschreibung),
+- [x] **P6.17 DSGVO: Personensuche und Auskunft-Export** – Suche nach E-Mail (normalisiert, ohne Groß-/Kleinschreibung),
   Bestellnummer oder Name über Kassen, Bestellungen (inkl. Snapshots, Status-Historie, gesendeter Mails), Belege,
   Widerrufe, Anfragen (inkl. Bilder), Reklamationen, `email-log`, `consent-log` und frühere Anfragen (R-150); Treffer
   in `matchedOrders`/`matchedWithdrawals`/`matchedInquiries` der Anfrage. Export als ZIP
@@ -3565,7 +3565,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
   - Tests: `tests/int/legal/privacy-export.int.spec.ts` (Titel „R-150 …“).
   - Ohne Jutta: –
 
-- [ ] **P6.18 DSGVO: Löschen/Einschränken, Berichtigung, Widerspruch, Einwilligungswiderruf** – Knopf
+- [x] **P6.18 DSGVO: Löschen/Einschränken, Berichtigung, Widerspruch, Einwilligungswiderruf** – Knopf
   „Löschen/Einschränken“ je Person (R-151): Plan je Datensatz mit Regel aus LOESCHKONZEPT und Aktion „sofort löschen“
   (inkl. Speicherobjekten und Mail-Protokoll), „einschränken bis {Datum}“ (`privacy.processingRestricted = true`, nicht
   nötige Felder sofort entfernen: Telefon, Notizen, Packfotos; Outbox unterdrückt Mails an eingeschränkte Bestellungen)
@@ -3587,7 +3587,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     `tests/unit/legal/p6-mails.unit.spec.ts` (Titel „R-084 …“, Snapshots M14–M16).
   - Ohne Jutta: –
 
-- [ ] **P6.19 Einwilligungs- und Mail-Protokolle in der Verwaltung** – Anzeige `consent-log` an Bestellungen (Zweck,
+- [x] **P6.19 Einwilligungs- und Mail-Protokolle in der Verwaltung** – Anzeige `consent-log` an Bestellungen (Zweck,
   Zeitpunkt, Baustein-Version, Widerruf) und `email-log` an Widerrufen und Anfragen (Typ, Betreff, Zeitpunkt,
   Anbieter-ID, Status, Anhang-Namen). Gesamtliste `/export/protokolle` mit Filtern (Art, Zeitraum, Status), Empfänger
   teilweise maskiert. M08 lässt sich nur als Kopie an Jutta erneut senden (KONZEPT §6.1).
@@ -3597,7 +3597,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
   - Tests: `tests/int/email/logs-admin.int.spec.ts`, `tests/e2e/admin/logs.e2e.spec.ts`.
   - Ohne Jutta: –
 
-- [ ] **P6.20 Jährliche Prüf-Erinnerung Rechtstexte** – Task `legalReviewReminder` (ARCHITEKTUR Anhang A.3,
+- [x] **P6.20 Jährliche Prüf-Erinnerung Rechtstexte** – Task `legalReviewReminder` (ARCHITEKTUR Anhang A.3,
   DATENMODELL §11), täglich ab 08:30: je Typ Alter = jüngeres Datum aus `activatedAt` der aktiven Fassung und
   `legal.reviews[type].reviewedAt`; ab 365 Tagen A10 (`admin_legal_review_due`) einmal mit allen fälligen Typen, danach
   alle 30 Tage erneut (`legal.reviews[type].lastReminderSentAt`), bis neue Version oder „geprüft“ (R-014).
@@ -3608,7 +3608,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
   - Tests: `tests/int/jobs/legal-review.int.spec.ts` (Titel „R-014 …“).
   - Ohne Jutta: Jährliche Prüfung ist Owner-Aufgabe (ANFORDERUNGEN §8).
 
-- [ ] **P6.21 Dienste-Daten, Auftragsverarbeitung und Verarbeitungsverzeichnis** – Generator
+- [x] **P6.21 Dienste-Daten, Auftragsverarbeitung und Verarbeitungsverzeichnis** – Generator
   `scripts/legal/gen-services.ts` liest die YAML aus DIENSTE §7 und schreibt `src/lib/legal/services.generated.ts`;
   `pnpm check:static` prüft, dass die Datei aktuell ist. Einstellungen → „Auftragsverarbeitung“ (DIENSTE §6): Liste aller
   Dienste mit `avv: required` mit Eingabe in `settings.processorAgreements` (Felder laut DATENMODELL §7.1, u. a. die
@@ -3631,7 +3631,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
     T-16.
   - Ohne Jutta: AVVs schließt Jutta in P11 ab (A35).
 
-- [ ] **P6.22 Kanzlei-Mappe fertigstellen (neue Version)** – `docs/recht/KANZLEI-BRIEFING.md` an die Umsetzung
+- [x] **P6.22 Kanzlei-Mappe fertigstellen (neue Version)** – `docs/recht/KANZLEI-BRIEFING.md` an die Umsetzung
   angleichen: Tokenliste §16.3 unverändert geschlossen (kanonische Tokens ohne weitere Schreibweisen, kein Token für
   die Auftragsverarbeiter-Tabelle; die Mappe nennt die Tabelle als Komponente unter der Datenschutzerklärung, P6.21),
   Cookie-/Speicherliste §11.3 = ARCHITEKTUR §8.7
@@ -3649,7 +3649,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
   - Tests: `tests/unit/legal/briefing.unit.spec.ts`.
   - Ohne Jutta: Versand an die Kanzlei ist Owner-Aufgabe (A08/A28).
 
-- [ ] **P6.23 Nachverfolgbarkeit: Spalte „Nachweis“ und `LEGAL_TRACE_PHASE = 6`** – Tabelle ANFORDERUNGEN §3 um die
+- [x] **P6.23 Nachverfolgbarkeit: Spalte „Nachweis“ und `LEGAL_TRACE_PHASE = 6`** – Tabelle ANFORDERUNGEN §3 um die
   Spalte „Nachweis“ erweitern (`| R-### | Titel | Phase | Test | Owner | Nachweis |`, Testdatei-Pfade, bei manuellen
   Punkten „§7“) und für alle Zeilen mit frühester Phase ≤ 6 füllen. Parser in `tests/unit/legal/traceability.unit.spec.ts`
   liest Spalten über die Kopfzeile statt über Positionen; zusätzlich prüft er, dass jeder genannte Pfad existiert.
@@ -3664,22 +3664,22 @@ ANFORDERUNGEN §3, §5, §6, §7.
 
 ### Phasen-Abnahme
 
-- [ ] Alle Aufgaben P6.1–P6.23 erledigt; `pnpm check`, `pnpm test:int`, `pnpm test:e2e` und `pnpm build` lokal grün.
-- [ ] Migration `p6_legal_snippets_complaints` rückwärtsverträglich, `pnpm check:migrations` ohne Drift, Typen und
+- [x] Alle Aufgaben P6.1–P6.23 erledigt; `pnpm check`, `pnpm test:int`, `pnpm test:e2e` und `pnpm build` lokal grün.
+- [x] Migration `p6_legal_snippets_complaints` rückwärtsverträglich, `pnpm check:migrations` ohne Drift, Typen und
   Importmap committet; geprüft, dass die Token-Listen von Renderer, R-012, DATENMODELL §6.12 und KANZLEI-BRIEFING
   §16.3 übereinstimmen (ohne Token für die Auftragsverarbeiter-Tabelle) und dass `tattoo-gallery` keine Versionen hat;
   ARCHITEKTUR §1.2 (`sanitize-html`) und DIENSTE nachgezogen; geprüft, dass KONZEPT §8.3/AK-8-03 auf L-10 verweisen.
-- [ ] `LEGAL_TRACE_PHASE = 6`, Spalte „Nachweis“ vollständig bis P6; Nachweise im PR-Text: AK-3-11, AK-3-12, AK-6-04,
+- [x] `LEGAL_TRACE_PHASE = 6`, Spalte „Nachweis“ vollständig bis P6; Nachweise im PR-Text: AK-3-11, AK-3-12, AK-6-04,
   AK-DS-09, AK-5-01 Widerruf, EK-04, EK-05, EK-06.
-- [ ] CI grün: Der Phasenende-Commit (z. B. `chore(P6): finish phase [ci:full p6]`, der letzte Commit ohne
+- [x] CI grün: Der Phasenende-Commit (z. B. `chore(P6): finish phase [ci:full p6]`, der letzte Commit ohne
   `[skip ci]`) hat `CI / quick`, `ci-full` (`e2e-full` inkl. `@a11y` und `@privacy`, `quality` mit visuellen Referenzen
   für die neuen Seitentypen Rechtsseite, Widerruf Schritt 1/2/Bestätigung, Kontakt) und `preview-export` grün
   durchlaufen. Dieses Häkchen setzt ein reiner Doku-Commit mit `[skip ci]`, nachdem der Lauf grün ist.
-- [ ] Vorschau-Artefakt `planet-claire-vorschau-p6-<sha7>` enthält alle Rechtsseiten DE/EN mit Platzhalter-Banner,
+- [x] Vorschau-Artefakt `planet-claire-vorschau-p6-<sha7>` enthält alle Rechtsseiten DE/EN mit Platzhalter-Banner,
   R26 mit Schritten, Kontakt und die Admin-Fotos von Widerrufe, Texte → Rechtstexte, Datenschutz-Anfragen, Löschvorschau.
-- [ ] `docs/recht/KANZLEI-BRIEFING.md` in neuer Version mit Eintrag in §19 und `docs/recht/VVT.md` vorhanden;
+- [x] `docs/recht/KANZLEI-BRIEFING.md` in neuer Version mit Eintrag in §19 und `docs/recht/VVT.md` vorhanden;
   ANFORDERUNGEN §7 Teil A für R-095 und R-156 abgehakt.
-- [ ] `docs/FORTSCHRITT.md` mit Phasen-Eintrag; PR-Beschreibung aktualisiert; neue Annahmen in `docs/OFFENE-PUNKTE.md`
+- [x] `docs/FORTSCHRITT.md` mit Phasen-Eintrag; PR-Beschreibung aktualisiert; neue Annahmen in `docs/OFFENE-PUNKTE.md`
   (mindestens: Teil-Widerruf-Versanddifferenz bis Kanzleifrage K-09, Arbeitsfassungen der Bausteine, Rechnungsfrist 10
   Jahre bis Kanzleifrage K-33); neue Jutta-Aufgaben als A51 ff. in `docs/owner/AUFGABEN.md`, soweit nicht schon
   vorhanden.

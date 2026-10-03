@@ -42,11 +42,21 @@ async function tapTargetsBelow44(page: Page, selector: string): Promise<string[]
 }
 
 async function noHorizontalScroll(page: Page) {
-  const { scroll, width } = await page.evaluate(() => ({
+  const { scroll, width, wide } = await page.evaluate(() => ({
     scroll: document.documentElement.scrollWidth,
     width: window.innerWidth,
+    wide: [...document.querySelectorAll('body *')]
+      .filter((el) => el.getBoundingClientRect().right > window.innerWidth + 1)
+      .slice(0, 5)
+      .map(
+        (el) =>
+          `${el.tagName.toLowerCase()}.${[...el.classList].join('.')} ${Math.round(el.getBoundingClientRect().right)}`,
+      ),
   }))
-  expect(scroll, 'kein horizontales Scrollen').toBeLessThanOrEqual(width)
+  expect(
+    scroll,
+    `kein horizontales Scrollen auf ${page.url()} (${wide.join(' | ')})`,
+  ).toBeLessThanOrEqual(width)
 }
 
 test.describe('Verwaltungs-Gerüst (P5.1) @a11y', () => {

@@ -11,6 +11,8 @@ import type { CheckResult, StaticCheck } from './types'
 export const GENERATED_FILES = [
   { file: 'src/payload-types.ts', script: 'generate:types' },
   { file: 'src/app/(payload)/admin/importMap.js', script: 'generate:importmap' },
+  // PLAN P6.21: Dienste-Daten aus der YAML in docs/recht/DIENSTE.md §7
+  { file: 'src/lib/legal/services.generated.ts', script: 'legal:services' },
 ] as const
 
 /** Zeilen mit dem Typ `any` (ohne Kommentare). */
@@ -28,6 +30,8 @@ export interface GeneratedSnapshot {
   before: string | null
   after: string | null
   error?: string
+  /** Erzeugendes Skript (für die Fehlermeldung). */
+  script?: string
 }
 
 /** Bewertet die Schnappschüsse vor und nach dem Erzeugen. */
@@ -44,7 +48,7 @@ export function evaluateGenerated(snapshots: GeneratedSnapshot[]): CheckResult {
     }
     if (s.before !== s.after) {
       errors.push(
-        `${s.file} war nicht aktuell – neu erzeugt; bitte committen (pnpm generate:types && pnpm generate:importmap).`,
+        `${s.file} war nicht aktuell – neu erzeugt; bitte committen (${s.script ? `pnpm ${s.script}` : 'pnpm generate:types && pnpm generate:importmap'}).`,
       )
     }
     if (s.file.endsWith('payload-types.ts')) {
@@ -81,7 +85,7 @@ export const generatedFilesCheck: StaticCheck = {
         r.status === 0
           ? undefined
           : (r.stderr || r.stdout || String(r.error ?? 'unbekannter Fehler')).trim().slice(-400)
-      snapshots.push({ file, before, after: readOrNull(abs), error })
+      snapshots.push({ file, script, before, after: readOrNull(abs), error })
     }
     return evaluateGenerated(snapshots)
   },
