@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-03 – P9.6
+
+- pnpm art:check um MO-01…10/13…15, LG-01…04, PF-01…12, A11Y-01…07, CT-01…03, RZ-01/02 ergänzt (Sonden: getAnimations mit Easing, poseLog, data-boil, Textzeilen per Range.getClientRects, Fokusring, Zusatzmessungen Intro/Folgen/Lesezeile/Tab-Reihenfolge/200 %/qa-jank/verborgener Tab/Desktop-Messungen); PF gegen perf.json (P9.4); --evidence führt AK-DS-01/AK-DS-17 aus
+- Stand iter15: 34/62 auto grün; rot u. a. LQ-03/04/05 (Engine-Parameter, P9.11), PF-04/PF-05 (P9.11/P9.15), LG-01 (Coco-Box/Linie über Text R01/R08), CO-02/05/06 (Sprite v1, P9.9), IM-02 (P9.14), A11Y-06/RZ-01 (je 1 Transition auf Ruhe-Routen), MO-02/14 (View Transition ease/250 ms)
+- Tests: check-art.unit.spec.ts (Abgleich AUTO_IDS ↔ KUNST-QA §5; ease/MO-02, 7 s Boil/MO-04, Linie über Text/LG-01, LoAF 80 ms leash/PF-01)
+
 ## 2026-10-03 – P9.5
 
 - pnpm art:sheets (Kontaktbögen 2400 px/6 Spalten, Coco je Pose A/B/C + ?parts=1, Stationen neben Quelle, Kalibrierbogen; je ≤ 1,5 MB), pnpm art:bundle (manifest.json §8, Vollständigkeit §4.3, ≤ 100 MB, Sonden gzip), pnpm art:check (check.json/check.md, Kriterien aus KUNST-QA §5 geparst, R1/R2/R3 offen markiert, Exit ≠ 0 bei FAIL)

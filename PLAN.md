@@ -4736,7 +4736,7 @@ KUNST-QA §0–§10 (vollständig).
     (Vollständigkeit, Manifest, Budget).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.6 Automatische Prüfung II (Bewegung, Lesbarkeit, Tempo, Barrierefreiheit)** – `pnpm art:check` um MO-01…
+- [x] **P9.6 Automatische Prüfung II (Bewegung, Lesbarkeit, Tempo, Barrierefreiheit)** – `pnpm art:check` um MO-01…
   MO-10, MO-13…MO-15, LG-01…LG-04, PF-01…PF-12, A11Y-01…A11Y-07, CT-01…CT-03, RZ-01 und RZ-02 ergänzen (Methoden laut
   KUNST-QA §5: LG-01 als Schnittmenge aus gezeichneten LUT-Punkten ± halbe Breite und Coco-Bbox mit
   `Range.getClientRects()` aller Textzeilen, Formularfelder, Knöpfe und Fußbereich-Links; PF gegen die Grundlinie aus
