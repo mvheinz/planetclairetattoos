@@ -45,7 +45,7 @@ export interface CocoState {
   /** Intro (MI-10) läuft. */
   intro: boolean
   /** Rinne in Koordinaten der Linien-Ebene `[links, rechts]` (Coco-Box bleibt darin, solange die Spitze darin liegt). */
-  gutter: [number, number] | null
+  gutter: [number, number, number] | null
 }
 
 export interface MountOptions {
@@ -414,11 +414,16 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       : null
   }
 
-  /** Rinne `[links, rechts]` (Linien-Ebene) – Mitte der Rinne = Anfang der Linie (§5.3). */
-  function gutterBounds(): [number, number] | null {
+  /**
+   * Rinne `[links, rechts, Auslauf]` (Linien-Ebene): Mitte der Rinne = Anfang der Linie (§5.3). Beim Orbit der Kopf-Station
+   * endet sie am Planeten (die Marke steht vor der H1), Coco bleibt dort voll darin.
+   */
+  function gutterBounds(): [number, number, number] | null {
     const start = m?.input.anchors.find((a) => a.kind === 'start')
     if (!m || !start || cfg.rail !== 'center') return null
-    return [start.x - m.input.gutter / 2, start.x + m.input.gutter / 2]
+    const g = m.input.gutter
+    const hero = stationState()?.id === 'planet-claire' && m.input.anchors.find((a) => a.id === 'planet-claire')
+    return [start.x - g / 2, hero ? hero.x + hero.w : start.x + g / 2, hero ? 200 : 40]
   }
 
   function emitCoco(direction: 1 | -1, moving: boolean) {

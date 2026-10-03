@@ -659,10 +659,10 @@ function relD(xs: number[], ys: number[]): string {
   return d
 }
 
+/** Polylinie bzw. Polygon relativ (`M x y l dx dy … z`, PF-10: etwa halb so lang wie absolute `L`-Koordinaten). */
 function polyD(xs: ArrayLike<number>, ys: ArrayLike<number>, close: boolean): string {
-  let d = `M${fmt(xs[0]!)} ${fmt(ys[0]!)}L`
-  for (let i = 1; i < xs.length; i++) d += `${i > 1 ? ' ' : ''}${fmt(xs[i]!)} ${fmt(ys[i]!)}`
-  return close ? `${d}Z` : d
+  const d = relD(Array.from(xs), Array.from(ys))
+  return close ? `${d}z` : d
 }
 
 // ---------- Hauptfunktion ----------

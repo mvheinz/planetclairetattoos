@@ -92,7 +92,7 @@ export interface CocoFollow {
   motion: Motion
   station: { id: string; pose: SpritePose; len0: number; len1: number; inside: boolean } | null
   intro: boolean
-  gutter: [number, number] | null
+  gutter: [number, number, number] | null
 }
 
 export interface CocoController {
@@ -106,7 +106,7 @@ export interface CocoController {
    * D-Ring an (x, y) im Koordinatensystem des Containers; `direction` −1 spiegelt (läuft zurück). `gutter`
    * `[links, rechts]`: liegt die Leinenspitze in der Rinne, rutscht die Box so weit, dass sie nicht in den Text ragt.
    */
-  place(x: number, y: number, direction?: 1 | -1, gutter?: [number, number] | null): void
+  place(x: number, y: number, direction?: 1 | -1, gutter?: [number, number, number] | null): void
   /** Choreografie der Startseite (DESIGN §11.4): Pose, Verweilen, Sprung, Blickrichtung, Intro-Lauf, Position. */
   follow(s: CocoFollow): void
   /** Nutzeraktion (Scrollen) – Boil läuft mit 1,5 s Nachlauf. */
@@ -303,7 +303,12 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
   boil(BOIL.afterPose) // Seiteneintritt
 
   /** D-Ring an (x, y); die Box rutscht aus dem Text, wenn die Leinenspitze nahe der Rinne liegt (LG-01). */
-  function place(x: number, y: number, direction: 1 | -1 = 1, gutter?: [number, number] | null) {
+  function place(
+    x: number,
+    y: number,
+    direction: 1 | -1 = 1,
+    gutter?: [number, number, number] | null,
+  ) {
     const key = bridge ? `bridge-${bridge}` : shown
     const [ax, ay] = COCO_ANCHORS[key] ?? COCO_ANCHORS[shown] ?? [80, 60]
     const s = width / COCO_VIEWBOX.w
@@ -312,7 +317,7 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
       // Box-Kante rechts; ragt sie über die Rinne, rutscht sie zurück – voll in der Rinne, sanft bis 40 px daneben
       const right = direction === 1 ? x - ax * s + width : x + ax * s
       const over = right - (gutter[1] - 1)
-      if (over > 0) tx -= over * Math.max(0, Math.min(1, 1 - (x - gutter[1]) / 40))
+      if (over > 0) tx -= over * Math.max(0, Math.min(1, 1 - (x - gutter[1]) / gutter[2]))
     }
     el.style.transform = `translate(${tx.toFixed(1)}px,${y.toFixed(1)}px) scaleX(${direction}) translate(${(-ax * s).toFixed(1)}px,${(-ay * s).toFixed(1)}px)`
   }

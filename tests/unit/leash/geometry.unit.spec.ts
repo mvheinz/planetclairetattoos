@@ -124,8 +124,8 @@ describe('leash/geometry – AK-DS-12', () => {
       for (let k = 0; k < g.segments.length; k++) {
         const s = g.segments[k]!
         expect(s.len1 - s.len0).toBeLessThanOrEqual(maxLen + 4)
-        expect(s.outlineD).toMatch(/^M[\d.-]+ [\d.-]+L[\d. -]+Z/)
-        expect(s.centerD).toMatch(/^M[\d.-]+ [\d.-]+L[\d. -]+$/)
+        expect(s.outlineD).toMatch(/^M[\d.-]+ [\d.-]+l[\d. -]+z/)
+        expect(s.centerD).toMatch(/^M[\d.-]+ [\d.-]+l[\d. -]+$/)
         expect(s.outlineD).not.toMatch(/\d\.\d\d/) // höchstens 1 Nachkommastelle
         expect(s.bbox.w).toBeGreaterThan(0)
         expect(s.bbox.h).toBeGreaterThan(0)
