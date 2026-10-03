@@ -31,9 +31,25 @@ export async function captureClientRendered(
       (url) => !own(url),
       (route) => route.abort(),
     )
+    // Nur die Skripte, die das Server-HTML selbst nennt (Seitenrahmen, RSC-Datenstrom samt Client-Referenzen). Später
+    // nachgeladene Chunks – Verhaltensmodule und Linien-Engine, die erst nach `load` binden (P7) – bricht der Export
+    // ab: Sonst hinge es vom Zeitpunkt des DOM-Abzugs ab, ob Menü, Korbzahl oder Animationen-Schalter schon gebunden
+    // sind, und zwei Läufe wären nicht byte-gleich (AK-A-14-01). Das Ergebnis entspricht dem Server-HTML der übrigen
+    // Seiten (Zustand vor den Verhaltensmodulen).
+    const allowed = new Set<string>()
+    await context.route(
+      (url) =>
+        own(url) && url.pathname.startsWith('/_next/static/') && url.pathname.endsWith('.js'),
+      (route) =>
+        allowed.has(new URL(route.request().url()).pathname) ? route.continue() : route.abort(),
+    )
     const page = await context.newPage()
     for (const path of paths) {
       try {
+        const shell = await (await context.request.get(path)).text()
+        // Pfade stehen im HTML absolut (`/_next/static/…`) oder im RSC-Datenstrom relativ (`static/chunks/…`).
+        for (const m of shell.matchAll(/(?:\/_next\/)?(static\/[^"'\s\\)]+?\.js)/g))
+          allowed.add(`/_next/${m[1]}`)
         const res = await page.goto(path, { waitUntil: 'load' })
         await page.locator('main h1').first().waitFor({ state: 'visible', timeout: 30_000 })
         const html = await page.evaluate(

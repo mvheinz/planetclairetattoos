@@ -107,6 +107,17 @@ export async function normalizeRunTimestamps(
        WHERE table_schema = 'public' AND column_name IN ('created_at', 'updated_at')
          AND data_type LIKE 'timestamp%' ORDER BY table_name, column_name`,
     )
+    // Tabellen mit ganzzahliger `id`: Gleichstand vermeiden. Listen der Verwaltung sortieren nach `-updatedAt` ohne
+    // zweiten Schlüssel – bei lauter gleichen Zeitstempeln wäre die Reihenfolge je Lauf eine andere (Foto „Stücke
+    // (Liste)“, AK-A-14-01). `SEED_NOW + id ms` hält die Anzeige auf der Minute von `SEED_NOW` und ordnet stabil.
+    const intIds = new Set(
+      (
+        await c.query<{ table_name: string }>(
+          `SELECT table_name FROM information_schema.columns
+           WHERE table_schema = 'public' AND column_name = 'id' AND data_type IN ('integer', 'bigint')`,
+        )
+      ).rows.map((r) => r.table_name),
+    )
     // Nur in der Wegwerf-Datenbank des Exports: Trigger (z. B. der GoBD-Wächter der Belege, der `created_at` sperrt)
     // für diese eine Transaktion aussetzen – mit dem vollen Beispielbestand (P8) haben Beispielbelege einen
     // `created_at` aus dem Seed-Lauf (PLAN P8.21).
@@ -116,7 +127,9 @@ export async function normalizeRunTimestamps(
       for (const { table_name: t, column_name: col } of cols.rows) {
         if (!/^[a-z0-9_]+$/.test(t) || !/^[a-z_]+$/.test(col)) continue
         await c.query(
-          `UPDATE "${t}" SET "${col}" = $1::timestamptz WHERE "${col}" BETWEEN $2 AND $3`,
+          `UPDATE "${t}" SET "${col}" = $1::timestamptz${
+            intIds.has(t) ? ` + "id" * interval '1 millisecond'` : ''
+          } WHERE "${col}" BETWEEN $2 AND $3`,
           [seedNow, new Date(from.getTime() - 1000), new Date(to.getTime() + 1000)],
         )
       }
