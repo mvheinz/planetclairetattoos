@@ -4701,7 +4701,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: die Szenario-Dateien selbst; Vollständigkeitsprüfung im Bündel-Manifest (P9.5).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.4 Tempo-Messung (SC-18) und Auswertung** – `tests/art/sc-18.art.spec.ts` nach KUNST-QA §4.6 (Profil
+- [x] **P9.4 Tempo-Messung (SC-18) und Auswertung** – `tests/art/sc-18.art.spec.ts` nach KUNST-QA §4.6 (Profil
   `art-pixel7`, CPU 4×, ohne Video, 1 Vorlauf verworfen, je Route R01, R02, R04, R07 drei Läufe **mit** Engine und drei
   mit `?leash=off`; `__qa.start()` → 5 s Scroll per `Input.synthesizeScrollGesture` 900 px/s → Menü → (R04) „In den
   Korb“ → `dump()`; ein CDP-Trace je Route). `scripts/art/metrics.ts` als `pnpm art:metrics` → `metrics/*.json`:

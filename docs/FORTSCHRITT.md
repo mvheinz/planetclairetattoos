@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-03 – P9.4
+
+- `tests/art/sc-18.art.spec.ts` (Pixel 7, CPU 4×, ohne Video, Vorlauf verworfen, R01/R02/R04/R07 je 3× mit und 3× `?leash=off`, CDP-Trace je Route) und `pnpm art:metrics` → `metrics/perf.json` mit allen Größen, Gates PF-01…PF-08 relativ zur Grundlinie plus absolute Grenzen; Rechnerlast je Lauf (`host.reliable`).
+- Basis-Lauf im qa-log (`docs/design/qa-log/2026-10-03-basislauf-sc18.md`), bei ruhiger Maschine wiederholt (`iter14`, Last ≤ 2,6 bei 4 Kernen): rot nur PF-04 (R01/R02) und PF-05 – Arbeitspunkte für P9.11/P9.15, Grenzwerte unverändert.
+- Tests: `tests/unit/art/metrics.unit.spec.ts` mit Beispiel-JSONs aus `tests/fixtures/art/` (grün), `pnpm check`, Int grün.
+
 ## 2026-10-03 – P9.3
 
 - Szenarien SC-01…SC-11, SC-14, SC-15, SC-17 als `tests/art/sc-XX.art.spec.ts` nach KUNST-QA §4.3 (Frames mit `t`/`y` in der Beschriftung, Kasse/Danke mit Mock-Zahlung, Fremd-Host-Wächter).

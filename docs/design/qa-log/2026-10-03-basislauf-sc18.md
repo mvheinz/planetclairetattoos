@@ -29,6 +29,31 @@
 Bilder (SC-16, 30 Titelbilder, Größe `card` gegen Original): σ(Median-L*) 16,7 (IM-01 verlangt ≤ 6 – Foto-Look-Pipeline
 folgt in P9.14), Median `card` 18 KB, `thumb` 8 KB.
 
+## Abschluss P9.3/P9.4: Wiederholung mit Lastprotokoll (Commit `bb9ffe0`)
+
+Tempo-Messungen sind unter Last unzuverlässig (KUNST-QA §4.1). Seit `bb9ffe0` schreibt jeder Lauf die Rechnerlast mit
+(`run.json` → `hostLoadAtStart`, je SC-18-Lauf `host.load1`, in `metrics/perf.json` → `host` mit `reliable` = 1-min-Last nie
+über 75 % der Kerne). Grenzwerte unverändert.
+
+| Lauf | Umfang | Dauer | Last (1 min, 4 Kerne) | Ergebnis |
+|---|---|---|---|---|
+| `20261003-iter12-80582a0` | vollständig | 21,0 + 8,1 min | Bild-Läufe ~10, SC-18 max. 3,56 → **unzuverlässig** | 81 + 1 grün; 3 leere bzw. 18 halb leere Frames (s. u.) |
+| `20261003-iter13-bb9ffe0` | vollständig | 26,3 min (17,9 + 8,2 + Start/SC-16) | Start 1,6, SC-18-Start 6,6 (parallele Lighthouse-/E2E-Last), max. 4,11 → unzuverlässig | 81 + 1 grün; 3 968 Frames, 81 Videos, 0 leere Frames |
+| `20261003-iter14-bb9ffe0` | SC-18 allein, nach Abklingen der Last | 8,2 min | Start 1,25, max. 2,57 → **zuverlässig** | Kennzahlen unten |
+
+SC-18 bei ruhiger Maschine (`iter14`, Median, mit / ohne Engine): p95 rAF 16,7–16,8 / 16,7–16,8 ms (alle Routen);
+Anteil Frames über 33,4 ms R01 0,28 / 0,28 %, R02 0,41 / 0,28 %, R04 0,50 / 0,25 %, R07 0,14 / 0,14 %; LoAF aus leash/coco/micro 0;
+`leash:frame` p95 1,5 / 1,2 / 0,7 ms (R01/R02/R04); `leash:build` max. **71,7 / 88,1** / 24,5 ms; `Layout` im Trace
+**30 / 7 / 15 / 11**; CLS gleich mit/ohne (R04 0,0138); LCP 276/244, 216/324, 300/268, 336/336 ms; Menü 112/112/88/80 ms,
+„In den Korb“ 40 ms. Bild bestätigt den Basis-Lauf: rot nur PF-04 (R01, R02) und PF-05 (alle Routen) – Arbeitspunkte für
+P9.11/P9.15. Die Vollaufnahme liegt ohne Fremdlast bei ~24 min (`iter11`), unter Fremdlast knapp darüber (`iter13`).
+
+**Leere Frames (behoben in `bb9ffe0`):** In `art-pixel7` (Chromium-Mobil-Emulation, angehaltene Uhr) waren nach großen
+Scroll-Sprüngen Kacheln noch nicht gerastert (SC-00, SC-01 Station-Grenzen, SC-04 `+250 ms`, SC-14 MI-04 `t0`; in `iter11`
+ebenso, 13 Frames mit ≥ 20 % leerer Fläche). `ArtSession.frame` erkennt jetzt einen einfarbigen Block ≥ 20 % der Höhe (das
+Papier hat ein Raster), wartet in Echtzeit und nimmt bis zu 3× neu auf; Protokoll `raw/<SC>/<profil>/<variante>/retakes.json`.
+Übrig bleiben nur die echten einfarbigen Flächen der Zoom-Ansicht (SC-05 `zoom-open`).
+
 ## Anmerkungen
 
 - Rot im Basis-Lauf: PF-04 (Aufbau der Linie auf R01/R02 bei 4× in einem Stück > 50 ms) und PF-05 (`Layout`-Ereignisse
