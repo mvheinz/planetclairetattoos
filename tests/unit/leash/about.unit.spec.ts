@@ -17,7 +17,11 @@ describe('Preset about (R19, P8.18)', () => {
     expect(c.draw).toBe('scroll')
     expect(c.intro).toBe(false)
     expect([...c.loops].sort()).toEqual(['left', 'right'])
-    expect([...(PRESET_COCO_POSES.about ?? [])].sort()).toEqual(['kopfschief', 'schnueffeln', 'sitzen'])
+    expect([...(PRESET_COCO_POSES.about ?? [])].sort()).toEqual([
+      'kopfschief',
+      'schnueffeln',
+      'sitzen',
+    ])
     expect(REST_POSE.about).toBe('sitzen')
     expect(PRESET_DOCS.about.routes).toEqual(['R19'])
     const route = getRoute('R19')

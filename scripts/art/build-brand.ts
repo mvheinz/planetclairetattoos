@@ -220,6 +220,16 @@ export function buildIconSvg(planetSvg: string): string {
   )
 }
 
+/** 16-px-Fassung (AR-07): dickerer Strich, damit Planet und Ring bei 0,9 px Linie nicht verlaufen. */
+function smallIconSvg(planetSvg: string): string {
+  return (
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">' +
+    `<circle cx="32" cy="32" r="31.5" fill="${PAPER}"/>` +
+    planetGroup(planetSvg, 32, 32, 62, 6.4) +
+    '</svg>\n'
+  )
+}
+
 function appleIconSvg(planetSvg: string): string {
   return (
     '<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">' +
@@ -381,7 +391,7 @@ async function main(): Promise<void> {
       .png({ compressionLevel: 9 })
       .toBuffer()
   const ico = buildIco([
-    { size: 16, png: await png(icon, 16) },
+    { size: 16, png: await png(smallIconSvg(planet), 16) },
     { size: 32, png: await png(icon, 32) },
   ])
   writeFileSync(p('src/app/favicon.ico'), ico)
