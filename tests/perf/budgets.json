@@ -103,8 +103,8 @@
     }
   },
   "lighthouse": {
-    "$comment": "Preset mobil (Lighthouse-Standard), Median aus 3 Läufen. Seiten: R01 (P2), R02 und R04 (P3); R11 kommt mit P7 dazu. Seitengewicht nur für Routen mit Eintrag in pageWeight (R01), sonst Bericht.",
-    "routes": ["R01", "R02", "R04"],
+    "$comment": "Preset mobil (Lighthouse-Standard), Median aus 3 Läufen. Seiten: R01 (P2), R02 und R04 (P3), R11 (P7). Seitengewicht nur für Routen mit Eintrag in pageWeight (R01), sonst Bericht.",
+    "routes": ["R01", "R02", "R04", "R11"],
     "runs": 3,
     "lcpMs": {
       "max": 2500,
