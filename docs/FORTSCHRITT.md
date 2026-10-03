@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-03 – P8.12
+
+- Werkzeug scripts/art/lib/handline.ts (gesäter Wackel quer zur Richtung, offene Enden/Überstände bei geschlossenen Formen, Absetzer bei langen Strichen, Doppelkonturen, Schatten aus 5–7 Schraffurstrichen unter 40°, eine um 3–4 Einheiten versetzte Wash-Fläche, gefüllt nur Pupillen/Nase/Tupfen, Glanzpunkte in Papier) und Generator pnpm art:placeholders (scripts/art/placeholders.ts, optional --sheet/--png).
+- Motiv-Skizzen content/art/placeholders/{typ}-{n}.ts aus gezeichneten Bezier-Kontrollpunkten; wiederkehrende Figuren (Hasen, Fuchs, Reh, Coco, Planet, Mond, Stern, Shirt, Bügel, Blatt) in _parts.ts, Strich nach Juttas Skizzen (content/art/jutta-skizzen). Ausgabe src/art/placeholders/*.svg (alle ≤ 6 KB), Wash laut content/seed/data/media.json; pnpm seed:example --refresh-media ersetzt die fallbackArt-Bilder.
+- Prüf-Linse R1 (frisch, Headless, KUNST-QA §6.7/§6.1 Nr. 5), 3 Durchgänge: Kalibrierung P2-Ersatzzeichnung Note 1 (gültig); Lauf 3: alle 30 Motive „lesbar/erkennbar: ja“, alle Coco-Fragen (shirt-02, cap-01, zeichnung-01, anhaenger-01, flash-906, tattoo-03) „ja“; Stilnote AR-05 = 3 → Feinschliff P9.13 (OFFENE-PUNKTE).
+- Tests: tests/unit/art/placeholders.unit.spec.ts (7 Tests: Bestand 30, viewBox/Strich/kein Text/keine Primitive/≤ 6 KB/±3°, genau eine Wash-Farbe bzw. Flash ohne Wash, Coco mit rotem Geschirr, Motivhöhe 55–70 % nach Rasterung, Skizzen ohne Primitive, Determinismus) grün; tests/unit/seed/data.unit.spec.ts angepasst.
+
 ## 2026-10-03 – P8.11
 
 - `pnpm art:coco-refs` (scripts/art/coco-refs.ts): liest Fotos aus content/seed/coco/ (JPG/PNG/HEIC, .mp4 nur gelistet) und Juttas Skizzen aus content/art/jutta-skizzen/, normalisiert mit sharp (Orientierung, sRGB, ohne jede Metadaten inkl. GPS, ≤ 1600 px) nach .data/art-refs/coco/ und schreibt content/art/coco-refs.json (Quelle, sha256, Maße, Pose aus coco-<pose>-<n>, Herkunft); die 9 Highlight-Referenzen stehen immer drin; nicht dekodierbares HEIC wird übersprungen und gemeldet.\n- Ohne eigene Fotos: Hinweis „keine eigenen Fotos“ (OFFENE-PUNKTE: wartet auf Jutta).\n- Tests: tests/unit/art/coco-refs.unit.spec.ts (7: GPS-Fixture ohne EXIF/GPS nach der Normalisierung, Posen-Erkennung, HEIC-Rückfall, Idempotenz byte-gleich, committete Datei aktuell, kein Hash in public/.next/static/Vorschau/Seed-Medien).

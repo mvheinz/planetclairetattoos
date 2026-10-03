@@ -4376,7 +4376,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     gezeichnet“. P11-Nacharbeit: kommen Fotos (A05), `pnpm art:coco-refs` und Coco in einer Nach-Session mit dem
     P9-Verfahren nachschärfen.
 
-- [ ] **P8.12 Platzhalter-Zeichnungen I: Werkzeug und Stück-Platzhalter** – Hilfsbibliothek
+- [x] **P8.12 Platzhalter-Zeichnungen I: Werkzeug und Stück-Platzhalter** – Hilfsbibliothek
   `scripts/art/lib/handline.ts` (gesäter Wackel auf Pfaden, offene Enden, 1–2 Doppelkonturen, Schatten aus 5–7
   Schraffurstrichen unter 40°, eine um 3–4 Einheiten versetzte Wash-Fläche) und Generator
   `scripts/art/placeholders.ts` als `pnpm art:placeholders`, der aus Motiv-Skizzen

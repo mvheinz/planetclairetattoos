@@ -60,3 +60,4 @@ node_modules/
 
 # Lighthouse-CI (pnpm test:perf, Berichte nur lokal/als CI-Artefakt)
 /.lighthouseci/
+/artifacts/

@@ -59,6 +59,7 @@
     "art:sprite": "tsx scripts/art/build-sprite.ts",
     "art:calibration": "tsx scripts/art/calibration-sheet.ts",
     "art:coco-refs": "tsx scripts/art/coco-refs.ts",
+    "art:placeholders": "tsx scripts/art/placeholders.ts",
     "fixtures:barcodes": "tsx scripts/fixtures/barcodes.ts"
   },
   "dependencies": {
@@ -125,6 +126,7 @@
     "jsdom": "28.0.0",
     "jsqr": "1.4.0",
     "pdf-parse": "2.4.5",
+    "potrace": "2.1.8",
     "prettier": "3.9.9",
     "smtp-server": "3.19.13",
     "subset-font": "2.9.0",

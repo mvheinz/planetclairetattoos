@@ -1,3 +1,4 @@
+import os from 'node:os'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 
@@ -183,10 +184,12 @@ describe('Ersatzzeichnung (SEED-SPEC §4.3)', () => {
     expect(a).not.toMatch(/<text/)
     expect(fallbackArtSvg('ph:flash-902', null)).not.toContain('#E3D3BA')
     expect(fallbackArtSvg('ph:teller-02', 'sky')).not.toBe(fallbackArtSvg('ph:teller-01', 'sky'))
-    const { data, fromFile } = await placeholderArtWebp('ph:shirt-02', 'clay')
+    // ohne Zeichnung (leeres Wurzelverzeichnis) → Ersatzzeichnung; mit Zeichnung aus P8.12 → echte Datei
+    const { data, fromFile } = await placeholderArtWebp('ph:shirt-02', 'clay', os.tmpdir())
     expect(fromFile).toBe(false)
     const meta = await sharp(data).metadata()
     expect([meta.format, meta.width, meta.height]).toEqual(['webp', 800, 1000])
+    expect((await placeholderArtWebp('ph:shirt-02', 'clay')).fromFile).toBe(true)
     expect(() => fallbackArtSvg('ph:vase-01', 'clay')).toThrow(/Unbekannter Platzhalter/)
   })
 })

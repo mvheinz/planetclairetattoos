@@ -9,6 +9,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest
 
 import { getEnv, resetEnvCache, type Env } from '@/lib/env'
 import { cropPixels } from '@/lib/seed/example'
+import { fallbackArtSvg, placeholderArtWebp } from '@/lib/seed/fallbackArt'
 import { SEED_EXPECTED_DETAIL, expectedCount } from '@/lib/seed/expected'
 import { loadSeedData } from '@/lib/seed/loader'
 import { fileResponseHandler, uploadStaticDir } from '@/lib/storage'
@@ -58,6 +59,16 @@ async function serve(filename: string, env: Env): Promise<Response | undefined> 
 
 const sha256 = (b: Buffer) => createHash('sha256').update(b).digest('hex')
 
+/** Mittlere Abweichung je Kanal (0–255) zweier Bilder, beide auf 80×100 verkleinert. */
+async function pixelDiff(a: Buffer, b: Buffer): Promise<number> {
+  const raw = (x: Buffer) =>
+    sharp(x).resize(80, 100, { fit: 'fill' }).removeAlpha().raw().toBuffer()
+  const [pa, pb] = await Promise.all([raw(a), raw(b)])
+  let sum = 0
+  for (let i = 0; i < pa.length; i++) sum += Math.abs(pa[i]! - pb[i]!)
+  return sum / pa.length
+}
+
 beforeAll(async () => {
   payload = await getTestPayload()
   await runCanonicalSeed(payload)
@@ -88,6 +99,23 @@ describe('Medien des Beispielbestands (SEED-SPEC §4.1, §4.2)', () => {
       expect(m.source).toBe('placeholder')
       expect(m.alt).toMatch(/^Platzhalter-Zeichnung: /)
       expect([m.width, m.height]).toEqual([800, 1000])
+    }
+  })
+
+  it('P8.12 P8.13: kein Platzhalter stammt mehr aus fallbackArt – jedes Bild ist die gerasterte Zeichnung aus src/art/placeholders', async () => {
+    const data = await loadSeedData({ now: SEED_N })
+    const dir = uploadStaticDir('media')
+    expect(data.media.placeholders).toHaveLength(SEED_EXPECTED_DETAIL.media.placeholders)
+    for (const entry of data.media.placeholders) {
+      const art = await placeholderArtWebp(entry.key, entry.wash)
+      expect(art.fromFile, entry.key).toBe(true)
+      const doc = media.find((m) => m.seedKey === `media:${entry.key}`)!
+      const stored = await readFile(path.join(dir, String(doc.filename)))
+      const fallback = Buffer.from(fallbackArtSvg(entry.key, entry.wash))
+      // gespeichertes Bild (ggf. neu kodiert) gleicht der Zeichnung, nicht der Ersatzzeichnung
+      const toArt = await pixelDiff(stored, art.data)
+      expect(toArt, entry.key).toBeLessThan(3)
+      expect(toArt, entry.key).toBeLessThan(await pixelDiff(stored, fallback))
     }
   })
 
