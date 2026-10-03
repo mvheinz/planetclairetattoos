@@ -34,8 +34,11 @@ export const PARTS = [
 ] as const
 export type Part = (typeof PARTS)[number]
 
-/** Kopflänge K in viewBox-Einheiten (Hinterkopf bis Nasenspitze, Seitenansicht; DESIGN §10.1). */
-export const K = 36
+/**
+ * Kopflänge K (Hinterkopf bis Nasenspitze, Seitenansicht; DESIGN §10.1): Köpfe sind lokal mit 36 Einheiten gezeichnet
+ * und werden mit 1,1 eingesetzt – im Sprite ist K = 39,6 viewBox-Einheiten.
+ */
+export const K = 36 * 1.1
 export const GROUND_Y = 112
 
 export const SPRITE_POSES = [
@@ -206,9 +209,9 @@ function earPts(h: number, lean: number): P[] {
     [-12, 1.5],
     [-14.6, -0.3 * h],
     [-12.4, -0.64 * h],
-    [-7, -0.94 * h],
-    [-4.2, -h],
-    [-1.6, -0.9 * h],
+    [-7.6, -0.9 * h],
+    [-4.6, -h],
+    [-1.2, -0.95 * h],
     [2.4, -0.58 * h],
     [5.2, -0.26 * h],
     [6, 1],
@@ -219,7 +222,7 @@ function earPts(h: number, lean: number): P[] {
 function sideHead(t: Tf, o: HeadOpts = {}): Stroke[] {
   const near = o.earNear ?? -30
   const far = o.earFar ?? -36
-  const es = o.earScale ?? 0.92
+  const es = o.earScale ?? 0.86
   const earN = map({ x: 1, y: -11 }, earPts(34 * es, near))
   const earNIn = map(
     { x: 1, y: -11 },
@@ -360,31 +363,22 @@ function sideHead(t: Tf, o: HeadOpts = {}): Stroke[] {
       jitter: 0.4,
     })
   else {
-    // großes dunkles Mandelauge mit Glanzpunkt oben vorn (Seitenblick), Lidfalte als offener Bogen
+    // Auge wie in Juttas Skizzen: offener Ring, große dunkle Pupille nach vorn gerückt (Seitenblick), Glanzpunkt
     s.push({
       layer: 'solid',
       part: 'eye-l',
-      pts: blob([2.2, -3.6], 3.7, 3.1, -14, 7),
+      pts: blob([3, -3.4], 3.9, 3.2, -14, 7),
       closed: true,
       jitter: 0.25,
     })
     s.push({
       layer: 'hi',
       part: 'eye-l',
-      pts: blob([3.6, -4.9], 1.05, 0.9, 0, 4, 0.1),
+      pts: blob([4.4, -4.6], 1.05, 0.9, 0, 4, 0.1),
       closed: true,
       jitter: 0.1,
     })
-    s.push({
-      layer: 'line',
-      part: 'head',
-      pts: [
-        [-2.6, -7.6],
-        [1.5, -9.1],
-        [5.4, -7.6],
-      ],
-      jitter: 0.5,
-    })
+    s.push({ layer: 'line', part: 'head', pts: blob([2, -3.8], 5.6, 4.5, -14, 8), jitter: 0.4 })
   }
   return s.map((st) => ({ ...st, pts: map(t, st.pts) }))
 }
@@ -478,7 +472,7 @@ function sideFigure(r: SideRig): Figure {
     hr: apply(T, [X(-21), 0]),
     hl: apply(T, [X(-26), 1]),
   }
-  const tl = tailOutline(map(T, r.tail), 4.6)
+  const tl = tailOutline(map(T, r.tail), 5.2)
   const strokes: Stroke[] = [
     // ferne Beine zuerst
     { layer: 'line', part: 'leg-hr', pts: leg(piv.hr, r.hr, face), jitter: 0.6 },
@@ -527,10 +521,11 @@ function sideFigure(r: SideRig): Figure {
 // Schwanz-Formen (Rumpf-System, Wurzel am Po): lockere Sichel nach oben über den Rücken
 const TAIL_SICKLE: P[] = [
   [-33, -6],
-  [-40, -13],
-  [-42, -24],
-  [-37, -32],
-  [-29, -32],
+  [-40, -12],
+  [-42.5, -22],
+  [-38, -29.5],
+  [-31, -29],
+  [-29.5, -23],
 ]
 const TAIL_BACK: P[] = [
   [-33, -6],
@@ -546,6 +541,34 @@ const TAIL_HIGH: P[] = [
   [-31, -34],
   [-25, -30],
 ]
+
+/** Stehend, Seitenansicht – nur für das Charakterblatt (Messfigur mit Hilfslinien in K), nicht im Sprite. */
+export function stehen(): Figure {
+  return sideFigure({
+    torso: { x: 76, y: 76, rot: 0 },
+    head: { x: 118, y: 52, rot: 4 },
+    headOpts: { earNear: -26, earFar: -32 },
+    fl: [
+      [17, 4],
+      [15, 2],
+    ],
+    fr: [
+      [17, -4],
+      [15, -2],
+    ],
+    hl: [
+      [12, 12],
+      [12, -8],
+      [8, 2],
+    ],
+    hr: [
+      [12, 6],
+      [12, -12],
+      [8, -2],
+    ],
+    tail: TAIL_SICKLE,
+  })
+}
 
 /** Rennen: drei echte Gangphasen (Galopp), Anker am Rücken ± 3; Beine als fast gerade Striche wie in Juttas Skizzen. */
 function rennen(frame: 'a' | 'b' | 'c'): Figure {
@@ -768,15 +791,17 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
     [-3.6, -13.5],
   ]
   // beim schiefen Kopf steht das linke Ohr etwas höher (das rechte knickt)
-  const earL = earL0.map(([x, y]): P => [x, knick ? y * 1.08 : y])
-  const earR: P[] = knick
+  // Ohren etwas kürzer und runder als ein Fennek (Prüf-Linse P9.8): Höhe um 10 % zur Basis hin gestaucht
+  const shrink = ([x, y]: P): P => [x, -12 + (y + 12) * 0.9]
+  const earL = earL0.map(([x, y]): P => shrink([x, knick ? y * 1.15 : y]))
+  const earR0: P[] = knick
     ? [
         [4, -13.6],
         [10, -23],
         [16, -31.6],
-        add([21.6, -34], flop),
-        add([26.4, -30], flop),
-        [23.4, -26],
+        add([22.4, -35], flop),
+        add([28, -28.6], flop),
+        [24, -25],
         [21.6, -19],
         [18.6, -11],
         [15.4, -6],
@@ -791,6 +816,7 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
         [19.6, -12],
         [15.4, -6],
       ]
+  const earR = earR0.map(shrink)
   const s: Stroke[] = [
     // Schädel und Wangen – offen, mit Absetzer oben
     {
@@ -854,69 +880,53 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
     {
       layer: 'solid',
       part: 'eye-l',
-      pts: blob([-8.2, -1.8], 3.6, 3.2, -18, 7),
+      pts: blob([-6.9, -1.6], 3.6, 3.2, -18, 7),
       closed: true,
       jitter: 0.25,
     },
     {
       layer: 'solid',
       part: 'eye-r',
-      pts: blob([6.6, -3], 4.2, 3.3, 12, 7),
+      pts: blob([8, -2.8], 4.5, 3.4, 12, 7),
       closed: true,
       jitter: 0.25,
     },
     {
       layer: 'hi',
       part: 'eye-l',
-      pts: blob([-7, -3.2], 1, 0.9, 0, 4, 0.1),
+      pts: blob([-5.7, -3], 1, 0.9, 0, 4, 0.1),
       closed: true,
       jitter: 0.1,
     },
     {
       layer: 'hi',
       part: 'eye-r',
-      pts: blob([7.9, -4.4], 1.05, 0.9, 0, 4, 0.1),
+      pts: blob([9.3, -4.2], 1.05, 0.9, 0, 4, 0.1),
       closed: true,
       jitter: 0.1,
     },
-    // Lidfalten
-    {
-      layer: 'line',
-      part: 'head',
-      pts: [
-        [-12.4, -5.6],
-        [-8.6, -7],
-        [-4.8, -5.4],
-      ],
-      jitter: 0.5,
-    },
-    {
-      layer: 'line',
-      part: 'head',
-      pts: [
-        [2.4, -7],
-        [6.4, -8.4],
-        [10.6, -6.4],
-      ],
-      jitter: 0.5,
-    },
+    // Augenringe offen (Juttas „Oh“-Skizze), Pupillen zur Seite gerückt = Seitenblick
+    { layer: 'line', part: 'head', pts: blob([-8.6, -2], 5.4, 4.6, -18, 8), jitter: 0.4 },
+    { layer: 'line', part: 'head', pts: blob([6.4, -3.2], 5.8, 4.6, 12, 8), jitter: 0.4 },
     // Ohren mit Innenohr-Linie; linkes doppelt nachgezogen
     { layer: 'line', part: 'ear-l', pts: earL, jitter: 0.4 },
     {
       layer: 'line',
       part: 'ear-l',
-      pts: [
-        [-13.4, -11],
-        [-20, -21.6],
-        [-24.2, -31],
-      ],
+      pts: (
+        [
+          [-13.4, -11],
+          [-20, -21.6],
+          [-24.2, -31],
+        ] as P[]
+      ).map(shrink),
       jitter: 0.6,
     },
     { layer: 'line', part: 'ear-r', pts: earR, jitter: 0.4 },
     {
       layer: 'line',
       part: 'ear-r',
-      pts: knick
+      pts: (knick
         ? [
             [8.6, -12],
             [14, -20.6],
@@ -926,7 +936,8 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
             [9, -12],
             [15.6, -20.6],
             [22.4, -29],
-          ],
+          ]
+      ).map((p) => shrink(p as P)),
       jitter: 0.6,
     },
     // Schnurrhaare (lang, leicht gebogen) – je Seite 2
@@ -986,7 +997,7 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
 
 function sitzenFigure(knick: boolean, frame: string): Figure {
   // Schwanzspitze wedelt zwischen den Frames um gut eine Einheit (lebendig, gleiche Anatomie)
-  const wag: P = frame === 'b' ? [1.6, -0.8] : frame === 'c' ? [-1.2, 0.6] : [0, 0]
+  const wag: P = frame === 'b' ? [1.6, -0.8] : frame === 'c' ? [-1.2, -0.6] : [0, 0]
   const ring: P = [60.4, 62.6]
   const head: Tf = knick ? { x: 85, y: 43, rot: -14, s: 1.1 } : { x: 86, y: 42, rot: -3, s: 1.1 }
   const strokes: Stroke[] = [
@@ -1162,7 +1173,7 @@ function sitzenFigure(knick: boolean, frame: string): Figure {
       closed: true,
       jitter: 0.2,
     },
-    ...frontHead(head, knick, mul(wag, 1.4)),
+    ...frontHead(head, knick, mul(wag, 1.8)),
   ]
   return { strokes, ring, hidden: ['leg-hr'] }
 }
@@ -1490,11 +1501,14 @@ export function symbolSpecs(): SymbolSpec[] {
 }
 
 /**
- * Striche eines Symbols mit Handmerkmalen. Frame A: Stützpunkte nur leicht (0,3–0,9) gezittert; B und C: jede Linie
- * neu nachgezeichnet (0,5–1,5). Absetzer/Doppelkontur je Frame an anderer Stelle (eigener Seed).
+ * Striche eines Symbols mit Handmerkmalen. Frame A: Stützpunkte nur leicht (0,2–0,6 Einheiten) gezittert; B und C:
+ * jede Linie neu nachgezeichnet (0,5–1,5 Einheiten, DESIGN §10.7). Absetzer/Doppelkontur je Frame an anderer Stelle
+ * (eigener Seed je Symbol-ID).
  */
-export function renderStrokes(spec: SymbolSpec): { layer: Layer; part: Part; d: string }[] {
-  const fig = figureFor(spec.pose, spec.frame)
+export function renderStrokes(
+  spec: SymbolSpec,
+  fig: Figure = figureFor(spec.pose, spec.frame),
+): { layer: Layer; part: Part; d: string }[] {
   const rand = mulberry32(fnv1a(spec.id))
   const k = spec.frame === 'a' ? 0.6 : 1.6
   const out: { layer: Layer; part: Part; d: string }[] = []
@@ -1556,10 +1570,12 @@ export function renderStrokes(spec: SymbolSpec): { layer: Layer; part: Part; d: 
   return out
 }
 
-function renderSymbol(spec: SymbolSpec): string {
-  const fig = figureFor(spec.pose, spec.frame)
+export function renderSymbol(
+  spec: SymbolSpec,
+  fig: Figure = figureFor(spec.pose, spec.frame),
+): string {
   const byLayer = new Map<Layer, Map<Part, string[]>>()
-  for (const { layer, part, d } of renderStrokes(spec)) {
+  for (const { layer, part, d } of renderStrokes(spec, fig)) {
     const parts = byLayer.get(layer) ?? new Map<Part, string[]>()
     byLayer.set(layer, parts)
     parts.set(part, [...(parts.get(part) ?? []), d])
@@ -1604,7 +1620,9 @@ export function drawSprite(): string {
     'content/art/coco/character-sheet.svg (DESIGN §10). Nicht von Hand ändern: pnpm art:coco && pnpm art:sprite. -->'
   return (
     `<svg xmlns="http://www.w3.org/2000/svg">${header}<style>${SPRITE_STYLE}</style>` +
-    symbolSpecs().map(renderSymbol).join('') +
+    symbolSpecs()
+      .map((spec) => renderSymbol(spec))
+      .join('') +
     '</svg>\n'
   )
 }
