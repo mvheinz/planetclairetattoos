@@ -278,7 +278,16 @@ function lineCases(): line.LineCase[] {
 
 async function stationPairs(sources: art.SourcesJson): Promise<art.StrokePair[]> {
   const out: art.StrokePair[] = []
-  for (const v of sources.vectorize) {
+  // vektorisierte Stationen und von Hand nachgezeichnete (`traced`, P9.12) gegen ihre Vorlage im selben Ausschnitt
+  const pairs = [
+    ...sources.vectorize,
+    ...sources.derived.flatMap((d) =>
+      d.kind === 'traced' && d.reference
+        ? [{ id: d.id, file: d.reference, crop: d.crop, threshold: d.threshold }]
+        : [],
+    ),
+  ]
+  for (const v of pairs) {
     const file = path.join('content', 'seed', 'instagram', v.file)
     const svgFile = path.join('src', 'art', 'stations', `${v.id}.svg`)
     if (!existsSync(file) || !existsSync(svgFile)) continue
@@ -387,6 +396,11 @@ export async function runAllChecks(inp: CheckInputs): Promise<CheckResult[]> {
         bytes: size(path.join(PLACEHOLDER_DIR, n)),
       })),
       { kind: 'motif' as const, name: 'planet.svg', bytes: size('src/art/planet.svg') },
+      ...svgFiles('src/art/space').map((n) => ({
+        kind: 'motif' as const,
+        name: n,
+        bytes: size(`src/art/space/${n}`),
+      })),
       ...svgFiles('src/art/icons').map((n) => ({
         kind: 'icon' as const,
         name: n,

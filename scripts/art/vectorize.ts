@@ -43,8 +43,22 @@ export interface VectorizeSource {
 export interface DerivedSource {
   id: string
   from: string
-  kind: 'planet-mark' | 'sprite' | 'placeholder-style'
+  /** `traced`: von Hand nach der Foto-Vorlage nachgezeichnet (Kontrollpunkte im Ausschnitt `crop`, P9.12). */
+  kind: 'planet-mark' | 'sprite' | 'placeholder-style' | 'traced'
   reference?: string
+  /** Nur `traced`: Ausschnitt der Vorlage (Prozent) und Schwellwert für den Strichvergleich (KUNST-QA AR-02). */
+  crop?: { x: number; y: number; w: number; h: number }
+  threshold?: number | 'otsu'
+}
+
+/** Modul einer gezeichneten Station (`content/art/stations/{id}.ts`). */
+interface DrawnStation {
+  ink: Ink
+  tilt: number
+  /** viewBox der Zeichnung (Standard `0 0 400 500`; `traced`: Ausschnitt auf 400 Einheiten Breite). */
+  viewBox?: string
+  /** Strichstärke in viewBox-Einheiten (Standard 3,2; `traced`: wie die Linien der Vorlage). */
+  strokeWidth?: number
 }
 
 export interface SourcesFile {
@@ -277,17 +291,31 @@ function cocoSitzen(root: string): string {
 }
 
 /** Linienzeichnung im Platzhalter-Stil (DESIGN §12.3), aber ohne Grund und Wash, Tusche über `currentColor`. */
-export function lineStation(ink: Ink, seed: number, tilt = 0): string {
+export function lineStation(
+  ink: Ink,
+  seed: number,
+  tilt = 0,
+  opts: { viewBox?: string; strokeWidth?: number } = {},
+): string {
   const strokes = ink.strokes.flatMap((s, i) => handStroke(s, seed + i * 104729)).join('')
   const dots = (ink.dots ?? []).map((d, i) => handBlob(d, seed + 11 + i * 31, 0.45)).join('')
   const lights = (ink.lights ?? []).map((d, i) => handBlob(d, seed + 23 + i * 31, 0.45)).join('')
+  const vb = opts.viewBox ?? '0 0 400 500'
+  const [, , vw, vh] = vb.split(' ').map(Number) as [number, number, number, number]
   return [
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500"><g transform="rotate(${tilt} 200 250)">`,
-    `<path ${LINE_ATTRS} stroke-width="3.2" d="${strokes}"/>`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}"><g transform="rotate(${tilt} ${vw / 2} ${vh / 2})">`,
+    `<path ${LINE_ATTRS} stroke-width="${opts.strokeWidth ?? 3.2}" d="${strokes}"/>`,
     dots ? `<path fill="currentColor" d="${dots}"/>` : '',
     lights ? `<path style="fill:var(--paper,#F4EFE6)" d="${lights}"/>` : '',
     '</g></svg>',
   ].join('')
+}
+
+/** Fester Seed je Station (FNV-1a über die ID) – gleiche Zeichnung bei jedem Lauf. */
+function fnvSeed(id: string): number {
+  let h = 0x811c9dc5
+  for (let i = 0; i < id.length; i++) h = Math.imul(h ^ id.charCodeAt(i), 0x01000193)
+  return (h >>> 0) % 100000
 }
 
 async function derivedStation(root: string, src: DerivedSource): Promise<string> {
@@ -304,14 +332,19 @@ async function derivedStation(root: string, src: DerivedSource): Promise<string>
       return compact(
         `<svg xmlns="http://www.w3.org/2000/svg" viewBox="30 -6 96 120">${cocoSitzen(root)}${planetMarkGroup(root, { x: 92, y: 0, s: 0.42 })}</svg>`,
       )
-    case 'schmuck': {
+    default: {
+      if (src.kind !== 'placeholder-style' && src.kind !== 'traced')
+        throw new Error(`Unbekannte abgeleitete Station „${src.id}“`)
+      // Linienzeichnung aus Kontrollpunkten (Schmuck: Platzhalter-Stil; traced: nach der Foto-Vorlage nachgezeichnet)
       const mod = (await import(pathToFileURL(path.join(root, src.from)).href)) as {
-        default: { ink: Ink; tilt: number }
+        default: DrawnStation
       }
-      return compact(lineStation(mod.default.ink, 0x5c4d, mod.default.tilt))
+      const d = mod.default
+      const seed = src.id === 'schmuck' ? 0x5c4d : fnvSeed(src.id)
+      return compact(
+        lineStation(d.ink, seed, d.tilt, { viewBox: d.viewBox, strokeWidth: d.strokeWidth }),
+      )
     }
-    default:
-      throw new Error(`Unbekannte abgeleitete Station „${src.id}“`)
   }
 }
 

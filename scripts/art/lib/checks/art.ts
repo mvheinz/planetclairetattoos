@@ -383,7 +383,14 @@ export interface SourcesJson {
     threshold?: number | 'otsu'
     crop?: { x: number; y: number; w: number; h: number }
   }[]
-  derived: { id: string; from: string; kind: string }[]
+  derived: {
+    id: string
+    from: string
+    kind: string
+    reference?: string
+    threshold?: number | 'otsu'
+    crop?: { x: number; y: number; w: number; h: number }
+  }[]
 }
 
 /** Quellen, die nie Vorlage sein dürfen (AR-01: Highlights, Profilbild mit Jutta, Godzilla). */

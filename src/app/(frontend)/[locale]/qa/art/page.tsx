@@ -9,7 +9,7 @@ import { STATION_ART } from '@/art/stations'
 import { KnotArt, LeashEndArt } from '@/components/errors/ErrorArt'
 import { PlanetMark, StarMark } from '@/components/home/SpaceMarks'
 import { loadPublicProductSlugs } from '@/lib/data/products'
-import { loadPlaceholderSvgs, loadStationSources } from '@/lib/qa/artSources'
+import { loadPlaceholderSvgs, loadSpaceSvgs, loadStationSources } from '@/lib/qa/artSources'
 import { productPath } from '@/lib/shop/format'
 
 import { requireArtQa } from '../guard'
@@ -42,9 +42,10 @@ const inlineSvg = (svg: string) =>
 export default async function QaArtPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = await requireArtQa(params)
   const t = await getTranslations({ locale, namespace: 'qa' })
-  const [sources, placeholders, wordmark, planet, products] = await Promise.all([
+  const [sources, placeholders, space, wordmark, planet, products] = await Promise.all([
     loadStationSources(),
     loadPlaceholderSvgs(),
+    loadSpaceSvgs(),
     readFile(path.join(process.cwd(), 'public', 'art', 'wordmark.svg'), 'utf8'),
     readFile(path.join(process.cwd(), 'src', 'art', 'planet.svg'), 'utf8'),
     loadPublicProductSlugs().catch(() => []),
@@ -112,6 +113,16 @@ export default async function QaArtPage({ params }: { params: Promise<{ locale: 
             <div className={styles.mark} dangerouslySetInnerHTML={{ __html: inlineSvg(planet) }} />
             <figcaption>planet.svg</figcaption>
           </figure>
+          {space.map((m) => (
+            <figure
+              key={m.id}
+              data-qa-space={m.id}
+              style={{ width: m.id === 'morse-claire' ? 320 : undefined }}
+            >
+              <div className={styles.mark} dangerouslySetInnerHTML={{ __html: inlineSvg(m.svg) }} />
+              <figcaption>{m.id}</figcaption>
+            </figure>
+          ))}
           <figure style={{ width: 240 }}>
             <KnotArt />
             <figcaption>500</figcaption>

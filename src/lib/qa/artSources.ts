@@ -17,7 +17,7 @@ interface Crop {
 }
 interface SourcesJson {
   vectorize: { id: string; file: string; crop: Crop }[]
-  derived: { id: string; from: string; kind: string; reference?: string }[]
+  derived: { id: string; from: string; kind: string; reference?: string; crop?: Crop }[]
 }
 
 export interface QaStationSource {
@@ -71,11 +71,24 @@ export async function loadStationSources(width = 640): Promise<QaStationSource[]
     json.derived.map(async (d) => ({
       id: d.id,
       kind: 'derived' as const,
-      image: d.reference ? await cropDataUri(d.reference, null, width) : null,
+      // `traced` (P9.12): Ausschnitt der Vorlage wie beim Nachzeichnen; sonst das ganze Referenzbild
+      image: d.reference ? await cropDataUri(d.reference, d.crop ?? null, width) : null,
       from: d.reference ? `${d.from} (Referenz ${d.reference})` : d.from,
     })),
   )
   return [...photos, ...derived]
+}
+
+/** Weltraum-Motive (`src/art/space/*.svg`, `pnpm art:space`, DESIGN §12.5) für `/qa/art`. */
+export async function loadSpaceSvgs(): Promise<{ id: string; svg: string }[]> {
+  const dir = path.join(process.cwd(), 'src', 'art', 'space')
+  const files = (await readdir(dir).catch(() => [] as string[])).filter((f) => f.endsWith('.svg'))
+  return Promise.all(
+    files.sort().map(async (f) => ({
+      id: f.replace(/\.svg$/, ''),
+      svg: await readFile(path.join(dir, f), 'utf8'),
+    })),
+  )
 }
 
 /** Alle Platzhalter-SVGs (`src/art/placeholders/*.svg`) als Text. */

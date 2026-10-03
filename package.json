@@ -61,6 +61,7 @@
     "art:calibration": "tsx scripts/art/calibration-sheet.ts",
     "art:coco-refs": "tsx scripts/art/coco-refs.ts",
     "art:placeholders": "tsx scripts/art/placeholders.ts",
+    "art:space": "tsx scripts/art/build-space.ts",
     "art:vectorize": "tsx --import=./scripts/lib/register-server-only.mjs scripts/art/vectorize.ts",
     "art:build": "tsx scripts/art/art-build.ts",
     "art:record": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/art/record.ts",

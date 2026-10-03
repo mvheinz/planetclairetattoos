@@ -269,6 +269,31 @@ function textPath(font: fontkit.Font, text: string, x: number, y: number, size: 
 
 export const OG_TAGLINE = 'Tattoos & Unikate aus Berlin'
 
+/** Coco `rennen` (Frame A) aus dem Sprite, gespiegelt, D-Ring (Anker) auf (x, y); Klassen in Attribute übersetzt. */
+function cocoRennen(x: number, y: number, s: number): string {
+  const sprite = readFileSync(p('src/art/coco/coco-sprite.svg'), 'utf8')
+  const symbol = /<symbol id="coco-rennen-a"[^>]*>([\s\S]*?)<\/symbol>/.exec(sprite)
+  if (!symbol) throw new Error('coco-rennen-a fehlt im Sprite')
+  const anchors = JSON.parse(readFileSync(p('src/art/coco/coco-anchors.json'), 'utf8')) as {
+    anchors: Record<string, [number, number]>
+  }
+  const [ax, ay] = anchors.anchors.rennen ?? [80, 60]
+  const inner = symbol[1]!
+    .replace(/ data-part="[^"]*"/g, '')
+    .replace(/class="fur"/g, 'fill="#E2BF8E"')
+    .replace(
+      /class="harness"/g,
+      `fill="#C23B2A" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round"`,
+    )
+    .replace(
+      /class="line"/g,
+      `fill="none" stroke="${INK}" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"`,
+    )
+    .replace(/class="solid"/g, `fill="${INK}"`)
+    .replace(/class="hi"/g, `fill="${PAPER}"`)
+  return `<g transform="translate(${fmt(x + ax * s, 2)} ${fmt(y - ay * s, 2)}) scale(${-s} ${s})">${inner}</g>`
+}
+
 async function ogSvg(wordmarkSvg: string, planetSvg: string, bricolage600: fontkit.Font) {
   const W = 1200
   const H = 630
@@ -285,8 +310,9 @@ async function ogSvg(wordmarkSvg: string, planetSvg: string, bricolage600: fontk
   const wmX = 88
   const wmY = 170
   // Tuschelinie: kommt von links unten, schwingt unter der Wortmarke entlang und umkreist die Planet-Marke.
+  // Coco `rennen` an der Linienspitze links unten (DESIGN §12.6), gespiegelt: sie läuft die Leine entlang nach links.
   const line =
-    'M-20 560C140 520 300 470 470 480S760 560 880 520C1010 476 1080 380 1040 292' +
+    'M210 516C270 500 330 470 470 480S760 560 880 520C1010 476 1080 380 1040 292' +
     'C1000 206 880 176 830 244C790 300 850 392 950 398C1060 404 1130 330 1150 250'
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">` +
@@ -295,6 +321,7 @@ async function ogSvg(wordmarkSvg: string, planetSvg: string, bricolage600: fontk
     `<path d="${major}" stroke="${GRID}" stroke-opacity="0.12" stroke-width="1.5"/>` +
     `<path d="${line}" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>` +
     planetGroup(planetSvg, 960, 300, 250, 2.4) +
+    cocoRennen(210, 516, 1.75) +
     `<g transform="translate(${fmt(wmX - vx * k, 2)} ${fmt(wmY - vy * k, 2)}) scale(${fmt(k, 4)})">${wm.inner}</g>` +
     `<path fill="${INK}" d="${textPath(bricolage600, OG_TAGLINE, wmX + 6, wmY + vh * k + 78, 46)}"/>` +
     '</svg>'
