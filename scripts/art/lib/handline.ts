@@ -72,7 +72,8 @@ export const ART = {
 } as const
 export type WashName = keyof typeof ART.wash
 
-export const STROKE_WIDTH = 2.4
+/** Strichstärke der Platzhalter (DESIGN §12.3): 2.8 seit P9.13 (vorher 2.4, zu dünn gegenüber Juttas Filzstift). */
+export const STROKE_WIDTH = 2.8
 export const VIEW = { w: 400, h: 500 } as const
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -367,7 +368,8 @@ export interface HandOptions {
   tremor?: number
 }
 
-const DEFAULT_HAND: Required<HandOptions> = { wobble: 1.5, wave: 44, tremor: 0.7 }
+// P9.13: etwas mehr Zittern als in P8 – näher an Juttas Filzstift (ART-NOTES, `coco-oh-01.jpg`)
+const DEFAULT_HAND: Required<HandOptions> = { wobble: 1.8, wave: 40, tremor: 0.9 }
 
 /** Zahlen kompakt verketten (Leerzeichen nur, wo kein Minus trennt). */
 function nums(list: readonly number[]): string {
@@ -441,7 +443,8 @@ export function handStroke(spec: StrokeSpec, seed: number, opts: HandOptions = {
       else pts = slice(pts, 0, total - (2.5 + rand() * 2.5))
     }
     const len = lengthOf(pts)
-    if (!exact && len > 170 && rand() < 0.6) {
+    // P9.13: mehr Absetzer (ab 110 Einheiten, 80 %) – Juttas Konturen setzen oft ab
+    if (!exact && len > 110 && rand() < 0.8) {
       // Absetzer: Stift abgesetzt und knapp daneben neu angesetzt
       const at = len * (0.38 + rand() * 0.24)
       const a = slice(pts, 0, at)

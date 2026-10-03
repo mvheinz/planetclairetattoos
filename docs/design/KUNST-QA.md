@@ -261,8 +261,8 @@ Beleg) **· Schwere bei Verfehlung** (B = Blocker, M = Major, m = Minor; Definit
 | ID | Kriterium | Schwelle | Methode | Schwere |
 |---|---|---|---|---|
 | CO-01 | Vollständigkeit | mindestens 22 Symbole (6 Posen × 3 Frames + 4 Brücken) mit IDs aus DESIGN §10.4, gleiche `viewBox`, alle `data-part` vorhanden oder in `data-hidden-parts` begründet | auto | B |
-| CO-02 | Proportionen (Seitenansicht-Posen `rennen`, `schnueffeln`, `springen`; Sitzposen analog aus Kopfteilen) | Ohrhöhe / Kopflänge 0,80–1,10 · Augenbreite / Kopflänge 0,18–0,26 · Schnauzenlänge / Kopflänge 0,30–0,45 · Beinbreite / Beinlänge ≤ 0,18 · Nase ≤ 0,15 Kopflänge | auto (`getBBox()` der `data-part`-Gruppen auf `/qa/coco`) | M |
-| CO-03 | Merkmale | große aufrechte Ohren (bei `kopfschief` eines leicht geknickt), große dunkle Augen mit Glanzpunkt, kurze Schnauze, schwarze Nase, schlanke Beine, Sichelschwanz (außer `schlafen`), **rotes Geschirr mit D-Ring** in jeder Pose, in der Rücken/Brust sichtbar ist | R1 (Checkliste je Frame im Befund-Format) | B |
+| CO-02 | Proportionen (Seitenansicht-Posen `rennen`, `schnueffeln`, `springen`; Sitzposen analog aus Kopfteilen) | Ohrhöhe / Kopflänge 0,35–0,65 (kleine runde Ohren nach Juttas Skizze `coco-oh-01.jpg`, P9.13; vorher 0,80–1,10) · Augenbreite / Kopflänge 0,18–0,26 · Schnauzenlänge / Kopflänge 0,30–0,45 · Beinbreite / Beinlänge ≤ 0,18 · Nase ≤ 0,15 Kopflänge | auto (`getBBox()` der `data-part`-Gruppen auf `/qa/coco`) | M |
+| CO-03 | Merkmale | runder Kopf, kleine runde Ohren (bei `kopfschief` eines leicht geknickt; Juttas Skizze `coco-oh-01.jpg`, P9.13), große runde dunkle Augen mit Glanzpunkt, kurze Schnauze, dicke schwarze Nase, schlanke Beine, Sichelschwanz (außer `schlafen`), **rotes Geschirr mit D-Ring** in jeder Pose, in der Rücken/Brust sichtbar ist | R1 (Checkliste je Frame im Befund-Format) | B |
 | CO-04 | Anker stabil | D-Ring je Pose über A/B/C ± 2 Einheiten, `rennen` ± 3; `data-ground-y` ± 2 | auto | M |
 | CO-05 | Boil-Stärke | Silhouetten-IoU (gerastert 256 px, Schwelle 50 %) zwischen Frames derselben Pose 0,88–0,97; `rennen` 0,55–0,85 (echte Gangphasen) | auto | M |
 | CO-06 | Handmerkmale je Frame | ≥ 2 offene Konturstellen, ≥ 1 Überstand, ≥ 1 Doppelkontur; Ohren-Asymmetrie (Höhe) 5–15 %; Augen verschieden (Breite ≥ 3 % Unterschied) | auto (Geometrie) + R1 (offene Stellen) | M |
@@ -279,7 +279,7 @@ Beleg) **· Schwere bei Verfehlung** (B = Blocker, M = Major, m = Minor; Definit
 | AR-01 | Quelle und Rechte | jede Stationszeichnung stammt aus der Zuordnung DESIGN §12.4; **keine** Kundenhaut-Fotos, kein Godzilla, keine Bilder mit Jutta | auto (`content/art/sources.json`) + R1 | B |
 | AR-02 | Strichtreue der Vektorisierung | Median-Strichbreite (Distanztransformation) der Zeichnung 0,75–1,25 × Median im Schwellwertbild der Quelle; keine Klumpen (zusammengelaufene Flächen > 2 % der Bildfläche, die im Original offen sind) | auto + R1 | M |
 | AR-03 | Größe | Station ≤ 8 KB, Platzhalter ≤ 6 KB, Motive ≤ 1,5 KB, Icons ≤ 600 B, Wortmarke ≤ 5 KB | auto | m |
-| AR-04 | Platzhalter-Regeln | viewBox 400×500, genau eine Wash-Farbe aus §3.1, Strich 2,4, kein `<text>`, Motiv 55–70 % der Höhe | auto | m |
+| AR-04 | Platzhalter-Regeln | viewBox 400×500, genau eine Wash-Farbe aus §3.1, Strich 2,8 (seit P9.13; vorher 2,4), kein `<text>`, Motiv 55–70 % der Höhe | auto | m |
 | AR-05 | Platzhalter wirken wie Juttas Hand | Bewertung ≥ 4 (Rubrik §6.5), im Shop-Raster zwischen echten Fotos nicht „fremd“ | R1 | M |
 | AR-06 | Weltraum-Motive | handgezeichnet, max. 1 Marke/Station, ≤ 3 Sterne/Bildschirmhöhe, keine Band-Bezüge (Liedtext, Logo, Albumgrafik) | auto (Dichte) + R1 | B (Band-Bezug) / m |
 | AR-07 | Marke klein lesbar | Favicon 16 px als Planet mit Ring erkennbar; Wortmarke ab 24 px Höhe lesbar | R1 | m |

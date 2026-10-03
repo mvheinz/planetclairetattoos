@@ -1061,11 +1061,11 @@ Referenzen: `highlight-more-ceramics.jpg` (Ganzkörper stehend, Geschirr, Schwan
 
 | Teil | Maß | Merkmal |
 |---|---|---|
-| Schädel | Höhe 0,75 K | rund, deutlicher Stopp zur Schnauze |
+| Schädel | Höhe 0,8 K | **rund** (von vorn fast ein Kreis, Juttas Skizze), deutlicher Stopp zur Schnauze |
 | Schnauze | Länge 0,38 K, Höhe an der Wurzel 0,35 K, verjüngt | hell (Papier), kurz bis mittel |
-| Nase | 0,12 K breit | schwarz gefülltes, leicht herzförmiges Oval |
-| Ohren | Höhe 0,95 K, Basis 0,5 K | **groß, aufrecht**, Spitzen leicht gerundet, 15–25° nach außen/hinten; eine Innenohr-Linie; **asymmetrisch** (ein Ohr 5–10 % anders geneigt; bei `kopfschief` knickt ein Ohr leicht ab) |
-| Augen | Ø 0,22 K, auf halber Schädelhöhe, weit gesetzt | **groß, dunkel**, mandel-rund, schwarz gefüllt mit Glanzpunkt (Papier, Ø 0,06 K, oben seitlich); beide Augen minimal verschieden |
+| Nase | 0,13–0,15 K breit | **dick**, schwarz gefülltes Oval (Juttas Skizze) |
+| Ohren | Höhe ≈ 0,45 K, Basis 0,35 K | **klein und rund** (Juttas Coco-Skizze `content/art/jutta-skizzen/coco-oh-01.jpg`, P9.13 – geht den Fotos vor): weiche Lappen mit runder Kuppe oben seitlich am Kopf; eine Innenohr-Linie; **asymmetrisch** (ein Ohr ≈ 10 % kleiner; bei `kopfschief` klappt eines an der Kuppe ab) |
+| Augen | Ø 0,22 K, auf halber Schädelhöhe, weit gesetzt | **groß, rund**, offener Ring mit großer Pupille (Juttas Skizze), schwarz gefüllt mit Glanzpunkt (Papier, Ø 0,06 K, oben seitlich); beide Augen minimal verschieden |
 | Stirn | – | feine helle Blesse zwischen den Augen (nur als ausgesparter Wash) |
 | Schnurrhaare | 2–3 Striche je Seite | wie Juttas Fuchs: lang, leicht gebogen |
 | Körper | Länge (Brust bis Po) 1,9 K, Brusttiefe 0,9 K, Taille 0,6 K | kompakt, tiefe helle Brust, schlanke Taille, Rücken leicht gewölbt |
@@ -1073,7 +1073,7 @@ Referenzen: `highlight-more-ceramics.jpg` (Ganzkörper stehend, Geschirr, Schwan
 | Schwanz | Länge 1,1 K | dünn zur Spitze; stehend/laufend als lockere **Sichel nach oben über den Rücken**; schlafend um den Körper gelegt |
 | Fell | Rücken, Kopfoberseite, Ohren außen, Schwanz: `--coco-fur`; Schnauze, Brust, Bauch, untere Beine: Papier | Farbgrenze nur durch den Wash, **ohne** eigene Linie |
 | **Geschirr** | Halsring + Bauchgurt hinter den Vorderbeinen + Rückensteg | **rot** `--coco-harness`, Kontur `--ink`; **D-Ring** (Ø 0,1 K) auf dem Rücken zwischen den Schulterblättern = **Leinen-Anker** |
-| Gesamthöhe stehend | Widerrist 1,3 K; Ohrspitzen 2,2 K über Boden | – |
+| Gesamthöhe stehend | Widerrist 1,3 K; Ohrkuppen ≈ 1,8 K über Boden | – |
 
 ### 10.2 Strich (passend zu Juttas Zeichnungen)
 
@@ -1382,7 +1382,7 @@ Budgets (Median über den Beispielbestand): `thumb` ≤ 40 KB, `card` ≤ 90 KB;
 Der Beispielbestand (E-63, Mengen laut SEED-SPEC §0.1) hat mehr Stücke als Instagram-Fotos. Wo kein Foto passt, entstehen **Platzhalter im Linienstil** (Konzeptseite „Beispielbestand“).
 
 - **Format:** SVG `viewBox="0 0 400 500"` (4:5), Grund `--paper-2` oder eine Wash-Farbe (§3.1).
-- **Strich:** 2.4 Einheiten `--ink`, runde Enden, eine Werkzeugstärke, Wackel, offene Enden, 1–2 Doppelkonturen, Schatten als 5–7 Schraffurstriche (40°).
+- **Strich:** 2.8 Einheiten `--ink` (P9.13: kräftiger, näher an Juttas Filzstift; vorher 2.4), runde Enden, eine Werkzeugstärke, Wackel, offene Enden mit Absetzern, 1–2 Doppelkonturen, Schatten als 5–7 Schraffurstriche (40°).
 - **Farbe:** höchstens **eine** flache Wash-Fläche hinter der Linie, 3–4 Einheiten versetzt.
 - **Motiv:** das Stück selbst (Schale, Teller, Fliese, Cap, T-Shirt, Kleid, Anhänger, Zeichnungsblatt, Spiegel; Rahmen nur, wenn das Stück laut `framed` gerahmt ist), 55–70 % der Bildhöhe, leicht schief (±3°); auf Keramik-Platzhaltern kleine naive Tiere (Hund/Hase mit Kulleraugen) wie auf Juttas Schalen.
 - **Kein Text im Bild**, keine Kopie konkreter Werke, keine fremden Figuren.

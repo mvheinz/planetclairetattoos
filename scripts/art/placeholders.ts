@@ -1,6 +1,6 @@
 // `pnpm art:placeholders` (PLAN P8.12/P8.13, DESIGN §12.3, SEED-SPEC §4.2): liest die Motiv-Skizzen
 // `content/art/placeholders/{typ}-{n}.ts` (gezeichnete Bezier-Kontrollpunkte, Bausteine aus `_parts.ts`) und schreibt
-// `src/art/placeholders/{typ}-{n}.svg` (400×500, Strich 2.4 Tusche, eine Wash-Fläche laut `content/seed/data/media.json`).
+// `src/art/placeholders/{typ}-{n}.svg` (400×500, Strich 2.8 Tusche, eine Wash-Fläche laut `content/seed/data/media.json`).
 // Deterministisch: zweimal ausführen → byte-gleiche Dateien. Danach `pnpm seed:example --refresh-media`.
 //
 // Optionen: `--sheet` schreibt den Kontaktbogen `artifacts/placeholders-sheet.webp` (nicht committen, für die

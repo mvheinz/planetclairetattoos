@@ -37,7 +37,7 @@ const GUIDE = '#3E7CB1'
 
 /** Messbereiche KUNST-QA CO-02 (Verhältnis zur Kopflänge bzw. Beinlänge). */
 export const CO02_RANGES = {
-  earToHead: [0.8, 1.1],
+  earToHead: [0.35, 0.65],
   eyeToHead: [0.18, 0.26],
   snoutToHead: [0.3, 0.45],
   noseToHead: [0, 0.15],
@@ -101,10 +101,10 @@ function marker(n: number, [x, y]: P, dx: number, dy: number): string {
 }
 
 export const FEATURES = [
-  'Große aufrechte Ohren, breite Basis (0,5 K), leicht asymmetrisch, je eine Innenohr-Linie',
-  'Große dunkle Augen, mandelrund, Glanzpunkt oben vorn (Seitenblick)',
+  'Kleine runde Ohren (Juttas Skizze „Oh“), leicht asymmetrisch, je eine Innenohr-Linie',
+  'Runder Kopf; große runde Augen, offener Ring, große Pupille mit Glanzpunkt (Seitenblick)',
   'Kurze helle Schnauze (Papier), deutlicher Stopp',
-  'Schwarze, leicht herzförmige Nase (0,12 K)',
+  'Dicke schwarze Nase, gefülltes Oval (0,13–0,15 K)',
   'Helle Blesse zwischen den Augen – nur ausgesparter Wash',
   'Tiefe helle Brust, schlanke Taille',
   'Dünne gerade Beine mit hellen „Söckchen“, kleine Pfoten',
@@ -171,7 +171,7 @@ export async function buildSheet(): Promise<{
   out.push(
     guide(ground, 'Boden'),
     guide(withers, `Widerrist ${k(withers)} K`),
-    guide(ear.y0, `Ohrspitze ${k(ear.y0)} K`),
+    guide(ear.y0, `Ohrkuppe ${k(ear.y0)} K`),
     // Kopflänge K als Klammer über dem Kopf
     `<path d="M${X(head.x0)} ${Y(head.y0) - 30}v-8H${X(nose.x1)}v8" stroke="${GUIDE}" stroke-width="1.4" fill="none"/>`,
     text(
@@ -234,10 +234,10 @@ export async function buildSheet(): Promise<{
   const tx = 40
   const ty = 690
   const rows: [string, string, keyof typeof CO02_RANGES][] = [
-    ['Ohrhöhe / K', '0,95', 'earToHead'],
+    ['Ohrhöhe / K', '0,45', 'earToHead'],
     ['Augenbreite / K', '0,22', 'eyeToHead'],
     ['Schnauzenlänge / K', '0,38', 'snoutToHead'],
-    ['Nase / K', '0,12', 'noseToHead'],
+    ['Nase / K', '0,14', 'noseToHead'],
     ['Beinbreite / Beinlänge', '0,12 / 1,0', 'legWidthToLength'],
   ]
   out.push(
@@ -272,7 +272,7 @@ export async function buildSheet(): Promise<{
     text(
       tx,
       y2 + 20,
-      `Gezeichnet: Widerrist ${k(withers)} K, Ohrspitze ${k(ear.y0)} K über Boden (Soll 1,3 / 2,2 K):`,
+      `Gezeichnet: Widerrist ${k(withers)} K, Ohrkuppe ${k(ear.y0)} K über Boden (Soll 1,3 / ≈ 1,8 K):`,
       13,
     ),
     text(

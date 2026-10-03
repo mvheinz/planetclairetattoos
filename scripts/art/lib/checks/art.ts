@@ -174,7 +174,7 @@ const CO02_POSES = [...SIDE_POSES, 'sitzen', 'kopfschief']
 
 export function co02(props: readonly CocoProportions[]): CheckResult {
   const th =
-    'Ohr/Kopf 0,80–1,10 · Auge/Kopf 0,18–0,26 · Schnauze/Kopf 0,30–0,45 · Bein Breite/Länge ≤ 0,18 (Seitenansicht) · Nase ≤ 0,15 Kopf'
+    'Ohr/Kopf 0,35–0,65 · Auge/Kopf 0,18–0,26 · Schnauze/Kopf 0,30–0,45 · Bein Breite/Länge ≤ 0,18 (Seitenansicht) · Nase ≤ 0,15 Kopf'
   // KUNST-QA CO-02 gilt für die Seitenansicht-Posen und (aus den Kopfteilen) die Sitzposen – nicht für `schlafen`
   // (Ohren angelegt, Kopf eingerollt, DESIGN §10.3) und nicht für Brücken.
   const frames = props.filter(
@@ -187,7 +187,8 @@ export function co02(props: readonly CocoProportions[]): CheckResult {
     if (v < lo || v > hi) bad.push(`${p.id}: ${name} ${round(v, 3)}`)
   }
   for (const p of frames) {
-    check(p, 'Ohr/Kopf', p.earToHead, 0.8, 1.1)
+    // kleine runde Ohren nach Juttas Coco-Skizze (P9.13, OFFENE-PUNKTE): früher 0,80–1,10 (Fennek-Ohren)
+    check(p, 'Ohr/Kopf', p.earToHead, 0.35, 0.65)
     check(p, 'Auge/Kopf', p.eyeToHead, 0.18, 0.26)
     check(p, 'Schnauze/Kopf', p.snoutToHead, 0.3, 0.45)
     check(p, 'Nase/Kopf', p.noseToHead, 0, 0.15)
@@ -649,14 +650,14 @@ export async function inkHeightRatio(svg: string): Promise<number> {
 
 export function ar04(items: readonly PlaceholderInput[]): CheckResult {
   const th =
-    'viewBox 400×500, genau eine Wash-Farbe aus §3.1, Strich 2,4, kein <text>, Motiv 55–70 % der Höhe'
+    'viewBox 400×500, genau eine Wash-Farbe aus §3.1, Strich 2,8, kein <text>, Motiv 55–70 % der Höhe'
   if (!items.length) return noData('AR-04', th, 'keine Platzhalter')
   const bad: string[] = []
   for (const p of items) {
     if (!p.svg.includes('viewBox="0 0 400 500"')) bad.push(`${p.name}: viewBox`)
     if (/<text\b/.test(p.svg)) bad.push(`${p.name}: <text>`)
     const widths = [...p.svg.matchAll(/stroke-width="([\d.]+)"/g)].map((m) => Number(m[1]))
-    if (!widths.length || widths[0] !== 2.4) bad.push(`${p.name}: Strich ${widths[0] ?? '–'}`)
+    if (!widths.length || widths[0] !== 2.8) bad.push(`${p.name}: Strich ${widths[0] ?? '–'}`)
     const fills = [...p.svg.matchAll(/fill="(#[0-9A-Fa-f]{6})"/g)].map((m) => m[1]!.toUpperCase())
     const used = [...new Set(fills.filter((f) => p.washes.map((w) => w.toUpperCase()).includes(f)))]
     const want = p.wash ? [p.wash.toUpperCase()] : []

@@ -104,6 +104,46 @@ const norm = (a: P): P => {
 }
 const lerp = (a: P, b: P, t: number): P => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]
 
+/** Höhe einer Punktfolge (y-Ausdehnung). */
+const heightOf = (pts: P[]) => Math.max(...pts.map((p) => p[1])) - Math.min(...pts.map((p) => p[1]))
+
+/**
+ * Ohr-Asymmetrie (DESIGN §10.1, KUNST-QA CO-06: 5–15 %): skaliert `pts` um den Fußpunkt `base`, bis seine Höhe
+ * `ratio` × Höhe von `ref` ist – so bleibt der Unterschied bei kleinen runden Ohren in jeder Pose im Band.
+ */
+function earAsym(pts: P[], ref: P[], base: P, ratio = 0.9): P[] {
+  const k = (ratio * heightOf(ref)) / (heightOf(pts) || 1)
+  return pts.map(([x, y]) => [base[0] + (x - base[0]) * k, base[1] + (y - base[1]) * k])
+}
+
+/**
+ * Ohr-Asymmetrie im fertigen (gedrehten) Kopf: alle Striche des Ohrs `smaller` werden um `base` skaliert, bis ihre
+ * Höhe 90 % der Höhe des anderen Ohrs ist (CO-06 misst die Höhe der `data-part`-Gruppen in Bildschirm-Richtung).
+ */
+function balanceEars(
+  strokes: Stroke[],
+  smaller: 'ear-l' | 'ear-r',
+  base: P,
+  ratio = 0.9,
+): Stroke[] {
+  const other = smaller === 'ear-l' ? 'ear-r' : 'ear-l'
+  const ref = strokes.filter((st) => st.part === other).flatMap((st) => st.pts)
+  const own = strokes.filter((st) => st.part === smaller).flatMap((st) => st.pts)
+  if (!ref.length || !own.length) return strokes
+  const k = (ratio * heightOf(ref)) / (heightOf(own) || 1)
+  return strokes.map((st) =>
+    st.part === smaller
+      ? {
+          ...st,
+          pts: st.pts.map(([x, y]): P => [
+            base[0] + (x - base[0]) * k,
+            base[1] + (y - base[1]) * k,
+          ]),
+        }
+      : st,
+  )
+}
+
 /** Kleiner unruhiger Klecks (Nase, Pupille, Ballen) – nie ein perfekter Kreis. */
 function blob(c: P, rx: number, ry: number, tilt = 0, n = 6, bump = 0.08): P[] {
   return Array.from({ length: n }, (_, i) => {
@@ -216,19 +256,20 @@ interface HeadOpts {
   earScale?: number
 }
 
-/** Ohr (lokal, Basis bei `base`, Spitze leicht gerundet), Höhe `h`. */
+/**
+ * Ohr (lokal, Basis bei `base`), Höhe `h`: klein und rund wie in Juttas Coco-Skizze (`coco-oh-01.jpg`, P9.13) – ein
+ * weicher Lappen mit runder Kuppe statt eines spitzen Fennek-Ohrs.
+ */
 function earPts(h: number, lean: number): P[] {
-  // große, aufrechte Ohren mit breiter Basis (0,5 K), Außenkante bauchig, Spitze leicht gerundet
   const pts: P[] = [
-    [-12, 1.5],
-    [-14.6, -0.3 * h],
-    [-12.4, -0.64 * h],
-    [-7.6, -0.9 * h],
-    [-4.6, -h],
-    [-1.2, -0.95 * h],
-    [2.4, -0.58 * h],
-    [5.2, -0.26 * h],
-    [6, 1],
+    [-9.5, 1.2],
+    [-11.4, -0.34 * h],
+    [-10, -0.72 * h],
+    [-6.2, -0.97 * h],
+    [-2, -h],
+    [1.6, -0.8 * h],
+    [3.2, -0.42 * h],
+    [3.4, 0.6],
   ]
   return rotAround(pts, [-3, 0], lean)
 }
@@ -237,34 +278,39 @@ function sideHead(t: Tf, o: HeadOpts = {}): Stroke[] {
   const near = o.earNear ?? -30
   const far = o.earFar ?? -36
   const es = o.earScale ?? 0.8
-  const earN = map({ x: 1, y: -11 }, earPts(34 * es, near))
+  // kleine runde Ohren oben am Hinterkopf (Juttas Skizze); Höhe ≈ 0,45 K
+  const earN = map({ x: -1, y: -12 }, earPts(16.5 * es, near * 0.8))
   const earNIn = map(
-    { x: 1, y: -11 },
+    { x: -1, y: -12 },
     rotAround(
       [
-        [-6.5, -6],
-        [-7.5, -17],
-        [-5.4, -27],
+        [-6, -2.5],
+        [-6.4, -6.8],
+        [-4.6, -9.6],
       ],
       [-3, 0],
-      near,
+      near * 0.8,
     ),
   )
-  // fernes Ohr: fast deckungsgleich dahinter, nur Hinterkante und Spitze sichtbar, etwas kleiner (Asymmetrie)
-  const earF = map({ x: -1.5, y: -11.5 }, earPts(31.6 * es, far).slice(0, 5))
+  // fernes Ohr: fast deckungsgleich dahinter, nur Hinterkante und Kuppe sichtbar, etwas kleiner (Asymmetrie)
+  const earN0 = earPts(16.5 * es, near * 0.8)
+  const earF = map(
+    { x: -3.5, y: -12.5 },
+    earAsym(earPts(16.5 * es, far * 0.8), earN0, [-3, 0]).slice(0, 5),
+  )
   const s: Stroke[] = [
     // Schädel: vom Kiefer über den Hinterkopf zur Stirn – offen, mit Absetzer
     {
       layer: 'line',
       part: 'head',
       pts: [
-        [-3, 10.5],
-        [-11, 7.5],
-        [-15.6, -0.5],
-        [-13, -10],
-        [-4.5, -14.2],
-        [4, -12.6],
-        [8.2, -7.4],
+        [-3, 10.8],
+        [-11.6, 7.6],
+        [-16.2, -0.8],
+        [-14, -10.8],
+        [-5, -15.6],
+        [4, -14.2],
+        [8.6, -8],
       ],
       feature: 'gap',
     },
@@ -329,16 +375,17 @@ function sideHead(t: Tf, o: HeadOpts = {}): Stroke[] {
     {
       layer: 'solid',
       part: 'nose',
-      pts: noseShape([19.4, 0.3], 4.4, -8),
+      // dicke, gefüllte Nase wie in Juttas Skizze (ovaler Tupfer)
+      pts: blob([19.4, 0.4], 2.7, 2.3, -8, 7),
       closed: true,
       jitter: 0.25,
     },
     // Ohren: nahes Ohr doppelt nachgezogen, Innenohr-Linie; fernes Ohr nur als Kante dahinter
-    { layer: 'line', part: 'ear-l', pts: earN, feature: 'double', jitter: 0.5 },
+    { layer: 'line', part: 'ear-l', pts: earN, jitter: 0.3 },
     { layer: 'line', part: 'ear-l', pts: earNIn, jitter: 0.6 },
     ...(o.noFarEar
       ? []
-      : [{ layer: 'line', part: 'ear-r', pts: earF, jitter: 0.5 } satisfies Stroke]),
+      : [{ layer: 'line', part: 'ear-r', pts: earF, jitter: 0.3 } satisfies Stroke]),
     // Fell-Wash: Kopfoberseite (Blesse/Schnauze bleiben Papier) und Ohren außen
     {
       layer: 'fur',
@@ -381,23 +428,29 @@ function sideHead(t: Tf, o: HeadOpts = {}): Stroke[] {
     })
   else {
     // Auge wie in Juttas Skizzen: offener Ring, große dunkle Pupille nach vorn gerückt (Seitenblick), Glanzpunkt
+    // große runde Augen mit Glanzpunkt (Juttas Skizze)
     s.push({
       layer: 'solid',
       part: 'eye-l',
-      pts: blob([3, -3.4], 3.9, 3.2, -14, 7),
+      pts: blob([3.2, -3.6], 4.1, 3.8, -10, 7),
       closed: true,
       jitter: 0.25,
     })
     s.push({
       layer: 'hi',
       part: 'eye-l',
-      pts: blob([4.4, -4.6], 1.05, 0.9, 0, 4, 0.1),
+      pts: blob([4.5, -5], 1.35, 1.2, 0, 5, 0.1),
       closed: true,
       jitter: 0.1,
     })
-    s.push({ layer: 'line', part: 'head', pts: blob([2, -3.8], 5.6, 4.5, -14, 8), jitter: 0.4 })
+    s.push({ layer: 'line', part: 'head', pts: blob([2, -4], 5.9, 5.5, -10, 8), jitter: 0.4 })
   }
-  return s.map((st) => ({ ...st, pts: map(t, st.pts) }))
+  return balanceEars(
+    s.map((st) => ({ ...st, pts: map(t, st.pts) })),
+    'ear-r',
+    apply(t, [-3.5, -12.5]),
+    0.86,
+  )
 }
 
 // ---------- Seitenfigur (Rumpf lokal: Mitte 0|0, Blick nach +x) ----------
@@ -797,64 +850,63 @@ function abspringen(): Figure {
 
 /** ¾-Kopf (lokal: Schädelmitte 0|0), Schnauze nach rechts unten zum Betrachter. */
 function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
-  // Ohren groß, breit und schräg nach außen gestellt (Fledermaus-Silhouette wie auf den Fotos), rechts etwas kleiner
+  // Ohren klein und rund, oben seitlich am runden Kopf (Juttas Coco-Skizze `coco-oh-01.jpg`, P9.13): weiche Lappen,
+  // das rechte etwas größer (Asymmetrie)
   const earL0: P[] = [
-    [-15, -4],
-    [-22, -13],
-    [-27, -24],
-    [-28.6, -34.6],
-    [-25.6, -37],
-    [-16, -30],
-    [-8, -20.6],
-    [-3.6, -13.5],
+    [-16.2, -7],
+    [-19.6, -12.2],
+    [-19.4, -17.6],
+    [-15.6, -21],
+    [-10.4, -20.6],
+    [-7, -17.8],
+    [-6, -15.2],
   ]
-  // beim schiefen Kopf steht das linke Ohr etwas höher (das rechte knickt)
-  // Ohren etwas kürzer und runder als ein Fennek (Prüf-Linse P9.8): Höhe um 10 % zur Basis hin gestaucht
-  const shrink = ([x, y]: P): P => [x, -12 + (y + 12) * 0.9]
+  const shrink = ([x, y]: P): P => [x, y]
   // beim schiefen Kopf das linke Ohr steiler stellen, damit es trotz Neigung aufrecht wirkt
   const earL1 = earL0.map(([x, y]): P => shrink([x, knick ? y * 1.06 : y]))
-  const earL = knick ? rotAround(earL1, [-9, -9], 16) : earL1
+  const earLr = knick ? rotAround(earL1, [-9, -9], 16) : earL1
   const earR0: P[] = knick
     ? [
-        // Ohr knickt oben deutlich nach außen ab (wie auf den Fotos)
-        [4, -13.6],
-        [10, -24],
-        [15, -32.4],
-        add([19.6, -36], flop),
-        add([25.4, -33.6], flop),
-        add([30, -29], flop),
-        add([26.4, -29.4], flop),
-        [22.4, -27.4],
-        [20.6, -20],
-        [18.6, -11],
-        [15.4, -6],
+        // Ohr klappt an der Kuppe nach außen (Knick bei `kopfschief`)
+        [5.6, -16.4],
+        [8.4, -21.6],
+        [13.4, -23.8],
+        add([18.6, -23], flop),
+        add([22.4, -20], flop),
+        add([20.4, -17.6], flop),
+        [17.6, -15],
+        [16, -11],
       ]
     : [
-        [4, -13.6],
-        [11, -24],
-        [19.4, -31],
-        [25.6, -33.4],
-        [27, -30.2],
-        [24, -21],
-        [19.6, -12],
-        [15.4, -6],
+        [5.6, -16.4],
+        [8, -22],
+        [13.4, -24.6],
+        [18.6, -22.8],
+        [20.6, -17.4],
+        [19, -12.4],
+        [16.4, -9.6],
       ]
-  const earR = earR0.map(shrink)
+  // Asymmetrie 10 %: gerade – links kleiner; schief (Knick rechts) – rechts kleiner
+  const earR1 = earR0.map(shrink)
+  const earL = knick ? earLr : earAsym(earLr, earR1, [-11, -7])
+  const earR = knick ? earAsym(earR1, earLr, [11, -9]) : earR1
   const s: Stroke[] = [
     // Schädel und Wangen – offen, mit Absetzer oben
     {
       layer: 'line',
       part: 'head',
+      // runder Kopf (Juttas Skizze): fast ein Kreis, offen am Kinn
       pts: [
-        [-6, 15.4],
-        [-14, 10.5],
-        [-16.6, 1],
-        [-13.6, -9],
-        [-5.5, -14.6],
-        [3.5, -14.8],
-        [11.8, -10.6],
-        [16.4, -2],
-        [15.8, 6.5],
+        [-5, 16.4],
+        [-14.6, 11.6],
+        [-18.2, 1.6],
+        [-16.2, -9.6],
+        [-8, -16.6],
+        [2.6, -17.6],
+        [12.2, -13.6],
+        [17.4, -4.6],
+        [17.4, 6],
+        [13.6, 13.4],
       ],
       feature: 'gap',
     },
@@ -862,32 +914,34 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
     {
       layer: 'line',
       part: 'snout',
+      // Nasenrücken zwischen den Augen hinab (kurz)
       pts: [
-        [2.2, 0.8],
-        [6.4, 4],
-        [10.6, 5.6],
-        [13.4, 7.6],
+        [0.6, 0.6],
+        [1.4, 3.2],
+        [2.4, 5],
       ],
     },
     {
       layer: 'line',
       part: 'snout',
+      // Kinn
       pts: [
-        [13.8, 11.6],
-        [10.2, 15.2],
-        [5, 16.4],
-        [0.8, 14.8],
+        [10.4, 13.2],
+        [7, 15.2],
+        [2.6, 15.6],
+        [-0.6, 14.2],
       ],
       feature: 'hook',
     },
-    // Maul: Lächeln mit Haken
+    // Maul: Lächeln unter der Nase mit Haken (Juttas „Oh“-Skizze)
     {
       layer: 'line',
       part: 'snout',
       pts: [
-        [2.6, 10.8],
-        [6.6, 12.8],
-        [10.8, 12],
+        [2.8, 9.8],
+        [5.6, 12],
+        [9.4, 11.6],
+        [11.2, 10],
       ],
       feature: 'hook',
       jitter: 0.5,
@@ -895,76 +949,75 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
     {
       layer: 'solid',
       part: 'nose',
-      pts: noseShape([10.6, 8.2], 4.6, 6),
+      // dicke, gefüllte Nase knapp unter und zwischen den Augen
+      pts: blob([3.2, 7], 2.7, 2.3, 6, 7),
       closed: true,
       jitter: 0.25,
     },
     // Augen: groß, dunkel, verschieden; Glanzpunkte oben seitlich (Blick zum Betrachter)
+    // große runde Augen (Juttas „Oh“-Skizze): Pupillen groß, zur Seite gerückt = Seitenblick, Glanzpunkt oben
     {
       layer: 'solid',
       part: 'eye-l',
-      pts: blob([-6.9, -1.6], 3.6, 3.2, -18, 7),
+      pts: blob([-6.4, -3.2], 3.9, 3.6, -12, 7),
       closed: true,
       jitter: 0.25,
     },
     {
       layer: 'solid',
       part: 'eye-r',
-      pts: blob([8, -2.8], 4.5, 3.4, 12, 7),
+      pts: blob([9.2, -3.8], 4.3, 3.9, 10, 7),
       closed: true,
       jitter: 0.25,
     },
     {
       layer: 'hi',
       part: 'eye-l',
-      pts: blob([-5.7, -3], 1, 0.9, 0, 4, 0.1),
+      pts: blob([-5, -4.8], 1.3, 1.2, 0, 5, 0.1),
       closed: true,
       jitter: 0.1,
     },
     {
       layer: 'hi',
       part: 'eye-r',
-      pts: blob([9.3, -4.2], 1.05, 0.9, 0, 4, 0.1),
+      pts: blob([10.6, -5.4], 1.4, 1.25, 0, 5, 0.1),
       closed: true,
       jitter: 0.1,
     },
-    // Augenringe offen (Juttas „Oh“-Skizze), Pupillen zur Seite gerückt = Seitenblick
-    { layer: 'line', part: 'head', pts: blob([-8.6, -2], 5.4, 4.6, -18, 8), jitter: 0.4 },
-    { layer: 'line', part: 'head', pts: blob([6.4, -3.2], 5.8, 4.6, 12, 8), jitter: 0.4 },
+    // Augenringe rund und offen, das rechte etwas größer
+    { layer: 'line', part: 'head', pts: blob([-7.8, -3.4], 5.6, 5.4, -12, 8), jitter: 0.4 },
+    { layer: 'line', part: 'head', pts: blob([7.6, -4], 6.2, 5.8, 10, 8), jitter: 0.4 },
     // Ohren mit Innenohr-Linie
-    { layer: 'line', part: 'ear-l', pts: earL, jitter: 0.4 },
+    { layer: 'line', part: 'ear-l', pts: earL, jitter: 0.3 },
     {
       layer: 'line',
       part: 'ear-l',
       pts: rotAround(
-        (
-          [
-            [-13.4, -11],
-            [-20, -21.6],
-            [-24.2, -31],
-          ] as P[]
-        ).map(shrink),
+        [
+          [-15.4, -11.4],
+          [-16, -16.6],
+          [-13, -19.4],
+        ],
         [-9, -9],
         knick ? 16 : 0,
       ),
       jitter: 0.6,
     },
-    { layer: 'line', part: 'ear-r', pts: earR, jitter: 0.4 },
+    { layer: 'line', part: 'ear-r', pts: earR, jitter: 0.3 },
     {
       layer: 'line',
       part: 'ear-r',
       pts: (knick
         ? [
-            [8.6, -12],
-            [14, -20.6],
-            [19.4, -26.4],
+            [9.6, -18],
+            [13, -20.6],
+            [16.6, -20],
           ]
         : [
-            [9, -12],
-            [15.6, -20.6],
-            [22.4, -29],
-          ]
-      ).map((p) => shrink(p as P)),
+            [9.4, -18.6],
+            [13.4, -21.6],
+            [17.2, -19.6],
+          ]) as P[],
       jitter: 0.6,
     },
     // Schnurrhaare (lang, leicht gebogen) – je Seite 2
@@ -972,9 +1025,9 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
       layer: 'line',
       part: 'head',
       pts: [
-        [12.6, 10.4],
-        [16.4, 10.2],
-        [19, 11.8],
+        [13, 9],
+        [17.4, 8.6],
+        [20.4, 10],
       ],
       jitter: 0.4,
     },
@@ -982,9 +1035,9 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
       layer: 'line',
       part: 'head',
       pts: [
-        [12, 12.6],
-        [15.4, 13.6],
-        [17.6, 15.8],
+        [12.4, 11.4],
+        [16.4, 12.4],
+        [19, 14.4],
       ],
       jitter: 0.4,
     },
@@ -993,12 +1046,12 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
       layer: 'fur',
       part: 'head',
       pts: [
-        [-15.6, 2],
-        [-13.4, -9],
-        [-5.5, -14.2],
-        [-2, -8],
-        [-4.6, -3],
-        [-12.6, 4],
+        [-17.4, 2],
+        [-15.6, -9.6],
+        [-7.6, -16.2],
+        [-2.4, -10],
+        [-2.6, -1],
+        [-14, 6],
       ],
       closed: true,
       jitter: 0.4,
@@ -1007,11 +1060,11 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
       layer: 'fur',
       part: 'head',
       pts: [
-        [3.6, -14.2],
-        [11.6, -10.4],
-        [15.6, -2],
-        [12.4, -1],
-        [2.4, -9],
+        [3, -17],
+        [12, -13.2],
+        [16.8, -4.6],
+        [14, -1],
+        [3, -9.6],
       ],
       closed: true,
       jitter: 0.4,
@@ -1019,7 +1072,11 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
     { layer: 'fur', part: 'ear-l', pts: earL, closed: true, jitter: 0.4 },
     { layer: 'fur', part: 'ear-r', pts: earR, closed: true, jitter: 0.4 },
   ]
-  return s.map((st) => ({ ...st, pts: map(t, st.pts) }))
+  return balanceEars(
+    s.map((st) => ({ ...st, pts: map(t, st.pts) })),
+    knick ? 'ear-r' : 'ear-l',
+    apply(t, knick ? [11, -9] : [-11, -7]),
+  )
 }
 
 function sitzenFigure(knick: boolean, frame: string): Figure {

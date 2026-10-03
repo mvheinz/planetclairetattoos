@@ -222,42 +222,53 @@ export function deer(look = 0.4): Ink {
 // Coco (DESIGN §10.1: große aufrechte Ohren, asymmetrisch; dunkle Augen mit Glanzpunkt; rotes Geschirr)
 
 /**
- * Cocos Kopf in Dreiviertelansicht (Schnauze nach links, Blick seitlich zur Betrachterin), Mitte, Breite ~95:
- * große aufrechte Ohren (asymmetrisch), dunkle Augen mit Glanzpunkt, herzförmige Nase; `collar` = roter Halsring.
+ * Cocos Kopf nach Juttas Skizze `content/art/jutta-skizzen/coco-oh-01.jpg` (P9.13): runder Kopf, kleine runde Ohren
+ * (das rechte etwas größer), große runde Augen mit großer Pupille und Glanzpunkt, dicke gefüllte Nase, Lächeln mit
+ * Haken. Mitte, Breite ~90; `collar` = roter Halsring.
  */
 export function cocoHead(look = -0.4, collar = true): Ink {
   const face = merge(
     ink([
-      'M-15.6 -27.6C-29.6 -41.6 -39 -61 -39.4 -81.4C-27 -73.6 -13.6 -56 -6.4 -38',
-      'M-33.4 -70C-28.6 -61.4 -23.6 -53.6 -18.6 -46.6',
-      { d: 'M14.4 -36.6C21.4 -56 33.6 -71.4 47.6 -77.6C48.4 -61 42.4 -43 30.6 -28.4', double: true },
-      'M42 -67.4C36.4 -59 32.4 -51 28.6 -43.4',
-      'M-6.4 -38.4C0.6 -41.4 8 -40.6 14.4 -36.6',
-      'M30.6 -28.4C38.4 -14.4 36 2 26 13.6',
-      'M-16 -26C-18.6 -20 -20.4 -16.6 -24.6 -12.6C-32.6 -8 -40.6 -3.6 -45 2.4',
-      'M-44.6 10C-36.6 18 -20.6 22.4 -6 22.4C6 22 17.4 19.6 26 13.6',
-      'M-42.6 12.4C-35 14.6 -27.4 13 -22.6 8.6',
-      'M-31 9C-40 8.4 -48.6 10.4 -56 14.4',
-      'M-29.6 12.4C-37.6 13.4 -45 16.6 -51 21.4',
+      // runder Kopf, oben und am Kinn offen
+      { d: 'M-30 -36C-42 -24 -44 -4 -38 10C-32 22 -18 28 -4 28', double: true },
+      'M-24 -42C-16 -47 -6 -49 4 -48',
+      'M12 -46C26 -42 36 -30 38 -14C40 2 34 16 22 23',
+      // kleine runde Ohren (Bögen oben, wie in der Skizze)
+      'M-29 -38C-39 -44 -43 -56 -36 -63C-29 -68 -19 -63 -17 -54',
+      'M-33 -52C-30 -57 -26 -58 -23 -55',
+      'M8 -47C9 -61 21 -69 32 -64C41 -59 41 -46 33 -37',
+      'M17 -57C21 -61 27 -61 30 -57',
+      // Lächeln mit Haken, Kinn
+      'M-14 9C-8 15 2 16 9 10C10 9 11 8 10 6',
+      'M-9 19C-3 22 5 22 11 18',
+      // Schnurrhaare kurz
+      'M-22 6C-31 5 -39 7 -45 11',
+      'M-21 11C-29 12 -36 15 -41 20',
+      'M20 4C29 2 37 4 43 8',
     ], {
-      dots: ['M-50.6 3.6C-51.4 -0.6 -47.4 -2.6 -45.4 -0.6C-43 -2.6 -39 -0.6 -39.6 3.4C-40 6.4 -43 8.4 -45.4 8.4C-47.8 8.4 -50.2 6.4 -50.6 3.6Z'],
+      // dicke Nase: schiefer, gefüllter Tupfer zwischen den Augen
+      dots: [dot(-3, 1, 14, 11)],
     }),
-    eye(-13.4, -18, 7, look, 0.2),
-    eye(11.6, -19, 7.4, look, 0.2),
+    eye(-15, -18, 9, look, 0.15),
+    eye(12, -19, 9.8, look, 0.15),
   )
-  // dunkle Augen: große Pupillen (fast ganz gefüllt), Glanzpunkt bleibt
+  // große runde Pupillen, Glanzpunkt bleibt
   const big = (cx: number, cy: number, r: number) =>
     `M${cx - r} ${cy}C${cx - r} ${cy - r * 1.3} ${cx + r * 1.04} ${cy - r * 1.26} ${cx + r} ${cy}C${cx + r * 0.96} ${cy + r * 1.2} ${cx - r} ${cy + r * 1.16} ${cx - r} ${cy}Z`
-  face.dots = [...(face.dots ?? []), big(-13.4 + look * 1.6, -17.4, 4.6), big(11.6 + look * 1.6, -18.4, 4.8)]
+  face.dots = [
+    ...(face.dots ?? []),
+    big(-15 + look * 2.4, -17.4, 5.4),
+    big(12 + look * 2.4, -18.4, 5.8),
+  ]
   face.lights = [
-    `M${-15.6 + look * 1.6} -20.4c0-1.4 1.8-1.4 1.8 0s-1.8 1.4-1.8 0Z`,
-    `M${9.4 + look * 1.6} -21.4c0-1.4 1.8-1.4 1.8 0s-1.8 1.4-1.8 0Z`,
+    `M${-17.4 + look * 2.4} -20.6c0-1.8 2.4-1.8 2.4 0s-2.4 1.8-2.4 0Z`,
+    `M${9.4 + look * 2.4} -21.8c0-1.8 2.4-1.8 2.4 0s-2.4 1.8-2.4 0Z`,
   ]
   if (!collar) return face
   return merge(
     face,
-    ink(['M-14.4 22C-2.4 27.4 12.4 25.4 22.6 18.6', 'M-13.6 28.6C-1.4 34 13.4 32 23.4 25.4'], {
-      harness: ['M-14.4 22C-2.4 27.4 12.4 25.4 22.6 18.6L23.4 25.4C13.4 32 -1.4 34 -13.6 28.6Z'],
+    ink(['M-16 26C-4 31 10 30 21 23', 'M-15 32C-3 37 11 36 22 29'], {
+      harness: ['M-16 26C-4 31 10 30 21 23L22 29C11 36 -3 37 -15 32Z'],
     }),
   )
 }

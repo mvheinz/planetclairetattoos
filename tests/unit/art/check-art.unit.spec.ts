@@ -243,7 +243,7 @@ describe('P9.5 Coco CO', () => {
 describe('P9.5 Zeichnungen AR', () => {
   const base = { wash: '#E3D3BA', washes: ['#E3D3BA', '#F4CCDA'], inkHeight: 0.6 }
   const svg =
-    '<svg viewBox="0 0 400 500"><rect fill="#EAE2D4"/><path fill="#E3D3BA" d="M0 0"/><g stroke-width="2.4"><path d="M1 1"/></g></svg>'
+    '<svg viewBox="0 0 400 500"><rect fill="#EAE2D4"/><path fill="#E3D3BA" d="M0 0"/><g stroke-width="2.8"><path d="M1 1"/></g></svg>'
 
   it('AR-04: Platzhalter nach Regeln besteht; mit <text> scheitert', () => {
     expect(A.ar04([{ name: 'teller-01', svg, ...base }]).status).toBe('PASS')

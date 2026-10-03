@@ -52,7 +52,7 @@ describe('P8.12/P8.13 Platzhalter-Zeichnungen', () => {
     for (const name of names) expect(() => read(name), name).not.toThrow()
   })
 
-  it('AR-03 AR-04: viewBox 400×500, Strich 2.4 Tusche mit runden Enden, kein Text, keine Formen-Primitive, ≤ 6 KB, ±3°', () => {
+  it('AR-03 AR-04: viewBox 400×500, Strich 2.8 Tusche (P9.13) mit runden Enden, kein Text, keine Formen-Primitive, ≤ 6 KB, ±3°', () => {
     for (const name of names) {
       const svg = read(name)
       expect(svg, name).toContain('viewBox="0 0 400 500"')
