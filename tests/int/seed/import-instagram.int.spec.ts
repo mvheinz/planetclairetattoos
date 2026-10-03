@@ -5,7 +5,7 @@ import path from 'node:path'
 
 import type { Payload } from 'payload'
 import sharp from 'sharp'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { cropPixels } from '@/lib/seed/example'
 import { expectedCount } from '@/lib/seed/expected'
@@ -27,6 +27,9 @@ import {
 // `seed:example --refresh-media` mit denselben Prozent-Ausschnitten, demselben `seedKey`, `source = instagram_export`
 // und unveränderter Anzahl (AK-SEED-19 mit den Pixeln der tatsächlich verwendeten Quelle). Grundlage ist die fiktive
 // Mini-Export-Struktur aus tests/fixtures/instagram-export/ (keine echten Daten).
+
+// Zwei Seed-Läufe mit Medien-Pipeline je Test: mehr Zeit als der Standard.
+vi.setConfig({ testTimeout: SEED_TIMEOUT * 2, hookTimeout: SEED_TIMEOUT })
 
 const REPO = process.cwd()
 const FIXTURE = path.join(REPO, 'tests/fixtures/instagram-export')
