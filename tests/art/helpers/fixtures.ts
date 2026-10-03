@@ -359,7 +359,7 @@ function contextOptions(testInfo: TestInfo): BrowserContextOptions {
 const NAME_SHIM = 'globalThis.__name = globalThis.__name || ((f) => f);'
 
 /** Letztes LCP-Element je Seite für die Sonde (IM-05); WebKit ohne LCP bleibt `null`. */
-const LCP_INIT = `try { new PerformanceObserver((l) => { const e = l.getEntries().at(-1); if (e) window.__artLcpEntry = { url: e.url || '', startTime: e.startTime } }).observe({ type: 'largest-contentful-paint', buffered: true }) } catch (e) {}`
+const LCP_INIT = `try { performance.setResourceTimingBufferSize(5000) } catch (e) {} try { new PerformanceObserver((l) => { const e = l.getEntries().at(-1); if (e) window.__artLcpEntry = { url: e.url || '', startTime: e.startTime } }).observe({ type: 'largest-contentful-paint', buffered: true }) } catch (e) {}`
 
 async function guardHosts(ctx: BrowserContext, onBlocked: (url: string) => void): Promise<void> {
   await ctx.addInitScript(NAME_SHIM)

@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { gzipSync } from 'node:zlib'
+import { gunzipSync, gzipSync } from 'node:zlib'
 
 import sharp from 'sharp'
 
@@ -57,7 +57,14 @@ function walkFiles(dir: string, re: RegExp, out: string[] = []): string[] {
 
 export function loadRun(runDir: string): Omit<CheckInputs, 'evidence'> {
   const raw = path.join(runDir, 'raw')
-  const probes = walkFiles(raw, /^probes\.json$/).map((f) => readJson<ProbeFile>(f)!)
+  const probes = walkFiles(raw, /^probes\.json(\.gz)?$/)
+    // im Bündel gzip-komprimiert (art:bundle); ungepackte Fassung hat Vorrang
+    .filter((f) => !f.endsWith('.gz') || !existsSync(f.slice(0, -3)))
+    .map((f) =>
+      f.endsWith('.gz')
+        ? (JSON.parse(gunzipSync(readFileSync(f)).toString('utf8')) as ProbeFile)
+        : readJson<ProbeFile>(f)!,
+    )
   const axe = walkFiles(raw, /^axe-.*\.json$/).map((f) => {
     const [sc, profile, variant] = path.relative(raw, f).split(path.sep)
     return {

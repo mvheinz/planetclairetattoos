@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-03 – P9.5
+
+- pnpm art:sheets (Kontaktbögen 2400 px/6 Spalten, Coco je Pose A/B/C + ?parts=1, Stationen neben Quelle, Kalibrierbogen; je ≤ 1,5 MB), pnpm art:bundle (manifest.json §8, Vollständigkeit §4.3, ≤ 100 MB, Sonden gzip), pnpm art:check (check.json/check.md, Kriterien aus KUNST-QA §5 geparst, R1/R2/R3 offen markiert, Exit ≠ 0 bei FAIL)
+- Kunst-Kriterien LQ-01…06, CO-01/02/04…08, AR-01…04/06, IM-01/02/05; Aufnahme-Sonden je Standbild (raw/**/probes.json) und axe je Route
+- Lauf 20261003-iter15-21c6686 (alle Bild-Szenarien, 81/81 grün, Last bis 11 bei 4 Kernen): 167 Bögen (56 MB), Bündel 100 MB (Pflichtteil 62 MB)
+- Tests: tests/unit/art/check-art.unit.spec.ts, tests/unit/art/bundle.unit.spec.ts (Negativ-Fixtures Kreisschlaufe/LQ-04, <circle>+Spiegelung/CO-07, #333333/LQ-01, <text>/AR-04; fehlendes Video/Frames/Kalibrierbogen)
+
 ## 2026-10-03 – P9.4
 
 - `tests/art/sc-18.art.spec.ts` (Pixel 7, CPU 4×, ohne Video, Vorlauf verworfen, R01/R02/R04/R07 je 3× mit und 3× `?leash=off`, CDP-Trace je Route) und `pnpm art:metrics` → `metrics/perf.json` mit allen Größen, Gates PF-01…PF-08 relativ zur Grundlinie plus absolute Grenzen; Rechnerlast je Lauf (`host.reliable`).

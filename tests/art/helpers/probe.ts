@@ -128,6 +128,12 @@ function measure(args: ProbeArgs): Probe {
     }
   }
 
+  // ---- Fester Kopfbereich verdeckt den Inhalt darunter ----
+  let occTop = 0
+  const hdr = document.querySelector('header')
+  if (hdr && /fixed|sticky/.test(getComputedStyle(hdr).position))
+    occTop = Math.max(0, r1(hdr.getBoundingClientRect().bottom))
+
   // ---- Coco (an der Leine) ----
   const cocoEl =
     document.querySelector('[data-leash-layer] .coco, .coco[data-leash-coco]') ??
@@ -418,6 +424,7 @@ function measure(args: ProbeArgs): Probe {
     dpr: devicePixelRatio,
     scale: args.scale,
     scrollY: Math.round(scrollY),
+    occTop,
     scrollW: document.documentElement.scrollWidth,
     clientW: document.documentElement.clientWidth,
     leash,

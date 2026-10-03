@@ -474,13 +474,19 @@ type R = { x: number; y: number; w: number; h: number }
 
 /** LG-01: Überdeckungen von Linie (Punkte ± halbe Breite) und Coco-Box mit Textzeilen und Bedienelementen. */
 export function overlaps(p: Probe, tol = 1): string[] {
+  const occ = p.occTop ?? 0
   const obstacles: R[] = [...rects(p.text), ...rects(p.ctrl)]
     .map((r) => ({ x: r.x + tol, y: r.y + tol, w: r.w - 2 * tol, h: r.h - 2 * tol }))
+    .map((r) => {
+      // Teil unter einem festen Kopfbereich ist nicht sichtbar
+      const top = Math.max(r.y, occ)
+      return { ...r, y: top, h: r.y + r.h - top }
+    })
     .filter((r) => r.w > 0 && r.h > 0)
   const out: string[] = []
   if (p.leash) {
     const hw = p.leash.halfW
-    for (const q of linePoints(p.leash.pts))
+    for (const q of linePoints(p.leash.pts).filter((x) => x.y >= occ))
       for (const r of obstacles) {
         const dx = Math.max(r.x - q.x, 0, q.x - (r.x + r.w))
         const dy = Math.max(r.y - q.y, 0, q.y - (r.y + r.h))

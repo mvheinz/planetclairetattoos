@@ -69,6 +69,8 @@ export interface Probe {
   /** Bildpunkte je CSS-Pixel im Standbild */
   scale: number
   scrollY: number
+  /** Unterkante eines festen/klebenden Kopfbereichs (verdeckt alles darüber), sonst 0 */
+  occTop?: number
   scrollW: number
   clientW: number
   leash: ProbeLeash | null

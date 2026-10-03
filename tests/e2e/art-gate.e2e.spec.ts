@@ -84,7 +84,19 @@ test.describe('Kunst-Gate (KUNST-QA §9)', () => {
     })
     expect(mid).toBeGreaterThanOrEqual(0.35)
     expect(mid).toBeLessThanOrEqual(0.75)
-    const before = await page.evaluate(() => (window as LeashWindow).__leash!.drawnLen())
+    // Zeichnen beendet (zwei gleiche Werte im Abstand von 250 ms), dann 400 px hoch.
+    let before = -1
+    await expect
+      .poll(
+        async () => {
+          const v = await page.evaluate(() => (window as LeashWindow).__leash!.drawnLen())
+          const same = v === before
+          before = v
+          return same
+        },
+        { intervals: [250] },
+      )
+      .toBe(true)
     await page.evaluate(() => scrollBy(0, -400))
     await page.waitForTimeout(500)
     expect(await page.evaluate(() => (window as LeashWindow).__leash!.drawnLen())).toBe(before)

@@ -12,6 +12,7 @@ import {
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { gzipSync } from 'node:zlib'
 
 import { zipSync, type Zippable } from 'fflate'
 
@@ -109,7 +110,16 @@ function main(): void {
     scope: string[]
     webkit?: string
   }
-  const files = listFiles(runDir).filter((f) => f.path !== 'manifest.json')
+  // Sonden (raw/**/probes.json, zusammen ~40 MB) gehen gzip-komprimiert ins Bündel (`art:check` liest beides).
+  const gz = new Map<string, Buffer>()
+  const files = listFiles(runDir)
+    .filter((f) => f.path !== 'manifest.json')
+    .map((f) => {
+      if (!/^raw\/.*\/probes\.json$/.test(f.path)) return f
+      const buf = gzipSync(readFileSync(path.join(runDir, f.path)), { level: 9 })
+      gz.set(`${f.path}.gz`, buf)
+      return { path: `${f.path}.gz`, bytes: buf.length }
+    })
   const missing = missingRecordings(files, run.scope)
   const full = isFullRun(run.scope)
   const selection = selectFiles(files)
@@ -119,7 +129,13 @@ function main(): void {
 
   const out = path.join(runDir, 'bundle')
   rmSync(out, { recursive: true, force: true })
-  for (const f of selection.included) place(path.join(runDir, f.path), path.join(out, f.path))
+  for (const f of selection.included) {
+    const buf = gz.get(f.path)
+    if (buf) {
+      mkdirSync(path.dirname(path.join(out, f.path)), { recursive: true })
+      writeFileSync(path.join(out, f.path), buf)
+    } else place(path.join(runDir, f.path), path.join(out, f.path))
+  }
   writeFileSync(path.join(out, 'manifest.json'), manifestJson)
 
   const errors: string[] = []
@@ -136,7 +152,7 @@ function main(): void {
     for (const f of [...selection.included, { path: 'manifest.json', bytes: 0 }])
       z[f.path] = [
         new Uint8Array(readFileSync(path.join(out, f.path))),
-        { level: /\.(webm|webp|png)$/.test(f.path) ? 0 : 6 },
+        { level: /\.(webm|webp|png|gz)$/.test(f.path) ? 0 : 6 },
       ]
     writeFileSync(path.join(ART_ROOT, `${runId}.zip`), zipSync(z))
   }

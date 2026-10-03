@@ -4716,7 +4716,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: `tests/unit/art/metrics.unit.spec.ts` mit aufgezeichneten Beispiel-JSONs in `tests/fixtures/art/`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.5 Kontaktbögen, Bündel und automatische Prüfung I (Kunst)** – `scripts/art/sheets.ts` als
+- [x] **P9.5 Kontaktbögen, Bündel und automatische Prüfung I (Kunst)** – `scripts/art/sheets.ts` als
   `pnpm art:sheets` (sharp-Raster ≤ 2400 px breit, 6 Spalten, Beschriftung Szenario/Profil/`t`/`y`; Coco-Bögen je Pose
   A/B/C in allen Größen plus `?parts=1`-Fassung; Stationszeichnung neben Quelle; `sheets/art|motion|a11y/*.webp` je
   ≤ 1,5 MB; der Kalibrierbogen aus P9.2 liegt in jedem Bündel als `sheets/art/calibration-p2-placeholder.webp`),
