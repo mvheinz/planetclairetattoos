@@ -1,6 +1,7 @@
 import React from 'react'
 
-import { Icon } from '@/components/icons/Icon'
+import { Glyph } from '@/components/icons/Glyph'
+import { ICON_ARROW_RIGHT, ICON_WARN } from '@/components/icons/icons.generated'
 
 import styles from './forms.module.css'
 
@@ -51,7 +52,7 @@ export function FieldError({ id, children }: { id?: string; children?: React.Rea
   if (!id || !children) return null
   return (
     <p id={id} className={styles.error}>
-      <Icon name="warn" size={18} className={styles.errorIcon} />
+      <Glyph shape={ICON_WARN} size={18} className={styles.errorIcon} />
       <span>{children}</span>
     </p>
   )
@@ -159,7 +160,7 @@ export function Select(props: SelectProps) {
             </option>
           ))}
         </select>
-        <Icon name="arrow-right" size={20} className={styles.selectArrow} />
+        <Glyph shape={ICON_ARROW_RIGHT} size={20} className={styles.selectArrow} />
       </div>
       <FieldError id={errorId}>{error}</FieldError>
     </div>

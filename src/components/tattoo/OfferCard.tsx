@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
+import { ICON_MAIL, ICON_INSTAGRAM } from '@/components/icons/icons.generated'
 import { ResponsiveImage } from '@/components/media/ResponsiveImage'
 import { Button } from '@/components/ui/Button'
 import { instagramDmUrl } from '@/lib/data/contact'
@@ -114,7 +115,7 @@ export async function OfferCard({
               <Button
                 variant="secondary"
                 href={mailto}
-                icon="mail"
+                icon={ICON_MAIL}
                 data={{ 'data-offer-mail': '' }}
               >
                 {t('mail')}
@@ -124,7 +125,7 @@ export async function OfferCard({
               variant="secondary"
               href={instagramDmUrl(settings.instagramHandle)}
               rel="noopener noreferrer"
-              icon="instagram"
+              icon={ICON_INSTAGRAM}
               data={{ 'data-offer-dm': '' }}
             >
               {t('dm')}
