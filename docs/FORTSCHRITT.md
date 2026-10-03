@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-03 – P8.14
+
+- content/art/sources.json (Schema DESIGN §12.4, Prozent-Ausschnitte; zusätzlich optional dense) und pnpm art:vectorize (scripts/art/vectorize.ts): sharp (Ausschnitt → luma/min → normalise → Lanczos3 → blur 0.5 → Otsu/fest → Median 3) → potrace 2.1.8 (nur devDependency, dynamisch importiert) → SVGO → fill currentColor, evenodd. Gemappte Export-Originale (P8.10) haben Vorrang.
+- Stationen: keramik (Hund aus der Schale, nur schwarze Linien), textil (Wesen der pinken Cap, Kanal min), zeichnungen (zwei Figuren, oberer Ausschnitt, Kritzelfell als Fläche), tattoo (Kelch mit Schlange); schmuck als Linienzeichnung im Platzhalter-Stil (content/art/stations/schmuck.ts, Fuchs-Anhänger); planet-claire aus der Planet-Marke; hallo und jutta-und-coco aus Coco sitzen (Sprite) bzw. + Planet. Ausgabe src/art/stations/*.svg + stations.generated.ts, eingebunden in StationArt (KO-21), aria-hidden.
+- Größen: 0,6–6,3 KB je Station (≤ 8 KB); R01: SVG gesamt 54,1 KB (≤ 60 KB), Pfaddaten im DOM unter 60 KB; potrace in keinem Client-Chunk (neue Prüfung in pnpm check:bundle). Deterministisch (zwei Läufe byte-gleich). Hinweis: check:bundle meldet R10/R26 JS 150,4–155,4 KB > 150 KB – unabhängig von P8.14 (kein Client-Code geändert).
+- Tests: tests/unit/art/stations.unit.spec.ts (6: Größe, Quellen-Whitelist AR-01, currentColor E-73, generiertes Modul = Dateien, potrace nur devDependency, Determinismus mit Mini-Quelle), tests/unit/perf/check-bundle.unit.spec.ts (+1), E2E tests/e2e/home/station-art.e2e.spec.ts (desktop + pixel-7: 7 Stationszeichnungen, aria-hidden, Tusche, ohne Konsolenfehler) sowie home/leash-E2E grün gegen Produktions-Build.
+
 ## 2026-10-03 – P8.13
 
 - Flash-Platzhalter flash-902 … flash-910 (ohne Wash, Grund Papier-2, klare Kontur): Hasen-Trio, Fuchs mit Kulleraugen, Schmetterling mit Tupfen, Schnecke mit Planetenhaus, Coco sitzt (mit rotem Geschirr), winziger Planet, Reh mit Tupfen, Flammenwesen, Herz mit Beinen – passend zu den Titeln SEED-SPEC §12.1.

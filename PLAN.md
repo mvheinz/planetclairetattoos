@@ -4415,7 +4415,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     kein Platzhalter mehr aus `fallbackArt` stammt.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P8.14 Stationszeichnungen v1 aus Juttas Bildern** – `content/art/sources.json` (Schema DESIGN §12.4: `id`,
+- [x] **P8.14 Stationszeichnungen v1 aus Juttas Bildern** – `content/art/sources.json` (Schema DESIGN §12.4: `id`,
   `file`, `crop`, `channel`, `threshold`, `upscale`, `turdSize`, `alphaMax`, `optTolerance`) und
   `scripts/art/vectorize.ts` als `pnpm art:vectorize` (sharp-Vorverarbeitung → `potrace` **nur** als devDependency →
   SVGO, Füllung `currentColor`) für `keramik` (`post-DdUPhoZOoMW.jpg`, nur schwarze Linien), `textil`

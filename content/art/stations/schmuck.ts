@@ -34,4 +34,5 @@ const ink: Ink = merge(
   eye(222, 182, 7, 0.5),
 )
 
-export default { ink, tilt: -2.2 }
+const station = { ink, tilt: -2.2 }
+export default station

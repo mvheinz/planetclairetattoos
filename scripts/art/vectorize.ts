@@ -213,9 +213,9 @@ export function outlineSvg(
 }
 
 /**
- * Eine Quelle vektorisieren. Ganzzahlige Koordinaten (SVGO floatPrecision 0) auf einer 600 Einheiten breiten viewBox
- * (≈ 0,5 px Genauigkeit bei 300 px Darstellung); passt das nicht ins Budget, 400 Einheiten, danach optTolerance in
- * 0,1-Schritten erhöhen (DESIGN §12.4 Nr. 5).
+ * Eine Quelle vektorisieren. Ganzzahlige Koordinaten (SVGO floatPrecision 0) auf einer 400 Einheiten breiten viewBox
+ * (≈ 0,75 px Genauigkeit bei 300 px Darstellung; mit floatPrecision 1 lägen die Stationen bei 12–40 KB); passt das
+ * nicht ins Budget, optTolerance in 0,1-Schritten erhöhen (DESIGN §12.4 Nr. 5).
  */
 export async function vectorizeSource(input: Buffer, src: VectorizeSource): Promise<string> {
   const pre = await preprocess(input, src)
@@ -223,7 +223,7 @@ export async function vectorizeSource(input: Buffer, src: VectorizeSource): Prom
   let last = ''
   for (;;) {
     const d = await trace(pre.png, { ...src, optTolerance: tol })
-    for (const view of [600, VIEW_WIDTH]) {
+    for (const view of [VIEW_WIDTH]) {
       last = outlineSvg(d, pre.width, pre.height, view, 0)
       if (Buffer.byteLength(last) <= STATION_MAX_BYTES) return last
     }
