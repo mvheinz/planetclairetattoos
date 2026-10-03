@@ -4686,7 +4686,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: `tests/art/sc-00.art.spec.ts` läuft in der Sandbox grün; Unit-Test der Dateinamen- und Lauf-ID-Logik.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.3 Bewegungs-Szenarien aufnehmen** – Szenarien SC-01 bis SC-11, SC-14, SC-15 und SC-17 exakt nach KUNST-QA
+- [x] **P9.3 Bewegungs-Szenarien aufnehmen** – Szenarien SC-01 bis SC-11, SC-14, SC-15 und SC-17 exakt nach KUNST-QA
   §4.3 als `tests/art/sc-XX.art.spec.ts`: Startseite (Intro, 600 px/s, 3000 px/s, 400 px zurück, 1,5 s je Station;
   Frames an `y − 40`, `y`, `y + loopScroll/2`, `y + loopScroll`, `+1,5 s`; Intro alle 100 ms), reduzierte Variante,
   Menü (Öffnen alle 40 ms), Shop/Archiv-Reihen, Produktseite mit „In den Korb“, Korb/Kasse (Mock-Zahlung)/Status/

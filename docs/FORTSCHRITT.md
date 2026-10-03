@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-03 – P9.3
+
+- Szenarien SC-01…SC-11, SC-14, SC-15, SC-17 als `tests/art/sc-XX.art.spec.ts` nach KUNST-QA §4.3 (Frames mit `t`/`y` in der Beschriftung, Kasse/Danke mit Mock-Zahlung, Fremd-Host-Wächter).
+- `art:record` verteilt die Bild-Läufe auf 2 Worker und misst SC-18 danach allein; Rechnerlast wird in `run.json` protokolliert.
+- Leere Frames (nicht gerasterte Kacheln nach Scroll-Sprung in der Pixel-7-Emulation) werden erkannt und neu aufgenommen (`retakes.json`).
+- Tests: vollständige Aufnahme `20261003-iter13-bb9ffe0`: 81 Bild-Tests + SC-18 grün, 3 968 Frames, 81 Videos, 0 leere Frames, 0 Fremd-Hosts; 26,3 min unter Fremdlast (ohne Fremdlast 24,0 min, `iter11`); `pnpm check`, Int grün.
+
 ## 2026-10-03 – P9.2
 
 - `playwright.art.config.ts`: Projekte `art-iphone15` (WebKit), `art-pixel7`, `art-desktop` × `motion`/`reduced` + `art-pixel7-tempo`; Auswahl per Tags am Test; Server = QA-Build `.next-art` (`pnpm art:build`, Debug + ART_QA) auf Port 3200\n- Helfer `tests/art/helpers/` (Clock vor Navigation, scrollTo + 2 rAF, WAAPI-Seek, Boil-Seek, Sequenzen per Clock, Video in Viewport-Größe, Fremd-Hosts blockiert = Testfehler); `pnpm art:record` (Lauf-ID, verweigert bei unsauberem git status, `artifacts/art-qa/<lauf-id>/`), `pnpm art:compare`\n- SC-00, SC-12, SC-13 (Playwright), SC-16 (Skript, `metrics/images.json`); Kalibrierbogen vom unveränderten Sprite v1 neu (72 + 180 px, 137 KB)\n- Nachweis: `art:record --scope SC-00,SC-12,SC-13` zweimal auf Commit 050a858 → 12/12 grün je Lauf, `art:compare`: 75 reduced-Frames pixelgleich\n- Tests: tests/unit/art/record.unit.spec.ts (7), sprite.unit.spec.ts angepasst
