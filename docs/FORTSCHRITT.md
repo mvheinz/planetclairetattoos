@@ -2,6 +2,11 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+
+## 2026-10-03 – P6 CI-Reparatur (Tempo R04)
+
+- Phasenlauf (26d07e2): nur Lighthouse R04 (LCP) rot. Produktseite trägt die 404-Varianten nicht mehr in den Inline-Daten (ein JS-Chunk weniger); Lighthouse misst jetzt wie die Produktion über HTTP/2 (lokaler TLS-Vorschaltserver `scripts/perf/serve-h2.mjs`, Grenzen unverändert) – R04 LCP lokal Median ≈ 1,55 s statt zweigipflig bis 2,6 s.
+
 ## 2026-10-03 – P6 Phasen-Abnahme (Recht, Widerruf, Datenschutz) – für Jutta
 
 Hallo Jutta,
