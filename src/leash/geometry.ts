@@ -37,7 +37,7 @@ const STROKE_WIDTH_TOL = 0.09
 /** Stufe A: Toleranz der Vereinfachung der Strich-Stücke (die Mittellinie ist bereits gewackelt). */
 const STROKE_RDP_TOLERANCE = 0.5
 /** Stufe A: längstes Stück in px Bogenlänge. */
-const STROKE_MAX_LEN = 240
+const STROKE_MAX_LEN = 420
 /** Anfangs-/Endverjüngung (Schritt 7). */
 const TAPER_START = 28
 const TAPER_END = 18
