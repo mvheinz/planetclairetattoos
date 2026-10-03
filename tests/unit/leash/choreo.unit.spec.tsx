@@ -211,7 +211,9 @@ describe('Blickrichtung und Rinne', () => {
 
   it('MI-17 reduzierte Bewegung: keine Timer, Ruhe-Pose', () => {
     coco.setMotion('reduced', 'sitzen')
-    coco.follow(state({ motion: 'reduced', pose: 'sitzen', station: st('planet-claire', 'sitzen') }))
+    coco.follow(
+      state({ motion: 'reduced', pose: 'sitzen', station: st('planet-claire', 'sitzen') }),
+    )
     advance(10_000)
     expect(coco.pose()).toBe('sitzen')
     expect(events.filter((e) => e.to === 'kopfschief')).toHaveLength(0)

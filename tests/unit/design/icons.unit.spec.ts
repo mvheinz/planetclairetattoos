@@ -65,9 +65,11 @@ describe('P2.5 Icons (DESIGN §6.5)', () => {
       expect(out, name).toMatch(/^<svg [^>]*aria-hidden="true"/)
       expect(out).not.toContain('role="img"')
       expect(out).not.toContain('<use')
-      expect(out).toContain('stroke="currentColor"')
-      expect(out).toContain('stroke-width="1.75"')
+      // Darstellung einmal in global.css (PF-10), nicht je Icon als Attribute
+      expect(out).toContain('class="glyph"')
     }
+    const css = read('src/styles/global.css').toString('utf8')
+    expect(css).toMatch(/:where\(\.glyph\)\s*\{[^}]*stroke: currentColor;[^}]*stroke-width: 1\.75;/)
     const labelled = html(createElement(Icon, { name: 'close', label: 'Schließen' }))
     expect(labelled).toContain('role="img"')
     expect(labelled).toContain('aria-label="Schließen"')

@@ -290,11 +290,25 @@
     animation: pc-art-in 700ms var(--ease-ink-out) both;
   }
 
-  /* MI-14 Stencil-Abdruck: die Zeichnung der Tattoo-Station bekommt einmal `--shadow-stencil`, wenn die Kontur
-     sie erreicht. */
+  /* MI-14 Stencil-Abdruck: die Zeichnung der Tattoo-Station bekommt einmal `--shadow-stencil`, wenn die Kontur sie
+     erreicht (Schatten an einem Pseudo-Element, nur `opacity` animiert). */
+  html:not([data-motion='reduced']) .station[data-home-station='tattoo'] .artFrame {
+    position: relative;
+  }
+
+  html:not([data-motion='reduced']) .station[data-home-station='tattoo'] .artFrame::after {
+    content: '';
+    position: absolute;
+    inset: var(--space-4);
+    border-radius: var(--r-card);
+    box-shadow: var(--shadow-stencil);
+    opacity: 0;
+    pointer-events: none;
+  }
+
   html:not([data-motion='reduced'])
     .station[data-home-station='tattoo']:has([data-leash-reached])
-    .art {
+    .artFrame::after {
     animation: pc-art-stencil 450ms steps(1, end) both;
   }
 }
@@ -311,11 +325,11 @@
 
 @keyframes pc-art-stencil {
   from {
-    box-shadow: none;
+    opacity: 0;
   }
 
   to {
-    box-shadow: var(--shadow-stencil);
+    opacity: 1;
   }
 }
 

@@ -317,7 +317,10 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       strokes[v.next++]!.el.setAttribute('stroke-dashoffset', '0')
     const st = strokes[v.next]
     if (st && drawnLen > st.len0)
-      st.el.setAttribute('stroke-dashoffset', String(1 - (drawnLen - st.len0) / (st.len1 - st.len0)))
+      st.el.setAttribute(
+        'stroke-dashoffset',
+        String(1 - (drawnLen - st.len0) / (st.len1 - st.len0)),
+      )
   }
 
   /**
@@ -412,7 +415,8 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     if (!m || !start || cfg.rail !== 'center') return null
     const g = m.input.gutter
     const st = stationState()
-    const hero = st?.inside && st.id === 'planet-claire' && m.input.anchors.find((a) => a.id === st.id)
+    const hero =
+      st?.inside && st.id === 'planet-claire' && m.input.anchors.find((a) => a.id === st.id)
     return [start.x - g / 2, hero ? hero.x + hero.w : start.x + g / 2, hero ? 200 : 40]
   }
 
