@@ -521,6 +521,8 @@ async function prepareCheckoutSession(
   try {
     for (const nr of CHECKOUT_SESSION_ITEMS) {
       await page.goto(new URL(`/nr/${nr}`, baseURL).href, { waitUntil: 'load' })
+      // Verhaltensmodule binden erst nach `load` (src/behaviors/index.ts) – vorher wäre es das Formular ohne JS.
+      await page.locator('html[data-behaviors-ready]').waitFor({ state: 'attached' })
       await page.locator('[data-add-to-cart] button').first().click()
       await page.locator('[data-buy-area] [data-in-cart]').first().waitFor({ state: 'visible' })
     }
