@@ -50,6 +50,7 @@ export function nextIteration(existing: readonly string[]): number {
 export function slugLabel(label: string): string {
   const s = label
     .toLowerCase()
+    .replace(/ß/g, 'ss')
     .normalize('NFKD')
     .replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9]+/g, '-')

@@ -154,14 +154,19 @@ describe('Coco-Sprite: Erzeugung und Budget (§9.10)', () => {
 })
 
 describe('Kalibrierbogen (KUNST-QA §3.1)', () => {
-  it('docs/design/qa-log/img/calibration-p2-placeholder.webp existiert (WebP, alle Symbole in allen Größen)', async () => {
-    const { CALIBRATION_OUT, CALIBRATION_SIZES } =
+  it('P9.2 Kalibrierbogen: Sprite v1, alle 22 Symbole in 72 und 180 px, WebP ≤ 150 KB', async () => {
+    const { CALIBRATION_OUT, CALIBRATION_SIZES, CALIBRATION_MAX_BYTES, calibrationHtml } =
       await import('../../../scripts/art/calibration-sheet')
+    const { statSync } = await import('node:fs')
     const meta = await sharp(CALIBRATION_OUT).metadata()
     expect(meta.format).toBe('webp')
     expect(meta.width).toBeGreaterThanOrEqual(1200)
-    // 22 Zeilen à ≥ 180 px (größte Box 240 × 180) in zwei Spalten
-    expect(meta.height).toBeGreaterThanOrEqual(11 * 180)
-    expect(CALIBRATION_SIZES.map((z) => z.w)).toEqual([24, 40, 42, 64, 72, 180, 240])
+    // 22 Symbole à ≥ 135 px Höhe (180 × 3/4) in vier Spalten → ≥ 6 Reihen
+    expect(meta.height).toBeGreaterThanOrEqual(6 * 135)
+    expect(statSync(CALIBRATION_OUT).size).toBeLessThanOrEqual(CALIBRATION_MAX_BYTES)
+    expect(CALIBRATION_SIZES.map((z) => z.w)).toEqual([72, 180])
+    const html = calibrationHtml()
+    expect(html).toContain('Sprite v1')
+    expect(html.match(/<use class="f f-a"/g)).toHaveLength(22 * 2)
   })
 })
