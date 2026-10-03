@@ -126,8 +126,12 @@ async function leashDrawn(page: Page): Promise<number> {
       const parts = Array.from(seg.querySelectorAll<SVGPathElement>('path.ink'))
       let sum = 0
       for (const p of parts) {
-        const length = parseFloat(p.style.strokeDasharray || '0')
-        const offset = parseFloat(p.style.strokeDashoffset || '0')
+        const length = parseFloat(
+          p.getAttribute('stroke-dasharray') || p.style.strokeDasharray || '0',
+        )
+        const offset = parseFloat(
+          p.style.strokeDashoffset || p.getAttribute('stroke-dashoffset') || '0',
+        )
         sum += length > 0 ? Math.max(0, Math.min(1, 1 - offset / length)) : 1
       }
       drawn += parts.length ? sum / parts.length : 1

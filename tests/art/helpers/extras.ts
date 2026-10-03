@@ -255,6 +255,6 @@ export async function jankTier(
   const tier = () => art.page.evaluate(() => (window as LeashWin).__leash?.tier() ?? null)
   await art.goto('/de?qa-jank=30')
   const before = await tier()
-  await art.scrollRun(1200, 600)
+  await art.scrollRun(2400, 600)
   return { before, after: await tier() }
 }

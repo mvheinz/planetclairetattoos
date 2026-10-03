@@ -940,8 +940,8 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
       pts: [
         [2.8, 9.8],
         [5.6, 12],
-        [9.4, 11.6],
-        [11.2, 10],
+        [10, 11.8],
+        [12.6, 9.6],
       ],
       feature: 'hook',
       jitter: 0.5,
@@ -966,7 +966,7 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
     {
       layer: 'solid',
       part: 'eye-r',
-      pts: blob([9.2, -3.8], 4.3, 3.9, 10, 7),
+      pts: blob([9.2, -3.8], 4.6, 4.0, 10, 7),
       closed: true,
       jitter: 0.25,
     },

@@ -34,6 +34,8 @@ const RDP_TOLERANCE = 0.2
 const SEGMENT_OVERLAP = 2
 /** Stufe A: Stücke der Mittellinie, deren Breite höchstens so weit vom Stückanfang abweicht (× Grundbreite). */
 const STROKE_WIDTH_TOL = 0.04
+/** Stufe A: Toleranz der Vereinfachung der Strich-Stücke (die Mittellinie ist bereits gewackelt). */
+const STROKE_RDP_TOLERANCE = 0.3
 /** Stufe A: längstes Stück in px Bogenlänge. */
 const STROKE_MAX_LEN = 240
 /** Anfangs-/Endverjüngung (Schritt 7). */
@@ -41,8 +43,6 @@ const TAPER_START = 28
 const TAPER_END = 18
 /** Federansatz bzw. Abheben: die ersten/letzten 4 px ruht die Feder auf der Ansatz-/Abhebebreite (LQ-05). */
 const TAPER_REST = 4
-const TAPER_START_W = 0.35
-const TAPER_END_W = 0.45
 /** Sicherheitsabstand der Rinnen-Schlaufen zur Rinnenkante (§9.5 Freiraum-Regel). */
 const GUTTER_CLEARANCE = 2
 /** Schlaufen, nach denen die Linie endet (Danke-Herz, 404-Knäuel, Haken am Knopf). */
@@ -655,37 +655,27 @@ function fmt(n: number): string {
   return String(r === 0 ? 0 : r)
 }
 
+/** Offene Polylinie als `M x y l dx dy …` (relativ, aus den gerundeten Koordinaten – kürzer als absolut). */
+function relD(xs: number[], ys: number[]): string {
+  let px = +fmt(xs[0]!)
+  let py = +fmt(ys[0]!)
+  let d = `M${fmt(px)} ${fmt(py)}l`
+  for (let i = 1; i < xs.length; i++) {
+    const x = +fmt(xs[i]!)
+    const y = +fmt(ys[i]!)
+    const dx = fmt(x - px)
+    const dy = fmt(y - py)
+    d += `${i > 1 && !dx.startsWith('-') ? ' ' : ''}${dx}${dy.startsWith('-') ? '' : ' '}${dy}`
+    px = x
+    py = y
+  }
+  return d
+}
+
 function polyD(xs: number[], ys: number[], close: boolean): string {
   let d = `M${fmt(xs[0]!)} ${fmt(ys[0]!)}L`
   for (let i = 1; i < xs.length; i++) d += `${i > 1 ? ' ' : ''}${fmt(xs[i]!)} ${fmt(ys[i]!)}`
   return close ? `${d}Z` : d
-}
-
-// ---------- Schritt 6: Zittern der Hand ----------
-
-/** Gitterwert für die Zitter-Kurve: Vorzeichen wechselt je Gitterzelle, Betrag 0,8…1 aus dem Seed. */
-function tremorLattice(i: number, seed: number): number {
-  let h = Math.imul(i | 0, 0x27d4eb2d) ^ seed
-  h = Math.imul(h ^ (h >>> 15), 0x85ebca6b)
-  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35)
-  h ^= h >>> 16
-  const mag = 0.8 + 0.2 * ((h >>> 0) / 4294967295)
-  return i & 1 ? -mag : mag
-}
-
-/**
- * Zitter-Rauschen für den langen Wackel (λ1): wie Value-Noise, aber mit wechselndem Vorzeichen je Gitterpunkt – eine
- * Hand zittert immer ein wenig hin und her, nie 120 px lang lineal-gerade (KUNST-QA LQ-03). Werte in `[-1, 1]`.
- */
-function tremorNoise(seed: number): (x: number) => number {
-  const sd = seed >>> 0
-  return (x: number) => {
-    const i = Math.floor(x)
-    const f = x - i
-    const u = f * f * (3 - 2 * f)
-    const a = tremorLattice(i, sd)
-    return a + (tremorLattice(i + 1, sd) - a) * u
-  }
 }
 
 // ---------- Hauptfunktion ----------
@@ -718,8 +708,8 @@ export function* geometrySteps(input: BuildInput): Generator<void, GeometryResul
 
   yield
   // Schritt 6: Wackel entlang der Normalen.
-  const n1 = tremorNoise(input.seed ^ 0x9e3779b9)
-  const n2 = tremorNoise(input.seed ^ 0x85ebca6b)
+  const n1 = valueNoise1D(input.seed ^ 0x9e3779b9, true)
+  const n2 = valueNoise1D(input.seed ^ 0x85ebca6b, true)
   const n3 = valueNoise1D(input.seed ^ 0xc2b2ae35)
   const wx = new Float64Array(n)
   const wy = new Float64Array(n)
@@ -779,13 +769,13 @@ export function* geometrySteps(input: BuildInput): Generator<void, GeometryResul
       const t = Math.max(0, (s - TAPER_REST) / (TAPER_START - TAPER_REST))
       const e = 1 - (1 - t) * (1 - t)
       width = bw + (width - bw) * e
-      width *= TAPER_START_W + (1 - TAPER_START_W) * e
+      width *= 0.35 + 0.65 * e
     }
     if (total - s < TAPER_END) {
       const t = Math.min(1, (TAPER_END - (total - s)) / (TAPER_END - TAPER_REST))
       const e = t * t
       width = width + (bw - width) * e
-      width *= 1 - (1 - TAPER_END_W) * e
+      width *= 1 - 0.55 * e
     }
     w[i] = width
   }
@@ -904,12 +894,18 @@ function polyLen(xs: number[], ys: number[]): number {
 function buildStrokes(i0: number, i1: number, d: SegmentData, dots: number[], bw: number) {
   const out: LeashStroke[] = []
   const tol = STROKE_WIDTH_TOL * bw
-  const dotSet = dots.filter((i) => i >= i0 && i < i1).sort((a, b) => a - b)
+  const stops = new Set(dots.filter((i) => i >= i0 && i < i1))
   let a = i0
   while (a < i1) {
     const w0 = d.w[a]!
     let b = a + 1
-    while (b < i1 && Math.abs(d.w[b + 1]! - w0) <= tol && d.ss[b + 1]! - d.ss[a]! <= STROKE_MAX_LEN)
+    // Stück endet an einem Tintenpunkt, damit er an der Stückgrenze (Strich → Punkt → nächster Strich) erscheint
+    while (
+      b < i1 &&
+      !stops.has(b) &&
+      Math.abs(d.w[b + 1]! - w0) <= tol &&
+      d.ss[b + 1]! - d.ss[a]! <= STROKE_MAX_LEN
+    )
       b++
     const xs: number[] = []
     const ys: number[] = []
@@ -919,32 +915,28 @@ function buildStrokes(i0: number, i1: number, d: SegmentData, dots: number[], bw
       ys.push(d.wy[i]!)
       sum += d.w[i]!
     }
-    const keep = rdp(xs, ys, RDP_TOLERANCE)
+    const keep = rdp(xs, ys, STROKE_RDP_TOLERANCE)
     const kx = keep.map((k) => xs[k]!)
     const ky = keep.map((k) => ys[k]!)
     out.push({
-      d: polyD(kx, ky, false),
-      w: Math.round((sum / (b - a + 1)) * 100) / 100,
+      d: relD(kx, ky),
+      w: Math.round((sum / (b - a + 1)) * 10) / 10,
       L: polyLen(kx, ky),
       len0: d.ss[a]!,
       len1: d.ss[b]!,
     })
-    // Tintenpunkt am Schlaufenstart: kleiner Kreis (Radius 0,65 × Breite) als Strich der Länge 0,1 mit runder Kappe.
-    while (dotSet.length && dotSet[0]! <= b) {
-      const i = dotSet.shift()!
-      if (i < a) continue
+    // Tintenpunkt am Schlaufenstart: Strich der Länge 0,1 mit runder Kappe (Ø 1,3 × Breite).
+    if (stops.has(b))
       out.push({
-        d: `M${fmt(d.wx[i]!)} ${fmt(d.wy[i]!)}h0.1`,
-        w: Math.round(1.3 * d.w[i]! * 100) / 100,
+        d: `M${fmt(d.wx[b]!)} ${fmt(d.wy[b]!)}h0.1`,
+        w: Math.round(1.3 * d.w[b]! * 10) / 10,
         L: 0.1,
-        len0: d.ss[i]!,
-        len1: d.ss[i]!,
+        len0: d.ss[b]!,
+        len1: d.ss[b]!,
       })
-    }
     a = b
   }
-  // Punkte erscheinen, sobald die Feder sie erreicht: nach Bogenlänge sortiert (stabil: Strich vor Punkt).
-  return out.sort((p, q) => p.len0 - q.len0 || q.len1 - q.len0 - (p.len1 - p.len0))
+  return out
 }
 
 function buildSegment(

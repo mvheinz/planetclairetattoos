@@ -119,8 +119,6 @@ interface StrokeView {
   L: number
   len0: number
   len1: number
-  /** Versatz, bei dem das Stück ganz verborgen ist (Dash samt runder Kappe vor dem Pfadanfang). */
-  hidden: number
 }
 
 interface SegView {
@@ -131,9 +129,7 @@ interface SegView {
   reveal: SVGPathElement | null
   /** Stufe A: Strich-Stücke und Tintenpunkte, nach Bogenlänge sortiert, mit Zeiger auf das erste nicht fertige. */
   strokes: StrokeView[] | null
-  dots: StrokeView[] | null
   next: number
-  nextDot: number
   L: number
   len0: number
   len1: number
@@ -203,19 +199,16 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   // ---------- SVG-Aufbau: eine Schreibphase ----------
 
   /** Stufe A: Strich-Stück als runder Strich mit Dash-Enthüllung (anfangs verborgen). */
-  function strokeView(st: LeashStroke, forced: boolean): StrokeView {
+  function strokeView(st: LeashStroke): StrokeView {
     const el = doc.createElementNS(SVG_NS, 'path')
     el.setAttribute('d', st.d)
     el.setAttribute('class', 'ink')
-    el.setAttribute('fill', 'none')
     el.setAttribute('stroke-width', String(st.w))
-    el.setAttribute('stroke-linecap', 'round')
-    el.setAttribute('stroke-linejoin', 'round')
-    el.style.stroke = forced ? 'CanvasText' : 'var(--ink)'
-    const hidden = st.L + 0.5
-    el.style.strokeDasharray = `${st.L} ${st.L + 1}`
-    el.style.strokeDashoffset = String(hidden)
-    return { el, L: st.L, len0: st.len0, len1: st.len1, hidden }
+    // Farbe, Kappen und Füllung stehen einmal am `<svg>` (Vererbung) – kürzeres DOM (PF-10)
+    el.setAttribute('stroke-dasharray', String(st.L))
+    // verborgen: Dash samt runder Kappe vor dem Pfadanfang
+    el.setAttribute('stroke-dashoffset', String(st.L + 0.5))
+    return { el, L: st.L, len0: st.len0, len1: st.len1 }
   }
 
   /** SVG eines Segments in der gewählten Stufe (noch nicht eingehängt). */
@@ -226,9 +219,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       len1: seg.len1,
       state: null,
       strokes: null,
-      dots: null,
       next: 0,
-      nextDot: 0,
     }
     if (t === 'C') {
       // Stufe C über den statischen Renderer (§9.4, §9.11): Umriss ohne Maske, vollständig.
@@ -239,13 +230,16 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     if (t === 'A' && seg.strokes?.length) {
       // Stufe A „Tusche“: Stücke nahezu gleicher Breite, je ein runder Strich; Enthüllung per Dash (nur Paint).
       const strokes: StrokeView[] = []
-      const dots: StrokeView[] = []
+      svg.setAttribute('fill', 'none')
+      svg.setAttribute('stroke-linecap', 'round')
+      svg.setAttribute('stroke-linejoin', 'round')
+      svg.style.stroke = forced ? 'CanvasText' : 'var(--ink)'
       for (const st of seg.strokes) {
-        const v = strokeView(st, forced)
+        const v = strokeView(st)
         svg.appendChild(v.el)
-        ;(st.len1 > st.len0 ? strokes : dots).push(v)
+        strokes.push(v)
       }
-      return { svg, ink: (strokes[0] ?? dots[0])!.el, reveal: null, ...base, strokes, dots }
+      return { svg, ink: strokes[0]!.el, reveal: null, ...base, strokes }
     }
     const ink = doc.createElementNS(SVG_NS, 'path')
     ink.setAttribute('d', seg.centerD)
@@ -265,12 +259,12 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
 
   const forcedColors = () => !!win.matchMedia?.('(forced-colors: active)').matches
 
-  /** Schreibphase: alle Segmente (bzw. die im Aufbau vorbereiteten) auf einmal einhängen. */
-  function render(prepared?: SegView[]) {
+  /** Schreibphase: alle Segmente auf einmal einhängen. */
+  function render() {
     if (!geometry || !m) return
     const bw = m.input.baseWidth
     const forced = forcedColors()
-    views = prepared ?? geometry.segments.map((seg) => segmentView(seg, tier, bw, forced))
+    views = geometry.segments.map((seg) => segmentView(seg, tier, bw, forced))
     const frag = doc.createDocumentFragment()
     for (const v of views) frag.appendChild(v.svg)
     root.replaceChildren(frag)
@@ -316,11 +310,6 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     const st = strokes[v.next]
     if (st && drawnLen > st.len0)
       st.el.style.strokeDashoffset = String(st.L * (1 - (drawnLen - st.len0) / (st.len1 - st.len0)))
-    const dots = v.dots!
-    while (v.nextDot < dots.length && dots[v.nextDot]!.len0 <= drawnLen) {
-      dots[v.nextDot]!.el.style.strokeDashoffset = '0'
-      v.nextDot++
-    }
   }
 
   /**
@@ -487,20 +476,14 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   let stepped: { cancel(): void } | null = null
 
   /** Schreibphase nach Messung und Geometrie: Stufe, SVG, gezeichnete Länge, Coco, Intro. */
-  function finishBuild(
-    first: boolean,
-    mm: Measurement,
-    geo: LeashGeometry,
-    t0: number,
-    prepared?: { tier: Tier; views: SegView[] },
-  ) {
+  function finishBuild(first: boolean, mm: Measurement, geo: LeashGeometry, t0: number) {
     const prevStations = geometry?.stations ?? []
     const prevTotal = geometry?.totalLength ?? 0
     const prevDrawn = drawnLen
     m = mm
     geometry = geo
     tier = chooseTier()
-    render(prepared && prepared.tier === tier ? prepared.views : undefined)
+    render()
     const total = geometry.totalLength
     const target = scrollTarget()
     intro = null
@@ -582,27 +565,10 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       timing(LEASH_MEASURES.build, t1)
       if (!r.done) return next(run)
       const geo = r.value.geometry
-      // SVG je Segment vorbereiten (ebenfalls in Teilstücken), eingehängt wird erst in der Schreibphase.
-      const t = chooseTier()
-      const forced = forcedColors()
-      const views: SegView[] = []
-      const prepare = () => {
-        const t2 = performance.now()
-        do views.push(segmentView(geo.segments[views.length]!, t, mm.input.baseWidth, forced))
-        while (views.length < geo.segments.length && performance.now() - t2 < STEP_BUDGET_MS)
-        timing(LEASH_MEASURES.build, t2)
-        if (views.length < geo.segments.length) return next(prepare)
-        next(() => {
-          if (stepped === job) stepped = null
-          finishBuild(first, mm, geo, performance.now(), { tier: t, views })
-        })
-      }
-      if (geo.segments.length) next(prepare)
-      else
-        next(() => {
-          if (stepped === job) stepped = null
-          finishBuild(first, mm, geo, performance.now())
-        })
+      next(() => {
+        if (stepped === job) stepped = null
+        finishBuild(first, mm, geo, performance.now())
+      })
     }
     next(run)
   }

@@ -116,8 +116,8 @@ describe('leash/runtime – mountLeash', () => {
     const strokes = state.geometry!.segments.reduce((n, g) => n + g.strokes!.length, 0)
     expect(root.querySelectorAll('path.ink').length).toBe(strokes)
     for (const p of root.querySelectorAll<SVGPathElement>('path.ink')) {
-      expect(p.getAttribute('stroke-linecap')).toBe('round')
-      expect(p.style.strokeDasharray).not.toBe('')
+      expect(p.closest('svg')!.getAttribute('stroke-linecap')).toBe('round')
+      expect(p.getAttribute('stroke-dasharray')).not.toBe('')
     }
     for (const svg of svgs) expect(svg.getAttribute('focusable')).toBe('false')
 
@@ -142,8 +142,8 @@ describe('leash/runtime – mountLeash', () => {
     const ink = [...root.querySelectorAll<SVGPathElement>('path.ink')]
     expect(ink.some((p) => p.style.strokeDashoffset === '0')).toBe(true)
     const partial = ink.filter((p) => {
-      const o = parseFloat(p.style.strokeDashoffset)
-      const L = parseFloat(p.style.strokeDasharray)
+      const o = parseFloat(p.style.strokeDashoffset || p.getAttribute('stroke-dashoffset')!)
+      const L = parseFloat(p.getAttribute('stroke-dasharray')!)
       return o > 0 && o < L
     })
     expect(partial.length).toBeLessThanOrEqual(1)
