@@ -9,17 +9,19 @@ import { expectCalm } from './calm'
 // „Vertrag widerrufen“ sichtbar (AK-3-11, R-011). Der 500-Auslöser `/<sprache>/__fehler-test` wirft nur bei
 // APP_ENV=test (Playwright-Webserver).
 
-const NOT_FOUND: Record<Locale, { path: string; h1: string; text: string; withdraw: string }> = {
+// Text: Rich Text der Seite `not_found` (Beispielbestand „Coco hat überall geschnüffelt – diese Seite …“) oder der
+// Rückfall „Diese Seite gibt es nicht (mehr).“ (P8.16) – beide enthalten denselben Kernsatz.
+const NOT_FOUND: Record<Locale, { path: string; h1: string; text: RegExp; withdraw: string }> = {
   de: {
     path: '/de/gibt-es-nicht',
     h1: 'Coco hat sich losgerissen',
-    text: 'Diese Seite gibt es nicht (mehr).',
+    text: /diese Seite gibt es nicht \(mehr\)/i,
     withdraw: 'Vertrag widerrufen',
   },
   en: {
     path: '/en/does-not-exist',
     h1: 'Coco slipped her leash',
-    text: 'This page does not exist (anymore).',
+    text: /this page does(n't| not) exist \(anymore\)/i,
     withdraw: 'Withdraw from contract here',
   },
 }

@@ -4457,7 +4457,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     (jedes `site-texts`-Feld hat einen DE- und einen EN-Standardwert).
   - Ohne Jutta: Entwürfe; Jutta korrigiert im Admin. P11-Nacharbeit: Texte in der Produktion gegenlesen (P11.10).
 
-- [ ] **P8.16 Leere Zustände, 404 und 500 fertigstellen** – `EmptyState` (KO-17) an jeder Liste: Korb, Shop,
+- [x] **P8.16 Leere Zustände, 404 und 500 fertigstellen** – `EmptyState` (KO-17) an jeder Liste: Korb, Shop,
   Kategorie, Archiv, Startseiten-Station ohne Stücke (Stationszeichnung + Satz + Archiv-Link, KONZEPT §3.1), Flash,
   Angebote, Galerie, FAQ-Block ohne Einträge, Konformitätserklärungen (Text aus KONZEPT §3.14); Posen laut DESIGN
   §10.6. 404 (R28) mit fester H1 „Coco hat sich losgerissen“ / “Coco slipped her leash”, Satz, Links Start/Shop/Tattoo

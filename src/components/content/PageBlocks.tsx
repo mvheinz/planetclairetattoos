@@ -6,11 +6,12 @@ import type { Locale } from '@/lib/routes/registry'
 import type { Page } from '@/payload-types'
 
 import { ContactLinks } from './ContactLinks'
+import { FaqList } from './FaqList'
 import { RichTextContent } from './RichTextContent'
 
-// Blöcke einer `pages`-Seite (DATENMODELL §6.19) als Server-HTML. Bisher: `richText`, `callout`, `contactLinks`
-// (Kontakt R20, Einleitung R27). Weitere Blocktypen rendern die Phasen ihrer Seiten (Startseite P2.20, FAQ-Listen,
-// Galerien usw.); bis dahin werden sie übersprungen.
+// Blöcke einer `pages`-Seite (DATENMODELL §6.19) als Server-HTML. Bisher: `richText`, `callout`, `contactLinks`,
+// `faqList` (Kontakt R20, Einleitung R27). Weitere Blocktypen rendern die Seiten selbst (Startseite, Galerien usw.);
+// hier werden sie übersprungen.
 export type PageBlock = NonNullable<Page['layout']>[number]
 
 export function PageBlocks({
@@ -49,6 +50,17 @@ export function PageBlocks({
                 emailSubject={block.emailSubject}
               />
             ) : null
+          case 'faqList':
+            return (
+              <FaqList
+                key={key}
+                id={`faq-${key}`}
+                category={block.category}
+                heading={block.heading || 'FAQ'}
+                locale={locale}
+                withContactLink={!contact}
+              />
+            )
           default:
             return null
         }

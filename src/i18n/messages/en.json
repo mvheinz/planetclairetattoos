@@ -30,6 +30,11 @@
       "R25": "Shipping & payment",
       "R26": "Withdraw from contract here",
       "R27": "Declarations of conformity"
+    },
+    "faq": {
+      "emptyTitle": "No questions yet",
+      "emptyText": "Just ask me – by email or DM.",
+      "emptyAction": "Get in touch"
     }
   },
   "header": {
@@ -73,7 +78,9 @@
     "conformity": {
       "empty": "Currently all ceramics are labelled as decoration and are not intended for use with food.",
       "validFrom": "valid from {date}",
-      "pdf": "Declaration as PDF: {name}"
+      "pdf": "Declaration as PDF: {name}",
+      "emptyTitle": "No declarations yet",
+      "emptyAction": "See the ceramics"
     },
     "processors": {
       "title": "Processors and other recipients",

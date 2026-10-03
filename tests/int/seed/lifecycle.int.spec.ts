@@ -370,6 +370,29 @@ describe('Seed-Lebenszyklus (AK-SEED-01, -02, -03, -14, -15; AK-11-01, AK-11-02)
     expect(await realRevenueState()).toBe(realRevenueBefore)
   })
 
+  it('P8.16 seed:remove: echte Kassen/Reservierungen mit Beispiel-Stücken werden mitgelöscht; echte Bestellung mit Beispiel-Stück stoppt den Lauf', async () => {
+    await runCanonicalSeed(payload, 'reset')
+    // Eine Seed-Kasse samt Reservierungen „echt“ machen (wie ein Korb aus der Vorschau mit Beispiel-Stücken).
+    const { rows } = await client.query<{ id: number }>(
+      `UPDATE checkouts SET seed = false WHERE id = (SELECT c.id FROM checkouts c JOIN reservations r ON r.checkout_id = c.id WHERE c.seed LIMIT 1) RETURNING id`,
+    )
+    const checkoutId = rows[0]!.id
+    await client.query(`UPDATE reservations SET seed = false WHERE checkout_id = $1`, [checkoutId])
+    // Echte Bestellung mit Beispiel-Stück → Abbruch, nichts gelöscht.
+    const order = await client.query<{ id: number }>(
+      `UPDATE orders SET seed = false WHERE id = (SELECT id FROM orders WHERE seed ORDER BY id LIMIT 1) RETURNING id`,
+    )
+    await expect(runCanonicalSeed(payload, 'remove', { yes: true })).rejects.toThrow(
+      /echte Bestellung/,
+    )
+    expect(await count('products', { seed: { equals: true } })).toBe(expectedCount('products'))
+    await client.query(`UPDATE orders SET seed = true WHERE id = $1`, [order.rows[0]!.id])
+    await runCanonicalSeed(payload, 'remove', { yes: true, dropTexts: true })
+    expect(await count('checkouts', { id: { equals: checkoutId } })).toBe(0)
+    expect(await count('reservations', { checkout: { equals: checkoutId } })).toBe(0)
+    expect(await count('products', { seed: { equals: true } })).toBe(0)
+  })
+
   it('AK-SEED-04 (Teil): seed:base läuft mit APP_ENV=production und überschreibt keinen vorhandenen Wert', async () => {
     await payload.updateGlobal({
       slug: 'settings',

@@ -20,6 +20,26 @@ const makeConverters =
   (headingId?: HeadingId): JSXConvertersFunction =>
   ({ defaultConverters }) => ({
     ...defaultConverters,
+    // Externe Links (http/https) immer mit `rel="noopener noreferrer"` (R-139), auch aus dem CMS (z. B. Safer-Tattoo-Link
+    // auf R17); interne Links wie gehabt.
+    link: (args) => {
+      const fields = (args.node as { fields?: { url?: string; newTab?: boolean; linkType?: string } })
+        .fields
+      const url = fields?.linkType === 'internal' ? undefined : fields?.url
+      if (!url || !/^https?:\/\//i.test(url)) {
+        const fallback = defaultConverters.link
+        return typeof fallback === 'function' ? fallback(args) : null
+      }
+      return (
+        <a
+          href={url}
+          rel="noopener noreferrer"
+          {...(fields?.newTab ? { target: '_blank' } : {})}
+        >
+          {args.nodesToJSX({ nodes: args.node.children })}
+        </a>
+      )
+    },
     heading: ({ node, nodesToJSX }) => {
       const children = nodesToJSX({ nodes: node.children })
       const tag = node.tag === 'h1' ? 'h2' : node.tag

@@ -30,6 +30,11 @@
       "R25": "Versand & Zahlung",
       "R26": "Vertrag widerrufen",
       "R27": "Konformitätserklärungen"
+    },
+    "faq": {
+      "emptyTitle": "Noch keine Fragen",
+      "emptyText": "Frag mich einfach – per Mail oder DM.",
+      "emptyAction": "Zum Kontakt"
     }
   },
   "header": {
@@ -73,7 +78,9 @@
     "conformity": {
       "empty": "Derzeit sind alle Keramiken als Dekoration gekennzeichnet und nicht für Lebensmittel bestimmt.",
       "validFrom": "gültig ab {date}",
-      "pdf": "Erklärung als PDF: {name}"
+      "pdf": "Erklärung als PDF: {name}",
+      "emptyTitle": "Noch keine Erklärungen",
+      "emptyAction": "Zur Keramik"
     },
     "processors": {
       "title": "Auftragsverarbeiter und weitere Empfänger",

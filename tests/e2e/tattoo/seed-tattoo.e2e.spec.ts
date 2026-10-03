@@ -19,7 +19,7 @@ test('AK-9-02 Seed: Mail-Knopf F-907 mit exaktem Betreff (DE/EN); F-901 zeigt da
   expect(await mail.getAttribute('href')).toContain(
     '?subject=Flash-Anfrage%20F-907%20%E2%80%93%20Winziger%20Planet&',
   )
-  await expect(page.locator('#f-901 img').first()).toHaveAttribute('src', /ig-DbJ1QRrjCcb/)
+  await expect(page.locator('#f-901 img').first()).toHaveAttribute('src', /ig-DbJ1QRrjCcb/i)
   for (const n of ['903', '905']) {
     await expect(page.locator(`#f-${n}`)).toHaveAttribute('data-flash-status', 'claimed')
   }

@@ -7,6 +7,7 @@ import { findMediaReferences } from '@/lib/media/references'
 import type { Clock } from '@/lib/time'
 
 import { seedOp, seedStep } from './context'
+import { SeedGuardError } from './guard'
 import { findSeedReferences, formatSeedReference } from './references'
 import { SeedReport } from './report'
 
@@ -25,6 +26,7 @@ type Step =
   | { kind: 'counters' }
   | { kind: 'texts' }
   | { kind: 'media' }
+  | { kind: 'carts' }
 
 /** Reihenfolge laut DATENMODELL §13.5 (Collections, die es noch nicht gibt, werden übersprungen). */
 export const REMOVE_ORDER: readonly Step[] = [
@@ -40,6 +42,9 @@ export const REMOVE_ORDER: readonly Step[] = [
   { kind: 'delete', collection: 'complaints' },
   { kind: 'delete', collection: 'orders' },
   { kind: 'delete', collection: 'checkouts' },
+  // Echte Kassen und Reservierungen mit Beispiel-Stücken (z. B. aus einem Korb in der Vorschau): Zwischenstände von
+  // 30 Minuten ohne Bestellung – sie würden das Löschen der Stücke blockieren (Pflicht-Verweis) und werden mitgelöscht.
+  { kind: 'carts' },
   { kind: 'delete', collection: 'inquiries' },
   { kind: 'delete', collection: 'revenue-entries' },
   { kind: 'delete', collection: 'tattoo-gallery' },
@@ -86,6 +91,18 @@ async function deleteWhere(
   })
 }
 
+async function idsOf(payload: Payload, collection: CollectionSlug, where: Where) {
+  const res = await payload.find({
+    collection,
+    where,
+    limit: 0,
+    pagination: false,
+    depth: 0,
+    overrideAccess: true,
+  })
+  return res.docs.map((d) => d.id as number)
+}
+
 /** Mengenvorschau (ohne `--yes` bzw. `GET /api/admin/seed/summary`): Dokumente mit `seed = true` je Collection. */
 export async function seedSummary(payload: Payload): Promise<Record<string, number>> {
   const out: Record<string, number> = {}
@@ -115,6 +132,24 @@ export async function removeSeedData(
   const report = new SeedReport()
   const keepTexts = options.keepTexts ?? true
 
+  // Echte Bestellungen mit Beispiel-Stücken werden nie gelöscht (Aufbewahrung) – dann bleibt alles, wie es ist.
+  const seedProductIds = await idsOf(payload, 'products', SEED_WHERE)
+  if (seedProductIds.length > 0) {
+    const orders = await payload.find({
+      collection: 'orders',
+      where: { and: [{ seed: { not_equals: true } }, { 'items.product': { in: seedProductIds } }] },
+      limit: 10,
+      depth: 0,
+      overrideAccess: true,
+    })
+    if (orders.totalDocs > 0)
+      throw new SeedGuardError(
+        `Beispieldaten nicht entfernt: ${orders.totalDocs} echte Bestellung(en) enthalten Beispiel-Stücke (${orders.docs
+          .map((o) => o.orderNumber ?? o.id)
+          .join(', ')}). Bitte zuerst klären – echte Bestellungen werden nie gelöscht.`,
+      )
+  }
+
   // Verweise echter (und gleich übernommener) Dokumente auf Seed-Dokumente – vor dem ersten Löschschritt erfassen;
   // die Datenbank entfernt sie beim Löschen des Ziels (Fremdschlüssel), der Bericht listet sie.
   const texts = keepTexts ? (['pages', 'faqs'] as const) : []
@@ -136,6 +171,34 @@ export async function removeSeedData(
         { series: { in: ['BSP-RE', 'BSP-GS'] } },
         report,
       )
+    } else if (step.kind === 'carts') {
+      if (seedProductIds.length === 0) continue
+      const notSeed: Where = { seed: { not_equals: true } }
+      const checkoutIds = await idsOf(payload, 'checkouts', {
+        and: [
+          notSeed,
+          {
+            or: [
+              { 'items.product': { in: seedProductIds } },
+              { 'deviationAgreements.product': { in: seedProductIds } },
+            ],
+          },
+        ],
+      })
+      const reservationWhere: Where = {
+        and: [
+          notSeed,
+          {
+            or: [
+              { product: { in: seedProductIds } },
+              ...(checkoutIds.length > 0 ? [{ checkout: { in: checkoutIds } }] : []),
+            ],
+          },
+        ],
+      }
+      await deleteWhere(payload, 'reservations', reservationWhere, report)
+      if (checkoutIds.length > 0)
+        await deleteWhere(payload, 'checkouts', { id: { in: checkoutIds } }, report)
     } else if (step.kind === 'texts') {
       for (const collection of ['faqs', 'pages'] as const) {
         if (!hasSeedField(payload, collection)) continue
