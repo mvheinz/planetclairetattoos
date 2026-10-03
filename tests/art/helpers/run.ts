@@ -22,5 +22,32 @@ export async function writeWebp(rel: string, png: Buffer, quality = 90): Promise
   return writeRunFile(rel, webp)
 }
 
+/**
+ * Größter zusammenhängender Anteil der Bildhöhe aus völlig einfarbigen Zeilen (max − min ≤ 2 in Graustufen). Das
+ * Papier hat ein Raster, echte Seiten haben also kaum einfarbige Zeilen; ein großer Block bedeutet meist, dass Chromium
+ * (Mobil-Emulation, angehaltene Uhr) die Kacheln nach einem Scroll-Sprung noch nicht gerastert hat.
+ */
+export async function flatBandFraction(png: Buffer): Promise<number> {
+  const { data, info } = await sharp(png)
+    .greyscale()
+    .resize({ width: 256, kernel: 'nearest' })
+    .raw()
+    .toBuffer({ resolveWithObject: true })
+  let run = 0
+  let best = 0
+  for (let y = 0; y < info.height; y++) {
+    let mn = 255
+    let mx = 0
+    for (let x = 0; x < info.width; x++) {
+      const v = data[y * info.width + x]!
+      if (v < mn) mn = v
+      if (v > mx) mx = v
+    }
+    run = mx - mn <= 2 ? run + 1 : 0
+    if (run > best) best = run
+  }
+  return best / info.height
+}
+
 export const writeJson = (rel: string, data: unknown) =>
   writeRunFile(rel, `${JSON.stringify(data, null, 2)}\n`)

@@ -21,7 +21,7 @@ import {
   type ArtProfile,
 } from '../../../scripts/art/lib/run'
 import { scrollRun, seekAnimations, releaseAnimations, twoFrames, waitForPaint } from './capture'
-import { RUN_DIR, writeJson, writeWebp } from './run'
+import { RUN_DIR, flatBandFraction, writeJson, writeWebp } from './run'
 
 // Fixture `art` der Kunst-Abnahme (KUNST-QA §4): eigener Browser-Kontext je Test mit Geräteprofil, Bewegungs-Variante
 // und Videoaufnahme in Viewport-Größe; Playwright-Clock vor der ersten Navigation (feste Startzeit, §4.4); alle
@@ -74,6 +74,8 @@ export class ArtSession {
   clockPaused = false
   private n = 0
   private readonly frames: string[] = []
+  /** Neuaufnahmen wegen nicht gerasterter Kacheln (Protokoll `raw/…/retakes.json`). */
+  readonly retakes: { label: string; retry: number }[] = []
 
   constructor(
     readonly page: Page,
@@ -131,9 +133,22 @@ export class ArtSession {
       animations: 'allow' as const,
       scale: opts.scale ?? ('device' as const),
     }
-    const png = opts.element
-      ? await opts.element.screenshot(shot)
-      : await this.page.screenshot({ ...shot, fullPage: opts.fullPage ?? false })
+    const take = () =>
+      opts.element
+        ? opts.element.screenshot(shot)
+        : this.page.screenshot({ ...shot, fullPage: opts.fullPage ?? false })
+    let png = await take()
+    // Nicht gerasterte Kacheln (leerer Block ≥ 20 % der Höhe nach Scroll-Sprung) → kurz in Echtzeit warten (die
+    // Browser-Uhr kann angehalten sein) und neu aufnehmen; höchstens 3×, echte einfarbige Flächen bleiben so erhalten.
+    for (
+      let retry = 1;
+      retry <= 3 && !opts.element && (await flatBandFraction(png)) >= 0.2;
+      retry++
+    ) {
+      await new Promise((r) => setTimeout(r, 200 * retry))
+      png = await take()
+      this.retakes.push({ label, retry })
+    }
     const rel = framePath(this.sc, this.profile, this.variant, this.n, label)
     await writeWebp(rel, png)
     this.frames.push(rel)
@@ -300,6 +315,7 @@ export const test = base.extend<{ art: ArtSession }>({
   art: async ({ browser }, provide, testInfo) => {
     const { session, external } = await openSession(browser, testInfo)
     await provide(session)
+    if (session.retakes.length > 0) session.json('retakes', session.retakes)
     const video = session.page.video()
     const saved = video
       ? video.saveAs(
