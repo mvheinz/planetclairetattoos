@@ -291,7 +291,7 @@ J-24), §2.1 (J-10) und §2.2 (J-19).
 **Stand Phasen-Abnahme P8 (2026-10-03):** Die Punkte oben sind unverändert offen; keiner blockiert etwas, alles bleibt im
 Beispielbestand. **Instagram-Export:** `content/seed/instagram-export/` enthält nur `LIESMICH.txt` – der Beispielbestand
 nutzt die Bilder aus `content/seed/instagram/` (Manifest). Sobald Jutta den Export liefert, ersetzt
-`pnpm seed:import-instagram` die Bilder in voller Auflösung (gleiche `seedKey`, `--refresh-media`), ohne Codeänderung
+`pnpm seed:import-instagram` und danach `pnpm seed:example --refresh-media` die Bilder in voller Auflösung (gleiche `seedKey`), ohne Codeänderung
 (Nacharbeit P11). **Coco-Fotos:** `content/seed/coco/` enthält nur `LIESMICH.txt`; Coco ist nach den 9 Highlight-Bildchen
 und Juttas Skizzen gezeichnet (`content/art/coco-refs.json`, P8.11). Neue Fotos dort ablegen und `pnpm art:coco-refs`
 ausführen; die Studio-Abnahme der Figur folgt in P9. **Phasen-Annahmen:** siehe §5, Zeilen P8.1–P8.20.
