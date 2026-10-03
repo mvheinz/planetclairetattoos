@@ -43,9 +43,8 @@ export function mountPageLeash(root: ParentNode, routeKey: string): () => void {
       const c = coco
       options.cocoPose = () => c.pose()
       options.onCoco = (s) => {
-        c.setPose(s.pose)
         if (s.moving) c.activity()
-        c.place(s.x, s.y, s.direction)
+        c.follow(s)
         cocoEl.setAttribute('data-placed', '')
       }
     }

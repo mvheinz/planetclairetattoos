@@ -270,6 +270,55 @@
   }
 }
 
+/* MI-12 Kopf-Station: die Planet-Marke an der H1 „poppt“, wenn der Orbit sich schließt (§11.4). */
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-motion='reduced']) .planet[data-leash-reached] svg {
+    animation: pc-mark-pop 240ms var(--ease-stamp) both;
+  }
+
+  /* MI-13 Stationszeichnung „zieht ein“ (Zeichnungen): bis zur Ankunft der Linie verborgen (`data-leash-armed`, nur
+     mit Tinte in Bewegung), dann Masken-Wisch von links, 700 ms, einmal. */
+  html:not([data-motion='reduced'])
+    .station[data-home-station='zeichnungen']:has([data-leash-armed])
+    .artFrame {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  html:not([data-motion='reduced'])
+    .station[data-home-station='zeichnungen']:has([data-leash-reached])
+    .artFrame {
+    animation: pc-art-in 700ms var(--ease-ink-out) both;
+  }
+
+  /* MI-14 Stencil-Abdruck: die Zeichnung der Tattoo-Station bekommt einmal `--shadow-stencil`, wenn die Kontur
+     sie erreicht. */
+  html:not([data-motion='reduced'])
+    .station[data-home-station='tattoo']:has([data-leash-reached])
+    .art {
+    animation: pc-art-stencil 450ms steps(1, end) both;
+  }
+}
+
+@keyframes pc-art-in {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes pc-art-stencil {
+  from {
+    box-shadow: none;
+  }
+
+  to {
+    box-shadow: var(--shadow-stencil);
+  }
+}
+
 @keyframes pc-mark-pop {
   from {
     transform: scale(0.6);

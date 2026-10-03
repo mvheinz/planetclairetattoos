@@ -29,13 +29,34 @@ export const POSE_FRAME_MS: Readonly<Record<SpritePose, number>> = {
   schlafen: 125,
 }
 export const BRIDGE_MS = 1000 / 12
+/** Blickrichtung wechselt erst nach so vielen px Bogenlänge in neuer Richtung (DESIGN §11.4). */
+export const FACING_PX = 24
+/** Scrollstopp ab dieser Dauer außerhalb einer Station: `sitzen` (§11.4). */
+export const REST_AFTER_MS = 1200
+/** Intro MI-10: Coco rennt in dieser Zeit von links herein. */
+export const INTRO_RUN_MS = 600
+/** Sprung-Sequenz Schmuck: `springen` A/B/C (3 Frames), davor `abspringen`, danach `bremsen` (§11.4: 415 ms gesamt). */
+export const JUMP_MS = 3 * BRIDGE_MS + BRIDGE_MS
+/**
+ * Verweilen je Station (§11.4): nach `after` ms ohne Scroll wechselt Coco zur `pose`; mit `hold` kehrt sie danach zur
+ * Ankunfts-Pose zurück (Kopfschief 3 s, dann wieder Sitzen), sonst bleibt sie.
+ */
+export const DWELL: Readonly<
+  Record<string, { after: number; pose: SpritePose; hold?: number } | undefined>
+> = {
+  'planet-claire': { after: 1200, pose: 'kopfschief', hold: 3000 },
+  textil: { after: 1500, pose: 'kopfschief' },
+}
 export const BOIL = { afterActivity: 1500, afterPose: 2000, maxWithoutAction: 5000 } as const
 
 /** Brücken zwischen zwei Posen (§10.3); `null` = direkter Schnitt mit Stauchung. */
 export function bridgesFor(from: SpritePose, to: SpritePose): CocoBridge[] | null {
   if (from === to) return []
   if (to === 'springen') return ['abspringen']
-  if (from === 'rennen' && (to === 'schnueffeln' || to === 'sitzen' || to === 'kopfschief'))
+  if (
+    (from === 'rennen' || from === 'springen') &&
+    (to === 'schnueffeln' || to === 'sitzen' || to === 'kopfschief')
+  )
     return ['bremsen']
   if ((from === 'sitzen' || from === 'schnueffeln') && to === 'rennen') return ['abspringen']
   if (from === 'sitzen' && to === 'schlafen') return ['einrollen-1', 'einrollen-2']
@@ -59,6 +80,21 @@ export interface CocoOptions {
   now?: () => number
 }
 
+/** Zustand der Linie je Frame (Teilmenge von `CocoState` der Laufzeit; die Choreografie liest nur dies). */
+export interface CocoFollow {
+  len: number
+  x: number
+  y: number
+  angle: number
+  direction: 1 | -1
+  pose: SpritePose
+  moving: boolean
+  motion: Motion
+  station: { id: string; pose: SpritePose; len0: number; len1: number; inside: boolean } | null
+  intro: boolean
+  gutter: [number, number] | null
+}
+
 export interface CocoController {
   readonly el: HTMLElement
   /** Aktuell gezeigte Pose. */
@@ -66,8 +102,13 @@ export interface CocoController {
   boiling(): boolean
   /** Ziel-Pose; der Wechsel erfolgt an der nächsten Frame-Grenze. */
   setPose(pose: SpritePose): void
-  /** D-Ring an (x, y) im Koordinatensystem des Containers; `direction` −1 spiegelt (läuft zurück). */
-  place(x: number, y: number, direction?: 1 | -1): void
+  /**
+   * D-Ring an (x, y) im Koordinatensystem des Containers; `direction` −1 spiegelt (läuft zurück). `gutter`
+   * `[links, rechts]`: liegt die Leinenspitze in der Rinne, rutscht die Box so weit, dass sie nicht in den Text ragt.
+   */
+  place(x: number, y: number, direction?: 1 | -1, gutter?: [number, number] | null): void
+  /** Choreografie der Startseite (DESIGN §11.4): Pose, Verweilen, Sprung, Blickrichtung, Intro-Lauf, Position. */
+  follow(s: CocoFollow): void
   /** Nutzeraktion (Scrollen) – Boil läuft mit 1,5 s Nachlauf. */
   activity(): void
   setMotion(motion: Motion, restPose?: SpritePose): void
@@ -158,6 +199,17 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
   let boilTimer: ReturnType<typeof setTimeout> | null = null
   let squashTimer: ReturnType<typeof setTimeout> | null = null
   let destroyed = false
+  // Choreografie (`follow`)
+  let restTimer: ReturnType<typeof setTimeout> | null = null
+  let dwellTimer: ReturnType<typeof setTimeout> | null = null
+  let jumpTimer: ReturnType<typeof setTimeout> | null = null
+  let dwelled = false
+  let jumping = false
+  const jumped = new Set<string>()
+  let facing: 1 | -1 = 1
+  let run = 0
+  let lastLen = 0
+  let introAt: number | null = null
   // Breite einmal lesen, danach nur über den ResizeObserver (kein Layout-Lesen im Scroll-Pfad, §9.10).
   let width = el.getBoundingClientRect().width || 0
   const ro =
@@ -250,7 +302,22 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
 
   boil(BOIL.afterPose) // Seiteneintritt
 
-  return {
+  /** D-Ring an (x, y); die Box rutscht aus dem Text, wenn die Leinenspitze nahe der Rinne liegt (LG-01). */
+  function place(x: number, y: number, direction: 1 | -1 = 1, gutter?: [number, number] | null) {
+    const key = bridge ? `bridge-${bridge}` : shown
+    const [ax, ay] = COCO_ANCHORS[key] ?? COCO_ANCHORS[shown] ?? [80, 60]
+    const s = width / COCO_VIEWBOX.w
+    let tx = x
+    if (gutter) {
+      // Box-Kante rechts; ragt sie über die Rinne, rutscht sie zurück – voll in der Rinne, sanft bis 40 px daneben
+      const right = direction === 1 ? x - ax * s + width : x + ax * s
+      const over = right - (gutter[1] - 1)
+      if (over > 0) tx -= over * Math.max(0, Math.min(1, 1 - (x - gutter[1]) / 40))
+    }
+    el.style.transform = `translate(${tx.toFixed(1)}px,${y.toFixed(1)}px) scaleX(${direction}) translate(${(-ax * s).toFixed(1)}px,${(-ay * s).toFixed(1)}px)`
+  }
+
+  const api: CocoController = {
     el,
     pose: () => shown,
     boiling: () => el.getAttribute('data-boil') === 'on',
@@ -266,11 +333,69 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
       }
       if (!bridge) schedule()
     },
-    place(x, y, direction = 1) {
-      const key = bridge ? `bridge-${bridge}` : shown
-      const [ax, ay] = COCO_ANCHORS[key] ?? COCO_ANCHORS[shown] ?? [80, 60]
-      const s = width / COCO_VIEWBOX.w
-      el.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) scaleX(${direction}) translate(${(-ax * s).toFixed(1)}px,${(-ay * s).toFixed(1)}px)`
+    place,
+    follow(s) {
+      if (destroyed) return
+      const st = s.station
+      if (s.motion === 'reduced') api.setPose(s.pose)
+      else if (!jumping) {
+        if (s.moving) {
+          // unterwegs: Lauf; Verweil- und Ruhe-Timer beginnen von vorn (§11.4)
+          dwellTimer = clear(dwellTimer)
+          restTimer = clear(restTimer)
+          dwelled = false
+          api.setPose('rennen')
+        } else if (!st?.inside) {
+          // Zwischenstück: nach 1,2 s ohne Scrollen setzt sie sich
+          restTimer ??= setTimeout(() => ((restTimer = null), api.setPose('sitzen')), REST_AFTER_MS)
+        } else if (!dwelled) {
+          // Ankunft: Station-Pose (Brücke `bremsen` aus dem Lauf), Schmuck wartet sitzend auf den Sprung
+          dwelled = true
+          restTimer = clear(restTimer)
+          const arrive = st.pose === 'springen' ? 'sitzen' : st.pose
+          api.setPose(arrive)
+          const d = DWELL[st.id]
+          if (d)
+            dwellTimer = setTimeout(() => {
+              api.setPose(d.pose)
+              if (d.hold) dwellTimer = setTimeout(() => api.setPose(arrive), d.hold)
+            }, d.after)
+        }
+      }
+      // Sprung-Sequenz Schmuck: einmal, wenn die Linie das Ende der Schlaufe erreicht (nur vorwärts)
+      if (
+        s.motion !== 'reduced' &&
+        st?.pose === 'springen' &&
+        !jumped.has(st.id) &&
+        s.len >= st.len1 - 2 &&
+        s.direction === 1
+      ) {
+        jumped.add(st.id)
+        if (s.len - st.len1 < 200) {
+          jumping = dwelled = true
+          dwellTimer = clear(dwellTimer)
+          api.setPose('springen') // Brücke `abspringen`
+          jumpTimer = setTimeout(() => {
+            api.setPose('sitzen') // Brücke `bremsen`
+            jumpTimer = setTimeout(() => (jumping = false), 2 * BRIDGE_MS)
+          }, JUMP_MS - BRIDGE_MS)
+        }
+      }
+      // Blickrichtung nach Schwung der Linie; Umschalten erst nach 24 px Bogenlänge in neuer Richtung (§11.4)
+      const c = Math.cos(s.angle)
+      const want = ((c > 0.15 ? 1 : c < -0.15 ? -1 : facing) * s.direction) as 1 | -1
+      if (s.moving) {
+        if (want === facing) run = 0
+        else if ((run += Math.abs(s.len - lastLen)) >= FACING_PX) [facing, run] = [want, 0]
+      }
+      lastLen = s.len
+      // Intro MI-10: in 600 ms von links hereinrennen (ease-out), danach an der Leinenspitze
+      let x = s.x
+      if (s.intro && s.motion !== 'reduced') {
+        introAt ??= now()
+        x -= Math.max(0, 1 - (now() - introAt) / INTRO_RUN_MS) ** 2 * (x + width + 8)
+      }
+      place(x, s.y, facing, s.gutter)
     },
     activity() {
       lastAction = now()
@@ -283,6 +408,10 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
         stepTimer = clear(stepTimer)
         boilTimer = clear(boilTimer)
         squashTimer = clear(squashTimer)
+        restTimer = clear(restTimer)
+        dwellTimer = clear(dwellTimer)
+        jumpTimer = clear(jumpTimer)
+        jumping = false
         if (hop) hop.style.transform = ''
         bridge = null
         boilUntil = 0
@@ -293,6 +422,9 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     },
     destroy() {
       destroyed = true
+      restTimer = clear(restTimer)
+      dwellTimer = clear(dwellTimer)
+      jumpTimer = clear(jumpTimer)
       ro?.disconnect()
       stepTimer = clear(stepTimer)
       boilTimer = clear(boilTimer)
@@ -301,4 +433,5 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
       setBoil(false)
     },
   }
+  return api
 }

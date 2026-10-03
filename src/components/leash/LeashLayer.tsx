@@ -97,9 +97,9 @@ export function LeashLayer({
           const c = coco
           options.cocoPose = () => c.pose()
           options.onCoco = (s) => {
-            c.setPose(s.pose)
+            // Choreografie der Linie (§11.4): Pose, Verweilen, Sprung, Blickrichtung, Intro-Lauf, Platz
             if (s.moving) c.activity()
-            c.place(s.x, s.y, s.direction)
+            c.follow(s)
             cocoEl?.setAttribute('data-placed', '')
           }
         }

@@ -40,6 +40,12 @@ export interface CocoState {
   /** Coco bewegt sich (Scroll-Aktivität, Glättung, Intro) – Boil-Budget §10.3 (a). */
   moving: boolean
   motion: Motion
+  /** Zuletzt erreichte Station (Choreografie §11.4); `inside`: Coco steht noch im Stationsbereich. */
+  station: { id: string; pose: SpritePose; len0: number; len1: number; inside: boolean } | null
+  /** Intro (MI-10) läuft. */
+  intro: boolean
+  /** Rinne in Koordinaten der Linien-Ebene `[links, rechts]` (Coco-Box bleibt darin, solange die Spitze darin liegt). */
+  gutter: [number, number] | null
 }
 
 export interface MountOptions {
@@ -268,6 +274,21 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     const frag = doc.createDocumentFragment()
     for (const v of views) frag.appendChild(v.svg)
     root.replaceChildren(frag)
+    armStations()
+  }
+
+  /**
+   * `data-leash-armed` an den Stations-Ankern, solange ihr Effekt (MI-13 „zieht ein“) noch aussteht: Die Zeichnung ist
+   * bis zur Ankunft der Linie verborgen. Nur mit Tinte in Bewegung (Stufe A/B); Stufe C und reduzierte Bewegung
+   * zeigen alles sofort.
+   */
+  function armStations() {
+    const scope = root.parentElement ?? doc
+    for (const el of Array.from(scope.querySelectorAll<HTMLElement>('[data-leash-station]'))) {
+      if (tier !== 'C' && !reached.has(el.dataset.leashStation ?? ''))
+        el.setAttribute('data-leash-armed', '')
+      else el.removeAttribute('data-leash-armed')
+    }
   }
 
   /**
@@ -291,11 +312,15 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   function flagStations() {
     if (!geometry || reached.size >= geometry.stations.length) return
     for (const st of geometry.stations) {
-      if (reached.has(st.id) || drawnLen < st.loopLen0) continue
+      // Planet-Marke der Kopf-Station „pop“ beim Schließen des Orbits (§11.4), sonst bei Ankunft am Stationsanfang
+      if (reached.has(st.id) || drawnLen < (st.id === 'planet-claire' ? st.loopLen1 : st.loopLen0))
+        continue
       reached.add(st.id)
       const scope = root.parentElement ?? doc
       for (const el of Array.from(scope.querySelectorAll<HTMLElement>('[data-leash-station]'))) {
-        if (el.dataset.leashStation === st.id) el.setAttribute('data-leash-reached', '')
+        if (el.dataset.leashStation !== st.id) continue
+        el.setAttribute('data-leash-reached', '')
+        el.removeAttribute('data-leash-armed')
       }
     }
   }
@@ -374,6 +399,29 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     return st?.pose ?? restPose
   }
 
+  /** Letzte Station, deren Anfang Coco erreicht hat (Choreografie §11.4: Verweil-Timer, Sprung ab `loopLen1`). */
+  function stationState(): CocoState['station'] {
+    if (!geometry) return null
+    let st: LeashGeometry['stations'][number] | undefined
+    for (const x of geometry.stations) if (cocoLen >= x.loopLen0 - 2) st = x
+    return st
+      ? {
+          id: st.id,
+          pose: st.pose,
+          len0: st.loopLen0,
+          len1: st.loopLen1,
+          inside: cocoLen <= st.loopLen1 + 2,
+        }
+      : null
+  }
+
+  /** Rinne `[links, rechts]` (Linien-Ebene) – Mitte der Rinne = Anfang der Linie (§5.3). */
+  function gutterBounds(): [number, number] | null {
+    const start = m?.input.anchors.find((a) => a.kind === 'start')
+    if (!m || !start || cfg.rail !== 'center') return null
+    return [start.x - m.input.gutter / 2, start.x + m.input.gutter / 2]
+  }
+
   function emitCoco(direction: 1 | -1, moving: boolean) {
     const next = targetPose(moving)
     if (next !== pose && next) {
@@ -392,6 +440,9 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       pose,
       moving,
       motion,
+      station: stationState(),
+      intro: !!intro,
+      gutter: gutterBounds(),
     })
   }
 

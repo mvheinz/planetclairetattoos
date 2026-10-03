@@ -1111,7 +1111,7 @@ Neue Posen kommen immer paarweise dazu (Wert in `COCO_POSES` + Sprite-ID + Eintr
 
 | Brücke | Zeigt | verbindet |
 |---|---|---|
-| `bremsen` | Vorderbeine gestemmt, Körper nach hinten, Ohren vor | `rennen → schnueffeln/sitzen/kopfschief` |
+| `bremsen` | Vorderbeine gestemmt, Körper nach hinten, Ohren vor | `rennen → schnueffeln/sitzen/kopfschief`; ebenso `springen → sitzen/schnueffeln/kopfschief` (Sprung-Sequenz Schmuck, §11.4) |
 | `abspringen` | geduckt, Hinterbeine gebeugt | `sitzen/schnueffeln → rennen`, `* → springen` |
 | `einrollen-1`, `einrollen-2` | halb liegend → fast rund | `sitzen → schlafen` |
 

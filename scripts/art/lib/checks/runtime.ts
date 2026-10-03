@@ -282,6 +282,13 @@ export function mo07(files: readonly ProbeFile[]): CheckResult {
   return result('MO-07', bad.length === 0, vals.join('; '), th, bad)
 }
 
+/** Zusätzliche erlaubte Posen beim Verweilen je Station (DESIGN §11.4, `DWELL` in `src/leash/coco.ts`). */
+const STATION_POSES: Readonly<Record<string, readonly string[]>> = {
+  'planet-claire': ['sitzen', 'kopfschief'],
+  textil: ['schnueffeln', 'kopfschief'],
+  schmuck: ['springen', 'sitzen'],
+}
+
 export function mo08(files: readonly ProbeFile[]): CheckResult {
   const th = 'Pose beim Verweilen = Tabelle DESIGN §11.4 an allen Stationen'
   const rows = entries(files, { sc: 'SC-01', variant: 'motion' }).filter(
@@ -291,8 +298,11 @@ export function mo08(files: readonly ProbeFile[]): CheckResult {
   const bad: string[] = []
   for (const e of rows) {
     const i = Number(/^station(\d+)/.exec(e.p.label)![1]) - 1
-    const want = e.p.leash!.stations[i]?.pose
-    if (want && e.p.leash!.pose !== want) bad.push(`${where(e)}: ${e.p.leash!.pose} statt ${want}`)
+    const st = e.p.leash!.stations[i]
+    // Tabelle §11.4: Ankunft → Verweilen; Schmuck endet nach dem Sprung sitzend, Kopf-Station/Textil wechseln nach 1,2/1,5 s
+    const allowed = new Set<string>([st?.pose ?? '', ...(st ? (STATION_POSES[st.id] ?? []) : [])])
+    if (st && !allowed.has(e.p.leash!.pose ?? ''))
+      bad.push(`${where(e)}: ${e.p.leash!.pose} statt ${[...allowed].filter(Boolean).join(' / ')}`)
   }
   return result('MO-08', bad.length === 0, `${rows.length} Verweil-Sonden`, th, bad)
 }
@@ -300,7 +310,8 @@ export function mo08(files: readonly ProbeFile[]): CheckResult {
 /** Brücke laut DESIGN §10.4 (Tabelle „Brücken-Frames“); null = direkter Schnitt. */
 export function expectedBridge(from: string, to: string): string | null {
   if (to === 'springen' && from !== 'springen') return 'abspringen'
-  if (from === 'rennen' && ['schnueffeln', 'sitzen', 'kopfschief'].includes(to)) return 'bremsen'
+  if (['rennen', 'springen'].includes(from) && ['schnueffeln', 'sitzen', 'kopfschief'].includes(to))
+    return 'bremsen' // nach dem Sprung der Station Schmuck ebenfalls (DESIGN §11.4)
   if (['sitzen', 'schnueffeln'].includes(from) && to === 'rennen') return 'abspringen'
   if (from === 'sitzen' && to === 'schlafen') return 'einrollen-1+einrollen-2'
   return null
