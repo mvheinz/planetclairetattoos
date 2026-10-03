@@ -9,7 +9,7 @@ import type { CocoController } from '@/leash/coco'
 import { getMotion, onMotionChange } from '@/leash/motion'
 import { PRESET_CONFIG, REST_POSE, isStaticPreset } from '@/leash/presets'
 import type { InspectableLeashHandle, MountOptions } from '@/leash/runtime'
-import { whenLeashReady } from '@/leash/schedule'
+import { nextTask, whenLeashReady } from '@/leash/schedule'
 import type { RouteMatch } from '@/lib/routes/paths'
 
 // Linien-Ebene (DESIGN §9.1, §9.2, §9.9): leerer, `aria-hidden` Container im Seitencontainer. Die Engine lädt erst
@@ -55,7 +55,8 @@ export function LeashLayer({ className }: { className?: string }) {
             import('@/leash/runtime'),
             cocoEl ? import('@/leash/coco') : Promise.resolve(null),
           ]).then(([runtime, coco]) => ({ mount: runtime.mountLeash, coco }))
-      void load.then(({ mount, coco: cocoMod }) => {
+      // Je eine Aufgabe: Module auswerten | Coco einhängen | Linie (selbst in Teilstücken, `phased`) – PF-04, TBT.
+      void load.then(nextTask).then(async ({ mount, coco: cocoMod }) => {
         if (cancelled) return
         const rest = REST_POSE[preset] ?? 'sitzen'
         let handle: InspectableLeashHandle | null = null
@@ -67,8 +68,10 @@ export function LeashLayer({ className }: { className?: string }) {
             onPose: (e) => handle?.notePose(e),
           })
           cleanups.push(() => coco?.destroy())
+          await nextTask(null)
+          if (cancelled) return
         }
-        const options: MountOptions = { preset, routeKey }
+        const options: MountOptions = { preset, routeKey, phased: true }
         if (coco) {
           const c = coco
           options.cocoPose = () => c.pose()
