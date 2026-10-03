@@ -267,6 +267,10 @@ export interface Media {
    * „Kund:in“ = Haut oder Tattoo einer Kundin/eines Kunden (nie öffentlich ohne Einwilligung).
    */
   showsPerson: 'none' | 'jutta' | 'customer';
+  /**
+   * Nur ankreuzen, wenn Jutta dieses Foto freigegeben hat.
+   */
+  ownerApproved?: boolean | null;
   restricted?: boolean | null;
   source: 'upload' | 'instagram_seed' | 'instagram_export' | 'placeholder' | 'generated';
   sourceRef?: string | null;
@@ -2850,6 +2854,7 @@ export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
   showsPerson?: T;
+  ownerApproved?: T;
   restricted?: T;
   source?: T;
   sourceRef?: T;

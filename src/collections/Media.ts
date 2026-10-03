@@ -39,9 +39,15 @@ import { mediaVisibleInGallery } from '@/lib/tattoo/gallery'
 
 // DATENMODELL §6.2 – öffentliche Bilder mit Bildpipeline (DESIGN §12.2 Schritte 1–3, 7, 8).
 
+/** Fotos von Jutta nur mit ihrer Freigabe (R-181, DATENMODELL §6.2; P8.20). */
+const OWNER_APPROVED: Where = {
+  or: [{ showsPerson: { not_equals: 'jutta' } }, { ownerApproved: { equals: true } }],
+}
+
 /**
  * Öffentlich lesbar (KONZEPT §9.7, `isMediaPubliclyVisible`): nicht gesperrte Bilder ohne Seed; im Vorschau-Modus
- * zusätzlich alle Seed-Bilder (auch gesperrte Seed-Tattoofotos, R-181). Dateiabrufe (`isReadingStaticFile`) lässt die
+ * zusätzlich alle Seed-Bilder (auch gesperrte Seed-Tattoofotos, R-182). Fotos von Jutta (`showsPerson = jutta`) nur mit
+ * Häkchen `ownerApproved` (R-181, P8.20) – auch im Vorschau-Modus. Dateiabrufe (`isReadingStaticFile`) lässt die
  * Regel durch – die Sichtbarkeit prüft der Datei-Handler (`fileResponseHandler`) und antwortet mit 404 statt 403, damit
  * eine erratene URL nichts verrät (P7.5).
  */
@@ -49,9 +55,14 @@ export const readMedia: Access = ({ req, isReadingStaticFile }) => {
   if (isAdminRequest(req)) return true
   if (isReadingStaticFile) return true
   if (seedPreviewModeActive()) {
-    return { or: [{ restricted: { not_equals: true } }, { seed: { equals: true } }] } as Where
+    return {
+      and: [
+        OWNER_APPROVED,
+        { or: [{ restricted: { not_equals: true } }, { seed: { equals: true } }] },
+      ],
+    } as Where
   }
-  return { and: [{ restricted: { not_equals: true } }, NOT_SEED] } as Where
+  return { and: [{ restricted: { not_equals: true } }, OWNER_APPROVED, NOT_SEED] } as Where
 }
 
 export const DOWNSCALE_UPLOAD_COMPONENT = '/admin/components/DownscaleUpload#DownscaleUpload'
@@ -266,6 +277,17 @@ export const Media: CollectionConfig = {
         position: 'sidebar',
         description:
           '„Kund:in“ = Haut oder Tattoo einer Kundin/eines Kunden (nie öffentlich ohne Einwilligung).',
+      },
+    },
+    {
+      name: 'ownerApproved',
+      type: 'checkbox',
+      label: 'Jutta hat dieses Foto von sich freigegeben',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        description: 'Nur ankreuzen, wenn Jutta dieses Foto freigegeben hat.',
+        condition: (data) => data?.showsPerson === 'jutta',
       },
     },
     {

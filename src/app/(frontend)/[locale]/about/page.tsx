@@ -28,7 +28,7 @@ export const revalidate = 3600
 // Coco-Zeichnung), Bilder aus Werkstatt und Skizzenbuch, „Was ich mache“ (Kategorien, Tattoo, Auftragsarbeiten) und die
 // Kontaktwege mit Instagram (`rel="noopener noreferrer"`, R-139). Tuschelinie: drei Stationen Jutta → Coco → Werkstatt
 // mit Schlaufen right/left/right; Coco läuft ein Stück mit (Engine, Preset `about`). Bilder mit `showsPerson = jutta`
-// erscheinen nicht, bis es die Freigabe `ownerApproved` gibt (R-181, P8.20); Kund:innen-Bilder nie (Media-Sichtbarkeit).
+// erscheinen nur mit der Freigabe `ownerApproved` (R-181, P8.20, in `isMediaPubliclyVisible`); Kund:innen-Bilder nie.
 // Fehlt die Seite: neutraler Leerzustand mit den festen Wegen (DM-PAGE-01). Statisch, Tag `pages` (ISR).
 
 type Block = NonNullable<PageDoc['layout']>[number]
@@ -36,7 +36,7 @@ type BlockOf<T extends Block['blockType']> = Extract<Block, { blockType: T }>
 
 /** Öffentlich zeigbar auf R19: sichtbar laut Media-Regel und keine Abbildung von Jutta ohne Freigabe (R-181). */
 const showable = (m: number | Media | null | undefined): m is Media =>
-  typeof m === 'object' && m !== null && isMediaPubliclyVisible(m) && m.showsPerson !== 'jutta'
+  typeof m === 'object' && m !== null && isMediaPubliclyVisible(m)
 
 /** Stationen der Linie: erster Text = Jutta, Text mit Coco = Coco, „Was ich mache“ = Werkstatt. */
 const STATIONS = {
