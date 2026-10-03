@@ -3,8 +3,6 @@
 import React, { lazy, useActionState, useCallback, useEffect, useRef } from 'react'
 
 import { withdrawalAction } from '@/app/(frontend)/[locale]/withdraw-from-contract/actions'
-import { Glyph } from '@/components/icons/Glyph'
-import { ICON_WARN } from '@/components/icons/icons.generated'
 import { afterLoad } from '@/components/forms/afterLoad'
 import { Button } from '@/components/ui/Button'
 import { Field, type FieldProps, RequiredNote } from '@/components/ui/Field'
@@ -51,13 +49,12 @@ const FIELD_PROPS: Record<FieldKey, Partial<FieldProps>> = {
 const loadSteps = () => import('./WithdrawalSteps')
 const WithdrawalSteps = lazy(() => loadSteps().then((mod) => ({ default: mod.WithdrawalSteps })))
 
+// Hinweise und Fehlerzusammenfassung gibt es erst nach dem Absenden – ebenfalls nachgeladen.
+const loadAlert = () => import('@/components/forms/FormAlert')
+const FormAlert = lazy(loadAlert)
+
 function NoticeBox({ children }: { children: React.ReactNode }) {
-  return (
-    <div className={styles.notice} role="alert" data-withdraw-notice="">
-      <Glyph shape={ICON_WARN} size={22} className={styles.noticeIcon} />
-      <div>{children}</div>
-    </div>
-  )
+  return <FormAlert data={{ 'data-withdraw-notice': '' }}>{children}</FormAlert>
 }
 
 export function WithdrawalFlow(props: WithdrawalFlowProps) {
@@ -67,7 +64,7 @@ export function WithdrawalFlow(props: WithdrawalFlowProps) {
   const focusDue = useRef(false)
   const first = useRef(true)
 
-  useEffect(() => afterLoad(() => void loadSteps()), [])
+  useEffect(() => afterLoad(() => void Promise.all([loadSteps(), loadAlert()])), [])
 
   // Überschrift des aktuellen Schritts; wird sie erst nach dem Nachladen des Schritts eingehängt, bekommt sie dann den
   // Fokus.
@@ -162,21 +159,14 @@ export function WithdrawalFlow(props: WithdrawalFlowProps) {
           </NoticeBox>
         ) : null}
         {errorKeys.length > 0 ? (
-          <div className={styles.notice} role="alert" data-error-summary="">
-            <Glyph shape={ICON_WARN} size={22} className={styles.noticeIcon} />
-            <div>
-              <p className={styles.noticeTitle}>{m.errorSummary}</p>
-              <ul>
-                {errorKeys.map((k) => (
-                  <li key={k}>
-                    <a href={`#widerruf-${k}`}>
-                      {label[k]}: {errorText(k)}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
+          <FormAlert
+            data={{ 'data-error-summary': '' }}
+            title={m.errorSummary}
+            links={errorKeys.map((k) => ({
+              href: `#widerruf-${k}`,
+              text: `${label[k]}: ${errorText(k)}`,
+            }))}
+          />
         ) : null}
         <form
           action={dispatch}
