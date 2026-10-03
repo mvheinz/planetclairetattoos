@@ -13,9 +13,7 @@
    beim Systemschrift-Dienst ab (langes erstes Layout, TBT ARCHITEKTUR §7.7). */
 @font-face {
   font-family: 'mansalva Fallback';
-  src:
-    local('Arial'), local('ArialMT'), local('Liberation Sans'), local('LiberationSans'),
-    local('Arimo'), local('Arimo-Regular');
+  src: local('Arial'), local('Liberation Sans'), local('Arimo');
   ascent-override: 113.96%;
   descent-override: 47.76%;
   line-gap-override: 0%;
@@ -24,9 +22,7 @@
 
 @font-face {
   font-family: 'bricolage Fallback';
-  src:
-    local('Arial'), local('ArialMT'), local('Liberation Sans'), local('LiberationSans'),
-    local('Arimo'), local('Arimo-Regular');
+  src: local('Arial'), local('Liberation Sans'), local('Arimo');
   ascent-override: 83.54%;
   descent-override: 24.25%;
   line-gap-override: 0%;
@@ -35,9 +31,7 @@
 
 @font-face {
   font-family: 'plexMono Fallback';
-  src:
-    local('Arial'), local('ArialMT'), local('Liberation Sans'), local('LiberationSans'),
-    local('Arimo'), local('Arimo-Regular');
+  src: local('Arial'), local('Liberation Sans'), local('Arimo');
   ascent-override: 77.95%;
   descent-override: 20.91%;
   line-gap-override: 0%;
