@@ -13,7 +13,7 @@ import {
   specFile,
 } from './lib/run'
 
-// `pnpm art:record [--scope SC-00,SC-12] [--iter N] [--allow-dirty]` (KUNST-QA §3.3, §4.1; PLAN P9.2): Aufnahme aller
+// `pnpm art:record [--scope SC-00,SC-12] [--project art-desktop-motion,…] [--iter N] [--allow-dirty]` (KUNST-QA §3.3, §4.1; PLAN P9.2): Aufnahme aller
 // bzw. der genannten Szenarien gegen den laufenden bzw. von Playwright gestarteten QA-Server (`pnpm art:build`).
 // Lauf-ID `<YYYYMMDD>-iter<NN>-<sha7>`, Ablage `artifacts/art-qa/<lauf-id>/` (nie committen). Verweigert bei
 // unsauberem `git status` (Aufnahmen müssen einem Commit zuzuordnen sein); `--allow-dirty` nur für Probeläufe
@@ -91,21 +91,32 @@ function main(): void {
     status ||= res.status ?? 1
   }
   const specs = scenarios.filter((s) => !SCRIPT_SCENARIOS[s]).map(specFile)
-  if (specs.length > 0) {
-    const projects = arg('project')
-    const res = spawnSync(
+  const projects = arg('project')
+  const playwright = (files: string[], extra: string[], workers: number) =>
+    spawnSync(
       'pnpm',
-      [
-        'exec',
-        'playwright',
-        'test',
-        '--config=playwright.art.config.ts',
-        ...(projects ? projects.split(',').map((p) => `--project=${p}`) : []),
-        ...specs,
-      ],
-      { stdio: 'inherit', env },
-    )
-    status ||= res.status ?? 1
+      ['exec', 'playwright', 'test', '--config=playwright.art.config.ts', ...extra, ...files],
+      { stdio: 'inherit', env: { ...env, ART_WORKERS: String(workers) } },
+    ).status ?? 1
+  if (projects) {
+    if (specs.length > 0)
+      status ||= playwright(
+        specs,
+        projects.split(',').map((p) => `--project=${p}`),
+        1,
+      )
+  } else {
+    // Bild-Läufe auf zwei Worker verteilt (Ziel ≤ 25 min, KUNST-QA §9); Tempo-Lauf SC-18 danach allein (§4.1:
+    // keine anderen CPU-lastigen Prozesse während der Messung).
+    const imageSpecs = specs.filter((f) => !f.endsWith('sc-18.art.spec.ts'))
+    if (imageSpecs.length > 0)
+      status ||= playwright(
+        imageSpecs,
+        ['--grep-invert', '@tempo'],
+        Number(process.env.ART_WORKERS || 2),
+      )
+    if (specs.some((f) => f.endsWith('sc-18.art.spec.ts')))
+      status ||= playwright([specFile('SC-18')], ['--project=art-pixel7-tempo'], 1)
   }
   console.log(`art:record: fertig (${status === 0 ? 'ok' : `Fehler ${status}`}) – ${runDir}`)
   process.exit(status)

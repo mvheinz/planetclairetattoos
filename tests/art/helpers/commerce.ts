@@ -1,3 +1,4 @@
+import { test } from '@playwright/test'
 import type { Payload } from 'payload'
 
 import { completeProduct, createProductFixtures } from '../../int/helpers/products'
@@ -9,9 +10,16 @@ import { PUBLISHED } from '../../e2e/shop/productPage'
 // (`seed: true`, CLAUDE.md §3 Nr. 5), damit Aufnahmen den Beispielbestand nie verkaufen; danach samt Kassen und
 // Bestellungen entfernt. Zahlung immer über `PAYMENTS_DRIVER=mock` (kein Netz).
 
-const NUMBERS = Array.from({ length: 10 }, (_, i) => 990 + i)
+/** Fünf Nummern je paralleler Worker (990–994, 995–999): zwei Worker nehmen gleichzeitig auf (KUNST-QA §9). */
+const BLOCK = 5
+const numbers = (): number[] => {
+  const idx = test.info().parallelIndex
+  if (idx > 1)
+    throw new Error('Kassen-Szenarien: höchstens 2 parallele Worker (Fixture-Bereich 990–999).')
+  return Array.from({ length: BLOCK }, (_, i) => 990 + idx * BLOCK + i)
+}
 
-async function removePieces(payload: Payload): Promise<void> {
+async function removePieces(payload: Payload, NUMBERS: number[]): Promise<void> {
   const { docs } = await payload.find({
     collection: 'products',
     where: { itemNumber: { in: NUMBERS } },
@@ -36,14 +44,15 @@ export interface ArtPieces {
 
 export async function artPieces(): Promise<ArtPieces> {
   const payload = await testPayload()
-  await removePieces(payload)
+  const NUMBERS = numbers()
+  await removePieces(payload, NUMBERS)
   const fx = await createProductFixtures(payload)
   let next = 0
   return {
     payload,
     async create(overrides = {}) {
       const itemNumber = NUMBERS[next++]
-      if (itemNumber === undefined) throw new Error('Fixture-Bereich 990–999 erschöpft.')
+      if (itemNumber === undefined) throw new Error('Fixture-Block (5 Stücke je Worker) erschöpft.')
       const doc = await payload.create({
         collection: 'products',
         data: {
@@ -57,7 +66,7 @@ export async function artPieces(): Promise<ArtPieces> {
       })
       return { id: doc.id as number, itemNumber }
     },
-    cleanup: () => removePieces(payload),
+    cleanup: () => removePieces(payload, NUMBERS),
   }
 }
 
