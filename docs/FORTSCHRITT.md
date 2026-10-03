@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-03 – P9.11–P9.13 (Zwischenstand, noch nicht abgehakt)
+
+- Tuschelinie Stufe A: LQ-01…LQ-06 PASS (Lauf 20261003-iter23-a0f8bdc, LQ-06 11,7 L*), PF-09 Engine 11 759 B gz (Luft 241 B), PF-12 PASS (A → B), PF-04 Desktop max. 12,9 ms unter Fremdlast. Offen für P9.11: A11Y-05/LG-01 (Coco-Box über Text auf R01, kommt mit P9.15), PF-05 (R01 16 Layouts, R07 10: Countdown-Sekundentakt und nachgeladene Karten, nicht die Engine), PF-10 Startseite (siehe OFFENE-PUNKTE).
+- Stationen/Weltraum/Marke: AR-01…AR-03, AR-06 PASS; 16-px-Favicon mit dickerem Strich (Planet mit Ring lesbar). Frische Prüf-Linse (Lauf lens5): Stationen keramik/tattoo/zeichnungen noch als „Trace-nah“ bemängelt, Strichstärke zwischen Stationen uneinheitlich – AR-07 daher offen.
+- Platzhalter: AR-03/AR-04 PASS; Linse AR-05 = 3, IM-04 = 3, CO-09 = 3 (Ziel ≥ 4): Platzhalter „niedlicher als Juttas Hand“, Raster beginnt mit zwei reinen Platzhalter-Reihen; Coco-Dynamikposen haben spitze Schnauzen.
+- Tests: `pnpm check` (1833 Unit-Tests) grün.
+
 ## 2026-10-03 – P9.10
 
 - `rennen` mit drei echten Gangphasen (A Streckung, B Sammlung, C Flug; IoU 0,59–0,66, Anker ± 1,5), `schnueffeln` (Nase am Boden, C 1 Einheit Schnüffel-Zucken), `springen` (Luftbogen, Ballen sichtbar wie in Juttas Sprung-Skizze), Brücken `bremsen`, `abspringen` – alle 22 Symbole final.
