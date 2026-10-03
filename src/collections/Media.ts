@@ -150,11 +150,11 @@ const normalizeIncomingFile: CollectionBeforeOperationHook = async ({ args, oper
   const file = req.file
   const data = (args as { data?: { enhance?: unknown; source?: unknown } }).data
   try {
+    // Eigene Zeichnungen und Platzhalter (source placeholder/generated) tragen exakt die Marken-Farben: kein Foto-Look.
+    const artwork = data?.source === 'placeholder' || data?.source === 'generated'
     const normalized = await normalizeUpload(await fileBuffer(file), file.name, file.mimetype, {
-      enhance: data?.enhance === 'off' ? 'off' : 'auto',
-      // Zeichnungen und Platzhalter: halber Weißabgleich (DESIGN §12.2 Schritt 4)
-      category:
-        data?.source === 'placeholder' || data?.source === 'generated' ? 'drawing' : 'photo',
+      enhance: data?.enhance === 'off' || artwork ? 'off' : 'auto',
+      category: 'photo',
     })
     req.file = { ...file, ...normalized, tempFilePath: undefined }
   } catch (e) {

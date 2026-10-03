@@ -122,6 +122,34 @@ describe('Posen je Station (Tabelle §11.4)', () => {
     expect(coco.pose()).toBe('kopfschief')
   })
 
+  it('Sprung der Linie zu einer anderen Station ohne Lauf-Frame: Ankunft gilt neu', () => {
+    arrive(st('hallo', 'sitzen'))
+    advance(500)
+    coco.follow(state({ moving: false, station: st('keramik', 'schnueffeln') }))
+    advance(300)
+    expect(coco.pose()).toBe('schnueffeln')
+  })
+
+  it('Der Verweil-Timer der alten Station feuert nach dem Sprung zur nächsten nicht mehr', () => {
+    arrive(st('planet-claire', 'sitzen'))
+    advance(1500) // kopfschief läuft (3 s)
+    coco.follow(state({ moving: false, station: st('hallo', 'sitzen') }))
+    advance(300)
+    coco.follow(state({ moving: false, station: st('keramik', 'schnueffeln') }))
+    advance(4000)
+    expect(coco.pose()).toBe('schnueffeln')
+  })
+
+  it('Station direkt nach dem Sprung (Schmuck → Tattoo): Ankunft nicht durch die Sprung-Sperre verschluckt', () => {
+    const schmuck = st('schmuck', 'springen')
+    arrive(schmuck, 1100)
+    coco.follow(state({ moving: true, station: schmuck, len: 1202 }))
+    advance(100)
+    coco.follow(state({ moving: false, station: st('tattoo', 'kopfschief'), len: 5000 }))
+    advance(500)
+    expect(coco.pose()).toBe('kopfschief')
+  })
+
   it('Scrollen unterbricht das Verweilen', () => {
     arrive(st('planet-claire', 'sitzen'))
     advance(1000)

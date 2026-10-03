@@ -62,7 +62,7 @@ test.describe('Startseite – Choreografie (Preset journey)', () => {
     for (const s of stations) {
       await page.evaluate(
         ([y]) => (window as Win).__leash!.setReadingY(y!),
-        [s.y + loopScroll(s.id, 390) + 10],
+        [s.y + loopScroll(s.id, 390) - 1],
       )
       await expect
         .poll(() => pose(page), { message: `${s.id} Ankunft`, timeout: 6000 })

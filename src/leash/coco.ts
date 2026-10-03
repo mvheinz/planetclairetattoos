@@ -213,6 +213,7 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
   let dwellTimer: ReturnType<typeof setTimeout> | null = null
   let jumpTimer: ReturnType<typeof setTimeout> | null = null
   let dwelled = false
+  let stationId: string | undefined
   let jumping = false
   const jumped = new Set<string>()
   let facing: 1 | -1 = 1
@@ -351,6 +352,13 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     follow(s) {
       if (destroyed) return
       const st = s.station
+      // Sprung der Linie (> 300 px) zu einer anderen Station: Ankunft neu, auch ohne Bewegungs-Frame dazwischen
+      if (st?.id !== stationId || !st?.inside) {
+        // eine andere Station löst Verweil-Timer und Sprung-Sperre der alten
+        if (st?.id !== stationId) [jumpTimer, jumping] = [clear(jumpTimer), false]
+        ;[stationId, dwelled] = [st?.id, false]
+        dwellTimer = clear(dwellTimer)
+      }
       if (s.motion === 'reduced') api.setPose(s.pose)
       else if (!jumping) {
         if (s.moving) {
