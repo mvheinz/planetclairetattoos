@@ -262,9 +262,9 @@ async function openSession(
 }
 
 export const test = base.extend<{ art: ArtSession }>({
-  art: async ({ browser }, use, testInfo) => {
+  art: async ({ browser }, provide, testInfo) => {
     const { session, external } = await openSession(browser, testInfo)
-    await use(session)
+    await provide(session)
     const video = session.page.video()
     const saved = video
       ? video.saveAs(

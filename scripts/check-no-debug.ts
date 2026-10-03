@@ -10,6 +10,9 @@ import { pathToFileURL } from 'node:url'
 
 export const DEBUG_MARKERS = ['__leash', '__qa'] as const
 
+/** Marker als eigener Bezeichner – nicht als Teil eines CSS-Modul-Klassennamens wie `Commission-module__x1__leashEnd`. */
+const markerRe = (m: string) => new RegExp(`(?<![A-Za-z0-9_$])${m}(?![A-Za-z0-9_$])`)
+
 function listFiles(dir: string, match: (name: string) => boolean): string[] {
   if (!existsSync(dir)) return []
   return readdirSync(dir).flatMap((name) => {
@@ -34,7 +37,7 @@ export function findDebugMarkers(
   for (const file of scanned) {
     const text = readFileSync(file, 'utf8')
     for (const marker of DEBUG_MARKERS)
-      if (text.includes(marker)) hits.push(`${path.relative(process.cwd(), file)}: ${marker}`)
+      if (markerRe(marker).test(text)) hits.push(`${path.relative(process.cwd(), file)}: ${marker}`)
   }
   return hits
 }

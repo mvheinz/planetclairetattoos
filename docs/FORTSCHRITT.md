@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-03 – P9.1
+
+- QA-Modus `ART_QA` (`artQaActive`, Startregel: in Produktion Abbruch), QA-Seiten `/{locale}/qa/{coco,art,motion,leash,error}` (dynamisch, sonst 404, noindex, nicht in Registry/Sitemap/robots/Vorschau-Export)\n- Query-Schalter `?leash=off` (kein Engine-/Coco-Chunk), `?freeze=1`, `?qa-jank=30` nur mit Server-Marke `pc-art-qa` (`src/lib/qa/switches.ts`, `QaRuntime`); `/qa/motion` spielt MI-01…16 mit Produkt-Komponenten und -Modulen (`QaReplay`, Modus preview)\n- `check:no-debug`: Marker nur als eigener Bezeichner (CSS-Modul-Klassen wie `…__leashEnd` lösten fälschlich aus)\n- Tests: tests/unit/qa/qa-mode.unit.spec.ts (11), tests/e2e/qa-mode.e2e.spec.ts (7 je Projekt, desktop+pixel-7 grün), pnpm check, check:no-debug grün
+
 ## 2026-10-03 – P8.21
 
 - Vorschau-Export mit vollem Bestand: Status-Anker um O03 ergänzt, S08 als 404-Variante „schon ein Zuhause“ (im Browser gerendert, `clientRendered.ts` – das Server-HTML ist nur die Next-Fehlerhülle), eingebettete `data:`-Bilder (EPC-QR) bleiben erhalten, Zeitstempel-Angleichung ohne GoBD-Trigger-Abbruch (`session_replication_role` nur in der Export-DB). Ergebnis: 164 Routen, 0 nicht gebaut (R19 und alle Tattoo-Routen `ok`), 0 Warnungen, 8,19 MB.

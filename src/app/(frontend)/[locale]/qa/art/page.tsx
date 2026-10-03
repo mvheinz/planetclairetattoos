@@ -20,10 +20,12 @@ import styles from '../qa.module.css'
 // Breite), Platzhalter, Weltraum-Motive und Fehlerseiten-Zeichnungen, Wortmarke, Favicon 16/32/180 px, OG-Bilder.
 
 async function productOgImage(pagePath: string): Promise<string | null> {
-  const host = (await headers()).get('host')
+  const h = await headers()
+  const host = h.get('host')
   if (!host) return null
+  const proto = h.get('x-forwarded-proto') ?? 'http'
   try {
-    const html = await (await fetch(`http://${host}${pagePath}`, { cache: 'no-store' })).text()
+    const html = await (await fetch(`${proto}://${host}${pagePath}`, { cache: 'no-store' })).text()
     const url = /property="og:image" content="([^"]+)"/.exec(html)?.[1]
     return url
       ? new URL(url.replaceAll('&amp;', '&')).pathname +

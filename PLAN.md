@@ -4648,7 +4648,7 @@ KUNST-QA §0–§10 (vollständig).
 
 ### Aufgaben
 
-- [ ] **P9.1 QA-Modus und QA-Seiten** – `ART_QA` in `src/lib/env.ts` aufnehmen (Text laut ARCHITEKTUR §5.2,
+- [x] **P9.1 QA-Modus und QA-Seiten** – `ART_QA` in `src/lib/env.ts` aufnehmen (Text laut ARCHITEKTUR §5.2,
   `.env.example` neu erzeugen). QA-Seiten unter `src/app/(frontend)/[locale]/qa/` nach KUNST-QA §3.2: `coco` (alle 22
   Symbole in 24/40/42/64/72/180/240 px mit passendem `data-size`, Boil an/aus, `?parts=1` färbt `data-part`-Gruppen,
   `?frame=a|b|c`), `art` (Stationszeichnungen neben ihrer Quelle im gleichen Maßstab, Platzhalter, Weltraum-Motive,
