@@ -8,11 +8,17 @@ import { localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
 
 import styles from './Commission.module.css'
-import { CommissionForm, type CommissionFormMessages } from './CommissionForm'
+import { CommissionForm } from './CommissionForm'
+import {
+  CommissionView,
+  type CommissionFormMessages,
+  type CommissionViewFlow,
+} from './CommissionView'
 
 // Block `commissionForm` der Seite R10 (DESIGN §9.7 Preset `frame`, KONZEPT §3.10): Überschrift mit Coco `sitzen`
 // (Stations-Anker), Einleitung, Formular-Karte mit `contour` der Tuschelinie (einmal beim Eintritt; das Formular selbst
-// ohne Animation). Das Formular-Token entsteht hier je Aufruf (Zeitfalle und Upload-Berechtigung, ARCHITEKTUR §8.6).
+// ohne Animation; seine Erstansicht `CommissionView` rendert der Server). Das Formular-Token entsteht hier je Aufruf
+// (Zeitfalle und Upload-Berechtigung, ARCHITEKTUR §8.6).
 export async function CommissionFormBlock({
   locale,
   heading,
@@ -29,6 +35,14 @@ export async function CommissionFormBlock({
   const messages = (await getMessages({ locale })) as unknown as {
     commission: { form: CommissionFormMessages }
   }
+  const flow: CommissionViewFlow = {
+    locale,
+    messages: messages.commission.form,
+    privacyNotice: getSnippet('inquiry.privacyNotice', locale).text,
+    privacyHref: `${localizedPath('R22', locale)}#auftragsarbeiten`,
+    contactEmail,
+  }
+  const initial = initialCommissionState(new Date())
   return (
     <section
       className={styles.formSection}
@@ -43,13 +57,14 @@ export async function CommissionFormBlock({
       {intro ? <p>{intro}</p> : null}
       <Station id="commission-form" loop="contour" className={styles.frame}>
         <CommissionForm
-          locale={locale}
-          messages={messages.commission.form}
-          initial={initialCommissionState(new Date())}
-          privacyNotice={getSnippet('inquiry.privacyNotice', locale).text}
-          privacyHref={`${localizedPath('R22', locale)}#auftragsarbeiten`}
+          {...flow}
+          initial={initial}
+          initialView={
+            initial.step === 'form' ? (
+              <CommissionView part="fields" state={initial} flow={flow} />
+            ) : null
+          }
           successText={successText}
-          contactEmail={contactEmail}
         />
       </Station>
       <span className={styles.lineEnd} data-leash-anchor="end" aria-hidden="true" />

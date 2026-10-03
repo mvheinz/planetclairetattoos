@@ -2,7 +2,7 @@
 
 import React, { useRef } from 'react'
 
-import type { CommissionFormMessages } from './CommissionForm'
+import type { CommissionFormMessages } from './CommissionView'
 import styles from './Commission.module.css'
 import { IMAGE_MAX_COUNT, checkSelectedImage } from './imageRules'
 import type { UploadedImage } from './imageUpload'
