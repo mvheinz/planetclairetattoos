@@ -4302,7 +4302,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Tests: `tests/int/seed/logs.int.spec.ts`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P8.9 Lebenszyklus: Idempotenz, Produktionssperre, Entfernen, Reset (AK-SEED-Gesamtsuite)** –
+- [x] **P8.9 Lebenszyklus: Idempotenz, Produktionssperre, Entfernen, Reset (AK-SEED-Gesamtsuite)** –
   Import-Reihenfolge SEED-SPEC §1.7 (eine Transaktion je Schritt) und Idempotenzregeln §1.3 vollständig;
   `settings.seed.exampleDataPresent`/`importedAt` setzen, Audit `seed_imported`. `pnpm seed:remove --yes
   [--drop-texts]` nach SEED-SPEC §18 und DATENMODELL §13.5 (Reihenfolge, `BSP-*`-Zählerzeilen löschen, `keepTexts`

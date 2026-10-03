@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-03 – P8.9
+
+- Lebenszyklus geprüft und ergänzt: seed:remove erfasst vor dem ersten Löschschritt alle Verweise echter (und gleich übernommener) Dokumente und Globals auf Seed-Dokumente (src/lib/seed/references.ts) und listet sie im Bericht; entfernt werden sie beim Löschen über die Fremdschlüssel (Übersetzungen in Blöcken bleiben unangetastet). Guard, Reihenfolge §1.7, settings.seed und Audit seed_imported/seed_removed waren vorhanden.\n- Tests: tests/int/seed/lifecycle.int.spec.ts (7: Mengen = SEED_EXPECTED_COUNTS, Kennzeichnung, zweiter Lauf ohne Änderung, Vorschau per CLI ohne Schreiben, Entfernen mit/ohne Texte, Reset, Gegenprobe Stück Nr. 17 + Umsatz 2026-09/tattoo + echte Aktion mit Seed-Flash, Sequenzen PC/WR/AA/DS und RE/GS unverändert, seed:base mit APP_ENV=production), tests/unit/seed/guard.unit.spec.ts (16, jede Sperrbedingung einzeln); time.unit grün.
+
 ## 2026-10-02 – P8.8
 
 - `content/seed/data/logs.json` mit den Ableitungsregeln (Ereignis → Vorlagen aus `EMAIL_TEMPLATES`), den Einwilligungen und den 8 Audit-Einträgen (SEED-SPEC §16); Import `src/lib/seed/logs.ts` (Schritt 8): 78 Mail-Einträge (Anzahl je Bezug wie §16.1, Betreff aus den Mail-Texten mit Nummer, Admin-Mails an die Verwaltung auf Deutsch, `messageId` §2.5), 14 Einwilligungen mit gerendertem Baustein (`getSnippet`, kein erfundener Rechtstext), 8 Audit-Einträge; `withdrawals.confirmationEmail` zeigt auf die Eingangsbestätigung.\n- `email-log`: im Seed-Kontext bleibt `status = sent` (sonst `suppressed` für example.*).\n- Tests: `tests/int/seed/logs.int.spec.ts` (7, inkl. AK-SEED-05 mit Spionen) grün.

@@ -7,6 +7,7 @@ import { findMediaReferences } from '@/lib/media/references'
 import type { Clock } from '@/lib/time'
 
 import { seedOp, seedStep } from './context'
+import { findSeedReferences, formatSeedReference } from './references'
 import { SeedReport } from './report'
 
 // Beispieldaten entfernen (DATENMODELL §13.5, SEED-SPEC §18). Eine Transaktion je Schritt, Seed-Kontext (keine Mails,
@@ -114,6 +115,14 @@ export async function removeSeedData(
   const report = new SeedReport()
   const keepTexts = options.keepTexts ?? true
 
+  // Verweise echter (und gleich übernommener) Dokumente auf Seed-Dokumente – vor dem ersten Löschschritt erfassen;
+  // die Datenbank entfernt sie beim Löschen des Ziels (Fremdschlüssel), der Bericht listet sie.
+  const texts = keepTexts ? (['pages', 'faqs'] as const) : []
+  for (const hit of await findSeedReferences(payload, { keep: texts, adopted: texts })) {
+    report.add(hit.source, 'unlinked')
+    report.note(formatSeedReference(hit))
+  }
+
   for (const step of REMOVE_ORDER) {
     if (step.kind === 'delete') {
       if (!hasSeedField(payload, step.collection)) continue
@@ -192,7 +201,9 @@ export async function removeSeedData(
   // Eigener Request ohne `skipAudit`: genau ein zusammenfassender Eintrag.
   const req = await createLocalReq({ context: { seed: true } }, payload)
   const counts = Object.fromEntries(
-    [...report.counts].map(([c, row]) => [c, row.deleted + row.adopted]),
+    [...report.counts]
+      .map(([c, row]) => [c, row.deleted + row.adopted] as const)
+      .filter(([, n]) => n > 0),
   )
   await writeAudit(req, {
     action: 'seed_removed',
