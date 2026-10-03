@@ -19,8 +19,15 @@ export async function readOutbox(
     if ((e as NodeJS.ErrnoException).code === 'ENOENT') return []
     throw e
   }
+  // Der Dateiname enthält den Mail-Typ (`<Zeit>__<Typ>__<Schlüssel>.json`, src/lib/email/file.ts): bei Typ-Filter nur
+  // passende Dateien lesen. Das Postfach wächst lokal über viele Läufe (Tausende Dateien); alle zu lesen dauerte unter
+  // Last länger als die Poll-Frist der Tests.
+  const typePart = filter.type ? `__${filter.type.replace(/[^a-zA-Z0-9._-]+/g, '_')}__` : undefined
+  const candidates = names
+    .filter((n) => n.endsWith('.json') && (!typePart || n.includes(typePart)))
+    .sort()
   const records: OutboxRecord[] = []
-  for (const name of names.filter((n) => n.endsWith('.json')).sort()) {
+  for (const name of candidates) {
     const r = JSON.parse(await readFile(path.join(abs, name), 'utf8')) as OutboxRecord
     const to = filter.to?.toLowerCase()
     if (to && !r.to.some((a) => a.toLowerCase() === to)) continue
