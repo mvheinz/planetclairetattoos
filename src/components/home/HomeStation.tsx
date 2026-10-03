@@ -44,6 +44,7 @@ export async function HomeStation({
   locale,
   products = null,
   tattoo = null,
+  instagramHref = null,
 }: {
   station: HomeStationData
   locale: Locale
@@ -51,6 +52,8 @@ export async function HomeStation({
   tattoo?: TattooTeaserData | null
   /** Karten der Kategorie-Station (`listStationProducts`); `null` bei Stationen ohne Stücke (Hallo, Tattoo, …). */
   products?: PublicProduct[] | null
+  /** Station „Jutta & Coco“ (KONZEPT §3.1): neben „Mehr über uns“ (R19) auch Auftragsarbeiten (R10) und Instagram. */
+  instagramHref?: string | null
 }) {
   const t = await getTranslations({ locale, namespace: 'home' })
   const loop = loopFor(station.stationId, station.number)
@@ -82,6 +85,28 @@ export async function HomeStation({
       </Button>
     </p>
   ) : null
+  const juttaLinks =
+    station.stationId === 'jutta-und-coco' ? (
+      <ul className={styles.moreLinks} data-station-links="">
+        <li>
+          <Button variant="secondary" href={localizedPath('R10', locale)}>
+            {t('stationCommissions')}
+          </Button>
+        </li>
+        {instagramHref ? (
+          <li>
+            <Button
+              variant="secondary"
+              href={instagramHref}
+              rel="noopener noreferrer"
+              icon={ICON_EXTERNAL}
+            >
+              {t('stationInstagram')}
+            </Button>
+          </li>
+        ) : null}
+      </ul>
+    ) : null
 
   return (
     <section
@@ -103,6 +128,7 @@ export async function HomeStation({
         {station.text ? <p className={styles.text}>{station.text}</p> : null}
         {tattoo ? <TattooTeaser data={tattoo} locale={locale} /> : null}
         {shelf ? null : allLink}
+        {juttaLinks}
       </div>
       {onArt(loop) ? (
         <Station id={station.stationId} pose={pose} loop={loop} className={styles.artFrame}>

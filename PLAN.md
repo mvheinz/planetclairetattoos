@@ -4475,7 +4475,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     übernommen) für 404, 404-Variante, 500 und „Shop leer“.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P8.17 Startseite mit vollständigem Beispielbestand (R01)** – Die Startseite liest Überschriften, Texte,
+- [x] **P8.17 Startseite mit vollständigem Beispielbestand (R01)** – Die Startseite liest Überschriften, Texte,
   `cocoPose`, `ornament` und Links aus `pages.home` (Stationen mit `data-leash-station`-Ankern), zeigt je
   Kategorie-Station bis zu 4 Stücke `available`/`reserved` (neueste zuerst; Textil-Station inkl. Caps), in der
   Tattoo-Station bis zu 3 verfügbare Flash-Motive und das laufende oder nächste Angebot als Datums-Badge, in „Jutta &

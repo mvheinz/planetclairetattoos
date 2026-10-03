@@ -128,7 +128,9 @@
     "stationProducts": "Pieces: {station}",
     "emptyTitle": "We’re rearranging things.",
     "emptyText": "The home page will be back shortly. In the meantime, here’s how to reach us.",
-    "emptyAction": "Contact"
+    "emptyAction": "Contact",
+    "stationCommissions": "Commissions",
+    "stationInstagram": "Instagram"
   },
   "a11y": {
     "skipToContent": "Skip to content",

@@ -128,7 +128,9 @@
     "stationProducts": "Stücke: {station}",
     "emptyTitle": "Hier wird gerade umgeräumt.",
     "emptyText": "Die Startseite ist gleich wieder da. Schau so lange bei den Kontaktwegen vorbei.",
-    "emptyAction": "Zum Kontakt"
+    "emptyAction": "Zum Kontakt",
+    "stationCommissions": "Auftragsarbeiten",
+    "stationInstagram": "Instagram"
   },
   "a11y": {
     "skipToContent": "Zum Inhalt springen",

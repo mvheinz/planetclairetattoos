@@ -120,6 +120,16 @@
   margin-top: var(--space-2);
 }
 
+/* Station „Jutta & Coco“: weitere Wege (Auftragsarbeiten, Instagram) unter „Mehr über uns“. */
+.moreLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
 /* Regal der Kategorie-Stationen (KO-21, P3.12): unter Text und Zeichnung über die volle Breite; Abstand hält die
    Schlaufe um die Zeichnung (`lasso`) frei. */
 .shelf {

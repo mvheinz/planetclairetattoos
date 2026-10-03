@@ -114,6 +114,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               locale={locale}
               products={shelves[i] ?? null}
               tattoo={station.stationId === 'tattoo' ? tattoo : null}
+              instagramHref={instagramUrl(nav.instagramHandle)}
             />
           ))}
         </div>
