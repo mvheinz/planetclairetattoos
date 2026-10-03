@@ -4000,12 +4000,12 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
 
 ### Phasen-Abnahme
 
-- [ ] Alle Aufgaben P7.1–P7.15 erledigt; `pnpm check`, `pnpm test:int`, `pnpm test:e2e` und `pnpm build` lokal grün.
-- [ ] P7 braucht keine eigene Schema-Migration (DATENMODELL §10.1); `pnpm check:migrations` ohne Drift, Typen und
+- [x] Alle Aufgaben P7.1–P7.15 erledigt; `pnpm check`, `pnpm test:int`, `pnpm test:e2e` und `pnpm build` lokal grün.
+- [x] P7 braucht keine eigene Schema-Migration (DATENMODELL §10.1); `pnpm check:migrations` ohne Drift, Typen und
   Importmap committet; geprüft, dass `tattoo-gallery.consentWithdrawnAt` (DATENMODELL §6.16) seit P1 im Schema liegt und `tattoo-gallery` keine Versionen
   hat; geprüft, dass KONZEPT AK-8-03 und SEED-SPEC §11 die Löschung 6 Monate nach Eingang nennen; SEED-SPEC SE-09 als
   geklärt vermerkt.
-- [ ] `LEGAL_TRACE_PHASE = 7`; Nachweise im PR-Text: AK-9-01 bis AK-9-05, AK-10-01 bis AK-10-04, T-05, R-IDs aus
+- [x] `LEGAL_TRACE_PHASE = 7`; Nachweise im PR-Text: AK-9-01 bis AK-9-05, AK-10-01 bis AK-10-04, T-05, R-IDs aus
   „Referenzen“ je mit Testdatei.
 - [ ] CI grün: Der Phasenende-Commit (z. B. `chore(P7): finish phase [ci:full p7]`, der letzte Commit ohne
   `[skip ci]`) hat `CI / quick`, `ci-full` (`e2e-full` inkl. `@a11y` und `@privacy`; `quality` mit Lighthouse-CI für
