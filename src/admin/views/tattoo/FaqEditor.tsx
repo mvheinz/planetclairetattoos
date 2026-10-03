@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import React, { useRef, useState } from 'react'
 
+import type { FaqCategory } from '@/lib/enums'
 import { lexicalToPlain } from '@/lib/richtext/plain'
 import type { TattooTextWarning } from '@/lib/tattoo/textWarnings'
 
@@ -26,11 +27,12 @@ import { tattooText } from './tattooText'
 
 // FAQ der Kategorien „Tattoo“ und „Aftercare“ (PLAN P7.9): je Frage ein kleines Formular (Frage und Antwort DE/EN,
 // online), „Übersetzen“ (`POST /api/faqs/:id/translate`), Reihenfolge per „Hoch“/„Runter“ (`POST /api/faqs/:id/move`).
-// Gespeichert über `POST /api/faqs/tattoo-save` mit Warnungen bei V-24/V-15 (Speichern bleibt möglich).
+// Gespeichert über `POST /api/faqs/tattoo-save` mit Warnungen bei V-24/V-15 (Speichern bleibt möglich). In der Ansicht
+// „Texte“ (P8.19a) für alle Kategorien über `POST /api/faqs/texts-save`.
 
 export interface FaqItemValues {
   id: number | null
-  category: 'tattoo' | 'aftercare'
+  category: FaqCategory
   question: Loc
   answer: Loc
   published: boolean
@@ -45,12 +47,14 @@ function FaqItem({
   count,
   translateDisabled,
   onCreated,
+  saveEndpoint,
 }: {
   initial: FaqItemValues
   index: number
   count: number
   translateDisabled: string | null
   onCreated?: () => void
+  saveEndpoint: string
 }) {
   const router = useRouter()
   const [form, setForm] = useState(initial)
@@ -63,7 +67,7 @@ function FaqItem({
   const prefix = `faq-${form.id ?? 'neu'}`
 
   const persist = async (): Promise<number> => {
-    const res = await requestJson('/api/faqs/tattoo-save', { method: 'POST', json: form })
+    const res = await requestJson(saveEndpoint, { method: 'POST', json: form })
     if (!res.ok) throw new IssuesError(issuesOf(res.json))
     const id = Number((res.json.doc as Doc | undefined)?.id)
     setWarnings((res.json.warnings as TattooTextWarning[] | undefined) ?? [])
@@ -233,10 +237,13 @@ export function FaqEditor({
   category,
   items,
   translateDisabled,
+  saveEndpoint = '/api/faqs/tattoo-save',
 }: {
-  category: 'tattoo' | 'aftercare'
+  category: FaqCategory
   items: FaqItemValues[]
   translateDisabled: string | null
+  /** P8.19a: alle Kategorien über `POST /api/faqs/texts-save`. */
+  saveEndpoint?: string
 }) {
   const [adding, setAdding] = useState(0)
   return (
@@ -250,6 +257,7 @@ export function FaqEditor({
             index={i}
             count={items.length}
             translateDisabled={translateDisabled}
+            saveEndpoint={saveEndpoint}
           />
         ))}
         {Array.from({ length: adding }, (_, k) => (
@@ -265,6 +273,7 @@ export function FaqEditor({
             index={items.length + k}
             count={items.length + adding}
             translateDisabled={translateDisabled}
+            saveEndpoint={saveEndpoint}
             onCreated={() => setAdding((n) => Math.max(0, n - 1))}
           />
         ))}

@@ -741,7 +741,7 @@ export const ADMIN_CUSTOM_DE = {
   settingsPrepaymentDeadlines: 'Vorkasse-Fristen',
   settingsPrepaymentDeadlinesText:
     'Erinnerung nach {{hours}} Stunden, Storno nach 23:59 Uhr am {{days}}. Kalendertag nach dem Bestelltag',
-  settingsLegalLater: 'Bearbeitung kommt in P6',
+  settingsLegalEdit: 'Bearbeiten unter „Texte“ → „Rechtstexte“',
   settingsPasswordTitle: 'Passwort ändern',
   settingsPasswordCurrent: 'Bisheriges Passwort',
   settingsPasswordNew: 'Neues Passwort',
@@ -848,7 +848,21 @@ export const ADMIN_CUSTOM_DE = {
   revenueHistoryNone: 'Bisher keine Hinweise.',
   // Texte (P5.27)
   textsPages: 'Seiten und FAQ',
-  textsPagesLater: 'Seiten und FAQ bearbeiten kommt in P8. Bis dahin unter „Alle Daten“.',
+  // Seiten und FAQ (P8.19a)
+  textsPagesIntro:
+    'Wähle eine Seite. Jeder Text hat ein deutsches und ein englisches Feld; „Übersetzen“ füllt das Englische. Nach dem Speichern ist die Änderung spätestens nach einer Minute online.',
+  textsPagesList: 'Seiten',
+  textsPagesEdit: 'Bearbeiten',
+  textsPagesSeed: 'Beispieltext',
+  textsPagesOwn: 'eigener Text',
+  textsPagesMissing: 'noch nicht angelegt',
+  textsPagesEditing: 'Seite „{{page}}“ bearbeiten',
+  textsPagesClose: 'Zur Liste der Seiten',
+  textsPagesSeedHint:
+    'Das ist noch ein Beispieltext. Sobald du speicherst, wird er zu deinem eigenen Text und bleibt beim Entfernen der Beispieldaten erhalten.',
+  textsFaq: 'Häufige Fragen (FAQ)',
+  textsFaqIntro:
+    'Reihenfolge mit „Hoch“/„Runter“ – genauso erscheinen die Fragen auf der Seite. Tattoo-Fragen gibt es auch im Bereich „Tattoo“.',
   textsLegal: 'Rechtstexte',
   // Texte: Rechtstexte und Bausteine (P6.4)
   legalHint:

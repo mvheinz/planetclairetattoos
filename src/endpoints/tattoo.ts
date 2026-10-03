@@ -5,6 +5,8 @@ import { ADMIN_NO_STORE, adminActionResponse } from '@/endpoints/adminResponse'
 import { errorResponse, readJsonBody } from '@/endpoints/products/actions'
 import {
   moveTattooFaq,
+  saveFaq,
+  savePageTexts,
   saveTattooFaq,
   saveTattooPageTexts,
   setFlashPublished,
@@ -17,6 +19,7 @@ import {
 } from '@/lib/tattoo/admin'
 import { adoptSeedDocument } from '@/lib/seed/adopt'
 import {
+  isPageKey as isAnyPageKey,
   TATTOO_TEXT_PAGE_KEYS,
   type EditorBlock,
   type TattooTextPageKey,
@@ -27,7 +30,8 @@ import {
 // `{ published }` · `POST /api/{flash,tattoo-offers,faqs,pages}/:id/translate` `{ force }` ·
 // `POST /api/tattoo-gallery/:id/withdraw-consent` `{ email?, locale? }` · `POST /api/pages/tattoo-texts`
 // `{ key, blocks, title? }` · `POST /api/faqs/tattoo-save` `{ id?, category, question, answer, published }` ·
-// `POST /api/faqs/:id/move` `{ direction }` · `POST /api/{flash,tattoo-gallery,media}/:id/adopt` (P8.19). Antwort `{ doc, unchanged }` (+ `warnings`); Fehler `{ error, errors? }` –
+// `POST /api/faqs/:id/move` `{ direction }` · `POST /api/{flash,tattoo-gallery,media}/:id/adopt` (P8.19) ·
+// `POST /api/pages/texts` `{ key, blocks, title?, seo? }` und `POST /api/faqs/texts-save` (alle Seiten/Kategorien, P8.19a). Antwort `{ doc, unchanged }` (+ `warnings`); Fehler `{ error, errors? }` –
 // bei Feldfehlern steht die erste deutsche Meldung in `error` (der Knopf zeigt sie direkt an).
 
 const forbidden = () =>
@@ -155,11 +159,28 @@ export const pageAdminEndpoints: Endpoint[] = [
     const title = body.title as { de: string; en: string } | undefined
     return saveTattooPageTexts(req, body.key, { blocks, title })
   }),
+  plainAction('texts', async (req, body) => {
+    if (!isAnyPageKey(body.key)) {
+      throw new ValidationError({
+        collection: 'pages',
+        errors: [{ path: 'key', message: 'Unbekannte Seite.' }],
+      })
+    }
+    const blocks = Array.isArray(body.blocks) ? (body.blocks as EditorBlock[]) : []
+    return savePageTexts(req, body.key, {
+      blocks,
+      title: body.title as { de: string; en: string } | undefined,
+      seo: (body.seo ?? undefined) as Parameters<typeof savePageTexts>[2]['seo'],
+    })
+  }),
   idAction('translate', (req, id, body) => translatePage(req, id, { force: body.force === true })),
 ]
 
 export const faqAdminEndpoints: Endpoint[] = [
   plainAction('tattoo-save', (req, body) => saveTattooFaq(req, body as unknown as FaqForm)),
+  plainAction('texts-save', (req, body) =>
+    saveFaq(req, body as unknown as Parameters<typeof saveFaq>[1]),
+  ),
   idAction('move', (req, id, body) =>
     moveTattooFaq(req, id, body.direction === 'up' ? 'up' : 'down'),
   ),

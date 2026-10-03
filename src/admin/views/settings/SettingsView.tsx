@@ -418,7 +418,13 @@ export async function SettingsView({ adminRoute, req }: AdminViewBodyProps) {
           {LEGAL_TEXT_TYPES.map((t) => (
             <li key={t} className="pc-order__item">
               {ENUM_LABELS.LEGAL_TEXT_TYPES[t].de} ·{' '}
-              <span className="pc-order__muted">{adminText('settingsLegalLater')}</span>
+              <Link
+                href={`${adminRoute}${adminView('texte').path}#texts-legal`}
+                prefetch={false}
+                className="pc-admin-link"
+              >
+                {adminText('settingsLegalEdit')}
+              </Link>
             </li>
           ))}
         </ul>
