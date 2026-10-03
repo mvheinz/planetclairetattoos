@@ -2782,6 +2782,7 @@ Migrationen späterer Phasen gibt es nur für:
 | P6 | `p6_legal_review_job`, `p6_withdrawal_deadlines_task`, `p6_privacy_requests_task` | Task-Slugs `legalReviewReminder`, `withdrawalDeadlines`, `privacyRequestsDeadlineReminder` im Enum der Jobs-Queue |
 | P6 | `p6_withdrawal_inbox_refunds` | Felder `withdrawals.returnConditionNote` (§6.11) sowie `orders.refunds[].withdrawal` und `orders.refunds[].note` (Erstattung je Widerruf, P6.9/P6.10); nullable, rein erweiternd |
 | P6 | `p6_invoice_reissue`, `p6_invoice_reissue_constraints` | Feld `invoices.replacesInvoice`, Enum-Wert `correction` für `invoices.reason` und `orders.refunds[].reason` (P6.18); eigenes SQL: partieller UNIQUE-Index „eine ursprüngliche Rechnung je Bestellung“ nur über Rechnungen ohne `replaces_invoice_id`, UNIQUE „jede Rechnung höchstens einmal ersetzt“, GoBD-Trigger (§9.4) schützt den Verweis |
+| P7 | `p7_revalidate_offers_task` | nur Task-Slug `revalidateEndedOffers` im Enum der Jobs-Queue (P7.3); keine Collection-/Feldänderung – `tattoo-gallery.consentWithdrawnAt` liegt seit `p1_tattoo` im Schema |
 | P8 | `p8_media_owner_approved` | Feld `media.ownerApproved` (§6.2) samt Zugriffsregel (R-181) |
 
 Neue Task-Slugs (Anhang A.3 der ARCHITEKTUR) erweitern die Payload-Job-Enums immer per generierter Migration der Phase, die den Task registriert. Neue Werte oder Felder, die eine Phase darüber hinaus braucht, kommen per eigener Migration dieser Phase **und**
