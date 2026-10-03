@@ -4,6 +4,14 @@ import { createHash } from 'node:crypto'
 
 import sharp from 'sharp'
 
+import {
+  analyzeLook,
+  applyLuts,
+  buildLuts,
+  type EnhanceCategory,
+  type EnhancePlan,
+} from './enhance'
+
 // Bildpipeline (DATENMODELL §6.2, DESIGN §12.2 Schritte 1–3, 7, 8). Reine Funktionen auf Buffern.
 
 export const MEDIA_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const
@@ -76,17 +84,59 @@ export async function normalizeUpload(
   buffer: Buffer,
   name: string,
   declaredMime?: string,
+  options: { enhance?: 'auto' | 'off'; category?: EnhanceCategory } = {},
 ): Promise<NormalizedUpload> {
   if (buffer.length > MEDIA_MAX_BYTES) {
     throw new MediaFileError('Die Datei ist größer als 20 MB.')
   }
   await detectMediaType(buffer, declaredMime)
-  const data = await sharp(buffer, { failOn: 'error' })
+  let data = await sharp(buffer, { failOn: 'error' })
     .rotate()
     .toColourspace('srgb')
     .png({ compressionLevel: 1 })
     .toBuffer()
+  // Schritte 4–6: Foto-Look (Schalter `enhance`); `off` liefert exakt die Ausgabe der P1-Pipeline.
+  if ((options.enhance ?? 'auto') === 'auto')
+    data = (await enhanceImage(data, options.category)).data
   return { data, mimetype: 'image/png', name: hashedName(name, buffer, 'png'), size: data.length }
+}
+
+/** Größe der Analyse-Abbildung (lange Kante, px). */
+const ANALYSIS_EDGE = 320
+
+/**
+ * Schritte 4–5 „Weißabgleich“ und „Belichtung“ (DESIGN §12.2): wertet ein verkleinertes Abbild aus und wendet die
+ * Tonwerttabellen auf das ganze Bild an. Gibt es nichts zu korrigieren, kommt derselbe Buffer unverändert zurück.
+ */
+export async function enhanceImage(
+  png: Buffer,
+  category: EnhanceCategory = 'photo',
+): Promise<{ data: Buffer; plan: EnhancePlan }> {
+  const small = await sharp(png)
+    .resize({
+      width: ANALYSIS_EDGE,
+      height: ANALYSIS_EDGE,
+      fit: 'inside',
+      withoutEnlargement: true,
+    })
+    .raw()
+    .toBuffer({ resolveWithObject: true })
+  const plan = analyzeLook(
+    small.data,
+    small.info.width,
+    small.info.height,
+    small.info.channels,
+    category,
+  )
+  if (plan.noop) return { data: png, plan }
+  const full = await sharp(png).raw().toBuffer({ resolveWithObject: true })
+  applyLuts(full.data, full.info.channels, buildLuts(plan))
+  const data = await sharp(full.data, {
+    raw: { width: full.info.width, height: full.info.height, channels: full.info.channels },
+  })
+    .png({ compressionLevel: 1 })
+    .toBuffer()
+  return { data, plan }
 }
 
 /** Schritt 8: LQIP (WebP, 16 px lange Kante, Base64, ≤ 2 KB) und Dominanzfarbe `#rrggbb`. */

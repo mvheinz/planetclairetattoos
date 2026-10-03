@@ -101,7 +101,26 @@ function plainAction(
 const adopt = (collection: 'flash' | 'tattoo-gallery' | 'media') =>
   idAction('adopt', (req, id) => adoptSeedDocument(req, collection, id))
 
-export const mediaAdminEndpoints: Endpoint[] = [adopt('media')]
+/** `GET /api/media/:id/enhance-preview` – Vorher/Nachher des Foto-Looks (DESIGN §12.2 Schritt 6, P9.14). */
+const enhancePreview: Endpoint = {
+  path: '/:id/enhance-preview',
+  method: 'get',
+  handler: async (req) => {
+    if (!isAdminRequest(req)) return forbidden()
+    const id = Number(req.routeParams?.id)
+    if (!Number.isSafeInteger(id) || id < 1) {
+      return Response.json({ error: 'Nicht gefunden.' }, { status: 404, headers: ADMIN_NO_STORE })
+    }
+    try {
+      const { mediaEnhancePreview } = await import('@/lib/media/preview')
+      return Response.json(await mediaEnhancePreview(req.payload, id), { headers: ADMIN_NO_STORE })
+    } catch (err) {
+      return fail(err)
+    }
+  },
+}
+
+export const mediaAdminEndpoints: Endpoint[] = [adopt('media'), enhancePreview]
 
 const translate = (collection: 'flash' | 'tattoo-offers' | 'faqs') =>
   idAction('translate', (req, id, body) =>
