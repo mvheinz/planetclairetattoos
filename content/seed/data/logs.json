@@ -1,0 +1,138 @@
+{
+  "email": [
+    {
+      "event": "order.paidAt",
+      "paymentMethods": ["card", "paypal"],
+      "templates": ["order_confirmation", "admin_order_placed"]
+    },
+    {
+      "event": "order.placedAt",
+      "paymentMethods": ["prepayment"],
+      "templates": ["prepayment_instructions", "admin_order_placed"]
+    },
+    { "event": "order.prepayment.reminderSentAt", "templates": ["prepayment_reminder"] },
+    {
+      "event": "order.paidAt",
+      "paymentMethods": ["prepayment"],
+      "templates": ["prepayment_received"]
+    },
+    {
+      "event": "order.cancelledAt",
+      "templates": ["prepayment_cancelled", "admin_prepayment_cancelled"]
+    },
+    { "event": "order.shippedAt", "templates": ["order_shipped"] },
+    { "event": "order.readyForPickupAt", "templates": ["pickup_ready"] },
+    {
+      "event": "withdrawal.receivedAt",
+      "templates": ["withdrawal_receipt", "admin_withdrawal_received"]
+    },
+    { "event": "order.refunds.createdAt", "templates": ["refund_confirmation"] },
+    { "event": "order.disputedAt", "templates": ["admin_dispute_opened"] },
+    { "event": "inquiry.createdAt", "templates": ["inquiry_receipt", "admin_inquiry_received"] },
+    { "event": "complaint.repairChoiceSentAt", "templates": ["complaint_repair_choice"] },
+    { "event": "complaint.vsbgNoticeSentAt", "templates": ["dispute_vsbg"] },
+    {
+      "event": "privacyRequest.answeredAt",
+      "privacyTypes": ["access"],
+      "templates": ["privacy_access_response"]
+    }
+  ],
+  "consent": [
+    {
+      "purpose": "carrier_email_forwarding",
+      "snippet": "checkout.dhlEmailConsent",
+      "orders": [
+        "orders:O01",
+        "orders:O05",
+        "orders:O06",
+        "orders:O10",
+        "orders:O11",
+        "orders:O14"
+      ]
+    },
+    {
+      "purpose": "deviation_agreement",
+      "snippet": "checkout.deviationAgreement",
+      "orders": ["orders:O13"],
+      "product": "products:S14"
+    },
+    {
+      "purpose": "inquiry_privacy_notice",
+      "snippet": "inquiry.privacyNotice",
+      "inquiries": [
+        "inquiries:A1",
+        "inquiries:A2",
+        "inquiries:A3",
+        "inquiries:A4",
+        "inquiries:A5",
+        "inquiries:A6",
+        "inquiries:A7"
+      ]
+    }
+  ],
+  "audit": [
+    {
+      "key": "seed_imported",
+      "action": "seed_imported",
+      "actorType": "seed",
+      "entity": "settings",
+      "summary": "Beispielbestand importiert: {products} Stücke, {checkouts} Kassen, {orders} Bestellungen, {invoices} Belege, {withdrawals} Widerrufe, {complaints} Reklamationen, {inquiries} Anfragen, {privacy-requests} Datenschutz-Anfragen."
+    },
+    {
+      "key": "S06:offline",
+      "action": "product_offline_sold",
+      "actorType": "admin",
+      "entity": "products:S06",
+      "at": "D-32@15:05",
+      "summary": "Nr. 906 offline verkauft (Flohmarkt Mauerpark)."
+    },
+    {
+      "key": "O03:disputed",
+      "action": "order_status_changed",
+      "actorType": "webhook",
+      "entity": "orders:O03",
+      "at": "D-5@08:12",
+      "summary": "PC-2026-90003: delivered → disputed (Anfechtung eröffnet, O16)."
+    },
+    {
+      "key": "S09:archived",
+      "action": "product_status_changed",
+      "actorType": "admin",
+      "entity": "products:S09",
+      "at": "D-6@09:35",
+      "summary": "Nr. 909: sold → archived (vor dem Versand zerbrochen, Bestellung erstattet)."
+    },
+    {
+      "key": "W2:matched",
+      "action": "withdrawal_matched",
+      "actorType": "admin",
+      "entity": "withdrawals:W2",
+      "at": "D-13@09:00",
+      "summary": "WR-2026-90002 manuell PC-2026-90005 zugeordnet."
+    },
+    {
+      "key": "O01:refund",
+      "action": "order_refund_created",
+      "actorType": "admin",
+      "entity": "orders:O01",
+      "at": "D-37@09:15",
+      "summary": "PC-2026-90001: Erstattung 66,90 € (Widerruf)."
+    },
+    {
+      "key": "O05:refund",
+      "action": "order_refund_created",
+      "actorType": "admin",
+      "entity": "orders:O05",
+      "at": "D-7@10:05",
+      "summary": "PC-2026-90005: Teil-Erstattung 40,40 € (Widerruf)."
+    },
+    {
+      "key": "O08:refund",
+      "action": "order_refund_created",
+      "actorType": "admin",
+      "entity": "orders:O08",
+      "at": "D-6@09:30",
+      "summary": "PC-2026-90008: Erstattung 93,90 € (Bruch vor dem Versand)."
+    }
+  ]
+}

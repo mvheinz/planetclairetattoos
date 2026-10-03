@@ -4,7 +4,9 @@ import { pathToFileURL } from 'node:url'
 
 import { test as base, expect, type Page } from '@playwright/test'
 
+import { seedProductSlugs } from '../../scripts/preview-export/crawl'
 import { PreviewReportSchema } from '../../scripts/preview-export/report'
+import { seedToken } from '../../src/lib/seed/tokens'
 import { localizedPath, matchRoute, splitLocale } from '../../src/lib/routes/paths'
 import { LOCALES, ROUTES } from '../../src/lib/routes/registry'
 
@@ -103,7 +105,7 @@ async function go(page: Page, route: string): Promise<void> {
   await page.evaluate((r) => {
     window.location.hash = `#${r}`
   }, route)
-  await expect(page.locator('#pv-root h1').first()).toBeVisible()
+  await expect(page.locator('#pv-root h1').first(), `H1 auf ${route}`).toBeVisible()
   await page.waitForFunction(
     (r) => document.querySelector(`template[data-route="${r}"]`) !== null,
     route,
@@ -452,7 +454,10 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
     await expect(list).toBeVisible()
     await expect(list).toContainText('Recht')
     await expect(list).toContainText('Verwaltung')
-    await expect(list).toContainText('Noch nicht gebaut')
+    // „Noch nicht gebaut“ nur, solange es solche Seiten gibt (ab P8.21 ist jede Registry-Route gebaut).
+    const report = PreviewReportSchema.parse(JSON.parse(readFileSync(REPORT, 'utf8')))
+    if (report.routes.some((r) => r.status === 'not-built'))
+      await expect(list).toContainText('Noch nicht gebaut')
     await list.locator('a[href="#/vorschau/verwaltung"]').click()
     await expect(page.locator('#pv-root h1')).toHaveText('Verwaltung auf dem Handy')
     await expect(page.locator('#pv-root [data-admin-view="login"] img')).toBeVisible()
@@ -477,6 +482,83 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
       session: window.sessionStorage.length,
     }))
     expect(state).toEqual({ cookie: '', local: 0, session: 0 })
+  })
+
+  test('P8.21 Anker in der Datei: Korb S01 + S11 (8,90 €, 109,00 €, 117,90 €, Abweichung bestätigen), Danke O14/O13 (IBAN, Frist), Status O10/O13/O01/O03, Produktseiten, S08 als 404-Variante, G1/G2 mit Etikett, Verwaltungsfoto „Heute“', async ({
+    page,
+    watch,
+  }) => {
+    const money = (v: string) => new RegExp(v.replace(/ /g, '[\\s\\u00a0]'))
+    const text = () => page.locator('#pv-root').innerText()
+    await open(page)
+
+    // Korb und Kasse (SEED-SPEC §17)
+    await go(page, localizedPath('R06', 'de'))
+    expect(await text()).toMatch(money('109,00 €'))
+    await go(page, localizedPath('R07', 'de'))
+    const checkout = await text()
+    expect(checkout).toMatch(money('8,90 €'))
+    expect(checkout).toMatch(money('117,90 €'))
+    await expect(page.locator('#pv-root [data-deviations] input[type="checkbox"]')).toHaveCount(1)
+    await expect(
+      page.locator('#pv-root [data-deviations] input[type="checkbox"]'),
+    ).not.toBeChecked()
+
+    // Danke-Seiten O13 (Vorkasse, Beispiel-IBAN, Frist) und O14 (en)
+    await go(page, `/de/danke/${seedToken('checkouts:O13', 'checkout')}`)
+    await expect(page.locator('#pv-root [data-example-note]')).toContainText('Beispiel')
+    await expect(page.locator('#pv-root')).toContainText('DE36 0000 0000 0000 0000 00')
+    await expect(page.locator('#pv-root [data-bank-due]')).toBeVisible()
+    await go(page, `/en/thank-you/${seedToken('checkouts:O14', 'checkout')}`)
+    await expect(page.locator('#pv-root [data-example-note]')).toContainText('Example')
+
+    // Statusseiten O10 (DHL), O13, O01 und O03 (Status vor der Anfechtung)
+    for (const key of ['O10', 'O13', 'O01', 'O03']) {
+      await go(page, `/de/bestellung/${seedToken(`orders:${key}`, 'status')}`)
+      await expect(page.locator('#pv-root'), key).toContainText(`PC-2026-900${key.slice(1)}`)
+    }
+    await expect(page.locator('#pv-root [data-order-status-page]')).toHaveAttribute(
+      'data-order-status',
+      'delivered',
+    )
+
+    // Produktseiten S01, S11, S14, S19, S26, S29 (EN), S30; S08 als 404-Variante „schon ein Zuhause“
+    const pvRoutes = await routes(page)
+    const productRoute = (nr: number, lang: 'de' | 'en') =>
+      pvRoutes.find((r) => r.lang === lang && r.built && r.route.startsWith(`/${lang}/shop/${nr}-`))
+    for (const nr of [901, 911, 914, 919, 926, 930])
+      expect(productRoute(nr, 'de'), `S${String(nr).slice(1)} de`).toBeTruthy()
+    expect(productRoute(929, 'en'), 'S29 en').toBeTruthy()
+    const s08 = seedProductSlugs('S08').de
+    await go(page, `/de/shop/${s08.nummer}-${s08.slug}`)
+    await expect(page.locator('#pv-root h1')).toHaveText(
+      'Dieses Stück hat schon ein Zuhause gefunden',
+    )
+
+    // G1/G2 mit Etikett „intern – Einwilligung fehlt“ (R-182)
+    await go(page, localizedPath('R15', 'de'))
+    await expect(page.locator('#pv-root [data-gallery-internal-label]')).toHaveCount(2)
+    await expect(page.locator('#pv-root [data-gallery-internal-label]').first()).toContainText(
+      'intern – Einwilligung fehlt',
+    )
+
+    // Verwaltungsfoto „Heute“
+    await go(page, '/vorschau/verwaltung')
+    await expect(page.locator('#pv-root [data-admin-view="heute"] img')).toBeVisible()
+    expect(watch.requests).toEqual([])
+  })
+
+  test('P8.21 keine anderen Personendaten als die Seed-Namen: E-Mail-Adressen nur @example.com/.org bzw. der Shop', async () => {
+    const html = readFileSync(FILE, 'utf8')
+    const emails = new Set(
+      [...html.matchAll(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g)].map((m) => m[0]),
+    )
+    const foreign = [...emails].filter(
+      (e) =>
+        !/@(example\.(com|org|net)|planetclairetattoos\.com)$/i.test(e) &&
+        !/\.(png|webp|jpg|svg|woff2)$/i.test(e),
+    )
+    expect(foreign).toEqual([])
   })
 
   test('Nr. 9 und Bericht: ≤ 40 MB, gültiger Bericht nennt jede Registry-Route', async () => {
@@ -516,17 +598,23 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
     for (const id of ['R02', 'R03', 'R04', 'R05', 'R06', 'R07', 'R25'])
       for (const lang of LOCALES)
         expect(builtIds.has(`${id}:${lang}`), `${id} ${lang} gebaut`).toBe(true)
-    // P4.25 EK-11: Danke- und Statusseiten gebaut, sobald ihre Seed-Anker existieren (P8.4) – vorher „ab P8“ vermerkt.
-    for (const id of ['R08', 'R09'])
-      for (const lang of LOCALES) {
-        if (builtIds.has(`${id}:${lang}`)) continue
-        const entry = report.routes.find((r) => {
-          const split = splitLocale(r.route)
-          return r.lang === lang && split && matchRoute(split.rest, split.locale)?.route.id === id
-        })
-        expect(entry, `${id} ${lang} im Bericht`).toMatchObject({ status: 'not-built' })
-        expect(entry!.note, `${id} ${lang}`).toMatch(/^ab P8/)
-      }
+    // P4.25 EK-11 / P8.21: Danke- und Statusseiten mit den Seed-Ankern gebaut; R19 und alle Tattoo-Routen `ok`.
+    for (const id of [
+      'R08',
+      'R09',
+      'R10',
+      'R11',
+      'R12',
+      'R13',
+      'R14',
+      'R15',
+      'R16',
+      'R17',
+      'R18',
+      'R19',
+    ])
+      for (const lang of LOCALES)
+        expect(builtIds.has(`${id}:${lang}`), `${id} ${lang} gebaut (ok)`).toBe(true)
     for (const variant of [
       '/de/shop?available=1',
       '/en/shop?available=1',

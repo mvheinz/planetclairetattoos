@@ -5,6 +5,7 @@ import { isSuppressedRecipient } from '@/lib/email/recipients'
 import { seedField } from '@/fields'
 import { ENUM_LABELS, enumOptions } from '@/lib/enumLabels'
 import { EMAIL_STATUSES, EMAIL_TEMPLATES, EMAIL_TRANSPORTS, LOCALES } from '@/lib/enums'
+import { getAppContext } from '@/lib/payload/context'
 import { preservingReq } from '@/lib/payload/localReq'
 import {
   L_12_EMAIL_LOG_UNRELATED,
@@ -197,10 +198,13 @@ export const EmailLog: CollectionConfig = {
     beforeValidate: [
       async ({ operation, data, originalDoc, req }) => {
         if (!data) return data
+        // Beispielbestand (SEED-SPEC §16.1): Einträge mit `status = sent` aus den Daten, obwohl die Adressen auf
+        // `example.*` enden – der Seed versendet nichts, er protokolliert nur die Zeitleiste.
         if (
           operation === 'create' &&
           typeof data.to === 'string' &&
-          isSuppressedRecipient(data.to)
+          isSuppressedRecipient(data.to) &&
+          !getAppContext(req).seed
         ) {
           data.status = 'suppressed'
         }

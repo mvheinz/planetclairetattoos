@@ -24,21 +24,47 @@ async function removeTattooPage(onlyIfNew: number[]) {
 }
 
 let existing: number[] = []
+// Mit dem Beispielbestand (P8) gibt es die Seite schon: Blöcke je Sprache merken und danach zurückschreiben – sonst
+// bliebe „Anzahlung verfällt bei Absage“ für alle späteren Specs auf R14 stehen (V-24, `forbidden`, `info-pages`).
+type Snapshot = { id: number; seed: boolean; layout: Record<'de' | 'en', unknown> }
+let snapshots: Snapshot[] = []
 
 test.beforeAll(async () => {
   const payload = await testPayload()
-  existing = (
-    await payload.find({
+  const find = (locale: 'de' | 'en') =>
+    payload.find({
       collection: 'pages',
       where: { key: { equals: 'tattoo' } },
+      locale,
+      fallbackLocale: false,
       overrideAccess: true,
       depth: 0,
     })
-  ).docs.map((p) => p.id as number)
+  const [de, en] = [await find('de'), await find('en')]
+  existing = de.docs.map((p) => p.id as number)
+  snapshots = de.docs.map((p) => ({
+    id: p.id as number,
+    seed: p.seed === true,
+    layout: { de: p.layout, en: en.docs.find((e) => e.id === p.id)?.layout },
+  }))
 })
 
 test.afterAll(async ({ request }) => {
   await removeTattooPage(existing)
+  const payload = await testPayload()
+  for (const snap of snapshots) {
+    for (const locale of ['de', 'en'] as const) {
+      await payload.update({
+        collection: 'pages',
+        id: snap.id,
+        locale,
+        data: { layout: snap.layout[locale] as never, seed: snap.seed },
+        overrideAccess: true,
+        // Seed-Kontext: Zurückschreiben übernimmt die Beispielseite nicht (adopt, SEED-SPEC §1.6).
+        context: snap.seed ? { seed: true } : {},
+      })
+    }
+  }
   await refreshTattoo(request)
 })
 
@@ -57,6 +83,9 @@ test('@a11y Texte: Warnung bei „Anzahlung verfällt bei Absage“, Speichern b
     block.locator(`[data-testid^="tf-blocks."][data-testid$=".fields.${name}.${l}"]`)
   await field('heading', 'de').fill('Preise')
   await field('content', 'de').fill('Kleine Motive ab 80 €.\n\nAnzahlung verfällt bei Absage.')
+  // Mit dem Beispielbestand (P8) hat der Block schon englische Texte – leeren, damit „Übersetzen“ sie füllt.
+  await field('heading', 'en').fill('')
+  await field('content', 'en').fill('')
   await expectNoHorizontalScroll(page)
   await expectAccessible(page, '.pc-admin-view')
   await form.getByTestId('page-save-tattoo').click()
@@ -64,6 +93,12 @@ test('@a11y Texte: Warnung bei „Anzahlung verfällt bei Absage“, Speichern b
   await expect(form.getByTestId('tattoo-text-warning')).toContainText('Anzahlung verfällt')
 
   await form.getByTestId('translate-button').click()
+  // Andere Blöcke haben schon Englisch (Beispielbestand) → Rückfrage „Nur leere Felder“.
+  const onlyEmpty = page.getByTestId('confirm-dialog-ok')
+  await onlyEmpty
+    .waitFor({ state: 'visible', timeout: 3_000 })
+    .then(() => onlyEmpty.click())
+    .catch(() => undefined)
   await expect(field('heading', 'en')).toHaveValue('[EN] Preise')
   await expect(field('content', 'en')).toHaveValue(
     '[EN] Kleine Motive ab 80 €.\n\n[EN] Anzahlung verfällt bei Absage.',

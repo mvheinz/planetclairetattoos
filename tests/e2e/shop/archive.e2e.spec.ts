@@ -14,10 +14,11 @@ import { freshPage, holdListData, refresh } from './fresh'
 import { ANCHORS } from './productPage'
 
 // P3.6 Archiv R05 (KONZEPT §3.5; DESIGN KO-06, KO-08, KO-17, §9.7 `shopString`; AK-3-09).
-// Grundlage: Mini-Beispielbestand – S06 (Nr. 906) `sold` mit Archiv; S01 (901) `available`, S27 (927) `reserved`,
-// S18/S25 (918/925) `draft`, S09 (909) `archived`. Den echten Anker S08 (`sold`, nicht im Archiv) prüft P8.21; hier ein
-// Fixture-Stück analog S08. Eigene Stücke im Bereich 975–999, nur im Projekt `desktop`, exklusiv (`holdFixtureRange`).
-// Der Leerzustand braucht ein leeres Archiv und blendet S06 dafür kurz aus (exklusiv); alle Tests, die S06 oder die
+// Grundlage: Beispielbestand (SEED-SPEC §5.1) – u. a. S06 (Nr. 906) `sold` offline mit Archiv, verkaufte Stücke in
+// Keramik, Textil, Cap, Zeichnung und Sonstiges (kein verkaufter Schmuck); S01 (901) `available`, S27 (927) `reserved`,
+// S18/S25 (918/925) `draft`, S09 (909) `archived`, S08 (908) `sold` ohne Archiv. Eigene Stücke im Bereich 975–999, nur
+// im Projekt `desktop`, exklusiv (`holdFixtureRange`). Der Leerzustand braucht ein leeres Archiv und blendet dafür kurz
+// alle Seed-Stücke im Archiv aus (exklusiv); alle Tests, die S06 oder die
 // Listen lesen (Shop, Produktseite, Galerie, SEO, Verbotsmuster, Querschnitts-Suiten), halten den Bestand geteilt
 // (`holdListData`) und sehen das Fenster nie (P3.16, Wettlauf mit den Produktseiten-Tests behoben).
 
@@ -36,6 +37,27 @@ const S06_PAGES = [
   ANCHORS.S06.de,
   ANCHORS.S06.en,
 ]
+
+/** Erwartete Archiv-Liste einer Kategorie aus der Datenbank: sold mit Archiv, nach soldAt absteigend (KONZEPT §3.5). */
+async function expectedArchive(category: ProductCategory): Promise<number[]> {
+  const res = await (
+    await testPayload()
+  ).find({
+    collection: 'products',
+    where: {
+      and: [
+        { status: { equals: 'sold' } },
+        { showInArchiveAfterSale: { equals: true } },
+        { category: { equals: category } },
+      ],
+    },
+    sort: '-soldAt',
+    overrideAccess: true,
+    depth: 0,
+    pagination: false,
+  })
+  return res.docs.map((d) => d.itemNumber as number)
+}
 
 const cardNumbers = (page: Page) =>
   page
@@ -56,12 +78,12 @@ test.describe('Archiv R05 – lesend (alle Projekte)', () => {
       'Schon ausgezogen – aber schön anzusehen',
     )
     await expect(page.locator('[data-chip="all"]')).toHaveAttribute('aria-current', 'page')
-    // Chips nur für Kategorien mit Archiv-Stücken: im Mini-Bestand nur Keramik (S06), als ?category=<DE-Slug>
+    // Chips nur für Kategorien mit Archiv-Stücken (als ?category=<DE-Slug>): im Beispielbestand kein verkaufter Schmuck
     await expect(page.locator('[data-chip="keramik"]')).toHaveAttribute(
       'href',
       `${archive}?category=keramik`,
     )
-    await expect(page.locator('[data-chip="textil"]')).toHaveCount(0)
+    await expect(page.locator('[data-chip="schmuck"]')).toHaveCount(0)
     await expect(page.locator('[data-chip="available"]')).toHaveCount(0)
     const s06 = page.locator('[data-product-card][data-item-number="906"]')
     await expect(s06).toBeVisible()
@@ -91,7 +113,7 @@ test.describe('Archiv R05 – lesend (alle Projekte)', () => {
     await page.goto(archive)
     const numbers = await cardNumbers(page)
     expect(numbers).toContain(906)
-    for (const nr of [901, 927, 918, 925, 909]) expect(numbers, `Nr. ${nr}`).not.toContain(nr)
+    for (const nr of [901, 927, 918, 925, 909, 908]) expect(numbers, `Nr. ${nr}`).not.toContain(nr)
     await expect(page.locator('[data-product-card]:not([data-status="sold"])')).toHaveCount(0)
   })
 
@@ -210,31 +232,38 @@ test.describe('Archiv R05 – mit eigenen Stücken (nur desktop)', () => {
     await page.locator('[data-chip="textil"]').click()
     await expect(page).toHaveURL(new RegExp(`${archive}\\?category=textil$`))
     await expect(page.locator('[data-chip="textil"]')).toHaveAttribute('aria-current', 'page')
-    expect(await cardNumbers(page)).toEqual([TEXTIL_SOLD])
+    expect(await cardNumbers(page)).toEqual(await expectedArchive('textil'))
+    expect(await cardNumbers(page)).toContain(TEXTIL_SOLD)
 
     await page.goto(`${archive}?category=keramik`)
-    expect(await cardNumbers(page)).toEqual([906])
+    const keramik = await cardNumbers(page)
+    expect(keramik).toEqual(await expectedArchive('keramik'))
+    expect(keramik).toContain(906)
+    expect(keramik).not.toContain(HIDDEN_SOLD)
 
     await page.goto(`${archiveEn}?category=textiles`)
-    expect(await cardNumbers(page)).toEqual([TEXTIL_SOLD])
+    expect(await cardNumbers(page)).toEqual(await expectedArchive('textil'))
   })
 
   test('Leerzustand KO-17: „Noch ist nichts verkauft.“ mit Link zum Shop', async ({
     page,
     request,
   }) => {
-    const s06 = await payload.find({
+    // alle Stücke im Archiv (Beispielbestand) kurz ausblenden
+    const shown = await payload.find({
       collection: 'products',
-      where: { itemNumber: { equals: 906 } },
+      where: {
+        and: [{ status: { equals: 'sold' } }, { showInArchiveAfterSale: { equals: true } }],
+      },
       overrideAccess: true,
       depth: 0,
-      limit: 1,
+      pagination: false,
     })
-    const id = s06.docs[0]!.id
+    const ids = shown.docs.map((d) => d.id)
     const hide = (show: boolean) =>
       payload.update({
         collection: 'products',
-        id,
+        where: { id: { in: ids } },
         data: { showInArchiveAfterSale: show } as never,
         overrideAccess: true,
         context: { seed: true },

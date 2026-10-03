@@ -152,7 +152,9 @@ const guardPrivacyRequest: CollectionBeforeChangeHook = async ({
   if (merged.identityVerified === true) {
     if (!merged.identityMethod)
       fail('Bitte angeben, wie die Identität geprüft wurde.', 'identityMethod')
-    if (original.identityVerified !== true || !merged.identityVerifiedAt) {
+    // Beispielbestand: Prüfzeitpunkt aus den Daten (SEED-SPEC §1.6)
+    const keepSeedTime = ctx.seed && !!data.identityVerifiedAt
+    if (!keepSeedTime && (original.identityVerified !== true || !merged.identityVerifiedAt)) {
       data.identityVerifiedAt = now.toISOString()
     }
   } else {

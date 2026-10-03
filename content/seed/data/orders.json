@@ -1,6 +1,32 @@
 {
   "checkouts": [
     {
+      "key": "KS1",
+      "status": "expired",
+      "locale": "de",
+      "items": [
+        "products:S27"
+      ],
+      "fulfillmentMethod": "shipping",
+      "shippingZone": "DE",
+      "paymentChoice": "stripe",
+      "reservationRef": "00000000-0000-4000-8000-000000090101",
+      "customer": "customers:C11",
+      "carrierEmailConsent": false,
+      "createdAt": "D-3@20:40",
+      "displayExpiresAt": "D-3@21:10",
+      "expiresAt": "D-3@21:16",
+      "submittedAt": "D-3@20:44",
+      "confirmingAt": "D-3@20:44",
+      "expiredAt": "D-3@21:12",
+      "closeReason": "reservation_expired",
+      "stripe": {
+        "checkoutSessionId": "cs_seed_ks1",
+        "sessionExpiresAt": "D-3@21:11",
+        "sessionSeq": 1
+      }
+    },
+    {
       "key": "KS2",
       "status": "open",
       "locale": "de",
@@ -20,8 +46,516 @@
       }
     }
   ],
-  "orders": [],
+  "orders": [
+    {
+      "key": "O01",
+      "orderNumber": "PC-2026-90001",
+      "status": "refunded",
+      "locale": "de",
+      "customer": "C01",
+      "fulfillmentMethod": "shipping",
+      "items": [
+        {
+          "product": "S07",
+          "status": "refunded",
+          "refundedCents": 5800
+        }
+      ],
+      "payment": {
+        "method": "paypal",
+        "provider": "mock",
+        "methodType": "paypal",
+        "feeCents": 262
+      },
+      "carrierEmailConsent": true,
+      "timeline": {
+        "placedAt": "D-50@20:15",
+        "paidAt": "D-50@20:16",
+        "packedAt": "D-49@10:00",
+        "shippedAt": "D-49@14:30",
+        "deliveredAt": "D-47@12:10",
+        "withdrawalReceivedAt": "D-43@18:22",
+        "returnReceivedAt": "D-38@11:00",
+        "refundedAt": "D-37@09:15"
+      },
+      "shipment": {
+        "carrier": "dhl",
+        "trackingNumber": "SEEDDHL9000000000001"
+      },
+      "refunds": [
+        {
+          "amountCents": 6690,
+          "reason": "withdrawal",
+          "itemIds": [
+            "O01-L1"
+          ],
+          "includesShipping": true,
+          "status": "succeeded",
+          "createdAt": "D-37@09:15"
+        }
+      ],
+      "packaging": {
+        "templateKey": "keramik-doppelkarton"
+      }
+    },
+    {
+      "key": "O02",
+      "orderNumber": "PC-2026-90002",
+      "status": "picked_up",
+      "locale": "de",
+      "customer": "C02",
+      "fulfillmentMethod": "pickup",
+      "items": [
+        {
+          "product": "S19"
+        }
+      ],
+      "payment": {
+        "method": "card",
+        "provider": "mock",
+        "methodType": "apple_pay",
+        "feeCents": 205
+      },
+      "carrierEmailConsent": false,
+      "timeline": {
+        "placedAt": "D-41@19:12",
+        "paidAt": "D-41@19:14",
+        "readyForPickupAt": "D-38@10:30",
+        "pickedUpAt": "D-36@17:00"
+      },
+      "notes": "Abholung Mittwoch nach Feierabend, hat sich über Coco gefreut."
+    },
+    {
+      "key": "O03",
+      "orderNumber": "PC-2026-90003",
+      "status": "disputed",
+      "locale": "de",
+      "customer": "C03",
+      "fulfillmentMethod": "shipping",
+      "items": [
+        {
+          "product": "S21"
+        }
+      ],
+      "payment": {
+        "method": "card",
+        "provider": "mock",
+        "methodType": "card",
+        "feeCents": 152
+      },
+      "carrierEmailConsent": false,
+      "timeline": {
+        "placedAt": "D-30@21:03",
+        "paidAt": "D-30@21:05",
+        "packedAt": "D-28@09:40",
+        "shippedAt": "D-28@15:20",
+        "deliveredAt": "D-18@03:05",
+        "disputedAt": "D-5@08:12"
+      },
+      "shipment": {
+        "carrier": "deutsche_post",
+        "trackingNumber": "SEEDDP000000003DE",
+        "deliveredSource": "auto"
+      },
+      "dispute": {
+        "status": "open",
+        "stripeDisputeId": "dp_seed_90003"
+      },
+      "adminAttention": {
+        "flag": true,
+        "reason": "dispute_open",
+        "note": "Anfechtung ‚nicht erhalten‘ – Einlieferungsbeleg und Packfotos heraussuchen."
+      },
+      "packaging": {
+        "templateKey": "brief-karton"
+      },
+      "checkout": "checkouts:O03"
+    },
+    {
+      "key": "O04",
+      "orderNumber": "PC-2026-90004",
+      "status": "return_received",
+      "locale": "de",
+      "customer": "C04",
+      "fulfillmentMethod": "shipping",
+      "items": [
+        {
+          "product": "S16",
+          "status": "returned"
+        }
+      ],
+      "payment": {
+        "method": "prepayment",
+        "provider": "bank_transfer"
+      },
+      "carrierEmailConsent": false,
+      "timeline": {
+        "placedAt": "D-24@08:55",
+        "paidAt": "D-22@14:00",
+        "packedAt": "D-21@10:30",
+        "shippedAt": "D-21@16:45",
+        "deliveredAt": "D-19@12:40",
+        "withdrawalReceivedAt": "D-9@19:30",
+        "returnReceivedAt": "D-2@11:15"
+      },
+      "shipment": {
+        "carrier": "dhl",
+        "trackingNumber": "SEEDDHL9000000000004"
+      },
+      "notes": "Erstattung per Überweisung: Kontoverbindung per Mail erfragt. IBAN nicht im System speichern.",
+      "packaging": {
+        "templateKey": "tasche-papier"
+      },
+      "checkout": "checkouts:O04"
+    },
+    {
+      "key": "O05",
+      "orderNumber": "PC-2026-90005",
+      "status": "partially_refunded",
+      "locale": "de",
+      "customer": "C05",
+      "fulfillmentMethod": "shipping",
+      "items": [
+        {
+          "product": "S10"
+        },
+        {
+          "product": "S04",
+          "status": "refunded",
+          "refundedCents": 3800
+        }
+      ],
+      "payment": {
+        "method": "card",
+        "provider": "mock",
+        "methodType": "google_pay",
+        "feeCents": 197
+      },
+      "carrierEmailConsent": true,
+      "timeline": {
+        "placedAt": "D-22@12:30",
+        "paidAt": "D-22@12:31",
+        "packedAt": "D-21@10:00",
+        "shippedAt": "D-21@16:45",
+        "deliveredAt": "D-19@10:20",
+        "withdrawalReceivedAt": "D-14@22:47",
+        "returnReceivedAt": "D-8@11:30",
+        "refundedAt": "D-7@10:05"
+      },
+      "shipment": {
+        "carrier": "dhl",
+        "trackingNumber": "SEEDDHL9000000000005"
+      },
+      "refunds": [
+        {
+          "amountCents": 4040,
+          "reason": "withdrawal",
+          "itemIds": [
+            "O05-L2"
+          ],
+          "includesShipping": true,
+          "status": "succeeded",
+          "createdAt": "D-7@10:05"
+        }
+      ],
+      "packaging": {
+        "templateKey": "keramik-doppelkarton"
+      },
+      "checkout": "checkouts:O05"
+    },
+    {
+      "key": "O06",
+      "orderNumber": "PC-2026-90006",
+      "status": "withdrawal_received",
+      "locale": "en",
+      "customer": "C06",
+      "fulfillmentMethod": "shipping",
+      "items": [
+        {
+          "product": "S13"
+        }
+      ],
+      "payment": {
+        "method": "card",
+        "provider": "mock",
+        "methodType": "card",
+        "feeCents": 252
+      },
+      "carrierEmailConsent": true,
+      "timeline": {
+        "placedAt": "D-13@20:40",
+        "paidAt": "D-13@20:41",
+        "packedAt": "D-10@09:30",
+        "shippedAt": "D-10@15:10",
+        "deliveredAt": "D-8@13:05",
+        "withdrawalReceivedAt": "D-1@21:18"
+      },
+      "shipment": {
+        "carrier": "dhl",
+        "trackingNumber": "SEEDDHL9000000000006"
+      },
+      "packaging": {
+        "templateKey": "tasche-papier"
+      },
+      "checkout": "checkouts:O06"
+    },
+    {
+      "key": "O07",
+      "orderNumber": "PC-2026-90007",
+      "status": "cancelled",
+      "locale": "de",
+      "customer": "C07",
+      "fulfillmentMethod": "shipping",
+      "items": [
+        {
+          "product": "S12"
+        }
+      ],
+      "payment": {
+        "method": "prepayment",
+        "provider": "bank_transfer"
+      },
+      "carrierEmailConsent": false,
+      "timeline": {
+        "placedAt": "D-9@10:10",
+        "cancelledAt": "D-3@00:05"
+      },
+      "prepayment": {
+        "reminderSentAt": "D-6@11:00"
+      },
+      "cancelReason": "payment_timeout",
+      "checkout": "checkouts:O07"
+    },
+    {
+      "key": "O08",
+      "orderNumber": "PC-2026-90008",
+      "status": "refunded",
+      "locale": "de",
+      "customer": "C08",
+      "fulfillmentMethod": "shipping",
+      "items": [
+        {
+          "product": "S09",
+          "status": "refunded",
+          "refundedCents": 8500
+        }
+      ],
+      "payment": {
+        "method": "card",
+        "provider": "mock",
+        "methodType": "card",
+        "feeCents": 166
+      },
+      "carrierEmailConsent": false,
+      "timeline": {
+        "placedAt": "D-7@11:09",
+        "paidAt": "D-7@11:11",
+        "refundedAt": "D-6@09:30"
+      },
+      "refunds": [
+        {
+          "amountCents": 9390,
+          "reason": "breakage",
+          "itemIds": [
+            "O08-L1"
+          ],
+          "includesShipping": true,
+          "status": "succeeded",
+          "createdAt": "D-6@09:30"
+        }
+      ],
+      "notes": "Fliese beim Packen zerbrochen. Kunde per Mail informiert, nicht versendet, voll erstattet.",
+      "checkout": "checkouts:O08"
+    },
+    {
+      "key": "O09",
+      "orderNumber": "PC-2026-90009",
+      "status": "ready_for_pickup",
+      "locale": "de",
+      "customer": "C09",
+      "fulfillmentMethod": "pickup",
+      "items": [
+        {
+          "product": "S30"
+        }
+      ],
+      "payment": {
+        "method": "prepayment",
+        "provider": "bank_transfer"
+      },
+      "carrierEmailConsent": false,
+      "timeline": {
+        "placedAt": "D-7@13:20",
+        "paidAt": "D-6@11:00",
+        "readyForPickupAt": "D-6@11:05"
+      },
+      "checkout": "checkouts:O09"
+    },
+    {
+      "key": "O10",
+      "orderNumber": "PC-2026-90010",
+      "status": "shipped",
+      "locale": "de",
+      "customer": "C10",
+      "fulfillmentMethod": "shipping",
+      "items": [
+        {
+          "product": "S02"
+        }
+      ],
+      "payment": {
+        "method": "paypal",
+        "provider": "mock",
+        "methodType": "paypal",
+        "feeCents": 231
+      },
+      "carrierEmailConsent": true,
+      "timeline": {
+        "placedAt": "D-3@18:25",
+        "paidAt": "D-3@18:26",
+        "packedAt": "D-2@10:10",
+        "shippedAt": "D-2@16:00"
+      },
+      "shipment": {
+        "carrier": "dhl",
+        "trackingNumber": "SEEDDHL9000000000010"
+      },
+      "packaging": {
+        "templateKey": "keramik-doppelkarton"
+      },
+      "checkout": "checkouts:O10"
+    },
+    {
+      "key": "O11",
+      "orderNumber": "PC-2026-90011",
+      "status": "delivered",
+      "locale": "de",
+      "customer": "C11",
+      "fulfillmentMethod": "shipping",
+      "items": [
+        {
+          "product": "S08"
+        }
+      ],
+      "payment": {
+        "method": "card",
+        "provider": "mock",
+        "methodType": "card",
+        "feeCents": 112
+      },
+      "carrierEmailConsent": true,
+      "timeline": {
+        "placedAt": "D-3@19:10",
+        "paidAt": "D-3@19:11",
+        "packedAt": "D-2@09:15",
+        "shippedAt": "D-2@15:30",
+        "deliveredAt": "D-1@11:40"
+      },
+      "shipment": {
+        "carrier": "dhl",
+        "trackingNumber": "SEEDDHL9000000000011",
+        "deliveredSource": "manual"
+      },
+      "notes": "Kundin hat per Mail geschrieben, dass der Teller heil angekommen ist.",
+      "packaging": {
+        "templateKey": "keramik-doppelkarton"
+      },
+      "checkout": "checkouts:O11"
+    },
+    {
+      "key": "O12",
+      "orderNumber": "PC-2026-90012",
+      "status": "packed",
+      "locale": "de",
+      "customer": "C12",
+      "fulfillmentMethod": "shipping",
+      "items": [
+        {
+          "product": "S03"
+        }
+      ],
+      "payment": {
+        "method": "card",
+        "provider": "mock",
+        "methodType": "apple_pay",
+        "feeCents": 106
+      },
+      "carrierEmailConsent": false,
+      "timeline": {
+        "placedAt": "D-2@07:48",
+        "paidAt": "D-2@07:49",
+        "packedAt": "D-1@17:30"
+      },
+      "packingPhotos": [
+        "private-uploads:O12:packing-1",
+        "private-uploads:O12:packing-2"
+      ],
+      "packaging": {
+        "templateKey": "keramik-doppelkarton"
+      },
+      "checkout": "checkouts:O12"
+    },
+    {
+      "key": "O13",
+      "orderNumber": "PC-2026-90013",
+      "status": "awaiting_prepayment",
+      "locale": "de",
+      "customer": "C13",
+      "fulfillmentMethod": "shipping",
+      "items": [
+        {
+          "product": "S14"
+        }
+      ],
+      "payment": {
+        "method": "prepayment",
+        "provider": "bank_transfer"
+      },
+      "carrierEmailConsent": false,
+      "timeline": {
+        "placedAt": "D-2@15:37"
+      },
+      "checkout": "checkouts:O13"
+    },
+    {
+      "key": "O14",
+      "orderNumber": "PC-2026-90014",
+      "status": "paid",
+      "locale": "en",
+      "customer": "C14",
+      "fulfillmentMethod": "shipping",
+      "items": [
+        {
+          "product": "S24"
+        }
+      ],
+      "payment": {
+        "method": "card",
+        "provider": "mock",
+        "methodType": "google_pay",
+        "feeCents": 305
+      },
+      "carrierEmailConsent": true,
+      "timeline": {
+        "placedAt": "D-1@22:05",
+        "paidAt": "D-1@22:07"
+      },
+      "checkout": "checkouts:O14"
+    }
+  ],
   "reservations": [
+    {
+      "key": "KS1",
+      "checkout": "checkouts:KS1",
+      "product": "products:S27",
+      "source": "checkout_session",
+      "status": "released",
+      "createdAt": "D-3@20:40",
+      "expiresAt": "D-3@21:16",
+      "displayExpiresAt": "D-3@21:10",
+      "releasedAt": "D-3@21:12",
+      "releaseReason": "session_expired"
+    },
     {
       "key": "KS2",
       "checkout": "checkouts:KS2",

@@ -8,7 +8,9 @@ import { adminText } from '../translations'
 // (`.select-row__checkbox`) haben ein leeres `aria-label` und ein `aria-labelledby` ohne Ziel – axe meldet „Form
 // elements must have labels“ (serious). Payload 3 bietet dafür keine Einstellung; diese unsichtbare Komponente
 // (Kopfbereich der Verwaltung) ergänzt den Namen „Zeile N auswählen“ – auch für später nachgeladene Zeilen
-// (MutationObserver). Kontrast der Spaltenköpfe und Größe der Sortierknöpfe regelt `custom.scss`.
+// (MutationObserver). Ebenso bekommen die Blätter-Pfeile der Seitennavigation (`.clickable-arrow`, nur Symbol) die Namen
+// „Vorherige Seite“/„Nächste Seite“ (axe „button-name“, sichtbar ab mehr als einer Listenseite, z. B. mit dem
+// Beispielbestand). Kontrast der Spaltenköpfe und Größe der Sortierknöpfe regelt `custom.scss`.
 
 const SELECTOR = '.select-row__checkbox input[type="checkbox"], .select-row input[type="checkbox"]'
 
@@ -27,10 +29,24 @@ function labelRows(root: ParentNode): void {
   })
 }
 
+const ARROW_SELECTOR = 'button.clickable-arrow'
+
+function labelArrows(root: ParentNode): void {
+  root.querySelectorAll<HTMLButtonElement>(ARROW_SELECTOR).forEach((button) => {
+    if (button.getAttribute('aria-label')?.trim() || button.textContent?.trim()) return
+    const next = button.classList.contains('clickable-arrow--right')
+    button.setAttribute('aria-label', adminText(next ? 'listPageNext' : 'listPagePrev'))
+  })
+}
+
 export function ListA11yFixes() {
   useEffect(() => {
-    labelRows(document)
-    const observer = new MutationObserver(() => labelRows(document))
+    const fix = () => {
+      labelRows(document)
+      labelArrows(document)
+    }
+    fix()
+    const observer = new MutationObserver(fix)
     observer.observe(document.body, { childList: true, subtree: true })
     return () => observer.disconnect()
   }, [])

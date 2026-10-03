@@ -86,7 +86,8 @@ test('@a11y „Texte“: Bereiche, Mail-Bausteine DE/EN, Vorlagen mit Bestellnum
   try {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto(adminPath('/texte'))
-    await expect(page.getByTestId('texts-pages-later')).toContainText('P8')
+    // Seiten und FAQ seit P8.19a (Ablauf prüft `admin/texts-pages.e2e.spec.ts`).
+    await expect(page.getByTestId('texts-page-item')).toHaveCount(13)
     // Rechtstexte seit P6.4: je Typ eine Karte (Ablauf prüft `admin/legal-texts.e2e.spec.ts`).
     await expect(page.getByTestId('legal-type')).toHaveCount(6)
     const mail = page.getByTestId('texts-mail')

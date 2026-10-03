@@ -741,7 +741,7 @@ export const ADMIN_CUSTOM_DE = {
   settingsPrepaymentDeadlines: 'Vorkasse-Fristen',
   settingsPrepaymentDeadlinesText:
     'Erinnerung nach {{hours}} Stunden, Storno nach 23:59 Uhr am {{days}}. Kalendertag nach dem Bestelltag',
-  settingsLegalLater: 'Bearbeitung kommt in P6',
+  settingsLegalEdit: 'Bearbeiten unter „Texte“ → „Rechtstexte“',
   settingsPasswordTitle: 'Passwort ändern',
   settingsPasswordCurrent: 'Bisheriges Passwort',
   settingsPasswordNew: 'Neues Passwort',
@@ -752,6 +752,8 @@ export const ADMIN_CUSTOM_DE = {
   // „Alle Daten“-Listen: Name der Auswahl-Kästchen (Barrierefreiheit)
   listSelectRow: 'Zeile {{n}} auswählen',
   listSelectRowPlain: 'Zeile auswählen',
+  listPagePrev: 'Vorherige Seite',
+  listPageNext: 'Nächste Seite',
   // Einstellungen, Teil 2 und 3 (P5.22/P5.22a)
   settingsAreaShop: 'Shop',
   settingsAreaCosts: 'Kosten',
@@ -776,8 +778,26 @@ export const ADMIN_CUSTOM_DE = {
   deletionPreviewRestricted: 'einschränken',
   settingsSeedNone: 'Keine Beispieldaten vorhanden.',
   settingsSeedRemove: 'Beispieldaten entfernen',
-  settingsSeedLater:
-    'Entfernen (mit Bestätigung durch Eintippen von „ENTFERNEN“) kommt in P8. Bis dahin nur die Anzahl je Bereich.',
+  settingsSeedIntro:
+    'Beispieldaten zeigen, wie der Shop aussieht. Vor dem Start entfernst du sie hier – echte Stücke, Bestellungen und Nummern bleiben unberührt.',
+  settingsSeedTotal: 'Zusammen: {{total}} Beispiel-Einträge.',
+  settingsSeedLocked:
+    'Bitte zuerst die Texte der Kanzlei einsetzen – sonst wären die Rechtsseiten leer.',
+  settingsSeedLockedTypes: 'Noch Platzhalter: {{types}}.',
+  settingsSeedDialog: 'Beispieldaten entfernen?',
+  settingsSeedConsequence:
+    'Alle {{total}} Beispiel-Einträge werden gelöscht (auch Beispiel-Bestellungen und -Belege). Das lässt sich nicht rückgängig machen.',
+  settingsSeedKeepTexts: 'Seitentexte und FAQ behalten',
+  settingsSeedKeepTextsHint:
+    'Angehakt: Seiten und FAQ (mit ihren Bildern) werden zu deinen eigenen Texten. Ohne Haken werden sie mitgelöscht.',
+  settingsSeedConfirmLabel: 'Zum Bestätigen „ENTFERNEN“ eintippen',
+  settingsSeedConfirmOk: 'Endgültig entfernen',
+  settingsSeedDone: 'Beispieldaten entfernt. Die öffentlichen Seiten werden neu aufgebaut.',
+  settingsSeedAdoptTitle: 'Einzelne Beispiele behalten',
+  settingsSeedAdoptHint:
+    'Mit „Übernehmen“ wird ein Beispiel zu einem echten Eintrag (mit seinen Bildern) und bleibt beim Entfernen stehen.',
+  settingsSeedAdopt: 'Übernehmen',
+  settingsSeedAdoptDone: 'Übernommen.',
   // Einstellungen → System (P5.22)
   systemState: 'Stand',
   systemVersion: 'App-Version',
@@ -828,7 +848,21 @@ export const ADMIN_CUSTOM_DE = {
   revenueHistoryNone: 'Bisher keine Hinweise.',
   // Texte (P5.27)
   textsPages: 'Seiten und FAQ',
-  textsPagesLater: 'Seiten und FAQ bearbeiten kommt in P8. Bis dahin unter „Alle Daten“.',
+  // Seiten und FAQ (P8.19a)
+  textsPagesIntro:
+    'Wähle eine Seite. Jeder Text hat ein deutsches und ein englisches Feld; „Übersetzen“ füllt das Englische. Nach dem Speichern ist die Änderung spätestens nach einer Minute online.',
+  textsPagesList: 'Seiten',
+  textsPagesEdit: 'Bearbeiten',
+  textsPagesSeed: 'Beispieltext',
+  textsPagesOwn: 'eigener Text',
+  textsPagesMissing: 'noch nicht angelegt',
+  textsPagesEditing: 'Seite „{{page}}“ bearbeiten',
+  textsPagesClose: 'Zur Liste der Seiten',
+  textsPagesSeedHint:
+    'Das ist noch ein Beispieltext. Sobald du speicherst, wird er zu deinem eigenen Text und bleibt beim Entfernen der Beispieldaten erhalten.',
+  textsFaq: 'Häufige Fragen (FAQ)',
+  textsFaqIntro:
+    'Reihenfolge mit „Hoch“/„Runter“ – genauso erscheinen die Fragen auf der Seite. Tattoo-Fragen gibt es auch im Bereich „Tattoo“.',
   textsLegal: 'Rechtstexte',
   // Texte: Rechtstexte und Bausteine (P6.4)
   legalHint:

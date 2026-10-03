@@ -1,0 +1,90 @@
+[
+  {
+    "key": "A1",
+    "reference": "AA-2026-9001",
+    "customer": "C16",
+    "objectType": "textil_sonstiges",
+    "status": "declined",
+    "createdAt": "D-40@16:20",
+    "lastActivityAt": "D-38@10:00",
+    "idea": "Could you paint a well-known cartoon character on my denim jacket? The famous one with the big round ears.",
+    "desiredTimeframe": "before Christmas",
+    "budget": "around 150 €",
+    "adminNotes": "Abgelehnt: fremde Figur (E-18). Eigene Figur mit großen Ohren angeboten, keine Antwort."
+  },
+  {
+    "key": "A2",
+    "reference": "AA-2026-9002",
+    "customer": "C17",
+    "objectType": "teller",
+    "status": "accepted",
+    "createdAt": "D-16@09:12",
+    "lastActivityAt": "D-5@19:20",
+    "idea": "Wir heiraten im Frühling! Hättest du Lust, einen Teller mit zwei Hasen zu bemalen, die sich an den Pfoten halten? Gern mit unserem Datum am Rand.",
+    "desiredTimeframe": "bis Ende März",
+    "budget": "ca. 90 €",
+    "adminNotes": "Angebot per Mail: Ø 24 cm, 95 €, fertig ca. 4 Wochen nach Zusage. Zusage per Mail am {{date:D-5}}; bezahlt wird per Überweisung nach Fertigstellung.",
+    "referenceImages": ["private-uploads:A2:sketch-1"]
+  },
+  {
+    "key": "A3",
+    "reference": "AA-2026-9003",
+    "customer": "C18",
+    "objectType": "cap",
+    "status": "completed",
+    "createdAt": "D-11@13:05",
+    "lastActivityAt": "D-2@16:30",
+    "idea": "Ich hätte gern eine Cap mit einem kleinen Planeten und dem Namen unserer Katze „Mo“ auf dem Schirm.",
+    "desiredTimeframe": "im November",
+    "adminNotes": "Angebot 85 € angenommen, Bezahlung per Überweisung außerhalb des Shops ist da. Cap am {{date:D-2}} per Post verschickt."
+  },
+  {
+    "key": "A4",
+    "reference": "AA-2026-9004",
+    "customer": "C19",
+    "objectType": "cap",
+    "status": "new",
+    "createdAt": "D-1@08:30",
+    "lastActivityAt": "D-1@08:30",
+    "idea": "Hallo Jutta! Ich hätte so gern eine Cap mit unserem Dackel Bruno drauf – am liebsten schlafend, mit einem umgeklappten Ohr. Fotos von Bruno kann ich per Mail schicken.",
+    "desiredTimeframe": "zum Geburtstag im Dezember"
+  },
+  {
+    "key": "A5",
+    "reference": "AA-2026-9005",
+    "customer": "C20",
+    "objectType": "fliese",
+    "status": "offer_sent",
+    "createdAt": "D-1@12:40",
+    "lastActivityAt": "D+0@09:15",
+    "idea": "Kannst du eine Fliese mit einem kleinen Fuchs bemalen, der aus einem Fenster guckt? Die soll bei uns in den Flur.",
+    "desiredTimeframe": "bis Mitte Dezember",
+    "budget": "ca. 60 €",
+    "adminNotes": "Angebot per Mail: Fliese 15 × 15 cm mit Fuchs im Fenster, 65 €, fertig ca. 3 Wochen nach Zusage."
+  },
+  {
+    "key": "A6",
+    "reference": "AA-2026-9006",
+    "customer": "C21",
+    "objectType": "zeichnung",
+    "status": "in_progress",
+    "createdAt": "D-1@18:40",
+    "lastActivityAt": "D+0@08:50",
+    "idea": "Could you draw our two cats as tiny astronauts floating around a planet? Ink would be lovely, about A5.",
+    "desiredTimeframe": "no rush",
+    "adminNotes": "Rückfrage per Mail: Fellfarben der Katzen und ob gerahmt oder ungerahmt."
+  },
+  {
+    "key": "A7",
+    "reference": "AA-2026-9007",
+    "customer": "C22",
+    "objectType": "shirt",
+    "status": "closed",
+    "createdAt": "D-1@20:10",
+    "lastActivityAt": "D+0@08:55",
+    "idea": "Kannst du mir ein T-Shirt mit einem kleinen Planeten auf der Brusttasche bemalen? Größe M.",
+    "desiredTimeframe": "bis Samstag",
+    "budget": "ca. 50 €",
+    "adminNotes": "Am nächsten Morgen per Mail abgesagt (Geschenk hat sich erledigt); ohne Auftrag geschlossen."
+  }
+]

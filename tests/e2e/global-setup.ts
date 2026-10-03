@@ -33,36 +33,62 @@ export function revalidatableRoutes(manifest: PrerenderManifest): string[] {
     .sort()
 }
 
-export default async function globalSetup(_config: FullConfig) {
-  if (process.env.E2E_SERVER !== 'start') return
+/** Pfad zu `prerender-manifest.json` des Produktions-Builds (Repo-Wurzel relativ zu dieser Datei). */
+function manifestPath(): string {
   const distDir = process.env.NEXT_DIST_DIR || '.next'
-  const manifestPath = path.join(
-    // Repo-Wurzel relativ zu dieser Datei (auch für Konfigurationen außerhalb der Wurzel, z. B. scripts/legal/)
+  // Repo-Wurzel relativ zu dieser Datei (auch für Konfigurationen außerhalb der Wurzel, z. B. scripts/legal/)
+  return path.join(
     path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..'),
     distDir,
     'prerender-manifest.json',
   )
-  if (!existsSync(manifestPath)) {
-    throw new Error(
-      `E2E_SERVER=start ohne Produktions-Build (${manifestPath} fehlt) – erst pnpm build.`,
-    )
+}
+
+/** `fetch` mit zwei Wiederholungen bei Verbindungsfehlern (z. B. vom Server geschlossene Keep-alive-Verbindung). */
+async function fetchRetry(url: URL, init: RequestInit): Promise<Response> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fetch(url, init)
+    } catch (e) {
+      if (attempt >= 2) throw e
+      await new Promise((r) => setTimeout(r, 250))
+    }
   }
-  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as PrerenderManifest
-  const baseURL = process.env.E2E_BASE_URL || 'http://localhost:3000'
-  const routes = revalidatableRoutes(manifest)
+}
+
+/**
+ * Erzeugt jede vorgerenderte Route per On-Demand-Revalidierung neu (Stand der Test-DB) und gibt die Fehlschläge zurück.
+ * `allowNotFound`: 404 zählt nicht als Fehler (z. B. Seiten entfernter Beispiel-Stücke, `empty-states.e2e.spec.ts`).
+ */
+export async function revalidatePrerendered(
+  baseURL: string,
+  { allowNotFound = false }: { allowNotFound?: boolean } = {},
+): Promise<string[]> {
+  const file = manifestPath()
+  if (!existsSync(file)) {
+    throw new Error(`E2E_SERVER=start ohne Produktions-Build (${file} fehlt) – erst pnpm build.`)
+  }
+  const manifest = JSON.parse(readFileSync(file, 'utf8')) as PrerenderManifest
   const failures: string[] = []
   // Nacheinander: Payload-Kaltstart einmal, danach je Route wenige Millisekunden.
-  for (const route of routes) {
-    const res = await fetch(new URL(route, baseURL), {
+  for (const route of revalidatableRoutes(manifest)) {
+    const res = await fetchRetry(new URL(route, baseURL), {
       headers: { 'x-prerender-revalidate': manifest.preview.previewModeId },
       redirect: 'manual',
     })
     await res.arrayBuffer()
     const cache = res.headers.get('x-nextjs-cache')
+    if (allowNotFound && res.status === 404) continue
     if (res.status !== 200 || cache !== 'REVALIDATED') {
       failures.push(`${route}: HTTP ${res.status}, x-nextjs-cache=${cache ?? '–'}`)
     }
   }
+  return failures
+}
+
+export default async function globalSetup(_config: FullConfig) {
+  if (process.env.E2E_SERVER !== 'start') return
+  const failures = await revalidatePrerendered(process.env.E2E_BASE_URL || 'http://localhost:3000')
   if (failures.length) {
     throw new Error(`Vorwärmen der vorgerenderten Seiten fehlgeschlagen:\n${failures.join('\n')}`)
   }

@@ -486,6 +486,22 @@ const DEFS = [
     optionalString,
   ),
   def(
+    'PREVIEW_EXPORT_DB_NAME',
+    T,
+    'P8',
+    'Nur parallele Vorschau-Exporte: eigene Wegwerf-DB (planetclaire_…preview…; leer = planetclaire_preview_export)',
+    '',
+    optionalString,
+  ),
+  def(
+    'PREVIEW_EXPORT_PORT',
+    T,
+    'P8',
+    'Nur parallele Vorschau-Exporte: eigener Port des Export-Servers (leer = 3999)',
+    '',
+    optionalString,
+  ),
+  def(
     'E2E_BASE_URL',
     T,
     'P1',

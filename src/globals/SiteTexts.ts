@@ -235,12 +235,12 @@ const withdrawal = pageTexts('withdrawal', 'Widerruf', {
   ],
 })
 const notFound = pageTexts('notFound', 'Seite nicht gefunden', {
-  heading: ['Überschrift', { de: 'Hier ist nichts.', en: 'Nothing here.' }],
+  heading: ['Überschrift', { de: 'Coco hat sich losgerissen', en: 'Coco slipped her leash' }],
   intro: [
     'Text',
     {
-      de: 'Coco hat überall geschnüffelt, aber diese Seite gibt es nicht.',
-      en: 'Coco sniffed everywhere, but this page does not exist.',
+      de: 'Coco hat überall geschnüffelt – diese Seite gibt es nicht (mehr).',
+      en: "Coco sniffed everywhere – this page doesn't exist (anymore).",
     },
   ],
 })

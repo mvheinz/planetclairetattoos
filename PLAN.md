@@ -4050,7 +4050,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
 
 ### Aufgaben
 
-- [ ] **P8.1 Bestandsaufnahme Beispielbestand und Abgleich der Seed-Festlegungen** – Nach `pnpm seed:reset`
+- [x] **P8.1 Bestandsaufnahme Beispielbestand und Abgleich der Seed-Festlegungen** – Nach `pnpm seed:reset`
   (kanonisches `SEED_NOW`) Datendateien `content/seed/data/*.json`, Schemas und Mengen mit SEED-SPEC §0.1 vergleichen
   (`pnpm seed:remove` ohne `--yes` liefert die Mengenvorschau). Soll-Mengen als einzige Quelle für Tests in
   `src/lib/seed/expected.ts` (`SEED_EXPECTED_COUNTS`) anlegen. In `docs/FORTSCHRITT.md` je folgender Datenaufgabe
@@ -4077,7 +4077,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: Jutta entscheidet die SE-Zeilen in OFFENE-PUNKTE (z. B. SE-01
     mögliche Liedzeilen auf S04–S06, SE-02 Cap-Foto, SE-06 Material- und Maßangaben, SE-07 Aftercare/FAQ).
 
-- [ ] **P8.2 Medien und private Dateien des Beispielbestands** – `content/seed/data/media.json` exakt nach SEED-SPEC
+- [x] **P8.2 Medien und private Dateien des Beispielbestands** – `content/seed/data/media.json` exakt nach SEED-SPEC
   §4.1 (Instagram-Ausschnitte mit `crop`/`focal` in Prozent, Alt-Texte DE/EN, `showsPerson`, `restricted`,
   `sourceRef`) und §4.2 (Platzhalter mit Wash-Farbe und Alt „Platzhalter-Zeichnung: {Objekt}“ / “Placeholder
   drawing: {object}”), `content/seed/data/private-uploads.json` nach §4.4 (`nickel-demo`, `glaze-demo`,
@@ -4100,7 +4100,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     `tests/int/seed/media.int.spec.ts` (Mengen, Felder, AK-SEED-19, 404 für eingeschränkte Bilder ohne Login).
   - Ohne Jutta: mit den 640-px-Bildern aus `content/seed/instagram/`. P11-Nacharbeit: –
 
-- [ ] **P8.3 Stücke mit allen Pflichtangaben** – `content/seed/data/products.json` nach SEED-SPEC §2.6 (Form),
+- [x] **P8.3 Stücke mit allen Pflichtangaben** – `content/seed/data/products.json` nach SEED-SPEC §2.6 (Form),
   §5.1 (Übersicht), §5.2 (gemeinsame Werte), §5.3 (Maße, Gewicht, Textilangaben, Verkaufsfelder) und §5.4 (Texte DE/EN
   inkl. `juttaSays`). Status, Verkaufsfelder und Zeitstempel nur beim Anlegen setzen (SEED-SPEC §1.3, §1.6);
   `validateForPublish` läuft für `available`/`reserved`. Verweise `currentOrder`/`reservationRef` setzt P8.4.
@@ -4121,7 +4121,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Ohne Jutta: vollständig machbar; Material-, Faser- und Maßangaben sind Annahmen (SE-06, steht in OFFENE-PUNKTE),
     Bildinhalte S04–S06 neutral betitelt (SE-01). P11-Nacharbeit: –
 
-- [ ] **P8.4 Bestellungen, Kassen und Reservierungen** – `content/seed/data/customers.json` (erfundene
+- [x] **P8.4 Bestellungen, Kassen und Reservierungen** – `content/seed/data/customers.json` (erfundene
   Personen, SEED-SPEC §6) und `orders.json` mit den Bestellungen und Kassen aus SEED-SPEC §7.1–§7.3 (Zeitleisten,
   Zahlungen, Sendungen, Erstattungen, Anfechtung). Es gilt das Kassen-Modell (KONZEPT §4, §5.2, §5.3; DATENMODELL §6.25,
   §13.2): Vorgänge ohne Bestellung – die abgebrochene PayPal-Kasse und die laufende Kasse – legt der Seed als
@@ -4174,7 +4174,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     für O13, O14 öffnen die Seiten mit „Beispiel“; fremder Token → 404).
   - Ohne Jutta: vollständig mit `PAYMENTS_DRIVER=mock`. P11-Nacharbeit: –
 
-- [ ] **P8.4a Belege des Beispielbestands** – `invoices` nach SEED-SPEC §9 über den normalen Zähler mit den Serien
+- [x] **P8.4a Belege des Beispielbestands** – `invoices` nach SEED-SPEC §9 über den normalen Zähler mit den Serien
   `BSP-RE`/`BSP-GS`, je Serie streng nach `issueAt`; Snapshot-Felder mit denselben Funktionen wie die Kasse (SEED-SPEC
   §2.6). Beleg-PDFs rendert der Seed direkt mit dem P4-Renderer (ohne Job) mit dem Wasserzeichen „BEISPIELBELEG – kein
   echter Beleg“ und legt sie als `private-uploads` `invoice-pdf:<Nummer>` ab. Danach `orders.invoice` und
@@ -4187,7 +4187,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Tests: `tests/int/seed/invoices.int.spec.ts`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P8.5 Widerrufe, Anfragen und Umsätze** – `content/seed/data/withdrawals.json` (SEED-SPEC §10, W1–W7 inkl.
+- [x] **P8.5 Widerrufe, Anfragen und Umsätze** – `content/seed/data/withdrawals.json` (SEED-SPEC §10, W1–W7 inkl.
   `submissionSnapshot`, `refundDueAt`, unveränderlicher Texte; W6 `closed` mit `closeReason = duplicate`, W7 `rejected`
   mit `closeNote` und `spam.*`), `inquiries.json` (§11, A1–A7; Referenzbild nur bei A2 aus
   `private-uploads:A2:sketch-1`; `deleteAfter`), `revenue.json` (Einträge `M-9`…`M-1`, §15); Mengen laut SEED-SPEC
@@ -4214,7 +4214,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     Überspringen, Exporte ohne Seed).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P8.5a Reklamationen, Datenschutz-Anfragen und Status-Abdeckung** – Ergänzungen des Beispielbestands laut
+- [x] **P8.5a Reklamationen, Datenschutz-Anfragen und Status-Abdeckung** – Ergänzungen des Beispielbestands laut
   SEED-SPEC (Mengen in §0.1): Reklamationen RK1–RK4 (`complaints`, DATENMODELL §6.29, SEED-SPEC §10a) – je Wert aus
   `COMPLAINT_STATUSES` eine, jeweils an einer bezahlten Seed-Bestellung nach Versand bzw. Übergabe; Datenschutz-Anfragen
   DS1–DS5 (`privacy-requests`, DATENMODELL §6.26, SEED-SPEC §11a) – je Wert aus `PRIVACY_REQUEST_STATUSES` eine, ohne
@@ -4242,7 +4242,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     (alle Status).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P8.6 Tattoo-Bestand: Flash, Angebote, Galerie** – `content/seed/data/tattoo.json` nach SEED-SPEC §12.1
+- [x] **P8.6 Tattoo-Bestand: Flash, Angebote, Galerie** – `content/seed/data/tattoo.json` nach SEED-SPEC §12.1
   (Flash mit Nummern 901–910, wiederholbare Motive laut Tabelle, F903/F905 vergeben mit Feld `status = claimed`, alle
   übrigen `status = available`), §12.2 (TO1 künftig, TO2 laufend, TO3 abgelaufen) und §12.3 (Galerie; G1/G2 echte
   Kundenfotos mit `consentGiven = false`, G3–G6 Platzhalter); Mengen laut SEED-SPEC §0.1. In der
@@ -4262,7 +4262,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Ohne Jutta: G1/G2 erscheinen nur im Vorschau-Modus. P11-Nacharbeit: Einwilligungen (A13) – ohne sie werden G1/G2
     beim Entfernen der Beispieldaten gelöscht.
 
-- [ ] **P8.7 Seiten und FAQ** – `content/seed/data/pages.json` für alle `PAGE_KEYS` nach SEED-SPEC §13
+- [x] **P8.7 Seiten und FAQ** – `content/seed/data/pages.json` für alle `PAGE_KEYS` nach SEED-SPEC §13
   (Startseite `hero` + 7 `station`-Blöcke mit `stationId`, `cocoPose`, `ornament`, Links; `about`, `contact`,
   `commissions`, `tattoo`, `tattoo_aftercare`, `shop`, `archive`, `conformity`, `withdrawal`, `order_status`, `thanks`,
   `not_found`) und `faqs.json` nach §14. Klartext → Lexical über `toLexical()` (Absätze, `- `-Listen, `**fett**`,
@@ -4281,7 +4281,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Ohne Jutta: Texte sind Entwürfe (E-62), Jutta übernimmt sie durch Bearbeiten. P11-Nacharbeit: Texte in der
     Produktion gegenlesen (P11.10).
 
-- [ ] **P8.8 Protokolle: Mail-, Einwilligungs- und Audit-Log** – `content/seed/data/logs.json` mit den
+- [x] **P8.8 Protokolle: Mail-, Einwilligungs- und Audit-Log** – `content/seed/data/logs.json` mit den
   Ableitungsregeln aus SEED-SPEC §16: `email-log`-Einträge aus den Zeitleisten (§16.1: `status = sent`,
   `transport = file`, `attempts = 1`, `messageId` nach §2.5, `bodySha256`, Betreff aus `site-texts.emails` mit Nummer,
   Admin-Mails an `ADMIN_NOTIFY_EMAIL` in `de`), `consent-log`-Einträge (§16.2: `textSnapshot` = gerenderter
@@ -4302,7 +4302,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Tests: `tests/int/seed/logs.int.spec.ts`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P8.9 Lebenszyklus: Idempotenz, Produktionssperre, Entfernen, Reset (AK-SEED-Gesamtsuite)** –
+- [x] **P8.9 Lebenszyklus: Idempotenz, Produktionssperre, Entfernen, Reset (AK-SEED-Gesamtsuite)** –
   Import-Reihenfolge SEED-SPEC §1.7 (eine Transaktion je Schritt) und Idempotenzregeln §1.3 vollständig;
   `settings.seed.exampleDataPresent`/`importedAt` setzen, Audit `seed_imported`. `pnpm seed:remove --yes
   [--drop-texts]` nach SEED-SPEC §18 und DATENMODELL §13.5 (Reihenfolge, `BSP-*`-Zählerzeilen löschen, `keepTexts`
@@ -4322,7 +4322,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     `tests/unit/seed/time.unit.spec.ts` (Tabelle §2.2, AK-SEED-16) bleibt grün.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P8.10 Import-Skript für Juttas Instagram-Datenexport** – `scripts/seed/import-instagram.ts` als
+- [x] **P8.10 Import-Skript für Juttas Instagram-Datenexport** – `scripts/seed/import-instagram.ts` als
   `pnpm seed:import-instagram` (wiederholbar, deterministisch). Sucht in `content/seed/instagram-export/` rekursiv
   alle Formen aus ANLEITUNGEN Anhang: ZIP-Dateien (werden nach `.data/instagram-export/` entpackt, gitignored),
   Monatsordner `<JJJJMM>/…` direkt im Ordner (Beiträge und Stories gleichnamiger Monate zusammengelaufen), JSON-Ordner,
@@ -4357,7 +4357,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     Jutta“ mit dem Befehl `pnpm seed:import-instagram && pnpm seed:example --refresh-media`. P11-Nacharbeit: falls der
     Export (A04/A06) später kommt, Skript laufen lassen, danach `pnpm art:vectorize` erneut.
 
-- [ ] **P8.11 Import-Skript für Coco-Fotos (Zeichenvorlagen)** – `scripts/art/coco-refs.ts` als `pnpm art:coco-refs`:
+- [x] **P8.11 Import-Skript für Coco-Fotos (Zeichenvorlagen)** – `scripts/art/coco-refs.ts` als `pnpm art:coco-refs`:
   liest `content/seed/coco/` (JPG, PNG, HEIC; `.mp4` wird nur gelistet), normalisiert mit sharp (Orientierung, sRGB,
   **alle Metadaten entfernen**, längste Kante ≤ 1600 px) nach `.data/art-refs/coco/` (gitignored) und schreibt
   `content/art/coco-refs.json` (committet: Quelldatei, `sha256`, Maße, Pose aus dem Dateinamen `coco-<pose>-<n>` mit
@@ -4376,7 +4376,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     gezeichnet“. P11-Nacharbeit: kommen Fotos (A05), `pnpm art:coco-refs` und Coco in einer Nach-Session mit dem
     P9-Verfahren nachschärfen.
 
-- [ ] **P8.12 Platzhalter-Zeichnungen I: Werkzeug und Stück-Platzhalter** – Hilfsbibliothek
+- [x] **P8.12 Platzhalter-Zeichnungen I: Werkzeug und Stück-Platzhalter** – Hilfsbibliothek
   `scripts/art/lib/handline.ts` (gesäter Wackel auf Pfaden, offene Enden, 1–2 Doppelkonturen, Schatten aus 5–7
   Schraffurstrichen unter 40°, eine um 3–4 Einheiten versetzte Wash-Fläche) und Generator
   `scripts/art/placeholders.ts` als `pnpm art:placeholders`, der aus Motiv-Skizzen
@@ -4402,7 +4402,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     gilt auch für P8.13).
   - Ohne Jutta: vollständig machbar; Feinschliff in P9 (Rubrik ≥ 4). P11-Nacharbeit: –
 
-- [ ] **P8.13 Platzhalter-Zeichnungen II: Flash- und Tattoo-Platzhalter** – Mit dem Werkzeug aus P8.12
+- [x] **P8.13 Platzhalter-Zeichnungen II: Flash- und Tattoo-Platzhalter** – Mit dem Werkzeug aus P8.12
   `flash-902` … `flash-910` (ohne Wash, Grund `--paper-2`, Stencil-Anmutung, klare Kontur) und `tattoo-01` …
   `tattoo-04` (Körperumriss Knöchel, Handgelenk, Oberarm, Schienbein mit dem verknüpften Flash-Motiv, Wash
   `--wash-clay`, „frisch“ mit etwas kräftigerer Linie) nach SEED-SPEC §4.2; `pnpm seed:example --refresh-media`.
@@ -4415,7 +4415,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     kein Platzhalter mehr aus `fallbackArt` stammt.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P8.14 Stationszeichnungen v1 aus Juttas Bildern** – `content/art/sources.json` (Schema DESIGN §12.4: `id`,
+- [x] **P8.14 Stationszeichnungen v1 aus Juttas Bildern** – `content/art/sources.json` (Schema DESIGN §12.4: `id`,
   `file`, `crop`, `channel`, `threshold`, `upscale`, `turdSize`, `alphaMax`, `optTolerance`) und
   `scripts/art/vectorize.ts` als `pnpm art:vectorize` (sharp-Vorverarbeitung → `potrace` **nur** als devDependency →
   SVGO, Füllung `currentColor`) für `keramik` (`post-DdUPhoZOoMW.jpg`, nur schwarze Linien), `textil`
@@ -4435,7 +4435,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Ohne Jutta: aus 640-px-Quellen (DA-8). P11-Nacharbeit: nach dem Instagram-Export `pnpm art:vectorize`
     erneut.
 
-- [ ] **P8.15 Texte gegenlesen und vervollständigen (DE/EN, Juttas Ton)** – Alle Seed-Texte gegen SEED-SPEC prüfen
+- [x] **P8.15 Texte gegenlesen und vervollständigen (DE/EN, Juttas Ton)** – Alle Seed-Texte gegen SEED-SPEC prüfen
   (Stücke §5.4, Kategorien §3.3, Seiten §13, FAQ §14, Tattoo §12, Alt-Texte §4) und alle übrigen Texte fertig
   formulieren: Voreinstellungen von `site-texts` im Code (DATENMODELL §7.2: `navigation`, `footer`, `shop`, `product`,
   `cart`, `checkout`, `thanks`, `orderStatus`, `withdrawal`, `notFound`, `errors`, `emails` mit `subject`/`intro`/
@@ -4457,7 +4457,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     (jedes `site-texts`-Feld hat einen DE- und einen EN-Standardwert).
   - Ohne Jutta: Entwürfe; Jutta korrigiert im Admin. P11-Nacharbeit: Texte in der Produktion gegenlesen (P11.10).
 
-- [ ] **P8.16 Leere Zustände, 404 und 500 fertigstellen** – `EmptyState` (KO-17) an jeder Liste: Korb, Shop,
+- [x] **P8.16 Leere Zustände, 404 und 500 fertigstellen** – `EmptyState` (KO-17) an jeder Liste: Korb, Shop,
   Kategorie, Archiv, Startseiten-Station ohne Stücke (Stationszeichnung + Satz + Archiv-Link, KONZEPT §3.1), Flash,
   Angebote, Galerie, FAQ-Block ohne Einträge, Konformitätserklärungen (Text aus KONZEPT §3.14); Posen laut DESIGN
   §10.6. 404 (R28) mit fester H1 „Coco hat sich losgerissen“ / “Coco slipped her leash”, Satz, Links Start/Shop/Tattoo
@@ -4475,7 +4475,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     übernommen) für 404, 404-Variante, 500 und „Shop leer“.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P8.17 Startseite mit vollständigem Beispielbestand (R01)** – Die Startseite liest Überschriften, Texte,
+- [x] **P8.17 Startseite mit vollständigem Beispielbestand (R01)** – Die Startseite liest Überschriften, Texte,
   `cocoPose`, `ornament` und Links aus `pages.home` (Stationen mit `data-leash-station`-Ankern), zeigt je
   Kategorie-Station bis zu 4 Stücke `available`/`reserved` (neueste zuerst; Textil-Station inkl. Caps), in der
   Tattoo-Station bis zu 3 verfügbare Flash-Motive und das laufende oder nächste Angebot als Datums-Badge, in „Jutta &
@@ -4489,7 +4489,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Tests: `tests/e2e/home.e2e.spec.ts` (Stationen, Stücke, Badge, Links DE/EN).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P8.18 Über mich & Coco (R19) mit Preset `about`** – Route `/de/ueber-mich` · `/en/about` aus `pages.about`
+- [x] **P8.18 Über mich & Coco (R19) mit Preset `about`** – Route `/de/ueber-mich` · `/en/about` aus `pages.about`
   (Blöcke nach SEED-SPEC §13.2; KONZEPT §3.12): H1 „Jutta & Coco“, Text über Jutta, Coco-Abschnitt mit Coco-Zeichnung,
   „Was ich mache“ (Shop, Tattoo, Auftragsarbeiten), Instagram-Link mit `rel="noopener noreferrer"` (R-139). Fotos mit
   `showsPerson = jutta` nur mit Freigabe (P8.20). Tuschelinie Preset `about` (DESIGN §9.7: 3 Stationen Jutta/Coco/
@@ -4503,7 +4503,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Tests: `tests/e2e/about.e2e.spec.ts`; Unit-Test der Preset-Daten `about` in der Engine-Suite.
   - Ohne Jutta: ohne Fotos von Jutta. P11-Nacharbeit: Jutta kann ein eigenes Foto hochladen und freigeben.
 
-- [ ] **P8.19 Verwaltung „Beispieldaten“: zählen, entfernen, übernehmen** – Einstellungen → Beispieldaten
+- [x] **P8.19 Verwaltung „Beispieldaten“: zählen, entfernen, übernehmen** – Einstellungen → Beispieldaten
   (handytauglich, KONZEPT §7.14, §11.3; ersetzt den Hinweis „kommt in P8“ aus P5.22): Anzahl `seed = true` je
   Collection über `GET /api/admin/seed/summary`; Knopf „Beispieldaten entfernen“ mit Dialog (Mengen, Checkbox „Seitentexte und FAQ behalten“ vorausgewählt, Bestätigung durch
   Eintippen von `ENTFERNEN`) → `POST /api/admin/seed/remove` (`{ keepTexts }`, dieselbe Logik wie `seed:remove`,
@@ -4525,7 +4525,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: Jutta entfernt die Beispieldaten nach dem Einspielen der
     Kanzleitexte (P11.13).
 
-- [ ] **P8.19a Verwaltung „Texte“: Seiten und FAQ** – Bereich „Seiten und FAQ“ der Ansicht `/texte` (KONZEPT §7.13;
+- [x] **P8.19a Verwaltung „Texte“: Seiten und FAQ** – Bereich „Seiten und FAQ“ der Ansicht `/texte` (KONZEPT §7.13;
   ersetzt den Hinweis „kommt in P8“ aus P5.27): Liste aller `PAGE_KEYS` mit einem Handy-Formular je Seite (Titel, Texte
   und Blöcke – bei `home` Hero und Stationstexte –, SEO-Felder; Feldgrenzen wie P8.7), DE und EN je Feld, Knopf
   „Übersetzen“ über `TranslateButton` (P5; Mock `"[EN] " + Text`). FAQ als sortierbare Liste (Frage/Antwort DE/EN,
@@ -4545,7 +4545,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     Ansichten aus `scripts/preview-export/adminViews.ts`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: Jutta liest die Texte in der Produktion gegen (P11.10).
 
-- [ ] **P8.20 Vorschau-Modus nie in Produktion, Fotos von Jutta nur mit Freigabe (R-181)** – Prüfen (seit P1
+- [x] **P8.20 Vorschau-Modus nie in Produktion, Fotos von Jutta nur mit Freigabe (R-181)** – Prüfen (seit P1
   vorhanden, nicht neu bauen): `assertProductionEnv` (ARCHITEKTUR §4.2/§4.3) bricht den Serverstart mit klarer Meldung
   ab, wenn `SEED_PREVIEW_MODE=true` und `APP_ENV=production`; `seedPreviewModeActive()` liefert in Produktion immer
   `false` (KONZEPT §9.7, DATENMODELL §14). Neu in P8: Medien mit `showsPerson = jutta` sind öffentlich nur mit dem
@@ -4561,7 +4561,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Tests: `tests/unit/env/seed-preview.unit.spec.ts`; `tests/int/media/owner-approved.int.spec.ts`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P8.21 Vorschau-Anker und Vorschau-Datei mit vollem Bestand** – Crawler und Verwaltungs-Bildschirmfotos des
+- [x] **P8.21 Vorschau-Anker und Vorschau-Datei mit vollem Bestand** – Crawler und Verwaltungs-Bildschirmfotos des
   Vorschau-Exports (ARCHITEKTUR §14.4, §14.7) nutzen die Anker aus SEED-SPEC §17: Warenkorb-Beispiel S01 + S11
   (Versand `keramik` 8,90 €, Zwischensumme 109,00 €, Summe 117,90 €, Abweichung von S11 muss bestätigt werden),
   Danke-Seiten O14 (`en`) und O13 (Vorkasse mit Beispiel-IBAN `DE36 0000 0000 0000 0000 00` und Frist), Statusseiten

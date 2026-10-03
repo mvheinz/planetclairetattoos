@@ -146,7 +146,8 @@ test('R-034 R17 Druckansicht ohne Navigation, Text vollständig', async ({ page 
   const content = page.locator('[data-tattoo-aftercare]')
   await expect(content).toBeVisible()
   const screenText = (await content.innerText()).replace(/\s+/g, ' ').trim()
-  expect(screenText).toContain('Warnzeichen')
+  // Warnzeichen: Callout der Seite (Beispielbestand „Wann zur Ärztin oder zum Arzt?“) bzw. Rückfall „Warnzeichen – …“
+  expect(screenText).toMatch(/Warnzeichen|Wann zur Ärztin/)
   const safer = content.locator('a[href^="https://"]').first()
   await expect(safer).toHaveAttribute('rel', 'noopener noreferrer')
 

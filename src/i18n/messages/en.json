@@ -30,6 +30,11 @@
       "R25": "Shipping & payment",
       "R26": "Withdraw from contract here",
       "R27": "Declarations of conformity"
+    },
+    "faq": {
+      "emptyTitle": "No questions yet",
+      "emptyText": "Just ask me – by email or DM.",
+      "emptyAction": "Get in touch"
     }
   },
   "header": {
@@ -73,7 +78,9 @@
     "conformity": {
       "empty": "Currently all ceramics are labelled as decoration and are not intended for use with food.",
       "validFrom": "valid from {date}",
-      "pdf": "Declaration as PDF: {name}"
+      "pdf": "Declaration as PDF: {name}",
+      "emptyTitle": "No declarations yet",
+      "emptyAction": "See the ceramics"
     },
     "processors": {
       "title": "Processors and other recipients",
@@ -121,7 +128,9 @@
     "stationProducts": "Pieces: {station}",
     "emptyTitle": "We’re rearranging things.",
     "emptyText": "The home page will be back shortly. In the meantime, here’s how to reach us.",
-    "emptyAction": "Contact"
+    "emptyAction": "Contact",
+    "stationCommissions": "Commissions",
+    "stationInstagram": "Instagram"
   },
   "a11y": {
     "skipToContent": "Skip to content",
@@ -178,7 +187,8 @@
       "conformity": "Declarations of conformity from Planet Claire, Berlin, for handmade ceramics in contact with food – current declarations to view and download.",
       "shop": "Handmade one-offs by Planet Claire from Berlin: painted ceramics, textiles, caps, drawings and jewellery – every piece exists only once.",
       "category": "Handmade one-offs by Planet Claire from Berlin in this category – every piece is unique, with delivery anywhere within Germany.",
-      "archive": "The Planet Claire archive from Berlin: ceramics, textiles and drawings that have already found a home – to look at and browse."
+      "archive": "The Planet Claire archive from Berlin: ceramics, textiles and drawings that have already found a home – to look at and browse.",
+      "about": "Jutta and Coco of Planet Claire in Berlin: fine line tattoos, painted ceramics, shirts and drawings – who is behind the one-offs and how they come about."
     },
     "og": {
       "tagline": "Tattoos & one-offs from Berlin",
@@ -1366,5 +1376,18 @@
       "invalid": "No image arrived.",
       "failed": "The image could not be saved."
     }
+  },
+  "about": {
+    "title": "Jutta & Coco",
+    "lead": "Tattoos, ceramics, shirts and drawings from Berlin – and a small dog with very big ears.",
+    "whatHeading": "What I make",
+    "whatShop": "Shop",
+    "whatTattoo": "Tattoo",
+    "whatCommissions": "Commissions",
+    "instagram": "More of us on Instagram",
+    "cocoAlt": "Coco, drawn",
+    "emptyTitle": "Things are moving around here.",
+    "emptyText": "The page about Jutta and Coco will be back soon. Until then, have a look around the shop or on Instagram.",
+    "emptyAction": "To the shop"
   }
 }

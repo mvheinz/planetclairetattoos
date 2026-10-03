@@ -27,6 +27,8 @@ export interface RunSeedOptions {
   dropTexts?: boolean
   refreshMedia?: boolean
   only?: readonly string[]
+  /** Zuordnung zum Instagram-Datenexport (P8.10, Tests); Standard `content/seed/instagram-export-map.json`. */
+  exportMapFile?: string
 }
 
 export interface RunSeedResult {
@@ -56,6 +58,8 @@ export async function runSeed(payload: Payload, options: RunSeedOptions): Promis
       clock: options.clock,
       refreshMedia: options.refreshMedia,
       only: options.only,
+      appEnv: options.appEnv,
+      exportMapFile: options.exportMapFile,
     })
   const remove = async (keepTexts: boolean) => {
     const r = await removeSeedData(payload, { keepTexts, clock: options.clock })

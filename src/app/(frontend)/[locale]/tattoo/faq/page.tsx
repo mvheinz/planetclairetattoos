@@ -8,10 +8,11 @@ import { tattooLocale, tattooMetadata } from '@/components/tattoo/tattooRoute'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { blocksOfType, getTattooPage, getTattooSettings, listFaqs } from '@/lib/data/tattoo'
 import type { FaqCategory } from '@/lib/enums'
+import { localizedPath } from '@/lib/routes/paths'
 
 // R18 FAQ (KONZEPT §9.2): Einträge aus `faqs` (Kategorie aus dem Block `faqList` der Seite `tattoo`, sonst `tattoo`;
 // Reihenfolge `sortOrder`) als `<details>` – ohne JavaScript per Tastatur auf- und zuklappbar. Leerzustand „Noch keine
-// Fragen“.
+// Fragen“ mit Link zur Kontaktseite (P8.16).
 
 export const revalidate = 3600
 export const generateMetadata = tattooMetadata('R18')
@@ -19,8 +20,9 @@ export const generateMetadata = tattooMetadata('R18')
 export default async function FaqPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = tattooLocale((await params).locale)
   setRequestLocale(locale)
-  const [t, settings, page] = await Promise.all([
+  const [t, tFaq, settings, page] = await Promise.all([
     getTranslations({ locale, namespace: 'tattoo.faq' }),
+    getTranslations({ locale, namespace: 'common.faq' }),
     getTattooSettings(locale),
     getTattooPage(locale),
   ])
@@ -49,7 +51,12 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: st
           </ul>
         </section>
       ) : (
-        <EmptyState pose="kopfschief" title={t('emptyTitle')} text={t('emptyText')} />
+        <EmptyState
+          pose="kopfschief"
+          title={t('emptyTitle')}
+          text={t('emptyText')}
+          action={{ href: localizedPath('R20', locale), label: tFaq('emptyAction') }}
+        />
       )}
     </TattooShell>
   )

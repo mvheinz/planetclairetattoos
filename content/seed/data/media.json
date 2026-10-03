@@ -16,6 +16,36 @@
       }
     },
     {
+      "key": "ig:DdUPhoZOoMW#b",
+      "file": "post-DdUPhoZOoMW.jpg",
+      "crop": {
+        "x": 0,
+        "y": 35.5,
+        "w": 53,
+        "h": 37.3
+      },
+      "showsPerson": "none",
+      "alt": {
+        "de": "Weiße Keramikschale von oben mit zwei gemalten Hunden, einer hell mit Schlappohren, einer schwarz",
+        "en": "White ceramic bowl from above with two painted dogs, one light with floppy ears, one black"
+      }
+    },
+    {
+      "key": "ig:DdUPhoZOoMW#c",
+      "file": "post-DdUPhoZOoMW.jpg",
+      "crop": {
+        "x": 28,
+        "y": 49.375,
+        "w": 72,
+        "h": 50.625
+      },
+      "showsPerson": "none",
+      "alt": {
+        "de": "Weiße Keramikschale von oben: heller Hund mit Kulleraugen und ein schwarzer Hase mit langen Ohren",
+        "en": "White ceramic bowl from above: a light dog with googly eyes and a black bunny with long ears"
+      }
+    },
+    {
       "key": "ig:DdUPhoZOoMW",
       "file": "post-DdUPhoZOoMW.jpg",
       "crop": null,
@@ -27,6 +57,51 @@
       "alt": {
         "de": "Drei weiße Keramikschalen mit Tuschetieren auf grüner Schneidematte",
         "en": "Three white ceramic bowls with ink-drawn animals on a green cutting mat"
+      }
+    },
+    {
+      "key": "ig:DcrENrOjlGP#a",
+      "file": "post-DcrENrOjlGP.jpg",
+      "crop": {
+        "x": 10,
+        "y": 36,
+        "w": 45,
+        "h": 42.1875
+      },
+      "showsPerson": "none",
+      "alt": {
+        "de": "Rundes Keramikschälchen mit gemaltem Schmetterling und handgeschriebener Textzeile, Rand mit Punkten",
+        "en": "Round ceramic dish with a painted butterfly and a handwritten line of text, dotted rim"
+      }
+    },
+    {
+      "key": "ig:DcrENrOjlGP#b",
+      "file": "post-DcrENrOjlGP.jpg",
+      "crop": {
+        "x": 37.1,
+        "y": 49,
+        "w": 52.1,
+        "h": 48.8
+      },
+      "showsPerson": "none",
+      "alt": {
+        "de": "Flaches Keramikschälchen mit Lasche zum Aufhängen, darauf ein zart gefärbter Schmetterling und handgeschriebene Worte",
+        "en": "Flat ceramic dish with a hanging tab, showing a softly coloured butterfly and handwritten words"
+      }
+    },
+    {
+      "key": "ig:DcrENrOjlGP",
+      "file": "post-DcrENrOjlGP.jpg",
+      "crop": {
+        "x": 0,
+        "y": 3.125,
+        "w": 100,
+        "h": 93.75
+      },
+      "showsPerson": "none",
+      "alt": {
+        "de": "Zwei Schmetterlings-Schälchen auf grünem Untergrund, dahinter das Skizzenbuch mit der Vorzeichnung",
+        "en": "Two butterfly dishes on a green surface, with the sketchbook drawing behind them"
       }
     },
     {
@@ -60,6 +135,40 @@
       }
     },
     {
+      "key": "ig:DdHXUQsDjqm#cap",
+      "file": "post-DdHXUQsDjqm.jpg",
+      "crop": {
+        "x": 16,
+        "y": 0,
+        "w": 68,
+        "h": 45
+      },
+      "focal": {
+        "x": 50,
+        "y": 55
+      },
+      "showsPerson": "none",
+      "alt": {
+        "de": "Grau gewaschene Cap von vorn, bemalt mit einem schwarzen Wesen in bunten Flammen",
+        "en": "Washed grey cap from the front, painted with a black creature in colourful flames"
+      }
+    },
+    {
+      "key": "ig:DaDz8yljp3i",
+      "file": "post-DaDz8yljp3i.jpg",
+      "crop": {
+        "x": 12.5,
+        "y": 3.125,
+        "w": 75,
+        "h": 93.75
+      },
+      "showsPerson": "none",
+      "alt": {
+        "de": "Aquarell eines orangefarbenen Fuchses mit großen Augen und Schnurrhaaren vor grün-pinkem Hintergrund",
+        "en": "Watercolour of an orange fox with big eyes and whiskers on a green and pink background"
+      }
+    },
+    {
       "key": "ig:DaJH_kADpsK",
       "file": "post-DaJH_kADpsK.jpg",
       "crop": {
@@ -72,6 +181,36 @@
       "alt": {
         "de": "Tuschezeichnung: Figur im karierten Kleid mit tätowierten Beinen, daneben eine kopfüber hängende Figur mit langen Haaren",
         "en": "Ink drawing: a figure in a checked dress with tattooed legs, next to a long-haired figure hanging upside down"
+      }
+    },
+    {
+      "key": "ig:DbJ1QRrjCcb",
+      "file": "post-DbJ1QRrjCcb.jpg",
+      "crop": {
+        "x": 0,
+        "y": 3.125,
+        "w": 100,
+        "h": 93.75
+      },
+      "showsPerson": "none",
+      "alt": {
+        "de": "Tuschezeichnung eines Kelchs, aus dem sich eine Schlange windet, auf weißem Papier",
+        "en": "Ink drawing of a chalice with a snake winding out of it, on white paper"
+      }
+    },
+    {
+      "key": "ig:DblvrTRiUqi",
+      "file": "post-DblvrTRiUqi.jpg",
+      "crop": {
+        "x": 0,
+        "y": 3.125,
+        "w": 100,
+        "h": 93.75
+      },
+      "showsPerson": "none",
+      "alt": {
+        "de": "Aquarell eines Rehkitzes mit großen Ohren und hellen Tupfen vor grünem Hintergrund, im Skizzenbuch",
+        "en": "Watercolour of a fawn with big ears and pale spots on a green background, in a sketchbook"
       }
     },
     {
@@ -88,15 +227,69 @@
         "de": "Winziger Fuchs-Anhänger aus Keramik, orange-weiß glasiert, mit Metallöse auf grüner Schneidematte",
         "en": "Tiny ceramic fox pendant, glazed orange and white, with a metal loop on a green cutting mat"
       }
+    },
+    {
+      "key": "ig:DOZTG7PjLAD",
+      "file": "post-DOZTG7PjLAD.jpg",
+      "crop": {
+        "x": 0,
+        "y": 3.125,
+        "w": 100,
+        "h": 93.75
+      },
+      "showsPerson": "customer",
+      "alt": {
+        "de": "Verheiltes Fine-Line-Tattoo am Unterarm: Comicfigur mit Schiebermütze und langer Nase",
+        "en": "Healed fine line tattoo on a forearm: cartoon figure with a flat cap and a long nose"
+      }
+    },
+    {
+      "key": "ig:DZqBCSZDDiE",
+      "file": "post-DZqBCSZDDiE.jpg",
+      "crop": {
+        "x": 0,
+        "y": 3.125,
+        "w": 100,
+        "h": 93.75
+      },
+      "showsPerson": "customer",
+      "alt": {
+        "de": "Frisches Blackwork-Tattoo an der Wade: großes Monster mit Hasen, dahinter der Berliner Fernsehturm",
+        "en": "Fresh blackwork tattoo on a calf: a big monster with bunnies, the Berlin TV tower behind"
+      }
     }
   ],
   "placeholders": [
+    {
+      "key": "ph:teller-01",
+      "wash": "clay",
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Teller mit fünf Hasen im Kreis",
+        "en": "Placeholder drawing: plate with five bunnies in a circle"
+      }
+    },
+    {
+      "key": "ph:teller-02",
+      "wash": "sky",
+      "alt": {
+        "de": "Platzhalter-Zeichnung: kleiner Teller mit Fuchs auf dem Mond",
+        "en": "Placeholder drawing: small plate with a fox on the moon"
+      }
+    },
     {
       "key": "ph:fliese-01",
       "wash": "mat",
       "alt": {
         "de": "Platzhalter-Zeichnung: Fliese mit Reh im Planetenregen",
         "en": "Placeholder drawing: tile with a deer in planet rain"
+      }
+    },
+    {
+      "key": "ph:shirt-01",
+      "wash": "sky",
+      "alt": {
+        "de": "Platzhalter-Zeichnung: T-Shirt mit vier marschierenden Hasen",
+        "en": "Placeholder drawing: T-shirt with four marching bunnies"
       }
     },
     {
@@ -108,11 +301,59 @@
       }
     },
     {
+      "key": "ph:shirt-03",
+      "wash": "pink",
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Ringer-Shirt mit Fuchs",
+        "en": "Placeholder drawing: ringer tee with a fox"
+      }
+    },
+    {
+      "key": "ph:kleid-01",
+      "wash": "mat",
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Kleid mit Hasen-Bordüre",
+        "en": "Placeholder drawing: dress with a bunny border"
+      }
+    },
+    {
+      "key": "ph:kleid-02",
+      "wash": "sky",
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Kleid mit Planeten und Sternen",
+        "en": "Placeholder drawing: dress with planets and stars"
+      }
+    },
+    {
+      "key": "ph:cap-01",
+      "wash": "clay",
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Cap mit Coco-Kopf",
+        "en": "Placeholder drawing: cap with Coco's head"
+      }
+    },
+    {
       "key": "ph:cap-02",
       "wash": "pink",
       "alt": {
         "de": "Platzhalter-Zeichnung: Cap mit kleinem Planeten",
         "en": "Placeholder drawing: cap with a little planet"
+      }
+    },
+    {
+      "key": "ph:zeichnung-01",
+      "wash": "sky",
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Zeichnung: Coco auf dem Mond",
+        "en": "Placeholder drawing: drawing: Coco on the moon"
+      }
+    },
+    {
+      "key": "ph:zeichnung-02",
+      "wash": "pink",
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Zeichnung: Flammenwesen",
+        "en": "Placeholder drawing: drawing: flame creature"
       }
     },
     {
@@ -128,6 +369,134 @@
       "alt": {
         "de": "Platzhalter-Zeichnung: Anhänger Coco mit Planetenring",
         "en": "Placeholder drawing: pendant Coco with a planet ring"
+      }
+    },
+    {
+      "key": "ph:anhaenger-02",
+      "wash": "sky",
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Mini-Planet-Anhänger",
+        "en": "Placeholder drawing: mini planet pendant"
+      }
+    },
+    {
+      "key": "ph:anhaenger-03",
+      "wash": "clay",
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Anhänger Rehköpfchen",
+        "en": "Placeholder drawing: little deer head pendant"
+      }
+    },
+    {
+      "key": "ph:spiegel-01",
+      "wash": "mat",
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Spiegel mit Hasen am Rahmen",
+        "en": "Placeholder drawing: mirror with bunnies on the frame"
+      }
+    },
+    {
+      "key": "ph:flash-902",
+      "wash": null,
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Flash-Motiv Hasen-Trio",
+        "en": "Placeholder drawing: flash design bunny trio"
+      }
+    },
+    {
+      "key": "ph:flash-903",
+      "wash": null,
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Flash-Motiv Fuchs mit Kulleraugen",
+        "en": "Placeholder drawing: flash design googly-eyed fox"
+      }
+    },
+    {
+      "key": "ph:flash-904",
+      "wash": null,
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Flash-Motiv Schmetterling mit Tupfen",
+        "en": "Placeholder drawing: flash design spotted butterfly"
+      }
+    },
+    {
+      "key": "ph:flash-905",
+      "wash": null,
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Flash-Motiv Schnecke mit Planetenhaus",
+        "en": "Placeholder drawing: flash design snail with a planet shell"
+      }
+    },
+    {
+      "key": "ph:flash-906",
+      "wash": null,
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Flash-Motiv Coco sitzt",
+        "en": "Placeholder drawing: flash design Coco sitting"
+      }
+    },
+    {
+      "key": "ph:flash-907",
+      "wash": null,
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Flash-Motiv winziger Planet",
+        "en": "Placeholder drawing: flash design tiny planet"
+      }
+    },
+    {
+      "key": "ph:flash-908",
+      "wash": null,
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Flash-Motiv Reh mit Tupfen",
+        "en": "Placeholder drawing: flash design spotted deer"
+      }
+    },
+    {
+      "key": "ph:flash-909",
+      "wash": null,
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Flash-Motiv Flammenwesen",
+        "en": "Placeholder drawing: flash design flame creature"
+      }
+    },
+    {
+      "key": "ph:flash-910",
+      "wash": null,
+      "alt": {
+        "de": "Platzhalter-Zeichnung: Flash-Motiv Herz mit Beinen",
+        "en": "Placeholder drawing: flash design heart with legs"
+      }
+    },
+    {
+      "key": "ph:tattoo-01",
+      "wash": "clay",
+      "alt": {
+        "de": "Platzhalter-Zeichnung: frisches Tattoo Hasen-Trio am Knöchel",
+        "en": "Placeholder drawing: fresh bunny trio tattoo on an ankle"
+      }
+    },
+    {
+      "key": "ph:tattoo-02",
+      "wash": "clay",
+      "alt": {
+        "de": "Platzhalter-Zeichnung: verheiltes Tattoo winziger Planet am Handgelenk",
+        "en": "Placeholder drawing: healed tiny planet tattoo on a wrist"
+      }
+    },
+    {
+      "key": "ph:tattoo-03",
+      "wash": "clay",
+      "alt": {
+        "de": "Platzhalter-Zeichnung: frisches Tattoo Coco am Oberarm",
+        "en": "Placeholder drawing: fresh Coco tattoo on an upper arm"
+      }
+    },
+    {
+      "key": "ph:tattoo-04",
+      "wash": "clay",
+      "alt": {
+        "de": "Platzhalter-Zeichnung: verheiltes Tattoo Herz mit Beinen am Schienbein",
+        "en": "Placeholder drawing: healed heart-with-legs tattoo on a shin"
       }
     }
   ]

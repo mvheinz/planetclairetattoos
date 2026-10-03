@@ -300,12 +300,16 @@ describe('tattoo-gallery (DATENMODELL §6.16)', () => {
   })
 
   it('AK-1-03 mit APP_ENV=production und SEED_PREVIEW_MODE=true keine Bilder ohne Einwilligung', async () => {
-    // ohne Vorschau: Seed-Eintrag ohne Einwilligung wird nicht veröffentlicht
+    // ohne Vorschau: außerhalb des Seed-Kontexts (Verwaltung/REST) wird ein Eintrag ohne Einwilligung nie
+    // veröffentlicht; im Seed-Kontext darf der Beispiel-Eintrag angelegt werden (SEED-SPEC §1.6), bleibt aber
+    // ohne wirksamen Vorschau-Modus unsichtbar.
     setEnv({ SEED_PREVIEW_MODE: 'false', APP_ENV: 'development' })
     await rejects(
-      entry({ image: imageB, seed: true, published: true }, { seed: true }),
+      entry({ image: imageB, seed: true, published: true }),
       /Ohne Einwilligung der Kundin\/des Kunden/,
     )
+    const hidden = await entry({ image: imageB, seed: true, published: true }, { seed: true })
+    expect((await publicFind('tattoo-gallery')).docs.map((d) => d.id)).not.toContain(hidden.id)
     // Vorschau (nicht Produktion): Beispiel-Eintrag ohne Einwilligung erlaubt und sichtbar
     setEnv({ SEED_PREVIEW_MODE: 'true', APP_ENV: 'development' })
     const sample = await entry({ image: imageB, seed: true, published: true }, { seed: true })
@@ -315,6 +319,7 @@ describe('tattoo-gallery (DATENMODELL §6.16)', () => {
     setEnv({ SEED_PREVIEW_MODE: 'true', APP_ENV: 'production' })
     const prod = await publicFind('tattoo-gallery')
     expect(prod.docs.map((d) => d.id)).not.toContain(sample.id)
+    expect(prod.docs.map((d) => d.id)).not.toContain(hidden.id)
     for (const d of prod.docs as { showsCustomer?: boolean; consentGiven?: boolean }[]) {
       expect(d.showsCustomer === false || d.consentGiven === true).toBe(true)
     }

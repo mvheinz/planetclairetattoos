@@ -1,8 +1,9 @@
 import type { CollectionSlug, Payload } from 'payload'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { LEGAL_TEXT_TYPES, PRODUCT_CATEGORIES, PRODUCT_STATUSES } from '@/lib/enums'
 import { hashToken } from '@/lib/security/tokens'
+import { expectedCount, SEED_EXPECTED_COUNTS } from '@/lib/seed/expected'
 import { loadSeedData } from '@/lib/seed/loader'
 import { seedCollections } from '@/lib/seed/remove'
 import { runSeed, type RunSeedOptions } from '@/lib/seed/run'
@@ -14,13 +15,19 @@ import { getTestPayload } from '../helpers/payload'
 
 // P1.30: Mini-Beispielbestand (SEED-SPEC §1.8, W-21) und Entfernen (DATENMODELL §13.5, SEED-SPEC §18).
 
+// Vollständiger Beispielbestand (P8): Seed-Läufe mit Medien-Pipeline brauchen mehr Zeit als der Standard.
+vi.setConfig({ testTimeout: 300_000, hookTimeout: 300_000 })
+
 let payload: Payload
 const now = new Date(CANONICAL_SEED_NOW)
 const clock = fixedClock('2026-10-15T08:00:30Z')
 let realProductId: number
 let realProductBefore: string
 
-const MINI = ['S01', 'S06', 'S09', 'S11', 'S15', 'S18', 'S20', 'S25', 'S26', 'S27']
+const ALL_PRODUCTS = Array.from(
+  { length: SEED_EXPECTED_COUNTS.products },
+  (_, i) => `S${String(i + 1).padStart(2, '0')}`,
+)
 
 async function seed(command: RunSeedOptions['command'], extra: Partial<RunSeedOptions> = {}) {
   const data = await loadSeedData({ now, requireBase: command !== 'example' })
@@ -140,12 +147,20 @@ describe('Mini-Beispielbestand (DM-P1-04, AK-11-01, AK-11-02, AK-SEED-06, AK-SEE
     await seed('all')
     await seed('example')
     expect(await countsBySeed()).toEqual(first)
-    expect(first.products).toBe(MINI.length)
-    expect(first.checkouts).toBe(1)
-    expect(first.reservations).toBe(1)
-    expect(first.pages).toBe(2)
-    expect(first['private-uploads']).toBe(2)
-    expect(first.media).toBe(11)
+    // Mengen nur aus SEED_EXPECTED_COUNTS (SEED-SPEC §0.1); Seiten/FAQ folgen mit P8.7, Beleg-PDFs zählen zu private-uploads
+    const data = await loadSeedData({ now })
+    for (const c of [
+      'products',
+      'checkouts',
+      'orders',
+      'reservations',
+      'media',
+      'invoices',
+    ] as const) {
+      expect(first[c], c).toBe(expectedCount(c))
+    }
+    expect(first.pages).toBe(data.pages.length)
+    expect(first['private-uploads']).toBe(data.privateUploads.length + (first.invoices ?? 0))
     for (const collection of seedCollections(payload)) {
       const keys = (await all(collection, { seed: { equals: true } })).map((d) => d.seedKey)
       expect(new Set(keys).size, collection).toBe(keys.length)
@@ -166,17 +181,15 @@ describe('Mini-Beispielbestand (DM-P1-04, AK-11-01, AK-11-02, AK-SEED-06, AK-SEE
       }
     }
     const keys = (await all('products', { seed: { equals: true } })).map((p) => p.seedKey)
-    expect(keys.sort()).toEqual(MINI.map((k) => `products:${k}`))
+    expect(keys.sort()).toEqual(ALL_PRODUCTS.map((k) => `products:${k}`))
     const legal = await all('legal-texts')
     expect(legal.every((t) => t.seed === false)).toBe(true)
   })
 
-  it('Mini-Satz: jeder ProductStatus, jede Kategorie außer sonstiges; Nummern 9nn; S06 offline verkauft im Archiv, S09 archiviert ohne Verkaufsfelder', async () => {
+  it('jeder ProductStatus, jede Kategorie; Nummern 9nn; S06 offline verkauft im Archiv, S09 archiviert ohne Verkaufsfelder', async () => {
     const products = await all('products', { seed: { equals: true } })
     expect(new Set(products.map((p) => p.status))).toEqual(new Set(PRODUCT_STATUSES))
-    expect(new Set(products.map((p) => p.category))).toEqual(
-      new Set(PRODUCT_CATEGORIES.filter((c) => c !== 'sonstiges')),
-    )
+    expect(new Set(products.map((p) => p.category))).toEqual(new Set(PRODUCT_CATEGORIES))
     for (const p of products) {
       expect(p.itemNumber).toBe(900 + Number(String(p.seedKey).slice('products:S'.length)))
     }
@@ -319,6 +332,8 @@ describe('Entfernen (AK-11-03, AK-SEED-14, AK-SEED-15)', () => {
     expect(await all('pages', { key: { in: ['home', 'contact'] } })).toHaveLength(0)
     expect(await all('checkouts')).toHaveLength(0)
     expect(await all('reservations')).toHaveLength(0)
+    expect(await all('orders')).toHaveLength(0)
+    expect(await all('invoice-counters', { series: { in: ['BSP-RE', 'BSP-GS'] } })).toHaveLength(0)
     expect(await baseState()).toEqual(before)
     expect((await baseState()).placeholders).toBe(LEGAL_TEXT_TYPES.length)
     const settings = (await payload.findGlobal({ slug: 'settings', overrideAccess: true })) as {
@@ -335,7 +350,7 @@ describe('Entfernen (AK-11-03, AK-SEED-14, AK-SEED-15)', () => {
     expect(await realProductState()).toBe(realProductBefore)
     await seed('reset')
     expect(await realProductState()).toBe(realProductBefore)
-    expect((await countsBySeed()).products).toBe(MINI.length)
+    expect((await countsBySeed()).products).toBe(expectedCount('products'))
     await seed('remove', { yes: true })
     expect(await realProductState()).toBe(realProductBefore)
   })
@@ -353,7 +368,8 @@ describe('Entfernen (AK-11-03, AK-SEED-14, AK-SEED-15)', () => {
     ])
     // Ein weiterer Seed-Lauf überspringt übernommene Seiten.
     const { report } = await seed('example')
-    expect(report.get('pages', 'skipped')).toBe(2)
+    expect(report.get('pages', 'skipped')).toBe(expectedCount('pages'))
     expect(report.get('pages', 'created')).toBe(0)
+    expect(report.get('faqs', 'skipped')).toBe(expectedCount('faqs'))
   })
 })

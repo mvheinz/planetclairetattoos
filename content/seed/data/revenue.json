@@ -1,0 +1,20 @@
+[
+  { "month": "M-9", "source": "tattoo", "amountCents": 64000 },
+  { "month": "M-9", "source": "flohmarkt", "amountCents": 0, "note": "Winterpause" },
+  { "month": "M-8", "source": "tattoo", "amountCents": 72000 },
+  { "month": "M-8", "source": "flohmarkt", "amountCents": 0, "note": "Winterpause" },
+  { "month": "M-7", "source": "tattoo", "amountCents": 98000 },
+  { "month": "M-7", "source": "flohmarkt", "amountCents": 18000 },
+  { "month": "M-6", "source": "tattoo", "amountCents": 115000 },
+  { "month": "M-6", "source": "flohmarkt", "amountCents": 32000 },
+  { "month": "M-5", "source": "tattoo", "amountCents": 134000 },
+  { "month": "M-5", "source": "flohmarkt", "amountCents": 46000 },
+  { "month": "M-4", "source": "tattoo", "amountCents": 152000 },
+  { "month": "M-4", "source": "flohmarkt", "amountCents": 54000 },
+  { "month": "M-3", "source": "tattoo", "amountCents": 118000 },
+  { "month": "M-3", "source": "flohmarkt", "amountCents": 61000 },
+  { "month": "M-2", "source": "tattoo", "amountCents": 96000 },
+  { "month": "M-2", "source": "flohmarkt", "amountCents": 58000 },
+  { "month": "M-1", "source": "tattoo", "amountCents": 141000 },
+  { "month": "M-1", "source": "flohmarkt", "amountCents": 39000 }
+]

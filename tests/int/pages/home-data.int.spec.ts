@@ -25,9 +25,10 @@ beforeAll(async () => {
     now,
     clock: fixedClock('2026-10-15T08:00:30Z'),
     appEnv: 'test',
-    only: ['pages'],
+    // Seiten verweisen auf Medien des Beispielbestands (SEED-SPEC §13.1) → Medien zuerst.
+    only: ['media', 'pages'],
   })
-})
+}, 240_000)
 
 describe('Startseite (P2.20)', () => {
   it('AK-3-01 AK-SEED-18 Kopf-Station und genau 7 Stationen in der festen Reihenfolge (DE)', async () => {
