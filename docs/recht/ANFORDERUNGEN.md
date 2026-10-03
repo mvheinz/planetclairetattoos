@@ -197,8 +197,8 @@ Lücken in der Nummerierung sind Reserve.
 | R-170 | Tattoo-Bereich ohne Online-Vertragsschluss | P7 | unit, int, e2e | nein | `tests/unit/legal/tattoo-content.unit.spec.ts`, `tests/unit/tattoo/mailto.unit.spec.ts`, `tests/int/legal/tattoo-cart.int.spec.ts`, `tests/e2e/tattoo/no-purchase.e2e.spec.ts`, `tests/e2e/tattoo/flash.e2e.spec.ts` |
 | R-171 | Abgelaufene Flash-Days/Aktionen ausblenden | P7 | int | nein | `tests/int/tattoo/offers.int.spec.ts`, `tests/int/jobs/revalidate-offers.int.spec.ts`, `tests/e2e/tattoo/offers.e2e.spec.ts` |
 | R-172 | Portfolio-Fotos nur mit Einwilligung | P7 | int | ja | `tests/int/legal/gallery-consent.int.spec.ts`, `tests/int/legal/gallery-withdraw.int.spec.ts`, `tests/e2e/tattoo/gallery.e2e.spec.ts` |
-| R-180 | Beispielbestand kennzeichnen und entfernbar | P8 | int | nein | – |
-| R-181 | `SEED_PREVIEW_MODE` nie in Produktion | P8 | unit, int | nein | – |
+| R-180 | Beispielbestand kennzeichnen und entfernbar | P8 | int | nein | `tests/int/seed/admin-remove.int.spec.ts`, `tests/int/collections/logs.int.spec.ts`, `tests/unit/seed/persons.unit.spec.ts`, `tests/e2e/admin-seed.e2e.spec.ts` |
+| R-181 | `SEED_PREVIEW_MODE` nie in Produktion | P8 | unit, int | nein | `tests/unit/env/seed-preview.unit.spec.ts`, `tests/unit/env/assert-production.unit.spec.ts`, `tests/int/media/owner-approved.int.spec.ts`, `tests/int/legal/gallery-consent.int.spec.ts` |
 | R-182 | Vorschau-Datei als interne Datei | P10 | unit | nein | – |
 | R-190 | BFSG-Ausnahme dokumentiert, keine Konformitätsbehauptung | P10 | manuell | nein | – |
 | R-191 | Freiwillige Barrierearmut (Ziel WCAG 2.2 AA) | P2, P10 | e2e | nein | `tests/e2e/a11y.e2e.spec.ts`, `tests/e2e/keyboard.e2e.spec.ts` |

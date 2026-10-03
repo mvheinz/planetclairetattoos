@@ -288,6 +288,14 @@ J-24), §2.1 (J-10) und §2.2 (J-19).
 | SE-12 | Kassen und Reservierungen nach den Löschfristen L-02/L-03 | der Seed legt nur an, was bei `N` noch existieren würde (14 Kassen, 10 Reservierungen; O01/O02 ohne Kasse); Filter mit den Fristen aus `src/lib/retention/policy.ts` | Entwicklung (P8.4); bei Friständerung LOESCHKONZEPT | Filter in `src/lib/seed/orders.ts` anpassen, Mengen in SEED-SPEC §0.1 und `src/lib/seed/expected.ts` nachziehen | Annahme gilt |
 | SE-14 | Beispiel-Begründungen für Ablehnungen und Abschlüsse (RK4, DS2, W7) | interne Notizen im Beispielbestand, kein Rechtstext, keine Vorlage für echte Fälle | Kanzlei bei Bedenken, Jutta | Texte in `complaints.json`, `privacy-requests.json` bzw. `withdrawals.json` ändern, `pnpm seed:reset` | Annahme gilt |
 
+**Stand Phasen-Abnahme P8 (2026-10-03):** Die Punkte oben sind unverändert offen; keiner blockiert etwas, alles bleibt im
+Beispielbestand. **Instagram-Export:** `content/seed/instagram-export/` enthält nur `LIESMICH.txt` – der Beispielbestand
+nutzt die Bilder aus `content/seed/instagram/` (Manifest). Sobald Jutta den Export liefert, ersetzt
+`pnpm seed:import-instagram` die Bilder in voller Auflösung (gleiche `seedKey`, `--refresh-media`), ohne Codeänderung
+(Nacharbeit P11). **Coco-Fotos:** `content/seed/coco/` enthält nur `LIESMICH.txt`; Coco ist nach den 9 Highlight-Bildchen
+und Juttas Skizzen gezeichnet (`content/art/coco-refs.json`, P8.11). Neue Fotos dort ablegen und `pnpm art:coco-refs`
+ausführen; die Studio-Abnahme der Figur folgt in P9. **Phasen-Annahmen:** siehe §5, Zeilen P8.1–P8.20.
+
 ---
 
 ## 5. Laufendes Protokoll der Sessions
