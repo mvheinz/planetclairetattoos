@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Icon, type IconName } from '@/components/icons/Icon'
+import { Glyph, type IconShapes } from '@/components/icons/Glyph'
 
 import styles from './Button.module.css'
 import { LinkUnderline } from './LinkUnderline'
@@ -16,7 +16,7 @@ interface CommonProps {
   variant?: ButtonVariant
   children: React.ReactNode
   /** Optionales Icon vor dem Text (dekorativ). */
-  icon?: IconName
+  icon?: IconShapes
   disabled?: boolean
   className?: string
   id?: string
@@ -82,7 +82,7 @@ export function Button(props: ButtonProps) {
   const classes = [styles.button, VARIANT_CLASS[variant], className].filter(Boolean).join(' ')
   const content = (
     <>
-      {icon ? <Icon name={icon} size={20} className={styles.icon} /> : null}
+      {icon ? <Glyph shape={icon} size={20} className={styles.icon} /> : null}
       <span className={styles.label}>
         {children}
         {variant === 'secondary' ? (

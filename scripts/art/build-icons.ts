@@ -105,17 +105,25 @@ export function readIconSources(
   return out
 }
 
+/** Name der Einzelkonstante: `arrow-right` → `ICON_ARROW_RIGHT`. */
+export const iconConstName = (name: string) => `ICON_${name.toUpperCase().replace(/-/g, '_')}`
+
 export function iconsModule(sources: Record<string, { shapes: IconShape[] }>): string {
-  const lines = ICON_NAMES.map((name) => {
+  const consts = ICON_NAMES.map((name) => {
     const src = sources[name]
     if (!src) throw new Error(`Icon-Quelle ${name}.svg fehlt`)
-    return `  '${name}': ${JSON.stringify(src.shapes)},`
+    return `export const ${iconConstName(name)} = ${JSON.stringify(src.shapes)} as const satisfies IconShapes`
   })
   return [
     '// Erzeugt von `pnpm art:icons` (scripts/art/build-icons.ts) aus src/art/icons/*.svg – nicht von Hand ändern.',
+    '// Einzelkonstanten, damit Client-Komponenten nur ihre Icons laden (Glyph); die Tabelle nur auf dem Server (Icon).',
+    "import type { IconShapes } from './Glyph'",
+    '',
+    ...consts,
+    '',
     'export const ICON_SHAPES = {',
-    ...lines,
-    '} as const satisfies Record<string, readonly (readonly [string, Record<string, string>])[]>',
+    ...ICON_NAMES.map((name) => `  '${name}': ${iconConstName(name)},`),
+    '} as const',
     '',
     'export type IconName = keyof typeof ICON_SHAPES',
     '',

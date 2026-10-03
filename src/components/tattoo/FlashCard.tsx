@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
+import { ICON_MAIL, ICON_INSTAGRAM } from '@/components/icons/icons.generated'
 import { Station } from '@/components/leash/Station'
 import { ResponsiveImage } from '@/components/media/ResponsiveImage'
 import { Button } from '@/components/ui/Button'
@@ -128,7 +129,7 @@ export async function FlashCard({
               <Button
                 variant="secondary"
                 href={mailto}
-                icon="mail"
+                icon={ICON_MAIL}
                 data={{ 'data-flash-mail': '' }}
               >
                 {t('mail')}
@@ -138,7 +139,7 @@ export async function FlashCard({
               variant="secondary"
               href={instagramDmUrl(settings.instagramHandle)}
               rel="noopener noreferrer"
-              icon="instagram"
+              icon={ICON_INSTAGRAM}
               data={{ 'data-flash-dm': '' }}
             >
               {t('dm')}

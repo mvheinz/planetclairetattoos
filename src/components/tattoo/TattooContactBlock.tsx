@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
+import { ICON_MAIL, ICON_INSTAGRAM } from '@/components/icons/icons.generated'
 import { Button } from '@/components/ui/Button'
 import { instagramDmUrl } from '@/lib/data/contact'
 import type { TattooSettings } from '@/lib/data/tattoo'
@@ -43,7 +44,12 @@ export async function TattooContactBlock({
       <p className={styles.muted}>{t('intro')}</p>
       <div className={styles.contactButtons}>
         {mailto ? (
-          <Button variant="primary" href={mailto} icon="mail" data={{ 'data-tattoo-mail': '' }}>
+          <Button
+            variant="primary"
+            href={mailto}
+            icon={ICON_MAIL}
+            data={{ 'data-tattoo-mail': '' }}
+          >
             {t('mail')}
           </Button>
         ) : null}
@@ -51,7 +57,7 @@ export async function TattooContactBlock({
           variant="secondary"
           href={instagramDmUrl(settings.instagramHandle)}
           rel="noopener noreferrer"
-          icon="instagram"
+          icon={ICON_INSTAGRAM}
           data={{ 'data-tattoo-dm': '' }}
         >
           {t('dm')}

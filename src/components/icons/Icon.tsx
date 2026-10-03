@@ -1,40 +1,21 @@
 import React from 'react'
 
+import { Glyph, type IconShapes } from './Glyph'
 import { ICON_SHAPES, type IconName } from './icons.generated'
 
-export type { IconName }
+export type { IconName, IconShapes }
+export { Glyph }
 
-// Handgezeichnete Icons als Inline-SVG (DESIGN §6.5): 24er-viewBox, Strich 1.75, runde Enden, `currentColor`.
-// Standard ist dekorativ (`aria-hidden`); nur mit `label` (Galerie-Pfeile, Lightbox-Schließen) bekommt das Icon
-// `role="img"` und einen zugänglichen Namen. Kein Sprite, kein `<use href>` – das SVG steht direkt im HTML.
+// Icon per Name (DESIGN §6.5) – lädt die ganze Icon-Tabelle, daher nur in Server-Komponenten. Client-Komponenten
+// nutzen `Glyph` mit der Einzelkonstante (`ICON_WARN` aus `./icons.generated`).
 export function Icon({
   name,
-  label,
-  size = 24,
-  className,
+  ...rest
 }: {
   name: IconName
   label?: string
   size?: number | string
   className?: string
 }) {
-  const a11y = label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': true as const }
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      width={size}
-      height={size}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.75}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      focusable="false"
-      className={className}
-      {...a11y}
-    >
-      {ICON_SHAPES[name].map(([tag, attrs], i) => React.createElement(tag, { key: i, ...attrs }))}
-    </svg>
-  )
+  return <Glyph shape={ICON_SHAPES[name]} {...rest} />
 }

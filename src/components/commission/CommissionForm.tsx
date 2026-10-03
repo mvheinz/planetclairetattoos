@@ -3,7 +3,9 @@
 import React, { useActionState, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 
 import { submitCommissionInquiry } from '@/app/(frontend)/[locale]/commissions/actions'
-import { Icon } from '@/components/icons/Icon'
+import { afterLoad } from '@/components/forms/afterLoad'
+import { Glyph } from '@/components/icons/Glyph'
+import { ICON_WARN } from '@/components/icons/icons.generated'
 import { Button } from '@/components/ui/Button'
 import { Field, RequiredNote, Select } from '@/components/ui/Field'
 import type de from '@/i18n/messages/de.json'
@@ -11,13 +13,7 @@ import type { CommissionFormState, CommissionNotice } from '@/lib/commission/for
 import type { CommissionField } from '@/lib/commission/submit'
 
 import styles from './Commission.module.css'
-import {
-  IMAGE_MAX_COUNT,
-  checkSelectedImage,
-  resizeForUpload,
-  uploadImage,
-  type UploadedImage,
-} from './imageUpload'
+import type { ImageItem } from './CommissionImages'
 
 // Formular Auftragsarbeiten R10 (PLAN P7.13, KONZEPT §10, DESIGN KO-12): Pflichtfelder mit „*“, Fehlerzusammenfassung
 // mit Sprunglinks (Fokus darauf), Auswahl „Was soll es werden?“ (bei „Etwas anderes“ ein Freitext), Bilder per echtem
@@ -51,15 +47,9 @@ const FIELD_ORDER: readonly CommissionField[] = [
   'budget',
 ]
 
-type ImageStatus = 'preparing' | 'uploading' | 'done' | 'failed'
-interface ImageItem {
-  key: number
-  name: string
-  status: ImageStatus
-  percent: number
-  preview: string | null
-  uploaded: UploadedImage | null
-}
+// Bildauswahl erst nach dem `load`-Ereignis nachladen (CommissionImages.tsx), nicht im JS beim ersten Laden. Bewusst ohne
+// `next/dynamic` (dessen Laufzeit kostet selbst gut 2 KB gz); die Bildauswahl braucht kein Server-Rendering.
+type ImagesComponent = typeof import('./CommissionImages').CommissionImages
 
 const noopSubscribe = () => () => {}
 
@@ -74,19 +64,30 @@ export function CommissionForm(props: CommissionFormProps) {
     () => true,
     () => false,
   )
+  // Bildauswahl erst nach dem Laden der Seite (vorher wie ohne JavaScript der Hinweis „Bilder nur mit JavaScript“).
+  const [Images, setImagesComponent] = useState<ImagesComponent | null>(null)
   const [objectType, setObjectType] = useState(
     props.initial.step === 'form' ? props.initial.values.objectType : '',
   )
   const [images, setImages] = useState<ImageItem[]>([])
-  const [imageMessages, setImageMessages] = useState<string[]>([])
+  const [imageNotes, setImageNotes] = useState<string[]>([])
   const [blocked, setBlocked] = useState(false)
   const nextKey = useRef(1)
   const previews = useRef(new Set<string>())
   const summaryRef = useRef<HTMLDivElement>(null)
   const successRef = useRef<HTMLDivElement>(null)
-  const fileRef = useRef<HTMLInputElement>(null)
   const token = state.step === 'form' ? state.token : ''
-  const tokenRef = useRef(token)
+
+  useEffect(
+    () =>
+      afterLoad(
+        () =>
+          void import('./CommissionImages').then((mod) =>
+            setImagesComponent(() => mod.CommissionImages),
+          ),
+      ),
+    [],
+  )
 
   // Vorschau-URLs beim Verlassen freigeben
   useEffect(() => {
@@ -100,9 +101,6 @@ export function CommissionForm(props: CommissionFormProps) {
     setImagesToken(token)
     setImages([])
   }
-  useEffect(() => {
-    tokenRef.current = token
-  }, [token])
 
   // Nach jedem Absenden: Fokus auf Erfolg bzw. Fehlerzusammenfassung/Hinweis
   useEffect(() => {
@@ -110,70 +108,6 @@ export function CommissionForm(props: CommissionFormProps) {
     if (state.step === 'done') successRef.current?.focus()
     else summaryRef.current?.focus()
   }, [state])
-
-  const update = (key: number, patch: Partial<ImageItem>) =>
-    setImages((list) => list.map((i) => (i.key === key ? { ...i, ...patch } : i)))
-
-  const process = async (key: number, file: File) => {
-    try {
-      const blob = await resizeForUpload(file)
-      const preview = URL.createObjectURL(blob)
-      previews.current.add(preview)
-      update(key, { status: 'uploading', percent: 0, preview })
-      const uploaded = await uploadImage(blob, tokenRef.current, locale, (percent) =>
-        update(key, { percent }),
-      )
-      update(key, { status: 'done', percent: 100, uploaded })
-    } catch {
-      update(key, { status: 'failed' })
-    }
-  }
-
-  const onFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? [])
-    e.target.value = ''
-    const notes: string[] = []
-    const added: { key: number; file: File }[] = []
-    let count = images.length
-    for (const file of files) {
-      if (count >= IMAGE_MAX_COUNT) {
-        notes.push(fill(m.imageTooMany, { name: file.name }))
-        continue
-      }
-      const check = checkSelectedImage(file)
-      if (check !== 'ok') {
-        notes.push(fill(check === 'type' ? m.imageWrongType : m.imageTooBig, { name: file.name }))
-        continue
-      }
-      added.push({ key: nextKey.current++, file })
-      count++
-    }
-    setImageMessages(notes)
-    setBlocked(false)
-    if (added.length === 0) return
-    setImages((list) => [
-      ...list,
-      ...added.map(({ key, file }) => ({
-        key,
-        name: file.name,
-        status: 'preparing' as const,
-        percent: 0,
-        preview: null,
-        uploaded: null,
-      })),
-    ])
-    for (const { key, file } of added) void process(key, file)
-  }
-
-  const remove = (item: ImageItem, index: number) => {
-    if (item.preview) {
-      URL.revokeObjectURL(item.preview)
-      previews.current.delete(item.preview)
-    }
-    setImages((list) => list.filter((i) => i.key !== item.key))
-    setImageMessages([fill(m.imageRemoved, { n: index + 1 })])
-    fileRef.current?.focus()
-  }
 
   const busyImages = images.some((i) => i.status === 'preparing' || i.status === 'uploading')
   const guard = (e: React.FormEvent<HTMLFormElement>) => {
@@ -228,21 +162,12 @@ export function CommissionForm(props: CommissionFormProps) {
       <a href={`mailto:${props.contactEmail}`}>{props.contactEmail}</a>
     </>
   ) : null
-  const statusText = (item: ImageItem, n: number) =>
-    item.status === 'preparing'
-      ? fill(m.imagePreparing, { n })
-      : item.status === 'uploading'
-        ? fill(m.imageUploading, { n, percent: item.percent })
-        : item.status === 'done'
-          ? fill(m.imageDone, { n })
-          : fill(m.imageFailed, { n })
-
   return (
     <div className={styles.form} key={`form-${state.rev}`} data-commission-form-state="form">
       <div ref={summaryRef} tabIndex={-1} className={styles.messages}>
         {state.notice ? (
           <div className={styles.notice} role="alert" data-commission-notice={state.notice}>
-            <Icon name="warn" size={22} className={styles.noticeIcon} />
+            <Glyph shape={ICON_WARN} size={22} className={styles.noticeIcon} />
             <p>
               {notice[state.notice]}
               {state.notice !== 'expired' ? contact : null}
@@ -251,7 +176,7 @@ export function CommissionForm(props: CommissionFormProps) {
         ) : null}
         {errorKeys.length > 0 ? (
           <div className={styles.notice} role="alert" data-error-summary="">
-            <Icon name="warn" size={22} className={styles.noticeIcon} />
+            <Glyph shape={ICON_WARN} size={22} className={styles.noticeIcon} />
             <div>
               <p className={styles.noticeTitle}>{m.errorSummary}</p>
               <ul>
@@ -368,68 +293,21 @@ export function CommissionForm(props: CommissionFormProps) {
           <p className={styles.small} id="anfrage-bilder-hinweis" data-commission-images-hint="">
             {m.imagesHint}
           </p>
-          {mounted ? (
-            <div className={styles.drop}>
-              <label htmlFor="anfrage-bilder" className={styles.dropLabel}>
-                {m.imagesChoose}
-              </label>
-              <p className={styles.small} id="anfrage-bilder-regeln">
-                {m.imagesRules}
-              </p>
-              <input
-                ref={fileRef}
-                id="anfrage-bilder"
-                type="file"
-                multiple
-                accept="image/jpeg,image/png,image/webp"
-                className={styles.fileInput}
-                onChange={onFiles}
-                aria-describedby="anfrage-bilder-hinweis anfrage-bilder-regeln"
-                data-commission-file=""
-              />
-              {images.length > 0 ? (
-                <ul className={styles.tiles}>
-                  {images.map((item, index) => (
-                    <li
-                      key={item.key}
-                      className={`${styles.tile} ${item.status === 'failed' ? styles.tileFailed : ''}`}
-                      data-commission-image={item.status}
-                    >
-                      {item.preview ? (
-                        // eslint-disable-next-line @next/next/no-img-element -- lokale Vorschau (blob:), nie hochgeladen sichtbar
-                        <img
-                          src={item.preview}
-                          alt={fill(m.imageAlt, { n: index + 1 })}
-                          className={styles.thumb}
-                          width={72}
-                          height={90}
-                        />
-                      ) : (
-                        <span className={styles.thumb} aria-hidden="true" />
-                      )}
-                      <span className={styles.tileStatus} aria-live="polite">
-                        {statusText(item, index + 1)}
-                      </span>
-                      <button
-                        type="button"
-                        className={styles.remove}
-                        onClick={() => remove(item, index)}
-                        aria-label={fill(m.imageRemoveLabel, { n: index + 1 })}
-                      >
-                        {m.imageRemove}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-              <div className={styles.live} aria-live="polite" data-commission-image-messages="">
-                {imageMessages.map((text, i) => (
-                  <p key={i} className={styles.small}>
-                    {text}
-                  </p>
-                ))}
-              </div>
-            </div>
+          {Images ? (
+            <Images
+              locale={locale}
+              token={token}
+              messages={m}
+              store={{
+                images,
+                setImages,
+                notes: imageNotes,
+                setNotes: setImageNotes,
+                nextKeyRef: nextKey,
+                previewsRef: previews,
+                onSelect: () => setBlocked(false),
+              }}
+            />
           ) : (
             <p className={styles.small} data-commission-nojs="">
               {m.imagesNoJs}

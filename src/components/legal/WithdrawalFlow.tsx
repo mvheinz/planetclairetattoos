@@ -1,16 +1,18 @@
 'use client'
 
-import React, { useActionState, useEffect, useRef } from 'react'
+import React, { lazy, useActionState, useCallback, useEffect, useRef } from 'react'
 
 import { withdrawalAction } from '@/app/(frontend)/[locale]/withdraw-from-contract/actions'
-import { Icon } from '@/components/icons/Icon'
+import { Glyph } from '@/components/icons/Glyph'
+import { ICON_WARN } from '@/components/icons/icons.generated'
+import { afterLoad } from '@/components/forms/afterLoad'
 import { Button } from '@/components/ui/Button'
-import { Checkbox } from '@/components/ui/Choice'
 import { Field, type FieldProps, RequiredNote } from '@/components/ui/Field'
 import type de from '@/i18n/messages/de.json'
 import type { WithdrawalFlowState, WithdrawalNotice } from '@/lib/legal/withdrawalForm'
 
 import styles from './WithdrawalFlow.module.css'
+import type { WithdrawalStepContext } from './WithdrawalSteps'
 
 // Widerrufsfunktion R26 (PLAN P6.8, KONZEPT §3.16, DESIGN KO-12, § 356a BGB): Schritt 1 (Erklärung) → ggf. Auswahl der
 // Stücke (Checkboxen, keine vorangekreuzt; nichts angehakt = ganzer Vertrag) → Schritt 2 (Zusammenfassung, „Ändern“,
@@ -43,10 +45,16 @@ const FIELD_PROPS: Record<FieldKey, Partial<FieldProps>> = {
   reason: { multiline: true, rows: 4, maxLength: 2000 },
 }
 
+// Spätere Schritte (Auswahl, Bestätigung, Ergebnis) als eigenes Modul – nicht im JS beim ersten Laden (siehe
+// WithdrawalSteps.tsx); nach `load` im Leerlauf vorgeladen, damit der Schritt beim Absenden sofort da ist. `React.lazy`
+// statt `next/dynamic` (dessen Laufzeit kostet selbst gut 2 KB gz); der Server rendert den Schritt trotzdem (ohne JS).
+const loadSteps = () => import('./WithdrawalSteps')
+const WithdrawalSteps = lazy(() => loadSteps().then((mod) => ({ default: mod.WithdrawalSteps })))
+
 function NoticeBox({ children }: { children: React.ReactNode }) {
   return (
     <div className={styles.notice} role="alert" data-withdraw-notice="">
-      <Icon name="warn" size={22} className={styles.noticeIcon} />
+      <Glyph shape={ICON_WARN} size={22} className={styles.noticeIcon} />
       <div>{children}</div>
     </div>
   )
@@ -55,8 +63,21 @@ function NoticeBox({ children }: { children: React.ReactNode }) {
 export function WithdrawalFlow(props: WithdrawalFlowProps) {
   const { locale, messages: m } = props
   const [state, dispatch, pending] = useActionState(withdrawalAction, props.initial)
-  const headingRef = useRef<HTMLHeadingElement>(null)
+  const headingRef = useRef<HTMLHeadingElement | null>(null)
+  const focusDue = useRef(false)
   const first = useRef(true)
+
+  useEffect(() => afterLoad(() => void loadSteps()), [])
+
+  // Überschrift des aktuellen Schritts; wird sie erst nach dem Nachladen des Schritts eingehängt, bekommt sie dann den
+  // Fokus.
+  const headingCallback = useCallback((el: HTMLHeadingElement | null) => {
+    headingRef.current = el
+    if (el && focusDue.current) {
+      focusDue.current = false
+      el.focus()
+    }
+  }, [])
 
   // Nach jedem Schritt: Fokus auf die Überschrift (Tastatur/Screenreader); im Ergebnis die URL ohne Abfrage (R-137).
   useEffect(() => {
@@ -64,7 +85,8 @@ export function WithdrawalFlow(props: WithdrawalFlowProps) {
       first.current = false
       return
     }
-    headingRef.current?.focus()
+    if (headingRef.current) headingRef.current.focus()
+    else focusDue.current = true
     if (state.step === 'done' && window.location.search) {
       window.history.replaceState(null, '', window.location.pathname)
     }
@@ -112,39 +134,13 @@ export function WithdrawalFlow(props: WithdrawalFlowProps) {
     </>
   ) : null
 
-  // Zusammenfassung (Schritt 2 und Bestätigung): Angaben in Formular-Reihenfolge, Stücke nur, wenn bekannt.
-  const summaryRows = (
-    d: {
-      name: string
-      contractIdentification: string
-      email: string
-      itemsText?: string | null
-      reason?: string | null
-    },
-    items: React.ReactNode,
-  ) => (
-    <>
-      <dt>{m.nameLabel}</dt>
-      <dd>{d.name}</dd>
-      <dt>{m.contractLabel}</dt>
-      <dd>{d.contractIdentification}</dd>
-      <dt>{m.emailLabel}</dt>
-      <dd>{d.email}</dd>
-      {items ? (
-        <>
-          <dt>{m.summaryItems}</dt>
-          <dd>{items}</dd>
-        </>
-      ) : null}
-      <dt>{m.itemsTextLabel}</dt>
-      <dd>{d.itemsText?.trim() || m.summaryEmpty}</dd>
-      <dt>{m.reasonLabel}</dt>
-      <dd>{d.reason?.trim() || m.summaryEmpty}</dd>
-    </>
-  )
-
   const heading = (text: string) => (
-    <h2 ref={headingRef} tabIndex={-1} className={styles.stepTitle} data-withdraw-step-title="">
+    <h2
+      ref={headingCallback}
+      tabIndex={-1}
+      className={styles.stepTitle}
+      data-withdraw-step-title=""
+    >
       {text}
     </h2>
   )
@@ -167,7 +163,7 @@ export function WithdrawalFlow(props: WithdrawalFlowProps) {
         ) : null}
         {errorKeys.length > 0 ? (
           <div className={styles.notice} role="alert" data-error-summary="">
-            <Icon name="warn" size={22} className={styles.noticeIcon} />
+            <Glyph shape={ICON_WARN} size={22} className={styles.noticeIcon} />
             <div>
               <p className={styles.noticeTitle}>{m.errorSummary}</p>
               <ul>
@@ -232,125 +228,19 @@ export function WithdrawalFlow(props: WithdrawalFlowProps) {
     )
   }
 
-  if (state.step === 'select') {
-    return (
-      <section className={styles.step} data-withdraw-step="select" key={`select-${state.rev}`}>
-        {heading(m.stepSelect)}
-        <p>{m.selectIntro}</p>
-        <form action={dispatch} onSubmit={guard} className={styles.form} data-withdraw-form="">
-          {hidden('select')}
-          <input type="hidden" name="token" value={state.token} />
-          <fieldset className={styles.fieldset}>
-            <legend className={styles.legend}>{m.selectLegend}</legend>
-            {state.choices.map((c, i) => (
-              <Checkbox
-                key={c.id}
-                id={`widerruf-position-${i}`}
-                name="affectedItemIds"
-                value={c.id}
-                label={c.label}
-              />
-            ))}
-          </fieldset>
-          <p className={styles.small} data-withdraw-whole="">
-            {m.selectWhole}
-          </p>
-          <div className={styles.actions}>
-            <Button type="submit" name="intent" value="edit" variant="secondary">
-              {m.edit}
-            </Button>
-            <Button type="submit" name="intent" value="next" ariaDisabled={pending}>
-              {m.next}
-            </Button>
-          </div>
-        </form>
-      </section>
-    )
+  const ctx: WithdrawalStepContext = {
+    m,
+    confirmLabel: props.confirmLabel,
+    contact,
+    dispatch,
+    pending,
+    guard,
+    heading,
+    hidden,
+    noticeText,
+    NoticeBox,
   }
-
-  if (state.step === 'confirm') {
-    const v = state.values
-    const notice = noticeText(state.notice)
-    const items = state.selectedLabels.length > 0 ? state.selectedLabels : null
-    return (
-      <section className={styles.step} data-withdraw-step="confirm" key={`confirm-${state.rev}`}>
-        {heading(m.stepConfirm)}
-        {notice ? (
-          <NoticeBox>
-            {notice}
-            {contact}
-          </NoticeBox>
-        ) : null}
-        <p>{m.confirmIntro}</p>
-        <dl className={styles.summary} data-withdraw-summary="">
-          {summaryRows(
-            v,
-            state.matched ? (
-              items ? (
-                <ul>
-                  {items.map((l) => (
-                    <li key={l}>{l}</li>
-                  ))}
-                </ul>
-              ) : (
-                m.summaryWhole
-              )
-            ) : null,
-          )}
-        </dl>
-        <form action={dispatch} onSubmit={guard} className={styles.form} data-withdraw-form="">
-          {hidden('confirm')}
-          <input type="hidden" name="token" value={state.token} />
-          <div className={styles.actions}>
-            <Button type="submit" name="intent" value="edit" variant="secondary">
-              {m.edit}
-            </Button>
-            <Button type="submit" name="intent" value="confirm" ariaDisabled={pending}>
-              {props.confirmLabel}
-            </Button>
-          </div>
-          <p className={styles.live} aria-live="polite">
-            {pending ? m.busy : ''}
-          </p>
-        </form>
-      </section>
-    )
-  }
-
-  const r = state.receipt
-  return (
-    <section className={styles.step} data-withdraw-step="done" key={`done-${state.rev}`}>
-      {heading(m.stepDone)}
-      {r ? (
-        <>
-          <dl className={styles.summary} data-withdraw-receipt="">
-            <dt>{m.reference}</dt>
-            <dd data-withdraw-reference="">{r.reference}</dd>
-            <dt>{m.receivedAt}</dt>
-            <dd data-withdraw-received-at="">{r.receivedAtText}</dd>
-            {summaryRows(
-              r,
-              state.itemLabels.length > 0 ? (
-                <ul>
-                  {state.itemLabels.map((l) => (
-                    <li key={l}>{l}</li>
-                  ))}
-                </ul>
-              ) : null,
-            )}
-          </dl>
-          {r.unpaidOrderCancelled ? <p data-withdraw-unpaid="">{m.unpaidCancelled}</p> : null}
-          <p data-withdraw-mail-note="">{m.mailNote}</p>
-          <p className={styles.small}>{m.printNote}</p>
-          <p className="u-no-print">
-            <Button variant="secondary" onClick={() => window.print()}>
-              {m.print}
-            </Button>
-          </p>
-        </>
-      ) : (
-        <p>{m.spamDone}</p>
-      )}
-    </section>
-  )
+  // Ohne eigene Suspense-Grenze: Der Server wartet mit der Seite auf den Schritt (ohne JavaScript sofort im HTML);
+  // im Browser bleibt beim Absenden der alte Schritt stehen, bis der neue geladen ist (Übergang).
+  return <WithdrawalSteps state={state} ctx={ctx} />
 }

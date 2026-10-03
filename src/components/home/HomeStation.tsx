@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
+import { ICON_EXTERNAL } from '@/components/icons/icons.generated'
 import { Station } from '@/components/leash/Station'
 import { ProductCard } from '@/components/shop/ProductCard'
 import { TattooTeaser, type TattooTeaserData } from '@/components/tattoo/TattooTeaser'
@@ -72,7 +73,7 @@ export async function HomeStation({
       <Button
         variant="secondary"
         href={station.link.href}
-        icon={station.link.external ? 'external' : undefined}
+        icon={station.link.external ? ICON_EXTERNAL : undefined}
       >
         {station.link.label ??
           (shelf && station.categoryName
