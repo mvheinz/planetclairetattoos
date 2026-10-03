@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-03 – Erstlade-Budget R10/R26 (check:bundle wieder grün)
+
+- Ursache 1: Formulare R10 (Auftragsarbeiten) und R26 (Widerruf) waren komplette Client-Komponenten – Felder, Buttons, Fehlerkästen, alle Schritte und die ganze Icon-Tabelle (`ICON_SHAPES` über `Icon` in `Field`/`Button`) lagen im Erstlade-Chunk (6,7 bzw. 5,5 KB gz). Jetzt: Erstansicht rendert der Server (`CommissionView`, `WithdrawalView` ohne `'use client'`), im Browser bleiben nur Zustand, Server Action und `<form>` (`CommissionForm`, `WithdrawalFlow`, je ≈ 2,1 KB gz); Folgezustände (Fehler, Auswahl, Bestätigung, Ergebnis) lädt `React.lazy` nach `load` vor, Bildauswahl (`CommissionImages`) und Verkleinern/Hochladen (`imageUpload`) erst nach `load` bzw. bei der ersten Auswahl. Icons als Einzelkonstanten (`ICON_WARN` …) + `Glyph`; `Icon` (Name → Tabelle) nur noch serverseitig. Gemeinsamer Hinweis-/Fehlerkasten `FormAlert`.
+- Ursache 2: Menü, Korbzahl und Animationen-Schalter (≈ 4 KB gz) luden je nach Reihenfolge von Hydrierung und `load` mal vor, mal nach `load` – daher die Schwankung 150,4–155,4 KB. Alle Verhaltensmodule laden jetzt im Modus `app` erst nach `load` (wie schon die Produktseiten-Module, P3.10/P4.25; ohne JS bzw. davor: Menü-Link auf die Fußnavigation).
+- Ergebnis `pnpm check:bundle`: R10 und R26 je 146,8 KB (Budget 150), alle übrigen Seiten stabil 144,6–144,9 KB; Budget unverändert.
+- Tests: unit (Verhalten nach `load`, Icons) grün; E2E desktop + pixel-7 Widerruf (inkl. ohne JS) und Auftragsarbeiten 32/32, Menü/Shell/Tastatur/Korb/Bewegung grün; visuelle Referenzen R26 (Schritt 1, 2, Bestätigung) unverändert.
+
 ## 2026-10-03 – P8.14
 
 - content/art/sources.json (Schema DESIGN §12.4, Prozent-Ausschnitte; zusätzlich optional dense) und pnpm art:vectorize (scripts/art/vectorize.ts): sharp (Ausschnitt → luma/min → normalise → Lanczos3 → blur 0.5 → Otsu/fest → Median 3) → potrace 2.1.8 (nur devDependency, dynamisch importiert) → SVGO → fill currentColor, evenodd. Gemappte Export-Originale (P8.10) haben Vorrang.
