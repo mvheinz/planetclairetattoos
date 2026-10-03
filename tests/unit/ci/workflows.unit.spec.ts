@@ -58,6 +58,8 @@ const workflowFiles = readdirSync(WF_DIR).filter((f) => /\.ya?ml$/.test(f))
 /** Erlaubte Schreibrechte je Job (ARCHITEKTUR §6.5). */
 const WRITE_ALLOWED: Record<string, string[]> = {
   'preview-export.yml/export': ['actions', 'pull-requests'],
+  // P9.7: ältere art-qa-* vor dem Upload löschen (KUNST-QA §8)
+  'art-qa.yml/art-qa': ['actions'],
 }
 
 const ci = load('ci.yml')

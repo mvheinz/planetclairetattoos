@@ -1,0 +1,219 @@
+name: Kunst-QA
+
+# KUNST-QA §8/§9, ARCHITEKTUR §6.2 (P9.7): Aufnahme, Auswertung und Bündel der Kunst-Abnahme. Kein push-Auslöser.
+# Arbeitet nur, wenn der PR-Kopf-Commit `[ci:art]` trägt oder am PR das Label `art` hängt (bei `labeled` nur, wenn das
+# gesetzte Label `art` ist), oder per Hand (`workflow_dispatch`, geht erst, wenn die Datei auf main liegt); sonst endet
+# der Lauf nach dem Schritt „Kennung“ (grün, ≤ 1 min). Ein Kopf-Commit mit `[skip ci]` startet gar keinen PR-Lauf.
+# Grün → ältere `art-qa-*` löschen, dann `art-qa-<lauf-id>` (≤ 100 MB, 30 Tage) hochladen (höchstens ein Bündel);
+# rot → nach dem Budget-Schritt nur `art-qa-check-<lauf-id>` mit `check.*` und `metrics/*.json` (≤ 5 MB, 2 Tage).
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+  workflow_dispatch:
+
+concurrency:
+  group: art-qa-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+# Testwerte wie ci-full.yml (ARCHITEKTUR §6.3); Debug-Flag und ART_QA setzt `pnpm art:build` selbst.
+env:
+  APP_ENV: test
+  TZ: UTC
+  ADMIN_ROUTE: /werkstatt
+  DATABASE_URL: postgres://postgres:postgres@localhost:5432/planetclaire_test
+  DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/planetclaire_test
+  DB_POOL_MAX: '25'
+  PAYLOAD_SECRET: ci-only-secret-not-used-anywhere-else-0000
+  NEXT_PUBLIC_SITE_URL: http://localhost:3200
+  SEED_PREVIEW_MODE: 'true'
+  SEED_NOW: '2026-10-15T10:00:00+02:00'
+  SEED_ADMIN_EMAIL: admin@example.com
+  SEED_ADMIN_PASSWORD: ci-only-password-2026
+  STORAGE_DRIVER: local
+  EMAIL_DRIVER: file
+  PAYMENTS_DRIVER: mock
+  TRANSLATION_DRIVER: mock
+  CARRIER_DRIVER: manual
+  CRON_SECRET: ci-only-cron-secret-000000000000000000
+  NEXT_TELEMETRY_DISABLED: '1'
+
+jobs:
+  art-qa:
+    name: art-qa
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    # Schreibrecht nur für das Löschen älterer Bündel (actions: write, KUNST-QA §8).
+    permissions:
+      contents: read
+      actions: write
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: planetclaire_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      # Kennung (ARCHITEKTUR §6.2) ohne Checkout: `[ci:art]` im Kopf-Commit oder Label `art`.
+      - name: Kennung
+        id: mode
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_ACTION: ${{ github.event.action }}
+          LABEL_NAME: ${{ github.event.label.name }}
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: |
+          run=false
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            sha="${{ github.event.pull_request.head.sha }}"
+            msg=$(gh api "repos/${{ github.repository }}/commits/$sha" --jq .commit.message)
+            if [ "$EVENT_ACTION" = "labeled" ]; then
+              if [ "$LABEL_NAME" = "art" ]; then run=true; fi
+            else
+              if echo "$msg" | grep -qF '[ci:art]'; then run=true; fi
+              if echo ",$PR_LABELS," | grep -qF ',art,'; then run=true; fi
+            fi
+          else
+            sha="${{ github.sha }}"
+            run=true
+          fi
+          {
+            echo "run=$run"
+            echo "sha=$sha"
+            echo "sha7=${sha:0:7}"
+          } >> "$GITHUB_OUTPUT"
+          echo "Kunst-QA: run=$run (Ereignis ${{ github.event_name }}/$EVENT_ACTION)" >> "$GITHUB_STEP_SUMMARY"
+      - if: steps.mode.outputs.run == 'true'
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.mode.outputs.sha }}
+      - if: steps.mode.outputs.run == 'true'
+        uses: pnpm/action-setup@v6
+      - if: steps.mode.outputs.run == 'true'
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Installation
+        if: steps.mode.outputs.run == 'true'
+        run: pnpm install --frozen-lockfile
+      - name: Playwright-Version
+        id: pw
+        if: steps.mode.outputs.run == 'true'
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Playwright-Browser-Cache
+        if: steps.mode.outputs.run == 'true'
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-chromium-webkit-${{ steps.pw.outputs.version }}
+      # Chromium und WebKit immer (KUNST-QA §3.3: die CI führt WebKit aus, keine Chromium-Emulation).
+      - name: Playwright Chromium + WebKit
+        if: steps.mode.outputs.run == 'true'
+        run: pnpm exec playwright install --with-deps chromium webkit
+      - name: Migrationen
+        if: steps.mode.outputs.run == 'true'
+        run: pnpm run db:ensure && pnpm payload migrate
+      - name: Beispielbestand
+        if: steps.mode.outputs.run == 'true'
+        run: pnpm run seed
+      - name: QA-Build
+        if: steps.mode.outputs.run == 'true'
+        run: pnpm run art:build
+      # Produktions-Server des QA-Builds (KUNST-QA §4.1); `art:record` nutzt ihn (reuseExistingServer).
+      - name: QA-Server starten
+        if: steps.mode.outputs.run == 'true'
+        env:
+          NEXT_DIST_DIR: .next-art
+          ART_QA: '1'
+        run: |
+          nohup pnpm start -p 3200 > "$RUNNER_TEMP/art-server.log" 2>&1 &
+          for i in $(seq 1 90); do
+            if curl -sf -o /dev/null http://localhost:3200/de; then echo "QA-Server bereit"; exit 0; fi
+            sleep 2
+          done
+          cat "$RUNNER_TEMP/art-server.log"
+          exit 1
+      - name: Aufnahme
+        id: record
+        if: steps.mode.outputs.run == 'true'
+        run: pnpm run art:record
+      - name: Lauf-ID
+        id: runid
+        if: always() && steps.mode.outputs.run == 'true'
+        run: |
+          id=$(ls artifacts/art-qa 2>/dev/null | grep -E '^[0-9]{8}-iter[0-9]{2}-[0-9a-f]{7}$' | sort | tail -n1 || true)
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+          echo "Lauf: ${id:-keiner}" >> "$GITHUB_STEP_SUMMARY"
+      # Tempo-Auswertung SC-18 (nur Chromium, Projekt art-pixel7-tempo).
+      - name: Auswertung
+        if: always() && steps.runid.outputs.id != ''
+        run: pnpm run art:metrics ${{ steps.runid.outputs.id }}
+      - name: Kontaktbögen
+        if: always() && steps.runid.outputs.id != ''
+        run: pnpm run art:sheets ${{ steps.runid.outputs.id }}
+      # Gate: rot bei FAIL eines automatischen Kriteriums (KUNST-QA §5, §6.6 Nr. 1).
+      - name: Prüfung
+        id: check
+        if: always() && steps.runid.outputs.id != ''
+        run: |
+          pnpm run art:check ${{ steps.runid.outputs.id }} --evidence
+      - name: Prüfbericht im Summary
+        if: always() && steps.runid.outputs.id != ''
+        run: |
+          f="artifacts/art-qa/${{ steps.runid.outputs.id }}/check.md"
+          if [ -f "$f" ]; then head -c 60000 "$f" >> "$GITHUB_STEP_SUMMARY"; fi
+      - name: Bündel
+        if: success() && steps.mode.outputs.run == 'true'
+        run: pnpm run art:bundle ${{ steps.runid.outputs.id }}
+      # Höchstens ein Bündel gleichzeitig (Artefakt-Speicher 500 MB, KUNST-QA §8): erst alle älteren art-qa-* löschen.
+      - name: Ältere Bündel löschen
+        if: success() && steps.mode.outputs.run == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/${{ github.repository }}/actions/artifacts?per_page=100" --paginate \
+            --jq '.artifacts[] | select(.expired | not) | select(.name | startswith("art-qa-")) | .id' \
+            | while read -r id; do
+                gh api -X DELETE "repos/${{ github.repository }}/actions/artifacts/$id"
+                echo "Älteres Kunst-QA-Artefakt $id gelöscht."
+              done
+      - name: Bündel hochladen
+        if: success() && steps.mode.outputs.run == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: art-qa-${{ steps.runid.outputs.id }}
+          path: artifacts/art-qa/${{ steps.runid.outputs.id }}/bundle/
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
+      # Rot (§8): kein Bündel, nur Prüfbericht und Kennzahlen – optionaler Upload nach dem Budget-Schritt (§6.2).
+      - name: Artefakt-Budget
+        id: budget
+        if: failure() && steps.mode.outputs.run == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: pnpm run ci:artifacts
+      - name: Prüfbericht hochladen
+        if: failure() && steps.budget.outputs.upload_optional == 'true' && steps.runid.outputs.id != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: art-qa-check-${{ steps.runid.outputs.id }}
+          path: |
+            artifacts/art-qa/${{ steps.runid.outputs.id }}/check.json
+            artifacts/art-qa/${{ steps.runid.outputs.id }}/check.md
+            artifacts/art-qa/${{ steps.runid.outputs.id }}/metrics/*.json
+          retention-days: 2
+          if-no-files-found: ignore
