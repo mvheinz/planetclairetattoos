@@ -1,4 +1,4 @@
-import { mountCoco, type CocoController } from '../leash/coco'
+import { armStations, mountCoco, type CocoController } from '../leash/coco'
 import { getMotion, onMotionChange } from '../leash/motion'
 import { PRESET_CONFIG, REST_POSE, isStaticPreset } from '../leash/presets'
 import { mountLeash, type InspectableLeashHandle, type MountOptions } from '../leash/runtime'
@@ -37,6 +37,7 @@ export function mountPageLeash(root: ParentNode, routeKey: string): () => void {
         onPose: (e) => handle?.notePose(e),
       })
       cleanups.push(() => coco?.destroy())
+      armStations(root.ownerDocument ?? document, getMotion() !== 'reduced')
     }
     const options: MountOptions = { preset, routeKey }
     if (coco && cocoEl) {
@@ -55,6 +56,7 @@ export function mountPageLeash(root: ParentNode, routeKey: string): () => void {
   cleanups.push(
     onMotionChange((m) => {
       coco?.setMotion(m, rest)
+      if (coco) armStations(document, m !== 'reduced')
       h.setMotion(m)
     }),
   )

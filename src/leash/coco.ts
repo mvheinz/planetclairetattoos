@@ -80,6 +80,15 @@ export interface CocoOptions {
   now?: () => number
 }
 
+/**
+ * `data-leash-armed` an den Stations-Ankern (MI-13 „zieht ein“, Home.module.css): Die Stationszeichnung bleibt bis
+ * `data-leash-reached` (setzt die Engine) verborgen – nur solange die Tinte in Bewegung ist.
+ */
+export function armStations(doc: Document, on: boolean): void {
+  for (const el of doc.querySelectorAll('[data-leash-station]'))
+    el.toggleAttribute('data-leash-armed', on)
+}
+
 /** Zustand der Linie je Frame (Teilmenge von `CocoState` der Laufzeit; die Choreografie liest nur dies). */
 export interface CocoFollow {
   len: number

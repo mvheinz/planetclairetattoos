@@ -114,8 +114,14 @@ describe('leash/runtime – mountLeash', () => {
     // PF-05: keine Masken (deren Änderung erzwingt je Frame ein Layout), je Stück ein runder Strich mit Dash
     expect(root.querySelectorAll('mask, [mask]').length).toBe(0)
     const strokes = state.geometry!.segments.reduce((n, g) => n + g.strokes!.length, 0)
-    // PF-05/PF-10: Stücke eines Segments hängen erst im DOM, wenn die Linie das Segment erreicht
-    expect(root.querySelectorAll('path').length).toBeLessThan(strokes)
+    // PF-05/PF-10: Dash-Muster und „verborgen“ am `<svg>` (vererbt), die Stücke tragen nur `d`, Breite, `pathLength`
+    const all = [...root.querySelectorAll<SVGPathElement>('path')]
+    expect(all.length).toBe(strokes)
+    for (const p of all) {
+      expect(p.closest('svg')!.getAttribute('stroke-linecap')).toBe('round')
+      expect(p.closest('svg')!.getAttribute('stroke-dasharray')).toBe('1 2')
+      expect(p.hasAttribute('stroke-dasharray')).toBe(false)
+    }
     for (const svg of svgs) expect(svg.getAttribute('focusable')).toBe('false')
 
     // Intro (journey) von 0 bis zur Lesezeile in 900 ms
@@ -137,17 +143,9 @@ describe('leash/runtime – mountLeash', () => {
 
     // Gezeichnete Stücke ganz sichtbar (Versatz 0), höchstens eines anteilig, zukünftige Segmente unsichtbar
     const ink = [...root.querySelectorAll<SVGPathElement>('path')]
-    expect(ink.length).toBeGreaterThan(0)
-    for (const p of ink.filter((x) => !x.hasAttribute('stroke-dasharray'))) {
-      expect(p.closest('svg')!.getAttribute('stroke-linecap')).toBe('round')
-      expect(p.hasAttribute('stroke-dashoffset')).toBe(false) // fertig: nur `d` und Breite
-    }
-    expect(ink.some((p) => !p.hasAttribute('stroke-dasharray'))).toBe(true)
-    const partial = ink.filter((p) => {
-      const o = parseFloat(p.getAttribute('stroke-dashoffset') ?? '0')
-      return o > 0 && o < parseFloat(p.getAttribute('stroke-dasharray')!)
-    })
-    expect(partial.length).toBeLessThanOrEqual(1)
+    const offsets = ink.map((p) => parseFloat(p.getAttribute('stroke-dashoffset') ?? 'NaN'))
+    expect(offsets.some((o) => o === 0)).toBe(true) // fertige Stücke
+    expect(offsets.filter((o) => o > 0 && o < 1).length).toBeLessThanOrEqual(1) // höchstens eines anteilig
     expect([...svgs].some((s) => (s as SVGSVGElement).style.visibility === 'hidden')).toBe(true)
 
     setScroll(PAGE_H + 400 - VIEW.h)

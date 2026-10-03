@@ -122,7 +122,6 @@ type SegState = 'future' | 'active' | 'done'
 /** Stufe A: ein Strich-Stück (bzw. Tintenpunkt) mit Dash-Enthüllung. */
 interface StrokeView {
   el: SVGPathElement
-  L: number
   len0: number
   len1: number
 }
@@ -193,7 +192,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
 
   function chooseTier(): Tier {
     if (motion === 'reduced' || isStaticPreset(options.preset)) return 'C'
-    if (win.matchMedia?.('(forced-colors: active)').matches) return 'C'
+    if (forcedColors()) return 'C'
     if (downgraded) return 'B'
     const nav = win.navigator as Navigator & { deviceMemory?: number }
     if (typeof nav.hardwareConcurrency === 'number' && nav.hardwareConcurrency < 4) return 'B'
@@ -205,18 +204,16 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   // ---------- SVG-Aufbau: eine Schreibphase ----------
 
   /**
-   * Stufe A: Strich-Stück als runder Strich mit Dash-Enthüllung (anfangs verborgen). Die Stücke eines Segments hängen
-   * erst im DOM, wenn die Linie das Segment erreicht (ein Layout je Segment statt je Stück, PF-05); fertige Stücke
-   * tragen nur `d` und Breite (PF-10). Farbe, Kappen, Füllung stehen am `<svg>`.
+   * Stufe A: Strich-Stück als runder Strich. Dash-Muster und „verborgen“ stehen einmal am `<svg>` (`stroke-dasharray`
+   * `1 2` mit `pathLength` 1, `stroke-dashoffset` 1.01 – vererbt): kürzeres DOM (PF-10), und im Scroll-Pfad ändert sich nur
+   * `stroke-dashoffset` (kein Layout, PF-05; Einhängen oder Entfernen von Dash-Attributen würde eines auslösen).
    */
   function strokeView(st: LeashStroke): StrokeView {
     const el = doc.createElementNS(SVG_NS, 'path')
     el.setAttribute('d', st.d)
     el.setAttribute('stroke-width', String(st.w))
-    el.setAttribute('stroke-dasharray', String(st.L))
-    // verborgen: Dash samt runder Kappe vor dem Pfadanfang
-    el.setAttribute('stroke-dashoffset', String(st.L + 0.5))
-    return { el, L: st.L, len0: st.len0, len1: st.len1 }
+    el.setAttribute('pathLength', '1')
+    return { el, len0: st.len0, len1: st.len1 }
   }
 
   /** SVG eines Segments in der gewählten Stufe (noch nicht eingehängt). */
@@ -241,9 +238,13 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       svg.setAttribute('fill', 'none')
       svg.setAttribute('stroke-linecap', 'round')
       svg.setAttribute('stroke-linejoin', 'round')
+      svg.setAttribute('stroke-dasharray', '1 2')
+      svg.setAttribute('stroke-dashoffset', '1.01')
       svg.style.stroke = forced ? 'CanvasText' : 'var(--ink)'
       for (const st of seg.strokes) {
-        strokes.push(strokeView(st))
+        const v = strokeView(st)
+        svg.appendChild(v.el)
+        strokes.push(v)
       }
       return { svg, ink: strokes[0]!.el, reveal: null, ...base, strokes }
     }
@@ -274,16 +275,6 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     const frag = doc.createDocumentFragment()
     for (const v of views) frag.appendChild(v.svg)
     root.replaceChildren(frag)
-    armStations()
-  }
-
-  /**
-   * `data-leash-armed` an den Stations-Ankern (MI-13 „zieht ein“): Die Zeichnung ist bis `data-leash-reached` verborgen. Nur mit Tinte in Bewegung (Stufe A/B); Stufe C und reduzierte Bewegung
-   * zeigen alles sofort.
-   */
-  function armStations() {
-    for (const el of (root.parentElement ?? doc).querySelectorAll('[data-leash-station]'))
-      el.toggleAttribute('data-leash-armed', tier !== 'C')
   }
 
   /**
@@ -319,21 +310,14 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     }
   }
 
-  /** Stufe A: Stücke bis `drawnLen` fertig (ohne Dash), das Stück an der Feder anteilig (nur `stroke-dashoffset`). */
+  /** Stufe A: Stücke bis `drawnLen` fertig (Versatz 0), das Stück an der Feder anteilig (nur `stroke-dashoffset`). */
   function applyStrokes(v: SegView) {
     const strokes = v.strokes!
-    if (!strokes[0]!.el.parentNode) v.svg.append(...strokes.map((x) => x.el))
-    while (v.next < strokes.length && strokes[v.next]!.len1 <= drawnLen) {
-      const el = strokes[v.next++]!.el
-      el.removeAttribute('stroke-dasharray')
-      el.removeAttribute('stroke-dashoffset')
-    }
+    while (v.next < strokes.length && strokes[v.next]!.len1 <= drawnLen)
+      strokes[v.next++]!.el.setAttribute('stroke-dashoffset', '0')
     const st = strokes[v.next]
     if (st && drawnLen > st.len0)
-      st.el.setAttribute(
-        'stroke-dashoffset',
-        String(st.L * (1 - (drawnLen - st.len0) / (st.len1 - st.len0))),
-      )
+      st.el.setAttribute('stroke-dashoffset', String(1 - (drawnLen - st.len0) / (st.len1 - st.len0)))
   }
 
   /**
@@ -352,6 +336,11 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
         if (state === 'done' && v.reveal) {
           v.reveal.style.strokeDasharray = ''
           v.reveal.style.strokeDashoffset = ''
+        }
+        if (state === 'done' && v.strokes) {
+          // ganzes Segment fertig: Versatz 0 am `<svg>`, Stücke erben ihn (kürzeres DOM, PF-10)
+          v.svg.setAttribute('stroke-dashoffset', '0')
+          for (const x of v.strokes) x.el.removeAttribute('stroke-dashoffset')
         }
         v.state = state
       }

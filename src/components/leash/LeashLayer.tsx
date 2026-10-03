@@ -91,6 +91,7 @@ export function LeashLayer({
             onPose: (e) => handle?.notePose(e),
           })
           cleanups.push(() => coco?.destroy())
+          cocoMod.armStations(document, getMotion() !== 'reduced')
         }
         const options: MountOptions = { preset, routeKey }
         if (coco) {
@@ -109,6 +110,7 @@ export function LeashLayer({
         cleanups.push(
           onMotionChange((m) => {
             coco?.setMotion(m, rest)
+            cocoMod?.armStations(document, m !== 'reduced')
             h.setMotion(m)
           }),
         )
