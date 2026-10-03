@@ -29,10 +29,9 @@ const HOME_STATIONS = [
   'jutta-und-coco',
 ]
 /** Zuordnung DESIGN §12.4 – einzige erlaubte Foto-Vorlagen (vektorisiert bzw. von Hand nachgezeichnet, P9.12). */
-const ALLOWED_VECTORIZE: Record<string, string> = {
-  tattoo: 'post-DbJ1QRrjCcb.jpg',
-}
+const ALLOWED_VECTORIZE: Record<string, string> = {}
 const ALLOWED_TRACED: Record<string, string> = {
+  tattoo: 'post-DbJ1QRrjCcb.jpg',
   keramik: 'post-DdUPhoZOoMW.jpg',
   textil: 'post-DcT7ErBDsWi.jpg',
   zeichnungen: 'post-DaJH_kADpsK.jpg',
@@ -177,7 +176,7 @@ describe('P9.12 Stationen als Linienzeichnung (Juttas Stil: nur kleine Punkte ge
     return { filled: filled / n, largest: largest / n }
   }
 
-  it('keramik, textil, zeichnungen: Strich-Zeichnung (stroke), Füllung nur als kleine Punkte (je ≤ 1,5 % der Fläche)', async () => {
+  it('keramik, textil, zeichnungen, tattoo: Strich-Zeichnung (stroke), Füllung nur als kleine Punkte (je ≤ 1,5 % der Fläche)', async () => {
     for (const id of Object.keys(ALLOWED_TRACED)) {
       const svg = read(id)
       expect(svg, id).toMatch(/stroke="currentColor"/)

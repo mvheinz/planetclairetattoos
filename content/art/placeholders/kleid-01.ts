@@ -8,7 +8,7 @@ const border = [104, 152, 200, 248, 296].map((x, i) =>
 )
 
 const motif: Motif = {
-  zoom: 0.92,
+  zoom: 0.9,
   tilt: -2,
   ...merge(
     hanger(),
