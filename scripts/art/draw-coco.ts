@@ -162,6 +162,20 @@ function leg(pivot: P, segs: [number, number][], face: 1 | -1, w = 2.2, paw = 2.
   return [...back, ...sole, ...front.slice(1, -1).reverse(), front[0]!]
 }
 
+/** Fernes Bein als ein Strich: Gelenkkette mit kleinem Pfotenhaken nach vorn. */
+function legLine(pivot: P, segs: [number, number][], face: 1 | -1): P[] {
+  const joints: P[] = [pivot]
+  let p = pivot
+  for (const [l, a] of segs) {
+    p = add(p, [Math.sin(a * DEG) * l * face, Math.cos(a * DEG) * l])
+    joints.push(p)
+  }
+  const d = norm(sub(p, joints[joints.length - 2]!))
+  let f: P = [-d[1], d[0]]
+  if (f[0] * face < 0) f = mul(f, -1)
+  return [...joints, add(add(p, mul(f, 3.2)), mul(d, 0.4))]
+}
+
 /** Endpunkt (Pfote) einer Gelenkkette – für Ballen. */
 function legEnd(pivot: P, segs: [number, number][], face: 1 | -1): { e: P; d: P } {
   let p = pivot
@@ -275,6 +289,7 @@ function sideHead(t: Tf, o: HeadOpts = {}): Stroke[] {
         [18.6, -3.4],
       ],
       feature: 'hook',
+      jitter: 0.7,
     },
     {
       layer: 'line',
@@ -435,10 +450,10 @@ function sideFigure(r: SideRig): Figure {
     [X(-14), -12.6 - a],
     [X(2), -12.4 - a * 0.8],
     [X(16), -15.5],
-    [X(21), -9],
-    [X(8), -3.5],
-    [X(-10), -2.5],
-    [X(-26), 2],
+    [X(22), -6],
+    [X(9), 2],
+    [X(-10), 1.5],
+    [X(-26), 4],
   ]
   // Geschirr: Bauchgurt hinter den Vorderbeinen, Rückensteg zum Halsring
   const band: P[] = [
@@ -447,7 +462,7 @@ function sideFigure(r: SideRig): Figure {
     [X(19.2), 11.2],
     [X(14.6), 11.4],
   ]
-  const ringLocal: P = [X(13), -18.6 - a * 0.6]
+  const ringLocal: P = [X(13), -17.8 - a * 0.6]
   const ring = apply(T, ringLocal)
   const nb0 = apply(T, [X(23), -18])
   const nb1 = apply(H, [-12, 4])
@@ -477,8 +492,9 @@ function sideFigure(r: SideRig): Figure {
   const tl = tailOutline(map(T, r.tail), 6.4)
   const strokes: Stroke[] = [
     // ferne Beine zuerst
-    { layer: 'line', part: 'leg-hr', pts: leg(piv.hr, r.hr, face), jitter: 0.6 },
-    { layer: 'line', part: 'leg-fr', pts: leg(piv.fr, r.fr, face), jitter: 0.6 },
+    // ferne Beine als ein einziger Strich mit kleiner Pfote (wie in Juttas Skizzen, keine Linienbündel)
+    { layer: 'line', part: 'leg-hr', pts: legLine(piv.hr, r.hr, face), jitter: 0.6 },
+    { layer: 'line', part: 'leg-fr', pts: legLine(piv.fr, r.fr, face), jitter: 0.6 },
     { layer: 'line', part: 'body', pts: map(T, back), feature: 'double' },
     { layer: 'line', part: 'body', pts: map(T, belly), feature: 'gap' },
     { layer: 'line', part: 'body', pts: neckBack },
@@ -500,7 +516,7 @@ function sideFigure(r: SideRig): Figure {
     {
       layer: 'line',
       part: 'ring',
-      pts: blob(ring, 2.5, 2.3, 15, 5, 0.12),
+      pts: blob(ring, 2.8, 2.5, 15, 5, 0.12),
       closed: true,
       jitter: 0.2,
     },
@@ -664,7 +680,7 @@ function schnueffeln(frame: 'a' | 'b' | 'c'): Figure {
   const twitch = frame === 'c' ? 1 : 0
   return sideFigure({
     torso: { x: 70, y: 77, rot: 6 },
-    head: { x: 115 + twitch * 0.7, y: 96 + twitch * 0.6, rot: 25 },
+    head: { x: 115, y: 97 + twitch, rot: 22 },
     headOpts: { earNear: -14, earFar: -26, earScale: 0.76 },
     fl: [
       [15, 12],
@@ -1180,7 +1196,7 @@ function sitzenFigure(knick: boolean, frame: string): Figure {
     {
       layer: 'line',
       part: 'ring',
-      pts: blob(ring, 2.5, 2.3, -20, 5, 0.12),
+      pts: blob(ring, 2.8, 2.5, -20, 5, 0.12),
       closed: true,
       jitter: 0.2,
     },
@@ -1232,8 +1248,8 @@ function curl(awake: boolean): Figure {
   const ring: P = [80, 66.5]
   // Kopf vorn rechts, Blick zurück zum Schwanz (gespiegelt), Nase gesenkt
   const headT: Tf = awake
-    ? { x: 108, y: 92, rot: -8, s: 0.95, flip: true }
-    : { x: 108, y: 97, rot: -14, s: 0.95, flip: true }
+    ? { x: 107, y: 91, rot: -8, s: 1.12, flip: true }
+    : { x: 107, y: 95, rot: -14, s: 1.12, flip: true }
   const head = sideHead(headT, { earNear: awake ? -58 : -66, noFarEar: true, eyesClosed: !awake })
   const strokes: Stroke[] = [
     // Rücken als großer Bogen vom Nacken über den Po – offen, doppelt nachgezogen
@@ -1369,7 +1385,7 @@ function curl(awake: boolean): Figure {
     {
       layer: 'line',
       part: 'ring',
-      pts: blob(ring, 2.5, 2.3, 10, 5, 0.12),
+      pts: blob(ring, 2.8, 2.5, 10, 5, 0.12),
       closed: true,
       jitter: 0.2,
     },
