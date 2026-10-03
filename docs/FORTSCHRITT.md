@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-03 – P8.19a
+
+- Verwaltung „Texte“ → „Seiten und FAQ“ (`PagesArea`): Liste aller `PAGE_KEYS` (Beispieltext/eigener Text), Handy-Formular je Seite mit Titel, SEO-Feldern und allen Textblöcken DE/EN (`PAGE_TEXT_BLOCKS`: Hero, Stationen, Bild+Text, Formular-Texte …, Feldgrenzen wie P8.7), „Übersetzen“, FAQ aller Kategorien sortierbar (Hoch/Runter).
+- Endpunkte `POST /api/pages/texts`, `POST /api/faqs/texts-save`; Speichern setzt `seed = false` und revalidiert (≤ 60 s). Leeres EN-Titelfeld = deutscher Titel.
+- Keine „kommt in P…“-Texte mehr außer Startklar „kommt in P10“ (Einstellungen → Rechtstexte verlinkt jetzt auf „Texte“).
+- Tests: `tests/int/admin/pages-adopt.int.spec.ts` (5, AK-SEED-17 für pages und faqs, Feldgrenzen, 403); `tests/e2e/admin/texts-pages.e2e.spec.ts` (4 × desktop/pixel-7: alle 13 Seiten 390 px + axe, Übersetzen + öffentlich ≤ 60 s, FAQ-Reihenfolge per Tastatur öffentlich gleich, Suche „kommt in P“ über `adminViews.ts`); P7-Test `tattoo-texts.e2e` an den Beispielbestand angepasst.
+
 ## 2026-10-03 – P8.19
 
 - Einstellungen → Beispieldaten (`SeedArea`): Anzahl je Bereich, „Beispieldaten entfernen“ mit Dialog (Mengen, „Seitentexte und FAQ behalten“ vorausgewählt, Eintippen von „ENTFERNEN“), Sperre mit Platzhalter-Rechtstexten (Text „Bitte zuerst die Texte der Kanzlei einsetzen …“ + Typen), „Übernehmen“ je Stück/Flash/Galerie/Bild.

@@ -4525,7 +4525,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: Jutta entfernt die Beispieldaten nach dem Einspielen der
     Kanzleitexte (P11.13).
 
-- [ ] **P8.19a Verwaltung „Texte“: Seiten und FAQ** – Bereich „Seiten und FAQ“ der Ansicht `/texte` (KONZEPT §7.13;
+- [x] **P8.19a Verwaltung „Texte“: Seiten und FAQ** – Bereich „Seiten und FAQ“ der Ansicht `/texte` (KONZEPT §7.13;
   ersetzt den Hinweis „kommt in P8“ aus P5.27): Liste aller `PAGE_KEYS` mit einem Handy-Formular je Seite (Titel, Texte
   und Blöcke – bei `home` Hero und Stationstexte –, SEO-Felder; Feldgrenzen wie P8.7), DE und EN je Feld, Knopf
   „Übersetzen“ über `TranslateButton` (P5; Mock `"[EN] " + Text`). FAQ als sortierbare Liste (Frage/Antwort DE/EN,
