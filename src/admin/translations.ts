@@ -778,8 +778,26 @@ export const ADMIN_CUSTOM_DE = {
   deletionPreviewRestricted: 'einschränken',
   settingsSeedNone: 'Keine Beispieldaten vorhanden.',
   settingsSeedRemove: 'Beispieldaten entfernen',
-  settingsSeedLater:
-    'Entfernen (mit Bestätigung durch Eintippen von „ENTFERNEN“) kommt in P8. Bis dahin nur die Anzahl je Bereich.',
+  settingsSeedIntro:
+    'Beispieldaten zeigen, wie der Shop aussieht. Vor dem Start entfernst du sie hier – echte Stücke, Bestellungen und Nummern bleiben unberührt.',
+  settingsSeedTotal: 'Zusammen: {{total}} Beispiel-Einträge.',
+  settingsSeedLocked:
+    'Bitte zuerst die Texte der Kanzlei einsetzen – sonst wären die Rechtsseiten leer.',
+  settingsSeedLockedTypes: 'Noch Platzhalter: {{types}}.',
+  settingsSeedDialog: 'Beispieldaten entfernen?',
+  settingsSeedConsequence:
+    'Alle {{total}} Beispiel-Einträge werden gelöscht (auch Beispiel-Bestellungen und -Belege). Das lässt sich nicht rückgängig machen.',
+  settingsSeedKeepTexts: 'Seitentexte und FAQ behalten',
+  settingsSeedKeepTextsHint:
+    'Angehakt: Seiten und FAQ (mit ihren Bildern) werden zu deinen eigenen Texten. Ohne Haken werden sie mitgelöscht.',
+  settingsSeedConfirmLabel: 'Zum Bestätigen „ENTFERNEN“ eintippen',
+  settingsSeedConfirmOk: 'Endgültig entfernen',
+  settingsSeedDone: 'Beispieldaten entfernt. Die öffentlichen Seiten werden neu aufgebaut.',
+  settingsSeedAdoptTitle: 'Einzelne Beispiele behalten',
+  settingsSeedAdoptHint:
+    'Mit „Übernehmen“ wird ein Beispiel zu einem echten Eintrag (mit seinen Bildern) und bleibt beim Entfernen stehen.',
+  settingsSeedAdopt: 'Übernehmen',
+  settingsSeedAdoptDone: 'Übernommen.',
   // Einstellungen → System (P5.22)
   systemState: 'Stand',
   systemVersion: 'App-Version',

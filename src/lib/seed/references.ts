@@ -214,3 +214,44 @@ export function formatSeedReference(hit: SeedReferenceHit): string {
     hit.sourceTitle && hit.sourceTitle !== String(hit.sourceId) ? ` „${hit.sourceTitle}“` : ''
   return `Verweis entfernt: ${hit.source} ${hit.sourceId}${title} (${hit.path}) → ${hit.targetSeedKey}`
 }
+
+/** Alle IDs, auf die `data` (Dokument der Felder `fields`) in `target` verweist – rekursiv durch Gruppen, Arrays, Blöcke. */
+export function referencedIds(
+  payload: Payload,
+  fields: readonly FlattenedField[],
+  data: unknown,
+  target: string,
+): IdLike[] {
+  const out = new Set<IdLike>()
+  const visit = (fs: readonly FlattenedField[], value: unknown) => {
+    if (!value || typeof value !== 'object') return
+    const row = value as Record<string, unknown>
+    for (const f of fs) {
+      if (!('name' in f)) continue
+      const v = row[f.name]
+      if (v === null || v === undefined) continue
+      if (f.type === 'relationship' || f.type === 'upload') {
+        const poly = Array.isArray(f.relationTo)
+        for (const item of Array.isArray(v) ? v : [v]) {
+          const to = poly ? (item as { relationTo?: string })?.relationTo : (f.relationTo as string)
+          const id = idOf(poly ? (item as { value?: unknown })?.value : item)
+          if (to === target && id !== null) out.add(id)
+        }
+      } else if (f.type === 'group' || f.type === 'tab') {
+        visit(f.flattenedFields as FlattenedField[], v)
+      } else if (f.type === 'array' && Array.isArray(v)) {
+        for (const item of v) visit(f.flattenedFields as FlattenedField[], item)
+      } else if (f.type === 'blocks' && Array.isArray(v)) {
+        const blocks = (f.blockReferences ?? f.blocks) as unknown[]
+        for (const item of v as Array<{ blockType?: string }>) {
+          const block = blocks.find(
+            (b) => (typeof b === 'string' ? b : (b as { slug: string }).slug) === item.blockType,
+          )
+          if (block) visit(blockFields(payload, block), item)
+        }
+      }
+    }
+  }
+  visit(fields, data)
+  return [...out]
+}

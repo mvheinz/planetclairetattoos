@@ -13,7 +13,9 @@ import { getEnv } from '@/lib/env'
 import { processorAgreementServices } from '@/lib/legal/services'
 import { getPaymentsAdapter } from '@/lib/payments'
 import { previewRetention, type RetentionPreviewRow } from '@/lib/retention/jobs'
+import { ADOPTABLE_COLLECTIONS } from '@/lib/seed/adopt'
 import { seedSummary } from '@/lib/seed/remove'
+import { seedRemovalLockedTypes } from '@/lib/seed/removeLock'
 import { startklarStatus } from '@/lib/settings/readiness'
 import { translationAvailability } from '@/lib/translation'
 import { berlinDateKey, formatBerlin } from '@/lib/time'
@@ -34,6 +36,7 @@ import {
   YearTotalsForm,
 } from './AreaForms'
 import { ProcessorAgreementUpload } from './ProcessorAgreementUpload'
+import { type AdoptGroup, SeedArea } from './SeedArea'
 import { areaText, initialAreaValues, initialProcessorAgreements, type Obj } from './settingsAreas'
 import { getPath, SETTINGS_SECTIONS, type SettingsSectionKey } from './settingsForm'
 import { PasswordForm, SettingsSectionForm, TaxModeForm } from './SettingsForms'
@@ -43,7 +46,7 @@ import { PasswordForm, SettingsSectionForm, TaxModeForm } from './SettingsForms'
 // (Bankdaten; Zahlungsanbieter und Vorkasse-Fristen nur Anzeige), Benachrichtigungen, Rechtstexte (Übersicht, P6),
 // Konto (Passwort ändern, Abmelden). Teil 2 und 3 (P5.22/P5.22a): Shop, Kosten, Vorlagen, Steuer-Bestätigung mit
 // Jahressummen vor dem Shop, Datenschutz & Dienste (Statistik), Rechtstexte (Intervall, Marken-Schalter), Beispieldaten
-// (Anzahl je Collection; Entfernen kommt in P8). Versand, Umsatz-Wächter, System und Produktsicherheit haben eigene
+// (Anzahl je Collection, Entfernen und Übernehmen – P8.19, `SeedArea`). Versand, Umsatz-Wächter, System und Produktsicherheit haben eigene
 // Unterseiten.
 
 const AREAS = [
@@ -77,6 +80,41 @@ function collectionLabel(req: AdminViewBodyProps['req'], slug: string): string {
   if (typeof plural === 'string') return plural
   if (plural && typeof plural === 'object' && 'de' in plural) return String(plural.de)
   return slug
+}
+
+const ADOPT_TITLE: Record<AdoptGroup['collection'], (d: Record<string, unknown>) => unknown> = {
+  products: (d) =>
+    d.itemNumber ? `${String(d.itemNumber)} · ${String(d.adminTitle ?? '')}` : d.adminTitle,
+  flash: (d) =>
+    d.number ? `F-${String(d.number).padStart(3, '0')} · ${String(d.title ?? '')}` : d.title,
+  'tattoo-gallery': (d) => d.caption,
+  media: (d) => d.filename,
+}
+
+/** Beispiele, die sich einzeln übernehmen lassen (DATENMODELL §13.4). */
+async function loadAdoptGroups(req: AdminViewBodyProps['req']): Promise<AdoptGroup[]> {
+  const groups: AdoptGroup[] = []
+  for (const collection of ADOPTABLE_COLLECTIONS) {
+    const res = await req.payload.find({
+      collection,
+      where: { seed: { equals: true } },
+      limit: 300,
+      depth: 0,
+      locale: 'de',
+      sort: collection === 'products' ? 'itemNumber' : collection === 'flash' ? 'number' : 'id',
+      overrideAccess: true,
+      req,
+    })
+    groups.push({
+      collection,
+      label: collectionLabel(req, collection),
+      items: (res.docs as unknown as Array<Record<string, unknown> & { id: number }>).map((d) => {
+        const t = ADOPT_TITLE[collection](d)
+        return { id: d.id, title: typeof t === 'string' && t.trim() ? t : `#${d.id}` }
+      }),
+    })
+  }
+  return groups
 }
 
 function initialOf(settings: Setting, section: SettingsSectionKey): Record<string, string> {
@@ -189,6 +227,8 @@ export async function SettingsView({ adminRoute, req }: AdminViewBodyProps) {
   const startklar = startklarStatus()
   const translation = translationAvailability()
   const seedCounts = Object.entries(await seedSummary(req.payload))
+  const seedLocked = await seedRemovalLockedTypes(req.payload, now)
+  const adoptGroups = seedCounts.length > 0 ? await loadAdoptGroups(req) : []
   const categories = PRODUCT_CATEGORIES.map((c) => ({
     value: c,
     label: ENUM_LABELS.PRODUCT_CATEGORIES[c].de,
@@ -387,32 +427,15 @@ export async function SettingsView({ adminRoute, req }: AdminViewBodyProps) {
 
       <section id="beispieldaten" className="pc-order__section" aria-labelledby="settings-seed">
         <h2 id="settings-seed">{adminText('settingsAreaSeed')}</h2>
-        {seedCounts.length === 0 ? (
-          <p data-testid="settings-seed-none">{adminText('settingsSeedNone')}</p>
-        ) : (
-          <dl className="pc-order__facts" data-testid="settings-seed-counts">
-            {seedCounts.map(([slug, count]) => (
-              <React.Fragment key={slug}>
-                <dt>{collectionLabel(req, slug)}</dt>
-                <dd>{count}</dd>
-              </React.Fragment>
-            ))}
-          </dl>
-        )}
-        <p className="pc-admin-row">
-          <button
-            type="button"
-            className="pc-admin-btn pc-admin-btn--secondary"
-            disabled
-            aria-describedby="settings-seed-later"
-            data-testid="settings-seed-remove"
-          >
-            {adminText('settingsSeedRemove')}
-          </button>
-        </p>
-        <p id="settings-seed-later" className="pc-order__muted">
-          {adminText('settingsSeedLater')}
-        </p>
+        <SeedArea
+          counts={seedCounts.map(([slug, count]) => ({
+            slug,
+            label: collectionLabel(req, slug),
+            count,
+          }))}
+          lockedTypes={seedLocked.map((t) => ENUM_LABELS.LEGAL_TEXT_TYPES[t].de)}
+          adoptGroups={adoptGroups}
+        />
       </section>
 
       <section id="konto" className="pc-order__section" aria-labelledby="settings-account">

@@ -16,6 +16,7 @@ import {
 
 import { isAdmin, isAdminRequest, NOT_SEED } from '@/access'
 import { adminText } from '@/admin/translations'
+import { mediaAdminEndpoints } from '@/endpoints/tattoo'
 import { seedField } from '@/fields'
 import { revalidateContent } from '@/lib/cache/revalidate'
 import { TAGS } from '@/lib/cache/tags'
@@ -209,6 +210,7 @@ const computeDerived: CollectionBeforeChangeHook = async ({ data, req, originalD
 export const Media: CollectionConfig = {
   slug: 'media',
   labels: { singular: 'Bild', plural: 'Bilder' },
+  endpoints: mediaAdminEndpoints,
   admin: {
     useAsTitle: 'alt',
     defaultColumns: ['filename', 'alt', 'showsPerson', 'restricted', 'updatedAt'],
