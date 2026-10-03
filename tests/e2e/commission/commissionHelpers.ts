@@ -41,6 +41,12 @@ export async function noiseJpeg(bytes: number, width = 1200, height = 1500): Pro
 }
 
 /** Seite öffnen und Startzeit merken (Zeitfalle). */
+/**
+ * Wartezeit auf die Erfolgsmeldung nach dem Absenden: Die Server Action legt die Anfrage an und verschickt M11 und A05
+ * sofort (Outbox, im selben Aufruf). Allein ≈ 0,5 s, unter parallelen WebKit-Läufen gemessen bis 5,3 s.
+ */
+export const SUBMIT_TIMEOUT = 30_000
+
 export async function openForm(page: Page, url = COMMISSION_DE): Promise<number> {
   const res = await page.goto(url)
   expect(res?.status()).toBe(200)

@@ -7,12 +7,13 @@ import { uploadStaticDir } from '../../../src/lib/storage'
 import { serverURL } from '../../helpers/adminEnv'
 import { adminPath, expect, test, testPayload } from '../fixtures'
 import {
-  TEST_EMAIL_DOMAIN,
   fillRequired,
   inquiryByReference,
   openForm,
   removeInquiries,
+  SUBMIT_TIMEOUT,
   submitAfterMinTime,
+  TEST_EMAIL_DOMAIN,
   uploadsOf,
   useFreshIp,
 } from './commissionHelpers'
@@ -58,7 +59,7 @@ test('R-160 Formular mit 2 Bildern → M11 und A05 im Mail-Log → Verwaltung mi
   await page.locator('#anfrage-desiredTimeframe').fill('bis Weihnachten')
   await submitAfterMinTime(page, loadedAt)
   const success = page.locator('[data-commission-success]')
-  await expect(success).toBeVisible()
+  await expect(success).toBeVisible({ timeout: SUBMIT_TIMEOUT })
   const reference = (await success.getAttribute('data-reference'))!
   const inquiry = (await inquiryByReference(reference))!
   expect(inquiry).toBeTruthy()

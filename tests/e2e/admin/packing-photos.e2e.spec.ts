@@ -78,6 +78,9 @@ test('@a11y Packfotos, Checkliste, Verpackung und Rückfrage „Ohne Packfoto ve
     await expect(dialog).not.toContainText('Ohne Packfoto')
     await dialog.getByTestId('confirm-dialog-ok').click()
     await expect.poll(async () => (await orderStatus(payload, withPhoto.id)).status).toBe('shipped')
+    // Erst weiter, wenn `router.refresh()` nach dem Versand durch ist (Formular weg) – sonst unterbricht die Aktualisierung
+    // unter WebKit die nächste Navigation.
+    await expect(page.getByTestId('ship-order')).toHaveCount(0)
 
     // Ohne Packfoto: Rückfrage, nach Bestätigung versendet
     await page.goto(adminPath(`/bestellungen/${without.id}`))
