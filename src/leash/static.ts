@@ -237,6 +237,9 @@ export function mountStaticLeash(
     // Ruhe-Presets sind immer statisch – Bewegungswechsel ändern nichts.
     setMotion() {},
     setReadingY() {},
+    whenBuilt(cb: () => void) {
+      cb()
+    },
     inspect: () => ({
       preset: options.preset,
       geometry,

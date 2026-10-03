@@ -122,10 +122,15 @@ async function leashDrawn(page: Page): Promise<number> {
     let drawn = 0
     for (const seg of Array.from(document.querySelectorAll<SVGSVGElement>('[data-leash-seg]'))) {
       if (seg.style.visibility === 'hidden') continue
-      const reveal = seg.querySelector<SVGPathElement>('mask path')
-      const offset = reveal ? parseFloat(reveal.style.strokeDashoffset || '0') : 0
-      const length = reveal ? parseFloat(reveal.style.strokeDasharray || '0') : 0
-      drawn += length > 0 ? 1 - offset / length : 1
+      // Stufe A: Strich-Stücke mit Dash (P9.11), je Stück anteilig; Stufe C: ohne Dash = ganz gezeichnet
+      const parts = Array.from(seg.querySelectorAll<SVGPathElement>('path.ink'))
+      let sum = 0
+      for (const p of parts) {
+        const length = parseFloat(p.style.strokeDasharray || '0')
+        const offset = parseFloat(p.style.strokeDashoffset || '0')
+        sum += length > 0 ? Math.max(0, Math.min(1, 1 - offset / length)) : 1
+      }
+      drawn += parts.length ? sum / parts.length : 1
     }
     return drawn
   })

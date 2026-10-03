@@ -838,7 +838,9 @@ export interface LeashSegment {
   id: string;
   bbox: { x: number; y: number; w: number; h: number };
   centerD: string;              // Mittellinie (für Enthüllung/Stufe B)
-  outlineD: string;             // gefüllter Umriss mit variabler Breite (Stufe A/C)
+  outlineD: string;             // gefüllter Umriss mit variabler Breite (Stufe C; erst bei Zugriff berechnet)
+  centerL?: number;             // Länge der Polylinie centerD (Stufe B ohne getTotalLength)
+  strokes?: LeashStroke[];      // Stufe A: { d, w, L, len0, len1 } – Mittellinie in Stücken nahezu gleicher Breite
   len0: number; len1: number;   // Bogenlängen-Bereich im Gesamtpfad
 }
 export interface LeashGeometry {
@@ -875,8 +877,8 @@ Scroll/Resize/Fonts → rAF-gedrosselte Aktualisierung (nur Schreibzugriffe, §9
 3. **Schlaufen einsetzen** an Ankern mit `loop ≠ 'none'` (Formen §9.5). Jede Schlaufe hat eigene Bogenlängen `loopLen0 … loopLen1`.
 4. **Glätten:** zentripetale Catmull-Rom-Kurve (α = 0.5) durch alle Wegpunkte → kubische Bézier-Segmente.
 5. **Abtasten** nach Bogenlänge alle 2 px → Punkte `P_i` mit Normalen `N_i`.
-6. **Wackel (Zittern der Hand):** `P_i += N_i × (A1·noise(s/λ1) + A2·noise(s/λ2))` mit `A1 = 0.9 px` (mobil) / `1.2 px` (ab 768), `λ1 = 90 px`, `A2 = 0.22 px`, `λ2 = 13 px` (seeded Value-Noise). Presets `legal`/`calm`: `A1 = 0.5`, `A2 = 0.12`.
-7. **Breitenprofil:** `w(s) = baseWidth × (0.85 + 0.30 × noise(s/220)) × (1 + min(0.25, 12 × |κ(s)|))`, begrenzt auf `[0.8, 1.35] × baseWidth`. Anfangsverjüngung über 28 px von 0.35 → 1 (`ease-out`), Endverjüngung über 18 px auf 0.45 (Stift hebt ab). An Schlaufen-Starts ein Tintenpunkt (Kreis, Radius `0.65 × w`), wo die Feder kurz ruht.
+6. **Wackel (Zittern der Hand):** `P_i += N_i × (A1·noise(s/λ1) + A2·noise(s/λ2))` mit `A1 = 0.9 px` (mobil) / `1.2 px` (ab 768), `λ1 = 90 px`, `A2 = 0.22 px`, `λ2 = 13 px` (seeded Zitter-Noise: Gitterwerte mit wechselndem Vorzeichen, Betrag 0.8–1, damit keine 120 px lange gerade Strecke entsteht – KUNST-QA LQ-03). Über die ersten 28 px wächst der Wackel von 0 an (Leinen-Anschluss exakt, §9.8). Presets `legal`/`calm`: `A1 = 0.5`, `A2 = 0.12`.
+7. **Breitenprofil:** `w(s) = baseWidth × (0.85 + 0.30 × noise(s/220)) × (1 + min(0.25, 12 × |κ(s)|))`, begrenzt auf `[0.8, 1.35] × baseWidth`. Anfangsverjüngung über 28 px von 0.35 → 1 (`ease-out`; die ersten 4 px ruht die Feder auf 0.35), Endverjüngung über 18 px auf 0.45 (Stift hebt ab; die letzten 4 px auf 0.45); in den Verjüngungen gilt die Grundbreite ohne Zuschläge (KUNST-QA LQ-05). An Schlaufen-Starts ein Tintenpunkt (Kreis, Radius `0.65 × w`), wo die Feder kurz ruht.
 8. **Umriss:** linke/rechte Kante `P_i ± N_i × w_i/2`, runde Kappen (Halbkreis, 8 Punkte), Vereinfachung mit Ramer-Douglas-Peucker (Toleranz 0.2 px), Ausgabe als `M … L … Z` mit 1 Nachkommastelle.
 9. **Segmente:** Schnitt an Schlaufen-Enden und spätestens alle `max(600, 1.25 × viewport.h)` px Bogenlänge; Nachbar-Segmente überlappen 2 px Bogenlänge (keine Nahtlücke).
 10. **LUT:** alle 4 px Bogenlänge `[len, x, y, angle]` aus den eigenen Bézier-Daten (analytisch, **ohne** `getPointAtLength`).
@@ -888,17 +890,18 @@ Determinismus: gleiche Eingabe → byte-gleiche `outlineD`/`centerD` (Seed aus R
 
 | Stufe | Wann | Technik | Kosten |
 |---|---|---|---|
-| **A „Tusche“** (Standard) | volle Bewegung, `hardwareConcurrency ≥ 4` (falls bekannt) und `deviceMemory ≥ 4` (falls bekannt) | Pro Segment ein `<svg>` mit `<path class="ink" d={outlineD} fill="var(--ink)" mask="url(#m-k)">`; die Maske enthält die Mittellinie `centerD` als Strich (Breite `1.35 × baseWidth + 4`, weiß) mit `stroke-dasharray: L L` und `stroke-dashoffset` = noch nicht gezeichnete Länge. `maskUnits="userSpaceOnUse"` mit Segment-Bbox + 8 px. `L` = `getTotalLength()` der Maskenlinie, einmal beim Aufbau gemessen. | Repaint nur im aktiven Segment |
+| **A „Tusche“** (Standard) | volle Bewegung, `hardwareConcurrency ≥ 4` (falls bekannt) und `deviceMemory ≥ 4` (falls bekannt) | Pro Segment ein `<svg>`; darin die gewackelte Mittellinie in **Stücken nahezu gleicher Breite** (`strokes`: Breite weicht im Stück ≤ 0.04 × `baseWidth` ab, Stück ≤ 240 px), je Stück `<path class="ink" fill="none" stroke="var(--ink)" stroke-width={w} stroke-linecap="round">` mit `stroke-dasharray: L L+1` und `stroke-dashoffset` = noch nicht gezeichneter Anteil (verborgen: `L + 0.5`). Nachbar-Stücke teilen den Endpunkt, die runden Kappen schließen die Fuge; Tintenpunkte sind eigene Stücke der Länge 0.1 (Breite 1.3 × w). `L` kommt aus der Geometrie (kein `getTotalLength`). **Keine Maske** – eine animierte Maske erzwingt in Chromium je Frame ein Layout (P9.11-Messung, KUNST-QA PF-05); `stroke-dashoffset` an sichtbaren Strichen ist reines Paint. | Repaint nur am aktiven Stück |
 | **B „Feder“** | Laufzeit-Abstufung (unten) oder Browser-Ausnahme (in `presets.ts` pflegbar, z. B. falls Safari-Masken in QA ruckeln) | Nur Mittellinie als `stroke` (`--leash-w`, runde Kappen) mit Dash-Enthüllung, keine Maske, keine Breitenvariation; Wackel bleibt | geringer |
 | **C „Statisch“** | reduzierte Bewegung, Schalter „Animationen aus“, Ruhe-Presets (`calm`, `legal`) | Umriss `outlineD` ohne Maske, vollständig sichtbar | keine Laufzeit |
 | ohne JS | – | keine Linie; Coco statisch per SSR nur dort, wo sie Inhalt ist (leere Zustände, 404, Danke) | – |
 
 **Laufzeit-Abstufung A → B:** Die Runtime misst während der ersten 2 s Scroll-Aktivität die rAF-Abstände. Sind > 25 % der Frames > 20 ms, schaltet sie für die restliche Sitzung (nur im Speicher, **kein** Storage, E-43) auf Stufe B.
-**Segment-Zustände:** fertig (Maske entfernt, `mask`-Attribut gelöscht → statischer Pfad), aktiv (Maske aktualisiert), zukünftig (`visibility: hidden`).
+**Segment-Zustände:** fertig (alle Stücke Versatz 0 bzw. Stufe B ohne Dash), aktiv (nur das Stück an der Feder ändert `stroke-dashoffset`), zukünftig (`visibility: hidden`). Im Scroll-Pfad ändern sich nur `stroke-dashoffset`, `visibility` und Cocos `transform` – keine Layout-Ereignisse (PF-05).
+**Aufbau in Teilstücken:** Der erste Aufbau und jeder Neuaufbau nach Resize/Schriften laufen als Idle-Teilstücke (`requestIdleCallback`): Lesephase (`measure`), dann `geometrySteps` (Pfad, Wackel/Breiten, je Segment ein Teilstück, LUT/Scroll-Abbildung; ≤ 4 ms je Teilstück ungedrosselt), zuletzt die Schreibphase; jedes Teilstück ist eine eigene `leash:build`-Messung (PF-04). Der Umriss `outlineD` entsteht erst bei Bedarf (Stufe C).
 
 ### 9.5 Schlaufenformen
 
-Alle Formen erhalten den Wackel aus §9.3 Schritt 6 und sind nie geometrisch perfekt (Radius schwankt ±12 %, Ellipsen leicht verkippt).
+Alle Formen erhalten den Wackel aus §9.3 Schritt 6 und sind nie geometrisch perfekt (Radius schwankt ±12 %: glattes Rauschen plus eine Vierer-Welle je Umlauf, die kein Kreis-/Ellipsen-Fit glättet, KUNST-QA LQ-04; Ellipsen leicht verkippt, die Achsen mit versetzter Unruhe).
 
 **Freiraum-Regeln:** Schlaufen in der Rinne haben ihren Mittelpunkt auf der Rinnenmitte und bleiben vollständig in der Rinne (Radius + halbe Linienbreite + 2 px ≤ halbe Rinnenbreite). `lasso` und `contour` laufen nur um Elemente mit mindestens 40 px (lasso) bzw. 16 px (contour) freiem Rand zu jeder Textzeile; das jeweilige Layout (KO-20 Flash-Raster, KO-21 Station, Auftragsarbeiten-Formular) reserviert diesen Rand.
 

@@ -12,6 +12,7 @@ import type {
   LeashAnchor,
   LeashGeometry,
   LeashSegment,
+  LeashStroke,
   LoopKind,
   SpritePose,
 } from './types'
@@ -31,9 +32,17 @@ export const LUT_STEP = 4
 const RDP_TOLERANCE = 0.2
 /** Überlappung benachbarter Segmente (Schritt 9). */
 const SEGMENT_OVERLAP = 2
+/** Stufe A: Stücke der Mittellinie, deren Breite höchstens so weit vom Stückanfang abweicht (× Grundbreite). */
+const STROKE_WIDTH_TOL = 0.04
+/** Stufe A: längstes Stück in px Bogenlänge. */
+const STROKE_MAX_LEN = 240
 /** Anfangs-/Endverjüngung (Schritt 7). */
 const TAPER_START = 28
 const TAPER_END = 18
+/** Federansatz bzw. Abheben: die ersten/letzten 4 px ruht die Feder auf der Ansatz-/Abhebebreite (LQ-05). */
+const TAPER_REST = 4
+const TAPER_START_W = 0.35
+const TAPER_END_W = 0.45
 /** Sicherheitsabstand der Rinnen-Schlaufen zur Rinnenkante (§9.5 Freiraum-Regel). */
 const GUTTER_CLEARANCE = 2
 /** Schlaufen, nach denen die Linie endet (Danke-Herz, 404-Knäuel, Haken am Knopf). */
@@ -320,7 +329,9 @@ function loopPoints(kind: LoopKind, a: LeashAnchor, ctx: LoopCtx): Pt[] {
   const squash = 0.9 + 0.08 * rand()
   // Radius-Unruhe als glattes Rauschen über dem Winkel (eine Delle je ~1,4 rad), nicht Punkt für Punkt.
   const rn = valueNoise1D(Math.floor(rand() * 4294967296))
-  const jitter = (th: number) => 1 + 0.12 * rn(th / 1.4)
+  const phase = rand() * 2 * Math.PI
+  // Plus eine Vierer-Welle (kein Kegelschnitt kann sie glätten) – zusammen höchstens ±12 %.
+  const jitter = (th: number) => 1 + 0.12 * (0.35 * rn(th / 1.4) + 0.65 * Math.sin(4 * th + phase))
   switch (kind) {
     case 'right':
     case 'left': {
@@ -439,8 +450,14 @@ function ellipse(
   const steps = Math.round(stepsPerTurn * turns)
   for (let k = 0; k <= steps; k++) {
     const th = Math.PI + (2 * Math.PI * turns * k) / steps
-    const j = jitter(th)
-    pts.push(rotate({ x: c.x + rx * j * Math.cos(th), y: c.y + ry * j * Math.sin(th) }, c, tilt))
+    // Achsen mit versetzter Unruhe: die Hand zieht die Ellipse nie gleichmäßig (LQ-04).
+    pts.push(
+      rotate(
+        { x: c.x + rx * jitter(th) * Math.cos(th), y: c.y + ry * jitter(th + 1.1) * Math.sin(th) },
+        c,
+        tilt,
+      ),
+    )
   }
   return pts
 }
@@ -644,13 +661,43 @@ function polyD(xs: number[], ys: number[], close: boolean): string {
   return close ? `${d}Z` : d
 }
 
+// ---------- Schritt 6: Zittern der Hand ----------
+
+/** Gitterwert für die Zitter-Kurve: Vorzeichen wechselt je Gitterzelle, Betrag 0,8…1 aus dem Seed. */
+function tremorLattice(i: number, seed: number): number {
+  let h = Math.imul(i | 0, 0x27d4eb2d) ^ seed
+  h = Math.imul(h ^ (h >>> 15), 0x85ebca6b)
+  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35)
+  h ^= h >>> 16
+  const mag = 0.8 + 0.2 * ((h >>> 0) / 4294967295)
+  return i & 1 ? -mag : mag
+}
+
+/**
+ * Zitter-Rauschen für den langen Wackel (λ1): wie Value-Noise, aber mit wechselndem Vorzeichen je Gitterpunkt – eine
+ * Hand zittert immer ein wenig hin und her, nie 120 px lang lineal-gerade (KUNST-QA LQ-03). Werte in `[-1, 1]`.
+ */
+function tremorNoise(seed: number): (x: number) => number {
+  const sd = seed >>> 0
+  return (x: number) => {
+    const i = Math.floor(x)
+    const f = x - i
+    const u = f * f * (3 - 2 * f)
+    const a = tremorLattice(i, sd)
+    return a + (tremorLattice(i + 1, sd) - a) * u
+  }
+}
+
 // ---------- Hauptfunktion ----------
 
-/** `buildGeometry` plus die abgetasteten Punkte und Breiten (Tests, Stufe C). */
-export function buildGeometryWithSamples(input: BuildInput): {
-  geometry: LeashGeometry
-  samples: LeashSamples
-} {
+type GeometryResult = { geometry: LeashGeometry; samples: LeashSamples }
+
+/**
+ * `buildGeometry` in Teilstücken (DESIGN §9.10 „bei 4× Drosselung in Idle-Teilstücken, kein Task > 50 ms“): Der
+ * Generator hält nach jedem Schritt bzw. Segment an; die Laufzeit führt jedes Teilstück in einem eigenen Idle-Callback
+ * aus. Das Ergebnis ist identisch mit {@link buildGeometryWithSamples}.
+ */
+export function* geometrySteps(input: BuildInput): Generator<void, GeometryResult, void> {
   const cfg = PRESET_CONFIG[input.preset]
   const { viewport, baseWidth: bw } = input
   const desktop = viewport.w >= BP_TABLET
@@ -665,17 +712,21 @@ export function buildGeometryWithSamples(input: BuildInput): {
   const plan = planPath(input, rand, rMax)
   if (plan.pts.length < 2) plan.pts.push({ x: plan.pts[0]!.x, y: plan.pts[0]!.y + 24 })
   const fine = flatten(catmullRom(plan.pts))
+  yield
   const { sx, sy, ss, tx, ty, total } = resample(fine, SAMPLE_STEP)
   const n = ss.length
 
+  yield
   // Schritt 6: Wackel entlang der Normalen.
-  const n1 = valueNoise1D(input.seed ^ 0x9e3779b9)
-  const n2 = valueNoise1D(input.seed ^ 0x85ebca6b)
+  const n1 = tremorNoise(input.seed ^ 0x9e3779b9)
+  const n2 = tremorNoise(input.seed ^ 0x85ebca6b)
   const n3 = valueNoise1D(input.seed ^ 0xc2b2ae35)
   const wx = new Float64Array(n)
   const wy = new Float64Array(n)
   for (let i = 0; i < n; i++) {
-    const off = a1 * n1(ss[i]! / WOBBLE.lambda1) + a2 * n2(ss[i]! / WOBBLE.lambda2)
+    // Die Feder setzt genau am Leinen-Anschluss an (§9.8); das Zittern wächst über die Anfangsverjüngung hinein.
+    const fade = Math.min(1, ss[i]! / TAPER_START)
+    const off = fade * (a1 * n1(ss[i]! / WOBBLE.lambda1) + a2 * n2(ss[i]! / WOBBLE.lambda2))
     wx[i] = sx[i]! - ty[i]! * off
     wy[i] = sy[i]! + tx[i]! * off
   }
@@ -722,17 +773,24 @@ export function buildGeometryWithSamples(input: BuildInput): {
     let width = bw * (0.85 + 0.3 * noise) * (1 + Math.min(0.25, 12 * Math.abs(kappa)))
     width = Math.min(1.35 * bw, Math.max(0.8 * bw, width))
     const s = ss[i]!
+    // Federansatz: 4 px Ruhe auf 0,35, dann ease-out auf die volle Breite (bis 28 px). Abheben: ease-in auf 0,45,
+    // die letzten 4 px auf 0,45. In den Verjüngungen gilt die Grundbreite (keine Krümmungszuschläge an der Spitze).
     if (s < TAPER_START) {
-      const t = s / TAPER_START
-      width *= 0.35 + 0.65 * (1 - (1 - t) * (1 - t))
+      const t = Math.max(0, (s - TAPER_REST) / (TAPER_START - TAPER_REST))
+      const e = 1 - (1 - t) * (1 - t)
+      width = bw + (width - bw) * e
+      width *= TAPER_START_W + (1 - TAPER_START_W) * e
     }
     if (total - s < TAPER_END) {
-      const t = 1 - (total - s) / TAPER_END
-      width *= 1 - 0.55 * t * t
+      const t = Math.min(1, (TAPER_END - (total - s)) / (TAPER_END - TAPER_REST))
+      const e = t * t
+      width = width + (bw - width) * e
+      width *= 1 - (1 - TAPER_END_W) * e
     }
     w[i] = width
   }
 
+  yield
   // Schritt 9: Segmente – Schnitt an Schlaufen-Enden und spätestens alle max(600, 1.25 × Viewport-Höhe).
   const knotLen = (i: number) => fine.knot[Math.min(i, fine.knot.length - 1)]!
   const maxLen = Math.max(600, 1.25 * viewport.h)
@@ -761,7 +819,8 @@ export function buildGeometryWithSamples(input: BuildInput): {
     const i0 = idxAt(bounds[k]!)
     const i1 = k === bounds.length - 2 ? n - 1 : idxAt(bounds[k + 1]! + SEGMENT_OVERLAP)
     if (i1 <= i0) continue
-    segments.push(buildSegment(`s${k}`, i0, i1, { wx, wy, nx, ny, ang, w, ss }, dots))
+    segments.push(buildSegment(`s${k}`, i0, i1, { wx, wy, nx, ny, ang, w, ss }, dots, bw))
+    yield
   }
 
   // Schritt 10: LUT je 4 px Bogenlänge.
@@ -804,6 +863,15 @@ export function buildGeometryWithSamples(input: BuildInput): {
   }
 }
 
+/** `buildGeometry` plus die abgetasteten Punkte und Breiten (Tests, Stufe C). */
+export function buildGeometryWithSamples(input: BuildInput): GeometryResult {
+  const steps = geometrySteps(input)
+  for (;;) {
+    const r = steps.next()
+    if (r.done) return r.value
+  }
+}
+
 /** Geometrie der Tuschelinie (DESIGN §9.3). */
 export function buildGeometry(input: BuildInput): LeashGeometry {
   return buildGeometryWithSamples(input).geometry
@@ -819,27 +887,135 @@ interface SegmentData {
   ss: Float64Array
 }
 
+/** Länge einer Polylinie aus den gerundeten Koordinaten (wie der Browser sie misst). */
+function polyLen(xs: number[], ys: number[]): number {
+  let L = 0
+  for (let k = 1; k < xs.length; k++)
+    L += Math.hypot(+fmt(xs[k]!) - +fmt(xs[k - 1]!), +fmt(ys[k]!) - +fmt(ys[k - 1]!))
+  return Math.round(L * 100) / 100
+}
+
+/**
+ * Stufe A „Tusche“ ohne Maske (DESIGN §9.4): die gewackelte Mittellinie in Stücken, in denen die Breite fast gleich
+ * bleibt (± {@link STROKE_WIDTH_TOL} × Grundbreite); jedes Stück wird als runder Strich mit seiner mittleren Breite
+ * gezeichnet und per `stroke-dashoffset` enthüllt (nur Paint, kein Layout – KUNST-QA PF-05). Benachbarte Stücke teilen
+ * den Endpunkt, die runden Kappen überdecken die Fuge. Tintenpunkte sind eigene, fast punktförmige Stücke.
+ */
+function buildStrokes(i0: number, i1: number, d: SegmentData, dots: number[], bw: number) {
+  const out: LeashStroke[] = []
+  const tol = STROKE_WIDTH_TOL * bw
+  const dotSet = dots.filter((i) => i >= i0 && i < i1).sort((a, b) => a - b)
+  let a = i0
+  while (a < i1) {
+    const w0 = d.w[a]!
+    let b = a + 1
+    while (b < i1 && Math.abs(d.w[b + 1]! - w0) <= tol && d.ss[b + 1]! - d.ss[a]! <= STROKE_MAX_LEN)
+      b++
+    const xs: number[] = []
+    const ys: number[] = []
+    let sum = 0
+    for (let i = a; i <= b; i++) {
+      xs.push(d.wx[i]!)
+      ys.push(d.wy[i]!)
+      sum += d.w[i]!
+    }
+    const keep = rdp(xs, ys, RDP_TOLERANCE)
+    const kx = keep.map((k) => xs[k]!)
+    const ky = keep.map((k) => ys[k]!)
+    out.push({
+      d: polyD(kx, ky, false),
+      w: Math.round((sum / (b - a + 1)) * 100) / 100,
+      L: polyLen(kx, ky),
+      len0: d.ss[a]!,
+      len1: d.ss[b]!,
+    })
+    // Tintenpunkt am Schlaufenstart: kleiner Kreis (Radius 0,65 × Breite) als Strich der Länge 0,1 mit runder Kappe.
+    while (dotSet.length && dotSet[0]! <= b) {
+      const i = dotSet.shift()!
+      if (i < a) continue
+      out.push({
+        d: `M${fmt(d.wx[i]!)} ${fmt(d.wy[i]!)}h0.1`,
+        w: Math.round(1.3 * d.w[i]! * 100) / 100,
+        L: 0.1,
+        len0: d.ss[i]!,
+        len1: d.ss[i]!,
+      })
+    }
+    a = b
+  }
+  // Punkte erscheinen, sobald die Feder sie erreicht: nach Bogenlänge sortiert (stabil: Strich vor Punkt).
+  return out.sort((p, q) => p.len0 - q.len0 || q.len1 - q.len0 - (p.len1 - p.len0))
+}
+
 function buildSegment(
   id: string,
   i0: number,
   i1: number,
   d: SegmentData,
   dots: number[],
+  bw: number,
 ): LeashSegment {
+  // Bbox aus der Mittellinie ± halber Breite bzw. Tintenpunkt-Radius (umschließt Umriss und Striche).
+  let minX = Infinity
+  let minY = Infinity
+  let maxX = -Infinity
+  let maxY = -Infinity
+  const cx: number[] = []
+  const cy: number[] = []
+  for (let i = i0; i <= i1; i++) {
+    const x = d.wx[i]!
+    const y = d.wy[i]!
+    cx.push(x)
+    cy.push(y)
+    const h = d.w[i]! / 2 + 0.5
+    if (x - h < minX) minX = x - h
+    if (y - h < minY) minY = y - h
+    if (x + h > maxX) maxX = x + h
+    if (y + h > maxY) maxY = y + h
+  }
+  const segDots = dots.filter((i) => i >= i0 && i < i1)
+  for (const i of segDots) {
+    const r = 0.65 * d.w[i]! + 0.5
+    minX = Math.min(minX, d.wx[i]! - r)
+    minY = Math.min(minY, d.wy[i]! - r)
+    maxX = Math.max(maxX, d.wx[i]! + r)
+    maxY = Math.max(maxY, d.wy[i]! + r)
+  }
+  const keepC = rdp(cx, cy, RDP_TOLERANCE)
+  const ccx = keepC.map((k) => cx[k]!)
+  const ccy = keepC.map((k) => cy[k]!)
+  const centerD = polyD(ccx, ccy, false)
+  const strokes = buildStrokes(i0, i1, d, segDots, bw)
+  const x = Math.floor(minX)
+  const y = Math.floor(minY)
+  // Der Umriss (Stufe C, Schritt 8) entsteht erst beim ersten Zugriff – Stufe A/B brauchen ihn nicht (PF-04).
+  let outline: string | null = null
+  return {
+    id,
+    bbox: { x, y, w: Math.ceil(maxX) - x, h: Math.ceil(maxY) - y },
+    centerD,
+    get outlineD() {
+      return (outline ??= outlineOf(i0, i1, d, segDots))
+    },
+    len0: d.ss[i0]!,
+    len1: d.ss[i1]!,
+    centerL: polyLen(ccx, ccy),
+    strokes,
+  }
+}
+
+/** Schritt 8: gefüllter Umriss mit runden Kappen und Tintenpunkten (Kreis, Radius 0.65 × Breite). */
+function outlineOf(i0: number, i1: number, d: SegmentData, dots: number[]): string {
   const lx: number[] = []
   const ly: number[] = []
   const rx: number[] = []
   const ry: number[] = []
-  const cx: number[] = []
-  const cy: number[] = []
   for (let i = i0; i <= i1; i++) {
     const h = d.w[i]! / 2
     lx.push(d.wx[i]! + d.nx[i]! * h)
     ly.push(d.wy[i]! + d.ny[i]! * h)
     rx.push(d.wx[i]! - d.nx[i]! * h)
     ry.push(d.wy[i]! - d.ny[i]! * h)
-    cx.push(d.wx[i]!)
-    cy.push(d.wy[i]!)
   }
   const keepL = rdp(lx, ly, RDP_TOLERANCE)
   const keepR = rdp(rx, ry, RDP_TOLERANCE)
@@ -865,26 +1041,12 @@ function buildSegment(
   }
   cap(i0, Math.atan2(d.ny[i0]!, d.nx[i0]!) + Math.PI, -1)
   let outlineD = polyD(ox, oy, true)
-
-  // Tintenpunkte an Schlaufen-Starts (Feder ruht kurz), Radius 0.65 × Breite.
-  let minX = Infinity
-  let minY = Infinity
-  let maxX = -Infinity
-  let maxY = -Infinity
-  const extend = (x: number, y: number) => {
-    if (x < minX) minX = x
-    if (y < minY) minY = y
-    if (x > maxX) maxX = x
-    if (y > maxY) maxY = y
-  }
-  for (let k = 0; k < ox.length; k++) extend(ox[k]!, oy[k]!)
   // Umlaufsinn des Umrisses (Shoelace): Tintenpunkte laufen gleich herum, sonst stanzt `nonzero` ein Loch.
   let area = 0
   for (let k = 0, j = ox.length - 1; k < ox.length; j = k++)
     area += ox[j]! * oy[k]! - ox[k]! * oy[j]!
   const turn = area >= 0 ? 1 : -1
   for (const i of dots) {
-    if (i < i0 || i >= i1) continue
     const r = 0.65 * d.w[i]!
     const px: number[] = []
     const py: number[] = []
@@ -892,27 +1054,10 @@ function buildSegment(
       const a = (turn * k * Math.PI) / 6
       px.push(d.wx[i]! + Math.cos(a) * r)
       py.push(d.wy[i]! + Math.sin(a) * r)
-      extend(px[k]!, py[k]!)
     }
     outlineD += polyD(px, py, true)
   }
-
-  const keepC = rdp(cx, cy, RDP_TOLERANCE)
-  const centerD = polyD(
-    keepC.map((k) => cx[k]!),
-    keepC.map((k) => cy[k]!),
-    false,
-  )
-  const x = Math.floor(minX)
-  const y = Math.floor(minY)
-  return {
-    id,
-    bbox: { x, y, w: Math.ceil(maxX) - x, h: Math.ceil(maxY) - y },
-    centerD,
-    outlineD,
-    len0: d.ss[i0]!,
-    len1: d.ss[i1]!,
-  }
+  return outlineD
 }
 
 function buildScrollMap(

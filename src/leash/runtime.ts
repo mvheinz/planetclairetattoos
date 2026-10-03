@@ -1,5 +1,5 @@
 import { easeInkOut } from './easing'
-import { buildGeometry, mapReadingY, pointAt } from './geometry'
+import { buildGeometry, geometrySteps, mapReadingY, pointAt } from './geometry'
 import { measure, type Measurement } from './measure'
 import { getMotion, type Motion } from './motion'
 import {
@@ -12,7 +12,7 @@ import {
 } from './presets'
 import { fnv1a32 } from './random'
 import { PAD, segmentSvg, staticSegmentSvg } from './static'
-import type { LeashGeometry, LeashHandle, PresetId, SpritePose } from './types'
+import type { LeashGeometry, LeashHandle, LeashStroke, PresetId, SpritePose } from './types'
 
 // Laufzeit der Tuschelinie (DESIGN §9.2, §9.4, §9.6, §9.10): misst (eine Lesephase), baut die SVG-Segmente (eine
 // Schreibphase), koppelt die gezeichnete Länge an die Lesezeile und hält Coco geglättet an der Spitze.
@@ -45,6 +45,8 @@ export interface MountOptions {
   onCoco?: (state: CocoState) => void
   /** Tatsächlich gezeigte Pose der Coco-Steuerung (mit Brücken); sonst die Ziel-Pose. */
   cocoPose?: () => SpritePose | null
+  /** Erster Aufbau in Idle-Teilstücken (Standard `true`); `false` baut beim Einhängen in einem Zug (Tests). */
+  stepwise?: boolean
 }
 
 export interface LeashDebugState {
@@ -79,6 +81,8 @@ export interface InspectableLeashHandle extends LeashHandle {
   /** Debug: Lesezeile fest setzen (px relativ zur Linien-Ebene, wie `scrollMap.readingY`); `null` = wieder Scroll. */
   setReadingY(y: number | null): void
   setProbe(probe: LeashProbe | null): void
+  /** Ruft `cb` auf, sobald der erste Aufbau steht (sofort, wenn er schon steht). */
+  whenBuilt(cb: () => void): void
   /** Posenwechsel der Coco-Steuerung an den Frame-Logger melden (mit Brücke). */
   notePose(entry: {
     t: number
@@ -95,17 +99,34 @@ const REBUILD_DEBOUNCE_MS = 150
 const MIN_VIEWPORT_DH = 120
 /** Eintrittslinie der Kartenreihen (`shopString`): Anteil der Viewport-Höhe von oben (§9.7, IO-Schwelle ≈ 0.3). */
 const ROW_ENTER_LINE = 0.95
+/** Rechenzeit je Idle-Teilstück des Aufbaus (ms, ungedrosselt; mindestens ein Schritt je Teilstück). */
+const STEP_BUDGET_MS = 4
 /** Coco springt statt zu rennen, wenn sie weiter zurückliegt (§9.6). */
 const COCO_JUMP = 300
 
 type SegState = 'future' | 'active' | 'done'
 
+/** Stufe A: ein Strich-Stück (bzw. Tintenpunkt) mit Dash-Enthüllung. */
+interface StrokeView {
+  el: SVGPathElement
+  L: number
+  len0: number
+  len1: number
+  /** Versatz, bei dem das Stück ganz verborgen ist (Dash samt runder Kappe vor dem Pfadanfang). */
+  hidden: number
+}
+
 interface SegView {
   svg: SVGSVGElement
+  /** Erstes Element des Segments (Stufe B/C: der Pfad; Stufe A: erstes Strich-Stück). */
   ink: SVGPathElement
-  /** Maskenlinie (A) bzw. sichtbarer Strich (B); `null` bei C. */
+  /** Sichtbarer Strich mit Dash-Enthüllung (B); `null` bei A und C. */
   reveal: SVGPathElement | null
-  maskRef: string | null
+  /** Stufe A: Strich-Stücke und Tintenpunkte, nach Bogenlänge sortiert, mit Zeiger auf das erste nicht fertige. */
+  strokes: StrokeView[] | null
+  dots: StrokeView[] | null
+  next: number
+  nextDot: number
   L: number
   len0: number
   len1: number
@@ -174,77 +195,74 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
 
   // ---------- SVG-Aufbau: eine Schreibphase ----------
 
+  /** Stufe A: Strich-Stück als runder Strich mit Dash-Enthüllung (anfangs verborgen). */
+  function strokeView(st: LeashStroke, forced: boolean): StrokeView {
+    const el = doc.createElementNS(SVG_NS, 'path')
+    el.setAttribute('d', st.d)
+    el.setAttribute('class', 'ink')
+    el.setAttribute('fill', 'none')
+    el.setAttribute('stroke-width', String(st.w))
+    el.setAttribute('stroke-linecap', 'round')
+    el.setAttribute('stroke-linejoin', 'round')
+    el.style.stroke = forced ? 'CanvasText' : 'var(--ink)'
+    const hidden = st.L + 0.5
+    el.style.strokeDasharray = `${st.L} ${st.L + 1}`
+    el.style.strokeDashoffset = String(hidden)
+    return { el, L: st.L, len0: st.len0, len1: st.len1, hidden }
+  }
+
   function render() {
     if (!geometry || !m) return
     const bw = m.input.baseWidth
     const forced = !!win.matchMedia?.('(forced-colors: active)').matches
     const frag = doc.createDocumentFragment()
-    views = geometry.segments.map((seg, k) => {
-      const base = { L: 0, len0: seg.len0, len1: seg.len1, state: null }
+    views = geometry.segments.map((seg) => {
+      const base = {
+        L: 0,
+        len0: seg.len0,
+        len1: seg.len1,
+        state: null,
+        strokes: null,
+        dots: null,
+        next: 0,
+        nextDot: 0,
+      }
       if (tier === 'C') {
         // Stufe C über den statischen Renderer (§9.4, §9.11): Umriss ohne Maske, vollständig.
         const { svg, ink } = staticSegmentSvg(doc, seg, forced)
         frag.appendChild(svg)
-        return { svg, ink, reveal: null, maskRef: null, ...base }
+        return { svg, ink, reveal: null, ...base }
       }
-      const x = seg.bbox.x - PAD
-      const y = seg.bbox.y - PAD
-      const w = seg.bbox.w + 2 * PAD
-      const h = seg.bbox.h + 2 * PAD
       const svg = segmentSvg(doc, seg)
-      const ink = doc.createElementNS(SVG_NS, 'path')
-      let reveal: SVGPathElement | null = null
-      let maskRef: string | null = null
-      if (tier === 'B') {
-        ink.setAttribute('d', seg.centerD)
-        ink.setAttribute('fill', 'none')
-        ink.setAttribute('stroke-width', String(bw))
-        ink.setAttribute('stroke-linecap', 'round')
-        ink.setAttribute('stroke-linejoin', 'round')
-        ink.style.stroke = forced ? 'CanvasText' : 'var(--ink)'
-        reveal = ink
-      } else {
-        ink.setAttribute('d', seg.outlineD)
-        ink.style.fill = forced ? 'CanvasText' : 'var(--ink)'
-        {
-          const id = `pc-leash-m-${uid}-${k}`
-          const defs = doc.createElementNS(SVG_NS, 'defs')
-          const mask = doc.createElementNS(SVG_NS, 'mask')
-          mask.setAttribute('id', id)
-          mask.setAttribute('maskUnits', 'userSpaceOnUse')
-          mask.setAttribute('x', String(x))
-          mask.setAttribute('y', String(y))
-          mask.setAttribute('width', String(w))
-          mask.setAttribute('height', String(h))
-          reveal = doc.createElementNS(SVG_NS, 'path')
-          reveal.setAttribute('d', seg.centerD)
-          reveal.setAttribute('fill', 'none')
-          reveal.setAttribute('stroke', '#fff')
-          reveal.setAttribute('stroke-width', String(1.35 * bw + 4))
-          reveal.setAttribute('stroke-linecap', 'round')
-          reveal.setAttribute('stroke-linejoin', 'round')
-          mask.appendChild(reveal)
-          defs.appendChild(mask)
-          svg.appendChild(defs)
-          maskRef = `url(#${id})`
-          ink.setAttribute('mask', maskRef)
+      if (tier === 'A' && seg.strokes?.length) {
+        // Stufe A „Tusche“: Stücke nahezu gleicher Breite, je ein runder Strich; Enthüllung per Dash (nur Paint).
+        const strokes: StrokeView[] = []
+        const dots: StrokeView[] = []
+        for (const st of seg.strokes) {
+          const v = strokeView(st, forced)
+          svg.appendChild(v.el)
+          ;(st.len1 > st.len0 ? strokes : dots).push(v)
         }
+        frag.appendChild(svg)
+        return { svg, ink: (strokes[0] ?? dots[0])!.el, reveal: null, ...base, strokes, dots }
       }
+      const ink = doc.createElementNS(SVG_NS, 'path')
+      ink.setAttribute('d', seg.centerD)
+      ink.setAttribute('fill', 'none')
+      ink.setAttribute('stroke-width', String(bw))
+      ink.setAttribute('stroke-linecap', 'round')
+      ink.setAttribute('stroke-linejoin', 'round')
       ink.setAttribute('class', 'ink')
+      ink.style.stroke = forced ? 'CanvasText' : 'var(--ink)'
+      // Länge aus der Geometrie (Polylinie, ohne getTotalLength – kein erzwungenes Layout beim Aufbau, PF-04/PF-05).
+      const L = seg.centerL ?? seg.len1 - seg.len0
+      ink.style.strokeDasharray = `${L} ${L}`
+      ink.style.strokeDashoffset = String(L)
       svg.appendChild(ink)
       frag.appendChild(svg)
-      return { svg, ink, reveal, maskRef, ...base }
+      return { svg, ink, reveal: ink, ...base, L }
     })
     root.replaceChildren(frag)
-    // Länge der Enthüllungslinie einmal beim Aufbau (§9.4); ohne SVG-Geometrie (jsdom) die Bogenlänge.
-    for (const v of views) {
-      if (!v.reveal) continue
-      const measured =
-        typeof v.reveal.getTotalLength === 'function' ? v.reveal.getTotalLength() : NaN
-      v.L = Number.isFinite(measured) && measured > 0 ? measured : v.len1 - v.len0
-      v.reveal.style.strokeDasharray = `${v.L} ${v.L}`
-      v.reveal.style.strokeDashoffset = String(v.L)
-    }
   }
 
   /**
@@ -277,7 +295,27 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     }
   }
 
-  /** Segment-Zustände: fertig (ohne Maske), aktiv (Maske/Strich aktualisiert), zukünftig (unsichtbar). */
+  /** Stufe A: Stücke bis `drawnLen` sichtbar, das Stück an der Feder anteilig (nur `stroke-dashoffset`). */
+  function applyStrokes(v: SegView) {
+    const strokes = v.strokes!
+    while (v.next < strokes.length && strokes[v.next]!.len1 <= drawnLen) {
+      strokes[v.next]!.el.style.strokeDashoffset = '0'
+      v.next++
+    }
+    const st = strokes[v.next]
+    if (st && drawnLen > st.len0)
+      st.el.style.strokeDashoffset = String(st.L * (1 - (drawnLen - st.len0) / (st.len1 - st.len0)))
+    const dots = v.dots!
+    while (v.nextDot < dots.length && dots[v.nextDot]!.len0 <= drawnLen) {
+      dots[v.nextDot]!.el.style.strokeDashoffset = '0'
+      v.nextDot++
+    }
+  }
+
+  /**
+   * Segment-Zustände: fertig, aktiv (Dash aktualisiert), zukünftig (unsichtbar). Im Scroll-Pfad ändern sich nur
+   * `stroke-dashoffset` und `visibility` – beides ohne Layout (KUNST-QA PF-05).
+   */
   function applyDrawn() {
     flagDrawn()
     flagStations()
@@ -287,16 +325,15 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       const state: SegState = p >= 1 - 1e-6 ? 'done' : p <= 0 ? 'future' : 'active'
       if (state !== v.state) {
         v.svg.style.visibility = state === 'future' ? 'hidden' : ''
-        if (state === 'done') {
-          v.ink.removeAttribute('mask')
-          if (v.reveal) {
-            v.reveal.style.strokeDasharray = ''
-            v.reveal.style.strokeDashoffset = ''
-          }
-        } else if (v.maskRef && !v.ink.hasAttribute('mask')) v.ink.setAttribute('mask', v.maskRef)
+        if (state === 'done' && v.reveal) {
+          v.reveal.style.strokeDasharray = ''
+          v.reveal.style.strokeDashoffset = ''
+        }
         v.state = state
       }
-      if (state === 'active' && v.reveal) v.reveal.style.strokeDashoffset = String(v.L * (1 - p))
+      if (v.strokes && state !== 'future') applyStrokes(v)
+      else if (state === 'active' && v.reveal)
+        v.reveal.style.strokeDashoffset = String(v.L * (1 - p))
     }
   }
 
@@ -432,13 +469,18 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
 
   // ---------- Aufbau und Neuaufbau ----------
 
-  function build(first: boolean) {
-    const t0 = performance.now()
+  const builtCallbacks: (() => void)[] = []
+  let built = false
+  /** Laufender Aufbau in Teilstücken (abbrechbar). */
+  let stepped: { cancel(): void } | null = null
+
+  /** Schreibphase nach Messung und Geometrie: Stufe, SVG, gezeichnete Länge, Coco, Intro. */
+  function finishBuild(first: boolean, mm: Measurement, geo: LeashGeometry, t0: number) {
     const prevStations = geometry?.stations ?? []
     const prevTotal = geometry?.totalLength ?? 0
     const prevDrawn = drawnLen
-    m = measure(root, options.preset)
-    geometry = buildGeometry({ preset: options.preset, seed, ...m.input })
+    m = mm
+    geometry = geo
     tier = chooseTier()
     render()
     const total = geometry.totalLength
@@ -468,6 +510,66 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     emitCoco(1, !!intro)
     timing(LEASH_MEASURES.build, t0)
     if (intro) requestFrame()
+    if (!built) {
+      built = true
+      for (const cb of builtCallbacks.splice(0)) cb()
+    }
+  }
+
+  /** Aufbau in einem Zug (Tests, `rebuild()`, Bewegungswechsel, Browser ohne `requestIdleCallback`). */
+  function build(first: boolean) {
+    stepped?.cancel()
+    stepped = null
+    const t0 = performance.now()
+    const mm = measure(root, options.preset)
+    finishBuild(first, mm, buildGeometry({ preset: options.preset, seed, ...mm.input }), t0)
+  }
+
+  /**
+   * Aufbau in Idle-Teilstücken (DESIGN §9.10, KUNST-QA PF-04): Lesephase, dann die Geometrie Schritt für Schritt
+   * (höchstens {@link STEP_BUDGET_MS} je Teilstück, mindestens ein Schritt), zuletzt die Schreibphase. Jedes Teilstück
+   * ist eine eigene `leash:build`-Messung; so bleibt bei 4× Drosselung jedes unter 50 ms.
+   */
+  function buildStepped(first: boolean) {
+    const ric = win.requestIdleCallback
+    if (!ric) return build(first)
+    stepped?.cancel()
+    let cancelled = false
+    let handle: number | null = null
+    const next = (fn: () => void) => {
+      handle = ric.call(
+        win,
+        () => {
+          handle = null
+          if (!cancelled && !destroyed) fn()
+        },
+        { timeout: 300 },
+      )
+    }
+    stepped = {
+      cancel() {
+        cancelled = true
+        if (handle !== null) win.cancelIdleCallback?.(handle)
+      },
+    }
+    const job = stepped
+    const t0 = performance.now()
+    const mm = measure(root, options.preset)
+    timing(LEASH_MEASURES.build, t0)
+    const steps = geometrySteps({ preset: options.preset, seed, ...mm.input })
+    const run = () => {
+      const t1 = performance.now()
+      let r = steps.next()
+      while (!r.done && performance.now() - t1 < STEP_BUDGET_MS) r = steps.next()
+      timing(LEASH_MEASURES.build, t1)
+      if (!r.done) return next(run)
+      const geo = r.value.geometry
+      next(() => {
+        if (stepped === job) stepped = null
+        finishBuild(first, mm, geo, performance.now())
+      })
+    }
+    next(run)
   }
 
   function scheduleRebuild() {
@@ -479,7 +581,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
         idleId = win.requestIdleCallback(
           () => {
             idleId = null
-            rebuild()
+            rebuild(true)
           },
           { timeout: 300 },
         )
@@ -491,10 +593,11 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     }, REBUILD_DEBOUNCE_MS)
   }
 
-  function rebuild() {
+  function rebuild(stepwise = false) {
     if (destroyed) return
     rebuildCount++
-    build(false)
+    if (stepwise && options.stepwise !== false) buildStepped(false)
+    else build(false)
   }
 
   // ---------- Ereignisse ----------
@@ -536,7 +639,8 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
         })
       : null
 
-  build(true)
+  if (options.stepwise === false) build(true)
+  else buildStepped(true)
   win.addEventListener('scroll', onScroll, { passive: true })
   win.addEventListener('resize', onResize, { passive: true })
   if (doc.readyState !== 'complete') win.addEventListener('load', onLoad, { once: true })
@@ -553,6 +657,8 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     destroy() {
       if (destroyed) return
       destroyed = true
+      stepped?.cancel()
+      stepped = null
       if (rafId !== null) win.cancelAnimationFrame(rafId)
       if (debounce !== null) clearTimeout(debounce)
       if (idleTimer !== null) clearTimeout(idleTimer)
@@ -598,6 +704,10 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     },
     notePose(entry) {
       probe?.pose?.(entry)
+    },
+    whenBuilt(cb) {
+      if (built) cb()
+      else builtCallbacks.push(cb)
     },
   }
 }

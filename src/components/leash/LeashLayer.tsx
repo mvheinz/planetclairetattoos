@@ -117,7 +117,10 @@ export function LeashLayer({
         // eslint-disable-next-line no-restricted-properties -- öffentliche Build-Konstante, kein getEnv() im Browser
         if (process.env.NEXT_PUBLIC_LEASH_DEBUG === '1')
           void import('@/leash/debug').then(({ exposeLeashDebug }) => {
-            if (!cancelled) cleanups.push(exposeLeashDebug(h))
+            // erst nach dem ersten Aufbau (in Idle-Teilstücken) – dann steht `geometry`
+            h.whenBuilt(() => {
+              if (!cancelled) cleanups.push(exposeLeashDebug(h))
+            })
           })
       })
     })
