@@ -6,6 +6,7 @@ import { Coco } from '@/components/Coco'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { PageBlocks } from '@/components/content/PageBlocks'
 import { Icon } from '@/components/icons/Icon'
+import { StaticHtml } from '@/components/StaticHtml'
 import { Button } from '@/components/ui/Button'
 import { Callout } from '@/components/ui/Callout'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -26,7 +27,7 @@ import { listSearch, variantKey, type ListParams } from '@/lib/shop/listParams'
 
 import styles from './ListPage.module.css'
 import { PriceFootnote } from './PriceFootnote'
-import { ProductCard } from './ProductCard'
+import { EAGER_CARDS, ProductCard } from './ProductCard'
 import { statusLabelAttrs } from './statusLabels'
 
 // Listen-Seiten des Shops (KONZEPT §3.2, §3.3, §3.5; DESIGN KO-07, KO-08, KO-17, §9.7 `shopString`): Shop (R02),
@@ -231,11 +232,19 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
               }
               {...(archive ? {} : statusLabelAttrs((key) => t(`shop.card.${key}`)))}
             >
-              {result.docs.map((product, index) => (
-                <li key={product.id}>
-                  <ProductCard product={product} locale={locale} index={index} />
-                </li>
-              ))}
+              {result.docs.map((product, index) =>
+                // Karten mit faulen Fotos als statisches HTML (nicht hydriert, TBT P7); die ersten (eager, KO-07)
+                // bleiben normal gerendert, damit ihre Vorlade-Hinweise im <head> bleiben.
+                index < EAGER_CARDS ? (
+                  <li key={product.id}>
+                    <ProductCard product={product} locale={locale} index={index} />
+                  </li>
+                ) : (
+                  <StaticHtml as="li" key={product.id}>
+                    <ProductCard product={product} locale={locale} index={index} />
+                  </StaticHtml>
+                ),
+              )}
             </ul>
           </div>
           {moreHref ? (

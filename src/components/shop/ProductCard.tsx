@@ -1,7 +1,7 @@
-import { useTranslations } from 'next-intl'
 import React from 'react'
 
 import { ResponsiveImage } from '@/components/media/ResponsiveImage'
+import { translatorFor } from '@/i18n/translator'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { Locale, ProductCategory } from '@/lib/enums'
 import { formatTagPrice } from '@/lib/shop/priceTag'
@@ -64,7 +64,7 @@ export function ProductCard({
   /** Verborgener Stempel für den Live-Wechsel auf `sold` (MI-03); ohne ihn dämpft `product-status` nur. */
   stampSlot?: boolean
 }) {
-  const t = useTranslations('shop.card')
+  const t = translatorFor(locale, 'shop.card')
   const state = cardState(product.status)
   const title = product.title?.trim() || ENUM_LABELS.PRODUCT_CATEGORIES[product.category].de
   const price = formatTagPrice(product.priceCents, locale)
@@ -108,6 +108,7 @@ export function ProductCard({
           // Bei `available` verborgen im Markup – `product-status` blendet es beim Live-Wechsel ein (P3.11).
           <Badge
             kind="reserved"
+            locale={locale}
             onPhoto
             hidden={state !== 'reserved'}
             className={styles.reserved}
