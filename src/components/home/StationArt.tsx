@@ -23,8 +23,11 @@ const FALLBACK: Readonly<Record<string, Fallback>> = {
   'jutta-und-coco': 'coco-planet',
 }
 
+// Inline im HTML braucht das `<svg>` kein `xmlns` (PF-10: SVG-Bytes der Startseite)
 const inlineSvg = (svg: string) =>
-  svg.replace('<svg ', '<svg aria-hidden="true" focusable="false" ')
+  svg
+    .replace(' xmlns="http://www.w3.org/2000/svg"', '')
+    .replace('<svg ', '<svg aria-hidden="true" focusable="false" ')
 
 export function StationArt({ stationId, className }: { stationId: string; className?: string }) {
   const own = STATION_ART[stationId]
