@@ -4,7 +4,9 @@
 //
 // Datenschutz/Fremddienste: Bericht nur ins Dateisystem (`upload.target: 'filesystem'`, kein
 // `temporary-public-storage`), Chromium aus der Playwright-Installation (`chromePath`), Hintergrund-Netz von Chrome aus.
-// Server: LHCI startet selbst `pnpm start` auf Port 3000 (Produktions-Build vorher: `pnpm build`; Port muss frei sein).
+// Server: LHCI startet `scripts/perf/serve-h2.mjs` – `next start` auf Port 3100 hinter einem HTTP/2-TLS-Vorschaltserver
+// auf Port 3000 (wie die Produktion; ARCHITEKTUR §7.7, OFFENE-PUNKTE „P5 CI“). Produktions-Build vorher: `pnpm build`;
+// beide Ports müssen frei sein. Das Zertifikat ist selbstsigniert – nur hier `--ignore-certificate-errors`.
 
 const { chromium } = require('@playwright/test')
 
@@ -20,7 +22,7 @@ const ROUTE_PATHS = {
   R04: '/de/shop/901-schale-langohr-wuschel',
 }
 
-const baseURL = 'http://localhost:3000'
+const baseURL = `https://localhost:${process.env.PERF_PORT || 3000}`
 const urls = budgets.lighthouse.routes.map((id) => {
   const p = ROUTE_PATHS[id]
   if (!p) throw new Error(`lighthouserc: kein Pfad für ${id}`)
@@ -60,8 +62,8 @@ module.exports = {
       url: urls,
       numberOfRuns: lh.runs,
       chromePath: chromium.executablePath(),
-      startServerCommand: 'pnpm start',
-      startServerReadyPattern: 'Ready',
+      startServerCommand: 'node scripts/perf/serve-h2.mjs',
+      startServerReadyPattern: 'HTTP/2-Vorschaltserver bereit',
       startServerReadyTimeout: 120000,
       settings: {
         onlyCategories: ['performance'],
@@ -78,6 +80,8 @@ module.exports = {
           '--no-first-run',
           '--no-default-browser-check',
           '--metrics-recording-only',
+          // Selbstsigniertes Zertifikat des HTTP/2-Vorschaltservers (nur localhost, nur Lighthouse).
+          '--ignore-certificate-errors',
         ].join(' '),
       },
     },
