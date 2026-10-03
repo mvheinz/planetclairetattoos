@@ -3679,7 +3679,7 @@ ANFORDERUNGEN §3, §5, §6, §7.
   R26 mit Schritten, Kontakt und die Admin-Fotos von Widerrufe, Texte → Rechtstexte, Datenschutz-Anfragen, Löschvorschau.
 - [x] `docs/recht/KANZLEI-BRIEFING.md` in neuer Version mit Eintrag in §19 und `docs/recht/VVT.md` vorhanden;
   ANFORDERUNGEN §7 Teil A für R-095 und R-156 abgehakt.
-- [ ] `docs/FORTSCHRITT.md` mit Phasen-Eintrag; PR-Beschreibung aktualisiert; neue Annahmen in `docs/OFFENE-PUNKTE.md`
+- [x] `docs/FORTSCHRITT.md` mit Phasen-Eintrag; PR-Beschreibung aktualisiert; neue Annahmen in `docs/OFFENE-PUNKTE.md`
   (mindestens: Teil-Widerruf-Versanddifferenz bis Kanzleifrage K-09, Arbeitsfassungen der Bausteine, Rechnungsfrist 10
   Jahre bis Kanzleifrage K-33); neue Jutta-Aufgaben als A51 ff. in `docs/owner/AUFGABEN.md`, soweit nicht schon
   vorhanden.

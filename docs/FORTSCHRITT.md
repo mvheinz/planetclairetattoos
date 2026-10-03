@@ -2,6 +2,61 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-03 – P6 Phasen-Abnahme (Recht, Widerruf, Datenschutz) – für Jutta
+
+Hallo Jutta,
+
+Phase 6 ist gebaut. Hier ist kurz und einfach, was jetzt da ist und was du später mit der Kanzlei klären musst.
+
+### Was rechtlich jetzt da ist
+
+- **Alle Rechtsseiten** auf Deutsch und Englisch: Impressum, Datenschutzerklärung, AGB, Widerrufsbelehrung mit
+  Muster-Formular, Versand und Zahlung sowie die Kontaktseite. Die Texte sind noch **Platzhalter**. Oben auf jeder
+  Seite steht ein deutlicher Hinweis „vorläufiger Text“, bis die Kanzlei die echten Texte liefert.
+- **Rechtstexte in der Verwaltung** (Bereich „Texte → Rechtstexte“): Du kannst später den Text der Kanzlei einfach
+  hineinkopieren. Jede Änderung wird eine neue Fassung mit Datum. Alte Fassungen bleiben gespeichert, damit man immer
+  zeigen kann, was eine Kundin beim Kauf gesehen hat. Dazu gibt es PDFs zum Herunterladen.
+- **Kleine Rechtsbausteine** (z. B. der Hinweis zu den Rücksendekosten oder der Kleinunternehmer-Satz am Preis) liegen
+  ebenfalls versioniert in der Verwaltung. Es sind vorerst Arbeitsfassungen.
+- **Datenschutz-Anfragen** (Auskunft, Löschen, Berichtigen …): eigene Liste unter „Export und Datenschutz“. Das System
+  zeigt die Monatsfrist, erinnert dich rechtzeitig und hilft beim Suchen aller Daten einer Person und beim Export.
+- **Automatisches Löschen**: Alte Daten (z. B. abgebrochene Bestellungen, alte Mail-Protokolle, Anfragen nach
+  6 Monaten) werden nach festen Fristen gelöscht oder unkenntlich gemacht. In den Einstellungen siehst du vorher in der
+  „Löschvorschau“, was in den nächsten Tagen gelöscht würde. Rechnungen bleiben so lange, wie das Gesetz es verlangt.
+- **Reklamationen** werden mit Fotos zur Bestellung gespeichert, mit Antwort-Vorlage (Reparatur oder Ersatz).
+- **Jährliche Erinnerung**, die Rechtstexte prüfen zu lassen.
+- **Verzeichnis der Verarbeitungen** und eine Liste aller Dienste (z. B. Stripe, DHL) für die Kanzlei.
+
+### So funktioniert der Widerruf
+
+1. Auf **jeder Seite** unten steht der Link **„Vertrag widerrufen“**.
+2. **Schritt 1:** Die Kundin gibt Name, E-Mail und Bestellnummer ein. Sie kann (muss aber nicht) einzelne Stücke
+   auswählen und einen Grund nennen.
+3. **Schritt 2:** Sie sieht alles noch einmal und klickt **„Widerruf bestätigen“**.
+4. Sie bekommt **sofort** eine Bestätigung auf der Seite und per Mail (mit Datum und Uhrzeit). Du bekommst auch eine
+   Mail.
+5. In der Verwaltung unter **„Widerrufe“** siehst du alles: Ware ist zurück → Erstattung auslösen (Stripe macht das
+   automatisch, bei Vorkasse überweist du und klickst „überwiesen“). Das System erinnert dich an die 14-Tage-Frist und
+   erstellt die Gutschrift.
+
+### Was du vor dem Go-live mit der Kanzlei klären musst
+
+Die Kanzlei-Mappe (`docs/recht/KANZLEI-BRIEFING.md`, jetzt Version 1.4, mit Bildschirmfotos des Widerrufs) ist
+fertig. Die wichtigsten Punkte:
+
+- **Echte Rechtstexte** liefern lassen (Impressum, Datenschutz, AGB, Widerrufsbelehrung, Versand) – sie ersetzen die
+  Platzhalter.
+- **Widerruf:** Passt der Ablauf in zwei Schritten (K-11)? Wer trägt bei einem Teil-Widerruf die Versandkosten
+  (K-09)? Vorläufig gilt: Die Rücksendung zahlt die Kundin; behält sie einen Teil, bekommt sie den Warenwert und den Unterschied
+  bei den Versandkosten zurück.
+- **Rechnungen 8 oder 10 Jahre** aufbewahren (K-33, auch mit der Steuerberatung)? Vorläufig: 10 Jahre.
+- **Wortlaut der Bausteine** (Kleinunternehmer-Hinweis, DHL-Einwilligung, Transportschaden, Rücksendekosten):
+  bisher nur Arbeitsfassungen (K-15, K-21, K-23, K-31).
+- **Deine Anschrift** im Impressum und in der Belehrung (K-39) und ob eine Telefonnummer nötig ist (K-28).
+- **Ohne Cookie-Banner** zulässig (K-30, K-38)?
+
+Du musst jetzt nichts tun. Diese Punkte besprechen wir gemeinsam beim Go-live (P11).
+
 ## 2026-10-02 – P6.23
 
 - ANFORDERUNGEN §3 um Spalte „Nachweis“ (Testdatei-Pfade, bis P6 gefüllt); Parser liest Spalten über die Kopfzeile und prüft, dass jeder Pfad existiert; `LEGAL_TRACE_PHASE = 6`\n- §7 Teil A: R-095 abgehakt (02.10.2026)\n- Tests: `tests/unit/legal/traceability.unit.spec.ts` (9, inkl. Gegenproben Titel/Pfad)
