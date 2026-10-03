@@ -432,3 +432,13 @@ body[data-page-error] main *::after {
   animation: none !important;
   transition: none !important;
 }
+
+/* Handgezeichnete Icons (Glyph, DESIGN §6.5): Strich 1.75, runde Enden, `currentColor` – einmal hier statt als Attribute an
+   jedem Icon (PF-10). Spezifität 0: jede Komponenten-Regel darf überschreiben, wie zuvor die Attribute. */
+:where(.glyph) {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
