@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-03 – P8.20
+
+- Geprüft: `assertProductionEnv` bricht mit `SEED_PREVIEW_MODE=true` in Produktion ab, `seedPreviewModeActive()` dort immer `false`.
+- Neu: Feld `media.ownerApproved` (Migration `p8_media_owner_approved`, Hinweis „Nur ankreuzen, wenn Jutta dieses Foto freigegeben hat“, nur bei `showsPerson = jutta` sichtbar); `isMediaPubliclyVisible`, Lese-Zugriff und Bildroute sperren Fotos von Jutta ohne Häkchen (auch im Vorschau-Modus); „Über mich“ nutzt dieselbe Regel. Startklar-Punkt vorgemerkt (`STARTKLAR_PLANNED`, `countUnapprovedOwnerPhotos`).
+- Tests: `tests/unit/env/seed-preview.unit.spec.ts` (8, R-181); `tests/int/media/owner-approved.int.spec.ts` (4, DM-MEDIA-06); AK-1-03/AK-9-04 grün (seed-tattoo E2E, tattoo.int).
+
 ## 2026-10-03 – P8.19a
 
 - Verwaltung „Texte“ → „Seiten und FAQ“ (`PagesArea`): Liste aller `PAGE_KEYS` (Beispieltext/eigener Text), Handy-Formular je Seite mit Titel, SEO-Feldern und allen Textblöcken DE/EN (`PAGE_TEXT_BLOCKS`: Hero, Stationen, Bild+Text, Formular-Texte …, Feldgrenzen wie P8.7), „Übersetzen“, FAQ aller Kategorien sortierbar (Hoch/Runter).

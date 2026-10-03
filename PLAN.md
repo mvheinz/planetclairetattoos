@@ -4545,7 +4545,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     Ansichten aus `scripts/preview-export/adminViews.ts`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: Jutta liest die Texte in der Produktion gegen (P11.10).
 
-- [ ] **P8.20 Vorschau-Modus nie in Produktion, Fotos von Jutta nur mit Freigabe (R-181)** – Prüfen (seit P1
+- [x] **P8.20 Vorschau-Modus nie in Produktion, Fotos von Jutta nur mit Freigabe (R-181)** – Prüfen (seit P1
   vorhanden, nicht neu bauen): `assertProductionEnv` (ARCHITEKTUR §4.2/§4.3) bricht den Serverstart mit klarer Meldung
   ab, wenn `SEED_PREVIEW_MODE=true` und `APP_ENV=production`; `seedPreviewModeActive()` liefert in Produktion immer
   `false` (KONZEPT §9.7, DATENMODELL §14). Neu in P8: Medien mit `showsPerson = jutta` sind öffentlich nur mit dem
