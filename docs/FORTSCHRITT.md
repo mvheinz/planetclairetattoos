@@ -3,6 +3,11 @@
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
 
+
+## 2026-10-03 – P7 CI-Reparatur (Tempo TBT)
+
+- Phasenlauf (00da128): nur Lighthouse TBT rot (R01 211, R02 221, R04 253 ms). Ursachen behoben: Ersatzschriften ohne Arial lösten ~60 Schriftsuchen pro Aufbau aus (jetzt 0); Tuschelinie baut in Häppchen ≤ 8 ms; Menü, Fuß, Stationen, untere Karten und Produktabschnitte als statisches HTML ohne Hydrierung (Fasern R01 526→160). Lokal TBT R01 136→69, R02 142→120, R04 126→107 ms. Dabei behoben: `react-dom/server` fehlte im Server-Bündel (hätte auf Vercel ISR und Mailversand gebrochen). Mail-Sofortversand: Wettlauf mit dem Job-Wecker behoben.
+
 ## 2026-10-03 – Fix: Sofortversand von Mails kollidierte selten mit parallelem Job-Lauf (P7.12)
 
 - Ursache: `runEmailJobNow` rief `payload.jobs.runByID` ohne Bedingung auf. Hatte der Job-Wecker/`jobs.run` den Job
