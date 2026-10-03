@@ -414,6 +414,15 @@ html[data-motion='reduced'] {
   body:has([data-withdraw-step='done']) [data-withdraw-aside] {
     display: none !important;
   }
+
+  /* R17 Aftercare (KONZEPT §9.2): druckfreundlich – ohne Navigation, Tuschelinie und Coco. */
+  body:has([data-tattoo-print]) [data-site-header],
+  body:has([data-tattoo-print]) [data-site-footer],
+  body:has([data-tattoo-print]) [data-leash-layer],
+  body:has([data-tattoo-print]) nav,
+  body:has([data-tattoo-print]) .coco {
+    display: none !important;
+  }
 }
 
 /* Fehlerseite R29 (DESIGN KO-18): keine Animation und keine Übergänge im Inhalt, solange sie steht. */

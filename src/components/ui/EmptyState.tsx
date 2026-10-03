@@ -12,7 +12,8 @@ import styles from './EmptyState.module.css'
 export interface EmptyStateProps {
   title: React.ReactNode
   text?: React.ReactNode
-  action?: { href: string; label: React.ReactNode }
+  /** Weiter-Link; externe Ziele (Instagram) mit `rel="noopener noreferrer"` (R-139). */
+  action?: { href: string; label: React.ReactNode; rel?: string }
   /** Coco-Pose laut Tabelle KO-17 (z. B. `sitzen`, `kopfschief`); ohne Pose keine Coco. */
   pose?: SpritePose
   /** Überschriften-Ebene (Standard `h2`). */
@@ -31,7 +32,7 @@ export function EmptyState({ title, text, action, pose, headingLevel = 'h2' }: E
       <Heading className={styles.title}>{title}</Heading>
       {text ? <p className={styles.text}>{text}</p> : null}
       {action ? (
-        <Button variant="secondary" href={action.href}>
+        <Button variant="secondary" href={action.href} rel={action.rel}>
           {action.label}
         </Button>
       ) : null}

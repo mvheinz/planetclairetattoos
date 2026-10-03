@@ -168,3 +168,8 @@ export function inquiryReplyHref(email: string, reference: string, locale: 'de' 
   const subject = locale === 'en' ? `Your request ${reference}` : `Deine Anfrage ${reference}`
   return `mailto:${encodeURIComponent(email).replace(/%40/g, '@')}?subject=${encodeURIComponent(subject)}`
 }
+
+/** `mailto:` für „Angebot per Mail schreiben“ (R-161, P7.14): Betreff mit Referenz, Text = Vorlage `commission.offer`. */
+export function inquiryOfferHref(email: string, subject: string, body: string): string {
+  return `mailto:${encodeURIComponent(email).replace(/%40/g, '@')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+}

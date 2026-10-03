@@ -8,7 +8,9 @@ import { Readable } from 'node:stream'
 import { s3Storage, type S3StorageOptions } from '@payloadcms/storage-s3'
 import type { CollectionConfig, Plugin } from 'payload'
 
+import { isAdminRequest } from '@/access'
 import { getEnv, type Env } from '@/lib/env'
+import { isMediaPubliclyVisible } from '@/lib/tattoo/visibility'
 
 import { applyCacheHeaders, cacheClassFor, modifyResponseHeadersFor } from './headers'
 import { s3ClientConfig } from './s3'
@@ -107,6 +109,18 @@ function mimeFor(doc: Doc, filename: string): string | undefined {
   return MIME_BY_EXT[path.extname(filename).toLowerCase()]
 }
 
+/** 404 ohne Inhalt und ohne Cache – unterscheidet nicht zwischen „gibt es nicht“ und „nicht sichtbar“. */
+function mediaNotFound(): Response {
+  return new Response('Not Found', {
+    status: 404,
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'Cache-Control': 'no-store',
+      'X-Content-Type-Options': 'nosniff',
+    },
+  })
+}
+
 /**
  * Datei-Handler (läuft nach Payloads Zugriffsprüfung, vor dem Speicher-Handler): setzt die Cache-Header passend zum
  * Dokument. Bei `s3` übernimmt der Handler von `@payloadcms/storage-s3` diese Header; bei `local` liefert dieser
@@ -118,7 +132,15 @@ export function fileResponseHandler(area: UploadArea, env: Env = getEnv()): Uplo
     { doc, headers, params }: Parameters<UploadHandler>[1],
   ): Promise<Response | undefined> => {
     const resolved = await resolveDoc(req, params.collection, params.filename, doc)
-    const cls = cacheClassFor(area, resolved)
+    let cls = cacheClassFor(area, resolved)
+    if (area === 'media') {
+      // Einwilligungsregel auch für die Datei selbst (KONZEPT §9.7, P7.5): nicht sichtbare Bilder → 404 für alle außer
+      // der angemeldeten Verwaltung, auch bei erratener URL. Für die Verwaltung bleibt es privat (nie in einen geteilten
+      // Cache); öffentlich sichtbare Seed-/Kund:innen-Bilder kurz (≤ 5 min), sonst `immutable`.
+      const visible = !!resolved && isMediaPubliclyVisible(resolved, env)
+      if (!visible && !isAdminRequest(req)) return mediaNotFound()
+      cls = visible ? cacheClassFor(area, { ...resolved, restricted: false }) : 'private'
+    }
     if (headers) applyCacheHeaders(headers, cls)
     if (env.STORAGE_DRIVER !== 'local') return undefined
     // Teilanfragen übernimmt Payloads Rückfall (Header dann konservativ über modifyResponseHeaders).

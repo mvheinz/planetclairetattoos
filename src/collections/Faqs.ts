@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { isAdmin, publicRead } from '@/access'
+import { faqAdminEndpoints } from '@/endpoints/tattoo'
 import { basicRichTextEditor, seedField, sortOrderField } from '@/fields'
 import { revalidateContent } from '@/lib/cache/revalidate'
 import { TAGS } from '@/lib/cache/tags'
@@ -29,6 +30,7 @@ export const Faqs: CollectionConfig = {
   },
   versions: { maxPerDoc: 10 },
   defaultSort: 'sortOrder',
+  endpoints: faqAdminEndpoints,
   fields: [
     {
       name: 'question',

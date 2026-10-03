@@ -7,6 +7,7 @@ import type {
 } from 'payload'
 
 import { adminField, isAdmin, isAdminRequest, NOT_SEED } from '@/access'
+import { galleryAdminEndpoints } from '@/endpoints/tattoo'
 import { seedField, sortOrderField } from '@/fields'
 import { writeAudit } from '@/lib/audit'
 import { revalidateContent } from '@/lib/cache/revalidate'
@@ -32,7 +33,7 @@ import { changedFields } from './hooks/immutable'
 // DATENMODELL §6.16 – Galerie Fresh & Healed (E-42): Fotos mit Kund:innen erscheinen nur mit dokumentierter Einwilligung.
 // Keine Versionen/Drafts (§1.6): ein Widerruf muss ohne Rest wirken (L-19, L-20). Einzige Ausnahme: Beispieldaten
 // (`seed = true`) bei SEED_PREVIEW_MODE=true – nie in Produktion. Die Aktion „Einwilligung widerrufen“
-// (`POST /api/tattoo-gallery/:id/withdraw-consent`) folgt mit der Oberfläche in P7.
+// (`POST /api/tattoo-gallery/:id/withdraw-consent`, `src/lib/tattoo/admin.ts`) gibt es seit P7.8.
 
 const SLUG = 'tattoo-gallery'
 const fail = (message: string, path: string): never => failField(SLUG, message, path)
@@ -122,7 +123,7 @@ const guardGallery: CollectionBeforeChangeHook = async ({ data, originalDoc, req
     const previewSeed = merged.seed === true && seedPreviewModeActive()
     if (!previewSeed) {
       fail(
-        'Fotos mit Kund:innen erscheinen nur mit Einwilligung (Häkchen, Datum und Notiz).',
+        'Ohne Einwilligung der Kundin/des Kunden nicht veröffentlichen (Häkchen, Datum und Notiz).',
         'published',
       )
     }
@@ -210,6 +211,7 @@ export const TattooGallery: CollectionConfig = {
     delete: isAdmin,
   },
   defaultSort: 'sortOrder',
+  endpoints: galleryAdminEndpoints,
   fields: [
     { name: 'image', type: 'upload', label: 'Foto', relationTo: 'media', required: true },
     {

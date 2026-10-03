@@ -16,6 +16,7 @@ export const SETTINGS_AREAS = [
   'processorAgreements',
   'legal',
   'mailTexts',
+  'tattooPrices',
 ] as const
 export type SettingsArea = (typeof SETTINGS_AREAS)[number]
 
@@ -166,6 +167,25 @@ export function initialProcessorAgreements(
               : '',
       }
     }),
+  }
+}
+
+/** Tattoo-Preise (P7.9, KONZEPT §9.6): `settings.tattoo.*`, Beträge als Euro-Text, Hinweis DE/EN. */
+export interface TattooPricesValues {
+  minPrice: string
+  customFrom: string
+  customTo: string
+  priceNote: Localized
+}
+
+/** Startwerte der Tattoo-Preise. */
+export function initialTattooPrices(de: Obj, en: Obj): TattooPricesValues {
+  const t = obj(de.tattoo)
+  return {
+    minPrice: euro(t.minPriceCents),
+    customFrom: euro(t.customPriceFromCents),
+    customTo: euro(t.customPriceToCents),
+    priceNote: pair(t.priceNote, obj(en.tattoo).priceNote),
   }
 }
 

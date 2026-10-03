@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation'
 import React, { useId, useRef, useState } from 'react'
 
+import { tattooTextWarnings } from '@/lib/tattoo/textWarnings'
+
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { Notice } from '../../components/Notice'
 import { TranslateButton } from '../../components/TranslateButton'
@@ -24,6 +26,7 @@ import {
   type SettingsArea,
   type ShippingValues,
   type ShopValues,
+  type TattooPricesValues,
   type TemplatesValues,
   type YearRow,
 } from './settingsAreas'
@@ -1137,6 +1140,92 @@ export function MailTextsForm({
           />
         </div>
       ))}
+    </AreaForm>
+  )
+}
+
+// --- Tattoo-Preise (P7.9, Reiter „Texte“ der Tattoo-Verwaltung) -------------------------------------------------------
+
+/** Labels der Tattoo-Preise (Verwaltung nur Deutsch). */
+const TATTOO_PRICE_TEXT = {
+  minPrice: 'Mindestpreis (Euro)',
+  minPriceHint: 'Erscheint als „Mindestpreis 80 €*“. Leer = nicht anzeigen.',
+  customFrom: 'Eigene Idee: Preis ab (Euro)',
+  customTo: 'Eigene Idee: Preis bis (Euro)',
+  customHint: 'Preisrahmen für eigene Ideen, z. B. 150 bis 400. Immer Gesamtpreise.',
+  priceNote: 'Preishinweis',
+  priceNoteHint:
+    'z. B. „je nach Größe und Aufwand“. Keine Regeln zur Anzahlung – die vereinbarst du per Mail.',
+  warnings: 'Bitte prüfen (Speichern bleibt möglich):',
+} as const
+
+export function TattooWarnings({ texts, testId }: { texts: string[]; testId?: string }) {
+  const warnings = tattooTextWarnings(texts)
+  if (warnings.length === 0) return null
+  return (
+    <Notice tone="warning" data-testid={testId ?? 'tattoo-text-warning'}>
+      {TATTOO_PRICE_TEXT.warnings} {warnings.map((w) => `„${w.match}“: ${w.message}`).join(' ')}
+    </Notice>
+  )
+}
+
+/** Zahlen in `settings.tattoo.*` und Preishinweis DE/EN mit „Übersetzen“; Warnung bei V-24/V-15-Mustern. */
+export function TattooPricesForm({
+  initial,
+  translateDisabled,
+}: {
+  initial: TattooPricesValues
+  translateDisabled: string | null
+}) {
+  const [v, setV] = useState(initial)
+  return (
+    <AreaForm area="tattooPrices" values={v}>
+      <TextField
+        path="tattoo.minPriceCents"
+        label={TATTOO_PRICE_TEXT.minPrice}
+        hint={TATTOO_PRICE_TEXT.minPriceHint}
+        inputMode="decimal"
+        value={v.minPrice}
+        onChange={(minPrice) => setV({ ...v, minPrice })}
+      />
+      <TextField
+        path="tattoo.customPriceFromCents"
+        label={TATTOO_PRICE_TEXT.customFrom}
+        hint={TATTOO_PRICE_TEXT.customHint}
+        inputMode="decimal"
+        value={v.customFrom}
+        onChange={(customFrom) => setV({ ...v, customFrom })}
+      />
+      <TextField
+        path="tattoo.customPriceToCents"
+        label={TATTOO_PRICE_TEXT.customTo}
+        inputMode="decimal"
+        value={v.customTo}
+        onChange={(customTo) => setV({ ...v, customTo })}
+      />
+      <LocalizedField
+        path="tattoo.priceNote"
+        label={TATTOO_PRICE_TEXT.priceNote}
+        hint={TATTOO_PRICE_TEXT.priceNoteHint}
+        multiline
+        maxLength={400}
+        value={v.priceNote}
+        onChange={(priceNote) => setV({ ...v, priceNote })}
+      />
+      <TranslateButton<{ text?: string }>
+        endpoint={null}
+        hasEnglish={v.priceNote.en.trim() !== ''}
+        disabledReason={translateDisabled}
+        prepare={async () =>
+          v.priceNote.de.trim()
+            ? `/api/globals/settings/translate?text=${encodeURIComponent(v.priceNote.de)}`
+            : null
+        }
+        onTranslated={(r) =>
+          setV((cur) => ({ ...cur, priceNote: { ...cur.priceNote, en: r.text ?? '' } }))
+        }
+      />
+      <TattooWarnings texts={[v.priceNote.de, v.priceNote.en]} testId="tattoo-prices-warning" />
     </AreaForm>
   )
 }

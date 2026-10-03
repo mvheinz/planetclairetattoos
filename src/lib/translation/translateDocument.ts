@@ -21,23 +21,35 @@ import {
 
 type Doc = Record<string, unknown>
 
+const INDEX_RE = /^\d+$/
+
+/** Wert unter einem Punkt-Pfad; Ziffern-Segmente greifen in Listen (Blöcke, Zeilen: `layout.0.steps.1.title`). */
 export function getPath(obj: unknown, path: string): unknown {
-  return path
-    .split('.')
-    .reduce<unknown>(
-      (o, k) => (o && typeof o === 'object' && !Array.isArray(o) ? (o as Doc)[k] : undefined),
-      obj,
-    )
+  return path.split('.').reduce<unknown>((o, k) => {
+    if (Array.isArray(o)) return INDEX_RE.test(k) ? o[Number(k)] : undefined
+    return o && typeof o === 'object' ? (o as Doc)[k] : undefined
+  }, obj)
 }
 
 function setPath(target: Doc, path: string, value: unknown): void {
   const keys = path.split('.')
-  let o = target
-  for (const k of keys.slice(0, -1)) {
-    if (!o[k] || typeof o[k] !== 'object') o[k] = {}
-    o = o[k] as Doc
-  }
+  let o = target as Record<string, unknown>
+  keys.slice(0, -1).forEach((k, i) => {
+    if (!o[k] || typeof o[k] !== 'object') o[k] = INDEX_RE.test(keys[i + 1]!) ? [] : {}
+    o = o[k] as Record<string, unknown>
+  })
   o[keys.at(-1)!] = value
+}
+
+/** `patch` in eine Kopie von `base` legen (Listen nach Position; nur gesetzte Einträge des Patches zählen). */
+function deepMerge(base: unknown, patch: unknown): unknown {
+  if (!patch || typeof patch !== 'object') return patch
+  if (!base || typeof base !== 'object') return patch
+  const out = (Array.isArray(base) ? [...base] : { ...(base as Doc) }) as Record<string, unknown>
+  for (const key of Object.keys(patch as object)) {
+    out[key] = deepMerge(out[key], (patch as Record<string, unknown>)[key])
+  }
+  return out
 }
 
 /** Hat das Feld sichtbaren Inhalt (Text getrimmt bzw. Lexical mit Textknoten)? */
@@ -121,11 +133,12 @@ export async function prepareDocumentTranslation(
       typeof job.source === 'string' ? part[0] : applyLexicalTexts(job.source, part),
     )
   }
-  // Gruppen vollständig mitschicken (nicht lokalisierte Unterfelder bleiben unverändert).
+  // Gruppen und Listen (Blöcke) vollständig mitschicken: nicht lokalisierte Unterfelder, Zeilen-IDs und nicht
+  // übersetzte Einträge bleiben unverändert, die Struktur bleibt gleich.
   for (const key of Object.keys(patch)) {
     const current = en[key]
     if (jobs.some((j) => j.path.startsWith(`${key}.`)) && current && typeof current === 'object') {
-      patch[key] = { ...(current as Doc), ...(patch[key] as Doc) }
+      patch[key] = deepMerge(current, patch[key])
     }
   }
   return { paths: jobs.map((j) => j.path), patch, de, en }

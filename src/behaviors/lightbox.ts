@@ -27,6 +27,8 @@ export function mount(root: Element, ctx: BehaviorContext = { mode: 'app' }): Un
   img.alt = ''
   const links = Array.from(root.querySelectorAll<HTMLAnchorElement>('a[data-zoom-src]'))
   const counter = dialog.querySelector<HTMLElement>('[data-lightbox-counter]')
+  // Optionale Bildunterschrift im Vollbild (Tattoo-Galerie R15): Text aus `data-zoom-caption` des Links.
+  const caption = dialog.querySelector<HTMLElement>('[data-lightbox-caption]')
   const closeBtn = dialog.querySelector<HTMLElement>('[data-lightbox-close]')
   let index = 0
   let trigger: HTMLElement | null = null
@@ -76,6 +78,7 @@ export function mount(root: Element, ctx: BehaviorContext = { mode: 'app' }): Un
     img.alt = thumb?.alt ?? ''
     if (!img.isConnected) stage.append(img)
     if (counter) counter.textContent = links.length > 1 ? `${index + 1} / ${links.length}` : ''
+    if (caption) caption.textContent = link.getAttribute('data-zoom-caption') ?? ''
     resetZoom()
   }
 

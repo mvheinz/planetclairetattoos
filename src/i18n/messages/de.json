@@ -185,6 +185,16 @@
       "priceNote": "Endpreis zzgl. Versand",
       "productAlt": "{title} – {number}: Foto und Preisschild",
       "defaultAlt": "Planet Claire – Tattoos & Unikate aus Berlin"
+    },
+    "tattoo": {
+      "R11": "Tattoos von Planet Claire in Berlin: Fine Line mit Humor im Privatstudio. Flash-Motive mit Festpreis, Aktionen, Preise, Galerie und Anfrage per Mail oder DM.",
+      "R12": "Flash-Motive von Planet Claire, Berlin: fertige Fine-Line-Zeichnungen mit Festpreis, einmalig oder wiederholbar – anfragen per Mail oder Instagram-DM.",
+      "R13": "Flash-Days und Tattoo-Aktionen von Planet Claire in Berlin: Termine, Motive und Preise der laufenden und kommenden Aktionen im Privatstudio auf einen Blick.",
+      "R14": "Tattoo-Preise bei Planet Claire, Berlin: Mindestpreis, Festpreise für Flash, Preisrahmen für eigene Ideen und wie wir die Anzahlung persönlich vereinbaren.",
+      "R15": "Galerie von Planet Claire, Berlin: frisch gestochene und abgeheilte Fine-Line-Tattoos – gezeigt nur mit Einwilligung der Menschen, die sie tragen.",
+      "R16": "So läuft ein Tattoo-Termin bei Planet Claire in Berlin ab: Anfrage per Mail oder DM, Termin, Anzahlung, Stechen im Privatstudio und Pflege danach.",
+      "R17": "Tattoo-Aftercare von Planet Claire, Berlin: Pflege in Phasen von direkt danach bis langfristig, Warnzeichen für den Arztbesuch – auch zum Ausdrucken.",
+      "R18": "Häufige Fragen an Planet Claire in Berlin: Mindestalter, Privatstudio, Anzahlung, Termin verschieben, Coco im Studio, Farbe, Cover-ups und Mail oder DM."
     }
   },
   "contact": {
@@ -931,6 +941,34 @@
       "effect_portfolio": "Der Widerruf gilt ab sofort: Das Foto ist nicht mehr zu sehen und wird gelöscht.",
       "past": "Was vor dem Widerruf geschehen ist, bleibt rechtmäßig.",
       "reply": "Wenn du Fragen hast, antworte einfach auf diese Mail."
+    },
+    "inquiryReceipt": {
+      "subject": "Deine Anfrage {reference} ist angekommen",
+      "title": "Anfrage angekommen",
+      "intro": "danke für deine Anfrage! Hier ist noch einmal, was du mir geschickt hast:",
+      "reference": "Referenz",
+      "receivedAt": "Eingegangen am",
+      "object": "Gegenstand",
+      "idea": "Deine Idee",
+      "timeframe": "Wunschzeitraum",
+      "budget": "Budget",
+      "images": "Bilder",
+      "empty": "–",
+      "responseTime": "Ich melde mich meist innerhalb einer Woche.",
+      "offerByMail": "Mit deiner Anfrage kommt noch kein Vertrag zustande, und du zahlst nichts. Angebot und Bezahlung laufen per Mail, nicht über den Shop.",
+      "deletion": "Deine Anfrage und deine Bilder werden spätestens 6 Monate nach Eingang gelöscht (am {date}).",
+      "objectTypes": {
+        "cap": "Cap",
+        "shirt": "Shirt",
+        "textil_sonstiges": "Anderes Textil (Kleidung, Stoff)",
+        "teller": "Teller",
+        "schale": "Schale",
+        "tasse": "Tasse",
+        "fliese": "Fliese",
+        "zeichnung": "Zeichnung/Bild",
+        "schmuck": "Schmuck",
+        "sonstiges": "Etwas anderes"
+      }
     }
   },
   "shippingPayment": {
@@ -1049,5 +1087,284 @@
     "notesHint": "Interne Notizen, die auch andere Personen betreffen können, sind nicht in der Datei enthalten. Ich habe sie vor dem Versand geprüft; was dich betrifft, steht in meiner Antwort.",
     "noteHeading": "Hinweis",
     "placeholderMark": "[Platzhalter – Kanzlei-Wortlaut folgt]"
+  },
+  "tattoo": {
+    "subnavLabel": "Tattoo-Bereich",
+    "subnavOverview": "Übersicht",
+    "star": "*",
+    "overview": {
+      "lead": "Fine Line mit Humor, gestochen in meinem Privatstudio in Berlin. Hier findest du freie Motive, Aktionen, Preise und alles rund um deinen Termin.",
+      "styleHeading": "Mein Stil",
+      "offerHeading": "Nächste Aktion",
+      "offersAll": "Alle Angebote",
+      "flashHeading": "Flash – gerade frei",
+      "flashAll": "Alle Flash-Motive",
+      "galleryHeading": "Fresh & healed",
+      "galleryAll": "Zur Galerie",
+      "pagesHeading": "Alles rund ums Tattoo",
+      "pageHints": {
+        "R12": "Fertige Motive mit Festpreis – such dir eins aus.",
+        "R13": "Flash-Days und Aktionen, solange sie laufen.",
+        "R14": "Mindestpreis, Preisrahmen für eigene Ideen und die Anzahlung.",
+        "R15": "Frisch gestochen und abgeheilt.",
+        "R16": "Von der Anfrage bis zur Pflege in fünf Schritten.",
+        "R17": "So heilt dein Tattoo in Ruhe – auch zum Ausdrucken.",
+        "R18": "Antworten auf die häufigsten Fragen."
+      }
+    },
+    "flash": {
+      "intro": "Fertige Motive mit Festpreis. Einmalige Motive steche ich nur ein einziges Mal, wiederholbare auch öfter. Frag einfach per Mail oder DM an.",
+      "filterLabel": "Flash-Motive filtern",
+      "all": "Alle",
+      "available": "verfügbar",
+      "filterOn": "(an)",
+      "listHeading": "Flash-Motive",
+      "size": "ca. {size} cm",
+      "once": "einmalig",
+      "repeatable": "wiederholbar",
+      "statusAvailable": "verfügbar",
+      "taken": "vergeben",
+      "takenText": "Schon vergeben – schau dir die anderen an",
+      "mail": "Per Mail anfragen",
+      "dm": "Per DM anfragen",
+      "snippetHint": "Schick mir das in die DM",
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "copyFailed": "Markiert – jetzt kopieren",
+      "price": "Preis",
+      "emptyTitle": "Gerade keine Flash-Motive online",
+      "emptyText": "Schau auf Instagram vorbei – da zeige ich neue Motive zuerst.",
+      "emptyAction": "Zu Instagram",
+      "allTakenTitle": "Gerade sind alle Flash-Motive vergeben.",
+      "allTakenText": "Schau bei den Angeboten vorbei oder schreib mir deine eigene Idee.",
+      "allTakenAction": "Zu den Angeboten"
+    },
+    "offers": {
+      "intro": "Flash-Days und Aktionen. Ist eine Aktion vorbei, verschwindet sie von hier.",
+      "listHeading": "Laufende und kommende Aktionen",
+      "running": "läuft gerade",
+      "startsIn": "{days, plural, =0 {heute} one {morgen} other {in # Tagen}}",
+      "time": "{from}–{to} Uhr",
+      "dateLabel": "Datum",
+      "flashHeading": "Motive für diese Aktion",
+      "mail": "Per Mail anfragen",
+      "dm": "Per DM anfragen",
+      "types": {
+        "flash_day": "Flash-Day",
+        "aktion": "Aktion"
+      },
+      "emptyTitle": "Gerade keine Aktion",
+      "emptyText": "Folge @{handle}, dann verpasst du nichts.",
+      "emptyAction": "Zu Instagram"
+    },
+    "prices": {
+      "intro": "Alle Preise sind Gesamtpreise – so viel zahlst du am Ende, nicht mehr.",
+      "minHeading": "Mindestpreis",
+      "minPrice": "Mindestpreis {amount}*",
+      "customHeading": "Eigene Ideen",
+      "customRange": "Meist {from}–{to}*, je nach Größe und Aufwand.",
+      "customFrom": "Ab {from}*, je nach Größe und Aufwand.",
+      "customAsk": "Den Preis für deine eigene Idee nenne ich dir gern per Mail.",
+      "flashHeading": "Flash",
+      "flashText": "Jedes Flash-Motiv hat einen Festpreis – er steht direkt am Motiv.",
+      "flashLink": "Zu den Flash-Motiven",
+      "depositHeading": "Anzahlung",
+      "depositText": "Die Anzahlung vereinbaren wir persönlich per Mail, außerhalb der Website. Hier auf der Seite zahlst du nichts.",
+      "totalPrice": "Gesamtpreis"
+    },
+    "gallery": {
+      "intro": "Frisch gestochen und abgeheilt – hier zeige ich nur Fotos, deren Träger:innen zugestimmt haben.",
+      "filterLabel": "Fotos filtern",
+      "all": "Alle",
+      "fresh": "fresh",
+      "healed": "healed",
+      "listHeading": "Fotos",
+      "freshLabel": "frisch gestochen",
+      "healedYears": "{years} Jahre verheilt",
+      "healedYearOne": "1 Jahr verheilt",
+      "healedMonths": "{months, plural, one {# Monat} other {# Monate}} verheilt",
+      "credit": "Getragen von @{handle}",
+      "internal": "intern – Einwilligung fehlt",
+      "open": "Groß ansehen",
+      "dialog": "Foto in groß",
+      "close": "Schließen",
+      "emptyTitle": "Hier kommen bald Fotos",
+      "emptyText": "Bis dahin findest du frische Tattoos auf Instagram.",
+      "emptyAction": "Zu Instagram"
+    },
+    "process": {
+      "intro": "So läuft es vom ersten Hallo bis zur Pflege – ganz ohne Online-Buchung.",
+      "stepsHeading": "In fünf Schritten",
+      "steps": {
+        "1": {
+          "title": "Anfrage",
+          "text": "Schreib mir per Mail oder DM: Idee oder Flash-Nummer, Stelle am Körper, ungefähre Größe."
+        },
+        "2": {
+          "title": "Termin",
+          "text": "Wir finden einen Tag. Die genaue Adresse bekommst du mit der Bestätigung."
+        },
+        "3": {
+          "title": "Anzahlung",
+          "text": "Klären wir persönlich per Mail, nicht hier auf der Website."
+        },
+        "4": {
+          "title": "Stechen",
+          "text": "Bring deinen Ausweis mit, komm ausgeschlafen und mit etwas im Bauch."
+        },
+        "5": {
+          "title": "Aftercare",
+          "text": "Du bekommst die Pflegeschritte mit, alles steht auch auf der Aftercare-Seite."
+        }
+      },
+      "ageHint": "Tattoos erst ab 18.",
+      "placeHeading": "Wo?",
+      "place": "Privatstudio in Berlin-{district}. Die genaue Adresse bekommst du mit der Terminbestätigung.",
+      "placeNoDistrict": "Privatstudio in Berlin. Die genaue Adresse bekommst du mit der Terminbestätigung."
+    },
+    "aftercare": {
+      "intro": "Ein frisches Tattoo ist eine kleine Wunde. Mit diesen Schritten heilt es in Ruhe – und wenn du unsicher bist, schreib mir.",
+      "emptyText": "Die Pflegeschritte gebe ich dir beim Termin mit. Bei Fragen schreib mir einfach.",
+      "warnHeading": "Warnzeichen – wann zur Ärztin oder zum Arzt?",
+      "warnText": "Wenn die Rötung nach drei Tagen weiter zunimmt, die Stelle heiß wird oder stark anschwillt, Eiter austritt, rote Streifen entstehen oder du Fieber bekommst. Sag mir danach gern Bescheid.",
+      "saferHint": "Mehr zum Nachlesen:",
+      "saferLink": "Safer-Tattoo-Checklisten des Bundesumweltministeriums"
+    },
+    "faq": {
+      "intro": "Die häufigsten Fragen rund um deinen Termin. Fehlt etwas? Schreib mir.",
+      "emptyTitle": "Noch keine Fragen",
+      "emptyText": "Frag mich einfach per Mail oder DM."
+    },
+    "contact": {
+      "heading": "Anfragen per Mail oder DM",
+      "intro": "Kein Formular, keine Online-Buchung – schreib mir einfach.",
+      "mail": "Mail schreiben",
+      "dm": "Instagram-DM",
+      "emailLabel": "E-Mail-Adresse",
+      "copy": "Adresse kopieren",
+      "copied": "Kopiert",
+      "copyFailed": "Markiert – jetzt kopieren"
+    },
+    "mail": {
+      "subjectFlash": "Flash-Anfrage {number} – {title}",
+      "subjectOffer": "Anfrage {title} am {date}",
+      "subjectGeneral": "Tattoo-Anfrage",
+      "subjectCustom": "Tattoo-Anfrage – eigene Idee",
+      "greeting": "Hi Jutta,",
+      "introFlash": "ich interessiere mich für Flash {number} („{title}“).",
+      "introOffer": "ich interessiere mich für „{title}“ am {date}.",
+      "introGeneral": "ich interessiere mich für ein Tattoo.",
+      "introCustom": "ich habe eine eigene Idee für ein Tattoo.",
+      "fieldIdea": "Meine Idee:",
+      "fieldPlacement": "Stelle am Körper:",
+      "fieldSize": "Ungefähre Größe:",
+      "fieldTime": "Wunschzeitraum:",
+      "health": "(Bitte keine Gesundheitsinfos – die klären wir persönlich.)",
+      "closing": "Liebe Grüße"
+    }
+  },
+  "commission": {
+    "lead": "Eine Cap mit deinem Hund, ein Teller mit Wunschtext, ein Bild für jemanden, den du magst: Erzähl mir deine Idee – ich male sie dir.",
+    "stepsHeading": "So läuft’s",
+    "steps": {
+      "1": {
+        "title": "Anfrage",
+        "text": "Schick mir über das Formular, was du dir wünschst: Gegenstand, Motiv, Zeitraum."
+      },
+      "2": {
+        "title": "Angebot",
+        "text": "Ich antworte per Mail mit Preis und ungefährer Dauer."
+      },
+      "3": {
+        "title": "Bezahlung",
+        "text": "Passt alles, überweist du außerhalb des Shops."
+      },
+      "4": {
+        "title": "Anfertigung",
+        "text": "Ich male, schicke dir ein Foto, dann geht dein Stück auf die Reise."
+      }
+    },
+    "examplesHeading": "Beispiele",
+    "notice": "Auftragsarbeiten werden individuell vereinbart: Angebot und Absprache laufen per Mail, bezahlt wird nicht hier im Shop, und über diese Seite kommt kein Online-Vertrag zustande.",
+    "formHeading": "Deine Idee",
+    "formIntro": "Erzähl mir, was du dir vorstellst. Bitte keine Fotos von Personen und keine Gesundheitsinfos.",
+    "formPlaceholder": "Das Formular ist gleich da. Bis dahin schreib mir gern eine Mail.",
+    "faqHeading": "Fragen zu Auftragsarbeiten",
+    "contactHeading": "Lieber direkt schreiben?",
+    "contactText": "Du kannst mir deine Idee auch per Mail oder als Instagram-Nachricht schicken.",
+    "emailSubject": "Auftragsarbeit – meine Idee",
+    "form": {
+      "requiredNote": "* Pflichtfeld",
+      "nameLabel": "Name",
+      "emailLabel": "E-Mail",
+      "emailHint": "Dorthin schicke ich die Bestätigung und später mein Angebot.",
+      "objectTypeLabel": "Was soll es werden?",
+      "objectTypeEmpty": "Bitte wählen",
+      "objectTypes": {
+        "cap": "Cap",
+        "shirt": "Shirt",
+        "textil_sonstiges": "Anderes Textil (Kleidung, Stoff)",
+        "teller": "Teller",
+        "schale": "Schale",
+        "tasse": "Tasse",
+        "fliese": "Fliese",
+        "zeichnung": "Zeichnung/Bild",
+        "schmuck": "Schmuck",
+        "sonstiges": "Etwas anderes"
+      },
+      "objectTypeOtherLabel": "Etwas anderes – was?",
+      "ideaLabel": "Was stellst du dir vor?",
+      "ideaHint": "Motiv, Farben, Text, Größe – alles, was hilft. Bitte keine Gesundheitsangaben und keine Fotos von Personen.",
+      "timeframeLabel": "Wunschzeitraum",
+      "timeframeHint": "Freiwillig, z. B. „bis Weihnachten“.",
+      "budgetLabel": "Budget",
+      "budgetHint": "Freiwillig, z. B. „ca. 80 €“.",
+      "imagesLabel": "Bilder",
+      "imagesHint": "Bitte keine Fotos, auf denen Personen erkennbar sind, und keine Gesundheitsangaben.",
+      "imagesChoose": "Bilder auswählen (optional, bis zu 5)",
+      "imagesRules": "JPEG, PNG oder WebP, je Bild bis 15 MB. Große Bilder verkleinere ich vor dem Hochladen.",
+      "imagesNoJs": "Bilder nur mit JavaScript – ohne Bilder kannst du trotzdem anfragen.",
+      "imageRemove": "Entfernen",
+      "imageRemoveLabel": "Bild {n} entfernen",
+      "imageAlt": "Vorschau Bild {n}",
+      "imagePreparing": "Bild {n}: wird vorbereitet …",
+      "imageUploading": "Bild {n}: wird hochgeladen … {percent} %",
+      "imageDone": "Bild {n}: hochgeladen",
+      "imageFailed": "Bild {n}: Hochladen hat nicht geklappt. Du kannst trotzdem ohne dieses Bild absenden.",
+      "imageRemoved": "Bild {n} entfernt.",
+      "imageTooMany": "Höchstens 5 Bilder – „{name}“ habe ich nicht übernommen.",
+      "imageTooBig": "„{name}“ ist größer als 15 MB.",
+      "imageWrongType": "„{name}“ ist kein JPEG-, PNG- oder WebP-Bild.",
+      "imagesPending": "Einen Moment noch – die Bilder werden gerade hochgeladen.",
+      "honeypotLabel": "Dieses Feld bitte leer lassen",
+      "submit": "Anfrage senden",
+      "busy": "Wird gesendet …",
+      "privacyLink": "Mehr dazu in der Datenschutzerklärung",
+      "errorSummary": "Bitte prüf deine Angaben:",
+      "errors": {
+        "required": "Bitte ausfüllen.",
+        "name": "Bitte 2–100 Zeichen.",
+        "email": "Bitte gib eine gültige E-Mail-Adresse an.",
+        "objectType": "Bitte wähle aus, was es werden soll.",
+        "objectTypeOther": "Bitte 2–80 Zeichen.",
+        "idea": "Bitte 20–3000 Zeichen.",
+        "desiredTimeframe": "Höchstens 120 Zeichen.",
+        "budget": "Höchstens 60 Zeichen."
+      },
+      "success": "Danke! Deine Anfrage {reference} ist angekommen. Du bekommst gleich eine Bestätigung per Mail.",
+      "successGeneric": "Danke! Deine Anfrage ist angekommen. Du bekommst gleich eine Bestätigung per Mail.",
+      "noticeRateLimited": "Du hast gerade schon mehrere Anfragen geschickt – bitte versuch es später nochmal oder schreib mir eine Mail.",
+      "noticeExpired": "Das Formular war zu lange offen. Deine Eingaben sind noch da – bitte schick es noch einmal ab (Bilder bitte neu auswählen).",
+      "noticeFailed": "Das hat gerade nicht geklappt. Deine Eingaben sind noch da – bitte versuch es noch einmal oder schreib mir eine Mail."
+    },
+    "upload": {
+      "token": "Das Formular ist abgelaufen. Bitte lade die Seite neu.",
+      "rate_limited": "Gerade kamen sehr viele Bilder von deinem Anschluss. Bitte versuch es später noch einmal.",
+      "too_large": "Das Bild ist zu groß (höchstens 4,5 MB je Bild nach dem Verkleinern).",
+      "type": "Erlaubt sind nur Bilder im Format JPEG, PNG oder WebP.",
+      "too_many": "Höchstens 5 Bilder je Anfrage.",
+      "invalid": "Es kam kein Bild an.",
+      "failed": "Das Bild konnte nicht gespeichert werden."
+    }
   }
 }

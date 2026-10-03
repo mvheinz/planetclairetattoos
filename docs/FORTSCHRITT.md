@@ -66,6 +66,89 @@ fertig. Die wichtigsten Punkte:
 - **Ohne Cookie-Banner** zulässig (K-30, K-38)?
 
 Du musst jetzt nichts tun. Diese Punkte besprechen wir gemeinsam beim Go-live (P11).
+## 2026-10-02 – P7.15
+
+- `tests/e2e/tattoo/no-purchase.e2e.spec.ts` (AK-9-01, AK-9-05, R-139 auf R11–R18 DE/EN), `tests/int/legal/tattoo-cart.int.spec.ts` (R-170), `tests/unit/legal/tattoo-content.unit.spec.ts` (V-15/V-24/V-25, R-034); ANFORDERUNGEN §3 Nachweise für P7-Zeilen, `LEGAL_TRACE_PHASE = 7`.
+- Tests: alle grün (e2e desktop + pixel-7; `pnpm check`, `test:int` ohne preview-export, `pnpm build`).
+
+## 2026-10-02 – P7.14
+
+- Durchstich Formular → M11/A05 → Verwaltung → „Jetzt löschen“; Anfrage-Detail mit Abschnitt „Angebot“ (Vorlage `commission.offer` kopieren bzw. `mailto:`, Hinweis Umsatz-Wächter); `commission.offer` als Platzhalter mit Gliederung (R-161 in ANFORDERUNGEN §7 abgehakt).
+- Tests: `tests/int/legal/retention-inquiries.int.spec.ts` (4), `tests/e2e/commission/flow.e2e.spec.ts` (desktop + pixel-7 grün).
+
+## 2026-10-02 – P7.13
+
+- `src/components/commission/CommissionForm.tsx`: Pflichtfelder, Fehlerzusammenfassung mit Sprunglinks, FileDrop (≤ 5 Bilder, ≤ 15 MB, Verkleinerung im Browser ≤ 2560 px/≤ 4 MB, Upload einzeln mit Fortschritt, Fehler je Bild), Datenschutz-Hinweis mit Link, keine Checkbox, Erfolg ersetzt das Formular; ohne JavaScript ohne Bilder.
+- Tests: `tests/e2e/commission/form.e2e.spec.ts` (5 je Projekt, desktop + pixel-7 grün).
+
+## 2026-10-02 – P7.12
+
+- Dienst `src/lib/commission/submit.ts` + Server Action `submitCommissionInquiry`: Honeypot/Zeitfalle (< 3 s) → Schein-Erfolg, Rate-Limits 5/h und 20/Tag → 429, Grenzen laut DATENMODELL, Anlage AA-JJJJ-NNNN, Bilder nur mit Ticket (gleiche Frist L-10), M11 (neue Vorlage `inquiry_receipt`) und A05 über die Outbox, doppeltes Absenden → ein Datensatz.
+- Tests: `tests/int/commission/submit.int.spec.ts` (6), `tests/unit/email/inquiry-receipt.unit.spec.ts` (5, Snapshots DE/EN).
+
+## 2026-10-02 – P7.11
+
+- `POST /api/uploads/commission` (`src/lib/commission/upload.ts`): Formular-Token (HKDF `pc:form-token:v1`, 2 h, Kopf `x-form-token`), Rate-Limit `commission_upload` 15/h, > 4,5 MB → 413, Typ am Inhalt (sharp) sonst 415, Neukodierung ohne EXIF/GPS, `private-uploads` `pending` mit Löschung nach 24 h, Antwort `{ uploadId, ticket }`, 6. Upload je Formular → 409.
+- Tests: `tests/int/commission/upload.int.spec.ts` (6 grün).
+
+## 2026-10-02 – P7.10
+
+- R10 Auftragsarbeiten (`src/app/(frontend)/[locale]/commissions/page.tsx`): H1, „So läuft’s“, Beispiele mit Bildunterschrift, Hinweis „individuell vereinbart, Bezahlung nicht im Shop, kein Online-Vertrag“, Formular-Block mit Kontur (Preset `frame`, Coco `sitzen`), FAQ `commissions`, Kontaktalternative; Seite wird ungecacht gelesen, ohne Seite Leerzustand statt 500; Registry R10 `live`.
+- Tests: `tests/e2e/commission/page.e2e.spec.ts` (6 grün, desktop + pixel-7), dazu a11y/security-headers/seo/privacy/forbidden für alle Live-Routen grün.
+
+## 2026-10-02 – P7.9
+
+- Reiter Texte: Preise (`settings.tattoo.*`, Bereich `tattooPrices`), Blöcke der Seiten `tattoo`/`tattoo_aftercare` (Stil, Preise, Ablauf, Pflege-Phasen, Hinweise; Rich Text als Klartext), FAQ Tattoo/Aftercare (sortierbar), alles mit „Übersetzen“ (`POST /api/pages/:id/translate`, `/api/faqs/:id/translate`; `translateDocumentFields` kann jetzt Listen/Blöcke).
+- Warnung bei V-24/V-15 beim Speichern, Speichern bleibt möglich; keine Gesundheitsfelder (V-25).
+- Tests: `tests/int/tattoo/texts-admin.int.spec.ts` (3), `tests/e2e/admin/tattoo-texts.e2e.spec.ts`; Int gesamt 880 grün, Build grün.
+
+## 2026-10-02 – P7.8
+
+- Reiter Galerie: Einwilligungs-Häkchen je Foto, Formular (Felder §6.16, Nachweis privat, Instagram-Hinweis), „Online“ ohne Einwilligung gesperrt („Ohne Einwilligung der Kundin/des Kunden nicht veröffentlichen“, auch im Hook).
+- `POST /api/tattoo-gallery/:id/withdraw-consent`: offline, Bilder gesperrt (Datei 404), sofortige Revalidierung, Audit, Nachweis-Frist 3 Jahre (L-19 b); Dateien löscht `retentionConsentEvidence` nach 24 h (L-20); M16 Portfolio nur an eingetippte Adresse. Link im DSGVO-Werkzeug.
+- Tests: `tests/int/legal/gallery-withdraw.int.spec.ts` (5), `tests/e2e/admin/tattoo-gallery.e2e.spec.ts` (2).
+
+## 2026-10-02 – P7.7
+
+- Reiter Angebote: Zustand kommt/läuft/abgelaufen (abgelaufen grau), „Neues Angebot“ mit Datum + optionalen Uhrzeiten → `startsAt`/`endsAt` Europe/Berlin (`offerTimesFromInput`, ohne Uhrzeit 00:00–23:59:59), Ort ohne Straße aus den Stammdaten (`containsStreet`, E-50), Preis-Info, Flash-Motive, Bild, „Übersetzen“ (`POST /api/tattoo-offers/:id/translate`); Weckzeiten setzt der Hook (P7.3).
+- Tests: `tests/int/tattoo/offers-admin.int.spec.ts` (2), `tests/e2e/admin/tattoo-offers.e2e.spec.ts`.
+
+## 2026-10-02 – P7.6
+
+- Ansicht `/tattoo` mit Reitern Flash · Angebote · Galerie · Texte (Links `?reiter=…`, `aria-current`), ersetzt den Platzhalter; je Reiter Weg in „Alle Daten“.
+- Flash: Liste mit Status-Chip (antippen + bestätigen = 2 Taps, `POST /api/flash/:id/status`), „Offline nehmen“, „Neuer Flash“ mit Foto-Baustein (max. 5, Alt-Text DE Pflicht), Nummernvorschlag ohne Seed/Fixtures (`GET /api/flash/next-number`), Titel DE/EN + „Übersetzen“ (`POST /api/flash/:id/translate`).
+- Wiederholbare Motive: Ablehnung mit Hinweis auf „Offline nehmen“ (Hook + DB-CHECK).
+- Tests: `tests/int/tattoo/flash-admin.int.spec.ts` (3), `tests/e2e/admin/tattoo-flash.e2e.spec.ts` (2 × desktop/pixel-7), Unit `tests/unit/admin/tattoo-admin.unit.spec.ts`.
+
+## 2026-10-02 – P7.5
+
+- Zentrale Regel isPubliclyVisible/isMediaPubliclyVisible (src/lib/tattoo/visibility.ts) in Galerie-Abfragen, Teasern (R11), media.read und im Datei-Handler: nicht sichtbare Dateien 404 statt 403 (auch erratene URL), Verwaltung privat; Seed-/Kund:innen-Medien Cache public, max-age=300
+- R15 Galerie: Filter ?kind=fresh|healed (statische Variante), Raster ohne Preise, Vollbild mit Bildunterschrift (lightbox), „3,5 Jahre verheilt“, Etikett „intern – Einwilligung fehlt“, Leerzustand
+- Tests: tests/int/legal/gallery-consent.int.spec.ts (R-172, AK-9-04, G1–G6; Umgebung injiziert), tests/e2e/tattoo/gallery.e2e.spec.ts (grün); Querschnitt a11y/SEO/Verbotsmuster/Header/Datenschutz über die neuen live-Routen grün
+
+## 2026-10-02 – P7.4
+
+- R14 Preise (Mindestpreis, Preisrahmen, Flash-Hinweis, Anzahlung persönlich ohne Verfallsklausel, Fußnote, Kontakt „eigene Idee“), R16 Ablauf (5 Schritte, ab 18, Bezirk), R17 Aftercare (Blöcke der Seite tattoo_aftercare, Warnzeichen, Safer-Tattoo-Link, Druck-CSS ohne Kopf/Navigation/Linie/Coco), R18 FAQ als details
+- Tests: tests/e2e/tattoo/info-pages.e2e.spec.ts (R-034, V-24, Druck, Tastatur; grün)
+
+## 2026-10-02 – P7.3
+
+- R13 Angebote: Zustand aus startsAt/endsAt (läuft gerade / in X Tagen), Datums-Badge, Uhrzeit, Ort nur Bezirk, Motive mit Link auf R12#f-…, Mail-Betreff „Anfrage … am …“; Teaser auf R11 und Startseite (gleiche Abfrage)
+- Task revalidateEndedOffers (maintenance, Wecker an Beginn/Ende per jobAlarm.bump beim Speichern und im Task, Sicherheitsnetz täglich ab 00:05), erneuert tattoo-offers/home und R01/R11/R13; Migration p7_revalidate_offers_task (Task-Slug-Enum)
+- Tests: tests/int/tattoo/offers.int.spec.ts (R-171), tests/int/jobs/revalidate-offers.int.spec.ts (AK-8-01), tests/e2e/tattoo/offers.e2e.spec.ts (AK-9-03, Cron-Route mit CRON_SECRET; grün)
+
+## 2026-10-02 – P7.2
+
+- R11 Übersicht (Mein Stil, Angebots-Teaser, 3 freie Flash-Motive, 3 Galerie-Bilder bevorzugt healed, Links zu allen Unterseiten) und R12 Flash (Filter ?available=1 als statische Variante, Raster 2/3 Spalten, Karten mit F-012, Größe, Preis „120 €*“, einmalig/wiederholbar, Mail/DM/Baustein; vergeben: Stempel in --stencil ohne Knöpfe, Anker #f-012, MI-14 ohne Übergang)
+- Registry R11–R18 live; LIST_ROUTE_IDS um R12/R15 erweitert; Tuschelinie stencil mit Konturen und Endpunkt unter dem Raster (Feinschliff P9, OFFENE-PUNKTE)
+- Tests: tests/int/tattoo/flash-data.int.spec.ts (3), tests/e2e/tattoo/flash.e2e.spec.ts (AK-9-02, R-034, @a11y; desktop + pixel-7 grün)
+
+## 2026-10-02 – P7.1
+
+- Tattoo-Grundgerüst: Unter-Navigation (TattooSubNav, Chips, aria-current), Kontakt-Block (Mail-Knopf mit Vorlage, Instagram-DM mit rel noopener noreferrer, Adresse kopieren mit Rückfall Markieren), Rahmen TattooShell, Preis-Fußnote price.tattooNote
+- src/lib/tattoo/mailto.ts (RFC 6068, Betreffe Flash/Angebot/allgemein/eigene Idee DE/EN, Gesundheits-Hinweis), gecachte Lesefunktionen src/lib/data/tattoo.ts (Tags flash, tattoo-offers, tattoo-gallery, faqs, page:tattoo, page:tattoo_aftercare, settings)
+- SEO-Titel „{Seite} · Tattoo · Planet Claire“ und eigene Beschreibungen R11–R18; SE-09 geklärt (vorhandene PAGE_KEYS reichen)
+- Tests: tests/unit/tattoo/mailto.unit.spec.ts (AK-9-02, R-170), copy-button-Rückfall (Unit)
 
 ## 2026-10-02 – P6.23
 

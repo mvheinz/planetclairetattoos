@@ -688,6 +688,17 @@ export const ADMIN_CUSTOM_DE = {
   inquiryDeleteConsequence:
     'Die Anfrage und alle Bilder werden sofort und endgültig gelöscht. Im Löschprotokoll steht nur die Nummer.',
   inquiryDeleted: 'Anfrage {{reference}} ist gelöscht.',
+  inquiryOfferTitle: 'Angebot',
+  inquiryOfferIntro:
+    'Angebot und Vertrag laufen per Mail aus deinem Postfach. Die Vorlage enthält alles, was ins Angebot gehört.',
+  inquiryOfferCopy: 'Angebots-Vorlage kopieren',
+  inquiryOfferMail: 'Angebot per Mail schreiben',
+  inquiryOfferPlaceholder: 'Platzhalter – der geprüfte Text der Kanzlei kommt beim Go-live.',
+  inquiryOfferSubjectDe: 'Angebot zu deiner Anfrage {{reference}}',
+  inquiryOfferSubjectEn: 'Offer for your request {{reference}}',
+  inquiryRevenueHint:
+    'Nach der Bezahlung: Umsatz als Monatssumme „Auftragsarbeiten“ im Umsatz-Wächter eintragen.',
+  inquiryRevenueLink: 'Zum Umsatz-Wächter',
   inquiryLegalHold: 'Gesperrt (Aufbewahrungspflicht) – Löschen geht erst nach Aufheben der Sperre.',
   // Einstellungen, Teil 1 (P5.21)
   settingsAreas: 'Bereiche der Einstellungen',
@@ -1025,6 +1036,9 @@ export const ADMIN_CUSTOM_DE = {
     'DHL-Weitergabe: an der Bestellung unter „Adresse kopieren“ widerrufen (mit Bestätigung). Portfolio-Fotos widerrufst du am Galerie-Eintrag.',
   privacyConsentActive: 'DHL-Einwilligung aktiv – Bestellung öffnen',
   privacyConsentNone: 'Keine aktive DHL-Einwilligung gefunden.',
+  privacyGalleryConsentLink: 'Galerie-Einwilligung widerrufen',
+  privacyGalleryConsentHint:
+    'Öffnet die Galerie: am Foto „Einwilligung widerrufen“ wählen (nimmt es sofort offline; Bestätigung an eine eingetippte Adresse optional).',
   exportLogsOpen: 'Mail- und Einwilligungs-Protokolle',
   // Protokolle (P6.19, KONZEPT §6.1)
   logsIntro:

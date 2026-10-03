@@ -38,6 +38,7 @@ import {
   retentionTechnicalTask,
   retentionWithdrawalsTask,
 } from './retention'
+import { revalidateEndedOffersTask } from './revalidateEndedOffers'
 import { revenueGuardCheckTask } from './revenueGuardCheck'
 import { sendEmailTask } from './sendEmail'
 
@@ -109,6 +110,7 @@ export const JOB_TASKS: TaskConfig<any>[] = [
   invoiceIntegrityCheckTask,
   complianceDocsReviewTask,
   activateScheduledLegalTextsTask,
+  revalidateEndedOffersTask,
   retentionAbandonedCheckoutsTask,
   retentionOrderMinimizeTask,
   retentionOrdersTask,
@@ -147,6 +149,7 @@ export const WAKE_TASK_SLUGS: readonly TaskSlug[] = (
     'invoiceIntegrityCheck',
     'complianceDocsReview',
     'activateScheduledLegalTexts',
+    'revalidateEndedOffers',
     ...(Object.keys(RETENTION_SCHEDULE) as (keyof typeof RETENTION_SCHEDULE)[]),
     'retentionTechnical',
     'legalHoldReview',

@@ -123,7 +123,7 @@ Lücken in der Nummerierung sind Reserve.
 | R-031 | Versandkosten vor dem Warenkorb erkennbar | P3 | e2e | nein | `tests/e2e/legal/cart-info.e2e.spec.ts`, `tests/e2e/legal/shipping-page.e2e.spec.ts`, `tests/unit/shop/price-note.unit.spec.ts`, `tests/unit/shop/product-info.unit.spec.ts` |
 | R-032 | Steuermodus-Schalter mit Gültig-ab | P1 | unit, int | nein | `tests/unit/legal/constants.unit.spec.ts`, `tests/unit/settings/rules.unit.spec.ts`, `tests/unit/shop/price-note.unit.spec.ts`, `tests/unit/tax/tax-mode.unit.spec.ts` |
 | R-033 | Keine Streich- und Rabattpreise, Preis-Historie | P3 | unit, int | nein | `tests/int/shop/revalidate.int.spec.ts` |
-| R-034 | Tattoo-Preise als Gesamtpreise | P7 | unit, e2e | nein | – |
+| R-034 | Tattoo-Preise als Gesamtpreise | P7 | unit, e2e | nein | `tests/unit/legal/tattoo-content.unit.spec.ts`, `tests/e2e/tattoo/flash.e2e.spec.ts`, `tests/e2e/tattoo/info-pages.e2e.spec.ts` |
 | R-035 | Lieferzeit-Angabe | P3 | e2e | nein | `tests/e2e/legal/cart-info.e2e.spec.ts`, `tests/e2e/legal/shipping-page.e2e.spec.ts`, `tests/unit/shop/price-note.unit.spec.ts` |
 | R-036 | Zahlarten und Lieferbeschränkungen zu Beginn des Bestellvorgangs | P4 | e2e | nein | `tests/e2e/legal/cart-info.e2e.spec.ts`, `tests/e2e/legal/checkout-compliance.e2e.spec.ts` |
 | R-040 | Block „Herstellerin & Produktsicherheit“ (GPSR) | P3 | e2e | nein | `tests/e2e/legal/gpsr.e2e.spec.ts`, `tests/unit/shop/product-info.unit.spec.ts` |
@@ -177,12 +177,12 @@ Lücken in der Nummerierung sind Reserve.
 | R-131 | Keine Drittanbieter-Requests, CSP, selbst gehostete Schriften | P2 | unit, e2e | nein | `tests/unit/legal/services.unit.spec.ts`, `tests/unit/security/csp.unit.spec.ts`, `tests/unit/security/headers.unit.spec.ts`, `tests/unit/tooling/check-external.unit.spec.ts` |
 | R-132 | Statistik (Vercel Web Analytics) nur nach Freigabe | P10 | unit, e2e | ja | – |
 | R-133 | Fehlerüberwachung ohne Personenbezug | P10 | unit, e2e | nein | – |
-| R-134 | Spamschutz ohne Drittanbieter | P6, P7 | int | nein | `tests/int/legal/retention.int.spec.ts`, `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/int/legal/withdrawal.int.spec.ts`, `tests/unit/lib/keys.unit.spec.ts` |
-| R-135 | Metadaten aus allen Bild-Uploads entfernen | P1, P7 | int | nein | `tests/int/collections/media.int.spec.ts`, `tests/int/collections/private-uploads.int.spec.ts`, `tests/e2e/admin-product-form.e2e.spec.ts` |
+| R-134 | Spamschutz ohne Drittanbieter | P6, P7 | int | nein | `tests/int/legal/retention.int.spec.ts`, `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/int/legal/withdrawal.int.spec.ts`, `tests/unit/lib/keys.unit.spec.ts`, `tests/int/commission/submit.int.spec.ts` |
+| R-135 | Metadaten aus allen Bild-Uploads entfernen | P1, P7 | int | nein | `tests/int/collections/media.int.spec.ts`, `tests/int/collections/private-uploads.int.spec.ts`, `tests/e2e/admin-product-form.e2e.spec.ts`, `tests/int/commission/upload.int.spec.ts` |
 | R-136 | Technisch-organisatorische Maßnahmen | P1, P10 | int, e2e | nein | `tests/int/access/access-matrix.int.spec.ts`, `tests/int/adapters/storage.contract.int.spec.ts`, `tests/int/collections/private-uploads.int.spec.ts`, `tests/int/collections/users.int.spec.ts` |
-| R-137 | Keine personenbezogenen Daten in URLs und Logs | P4 | unit, e2e | nein | `tests/int/legal/privacy-export.int.spec.ts`, `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts`, `tests/unit/lib/logger.unit.spec.ts` |
-| R-138 | Datenschutzhinweise am Ort der Erhebung | P4, P6, P7 | e2e | nein | `tests/e2e/legal/checkout-fields.e2e.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts` |
-| R-139 | Instagram nur als Link | P3 | unit | nein | `tests/unit/legal/forbidden.unit.spec.ts`, `tests/e2e/legal/forbidden.e2e.spec.ts` |
+| R-137 | Keine personenbezogenen Daten in URLs und Logs | P4 | unit, e2e | nein | `tests/int/legal/privacy-export.int.spec.ts`, `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts`, `tests/unit/lib/logger.unit.spec.ts`, `tests/e2e/commission/form.e2e.spec.ts` |
+| R-138 | Datenschutzhinweise am Ort der Erhebung | P4, P6, P7 | e2e | nein | `tests/e2e/legal/checkout-fields.e2e.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts`, `tests/e2e/commission/form.e2e.spec.ts` |
+| R-139 | Instagram nur als Link | P3 | unit | nein | `tests/unit/legal/forbidden.unit.spec.ts`, `tests/e2e/legal/forbidden.e2e.spec.ts`, `tests/e2e/tattoo/no-purchase.e2e.spec.ts` |
 | R-150 | Auskunft und Datenübertragbarkeit (Art. 15, 20 DSGVO) | P6 | int | nein | `tests/unit/legal/p6-mails.unit.spec.ts`, `tests/int/legal/privacy-export.int.spec.ts` |
 | R-151 | Löschen und Einschränken mit Aufbewahrungssperre (Art. 17, 18) | P6 | int | nein | `tests/unit/legal/p6-mails.unit.spec.ts`, `tests/int/legal/privacy-erasure.int.spec.ts` |
 | R-152 | Berichtigung, Widerspruch, Widerruf von Einwilligungen | P6 | int | nein | `tests/unit/legal/p6-mails.unit.spec.ts`, `tests/int/legal/privacy-erasure.int.spec.ts` |
@@ -191,12 +191,12 @@ Lücken in der Nummerierung sind Reserve.
 | R-155 | Auftragsverarbeitungsverträge vor Go-live | P10, P11 | unit, manuell | ja | – |
 | R-156 | Verzeichnis von Verarbeitungstätigkeiten | P6 | manuell | ja | `tests/unit/legal/briefing.unit.spec.ts`, `tests/unit/legal/services.unit.spec.ts` |
 | R-157 | Prozess Datenpanne | P10 | manuell | ja | – |
-| R-160 | Anfrageformular Auftragsarbeiten | P7 | int, e2e | nein | – |
-| R-161 | Verträge über Auftragsarbeiten außerhalb des Shops | P7, P11 | manuell | ja | – |
+| R-160 | Anfrageformular Auftragsarbeiten | P7 | int, e2e | nein | `tests/int/commission/submit.int.spec.ts`, `tests/int/commission/upload.int.spec.ts`, `tests/unit/email/inquiry-receipt.unit.spec.ts`, `tests/e2e/commission/form.e2e.spec.ts`, `tests/e2e/commission/flow.e2e.spec.ts` |
+| R-161 | Verträge über Auftragsarbeiten außerhalb des Shops | P7, P11 | manuell | ja | §7 |
 | R-162 | Keine weiteren Datenerhebungen | P10 | e2e | nein | – |
-| R-170 | Tattoo-Bereich ohne Online-Vertragsschluss | P7 | unit, int, e2e | nein | – |
-| R-171 | Abgelaufene Flash-Days/Aktionen ausblenden | P7 | int | nein | – |
-| R-172 | Portfolio-Fotos nur mit Einwilligung | P7 | int | ja | – |
+| R-170 | Tattoo-Bereich ohne Online-Vertragsschluss | P7 | unit, int, e2e | nein | `tests/unit/legal/tattoo-content.unit.spec.ts`, `tests/unit/tattoo/mailto.unit.spec.ts`, `tests/int/legal/tattoo-cart.int.spec.ts`, `tests/e2e/tattoo/no-purchase.e2e.spec.ts`, `tests/e2e/tattoo/flash.e2e.spec.ts` |
+| R-171 | Abgelaufene Flash-Days/Aktionen ausblenden | P7 | int | nein | `tests/int/tattoo/offers.int.spec.ts`, `tests/int/jobs/revalidate-offers.int.spec.ts`, `tests/e2e/tattoo/offers.e2e.spec.ts` |
+| R-172 | Portfolio-Fotos nur mit Einwilligung | P7 | int | ja | `tests/int/legal/gallery-consent.int.spec.ts`, `tests/int/legal/gallery-withdraw.int.spec.ts`, `tests/e2e/tattoo/gallery.e2e.spec.ts` |
 | R-180 | Beispielbestand kennzeichnen und entfernbar | P8 | int | nein | – |
 | R-181 | `SEED_PREVIEW_MODE` nie in Produktion | P8 | unit, int | nein | – |
 | R-182 | Vorschau-Datei als interne Datei | P10 | unit | nein | – |
@@ -1826,7 +1826,7 @@ Arbeitsfassung sinngemäß (`origin: 'draft'`).
 - [x] R-095: Platzhalter-Widerrufsbelehrung enthält Token `{{withdrawalUrl}}` und `{{phone}}`. (02.10.2026, P6.23; Grund-Seed `content/seed/data/base.json`, Prüfung `tests/unit/legal/render-tokens.unit.spec.ts`)
 - [x] R-156: `docs/recht/VVT.md` vollständig. (02.10.2026, P6.21)
 - [ ] R-157: Datenpannen-Abschnitt im RUNBOOK und Owner-Anleitung vorhanden.
-- [ ] R-161: Vorlage `commission.offer` als Platzhalter vorhanden.
+- [x] R-161: Vorlage `commission.offer` als Platzhalter vorhanden. (02.10.2026, P7.14; Grund-Seed `src/lib/legal/snippetSeed.ts` mit Gliederung, Knopf „Angebots-Vorlage kopieren“ im Anfrage-Detail; Prüfung `tests/unit/legal/snippets.unit.spec.ts`)
 - [ ] R-190: Keine Barrierefreiheits-/Zertifikatsbehauptungen in Texten.
 - [ ] V-18, V-28, V-29: manuelle Sichtung aller Seitentexte, FAQ, Aftercare, Mails.
 - [ ] Alle FAQ-/Tattoo-/Über-mich-Entwürfe (E-62) gegen §5 geprüft.

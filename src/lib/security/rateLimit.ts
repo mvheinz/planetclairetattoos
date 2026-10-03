@@ -34,6 +34,16 @@ export const RATE_LIMITS = {
   token_pages: { limit: 60, windowMs: MINUTE },
   /** „Widerruf bestätigen“ (R26): großzügig, damit echte Widerrufe nie blockiert werden (KONZEPT §3.16, R-134). */
   withdrawal_submit: { limit: 30, windowMs: HOUR },
+  /** Auftragsanfrage absenden (R10): 5 / h und zusätzlich 20 / Tag (KONZEPT §10.3, P7.12). */
+  commission_submit: { limit: 5, windowMs: HOUR },
+  commission_submit_day: { limit: 20, windowMs: 24 * HOUR },
+  /** `POST /api/uploads/commission` (P7.11). */
+  commission_upload: { limit: 15, windowMs: HOUR },
+  /**
+   * Höchstens 5 Referenzbilder je Formular (Schlüssel: Formular-Nonce; Fenster am `iat` des Tokens ausgerichtet, damit
+   * alle Uploads eines Formulars im selben Fenster zählen – P7.11).
+   */
+  commission_form_uploads: { limit: 5, windowMs: HOUR },
 } as const satisfies Record<string, RateLimitRule>
 
 export type RateLimitBucket = keyof typeof RATE_LIMITS
