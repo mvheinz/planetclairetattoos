@@ -9,7 +9,18 @@ import { leashStations, readingFrame, releaseReading, stationBounds } from './he
 test('SC-02 Startseite reduziert', { tag: artTags('all', ['reduced']) }, async ({ art }) => {
   const { page } = art
   await art.goto('/de')
+  // Erst wenn alles geladen ist (Module gebunden, Live-Zustand der Karten, Bilder), gilt „steht still“.
+  await page.waitForLoadState('networkidle')
+  await page.waitForFunction(
+    () => document.documentElement.hasAttribute('data-behaviors-ready'),
+    undefined,
+    {
+      timeout: 15_000,
+    },
+  )
+  await page.waitForTimeout(500)
   await art.pauseClock()
+  await page.clock.runFor(100)
   const t0 = await page.screenshot({ type: 'png' })
   await art.frame('top-t0000')
   await page.clock.runFor(2000)

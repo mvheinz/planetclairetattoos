@@ -109,14 +109,15 @@ function main(): void {
     // Bild-Läufe auf zwei Worker verteilt (Ziel ≤ 25 min, KUNST-QA §9); Tempo-Lauf SC-18 danach allein (§4.1:
     // keine anderen CPU-lastigen Prozesse während der Messung).
     const imageSpecs = specs.filter((f) => !f.endsWith('sc-18.art.spec.ts'))
-    if (imageSpecs.length > 0)
-      status ||= playwright(
-        imageSpecs,
-        ['--grep-invert', '@tempo'],
-        Number(process.env.ART_WORKERS || 2),
-      )
-    if (specs.some((f) => f.endsWith('sc-18.art.spec.ts')))
-      status ||= playwright([specFile('SC-18')], ['--project=art-pixel7-tempo'], 1)
+    // Beide Teile laufen immer (ein roter Bild-Lauf überspringt die Tempo-Messung nicht).
+    const images =
+      imageSpecs.length > 0
+        ? playwright(imageSpecs, ['--grep-invert', '@tempo'], Number(process.env.ART_WORKERS || 2))
+        : 0
+    const tempo = specs.some((f) => f.endsWith('sc-18.art.spec.ts'))
+      ? playwright([specFile('SC-18')], ['--project=art-pixel7-tempo'], 1)
+      : 0
+    status ||= images || tempo
   }
   console.log(`art:record: fertig (${status === 0 ? 'ok' : `Fehler ${status}`}) – ${runDir}`)
   process.exit(status)
