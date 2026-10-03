@@ -112,6 +112,7 @@ export function collectEnvViolations(env: Env): EnvReport {
   }
   if (env.SEED_PREVIEW_MODE)
     errors.push('SEED_PREVIEW_MODE=true ist in Produktion verboten (R-181).')
+  if (env.ART_QA) errors.push('ART_QA ist in Produktion verboten (QA-Seiten, KUNST-QA §3.1).')
   return { errors, warnings }
 }
 
@@ -129,6 +130,14 @@ export function assertProductionEnv(env: Env): EnvReport {
 /** SEED_PREVIEW_MODE wirkt nur außerhalb von Produktion (KONZEPT §9.7). */
 export function seedPreviewModeActive(env: Env = getEnv()): boolean {
   return env.APP_ENV !== 'production' && env.SEED_PREVIEW_MODE === true
+}
+
+/**
+ * QA-Modus der Kunst-Abnahme (KUNST-QA §3.1/§3.2, P9.1): QA-Seiten `/{locale}/qa/*` und die Query-Schalter
+ * `?leash=off`, `?freeze=1`, `?qa-jank=…`. Wirkt nie in Produktion (dort bricht der Start ohnehin ab).
+ */
+export function artQaActive(env: Env = getEnv()): boolean {
+  return env.APP_ENV !== 'production' && env.ART_QA === true
 }
 
 export function isProduction(env: Env = getEnv()): boolean {

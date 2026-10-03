@@ -33,11 +33,16 @@ export const NOT_FOUND_PRESET: PresetId | null = getRoute('R28').preset
 
 /**
  * Preset der aktuellen Seite (DESIGN §9.7): aus der Registry; ohne Registry-Route das 404-Preset `lost`; während die
- * 500-Seite (R29) steht, keins (keine Engine, keine Animation).
+ * 500-Seite (R29) steht, keins (keine Engine, keine Animation); ebenso auf QA-Seiten.
  */
 export function useCurrentPreset(): PresetId | null {
   const match = useCurrentRoute()
   const errored = usePageError()
-  if (errored) return null
+  const firstSegment = useSelectedLayoutSegments()[0]
+  const notFoundShown = useNotFoundShown()
+  const qa = firstSegment === 'qa' && !notFoundShown
+  // QA-Seiten (KUNST-QA §3.2, nur ART_QA): keine Registry-Route, aber auch keine 404 – Linie nur, wo die Seite selbst
+  // eine `LeashLayer` mit festem Preset rendert.
+  if (errored || (qa && !match)) return null
   return match ? match.route.preset : NOT_FOUND_PRESET
 }

@@ -87,6 +87,8 @@ export interface ExportEnvInput {
 /** Variablen, die aus der Aufruf-Umgebung nie in den Export gelangen (Debug, Fremddienste, echte Schlüssel). */
 export const DROPPED_VARS = [
   'NEXT_PUBLIC_LEASH_DEBUG',
+  // QA-Seiten und -Schalter der Kunst-Abnahme (KUNST-QA §3.1) nie im Export.
+  'ART_QA',
   'DATABASE_URL_TEST',
   'STRIPE_SECRET_KEY',
   'STRIPE_WEBHOOK_SECRET',
