@@ -4561,7 +4561,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Tests: `tests/unit/env/seed-preview.unit.spec.ts`; `tests/int/media/owner-approved.int.spec.ts`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P8.21 Vorschau-Anker und Vorschau-Datei mit vollem Bestand** – Crawler und Verwaltungs-Bildschirmfotos des
+- [x] **P8.21 Vorschau-Anker und Vorschau-Datei mit vollem Bestand** – Crawler und Verwaltungs-Bildschirmfotos des
   Vorschau-Exports (ARCHITEKTUR §14.4, §14.7) nutzen die Anker aus SEED-SPEC §17: Warenkorb-Beispiel S01 + S11
   (Versand `keramik` 8,90 €, Zwischensumme 109,00 €, Summe 117,90 €, Abweichung von S11 muss bestätigt werden),
   Danke-Seiten O14 (`en`) und O13 (Vorkasse mit Beispiel-IBAN `DE36 0000 0000 0000 0000 00` und Frist), Statusseiten

@@ -2,6 +2,36 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-03 – P8.21
+
+- Vorschau-Export mit vollem Bestand: Status-Anker um O03 ergänzt, S08 als 404-Variante „schon ein Zuhause“ (im Browser gerendert, `clientRendered.ts` – das Server-HTML ist nur die Next-Fehlerhülle), eingebettete `data:`-Bilder (EPC-QR) bleiben erhalten, Zeitstempel-Angleichung ohne GoBD-Trigger-Abbruch (`session_replication_role` nur in der Export-DB). Ergebnis: 164 Routen, 0 nicht gebaut (R19 und alle Tattoo-Routen `ok`), 0 Warnungen, 8,19 MB.
+- Neue Umgebungsvariablen nur für parallele Exporte: `PREVIEW_EXPORT_DB_NAME`, `PREVIEW_EXPORT_PORT` (ARCHITEKTUR §5.2, `.env.example`).
+- Seed-Lücke behoben: O09 (`ready_for_pickup`) hat jetzt den Abholtext `pickup.messageText` (sonst ließ sich M07 nicht erneut senden).
+- Tests: `pnpm preview:export && pnpm test:preview-export` 32/32 grün (neu: „P8.21 Anker in der Datei …“, „P8.21 keine anderen Personendaten …“, Bericht: R08–R19 gebaut); `tests/e2e/seed-anchors.e2e.spec.ts` (9 × desktop/pixel-7); `tests/int/seed/anchors.int.spec.ts` (10).
+- Kriterium mit Vermerk „mit dem echten Anker prüft P8.21“ → Test:
+  - P1.19/P5.6 Bruch-Erstattung S09/O08 (P13 ja, P11 nein) → anchors.int „P8.21 S09/O08 …“
+  - P3.6 Archiv S19/S08 · P3.13 Sitemap → seed-anchors „P8.21 S19 Archiv und Sitemap …“
+  - P3.7 AK-3-04 S08 → seed-anchors „P8.21 S08 /de/shop/908-… → 404-Variante …“ und preview-export „P8.21 Anker in der Datei …“
+  - P3.8 Produktseiten S14, S19, S29, S30 → seed-anchors „P8.21 Produktseiten …“
+  - P4.13 Kasse S01 + S11 (8,90 €, 109,00 €, 117,90 €, Abweichung) → preview-export „P8.21 Anker in der Datei …“ (E2E reservieren nie Seed-Stücke, ARCHITEKTUR §7.2)
+  - P4.23 O03 + AK-SEED-20 (O01/O10/O13, Danke O13/O14) → seed-anchors „P8.21 O03 Bestellstatus …“, seed-status.e2e „AK-SEED-20 …“
+  - P5.8 Filter „reserviert“ S14/O13 → anchors.int „P8.21 S14/O13 Meine Stücke …“
+  - P5.10 Zu packen O14/O12 → anchors.int „P8.21 O14/O12 Zu packen …“, seed-anchors „P8.21 O14/O12 Zu packen, O13 …, O09 …“
+  - P5.11/P5.24 Exporte ohne Seed-Sendung/BSP-Beleg → revenue.int „AK-SEED-21 …“
+  - P5.17 Abholung O09 + M07 erneut → anchors.int „P8.21 O09 Abholung …“
+  - P5.18 Vorkasse O13 „Zahlung erhalten“ → anchors.int „P8.21 O13 Vorkasse offen …“
+  - P5.19 Widerrufe W3–W7 → seed-anchors „P8.21 W3–W7 Widerrufe …“
+  - P5.27 Vorlagen O10/O07 → anchors.int „P8.21 O10/O07 Vorlagen …“
+  - P5.28 Heute (§17) → withdrawals-inquiries.int „zeigt genau die Anker aus SEED_TODAY_ANCHORS“, seed-anchors „P8.21 Heute …“
+  - P6.4 Bestellungen je Fassung → anchors.int „P8.21 Bestellungen je Rechtstext-Fassung …“
+  - P6.8–P6.11 Mails M08/M09/M12/M13 → anchors.int „P8.21 W5/O05/RK1 Mails …“
+  - P6.13 Auskunft-Export → anchors.int „P8.21 DS3 Auskunft-Export …“
+  - P7.2 Flash F-901/F-903/F-905 → seed-anchors „P8.21 F-901/F-903/F-905 …“, seed-tattoo „AK-9-02 Seed …“
+  - P7.3 Angebote TO1–TO3 → anchors.int „P8.21 TO1–TO3 …“, seed-tattoo „AK-9-03 Seed …“
+  - P7.5 Galerie G1–G6 → tattoo.int „AK-SEED-11 …“, seed-tattoo „AK-9-04 Seed …“, preview-export (G1/G2 mit Etikett)
+  - P7.10 Seite commissions → seed-anchors „P8.21 commissions Auftragsarbeiten …“
+  - P7.11 Anfragen A1–A7 Löschfrist → withdrawals-inquiries.int „createdAt, lastActivityAt, deleteAfter = createdAt + 6 Monate …“
+
 ## 2026-10-03 – P8.20
 
 - Geprüft: `assertProductionEnv` bricht mit `SEED_PREVIEW_MODE=true` in Produktion ab, `seedPreviewModeActive()` dort immer `false`.
