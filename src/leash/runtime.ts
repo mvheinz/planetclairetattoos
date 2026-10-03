@@ -205,13 +205,17 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   // ---------- SVG-Aufbau: eine Schreibphase ----------
 
   /**
-   * Stufe A: Strich-Stück als runder Strich. Es hängt erst im DOM, wenn die Feder es erreicht (dann mit Dash-Enthüllung),
-   * und trägt fertig nur `d` und Breite – kürzeres DOM (PF-10). Farbe, Kappen, Füllung stehen am `<svg>`.
+   * Stufe A: Strich-Stück als runder Strich mit Dash-Enthüllung (anfangs verborgen). Die Stücke eines Segments hängen
+   * erst im DOM, wenn die Linie das Segment erreicht (ein Layout je Segment statt je Stück, PF-05); fertige Stücke
+   * tragen nur `d` und Breite (PF-10). Farbe, Kappen, Füllung stehen am `<svg>`.
    */
   function strokeView(st: LeashStroke): StrokeView {
     const el = doc.createElementNS(SVG_NS, 'path')
     el.setAttribute('d', st.d)
     el.setAttribute('stroke-width', String(st.w))
+    el.setAttribute('stroke-dasharray', String(st.L))
+    // verborgen: Dash samt runder Kappe vor dem Pfadanfang
+    el.setAttribute('stroke-dashoffset', String(st.L + 0.5))
     return { el, L: st.L, len0: st.len0, len1: st.len1 }
   }
 
@@ -315,26 +319,21 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     }
   }
 
-  /** Stufe A: Stücke bis `drawnLen` einhängen, fertige ohne Dash, das Stück an der Feder anteilig (nur `stroke-dashoffset`). */
+  /** Stufe A: Stücke bis `drawnLen` fertig (ohne Dash), das Stück an der Feder anteilig (nur `stroke-dashoffset`). */
   function applyStrokes(v: SegView) {
     const strokes = v.strokes!
+    if (!strokes[0]!.el.parentNode) v.svg.append(...strokes.map((x) => x.el))
     while (v.next < strokes.length && strokes[v.next]!.len1 <= drawnLen) {
       const el = strokes[v.next++]!.el
-      if (!el.parentNode) v.svg.appendChild(el)
       el.removeAttribute('stroke-dasharray')
       el.removeAttribute('stroke-dashoffset')
     }
     const st = strokes[v.next]
-    if (st && drawnLen > st.len0) {
-      if (!st.el.parentNode) {
-        st.el.setAttribute('stroke-dasharray', String(st.L))
-        v.svg.appendChild(st.el)
-      }
+    if (st && drawnLen > st.len0)
       st.el.setAttribute(
         'stroke-dashoffset',
         String(st.L * (1 - (drawnLen - st.len0) / (st.len1 - st.len0))),
       )
-    }
   }
 
   /**

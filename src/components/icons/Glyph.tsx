@@ -22,7 +22,6 @@ export function Glyph({
   const a11y = label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': true as const }
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
       width={size}
       height={size}

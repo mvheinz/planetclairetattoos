@@ -33,7 +33,7 @@ const RDP_TOLERANCE = 0.2
 /** Überlappung benachbarter Segmente (Schritt 9). */
 const SEGMENT_OVERLAP = 2
 /** Stufe A: Stücke der Mittellinie, deren Breite höchstens so weit vom Stückanfang abweicht (× Grundbreite). */
-const STROKE_WIDTH_TOL = 0.07
+const STROKE_WIDTH_TOL = 0.09
 /** Stufe A: Toleranz der Vereinfachung der Strich-Stücke (die Mittellinie ist bereits gewackelt). */
 const STROKE_RDP_TOLERANCE = 0.5
 /** Stufe A: längstes Stück in px Bogenlänge. */

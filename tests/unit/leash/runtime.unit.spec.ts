@@ -114,7 +114,7 @@ describe('leash/runtime – mountLeash', () => {
     // PF-05: keine Masken (deren Änderung erzwingt je Frame ein Layout), je Stück ein runder Strich mit Dash
     expect(root.querySelectorAll('mask, [mask]').length).toBe(0)
     const strokes = state.geometry!.segments.reduce((n, g) => n + g.strokes!.length, 0)
-    // PF-10: Stücke hängen erst im DOM, wenn die Feder sie erreicht
+    // PF-05/PF-10: Stücke eines Segments hängen erst im DOM, wenn die Linie das Segment erreicht
     expect(root.querySelectorAll('path').length).toBeLessThan(strokes)
     for (const svg of svgs) expect(svg.getAttribute('focusable')).toBe('false')
 
@@ -142,7 +142,11 @@ describe('leash/runtime – mountLeash', () => {
       expect(p.closest('svg')!.getAttribute('stroke-linecap')).toBe('round')
       expect(p.hasAttribute('stroke-dashoffset')).toBe(false) // fertig: nur `d` und Breite
     }
-    const partial = ink.filter((p) => p.hasAttribute('stroke-dasharray'))
+    expect(ink.some((p) => !p.hasAttribute('stroke-dasharray'))).toBe(true)
+    const partial = ink.filter((p) => {
+      const o = parseFloat(p.getAttribute('stroke-dashoffset') ?? '0')
+      return o > 0 && o < parseFloat(p.getAttribute('stroke-dasharray')!)
+    })
     expect(partial.length).toBeLessThanOrEqual(1)
     expect([...svgs].some((s) => (s as SVGSVGElement).style.visibility === 'hidden')).toBe(true)
 
