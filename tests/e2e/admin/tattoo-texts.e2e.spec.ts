@@ -57,6 +57,9 @@ test('@a11y Texte: Warnung bei „Anzahlung verfällt bei Absage“, Speichern b
     block.locator(`[data-testid^="tf-blocks."][data-testid$=".fields.${name}.${l}"]`)
   await field('heading', 'de').fill('Preise')
   await field('content', 'de').fill('Kleine Motive ab 80 €.\n\nAnzahlung verfällt bei Absage.')
+  // Mit dem Beispielbestand (P8) hat der Block schon englische Texte – leeren, damit „Übersetzen“ sie füllt.
+  await field('heading', 'en').fill('')
+  await field('content', 'en').fill('')
   await expectNoHorizontalScroll(page)
   await expectAccessible(page, '.pc-admin-view')
   await form.getByTestId('page-save-tattoo').click()
@@ -64,6 +67,12 @@ test('@a11y Texte: Warnung bei „Anzahlung verfällt bei Absage“, Speichern b
   await expect(form.getByTestId('tattoo-text-warning')).toContainText('Anzahlung verfällt')
 
   await form.getByTestId('translate-button').click()
+  // Andere Blöcke haben schon Englisch (Beispielbestand) → Rückfrage „Nur leere Felder“.
+  const onlyEmpty = page.getByTestId('confirm-dialog-ok')
+  await onlyEmpty
+    .waitFor({ state: 'visible', timeout: 3_000 })
+    .then(() => onlyEmpty.click())
+    .catch(() => undefined)
   await expect(field('heading', 'en')).toHaveValue('[EN] Preise')
   await expect(field('content', 'en')).toHaveValue(
     '[EN] Kleine Motive ab 80 €.\n\n[EN] Anzahlung verfällt bei Absage.',

@@ -9,10 +9,10 @@ import { getEnv, seedPreviewModeActive, type Env } from '@/lib/env'
 //   seedPreviewModeActive() = SEED_PREVIEW_MODE == 'true' AND APP_ENV != 'production'
 //   isPubliclyVisible(entry) = published AND (showsCustomer == false OR consentGiven == true
 //                                             OR (seed == true AND seedPreviewModeActive()))
-//   isMediaPubliclyVisible(media) = restricted == false OR (seed == true AND seedPreviewModeActive())
+//   isMediaPubliclyVisible(media) = NOT (showsPerson == 'jutta' AND ownerApproved != true)        (R-181, P8.20)
+//                                   AND (restricted == false OR (seed == true AND seedPreviewModeActive()))
 //                                   (+ Seed-Filter: Seed-Bilder nur im Vorschau-Modus)
-//
-// `media.showsPerson = jutta` mit `ownerApproved` (R-181) folgt mit dem Feld in P8; bis dahin gibt es keine solchen Bilder.
+// Fotos von Jutta brauchen ihre Freigabe auch im Vorschau-Modus.
 
 type EnvLike = Pick<Env, 'APP_ENV' | 'SEED_PREVIEW_MODE'>
 
@@ -26,6 +26,13 @@ export interface GalleryVisibilityInput {
 export interface MediaVisibilityInput {
   restricted?: boolean | null
   seed?: boolean | null
+  showsPerson?: string | null
+  ownerApproved?: boolean | null
+}
+
+/** Foto von Jutta ohne ihre Freigabe (R-181, DATENMODELL §6.2) – nie öffentlich. */
+export function isUnapprovedOwnerPhoto(media: MediaVisibilityInput): boolean {
+  return media.showsPerson === 'jutta' && media.ownerApproved !== true
 }
 
 const preview = (env?: EnvLike) => seedPreviewModeActive((env ?? getEnv()) as Env)
@@ -50,6 +57,7 @@ export function isSeedConsentException(entry: GalleryVisibilityInput, env?: EnvL
 
 /** Darf die Bilddatei bzw. das Bild-Dokument öffentlich ausgeliefert werden (ohne Anmeldung)? */
 export function isMediaPubliclyVisible(media: MediaVisibilityInput, env?: EnvLike): boolean {
+  if (isUnapprovedOwnerPhoto(media)) return false
   if (media.seed === true) return preview(env)
   return media.restricted !== true
 }

@@ -5,7 +5,7 @@ import { APIError, ValidationError, type PayloadRequest } from 'payload'
 import { writeAudit } from '@/lib/audit'
 import { revalidateContent } from '@/lib/cache/revalidate'
 import { TAGS } from '@/lib/cache/tags'
-import type { FaqCategory, Locale } from '@/lib/enums'
+import { FAQ_CATEGORIES, type FaqCategory, type Locale, type PageKey } from '@/lib/enums'
 import { getAppContext, requestNow } from '@/lib/payload/context'
 import { preservingReq } from '@/lib/payload/localReq'
 import { inTransaction } from '@/lib/payload/transaction'
@@ -15,9 +15,13 @@ import { getPath, translateDocumentFields } from '@/lib/translation/translateDoc
 import type { Faq, Flash, Page, TattooGallery } from '@/payload-types'
 
 import {
+  PAGE_FIELD_LIMITS,
+  PAGE_TEXT_BLOCKS,
   TATTOO_TEXT_BLOCKS,
   TATTOO_TEXT_PAGES,
+  TEXT_PAGES,
   editorTexts,
+  type BlockDef,
   type BlockFieldDef,
   type EditorBlock,
   type LocalizedText,
@@ -186,12 +190,18 @@ export async function translateTattooDocument(
   })
 }
 
-/** Übersetzbare Pfade einer Seite: Titel und die Textfelder der bearbeitbaren Blöcke (`layout.0.steps.1.title`). */
+/**
+ * Übersetzbare Pfade einer Seite: Titel, SEO-Texte und die Textfelder der bearbeitbaren Blöcke
+ * (`layout.0.steps.1.title`; alle Blöcke aus `PAGE_TEXT_BLOCKS`, P8.19a).
+ */
 export function pageTranslatePaths(de: Doc): string[] {
   const paths = ['title']
+  const seo = (de.seo ?? {}) as Doc
+  for (const f of ['metaTitle', 'metaDescription'])
+    if (typeof seo[f] === 'string' && (seo[f] as string).trim()) paths.push(`seo.${f}`)
   const layout = Array.isArray(de.layout) ? (de.layout as Doc[]) : []
   layout.forEach((block, i) => {
-    const def = TATTOO_TEXT_BLOCKS[String(block.blockType)]
+    const def = PAGE_TEXT_BLOCKS[String(block.blockType)]
     if (!def) return
     for (const f of def.fields) paths.push(`layout.${i}.${f.name}`)
     if (def.rows) {
@@ -338,7 +348,7 @@ function valueOf(field: BlockFieldDef, text: string): unknown {
 
 async function findPageByKey(
   req: PayloadRequest,
-  key: TattooTextPageKey,
+  key: PageKey,
   locale: Locale,
 ): Promise<Page | null> {
   const res = await preservingReq(req, () =>
@@ -358,10 +368,14 @@ async function findPageByKey(
 }
 
 /** Seite → Formularwerte (DE und EN, Rich Text als Klartext). */
-export function editorBlocksFromPage(de: Page | null, en: Page | null): EditorBlock[] {
+export function editorBlocksFromPage(
+  de: Page | null,
+  en: Page | null,
+  defs: Readonly<Record<string, BlockDef>> = TATTOO_TEXT_BLOCKS,
+): EditorBlock[] {
   const layoutEn = (en?.layout ?? []) as unknown as Doc[]
   return ((de?.layout ?? []) as unknown as Doc[]).map((block, i) => {
-    const def = TATTOO_TEXT_BLOCKS[String(block.blockType)]
+    const def = defs[String(block.blockType)]
     const blockEn = layoutEn.find((b) => b.id === block.id) ?? layoutEn[i] ?? {}
     const out: EditorBlock = {
       id: typeof block.id === 'string' ? block.id : undefined,
@@ -420,7 +434,12 @@ export interface SaveTextsResult<T> {
   warnings: TattooTextWarning[]
 }
 
-function checkBlocks(key: TattooTextPageKey, blocks: readonly EditorBlock[], current: Doc[]): void {
+function checkBlocks(
+  addable: readonly string[],
+  defs: Readonly<Record<string, BlockDef>>,
+  blocks: readonly EditorBlock[],
+  current: Doc[],
+): { path: string; message: string }[] {
   const errors: { path: string; message: string }[] = []
   blocks.forEach((b, i) => {
     if (!b.editable) {
@@ -428,8 +447,8 @@ function checkBlocks(key: TattooTextPageKey, blocks: readonly EditorBlock[], cur
         errors.push({ path: `blocks.${i}`, message: 'Unbekannter Block.' })
       return
     }
-    const def = TATTOO_TEXT_BLOCKS[b.blockType]
-    if (!def || (!b.id && !TATTOO_TEXT_PAGES[key].addable.includes(b.blockType))) {
+    const def = defs[b.blockType]
+    if (!def || (!b.id && !addable.includes(b.blockType))) {
       errors.push({ path: `blocks.${i}`, message: 'Dieser Block kann hier nicht angelegt werden.' })
       return
     }
@@ -456,11 +475,16 @@ function checkBlocks(key: TattooTextPageKey, blocks: readonly EditorBlock[], cur
       })
     }
   })
-  if (errors.length > 0) throw new ValidationError({ collection: 'pages', errors })
+  return errors
 }
 
 /** Blöcke einer Sprache bauen; EN ergänzt fehlende Pflichttexte mit dem deutschen Text (wie die öffentliche Rückfall-Sprache). */
-function buildLayout(blocks: readonly EditorBlock[], base: Doc[], locale: Locale): Doc[] {
+function buildLayout(
+  blocks: readonly EditorBlock[],
+  base: Doc[],
+  locale: Locale,
+  defs: Readonly<Record<string, BlockDef>>,
+): Doc[] {
   const value = (f: BlockFieldDef, v: LocalizedText | undefined) => {
     const own = v?.[locale] ?? ''
     const text = locale === 'en' && f.required && !own.trim() ? (v?.de ?? '') : own
@@ -469,7 +493,7 @@ function buildLayout(blocks: readonly EditorBlock[], base: Doc[], locale: Locale
   return blocks.map((b) => {
     const current = (b.id ? base.find((c) => c.id === b.id) : undefined) ?? {}
     if (!b.editable) return current
-    const def = TATTOO_TEXT_BLOCKS[b.blockType]!
+    const def = defs[b.blockType]!
     const out: Doc = { ...current, blockType: b.blockType }
     if (b.id) out.id = b.id
     for (const f of def.fields) out[f.name] = value(f, b.fields[f.name])
@@ -488,27 +512,85 @@ function buildLayout(blocks: readonly EditorBlock[], base: Doc[], locale: Locale
   })
 }
 
-/** Speichern der Blöcke einer Tattoo-Seite (DE, dann EN mit denselben IDs); legt die Seite bei Bedarf an. */
-export async function saveTattooPageTexts(
-  req: PayloadRequest,
-  key: TattooTextPageKey,
-  input: { blocks: EditorBlock[]; title?: LocalizedText },
-): Promise<SaveTextsResult<Page>> {
-  const blocks = input.blocks
-  const currentDe = await findPageByKey(req, key, 'de')
-  checkBlocks(key, blocks, ((currentDe?.layout ?? []) as unknown as Doc[]) ?? [])
-  const titleDe = input.title?.de?.trim() || currentDe?.title || TATTOO_TEXT_PAGES[key].title.de
-  const titleEn = input.title?.en?.trim() || TATTOO_TEXT_PAGES[key].title.en
+export interface PageSeoInput {
+  metaTitle?: LocalizedText
+  metaDescription?: LocalizedText
+}
 
-  const doc = await inTransaction(req, async () => {
-    const layoutDe = buildLayout(blocks, (currentDe?.layout ?? []) as unknown as Doc[], 'de')
+interface SavePageOptions {
+  defs: Readonly<Record<string, BlockDef>>
+  addable: readonly string[]
+  /** Titel, wenn keiner angegeben ist (DE, EN). */
+  title: (current: { de: string | null; en: string | null }) => LocalizedText
+  seo?: PageSeoInput
+}
+
+function checkPageMeta(
+  title: LocalizedText,
+  seo: PageSeoInput | undefined,
+): { path: string; message: string }[] {
+  const errors: { path: string; message: string }[] = []
+  const { min, max } = PAGE_FIELD_LIMITS.title
+  for (const l of ['de', 'en'] as const) {
+    const len = title[l].trim().length
+    if (len < min || len > max)
+      errors.push({ path: `title.${l}`, message: `Titel: ${min}–${max} Zeichen.` })
+    for (const f of ['metaTitle', 'metaDescription'] as const) {
+      const n = (seo?.[f]?.[l] ?? '').trim().length
+      if (n > PAGE_FIELD_LIMITS[f])
+        errors.push({
+          path: `seo.${f}.${l}`,
+          message: `Höchstens ${PAGE_FIELD_LIMITS[f]} Zeichen.`,
+        })
+    }
+  }
+  return errors
+}
+
+/** Blöcke (und ggf. Titel/SEO) einer Seite speichern: DE, dann EN mit denselben IDs; legt die Seite bei Bedarf an. */
+async function savePageTextsWith(
+  req: PayloadRequest,
+  key: PageKey,
+  blocks: EditorBlock[],
+  options: SavePageOptions,
+): Promise<Page> {
+  const { defs } = options
+  const currentDe = await findPageByKey(req, key, 'de')
+  const currentEn = currentDe ? await findPageByKey(req, key, 'en') : null
+  const title = options.title({ de: currentDe?.title ?? null, en: currentEn?.title ?? null })
+  const errors = [
+    ...checkBlocks(options.addable, defs, blocks, (currentDe?.layout ?? []) as unknown as Doc[]),
+    ...(options.seo ? checkPageMeta(title, options.seo) : []),
+  ]
+  if (errors.length > 0) throw new ValidationError({ collection: 'pages', errors })
+  const seoOf = (locale: Locale): Doc | undefined => {
+    if (!options.seo) return undefined
+    const base = ((locale === 'de' ? currentDe?.seo : currentEn?.seo) ?? {}) as Doc
+    const text = (v?: LocalizedText) => {
+      const own = v?.[locale]?.trim() ?? ''
+      return own || null
+    }
+    return {
+      ...base,
+      metaTitle: text(options.seo.metaTitle),
+      metaDescription: text(options.seo.metaDescription),
+    }
+  }
+  const withSeo = (data: Doc, locale: Locale): Doc => {
+    const seo = seoOf(locale)
+    return seo ? { ...data, seo } : data
+  }
+
+  return inTransaction(req, async () => {
+    const layoutDe = buildLayout(blocks, (currentDe?.layout ?? []) as unknown as Doc[], 'de', defs)
+    const dataDe = withSeo({ title: title.de, layout: layoutDe, _status: 'published' }, 'de')
     const savedDe = currentDe
       ? await preservingReq(req, () =>
           req.payload.update({
             collection: 'pages',
             id: currentDe.id,
             locale: 'de',
-            data: { title: titleDe, layout: layoutDe, _status: 'published' } as never,
+            data: dataDe as never,
             depth: 0,
             overrideAccess: true,
             req,
@@ -518,7 +600,7 @@ export async function saveTattooPageTexts(
           req.payload.create({
             collection: 'pages',
             locale: 'de',
-            data: { key, title: titleDe, layout: layoutDe, _status: 'published' } as never,
+            data: { key, ...dataDe } as never,
             depth: 0,
             overrideAccess: true,
             req,
@@ -530,7 +612,7 @@ export async function saveTattooPageTexts(
     const enBase = (savedEnBase.layout ?? []) as Doc[]
     const withIds: EditorBlock[] = blocks.map((b, i) => {
       const s = structure[i] ?? {}
-      const def = TATTOO_TEXT_BLOCKS[b.blockType]
+      const def = defs[b.blockType]
       const rows = def?.rows && Array.isArray(s[def.rows.name]) ? (s[def.rows.name] as Doc[]) : []
       return {
         ...b,
@@ -541,22 +623,106 @@ export async function saveTattooPageTexts(
         })),
       }
     })
-    const layoutEn = buildLayout(withIds, enBase, 'en')
+    const layoutEn = buildLayout(withIds, enBase, 'en', defs)
     return (await preservingReq(req, () =>
       req.payload.update({
         collection: 'pages',
         id: savedDe.id,
         locale: 'en',
-        data: { title: titleEn, layout: layoutEn, _status: 'published' } as never,
+        data: withSeo({ title: title.en, layout: layoutEn, _status: 'published' }, 'en') as never,
         depth: 0,
         overrideAccess: true,
         req,
       }),
     )) as Page
   })
+}
+
+/** Speichern der Blöcke einer Tattoo-Seite (DE, dann EN mit denselben IDs); legt die Seite bei Bedarf an. */
+export async function saveTattooPageTexts(
+  req: PayloadRequest,
+  key: TattooTextPageKey,
+  input: { blocks: EditorBlock[]; title?: LocalizedText },
+): Promise<SaveTextsResult<Page>> {
+  const blocks = input.blocks
+  const doc = await savePageTextsWith(req, key, blocks, {
+    defs: TATTOO_TEXT_BLOCKS,
+    addable: TATTOO_TEXT_PAGES[key].addable,
+    title: (current) => ({
+      de: input.title?.de?.trim() || current.de || TATTOO_TEXT_PAGES[key].title.de,
+      en: input.title?.en?.trim() || TATTOO_TEXT_PAGES[key].title.en,
+    }),
+  })
   return {
     doc,
     warnings: tattooTextWarnings([...editorTexts(blocks, 'de'), ...editorTexts(blocks, 'en')]),
+  }
+}
+
+// --- Alle Seiten (P8.19a, KONZEPT §7.13): Verwaltung „Texte“ → „Seiten und FAQ“ -------------------------------------
+
+export interface PageTextsFull {
+  page: {
+    id: number
+    title: LocalizedText
+    seo: { metaTitle: LocalizedText; metaDescription: LocalizedText }
+    seed: boolean
+    updatedAt: string | null
+  } | null
+  blocks: EditorBlock[]
+}
+
+/** Startwerte des Formulars einer beliebigen Seite (Titel, SEO, alle Textblöcke). */
+export async function loadPageTexts(req: PayloadRequest, key: PageKey): Promise<PageTextsFull> {
+  const de = await findPageByKey(req, key, 'de')
+  const en = de ? await findPageByKey(req, key, 'en') : null
+  const seo = (p: Page | null, f: 'metaTitle' | 'metaDescription') =>
+    ((p?.seo as Doc | undefined)?.[f] as string | null | undefined) ?? ''
+  return {
+    page: de
+      ? {
+          id: de.id,
+          title: { de: de.title ?? '', en: en?.title ?? '' },
+          seo: {
+            metaTitle: { de: seo(de, 'metaTitle'), en: seo(en, 'metaTitle') },
+            metaDescription: { de: seo(de, 'metaDescription'), en: seo(en, 'metaDescription') },
+          },
+          seed: (de as Page & { seed?: boolean | null }).seed === true,
+          updatedAt: de.updatedAt ?? null,
+        }
+      : null,
+    blocks: editorBlocksFromPage(de, en, PAGE_TEXT_BLOCKS),
+  }
+}
+
+/**
+ * Seite speichern (`POST /api/pages/texts`): Titel, SEO-Texte und Blöcke DE/EN. Speichern durch Jutta macht aus einer
+ * Beispiel-Seite eine echte (`seed = false`, Hook `adoptOnSave`, DATENMODELL §13.4); `revalidatePage` erneuert die
+ * öffentliche Seite (≤ 60 s). Leerer englischer Titel = deutscher Titel (öffentliche Rückfall-Sprache).
+ */
+export async function savePageTexts(
+  req: PayloadRequest,
+  key: PageKey,
+  input: { blocks: EditorBlock[]; title?: LocalizedText; seo?: PageSeoInput },
+): Promise<SaveTextsResult<Page>> {
+  const def = TEXT_PAGES[key]
+  const doc = await savePageTextsWith(req, key, input.blocks, {
+    defs: PAGE_TEXT_BLOCKS,
+    addable: def.addable,
+    seo: input.seo ?? {},
+    title: (current) => {
+      const de = input.title?.de?.trim() || current.de || def.title.de
+      // Leeres englisches Feld = deutscher Titel (öffentliche Rückfall-Sprache; „Übersetzen“ füllt ihn danach).
+      const en = input.title ? input.title.en?.trim() || de : current.en || de
+      return { de, en }
+    },
+  })
+  const tattoo = key === 'tattoo' || key === 'tattoo_aftercare'
+  return {
+    doc,
+    warnings: tattoo
+      ? tattooTextWarnings([...editorTexts(input.blocks, 'de'), ...editorTexts(input.blocks, 'en')])
+      : [],
   }
 }
 
@@ -568,9 +734,9 @@ export const TATTOO_FAQ_CATEGORIES = [
 ] as const satisfies readonly FaqCategory[]
 export type TattooFaqCategory = (typeof TATTOO_FAQ_CATEGORIES)[number]
 
-export interface FaqForm {
+export interface FaqForm<C extends FaqCategory = TattooFaqCategory> {
   id?: number
-  category: TattooFaqCategory
+  category: C
   question: LocalizedText
   answer: LocalizedText
   published: boolean
@@ -580,11 +746,19 @@ export interface FaqForm {
 export async function loadTattooFaqs(
   req: PayloadRequest,
 ): Promise<(FaqForm & { id: number; lossy: boolean })[]> {
+  return loadFaqs(req, TATTOO_FAQ_CATEGORIES)
+}
+
+/** FAQ der genannten Kategorien in Reihenfolge `sortOrder` (wie öffentlich; DE und EN, Antwort als Klartext). */
+export async function loadFaqs<C extends FaqCategory>(
+  req: PayloadRequest,
+  categories: readonly C[],
+): Promise<(FaqForm<C> & { id: number; lossy: boolean; seed: boolean })[]> {
   const find = (locale: Locale) =>
     preservingReq(req, () =>
       req.payload.find({
         collection: 'faqs',
-        where: { category: { in: [...TATTOO_FAQ_CATEGORIES] } },
+        where: { category: { in: [...categories] } },
         sort: ['sortOrder', 'id'],
         pagination: false,
         depth: 0,
@@ -602,7 +776,8 @@ export async function loadTattooFaqs(
     const aEn = lexicalToPlain(e?.answer)
     return {
       id: d.id,
-      category: d.category as TattooFaqCategory,
+      category: d.category as C,
+      seed: (d as Faq & { seed?: boolean | null }).seed === true,
       question: { de: d.question ?? '', en: e?.question ?? '' },
       answer: { de: aDe.text, en: aEn.text },
       published: d.published !== false,
@@ -616,9 +791,21 @@ export async function saveTattooFaq(
   req: PayloadRequest,
   input: FaqForm,
 ): Promise<SaveTextsResult<Faq>> {
+  return saveFaq(req, input, TATTOO_FAQ_CATEGORIES, 'Kategorie Tattoo oder Aftercare wählen.')
+}
+
+/**
+ * FAQ aller Kategorien (`POST /api/faqs/texts-save`, P8.19a): wie `saveTattooFaq`; Speichern setzt `seed = false`
+ * (Hook `adoptOnSave`). Warnungen V-24/V-15 nur in den Tattoo-Kategorien.
+ */
+export async function saveFaq(
+  req: PayloadRequest,
+  input: FaqForm<FaqCategory>,
+  allowed: readonly FaqCategory[] = FAQ_CATEGORIES,
+  categoryMessage = 'Bitte eine Kategorie wählen.',
+): Promise<SaveTextsResult<Faq>> {
   const errors: { path: string; message: string }[] = []
-  if (!(TATTOO_FAQ_CATEGORIES as readonly string[]).includes(input.category))
-    errors.push({ path: 'category', message: 'Kategorie Tattoo oder Aftercare wählen.' })
+  if (!allowed.includes(input.category)) errors.push({ path: 'category', message: categoryMessage })
   const q = { de: input.question?.de?.trim() ?? '', en: input.question?.en?.trim() ?? '' }
   const a = { de: input.answer?.de?.trim() ?? '', en: input.answer?.en?.trim() ?? '' }
   for (const l of ['de', 'en'] as const) {
@@ -690,7 +877,8 @@ export async function saveTattooFaq(
       }),
     )) as Faq
   })
-  return { doc, warnings: tattooTextWarnings([q.de, q.en, a.de, a.en]) }
+  const tattoo = (TATTOO_FAQ_CATEGORIES as readonly string[]).includes(input.category)
+  return { doc, warnings: tattoo ? tattooTextWarnings([q.de, q.en, a.de, a.en]) : [] }
 }
 
 /** FAQ eine Position nach oben/unten (innerhalb der Kategorie; Reihenfolge wird lückenlos neu nummeriert). */

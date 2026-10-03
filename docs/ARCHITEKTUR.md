@@ -121,7 +121,7 @@ aus §10–§13 dieses Dokuments); DNS-Umstellung und Start-Checkliste für P11 
 | `svgo` (dev), `fontkit` oder `opentype.js` (dev) | aktuell | P2 | SVG-Optimierung, Glyphen-Test (DESIGN AK-DS-05) |
 | `bwip-js` (dev) | 4.11.4 (exakt gepinnt, P5.14) | P5 | nur für Barcode-Test-Fixtures (`scripts/fixtures/barcodes.ts`) |
 | `@zxing/browser`, `@zxing/library` | 0.2.1 / 0.23.0 (exakt gepinnt, P5.14) | P5 | Rückfall des Barcode-Scans über ein Foto (`src/admin/components/TrackingScanner.tsx`), nur als dynamisch importierter Chunk in der Versand-Ansicht (Bestell-Detail); zuerst natives `BarcodeDetector`; keine Netz-Anfragen |
-| `potrace` (dev) | aktuell | P8 | Vektorisierung der Stationszeichnungen (`art:vectorize`, DESIGN §12.4); GPL → **nur** devDependency, nie im Client-Bundle |
+| `potrace` (dev) | 2.1.8 | P8 | Vektorisierung der Stationszeichnungen (`art:vectorize`, DESIGN §12.4); GPL → **nur** devDependency, nie im Client-Bundle |
 | `gsap` | 3.15.x | optional | kostenlos inkl. DrawSVG/ScrollTrigger. **Nur** gemäß DESIGN §9.10/DA-4: Standard ist eigener Code + WAAPI; GSAP nur per ADR als Lazy-Chunk auf R01 (≤ 30 KB gz) |
 | `stripe` (Node) | 22.6.2 (exakt gepinnt, P4.5) | P4 | `apiVersion` fest gepinnt (§3.5): `2026-08-26.dahlia` = `Stripe.API_VERSION` des SDK |
 | `@stripe/stripe-js` | 9.17.0 (exakt gepinnt, P4.5) | P4 | **nur** `@stripe/stripe-js/pure`, nur im Kassenmodul (R-062) |
@@ -438,7 +438,9 @@ den eigenen Handler trifft.
 | `GET /api/admin/packaging-report?year=JJJJ` | Jahres-CSV der Verpackungsmengen nach Material (R-201, E-47) | DATENMODELL §6.8.8 |
 | `GET /api/admin/compliance/template.pdf?category=` | Vorlage „Technische Unterlagen je Kategorie“ (R-203) | DATENMODELL §6.4 |
 | `GET /api/admin/export/{JJJJ-MM}.csv` · `.zip` · `.datev.csv` | Monats-CSV, Rechnungs-ZIP, DATEV-Stapel (R-124); Exporte enthalten nie Beispieldaten, auch nicht im Vorschau-Modus | KONZEPT §7.15 |
-| `GET /api/admin/seed/summary` · `POST /api/admin/seed/remove` | Beispieldaten zählen bzw. entfernen | DATENMODELL §13.5 |
+| `GET /api/admin/seed/summary` · `POST /api/admin/seed/remove` | Beispieldaten zählen bzw. entfernen (`{ keepTexts, confirm: 'ENTFERNEN' }`; 400 ohne Bestätigungswort, 409 mit Platzhalter-Rechtstexten, P8.19) | DATENMODELL §13.5 |
+| `POST /api/{products,flash,tattoo-gallery,media}/:id/adopt` | Beispiel übernehmen (`seed = false`, referenzierte Medien mit, Audit `product_adopted`; zweites Mal 409, P8.19) | DATENMODELL §13.4 |
+| `POST /api/pages/texts` · `POST /api/faqs/texts-save` | Verwaltung „Texte“ → „Seiten und FAQ“: Titel, SEO und Textblöcke jeder Seite bzw. FAQ aller Kategorien DE/EN speichern (Übernahme `seed = false`, P8.19a) | KONZEPT §7.13 |
 
 GraphQL ist abgeschaltet (`graphQL.disable: true`; Routen `graphql` und `graphql-playground` werden in P1 gelöscht).
 
@@ -1001,6 +1003,8 @@ Keine Repository-Secrets bis P11; auch danach **keine** Produktionsdaten oder Pr
 | `BUILD_WITHOUT_DB` | Build ohne DB-Zugriff; DB-gestützte Seiten werden zur Laufzeit gerendert (§13) | leer; Docker `1` | Docker | nein | P10 |
 | `NEXT_TELEMETRY_DISABLED` | Next-Telemetrie aus | `1` | CI, Docker | nein | P0 |
 | `NEXT_DIST_DIR` | Build-Ordner (`distDir` in `next.config.ts`); der Vorschau-Export nutzt `.next-preview`, damit `.next` des Entwicklungsservers unberührt bleibt | leer = `.next` | – | nein | P2 |
+| `PREVIEW_EXPORT_DB_NAME` | Nur für parallele Vorschau-Exporte auf einem Rechner: eigene Wegwerf-Datenbank (`planetclaire_…preview…`, `scripts/preview-export/env.ts`) | leer = `planetclaire_preview_export` | – | nein | P8 |
+| `PREVIEW_EXPORT_PORT` | Dazu der eigene Port des Export-Servers (1024–65535) | leer = `3999` | – | nein | P8 |
 | `E2E_BASE_URL` | Ziel der E2E-Tests | `http://localhost:3000` | – | nein | P1 |
 | `E2E_SERVER` | `dev` (lokal) oder `start` (CI: Produktions-Build) | `dev`; CI `start` | – | nein | P1 |
 | `PW_SKIP_WEBKIT` | nur wenn die WebKit-Installation scheitert (Cloud/lokal, §4.5): Projekt `iphone-15` läuft als markierte Chromium-Emulation (§7.3); in CI nie gesetzt | leer | – | nein | P1 |
@@ -1323,7 +1327,7 @@ Migration, §6.7 Nr. 5), sonst Hotfix-PR. Details im RUNBOOK (P10).
 | Tests | `test` (= `test:unit` + `test:int`), `test:unit`, `test:int`, `test:e2e`, `test:visual`, `test:perf`, `test:preview-export`, `test:coverage` |
 | Daten | `seed` (= `seed:base` + `seed:example`), `seed:base`, `seed:example [--only=<collection,…>] [--refresh-media]`, `seed:remove [--yes] [--drop-texts]` (ohne `--yes` nur Mengenvorschau), `seed:reset` (= `seed:remove --yes --drop-texts` + `seed:base` + `seed:example`; nur Entwicklung, Test, Vorschau-Export), `seed:import-instagram` (`scripts/seed/import-instagram.ts`, P8), `db:ensure`, `db:reset --test [--seed=none\|base\|all]` (Standard `base`) (nur dev/test), `db:mark-production`, `media:regenerate` |
 | Betrieb | `jobs:run [task] [--now=<ISO>]` (`scripts/jobs-run.ts`), `admin:create`, `admin:unlock` (`scripts/admin-*.ts`), `backup:run`, `backup:restore`, `backup:verify`, `retention:replay`, `payments:reconcile [--since=<ISO>]`, `stripe:fixture <name>` |
-| Vorschau/Kunst | `preview:export`, `fonts:copy` (`scripts/fonts/copy.ts`: WOFF2 kopieren, bei Bedarf per `subset-font` beschneiden, ab P3 TTF für OG-Bilder per WOFF2→TTF-Wandler, §1.2, DESIGN §4.1), `art:brand` (`scripts/art/build-brand.ts`: Wortmarke, `icon.svg`, `favicon.ico`, `apple-icon.png`, `public/og/default.png` aus `src/art/`, P2.5), `art:icons` (`scripts/art/build-icons.ts`: `src/art/icons/*.svg` → `src/components/icons/icons.generated.ts`, P2.5), `art:build`, `art:record`, `art:metrics`, `art:sheets`, `art:check`, `art:bundle`, `art:vectorize`, `art:sprite` (`scripts/art/build-sprite.ts`: Coco-Sprite → `public/art/coco-sprite.v{N}.svg` + `src/art/coco/coco-sprite.json`, P2.18; KUNST-QA §3.3), `art:coco-placeholder` (`scripts/art/draw-coco-placeholder.ts`: Platzhalter-Zeichnungen bis P9, P2.18), `art:calibration` (`scripts/art/calibration-sheet.ts`: Kalibrierbogen, P2.18), `art:coco-refs` (`scripts/art/coco-refs.ts`, P8), `art:placeholders` (`scripts/art/placeholders.ts`, P8) |
+| Vorschau/Kunst | `preview:export`, `fonts:copy` (`scripts/fonts/copy.ts`: WOFF2 kopieren, bei Bedarf per `subset-font` beschneiden, ab P3 TTF für OG-Bilder per WOFF2→TTF-Wandler, §1.2, DESIGN §4.1), `art:brand` (`scripts/art/build-brand.ts`: Wortmarke, `icon.svg`, `favicon.ico`, `apple-icon.png`, `public/og/default.png` aus `src/art/`, P2.5), `art:icons` (`scripts/art/build-icons.ts`: `src/art/icons/*.svg` → `src/components/icons/icons.generated.ts`, P2.5), `art:build`, `art:record`, `art:metrics`, `art:sheets`, `art:check`, `art:bundle`, `art:vectorize` (`scripts/art/vectorize.ts`: `content/art/sources.json` → `src/art/stations/*.svg` + `stations.generated.ts`, P8.14), `art:sprite` (`scripts/art/build-sprite.ts`: Coco-Sprite → `public/art/coco-sprite.v{N}.svg` + `src/art/coco/coco-sprite.json`, P2.18; KUNST-QA §3.3), `art:coco-placeholder` (`scripts/art/draw-coco-placeholder.ts`: Platzhalter-Zeichnungen bis P9, P2.18), `art:calibration` (`scripts/art/calibration-sheet.ts`: Kalibrierbogen, P2.18), `art:coco-refs` (`scripts/art/coco-refs.ts`, P8), `art:placeholders` (`scripts/art/placeholders.ts`, P8) |
 | Doku | `handbook:shots` (`scripts/handbook/shots.ts`, P10) |
 
 - Alle `seed*`-Befehle laufen über `payload run scripts/seed/cli.ts -- <base|example|remove|reset|all>` (SEED-SPEC §1.4);

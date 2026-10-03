@@ -2,8 +2,12 @@
 // (serverseitiges HTML), nicht der DOM nach Skripten; dazu alle Stylesheets, Schriften, Bilder und SVG-Sprites, die der
 // laufende Server ausliefert. Angefragt wird ausschließlich der Export-Server (nur Pfade, nie absolute URLs) – keine
 // Anfrage an fremde Hosts. Die Filter und die Start-Menge sind rein und in Unit-Tests geprüft.
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
+
 import * as cheerio from 'cheerio'
 
+import { buildProductSlug } from '../../src/lib/products/itemNumber'
 import { localizedPath } from '../../src/lib/routes/paths'
 import { seedToken } from '../../src/lib/seed/tokens'
 import { LOCALES, ROUTES, type Locale, type RouteEntry } from '../../src/lib/routes/registry'
@@ -79,12 +83,29 @@ export interface StartEntry {
  */
 export type ParamProvider = (
   route: RouteEntry,
-) => { lang: Locale; params: Record<string, string> }[]
+) => { lang: Locale; params: Record<string, string>; expect?: 200 | 404 }[]
+
+/** Nummer und Slug je Sprache eines Seed-Stücks aus `content/seed/data/products.json` (SEED-SPEC §5). */
+export function seedProductSlugs(key: string): Record<Locale, { nummer: string; slug: string }> {
+  const products = JSON.parse(
+    readFileSync(path.resolve('content/seed/data/products.json'), 'utf8'),
+  ) as { key: string; itemNumber: number; title: { de: string; en?: string } }[]
+  const p = products.find((x) => x.key === key)
+  if (!p) throw new ExportError(1, `Seed-Stück ${key} fehlt in products.json.`)
+  const out = {} as Record<Locale, { nummer: string; slug: string }>
+  for (const lang of LOCALES) {
+    const full = buildProductSlug(p.itemNumber, p.title[lang] || p.title.de)
+    const [nummer, ...rest] = full.split('-')
+    out[lang] = { nummer: nummer!, slug: rest.join('-') }
+  }
+  return out
+}
 
 /**
- * Seed-Anker der Danke- und Statusseiten (SEED-SPEC §17): Danke O14 (bezahlt, EN) und O13 (Vorkasse, DE), Status O10
- * (versendet), O13 (Vorkasse offen), O01 (erstattet) je Sprache. Token deterministisch aus dem `seedKey` (§2.5), nur
- * für `seed: true`.
+ * Seed-Anker (SEED-SPEC §17, PLAN P8.21): Danke O14 (bezahlt, EN) und O13 (Vorkasse, DE), Status O10 (versendet), O13
+ * (Vorkasse offen), O01 (erstattet) und O03 (angefochten → Status vor der Anfechtung) je Sprache; Produktseite S08
+ * (online verkauft, nicht im Archiv) als 404-Variante „schon ein Zuhause“. Token deterministisch aus dem `seedKey`
+ * (§2.5), nur für `seed: true`.
  */
 export const seedParamProvider: ParamProvider = (route) => {
   if (route.pageType === 'thankYou') {
@@ -94,9 +115,13 @@ export const seedParamProvider: ParamProvider = (route) => {
     ]
   }
   if (route.pageType === 'orderStatus') {
-    return ['O10', 'O13', 'O01'].flatMap((key) =>
+    return ['O10', 'O13', 'O01', 'O03'].flatMap((key) =>
       LOCALES.map((lang) => ({ lang, params: { token: seedToken(`orders:${key}`, 'status') } })),
     )
+  }
+  if (route.pageType === 'product') {
+    const s08 = seedProductSlugs('S08')
+    return LOCALES.map((lang) => ({ lang, params: s08[lang], expect: 404 as const }))
   }
   return []
 }
@@ -113,8 +138,13 @@ export function startSet(
       for (const lang of LOCALES)
         out.push({ path: localizedPath(r.id, lang), lang, routeId: r.id, expect: 200 })
     } else {
-      for (const { lang, params } of provider(r))
-        out.push({ path: localizedPath(r.id, lang, params), lang, routeId: r.id, expect: 200 })
+      for (const { lang, params, expect } of provider(r))
+        out.push({
+          path: localizedPath(r.id, lang, params),
+          lang,
+          routeId: r.id,
+          expect: expect ?? 200,
+        })
     }
   }
   for (const lang of LOCALES)

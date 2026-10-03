@@ -14,6 +14,12 @@
       "reason": "Tattoo-Portfolio, keine Verkaufsware (E-18): Bildunterschrift des Galerie-Tattoos G2 aus dem Manifest (SEED-SPEC §2.1, SE-04)."
     },
     {
+      "file": "content/seed/data/tattoo.json",
+      "id": "V-16",
+      "match": "Godzilla",
+      "reason": "Tattoo-Portfolio, keine Verkaufsware (E-18): Juttas Original-Bildunterschrift des Galerie-Tattoos G2 (SEED-SPEC §12.3, SE-04)."
+    },
+    {
       "file": "src/components/ui/Choice.tsx",
       "id": "V-03",
       "match": "defaultChecked",

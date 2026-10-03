@@ -1,0 +1,134 @@
+{
+  "_hinweis": "Erzeugt von pnpm art:coco-refs (PLAN P8.11). Nur Zeichenvorlagen – nie veröffentlichen (ANLEITUNGEN C1). Normalisierte Kopien liegen lokal in .data/art-refs/coco/.",
+  "note": "keine eigenen Fotos",
+  "refs": [
+    {
+      "source": "content/seed/instagram/highlight-ceramics.jpg",
+      "origin": "instagram-highlight",
+      "sha256": "30f3c7cea8a746961898ae902ed6fbc8f15519c9896f527dc462f924ebaaf824",
+      "width": 150,
+      "height": 150,
+      "pose": "unbekannt",
+      "output": null
+    },
+    {
+      "source": "content/seed/instagram/highlight-coco.jpg",
+      "origin": "instagram-highlight",
+      "sha256": "6d55a9b95a068e2920cc3cc123dd62997828f643e1a624de71b1c50205f932f7",
+      "width": 150,
+      "height": 150,
+      "pose": "unbekannt",
+      "output": null
+    },
+    {
+      "source": "content/seed/instagram/highlight-flash.jpg",
+      "origin": "instagram-highlight",
+      "sha256": "9d649e22467fc09e6c2af1ac818ce42ff5da58c138686debdbfa8dc6e2f5e0e0",
+      "width": 150,
+      "height": 150,
+      "pose": "unbekannt",
+      "output": null
+    },
+    {
+      "source": "content/seed/instagram/highlight-fleamarket.jpg",
+      "origin": "instagram-highlight",
+      "sha256": "a0b6b769fa7c0624dd0ac0acc8b887e7f47938e3797ff57a86c9712b4ab7885e",
+      "width": 150,
+      "height": 150,
+      "pose": "unbekannt",
+      "output": null
+    },
+    {
+      "source": "content/seed/instagram/highlight-healed.jpg",
+      "origin": "instagram-highlight",
+      "sha256": "334286dc51a9aaaf80871ba61e0d020fffb93d8ad72e38a2718f088c5fce6d10",
+      "width": 150,
+      "height": 150,
+      "pose": "kopfschief",
+      "output": null
+    },
+    {
+      "source": "content/seed/instagram/highlight-hi.jpg",
+      "origin": "instagram-highlight",
+      "sha256": "f0f9e14228dd4b6cf56718d2c5b6e32bcae1c8754372fcad04d94f8bfc05bf94",
+      "width": 150,
+      "height": 150,
+      "pose": "schnueffeln",
+      "output": null
+    },
+    {
+      "source": "content/seed/instagram/highlight-more-ceramics.jpg",
+      "origin": "instagram-highlight",
+      "sha256": "69cd5dbe2b796be34c6c377d5938a32690ed2d0fbf073d7e78e56c2126786403",
+      "width": 150,
+      "height": 150,
+      "pose": "unbekannt",
+      "output": null
+    },
+    {
+      "source": "content/seed/instagram/highlight-one-offs.jpg",
+      "origin": "instagram-highlight",
+      "sha256": "fc5cee01f164fedc4b6b29f2e3c713ae988a06176c97ee3d48b8442d0924f2a6",
+      "width": 150,
+      "height": 150,
+      "pose": "unbekannt",
+      "output": null
+    },
+    {
+      "source": "content/seed/instagram/highlight-tattoos.jpg",
+      "origin": "instagram-highlight",
+      "sha256": "3b55966d6d7e4a4ef339cc1356205125a91827cac8de7048842ff40737682db0",
+      "width": 150,
+      "height": 150,
+      "pose": "unbekannt",
+      "output": null
+    },
+    {
+      "source": "content/art/jutta-skizzen/coco-als-bowie-01.jpg",
+      "origin": "skizze",
+      "sha256": "d36def724063459824f1dbe9f6a8fb3b7f625f03182e3f565e173cf60f8d0227",
+      "width": 1170,
+      "height": 1582,
+      "pose": "unbekannt",
+      "output": ".data/art-refs/coco/skizze-coco-als-bowie-01.jpg"
+    },
+    {
+      "source": "content/art/jutta-skizzen/coco-oh-01.jpg",
+      "origin": "skizze",
+      "sha256": "1dd401d207cd980d9e987db38d273b56776f3a3be4b2b36289e28a79fc454223",
+      "width": 1200,
+      "height": 1600,
+      "pose": "unbekannt",
+      "output": ".data/art-refs/coco/skizze-coco-oh-01.jpg"
+    },
+    {
+      "source": "content/art/jutta-skizzen/hund-vogel-01.jpg",
+      "origin": "skizze",
+      "sha256": "d6d425fe61e4613b6b13eb758921eafc01e0e7de588da44adafb27db3195016f",
+      "width": 976,
+      "height": 1600,
+      "pose": "unbekannt",
+      "output": ".data/art-refs/coco/skizze-hund-vogel-01.jpg"
+    },
+    {
+      "source": "content/art/jutta-skizzen/make-berlin-goth-again-01.jpg",
+      "origin": "skizze",
+      "sha256": "b3305e8db3bee3c3dc062c028d0538ba38f3aba1779d980031519ab8f8cbfe1a",
+      "width": 1200,
+      "height": 1600,
+      "pose": "unbekannt",
+      "output": ".data/art-refs/coco/skizze-make-berlin-goth-again-01.jpg"
+    },
+    {
+      "source": "content/art/jutta-skizzen/narrenkappe-01.jpg",
+      "origin": "skizze",
+      "sha256": "fbf2ab6fb0e92dd43af6145ad5cd26c52bd7501270710279c2de17966aefe5b0",
+      "width": 320,
+      "height": 290,
+      "pose": "unbekannt",
+      "output": ".data/art-refs/coco/skizze-narrenkappe-01.jpg"
+    }
+  ],
+  "videos": [],
+  "skipped": []
+}

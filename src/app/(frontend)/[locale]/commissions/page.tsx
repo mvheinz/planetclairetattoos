@@ -5,6 +5,7 @@ import React from 'react'
 import { CommissionFormBlock } from '@/components/commission/CommissionFormBlock'
 import styles from '@/components/commission/Commission.module.css'
 import { ContactLinks } from '@/components/content/ContactLinks'
+import { FaqList } from '@/components/content/FaqList'
 import { RichTextContent } from '@/components/content/RichTextContent'
 import { ResponsiveImage } from '@/components/media/ResponsiveImage'
 import tattoo from '@/components/tattoo/Tattoo.module.css'
@@ -142,28 +143,14 @@ export default async function CommissionsPage({ params }: { params: Promise<{ lo
           contactEmail={contact.email}
         />
 
-        {faqs.length > 0 ? (
-          <section
-            className={tattoo.section}
-            aria-labelledby="commission-faq"
-            data-commission-faq=""
-          >
-            <h2 id="commission-faq" className={tattoo.sectionHeading}>
-              {faqBlock?.heading || t('faqHeading')}
-            </h2>
-            <ul className={tattoo.faq}>
-              {faqs.map((faq) => (
-                <li key={faq.id}>
-                  <details className={tattoo.faqItem} data-faq={faq.id}>
-                    <summary>{faq.question}</summary>
-                    <div className={tattoo.faqAnswer}>
-                      <RichTextContent data={faq.answer} />
-                    </div>
-                  </details>
-                </li>
-              ))}
-            </ul>
-          </section>
+        {faqBlock || faqs.length > 0 ? (
+          <FaqList
+            id="commission-faq"
+            category={faqCategory}
+            heading={faqBlock?.heading || t('faqHeading')}
+            locale={locale}
+            data={{ 'data-commission-faq': '' }}
+          />
         ) : null}
 
         <section

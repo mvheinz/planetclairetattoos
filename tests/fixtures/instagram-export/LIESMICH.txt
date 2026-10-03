@@ -1,0 +1,1 @@
+Fiktive Mini-Export-Struktur für Tests (P8.10). Importer ignorieren diese Datei.

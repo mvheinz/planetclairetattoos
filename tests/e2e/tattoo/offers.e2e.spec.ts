@@ -41,7 +41,9 @@ test('AK-9-03 abgelaufenes Angebot ist nach dem Task-Lauf auf R11, R13 und der S
       type: 'flash_day',
       title: TITLE,
       description: 'Kleine Motive, großer Spaß – nur ganz kurz.',
-      startsAt: new Date(Date.now() - 3_600_000).toISOString(),
+      // Beginn vor allen anderen laufenden Angeboten (auch dem Seed-Angebot TO2, SEED-SPEC §12.2: `D-3@00:00`), damit
+      // Teaser und Startseite genau dieses Angebot als laufendes zeigen.
+      startsAt: new Date(Date.now() - 6 * 86_400_000).toISOString(),
       endsAt: endsAt.toISOString(),
       published: true,
       seed: true,

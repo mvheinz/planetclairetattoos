@@ -73,8 +73,21 @@ describe('Vorschau-Export: Crawl-Filter (ARCHITEKTUR §14.4)', () => {
     const paths = start.map((s) => s.path)
     expect(paths).toContain(`/de/danke/${seedToken('checkouts:O13', 'checkout')}`)
     expect(paths).toContain(`/en/thank-you/${seedToken('checkouts:O14', 'checkout')}`)
-    for (const key of ['O10', 'O13', 'O01'])
+    for (const key of ['O10', 'O13', 'O01', 'O03'])
       expect(paths).toContain(`/de/bestellung/${seedToken(`orders:${key}`, 'status')}`)
+  })
+
+  it('P8.21 S08 als erwartete 404-Variante „schon ein Zuhause“ (DE und EN, Slug wie die App)', () => {
+    const start = startSet([ROUTES.find((r) => r.id === 'R04')!], seedParamProvider)
+    expect(
+      start.find((s) => s.path === '/de/shop/908-kleiner-teller-fuchs-auf-dem-mond'),
+    ).toMatchObject({
+      routeId: 'R04',
+      expect: 404,
+      lang: 'de',
+    })
+    expect(start.filter((s) => s.routeId === 'R04' && s.lang === 'en')).toHaveLength(1)
+    expect(start.every((s) => s.routeId !== 'R04' || s.expect === 404)).toBe(true)
   })
 
   it('findet url()-Verweise und Dateien im HTML', () => {

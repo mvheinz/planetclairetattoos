@@ -12,5 +12,69 @@
     "complianceCategory": "schmuck",
     "pdfText": "BEISPIELDOKUMENT – kein Nachweis. Platzhalter für das Hersteller-Datenblatt der Glasur.",
     "note": "Beispieldokument (Beispielbestand) – Glasur-Datenblatt zu S26–S29."
+  },
+  {
+    "key": "O12:packing-1",
+    "purpose": "packing_photo",
+    "image": {
+      "format": "jpeg",
+      "width": 1200,
+      "height": 900,
+      "motif": "packing-open",
+      "label": "BEISPIEL-PACKFOTO 1/2"
+    },
+    "relatedOrder": "orders:O12",
+    "note": "Beispielbild (Beispielbestand) – offener Karton mit Papierpolster, Bestellung PC-2026-90012."
+  },
+  {
+    "key": "O12:packing-2",
+    "purpose": "packing_photo",
+    "image": {
+      "format": "jpeg",
+      "width": 1200,
+      "height": 900,
+      "motif": "packing-closed",
+      "label": "BEISPIEL-PACKFOTO 2/2"
+    },
+    "relatedOrder": "orders:O12",
+    "note": "Beispielbild (Beispielbestand) – zugeklebter Karton, Bestellung PC-2026-90012."
+  },
+  {
+    "key": "A2:sketch-1",
+    "purpose": "commission_reference",
+    "image": {
+      "format": "png",
+      "width": 1000,
+      "height": 1000,
+      "motif": "commission-plate-bunnies"
+    },
+    "relatedInquiry": "inquiries:A2",
+    "note": "Beispielbild (Beispielbestand) – Skizze zur Anfrage AA-2026-9002."
+  },
+  {
+    "key": "RK1:photo-1",
+    "purpose": "complaint_photo",
+    "image": {
+      "format": "jpeg",
+      "width": 1200,
+      "height": 900,
+      "motif": "complaint-bowl-crack",
+      "label": "BEISPIEL-REKLAMATIONSFOTO"
+    },
+    "relatedComplaint": "complaints:RK1",
+    "note": "Beispielbild (Beispielbestand) – Schale mit Sprung im eingedrückten Karton, Reklamation zu PC-2026-90010."
+  },
+  {
+    "key": "RK2:photo-1",
+    "purpose": "complaint_photo",
+    "image": {
+      "format": "jpeg",
+      "width": 1200,
+      "height": 900,
+      "motif": "complaint-shirt-faded",
+      "label": "BEISPIEL-REKLAMATIONSFOTO"
+    },
+    "relatedComplaint": "complaints:RK2",
+    "note": "Beispielbild (Beispielbestand) – T-Shirt mit verblasster Stelle an der Schulter, Reklamation zu PC-2026-90005."
   }
 ]

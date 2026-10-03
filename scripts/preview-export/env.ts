@@ -4,9 +4,38 @@
 import { TZDate } from '@date-fns/tz'
 import { format } from 'date-fns'
 
-export const EXPORT_DB_NAME = 'planetclaire_preview_export'
+/** Standard-Datenbank und -Port des Exports (ARCHITEKTUR §14.3). */
+export const DEFAULT_EXPORT_DB_NAME = 'planetclaire_preview_export'
+export const DEFAULT_EXPORT_PORT = 3999
+
+/**
+ * Nur für parallele Läufe auf demselben Rechner (z. B. ein zweiter Arbeitsordner): `PREVIEW_EXPORT_DB_NAME` und
+ * `PREVIEW_EXPORT_PORT` lenken den Export auf eine eigene Wegwerf-Datenbank und einen eigenen Port um. Der Name muss
+ * mit `planetclaire_` beginnen und `preview` enthalten (nie die Entwicklungs-, Test- oder Produktions-Datenbank),
+ * der Port liegt zwischen 1024 und 65535. Ohne Angabe gelten die Standardwerte.
+ */
+export function resolveExportTarget(env: Readonly<Record<string, string | undefined>>): {
+  dbName: string
+  port: number
+} {
+  const dbName = env.PREVIEW_EXPORT_DB_NAME?.trim() || DEFAULT_EXPORT_DB_NAME
+  if (!/^planetclaire_[a-z0-9_]*preview[a-z0-9_]*$/.test(dbName)) {
+    throw new Error(
+      `PREVIEW_EXPORT_DB_NAME „${dbName}“ ungültig: muss mit planetclaire_ beginnen und preview enthalten (a–z, 0–9, _).`,
+    )
+  }
+  const rawPort = env.PREVIEW_EXPORT_PORT?.trim()
+  const port = rawPort ? Number(rawPort) : DEFAULT_EXPORT_PORT
+  if (!Number.isInteger(port) || port < 1024 || port > 65535) {
+    throw new Error(`PREVIEW_EXPORT_PORT „${rawPort}“ ungültig: ganze Zahl 1024–65535.`)
+  }
+  return { dbName, port }
+}
+
+const target = resolveExportTarget(process.env)
+export const EXPORT_DB_NAME = target.dbName
 export const EXPORT_HOST = '127.0.0.1'
-export const EXPORT_PORT = 3999
+export const EXPORT_PORT = target.port
 export const EXPORT_ORIGIN = `http://${EXPORT_HOST}:${EXPORT_PORT}`
 export const EXPORT_DIST_DIR = '.next-preview'
 export const EXPORT_STORAGE_DIR = '.data/preview-export'
@@ -30,7 +59,7 @@ export function exportSeedNow(now: Date): string {
   return format(noon, "yyyy-MM-dd'T'HH:mm:ssxxx")
 }
 
-/** Gleicher Postgres-Server wie `sourceUrl`, aber Datenbank `planetclaire_preview_export`. */
+/** Gleicher Postgres-Server wie `sourceUrl`, aber Datenbank `EXPORT_DB_NAME` (Standard `planetclaire_preview_export`). */
 export function exportDatabaseUrl(sourceUrl: string): string {
   const u = new URL(sourceUrl)
   u.pathname = `/${EXPORT_DB_NAME}`

@@ -7,9 +7,9 @@ import { fallbackArtSvg, type WashToken } from '@/lib/seed/fallbackArt'
 import styles from './Home.module.css'
 import { PlanetMark } from './SpaceMarks'
 
-// Stationszeichnung (DESIGN KO-21, §12.4): `src/art/stations/{stationId}.svg`, falls vorhanden; sonst die
-// Ersatzzeichnung (`fallbackArtSvg`, SEED-SPEC §4.3) bzw. für „Hallo“ und „Jutta & Coco“ Coco aus dem Sprite (§12.4
-// „Sprite“). Feste Box 4:5 (kein CLS), `aria-hidden` (reine Dekoration). Echte Zeichnungen folgen in P8/P9.
+// Stationszeichnung (DESIGN KO-21, §12.4): `src/art/stations/{stationId}.svg` (P8.14, `pnpm art:vectorize`), Tusche über
+// `currentColor` (E-73); fehlt eine Datei, die Ersatzzeichnung (`fallbackArtSvg`, SEED-SPEC §4.3) bzw. für „Hallo“ und
+// „Jutta & Coco“ Coco aus dem Sprite. Feste Box 4:5 (kein CLS), `aria-hidden` (reine Dekoration).
 
 type Fallback = { key: string; wash: WashToken | null } | 'coco' | 'coco-planet'
 

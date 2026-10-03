@@ -1,0 +1,29 @@
+[
+  {
+    "media": [
+      {
+        "uri": "media/posts/202606/17841400000000001.jpg",
+        "creation_timestamp": 1782490800,
+        "title": "Fuchs, Aquarell"
+      }
+    ]
+  },
+  {
+    "media": [
+      {
+        "uri": "media/posts/202609/17841400000000003.jpg",
+        "creation_timestamp": 1789031100,
+        "title": "Graue Cap"
+      }
+    ]
+  },
+  {
+    "media": [
+      {
+        "uri": "media/posts/202609/17841400000000004.jpg",
+        "creation_timestamp": 1789065600,
+        "title": "Fremdes Bild"
+      }
+    ]
+  }
+]

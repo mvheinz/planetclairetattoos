@@ -92,11 +92,11 @@ test.describe('Shop R02/R03 – lesend (alle Projekte)', () => {
       'href',
       `${shop}?available=1`,
     )
-    // Zustände KONZEPT §3.2: reserviert (S27, Nr. 927) mit Hinweis, verkauft (S06, Nr. 906) mit Stempel
+    // Zustände KONZEPT §3.2: reserviert (S27, Nr. 927) mit Hinweis, verkauft (z. B. S24/S30 auf Seite 1) mit Stempel
     const reserved = page.locator('[data-product-card][data-item-number="927"]')
     await expect(reserved.locator('[data-badge="reserved"]')).toHaveText('reserviert')
     await expect(reserved).toHaveAttribute('aria-label', /, gerade reserviert$/)
-    const sold = page.locator('[data-product-card][data-item-number="906"]')
+    const sold = page.locator('[data-product-card][data-status="sold"]').first()
     await expect(sold.locator('[data-sold-stamp]')).toBeVisible()
     await expect(sold).toHaveAttribute('aria-label', /, verkauft$/)
     // R-030/R-031: Sternchen am Preis und seine Auflösung genau einmal auf derselben Seite
@@ -356,7 +356,8 @@ async function countPublic(payload: Payload): Promise<number> {
   return res.totalDocs
 }
 
-// Leerzustand braucht eine Kategorie ohne sichtbare Stücke: `sonstiges` ist im Mini-Bestand leer, aber Fixture-Tests
+// Leerzustand braucht eine Kategorie ohne sichtbare Stücke: `sonstiges` hat im Beispielbestand nur S30 (blendet der Test
+// kurz aus), und Fixture-Tests
 // (P3.8/P3.9, Fixture analog S30) legen dort kurz Stücke an. Deshalb exklusiv (keine Fixtures gleichzeitig) und mit frisch
 // erzeugter Seite statt einer, die zufällig während eines Fixture-Tests gerendert wurde.
 test.describe('Shop R03 – Leerzustand (exklusiv)', () => {
@@ -366,14 +367,44 @@ test.describe('Shop R03 – Leerzustand (exklusiv)', () => {
     page,
     request,
   }) => {
-    // `sonstiges` hat im Mini-Bestand keine Stücke (nicht in der Navigation, per URL erreichbar)
+    // `sonstiges` (nicht in der Navigation, per URL erreichbar) zeigt im Beispielbestand nur den verkauften Spiegel S30
+    // (Archiv sichtbar) – für den Leerzustand kurz ausblenden und danach wiederherstellen.
     const url = localizedPath('R03', 'de', { slug: 'sonstiges' })
-    await freshPage(page)
-    await refresh(request, [url])
-    await page.goto(url)
-    const empty = page.locator('[data-empty-state]')
-    await expect(empty.locator('h2')).toHaveText('In dieser Ecke ist gerade nichts.')
-    await expect(empty.getByRole('link', { name: 'Alle Stücke' })).toHaveAttribute('href', shop)
-    await expect(page.locator('[data-product-card]')).toHaveCount(0)
+    const payload = await testPayload()
+    const visible = await payload.find({
+      collection: 'products',
+      where: {
+        and: [
+          { category: { equals: 'sonstiges' } },
+          { status: { equals: 'sold' } },
+          { showInArchiveAfterSale: { equals: true } },
+        ],
+      },
+      overrideAccess: true,
+      depth: 0,
+      pagination: false,
+    })
+    const ids = visible.docs.map((d) => d.id)
+    const show = (on: boolean) =>
+      payload.update({
+        collection: 'products',
+        where: { id: { in: ids } },
+        data: { showInArchiveAfterSale: on } as never,
+        overrideAccess: true,
+        context: { seed: true },
+      })
+    try {
+      await show(false)
+      await freshPage(page)
+      await refresh(request, [url])
+      await page.goto(url)
+      const empty = page.locator('[data-empty-state]')
+      await expect(empty.locator('h2')).toHaveText('In dieser Ecke ist gerade nichts.')
+      await expect(empty.getByRole('link', { name: 'Alle Stücke' })).toHaveAttribute('href', shop)
+      await expect(page.locator('[data-product-card]')).toHaveCount(0)
+    } finally {
+      await show(true)
+      await refresh(request, [url, localizedPath('R03', 'en', { slug: 'other' })])
+    }
   })
 })

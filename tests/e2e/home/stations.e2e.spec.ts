@@ -167,7 +167,8 @@ test.describe('Startseite – eigene Stücke (nur desktop, exklusiv)', () => {
         overrideAccess: true,
         context: { seed: true },
       })
-    // 4 neue verfügbare Stücke (975 älteste … 978 neueste) + S01 = 5 sichtbare, dazu 979 verkauft (am neuesten).
+    // 4 neue verfügbare Stücke (975 älteste … 978 neueste) + Seed-Keramik = mehr als 4 sichtbare, dazu 979 verkauft
+    // (am neuesten).
     for (const [i, nr] of [975, 976, 977, 978].entries())
       await create(nr, { status: 'available', firstPublishedAt: at(i) })
     await create(979, {
@@ -183,9 +184,10 @@ test.describe('Startseite – eigene Stücke (nur desktop, exklusiv)', () => {
     expect(await numbersOf(station(page, 'keramik').locator('[data-product-card]'))).toEqual([
       978, 977, 976, 975,
     ])
-    // Seed: Textil-Station = S11 (textil) + S15 (cap), der Entwurf S18 (cap) fehlt.
+    // Seed (SEED-SPEC §5.1): Textil-Station = die 4 neuesten sichtbaren Stücke aus textil + cap (S17, S14 reserviert,
+    // S11, S12); der Entwurf S18 (cap) und die verkauften S10/S13/S16 fehlen.
     const textil = await numbersOf(station(page, 'textil').locator('[data-product-card]'))
-    expect(textil).toEqual([911, 915])
+    expect(textil).toEqual([917, 914, 911, 912])
   })
 })
 
