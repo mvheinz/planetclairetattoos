@@ -22,5 +22,6 @@ test('SC-10 Fehlerseiten', { tag: artTags('all') }, async ({ art }) => {
     await art.pauseClock()
     await page.goto(url, { waitUntil: 'load' })
     await art.sequence({ stepMs: art.step(200, 6000), untilMs: 6000, prefix: name })
+    await art.axe(name)
   }
 })

@@ -47,6 +47,7 @@ test('SC-04 Shop und Archiv Reihe für Reihe', { tag: artTags('all') }, async ({
   ] as const) {
     await art.goto(url)
     await art.settledFrame(`${name}-top`)
+    await art.axe(name)
     await rowByRow(art, name)
     if (art.isDesktop) {
       await page.evaluate(() => scrollTo(0, 0))

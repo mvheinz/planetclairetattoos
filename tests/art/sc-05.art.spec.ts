@@ -68,6 +68,7 @@ test('SC-05 Produktseite', { tag: artTags('all') }, async ({ art }) => {
     },
   })
   await art.settledFrame('in-cart')
+  await art.axe('r04')
 
   // Kauf-Leiste (mobil): Kaufbereich nach oben aus dem Bild scrollen
   if (!art.isDesktop) {

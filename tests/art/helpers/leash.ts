@@ -51,9 +51,12 @@ export async function readingFrame(
       const layer = document.querySelector('[data-leash-layer]')
       const rootTop = layer ? layer.getBoundingClientRect().top + scrollY : 0
       scrollTo(0, Math.max(0, readingY + rootTop - line * innerHeight))
-      ;(
-        window as Window & { __leash?: { setReadingY(y: number | null): void } }
-      ).__leash?.setReadingY(readingY)
+      const w = window as Window & {
+        __leash?: { setReadingY(y: number | null): void }
+        __artReadingY?: number | null
+      }
+      w.__artReadingY = readingY
+      w.__leash?.setReadingY(readingY)
     },
     { readingY, line: READING_LINE },
   )
@@ -62,11 +65,14 @@ export async function readingFrame(
 
 /** Lesezeile wieder dem Scrollen überlassen. */
 export async function releaseReading(page: Page): Promise<void> {
-  await page.evaluate(() =>
-    (window as Window & { __leash?: { setReadingY(y: number | null): void } }).__leash?.setReadingY(
-      null,
-    ),
-  )
+  await page.evaluate(() => {
+    const w = window as Window & {
+      __leash?: { setReadingY(y: number | null): void }
+      __artReadingY?: number | null
+    }
+    w.__artReadingY = null
+    w.__leash?.setReadingY(null)
+  })
 }
 
 /** Station-Grenzen einer Station (§4.3 SC-01). */

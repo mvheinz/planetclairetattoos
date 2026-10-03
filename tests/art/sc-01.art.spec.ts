@@ -1,10 +1,12 @@
 import { maxScroll } from './helpers/capture'
+import { followSamples, introTiming } from './helpers/extras'
 import { artTags, test } from './helpers/fixtures'
 import { leashStations, readingFrame, releaseReading, stationBounds } from './helpers/leash'
 
 // SC-01 (KUNST-QA §4.3): Startseite R01 – (a) Intro abwarten (Sequenz alle 100 ms), (b) langsam scrollen 600 px/s bis
 // zum Ende, (c) schnell „wischen“ 3000 px/s, (d) 400 px hoch, (e) 1,5 s stehen an jeder Station. Frames an jeder
-// Station-Grenze (`y − 40`, `y`, `y + loopScroll/2`, `y + loopScroll`, `+1,5 s`).
+// Station-Grenze (`y − 40`, `y`, `y + loopScroll/2`, `y + loopScroll`, `+1,5 s`). Für `art:check` (P9.6) zusätzlich:
+// Intro-Zeitpunkt und -Dauer (MO-10), Coco-Folgen beim Wischen (MO-07), 400 px zurück (MO-06).
 
 test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, async ({ art }) => {
   const { page } = art
@@ -21,7 +23,8 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
   const bottom = await maxScroll(page)
   await art.scrollRun(bottom, 600)
   await art.scrollRun(0, 3000)
-  await art.scrollRun(Math.min(bottom, 2400), 3000)
+  if (art.reduced) await art.scrollRun(Math.min(bottom, 2400), 3000)
+  else art.extra('mo07', await followSamples(page, Math.min(bottom, 2400)))
   await art.scrollRun(Math.max(0, Math.min(bottom, 2400) - 400), 800)
 
   // (e) Station-Grenzen und Verweilen (Uhr angehalten, Lesezeile exakt).
@@ -34,6 +37,16 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
     await page.clock.runFor(1500)
     await art.settledFrame(`station${i + 1}-stay1500-y${Math.round(s.y + s.loopScroll)}`)
   }
+  // (d) MO-06: 400 px zurück – Tinte bleibt.
+  const mid = stations[Math.floor(stations.length / 2)]
+  if (mid) {
+    const y = mid.y + mid.loopScroll
+    await readingFrame(art, y, `up400-before-y${Math.round(y)}`)
+    await readingFrame(art, y - 400, `up400-after-y${Math.round(y - 400)}`)
+  }
   await releaseReading(page)
   await art.resumeClock()
+
+  // MO-10: Intro-Zeitpunkt (≥ LCP + 300 ms) und Dauer (900 ms ± 90), fein in 20-ms-Schritten (ohne Video-Bilder).
+  if (!art.reduced && art.profile !== 'art-iphone15') art.extra('mo10', await introTiming(art))
 })

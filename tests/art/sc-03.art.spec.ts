@@ -34,4 +34,5 @@ test('SC-03 Menü öffnen, fokussieren, schließen', { tag: artTags('all') }, as
   await page.keyboard.press('Escape')
   await page.waitForTimeout(400)
   await art.settledFrame('closed-again')
+  await art.axe('r02-menu')
 })

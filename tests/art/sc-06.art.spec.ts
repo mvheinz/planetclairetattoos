@@ -24,6 +24,7 @@ async function step(art: ArtSession, label: string): Promise<void> {
     animations: await animationLog(art.page),
     live: await liveRegionTexts(art.page),
   })
+  if (/-(cart|before|status)$/.test(label)) await art.axe(label)
 }
 
 test('SC-06 Korb, Kasse, Status, Widerruf', { tag: artTags('all') }, async ({ art }) => {

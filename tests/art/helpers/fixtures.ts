@@ -20,7 +20,12 @@ import {
   videoPath,
   type ArtProfile,
 } from '../../../scripts/art/lib/run'
+import AxeBuilder from '@axe-core/playwright'
+
+import { labelTime, type Probe } from '../../../scripts/art/lib/probe'
+import { isCalmRoute } from '../../../scripts/art/lib/routes'
 import { scrollRun, seekAnimations, releaseAnimations, twoFrames, waitForPaint } from './capture'
+import { probePage } from './probe'
 import { RUN_DIR, flatBandFraction, writeJson, writeWebp } from './run'
 
 // Fixture `art` der Kunst-Abnahme (KUNST-QA §4): eigener Browser-Kontext je Test mit Geräteprofil, Bewegungs-Variante
@@ -57,6 +62,24 @@ export function scenarioOf(file: string): string {
 
 const OWN_HOSTS = new Set(['127.0.0.1', 'localhost'])
 
+/** Szenarien mit Sonde je Standbild (KUNST-QA §5, P9.6); SC-12/13/14 (QA-Seiten) und SC-18 (Tempo) ohne. */
+export const PROBE_SCENARIOS = new Set([
+  'SC-00',
+  'SC-01',
+  'SC-02',
+  'SC-03',
+  'SC-04',
+  'SC-05',
+  'SC-06',
+  'SC-07',
+  'SC-08',
+  'SC-09',
+  'SC-10',
+  'SC-11',
+  'SC-15',
+  'SC-17',
+])
+
 export interface FrameOptions {
   /** Nur dieses Element (sonst Sichtbereich). */
   element?: Locator
@@ -76,6 +99,12 @@ export class ArtSession {
   private readonly frames: string[] = []
   /** Neuaufnahmen wegen nicht gerasterter Kacheln (Protokoll `raw/…/retakes.json`). */
   readonly retakes: { label: string; retry: number }[] = []
+  /** Sonden je Standbild (`raw/…/probes.json`, P9.6). */
+  readonly probes: Probe[] = []
+  /** Zusatzmessungen des Szenarios (`extra` in `probes.json`). */
+  readonly extras: Record<string, unknown> = {}
+  /** Sonde je Standbild aktiv (Szenario in `PROBE_SCENARIOS`). */
+  probing: boolean
 
   constructor(
     readonly page: Page,
@@ -88,6 +117,7 @@ export class ArtSession {
     this.profile = meta.profile
     this.variant = meta.variant
     this.emulated = meta.emulated
+    this.probing = PROBE_SCENARIOS.has(sc) && meta.variant !== 'tempo'
   }
 
   get reduced(): boolean {
@@ -152,7 +182,54 @@ export class ArtSession {
     const rel = framePath(this.sc, this.profile, this.variant, this.n, label)
     await writeWebp(rel, png)
     this.frames.push(rel)
+    if (this.probing)
+      await this.probe(label, opts.element || opts.fullPage ? null : rel, opts.scale === 'css' ? 1 : null)
     return rel
+  }
+
+  /** Sonde (KUNST-QA §5) zum aktuellen Zeitpunkt; mit Standbild-Pfad, wenn es den Sichtbereich zeigt. */
+  async probe(label: string, frame: string | null = null, scale: number | null = null): Promise<Probe | null> {
+    try {
+      const p = await probePage(this.page, {
+        label,
+        frame,
+        t: labelTime(label),
+        scale: scale ?? (await this.page.evaluate(() => devicePixelRatio)),
+        calm: isCalmRoute(this.page.url()),
+      })
+      this.probes.push(p)
+      return p
+    } catch (e) {
+      this.probeErrors.push(`${label}: ${String(e).slice(0, 200)}`)
+      return null
+    }
+  }
+
+  readonly probeErrors: string[] = []
+
+  /** Zusatzmessung unter `extra[key]` in `probes.json`. */
+  extra(key: string, value: unknown): void {
+    this.extras[key] = value
+  }
+
+  /** axe-Prüfung (A11Y-04, CT-02) → `raw/<SC>/<profil>/<variante>/axe-<label>.json`. */
+  async axe(label: string): Promise<void> {
+    try {
+      const res = await new AxeBuilder({ page: this.page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+        .analyze()
+      this.json(`axe-${label}`, {
+        url: this.page.url(),
+        violations: res.violations.map((v) => ({
+          id: v.id,
+          impact: v.impact,
+          nodes: v.nodes.length,
+          targets: v.nodes.slice(0, 5).map((n) => n.target.join(' ')),
+        })),
+      })
+    } catch (e) {
+      this.json(`axe-${label}`, { url: this.page.url(), error: String(e).slice(0, 300) })
+    }
   }
 
   /** Zwei Frames, Bilder im Sichtbereich, zwei Frames → Standbild. */
@@ -316,6 +393,15 @@ export const test = base.extend<{ art: ArtSession }>({
     const { session, external } = await openSession(browser, testInfo)
     await provide(session)
     if (session.retakes.length > 0) session.json('retakes', session.retakes)
+    if (session.probing || Object.keys(session.extras).length > 0)
+      session.json('probes', {
+        sc: session.sc,
+        profile: session.profile,
+        variant: session.variant,
+        probes: session.probes,
+        extra: session.extras,
+        errors: session.probeErrors,
+      })
     const video = session.page.video()
     const saved = video
       ? video.saveAs(

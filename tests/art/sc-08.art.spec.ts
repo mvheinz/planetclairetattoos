@@ -37,6 +37,7 @@ test('SC-08 Tattoo und Flash', { tag: artTags('all') }, async ({ art }) => {
   ] as const) {
     await art.goto(url)
     await art.settledFrame(`${name}-top`)
+    await art.axe(name)
     await art.scrollRun(await page.evaluate(() => document.documentElement.scrollHeight), 1200)
     await page.evaluate(() => scrollTo(0, 0))
     await cards(art, name)

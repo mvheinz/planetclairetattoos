@@ -44,6 +44,7 @@ test('SC-09 Danke-Seite in allen Zuständen', { tag: artTags('all') }, async ({ 
         await page.waitForSelector(`[data-thanks-page][data-thanks-state="${state}"]`)
         await page.waitForTimeout(1500)
         await art.settledFrame(state)
+        await art.axe(`r08-${state}`)
       }
     }
   } finally {

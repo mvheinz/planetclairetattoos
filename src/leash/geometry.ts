@@ -59,6 +59,9 @@ export interface LeashSamples {
   x: Float64Array
   y: Float64Array
   w: Float64Array
+  /** Glatte Linie vor dem Wackel (Schritt 5) – Bezug für KUNST-QA LQ-03. */
+  sx: Float64Array
+  sy: Float64Array
 }
 
 // ---------- Schritt 1–3: Anker, Wegpunkte, Schlaufen ----------
@@ -797,7 +800,7 @@ export function buildGeometryWithSamples(input: BuildInput): {
       stations: stations.map(({ loop: _loop, ...s }) => s),
       scrollMap,
     },
-    samples: { s: ss, x: wx, y: wy, w },
+    samples: { s: ss, x: wx, y: wy, w, sx, sy },
   }
 }
 
