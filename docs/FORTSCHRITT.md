@@ -3,6 +3,19 @@
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
 
+## 2026-10-03 – Fix: Sofortversand von Mails kollidierte selten mit parallelem Job-Lauf (P7.12)
+
+- Ursache: `runEmailJobNow` rief `payload.jobs.runByID` ohne Bedingung auf. Hatte der Job-Wecker/`jobs.run` den Job
+  gerade erledigt und gelöscht, scheiterte Payload mit „Cannot read properties of null (reading 'log')“
+  (`commission.mail_failed`, ≈ 1× in 60); lief der andere Lauf noch, konnte die Mail doppelt rausgehen.
+- Fix: Sofortversand nur neben dem Tick (geteilte Sperre `tick`, `besideTick` in `src/lib/jobs/lock.ts`) und mit atomarer
+  Beanspruchung (`UPDATE payload_jobs … WHERE processing = false … RETURNING`); Job schon weg → kein Fehler. Task
+  `sendEmail` sperrt zusätzlich je `email-log`-Zeile (Advisory-Lock in Transaktion), sodass jede Mail genau einmal
+  versendet wird (Idempotenz-Schlüssel P4.13 unverändert). Übersprungene Jobs holt der nächste Tick nach.
+- Tests: neu `tests/int/email/run-now-race.int.spec.ts` (6 Tests, davon 2 × 50 Runden parallel) – ohne Fix alle 6 rot
+  mit genau dem Fehlerbild, mit Fix grün (4 Läufe hintereinander); `pnpm check` (1646 Unit) grün; Int email, jobs,
+  commission, withdrawals, legal + Umsatz-Tests: 60 Dateien / 309 Tests grün.
+
 ## 2026-10-03 – P7 Phasen-Abnahme (Tattoo-Bereich) – für Jutta
 
 Hallo Jutta,
