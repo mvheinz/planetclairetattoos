@@ -10,6 +10,7 @@ import type { Locale } from '@/lib/enums'
 import type { Clock } from '@/lib/time'
 
 import { seedOp, seedStep } from './context'
+import { EXPORT_MAP_FILE, exportSource, readExportMap, type ExportMap } from './exportMap'
 import { placeholderArtWebp } from './fallbackArt'
 import { pickLocaleTree } from './globals'
 import { seedRichText, withDateTokens } from './lexical'
@@ -75,6 +76,8 @@ export interface ExampleOptions {
   appEnv?: string
   /** Projektwurzel (Instagram-Bilder, Platzhalter-SVGs); Standard `process.cwd()`. */
   root?: string
+  /** Zuordnung zum Instagram-Datenexport (P8.10); Standard `<root>/content/seed/instagram-export-map.json`. */
+  exportMapFile?: string
 }
 
 type Doc = Record<string, unknown> & { id: number | string }
@@ -137,17 +140,38 @@ export function cropPixels(
   }
 }
 
+/** Kürzel eines Instagram-Medien-Schlüssels (`ig:DdHXUQsDjqm#cap` → `DdHXUQsDjqm`). */
+export function instagramShortcode(key: string): string {
+  return key.slice(3).split('#')[0]!
+}
+
+/**
+ * Bilddatei eines Instagram-Eintrags: Original aus dem Datenexport, wenn gemappt (P8.10), sonst das 640-px-Bild.
+ * Ausschnitte in Prozent, umgerechnet auf die Maße der tatsächlich verwendeten Quelle (AK-SEED-19).
+ */
 async function instagramFile(
   root: string,
   entry: SeedData['media']['instagram'][number],
-): Promise<UploadFile> {
-  const src = await readFile(path.join(root, INSTAGRAM_DIR, entry.file))
+  exportMap: ExportMap,
+): Promise<{ file: UploadFile; source: 'instagram_seed' | 'instagram_export' }> {
+  const original = await exportSource(root, exportMap, instagramShortcode(entry.key))
   const name = `ig-${entry.key.slice(3).replace(/[^A-Za-z0-9_-]/g, '-')}.jpg`
-  if (!entry.crop) return fileOf(src, name, 'image/jpeg')
+  if (original) {
+    // Export-Originale immer neu kodieren: Orientierung anwenden, Metadaten (EXIF/GPS) fallen weg.
+    const upright = await sharp(original).rotate().toBuffer()
+    const meta = await sharp(upright).metadata()
+    const img = entry.crop
+      ? sharp(upright).extract(cropPixels(entry.crop, meta.width ?? 0, meta.height ?? 0))
+      : sharp(upright)
+    const data = await img.jpeg({ quality: 92 }).toBuffer()
+    return { file: fileOf(data, name, 'image/jpeg'), source: 'instagram_export' }
+  }
+  const src = await readFile(path.join(root, INSTAGRAM_DIR, entry.file))
+  if (!entry.crop) return { file: fileOf(src, name, 'image/jpeg'), source: 'instagram_seed' }
   const meta = await sharp(src).metadata()
   const region = cropPixels(entry.crop, meta.width ?? 0, meta.height ?? 0)
   const data = await sharp(src).extract(region).jpeg({ quality: 92 }).toBuffer()
-  return fileOf(data, name, 'image/jpeg')
+  return { file: fileOf(data, name, 'image/jpeg'), source: 'instagram_seed' }
 }
 
 async function importMedia(req: PayloadRequest, data: SeedData, options: ExampleOptions) {
@@ -162,25 +186,28 @@ async function importMedia(req: PayloadRequest, data: SeedData, options: Example
       ...seedOp(req),
     })
   }
+  const exportMap = await readExportMap(options.exportMapFile ?? path.join(root, EXPORT_MAP_FILE))
   for (const entry of data.media.instagram) {
+    const image = await instagramFile(root, entry, exportMap)
     const de = {
       alt: entry.alt.de,
       showsPerson: entry.showsPerson,
-      source: 'instagram_seed',
       sourceRef: entry.key.slice(3),
       ...(entry.focal ? { focalX: entry.focal.x, focalY: entry.focal.y } : {}),
     }
     const en = entry.alt.en ? { alt: entry.alt.en } : undefined
-    const file = () => instagramFile(root, entry)
+    const file = async () => image.file
+    // `source` folgt der Datei: beim Anlegen und bei `--refresh-media`, sonst bleibt sie, wie sie ist.
+    const withSource = { ...de, source: image.source }
     const res = await upsertBySeedKey({
       req,
       report: options.report,
       collection: 'media',
       seedKey: `media:${entry.key}`,
       group: 'content',
-      create: () => de,
+      create: () => withSource,
       en,
-      update: () => ({ de, en }),
+      update: () => ({ de: options.refreshMedia ? withSource : de, en }),
       file,
     })
     if (res.outcome === 'updated') await refresh(res.doc, file)

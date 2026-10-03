@@ -4322,7 +4322,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     `tests/unit/seed/time.unit.spec.ts` (Tabelle §2.2, AK-SEED-16) bleibt grün.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P8.10 Import-Skript für Juttas Instagram-Datenexport** – `scripts/seed/import-instagram.ts` als
+- [x] **P8.10 Import-Skript für Juttas Instagram-Datenexport** – `scripts/seed/import-instagram.ts` als
   `pnpm seed:import-instagram` (wiederholbar, deterministisch). Sucht in `content/seed/instagram-export/` rekursiv
   alle Formen aus ANLEITUNGEN Anhang: ZIP-Dateien (werden nach `.data/instagram-export/` entpackt, gitignored),
   Monatsordner `<JJJJMM>/…` direkt im Ordner (Beiträge und Stories gleichnamiger Monate zusammengelaufen), JSON-Ordner,

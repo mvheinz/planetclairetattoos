@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-03 – P8.10
+
+- `pnpm seed:import-instagram` (scripts/seed/import-instagram.ts): findet ZIPs (entpackt nach .data/instagram-export/), Monatsordner, JSON-Ordner, ältere Uploads und Mischformen; Zuordnung nur über Dateinamen, Art über JSON-uri, Datum aus JSON oder Monatsordner; Kandidaten ±1 Tag, dHash 64 Bit ≤ 10 und Seitenverhältnis ±1 %; Map content/seed/instagram-export-map.json (leer committet) mit override-Vorrang. Ohne Export: Meldung, Exit 0, Map unverändert.\n- Medien-Schritt (src/lib/seed/exportMap.ts, example.ts): gemappte Kürzel nehmen das Original (neu kodiert, ohne Metadaten) mit denselben Prozent-Ausschnitten und seedKeys, source = instagram_export (beim Anlegen bzw. --refresh-media).\n- Tests: tests/unit/seed/import-instagram.unit.spec.ts (9, fiktive Fixture tests/fixtures/instagram-export/), tests/int/seed/import-instagram.int.spec.ts (4: Refresh ersetzt Datei, seedKey/Anzahl gleich, AK-SEED-19 mit Quellpixeln, kein ungeschnittenes Export-Bild in media). Echter Export fehlt weiter (OFFENE-PUNKTE: wartet auf Jutta).
+
 ## 2026-10-03 – P8.9
 
 - Lebenszyklus geprüft und ergänzt: seed:remove erfasst vor dem ersten Löschschritt alle Verweise echter (und gleich übernommener) Dokumente und Globals auf Seed-Dokumente (src/lib/seed/references.ts) und listet sie im Bericht; entfernt werden sie beim Löschen über die Fremdschlüssel (Übersetzungen in Blöcken bleiben unangetastet). Guard, Reihenfolge §1.7, settings.seed und Audit seed_imported/seed_removed waren vorhanden.\n- Tests: tests/int/seed/lifecycle.int.spec.ts (7: Mengen = SEED_EXPECTED_COUNTS, Kennzeichnung, zweiter Lauf ohne Änderung, Vorschau per CLI ohne Schreiben, Entfernen mit/ohne Texte, Reset, Gegenprobe Stück Nr. 17 + Umsatz 2026-09/tattoo + echte Aktion mit Seed-Flash, Sequenzen PC/WR/AA/DS und RE/GS unverändert, seed:base mit APP_ENV=production), tests/unit/seed/guard.unit.spec.ts (16, jede Sperrbedingung einzeln); time.unit grün.
