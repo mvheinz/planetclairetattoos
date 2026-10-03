@@ -3,10 +3,11 @@ import 'server-only'
 import { sql } from '@payloadcms/db-postgres'
 import { createLocalReq, type Payload, type PayloadRequest } from 'payload'
 
-import { dbFor } from '@/lib/db/tx'
+import { dbFor, type SqlExecutor } from '@/lib/db/tx'
 import { getEnv } from '@/lib/env'
 import type { EmailTemplate, Locale } from '@/lib/enums'
 import { jobAlarm } from '@/lib/jobs/alarm'
+import { besideTick } from '@/lib/jobs/lock'
 import { withSystem } from '@/lib/payload/context'
 import { preservingReq } from '@/lib/payload/localReq'
 import { inTransaction } from '@/lib/payload/transaction'
@@ -156,6 +157,13 @@ export async function enqueueEmail(
 /**
  * Direkte Ausführung nach dem Commit (KONZEPT §6.1: „direkt danach“). Weckt zusätzlich den Job-Wecker, damit ein
  * gescheiterter Direktversuch beim nächsten Tick nachgeholt wird.
+ *
+ * Wettlauf mit einem parallelen Lauf (Job-Wecker, `jobs.run`): `payload.jobs.runByID` setzt `processing` ohne
+ * Bedingung – hat der andere Lauf den Job schon erledigt und gelöscht, liest Payload `null.log` (TypeError), läuft er
+ * noch, würde der Job doppelt ausgeführt. Deshalb läuft der Sofortversand nie gleichzeitig mit dem Tick (geteilte
+ * Sperre `tick`) und beansprucht den Job atomar (`UPDATE … WHERE processing = false … RETURNING`); gelingt das nicht,
+ * kümmert sich der andere Lauf darum.
+ * Gegen Doppelversand bei echten Überschneidungen sichert zusätzlich der Task (`sendEmail`, Sperre je `email-log`).
  */
 export async function runEmailJobNow(
   payload: Payload,
@@ -165,6 +173,31 @@ export async function runEmailJobNow(
   if (jobId === null) return
   const now = options.now ?? systemClock.now()
   await jobAlarm.bump(now).catch(() => undefined)
-  const req = await createLocalReq({ context: { now: now.toISOString() } }, payload)
-  await payload.jobs.runByID({ id: jobId, req })
+  const db = (payload.db as unknown as { drizzle: SqlExecutor }).drizzle
+  const id = Number(jobId)
+  // Nie gleichzeitig mit dem Tick (dessen `jobs.run` beansprucht nicht atomar); läuft er gerade, holt er bzw. der
+  // nächste Tick den Job (Wecker oben gestellt).
+  await besideTick(payload, async () => {
+    const claimed = await db.execute(sql`
+      UPDATE payload_jobs SET processing = true, updated_at = now()
+      WHERE id = ${id} AND processing = false AND completed_at IS NULL AND has_error IS NOT TRUE
+      RETURNING id`)
+    if (claimed.rows.length === 0) return
+    const req = await createLocalReq({ context: { now: now.toISOString() } }, payload)
+    try {
+      await payload.jobs.runByID({ id: jobId, req })
+    } catch (err) {
+      // Ein anderer Lauf außerhalb des Ticks (autoRun, „Jetzt ausführen“) hat den Job inzwischen erledigt und gelöscht:
+      // kein Fehler – die Mail ist über die Sperre im Task genau einmal versendet.
+      const left = await db.execute(sql`SELECT 1 FROM payload_jobs WHERE id = ${id}`)
+      if (left.rows.length === 0) return
+      // Beanspruchung zurückgeben, damit der nächste Tick den Job nachholt (sonst bliebe er „in Arbeit“ hängen).
+      await db
+        .execute(
+          sql`UPDATE payload_jobs SET processing = false WHERE id = ${id} AND completed_at IS NULL`,
+        )
+        .catch(() => undefined)
+      throw err
+    }
+  })
 }
