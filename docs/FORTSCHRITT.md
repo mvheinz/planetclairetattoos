@@ -2,6 +2,59 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+
+## 2026-10-03 – P7 Phasen-Abnahme (Tattoo-Bereich) – für Jutta
+
+Hallo Jutta,
+
+Phase 7 ist gebaut. Hier steht kurz, was der Tattoo-Bereich jetzt kann und wie du ihn selbst pflegst.
+
+### Was Besucher:innen jetzt sehen
+
+- **Tattoo-Übersicht** mit „Mein Stil“, dem nächsten Flash-Day, drei freien Flash-Motiven und drei Bildern aus der
+  Galerie. Von dort geht es zu allen Unterseiten.
+- **Flash** (fertig gezeichnete Motive): ein Raster mit Nummer (z. B. F-012), Größe und Preis. Man sieht, ob ein Motiv
+  nur einmal gestochen wird oder öfter. Ein Filter zeigt „nur noch frei“.
+- **Angebote** (Flash-Days und Aktionen): Datum, Uhrzeit und nur der Bezirk – nie deine Straße. Vorbei ist vorbei: Ein
+  abgelaufenes Angebot verschwindet von selbst, auch von der Startseite.
+- **Galerie** „frisch“ und „verheilt“, mit großer Ansicht. Es gibt dort keine Preise.
+- **Preise, Ablauf, Pflege (Aftercare) und FAQ** als eigene Seiten. Die Pflege-Seite lässt sich gut ausdrucken.
+- **Auftragsarbeiten**: eine Seite mit Beispielen und einem Anfrage-Formular. Wer anfragt, kann bis zu 5 Bilder
+  anhängen. Die Bilder werden dabei verkleinert und ohne versteckte Ortsdaten gespeichert.
+- **Wichtig:** Ein Tattoo kann man nirgends online kaufen oder bezahlen. Jeder Knopf führt zu einer Mail oder
+  Instagram-Nachricht an dich, schon mit passendem Betreff (z. B. „Anfrage Flash F-012“).
+
+### So pflegst du Flash, Angebote und Galerie
+
+Alles findest du in der Verwaltung unter **„Tattoo“**. Oben gibt es vier Reiter: Flash · Angebote · Galerie · Texte.
+
+- **Flash:** „Neuer Flash“ → Foto (bis zu 5), kurze Bildbeschreibung, Titel, Größe, Preis. Die nächste Nummer
+  schlägt das System vor. Den Status (frei, reserviert, vergeben) änderst du mit zwei Tippern. Ein Motiv, das du
+  öfter stichst, pausierst du über **„Offline nehmen“**.
+- **Angebote:** „Neues Angebot“ → Datum, wenn du willst mit Uhrzeit, Ort (Bezirk), Preis-Info und die passenden
+  Flash-Motive. Kommende, laufende und abgelaufene Angebote siehst du getrennt; abgelaufene sind grau.
+- **Galerie:** Foto hochladen, „frisch“ oder „verheilt“ wählen, Bildunterschrift schreiben.
+- **Texte:** Preise, Stil, Ablauf, Pflege und FAQ. Englisch macht der Knopf **„Übersetzen“**; du kannst danach
+  noch etwas ändern.
+- **Anfragen** zu Auftragsarbeiten landen unter „Anfragen“. Du bekommst eine Mail. Die Kundin bekommt eine
+  Eingangsbestätigung. Im Detail gibt es eine Vorlage für dein Angebot zum Kopieren. Eine Anfrage wird
+  **6 Monate nach Eingang** automatisch gelöscht, samt Bildern.
+
+### Fotos von Kund:innen – nur mit Einwilligung
+
+- Ein Foto von einem Tattoo auf der Haut einer Person darf nur online, wenn sie **ja gesagt hat**. Dafür hakst du
+  beim Foto „Einwilligung zur Veröffentlichung auf der Website liegt vor“ an und legst den Nachweis ab (z. B. ein Bildschirmfoto der Nachricht).
+- Ohne dieses Häkchen geht „Online“ nicht. Das System sperrt es.
+- Zieht jemand die Einwilligung zurück: Knopf **„Einwilligung widerrufen“**. Das Foto ist sofort offline und auch
+  über einen alten Link nicht mehr erreichbar. Auf Wunsch schickt das System der Person ihre Fotos an eine Adresse,
+  die du in dem Fenster eintippst.
+- Deine eigenen Bilder (Zeichnungen, Flash) brauchen das nicht.
+
+### Was noch Platzhalter ist
+
+Die Beispiel-Motive, Angebote und Galerie-Bilder kommen in Phase 8. Texte wie Preise und Pflege-Hinweise sind
+Vorschläge in deinem Ton. Bitte lies sie später einmal durch und ändere, was nicht passt.
+
 ## 2026-10-03 – Erstlade-Budget R10/R26 (check:bundle wieder grün)
 
 - Ursache 1: Formulare R10 (Auftragsarbeiten) und R26 (Widerruf) waren komplette Client-Komponenten – Felder, Buttons, Fehlerkästen, alle Schritte und die ganze Icon-Tabelle (`ICON_SHAPES` über `Icon` in `Field`/`Button`) lagen im Erstlade-Chunk (6,7 bzw. 5,5 KB gz). Jetzt: Erstansicht rendert der Server (`CommissionView`, `WithdrawalView` ohne `'use client'`), im Browser bleiben nur Zustand, Server Action und `<form>` (`CommissionForm`, `WithdrawalFlow`, je ≈ 2,1 KB gz); Folgezustände (Fehler, Auswahl, Bestätigung, Ergebnis) lädt `React.lazy` nach `load` vor, Bildauswahl (`CommissionImages`) und Verkleinern/Hochladen (`imageUpload`) erst nach `load` bzw. bei der ersten Auswahl. Icons als Einzelkonstanten (`ICON_WARN` …) + `Glyph`; `Icon` (Name → Tabelle) nur noch serverseitig. Gemeinsamer Hinweis-/Fehlerkasten `FormAlert`.

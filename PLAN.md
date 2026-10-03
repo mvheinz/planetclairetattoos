@@ -4015,7 +4015,7 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
 - [ ] Vorschau-Artefakt `planet-claire-vorschau-p7-<sha7>` enthält R10–R18 DE/EN mit dem Mini-Bestand bzw. den
   Leerzuständen und die Admin-Fotos des Bereichs „Tattoo“; Flash, Angebote und Galerie des Beispielbestands (G1/G2 mit
   Etikett „intern – Einwilligung fehlt“, TO3 unsichtbar) zeigt die Vorschau erst ab P8.21.
-- [ ] `docs/FORTSCHRITT.md` mit Phasen-Eintrag; PR-Beschreibung aktualisiert; neue Annahmen in `docs/OFFENE-PUNKTE.md`
+- [x] `docs/FORTSCHRITT.md` mit Phasen-Eintrag; PR-Beschreibung aktualisiert; neue Annahmen in `docs/OFFENE-PUNKTE.md`
   (mindestens: Pausieren wiederholbarer Flash über „Offline nehmen“, Anfrage-Löschung ab Eingang, M16-Portfolio nur an
   eine im Dialog eingetippte Adresse); neue
   Jutta-Aufgaben als A51 ff. in `docs/owner/AUFGABEN.md`, soweit nicht schon vorhanden.
