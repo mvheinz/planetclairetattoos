@@ -85,3 +85,20 @@ describe('Vorschau-Export: Umgebung (ARCHITEKTUR §14.3)', () => {
     )
   })
 })
+
+describe('Eigene Export-Datenbank/Port für parallele Läufe (PREVIEW_EXPORT_DB_NAME/PORT, P8.21)', () => {
+  it('Standard ohne Angabe; gültige Umlenkung; ungültige Namen und Ports abgelehnt', async () => {
+    const { resolveExportTarget } = await import('../../../scripts/preview-export/env')
+    expect(resolveExportTarget({})).toEqual({ dbName: 'planetclaire_preview_export', port: 3999 })
+    expect(
+      resolveExportTarget({
+        PREVIEW_EXPORT_DB_NAME: 'planetclaire_c_preview',
+        PREVIEW_EXPORT_PORT: '3998',
+      }),
+    ).toEqual({ dbName: 'planetclaire_c_preview', port: 3998 })
+    for (const bad of ['planetclaire', 'planetclaire_test', 'postgres', 'planetclaire_c; drop'])
+      expect(() => resolveExportTarget({ PREVIEW_EXPORT_DB_NAME: bad })).toThrow()
+    for (const bad of ['80', 'abc', '70000'])
+      expect(() => resolveExportTarget({ PREVIEW_EXPORT_PORT: bad })).toThrow()
+  })
+})

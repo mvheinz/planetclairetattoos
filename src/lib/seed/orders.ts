@@ -6,6 +6,7 @@ import { trackingTemplatesFromSettings, type CarrierCode } from '@/lib/carrier'
 import { createManualCarrierAdapter } from '@/lib/carrier/manual'
 import type { DeadlineSettings } from '@/lib/commerce/deadlines'
 import { defaultTemplateFor, type PackagingSettings } from '@/lib/commerce/packing'
+import { pickupTemplateText } from '@/lib/commerce/pickup'
 import { computeShipping, type ShippingSettings } from '@/lib/commerce/shipping'
 import {
   LEGAL_TEXT_VERSION_KEYS,
@@ -597,6 +598,11 @@ export async function importOrders(
           timestamps: Object.fromEntries(
             Object.entries(ts).map(([k, v]) => [k, (v as Date).toISOString()]),
           ),
+          // „Bereit zur Abholung“ (O8) speichert immer den bestätigten Abholtext (M07, P5.17) – wie in der Verwaltung
+          // der vorbelegte Text aus den Einstellungen (P8.21: sonst ließe sich M07 zu O09 nicht erneut senden).
+          ...(ts.readyForPickupAt
+            ? { pickup: { messageText: await pickupTemplateText(req, order.locale) } }
+            : {}),
           statusHistory: plan.history.map((h) => ({
             from: h.from,
             to: h.to,

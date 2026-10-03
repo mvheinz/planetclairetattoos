@@ -1001,6 +1001,8 @@ Keine Repository-Secrets bis P11; auch danach **keine** Produktionsdaten oder Pr
 | `BUILD_WITHOUT_DB` | Build ohne DB-Zugriff; DB-gestützte Seiten werden zur Laufzeit gerendert (§13) | leer; Docker `1` | Docker | nein | P10 |
 | `NEXT_TELEMETRY_DISABLED` | Next-Telemetrie aus | `1` | CI, Docker | nein | P0 |
 | `NEXT_DIST_DIR` | Build-Ordner (`distDir` in `next.config.ts`); der Vorschau-Export nutzt `.next-preview`, damit `.next` des Entwicklungsservers unberührt bleibt | leer = `.next` | – | nein | P2 |
+| `PREVIEW_EXPORT_DB_NAME` | Nur für parallele Vorschau-Exporte auf einem Rechner: eigene Wegwerf-Datenbank (`planetclaire_…preview…`, `scripts/preview-export/env.ts`) | leer = `planetclaire_preview_export` | – | nein | P8 |
+| `PREVIEW_EXPORT_PORT` | Dazu der eigene Port des Export-Servers (1024–65535) | leer = `3999` | – | nein | P8 |
 | `E2E_BASE_URL` | Ziel der E2E-Tests | `http://localhost:3000` | – | nein | P1 |
 | `E2E_SERVER` | `dev` (lokal) oder `start` (CI: Produktions-Build) | `dev`; CI `start` | – | nein | P1 |
 | `PW_SKIP_WEBKIT` | nur wenn die WebKit-Installation scheitert (Cloud/lokal, §4.5): Projekt `iphone-15` läuft als markierte Chromium-Emulation (§7.3); in CI nie gesetzt | leer | – | nein | P1 |

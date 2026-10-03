@@ -5,6 +5,8 @@ import path from 'node:path'
 import * as cheerio from 'cheerio'
 import { describe, expect, it } from 'vitest'
 
+import { EXPORT_ORIGIN } from '../../../scripts/preview-export/env'
+
 // AK-A-14-01/AK-A-14-02 (ARCHITEKTUR §14.10): zwei Läufe desselben Commits am selben Tag (`pnpm preview:export`, danach
 // `pnpm preview:export --skip-build`) erzeugen byte-gleiche HTML-Dateien; die Datei enthält keine Spuren des Servers,
 // der Verwaltung oder der Debug-Schnittstelle und keine http(s)-Ressourcen außer externen Linkzielen.
@@ -66,7 +68,13 @@ describe('pnpm preview:export – Determinismus und Inhalt (AK-A-14-01, AK-A-14-
       expect(second.equals(first)).toBe(true)
 
       const html = first.toString('utf8')
-      for (const needle of ['/_next/', '127.0.0.1:3999', '__next_f', '__leash', '/werkstatt'])
+      for (const needle of [
+        '/_next/',
+        EXPORT_ORIGIN.replace('http://', ''),
+        '__next_f',
+        '__leash',
+        '/werkstatt',
+      ])
         expect(html, `AK-A-14-02: ${needle}`).not.toContain(needle)
       expect(externalResources(html)).toEqual([])
       expect(html).toContain('<meta name="robots" content="noindex, nofollow">')

@@ -133,6 +133,11 @@ function rewriteImages($: cheerio.CheerioAPI, ctx: TransformContext, pagePath: s
   $('img').each((_, node) => {
     const el = $(node)
     const src = el.attr('src')
+    // Schon eingebettete Bilder (z. B. der EPC-QR-Code der Vorkasse, P8.21) bleiben, wie sie sind.
+    if (src?.startsWith('data:image/')) {
+      el.removeAttr('srcset').removeAttr('sizes').removeAttr('fetchpriority')
+      return
+    }
     const path = src ? resolveAssetPath(src, pagePath) : null
     const img = path ? ctx.images.get(path) : undefined
     el.removeAttr('src').removeAttr('srcset').removeAttr('sizes').removeAttr('fetchpriority')

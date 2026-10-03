@@ -13,6 +13,7 @@ import { ADMIN_VIEWS } from './adminViews'
 import { captureAdminShots } from './adminShots'
 import { assemble, type PreviewMessages } from './assemble'
 import { captureCartSession } from './cartSession'
+import { captureClientRendered } from './clientRendered'
 import { crawl, createServerFetcher, seedParamProvider, startSet, type CrawlResult } from './crawl'
 import { postgresReachable, prepareExportDatabase } from './db'
 import {
@@ -131,6 +132,10 @@ export async function runExport(args: ExportArgs, root = process.cwd()): Promise
     })
     log('Korb und Kasse (S01 + S11, „Zur Kasse“)')
     const cart = await captureCartSession(server.origin)
+    log('Im Browser gerenderte Seiten (S08 „schon ein Zuhause“)')
+    const rendered = await captureClientRendered(server.origin)
+    for (const [p, r] of rendered.pages) cart.pages.set(p, r)
+    cart.warnings.push(...rendered.warnings)
     const fetcher = await createServerFetcher(server.origin)
     try {
       log('Crawl')
