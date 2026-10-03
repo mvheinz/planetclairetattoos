@@ -33,22 +33,15 @@ export const isBehaviorName = (name: string): name is BehaviorName =>
 const defaultLoader: BehaviorLoader = (name) => BEHAVIOR_LOADERS[name]()
 
 /**
- * Module, die erst nach dem `load`-Ereignis geladen werden (Modus `app`): Die Produktseite funktioniert bis dahin ohne sie
- * (Galerie per Scrollen, Foto-Link auf die Datei, Kauf-Leiste verborgen, „In den Korb“ als normales Formular, Zustand aus
- * dem Server-HTML). So zählen ihre Chunks nie zum Erstlade-JS (Budget ARCHITEKTUR §7.7) – das `load`-Ereignis wartet auf
- * Fotos und Schriften und käme sonst manchmal später. `product-status` fragt ohnehin erst „nach dem Laden“ (§9.3).
- * Ebenso die Zierde der Stück-Listen (Schild-Schwingen MI-02, Stempel MI-03; P4.25): Schild und Stempel stehen statisch im
- * Server-HTML, die Bewegung kommt dazu, sobald die Seite geladen ist – sonst lag R02 je nach Ladereihenfolge über 150 KB.
+ * Alle Module laden im Modus `app` erst nach dem `load`-Ereignis. Die Seite funktioniert bis dahin ohne sie: Produktseite
+ * (Galerie per Scrollen, Foto-Link auf die Datei, Kauf-Leiste verborgen, „In den Korb“ als normales Formular, Zustand
+ * aus dem Server-HTML), Stück-Listen (Schild und Stempel statisch, P4.25), Seitenrahmen (Menü-Knopf als Link auf die
+ * Fußnavigation, Korbzahl aus dem Server-HTML bzw. erst nach der ersten Korb-Aktion, Animationen-Schalter ohne Wirkung).
+ * So zählen ihre Chunks nie zum Erstlade-JS (Budget ARCHITEKTUR §7.7): Vorher hing es von der Reihenfolge von Hydrierung
+ * und `load` ab, ob Menü, Korbzahl und Animationen-Schalter (zusammen ≈ 4 KB gz) mitgezählt wurden – Messwerte
+ * schwankten je Seite um diesen Betrag (R10/R26 150–155 KB). `product-status` fragt ohnehin erst „nach dem Laden“ (§9.3).
  */
-export const AFTER_LOAD: ReadonlySet<BehaviorName> = new Set<BehaviorName>([
-  'gallery',
-  'lightbox',
-  'buy-bar',
-  'add-to-cart',
-  'product-status',
-  'price-tag-swing',
-  'sold-stamp',
-])
+export const AFTER_LOAD: ReadonlySet<BehaviorName> = new Set<BehaviorName>(BEHAVIOR_NAMES)
 
 export interface MountedBehaviors {
   /** Erfüllt, sobald alle beim Aufruf gefundenen Elemente gebunden sind. */
@@ -72,8 +65,9 @@ export function mountBehaviors(
   const doc = scope instanceof Document ? scope : ((scope as Node).ownerDocument ?? document)
   const win = doc.defaultView
   let stopWaiting = () => {}
+  const waiting = ctx.mode === 'app' && !!win && doc.readyState !== 'complete'
   const loaded =
-    ctx.mode === 'app' && win && doc.readyState !== 'complete'
+    waiting && win
       ? new Promise<void>((resolve) => {
           const onLoad = () => resolve()
           win.addEventListener('load', onLoad, { once: true })
@@ -90,7 +84,9 @@ export function mountBehaviors(
         load(name).then((mod) => {
           if (active && el.isConnected) unmounts.push(mod.mount(el, ctx))
         })
-      jobs.push(AFTER_LOAD.has(name) ? loaded.then(() => (active ? bind() : undefined)) : bind())
+      jobs.push(
+        waiting && AFTER_LOAD.has(name) ? loaded.then(() => (active ? bind() : undefined)) : bind(),
+      )
     }
   }
   return {

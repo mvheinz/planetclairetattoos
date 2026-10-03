@@ -172,27 +172,6 @@
   cursor: pointer;
 }
 
-.notice {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  border-left: 3px solid var(--warn);
-  border-radius: var(--r-card);
-  background: var(--paper-2);
-  color: var(--ink);
-}
-
-.noticeIcon {
-  flex: none;
-  margin-top: 2px;
-  color: var(--warn);
-}
-
-.noticeTitle {
-  font-weight: 700;
-}
-
 .small {
   font-size: 0.875rem;
   line-height: 1.45;

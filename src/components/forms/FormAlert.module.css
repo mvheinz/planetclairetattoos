@@ -1,0 +1,21 @@
+/* Hinweis- und Fehlerkasten der Formulare R10/R26 (DESIGN KO-12): Rand `--warn`, Icon, Titel fett. */
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-left: 3px solid var(--warn);
+  border-radius: var(--r-card);
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.noticeIcon {
+  flex: none;
+  margin-top: 2px;
+  color: var(--warn);
+}
+
+.noticeTitle {
+  font-weight: 700;
+}

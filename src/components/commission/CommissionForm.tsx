@@ -1,11 +1,16 @@
 'use client'
 
-import React, { useActionState, useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import React, {
+  lazy,
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react'
 
 import { submitCommissionInquiry } from '@/app/(frontend)/[locale]/commissions/actions'
 import { afterLoad } from '@/components/forms/afterLoad'
-import { Glyph } from '@/components/icons/Glyph'
-import { ICON_WARN } from '@/components/icons/icons.generated'
 import { Button } from '@/components/ui/Button'
 import { Field, RequiredNote, Select } from '@/components/ui/Field'
 import type de from '@/i18n/messages/de.json'
@@ -51,6 +56,11 @@ const FIELD_ORDER: readonly CommissionField[] = [
 // `next/dynamic` (dessen Laufzeit kostet selbst gut 2 KB gz); die Bildauswahl braucht kein Server-Rendering.
 type ImagesComponent = typeof import('./CommissionImages').CommissionImages
 
+// Hinweise und Fehlerzusammenfassung gibt es erst nach dem Absenden – per `React.lazy` nachgeladen (ohne eigene
+// Suspense-Grenze: der Server wartet darauf, im Browser bleibt bis dahin der alte Stand stehen).
+const loadAlert = () => import('@/components/forms/FormAlert')
+const FormAlert = lazy(loadAlert)
+
 const noopSubscribe = () => () => {}
 
 const fill = (text: string, vars: Record<string, string | number>) =>
@@ -80,12 +90,12 @@ export function CommissionForm(props: CommissionFormProps) {
 
   useEffect(
     () =>
-      afterLoad(
-        () =>
-          void import('./CommissionImages').then((mod) =>
-            setImagesComponent(() => mod.CommissionImages),
-          ),
-      ),
+      afterLoad(() => {
+        void loadAlert()
+        void import('./CommissionImages').then((mod) =>
+          setImagesComponent(() => mod.CommissionImages),
+        )
+      }),
     [],
   )
 
@@ -166,30 +176,22 @@ export function CommissionForm(props: CommissionFormProps) {
     <div className={styles.form} key={`form-${state.rev}`} data-commission-form-state="form">
       <div ref={summaryRef} tabIndex={-1} className={styles.messages}>
         {state.notice ? (
-          <div className={styles.notice} role="alert" data-commission-notice={state.notice}>
-            <Glyph shape={ICON_WARN} size={22} className={styles.noticeIcon} />
+          <FormAlert data={{ 'data-commission-notice': state.notice }}>
             <p>
               {notice[state.notice]}
               {state.notice !== 'expired' ? contact : null}
             </p>
-          </div>
+          </FormAlert>
         ) : null}
         {errorKeys.length > 0 ? (
-          <div className={styles.notice} role="alert" data-error-summary="">
-            <Glyph shape={ICON_WARN} size={22} className={styles.noticeIcon} />
-            <div>
-              <p className={styles.noticeTitle}>{m.errorSummary}</p>
-              <ul>
-                {errorKeys.map((k) => (
-                  <li key={k}>
-                    <a href={`#anfrage-${k}`}>
-                      {labels[k]}: {errorText(k)}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
+          <FormAlert
+            data={{ 'data-error-summary': '' }}
+            title={m.errorSummary}
+            links={errorKeys.map((k) => ({
+              href: `#anfrage-${k}`,
+              text: `${labels[k]}: ${errorText(k)}`,
+            }))}
+          />
         ) : null}
       </div>
 
