@@ -35,9 +35,7 @@ export interface PresetConfig {
   wobble: 'normal' | 'calm'
   /** Erlaubte Schlaufen; andere Anker-Schlaufen werden zu `none`. */
   loops: readonly LoopKind[]
-  coco: { size: CocoSize; poses: readonly SpritePose[] } | null
-  /** View Transitions hinein/hinaus erlaubt (§9.8: nie bei `calm`). */
-  viewTransition: boolean
+  coco: { size: CocoSize } | null
 }
 
 export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
@@ -50,11 +48,7 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     width: 'leash',
     wobble: 'normal',
     loops: ['right', 'left', 'spiral', 'lasso', 'orbit', 'contour'],
-    coco: {
-      size: 'leash',
-      poses: ['rennen', 'sitzen', 'schnueffeln', 'kopfschief', 'springen', 'schlafen'],
-    },
-    viewTransition: true,
+    coco: { size: 'leash' },
   },
   about: {
     gutter: { mobile: 44, desktop: 64 },
@@ -65,8 +59,7 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     width: 'leash',
     wobble: 'normal',
     loops: ['right', 'left'],
-    coco: { size: 'leash', poses: ['sitzen', 'kopfschief', 'schnueffeln'] },
-    viewTransition: true,
+    coco: { size: 'leash' },
   },
   shopString: {
     gutter: { mobile: 0, desktop: 0 },
@@ -77,8 +70,7 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     width: 'leash',
     wobble: 'normal',
     loops: [],
-    coco: { size: 'm', poses: ['sitzen'] },
-    viewTransition: true,
+    coco: { size: 'm' },
   },
   product: {
     gutter: { mobile: 0, desktop: 0 },
@@ -89,8 +81,7 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     width: 'leash',
     wobble: 'normal',
     loops: ['hook'],
-    coco: { size: 's', poses: ['sitzen'] },
-    viewTransition: true,
+    coco: { size: 's' },
   },
   calm: {
     gutter: { mobile: 0, desktop: 0 },
@@ -101,8 +92,7 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     width: 'calm',
     wobble: 'calm',
     loops: [],
-    coco: { size: 's', poses: ['sitzen'] },
-    viewTransition: false,
+    coco: { size: 's' },
   },
   stencil: {
     gutter: { mobile: 0, desktop: 0 },
@@ -113,8 +103,7 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     width: 'leash',
     wobble: 'normal',
     loops: ['contour'],
-    coco: { size: 'm', poses: ['kopfschief'] },
-    viewTransition: true,
+    coco: { size: 'm' },
   },
   frame: {
     gutter: { mobile: 0, desktop: 0 },
@@ -125,8 +114,7 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     width: 'leash',
     wobble: 'normal',
     loops: ['contour'],
-    coco: { size: 'm', poses: ['sitzen'] },
-    viewTransition: true,
+    coco: { size: 'm' },
   },
   legal: {
     gutter: { mobile: 16, desktop: 24 },
@@ -138,7 +126,6 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     wobble: 'calm',
     loops: [],
     coco: null,
-    viewTransition: true,
   },
   margin: {
     gutter: { mobile: 16, desktop: 24 },
@@ -150,7 +137,6 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     wobble: 'normal',
     loops: [],
     coco: null,
-    viewTransition: true,
   },
   thanks: {
     gutter: { mobile: 0, desktop: 0 },
@@ -161,8 +147,7 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     width: 'leash',
     wobble: 'normal',
     loops: ['heart'],
-    coco: { size: 'xxl', poses: ['sitzen', 'schlafen'] },
-    viewTransition: true,
+    coco: { size: 'xxl' },
   },
   lost: {
     gutter: { mobile: 0, desktop: 0 },
@@ -173,10 +158,12 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     width: 'leash',
     wobble: 'normal',
     loops: ['coil'],
-    coco: { size: 'tiny', poses: ['rennen', 'sitzen'] },
-    viewTransition: true,
+    coco: { size: 'tiny' },
   },
 }
+
+/** View Transitions hinein/hinaus erlaubt (§9.8: nie bei `calm`). */
+export const viewTransitionAllowed = (preset: PresetId): boolean => preset !== 'calm'
 
 /** Breakpoints (DESIGN §5.2). */
 export const BP_TABLET = 768

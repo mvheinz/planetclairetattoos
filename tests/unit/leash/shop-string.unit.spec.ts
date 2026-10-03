@@ -10,6 +10,7 @@ import {
   stringRows,
   stringSag,
 } from '@/leash/geometry'
+import { PRESET_COCO_POSES } from '@/leash/presetDocs'
 import { PRESET_CONFIG } from '@/leash/presets'
 import { fnv1a32 } from '@/leash/random'
 import type { BuildInput, LeashAnchor } from '@/leash/types'
@@ -71,7 +72,8 @@ describe('shopString – Schnur (DESIGN §9.7)', () => {
   it('Preset zeichnet je Reihe beim Eintritt (500 ms), ohne Rinne, Coco m sitzt', () => {
     expect(PRESET_CONFIG.shopString.draw).toBe('rowEnter')
     expect(PRESET_CONFIG.shopString.durationMs).toBe(500)
-    expect(PRESET_CONFIG.shopString.coco).toEqual({ size: 'm', poses: ['sitzen'] })
+    expect(PRESET_CONFIG.shopString.coco).toEqual({ size: 'm' })
+    expect(PRESET_COCO_POSES.shopString).toEqual(['sitzen'])
   })
 
   it('deterministisch (gleiche Eingabe → gleicher Pfad)', () => {

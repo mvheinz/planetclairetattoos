@@ -181,15 +181,7 @@ function planShopString(input: BuildInput): Plan {
     }
     const i1 = pts.length - 1
     loops.push({
-      anchor: {
-        id: `row-${k}`,
-        kind: 'station',
-        x: 0,
-        y: row.y,
-        w: 0,
-        h: 0,
-        loop: 'none',
-      },
+      anchor: { id: `row-${k}`, kind: 'station', x: 0, y: row.y, w: 0, h: 0, loop: 'none' },
       kind: 'none',
       i0: prevEnd,
       i1,
@@ -334,38 +326,34 @@ function loopPoints(kind: LoopKind, a: LeashAnchor, ctx: LoopCtx): Pt[] {
   const jitter = (th: number) => 1 + 0.12 * (0.35 * rn(th / 1.4) + 0.65 * Math.sin(4 * th + phase))
   switch (kind) {
     case 'right':
-    case 'left': {
-      // Tropfenschlaufe ~330° (im / gegen den Uhrzeigersinn), Mittelpunkt auf der Rinnenmitte.
-      const dir = kind === 'right' ? 1 : -1
-      const nominal = desktop ? 28 : Math.min(22, Math.max(14, 0.3 * gutter))
+    case 'left':
+    case 'spiral': {
+      // Tropfenschlaufe ~330° (rechts im / links gegen den Uhrzeigersinn) bzw. Spirale mit 2,5 Windungen (Radius
+      // r → 0.4 r, „Feder prüft die Tinte“), Mittelpunkt auf der Rinnenmitte, danach nach unten hinaus.
+      const sp = kind === 'spiral'
+      const dir = kind === 'left' ? -1 : 1
+      const nominal = sp
+        ? desktop
+          ? 26
+          : 18
+        : desktop
+          ? 28
+          : Math.min(22, Math.max(14, 0.3 * gutter))
       const r = ctx.onRail ? Math.min(nominal, rMax / 1.12) : nominal
       const c = { x: ctx.onRail ? railX : a.x, y: a.y + r }
-      const sweep = 330 * DEG
-      const steps = 15
+      const sweep = sp ? 5 * Math.PI : 330 * DEG
+      const steps = sp ? 36 : 15
       for (let k = 0; k <= steps; k++) {
         const th = (sweep * k) / steps
-        const rr = Math.min(r * jitter(th), ctx.onRail ? rMax : Infinity)
-        const drift = (0.35 * r * th) / (2 * Math.PI)
+        const rr = Math.min(
+          r * (sp ? 1 - (0.6 * th) / sweep : 1) * jitter(th),
+          ctx.onRail ? rMax : Infinity,
+        )
+        const drift = sp ? 0 : (0.35 * r * th) / (2 * Math.PI)
         const p = { x: c.x + dir * rr * Math.sin(th), y: c.y - rr * squash * Math.cos(th) + drift }
         pts.push(rotate(p, c, tilt))
       }
-      pts.push({ x: c.x, y: c.y + r + 16 })
-      return pts
-    }
-    case 'spiral': {
-      // 2,5 Windungen, Radius r → 0.4 r („Feder prüft die Tinte“), danach nach unten hinaus.
-      const nominal = desktop ? 26 : 18
-      const r = ctx.onRail ? Math.min(nominal, rMax / 1.12) : nominal
-      const c = { x: ctx.onRail ? railX : a.x, y: a.y + r }
-      const sweep = 5 * Math.PI
-      const steps = 36
-      for (let k = 0; k <= steps; k++) {
-        const th = (sweep * k) / steps
-        const rr = Math.min(r * (1 - (0.6 * th) / sweep) * jitter(th), ctx.onRail ? rMax : Infinity)
-        const p = { x: c.x + rr * Math.sin(th), y: c.y - rr * squash * Math.cos(th) }
-        pts.push(rotate(p, c, tilt))
-      }
-      pts.push({ x: c.x, y: c.y + r + 18 })
+      pts.push({ x: c.x, y: c.y + r + (sp ? 18 : 16) })
       return pts
     }
     case 'lasso':
@@ -505,20 +493,18 @@ type Cubic = [number, number, number, number, number, number, number, number]
 function catmullRom(pts: Pt[]): Cubic[] {
   const out: Cubic[] = []
   const n = pts.length
-  const at = (i: number): Pt => {
-    if (i < 0) return { x: 2 * pts[0]!.x - pts[1]!.x, y: 2 * pts[0]!.y - pts[1]!.y }
-    if (i >= n)
-      return { x: 2 * pts[n - 1]!.x - pts[n - 2]!.x, y: 2 * pts[n - 1]!.y - pts[n - 2]!.y }
-    return pts[i]!
-  }
+  const mirror = (a: Pt, b: Pt): Pt => ({ x: 2 * a.x - b.x, y: 2 * a.y - b.y })
+  const at = (i: number): Pt =>
+    i < 0 ? mirror(pts[0]!, pts[1]!) : i >= n ? mirror(pts[n - 1]!, pts[n - 2]!) : pts[i]!
+  const chord = (a: Pt, b: Pt) => Math.max(Math.sqrt(Math.hypot(a.x - b.x, a.y - b.y)), 1e-4)
   for (let i = 0; i < n - 1; i++) {
     const p0 = at(i - 1)
     const p1 = at(i)
     const p2 = at(i + 1)
     const p3 = at(i + 2)
-    const d1 = Math.max(Math.sqrt(Math.hypot(p1.x - p0.x, p1.y - p0.y)), 1e-4)
-    const d2 = Math.max(Math.sqrt(Math.hypot(p2.x - p1.x, p2.y - p1.y)), 1e-4)
-    const d3 = Math.max(Math.sqrt(Math.hypot(p3.x - p2.x, p3.y - p2.y)), 1e-4)
+    const d1 = chord(p1, p0)
+    const d2 = chord(p2, p1)
+    const d3 = chord(p3, p2)
     const a1 = 2 * d1 * d1 + 3 * d1 * d2 + d2 * d2
     const n1 = 3 * d1 * (d1 + d2)
     const a2 = 2 * d3 * d3 + 3 * d3 * d2 + d2 * d2
@@ -614,7 +600,7 @@ function resample(fine: Fine, step: number) {
 
 // ---------- Schritt 8: Vereinfachung und Ausgabe ----------
 
-function rdp(xs: number[], ys: number[], tol: number): number[] {
+function rdp(xs: ArrayLike<number>, ys: ArrayLike<number>, tol: number): number[] {
   const n = xs.length
   if (n <= 2) return Array.from({ length: n }, (_, i) => i)
   const keep = new Uint8Array(n)
@@ -651,8 +637,7 @@ function rdp(xs: number[], ys: number[], tol: number): number[] {
 
 /** Zahl mit höchstens 1 Nachkommastelle (Schritt 8), ohne `-0`. */
 function fmt(n: number): string {
-  const r = Math.round(n * 10) / 10
-  return String(r === 0 ? 0 : r)
+  return String(Math.round(n * 10) / 10 || 0)
 }
 
 /** Offene Polylinie als `M x y l dx dy …` (relativ, aus den gerundeten Koordinaten – kürzer als absolut). */
@@ -672,7 +657,7 @@ function relD(xs: number[], ys: number[]): string {
   return d
 }
 
-function polyD(xs: number[], ys: number[], close: boolean): string {
+function polyD(xs: ArrayLike<number>, ys: ArrayLike<number>, close: boolean): string {
   let d = `M${fmt(xs[0]!)} ${fmt(ys[0]!)}L`
   for (let i = 1; i < xs.length; i++) d += `${i > 1 ? ' ' : ''}${fmt(xs[i]!)} ${fmt(ys[i]!)}`
   return close ? `${d}Z` : d
@@ -739,26 +724,15 @@ export function* geometrySteps(input: BuildInput): Generator<void, GeometryResul
     ny[i] = dx / d
     ang[i] = Math.atan2(dy, dx)
   }
-  const theta = new Float64Array(n)
-  let prevRaw = 0
-  for (let i = 0; i < n; i++) {
-    const t = Math.atan2(ty[i]!, tx[i]!)
-    if (i === 0) theta[i] = t
-    else {
-      let d = t - prevRaw
-      while (d > Math.PI) d -= 2 * Math.PI
-      while (d < -Math.PI) d += 2 * Math.PI
-      theta[i] = theta[i - 1]! + d
-    }
-    prevRaw = t
-  }
 
   // Schritt 7: Breitenprofil mit Krümmungsverdickung, Grenzen und Verjüngungen.
   const w = new Float64Array(n)
   for (let i = 0; i < n; i++) {
     const a = Math.max(0, i - 3)
     const b = Math.min(n - 1, i + 3)
-    const kappa = b > a ? (theta[b]! - theta[a]!) / (ss[b]! - ss[a]! || 1) : 0
+    // Winkeländerung der geglätteten Tangente (Kreuz-/Skalarprodukt statt aufgerolltem Winkel).
+    const dTheta = Math.atan2(tx[a]! * ty[b]! - ty[a]! * tx[b]!, tx[a]! * tx[b]! + ty[a]! * ty[b]!)
+    const kappa = b > a ? dTheta / (ss[b]! - ss[a]! || 1) : 0
     const noise = (n3(ss[i]! / 220) + 1) / 2
     let width = bw * (0.85 + 0.3 * noise) * (1 + Math.min(0.25, 12 * Math.abs(kappa)))
     width = Math.min(1.35 * bw, Math.max(0.8 * bw, width))
@@ -878,7 +852,7 @@ interface SegmentData {
 }
 
 /** Länge einer Polylinie aus den gerundeten Koordinaten (wie der Browser sie misst). */
-function polyLen(xs: number[], ys: number[]): number {
+function polyLen(xs: ArrayLike<number>, ys: ArrayLike<number>): number {
   let L = 0
   for (let k = 1; k < xs.length; k++)
     L += Math.hypot(+fmt(xs[k]!) - +fmt(xs[k - 1]!), +fmt(ys[k]!) - +fmt(ys[k - 1]!))
@@ -952,27 +926,17 @@ function buildSegment(
   let minY = Infinity
   let maxX = -Infinity
   let maxY = -Infinity
-  const cx: number[] = []
-  const cy: number[] = []
-  for (let i = i0; i <= i1; i++) {
-    const x = d.wx[i]!
-    const y = d.wy[i]!
-    cx.push(x)
-    cy.push(y)
-    const h = d.w[i]! / 2 + 0.5
-    if (x - h < minX) minX = x - h
-    if (y - h < minY) minY = y - h
-    if (x + h > maxX) maxX = x + h
-    if (y + h > maxY) maxY = y + h
+  const grow = (x: number, y: number, h: number) => {
+    minX = Math.min(minX, x - h)
+    minY = Math.min(minY, y - h)
+    maxX = Math.max(maxX, x + h)
+    maxY = Math.max(maxY, y + h)
   }
+  const cx = d.wx.slice(i0, i1 + 1)
+  const cy = d.wy.slice(i0, i1 + 1)
+  for (let i = i0; i <= i1; i++) grow(d.wx[i]!, d.wy[i]!, d.w[i]! / 2 + 0.5)
   const segDots = dots.filter((i) => i >= i0 && i < i1)
-  for (const i of segDots) {
-    const r = 0.65 * d.w[i]! + 0.5
-    minX = Math.min(minX, d.wx[i]! - r)
-    minY = Math.min(minY, d.wy[i]! - r)
-    maxX = Math.max(maxX, d.wx[i]! + r)
-    maxY = Math.max(maxY, d.wy[i]! + r)
-  }
+  for (const i of segDots) grow(d.wx[i]!, d.wy[i]!, 0.65 * d.w[i]! + 0.5)
   const keepC = rdp(cx, cy, RDP_TOLERANCE)
   const ccx = keepC.map((k) => cx[k]!)
   const ccy = keepC.map((k) => cy[k]!)
@@ -998,52 +962,44 @@ function buildSegment(
 
 /** Schritt 8: gefüllter Umriss mit runden Kappen und Tintenpunkten (Kreis, Radius 0.65 × Breite). */
 function outlineOf(i0: number, i1: number, d: SegmentData, dots: number[]): string {
-  const lx: number[] = []
-  const ly: number[] = []
-  const rx: number[] = []
-  const ry: number[] = []
-  for (let i = i0; i <= i1; i++) {
-    const h = d.w[i]! / 2
-    lx.push(d.wx[i]! + d.nx[i]! * h)
-    ly.push(d.wy[i]! + d.ny[i]! * h)
-    rx.push(d.wx[i]! - d.nx[i]! * h)
-    ry.push(d.wy[i]! - d.ny[i]! * h)
+  const side = (sign: number) => {
+    const xs: number[] = []
+    const ys: number[] = []
+    for (let i = i0; i <= i1; i++) {
+      const h = (sign * d.w[i]!) / 2
+      xs.push(d.wx[i]! + d.nx[i]! * h)
+      ys.push(d.wy[i]! + d.ny[i]! * h)
+    }
+    return { xs, ys, keep: rdp(xs, ys, RDP_TOLERANCE) }
   }
-  const keepL = rdp(lx, ly, RDP_TOLERANCE)
-  const keepR = rdp(rx, ry, RDP_TOLERANCE)
-  const ox: number[] = []
-  const oy: number[] = []
-  for (const k of keepL) {
-    ox.push(lx[k]!)
-    oy.push(ly[k]!)
-  }
+  const L = side(1)
+  const R = side(-1)
+  const ox = L.keep.map((k) => L.xs[k]!)
+  const oy = L.keep.map((k) => L.ys[k]!)
   // Runde Kappe am Ende (Halbkreis, 8 Punkte inkl. der Kanten).
-  const cap = (i: number, fromAngle: number, sign: number) => {
+  const cap = (i: number, fromAngle: number) => {
     const h = d.w[i]! / 2
     for (let k = 1; k <= 6; k++) {
-      const a = fromAngle + (sign * k * Math.PI) / 7
+      const a = fromAngle - (k * Math.PI) / 7
       ox.push(d.wx[i]! + Math.cos(a) * h)
       oy.push(d.wy[i]! + Math.sin(a) * h)
     }
   }
-  cap(i1, Math.atan2(d.ny[i1]!, d.nx[i1]!), -1)
-  for (let j = keepR.length - 1; j >= 0; j--) {
-    ox.push(rx[keepR[j]!]!)
-    oy.push(ry[keepR[j]!]!)
+  cap(i1, Math.atan2(d.ny[i1]!, d.nx[i1]!))
+  for (const k of R.keep.reverse()) {
+    ox.push(R.xs[k]!)
+    oy.push(R.ys[k]!)
   }
-  cap(i0, Math.atan2(d.ny[i0]!, d.nx[i0]!) + Math.PI, -1)
+  cap(i0, Math.atan2(d.ny[i0]!, d.nx[i0]!) + Math.PI)
   let outlineD = polyD(ox, oy, true)
-  // Umlaufsinn des Umrisses (Shoelace): Tintenpunkte laufen gleich herum, sonst stanzt `nonzero` ein Loch.
-  let area = 0
-  for (let k = 0, j = ox.length - 1; k < ox.length; j = k++)
-    area += ox[j]! * oy[k]! - ox[k]! * oy[j]!
-  const turn = area >= 0 ? 1 : -1
+  // Der Umriss läuft immer im Uhrzeigersinn (links vorwärts, rechts zurück): Tintenpunkte laufen gleich herum,
+  // sonst stanzt `nonzero` ein Loch.
   for (const i of dots) {
     const r = 0.65 * d.w[i]!
     const px: number[] = []
     const py: number[] = []
     for (let k = 0; k < 12; k++) {
-      const a = (turn * k * Math.PI) / 6
+      const a = (-k * Math.PI) / 6
       px.push(d.wx[i]! + Math.cos(a) * r)
       py.push(d.wy[i]! + Math.sin(a) * r)
     }

@@ -1,4 +1,4 @@
-import type { PresetId } from './types'
+import type { PresetId, SpritePose } from './types'
 
 // Dokumentation der Preset-Tabelle (DESIGN §9.7): Routen (KONZEPT §2.2), Linienform und Notizen. Bewusst getrennt von
 // `presets.ts`, damit diese Texte nicht in die Engine gebündelt werden (Budget §9.10); gelesen nur von Tests.
@@ -71,4 +71,17 @@ export const PRESET_DOCS: Readonly<Record<PresetId, PresetDoc>> = {
     notes:
       'danach 2 langsame Schwingungen der losen Schlingen (MI-11); Variante „Zuhause“ mit Mini-Preisschild',
   },
+}
+
+/** Erlaubte Coco-Posen je Preset (DESIGN §10.5) – nur Doku/Tests; die Laufzeit liest sie aus `RUHEPOSE`/Coco-Steuerung. */
+export const PRESET_COCO_POSES: Readonly<Partial<Record<PresetId, readonly SpritePose[]>>> = {
+  journey: ['rennen', 'sitzen', 'schnueffeln', 'kopfschief', 'springen', 'schlafen'],
+  about: ['sitzen', 'kopfschief', 'schnueffeln'],
+  shopString: ['sitzen'],
+  product: ['sitzen'],
+  calm: ['sitzen'],
+  stencil: ['kopfschief'],
+  frame: ['sitzen'],
+  thanks: ['sitzen', 'schlafen'],
+  lost: ['rennen', 'sitzen'],
 }

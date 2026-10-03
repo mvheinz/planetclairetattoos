@@ -9,7 +9,13 @@ import {
   mapReadingY,
   pointAt,
 } from '@/leash/geometry'
-import { PRESET_CONFIG, READING_LINE, isScrollCoupled, loopScroll } from '@/leash/presets'
+import {
+  PRESET_CONFIG,
+  READING_LINE,
+  isScrollCoupled,
+  loopScroll,
+  viewTransitionAllowed,
+} from '@/leash/presets'
 import { PRESET_DOCS } from '@/leash/presetDocs'
 import type { BuildInput, PresetId } from '@/leash/types'
 import { PRESETS, ROUTES } from '@/lib/routes/registry'
@@ -199,7 +205,7 @@ describe('leash/presets', () => {
   it('Ruhe-Presets zeichnen nie, journey hat Intro, calm ohne View Transition', () => {
     expect(PRESET_CONFIG.calm.draw).toBe('never')
     expect(PRESET_CONFIG.legal.draw).toBe('never')
-    expect(PRESET_CONFIG.calm.viewTransition).toBe(false)
+    expect(viewTransitionAllowed('calm')).toBe(false)
     expect(PRESET_CONFIG.journey.intro).toBe(true)
     expect(isScrollCoupled('journey')).toBe(true)
     expect(isScrollCoupled('margin')).toBe(true)

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { buildGeometry } from '@/leash/geometry'
 import { PRESET_CONFIG, REST_POSE } from '@/leash/presets'
-import { PRESET_DOCS } from '@/leash/presetDocs'
+import { PRESET_COCO_POSES, PRESET_DOCS } from '@/leash/presetDocs'
 import { getRoute } from '@/lib/routes/paths'
 
 import { aboutInput } from './fixtures'
@@ -17,7 +17,7 @@ describe('Preset about (R19, P8.18)', () => {
     expect(c.draw).toBe('scroll')
     expect(c.intro).toBe(false)
     expect([...c.loops].sort()).toEqual(['left', 'right'])
-    expect([...(c.coco?.poses ?? [])].sort()).toEqual(['kopfschief', 'schnueffeln', 'sitzen'])
+    expect([...(PRESET_COCO_POSES.about ?? [])].sort()).toEqual(['kopfschief', 'schnueffeln', 'sitzen'])
     expect(REST_POSE.about).toBe('sitzen')
     expect(PRESET_DOCS.about.routes).toEqual(['R19'])
     const route = getRoute('R19')
