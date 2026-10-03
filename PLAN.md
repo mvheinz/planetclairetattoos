@@ -4357,7 +4357,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
     Jutta“ mit dem Befehl `pnpm seed:import-instagram && pnpm seed:example --refresh-media`. P11-Nacharbeit: falls der
     Export (A04/A06) später kommt, Skript laufen lassen, danach `pnpm art:vectorize` erneut.
 
-- [ ] **P8.11 Import-Skript für Coco-Fotos (Zeichenvorlagen)** – `scripts/art/coco-refs.ts` als `pnpm art:coco-refs`:
+- [x] **P8.11 Import-Skript für Coco-Fotos (Zeichenvorlagen)** – `scripts/art/coco-refs.ts` als `pnpm art:coco-refs`:
   liest `content/seed/coco/` (JPG, PNG, HEIC; `.mp4` wird nur gelistet), normalisiert mit sharp (Orientierung, sRGB,
   **alle Metadaten entfernen**, längste Kante ≤ 1600 px) nach `.data/art-refs/coco/` (gitignored) und schreibt
   `content/art/coco-refs.json` (committet: Quelldatei, `sha256`, Maße, Pose aus dem Dateinamen `coco-<pose>-<n>` mit

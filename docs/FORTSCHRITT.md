@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-03 – P8.11
+
+- `pnpm art:coco-refs` (scripts/art/coco-refs.ts): liest Fotos aus content/seed/coco/ (JPG/PNG/HEIC, .mp4 nur gelistet) und Juttas Skizzen aus content/art/jutta-skizzen/, normalisiert mit sharp (Orientierung, sRGB, ohne jede Metadaten inkl. GPS, ≤ 1600 px) nach .data/art-refs/coco/ und schreibt content/art/coco-refs.json (Quelle, sha256, Maße, Pose aus coco-<pose>-<n>, Herkunft); die 9 Highlight-Referenzen stehen immer drin; nicht dekodierbares HEIC wird übersprungen und gemeldet.\n- Ohne eigene Fotos: Hinweis „keine eigenen Fotos“ (OFFENE-PUNKTE: wartet auf Jutta).\n- Tests: tests/unit/art/coco-refs.unit.spec.ts (7: GPS-Fixture ohne EXIF/GPS nach der Normalisierung, Posen-Erkennung, HEIC-Rückfall, Idempotenz byte-gleich, committete Datei aktuell, kein Hash in public/.next/static/Vorschau/Seed-Medien).
+
 ## 2026-10-03 – P8.10
 
 - `pnpm seed:import-instagram` (scripts/seed/import-instagram.ts): findet ZIPs (entpackt nach .data/instagram-export/), Monatsordner, JSON-Ordner, ältere Uploads und Mischformen; Zuordnung nur über Dateinamen, Art über JSON-uri, Datum aus JSON oder Monatsordner; Kandidaten ±1 Tag, dHash 64 Bit ≤ 10 und Seitenverhältnis ±1 %; Map content/seed/instagram-export-map.json (leer committet) mit override-Vorrang. Ohne Export: Meldung, Exit 0, Map unverändert.\n- Medien-Schritt (src/lib/seed/exportMap.ts, example.ts): gemappte Kürzel nehmen das Original (neu kodiert, ohne Metadaten) mit denselben Prozent-Ausschnitten und seedKeys, source = instagram_export (beim Anlegen bzw. --refresh-media).\n- Tests: tests/unit/seed/import-instagram.unit.spec.ts (9, fiktive Fixture tests/fixtures/instagram-export/), tests/int/seed/import-instagram.int.spec.ts (4: Refresh ersetzt Datei, seedKey/Anzahl gleich, AK-SEED-19 mit Quellpixeln, kein ungeschnittenes Export-Bild in media). Echter Export fehlt weiter (OFFENE-PUNKTE: wartet auf Jutta).
