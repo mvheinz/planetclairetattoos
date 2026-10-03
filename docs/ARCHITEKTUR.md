@@ -1476,7 +1476,11 @@ Kopf/Menü/Fuß, Preisschild, sold-Stempel, Kasse, 404.
 
 Die Budgets stehen maschinenlesbar in `tests/perf/budgets.json`; `tests/perf/lighthouserc.cjs` nutzt
 `ci.upload.target: 'filesystem'` (**kein** `temporary-public-storage` – das wäre ein öffentlicher Fremddienst) und
-Chrome aus der Playwright-Installation (`chromePath`). Die Research-Ziele (JS ≤ 90 KB gz) sind mit der Next.js-Grundlast
+Chrome aus der Playwright-Installation (`chromePath`). Lighthouse misst über HTTP/2 wie die Produktion (Vercel): Der
+Vorschaltserver `scripts/perf/serve-h2.mjs` (Node `http2`, `allowHTTP1`, selbstsigniertes Zertifikat zur Laufzeit per
+`openssl`, nur localhost) startet `next start` auf Port 3100 und reicht Anfragen auf `https://localhost:3000` 1:1 durch
+(Header unverändert, inkl. CSP/Cache-Control); nur die Lighthouse-Konfiguration setzt `--ignore-certificate-errors`
+(Grund: OFFENE-PUNKTE „P5 CI“). Die Research-Ziele (JS ≤ 90 KB gz) sind mit der Next.js-Grundlast
 (React 19 + App-Router) nicht erreichbar und daher nur Bericht, kein Gate.
 
 ### 7.8 Abdeckung
