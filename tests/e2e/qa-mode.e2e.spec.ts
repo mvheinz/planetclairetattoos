@@ -77,7 +77,7 @@ test.describe('P9.1 mit ART_QA', () => {
   test.beforeAll(async ({}, testInfo) => {
     testInfo.setTimeout(300_000)
     const port = 3290 + testInfo.workerIndex
-    qaBase = `http://127.0.0.1:${port}`
+    qaBase = `http://localhost:${port}`
     const prod = process.env.E2E_SERVER === 'start'
     const env = {
       ...process.env,
@@ -89,9 +89,7 @@ test.describe('P9.1 mit ART_QA', () => {
       // Dev-Modus: eigenes Build-Verzeichnis, damit der Haupt-Dev-Server unberührt bleibt.
       ...(prod ? {} : { NEXT_DIST_DIR: '.next-qa-e2e' }),
     }
-    const cmd = prod
-      ? `pnpm exec next start -p ${port} -H 127.0.0.1`
-      : `pnpm exec next dev -p ${port} -H 127.0.0.1`
+    const cmd = prod ? `pnpm exec next start -p ${port}` : `pnpm exec next dev -p ${port}`
     server = spawn(cmd, { shell: true, env, stdio: 'ignore', detached: true })
     await waitUp(`${qaBase}/de/qa/coco`, prod ? 60_000 : 240_000)
   })

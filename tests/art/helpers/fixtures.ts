@@ -130,16 +130,26 @@ export class ArtSession {
     return rel
   }
 
+  /** Zwei Frames, Bilder im Sichtbereich, zwei Frames → Standbild. */
+  async settledFrame(label: string, opts: FrameOptions = {}): Promise<string> {
+    await twoFrames(this.page, this.clockPaused)
+    await waitForPaint(this.page, 2000)
+    await twoFrames(this.page, this.clockPaused)
+    return this.frame(label, opts)
+  }
+
+  /** Schrittweite einer Sequenz: in `reduced` grob (dort steht alles still, KUNST-QA §5.7), sonst wie verlangt. */
+  step(motionMs: number, untilMs: number): number {
+    return this.reduced ? Math.max(motionMs, Math.round(untilMs / 3)) : motionMs
+  }
+
   /** Scrollgekoppelt (§4.4): `scrollTo(0, y)` → zwei Frames → Standbild mit Label `y…`. */
   async scrollFrame(y: number, label?: string): Promise<string> {
     const actual = await this.page.evaluate((y) => {
       scrollTo(0, y)
       return Math.round(scrollY)
     }, y)
-    await twoFrames(this.page, this.clockPaused)
-    await waitForPaint(this.page, 2000)
-    await twoFrames(this.page, this.clockPaused)
-    return this.frame(label ?? `y${String(actual).padStart(4, '0')}`)
+    return this.settledFrame(label ?? `y${String(actual).padStart(4, '0')}`)
   }
 
   /** Echtzeit-Scrollen für das Video. */
@@ -151,7 +161,8 @@ export class ArtSession {
   async pauseClock(): Promise<void> {
     if (this.clockPaused) return
     const now = await this.page.evaluate(() => Date.now())
-    await this.page.clock.pauseAt(now + 1)
+    // WebKit meldet nach einer Navigation gelegentlich eine Seitenzeit knapp hinter der Playwright-Uhr.
+    await this.page.clock.pauseAt(now + 1).catch(() => this.page.clock.pauseAt(now + 1000))
     this.clockPaused = true
   }
 
@@ -225,7 +236,14 @@ function contextOptions(testInfo: TestInfo): BrowserContextOptions {
   }
 }
 
+/**
+ * Mit dem tsx-Loader (Kassen-Szenarien laden die Payload-Konfiguration) erhalten Funktionen in `page.evaluate` ein
+ * `__name(…)` (esbuild `keepNames`); im Browser fehlt der Helfer → hier als Identität bereitstellen.
+ */
+const NAME_SHIM = 'globalThis.__name = globalThis.__name || ((f) => f);'
+
 async function guardHosts(ctx: BrowserContext, onBlocked: (url: string) => void): Promise<void> {
+  await ctx.addInitScript(NAME_SHIM)
   await ctx.route(
     (url) =>
       (url.protocol === 'http:' || url.protocol === 'https:') && !OWN_HOSTS.has(url.hostname),

@@ -74,7 +74,13 @@ function main(): void {
     )}\n`,
   )
   console.log(`art:record: Lauf ${runId} → ${runDir} (${scenarios.join(', ')})`)
-  const env = { ...process.env, ART_RUN_DIR: path.resolve(runDir) }
+  const env = {
+    ...process.env,
+    ART_RUN_DIR: path.resolve(runDir),
+    // Kassen-/Danke-Szenarien laden die Payload-Konfiguration im Testprozess (wie `pnpm test:e2e`).
+    NODE_OPTIONS:
+      '--no-deprecation --import=tsx/esm --import=./scripts/lib/register-server-only.mjs',
+  }
   let status = 0
   for (const sc of scenarios.filter((s) => SCRIPT_SCENARIOS[s])) {
     const res = spawnSync(

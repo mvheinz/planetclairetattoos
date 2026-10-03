@@ -13,21 +13,24 @@ export async function twoFrames(page: Page, clockPaused: boolean): Promise<void>
     )
 }
 
-/** Schriften und Bilder im Sichtbereich fertig (höchstens `timeoutMs`). */
+/** Schriften und Bilder im Sichtbereich fertig (höchstens `timeoutMs`, Zeitgrenze im Testprozess – die Browser-Uhr
+ * kann angehalten sein). */
 export async function waitForPaint(page: Page, timeoutMs = 4000): Promise<void> {
-  await page
-    .evaluate(async (ms) => {
+  const work = page
+    .evaluate(async () => {
       const visible = Array.from(document.images).filter((img) => {
         const r = img.getBoundingClientRect()
         return r.width > 0 && r.bottom > -50 && r.top < innerHeight + 50
       })
-      const all = Promise.all([
+      await Promise.all([
         document.fonts.ready,
         ...visible.map((img) => (img.complete ? null : img.decode().catch(() => undefined))),
       ])
-      await Promise.race([all, new Promise((r) => setTimeout(r, ms))])
-    }, timeoutMs)
+    })
     .catch(() => undefined)
+  let timer: ReturnType<typeof setTimeout> | undefined
+  await Promise.race([work, new Promise<void>((r) => (timer = setTimeout(r, timeoutMs)))])
+  if (timer) clearTimeout(timer)
 }
 
 /** Sanftes Scrollen in Echtzeit (für das Video): `pxPerSec` gleichmäßig bis `to`. */

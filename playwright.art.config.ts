@@ -17,8 +17,12 @@ import {
 
 const skipWebkit = process.env.PW_SKIP_WEBKIT === '1'
 const port = Number(process.env.ART_PORT || ART_PORT)
-const baseURL = process.env.ART_BASE_URL || `http://127.0.0.1:${port}`
+// `localhost` wie `NEXT_PUBLIC_SITE_URL`: Mit `-H 127.0.0.1` zeigten die Umschreibungen des Proxys (next-intl) auf
+// `localhost` und liefen als externe Umschreibung in eine 308-Schleife (DE-Pfade wie `/de/archiv`).
+const baseURL = process.env.ART_BASE_URL || `http://localhost:${port}`
 const distDir = process.env.ART_DIST_DIR || ART_DIST_DIR
+// Kassen-/Danke-Szenarien nutzen die E2E-Helfer (Local API gegen dieselbe DB, `serverURL` = QA-Server).
+process.env.E2E_BASE_URL ||= baseURL
 
 /** Geräteprofile (§4.2): Viewport aus dem Deskriptor, nur Desktop fest 1440×900 @1. */
 const PROFILE_USE: Record<ArtProfile, Project['use']> = {
@@ -83,12 +87,13 @@ export default defineConfig({
     screenshot: 'off',
     video: 'off',
     navigationTimeout: 30_000,
+    actionTimeout: 20_000,
   },
   projects,
   webServer: process.env.ART_NO_SERVER
     ? undefined
     : {
-        command: `node -e "require('node:fs').rmSync('${distDir}/cache/fetch-cache',{recursive:true,force:true})" && pnpm start -p ${port} -H 127.0.0.1`,
+        command: `node -e "require('node:fs').rmSync('${distDir}/cache/fetch-cache',{recursive:true,force:true})" && pnpm start -p ${port}`,
         url: `${baseURL}/de`,
         reuseExistingServer: true,
         timeout: 240_000,
