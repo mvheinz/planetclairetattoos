@@ -3,6 +3,7 @@ import React from 'react'
 
 import { FOOTER_LINE_PATH, HAND_LINE_HEIGHT, HAND_LINE_LENGTH } from '@/art/handLine'
 import { Icon } from '@/components/icons/Icon'
+import { StaticHtml } from '@/components/StaticHtml'
 import { instagramUrl, type SiteNavigation } from '@/lib/data/navigation'
 import { localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
@@ -17,7 +18,8 @@ import styles from './SiteFooter.module.css'
 // 1.+2. LegalFooter („Vertrag widerrufen“ + Pflichtlinks) · 3. `<nav id="fussnavigation">` (Menüliste als Ersatz ohne
 // JavaScript, Instagram als einfacher Link) · 4. Sprachumschalter · 5. Schalter „Animationen“ (Modul `motion-toggle`,
 // ohne JavaScript verborgen) · 6. Platz für die Preis-Fußnote (ab P3) · 7. „© {Berliner Jahr} Planet Claire · Berlin“.
-// Nie animiert; liegt über Dekor-Ebenen (z-index), die keine Zeigerereignisse annehmen.
+// Nie animiert; liegt über Dekor-Ebenen (z-index), die keine Zeigerereignisse annehmen. Linie, Pflichtlinks und
+// Fußnavigation sind statisches HTML (`StaticHtml`, nicht hydriert, TBT P7); der Sprachumschalter hängt an der Route.
 export async function SiteFooter({
   locale,
   nav,
@@ -36,7 +38,7 @@ export async function SiteFooter({
   ])
   return (
     <footer className={styles.footer} data-site-footer="">
-      <div className={styles.edgeWrap} aria-hidden="true">
+      <StaticHtml as="div" className={styles.edgeWrap} aria-hidden="true">
         <svg
           className={styles.edge}
           width={HAND_LINE_LENGTH}
@@ -46,11 +48,16 @@ export async function SiteFooter({
         >
           <path d={FOOTER_LINE_PATH} />
         </svg>
-      </div>
+      </StaticHtml>
       <div className={styles.inner}>
         <LegalFooter locale={locale} hasActiveConformity={nav.hasActiveConformity} />
 
-        <nav id="fussnavigation" aria-label={t('siteNav')} className={styles.column}>
+        <StaticHtml
+          as="nav"
+          id="fussnavigation"
+          aria-label={t('siteNav')}
+          className={styles.column}
+        >
           <h2 className={styles.heading}>{t('siteNav')}</h2>
           <ul className={styles.list}>
             {MENU_MAIN.map((id) => (
@@ -71,7 +78,7 @@ export async function SiteFooter({
               </a>
             </li>
           </ul>
-        </nav>
+        </StaticHtml>
 
         <div className={styles.column}>
           <h2 className={styles.heading}>{t('settingsHeading')}</h2>

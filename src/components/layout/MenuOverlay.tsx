@@ -4,12 +4,13 @@ import React from 'react'
 import { WORDMARK_HEIGHT, WORDMARK_SRC, WORDMARK_WIDTH } from '@/components/brand/WordmarkLink'
 import { Coco } from '@/components/Coco'
 import { Icon } from '@/components/icons/Icon'
+import { StaticHtml } from '@/components/StaticHtml'
 import { instagramUrl, type SiteNavigation } from '@/lib/data/navigation'
 import { WITHDRAWAL_LINK_LABEL } from '@/lib/legal/constants'
 import { localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
 
-import { LanguageSwitcher } from './LanguageSwitcher'
+import { LanguageList } from './LanguageList'
 import styles from './MenuOverlay.module.css'
 import {
   CONFORMITY_ROUTE,
@@ -18,12 +19,15 @@ import {
   TATTOO_PAGES,
   WITHDRAWAL_ROUTE,
 } from './navItems'
-import { NavLink } from './NavLink'
+import { NavLinkView } from './NavLinkView'
 
 // Menü (DESIGN KO-03, KONZEPT §3.0.2): natives `<dialog id="menu">`, serverseitig gerendert; das Verhaltensmodul
 // `menu` öffnet es modal (Fokus, Tab-Falle, `Esc`, MI-05). Hauptliste in Mansalva, unter „Shop“ die Kategorien
 // (`showInNavigation`), unter „Tattoo“ die Tattoo-Unterseiten; unten Sprachumschalter, Instagram und die Pflichtlinks
 // klein inkl. „Vertrag widerrufen“. Ohne JavaScript bleibt der Dialog zu, der Menü-Knopf führt zur Fußnavigation.
+// Der Inhalt steht als statisches HTML im Dialog (`StaticHtml`): React hydriert ihn nicht – das sind gut
+// 100 Elemente weniger im Hydrations-Task jeder Seite (Lighthouse-TBT, P7). Was von der aktuellen Seite abhängt
+// (`aria-current` der Hauptlinks, Ziel des Sprachlinks), setzt das Modul `menu` beim Öffnen.
 export async function MenuOverlay({ locale, nav }: { locale: Locale; nav: SiteNavigation }) {
   const [tMenu, tRoutes, tFooter] = await Promise.all([
     getTranslations({ locale, namespace: 'menu' }),
@@ -33,8 +37,16 @@ export async function MenuOverlay({ locale, nav }: { locale: Locale; nav: SiteNa
   const route = (id: string) => tRoutes(id as 'R01')
   const legal = [...LEGAL_LINKS, ...(nav.hasActiveConformity ? [CONFORMITY_ROUTE] : [])]
 
+  const otherHome = (l: Locale) => localizedPath('R01', l)
+
   return (
-    <dialog id="menu" aria-label={tMenu('title')} className={styles.menu} data-behavior="menu">
+    <StaticHtml
+      as="dialog"
+      id="menu"
+      aria-label={tMenu('title')}
+      className={styles.menu}
+      data-behavior="menu"
+    >
       <div className={styles.inner}>
         <div className={styles.top}>
           {/* eslint-disable-next-line @next/next/no-img-element -- dekorative Wortmarke, kein Link (erster Link = „Start“) */}
@@ -44,6 +56,9 @@ export async function MenuOverlay({ locale, nav }: { locale: Locale; nav: SiteNa
             width={WORDMARK_WIDTH}
             height={WORDMARK_HEIGHT}
             className={styles.wordmark}
+            // Ohne `low` setzte `renderToStaticMarkup` ein `<link rel="preload">` mitten in den Dialog; die Wortmarke
+            // lädt ohnehin schon der Kopf.
+            fetchPriority="low"
           />
           <button type="button" className={styles.close} data-menu-close-button="">
             <span>{tMenu('close')}</span>
@@ -55,14 +70,14 @@ export async function MenuOverlay({ locale, nav }: { locale: Locale; nav: SiteNa
           <ul className={styles.main}>
             {MENU_MAIN.map((id) => (
               <li key={id} className={styles.item} data-menu-item="">
-                <NavLink
+                <NavLinkView
                   href={localizedPath(id, locale)}
                   routeId={id}
                   className={styles.mainLink}
                   onClickClose
                 >
                   {route(id)}
-                </NavLink>
+                </NavLinkView>
                 {id === 'R02' && nav.categories.length > 0 ? (
                   <ul className={styles.sub}>
                     {nav.categories.map((c) => (
@@ -99,8 +114,9 @@ export async function MenuOverlay({ locale, nav }: { locale: Locale; nav: SiteNa
         </nav>
 
         <div className={styles.bottom}>
-          <LanguageSwitcher
+          <LanguageList
             locale={locale}
+            hrefFor={otherHome}
             label={tMenu('language')}
             className={styles.languages}
             linkClassName={styles.smallLink}
@@ -139,6 +155,6 @@ export async function MenuOverlay({ locale, nav }: { locale: Locale; nav: SiteNa
           <Coco pose="kopfschief" size="m" deferSprite />
         </div>
       </div>
-    </dialog>
+    </StaticHtml>
   )
 }

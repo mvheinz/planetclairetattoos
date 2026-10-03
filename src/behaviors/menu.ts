@@ -43,8 +43,32 @@ export function activateSpriteUses(root: ParentNode): number {
   return uses.length
 }
 
+/**
+ * Das Menü steht als statisches HTML im Dialog (React hydriert es nicht, `MenuOverlay`). Was von der aktuellen Seite
+ * abhängt, setzt das Modul deshalb selbst (beim Binden und bei jedem Öffnen): `aria-current="page"` am Hauptlink der
+ * Route aus `<body data-route>` (`a[data-route-id]`) und das Ziel des Sprachlinks aus dem Sprachumschalter im Fuß
+ * (dort aus der Route berechnet; ohne ihn bleibt die Startseite der anderen Sprache).
+ */
+export function syncCurrentPage(root: Element): void {
+  const doc = root.ownerDocument
+  const route = doc.body?.getAttribute('data-route')
+  for (const link of Array.from(root.querySelectorAll('a[data-route-id]'))) {
+    if (link.getAttribute('data-route-id') === route) link.setAttribute('aria-current', 'page')
+    else link.removeAttribute('aria-current')
+  }
+  for (const link of Array.from(root.querySelectorAll('a[hreflang]'))) {
+    const lang = link.getAttribute('hreflang')
+    const twin = Array.from(
+      doc.querySelectorAll(`[data-language-switcher] a[hreflang="${lang}"]`),
+    ).find((el) => !root.contains(el))
+    const href = twin?.getAttribute('href')
+    if (href) link.setAttribute('href', href)
+  }
+}
+
 export function mount(root: Element, _ctx: BehaviorContext = { mode: 'app' }): Unmount {
   activateSpriteUses(root)
+  syncCurrentPage(root)
   const doc = root.ownerDocument
   const win = doc.defaultView
   const dialog = root as DialogLike
@@ -131,6 +155,7 @@ export function mount(root: Element, _ctx: BehaviorContext = { mode: 'app' }): U
     cancelAll()
     closing = false
     lastTrigger = trigger
+    syncCurrentPage(dialog)
     if (typeof dialog.showModal === 'function') dialog.showModal()
     else dialog.setAttribute('open', '')
     html.setAttribute(MENU_OPEN_ATTR, '')
