@@ -35,7 +35,7 @@ const intlMiddleware = createIntlMiddleware(routing)
 /** Sprach-Header von next-intl (wie dessen Middleware ihn bei Umschreibungen setzt). */
 const INTL_LOCALE_HEADER = 'X-NEXT-INTL-LOCALE'
 
-/** Schlichte 404 des Proxys (Verwaltungs-Ordner, interne Varianten-Pfade) – ohne Weiterleitung. */
+/** Schlichte 404 des Proxys (Verwaltungs-Ordner, interne Varianten-Pfade, unbekannte Wurzel-Dateien) – ohne Weiterleitung. */
 const notFound = () =>
   withBaseHeaders(
     new NextResponse('Not Found', {

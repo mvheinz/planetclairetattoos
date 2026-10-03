@@ -302,7 +302,8 @@ export function assetRefs(html: string): string[] {
   })
   $('video[poster]').each((_, el) => add($(el).attr('poster')))
   $('use').each((_, el) => {
-    const href = $(el).attr('href') ?? $(el).attr('xlink:href')
+    // `data-href`: Coco im geschlossenen Menü lädt sein Sprite erst über das Menü-Modul (`Coco deferSprite`).
+    const href = $(el).attr('href') ?? $(el).attr('xlink:href') ?? $(el).attr('data-href')
     if (href && !href.startsWith('#')) add(href.split('#')[0])
   })
   $('[style*="url("]').each((_, el) => {

@@ -90,9 +90,10 @@ test('@a11y System: „Jetzt ausführen“ markDelivered schreibt job_runs; fehl
     await page.getByTestId(`system-resend-${order.id}-order_confirmation`).click()
     await expect(dialog).toContainText('Die Kundin bekommt diese Mail noch einmal.')
     await dialog.getByTestId('confirm-dialog-ok').click()
+    // Erst nach dem Neuladen der Liste (Knopf → „erneut gesendet am …“) prüfen: die Rückmeldung muss das überstehen.
+    await expect(page.getByTestId(`system-resent-${failed.id}`)).toBeVisible()
     await expect(page.getByText('Die Mail ist unterwegs.')).toBeVisible()
     expect(await mails()).toBe(2)
-    await expect(page.getByTestId(`system-resent-${failed.id}`)).toBeVisible()
   } finally {
     await removeOrder(payload, order.id)
   }

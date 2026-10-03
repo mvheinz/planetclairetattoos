@@ -237,6 +237,72 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 
 - Collections `legal-snippets` (öffentlich nur aktive Fassung, Update nur Entwürfe, Tokens je Schlüssel geprüft) und `complaints`; `private-uploads.relatedComplaint`, Join `orders.complaints`; Migrationen `p6_legal_snippets_complaints` + `…_constraints` (eine aktive Fassung je Schlüssel, seed_key-Index).\n- Grund-Seed: 36 Bausteine v1 aktiv (Arbeitsfassung `draft` bzw. Platzhalter); `getSnippet` liest die Collection (Speicherstand, Version „1“), Rückfall Seed-Text `draft-1`; `activateLegalSnippet` mit Audit.\n- Rechtsfelder aus P1 geprüft (legal-texts, settings, withdrawals, Enums) – vorhanden.\n- Tests: snippets.int (3), Zugriffsmatrix (T-15, 29 Collections), pg-objects (T-14), check:migrations ohne Drift.
 
+
+
+
+
+
+## 2026-10-02 – P5 CI grün
+
+- Phasenlauf `[ci:full p5]` (ed37101): CI full (e2e desktop/iphone-15/pixel-7, quality inkl. Lighthouse) und Vorschau-Export grün, Artefakt `planet-claire-vorschau-p5-ed37101`; schneller Lauf nach gitleaks-Ausnahme (47a0605) grün.
+
+## 2026-10-02 – P5 CI-Reparaturen (3)
+
+- Phasenlauf 4 (ed37101): CI full und Vorschau-Export grün (Artefakt `planet-claire-vorschau-p5-ed37101`); im schnellen Lauf meldete der Geheimnis-Scan einen Fehlalarm (Vorlagen-Kennung `dispute_vsbg37`) → eng begrenzte Ausnahme in `.gitleaks.toml`, lokal 241 Commits ohne Fund.
+
+## 2026-10-02 – P5 CI-Reparaturen (2)
+
+- Schneller CI-Lauf lief seit P5 ins 30-Minuten-Limit (als „abgebrochen“ gemeldet) → Limit 45 min, Beschleunigung als offener Punkt.
+- Produktseite R04: Coco-Bild des Menüs lädt erst nach dem ersten Bild (spart 90–150 ms bis zum Hauptfoto).
+
+## 2026-10-02 – P5 CI-Reparaturen
+
+- Phasenlauf 1 (18a10e2): Abdeckung (Randfall-Tests Packen/Versand/Abholung ergänzt) und iphone-15 Foto-Upload-Test (WebKit liefert Upload-Inhalt nicht an Playwright) behoben.
+- Phasenlauf 2 (edbfb30): „Erneut senden“-Hinweis in Einstellungen → System verschwand nach dem Neuladen (echter Fehler, behoben); Produktseite R04: zweites Galeriefoto lädt erst nach dem Hauptfoto, Hauptfoto `decoding=sync` → LCP lokal ca. 2,0 s statt 2,24 s.
+
+## 2026-10-02 – P5 Phasen-Abnahme (deine Werkstatt, also die Verwaltung) – für Jutta
+
+**Was ist neu?** Deine Verwaltung ist fertig gebaut – gemacht fürs Handy. Du erreichst sie über deinen geheimen
+Verwaltungs-Link und kannst sie wie eine App auf den Startbildschirm legen („Zum Home-Bildschirm“). Alles ist auf
+Deutsch, mit großen Knöpfen, und vor jeder wichtigen Aktion fragt sie kurz nach, was passieren wird.
+
+**Was du in deiner Verwaltung jetzt kannst:**
+
+- **Heute:** Die Startseite zeigt dir auf einen Blick, was zu tun ist – Bestellungen zum Packen, offene
+  Vorkasse-Zahlungen, Abholungen, neue Anfragen und Widerrufe – plus die letzten Bestellungen.
+- **Neues Stück:** Fotos direkt mit dem Handy aufnehmen oder aus der Galerie wählen (werden automatisch verkleinert,
+  Standortdaten fliegen raus), Kategorie antippen, Titel und Preis eingeben, „Online stellen“. Die Objektnummer wird
+  dir vorgeschlagen und sofort geprüft („✓ frei“). Mit „Übersetzen → EN“ bekommst du einen englischen Vorschlag.
+- **Meine Stücke:** alle Stücke mit Suche und Filter; „Bearbeiten“, „Offline verkauft“ (z. B. auf dem Flohmarkt)
+  und ein Etikett als PDF.
+- **Zu packen → Versendet:** Liste der bezahlten Bestellungen, Adresse kopieren, Packfotos und Checkliste, Packzettel
+  und Beileger als PDF, dann die Sendungsnummer eintippen oder mit der Kamera scannen und „Versendet melden“ – die
+  Kundin bekommt automatisch ihre Versandmail. Nach 10 Tagen gilt die Sendung von selbst als zugestellt.
+- **Abholung:** „Bereit zur Abholung“ schickt der Kundin deinen Abholtext, „Abgeholt“ schließt die Bestellung ab.
+- **Vorkasse offen:** sehen, wer noch überweisen muss und bis wann; „Zahlung erhalten“ verschickt die Rechnung.
+- **Widerrufe** (zum Nachlesen) und **Anfragen** für Auftragsarbeiten (mit Bild, Status, Notiz und Antwort).
+- **Texte:** deine Mail-Bausteine auf Deutsch und Englisch, deine Grußformel und fertige Vorlagen fürs Mailprogramm.
+- **Einstellungen:** deine Daten, Steuer, Zahlung, Versand (EU-Versand erst nach fünf Häkchen), Produktsicherheit
+  (hier legst du die Unterlagen je Kategorie ab – mit Vorlage als PDF), der **Umsatz-Wächter** (zeigt dir, wie nah du
+  an der Kleinunternehmer-Grenze bist, und warnt rechtzeitig per Mail) und „System“ für die Technik.
+- **Export:** pro Monat eine Tabelle und alle Rechnungen als ZIP für deine Steuerberatung, auf Wunsch auch als
+  DATEV-Datei – nie mit Namen oder Adressen, nie mit Beispieldaten. Dazu die Jahresmengen der Verpackung für LUCID.
+- **Erinnerungen per Mail an dich:** z. B. bei neuer Bestellung, Anfrage, Widerruf, einmal im Monat zum
+  Monatsabschluss und zu den Produktsicherheits-Unterlagen.
+
+**So schaust du dir die Vorschau-Datei an:** Die Datei „planet-claire-vorschau.html“ herunterladen und doppelklicken
+(wie in Anleitung V0) – sie öffnet sich im Browser, ohne Internet. Unter „Verwaltung“ siehst du jetzt Bildschirmfotos
+aller neuen Ansichten so, wie sie auf dem Handy aussehen (Heute, Neues Stück, Meine Stücke, Zu packen, Vorkasse,
+Versendet, Abholung, Widerrufe, Anfragen, Texte, Einstellungen mit Produktsicherheit, Versand, Umsatz-Wächter und
+System, Export). Nur „Tattoo“ steht dort noch als „kommt in P7“. Die Fotos sind Bilder – klicken kannst du darin nichts.
+
+**Kleine Reparatur nebenbei:** Bei der Abnahme haben wir gemerkt, dass die Startseite nach einer Reservierung kurz
+verschwinden konnte. Das ist behoben und wird jetzt automatisch geprüft.
+
+**Was bis zum Start (P11) noch von dir kommt:** die Unterlagen zur Produktsicherheit hochladen, die DATEV-Konten mit
+deiner Steuerberatung festlegen und deine echten Daten (Adresse, Bankverbindung, Telefon) eintragen – alles steht in
+deiner Aufgabenliste.
+
 ## 2026-10-02 – P4 CI grün
 
 - Phasenlauf `[ci:full p4]` (Commit aeef4fc): CI, CI full (e2e desktop/iphone-15/pixel-7, quality) und Vorschau-Export grün; Artefakt `planet-claire-vorschau-p4-aeef4fc`. Davor (6ec1f2c) war nur der Vorschau-Test rot, der noch den P3-Stand der Verwaltungsfotos erwartete – jetzt phasenunabhängig.

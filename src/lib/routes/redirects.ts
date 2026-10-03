@@ -11,7 +11,7 @@ export type PublicRouteDecision =
   | { kind: 'intl' }
   /** Nicht Sache der Sprachlogik (Dateien, /nr, Sitemap, robots.txt). */
   | { kind: 'pass' }
-  /** Datei-Pfad, den es nicht gibt (z. B. `/manifest.webmanifest`, `/sw.js`) → schlichte 404 des Proxys. */
+  /** Unbekannte Datei direkt unter `/` (z. B. `/sw.js`, `/manifest.webmanifest`) → schlichte 404 (P5.29, T-04). */
   | { kind: 'not-found' }
 
 /** Ausgenommen von der Spracherkennung (KONZEPT §2.4): Dateien, Systempfade, R31. */
@@ -22,37 +22,24 @@ export function isExcludedPath(pathname: string): boolean {
   return last.includes('.')
 }
 
-/** Echte Dateien direkt unter `/` (Next-Metadaten-Routen in `src/app/`; `favicon.ico` schließt der Matcher aus). */
+/**
+ * Dateien, die es direkt unter `/` wirklich gibt: Metadaten-Routen aus `src/app/` (`robots.ts`, `sitemap.ts`, `icon.svg`,
+ * `apple-icon.png`, `favicon.ico`). Jede andere Datei auf erster Ebene (`/sw.js`, `/manifest.webmanifest`, `/foo.txt`)
+ * landete sonst in der ISR-Startseite `[locale]` und endete dort mit 500 („static to dynamic“). `dynamicParams = false`
+ * auf der Startseite ist keine Lösung: Nach `revalidateTag('home')` lieferte Next.js 16.3 dann auch `/de` als 404.
+ * Ein Unit-Test gleicht die Liste mit `src/app/` und `public/` ab.
+ */
 export const ROOT_FILES: ReadonlySet<string> = new Set([
+  '/robots.txt',
+  '/sitemap.xml',
   '/favicon.ico',
   '/icon.svg',
   '/apple-icon.png',
-  '/robots.txt',
-  '/sitemap.xml',
 ])
 
-/** Erste Pfadsegmente, unter denen Dateien liegen dürfen: Systempfade und die Ordner in `public/`. */
-export const FILE_PREFIXES: ReadonlySet<string> = new Set([
-  'api',
-  '_next',
-  'nr',
-  'art',
-  'legal',
-  'og',
-])
-
-/**
- * Datei-Pfad, den es sicher nicht gibt (P5.29, T-04): Ohne diese Prüfung fiele z. B. `/manifest.webmanifest` in das
- * dynamische Wurzel-Segment `[locale]` (statisch nur `de`/`en`, ISR ohne `dynamicParams = false`, P6.5); dessen
- * `not-found` liest dann Anfrage-Header und Next bricht mit 500 „Page changed from static to dynamic“ ab.
- */
-export function isUnknownFilePath(pathname: string): boolean {
-  if (!isExcludedPath(pathname)) return false
-  if (ROOT_FILES.has(pathname)) return false
-  const first = pathname.split('/')[1] ?? ''
-  if (FILE_PREFIXES.has(first)) return false
-  return !(LOCALES as readonly string[]).includes(first)
-}
+/** Unbekannte Datei auf erster Ebene (Punkt im einzigen Segment, nicht in `ROOT_FILES`)? */
+export const isUnknownRootFile = (pathname: string): boolean =>
+  /^\/[^/]*\.[^/]*$/.test(pathname) && !ROOT_FILES.has(pathname)
 
 /**
  * Entscheidet für `pathname` (ohne Query; `search` wird angehängt):
@@ -72,7 +59,7 @@ export function decidePublicRoute(
       location: (pathname.replace(/\/+$/, '') || '/') + search,
     }
   }
-  if (isUnknownFilePath(pathname)) return { kind: 'not-found' }
+  if (isUnknownRootFile(pathname)) return { kind: 'not-found' }
   if (isExcludedPath(pathname)) return { kind: 'pass' }
 
   const split = splitLocale(pathname)

@@ -165,7 +165,8 @@ test.describe('Fußlinks ohne 404 @smoke', () => {
       expect(expected).toHaveLength(7)
       for (const route of live) {
         const path = samplePath(route.id, locale)
-        await page.goto(path)
+        // Nur die Fußlinks zählen – nicht auf Bilder warten (WebKit unter Last > 15 s bis „load“).
+        await page.goto(path, { waitUntil: 'domcontentloaded' })
         const hrefs = await page
           .locator('[data-site-footer] a[href]')
           .evaluateAll((els) => els.map((e) => e.getAttribute('href') ?? ''))

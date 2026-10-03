@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import React, { useId, useRef, useState } from 'react'
+import React, { useId, useRef, useState, useSyncExternalStore } from 'react'
 
 import { ActionButton } from '../../components/ActionButton'
 import { AdminActionError, postAdminAction } from '../../components/adminAction'
@@ -476,14 +476,26 @@ function ShipForm({
   )
 }
 
+const noopSubscribe = () => () => undefined
+
 export function PackingPanel(props: PackingPanelProps) {
   const router = useRouter()
   const [packaging, setPackaging] = useState({
     templateKey: props.packaging.templateKey ?? props.templates[0]?.key ?? '',
     components: props.packaging.components,
   })
+  // Erst nach dem Binden nimmt das Panel Eingaben an (vorher Getipptes verwirft React beim Hydrieren) – Marker für Tests.
+  const hydrated = useSyncExternalStore(
+    noopSubscribe,
+    () => true,
+    () => false,
+  )
   return (
-    <div className="pc-order__packing" data-testid="packing-panel">
+    <div
+      className="pc-order__packing"
+      data-testid="packing-panel"
+      data-hydrated={hydrated ? 'true' : undefined}
+    >
       <Checklist orderId={props.orderId} items={props.checklist} disabled={!props.canShip} />
       <PackagingEditor
         orderId={props.orderId}

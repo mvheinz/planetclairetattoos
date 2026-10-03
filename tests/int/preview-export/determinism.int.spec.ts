@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { readFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
 import * as cheerio from 'cheerio'
@@ -61,6 +61,8 @@ describe('pnpm preview:export – Determinismus und Inhalt (AK-A-14-01, AK-A-14-
     () => {
       const first = runExport([])
       const second = runExport(['--skip-build'])
+      // Zur Fehlersuche bleibt bei Abweichung der erste Lauf neben der Datei liegen (dist/ ist nicht im Repo).
+      if (!second.equals(first)) writeFileSync(file.replace(/\.html$/, '.first.html'), first)
       expect(second.equals(first)).toBe(true)
 
       const html = first.toString('utf8')

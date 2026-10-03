@@ -134,7 +134,9 @@ export async function MenuOverlay({ locale, nav }: { locale: Locale; nav: SiteNa
           </ul>
         </div>
         <div className={styles.coco} data-coco-slot="" aria-hidden="true">
-          <Coco pose="kopfschief" size="m" />
+          {/* Sprite erst mit dem Menü-Modul (nach dem ersten Bild): Das geschlossene Menü braucht Coco nicht, und der
+              Sprite-Abruf vor dem ersten Bild zählte auf jeder Seite zum LCP-Pfad (Lighthouse R04, P5). */}
+          <Coco pose="kopfschief" size="m" deferSprite />
         </div>
       </div>
     </dialog>

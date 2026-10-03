@@ -137,6 +137,9 @@ test('R-065 § 312i Eingabefehler vor dem Absenden erkennen und korrigieren: Feh
   const summary = page.locator('[data-error-summary]')
   await expect(summary).toBeVisible()
   await expect(summary.locator('[data-error-link]').first()).toBeVisible()
+  // Die Kasse setzt den Fokus per requestAnimationFrame auf die Zusammenfassung – erst danach tippen, sonst landet
+  // der Fokuswechsel (WebKit unter Last) mitten in der ersten Eingabe.
+  await expect(summary).toBeFocused()
   await fillShipping(page, { email: 'tippfehler@planetclaire.lokal' })
   const overview = page.locator('#uebersicht')
   await expect(overview.locator('[data-overview-block="kontakt"]')).toContainText(

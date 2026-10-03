@@ -30,7 +30,21 @@ type DialogLike = HTMLElement & {
 /** 0–20 ms Versatz je Link, stabil aus dem Index (MI-05 „Seed“). */
 const seedOffset = (i: number) => (i * 7) % 21
 
+/**
+ * Coco im Menü lädt sein Sprite erst jetzt (`<use data-href>`, `Coco deferSprite`): Das Modul läuft nach dem ersten Bild,
+ * so liegt der Abruf nicht mehr vor dem LCP (Lighthouse R04, P5). Gibt die Zahl der umgestellten `<use>` zurück.
+ */
+export function activateSpriteUses(root: ParentNode): number {
+  const uses = Array.from(root.querySelectorAll<SVGUseElement>('use[data-href]'))
+  for (const use of uses) {
+    use.setAttribute('href', use.getAttribute('data-href')!)
+    use.removeAttribute('data-href')
+  }
+  return uses.length
+}
+
 export function mount(root: Element, _ctx: BehaviorContext = { mode: 'app' }): Unmount {
+  activateSpriteUses(root)
   const doc = root.ownerDocument
   const win = doc.defaultView
   const dialog = root as DialogLike

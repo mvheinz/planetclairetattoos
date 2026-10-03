@@ -69,7 +69,9 @@ afterAll(async () => {
 })
 
 describe('Belege unveränderlich (GoBD)', () => {
-  it('AK-4-14/DM-INV-03 Verwaltung/REST: Ändern und Löschen werden abgelehnt', async () => {
+  // R-123 (P5-Teil): ein Löschversuch an einem Beleg vor Fristende wird manuell (REST) wie im Systemweg abgelehnt;
+  // das Löschen nach Fristende durch `retentionInvoices` folgt mit den Löschjobs in P6 (LOESCHKONZEPT L-06).
+  it('AK-4-14/DM-INV-03/R-123 Verwaltung/REST: Ändern und Löschen (vor Fristende) werden abgelehnt', async () => {
     const invoice = await issued()
     const patch = await rest('PATCH', `/invoices/${invoice.id}`, { totalGrossCents: 1 }, auth())
     expect(patch.status).toBe(403)

@@ -8,7 +8,8 @@ import styles from './ResponsiveImage.module.css'
 // einem Rahmen mit fester `aspect-ratio` (Endhöhe vor dem Laden, kein Layout-Sprung), Lade-Hintergrund aus der
 // gespeicherten Dominanzfarbe (sonst `--paper-2` mit Schraffur), Ausschnitt am Fokuspunkt (`object-position`).
 // Keine Next-Bildoptimierung; die Größen erzeugt die Pipeline (`thumb`, `card`, `detail`, `zoom`).
-// Standard `loading="lazy"`; das LCP-Bild bzw. die ersten Karten mit `eager` (optional `fetchPriority="high"`).
+// Standard `loading="lazy"`; das LCP-Bild bzw. die ersten Karten mit `eager` (optional `fetchPriority="high"`, dann
+// `decoding="sync"`).
 
 export type MediaSizeName = 'thumb' | 'card' | 'detail' | 'zoom'
 
@@ -87,7 +88,10 @@ export function ResponsiveImage({
         height={card?.height ?? media.height ?? undefined}
         alt={media.alt ?? ''}
         loading={loading === 'lazy' ? 'lazy' : undefined}
-        decoding="async"
+        // LCP-Bild synchron dekodieren: Es ist beim ersten Bild meist schon geladen und soll im selben Frame wie der
+        // Text stehen; mit `async` kam es Frames später, und Lighthouse rechnete alles bis dahin Geladene (das zweite
+        // Galeriefoto, Skripte) dem LCP zu (R04, P5-Phasenlauf). Alle anderen Bilder bleiben `async`.
+        decoding={fetchPriority === 'high' ? 'sync' : 'async'}
         fetchPriority={fetchPriority}
         style={{ objectPosition: focal }}
       />

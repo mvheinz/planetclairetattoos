@@ -1,4 +1,4 @@
-import type { Page, Request } from '@playwright/test'
+import type { Page } from '@playwright/test'
 import sharp from 'sharp'
 
 import { testPayload } from '../fixtures'
@@ -40,16 +40,3 @@ export const jpeg = (width: number, height: number): Promise<Buffer> =>
   sharp({ create: { width, height, channels: 3, background: { r: 180, g: 120, b: 90 } } })
     .jpeg({ quality: 90 })
     .toBuffer()
-
-/** Datei-Teil einer multipart-Anfrage (`name="file"`). */
-export function multipartFile(req: Request): Buffer | null {
-  const body = req.postDataBuffer()
-  if (!body) return null
-  const header = body.indexOf('name="file"')
-  if (header < 0) return null
-  const start = body.indexOf('\r\n\r\n', header) + 4
-  const type = req.headers()['content-type'] ?? ''
-  const boundary = /boundary=(.+)$/.exec(type)?.[1]
-  const end = boundary ? body.indexOf(`\r\n--${boundary}`, start) : -1
-  return body.subarray(start, end > 0 ? end : undefined)
-}

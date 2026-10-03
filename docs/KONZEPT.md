@@ -1978,7 +1978,7 @@ Server- und Hosting-Logs mit IP (L-13 e) regelt die Hosting-Einstellung außerha
 
 **AK-8-01** Jeder Job ist mit vorgestellter Uhr getestet, inklusive Doppel-Lauf (Idempotenz).
 **AK-8-02** Vorkasse (Bestellung Sa 26.09. 10:00): bis Di 29.09. 09:59 keine Mail, ab 10:00 genau eine M03; Do 01.10. 23:59 noch offen, Fr 02.10. 00:00 (nächster Joblauf) Storno + M04 + A03, Stück `available`.
-**AK-8-03** Retention: Eine Anfrage wird samt Bildern am Tag nach Eingang + 6 Monate gelöscht, auch wenn `lastActivityAt` jünger ist; mit Aufbewahrungssperre bleibt sie; je Anfrage ein `deletion-log`-Eintrag ohne Inhalte.
+**AK-8-03** Retention: Eine Anfrage wird samt Bildern am Tag nach Eingang + 6 Monate gelöscht (L-10), auch wenn `lastActivityAt` jünger ist; mit Aufbewahrungssperre bleibt sie; je Anfrage ein `deletion-log`-Eintrag ohne Inhalte.
 **AK-8-04** Umsatz-Wächter: 19.999 € (keine Meldung), 20.000 € (U1), 25.001 € (U2), 80.000 € (U3), 90.000 € (U3a), 95.000 € (U4), 100.001 € (U5) – je Stufe genau eine A09 im Jahr; Neujahrsprüfung U0.
 
 ---

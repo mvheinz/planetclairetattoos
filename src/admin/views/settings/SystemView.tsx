@@ -14,7 +14,7 @@ import { StatusBadge, type StatusTone } from '../../components/StatusBadge'
 import { adminText } from '../../translations'
 import type { AdminViewBodyProps } from '../AdminViewBody'
 import { adminView } from '../registry'
-import { ResendFailedMailButton, RunTaskButton } from './SystemActions'
+import { FailedMailAction, RunTaskButton } from './SystemActions'
 
 // Einstellungen → System `/einstellungen/system` (PLAN P5.22, ARCHITEKTUR §11.5, KONZEPT §8.1 Nr. 4): App-Version,
 // `APP_ENV`, letzter voller Job-Lauf und nächster Weckzeitpunkt, „Jetzt ausführen“ je Task, Lauf-Protokoll der
@@ -183,15 +183,20 @@ export async function SystemView({ adminRoute, req }: AdminViewBodyProps) {
                       <span className="pc-order__muted"> · {m.lastError.slice(0, 200)}</span>
                     ) : null}
                   </span>
-                  {resent ? (
-                    <span className="pc-order__muted" data-testid={`system-resent-${m.id}`}>
-                      {adminText('systemResent', { date: fmt(resent) })}
-                    </span>
-                  ) : orderId && isResendable(m.template) ? (
-                    <ResendFailedMailButton orderId={orderId} template={m.template} label={label} />
-                  ) : (
-                    <span className="pc-order__muted">{adminText('systemResendNotHere')}</span>
-                  )}
+                  <FailedMailAction
+                    orderId={orderId}
+                    template={m.template}
+                    label={label}
+                    resentText={
+                      resent ? adminText('systemResent', { date: fmt(resent) }) : undefined
+                    }
+                    resentTestId={`system-resent-${m.id}`}
+                    notHereText={
+                      orderId && isResendable(m.template)
+                        ? undefined
+                        : adminText('systemResendNotHere')
+                    }
+                  />
                 </li>
               )
             })}

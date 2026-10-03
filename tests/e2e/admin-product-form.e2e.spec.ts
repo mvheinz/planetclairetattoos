@@ -186,6 +186,9 @@ test.describe('Verwaltung: Formular „Stück“ am Handy', () => {
   test('T-05 R-135 Upload der GPS-Fixture im Formular: ausgelieferte Größen ohne EXIF', async ({
     adminPage: page,
   }) => {
+    // Hochladen + Erzeugen aller Bildgrößen braucht unter Last bis zu 60 s (waitForURL unten) – mehr als die 30 s
+    // Standard-Testzeit.
+    test.slow()
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto(adminPath('/collections/media/create'))
     await page.waitForLoadState('networkidle')
@@ -193,7 +196,18 @@ test.describe('Verwaltung: Formular „Stück“ am Handy', () => {
       .locator('input[type="file"]')
       .first()
       .setInputFiles(path.resolve('tests/fixtures/images/gps-orientation-6.jpg'))
-    await page.locator('#field-alt').fill('Rote Markierung auf grauem Grund')
+    // Erst nach dem Verkleinern im Browser weiter (DownscaleUpload ersetzt die Datei asynchron im Formular-Zustand);
+    // der Alt-Text muss vor dem Speichern wirklich im Feld stehen.
+    await expect(page.getByText(/Foto verkleinert auf \d+ × \d+ Pixel/)).toBeVisible({
+      timeout: 30_000,
+    })
+    // Der neue Datei-Wert löst eine Formular-Zustandsabfrage (Server-Aktion) aus; währenddessen nimmt Payload unter
+    // Last keine Eingaben an. Erst nach deren Antwort tippen.
+    await page.waitForLoadState('networkidle')
+    await expect(page.locator('form[data-form-ready="true"]').first()).toBeVisible()
+    const alt = page.locator('#field-alt')
+    await alt.fill('Rote Markierung auf grauem Grund')
+    await expect(alt).toHaveValue('Rote Markierung auf grauem Grund')
     await page.locator('#action-save').click()
     await page.waitForURL(new RegExp(`${adminPath('/collections/media/')}\\d+`), {
       timeout: 60_000,

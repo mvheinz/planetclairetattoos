@@ -38,6 +38,7 @@ const HTML = `<!doctype html><html lang="de" class="font-a font-b"><head>
 <img src="/media/foto.jpg" srcset="/media/foto-2x.jpg 2x" sizes="100vw" alt="Foto">
 <div data-behavior="menu" aria-label="Menü" id="menu"></div>
 <svg><use href="/art/coco-sprite.v1.svg#coco-sitzen-a"></use></svg>
+<svg><use data-href="/art/coco-sprite.v1.svg#coco-kopfschief-a"></use></svg>
 <form action="/api/withdrawals" method="post"><button type="submit">Senden</button></form></main>
 <footer><a href="/de/vertrag-widerrufen">Vertrag widerrufen</a><a href="mailto:hallo@example.com">Mail</a></footer>
 <noscript><style>.x{}</style></noscript><next-route-announcer></next-route-announcer>
@@ -93,6 +94,11 @@ describe('Vorschau-Export: Seiten-Umwandlung (ARCHITEKTUR §14.5)', () => {
 
   it('Sprite-Verweise → <use href="#id">', () => {
     expect(page.body).toContain('<use href="#coco-sitzen-a">')
+  })
+
+  it('aufgeschobene Sprite-Verweise (Coco im Menü) → <use data-href="#id">, ohne href', () => {
+    expect(page.body).toContain('<use data-href="#coco-kopfschief-a">')
+    expect(page.body).not.toContain('/art/coco-sprite.v1.svg')
   })
 
   it('Links nach KONZEPT §12.5 Nr. 5, externe Links in neuem Tab', () => {

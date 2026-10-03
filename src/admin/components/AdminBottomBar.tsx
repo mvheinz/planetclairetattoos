@@ -14,6 +14,9 @@ import { relativeAdminPath } from './adminNavPath'
 // Mehr“. „Mehr“ öffnet Payloads Menü mit allen Ansichten und „Alle Daten“. Ab 1025 px ausgeblendet (dort steht die
 // Seitenleiste; Payloads Umbruch liegt bei 1024 px). Tipp-Flächen ≥ 44 px, keine Animation.
 
+/** Payloads Breakpoint `l`: bis hierhin ist die Seitenleiste ein Menü, das nach dem Laden geschlossen sein muss. */
+const PAYLOAD_NAV_MODAL_QUERY = '(max-width: 1440px)'
+
 export function AdminBottomBar() {
   const {
     config: {
@@ -21,6 +24,12 @@ export function AdminBottomBar() {
     },
   } = useConfig()
   const { navOpen, setNavOpen } = useNav()
+  // Payload startet die Seitenleiste nach der gespeicherten Vorliebe (ohne Eintrag: offen) und schließt sie bis 1440 px
+  // erst, nachdem die Fensterbreite gemessen ist. Dazwischen stand das Menü auf dem Handy kurz offen und schob den
+  // Inhalt seitlich aus dem Bild. Deshalb vor dem ersten Zeichnen schließen (gleiche Grenze wie Payloads Breakpoint `l`).
+  React.useLayoutEffect(() => {
+    if (window.matchMedia(PAYLOAD_NAV_MODAL_QUERY).matches) setNavOpen(false)
+  }, [setNavOpen])
   const current = relativeAdminPath(usePathname(), adminRoute)
   const items = ADMIN_BOTTOM_BAR.map((key) => adminView(key))
 
