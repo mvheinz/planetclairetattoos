@@ -21,7 +21,11 @@ const criteria = parseCriteria(md)
 
 describe('P9.5/P9.6 Kriterien-Katalog aus KUNST-QA §5', () => {
   it('Parser liest alle Tabellenzeilen §5.1–§5.10 mit Schwelle, Methode und Schwere', () => {
-    const tableIds = [...md.slice(md.indexOf('## 5. Abnahmekriterien'), md.indexOf('\n## 6.')).matchAll(/^\| ([A-Z0-9]+-\d{2}) \|/gm)].map((m) => m[1])
+    const tableIds = [
+      ...md
+        .slice(md.indexOf('## 5. Abnahmekriterien'), md.indexOf('\n## 6.'))
+        .matchAll(/^\| ([A-Z0-9]+-\d{2}) \|/gm),
+    ].map((m) => m[1])
     expect(criteria.map((c) => c.id)).toEqual(tableIds)
     expect(criteria).toHaveLength(76)
     for (const c of criteria) {
@@ -33,12 +37,27 @@ describe('P9.5/P9.6 Kriterien-Katalog aus KUNST-QA §5', () => {
   })
 
   it('jedes „auto“-Kriterium aus §5 hat eine Prüfung in art:check – und keine darüber hinaus', () => {
-    expect([...AUTO_IDS].sort()).toEqual(criteria.filter((c) => c.auto).map((c) => c.id).sort())
+    expect([...AUTO_IDS].sort()).toEqual(
+      criteria
+        .filter((c) => c.auto)
+        .map((c) => c.id)
+        .sort(),
+    )
   })
 
   it('check.md listet alle Kriterien; Urteilspunkte als R1/R2/R3 offen, nie automatisch bestanden', () => {
-    const results = AUTO_IDS.map((id) => ({ id, status: 'PASS' as const, value: '1', threshold: 't' }))
-    const report = buildReport('20261003-iter01-abcdef0', criteria, results, new Date('2026-10-03T00:00:00Z'))
+    const results = AUTO_IDS.map((id) => ({
+      id,
+      status: 'PASS' as const,
+      value: '1',
+      threshold: 't',
+    }))
+    const report = buildReport(
+      '20261003-iter01-abcdef0',
+      criteria,
+      results,
+      new Date('2026-10-03T00:00:00Z'),
+    )
     expect(report.pass).toBe(true)
     expect(report.summary).toEqual({ auto: 62, pass: 62, fail: 0, judgement: 25 })
     const text = renderMarkdown(report)
@@ -80,7 +99,10 @@ function lineCase(points: (s: number) => { x: number; y: number }, len = 600, w 
 describe('P9.5 Linie LQ', () => {
   it('LQ-04: perfekte Kreisschlaufe scheitert, unregelmäßige Schlaufe besteht', () => {
     const r = 40
-    const circle = lineCase((s) => ({ x: 100 + r * Math.cos(s / r), y: 100 + r * Math.sin(s / r) }), 240)
+    const circle = lineCase(
+      (s) => ({ x: 100 + r * Math.cos(s / r), y: 100 + r * Math.sin(s / r) }),
+      240,
+    )
     const res = L.lq04([circle])
     expect(res.status).toBe('FAIL')
     expect(res.value).toMatch(/px/)
@@ -96,7 +118,9 @@ describe('P9.5 Linie LQ', () => {
     const straight = lineCase((s) => ({ x: s, y: 0 }))
     const res = L.lq03([straight])
     expect(res.status).toBe('FAIL')
-    expect(L.straightRuns(straight.samples.s, straight.samples.x, straight.samples.y).length).toBeGreaterThan(0)
+    expect(
+      L.straightRuns(straight.samples.s, straight.samples.x, straight.samples.y).length,
+    ).toBeGreaterThan(0)
   })
 
   it('LQ-02/LQ-05: gleichmäßige Breite ohne Verjüngung scheitert', () => {
@@ -114,7 +138,13 @@ describe('P9.5 Linie LQ', () => {
       for (let dy = -1; dy <= 1; dy++) data.set(color, ((30 + dy) * width + x) * 3)
       pts.push({ len: x, x, y: 30 })
     }
-    return { label: 'f', raster: { data, width, height, channels: 3 }, pts, halfW: 1.5, seams: [60] }
+    return {
+      label: 'f',
+      raster: { data, width, height, channels: 3 },
+      pts,
+      halfW: 1.5,
+      seams: [60],
+    }
   }
 
   it('LQ-01: Tusche #1C1A17 besteht, Linienfarbe #333333 scheitert (ΔE2000 > 3)', () => {
@@ -128,7 +158,9 @@ describe('P9.5 Linie LQ', () => {
     const ok = frame([0x1c, 0x1a, 0x17])
     expect(L.lq06([ok]).status).toBe('PASS')
     const gap = frame([0x1c, 0x1a, 0x17])
-    for (let x = 59; x <= 61; x++) for (let dy = -1; dy <= 1; dy++) gap.raster.data.set([244, 244, 244], ((30 + dy) * 120 + x) * 3)
+    for (let x = 59; x <= 61; x++)
+      for (let dy = -1; dy <= 1; dy++)
+        gap.raster.data.set([244, 244, 244], ((30 + dy) * 120 + x) * 3)
     expect(L.lq06([gap]).status).toBe('FAIL')
   })
 
@@ -140,10 +172,14 @@ describe('P9.5 Linie LQ', () => {
 // ---------- Coco ----------
 
 const STYLE = '<style>.line{fill:none;stroke:#000;stroke-width:1.6px}.fur{fill:#E2BF8E}</style>'
-const parts = A.SPRITE_PARTS.map((p, i) => `<g data-part="${p}"><path d="M${20 + i * 5} 40q5 -10 10 0t10 0"/></g>`).join('')
-const symbol = (id: string, body: string) => `<symbol id="${id}" viewBox="0 0 160 120"><g class="line">${body}</g></symbol>`
+const parts = A.SPRITE_PARTS.map(
+  (p, i) => `<g data-part="${p}"><path d="M${20 + i * 5} 40q5 -10 10 0t10 0"/></g>`,
+).join('')
+const symbol = (id: string, body: string) =>
+  `<symbol id="${id}" viewBox="0 0 160 120"><g class="line">${body}</g></symbol>`
 const blob = (dx: number) => `<path d="M${30 + dx} 30q20 -20 50 0t30 40q-20 30 -60 10t-20 -50"/>`
-const blobMirror = (dx: number) => `<path d="M${130 - dx} 30q-20 -20 -50 0t-30 40q20 30 60 10t20 -50"/>`
+const blobMirror = (dx: number) =>
+  `<path d="M${130 - dx} 30q-20 -20 -50 0t-30 40q20 30 60 10t20 -50"/>`
 
 describe('P9.5 Coco CO', () => {
   it('CO-01: 22 IDs mit allen data-part bestehen, fehlendes Symbol scheitert', () => {
@@ -153,7 +189,9 @@ describe('P9.5 Coco CO', () => {
     ]
     const svg = `<svg>${STYLE}${ids.map((id) => symbol(id, parts)).join('')}</svg>`
     expect(A.co01(svg).status).toBe('PASS')
-    expect(A.co01(svg.replace(/<symbol id="coco-sitzen-b"[\s\S]*?<\/symbol>/, '')).status).toBe('FAIL')
+    expect(A.co01(svg.replace(/<symbol id="coco-sitzen-b"[\s\S]*?<\/symbol>/, '')).status).toBe(
+      'FAIL',
+    )
   })
 
   it('CO-07: Sprite mit <circle> scheitert; gespiegelter Frame scheitert; eigenständige Frames bestehen', async () => {
@@ -168,18 +206,33 @@ describe('P9.5 Coco CO', () => {
     expect(m.status).toBe('FAIL')
     expect(m.details!.join()).toMatch(/Spiegelung/)
     const shifted = `<svg>${STYLE}${symbol('coco-sitzen-a', blob(0))}${symbol('coco-sitzen-b', blob(4))}</svg>`
-    expect(A.co07(shifted, await A.silhouettes(shifted, 128)).details!.join()).toMatch(/Verschiebung/)
+    expect(A.co07(shifted, await A.silhouettes(shifted, 128)).details!.join()).toMatch(
+      /Verschiebung/,
+    )
   })
 
   it('CO-04: D-Ring springt um 4 Einheiten → FAIL', () => {
-    const sym = (pose: string, frame: string, x: number) => ({ id: `coco-${pose}-${frame}`, pose, frame, bridge: false, anchor: { x, y: 50 }, groundY: 112 })
+    const sym = (pose: string, frame: string, x: number) => ({
+      id: `coco-${pose}-${frame}`,
+      pose,
+      frame,
+      bridge: false,
+      anchor: { x, y: 50 },
+      groundY: 112,
+    })
     const ok = A.SPRITE_POSES.flatMap((p) => ['a', 'b', 'c'].map((f) => sym(p, f, 60)))
     expect(A.co04(ok).status).toBe('PASS')
-    expect(A.co04(ok.map((s) => (s.id === 'coco-sitzen-c' ? { ...s, anchor: { x: 64, y: 50 } } : s))).status).toBe('FAIL')
+    expect(
+      A.co04(ok.map((s) => (s.id === 'coco-sitzen-c' ? { ...s, anchor: { x: 64, y: 50 } } : s)))
+        .status,
+    ).toBe('FAIL')
   })
 
   it('CO-08: Strichstärken je Größe aus tokens.css/coco.css; 24 px mit 2 px scheitert', () => {
-    const table = A.cocoStrokeTable(readFileSync('src/styles/tokens.css', 'utf8'), readFileSync('src/styles/coco.css', 'utf8'))
+    const table = A.cocoStrokeTable(
+      readFileSync('src/styles/tokens.css', 'utf8'),
+      readFileSync('src/styles/coco.css', 'utf8'),
+    )
     expect(table.map((t) => t.size)).toEqual(expect.arrayContaining([24, 40, 72, 180, 240]))
     expect(A.co08([{ size: 24, stroke: 2, label: 'horizon' }]).status).toBe('FAIL')
   })
@@ -189,25 +242,47 @@ describe('P9.5 Coco CO', () => {
 
 describe('P9.5 Zeichnungen AR', () => {
   const base = { wash: '#E3D3BA', washes: ['#E3D3BA', '#F4CCDA'], inkHeight: 0.6 }
-  const svg = '<svg viewBox="0 0 400 500"><rect fill="#EAE2D4"/><path fill="#E3D3BA" d="M0 0"/><g stroke-width="2.4"><path d="M1 1"/></g></svg>'
+  const svg =
+    '<svg viewBox="0 0 400 500"><rect fill="#EAE2D4"/><path fill="#E3D3BA" d="M0 0"/><g stroke-width="2.4"><path d="M1 1"/></g></svg>'
 
   it('AR-04: Platzhalter nach Regeln besteht; mit <text> scheitert', () => {
     expect(A.ar04([{ name: 'teller-01', svg, ...base }]).status).toBe('PASS')
-    const bad = A.ar04([{ name: 'teller-01', svg: svg.replace('</svg>', '<text>Hi</text></svg>'), ...base }])
+    const bad = A.ar04([
+      { name: 'teller-01', svg: svg.replace('</svg>', '<text>Hi</text></svg>'), ...base },
+    ])
     expect(bad.status).toBe('FAIL')
     expect(bad.details).toEqual(['teller-01: <text>'])
   })
 
   it('AR-04: zweite Wash-Farbe oder Motiv zu klein scheitert', () => {
-    expect(A.ar04([{ name: 'x', svg: svg.replace('</svg>', '<path fill="#F4CCDA" d="M0 0"/></svg>'), ...base }]).status).toBe('FAIL')
+    expect(
+      A.ar04([
+        { name: 'x', svg: svg.replace('</svg>', '<path fill="#F4CCDA" d="M0 0"/></svg>'), ...base },
+      ]).status,
+    ).toBe('FAIL')
     expect(A.ar04([{ name: 'x', svg, ...base, inkHeight: 0.4 }]).status).toBe('FAIL')
   })
 
   it('AR-01: verbotene Quelle (Highlight/Godzilla) und Kundenhaut-Foto scheitern', () => {
-    const sources = { vectorize: [{ id: 'keramik', file: 'post-A.jpg' }], derived: [{ id: 'hallo', from: 'sprite', kind: 'sprite' }] }
+    const sources = {
+      vectorize: [{ id: 'keramik', file: 'post-A.jpg' }],
+      derived: [{ id: 'hallo', from: 'sprite', kind: 'sprite' }],
+    }
     expect(A.ar01(sources, ['hallo', 'keramik'], ['CUST1']).status).toBe('PASS')
-    expect(A.ar01({ ...sources, vectorize: [{ id: 'keramik', file: 'highlight-coco.jpg' }] }, ['hallo', 'keramik'], []).status).toBe('FAIL')
-    expect(A.ar01({ ...sources, vectorize: [{ id: 'keramik', file: 'post-CUST1.jpg' }] }, ['hallo', 'keramik'], ['CUST1']).status).toBe('FAIL')
+    expect(
+      A.ar01(
+        { ...sources, vectorize: [{ id: 'keramik', file: 'highlight-coco.jpg' }] },
+        ['hallo', 'keramik'],
+        [],
+      ).status,
+    ).toBe('FAIL')
+    expect(
+      A.ar01(
+        { ...sources, vectorize: [{ id: 'keramik', file: 'post-CUST1.jpg' }] },
+        ['hallo', 'keramik'],
+        ['CUST1'],
+      ).status,
+    ).toBe('FAIL')
     expect(A.ar01(sources, ['hallo'], []).status).toBe('FAIL')
   })
 
@@ -230,9 +305,14 @@ describe('P9.5 Zeichnungen AR', () => {
   })
 
   it('IM-02: Streuung Median-L* > 6 scheitert', () => {
-    const images = { summary: { count: 2, medianLStdDev: 7, medianCardBytes: 1, medianThumbBytes: 1 }, items: [] }
+    const images = {
+      summary: { count: 2, medianLStdDev: 7, medianCardBytes: 1, medianThumbBytes: 1 },
+      items: [],
+    }
     expect(A.im02(images).status).toBe('FAIL')
-    expect(A.im02({ ...images, summary: { ...images.summary, medianLStdDev: 3 } }).status).toBe('PASS')
+    expect(A.im02({ ...images, summary: { ...images.summary, medianLStdDev: 3 } }).status).toBe(
+      'PASS',
+    )
     expect(A.im05(null, null).status).toBe('FAIL')
   })
 })
@@ -240,7 +320,22 @@ describe('P9.5 Zeichnungen AR', () => {
 // ---------- Sonden-Fixtures für P9.6 ----------
 
 function anim(over: Partial<ProbeAnim> = {}): ProbeAnim {
-  return { n: 'mi-hop', k: 'CSSAnimation', s: 'running', d: 360, dl: 0, it: 1, e: 'linear', ke: ['cubic-bezier(0.15, 0.75, 0.35, 1)'], ct: 0, act: true, tg: 'div.coco__hop', z: 'main', pe: null, ...over }
+  return {
+    n: 'mi-hop',
+    k: 'CSSAnimation',
+    s: 'running',
+    d: 360,
+    dl: 0,
+    it: 1,
+    e: 'linear',
+    ke: ['cubic-bezier(0.15, 0.75, 0.35, 1)'],
+    ct: 0,
+    act: true,
+    tg: 'div.coco__hop',
+    z: 'main',
+    pe: null,
+    ...over,
+  }
 }
 
 function probe(over: Partial<Probe> = {}): Probe {
@@ -279,7 +374,12 @@ function probe(over: Partial<Probe> = {}): Probe {
   }
 }
 
-const file = (sc: string, probes: Probe[], variant = 'motion', extra?: Record<string, unknown>): ProbeFile => ({
+const file = (
+  sc: string,
+  probes: Probe[],
+  variant = 'motion',
+  extra?: Record<string, unknown>,
+): ProbeFile => ({
   sc,
   profile: 'art-pixel7',
   variant,
@@ -287,7 +387,10 @@ const file = (sc: string, probes: Probe[], variant = 'motion', extra?: Record<st
   ...(extra ? { extra } : {}),
 })
 
-const leash = (pts: number[], over: Partial<NonNullable<Probe['leash']>> = {}): NonNullable<Probe['leash']> => ({
+const leash = (
+  pts: number[],
+  over: Partial<NonNullable<Probe['leash']>> = {},
+): NonNullable<Probe['leash']> => ({
   preset: 'journey',
   tier: 'A',
   drawnLen: 500,
@@ -312,7 +415,10 @@ describe('P9.6 Bewegung MO', () => {
     const allowed = rt.allowedEasings(tokens)
     expect(allowed.length).toBeGreaterThanOrEqual(8)
     expect(rt.mo02([file('SC-05', [probe({ anims: [anim()] })])], allowed).status).toBe('PASS')
-    const bad = rt.mo02([file('SC-05', [probe({ anims: [anim({ k: 'CSSTransition', e: 'ease', ke: [] })] })])], allowed)
+    const bad = rt.mo02(
+      [file('SC-05', [probe({ anims: [anim({ k: 'CSSTransition', e: 'ease', ke: [] })] })])],
+      allowed,
+    )
     expect(bad.status).toBe('FAIL')
     expect(bad.details!.join()).toMatch(/ease/)
     expect(rt.easingAllowed('ease-in-out', allowed)).toBe(false)
@@ -320,7 +426,14 @@ describe('P9.6 Bewegung MO', () => {
   })
 
   it('MO-04: 7 s Boil ohne Nutzeraktion scheitert, Stillstand nach 5 s besteht', () => {
-    const seq = (boil: string) => [0, 2000, 5000, 6000, 7000].map((t) => probe({ t, label: `paid-t${t}`, coco: { x: 0, y: 0, w: 72, h: 54, boil: t > 5000 ? boil : 'on' } }))
+    const seq = (boil: string) =>
+      [0, 2000, 5000, 6000, 7000].map((t) =>
+        probe({
+          t,
+          label: `paid-t${t}`,
+          coco: { x: 0, y: 0, w: 72, h: 54, boil: t > 5000 ? boil : 'on' },
+        }),
+      )
     expect(rt.mo04([file('SC-09', seq('off'))]).status).toBe('PASS')
     const bad = rt.mo04([file('SC-09', seq('on'))])
     expect(bad.status).toBe('FAIL')
@@ -330,14 +443,26 @@ describe('P9.6 Bewegung MO', () => {
   it('MO-01: Dauer außerhalb der Token ± 10 % scheitert', () => {
     const allowed = rt.allowedDurations(tokens, readFileSync('docs/design/DESIGN.md', 'utf8'))
     expect(allowed).toEqual(expect.arrayContaining([120, 200, 350, 900]))
-    expect(rt.mo01([file('SC-05', [probe({ anims: [anim({ d: 360 })] })])], allowed).status).toBe('PASS')
-    expect(rt.mo01([file('SC-05', [probe({ anims: [anim({ d: 5000 })] })])], allowed).status).toBe('FAIL')
+    expect(rt.mo01([file('SC-05', [probe({ anims: [anim({ d: 360 })] })])], allowed).status).toBe(
+      'PASS',
+    )
+    expect(rt.mo01([file('SC-05', [probe({ anims: [anim({ d: 5000 })] })])], allowed).status).toBe(
+      'FAIL',
+    )
   })
 
   it('MO-03: Boil-Takt und Reihenfolge A → B → C aus coco.css', () => {
     const css = readFileSync('src/styles/coco.css', 'utf8')
     expect(rt.mo03(css, tokens, []).value).toMatch(/Folge a→b→c/)
-    expect(rt.mo03(css.replace('* -2)', '* -1)').replace(/(\.f-c \{\s*animation-delay: calc\(var\(--boil-frame\) \*) -1\)/, '$1 -2)'), tokens, []).status).toBe('FAIL')
+    expect(
+      rt.mo03(
+        css
+          .replace('* -2)', '* -1)')
+          .replace(/(\.f-c \{\s*animation-delay: calc\(var\(--boil-frame\) \*) -1\)/, '$1 -2)'),
+        tokens,
+        [],
+      ).status,
+    ).toBe('FAIL')
   })
 
   it('MO-09: Brücken laut DESIGN §10.4', () => {
@@ -345,7 +470,9 @@ describe('P9.6 Bewegung MO', () => {
     expect(rt.expectedBridge('sitzen', 'schlafen')).toBe('einrollen-1+einrollen-2')
     const log = [{ t: 1, from: 'rennen', to: 'sitzen', bridge: null }]
     expect(rt.mo09([file('SC-01', [probe({ poseLog: log })])]).status).toBe('FAIL')
-    expect(rt.mo09([file('SC-01', [probe({ poseLog: [{ ...log[0]!, bridge: 'bremsen' }] })])]).status).toBe('PASS')
+    expect(
+      rt.mo09([file('SC-01', [probe({ poseLog: [{ ...log[0]!, bridge: 'bremsen' }] })])]).status,
+    ).toBe('PASS')
   })
 
   it('MO-15: Wechsel hell/dunkel 5× pro Sekunde über die Fläche scheitert', () => {
@@ -372,14 +499,24 @@ describe('P9.6 Lesbarkeit LG', () => {
   })
 
   it('LG-03: Mansalva unter 24 px oder als Fließtext scheitert', () => {
-    expect(rt.lg03([file('SC-04', [probe({ mansalva: [{ tag: 'h1', size: 40, role: 'h1' }] })])]).status).toBe('PASS')
-    expect(rt.lg03([file('SC-04', [probe({ mansalva: [{ tag: 'p', size: 18, role: 'body' }] })])]).status).toBe('FAIL')
+    expect(
+      rt.lg03([file('SC-04', [probe({ mansalva: [{ tag: 'h1', size: 40, role: 'h1' }] })])]).status,
+    ).toBe('PASS')
+    expect(
+      rt.lg03([file('SC-04', [probe({ mansalva: [{ tag: 'p', size: 18, role: 'body' }] })])])
+        .status,
+    ).toBe('FAIL')
   })
 
   it('LG-04: horizontales Scrollen bei 200 % scheitert', () => {
     const ext = { lg04: { rebuildBefore: 1, rebuildAfter: 2 } }
-    expect(rt.lg04([file('SC-15', [probe({ label: 'font200-top' })], 'motion', ext)]).status).toBe('PASS')
-    expect(rt.lg04([file('SC-15', [probe({ label: 'font200-top', scrollW: 450 })], 'motion', ext)]).status).toBe('FAIL')
+    expect(rt.lg04([file('SC-15', [probe({ label: 'font200-top' })], 'motion', ext)]).status).toBe(
+      'PASS',
+    )
+    expect(
+      rt.lg04([file('SC-15', [probe({ label: 'font200-top', scrollW: 450 })], 'motion', ext)])
+        .status,
+    ).toBe('FAIL')
   })
 })
 
@@ -393,7 +530,13 @@ describe('P9.6 Tempo PF', () => {
   })
 
   it('PF-01: LoAF 80 ms aus leash scheitert', () => {
-    const leashLoaf = [{ startTime: 10, duration: 80, scripts: [{ sourceURL: '/_next/static/chunks/leash-runtime.js' }] }]
+    const leashLoaf = [
+      {
+        startTime: 10,
+        duration: 80,
+        scripts: [{ sourceURL: '/_next/static/chunks/leash-runtime.js' }],
+      },
+    ]
     const bad = buildPerfReport('r', [raw('engine', leashLoaf), raw('off', [])], { R01: 2 })
     const res = rt.perfFromGates('PF-01', bad, 'th')
     expect(res.status).toBe('FAIL')
@@ -404,9 +547,15 @@ describe('P9.6 Tempo PF', () => {
   })
 
   it('PF-11/PF-12 aus den Zusatzmessungen von SC-15', () => {
-    expect(rt.pf11([file('SC-15', [], 'motion', { pf11: { hiddenFrames: 0 } })]).status).toBe('PASS')
-    expect(rt.pf11([file('SC-15', [], 'motion', { pf11: { hiddenFrames: 12 } })]).status).toBe('FAIL')
-    expect(rt.pf12([file('SC-15', [], 'motion', { pf12: { before: 'A', after: 'A' } })]).status).toBe('FAIL')
+    expect(rt.pf11([file('SC-15', [], 'motion', { pf11: { hiddenFrames: 0 } })]).status).toBe(
+      'PASS',
+    )
+    expect(rt.pf11([file('SC-15', [], 'motion', { pf11: { hiddenFrames: 12 } })]).status).toBe(
+      'FAIL',
+    )
+    expect(
+      rt.pf12([file('SC-15', [], 'motion', { pf12: { before: 'A', after: 'A' } })]).status,
+    ).toBe('FAIL')
   })
 })
 
@@ -414,21 +563,37 @@ describe('P9.6 Barrierefreiheit, Kontrast, Ruhezonen', () => {
   it('A11Y-01: laufende Animation in reduced scheitert', () => {
     const tc = [{ profile: 'art-pixel7', identical: true }]
     expect(rt.a11y01([file('SC-02', [probe()], 'reduced')], tc).status).toBe('PASS')
-    expect(rt.a11y01([file('SC-02', [probe({ anims: [anim()] })], 'reduced')], tc).status).toBe('FAIL')
+    expect(rt.a11y01([file('SC-02', [probe({ anims: [anim()] })], 'reduced')], tc).status).toBe(
+      'FAIL',
+    )
   })
 
   it('A11Y-03: fokussierbare Deko oder abweichende Tab-Reihenfolge scheitert', () => {
     const ext = { tabOrder: { engine: ['a|/de/shop|Shop'], off: ['a|/de/shop|Shop'] } }
     expect(rt.a11y03([file('SC-00', [probe()], 'motion', ext)]).status).toBe('PASS')
-    expect(rt.a11y03([file('SC-00', [probe({ deco: { hidden: true, focusable: 1, count: 1 } })], 'motion', ext)]).status).toBe('FAIL')
+    expect(
+      rt.a11y03([
+        file('SC-00', [probe({ deco: { hidden: true, focusable: 1, count: 1 } })], 'motion', ext),
+      ]).status,
+    ).toBe('FAIL')
   })
 
   it('A11Y-04: axe serious → FAIL; A11Y-06: Transition auf der Kasse → FAIL', () => {
-    const axe = (impact: string) => ['motion', 'reduced'].map((variant) => ({ sc: 'SC-00', profile: 'art-pixel7', variant, label: 'r01', url: '/de', violations: [{ id: 'x', impact, nodes: 1 }] }))
+    const axe = (impact: string) =>
+      ['motion', 'reduced'].map((variant) => ({
+        sc: 'SC-00',
+        profile: 'art-pixel7',
+        variant,
+        label: 'r01',
+        url: '/de',
+        violations: [{ id: 'x', impact, nodes: 1 }],
+      }))
     expect(rt.a11y04(axe('minor')).status).toBe('PASS')
     expect(rt.a11y04(axe('serious')).status).toBe('FAIL')
     expect(rt.a11y06([file('SC-06', [probe({ url: '/de/kasse' })])]).status).toBe('PASS')
-    expect(rt.a11y06([file('SC-06', [probe({ url: '/de/kasse', transitions: 2 })])]).status).toBe('FAIL')
+    expect(rt.a11y06([file('SC-06', [probe({ url: '/de/kasse', transitions: 2 })])]).status).toBe(
+      'FAIL',
+    )
   })
 
   it('A11Y-07: Fokusring von der Kauf-Leiste verdeckt scheitert', () => {
@@ -438,8 +603,15 @@ describe('P9.6 Barrierefreiheit, Kontrast, Ruhezonen', () => {
   })
 
   it('CT-03 Stempel < 3:1 scheitert; RZ-02 „In den Korb“ im Tattoo-Bereich scheitert', () => {
-    expect(rt.ct03([file('SC-04', [probe({ badges: [{ sel: 'stamp', ratio: 2.5, size: 28 }] })])]).status).toBe('FAIL')
+    expect(
+      rt.ct03([file('SC-04', [probe({ badges: [{ sel: 'stamp', ratio: 2.5, size: 28 }] })])])
+        .status,
+    ).toBe('FAIL')
     expect(rt.rz02([file('SC-08', [probe({ url: '/de/tattoo/flash' })])]).status).toBe('PASS')
-    expect(rt.rz02([file('SC-08', [probe({ url: '/de/tattoo/flash', commerce: { price: 0, addToCart: 1 } })])]).status).toBe('FAIL')
+    expect(
+      rt.rz02([
+        file('SC-08', [probe({ url: '/de/tattoo/flash', commerce: { price: 0, addToCart: 1 } })]),
+      ]).status,
+    ).toBe('FAIL')
   })
 })

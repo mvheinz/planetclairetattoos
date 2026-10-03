@@ -183,12 +183,20 @@ export class ArtSession {
     await writeWebp(rel, png)
     this.frames.push(rel)
     if (this.probing)
-      await this.probe(label, opts.element || opts.fullPage ? null : rel, opts.scale === 'css' ? 1 : null)
+      await this.probe(
+        label,
+        opts.element || opts.fullPage ? null : rel,
+        opts.scale === 'css' ? 1 : null,
+      )
     return rel
   }
 
   /** Sonde (KUNST-QA §5) zum aktuellen Zeitpunkt; mit Standbild-Pfad, wenn es den Sichtbereich zeigt. */
-  async probe(label: string, frame: string | null = null, scale: number | null = null): Promise<Probe | null> {
+  async probe(
+    label: string,
+    frame: string | null = null,
+    scale: number | null = null,
+  ): Promise<Probe | null> {
     try {
       const p = await probePage(this.page, {
         label,
@@ -350,8 +358,12 @@ function contextOptions(testInfo: TestInfo): BrowserContextOptions {
  */
 const NAME_SHIM = 'globalThis.__name = globalThis.__name || ((f) => f);'
 
+/** Letztes LCP-Element je Seite für die Sonde (IM-05); WebKit ohne LCP bleibt `null`. */
+const LCP_INIT = `try { new PerformanceObserver((l) => { const e = l.getEntries().at(-1); if (e) window.__artLcpEntry = { url: e.url || '', startTime: e.startTime } }).observe({ type: 'largest-contentful-paint', buffered: true }) } catch (e) {}`
+
 async function guardHosts(ctx: BrowserContext, onBlocked: (url: string) => void): Promise<void> {
   await ctx.addInitScript(NAME_SHIM)
+  await ctx.addInitScript(LCP_INIT)
   await ctx.route(
     (url) =>
       (url.protocol === 'http:' || url.protocol === 'https:') && !OWN_HOSTS.has(url.hostname),

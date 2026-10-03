@@ -43,7 +43,8 @@ export function lq02(cases: readonly LineCase[]): CheckResult {
     const ratio = mean(w) / c.baseWidth
     const cv = std(w) / mean(w)
     vals.push(`${c.label} ${round(ratio, 3)}× / CV ${round(cv, 3)}`)
-    if (!(ratio >= 0.95 && ratio <= 1.1)) bad.push(`${c.label}: Mittel ${round(ratio, 3)} × Grundbreite`)
+    if (!(ratio >= 0.95 && ratio <= 1.1))
+      bad.push(`${c.label}: Mittel ${round(ratio, 3)} × Grundbreite`)
     if (!(cv >= 0.08 && cv <= 0.2)) bad.push(`${c.label}: Variationskoeffizient ${round(cv, 3)}`)
   }
   return result('LQ-02', bad.length === 0, vals.join('; '), th, bad)
@@ -93,7 +94,8 @@ export function lq03(cases: readonly LineCase[]): CheckResult {
     const runs = straightRuns(s, x, y)
     vals.push(`${c.label} RMS ${round(rms, 3)} px, ${runs.length} gerade`)
     if (!(rms >= 0.35 && rms <= 1.3)) bad.push(`${c.label}: RMS ${round(rms, 3)} px`)
-    for (const r of runs) bad.push(`${c.label}: gerade Strecke s=${round(r.from, 0)}…${round(r.to, 0)}`)
+    for (const r of runs)
+      bad.push(`${c.label}: gerade Strecke s=${round(r.from, 0)}…${round(r.to, 0)}`)
   }
   return result('LQ-03', bad.length === 0, vals.join('; '), th, bad)
 }
@@ -144,7 +146,10 @@ function smallestEigenvector(a: number[][]): number[] {
 }
 
 /** Kreis-/Ellipsen-Anpassung (allgemeiner Kegelschnitt): RMS-Residuum (Sampson-Abstand, px) und Radiusschwankung. */
-export function loopFit(pts: readonly { x: number; y: number }[]): { residual: number; radiusVar: number } {
+export function loopFit(pts: readonly { x: number; y: number }[]): {
+  residual: number
+  radiusVar: number
+} {
   const n = pts.length
   const cx = pts.reduce((a, p) => a + p.x, 0) / n
   const cy = pts.reduce((a, p) => a + p.y, 0) / n
@@ -155,7 +160,14 @@ export function loopFit(pts: readonly { x: number; y: number }[]): { residual: n
     const row = [p.x * p.x, p.x * p.y, p.y * p.y, p.x, p.y, 1]
     for (let i = 0; i < 6; i++) for (let j = 0; j < 6; j++) s[i]![j]! += row[i]! * row[j]!
   }
-  const [A, B, C, D, E, F] = smallestEigenvector(s) as [number, number, number, number, number, number]
+  const [A, B, C, D, E, F] = smallestEigenvector(s) as [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+  ]
   let sum = 0
   for (const p of q) {
     const f = A * p.x * p.x + B * p.x * p.y + C * p.y * p.y + D * p.x + E * p.y + F
@@ -187,7 +199,9 @@ export function lq04(cases: readonly LineCase[]): CheckResult {
       if (pts.length < 8) continue
       count++
       const fit = loopFit(pts)
-      vals.push(`${c.label}/${loop.id} ${round(fit.residual, 2)} px, ${round(fit.radiusVar * 100, 1)} %`)
+      vals.push(
+        `${c.label}/${loop.id} ${round(fit.residual, 2)} px, ${round(fit.radiusVar * 100, 1)} %`,
+      )
       if (fit.residual < 0.6 || fit.radiusVar < 0.06)
         bad.push(
           `${c.label}/${loop.id}: Residuum ${round(fit.residual, 2)} px, Radiusschwankung ${round(fit.radiusVar * 100, 1)} %`,
@@ -283,7 +297,8 @@ export function deltaE2000(l1: readonly number[], l2: readonly number[]): number
   const Cbp = (C1p + C2p) / 2
   let hbp = h1p + h2p
   if (C1p * C2p !== 0) {
-    if (Math.abs(h1p - h2p) > 180) hbp = h1p + h2p < 360 ? (h1p + h2p + 360) / 2 : (h1p + h2p - 360) / 2
+    if (Math.abs(h1p - h2p) > 180)
+      hbp = h1p + h2p < 360 ? (h1p + h2p + 360) / 2 : (h1p + h2p - 360) / 2
     else hbp = (h1p + h2p) / 2
   }
   const T =
@@ -311,7 +326,8 @@ export const hexToRgb = (hex: string): [number, number, number] => {
 export function lq01(frames: readonly LineFrame[], samplesWanted = 200): CheckResult {
   const th = `ΔE2000 ≤ 3 zu ${INK_HEX}, Chroma C* ≤ 4 (Median der dunkelsten 50 % an 200 Stichproben)`
   const usable = frames.filter((f) => f.pts.length > 0)
-  if (!usable.length) return noData('LQ-01', th, 'keine Standbilder mit gezeichneter Linie (Sonden SC-01)')
+  if (!usable.length)
+    return noData('LQ-01', th, 'keine Standbilder mit gezeichneter Linie (Sonden SC-01)')
   const perFrame = Math.max(1, Math.ceil(samplesWanted / usable.length))
   const rs: number[] = []
   const gs: number[] = []
@@ -352,7 +368,10 @@ export function lq01(frames: readonly LineFrame[], samplesWanted = 200): CheckRe
   const l = srgbToLab(...col)
   const de = deltaE2000(l, srgbToLab(...hexToRgb(INK_HEX)))
   const chroma = Math.hypot(l[1], l[2])
-  const hex = `#${col.map((c) => Math.round(c).toString(16).padStart(2, '0')).join('').toUpperCase()}`
+  const hex = `#${col
+    .map((c) => Math.round(c).toString(16).padStart(2, '0'))
+    .join('')
+    .toUpperCase()}`
   return result(
     'LQ-01',
     de <= 3 && chroma <= 4,
@@ -382,7 +401,8 @@ function pointAtLen(pts: LineFrame['pts'], len: number): { x: number; y: number 
 export function lq06(frames: readonly LineFrame[]): CheckResult {
   const th = 'an jeder Segmentgrenze: L* im 8-px-Fenster nie > Median + 15'
   const usable = frames.filter((f) => f.pts.length > 1)
-  if (!usable.length) return noData('LQ-06', th, 'keine Standbilder mit gezeichneter Linie (Sonden SC-01)')
+  if (!usable.length)
+    return noData('LQ-06', th, 'keine Standbilder mit gezeichneter Linie (Sonden SC-01)')
   const bad: string[] = []
   let seams = 0
   let worst = -Infinity
@@ -415,9 +435,19 @@ export function lq06(frames: readonly LineFrame[]): CheckResult {
       if (max === -Infinity) continue
       seams++
       worst = Math.max(worst, max - med)
-      if (max > med + 15) bad.push(`${f.label}: Naht bei s=${round(b, 0)} hell (${round(max - med, 1)} L* über Median)`)
+      if (max > med + 15)
+        bad.push(
+          `${f.label}: Naht bei s=${round(b, 0)} hell (${round(max - med, 1)} L* über Median)`,
+        )
     }
   }
-  if (seams === 0) return noData('LQ-06', th, 'keine Segmentgrenze im gezeichneten, sichtbaren Teil')
-  return result('LQ-06', bad.length === 0, `${seams} Nähte, max. ${round(worst, 1)} L* über Median`, th, bad)
+  if (seams === 0)
+    return noData('LQ-06', th, 'keine Segmentgrenze im gezeichneten, sichtbaren Teil')
+  return result(
+    'LQ-06',
+    bad.length === 0,
+    `${seams} Nähte, max. ${round(worst, 1)} L* über Median`,
+    th,
+    bad,
+  )
 }

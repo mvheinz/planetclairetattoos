@@ -1,4 +1,14 @@
-import { copyFileSync, existsSync, linkSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import {
+  copyFileSync,
+  existsSync,
+  linkSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -36,7 +46,12 @@ function listFiles(dir: string, base = dir, out: RunFile[] = []): RunFile[] {
   return out
 }
 
-function toolVersions(): { playwright: string | null; chromium: string | null; webkit: string | null; node: string } {
+function toolVersions(): {
+  playwright: string | null
+  chromium: string | null
+  webkit: string | null
+  node: string
+} {
   const req = createRequire(import.meta.url)
   const read = (id: string) => {
     try {
@@ -48,13 +63,26 @@ function toolVersions(): { playwright: string | null; chromium: string | null; w
   const pw = read('@playwright/test/package.json') as { version?: string } | null
   let browsers: { name: string; browserVersion?: string }[] = []
   try {
-    const core = path.dirname(createRequire(req.resolve('@playwright/test/package.json')).resolve('playwright-core/package.json'))
-    browsers = (JSON.parse(readFileSync(path.join(core, 'browsers.json'), 'utf8')) as { browsers: typeof browsers }).browsers
+    const core = path.dirname(
+      createRequire(req.resolve('@playwright/test/package.json')).resolve(
+        'playwright-core/package.json',
+      ),
+    )
+    browsers = (
+      JSON.parse(readFileSync(path.join(core, 'browsers.json'), 'utf8')) as {
+        browsers: typeof browsers
+      }
+    ).browsers
   } catch {
     browsers = []
   }
   const v = (n: string) => browsers.find((b) => b.name === n)?.browserVersion ?? null
-  return { playwright: pw?.version ?? null, chromium: v('chromium'), webkit: v('webkit'), node: process.version }
+  return {
+    playwright: pw?.version ?? null,
+    chromium: v('chromium'),
+    webkit: v('webkit'),
+    node: process.version,
+  }
 }
 
 function place(src: string, dst: string): void {
@@ -96,15 +124,20 @@ function main(): void {
 
   const errors: string[] = []
   if (full && missing.length) errors.push(...missing)
-  if (!full && missing.some((m) => m.startsWith('Kalibrierbogen'))) errors.push(missing.find((m) => m.startsWith('Kalibrierbogen'))!)
+  if (!full && missing.some((m) => m.startsWith('Kalibrierbogen')))
+    errors.push(missing.find((m) => m.startsWith('Kalibrierbogen'))!)
   if (selection.requiredBytes > BUNDLE_MAX_BYTES)
     errors.push(`Pflichtteil ${manifest.sizes.requiredMB} MB > ${BUNDLE_MAX_BYTES / 1e6} MB`)
-  if (selection.totalBytes > BUNDLE_MAX_BYTES) errors.push(`Bündel ${manifest.sizes.totalMB} MB > 100 MB`)
+  if (selection.totalBytes > BUNDLE_MAX_BYTES)
+    errors.push(`Bündel ${manifest.sizes.totalMB} MB > 100 MB`)
 
   if (args.includes('--zip') && !errors.length) {
     const z: Zippable = {}
     for (const f of [...selection.included, { path: 'manifest.json', bytes: 0 }])
-      z[f.path] = [new Uint8Array(readFileSync(path.join(out, f.path))), { level: /\.(webm|webp|png)$/.test(f.path) ? 0 : 6 }]
+      z[f.path] = [
+        new Uint8Array(readFileSync(path.join(out, f.path))),
+        { level: /\.(webm|webp|png)$/.test(f.path) ? 0 : 6 },
+      ]
     writeFileSync(path.join(ART_ROOT, `${runId}.zip`), zipSync(z))
   }
   console.log(

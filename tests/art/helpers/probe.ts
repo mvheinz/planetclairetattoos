@@ -21,7 +21,8 @@ function measure(args: ProbeArgs): Probe {
   const vh = innerHeight
   const inView = (r: DOMRect) =>
     r.width > 0 && r.height > 0 && r.right > 0 && r.bottom > 0 && r.left < vw && r.top < vh
-  const push4 = (arr: number[], r: DOMRect) => arr.push(r1(r.left), r1(r.top), r1(r.width), r1(r.height))
+  const push4 = (arr: number[], r: DOMRect) =>
+    arr.push(r1(r.left), r1(r.top), r1(r.width), r1(r.height))
   const desc = (el: Element | null) => {
     if (!el) return ''
     const id = el.id ? `#${el.id}` : ''
@@ -216,7 +217,8 @@ function measure(args: ProbeArgs): Probe {
   for (const el of Array.from(document.querySelectorAll('body *'))) {
     if (!el.childNodes.length || el.closest(DECO)) continue
     let own = false
-    for (const c of Array.from(el.childNodes)) if (c.nodeType === 3 && c.textContent?.trim()) own = true
+    for (const c of Array.from(el.childNodes))
+      if (c.nodeType === 3 && c.textContent?.trim()) own = true
     if (!own) continue
     const st = getComputedStyle(el)
     if (!/mansalva/i.test(st.fontFamily)) continue
@@ -261,28 +263,48 @@ function measure(args: ProbeArgs): Probe {
 
   // ---- Übergänge in main (A11Y-06) ----
   let transitions = 0
+  const transitionsAt: string[] = []
   const main = document.querySelector('main')
   if (main && args.calm)
     for (const el of [main, ...Array.from(main.querySelectorAll('*'))]) {
-      const d = getComputedStyle(el).transitionDuration
-      if (d.split(',').some((x) => parseFloat(x) > 0)) transitions++
+      const st = getComputedStyle(el)
+      if (st.transitionDuration.split(',').some((x) => parseFloat(x) > 0)) {
+        transitions++
+        if (transitionsAt.length < 3)
+          transitionsAt.push(`${desc(el)} ${st.transitionProperty} ${st.transitionDuration}`)
+      }
     }
 
   // ---- Handel im Tattoo-Bereich (RZ-02) ----
   const addToCart = Array.from(document.querySelectorAll('main button, main a')).filter(
-    (el) => el.matches('[data-add-to-cart]') || /in den korb|add to cart/i.test(el.textContent ?? ''),
+    (el) =>
+      el.matches('[data-add-to-cart]') || /in den korb|add to cart/i.test(el.textContent ?? ''),
   ).length
-  const price = document.querySelectorAll('main [data-price-tag], main [data-product-price], main [data-price]').length
+  const price = document.querySelectorAll(
+    'main [data-price-tag], main [data-product-price], main [data-price]',
+  ).length
 
   // ---- Fokus (A11Y-07) ----
   let focus: Probe['focus'] = null
   const act = document.activeElement
-  if (act && act !== document.body && act !== document.documentElement && act.matches(':focus-visible')) {
+  if (
+    act &&
+    act !== document.body &&
+    act !== document.documentElement &&
+    act.matches(':focus-visible')
+  ) {
     const r = act.getBoundingClientRect()
     const st = getComputedStyle(act)
     const ow = parseFloat(st.outlineWidth) || 0
     const off = parseFloat(st.outlineOffset) || 0
-    const ring = (st.outlineStyle !== 'none' && ow > 0) || /\d/.test(st.boxShadow)
+    const hasRing = (c: CSSStyleDeclaration) =>
+      (c.outlineStyle !== 'none' &&
+        (parseFloat(c.outlineWidth) > 0 || c.outlineStyle === 'auto')) ||
+      (c.boxShadow !== 'none' && /\d/.test(c.boxShadow))
+    const ring =
+      hasRing(st) ||
+      hasRing(getComputedStyle(act, '::after')) ||
+      hasRing(getComputedStyle(act, '::before'))
     const e = off + ow / 2
     const probes = [
       [r.left + r.width / 2, r.top - e],
@@ -309,7 +331,8 @@ function measure(args: ProbeArgs): Probe {
     if (s.parentElement?.closest('svg')) continue
     svgBytes += s.outerHTML.length
   }
-  for (const p of Array.from(document.querySelectorAll('path'))) pathBytes += (p.getAttribute('d') ?? '').length
+  for (const p of Array.from(document.querySelectorAll('path')))
+    pathBytes += (p.getAttribute('d') ?? '').length
 
   // ---- Pflichtlink „Vertrag widerrufen“ (LG-02) ----
   let withdraw: Probe['withdraw'] = null
@@ -331,21 +354,19 @@ function measure(args: ProbeArgs): Probe {
   const canvasText = getComputedStyle(probeEl).color
   probeEl.remove()
 
-  // ---- LCP-Bild (IM-05) ----
+  // ---- LCP-Bild (IM-05): Beobachter per Init-Skript (`LCP_INIT` in fixtures.ts) ----
   let lcp: Probe['lcp'] = null
-  try {
-    const po = new PerformanceObserver(() => undefined)
-    po.observe({ type: 'largest-contentful-paint', buffered: true })
-    const entries = po.takeRecords() as (PerformanceEntry & { url?: string })[]
-    po.disconnect()
-    const last = entries[entries.length - 1]
-    if (last) {
-      const url = last.url || null
-      const res = url ? (performance.getEntriesByName(url)[0] as PerformanceResourceTiming | undefined) : undefined
-      lcp = { url, bytes: res ? res.encodedBodySize || res.transferSize || null : null, time: r1(last.startTime) }
+  const le = (window as Window & { __artLcpEntry?: { url: string; startTime: number } | null })
+    .__artLcpEntry
+  if (le) {
+    const res = le.url
+      ? (performance.getEntriesByName(le.url)[0] as PerformanceResourceTiming | undefined)
+      : undefined
+    lcp = {
+      url: le.url || null,
+      bytes: res ? res.encodedBodySize || res.transferSize || null : null,
+      time: r1(le.startTime),
     }
-  } catch {
-    lcp = null
   }
 
   // ---- Messungen der Engine (PF-03/PF-04) ----
@@ -409,6 +430,7 @@ function measure(args: ProbeArgs): Probe {
     storage,
     marks: { stars, perStation: Math.max(0, ...perStation.values()) },
     transitions,
+    transitionsAt,
     commerce: { price, addToCart },
     focus,
     svg: { bytes: svgBytes, pathBytes },

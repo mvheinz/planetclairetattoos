@@ -2,7 +2,7 @@ import { copyFileSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-import sharp from 'sharp'
+import sharp, { type OverlayOptions } from 'sharp'
 
 import { CALIBRATION_SHEET, SHEET_MAX_BYTES } from './lib/bundle'
 import { ART_ROOT, existingRuns } from './lib/run'
@@ -18,7 +18,13 @@ export const SHEET_COLS = 6
 const GAP = 8
 const LABEL_H = 24
 const TITLE_H = 36
-const CALIBRATION_SOURCE = path.join('docs', 'design', 'qa-log', 'img', 'calibration-p2-placeholder.webp')
+const CALIBRATION_SOURCE = path.join(
+  'docs',
+  'design',
+  'qa-log',
+  'img',
+  'calibration-p2-placeholder.webp',
+)
 
 export interface SheetFrame {
   file: string
@@ -51,7 +57,12 @@ export async function renderSheet(
   const maxCellH = opts.maxCellH ?? Math.round(cellW * 2.2)
   const cells: { buf: Buffer; w: number; h: number; label: string }[] = []
   for (const f of frames) {
-    const img = sharp(f.file).resize({ width: cellW, height: maxCellH, fit: 'inside', withoutEnlargement: false })
+    const img = sharp(f.file).resize({
+      width: cellW,
+      height: maxCellH,
+      fit: 'inside',
+      withoutEnlargement: false,
+    })
     const { data, info } = await img.png().toBuffer({ resolveWithObject: true })
     cells.push({ buf: data, w: info.width, h: info.height, label: f.label })
   }
@@ -59,7 +70,7 @@ export async function renderSheet(
   for (let i = 0; i < cells.length; i += cols) rows.push(cells.slice(i, i + cols))
   const rowH = rows.map((r) => Math.max(...r.map((c) => c.h)) + LABEL_H + GAP)
   const height = TITLE_H + rowH.reduce((a, b) => a + b, 0) + GAP
-  const composites: sharp.OverlayOptions[] = []
+  const composites: OverlayOptions[] = []
   const texts: string[] = [
     `<text x="${GAP}" y="24" font-family="sans-serif" font-size="20" font-weight="bold" fill="#1C1A17">${esc(title)}</text>`,
   ]
@@ -103,7 +114,11 @@ export async function writeSheets(
     for (const [i, page] of pages.entries()) {
       let buf: Buffer | null = null
       for (const q of [85, 70, 55]) {
-        buf = await renderSheet(page, pages.length > 1 ? `${title} (${i + 1}/${pages.length})` : title, { cols, quality: q })
+        buf = await renderSheet(
+          page,
+          pages.length > 1 ? `${title} (${i + 1}/${pages.length})` : title,
+          { cols, quality: q },
+        )
         if (buf.length <= SHEET_MAX_BYTES) break
       }
       if (buf!.length > SHEET_MAX_BYTES) {
@@ -115,7 +130,8 @@ export async function writeSheets(
     if (fits || rows === 1) {
       mkdirSync(path.dirname(outBase), { recursive: true })
       return bufs.map((b, i) => {
-        const file = bufs.length > 1 ? `${outBase}-p${String(i + 1).padStart(2, '0')}.webp` : `${outBase}.webp`
+        const file =
+          bufs.length > 1 ? `${outBase}-p${String(i + 1).padStart(2, '0')}.webp` : `${outBase}.webp`
         writeFileSync(file, b)
         return file
       })
@@ -124,14 +140,29 @@ export async function writeSheets(
   }
 }
 
-const webps = (dir: string) => (existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith('.webp')).sort() : [])
-const dirs = (dir: string) => (existsSync(dir) ? readdirSync(dir).filter((f) => !f.includes('.')).sort() : [])
+const webps = (dir: string) =>
+  existsSync(dir)
+    ? readdirSync(dir)
+        .filter((f) => f.endsWith('.webp'))
+        .sort()
+    : []
+const dirs = (dir: string) =>
+  existsSync(dir)
+    ? readdirSync(dir)
+        .filter((f) => !f.includes('.'))
+        .sort()
+    : []
 
 /** Coco-Bögen (SC-12): je Pose die Frames A/B/C nebeneinander und darunter die `?parts=1`-Fassung. */
-export function cocoGroups(files: readonly string[]): Map<string, { a?: string; b?: string; c?: string; parts?: string }> {
+export function cocoGroups(
+  files: readonly string[],
+): Map<string, { a?: string; b?: string; c?: string; parts?: string }> {
   const out = new Map<string, { a?: string; b?: string; c?: string; parts?: string }>()
   for (const f of files) {
-    const label = f.replace(/^\d{3}-/, '').replace(/-y\d+\.webp$/, '').replace(/\.webp$/, '')
+    const label = f
+      .replace(/^\d{3}-/, '')
+      .replace(/-y\d+\.webp$/, '')
+      .replace(/\.webp$/, '')
     const m = /^(.+)-(a|b|c|parts)$/.exec(label)
     if (!m) continue
     const g = out.get(m[1]!) ?? {}
@@ -142,7 +173,8 @@ export function cocoGroups(files: readonly string[]): Map<string, { a?: string; 
 }
 
 async function main(): Promise<void> {
-  const runId = process.argv.slice(2).find((a) => !a.startsWith('--')) ?? existingRuns().sort().at(-1)
+  const runId =
+    process.argv.slice(2).find((a) => !a.startsWith('--')) ?? existingRuns().sort().at(-1)
   const runDir = runId ? path.join(ART_ROOT, runId) : null
   if (!runDir || !existsSync(runDir)) {
     console.error(`art:sheets: Lauf ${runId ?? '(keiner)'} nicht gefunden.`)
@@ -156,11 +188,18 @@ async function main(): Promise<void> {
     for (const profile of dirs(path.join(framesDir, sc)))
       for (const variant of dirs(path.join(framesDir, sc, profile))) {
         const dir = path.join(framesDir, sc, profile, variant)
-        const frames = webps(dir).map((f) => ({ file: path.join(dir, f), label: frameCaption(sc, profile, variant, f) }))
+        const frames = webps(dir).map((f) => ({
+          file: path.join(dir, f),
+          label: frameCaption(sc, profile, variant, f),
+        }))
         if (!frames.length) continue
         const cat = sheetCategory(sc, variant)
         written.push(
-          ...(await writeSheets(path.join(sheetsDir, cat, `${sc}-${profile}-${variant}`), frames, `${runId} · ${sc} · ${profile} · ${variant}`)),
+          ...(await writeSheets(
+            path.join(sheetsDir, cat, `${sc}-${profile}-${variant}`),
+            frames,
+            `${runId} · ${sc} · ${profile} · ${variant}`,
+          )),
         )
       }
 
@@ -169,8 +208,18 @@ async function main(): Promise<void> {
   for (const [pose, g] of cocoGroups(webps(coco))) {
     const frames = (['a', 'b', 'c', 'parts'] as const)
       .filter((k) => g[k])
-      .map((k) => ({ file: path.join(coco, g[k]!), label: `SC-12 · desktop · ${pose} ${k === 'parts' ? '?parts=1' : `Frame ${k.toUpperCase()}`}` }))
-    written.push(...(await writeSheets(path.join(sheetsDir, 'art', `coco-${pose}`), frames, `${runId} · Coco ${pose}`, { cols: 3 })))
+      .map((k) => ({
+        file: path.join(coco, g[k]!),
+        label: `SC-12 · desktop · ${pose} ${k === 'parts' ? '?parts=1' : `Frame ${k.toUpperCase()}`}`,
+      }))
+    written.push(
+      ...(await writeSheets(
+        path.join(sheetsDir, 'art', `coco-${pose}`),
+        frames,
+        `${runId} · Coco ${pose}`,
+        { cols: 3 },
+      )),
+    )
   }
 
   // Stationszeichnungen neben der Quelle (SC-13 `/qa/art` zeigt beide im gleichen Maßstab).
@@ -180,7 +229,10 @@ async function main(): Promise<void> {
     written.push(
       ...(await writeSheets(
         path.join(sheetsDir, 'art', 'stations-vs-source'),
-        stations.map((f) => ({ file: path.join(qaArt, f), label: `SC-13 · desktop · ${f.replace(/\.webp$/, '')}` })),
+        stations.map((f) => ({
+          file: path.join(qaArt, f),
+          label: `SC-13 · desktop · ${f.replace(/\.webp$/, '')}`,
+        })),
         `${runId} · Stationszeichnungen neben der Quelle`,
         { cols: 2, rowsPerPage: 1 },
       )),

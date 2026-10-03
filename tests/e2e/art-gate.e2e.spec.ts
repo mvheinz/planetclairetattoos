@@ -22,7 +22,10 @@ type LeashWindow = Window & {
 const NAME_SHIM = 'globalThis.__name = globalThis.__name || ((f) => f);'
 
 test.beforeEach(async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name !== 'pixel-7', 'Schnelle Kunst-Teilmenge läuft auf Pixel 7 (KUNST-QA §9).')
+  test.skip(
+    testInfo.project.name !== 'pixel-7',
+    'Schnelle Kunst-Teilmenge läuft auf Pixel 7 (KUNST-QA §9).',
+  )
   await page.addInitScript(NAME_SHIM)
 })
 
@@ -71,7 +74,9 @@ test.describe('Kunst-Gate (KUNST-QA §9)', () => {
     const layer = page.locator('[data-leash-layer]')
     await expect(layer).toHaveAttribute('aria-hidden', 'true')
     expect(await layer.locator('a, button, input, [tabindex]:not([tabindex="-1"])').count()).toBe(0)
-    await page.evaluate(() => scrollTo(0, (document.documentElement.scrollHeight - innerHeight) / 2))
+    await page.evaluate(() =>
+      scrollTo(0, (document.documentElement.scrollHeight - innerHeight) / 2),
+    )
     await page.waitForTimeout(800)
     const mid = await page.evaluate(() => {
       const l = (window as LeashWindow).__leash!
@@ -85,7 +90,9 @@ test.describe('Kunst-Gate (KUNST-QA §9)', () => {
     expect(await page.evaluate(() => (window as LeashWindow).__leash!.drawnLen())).toBe(before)
   })
 
-  test('AK-DS-14 R01 mit reducedMotion: Linie sofort vollständig, nichts läuft', async ({ page }) => {
+  test('AK-DS-14 R01 mit reducedMotion: Linie sofort vollständig, nichts läuft', async ({
+    page,
+  }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.goto(localizedPath('R01', 'de'))
     await page.waitForLoadState('load')
@@ -124,7 +131,13 @@ test.describe('Kunst-Gate (KUNST-QA §9)', () => {
         w.__leash!.setReadingY(y)
       }, y)
       await page.waitForTimeout(450)
-      const p = await probePage(page, { label: `y${Math.round(y)}`, frame: null, t: null, scale: 1, calm: false })
+      const p = await probePage(page, {
+        label: `y${Math.round(y)}`,
+        frame: null,
+        t: null,
+        scale: 1,
+        calm: false,
+      })
       expect(p.leash, 'Linie gemessen').not.toBeNull()
       hits.push(...overlaps(p).map((o) => `${p.label}: ${o}`))
     }

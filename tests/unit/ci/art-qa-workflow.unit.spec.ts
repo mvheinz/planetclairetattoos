@@ -10,9 +10,28 @@ import { parse } from 'yaml'
 // kein `push`, Kennung ohne Checkout, Chromium + WebKit, Schrittfolge, Löschen vor dem Upload, Rot-Pfad mit
 // `if: failure()` nach dem Budget-Schritt, `retention-days`. Dazu: die schnelle Teilmenge läuft in `ci-full.yml`.
 
-type Step = { name?: string; id?: string; if?: string; run?: string; uses?: string; with?: Record<string, unknown>; env?: Record<string, unknown>; 'continue-on-error'?: boolean }
-type Job = { 'timeout-minutes'?: number; permissions?: Record<string, string>; services?: Record<string, { image?: string }>; steps: Step[] }
-type Workflow = { on: Record<string, { types?: string[] } | null>; permissions: Record<string, string>; env: Record<string, string>; jobs: Record<string, Job> }
+type Step = {
+  name?: string
+  id?: string
+  if?: string
+  run?: string
+  uses?: string
+  with?: Record<string, unknown>
+  env?: Record<string, unknown>
+  'continue-on-error'?: boolean
+}
+type Job = {
+  'timeout-minutes'?: number
+  permissions?: Record<string, string>
+  services?: Record<string, { image?: string }>
+  steps: Step[]
+}
+type Workflow = {
+  on: Record<string, { types?: string[] } | null>
+  permissions: Record<string, string>
+  env: Record<string, string>
+  jobs: Record<string, Job>
+}
 
 const ROOT = path.resolve(__dirname, '../../..')
 const raw = readFileSync(path.join(ROOT, '.github/workflows/art-qa.yml'), 'utf8')
@@ -35,7 +54,15 @@ function decide(event: string, action: string, msg: string, labels: string, labe
     .replace(/msg=\$\(gh api [^)]*\)/, 'msg="$MSG"')
   const out = path.join(mkdtempSync(path.join(tmpdir(), 'art-qa-')), 'output')
   execFileSync('bash', ['-c', script], {
-    env: { ...process.env, MSG: msg, EVENT_ACTION: action, LABEL_NAME: label, PR_LABELS: labels, GITHUB_OUTPUT: out, GITHUB_STEP_SUMMARY: '/dev/null' },
+    env: {
+      ...process.env,
+      MSG: msg,
+      EVENT_ACTION: action,
+      LABEL_NAME: label,
+      PR_LABELS: labels,
+      GITHUB_OUTPUT: out,
+      GITHUB_STEP_SUMMARY: '/dev/null',
+    },
   })
   return /^run=true$/m.test(readFileSync(out, 'utf8'))
 }
@@ -43,18 +70,30 @@ function decide(event: string, action: string, msg: string, labels: string, labe
 describe('P9.7 art-qa.yml – Auslöser und Kennung', () => {
   it('nur pull_request (opened, synchronize, reopened, labeled) und workflow_dispatch, kein push', () => {
     expect(Object.keys(wf.on).sort()).toEqual(['pull_request', 'workflow_dispatch'])
-    expect(wf.on.pull_request!.types!.sort()).toEqual(['labeled', 'opened', 'reopened', 'synchronize'])
+    expect(wf.on.pull_request!.types!.sort()).toEqual([
+      'labeled',
+      'opened',
+      'reopened',
+      'synchronize',
+    ])
     expect(raw).not.toMatch(/^\s*push:/m)
   })
 
   it('Kennung zuerst ohne Checkout; alle weiteren Schritte hängen an run bzw. an der Lauf-ID', () => {
     expect(job.steps[0]!.name).toBe('Kennung')
-    expect(job.steps[0]!.run).toContain('gh api "repos/${{ github.repository }}/commits/$sha" --jq .commit.message')
-    for (const s of job.steps.slice(1)) expect(s.if ?? '', s.name ?? s.uses).toMatch(/steps\.(mode\.outputs\.run == 'true'|runid\.outputs\.id != '')/)
+    expect(job.steps[0]!.run).toContain(
+      'gh api "repos/${{ github.repository }}/commits/$sha" --jq .commit.message',
+    )
+    for (const s of job.steps.slice(1))
+      expect(s.if ?? '', s.name ?? s.uses).toMatch(
+        /steps\.(mode\.outputs\.run == 'true'|runid\.outputs\.id != '')/,
+      )
   })
 
   it('[ci:art] im Kopf-Commit oder Label art startet; normale PR-Commits und fremde Labels nicht', () => {
-    expect(decide('pull_request', 'synchronize', 'chore(P9.18): record iteration 01 [ci:art]', '')).toBe(true)
+    expect(
+      decide('pull_request', 'synchronize', 'chore(P9.18): record iteration 01 [ci:art]', ''),
+    ).toBe(true)
     expect(decide('pull_request', 'synchronize', 'feat(P9.9): redraw [ci:full]', '')).toBe(false)
     expect(decide('pull_request', 'synchronize', 'feat(P9.9): redraw', 'art')).toBe(true)
     expect(decide('pull_request', 'labeled', 'feat: x', 'art', 'art')).toBe(true)
@@ -75,12 +114,27 @@ describe('P9.7 art-qa.yml – Ablauf (KUNST-QA §9)', () => {
   })
 
   it('Chromium und WebKit, nie PW_SKIP_WEBKIT', () => {
-    expect(step('Playwright Chromium + WebKit').run).toBe('pnpm exec playwright install --with-deps chromium webkit')
+    expect(step('Playwright Chromium + WebKit').run).toBe(
+      'pnpm exec playwright install --with-deps chromium webkit',
+    )
     expect(raw).not.toContain('PW_SKIP_WEBKIT')
   })
 
   it('Schritte in der Reihenfolge Install → migrate → seed → art:build → Start → record → metrics → sheets → check → bundle → löschen → Upload', () => {
-    const order = ['Installation', 'Migrationen', 'Beispielbestand', 'QA-Build', 'QA-Server starten', 'Aufnahme', 'Auswertung', 'Kontaktbögen', 'Prüfung', 'Bündel', 'Ältere Bündel löschen', 'Bündel hochladen']
+    const order = [
+      'Installation',
+      'Migrationen',
+      'Beispielbestand',
+      'QA-Build',
+      'QA-Server starten',
+      'Aufnahme',
+      'Auswertung',
+      'Kontaktbögen',
+      'Prüfung',
+      'Bündel',
+      'Ältere Bündel löschen',
+      'Bündel hochladen',
+    ]
     const idx = order.map(index)
     expect(idx.every((i) => i >= 0)).toBe(true)
     expect([...idx].sort((a, b) => a - b)).toEqual(idx)
@@ -101,7 +155,11 @@ describe('P9.7 art-qa.yml – Ablauf (KUNST-QA §9)', () => {
     expect(index('Ältere Bündel löschen')).toBeLessThan(index('Bündel hochladen'))
     expect(up.if).toMatch(/^success\(\)/)
     expect(up.uses).toBe('actions/upload-artifact@v7')
-    expect(up.with).toMatchObject({ name: 'art-qa-${{ steps.runid.outputs.id }}', 'retention-days': 30, 'if-no-files-found': 'error' })
+    expect(up.with).toMatchObject({
+      name: 'art-qa-${{ steps.runid.outputs.id }}',
+      'retention-days': 30,
+      'if-no-files-found': 'error',
+    })
     expect(String(up.with!.path)).toContain('/bundle/')
   })
 
@@ -115,15 +173,25 @@ describe('P9.7 art-qa.yml – Ablauf (KUNST-QA §9)', () => {
     expect(up.if).toMatch(/^failure\(\) && steps\.budget\.outputs\.upload_optional == 'true'/)
     expect(up.with!.name).toBe('art-qa-check-${{ steps.runid.outputs.id }}')
     expect(up.with!['retention-days']).toBe(2)
-    const paths = String(up.with!.path).trim().split('\n').map((p) => p.trim())
-    expect(paths.map((p) => p.replace(/^artifacts\/art-qa\/\$\{\{ steps\.runid\.outputs\.id \}\}\//, ''))).toEqual(['check.json', 'check.md', 'metrics/*.json'])
+    const paths = String(up.with!.path)
+      .trim()
+      .split('\n')
+      .map((p) => p.trim())
+    expect(
+      paths.map((p) =>
+        p.replace(/^artifacts\/art-qa\/\$\{\{ steps\.runid\.outputs\.id \}\}\//, ''),
+      ),
+    ).toEqual(['check.json', 'check.md', 'metrics/*.json'])
   })
 })
 
 describe('P9.7 Dauer-Gate in ci-full.yml', () => {
   it('e2e-full führt tests/e2e (inkl. art-gate.e2e.spec.ts) in jedem [ci:full …]-Lauf aus, Projekt pixel-7 in der Matrix', () => {
     const full = parse(readFileSync(path.join(ROOT, '.github/workflows/ci-full.yml'), 'utf8')) as {
-      jobs: Record<string, { if?: string; strategy?: { matrix?: { project?: string[] } }; steps: Step[] }>
+      jobs: Record<
+        string,
+        { if?: string; strategy?: { matrix?: { project?: string[] } }; steps: Step[] }
+      >
     }
     const e2e = full.jobs['e2e-full']!
     expect(e2e.if).toBe("needs.mode.outputs.full == 'true'")
@@ -133,6 +201,7 @@ describe('P9.7 Dauer-Gate in ci-full.yml', () => {
     const cfg = readFileSync(path.join(ROOT, 'playwright.config.ts'), 'utf8')
     expect(cfg).not.toContain('art-gate')
     const spec = readFileSync(path.join(ROOT, 'tests/e2e/art-gate.e2e.spec.ts'), 'utf8')
-    for (const id of ['AK-DS-09', 'AK-DS-11', 'AK-DS-13', 'AK-DS-14', 'LG-01']) expect(spec).toContain(id)
+    for (const id of ['AK-DS-09', 'AK-DS-11', 'AK-DS-13', 'AK-DS-14', 'LG-01'])
+      expect(spec).toContain(id)
   })
 })

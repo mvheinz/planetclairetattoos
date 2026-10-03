@@ -35,14 +35,39 @@ export const EXPECTED: readonly Expectation[] = [
   { sc: 'SC-08', profiles: ALL, variants: BOTH, video: true, frames: true },
   { sc: 'SC-09', profiles: ALL, variants: BOTH, video: true, frames: true },
   { sc: 'SC-10', profiles: ALL, variants: BOTH, video: true, frames: true },
-  { sc: 'SC-11', profiles: ['art-pixel7', 'art-desktop'], variants: BOTH, video: true, frames: true },
-  { sc: 'SC-12', profiles: ['art-desktop', 'art-iphone15'], variants: BOTH, video: false, frames: true },
+  {
+    sc: 'SC-11',
+    profiles: ['art-pixel7', 'art-desktop'],
+    variants: BOTH,
+    video: true,
+    frames: true,
+  },
+  {
+    sc: 'SC-12',
+    profiles: ['art-desktop', 'art-iphone15'],
+    variants: BOTH,
+    video: false,
+    frames: true,
+  },
   { sc: 'SC-13', profiles: ['art-desktop'], variants: BOTH, video: false, frames: true },
-  { sc: 'SC-14', profiles: ['art-desktop', 'art-iphone15'], variants: BOTH, video: false, frames: true },
+  {
+    sc: 'SC-14',
+    profiles: ['art-desktop', 'art-iphone15'],
+    variants: BOTH,
+    video: false,
+    frames: true,
+  },
   { sc: 'SC-15', profiles: ['art-pixel7'], variants: BOTH, video: false, frames: true },
   { sc: 'SC-16', profiles: ['script'], variants: ['none'], video: false, frames: true },
   { sc: 'SC-17', profiles: ['art-pixel7'], variants: BOTH, video: false, frames: true },
-  { sc: 'SC-18', profiles: ['art-pixel7'], variants: ['tempo'], video: false, frames: false, raw: 'raw/SC-18/art-pixel7/tempo' },
+  {
+    sc: 'SC-18',
+    profiles: ['art-pixel7'],
+    variants: ['tempo'],
+    video: false,
+    frames: false,
+    raw: 'raw/SC-18/art-pixel7/tempo',
+  },
 ]
 
 export const ALL_SCENARIOS = EXPECTED.map((e) => e.sc)
@@ -58,7 +83,8 @@ export interface RunFile {
 
 /** Fehlende Aufnahmen (Videos, Frame-Sequenzen, Rohdaten, Kalibrierbogen) für die Szenarien im Umfang. */
 export function missingRecordings(files: readonly RunFile[], scope: readonly string[]): string[] {
-  const has = (prefix: string, ext: string) => files.some((f) => f.path.startsWith(prefix) && f.path.endsWith(ext))
+  const has = (prefix: string, ext: string) =>
+    files.some((f) => f.path.startsWith(prefix) && f.path.endsWith(ext))
   const out: string[] = []
   for (const e of EXPECTED.filter((x) => scope.includes(x.sc))) {
     if (e.raw) {
@@ -67,12 +93,16 @@ export function missingRecordings(files: readonly RunFile[], scope: readonly str
     }
     for (const p of e.profiles)
       for (const v of e.variants) {
-        if (e.video && !has(`videos/${e.sc}/${p}/${v}/`, '.webm')) out.push(`${e.sc} ${p}/${v}: Video fehlt`)
-        if (e.frames && !has(`frames/${e.sc}/${p}/${v}/`, '.webp')) out.push(`${e.sc} ${p}/${v}: Frames fehlen`)
+        if (e.video && !has(`videos/${e.sc}/${p}/${v}/`, '.webm'))
+          out.push(`${e.sc} ${p}/${v}: Video fehlt`)
+        if (e.frames && !has(`frames/${e.sc}/${p}/${v}/`, '.webp'))
+          out.push(`${e.sc} ${p}/${v}: Frames fehlen`)
       }
   }
-  if (scope.includes('SC-16') && !files.some((f) => f.path === 'metrics/images.json')) out.push('SC-16: metrics/images.json fehlt')
-  if (!files.some((f) => f.path === CALIBRATION_SHEET)) out.push(`Kalibrierbogen ${CALIBRATION_SHEET} fehlt (pnpm art:sheets)`)
+  if (scope.includes('SC-16') && !files.some((f) => f.path === 'metrics/images.json'))
+    out.push('SC-16: metrics/images.json fehlt')
+  if (!files.some((f) => f.path === CALIBRATION_SHEET))
+    out.push(`Kalibrierbogen ${CALIBRATION_SHEET} fehlt (pnpm art:sheets)`)
   return out
 }
 
@@ -84,7 +114,12 @@ export function bundleRank(p: string): number | null {
   if (p.startsWith('raw/')) return 0
   if (p.startsWith('sheets/')) return 0
   if (p.startsWith('videos/') && p.includes('/motion/')) return 1
-  if (p.startsWith('frames/SC-12/') || p.startsWith('frames/SC-13/') || p.startsWith('frames/SC-16/')) return 2
+  if (
+    p.startsWith('frames/SC-12/') ||
+    p.startsWith('frames/SC-13/') ||
+    p.startsWith('frames/SC-16/')
+  )
+    return 2
   if (p.startsWith('videos/')) return 3
   if (p.startsWith('frames/')) return 4
   if (p.startsWith('traces/')) return 5
@@ -129,7 +164,12 @@ export interface Manifest {
   profiles: string[]
   variants: string[]
   scenarios: { id: string; files: string[] }[]
-  toolVersions: { playwright: string | null; chromium: string | null; webkit: string | null; node: string }
+  toolVersions: {
+    playwright: string | null
+    chromium: string | null
+    webkit: string | null
+    node: string
+  }
   sizes: { totalMB: number; requiredMB: number; omittedMB: number; omittedFiles: number }
   /** fehlende Aufnahmen (leer bei vollständigem Lauf) */
   missing: string[]
@@ -143,14 +183,18 @@ export function buildManifest(input: {
   tools: { playwright: string | null; chromium: string | null; webkit: string | null; node: string }
 }): Manifest {
   const { run, selection } = input
-  const scenarioOf = (p: string) => /^(?:frames|videos|raw|sheets\/\w+)\/(SC-\d{2})/.exec(p)?.[1] ?? /(SC-\d{2})/.exec(p)?.[1] ?? null
+  const scenarioOf = (p: string) =>
+    /^(?:frames|videos|raw|sheets\/\w+)\/(SC-\d{2})/.exec(p)?.[1] ??
+    /(SC-\d{2})/.exec(p)?.[1] ??
+    null
   const byScenario = new Map<string, string[]>()
   for (const f of selection.included) {
     const sc = scenarioOf(f.path)
     if (sc) byScenario.set(sc, [...(byScenario.get(sc) ?? []), f.path])
   }
   const all = [...selection.included, ...selection.omitted]
-  const parts = (re: RegExp) => [...new Set(all.map((f) => re.exec(f.path)?.[1]).filter((x): x is string => !!x))].sort()
+  const parts = (re: RegExp) =>
+    [...new Set(all.map((f) => re.exec(f.path)?.[1]).filter((x): x is string => !!x))].sort()
   const mb = (b: number) => Math.round((b / 1e6) * 100) / 100
   const emulated = run.webkit && run.webkit !== 'webkit' ? run.webkit : null
   return {
@@ -172,4 +216,3 @@ export function buildManifest(input: {
     complete: input.missing.length === 0,
   }
 }
-

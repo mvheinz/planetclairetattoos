@@ -85,8 +85,10 @@ export interface Probe {
   storage: number
   /** Weltraum-Marken: Sterne im Bild, max. Marken je Station */
   marks: { stars: number; perStation: number }
-  /** Elemente in `main` mit transition-duration > 0 */
+  /** Elemente in `main` mit transition-duration > 0 (nur Ruhe-Routen) */
   transitions: number
+  /** die ersten dieser Elemente */
+  transitionsAt?: string[]
   /** Preis-Elemente und „In den Korb“ */
   commerce: { price: number; addToCart: number }
   focus: { desc: string; ring: boolean; hits: string[] } | null
@@ -105,6 +107,7 @@ export interface ProbeFile {
   profile: string
   variant: string
   probes: Probe[]
+  errors?: string[]
   /** Zusatzmessungen eines Szenarios (z. B. MO-07 Folgen, A11Y-03 Tab-Reihenfolge, PF-11/12). */
   extra?: Record<string, unknown>
 }
@@ -120,7 +123,8 @@ export function rects(flat: readonly number[]): { x: number; y: number; w: numbe
 /** Tripel-Liste → Linienpunkte. */
 export function linePoints(flat: readonly number[]): { len: number; x: number; y: number }[] {
   const out: { len: number; x: number; y: number }[] = []
-  for (let i = 0; i + 2 < flat.length; i += 3) out.push({ len: flat[i]!, x: flat[i + 1]!, y: flat[i + 2]! })
+  for (let i = 0; i + 2 < flat.length; i += 3)
+    out.push({ len: flat[i]!, x: flat[i + 1]!, y: flat[i + 2]! })
   return out
 }
 

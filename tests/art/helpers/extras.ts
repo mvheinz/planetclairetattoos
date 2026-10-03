@@ -6,7 +6,12 @@ import type { ArtSession } from './fixtures'
 // `art.extra(key, …)` in `raw/<SC>/<profil>/<variante>/probes.json`.
 
 type LeashWin = Window & {
-  __leash?: { drawnLen(): number; cocoLen(): number; tier(): string; geometry: { totalLength: number } }
+  __leash?: {
+    drawnLen(): number
+    cocoLen(): number
+    tier(): string
+    geometry: { totalLength: number }
+  }
 }
 
 /** Tab-Reihenfolge (A11Y-03): die ersten `n` Fokus-Ziele als Beschreibung. */
@@ -94,14 +99,21 @@ export async function introTiming(art: ArtSession): Promise<{
       })),
     )
     const last = samples.slice(-6)
-    if (last.length === 6 && last.every((s) => s.drawn !== null && s.drawn > 0 && s.drawn === last[0]!.drawn)) break
+    if (
+      last.length === 6 &&
+      last.every((s) => s.drawn !== null && s.drawn > 0 && s.drawn === last[0]!.drawn)
+    )
+      break
     await page.clock.runFor(20)
   }
-  const lcpAt = await page.evaluate(() => (window as Window & { __artLcp?: number | null }).__artLcp ?? null)
+  const lcpAt = await page.evaluate(
+    () => (window as Window & { __artLcp?: number | null }).__artLcp ?? null,
+  )
   await art.resumeClock()
   const first = samples.find((s) => (s.drawn ?? 0) > 0)
   const final = samples[samples.length - 1]?.drawn ?? null
-  const done = final === null ? undefined : samples.find((s) => s.drawn !== null && s.drawn >= final - 0.5)
+  const done =
+    final === null ? undefined : samples.find((s) => s.drawn !== null && s.drawn >= final - 0.5)
   return {
     lcp: lcpAt === null ? null : lcpAt - t0,
     start: first ? first.t - t0 : null,
@@ -116,9 +128,16 @@ export async function readingSeries(art: ArtSession): Promise<void> {
   await art.goto('/de')
   await page.waitForTimeout(1600)
   const range = await page.evaluate(() => {
-    const sm = (window as Window & { __leash?: { geometry: { scrollMap: { readingY: number }[] } } }).__leash
-      ?.geometry.scrollMap
-    return sm && sm.length ? { a: sm[0]!.readingY, b: sm[sm.length - 1]!.readingY } : null
+    const sm = (
+      window as Window & { __leash?: { geometry: { scrollMap: { readingY: number }[] } } }
+    ).__leash?.geometry.scrollMap
+    const layer = document.querySelector('[data-leash-layer]')
+    const top = layer ? layer.getBoundingClientRect().top + scrollY : 0
+    // Erst unterhalb der Lesezeile beim Laden beginnen (dort hat das Intro schon gezeichnet).
+    const start = 0.72 * innerHeight - top + 40
+    return sm && sm.length
+      ? { a: Math.max(sm[0]!.readingY, start), b: sm[sm.length - 1]!.readingY }
+      : null
   })
   if (!range) return
   const set = (y: number) =>
@@ -147,10 +166,59 @@ export async function readingSeries(art: ArtSession): Promise<void> {
   await set(last - 400)
   await art.probe('mo06-up400')
   await page.evaluate(() => {
-    const w = window as Window & { __leash?: { setReadingY(y: number | null): void }; __artReadingY?: number | null }
+    const w = window as Window & {
+      __leash?: { setReadingY(y: number | null): void }
+      __artReadingY?: number | null
+    }
     w.__artReadingY = null
     w.__leash?.setReadingY(null)
   })
+}
+
+/** PF-03/PF-04 Desktop 1×: eigener Kontext ohne Playwright-Uhr (sie ersetzt performance.now), R01 laden und scrollen,
+ * dann die `leash:build`-/`leash:frame`-Messungen der Engine. */
+export async function desktopMeasures(
+  art: ArtSession,
+): Promise<{ build: number[]; frame: number[] }> {
+  const ctx = await art.extraContext({})
+  try {
+    const page = await ctx.newPage()
+    await page.goto('/de', { waitUntil: 'load' })
+    await page
+      .waitForFunction(() => !!(window as LeashWin).__leash, undefined, { timeout: 8000 })
+      .catch(() => undefined)
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) => {
+          const frame: number[] = []
+          const po = new PerformanceObserver((l) => {
+            for (const e of l.getEntries()) if (e.name === 'leash:frame') frame.push(e.duration)
+          })
+          po.observe({ type: 'measure' })
+          const t0 = performance.now()
+          const step = () => {
+            scrollTo(0, ((performance.now() - t0) / 1000) * 900)
+            if (performance.now() - t0 < 3000) requestAnimationFrame(step)
+            else {
+              po.disconnect()
+              ;(window as Window & { __artFrames?: number[] }).__artFrames = frame
+              resolve()
+            }
+          }
+          requestAnimationFrame(step)
+        }),
+    )
+    return await page.evaluate(() => ({
+      build: performance
+        .getEntriesByName('leash:build')
+        .map((e) => Math.round(e.duration * 100) / 100),
+      frame: ((window as Window & { __artFrames?: number[] }).__artFrames ?? []).map(
+        (d) => Math.round(d * 100) / 100,
+      ),
+    }))
+  } finally {
+    await ctx.close()
+  }
 }
 
 /** PF-11: Tab verborgen → Engine-Frames (`leash:frame`) über 2 s bei Scrollen zählen. */
@@ -158,7 +226,10 @@ export function hiddenFrames(page: Page): Promise<number> {
   return page.evaluate(
     () =>
       new Promise<number>((resolve) => {
-        Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' })
+        Object.defineProperty(document, 'visibilityState', {
+          configurable: true,
+          get: () => 'hidden',
+        })
         Object.defineProperty(document, 'hidden', { configurable: true, get: () => true })
         document.dispatchEvent(new Event('visibilitychange'))
         let n = 0
@@ -178,7 +249,9 @@ export function hiddenFrames(page: Page): Promise<number> {
 }
 
 /** PF-12: Stufe vor/nach 2 s Scrollen unter künstlicher Last (`?qa-jank=30`). */
-export async function jankTier(art: ArtSession): Promise<{ before: string | null; after: string | null }> {
+export async function jankTier(
+  art: ArtSession,
+): Promise<{ before: string | null; after: string | null }> {
   const tier = () => art.page.evaluate(() => (window as LeashWin).__leash?.tier() ?? null)
   await art.goto('/de?qa-jank=30')
   const before = await tier()

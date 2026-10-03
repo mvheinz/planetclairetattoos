@@ -1,4 +1,4 @@
-import { tabOrder } from './helpers/extras'
+import { desktopMeasures, tabOrder } from './helpers/extras'
 import { artTags, test } from './helpers/fixtures'
 
 // SC-00 (KUNST-QA §4.3): Rauchtest der Aufnahme – Startseite laden, einmal bis unten scrollen. Video, 3 Frames.
@@ -29,6 +29,9 @@ test('SC-00 Startseite laden und bis unten scrollen', { tag: artTags('all') }, a
     })
     await toggle.click()
   } else art.extra('a11y02', { motion: null, missing: true })
+
+  // PF-03/PF-04 Desktop 1× (ohne Playwright-Uhr).
+  if (art.isDesktop) art.extra('desktopMeasures', await desktopMeasures(art))
 
   // A11Y-03: Tab-Reihenfolge mit und ohne Engine (`?leash=off`).
   if (art.profile !== 'art-iphone15') {

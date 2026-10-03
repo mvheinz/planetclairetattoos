@@ -13,7 +13,8 @@ export interface XNode {
 export function parseXml(src: string): XNode {
   const root: XNode = { tag: '#root', attrs: {}, children: [] }
   const stack: XNode[] = [root]
-  const re = /<(\/?)([a-zA-Z][\w:-]*)((?:\s+[\w:-]+\s*=\s*"[^"]*")*)\s*(\/?)>|<!--[\s\S]*?-->|<\?[\s\S]*?\?>/g
+  const re =
+    /<(\/?)([a-zA-Z][\w:-]*)((?:\s+[\w:-]+\s*=\s*"[^"]*")*)\s*(\/?)>|<!--[\s\S]*?-->|<\?[\s\S]*?\?>/g
   for (let m = re.exec(src); m; m = re.exec(src)) {
     if (!m[2]) continue
     if (m[1]) {
@@ -62,7 +63,18 @@ export function subPaths(d: string): SubPath[] {
   let cur: [number, number] = [0, 0]
   let sub: SubPath | null = null
   const num = () => Number(tokens[i++])
-  const ARGS: Record<string, number> = { M: 2, L: 2, T: 2, H: 1, V: 1, Q: 4, S: 4, C: 6, A: 7, Z: 0 }
+  const ARGS: Record<string, number> = {
+    M: 2,
+    L: 2,
+    T: 2,
+    H: 1,
+    V: 1,
+    Q: 4,
+    S: 4,
+    C: 6,
+    A: 7,
+    Z: 0,
+  }
   while (i < tokens.length) {
     if (/[a-zA-Z]/.test(tokens[i]!)) cmd = tokens[i++]!
     const up = cmd.toUpperCase()
@@ -145,7 +157,11 @@ export async function rasterGray(
     .greyscale()
     .raw()
     .toBuffer({ resolveWithObject: true })
-  return { w: info.width, h: info.height, g: new Uint8Array(data.buffer, data.byteOffset, data.length) }
+  return {
+    w: info.width,
+    h: info.height,
+    g: new Uint8Array(data.buffer, data.byteOffset, data.length),
+  }
 }
 
 export interface Box {
@@ -223,7 +239,8 @@ export function fillSilhouette(mask: Mask, r = 2): Mask {
         for (let dx = -r; dx <= r; dx++) {
           const nx = x + dx
           const ny = y + dy
-          if (nx >= 0 && ny >= 0 && nx < w && ny < h && dx * dx + dy * dy <= r * r) dil[ny * w + nx] = 1
+          if (nx >= 0 && ny >= 0 && nx < w && ny < h && dx * dx + dy * dy <= r * r)
+            dil[ny * w + nx] = 1
         }
     }
   const outside = new Uint8Array(w * h)
@@ -266,7 +283,14 @@ export function fillSilhouette(mask: Mask, r = 2): Mask {
         for (let dx = -r; dx <= r; dx++) {
           const nx = x + dx
           const ny = y + dy
-          if (nx >= 0 && ny >= 0 && nx < w && ny < h && dx * dx + dy * dy <= r * r && !outside[ny * w + nx]) {
+          if (
+            nx >= 0 &&
+            ny >= 0 &&
+            nx < w &&
+            ny < h &&
+            dx * dx + dy * dy <= r * r &&
+            !outside[ny * w + nx]
+          ) {
             near = true
             break
           }

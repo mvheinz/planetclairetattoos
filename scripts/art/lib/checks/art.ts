@@ -18,7 +18,14 @@ import {
 // Coco (KUNST-QA §5.2 CO-01/02/04–08), Zeichnungen (§5.3 AR-01–04, AR-06) und Foto-Look (§5.9 IM-01/02/05).
 // Eingaben sind Dateiinhalte bzw. Messdaten – die Prüfungen lesen selbst keine Dateien (Fixtures im Unit-Test).
 
-export const SPRITE_POSES = ['rennen', 'schnueffeln', 'sitzen', 'schlafen', 'springen', 'kopfschief'] as const
+export const SPRITE_POSES = [
+  'rennen',
+  'schnueffeln',
+  'sitzen',
+  'schlafen',
+  'springen',
+  'kopfschief',
+] as const
 export const SPRITE_BRIDGES = ['bremsen', 'abspringen', 'einrollen-1', 'einrollen-2'] as const
 export const SPRITE_PARTS = [
   'head',
@@ -77,7 +84,8 @@ function partsOf(sym: SpriteSymbol): Set<string> {
 }
 
 export function co01(svg: string): CheckResult {
-  const th = '≥ 22 Symbole (6 Posen × 3 + 4 Brücken, IDs DESIGN §10.4), gleiche viewBox, alle data-part vorhanden oder begründet'
+  const th =
+    '≥ 22 Symbole (6 Posen × 3 + 4 Brücken, IDs DESIGN §10.4), gleiche viewBox, alle data-part vorhanden oder begründet'
   const syms = spriteSymbols(svg)
   const ids = new Set(syms.map((s) => s.id))
   const bad: string[] = []
@@ -94,7 +102,8 @@ export function co01(svg: string): CheckResult {
 
 /** Symbol als eigenständiges SVG; optional nur die Teile `only` (ohne Fell-Fläche). */
 /** Fester Strich in viewBox-Einheiten für Messungen (statt `non-scaling-stroke` in CSS-Pixeln). */
-const MEASURE_STYLE = '.line path,.harness path{vector-effect:none!important}.line,.harness{stroke-width:1.6px!important}'
+const MEASURE_STYLE =
+  '.line path,.harness path{vector-effect:none!important}.line,.harness{stroke-width:1.6px!important}'
 
 export function symbolSvg(sym: SpriteSymbol, only?: readonly string[]): string {
   const filter = (n: XNode): XNode | null => {
@@ -104,7 +113,9 @@ export function symbolSvg(sym: SpriteSymbol, only?: readonly string[]): string {
     const children = n.children.map(filter).filter((c): c is XNode => !!c)
     return children.length ? { ...n, children } : null
   }
-  const body = (only ? sym.node.children.map(filter).filter((c): c is XNode => !!c) : sym.node.children)
+  const body = (
+    only ? sym.node.children.map(filter).filter((c): c is XNode => !!c) : sym.node.children
+  )
     .map(serialize)
     .join('')
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${sym.viewBox}" width="160" height="120"><style>${sym.style}${MEASURE_STYLE}</style>${body}</svg>`
@@ -127,7 +138,8 @@ export interface CocoProportions {
 const RASTER_W = 640
 
 export async function cocoProportions(sym: SpriteSymbol): Promise<CocoProportions> {
-  const box = async (parts: string[]) => maskBox(await rasterMask(symbolSvg(sym, parts), RASTER_W, 0.3))
+  const box = async (parts: string[]) =>
+    maskBox(await rasterMask(symbolSvg(sym, parts), RASTER_W, 0.3))
   const visible = (p: string) => !sym.hiddenParts.includes(p)
   const head = await box(['head', 'snout', 'nose'])
   const earL = visible('ear-l') ? await box(['ear-l']) : null
@@ -223,7 +235,13 @@ export function co04(symbols: readonly ManifestSymbol[]): CheckResult {
 export async function silhouettes(svg: string, width = 256): Promise<Map<string, Mask>> {
   const out = new Map<string, Mask>()
   for (const s of spriteSymbols(svg))
-    out.set(s.id, fillSilhouette(await rasterMask(symbolSvg(s), width, 0.5), Math.max(2, Math.round(width / 80))))
+    out.set(
+      s.id,
+      fillSilhouette(
+        await rasterMask(symbolSvg(s), width, 0.5),
+        Math.max(2, Math.round(width / 80)),
+      ),
+    )
   return out
 }
 
@@ -274,7 +292,8 @@ export function co06(svg: string, props: readonly CocoProportions[]): CheckResul
 }
 
 export function co07(svg: string, masks: ReadonlyMap<string, Mask>): CheckResult {
-  const th = 'kein <circle|ellipse|rect|line|polygon> im Sprite; kein Frame Spiegel/Verschiebung eines anderen'
+  const th =
+    'kein <circle|ellipse|rect|line|polygon> im Sprite; kein Frame Spiegel/Verschiebung eines anderen'
   const bad: string[] = []
   const prim = svg.match(/<(circle|ellipse|rect|line|polygon|polyline)\b/g) ?? []
   if (prim.length) bad.push(`Formen-Primitive: ${[...new Set(prim)].join(', ')}`)
@@ -287,11 +306,20 @@ export function co07(svg: string, masks: ReadonlyMap<string, Mask>): CheckResult
       const kind = copyKind(masks.get(ids[i]!)!, masks.get(ids[j]!)!)
       if (kind) bad.push(`${ids[j]} ist ${kind} von ${ids[i]}`)
     }
-  return result('CO-07', bad.length === 0, `${prim.length} Primitive, ${bad.length - (prim.length ? 1 : 0)} Kopien`, th, bad)
+  return result(
+    'CO-07',
+    bad.length === 0,
+    `${prim.length} Primitive, ${bad.length - (prim.length ? 1 : 0)} Kopien`,
+    th,
+    bad,
+  )
 }
 
 /** Größenklassen (px) und Strichstärke aus `tokens.css` (Mobil + ab 768) und `coco.css`. */
-export function cocoStrokeTable(tokensCss: string, cocoCss: string): { size: number; stroke: number; label: string }[] {
+export function cocoStrokeTable(
+  tokensCss: string,
+  cocoCss: string,
+): { size: number; stroke: number; label: string }[] {
   const tok = (name: string, css: string) =>
     [...css.matchAll(new RegExp(`--${name}:\\s*([\\d.]+)px`, 'g'))].map((m) => Number(m[1]))
   const rootStroke = tok('coco-stroke', tokensCss)
@@ -308,7 +336,9 @@ export function cocoStrokeTable(tokensCss: string, cocoCss: string): { size: num
     )
   }
   if (!out.some((o) => o.label === 'leash'))
-    leash.forEach((size, i) => out.push({ size, stroke: rootStroke[i] ?? rootStroke[0]!, label: 'leash' }))
+    leash.forEach((size, i) =>
+      out.push({ size, stroke: rootStroke[i] ?? rootStroke[0]!, label: 'leash' }),
+    )
   return out
 }
 
@@ -320,7 +350,9 @@ export function strokeRange(size: number): [number, number] {
   return [2.0, 2.4]
 }
 
-export function co08(table: readonly { size: number; stroke: number; label: string }[]): CheckResult {
+export function co08(
+  table: readonly { size: number; stroke: number; label: string }[],
+): CheckResult {
   const th = '24 px: 1,0–1,4 · 40/42: 1,4–1,8 · 64/72: 1,6–2,0 · 180/240: 2,0–2,4 px'
   if (!table.length) return noData('CO-08', th, 'keine Größenklassen in coco.css')
   const bad: string[] = []
@@ -340,7 +372,12 @@ export function co08(table: readonly { size: number; stroke: number; label: stri
 // ---------- AR ----------
 
 export interface SourcesJson {
-  vectorize: { id: string; file: string; threshold?: number | 'otsu'; crop?: { x: number; y: number; w: number; h: number } }[]
+  vectorize: {
+    id: string
+    file: string
+    threshold?: number | 'otsu'
+    crop?: { x: number; y: number; w: number; h: number }
+  }[]
   derived: { id: string; from: string; kind: string }[]
 }
 
@@ -352,7 +389,8 @@ export function ar01(
   stationFiles: readonly string[],
   customerCodes: readonly string[],
 ): CheckResult {
-  const th = 'jede Station aus der Zuordnung DESIGN §12.4; keine Kundenhaut-Fotos, kein Godzilla, keine Bilder mit Jutta'
+  const th =
+    'jede Station aus der Zuordnung DESIGN §12.4; keine Kundenhaut-Fotos, kein Godzilla, keine Bilder mit Jutta'
   const bad: string[] = []
   const ids = [...sources.vectorize.map((v) => v.id), ...sources.derived.map((d) => d.id)]
   for (const f of stationFiles) if (!ids.includes(f)) bad.push(`${f}: keine Quelle in sources.json`)
@@ -360,8 +398,15 @@ export function ar01(
   const all = JSON.stringify(sources)
   const m = FORBIDDEN_SOURCE.exec(all)
   if (m) bad.push(`verbotene Quelle „${m[0]}“`)
-  for (const c of customerCodes) if (c && all.includes(c)) bad.push(`Kundenhaut-Foto ${c} als Quelle`)
-  return result('AR-01', bad.length === 0, `${stationFiles.length} Stationen, ${ids.length} Quellen`, th, bad)
+  for (const c of customerCodes)
+    if (c && all.includes(c)) bad.push(`Kundenhaut-Foto ${c} als Quelle`)
+  return result(
+    'AR-01',
+    bad.length === 0,
+    `${stationFiles.length} Stationen, ${ids.length} Quellen`,
+    th,
+    bad,
+  )
 }
 
 /** Distanztransformation (Chamfer 3-4) auf einer Binärmaske, Ergebnis in Pixeln. */
@@ -374,13 +419,25 @@ export function distanceTransform(m: Uint8Array, w: number, h: number): Float32A
     for (let x = 0; x < w; x++) {
       const k = y * w + x
       if (!d[k]) continue
-      d[k] = Math.min(d[k]!, at(x - 1, y) + 3, at(x, y - 1) + 3, at(x - 1, y - 1) + 4, at(x + 1, y - 1) + 4)
+      d[k] = Math.min(
+        d[k]!,
+        at(x - 1, y) + 3,
+        at(x, y - 1) + 3,
+        at(x - 1, y - 1) + 4,
+        at(x + 1, y - 1) + 4,
+      )
     }
   for (let y = h - 1; y >= 0; y--)
     for (let x = w - 1; x >= 0; x--) {
       const k = y * w + x
       if (!d[k]) continue
-      d[k] = Math.min(d[k]!, at(x + 1, y) + 3, at(x, y + 1) + 3, at(x + 1, y + 1) + 4, at(x - 1, y + 1) + 4)
+      d[k] = Math.min(
+        d[k]!,
+        at(x + 1, y) + 3,
+        at(x, y + 1) + 3,
+        at(x + 1, y + 1) + 4,
+        at(x - 1, y + 1) + 4,
+      )
     }
   for (let k = 0; k < d.length; k++) d[k] = d[k]! / 3
   return d
@@ -430,7 +487,13 @@ export function otsu(g: Uint8Array): number {
 }
 
 /** Große zusammenhängende Tintenflächen (> `minFrac` der Bildfläche), deren Gegenstück in der Quelle offen ist. */
-export function clumps(draw: Uint8Array, src: Uint8Array, w: number, h: number, minFrac = 0.02): number {
+export function clumps(
+  draw: Uint8Array,
+  src: Uint8Array,
+  w: number,
+  h: number,
+  minFrac = 0.02,
+): number {
   const seen = new Uint8Array(w * h)
   // Flächen: Tinte, die nach Erosion um 2 px noch steht (Striche verschwinden, Flächen bleiben).
   const d = distanceTransform(draw, w, h)
@@ -499,7 +562,8 @@ export async function strokePair(
 }
 
 export function ar02(pairs: readonly StrokePair[]): CheckResult {
-  const th = 'Median-Strichbreite Zeichnung 0,75–1,25 × Quelle; keine Klumpen > 2 % der Fläche, die in der Quelle offen sind'
+  const th =
+    'Median-Strichbreite Zeichnung 0,75–1,25 × Quelle; keine Klumpen > 2 % der Fläche, die in der Quelle offen sind'
   if (!pairs.length) return noData('AR-02', th, 'keine vektorisierten Stationen mit Quelle')
   const bad: string[] = []
   const vals: string[] = []
@@ -509,7 +573,8 @@ export function ar02(pairs: readonly StrokePair[]): CheckResult {
     const r = a && b ? a / b : null
     const c = clumps(p.draw, p.src, p.w, p.h)
     vals.push(`${p.id} ${r === null ? '?' : round(r, 2)}×${c ? `, ${c} Klumpen` : ''}`)
-    if (r === null || r < 0.75 || r > 1.25) bad.push(`${p.id}: Strichbreite ${r === null ? '?' : round(r, 2)} × Quelle`)
+    if (r === null || r < 0.75 || r > 1.25)
+      bad.push(`${p.id}: Strichbreite ${r === null ? '?' : round(r, 2)} × Quelle`)
     if (c > 0) bad.push(`${p.id}: ${c} Klumpen`)
   }
   return result('AR-02', bad.length === 0, vals.join('; '), th, bad)
@@ -534,7 +599,8 @@ export function ar03(files: readonly SizedFile[]): CheckResult {
   const bad = files
     .filter((f) => f.bytes > AR03_LIMITS[f.kind])
     .map((f) => `${f.kind} ${f.name}: ${f.bytes} B > ${AR03_LIMITS[f.kind]} B`)
-  const max = (k: SizedFile['kind']) => Math.max(0, ...files.filter((f) => f.kind === k).map((f) => f.bytes))
+  const max = (k: SizedFile['kind']) =>
+    Math.max(0, ...files.filter((f) => f.kind === k).map((f) => f.bytes))
   return result(
     'AR-03',
     bad.length === 0,
@@ -570,7 +636,8 @@ export async function inkHeightRatio(svg: string): Promise<number> {
 }
 
 export function ar04(items: readonly PlaceholderInput[]): CheckResult {
-  const th = 'viewBox 400×500, genau eine Wash-Farbe aus §3.1, Strich 2,4, kein <text>, Motiv 55–70 % der Höhe'
+  const th =
+    'viewBox 400×500, genau eine Wash-Farbe aus §3.1, Strich 2,4, kein <text>, Motiv 55–70 % der Höhe'
   if (!items.length) return noData('AR-04', th, 'keine Platzhalter')
   const bad: string[] = []
   for (const p of items) {
@@ -581,14 +648,18 @@ export function ar04(items: readonly PlaceholderInput[]): CheckResult {
     const fills = [...p.svg.matchAll(/fill="(#[0-9A-Fa-f]{6})"/g)].map((m) => m[1]!.toUpperCase())
     const used = [...new Set(fills.filter((f) => p.washes.map((w) => w.toUpperCase()).includes(f)))]
     const want = p.wash ? [p.wash.toUpperCase()] : []
-    if (used.join() !== want.join()) bad.push(`${p.name}: Wash ${used.join('+') || 'keine'} statt ${want.join() || 'keine'}`)
-    if (p.inkHeight < 0.55 || p.inkHeight > 0.7) bad.push(`${p.name}: Motiv ${round(p.inkHeight * 100, 1)} % der Höhe`)
+    if (used.join() !== want.join())
+      bad.push(`${p.name}: Wash ${used.join('+') || 'keine'} statt ${want.join() || 'keine'}`)
+    if (p.inkHeight < 0.55 || p.inkHeight > 0.7)
+      bad.push(`${p.name}: Motiv ${round(p.inkHeight * 100, 1)} % der Höhe`)
   }
   return result('AR-04', bad.length === 0, `${items.length} Platzhalter`, th, bad)
 }
 
 /** AR-06 Dichte aus den Sonden der Startseite: Marken je Station und Sterne im Sichtbereich. */
-export function ar06(marks: readonly { label: string; starsInView: number; maxPerStation: number }[]): CheckResult {
+export function ar06(
+  marks: readonly { label: string; starsInView: number; maxPerStation: number }[],
+): CheckResult {
   const th = 'max. 1 Weltraum-Marke je Station, ≤ 3 Sterne je Bildschirmhöhe (Band-Bezüge: R1)'
   if (!marks.length) return noData('AR-06', th, 'keine Sonden der Startseite (SC-01)')
   const bad: string[] = []
@@ -608,8 +679,16 @@ export function ar06(marks: readonly { label: string; starsInView: number; maxPe
 // ---------- IM ----------
 
 export interface ImagesJson {
-  summary: { count: number; medianLStdDev: number | null; medianCardBytes: number | null; medianThumbBytes: number | null }
-  items: { itemNumber: string; after: { medianL: number | null; paperA: number | null; paperB: number | null } }[]
+  summary: {
+    count: number
+    medianLStdDev: number | null
+    medianCardBytes: number | null
+    medianThumbBytes: number | null
+  }
+  items: {
+    itemNumber: string
+    after: { medianL: number | null; paperA: number | null; paperB: number | null }
+  }[]
 }
 
 export function im01(evidence: { pass: boolean; detail: string } | null): CheckResult {
@@ -626,8 +705,10 @@ export function im02(images: ImagesJson | null): CheckResult {
   if (sd === null || sd > 6) bad.push(`Streuung Median-L* ${sd ?? '?'}`)
   for (const it of images.items) {
     const { paperA, paperB } = it.after
-    if (paperA !== null && Math.abs(paperA) > 4) bad.push(`Nr. ${it.itemNumber}: Papier a* ${round(paperA, 1)}`)
-    if (paperB !== null && Math.abs(paperB) > 4) bad.push(`Nr. ${it.itemNumber}: Papier b* ${round(paperB, 1)}`)
+    if (paperA !== null && Math.abs(paperA) > 4)
+      bad.push(`Nr. ${it.itemNumber}: Papier a* ${round(paperA, 1)}`)
+    if (paperB !== null && Math.abs(paperB) > 4)
+      bad.push(`Nr. ${it.itemNumber}: Papier b* ${round(paperB, 1)}`)
   }
   const papers = images.items.filter((i) => i.after.paperB !== null)
   return result(
@@ -648,5 +729,11 @@ export function im05(images: ImagesJson | null, lcpBytes: number | null): CheckR
   if (c === null || c > 90_000) bad.push(`card ${c ?? '?'} B`)
   if (lcpBytes === null) bad.push('LCP-Bild der Produktseite nicht gemessen (Sonde SC-05, Pixel 7)')
   else if (lcpBytes > 120_000) bad.push(`LCP-Bild ${lcpBytes} B`)
-  return result('IM-05', bad.length === 0, `thumb ${t ?? '?'} B, card ${c ?? '?'} B, LCP-Bild ${lcpBytes ?? '?'} B`, th, bad)
+  return result(
+    'IM-05',
+    bad.length === 0,
+    `thumb ${t ?? '?'} B, card ${c ?? '?'} B, LCP-Bild ${lcpBytes ?? '?'} B`,
+    th,
+    bad,
+  )
 }
