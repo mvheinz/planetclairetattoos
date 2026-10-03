@@ -1,5 +1,7 @@
 import 'server-only'
 
+import { randomBytes } from 'node:crypto'
+
 import type { Payload } from 'payload'
 import sharp from 'sharp'
 
@@ -142,7 +144,9 @@ export async function handleCommissionUpload(
       } as never,
       file: {
         data: bytes,
-        name: `anfrage.${format === 'jpeg' ? 'jpg' : format}`,
+        // Eindeutiger Name je Upload: Payload macht gleiche Namen nur per Abfrage eindeutig („anfrage-1.jpg“) – bei
+        // gleichzeitigen Uploads verletzte das den UNIQUE-Index auf `filename` (500, Bild verloren).
+        name: `anfrage-${randomBytes(8).toString('hex')}.${format === 'jpeg' ? 'jpg' : format}`,
         mimetype: FORMAT_MIME[format]!,
         size: bytes.length,
       },

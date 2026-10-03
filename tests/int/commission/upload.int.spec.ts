@@ -208,4 +208,30 @@ describe('POST /api/uploads/commission (P7.11)', () => {
       201,
     )
   })
+
+  it('gleichzeitige Uploads aus mehreren Formularen werden alle gespeichert (eindeutige Dateinamen)', async () => {
+    const results = await Promise.all(
+      Array.from({ length: 6 }, () =>
+        upload({
+          token: createCommissionFormToken(NOW),
+          ip: freshIp(),
+          file: tinyPng,
+          type: 'image/png',
+        }),
+      ),
+    )
+    expect(results.map((r) => r.res.status)).toEqual(Array(6).fill(201))
+    const docs = await Promise.all(
+      results.map((r) =>
+        payload.findByID({
+          collection: 'private-uploads',
+          id: r.body.uploadId as number,
+          overrideAccess: true,
+        }),
+      ),
+    )
+    const names = docs.map((d) => (d as PrivateUpload).filename)
+    expect(new Set(names).size).toBe(6)
+    for (const n of names) expect(n).toMatch(/^anfrage-[0-9a-f]{16}\b/)
+  })
 })
