@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest'
 
 import { artQaActive, assertProductionEnv, collectEnvViolations, parseEnv } from '@/lib/env'
 import { QA_COCO_SIZES, parseQaCocoQuery, symbolContent } from '@/lib/qa/cocoSheet'
+import { COCO_SPRITE_HREF } from '@/leash/cocoSprite'
 import { parseLeashQuery } from '@/lib/qa/leashQuery'
 import { QA_MICROS, qaMicro } from '@/lib/qa/microInteractions'
 import { QA_JANK_MAX_MS, QA_SWITCHES_OFF, parseQaSwitches } from '@/lib/qa/switches'
@@ -100,7 +101,7 @@ describe('P9.1 QA-Seiten: Parameter und Inventar', () => {
   })
 
   it('P9.1 /qa/coco ?parts=1: alle 22 Symbole lassen sich inline einsetzen', () => {
-    const sprite = readFileSync(path.join(process.cwd(), 'public/art/coco-sprite.v1.svg'), 'utf8')
+    const sprite = readFileSync(path.join(process.cwd(), 'public', COCO_SPRITE_HREF), 'utf8')
     const ids = [...sprite.matchAll(/<symbol id="([^"]+)"/g)].map((m) => m[1]!)
     expect(ids).toHaveLength(22)
     for (const id of ids) expect(symbolContent(sprite, id)).toMatch(/data-part="/)

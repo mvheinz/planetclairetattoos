@@ -170,11 +170,16 @@ export async function cocoProportions(sym: SpriteSymbol): Promise<CocoProportion
 }
 
 const SIDE_POSES = ['rennen', 'schnueffeln', 'springen']
+const CO02_POSES = [...SIDE_POSES, 'sitzen', 'kopfschief']
 
 export function co02(props: readonly CocoProportions[]): CheckResult {
   const th =
     'Ohr/Kopf 0,80–1,10 · Auge/Kopf 0,18–0,26 · Schnauze/Kopf 0,30–0,45 · Bein Breite/Länge ≤ 0,18 (Seitenansicht) · Nase ≤ 0,15 Kopf'
-  const frames = props.filter((p) => !isBridge(p.id))
+  // KUNST-QA CO-02 gilt für die Seitenansicht-Posen und (aus den Kopfteilen) die Sitzposen – nicht für `schlafen`
+  // (Ohren angelegt, Kopf eingerollt, DESIGN §10.3) und nicht für Brücken.
+  const frames = props.filter(
+    (p) => !isBridge(p.id) && CO02_POSES.includes(POSE_OF(p.id)?.[1] ?? ''),
+  )
   if (!frames.length) return noData('CO-02', th, 'kein Sprite')
   const bad: string[] = []
   const check = (p: CocoProportions, name: string, v: number | null, lo: number, hi: number) => {

@@ -6,6 +6,15 @@ import { gzipSync } from 'node:zlib'
 
 import { build } from 'esbuild'
 
+/** Pfad des ausgelieferten Coco-Sprites (aus `src/art/coco/coco-anchors.json`, erzeugt von `pnpm art:sprite`). */
+export function cocoSpriteFile(b: { file?: string }): string {
+  if (b.file) return b.file
+  const { href } = JSON.parse(readFileSync('src/art/coco/coco-anchors.json', 'utf8')) as {
+    href: string
+  }
+  return `public${href}`
+}
+
 // `pnpm check:bundle` (ARCHITEKTUR §6.3 Schritt 9, §7.7, PLAN P2.23 / T-09). Alle Grenzen stehen in
 // `tests/perf/budgets.json` (1 KB = 1000 B, einschließlich). Geprüft wird:
 // 1. JS beim ersten Laden je Seite: Chromium (Playwright) lädt jede `live`-Route der Registry in DE und EN sowie die
@@ -39,7 +48,8 @@ export interface Budgets {
   modules: ModuleBudget[]
   fonts: { files: number; maxBytes: number }
   svg: {
-    cocoSprite: { file: string; rawMax: number; gzipMax: number }
+    /** `file` fehlt → ausgelieferter Sprite laut `coco-anchors.json` (Version nur in `scripts/art/build-sprite.ts`). */
+    cocoSprite: { file?: string; rawMax: number; gzipMax: number }
     stationRawMax: number
     stationGlob: string
     iconRawMax: number
@@ -230,7 +240,7 @@ export function findDevOnlyStrings(
 export function checkSvgFiles(svg: Budgets['svg']): { lines: string[]; errors: string[] } {
   const lines: string[] = []
   const errors: string[] = []
-  const sprite = measureFile(svg.cocoSprite.file)
+  const sprite = measureFile(cocoSpriteFile(svg.cocoSprite))
   const spriteLine = `Coco-Sprite ${sprite.rawBytes} B roh / ${sprite.gzipBytes} B gz, Budget ${svg.cocoSprite.rawMax} / ${svg.cocoSprite.gzipMax} B.`
   if (sprite.rawBytes <= svg.cocoSprite.rawMax && sprite.gzipBytes <= svg.cocoSprite.gzipMax)
     lines.push(spriteLine)
@@ -791,7 +801,7 @@ async function main(): Promise<void> {
         baseURL,
         distDir,
         targets,
-        budgets.svg.cocoSprite.file,
+        cocoSpriteFile(budgets.svg.cocoSprite),
       )
       const pages = evaluatePages(measurements, budgets)
       report(pages.lines, [...errors, ...pages.errors])

@@ -324,10 +324,12 @@ export async function runAllChecks(inp: CheckInputs): Promise<CheckResult[]> {
   const tokens = read('src/styles/tokens.css')
   const cocoCss = read('src/styles/coco.css')
   const design = read('docs/design/DESIGN.md')
-  const sprite = read('public/art/coco-sprite.v1.svg')
   const manifest = JSON.parse(read('src/art/coco/coco-sprite.json')) as {
+    href: string
     symbols: art.ManifestSymbol[]
   }
+  // ausgelieferter Sprite in der aktuellen Version (Versionsnummer nur in scripts/art/build-sprite.ts)
+  const sprite = read(`public${manifest.href}`)
   const sources = JSON.parse(read('content/art/sources.json')) as art.SourcesJson
   const tattoo = JSON.parse(read('content/seed/data/tattoo.json')) as {
     gallery: { image: string; showsCustomer: boolean }[]

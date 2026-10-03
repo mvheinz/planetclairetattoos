@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "href": "/art/coco-sprite.v1.svg",
+  "version": 2,
+  "href": "/art/coco-sprite.v2.svg",
   "viewBox": [
     0,
     0,
@@ -14,15 +14,15 @@
       "frame": "a",
       "bridge": false,
       "anchor": {
-        "x": 90.5,
-        "y": 54
+        "x": 90,
+        "y": 55.5
       },
       "groundY": 112,
       "bbox": {
-        "x": 14,
-        "y": 5.5,
-        "w": 141,
-        "h": 95.5
+        "x": 17,
+        "y": 12,
+        "w": 125,
+        "h": 93
       },
       "fps": 12,
       "hiddenParts": [
@@ -35,15 +35,15 @@
       "frame": "b",
       "bridge": false,
       "anchor": {
-        "x": 91,
-        "y": 53
+        "x": 89,
+        "y": 54
       },
       "groundY": 112,
       "bbox": {
-        "x": 31.5,
-        "y": 6.5,
-        "w": 124.5,
-        "h": 104.5
+        "x": 35,
+        "y": 12,
+        "w": 106,
+        "h": 103
       },
       "fps": 12,
       "hiddenParts": [
@@ -56,15 +56,15 @@
       "frame": "c",
       "bridge": false,
       "anchor": {
-        "x": 90.5,
-        "y": 52
+        "x": 89,
+        "y": 54
       },
       "groundY": 112,
       "bbox": {
-        "x": 19.5,
-        "y": 3.5,
-        "w": 137,
-        "h": 98.5
+        "x": 24,
+        "y": 14,
+        "w": 118,
+        "h": 95
       },
       "fps": 12,
       "hiddenParts": [
@@ -77,15 +77,15 @@
       "frame": "a",
       "bridge": false,
       "anchor": {
-        "x": 88.5,
-        "y": 59.5
+        "x": 85,
+        "y": 60
       },
       "groundY": 112,
       "bbox": {
         "x": 31,
         "y": 42,
-        "w": 116.5,
-        "h": 74.5
+        "w": 105.5,
+        "h": 76
       },
       "fps": 10,
       "hiddenParts": [
@@ -98,15 +98,15 @@
       "frame": "b",
       "bridge": false,
       "anchor": {
-        "x": 88.5,
-        "y": 59.5
+        "x": 85,
+        "y": 60
       },
       "groundY": 112,
       "bbox": {
-        "x": 30.5,
+        "x": 31,
         "y": 42,
-        "w": 117,
-        "h": 74.5
+        "w": 105.5,
+        "h": 75
       },
       "fps": 10,
       "hiddenParts": [
@@ -119,14 +119,14 @@
       "frame": "c",
       "bridge": false,
       "anchor": {
-        "x": 88.5,
-        "y": 59.5
+        "x": 85,
+        "y": 60
       },
       "groundY": 112,
       "bbox": {
-        "x": 31.5,
+        "x": 31,
         "y": 42,
-        "w": 116.5,
+        "w": 106,
         "h": 75
       },
       "fps": 10,
@@ -141,14 +141,14 @@
       "bridge": false,
       "anchor": {
         "x": 60.5,
-        "y": 67
+        "y": 62.5
       },
       "groundY": 112,
       "bbox": {
-        "x": 54.5,
-        "y": 4.5,
-        "w": 53.5,
-        "h": 110.5
+        "x": 49,
+        "y": 4,
+        "w": 65.5,
+        "h": 110.2
       },
       "fps": 10,
       "hiddenParts": [
@@ -162,14 +162,14 @@
       "bridge": false,
       "anchor": {
         "x": 60.5,
-        "y": 67
+        "y": 62.5
       },
       "groundY": 112,
       "bbox": {
-        "x": 54,
-        "y": 4.5,
-        "w": 53.5,
-        "h": 111
+        "x": 49,
+        "y": 4,
+        "w": 65.5,
+        "h": 110.2
       },
       "fps": 10,
       "hiddenParts": [
@@ -183,14 +183,14 @@
       "bridge": false,
       "anchor": {
         "x": 60.5,
-        "y": 67
+        "y": 62.5
       },
       "groundY": 112,
       "bbox": {
-        "x": 53.5,
+        "x": 48,
         "y": 4.5,
-        "w": 54.5,
-        "h": 111
+        "w": 66.5,
+        "h": 110.7
       },
       "fps": 10,
       "hiddenParts": [
@@ -203,21 +203,21 @@
       "frame": "a",
       "bridge": false,
       "anchor": {
-        "x": 85,
-        "y": 73
+        "x": 80,
+        "y": 66.5
       },
       "groundY": 112,
       "bbox": {
-        "x": 17.5,
-        "y": 72,
-        "w": 95,
-        "h": 45
+        "x": 42,
+        "y": 65,
+        "w": 94,
+        "h": 54
       },
       "fps": 8,
       "hiddenParts": [
         "eye-r",
+        "ear-r",
         "leg-fr",
-        "leg-hl",
         "leg-hr"
       ]
     },
@@ -227,21 +227,21 @@
       "frame": "b",
       "bridge": false,
       "anchor": {
-        "x": 85,
-        "y": 73
+        "x": 80,
+        "y": 66.5
       },
       "groundY": 112,
       "bbox": {
-        "x": 17,
-        "y": 72,
-        "w": 96,
-        "h": 45
+        "x": 42,
+        "y": 65,
+        "w": 95,
+        "h": 54.5
       },
       "fps": 8,
       "hiddenParts": [
         "eye-r",
+        "ear-r",
         "leg-fr",
-        "leg-hl",
         "leg-hr"
       ]
     },
@@ -251,21 +251,21 @@
       "frame": "c",
       "bridge": false,
       "anchor": {
-        "x": 85,
-        "y": 73
+        "x": 80,
+        "y": 66.5
       },
       "groundY": 112,
       "bbox": {
-        "x": 17.5,
-        "y": 72,
-        "w": 95,
-        "h": 45.5
+        "x": 44,
+        "y": 65,
+        "w": 93,
+        "h": 54
       },
       "fps": 8,
       "hiddenParts": [
         "eye-r",
+        "ear-r",
         "leg-fr",
-        "leg-hl",
         "leg-hr"
       ]
     },
@@ -275,15 +275,15 @@
       "frame": "a",
       "bridge": false,
       "anchor": {
-        "x": 81.5,
-        "y": 53.5
+        "x": 80.5,
+        "y": 52
       },
       "groundY": 112,
       "bbox": {
-        "x": 13,
-        "y": 3,
-        "w": 137.5,
-        "h": 97.5
+        "x": 29,
+        "y": 2,
+        "w": 110,
+        "h": 112
       },
       "fps": 12,
       "hiddenParts": [
@@ -296,15 +296,15 @@
       "frame": "b",
       "bridge": false,
       "anchor": {
-        "x": 81.5,
-        "y": 53.5
+        "x": 80.5,
+        "y": 52
       },
       "groundY": 112,
       "bbox": {
-        "x": 13.5,
-        "y": 4,
-        "w": 136.5,
-        "h": 96.5
+        "x": 29,
+        "y": 1,
+        "w": 109.5,
+        "h": 113
       },
       "fps": 12,
       "hiddenParts": [
@@ -317,15 +317,15 @@
       "frame": "c",
       "bridge": false,
       "anchor": {
-        "x": 81.5,
-        "y": 53.5
+        "x": 80.5,
+        "y": 52
       },
       "groundY": 112,
       "bbox": {
-        "x": 13.5,
-        "y": 2.5,
-        "w": 137,
-        "h": 97
+        "x": 29,
+        "y": 2,
+        "w": 110,
+        "h": 112
       },
       "fps": 12,
       "hiddenParts": [
@@ -339,14 +339,14 @@
       "bridge": false,
       "anchor": {
         "x": 60.5,
-        "y": 67
+        "y": 62.5
       },
       "groundY": 112,
       "bbox": {
-        "x": 54.5,
-        "y": 1.5,
-        "w": 61,
-        "h": 113.5
+        "x": 46,
+        "y": 2.5,
+        "w": 62.5,
+        "h": 111.7
       },
       "fps": 10,
       "hiddenParts": [
@@ -360,14 +360,14 @@
       "bridge": false,
       "anchor": {
         "x": 60.5,
-        "y": 67
+        "y": 62.5
       },
       "groundY": 112,
       "bbox": {
-        "x": 55.5,
+        "x": 45.5,
         "y": 0.5,
-        "w": 60,
-        "h": 114.5
+        "w": 63,
+        "h": 113.7
       },
       "fps": 10,
       "hiddenParts": [
@@ -381,14 +381,14 @@
       "bridge": false,
       "anchor": {
         "x": 60.5,
-        "y": 67
+        "y": 62.5
       },
       "groundY": 112,
       "bbox": {
-        "x": 55,
-        "y": 2,
-        "w": 59.5,
-        "h": 113.5
+        "x": 46,
+        "y": 3.5,
+        "w": 62.5,
+        "h": 110.7
       },
       "fps": 10,
       "hiddenParts": [
@@ -401,15 +401,15 @@
       "frame": null,
       "bridge": true,
       "anchor": {
-        "x": 84,
-        "y": 55
+        "x": 87,
+        "y": 57.5
       },
       "groundY": 112,
       "bbox": {
-        "x": 26,
-        "y": 3,
-        "w": 122.5,
-        "h": 111
+        "x": 32,
+        "y": 8,
+        "w": 107,
+        "h": 108
       },
       "fps": 12,
       "hiddenParts": [
@@ -422,15 +422,15 @@
       "frame": null,
       "bridge": true,
       "anchor": {
-        "x": 91.5,
-        "y": 63.5
+        "x": 88.5,
+        "y": 65
       },
       "groundY": 112,
       "bbox": {
-        "x": 33,
-        "y": 15.5,
-        "w": 120,
-        "h": 97
+        "x": 24,
+        "y": 24,
+        "w": 119,
+        "h": 92
       },
       "fps": 12,
       "hiddenParts": [
@@ -443,15 +443,15 @@
       "frame": null,
       "bridge": true,
       "anchor": {
-        "x": 84.5,
-        "y": 81.5
+        "x": 86.5,
+        "y": 76
       },
       "groundY": 112,
       "bbox": {
-        "x": 25.5,
-        "y": 25.5,
-        "w": 120.5,
-        "h": 83.7
+        "x": 32,
+        "y": 32,
+        "w": 104,
+        "h": 77.2
       },
       "fps": 12,
       "hiddenParts": [
@@ -464,21 +464,21 @@
       "frame": null,
       "bridge": true,
       "anchor": {
-        "x": 85,
-        "y": 72.5
+        "x": 80,
+        "y": 66.5
       },
       "groundY": 112,
       "bbox": {
-        "x": 17.5,
-        "y": 60,
-        "w": 96,
-        "h": 57
+        "x": 45,
+        "y": 65,
+        "w": 91,
+        "h": 49.2
       },
       "fps": 12,
       "hiddenParts": [
         "eye-r",
+        "ear-r",
         "leg-fr",
-        "leg-hl",
         "leg-hr"
       ]
     }

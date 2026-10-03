@@ -1,12 +1,13 @@
 import { expect, test, type Page } from '@playwright/test'
 
+import { COCO_SPRITE_HREF } from '../../src/leash/cocoSprite'
 import { SPRITE_POSES } from '../../src/leash/poses'
 
 // P2.18 Coco (DESIGN §10.4–§10.6, §9.8, §9.9; ADR 0003): Sprite-Datei, feste Box ohne CLS, Coco an der Leinenspitze
 // (R01), Menü, Boil-Budget, ohne JavaScript unsichtbar, View Transitions mit Coco (weich und hart).
 
 type LeashWindow = Window & { __leash?: { pose(): string | null } }
-const SPRITE = '/art/coco-sprite.v1.svg'
+const SPRITE = COCO_SPRITE_HREF
 const leashCoco = (page: Page) => page.locator('[data-leash-coco]')
 
 test.describe('Coco', () => {
