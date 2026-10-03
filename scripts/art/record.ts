@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process'
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs'
+import { cpus, loadavg } from 'node:os'
 import path from 'node:path'
 
 import {
@@ -67,6 +68,11 @@ function main(): void {
         date: new Date().toISOString(),
         scope: scenarios,
         dirty,
+        // Rechnerlast beim Start (1/5/15 min) – Tempo-Werte unter Last sind unzuverlässig (KUNST-QA §4.1).
+        hostLoadAtStart: {
+          loadavg: loadavg().map((l) => Math.round(l * 100) / 100),
+          cpus: cpus().length,
+        },
         webkit: webkitEmulated ? 'WebKit emuliert (Chromium, PW_SKIP_WEBKIT=1)' : 'webkit',
       },
       null,
@@ -114,6 +120,12 @@ function main(): void {
       imageSpecs.length > 0
         ? playwright(imageSpecs, ['--grep-invert', '@tempo'], Number(process.env.ART_WORKERS || 2))
         : 0
+    if (specs.some((f) => f.endsWith('sc-18.art.spec.ts')))
+      console.log(
+        `art:record: Tempo-Lauf SC-18 startet, Last ${loadavg()
+          .map((l) => l.toFixed(2))
+          .join(' / ')} bei ${cpus().length} Kernen`,
+      )
     const tempo = specs.some((f) => f.endsWith('sc-18.art.spec.ts'))
       ? playwright([specFile('SC-18')], ['--project=art-pixel7-tempo'], 1)
       : 0

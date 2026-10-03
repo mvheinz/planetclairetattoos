@@ -43,6 +43,8 @@ export interface RawRun {
     scrollTo: number
   }
   dump: QaDumpJson
+  /** Rechnerlast beim Lauf (`os.loadavg()[0]`, Kerne) – Tempo-Messungen unter Last sind unzuverlässig (KUNST-QA §4.1). */
+  host?: { load1: number; cpus: number }
 }
 
 export interface RunMetrics {
@@ -233,4 +235,23 @@ export function perfGates(
       'Event-Timing Menü/„In den Korb“ ≤ 150 ms',
     ),
   ]
+}
+
+/** Rechnerlast über alle Läufe; `reliable` = 1-min-Last nie über 75 % der Kerne (KUNST-QA §4.1 „keine anderen CPU-lastigen
+ * Prozesse“). Unzuverlässige Messungen werden vermerkt und bei ruhiger Maschine wiederholt – Grenzwerte bleiben. */
+export function hostLoad(raws: readonly Pick<RawRun, 'host'>[]): {
+  load1Max: number | null
+  load1Median: number | null
+  cpus: number | null
+  reliable: boolean | null
+} {
+  const hosts = raws.map((r) => r.host).filter((h): h is { load1: number; cpus: number } => !!h)
+  if (hosts.length === 0) return { load1Max: null, load1Median: null, cpus: null, reliable: null }
+  const loads = hosts.map((h) => h.load1).sort((a, b) => a - b)
+  const mid = Math.floor(loads.length / 2)
+  const median = loads.length % 2 ? loads[mid]! : (loads[mid - 1]! + loads[mid]!) / 2
+  const cpus = hosts[0]!.cpus
+  const max = loads.at(-1)!
+  const r2 = (n: number) => Math.round(n * 100) / 100
+  return { load1Max: r2(max), load1Median: r2(median), cpus, reliable: max <= cpus * 0.75 }
 }

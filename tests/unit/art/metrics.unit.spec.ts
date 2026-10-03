@@ -14,6 +14,7 @@ import {
   type RawRun,
 } from '../../../scripts/art/lib/perf'
 import { buildPerfReport } from '../../../scripts/art/metrics'
+import { hostLoad } from '../../../scripts/art/lib/perf'
 
 // P9.4 Tempo-Auswertung SC-18 (KUNST-QA §4.6, §5.6): Kennzahlen je Lauf, Median über Läufe, Gates relativ zur
 // Grundlinie `?leash=off`. Beispiel-JSONs: aufgezeichnete Läufe (Pixel 7, CPU 4×) unter `tests/fixtures/art/`.
@@ -166,5 +167,24 @@ describe('P9.4 Bericht aus aufgezeichneten Läufen (tests/fixtures/art)', () => 
       'PF-08',
     ])
     expect(r.layoutEventsWhileScrolling).toBe(2)
+  })
+})
+
+describe('P9.4 Rechnerlast wird protokolliert (KUNST-QA §4.1)', () => {
+  it('P9.4 hostLoad: Median/Max der 1-min-Last, unzuverlässig über 75 % der Kerne', () => {
+    expect(hostLoad([{}, {}])).toEqual({
+      load1Max: null,
+      load1Median: null,
+      cpus: null,
+      reliable: null,
+    })
+    expect(
+      hostLoad([
+        { host: { load1: 1.2, cpus: 4 } },
+        { host: { load1: 2.5, cpus: 4 } },
+        { host: { load1: 0.8, cpus: 4 } },
+      ]),
+    ).toEqual({ load1Max: 2.5, load1Median: 1.2, cpus: 4, reliable: true })
+    expect(hostLoad([{ host: { load1: 3.4, cpus: 4 } }]).reliable).toBe(false)
   })
 })

@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url'
 
 import {
   countLayoutEvents,
+  hostLoad,
   medianMetrics,
   perfGates,
   runMetrics,
@@ -29,6 +30,8 @@ export interface PerfReport {
     string,
     { engine: RunMetrics; off: RunMetrics; layoutEventsWhileScrolling: number | null }
   >
+  /** Rechnerlast während der Messung; `reliable: false` → Messung bei ruhiger Maschine wiederholen. */
+  host: ReturnType<typeof hostLoad>
   gates: Gate[]
   pass: boolean
 }
@@ -46,6 +49,7 @@ export function buildPerfReport(
     cpuThrottling: 4,
     runsPerMode: {},
     routes: {},
+    host: hostLoad(raws),
     gates: [],
     pass: true,
   }
@@ -90,6 +94,10 @@ function main(): void {
   console.log(
     `art:metrics: ${raws.length} Läufe, ${Object.keys(report.routes).length} Routen → ${out}; Gates ${
       failed.length ? `rot: ${failed.map((g) => `${g.route} ${g.id}`).join(', ')}` : 'grün'
+    }; Last max ${report.host.load1Max ?? '?'} bei ${report.host.cpus ?? '?'} Kernen${
+      report.host.reliable === false
+        ? ' – UNTER LAST, Messung bei ruhiger Maschine wiederholen'
+        : ''
     }`,
   )
 }

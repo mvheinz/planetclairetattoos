@@ -1,3 +1,5 @@
+import { cpus, loadavg } from 'node:os'
+
 import type { CDPSession, Page } from '@playwright/test'
 
 import { ownClientIp, startCheckoutFor } from '../e2e/checkout/checkoutHelpers'
@@ -155,6 +157,7 @@ test('SC-18 Tempo-Messung', { tag: artTags(['art-pixel7'], ['tempo']) }, async (
             run: i,
             url: target,
             cpuThrottling: 4,
+            host: { load1: loadavg()[0]!, cpus: cpus().length },
             ...r,
           })
           runs.push(rel)
