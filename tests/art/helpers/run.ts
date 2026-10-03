@@ -18,7 +18,8 @@ export function writeRunFile(rel: string, data: Buffer | string): string {
 
 /** PNG (verlustfrei aufgenommen) → WebP q 90 (Einzelframes, KUNST-QA §4.4). */
 export async function writeWebp(rel: string, png: Buffer, quality = 90): Promise<string> {
-  const webp = await sharp(png).webp({ quality }).toBuffer()
+  // smartSubsample: feine dunkle Linien behalten ihre Farbe (sonst färbt 4:2:0 die Tusche mit dem Papierton, LQ-01)
+  const webp = await sharp(png).webp({ quality, smartSubsample: true }).toBuffer()
   return writeRunFile(rel, webp)
 }
 

@@ -225,7 +225,9 @@ Tempo-Läufe laufen **ohne** Videoaufnahme (Video kostet CPU) und getrennt von B
 - Profil `art-pixel7`, CPU 4×, kein Video, Cache warm (1 Vorlauf verwerfen), je Route 3 Läufe **mit** Engine und 3 **ohne**
   (`?leash=off`).
 - Ablauf pro Lauf: laden → LCP abwarten → `__qa.start()` → 5 s gleichmäßig scrollen (Chromium: CDP
-  `Input.synthesizeScrollGesture`, 900 px/s, touch) → Menü öffnen/schließen → (R04) „In den Korb“ → `__qa.stop()` → `dump()`.
+  `Input.synthesizeScrollGesture`, 900 px/s, `gestureSourceType: 'mouse'` – synthetische Touch-Gesten scrollen im
+  Headless-Chromium nicht (P9.11 gemessen: 0 px); der Gesten-Weg wird einmal kalibriert, weil die Mobil-Emulation ihn
+  skaliert) → Menü öffnen/schließen → (R04) „In den Korb“ → `__qa.stop()` → `dump()`.
 - Zusätzlich CDP-Trace (`devtools.timeline`) für einen Lauf je Route zum Zählen von `Layout`-Ereignissen während des Scrollens.
 - Auswertung (`pnpm art:metrics`): rAF-Intervalle (p50, p95, Anteil > 33,4 ms), LoAF-Einträge > 50 ms mit Skript-Zuordnung
   (URL enthält Chunk-Namen `leash`/`coco`/`micro`), Summe `leash:frame`-Messungen je Frame, `leash:build`, CLS-Summe und

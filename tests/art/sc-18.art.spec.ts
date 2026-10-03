@@ -10,7 +10,7 @@ import { writeJson, writeRunFile } from './helpers/run'
 
 // SC-18 Tempo-Messung (KUNST-QA §4.6, PLAN P9.4): Profil `art-pixel7`, CPU 4× per CDP, ohne Video, Cache warm (1 Vorlauf
 // verworfen); je Route R01, R02, R04, R07 drei Läufe mit Engine und drei mit `?leash=off` (Grundlinie). Ablauf je Lauf:
-// laden → LCP → `__qa.start()` → 5 s Scrollen per `Input.synthesizeScrollGesture` (900 px/s, Touch) → Menü öffnen/
+// laden → LCP → `__qa.start()` → 5 s Scrollen per `Input.synthesizeScrollGesture` (900 px/s, Maus-Rad, kalibriert) → Menü öffnen/
 // schließen → (R04) „In den Korb“ → `__qa.stop()` → `dump()`. Je Route ein CDP-Trace (`devtools.timeline`) für die
 // `Layout`-Ereignisse während des Scrollens. Rohdaten unter `raw/SC-18/…`, Auswertung `pnpm art:metrics`.
 
@@ -51,14 +51,43 @@ async function lcpOf(page: Page): Promise<number | null> {
   )
 }
 
-async function scroll(cdp: CDPSession, page: Page): Promise<void> {
+/**
+ * 5 s Scrollen mit 900 CSS-px/s. Synthetische Touch-Gesten scrollen im Headless-Chromium nicht (gemessen P9.11: 0 px,
+ * auch auf einer leeren Seite) – daher eine Maus-Rad-Geste; deren Weg wird mit der Mobil-Emulation skaliert, also
+ * vorher an einem kurzen Stück kalibriert (Faktor CSS-px je Gesten-px), danach zurück an den Anfang.
+ */
+let gestureScale: number | null = null
+const gestureAt = (page: Page) => {
   const vp = page.viewportSize()!
+  return { x: Math.round(vp.width / 2), y: Math.round(vp.height * 0.7) }
+}
+async function calibrate(cdp: CDPSession, page: Page): Promise<void> {
+  const at = gestureAt(page)
+  if (gestureScale === null) {
+    const y0 = await page.evaluate(() => scrollY)
+    await cdp.send('Input.synthesizeScrollGesture', {
+      ...at,
+      yDistance: -200,
+      speed: 2000,
+      gestureSourceType: 'mouse',
+    })
+    const moved = (await page.evaluate(() => scrollY)) - y0
+    gestureScale = moved > 0 ? moved / 200 : 1
+    await page.evaluate(
+      (y) => window.scrollTo({ top: y, behavior: 'instant' as ScrollBehavior }),
+      y0,
+    )
+    await page.waitForTimeout(300)
+  }
+}
+
+async function scroll(cdp: CDPSession, page: Page): Promise<void> {
+  const scale = gestureScale ?? 1
   await cdp.send('Input.synthesizeScrollGesture', {
-    x: Math.round(vp.width / 2),
-    y: Math.round(vp.height * 0.7),
-    yDistance: -Math.round((SCROLL_PX_PER_S * SCROLL_MS) / 1000),
-    speed: SCROLL_PX_PER_S,
-    gestureSourceType: 'touch',
+    ...gestureAt(page),
+    yDistance: -Math.round((SCROLL_PX_PER_S * SCROLL_MS) / 1000 / scale),
+    speed: Math.round(SCROLL_PX_PER_S / scale),
+    gestureSourceType: 'mouse',
     repeatCount: 1,
   })
 }
@@ -77,6 +106,7 @@ async function oneRun(
   await page.waitForFunction(() => !!(window as QaWindow).__qa, undefined, { timeout: 20_000 })
   await art.waitLeash(10_000)
   const lcp = await lcpOf(page)
+  await calibrate(cdp, page)
   await page.evaluate(() => (window as QaWindow).__qa!.start())
   const now = () => page.evaluate(() => performance.now())
   const scrollFrom = await now()

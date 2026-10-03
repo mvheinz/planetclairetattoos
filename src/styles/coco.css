@@ -74,12 +74,11 @@
   fill: var(--paper);
 }
 
-/* Vorab angelegte Posen-Gruppen der Steuerung (`coco.ts`): nur die Gruppe mit `data-on` ist sichtbar und boilt. */
+/* Vorab angelegte Posen-Gruppen der Steuerung (`coco.ts`): nur die Gruppe mit `data-on` ist sichtbar. Der Boil läuft
+   in allen Gruppen mit (gleiches Frame-Raster); ein Wechsel schaltet nur `visibility` an der Gruppe – Starten/Stoppen
+   der Animation oder `opacity` an `<use>` erzwängen in Chromium je Wechsel ein Layout (KUNST-QA PF-05). */
 .coco .cg:not([data-on]) {
   visibility: hidden;
-}
-.coco .cg:not([data-on]) .f {
-  animation: none;
 }
 
 /* Boil: drei Frames A → B → C; b um 2, c um 1 Frame-Länge vorgespult. */
