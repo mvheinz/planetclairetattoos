@@ -279,7 +279,7 @@
   /* MI-13 Stationszeichnung „zieht ein“ (Zeichnungen): bis zur Ankunft der Linie verborgen (`data-leash-armed`, nur
      mit Tinte in Bewegung), dann Masken-Wisch von links, 700 ms, einmal. */
   html:not([data-motion='reduced'])
-    .station[data-home-station='zeichnungen']:has([data-leash-armed])
+    .station[data-home-station='zeichnungen']:has([data-leash-armed]:not([data-leash-reached]))
     .artFrame {
     clip-path: inset(0 100% 0 0);
   }

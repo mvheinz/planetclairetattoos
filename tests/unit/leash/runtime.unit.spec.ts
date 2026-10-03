@@ -114,11 +114,8 @@ describe('leash/runtime – mountLeash', () => {
     // PF-05: keine Masken (deren Änderung erzwingt je Frame ein Layout), je Stück ein runder Strich mit Dash
     expect(root.querySelectorAll('mask, [mask]').length).toBe(0)
     const strokes = state.geometry!.segments.reduce((n, g) => n + g.strokes!.length, 0)
-    expect(root.querySelectorAll('path.ink').length).toBe(strokes)
-    for (const p of root.querySelectorAll<SVGPathElement>('path.ink')) {
-      expect(p.closest('svg')!.getAttribute('stroke-linecap')).toBe('round')
-      expect(p.getAttribute('stroke-dasharray')).not.toBe('')
-    }
+    // PF-10: Stücke hängen erst im DOM, wenn die Feder sie erreicht
+    expect(root.querySelectorAll('path').length).toBeLessThan(strokes)
     for (const svg of svgs) expect(svg.getAttribute('focusable')).toBe('false')
 
     // Intro (journey) von 0 bis zur Lesezeile in 900 ms
@@ -139,13 +136,13 @@ describe('leash/runtime – mountLeash', () => {
     expect(handle.inspect().cocoLen).toBeLessThan(down)
 
     // Gezeichnete Stücke ganz sichtbar (Versatz 0), höchstens eines anteilig, zukünftige Segmente unsichtbar
-    const ink = [...root.querySelectorAll<SVGPathElement>('path.ink')]
-    expect(ink.some((p) => p.style.strokeDashoffset === '0')).toBe(true)
-    const partial = ink.filter((p) => {
-      const o = parseFloat(p.style.strokeDashoffset || p.getAttribute('stroke-dashoffset')!)
-      const L = parseFloat(p.getAttribute('stroke-dasharray')!)
-      return o > 0 && o < L
-    })
+    const ink = [...root.querySelectorAll<SVGPathElement>('path')]
+    expect(ink.length).toBeGreaterThan(0)
+    for (const p of ink.filter((x) => !x.hasAttribute('stroke-dasharray'))) {
+      expect(p.closest('svg')!.getAttribute('stroke-linecap')).toBe('round')
+      expect(p.hasAttribute('stroke-dashoffset')).toBe(false) // fertig: nur `d` und Breite
+    }
+    const partial = ink.filter((p) => p.hasAttribute('stroke-dasharray'))
     expect(partial.length).toBeLessThanOrEqual(1)
     expect([...svgs].some((s) => (s as SVGSVGElement).style.visibility === 'hidden')).toBe(true)
 
@@ -301,7 +298,10 @@ describe('leash/runtime – mountLeash', () => {
     const d = (key: string) => {
       const root = setupDom()
       const h = mountLeash(root, { preset: 'margin', routeKey: key })
-      const out = [...root.querySelectorAll('path.ink')].map((p) => p.getAttribute('d')).join('')
+      const out = h
+        .inspect()
+        .geometry!.segments.flatMap((g) => g.strokes!.map((x) => x.d))
+        .join('')
       h.destroy()
       return out
     }

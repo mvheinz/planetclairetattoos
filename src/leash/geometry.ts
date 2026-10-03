@@ -33,7 +33,7 @@ const RDP_TOLERANCE = 0.2
 /** Überlappung benachbarter Segmente (Schritt 9). */
 const SEGMENT_OVERLAP = 2
 /** Stufe A: Stücke der Mittellinie, deren Breite höchstens so weit vom Stückanfang abweicht (× Grundbreite). */
-const STROKE_WIDTH_TOL = 0.04
+const STROKE_WIDTH_TOL = 0.07
 /** Stufe A: Toleranz der Vereinfachung der Strich-Stücke (die Mittellinie ist bereits gewackelt). */
 const STROKE_RDP_TOLERANCE = 0.34
 /** Stufe A: längstes Stück in px Bogenlänge. */
@@ -279,6 +279,8 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
       loops.push({ anchor, kind: 'none', i0, i1, dot: false })
       continue
     }
+    // Kontur: erst auf der Rinne bis kurz vor die Zeichnung, dann hinein – sonst läuft die Linie diagonal durch den Text
+    if (onRail && kind === 'contour') section({ x: railX, y: loopPts[0]!.y - 40 })
     const i0 = section(loopPts[0]!)
     let i1 = i0
     for (let k = 1; k < loopPts.length; k++) i1 = push(loopPts[k]!)

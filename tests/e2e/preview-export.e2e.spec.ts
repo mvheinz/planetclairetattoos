@@ -122,8 +122,8 @@ async function leashDrawn(page: Page): Promise<number> {
     let drawn = 0
     for (const seg of Array.from(document.querySelectorAll<SVGSVGElement>('[data-leash-seg]'))) {
       if (seg.style.visibility === 'hidden') continue
-      // Stufe A: Strich-Stücke mit Dash (P9.11), je Stück anteilig; Stufe C: ohne Dash = ganz gezeichnet
-      const parts = Array.from(seg.querySelectorAll<SVGPathElement>('path.ink'))
+      // Stufe A: eingehängte Strich-Stücke (P9.11/P9.15), das aktive anteilig per Dash; Stufe C: ohne Dash = ganz gezeichnet
+      const parts = Array.from(seg.querySelectorAll<SVGPathElement>('path'))
       let sum = 0
       for (const p of parts) {
         const length = parseFloat(
@@ -134,7 +134,7 @@ async function leashDrawn(page: Page): Promise<number> {
         )
         sum += length > 0 ? Math.max(0, Math.min(1, 1 - offset / length)) : 1
       }
-      drawn += parts.length ? sum / parts.length : 1
+      drawn += sum // Stücke hängen erst ein, wenn die Feder sie erreicht (PF-10): Summe in Stück-Einheiten
     }
     return drawn
   })

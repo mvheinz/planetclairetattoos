@@ -204,16 +204,14 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
 
   // ---------- SVG-Aufbau: eine Schreibphase ----------
 
-  /** Stufe A: Strich-Stück als runder Strich mit Dash-Enthüllung (anfangs verborgen). */
+  /**
+   * Stufe A: Strich-Stück als runder Strich. Es hängt erst im DOM, wenn die Feder es erreicht (dann mit Dash-Enthüllung),
+   * und trägt fertig nur `d` und Breite – kürzeres DOM (PF-10). Farbe, Kappen, Füllung stehen am `<svg>`.
+   */
   function strokeView(st: LeashStroke): StrokeView {
     const el = doc.createElementNS(SVG_NS, 'path')
     el.setAttribute('d', st.d)
-    el.setAttribute('class', 'ink')
     el.setAttribute('stroke-width', String(st.w))
-    // Farbe, Kappen und Füllung stehen einmal am `<svg>` (Vererbung) – kürzeres DOM (PF-10)
-    el.setAttribute('stroke-dasharray', String(st.L))
-    // verborgen: Dash samt runder Kappe vor dem Pfadanfang
-    el.setAttribute('stroke-dashoffset', String(st.L + 0.5))
     return { el, L: st.L, len0: st.len0, len1: st.len1 }
   }
 
@@ -241,9 +239,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       svg.setAttribute('stroke-linejoin', 'round')
       svg.style.stroke = forced ? 'CanvasText' : 'var(--ink)'
       for (const st of seg.strokes) {
-        const v = strokeView(st)
-        svg.appendChild(v.el)
-        strokes.push(v)
+        strokes.push(strokeView(st))
       }
       return { svg, ink: strokes[0]!.el, reveal: null, ...base, strokes }
     }
@@ -278,17 +274,12 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   }
 
   /**
-   * `data-leash-armed` an den Stations-Ankern, solange ihr Effekt (MI-13 „zieht ein“) noch aussteht: Die Zeichnung ist
-   * bis zur Ankunft der Linie verborgen. Nur mit Tinte in Bewegung (Stufe A/B); Stufe C und reduzierte Bewegung
+   * `data-leash-armed` an den Stations-Ankern (MI-13 „zieht ein“): Die Zeichnung ist bis `data-leash-reached` verborgen. Nur mit Tinte in Bewegung (Stufe A/B); Stufe C und reduzierte Bewegung
    * zeigen alles sofort.
    */
   function armStations() {
-    const scope = root.parentElement ?? doc
-    for (const el of Array.from(scope.querySelectorAll<HTMLElement>('[data-leash-station]'))) {
-      if (tier !== 'C' && !reached.has(el.dataset.leashStation ?? ''))
-        el.setAttribute('data-leash-armed', '')
-      else el.removeAttribute('data-leash-armed')
-    }
+    for (const el of (root.parentElement ?? doc).querySelectorAll('[data-leash-station]'))
+      el.toggleAttribute('data-leash-armed', tier !== 'C')
   }
 
   /**
@@ -320,21 +311,30 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       for (const el of Array.from(scope.querySelectorAll<HTMLElement>('[data-leash-station]'))) {
         if (el.dataset.leashStation !== st.id) continue
         el.setAttribute('data-leash-reached', '')
-        el.removeAttribute('data-leash-armed')
       }
     }
   }
 
-  /** Stufe A: Stücke bis `drawnLen` sichtbar, das Stück an der Feder anteilig (nur `stroke-dashoffset`). */
+  /** Stufe A: Stücke bis `drawnLen` einhängen, fertige ohne Dash, das Stück an der Feder anteilig (nur `stroke-dashoffset`). */
   function applyStrokes(v: SegView) {
     const strokes = v.strokes!
     while (v.next < strokes.length && strokes[v.next]!.len1 <= drawnLen) {
-      strokes[v.next]!.el.style.strokeDashoffset = '0'
-      v.next++
+      const el = strokes[v.next++]!.el
+      if (!el.parentNode) v.svg.appendChild(el)
+      el.removeAttribute('stroke-dasharray')
+      el.removeAttribute('stroke-dashoffset')
     }
     const st = strokes[v.next]
-    if (st && drawnLen > st.len0)
-      st.el.style.strokeDashoffset = String(st.L * (1 - (drawnLen - st.len0) / (st.len1 - st.len0)))
+    if (st && drawnLen > st.len0) {
+      if (!st.el.parentNode) {
+        st.el.setAttribute('stroke-dasharray', String(st.L))
+        v.svg.appendChild(st.el)
+      }
+      st.el.setAttribute(
+        'stroke-dashoffset',
+        String(st.L * (1 - (drawnLen - st.len0) / (st.len1 - st.len0))),
+      )
+    }
   }
 
   /**
