@@ -4007,12 +4007,12 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
   geklärt vermerkt.
 - [x] `LEGAL_TRACE_PHASE = 7`; Nachweise im PR-Text: AK-9-01 bis AK-9-05, AK-10-01 bis AK-10-04, T-05, R-IDs aus
   „Referenzen“ je mit Testdatei.
-- [ ] CI grün: Der Phasenende-Commit (z. B. `chore(P7): finish phase [ci:full p7]`, der letzte Commit ohne
+- [x] CI grün: Der Phasenende-Commit (z. B. `chore(P7): finish phase [ci:full p7]`, der letzte Commit ohne
   `[skip ci]`) hat `CI / quick`, `ci-full` (`e2e-full` inkl. `@a11y` und `@privacy`; `quality` mit Lighthouse-CI für
   `/de/tattoo` innerhalb EK-01 und visuellen Referenzen für Flash, Angebote, Galerie, Auftragsarbeiten) und
   `preview-export` grün durchlaufen. Dieses Häkchen setzt ein reiner Doku-Commit mit `[skip ci]`, nachdem der Lauf grün
   ist.
-- [ ] Vorschau-Artefakt `planet-claire-vorschau-p7-<sha7>` enthält R10–R18 DE/EN mit dem Mini-Bestand bzw. den
+- [x] Vorschau-Artefakt `planet-claire-vorschau-p7-<sha7>` enthält R10–R18 DE/EN mit dem Mini-Bestand bzw. den
   Leerzuständen und die Admin-Fotos des Bereichs „Tattoo“; Flash, Angebote und Galerie des Beispielbestands (G1/G2 mit
   Etikett „intern – Einwilligung fehlt“, TO3 unsichtbar) zeigt die Vorschau erst ab P8.21.
 - [x] `docs/FORTSCHRITT.md` mit Phasen-Eintrag; PR-Beschreibung aktualisiert; neue Annahmen in `docs/OFFENE-PUNKTE.md`
