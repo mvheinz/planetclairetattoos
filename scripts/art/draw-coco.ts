@@ -133,7 +133,7 @@ function noseShape(c: P, w: number, tilt = 0): P[] {
  * Dünnes Bein als Gelenkkette ab `pivot` (Winkel je Segment in Grad aus der Senkrechten, + = in Blickrichtung `face`),
  * gezeichnet als offene U-Form: hintere Kante hinunter, kleine Pfote nach vorn, vordere Kante hinauf (oben offen).
  */
-function leg(pivot: P, segs: [number, number][], face: 1 | -1, w = 2.4, paw = 2.2): P[] {
+function leg(pivot: P, segs: [number, number][], face: 1 | -1, w = 2.2, paw = 2.2): P[] {
   const joints: P[] = [pivot]
   let p = pivot
   for (const [l, a] of segs) {
@@ -222,7 +222,7 @@ function earPts(h: number, lean: number): P[] {
 function sideHead(t: Tf, o: HeadOpts = {}): Stroke[] {
   const near = o.earNear ?? -30
   const far = o.earFar ?? -36
-  const es = o.earScale ?? 0.86
+  const es = o.earScale ?? 0.8
   const earN = map({ x: 1, y: -11 }, earPts(34 * es, near))
   const earNIn = map(
     { x: 1, y: -11 },
@@ -237,7 +237,7 @@ function sideHead(t: Tf, o: HeadOpts = {}): Stroke[] {
     ),
   )
   // fernes Ohr: fast deckungsgleich dahinter, nur Hinterkante und Spitze sichtbar, etwas kleiner (Asymmetrie)
-  const earF = map({ x: -1.5, y: -11.5 }, earPts(31 * es, far).slice(0, 5))
+  const earF = map({ x: -1.5, y: -11.5 }, earPts(31.6 * es, far).slice(0, 5))
   const s: Stroke[] = [
     // Schädel: vom Kiefer über den Hinterkopf zur Stirn – offen, mit Absetzer
     {
@@ -270,9 +270,9 @@ function sideHead(t: Tf, o: HeadOpts = {}): Stroke[] {
       part: 'snout',
       pts: [
         [8, -7.6],
-        [10.8, -5.2],
-        [15.2, -3.8],
-        [19.2, -2.4],
+        [10.8, -5],
+        [15, -4.2],
+        [18.6, -3.4],
       ],
       feature: 'hook',
     },
@@ -287,10 +287,10 @@ function sideHead(t: Tf, o: HeadOpts = {}): Stroke[] {
             [8.8, 8.6],
           ]
         : [
-            [19.4, 3.2],
-            [15.6, 5.6],
-            [11.4, 6.9],
-            [8.8, 7],
+            [19, 4],
+            [15.6, 6.6],
+            [11.4, 7.6],
+            [8.8, 7.4],
           ],
     },
     // Maul: kleiner Bogen mit Haken wie in Juttas „Oh“-Skizze
@@ -356,10 +356,12 @@ function sideHead(t: Tf, o: HeadOpts = {}): Stroke[] {
       layer: 'line',
       part: 'eye-l',
       pts: [
-        [-1.6, -3],
-        [2, -1.2],
-        [5.6, -2.8],
+        [-2.8, -3.6],
+        [0, -1.2],
+        [3.6, -0.8],
+        [6.8, -3],
       ],
+      feature: 'hook',
       jitter: 0.4,
     })
   else {
@@ -420,10 +422,10 @@ function sideFigure(r: SideRig): Figure {
   ]
   const belly: P[] = [
     [X(31), -6],
-    [X(32.5), 3],
-    [X(26), 10.5],
-    [X(14), 11.5],
-    [X(1), 6.5 - a * 0.3],
+    [X(33.5), 4],
+    [X(27), 12.5],
+    [X(14), 13],
+    [X(1), 7.5 - a * 0.3],
     [X(-13), 4 - a * 0.2],
     [X(-24), 6.5],
   ]
@@ -472,7 +474,7 @@ function sideFigure(r: SideRig): Figure {
     hr: apply(T, [X(-21), 0]),
     hl: apply(T, [X(-26), 1]),
   }
-  const tl = tailOutline(map(T, r.tail), 5.2)
+  const tl = tailOutline(map(T, r.tail), 6.4)
   const strokes: Stroke[] = [
     // ferne Beine zuerst
     { layer: 'line', part: 'leg-hr', pts: leg(piv.hr, r.hr, face), jitter: 0.6 },
@@ -498,7 +500,7 @@ function sideFigure(r: SideRig): Figure {
     {
       layer: 'line',
       part: 'ring',
-      pts: blob(ring, 2.1, 1.9, 15, 5, 0.12),
+      pts: blob(ring, 2.5, 2.3, 15, 5, 0.12),
       closed: true,
       jitter: 0.2,
     },
@@ -607,7 +609,7 @@ function rennen(frame: 'a' | 'b' | 'c'): Figure {
       stretch: 0.96,
       arch: 3,
       head: { x: 118, y: 54, rot: 10 },
-      headOpts: { ...headOpts, earNear: -38, earFar: -44 },
+      headOpts: { ...headOpts, earNear: -38, earFar: -42 },
       fl: [
         [17, -20],
         [17, -12],
@@ -663,7 +665,7 @@ function schnueffeln(frame: 'a' | 'b' | 'c'): Figure {
   return sideFigure({
     torso: { x: 70, y: 77, rot: 6 },
     head: { x: 115 + twitch * 0.7, y: 96 + twitch * 0.6, rot: 25 },
-    headOpts: { earNear: -14, earFar: -26, earScale: 0.8 },
+    headOpts: { earNear: -14, earFar: -26, earScale: 0.76 },
     fl: [
       [15, 12],
       [15, 2],
@@ -698,8 +700,8 @@ function springen(): Figure {
       [16, 120],
     ],
     fr: [
-      [16, 102],
-      [16, 108],
+      [16, 90],
+      [16, 98],
     ],
     hl: [
       [12, -34],
@@ -793,16 +795,21 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
   // beim schiefen Kopf steht das linke Ohr etwas höher (das rechte knickt)
   // Ohren etwas kürzer und runder als ein Fennek (Prüf-Linse P9.8): Höhe um 10 % zur Basis hin gestaucht
   const shrink = ([x, y]: P): P => [x, -12 + (y + 12) * 0.9]
-  const earL = earL0.map(([x, y]): P => shrink([x, knick ? y * 1.15 : y]))
+  // beim schiefen Kopf das linke Ohr steiler stellen, damit es trotz Neigung aufrecht wirkt
+  const earL1 = earL0.map(([x, y]): P => shrink([x, knick ? y * 1.06 : y]))
+  const earL = knick ? rotAround(earL1, [-9, -9], 16) : earL1
   const earR0: P[] = knick
     ? [
+        // Ohr knickt oben deutlich nach außen ab (wie auf den Fotos)
         [4, -13.6],
-        [10, -23],
-        [16, -31.6],
-        add([22.4, -35], flop),
-        add([28, -28.6], flop),
-        [24, -25],
-        [21.6, -19],
+        [10, -24],
+        [15, -32.4],
+        add([19.6, -36], flop),
+        add([25.4, -33.6], flop),
+        add([30, -29], flop),
+        add([26.4, -29.4], flop),
+        [22.4, -27.4],
+        [20.6, -20],
         [18.6, -11],
         [15.4, -6],
       ]
@@ -908,18 +915,22 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
     // Augenringe offen (Juttas „Oh“-Skizze), Pupillen zur Seite gerückt = Seitenblick
     { layer: 'line', part: 'head', pts: blob([-8.6, -2], 5.4, 4.6, -18, 8), jitter: 0.4 },
     { layer: 'line', part: 'head', pts: blob([6.4, -3.2], 5.8, 4.6, 12, 8), jitter: 0.4 },
-    // Ohren mit Innenohr-Linie; linkes doppelt nachgezogen
+    // Ohren mit Innenohr-Linie
     { layer: 'line', part: 'ear-l', pts: earL, jitter: 0.4 },
     {
       layer: 'line',
       part: 'ear-l',
-      pts: (
-        [
-          [-13.4, -11],
-          [-20, -21.6],
-          [-24.2, -31],
-        ] as P[]
-      ).map(shrink),
+      pts: rotAround(
+        (
+          [
+            [-13.4, -11],
+            [-20, -21.6],
+            [-24.2, -31],
+          ] as P[]
+        ).map(shrink),
+        [-9, -9],
+        knick ? 16 : 0,
+      ),
       jitter: 0.6,
     },
     { layer: 'line', part: 'ear-r', pts: earR, jitter: 0.4 },
@@ -1169,7 +1180,7 @@ function sitzenFigure(knick: boolean, frame: string): Figure {
     {
       layer: 'line',
       part: 'ring',
-      pts: blob(ring, 2.1, 1.9, -20, 5, 0.12),
+      pts: blob(ring, 2.5, 2.3, -20, 5, 0.12),
       closed: true,
       jitter: 0.2,
     },
@@ -1223,7 +1234,7 @@ function curl(awake: boolean): Figure {
   const headT: Tf = awake
     ? { x: 108, y: 92, rot: -8, s: 0.95, flip: true }
     : { x: 108, y: 97, rot: -14, s: 0.95, flip: true }
-  const head = sideHead(headT, { earNear: awake ? -70 : -88, noFarEar: true, eyesClosed: !awake })
+  const head = sideHead(headT, { earNear: awake ? -58 : -66, noFarEar: true, eyesClosed: !awake })
   const strokes: Stroke[] = [
     // Rücken als großer Bogen vom Nacken über den Po – offen, doppelt nachgezogen
     {
@@ -1358,7 +1369,7 @@ function curl(awake: boolean): Figure {
     {
       layer: 'line',
       part: 'ring',
-      pts: blob(ring, 2.1, 1.9, 10, 5, 0.12),
+      pts: blob(ring, 2.5, 2.3, 10, 5, 0.12),
       closed: true,
       jitter: 0.2,
     },
