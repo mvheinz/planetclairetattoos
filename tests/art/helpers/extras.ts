@@ -110,6 +110,49 @@ export async function introTiming(art: ArtSession): Promise<{
   }
 }
 
+/** MO-05/MO-06: frische Seite, Lesezeile an 12 steigenden Positionen, dann 400 px zurück – je eine Sonde (ohne Bild). */
+export async function readingSeries(art: ArtSession): Promise<void> {
+  const { page } = art
+  await art.goto('/de')
+  await page.waitForTimeout(1600)
+  const range = await page.evaluate(() => {
+    const sm = (window as Window & { __leash?: { geometry: { scrollMap: { readingY: number }[] } } }).__leash
+      ?.geometry.scrollMap
+    return sm && sm.length ? { a: sm[0]!.readingY, b: sm[sm.length - 1]!.readingY } : null
+  })
+  if (!range) return
+  const set = (y: number) =>
+    page.evaluate(
+      ({ y }) =>
+        new Promise<void>((resolve) => {
+          const w = window as Window & {
+            __leash?: { setReadingY(y: number | null): void }
+            __artReadingY?: number | null
+          }
+          const layer = document.querySelector('[data-leash-layer]')
+          const top = layer ? layer.getBoundingClientRect().top + scrollY : 0
+          scrollTo(0, Math.max(0, y + top - 0.72 * innerHeight))
+          w.__artReadingY = y
+          w.__leash?.setReadingY(y)
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+        }),
+      { y },
+    )
+  let last = range.a
+  for (let i = 0; i < 12; i++) {
+    last = range.a + ((range.b - range.a) * 0.9 * (i + 1)) / 12
+    await set(last)
+    await art.probe(`mo05-${String(i + 1).padStart(2, '0')}`)
+  }
+  await set(last - 400)
+  await art.probe('mo06-up400')
+  await page.evaluate(() => {
+    const w = window as Window & { __leash?: { setReadingY(y: number | null): void }; __artReadingY?: number | null }
+    w.__artReadingY = null
+    w.__leash?.setReadingY(null)
+  })
+}
+
 /** PF-11: Tab verborgen → Engine-Frames (`leash:frame`) über 2 s bei Scrollen zählen. */
 export function hiddenFrames(page: Page): Promise<number> {
   return page.evaluate(

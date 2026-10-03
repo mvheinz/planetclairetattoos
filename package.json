@@ -65,6 +65,9 @@
     "art:record": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/art/record.ts",
     "art:compare": "tsx scripts/art/compare-runs.ts",
     "art:metrics": "tsx scripts/art/metrics.ts",
+    "art:sheets": "tsx scripts/art/sheets.ts",
+    "art:check": "tsx --import=./scripts/lib/register-server-only.mjs scripts/art/check.ts",
+    "art:bundle": "tsx scripts/art/bundle.ts",
     "fixtures:barcodes": "tsx scripts/fixtures/barcodes.ts"
   },
   "dependencies": {

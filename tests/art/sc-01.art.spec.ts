@@ -1,5 +1,5 @@
 import { maxScroll } from './helpers/capture'
-import { followSamples, introTiming } from './helpers/extras'
+import { followSamples, introTiming, readingSeries } from './helpers/extras'
 import { artTags, test } from './helpers/fixtures'
 import { leashStations, readingFrame, releaseReading, stationBounds } from './helpers/leash'
 
@@ -46,6 +46,9 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
   }
   await releaseReading(page)
   await art.resumeClock()
+
+  // MO-05/MO-06: Lesezeilen-Treue auf frischer Seite (12 Positionen), dann 400 px zurück.
+  if (!art.reduced) await readingSeries(art)
 
   // MO-10: Intro-Zeitpunkt (≥ LCP + 300 ms) und Dauer (900 ms ± 90), fein in 20-ms-Schritten (ohne Video-Bilder).
   if (!art.reduced && art.profile !== 'art-iphone15') art.extra('mo10', await introTiming(art))
