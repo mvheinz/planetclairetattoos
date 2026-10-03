@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-03 – P8.15
+
+- Texte DE/EN gegengelesen (i18n, site-texts, Seed-Seiten, FAQ, Tattoo, Mails): Ton passt (du-Form, kurz, Kulleraugen), keine Treffer zu V-18 (Garantie nur als EU-Fachbegriff „legal guarantee“), V-26 (Barrierefreiheit/Zertifikate), V-28 (Liedtext/Audio); Rechtstexte und legalSnippets unverändert (R-002). RECHT §7 Teil A: R-190, V-18/V-28/V-29 und „FAQ-/Tattoo-/Über-mich-Entwürfe gegen §5 geprüft“ abgehakt (03.10.2026).\n- site-texts: Standardwerte „Seite nicht gefunden“ an die feste 404-Überschrift angeglichen („Coco hat sich losgerissen“ / “Coco slipped her leash”).\n- Prüfliste für Jutta (SE-06, SE-07) in OFFENE-PUNKTE.\n- Tests: neu tests/unit/i18n/site-texts-defaults.unit.spec.ts (4: Gruppen §7.2, jedes Textfeld DE+EN, Navigationslisten, Betreff je Kund:innen-Mail DE+EN); i18n-Parität und Verbotsmuster unit grün; E2E tests/e2e/legal/forbidden.e2e.spec.ts (+ product-info, gpsr) desktop 121/121 grün.
+
 ## 2026-10-03 – Erstlade-Budget R10/R26 (check:bundle wieder grün)
 
 - Ursache 1: Formulare R10 (Auftragsarbeiten) und R26 (Widerruf) waren komplette Client-Komponenten – Felder, Buttons, Fehlerkästen, alle Schritte und die ganze Icon-Tabelle (`ICON_SHAPES` über `Icon` in `Field`/`Button`) lagen im Erstlade-Chunk (6,7 bzw. 5,5 KB gz). Jetzt: Erstansicht rendert der Server (`CommissionView`, `WithdrawalView` ohne `'use client'`), im Browser bleiben nur Zustand, Server Action und `<form>` (`CommissionForm`, `WithdrawalFlow`, je ≈ 2,1 KB gz); Folgezustände (Fehler, Auswahl, Bestätigung, Ergebnis) lädt `React.lazy` nach `load` vor, Bildauswahl (`CommissionImages`) und Verkleinern/Hochladen (`imageUpload`) erst nach `load` bzw. bei der ersten Auswahl. Icons als Einzelkonstanten (`ICON_WARN` …) + `Glyph`; `Icon` (Name → Tabelle) nur noch serverseitig. Gemeinsamer Hinweis-/Fehlerkasten `FormAlert`.

@@ -1827,9 +1827,9 @@ Arbeitsfassung sinngemäß (`origin: 'draft'`).
 - [x] R-156: `docs/recht/VVT.md` vollständig. (02.10.2026, P6.21)
 - [ ] R-157: Datenpannen-Abschnitt im RUNBOOK und Owner-Anleitung vorhanden.
 - [x] R-161: Vorlage `commission.offer` als Platzhalter vorhanden. (02.10.2026, P7.14; Grund-Seed `src/lib/legal/snippetSeed.ts` mit Gliederung, Knopf „Angebots-Vorlage kopieren“ im Anfrage-Detail; Prüfung `tests/unit/legal/snippets.unit.spec.ts`)
-- [ ] R-190: Keine Barrierefreiheits-/Zertifikatsbehauptungen in Texten.
-- [ ] V-18, V-28, V-29: manuelle Sichtung aller Seitentexte, FAQ, Aftercare, Mails.
-- [ ] Alle FAQ-/Tattoo-/Über-mich-Entwürfe (E-62) gegen §5 geprüft.
+- [x] R-190: Keine Barrierefreiheits-/Zertifikatsbehauptungen in Texten. (03.10.2026, P8.15; Scan `src/i18n`, `src/globals`, `content/seed/data`, Mail-Vorlagen ohne Treffer zu V-26)
+- [x] V-18, V-28, V-29: manuelle Sichtung aller Seitentexte, FAQ, Aftercare, Mails. (03.10.2026, P8.15; „Garantie“ nur als EN-Fachbegriff „legal guarantee“ der EU-Mitteilung, kein Liedtext/Audio, Rechtstexte tragen das Platzhalter-Band aus P6)
+- [x] Alle FAQ-/Tattoo-/Über-mich-Entwürfe (E-62) gegen §5 geprüft. (03.10.2026, P8.15; Verbotsmuster-Tests unit + E2E grün)
 
 **Teil B – P11 mit Jutta (vor und nach DNS-Umstellung):**
 - [ ] Kanzleitexte (alle Typen + Bausteine „Kanzlei: ja“) eingespielt, `origin: 'lawyer'` (R-002, R-012).

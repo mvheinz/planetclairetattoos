@@ -4435,7 +4435,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   - Ohne Jutta: aus 640-px-Quellen (DA-8). P11-Nacharbeit: nach dem Instagram-Export `pnpm art:vectorize`
     erneut.
 
-- [ ] **P8.15 Texte gegenlesen und vervollständigen (DE/EN, Juttas Ton)** – Alle Seed-Texte gegen SEED-SPEC prüfen
+- [x] **P8.15 Texte gegenlesen und vervollständigen (DE/EN, Juttas Ton)** – Alle Seed-Texte gegen SEED-SPEC prüfen
   (Stücke §5.4, Kategorien §3.3, Seiten §13, FAQ §14, Tattoo §12, Alt-Texte §4) und alle übrigen Texte fertig
   formulieren: Voreinstellungen von `site-texts` im Code (DATENMODELL §7.2: `navigation`, `footer`, `shop`, `product`,
   `cart`, `checkout`, `thanks`, `orderStatus`, `withdrawal`, `notFound`, `errors`, `emails` mit `subject`/`intro`/
