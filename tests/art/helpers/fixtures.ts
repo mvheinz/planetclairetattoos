@@ -122,6 +122,9 @@ export class ArtSession {
   /** Ein Standbild (PNG → WebP q 90) unter `frames/<SC>/<profil>/<variante>/<nnn>-<label>.webp`. */
   async frame(label: string, opts: FrameOptions = {}): Promise<string> {
     this.n++
+    // Jede Beschriftung trägt `t` oder `y` (KUNST-QA §4.4): sonst die aktuelle Scroll-Position anhängen.
+    if (!/(^|-)[ty]-?\d+/.test(label))
+      label = `${label}-y${String(Math.max(0, Math.round(await this.page.evaluate(() => scrollY)))).padStart(4, '0')}`
     const shot = {
       type: 'png' as const,
       caret: 'hide' as const,
