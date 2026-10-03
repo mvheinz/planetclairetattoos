@@ -450,10 +450,10 @@ function sideFigure(r: SideRig): Figure {
     [X(-14), -12.6 - a],
     [X(2), -12.4 - a * 0.8],
     [X(16), -15.5],
-    [X(22), -6],
-    [X(9), 2],
-    [X(-10), 1.5],
-    [X(-26), 4],
+    [X(24), -2],
+    [X(9), 6],
+    [X(-10), 4.5],
+    [X(-26), 6],
   ]
   // Geschirr: Bauchgurt hinter den Vorderbeinen, Rückensteg zum Halsring
   const band: P[] = [
@@ -462,7 +462,7 @@ function sideFigure(r: SideRig): Figure {
     [X(19.2), 11.2],
     [X(14.6), 11.4],
   ]
-  const ringLocal: P = [X(13), -17.8 - a * 0.6]
+  const ringLocal: P = [X(13), -16.8 - a * 0.6]
   const ring = apply(T, ringLocal)
   const nb0 = apply(T, [X(23), -18])
   const nb1 = apply(H, [-12, 4])
@@ -680,7 +680,7 @@ function schnueffeln(frame: 'a' | 'b' | 'c'): Figure {
   const twitch = frame === 'c' ? 1 : 0
   return sideFigure({
     torso: { x: 70, y: 77, rot: 6 },
-    head: { x: 115, y: 97 + twitch, rot: 22 },
+    head: { x: 117, y: 97 + twitch, rot: 22 },
     headOpts: { earNear: -14, earFar: -26, earScale: 0.76 },
     fl: [
       [15, 12],
@@ -1025,7 +1025,7 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
 function sitzenFigure(knick: boolean, frame: string): Figure {
   // Schwanzspitze wedelt zwischen den Frames um gut eine Einheit (lebendig, gleiche Anatomie)
   const wag: P = frame === 'b' ? [1.6, -0.8] : frame === 'c' ? [-1.2, -0.6] : [0, 0]
-  const ring: P = [60.4, 62.6]
+  const ring: P = [62.4, 63.4]
   const head: Tf = knick ? { x: 85, y: 43, rot: -14, s: 1.1 } : { x: 86, y: 42, rot: -3, s: 1.1 }
   const strokes: Stroke[] = [
     // Rücken vom Nacken über den Po – offen, doppelt nachgezogen
@@ -1245,7 +1245,7 @@ function einrollen1(): Figure {
 
 /** Donut: eingerollt, Nase am Schwanz, Ohren angelegt; `awake` = einrollen-2 (Augen noch offen, Kopf höher). */
 function curl(awake: boolean): Figure {
-  const ring: P = [80, 66.5]
+  const ring: P = [84.6, 66.6]
   // Kopf vorn rechts, Blick zurück zum Schwanz (gespiegelt), Nase gesenkt
   const headT: Tf = awake
     ? { x: 107, y: 91, rot: -8, s: 1.12, flip: true }
