@@ -446,7 +446,7 @@ describe('P9.6 Bewegung MO', () => {
     expect(rt.mo01([file('SC-05', [probe({ anims: [anim({ d: 360 })] })])], allowed).status).toBe(
       'PASS',
     )
-    expect(rt.mo01([file('SC-05', [probe({ anims: [anim({ d: 5000 })] })])], allowed).status).toBe(
+    expect(rt.mo01([file('SC-05', [probe({ anims: [anim({ d: 4321 })] })])], allowed).status).toBe(
       'FAIL',
     )
   })

@@ -60,9 +60,13 @@ export function allowedDurations(tokensCss: string, designMd: string): number[] 
   }
   const start = designMd.indexOf('### 11.3')
   const end = designMd.indexOf('### 11.6')
-  if (start >= 0)
-    for (const m of designMd.slice(start, end < 0 ? undefined : end).matchAll(/(\d[\d.]*)\s*ms\b/g))
-      out.add(Number(m[1]))
+  if (start >= 0) {
+    const part = designMd.slice(start, end < 0 ? undefined : end)
+    for (const m of part.matchAll(/(\d[\d.]*)\s*ms\b/g)) out.add(Number(m[1]))
+    // Sekunden-Angaben („2,4 s“) ebenfalls als Token
+    for (const m of part.matchAll(/(\d+(?:,\d+)?)\s*s\b/g))
+      out.add(Math.round(Number(m[1]!.replace(',', '.')) * 1000))
+  }
   return [...out].filter((v) => v > 0).sort((a, b) => a - b)
 }
 
@@ -188,8 +192,11 @@ export function mo04(files: readonly ProbeFile[]): CheckResult {
   const bad: string[] = []
   for (const e of late.filter((x) => x.p.t! > 5100)) {
     if (e.p.coco?.boil === 'on') bad.push(`${where(e)}: Boil an`)
-    for (const a of e.p.anims)
-      if (a.act && a.s !== 'finished') bad.push(`${where(e)}: ${a.n} (${a.tg}) aktiv`)
+    const act = e.p.anims.filter(moving)
+    if (act.length)
+      bad.push(
+        `${where(e)}: ${act.length} aktiv (${[...new Set(act.map((a) => a.n))].slice(0, 3).join(', ')})`,
+      )
   }
   return result(
     'MO-04',
@@ -505,11 +512,14 @@ export function lg01(files: readonly ProbeFile[]): CheckResult {
   const rows = entries(files).filter((e) => LG01_SCENARIOS.includes(e.sc))
   if (!rows.length) return noData('LG-01', th, 'keine Sonden in SC-01/04/05/08/09/10')
   const bad: string[] = []
-  for (const e of rows) for (const o of overlaps(e.p)) bad.push(`${where(e)}: ${o}`)
+  for (const e of rows) {
+    const o = overlaps(e.p)
+    if (o.length) bad.push(`${where(e)}: ${o[0]}${o.length > 1 ? ` (+${o.length - 1})` : ''}`)
+  }
   return result(
     'LG-01',
     bad.length === 0,
-    `${rows.length} Sonden, ${bad.length} Überdeckungen`,
+    `${rows.length} Sonden, ${bad.length} mit Überdeckung`,
     th,
     bad,
   )
@@ -612,10 +622,17 @@ export function perfFromGates(id: string, perf: PerfJson | null, threshold: stri
   )
 }
 
-const desktopMeasures = (files: readonly ProbeFile[]) =>
-  entries(files, { sc: 'SC-00', profile: 'art-desktop', variant: 'motion' }).map(
+/** Desktop 1×: Zusatzmessung ohne Playwright-Uhr (SC-00 extra.desktopMeasures), sonst die Sonden. */
+const desktopMeasures = (files: readonly ProbeFile[]): { build: number[]; frame: number[] }[] => {
+  const ext = extra<{ build: number[]; frame: number[] }>(files, 'desktopMeasures', {
+    sc: 'SC-00',
+    profile: 'art-desktop',
+  })
+  if (ext.length) return ext.map((x) => x.value)
+  return entries(files, { sc: 'SC-00', profile: 'art-desktop', variant: 'motion' }).map(
     (e) => e.p.measures,
   )
+}
 
 export function pf03(perf: PerfJson | null, files: readonly ProbeFile[]): CheckResult {
   const th = 'leash:frame p95 ≤ 6 ms (4×), ≤ 2 ms (Desktop 1×)'
@@ -748,9 +765,8 @@ export function a11y01(
       bad.add(
         `${e.sc} ${routeOf(e.p.url)?.id ?? e.p.url}: Linie ${e.p.leash.drawnLen}/${e.p.leash.total}`,
       )
-    for (const a of e.p.anims)
-      if (a.act && a.s !== 'finished')
-        bad.add(`${e.sc} ${routeOf(e.p.url)?.id ?? e.p.url}: ${a.n} (${a.tg})`)
+    for (const a of e.p.anims.filter(moving))
+      bad.add(`${e.sc} ${routeOf(e.p.url)?.id ?? e.p.url}: ${a.n} (${a.tg})`)
   }
   if (!timeCompare.length) bad.add('SC-02 Zeitvergleich fehlt')
   for (const t of timeCompare) if (!t.identical) bad.add(`SC-02 ${t.profile}: t=0 ≠ t=2 s`)
@@ -780,8 +796,7 @@ export function a11y02(files: readonly ProbeFile[]): CheckResult {
     if (ext?.motion !== 'reduced') bad.push(`${f.profile}: data-motion ${ext?.motion ?? 'fehlt'}`)
     if (after.leash && after.leash.drawnLen < after.leash.total - 1)
       bad.push(`${f.profile}: Linie nicht vollständig`)
-    for (const a of after.anims)
-      if (a.act && a.s === 'running') bad.push(`${f.profile}: ${a.n} läuft`)
+    for (const a of after.anims.filter(moving)) bad.push(`${f.profile}: ${a.n} läuft`)
   }
   if (!n) return noData('A11Y-02', th, 'keine Schalter-Sonden (SC-00 toggle-*)')
   return result('A11Y-02', bad.length === 0, `${n} Profile`, th, bad)
