@@ -16,7 +16,7 @@ import { TattooSubNav, type TattooRouteId } from './TattooSubNav'
 
 /** Endpunkt der Tuschelinie (DESIGN §9.7 `stencil`): links am Inhalt, ohne Größe. */
 export function LeashEnd() {
-  return <span className={styles.leashEnd} data-leash-anchor="end" aria-hidden="true" />
+  return <span className={styles.lineEnd} data-leash-anchor="end" aria-hidden="true" />
 }
 
 export async function TattooShell({

@@ -52,7 +52,7 @@ export async function CommissionFormBlock({
           contactEmail={contactEmail}
         />
       </Station>
-      <span className={styles.leashEnd} data-leash-anchor="end" aria-hidden="true" />
+      <span className={styles.lineEnd} data-leash-anchor="end" aria-hidden="true" />
     </section>
   )
 }
