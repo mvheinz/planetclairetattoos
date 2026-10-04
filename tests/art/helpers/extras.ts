@@ -49,8 +49,9 @@ export function followSamples(
         const t0 = performance.now()
         const step = (now: number) => {
           const k = dur > 0 ? Math.min(1, (now - t0) / dur) : 1
-          if (k < 1) scrollTo(0, from + (to - from) * k)
-          else if (scrollY !== to) scrollTo(0, to)
+          // `instant`: html hat `scroll-behavior: smooth` – ein weiches scrollTo liefe selbst 0,5–1 s nach und verfälschte den Nachlauf
+          if (k < 1) scrollTo({ top: from + (to - from) * k, behavior: 'instant' })
+          else if (scrollY !== to) scrollTo({ top: to, behavior: 'instant' })
           const l = w.__leash
           if (l)
             out.push({

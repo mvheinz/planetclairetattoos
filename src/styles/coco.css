@@ -171,6 +171,11 @@ html[data-motion='reduced'] .coco .f-c {
   html:not([data-motion='reduced']) .coco[data-leash-coco] {
     view-transition-name: coco;
   }
+  /* Easing aller Übergangs-Pseudoelemente aus den Tokens (MO-02): die Gruppe gibt ihre Kurve an Bildpaar, alt und neu
+     weiter; ohne diese Zeile gälte der Browser-Standard `ease`. */
+  ::view-transition-group(*) {
+    animation-timing-function: var(--ease-calm);
+  }
   ::view-transition-group(coco) {
     animation-duration: var(--dur-page);
     animation-timing-function: var(--ease-ink-inout);

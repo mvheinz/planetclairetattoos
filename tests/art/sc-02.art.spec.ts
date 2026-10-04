@@ -21,6 +21,14 @@ test('SC-02 Startseite reduziert', { tag: artTags('all', ['reduced']) }, async (
   await page.waitForTimeout(500)
   await art.pauseClock()
   await page.clock.runFor(100)
+  // Raster-Rauschen (spätes Nachrastern von Kacheln, Antialiasing am Rand von Ebenen) ist keine Bewegung: erst bei zwei
+  // gleichen Aufnahmen hintereinander gilt das Bild als eingeschwungen (höchstens 6 Versuche).
+  for (let i = 0; i < 6; i++) {
+    const a = await page.screenshot({ type: 'png' })
+    const b = await page.screenshot({ type: 'png' })
+    if (a.equals(b)) break
+    await page.waitForTimeout(250)
+  }
   const t0 = await page.screenshot({ type: 'png' })
   await art.frame('top-t0000')
   await page.clock.runFor(2000)

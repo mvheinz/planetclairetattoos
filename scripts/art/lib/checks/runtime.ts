@@ -48,7 +48,11 @@ const extra = <T>(
 /** Bewegt sich wirklich: aktive Phase, Dauer > 1 ms (0-s-Übergänge zählen nicht), keine View-Transition-Pseudo-Animation
  * (die hält die Sequenz-Aufnahme per Seek fest; Übergänge prüft MO-14). */
 export const moving = (a: Probe['anims'][number]) =>
-  a.act && a.s !== 'finished' && (a.d ?? 0) > 1 && !(a.pe ?? '').startsWith('::view-transition')
+  a.act &&
+  a.s !== 'finished' &&
+  (a.d ?? 0) > 1 &&
+  !a.bo &&
+  !(a.pe ?? '').startsWith('::view-transition')
 
 /** Zulässige Dauern (ms): Token aus `tokens.css`, Boil-Zyklen (3 × Frame-Länge) und alle ms-Werte aus DESIGN §11.3/§11.5. */
 export function allowedDurations(tokensCss: string, designMd: string): number[] {
@@ -321,6 +325,8 @@ export function mo09(files: readonly ProbeFile[]): CheckResult {
   const th = 'jeder Posenwechsel mit der definierten Brücke (DESIGN §10.4) bzw. an der Frame-Grenze'
   const logs = files
     .filter((f) => f.variant === 'motion')
+    // Ohne Coco an der Leine (Shop-Schnur: statische Coco) meldet nur die Engine eine „Pose“ – es gibt nichts zu überbrücken.
+    .filter((f) => f.probes.some((p) => p.coco))
     .map((f) => ({ f, log: f.probes.at(-1)?.poseLog ?? [] }))
     .filter((x) => x.log.length)
   if (!logs.length) return noData('MO-09', th, 'kein poseLog in den Sonden')

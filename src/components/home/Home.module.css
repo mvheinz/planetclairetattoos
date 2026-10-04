@@ -309,7 +309,7 @@
   html:not([data-motion='reduced'])
     .station[data-home-station='tattoo']:has([data-leash-reached])
     .artFrame::after {
-    animation: pc-art-stencil 450ms steps(1, end) both;
+    animation: pc-art-stencil 400ms var(--ease-calm) both;
   }
 }
 

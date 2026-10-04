@@ -151,6 +151,11 @@ function measure(args: ProbeArgs): Probe {
       }
   }
 
+  // Boil-Zustand aller Cocos der Seite (MO-04: auch Danke-/Menü-Coco, nicht nur die an der Leine)
+  const cocoBoils = Array.from(document.querySelectorAll('.coco')).map(
+    (c) => `${c.getAttribute('data-pose') ?? ''}:${c.getAttribute('data-boil') ?? ''}`,
+  )
+
   // ---- Textzeilen und Bedienelemente (LG-01) ----
   const text: number[] = []
   for (const root of Array.from(document.querySelectorAll('main, footer'))) {
@@ -206,6 +211,9 @@ function measure(args: ProbeArgs): Probe {
       tg: desc(target),
       z: zone(target),
       pe: eff?.pseudoElement ?? null,
+      // Boil-Animation einer Coco mit `data-boil="off"`: nur von der Aufnahme per `pause()` festgehalten (Chromium
+      // verwirft eine so angehaltene CSS-Animation trotz `animation: none` nicht), läuft in Wirklichkeit nicht.
+      bo: !!target?.closest?.('.coco[data-boil="off"]'),
     }
   })
 
@@ -274,7 +282,9 @@ function measure(args: ProbeArgs): Probe {
   if (main && args.calm)
     for (const el of [main, ...Array.from(main.querySelectorAll('*'))]) {
       const st = getComputedStyle(el)
-      if (st.transitionDuration.split(',').some((x) => parseFloat(x) > 0)) {
+      // ≤ 1 ms zählt nicht: die reduzierte Bewegung setzt 0,01 ms (global.css), das ist kein Übergang.
+      const ms = (x: string) => parseFloat(x) * (x.trim().endsWith('ms') ? 1 : 1000)
+      if (st.transitionDuration.split(',').some((x) => ms(x) > 1)) {
         transitions++
         if (transitionsAt.length < 3)
           transitionsAt.push(`${desc(el)} ${st.transitionProperty} ${st.transitionDuration}`)
@@ -429,6 +439,7 @@ function measure(args: ProbeArgs): Probe {
     clientW: document.documentElement.clientWidth,
     leash,
     coco,
+    cocoBoils,
     text,
     ctrl,
     anims,

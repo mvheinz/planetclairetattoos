@@ -131,6 +131,21 @@ describe('Coco – Posenwechsel nur an Frame-Grenzen (Fake-Timer)', () => {
     c.destroy()
   })
 
+  it('MO-09: Ziel wechselt während der Brücke – neue Brücke von der Ausgangspose, nie die alte', () => {
+    const c = mount('rennen')
+    advance(10)
+    c.setPose('springen') // Brücke „abspringen“
+    advance(75)
+    expect(el.getAttribute('data-pose')).toBe('bridge-abspringen')
+    c.setPose('kopfschief') // Ziel ändert sich mitten in der Brücke
+    advance(BRIDGE_MS * 4)
+    expect(c.pose()).toBe('kopfschief')
+    const last = events.at(-1)!
+    expect(last).toMatchObject({ from: 'rennen', to: 'kopfschief', bridge: 'bremsen' })
+    expect(events.filter((e) => e.from !== e.to && e.bridge === 'abspringen')).toEqual([])
+    c.destroy()
+  })
+
   it('zurück zur alten Pose vor der Grenze: kein Wechsel', () => {
     const c = mount('sitzen')
     advance(20)

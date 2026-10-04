@@ -31,6 +31,8 @@ export interface ProbeAnim {
   z: string
   /** Pseudo-Element (View Transitions) */
   pe: string | null
+  /** Boil-Animation einer Coco mit data-boil=off (nur von der Aufnahme festgehalten, läuft nicht) */
+  bo?: boolean
 }
 
 export interface ProbeLeash {
@@ -75,6 +77,8 @@ export interface Probe {
   clientW: number
   leash: ProbeLeash | null
   coco: { x: number; y: number; w: number; h: number; boil: string } | null
+  /** Pose und Boil jeder Coco der Seite (`pose:boil`). */
+  cocoBoils?: string[]
   /** Textzeilen in main/footer: Quadrupel x,y,w,h (Viewport-CSS-px) */
   text: number[]
   /** Formularfelder, Knöpfe, Icon-Knöpfe, Fußbereich-Links: Quadrupel */

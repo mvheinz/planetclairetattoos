@@ -274,8 +274,13 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     return rest >= f - 0.5 ? 0 : rest
   }
 
-  function finish(from: SpritePose, used: CocoBridge[] | null) {
+  function finish(from: SpritePose, used: CocoBridge[] | null, planned: SpritePose) {
     bridge = null
+    // Das Ziel wechselte während der Brücke: die Brücke passt nicht mehr (MO-09) – von der Ausgangspose neu planen.
+    if (target !== planned && target !== from) {
+      schedule()
+      return
+    }
     shown = target
     show(shown)
     if (used === null && hop && motion === 'full') {
@@ -289,14 +294,19 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     boil(BOIL.afterPose)
   }
 
-  function step(from: SpritePose, queue: CocoBridge[], used: CocoBridge[] | null) {
+  function step(
+    from: SpritePose,
+    queue: CocoBridge[],
+    used: CocoBridge[] | null,
+    planned: SpritePose,
+  ) {
     stepTimer = null
     const next = queue.shift()
     if (next) {
       bridge = next
       show(`bridge-${next}`)
-      stepTimer = setTimeout(() => step(from, queue, used), BRIDGE_MS)
-    } else finish(from, used)
+      stepTimer = setTimeout(() => step(from, queue, used, planned), BRIDGE_MS)
+    } else finish(from, used, planned)
   }
 
   function schedule() {
@@ -305,9 +315,10 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     const from = shown
     const used = bridgesFor(from, target)
     const queue = [...(used ?? [])]
+    const planned = target
     const wait = untilBoundary()
-    if (wait === 0) step(from, queue, used)
-    else stepTimer = setTimeout(() => step(from, queue, used), wait)
+    if (wait === 0) step(from, queue, used, planned)
+    else stepTimer = setTimeout(() => step(from, queue, used, planned), wait)
   }
 
   boil(BOIL.afterPose) // Seiteneintritt

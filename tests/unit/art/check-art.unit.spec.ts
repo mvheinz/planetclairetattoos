@@ -469,9 +469,18 @@ describe('P9.6 Bewegung MO', () => {
     expect(rt.expectedBridge('rennen', 'sitzen')).toBe('bremsen')
     expect(rt.expectedBridge('sitzen', 'schlafen')).toBe('einrollen-1+einrollen-2')
     const log = [{ t: 1, from: 'rennen', to: 'sitzen', bridge: null }]
-    expect(rt.mo09([file('SC-01', [probe({ poseLog: log })])]).status).toBe('FAIL')
+    const coco = { x: 0, y: 0, w: 10, h: 10, boil: 'off' }
+    expect(rt.mo09([file('SC-01', [probe({ poseLog: log, coco })])]).status).toBe('FAIL')
     expect(
-      rt.mo09([file('SC-01', [probe({ poseLog: [{ ...log[0]!, bridge: 'bremsen' }] })])]).status,
+      rt.mo09([file('SC-01', [probe({ poseLog: [{ ...log[0]!, bridge: 'bremsen' }], coco })])])
+        .status,
+    ).toBe('PASS')
+    // ohne Coco an der Leine (Shop-Schnur) meldet nur die Engine „Posen“: kein Befund
+    expect(
+      rt.mo09([
+        file('SC-03', [probe({ poseLog: log })]),
+        file('SC-01', [probe({ poseLog: [{ ...log[0]!, bridge: 'bremsen' }], coco })]),
+      ]).status,
     ).toBe('PASS')
   })
 
