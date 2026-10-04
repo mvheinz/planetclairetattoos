@@ -244,10 +244,12 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
     if (dy > 48 && P === 'thanks' && desktop) push({ x: to.x, y: from.y })
     else if (dy > 48 && (side || P === 'thanks')) {
       const y = from.y + 8
-      push({ x: Math.max(lane, from.x - 30), y })
-      push({ x: Math.min(from.x, lane + 16), y })
-      push({ x: lane, y: y + 16 })
-      push({ x: lane, y: to.y - 24 })
+      if (from.x > lane + 30) {
+        push({ x: from.x - 30, y })
+        push({ x: lane + 16, y })
+      }
+      // in der Randbahn alle ≤ 120 px ein Punkt: sonst bauscht der Spline lange Geraden nach außen aus
+      for (let q = y + 16; q < to.y + 95; q += 120) push({ x: lane, y: Math.min(q, to.y - 24) })
     } else if (onRail && dy > 48) {
       const n = Math.max(1, Math.round(dy / (300 + rand() * 120)))
       for (let k = 0; k < n; k++) {
@@ -832,7 +834,7 @@ export function* geometrySteps(input: BuildInput): Generator<void, GeometryResul
       segments,
       totalLength: total,
       lut,
-      stations: stations.map(({ loop: _loop, ...s }) => s),
+      stations,
       scrollMap,
     },
     samples: { s: ss, x: wx, y: wy, w, sx, sy },
