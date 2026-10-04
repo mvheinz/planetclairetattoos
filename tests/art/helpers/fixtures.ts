@@ -303,6 +303,8 @@ export class ArtSession {
     prefix?: string
     /** Zeit, die vor dem Sequenz-Start schon vergangen ist (Beschriftung `t` = Zeit seit Navigation, SC-01-Intro). */
     offsetMs?: number
+    /** Lupe: fester Ausschnitt (Seitenkoordinaten im Sichtbereich), auf `to` px Breite vergrößert. */
+    zoom?: FrameOptions['zoom']
   }): Promise<string[]> {
     await this.pauseClock()
     await opts.start?.()
@@ -315,6 +317,7 @@ export class ArtSession {
       out.push(
         await this.frame(label, {
           ...(opts.element ? { element: opts.element } : {}),
+          ...(opts.zoom ? { zoom: opts.zoom } : {}),
           scale: 'css',
         }),
       )

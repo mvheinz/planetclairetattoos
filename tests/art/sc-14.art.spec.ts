@@ -21,18 +21,20 @@ test(
       // MI-10 (Intro) läuft nur ganz oben (DESIGN §11.5, `scrollY < 8`) – Bühne nicht scrollen (R2-01-01).
       if (mi.id === 'MI-10') await page.evaluate(() => scrollTo(0, 0))
       else await stage.scrollIntoViewIfNeeded()
-      // MI-01: Coco `--coco-s` (40 px) hüpft nur wenige Pixel – Ausschnitt Kaufbereich, 3× vergrößert (CSS-`zoom`,
-      // gleiche Animation), damit der Hüpfer im Bogen sichtbar ist (R2-01-03).
-      if (mi.id === 'MI-01')
-        await stage
-          .locator('[data-buy-area]')
-          .evaluate((el) => ((el as HTMLElement).style.zoom = '3'))
-      const element = mi.viewport
-        ? undefined
-        : mi.id === 'MI-01'
-          ? stage.locator('[data-buy-area]')
-          : stage
-      await art.frame(`${mi.id}-idle`, element ? { element } : {})
+      // MI-01: Coco `--coco-s` (40 px) hüpft 14 px – Lupe um Coco im Kaufbereich (40 px Rand, oben Platz für den
+      // Absprung), 4× vergrößert, damit Absprung, Scheitel und Landung im Bogen lesbar sind (R2-01-03, R2-02-05).
+      let zoom: { x: number; y: number; width: number; height: number; to: number } | undefined
+      if (mi.id === 'MI-01') {
+        const box = await stage.locator('[data-buy-area] .coco').first().boundingBox()
+        if (box) {
+          const x = Math.max(0, box.x - 40)
+          const y = Math.max(0, box.y - 40)
+          const width = box.width + 80
+          zoom = { x, y, width, height: box.height + 60, to: Math.round(width * 4) }
+        }
+      }
+      const element = mi.viewport || zoom ? undefined : stage
+      await art.frame(`${mi.id}-idle`, zoom ? { zoom } : element ? { element } : {})
       const prefix = mi.id.toLowerCase()
       // MI-08 (Countdown) ist keine Animation (DESIGN §11.5): Sekundentakt statt 20 ms.
       const stepMs = art.step(mi.id === 'MI-08' ? 250 : 20, mi.durationMs)
@@ -41,6 +43,7 @@ test(
         untilMs: mi.durationMs,
         prefix,
         ...(element ? { element } : {}),
+        ...(zoom ? { zoom } : {}),
         start: async () => {
           if (mi.press) {
             const btn = stage.locator('button').first()
