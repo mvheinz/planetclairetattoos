@@ -407,11 +407,22 @@ export function lq06(frames: readonly LineFrame[]): CheckResult {
   let seams = 0
   let worst = -Infinity
   for (const f of usable) {
+    // Dunkelster Wert im 3 × 3-Fenster um den Mittellinienpunkt: ein Rundungsfehler von einem halben Pixel trifft sonst
+    // den hellen Antialiasing-Rand einer 2,6 px breiten Linie und meldet eine „Lücke“, wo keine ist (Lücke = auch
+    // die Nachbarpixel hell).
     const L = (p: { x: number; y: number }) => {
-      const x = Math.round(p.x)
-      const y = Math.round(p.y)
-      if (x < 0 || y < 0 || x >= f.raster.width || y >= f.raster.height) return null
-      return lab(f.raster, x, y)[0]
+      const x0 = Math.round(p.x)
+      const y0 = Math.round(p.y)
+      if (x0 < 0 || y0 < 0 || x0 >= f.raster.width || y0 >= f.raster.height) return null
+      let min = Infinity
+      for (let dy = -1; dy <= 1; dy++)
+        for (let dx = -1; dx <= 1; dx++) {
+          const x = x0 + dx
+          const y = y0 + dy
+          if (x < 0 || y < 0 || x >= f.raster.width || y >= f.raster.height) continue
+          min = Math.min(min, lab(f.raster, x, y)[0])
+        }
+      return min
     }
     const ls: number[] = []
     const first = f.pts[0]!.len

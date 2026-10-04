@@ -27,10 +27,14 @@ const FALLBACK: Readonly<Record<string, Fallback>> = {
 const inlineSvg = (svg: string) =>
   svg
     .replace(' xmlns="http://www.w3.org/2000/svg"', '')
-    .replace('<svg ', '<svg aria-hidden="true" focusable="false" ')
+    .replace('<svg ', '<svg aria-hidden="true" ')
+
+// „Hallo“ und „Jutta & Coco“ zeigen Coco `sitzen` aus dem Sprite (DESIGN §12.4), kein zweites Inline-Abbild derselben
+// Zeichnung im HTML (PF-10: SVG-Bytes der Startseite ≤ 60 KB).
+const SPRITE_STATIONS: ReadonlySet<string> = new Set(['hallo', 'jutta-und-coco'])
 
 export function StationArt({ stationId, className }: { stationId: string; className?: string }) {
-  const own = STATION_ART[stationId]
+  const own = SPRITE_STATIONS.has(stationId) ? undefined : STATION_ART[stationId]
   const fallback = FALLBACK[stationId] ?? { key: 'ph:zeichnung-01', wash: 'clay' }
   const cls = [styles.art, className].filter(Boolean).join(' ')
   if (own) {
@@ -45,7 +49,11 @@ export function StationArt({ stationId, className }: { stationId: string; classN
   }
   if (fallback === 'coco' || fallback === 'coco-planet') {
     return (
-      <div className={`${cls} ${styles.artCoco}`} data-station-art="fallback" aria-hidden="true">
+      <div
+        className={`${cls} ${styles.artCoco}`}
+        data-station-art={SPRITE_STATIONS.has(stationId) ? stationId : 'fallback'}
+        aria-hidden="true"
+      >
         {fallback === 'coco-planet' ? <PlanetMark className={styles.artPlanet} /> : null}
         <Coco pose="sitzen" size="xl" />
       </div>

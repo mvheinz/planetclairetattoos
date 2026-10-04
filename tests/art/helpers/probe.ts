@@ -157,6 +157,14 @@ function measure(args: ProbeArgs): Probe {
   )
 
   // ---- Textzeilen und Bedienelemente (LG-01) ----
+  // nur für Hilfstechnik sichtbarer Text (`u-sr-only`: 1 × 1 px, abgeschnitten) ist keine Fläche und keine Schrift-Rolle
+  const srOnly = (el: Element, stop?: Element): boolean => {
+    for (let a: Element | null = el; a && a !== stop; a = a.parentElement) {
+      const ar = a.getBoundingClientRect()
+      if (ar.width <= 2 && ar.height <= 2 && getComputedStyle(a).overflow === 'hidden') return true
+    }
+    return false
+  }
   const text: number[] = []
   for (const root of Array.from(document.querySelectorAll('main, footer'))) {
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
@@ -166,6 +174,7 @@ function measure(args: ProbeArgs): Probe {
       if (!el || el.closest(DECO) || el.closest('[aria-hidden="true"]')) continue
       const st = getComputedStyle(el)
       if (st.visibility === 'hidden' || st.opacity === '0') continue
+      if (srOnly(el, root)) continue
       const range = document.createRange()
       range.selectNodeContents(n)
       for (const r of Array.from(range.getClientRects())) if (inView(r)) push4(text, r)
@@ -235,7 +244,7 @@ function measure(args: ProbeArgs): Probe {
       if (c.nodeType === 3 && c.textContent?.trim()) own = true
     if (!own) continue
     const st = getComputedStyle(el)
-    if (!/mansalva/i.test(st.fontFamily)) continue
+    if (!/mansalva/i.test(st.fontFamily) || srOnly(el)) continue
     const role = el.closest('button, input, select, textarea, label, table, form')
       ? 'control'
       : el.closest('h1')
@@ -412,7 +421,9 @@ function measure(args: ProbeArgs): Probe {
   for (const el of Array.from(document.querySelectorAll('[data-badge], [data-sold-stamp]'))) {
     const r = el.getBoundingClientRect()
     if (!inView(r)) continue
-    const st = getComputedStyle(el)
+    // Stempel: gemessen wird das Wort (`.word`, ≥ 24 px), nicht der Wurzelknoten mit der Grundschrift
+    const textEl = el.hasAttribute('data-sold-stamp') ? (el.querySelector('[class*="word"]') ?? el) : el
+    const st = getComputedStyle(textEl)
     const fg = lum(st.color)
     const bg = lum(bgOf(el))
     if (fg === null || bg === null) continue

@@ -190,7 +190,6 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  background: var(--paper-2);
 }
 
 .artCoco :global(.coco) {

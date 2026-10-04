@@ -121,6 +121,13 @@ h3 {
   letter-spacing: -0.005em;
 }
 
+/* Ruhe-Seiten und Rechtstexte: Mansalva nur für die H1 (DESIGN §4.3 Nr. 2), alles andere Bricolage. */
+body[data-preset='calm'] main :is(h2, h3),
+body[data-preset='legal'] main :is(h2, h3) {
+  font-family: var(--font-body);
+  font-weight: 700;
+}
+
 /* Zeichen, die Mansalva fehlen (Komponente GlyphFallback, §4.4): Bricolage 600, nie Systemschrift-Mischung. */
 .glyph-fallback {
   font-family: var(--font-body);

@@ -12,7 +12,7 @@
   color: var(--ink);
 }
 
-.path {
+.underline path {
   fill: none;
   stroke: currentColor;
   stroke-width: var(--stroke-ink);
@@ -26,8 +26,8 @@
     stroke-dashoffset 0s linear 150ms;
 }
 
-:global([data-underline-host]:focus-visible) .path,
-:global([data-underline-host]:active) .path {
+:global([data-underline-host]:focus-visible) .underline path,
+:global([data-underline-host]:active) .underline path {
   stroke-dashoffset: 0;
   opacity: 1;
   transition:
@@ -36,7 +36,7 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  :global([data-underline-host]:hover) .path {
+  :global([data-underline-host]:hover) .underline path {
     stroke-dashoffset: 0;
     opacity: 1;
     transition:
@@ -46,7 +46,7 @@
 }
 
 /* Aktuelle Seite / aktiver Bereich: statisch gezeichnet. */
-:global([data-underline-host][aria-current]) .path {
+:global([data-underline-host][aria-current]) .underline path {
   stroke-dashoffset: 0;
   opacity: 1;
   transition: none;

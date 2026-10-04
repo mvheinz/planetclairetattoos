@@ -25,7 +25,6 @@ export function Glyph({
       viewBox="0 0 24 24"
       width={size}
       height={size}
-      focusable="false"
       className={className ? `glyph ${className}` : 'glyph'}
       {...a11y}
     >

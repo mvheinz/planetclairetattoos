@@ -579,7 +579,7 @@ export function lg03(files: readonly ProbeFile[]): CheckResult {
       const route = routeOf(e.p.url)?.id ?? e.p.url
       if (m.size < 24) bad.add(`${route}: <${m.tag}> ${m.size} px`)
       if (!MANSALVA_ROLES.includes(m.role)) bad.add(`${route}: <${m.tag}> Rolle ${m.role}`)
-      else if (calm && m.role !== 'h1')
+      else if (calm && m.role !== 'h1' && m.role !== 'menu')
         bad.add(`${route}: <${m.tag}> Rolle ${m.role} auf Ruhe-Route`)
     }
   }

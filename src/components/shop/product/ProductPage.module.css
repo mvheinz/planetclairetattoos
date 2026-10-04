@@ -306,7 +306,7 @@
 
 .juttaLabel {
   font-family: var(--font-hand);
-  font-size: 1.125rem;
+  font-size: 1.5rem; /* Mansalva nie unter 24 px (DESIGN §4.3) */
 }
 
 .juttaQuote {

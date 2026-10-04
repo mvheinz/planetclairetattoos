@@ -114,12 +114,12 @@ describe('leash/runtime – mountLeash', () => {
     // PF-05: keine Masken (deren Änderung erzwingt je Frame ein Layout), je Stück ein runder Strich mit Dash
     expect(root.querySelectorAll('mask, [mask]').length).toBe(0)
     const strokes = state.geometry!.segments.reduce((n, g) => n + g.strokes!.length, 0)
-    // PF-05/PF-10: Dash-Muster und „verborgen“ am `<svg>` (vererbt), die Stücke tragen nur `d`, Breite, `pathLength`
+    // PF-05/PF-10: Dash-Muster und „verborgen“ am `<svg>` (vererbt), die Stücke tragen nur `d` und Breite
     const all = [...root.querySelectorAll<SVGPathElement>('path')]
     expect(all.length).toBe(strokes)
     for (const p of all) {
       expect(p.closest('svg')!.getAttribute('stroke-linecap')).toBe('round')
-      expect(p.closest('svg')!.getAttribute('stroke-dasharray')).toBe('1 2')
+      expect(p.closest('svg')!.getAttribute('stroke-dasharray')).toBe('2000 2000')
       expect(p.hasAttribute('stroke-dasharray')).toBe(false)
     }
     for (const svg of svgs) expect(svg.getAttribute('focusable')).toBe('false')
@@ -145,7 +145,7 @@ describe('leash/runtime – mountLeash', () => {
     const ink = [...root.querySelectorAll<SVGPathElement>('path')]
     const offsets = ink.map((p) => parseFloat(p.getAttribute('stroke-dashoffset') ?? 'NaN'))
     expect(offsets.some((o) => o === 0)).toBe(true) // fertige Stücke
-    expect(offsets.filter((o) => o > 0 && o < 1).length).toBeLessThanOrEqual(1) // höchstens eines anteilig
+    expect(offsets.filter((o) => o > 0 && o < 2000).length).toBeLessThanOrEqual(1) // höchstens eines anteilig
     expect([...svgs].some((s) => (s as SVGSVGElement).style.visibility === 'hidden')).toBe(true)
 
     setScroll(PAGE_H + 400 - VIEW.h)

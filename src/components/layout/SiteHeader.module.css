@@ -11,8 +11,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap; /* bei 200 % Textgröße umbrechen statt überlaufen (LG-04, WCAG 1.4.4/1.4.10) */
   gap: var(--space-2);
-  height: var(--header-h);
+  min-height: var(--header-h);
   max-width: calc(var(--content-max) + 2 * var(--page-pad));
   margin-inline: auto;
   padding-inline: var(--page-pad);
@@ -50,11 +51,14 @@
 }
 
 .nav {
-  flex: none;
+  flex: 0 1 auto;
+  min-width: 0;
 }
 
 .list {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: center;
   gap: 2px;
   margin: 0;

@@ -22,10 +22,9 @@ export function LinkUnderline({ seed, className }: { seed: string; className?: s
       viewBox="0 0 100 8"
       preserveAspectRatio="none"
       aria-hidden="true"
-      focusable="false"
       data-ink-underline=""
     >
-      <path d={d} pathLength={1} className={styles.path} />
+      <path d={d} pathLength={1} />
     </svg>
   )
 }

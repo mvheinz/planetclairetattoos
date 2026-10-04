@@ -77,7 +77,6 @@ export function PriceTag({
           viewBox={`0 0 ${width} ${height}`}
           preserveAspectRatio="none"
           aria-hidden="true"
-          focusable="false"
         >
           <path d={tagOutlinePath(width, height, itemNumber)} />
         </svg>

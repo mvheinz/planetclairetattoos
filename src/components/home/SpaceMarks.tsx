@@ -10,7 +10,6 @@ export function PlanetMark({ className }: { className?: string }) {
       className={className}
       viewBox="0 0 64 64"
       aria-hidden="true"
-      focusable="false"
       fill="none"
       stroke="currentColor"
       strokeWidth={2.6}
@@ -35,7 +34,6 @@ export function StarMark({ className }: { className?: string }) {
       className={className}
       viewBox="0 0 24 24"
       aria-hidden="true"
-      focusable="false"
       fill="none"
       stroke="currentColor"
       strokeWidth={1.8}

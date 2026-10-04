@@ -106,6 +106,8 @@ export interface InspectableLeashHandle extends LeashHandle {
 }
 
 const SVG_NS = 'http://www.w3.org/2000/svg'
+/** Strichlänge und Lücke der Enthüllung in px: größer als jedes Strich-Stück, Versatz `DASH − sichtbare Länge`. */
+const DASH = 2000
 /** Debounce des Neuaufbaus (§9.10). */
 const REBUILD_DEBOUNCE_MS = 150
 /** Viewport-Höhenänderungen darunter lösen keinen Neuaufbau aus (mobile Adressleiste, §9.6). */
@@ -205,14 +207,13 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
 
   /**
    * Stufe A: Strich-Stück als runder Strich. Dash-Muster und „verborgen“ stehen einmal am `<svg>` (`stroke-dasharray`
-   * `1 2` mit `pathLength` 1, `stroke-dashoffset` 1.01 – vererbt): kürzeres DOM (PF-10), und im Scroll-Pfad ändert sich nur
+   * `2000 2000` in px, `stroke-dashoffset` 2000 – vererbt; kein `pathLength` je Stück): kürzeres DOM (PF-10), und im Scroll-Pfad ändert sich nur
    * `stroke-dashoffset` (kein Layout, PF-05; Einhängen oder Entfernen von Dash-Attributen würde eines auslösen).
    */
   function strokeView(st: LeashStroke): StrokeView {
     const el = doc.createElementNS(SVG_NS, 'path')
     el.setAttribute('d', st.d)
     el.setAttribute('stroke-width', String(st.w))
-    el.setAttribute('pathLength', '1')
     return { el, len0: st.len0, len1: st.len1 }
   }
 
@@ -238,8 +239,8 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       svg.setAttribute('fill', 'none')
       svg.setAttribute('stroke-linecap', 'round')
       svg.setAttribute('stroke-linejoin', 'round')
-      svg.setAttribute('stroke-dasharray', '1 2')
-      svg.setAttribute('stroke-dashoffset', '1.01')
+      svg.setAttribute('stroke-dasharray', `${DASH} ${DASH}`)
+      svg.setAttribute('stroke-dashoffset', String(DASH))
       svg.style.stroke = forced ? 'CanvasText' : 'var(--ink)'
       for (const st of seg.strokes) {
         const v = strokeView(st)
@@ -317,10 +318,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       strokes[v.next++]!.el.setAttribute('stroke-dashoffset', '0')
     const st = strokes[v.next]
     if (st && drawnLen > st.len0)
-      st.el.setAttribute(
-        'stroke-dashoffset',
-        String(1 - (drawnLen - st.len0) / (st.len1 - st.len0)),
-      )
+      st.el.setAttribute('stroke-dashoffset', String(Math.round((DASH - (drawnLen - st.len0)) * 10) / 10))
   }
 
   /**
