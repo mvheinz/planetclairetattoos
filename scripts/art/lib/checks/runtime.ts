@@ -525,21 +525,18 @@ export function overlaps(p: Probe, tol = 1, dogOnly = true): string[] {
       }
   }
   if (p.coco) {
-    // P9.18 (MO-12, R2-03-01): die Box ist größer als der Hund; er füllt waagerecht 0,13–0,90 der Box (gespiegelt
-    // 0,10–0,87) – gemessen wird die Hundekante (0,10–0,90), nicht die leere Ränder der Box (gleiche Regel wie `place()`).
-    // 1 px Toleranz an jeder Kante (Strichenden, Boil-Versatz), unten 4 px (Pfoten gegen den leeren Zeilenabstand über der Schrift,
-    // Textzeilen-Rechtecke enthalten den Zeilenabstand), zusätzlich zur Toleranz der Hindernisse
-    const inset = dogOnly ? 1 : 0
-    const dogX = p.coco.x + (dogOnly ? 0.1 * p.coco.w : 0) + inset
-    const dogW = (dogOnly ? 0.8 : 1) * p.coco.w - 2 * inset
+    // P9.18 (MO-12, R2-03-01): die Box ist größer als der Hund; gemessen wird die gezeichnete Figur. Horizontal füllt der
+    // Hund laut Sprite-Hüllen (`coco-sprite.json`, alle 22 Symbole) 0,131–0,903 der Box (gespiegelt 0,097–0,869): Kante
+    // 0,10–0,90 ohne Zusatz-Toleranz. Senkrecht gilt die volle Box (Pfoten reichen bis 0,96–0,99 der Höhe) – auch unten
+    // keine Toleranz. Die einzige Toleranz ist die 1 px, um die jedes Hindernis-Rechteck oben schon geschrumpft ist.
+    const dogX = p.coco.x + (dogOnly ? 0.1 * p.coco.w : 0)
+    const dogW = (dogOnly ? 0.8 : 1) * p.coco.w
     for (const r of obstacles) {
       const ix = Math.min(dogX + dogW, r.x + r.w) - Math.max(dogX, r.x)
-      const iy =
-        Math.min(p.coco.y + p.coco.h - (dogOnly ? 4 : 1), r.y + r.h) -
-        Math.max(p.coco.y + inset, r.y)
+      const iy = Math.min(p.coco.y + p.coco.h, r.y + r.h) - Math.max(p.coco.y, r.y)
       if (ix > 0 && iy > 0) {
         out.push(
-          `Coco-Box über (${Math.round(r.x)}, ${Math.round(r.y)}, ${Math.round(r.w)}×${Math.round(r.h)})`,
+          `Hundekante über (${Math.round(r.x)}, ${Math.round(r.y)}, ${Math.round(r.w)}×${Math.round(r.h)})`,
         )
         break
       }
