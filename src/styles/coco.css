@@ -4,6 +4,7 @@
 
 .coco {
   --coco-w: var(--coco-m);
+  --coco-sw: 4; /* Strichbreite in Sprite-Einheiten = Pixel × 160 / Breite (nur WebKit, s. u.) */
   --boil-frame: 100ms;
   position: relative;
   width: var(--coco-w);
@@ -15,31 +16,50 @@
 .coco[data-size='horizon'] {
   --coco-w: 24px;
   --coco-stroke: 1.2px;
+  --coco-sw: 8;
 }
 .coco[data-size='leash'] {
   --coco-w: var(--coco-leash);
+  --coco-sw: 6.1; /* 1,6 px bei 42 px Breite */
+}
+@media (min-width: 768px) {
+  .coco[data-size='leash'] {
+    --coco-sw: 4.5; /* 1,8 px bei 64 px Breite (tokens.css) */
+  }
 }
 .coco[data-size='s'] {
   --coco-w: var(--coco-s);
   --coco-stroke: 1.6px;
+  --coco-sw: 6.4;
 }
 .coco[data-size='m'] {
   --coco-w: var(--coco-m);
   --coco-stroke: 1.8px;
+  --coco-sw: 4;
 }
 .coco[data-size='xl'] {
   --coco-w: var(--coco-xl);
   --coco-stroke: 2.2px;
+  --coco-sw: 2;
 }
 .coco[data-size='xxl'] {
   --coco-w: min(var(--coco-xxl), 60vw);
   --coco-stroke: 2.2px;
+  --coco-sw: 1.5;
 }
 
 .coco__hop {
   width: 100%;
   height: 100%;
   transform-origin: 50% 93%;
+}
+/* WebKit (Safari, iOS) wendet das <style> des extern eingebundenen Sprites nicht an: Strichbreite, Enden und Ecken
+   erbt der Klon vom <use> (Farben stehen als Attribute im Sprite). In Chromium/Firefox hat das Sprite-CSS Vorrang
+   (nicht skalierende Strichbreite `--coco-stroke`, Token-Farben, erzwungene Farben). */
+.coco use {
+  stroke-width: var(--coco-sw);
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 .coco svg {
   display: block;

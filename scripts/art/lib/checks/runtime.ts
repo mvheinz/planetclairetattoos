@@ -401,7 +401,8 @@ export function mo13(files: readonly ProbeFile[]): CheckResult {
 }
 
 export function mo14(files: readonly ProbeFile[]): CheckResult {
-  const th = 'Seitenübergang 350 ms ± 35; keine Übergänge von/zu calm-Routen'
+  const th =
+    'Seitenübergang: Coco (`coco`, `leash-head`) 350 ms ± 35, Überblendung des Inhalts 250 ms ± 25 (DESIGN MI-04); keine Übergänge von/zu calm-Routen'
   const rows = entries(files, { sc: 'SC-11', variant: 'motion' })
   if (!rows.length) return noData('MO-14', th, 'keine Sonden SC-11')
   const bad: string[] = []
@@ -411,7 +412,12 @@ export function mo14(files: readonly ProbeFile[]): CheckResult {
       n++
       if (/^r04-r06/.test(e.p.label) || isCalmRoute(e.p.url))
         bad.push(`${where(e)}: Übergang zur Ruhe-Route`)
-      else if (a.d === null || Math.abs(a.d - 350) > 35) bad.push(`${where(e)}: ${a.pe} ${a.d} ms`)
+      else {
+        // Coco und Linienkopf wandern in `--dur-page` (350 ms), der übrige Inhalt blendet in 250 ms über (MI-04)
+        const want = /\((coco|leash-head)\)/.test(a.pe ?? '') ? 350 : 250
+        if (a.d === null || Math.abs(a.d - want) > want / 10)
+          bad.push(`${where(e)}: ${a.pe} ${a.d} ms (soll ${want})`)
+      }
     }
   return result('MO-14', bad.length === 0, `${n} Übergangs-Animationen gemessen`, th, [
     ...new Set(bad),

@@ -16,8 +16,12 @@
 }
 
 .note {
-  display: grid;
-  gap: var(--space-1);
+  /* Block statt Grid: ein Grid-Item ist keine Layout-Grenze (Sekundentakt, PF-05). */
+  display: block;
+}
+
+.note > .text {
+  margin-block-start: var(--space-1);
 }
 
 .time {

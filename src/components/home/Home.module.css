@@ -92,6 +92,8 @@
   display: inline-flex;
   flex: none;
   color: var(--ink);
+  /* Der Pop (MI-12) startet erst beim Erreichen: ohne eigene Ebene löst schon der Animationsstart ein Layout aus (PF-05). */
+  will-change: transform;
 }
 
 .mark[data-station-mark='planet'] svg {

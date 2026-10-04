@@ -35,7 +35,7 @@ export function quantile(values: readonly number[], q: number): number | null {
 export interface ImageLook {
   /** Median-L* des mittleren 60 %-Bereichs. */
   medianL: number | null
-  /** Mittleres a* und b* heller, unbunter Pixel („Papier“: L* ≥ 75, Chroma < 12), sonst null. */
+  /** Mittleres a* und b* heller, unbunter Pixel („Papier“: L* ≥ 75, Chroma < 12, mind. 0,5 % der Fläche), sonst null. */
   paperA: number | null
   paperB: number | null
   /** Anteil Pixel mit L* ≥ 99 bzw. ≤ 1 (Clipping). */
@@ -72,8 +72,9 @@ export function imageLook(
     }
   return {
     medianL: median(ls),
-    paperA: pn > 0 ? pa / pn : null,
-    paperB: pn > 0 ? pb / pn : null,
+    // wie die Pipeline (NEUTRAL_MIN_SHARE, DESIGN §12.2): unter 0,5 % neutraler Pixel gibt es kein „Papier“ im Bild
+    paperA: pn / Math.max(1, width * height) >= 0.005 ? pa / pn : null,
+    paperB: pn / Math.max(1, width * height) >= 0.005 ? pb / pn : null,
     clipped: clip / Math.max(1, width * height),
   }
 }

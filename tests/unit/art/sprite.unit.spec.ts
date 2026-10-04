@@ -64,10 +64,12 @@ describe('Coco-Sprite: Umfang und Format (CO-01)', () => {
   it('Ebenen .fur/.harness/.line/.solid je Symbol, .hi wo Augen offen; Fell und Geschirr versetzt (Riso)', () => {
     for (const s of symbols(source)) {
       for (const layer of ['fur', 'harness', 'line', 'solid'])
-        expect(s.body, `${s.id} .${layer}`).toContain(`class="${layer}"`)
+        expect(s.body, `${s.id} .${layer}`).toMatch(new RegExp(`class="${layer}"`))
       if (!s.id.includes('schlafen')) expect(s.body, `${s.id} .hi`).toContain('class="hi"')
-      expect(s.body).toContain('<g class="fur" transform="translate(1.5 1.2)">')
-      expect(s.body).toContain('<g class="harness" transform="translate(1.5 1.2)">')
+      expect(s.body).toContain('<g class="fur" fill="#E2BF8E" transform="translate(1.5 1.2)">')
+      expect(s.body).toContain(
+        '<g class="harness" fill="#C23B2A" stroke="currentColor" transform="translate(1.5 1.2)">',
+      )
     }
   })
 
@@ -197,10 +199,10 @@ describe('P9.9/P9.10 Coco gezeichnet: Posen, Frames, Bildrate', () => {
   it('schlafen: Augen als geschlossene Bögen (keine Pupillen), 4–6 Schraffurstriche als Schatten', () => {
     for (const f of ['a', 'b', 'c']) {
       const body = symbols(source).find((s) => s.id === `coco-schlafen-${f}`)!.body
-      const solid = /<g class="solid">([\s\S]*?)<\/g><\/g>/.exec(body)?.[1] ?? ''
+      const solid = /<g class="solid"[^>]*>([\s\S]*?)<\/g><\/g>/.exec(body)?.[1] ?? ''
       expect(solid).not.toContain('data-part="eye-l"')
       expect(body).not.toContain('class="hi"')
-      const line = /<g class="line">([\s\S]*?)<g class="solid">/.exec(body)![1]!
+      const line = /<g class="line"[^>]*>([\s\S]*?)<g class="solid"/.exec(body)![1]!
       expect(line).toContain('data-part="eye-l"')
       // kurze Striche unterhalb der Bodenlinie (y > 112) = Schraffur
       const hatch = [...line.matchAll(/M([\d.]+) (11[3-9](?:\.\d)?)L/g)].length

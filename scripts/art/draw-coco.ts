@@ -1654,6 +1654,20 @@ export function renderStrokes(
   return out
 }
 
+/**
+ * Farben als Präsentationsattribute: WebKit (Safari, iOS) wendet das `<style>` einer extern per `<use href="…svg#id">`
+ * eingebundenen Datei nicht an – ohne Attribute stünde Coco dort als schwarzer Klecks. Das `<style>` unten bleibt
+ * maßgeblich (CSS schlägt Attribute: Token-Farben, nicht skalierende Strichbreite, erzwungene Farben); Strichbreite,
+ * Enden und Ecken kommen sonst vom `<use>` (`.coco use` in `src/styles/coco.css`).
+ */
+export const LAYER_PAINT: Record<Layer, string> = {
+  fur: ' fill="#E2BF8E"',
+  harness: ' fill="#C23B2A" stroke="currentColor"',
+  line: ' fill="none" stroke="currentColor"',
+  solid: ' fill="currentColor"',
+  hi: ' fill="#F4EFE6"',
+}
+
 export function renderSymbol(
   spec: SymbolSpec,
   fig: Figure = figureFor(spec.pose, spec.frame),
@@ -1673,7 +1687,7 @@ export function renderSymbol(
         : [...parts.entries()]
             .map(([part, ds]) => `<g data-part="${part}"><path d="${ds.join('')}"/></g>`)
             .join('')
-    return `<g class="${layer}"${attrs}>${inner}</g>`
+    return `<g class="${layer}"${LAYER_PAINT[layer]}${attrs}>${inner}</g>`
   }
   const riso = ' transform="translate(1.5 1.2)"'
   const hidden = fig.hidden.length ? ` data-hidden-parts="${fig.hidden.join(' ')}"` : ''
