@@ -436,7 +436,7 @@ function sideHead(t: Tf, o: HeadOpts = {}): Stroke[] {
     s.map((st) => ({ ...st, pts: map(t, st.pts) })),
     'ear-r',
     apply(t, [-3.5, -12.5]),
-    0.9,
+    0.88,
   )
 }
 
@@ -949,10 +949,10 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
       part: 'snout',
       // mittig unter der Nase (vorher nach rechts gezogen – wirkte wie ein Schnurrbart)
       pts: [
-        [-0.8, 10.8],
-        [2.2, 12.9],
-        [6.6, 12.7],
-        [10.2, 10.2],
+        [-1.6, 10.6],
+        [1.8, 12.9],
+        [6.8, 12.7],
+        [11, 10],
       ],
       feature: 'hook',
       jitter: 0.5,
@@ -961,7 +961,7 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
       layer: 'solid',
       part: 'nose',
       // dicke, gefüllte Nase knapp unter und zwischen den Augen
-      pts: blob([3.2, 7.2], 3.2, 2.7, 4, 7),
+      pts: blob([3.2, 7.2], 3, 2.6, 4, 7),
       closed: true,
       jitter: 0.25,
     },

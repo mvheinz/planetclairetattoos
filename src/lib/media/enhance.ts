@@ -5,6 +5,8 @@
 
 /** Begrenzung der Kanal-Verstärkung (Schritt 4). */
 export const GAIN_RANGE = [0.92, 1.08] as const
+/** Durchgänge des Weißabgleichs (P9.17: 2 – zweiter Durchgang auf dem abgeglichenen Bild). */
+export const WB_PASSES = 2
 /** Anteil „heller“ Pixel für den Neutralpunkt (oberes 5 %-Quantil der Helligkeit). */
 export const NEUTRAL_QUANTILE = 0.95
 /** Höchste Buntheit (Lab) eines „unbunten“ Pixels. */
@@ -108,35 +110,53 @@ export function analyzeLook(
   }
   if (count === 0) return noop
 
-  // Schritt 4: Neutralpunkt aus hellen, unbunten Pixeln
+  // Schritt 4: Neutralpunkt aus hellen, unbunten Pixeln. Zwei Durchgänge (P9.17): der zweite misst Helligkeit und
+  // Buntheit auf dem schon abgeglichenen Bild neu – nach dem ersten Abgleich zählen oft andere Pixel als „unbunt“, und
+  // ein Rest-Farbstich (z. B. b* ≈ 4 auf cremefarbener Glasur) bliebe sonst stehen. Gesamtverstärkung bleibt begrenzt.
   const sortedL = Float32Array.from(L.filter((_, p) => valid[p] === 1)).sort()
   const threshold =
     sortedL[Math.min(sortedL.length - 1, Math.floor(NEUTRAL_QUANTILE * (sortedL.length - 1)))]!
-  let sr = 0
-  let sg = 0
-  let sb = 0
-  let ne = 0
-  for (let p = 0; p < n; p++) {
-    if (!valid[p] || L[p]! < threshold || C[p]! >= NEUTRAL_CHROMA) continue
-    const i = p * channels
-    sr += data[i]!
-    sg += data[i + 1]!
-    sb += data[i + 2]!
-    ne++
-  }
-  const neutralShare = ne / count
   let gains: [number, number, number] = [1, 1, 1]
-  if (neutralShare >= NEUTRAL_MIN_SHARE && ne > 0) {
+  let neutralShare = 0
+  for (let pass = 0; pass < WB_PASSES; pass++) {
+    const luts = pass === 0 ? null : gains.map((g) => buildLut(g, 1))
+    let sr = 0
+    let sg = 0
+    let sb = 0
+    let ne = 0
+    for (let p = 0; p < n; p++) {
+      if (!valid[p]) continue
+      const i = p * channels
+      let r = data[i]!
+      let g = data[i + 1]!
+      let b = data[i + 2]!
+      let l = L[p]!
+      let c = C[p]!
+      if (luts) {
+        r = luts[0]![r]!
+        g = luts[1]![g]!
+        b = luts[2]![b]!
+        const lab = srgbToLab(r, g, b)
+        l = lab[0]
+        c = Math.hypot(lab[1], lab[2])
+      }
+      if (l < threshold || c >= NEUTRAL_CHROMA) continue
+      sr += r
+      sg += g
+      sb += b
+      ne++
+    }
+    if (pass === 0) neutralShare = ne / count
+    if (neutralShare < NEUTRAL_MIN_SHARE || ne === 0) break
     const mr = sr / ne
     const mg = sg / ne
     const mb = sb / ne
     const mean = (mr + mg + mb) / 3
-    if (mean > 8) {
-      const g = [mean / mr, mean / mg, mean / mb].map((v) =>
-        clamp(category === 'drawing' ? half(v) : v, GAIN_RANGE[0], GAIN_RANGE[1]),
-      )
-      gains = [g[0]!, g[1]!, g[2]!]
-    }
+    if (mean <= 8) break
+    const g = [mean / mr, mean / mg, mean / mb].map((v, k) =>
+      clamp(gains[k]! * (category === 'drawing' ? half(v) : v), GAIN_RANGE[0], GAIN_RANGE[1]),
+    )
+    gains = [g[0]!, g[1]!, g[2]!]
   }
 
   // Schritt 5: Belichtung – Median-L* des mittleren 60 %-Bereichs (Fenster 20–80 % je Achse), nach dem Abgleich
