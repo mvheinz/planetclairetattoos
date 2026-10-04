@@ -10,7 +10,7 @@ import {
 } from './orderHelpers'
 
 // P5.22 – Einstellungen, Teil 2: Versand mit EU-Sperre (`/einstellungen/versand`, R-202), Beispieldaten (Anzahl je
-// Collection, Entfernen kommt in P8) und System (`/einstellungen/system`, ARCHITEKTUR §11.5): „Jetzt ausführen“ für
+// Collection, Entfernen ab P8.19) und System (`/einstellungen/system`, ARCHITEKTUR §11.5): „Jetzt ausführen“ für
 // `markDelivered` erzeugt einen `job_runs`-Eintrag; eine fehlgeschlagene Mail lässt sich erneut senden.
 // 390×844 ohne horizontales Scrollen, axe ohne serious/critical.
 
@@ -139,11 +139,11 @@ test('@a11y Versand: EU-Land erst nach allen fünf Häkchen; Beispieldaten-Anzah
     await expect(ack).toBeEnabled()
     await form.getByTestId('settings-country-NL').uncheck()
 
-    // Beispieldaten: Anzahl je Bereich, Entfernen kommt in P8
+    // Beispieldaten: Anzahl je Bereich; Entfernen gesperrt, solange Platzhalter-Rechtstexte aktiv sind (P8.19)
     await page.goto(adminPath('/einstellungen'))
     await expect(page.getByRole('heading', { level: 2, name: 'Beispieldaten' })).toBeVisible()
     await expect(page.getByTestId('settings-seed-remove')).toBeDisabled()
-    await expect(page.locator('#settings-seed-later')).toContainText('P8')
+    await expect(page.getByTestId('settings-seed-locked')).toContainText('Kanzlei')
   } finally {
     await payload.updateGlobal({
       slug: 'settings',

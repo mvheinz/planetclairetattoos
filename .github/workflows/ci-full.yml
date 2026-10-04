@@ -30,6 +30,7 @@ env:
   DATABASE_URL: postgres://postgres:postgres@localhost:5432/planetclaire_test
   DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/planetclaire_test
   DB_POOL_MAX: '25'
+  PC_INT_WORKERS: '3'
   PAYLOAD_SECRET: ci-only-secret-not-used-anywhere-else-0000
   NEXT_PUBLIC_SITE_URL: http://localhost:3000
   SEED_PREVIEW_MODE: 'true'
@@ -90,15 +91,18 @@ jobs:
   # Ab P3.16 je Playwright-Projekt ein paralleler Job (Matrix): die volle Suite hat ~1 400 Tests; nacheinander mit einem
   # Worker bräuchte sie ~55 min (> timeout). Jeder Job baut einmal mit Debug-Flag und testet sein Projekt.
   e2e-full:
-    name: e2e-full (${{ matrix.project }})
+    name: e2e-full (${{ matrix.project }} ${{ matrix.shard }}/2)
     needs: mode
     if: needs.mode.outputs.full == 'true'
     runs-on: ubuntu-latest
+    # Je Projekt zwei Hälften (Playwright `--shard`, je Job eigene Datenbank): mit dem vollen Beispielbestand (P8) brauchte
+    # ein ganzes Projekt 30–40 min (iphone-15 lief in die 40-min-Grenze, Lauf 37167124027); eine Hälfte ~20 min.
     timeout-minutes: 40
     strategy:
       fail-fast: false
       matrix:
         project: [desktop, iphone-15, pixel-7]
+        shard: [1, 2]
     services:
       postgres:
         image: postgres:17-alpine
@@ -152,9 +156,9 @@ jobs:
           restore-keys: next-debug-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
       - name: Seed + Build (mit Debug-Flag)
         run: pnpm run seed && pnpm run build
-      # Ein Projekt je Job (workers: 1 in CI), alle Tests außer @visual/@perf – inkl. @a11y und @privacy.
+      # Eine Projekt-Hälfte je Job (workers: 1 in CI), alle Tests außer @visual/@perf – inkl. @a11y und @privacy.
       - name: E2E ${{ matrix.project }}
-        run: pnpm run test:e2e --project=${{ matrix.project }} --grep-invert "@visual|@perf"
+        run: pnpm run test:e2e --project=${{ matrix.project }} --shard=${{ matrix.shard }}/2 --grep-invert "@visual|@perf"
       # Bei Fehler (§6.2): erst der Budget-Schritt, dann – nur bei upload_optional=true – der Fehlerbericht (2 Tage).
       - name: Artefakt-Budget
         id: budget
@@ -168,7 +172,7 @@ jobs:
         if: failure() && steps.budget.outputs.upload_optional == 'true'
         uses: actions/upload-artifact@v7
         with:
-          name: ci-full-e2e-report-${{ matrix.project }}-${{ needs.mode.outputs.sha7 }}
+          name: ci-full-e2e-report-${{ matrix.project }}-${{ matrix.shard }}-${{ needs.mode.outputs.sha7 }}
           path: |
             playwright-report/
             test-results/
@@ -180,7 +184,7 @@ jobs:
     needs: mode
     if: needs.mode.outputs.full == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     services:
       postgres:
         image: postgres:17-alpine

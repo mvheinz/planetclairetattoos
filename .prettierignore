@@ -28,3 +28,5 @@ src/leash/types.ts
 src/**/*.generated.ts
 src/art/
 src/app/icon.svg
+# Erzeugt von pnpm art:vectorize (SVG-Text als JSON-Strings).
+src/art/stations/stations.generated.ts

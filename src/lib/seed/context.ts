@@ -22,11 +22,16 @@ export function seedOp(req: PayloadRequest): {
   return { req, overrideAccess: true, context: seedContext(), depth: 0 }
 }
 
-/** Ein Import-Schritt = eine Transaktion (SEED-SPEC §1.7). */
+/**
+ * Ein Import-Schritt = eine Transaktion (SEED-SPEC §1.7). Mit `now` sehen die Hooks `N` als aktuelle Zeit
+ * (`requestNow`, z. B. „Eingang nicht in der Zukunft“ bei Reklamationen), unabhängig von der Uhr des Rechners.
+ */
 export async function seedStep<T>(
   payload: Payload,
   fn: (req: PayloadRequest) => Promise<T>,
+  now?: Date,
 ): Promise<T> {
-  const req = await createLocalReq({ context: seedContext() }, payload)
+  const context = now ? { ...seedContext(), now: now.toISOString() } : seedContext()
+  const req = await createLocalReq({ context }, payload)
   return inTransaction(req, () => fn(req))
 }

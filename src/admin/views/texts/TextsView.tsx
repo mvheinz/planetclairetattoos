@@ -19,8 +19,9 @@ import type { AdminViewBodyProps } from '../AdminViewBody'
 import { MailTextsForm } from '../settings/AreaForms'
 import { initialMailTexts, type Obj } from '../settings/settingsAreas'
 import { LegalTextsArea } from './LegalTextsArea'
+import { PagesArea } from './PagesArea'
 
-// Ansicht „Texte“ `/texte` (PLAN P5.27, KONZEPT §7.13): Übersicht mit den Bereichen Seiten und FAQ (kommt in P8),
+// Ansicht „Texte“ `/texte` (PLAN P5.27, KONZEPT §7.13): Übersicht mit den Bereichen Seiten und FAQ (P8.19a, `PagesArea`),
 // Rechtstexte (P6.4, `LegalTextsArea`), Mail-Bausteine (Signatur, Abhol-Vorlage, Antwortzeit-Satz – DE/EN mit „Übersetzen“) und
 // Vorlagen zum Öffnen im Mailprogramm (`mailto:`) bzw. zum Kopieren. Mit einer Bestellnummer (`?bestellung=…`) werden
 // Name, Nummer, Betrag und Signatur eingesetzt; ohne zeigt die Ansicht die Vorlagen mit Platzhaltern.
@@ -134,19 +135,17 @@ export async function TextsView({ adminRoute, req, searchParams, match }: AdminV
     if (!order || !templateFitsOrder(key, order)) return null
     return renderAdminTemplate(key, { order, signature: signatureOf(order.locale) })
   }
-  const allData = (path: string) => `${adminRoute}${path}`
 
   return (
     <div className="pc-order pc-texts" data-testid="texts">
       <section className="pc-order__section" aria-labelledby="texts-pages">
         <h2 id="texts-pages">{adminText('textsPages')}</h2>
-        <Notice
-          tone="info"
-          action={{ href: allData('/collections/pages'), label: adminText('shellOpenAllData') }}
-          data-testid="texts-pages-later"
-        >
-          {adminText('textsPagesLater')}
-        </Notice>
+        <PagesArea
+          adminRoute={adminRoute}
+          req={req}
+          searchParams={searchParams}
+          translateDisabled={translation.enabled ? null : (translation.reason ?? null)}
+        />
       </section>
 
       <section

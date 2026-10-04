@@ -56,7 +56,9 @@ node_modules/
 .env
 
 /.data
+/.data-w*
 /.next-preview
 
 # Lighthouse-CI (pnpm test:perf, Berichte nur lokal/als CI-Artefakt)
 /.lighthouseci/
+/artifacts/

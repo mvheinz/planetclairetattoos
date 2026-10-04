@@ -2,8 +2,92 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-04 – P8 CI grün
 
+Phasenlauf `8518023`: CI, CI full (alle sechs Browser-Hälften, Abdeckung, visuelle Prüfung, Lighthouse) und Vorschau-Export grün. Vorschau-Artefakt `planet-claire-vorschau-p8-8518023`.
 
+## 2026-10-04 – P8 CI: vierter Phasenlauf
+
+Im dritten Lauf waren alle Browser-Prüfungen und der Vorschau-Export grün; nur ein Test-Aufräumschritt (alte Beleg-Dateien blieben im frischen CI-Speicher liegen) ließ eine Integrationsdatei scheitern. Behoben, nur Test-Hilfe, kein Seiten-Code. Der Phasenlauf startet noch einmal.
+
+## 2026-10-04 – P8 CI-Fix: Test-Beleg-PDFs wurden nicht aufgeräumt
+
+In der CI schlug eine Prüfdatei zur Vertragsbestätigung fehl (Bestätigungsmail kam nicht an). Ursache war nur in den Tests: Beim Aufräumen der Test-Bestellungen begann die Rechnungsnummer wieder bei 1, die alte Rechnungs-Datei mit dieser Nummer blieb aber liegen; die neue (anderer Inhalt) wurde zu Recht nicht überschrieben (Belege sind unveränderlich), die Mail wartete auf ihren Anhang. Lokal fiel das nicht auf, weil dort der Speicherordner schon von früheren Läufen gefüllt war. Der Test-Helfer räumt jetzt auch Beleg-PDFs (Datensatz und Datei) auf. Geprüft mit frischem Speicherordner: Datei und gesamte Int-Suite mit 3 Workern grün.
+
+## 2026-10-04 – P8 CI: Zeitlimits für quick und quality auf 60 Minuten
+
+Zweiter Phasenlauf: alle sechs Browser-Prüfungen und der Vorschau-Export waren grün. Die Jobs „quick“ und „quality“ liefen aber ins 45-Minuten-Limit, weil die Integrationstests mit dem vollen Beispielbestand rund 30 Minuten brauchen (auch mit drei Workern). Limit auf 60 Minuten angehoben (öffentliches Repo, keine Kosten); nichts übersprungen. Phasenlauf startet erneut.
+
+## 2026-10-04 – P8 CI-Neustart nach Reparatur
+
+Der erste Phasenlauf von P8 war rot: Die Integrationstests brauchten mit dem vollen Beispielbestand über 40 Minuten, und zwei E2E-Prüfungen gingen von der falschen Uhr aus. Beides ist behoben (Tests laufen jetzt parallel, die Uhr-Annahmen stimmen). Der Phasenlauf startet neu.
+
+## 2026-10-04 – P8 CI-Fix nach rotem `[ci:full p8]` (Lauf 37167124027/37167124034)
+
+- Ursachen: (1) `quick`/`quality`: Integrationstests mit vollem Beispielbestand > 40 min (154 Dateien nacheinander, je Datei
+  ~5–8 s Start, Seed-Dateien 30–60 s, Export-Test 6,5 min) → Abbruch bei 45 min. (2) E2E `home` (Angebot „läuft“) und
+  `admin/today` (letzte Bestellungen): CI seedet mit festem `SEED_NOW` 15.10.2026, die echte Uhr stand auf 04.10. →
+  Angebot „kommt“, Seed-Bestellungen „neuer“ als die Test-Bestellung. (3) `e2e-full (iphone-15)` lief in die 40-min-Grenze.
+- Behoben: Tests rechnen gegen die echte Uhr; Int-Tests laufen in CI mit `PC_INT_WORKERS=3` (je Worker eigene
+  Datenbankkopie + Speicherordner); `e2e-full` je Projekt in zwei Playwright-Hälften.
+- Getestet: `pnpm check` grün; `PC_INT_WORKERS=3 pnpm test:int` 154/154 Dateien, 1017 Tests grün (auf stark ausgelasteter
+  Maschine 25 min); E2E `home` + `admin/today` (desktop, Produktions-Build mit Debug-Flag, SEED_NOW 15.10.2026) grün.
+
+## 2026-10-04 – P8 Phasen-Abnahme (Beispielbestand) – für Jutta
+
+### Phase 8 fertig: der Beispielbestand ist komplett
+
+Hallo Jutta,
+
+Phase 8 ist gebaut. Deine Seite ist jetzt voll mit Beispielen – so siehst du, wie alles mit echtem Leben aussieht,
+bevor es losgeht. Alles davon ist als „Beispiel“ markiert und lässt sich mit einem Knopf wieder entfernen.
+
+### Was du im Beispielbestand jetzt sehen kannst
+
+- **Shop:** 30 Stücke in allen 6 Kategorien – frei, gerade reserviert, verkauft, offline und im Archiv. Die Fotos
+  stammen aus deinen Instagram-Beiträgen (17 Ausschnitte), dazu 30 gezeichnete Platzhalter, wo noch ein Foto fehlt.
+- **Bestellungen und Belege:** 14 Beispiel-Bestellungen in jedem Zustand (bezahlt, versendet, abgeholt, widerrufen,
+  erstattet …) und 15 Belege. Jeder Beleg trägt groß „BEISPIELBELEG – kein echter Beleg“.
+- **Postfach in der Verwaltung:** Widerrufe, Reklamationen, Anfragen für Auftragsarbeiten und Datenschutz-Anfragen –
+  von jeder Sorte ein Beispiel in jedem Zustand. Die Kund:innen sind erfunden.
+- **Tattoo-Bereich:** 10 Flash-Motive, 3 Angebote (Flash-Days), 6 Galerie-Bilder, 12 Fragen im FAQ.
+- **Texte:** Entwürfe für alle Seiten in deinem Ton, z. B. „Über mich“, Pflege (Aftercare), Ablauf und FAQ. Dazu die
+  neue Seite **„Über mich“** mit Jutta & Coco. Fotos, auf denen du selbst zu sehen bist, erscheinen dort erst, wenn
+  du sie in der Verwaltung freigibst (Häkchen „Jutta hat dieses Foto von sich freigegeben“ beim Foto).
+- **Zahlen:** Umsätze aus Tattoo und Flohmarkt für 9 Monate, damit der Umsatz-Wächter etwas zeigt.
+- **Zeichnungen:** Coco ist nach deinen Highlight-Bildchen und Skizzen gezeichnet, die Stationen der Startseite sind
+  aus deinen Zeichnungen übertragen. In Phase 9 werden Coco und die Linie noch einmal gründlich verfeinert.
+- **Leere Seiten:** Wo noch nichts da ist (z. B. kein Flash), steht ein freundlicher Hinweis statt einer leeren Fläche.
+
+Die Texte kannst du in Ruhe in der Vorschau-Datei lesen (die HTML-Datei, die du per Doppelklick im Browser öffnest).
+Was dir nicht passt, korrigierst du später einfach in der Verwaltung.
+
+### Beispiele behalten oder entfernen
+
+- **Einzelne Beispiele behalten:** In der Verwaltung unter **Einstellungen → Beispieldaten** steht bei jedem Beispiel
+  der Knopf **„Übernehmen“**. Danach ist es ein echter Eintrag (mit seinen Bildern) und bleibt stehen. Seitentexte und
+  FAQ übernimmst du noch einfacher: Text bearbeiten und speichern – fertig.
+- **Alle Beispiele entfernen:** Am selben Ort der Knopf **„Beispieldaten entfernen“**. Du tippst zur Sicherheit
+  „ENTFERNEN“ ein. Mit dem Haken „Seitentexte und FAQ behalten“ bleiben die Texte als deine eigenen stehen.
+- Der Knopf ist gesperrt, bis die Texte der Kanzlei eingesetzt sind – sonst wären die Rechtsseiten leer.
+- Echte Stücke, Bestellungen und Rechnungsnummern fasst das Entfernen nie an. Die Beispiele erscheinen auch nie auf
+  der echten Seite, nur in der Vorschau. Das machen wir gemeinsam beim Start (Phase 11).
+
+### So funktioniert der Instagram-Import
+
+- Bisher nutzen die Beispiele kleine Bilder aus deinem Instagram-Profil.
+- Wenn du magst, lädst du bei Instagram deinen **Daten-Export** herunter (Einstellungen → „Deine Informationen
+  herunterladen“, Format JSON). Die ZIP-Datei gibst du uns.
+- Wir legen sie in einen Ordner und starten den Import. Er findet zu jedem Beispielbild das passende Originalfoto in
+  voller Größe und tauscht es aus. Nichts davon wird hochgeladen oder veröffentlicht, alles bleibt bei dir.
+- Genauso mit **Fotos von Coco**: Je mehr echte Fotos (von vorne, von der Seite, beim Schlafen …), desto treffender
+  wird die gezeichnete Coco.
+- Beides kannst du jederzeit nachreichen, es hält nichts auf.
+
+### Was du dir anschauen könntest
+
+Ein paar Beispiel-Angaben sind geschätzt (Material, Maße, Gewichte, Pflegetipps). Wenn dir beim Durchklicken etwas
+auffällt, schreib es einfach auf – wir korrigieren es. Die Liste steht in den offenen Punkten (J-19 bis J-24).
 
 ## 2026-10-03 – P7 CI grün
 
@@ -77,6 +161,70 @@ Alles findest du in der Verwaltung unter **„Tattoo“**. Oben gibt es vier Rei
 
 Die Beispiel-Motive, Angebote und Galerie-Bilder kommen in Phase 8. Texte wie Preise und Pflege-Hinweise sind
 Vorschläge in deinem Ton. Bitte lies sie später einmal durch und ändere, was nicht passt.
+## 2026-10-03 – P8.21
+
+- Vorschau-Export mit vollem Bestand: Status-Anker um O03 ergänzt, S08 als 404-Variante „schon ein Zuhause“ (im Browser gerendert, `clientRendered.ts` – das Server-HTML ist nur die Next-Fehlerhülle), eingebettete `data:`-Bilder (EPC-QR) bleiben erhalten, Zeitstempel-Angleichung ohne GoBD-Trigger-Abbruch (`session_replication_role` nur in der Export-DB). Ergebnis: 164 Routen, 0 nicht gebaut (R19 und alle Tattoo-Routen `ok`), 0 Warnungen, 8,19 MB.
+- Neue Umgebungsvariablen nur für parallele Exporte: `PREVIEW_EXPORT_DB_NAME`, `PREVIEW_EXPORT_PORT` (ARCHITEKTUR §5.2, `.env.example`).
+- Seed-Lücke behoben: O09 (`ready_for_pickup`) hat jetzt den Abholtext `pickup.messageText` (sonst ließ sich M07 nicht erneut senden).
+- Tests: `pnpm preview:export && pnpm test:preview-export` 32/32 grün (neu: „P8.21 Anker in der Datei …“, „P8.21 keine anderen Personendaten …“, Bericht: R08–R19 gebaut); `tests/e2e/seed-anchors.e2e.spec.ts` (9 × desktop/pixel-7); `tests/int/seed/anchors.int.spec.ts` (10).
+- Kriterium mit Vermerk „mit dem echten Anker prüft P8.21“ → Test:
+  - P1.19/P5.6 Bruch-Erstattung S09/O08 (P13 ja, P11 nein) → anchors.int „P8.21 S09/O08 …“
+  - P3.6 Archiv S19/S08 · P3.13 Sitemap → seed-anchors „P8.21 S19 Archiv und Sitemap …“
+  - P3.7 AK-3-04 S08 → seed-anchors „P8.21 S08 /de/shop/908-… → 404-Variante …“ und preview-export „P8.21 Anker in der Datei …“
+  - P3.8 Produktseiten S14, S19, S29, S30 → seed-anchors „P8.21 Produktseiten …“
+  - P4.13 Kasse S01 + S11 (8,90 €, 109,00 €, 117,90 €, Abweichung) → preview-export „P8.21 Anker in der Datei …“ (E2E reservieren nie Seed-Stücke, ARCHITEKTUR §7.2)
+  - P4.23 O03 + AK-SEED-20 (O01/O10/O13, Danke O13/O14) → seed-anchors „P8.21 O03 Bestellstatus …“, seed-status.e2e „AK-SEED-20 …“
+  - P5.8 Filter „reserviert“ S14/O13 → anchors.int „P8.21 S14/O13 Meine Stücke …“
+  - P5.10 Zu packen O14/O12 → anchors.int „P8.21 O14/O12 Zu packen …“, seed-anchors „P8.21 O14/O12 Zu packen, O13 …, O09 …“
+  - P5.11/P5.24 Exporte ohne Seed-Sendung/BSP-Beleg → revenue.int „AK-SEED-21 …“
+  - P5.17 Abholung O09 + M07 erneut → anchors.int „P8.21 O09 Abholung …“
+  - P5.18 Vorkasse O13 „Zahlung erhalten“ → anchors.int „P8.21 O13 Vorkasse offen …“
+  - P5.19 Widerrufe W3–W7 → seed-anchors „P8.21 W3–W7 Widerrufe …“
+  - P5.27 Vorlagen O10/O07 → anchors.int „P8.21 O10/O07 Vorlagen …“
+  - P5.28 Heute (§17) → withdrawals-inquiries.int „zeigt genau die Anker aus SEED_TODAY_ANCHORS“, seed-anchors „P8.21 Heute …“
+  - P6.4 Bestellungen je Fassung → anchors.int „P8.21 Bestellungen je Rechtstext-Fassung …“
+  - P6.8–P6.11 Mails M08/M09/M12/M13 → anchors.int „P8.21 W5/O05/RK1 Mails …“
+  - P6.13 Auskunft-Export → anchors.int „P8.21 DS3 Auskunft-Export …“
+  - P7.2 Flash F-901/F-903/F-905 → seed-anchors „P8.21 F-901/F-903/F-905 …“, seed-tattoo „AK-9-02 Seed …“
+  - P7.3 Angebote TO1–TO3 → anchors.int „P8.21 TO1–TO3 …“, seed-tattoo „AK-9-03 Seed …“
+  - P7.5 Galerie G1–G6 → tattoo.int „AK-SEED-11 …“, seed-tattoo „AK-9-04 Seed …“, preview-export (G1/G2 mit Etikett)
+  - P7.10 Seite commissions → seed-anchors „P8.21 commissions Auftragsarbeiten …“
+  - P7.11 Anfragen A1–A7 Löschfrist → withdrawals-inquiries.int „createdAt, lastActivityAt, deleteAfter = createdAt + 6 Monate …“
+
+## 2026-10-03 – P8.20
+
+- Geprüft: `assertProductionEnv` bricht mit `SEED_PREVIEW_MODE=true` in Produktion ab, `seedPreviewModeActive()` dort immer `false`.
+- Neu: Feld `media.ownerApproved` (Migration `p8_media_owner_approved`, Hinweis „Nur ankreuzen, wenn Jutta dieses Foto freigegeben hat“, nur bei `showsPerson = jutta` sichtbar); `isMediaPubliclyVisible`, Lese-Zugriff und Bildroute sperren Fotos von Jutta ohne Häkchen (auch im Vorschau-Modus); „Über mich“ nutzt dieselbe Regel. Startklar-Punkt vorgemerkt (`STARTKLAR_PLANNED`, `countUnapprovedOwnerPhotos`).
+- Tests: `tests/unit/env/seed-preview.unit.spec.ts` (8, R-181); `tests/int/media/owner-approved.int.spec.ts` (4, DM-MEDIA-06); AK-1-03/AK-9-04 grün (seed-tattoo E2E, tattoo.int).
+
+## 2026-10-03 – P8.19a
+
+- Verwaltung „Texte“ → „Seiten und FAQ“ (`PagesArea`): Liste aller `PAGE_KEYS` (Beispieltext/eigener Text), Handy-Formular je Seite mit Titel, SEO-Feldern und allen Textblöcken DE/EN (`PAGE_TEXT_BLOCKS`: Hero, Stationen, Bild+Text, Formular-Texte …, Feldgrenzen wie P8.7), „Übersetzen“, FAQ aller Kategorien sortierbar (Hoch/Runter).
+- Endpunkte `POST /api/pages/texts`, `POST /api/faqs/texts-save`; Speichern setzt `seed = false` und revalidiert (≤ 60 s). Leeres EN-Titelfeld = deutscher Titel.
+- Keine „kommt in P…“-Texte mehr außer Startklar „kommt in P10“ (Einstellungen → Rechtstexte verlinkt jetzt auf „Texte“).
+- Tests: `tests/int/admin/pages-adopt.int.spec.ts` (5, AK-SEED-17 für pages und faqs, Feldgrenzen, 403); `tests/e2e/admin/texts-pages.e2e.spec.ts` (4 × desktop/pixel-7: alle 13 Seiten 390 px + axe, Übersetzen + öffentlich ≤ 60 s, FAQ-Reihenfolge per Tastatur öffentlich gleich, Suche „kommt in P“ über `adminViews.ts`); P7-Test `tattoo-texts.e2e` an den Beispielbestand angepasst.
+
+## 2026-10-03 – P8.19
+
+- Einstellungen → Beispieldaten (`SeedArea`): Anzahl je Bereich, „Beispieldaten entfernen“ mit Dialog (Mengen, „Seitentexte und FAQ behalten“ vorausgewählt, Eintippen von „ENTFERNEN“), Sperre mit Platzhalter-Rechtstexten (Text „Bitte zuerst die Texte der Kanzlei einsetzen …“ + Typen), „Übernehmen“ je Stück/Flash/Galerie/Bild.
+- Endpunkte `GET /api/admin/seed/summary`, `POST /api/admin/seed/remove` (`src/endpoints/seed.ts`, Logik `removeSeedData`, danach `revalidateAll`), `POST /api/{products,flash,tattoo-gallery,media}/:id/adopt` (`src/lib/seed/adopt.ts`, Audit `product_adopted`, Medien mit).
+- Tests: `tests/int/seed/admin-remove.int.spec.ts` (6: 403, Zählung, Sperre/Freigabe mit Fixture-Rechtstexten, falsches Wort 400, Übernahme, AK-11-03/R-180 zweimal); `tests/e2e/admin-seed.e2e.spec.ts` (390 px, axe; Entfernen-Aufruf abgefangen, siehe OFFENE-PUNKTE).
+
+## 2026-10-03 – P8.18
+
+- Neue Route R19 /de/ueber-mich · /en/about (src/app/(frontend)/[locale]/about, Registry-Status live, ISR mit Tag pages): H1 „Jutta & Coco“, Blöcke aus pages:about in Reihenfolge (Text, Bild und Text, Coco mit Coco-Zeichnung, Bildergalerie, „Was ich mache“ mit Kategorien + Shop/Tattoo/Auftragsarbeiten, Kontaktwege), Instagram-Link rel=noopener noreferrer; Leerzustand ohne Seite (DM-PAGE-01). SEO-Beschreibung DE/EN, Sitemap, canonical/hreflang über routeMetadata, OG-Bild wie alle Seiten.\n- Tuschelinie Preset about: drei Stationen jutta → coco → werkstatt (Schlaufen right/left/right, Posen sitzen/kopfschief/schnueffeln); Bilder von Jutta ausgeblendet bis zur Freigabe (P8.20).\n- Tests: neu tests/e2e/about.e2e.spec.ts (desktop + pixel-7 16/16: Inhalt DE/EN, canonical + 3 hreflang, Sitemap, keine Jutta-Bilder, Instagram rel, Linie überdeckt keinen Text, reducedMotion → Stufe C vollständig und 0 Animationen, axe); neu tests/unit/leash/about.unit.spec.ts (Preset-Daten und Geometrie 390/1440); Registry-Test auf R19 live angepasst.
+
+## 2026-10-03 – P8.17
+
+- Startseite liest Stationen aus pages.home (bereits seit P2/P3/P7); ergänzt: Station „Jutta & Coco“ mit Links Mehr über uns (R19), Auftragsarbeiten (R10) und Instagram (rel=noopener noreferrer, i18n home.stationCommissions/stationInstagram).\n- Geprüft gegen SEED-SPEC §5.1/§12.2: Keramik S01/S04/S05/S07, Textil 4 aus S11/S12/S14/S15/S17, Zeichnungen S20/S22/S23, Schmuck S26–S29; Tattoo-Station mit TO2 „läuft gerade“ als Datums-Badge, TO3 nicht, ≤ 3 freie Flash; Preisfußnote einmal; JSON-LD Organization ohne Adresse.\n- Visuelle Referenz r01-start (desktop, mobile) mit vollem Beispielbestand erneuert (lokal, Linux).\n- Tests: tests/e2e/home.e2e.spec.ts +2 (DE/EN), home- und Stationen-E2E desktop + pixel-7 25/25 grün inkl. LCP < 2,5 s / CLS < 0,1 (mobil); Lighthouse lokal R01 mobil (3 Läufe, Median): LCP 2,18 s, CLS 0,009, TBT 148 ms – innerhalb der Gates; Lighthouse-CI (EK-01) bestätigt im CI-Job.
+
+## 2026-10-03 – P8.16
+
+- Leerzustände KO-17 an allen Listen geprüft/ergänzt: neuer FAQ-Block (src/components/content/FaqList.tsx, Leerzustand „Noch keine Fragen“) auf Kontakt (PageBlocks faqList) und Auftragsarbeiten; R18 Leerzustand mit Link zum Kontakt; R27 Konformitätserklärungen als Leerzustand mit Satz aus KONZEPT §3.14 und Link zur Keramik.\n- 404: Rich Text der Seite not_found unter der festen H1 (Test angepasst); Variante „schon ein Zuhause“ für S08/908 mit Shop/Archiv, noindex; 500 unverändert.\n- seed:remove repariert: echte Kassen/Reservierungen mit Beispiel-Stücken blockierten das Löschen der Stücke (NOT NULL + SET NULL) – werden jetzt mitgelöscht; echte Bestellungen mit Beispiel-Stücken stoppen den Lauf.\n- CMS-Rich-Text: externe Links mit rel="noopener noreferrer" (R-139, z. B. Safer-Tattoo-Link R17).\n- Tests: neu tests/e2e/empty-states.e2e.spec.ts (desktop + pixel-7 je 7/7: alle Registry-Routen DE/EN 200/404 nie 500 nach seed:remove --drop-texts, Leerzustände mit Weiter-Link und Pose, Vertrag widerrufen, axe auf Leerzuständen/404/500, reduzierte Bewegung statisch); tests/visual/empty-states.visual.spec.ts (404-Variante, Shop leer); Int tests/int/seed/lifecycle.int.spec.ts +1 (8/8); error-pages, legal, tattoo, commission E2E grün.
+
+## 2026-10-03 – P8.15
+
+- Texte DE/EN gegengelesen (i18n, site-texts, Seed-Seiten, FAQ, Tattoo, Mails): Ton passt (du-Form, kurz, Kulleraugen), keine Treffer zu V-18 (Garantie nur als EU-Fachbegriff „legal guarantee“), V-26 (Barrierefreiheit/Zertifikate), V-28 (Liedtext/Audio); Rechtstexte und legalSnippets unverändert (R-002). RECHT §7 Teil A: R-190, V-18/V-28/V-29 und „FAQ-/Tattoo-/Über-mich-Entwürfe gegen §5 geprüft“ abgehakt (03.10.2026).\n- site-texts: Standardwerte „Seite nicht gefunden“ an die feste 404-Überschrift angeglichen („Coco hat sich losgerissen“ / “Coco slipped her leash”).\n- Prüfliste für Jutta (SE-06, SE-07) in OFFENE-PUNKTE.\n- Tests: neu tests/unit/i18n/site-texts-defaults.unit.spec.ts (4: Gruppen §7.2, jedes Textfeld DE+EN, Navigationslisten, Betreff je Kund:innen-Mail DE+EN); i18n-Parität und Verbotsmuster unit grün; E2E tests/e2e/legal/forbidden.e2e.spec.ts (+ product-info, gpsr) desktop 121/121 grün.
 
 ## 2026-10-03 – Erstlade-Budget R10/R26 (check:bundle wieder grün)
 
@@ -147,6 +295,92 @@ fertig. Die wichtigsten Punkte:
 - **Ohne Cookie-Banner** zulässig (K-30, K-38)?
 
 Du musst jetzt nichts tun. Diese Punkte besprechen wir gemeinsam beim Go-live (P11).
+## 2026-10-03 – P8.14
+
+- content/art/sources.json (Schema DESIGN §12.4, Prozent-Ausschnitte; zusätzlich optional dense) und pnpm art:vectorize (scripts/art/vectorize.ts): sharp (Ausschnitt → luma/min → normalise → Lanczos3 → blur 0.5 → Otsu/fest → Median 3) → potrace 2.1.8 (nur devDependency, dynamisch importiert) → SVGO → fill currentColor, evenodd. Gemappte Export-Originale (P8.10) haben Vorrang.
+- Stationen: keramik (Hund aus der Schale, nur schwarze Linien), textil (Wesen der pinken Cap, Kanal min), zeichnungen (zwei Figuren, oberer Ausschnitt, Kritzelfell als Fläche), tattoo (Kelch mit Schlange); schmuck als Linienzeichnung im Platzhalter-Stil (content/art/stations/schmuck.ts, Fuchs-Anhänger); planet-claire aus der Planet-Marke; hallo und jutta-und-coco aus Coco sitzen (Sprite) bzw. + Planet. Ausgabe src/art/stations/*.svg + stations.generated.ts, eingebunden in StationArt (KO-21), aria-hidden.
+- Größen: 0,6–6,3 KB je Station (≤ 8 KB); R01: SVG gesamt 54,1 KB (≤ 60 KB), Pfaddaten im DOM unter 60 KB; potrace in keinem Client-Chunk (neue Prüfung in pnpm check:bundle). Deterministisch (zwei Läufe byte-gleich). Hinweis: check:bundle meldet R10/R26 JS 150,4–155,4 KB > 150 KB – unabhängig von P8.14 (kein Client-Code geändert).
+- Tests: tests/unit/art/stations.unit.spec.ts (6: Größe, Quellen-Whitelist AR-01, currentColor E-73, generiertes Modul = Dateien, potrace nur devDependency, Determinismus mit Mini-Quelle), tests/unit/perf/check-bundle.unit.spec.ts (+1), E2E tests/e2e/home/station-art.e2e.spec.ts (desktop + pixel-7: 7 Stationszeichnungen, aria-hidden, Tusche, ohne Konsolenfehler) sowie home/leash-E2E grün gegen Produktions-Build.
+
+## 2026-10-03 – P8.13
+
+- Flash-Platzhalter flash-902 … flash-910 (ohne Wash, Grund Papier-2, klare Kontur): Hasen-Trio, Fuchs mit Kulleraugen, Schmetterling mit Tupfen, Schnecke mit Planetenhaus, Coco sitzt (mit rotem Geschirr), winziger Planet, Reh mit Tupfen, Flammenwesen, Herz mit Beinen – passend zu den Titeln SEED-SPEC §12.1.
+- Tattoo-Platzhalter tattoo-01 … tattoo-04 (Wash --wash-clay): Knöchel/Fuß mit Hasen-Trio (F902, frisch, Linie 3), Handgelenk mit winzigem Planeten (F907, verheilt, Linie 1,8), Oberarm mit Coco (F906, frisch, Linie 3), Schienbein mit Herz mit Beinen (F910, verheilt, Linie 2); Körperumriss in 2,4.
+- pnpm seed:example --refresh-media: Flash-Raster (R12) und Galerie (R15) zeigen die Zeichnungen statt fallbackArt.
+- Prüf-Linse (gleicher Lauf wie P8.12, Kontaktbogen mit allen 30): alle Flash-/Tattoo-Motive „lesbar: ja“, Coco (flash-906, tattoo-03) „ja“.
+- Tests: tests/unit/art/placeholders.unit.spec.ts deckt Flash (0 Wash-Flächen) und Tattoo (eigene Linienstärke nur im Tattoo) ab; tests/int/seed/media.int.spec.ts „kein Platzhalter stammt mehr aus fallbackArt“ (alle 30 aus src/art/placeholders, Pixelvergleich) – 7/7 grün.
+
+## 2026-10-03 – P8.12
+
+- Werkzeug scripts/art/lib/handline.ts (gesäter Wackel quer zur Richtung, offene Enden/Überstände bei geschlossenen Formen, Absetzer bei langen Strichen, Doppelkonturen, Schatten aus 5–7 Schraffurstrichen unter 40°, eine um 3–4 Einheiten versetzte Wash-Fläche, gefüllt nur Pupillen/Nase/Tupfen, Glanzpunkte in Papier) und Generator pnpm art:placeholders (scripts/art/placeholders.ts, optional --sheet/--png).
+- Motiv-Skizzen content/art/placeholders/{typ}-{n}.ts aus gezeichneten Bezier-Kontrollpunkten; wiederkehrende Figuren (Hasen, Fuchs, Reh, Coco, Planet, Mond, Stern, Shirt, Bügel, Blatt) in _parts.ts, Strich nach Juttas Skizzen (content/art/jutta-skizzen). Ausgabe src/art/placeholders/*.svg (alle ≤ 6 KB), Wash laut content/seed/data/media.json; pnpm seed:example --refresh-media ersetzt die fallbackArt-Bilder.
+- Prüf-Linse R1 (frisch, Headless, KUNST-QA §6.7/§6.1 Nr. 5), 3 Durchgänge: Kalibrierung P2-Ersatzzeichnung Note 1 (gültig); Lauf 3: alle 30 Motive „lesbar/erkennbar: ja“, alle Coco-Fragen (shirt-02, cap-01, zeichnung-01, anhaenger-01, flash-906, tattoo-03) „ja“; Stilnote AR-05 = 3 → Feinschliff P9.13 (OFFENE-PUNKTE).
+- Tests: tests/unit/art/placeholders.unit.spec.ts (7 Tests: Bestand 30, viewBox/Strich/kein Text/keine Primitive/≤ 6 KB/±3°, genau eine Wash-Farbe bzw. Flash ohne Wash, Coco mit rotem Geschirr, Motivhöhe 55–70 % nach Rasterung, Skizzen ohne Primitive, Determinismus) grün; tests/unit/seed/data.unit.spec.ts angepasst.
+
+## 2026-10-03 – P8.11
+
+- `pnpm art:coco-refs` (scripts/art/coco-refs.ts): liest Fotos aus content/seed/coco/ (JPG/PNG/HEIC, .mp4 nur gelistet) und Juttas Skizzen aus content/art/jutta-skizzen/, normalisiert mit sharp (Orientierung, sRGB, ohne jede Metadaten inkl. GPS, ≤ 1600 px) nach .data/art-refs/coco/ und schreibt content/art/coco-refs.json (Quelle, sha256, Maße, Pose aus coco-<pose>-<n>, Herkunft); die 9 Highlight-Referenzen stehen immer drin; nicht dekodierbares HEIC wird übersprungen und gemeldet.\n- Ohne eigene Fotos: Hinweis „keine eigenen Fotos“ (OFFENE-PUNKTE: wartet auf Jutta).\n- Tests: tests/unit/art/coco-refs.unit.spec.ts (7: GPS-Fixture ohne EXIF/GPS nach der Normalisierung, Posen-Erkennung, HEIC-Rückfall, Idempotenz byte-gleich, committete Datei aktuell, kein Hash in public/.next/static/Vorschau/Seed-Medien).
+
+## 2026-10-03 – P8.10
+
+- `pnpm seed:import-instagram` (scripts/seed/import-instagram.ts): findet ZIPs (entpackt nach .data/instagram-export/), Monatsordner, JSON-Ordner, ältere Uploads und Mischformen; Zuordnung nur über Dateinamen, Art über JSON-uri, Datum aus JSON oder Monatsordner; Kandidaten ±1 Tag, dHash 64 Bit ≤ 10 und Seitenverhältnis ±1 %; Map content/seed/instagram-export-map.json (leer committet) mit override-Vorrang. Ohne Export: Meldung, Exit 0, Map unverändert.\n- Medien-Schritt (src/lib/seed/exportMap.ts, example.ts): gemappte Kürzel nehmen das Original (neu kodiert, ohne Metadaten) mit denselben Prozent-Ausschnitten und seedKeys, source = instagram_export (beim Anlegen bzw. --refresh-media).\n- Tests: tests/unit/seed/import-instagram.unit.spec.ts (9, fiktive Fixture tests/fixtures/instagram-export/), tests/int/seed/import-instagram.int.spec.ts (4: Refresh ersetzt Datei, seedKey/Anzahl gleich, AK-SEED-19 mit Quellpixeln, kein ungeschnittenes Export-Bild in media). Echter Export fehlt weiter (OFFENE-PUNKTE: wartet auf Jutta).
+
+## 2026-10-03 – P8.9
+
+- Lebenszyklus geprüft und ergänzt: seed:remove erfasst vor dem ersten Löschschritt alle Verweise echter (und gleich übernommener) Dokumente und Globals auf Seed-Dokumente (src/lib/seed/references.ts) und listet sie im Bericht; entfernt werden sie beim Löschen über die Fremdschlüssel (Übersetzungen in Blöcken bleiben unangetastet). Guard, Reihenfolge §1.7, settings.seed und Audit seed_imported/seed_removed waren vorhanden.\n- Tests: tests/int/seed/lifecycle.int.spec.ts (7: Mengen = SEED_EXPECTED_COUNTS, Kennzeichnung, zweiter Lauf ohne Änderung, Vorschau per CLI ohne Schreiben, Entfernen mit/ohne Texte, Reset, Gegenprobe Stück Nr. 17 + Umsatz 2026-09/tattoo + echte Aktion mit Seed-Flash, Sequenzen PC/WR/AA/DS und RE/GS unverändert, seed:base mit APP_ENV=production), tests/unit/seed/guard.unit.spec.ts (16, jede Sperrbedingung einzeln); time.unit grün.
+
+## 2026-10-02 – P8.8
+
+- `content/seed/data/logs.json` mit den Ableitungsregeln (Ereignis → Vorlagen aus `EMAIL_TEMPLATES`), den Einwilligungen und den 8 Audit-Einträgen (SEED-SPEC §16); Import `src/lib/seed/logs.ts` (Schritt 8): 78 Mail-Einträge (Anzahl je Bezug wie §16.1, Betreff aus den Mail-Texten mit Nummer, Admin-Mails an die Verwaltung auf Deutsch, `messageId` §2.5), 14 Einwilligungen mit gerendertem Baustein (`getSnippet`, kein erfundener Rechtstext), 8 Audit-Einträge; `withdrawals.confirmationEmail` zeigt auf die Eingangsbestätigung.\n- `email-log`: im Seed-Kontext bleibt `status = sent` (sonst `suppressed` für example.*).\n- Tests: `tests/int/seed/logs.int.spec.ts` (7, inkl. AK-SEED-05 mit Spionen) grün.
+
+## 2026-10-02 – P8.7
+
+- `content/seed/data/pages.json` für alle 13 `PAGE_KEYS` (SEED-SPEC §13, Juttas Ton, du-Form; keine Rechtstexte) und `faqs.json` (12 FAQ, §14); Seiten-Import kann jetzt alle Blocktypen (Bilder über seedKey, Schritte/Phasen mit gleichen Zeilen-IDs in DE/EN, `seo.metaTitle` der Startseite), FAQ-Import (Inhalt-Gruppe, übernommene FAQ werden übersprungen).\n- Datums-Token `{{date:<expr>}}` + `seedRichText` in `src/lib/seed/lexical.ts`.\n- Tests: `tests/unit/seed/lexical.unit.spec.ts` (6), `tests/int/seed/pages-faqs.int.spec.ts` (6: Mengen, AK-SEED-17, AK-SEED-18, Feldgrenzen, V-28, EN-Texte) grün; E2E `tests/e2e/seed-pages.e2e.spec.ts` (DE/EN der gebauten Routen).
+
+## 2026-10-02 – P8.6
+
+- Tattoo-Bestand `content/seed/data/tattoo.json` (SEED-SPEC §12): Flash F901–F910 (F903/F905 vergeben, F901 mit Instagram-Bild), Angebote TO1–TO3, Galerie G1–G6 (G1/G2 Kundenfotos ohne Einwilligung, nur im Vorschau-Modus); Import `src/lib/seed/tattoo.ts` (Inhalt-Gruppe, Nummernkollision auch für `flash.number`).\n- Hook `tattoo-gallery`: Anlegen ohne Einwilligung im Seed-Kontext erlaubt (SEED-SPEC §1.6), sichtbar weiter nur mit wirksamem Vorschau-Modus. Allowlist-Eintrag „Godzilla“ für `tattoo.json` (E-18).\n- E2E `tests/e2e/tattoo/offers.e2e.spec.ts`: Testangebot beginnt vor TO2, damit es im Teaser steht.\n- Tests: `tests/int/seed/tattoo.int.spec.ts` (8, mit vorgestellter Uhr, Einwilligungsregel, Betreff) grün; E2E `tests/e2e/tattoo/seed-tattoo.e2e.spec.ts` (Betreff, Sichtbarkeit mit Seed-Daten).
+
+## 2026-10-02 – P8.5a
+
+- Reklamationen RK1–RK4 (`complaints.json`, SEED-SPEC §10a; Fotos RK1/RK2 als erzeugte Linienzeichnungen, angelegt mit Pflichtbezug auf die Reklamation) und Datenschutz-Anfragen DS1–DS5 (`privacy-requests.json`, §11a, ohne Exportdatei).\n- Hook `privacy-requests`: im Seed-Kontext bleibt `identityVerifiedAt` aus den Daten (SEED-SPEC §1.6); `seedField()` war schon vorhanden (keine Migration).\n- Tests: `tests/int/seed/complaints-privacy.int.spec.ts` (8: Status-Abdeckung, DM-CMP-01, DM-PRQ-01, „Heute“, Fristen-Jobs ohne Mail, Idempotenz, Entfernen) + AK-SEED-22 in `withdrawals-inquiries.int.spec.ts` – grün.
+
+## 2026-10-02 – P8.5
+
+- Widerrufe W1–W7 (`withdrawals.json`, SEED-SPEC §10), Anfragen A1–A7 (`inquiries.json`, §11, Skizze nur bei A2), Umsätze M-9…M-1 (`revenue.json`, §15); Import in `src/lib/seed/cases.ts` (Schritt 7, Hooks sehen N als Request-Zeit über `seedStep(…, now)`), Datums-Token `{{date:…}}` (`withDateTokens`), Umsatz-Seed überspringt belegte (Monat, Quelle).\n- Anker-Tabelle „Heute“ `SEED_TODAY_ANCHORS` in `src/lib/seed/expected.ts`.\n- Tests: `tests/int/seed/withdrawals-inquiries.int.spec.ts` (9), `tests/int/seed/revenue.int.spec.ts` (5: Wächter grün nur mit Vorschau-Modus, Verdrängen, Überspringen, AK-SEED-15, AK-SEED-21 Exporte ohne Seed) – grün.
+
+## 2026-10-02 – P8.4a
+
+- `src/lib/seed/invoices.ts`: Rechnung je bezahlter Bestellung (issueAt = Zahlung) und Gutschrift je Erstattung (Grund der Erstattung) über den normalen Zähler (`createInvoiceForOrder`/`createCreditNote`, Serien `BSP-RE`/`BSP-GS`), je Serie streng nach issueAt; PDF direkt mit dem P4-Renderer (Wasserzeichen, ohne Job) als `private-uploads` `invoice-pdf:<Nummer>`; `orders.invoice` und `refunds[].creditNote` verknüpft.
+- Ergebnis wie SEED-SPEC §9: BSP-RE-2026-00001…00012, BSP-GS-2026-00001…00003 (O08 mit Grund `breakage`), Zähler BSP-RE = 12, BSP-GS = 3, RE/GS unberührt; `seed:remove` löscht die BSP-Zählerzeilen.
+- Tests: `tests/int/seed/invoices.int.spec.ts` (3: AK-SEED-08 gegen die Tabelle §9, Verknüpfungen, PDF-Text mit Wasserzeichen/sha256/issued) grün.
+
+## 2026-10-02 – P8.4
+
+- `content/seed/data/customers.json` (24 erfundene Personen, SEED-SPEC §6) und `orders.json` mit O01–O14 (Form §2.6: Zeitleiste, Zahlung, Sendung, Erstattungen, Anfechtung) sowie den Kassen ohne Bestellung KS1 (`expired`, `reservation_expired`) und KS2 (`open`). Neu `src/lib/seed/orderPlan.ts` (reine Ableitung: Statusverlauf über `evaluateOrderTransition`, Vorkasse-Fristen aus `prepaymentDeadlines`, `finalStatusAt`/`retainUntil` wie der Hook, Kasse T0 = placedAt − 4 min, Reservierungen; Filter L-02/L-03 aus `retention/policy`, SE-12) und `src/lib/seed/orders.ts` (Snapshot mit `buildCharacteristics`/`computeShipping`, Verpackung aus `settings.packaging`, Tracking-Link aus den Vorlagen, Rechtstexte v1, Bausteine `draft-1`, Token nur aus `seedToken`, Verknüpfungen Kasse/Bestellung/Reservierung/Stück/Packfotos).
+- Nach `pnpm seed:reset` (kanonisch): 14 Bestellungen (alle 13 Status, alle Zahlarten, Versand + Abholung), 14 Kassen, 10 Reservierungen; Summen wie §7.1. E2E-Anker auf den vollen Bestand nachgezogen (Startseite Textil-Station, Archiv- und Shop-Listen, Leerzustände blenden Seed-Stücke kurz aus); „Alle Daten“-Listen: Blätter-Pfeile mit Namen (axe).
+- Tests: `tests/int/seed/orders.int.spec.ts` (8), `tests/unit/seed/timeline.unit.spec.ts` (7, AK-SEED-09), `persons.unit.spec.ts` (2, AK-SEED-12), `tokens.unit.spec.ts` (3), `tests/e2e/seed-status.e2e.spec.ts` (7 je Projekt, AK-SEED-20) grün; `pnpm check`, `test:int` (138 Dateien, ohne preview-export), `pnpm build`, betroffene E2E (desktop + pixel-7) grün.
+
+## 2026-10-02 – P8.3
+
+- `content/seed/data/products.json` mit allen 30 Stücken nach SEED-SPEC §5.1–§5.4 (Texte DE/EN inkl. `juttaSays`, Maße/Gewichte/Faserangaben, gemeinsame Werte §5.2, Verkaufsfelder §5.3 nur beim Anlegen); die 10 Stücke des Mini-Satzes blieben unverändert. `reservationRef` reservierter Stücke (S14 → Kasse O13, S27 → KS2) aus `seedReservationRef()` (§2.5); `currentOrder` setzt P8.4.
+- Material-, Faser- und Maßangaben sind Annahmen (SE-06, OFFENE-PUNKTE §4.1), S04–S06 neutral betitelt (SE-01).
+- Tests: `tests/int/seed/products.int.spec.ts` (4: Mengen/Verteilungen aus `SEED_EXPECTED_*`, Verkaufsfelder, AK-SEED-06, Sonderfälle S11/S14/S22/S26–S30/S23); Verbotsmuster über `content/seed/**` (`tests/unit/legal/forbidden.unit.spec.ts`, `data.unit.spec.ts`) grün.
+
+## 2026-10-02 – P8.2
+
+- `content/seed/data/media.json` vollständig nach SEED-SPEC §4.1/§4.2 (17 Instagram-Ausschnitte mit `crop`/`focal` in Prozent und Alt-Texten DE/EN, 30 Platzhalter mit Wash und Alt „Platzhalter-Zeichnung: …“); Ausschnitte per sharp vor dem Upload, danach dieselbe Pipeline wie Juttas Uploads; Platzhalter aus `fallbackArt.ts` (WebP 800×1000), solange `src/art/placeholders/` fehlt.
+- `private-uploads.json` nach §4.4 um `O12:packing-1/-2` (JPEG 1200×900, Schriftzug „BEISPIEL-PACKFOTO 1/2“ bzw. „2/2“) und `A2:sketch-1` (PNG 1000×1000 ohne Text) ergänzt; Linienzeichnungen in `src/lib/seed/drawings.ts`; Schema mit `pdfText` **oder** `image` und Bezügen (`relatedOrder`/`relatedInquiry`/`relatedComplaint`, gesetzt nach den Vorgängen).
+- Tests: `tests/unit/seed/crop.unit.spec.ts` (3, jede Zeile §4.1 Prozent → Pixel gegen die echten Quellen), `tests/int/seed/media.int.spec.ts` (6: Mengen aus `SEED_EXPECTED_COUNTS`, Felder, Ausschnitt-Maße, AK-SEED-19 per SHA-256, DM-MEDIA-04 404 ohne Vorschau-Modus, keine Hochskalierung/kein EXIF, R-136) grün.
+
+## 2026-10-02 – P8.1
+
+- Soll-Mengen als einzige Quelle in `src/lib/seed/expected.ts` (`SEED_EXPECTED_COUNTS` je Zeile aus SEED-SPEC §0.1, dazu Aufteilungen und Verteilungen je Kategorie/Status/Verkaufskanal); offene SE-Punkte (SE-01–07, SE-10, SE-12, SE-14) in OFFENE-PUNKTE §4.1 mit „Standard“, „Entscheidet“, „So änderbar“.
+- Abgleich Code ↔ SEED-SPEC §0.3/DATENMODELL §13.3: Nummern 901–930, Belegserien `BSP-RE`/`BSP-GS` (Hook `invoices`), Etikett „Beispiel“ (`ExampleNote`, Verwaltung), Beispiel-IBAN als Standard in `settings`, Keramik nur `deko`, Kassen-Modell (`checkouts` für Vorgänge ohne Bestellung) – keine Abweichung im vorhandenen Code; Bestellungen fehlten noch (P8.4).
+- Ist/Soll nach `pnpm seed:reset` (kanonisches `SEED_NOW`), Stand vor P8.2: media 11/47 · private-uploads 2/22 (7 Dateien + 15 Beleg-PDFs) · products 10/30 · checkouts 1/14 · orders 0/14 · reservations 1/10 · invoices 0/15 · invoice-counters (BSP) 0/2 · withdrawals 0/7 · complaints 0/4 · inquiries 0/7 · privacy-requests 0/5 · flash 0/10 · tattoo-offers 0/3 · tattoo-gallery 0/6 · pages 2/13 · faqs 0/12 · revenue-entries 0/18 · email-log 0/78 · consent-log 0/14 · audit-log 0/8 · webhook-events/documents/conformity-declarations 0/0 · Grund-Seed: categories 6/6, legal-texts 6/6, settings/site-texts 1/1, users 1/0–1.
+- Folgeaufgaben: P8.2 bauen (Medien ergänzen, Packfotos/Skizze erzeugen) · P8.3 bauen (20 Stücke fehlen) · P8.4 bauen (Bestellungen, Kassen, Reservierungen) · P8.4a bauen (Seed-Anbindung des P4-Renderers) · P8.5 bauen · P8.5a bauen · P8.6 bauen · P8.7 ergänzen (2 von 13 Seiten, FAQ fehlen) · P8.8 bauen · P8.9 nur prüfen/ergänzen (Guard, Entfernen, Reset und Idempotenz aus P1 vorhanden).
+- Tests: `tests/unit/seed/expected.unit.spec.ts` (2, liest §0.1 per Markdown-Parser) grün.
+
 ## 2026-10-02 – P7.15
 
 - `tests/e2e/tattoo/no-purchase.e2e.spec.ts` (AK-9-01, AK-9-05, R-139 auf R11–R18 DE/EN), `tests/int/legal/tattoo-cart.int.spec.ts` (R-170), `tests/unit/legal/tattoo-content.unit.spec.ts` (V-15/V-24/V-25, R-034); ANFORDERUNGEN §3 Nachweise für P7-Zeilen, `LEGAL_TRACE_PHASE = 7`.
@@ -230,6 +464,60 @@ Du musst jetzt nichts tun. Diese Punkte besprechen wir gemeinsam beim Go-live (P
 - src/lib/tattoo/mailto.ts (RFC 6068, Betreffe Flash/Angebot/allgemein/eigene Idee DE/EN, Gesundheits-Hinweis), gecachte Lesefunktionen src/lib/data/tattoo.ts (Tags flash, tattoo-offers, tattoo-gallery, faqs, page:tattoo, page:tattoo_aftercare, settings)
 - SEO-Titel „{Seite} · Tattoo · Planet Claire“ und eigene Beschreibungen R11–R18; SE-09 geklärt (vorhandene PAGE_KEYS reichen)
 - Tests: tests/unit/tattoo/mailto.unit.spec.ts (AK-9-02, R-170), copy-button-Rückfall (Unit)
+## 2026-10-03 – P6 Phasen-Abnahme (Recht, Widerruf, Datenschutz) – für Jutta
+
+Hallo Jutta,
+
+Phase 6 ist gebaut. Hier ist kurz und einfach, was jetzt da ist und was du später mit der Kanzlei klären musst.
+
+### Was rechtlich jetzt da ist
+
+- **Alle Rechtsseiten** auf Deutsch und Englisch: Impressum, Datenschutzerklärung, AGB, Widerrufsbelehrung mit
+  Muster-Formular, Versand und Zahlung sowie die Kontaktseite. Die Texte sind noch **Platzhalter**. Oben auf jeder
+  Seite steht ein deutlicher Hinweis „vorläufiger Text“, bis die Kanzlei die echten Texte liefert.
+- **Rechtstexte in der Verwaltung** (Bereich „Texte → Rechtstexte“): Du kannst später den Text der Kanzlei einfach
+  hineinkopieren. Jede Änderung wird eine neue Fassung mit Datum. Alte Fassungen bleiben gespeichert, damit man immer
+  zeigen kann, was eine Kundin beim Kauf gesehen hat. Dazu gibt es PDFs zum Herunterladen.
+- **Kleine Rechtsbausteine** (z. B. der Hinweis zu den Rücksendekosten oder der Kleinunternehmer-Satz am Preis) liegen
+  ebenfalls versioniert in der Verwaltung. Es sind vorerst Arbeitsfassungen.
+- **Datenschutz-Anfragen** (Auskunft, Löschen, Berichtigen …): eigene Liste unter „Export und Datenschutz“. Das System
+  zeigt die Monatsfrist, erinnert dich rechtzeitig und hilft beim Suchen aller Daten einer Person und beim Export.
+- **Automatisches Löschen**: Alte Daten (z. B. abgebrochene Bestellungen, alte Mail-Protokolle, Anfragen nach
+  6 Monaten) werden nach festen Fristen gelöscht oder unkenntlich gemacht. In den Einstellungen siehst du vorher in der
+  „Löschvorschau“, was in den nächsten Tagen gelöscht würde. Rechnungen bleiben so lange, wie das Gesetz es verlangt.
+- **Reklamationen** werden mit Fotos zur Bestellung gespeichert, mit Antwort-Vorlage (Reparatur oder Ersatz).
+- **Jährliche Erinnerung**, die Rechtstexte prüfen zu lassen.
+- **Verzeichnis der Verarbeitungen** und eine Liste aller Dienste (z. B. Stripe, DHL) für die Kanzlei.
+
+### So funktioniert der Widerruf
+
+1. Auf **jeder Seite** unten steht der Link **„Vertrag widerrufen“**.
+2. **Schritt 1:** Die Kundin gibt Name, E-Mail und Bestellnummer ein. Sie kann (muss aber nicht) einzelne Stücke
+   auswählen und einen Grund nennen.
+3. **Schritt 2:** Sie sieht alles noch einmal und klickt **„Widerruf bestätigen“**.
+4. Sie bekommt **sofort** eine Bestätigung auf der Seite und per Mail (mit Datum und Uhrzeit). Du bekommst auch eine
+   Mail.
+5. In der Verwaltung unter **„Widerrufe“** siehst du alles: Ware ist zurück → Erstattung auslösen (Stripe macht das
+   automatisch, bei Vorkasse überweist du und klickst „überwiesen“). Das System erinnert dich an die 14-Tage-Frist und
+   erstellt die Gutschrift.
+
+### Was du vor dem Go-live mit der Kanzlei klären musst
+
+Die Kanzlei-Mappe (`docs/recht/KANZLEI-BRIEFING.md`, jetzt Version 1.4, mit Bildschirmfotos des Widerrufs) ist
+fertig. Die wichtigsten Punkte:
+
+- **Echte Rechtstexte** liefern lassen (Impressum, Datenschutz, AGB, Widerrufsbelehrung, Versand) – sie ersetzen die
+  Platzhalter.
+- **Widerruf:** Passt der Ablauf in zwei Schritten (K-11)? Wer trägt bei einem Teil-Widerruf die Versandkosten
+  (K-09)? Vorläufig gilt: Die Rücksendung zahlt die Kundin; behält sie einen Teil, bekommt sie den Warenwert und den Unterschied
+  bei den Versandkosten zurück.
+- **Rechnungen 8 oder 10 Jahre** aufbewahren (K-33, auch mit der Steuerberatung)? Vorläufig: 10 Jahre.
+- **Wortlaut der Bausteine** (Kleinunternehmer-Hinweis, DHL-Einwilligung, Transportschaden, Rücksendekosten):
+  bisher nur Arbeitsfassungen (K-15, K-21, K-23, K-31).
+- **Deine Anschrift** im Impressum und in der Belehrung (K-39) und ob eine Telefonnummer nötig ist (K-28).
+- **Ohne Cookie-Banner** zulässig (K-30, K-38)?
+
+Du musst jetzt nichts tun. Diese Punkte besprechen wir gemeinsam beim Go-live (P11).
 
 ## 2026-10-02 – P6.23
 

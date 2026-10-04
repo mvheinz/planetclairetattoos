@@ -1,0 +1,216 @@
+[
+  {
+    "key": "C01",
+    "name": "Paula Beispiel",
+    "email": "paula.beispiel@example.com",
+    "address": {
+      "addressLine1": "Probegasse 3",
+      "postalCode": "50667",
+      "city": "Köln"
+    },
+    "locale": "de"
+  },
+  {
+    "key": "C02",
+    "name": "Erika Musterfrau",
+    "email": "erika.musterfrau@example.com",
+    "address": {
+      "addressLine1": "Musterstraße 1",
+      "postalCode": "10115",
+      "city": "Berlin"
+    },
+    "locale": "de"
+  },
+  {
+    "key": "C03",
+    "name": "Max Mustermann",
+    "email": "max.mustermann@example.com",
+    "address": {
+      "addressLine1": "Beispielweg 7",
+      "postalCode": "20095",
+      "city": "Hamburg"
+    },
+    "locale": "de"
+  },
+  {
+    "key": "C04",
+    "name": "Lena Platzhalter",
+    "email": "lena.platzhalter@example.org",
+    "address": {
+      "addressLine1": "Platzhalterplatz 5",
+      "postalCode": "80331",
+      "city": "München"
+    },
+    "locale": "de"
+  },
+  {
+    "key": "C05",
+    "name": "Tom Testmann",
+    "email": "tom.testmann@example.com",
+    "address": {
+      "addressLine1": "Testallee 12",
+      "postalCode": "04109",
+      "city": "Leipzig"
+    },
+    "locale": "de"
+  },
+  {
+    "key": "C06",
+    "name": "Alex Sample",
+    "email": "alex.sample@example.org",
+    "address": {
+      "addressLine1": "Beispielufer 21",
+      "postalCode": "69117",
+      "city": "Heidelberg"
+    },
+    "locale": "en"
+  },
+  {
+    "key": "C07",
+    "name": "Greta Gedacht",
+    "email": "greta.gedacht@example.com",
+    "address": {
+      "addressLine1": "Gedankenweg 10",
+      "postalCode": "99084",
+      "city": "Erfurt"
+    },
+    "locale": "de"
+  },
+  {
+    "key": "C08",
+    "name": "Uwe Unbekannt",
+    "email": "uwe.unbekannt@example.org",
+    "address": {
+      "addressLine1": "Unbekanntstraße 3",
+      "postalCode": "39104",
+      "city": "Magdeburg"
+    },
+    "locale": "de"
+  },
+  {
+    "key": "C09",
+    "name": "Hanna Demo",
+    "email": "hanna.demo@example.com",
+    "address": {
+      "addressLine1": "Demoring 2",
+      "postalCode": "14467",
+      "city": "Potsdam"
+    },
+    "locale": "de"
+  },
+  {
+    "key": "C10",
+    "name": "Frieda Fiktiv",
+    "email": "frieda.fiktiv@example.com",
+    "address": {
+      "addressLine1": "Erfundenweg 9",
+      "postalCode": "01067",
+      "city": "Dresden"
+    },
+    "locale": "de"
+  },
+  {
+    "key": "C11",
+    "name": "Ida Irgendwer",
+    "email": "ida.irgendwer@example.org",
+    "address": {
+      "addressLine1": "Irgendwoallee 6",
+      "postalCode": "24103",
+      "city": "Kiel"
+    },
+    "locale": "de"
+  },
+  {
+    "key": "C12",
+    "name": "Karl Exempel",
+    "email": "karl.exempel@example.com",
+    "address": {
+      "addressLine1": "Exempelstraße 4",
+      "postalCode": "60311",
+      "city": "Frankfurt am Main"
+    },
+    "locale": "de"
+  },
+  {
+    "key": "C13",
+    "name": "Otto Normal",
+    "email": "otto.normal@example.org",
+    "address": {
+      "addressLine1": "Normalweg 8",
+      "postalCode": "28195",
+      "city": "Bremen"
+    },
+    "locale": "de"
+  },
+  {
+    "key": "C14",
+    "name": "Sam Placeholder",
+    "email": "sam.placeholder@example.org",
+    "address": {
+      "addressLine1": "Musterdamm 14",
+      "postalCode": "30159",
+      "city": "Hannover"
+    },
+    "locale": "en"
+  },
+  {
+    "key": "C15",
+    "name": "Rudi Rätselhaft",
+    "email": "rudi.raetselhaft@example.com",
+    "locale": "de"
+  },
+  {
+    "key": "C16",
+    "name": "Casey Example",
+    "email": "casey.example@example.org",
+    "locale": "en"
+  },
+  {
+    "key": "C17",
+    "name": "Felix Fantasie",
+    "email": "felix.fantasie@example.com",
+    "locale": "de"
+  },
+  {
+    "key": "C18",
+    "name": "Nora Nirgends",
+    "email": "nora.nirgends@example.com",
+    "locale": "de"
+  },
+  {
+    "key": "C19",
+    "name": "Jana Jedermann",
+    "email": "jana.jedermann@example.com",
+    "locale": "de"
+  },
+  {
+    "key": "C20",
+    "name": "Emil Erdacht",
+    "email": "emil.erdacht@example.com",
+    "locale": "de"
+  },
+  {
+    "key": "C21",
+    "name": "Robin Specimen",
+    "email": "robin.specimen@example.org",
+    "locale": "en"
+  },
+  {
+    "key": "C22",
+    "name": "Zoe Zufall",
+    "email": "zoe.zufall@example.com",
+    "locale": "de"
+  },
+  {
+    "key": "C23",
+    "name": "Test Test",
+    "email": "test@example.org",
+    "locale": "de"
+  },
+  {
+    "key": "C24",
+    "name": "Kai Kontakt",
+    "email": "kai.kontakt@example.org",
+    "locale": "de"
+  }
+]

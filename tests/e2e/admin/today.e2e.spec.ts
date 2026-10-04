@@ -16,6 +16,10 @@ test('@a11y „Heute“: Kacheln, roter Hinweis Anfechtung mit Link, letzte Best
 }) => {
   const payload = await testPayload()
   const piece = await fixtureProducts.create('keramik')
+  // Jüngste Bestellung der Liste „letzte Bestellungen“: Der Beispielbestand liegt relativ zu `SEED_NOW` (CI fest
+  // 15.10.2026), also ggf. nach der echten Uhr – deshalb nach dem späteren von beiden bestellt.
+  const seedNow = Date.parse(process.env.SEED_NOW ?? '')
+  const placedAt = new Date(Math.max(Date.now(), Number.isNaN(seedNow) ? 0 : seedNow) + 3_600_000)
   const disputed = await fixtureOrder(
     payload,
     piece,
@@ -24,7 +28,7 @@ test('@a11y „Heute“: Kacheln, roter Hinweis Anfechtung mit Link, letzte Best
       status: 'disputed',
       statusBeforeDispute: 'delivered',
       seed: true,
-      timestamps: { placedAt: new Date().toISOString() },
+      timestamps: { placedAt: placedAt.toISOString() },
     },
     { seed: true },
   )
@@ -86,7 +90,8 @@ test('@a11y „Texte“: Bereiche, Mail-Bausteine DE/EN, Vorlagen mit Bestellnum
   try {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto(adminPath('/texte'))
-    await expect(page.getByTestId('texts-pages-later')).toContainText('P8')
+    // Seiten und FAQ seit P8.19a (Ablauf prüft `admin/texts-pages.e2e.spec.ts`).
+    await expect(page.getByTestId('texts-page-item')).toHaveCount(13)
     // Rechtstexte seit P6.4: je Typ eine Karte (Ablauf prüft `admin/legal-texts.e2e.spec.ts`).
     await expect(page.getByTestId('legal-type')).toHaveCount(6)
     const mail = page.getByTestId('texts-mail')

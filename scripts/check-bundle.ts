@@ -213,6 +213,20 @@ export async function measureModules(
 // ---------------------------------------------------------------------------------------------------------------
 // SVG-Dateien (DESIGN §9.10)
 
+/**
+ * Reine Entwicklungswerkzeuge mit Copyleft-Lizenz (ARCHITEKTUR §1.2, PLAN P8.14): `potrace` (GPL) darf in keinem
+ * Client-Chunk vorkommen. Liefert die Dateien unter `staticDir`, die einen der Begriffe enthalten.
+ */
+export function findDevOnlyStrings(
+  staticDir: string,
+  needles: readonly string[] = ['potrace'],
+): string[] {
+  const pattern = new RegExp(needles.join('|'), 'i')
+  return listFiles(staticDir, (n) => /\.(js|css|html|rsc|map)$/.test(n)).filter((f) =>
+    pattern.test(readFileSync(f, 'utf8')),
+  )
+}
+
 export function checkSvgFiles(svg: Budgets['svg']): { lines: string[]; errors: string[] } {
   const lines: string[] = []
   const errors: string[] = []
@@ -758,6 +772,15 @@ async function main(): Promise<void> {
 
   const svg = checkSvgFiles(budgets.svg)
   report(svg.lines, svg.errors)
+
+  const devOnly = findDevOnlyStrings(staticDir)
+  report(
+    devOnly.length ? [] : ['potrace (GPL, nur devDependency) in keinem Client-Chunk (P8.14).'],
+    devOnly.map(
+      (f) =>
+        `potrace im Client-Chunk ${path.relative(process.cwd(), f)} – nur als Werkzeug erlaubt.`,
+    ),
+  )
 
   if (opts.pages) {
     let server: { baseURL: string; stop: () => void } | null = null

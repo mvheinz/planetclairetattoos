@@ -1,0 +1,52 @@
+[
+  {
+    "key": "RK1",
+    "order": "orders:O10",
+    "affectedItemIds": ["O10-L1"],
+    "kind": "transport_damage",
+    "receivedAt": "D-1@19:05",
+    "status": "open",
+    "photos": ["private-uploads:RK1:photo-1"],
+    "description": "Die Schale kam mit einem Sprung am Rand an, der Karton war außen eingedrückt.",
+    "notes": "Foto kam per Mail. Bei DHL bis {{date:D+6}} reklamieren; danach Erstattung anbieten (Unikat, kein Ersatz möglich)."
+  },
+  {
+    "key": "RK2",
+    "order": "orders:O05",
+    "affectedItemIds": ["O05-L1"],
+    "kind": "defect",
+    "receivedAt": "D-6@20:30",
+    "status": "waiting_customer",
+    "remedy": "repair",
+    "photos": ["private-uploads:RK2:photo-1"],
+    "repairChoiceSentAt": "D-3@10:00",
+    "description": "Nach der ersten Wäsche (30 °C, auf links) ist die Farbe an einem Hasen auf der Schulter verblasst.",
+    "notes": "Nachmalen angeboten; Mail „Reparatur oder Ersatz“ verschickt, Antwort offen. Ersatz geht bei einem Unikat nicht."
+  },
+  {
+    "key": "RK3",
+    "order": "orders:O02",
+    "affectedItemIds": ["O02-L1"],
+    "kind": "defect",
+    "receivedAt": "D-30@11:00",
+    "status": "resolved",
+    "remedy": "repair",
+    "repairChoiceSentAt": "D-29@09:30",
+    "customerChoice": "repair",
+    "customerChoiceAt": "D-28@18:10",
+    "description": "Kleiner grauer Fleck am unteren Rand, beim Abholen nicht aufgefallen.",
+    "notes": "Kundin hat Reparatur gewählt. Blatt am {{date:D-24}} zurückgebracht, Fleck ausgebessert, am {{date:D-21}} wieder abgeholt."
+  },
+  {
+    "key": "RK4",
+    "order": "orders:O06",
+    "affectedItemIds": ["O06-L1"],
+    "kind": "defect",
+    "receivedAt": "D-5@09:40",
+    "status": "rejected",
+    "remedy": "none",
+    "vsbgNoticeSentAt": "D-4@11:00",
+    "description": "The dress is much longer than I expected.",
+    "notes": "Kein Mangel: Die Länge (98 cm) steht in den Maßen der Produktseite. Hinweis auf das Widerrufsrecht per Mail, Streitbeilegungshinweis verschickt. Widerruf kam am {{date:D-1}} (WR-2026-90005)."
+  }
+]

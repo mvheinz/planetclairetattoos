@@ -147,6 +147,9 @@ export const TATTOO_TEXT = {
 
   // Texte (P7.9)
   textsPrices: 'Preise',
+  pageTitle: 'Titel der Seite',
+  pageMetaTitle: 'Titel für Suchmaschinen (höchstens 60 Zeichen)',
+  pageMetaDescription: 'Beschreibung für Suchmaschinen (höchstens 160 Zeichen)',
   textsMarkupHint:
     'Leerzeile = neuer Absatz, Zeile mit „- “ = Liste, **fett**, [Linktext](Adresse).',
   textsNoBlocks: 'Noch keine Texte – füge unten einen Abschnitt hinzu.',

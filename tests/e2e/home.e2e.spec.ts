@@ -1,6 +1,9 @@
 import { expect, test, type Page } from '@playwright/test'
 
 import type { Locale } from '../../src/lib/routes/registry'
+import { offerState } from '../../src/lib/tattoo/offers'
+
+import { testPayload } from './fixtures'
 
 // P2.20 Startseite R01 (KONZEPT §3.1, DESIGN KO-21/§11.4): Kopf-Station „Planet Claire“ und genau 7 Stationen aus dem
 // Seed `pages:home` (AK-3-01, AK-SEED-18), ohne JavaScript vollständig lesbar, DE und EN vollständig, Linie zeichnet
@@ -193,6 +196,89 @@ test.describe('Startseite ohne JavaScript @smoke', () => {
         await expect(station.locator('h2')).toBeVisible()
         await expect(station.locator('p').nth(1)).toBeVisible()
       }
+    })
+  }
+})
+
+// P8.17 Startseite mit vollständigem Beispielbestand (KONZEPT §3.1, SEED-SPEC §5.1, §12.2, §13.1): Stücke je Station,
+// Tattoo-Station mit laufendem Angebot TO2 (Badge) und bis zu 3 freien Flash-Motiven, „Jutta & Coco“ mit Links zu R19,
+// R10 und Instagram, Preisfußnote einmal, JSON-LD `Organization` ohne Adresse. Liest nur den Beispielbestand
+// (Stücke paralleler Fixture-Tests 975–999 werden ignoriert).
+const SEED_STATIONS: Record<string, { exact?: number[]; pool?: number[] }> = {
+  keramik: { exact: [901, 904, 905, 907] },
+  textil: { pool: [911, 912, 914, 915, 917] },
+  zeichnungen: { exact: [920, 922, 923] },
+  schmuck: { exact: [926, 927, 928, 929] },
+}
+const JUTTA_LINKS: Record<Locale, { about: string; commissions: string }> = {
+  de: { about: '/de/ueber-mich', commissions: '/de/auftragsarbeiten' },
+  en: { about: '/en/about', commissions: '/en/commissions' },
+}
+
+test.describe('Startseite mit Beispielbestand (P8.17)', () => {
+  for (const locale of ['de', 'en'] as const) {
+    test(`AK-3-01 AK-3-02 AK-SEED-18 /${locale}: Stationen, Stücke, Tattoo-Badge, Links, Fußnote, JSON-LD`, async ({
+      page,
+    }) => {
+      const res = await page.goto(`/${locale}`)
+      expect(res?.status()).toBe(200)
+      await expectStations(page, locale)
+
+      for (const [id, want] of Object.entries(SEED_STATIONS)) {
+        const numbers = (
+          await page
+            .locator(`[data-home-station="${id}"] [data-product-card]`)
+            .evaluateAll((els) => els.map((e) => Number(e.getAttribute('data-item-number'))))
+        ).filter((n) => n >= 900 && n < 975)
+        expect(numbers.length, id).toBeLessThanOrEqual(4)
+        if (want.exact) expect([...numbers].sort(), id).toEqual(want.exact)
+        if (want.pool) {
+          expect(numbers.length, id).toBe(4)
+          for (const n of numbers) expect(want.pool, `${id} Nr. ${n}`).toContain(n)
+        }
+      }
+
+      const tattoo = page.locator('[data-home-station="tattoo"]')
+      const offer = tattoo.locator('[data-offer-card]')
+      await expect(offer).toHaveCount(1)
+      // Zustand gegen die echte Uhr: Der Beispielbestand liegt relativ zu `SEED_NOW` (CI fest 15.10.2026), der Server
+      // rechnet mit der aktuellen Zeit – „läuft“ gilt also nur, wenn beide nahe beieinander liegen.
+      const offerId = Number(await offer.getAttribute('data-offer-card'))
+      const stored = await (
+        await testPayload()
+      ).findByID({ collection: 'tattoo-offers', id: offerId, depth: 0, overrideAccess: true })
+      await expect(offer).toHaveAttribute(
+        'data-offer-state',
+        offerState({ startsAt: stored.startsAt, endsAt: stored.endsAt }, new Date()),
+      )
+      await expect(offer.locator('[data-offer-date]')).toBeVisible()
+      await expect(offer).toContainText(
+        locale === 'de' ? 'Spontane Lücken: winzige Planeten' : 'Last-minute gaps: tiny planets',
+      )
+      await expect(tattoo).not.toContainText(
+        locale === 'de' ? 'Flash-Day im Spätsommer' : 'Late summer flash day',
+      )
+      const flash = tattoo.locator('[data-teaser-flash]')
+      expect(await flash.count()).toBeGreaterThan(0)
+      expect(await flash.count()).toBeLessThanOrEqual(3)
+
+      const jutta = page.locator('[data-home-station="jutta-und-coco"]')
+      await expect(jutta.locator(`a[href="${JUTTA_LINKS[locale].about}"]`)).toHaveCount(1)
+      await expect(jutta.locator(`a[href="${JUTTA_LINKS[locale].commissions}"]`)).toHaveCount(1)
+      const insta = jutta.locator('a[href^="https://www.instagram.com/"]')
+      await expect(insta).toHaveCount(1)
+      await expect(insta).toHaveAttribute('rel', 'noopener noreferrer')
+
+      await expect(page.locator('[data-price-footnote]')).toHaveCount(1)
+      const ld = await page
+        .locator('script[type="application/ld+json"]')
+        .evaluateAll((els) =>
+          els.map((e) => JSON.parse(e.textContent ?? '{}') as Record<string, unknown>),
+        )
+      const org = ld.find((d) => d['@type'] === 'Organization')
+      expect(org, 'Organization').toBeTruthy()
+      expect(org).not.toHaveProperty('address')
+      expect(JSON.stringify(org)).not.toMatch(/streetAddress|postalCode/)
     })
   }
 })

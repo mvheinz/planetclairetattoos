@@ -19,3 +19,16 @@ export function startklarStatus(): StartklarStatus {
 export function shopOpenBlockedMessage(status: StartklarStatus): string {
   return `Shop öffnen geht in Produktion erst, wenn die Startklar-Prüfung grün ist. Offen: ${status.openItems.join('; ')}.`
 }
+
+/**
+ * Für P10.14 vorgemerkte Prüfpunkte (PLAN P8.20): Die echte Prüffunktion übernimmt sie in ihre Liste (rot, solange
+ * `count` > 0). Zähler liefern die genannten Funktionen.
+ */
+export const STARTKLAR_PLANNED = [
+  {
+    id: 'owner-photos-unapproved',
+    text: 'Fotos von Jutta ohne ihre Freigabe („Jutta hat dieses Foto von sich freigegeben“)',
+    ref: 'R-181, DATENMODELL §6.2, PLAN P8.20',
+    counter: 'countUnapprovedOwnerPhotos (src/lib/media/ownerPhotos.ts)',
+  },
+] as const

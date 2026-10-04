@@ -3,13 +3,18 @@
 import React, { useRef, useState } from 'react'
 
 import { lexicalToPlain } from '@/lib/richtext/plain'
+import type { PageKey } from '@/lib/enums'
 import {
+  PAGE_FIELD_LIMITS,
+  PAGE_TEXT_BLOCKS,
   TATTOO_TEXT_BLOCKS,
   TATTOO_TEXT_PAGES,
+  TEXT_PAGES,
   blockLabel,
   editorTexts,
   newEditorBlock,
   newEditorRow,
+  pageBlockLabel,
   type EditorBlock,
   type LocalizedText,
   type TattooTextPageKey,
@@ -27,29 +32,50 @@ import { tattooText } from './tattooText'
 // als Feldpaare DE/EN (Rich Text als Klartext: Leerzeile = Absatz, „- “ = Liste, **fett**, [Text](Link)). Speichern über
 // `POST /api/pages/tattoo-texts` (legt die Seite bei Bedarf an, veröffentlicht sie), „Übersetzen“ über
 // `POST /api/pages/:id/translate` (alle Blöcke, Struktur gleich). Warnungen bei V-24/V-15 – Speichern bleibt möglich.
+// Modus `all` (PLAN P8.19a, Verwaltung „Texte“ → „Seiten und FAQ“): jede Seite aus `PAGE_KEYS` mit Titel, SEO-Texten
+// und allen Textblöcken (`PAGE_TEXT_BLOCKS`), gespeichert über `POST /api/pages/texts`.
 
 type Doc = Record<string, unknown>
+
+export interface PageMetaValues {
+  title: LocalizedText
+  seo: { metaTitle: LocalizedText; metaDescription: LocalizedText }
+}
+
+const EMPTY: LocalizedText = { de: '', en: '' }
 
 export function PageTextsEditor({
   pageKey,
   initialPageId,
   initialBlocks,
   translateDisabled,
+  mode = 'tattoo',
+  initialMeta,
 }: {
-  pageKey: TattooTextPageKey
+  pageKey: PageKey
   initialPageId: number | null
   initialBlocks: EditorBlock[]
   translateDisabled: string | null
+  mode?: 'tattoo' | 'all'
+  initialMeta?: PageMetaValues
 }) {
+  const all = mode === 'all'
+  const BLOCKS = all ? PAGE_TEXT_BLOCKS : TATTOO_TEXT_BLOCKS
   const [pageId, setPageId] = useState(initialPageId)
   const [blocks, setBlocks] = useState(initialBlocks)
+  const [meta, setMeta] = useState<PageMetaValues>(
+    initialMeta ?? { title: EMPTY, seo: { metaTitle: EMPTY, metaDescription: EMPTY } },
+  )
   const [busy, setBusy] = useState(false)
   const [issues, setIssues] = useState<FieldIssue[]>([])
   const [warnings, setWarnings] = useState<TattooTextWarning[]>([])
   const [saved, setSaved] = useState(false)
   const running = useRef(false)
   const errors = errorsOf(issues)
-  const page = TATTOO_TEXT_PAGES[pageKey]
+  const page = all ? TEXT_PAGES[pageKey] : TATTOO_TEXT_PAGES[pageKey as TattooTextPageKey]
+  const labelOf = (t: string) =>
+    all ? pageBlockLabel(pageKey, t) : blockLabel(pageKey as TattooTextPageKey, t)
+  const testKey = all ? `all-${pageKey}` : pageKey
 
   const update = (i: number, next: EditorBlock) =>
     setBlocks((bs) => bs.map((b, j) => (j === i ? next : b)))
@@ -60,7 +86,7 @@ export function PageTextsEditor({
     setBlocks((bs) =>
       bs.map((b, i) => {
         const s = layout[i] ?? {}
-        const rowsName = TATTOO_TEXT_BLOCKS[b.blockType]?.rows?.name
+        const rowsName = BLOCKS[b.blockType]?.rows?.name
         const rows = rowsName && Array.isArray(s[rowsName]) ? (s[rowsName] as Doc[]) : []
         return {
           ...b,
@@ -75,9 +101,11 @@ export function PageTextsEditor({
   }
 
   const persist = async (): Promise<number> => {
-    const res = await requestJson('/api/pages/tattoo-texts', {
+    const res = await requestJson(all ? '/api/pages/texts' : '/api/pages/tattoo-texts', {
       method: 'POST',
-      json: { key: pageKey, blocks },
+      json: all
+        ? { key: pageKey, blocks, title: meta.title, seo: meta.seo }
+        : { key: pageKey, blocks },
     })
     if (!res.ok) throw new IssuesError(issuesOf(res.json))
     const doc = (res.json.doc ?? {}) as Doc
@@ -120,9 +148,23 @@ export function PageTextsEditor({
     const layout = (Array.isArray(doc.layout) ? doc.layout : []) as Doc[]
     const plain = (kind: string, v: unknown) =>
       kind === 'rich' ? lexicalToPlain(v).text : typeof v === 'string' ? v : ''
+    if (all) {
+      const seo = (doc.seo ?? {}) as Doc
+      const str = (v: unknown) => (typeof v === 'string' ? v : '')
+      setMeta((m) => ({
+        title: { ...m.title, en: str(doc.title) || m.title.en },
+        seo: {
+          metaTitle: { ...m.seo.metaTitle, en: str(seo.metaTitle) || m.seo.metaTitle.en },
+          metaDescription: {
+            ...m.seo.metaDescription,
+            en: str(seo.metaDescription) || m.seo.metaDescription.en,
+          },
+        },
+      }))
+    }
     setBlocks((bs) =>
       bs.map((b, i) => {
-        const def = TATTOO_TEXT_BLOCKS[b.blockType]
+        const def = BLOCKS[b.blockType]
         const s = layout.find((x) => x.id === b.id) ?? layout[i]
         if (!def || !b.editable || !s) return b
         const fields = { ...b.fields }
@@ -146,24 +188,57 @@ export function PageTextsEditor({
     )
   }
 
-  const hasEnglish = editorTexts(blocks, 'en').length > 0
+  const hasEnglish = editorTexts(blocks, 'en').length > 0 || (all && meta.title.en.trim() !== '')
   const missing = page.addable.filter((t) => !blocks.some((b) => b.blockType === t))
 
   return (
     <form
       className="pc-settings__form pc-tattoo-editor"
       noValidate
-      data-testid={`page-texts-${pageKey}`}
+      data-testid={`page-texts-${testKey}`}
       onSubmit={(e) => {
         e.preventDefault()
         void save()
       }}
     >
       <p className="pc-piece__hint">{tattooText('textsMarkupHint')}</p>
+      {all ? (
+        <>
+          <LocInput
+            path="title"
+            label={tattooText('pageTitle')}
+            value={meta.title}
+            maxLength={PAGE_FIELD_LIMITS.title.max}
+            required
+            errors={errors}
+            onChange={(title) => setMeta((m) => ({ ...m, title }))}
+          />
+          <LocInput
+            path="seo.metaTitle"
+            label={tattooText('pageMetaTitle')}
+            value={meta.seo.metaTitle}
+            maxLength={PAGE_FIELD_LIMITS.metaTitle}
+            errors={errors}
+            onChange={(metaTitle) => setMeta((m) => ({ ...m, seo: { ...m.seo, metaTitle } }))}
+          />
+          <LocInput
+            path="seo.metaDescription"
+            label={tattooText('pageMetaDescription')}
+            value={meta.seo.metaDescription}
+            multiline
+            rows={3}
+            maxLength={PAGE_FIELD_LIMITS.metaDescription}
+            errors={errors}
+            onChange={(metaDescription) =>
+              setMeta((m) => ({ ...m, seo: { ...m.seo, metaDescription } }))
+            }
+          />
+        </>
+      ) : null}
       {blocks.length === 0 ? <p>{tattooText('textsNoBlocks')}</p> : null}
       {blocks.map((b, i) => {
-        const def = TATTOO_TEXT_BLOCKS[b.blockType]
-        const label = blockLabel(pageKey, b.blockType)
+        const def = BLOCKS[b.blockType]
+        const label = labelOf(b.blockType)
         return (
           <fieldset
             key={b.id ?? `new-${i}`}
@@ -264,7 +339,7 @@ export function PageTextsEditor({
               data-testid={`page-add-${t}`}
               onClick={() => setBlocks((bs) => [...bs, newEditorBlock(t)])}
             >
-              {tattooText('addBlock', { label: blockLabel(pageKey, t) })}
+              {tattooText('addBlock', { label: labelOf(t) })}
             </button>
           ))}
         </p>
@@ -287,7 +362,7 @@ export function PageTextsEditor({
         }}
         onTranslated={(r) => applyTranslation(r.doc ?? {})}
       />
-      <IssueList issues={issues} testId={`page-issues-${pageKey}`} />
+      <IssueList issues={issues} testId={`page-issues-${testKey}`} />
       {warnings.length > 0 ? (
         <Notice tone="warning" data-testid="tattoo-text-warning">
           {tattooText('warningsSaved')}{' '}
@@ -295,7 +370,7 @@ export function PageTextsEditor({
         </Notice>
       ) : null}
       {saved ? (
-        <Notice tone="success" data-testid={`page-saved-${pageKey}`}>
+        <Notice tone="success" data-testid={`page-saved-${testKey}`}>
           {tattooText('savedOnline')}
         </Notice>
       ) : null}
@@ -305,7 +380,7 @@ export function PageTextsEditor({
           className="pc-admin-btn pc-admin-btn--primary"
           disabled={busy}
           aria-busy={busy || undefined}
-          data-testid={`page-save-${pageKey}`}
+          data-testid={`page-save-${testKey}`}
         >
           {busy ? adminText('actionBusy') : tattooText('save')}
         </button>

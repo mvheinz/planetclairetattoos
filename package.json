@@ -38,6 +38,7 @@
     "seed:base": "cross-env NODE_OPTIONS=\"--no-deprecation --import=./scripts/lib/register-server-only.mjs\" payload run scripts/seed/cli.ts -- base",
     "seed:example": "cross-env NODE_OPTIONS=\"--no-deprecation --import=./scripts/lib/register-server-only.mjs\" payload run scripts/seed/cli.ts -- example",
     "seed:remove": "cross-env NODE_OPTIONS=\"--no-deprecation --import=./scripts/lib/register-server-only.mjs\" payload run scripts/seed/cli.ts -- remove",
+    "seed:import-instagram": "tsx scripts/seed/import-instagram.ts",
     "seed:reset": "cross-env NODE_OPTIONS=\"--no-deprecation --import=./scripts/lib/register-server-only.mjs\" payload run scripts/seed/cli.ts -- reset",
     "jobs:run": "tsx --import=./scripts/lib/register-server-only.mjs scripts/jobs-run.ts",
     "retention:replay": "tsx --import=./scripts/lib/register-server-only.mjs scripts/retention-replay.ts",
@@ -57,6 +58,9 @@
     "art:coco-placeholder": "tsx scripts/art/draw-coco-placeholder.ts",
     "art:sprite": "tsx scripts/art/build-sprite.ts",
     "art:calibration": "tsx scripts/art/calibration-sheet.ts",
+    "art:coco-refs": "tsx scripts/art/coco-refs.ts",
+    "art:placeholders": "tsx scripts/art/placeholders.ts",
+    "art:vectorize": "tsx --import=./scripts/lib/register-server-only.mjs scripts/art/vectorize.ts",
     "fixtures:barcodes": "tsx scripts/fixtures/barcodes.ts"
   },
   "dependencies": {
@@ -123,6 +127,7 @@
     "jsdom": "28.0.0",
     "jsqr": "1.4.0",
     "pdf-parse": "2.4.5",
+    "potrace": "2.1.8",
     "prettier": "3.9.9",
     "smtp-server": "3.19.13",
     "subset-font": "2.9.0",

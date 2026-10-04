@@ -120,7 +120,8 @@ const guardGallery: CollectionBeforeChangeHook = async ({ data, originalDoc, req
   }
 
   if (merged.published === true && !galleryConsentComplete(merged)) {
-    const previewSeed = merged.seed === true && seedPreviewModeActive()
+    // Beispielbestand (SEED-SPEC §1.6): Anlegen im Seed-Kontext erlaubt; sichtbar nur im Vorschau-Modus (Lesezugriff)
+    const previewSeed = merged.seed === true && (ctx.seed || seedPreviewModeActive())
     if (!previewSeed) {
       fail(
         'Ohne Einwilligung der Kundin/des Kunden nicht veröffentlichen (Häkchen, Datum und Notiz).',

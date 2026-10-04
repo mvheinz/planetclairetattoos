@@ -9,6 +9,7 @@ export const SEED_OUTCOMES = [
   'unchanged',
   'deleted',
   'adopted',
+  'unlinked',
 ] as const
 export type SeedOutcome = (typeof SEED_OUTCOMES)[number]
 
@@ -19,6 +20,7 @@ const LABELS: Record<SeedOutcome, string> = {
   unchanged: 'unverändert (create-only)',
   deleted: 'gelöscht',
   adopted: 'übernommen',
+  unlinked: 'Verweise auf Beispieldaten entfernt',
 }
 
 export class SeedReport {
