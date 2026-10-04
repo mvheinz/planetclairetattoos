@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-04 – P9 erster Kunst-QA-Lauf in CI
+
+Stand der Kunst-Arbeit (Coco nach deinen Fotos, neue Stationszeichnungen, Linie, Foto-Look, Bewegungen) ist im Arbeitsbranch. Der erste `[ci:art]`-Lauf nimmt Videos und Messwerte auf einer ruhigen Maschine auf (P9.7).
+
 ## 2026-10-04 – P9 (Arbeitsstand, nicht abgehakt: P9.12, P9.13, P9.17, P9.18)
 
 - P8-Stand übernommen (parallele Int-Worker, E2E-Shards, Test-Fixes); `pnpm check` grün, `PC_INT_WORKERS=3 pnpm test:int` 153/153 Dateien grün (ohne preview-export); visuelle Referenzen jetzt immer mit kanonischem SEED_NOW (`test:visual`), zwei Läufe 70/70.
