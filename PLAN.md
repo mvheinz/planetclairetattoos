@@ -4594,13 +4594,13 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
 
 ### Phasen-Abnahme
 
-- [ ] Alle Aufgaben P8.1–P8.21 (einschließlich P8.4a, P8.5a und P8.19a) abgehakt; `pnpm seed:reset` mit kanonischem
+- [x] Alle Aufgaben P8.1–P8.21 (einschließlich P8.4a, P8.5a und P8.19a) abgehakt; `pnpm seed:reset` mit kanonischem
   `SEED_NOW` ergibt exakt die Mengen aus SEED-SPEC §0.1 (`SEED_EXPECTED_COUNTS`);
   AK-SEED-01…22, AK-11-01…04, R-180 und R-181 durch Tests belegt.
-- [ ] `pnpm check`, `pnpm test:int`, `pnpm build`, `pnpm test:e2e` und `pnpm preview:export && pnpm test:preview-export`
+- [x] `pnpm check`, `pnpm test:int`, `pnpm build`, `pnpm test:e2e` und `pnpm preview:export && pnpm test:preview-export`
   lokal grün.
-- [ ] R-001: `LEGAL_TRACE_PHASE = 8` in `tests/unit/legal/traceability.unit.spec.ts`, Test grün.
-- [ ] Doku geprüft: die Skripte `seed:import-instagram`, `art:coco-refs`, `art:placeholders`, `art:vectorize`
+- [x] R-001: `LEGAL_TRACE_PHASE = 8` in `tests/unit/legal/traceability.unit.spec.ts`, Test grün.
+- [x] Doku geprüft: die Skripte `seed:import-instagram`, `art:coco-refs`, `art:placeholders`, `art:vectorize`
   stehen so in ARCHITEKTUR §6.10 und in `package.json`; `media.ownerApproved` (DATENMODELL §6.2) per Migration
   `p8_media_owner_approved` umgesetzt (einzige geplante Schema-Änderung von P8, DATENMODELL §10.1; musste P8.5a
   `seedField()` an `privacy-requests` nachziehen, kommt dessen Migration dazu); Verdrängungsregel
@@ -4608,7 +4608,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   enthält `.data/` und `artifacts/`.
 - [ ] `docs/FORTSCHRITT.md`: Eintrag für Jutta (du-Form) – Beispielbestand komplett, wo sie die Texte in der
   Vorschau-Datei lesen kann, dass Instagram-Export und Coco-Fotos jederzeit nachgereicht werden können.
-- [ ] `docs/OFFENE-PUNKTE.md` aktualisiert (offene SE-Punkte aus SEED-SPEC §20, Export-/Coco-Status, Annahmen dieser
+- [x] `docs/OFFENE-PUNKTE.md` aktualisiert (offene SE-Punkte aus SEED-SPEC §20, Export-/Coco-Status, Annahmen dieser
   Phase).
 - [ ] CI grün: Phasenende-Commit `chore(P8): finish phase [ci:full p8]` → `ci.yml`, `ci-full.yml` und
   `preview-export.yml` grün, Vorschau-Artefakt `planet-claire-vorschau-p8-<sha7>` erzeugt. Dieses Häkchen setzt erst
