@@ -11,7 +11,7 @@ import {
   isStaticPreset,
 } from './presets'
 import { fnv1a32 } from './random'
-import { PAD, segmentSvg, staticSegmentSvg } from './static'
+import { segmentSvg, staticSegmentSvg } from './static'
 import type {
   LeashGeometry,
   LeashHandle,
@@ -148,13 +148,10 @@ type IdleWin = Window & {
   cancelIdleCallback?: (id: number) => void
 }
 
-let instanceCount = 0
-
 export function mountLeash(root: HTMLElement, options: MountOptions): InspectableLeashHandle {
   const doc = root.ownerDocument
   const win = (doc.defaultView ?? window) as IdleWin
   const cfg = PRESET_CONFIG[options.preset]
-  const uid = ++instanceCount
   const seed = fnv1a32(`${options.preset}:${options.routeKey}`)
 
   let motion: Motion = options.motion ?? getMotion(doc)
@@ -318,7 +315,10 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       strokes[v.next++]!.el.setAttribute('stroke-dashoffset', '0')
     const st = strokes[v.next]
     if (st && drawnLen > st.len0)
-      st.el.setAttribute('stroke-dashoffset', String(Math.round((DASH - (drawnLen - st.len0)) * 10) / 10))
+      st.el.setAttribute(
+        'stroke-dashoffset',
+        String(Math.round((DASH - (drawnLen - st.len0)) * 10) / 10),
+      )
   }
 
   /**

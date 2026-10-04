@@ -29,7 +29,10 @@ describe('Bewegungs-Tokens (DESIGN §11.2/§11.3)', () => {
     ]
     expect(rows.length).toBe(8)
     for (const [, name, args] of rows) {
-      const want = `cubic-bezier(${args!.split(',').map((s) => s.trim()).join(', ')})`
+      const want = `cubic-bezier(${args!
+        .split(',')
+        .map((s) => s.trim())
+        .join(', ')})`
       expect(cssVar(name!), name).toBe(want)
     }
   })

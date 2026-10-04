@@ -422,7 +422,9 @@ function measure(args: ProbeArgs): Probe {
     const r = el.getBoundingClientRect()
     if (!inView(r)) continue
     // Stempel: gemessen wird das Wort (`.word`, ≥ 24 px), nicht der Wurzelknoten mit der Grundschrift
-    const textEl = el.hasAttribute('data-sold-stamp') ? (el.querySelector('[class*="word"]') ?? el) : el
+    const textEl = el.hasAttribute('data-sold-stamp')
+      ? (el.querySelector('[class*="word"]') ?? el)
+      : el
     const st = getComputedStyle(textEl)
     const fg = lum(st.color)
     const bg = lum(bgOf(el))
