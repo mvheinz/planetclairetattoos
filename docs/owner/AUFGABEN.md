@@ -82,7 +82,8 @@ aber je früher, desto besser. A01a erledigst du am besten gleich nach A01.
   - Aufwand: ca. 10 Min., danach bis zu 48 Stunden warten
   - Anleitung: [I1](ANLEITUNGEN.md#i1)
 
-- [ ] **A05 · 5–10 Fotos von Coco machen oder aussuchen und hochladen** (in den Ordner `content/seed/coco/`, den gibt es schon)
+- [x] **A05 · 5–10 Fotos von Coco machen oder aussuchen und hochladen** (in den Ordner `content/seed/coco/`, den gibt es schon)
+  - **Erledigt am 04.10.2026:** 5 Fotos im Chat geschickt, liegen in `content/seed/coco/`.
   - Warum: Coco wird nach Fotos gezeichnet, in sechs Posen: rennen, schnüffeln, sitzen, schlafen, springen und
     Kopf schief. Die Highlight-Bildchen sind dafür nur 150 Pixel groß.
   - Aufwand: ca. 45 Min. fürs Fotografieren (gern über ein paar Tage verteilt) und 15 Min. fürs Hochladen

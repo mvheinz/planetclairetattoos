@@ -75,6 +75,9 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 ## 2026-10-03 – P9.1
 
 - QA-Modus `ART_QA` (`artQaActive`, Startregel: in Produktion Abbruch), QA-Seiten `/{locale}/qa/{coco,art,motion,leash,error}` (dynamisch, sonst 404, noindex, nicht in Registry/Sitemap/robots/Vorschau-Export)\n- Query-Schalter `?leash=off` (kein Engine-/Coco-Chunk), `?freeze=1`, `?qa-jank=30` nur mit Server-Marke `pc-art-qa` (`src/lib/qa/switches.ts`, `QaRuntime`); `/qa/motion` spielt MI-01…16 mit Produkt-Komponenten und -Modulen (`QaReplay`, Modus preview)\n- `check:no-debug`: Marker nur als eigener Bezeichner (CSS-Modul-Klassen wie `…__leashEnd` lösten fälschlich aus)\n- Tests: tests/unit/qa/qa-mode.unit.spec.ts (11), tests/e2e/qa-mode.e2e.spec.ts (7 je Projekt, desktop+pixel-7 grün), pnpm check, check:no-debug grün
+## 2026-10-04 – Coco-Fotos von Jutta
+
+Danke für die fünf Fotos von Coco! Sie liegen jetzt als Vorlage im Projekt (zusammengerollt, frontal liegend, stehend mit Blick über die Schulter, frontal von nah, im Profil sitzend). Coco wird in Phase 9 danach nachgezeichnet – vor allem Kopfform, Ohren, die helle Schnauze und die Haltung. Die Fotos sind recht klein; wenn du irgendwann größere Originale hast, werden Details noch genauer. Das ist aber kein Muss.
 
 ## 2026-10-04 – P8 CI grün
 
