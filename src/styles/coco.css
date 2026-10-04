@@ -193,6 +193,11 @@ html[data-motion='reduced'] .coco .f-c {
 .coco[data-leash-coco][data-placed] {
   left: 0;
 }
+/* Startseite (journey): Coco rennt im Intro von links herein (MI-10) – bis die Engine sie platziert, sitzt sie nicht
+   sichtbar am Linienanfang unter der Kopfleiste (dort läge sie über dem Hinweisbanner, R2-02-02). */
+[data-leash-preset='journey'] ~ .coco[data-leash-coco]:not([data-placed]) {
+  visibility: hidden;
+}
 /* Coco steht vor der Linie (R2-01-02): ein schmaler Papier-Rand um jeden Strich unterbricht die Tusche hinter ihr,
    sonst läuft die Leine sichtbar durch den (unausgefüllten) Körper und die kleine Figur wird zum dunklen Fleck. Der
    Filter liegt auf der festen 64×48-Box und wird nur bei einem Boil-Bildwechsel neu gerastert. Harte Versätze ohne
