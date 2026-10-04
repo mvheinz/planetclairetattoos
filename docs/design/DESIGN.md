@@ -1064,7 +1064,7 @@ Referenzen: `highlight-more-ceramics.jpg` (Ganzkörper stehend, Geschirr, Schwan
 | Schädel | Höhe 0,8 K | **rund** (von vorn fast ein Kreis, Juttas Skizze), deutlicher Stopp zur Schnauze |
 | Schnauze | Länge 0,38 K, Höhe an der Wurzel 0,35 K, verjüngt | hell (Papier), kurz bis mittel |
 | Nase | 0,13–0,15 K breit | **dick**, schwarz gefülltes Oval (Juttas Skizze) |
-| Ohren | Höhe ≈ 0,45 K, Basis 0,35 K | **klein und rund** (Juttas Coco-Skizze `content/art/jutta-skizzen/coco-oh-01.jpg`, P9.13 – geht den Fotos vor): weiche Lappen mit runder Kuppe oben seitlich am Kopf; eine Innenohr-Linie; **asymmetrisch** (ein Ohr ≈ 10 % kleiner; bei `kopfschief` klappt eines an der Kuppe ab) |
+| Ohren | Höhe ≈ 0,65 K, Basis 0,45 K | **groß, aufrecht**, breite Basis, Spitzen leicht gerundet, 10–20° nach außen (Juttas Coco-Fotos `content/seed/coco/`, 04.10.2026, gemessen Ohr/Kopflänge ≈ 0,65; vorher 0,95 K nach 150-px-Highlights, dann kurz klein und rund nach der Skizze `coco-oh-01.jpg`); eine Innenohr-Linie; **asymmetrisch** (ein Ohr ≈ 10 % kleiner; bei `kopfschief` knickt eines oben leicht nach außen ab, wie auf den Fotos) |
 | Augen | Ø 0,22 K, auf halber Schädelhöhe, weit gesetzt | **groß, rund**, offener Ring mit großer Pupille (Juttas Skizze), schwarz gefüllt mit Glanzpunkt (Papier, Ø 0,06 K, oben seitlich); beide Augen minimal verschieden |
 | Stirn | – | feine helle Blesse zwischen den Augen (nur als ausgesparter Wash) |
 | Schnurrhaare | 2–3 Striche je Seite | wie Juttas Fuchs: lang, leicht gebogen |
@@ -1073,7 +1073,7 @@ Referenzen: `highlight-more-ceramics.jpg` (Ganzkörper stehend, Geschirr, Schwan
 | Schwanz | Länge 1,1 K | dünn zur Spitze; stehend/laufend als lockere **Sichel nach oben über den Rücken**; schlafend um den Körper gelegt |
 | Fell | Rücken, Kopfoberseite, Ohren außen, Schwanz: `--coco-fur`; Schnauze, Brust, Bauch, untere Beine: Papier | Farbgrenze nur durch den Wash, **ohne** eigene Linie |
 | **Geschirr** | Halsring + Bauchgurt hinter den Vorderbeinen + Rückensteg | **rot** `--coco-harness`, Kontur `--ink`; **D-Ring** (Ø 0,1 K) auf dem Rücken zwischen den Schulterblättern = **Leinen-Anker** |
-| Gesamthöhe stehend | Widerrist 1,3 K; Ohrkuppen ≈ 1,8 K über Boden | – |
+| Gesamthöhe stehend | Widerrist 1,3 K; Ohrspitzen ≈ 2,0 K über Boden | – |
 
 ### 10.2 Strich (passend zu Juttas Zeichnungen)
 

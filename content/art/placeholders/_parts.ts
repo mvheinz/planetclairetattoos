@@ -222,9 +222,9 @@ export function deer(look = 0.4): Ink {
 // Coco (DESIGN §10.1: große aufrechte Ohren, asymmetrisch; dunkle Augen mit Glanzpunkt; rotes Geschirr)
 
 /**
- * Cocos Kopf nach Juttas Skizze `content/art/jutta-skizzen/coco-oh-01.jpg` (P9.13): runder Kopf, kleine runde Ohren
- * (das rechte etwas größer), große runde Augen mit großer Pupille und Glanzpunkt, dicke gefüllte Nase, Lächeln mit
- * Haken. Mitte, Breite ~90; `collar` = roter Halsring.
+ * Cocos Kopf nach Juttas Skizze `content/art/jutta-skizzen/coco-oh-01.jpg` (P9.13) und ihren Coco-Fotos
+ * (`content/seed/coco/`, 04.10.2026): runder Kopf, große aufrechte Ohren mit gerundeter Spitze (das rechte etwas
+ * größer), große runde Augen mit großer Pupille und Glanzpunkt, dicke gefüllte Nase, Lächeln mit Haken. Mitte, Breite ~90; `collar` = roter Halsring.
  */
 export function cocoHead(look = -0.4, collar = true): Ink {
   const face = merge(
@@ -233,11 +233,11 @@ export function cocoHead(look = -0.4, collar = true): Ink {
       { d: 'M-30 -36C-42 -24 -44 -4 -38 10C-32 22 -18 28 -4 28', double: true },
       'M-24 -42C-16 -47 -6 -49 4 -48',
       'M12 -46C26 -42 36 -30 38 -14C40 2 34 16 22 23',
-      // kleine runde Ohren (Bögen oben, wie in der Skizze)
-      'M-29 -38C-39 -44 -43 -56 -36 -63C-29 -68 -19 -63 -17 -54',
-      'M-33 -52C-30 -57 -26 -58 -23 -55',
-      'M8 -47C9 -61 21 -69 32 -64C41 -59 41 -46 33 -37',
-      'M17 -57C21 -61 27 -61 30 -57',
+      // große aufrechte Ohren mit gerundeter Spitze, leicht nach außen (Juttas Coco-Fotos), rechts etwas größer
+      'M-30 -38C-37 -50 -40 -64 -37 -76C-35 -81 -31 -81 -28 -77C-24 -69 -19 -58 -16 -48',
+      'M-31 -50C-32 -57 -32 -64 -31 -70',
+      'M6 -48C10 -59 17 -72 27 -81C30 -84 34 -83 34 -79C35 -67 36 -52 33 -38',
+      'M14 -54C18 -61 23 -68 28 -73',
       // Lächeln mit Haken, Kinn
       'M-14 9C-8 15 2 16 9 10C10 9 11 8 10 6',
       'M-9 19C-3 22 5 22 11 18',

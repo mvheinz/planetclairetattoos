@@ -290,6 +290,8 @@ function cocoRennen(x: number, y: number, s: number): string {
   const [ax, ay] = anchors.anchors.rennen ?? [80, 60]
   const inner = symbol[1]!
     .replace(/ data-part="[^"]*"/g, '')
+    // Präsentationsattribute der Ebenen (WebKit, P9.17) weichen den festen OG-Farben – sonst doppelte Attribute
+    .replace(/(<g class="[a-z]+")( (?:fill|stroke)="[^"]*")+/g, '$1')
     .replace(/class="fur"/g, 'fill="#E2BF8E"')
     .replace(
       /class="harness"/g,

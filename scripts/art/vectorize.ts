@@ -278,16 +278,20 @@ function cocoSitzen(root: string): string {
   const sprite = readFileSync(path.join(root, 'src/art/coco/coco-sprite.svg'), 'utf8')
   const symbol = /<symbol id="coco-sitzen-a"[^>]*>([\s\S]*?)<\/symbol>/.exec(sprite)
   if (!symbol) throw new Error('coco-sitzen-a fehlt im Sprite')
-  return symbol[1]!
-    .replace(/ data-part="[^"]*"/g, '')
-    .replace(/class="fur"/g, 'style="fill:var(--coco-fur,#E2BF8E)"')
-    .replace(
-      /class="harness"/g,
-      'style="fill:var(--coco-harness,#C23B2A)" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"',
-    )
-    .replace(/class="line"/g, `${LINE_ATTRS} stroke-width="1.1"`)
-    .replace(/class="solid"/g, 'fill="currentColor"')
-    .replace(/class="hi"/g, 'style="fill:var(--paper,#F4EFE6)"')
+  return (
+    symbol[1]!
+      .replace(/ data-part="[^"]*"/g, '')
+      // Präsentationsattribute der Sprite-Ebenen (WebKit, P9.17) weichen den Kunst-Token mit Rückfall (E-73)
+      .replace(/(<g class="[a-z]+")( (?:fill|stroke)="[^"]*")+/g, '$1')
+      .replace(/class="fur"/g, 'style="fill:var(--coco-fur,#E2BF8E)"')
+      .replace(
+        /class="harness"/g,
+        'style="fill:var(--coco-harness,#C23B2A)" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"',
+      )
+      .replace(/class="line"/g, `${LINE_ATTRS} stroke-width="1.1"`)
+      .replace(/class="solid"/g, 'fill="currentColor"')
+      .replace(/class="hi"/g, 'style="fill:var(--paper,#F4EFE6)"')
+  )
 }
 
 /** Linienzeichnung im Platzhalter-Stil (DESIGN §12.3), aber ohne Grund und Wash, Tusche über `currentColor`. */
@@ -330,7 +334,7 @@ async function derivedStation(root: string, src: DerivedSource): Promise<string>
       )
     case 'jutta-und-coco':
       return compact(
-        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="30 -6 96 120">${cocoSitzen(root)}${planetMarkGroup(root, { x: 92, y: 0, s: 0.42 })}</svg>`,
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="30 -6 96 120">${cocoSitzen(root)}${planetMarkGroup(root, { x: 31, y: -4, s: 0.42 })}</svg>`,
       )
     default: {
       if (src.kind !== 'placeholder-style' && src.kind !== 'traced')

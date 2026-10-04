@@ -64,7 +64,7 @@ describe('P9.8 Coco-Charakterblatt', () => {
       'Seitenansicht',
       '¾-Ansicht',
       'Widerrist',
-      'Ohrkuppe',
+      'Ohrspitze',
       '1 K',
       'Messtabelle',
       'Merkmale',

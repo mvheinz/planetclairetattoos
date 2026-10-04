@@ -256,20 +256,25 @@ interface HeadOpts {
   earScale?: number
 }
 
+/** Ohrhöhe (lokal, vor `earScale`) – Ohr/Kopflänge ≈ 0,65 wie auf den Fotos (KUNST-QA CO-02). */
+const EAR_H = 26
+
 /**
- * Ohr (lokal, Basis bei `base`), Höhe `h`: klein und rund wie in Juttas Coco-Skizze (`coco-oh-01.jpg`, P9.13) – ein
- * weicher Lappen mit runder Kuppe statt eines spitzen Fennek-Ohrs.
+ * Ohr (lokal, Basis bei `base`), Höhe `h`: groß und aufrecht mit breiter Basis und leicht gerundeter Spitze – so wie auf
+ * Juttas Coco-Fotos (`content/seed/coco/`, 04.10.2026: Profil sitzend, frontal nah, stehend mit Schulterblick).
  */
 function earPts(h: number, lean: number): P[] {
+  // breite Basis (≈ 0,45 K), Außenkante bauchig, Spitze leicht gerundet
   const pts: P[] = [
-    [-9.5, 1.2],
-    [-11.4, -0.34 * h],
-    [-10, -0.72 * h],
-    [-6.2, -0.97 * h],
-    [-2, -h],
-    [1.6, -0.8 * h],
-    [3.2, -0.42 * h],
-    [3.4, 0.6],
+    [-11.5, 1.5],
+    [-13.6, -0.3 * h],
+    [-11.8, -0.64 * h],
+    [-7.4, -0.9 * h],
+    [-4.6, -h],
+    [-1.6, -0.95 * h],
+    [1.8, -0.58 * h],
+    [4.6, -0.26 * h],
+    [5.4, 1],
   ]
   return rotAround(pts, [-3, 0], lean)
 }
@@ -278,26 +283,24 @@ function sideHead(t: Tf, o: HeadOpts = {}): Stroke[] {
   const near = o.earNear ?? -30
   const far = o.earFar ?? -36
   const es = o.earScale ?? 0.8
-  // kleine runde Ohren oben am Hinterkopf (Juttas Skizze); Höhe ≈ 0,45 K
-  const earN = map({ x: -1, y: -12 }, earPts(16.5 * es, near * 0.8))
+  // große aufrechte Ohren oben am Hinterkopf (Juttas Fotos); Höhe ≈ 0,65 Kopflänge
+  const eh = EAR_H * es
+  const earN = map({ x: 0, y: -12.5 }, earPts(eh, near))
   const earNIn = map(
-    { x: -1, y: -12 },
+    { x: 0, y: -12.5 },
     rotAround(
       [
-        [-6, -2.5],
-        [-6.4, -6.8],
-        [-4.6, -9.6],
+        [-6.4, -0.18 * eh],
+        [-7.2, -0.5 * eh],
+        [-5.4, -0.79 * eh],
       ],
       [-3, 0],
-      near * 0.8,
+      near,
     ),
   )
-  // fernes Ohr: fast deckungsgleich dahinter, nur Hinterkante und Kuppe sichtbar, etwas kleiner (Asymmetrie)
-  const earN0 = earPts(16.5 * es, near * 0.8)
-  const earF = map(
-    { x: -3.5, y: -12.5 },
-    earAsym(earPts(16.5 * es, far * 0.8), earN0, [-3, 0]).slice(0, 5),
-  )
+  // fernes Ohr: fast deckungsgleich dahinter, nur Hinterkante und Spitze sichtbar, etwas kleiner (Asymmetrie)
+  const earN0 = earPts(eh, near)
+  const earF = map({ x: -2.5, y: -13 }, earAsym(earPts(eh, far), earN0, [-3, 0]).slice(0, 5))
   const s: Stroke[] = [
     // Schädel: vom Kiefer über den Hinterkopf zur Stirn – offen, mit Absetzer
     {
@@ -473,7 +476,26 @@ interface SideRig {
   pads?: ('fl' | 'fr' | 'hl' | 'hr')[]
 }
 
-function sideFigure(r: SideRig): Figure {
+/**
+ * Kürzere Beine wie auf Juttas Coco-Fotos (Shiba/Corgi-Mischung, 04.10.2026): alle Beinsegmente der Seitenansicht ×
+ * {@link LEG_K}; Rumpf und Kopf sinken um {@link LEG_DROP} Einheiten, damit die Pfoten weiter auf dem Boden stehen
+ * (feste Verschiebung je Figur, damit die Anker einer Pose über A/B/C stabil bleiben, CO-04).
+ */
+const LEG_K = 0.85
+const LEG_DROP = 4.8
+
+function sideFigure(r0: SideRig): Figure {
+  const shorten = (segs: [number, number][]) =>
+    segs.map(([l, a]): [number, number] => [l * LEG_K, a])
+  const r: SideRig = {
+    ...r0,
+    torso: { ...r0.torso, y: r0.torso.y + LEG_DROP },
+    head: { ...r0.head, y: r0.head.y + LEG_DROP },
+    fl: shorten(r0.fl),
+    fr: shorten(r0.fr),
+    hl: shorten(r0.hl),
+    hr: shorten(r0.hr),
+  }
   const H: Tf = { s: 1.1, ...r.head }
   const st = r.stretch ?? 1
   const T = r.torso
@@ -542,7 +564,7 @@ function sideFigure(r: SideRig): Figure {
     hr: apply(T, [X(-21), 0]),
     hl: apply(T, [X(-26), 1]),
   }
-  const tl = tailOutline(map(T, r.tail), 6.4)
+  const tl = tailOutline(map(T, r.tail), 7.6)
   const strokes: Stroke[] = [
     // ferne Beine zuerst
     // ferne Beine als ein einziger Strich mit kleiner Pfote (wie in Juttas Skizzen, keine Linienbündel)
@@ -850,16 +872,17 @@ function abspringen(): Figure {
 
 /** ¾-Kopf (lokal: Schädelmitte 0|0), Schnauze nach rechts unten zum Betrachter. */
 function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
-  // Ohren klein und rund, oben seitlich am runden Kopf (Juttas Coco-Skizze `coco-oh-01.jpg`, P9.13): weiche Lappen,
-  // das rechte etwas größer (Asymmetrie)
+  // Ohren groß, aufrecht und spitz mit gerundeter Spitze, leicht nach außen gestellt (Juttas Coco-Fotos 04.10.2026);
+  // runder Kopf, Augen und Nase nach Juttas Skizze; das rechte Ohr etwas größer (Asymmetrie)
   const earL0: P[] = [
-    [-16.2, -7],
-    [-19.6, -12.2],
-    [-19.4, -17.6],
-    [-15.6, -21],
-    [-10.4, -20.6],
-    [-7, -17.8],
-    [-6, -15.2],
+    [-16.4, -7.6],
+    [-19.4, -15],
+    [-20.6, -24],
+    [-19.8, -31.4],
+    [-17.2, -34.2],
+    [-13.8, -30.6],
+    [-9.4, -24],
+    [-5.6, -17.6],
   ]
   const shrink = ([x, y]: P): P => [x, y]
   // beim schiefen Kopf das linke Ohr steiler stellen, damit es trotz Neigung aufrecht wirkt
@@ -867,24 +890,27 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
   const earLr = knick ? rotAround(earL1, [-9, -9], 16) : earL1
   const earR0: P[] = knick
     ? [
-        // Ohr klappt an der Kuppe nach außen (Knick bei `kopfschief`)
-        [5.6, -16.4],
-        [8.4, -21.6],
-        [13.4, -23.8],
-        add([18.6, -23], flop),
-        add([22.4, -20], flop),
-        add([20.4, -17.6], flop),
-        [17.6, -15],
-        [16, -11],
+        // Ohr knickt oben nach außen ab (bei `kopfschief`, wie auf Juttas Fotos)
+        [4.8, -17.4],
+        [8.8, -24.6],
+        [13, -29.6],
+        add([17, -32.2], flop),
+        add([21.4, -30.8], flop),
+        add([23.8, -27.4], flop),
+        add([20.6, -27], flop),
+        [19.4, -21],
+        [18.8, -15],
+        [16.6, -9.6],
       ]
     : [
-        [5.6, -16.4],
-        [8, -22],
-        [13.4, -24.6],
-        [18.6, -22.8],
-        [20.6, -17.4],
-        [19, -12.4],
-        [16.4, -9.6],
+        [4.8, -17.4],
+        [8.8, -24.6],
+        [13, -31],
+        [16, -34.4],
+        [18.8, -32],
+        [19.8, -24.6],
+        [18.8, -16],
+        [16.6, -9.6],
       ]
   // Asymmetrie 10 %: gerade – links kleiner; schief (Knick rechts) – rechts kleiner
   const earR1 = earR0.map(shrink)
@@ -994,9 +1020,9 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
       part: 'ear-l',
       pts: rotAround(
         [
-          [-15.4, -11.4],
-          [-16, -16.6],
-          [-13, -19.4],
+          [-15.2, -11.6],
+          [-17.2, -20],
+          [-16.8, -28],
         ],
         [-9, -9],
         knick ? 16 : 0,
@@ -1009,14 +1035,14 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
       part: 'ear-r',
       pts: (knick
         ? [
-            [9.6, -18],
-            [13, -20.6],
-            [16.6, -20],
+            [8.8, -18.6],
+            [12.6, -24.4],
+            [16, -28],
           ]
         : [
-            [9.4, -18.6],
-            [13.4, -21.6],
-            [17.2, -19.6],
+            [8.8, -18.6],
+            [13, -25.4],
+            [16.2, -30],
           ]) as P[],
       jitter: 0.6,
     },
