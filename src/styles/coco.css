@@ -193,6 +193,18 @@ html[data-motion='reduced'] .coco .f-c {
 .coco[data-leash-coco][data-placed] {
   left: 0;
 }
+/* Coco steht vor der Linie (R2-01-02): ein schmaler Papier-Rand um jeden Strich unterbricht die Tusche hinter ihr,
+   sonst läuft die Leine sichtbar durch den (unausgefüllten) Körper und die kleine Figur wird zum dunklen Fleck. Der
+   Filter liegt auf der festen 64×48-Box und wird nur bei einem Boil-Bildwechsel neu gerastert. */
+.coco[data-leash-coco] .coco__hop {
+  filter: drop-shadow(0 0 1px var(--paper)) drop-shadow(0 0 1px var(--paper))
+    drop-shadow(0 0 1px var(--paper));
+}
+@media (forced-colors: active) {
+  .coco[data-leash-coco] .coco__hop {
+    filter: none;
+  }
+}
 
 /* View Transitions (§9.8, ADR 0003): Coco wandert in --dur-page von der alten zur neuen Position; übriger Inhalt
    blendet in 250 ms über. Nur bei voller Bewegung – die Regel `@view-transition` fehlt sonst ohnehin. */
