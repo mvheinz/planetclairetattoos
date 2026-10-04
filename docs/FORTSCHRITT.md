@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-04 – Coco-Fotos von Jutta
+
+Danke für die fünf Fotos von Coco! Sie liegen jetzt als Vorlage im Projekt (zusammengerollt, frontal liegend, stehend mit Blick über die Schulter, frontal von nah, im Profil sitzend). Coco wird in Phase 9 danach nachgezeichnet – vor allem Kopfform, Ohren, die helle Schnauze und die Haltung. Die Fotos sind recht klein; wenn du irgendwann größere Originale hast, werden Details noch genauer. Das ist aber kein Muss.
+
 ## 2026-10-04 – P8 CI grün
 
 Phasenlauf `8518023`: CI, CI full (alle sechs Browser-Hälften, Abdeckung, visuelle Prüfung, Lighthouse) und Vorschau-Export grün. Vorschau-Artefakt `planet-claire-vorschau-p8-8518023`.
