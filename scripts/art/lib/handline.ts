@@ -468,11 +468,17 @@ export interface HandOptions {
   press?: boolean
   /** Größter Abstand der Stützpunkte (Einheiten); größer = weniger Pfaddaten (Stationen, PF-10). */
   maxStep?: number
+  /** Ganzzahlige Koordinaten ab dieser Strichlänge (Standard 36; Stationen kleiner – Startseiten-Budget PF-10). */
+  coarseFrom?: number
+  /** Anteil der langen Striche mit Druckstelle (Standard 0,78; Stationen weniger – PF-10). */
+  pressRate?: number
 }
 
 // P9.13: etwas mehr Zittern als in P8 – näher an Juttas Filzstift (ART-NOTES, `coco-oh-01.jpg`)
 const DEFAULT_HAND: Required<Omit<HandOptions, 'press'>> & { press: boolean } = {
   maxStep: 14,
+  coarseFrom: 36,
+  pressRate: 0.78,
   wobble: 1.8,
   wave: 40,
   tremor: 0.9,
@@ -534,7 +540,7 @@ function wobbleLine(pts: readonly Pt[], seed: number, opts: typeof DEFAULT_HAND)
   if (opts.press && total > 70 && out.length > 6) {
     const r = mulberry32(seed ^ 0x51ed270b)
     // P9.18 (R1-01-02): öfter und unterschiedlich fest aufgedrückt (Versatz 0,6–1,3 statt fest 0,8)
-    if (r() < 0.78) {
+    if (r() < opts.pressRate) {
       const n = out.length
       const len = Math.max(3, Math.round(n * (0.16 + r() * 0.2)))
       const at = Math.floor(r() * (n - len))
@@ -547,12 +553,12 @@ function wobbleLine(pts: readonly Pt[], seed: number, opts: typeof DEFAULT_HAND)
           const l = dist(a2, b2) || 1
           return [q[0] - ((b2[1] - a2[1]) / l) * side, q[1] + ((b2[0] - a2[0]) / l) * side] as Pt
         }),
-        total > 36,
+        total > opts.coarseFrom,
       )
     }
   }
   // lange Striche ganzzahlig (spart Bytes; die Rundung wirkt wie zusätzliches Handzittern)
-  return pointsToPath(out, total > 36) + press
+  return pointsToPath(out, total > opts.coarseFrom) + press
 }
 
 /** Handstrich aus einem gezeichneten Pfad: Wackel, offene Enden, Absetzer, ggf. Doppelkontur. */
