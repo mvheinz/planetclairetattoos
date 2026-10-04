@@ -501,7 +501,7 @@ export function mo15(seqs: readonly Sequence[]): CheckResult {
 type R = { x: number; y: number; w: number; h: number }
 
 /** LG-01: Überdeckungen von Linie (Punkte ± halbe Breite) und Coco-Box mit Textzeilen und Bedienelementen. */
-export function overlaps(p: Probe, tol = 1): string[] {
+export function overlaps(p: Probe, tol = 1, dogOnly = true): string[] {
   const occ = p.occTop ?? 0
   const obstacles: R[] = [...rects(p.text), ...rects(p.ctrl)]
     .map((r) => ({ x: r.x + tol, y: r.y + tol, w: r.w - 2 * tol, h: r.h - 2 * tol }))
@@ -529,11 +529,14 @@ export function overlaps(p: Probe, tol = 1): string[] {
     // 0,10–0,87) – gemessen wird die Hundekante (0,10–0,90), nicht die leere Ränder der Box (gleiche Regel wie `place()`).
     // 1 px Toleranz an jeder Kante (Strichenden, Boil-Versatz), unten 4 px (Pfoten gegen den leeren Zeilenabstand über der Schrift,
     // Textzeilen-Rechtecke enthalten den Zeilenabstand), zusätzlich zur Toleranz der Hindernisse
-    const dogX = p.coco.x + 0.1 * p.coco.w + 1
-    const dogW = 0.8 * p.coco.w - 2
+    const inset = dogOnly ? 1 : 0
+    const dogX = p.coco.x + (dogOnly ? 0.1 * p.coco.w : 0) + inset
+    const dogW = (dogOnly ? 0.8 : 1) * p.coco.w - 2 * inset
     for (const r of obstacles) {
       const ix = Math.min(dogX + dogW, r.x + r.w) - Math.max(dogX, r.x)
-      const iy = Math.min(p.coco.y + p.coco.h - 4, r.y + r.h) - Math.max(p.coco.y + 1, r.y)
+      const iy =
+        Math.min(p.coco.y + p.coco.h - (dogOnly ? 4 : 1), r.y + r.h) -
+        Math.max(p.coco.y + inset, r.y)
       if (ix > 0 && iy > 0) {
         out.push(
           `Coco-Box über (${Math.round(r.x)}, ${Math.round(r.y)}, ${Math.round(r.w)}×${Math.round(r.h)})`,
@@ -549,18 +552,20 @@ export const LG01_SCENARIOS = ['SC-01', 'SC-04', 'SC-05', 'SC-08', 'SC-09', 'SC-
 
 export function lg01(files: readonly ProbeFile[]): CheckResult {
   const th =
-    'Schnittmenge (Linie ± halbe Breite ∪ Coco-Box) mit Textzeilen und Bedienelementen = leer (SC-01/04/05/08/09/10)'
+    'Schnittmenge (Linie ± halbe Breite ∪ Hundekante der Coco, 0,10–0,90 der Box) mit Textzeilen und Bedienelementen = leer (SC-01/04/05/08/09/10)'
   const rows = entries(files).filter((e) => LG01_SCENARIOS.includes(e.sc))
   if (!rows.length) return noData('LG-01', th, 'keine Sonden in SC-01/04/05/08/09/10')
   const bad: string[] = []
+  let boxOnly = 0
   for (const e of rows) {
     const o = overlaps(e.p)
     if (o.length) bad.push(`${where(e)}: ${o[0]}${o.length > 1 ? ` (+${o.length - 1})` : ''}`)
+    else if (overlaps(e.p, 1, false).length) boxOnly++
   }
   return result(
     'LG-01',
     bad.length === 0,
-    `${rows.length} Sonden, ${bad.length} mit Überdeckung`,
+    `${rows.length} Sonden, ${bad.length} mit Überdeckung (Hundekante); Coco-Box rein informativ: ${boxOnly} Sonden`,
     th,
     bad,
   )

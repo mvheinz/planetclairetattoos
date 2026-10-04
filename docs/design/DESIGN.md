@@ -957,7 +957,7 @@ R29 (500) nutzt kein Preset mit Engine: statisches Knäuel-SVG (KO-18).
 
 1. Linien-Ebene und Coco: `aria-hidden="true"`, `focusable="false"`, `pointer-events: none`, nicht im Tab-Fluss, kein `role`.
 2. Die Linie ist nie Navigation. Jede Station hat eine echte Überschrift und echte Links.
-3. **Keine Überdeckung:** Linie und Coco schneiden keine Textzeile (auch nicht in Links/Knöpfen), kein Formularfeld, keinen Knopf, keinen Fußbereich-Link. Einzige Ausnahme: **Block-Links** wie Produktkarten – die Schnur (`shopString`) läuft absichtlich durch deren Schild-Zone zwischen Foto und Titel, nie durch deren Text. Durchsetzung: Rinne (§5.3) bzw. Anker außerhalb von Textflächen; QA-Test LG-01 (KUNST-QA).
+3. **Keine Überdeckung:** Linie und Coco (gemessen wird die gezeichnete Figur, waagerecht 0,10–0,90 der Coco-Box, §10.5) schneiden keine Textzeile (auch nicht in Links/Knöpfen), kein Formularfeld, keinen Knopf, keinen Fußbereich-Link. Einzige Ausnahme: **Block-Links** wie Produktkarten – die Schnur (`shopString`) läuft absichtlich durch deren Schild-Zone zwischen Foto und Titel, nie durch deren Text. Durchsetzung: Rinne (§5.3) bzw. Anker außerhalb von Textflächen; QA-Test LG-01 (KUNST-QA).
 4. Mobile Rinne: 44 px, Linie in Rinnenmitte ± Schwung, Coco 56 px breit (Hund ≈ 0,77 davon, ≈ 43 px) passt in die Rinne; Stationsfotos beginnen an der Rinnenkante; Schlaufen-Radius ≤ 22 px.
 5. `content-visibility: auto` ist auf Abschnitten mit Linien-Ankern **verboten** (verfälscht Messungen).
 6. Die Linie ändert nie das Layout (absolut positionierte Ebene) → CLS-Beitrag 0.

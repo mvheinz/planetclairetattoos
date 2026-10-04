@@ -47,7 +47,7 @@ type LoupeWin = Window & {
     geometry: {
       segments: { len0: number }[]
       lut: ArrayLike<number>
-      stations: { id: string; loopLen0: number }[]
+      stations: { id: string; loopLen0: number; loop: string }[]
     } | null
     setReadingY(y: number | null): void
   }
@@ -75,7 +75,10 @@ async function leashLoupes(art: ArtSession, prefix: string): Promise<void> {
     w.__leash!.setReadingY(1e7)
     return [
       ...g.segments.slice(1, 4).map((s, i) => ({ tag: `naht-${i + 1}`, len: s.len0 })),
-      ...g.stations.map((s) => ({ tag: `schlaufenstart-${s.id}`, len: s.loopLen0 })),
+      // nur Stationen mit Schlaufe haben einen Schlaufenstart (und Tintenpunkt); `none` = gerades Stück (R1-04-03)
+      ...g.stations
+        .filter((s) => s.loop !== 'none')
+        .map((s) => ({ tag: `schlaufenstart-${s.id}`, len: s.loopLen0 })),
     ]
   })
   const vh = page.viewportSize()!.height
@@ -89,10 +92,12 @@ async function leashLoupes(art: ArtSession, prefix: string): Promise<void> {
     const x = Math.min(vw - size, Math.max(0, p.x - size / 2))
     const y = Math.min(vh - size, Math.max(0, p.y - sy - size / 2))
     // R1-03-05: liegt der Punkt unter der festen Kopfleiste (Kopf-Station, Seitenanfang), Leiste für die Lupe ausblenden
-    const underHeader = p.y - sy < 80
+    const underHeader = p.y - sy < 130
     if (underHeader)
       await page.evaluate(() => {
-        for (const el of document.querySelectorAll<HTMLElement>('[data-site-header]'))
+        for (const el of document.querySelectorAll<HTMLElement>(
+          '[data-site-header], [data-preview-banner]',
+        ))
           el.style.visibility = 'hidden'
       })
     await art.settledFrame(`${prefix}-${spot.tag}-4x-y${Math.round(p.y)}`, {
@@ -100,7 +105,9 @@ async function leashLoupes(art: ArtSession, prefix: string): Promise<void> {
     })
     if (underHeader)
       await page.evaluate(() => {
-        for (const el of document.querySelectorAll<HTMLElement>('[data-site-header]'))
+        for (const el of document.querySelectorAll<HTMLElement>(
+          '[data-site-header], [data-preview-banner]',
+        ))
           el.style.visibility = ''
       })
   }

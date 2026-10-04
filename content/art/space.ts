@@ -35,7 +35,7 @@ export const SPACE: Readonly<Record<string, SpaceMotif>> = {
     ink: {
       strokes: [
         {
-          d: 'M31 3C32 17 37 23 55 25C40 31 34 36 29 57C28 39 23 34 8 32C21 26 26 20 29 6',
+          d: 'M33 4C31 15 36 24 56 24C42 30 37 38 28 58C27 41 22 36 5 35C20 28 25 19 31 9',
           exact: true,
         },
       ],

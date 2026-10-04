@@ -3,8 +3,8 @@
 import type { Motif } from '../../../scripts/art/lib/handline'
 import { bunnyFace, dot, hanger, merge, place } from './_parts'
 
-const border = [118, 214, 292].map((x, i) =>
-  place(bunnyFace(), { x, y: 384 + Math.abs(x - 200) * 0.06, s: 0.8 + (i % 2) * 0.1, r: (i - 1) * 6 }),
+const border = [132, 262].map((x, i) =>
+  place(bunnyFace(), { x, y: 384 + Math.abs(x - 200) * 0.06, s: 0.74 + i * 0.16, r: i ? 7 : -9 }),
 )
 
 const motif: Motif = {
@@ -23,7 +23,7 @@ const motif: Motif = {
         'M132 256C176 266 224 266 268 256',
         'M88 366C160 376 240 376 312 364',
       ],
-      dots: [166, 254].map((x) => dot(x, 392 + Math.abs(x - 200) * 0.06, 5, 4.4)),
+      dots: [200].map((x) => dot(x, 392 + Math.abs(x - 200) * 0.06, 5, 4.4)),
     },
     ...border,
   ),

@@ -308,7 +308,7 @@ Beleg) **· Schwere bei Verfehlung** (B = Blocker, M = Major, m = Minor; Definit
 
 | ID | Kriterium | Schwelle | Methode | Schwere |
 |---|---|---|---|---|
-| LG-01 | Keine Überdeckung | an allen Frame-Positionen aus SC-01, SC-04, SC-05, SC-08, SC-09, SC-10: Schnittmenge aus (gezeichneten LUT-Punkten ± halbe Breite) ∪ Coco-Bbox mit (Rects aller Textzeilen via `Range.getClientRects()` in `main`/`footer`, auch innerhalb von Links/Knöpfen) ∪ (vollständige Rects aller Formularfelder, Knöpfe, Icon-Knöpfe und Fußbereich-Links) = **leer**. Block-Links (Produktkarten) zählen nur mit ihren Textzeilen (DESIGN §9.9 Nr. 3) | auto | B |
+| LG-01 | Keine Überdeckung | an allen Frame-Positionen aus SC-01, SC-04, SC-05, SC-08, SC-09, SC-10: Schnittmenge aus (gezeichneten LUT-Punkten ± halbe Breite) ∪ **Hundekante der Coco** (Bbox der gezeichneten Figur: waagerecht 0,10–0,90 der Box-Breite, 1 px Toleranz je Kante, unten 4 px; die Box selbst ist größer als der Hund, DESIGN §10.5 – ihre Überdeckungen weist `check.json` nur informativ aus) mit (Rects aller Textzeilen via `Range.getClientRects()` in `main`/`footer`, auch innerhalb von Links/Knöpfen) ∪ (vollständige Rects aller Formularfelder, Knöpfe, Icon-Knöpfe und Fußbereich-Links) = **leer**. Block-Links (Produktkarten) zählen nur mit ihren Textzeilen (DESIGN §9.9 Nr. 3) | auto | B |
 | LG-02 | Pflichtlinks frei | DESIGN AK-DS-09 auf allen Routen | auto | B |
 | LG-03 | Schrift-Regeln | Mansalva nur in erlaubten Rollen (DESIGN §4.3), nie < 24 px; Scan per `getComputedStyle` | auto | M |
 | LG-04 | Textgröße 200 % | `document.documentElement.style.fontSize = '32px'` bei 390 px: kein horizontales Scrollen, LG-01 weiterhin leer, Linie neu aufgebaut | auto | M |
