@@ -320,6 +320,11 @@ body[data-preset='margin'] {
   pointer-events: none;
 }
 
+/* Layout hat sich geändert, Neuaufbau steht aus: die veraltete Produktlinie nicht über neuen Text stehen lassen. */
+[data-leash-preset='product'][data-stale] {
+  visibility: hidden;
+}
+
 .u-layer-sticky {
   z-index: var(--z-sticky);
 }

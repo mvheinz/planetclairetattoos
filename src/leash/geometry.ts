@@ -228,13 +228,27 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
   }
   const swayBase = 0.18 * gutter
   let swaySign = rand() < 0.5 ? 1 : -1
+  // Ohne Rinne: stencil und product laufen in einer Randbahn links neben dem Inhalt, thanks mobil im Seitenrand statt
+  // quer über Text; thanks am Desktop erst quer unter der Kopfleiste, dann hinunter zum Ende.
+  const P = input.preset
+  const side = P === 'stencil' || P === 'product'
+  const lane = side
+    ? Math.max(6, Math.min(...middle.map((a) => a.x), endAnchor?.x ?? start.x) - 10)
+    : 6
 
   // S-Kurve zwischen zwei Punkten: in der Rinne alternierender Schwung ±0.18 × Rinne (Schritt 2).
   const section = (to: Pt) => {
     const from = pts[pts.length - 1]!
     const dy = to.y - from.y
     const dist = Math.hypot(to.x - from.x, dy)
-    if (onRail && dy > 48) {
+    if (dy > 48 && P === 'thanks' && desktop) push({ x: to.x, y: from.y })
+    else if (dy > 48 && (side || P === 'thanks')) {
+      const y = from.y + 8
+      push({ x: Math.max(lane, from.x - 30), y })
+      push({ x: Math.min(from.x, lane + 16), y })
+      push({ x: lane, y: y + 16 })
+      push({ x: lane, y: to.y - 24 })
+    } else if (onRail && dy > 48) {
       const n = Math.max(1, Math.round(dy / (300 + rand() * 120)))
       for (let k = 0; k < n; k++) {
         const t = (k + 0.5) / n
@@ -246,7 +260,7 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
       }
     } else if (dist > 48) {
       // ruhiger Bogen ohne Rinne: leichte Auslenkung quer zur Richtung
-      const bend = swaySign * Math.min(24, dist * 0.06) * (0.8 + 0.4 * rand())
+      const bend = (side ? 1 : swaySign) * Math.min(24, dist * 0.06) * (0.8 + 0.4 * rand())
       swaySign = -swaySign
       push({
         x: (from.x + to.x) / 2 + (-dy / dist) * bend,
@@ -273,7 +287,7 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
     })
     if (loopPts.length === 0) {
       // Station ohne Schlaufe: kurzer Abschnitt auf der Linie als Stationsbereich.
-      const x = onRail ? railX : anchor.x
+      const x = onRail ? railX : P === 'stencil' ? lane : anchor.x
       const i0 = section({ x, y: anchor.y })
       const i1 = push({ x, y: anchor.y + 24 })
       loops.push({ anchor, kind: 'none', i0, i1, dot: false })
@@ -395,12 +409,8 @@ function loopPoints(kind: LoopKind, a: LeashAnchor, ctx: LoopCtx): Pt[] {
       const steps = 32
       for (let i = 0; i <= steps; i++) {
         const t = Math.PI + (2 * Math.PI * i) / steps
-        let x = 16 * Math.sin(t) ** 3
-        let y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t))
-        if (x < 0) {
-          x *= 1.08
-          y *= 1.04
-        }
+        const x = 16 * Math.sin(t) ** 3 * (Math.sin(t) < 0 ? 1.08 : 1)
+        const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t))
         pts.push({ x: c.x + x * k, y: c.y + y * k })
       }
       const tip = pts[pts.length - 1]!

@@ -700,6 +700,8 @@ export interface ImagesJson {
   }
   items: {
     itemNumber: string
+    /** Foto-Look greift (Foto mit Ableitung); fehlt in älteren Läufen = alle. */
+    enhanced?: boolean
     after: { medianL: number | null; paperA: number | null; paperB: number | null }
   }[]
 }
@@ -716,14 +718,14 @@ export function im02(images: ImagesJson | null): CheckResult {
   const bad: string[] = []
   const sd = images.summary.medianLStdDev
   if (sd === null || sd > 6) bad.push(`Streuung Median-L* ${sd ?? '?'}`)
-  for (const it of images.items) {
+  for (const it of images.items.filter((i) => i.enhanced !== false)) {
     const { paperA, paperB } = it.after
     if (paperA !== null && Math.abs(paperA) > 4)
       bad.push(`Nr. ${it.itemNumber}: Papier a* ${round(paperA, 1)}`)
     if (paperB !== null && Math.abs(paperB) > 4)
       bad.push(`Nr. ${it.itemNumber}: Papier b* ${round(paperB, 1)}`)
   }
-  const papers = images.items.filter((i) => i.after.paperB !== null)
+  const papers = images.items.filter((i) => i.enhanced !== false && i.after.paperB !== null)
   return result(
     'IM-02',
     bad.length === 0,

@@ -46,7 +46,13 @@ export async function ReservationCountdown({
     const template = t('compact', { time: '{time}' })
     return (
       <div {...common} data-time-template={template} className={styles.compact}>
-        <p role="timer" aria-live="off" data-countdown-time className={styles.compactTime}>
+        <p
+          role="timer"
+          aria-live="off"
+          data-countdown-time
+          className={styles.compactTime}
+          style={{ width: `${template.replace('{time}', time).length}ch` }}
+        >
           {template.replace('{time}', time)}
         </p>
       </div>

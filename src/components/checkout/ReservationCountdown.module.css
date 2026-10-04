@@ -21,6 +21,10 @@
 }
 
 .time {
+  /* Layout-Grenze: der Sekundentakt relayoutet nur diese Zeile (PF-05), nicht die Seite. */
+  contain: layout paint;
+  width: 5ch;
+  height: 1.1em;
   margin: 0;
   font-family: var(--font-mono);
   font-size: 28px;
@@ -69,6 +73,8 @@
 }
 
 .compactTime {
+  contain: layout paint;
+  height: 1lh;
   margin: 0;
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;

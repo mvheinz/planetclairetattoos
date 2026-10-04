@@ -2,14 +2,7 @@ import { easeInkOut } from './easing'
 import { buildGeometry, geometrySteps, mapReadingY, pointAt } from './geometry'
 import { measure, type Measurement } from './measure'
 import { getMotion, type Motion } from './motion'
-import {
-  DOWNGRADE,
-  PRESET_CONFIG,
-  READING_LINE,
-  REST_POSE,
-  TIER_B_USER_AGENTS,
-  isStaticPreset,
-} from './presets'
+import { DOWNGRADE, PRESET_CONFIG, READING_LINE, REST_POSE, isStaticPreset } from './presets'
 import { fnv1a32 } from './random'
 import { segmentSvg, staticSegmentSvg } from './static'
 import type {
@@ -196,7 +189,6 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     const nav = win.navigator as Navigator & { deviceMemory?: number }
     if (typeof nav.hardwareConcurrency === 'number' && nav.hardwareConcurrency < 4) return 'B'
     if (typeof nav.deviceMemory === 'number' && nav.deviceMemory < 4) return 'B'
-    if (TIER_B_USER_AGENTS.some((re) => re.test(nav.userAgent))) return 'B'
     return 'A'
   }
 
@@ -384,8 +376,8 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     if (!restPose) return null
     if (motion === 'reduced' || !geometry) return restPose
     if (moving) return 'rennen'
-    const st = geometry.stations.find((s) => cocoLen >= s.loopLen0 - 2 && cocoLen <= s.loopLen1 + 2)
-    return st?.pose ?? restPose
+    const st = stationState()
+    return (st?.inside && st.pose) || restPose
   }
 
   /** Letzte Station, deren Anfang Coco erreicht hat (Choreografie §11.4: Verweil-Timer, Sprung ab `loopLen1`). */
@@ -529,6 +521,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     const prevDrawn = drawnLen
     m = mm
     geometry = geo
+    delete root.dataset.stale
     tier = chooseTier()
     render()
     const total = geometry.totalLength
@@ -622,6 +615,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
 
   function scheduleRebuild() {
     if (destroyed) return
+    root.dataset.stale = ''
     if (debounce !== null) clearTimeout(debounce)
     debounce = setTimeout(() => {
       debounce = null

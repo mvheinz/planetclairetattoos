@@ -19,7 +19,7 @@
 /* Anker der Titel-Unterstreichung (Tuschelinie `product`): Start links unter der H1, Ende nach höchstens 22rem. */
 .titleLine {
   position: relative;
-  height: 0;
+  height: 22px;
 }
 
 .lineStart,
@@ -30,8 +30,8 @@
 }
 
 .lineStart {
-  top: 2px;
-  left: 0;
+  top: 6px;
+  left: -10px;
 }
 
 .lineEnd {

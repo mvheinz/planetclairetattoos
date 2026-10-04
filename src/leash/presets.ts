@@ -226,12 +226,6 @@ export const REST_POSE: Readonly<Record<PresetId, SpritePose | null>> = {
 /** Ruhe-Presets ohne Laufzeit (Stufe C, §9.4). */
 export const isStaticPreset = (preset: PresetId): boolean => PRESET_CONFIG[preset].draw === 'never'
 
-/**
- * Browser-Ausnahmen für Stufe B „Feder“ (§9.4): User-Agent-Muster, bei denen die Masken-Stufe A ruckelt
- * (z. B. nach KUNST-QA). Derzeit leer – pflegbar ohne Code-Änderung an der Runtime.
- */
-export const TIER_B_USER_AGENTS: readonly RegExp[] = []
-
 /** Schwellen der Laufzeit-Abstufung A → B (§9.4). */
 export const DOWNGRADE = {
   windowMs: 2000,

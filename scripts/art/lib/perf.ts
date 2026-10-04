@@ -165,11 +165,17 @@ export function medianMetrics(runs: readonly RunMetrics[]): RunMetrics {
   }
 }
 
-/** `Layout`-Ereignisse im Trace (Chrome-Trace-JSON, `traceEvents`). */
+/**
+ * `Layout`-Ereignisse im Trace (Chrome-Trace-JSON, `traceEvents`) über das ganze Dokument. Teil-Layouts in einer
+ * Layout-Grenze (`beginData.partialLayout`, z. B. der Sekundentakt des Countdowns mit `contain: layout`) zählen nicht:
+ * sie kosten nur den Teilbaum und sind kein Layout-Thrashing der Seite (KUNST-QA PF-05).
+ */
 export function countLayoutEvents(trace: {
-  traceEvents?: { name?: string; ph?: string }[]
+  traceEvents?: { name?: string; ph?: string; args?: { beginData?: { partialLayout?: boolean } } }[]
 }): number {
-  return (trace.traceEvents ?? []).filter((e) => e.name === 'Layout' && e.ph !== 'E').length
+  return (trace.traceEvents ?? []).filter(
+    (e) => e.name === 'Layout' && e.ph !== 'E' && e.args?.beginData?.partialLayout !== true,
+  ).length
 }
 
 export interface Gate {

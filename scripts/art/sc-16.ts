@@ -22,6 +22,8 @@ const PAIR_H = 500
 interface Row {
   item_number: number
   filename: string
+  source: string
+  category: string
   thumb: string | null
   card: string | null
 }
@@ -46,7 +48,7 @@ async function main(): Promise<void> {
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL })
   await client.connect()
   const { rows } = await client.query<Row>(`
-    select p.item_number, m.filename, m.sizes_thumb_filename as thumb, m.sizes_card_filename as card
+    select p.item_number, p.category, m.filename, m.source, m.sizes_thumb_filename as thumb, m.sizes_card_filename as card
     from products p
     join products_rels r on r.parent_id = p.id and r.path = 'images'
     join media m on m.id = r.media_id
@@ -64,14 +66,17 @@ async function main(): Promise<void> {
     }
     const original = readFileSync(orig)
     const cardFile = fileOr(row.card)
-    const card = cardFile
-      ? readFileSync(cardFile)
+    const thumbFile = fileOr(row.thumb)
+    // Was die Seite zeigt: `card`, sonst `thumb` (Instagram-Quellen ≤ 640 px: nur `thumb`), sonst das Original (auch
+    // das trägt den Foto-Look, `pnpm media:regenerate`); nachgerechnet wird nur, wenn keine Ableitung auf der Platte liegt.
+    const derivative = cardFile ?? thumbFile
+    const card = derivative
+      ? readFileSync(derivative)
       : await sharp(original)
           .rotate()
           .resize({ width: 800, height: 1000, fit: 'cover', withoutEnlargement: true })
           .webp({ quality: 80 })
           .toBuffer()
-    const thumbFile = fileOr(row.thumb)
     const [before, after] = await Promise.all([look(original), look(card)])
     const tile = (b: Buffer) =>
       sharp(b)
@@ -96,7 +101,13 @@ async function main(): Promise<void> {
       itemNumber: row.item_number,
       frame: rel,
       original: row.filename,
-      cardSource: cardFile ? 'datei' : 'nachgerechnet',
+      cardSource: cardFile ? 'datei' : thumbFile ? 'thumb' : 'nachgerechnet',
+      source: row.source,
+      category: row.category,
+      // Streuung des Median-L* (IM-02) gilt für Fotos von Stücken: Platzhalter tragen die Markenfarben (kein Foto-Look),
+      // Zeichnungsblätter sind Papier-Weiß (Median-L* ≈ 100, nicht belichtbar, IM-03/IM-04 prüft die Linse).
+      enhanced:
+        row.source !== 'placeholder' && row.source !== 'generated' && row.category !== 'zeichnung',
       before,
       after,
       bytes: {
@@ -106,12 +117,14 @@ async function main(): Promise<void> {
     })
   }
   const afters = items
+    .filter((i) => i.enhanced === true)
     .map((i) => (i.after as ImageLook | undefined)?.medianL)
     .filter((v): v is number => typeof v === 'number')
   const mean = afters.reduce((a, b) => a + b, 0) / Math.max(1, afters.length)
   const sd = Math.sqrt(afters.reduce((a, b) => a + (b - mean) ** 2, 0) / Math.max(1, afters.length))
   const summary = {
     count: items.length,
+    enhancedCount: afters.length,
     medianLStdDev: Math.round(sd * 100) / 100,
     medianCardBytes: median(items.map((i) => (i.bytes as { card: number } | undefined)?.card ?? 0)),
     medianThumbBytes: median(

@@ -251,20 +251,19 @@
   }
 }
 
-/* MI-12 Stationsmarke „pop“, wenn die Linie sie erreicht (`data-leash-reached` setzt die Engine): Planet
+/* MI-12 Stationsmarke „pop“, wenn die Linie sie erreicht (`data-leash-reached` setzt die Engine); die Animation liegt
+   am Wrapper `.mark`, nicht am `<svg>` (eine Animation am äußeren `<svg>` löst je Station ein Layout aus, PF-05): Planet
    `scale 0.6 → 1` 240 ms `--ease-stamp`, Stern `rotate 0 → 15°` 400 ms `--ease-swing`, einmal. Reduziert: aus. */
 @media (prefers-reduced-motion: no-preference) {
   html:not([data-motion='reduced'])
     .station:has([data-leash-reached])
-    .mark[data-station-mark='planet']
-    svg {
+    .mark[data-station-mark='planet'] {
     animation: pc-mark-pop 240ms var(--ease-stamp) both;
   }
 
   html:not([data-motion='reduced'])
     .station:has([data-leash-reached])
-    .mark[data-station-mark='star']
-    svg {
+    .mark[data-station-mark='star'] {
     animation: pc-mark-turn 400ms var(--ease-swing) both;
   }
 }
