@@ -2,8 +2,61 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-04 – P8 Phasen-Abnahme (Beispielbestand) – für Jutta
 
+### Phase 8 fertig: der Beispielbestand ist komplett
 
+Hallo Jutta,
+
+Phase 8 ist gebaut. Deine Seite ist jetzt voll mit Beispielen – so siehst du, wie alles mit echtem Leben aussieht,
+bevor es losgeht. Alles davon ist als „Beispiel“ markiert und lässt sich mit einem Knopf wieder entfernen.
+
+### Was du im Beispielbestand jetzt sehen kannst
+
+- **Shop:** 30 Stücke in allen 6 Kategorien – frei, gerade reserviert, verkauft, offline und im Archiv. Die Fotos
+  stammen aus deinen Instagram-Beiträgen (17 Ausschnitte), dazu 30 gezeichnete Platzhalter, wo noch ein Foto fehlt.
+- **Bestellungen und Belege:** 14 Beispiel-Bestellungen in jedem Zustand (bezahlt, versendet, abgeholt, widerrufen,
+  erstattet …) und 15 Belege. Jeder Beleg trägt groß „BEISPIELBELEG – kein echter Beleg“.
+- **Postfach in der Verwaltung:** Widerrufe, Reklamationen, Anfragen für Auftragsarbeiten und Datenschutz-Anfragen –
+  von jeder Sorte ein Beispiel in jedem Zustand. Die Kund:innen sind erfunden.
+- **Tattoo-Bereich:** 10 Flash-Motive, 3 Angebote (Flash-Days), 6 Galerie-Bilder, 12 Fragen im FAQ.
+- **Texte:** Entwürfe für alle Seiten in deinem Ton, z. B. „Über mich“, Pflege (Aftercare), Ablauf und FAQ. Dazu die
+  neue Seite **„Über mich“** mit Jutta & Coco. Fotos, auf denen du selbst zu sehen bist, erscheinen dort erst, wenn
+  du sie in der Verwaltung freigibst (Häkchen „Jutta hat dieses Foto von sich freigegeben“ beim Foto).
+- **Zahlen:** Umsätze aus Tattoo und Flohmarkt für 9 Monate, damit der Umsatz-Wächter etwas zeigt.
+- **Zeichnungen:** Coco ist nach deinen Highlight-Bildchen und Skizzen gezeichnet, die Stationen der Startseite sind
+  aus deinen Zeichnungen übertragen. In Phase 9 werden Coco und die Linie noch einmal gründlich verfeinert.
+- **Leere Seiten:** Wo noch nichts da ist (z. B. kein Flash), steht ein freundlicher Hinweis statt einer leeren Fläche.
+
+Die Texte kannst du in Ruhe in der Vorschau-Datei lesen (die HTML-Datei, die du per Doppelklick im Browser öffnest).
+Was dir nicht passt, korrigierst du später einfach in der Verwaltung.
+
+### Beispiele behalten oder entfernen
+
+- **Einzelne Beispiele behalten:** In der Verwaltung unter **Einstellungen → Beispieldaten** steht bei jedem Beispiel
+  der Knopf **„Übernehmen“**. Danach ist es ein echter Eintrag (mit seinen Bildern) und bleibt stehen. Seitentexte und
+  FAQ übernimmst du noch einfacher: Text bearbeiten und speichern – fertig.
+- **Alle Beispiele entfernen:** Am selben Ort der Knopf **„Beispieldaten entfernen“**. Du tippst zur Sicherheit
+  „ENTFERNEN“ ein. Mit dem Haken „Seitentexte und FAQ behalten“ bleiben die Texte als deine eigenen stehen.
+- Der Knopf ist gesperrt, bis die Texte der Kanzlei eingesetzt sind – sonst wären die Rechtsseiten leer.
+- Echte Stücke, Bestellungen und Rechnungsnummern fasst das Entfernen nie an. Die Beispiele erscheinen auch nie auf
+  der echten Seite, nur in der Vorschau. Das machen wir gemeinsam beim Start (Phase 11).
+
+### So funktioniert der Instagram-Import
+
+- Bisher nutzen die Beispiele kleine Bilder aus deinem Instagram-Profil.
+- Wenn du magst, lädst du bei Instagram deinen **Daten-Export** herunter (Einstellungen → „Deine Informationen
+  herunterladen“, Format JSON). Die ZIP-Datei gibst du uns.
+- Wir legen sie in einen Ordner und starten den Import. Er findet zu jedem Beispielbild das passende Originalfoto in
+  voller Größe und tauscht es aus. Nichts davon wird hochgeladen oder veröffentlicht, alles bleibt bei dir.
+- Genauso mit **Fotos von Coco**: Je mehr echte Fotos (von vorne, von der Seite, beim Schlafen …), desto treffender
+  wird die gezeichnete Coco.
+- Beides kannst du jederzeit nachreichen, es hält nichts auf.
+
+### Was du dir anschauen könntest
+
+Ein paar Beispiel-Angaben sind geschätzt (Material, Maße, Gewichte, Pflegetipps). Wenn dir beim Durchklicken etwas
+auffällt, schreib es einfach auf – wir korrigieren es. Die Liste steht in den offenen Punkten (J-19 bis J-24).
 
 ## 2026-10-03 – P7 CI grün
 

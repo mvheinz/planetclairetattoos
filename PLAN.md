@@ -4606,7 +4606,7 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   `seedField()` an `privacy-requests` nachziehen, kommt dessen Migration dazu); Verdrängungsregel
   `revenue-entries` (DATENMODELL §6.20, seit P1) geprüft; `.env.example` aus `src/lib/env.ts` neu erzeugt; `.gitignore`
   enthält `.data/` und `artifacts/`.
-- [ ] `docs/FORTSCHRITT.md`: Eintrag für Jutta (du-Form) – Beispielbestand komplett, wo sie die Texte in der
+- [x] `docs/FORTSCHRITT.md`: Eintrag für Jutta (du-Form) – Beispielbestand komplett, wo sie die Texte in der
   Vorschau-Datei lesen kann, dass Instagram-Export und Coco-Fotos jederzeit nachgereicht werden können.
 - [x] `docs/OFFENE-PUNKTE.md` aktualisiert (offene SE-Punkte aus SEED-SPEC §20, Export-/Coco-Status, Annahmen dieser
   Phase).
