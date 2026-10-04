@@ -153,8 +153,8 @@ describe('ci.yml – Job quick (§6.3)', () => {
 
   it('Job quick gegen planetclaire_test mit den Testwerten aus §6.3', () => {
     expect(quick.name).toBe('quick')
-    // 45 min wie `quality` in ci-full.yml: Integrationstests allein ~21 min (P5, OFFENE-PUNKTE), 30 min reichten nicht mehr.
-    expect(quick['timeout-minutes']).toBeLessThanOrEqual(45)
+    // 60 min: Integrationstests allein ~30 min trotz 3 Workern (P8, Beispielbestand), danach Build, Budgets und Rauchtest.
+    expect(quick['timeout-minutes']).toBeLessThanOrEqual(60)
     expect(quick.services?.postgres?.image).toBe('postgres:17-alpine')
     expect(quick.services?.postgres?.env?.POSTGRES_DB).toBe('planetclaire_test')
     const env = quick.env ?? {}

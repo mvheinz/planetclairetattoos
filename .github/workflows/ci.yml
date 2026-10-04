@@ -23,7 +23,7 @@ jobs:
     # Lauf 37167124034 brach im Schritt „Integrationstests“ ab). Deshalb laufen sie mit `PC_INT_WORKERS=3` parallel, je Worker
     # eine Datenbankkopie (tests/int/setup/workers.ts); der ganze Job war in P4 schon 27–29 min lang und lief in P5 in die
     # 30-min-Grenze – GitHub meldet das als „cancelled“ (Läufe 36977115759, 36988931029, 36997806598).
-    timeout-minutes: 45
+    timeout-minutes: 60
     services:
       postgres:
         image: postgres:17-alpine

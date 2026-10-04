@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-04 – P8 CI: Zeitlimits für quick und quality auf 60 Minuten
+
+Zweiter Phasenlauf: alle sechs Browser-Prüfungen und der Vorschau-Export waren grün. Die Jobs „quick“ und „quality“ liefen aber ins 45-Minuten-Limit, weil die Integrationstests mit dem vollen Beispielbestand rund 30 Minuten brauchen (auch mit drei Workern). Limit auf 60 Minuten angehoben (öffentliches Repo, keine Kosten); nichts übersprungen. Phasenlauf startet erneut.
+
 ## 2026-10-04 – P8 CI-Neustart nach Reparatur
 
 Der erste Phasenlauf von P8 war rot: Die Integrationstests brauchten mit dem vollen Beispielbestand über 40 Minuten, und zwei E2E-Prüfungen gingen von der falschen Uhr aus. Beides ist behoben (Tests laufen jetzt parallel, die Uhr-Annahmen stimmen). Der Phasenlauf startet neu.
