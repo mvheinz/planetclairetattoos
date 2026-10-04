@@ -392,6 +392,8 @@ R2 Bewegung/Timing | R3 Tempo/Barrierefreiheit}. Du prüfst NUR, du änderst nic
 Lies zuerst: docs/design/KUNST-QA.md §5.{…} (deine Checkliste), §6.3 (Antwortformat), §6.5 (Bewertungsrubrik),
 docs/design/DESIGN.md §{…}.
 Material: artifacts/art-qa/{lauf-id}/ – nur die Ordner {…}. Referenzbilder: content/seed/instagram/{…}.
+R1 zusätzlich: Juttas Stil-Skizzen `referenzen/jutta-skizzen/` samt `content/art/jutta-skizzen/README.md` (Stil-Beobachtungen: Monoline,
+offene Konturen, nur kleine Punkte gefüllt, Schraffur nur als Akzent, viel Weißraum) – Messlatte für LQ-08, AR-05, CO-09.
 Kalibrierung (nur R1): bewerte zuerst sheets/art/calibration-p2-placeholder.webp (der grobe P2-Platzhalter) nach Rubrik
 §6.5. Gib ihm ehrlich eine Note; eine Note ≥ 3 macht deine Prüfung ungültig.
 Nachprüfliste (ab Iteration 2): {Befund-IDs mit Kurzbeschreibung}.
@@ -462,6 +464,14 @@ Aufnahme (alle Szenarien, alle Profile, beide Varianten), und `pnpm art:check` g
    2. Effekt auf statischen Endzustand reduzieren (z. B. MI-13 ohne Wisch);
    3. Stufe B statt A für das betroffene Profil/den Browser (`presets.ts`);
    4. Choreografie-Moment streichen (Station behält Pose ohne Extra).
+
+   **Stufen für Stil-Urteile** (Zeichnungen und Bilder: LQ-08, AR-05, IM-04, CO-09 – dort sind Parameter, Effekte und Abläufe nicht
+   betroffen, Stufen 1–4 greifen nicht; eingeführt in P9.18 nach Iteration 3, konservativ, in `docs/OFFENE-PUNKTE.md` vermerkt):
+   1. **Weniger Motive pro Bild, mehr Papier** (Platzhalter, Stationen, Raster): Wiederholungen streichen, Figuren einzeln zeichnen.
+   2. **Einzelmotiv ersetzen:** das beanstandete Motiv durch eine Coco-Skizze nach Juttas Vorlage (`content/art/jutta-skizzen/`)
+      ersetzen bzw. im Raster das Foto durch einen Platzhalter.
+   3. **Station behält nur die einfachste Zeichnung** – ohne Schraffur, ohne Gekritzelfläche.
+   Die Stufen werden der Reihe nach angewendet; jede zählt als „Fortschritt“ im Sinn von Nr. 6.2.
    **Nicht verhandelbar** (keine Vereinfachung, sondern Behebung): alle B-Punkte aus §5.5–5.8, mindestens 6 Posen × 3 Frames, Linie
    tuscheschwarz, reduzierte Bewegung, Ruhezonen.
 6. **Obergrenzen** (die Schleife endet immer):
