@@ -13,11 +13,21 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
   // (a) Intro: Uhr vor dem Laden anhalten, bis die Engine steht vorspulen, dann Sequenz.
   await art.pauseClock()
   await page.goto('/de', { waitUntil: 'load' })
+  // Frames beschriftet mit der Zeit seit der Navigation (R2-01-01: Intro-Start ≥ LCP + 300 ms ist so ablesbar);
+  // vor dem Laden der Engine ein Bild „Seite geladen, Linie noch leer“.
+  await art.settledFrame('intro-t0000-geladen')
+  let waited = 0
   for (let i = 0; i < 160; i++) {
     if (await page.evaluate(() => !!(window as Window & { __leash?: unknown }).__leash)) break
-    await page.clock.runFor(50)
+    await page.clock.runFor(25)
+    waited += 25
   }
-  await art.sequence({ stepMs: art.step(100, 1600), untilMs: 1600, prefix: 'intro' })
+  await art.sequence({
+    stepMs: art.step(50, 1200),
+    untilMs: 1200,
+    prefix: 'intro',
+    offsetMs: waited,
+  })
 
   // (b)–(d) Echtzeit für das Video.
   const bottom = await maxScroll(page)

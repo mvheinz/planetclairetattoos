@@ -293,6 +293,8 @@ export class ArtSession {
     start?: () => Promise<void>
     element?: Locator
     prefix?: string
+    /** Zeit, die vor dem Sequenz-Start schon vergangen ist (Beschriftung `t` = Zeit seit Navigation, SC-01-Intro). */
+    offsetMs?: number
   }): Promise<string[]> {
     await this.pauseClock()
     await opts.start?.()
@@ -300,7 +302,7 @@ export class ArtSession {
     for (let t = 0; t <= opts.untilMs + 0.5; t += opts.stepMs) {
       if (t > 0) await this.page.clock.runFor(opts.stepMs)
       await seekAnimations(this.page, t)
-      const label = `${opts.prefix ? `${opts.prefix}-` : ''}t${String(Math.round(t)).padStart(4, '0')}`
+      const label = `${opts.prefix ? `${opts.prefix}-` : ''}t${String(Math.round(t + (opts.offsetMs ?? 0))).padStart(4, '0')}`
       // Bewegungssequenzen in CSS-Pixeln (Zeitbudget ≤ 25 min, KUNST-QA §9); Standbilder bleiben in Geräteauflösung.
       out.push(
         await this.frame(label, {

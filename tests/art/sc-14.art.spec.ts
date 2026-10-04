@@ -18,8 +18,20 @@ test(
         timeout: 15_000,
       })
       await page.waitForTimeout(Math.min(6000, mi.durationMs + 300))
-      await stage.scrollIntoViewIfNeeded()
-      const element = mi.viewport ? undefined : stage
+      // MI-10 (Intro) läuft nur ganz oben (DESIGN §11.5, `scrollY < 8`) – Bühne nicht scrollen (R2-01-01).
+      if (mi.id === 'MI-10') await page.evaluate(() => scrollTo(0, 0))
+      else await stage.scrollIntoViewIfNeeded()
+      // MI-01: Coco `--coco-s` (40 px) hüpft nur wenige Pixel – Ausschnitt Kaufbereich, 3× vergrößert (CSS-`zoom`,
+      // gleiche Animation), damit der Hüpfer im Bogen sichtbar ist (R2-01-03).
+      if (mi.id === 'MI-01')
+        await stage
+          .locator('[data-buy-area]')
+          .evaluate((el) => ((el as HTMLElement).style.zoom = '3'))
+      const element = mi.viewport
+        ? undefined
+        : mi.id === 'MI-01'
+          ? stage.locator('[data-buy-area]')
+          : stage
       await art.frame(`${mi.id}-idle`, element ? { element } : {})
       const prefix = mi.id.toLowerCase()
       // MI-08 (Countdown) ist keine Animation (DESIGN §11.5): Sekundentakt statt 20 ms.
