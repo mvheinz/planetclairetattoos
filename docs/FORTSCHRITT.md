@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-04 – P8 CI-Neustart nach Reparatur
+
+Der erste Phasenlauf von P8 war rot: Die Integrationstests brauchten mit dem vollen Beispielbestand über 40 Minuten, und zwei E2E-Prüfungen gingen von der falschen Uhr aus. Beides ist behoben (Tests laufen jetzt parallel, die Uhr-Annahmen stimmen). Der Phasenlauf startet neu.
+
 ## 2026-10-04 – P8 CI-Fix nach rotem `[ci:full p8]` (Lauf 37167124027/37167124034)
 
 - Ursachen: (1) `quick`/`quality`: Integrationstests mit vollem Beispielbestand > 40 min (154 Dateien nacheinander, je Datei
