@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-04 – P8 CI grün
+
+Phasenlauf `8518023`: CI, CI full (alle sechs Browser-Hälften, Abdeckung, visuelle Prüfung, Lighthouse) und Vorschau-Export grün. Vorschau-Artefakt `planet-claire-vorschau-p8-8518023`.
+
 ## 2026-10-04 – P8 CI: vierter Phasenlauf
 
 Im dritten Lauf waren alle Browser-Prüfungen und der Vorschau-Export grün; nur ein Test-Aufräumschritt (alte Beleg-Dateien blieben im frischen CI-Speicher liegen) ließ eine Integrationsdatei scheitern. Behoben, nur Test-Hilfe, kein Seiten-Code. Der Phasenlauf startet noch einmal.

@@ -4610,10 +4610,10 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
   Vorschau-Datei lesen kann, dass Instagram-Export und Coco-Fotos jederzeit nachgereicht werden können.
 - [x] `docs/OFFENE-PUNKTE.md` aktualisiert (offene SE-Punkte aus SEED-SPEC §20, Export-/Coco-Status, Annahmen dieser
   Phase).
-- [ ] CI grün: Phasenende-Commit `chore(P8): finish phase [ci:full p8]` → `ci.yml`, `ci-full.yml` und
+- [x] CI grün: Phasenende-Commit `chore(P8): finish phase [ci:full p8]` → `ci.yml`, `ci-full.yml` und
   `preview-export.yml` grün, Vorschau-Artefakt `planet-claire-vorschau-p8-<sha7>` erzeugt. Dieses Häkchen setzt erst
   ein reiner Doku-Commit mit `[skip ci]`, nachdem der Lauf grün ist (ARCHITEKTUR §6.7).
-- [ ] PR-Beschreibung (Deutsch) aktualisiert: Aufgaben, AK-Nachweise, Tests, Doku-Änderungen, neue offene Punkte,
+- [x] PR-Beschreibung (Deutsch) aktualisiert: Aufgaben, AK-Nachweise, Tests, Doku-Änderungen, neue offene Punkte,
   Link zum Vorschau-Artefakt; gemergt oder oben „Bitte mergen – CI ist grün“.
 
 ## P9 – Kunst & Bewegung
