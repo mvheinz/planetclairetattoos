@@ -96,57 +96,82 @@ export function followSamples(
   )
 }
 
-/** MO-10: Intro bei angehaltener Uhr in 20-ms-Schritten (Start relativ zur Navigation, LCP per Beobachter). */
+/**
+ * MO-10: Intro auf der echten Zeitachse der Seite (eigener Kontext ohne Playwright-Uhr, die `performance.now` und
+ * `Date.now` anhält – sonst stünde der LCP bei 0, R2-02-01): LCP = `startTime` des letzten LCP-Kandidaten, Start =
+ * erster Frame mit gezeichneter Länge > 0, Ende = letzte Änderung der Länge; alles relativ zur Navigation.
+ */
 export async function introTiming(art: ArtSession): Promise<{
   lcp: number | null
   start: number | null
   end: number | null
   samples: number
 }> {
-  const { page } = art
-  await page.addInitScript(() => {
-    const w = window as Window & { __artLcp?: number | null }
-    w.__artLcp = null
-    try {
-      new PerformanceObserver(() => {
-        w.__artLcp ??= Date.now()
-      }).observe({ type: 'largest-contentful-paint', buffered: true })
-    } catch {
-      // WebKit ohne LCP
+  const ctx = await art.extraContext({})
+  try {
+    const page = await ctx.newPage()
+    await page.addInitScript(() => {
+      const w = window as Window & {
+        __artIntro?: { lcp: number | null; start: number | null; end: number | null; n: number }
+      }
+      const rec = {
+        lcp: null as number | null,
+        start: null as number | null,
+        end: null as number | null,
+        n: 0,
+      }
+      w.__artIntro = rec
+      try {
+        new PerformanceObserver((list) => {
+          const e = list.getEntries().at(-1)
+          if (e) rec.lcp = Math.round(e.startTime)
+        }).observe({ type: 'largest-contentful-paint', buffered: true })
+      } catch {
+        // ohne LCP-Unterstützung bleibt lcp null
+      }
+      let last = 0
+      const tick = () => {
+        const d = (window as LeashWin).__leash?.drawnLen() ?? 0
+        const now = performance.now()
+        rec.n++
+        if (d > 0 && rec.start === null) rec.start = Math.round(now)
+        if (d !== last) {
+          last = d
+          if (rec.start !== null) rec.end = Math.round(now)
+        }
+        if (rec.start === null || now - (rec.end ?? now) < 400) requestAnimationFrame(tick)
+      }
+      requestAnimationFrame(tick)
+    })
+    await page.goto('/de', { waitUntil: 'load' })
+    await page
+      .waitForFunction(
+        () => {
+          const r = (
+            window as Window & { __artIntro?: { start: number | null; end: number | null } }
+          ).__artIntro
+          return !!r && r.start !== null && r.end !== null && performance.now() - r.end > 400
+        },
+        undefined,
+        { timeout: 10_000 },
+      )
+      .catch(() => undefined)
+    const r = await page.evaluate(
+      () =>
+        (
+          window as Window & {
+            __artIntro?: { lcp: number | null; start: number | null; end: number | null; n: number }
+          }
+        ).__artIntro ?? null,
+    )
+    return {
+      lcp: r?.lcp ?? null,
+      start: r?.start ?? null,
+      end: r?.end ?? null,
+      samples: r?.n ?? 0,
     }
-  })
-  await art.pauseClock()
-  const t0 = await page.evaluate(() => Date.now())
-  await page.goto('/de', { waitUntil: 'load' })
-  const samples: { t: number; drawn: number | null }[] = []
-  for (let i = 0; i < 260; i++) {
-    samples.push(
-      await page.evaluate(() => ({
-        t: Date.now(),
-        drawn: (window as LeashWin).__leash?.drawnLen() ?? null,
-      })),
-    )
-    const last = samples.slice(-6)
-    if (
-      last.length === 6 &&
-      last.every((s) => s.drawn !== null && s.drawn > 0 && s.drawn === last[0]!.drawn)
-    )
-      break
-    await page.clock.runFor(20)
-  }
-  const lcpAt = await page.evaluate(
-    () => (window as Window & { __artLcp?: number | null }).__artLcp ?? null,
-  )
-  await art.resumeClock()
-  const first = samples.find((s) => (s.drawn ?? 0) > 0)
-  const final = samples[samples.length - 1]?.drawn ?? null
-  const done =
-    final === null ? undefined : samples.find((s) => s.drawn !== null && s.drawn >= final - 0.5)
-  return {
-    lcp: lcpAt === null ? null : lcpAt - t0,
-    start: first ? first.t - t0 : null,
-    end: done ? done.t - t0 : null,
-    samples: samples.length,
+  } finally {
+    await ctx.close()
   }
 }
 

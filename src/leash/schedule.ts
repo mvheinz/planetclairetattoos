@@ -26,17 +26,21 @@ export function whenLeashReady(cb: () => void, win: Window = window): () => void
     if (w.requestIdleCallback) idleId = w.requestIdleCallback(() => cb(), { timeout: 500 })
     else timer = setTimeout(cb, 1)
   }
-  let deadline = Infinity
-  // Frühester Zeitpunkt gewinnt (LCP + 300 ms oder load + 1200 ms).
-  const after = (ms: number) => {
-    const due = performance.now() + ms
-    if (done || due >= deadline) return
-    deadline = due
+  // Frühester Zeitpunkt gewinnt (LCP + 300 ms oder load + 1200 ms); der LCP zählt ab seinem letzten Kandidaten
+  // (`startTime`) – spätere, größere Kandidaten schieben den Start nach hinten (R2-02-01).
+  let lcpDue = Infinity
+  let loadDue = Infinity
+  const plan = () => {
+    if (done) return
+    const due = Math.min(lcpDue, loadDue)
     if (timer !== null) clearTimeout(timer)
-    timer = setTimeout(() => {
-      timer = null
-      idle()
-    }, ms)
+    timer = setTimeout(
+      () => {
+        timer = null
+        idle()
+      },
+      Math.max(0, due - performance.now()),
+    )
   }
   const stopWaiting = () => {
     observer?.disconnect()
@@ -48,13 +52,19 @@ export function whenLeashReady(cb: () => void, win: Window = window): () => void
   else {
     try {
       observer = new PerformanceObserver((list) => {
-        if (list.getEntries().length > 0) after(300)
+        const e = list.getEntries().at(-1)
+        if (!e) return
+        lcpDue = e.startTime + 300
+        plan()
       })
       observer.observe({ type: 'largest-contentful-paint', buffered: true })
     } catch {
       observer = null
     }
-    const onLoad = () => after(1200)
+    const onLoad = () => {
+      loadDue = performance.now() + 1200
+      plan()
+    }
     if (win.document.readyState === 'complete') onLoad()
     else {
       win.addEventListener('load', onLoad, { once: true })

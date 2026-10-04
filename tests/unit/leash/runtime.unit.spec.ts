@@ -512,6 +512,36 @@ describe('leash/schedule – Ladezeitpunkt (§9.2)', () => {
     expect(vi.getTimerCount()).toBe(0)
     delete (document as unknown as { readyState?: string }).readyState
   })
+
+  it('R2-02-01: LCP + 300 ms ab dem letzten LCP-Kandidaten (startTime), spätere Kandidaten schieben nach hinten', () => {
+    resetLeashSchedule()
+    Object.defineProperty(document, 'readyState', { configurable: true, value: 'loading' })
+    const g = globalThis as unknown as { PerformanceObserver: unknown }
+    const orig = g.PerformanceObserver
+    let deliver: ((startTime: number) => void) | null = null
+    g.PerformanceObserver = class {
+      constructor(cb: (list: { getEntries(): { startTime: number }[] }) => void) {
+        deliver = (startTime) => cb({ getEntries: () => [{ startTime }] })
+      }
+      observe() {}
+      disconnect() {}
+    }
+    try {
+      const cb = vi.fn()
+      const t0 = performance.now()
+      whenLeashReady(cb)
+      deliver!(t0 + 100) // erster Kandidat bei 100 ms → frühestens 400 ms
+      advance(350)
+      deliver!(t0 + 300) // größerer Kandidat bei 300 ms → frühestens 600 ms
+      advance(200)
+      expect(cb).not.toHaveBeenCalled()
+      advance(100)
+      expect(cb).toHaveBeenCalledTimes(1)
+    } finally {
+      g.PerformanceObserver = orig
+      delete (document as unknown as { readyState?: string }).readyState
+    }
+  })
 })
 
 describe('leash/easing', () => {
