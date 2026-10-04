@@ -961,7 +961,7 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
       layer: 'solid',
       part: 'nose',
       // dicke, gefüllte Nase knapp unter und zwischen den Augen
-      pts: blob([3.2, 7.2], 3, 2.6, 4, 7),
+      pts: blob([3.2, 7.2], 2.8, 2.4, 4, 7),
       closed: true,
       jitter: 0.25,
     },
@@ -1595,6 +1595,39 @@ export function symbolSpecs(): SymbolSpec[] {
   ]
 }
 
+/** Ohren-Asymmetrie eines fertig nachgezeichneten Frames: Höhe kleineres/größeres Ohr in {@link EAR_RATIO} halten. */
+const EAR_RATIO = [0.87, 0.93] as const
+function rebalanceEars(strokes: Stroke[]): Stroke[] {
+  const parts = (['ear-l', 'ear-r'] as const).map((part) => {
+    const pts = strokes
+      .filter((st) => st.part === part && st.layer === 'line')
+      .flatMap((st) => st.pts)
+    return { part, pts, h: pts.length ? heightOf(pts) : 0 }
+  })
+  const [a, b] = parts as [(typeof parts)[0], (typeof parts)[0]]
+  if (!a.h || !b.h) return strokes
+  const [small, big] = a.h <= b.h ? [a, b] : [b, a]
+  const r = small.h / big.h
+  const k = Math.min(EAR_RATIO[1], Math.max(EAR_RATIO[0], r)) / r
+  if (k === 1) return strokes
+  // Fußpunkt: Mitte der untersten Punkte des kleineren Ohrs
+  const ys = small.pts.map((p) => p[1])
+  const yMax = Math.max(...ys)
+  const xs = small.pts.filter((p) => p[1] > yMax - 2).map((p) => p[0])
+  const base: P = [xs.reduce((x, v) => x + v, 0) / xs.length, yMax]
+  return strokes.map((st) =>
+    st.part === small.part
+      ? {
+          ...st,
+          pts: st.pts.map(([x, y]): P => [
+            base[0] + (x - base[0]) * k,
+            base[1] + (y - base[1]) * k,
+          ]),
+        }
+      : st,
+  )
+}
+
 /**
  * Striche eines Symbols mit Handmerkmalen. Frame A: Stützpunkte nur leicht (0,2–0,6 Einheiten) gezittert; B und C:
  * jede Linie neu nachgezeichnet (0,5–1,5 Einheiten, DESIGN §10.7). Absetzer/Doppelkontur je Frame an anderer Stelle
@@ -1608,9 +1641,14 @@ export function renderStrokes(
   const k = spec.frame === 'a' ? 0.6 : 1.6
   const out: { layer: Layer; part: Part; d: string }[] = []
   const push = (layer: Layer, part: Part, d: string) => d && out.push({ layer, part, d })
-  for (const s of fig.strokes) {
+  // erst alle Linien neu nachzeichnen, dann die Ohren-Asymmetrie je Frame einstellen (CO-06: 5–15 %, nach dem
+  // Nachzeichnen gemessen – vorher streute sie je Frame um ± 6 Prozentpunkte)
+  const traced = fig.strokes.map((s) => {
     const src = s.layer === 'fur' && s.pts.length > 8 ? s.pts.filter((_, i) => i % 2 === 0) : s.pts
-    const pts = retrace(src, rand, (s.jitter ?? 1) * k)
+    return { ...s, pts: retrace(src, rand, (s.jitter ?? 1) * k) }
+  })
+  for (const s of rebalanceEars(traced)) {
+    const pts = s.pts
     // große Konturen auf ganze Einheiten (Handstrich verträgt es, Budget §9.10), Details auf halbe
     const c = s.layer === 'fur' || (s.layer === 'line' && (s.jitter ?? 1) >= 0.5)
     if (s.feature === 'gap' && !s.closed) {
