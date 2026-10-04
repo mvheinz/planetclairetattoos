@@ -297,6 +297,8 @@ describe('P9.5 Zeichnungen AR', () => {
     expect(A.medianStrokeWidth(stripe(2), w, h)).toBeGreaterThan(2)
     expect(A.ar02([{ id: 'ok', draw: stripe(2), src: stripe(2), w, h }]).status).toBe('PASS')
     expect(A.ar02([{ id: 'fett', draw: stripe(5), src: stripe(2), w, h }]).status).toBe('FAIL')
+    // ohne vektorisierte Station (alle `drawn`, P9.12) nichts zu vergleichen
+    expect(A.ar02([]).status).toBe('PASS')
   })
 
   it('AR-03: Größengrenzen je Art', () => {

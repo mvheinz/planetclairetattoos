@@ -43,22 +43,17 @@ export interface VectorizeSource {
 export interface DerivedSource {
   id: string
   from: string
-  /** `traced`: von Hand nach der Foto-Vorlage nachgezeichnet (Kontrollpunkte im Ausschnitt `crop`, P9.12). */
-  kind: 'planet-mark' | 'sprite' | 'placeholder-style' | 'traced'
+  /** `drawn`: frei mit der Handlinie neu gezeichnet nach dem Motiv der Vorlage `reference` (P9.12). */
+  kind: 'planet-mark' | 'sprite' | 'placeholder-style' | 'drawn'
   reference?: string
-  /** Nur `traced`: Ausschnitt der Vorlage (Prozent) und Schwellwert für den Strichvergleich (KUNST-QA AR-02). */
-  crop?: { x: number; y: number; w: number; h: number }
-  threshold?: number | 'otsu'
 }
 
 /** Modul einer gezeichneten Station (`content/art/stations/{id}.ts`). */
 interface DrawnStation {
   ink: Ink
   tilt: number
-  /** viewBox der Zeichnung (Standard `0 0 400 500`; `traced`: Ausschnitt auf 400 Einheiten Breite). */
+  /** viewBox der Zeichnung (Standard `0 0 400 500`; `drawn`: beliebiger Ausschnitt, Strichstärke per `stationStrokeWidth`). */
   viewBox?: string
-  /** Strichstärke in viewBox-Einheiten (Standard 3,2; `traced`: wie die Linien der Vorlage). */
-  strokeWidth?: number
 }
 
 export interface SourcesFile {
@@ -263,15 +258,36 @@ async function sourceBuffer(
 const LINE_ATTRS =
   'fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"'
 
+/**
+ * Einheitliche Strichstärke aller Stationen (P9.12, Prüf-Linse AR-07 „Strichstärken uneinheitlich“): Stationen stehen
+ * in einem 4:5-Rahmen mit 208 × 260 px Zeichenfläche (Home.module.css `.artFrame`/`.art`, `meet`). Die Strichbreite in
+ * viewBox-Einheiten wird so gewählt, dass sie dort {@link STATION_STROKE_PX} px ergibt – egal wie groß der Ausschnitt ist.
+ */
+export const STATION_STROKE_PX = 2
+export const STATION_BOX = { w: 208, h: 260 } as const
+
+export function stationStrokeWidth(viewBox: string, px = STATION_STROKE_PX): number {
+  const [, , vw, vh] = viewBox.split(' ').map(Number) as [number, number, number, number]
+  const scale = Math.min(STATION_BOX.w / vw, STATION_BOX.h / vh)
+  return Math.round((px / scale) * 100) / 100
+}
+
 /** Planet-Marke in `currentColor` (Körper in Papierfarbe). */
-function planetMarkGroup(root: string, at: { x: number; y: number; s: number }): string {
+function planetMarkGroup(
+  root: string,
+  at: { x: number; y: number; s: number },
+  strokeWidth = 2.6,
+): string {
   const src = readFileSync(path.join(root, 'src/art/planet.svg'), 'utf8')
   const inner = /<svg[^>]*>([\s\S]*)<\/svg>/
     .exec(src)![1]!
     .replace(/fill="#F4EFE6"/g, 'style="fill:var(--paper,#F4EFE6)"')
     .replace(/#1C1A17/g, 'currentColor')
-  return `<g transform="translate(${at.x} ${at.y}) scale(${at.s})" ${LINE_ATTRS} stroke-width="2.6">${inner}</g>`
+  return `<g transform="translate(${at.x} ${at.y}) scale(${at.s})" ${LINE_ATTRS} stroke-width="${Math.round(strokeWidth * 100) / 100}">${inner}</g>`
 }
+
+const COCO_VIEWBOX = '30 -6 96 120'
+const COCO_SW = stationStrokeWidth(COCO_VIEWBOX)
 
 /** Coco `sitzen` (Frame A) aus dem Sprite, Klassen in Attribute übersetzt (kein globales CSS im Seiten-HTML). */
 function cocoSitzen(root: string): string {
@@ -286,9 +302,9 @@ function cocoSitzen(root: string): string {
       .replace(/class="fur"/g, 'style="fill:var(--coco-fur,#E2BF8E)"')
       .replace(
         /class="harness"/g,
-        'style="fill:var(--coco-harness,#C23B2A)" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"',
+        `style="fill:var(--coco-harness,#C23B2A)" stroke="currentColor" stroke-width="${COCO_SW}" stroke-linejoin="round"`,
       )
-      .replace(/class="line"/g, `${LINE_ATTRS} stroke-width="1.1"`)
+      .replace(/class="line"/g, `${LINE_ATTRS} stroke-width="${COCO_SW}"`)
       .replace(/class="solid"/g, 'fill="currentColor"')
       .replace(/class="hi"/g, 'style="fill:var(--paper,#F4EFE6)"')
   )
@@ -330,23 +346,26 @@ async function derivedStation(root: string, src: DerivedSource): Promise<string>
       )
     case 'hallo':
       return compact(
-        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="30 -6 96 120">${cocoSitzen(root)}</svg>`,
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${COCO_VIEWBOX}">${cocoSitzen(root)}</svg>`,
       )
     case 'jutta-und-coco':
       return compact(
-        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="30 -6 96 120">${cocoSitzen(root)}${planetMarkGroup(root, { x: 31, y: -4, s: 0.42 })}</svg>`,
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${COCO_VIEWBOX}">${cocoSitzen(root)}${planetMarkGroup(root, { x: 31, y: -4, s: 0.42 }, COCO_SW / 0.42)}</svg>`,
       )
     default: {
-      if (src.kind !== 'placeholder-style' && src.kind !== 'traced')
+      if (src.kind !== 'placeholder-style' && src.kind !== 'drawn')
         throw new Error(`Unbekannte abgeleitete Station „${src.id}“`)
-      // Linienzeichnung aus Kontrollpunkten (Schmuck: Platzhalter-Stil; traced: nach der Foto-Vorlage nachgezeichnet)
+      // Linienzeichnung aus Kontrollpunkten (Schmuck: Platzhalter-Stil; drawn: frei nach dem Motiv der Vorlage)
       const mod = (await import(pathToFileURL(path.join(root, src.from)).href)) as {
         default: DrawnStation
       }
       const d = mod.default
       const seed = src.id === 'schmuck' ? 0x5c4d : fnvSeed(src.id)
       return compact(
-        lineStation(d.ink, seed, d.tilt, { viewBox: d.viewBox, strokeWidth: d.strokeWidth }),
+        lineStation(d.ink, seed, d.tilt, {
+          viewBox: d.viewBox,
+          strokeWidth: stationStrokeWidth(d.viewBox ?? '0 0 400 500'),
+        }),
       )
     }
   }

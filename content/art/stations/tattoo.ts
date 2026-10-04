@@ -1,54 +1,64 @@
-// Station „Tattoo“ (DESIGN §12.4): Kelch mit Schlange (Flash, `post-DbJ1QRrjCcb.jpg`) als echte Linienzeichnung –
-// Kontrollpunkte von Hand nach dem Foto nachgezeichnet (P9.12, statt potrace-Flächen mit großen Schwarzflächen). Der
-// dunkle Kelchschatten der Vorlage ist, wie in Juttas Skizzen, nur als einseitige Schraffur angedeutet.
-// Koordinaten im Ausschnitt `crop` (sources.json) auf 400 Einheiten Breite.
+// Station „Tattoo“ (DESIGN §12.4): Kelch mit Schlange nach Juttas Flash (`post-DbJ1QRrjCcb.jpg`), frei mit der Handlinie
+// neu gezeichnet (P9.12, kein Pausen): die Schlange steigt aus dem Kelch, legt eine Schlinge über den Rand und hebt
+// den Kopf mit gespaltener Zunge; Bauchschuppen als Leiter quer zum Körper. Der Schatten des Kelchs ist – wie in Juttas
+// Skizzen – eine lockere, schräge Schraffur (unterschiedlich lange Striche), keine Fläche.
 import type { Ink } from '../../../scripts/art/lib/handline'
 import { dot, merge } from '../placeholders/_parts'
 
-const hatchLines: string[] = []
-for (let i = 0; i < 11; i++) {
-  const x = 156 + i * 9.4
-  const top = 262 + (i % 3) * 5
-  const bottom = 420 + Math.round(70 * Math.sin((i / 10) * 1.4)) + 20 - i * 3
-  hatchLines.push(`M${x.toFixed(1)} ${top}C${(x - 1).toFixed(1)} ${top + 40} ${(x + 1.5).toFixed(1)} ${bottom - 60} ${(x - 3).toFixed(1)} ${bottom}`)
+/** Schräge Schraffur rechts im Kelch (≈ 40°), Strichlängen leicht unterschiedlich (deterministisch). */
+function shade(): string[] {
+  const out: string[] = []
+  for (let j = 0; j < 7; j++) {
+    const y = 214 + j * 15
+    const xEnd = 286 - j * 6
+    for (let x = 246 + (j % 2) * 4; x < xEnd; x += 10) {
+      const len = 9 + Math.round(Math.sin(j * 1.9 + x * 0.13) * 3)
+      out.push(`M${x} ${y + len}L${x + len * 0.85} ${y}`)
+    }
+  }
+  return out
 }
 
 const ink: Ink = merge({
   strokes: [
-    // Kelchschale: Rand, linke Wand, Boden – offen, mit Absetzer
-    'M18 270C60 264 140 260 250 255',
-    { d: 'M20 272C22 340 30 420 52 478C66 506 100 524 150 530', double: true },
-    'M250 255C256 300 254 360 244 430C236 470 214 508 164 528',
+    // Kelchrand (hinten und vorn), Schale offen mit Absetzer
+    'M110 190C150 182 250 180 292 188',
+    'M108 196C150 205 250 205 294 194',
+    { d: 'M108 196C106 250 120 300 160 326', double: true },
+    'M294 194C296 252 282 300 240 326',
+    'M160 326C180 334 222 334 240 326',
     // Stiel, Knauf, Fuß
-    'M112 540C108 580 108 612 106 640',
-    'M154 542C148 590 150 620 150 650',
-    'M96 658C98 628 128 612 160 622C184 632 186 664 172 682C158 696 120 694 104 682C96 676 94 666 96 658',
-    'M106 696C100 724 94 746 76 756',
-    'M154 698C152 722 154 744 158 760',
-    // Fuß: flache Ellipse, offen
-    'M18 772C30 756 90 748 150 752C196 754 224 760 228 776C226 792 190 804 130 806C80 808 32 806 18 790C14 784 14 778 18 772',
-    // Schlange: S-förmiger Körper aus zwei Linien, steigt hinter dem Kelchrand auf
-    { d: 'M170 250C142 240 124 216 122 184C120 150 124 114 140 84C152 62 174 48 204 42', double: true },
-    'M204 56C178 66 160 84 160 110C160 140 184 160 202 184C212 202 206 226 188 246',
-    // Kopf und Zunge
-    'M210 46C226 40 244 34 262 36C288 38 316 46 340 44C352 43 364 44 374 46',
-    'M262 40C290 50 322 56 350 54C358 52 366 50 372 52',
-    // Querstriche am Schlangenbauch (Schuppen), quer zur Körperrichtung
-    'M163 100C173 104 180 108 186 114',
-    'M166 124C176 128 184 134 190 142',
-    'M176 150C186 154 192 160 198 168',
-    'M190 176C198 178 204 184 208 192',
-    'M196 202C202 206 204 212 204 220',
-    // zweite Schlinge im Kelch (hinter dem Henkelbogen)
-    'M64 300C84 296 108 306 116 328C124 350 112 376 92 396C80 408 68 412 64 400C62 392 70 386 78 388',
-    'M108 296C122 300 134 316 136 340C138 366 124 392 102 410',
-    // Schlangenschuppen im Kelch
-    'M98 330L112 336',
-    'M104 352L118 356',
-    'M100 374L114 372',
-    ...hatchLines,
+    'M188 334C186 360 186 382 184 398',
+    'M214 334C216 360 216 382 218 398',
+    'M178 400C172 388 186 380 200 380C216 380 228 390 222 402C218 414 186 416 178 400',
+    'M186 414C184 432 180 446 168 456',
+    'M216 414C218 432 222 446 236 456',
+    'M130 462C150 450 252 448 274 462C278 474 248 484 200 484C150 484 124 476 130 462',
+    // Schlange: S-Körper aus dem Kelch nach oben rechts
+    { d: 'M168 192C150 160 146 128 160 100C174 74 204 66 222 50C232 40 236 30 248 26', double: true },
+    'M190 190C176 160 174 132 186 112C198 92 222 84 236 66C242 58 248 50 256 46',
+    // Kopf, gespaltene Zunge
+    'M248 26C262 19 279 21 285 30C289 38 278 46 256 46',
+    'M287 33C299 31 309 28 317 22',
+    'M309 28C316 30 322 33 327 31',
+    // Bauchschuppen als Leiter
+    'M152 172L177 171',
+    'M155 150L179 147',
+    'M160 128L184 123',
+    'M170 108L192 107',
+    'M184 92L203 96',
+    'M199 80L214 86',
+    'M213 66L227 72',
+    // Schlinge über den Rand, außen herunterhängend, Schwanz eingerollt
+    'M126 192C114 210 111 236 123 256C131 268 144 270 146 258C148 248 139 244 132 250',
+    'M144 195C134 212 132 232 140 248',
+    'M117 220L133 222',
+    'M119 240L135 238',
+    // Schatten unter dem Fuß
+    'M150 494L158 488M166 495L174 489M182 496L190 490M198 496L206 490M214 495L222 489',
+    ...shade(),
   ],
-  dots: [dot(204, 62, 8, 6), dot(70, 395, 8, 6)],
+  dots: [dot(265, 31, 8, 6)],
 })
 
-export default { ink, tilt: 0, viewBox: '0 0 400 830', strokeWidth: 1.6 }
+export default { ink, tilt: -2, viewBox: '60 0 300 500' }

@@ -1,68 +1,111 @@
-// Station „Zeichnungen“ (DESIGN §12.4): zwei Figuren aus Juttas Zeichnung (`post-DaJH_kADpsK.jpg`, Ausschnitt) als
-// echte Linienzeichnung – Kontrollpunkte von Hand nach dem Foto nachgezeichnet (P9.12, statt potrace-Flächen). Links
-// die Frau mit langen Haaren und kariertem Kleid, rechts die kopfüber hängende Figur; das dicht gekritzelte Kleid nur
-// als Umriss mit wenigen parallelen Strichen. Koordinaten im Ausschnitt `crop` (sources.json) auf 400 Einheiten Breite.
+// Station „Zeichnungen“ (DESIGN §12.4): die zwei Figuren aus Juttas Zeichnung (`post-DaJH_kADpsK.jpg`) frei mit der
+// Handlinie neu gezeichnet (P9.12, kein Pausen): links die Frau mit langen Haaren, geschlossenen Augen, kariertem Kleid
+// und tätowierten Beinen bis zu den Zehen; rechts der Hund kopfüber, das Fell als lockeres Gekritzel (Schlaufen statt
+// Umriss), Kopf unten mit Schlappohr, Auge und Nase. Koordinaten im Bildraum der Vorlage (480 × 640 px).
 import type { Ink } from '../../../scripts/art/lib/handline'
-import { merge } from '../placeholders/_parts'
+import { dot, merge } from '../placeholders/_parts'
 
-const ink: Ink = merge({
+const woman: Ink = {
   strokes: [
-    // linke Figur: Haare
-    { d: 'M100 12C70 12 46 34 38 70C30 108 24 136 18 160', double: true },
-    'M100 12C128 12 146 40 150 80C152 108 150 128 146 146',
-    'M86 22C70 46 60 82 58 122',
-    'M122 22C136 44 142 82 138 130',
+    // Haare: lang, zu beiden Seiten, ein paar Strähnen
+    { d: 'M150 22C128 22 112 40 110 66C108 92 104 112 100 130', double: true },
+    'M150 22C176 20 196 36 202 62C206 86 208 104 213 122',
+    'M138 30C124 50 118 80 116 110',
+    'M166 28C180 46 188 74 191 102',
+    'M150 24C146 36 141 44 134 51',
     // Gesicht, geschlossene Augen, Nase, Mund
-    'M64 62C60 92 66 120 80 138C92 150 112 150 124 138C134 124 138 96 134 66',
-    'M76 62C82 66 90 66 96 62',
-    'M106 60C112 64 120 64 126 59',
-    'M101 70C98 76 99 80 104 82',
-    'M90 96C96 99 104 99 110 95',
-    // Schultern und Kleid
-    'M80 148C62 154 44 160 30 166',
-    'M124 144C142 150 158 156 172 160',
-    { d: 'M30 166C24 222 28 300 34 360C38 400 40 430 44 460', double: true },
-    'M172 160C176 222 178 300 176 360C174 400 178 432 180 460',
-    // Karo: ungleich, schief, nicht durchgezogen (wie mit der Hand gezogen)
-    'M62 172C56 240 60 330 66 412',
-    'M100 168C98 236 104 300 102 370C100 410 104 440 108 460',
-    'M138 166C142 230 138 300 144 380',
-    'M30 214C70 208 112 210 150 202',
-    'M60 262C100 256 140 258 176 250',
-    'M34 318C80 314 120 308 168 310',
-    'M44 372C90 366 136 364 176 360',
-    'M40 420C74 416 110 418 150 410',
-    // rechte Figur, kopfüber: Beine, Stange
-    'M212 0C210 40 208 80 206 122',
-    'M236 0C238 40 240 78 244 108',
-    'M290 0C298 28 304 54 310 76C340 80 370 78 400 76',
-    // Oberkörper (Kleid, dicht gekritzelt) als offener Umriss, Arm nach rechts oben mit Hand
-    { d: 'M206 122C198 170 196 236 202 298C206 322 212 338 222 350', double: true },
-    'M244 108C270 102 292 106 304 118C322 160 332 226 336 286C338 306 336 322 330 334',
-    'M304 116C332 110 356 104 378 104C392 102 398 112 392 120C384 128 370 128 360 126',
-    'M376 104C384 96 394 96 398 102',
-    'M310 150C330 144 350 140 368 130',
-    'M336 250C356 260 378 268 400 278',
-    // Kritzel nur als Akzent: lange, gleichgerichtete Striche
-    'M222 136C218 180 222 230 228 280',
-    'M240 128C236 176 242 224 246 274C248 290 252 304 256 314',
-    'M262 120C262 170 268 220 272 270',
-    'M284 124C288 172 292 222 296 274C298 290 300 304 304 314',
-    'M306 150C312 190 318 236 318 284',
-    'M232 196C246 210 262 230 274 252',
-    'M258 170C270 186 282 208 292 232',
-    // Kopf unten, umgedreht: Kinn oben, Nase unten rechts, geschlossenes Auge, Ohr
-    'M222 350C234 344 252 342 266 346C284 352 302 348 318 342C330 338 336 336 334 344',
-    'M222 350C214 368 224 388 246 396C266 402 288 400 308 398',
-    'M308 398C316 392 322 388 328 392C336 398 336 404 330 408C322 412 312 408 308 398',
-    'M334 344C344 358 344 376 336 390',
-    'M262 372C268 366 278 366 284 372',
-    'M246 362C250 358 256 360 256 366C256 372 248 374 244 370',
-    'M282 388C290 392 298 392 304 388',
-    // Haare hängen nach unten
-    'M226 396C220 420 224 440 226 462',
-    'M252 400C254 422 250 442 256 462',
+    'M128 52C124 76 130 100 146 110C160 116 176 108 182 92C186 78 184 62 180 50',
+    'M136 66C140 69 146 69 150 66',
+    'M160 64C164 67 170 67 174 63',
+    'M156 72C154 80 155 84 159 85',
+    'M148 95C153 98 160 97 165 93',
+    // Schultern, Kleid (schief, unten offen), Ärmel
+    'M140 113C130 119 116 123 106 129',
+    'M171 112C187 118 204 121 218 126',
+    { d: 'M106 129C102 190 104 262 110 336', double: true },
+    'M218 126C224 190 229 260 232 330',
+    'M110 336C150 343 196 339 232 330',
+    'M121 134C118 190 120 250 125 302',
+    'M206 132C212 190 214 250 214 302',
+    // Karo, von Hand gezogen und nicht durchgehend
+    'M141 132C138 200 143 270 140 336',
+    'M175 130C177 200 172 270 178 338',
+    'M108 170C146 165 186 168 222 161',
+    'M106 214C150 210 190 214 226 207',
+    'M109 258C150 255 196 258 228 251',
+    'M111 300C150 297 194 301 230 293',
+    // Beine bis zu den Füßen mit Zehen
+    'M127 339C124 380 126 430 128 470',
+    'M151 341C153 380 150 430 148 472',
+    'M179 341C176 380 178 430 180 476',
+    'M204 337C208 380 210 430 206 478',
+    'M128 470C122 482 117 494 124 500C132 505 141 501 146 496C150 488 150 480 148 472',
+    'M127 499L125 507',
+    'M135 501L135 509',
+    'M143 498L146 505',
+    'M180 476C176 490 178 504 188 510C198 514 210 508 214 500C214 492 210 484 206 478',
+    'M189 511L189 519',
+    'M199 511L201 518',
+    'M208 506L213 512',
+    // Tattoos auf den Beinen: Herzen, Kreuzchen, Vogel
+    'M136 360C131 352 123 356 127 364C129 368 134 372 137 377C139 371 144 367 146 362C148 355 140 352 137 358',
+    'M191 360C187 354 180 358 182 364C184 368 188 371 191 375C193 371 198 367 198 362C198 356 192 354 191 359',
+    'M134 400L143 408M143 400L134 408',
+    'M187 404L196 412M196 404L187 412',
+    'M129 432C133 427 137 427 140 431C142 427 146 427 150 431',
+    'M193 442C189 436 182 440 184 446C186 450 190 452 193 456C195 452 200 448 200 444C200 438 194 436 193 441',
   ],
-})
+}
 
-export default { ink, tilt: 0, viewBox: '0 0 400 462', strokeWidth: 2.6 }
+/**
+ * Gekritzel des Hundefells: Zeilen aus kleinen, schiefen Schlaufen (deterministisch aus Sinus-Werten, kein Zufall) –
+ * so wie Jutta Fell mit dem Fineliner „ausmalt“, ohne Fläche und ohne Umriss.
+ */
+function scribble(): string[] {
+  const out: string[] = []
+  for (let r = 0; r < 16; r++) {
+    const y = 102 + r * 9.5
+    const x0 = 250 + Math.round(Math.sin(r * 1.7) * 4)
+    const x1 = 338 - Math.abs(r - 7) * 3
+    let d = `M${x0} ${y}`
+    let x = x0
+    for (let k = 0; x < x1; k++) {
+      const w = 11 + Math.round(Math.sin(r * 2.3 + k * 1.1) * 4)
+      const h = 14 + Math.round(Math.cos(r * 1.3 + k * 0.7) * 4)
+      d += `C${x + w} ${y - h} ${x + w * 1.4} ${y + h * 0.6} ${x + w * 0.6} ${y + h * 0.4}`
+      x += w * 0.9
+    }
+    out.push(d)
+  }
+  for (let k = 0; k < 6; k++)
+    out.push(
+      `M${256 + k * 14} ${108 + k * 5}C${268 + k * 13} ${150 + k * 3} ${250 + k * 15} ${196} ${276 + k * 11} ${240 - k * 5}`,
+    )
+  return out
+}
+
+const dog: Ink = {
+  strokes: [
+    // Hinterbeine nach oben, Pfoten
+    'M269 98C266 76 266 56 270 40C272 31 280 30 283 38',
+    'M292 93C294 73 298 57 305 46C309 40 316 44 313 52',
+    // Fell: dichtes Gekritzel wie in der Vorlage (Zeilen aus kleinen Schlaufen, dazu schräge Gegenstriche), links eine
+    // offene Rückenkante
+    { d: 'M245 104C236 150 236 210 249 254', double: true },
+    ...scribble(),
+    // Vorderbeine nach rechts, Pfoten
+    'M332 113C352 107 370 103 384 101C391 101 393 109 387 113C374 117 358 119 341 125',
+    'M337 210C355 218 371 226 386 232C393 236 389 245 380 243C366 239 352 235 341 231',
+    // Kopf kopfüber: Hinterkopf, Schnauze, Schlappohr, Auge, Maul
+    'M254 254C250 270 257 285 273 293C291 301 312 299 329 301',
+    'M323 268C335 276 343 290 337 301',
+    'M262 251C252 237 245 229 243 239C241 249 249 259 258 263',
+    'M276 267C280 262 287 264 287 271C287 277 279 279 275 275',
+    'M300 287C308 291 316 291 322 287',
+  ],
+  dots: [dot(281, 271, 7, 6), dot(334, 297, 13, 10)],
+}
+
+const ink: Ink = merge(woman, dog)
+
+export default { ink, tilt: 0, viewBox: '96 14 312 510' }

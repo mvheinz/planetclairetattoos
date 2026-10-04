@@ -1,79 +1,51 @@
 {
-  "$comment": "Quellen der Stationszeichnungen (DESIGN §12.4, KUNST-QA AR-01). `vectorize`: pnpm art:vectorize (scripts/art/vectorize.ts) – crop in Prozent der Quelle (gilt für 640-px-Bild und Export-Original), channel luma|min, threshold 0–255 oder otsu, upscale-Faktor vor dem Schwellwert, potrace turdSize/alphaMax/optTolerance (Ausgabe mit ganzzahligen Koordinaten auf 400 Einheiten Breite; danach optTolerance in 0,1-Schritten erhöht, bis ≤ 8 KB); optional dense 0–1: dicht gekritzelte Flächen werden geschlossen. `derived`: Stationen ohne Vektorisierung – Eigenzeichnung, Sprite, Platzhalter-Stil und `traced` (P9.12: von Hand nach der Foto-Vorlage `reference` im Ausschnitt `crop` nachgezeichnete Linienzeichnung aus `content/art/stations/{id}.ts`; `threshold` für den Strichvergleich AR-02).",
-  "vectorize": [],
-  "derived": [
-    {
-      "id": "tattoo",
-      "from": "content/art/stations/tattoo.ts",
-      "kind": "traced",
-      "reference": "post-DbJ1QRrjCcb.jpg",
-      "crop": {
-        "x": 20,
-        "y": 15,
-        "w": 50,
-        "h": 78
-      },
-      "threshold": 100
-    },
-    {
-      "id": "keramik",
-      "from": "content/art/stations/keramik.ts",
-      "kind": "traced",
-      "reference": "post-DdUPhoZOoMW.jpg",
-      "crop": {
-        "x": 62,
-        "y": 27,
-        "w": 31,
-        "h": 24
-      },
-      "threshold": 80
-    },
-    {
-      "id": "textil",
-      "from": "content/art/stations/textil.ts",
-      "kind": "traced",
-      "reference": "post-DcT7ErBDsWi.jpg",
-      "crop": {
-        "x": 33,
-        "y": 28,
-        "w": 38,
-        "h": 35
-      },
-      "threshold": 60
-    },
-    {
-      "id": "zeichnungen",
-      "from": "content/art/stations/zeichnungen.ts",
-      "kind": "traced",
-      "reference": "post-DaJH_kADpsK.jpg",
-      "crop": {
-        "x": 20,
-        "y": 2,
-        "w": 60,
-        "h": 52
-      },
-      "threshold": 110
-    },
-    {
-      "id": "planet-claire",
-      "from": "src/art/planet.svg",
-      "kind": "planet-mark"
-    },
-    {
-      "id": "hallo",
-      "from": "src/art/coco/coco-sprite.svg#coco-sitzen-a (Sprite v2)",
-      "kind": "sprite"
-    },
-    {
-      "id": "schmuck",
-      "from": "content/art/stations/schmuck.ts",
-      "kind": "placeholder-style",
-      "reference": "post-Da2WrEgDpC_.jpg"
-    },
-    {
-      "id": "jutta-und-coco",
-      "from": "src/art/coco/coco-sprite.svg#coco-sitzen-a (Sprite v2) + src/art/planet.svg",
-      "kind": "sprite"
-    }
-  ]
+ "$comment": "Quellen der Stationszeichnungen (DESIGN §12.4, KUNST-QA AR-01). `vectorize`: pnpm art:vectorize (scripts/art/vectorize.ts) – crop in Prozent der Quelle (gilt für 640-px-Bild und Export-Original), channel luma|min, threshold 0–255 oder otsu, upscale-Faktor vor dem Schwellwert, potrace turdSize/alphaMax/optTolerance (Ausgabe mit ganzzahligen Koordinaten auf 400 Einheiten Breite; danach optTolerance in 0,1-Schritten erhöht, bis ≤ 8 KB); optional dense 0–1: dicht gekritzelte Flächen werden geschlossen. `derived`: Stationen ohne Vektorisierung – Eigenzeichnung, Sprite, Platzhalter-Stil und `drawn` (P9.12: frei mit der Handlinie neu gezeichnet nach dem Motiv der Vorlage `reference` aus `content/art/stations/{id}.ts`; einheitliche Strichstärke aller Stationen, kein Strichvergleich AR-02 – der gilt nur für vektorisierte Stationen).",
+ "vectorize": [],
+ "derived": [
+  {
+   "id": "tattoo",
+   "from": "content/art/stations/tattoo.ts",
+   "kind": "drawn",
+   "reference": "post-DbJ1QRrjCcb.jpg"
+  },
+  {
+   "id": "keramik",
+   "from": "content/art/stations/keramik.ts",
+   "kind": "drawn",
+   "reference": "post-DdUPhoZOoMW.jpg"
+  },
+  {
+   "id": "textil",
+   "from": "content/art/stations/textil.ts",
+   "kind": "drawn",
+   "reference": "post-DcT7ErBDsWi.jpg"
+  },
+  {
+   "id": "zeichnungen",
+   "from": "content/art/stations/zeichnungen.ts",
+   "kind": "drawn",
+   "reference": "post-DaJH_kADpsK.jpg"
+  },
+  {
+   "id": "planet-claire",
+   "from": "src/art/planet.svg",
+   "kind": "planet-mark"
+  },
+  {
+   "id": "hallo",
+   "from": "src/art/coco/coco-sprite.svg#coco-sitzen-a (Sprite v2)",
+   "kind": "sprite"
+  },
+  {
+   "id": "schmuck",
+   "from": "content/art/stations/schmuck.ts",
+   "kind": "placeholder-style",
+   "reference": "post-Da2WrEgDpC_.jpg"
+  },
+  {
+   "id": "jutta-und-coco",
+   "from": "src/art/coco/coco-sprite.svg#coco-sitzen-a (Sprite v2) + src/art/planet.svg",
+   "kind": "sprite"
+  }
+ ]
 }

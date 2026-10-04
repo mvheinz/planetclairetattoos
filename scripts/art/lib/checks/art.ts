@@ -578,7 +578,9 @@ export async function strokePair(
 export function ar02(pairs: readonly StrokePair[]): CheckResult {
   const th =
     'Median-Strichbreite Zeichnung 0,75–1,25 × Quelle; keine Klumpen > 2 % der Fläche, die in der Quelle offen sind'
-  if (!pairs.length) return noData('AR-02', th, 'keine vektorisierten Stationen mit Quelle')
+  // Seit P9.12 sind alle Stationen frei gezeichnet (`drawn`) – ohne vektorisierte Station gibt es nichts zu vergleichen.
+  if (!pairs.length)
+    return result('AR-02', true, 'keine vektorisierten Stationen (alle frei gezeichnet)', th, [])
   const bad: string[] = []
   const vals: string[] = []
   for (const p of pairs) {

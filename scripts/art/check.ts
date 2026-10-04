@@ -278,15 +278,9 @@ function lineCases(): line.LineCase[] {
 
 async function stationPairs(sources: art.SourcesJson): Promise<art.StrokePair[]> {
   const out: art.StrokePair[] = []
-  // vektorisierte Stationen und von Hand nachgezeichnete (`traced`, P9.12) gegen ihre Vorlage im selben Ausschnitt
-  const pairs = [
-    ...sources.vectorize,
-    ...sources.derived.flatMap((d) =>
-      d.kind === 'traced' && d.reference
-        ? [{ id: d.id, file: d.reference, crop: d.crop, threshold: d.threshold }]
-        : [],
-    ),
-  ]
+  // nur vektorisierte Stationen (KUNST-QA AR-02 „Strichtreue der Vektorisierung“); frei gezeichnete (`drawn`, P9.12)
+  // tragen die einheitliche Stations-Strichstärke
+  const pairs = sources.vectorize
   for (const v of pairs) {
     const file = path.join('content', 'seed', 'instagram', v.file)
     const svgFile = path.join('src', 'art', 'stations', `${v.id}.svg`)

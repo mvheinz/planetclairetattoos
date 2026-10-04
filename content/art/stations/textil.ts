@@ -59,4 +59,4 @@ const ink: Ink = merge({
   ],
 })
 
-export default { ink, tilt: 0, viewBox: '0 0 400 492', strokeWidth: 2.6 }
+export default { ink, tilt: 0, viewBox: '0 0 400 492' }
