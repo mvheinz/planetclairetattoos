@@ -19,3 +19,4 @@ Ablage laut KUNST-QA §8: je Iteration eine Datei `YYYY-MM-DD-iter-NN.md` (ab P9
 
 | Datum | Iteration | Commit | R1 | R2 | R3 | Link |
 |---|---|---|---|---|---|---|
+| 2026-10-04 | 01 | `d46596a` | FAIL | FAIL | FAIL | [Iteration 01](2026-10-04-iter-01.md) (Lauf `20261004-iter45-d46596a`, lokal; `art:check` 59/62 – Fremdlast) |

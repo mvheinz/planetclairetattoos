@@ -2,6 +2,15 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-04 – P9 (Arbeitsstand, nicht abgehakt: P9.12, P9.13, P9.17, P9.18)
+
+- P8-Stand übernommen (parallele Int-Worker, E2E-Shards, Test-Fixes); `pnpm check` grün, `PC_INT_WORKERS=3 pnpm test:int` 153/153 Dateien grün (ohne preview-export); visuelle Referenzen jetzt immer mit kanonischem SEED_NOW (`test:visual`), zwei Läufe 70/70.
+- Coco nach Juttas 5 Fotos: große aufrechte Ohren (Ohr/Kopf ≈ 0,68), kürzere Beine, buschigerer Schwanz, Nase/Maul mittig; Charakterblatt, Platzhalter, Stationen und OG-Bild neu. CO-01…CO-08 PASS (Lauf iter44/iter45).
+- Stationen keramik, tattoo, zeichnungen frei neu gezeichnet, einheitlich 2 px Strich; Platzhalter: Schraffur je Motiv verschieden, Hand und Wade lesbar.
+- Foto-Look: Gamma-Untergrenze 0,7 und Weißabgleich in zwei Durchgängen – IM-02 jetzt auch bei frischem Seed grün (σ 4,97).
+- Kunst-QA Iteration 01 (Lauf iter45): art:check 59/62 (PF-02/PF-04 unter Fremdlast, LQ-06 einmalig); Linsen R1/R2/R3 FAIL – R1: CO-09 4, AR-05 3, IM-04 3, LQ-08 3, AR-07 PASS; Details `docs/design/qa-log/2026-10-04-iter-01.md`.
+- Lighthouse (3 Durchläufe): LCP überall ≤ 2,1 s; TBT 86–275 ms, schwankt mit der Rechnerlast.
+
 ## 2026-10-04 – P9.16
 
 - Letztes offenes Kriterium Vorschau-Datei (KONZEPT §12.7 Nr. 5 und 7) im Arbeitsbaum mit eigener DB/Port belegt: pnpm preview:export (PREVIEW_EXPORT_DB_NAME=planetclaire_c_preview_export, Port 3250) → 164 Routen, 0 Warnungen; pnpm test:preview-export 32/32 grün (Nr. 5: Linie zeichnet beim Scrollen weiter, Coco bewegt sich; reduzierte Bewegung statisch; Nr. 7 und P3.16: „In den Korb“-Mikromoment, Schild-Schwingen ohne Anfragen)\n- MO-01…MO-04, MO-13…MO-15, RZ-01/02, A11Y-06 PASS in art:check (Lauf iter39); AK-DS-11/16 grün\n- Tests: pnpm test:preview-export (32), pnpm check
