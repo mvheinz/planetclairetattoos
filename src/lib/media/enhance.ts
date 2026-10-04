@@ -34,9 +34,16 @@ export interface EnhancePlan {
   medianL: number
   /** Anteil geclippter Pixel nach der Korrektur (L* ≥ 99 oder ≤ 1). */
   clipped: number
+  /** Papier-Scan (überwiegend helles, unbuntes Blatt): Weiß wird auf den Papierton gezogen (IM-04). */
+  paper?: boolean
   /** Es gibt nichts zu tun – die Datei bleibt unverändert. */
   noop: boolean
 }
+
+/** Papierton der Seite (`--paper` #F4EFE6): Scan-Weiß wird mit diesem Ton multipliziert, Tusche bleibt dunkel. */
+export const PAPER_RGB = [244, 239, 230] as const
+/** Ab diesem Anteil weißer (L* ≥ 96), unbunter (C* < 5) Pixel gilt ein Bild als Papier-Scan. */
+export const PAPER_MIN_SHARE = 0.25
 
 const lin = (c: number) => {
   const v = c / 255
@@ -68,10 +75,12 @@ export function buildLut(gain: number, gamma: number): Uint8Array {
 }
 
 export function buildLuts(plan: EnhancePlan): [Uint8Array, Uint8Array, Uint8Array] {
+  // Papier-Scan: Gamma 1 (Weiß nicht belichten), Verstärkung zieht Weiß auf den Papierton
+  const k = (c: 0 | 1 | 2) => (plan.paper ? PAPER_RGB[c] / 255 : 1)
   return [
-    buildLut(plan.gains[0], plan.gamma),
-    buildLut(plan.gains[1], plan.gamma),
-    buildLut(plan.gains[2], plan.gamma),
+    buildLut(plan.gains[0] * k(0), plan.paper ? 1 : plan.gamma),
+    buildLut(plan.gains[1] * k(1), plan.paper ? 1 : plan.gamma),
+    buildLut(plan.gains[2] * k(2), plan.paper ? 1 : plan.gamma),
   ]
 }
 
@@ -201,8 +210,11 @@ export function analyzeLook(
     gamma = 1 + (gamma - 1) / 2
     clipped = clipShare(gamma)
   }
-  const isNoop = gamma === 1 && gains.every((g) => Math.abs(g - 1) < 0.002)
-  return { gains, gamma, neutralShare, medianL, clipped, noop: isNoop }
+  let brightNeutral = 0
+  for (let p = 0; p < n; p++) if (valid[p] && L[p]! >= 96 && C[p]! < 5) brightNeutral++
+  const paper = brightNeutral / count >= PAPER_MIN_SHARE
+  const isNoop = !paper && gamma === 1 && gains.every((g) => Math.abs(g - 1) < 0.002)
+  return { gains, gamma, neutralShare, medianL, clipped, paper, noop: isNoop }
 }
 
 /** Wendet Tabellen auf RGB(A)-Rohdaten an (in place; Alpha bleibt). */

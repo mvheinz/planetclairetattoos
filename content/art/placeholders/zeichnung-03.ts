@@ -1,4 +1,4 @@
-// S25 Skizze „Fünf Hasen im Halbkreis“: Skizzenblatt A5 (Spiralbindung oben); fünf Hasen stehen im Halbkreis und
+// S25 Skizze „Drei Hasen im Halbkreis“: Skizzenblatt A5 (Spiralbindung oben); drei Hasen stehen im Halbkreis und
 // beraten.
 import type { Motif } from '../../../scripts/art/lib/handline'
 import { bunnyMini, merge, place } from './_parts'
@@ -15,11 +15,9 @@ const motif: Motif = {
         'M112 88C110 80 118 76 122 84M152 87C150 79 158 75 162 83M192 86C190 78 198 74 202 82M232 85C230 77 238 73 242 81M272 84C270 76 278 72 282 80',
       ],
     },
-    place(bunnyMini(), { x: 132, y: 352, s: 0.82, r: 8 }),
-    place(bunnyMini(0.8), { x: 158, y: 272, s: 0.7, r: 4 }),
-    place(bunnyMini(), { x: 206, y: 244, s: 0.66 }),
-    place(bunnyMini(0.8), { x: 254, y: 270, s: 0.7, r: -4, flip: true }),
-    place(bunnyMini(), { x: 280, y: 352, s: 0.82, r: -8, flip: true }),
+    place(bunnyMini(), { x: 140, y: 340, s: 0.86, r: 7 }),
+    place(bunnyMini(0.7), { x: 206, y: 262, s: 0.7, r: -2 }),
+    place(bunnyMini(0.9), { x: 272, y: 348, s: 0.78, r: -8, flip: true }),
   ),
   wash: 'M96 100C166 98 236 96 304 94C306 196 308 300 310 408C240 410 166 412 94 412C96 300 96 200 96 100Z',
 }

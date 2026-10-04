@@ -597,10 +597,10 @@ Alt DE „Platzhalter-Zeichnung: {Objekt}“, EN “Placeholder drawing: {object
 
 | seedKey | Wash | Motiv-Brief | Objekt DE / EN (für Alt) | Verwendet von |
 |---|---|---|---|---|
-| `ph:teller-01` | `--wash-clay` | Runder Teller schräg von oben (Ellipse), am Rand fünf kleine Hasen mit Kulleraugen hintereinander im Kreis, in der Mitte ein kleiner Planet mit Ring | Teller mit fünf Hasen im Kreis / plate with five bunnies in a circle | S07 |
+| `ph:teller-01` | `--wash-clay` | Runder Teller schräg von oben (Ellipse), am Rand drei kleine Hasen mit Kulleraugen hintereinander im Kreis, in der Mitte ein kleiner Planet mit Ring | Teller mit fünf Hasen im Kreis / plate with five bunnies in a circle | S07 |
 | `ph:teller-02` | `--wash-sky` | Kleiner Teller, ein Fuchs mit Kulleraugen liegt eingerollt in einer Mondsichel, drei 4-zackige Sterne | kleiner Teller mit Fuchs auf dem Mond / small plate with a fox on the moon | S08 |
 | `ph:fliese-01` | `--wash-mat` | Quadratische Fliese, leicht schräg; stehendes Reh mit Tupfen, von oben fallen 6–8 kleine Planeten wie Tropfen | Fliese mit Reh im Planetenregen / tile with a deer in planet rain | S09 |
-| `ph:shirt-01` | `--wash-sky` | T-Shirt flach liegend, auf der Brust vier Hasen in einer Reihe im Gleichschritt | T-Shirt mit vier marschierenden Hasen / T-shirt with four marching bunnies | S10 |
+| `ph:shirt-01` | `--wash-sky` | T-Shirt flach liegend, auf der Brust zwei Hasen im Gleichschritt | T-Shirt mit zwei marschierenden Hasen / T-shirt with two marching bunnies | S10 |
 | `ph:shirt-02` | `--wash-clay` | T-Shirt, Coco mit rundem Helm auf einer kleinen Rakete Richtung Mondsichel; an der linken Seitennaht ein gestopfter Fleck aus Kreuzstichen | T-Shirt mit Coco auf einer Rakete / T-shirt with Coco on a rocket | S11 |
 | `ph:shirt-03` | `--wash-pink` | Ringer-Shirt (Bündchen an Hals und Ärmeln als Doppelkontur), Fuchskopf mit Kulleraugen und Schnurrhaaren auf der Brust | Ringer-Shirt mit Fuchs / ringer tee with a fox | S12 |
 | `ph:kleid-01` | `--wash-mat` | Ärmelloses Sommerkleid auf einem Bügel, am Saum eine Bordüre aus Hasenköpfen im Wechsel mit Tupfen | Kleid mit Hasen-Bordüre / dress with a bunny border | S13 |
@@ -609,7 +609,7 @@ Alt DE „Platzhalter-Zeichnung: {Objekt}“, EN “Placeholder drawing: {object
 | `ph:cap-02` | `--wash-pink` | Cap von der Seite, kleiner Planet mit Ring und zwei Sterne | Cap mit kleinem Planeten / cap with a little planet | S18 |
 | `ph:zeichnung-01` | `--wash-sky` | Blatt mit Klebeband-Ecken; Coco sitzt auf einer Mondsichel und lässt die Beine baumeln | Zeichnung: Coco auf dem Mond / drawing: Coco on the moon | S23 |
 | `ph:zeichnung-02` | `--wash-pink` | Blatt; vierbeiniges Wesen mit Flammenmähne im Sprung (eigene Figur, verwandt mit der grauen Cap) | Zeichnung: Flammenwesen / drawing: flame creature | S24 |
-| `ph:zeichnung-03` | `--wash-mat` | Skizzenblatt A5; fünf Hasen stehen im Halbkreis und beraten | Skizze: fünf Hasen im Halbkreis / – (EN absichtlich leer, Test S25) | S25 |
+| `ph:zeichnung-03` | `--wash-mat` | Skizzenblatt A5; drei Hasen stehen im Halbkreis und beraten | Skizze: drei Hasen im Halbkreis / – (EN absichtlich leer, Test S25) | S25 |
 | `ph:anhaenger-01` | `--wash-pink` | Anhänger: Cocos Kopf mit einem Planetenring drumherum, Öse oben, ohne Kette | Anhänger Coco mit Planetenring / pendant Coco with a planet ring | S27 |
 | `ph:anhaenger-02` | `--wash-sky` | Mini-Planet mit Ring, Öse oben; daneben ein Streichholz als Größenvergleich | Mini-Planet-Anhänger / mini planet pendant | S28 |
 | `ph:anhaenger-03` | `--wash-clay` | Rehköpfchen mit großen Ohren und drei Tupfen auf der Stirn, Öse oben | Anhänger Rehköpfchen / little deer head pendant | S29 |

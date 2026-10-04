@@ -134,3 +134,20 @@ describe('Foto-Look (DESIGN §12.2 Schritte 4–6)', () => {
     expect(meta.exif).toBeUndefined()
   })
 })
+
+describe('IM-04 Papier-Scans', () => {
+  it('IM-04: weißer Scangrund wird auf den Papierton gezogen, Tusche bleibt dunkel; Fotos bleiben unberührt', () => {
+    const w = 40
+    const h = 40
+    const px = new Uint8Array(w * h * 3).fill(255)
+    for (let i = 0; i < 30; i++) px.fill(20, i * 3, i * 3 + 3) // ein paar Tuschepixel
+    const plan = analyzeLook(px, w, h, 3, 'drawing')
+    expect(plan.paper).toBe(true)
+    const luts = buildLuts(plan)
+    expect([luts[0][255], luts[1][255], luts[2][255]]).toEqual([244, 239, 230])
+    expect(luts[0][20]).toBeLessThan(30)
+    const photo = new Uint8Array(w * h * 3)
+    for (let i = 0; i < w * h; i++) photo.set([90, 120, 80], i * 3)
+    expect(analyzeLook(photo, w, h, 3).paper).toBe(false)
+  })
+})

@@ -8,10 +8,10 @@ import { dot, merge } from '../placeholders/_parts'
 /** Schräge Schraffur rechts im Kelch (≈ 40°), Strichlängen leicht unterschiedlich (deterministisch). */
 function shade(): string[] {
   const out: string[] = []
-  for (let j = 0; j < 7; j++) {
-    const y = 214 + j * 15
-    const xEnd = 286 - j * 6
-    for (let x = 246 + (j % 2) * 4; x < xEnd; x += 10) {
+  for (let j = 0; j < 4; j++) {
+    const y = 224 + j * 18
+    const xEnd = 282 - j * 6
+    for (let x = 246 + (j % 2) * 4; x < xEnd; x += 12) {
       const len = 9 + Math.round(Math.sin(j * 1.9 + x * 0.13) * 3)
       out.push(`M${x} ${y + len}L${x + len * 0.85} ${y}`)
     }

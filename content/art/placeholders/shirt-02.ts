@@ -6,7 +6,7 @@ import { cocoSitting, merge, moon, place, tshirt } from './_parts'
 /** Rakete waagerecht, Spitze rechts (Mitte), Länge ~200. */
 const rocket = {
   strokes: [
-    { d: 'M-80 -14C-40 -24 30 -24 60 -16', double: true },
+    'M-80 -14C-40 -24 30 -24 60 -16',
     'M60 -16C76 -12 88 -4 96 0C88 4 76 10 60 14',
     'M60 14C30 22 -40 22 -80 12',
     'M-80 -14C-84 -6 -84 4 -80 12',
@@ -30,11 +30,11 @@ const motif: Motif = {
         // Helm (runde Glaskugel um den Kopf)
         'M150 266C140 236 156 212 180 210C206 210 218 234 212 260C210 268 206 274 200 278',
         // gestopfter Fleck an der linken Seitennaht
-        'M116 330L124 338M124 330L116 338M116 346L124 354M124 346L116 354',
+        'M116 330L124 338M124 330L116 338',
       ],
     },
   ),
   wash: 'M170 126C200 136 214 134 230 126C262 132 296 140 322 154C332 174 338 192 342 208C326 214 310 216 296 214L296 396C236 402 170 402 116 396L116 214C102 218 86 216 60 208C66 190 72 172 80 156C108 140 140 132 170 126Z',
-  shadow: { x: 120, y: 426, w: 80, count: 6, len: 15 },
+  shadow: { x: 120, y: 426, w: 80, count: 5, len: 15 },
 }
 export default motif

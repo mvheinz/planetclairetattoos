@@ -1,15 +1,15 @@
-// S07 Teller „Hasen-Reigen“: runder Teller schräg von oben, am Rand fünf kleine Hasen mit Kulleraugen hintereinander
+// S07 Teller „Hasen-Reigen“: runder Teller schräg von oben, am Rand drei kleine Hasen mit Kulleraugen hintereinander
 // im Kreis, in der Mitte ein kleiner Planet mit Ring.
 import type { Motif } from '../../../scripts/art/lib/handline'
 import { bunnyHop, merge, place, planet } from './_parts'
 
 // Lage der Hasen auf dem Rand (Winkel in Grad); sie hoppeln einander nach, leicht zur Laufrichtung geneigt
-const rim = [-112, -40, 32, 104, 176].map((a, i) => {
+const rim = [-100, 20, 140].map((a, i) => {
   const t = (a * Math.PI) / 180
   return place(bunnyHop(), {
     x: 200 + 128 * Math.cos(t),
     y: 254 + 100 * Math.sin(t),
-    s: 0.96 + (i % 2) * 0.08,
+    s: [1.12, 0.92, 1.04][i],
     r: 22 * Math.cos(t),
     flip: Math.sin(t) < 0,
   })

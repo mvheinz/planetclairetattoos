@@ -332,7 +332,7 @@ export function handVary(ink: Ink, at: Place, amount = 1): Ink {
  * ({@link handVary}); `exact` setzt ihn unverändert (z. B. Zoom eines fertigen Motivs).
  */
 export function place(input: Ink, at: Place, exact = false): Ink {
-  const ink = exact ? input : handVary(input, at)
+  const ink = exact ? input : handVary(input, at, 1.5)
   const pp = (d: string) => placePath(d, at)
   return {
     strokes: ink.strokes.map((s) => (typeof s === 'string' ? pp(s) : { ...s, d: pp(s.d) })),
@@ -708,16 +708,29 @@ export interface RenderOptions {
   wash: WashName | null
 }
 
+/** Strichstärken-Gruppen (R1-03-01/02, „Linie gleichförmig“): dünn / normal / kräftig – je Strich bzw. Teilstrich. */
+export const WIDTH_CLASSES = [2.3, STROKE_WIDTH, 3.5] as const
+
+/** Gruppe 0–2 eines (Teil-)Strichs, deterministisch aus Seed und Laufnummer (55 % normal, 25 % dünn, 20 % kräftig). */
+export function widthClass(seed: number, i: number): 0 | 1 | 2 {
+  const r = mulberry32(seed ^ Math.imul(i + 1, 0x9e3779b1))()
+  return r < 0.25 ? 0 : r < 0.8 ? 1 : 2
+}
+
 function renderInk(
   ink: Ink,
   seed: number,
-): { strokes: string; dots: string; lights: string; harness: string } {
-  const strokes: string[] = []
-  ink.strokes.forEach((s, i) => strokes.push(...handStroke(s, seed + i * 104729, { press: true })))
+): { strokes: [string, string, string]; dots: string; lights: string; harness: string } {
+  const strokes: [string[], string[], string[]] = [[], [], []]
+  let n = 0
+  ink.strokes.forEach((s, i) => {
+    for (const piece of handStroke(s, seed + i * 104729, { press: true }))
+      strokes[widthClass(seed, n++)].push(piece)
+  })
   const blob = (list: string[] | undefined, salt: number) =>
     (list ?? []).map((d, i) => handBlob(d, seed + salt + i * 31, 0.45)).join('')
   return {
-    strokes: strokes.join(''),
+    strokes: [strokes[0].join(''), strokes[1].join(''), strokes[2].join('')],
     dots: blob(ink.dots, 11),
     lights: blob(ink.lights, 23),
     harness: blob(ink.harness, 37),
@@ -748,11 +761,16 @@ export function renderMotif(input: Motif, options: RenderOptions): string {
   if (harness) parts.push(`<path fill="${ART.harness}" d="${harness}"/>`)
   parts.push(
     `<g fill="none" stroke="${ART.ink}" stroke-width="${STROKE_WIDTH}" stroke-linecap="round" stroke-linejoin="round">`,
-    `<path d="${main.strokes}${shadow}"/>`,
+    `<path d="${main.strokes[1]}"/>`,
   )
-  // Druckstellen: dieselben Punkte, fester aufgedrückt (3.8 statt 2.8)
+  // Gruppen: dünn (Schatten-Schraffur als Akzent gehört dazu) und kräftig
+  if (main.strokes[0] || shadow)
+    parts.push(`<path stroke-width="${WIDTH_CLASSES[0]}" d="${main.strokes[0]}${shadow}"/>`)
+  if (main.strokes[2])
+    parts.push(`<path stroke-width="${WIDTH_CLASSES[2]}" d="${main.strokes[2]}"/>`)
+  // Tattoo-Teilzeichnung mit eigener Strichstärke (frisch kräftiger, verheilt feiner)
   if (inset && motif.inset)
-    parts.push(`<path stroke-width="${motif.inset.width}" d="${inset.strokes}"/>`)
+    parts.push(`<path stroke-width="${motif.inset.width}" d="${inset.strokes.join('')}"/>`)
   parts.push('</g>')
   if (dots) parts.push(`<path fill="${ART.ink}" d="${dots}"/>`)
   if (lights) parts.push(`<path fill="${ART.paper}" d="${lights}"/>`)
