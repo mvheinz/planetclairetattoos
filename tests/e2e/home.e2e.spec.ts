@@ -1,6 +1,9 @@
 import { expect, test, type Page } from '@playwright/test'
 
 import type { Locale } from '../../src/lib/routes/registry'
+import { offerState } from '../../src/lib/tattoo/offers'
+
+import { testPayload } from './fixtures'
 
 // P2.20 Startseite R01 (KONZEPT §3.1, DESIGN KO-21/§11.4): Kopf-Station „Planet Claire“ und genau 7 Stationen aus dem
 // Seed `pages:home` (AK-3-01, AK-SEED-18), ohne JavaScript vollständig lesbar, DE und EN vollständig, Linie zeichnet
@@ -238,7 +241,16 @@ test.describe('Startseite mit Beispielbestand (P8.17)', () => {
       const tattoo = page.locator('[data-home-station="tattoo"]')
       const offer = tattoo.locator('[data-offer-card]')
       await expect(offer).toHaveCount(1)
-      await expect(offer).toHaveAttribute('data-offer-state', 'running')
+      // Zustand gegen die echte Uhr: Der Beispielbestand liegt relativ zu `SEED_NOW` (CI fest 15.10.2026), der Server
+      // rechnet mit der aktuellen Zeit – „läuft“ gilt also nur, wenn beide nahe beieinander liegen.
+      const offerId = Number(await offer.getAttribute('data-offer-card'))
+      const stored = await (
+        await testPayload()
+      ).findByID({ collection: 'tattoo-offers', id: offerId, depth: 0, overrideAccess: true })
+      await expect(offer).toHaveAttribute(
+        'data-offer-state',
+        offerState({ startsAt: stored.startsAt, endsAt: stored.endsAt }, new Date()),
+      )
       await expect(offer.locator('[data-offer-date]')).toBeVisible()
       await expect(offer).toContainText(
         locale === 'de' ? 'Spontane Lücken: winzige Planeten' : 'Last-minute gaps: tiny planets',
