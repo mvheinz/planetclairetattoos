@@ -98,7 +98,7 @@
   --shadow-stencil: 3px 2px 0 0 var(--stencil);
 
   /* Coco */
-  --coco-leash: 42px;          /* Breite an der Leinenspitze */
+  --coco-leash: 56px;          /* Breite an der Leinenspitze */
   --coco-s: 40px;
   --coco-m: 72px;
   --coco-xl: 180px;
@@ -137,7 +137,7 @@
 }
 
 @media (min-width: 768px) {
-  :root { --page-pad: 24px; --header-h: 64px; --leash-w: 2.6px; --coco-leash: 64px; --coco-stroke: 1.8px; }
+  :root { --page-pad: 24px; --header-h: 64px; --leash-w: 2.6px; --coco-leash: 88px; --coco-stroke: 1.8px; }
 }
 @media (min-width: 1200px) {
   :root { --page-pad: 32px; }

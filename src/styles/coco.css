@@ -20,11 +20,11 @@
 }
 .coco[data-size='leash'] {
   --coco-w: var(--coco-leash);
-  --coco-sw: 6.1; /* 1,6 px bei 42 px Breite */
+  --coco-sw: 4.6; /* 1,6 px bei 56 px Breite */
 }
 @media (min-width: 768px) {
   .coco[data-size='leash'] {
-    --coco-sw: 4.5; /* 1,8 px bei 64 px Breite (tokens.css) */
+    --coco-sw: 3.3; /* 1,8 px bei 88 px Breite (tokens.css) */
   }
 }
 .coco[data-size='s'] {
