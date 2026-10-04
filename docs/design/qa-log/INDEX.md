@@ -13,6 +13,7 @@ Ablage laut KUNST-QA §8: je Iteration eine Datei `YYYY-MM-DD-iter-NN.md` (ab P9
 | Datum | Eintrag | Commit | Lauf |
 |---|---|---|---|
 | 2026-10-03 | [Basis-Lauf Aufnahme + Tempo-Messung SC-18](2026-10-03-basislauf-sc18.md) | `2991a2b` | `20261003-iter11-2991a2b` (lokal) |
+| 2026-10-04 | [Vollständige Aufnahme, `art:check` 62/62 grün (P9.17)](2026-10-04-p9-17-tempo.md) | `9953802` | `20261004-iter39-9953802` (lokal) |
 
 ## Iterationen (ab P9)
 

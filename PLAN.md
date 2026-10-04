@@ -4834,7 +4834,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: Erweiterung `tests/unit/art/sprite.unit.spec.ts` (Budgets, fps-Zuordnung).
   - Ohne Jutta: nach Charakterblatt. P11-Nacharbeit: siehe P9.8.
 
-- [ ] **P9.11 Lebendige Tuschelinie (Stufe A)** – Engine-Parameter innerhalb der DESIGN-Bereiche feinjustieren
+- [x] **P9.11 Lebendige Tuschelinie (Stufe A)** – Engine-Parameter innerhalb der DESIGN-Bereiche feinjustieren
   (§9.3 Schritte 6–9, §9.4, §9.5): Wackel-Amplituden je Breite, Breitenprofil mit Krümmungszuschlag im Band
   [0,8; 1,35] × Grundbreite, Federansatz (0,35 → 1 über 28 px) und Abheben (→ 0,45 über 18 px), Tintenpunkte an jedem
   Schlaufenstart, Schlaufen nie perfekt (Radius ±12 %, verkippte Ellipsen), nahtlose Segmente (2 px Überlappung), Stufe B
@@ -4872,7 +4872,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: `tests/unit/art/placeholders.unit.spec.ts` bleibt grün.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.14 Foto-Look-Pipeline (Weißabgleich, Belichtung, Schalter)** – DESIGN §12.2 Schritte 4–6 in
+- [x] **P9.14 Foto-Look-Pipeline (Weißabgleich, Belichtung, Schalter)** – DESIGN §12.2 Schritte 4–6 in
   `src/lib/media/enhance.ts` (rein, testbar): Neutralpunkt aus hellen, unbunten Pixeln (L* im oberen 5 %-Quantil und
   Chroma < 12 in Lab), Kanal-Verstärkung begrenzt auf [0,92; 1,08], kein Abgleich bei < 0,5 % geeigneten Pixeln,
   Kategorie `drawing` halbe Stärke; Belichtung: Median-L* des mittleren 60 %-Bereichs, Korrektur nur außerhalb 56–68 auf
@@ -4889,7 +4889,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: `tests/unit/media/enhance.unit.spec.ts`; `tests/int/media/regenerate.int.spec.ts`.
   - Ohne Jutta: mit Seed-Bildern. P11-Nacharbeit: –
 
-- [ ] **P9.15 Choreografie der Startseite (Preset `journey`)** – DESIGN §11.4 vollständig in `src/leash/coco.ts`,
+- [x] **P9.15 Choreografie der Startseite (Preset `journey`)** – DESIGN §11.4 vollständig in `src/leash/coco.ts`,
   `runtime.ts` und `presets.ts`: Stationen S0–S8 mit Ankern und Schlaufen (`orbit` um die Planet-Marke, `right`,
   `right` + `lasso` ab 1200 px, `left`, `spiral`, Ketten-Schlaufe mit Tintenperle, `contour`, `left`), Posen
   „Ankunft → Verweilen“ mit den Brücken aus §10.3, Verweil-Timer 1,2 s bzw. 1,5 s, Sprung-Sequenz Schmuck (415 ms ab

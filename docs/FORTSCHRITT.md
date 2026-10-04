@@ -2,6 +2,18 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-04 – P9.15
+
+- Choreografie journey (Stationen, Posen, Brücken, Intro) in coco.ts/runtime.ts/presets.ts\n- Lauf iter39: MO-04…MO-10 PASS in allen Profilen, LG-01 auf SC-01 leer, PF-01…PF-06 PASS\n- Tests: tests/unit/leash/choreo.unit.spec.tsx, tests/e2e/home-choreo.e2e.spec.ts (421 E2E grün, desktop + pixel-7)
+
+## 2026-10-04 – P9.14
+
+- Foto-Look-Pipeline (Weißabgleich, Belichtung, Schalter) in enhance.ts, media:regenerate idempotent\n- Lauf iter39: IM-01, IM-02 (σ Median-L* 3,28 über 9 Fotos), IM-05 PASS; Population und Papier-Anteil in OFFENE-PUNKTE\n- Tests: enhance.unit.spec.ts, regenerate.int.spec.ts
+
+## 2026-10-04 – P9.11
+
+- Engine-Parameter wie DESIGN, Randbahn-Routing und Stale-Linie in geometry.ts/runtime.ts; Engine 11 998 B gz (Budget 12 000 gehalten)\n- Lauf 20261004-iter39-9953802: LQ-01…LQ-06 und A11Y-05 PASS, PF-09/PF-12 PASS\n- Tests: tests/unit/leash/{ink,geometry,loops,routing}.unit.spec.ts, E2E leash/home-choreo grün
+
 ## 2026-10-03 – P9.11–P9.13 (Zwischenstand, noch nicht abgehakt)
 
 - Tuschelinie Stufe A: LQ-01…LQ-06 PASS (Lauf 20261003-iter23-a0f8bdc, LQ-06 11,7 L*), PF-09 Engine 11 759 B gz (Luft 241 B), PF-12 PASS (A → B), PF-04 Desktop max. 12,9 ms unter Fremdlast. Offen für P9.11: A11Y-05/LG-01 (Coco-Box über Text auf R01, kommt mit P9.15), PF-05 (R01 16 Layouts, R07 10: Countdown-Sekundentakt und nachgeladene Karten, nicht die Engine), PF-10 Startseite (siehe OFFENE-PUNKTE).
