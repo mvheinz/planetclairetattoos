@@ -1,4 +1,6 @@
-import { artTags, test } from './helpers/fixtures'
+import type { Page } from '@playwright/test'
+
+import { artTags, test, type ArtSession } from './helpers/fixtures'
 
 // SC-13 (KUNST-QA §4.3): `/de/qa/art` – Stationszeichnungen neben ihrer Quelle, Platzhalter, Weltraum-Motive, Wortmarke,
 // Favicon, OG-Bilder als Standbilder in 1× (Profil `art-desktop`) und 3× (zusätzlicher Kontext mit DPR 3).
@@ -25,4 +27,70 @@ test('SC-13 Zeichnungen und Motive', { tag: artTags(['art-desktop']) }, async ({
   } finally {
     await ctx.close()
   }
+
+  // Linsen-Material R1 (R1-02-05…07): Tuschelinie der Startseite 4× vergrößert – Segmentnähte (LQ-06), Schlaufenstarts
+  // mit Tintenpunkt (LQ-07) – und dieselben Stellen in Stufe B nach künstlicher Last (`?qa-jank=30`, LQ-09).
+  await art.goto('/de')
+  await leashLoupes(art, 'linie')
+  await art.goto('/de?qa-jank=30')
+  await art.scrollRun(2400, 700)
+  await art.scrollRun(0, 2400)
+  const tier = await art.page.evaluate(
+    () => (window as Window & { __leash?: { tier(): string } }).__leash?.tier() ?? null,
+  )
+  art.json('stufe-b', { tier })
+  await leashLoupes(art, `stufe-${(tier ?? 'x').toLowerCase()}`)
 })
+
+type LoupeWin = Window & {
+  __leash?: {
+    geometry: {
+      segments: { len0: number }[]
+      lut: ArrayLike<number>
+      stations: { id: string; loopLen0: number }[]
+    } | null
+    setReadingY(y: number | null): void
+  }
+}
+
+/** Seitenkoordinaten (CSS-px) der Linie bei Bogenlänge `len` (LUT je 4 px, relativ zur Linien-Ebene). */
+function linePoint(page: Page, len: number): Promise<{ x: number; y: number } | null> {
+  return page.evaluate((len) => {
+    const g = (window as LoupeWin).__leash?.geometry
+    const layer = document.querySelector('[data-leash-layer]')
+    if (!g || !layer) return null
+    const k = Math.min(g.lut.length / 4 - 1, Math.max(0, Math.round(len / 4)))
+    const r = layer.getBoundingClientRect()
+    return { x: r.left + scrollX + g.lut[k * 4 + 1]!, y: r.top + scrollY + g.lut[k * 4 + 2]! }
+  }, len)
+}
+
+/** 4×-Lupen (96 × 96 CSS-px) an den ersten drei Segmentnähten und an jedem Schlaufenstart; Linie ganz gezeichnet. */
+async function leashLoupes(art: ArtSession, prefix: string): Promise<void> {
+  const { page } = art
+  const spots = await page.evaluate(() => {
+    const w = window as LoupeWin
+    const g = w.__leash?.geometry
+    if (!g) return []
+    w.__leash!.setReadingY(1e7)
+    return [
+      ...g.segments.slice(1, 4).map((s, i) => ({ tag: `naht-${i + 1}`, len: s.len0 })),
+      ...g.stations.map((s) => ({ tag: `schlaufenstart-${s.id}`, len: s.loopLen0 })),
+    ]
+  })
+  const vh = page.viewportSize()!.height
+  const vw = page.viewportSize()!.width
+  for (const spot of spots) {
+    const p = await linePoint(page, spot.len)
+    if (!p) continue
+    await page.evaluate((y) => scrollTo(0, Math.max(0, y)), p.y - vh / 2)
+    const sy = await page.evaluate(() => scrollY)
+    const size = 96
+    const x = Math.min(vw - size, Math.max(0, p.x - size / 2))
+    const y = Math.min(vh - size, Math.max(0, p.y - sy - size / 2))
+    await art.settledFrame(`${prefix}-${spot.tag}-4x-y${Math.round(p.y)}`, {
+      zoom: { x, y, width: size, height: size, to: size * 4 },
+    })
+  }
+  await page.evaluate(() => (window as LoupeWin).__leash?.setReadingY(null))
+}
