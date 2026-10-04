@@ -474,6 +474,23 @@ function measure(args: ProbeArgs): Probe {
   }
 }
 
-export function probePage(page: Page, args: ProbeArgs): Promise<Probe> {
-  return page.evaluate(measure, args)
+const lcpSizes = new Map<string, number>()
+
+export async function probePage(page: Page, args: ProbeArgs): Promise<Probe> {
+  const probe = await page.evaluate(measure, args)
+  // IM-05: Fehlt der Resource-Timing-Eintrag (Cache, Puffer), die Größe der Datei beim Server nachfragen (je URL einmal).
+  if (probe.lcp?.url && probe.lcp.bytes === null) {
+    const url = probe.lcp.url
+    if (!lcpSizes.has(url)) {
+      try {
+        const res = await page.request.get(url)
+        const len = Number(res.headers()['content-length'] ?? (await res.body()).length)
+        if (Number.isFinite(len) && len > 0) lcpSizes.set(url, len)
+      } catch {
+        /* Größe bleibt unbekannt */
+      }
+    }
+    probe.lcp.bytes = lcpSizes.get(url) ?? null
+  }
+  return probe
 }

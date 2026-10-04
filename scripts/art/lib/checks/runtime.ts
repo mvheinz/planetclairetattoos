@@ -264,17 +264,19 @@ export function mo06(files: readonly ProbeFile[]): CheckResult {
 
 export function mo07(files: readonly ProbeFile[]): CheckResult {
   const th = 'nach Scrollstopp ≤ 400 ms bis Abstand < 1 px; beim Wischen nie > 300 px Rückstand'
-  const runs = extra<{ t: number; coco: number; drawn: number; scrolling: boolean }[]>(
-    files,
-    'mo07',
-    { sc: 'SC-01' },
-  )
+  const runs = extra<
+    { t: number; coco: number; drawn: number; target?: number; scrolling: boolean }[]
+  >(files, 'mo07', { sc: 'SC-01' })
   if (!runs.length) return noData('MO-07', th, 'keine Folge-Messung (SC-01 extra.mo07)')
   const bad: string[] = []
   const vals: string[] = []
   for (const { file, value } of runs) {
     if (!value.length) continue
-    const lag = Math.max(...value.filter((s) => s.scrolling).map((s) => s.drawn - s.coco), 0)
+    // Rückstand zum Ziel der Lesezeile (`target`); ältere Läufe ohne Feld: gezeichnete Länge.
+    const lag = Math.max(
+      ...value.filter((s) => s.scrolling).map((s) => Math.abs((s.target ?? s.drawn) - s.coco)),
+      0,
+    )
     const stop = value.filter((s) => s.scrolling).at(-1)?.t ?? 0
     const final = value.at(-1)!.coco
     let settle = 0
@@ -727,7 +729,9 @@ export function pf10(
     if (sprite.gz > 12_000) bad.push(`Sprite gz ${sprite.gz} B`)
   }
   const rows = entries(files)
-  const home = rows.filter((e) => routeOf(e.p.url)?.id === 'R01')
+  // Textgröße 200 % (LG-04, `font200-*`) macht die Seite ≈ 2× so lang, die Linie entsprechend länger – dort gilt
+  // das Budget nicht (OFFENE-PUNKTE P9.17); die Seite bei normaler Schrift muss darunter bleiben.
+  const home = rows.filter((e) => routeOf(e.p.url)?.id === 'R01' && !/^font200/.test(e.p.label))
   const homeMax = home.length ? Math.max(...home.map((e) => e.p.svg.bytes)) : null
   const pathMax = rows.length ? Math.max(...rows.map((e) => e.p.svg.pathBytes)) : null
   if (homeMax === null) bad.push('Startseite nicht gemessen')

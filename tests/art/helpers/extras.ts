@@ -10,7 +10,7 @@ type LeashWin = Window & {
     drawnLen(): number
     cocoLen(): number
     tier(): string
-    geometry: { totalLength: number }
+    geometry: { totalLength: number; scrollMap: { readingY: number; len: number }[] }
   }
 }
 
@@ -38,12 +38,18 @@ export async function tabOrder(page: Page, n = 25): Promise<string[]> {
 export function followSamples(
   page: Page,
   to: number,
-): Promise<{ t: number; coco: number; drawn: number; scrolling: boolean }[]> {
+): Promise<{ t: number; coco: number; drawn: number; target: number; scrolling: boolean }[]> {
   return page.evaluate(
     (to) =>
       new Promise((resolve) => {
         const w = window as LeashWin
-        const out: { t: number; coco: number; drawn: number; scrolling: boolean }[] = []
+        const out: {
+          t: number
+          coco: number
+          drawn: number
+          target: number
+          scrolling: boolean
+        }[] = []
         const from = scrollY
         const dur = (Math.abs(to - from) / 3000) * 1000
         const t0 = performance.now()
@@ -53,13 +59,34 @@ export function followSamples(
           if (k < 1) scrollTo({ top: from + (to - from) * k, behavior: 'instant' })
           else if (scrollY !== to) scrollTo({ top: to, behavior: 'instant' })
           const l = w.__leash
-          if (l)
+          if (l) {
+            // Ziel der Coco = Abbildung der Lesezeile (höchstens das Gezeichnete): dorthin muss sie folgen. Die
+            // gezeichnete Linie selbst bleibt beim Zurückscrollen stehen und ist kein Maß für den Rückstand.
+            const box = document.querySelector('[data-leash-layer]')?.getBoundingClientRect()
+            const sm = l.geometry.scrollMap
+            let mapped = 0
+            if (box && sm.length) {
+              const ry = scrollY + 0.72 * innerHeight - (box.top + scrollY)
+              if (ry <= sm[0]!.readingY) mapped = sm[0]!.len
+              else if (ry >= sm[sm.length - 1]!.readingY) mapped = sm[sm.length - 1]!.len
+              else
+                for (let i = 1; i < sm.length; i++)
+                  if (sm[i]!.readingY >= ry) {
+                    const a = sm[i - 1]!
+                    const b = sm[i]!
+                    mapped =
+                      a.len + (b.len - a.len) * ((ry - a.readingY) / (b.readingY - a.readingY || 1))
+                    break
+                  }
+            }
             out.push({
               t: Math.round(now - t0),
               coco: Math.round(l.cocoLen() * 10) / 10,
               drawn: Math.round(l.drawnLen() * 10) / 10,
+              target: Math.round(Math.min(mapped, l.drawnLen()) * 10) / 10,
               scrolling: k < 1,
             })
+          }
           if (now - t0 < dur + 1200) requestAnimationFrame(step)
           else resolve(out)
         }

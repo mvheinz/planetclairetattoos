@@ -20,6 +20,9 @@
 .titleLine {
   position: relative;
   height: 0;
+  /* Mansalva hat unter der Zeile eine große Unterlänge (Zeilenbox reicht ≈ 0,25 em unter den Block): der Start der
+     Linie liegt darunter, nicht in der Schrift (LG-01), und skaliert mit der H1. */
+  font-size: var(--fs-h1);
 }
 
 .lineStart,
@@ -30,12 +33,12 @@
 }
 
 .lineStart {
-  top: 2px;
+  top: 0.3em;
   left: 0;
 }
 
 .lineEnd {
-  top: 14px;
+  top: 0.55em;
   left: min(100%, 22rem);
 }
 
@@ -305,8 +308,8 @@
 }
 
 .juttaLabel {
-  font-family: var(--font-hand);
-  font-size: 1.5rem; /* Mansalva nie unter 24 px (DESIGN §4.3) */
+  /* Beschriftung, kein Titel: Mansalva ist dafür nicht vorgesehen (DESIGN §4.3 Nr. 1) */
+  font-weight: 600;
 }
 
 .juttaQuote {

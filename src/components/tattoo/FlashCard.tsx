@@ -84,7 +84,7 @@ export async function FlashCard({
       </Station>
       <div className={styles.flashBody}>
         <p className={styles.flashMeta}>
-          <span className={styles.flashNumber} data-flash-number="">
+          <span className={styles.flashNumber} data-flash-number="" data-stamp="">
             {flash.display}
           </span>
           <span className={styles.badge} data-flash-kind={flash.repeatable ? 'repeatable' : 'once'}>

@@ -43,8 +43,11 @@ export function mount(root: Element, ctx: BehaviorContext = { mode: 'app' }): Un
   const animations: Animation[] = []
   let played = false
   let observer: MutationObserver | null = null
+  let timer: number | null = null
 
   const stop = () => {
+    if (timer !== null) doc.defaultView?.clearTimeout(timer)
+    timer = null
     for (const a of animations.splice(0)) a.cancel()
     coco?.setAttribute('data-boil', 'off')
     coco?.removeAttribute('data-running')
@@ -87,10 +90,14 @@ export function mount(root: Element, ctx: BehaviorContext = { mode: 'app' }): Un
         { duration: RUN_MS, easing: 'linear', fill: 'none' },
       )
       animations.push(run)
-      run.onfinish = () => {
+      const finishRun = () => {
         coco.setAttribute('data-boil', 'off')
         coco.removeAttribute('data-running')
       }
+      // Ende doppelt abgesichert: `finish` fehlt, wenn die Animation von außen angehalten wird (QA-Takt, Tab im
+      // Hintergrund); der Boil darf nie länger als der Lauf (≤ 5 s, WCAG 2.2.2) weiterlaufen.
+      run.onfinish = finishRun
+      timer = doc.defaultView?.setTimeout(finishRun, RUN_MS) ?? null
     }
   }
 
