@@ -46,6 +46,20 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
       await readingFrame(art, b.y, `station${i + 1}-${b.tag}-y${Math.round(b.y)}`)
     await page.clock.runFor(1500)
     await art.settledFrame(`station${i + 1}-stay1500-y${Math.round(s.y + s.loopScroll)}`)
+    // Lupe auf Coco an der Leinenspitze (R2-01-02): Pose und Blickrichtung im Bogen lesbar, 4× vergrößert.
+    const box = await page.locator('.coco[data-leash-coco]').boundingBox()
+    const vh = page.viewportSize()!.height
+    if (box && !art.reduced && box.y >= 0 && box.y + box.height <= vh) {
+      const pad = 16
+      const vw = page.viewportSize()!.width
+      const x = Math.max(0, box.x - pad)
+      const y = Math.max(0, box.y - pad)
+      const width = Math.min(vw - x, box.width + 2 * pad)
+      const height = box.height + 2 * pad
+      await art.frame(`station${i + 1}-coco-lupe-y${Math.round(s.y + s.loopScroll)}`, {
+        zoom: { x, y, width, height, to: Math.round(width * 4) },
+      })
+    }
   }
   // (d) MO-06: 400 px zurück – Tinte bleibt.
   const mid = stations[Math.floor(stations.length / 2)]

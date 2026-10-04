@@ -50,7 +50,12 @@ export async function readingFrame(
     ({ readingY, line }) => {
       const layer = document.querySelector('[data-leash-layer]')
       const rootTop = layer ? layer.getBoundingClientRect().top + scrollY : 0
-      scrollTo(0, Math.max(0, readingY + rootTop - line * innerHeight))
+      // `instant`: die Seite scrollt sonst weich (`scroll-behavior: smooth`) und das Standbild zeigt eine
+      // Zwischenlage – Stationstext abgeschnitten, Kopfleiste versetzt (R3-01-04)
+      scrollTo({
+        top: Math.max(0, readingY + rootTop - line * innerHeight),
+        behavior: 'instant' as ScrollBehavior,
+      })
       const w = window as Window & {
         __leash?: { setReadingY(y: number | null): void }
         __artReadingY?: number | null

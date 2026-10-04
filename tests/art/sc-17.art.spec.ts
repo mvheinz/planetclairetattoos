@@ -9,7 +9,7 @@ test('SC-17 Erzwungene Farben', { tag: artTags(['art-pixel7']) }, async ({ art }
   await art.goto('/de')
   await art.settledFrame('forced-colors-top')
   const stations = await leashStations(page)
-  for (const [i, s] of stations.entries())
+  for (const s of stations)
     await readingFrame(
       art,
       s.y + s.loopScroll,
