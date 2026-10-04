@@ -89,7 +89,8 @@ function measure(args: ProbeArgs): Probe {
     }
     const drawn = L.drawnLen()
     const pts: number[] = []
-    for (let i = 0; i + 3 < g.lut.length; i += 4) {
+    // Veraltete (unsichtbare, `data-stale`) Linie liefert keine Punkte
+    for (let i = 0; i + 3 < g.lut.length && !layer.hasAttribute('data-stale'); i += 4) {
       const len = g.lut[i]!
       if (len > drawn) break
       const x = g.lut[i + 1]! + box.left
@@ -139,7 +140,7 @@ function measure(args: ProbeArgs): Probe {
     document.querySelector('[data-leash-layer] .coco, .coco[data-leash-coco]') ??
     document.querySelector('[data-leash-coco]')
   let coco: Probe['coco'] = null
-  if (cocoEl) {
+  if (cocoEl && !document.querySelector('[data-leash-layer][data-stale]')) {
     const r = cocoEl.getBoundingClientRect()
     if (r.width > 0)
       coco = {
@@ -177,7 +178,27 @@ function measure(args: ProbeArgs): Probe {
       if (srOnly(el, root)) continue
       const range = document.createRange()
       range.selectNodeContents(n)
-      for (const r of Array.from(range.getClientRects())) if (inView(r)) push4(text, r)
+      // Mansalva hat eine sehr hohe Zeilenbox (Ober-/Unterlänge der Schrift ≈ 0,5 em über/unter der Tinte): als Fläche
+      // zählt die Tinte (Oberkante der Versalien/Akzente, Unterkante der Unterlängen), nicht die leere Zeilenbox.
+      let up = 0
+      let down = 0
+      if (/mansalva/i.test(st.fontFamily)) {
+        const m = document.createElement('canvas').getContext('2d')
+        if (m) {
+          m.font = `${st.fontStyle} ${st.fontWeight} ${st.fontSize} ${st.fontFamily}`
+          const t = m.measureText('ÅÄgy')
+          up = Math.max(0, t.fontBoundingBoxAscent - t.actualBoundingBoxAscent)
+          down = Math.max(0, t.fontBoundingBoxDescent - t.actualBoundingBoxDescent)
+        }
+      }
+      for (const r of Array.from(range.getClientRects()))
+        if (inView(r))
+          push4(text, {
+            left: r.left,
+            top: r.top + up,
+            width: r.width,
+            height: Math.max(1, r.height - up - down),
+          } as DOMRect)
     }
   }
   const ctrl: number[] = []

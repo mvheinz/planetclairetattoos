@@ -20,9 +20,6 @@
 .titleLine {
   position: relative;
   height: 0;
-  /* Mansalva hat unter der Zeile eine große Unterlänge (Zeilenbox reicht ≈ 0,25 em unter den Block): der Start der
-     Linie liegt darunter, nicht in der Schrift (LG-01), und skaliert mit der H1. */
-  font-size: var(--fs-h1);
 }
 
 .lineStart,
@@ -33,12 +30,12 @@
 }
 
 .lineStart {
-  top: 0.3em;
+  top: 2px;
   left: 0;
 }
 
 .lineEnd {
-  top: 0.55em;
+  top: 14px;
   left: min(100%, 22rem);
 }
 
