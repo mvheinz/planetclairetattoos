@@ -19,9 +19,10 @@ jobs:
   quick:
     name: quick
     runs-on: ubuntu-latest
-    # 45 statt 30 min: Seit P5 dauern allein die Integrationstests ~21 min (Dateien laufen nacheinander gegen eine
-    # Test-DB); der ganze Job brauchte in P4 schon 27–29 min und lief in P5 in die 30-min-Grenze – GitHub meldet das
-    # als „cancelled“ (Läufe 36977115759, 36988931029, 36997806598, abgebrochen im E2E-Rauchtest).
+    # 45 statt 30 min: Seit P5 dauern die Integrationstests lang (P5 ~21 min, mit dem vollen Beispielbestand P8 > 40 min,
+    # Lauf 37167124034 brach im Schritt „Integrationstests“ ab). Deshalb laufen sie mit `PC_INT_WORKERS=3` parallel, je Worker
+    # eine Datenbankkopie (tests/int/setup/workers.ts); der ganze Job war in P4 schon 27–29 min lang und lief in P5 in die
+    # 30-min-Grenze – GitHub meldet das als „cancelled“ (Läufe 36977115759, 36988931029, 36997806598).
     timeout-minutes: 45
     services:
       postgres:
@@ -44,6 +45,7 @@ jobs:
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/planetclaire_test
       DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/planetclaire_test
       DB_POOL_MAX: '25'
+      PC_INT_WORKERS: '3'
       PAYLOAD_SECRET: ci-only-secret-not-used-anywhere-else-0000
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
       SEED_PREVIEW_MODE: 'true'

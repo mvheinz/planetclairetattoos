@@ -1150,7 +1150,7 @@ Artefakt `ci-report-<sha7>` mit `retention-days: 2` (§6.2).
 
 | Job | Inhalt | Gate |
 |---|---|---|
-| `e2e-full` | ab P3.16 Matrix je Playwright-Projekt `desktop`, `iphone-15` (WebKit), `pixel-7` (drei parallele Jobs, `fail-fast: false`): je Job ein Build (`NEXT_PUBLIC_LEASH_DEBUG=1`), dann das Projekt mit allen Tests außer `@visual`, `@perf`; enthält die Suiten `@a11y` (axe, §7.5) und `@privacy` (No-Cookie, No-Third-Party, §7.4 T-03/T-04). Grund: ~1 400 Tests bräuchten nacheinander mit einem Worker ~55 min (> `timeout-minutes: 40`) | alle grün |
+| `e2e-full` | ab P3.16 Matrix je Playwright-Projekt `desktop`, `iphone-15` (WebKit), `pixel-7` (je Projekt zwei Playwright-Hälften `--shard=1/2`/`2/2`, also sechs parallele Jobs, `fail-fast: false`): je Job ein Build (`NEXT_PUBLIC_LEASH_DEBUG=1`), dann das Projekt mit allen Tests außer `@visual`, `@perf`; enthält die Suiten `@a11y` (axe, §7.5) und `@privacy` (No-Cookie, No-Third-Party, §7.4 T-03/T-04). Grund: ~1 400 Tests bräuchten nacheinander mit einem Worker ~55 min (> `timeout-minutes: 40`) | alle grün |
 | `quality` | Produktions-Build **ohne** Debug-Schalter; `pnpm check:no-debug` (String `__leash` kommt im Build nicht vor, DESIGN §9.13); `pnpm test:visual` (Chromium, §7.6); `pnpm test:perf` (Lighthouse-CI, §7.7); `pnpm test:e2e --grep @perf --project=pixel-7` (INP-Ersatzmessung) | alle grün |
 | `docker` (ab P10) | `docker build` (Standalone, `BUILD_WITHOUT_DB=1`), `docker compose -f docker-compose.prod.yml up -d` mit Testwerten, warten auf `/api/health`, `GET /de` = 200, `down -v` (§13) | grün |
 | `snapshots` | nur bei `[ci:update-snapshots]` bzw. Dispatch mit `update_snapshots = true`: Produktions-Build ohne Debug-Schalter, `pnpm test:visual --update-snapshots` (ab P9 zusätzlich die Standbild-Referenzen aus `tests/art/`, KUNST-QA §8), Upload der Referenzordner als Artefakt `visual-snapshots-<sha7>` (`retention-days: 2`, Pflicht-Upload) | Upload vorhanden |
@@ -1361,7 +1361,7 @@ ab 1.500 Minuten `MINUTEN_STATUS=knapp`, ab 2.000 `erschoepft` und bei einem API
 | Ebene | Werkzeug | Dateien | Umgebung | Läuft in |
 |---|---|---|---|---|
 | Unit | Vitest (`vitest.unit.config.mts`, `environment: node`; Komponenten-Tests mit `jsdom` per Datei-Kommentar) | `tests/unit/**/*.unit.spec.ts` | ohne DB, ohne Netz, feste Uhr | lokal vor jedem Commit, `quick` |
-| Integration | Vitest (`vitest.config.mts`, `environment: node` seit P0), Payload Local API gegen Postgres | `tests/int/**/*.int.spec.ts` | `DATABASE_URL_TEST`, frisch migriert, `fileParallelism: false` | lokal, `quick` |
+| Integration | Vitest (`vitest.config.mts`, `environment: node` seit P0), Payload Local API gegen Postgres | `tests/int/**/*.int.spec.ts` | `DATABASE_URL_TEST`, frisch migriert, standardmäßig `fileParallelism: false`; mit `PC_INT_WORKERS=n` (CI: 3) laufen n Dateien parallel, je Worker eine Datenbankkopie `<name>_w<n>_test` und ein eigener Mail-Ausgang (`tests/int/setup/workers.ts`) | lokal, `quick` |
 | Kontrakt | Vitest | `tests/int/adapters/*.contract.int.spec.ts` | Mock immer; echte Treiber nur mit Zugang bzw. MinIO/Mailpit/stripe-mock | lokal, `quick` (Mocks) |
 | E2E | Playwright (`playwright.config.ts`) | `tests/e2e/**/*.e2e.spec.ts`, Tags `@smoke @a11y @privacy @perf @slow` | App mit Seed, `E2E_SERVER=dev` lokal / `start` in CI | lokal, `quick` (`@smoke`), `ci-full` |
 | Visuell | Playwright `toHaveScreenshot` | `tests/visual/*.visual.spec.ts` | Chromium, Linux-Referenzen | `ci-full` |

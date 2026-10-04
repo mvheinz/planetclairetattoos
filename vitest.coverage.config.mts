@@ -1,5 +1,7 @@
 import { defineConfig } from 'vitest/config'
 
+import { intWorkerCount } from './tests/int/setup/workers'
+
 // Abdeckung (ARCHITEKTUR §7.8, PLAN P4.25 / P10.1): Unit- und Integrationstests in einem Lauf (v8, zusammengeführt).
 // Aufruf über `pnpm test:coverage` (setzt die Test-DB vorher zurück wie `test:int`). Schwellen je Bereich: ab P4
 // `src/lib/commerce/**` und `src/lib/payments/**` ≥ 90 % Zeilen / ≥ 85 % Zweige; die übrigen Bereiche aus §7.8
@@ -14,8 +16,9 @@ export default defineConfig({
         test: { name: 'int', testTimeout: 120_000, hookTimeout: 180_000 },
       },
     ],
-    // Eine gemeinsame Test-Datenbank: Dateien nacheinander (wie `vitest.config.mts`).
-    fileParallelism: false,
+    // Wie `vitest.config.mts`: nacheinander, mit `PC_INT_WORKERS=n` parallel mit je eigener Datenbank.
+    fileParallelism: intWorkerCount() > 1,
+    maxWorkers: intWorkerCount(),
     coverage: {
       provider: 'v8',
       include: ['src/lib/**/*.{ts,tsx}'],

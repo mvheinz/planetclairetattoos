@@ -2,6 +2,17 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-04 – P8 CI-Fix nach rotem `[ci:full p8]` (Lauf 37167124027/37167124034)
+
+- Ursachen: (1) `quick`/`quality`: Integrationstests mit vollem Beispielbestand > 40 min (154 Dateien nacheinander, je Datei
+  ~5–8 s Start, Seed-Dateien 30–60 s, Export-Test 6,5 min) → Abbruch bei 45 min. (2) E2E `home` (Angebot „läuft“) und
+  `admin/today` (letzte Bestellungen): CI seedet mit festem `SEED_NOW` 15.10.2026, die echte Uhr stand auf 04.10. →
+  Angebot „kommt“, Seed-Bestellungen „neuer“ als die Test-Bestellung. (3) `e2e-full (iphone-15)` lief in die 40-min-Grenze.
+- Behoben: Tests rechnen gegen die echte Uhr; Int-Tests laufen in CI mit `PC_INT_WORKERS=3` (je Worker eigene
+  Datenbankkopie + Speicherordner); `e2e-full` je Projekt in zwei Playwright-Hälften.
+- Getestet: `pnpm check` grün; `PC_INT_WORKERS=3 pnpm test:int` 154/154 Dateien, 1017 Tests grün (auf stark ausgelasteter
+  Maschine 25 min); E2E `home` + `admin/today` (desktop, Produktions-Build mit Debug-Flag, SEED_NOW 15.10.2026) grün.
+
 ## 2026-10-04 – P8 Phasen-Abnahme (Beispielbestand) – für Jutta
 
 ### Phase 8 fertig: der Beispielbestand ist komplett

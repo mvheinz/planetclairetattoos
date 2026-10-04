@@ -6,6 +6,7 @@ import { spawnSync } from 'node:child_process'
 import 'dotenv/config'
 
 import { captureBaseline } from './baseline'
+import { createWorkerDatabases, createWorkerStorage, intWorkerCount } from './workers'
 
 export default async function setup(): Promise<void> {
   if (process.env.PC_DB_READY !== '1') {
@@ -18,4 +19,6 @@ export default async function setup(): Promise<void> {
   if (!url)
     throw new Error('DATABASE_URL_TEST fehlt – Int-Tests brauchen eine eigene Test-Datenbank.')
   await captureBaseline(url)
+  await createWorkerDatabases(url, intWorkerCount())
+  createWorkerStorage(intWorkerCount())
 }
