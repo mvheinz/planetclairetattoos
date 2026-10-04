@@ -13,6 +13,8 @@
 
 .title {
   margin: 0;
+  /* Abstand zur Randbahn der Linie (x ≈ 6–14 px): Mansalva ragt mit „S“/„&“ links über die Textkante (LG-01, P9.17) */
+  padding-inline-start: 6px;
   overflow-wrap: anywhere;
 }
 

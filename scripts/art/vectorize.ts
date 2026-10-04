@@ -264,6 +264,8 @@ const LINE_ATTRS =
  * viewBox-Einheiten wird so gewählt, dass sie dort {@link STATION_STROKE_PX} px ergibt – egal wie groß der Ausschnitt ist.
  */
 export const STATION_STROKE_PX = 2
+/** Stützpunkt-Abstand der Handlinie in Stationen (statt 14): spart Pfaddaten für das Startseiten-Budget (PF-10). */
+const STATION_MAX_STEP = 22
 export const STATION_BOX = { w: 208, h: 260 } as const
 
 export function stationStrokeWidth(viewBox: string, px = STATION_STROKE_PX): number {
@@ -317,7 +319,9 @@ export function lineStation(
   tilt = 0,
   opts: { viewBox?: string; strokeWidth?: number } = {},
 ): string {
-  const strokes = ink.strokes.flatMap((s, i) => handStroke(s, seed + i * 104729)).join('')
+  const strokes = ink.strokes
+    .flatMap((s, i) => handStroke(s, seed + i * 104729, { maxStep: STATION_MAX_STEP }))
+    .join('')
   const dots = (ink.dots ?? []).map((d, i) => handBlob(d, seed + 11 + i * 31, 0.45)).join('')
   const lights = (ink.lights ?? []).map((d, i) => handBlob(d, seed + 23 + i * 31, 0.45)).join('')
   const vb = opts.viewBox ?? '0 0 400 500'

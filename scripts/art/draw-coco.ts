@@ -153,22 +153,6 @@ function blob(c: P, rx: number, ry: number, tilt = 0, n = 6, bump = 0.08): P[] {
   })
 }
 
-/** Leicht herzförmige Nase (oben eine Kerbe), Breite `w` (DESIGN §10.1: 0,12 K). */
-function noseShape(c: P, w: number, tilt = 0): P[] {
-  const h = w * 0.78
-  const pts: P[] = [
-    [-0.5 * w, -0.2 * h],
-    [-0.28 * w, -0.5 * h],
-    [-0.02 * w, -0.32 * h],
-    [0.3 * w, -0.52 * h],
-    [0.5 * w, -0.12 * h],
-    [0.22 * w, 0.42 * h],
-    [-0.12 * w, 0.5 * h],
-    [-0.44 * w, 0.22 * h],
-  ]
-  return map({ x: c[0], y: c[1], rot: tilt }, pts)
-}
-
 /**
  * Dünnes Bein als Gelenkkette ab `pivot` (Winkel je Segment in Grad aus der Senkrechten, + = in Blickrichtung `face`),
  * gezeichnet als offene U-Form: hintere Kante hinunter, kleine Pfote nach vorn, vordere Kante hinauf (oben offen).
@@ -452,7 +436,7 @@ function sideHead(t: Tf, o: HeadOpts = {}): Stroke[] {
     s.map((st) => ({ ...st, pts: map(t, st.pts) })),
     'ear-r',
     apply(t, [-3.5, -12.5]),
-    0.86,
+    0.9,
   )
 }
 
@@ -963,11 +947,12 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
     {
       layer: 'line',
       part: 'snout',
+      // mittig unter der Nase (vorher nach rechts gezogen – wirkte wie ein Schnurrbart)
       pts: [
-        [2.8, 9.8],
-        [5.6, 12],
-        [10, 11.8],
-        [12.6, 9.6],
+        [-0.8, 10.8],
+        [2.2, 12.9],
+        [6.6, 12.7],
+        [10.2, 10.2],
       ],
       feature: 'hook',
       jitter: 0.5,
@@ -976,7 +961,7 @@ function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
       layer: 'solid',
       part: 'nose',
       // dicke, gefüllte Nase knapp unter und zwischen den Augen
-      pts: blob([3.2, 7], 2.7, 2.3, 6, 7),
+      pts: blob([3.2, 7.2], 3.2, 2.7, 4, 7),
       closed: true,
       jitter: 0.25,
     },

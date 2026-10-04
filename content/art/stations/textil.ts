@@ -59,4 +59,5 @@ const ink: Ink = merge({
   ],
 })
 
-export default { ink, tilt: 0, viewBox: '0 0 400 492' }
+const station = { ink, tilt: 0, viewBox: '0 0 400 492' }
+export default station

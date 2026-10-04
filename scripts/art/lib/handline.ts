@@ -368,10 +368,13 @@ export interface HandOptions {
   tremor?: number
   /** Druckstellen (Platzhalter, P9.13): lange Striche an einer Stelle noch einmal leicht versetzt nachgezogen. */
   press?: boolean
+  /** Größter Abstand der Stützpunkte (Einheiten); größer = weniger Pfaddaten (Stationen, PF-10). */
+  maxStep?: number
 }
 
 // P9.13: etwas mehr Zittern als in P8 – näher an Juttas Filzstift (ART-NOTES, `coco-oh-01.jpg`)
 const DEFAULT_HAND: Required<Omit<HandOptions, 'press'>> & { press: boolean } = {
+  maxStep: 14,
   wobble: 1.8,
   wave: 40,
   tremor: 0.9,
@@ -412,7 +415,7 @@ export function pointsToPath(pts: readonly Pt[], coarse = false): string {
 function wobbleLine(pts: readonly Pt[], seed: number, opts: typeof DEFAULT_HAND): string {
   const total = lengthOf(pts)
   if (total < 0.5) return ''
-  const step = Math.min(14, Math.max(2.6, total / 6))
+  const step = Math.min(opts.maxStep, Math.max(2.6, total / 6))
   const res = resample(pts, step)
   const lo = valueNoise1D(seed)
   const hi = valueNoise1D(seed ^ 0x5bd1e995)

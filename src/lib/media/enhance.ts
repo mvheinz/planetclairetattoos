@@ -14,7 +14,7 @@ export const NEUTRAL_MIN_SHARE = 0.005
 /** Belichtung: Ziel-Median und Toleranzband (L*), Gamma-Grenzen (Schritt 5). */
 export const EXPOSURE_TARGET = 62
 export const EXPOSURE_BAND = [56, 68] as const
-export const GAMMA_RANGE = [0.8, 1.25] as const
+export const GAMMA_RANGE = [0.7, 1.25] as const
 /** Mehr als dieser Anteil geclippter Pixel halbiert den Abstand von γ zu 1. */
 export const CLIP_LIMIT = 0.01
 

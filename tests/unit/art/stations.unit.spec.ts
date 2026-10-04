@@ -152,7 +152,11 @@ describe('P9.12 Stationen als Linienzeichnung (Juttas Stil: nur kleine Punkte ge
     const n = info.width * info.height
     const on = new Uint8Array(n)
     let filled = 0
-    for (let k = 0; k < n; k++) if (data[k]! < 128) ((on[k] = 1), filled++)
+    for (let k = 0; k < n; k++)
+      if (data[k]! < 128) {
+        on[k] = 1
+        filled++
+      }
     let largest = 0
     const seen = new Uint8Array(n)
     for (let k = 0; k < n; k++) {

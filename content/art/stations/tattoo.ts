@@ -61,4 +61,5 @@ const ink: Ink = merge({
   dots: [dot(265, 31, 8, 6)],
 })
 
-export default { ink, tilt: -2, viewBox: '60 0 300 500' }
+const station = { ink, tilt: -2, viewBox: '60 0 300 500' }
+export default station

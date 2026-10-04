@@ -63,10 +63,10 @@ const woman: Ink = {
  */
 function scribble(): string[] {
   const out: string[] = []
-  for (let r = 0; r < 16; r++) {
-    const y = 102 + r * 9.5
+  for (let r = 0; r < 11; r++) {
+    const y = 102 + r * 13.5
     const x0 = 250 + Math.round(Math.sin(r * 1.7) * 4)
-    const x1 = 338 - Math.abs(r - 7) * 3
+    const x1 = 338 - Math.abs(r - 5) * 4
     let d = `M${x0} ${y}`
     let x = x0
     for (let k = 0; x < x1; k++) {
@@ -77,9 +77,9 @@ function scribble(): string[] {
     }
     out.push(d)
   }
-  for (let k = 0; k < 6; k++)
+  for (let k = 0; k < 3; k++)
     out.push(
-      `M${256 + k * 14} ${108 + k * 5}C${268 + k * 13} ${150 + k * 3} ${250 + k * 15} ${196} ${276 + k * 11} ${240 - k * 5}`,
+      `M${258 + k * 26} ${108 + k * 5}C${270 + k * 24} ${150 + k * 3} ${252 + k * 26} ${196} ${278 + k * 22} ${240 - k * 5}`,
     )
   return out
 }
@@ -108,4 +108,5 @@ const dog: Ink = {
 
 const ink: Ink = merge(woman, dog)
 
-export default { ink, tilt: 0, viewBox: '96 14 312 510' }
+const station = { ink, tilt: 0, viewBox: '96 14 312 510' }
+export default station

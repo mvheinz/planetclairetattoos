@@ -29,4 +29,5 @@ const ink: Ink = merge({
   dots: [dot(172, 162, 8, 7), dot(199, 151, 8, 7), dot(127, 231, 15, 12)],
 })
 
-export default { ink, tilt: 2, viewBox: '0 0 400 500' }
+const station = { ink, tilt: 2, viewBox: '0 0 400 500' }
+export default station
