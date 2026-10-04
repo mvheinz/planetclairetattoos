@@ -28,14 +28,14 @@ export const SPACE: Readonly<Record<string, SpaceMotif>> = {
       ],
     },
   },
-  // 4-zackiger Funkel-Stern: eingezogene Seiten, eine Spitze länger
+  // 4-zackiger Funkel-Stern: eingezogene Seiten, Arme ungleich lang und leicht gebogen (von Hand, R1-01-05)
   'star-4': {
     viewBox: '0 0 60 60',
     strokeWidth: 2.8,
     ink: {
       strokes: [
         {
-          d: 'M30 4C32 18 36 24 54 28C38 32 33 37 31 56C28 38 24 33 6 31C22 27 27 21 30 4',
+          d: 'M31 3C32 17 37 23 55 25C40 31 34 36 29 57C28 39 23 34 8 32C21 26 26 20 29 6',
           exact: true,
         },
       ],
@@ -66,19 +66,20 @@ export const SPACE: Readonly<Record<string, SpaceMotif>> = {
       ],
     },
   },
-  // gestrichelte Umlaufbahn: Ellipse aus kurzen, ungleichen Strichen, leicht gekippt
+  // gestrichelte Umlaufbahn: Ellipse aus ungleich langen Strichen mit ungleichen Lücken, leicht gekippt und
+  // nicht ganz geschlossen (von Hand, R1-01-05)
   orbit: {
     viewBox: '0 0 160 70',
     strokeWidth: 3,
     ink: {
       strokes: [
-        { d: 'M10 38C10 30 16 24 26 20', exact: true },
-        { d: 'M38 15C48 12 60 10 72 10', exact: true },
-        { d: 'M86 10C98 11 110 13 120 16', exact: true },
-        { d: 'M132 21C142 26 150 31 150 37', exact: true },
-        { d: 'M146 45C138 52 126 56 112 58', exact: true },
-        { d: 'M96 60C84 61 72 61 60 60', exact: true },
-        { d: 'M44 57C32 55 20 51 13 45', exact: true },
+        { d: 'M12 40C9 31 15 25 25 20', exact: true },
+        { d: 'M35 16C44 13 52 11 63 10', exact: true },
+        { d: 'M80 9C96 10 104 12 112 14', exact: true },
+        { d: 'M126 19C139 24 148 30 151 38', exact: true },
+        { d: 'M148 46C141 51 132 54 121 57', exact: true },
+        { d: 'M103 60C90 62 82 62 70 61', exact: true },
+        { d: 'M50 59C38 57 26 53 17 47', exact: true },
       ],
     },
   },
@@ -96,35 +97,31 @@ export const SPACE: Readonly<Record<string, SpaceMotif>> = {
       dots: [dot(34, 46, 5, 4), dot(60, 48, 5, 4), dot(86, 46, 5, 4)],
     },
   },
-  // Morse-Leiste „CLAIRE“ (−·−· ·−·· ·− ·· ·−· ·): Striche als kurze Linien, Punkte als kleine Tupfer
+  // Morse-Leiste „CLAIRE“ (−·−· ·−·· ·− ·· ·−· ·): kräftige Striche und deutliche Tupfer, zwischen den Buchstaben
+  // doppelter Abstand – auch klein lesbar (R1-01-05)
   'morse-claire': {
-    viewBox: '0 0 420 24',
-    strokeWidth: 3,
+    viewBox: '0 0 421 40',
+    strokeWidth: 6,
     ink: {
       strokes: [
-        { d: 'M6 12L24 12', exact: true },
-        { d: 'M40 12L58 12', exact: true },
-        { d: 'M106 12L124 11', exact: true },
-        { d: 'M190 12L208 12', exact: true },
-        { d: 'M296 12L314 13', exact: true },
+        { d: 'M6 19.4L28 20.6', exact: true },
+        { d: 'M53 20L75 20', exact: true },
+        { d: 'M130 20.6L152 19.4', exact: true },
+        { d: 'M223 19.4L245 20.6', exact: true },
+        { d: 'M330 20L352 20', exact: true },
       ],
       dots: [
-        dot(32, 12, 4.4, 3.8),
-        dot(66, 12, 4.4, 3.8),
-        // ·−··
-        dot(96, 12, 4.4, 3.8),
-        dot(132, 12, 4.4, 3.8),
-        dot(142, 12, 4.4, 3.8),
-        // ·−
-        dot(180, 12, 4.4, 3.8),
-        // ··
-        dot(236, 12, 4.4, 3.8),
-        dot(246, 12, 4.4, 3.8),
-        // ·−·
-        dot(286, 12, 4.4, 3.8),
-        dot(322, 12, 4.4, 3.8),
-        // ·
-        dot(362, 12, 4.4, 3.8),
+        dot(40.5, 20, 8, 7),
+        dot(87.5, 20, 8, 7),
+        dot(117.5, 20, 8, 7),
+        dot(164.5, 20, 8, 7),
+        dot(180.5, 20, 8, 7),
+        dot(210.5, 20, 8, 7),
+        dot(271.5, 20, 8, 7),
+        dot(287.5, 20, 8, 7),
+        dot(317.5, 20, 8, 7),
+        dot(364.5, 20, 8, 7),
+        dot(394.5, 20, 8, 7),
       ],
     },
   },

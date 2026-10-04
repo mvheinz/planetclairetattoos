@@ -50,7 +50,7 @@ export function zoomMotif(motif: Motif): Motif {
   const at: Place = { x: 200 * (1 - z), y: 250 * (1 - z), s: z }
   return {
     ...motif,
-    ...place(motif, at),
+    ...place(motif, at, true),
     wash: motif.wash ? placePath(motif.wash, at) : undefined,
     shadow: motif.shadow && {
       ...motif.shadow,
@@ -58,7 +58,7 @@ export function zoomMotif(motif: Motif): Motif {
       y: motif.shadow.y * z + 250 * (1 - z),
       w: motif.shadow.w * z,
     },
-    inset: motif.inset && { ...motif.inset, ink: place(motif.inset.ink, at) },
+    inset: motif.inset && { ...motif.inset, ink: place(motif.inset.ink, at, true) },
     zoom: 1,
   }
 }
@@ -233,8 +233,106 @@ export function placePath(d: string, at: Place): string {
   )
 }
 
-/** Baustein an eine Stelle setzen (alle Striche, Punkte, Glanzpunkte). */
-export function place(ink: Ink, at: Place): Ink {
+/** Punkte eines Pfads in eigenen Koordinaten verformen (für `handVary`). */
+function mapPath(d: string, m: (p: Pt) => Pt): string {
+  return serializePath(
+    parsePath(d).map((s): Seg => {
+      switch (s.k) {
+        case 'M':
+          return { k: 'M', p: m(s.p) }
+        case 'L':
+          return { k: 'L', p: m(s.p) }
+        case 'Q':
+          return { k: 'Q', c: m(s.c), p: m(s.p) }
+        case 'C':
+          return { k: 'C', c1: m(s.c1), c2: m(s.c2), p: m(s.p) }
+        case 'Z':
+          return s
+      }
+    }),
+  )
+}
+
+/**
+ * Jede Kopie von Hand neu gezeichnet (Kunst-QA R1-01-02, „kopierte Hasen“): ein Baustein wird vor dem Setzen sanft
+ * verformt – Breite/Höhe ±6 %, leichte Scherung und eine weiche Welle (≈ 3,5 % der Größe) über die ganze Figur, so
+ * dass Ohren, Köpfe und Kreise bei jeder Kopie etwas anders ausfallen, die Figur aber zusammenhängend bleibt.
+ * Deterministisch je Lage (`at`) – gleiche Eingabe, gleiches SVG.
+ */
+export function handVary(ink: Ink, at: Place, amount = 1): Ink {
+  const all = [
+    ...ink.strokes.map((s) => (typeof s === 'string' ? s : s.d)),
+    ...(ink.dots ?? []),
+    ...(ink.harness ?? []),
+  ]
+  let x0 = Infinity
+  let y0 = Infinity
+  let x1 = -Infinity
+  let y1 = -Infinity
+  for (const d of all)
+    for (const sub of sample(d))
+      for (const [x, y] of sub) {
+        x0 = Math.min(x0, x)
+        y0 = Math.min(y0, y)
+        x1 = Math.max(x1, x)
+        y1 = Math.max(y1, y)
+      }
+  if (!Number.isFinite(x0)) return ink
+  const w = Math.max(1e-6, x1 - x0)
+  const h = Math.max(1e-6, y1 - y0)
+  const size = Math.max(w, h)
+  const rand = mulberry32(
+    fnv1a32(
+      `${f1(at.x ?? 0)}|${f1(at.y ?? 0)}|${f1(at.s ?? 1)}|${f1(at.r ?? 0)}|${at.flip ? 1 : 0}|${f1(w)}|${f1(h)}`,
+    ),
+  )
+  // große Motive (Schmetterling, Planet über die ganze Kachel) weniger, damit nichts aus dem Bild läuft
+  const placed = size * (at.s ?? 1)
+  amount *= Math.min(1, 170 / placed)
+  const sx = 1 + (rand() - 0.5) * 0.12 * amount
+  const sy = 1 + (rand() - 0.5) * 0.12 * amount
+  const shear = (rand() - 0.5) * 0.12 * amount
+  const amp = 0.035 * size * amount
+  const f1x = 0.6 + rand() * 0.7
+  const f1y = 0.6 + rand() * 0.7
+  const ph = [rand(), rand(), rand(), rand()].map((v) => v * Math.PI * 2) as [
+    number,
+    number,
+    number,
+    number,
+  ]
+  const cx = (x0 + x1) / 2
+  const cy = (y0 + y1) / 2
+  const m = (p: Pt): Pt => {
+    const u = (p[0] - x0) / size
+    const v = (p[1] - y0) / size
+    const dx =
+      amp *
+      (0.6 * Math.sin(Math.PI * 2 * f1y * v + ph[0]) +
+        0.4 * Math.sin(Math.PI * 2 * f1x * u + ph[1]))
+    const dy =
+      amp *
+      (0.6 * Math.sin(Math.PI * 2 * f1x * u + ph[2]) +
+        0.4 * Math.sin(Math.PI * 2 * f1y * v + ph[3]))
+    const lx = (p[0] - cx) * sx + (p[1] - cy) * shear
+    const ly = (p[1] - cy) * sy
+    return [cx + lx + dx, cy + ly + dy]
+  }
+  const mp = (d: string) => mapPath(d, m)
+  return {
+    strokes: ink.strokes.map((s) => (typeof s === 'string' ? mp(s) : { ...s, d: mp(s.d) })),
+    dots: ink.dots?.map(mp),
+    lights: ink.lights?.map(mp),
+    harness: ink.harness?.map(mp),
+  }
+}
+
+/**
+ * Baustein an eine Stelle setzen (alle Striche, Punkte, Glanzpunkte). Standard: vorher von Hand variiert
+ * ({@link handVary}); `exact` setzt ihn unverändert (z. B. Zoom eines fertigen Motivs).
+ */
+export function place(input: Ink, at: Place, exact = false): Ink {
+  const ink = exact ? input : handVary(input, at)
   const pp = (d: string) => placePath(d, at)
   return {
     strokes: ink.strokes.map((s) => (typeof s === 'string' ? pp(s) : { ...s, d: pp(s.d) })),
@@ -435,11 +533,12 @@ function wobbleLine(pts: readonly Pt[], seed: number, opts: typeof DEFAULT_HAND)
   let press = ''
   if (opts.press && total > 70 && out.length > 6) {
     const r = mulberry32(seed ^ 0x51ed270b)
-    if (r() < 0.5) {
+    // P9.18 (R1-01-02): öfter und unterschiedlich fest aufgedrückt (Versatz 0,6–1,3 statt fest 0,8)
+    if (r() < 0.78) {
       const n = out.length
-      const len = Math.max(3, Math.round(n * (0.2 + r() * 0.15)))
+      const len = Math.max(3, Math.round(n * (0.16 + r() * 0.2)))
       const at = Math.floor(r() * (n - len))
-      const side = r() < 0.5 ? 0.8 : -0.8
+      const side = (r() < 0.5 ? 1 : -1) * (0.6 + r() * 0.7)
       const part = out.slice(at, at + len + 1)
       press = pointsToPath(
         part.map((q, i) => {
@@ -574,7 +673,25 @@ export function washPath(d: string, seed: number): { d: string; dx: number; dy: 
   const rand = mulberry32(seed)
   const dx = 3 + rand()
   const dy = 3 + rand()
-  return { d: placePath(handBlob(d, seed + 1, 5), { x: dx, y: dy }), dx, dy }
+  // P9.18 (R1, „mehr Papier“): der Wash deckt die Form nicht ganz, sondern sitzt etwas kleiner und schief darin –
+  // wie ein schneller Pinselzug; oben links bleibt Papier stehen.
+  const blob = handBlob(d, seed + 1, 5)
+  let x0 = Infinity
+  let y0 = Infinity
+  let x1 = -Infinity
+  let y1 = -Infinity
+  for (const sub of sample(blob))
+    for (const [x, y] of sub) {
+      x0 = Math.min(x0, x)
+      y0 = Math.min(y0, y)
+      x1 = Math.max(x1, x)
+      y1 = Math.max(y1, y)
+    }
+  const k = 0.9 + rand() * 0.04
+  const cx = (x0 + x1) / 2
+  const cy = (y0 + y1) / 2
+  const shrunk = placePath(blob, { x: cx * (1 - k), y: cy * (1 - k), s: k })
+  return { d: placePath(shrunk, { x: dx + 2, y: dy + 2 }), dx, dy }
 }
 
 // ---------------------------------------------------------------------------------------------------------------
