@@ -22,7 +22,8 @@ import {
 } from '../int/helpers/products'
 
 // Gemeinsame E2E-Fixtures (ARCHITEKTUR §7.2, PLAN P1.31):
-// - `foreignRequests`: blockiert jede Anfrage an fremde Hosts per `context.route` und protokolliert sie (T-04, R-130).
+// - `foreignRequests`: blockiert jede Anfrage an fremde Hosts per `context.route` und protokolliert sie (T-04, R-130);
+//   unter WebKit nur protokolliert (Route-Abfangen verliert dort Upload-Inhalte, siehe unten).
 // - `adminPage`: angemeldete Seite der Verwaltung mit dem Grund-Seed-Admin (SEED_ADMIN_EMAIL/SEED_ADMIN_PASSWORD).
 // - `fixtureProducts`: Stücke im Nummernbereich 980–999 (`seed: true`, Local API), je Playwright-Projekt ein eigener
 //   Block, damit parallele Projekte sich nicht in die Quere kommen; nach jedem Test entfernt. Listen-Tests, die den
@@ -89,15 +90,24 @@ interface Fixtures {
 
 export const test = base.extend<Fixtures>({
   foreignRequests: [
-    async ({ context }, provide) => {
+    async ({ context, browserName }, provide) => {
       const blocked: string[] = []
-      await context.route(
-        (url) => isForeignUrl(url.toString()),
-        async (route) => {
-          blocked.push(route.request().url())
-          await route.abort('blockedbyclient')
-        },
-      )
+      if (browserName === 'webkit') {
+        // WebKit: Sobald eine Route aktiv ist, fängt Playwright jede Anfrage ab und verliert dabei gelegentlich den
+        // Blob-Inhalt von FormData-Uploads (Auftragsarbeiten-Bilder kamen leer an → 400). Deshalb hier nur beobachten
+        // und protokollieren; die Prüfungen auf `foreignRequests` schlagen genauso an.
+        context.on('request', (request) => {
+          if (isForeignUrl(request.url())) blocked.push(request.url())
+        })
+      } else {
+        await context.route(
+          (url) => isForeignUrl(url.toString()),
+          async (route) => {
+            blocked.push(route.request().url())
+            await route.abort('blockedbyclient')
+          },
+        )
+      }
       context.on('page', (page) =>
         page.on('websocket', (ws) => {
           if (isForeignUrl(ws.url())) blocked.push(ws.url())

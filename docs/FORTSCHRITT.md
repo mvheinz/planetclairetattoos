@@ -76,6 +76,165 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 
 - QA-Modus `ART_QA` (`artQaActive`, Startregel: in Produktion Abbruch), QA-Seiten `/{locale}/qa/{coco,art,motion,leash,error}` (dynamisch, sonst 404, noindex, nicht in Registry/Sitemap/robots/Vorschau-Export)\n- Query-Schalter `?leash=off` (kein Engine-/Coco-Chunk), `?freeze=1`, `?qa-jank=30` nur mit Server-Marke `pc-art-qa` (`src/lib/qa/switches.ts`, `QaRuntime`); `/qa/motion` spielt MI-01…16 mit Produkt-Komponenten und -Modulen (`QaReplay`, Modus preview)\n- `check:no-debug`: Marker nur als eigener Bezeichner (CSS-Modul-Klassen wie `…__leashEnd` lösten fälschlich aus)\n- Tests: tests/unit/qa/qa-mode.unit.spec.ts (11), tests/e2e/qa-mode.e2e.spec.ts (7 je Projekt, desktop+pixel-7 grün), pnpm check, check:no-debug grün
 
+## 2026-10-04 – P8 CI grün
+
+Phasenlauf `8518023`: CI, CI full (alle sechs Browser-Hälften, Abdeckung, visuelle Prüfung, Lighthouse) und Vorschau-Export grün. Vorschau-Artefakt `planet-claire-vorschau-p8-8518023`.
+
+## 2026-10-04 – P8 CI: vierter Phasenlauf
+
+Im dritten Lauf waren alle Browser-Prüfungen und der Vorschau-Export grün; nur ein Test-Aufräumschritt (alte Beleg-Dateien blieben im frischen CI-Speicher liegen) ließ eine Integrationsdatei scheitern. Behoben, nur Test-Hilfe, kein Seiten-Code. Der Phasenlauf startet noch einmal.
+
+## 2026-10-04 – P8 CI-Fix: Test-Beleg-PDFs wurden nicht aufgeräumt
+
+In der CI schlug eine Prüfdatei zur Vertragsbestätigung fehl (Bestätigungsmail kam nicht an). Ursache war nur in den Tests: Beim Aufräumen der Test-Bestellungen begann die Rechnungsnummer wieder bei 1, die alte Rechnungs-Datei mit dieser Nummer blieb aber liegen; die neue (anderer Inhalt) wurde zu Recht nicht überschrieben (Belege sind unveränderlich), die Mail wartete auf ihren Anhang. Lokal fiel das nicht auf, weil dort der Speicherordner schon von früheren Läufen gefüllt war. Der Test-Helfer räumt jetzt auch Beleg-PDFs (Datensatz und Datei) auf. Geprüft mit frischem Speicherordner: Datei und gesamte Int-Suite mit 3 Workern grün.
+
+## 2026-10-04 – P8 CI: Zeitlimits für quick und quality auf 60 Minuten
+
+Zweiter Phasenlauf: alle sechs Browser-Prüfungen und der Vorschau-Export waren grün. Die Jobs „quick“ und „quality“ liefen aber ins 45-Minuten-Limit, weil die Integrationstests mit dem vollen Beispielbestand rund 30 Minuten brauchen (auch mit drei Workern). Limit auf 60 Minuten angehoben (öffentliches Repo, keine Kosten); nichts übersprungen. Phasenlauf startet erneut.
+
+## 2026-10-04 – P8 CI-Neustart nach Reparatur
+
+Der erste Phasenlauf von P8 war rot: Die Integrationstests brauchten mit dem vollen Beispielbestand über 40 Minuten, und zwei E2E-Prüfungen gingen von der falschen Uhr aus. Beides ist behoben (Tests laufen jetzt parallel, die Uhr-Annahmen stimmen). Der Phasenlauf startet neu.
+
+## 2026-10-04 – P8 CI-Fix nach rotem `[ci:full p8]` (Lauf 37167124027/37167124034)
+
+- Ursachen: (1) `quick`/`quality`: Integrationstests mit vollem Beispielbestand > 40 min (154 Dateien nacheinander, je Datei
+  ~5–8 s Start, Seed-Dateien 30–60 s, Export-Test 6,5 min) → Abbruch bei 45 min. (2) E2E `home` (Angebot „läuft“) und
+  `admin/today` (letzte Bestellungen): CI seedet mit festem `SEED_NOW` 15.10.2026, die echte Uhr stand auf 04.10. →
+  Angebot „kommt“, Seed-Bestellungen „neuer“ als die Test-Bestellung. (3) `e2e-full (iphone-15)` lief in die 40-min-Grenze.
+- Behoben: Tests rechnen gegen die echte Uhr; Int-Tests laufen in CI mit `PC_INT_WORKERS=3` (je Worker eigene
+  Datenbankkopie + Speicherordner); `e2e-full` je Projekt in zwei Playwright-Hälften.
+- Getestet: `pnpm check` grün; `PC_INT_WORKERS=3 pnpm test:int` 154/154 Dateien, 1017 Tests grün (auf stark ausgelasteter
+  Maschine 25 min); E2E `home` + `admin/today` (desktop, Produktions-Build mit Debug-Flag, SEED_NOW 15.10.2026) grün.
+
+## 2026-10-04 – P8 Phasen-Abnahme (Beispielbestand) – für Jutta
+
+### Phase 8 fertig: der Beispielbestand ist komplett
+
+Hallo Jutta,
+
+Phase 8 ist gebaut. Deine Seite ist jetzt voll mit Beispielen – so siehst du, wie alles mit echtem Leben aussieht,
+bevor es losgeht. Alles davon ist als „Beispiel“ markiert und lässt sich mit einem Knopf wieder entfernen.
+
+### Was du im Beispielbestand jetzt sehen kannst
+
+- **Shop:** 30 Stücke in allen 6 Kategorien – frei, gerade reserviert, verkauft, offline und im Archiv. Die Fotos
+  stammen aus deinen Instagram-Beiträgen (17 Ausschnitte), dazu 30 gezeichnete Platzhalter, wo noch ein Foto fehlt.
+- **Bestellungen und Belege:** 14 Beispiel-Bestellungen in jedem Zustand (bezahlt, versendet, abgeholt, widerrufen,
+  erstattet …) und 15 Belege. Jeder Beleg trägt groß „BEISPIELBELEG – kein echter Beleg“.
+- **Postfach in der Verwaltung:** Widerrufe, Reklamationen, Anfragen für Auftragsarbeiten und Datenschutz-Anfragen –
+  von jeder Sorte ein Beispiel in jedem Zustand. Die Kund:innen sind erfunden.
+- **Tattoo-Bereich:** 10 Flash-Motive, 3 Angebote (Flash-Days), 6 Galerie-Bilder, 12 Fragen im FAQ.
+- **Texte:** Entwürfe für alle Seiten in deinem Ton, z. B. „Über mich“, Pflege (Aftercare), Ablauf und FAQ. Dazu die
+  neue Seite **„Über mich“** mit Jutta & Coco. Fotos, auf denen du selbst zu sehen bist, erscheinen dort erst, wenn
+  du sie in der Verwaltung freigibst (Häkchen „Jutta hat dieses Foto von sich freigegeben“ beim Foto).
+- **Zahlen:** Umsätze aus Tattoo und Flohmarkt für 9 Monate, damit der Umsatz-Wächter etwas zeigt.
+- **Zeichnungen:** Coco ist nach deinen Highlight-Bildchen und Skizzen gezeichnet, die Stationen der Startseite sind
+  aus deinen Zeichnungen übertragen. In Phase 9 werden Coco und die Linie noch einmal gründlich verfeinert.
+- **Leere Seiten:** Wo noch nichts da ist (z. B. kein Flash), steht ein freundlicher Hinweis statt einer leeren Fläche.
+
+Die Texte kannst du in Ruhe in der Vorschau-Datei lesen (die HTML-Datei, die du per Doppelklick im Browser öffnest).
+Was dir nicht passt, korrigierst du später einfach in der Verwaltung.
+
+### Beispiele behalten oder entfernen
+
+- **Einzelne Beispiele behalten:** In der Verwaltung unter **Einstellungen → Beispieldaten** steht bei jedem Beispiel
+  der Knopf **„Übernehmen“**. Danach ist es ein echter Eintrag (mit seinen Bildern) und bleibt stehen. Seitentexte und
+  FAQ übernimmst du noch einfacher: Text bearbeiten und speichern – fertig.
+- **Alle Beispiele entfernen:** Am selben Ort der Knopf **„Beispieldaten entfernen“**. Du tippst zur Sicherheit
+  „ENTFERNEN“ ein. Mit dem Haken „Seitentexte und FAQ behalten“ bleiben die Texte als deine eigenen stehen.
+- Der Knopf ist gesperrt, bis die Texte der Kanzlei eingesetzt sind – sonst wären die Rechtsseiten leer.
+- Echte Stücke, Bestellungen und Rechnungsnummern fasst das Entfernen nie an. Die Beispiele erscheinen auch nie auf
+  der echten Seite, nur in der Vorschau. Das machen wir gemeinsam beim Start (Phase 11).
+
+### So funktioniert der Instagram-Import
+
+- Bisher nutzen die Beispiele kleine Bilder aus deinem Instagram-Profil.
+- Wenn du magst, lädst du bei Instagram deinen **Daten-Export** herunter (Einstellungen → „Deine Informationen
+  herunterladen“, Format JSON). Die ZIP-Datei gibst du uns.
+- Wir legen sie in einen Ordner und starten den Import. Er findet zu jedem Beispielbild das passende Originalfoto in
+  voller Größe und tauscht es aus. Nichts davon wird hochgeladen oder veröffentlicht, alles bleibt bei dir.
+- Genauso mit **Fotos von Coco**: Je mehr echte Fotos (von vorne, von der Seite, beim Schlafen …), desto treffender
+  wird die gezeichnete Coco.
+- Beides kannst du jederzeit nachreichen, es hält nichts auf.
+
+### Was du dir anschauen könntest
+
+Ein paar Beispiel-Angaben sind geschätzt (Material, Maße, Gewichte, Pflegetipps). Wenn dir beim Durchklicken etwas
+auffällt, schreib es einfach auf – wir korrigieren es. Die Liste steht in den offenen Punkten (J-19 bis J-24).
+
+## 2026-10-03 – P7 CI grün
+
+- Phasenlauf `[ci:full p7]` (e866e29): CI, CI full (e2e desktop/iphone-15/pixel-7, quality inkl. Lighthouse) und Vorschau-Export grün; Artefakt `planet-claire-vorschau-p7-e866e29`.
+
+## 2026-10-03 – P7 CI-Reparatur (Tempo TBT)
+
+- Phasenlauf (00da128): nur Lighthouse TBT rot (R01 211, R02 221, R04 253 ms). Ursachen behoben: Ersatzschriften ohne Arial lösten ~60 Schriftsuchen pro Aufbau aus (jetzt 0); Tuschelinie baut in Häppchen ≤ 8 ms; Menü, Fuß, Stationen, untere Karten und Produktabschnitte als statisches HTML ohne Hydrierung (Fasern R01 526→160). Lokal TBT R01 136→69, R02 142→120, R04 126→107 ms. Dabei behoben: `react-dom/server` fehlte im Server-Bündel (hätte auf Vercel ISR und Mailversand gebrochen). Mail-Sofortversand: Wettlauf mit dem Job-Wecker behoben.
+
+## 2026-10-03 – Fix: Sofortversand von Mails kollidierte selten mit parallelem Job-Lauf (P7.12)
+
+- Ursache: `runEmailJobNow` rief `payload.jobs.runByID` ohne Bedingung auf. Hatte der Job-Wecker/`jobs.run` den Job
+  gerade erledigt und gelöscht, scheiterte Payload mit „Cannot read properties of null (reading 'log')“
+  (`commission.mail_failed`, ≈ 1× in 60); lief der andere Lauf noch, konnte die Mail doppelt rausgehen.
+- Fix: Sofortversand nur neben dem Tick (geteilte Sperre `tick`, `besideTick` in `src/lib/jobs/lock.ts`) und mit atomarer
+  Beanspruchung (`UPDATE payload_jobs … WHERE processing = false … RETURNING`); Job schon weg → kein Fehler. Task
+  `sendEmail` sperrt zusätzlich je `email-log`-Zeile (Advisory-Lock in Transaktion), sodass jede Mail genau einmal
+  versendet wird (Idempotenz-Schlüssel P4.13 unverändert). Übersprungene Jobs holt der nächste Tick nach.
+- Tests: neu `tests/int/email/run-now-race.int.spec.ts` (6 Tests, davon 2 × 50 Runden parallel) – ohne Fix alle 6 rot
+  mit genau dem Fehlerbild, mit Fix grün (4 Läufe hintereinander); `pnpm check` (1646 Unit) grün; Int email, jobs,
+  commission, withdrawals, legal + Umsatz-Tests: 60 Dateien / 309 Tests grün.
+
+## 2026-10-03 – P7 Phasen-Abnahme (Tattoo-Bereich) – für Jutta
+
+Hallo Jutta,
+
+Phase 7 ist gebaut. Hier steht kurz, was der Tattoo-Bereich jetzt kann und wie du ihn selbst pflegst.
+
+### Was Besucher:innen jetzt sehen
+
+- **Tattoo-Übersicht** mit „Mein Stil“, dem nächsten Flash-Day, drei freien Flash-Motiven und drei Bildern aus der
+  Galerie. Von dort geht es zu allen Unterseiten.
+- **Flash** (fertig gezeichnete Motive): ein Raster mit Nummer (z. B. F-012), Größe und Preis. Man sieht, ob ein Motiv
+  nur einmal gestochen wird oder öfter. Ein Filter zeigt „nur noch frei“.
+- **Angebote** (Flash-Days und Aktionen): Datum, Uhrzeit und nur der Bezirk – nie deine Straße. Vorbei ist vorbei: Ein
+  abgelaufenes Angebot verschwindet von selbst, auch von der Startseite.
+- **Galerie** „frisch“ und „verheilt“, mit großer Ansicht. Es gibt dort keine Preise.
+- **Preise, Ablauf, Pflege (Aftercare) und FAQ** als eigene Seiten. Die Pflege-Seite lässt sich gut ausdrucken.
+- **Auftragsarbeiten**: eine Seite mit Beispielen und einem Anfrage-Formular. Wer anfragt, kann bis zu 5 Bilder
+  anhängen. Die Bilder werden dabei verkleinert und ohne versteckte Ortsdaten gespeichert.
+- **Wichtig:** Ein Tattoo kann man nirgends online kaufen oder bezahlen. Jeder Knopf führt zu einer Mail oder
+  Instagram-Nachricht an dich, schon mit passendem Betreff (z. B. „Anfrage Flash F-012“).
+
+### So pflegst du Flash, Angebote und Galerie
+
+Alles findest du in der Verwaltung unter **„Tattoo“**. Oben gibt es vier Reiter: Flash · Angebote · Galerie · Texte.
+
+- **Flash:** „Neuer Flash“ → Foto (bis zu 5), kurze Bildbeschreibung, Titel, Größe, Preis. Die nächste Nummer
+  schlägt das System vor. Den Status (frei, reserviert, vergeben) änderst du mit zwei Tippern. Ein Motiv, das du
+  öfter stichst, pausierst du über **„Offline nehmen“**.
+- **Angebote:** „Neues Angebot“ → Datum, wenn du willst mit Uhrzeit, Ort (Bezirk), Preis-Info und die passenden
+  Flash-Motive. Kommende, laufende und abgelaufene Angebote siehst du getrennt; abgelaufene sind grau.
+- **Galerie:** Foto hochladen, „frisch“ oder „verheilt“ wählen, Bildunterschrift schreiben.
+- **Texte:** Preise, Stil, Ablauf, Pflege und FAQ. Englisch macht der Knopf **„Übersetzen“**; du kannst danach
+  noch etwas ändern.
+- **Anfragen** zu Auftragsarbeiten landen unter „Anfragen“. Du bekommst eine Mail. Die Kundin bekommt eine
+  Eingangsbestätigung. Im Detail gibt es eine Vorlage für dein Angebot zum Kopieren. Eine Anfrage wird
+  **6 Monate nach Eingang** automatisch gelöscht, samt Bildern.
+
+### Fotos von Kund:innen – nur mit Einwilligung
+
+- Ein Foto von einem Tattoo auf der Haut einer Person darf nur online, wenn sie **ja gesagt hat**. Dafür hakst du
+  beim Foto „Einwilligung zur Veröffentlichung auf der Website liegt vor“ an und legst den Nachweis ab (z. B. ein Bildschirmfoto der Nachricht).
+- Ohne dieses Häkchen geht „Online“ nicht. Das System sperrt es.
+- Zieht jemand die Einwilligung zurück: Knopf **„Einwilligung widerrufen“**. Das Foto ist sofort offline und auch
+  über einen alten Link nicht mehr erreichbar. Auf Wunsch schickt das System der Person ihre Fotos an eine Adresse,
+  die du in dem Fenster eintippst.
+- Deine eigenen Bilder (Zeichnungen, Flash) brauchen das nicht.
+
+### Was noch Platzhalter ist
+
+Die Beispiel-Motive, Angebote und Galerie-Bilder kommen in Phase 8. Texte wie Preise und Pflege-Hinweise sind
+Vorschläge in deinem Ton. Bitte lies sie später einmal durch und ändere, was nicht passt.
 ## 2026-10-03 – P8.21
 
 - Vorschau-Export mit vollem Bestand: Status-Anker um O03 ergänzt, S08 als 404-Variante „schon ein Zuhause“ (im Browser gerendert, `clientRendered.ts` – das Server-HTML ist nur die Next-Fehlerhülle), eingebettete `data:`-Bilder (EPC-QR) bleiben erhalten, Zeitstempel-Angleichung ohne GoBD-Trigger-Abbruch (`session_replication_role` nur in der Export-DB). Ergebnis: 164 Routen, 0 nicht gebaut (R19 und alle Tattoo-Routen `ok`), 0 Warnungen, 8,19 MB.
@@ -148,6 +307,68 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 - Ergebnis `pnpm check:bundle`: R10 und R26 je 146,8 KB (Budget 150), alle übrigen Seiten stabil 144,6–144,9 KB; Budget unverändert.
 - Tests: unit (Verhalten nach `load`, Icons) grün; E2E desktop + pixel-7 Widerruf (inkl. ohne JS) und Auftragsarbeiten 32/32, Menü/Shell/Tastatur/Korb/Bewegung grün; visuelle Referenzen R26 (Schritt 1, 2, Bestätigung) unverändert.
 
+## 2026-10-03 – P6 CI grün
+
+- Phasenlauf `[ci:full p6]` (7823d67): CI, CI full (e2e desktop/iphone-15/pixel-7, quality inkl. Lighthouse über HTTP/2) und Vorschau-Export grün; Artefakt `planet-claire-vorschau-p6-7823d67`.
+
+## 2026-10-03 – P6 CI-Reparatur (Tempo R04)
+
+- Phasenlauf (26d07e2): nur Lighthouse R04 (LCP) rot. Produktseite trägt die 404-Varianten nicht mehr in den Inline-Daten (ein JS-Chunk weniger); Lighthouse misst jetzt wie die Produktion über HTTP/2 (lokaler TLS-Vorschaltserver `scripts/perf/serve-h2.mjs`, Grenzen unverändert) – R04 LCP lokal Median ≈ 1,55 s statt zweigipflig bis 2,6 s.
+
+## 2026-10-03 – P6 Phasen-Abnahme (Recht, Widerruf, Datenschutz) – für Jutta
+
+Hallo Jutta,
+
+Phase 6 ist gebaut. Hier ist kurz und einfach, was jetzt da ist und was du später mit der Kanzlei klären musst.
+
+### Was rechtlich jetzt da ist
+
+- **Alle Rechtsseiten** auf Deutsch und Englisch: Impressum, Datenschutzerklärung, AGB, Widerrufsbelehrung mit
+  Muster-Formular, Versand und Zahlung sowie die Kontaktseite. Die Texte sind noch **Platzhalter**. Oben auf jeder
+  Seite steht ein deutlicher Hinweis „vorläufiger Text“, bis die Kanzlei die echten Texte liefert.
+- **Rechtstexte in der Verwaltung** (Bereich „Texte → Rechtstexte“): Du kannst später den Text der Kanzlei einfach
+  hineinkopieren. Jede Änderung wird eine neue Fassung mit Datum. Alte Fassungen bleiben gespeichert, damit man immer
+  zeigen kann, was eine Kundin beim Kauf gesehen hat. Dazu gibt es PDFs zum Herunterladen.
+- **Kleine Rechtsbausteine** (z. B. der Hinweis zu den Rücksendekosten oder der Kleinunternehmer-Satz am Preis) liegen
+  ebenfalls versioniert in der Verwaltung. Es sind vorerst Arbeitsfassungen.
+- **Datenschutz-Anfragen** (Auskunft, Löschen, Berichtigen …): eigene Liste unter „Export und Datenschutz“. Das System
+  zeigt die Monatsfrist, erinnert dich rechtzeitig und hilft beim Suchen aller Daten einer Person und beim Export.
+- **Automatisches Löschen**: Alte Daten (z. B. abgebrochene Bestellungen, alte Mail-Protokolle, Anfragen nach
+  6 Monaten) werden nach festen Fristen gelöscht oder unkenntlich gemacht. In den Einstellungen siehst du vorher in der
+  „Löschvorschau“, was in den nächsten Tagen gelöscht würde. Rechnungen bleiben so lange, wie das Gesetz es verlangt.
+- **Reklamationen** werden mit Fotos zur Bestellung gespeichert, mit Antwort-Vorlage (Reparatur oder Ersatz).
+- **Jährliche Erinnerung**, die Rechtstexte prüfen zu lassen.
+- **Verzeichnis der Verarbeitungen** und eine Liste aller Dienste (z. B. Stripe, DHL) für die Kanzlei.
+
+### So funktioniert der Widerruf
+
+1. Auf **jeder Seite** unten steht der Link **„Vertrag widerrufen“**.
+2. **Schritt 1:** Die Kundin gibt Name, E-Mail und Bestellnummer ein. Sie kann (muss aber nicht) einzelne Stücke
+   auswählen und einen Grund nennen.
+3. **Schritt 2:** Sie sieht alles noch einmal und klickt **„Widerruf bestätigen“**.
+4. Sie bekommt **sofort** eine Bestätigung auf der Seite und per Mail (mit Datum und Uhrzeit). Du bekommst auch eine
+   Mail.
+5. In der Verwaltung unter **„Widerrufe“** siehst du alles: Ware ist zurück → Erstattung auslösen (Stripe macht das
+   automatisch, bei Vorkasse überweist du und klickst „überwiesen“). Das System erinnert dich an die 14-Tage-Frist und
+   erstellt die Gutschrift.
+
+### Was du vor dem Go-live mit der Kanzlei klären musst
+
+Die Kanzlei-Mappe (`docs/recht/KANZLEI-BRIEFING.md`, jetzt Version 1.4, mit Bildschirmfotos des Widerrufs) ist
+fertig. Die wichtigsten Punkte:
+
+- **Echte Rechtstexte** liefern lassen (Impressum, Datenschutz, AGB, Widerrufsbelehrung, Versand) – sie ersetzen die
+  Platzhalter.
+- **Widerruf:** Passt der Ablauf in zwei Schritten (K-11)? Wer trägt bei einem Teil-Widerruf die Versandkosten
+  (K-09)? Vorläufig gilt: Die Rücksendung zahlt die Kundin; behält sie einen Teil, bekommt sie den Warenwert und den Unterschied
+  bei den Versandkosten zurück.
+- **Rechnungen 8 oder 10 Jahre** aufbewahren (K-33, auch mit der Steuerberatung)? Vorläufig: 10 Jahre.
+- **Wortlaut der Bausteine** (Kleinunternehmer-Hinweis, DHL-Einwilligung, Transportschaden, Rücksendekosten):
+  bisher nur Arbeitsfassungen (K-15, K-21, K-23, K-31).
+- **Deine Anschrift** im Impressum und in der Belehrung (K-39) und ob eine Telefonnummer nötig ist (K-28).
+- **Ohne Cookie-Banner** zulässig (K-30, K-38)?
+
+Du musst jetzt nichts tun. Diese Punkte besprechen wir gemeinsam beim Go-live (P11).
 ## 2026-10-03 – P8.14
 
 - content/art/sources.json (Schema DESIGN §12.4, Prozent-Ausschnitte; zusätzlich optional dense) und pnpm art:vectorize (scripts/art/vectorize.ts): sharp (Ausschnitt → luma/min → normalise → Lanczos3 → blur 0.5 → Otsu/fest → Median 3) → potrace 2.1.8 (nur devDependency, dynamisch importiert) → SVGO → fill currentColor, evenodd. Gemappte Export-Originale (P8.10) haben Vorrang.

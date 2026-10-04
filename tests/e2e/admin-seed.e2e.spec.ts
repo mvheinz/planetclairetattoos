@@ -7,7 +7,7 @@ import { expectAccessible, expectNoHorizontalScroll } from './admin/orderHelpers
 // Platzhalter-Rechtstexten, Freigabe mit Fixture-Rechtstexten (`origin = lawyer`), Dialog mit Mengen, vorausgewählter
 // Checkbox „Seitentexte und FAQ behalten“ und Bestätigungswort „ENTFERNEN“; „Übernehmen“ für ein Bild.
 // Das eigentliche Entfernen läuft hier nicht gegen die gemeinsame E2E-Datenbank (die Seed-Anker anderer Suiten blieben
-// sonst weg): Der Aufruf `POST /api/admin/seed/remove` wird abgefangen und sein Inhalt geprüft; die Wirkung selbst
+// sonst weg): Der Aufruf `POST /api/admin/seed/remove` wird im Browser abgefangen und sein Inhalt geprüft; die Wirkung selbst
 // (AK-11-03, R-180, Sperre, 400/403/409) belegt `tests/int/seed/admin-remove.int.spec.ts` gegen eine eigene Test-DB.
 
 async function setLegalOrigin(origin: 'lawyer' | 'placeholder') {
@@ -72,21 +72,31 @@ test('@a11y P8.19 Beispieldaten: Sperre, Dialog mit ENTFERNEN, Übernehmen – 3
     await expectNoHorizontalScroll(page)
     await expectAccessible(page, 'dialog')
 
-    let sent: Record<string, unknown> | null = null
-    await page.route('**/api/admin/seed/remove', async (route) => {
-      sent = route.request().postDataJSON() as Record<string, unknown>
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ doc: null, unchanged: false, keepTexts: true, counts: {} }),
-      })
+    // Im Browser abfangen (fetch ersetzen) statt per `page.route`: Unter WebKit ging die Anfrage trotz Route zum echten
+    // Endpunkt durch und löschte die Beispieldaten der gemeinsamen E2E-Datenbank (Phasen-Abnahme P8).
+    await page.evaluate(() => {
+      const w = window as unknown as { __seedRemoveSent?: unknown; fetch: typeof fetch }
+      const original = w.fetch.bind(window)
+      w.fetch = async (input, init) => {
+        const url =
+          typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
+        if (!url.includes('/api/admin/seed/remove')) return original(input, init)
+        w.__seedRemoveSent = JSON.parse(String(init?.body ?? 'null'))
+        return new Response(
+          JSON.stringify({ doc: null, unchanged: false, keepTexts: true, counts: {} }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        )
+      }
     })
     await dialog.getByTestId('settings-seed-confirm-word').fill('ENTFERNEN')
     await expect(ok).toBeEnabled()
     await ok.click()
     await expect(area.getByTestId('settings-seed-feedback')).toContainText('Beispieldaten entfernt')
-    expect(sent).toEqual({ keepTexts: true, confirm: 'ENTFERNEN' })
-    await page.unroute('**/api/admin/seed/remove')
+    expect(
+      await page.evaluate(
+        () => (window as unknown as { __seedRemoveSent?: unknown }).__seedRemoveSent,
+      ),
+    ).toEqual({ keepTexts: true, confirm: 'ENTFERNEN' })
 
     // 3) Übernehmen (Bild) – echter Endpunkt
     await area.getByTestId('settings-seed-adopt').locator('summary').click()

@@ -7,6 +7,7 @@ import styles from '@/components/home/Home.module.css'
 import { PlanetMark } from '@/components/home/SpaceMarks'
 import { Station } from '@/components/leash/Station'
 import { PriceFootnote } from '@/components/shop/PriceFootnote'
+import { StaticHtml } from '@/components/StaticHtml'
 import { statusLabelAttrs } from '@/components/shop/statusLabels'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { getHomeView } from '@/lib/data/home'
@@ -101,7 +102,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </header>
 
       {home && home.stations.length > 0 ? (
-        <div
+        // Stationen als statisches HTML (nicht hydriert, Lighthouse-TBT P7): reines Server-Markup, Bilder alle
+        // `loading="lazy"`; Live-Zustand der Karten und Linie laufen über DOM-Module.
+        <StaticHtml
+          as="div"
           className={styles.stations}
           data-home-stations=""
           data-behavior={hasCards ? 'product-status' : undefined}
@@ -117,7 +121,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               instagramHref={instagramUrl(nav.instagramHandle)}
             />
           ))}
-        </div>
+        </StaticHtml>
       ) : (
         <EmptyState
           title={t('emptyTitle')}

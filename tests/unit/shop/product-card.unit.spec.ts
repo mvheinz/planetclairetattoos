@@ -161,7 +161,7 @@ describe('Badge – KO-10', () => {
   it('sechs Arten mit DE/EN-Text, Icon außer Second-Hand, nur Lebensmittelecht als Link', () => {
     for (const kind of BADGE_KINDS) {
       cleanup()
-      const el = renderIntl(h(Badge, { kind }))
+      const el = renderIntl(h(Badge, { kind, locale: 'de' }))
       const badge = el.querySelector(`[data-badge="${kind}"]`)!
       expect(badge.textContent).toBe((de.shop.badges as Record<string, string>)[kind])
       expect(badge.querySelector('svg') !== null).toBe(kind !== 'secondHand')
@@ -169,7 +169,7 @@ describe('Badge – KO-10', () => {
     }
     cleanup()
     const link = renderIntl(
-      h(Badge, { kind: 'foodSafe', href: '/de/konformitaetserklaerungen#glaze-3' }),
+      h(Badge, { kind: 'foodSafe', locale: 'en', href: '/de/konformitaetserklaerungen#glaze-3' }),
       'en',
     ).querySelector('a')!
     expect(link.textContent).toBe('Food-safe – view declaration')

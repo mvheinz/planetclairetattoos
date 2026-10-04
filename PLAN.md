@@ -3671,11 +3671,11 @@ ANFORDERUNGEN §3, §5, §6, §7.
   ARCHITEKTUR §1.2 (`sanitize-html`) und DIENSTE nachgezogen; geprüft, dass KONZEPT §8.3/AK-8-03 auf L-10 verweisen.
 - [x] `LEGAL_TRACE_PHASE = 6`, Spalte „Nachweis“ vollständig bis P6; Nachweise im PR-Text: AK-3-11, AK-3-12, AK-6-04,
   AK-DS-09, AK-5-01 Widerruf, EK-04, EK-05, EK-06.
-- [ ] CI grün: Der Phasenende-Commit (z. B. `chore(P6): finish phase [ci:full p6]`, der letzte Commit ohne
+- [x] CI grün: Der Phasenende-Commit (z. B. `chore(P6): finish phase [ci:full p6]`, der letzte Commit ohne
   `[skip ci]`) hat `CI / quick`, `ci-full` (`e2e-full` inkl. `@a11y` und `@privacy`, `quality` mit visuellen Referenzen
   für die neuen Seitentypen Rechtsseite, Widerruf Schritt 1/2/Bestätigung, Kontakt) und `preview-export` grün
   durchlaufen. Dieses Häkchen setzt ein reiner Doku-Commit mit `[skip ci]`, nachdem der Lauf grün ist.
-- [ ] Vorschau-Artefakt `planet-claire-vorschau-p6-<sha7>` enthält alle Rechtsseiten DE/EN mit Platzhalter-Banner,
+- [x] Vorschau-Artefakt `planet-claire-vorschau-p6-<sha7>` enthält alle Rechtsseiten DE/EN mit Platzhalter-Banner,
   R26 mit Schritten, Kontakt und die Admin-Fotos von Widerrufe, Texte → Rechtstexte, Datenschutz-Anfragen, Löschvorschau.
 - [x] `docs/recht/KANZLEI-BRIEFING.md` in neuer Version mit Eintrag in §19 und `docs/recht/VVT.md` vorhanden;
   ANFORDERUNGEN §7 Teil A für R-095 und R-156 abgehakt.
@@ -4000,22 +4000,22 @@ Anhang A.3; DESIGN KO-12, KO-17, KO-20, §9.7 (`stencil`, `frame`), §11.5 (MI-1
 
 ### Phasen-Abnahme
 
-- [ ] Alle Aufgaben P7.1–P7.15 erledigt; `pnpm check`, `pnpm test:int`, `pnpm test:e2e` und `pnpm build` lokal grün.
-- [ ] P7 braucht keine eigene Schema-Migration (DATENMODELL §10.1); `pnpm check:migrations` ohne Drift, Typen und
+- [x] Alle Aufgaben P7.1–P7.15 erledigt; `pnpm check`, `pnpm test:int`, `pnpm test:e2e` und `pnpm build` lokal grün.
+- [x] P7 braucht keine eigene Schema-Migration (DATENMODELL §10.1); `pnpm check:migrations` ohne Drift, Typen und
   Importmap committet; geprüft, dass `tattoo-gallery.consentWithdrawnAt` (DATENMODELL §6.16) seit P1 im Schema liegt und `tattoo-gallery` keine Versionen
   hat; geprüft, dass KONZEPT AK-8-03 und SEED-SPEC §11 die Löschung 6 Monate nach Eingang nennen; SEED-SPEC SE-09 als
   geklärt vermerkt.
-- [ ] `LEGAL_TRACE_PHASE = 7`; Nachweise im PR-Text: AK-9-01 bis AK-9-05, AK-10-01 bis AK-10-04, T-05, R-IDs aus
+- [x] `LEGAL_TRACE_PHASE = 7`; Nachweise im PR-Text: AK-9-01 bis AK-9-05, AK-10-01 bis AK-10-04, T-05, R-IDs aus
   „Referenzen“ je mit Testdatei.
-- [ ] CI grün: Der Phasenende-Commit (z. B. `chore(P7): finish phase [ci:full p7]`, der letzte Commit ohne
+- [x] CI grün: Der Phasenende-Commit (z. B. `chore(P7): finish phase [ci:full p7]`, der letzte Commit ohne
   `[skip ci]`) hat `CI / quick`, `ci-full` (`e2e-full` inkl. `@a11y` und `@privacy`; `quality` mit Lighthouse-CI für
   `/de/tattoo` innerhalb EK-01 und visuellen Referenzen für Flash, Angebote, Galerie, Auftragsarbeiten) und
   `preview-export` grün durchlaufen. Dieses Häkchen setzt ein reiner Doku-Commit mit `[skip ci]`, nachdem der Lauf grün
   ist.
-- [ ] Vorschau-Artefakt `planet-claire-vorschau-p7-<sha7>` enthält R10–R18 DE/EN mit dem Mini-Bestand bzw. den
+- [x] Vorschau-Artefakt `planet-claire-vorschau-p7-<sha7>` enthält R10–R18 DE/EN mit dem Mini-Bestand bzw. den
   Leerzuständen und die Admin-Fotos des Bereichs „Tattoo“; Flash, Angebote und Galerie des Beispielbestands (G1/G2 mit
   Etikett „intern – Einwilligung fehlt“, TO3 unsichtbar) zeigt die Vorschau erst ab P8.21.
-- [ ] `docs/FORTSCHRITT.md` mit Phasen-Eintrag; PR-Beschreibung aktualisiert; neue Annahmen in `docs/OFFENE-PUNKTE.md`
+- [x] `docs/FORTSCHRITT.md` mit Phasen-Eintrag; PR-Beschreibung aktualisiert; neue Annahmen in `docs/OFFENE-PUNKTE.md`
   (mindestens: Pausieren wiederholbarer Flash über „Offline nehmen“, Anfrage-Löschung ab Eingang, M16-Portfolio nur an
   eine im Dialog eingetippte Adresse); neue
   Jutta-Aufgaben als A51 ff. in `docs/owner/AUFGABEN.md`, soweit nicht schon vorhanden.
@@ -4594,26 +4594,26 @@ R-180, R-181, R-190, V-01…V-31 (RECHT §5), RECHT §7 Teil A; KONZEPT §1.4 (E
 
 ### Phasen-Abnahme
 
-- [ ] Alle Aufgaben P8.1–P8.21 (einschließlich P8.4a, P8.5a und P8.19a) abgehakt; `pnpm seed:reset` mit kanonischem
+- [x] Alle Aufgaben P8.1–P8.21 (einschließlich P8.4a, P8.5a und P8.19a) abgehakt; `pnpm seed:reset` mit kanonischem
   `SEED_NOW` ergibt exakt die Mengen aus SEED-SPEC §0.1 (`SEED_EXPECTED_COUNTS`);
   AK-SEED-01…22, AK-11-01…04, R-180 und R-181 durch Tests belegt.
-- [ ] `pnpm check`, `pnpm test:int`, `pnpm build`, `pnpm test:e2e` und `pnpm preview:export && pnpm test:preview-export`
+- [x] `pnpm check`, `pnpm test:int`, `pnpm build`, `pnpm test:e2e` und `pnpm preview:export && pnpm test:preview-export`
   lokal grün.
-- [ ] R-001: `LEGAL_TRACE_PHASE = 8` in `tests/unit/legal/traceability.unit.spec.ts`, Test grün.
-- [ ] Doku geprüft: die Skripte `seed:import-instagram`, `art:coco-refs`, `art:placeholders`, `art:vectorize`
+- [x] R-001: `LEGAL_TRACE_PHASE = 8` in `tests/unit/legal/traceability.unit.spec.ts`, Test grün.
+- [x] Doku geprüft: die Skripte `seed:import-instagram`, `art:coco-refs`, `art:placeholders`, `art:vectorize`
   stehen so in ARCHITEKTUR §6.10 und in `package.json`; `media.ownerApproved` (DATENMODELL §6.2) per Migration
   `p8_media_owner_approved` umgesetzt (einzige geplante Schema-Änderung von P8, DATENMODELL §10.1; musste P8.5a
   `seedField()` an `privacy-requests` nachziehen, kommt dessen Migration dazu); Verdrängungsregel
   `revenue-entries` (DATENMODELL §6.20, seit P1) geprüft; `.env.example` aus `src/lib/env.ts` neu erzeugt; `.gitignore`
   enthält `.data/` und `artifacts/`.
-- [ ] `docs/FORTSCHRITT.md`: Eintrag für Jutta (du-Form) – Beispielbestand komplett, wo sie die Texte in der
+- [x] `docs/FORTSCHRITT.md`: Eintrag für Jutta (du-Form) – Beispielbestand komplett, wo sie die Texte in der
   Vorschau-Datei lesen kann, dass Instagram-Export und Coco-Fotos jederzeit nachgereicht werden können.
-- [ ] `docs/OFFENE-PUNKTE.md` aktualisiert (offene SE-Punkte aus SEED-SPEC §20, Export-/Coco-Status, Annahmen dieser
+- [x] `docs/OFFENE-PUNKTE.md` aktualisiert (offene SE-Punkte aus SEED-SPEC §20, Export-/Coco-Status, Annahmen dieser
   Phase).
-- [ ] CI grün: Phasenende-Commit `chore(P8): finish phase [ci:full p8]` → `ci.yml`, `ci-full.yml` und
+- [x] CI grün: Phasenende-Commit `chore(P8): finish phase [ci:full p8]` → `ci.yml`, `ci-full.yml` und
   `preview-export.yml` grün, Vorschau-Artefakt `planet-claire-vorschau-p8-<sha7>` erzeugt. Dieses Häkchen setzt erst
   ein reiner Doku-Commit mit `[skip ci]`, nachdem der Lauf grün ist (ARCHITEKTUR §6.7).
-- [ ] PR-Beschreibung (Deutsch) aktualisiert: Aufgaben, AK-Nachweise, Tests, Doku-Änderungen, neue offene Punkte,
+- [x] PR-Beschreibung (Deutsch) aktualisiert: Aufgaben, AK-Nachweise, Tests, Doku-Änderungen, neue offene Punkte,
   Link zum Vorschau-Artefakt; gemergt oder oben „Bitte mergen – CI ist grün“.
 
 ## P9 – Kunst & Bewegung

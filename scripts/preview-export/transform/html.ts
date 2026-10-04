@@ -1,7 +1,7 @@
 // Seiten der Vorschau-Datei (KONZEPT §12.4/§12.5 Nr. 1, 3–7; ARCHITEKTUR §14.5) mit `cheerio`: Aus jedem `<body>` werden
 // alle `<script>` (auch `self.__next_f`-Daten und JSON), Preloads, `<noscript>` und der Next-Routen-Ansager entfernt;
 // `data-behavior`, ARIA-Attribute und `id`s bleiben. Bilder → `data-pv-src`, Sprite-Verweise → `#id`, Links → Hash-Routen,
-// Formulare ohne `action` mit `data-pv-form`. Ergebnis je Route: ein `<template data-route …>`.
+// Formulare ohne `action` und ohne Server-Action-Felder mit `data-pv-form`. Ergebnis je Route: ein `<template data-route …>`.
 import * as cheerio from 'cheerio'
 
 import { matchRoute, splitLocale } from '../../../src/lib/routes/paths'
@@ -200,6 +200,13 @@ export function rewriteInteractive($: cheerio.CheerioAPI, link: LinkContext): vo
     const el = $(node)
     el.removeAttr('action').removeAttr('method')
     el.attr('data-pv-form', '')
+    // Server-Action-Felder von React (`$ACTION_ID_…`, `$ACTION_REF_…`, `$ACTION_KEY`, `$ACTION_1:0` …) und Formular-Tokens
+    // (`formToken`) sind Server-Spuren ohne Funktion in der Datei; Tokens tragen Zeitstempel und Zufallswert und machen
+    // sonst jeden Lauf anders (AK-A-14-01/AK-A-14-02).
+    el.find('input[type="hidden"]').each((_, input) => {
+      const name = $(input).attr('name') ?? ''
+      if (name.startsWith('$ACTION') || name === 'formToken') $(input).remove()
+    })
   })
   $('button[formaction], input[formaction]').removeAttr('formaction')
 }

@@ -122,6 +122,8 @@ test('Filter „healed“/„fresh“, Vollbild mit Bildunterschrift, R11 nur si
   await expect(page).toHaveURL(/\?kind=healed$/)
   await expect(page.locator('[data-gallery-kind="fresh"]')).toHaveCount(0)
   const link = page.locator('figure').filter({ hasText: CAPTION.g4 }).locator('a')
+  // Das Modul `lightbox` bindet erst nach `load` (src/behaviors/index.ts); vorher öffnet der Link die Datei (ohne JS).
+  await page.locator('html[data-behaviors-ready]').waitFor({ state: 'attached' })
   await link.click()
   const dialog = page.locator('dialog[data-lightbox]')
   await expect(dialog).toBeVisible()

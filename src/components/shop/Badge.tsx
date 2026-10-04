@@ -1,7 +1,8 @@
-import { useTranslations } from 'next-intl'
 import React from 'react'
 
 import { Icon, type IconName } from '@/components/icons/Icon'
+import { translatorFor } from '@/i18n/translator'
+import type { Locale } from '@/lib/enums'
 
 import styles from './Badge.module.css'
 
@@ -29,6 +30,8 @@ const ICONS: Record<BadgeKind, IconName | null> = {
 
 export interface BadgeProps {
   kind: BadgeKind
+  /** Sprache des Standardtexts (Übersetzer ohne Hook, auch in nicht hydriertem HTML – `StaticHtml`, P7). */
+  locale: Locale
   /** Eigener Text (z. B. Produktseite „Gerade reserviert – schau in 30 Minuten nochmal“); sonst der Standardtext. */
   children?: React.ReactNode
   /** Lebensmittelecht: Link auf die Konformitätserklärung (R27 `#glaze-<id>`). */
@@ -42,13 +45,14 @@ export interface BadgeProps {
 
 export function Badge({
   kind,
+  locale,
   children,
   href,
   onPhoto = false,
   hidden = false,
   className,
 }: BadgeProps) {
-  const t = useTranslations('shop.badges')
+  const t = translatorFor(locale, 'shop.badges')
   const icon = ICONS[kind]
   const classes = [styles.badge, styles[kind], onPhoto ? styles.onPhoto : '', className]
     .filter(Boolean)

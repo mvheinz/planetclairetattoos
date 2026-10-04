@@ -92,7 +92,7 @@ describe('T-09 budgets.json enthält alle Werte aus ARCHITEKTUR §7.7 und DESIGN
 
   it('Lighthouse (T-10) und @perf: LCP 2,5 s, CLS 0,1, TBT 200 ms, INP-Ersatz 200 ms, Frame ≤ 6 ms', () => {
     expect(budgets.lighthouse).toMatchObject({
-      routes: ['R01', 'R02', 'R04'],
+      routes: ['R01', 'R02', 'R04', 'R11'],
       runs: 3,
       lcpMs: { max: 2500, target: 2000 },
       cls: { max: 0.1, target: 0.05 },

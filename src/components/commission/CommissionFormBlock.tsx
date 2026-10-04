@@ -67,7 +67,7 @@ export async function CommissionFormBlock({
           successText={successText}
         />
       </Station>
-      <span className={styles.leashEnd} data-leash-anchor="end" aria-hidden="true" />
+      <span className={styles.lineEnd} data-leash-anchor="end" aria-hidden="true" />
     </section>
   )
 }

@@ -197,9 +197,20 @@ test('P8.19a FAQ-Reihenfolge per Tastatur ändern – erscheint öffentlich gena
 test('P8.19a keine Verwaltungsansicht zeigt mehr „kommt in P…“ außer „kommt in P10“ (Startklar)', async ({
   adminPage: page,
 }) => {
+  // 20+ Ansichten nacheinander: eigenes Zeitbudget. Eine Ansicht, die nach dem Laden selbst neu lädt (z. B.
+  // `router.refresh`), kann den nächsten `goto` abbrechen (ERR_ABORTED) – dann einmal wiederholen.
+  test.setTimeout(180_000)
+  const open = async (url: string) => {
+    try {
+      return await page.goto(url)
+    } catch (e) {
+      if (!String(e).includes('ERR_ABORTED')) throw e
+      return page.goto(url)
+    }
+  }
   for (const view of ADMIN_VIEWS) {
     if (view.anonymous) continue
-    const res = await page.goto(adminPath(view.path))
+    const res = await open(adminPath(view.path))
     if (!res || res.status() >= 400) continue
     await expect(page.locator('body')).not.toHaveText(/^$/)
     const text = await page.locator('body').innerText()

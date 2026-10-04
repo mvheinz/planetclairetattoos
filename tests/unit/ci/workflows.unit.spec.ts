@@ -155,8 +155,8 @@ describe('ci.yml – Job quick (§6.3)', () => {
 
   it('Job quick gegen planetclaire_test mit den Testwerten aus §6.3', () => {
     expect(quick.name).toBe('quick')
-    // 45 min wie `quality` in ci-full.yml: Integrationstests allein ~21 min (P5, OFFENE-PUNKTE), 30 min reichten nicht mehr.
-    expect(quick['timeout-minutes']).toBeLessThanOrEqual(45)
+    // 60 min: Integrationstests allein ~30 min trotz 3 Workern (P8, Beispielbestand), danach Build, Budgets und Rauchtest.
+    expect(quick['timeout-minutes']).toBeLessThanOrEqual(60)
     expect(quick.services?.postgres?.image).toBe('postgres:17-alpine')
     expect(quick.services?.postgres?.env?.POSTGRES_DB).toBe('planetclaire_test')
     const env = quick.env ?? {}
@@ -460,11 +460,12 @@ describe('ci-full.yml (§6.4, P2.28)', () => {
     }
   })
 
-  it('e2e-full: je Projekt desktop, iphone-15 (WebKit), pixel-7 ein Matrix-Job mit einem Build (Debug-Flag), ohne @visual/@perf (P3.16)', () => {
+  it('e2e-full: je Projekt desktop, iphone-15 (WebKit), pixel-7 zwei Matrix-Jobs (Playwright-Hälften) mit je einem Build (Debug-Flag), ohne @visual/@perf (P3.16)', () => {
     const job = full.jobs['e2e-full']!
     expect(job.env?.NEXT_PUBLIC_LEASH_DEBUG).toBe('1')
     expect(job.strategy?.['fail-fast']).toBe(false)
     expect(job.strategy?.matrix?.project).toEqual(['desktop', 'iphone-15', 'pixel-7'])
+    expect(job.strategy?.matrix?.shard).toEqual([1, 2])
     expect(job.name).toContain('${{ matrix.project }}')
     expect(job['timeout-minutes']).toBeLessThanOrEqual(40)
     const build = findStep(job, /pnpm run seed && pnpm run build/)
@@ -474,12 +475,16 @@ describe('ci-full.yml (§6.4, P2.28)', () => {
     expect(job.steps.filter((s) => /pnpm run build/.test(s.run ?? ''))).toHaveLength(1)
     const cmd = job.steps[e2e]!.run!
     expect(cmd).toContain('--project=${{ matrix.project }}')
+    expect(cmd).toContain('--shard=${{ matrix.shard }}/2')
     expect(cmd).toContain('--grep-invert "@visual|@perf"')
     expect(cmd).not.toMatch(/--grep[ =]"?@/)
     expect(job.steps.find((s) => /playwright install/.test(s.run ?? ''))?.run).toMatch(
       /chromium webkit/,
     )
-    expectBudgetBeforeOptionalUpload(job, 'ci-full-e2e-report-\\$\\{\\{ matrix\\.project \\}\\}')
+    expectBudgetBeforeOptionalUpload(
+      job,
+      'ci-full-e2e-report-\\$\\{\\{ matrix\\.project \\}\\}-\\$\\{\\{ matrix\\.shard \\}\\}',
+    )
   })
 
   it('quality: Abdeckung → Build ohne Debug → check:no-debug → test:visual → test:perf → @perf auf pixel-7', () => {

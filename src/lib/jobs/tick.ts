@@ -15,7 +15,7 @@ import { formatBerlin, systemClock } from '@/lib/time'
 
 import { jobAlarm } from './alarm'
 import { isCronAuthorized } from './auth'
-import { withTaskLock } from './lock'
+import { TICK_LOCK, withTaskLock } from './lock'
 import { hasOkRunForPeriod, poolDb } from './runLog'
 import { periodOf } from './runOnce'
 import { TaskNotImplementedError, UnknownTaskError, runTaskNow } from './runTask'
@@ -25,8 +25,7 @@ import { TaskNotImplementedError, UnknownTaskError, runTaskNow } from './runTask
 // neuen Weckzeitpunkt schreiben. Einzelner Task: 401 ohne Berechtigung, 404 unbekannter Slug, 501 noch nicht umgesetzt.
 // Lauf-Protokoll `job_runs` schreibt jeder Task selbst (`instrumentTask`).
 
-/** Advisory-Lock-Schlüssel des Ticks (ARCHITEKTUR §9.6 Nr. 8). */
-export const TICK_LOCK = 'tick'
+export { TICK_LOCK }
 
 export interface CronDeps {
   env?: Env

@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest'
 // liest der Parser die Spalten über die Kopfzeile (`| ID | Titel | Phase | Test | Owner | Nachweis |`); jede Zeile bis
 // zur aktuellen Phase nennt in „Nachweis“ Testdateien (die existieren müssen) bzw. „§7“ für manuelle Punkte (EK-06).
 
-export const LEGAL_TRACE_PHASE = 7
+export const LEGAL_TRACE_PHASE = 8
 
 const ROOT = path.resolve(__dirname, '../../..')
 const AUTOMATED = new Set(['unit', 'int', 'e2e'])
@@ -273,6 +273,17 @@ describe('R-001 Nachverfolgbarkeit Anforderung ↔ Test', () => {
     // Gegenprobe mit einer P7-ID: fehlt sie in allen Titeln, ist R-001 rot.
     const without = titles.map((t) => t.replace(/R-170\b/g, 'R-xxx'))
     expect(missingIds(required, without)).toEqual(['R-170'])
+  })
+
+  it('R-001 Phase 8 (Phasen-Abnahme P8): Beispielbestand-Anforderungen stehen in Testtiteln', () => {
+    const p8 = ['R-180', 'R-181']
+    const required = requiredIds(requirements, 8)
+    for (const id of p8) expect(required).toContain(id)
+    expect(requiredIds(requirements, 7)).not.toContain('R-180')
+    expect(missingIds(p8, titles)).toEqual([])
+    // Gegenprobe mit einer P8-ID: fehlt sie in allen Titeln, ist R-001 rot.
+    const without = titles.map((t) => t.replace(/R-181\b/g, 'R-xxx'))
+    expect(missingIds(required, without)).toEqual(['R-181'])
   })
 
   it(`R-001 EK-06 jede Anforderung bis Phase P${LEGAL_TRACE_PHASE} hat einen Nachweis, jeder genannte Pfad existiert`, () => {

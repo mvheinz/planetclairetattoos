@@ -33,7 +33,16 @@ const nextConfig: NextConfig = {
   // PDFs (P4.11/P4.12): @react-pdf/renderer serverseitig ungebündelt; die lokalen TTF-Schriften (src/lib/pdf/fonts)
   // gehören in jedes Server-Bundle, das PDFs rendert (Jobs, Rechtstext-Route).
   serverExternalPackages: ['@react-pdf/renderer'],
-  outputFileTracingIncludes: { '/**': ['./src/lib/pdf/fonts/*.ttf', './src/admin/pwa/*.png'] },
+  // `react-dom/server` lädt `src/lib/react/staticMarkup.ts` zur Laufzeit am Bundler vorbei (Mails, nicht hydriertes
+  // Menü/Fuß-HTML in jeder Seite – auch bei ISR-Erneuerung). Die Abhängigkeitsverfolgung sieht diesen Import nicht.
+  outputFileTracingIncludes: {
+    '/**': [
+      './src/lib/pdf/fonts/*.ttf',
+      './src/admin/pwa/*.png',
+      './node_modules/react-dom/{package.json,*.js,cjs/*.production.js}',
+      './node_modules/react/{package.json,*.js,cjs/*.production.js}',
+    ],
+  },
   // 404 mit Seitenrahmen schon im HTML (src/app/global-not-found.tsx): das Wurzel-Layout liegt unter [locale].
   experimental: {
     globalNotFound: true,

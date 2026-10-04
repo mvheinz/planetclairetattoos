@@ -165,19 +165,45 @@ test.describe('P8.21 Seed-Anker Verwaltung', () => {
   test('P8.21 Heute (SEED-SPEC §17): Zu packen 2, Vorkasse 1, Abholung 1, Widerrufe 3, Anfragen 1; rote Anfechtung O03; 3 Datenschutz-Anfragen; Beispieldaten vorhanden', async ({
     adminPage: page,
   }) => {
+    const payload = await testPayload()
+    // „Heute“ zählt alle Datensätze (auch die, die andere Specs desselben Laufs anlegen, z. B. ein Widerruf über das
+    // Formular). Der Anker prüft deshalb: genau n Seed-Dokumente je Kachel, und die Kachel zeigt Seed + Nicht-Seed.
+    const tiles = [
+      ['packen', 2, 'orders', { fulfillmentMethod: { equals: 'shipping' } }, ['paid', 'packed']],
+      ['vorkasse', 1, 'orders', {}, ['awaiting_prepayment']],
+      [
+        'abholung',
+        1,
+        'orders',
+        { fulfillmentMethod: { equals: 'pickup' } },
+        ['paid', 'ready_for_pickup'],
+      ],
+      ['widerrufe', 3, 'withdrawals', {}, ['received', 'goods_returned']],
+      ['anfragen', 1, 'inquiries', {}, ['new']],
+    ] as const
+    const counts = new Map<string, { seed: number; other: number }>()
+    for (const [key, , collection, extra, statuses] of tiles) {
+      const where = (seed: boolean) => ({
+        and: [
+          extra,
+          { status: { in: [...statuses] } },
+          seed ? { seed: { equals: true } } : { seed: { not_equals: true } },
+        ],
+      })
+      const n = async (seed: boolean) =>
+        (await payload.count({ collection, where: where(seed) as never, overrideAccess: true }))
+          .totalDocs
+      counts.set(key, { seed: await n(true), other: await n(false) })
+    }
     await page.goto(adminPath('/heute'))
-    for (const [key, n] of [
-      ['packen', 2],
-      ['vorkasse', 1],
-      ['abholung', 1],
-      ['widerrufe', 3],
-      ['anfragen', 1],
-    ] as const)
+    for (const [key, n] of tiles) {
+      const c = counts.get(key)!
+      expect(c.seed, `${key} (Seed)`).toBe(n)
       await expect(page.getByTestId(`today-tile-${key}`), key).toHaveAttribute(
         'data-count',
-        String(n),
+        String(n + c.other),
       )
-    const payload = await testPayload()
+    }
     const o03 = (
       await payload.find({
         collection: 'orders',

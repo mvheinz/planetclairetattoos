@@ -75,6 +75,9 @@ export async function expectAccessible(page: Page, selector: string): Promise<vo
 
 /** Kein horizontales Scrollen der Seite. */
 export async function expectNoHorizontalScroll(page: Page): Promise<void> {
+  // Nach einer vollen Navigation (z. B. GET-Formular) erst messen, wenn alle Stylesheets da sind: Unter Last stand der
+  // Text schon im DOM, das Layout aber noch ohne CSS (Payload-Navigation offen, Tabellen 1500 px breit).
+  await page.waitForLoadState('load')
   const { overflow, wide } = await page.evaluate(() => {
     const el = document.scrollingElement ?? document.documentElement
     return {

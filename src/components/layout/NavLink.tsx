@@ -2,20 +2,18 @@
 
 import React from 'react'
 
-import { LinkUnderline } from '@/components/ui/LinkUnderline'
-
+import { NavLinkView } from './NavLinkView'
 import { useCurrentRoute } from './useCurrentRoute'
 
-// Navigationslink in Kopf und Menü (DESIGN KO-02/KO-03): `--ink`, gezeichnete Unterstreichung (MI-06); aktuelle Seite
+// Navigationslink im Kopf (DESIGN KO-02): `--ink`, gezeichnete Unterstreichung (MI-06); aktuelle Seite
 // `aria-current="page"`, aktiver Bereich (z. B. Shop bei Kategorie/Stück) `aria-current="true"` – beide statisch
-// unterstrichen.
+// unterstrichen. Markup: `NavLinkView` (auch im Menü, dort ohne Hydrierung).
 export function NavLink({
   href,
   routeId,
   area = [],
   className,
   children,
-  onClickClose,
 }: {
   href: string
   /** Route des Links. */
@@ -24,8 +22,6 @@ export function NavLink({
   area?: readonly string[]
   className?: string
   children: React.ReactNode
-  /** Markiert Links im Menü (schließt es beim Klick, Modul `menu`). */
-  onClickClose?: boolean
 }) {
   const current = useCurrentRoute()?.route.id
   const ariaCurrent =
@@ -35,17 +31,8 @@ export function NavLink({
         ? 'true'
         : undefined
   return (
-    <a
-      href={href}
-      className={className}
-      aria-current={ariaCurrent}
-      data-underline-host=""
-      data-menu-close={onClickClose ? '' : undefined}
-    >
-      <span className="nav-link__text">
-        {children}
-        <LinkUnderline seed={href} />
-      </span>
-    </a>
+    <NavLinkView href={href} className={className} ariaCurrent={ariaCurrent}>
+      {children}
+    </NavLinkView>
   )
 }

@@ -25,6 +25,17 @@ for (const size of [null, { width: 390, height: 844 }] as const) {
       const table = page.locator('.collection-list table, .table table').first()
       await expect(table).toBeVisible()
       await expect(table.locator('tbody tr')).not.toHaveCount(0)
+      // Namen der Auswahl-Kästchen und Blätter-Pfeile setzt `ListA11yFixes` erst nach der Hydrierung – unter Last
+      // (WebKit) war die Tabelle schon sichtbar, die Namen noch nicht.
+      await expect(
+        page
+          .locator(
+            '.collection-list .select-row__checkbox input[type="checkbox"], .collection-list .select-row input[type="checkbox"]',
+          )
+          .first(),
+      ).toHaveAttribute('aria-label', /\S/)
+      for (const arrow of await page.locator('.collection-list button.clickable-arrow').all())
+        await expect(arrow).toHaveAttribute('aria-label', /\S/)
       await expectAccessible(page, '.collection-list')
     } finally {
       for (const id of orders) await removeOrder(payload, id)

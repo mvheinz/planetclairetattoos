@@ -39,7 +39,7 @@ const HTML = `<!doctype html><html lang="de" class="font-a font-b"><head>
 <div data-behavior="menu" aria-label="Menü" id="menu"></div>
 <svg><use href="/art/coco-sprite.v1.svg#coco-sitzen-a"></use></svg>
 <svg><use data-href="/art/coco-sprite.v1.svg#coco-kopfschief-a"></use></svg>
-<form action="/api/withdrawals" method="post"><button type="submit">Senden</button></form></main>
+<form action="/api/withdrawals" method="post"><input type="hidden" name="$ACTION_REF_1"><input type="hidden" name="$ACTION_1:1" value="[{&quot;token&quot;:&quot;eyJpYXQiOjE3OTF9.abc&quot;}]"><input type="hidden" name="$ACTION_KEY" value="k1"><input type="hidden" name="$ACTION_ID_4075f1"><input type="hidden" name="formToken" value="eyJpYXQiOjE3OTJ9.def"><input type="hidden" name="keep" value="1"><button type="submit">Senden</button></form></main>
 <footer><a href="/de/vertrag-widerrufen">Vertrag widerrufen</a><a href="mailto:hallo@example.com">Mail</a></footer>
 <noscript><style>.x{}</style></noscript><next-route-announcer></next-route-announcer>
 <script>self.__next_f.push([1,"x"])</script><script type="application/json">{"a":1}</script>
@@ -114,6 +114,12 @@ describe('Vorschau-Export: Seiten-Umwandlung (ARCHITEKTUR §14.5)', () => {
 
   it('Formulare ohne action mit data-pv-form', () => {
     expect(page.body).toContain('<form data-pv-form="">')
+  })
+
+  it('AK-A-14-01/AK-A-14-02 Formulare ohne Server-Action-Felder und formToken (je Lauf verschieden)', () => {
+    expect(page.body).not.toContain('$ACTION')
+    expect(page.body).not.toContain('eyJpYXQi')
+    expect(page.body).toContain('name="keep"')
   })
 
   it('keine Export-Adresse im Text', () => {

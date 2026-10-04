@@ -1,9 +1,13 @@
 import { randomUUID } from 'node:crypto'
+import { unlink } from 'node:fs/promises'
+import path from 'node:path'
 
 import { sql } from '@payloadcms/db-postgres'
 import type { Payload, RequestContext } from 'payload'
 
+import { getEnv } from '@/lib/env'
 import { createToken, hashToken } from '@/lib/security/tokens'
+import { uploadStaticDir } from '@/lib/storage'
 
 import { ensureLegalTextFixtures } from './legal'
 
@@ -119,6 +123,31 @@ export function checkoutData(items: ItemInput[], overrides: Record<string, unkno
 }
 
 /** Entfernt Bestellungen, Kassen, Reservierungen und Belege der Tests (echte Bestellungen sind sonst unlöschbar). */
+/**
+ * Beleg-PDFs der Tests entfernen (Datensatz und Datei). Der Beleg-Zähler beginnt nach `deleteCommerce` wieder bei 1;
+ * ein liegen gebliebenes `RE-2026-00001.pdf` mit anderem Inhalt würde sonst vom nächsten Beleg nie überschrieben
+ * (R-122, `StoredFileConflictError`) – die Beleg-PDF-Aufgabe scheiterte still, die Mail wartete auf den Anhang
+ * (bei frischem Speicherordner wie in der CI; mit gewachsenem lokalem Ordner fiel es nicht auf). Seed-Belege bleiben.
+ */
+async function deleteInvoicePdfs(payload: Payload): Promise<void> {
+  const db = dbOf(payload)
+  const exists = await db.execute(sql`SELECT to_regclass('private_uploads') AS t`)
+  if (!exists.rows[0]?.t) return
+  const rows = await db.execute(
+    sql`DELETE FROM private_uploads
+        WHERE purpose IN ('invoice_pdf', 'credit_note_pdf') AND seed IS NOT TRUE
+        RETURNING filename`,
+  )
+  const dir = uploadStaticDir('private', getEnv())
+  for (const r of rows.rows) {
+    const name = String(r.filename ?? '')
+    if (!name || /[/\\]/.test(name)) continue
+    await unlink(path.join(dir, name)).catch((e: NodeJS.ErrnoException) => {
+      if (e.code !== 'ENOENT') throw e
+    })
+  }
+}
+
 export async function deleteCommerce(payload: Payload): Promise<void> {
   const db = dbOf(payload)
   await db.execute(sql`UPDATE products SET current_order_id = NULL`)
@@ -145,4 +174,6 @@ export async function deleteCommerce(payload: Payload): Promise<void> {
       )
     } else await db.execute(sql.raw(`DELETE FROM "${table}"`))
   }
+  // Erst nach den Belegen: der GoBD-Trigger verbietet, dass ein Beleg seine PDF-Verknüpfung verliert.
+  await deleteInvoicePdfs(payload)
 }

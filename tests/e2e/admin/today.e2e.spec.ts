@@ -16,6 +16,10 @@ test('@a11y „Heute“: Kacheln, roter Hinweis Anfechtung mit Link, letzte Best
 }) => {
   const payload = await testPayload()
   const piece = await fixtureProducts.create('keramik')
+  // Jüngste Bestellung der Liste „letzte Bestellungen“: Der Beispielbestand liegt relativ zu `SEED_NOW` (CI fest
+  // 15.10.2026), also ggf. nach der echten Uhr – deshalb nach dem späteren von beiden bestellt.
+  const seedNow = Date.parse(process.env.SEED_NOW ?? '')
+  const placedAt = new Date(Math.max(Date.now(), Number.isNaN(seedNow) ? 0 : seedNow) + 3_600_000)
   const disputed = await fixtureOrder(
     payload,
     piece,
@@ -24,7 +28,7 @@ test('@a11y „Heute“: Kacheln, roter Hinweis Anfechtung mit Link, letzte Best
       status: 'disputed',
       statusBeforeDispute: 'delivered',
       seed: true,
-      timestamps: { placedAt: new Date().toISOString() },
+      timestamps: { placedAt: placedAt.toISOString() },
     },
     { seed: true },
   )

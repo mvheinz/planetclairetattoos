@@ -9,13 +9,14 @@ import { expectNoSeriousViolations } from '../axe'
 import { expect, test } from '../fixtures'
 import {
   COMMISSION_DE,
-  TEST_EMAIL_DOMAIN,
   fillRequired,
   inquiryByReference,
   noiseJpeg,
   openForm,
   removeInquiries,
+  SUBMIT_TIMEOUT,
   submitAfterMinTime,
+  TEST_EMAIL_DOMAIN,
   uploadsOf,
   useFreshIp,
 } from './commissionHelpers'
@@ -68,7 +69,7 @@ test('AK-10-01 Formular mit 5 Bildern à 3,9 MB wird vollständig gespeichert; e
   await fillRequired(page, { email })
   await submitAfterMinTime(page, loadedAt)
   const success = page.locator('[data-commission-success]')
-  await expect(success).toBeVisible({ timeout: 30_000 })
+  await expect(success).toBeVisible({ timeout: SUBMIT_TIMEOUT })
   await expect(success).toBeFocused()
   await expect(success).toContainText(/Danke! Deine Anfrage AA-\d{4}-\d{4} ist angekommen/)
   const reference = (await success.getAttribute('data-reference'))!
@@ -103,6 +104,9 @@ test('Fehlerfall: gescheiterter Upload → Hinweis am Bild, Absenden ohne dieses
   await expect(page.locator('[data-commission-image="failed"]')).toContainText(
     'trotzdem ohne dieses Bild absenden',
   )
+  // Abfangen beenden, bevor das zweite Bild hochgeladen wird: Unter WebKit verliert das Weiterreichen abgefangener
+  // Anfragen gelegentlich den Blob-Inhalt von FormData (leerer Upload → 400).
+  await page.unroute('**/api/uploads/commission**')
   await page.locator('#anfrage-bilder').setInputFiles([await small(2)])
   await expect(page.locator('[data-commission-image="done"]')).toHaveCount(1)
   // falscher Typ wird schon im Browser abgelehnt
@@ -126,7 +130,7 @@ test('Fehlerfall: gescheiterter Upload → Hinweis am Bild, Absenden ohne dieses
   await fillRequired(page, { email })
   await page.getByRole('button', { name: 'Anfrage senden' }).click()
   const success = page.locator('[data-commission-success]')
-  await expect(success).toBeVisible()
+  await expect(success).toBeVisible({ timeout: SUBMIT_TIMEOUT })
   const inquiry = await inquiryByReference((await success.getAttribute('data-reference'))!)
   expect(inquiry?.referenceImages).toHaveLength(1)
 })
@@ -149,7 +153,9 @@ test('R-137 Anfrage: nach dem Absenden enthält die URL keine Eingaben; R-138 An
   )
   await fillRequired(page, { email, name: 'Rosa Geheim' })
   await submitAfterMinTime(page, loadedAt)
-  await expect(page.locator('[data-commission-success]')).toBeVisible()
+  await expect(page.locator('[data-commission-success]')).toBeVisible({
+    timeout: SUBMIT_TIMEOUT,
+  })
   const url = new URL(page.url())
   expect(url.pathname).toBe(COMMISSION_DE)
   expect(url.search).toBe('')
@@ -171,7 +177,7 @@ test('T-05 R-135 GPS-Foto über das Formular: gespeichert ohne EXIF/GPS und rich
   await fillRequired(page, { email })
   await submitAfterMinTime(page, loadedAt)
   const success = page.locator('[data-commission-success]')
-  await expect(success).toBeVisible()
+  await expect(success).toBeVisible({ timeout: SUBMIT_TIMEOUT })
   const inquiry = await inquiryByReference((await success.getAttribute('data-reference'))!)
   const [upload] = await uploadsOf(inquiry?.referenceImages as number[])
   const stored = await readFile(path.join(uploadStaticDir('private'), upload!.filename!))

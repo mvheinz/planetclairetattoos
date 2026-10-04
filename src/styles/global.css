@@ -7,6 +7,37 @@
   --font-plex-mono: ui-monospace;
 }
 
+/* Metrik-Ersatzschriften (DESIGN §4.1, gegen CLS): Werte wie next/font `adjustFontFallback: 'Arial'` sie aus den
+   Schriftdateien berechnet (src/styles/fonts.ts). Zusätzlich zu Arial die metrisch gleichen Nachbauten Liberation Sans
+   und Arimo – ohne sie bleibt die Fläche auf Rechnern ohne Arial leer, und Chrome fragt jede Familie des Stapels einzeln
+   beim Systemschrift-Dienst ab (langes erstes Layout, TBT ARCHITEKTUR §7.7). */
+@font-face {
+  font-family: 'mansalva Fallback';
+  src: local('Arial'), local('Liberation Sans'), local('Arimo');
+  ascent-override: 113.96%;
+  descent-override: 47.76%;
+  line-gap-override: 0%;
+  size-adjust: 97.58%;
+}
+
+@font-face {
+  font-family: 'bricolage Fallback';
+  src: local('Arial'), local('Liberation Sans'), local('Arimo');
+  ascent-override: 83.54%;
+  descent-override: 24.25%;
+  line-gap-override: 0%;
+  size-adjust: 111.32%;
+}
+
+@font-face {
+  font-family: 'plexMono Fallback';
+  src: local('Arial'), local('Liberation Sans'), local('Arimo');
+  ascent-override: 77.95%;
+  descent-override: 20.91%;
+  line-gap-override: 0%;
+  size-adjust: 131.49%;
+}
+
 /* Schriften-Tor (DESIGN §4.1, P2.20): Bis zum zweiten Frame nach dem ersten Bild stehen die von next/font erzeugten,
    metrisch angeglichenen Ersatzschriften (kein Netzabruf) – die Webschriften werden erst danach angefordert. Das
    Attribut setzt und entfernt das Inline-Skript `pc-motion` (src/lib/security/inlineScripts.ts); ohne JavaScript fehlt
