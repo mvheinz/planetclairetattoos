@@ -156,6 +156,15 @@ html[data-motion='reduced'] .coco .f-c {
 }
 
 @media (forced-colors: active) {
+  /* Das externe Sprite (`<use href="/art/coco-sprite…">`) wertet seine eigene Medienabfrage im Sprite-Dokument aus;
+     Chromium überträgt die Farbemulation dorthin nicht immer (A11Y-05, R3-01-03). Die Farb-Token erben aber in den
+     geklonten Baum – darüber wird das Fell flächenfrei und der Strich Systemfarbe. */
+  .coco {
+    --coco-fur: transparent;
+    --coco-harness: transparent;
+    --ink: CanvasText;
+    --paper: Canvas;
+  }
   .coco .fur,
   .coco .harness {
     fill: none;

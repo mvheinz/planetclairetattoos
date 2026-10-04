@@ -94,6 +94,7 @@ export function ProductCard({
       data-product-id={product.id}
       data-item-number={product.itemNumber}
       data-status={state}
+      data-category={product.category}
     >
       <span className={styles.photo}>
         <ResponsiveImage

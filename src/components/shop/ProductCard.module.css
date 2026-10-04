@@ -21,10 +21,27 @@
   position: relative;
   display: block;
   width: 100%;
+  /* Kunst-QA IM-04 (R1-01-03): Fotos und Platzhalter „aus einem Guss“ – jedes Bild liegt wie ein Abzug auf dem
+     Papier-2-Karton der Platzhalter (schmaler Rand rundum), statt randlos neben gerahmten Zeichnungen zu stehen. */
+  padding: 5%;
+  background: var(--paper-2);
+  border-radius: var(--r-photo);
+  isolation: isolate;
 }
 
 .image {
-  border-radius: var(--r-photo);
+  border-radius: calc(var(--r-photo) / 2);
+}
+
+/* Gescannte Zeichnungen auf weißem Papier: Weiß nimmt den Papierton an (Multiplizieren), Tusche bleibt schwarz. */
+.card[data-category='zeichnung'] .image img {
+  mix-blend-mode: multiply;
+}
+
+@media (forced-colors: active) {
+  .photo {
+    background: Canvas;
+  }
 }
 
 .card[data-status='sold'] .image img,
