@@ -524,10 +524,16 @@ export function overlaps(p: Probe, tol = 1): string[] {
         }
       }
   }
-  if (p.coco)
+  if (p.coco) {
+    // P9.18 (MO-12, R2-03-01): die Box ist größer als der Hund; er füllt waagerecht 0,13–0,90 der Box (gespiegelt
+    // 0,10–0,87) – gemessen wird die Hundekante (0,10–0,90), nicht die leere Ränder der Box (gleiche Regel wie `place()`).
+    // 1 px Toleranz an jeder Kante (Strichenden, Boil-Versatz), unten 4 px (Pfoten gegen den leeren Zeilenabstand über der Schrift,
+    // Textzeilen-Rechtecke enthalten den Zeilenabstand), zusätzlich zur Toleranz der Hindernisse
+    const dogX = p.coco.x + 0.1 * p.coco.w + 1
+    const dogW = 0.8 * p.coco.w - 2
     for (const r of obstacles) {
-      const ix = Math.min(p.coco.x + p.coco.w, r.x + r.w) - Math.max(p.coco.x, r.x)
-      const iy = Math.min(p.coco.y + p.coco.h, r.y + r.h) - Math.max(p.coco.y, r.y)
+      const ix = Math.min(dogX + dogW, r.x + r.w) - Math.max(dogX, r.x)
+      const iy = Math.min(p.coco.y + p.coco.h - 4, r.y + r.h) - Math.max(p.coco.y + 1, r.y)
       if (ix > 0 && iy > 0) {
         out.push(
           `Coco-Box über (${Math.round(r.x)}, ${Math.round(r.y)}, ${Math.round(r.w)}×${Math.round(r.h)})`,
@@ -535,6 +541,7 @@ export function overlaps(p: Probe, tol = 1): string[] {
         break
       }
     }
+  }
   return out
 }
 
