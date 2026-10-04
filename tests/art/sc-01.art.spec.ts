@@ -1,7 +1,13 @@
 import { maxScroll } from './helpers/capture'
 import { followSamples, introTiming, readingSeries } from './helpers/extras'
 import { artTags, test } from './helpers/fixtures'
-import { leashStations, readingFrame, releaseReading, stationBounds } from './helpers/leash'
+import {
+  leashStations,
+  readingFrame,
+  readingStep,
+  releaseReading,
+  stationBounds,
+} from './helpers/leash'
 
 // SC-01 (KUNST-QA §4.3): Startseite R01 – (a) Intro abwarten (Sequenz alle 100 ms), (b) langsam scrollen 600 px/s bis
 // zum Ende, (c) schnell „wischen“ 3000 px/s, (d) 400 px hoch, (e) 1,5 s stehen an jeder Station. Frames an jeder
@@ -70,6 +76,11 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
   if (mid) {
     const y = mid.y + mid.loopScroll
     await readingFrame(art, y, `up400-before-y${Math.round(y)}`)
+    // R2-04-04: Zwischenbilder des gespiegelten Rücklaufs – 8 Schritte à 50 px, je 90 ms Uhr (Coco läuft in rAF-Schritten
+    // der Lesezeile nach, Linie bleibt stehen), Sichtbereich und 4×-Lupe auf Coco. Reduziert: Coco bleibt am Ruheplatz.
+    if (!art.reduced)
+      for (let k = 1; k <= 8; k++)
+        await readingStep(art, y - k * 50, `up400-s${k}-y${Math.round(y - k * 50)}`, 90)
     await readingFrame(art, y - 400, `up400-after-y${Math.round(y - 400)}`)
   }
   await releaseReading(page)
@@ -79,5 +90,5 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
   if (!art.reduced) await readingSeries(art)
 
   // MO-10: Intro-Zeitpunkt (≥ LCP + 300 ms) und Dauer (900 ms ± 90), fein in 20-ms-Schritten (ohne Video-Bilder).
-  if (!art.reduced && art.profile !== 'art-iphone15') art.extra('mo10', await introTiming(art))
+  if (!art.reduced) art.extra('mo10', await introTiming(art))
 })
