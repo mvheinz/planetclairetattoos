@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-04 – P8 CI-Fix: Test-Beleg-PDFs wurden nicht aufgeräumt
+
+In der CI schlug eine Prüfdatei zur Vertragsbestätigung fehl (Bestätigungsmail kam nicht an). Ursache war nur in den Tests: Beim Aufräumen der Test-Bestellungen begann die Rechnungsnummer wieder bei 1, die alte Rechnungs-Datei mit dieser Nummer blieb aber liegen; die neue (anderer Inhalt) wurde zu Recht nicht überschrieben (Belege sind unveränderlich), die Mail wartete auf ihren Anhang. Lokal fiel das nicht auf, weil dort der Speicherordner schon von früheren Läufen gefüllt war. Der Test-Helfer räumt jetzt auch Beleg-PDFs (Datensatz und Datei) auf. Geprüft mit frischem Speicherordner: Datei und gesamte Int-Suite mit 3 Workern grün.
+
 ## 2026-10-04 – P8 CI: Zeitlimits für quick und quality auf 60 Minuten
 
 Zweiter Phasenlauf: alle sechs Browser-Prüfungen und der Vorschau-Export waren grün. Die Jobs „quick“ und „quality“ liefen aber ins 45-Minuten-Limit, weil die Integrationstests mit dem vollen Beispielbestand rund 30 Minuten brauchen (auch mit drei Workern). Limit auf 60 Minuten angehoben (öffentliches Repo, keine Kosten); nichts übersprungen. Phasenlauf startet erneut.
