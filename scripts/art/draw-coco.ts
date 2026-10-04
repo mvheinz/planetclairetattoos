@@ -363,7 +363,7 @@ function sideHead(t: Tf, o: HeadOpts = {}): Stroke[] {
       layer: 'solid',
       part: 'nose',
       // dicke, gefüllte Nase wie in Juttas Skizze (ovaler Tupfer)
-      pts: blob([19.4, 0.4], 2.7, 2.3, -8, 7),
+      pts: blob([19.4, 0.4], 2.5, 2.2, -8, 7),
       closed: true,
       jitter: 0.25,
     },
