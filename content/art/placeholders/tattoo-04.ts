@@ -3,7 +3,7 @@ import type { Motif } from '../../../scripts/art/lib/handline'
 import { heartWalking, place } from './_parts'
 
 const motif: Motif = {
-  zoom: 0.95,
+  zoom: 0.92,
   tilt: -2.4,
   strokes: [
     // Wade (Rückseite gewölbt), Schienbein, Kniescheibe, Knöchel und Fuß (Prüf-Linse P9.13: vorher „Sack“)
