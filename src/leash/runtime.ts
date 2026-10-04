@@ -1,10 +1,10 @@
 import { easeInkOut } from './easing'
-import { buildGeometry, geometrySteps, mapReadingY, pointAt } from './geometry'
+import { geometrySteps, mapReadingY, pointAt } from './geometry'
 import { measure, type Measurement } from './measure'
 import { getMotion, type Motion } from './motion'
 import { DOWNGRADE, PRESET_CONFIG, READING_LINE, REST_POSE, isStaticPreset } from './presets'
 import { fnv1a32 } from './random'
-import { segmentSvg, staticSegmentSvg } from './static'
+import { SVG_NS, segmentSvg, staticSegmentSvg } from './static'
 import type {
   LeashGeometry,
   LeashHandle,
@@ -98,7 +98,6 @@ export interface InspectableLeashHandle extends LeashHandle {
   }): void
 }
 
-const SVG_NS = 'http://www.w3.org/2000/svg'
 /** Strichlänge und Lücke der Enthüllung in px: größer als jedes Strich-Stück, Versatz `DASH − sichtbare Länge`. */
 const DASH = 2000
 /** Debounce des Neuaufbaus (§9.10). */
@@ -107,8 +106,11 @@ const REBUILD_DEBOUNCE_MS = 150
 const MIN_VIEWPORT_DH = 120
 /** Eintrittslinie der Kartenreihen (`shopString`): Anteil der Viewport-Höhe von oben (§9.7, IO-Schwelle ≈ 0.3). */
 const ROW_ENTER_LINE = 0.95
-/** Rechenzeit je Idle-Teilstück des Aufbaus (ms, ungedrosselt; mindestens ein Schritt je Teilstück). */
-const STEP_BUDGET_MS = 4
+/**
+ * Rechenzeit je Idle-Teilstück des Aufbaus (ms, ungedrosselt; mindestens ein Schritt je Teilstück, ein weiterer nur, wenn
+ * er – geschätzt wie der vorige – noch hineinpasst).
+ */
+const STEP_BUDGET_MS = 3
 /** Coco springt statt zu rennen, wenn sie weiter zurückliegt (§9.6). */
 const COCO_JUMP = 300
 
@@ -163,8 +165,6 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   let lastScrollAt = -Infinity
   let intro: { from: number; to: number; start: number | null; dur: number } | null = null
   let debounce: ReturnType<typeof setTimeout> | null = null
-  let idleId: number | null = null
-  let idleTimer: ReturnType<typeof setTimeout> | null = null
   const monitor = { active: 0, frames: 0, slow: 0, done: false }
   const restPose = cfg.coco ? REST_POSE[options.preset] : null
   let pose: SpritePose | null = null
@@ -345,24 +345,29 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
 
   // ---------- Scroll-Kopplung (§9.6) ----------
 
-  function readingY(): number {
+  function readingY(scrollY = win.scrollY): number {
     if (readingOverride !== null) return readingOverride
     if (!m) return 0
-    return win.scrollY + READING_LINE * m.innerHeight - m.rootTop
+    return scrollY + READING_LINE * m.innerHeight - m.rootTop
   }
 
-  function scrollTarget(): number {
+  /**
+   * Ziel-Länge zur Scroll-Position. `scrollY` liest im Frame (vor allen Schreibzugriffen) `window.scrollY`; die
+   * Schreibphase des Aufbaus übergibt die gemessene Position, denn `scrollY` nach dem Einhängen der Segmente erzwingt
+   * ein Layout der ganzen Seite (KUNST-QA PF-04/PF-05).
+   */
+  function scrollTarget(scrollY = win.scrollY): number {
     if (!geometry || !m) return 0
     const rows = cfg.draw === 'rowEnter'
     if (cfg.draw !== 'scroll' && !rows) return geometry.totalLength
-    if (readingOverride === null && m.maxScroll > 0 && win.scrollY >= m.maxScroll - 2)
+    if (readingOverride === null && m.maxScroll > 0 && scrollY >= m.maxScroll - 2)
       return geometry.totalLength
     // Kartenreihen (§9.7): Reihe gilt als eingetreten, wenn ihre Schnur die Eintrittslinie erreicht.
     return mapReadingY(
       geometry.scrollMap,
       rows
-        ? (readingOverride ?? win.scrollY + ROW_ENTER_LINE * m.innerHeight - m.rootTop)
-        : readingY(),
+        ? (readingOverride ?? scrollY + ROW_ENTER_LINE * m.innerHeight - m.rootTop)
+        : readingY(scrollY),
     )
   }
 
@@ -511,6 +516,8 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
 
   const builtCallbacks: (() => void)[] = []
   let built = false
+  /** Zeitpunkt der letzten Lesephase (für den Abgleich nach einem Aufbau in Teilstücken). */
+  let measuredAt = 0
   /** Laufender Aufbau in Teilstücken (abbrechbar). */
   let stepped: { cancel(): void } | null = null
 
@@ -525,7 +532,8 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     tier = chooseTier()
     render()
     const total = geometry.totalLength
-    const target = scrollTarget()
+    // Gemessene Position statt `window.scrollY` (kein erzwungenes Layout); der nächste Frame gleicht nach.
+    const target = scrollTarget(mm.scrollY)
     intro = null
     if (tier === 'C') drawnLen = total
     else if (first) {
@@ -550,33 +558,50 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     applyDrawn()
     emitCoco(1, !!intro)
     timing(LEASH_MEASURES.build, t0)
-    if (intro) requestFrame()
+    // Während eines Aufbaus in Teilstücken gescrollt: der nächste Frame gleicht die Länge an die aktuelle Position an.
+    if (intro || lastScrollAt >= measuredAt) requestFrame()
     if (!built) {
       built = true
       for (const cb of builtCallbacks.splice(0)) cb()
     }
   }
 
-  /** Aufbau in einem Zug (Tests, `rebuild()`, Bewegungswechsel, Browser ohne `requestIdleCallback`). */
-  function build(first: boolean) {
-    stepped?.cancel()
-    stepped = null
-    const t0 = performance.now()
+  /**
+   * Der Aufbau als Ablauf (DESIGN §9.10, KUNST-QA PF-04): Lesephase als eigenes Teilstück, dann die Geometrie Schritt
+   * für Schritt und je Segment ein abgehängtes SVG (Stufe/Farben wie jetzt; die Schreibphase prüft, ob sie noch passen).
+   */
+  function* work(): Generator<boolean | void, [Measurement, LeashGeometry], void> {
+    measuredAt = performance.now()
     const mm = measure(root, options.preset)
-    finishBuild(first, mm, buildGeometry({ preset: options.preset, seed, ...mm.input }), t0)
+    yield true
+    return [mm, (yield* geometrySteps({ preset: options.preset, seed, ...mm.input })).geometry]
   }
 
   /**
-   * Aufbau in Idle-Teilstücken (DESIGN §9.10, KUNST-QA PF-04): Lesephase, dann die Geometrie Schritt für Schritt
-   * (höchstens {@link STEP_BUDGET_MS} je Teilstück, mindestens ein Schritt), zuletzt die Schreibphase. Jedes Teilstück
-   * ist eine eigene `leash:build`-Messung; so bleibt bei 4× Drosselung jedes unter 50 ms.
+   * Aufbau in einem Zug (Tests, `rebuild()`, Bewegungswechsel, Browser ohne `requestIdleCallback`) oder – `stepwise` –
+   * in Idle-Teilstücken: die Lesephase erst im Idle-Callback (nach dem Rendern des Frames ist das Layout aktuell und das
+   * Lesen billig), dann höchstens {@link STEP_BUDGET_MS} je Teilstück, zuletzt die Schreibphase (nur Einhängen). Jedes
+   * Teilstück ist eine eigene `leash:build`-Messung: am Desktop ≤ 8 ms, bei 4× Drosselung jedes unter 50 ms.
    */
-  function buildStepped(first: boolean) {
-    const ric = win.requestIdleCallback
-    if (!ric) return build(first)
+  function build(first: boolean, stepwise = false) {
     stepped?.cancel()
+    stepped = null
+    const t0 = performance.now()
+    const steps = work()
+    const ric = stepwise ? win.requestIdleCallback : undefined
+    if (!ric) {
+      let r = steps.next()
+      while (!r.done) r = steps.next()
+      return finishBuild(first, ...r.value, t0)
+    }
     let cancelled = false
     let handle: number | null = null
+    const job = (stepped = {
+      cancel() {
+        cancelled = true
+        if (handle !== null) win.cancelIdleCallback?.(handle)
+      },
+    })
     const next = (fn: () => void) => {
       handle = ric.call(
         win,
@@ -587,27 +612,22 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
         { timeout: 300 },
       )
     }
-    stepped = {
-      cancel() {
-        cancelled = true
-        if (handle !== null) win.cancelIdleCallback?.(handle)
-      },
-    }
-    const job = stepped
-    const t0 = performance.now()
-    const mm = measure(root, options.preset)
-    timing(LEASH_MEASURES.build, t0)
-    const steps = geometrySteps({ preset: options.preset, seed, ...mm.input })
     const run = () => {
       const t1 = performance.now()
-      let r = steps.next()
-      while (!r.done && performance.now() - t1 < STEP_BUDGET_MS) r = steps.next()
+      let r: ReturnType<typeof steps.next>
+      let ts: number
+      // Nächsten Schritt nur, wenn er (geschätzt wie der letzte) noch ins Budget passt – kein Überziehen.
+      // (verstrichen + Dauer des letzten Schritts = 2·jetzt − Schrittbeginn − Teilstückbeginn)
+      do {
+        ts = performance.now()
+        r = steps.next()
+      } while (!r.done && !r.value && 2 * performance.now() - ts - t1 <= STEP_BUDGET_MS)
       timing(LEASH_MEASURES.build, t1)
       if (!r.done) return next(run)
-      const geo = r.value.geometry
+      const v = r.value
       next(() => {
         if (stepped === job) stepped = null
-        finishBuild(first, mm, geo, performance.now())
+        finishBuild(first, ...v, performance.now())
       })
     }
     next(run)
@@ -617,29 +637,17 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     if (destroyed) return
     root.dataset.stale = ''
     if (debounce !== null) clearTimeout(debounce)
+    // Der Aufbau in Teilstücken wartet selbst auf den Idle-Callback (Lesephase nach dem Frame).
     debounce = setTimeout(() => {
       debounce = null
-      if (win.requestIdleCallback) {
-        idleId = win.requestIdleCallback(
-          () => {
-            idleId = null
-            rebuild(true)
-          },
-          { timeout: 300 },
-        )
-      } else
-        idleTimer = setTimeout(() => {
-          idleTimer = null
-          rebuild()
-        }, 1)
+      rebuild(true)
     }, REBUILD_DEBOUNCE_MS)
   }
 
   function rebuild(stepwise = false) {
     if (destroyed) return
     rebuildCount++
-    if (stepwise && options.stepwise !== false) buildStepped(false)
-    else build(false)
+    build(false, stepwise && options.stepwise !== false)
   }
 
   // ---------- Ereignisse ----------
@@ -681,8 +689,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
         })
       : null
 
-  if (options.stepwise === false) build(true)
-  else buildStepped(true)
+  build(true, options.stepwise !== false)
   win.addEventListener('scroll', onScroll, { passive: true })
   win.addEventListener('resize', onResize, { passive: true })
   if (doc.readyState !== 'complete') win.addEventListener('load', onLoad, { once: true })
@@ -703,9 +710,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       stepped = null
       if (rafId !== null) win.cancelAnimationFrame(rafId)
       if (debounce !== null) clearTimeout(debounce)
-      if (idleTimer !== null) clearTimeout(idleTimer)
-      if (idleId !== null) win.cancelIdleCallback?.(idleId)
-      rafId = debounce = idleTimer = idleId = null
+      rafId = debounce = null
       win.removeEventListener('scroll', onScroll)
       win.removeEventListener('resize', onResize)
       win.removeEventListener('load', onLoad)

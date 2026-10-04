@@ -9,7 +9,7 @@ import type { LeashGeometry, LeashSegment, PresetId } from './types'
 //    `calm` (Unterstreichung der H1); lädt weder Geometrie noch Laufzeit (Budget ≤ 4 KB gz, `check:bundle`).
 // Framework-frei (ARCHITEKTUR A-11), keine Zeit-/Zufallsquellen außer dem Seed der Route.
 
-const SVG_NS = 'http://www.w3.org/2000/svg'
+export const SVG_NS = 'http://www.w3.org/2000/svg'
 /** Rand der SVG-Box um die Segment-Bbox (§9.4). */
 export const PAD = 8
 const STEP = 4
