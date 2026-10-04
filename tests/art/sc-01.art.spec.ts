@@ -43,9 +43,9 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
   await art.pauseClock()
   for (const [i, s] of stations.entries()) {
     for (const b of stationBounds(s))
-      await readingFrame(art, b.y, `station${i + 1}-${b.tag}-y${Math.round(b.y)}`)
+      await readingFrame(art, b.y, `station${i}-${s.id}-${b.tag}-y${Math.round(b.y)}`)
     await page.clock.runFor(1500)
-    await art.settledFrame(`station${i + 1}-stay1500-y${Math.round(s.y + s.loopScroll)}`)
+    await art.settledFrame(`station${i}-${s.id}-stay1500-y${Math.round(s.y + s.loopScroll)}`)
     // Lupe auf Coco an der Leinenspitze (R2-01-02): Pose und Blickrichtung im Bogen lesbar, 4× vergrößert.
     const box = await page.locator('.coco[data-leash-coco]').boundingBox()
     const vh = page.viewportSize()!.height
@@ -56,7 +56,7 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
       const y = Math.max(0, box.y - pad)
       const width = Math.min(vw - x, box.width + 2 * pad)
       const height = box.height + 2 * pad
-      await art.frame(`station${i + 1}-coco-lupe-y${Math.round(s.y + s.loopScroll)}`, {
+      await art.frame(`station${i}-${s.id}-coco-lupe-y${Math.round(s.y + s.loopScroll)}`, {
         zoom: { x, y, width, height, to: Math.round(width * 4) },
       })
     }

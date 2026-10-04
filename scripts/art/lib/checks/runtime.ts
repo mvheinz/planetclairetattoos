@@ -298,13 +298,16 @@ const STATION_POSES: Readonly<Record<string, readonly string[]>> = {
 export function mo08(files: readonly ProbeFile[]): CheckResult {
   const th = 'Pose beim Verweilen = Tabelle DESIGN §11.4 an allen Stationen'
   const rows = entries(files, { sc: 'SC-01', variant: 'motion' }).filter(
-    (e) => /^station\d+-stay/.test(e.p.label) && e.p.leash,
+    (e) => /^station\d+-(?:[a-z-]+-)?stay/.test(e.p.label) && e.p.leash,
   )
   if (!rows.length) return noData('MO-08', th, 'keine Verweil-Sonden (SC-01 station*-stay1500)')
   const bad: string[] = []
   for (const e of rows) {
-    const i = Number(/^station(\d+)/.exec(e.p.label)![1]) - 1
-    const st = e.p.leash!.stations[i]
+    // Beschriftung `station<#>-<id>-stay…` mit # wie Tabelle §11.4 (0 = Kopf-Station); ältere Läufe: 1-basiert ohne id
+    const m = /^station(\d+)-(?:([a-z-]+)-)?stay/.exec(e.p.label)!
+    const st = m[2]
+      ? e.p.leash!.stations.find((x) => x.id === m[2])
+      : e.p.leash!.stations[Number(m[1]) - 1]
     // Tabelle §11.4: Ankunft → Verweilen; Schmuck endet nach dem Sprung sitzend, Kopf-Station/Textil wechseln nach 1,2/1,5 s
     const allowed = new Set<string>([st?.pose ?? '', ...(st ? (STATION_POSES[st.id] ?? []) : [])])
     if (st && !allowed.has(e.p.leash!.pose ?? ''))

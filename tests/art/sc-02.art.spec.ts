@@ -40,7 +40,7 @@ test('SC-02 Startseite reduziert', { tag: artTags('all', ['reduced']) }, async (
   const stations = await leashStations(page)
   for (const [i, s] of stations.entries())
     for (const b of stationBounds(s))
-      await readingFrame(art, b.y, `station${i + 1}-${b.tag}-y${Math.round(b.y)}`)
+      await readingFrame(art, b.y, `station${i}-${s.id}-${b.tag}-y${Math.round(b.y)}`)
   await releaseReading(page)
   await art.resumeClock()
   await art.scrollRun(await page.evaluate(() => document.documentElement.scrollHeight), 1500)
