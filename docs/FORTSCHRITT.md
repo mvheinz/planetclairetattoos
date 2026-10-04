@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-04 – P9.16
+
+- Letztes offenes Kriterium Vorschau-Datei (KONZEPT §12.7 Nr. 5 und 7) im Arbeitsbaum mit eigener DB/Port belegt: pnpm preview:export (PREVIEW_EXPORT_DB_NAME=planetclaire_c_preview_export, Port 3250) → 164 Routen, 0 Warnungen; pnpm test:preview-export 32/32 grün (Nr. 5: Linie zeichnet beim Scrollen weiter, Coco bewegt sich; reduzierte Bewegung statisch; Nr. 7 und P3.16: „In den Korb“-Mikromoment, Schild-Schwingen ohne Anfragen)\n- MO-01…MO-04, MO-13…MO-15, RZ-01/02, A11Y-06 PASS in art:check (Lauf iter39); AK-DS-11/16 grün\n- Tests: pnpm test:preview-export (32), pnpm check
+
 ## 2026-10-04 – P9.15
 
 - Choreografie journey (Stationen, Posen, Brücken, Intro) in coco.ts/runtime.ts/presets.ts\n- Lauf iter39: MO-04…MO-10 PASS in allen Profilen, LG-01 auf SC-01 leer, PF-01…PF-06 PASS\n- Tests: tests/unit/leash/choreo.unit.spec.tsx, tests/e2e/home-choreo.e2e.spec.ts (421 E2E grün, desktop + pixel-7)

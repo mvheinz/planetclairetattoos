@@ -4906,7 +4906,7 @@ KUNST-QA §0–§10 (vollständig).
     `tests/e2e/home-choreo.e2e.spec.ts` (Pose je Station über `__leash.pose()`).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.16 Mikro-Interaktionen und Seitenübergänge polieren** – MI-01 bis MI-16 exakt nach DESIGN §11.5
+- [x] **P9.16 Mikro-Interaktionen und Seitenübergänge polieren** – MI-01 bis MI-16 exakt nach DESIGN §11.5
   (Auslöser, Ablauf, Dauer-Tokens §11.3, Easing-Tokens §11.2, nur `transform`/`opacity`/`clip-path`/
   `stroke-dashoffset`, Verhalten bei reduzierter Bewegung, „Nie auf“-Liste); Ruhezonen DESIGN §11.6 unverändert.
   View Transitions nach §9.8 (Namen `coco` und `leash-head`, nie von/zu `calm`-Routen, harte Navigation nur mit
