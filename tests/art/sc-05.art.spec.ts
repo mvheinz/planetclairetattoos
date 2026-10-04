@@ -68,6 +68,8 @@ test('SC-05 Produktseite', { tag: artTags('all') }, async ({ art }) => {
       const sel = '[data-buy-area] [data-in-cart]:not([hidden])'
       for (let i = 0; i < 200; i++) {
         if (await page.locator(sel).count()) break
+        // unter Last (zwei Worker) kann der erste Klick vor dem Anhängen des Moduls verpuffen: einmal wiederholen
+        if (i === 60) await add.evaluate((b) => (b as HTMLButtonElement).click())
         await page.waitForTimeout(25)
         await page.clock.runFor(25)
       }
