@@ -68,8 +68,7 @@ describe('leash/static – Stufe C ohne Laufzeit', () => {
     expect(s.drawnLen).toBe(s.geometry!.totalLength)
     expect(s.geometry!.totalLength).toBeCloseTo(1500, 0)
     const svg = root.querySelector('svg')!
-    expect(svg.getAttribute('aria-hidden')).toBe('true')
-    expect(svg.getAttribute('focusable')).toBe('false')
+    expect(svg.closest('[aria-hidden="true"]')).not.toBeNull()
     expect(root.querySelectorAll('mask, [mask]')).toHaveLength(0)
     const path = root.querySelector('path.ink')!
     expect(path.getAttribute('d')).toMatch(/^M[\d.\s-]+L.*Z$/)

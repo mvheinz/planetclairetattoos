@@ -24,7 +24,7 @@ function forcedColors(win: Window): boolean {
   return !!win.matchMedia?.('(forced-colors: active)').matches
 }
 
-/** Leeres, `aria-hidden` Segment-`<svg>` an der Segment-Bbox (+ `PAD`). */
+/** Leeres Segment-`<svg>` an der Segment-Bbox (+ `PAD`); die Ebene darüber ist `aria-hidden`. */
 export function segmentSvg(doc: Document, seg: LeashSegment): SVGSVGElement {
   const x = seg.bbox.x - PAD
   const y = seg.bbox.y - PAD
@@ -34,14 +34,11 @@ export function segmentSvg(doc: Document, seg: LeashSegment): SVGSVGElement {
   svg.setAttribute('viewBox', `${x} ${y} ${w} ${h}`)
   svg.setAttribute('width', String(w))
   svg.setAttribute('height', String(h))
-  svg.setAttribute('focusable', 'false')
-  svg.setAttribute('aria-hidden', 'true')
   svg.setAttribute('data-leash-seg', seg.id)
-  const s = svg.style
-  s.position = 'absolute'
-  s.left = `${x}px`
-  s.top = `${y}px`
-  s.overflow = 'visible'
+  // Lage; `position: absolute` und `overflow: visible` stehen in global.css (`[data-leash-seg]`), `aria-hidden` an der
+  // Linien-Ebene (PF-10: 13 Segmente × Attribute).
+  svg.style.left = `${x}px`
+  svg.style.top = `${y}px`
   return svg
 }
 

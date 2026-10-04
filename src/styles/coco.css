@@ -186,7 +186,8 @@ html[data-motion='reduced'] .coco .f-c {
   left: calc(
     max(0px, (100% - var(--content-max) - 2 * var(--page-pad)) / 2) + var(--leash-gutter) / 2
   );
-  z-index: 1;
+  /* über der Linien-Ebene (`--z-leash`): Coco steht vor der Leine, der Papier-Rand unterbricht die Tusche (R2-02-04) */
+  z-index: calc(var(--z-leash) + 1);
   transform: translate(-37.8%, -55.8%);
   transform-origin: 0 0;
 }

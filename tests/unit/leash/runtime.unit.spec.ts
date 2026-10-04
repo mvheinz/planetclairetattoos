@@ -122,7 +122,8 @@ describe('leash/runtime – mountLeash', () => {
       expect(p.closest('svg')!.getAttribute('stroke-dasharray')).toBe('2000 2000')
       expect(p.hasAttribute('stroke-dasharray')).toBe(false)
     }
-    for (const svg of svgs) expect(svg.getAttribute('focusable')).toBe('false')
+    // Lage inline, Rest aus global.css; die Ebene ist aria-hidden (PF-10)
+    for (const svg of svgs) expect(svg.style.left).toMatch(/px$/)
 
     // Intro (journey) von 0 bis zur Lesezeile in 900 ms
     expect(handle.inspect().drawnLen).toBe(0)
