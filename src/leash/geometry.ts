@@ -925,11 +925,11 @@ function buildStrokes(i0: number, i1: number, d: SegmentData, dots: number[], bw
       len0: d.ss[a]!,
       len1: d.ss[b]!,
     })
-    // Tintenpunkt am Schlaufenstart: Strich der Länge 0,1 mit runder Kappe (Ø 1,3 × Breite).
+    // Tintenpunkt am Schlaufenstart: Strich der Länge 0,1 mit runder Kappe (Ø 1,8 × Breite, R1-03-05).
     if (stops.has(b))
       out.push({
         d: `M${fmt(d.wx[b]!)} ${fmt(d.wy[b]!)}h0.1`,
-        w: Math.round(1.3 * d.w[b]! * 10) / 10,
+        w: Math.round(1.8 * d.w[b]! * 10) / 10,
         L: 0.1,
         len0: d.ss[b]!,
         len1: d.ss[b]!,
@@ -962,7 +962,7 @@ function buildSegment(
   const cy = d.wy.slice(i0, i1 + 1)
   for (let i = i0; i <= i1; i++) grow(d.wx[i]!, d.wy[i]!, d.w[i]! / 2 + 0.5)
   const segDots = dots.filter((i) => i >= i0 && i < i1)
-  for (const i of segDots) grow(d.wx[i]!, d.wy[i]!, 0.65 * d.w[i]! + 0.5)
+  for (const i of segDots) grow(d.wx[i]!, d.wy[i]!, 0.9 * d.w[i]! + 0.5)
   const keepC = rdp(cx, cy, RDP_TOLERANCE)
   const ccx = keepC.map((k) => cx[k]!)
   const ccy = keepC.map((k) => cy[k]!)
@@ -986,7 +986,7 @@ function buildSegment(
   }
 }
 
-/** Schritt 8: gefüllter Umriss mit runden Kappen und Tintenpunkten (Kreis, Radius 0.65 × Breite). */
+/** Schritt 8: gefüllter Umriss mit runden Kappen und Tintenpunkten (Kreis, Radius 0.9 × Breite). */
 function outlineOf(i0: number, i1: number, d: SegmentData, dots: number[]): string {
   const side = (sign: number) => {
     const xs: number[] = []
@@ -1021,7 +1021,7 @@ function outlineOf(i0: number, i1: number, d: SegmentData, dots: number[]): stri
   // Der Umriss läuft immer im Uhrzeigersinn (links vorwärts, rechts zurück): Tintenpunkte laufen gleich herum,
   // sonst stanzt `nonzero` ein Loch.
   for (const i of dots) {
-    const r = 0.65 * d.w[i]!
+    const r = 0.9 * d.w[i]!
     const px: number[] = []
     const py: number[] = []
     for (let k = 0; k < 12; k++) {

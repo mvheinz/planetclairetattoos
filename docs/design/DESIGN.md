@@ -878,7 +878,7 @@ Scroll/Resize/Fonts → rAF-gedrosselte Aktualisierung (nur Schreibzugriffe, §9
 4. **Glätten:** zentripetale Catmull-Rom-Kurve (α = 0.5) durch alle Wegpunkte → kubische Bézier-Segmente.
 5. **Abtasten** nach Bogenlänge alle 2 px → Punkte `P_i` mit Normalen `N_i`.
 6. **Wackel (Zittern der Hand):** `P_i += N_i × (A1·noise(s/λ1) + A2·noise(s/λ2))` mit `A1 = 0.9 px` (mobil) / `1.2 px` (ab 768), `λ1 = 90 px`, `A2 = 0.22 px`, `λ2 = 13 px` (seeded Zitter-Noise: Gitterwerte mit wechselndem Vorzeichen, Betrag 0.8–1, damit keine 120 px lange gerade Strecke entsteht – KUNST-QA LQ-03). Über die ersten 28 px wächst der Wackel von 0 an (Leinen-Anschluss exakt, §9.8). Presets `legal`/`calm`: `A1 = 0.5`, `A2 = 0.12`.
-7. **Breitenprofil:** `w(s) = baseWidth × (0.85 + 0.30 × noise(s/220)) × (1 + min(0.25, 12 × |κ(s)|))`, begrenzt auf `[0.8, 1.35] × baseWidth`. Anfangsverjüngung über 28 px von 0.35 → 1 (`ease-out`; die ersten 4 px ruht die Feder auf 0.35), Endverjüngung über 18 px auf 0.45 (Stift hebt ab; die letzten 4 px auf 0.45); in den Verjüngungen gilt die Grundbreite ohne Zuschläge (KUNST-QA LQ-05). An Schlaufen-Starts ein Tintenpunkt (Kreis, Radius `0.65 × w`), wo die Feder kurz ruht.
+7. **Breitenprofil:** `w(s) = baseWidth × (0.85 + 0.30 × noise(s/220)) × (1 + min(0.25, 12 × |κ(s)|))`, begrenzt auf `[0.8, 1.35] × baseWidth`. Anfangsverjüngung über 28 px von 0.35 → 1 (`ease-out`; die ersten 4 px ruht die Feder auf 0.35), Endverjüngung über 18 px auf 0.45 (Stift hebt ab; die letzten 4 px auf 0.45); in den Verjüngungen gilt die Grundbreite ohne Zuschläge (KUNST-QA LQ-05). An Schlaufen-Starts ein Tintenpunkt (Kreis, Radius `0.9 × w`; P9.18, R1-03-05: bei 0.65 war er auf der Linie kaum zu sehen), wo die Feder kurz ruht.
 8. **Umriss:** linke/rechte Kante `P_i ± N_i × w_i/2`, runde Kappen (Halbkreis, 8 Punkte), Vereinfachung mit Ramer-Douglas-Peucker (Toleranz 0.2 px), Ausgabe als `M … L … Z` mit 1 Nachkommastelle.
 9. **Segmente:** Schnitt an Schlaufen-Enden und spätestens alle `max(600, 1.25 × viewport.h)` px Bogenlänge; Nachbar-Segmente überlappen 2 px Bogenlänge (keine Nahtlücke).
 10. **LUT:** alle 4 px Bogenlänge `[len, x, y, angle]` aus den eigenen Bézier-Daten (analytisch, **ohne** `getPointAtLength`).
@@ -1073,7 +1073,7 @@ Referenzen: `highlight-more-ceramics.jpg` (Ganzkörper stehend, Geschirr, Schwan
 | Schwanz | Länge 1,1 K | dünn zur Spitze; stehend/laufend als lockere **Sichel nach oben über den Rücken**; schlafend um den Körper gelegt |
 | Fell | Rücken, Kopfoberseite, Ohren außen, Schwanz: `--coco-fur`; Schnauze, Brust, Bauch, untere Beine: Papier | Farbgrenze nur durch den Wash, **ohne** eigene Linie |
 | **Geschirr** | Halsring + Bauchgurt hinter den Vorderbeinen + Rückensteg | **rot** `--coco-harness`, Kontur `--ink`; **D-Ring** (Ø 0,1 K) auf dem Rücken zwischen den Schulterblättern = **Leinen-Anker** |
-| Gesamthöhe stehend | Widerrist 1,3 K; Ohrspitzen ≈ 2,0 K über Boden | – |
+| Gesamthöhe stehend | Widerrist 1,3 K; Ohrspitzen ≈ 2,3 K über Boden (P9.18: große aufrechte Ohren nach Juttas Coco-Fotos, vorher 2,0 K) | – |
 
 ### 10.2 Strich (passend zu Juttas Zeichnungen)
 

@@ -62,9 +62,16 @@ test('SC-05 Produktseite', { tag: artTags('all') }, async ({ art }) => {
     prefix: 'hop',
     start: async () => {
       await add.evaluate((b) => (b as HTMLButtonElement).click())
-      await page.waitForSelector('[data-buy-area] [data-in-cart]:not([hidden])', {
-        timeout: 10_000,
-      })
+      // Die Uhr ist angehalten: Antwort der Server-Action und der React-Übergang hängen in WebKit (iPhone) an Timern.
+      // Darum die Uhr in kleinen Schritten mitlaufen lassen, bis der Zustand steht (statt 10 s blind zu warten);
+      // die Bildfolge beginnt danach bei t = 0 (seekAnimations setzt die Animationen zurück).
+      const sel = '[data-buy-area] [data-in-cart]:not([hidden])'
+      for (let i = 0; i < 200; i++) {
+        if (await page.locator(sel).count()) break
+        await page.waitForTimeout(25)
+        await page.clock.runFor(25)
+      }
+      await page.waitForSelector(sel, { timeout: 5_000 })
     },
   })
   await art.settledFrame('in-cart')

@@ -272,7 +272,7 @@ export async function buildSheet(): Promise<{
     text(
       tx,
       y2 + 20,
-      `Gezeichnet: Widerrist ${k(withers)} K, Ohrspitze ${k(ear.y0)} K über Boden (Soll 1,3 / ≈ 2,0 K):`,
+      `Gezeichnet: Widerrist ${k(withers)} K, Ohrspitze ${k(ear.y0)} K über Boden (Soll 1,3 / ≈ 2,3 K):`,
       13,
     ),
     text(

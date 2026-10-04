@@ -88,9 +88,21 @@ async function leashLoupes(art: ArtSession, prefix: string): Promise<void> {
     const size = 96
     const x = Math.min(vw - size, Math.max(0, p.x - size / 2))
     const y = Math.min(vh - size, Math.max(0, p.y - sy - size / 2))
+    // R1-03-05: liegt der Punkt unter der festen Kopfleiste (Kopf-Station, Seitenanfang), Leiste für die Lupe ausblenden
+    const underHeader = p.y - sy < 80
+    if (underHeader)
+      await page.evaluate(() => {
+        for (const el of document.querySelectorAll<HTMLElement>('[data-site-header]'))
+          el.style.visibility = 'hidden'
+      })
     await art.settledFrame(`${prefix}-${spot.tag}-4x-y${Math.round(p.y)}`, {
       zoom: { x, y, width: size, height: size, to: size * 4 },
     })
+    if (underHeader)
+      await page.evaluate(() => {
+        for (const el of document.querySelectorAll<HTMLElement>('[data-site-header]'))
+          el.style.visibility = ''
+      })
   }
   await page.evaluate(() => (window as LoupeWin).__leash?.setReadingY(null))
 }

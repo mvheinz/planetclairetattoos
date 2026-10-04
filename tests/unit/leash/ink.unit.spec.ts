@@ -113,7 +113,7 @@ describe('leash/ink – Stufe A als Strich-Stücke (DESIGN §9.4)', () => {
         for (const st of seg.strokes!) {
           bytes += st.d.length
           expect(st.w).toBeGreaterThan(0.3 * input.baseWidth)
-          expect(st.w).toBeLessThanOrEqual(1.35 * 1.3 * input.baseWidth + 0.1)
+          expect(st.w).toBeLessThanOrEqual(1.35 * 1.8 * input.baseWidth + 0.1)
           expect(st.L).toBeGreaterThan(0)
           if (st.len1 > st.len0) expect(st.L).toBeLessThanOrEqual(1.1 * (st.len1 - st.len0) + 1)
         }

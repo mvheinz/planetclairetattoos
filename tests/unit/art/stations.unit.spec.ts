@@ -201,7 +201,7 @@ describe('P9.12 Stationen als Linienzeichnung (Juttas Stil: nur kleine Punkte ge
 })
 
 describe('P9.12 einheitliche Strichstärke der Stationen (AR-07)', () => {
-  it('jede Linien-Station ergibt im 208 × 260-px-Rahmen 2 px ± 10 %', async () => {
+  it('Grundstärke jeder Linien-Station ergibt im 208 × 260-px-Rahmen 2 px ± 10 %, dünne/kräftige Gruppen 1,6–2,5 px (LQ-08)', async () => {
     const { stationStrokeWidth, STATION_BOX } = await import('../../../scripts/art/vectorize')
     for (const id of ['keramik', 'tattoo', 'textil', 'zeichnungen', 'schmuck', 'hallo']) {
       const svg = readFileSync(path.join('src/art/stations', `${id}.svg`), 'utf8')
@@ -212,7 +212,11 @@ describe('P9.12 einheitliche Strichstärke der Stationen (AR-07)', () => {
         ...svg.matchAll(/<(?:path|g)[^>]*fill="none"[^>]*stroke-width="([\d.]+)"/g),
       ].map((m) => Number(m[1]) * scale)
       expect(widths.length, id).toBeGreaterThan(0)
-      for (const px of widths) expect(Math.abs(px - 2), `${id}: ${px} px`).toBeLessThanOrEqual(0.2)
+      expect(Math.abs(widths[0]! - 2), `${id}: ${widths[0]} px`).toBeLessThanOrEqual(0.2)
+      for (const px of widths) {
+        expect(px, `${id}: ${px} px`).toBeGreaterThanOrEqual(1.6)
+        expect(px, `${id}: ${px} px`).toBeLessThanOrEqual(2.5)
+      }
       expect(stationStrokeWidth(vb) * scale).toBeCloseTo(2, 1)
     }
   })

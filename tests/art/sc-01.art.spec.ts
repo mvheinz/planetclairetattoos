@@ -46,6 +46,10 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
       await readingFrame(art, b.y, `station${i}-${s.id}-${b.tag}-y${Math.round(b.y)}`)
     await page.clock.runFor(1500)
     await art.settledFrame(`station${i}-${s.id}-stay1500-y${Math.round(s.y + s.loopScroll)}`)
+    // R2-03-03: Verweil-Pose belegen – Kopfschief kommt erst 1,2 s (Kopf-Station) bzw. 1,5 s (textil) nach der Ankunft und
+    // die Ankunft selbst dauert (Bremsen), darum zusätzlich ein Bild nach weiteren 1,5 s (Kopfschief hält 3 s).
+    await page.clock.runFor(1500)
+    await art.settledFrame(`station${i}-${s.id}-stay3000-y${Math.round(s.y + s.loopScroll)}`)
     // Lupe auf Coco an der Leinenspitze (R2-01-02): Pose und Blickrichtung im Bogen lesbar, 4× vergrößert.
     const box = await page.locator('.coco[data-leash-coco]').boundingBox()
     const vh = page.viewportSize()!.height
