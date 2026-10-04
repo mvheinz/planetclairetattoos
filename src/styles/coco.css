@@ -195,10 +195,11 @@ html[data-motion='reduced'] .coco .f-c {
 }
 /* Coco steht vor der Linie (R2-01-02): ein schmaler Papier-Rand um jeden Strich unterbricht die Tusche hinter ihr,
    sonst läuft die Leine sichtbar durch den (unausgefüllten) Körper und die kleine Figur wird zum dunklen Fleck. Der
-   Filter liegt auf der festen 64×48-Box und wird nur bei einem Boil-Bildwechsel neu gerastert. */
+   Filter liegt auf der festen 64×48-Box und wird nur bei einem Boil-Bildwechsel neu gerastert. Harte Versätze ohne
+   Unschärfe (AK-DS-06: keine weichen Schatten) – nacheinander waagerecht und senkrecht ergeben einen ±1,5-px-Rand. */
 .coco[data-leash-coco] .coco__hop {
-  filter: drop-shadow(0 0 1px var(--paper)) drop-shadow(0 0 1px var(--paper))
-    drop-shadow(0 0 1px var(--paper));
+  filter: drop-shadow(1.5px 0 0 var(--paper)) drop-shadow(-1.5px 0 0 var(--paper))
+    drop-shadow(0 1.5px 0 var(--paper)) drop-shadow(0 -1.5px 0 var(--paper));
 }
 @media (forced-colors: active) {
   .coco[data-leash-coco] .coco__hop {

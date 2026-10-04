@@ -22,7 +22,7 @@
   display: block;
   width: 100%;
   /* Kunst-QA IM-04 (R1-01-03): Fotos und Platzhalter „aus einem Guss“ – jedes Bild liegt wie ein Abzug auf dem
-     Papier-2-Karton der Platzhalter (schmaler Rand rundum), statt randlos neben gerahmten Zeichnungen zu stehen. */
+     Papier-2-Karton der Platzhalter (schmaler Rand rundum), nicht randlos neben gerahmten Zeichnungen. */
   padding: 5%;
   background: var(--paper-2);
   border-radius: var(--r-photo);
