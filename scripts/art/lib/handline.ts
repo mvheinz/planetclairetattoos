@@ -540,14 +540,18 @@ export function hatch(shadow: NonNullable<Motif['shadow']>, seed: number): strin
   const len = (shadow.len ?? 18) * (0.8 + rand() * 0.25)
   // 40° mit leichter Streuung je Motiv (jede Schraffur von Hand, nie ein Stempel)
   const a = ((40 + (rand() - 0.5) * 12) * Math.PI) / 180
-  const dx = Math.cos(a)
+  // Je Motiv anders (Prüf-Linse P9.13: „gleiche Schraffur in jeder Kachel wirkt wie ein Stempel“): Richtung gespiegelt
+  // (40° nach rechts oder links geneigt), Schattenlage etwas nach links/rechts verrückt, Abstände ungleich.
+  const mirror = rand() < 0.5 ? -1 : 1
+  const dx = Math.cos(a) * mirror
   const dy = -Math.sin(a)
+  const shift = (rand() - 0.5) * shadow.w * 0.5
   const out: string[] = []
   for (let i = 0; i < count; i++) {
-    const t = i / (count - 1)
+    const t = Math.min(1, Math.max(0, i / (count - 1) + (rand() - 0.5) * 0.12))
     // mittlere Striche etwas länger (Schattenform), Ränder kürzer
     const l = len * (0.7 + 0.45 * Math.sin(Math.PI * t)) * (0.9 + rand() * 0.2)
-    const x0 = shadow.x + shadow.w * t + (rand() - 0.5) * 3.2
+    const x0 = shadow.x + shift + shadow.w * t + (rand() - 0.5) * 3.2
     const y0 = shadow.y + (rand() - 0.5) * 4
     const bend = (rand() - 0.5) * 2.6
     const mx = x0 + (dx * l) / 2 - dy * bend
