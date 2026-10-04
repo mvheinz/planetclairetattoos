@@ -96,7 +96,7 @@ test.describe('Startseite – Choreografie (Preset journey)', () => {
     await page.evaluate(([y]) => (window as Win).__leash!.setReadingY(y!), [hallo.y - 30])
     await page.waitForTimeout(1500)
     const box = await page.locator('[data-leash-coco]').boundingBox()
-    // Text beginnt bei x = 44 (Rinne): Box rechts davon höchstens 1 px
-    expect(box!.x + box!.width).toBeLessThanOrEqual(45)
+    // Text beginnt bei x = 44 (Rinne): der Hund (füllt 0,13–0,90 der Box, P9.18) ragt höchstens 1 px darüber
+    expect(box!.x + 0.9 * box!.width).toBeLessThanOrEqual(45)
   })
 })
