@@ -1,3 +1,5 @@
+import { cpus, loadavg } from 'node:os'
+
 import type { Page } from '@playwright/test'
 
 import type { ArtSession } from './fixtures'
@@ -230,9 +232,12 @@ export async function readingSeries(art: ArtSession): Promise<void> {
 
 /** PF-03/PF-04 Desktop 1×: eigener Kontext ohne Playwright-Uhr (sie ersetzt performance.now), R01 laden und scrollen,
  * dann die `leash:build`-/`leash:frame`-Messungen der Engine. */
-export async function desktopMeasures(
-  art: ArtSession,
-): Promise<{ build: number[]; frame: number[] }> {
+export async function desktopMeasures(art: ArtSession): Promise<{
+  build: number[]
+  frame: number[]
+  host: { load1Start: number; load1End: number; cpus: number }
+}> {
+  const load1Start = loadavg()[0]!
   const ctx = await art.extraContext({})
   try {
     const page = await ctx.newPage()
@@ -261,7 +266,7 @@ export async function desktopMeasures(
           requestAnimationFrame(step)
         }),
     )
-    return await page.evaluate(() => ({
+    const measured = await page.evaluate(() => ({
       build: performance
         .getEntriesByName('leash:build')
         .map((e) => Math.round(e.duration * 100) / 100),
@@ -269,6 +274,15 @@ export async function desktopMeasures(
         (d) => Math.round(d * 100) / 100,
       ),
     }))
+    // Rechnerlast während der Messung (R3-04-03): geht mit den Rohwerten nach `metrics/desktop.json`.
+    return {
+      ...measured,
+      host: {
+        load1Start: Math.round(load1Start * 100) / 100,
+        load1End: Math.round(loadavg()[0]! * 100) / 100,
+        cpus: cpus().length,
+      },
+    }
   } finally {
     await ctx.close()
   }

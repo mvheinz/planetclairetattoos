@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { gunzipSync } from 'node:zlib'
 
 import {
   countLayoutEvents,
@@ -66,6 +67,65 @@ export function buildPerfReport(
   return report
 }
 
+export interface DesktopMetrics {
+  scenario: 'SC-00'
+  profile: 'art-desktop'
+  /** Roh-Dauern der Engine-Messungen (ms) im Desktop-Kontext ohne Playwright-Uhr, 1×. */
+  frame: number[]
+  build: number[]
+  frameP95: number | null
+  buildMax: number | null
+  host: { load1Start: number; load1End: number; cpus: number } | null
+  /** Last beim Start des Laufs (`run.json`), zur Einordnung. */
+  hostLoadAtStart: unknown
+}
+
+const p95 = (xs: readonly number[]): number | null => {
+  if (xs.length === 0) return null
+  const a = [...xs].sort((x, y) => x - y)
+  return a[Math.min(a.length - 1, Math.ceil(0.95 * a.length) - 1)]!
+}
+
+/** PF-03/PF-04 Desktop (R3-04-03): Rohdaten und Hostlast der Desktop-Messung als Datei `metrics/desktop.json`. */
+export function desktopMetrics(runDir: string): DesktopMetrics | null {
+  const dir = path.join(runDir, 'raw', 'SC-00', 'art-desktop')
+  if (!existsSync(dir)) return null
+  for (const variant of readdirSync(dir)) {
+    for (const name of ['probes.json', 'probes.json.gz']) {
+      const file = path.join(dir, variant, name)
+      if (!existsSync(file)) continue
+      const buf = readFileSync(file)
+      const json = JSON.parse((name.endsWith('.gz') ? gunzipSync(buf) : buf).toString('utf8')) as {
+        extra?: {
+          desktopMeasures?: {
+            build: number[]
+            frame: number[]
+            host?: DesktopMetrics['host']
+          }
+        }
+      }
+      const m = json.extra?.desktopMeasures
+      if (!m) continue
+      const run = existsSync(path.join(runDir, 'run.json'))
+        ? (JSON.parse(readFileSync(path.join(runDir, 'run.json'), 'utf8')) as {
+            hostLoadAtStart?: unknown
+          })
+        : {}
+      return {
+        scenario: 'SC-00',
+        profile: 'art-desktop',
+        frame: m.frame,
+        build: m.build,
+        frameP95: p95(m.frame),
+        buildMax: m.build.length ? Math.max(...m.build) : null,
+        host: m.host ?? null,
+        hostLoadAtStart: run.hostLoadAtStart ?? null,
+      }
+    }
+  }
+  return null
+}
+
 function main(): void {
   const runId = process.argv[2] ?? existingRuns().sort().at(-1)
   if (!runId) {
@@ -90,6 +150,11 @@ function main(): void {
   mkdirSync(path.join(dir, 'metrics'), { recursive: true })
   const out = path.join(dir, 'metrics', 'perf.json')
   writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`)
+  const desktop = desktopMetrics(dir)
+  if (desktop)
+    writeFileSync(path.join(dir, 'metrics', 'desktop.json'), `${JSON.stringify(desktop)}\n`)
+  else
+    console.warn('art:metrics: keine Desktop-Rohdaten (SC-00 art-desktop extra.desktopMeasures).')
   const failed = report.gates.filter((g) => !g.pass)
   console.log(
     `art:metrics: ${raws.length} Läufe, ${Object.keys(report.routes).length} Routen → ${out}; Gates ${
