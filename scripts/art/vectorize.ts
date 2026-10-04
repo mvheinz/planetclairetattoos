@@ -340,8 +340,12 @@ export function lineStation(
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}"><g transform="rotate(${tilt} ${vw / 2} ${vh / 2})">`,
     `<path ${LINE_ATTRS} stroke-width="${sw}" d="${normal}"/>`,
-    thin ? `<path ${LINE_ATTRS} stroke-width="${Math.round(sw * 0.82 * 10) / 10}" d="${thin}"/>` : '',
-    thick ? `<path ${LINE_ATTRS} stroke-width="${Math.round(sw * 1.22 * 10) / 10}" d="${thick}"/>` : '',
+    thin
+      ? `<path ${LINE_ATTRS} stroke-width="${Math.round(sw * 0.82 * 10) / 10}" d="${thin}"/>`
+      : '',
+    thick
+      ? `<path ${LINE_ATTRS} stroke-width="${Math.round(sw * 1.22 * 10) / 10}" d="${thick}"/>`
+      : '',
     dots ? `<path fill="currentColor" d="${dots}"/>` : '',
     lights ? `<path style="fill:var(--paper,#F4EFE6)" d="${lights}"/>` : '',
     '</g></svg>',

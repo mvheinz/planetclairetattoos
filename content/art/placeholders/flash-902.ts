@@ -1,6 +1,6 @@
 // Flash F902 „Hasen-Trio“: drei Hasen eng nebeneinander, der mittlere etwas größer, alle mit Kulleraugen.
 import type { Motif } from '../../../scripts/art/lib/handline'
-import { bunny, bunnyMarch, bunnyPeek, merge, place } from './_parts'
+import { bunny, bunnyMarch, merge, place } from './_parts'
 
 const motif: Motif = {
   tilt: -1.6,

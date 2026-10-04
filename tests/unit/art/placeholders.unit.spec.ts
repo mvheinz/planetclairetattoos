@@ -72,7 +72,8 @@ describe('P8.12/P8.13 Platzhalter-Zeichnungen', () => {
       // Strichstärken-Gruppen (R1-03-02): Grundstärke 2.8 plus dünne/kräftige Gruppe; Tattoo zusätzlich die Teilzeichnung
       const widths = [...svg.matchAll(/stroke-width="([\d.]+)"/g)].map((m) => Number(m[1]))
       expect(widths[0], name).toBe(STROKE_WIDTH)
-      for (const w of widths.slice(1)) expect(w, name).toBeGreaterThanOrEqual(name.startsWith('tattoo-') ? 1 : 2.3)
+      for (const w of widths.slice(1))
+        expect(w, name).toBeGreaterThanOrEqual(name.startsWith('tattoo-') ? 1 : 2.3)
       if (name.startsWith('tattoo-')) expect(widths.length, name).toBeGreaterThanOrEqual(2)
     }
   })
