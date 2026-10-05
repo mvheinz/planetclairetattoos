@@ -162,6 +162,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   let visible = true
   let rafId: number | null = null
   let lastFrame = 0
+  let lastSY = -1
   let lastScrollAt = -Infinity
   let intro: { from: number; to: number; start: number | null; dur: number } | null = null
   let debounce: ReturnType<typeof setTimeout> | null = null
@@ -457,6 +458,11 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     const t0 = performance.now()
     let again = false
     const target = scrollTarget()
+    // WebKit liefert Scroll-Ereignisse beim Wischen gedrosselt (≈ alle 150 ms): solange sich die Position ändert, im Takt weiterlaufen
+    if (win.scrollY !== lastSY) {
+      lastSY = win.scrollY
+      again = true
+    }
     if (intro) {
       if (intro.start === null) intro.start = now
       if (cfg.draw === 'scroll' || cfg.draw === 'rowEnter') intro.to = Math.max(intro.to, target)
