@@ -5320,7 +5320,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: `tests/unit/docs/golive.unit.spec.ts` (Abschnitte P11.1–P11.17 vorhanden, DNS-Tabellen = ARCHITEKTUR).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: wird in P11 abgearbeitet.
 
-- [ ] **P10.17 Bildschirmfotos für das Handbuch** – `scripts/handbook/shots.ts` als `pnpm handbook:shots` (in
+- [x] **P10.17 Bildschirmfotos für das Handbuch** – `scripts/handbook/shots.ts` als `pnpm handbook:shots` (in
   ARCHITEKTUR §6.10 eintragen): nutzt die Ansichtsliste des Vorschau-Exports (`scripts/preview-export/adminViews.ts`)
   und nimmt mit Seed-Daten und festem `SEED_NOW` bei 390×844 (DPR 2) jede Handy-Ansicht aus KONZEPT §7.3–§7.16 sowie die
   wichtigsten Dialoge auf (Neues Stück mit Pflichtfeldern, Übersetzen, Gepackt/Versendet melden, Zahlung erhalten,

@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-05 – P10.17
+
+- pnpm handbook:shots (scripts/handbook/shots.ts, shotList.ts): 41 WebP-Bilder 390x844 DPR 2 nach docs/owner/img/handbuch/ (alle Handy-Ansichten, Detail- und Dialogansichten, 3 öffentliche Seiten), zusammen 1,5 MB, je Bild max. 68 KB
+- Deterministisch (Wiederholung byte-gleich), nur Beispieldaten, kein Verwaltungspfad im Bild (Textprüfung)
+- Beispieldaten-entfernen-Knopf ist im Beispielbestand gesperrt: Bild zeigt den gesperrten Knopf
+- Tests: tests/unit/docs/handbook-images.unit.spec.ts, pnpm check grün (1950 Tests)
+
 ## 2026-10-05 – P10.16
 
 - docs/GO-LIVE.md: Spielregeln (wer tippt was), Konten-/Ressourcenliste (§12.2), Variablen je Vercel-Umgebung, Datenbank-Ablauf (Migration, Beispielbestand in `main`, Zweige seed-root/staging/preview, `db:mark-production`), DNS-Umstellung mit Ist-/Soll-Tabelle wörtlich aus ARCHITEKTUR §12.4, `dig`-Befehle, TTL T−1/T+7, Rückweg, AK-A-12-01…03, Stand der Spikes (B-01 Soll erfüllt, B-07 im Staging bestätigen), je ein Abschnitt P11.1–P11.17 mit Prüfkriterium und Verknüpfung zu AUFGABEN A23–A41/ANLEITUNGEN, Testkauf-Drehbuch, KUNST-QA §10 Nr. 4, EK-08-Stoppuhr, 7-Tage-Überwachung.
