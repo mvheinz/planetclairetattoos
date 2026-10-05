@@ -60,8 +60,12 @@ test(
         }
       }
       const element = mi.viewport || zoom ? undefined : stage
-      await art.frame(`${mi.id}-idle`, zoom ? { zoom } : element ? { element } : {})
-      const prefix = mi.id.toLowerCase()
+      await art.frame(
+        `${mi.id}${zoom ? '-lupe' : ''}-idle`,
+        zoom ? { zoom } : element ? { element } : {},
+      )
+      // Lupen-Aufnahmen tragen „lupe“ im Namen (R2-05-04: sonst nicht als Lupe auffindbar)
+      const prefix = mi.id.toLowerCase() + (zoom ? '-lupe' : '')
       // MI-08 (Countdown) ist keine Animation (DESIGN §11.5): Sekundentakt statt 20 ms.
       const stepMs = art.step(mi.id === 'MI-08' ? 250 : 20, mi.durationMs)
       const start = async () => {
@@ -124,7 +128,7 @@ test(
           await art.sequence({
             stepMs: 100,
             untilMs: mi.durationMs,
-            prefix: `${prefix}-horizont`,
+            prefix: `${prefix}-horizont-lupe`,
             zoom: lupe,
             start,
           })

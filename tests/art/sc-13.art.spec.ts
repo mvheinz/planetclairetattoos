@@ -81,6 +81,21 @@ async function leashLoupes(art: ArtSession, prefix: string): Promise<void> {
         .map((s) => ({ tag: `schlaufenstart-${s.id}`, len: s.loopLen0 })),
     ]
   })
+  // Intro und Zeichnen abwarten: sonst liegt die Lupe am Seitenanfang (Kopf-Station) auf noch leerem Papier (R1-05-04)
+  await page
+    .waitForFunction(
+      () => {
+        const l = (
+          window as unknown as {
+            __leash?: { drawnLen(): number; geometry: { totalLength: number } | null }
+          }
+        ).__leash
+        return !!l?.geometry && l.drawnLen() >= l.geometry.totalLength - 1
+      },
+      undefined,
+      { timeout: 8000 },
+    )
+    .catch(() => undefined)
   const vh = page.viewportSize()!.height
   const vw = page.viewportSize()!.width
   for (const spot of spots) {

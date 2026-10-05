@@ -42,6 +42,21 @@
   border-width: 1.1px 1.5px 1.2px 1px;
   border-radius: 2% 1.2% 3% 1.5% / 1.6% 3% 1.4% 2.2%;
   opacity: 0.8;
+  transform: rotate(0.3deg);
+}
+
+/* Zweiter, dünnerer Zug leicht versetzt und gedreht: die Linie wirkt nachgezogen statt als Rechteck (R1-05-01). */
+.photo::before {
+  content: '';
+  position: absolute;
+  inset: 4px 3px 5px 4px;
+  z-index: 1;
+  pointer-events: none;
+  border: solid var(--ink);
+  border-width: 0.8px 0.9px 1px 0.7px;
+  border-radius: 1.4% 2.6% 1.2% 3% / 2.8% 1.4% 3.2% 1.6%;
+  opacity: 0.4;
+  transform: rotate(-0.45deg);
 }
 
 .image {
@@ -59,6 +74,7 @@
     border: 1px solid CanvasText;
   }
 
+  .photo::before,
   .photo::after {
     display: none;
   }
