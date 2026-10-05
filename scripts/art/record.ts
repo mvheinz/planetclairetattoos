@@ -116,10 +116,17 @@ function main(): void {
     // keine anderen CPU-lastigen Prozesse während der Messung).
     const imageSpecs = specs.filter((f) => !f.endsWith('sc-18.art.spec.ts'))
     // Beide Teile laufen immer (ein roter Bild-Lauf überspringt die Tempo-Messung nicht).
-    const images =
-      imageSpecs.length > 0
-        ? playwright(imageSpecs, ['--grep-invert', '@tempo'], Number(process.env.ART_WORKERS || 2))
-        : 0
+    // Kassen-Szenarien (SC-06/07/09) legen Fixture-Stücke 990–999 an, die im Shop sichtbar sind: sie laufen nach den übrigen
+    // Szenarien, nie gleichzeitig (R3-05-03: SC-17 motion/reduced zeigten sonst verschiedene Stücke).
+    const commerce = (f: string) => /sc-0[679]\.art\.spec\.ts$/.test(f)
+    const workers = Number(process.env.ART_WORKERS || 2)
+    const plainSpecs = imageSpecs.filter((f) => !commerce(f))
+    const commerceSpecs = imageSpecs.filter(commerce)
+    const plain =
+      plainSpecs.length > 0 ? playwright(plainSpecs, ['--grep-invert', '@tempo'], workers) : 0
+    const shop =
+      commerceSpecs.length > 0 ? playwright(commerceSpecs, ['--grep-invert', '@tempo'], workers) : 0
+    const images = plain || shop
     if (specs.some((f) => f.endsWith('sc-18.art.spec.ts')))
       console.log(
         `art:record: Tempo-Lauf SC-18 startet, Last ${loadavg()
