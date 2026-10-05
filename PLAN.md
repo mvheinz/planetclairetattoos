@@ -5333,7 +5333,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: `tests/unit/docs/handbook-images.unit.spec.ts` (Größen, alle referenzierten Bilder existieren).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P10.18 Handbuch für Jutta `docs/owner/HANDBUCH.md`** – Du-Form, kurz, ohne Fachjargon (Fachbegriffe im
+- [x] **P10.18 Handbuch für Jutta `docs/owner/HANDBUCH.md`** – Du-Form, kurz, ohne Fachjargon (Fachbegriffe im
   Halbsatz erklärt), jedes Kapitel mit Bildschirmfoto aus P10.17: Anmelden und die Verwaltung aufs Handy legen (PWA);
   „Heute“; Neues Stück (Objektnummer, Pflichtangaben je Kategorie, Fotos nach DESIGN §12.1, Übersetzen-Knopf); Meine
   Stücke, Ausblenden, Offline verkauft, Archiv-Schalter; Zu packen → Versendet; Vorkasse; Abholung; Widerrufe und

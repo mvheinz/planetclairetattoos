@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-05 – P10.18
+
+- docs/owner/HANDBUCH.md: 20 Kapitel in Du-Form (Anmelden/PWA, Heute, Neues Stück mit Pflichtangaben und Fotoregeln, Meine Stücke, Packen/Versendet, Vorkasse, Abholung, Widerruf und Erstattung, Anfragen, Tattoo, Texte, Einstellungen, Umsatz-Wächter, Export, Datenschutz-Anfragen, Datenpanne nach R-157, Startklar, Beispieldaten, Vorschau-Datei und Hinweis zur Barrierefreiheit nach R-190, Notfall und Hilfe), jedes mit Bildschirmfoto aus P10.17
+- AUFGABEN §5 und ANLEITUNGEN §17 verlinken das Handbuch statt „kommt in P10“
+- Verwaltungspfad steht bewusst nicht im Handbuch (kommt als Lesezeichen in P11)
+- Tests: tests/unit/docs/handbook.unit.spec.ts (7: Kapitel, Links/Bilder/Anker, V-26, R-157, keine Geheimnisse); pnpm check grün (1957 Tests)
+
 ## 2026-10-05 – P10.17
 
 - pnpm handbook:shots (scripts/handbook/shots.ts, shotList.ts): 41 WebP-Bilder 390x844 DPR 2 nach docs/owner/img/handbuch/ (alle Handy-Ansichten, Detail- und Dialogansichten, 3 öffentliche Seiten), zusammen 1,5 MB, je Bild max. 68 KB
