@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-05 – P9 Kunst-QA: zweiter Lauf in CI
+
+Stand nach den Prüf-Durchgängen 2–5 (PF-02/PF-04 behoben, Coco größer an der Linienspitze, Stationen und Platzhalter freier gezeichnet, Papierrand um Produktfotos). Der zweite `[ci:art]`-Lauf misst Tempo und Bewegungen auf einer ruhigen Maschine, weil der lokale Rechner stark schwankt.
+
 ## 2026-10-04 – P9 erster Kunst-QA-Lauf in CI
 
 Stand der Kunst-Arbeit (Coco nach deinen Fotos, neue Stationszeichnungen, Linie, Foto-Look, Bewegungen) ist im Arbeitsbranch. Der erste `[ci:art]`-Lauf nimmt Videos und Messwerte auf einer ruhigen Maschine auf (P9.7).
