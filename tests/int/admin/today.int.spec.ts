@@ -236,7 +236,7 @@ describe('getTodaySummary (P5.28, KONZEPT §7.3)', () => {
     await setCosts(3000)
   })
 
-  it('letzte 5 Bestellungen (Nummer, Betrag, Status), neueste zuerst; Startklar-Platzhalter', () => {
+  it('letzte 5 Bestellungen (Nummer, Betrag, Status), neueste zuerst', () => {
     expect(summary.recentOrders.map((o) => o.orderNumber)).toEqual([
       'PC-2026-90014',
       'PC-2026-90012',
@@ -246,6 +246,5 @@ describe('getTodaySummary (P5.28, KONZEPT §7.3)', () => {
     ])
     expect(summary.recentOrders[0]).toMatchObject({ statusLabel: 'bezahlt', seed: true })
     expect(summary.recentOrders[0]!.totalCents).toBeGreaterThan(0)
-    expect(summary.startklar).toBe('later')
   })
 })

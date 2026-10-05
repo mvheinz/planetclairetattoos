@@ -39,6 +39,7 @@ const nextConfig: NextConfig = {
     '/**': [
       './src/lib/pdf/fonts/*.ttf',
       './src/admin/pwa/*.png',
+      './docs/recht/VVT.md',
       './node_modules/react-dom/{package.json,*.js,cjs/*.production.js}',
       './node_modules/react/{package.json,*.js,cjs/*.production.js}',
     ],

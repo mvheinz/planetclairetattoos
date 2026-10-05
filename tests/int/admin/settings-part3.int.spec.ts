@@ -4,7 +4,6 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { initialAreaValues, type Obj } from '@/admin/views/settings/settingsAreas'
 import { resetEnvCache } from '@/lib/env'
 import { REDACTED } from '@/lib/security/redact'
-import { STARTKLAR_LATER } from '@/lib/settings/readiness'
 
 import { resetAdmin } from '../helpers/admin'
 import { getTestPayload } from '../helpers/payload'
@@ -122,7 +121,7 @@ describe('Einstellungen, Teil 3 (P5.22a)', () => {
     expect(((await load('en')).shop as Obj).closedMessage).toBe('Back soon.')
   })
 
-  it('DM-41 „Shop öffnen“ mit APP_ENV=production abgelehnt (Startklar-Prüfung kommt in P10), mit APP_ENV=preview gespeichert', async () => {
+  it('DM-41 „Shop öffnen“ mit APP_ENV=production abgelehnt (Startklar-Prüfung nicht grün), mit APP_ENV=preview gespeichert', async () => {
     const shop = (await values()).shop
     expect((await save('shop', { ...shop, isOpen: false })).status).toBe(200)
     vi.stubEnv('APP_ENV', 'production')
@@ -132,7 +131,7 @@ describe('Einstellungen, Teil 3 (P5.22a)', () => {
       expect(r.status).toBe(400)
       expect(paths(r)).toContain('shop.isOpen')
       expect(r.json.errors?.find((e) => e.path === 'shop.isOpen')?.message).toContain(
-        STARTKLAR_LATER,
+        'Startklar-Prüfung grün ist',
       )
       expect(((await load('de')).shop as Obj).isOpen).toBe(false)
       // Andere Änderungen bei geschlossenem Shop gehen auch in Produktion

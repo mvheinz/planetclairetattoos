@@ -5,6 +5,7 @@ import { isResendable } from '@/lib/commerce/resendEmail'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { EmailTemplate } from '@/lib/enums'
 import { getEnv } from '@/lib/env'
+import { runGoliveCheck } from '@/lib/golive/collect'
 import { jobAlarm } from '@/lib/jobs/alarm'
 import type { BackupStatus } from '@/lib/backup/cron'
 import { BACKUP_STATUS_KEY } from '@/lib/monitoring/freshness'
@@ -12,17 +13,17 @@ import { readJson } from '@/lib/storage/systemFiles'
 import { JOB_RUN_RETENTION_DAYS, listJobRuns, poolDb } from '@/lib/jobs/runLog'
 import { formatBerlin } from '@/lib/time'
 
-import { Notice } from '../../components/Notice'
 import { StatusBadge, type StatusTone } from '../../components/StatusBadge'
 import { adminText } from '../../translations'
 import type { AdminViewBodyProps } from '../AdminViewBody'
 import { adminView } from '../registry'
+import { StartklarSection } from './StartklarSection'
 import { FailedMailAction, PostRestoreForm, RunTaskButton } from './SystemActions'
 
 // Einstellungen → System `/einstellungen/system` (PLAN P5.22, ARCHITEKTUR §11.5, KONZEPT §8.1 Nr. 4): App-Version,
 // `APP_ENV`, letzter voller Job-Lauf und nächster Weckzeitpunkt, „Jetzt ausführen“ je Task, Lauf-Protokoll der
 // letzten 90 Tage (`job_runs`), fehlgeschlagene Mails (Kund:innen-Mails einer Bestellung lassen sich erneut senden),
-// nicht verarbeitete Webhook-Ereignisse. Startklar-Prüfung folgt in P10.
+// nicht verarbeitete Webhook-Ereignisse. Startklar-Prüfung (P10.14).
 
 const RUN_LIMIT = 100
 const fmt = (d: Date | string | null | undefined) =>
@@ -80,8 +81,22 @@ export async function SystemView({ adminRoute, req }: AdminViewBodyProps) {
     req,
   })
 
+  const startklar = await runGoliveCheck(req.payload, now)
+  const settings = await req.payload.findGlobal({
+    slug: 'settings',
+    depth: 0,
+    overrideAccess: true,
+  })
+  const signed = new Set(
+    (settings.processorAgreements ?? [])
+      .filter((a) => a.signedAt && a.serviceId)
+      .map((a) => a.serviceId),
+  )
+
   return (
     <div className="pc-order pc-settings" data-testid="settings-system-view">
+      <StartklarSection report={startklar} signedAgreementIds={signed} />
+
       <section className="pc-order__section" aria-labelledby="system-state">
         <h2 id="system-state">{adminText('systemState')}</h2>
         <dl className="pc-order__facts">
@@ -113,7 +128,6 @@ export async function SystemView({ adminRoute, req }: AdminViewBodyProps) {
               : ''}
           </dd>
         </dl>
-        <Notice tone="info">{adminText('systemStartklarLater')}</Notice>
       </section>
 
       {env.MAINTENANCE_MODE ? (

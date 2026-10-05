@@ -51,7 +51,12 @@ test('@a11y „Heute“: Kacheln, roter Hinweis Anfechtung mit Link, letzte Best
     )
     await expect(page.locator('[data-hint="seed"]')).toContainText('Beispieldaten vorhanden')
     await expect(page.getByTestId('today-recent')).toContainText(disputed.orderNumber)
-    await expect(page.getByTestId('today-startklar')).toContainText('kommt in P10')
+    const startklar = page.getByTestId('today-startklar')
+    await expect(startklar).toContainText('Startklar-Prüfung nicht grün')
+    await expect(startklar.getByRole('link')).toHaveAttribute(
+      'href',
+      adminPath('/einstellungen/system'),
+    )
     await expectNoHorizontalScroll(page)
     await expectAccessible(page, '.pc-admin-view')
 

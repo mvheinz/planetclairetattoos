@@ -3,6 +3,7 @@ import React from 'react'
 import { getTodaySummary, type TodayHint, type TodaySummary } from '@/lib/admin/today'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { LegalReviewWarning } from '@/lib/legal/review'
+import { runGoliveCheck } from '@/lib/golive/collect'
 import { formatEuroInput } from '@/lib/money'
 import { formatBerlin } from '@/lib/time'
 
@@ -13,7 +14,7 @@ import type { AdminViewBodyProps } from '../AdminViewBody'
 import { adminView, adminViewPath, type AdminViewKey } from '../registry'
 
 // Start-Ansicht „Heute“ `/heute` und `ADMIN_ROUTE` (PLAN P5.28, KONZEPT §7.3): Kacheln mit Zahl und Link, rote und
-// gelbe Hinweise mit Link, Startklar-Prüfung (Platzhalter bis P10), letzte 5 Bestellungen, Schnellknopf „Neues Stück“.
+// gelbe Hinweise mit Link, Startklar-Hinweis (P10.14), letzte 5 Bestellungen, Schnellknopf „Neues Stück“.
 // Daten aus `getTodaySummary(now)` (src/lib/admin/today.ts).
 
 const TILES: readonly {
@@ -121,6 +122,7 @@ function LegalTextsTile({ rows, href }: { rows: TodaySummary['legalTexts']; href
 
 export async function TodayView({ adminRoute, req }: AdminViewBodyProps) {
   const summary = await getTodaySummary(new Date(), req.payload)
+  const startklar = await runGoliveCheck(req.payload, new Date()).catch(() => null)
   const href = (path: string) => `${adminRoute}${path}`
 
   return (
@@ -191,9 +193,19 @@ export async function TodayView({ adminRoute, req }: AdminViewBodyProps) {
             ))}
           </ul>
         )}
-        <p className="pc-order__muted" data-testid="today-startklar">
-          {adminText('todayStartklarLater')}
-        </p>
+        {startklar && !startklar.ready ? (
+          <p data-testid="today-startklar" data-ready="false">
+            <StatusBadge tone="warning">{adminText('todayStartklarRed')}</StatusBadge>{' '}
+            <span>{adminText('todayStartklarOpen', { n: startklar.openItems.length })}</span>{' '}
+            <a href={href('/einstellungen/system')} className="pc-admin-link">
+              {adminText('todayStartklarLink')}
+            </a>
+          </p>
+        ) : startklar ? (
+          <p className="pc-order__muted" data-testid="today-startklar" data-ready="true">
+            {adminText('todayStartklarGreen')}
+          </p>
+        ) : null}
       </section>
 
       <LegalTextsTile rows={summary.legalTexts} href={href(adminViewPath('texte'))} />

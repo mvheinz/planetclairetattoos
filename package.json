@@ -31,6 +31,7 @@
     "check:versions": "tsx scripts/check-versions.ts",
     "legal:services": "tsx scripts/legal/gen-services.ts",
     "env:example": "tsx --import=./scripts/lib/register-server-only.mjs scripts/gen-env-example.ts",
+    "check:golive": "tsx --import=./scripts/lib/register-server-only.mjs scripts/check-golive.ts",
     "check:static": "tsx --import=./scripts/lib/register-server-only.mjs scripts/check-static.ts",
     "db:ensure": "tsx --import=./scripts/lib/register-server-only.mjs scripts/db-ensure.ts",
     "db:reset": "tsx --import=./scripts/lib/register-server-only.mjs scripts/db-reset.ts",

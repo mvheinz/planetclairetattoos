@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-05 – P10.14
+
+- src/lib/golive/{checks,collect}.ts: eine Prüffunktion (15 Punkte R-210 Nr. 1–15 inkl. KONZEPT §7.16/DATENMODELL §13.7) für `pnpm check:golive [--json]`, Ansicht Einstellungen → System → „Startklar“ (grün/rot mit Erklärung, AVV-Liste aus services.generated.ts), Hinweis „Startklar-Prüfung nicht grün“ mit Link unter „Heute“ und die Go-live-Sperre „Shop öffnen“ in Produktion (Settings.ts listet alle offenen Punkte; Knopf in den Shop-Einstellungen zeigt dieselbe Liste). Platzhalter „kommt in P10“ entfernt (`systemStartklarLater`/`todayStartklarLater`, `STARTKLAR_PLANNED`); `countUnapprovedOwnerPhotos` und Galerie ohne Einwilligung fließen in Punkt 15 ein; `docs/recht/VVT.md` per outputFileTracingIncludes im Build.
+- Trockenlauf `pnpm check:golive` gegen die Grund-Seed-Datenbank (Exit 1): rot sind Rechtstexte, Bausteine, Stammdaten, IBAN, LUCID/Systembeteiligung, AVVs (7 Dienste), Beispielbestand/Vorschau-Modus, ADMIN_ROUTE, Treiber/Stripe, Statistik-Entscheidung, harmonisierte Mitteilung (Platzhalter-Grafik), Steuer/Vorjahresumsatz – grün: Lieferländer, VVT, Fotos (12 von 15 offen, erwartet).
+- Tests: tests/unit/golive/checks (25, jede Prüfung einzeln grün/rot, R-155 AVV), tests/int/golive/shop-open-lock (3), settings-part3/today int angepasst; E2E today + settings-system (pixel-7) grün, Suche „kommt in P…“ ohne Ausnahme; pnpm check/build grün
+
 ## 2026-10-05 – P10.13
 
 - vercel.json (fra1, Crons tick/backup, Ignored Build Step scripts/vercel-ignore-build.mjs); Origin-Listen cors/csrf (Apex + Vercel-Produktions-Domain in Produktion); pnpm db:mark-production (--yes); /api/health?deep=1 mit Bearer (DB- und Speicher-Ping)\n- admin:create/unlock und assertProductionEnv bereits vorhanden; Spike B-01 Stand: Soll erfüllt (ARCHITEKTUR Anhang B)\n- Tests: tests/unit/deploy/vercel-json, tests/unit/security/origins, tests/int/admin/admin-create, tests/int/health/deep; AK-1-02/AK-A-3-02/AK-A-4-01/AK-A-4-02 weiter grün

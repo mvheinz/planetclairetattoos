@@ -5259,7 +5259,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: Produktionswert für `ADMIN_ROUTE`, ggf. Ordner-Umbenennung (B-01
     Rückfall) per PR.
 
-- [ ] **P10.14 Startklar-Prüfung und Go-live-Sperre** – `pnpm check:golive` und Ansicht Einstellungen → System →
+- [x] **P10.14 Startklar-Prüfung und Go-live-Sperre** – `pnpm check:golive` und Ansicht Einstellungen → System →
   „Startklar“ (grün/rot mit Erklärung in Juttas Sprache) als Vereinigung von R-210 Nr. 1–15, KONZEPT §7.16 Nr. 1–14 und
   DATENMODELL §13.7 (Speichern von `settings.shop.isOpen = true` in Produktion wird mit der Liste aller offenen Punkte
   abgelehnt; maßgeblich ist `APP_ENV`, ARCHITEKTUR §4.2). Die Ansicht ersetzt ausdrücklich den Platzhalter „Startklar
