@@ -276,13 +276,14 @@ export class ArtSession {
   }
 
   /** Uhr vorspulen, bis die Engine eingehängt ist (bzw. die Seite keine Linie hat) – höchstens 4 s virtuell. */
-  async runUntilLeash(): Promise<number> {
+  async runUntilLeash(requireLayer = false): Promise<number> {
     let waited = 0
-    for (let i = 0; i < 160; i++) {
-      const ready = await this.page.evaluate(() => {
+    for (let i = 0; i < 320; i++) {
+      const ready = await this.page.evaluate((requireLayer) => {
         const layer = document.querySelector('[data-leash-layer][data-leash-preset]')
-        return !layer || !!(window as Window & { __leash?: unknown }).__leash
-      })
+        if (!layer) return !requireLayer
+        return !!(window as Window & { __leash?: unknown }).__leash
+      }, requireLayer)
       if (ready) break
       await this.page.clock.runFor(25)
       waited += 25
