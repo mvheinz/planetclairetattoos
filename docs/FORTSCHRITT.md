@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-05 – P10.11
+
+- @vercel/analytics 2.0.1 exakt gepinnt; AnalyticsSlot/AnalyticsClient (nur mit NEXT_PUBLIC_ANALYTICS_ENABLED, APP_ENV=production, kein PREVIEW_EXPORT, settings.analytics.enabled+confirmedAt+Notiz), beforeSend filtert R06–R09/R26/Admin/API und Query\n- Tests: tests/unit/analytics/before-send (inkl. Registry-Abgleich), tests/e2e/privacy/analytics (desktop+pixel-7 grün), check:external und check:bundle grün
+
 ## 2026-10-05 – P10.10
 
 - @sentry/nextjs 11.4.0 nur in instrumentation.ts (ohne DSN nie geladen), redactSentryEvent, Logger→Sentry-Brücke, /api/client-errors (aus, 404), Client-Slot, check:external prüft Sentry-Leaks, System-Ansicht zeigt Backup\n- Tests: tests/int/monitoring/{sentry,client-errors,alert-throttle}; Unit check-external; Build + check:external grün

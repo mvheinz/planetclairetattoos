@@ -5214,7 +5214,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Ohne Jutta: DSN leer, Browser-Fehlermeldungen aus. P11-Nacharbeit: Sentry-Projekt in der EU, DSN in Vercel
     (P11.7); `NEXT_PUBLIC_CLIENT_ERRORS_ENABLED` erst nach der Antwort auf Kanzleifrage K-30 (c) (P11.11).
 
-- [ ] **P10.11 Statistik (cookielos, standardmäßig aus)** – `@vercel/analytics` exakt gepinnt;
+- [x] **P10.11 Statistik (cookielos, standardmäßig aus)** – `@vercel/analytics` exakt gepinnt;
   `src/lib/analytics/AnalyticsSlot.tsx` rendert `<Analytics />` nur bei `NEXT_PUBLIC_ANALYTICS_ENABLED === 'true'`
   **und** `APP_ENV === 'production'` **und** Einstellung `settings.analytics.enabled` mit Pflichtfeld
   `settings.analytics.confirmedAt` und Notiz `settings.analytics.note` „Kanzlei hat Kanzleifrage K-30 bestätigt“ (R-210

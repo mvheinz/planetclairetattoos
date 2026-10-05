@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import React from 'react'
 
+import { AnalyticsSlot } from '@/lib/analytics/AnalyticsSlot'
 import { ClientErrorSlot } from '@/components/monitoring/ClientErrorSlot'
 import { SiteDocument } from '@/components/layout/SiteDocument'
 import { routing } from '@/i18n/routing'
@@ -39,6 +40,7 @@ export default async function LocaleLayout({
     <SiteDocument locale={locale}>
       {children}
       <ClientErrorSlot />
+      <AnalyticsSlot />
     </SiteDocument>
   )
 }
