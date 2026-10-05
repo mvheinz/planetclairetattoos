@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-05 – P10.9
+
+- Spiegel (mirror.ts), Cron-Route /api/cron/backup, backup-status.json, Monatsstand, A12 bei Fehlern, Nach-Wiederherstellung-Abgleich (postRestore.ts, Endpoint, Ansicht System), restore-drill.yml + scripts/ci/restore-drill.ts\n- Tests: tests/int/backup/{mirror,cron-route,retention-replay,post-restore}; Drill lokal grün; GitHub-Lauf folgt im PR der Phasen-Abnahme
+
 ## 2026-10-05 – P10.8
 
 - Backup I: src/lib/backup/{format,dump,crypto,run,restore,s3}.ts („pcdump v1“: REPEATABLE READ/READ ONLY, COPY nach Primärschlüssel, md5 je Tabelle, setval; gzip → age; Datei oder S3-Multipart); Wiederherstellung in einer Transaktion (Fremdschlüssel/Trigger, Rollback bei Abweichung)\n- Skripte pnpm backup:run, backup:restore, backup:verify (Schlüssel nur als Datei)\n- Spike B-06 bestanden (400 000 Zeilen in 3,4 s, 33 MB, konstanter Speicher) und in ARCHITEKTUR Anhang B eingetragen\n- Tests: tests/unit/backup/format (6), tests/int/backup/roundtrip (8: AK-A-10-01/-02/-05)

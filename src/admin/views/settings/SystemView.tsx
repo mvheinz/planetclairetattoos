@@ -14,7 +14,7 @@ import { StatusBadge, type StatusTone } from '../../components/StatusBadge'
 import { adminText } from '../../translations'
 import type { AdminViewBodyProps } from '../AdminViewBody'
 import { adminView } from '../registry'
-import { FailedMailAction, RunTaskButton } from './SystemActions'
+import { FailedMailAction, PostRestoreForm, RunTaskButton } from './SystemActions'
 
 // Einstellungen → System `/einstellungen/system` (PLAN P5.22, ARCHITEKTUR §11.5, KONZEPT §8.1 Nr. 4): App-Version,
 // `APP_ENV`, letzter voller Job-Lauf und nächster Weckzeitpunkt, „Jetzt ausführen“ je Task, Lauf-Protokoll der
@@ -94,6 +94,14 @@ export async function SystemView({ adminRoute, req }: AdminViewBodyProps) {
         </dl>
         <Notice tone="info">{adminText('systemStartklarLater')}</Notice>
       </section>
+
+      {env.MAINTENANCE_MODE ? (
+        <section className="pc-order__section" aria-labelledby="system-post-restore">
+          <h2 id="system-post-restore">{adminText('systemPostRestore')}</h2>
+          <p className="pc-order__muted">{adminText('systemPostRestoreHint')}</p>
+          <PostRestoreForm />
+        </section>
+      ) : null}
 
       <section className="pc-order__section" aria-labelledby="system-tasks">
         <h2 id="system-tasks">{adminText('systemTasks')}</h2>

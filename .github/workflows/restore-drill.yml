@@ -1,0 +1,71 @@
+name: Restore-Drill
+
+# ARCHITEKTUR §6.2/§10.6: Wiederherstellungs-Übung mit **synthetischen** Seed-Daten und einem Wegwerf-Schlüssel – nie mit
+# Produktionsdaten oder -Zugängen (A-12, DIENSTE §3.11, LOESCHKONZEPT L-23). Kein Produktions-Backup über GitHub Actions.
+on:
+  schedule:
+    - cron: '0 4 1 * *' # monatlich am 1. um 04:00 UTC
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'src/lib/backup/**'
+      - '.github/workflows/restore-drill.yml'
+
+concurrency:
+  group: restore-drill-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  drill:
+    name: drill
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: planetclaire_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      APP_ENV: test
+      TZ: UTC
+      ADMIN_ROUTE: /werkstatt
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/planetclaire_test
+      DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/planetclaire_test
+      PAYLOAD_SECRET: ci-only-secret-not-used-anywhere-else-0000
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      SEED_PREVIEW_MODE: 'true'
+      SEED_NOW: '2026-10-15T10:00:00+02:00'
+      SEED_ADMIN_EMAIL: admin@example.com
+      SEED_ADMIN_PASSWORD: ci-only-password-2026
+      STORAGE_DRIVER: local
+      EMAIL_DRIVER: file
+      PAYMENTS_DRIVER: mock
+      TRANSLATION_DRIVER: mock
+      CARRIER_DRIVER: manual
+      CRON_SECRET: ci-only-cron-secret-000000000000000000
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Installation
+        run: pnpm install --frozen-lockfile
+      - name: Datenbank mit synthetischem Beispielbestand
+        run: pnpm run db:ensure && pnpm run db:reset --test --seed=all
+      - name: Backup, Wiederherstellung, Vergleich, retention:replay
+        run: pnpm exec tsx --import=./scripts/lib/register-server-only.mjs scripts/ci/restore-drill.ts

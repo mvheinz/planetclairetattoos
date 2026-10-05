@@ -39,6 +39,7 @@ import { WebhookEvents } from './collections/WebhookEvents'
 import { Settings } from './globals/Settings'
 import { complianceTemplateEndpoint } from './endpoints/compliance'
 import { exportEndpoints } from './endpoints/export'
+import { postRestoreEndpoints } from './endpoints/postRestore'
 import { seedAdminEndpoints } from './endpoints/seed'
 import { SiteTexts } from './globals/SiteTexts'
 import { withJsonPreview } from './admin/jsonPreview'
@@ -139,7 +140,12 @@ export default buildConfig({
   ].map((c) => ({ ...c, fields: withJsonPreview(c.fields) })),
   globals: [Settings, SiteTexts].map((g) => ({ ...g, fields: withJsonPreview(g.fields) })),
   // Admin-Endpunkte ohne Collection (ARCHITEKTUR §2.5): Exporte (P5.24/P5.25).
-  endpoints: [...exportEndpoints, ...seedAdminEndpoints, complianceTemplateEndpoint],
+  endpoints: [
+    ...exportEndpoints,
+    ...seedAdminEndpoints,
+    ...postRestoreEndpoints,
+    complianceTemplateEndpoint,
+  ],
   hooks: { afterError: [keepValidationErrorData] },
   // Rechtsbausteine in den Speicher laden (`getSnippet` bleibt synchron, DATENMODELL §6.28).
   onInit: initLegalSnippets,

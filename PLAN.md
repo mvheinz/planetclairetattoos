@@ -5173,7 +5173,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
     Fremdschlüssel, Trigger, Sequenzen); `tests/unit/backup/format.unit.spec.ts`.
   - Ohne Jutta: nur synthetische Schlüssel und Daten. P11-Nacharbeit: age-Schlüsselpaar von Jutta (P11.12).
 
-- [ ] **P10.9 Backup II: Spiegel, Cron-Route, Status, Übung** – `src/lib/backup/mirror.ts` (§10.4), Route
+- [x] **P10.9 Backup II: Spiegel, Cron-Route, Status, Übung** – `src/lib/backup/mirror.ts` (§10.4), Route
   `GET /api/cron/backup` (§10.3: nur bei `APP_ENV=production` **und** `BACKUP_ENABLED=true`, sonst 404 ohne
   DB-Verbindung; Bearer `CRON_SECRET`, sonst 401; Advisory-Lock `backup`; `maxDuration = 300`), `backup-status.json` über
   `systemFiles`, Monatsstand per `CopyObject`, gedrosselte A12-Mail bei Fehlern; `backup`-Wert in

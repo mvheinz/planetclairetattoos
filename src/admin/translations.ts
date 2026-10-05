@@ -812,6 +812,16 @@ export const ADMIN_CUSTOM_DE = {
   systemLastFullRun: 'Letzter voller Job-Lauf',
   systemNextWake: 'Nächster Weckzeitpunkt',
   systemStartklarLater: 'Startklar-Prüfung kommt in P10.',
+  systemPostRestore: 'Nach Wiederherstellung abgleichen',
+  systemPostRestoreHint:
+    'Nur im Wartungsmodus. Wendet das Löschprotokoll erneut an, holt Zahlungen seit dem Backup nach und gleicht die Belegnummern ab. Du kannst es gefahrlos mehrmals ausführen.',
+  systemPostRestoreWhen: 'Zeitpunkt des Backups',
+  systemPostRestoreDialog: 'Jetzt mit dem Backup-Stand abgleichen?',
+  systemPostRestoreConsequence:
+    'Gelöschte Daten werden erneut gelöscht, fehlende Zahlungen nachgeholt und Belegnummern angehoben.',
+  systemPostRestoreRun: 'Abgleichen',
+  systemPostRestoreDone:
+    'Abgleich fertig: {{reapplied}} Löschungen erneut angewendet, {{events}} Zahlungs-Ereignisse geprüft, {{missing}} fehlende Belege.',
   systemTasks: 'Hintergrund-Aufgaben',
   systemTasksHint:
     'Laufen automatisch. „Jetzt ausführen“ startet eine Aufgabe sofort – sie tut nur, was gerade fällig ist.',
