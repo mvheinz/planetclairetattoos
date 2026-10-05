@@ -4749,7 +4749,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: Erweiterung `tests/unit/art/check-art.unit.spec.ts`; Parser-Test gegen KUNST-QA §5.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.7 CI-Workflow `art-qa.yml` und Dauer-Gate** – `.github/workflows/art-qa.yml` nach KUNST-QA §9 und
+- [x] **P9.7 CI-Workflow `art-qa.yml` und Dauer-Gate** – `.github/workflows/art-qa.yml` nach KUNST-QA §9 und
   ARCHITEKTUR §6.2: Auslöser `workflow_dispatch` und `pull_request` (`labeled`, `synchronize`); der Job läuft, wenn der
   PR das Label `art` trägt oder die Nachricht des Head-Commits `[ci:art]` enthält (z. B.
   `chore(P9.18): record iteration 01 [ci:art]`); kein `push`-Auslöser. Postgres-Service, Installation (Cache),

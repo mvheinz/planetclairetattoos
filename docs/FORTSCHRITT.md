@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-05 – P9.7 Kunst-QA-Workflow bewiesen
+
+`[ci:art]`-Lauf 37329881684 (Commit 85347b4) ist grün: 62 von 62 automatischen Kriterien bestanden, Bündel `art-qa-20261005-iter01-85347b4` (≈ 100 MB) hochgeladen, genau ein Bündel vorhanden, Laufzeit ≈ 44 Minuten (Gate ≤ 45, Abbruch 60). Probe `gh run download`: Der Download der Artefakt-Datei ist von dieser Cloud-Umgebung aus nicht möglich (Proxy erlaubt keine Weiterleitung auf den Blob-Speicher); Auswertung läuft deshalb über die Zeilen im Job-Log (`ROT <ID>: …`) – Eintrag in OFFENE-PUNKTE.
+
 ## 2026-10-05 – P9 Kunst-QA: vierter Lauf in CI
 
 Zwei Aufnahme-Worker statt drei (drei störten sich gegenseitig), die Kassen-Szenarien laufen nacheinander, und rote Kriterien stehen jetzt mit Messwert im Log. Die Messung der Linien-Nachführung auf dem iPhone-Profil ist genauer geworden. Der Lauf zeigt auf einer ruhigen Maschine, ob alles besteht.
