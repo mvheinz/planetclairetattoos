@@ -269,6 +269,11 @@ html[data-menu-open] {
   display: inline-block;
 }
 
+/* Die Linie liegt unter der Grundlinie, nicht im Wort (R3-05-01: bei `aria-current` wirkte sie wie durchgestrichen). */
+.nav-link__text > [data-ink-underline] {
+  bottom: -7px;
+}
+
 /* ---------- Fokus (§3.2 Nr. 3) – nie entfernen ---------- */
 :focus-visible {
   outline: 3px solid var(--color-focus);

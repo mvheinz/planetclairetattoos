@@ -35,14 +35,12 @@ const ALLOWED_DRAWN: Record<string, string> = {
   keramik: 'post-DdUPhoZOoMW.jpg',
   textil: 'post-DcT7ErBDsWi.jpg',
   zeichnungen: 'post-DaJH_kADpsK.jpg',
+  // P9.18a (R1-05-03): frei gezeichnet nach Juttas Skizze bzw. der Marke, nicht aus dem Sprite abgeleitet
+  hallo: 'coco-oh-01.jpg',
+  'jutta-und-coco': 'coco-oh-01.jpg',
+  'planet-claire': 'src/art/planet.svg',
 }
-const DERIVED = [
-  'planet-claire',
-  'hallo',
-  'schmuck',
-  'jutta-und-coco',
-  ...Object.keys(ALLOWED_DRAWN),
-]
+const DERIVED = ['schmuck', ...Object.keys(ALLOWED_DRAWN)]
 const files = readdirSync(STATIONS_DIR).filter((f) => f.endsWith('.svg'))
 const read = (id: string) => readFileSync(path.join(STATIONS_DIR, `${id}.svg`), 'utf8')
 
@@ -190,12 +188,12 @@ describe('P9.12 Stationen als Linienzeichnung (Juttas Stil: nur kleine Punkte ge
     }
   })
 
-  it('Coco-Stationen aus dem Sprite v2 (sources.json zeigt auf src/art/coco/coco-sprite.svg)', () => {
+  it('Coco-Stationen und Planet sind frei gezeichnet (Kontrollpunkte unter content/art/stations/, nicht aus dem Sprite abgeleitet)', () => {
     const sources = readSources()
-    for (const id of ['hallo', 'jutta-und-coco']) {
+    for (const id of ['hallo', 'jutta-und-coco', 'planet-claire']) {
       const d = sources.derived.find((x) => x.id === id)!
-      expect(d.from, id).toContain('src/art/coco/coco-sprite.svg#coco-sitzen-a')
-      expect(d.from, id).not.toContain('v1')
+      expect(d.kind, id).toBe('drawn')
+      expect(d.from, id).toBe(`content/art/stations/${id}.ts`)
     }
   })
 })
