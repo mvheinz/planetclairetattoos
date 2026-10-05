@@ -273,8 +273,14 @@ export function mo07(files: readonly ProbeFile[]): CheckResult {
   for (const { file, value } of runs) {
     if (!value.length) continue
     // Rückstand zum Ziel der Lesezeile (`target`); ältere Läufe ohne Feld: gezeichnete Länge.
+    // Die Messung läuft im rAF der Sonde vor dem rAF der Engine desselben Bildes: die Engine kann höchstens das Ziel des
+    // vorherigen Messpunkts kennen. Verglichen wird daher mit dem vorherigen Ziel – sonst zählt jeder Seitenstillstand
+    // (WebKit ohne GPU: 140–210 ms zwischen zwei Bildern bei 3000 px/s = 400–600 px Scrollweg) als Rückstand der Coco.
     const lag = Math.max(
-      ...value.filter((s) => s.scrolling).map((s) => Math.abs((s.target ?? s.drawn) - s.coco)),
+      ...value
+        .map((s, i) => [s, value[i - 1]] as const)
+        .filter(([s]) => s.scrolling)
+        .map(([s, prev]) => Math.abs(((prev ?? s).target ?? (prev ?? s).drawn) - s.coco)),
       0,
     )
     const stop = value.filter((s) => s.scrolling).at(-1)?.t ?? 0

@@ -625,4 +625,20 @@ describe('P9.6 Barrierefreiheit, Kontrast, Ruhezonen', () => {
       ]).status,
     ).toBe('FAIL')
   })
+
+  it('MO-07 vergleicht Coco mit dem Ziel des vorherigen Messpunkts (Seitenstillstand ist kein Rückstand)', () => {
+    const smp = (t: number, coco: number, target: number, scrolling = true) => ({
+      t,
+      coco,
+      drawn: target,
+      target,
+      scrolling,
+    })
+    // Stillstand 16 → 230 ms: Ziel springt um 640 px, die Engine kennt nur das Ziel von t = 16
+    const stall = [smp(0, 0, 0), smp(16, 40, 48), smp(230, 48, 688), smp(246, 688, 736)]
+    expect(rt.mo07([file('SC-01', [], 'motion', { mo07: stall })]).status).toBe('PASS')
+    // träge Coco: bleibt dauerhaft 400 px zurück
+    const slow = [smp(0, 0, 0), smp(16, 0, 400), smp(32, 48, 450), smp(48, 100, 500)]
+    expect(rt.mo07([file('SC-01', [], 'motion', { mo07: slow })]).status).toBe('FAIL')
+  })
 })
