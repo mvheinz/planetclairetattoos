@@ -1,4 +1,5 @@
-import { test, expect, request as playwrightRequest, type APIResponse } from '@playwright/test'
+import { expect, test } from './fixtures'
+import { request as playwrightRequest, type APIResponse } from '@playwright/test'
 
 import { shortLinks } from '../../src/lib/routes/registry'
 import { localizedPath } from '../../src/lib/routes/paths'

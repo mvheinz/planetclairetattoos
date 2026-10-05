@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test } from './fixtures'
+import { type Page } from '@playwright/test'
 
 import type { Locale } from '../../src/lib/routes/registry'
 import { offerState } from '../../src/lib/tattoo/offers'

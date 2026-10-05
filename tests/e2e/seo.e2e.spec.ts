@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures'
 
 import { pageRoutes, hasSamplePath, samplePath } from '../../src/lib/routes/paths'
 import { LOCALES } from '../../src/lib/routes/registry'

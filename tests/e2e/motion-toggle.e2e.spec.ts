@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test } from './fixtures'
+import { type Page } from '@playwright/test'
 
 // P2.10 Schalter „Animationen“ (DESIGN §11.7, R-130 a, ARCHITEKTUR §8.7).
 

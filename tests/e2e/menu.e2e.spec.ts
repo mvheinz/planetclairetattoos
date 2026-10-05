@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test } from './fixtures'
+import { type Page } from '@playwright/test'
 
 // P2.9 Menü (DESIGN KO-03, KONZEPT §3.0.2) als Verhaltensmodul `menu` (MI-05).
 

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from '../fixtures'
 
 // P8.14 Stationszeichnungen (DESIGN §12.4, KO-21, E-73): die Startseite zeigt 7 Stationszeichnungen aus
 // `src/art/stations/` bzw. dem Coco-Sprite (keine Ersatzzeichnung mehr), `aria-hidden`, Tusche über `currentColor`, ohne Konsolenfehler.

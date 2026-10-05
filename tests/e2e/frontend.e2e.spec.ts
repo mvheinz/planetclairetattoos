@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from './fixtures'
 
 test.describe('Frontend', () => {
   test('Startseite /de und /en laden mit <html lang>', async ({ page }) => {
