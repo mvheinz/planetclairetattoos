@@ -2,6 +2,14 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-05 – P10.13
+
+- vercel.json (fra1, Crons tick/backup, Ignored Build Step scripts/vercel-ignore-build.mjs); Origin-Listen cors/csrf (Apex + Vercel-Produktions-Domain in Produktion); pnpm db:mark-production (--yes); /api/health?deep=1 mit Bearer (DB- und Speicher-Ping)\n- admin:create/unlock und assertProductionEnv bereits vorhanden; Spike B-01 Stand: Soll erfüllt (ARCHITEKTUR Anhang B)\n- Tests: tests/unit/deploy/vercel-json, tests/unit/security/origins, tests/int/admin/admin-create, tests/int/health/deep; AK-1-02/AK-A-3-02/AK-A-4-01/AK-A-4-02 weiter grün
+
+## 2026-10-05 – P10.12
+
+- Dockerfile: Ziel migrator, HEALTHCHECK, Schriften, BUILD_WITHOUT_DB=1; docker-compose.prod.yml (caddy, app, migrate, postgres ohne Port, scheduler 30 1 * * *), deploy/Caddyfile, .env.production.example (generiert), .dockerignore; Job docker in ci-full.yml\n- Spike B-08 bestanden: Build ohne DB (dbGate/connection()), danach gegen befüllte DB gestartet: /api/health, /de, /en, Shop, Archiv 200; Ergebnis in ARCHITEKTUR Anhang B\n- Tests: tests/unit/deploy/docker-files, tests/unit/ci/workflows; Image-Größe/UID/Compose-Lauf belegt der CI-Job docker im Phasenende-PR (Docker-Daemon lokal nicht verfügbar)
+
 ## 2026-10-05 – P10.11
 
 - @vercel/analytics 2.0.1 exakt gepinnt; AnalyticsSlot/AnalyticsClient (nur mit NEXT_PUBLIC_ANALYTICS_ENABLED, APP_ENV=production, kein PREVIEW_EXPORT, settings.analytics.enabled+confirmedAt+Notiz), beforeSend filtert R06–R09/R26/Admin/API und Query

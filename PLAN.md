@@ -5227,7 +5227,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: `tests/unit/analytics/before-send.unit.spec.ts`; `tests/e2e/privacy/analytics.e2e.spec.ts`.
   - Ohne Jutta: aus. P11-Nacharbeit: Entscheidung nach Kanzlei-Antwort (A36, P11.11).
 
-- [ ] **P10.12 Docker-Exit-Pfad und CI-Job `docker`** – `Dockerfile` ergänzen (Ziel `migrator` auf Basis `builder`
+- [x] **P10.12 Docker-Exit-Pfad und CI-Job `docker`** – `Dockerfile` ergänzen (Ziel `migrator` auf Basis `builder`
   mit `CMD ["pnpm","payload","migrate"]`, `HEALTHCHECK` gegen `/api/health`, Kopie von `src/styles/fonts` und
   `src/og/fonts`, falls das Standalone-Tracing sie nicht erfasst); `BUILD_WITHOUT_DB=1` (Spike B-08, Ergebnis in
   Anhang B); `docker-compose.prod.yml` (caddy, app, migrate, postgres ohne veröffentlichten Port, scheduler mit
@@ -5240,7 +5240,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: CI-Job `docker`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: – (Umzug nur mit Juttas Entscheidung, ARCHITEKTUR §13).
 
-- [ ] **P10.13 Deploy-Vorbereitung für Vercel und Produktionsschutz** – `vercel.json` (`"regions": ["fra1"]`, Crons
+- [x] **P10.13 Deploy-Vorbereitung für Vercel und Produktionsschutz** – `vercel.json` (`"regions": ["fra1"]`, Crons
   `/api/cron/tick` jede Minute und `/api/cron/backup` `30 1 * * *`, „Ignored Build Step“-Skript für Änderungen nur an
   `docs/**`, `tests/**`, `content/art/**`); Build-Befehl `pnpm payload migrate && pnpm build` im RUNBOOK. Skripte
   `pnpm db:mark-production`, `pnpm admin:create` (interaktiv, Passwort nie als Argument, verweigert ein zweites Konto,
