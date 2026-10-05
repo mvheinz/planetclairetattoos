@@ -5348,7 +5348,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: `tests/unit/docs/handbook.unit.spec.ts` (Link-/Bildprüfung, Pflichtkapitel, V-26-Muster).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: Jutta liest es vor dem Start (A31).
 
-- [ ] **P10.19 Endkontrolle Inhalte und Recht (RECHT §7 Teil A)** – Checkliste RECHT §7 Teil A vollständig abhaken und
+- [x] **P10.19 Endkontrolle Inhalte und Recht (RECHT §7 Teil A)** – Checkliste RECHT §7 Teil A vollständig abhaken und
   mit Datum in FORTSCHRITT vermerken: R-049 (harmonisierte Mitteilung mit amtlicher Vorlage verglichen oder Platzhalter
   in OFFENE-PUNKTE), R-095 (Platzhalter-Widerrufsbelehrung enthält `{{withdrawalUrl}}` und `{{phone}}`), R-156
   (`docs/recht/VVT.md` vollständig; zugleich R-210 Nr. 14), R-157 (RUNBOOK + Handbuch), R-161 (`commission.offer` als

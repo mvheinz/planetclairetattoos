@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-05 – P10.19
+
+- RECHT §7 Teil A vollständig abgehakt (05.10.2026): R-049 (amtliche Grafik offline nicht ladbar, Platzhalter in OFFENE-PUNKTE), R-095 (Token withdrawalUrl und phone), R-156 (VVT V1–V19 vollständig, zugleich R-210 Nr. 14), R-157 (RUNBOOK §9 und Handbuch Kapitel 16), R-161, R-190, V-18/V-28/V-29 erneut gesichtet (nur EN-Fachbegriff legal guarantee), EK-09 erneut (Paritäts- und lorem-Tests grün)
+- Instagram-Export fehlt weiter (nur LIESMICH): seed:import-instagram/--refresh-media entfallen, art:vectorize und art:coco-refs unverändert reproduzierbar; KUNST-QA-Teilaufnahme bewusst auf den Abschlusslauf nach dem Zusammenführen mit P9 verschoben (OFFENE-PUNKTE)
+- OFFENE-PUNKTE bereinigt: Überblick nach Zuständigkeit (Jutta, Kanzlei, Steuerberatung, technisch erledigt), neuer Abschnitt 4.2, veraltete Angaben zu Coco-Fotos und DATEV korrigiert
+- Tests: tests/unit/legal/withdrawal-placeholder.unit.spec.ts (3), pnpm check grün (1960 Tests)
+
 ## 2026-10-05 – P10.18
 
 - docs/owner/HANDBUCH.md: 20 Kapitel in Du-Form (Anmelden/PWA, Heute, Neues Stück mit Pflichtangaben und Fotoregeln, Meine Stücke, Packen/Versendet, Vorkasse, Abholung, Widerruf und Erstattung, Anfragen, Tattoo, Texte, Einstellungen, Umsatz-Wächter, Export, Datenschutz-Anfragen, Datenpanne nach R-157, Startklar, Beispieldaten, Vorschau-Datei und Hinweis zur Barrierefreiheit nach R-190, Notfall und Hilfe), jedes mit Bildschirmfoto aus P10.17

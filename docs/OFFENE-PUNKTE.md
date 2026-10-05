@@ -1,7 +1,7 @@
 # Offene Punkte
 
-> **Stand:** 27.09.2026 (nach P0) · **Für:** Jutta und alle Claude-Sessions P1–P10 · **Durchsicht:** in P11 gemeinsam
-> (AUFGABEN A31, PLAN P11.1)
+> **Stand:** 05.10.2026 (Endkontrolle P10.19) · **Für:** Jutta und alle Claude-Sessions P1–P10 · **Durchsicht:** in P11
+> gemeinsam (AUFGABEN A31, PLAN P11.1)
 
 ## 1. Was ist diese Liste?
 
@@ -13,6 +13,15 @@ Entwicklung ohne dich getroffen hat. Nichts davon hält die Arbeit auf. Bis du e
 
 **Wer trägt ein?** Die Claude-Sessions. Wenn etwas nicht in den Unterlagen steht, nehmen sie den Standard, schreiben
 ihn hier auf und arbeiten weiter (CLAUDE.md §2). Du wirst zwischendurch nichts gefragt.
+
+**Wer muss entscheiden? (Überblick nach Zuständigkeit, Stand P10.19)**
+
+| Zuständig | Wo in dieser Liste | Worum es geht |
+|---|---|---|
+| **Jutta entscheidet oder liefert** | §2.1 bis §2.4 und §2.6 (J-01 bis J-35, J-39 bis J-44) | Adresse, Stammdaten, Unterlagen, Fotos, kleine Regeln im Shop, Betrieb und Kosten |
+| **Kanzlei** | §3 (K-01 bis K-41) | Rechtstexte, Fristen, Einzelfragen; danach ggf. eine Entscheidung von Jutta |
+| **Steuerberatung** | §2.5 (J-36 bis J-38) und J-09, J-11 | DATEV-Konten, Regelbesteuerung, Umsatz des Vorjahres, Aufbewahrung |
+| **Technisch erledigt oder Annahme der Entwicklung** | §4 (mit §4.2 „Erledigt bis P10“) und §5 | Annahmen, die die Entwicklung selbst getroffen hat; nichts davon musst du lesen |
 
 **Wie liest du die Liste?**
 
@@ -65,7 +74,7 @@ solltest. Alle Schritt-für-Schritt-Aufgaben (Konten, Stripe, PayPal, DNS, Start
 | **J-04** · E-41 · RECHT R-002, R-012, R-210 Nr. 1–2, §6 · Protokoll P0 „Rechtstexte“ · A08, A28 | **Kanzlei beauftragen.** Impressum, Datenschutzerklärung, AGB, Widerrufsbelehrung und die kurzen Rechtsbausteine (z. B. der Hinweis am Preis) schreibt einmalig eine Kanzlei. | Deutlich markierte Platzhalter-Texte. Damit geht die Seite nicht live. | Angebote einholen und eine Kanzlei mit der Mappe `docs/recht/KANZLEI-BRIEFING.md` beauftragen, am besten früh, denn die Kanzlei braucht Zeit. Wenn die Texte kommen: prüfen, ob alle da sind, als Text- und HTML-Datei, nicht nur als PDF (A28). | so bald wie möglich; Texte vollständig vor P11 |
 | **J-05** · E-42 · RECHT R-172 · KONZEPT KA-27 · K-27 · A13, A48 | **Einwilligungen für Tattoo-Fotos** deiner Kund:innen. | Fotos von Kund:innen erscheinen nur, wenn an genau diesem Foto das Häkchen für die Einwilligung gesetzt ist, ohne Häkchen nie. Eine Freigabe für Instagram gilt nicht automatisch für die Website. Den Wortlaut der Einwilligung prüft die Kanzlei (K-27). | Einwilligungen einholen (fertige DM-Texte in der Anleitung E1) und in der Verwaltung je Foto das Häkchen setzen. Keine Screenshots der Einwilligungen auf GitHub. | während P1–P10, spätestens P11 |
 | **J-06** · E-64 · DESIGN DA-8 · Protokoll P0 „Instagram-Bilder nur 640 px“ · PLAN P8.10 · A04, A06 | **Instagram-Datenexport.** Die Bilder aus deinem Profil sind nur 640 Pixel groß. | Beispielbestand und Zeichnungen entstehen aus den kleinen öffentlichen Bildern. | Export anfordern (A04), dann herunterladen und in den Ordner `content/seed/instagram-export/` hochladen (A06). Der Download-Link gilt nur wenige Tage. Danach baut eine Session Bilder und Zeichnungen in voller Qualität neu. | so bald wie möglich, spätestens P11 |
-| **J-07** · E-75 · DESIGN DA-7 · PLAN P8.11, P9.8 · A05 | **Fotos von Coco.** Coco wird nach Fotos gezeichnet; die Highlight-Bildchen sind nur 150 Pixel groß. | Coco wird nach den Highlight-Bildchen gezeichnet. | 5–10 Fotos in den Ordner `content/seed/coco/` hochladen, am besten in den Posen rennen, schnüffeln, sitzen, schlafen, springen und Kopf schief (A05). Die Fotos werden nie veröffentlicht; Ortsangaben darin werden entfernt. In P11 schaust du dir Coco an und sagst, ob sie getroffen ist. | so bald wie möglich; Abnahme in P11 |
+| **J-07** · E-75 · DESIGN DA-7 · PLAN P8.11, P9.8 · A05 | **Fotos von Coco.** Coco wird nach Fotos gezeichnet; die Highlight-Bildchen sind nur 150 Pixel groß. | Coco wird nach deinen 5 Fotos (04.10.2026 geliefert, `content/seed/coco/`), den Highlight-Bildchen und deinen Skizzen gezeichnet. | Weitere Fotos sind willkommen, aber nicht nötig: 5–10 Fotos in den Ordner `content/seed/coco/` hochladen, am besten in den Posen rennen, schnüffeln, sitzen, schlafen, springen und Kopf schief (A05). Die Fotos werden nie veröffentlicht; Ortsangaben darin werden entfernt. In P11 schaust du dir Coco an und sagst, ob sie getroffen ist. | so bald wie möglich; Abnahme in P11 |
 | **J-08** · DATENMODELL DM-13 · KONZEPT KA-13 · RECHT R-205, R-210 Nr. 3–4 · Protokoll P0 „Impressum-/Herstelleradresse, IBAN“ · A26, A34 | **Stammdaten und Bankverbindung für Vorkasse:** vollständiger Name, Anschrift (siehe J-01), Bezirk des Studios, Abhol-Infos, IBAN und Kontoinhaberin. | Platzhalter wie „[Adresse folgt]“ und „[Bezirk folgt]“ und eine Beispiel-IBAN. Die Startklar-Prüfung erkennt Platzhalter und bleibt rot. | Daten bereitlegen (A26) und in P11 selbst in der Verwaltung eintragen (A34), nicht in diese Datei. | bereitlegen vor P11, eintragen in P11 |
 | **J-09** · E-02 · RECHT R-125, R-205, R-210 Nr. 12 · A11 | **Steuer (mit Steuerberatung):** Steuernummer, Kleinunternehmer-Status, Umsatz des Vorjahres aus allen Tätigkeiten. | Kleinunternehmer-Modus ist an; die Steuernummer ist ein Platzhalter; der Umsatz-Wächter kennt noch keinen Vorjahresumsatz. Die Startklar-Prüfung verlangt, dass du die Steuerangaben bestätigst. | Mit der Steuerberatung klären und in P11 eintragen: Steuernummer, Kleinunternehmer-Status bestätigt, Vorjahresumsatz. | vor P11 |
 | **J-10** · RECHT R-182 · KONZEPT KA-21 · DATENMODELL DM-11 · SEED-SPEC SE-03 · K-34 · A21, A30 | **Die Vorschau-Datei ist nur für dich.** Sie zeigt zwei Tattoo-Fotos von Kund:innen, die noch nicht eingewilligt haben. | Die zwei Fotos gibt es nur im Beispielbestand, mit Etikett „intern – Einwilligung fehlt“ und dem Band „nicht weitergeben“; nie auf der echten Seite. Beim Entfernen der Beispieldaten werden sie gelöscht. Ob das so in Ordnung ist, prüft die Kanzlei (K-34). | Die Vorschau nur privat ansehen: nicht weitergeben, nicht veröffentlichen, auch nicht auf Instagram. Hat die Kanzlei Bedenken, ersetzen wir die zwei Fotos durch Platzhalter. | ab jetzt, bei jeder Vorschau |
@@ -114,7 +123,7 @@ solltest. Alle Schritt-für-Schritt-Aufgaben (Konten, Stripe, PayPal, DNS, Start
 
 | ID | Thema in einfachen Worten | Was gerade gilt (Standard) | Was du tun sollst | bis wann |
 |---|---|---|---|---|
-| **J-36** · PLAN P5.25 · KONZEPT §7.15 · RECHT R-124 | **Export für die Buchhaltung im DATEV-Format.** | Der Knopf bleibt ausgegraut, bis die Konten eingetragen sind. Zeichensatz und Feldformate der Datei sind eine Annahme der Entwicklung (kommt in P5). | Die Steuerberatung legt Kontenrahmen und Kontonummern fest und prüft den ersten Import. | P11 bzw. erster Monatsexport |
+| **J-36** · PLAN P5.25 · KONZEPT §7.15 · RECHT R-124 | **Export für die Buchhaltung im DATEV-Format.** | Der Knopf bleibt ausgegraut, bis die Konten eingetragen sind. Zeichensatz und Feldformate der Datei sind eine Annahme der Entwicklung (der Export ist seit P5 gebaut). | Die Steuerberatung legt Kontenrahmen und Kontonummern fest und prüft den ersten Import. | P11 bzw. erster Monatsexport |
 | **J-37** · KONZEPT KA-10 · PLAN P4 (Phasen-Abnahme) | **Nur bei Regelbesteuerung:** Wie werden die Versandkosten auf die Steuersätze verteilt? | Anteilig nach Warenwert. Solange du Kleinunternehmerin bist, spielt das keine Rolle. | Die Steuerberatung fragen, bevor du auf Regelbesteuerung umstellst. | erst bei einem Wechsel |
 | **J-38** · DATENMODELL DM-07 · RECHT R-032 | **Nur bei Regelbesteuerung:** Steuersatz für Zeichnungen. | 19 %; 7 % (Kunst) nur von Hand und mit Begründung. | Die Steuerberatung fragen, bevor du umstellst. | erst bei einem Wechsel |
 
@@ -184,7 +193,7 @@ Spalte den Vermerk „beantwortet TT.MM.JJJJ“; die Änderung steht im Protokol
 
 ---
 
-## 4. Technische Annahmen (Entwicklung entscheidet selbst)
+## 4. Technisch: Annahmen der Entwicklung und Erledigtes
 
 Diese Punkte brauchen weder Jutta noch die Kanzlei. Alle Zeilen haben den Status **„Annahme gilt“**, die W-Zeilen
 und die Zeilen „Regel: …“ **„gilt (Plan)“** (Regeln aus dem Abgleich vom 27.09.2026; sie stehen auch in den genannten
@@ -292,9 +301,25 @@ J-24), §2.1 (J-10) und §2.2 (J-19).
 Beispielbestand. **Instagram-Export:** `content/seed/instagram-export/` enthält nur `LIESMICH.txt` – der Beispielbestand
 nutzt die Bilder aus `content/seed/instagram/` (Manifest). Sobald Jutta den Export liefert, ersetzt
 `pnpm seed:import-instagram` und danach `pnpm seed:example --refresh-media` die Bilder in voller Auflösung (gleiche `seedKey`), ohne Codeänderung
-(Nacharbeit P11). **Coco-Fotos:** `content/seed/coco/` enthält nur `LIESMICH.txt`; Coco ist nach den 9 Highlight-Bildchen
-und Juttas Skizzen gezeichnet (`content/art/coco-refs.json`, P8.11). Neue Fotos dort ablegen und `pnpm art:coco-refs`
-ausführen; die Studio-Abnahme der Figur folgt in P9. **Phasen-Annahmen:** siehe §5, Zeilen P8.1–P8.20.
+(Nacharbeit P11). **Coco-Fotos:** `content/seed/coco/` enthält seit 04.10.2026 Juttas 5 Fotos; Coco ist nach ihnen, den 9 Highlight-Bildchen
+und Juttas Skizzen gezeichnet (`content/art/coco-refs.json`, P8.11/P9.13). Neue Fotos dort ablegen und `pnpm art:coco-refs`
+ausführen; die Studio-Abnahme der Figur erfolgte in P9 (KUNST-QA), Jutta schaut sie in P11 an. **Phasen-Annahmen:** siehe §5, Zeilen P8.1–P8.20.
+
+### 4.2 Erledigt bis P10 (technisch, nichts für Jutta zu tun)
+
+Stand der Endkontrolle P10.19 (05.10.2026). Quelle: `docs/FORTSCHRITT.md`; Einzelheiten und Annahmen stehen im
+Protokoll (§5).
+
+| Bereich | Stand |
+|---|---|
+| Backup und Wiederherstellung (P10.8, P10.9) | Dump, Spiegel, `backup:verify`, Wiederherstellung Schritt für Schritt im RUNBOOK; Spike B-06 bestanden |
+| Überwachung (P10.10) | Alarme M-01 bis M-12 mit Handlungsanweisung im RUNBOOK |
+| Statistik (P10.11) | gebaut, ohne Cookies, **aus** (Entscheidung J-16 nach Kanzlei K-30) |
+| Docker-Umzug, Vercel, Absicherung (P10.12, P10.13) | Exit-Pfad, `vercel.json`, Origin-Listen, `db:mark-production`; Docker-Bau-Nachweis (B-08) kommt mit der CI in P10.21 |
+| Startklar-Prüfung (P10.14) | `pnpm check:golive` und Ansicht; bleibt absichtlich rot bis P11 |
+| Dokumente (P10.15 bis P10.18) | RUNBOOK, GO-LIVE, Handbuch für Jutta mit 41 Bildschirmfotos (`pnpm handbook:shots`) |
+| Rechts-Endkontrolle (P10.19) | RECHT §7 Teil A abgehakt; R-049 hat weiter die Platzhalter-Grafik (siehe Protokoll P3.3, bis P11) |
+| Kunst (P9) | Studio-Abnahme der Zeichnungen und Coco (KUNST-QA); Coco nach Juttas 5 Fotos |
 
 ---
 
@@ -647,3 +672,6 @@ in P11 gemeinsam durch.
 | 2026-10-05 | P10.13 | Origin-Listen cors/csrf nur in production/staging/preview | Lokal und in Tests gelten Payloads Standardwerte (E2E läuft auf wechselnden Ports); in Produktion Apex + VERCEL_PROJECT_PRODUCTION_URL. | src/lib/security/origins.ts (originListsApply) | gilt |
 | 2026-10-05 | P10.15 | Einzeldatei aus dem Backup-Spiegel wiederherstellen | ARCHITEKTUR §10.5 nennt `backup:restore --file=…`, das Skript kennt aber nur --input/--key (gesamte Datenbank). RUNBOOK §6.1 beschreibt den manuellen Weg (Spiegel-Objekt laden, mit age entschlüsseln). | Bei Bedarf Skript `--file=` ergänzen und RUNBOOK anpassen | Annahme gilt |
 | 2026-10-05 | P10.16 | Datenpannen-Meldeadresse | RUNBOOK nennt nur die Domain https://www.datenschutz-berlin.de (Online-Formular dort suchen); tiefe URL bewusst nicht eingetragen, vor Gebrauch prüfen. | RUNBOOK §9.4 und §9.7 anpassen | Annahme gilt |
+| 2026-10-05 | P10.19 | R-049 Harmonisierte Mitteilung: Vergleich mit der amtlichen Vorlage | Vergleich mit der amtlichen Vorlage der DVO (EU) 2025/1960 war offline nicht möglich (EUR-Lex lieferte nur eine Schutzseite); die Platzhalter-Grafik bleibt (Eintrag P3.3), Wortlaut ist Arbeitsfassung. Teil A der RECHT-Checkliste ist damit über die Platzhalter-Regel erfüllt. | Grafik und Kurztext durch die amtliche Fassung ersetzen (public/legal/warranty-notice-*.svg, WARRANTY_NOTICE_GRAPHIC.placeholder = false); Gate R-210 prüft das Flag | wartet auf Kanzlei (K-19), P11 |
+| 2026-10-05 | P10.19 | Instagram-Export, seed:example --refresh-media, art:vectorize | content/seed/instagram-export/ enthält weiter nur LIESMICH.txt: seed:import-instagram hat nichts zuzuordnen, art:vectorize liefert byte-gleiche Zeichnungen (geprüft 05.10.2026), --refresh-media entfällt. art:coco-refs mit Juttas 5 Fotos läuft unverändert (0 neu, 5 Fotos, 5 Skizzen). | Export in content/seed/instagram-export/ ablegen, dann pnpm seed:import-instagram, pnpm seed:example --refresh-media, pnpm art:vectorize (Nacharbeit P11, A04) | wartet auf Jutta (J-06) |
+| 2026-10-05 | P10.19 | KUNST-QA-Teilaufnahme (--scope SC-13,SC-00) | Nicht neu aufgenommen: Die Kunst-Phase P9 läuft parallel in einem eigenen Arbeitsbaum, ihr Stand (zuletzt Läufe iter-03 und iter39) ist maßgeblich; eine zweite Aufnahme auf dem P10-Stand würde nur Rauschen erzeugen (Protokoll P9.18a). Der Schritt gehört in den Abschlusslauf nach dem Zusammenführen von P9 und P10 und in die P11-Checkliste (KUNST-QA §10 Nr. 4). | Nach dem Merge: pnpm art:record -- --scope SC-13,SC-00 und Protokoll in docs/design/ ablegen | Annahme gilt |

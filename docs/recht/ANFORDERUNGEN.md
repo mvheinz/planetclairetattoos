@@ -1822,13 +1822,13 @@ Arbeitsfassung sinngemäß (`origin: 'draft'`).
 ## 7. Manuelle Abnahme-Checkliste
 
 **Teil A – vor Abschluss von P10 (Cloud-Session hakt ab, Eintrag in `docs/FORTSCHRITT.md`):**
-- [ ] R-049: Harmonisierte Mitteilung mit amtlicher Vorlage verglichen (oder Platzhalter in OFFENE-PUNKTE).
-- [x] R-095: Platzhalter-Widerrufsbelehrung enthält Token `{{withdrawalUrl}}` und `{{phone}}`. (02.10.2026, P6.23; Grund-Seed `content/seed/data/base.json`, Prüfung `tests/unit/legal/render-tokens.unit.spec.ts`)
-- [x] R-156: `docs/recht/VVT.md` vollständig. (02.10.2026, P6.21)
-- [ ] R-157: Datenpannen-Abschnitt im RUNBOOK und Owner-Anleitung vorhanden.
+- [x] R-049: Harmonisierte Mitteilung mit amtlicher Vorlage verglichen (oder Platzhalter in OFFENE-PUNKTE). (05.10.2026, P10.19; amtliche Grafik offline nicht ladbar, Platzhalter-Grafik und Arbeitsfassung des Textes stehen in OFFENE-PUNKTE, Protokoll P3.3 und P10.19, Nacharbeit P11)
+- [x] R-095: Platzhalter-Widerrufsbelehrung enthält Token `{{withdrawalUrl}}` und `{{phone}}`. (02.10.2026, P6.23; Grund-Seed `content/seed/data/base.json`, Prüfung `tests/unit/legal/render-tokens.unit.spec.ts`; erneut 05.10.2026, P10.19, `tests/unit/legal/withdrawal-placeholder.unit.spec.ts`)
+- [x] R-156: `docs/recht/VVT.md` vollständig. (02.10.2026, P6.21; erneut geprüft 05.10.2026, P10.19: V1–V19, TOM und Dienste vollständig, zugleich R-210 Nr. 14)
+- [x] R-157: Datenpannen-Abschnitt im RUNBOOK und Owner-Anleitung vorhanden. (05.10.2026, P10.19; `docs/RUNBOOK.md` §9 mit DE-Vorlagen und Kontaktliste, `docs/owner/HANDBUCH.md` Kapitel 16; Tests `tests/unit/docs/runbook.unit.spec.ts`, `handbook.unit.spec.ts`)
 - [x] R-161: Vorlage `commission.offer` als Platzhalter vorhanden. (02.10.2026, P7.14; Grund-Seed `src/lib/legal/snippetSeed.ts` mit Gliederung, Knopf „Angebots-Vorlage kopieren“ im Anfrage-Detail; Prüfung `tests/unit/legal/snippets.unit.spec.ts`)
 - [x] R-190: Keine Barrierefreiheits-/Zertifikatsbehauptungen in Texten. (03.10.2026, P8.15; Scan `src/i18n`, `src/globals`, `content/seed/data`, Mail-Vorlagen ohne Treffer zu V-26)
-- [x] V-18, V-28, V-29: manuelle Sichtung aller Seitentexte, FAQ, Aftercare, Mails. (03.10.2026, P8.15; „Garantie“ nur als EN-Fachbegriff „legal guarantee“ der EU-Mitteilung, kein Liedtext/Audio, Rechtstexte tragen das Platzhalter-Band aus P6)
+- [x] V-18, V-28, V-29: manuelle Sichtung aller Seitentexte, FAQ, Aftercare, Mails. (03.10.2026, P8.15, erneut 05.10.2026, P10.19 ohne neue Treffer; „Garantie“ nur als EN-Fachbegriff „legal guarantee“ der EU-Mitteilung, kein Liedtext/Audio, Rechtstexte tragen das Platzhalter-Band aus P6)
 - [x] Alle FAQ-/Tattoo-/Über-mich-Entwürfe (E-62) gegen §5 geprüft. (03.10.2026, P8.15; Verbotsmuster-Tests unit + E2E grün)
 
 **Teil B – P11 mit Jutta (vor und nach DNS-Umstellung):**
