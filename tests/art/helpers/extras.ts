@@ -199,12 +199,17 @@ export async function introTiming(art: ArtSession): Promise<{
         }
         return (lo + hi) / 2
       }
-      const pts = ser.filter((x) => x[1] / total > 0.05 && x[1] / total < 0.92)
+      const pts = ser
+        .filter((x) => x[1] / total > 0.03 && x[1] / total < 0.97)
+        .map((x) => ({ t: x[0], tau: inv(x[1] / total) }))
       if (pts.length >= 2) {
-        const a = pts[0]!
-        const b = pts[pts.length - 1]!
-        const dt = inv(b[1] / total) - inv(a[1] / total)
-        if (dt > 0.05) durFit = Math.round((b[0] - a[0]) / dt)
+        // Ausgleichsgerade Zeit ~ normierte Zeit: Steigung = Dauer
+        const n = pts.length
+        const mt = pts.reduce((a, q) => a + q.t, 0) / n
+        const mu = pts.reduce((a, q) => a + q.tau, 0) / n
+        const sxx = pts.reduce((a, q) => a + (q.tau - mu) ** 2, 0)
+        const sxy = pts.reduce((a, q) => a + (q.tau - mu) * (q.t - mt), 0)
+        if (sxx > 0.02) durFit = Math.round(sxy / sxx)
       }
     }
     return {

@@ -297,7 +297,7 @@ Beleg) **· Schwere bei Verfehlung** (B = Blocker, M = Major, m = Minor; Definit
 | MO-07 | Coco folgt | nach Scrollstopp ≤ 400 ms bis Abstand < 1 px; beim schnellen Wischen nie > 300 px Bogenlänge Rückstand (sonst Sprung) | auto | m |
 | MO-08 | Posen je Station | Pose bei Ankunft/Verweilen = Tabelle DESIGN §11.4 an allen 9 Stationen | auto (`__leash.pose()`) + R2 (Bögen) | M |
 | MO-09 | Brücken | jeder Posenwechsel mit der definierten Brücke bzw. Frame-Grenze; keine Überblendung | auto (`poseLog`) + R2 | m |
-| MO-10 | Intro | Start ≥ LCP + 300 ms; Dauer 900 ms ± 90; Coco rennt herein (MI-10) | auto | M |
+| MO-10 | Intro | Start ≥ LCP + 300 ms; Dauer 900 ms ± 90 (aus der Kurvenanpassung der `drawnLen`-Reihe, nicht aus dem ersten sichtbaren Bild; `art-iphone15`: ± 200, weil WebKit ohne GPU nur ≈ 10–15 Bilder/s liefert); Coco rennt herein (MI-10) | auto | M |
 | MO-11 | Katalog vollständig | jede MI-01…MI-16 in SC-14 aufgenommen und entspricht Ablauf/Eigenschaften der Tabelle | R2 | M |
 | MO-12 | Timing-Gefühl | Bewertung ≥ 4 (Rubrik §6.5): Feder statt Maschine, Staffelungen leicht unregelmäßig, nichts „schwimmt“ | R2 | M |
 | MO-13 | Stempel nur im Verkaufsmoment | Archiv/Shop-Aufruf: 0 Stempel-Animationen; Danke „bezahlt“: MI-03 ≤ 3× | auto | M |
