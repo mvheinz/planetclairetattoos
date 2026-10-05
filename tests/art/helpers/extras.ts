@@ -110,6 +110,7 @@ export async function introTiming(art: ArtSession): Promise<{
   end: number | null
   /** Dauer aus der Kurvenanpassung (R2-05: WebKit liefert in Software nur ~15 Bilder/s, `start` kommt dort spät). */
   durFit: number | null
+  series: number[][]
   samples: number
 }> {
   const ctx = await art.extraContext({})
@@ -213,6 +214,7 @@ export async function introTiming(art: ArtSession): Promise<{
       }
     }
     return {
+      series: ser.slice(0, 80).map((x) => [Math.round(x[0]), Math.round(x[1] * 10) / 10]),
       durFit,
       lcp: r?.lcp ?? null,
       start: r?.start ?? null,
