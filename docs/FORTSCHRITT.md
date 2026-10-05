@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-05 – P10.7
+
+- Wartungsmodus: Proxy liefert 503-Seite in Juttas Ton (DE/EN, mit Fußlink „Vertrag widerrufen“); Impressum, Datenschutz, AGB, Widerrufsbelehrung und R26 bleiben offen; Webhook/Kasse-Zustand/Upload 503, Tick 204, Health mit maintenance\n- R26 ohne erreichbare Datenbank: mailto-Weg an MAIL_REPLY_TO (isDatabaseReachable)\n- Tests: tests/int/maintenance.int.spec.ts (10), tests/e2e/maintenance.e2e.spec.ts (4, eigener Server: pnpm test:e2e:maintenance)
+
 ## 2026-10-05 – P9 Kunst-QA: zweiter Lauf in CI
 
 Stand nach den Prüf-Durchgängen 2–5 (PF-02/PF-04 behoben, Coco größer an der Linienspitze, Stationen und Platzhalter freier gezeichnet, Papierrand um Produktfotos). Der zweite `[ci:art]`-Lauf misst Tempo und Bewegungen auf einer ruhigen Maschine, weil der lokale Rechner stark schwankt.

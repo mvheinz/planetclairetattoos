@@ -21,6 +21,7 @@
     "test:unit": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.unit.config.mts",
     "test:int": "pnpm run db:ensure && pnpm run db:reset --test && cross-env PC_DB_READY=1 NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
     "test:e2e": "pnpm run db:ensure && pnpm run db:reset --test --seed=all && cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm --import=./scripts/lib/register-server-only.mjs\" playwright test --config=playwright.config.ts",
+    "test:e2e:maintenance": "playwright test --config playwright.maintenance.config.ts",
     "test:coverage": "pnpm run db:ensure && pnpm run db:reset --test && cross-env PC_DB_READY=1 NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.coverage.config.mts --coverage",
     "test:perf": "lhci collect --config=tests/perf/lighthouserc.cjs && lhci upload --config=tests/perf/lighthouserc.cjs && tsx scripts/perf/lighthouse-report.ts && lhci assert --config=tests/perf/lighthouserc.cjs",
     "test:visual": "pnpm run db:ensure && cross-env SEED_NOW=2026-10-15T10:00:00+02:00 pnpm run db:reset --test --seed=all && cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm --import=./scripts/lib/register-server-only.mjs\" playwright test --config=playwright.visual.config.ts",

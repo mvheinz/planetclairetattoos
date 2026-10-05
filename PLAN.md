@@ -5146,7 +5146,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: `tests/int/security/rate-limits.int.spec.ts`; `tests/e2e/privacy/forms.e2e.spec.ts` (R-162).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P10.7 Wartungsmodus** – `MAINTENANCE_MODE` in `src/lib/env.ts` (+ `.env.example`), Verhalten nach ARCHITEKTUR
+- [x] **P10.7 Wartungsmodus** – `MAINTENANCE_MODE` in `src/lib/env.ts` (+ `.env.example`), Verhalten nach ARCHITEKTUR
   §5.2/§10.5, KONZEPT R26 und RECHT R-090: öffentliche Seiten antworten 503 mit Hinweis in Juttas Ton; Impressum,
   Datenschutz, AGB, Widerrufsbelehrung und R26 „Vertrag widerrufen“ samt Fußlink bleiben erreichbar. Ist die Datenbank
   erreichbar, arbeitet die Widerrufsfunktion R26 auch im Wartungsmodus vollständig (zweistufiges Formular, Datensatz,

@@ -9,7 +9,9 @@ import {
   type WithdrawalViewFlow,
 } from '@/components/legal/WithdrawalView'
 import { getContactInfo } from '@/lib/data/contact'
+import { getEnv } from '@/lib/env'
 import { WITHDRAWAL_CONFIRM_LABEL, WITHDRAWAL_LINK_LABEL } from '@/lib/legal/constants'
+import { isDatabaseReachable } from '@/lib/maintenance/db'
 import { initialWithdrawalState } from '@/lib/legal/withdrawalForm'
 import { localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
@@ -37,6 +39,29 @@ export default async function Page({
     getContactInfo(),
     searchParams,
   ])
+  const env = getEnv()
+  // Wartungsmodus ohne erreichbare Datenbank (R-090): statt des Formulars der Widerruf per E-Mail an `MAIL_REPLY_TO`.
+  if (env.MAINTENANCE_MODE && !(await isDatabaseReachable())) {
+    const mm = (messages as unknown as { withdraw: WithdrawalMessages }).withdraw
+    const [before, after] = mm.maintenanceMail.split('{email}')
+    return (
+      <div className="u-container u-stack" data-withdraw-page="" data-withdraw-mailto="">
+        <h1>{WITHDRAWAL_LINK_LABEL[locale]}</h1>
+        <p>
+          {before}
+          <a href={`mailto:${env.MAIL_REPLY_TO}`} data-withdraw-email="">
+            {env.MAIL_REPLY_TO}
+          </a>
+          {after}
+        </p>
+        <p>
+          <a href={localizedPath('R24', locale)} data-withdraw-policy-link="">
+            {mm.policyLink}
+          </a>
+        </p>
+      </div>
+    )
+  }
   const m = (messages as unknown as { withdraw: WithdrawalMessages }).withdraw
   const order = typeof search.order === 'string' ? search.order : null
   const flow: WithdrawalViewFlow = {

@@ -223,6 +223,8 @@
   },
   "withdraw": {
     "policyLink": "Go to the right of withdrawal",
+    "maintenanceMail": "The form is temporarily unavailable because the site is in maintenance mode. You can still withdraw right now: send me an email to {email} (order number or contract details, your name, and which items, if only some). What counts is that your email reaches me – sending it is enough.",
+    "maintenanceMailLink": "Write withdrawal by email",
     "emailAlternative": "Alternatively by email:",
     "intro": "Here you can withdraw from a contract with me – no account and no reason needed. First enter your details, then confirm them.",
     "stepForm": "Step 1 of 2: Your declaration",
