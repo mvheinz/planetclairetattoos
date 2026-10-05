@@ -49,6 +49,7 @@
     "backup:verify": "tsx --import=./scripts/lib/register-server-only.mjs scripts/backup-verify.ts",
     "payments:reconcile": "tsx --import=./scripts/lib/register-server-only.mjs scripts/payments-reconcile.ts",
     "stripe:fixture": "tsx --import=./scripts/lib/register-server-only.mjs scripts/stripe-fixture.ts",
+    "db:mark-production": "tsx --import=./scripts/lib/register-server-only.mjs scripts/db-mark-production.ts",
     "admin:create": "tsx --import=./scripts/lib/register-server-only.mjs scripts/admin-create.ts",
     "admin:unlock": "tsx --import=./scripts/lib/register-server-only.mjs scripts/admin-unlock.ts",
     "check:external": "tsx scripts/check-external.ts",

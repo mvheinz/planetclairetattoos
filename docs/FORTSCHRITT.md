@@ -4,23 +4,31 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 
 ## 2026-10-05 – P10.11
 
-- @vercel/analytics 2.0.1 exakt gepinnt; AnalyticsSlot/AnalyticsClient (nur mit NEXT_PUBLIC_ANALYTICS_ENABLED, APP_ENV=production, kein PREVIEW_EXPORT, settings.analytics.enabled+confirmedAt+Notiz), beforeSend filtert R06–R09/R26/Admin/API und Query\n- Tests: tests/unit/analytics/before-send (inkl. Registry-Abgleich), tests/e2e/privacy/analytics (desktop+pixel-7 grün), check:external und check:bundle grün
+- @vercel/analytics 2.0.1 exakt gepinnt; AnalyticsSlot/AnalyticsClient (nur mit NEXT_PUBLIC_ANALYTICS_ENABLED, APP_ENV=production, kein PREVIEW_EXPORT, settings.analytics.enabled+confirmedAt+Notiz), beforeSend filtert R06–R09/R26/Admin/API und Query
+- Tests: tests/unit/analytics/before-send (inkl. Registry-Abgleich), tests/e2e/privacy/analytics (desktop+pixel-7 grün), check:external und check:bundle grün
 
 ## 2026-10-05 – P10.10
 
-- @sentry/nextjs 11.4.0 nur in instrumentation.ts (ohne DSN nie geladen), redactSentryEvent, Logger→Sentry-Brücke, /api/client-errors (aus, 404), Client-Slot, check:external prüft Sentry-Leaks, System-Ansicht zeigt Backup\n- Tests: tests/int/monitoring/{sentry,client-errors,alert-throttle}; Unit check-external; Build + check:external grün
+- @sentry/nextjs 11.4.0 nur in instrumentation.ts (ohne DSN nie geladen), redactSentryEvent, Logger→Sentry-Brücke, /api/client-errors (aus, 404), Client-Slot, check:external prüft Sentry-Leaks, System-Ansicht zeigt Backup
+- Tests: tests/int/monitoring/{sentry,client-errors,alert-throttle}; Unit check-external; Build + check:external grün
 
 ## 2026-10-05 – P10.9
 
-- Spiegel (mirror.ts), Cron-Route /api/cron/backup, backup-status.json, Monatsstand, A12 bei Fehlern, Nach-Wiederherstellung-Abgleich (postRestore.ts, Endpoint, Ansicht System), restore-drill.yml + scripts/ci/restore-drill.ts\n- Tests: tests/int/backup/{mirror,cron-route,retention-replay,post-restore}; Drill lokal grün; GitHub-Lauf folgt im PR der Phasen-Abnahme
+- Spiegel (mirror.ts), Cron-Route /api/cron/backup, backup-status.json, Monatsstand, A12 bei Fehlern, Nach-Wiederherstellung-Abgleich (postRestore.ts, Endpoint, Ansicht System), restore-drill.yml + scripts/ci/restore-drill.ts
+- Tests: tests/int/backup/{mirror,cron-route,retention-replay,post-restore}; Drill lokal grün; GitHub-Lauf folgt im PR der Phasen-Abnahme
 
 ## 2026-10-05 – P10.8
 
-- Backup I: src/lib/backup/{format,dump,crypto,run,restore,s3}.ts („pcdump v1“: REPEATABLE READ/READ ONLY, COPY nach Primärschlüssel, md5 je Tabelle, setval; gzip → age; Datei oder S3-Multipart); Wiederherstellung in einer Transaktion (Fremdschlüssel/Trigger, Rollback bei Abweichung)\n- Skripte pnpm backup:run, backup:restore, backup:verify (Schlüssel nur als Datei)\n- Spike B-06 bestanden (400 000 Zeilen in 3,4 s, 33 MB, konstanter Speicher) und in ARCHITEKTUR Anhang B eingetragen\n- Tests: tests/unit/backup/format (6), tests/int/backup/roundtrip (8: AK-A-10-01/-02/-05)
+- Backup I: src/lib/backup/{format,dump,crypto,run,restore,s3}.ts („pcdump v1“: REPEATABLE READ/READ ONLY, COPY nach Primärschlüssel, md5 je Tabelle, setval; gzip → age; Datei oder S3-Multipart); Wiederherstellung in einer Transaktion (Fremdschlüssel/Trigger, Rollback bei Abweichung)
+- Skripte pnpm backup:run, backup:restore, backup:verify (Schlüssel nur als Datei)
+- Spike B-06 bestanden (400 000 Zeilen in 3,4 s, 33 MB, konstanter Speicher) und in ARCHITEKTUR Anhang B eingetragen
+- Tests: tests/unit/backup/format (6), tests/int/backup/roundtrip (8: AK-A-10-01/-02/-05)
 
 ## 2026-10-05 – P10.7
 
-- Wartungsmodus: Proxy liefert 503-Seite in Juttas Ton (DE/EN, mit Fußlink „Vertrag widerrufen“); Impressum, Datenschutz, AGB, Widerrufsbelehrung und R26 bleiben offen; Webhook/Kasse-Zustand/Upload 503, Tick 204, Health mit maintenance\n- R26 ohne erreichbare Datenbank: mailto-Weg an MAIL_REPLY_TO (isDatabaseReachable)\n- Tests: tests/int/maintenance.int.spec.ts (10), tests/e2e/maintenance.e2e.spec.ts (4, eigener Server: pnpm test:e2e:maintenance)
+- Wartungsmodus: Proxy liefert 503-Seite in Juttas Ton (DE/EN, mit Fußlink „Vertrag widerrufen“); Impressum, Datenschutz, AGB, Widerrufsbelehrung und R26 bleiben offen; Webhook/Kasse-Zustand/Upload 503, Tick 204, Health mit maintenance
+- R26 ohne erreichbare Datenbank: mailto-Weg an MAIL_REPLY_TO (isDatabaseReachable)
+- Tests: tests/int/maintenance.int.spec.ts (10), tests/e2e/maintenance.e2e.spec.ts (4, eigener Server: pnpm test:e2e:maintenance)
 
 ## 2026-10-05 – P9 Kunst-QA: zweiter Lauf in CI
 

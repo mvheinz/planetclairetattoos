@@ -2,6 +2,7 @@ import 'server-only'
 
 import { unstable_cache } from 'next/cache'
 
+import { dbGate } from '@/lib/db/buildGate'
 import { createLogger } from '@/lib/monitoring/logger'
 
 // Daten-Cache der öffentlichen Lesefunktionen (ARCHITEKTUR §9.2): einzige Stelle, die `unstable_cache` benutzt. Ein
@@ -33,6 +34,7 @@ export function cached<A extends unknown[], R>(
 ): (...args: A) => Promise<R> {
   const revalidate = options.revalidate ?? DEFAULT_REVALIDATE_SECONDS
   return async (...args: A): Promise<R> => {
+    await dbGate()
     const tags = typeof options.tags === 'function' ? options.tags(args) : options.tags
     try {
       return await unstable_cache(fn, [options.key], { tags: [...tags], revalidate })(...args)

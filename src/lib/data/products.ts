@@ -6,10 +6,11 @@ import { getPayload, type Where } from 'payload'
 import { cached } from '@/lib/cache/cached'
 import { TAGS } from '@/lib/cache/tags'
 import type { Locale, ProductCategory } from '@/lib/enums'
-import { seedPreviewModeActive } from '@/lib/env'
+import { buildWithoutDb, seedPreviewModeActive } from '@/lib/env'
 import { getPublicPayload } from '@/lib/payload/public'
 import type { LocalizedValue } from '@/lib/products/localized'
 import type { Product } from '@/payload-types'
+import { dbGate } from '@/lib/db/buildGate'
 
 // Öffentliche Shop-Datenschicht (ARCHITEKTUR §9.2, KONZEPT §3.2–§3.5): nur über `getPublicPayload()` – der Zugriff der
 // Collection liefert ohnehin nur `available`, `reserved` und `sold` mit Archiv, bei SEED_PREVIEW_MODE ≠ true ohne
@@ -189,7 +190,7 @@ export async function loadPublicProductByItemNumber(
  */
 export async function loadProductGone(itemNumber: number): Promise<boolean> {
   if (!Number.isInteger(itemNumber) || itemNumber < 1) return false
-  const payload = await getPayload({ config })
+  const payload = (await dbGate(), await getPayload({ config }))
   const clauses: Where[] = [
     { itemNumber: { equals: itemNumber } },
     { status: { equals: 'sold' } },
@@ -283,6 +284,8 @@ export interface PublicProductSlug {
 
 /** Nummer und Slugs (alle Sprachen) aller öffentlichen Stücke – für `generateStaticParams` von R04. */
 export async function loadPublicProductSlugs(): Promise<PublicProductSlug[]> {
+  // Docker-Build ohne Datenbank (B-08): keine vorab erzeugten Seiten, die Stücke rendern zur Laufzeit.
+  if (buildWithoutDb()) return []
   const payload = await getPublicPayload()
   const res = await payload.find({
     collection: 'products',

@@ -40,6 +40,7 @@ import { Settings } from './globals/Settings'
 import { complianceTemplateEndpoint } from './endpoints/compliance'
 import { exportEndpoints } from './endpoints/export'
 import { postRestoreEndpoints } from './endpoints/postRestore'
+import { allowedOrigins, originListsApply } from './lib/security/origins'
 import { seedAdminEndpoints } from './endpoints/seed'
 import { SiteTexts } from './globals/SiteTexts'
 import { withJsonPreview } from './admin/jsonPreview'
@@ -167,6 +168,8 @@ export default buildConfig({
   },
   // GraphQL ist abgeschaltet (DATENMODELL §1.4 Regel 5, ARCHITEKTUR §2.5).
   graphQL: { disable: true },
+  // Origins (ARCHITEKTUR §8.2): Apex, in Produktion zusätzlich die Vercel-Produktions-Domain; lokal/Tests Standardwerte.
+  ...(originListsApply(env) ? { cors: allowedOrigins(env), csrf: allowedOrigins(env) } : {}),
   secret: env.PAYLOAD_SECRET,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),

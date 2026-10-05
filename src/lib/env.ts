@@ -143,3 +143,8 @@ export function artQaActive(env: Env = getEnv()): boolean {
 export function isProduction(env: Env = getEnv()): boolean {
   return env.APP_ENV === 'production'
 }
+
+/** `next build` ohne Datenbank (Docker, Spike B-08): `BUILD_WITHOUT_DB=1` und Build-Phase (`NEXT_PHASE`). */
+export function buildWithoutDb(env: Env = getEnv()): boolean {
+  return env.BUILD_WITHOUT_DB === true && process.env.NEXT_PHASE === 'phase-production-build'
+}

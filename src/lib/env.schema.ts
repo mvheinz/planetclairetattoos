@@ -570,3 +570,72 @@ export function renderEnvExample(): string {
   }
   return lines.join('\n') + '\n'
 }
+
+/** Werte für die Docker-Produktion (`.env.production.example`, ARCHITEKTUR §13.1); alles andere übernimmt den Beispielwert. */
+const PRODUCTION_OVERRIDES: Record<string, string> = {
+  APP_ENV: 'production',
+  DATABASE_URL: 'postgres://planetclaire:HIER_DB_PASSWORT@postgres:5432/planetclaire',
+  PAYLOAD_SECRET: '',
+  NEXT_PUBLIC_SITE_URL: 'https://planetclairetattoos.com',
+  CRON_SECRET: '',
+  JOBS_AUTORUN: 'true',
+  DB_POOL_MAX: '10',
+  SEED_PREVIEW_MODE: 'false',
+  EMAIL_DRIVER: 'smtp',
+  PAYMENTS_DRIVER: 'stripe',
+  TRANSLATION_DRIVER: 'deepl',
+  STORAGE_DRIVER: 's3',
+  NEXT_PUBLIC_ANALYTICS_ENABLED: 'false',
+  NEXT_PUBLIC_CLIENT_ERRORS_ENABLED: 'false',
+  BACKUP_ENABLED: 'false',
+}
+
+/** Variablen, die nur für Entwicklung, Tests und Vorschau gelten (nicht in `.env.production.example`). */
+const PRODUCTION_SKIP = new Set([
+  'DATABASE_URL_TEST',
+  'DATABASE_URL_UNPOOLED',
+  'PAYLOAD_DB_PUSH',
+  'SEED_NOW',
+  'SEED_ADMIN_EMAIL',
+  'SEED_ADMIN_PASSWORD',
+  'PREVIEW_EXPORT',
+  'PREVIEW_PHASE',
+  'PREVIEW_EXPORT_DB_NAME',
+  'PREVIEW_EXPORT_PORT',
+  'NEXT_PUBLIC_LEASH_DEBUG',
+  'ART_QA',
+  'NEXT_OUTPUT_STANDALONE',
+  'BUILD_WITHOUT_DB',
+  'NEXT_DIST_DIR',
+  'E2E_BASE_URL',
+  'E2E_SERVER',
+  'PW_SKIP_WEBKIT',
+  'STRIPE_API_BASE_URL',
+  'EMAIL_FILE_DIR',
+  'MAIL_REDIRECT_ALL_TO',
+])
+
+/** Erzeugt `.env.production.example` (Docker-Exit-Pfad): alle Produktionsvariablen, ohne Geheimnisse. */
+export function renderEnvProductionExample(): string {
+  const lines: string[] = [
+    '# Produktions-Konfiguration für den Docker-Exit-Pfad (docs/ARCHITEKTUR.md §13). Kopieren nach `.env.production`',
+    '# (nie committen) und im Passwort-Manager vorhandene Geheimnisse eintragen.',
+    '# ERZEUGT aus src/lib/env.schema.ts mit `pnpm env:example` – nicht von Hand ändern.',
+    '# Zusätzlich für die Compose-Datei: POSTGRES_PASSWORD (gleiches Passwort wie in DATABASE_URL).',
+    '',
+    'POSTGRES_PASSWORD=',
+  ]
+  let group: EnvGroup | undefined
+  for (const v of ENV_VARS) {
+    if (PRODUCTION_SKIP.has(v.name)) continue
+    if (v.group !== group) {
+      group = v.group
+      lines.push('', `# --- ${group} ---`)
+    }
+    lines.push(`# ${v.description}${v.secret ? ' (geheim)' : ''} · seit ${v.since}`)
+    lines.push(
+      `${v.name}=${v.name in PRODUCTION_OVERRIDES ? PRODUCTION_OVERRIDES[v.name] : v.example}`,
+    )
+  }
+  return lines.join('\n') + '\n'
+}

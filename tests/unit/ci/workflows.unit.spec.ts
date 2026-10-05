@@ -436,8 +436,8 @@ describe('ci-full.yml (§6.4, P2.28)', () => {
   })
 
   it('Jobs e2e-full, quality, snapshots hängen an mode und laufen nur in ihrem Fall', () => {
-    expect(Object.keys(full.jobs)).toEqual(['mode', 'e2e-full', 'quality', 'snapshots'])
-    for (const name of ['e2e-full', 'quality']) {
+    expect(Object.keys(full.jobs)).toEqual(['mode', 'e2e-full', 'quality', 'docker', 'snapshots'])
+    for (const name of ['e2e-full', 'quality', 'docker']) {
       expect(full.jobs[name]!.needs).toBe('mode')
       expect(full.jobs[name]!.if).toBe("needs.mode.outputs.full == 'true'")
     }
