@@ -278,7 +278,11 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
   push(start)
   push({ x: start.x, y: start.y + 12 })
 
-  for (const anchor of middle) {
+  // Endanker mit abschließender Schlaufe (`data-leash-anchor="end"` + `data-leash-loop="heart"`, MI-09): wird wie eine
+  // letzte Station behandelt (R2-06-03: bisher blieb das Herz aus).
+  const closing =
+    endAnchor && TERMINAL_LOOPS.includes(endAnchor.loop) && cfg.loops.includes(endAnchor.loop)
+  for (const anchor of closing ? [...middle, endAnchor] : middle) {
     let kind: LoopKind = cfg.loops.includes(anchor.loop) ? anchor.loop : 'none'
     if (kind === 'lasso' && !wide) kind = cfg.loops.includes('right') ? 'right' : 'none'
     const loopPts = loopPoints(kind, anchor, {
@@ -304,26 +308,6 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
     for (let k = 1; k < loopPts.length; k++) i1 = push(loopPts[k]!)
     loops.push({ anchor, kind, i0, i1, dot: true })
     if (TERMINAL_LOOPS.includes(kind)) return { pts, loops }
-  }
-
-  // Endanker mit abschließender Schlaufe (`data-leash-anchor="end"` + `data-leash-loop="heart"`, MI-09 Danke-Seite): die Linie
-  // läuft zum Anker und endet in der Form (R2-06-03: bisher blieb das Herz aus, der Endanker wertete `loop` nicht aus).
-  if (endAnchor && TERMINAL_LOOPS.includes(endAnchor.loop) && cfg.loops.includes(endAnchor.loop)) {
-    const loopPts = loopPoints(endAnchor.loop, endAnchor, {
-      railX,
-      onRail,
-      desktop,
-      gutter,
-      rMax,
-      rand,
-    })
-    if (loopPts.length > 0) {
-      const i0 = section(loopPts[0]!)
-      let i1 = i0
-      for (let k = 1; k < loopPts.length; k++) i1 = push(loopPts[k]!)
-      loops.push({ anchor: endAnchor, kind: endAnchor.loop, i0, i1, dot: true })
-      return { pts, loops }
-    }
   }
 
   const end: Pt = endAnchor
