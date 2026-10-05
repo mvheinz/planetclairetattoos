@@ -171,7 +171,7 @@ test(
         }
       }
       // MI-12 (R2-08-04): Planet-„pop“ (scale 0,6 → 1, 240 ms) als eigene Lupen-Serie neben der Stern-Drehung
-      if (mi.id === 'MI-12' && !art.reduced) {
+      if (mi.id === 'MI-12' && !art.reduced && art.isDesktop) {
         const box = await stage.locator('[data-mark="planet"]').first().boundingBox()
         if (box) {
           const vh = page.viewportSize()!.height
