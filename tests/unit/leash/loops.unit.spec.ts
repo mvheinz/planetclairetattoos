@@ -148,7 +148,7 @@ describe('leash/loops – Freiraum-Regeln (§9.5)', () => {
   })
 
   it('Endanker mit data-leash-loop=heart: die Linie endet im Herz (MI-09, R2-06-03)', () => {
-    const base = single('thanks', { x: 150, y: 500, w: 24, h: 24 })
+    const base = single('thanks', { x: 150, y: 500, w: 24, h: 24, loop: 'none' })
     const build = (loop: 'heart' | 'none') =>
       buildGeometry({
         ...base,
