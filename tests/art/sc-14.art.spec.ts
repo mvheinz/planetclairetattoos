@@ -101,6 +101,13 @@ test(
             }
             for (const type of ['animationstart', 'transitionrun'])
               document.addEventListener(type, hold, true)
+            // WAAPI (`el.animate`, z. B. Korbzahl MI-07, Hüpfer MI-01): ebenfalls angehalten starten
+            const orig = Element.prototype.animate
+            Element.prototype.animate = function (...args: Parameters<Element['animate']>) {
+              const a = orig.apply(this, args)
+              a.pause()
+              return a
+            }
           })
         await page.evaluate(() => document.querySelector<HTMLElement>('[data-qa-play]')?.click())
         // Uhr steht: bis zum Auslösen (zwei Frames nach dem Binden) in 16-ms-Schritten vorspulen.
