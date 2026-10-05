@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-05 – P10.10
+
+- @sentry/nextjs 11.4.0 nur in instrumentation.ts (ohne DSN nie geladen), redactSentryEvent, Logger→Sentry-Brücke, /api/client-errors (aus, 404), Client-Slot, check:external prüft Sentry-Leaks, System-Ansicht zeigt Backup\n- Tests: tests/int/monitoring/{sentry,client-errors,alert-throttle}; Unit check-external; Build + check:external grün
+
 ## 2026-10-05 – P10.9
 
 - Spiegel (mirror.ts), Cron-Route /api/cron/backup, backup-status.json, Monatsstand, A12 bei Fehlern, Nach-Wiederherstellung-Abgleich (postRestore.ts, Endpoint, Ansicht System), restore-drill.yml + scripts/ci/restore-drill.ts\n- Tests: tests/int/backup/{mirror,cron-route,retention-replay,post-restore}; Drill lokal grün; GitHub-Lauf folgt im PR der Phasen-Abnahme

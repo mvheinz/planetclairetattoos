@@ -6,6 +6,9 @@ import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { EmailTemplate } from '@/lib/enums'
 import { getEnv } from '@/lib/env'
 import { jobAlarm } from '@/lib/jobs/alarm'
+import type { BackupStatus } from '@/lib/backup/cron'
+import { BACKUP_STATUS_KEY } from '@/lib/monitoring/freshness'
+import { readJson } from '@/lib/storage/systemFiles'
 import { JOB_RUN_RETENTION_DAYS, listJobRuns, poolDb } from '@/lib/jobs/runLog'
 import { formatBerlin } from '@/lib/time'
 
@@ -30,6 +33,7 @@ export async function SystemView({ adminRoute, req }: AdminViewBodyProps) {
   const env = getEnv()
   const now = new Date()
   const alarm = await jobAlarm.read().catch(() => ({ nextDueAt: null, lastFullRunAt: null }))
+  const backup = await readJson<BackupStatus>(BACKUP_STATUS_KEY).catch(() => null)
   const since = new Date(now.getTime() - JOB_RUN_RETENTION_DAYS * 24 * 60 * 60 * 1000)
   const runs = await listJobRuns(poolDb(req.payload), { since, limit: RUN_LIMIT })
   const tasks = JOB_TASKS.map((t) => ({ slug: t.slug, label: String(t.label ?? t.slug) }))
@@ -91,6 +95,23 @@ export async function SystemView({ adminRoute, req }: AdminViewBodyProps) {
           <dd data-testid="system-last-full-run">{fmt(alarm.lastFullRunAt)}</dd>
           <dt>{adminText('systemNextWake')}</dt>
           <dd>{fmt(alarm.nextDueAt)}</dd>
+          <dt>{adminText('systemBackup')}</dt>
+          <dd data-testid="system-backup">
+            {env.APP_ENV !== 'production' || !env.BACKUP_ENABLED
+              ? adminText('systemBackupOff')
+              : backup?.lastSuccessAt
+                ? adminText('systemBackupLine', {
+                    date: fmt(backup.lastSuccessAt),
+                    size: ((backup.sizeBytes ?? 0) / 1048576).toFixed(1),
+                    monthly: backup.lastMonthlyKey
+                      ? (backup.lastMonthlyKey.match(/\d{4}-\d{2}/)?.[0] ?? '–')
+                      : '–',
+                  })
+                : adminText('systemBackupNone')}
+            {backup?.lastFailureAt
+              ? ` · ${adminText('systemBackupFailed', { date: fmt(backup.lastFailureAt), code: backup.errorCode ?? '' })}`
+              : ''}
+          </dd>
         </dl>
         <Notice tone="info">{adminText('systemStartklarLater')}</Notice>
       </section>

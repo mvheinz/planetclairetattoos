@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import React from 'react'
 
+import { ClientErrorSlot } from '@/components/monitoring/ClientErrorSlot'
 import { SiteDocument } from '@/components/layout/SiteDocument'
 import { routing } from '@/i18n/routing'
 
@@ -34,5 +35,10 @@ export default async function LocaleLayout({
   const { locale } = await params
   if (!hasLocale(routing.locales, locale)) notFound()
   setRequestLocale(locale)
-  return <SiteDocument locale={locale}>{children}</SiteDocument>
+  return (
+    <SiteDocument locale={locale}>
+      {children}
+      <ClientErrorSlot />
+    </SiteDocument>
+  )
 }

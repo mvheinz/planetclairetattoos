@@ -812,6 +812,11 @@ export const ADMIN_CUSTOM_DE = {
   systemLastFullRun: 'Letzter voller Job-Lauf',
   systemNextWake: 'Nächster Weckzeitpunkt',
   systemStartklarLater: 'Startklar-Prüfung kommt in P10.',
+  systemBackup: 'Letztes Backup',
+  systemBackupOff: 'Nicht eingeschaltet (nur in Produktion mit BACKUP_ENABLED=true).',
+  systemBackupNone: 'Noch kein erfolgreiches Backup.',
+  systemBackupLine: '{{date}} · {{size}} MB · Monatsstand {{monthly}}',
+  systemBackupFailed: 'Letzter Fehlversuch: {{date}} ({{code}})',
   systemPostRestore: 'Nach Wiederherstellung abgleichen',
   systemPostRestoreHint:
     'Nur im Wartungsmodus. Wendet das Löschprotokoll erneut an, holt Zahlungen seit dem Backup nach und gleicht die Belegnummern ab. Du kannst es gefahrlos mehrmals ausführen.',

@@ -163,6 +163,13 @@ export function findAdminRouteLeaks(files: BuiltFile[], adminRoute: string): str
   return files.filter((f) => f.content.includes(adminRoute)).map((f) => f.path)
 }
 
+/** Sentry-Code oder -Hosts in ausgelieferten Dateien (ARCHITEKTUR §11.4, AK-A-11-02): Sentry läuft nur auf dem Server. */
+export function findSentryLeaks(files: BuiltFile[]): string[] {
+  return files
+    .filter((f) => /@sentry|sentry\.io|ingest\.[a-z]+\.sentry|__SENTRY__/.test(f.content))
+    .map((f) => f.path)
+}
+
 function main(): void {
   const args = process.argv.slice(2)
   if (!args.includes('--built')) {
@@ -182,6 +189,12 @@ function main(): void {
   if (leaks.length > 0) {
     console.error('check:external: Der Verwaltungspfad steht in ausgelieferten Dateien:')
     for (const l of leaks) console.error(`- ${l}`)
+    process.exit(1)
+  }
+  const sentry = findSentryLeaks(files)
+  if (sentry.length > 0) {
+    console.error('check:external: Sentry-Code oder -Host in ausgelieferten Dateien (AK-A-11-02):')
+    for (const l of sentry.slice(0, 50)) console.error(`- ${l}`)
     process.exit(1)
   }
   const publicFiles = collectPublicFiles(distDir)

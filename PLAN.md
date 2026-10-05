@@ -5196,7 +5196,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Ohne Jutta: alles vorhanden, aber inaktiv. P11-Nacharbeit: Bucket `pct-backups`, Backup-Token, Empfänger-Schlüssel,
     `BACKUP_ENABLED=true` (P11.3, P11.12).
 
-- [ ] **P10.10 Fehlerüberwachung und Monitoring (Sentry, ohne DSN inaktiv)** – `@sentry/nextjs` 11 (exakt gepinnt)
+- [x] **P10.10 Fehlerüberwachung und Monitoring (Sentry, ohne DSN inaktiv)** – `@sentry/nextjs` 11 (exakt gepinnt)
   **nur** in `instrumentation.ts`: `register()` initialisiert nur bei `NEXT_RUNTIME === 'nodejs'` und gesetztem
   `SENTRY_DSN`; `onRequestError = Sentry.captureRequestError`; Optionen nach ARCHITEKTUR §11.4 (`sendDefaultPii: false`,
   `tracesSampleRate: 0`, `maxBreadcrumbs: 20`, `beforeSend`/`beforeBreadcrumb` → `redactSentryEvent()` in

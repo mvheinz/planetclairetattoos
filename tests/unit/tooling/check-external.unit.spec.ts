@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { findAdminRouteLeaks, findForeignUrls } from '../../../scripts/check-external'
+import {
+  findAdminRouteLeaks,
+  findForeignUrls,
+  findSentryLeaks,
+} from '../../../scripts/check-external'
 
 // AK-2-04 (Teil): Der Verwaltungspfad steht in keiner ausgelieferten Datei.
 describe('check:external --built', () => {
@@ -78,5 +82,16 @@ describe('check:external --built', () => {
         url: 'https://europa.eu/youreurope/citizens/consumers/consumers-dispute-resolution/index_de.htm',
       },
     ])
+  })
+})
+
+describe('findSentryLeaks (AK-A-11-02)', () => {
+  it('findet Sentry-Code und -Hosts, sonst nichts', () => {
+    const files = [
+      { path: 'a.js', content: 'import "@sentry/nextjs"' },
+      { path: 'b.js', content: 'fetch("https://o1.ingest.de.sentry.io/api")' },
+      { path: 'c.js', content: 'console.log(1)' },
+    ]
+    expect(findSentryLeaks(files)).toEqual(['a.js', 'b.js'])
   })
 })

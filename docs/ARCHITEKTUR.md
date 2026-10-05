@@ -121,6 +121,7 @@ aus §10–§13 dieses Dokuments); DNS-Umstellung und Start-Checkliste für P11 
 | `svgo` (dev), `fontkit` oder `opentype.js` (dev) | aktuell | P2 | SVG-Optimierung, Glyphen-Test (DESIGN AK-DS-05) |
 | `bwip-js` (dev) | 4.11.4 (exakt gepinnt, P5.14) | P5 | nur für Barcode-Test-Fixtures (`scripts/fixtures/barcodes.ts`) |
 | `@zxing/browser`, `@zxing/library` | 0.2.1 / 0.23.0 (exakt gepinnt, P5.14) | P5 | Rückfall des Barcode-Scans über ein Foto (`src/admin/components/TrackingScanner.tsx`), nur als dynamisch importierter Chunk in der Versand-Ansicht (Bestell-Detail); zuerst natives `BarcodeDetector`; keine Netz-Anfragen |
+| `@sentry/nextjs` | 11.4.0 (exakt gepinnt, P10.10) | P10 | Fehlerüberwachung, nur Server, nur in `instrumentation.ts` und nur mit `SENTRY_DSN` (§11.4); nie im Client-Bundle (`check:external`) |
 | `potrace` (dev) | 2.1.8 | P8 | Vektorisierung der Stationszeichnungen (`art:vectorize`, DESIGN §12.4); GPL → **nur** devDependency, nie im Client-Bundle |
 | `gsap` | 3.15.x | optional | kostenlos inkl. DrawSVG/ScrollTrigger. **Nur** gemäß DESIGN §9.10/DA-4: Standard ist eigener Code + WAAPI; GSAP nur per ADR als Lazy-Chunk auf R01 (≤ 30 KB gz) |
 | `stripe` (Node) | 22.6.2 (exakt gepinnt, P4.5) | P4 | `apiVersion` fest gepinnt (§3.5): `2026-08-26.dahlia` = `Stripe.API_VERSION` des SDK |
