@@ -335,9 +335,9 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     const s = width / COCO_VIEWBOX.w
     let tx = x
     if (gutter) {
-      // Box-Kante rechts; ragt sie über die Rinne, rutscht sie zurück – voll in der Rinne, sanft bis 40 px daneben
-      const right = direction === 1 ? x - ax * s + width : x + ax * s
-      const over = right - (gutter[1] - 1)
+      // Hunde-Kante rechts (Hund füllt 0,13–0,90 der Box); ragt sie über die Rinne, rutscht sie zurück – voll in der Rinne, sanft bis 40 px daneben
+      const right = direction === 1 ? x - ax * s + 0.9 * width : x + ax * s - 0.13 * width
+      const over = right - (gutter[1] - 2)
       if (over > 0) tx -= over * Math.max(0, Math.min(1, 1 - (x - gutter[1]) / gutter[2]))
     }
     el.style.transform = `translate(${tx.toFixed(1)}px,${y.toFixed(1)}px) scaleX(${direction}) translate(${(-ax * s).toFixed(1)}px,${(-ay * s).toFixed(1)}px)`

@@ -21,6 +21,7 @@ import {
   type ArtProfile,
 } from '../../../scripts/art/lib/run'
 import AxeBuilder from '@axe-core/playwright'
+import sharp from 'sharp'
 
 import { labelTime, type Probe } from '../../../scripts/art/lib/probe'
 import { isCalmRoute } from '../../../scripts/art/lib/routes'
@@ -86,6 +87,8 @@ export interface FrameOptions {
   fullPage?: boolean
   /** `css`: ein Bildpunkt je CSS-Pixel (Sequenzen, spart Zeit bei DPR 3); Standard `device`. */
   scale?: 'css' | 'device'
+  /** Lupe: nur dieser Ausschnitt (CSS-Pixel), auf `width` Bildpunkte vergrößert (Lesbarkeit kleiner Figuren). */
+  zoom?: { x: number; y: number; width: number; height: number; to: number }
 }
 
 export class ArtSession {
@@ -168,11 +171,16 @@ export class ArtSession {
         ? opts.element.screenshot(shot)
         : this.page.screenshot({ ...shot, fullPage: opts.fullPage ?? false })
     let png = await take()
+    if (opts.zoom) {
+      const { to, ...clip } = opts.zoom
+      png = await this.page.screenshot({ ...shot, clip })
+      png = await sharp(png).resize({ width: to, kernel: 'lanczos3' }).png().toBuffer()
+    }
     // Nicht gerasterte Kacheln (leerer Block ≥ 20 % der Höhe nach Scroll-Sprung) → kurz in Echtzeit warten (die
     // Browser-Uhr kann angehalten sein) und neu aufnehmen; höchstens 3×, echte einfarbige Flächen bleiben so erhalten.
     for (
       let retry = 1;
-      retry <= 3 && !opts.element && (await flatBandFraction(png)) >= 0.2;
+      retry <= 3 && !opts.element && !opts.zoom && (await flatBandFraction(png)) >= 0.2;
       retry++
     ) {
       await new Promise((r) => setTimeout(r, 200 * retry))
@@ -185,7 +193,7 @@ export class ArtSession {
     if (this.probing)
       await this.probe(
         label,
-        opts.element || opts.fullPage ? null : rel,
+        opts.element || opts.fullPage || opts.zoom ? null : rel,
         opts.scale === 'css' ? 1 : null,
       )
     return rel
@@ -293,6 +301,10 @@ export class ArtSession {
     start?: () => Promise<void>
     element?: Locator
     prefix?: string
+    /** Zeit, die vor dem Sequenz-Start schon vergangen ist (Beschriftung `t` = Zeit seit Navigation, SC-01-Intro). */
+    offsetMs?: number
+    /** Lupe: fester Ausschnitt (Seitenkoordinaten im Sichtbereich), auf `to` px Breite vergrößert. */
+    zoom?: FrameOptions['zoom']
   }): Promise<string[]> {
     await this.pauseClock()
     await opts.start?.()
@@ -300,11 +312,12 @@ export class ArtSession {
     for (let t = 0; t <= opts.untilMs + 0.5; t += opts.stepMs) {
       if (t > 0) await this.page.clock.runFor(opts.stepMs)
       await seekAnimations(this.page, t)
-      const label = `${opts.prefix ? `${opts.prefix}-` : ''}t${String(Math.round(t)).padStart(4, '0')}`
+      const label = `${opts.prefix ? `${opts.prefix}-` : ''}t${String(Math.round(t + (opts.offsetMs ?? 0))).padStart(4, '0')}`
       // Bewegungssequenzen in CSS-Pixeln (Zeitbudget ≤ 25 min, KUNST-QA §9); Standbilder bleiben in Geräteauflösung.
       out.push(
         await this.frame(label, {
           ...(opts.element ? { element: opts.element } : {}),
+          ...(opts.zoom ? { zoom: opts.zoom } : {}),
           scale: 'css',
         }),
       )

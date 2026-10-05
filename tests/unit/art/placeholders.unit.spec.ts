@@ -69,12 +69,12 @@ describe('P8.12/P8.13 Platzhalter-Zeichnungen', () => {
       expect(tilt, name).not.toBeNull()
       expect(Math.abs(Number(tilt![1])), name).toBeLessThanOrEqual(3)
       expect(Math.abs(Number(tilt![1])), name).toBeGreaterThan(0)
-      // eigene Strichstärken nur für das Tattoo im Körperumriss (frisch kräftiger, verheilt feiner)
+      // Strichstärken-Gruppen (R1-03-02): Grundstärke 2.8 plus dünne/kräftige Gruppe; Tattoo zusätzlich die Teilzeichnung
       const widths = [...svg.matchAll(/stroke-width="([\d.]+)"/g)].map((m) => Number(m[1]))
-      if (name.startsWith('tattoo-')) {
-        expect(widths.length, name).toBe(2)
-        expect(widths[1], name).not.toBe(STROKE_WIDTH)
-      } else expect(widths, name).toEqual([STROKE_WIDTH])
+      expect(widths[0], name).toBe(STROKE_WIDTH)
+      for (const w of widths.slice(1))
+        expect(w, name).toBeGreaterThanOrEqual(name.startsWith('tattoo-') ? 1 : 2.3)
+      if (name.startsWith('tattoo-')) expect(widths.length, name).toBeGreaterThanOrEqual(2)
     }
   })
 

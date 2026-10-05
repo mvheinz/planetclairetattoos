@@ -231,7 +231,9 @@ export async function contrastSamples(
       const r = await loadRaster(file)
       const s = p.scale
       for (const t of rects(p.text)
-        .filter((q) => q.h >= 10 && q.w >= 20)
+        // nur vollständig im Standbild sichtbare Zeilen: am unteren Bildrand abgeschnittene Zeilen (Passepartout-Fotos
+        // schieben Kartentitel an die Kante) ergäben Mischpixel aus Leinen-/Rasterlinie und Textrest (R3-05, Messfehler)
+        .filter((q) => q.h >= 10 && q.w >= 20 && (q.y + q.h) * s <= r.height && q.y >= 0)
         .slice(0, maxRects)) {
         const lum: number[] = []
         for (let y = Math.floor(t.y * s); y < Math.ceil((t.y + t.h) * s); y++)

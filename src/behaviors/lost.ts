@@ -36,7 +36,12 @@ export function swingKeyframes(deg: number, swingEasing: string): Keyframe[] {
 export function mount(root: Element, ctx: BehaviorContext = { mode: 'app' }): Unmount {
   void ctx
   const doc = root.ownerDocument
-  const layer = doc.querySelector<HTMLElement>('[data-leash-layer]')
+  // Die Linien-Ebene ist Geschwister des Inhalts: vom Inhalt aufwärts die nächste suchen (auf der QA-Bühne gibt es
+  // zusätzlich die Ebene der Seitenhülle; `doc.querySelector` träfe diese und sähe die Linie nie „fertig“, R2-04-01).
+  const layer =
+    root
+      .closest(':has(> [data-leash-layer])')
+      ?.querySelector<HTMLElement>(':scope > [data-leash-layer]') ?? null
   const anchor = root.querySelector<HTMLElement>('[data-leash-anchor="start"]')
   const end = root.querySelector<HTMLElement>('[data-lost-end]')
   const coco = root.querySelector<HTMLElement>('[data-lost-coco]')

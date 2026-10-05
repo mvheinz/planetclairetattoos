@@ -28,13 +28,15 @@
   },
   {
    "id": "planet-claire",
-   "from": "src/art/planet.svg",
-   "kind": "planet-mark"
+   "from": "content/art/stations/planet-claire.ts",
+   "kind": "drawn",
+   "reference": "src/art/planet.svg"
   },
   {
    "id": "hallo",
-   "from": "src/art/coco/coco-sprite.svg#coco-sitzen-a (Sprite v2)",
-   "kind": "sprite"
+   "from": "content/art/stations/hallo.ts",
+   "kind": "drawn",
+   "reference": "coco-oh-01.jpg"
   },
   {
    "id": "schmuck",
@@ -44,8 +46,9 @@
   },
   {
    "id": "jutta-und-coco",
-   "from": "src/art/coco/coco-sprite.svg#coco-sitzen-a (Sprite v2) + src/art/planet.svg",
-   "kind": "sprite"
+   "from": "content/art/stations/jutta-und-coco.ts",
+   "kind": "drawn",
+   "reference": "coco-oh-01.jpg"
   }
  ]
 }

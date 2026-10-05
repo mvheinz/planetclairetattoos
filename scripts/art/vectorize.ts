@@ -17,7 +17,7 @@ import sharp from 'sharp'
 import { optimize } from 'svgo'
 
 import { exportSource, readExportMap, EXPORT_MAP_FILE } from '../../src/lib/seed/exportMap'
-import { handBlob, handStroke, type Ink, placePath } from './lib/handline'
+import { handBlob, handStroke, type Ink, placePath, widthClass } from './lib/handline'
 
 export const SOURCES_FILE = path.join('content', 'art', 'sources.json')
 export const STATIONS_DIR = path.join('src', 'art', 'stations')
@@ -265,7 +265,7 @@ const LINE_ATTRS =
  */
 export const STATION_STROKE_PX = 2
 /** Stützpunkt-Abstand der Handlinie in Stationen (statt 14): spart Pfaddaten für das Startseiten-Budget (PF-10). */
-const STATION_MAX_STEP = 22
+const STATION_MAX_STEP = 28
 export const STATION_BOX = { w: 208, h: 260 } as const
 
 export function stationStrokeWidth(viewBox: string, px = STATION_STROKE_PX): number {
@@ -319,16 +319,33 @@ export function lineStation(
   tilt = 0,
   opts: { viewBox?: string; strokeWidth?: number } = {},
 ): string {
-  const strokes = ink.strokes
-    .flatMap((s, i) => handStroke(s, seed + i * 104729, { maxStep: STATION_MAX_STEP }))
-    .join('')
+  // Strichstärken-Gruppen (R1-03-01): dünn / normal / kräftig je (Teil-)Strich, nicht konstant
+  const groups: [string[], string[], string[]] = [[], [], []]
+  let n = 0
+  ink.strokes.forEach((s, i) => {
+    for (const piece of handStroke(s, seed + i * 104729, {
+      maxStep: STATION_MAX_STEP,
+      press: true,
+      coarseFrom: 12,
+      pressRate: 0.3,
+    }))
+      groups[widthClass(seed, n++)].push(piece)
+  })
+  const sw = opts.strokeWidth ?? 3.2
+  const [thin, normal, thick] = groups.map((g) => g.join('')) as [string, string, string]
   const dots = (ink.dots ?? []).map((d, i) => handBlob(d, seed + 11 + i * 31, 0.45)).join('')
   const lights = (ink.lights ?? []).map((d, i) => handBlob(d, seed + 23 + i * 31, 0.45)).join('')
   const vb = opts.viewBox ?? '0 0 400 500'
   const [, , vw, vh] = vb.split(' ').map(Number) as [number, number, number, number]
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}"><g transform="rotate(${tilt} ${vw / 2} ${vh / 2})">`,
-    `<path ${LINE_ATTRS} stroke-width="${opts.strokeWidth ?? 3.2}" d="${strokes}"/>`,
+    `<path ${LINE_ATTRS} stroke-width="${sw}" d="${normal}"/>`,
+    thin
+      ? `<path ${LINE_ATTRS} stroke-width="${Math.round(sw * 0.82 * 10) / 10}" d="${thin}"/>`
+      : '',
+    thick
+      ? `<path ${LINE_ATTRS} stroke-width="${Math.round(sw * 1.22 * 10) / 10}" d="${thick}"/>`
+      : '',
     dots ? `<path fill="currentColor" d="${dots}"/>` : '',
     lights ? `<path style="fill:var(--paper,#F4EFE6)" d="${lights}"/>` : '',
     '</g></svg>',
@@ -343,10 +360,10 @@ function fnvSeed(id: string): number {
 }
 
 async function derivedStation(root: string, src: DerivedSource): Promise<string> {
-  switch (src.id) {
+  switch (src.kind === 'drawn' ? 'drawn' : src.id) {
     case 'planet-claire':
       return compact(
-        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500">${planetMarkGroup(root, { x: 40, y: 90, s: 5 })}</svg>`,
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500">${planetMarkGroup(root, { x: 40, y: 90, s: 5 }, 0.8)}</svg>`,
       )
     case 'hallo':
       return compact(

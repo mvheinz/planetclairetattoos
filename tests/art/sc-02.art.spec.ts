@@ -19,6 +19,20 @@ test('SC-02 Startseite reduziert', { tag: artTags('all', ['reduced']) }, async (
     },
   )
   await page.waitForTimeout(500)
+  // Ein angestoßener Neuaufbau der Linie (Schriften/Bilder geladen → Größe geändert, entprellt 150 ms) gehört zum
+  // Laden, nicht zur Bewegung: erst abwarten, dann die Uhr anhalten (sonst läuft er in `runFor(2000)`).
+  await page
+    .waitForFunction(() => !document.querySelector('[data-leash-layer][data-stale]'), undefined, {
+      timeout: 5000,
+    })
+    .catch(() => undefined)
+  const rebuilds = () =>
+    page.evaluate(
+      () =>
+        (window as Window & { __leash?: { rebuildCount(): number } }).__leash?.rebuildCount() ??
+        null,
+    )
+  const rebuilds0 = await rebuilds()
   await art.pauseClock()
   await page.clock.runFor(100)
   // Raster-Rauschen (spätes Nachrastern von Kacheln, Antialiasing am Rand von Ebenen) ist keine Bewegung: erst bei zwei
@@ -35,12 +49,16 @@ test('SC-02 Startseite reduziert', { tag: artTags('all', ['reduced']) }, async (
   const t2 = await page.screenshot({ type: 'png' })
   await art.frame('top-t2000')
   const same = t0.equals(t2)
-  art.json('time-compare', { t0VsT2000Identical: same })
+  art.json('time-compare', {
+    t0VsT2000Identical: same,
+    // Diagnose: Neuaufbauten der Linie vor t=0 und nach t=2 s
+    rebuilds: [rebuilds0, await rebuilds()],
+  })
   expect(same, 'reduzierte Startseite verändert sich zwischen t=0 und t=2 s').toBe(true)
   const stations = await leashStations(page)
   for (const [i, s] of stations.entries())
     for (const b of stationBounds(s))
-      await readingFrame(art, b.y, `station${i + 1}-${b.tag}-y${Math.round(b.y)}`)
+      await readingFrame(art, b.y, `station${i}-${s.id}-${b.tag}-y${Math.round(b.y)}`)
   await releaseReading(page)
   await art.resumeClock()
   await art.scrollRun(await page.evaluate(() => document.documentElement.scrollHeight), 1500)

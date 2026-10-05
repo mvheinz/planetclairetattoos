@@ -12,7 +12,8 @@
 .hero {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  /* LG-01 (R3-05): 24 px statt 16 px zwischen Marke und Untertitel – Coco sitzt beim Schlaufenende neben der Marke, ihre Pfoten (bis 0,96–0,99 der Box) bleiben so aus dem Untertitel-Zeilenrechteck. */
+  gap: var(--space-5);
   max-width: 40rem;
 }
 
@@ -21,7 +22,12 @@
   flex-wrap: wrap;
   align-items: center;
   /* Abstand ≥ 0,4 × Markenbreite: der Orbit (rx 0,9 w) bleibt vor dem ersten Buchstaben. */
-  gap: var(--space-2) var(--space-5);
+  /* Zeilenabstand 16 px (R3-05, LG-04): bricht die Marke bei 200 % Schrift über der H1 um, sitzt Coco neben dem Planeten – ihre
+     Pfoten (bis 0,96–0,99 der Box) bleiben so aus dem H1-Zeilenrechteck. */
+  gap: var(--space-4) var(--space-5);
+  /* LG-01 (R3-04-01): Coco sitzt über der Kopf-Station; ihre Pfoten reichen bis ≈ 0,96 der Box. 8 px mehr Luft über der
+     H1-Zeile (Zeilenrechteck ohne Spielraum) halten die Pfoten – auch bei 200 % Schrift und im Querformat – aus der Zeile. */
+  margin-block-start: var(--space-2);
   font-family: var(--font-hand);
   font-size: var(--fs-display);
   font-weight: 400;

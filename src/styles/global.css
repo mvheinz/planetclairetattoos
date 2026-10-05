@@ -269,6 +269,11 @@ html[data-menu-open] {
   display: inline-block;
 }
 
+/* Die Linie liegt unter der Grundlinie, nicht im Wort (R3-05-01: bei `aria-current` wirkte sie wie durchgestrichen). */
+.nav-link__text > [data-ink-underline] {
+  bottom: -7px;
+}
+
 /* ---------- Fokus (§3.2 Nr. 3) – nie entfernen ---------- */
 :focus-visible {
   outline: 3px solid var(--color-focus);
@@ -349,6 +354,12 @@ body[data-preset='margin'] {
 .u-layer-leash {
   z-index: var(--z-leash);
   pointer-events: none;
+}
+/* Segment-`<svg>` der Linie (Lage je Segment inline als left/top; Rest hier statt 13× im DOM, PF-10). Die Ebene selbst
+   ist `aria-hidden`, die Segmente brauchen kein eigenes. */
+[data-leash-seg] {
+  position: absolute;
+  overflow: visible;
 }
 
 /* Layout hat sich geändert, Neuaufbau steht aus: die veraltete Produktlinie nicht über neuen Text stehen lassen. */

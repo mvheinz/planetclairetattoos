@@ -20,11 +20,11 @@
 }
 .coco[data-size='leash'] {
   --coco-w: var(--coco-leash);
-  --coco-sw: 6.1; /* 1,6 px bei 42 px Breite */
+  --coco-sw: 4.6; /* 1,6 px bei 56 px Breite */
 }
 @media (min-width: 768px) {
   .coco[data-size='leash'] {
-    --coco-sw: 4.5; /* 1,8 px bei 64 px Breite (tokens.css) */
+    --coco-sw: 3.3; /* 1,8 px bei 88 px Breite (tokens.css) */
   }
 }
 .coco[data-size='s'] {
@@ -156,6 +156,15 @@ html[data-motion='reduced'] .coco .f-c {
 }
 
 @media (forced-colors: active) {
+  /* Das externe Sprite (`<use href="/art/coco-sprite…">`) wertet seine eigene Medienabfrage im Sprite-Dokument aus;
+     Chromium überträgt die Farbemulation dorthin nicht immer (A11Y-05, R3-01-03). Die Farb-Token erben aber in den
+     geklonten Baum – darüber wird das Fell flächenfrei und der Strich Systemfarbe. */
+  .coco {
+    --coco-fur: transparent;
+    --coco-harness: transparent;
+    --ink: CanvasText;
+    --paper: Canvas;
+  }
   .coco .fur,
   .coco .harness {
     fill: none;
@@ -177,12 +186,31 @@ html[data-motion='reduced'] .coco .f-c {
   left: calc(
     max(0px, (100% - var(--content-max) - 2 * var(--page-pad)) / 2) + var(--leash-gutter) / 2
   );
-  z-index: 1;
+  /* über der Linien-Ebene (`--z-leash`): Coco steht vor der Leine, der Papier-Rand unterbricht die Tusche (R2-02-04) */
+  z-index: calc(var(--z-leash) + 1);
   transform: translate(-37.8%, -55.8%);
   transform-origin: 0 0;
 }
 .coco[data-leash-coco][data-placed] {
   left: 0;
+}
+/* Startseite (journey): Coco rennt im Intro von links herein (MI-10) – bis die Engine sie platziert, sitzt sie nicht
+   sichtbar am Linienanfang unter der Kopfleiste (dort läge sie über dem Hinweisbanner, R2-02-02). */
+[data-leash-preset='journey'] ~ .coco[data-leash-coco]:not([data-placed]) {
+  visibility: hidden;
+}
+/* Coco steht vor der Linie (R2-01-02): ein schmaler Papier-Rand um jeden Strich unterbricht die Tusche hinter ihr,
+   sonst läuft die Leine sichtbar durch den (unausgefüllten) Körper und die kleine Figur wird zum dunklen Fleck. Der
+   Filter liegt auf der festen 64×48-Box und wird nur bei einem Boil-Bildwechsel neu gerastert. Harte Versätze ohne
+   Unschärfe (AK-DS-06: keine weichen Schatten) – nacheinander waagerecht und senkrecht ergeben einen ±1,5-px-Rand. */
+.coco[data-leash-coco] .coco__hop {
+  filter: drop-shadow(1.5px 0 0 var(--paper)) drop-shadow(-1.5px 0 0 var(--paper))
+    drop-shadow(0 1.5px 0 var(--paper)) drop-shadow(0 -1.5px 0 var(--paper));
+}
+@media (forced-colors: active) {
+  .coco[data-leash-coco] .coco__hop {
+    filter: none;
+  }
 }
 
 /* View Transitions (§9.8, ADR 0003): Coco wandert in --dur-page von der alten zur neuen Position; übriger Inhalt

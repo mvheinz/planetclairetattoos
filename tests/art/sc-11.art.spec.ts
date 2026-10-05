@@ -8,7 +8,28 @@ test(
   { tag: artTags(['art-pixel7', 'art-desktop']) },
   async ({ art }) => {
     const { page } = art
+    // Harte Navigation (ADR 0003): der Übergang läuft im neuen Dokument auf der Dokument-Zeitleiste, die die
+    // Playwright-Uhr nicht steuert. Damit die Sequenz ihn per Seek aufnehmen kann (KUNST-QA §4.4), hält ein
+    // Init-Skript die Übergangs-Animationen beim Aufdecken an (R2-01-05); `sequence` spult sie dann je Bild vor.
+    await page.addInitScript(() => {
+      addEventListener('pagereveal', (e) => {
+        const vt = (e as Event & { viewTransition?: { ready: Promise<void> } | null })
+          .viewTransition
+        if (!vt) return
+        void vt.ready
+          .then(() => {
+            for (const a of document.getAnimations())
+              if (
+                (a.effect as KeyframeEffect | null)?.pseudoElement?.startsWith('::view-transition')
+              )
+                a.pause()
+          })
+          .catch(() => undefined)
+      })
+    })
     await art.goto('/de')
+    // Hydrierung abwarten (sonst fehlt der Übergang beim ersten Klick)
+    await page.waitForTimeout(1500)
     const hops: [string, string, RegExp][] = [
       ['r01-r02', 'header a[href="/de/shop"]', /\/de\/shop$/],
       ['r02-r04', 'main a[data-product-card]', /\/de\/shop\/\d+/],
@@ -31,6 +52,7 @@ test(
       })
       await page.waitForURL(url, { timeout: 15_000 })
       await art.waitLeash()
+      await page.waitForTimeout(1500)
       await art.settledFrame(`${name}-done`)
     }
   },

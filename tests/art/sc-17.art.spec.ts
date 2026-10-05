@@ -7,13 +7,13 @@ test('SC-17 Erzwungene Farben', { tag: artTags(['art-pixel7']) }, async ({ art }
   const { page } = art
   await page.emulateMedia({ forcedColors: 'active' })
   await art.goto('/de')
-  await art.settledFrame('top')
+  await art.settledFrame('forced-colors-top')
   const stations = await leashStations(page)
-  for (const [i, s] of stations.entries())
+  for (const s of stations)
     await readingFrame(
       art,
       s.y + s.loopScroll,
-      `station${i + 1}-y${Math.round(s.y + s.loopScroll)}`,
+      `forced-colors-${s.id}-y${Math.round(s.y + s.loopScroll)}`,
     )
   await releaseReading(page)
 })

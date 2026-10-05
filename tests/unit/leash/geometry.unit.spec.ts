@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   LUT_STEP,
+  SAMPLE_CHUNK,
   buildGeometry,
   buildGeometryWithSamples,
   geometrySteps,
@@ -232,6 +233,12 @@ describe('leash/geometry – Teilschritte (KUNST-QA PF-04)', () => {
       }
       // Abtastung, Wackel/Normalen, Breite und je Segment ein Halt.
       expect(pauses).toBeGreaterThanOrEqual(3 + r.value.geometry.segments.length)
+      // Schleifen über die Proben halten spätestens alle SAMPLE_CHUNK Proben an (kalter JIT am Desktop ≤ 8 ms):
+      // Abtasten, Wackel, Normalen, Breite – je ⌈n / SAMPLE_CHUNK⌉ − 1 Halte mindestens.
+      const n = r.value.samples.s.length
+      expect(pauses).toBeGreaterThanOrEqual(
+        4 * (Math.ceil(n / SAMPLE_CHUNK) - 1) + r.value.geometry.segments.length,
+      )
       expect(r.value).toEqual(buildGeometryWithSamples(input))
     }
   })

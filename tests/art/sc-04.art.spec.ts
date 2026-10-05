@@ -49,6 +49,17 @@ test('SC-04 Shop und Archiv Reihe für Reihe', { tag: artTags('all') }, async ({
     await art.settledFrame(`${name}-top`)
     await art.axe(name)
     await rowByRow(art, name)
+    // IM-04 (R1-04-05): das ganze Raster auf einem Bild – Fotos und Platzhalter nebeneinander im Passepartout. Vorher einmal
+    // durchscrollen, damit die lazy Bilder geladen sind (echte Wartezeit, die Browser-Uhr kann angehalten sein).
+    if (name === 'shop') {
+      const height = await page.evaluate(() => document.documentElement.scrollHeight)
+      for (let y = 0; y < height; y += 500) {
+        await page.evaluate((top) => scrollTo(0, top), y)
+        await page.waitForTimeout(120)
+      }
+      await page.evaluate(() => scrollTo(0, 0))
+      await art.settledFrame('shop-raster-voll', { fullPage: true, scale: 'css' })
+    }
     if (art.isDesktop) {
       await page.evaluate(() => scrollTo(0, 0))
       const cards = page.locator('[data-product-card]')

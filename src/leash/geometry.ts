@@ -28,6 +28,8 @@ interface Pt {
 /** Abtastabstand nach Bogenlänge (Schritt 5) und LUT-Raster (Schritt 10). */
 export const SAMPLE_STEP = 2
 export const LUT_STEP = 4
+/** Proben je Teilstück in den Schleifen von Schritt 6/7 (PF-04: kalter JIT am Desktop hält jedes Teilstück ≤ 8 ms). */
+export const SAMPLE_CHUNK = 768
 /** Toleranz der Umriss-/Mittellinien-Vereinfachung (Schritt 8). */
 const RDP_TOLERANCE = 0.2
 /** Überlappung benachbarter Segmente (Schritt 9). */
@@ -547,13 +549,18 @@ interface Fine {
   knot: number[]
 }
 
-function flatten(cubics: Cubic[]): Fine {
+function* flatten(cubics: Cubic[]): Generator<void, Fine, void> {
   const x: number[] = []
   const y: number[] = []
   const s: number[] = []
   const knot: number[] = []
   let len = 0
+  let mark = 0
   for (let j = 0; j < cubics.length; j++) {
+    if (x.length - mark >= 2 * SAMPLE_CHUNK) {
+      mark = x.length
+      yield
+    }
     const [x0, y0, x1, y1, x2, y2, x3, y3] = cubics[j]!
     const poly =
       Math.hypot(x1 - x0, y1 - y0) + Math.hypot(x2 - x1, y2 - y1) + Math.hypot(x3 - x2, y3 - y2)
@@ -583,7 +590,7 @@ function flatten(cubics: Cubic[]): Fine {
   return { x, y, s, knot }
 }
 
-function resample(fine: Fine, step: number) {
+function* resample(fine: Fine, step: number) {
   const total = fine.s[fine.s.length - 1]!
   const count = Math.floor(total / step) + 1
   const extra = total - (count - 1) * step > 1e-6 ? 1 : 0
@@ -608,6 +615,7 @@ function resample(fine: Fine, step: number) {
     ss[i] = s
     tx[i] = dx / d
     ty[i] = dy / d
+    if (i % SAMPLE_CHUNK === SAMPLE_CHUNK - 1) yield
   }
   return { sx, sy, ss, tx, ty, total }
 }
@@ -700,9 +708,10 @@ export function* geometrySteps(input: BuildInput): Generator<void, GeometryResul
   const rand = mulberry32(input.seed)
   const plan = planPath(input, rand, rMax)
   if (plan.pts.length < 2) plan.pts.push({ x: plan.pts[0]!.x, y: plan.pts[0]!.y + 24 })
-  const fine = flatten(catmullRom(plan.pts))
   yield
-  const { sx, sy, ss, tx, ty, total } = resample(fine, SAMPLE_STEP)
+  const fine = yield* flatten(catmullRom(plan.pts))
+  yield
+  const { sx, sy, ss, tx, ty, total } = yield* resample(fine, SAMPLE_STEP)
   const n = ss.length
 
   yield
@@ -718,6 +727,7 @@ export function* geometrySteps(input: BuildInput): Generator<void, GeometryResul
     const off = fade * (a1 * n1(ss[i]! / WOBBLE.lambda1) + a2 * n2(ss[i]! / WOBBLE.lambda2))
     wx[i] = sx[i]! - ty[i]! * off
     wy[i] = sy[i]! + tx[i]! * off
+    if (i % SAMPLE_CHUNK === SAMPLE_CHUNK - 1) yield
   }
 
   // Tangenten/Normalen der gewackelten Linie und Krümmung der geglätteten Linie.
@@ -737,6 +747,7 @@ export function* geometrySteps(input: BuildInput): Generator<void, GeometryResul
     nx[i] = -dy / d
     ny[i] = dx / d
     ang[i] = Math.atan2(dy, dx)
+    if (i % SAMPLE_CHUNK === SAMPLE_CHUNK - 1) yield
   }
 
   // Schritt 7: Breitenprofil mit Krümmungsverdickung, Grenzen und Verjüngungen.
@@ -766,6 +777,7 @@ export function* geometrySteps(input: BuildInput): Generator<void, GeometryResul
       width *= 1 - 0.55 * e
     }
     w[i] = width
+    if (i % SAMPLE_CHUNK === SAMPLE_CHUNK - 1) yield
   }
 
   yield
@@ -913,11 +925,11 @@ function buildStrokes(i0: number, i1: number, d: SegmentData, dots: number[], bw
       len0: d.ss[a]!,
       len1: d.ss[b]!,
     })
-    // Tintenpunkt am Schlaufenstart: Strich der Länge 0,1 mit runder Kappe (Ø 1,3 × Breite).
+    // Tintenpunkt am Schlaufenstart: Strich der Länge 0,1 mit runder Kappe (Ø 2,6 × Breite, R1-03-05, R1-05-04).
     if (stops.has(b))
       out.push({
         d: `M${fmt(d.wx[b]!)} ${fmt(d.wy[b]!)}h0.1`,
-        w: Math.round(1.3 * d.w[b]! * 10) / 10,
+        w: Math.round(2.6 * d.w[b]! * 10) / 10,
         L: 0.1,
         len0: d.ss[b]!,
         len1: d.ss[b]!,
@@ -950,7 +962,7 @@ function buildSegment(
   const cy = d.wy.slice(i0, i1 + 1)
   for (let i = i0; i <= i1; i++) grow(d.wx[i]!, d.wy[i]!, d.w[i]! / 2 + 0.5)
   const segDots = dots.filter((i) => i >= i0 && i < i1)
-  for (const i of segDots) grow(d.wx[i]!, d.wy[i]!, 0.65 * d.w[i]! + 0.5)
+  for (const i of segDots) grow(d.wx[i]!, d.wy[i]!, 1.3 * d.w[i]! + 0.5)
   const keepC = rdp(cx, cy, RDP_TOLERANCE)
   const ccx = keepC.map((k) => cx[k]!)
   const ccy = keepC.map((k) => cy[k]!)
@@ -974,7 +986,7 @@ function buildSegment(
   }
 }
 
-/** Schritt 8: gefüllter Umriss mit runden Kappen und Tintenpunkten (Kreis, Radius 0.65 × Breite). */
+/** Schritt 8: gefüllter Umriss mit runden Kappen und Tintenpunkten (Kreis, Radius 1.3 × Breite). */
 function outlineOf(i0: number, i1: number, d: SegmentData, dots: number[]): string {
   const side = (sign: number) => {
     const xs: number[] = []
@@ -1009,7 +1021,7 @@ function outlineOf(i0: number, i1: number, d: SegmentData, dots: number[]): stri
   // Der Umriss läuft immer im Uhrzeigersinn (links vorwärts, rechts zurück): Tintenpunkte laufen gleich herum,
   // sonst stanzt `nonzero` ein Loch.
   for (const i of dots) {
-    const r = 0.65 * d.w[i]!
+    const r = 1.3 * d.w[i]!
     const px: number[] = []
     const py: number[] = []
     for (let k = 0; k < 12; k++) {

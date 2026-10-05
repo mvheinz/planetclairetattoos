@@ -35,14 +35,12 @@ const ALLOWED_DRAWN: Record<string, string> = {
   keramik: 'post-DdUPhoZOoMW.jpg',
   textil: 'post-DcT7ErBDsWi.jpg',
   zeichnungen: 'post-DaJH_kADpsK.jpg',
+  // P9.18a (R1-05-03): frei gezeichnet nach Juttas Skizze bzw. der Marke, nicht aus dem Sprite abgeleitet
+  hallo: 'coco-oh-01.jpg',
+  'jutta-und-coco': 'coco-oh-01.jpg',
+  'planet-claire': 'src/art/planet.svg',
 }
-const DERIVED = [
-  'planet-claire',
-  'hallo',
-  'schmuck',
-  'jutta-und-coco',
-  ...Object.keys(ALLOWED_DRAWN),
-]
+const DERIVED = ['schmuck', ...Object.keys(ALLOWED_DRAWN)]
 const files = readdirSync(STATIONS_DIR).filter((f) => f.endsWith('.svg'))
 const read = (id: string) => readFileSync(path.join(STATIONS_DIR, `${id}.svg`), 'utf8')
 
@@ -190,18 +188,18 @@ describe('P9.12 Stationen als Linienzeichnung (Juttas Stil: nur kleine Punkte ge
     }
   })
 
-  it('Coco-Stationen aus dem Sprite v2 (sources.json zeigt auf src/art/coco/coco-sprite.svg)', () => {
+  it('Coco-Stationen und Planet sind frei gezeichnet (Kontrollpunkte unter content/art/stations/, nicht aus dem Sprite abgeleitet)', () => {
     const sources = readSources()
-    for (const id of ['hallo', 'jutta-und-coco']) {
+    for (const id of ['hallo', 'jutta-und-coco', 'planet-claire']) {
       const d = sources.derived.find((x) => x.id === id)!
-      expect(d.from, id).toContain('src/art/coco/coco-sprite.svg#coco-sitzen-a')
-      expect(d.from, id).not.toContain('v1')
+      expect(d.kind, id).toBe('drawn')
+      expect(d.from, id).toBe(`content/art/stations/${id}.ts`)
     }
   })
 })
 
 describe('P9.12 einheitliche Strichstärke der Stationen (AR-07)', () => {
-  it('jede Linien-Station ergibt im 208 × 260-px-Rahmen 2 px ± 10 %', async () => {
+  it('Grundstärke jeder Linien-Station ergibt im 208 × 260-px-Rahmen 2 px ± 10 %, dünne/kräftige Gruppen 1,6–2,5 px (LQ-08)', async () => {
     const { stationStrokeWidth, STATION_BOX } = await import('../../../scripts/art/vectorize')
     for (const id of ['keramik', 'tattoo', 'textil', 'zeichnungen', 'schmuck', 'hallo']) {
       const svg = readFileSync(path.join('src/art/stations', `${id}.svg`), 'utf8')
@@ -212,7 +210,11 @@ describe('P9.12 einheitliche Strichstärke der Stationen (AR-07)', () => {
         ...svg.matchAll(/<(?:path|g)[^>]*fill="none"[^>]*stroke-width="([\d.]+)"/g),
       ].map((m) => Number(m[1]) * scale)
       expect(widths.length, id).toBeGreaterThan(0)
-      for (const px of widths) expect(Math.abs(px - 2), `${id}: ${px} px`).toBeLessThanOrEqual(0.2)
+      expect(Math.abs(widths[0]! - 2), `${id}: ${widths[0]} px`).toBeLessThanOrEqual(0.2)
+      for (const px of widths) {
+        expect(px, `${id}: ${px} px`).toBeGreaterThanOrEqual(1.6)
+        expect(px, `${id}: ${px} px`).toBeLessThanOrEqual(2.5)
+      }
       expect(stationStrokeWidth(vb) * scale).toBeCloseTo(2, 1)
     }
   })

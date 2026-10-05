@@ -122,7 +122,8 @@ describe('leash/runtime – mountLeash', () => {
       expect(p.closest('svg')!.getAttribute('stroke-dasharray')).toBe('2000 2000')
       expect(p.hasAttribute('stroke-dasharray')).toBe(false)
     }
-    for (const svg of svgs) expect(svg.getAttribute('focusable')).toBe('false')
+    // Lage inline, Rest aus global.css; die Ebene ist aria-hidden (PF-10)
+    for (const svg of svgs) expect(svg.style.left).toMatch(/px$/)
 
     // Intro (journey) von 0 bis zur Lesezeile in 900 ms
     expect(handle.inspect().drawnLen).toBe(0)
@@ -241,13 +242,22 @@ describe('leash/runtime – mountLeash', () => {
     const measure = vi.spyOn(performance, 'measure')
     try {
       const root = setupDom()
+      let scrollReads = 0
+      const scrollY = vi.spyOn(window, 'scrollY', 'get').mockImplementation(() => {
+        scrollReads++
+        return 0
+      })
       const handle = mountStepwise(root, { preset: 'journey', routeKey: 'R01' })
       const built = vi.fn()
       handle.whenBuilt(built)
-      // Nur die Lesephase ist gelaufen – noch keine Linie
+      // Auch die Lesephase wartet auf den Idle-Callback (Layout nach dem Frame aktuell) – noch keine Linie
       expect(handle.inspect().geometry).toBeNull()
       expect(root.querySelectorAll('svg').length).toBe(0)
+      expect(measure.mock.calls.filter((c) => c[0] === LEASH_MEASURES.build)).toHaveLength(0)
       for (let i = 0; i < 40 && !built.mock.calls.length; i++) advance(2)
+      // `scrollY` nur in der Lesephase: die Schreibphase erzwingt kein Layout (PF-04/PF-05)
+      expect(scrollReads).toBe(1)
+      scrollY.mockRestore()
       expect(built).toHaveBeenCalledTimes(1)
       expect(root.querySelectorAll('svg').length).toBe(handle.inspect().geometry!.segments.length)
       const builds = measure.mock.calls.filter((c) => c[0] === LEASH_MEASURES.build)
@@ -502,6 +512,36 @@ describe('leash/schedule – Ladezeitpunkt (§9.2)', () => {
     expect(cb2).not.toHaveBeenCalled()
     expect(vi.getTimerCount()).toBe(0)
     delete (document as unknown as { readyState?: string }).readyState
+  })
+
+  it('R2-02-01: LCP + 300 ms ab dem letzten LCP-Kandidaten (startTime), spätere Kandidaten schieben nach hinten', () => {
+    resetLeashSchedule()
+    Object.defineProperty(document, 'readyState', { configurable: true, value: 'loading' })
+    const g = globalThis as unknown as { PerformanceObserver: unknown }
+    const orig = g.PerformanceObserver
+    let deliver: ((startTime: number) => void) | null = null
+    g.PerformanceObserver = class {
+      constructor(cb: (list: { getEntries(): { startTime: number }[] }) => void) {
+        deliver = (startTime) => cb({ getEntries: () => [{ startTime }] })
+      }
+      observe() {}
+      disconnect() {}
+    }
+    try {
+      const cb = vi.fn()
+      const t0 = performance.now()
+      whenLeashReady(cb)
+      deliver!(t0 + 100) // erster Kandidat bei 100 ms → frühestens 400 ms
+      advance(350)
+      deliver!(t0 + 300) // größerer Kandidat bei 300 ms → frühestens 600 ms
+      advance(200)
+      expect(cb).not.toHaveBeenCalled()
+      advance(100)
+      expect(cb).toHaveBeenCalledTimes(1)
+    } finally {
+      g.PerformanceObserver = orig
+      delete (document as unknown as { readyState?: string }).readyState
+    }
   })
 })
 

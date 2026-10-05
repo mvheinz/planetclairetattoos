@@ -1,3 +1,6 @@
+import { easeInkOut } from '../../../src/leash/easing'
+import { cpus, loadavg } from 'node:os'
+
 import type { Page } from '@playwright/test'
 
 import type { ArtSession } from './fixtures'
@@ -96,57 +99,130 @@ export function followSamples(
   )
 }
 
-/** MO-10: Intro bei angehaltener Uhr in 20-ms-Schritten (Start relativ zur Navigation, LCP per Beobachter). */
+/**
+ * MO-10: Intro auf der echten Zeitachse der Seite (eigener Kontext ohne Playwright-Uhr, die `performance.now` und
+ * `Date.now` anhält – sonst stünde der LCP bei 0, R2-02-01): LCP = `startTime` des letzten LCP-Kandidaten, Start =
+ * erster Frame mit gezeichneter Länge > 0, Ende = letzte Änderung der Länge; alles relativ zur Navigation.
+ */
 export async function introTiming(art: ArtSession): Promise<{
   lcp: number | null
   start: number | null
   end: number | null
+  /** Dauer aus der Kurvenanpassung (R2-05: WebKit liefert in Software nur ~15 Bilder/s, `start` kommt dort spät). */
+  durFit: number | null
+  series: number[][]
   samples: number
 }> {
-  const { page } = art
-  await page.addInitScript(() => {
-    const w = window as Window & { __artLcp?: number | null }
-    w.__artLcp = null
-    try {
-      new PerformanceObserver(() => {
-        w.__artLcp ??= Date.now()
-      }).observe({ type: 'largest-contentful-paint', buffered: true })
-    } catch {
-      // WebKit ohne LCP
+  const ctx = await art.extraContext({})
+  try {
+    const page = await ctx.newPage()
+    await page.addInitScript(() => {
+      const w = window as Window & {
+        __artIntro?: {
+          lcp: number | null
+          start: number | null
+          end: number | null
+          n: number
+          series: [number, number][]
+        }
+      }
+      const rec = {
+        series: [] as [number, number][],
+        lcp: null as number | null,
+        start: null as number | null,
+        end: null as number | null,
+        n: 0,
+      }
+      w.__artIntro = rec
+      try {
+        new PerformanceObserver((list) => {
+          const e = list.getEntries().at(-1)
+          if (e) rec.lcp = Math.round(e.startTime)
+        }).observe({ type: 'largest-contentful-paint', buffered: true })
+      } catch {
+        // ohne LCP-Unterstützung bleibt lcp null
+      }
+      let last = 0
+      const tick = () => {
+        const d = (window as LeashWin).__leash?.drawnLen() ?? 0
+        const now = performance.now()
+        rec.n++
+        if (rec.start !== null && rec.series.length < 400) rec.series.push([now, d])
+        if (d > 0 && rec.start === null) rec.start = Math.round(now)
+        if (d !== last) {
+          last = d
+          if (rec.start !== null) rec.end = Math.round(now)
+        }
+        if (rec.start === null || now - (rec.end ?? now) < 400) requestAnimationFrame(tick)
+      }
+      requestAnimationFrame(tick)
+    })
+    await page.goto('/de', { waitUntil: 'load' })
+    await page
+      .waitForFunction(
+        () => {
+          const r = (
+            window as Window & { __artIntro?: { start: number | null; end: number | null } }
+          ).__artIntro
+          return !!r && r.start !== null && r.end !== null && performance.now() - r.end > 400
+        },
+        undefined,
+        { timeout: 10_000 },
+      )
+      .catch(() => undefined)
+    const r = await page.evaluate(
+      () =>
+        (
+          window as Window & {
+            __artIntro?: {
+              lcp: number | null
+              start: number | null
+              end: number | null
+              n: number
+              series: [number, number][]
+            }
+          }
+        ).__artIntro ?? null,
+    )
+    // Dauer der Intro-Kurve: Zeit zwischen zwei Messpunkten geteilt durch den Abstand ihrer normierten Zeit
+    // (Umkehrung von `easeInkOut`) – unabhängig davon, wann das erste Bild kam.
+    let durFit: number | null = null
+    const ser = r?.series ?? []
+    const total = ser.length ? Math.max(...ser.map((x) => x[1])) : 0
+    if (total > 0) {
+      const inv = (p: number) => {
+        let lo = 0
+        let hi = 1
+        for (let i = 0; i < 40; i++) {
+          const m = (lo + hi) / 2
+          if (easeInkOut(m) < p) lo = m
+          else hi = m
+        }
+        return (lo + hi) / 2
+      }
+      const pts = ser
+        .filter((x) => x[1] / total > 0.03 && x[1] / total < 0.97)
+        .map((x) => ({ t: x[0], tau: inv(x[1] / total) }))
+      if (pts.length >= 2) {
+        // Ausgleichsgerade Zeit ~ normierte Zeit: Steigung = Dauer
+        const n = pts.length
+        const mt = pts.reduce((a, q) => a + q.t, 0) / n
+        const mu = pts.reduce((a, q) => a + q.tau, 0) / n
+        const sxx = pts.reduce((a, q) => a + (q.tau - mu) ** 2, 0)
+        const sxy = pts.reduce((a, q) => a + (q.tau - mu) * (q.t - mt), 0)
+        if (sxx > 0.02) durFit = Math.round(sxy / sxx)
+      }
     }
-  })
-  await art.pauseClock()
-  const t0 = await page.evaluate(() => Date.now())
-  await page.goto('/de', { waitUntil: 'load' })
-  const samples: { t: number; drawn: number | null }[] = []
-  for (let i = 0; i < 260; i++) {
-    samples.push(
-      await page.evaluate(() => ({
-        t: Date.now(),
-        drawn: (window as LeashWin).__leash?.drawnLen() ?? null,
-      })),
-    )
-    const last = samples.slice(-6)
-    if (
-      last.length === 6 &&
-      last.every((s) => s.drawn !== null && s.drawn > 0 && s.drawn === last[0]!.drawn)
-    )
-      break
-    await page.clock.runFor(20)
-  }
-  const lcpAt = await page.evaluate(
-    () => (window as Window & { __artLcp?: number | null }).__artLcp ?? null,
-  )
-  await art.resumeClock()
-  const first = samples.find((s) => (s.drawn ?? 0) > 0)
-  const final = samples[samples.length - 1]?.drawn ?? null
-  const done =
-    final === null ? undefined : samples.find((s) => s.drawn !== null && s.drawn >= final - 0.5)
-  return {
-    lcp: lcpAt === null ? null : lcpAt - t0,
-    start: first ? first.t - t0 : null,
-    end: done ? done.t - t0 : null,
-    samples: samples.length,
+    return {
+      series: ser.slice(0, 80).map((x) => [Math.round(x[0]), Math.round(x[1] * 10) / 10]),
+      durFit,
+      lcp: r?.lcp ?? null,
+      start: r?.start ?? null,
+      end: r?.end ?? null,
+      samples: r?.n ?? 0,
+    }
+  } finally {
+    await ctx.close()
   }
 }
 
@@ -205,9 +281,12 @@ export async function readingSeries(art: ArtSession): Promise<void> {
 
 /** PF-03/PF-04 Desktop 1×: eigener Kontext ohne Playwright-Uhr (sie ersetzt performance.now), R01 laden und scrollen,
  * dann die `leash:build`-/`leash:frame`-Messungen der Engine. */
-export async function desktopMeasures(
-  art: ArtSession,
-): Promise<{ build: number[]; frame: number[] }> {
+export async function desktopMeasures(art: ArtSession): Promise<{
+  build: number[]
+  frame: number[]
+  host: { load1Start: number; load1End: number; cpus: number }
+}> {
+  const load1Start = loadavg()[0]!
   const ctx = await art.extraContext({})
   try {
     const page = await ctx.newPage()
@@ -236,7 +315,7 @@ export async function desktopMeasures(
           requestAnimationFrame(step)
         }),
     )
-    return await page.evaluate(() => ({
+    const measured = await page.evaluate(() => ({
       build: performance
         .getEntriesByName('leash:build')
         .map((e) => Math.round(e.duration * 100) / 100),
@@ -244,6 +323,15 @@ export async function desktopMeasures(
         (d) => Math.round(d * 100) / 100,
       ),
     }))
+    // Rechnerlast während der Messung (R3-04-03): geht mit den Rohwerten nach `metrics/desktop.json`.
+    return {
+      ...measured,
+      host: {
+        load1Start: Math.round(load1Start * 100) / 100,
+        load1End: Math.round(loadavg()[0]! * 100) / 100,
+        cpus: cpus().length,
+      },
+    }
   } finally {
     await ctx.close()
   }

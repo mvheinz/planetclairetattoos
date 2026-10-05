@@ -27,9 +27,7 @@ const woman: Ink = {
     'M110 336C150 343 196 339 232 330',
     'M121 134C118 190 120 250 125 302',
     'M206 132C212 190 214 250 214 302',
-    // Karo, von Hand gezogen und nicht durchgehend
-    'M141 132C138 200 143 270 140 336',
-    'M175 130C177 200 172 270 178 338',
+    // Karo nur als lockere Querstreifen (eine Richtung, kein Gitter)
     'M108 170C146 165 186 168 222 161',
     'M106 214C150 210 190 214 226 207',
     'M109 258C150 255 196 258 228 251',
@@ -63,10 +61,10 @@ const woman: Ink = {
  */
 function scribble(): string[] {
   const out: string[] = []
-  for (let r = 0; r < 11; r++) {
-    const y = 102 + r * 13.5
+  for (let r = 0; r < 7; r++) {
+    const y = 104 + r * 22
     const x0 = 250 + Math.round(Math.sin(r * 1.7) * 4)
-    const x1 = 338 - Math.abs(r - 5) * 4
+    const x1 = 338 - Math.abs(r - 3) * 6
     let d = `M${x0} ${y}`
     let x = x0
     for (let k = 0; x < x1; k++) {
@@ -77,10 +75,6 @@ function scribble(): string[] {
     }
     out.push(d)
   }
-  for (let k = 0; k < 3; k++)
-    out.push(
-      `M${258 + k * 26} ${108 + k * 5}C${270 + k * 24} ${150 + k * 3} ${252 + k * 26} ${196} ${278 + k * 22} ${240 - k * 5}`,
-    )
   return out
 }
 

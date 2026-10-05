@@ -50,7 +50,12 @@ export async function readingFrame(
     ({ readingY, line }) => {
       const layer = document.querySelector('[data-leash-layer]')
       const rootTop = layer ? layer.getBoundingClientRect().top + scrollY : 0
-      scrollTo(0, Math.max(0, readingY + rootTop - line * innerHeight))
+      // `instant`: die Seite scrollt sonst weich (`scroll-behavior: smooth`) und das Standbild zeigt eine
+      // Zwischenlage – Stationstext abgeschnitten, Kopfleiste versetzt (R3-01-04)
+      scrollTo({
+        top: Math.max(0, readingY + rootTop - line * innerHeight),
+        behavior: 'instant' as ScrollBehavior,
+      })
       const w = window as Window & {
         __leash?: { setReadingY(y: number | null): void }
         __artReadingY?: number | null
@@ -61,6 +66,49 @@ export async function readingFrame(
     { readingY, line: READING_LINE },
   )
   return art.settledFrame(label)
+}
+
+/**
+ * Lesezeile auf `readingY`, danach `ms` Uhrzeit vorspulen (Coco folgt in rAF-Schritten, geglättet) und Standbild des
+ * Sichtbereichs plus 4×-Lupe auf Coco an der Leinenspitze – Zwischenbilder einer Rückwärts-Bewegung (MO-06, R2-04-04).
+ */
+export async function readingStep(
+  art: ArtSession,
+  readingY: number,
+  label: string,
+  ms: number,
+): Promise<void> {
+  await art.page.evaluate(
+    ({ readingY, line }) => {
+      const layer = document.querySelector('[data-leash-layer]')
+      const rootTop = layer ? layer.getBoundingClientRect().top + scrollY : 0
+      scrollTo({
+        top: Math.max(0, readingY + rootTop - line * innerHeight),
+        behavior: 'instant' as ScrollBehavior,
+      })
+      const w = window as Window & {
+        __leash?: { setReadingY(y: number | null): void }
+        __artReadingY?: number | null
+      }
+      w.__artReadingY = readingY
+      w.__leash?.setReadingY(readingY)
+    },
+    { readingY, line: READING_LINE },
+  )
+  await art.page.clock.runFor(ms)
+  await art.frame(label, { scale: 'css' })
+  const box = await art.page.locator('.coco[data-leash-coco]').boundingBox()
+  const vp = art.page.viewportSize()!
+  if (box && box.y >= 0 && box.y + box.height <= vp.height) {
+    const pad = 16
+    const x = Math.max(0, box.x - pad)
+    const y = Math.max(0, box.y - pad)
+    const width = Math.min(vp.width - x, box.width + 2 * pad)
+    await art.frame(`${label}-coco`, {
+      zoom: { x, y, width, height: box.height + 2 * pad, to: Math.round(width * 4) },
+      scale: 'css',
+    })
+  }
 }
 
 /** Lesezeile wieder dem Scrollen überlassen. */

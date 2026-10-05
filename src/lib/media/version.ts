@@ -3,4 +3,5 @@
 //   1 = P1 (Normieren, Zuschnitt, Größen)
 //   2 = P9.14 (Foto-Look: Weißabgleich, Belichtung, Schalter `enhance`)
 //   3 = P9.17 (Belichtung: Gamma-Untergrenze 0,7 statt 0,8; Weißabgleich in zwei Durchgängen – IM-02)
-export const DERIVATIVES_VERSION = 3
+//   4 = P9.18 (Papier-Scans: Weiß wird auf den Papierton gezogen, IM-04)
+export const DERIVATIVES_VERSION = 4

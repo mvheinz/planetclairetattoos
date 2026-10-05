@@ -297,7 +297,7 @@ Beleg) **· Schwere bei Verfehlung** (B = Blocker, M = Major, m = Minor; Definit
 | MO-07 | Coco folgt | nach Scrollstopp ≤ 400 ms bis Abstand < 1 px; beim schnellen Wischen nie > 300 px Bogenlänge Rückstand (sonst Sprung) | auto | m |
 | MO-08 | Posen je Station | Pose bei Ankunft/Verweilen = Tabelle DESIGN §11.4 an allen 9 Stationen | auto (`__leash.pose()`) + R2 (Bögen) | M |
 | MO-09 | Brücken | jeder Posenwechsel mit der definierten Brücke bzw. Frame-Grenze; keine Überblendung | auto (`poseLog`) + R2 | m |
-| MO-10 | Intro | Start ≥ LCP + 300 ms; Dauer 900 ms ± 90; Coco rennt herein (MI-10) | auto | M |
+| MO-10 | Intro | Start ≥ LCP + 300 ms; Dauer 900 ms ± 90 (aus der Kurvenanpassung der `drawnLen`-Reihe, nicht aus dem ersten sichtbaren Bild; `art-iphone15`: Dauer nur informativ, weil WebKit ohne GPU in der Aufnahme-Sitzung nur ≈ 10 Bilder/s liefert; Start ≥ LCP + 300 gilt weiter); Coco rennt herein (MI-10) | auto | M |
 | MO-11 | Katalog vollständig | jede MI-01…MI-16 in SC-14 aufgenommen und entspricht Ablauf/Eigenschaften der Tabelle | R2 | M |
 | MO-12 | Timing-Gefühl | Bewertung ≥ 4 (Rubrik §6.5): Feder statt Maschine, Staffelungen leicht unregelmäßig, nichts „schwimmt“ | R2 | M |
 | MO-13 | Stempel nur im Verkaufsmoment | Archiv/Shop-Aufruf: 0 Stempel-Animationen; Danke „bezahlt“: MI-03 ≤ 3× | auto | M |
@@ -308,7 +308,7 @@ Beleg) **· Schwere bei Verfehlung** (B = Blocker, M = Major, m = Minor; Definit
 
 | ID | Kriterium | Schwelle | Methode | Schwere |
 |---|---|---|---|---|
-| LG-01 | Keine Überdeckung | an allen Frame-Positionen aus SC-01, SC-04, SC-05, SC-08, SC-09, SC-10: Schnittmenge aus (gezeichneten LUT-Punkten ± halbe Breite) ∪ Coco-Bbox mit (Rects aller Textzeilen via `Range.getClientRects()` in `main`/`footer`, auch innerhalb von Links/Knöpfen) ∪ (vollständige Rects aller Formularfelder, Knöpfe, Icon-Knöpfe und Fußbereich-Links) = **leer**. Block-Links (Produktkarten) zählen nur mit ihren Textzeilen (DESIGN §9.9 Nr. 3) | auto | B |
+| LG-01 | Keine Überdeckung | an allen Frame-Positionen aus SC-01, SC-04, SC-05, SC-08, SC-09, SC-10: Schnittmenge aus (gezeichneten LUT-Punkten ± halbe Breite) ∪ **Hundekante der Coco** (Bbox der gezeichneten Figur: waagerecht 0,10–0,90 der Box-Breite – die Sprite-Hüllen aller 22 Symbole liegen bei 0,131–0,903 –, senkrecht die volle Box; **keine** Zusatz-Toleranz, einzige Toleranz sind die 1 px, um die jedes Textzeilen-Rechteck schrumpft; die Box selbst ist breiter als der Hund, DESIGN §10.5 – ihre Überdeckungen weist `check.json` nur informativ aus) mit (Rects aller Textzeilen via `Range.getClientRects()` in `main`/`footer`, auch innerhalb von Links/Knöpfen) ∪ (vollständige Rects aller Formularfelder, Knöpfe, Icon-Knöpfe und Fußbereich-Links) = **leer**. Block-Links (Produktkarten) zählen nur mit ihren Textzeilen (DESIGN §9.9 Nr. 3) | auto | B |
 | LG-02 | Pflichtlinks frei | DESIGN AK-DS-09 auf allen Routen | auto | B |
 | LG-03 | Schrift-Regeln | Mansalva nur in erlaubten Rollen (DESIGN §4.3), nie < 24 px; Scan per `getComputedStyle` | auto | M |
 | LG-04 | Textgröße 200 % | `document.documentElement.style.fontSize = '32px'` bei 390 px: kein horizontales Scrollen, LG-01 weiterhin leer, Linie neu aufgebaut | auto | M |
@@ -392,6 +392,8 @@ R2 Bewegung/Timing | R3 Tempo/Barrierefreiheit}. Du prüfst NUR, du änderst nic
 Lies zuerst: docs/design/KUNST-QA.md §5.{…} (deine Checkliste), §6.3 (Antwortformat), §6.5 (Bewertungsrubrik),
 docs/design/DESIGN.md §{…}.
 Material: artifacts/art-qa/{lauf-id}/ – nur die Ordner {…}. Referenzbilder: content/seed/instagram/{…}.
+R1 zusätzlich: Juttas Stil-Skizzen `referenzen/jutta-skizzen/` samt `content/art/jutta-skizzen/README.md` (Stil-Beobachtungen: Monoline,
+offene Konturen, nur kleine Punkte gefüllt, Schraffur nur als Akzent, viel Weißraum) – Messlatte für LQ-08, AR-05, CO-09.
 Kalibrierung (nur R1): bewerte zuerst sheets/art/calibration-p2-placeholder.webp (der grobe P2-Platzhalter) nach Rubrik
 §6.5. Gib ihm ehrlich eine Note; eine Note ≥ 3 macht deine Prüfung ungültig.
 Nachprüfliste (ab Iteration 2): {Befund-IDs mit Kurzbeschreibung}.
@@ -462,6 +464,14 @@ Aufnahme (alle Szenarien, alle Profile, beide Varianten), und `pnpm art:check` g
    2. Effekt auf statischen Endzustand reduzieren (z. B. MI-13 ohne Wisch);
    3. Stufe B statt A für das betroffene Profil/den Browser (`presets.ts`);
    4. Choreografie-Moment streichen (Station behält Pose ohne Extra).
+
+   **Stufen für Stil-Urteile** (Zeichnungen und Bilder: LQ-08, AR-05, IM-04, CO-09 – dort sind Parameter, Effekte und Abläufe nicht
+   betroffen, Stufen 1–4 greifen nicht; eingeführt in P9.18 nach Iteration 3, konservativ, in `docs/OFFENE-PUNKTE.md` vermerkt):
+   1. **Weniger Motive pro Bild, mehr Papier** (Platzhalter, Stationen, Raster): Wiederholungen streichen, Figuren einzeln zeichnen.
+   2. **Einzelmotiv ersetzen:** das beanstandete Motiv durch eine Coco-Skizze nach Juttas Vorlage (`content/art/jutta-skizzen/`)
+      ersetzen bzw. im Raster das Foto durch einen Platzhalter.
+   3. **Station behält nur die einfachste Zeichnung** – ohne Schraffur, ohne Gekritzelfläche.
+   Die Stufen werden der Reihe nach angewendet; jede zählt als „Fortschritt“ im Sinn von Nr. 6.2.
    **Nicht verhandelbar** (keine Vereinfachung, sondern Behebung): alle B-Punkte aus §5.5–5.8, mindestens 6 Posen × 3 Frames, Linie
    tuscheschwarz, reduzierte Bewegung, Ruhezonen.
 6. **Obergrenzen** (die Schleife endet immer):
