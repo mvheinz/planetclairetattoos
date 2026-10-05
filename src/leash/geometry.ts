@@ -306,6 +306,26 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
     if (TERMINAL_LOOPS.includes(kind)) return { pts, loops }
   }
 
+  // Endanker mit abschließender Schlaufe (`data-leash-anchor="end"` + `data-leash-loop="heart"`, MI-09 Danke-Seite): die Linie
+  // läuft zum Anker und endet in der Form (R2-06-03: bisher blieb das Herz aus, der Endanker wertete `loop` nicht aus).
+  if (endAnchor && TERMINAL_LOOPS.includes(endAnchor.loop) && cfg.loops.includes(endAnchor.loop)) {
+    const loopPts = loopPoints(endAnchor.loop, endAnchor, {
+      railX,
+      onRail,
+      desktop,
+      gutter,
+      rMax,
+      rand,
+    })
+    if (loopPts.length > 0) {
+      const i0 = section(loopPts[0]!)
+      let i1 = i0
+      for (let k = 1; k < loopPts.length; k++) i1 = push(loopPts[k]!)
+      loops.push({ anchor: endAnchor, kind: endAnchor.loop, i0, i1, dot: true })
+      return { pts, loops }
+    }
+  }
+
   const end: Pt = endAnchor
     ? { x: endAnchor.x + endAnchor.w / 2, y: endAnchor.y }
     : { x: onRail ? railX : pts[pts.length - 1]!.x, y: root.h }

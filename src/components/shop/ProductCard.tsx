@@ -95,6 +95,7 @@ export function ProductCard({
       data-item-number={product.itemNumber}
       data-status={state}
       data-category={product.category}
+      data-color-art={/aquarell|watercolo/i.test(photo?.alt ?? '') ? '' : undefined}
     >
       <span className={styles.photo}>
         <ResponsiveImage

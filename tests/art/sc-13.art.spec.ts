@@ -81,24 +81,23 @@ async function leashLoupes(art: ArtSession, prefix: string): Promise<void> {
         .map((s) => ({ tag: `schlaufenstart-${s.id}`, len: s.loopLen0 })),
     ]
   })
-  // Intro und Zeichnen abwarten: sonst liegt die Lupe am Seitenanfang (Kopf-Station) auf noch leerem Papier (R1-05-04)
-  await page
-    .waitForFunction(
-      () => {
-        const l = (
-          window as unknown as {
-            __leash?: { drawnLen(): number; geometry: { totalLength: number } | null }
-          }
-        ).__leash
-        return !!l?.geometry && l.drawnLen() >= l.geometry.totalLength - 1
-      },
-      undefined,
-      { timeout: 8000 },
-    )
-    .catch(() => undefined)
+  // Je Stelle abwarten, bis die Linie dort gezeichnet ist (drawnLen > Position): unter Rechnerlast zeichnet sie langsamer, ein
+  // einmaliges Warten mit kurzer Frist ließ bei 5 von 8 Schlaufenstarts die Lupe auf noch leerem Papier stehen (R1-06-02)
+  const drawnTo = (len: number) =>
+    page
+      .waitForFunction(
+        (len) => {
+          const l = (window as unknown as { __leash?: { drawnLen(): number } }).__leash
+          return !!l && l.drawnLen() >= len
+        },
+        len,
+        { timeout: 60_000 },
+      )
+      .catch(() => undefined)
   const vh = page.viewportSize()!.height
   const vw = page.viewportSize()!.width
   for (const spot of spots) {
+    await drawnTo(spot.len + 12)
     const p = await linePoint(page, spot.len)
     if (!p) continue
     await page.evaluate((y) => scrollTo(0, Math.max(0, y)), p.y - vh / 2)

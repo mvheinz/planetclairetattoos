@@ -42,8 +42,9 @@
   border-radius: calc(var(--r-photo) / 2);
 }
 
-/* Gescannte Zeichnungen auf weißem Papier: Weiß nimmt den Papierton an (Multiplizieren), Tusche bleibt schwarz. */
-.card[data-category='zeichnung'] .image img {
+/* Gescannte Zeichnungen auf weißem Papier: Weiß nimmt den Papierton an (Multiplizieren), Tusche bleibt schwarz.
+   Farbige Aquarelle (dunkler Rand der Skizzenbuch-Aufnahme) nicht: Multiplizieren machte Nr. 922 fast schwarz (R1-06-04). */
+.card[data-category='zeichnung']:not([data-color-art]) .image img {
   mix-blend-mode: multiply;
 }
 
