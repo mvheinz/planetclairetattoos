@@ -337,6 +337,11 @@ export function mo08(files: readonly ProbeFile[]): CheckResult {
   for (const e of rows) {
     // Beschriftung `station<#>-<id>-stay…` mit # wie Tabelle §11.4 (0 = Kopf-Station); ältere Läufe: 1-basiert ohne id
     const m = /^station(\d+)-(?:([a-z-]+)-)?stay/.exec(e.p.label)!
+    // Station 8 „Ende“ ist keine Schlaufen-Station: Coco sitzt am Linienende (R2-07-03)
+    if (m[2] === 'ende') {
+      if (e.p.leash!.pose !== 'sitzen') bad.push(`${where(e)}: ${e.p.leash!.pose} statt sitzen`)
+      continue
+    }
     const st = m[2]
       ? e.p.leash!.stations.find((x) => x.id === m[2])
       : e.p.leash!.stations[Number(m[1]) - 1]

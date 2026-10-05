@@ -72,6 +72,27 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
       })
     }
   }
+  // Station 8 „Ende“ (DESIGN §11.4: oberhalb des Fußbereichs, `sitzen`, Blick zum Betrachter): Seitenende ansteuern, Verweilen,
+  // Lupe auf Coco (R2-07-03: bisher gab es nur die Stationen 0–7).
+  await readingFrame(art, 1e6, 'station8-ende-arrive-y1000000')
+  await page.clock.runFor(1500)
+  await art.settledFrame('station8-ende-stay1500-y1000000')
+  await page.clock.runFor(1500)
+  await art.settledFrame('station8-ende-stay3000-y1000000')
+  {
+    const box = await page.locator('.coco[data-leash-coco]').boundingBox()
+    const vh = page.viewportSize()!.height
+    if (box && !art.reduced && box.y >= 0 && box.y + box.height <= vh) {
+      const pad = 16
+      const vw = page.viewportSize()!.width
+      const x = Math.max(0, box.x - pad)
+      const y = Math.max(0, box.y - pad)
+      const width = Math.min(vw - x, box.width + 2 * pad)
+      await art.frame('station8-ende-coco-lupe-y1000000', {
+        zoom: { x, y, width, height: box.height + 2 * pad, to: Math.round(width * 4) },
+      })
+    }
+  }
   // (d) MO-06: 400 px zurück – Tinte bleibt.
   const mid = stations[Math.floor(stations.length / 2)]
   if (mid) {
