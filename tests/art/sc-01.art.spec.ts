@@ -19,8 +19,9 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
   // (a) Intro: Uhr vor dem Laden anhalten, bis die Engine steht vorspulen, dann Sequenz.
   await art.pauseClock()
   await page.goto('/de', { waitUntil: 'load' })
-  // Frames beschriftet mit der Zeit seit der Navigation (R2-01-01: Intro-Start ≥ LCP + 300 ms ist so ablesbar);
-  // vor dem Laden der Engine ein Bild „Seite geladen, Linie noch leer“.
+  // Frames beschriftet mit der VIRTUELLEN Zeit (`intro-virtuell-tNNNN`: angehaltene Uhr, vorgespult bis die Engine steht – die echte
+  // Ladezeit bis LCP und Engine-Start steckt nicht darin). Der Beleg für Start ≥ LCP + 300 ms und Dauer ≈ 900 ms ist die Messung
+  // im Echtzeit-Kontext (`mo10`, `introTiming`), nicht die Frame-Beschriftung (R2-06-02). Vorher ein Bild „Seite geladen, Linie noch leer“.
   await art.settledFrame('intro-t0000-geladen')
   let waited = 0
   for (let i = 0; i < 160; i++) {
@@ -31,7 +32,7 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
   await art.sequence({
     stepMs: art.step(50, 1200),
     untilMs: 1200,
-    prefix: 'intro',
+    prefix: 'intro-virtuell',
     offsetMs: waited,
   })
 

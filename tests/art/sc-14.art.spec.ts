@@ -14,6 +14,8 @@ test(
     // `ART_MI=MI-04,MI-11` nimmt nur diese auf (Probelauf nach einer Änderung); ohne Angabe alle 16.
     const only = process.env.ART_MI?.split(',')
     for (const mi of QA_MICROS.filter((m) => !only || only.includes(m.id))) {
+      // MI-15 (Kauf-Leiste) gibt es nur auf Handy-Breite (`ProductPage.module.css`): auf dem Desktop zeigt die Bühne nichts (R2-06-03)
+      if (mi.id === 'MI-15' && art.profile === 'art-desktop') continue
       await art.goto(`/de/qa/motion?mi=${mi.id}`, { waitLeash: false })
       const stage = page.locator(`[data-qa-stage="${mi.id}"]`)
       await page.waitForSelector(`[data-qa-stage="${mi.id}"][data-qa-played="1"]`, {
@@ -41,6 +43,8 @@ test(
         'MI-02': { sel: '[data-price-tag]', pad: 28, k: 3 },
         'MI-03': { sel: '[data-price-tag]', pad: 28, k: 4 },
         'MI-09': { sel: '[data-thanks-coco-spot]', pad: 90, k: 2 },
+        // MI-12: Planet-Pop und Sterndrehung der Stationsmarken (R2-06-03: im Bogen zu klein)
+        'MI-12': { sel: '[data-station-mark]', pad: 24, k: 5 },
       }
       const lupe = lupeOf[mi.id]
       if (lupe) {
@@ -78,6 +82,21 @@ test(
           }
           return
         }
+        // CSS-/WAAPI-Abläufe (nicht Uhr, nicht MI-04): jede neu startende Animation sofort anhalten und auf 0 setzen. Sonst läuft
+        // sie schon in Echtzeit, bis der Seek greift (langsamer Rechner), und verschwindet nach dem Ende aus `getAnimations()` –
+        // MI-03 zeigte dann den fertigen Stempel in jedem Bild (R2-06-03).
+        if (!mi.clock && mi.id !== 'MI-04')
+          await page.evaluate(() => {
+            const hold = (e: Event) => {
+              const t = e.target as Element | null
+              for (const a of t?.getAnimations?.() ?? []) {
+                a.pause()
+                a.currentTime = 0
+              }
+            }
+            for (const type of ['animationstart', 'transitionrun'])
+              document.addEventListener(type, hold, true)
+          })
         await page.evaluate(() => document.querySelector<HTMLElement>('[data-qa-play]')?.click())
         // Uhr steht: bis zum Auslösen (zwei Frames nach dem Binden) in 16-ms-Schritten vorspulen.
         const played = stage.and(page.locator('[data-qa-played="2"]'))
