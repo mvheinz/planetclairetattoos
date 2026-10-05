@@ -265,7 +265,14 @@ export function mo06(files: readonly ProbeFile[]): CheckResult {
 export function mo07(files: readonly ProbeFile[]): CheckResult {
   const th = 'nach Scrollstopp ≤ 400 ms bis Abstand < 1 px; beim Wischen nie > 300 px Rückstand'
   const runs = extra<
-    { t: number; coco: number; drawn: number; target?: number; scrolling: boolean }[]
+    {
+      t: number
+      coco: number
+      drawn: number
+      target?: number
+      scrolling: boolean
+      synth?: number
+    }[]
   >(files, 'mo07', { sc: 'SC-01' })
   if (!runs.length) return noData('MO-07', th, 'keine Folge-Messung (SC-01 extra.mo07)')
   const bad: string[] = []
@@ -273,21 +280,40 @@ export function mo07(files: readonly ProbeFile[]): CheckResult {
   for (const { file, value } of runs) {
     if (!value.length) continue
     // Rückstand zum Ziel der Lesezeile (`target`); ältere Läufe ohne Feld: gezeichnete Länge.
-    // Die Messung läuft im rAF der Sonde vor dem rAF der Engine desselben Bildes: die Engine kann höchstens das Ziel des
-    // vorherigen Messpunkts kennen. Verglichen wird daher mit dem vorherigen Ziel – sonst zählt jeder Seitenstillstand
-    // (WebKit ohne GPU: 140–210 ms zwischen zwei Bildern bei 3000 px/s = 400–600 px Scrollweg) als Rückstand der Coco.
+    // Die Reihenfolge von Sonde und Engine im selben Bild ist nicht festgelegt: Coco kann das Ziel des vorherigen oder des
+    // aktuellen Messpunkts kennen. Gemessen wird daher der Abstand der Coco zum Intervall zwischen beiden Zielen – sonst
+    // zählt jeder Seitenstillstand (WebKit ohne GPU: 140–400 ms zwischen zwei Bildern bei 3000 px/s) oder jeder Sprung der
+    // Linienabbildung zwischen zwei Stationen (Ziel +280 px in einem Bild) als Rückstand der Coco. Eine dauerhaft
+    // zurückbleibende Coco bleibt weiter außerhalb des Intervalls (Test „träge Coco“).
+    const tgt = (s: (typeof value)[number]) => s.target ?? s.drawn
     const lag = Math.max(
       ...value
         .map((s, i) => [s, value[i - 1]] as const)
         .filter(([s]) => s.scrolling)
-        .map(([s, prev]) => Math.abs(((prev ?? s).target ?? (prev ?? s).drawn) - s.coco)),
+        .map(([s, prev]) => {
+          const lo = Math.min(tgt(s), tgt(prev ?? s))
+          const hi = Math.max(tgt(s), tgt(prev ?? s))
+          return Math.max(lo - s.coco, s.coco - hi, 0)
+        }),
       0,
     )
     const stop = value.filter((s) => s.scrolling).at(-1)?.t ?? 0
     const final = value.at(-1)!.coco
+    // Nachlauf in Engine-Zeit: ein Bildabstand zählt höchstens 50 ms (Seitenstillstand ist keine Trägheit der Glättung,
+    // die dt-basiert ist: 1 − 0,65^(dt/16,7)); bleibt die Glättung dauerhaft langsam, laufen Bilder normal und es schlägt an.
     let settle = 0
-    for (const s of value) if (s.t > stop && Math.abs(s.coco - final) >= 1) settle = s.t - stop
-    vals.push(`${file.profile} Rückstand ${round(lag, 0)} px, Nachlauf ${settle} ms`)
+    let acc = 0
+    let prevT = stop
+    for (const s of value) {
+      if (s.t <= stop) continue
+      acc += Math.min(s.t - prevT, 50)
+      prevT = s.t
+      if (Math.abs(s.coco - final) >= 1) settle = acc
+    }
+    const synth = value.at(-1)?.synth ?? 0
+    vals.push(
+      `${file.profile} Rückstand ${round(lag, 0)} px, Nachlauf ${settle} ms${synth ? `, ${synth} Scroll-Ereignisse nachgereicht` : ''}`,
+    )
     if (lag > 300) bad.push(`${file.profile}: Rückstand ${round(lag, 0)} px`)
     if (settle > 400) bad.push(`${file.profile}: Nachlauf ${settle} ms`)
   }

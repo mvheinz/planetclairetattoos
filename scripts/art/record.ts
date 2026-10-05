@@ -126,7 +126,9 @@ function main(): void {
     const plain =
       plainSpecs.length > 0 ? playwright(plainSpecs, ['--grep-invert', '@tempo'], workers) : 0
     const shop =
-      commerceSpecs.length > 0 ? playwright(commerceSpecs, ['--grep-invert', '@tempo'], Math.min(workers, 2)) : 0
+      commerceSpecs.length > 0
+        ? playwright(commerceSpecs, ['--grep-invert', '@tempo'], Math.min(workers, 2))
+        : 0
     const images = plain || shop
     if (specs.some((f) => f.endsWith('sc-18.art.spec.ts')))
       console.log(

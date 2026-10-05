@@ -640,5 +640,36 @@ describe('P9.6 Barrierefreiheit, Kontrast, Ruhezonen', () => {
     // träge Coco: bleibt dauerhaft 400 px zurück
     const slow = [smp(0, 0, 0), smp(16, 0, 400), smp(32, 48, 450), smp(48, 100, 500)]
     expect(rt.mo07([file('SC-01', [], 'motion', { mo07: slow })]).status).toBe('FAIL')
+    // Sprung der Linienabbildung zwischen Stationen (Ziel +280 px in einem Bild, Coco folgt im selben Bild): kein Rückstand
+    const jump = [smp(0, 0, 0), smp(16, 40, 48), smp(32, 400, 400), smp(48, 450, 450)]
+    expect(rt.mo07([file('SC-01', [], 'motion', { mo07: jump })]).status).toBe('PASS')
+    // Nachlauf: Seitenstillstand nach dem Stopp zählt höchstens 50 ms je Bildabstand; langsame Glättung bleibt rot
+    const after = (gap: number, n: number) => [
+      smp(0, 0, 0),
+      smp(16, 40, 48),
+      smp(32, 48, 96, false),
+      ...Array.from({ length: n }, (_, i) => smp(32 + gap * (i + 1), 96 - 20 / (i + 1), 96, false)),
+      smp(32 + gap * (n + 1), 96, 96, false),
+    ]
+    expect(rt.mo07([file('SC-01', [], 'motion', { mo07: after(250, 3) })]).status).toBe('PASS') // 3 × 250 ms Stillstand
+    expect(rt.mo07([file('SC-01', [], 'motion', { mo07: after(40, 12) })]).status).toBe('FAIL') // 12 × 40 ms träge
+  })
+})
+
+describe('P9.7 art:check Ausgabe roter Kriterien', () => {
+  it('failureLines nennt Kriterium, Messwert, Schwelle und Einzelbefunde (Profil/Szenario)', async () => {
+    const { failureLines } = await import('../../../scripts/art/check')
+    const out = failureLines([
+      {
+        id: 'MO-07',
+        result: {
+          value: 'art-iphone15 Rückstand 405 px',
+          threshold: '≤ 300 px',
+          details: ['art-iphone15: Rückstand 405 px'],
+        },
+      },
+    ])
+    expect(out[0]).toBe('ROT MO-07: Messwert art-iphone15 Rückstand 405 px | Schwelle ≤ 300 px')
+    expect(out[1]).toContain('art-iphone15: Rückstand 405 px')
   })
 })

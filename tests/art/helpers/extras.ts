@@ -50,6 +50,7 @@ export function followSamples(
     scrolling: boolean
     sy: number
     stale: boolean
+    synth: number
   }[]
 > {
   return page.evaluate(
@@ -64,15 +65,28 @@ export function followSamples(
           scrolling: boolean
           sy: number
           stale: boolean
+          synth: number
         }[] = []
         const from = scrollY
         const dur = (Math.abs(to - from) / 3000) * 1000
         const t0 = performance.now()
+        // WebKit ohne GPU unter Last liefert Scroll-Ereignisse zu programmatischem Scrollen bis zu 1 s verspätet (iter07:
+        // Coco stand von der ersten Probe bis 995 ms, obwohl die Sonde 60 Bilder/s lief). Echte Berührung/Mausrad erzeugt sie
+        // laufend; hier wird ein ausgebliebenes Ereignis nachgereicht und gezählt (`synth` im Befund von MO-07).
+        let sawScroll = true
+        addEventListener('scroll', () => (sawScroll = true), { passive: true })
+        let synth = 0
         const step = (now: number) => {
           const k = dur > 0 ? Math.min(1, (now - t0) / dur) : 1
           // `instant`: html hat `scroll-behavior: smooth` – ein weiches scrollTo liefe selbst 0,5–1 s nach und verfälschte den Nachlauf
+          const before = scrollY
           if (k < 1) scrollTo({ top: from + (to - from) * k, behavior: 'instant' })
           else if (scrollY !== to) scrollTo({ top: to, behavior: 'instant' })
+          if (scrollY !== before && !sawScroll) {
+            synth++
+            dispatchEvent(new Event('scroll'))
+          }
+          sawScroll = false
           const l = w.__leash
           if (l) {
             // Ziel der Coco = Abbildung der Lesezeile (höchstens das Gezeichnete): dorthin muss sie folgen. Die
@@ -102,6 +116,7 @@ export function followSamples(
               scrolling: k < 1,
               sy: Math.round(scrollY),
               stale: !!document.querySelector('[data-leash-layer]')?.hasAttribute('data-stale'),
+              synth,
             })
           }
           if (now - t0 < dur + 1200) requestAnimationFrame(step)
