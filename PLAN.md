@@ -5161,7 +5161,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: `tests/int/maintenance.int.spec.ts`, `tests/e2e/maintenance.e2e.spec.ts`.
   - Ohne Jutta: vollständig machbar; die Regel steht als Annahme KA-30 in OFFENE-PUNKTE. P11-Nacharbeit: –
 
-- [ ] **P10.8 Backup I: Dump und Wiederherstellung (Spike B-06)** – `src/lib/backup/dump.ts` („pcdump v1“,
+- [x] **P10.8 Backup I: Dump und Wiederherstellung (Spike B-06)** – `src/lib/backup/dump.ts` („pcdump v1“,
   ARCHITEKTUR §10.3: `REPEATABLE READ, READ ONLY`, Tabellen aus `pg_catalog` ohne `rate_limit_hits`, COPY-Text sortiert
   nach Primärschlüssel über `pg-copy-streams`, Kopf- und Abschluss-Kommentar mit Zeilenzahl und MD5 je Tabelle,
   `setval`), Kette gzip → age (`age-encryption`) → Ziel (`--to=file:<pfad>` oder S3 per `@aws-sdk/lib-storage`),
