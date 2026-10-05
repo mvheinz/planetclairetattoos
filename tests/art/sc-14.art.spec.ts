@@ -45,6 +45,8 @@ test(
         'MI-09': { sel: '[data-thanks-coco-spot]', pad: 90, k: 2 },
         // MI-12: Planet-Pop und Sterndrehung der Stationsmarken (R2-06-03: im Bogen zu klein)
         'MI-12': { sel: '[data-mark="star"]', pad: 40, k: 8 },
+        // MI-07: Badge „2“ mit Peak scale 1,25 (R2-08-04)
+        'MI-07': { sel: '[data-behavior="cart-count"]', pad: 20, k: 5 },
       }
       const lupe = lupeOf[mi.id]
       if (lupe) {
@@ -103,7 +105,12 @@ test(
         await page.evaluate(() => document.querySelector<HTMLElement>('[data-qa-play]')?.click())
         // Uhr steht: bis zum Auslösen (zwei Frames nach dem Binden) in 16-ms-Schritten vorspulen.
         const played = stage.and(page.locator('[data-qa-played="2"]'))
-        for (let i = 0; i < 200 && (await played.count()) === 0; i++) await page.clock.runFor(16)
+        // Zwischen den Schritten echte Zeit lassen: das Einhängen der Module ist asynchron, ohne Pause verbrauchte die Schleife
+        // bis zu 3 s virtuelle Uhr und der Ablauf (MI-10: Einlauf, MI-06: Unterstreichung) war vor dem ersten Bild vorbei (R2-08-02/03).
+        for (let i = 0; i < 200 && (await played.count()) === 0; i++) {
+          await page.waitForTimeout(25)
+          await page.clock.runFor(16)
+        }
         // MI-04: Die Pseudo-Elemente der View Transition entstehen erst nach echten Render-Schritten (nicht per Playwright-
         // Uhr). In Echtzeit auf sie warten und sofort auf 0 anhalten, damit der Seek die Wanderung Bild für Bild zeigt
         // (R2-04-02: vorher fehlten die Animationen beim ersten Seek, Coco stand schon am Ziel).
@@ -154,6 +161,26 @@ test(
             zoom: lupe,
             start,
           })
+        }
+      }
+      // MI-12 (R2-08-04): Planet-„pop“ (scale 0,6 → 1, 240 ms) als eigene Lupen-Serie neben der Stern-Drehung
+      if (mi.id === 'MI-12' && !art.reduced) {
+        const box = await stage.locator('[data-mark="planet"]').first().boundingBox()
+        if (box) {
+          const vh = page.viewportSize()!.height
+          const pad = 40
+          const x = Math.max(0, box.x - pad)
+          const y = Math.max(0, box.y - pad)
+          const width = box.width + 2 * pad
+          const height = Math.min(vh - y, box.height + 2 * pad)
+          if (width > 20 && height > 20)
+            await art.sequence({
+              stepMs,
+              untilMs: mi.durationMs,
+              prefix: `${prefix}-planet-lupe`,
+              zoom: { x, y, width, height, to: Math.round(width * 8) },
+              start,
+            })
         }
       }
       if (mi.press) await page.mouse.up()
