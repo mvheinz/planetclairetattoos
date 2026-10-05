@@ -393,7 +393,7 @@ describe('leash/runtime – reduzierte Bewegung (P2.17, §9.11, §10.6)', () => 
     expect(s.drawnLen).toBe(s.geometry!.totalLength)
     expect(root.querySelectorAll('[mask], mask').length).toBe(0)
     expect(s.pose).toBe('sitzen')
-    expect(s.cocoLen).toBe(s.geometry!.stations[0]!.loopLen1)
+    expect(s.cocoLen).toBe(s.geometry!.stations[0]!.loopLen1 + 48)
     // Scrollen bewegt Coco nicht und startet keine Schleife.
     setScroll(1500)
     advance(500)

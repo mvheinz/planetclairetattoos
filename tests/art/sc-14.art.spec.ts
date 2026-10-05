@@ -44,7 +44,7 @@ test(
         'MI-03': { sel: '[data-price-tag]', pad: 28, k: 4 },
         'MI-09': { sel: '[data-thanks-coco-spot]', pad: 90, k: 2 },
         // MI-12: Planet-Pop und Sterndrehung der Stationsmarken (R2-06-03: im Bogen zu klein)
-        'MI-12': { sel: '[data-station-mark]', pad: 24, k: 5 },
+        'MI-12': { sel: '[data-mark="star"]', pad: 40, k: 8 },
       }
       const lupe = lupeOf[mi.id]
       if (lupe) {

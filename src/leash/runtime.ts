@@ -373,11 +373,11 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   }
 
   /**
-   * Ruheplatz bei reduzierter Bewegung: erste Station (`journey`/`about`, §9.11), sonst Linienanfang. Coco sitzt am
-   * Ende der Schlaufe (`loopLen1`), nicht am Beginn: am Beginn der Kopf-Schlaufe stieß sie an den Ring der Planeten-Marke (R3-06-01).
+   * Ruheplatz bei reduzierter Bewegung: erste Station (`journey`/`about`, §9.11), sonst Linienanfang. Coco sitzt 48 px
+   * hinter dem Ende der Schlaufe (`loopLen1`), nicht am Beginn und nicht am Ring der Planeten-Marke (R3-06-01, R3-07-01).
    */
   function restLen(): number {
-    return geometry?.stations[0]?.loopLen1 ?? 0
+    return (geometry?.stations[0]?.loopLen1 ?? -48) + 48
   }
 
   /** Ziel-Pose (§10.3, §10.6): reduziert → Ruhe-Pose; in Bewegung `rennen`; an einer Station deren Pose. */

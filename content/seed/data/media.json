@@ -264,8 +264,8 @@
       "key": "ph:teller-01",
       "wash": "clay",
       "alt": {
-        "de": "Platzhalter-Zeichnung: Teller mit drei Hasen im Kreis",
-        "en": "Placeholder drawing: plate with three bunnies in a circle"
+        "de": "Platzhalter-Zeichnung: Teller mit zwei Hasen im Kreis",
+        "en": "Placeholder drawing: plate with two bunnies in a circle"
       }
     },
     {
@@ -288,8 +288,8 @@
       "key": "ph:shirt-01",
       "wash": "sky",
       "alt": {
-        "de": "Platzhalter-Zeichnung: T-Shirt mit zwei marschierenden Hasen",
-        "en": "Placeholder drawing: T-shirt with two marching bunnies"
+        "de": "Platzhalter-Zeichnung: T-Shirt mit einem marschierenden Hasen",
+        "en": "Placeholder drawing: T-shirt with one marching bunny"
       }
     },
     {
@@ -360,7 +360,7 @@
       "key": "ph:zeichnung-03",
       "wash": null,
       "alt": {
-        "de": "Platzhalter-Zeichnung: Skizze: drei Hasen im Halbkreis"
+        "de": "Platzhalter-Zeichnung: Skizze: ein Hase"
       }
     },
     {
@@ -399,8 +399,8 @@
       "key": "ph:flash-902",
       "wash": null,
       "alt": {
-        "de": "Platzhalter-Zeichnung: Flash-Motiv Hasen-Trio",
-        "en": "Placeholder drawing: flash design bunny trio"
+        "de": "Platzhalter-Zeichnung: Flash-Motiv Hasen-Duo",
+        "en": "Placeholder drawing: flash design bunny duo"
       }
     },
     {
@@ -471,8 +471,8 @@
       "key": "ph:tattoo-01",
       "wash": "clay",
       "alt": {
-        "de": "Platzhalter-Zeichnung: frisches Tattoo Hasen-Trio am Knöchel",
-        "en": "Placeholder drawing: fresh bunny trio tattoo on an ankle"
+        "de": "Platzhalter-Zeichnung: frisches Tattoo Hasen-Duo am Knöchel",
+        "en": "Placeholder drawing: fresh bunny duo tattoo on an ankle"
       }
     },
     {
