@@ -110,7 +110,7 @@ describe('P9.7 art-qa.yml – Ablauf (KUNST-QA §9)', () => {
     expect(wf.permissions).toEqual({ contents: 'read' })
     expect(job.permissions).toEqual({ contents: 'read', actions: 'write' })
     expect(wf.env.PAYMENTS_DRIVER).toBe('mock')
-    expect(job['timeout-minutes']).toBeLessThanOrEqual(45)
+    expect(job['timeout-minutes']).toBeLessThanOrEqual(60)
   })
 
   it('Chromium und WebKit, nie PW_SKIP_WEBKIT', () => {

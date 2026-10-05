@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-05 – P9 Kunst-QA in CI: Zeitlimit 60 Minuten
+
+Der zweite Kunst-Lauf in CI brauchte allein für die Aufnahmen 41 Minuten (mehr Szenarien als beim ersten Lauf) und lief ins 45-Minuten-Limit. Limit auf 60 Minuten angehoben (öffentliches Repo); Lauf startet erneut.
+
 ## 2026-10-05 – P9 Kunst-QA: zweiter Lauf in CI
 
 Stand nach den Prüf-Durchgängen 2–5 (PF-02/PF-04 behoben, Coco größer an der Linienspitze, Stationen und Platzhalter freier gezeichnet, Papierrand um Produktfotos). Der zweite `[ci:art]`-Lauf misst Tempo und Bewegungen auf einer ruhigen Maschine, weil der lokale Rechner stark schwankt.

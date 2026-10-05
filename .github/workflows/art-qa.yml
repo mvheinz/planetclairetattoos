@@ -44,7 +44,7 @@ jobs:
   art-qa:
     name: art-qa
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     # Schreibrecht nur für das Löschen älterer Bündel (actions: write, KUNST-QA §8).
     permissions:
       contents: read
