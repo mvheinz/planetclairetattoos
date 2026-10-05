@@ -352,17 +352,18 @@ export function mo09(files: readonly ProbeFile[]): CheckResult {
 
 export function mo10(files: readonly ProbeFile[]): CheckResult {
   const th = 'Start ≥ LCP + 300 ms; Dauer 900 ms ± 90'
-  const runs = extra<{ lcp: number | null; start: number | null; end: number | null }>(
-    files,
-    'mo10',
-    { sc: 'SC-01' },
-  )
+  const runs = extra<{
+    lcp: number | null
+    start: number | null
+    end: number | null
+    durFit?: number | null
+  }>(files, 'mo10', { sc: 'SC-01' })
   if (!runs.length) return noData('MO-10', th, 'keine Intro-Messung (SC-01 extra.mo10)')
   const bad: string[] = []
   const vals: string[] = []
   for (const { file, value } of runs) {
     const { lcp, start, end } = value
-    const dur = start !== null && end !== null ? end - start : null
+    const dur = value.durFit ?? (start !== null && end !== null ? end - start : null) // Kurvenanpassung, R2-05
     vals.push(
       `${file.profile} LCP ${lcp ?? '?'} ms, Start ${start ?? '?'} ms, Dauer ${dur ?? '?'} ms`,
     )

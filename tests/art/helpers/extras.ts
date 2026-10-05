@@ -1,3 +1,4 @@
+import { easeInkOut } from '../../../src/leash/easing'
 import { cpus, loadavg } from 'node:os'
 
 import type { Page } from '@playwright/test'
@@ -107,6 +108,8 @@ export async function introTiming(art: ArtSession): Promise<{
   lcp: number | null
   start: number | null
   end: number | null
+  /** Dauer aus der Kurvenanpassung (R2-05: WebKit liefert in Software nur ~15 Bilder/s, `start` kommt dort spät). */
+  durFit: number | null
   samples: number
 }> {
   const ctx = await art.extraContext({})
@@ -114,9 +117,16 @@ export async function introTiming(art: ArtSession): Promise<{
     const page = await ctx.newPage()
     await page.addInitScript(() => {
       const w = window as Window & {
-        __artIntro?: { lcp: number | null; start: number | null; end: number | null; n: number }
+        __artIntro?: {
+          lcp: number | null
+          start: number | null
+          end: number | null
+          n: number
+          series: [number, number][]
+        }
       }
       const rec = {
+        series: [] as [number, number][],
         lcp: null as number | null,
         start: null as number | null,
         end: null as number | null,
@@ -136,6 +146,7 @@ export async function introTiming(art: ArtSession): Promise<{
         const d = (window as LeashWin).__leash?.drawnLen() ?? 0
         const now = performance.now()
         rec.n++
+        if (rec.start !== null && rec.series.length < 400) rec.series.push([now, d])
         if (d > 0 && rec.start === null) rec.start = Math.round(now)
         if (d !== last) {
           last = d
@@ -162,11 +173,42 @@ export async function introTiming(art: ArtSession): Promise<{
       () =>
         (
           window as Window & {
-            __artIntro?: { lcp: number | null; start: number | null; end: number | null; n: number }
+            __artIntro?: {
+              lcp: number | null
+              start: number | null
+              end: number | null
+              n: number
+              series: [number, number][]
+            }
           }
         ).__artIntro ?? null,
     )
+    // Dauer der Intro-Kurve: Zeit zwischen zwei Messpunkten geteilt durch den Abstand ihrer normierten Zeit
+    // (Umkehrung von `easeInkOut`) – unabhängig davon, wann das erste Bild kam.
+    let durFit: number | null = null
+    const ser = r?.series ?? []
+    const total = ser.length ? Math.max(...ser.map((x) => x[1])) : 0
+    if (total > 0) {
+      const inv = (p: number) => {
+        let lo = 0
+        let hi = 1
+        for (let i = 0; i < 40; i++) {
+          const m = (lo + hi) / 2
+          if (easeInkOut(m) < p) lo = m
+          else hi = m
+        }
+        return (lo + hi) / 2
+      }
+      const pts = ser.filter((x) => x[1] / total > 0.05 && x[1] / total < 0.92)
+      if (pts.length >= 2) {
+        const a = pts[0]!
+        const b = pts[pts.length - 1]!
+        const dt = inv(b[1] / total) - inv(a[1] / total)
+        if (dt > 0.05) durFit = Math.round((b[0] - a[0]) / dt)
+      }
+    }
     return {
+      durFit,
       lcp: r?.lcp ?? null,
       start: r?.start ?? null,
       end: r?.end ?? null,
