@@ -94,6 +94,15 @@ async function leashLoupes(art: ArtSession, prefix: string): Promise<void> {
         { timeout: 60_000 },
       )
       .catch(() => undefined)
+  // erst die ganze Linie (wie im Einzeltest, der alle Punkte zeigt), dann je Stelle prüfen: `drawnLen` ist die Zielgröße, die Striche
+  // der weiter unten liegenden Schlaufen stehen erst kurz danach (R1-07-03: 6 von 8 Lupen ohne Punkt)
+  const total = await page.evaluate(
+    () =>
+      (window as LoupeWin & { __leash?: { geometry: { totalLength: number } | null } }).__leash
+        ?.geometry?.totalLength ?? 0,
+  )
+  await drawnTo(total - 1)
+  await page.waitForTimeout(1500)
   const vh = page.viewportSize()!.height
   const vw = page.viewportSize()!.width
   for (const spot of spots) {
