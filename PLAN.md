@@ -5288,7 +5288,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
     Suche aus `tests/e2e/admin/texts-pages.e2e.spec.ts` (P8.19a) ohne Ausnahme für „kommt in P10“.
   - Ohne Jutta: bleibt absichtlich rot. P11-Nacharbeit: wird in P11.13 grün.
 
-- [ ] **P10.15 Betriebshandbuch `docs/RUNBOOK.md`** – Kapitel: Überblick/Topologie (ARCHITEKTUR §12.1); Konfiguration
+- [x] **P10.15 Betriebshandbuch `docs/RUNBOOK.md`** – Kapitel: Überblick/Topologie (ARCHITEKTUR §12.1); Konfiguration
   – alle Variablen aus §5.2 je Umgebung **ohne Werte**; Deploy, Rollback, rückwärtsverträgliche Migrationen (§6.7
   Nr. 5, §6.9); Schlüsseltausch je Geheimnis (§8.9); Verfahren „Sicherheitsupdate“ (§1.3); Backups, Wiederherstellung
   Schritt für Schritt (§10.5), manuelle Übung halbjährlich (§10.6); Wartungsmodus; Alarme M-01…M-12 mit Handlungsanweisung
@@ -5303,7 +5303,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: `tests/unit/docs/runbook.unit.spec.ts` (Variablen-Vollständigkeit, M-01…M-12, Pflichtüberschriften).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: Protokolleinträge (DNS-Ist-Stand, Kosten) in P11.
 
-- [ ] **P10.16 Go-live-Leitfaden `docs/GO-LIVE.md` (DNS-Umstellung und Start-Checkliste)** – Schritt-für-Schritt-Ablauf
+- [x] **P10.16 Go-live-Leitfaden `docs/GO-LIVE.md` (DNS-Umstellung und Start-Checkliste)** – Schritt-für-Schritt-Ablauf
   für die P11-Session mit Jutta in der Reihenfolge von P11.1–P11.17, verknüpft mit AUFGABEN A23–A41 und ANLEITUNGEN
   (S3, S4, P2, D0–D6, N1, I3, T3, Z1): wer tippt was (Jutta gibt alle Passwörter, Schlüssel, IBAN, Karten selbst ein;
   Claude zeigt nur wohin), Konten- und Ressourcenliste (ARCHITEKTUR §12.2), Variablen je Vercel-Umgebung (§4.1, §5.2),

@@ -2,6 +2,16 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-05 – P10.16
+
+- docs/GO-LIVE.md: Spielregeln (wer tippt was), Konten-/Ressourcenliste (§12.2), Variablen je Vercel-Umgebung, Datenbank-Ablauf (Migration, Beispielbestand in `main`, Zweige seed-root/staging/preview, `db:mark-production`), DNS-Umstellung mit Ist-/Soll-Tabelle wörtlich aus ARCHITEKTUR §12.4, `dig`-Befehle, TTL T−1/T+7, Rückweg, AK-A-12-01…03, Stand der Spikes (B-01 Soll erfüllt, B-07 im Staging bestätigen), je ein Abschnitt P11.1–P11.17 mit Prüfkriterium und Verknüpfung zu AUFGABEN A23–A41/ANLEITUNGEN, Testkauf-Drehbuch, KUNST-QA §10 Nr. 4, EK-08-Stoppuhr, 7-Tage-Überwachung.
+- Tests: tests/unit/docs/golive (5: Abschnitte P11.1–P11.17, DNS-Tabellen = ARCHITEKTUR, Verknüpfungen, B-01, keine Geheimnisse/tiefen URLs)
+
+## 2026-10-05 – P10.15
+
+- docs/RUNBOOK.md (14 Kapitel): Topologie, Konfiguration (alle 68 Variablen aus der Registry mit „Pflicht in“/Geheim, ohne Werte), Deploy/Rollback/rückwärtsverträgliche Migrationen, Schlüsseltausch je Geheimnis (§8.9), Sicherheitsupdate (Session starten, 48 h), Backups und Wiederherstellung Schritt für Schritt (Flags wie in den Skripten), halbjährliche Übung, Wartungsmodus, Alarme M-01…M-12 mit Handlungsanweisung, Datenpanne (R-157: erkennen, bewerten, 72 h, Online-Formular der Berliner Beauftragten, Betroffene, DE-Vorlagen, Kontaktliste), Kosten-Routine, DNS-Verweis auf GO-LIVE, Docker-Umzug, Vorlage Vorfallprotokoll, Betriebsprotokoll.
+- Tests: tests/unit/docs/runbook (7: Überschriften, Variablen-Vollständigkeit, M-01…M-12, Geheimnisse, Datenpanne, pnpm-Befehle/Flags gegen package.json und Skripte, keine Geheimniswerte)
+
 ## 2026-10-05 – P10.14
 
 - src/lib/golive/{checks,collect}.ts: eine Prüffunktion (15 Punkte R-210 Nr. 1–15 inkl. KONZEPT §7.16/DATENMODELL §13.7) für `pnpm check:golive [--json]`, Ansicht Einstellungen → System → „Startklar“ (grün/rot mit Erklärung, AVV-Liste aus services.generated.ts), Hinweis „Startklar-Prüfung nicht grün“ mit Link unter „Heute“ und die Go-live-Sperre „Shop öffnen“ in Produktion (Settings.ts listet alle offenen Punkte; Knopf in den Shop-Einstellungen zeigt dieselbe Liste). Platzhalter „kommt in P10“ entfernt (`systemStartklarLater`/`todayStartklarLater`, `STARTKLAR_PLANNED`); `countUnapprovedOwnerPhotos` und Galerie ohne Einwilligung fließen in Punkt 15 ein; `docs/recht/VVT.md` per outputFileTracingIncludes im Build.
