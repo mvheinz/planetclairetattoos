@@ -377,7 +377,8 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
    * hinter dem Ende der Schlaufe (`loopLen1`), nicht am Beginn und nicht am Ring der Planeten-Marke (R3-06-01, R3-07-01).
    */
   function restLen(): number {
-    return (geometry?.stations[0]?.loopLen1 ?? -48) + 48
+    const s = geometry?.stations[0]
+    return s ? s.loopLen1 + 48 : 0
   }
 
   /** Ziel-Pose (§10.3, §10.6): reduziert → Ruhe-Pose; in Bewegung `rennen`; an einer Station deren Pose. */
