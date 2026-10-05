@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { mkdir, open, unlink } from 'node:fs/promises'
+import { mkdir, open, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
 import { PutObjectCommand } from '@aws-sdk/client-s3'
@@ -14,6 +14,9 @@ import type { UploadArea } from './types'
 // Bedingtes Schreiben (R-122, ARCHITEKTUR §3.3, PLAN P5.26): Beleg-PDFs werden nur geschrieben, wenn das Objekt noch
 // nicht existiert – `local` mit `fs.open(…, 'wx')` (exklusiv anlegen), `s3` mit `IfNoneMatch: '*'` (bedingtes PUT;
 // Antwort 412 bzw. 409, wenn es das Objekt schon gibt). Ein zweiter Schreibversuch wirft `ObjectExistsError`.
+
+/** Nebendatei mit den Metadaten bei `STORAGE_DRIVER=local`. */
+export const META_SUFFIX = '.meta.json'
 
 export class ObjectExistsError extends Error {
   constructor(readonly key: string) {
@@ -29,6 +32,8 @@ export interface PutIfAbsentInput {
   filename: string
   bytes: Buffer | Uint8Array
   contentType: string
+  /** Objekt-Metadaten (`x-amz-meta-*`; lokal Nebendatei `<datei>.meta.json`), z. B. `invoice-number` (ARCHITEKTUR §10.4). */
+  metadata?: Record<string, string>
 }
 
 function checkName(filename: string): string {
@@ -69,6 +74,7 @@ export async function putIfAbsent(input: PutIfAbsentInput, env: Env = getEnv()):
       throw e
     }
     await handle.close()
+    if (input.metadata) await writeFile(`${location}${META_SUFFIX}`, JSON.stringify(input.metadata))
     return location
   }
   try {
@@ -79,6 +85,7 @@ export async function putIfAbsent(input: PutIfAbsentInput, env: Env = getEnv()):
         Body: input.bytes,
         ContentType: input.contentType,
         IfNoneMatch: '*',
+        ...(input.metadata ? { Metadata: input.metadata } : {}),
       }),
     )
   } catch (e) {
