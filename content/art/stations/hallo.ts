@@ -7,8 +7,8 @@ import { dot, merge } from '../placeholders/_parts'
 const ink: Ink = merge({
   strokes: [
     // Ohren: hoch, offen an der Wurzel, das linke etwas schief
-    'M124 130C108 106 112 80 132 72C150 74 160 92 164 108',
-    'M262 108C270 88 286 76 302 82C316 94 312 116 300 134',
+    'M122 134C104 108 102 72 126 52C148 62 164 86 170 112',
+    'M256 112C266 84 286 60 308 52C324 76 320 112 302 138',
     // Kopf: Scheitel mit Lücke, Wangen, Kinn (nichts ist rund nachgezogen)
     { d: 'M112 176C116 130 156 92 204 92', double: true },
     'M226 94C272 98 304 132 308 178',

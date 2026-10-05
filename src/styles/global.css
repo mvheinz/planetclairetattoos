@@ -444,6 +444,11 @@ html[data-motion='reduced'] {
   :focus-visible {
     outline-color: Highlight;
   }
+
+  /* Planet-Marke: Washes `fill: none` (DESIGN §3.3) – der Körper trägt sonst seine Papierfüllung (R3-08-03). */
+  [data-mark='planet'] path {
+    fill: none !important;
+  }
 }
 
 /* ---------- Druck (§3.3) ---------- */

@@ -4,12 +4,12 @@ import type { Motif } from '../../../scripts/art/lib/handline'
 import { bunnyHop, merge, place, planet } from './_parts'
 
 // Lage der Hasen auf dem Rand (Winkel in Grad); sie hoppeln einander nach, leicht zur Laufrichtung geneigt
-const rim = [-100, 140].map((a, i) => {
+const rim = [-100].map((a, i) => {
   const t = (a * Math.PI) / 180
   return place(bunnyHop(), {
     x: 200 + 128 * Math.cos(t),
     y: 254 + 100 * Math.sin(t),
-    s: [1.12, 1.04][i],
+    s: [1.2][i],
     r: 22 * Math.cos(t),
     flip: Math.sin(t) < 0,
   })

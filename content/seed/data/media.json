@@ -264,8 +264,8 @@
       "key": "ph:teller-01",
       "wash": "clay",
       "alt": {
-        "de": "Platzhalter-Zeichnung: Teller mit zwei Hasen im Kreis",
-        "en": "Placeholder drawing: plate with two bunnies in a circle"
+        "de": "Platzhalter-Zeichnung: Teller mit einem Hasen am Rand",
+        "en": "Placeholder drawing: plate with one bunny on the rim"
       }
     },
     {
@@ -318,7 +318,7 @@
     },
     {
       "key": "ph:kleid-02",
-      "wash": "sky",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: Kleid mit Planeten und Sternen",
         "en": "Placeholder drawing: dress with planets and stars"
@@ -365,7 +365,7 @@
     },
     {
       "key": "ph:anhaenger-01",
-      "wash": "pink",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: Anhänger Coco mit Planetenring",
         "en": "Placeholder drawing: pendant Coco with a planet ring"
@@ -471,8 +471,8 @@
       "key": "ph:tattoo-01",
       "wash": "clay",
       "alt": {
-        "de": "Platzhalter-Zeichnung: frisches Tattoo Hasen-Duo am Knöchel",
-        "en": "Placeholder drawing: fresh bunny duo tattoo on an ankle"
+        "de": "Platzhalter-Zeichnung: frisches Tattoo mit Hase am Knöchel",
+        "en": "Placeholder drawing: fresh bunny tattoo on an ankle"
       }
     },
     {
