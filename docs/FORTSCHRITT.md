@@ -2,6 +2,31 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-05 – P10.3
+
+- Neue Suiten tests/e2e/a11y/audit.e2e.spec.ts (je Registry-Route DE/EN: 200 % Schrift bei 390 px ohne waagerechtes Scrollen, erzwungene Farben, prefers-reduced-motion ohne laufende Animation/Maske, Alt-Texte aller Bilder, Produkt-Alt DE/EN verschieden; Verwaltung: Login und jede Hauptansicht bei 390x844 mit axe) und tests/e2e/a11y/keyboard.e2e.spec.ts (Kauf Produktseite → Korb → Kasse → Danke und Widerruf vom Fußbereich, DE/EN, nur Tab/Enter/Pfeiltasten, :focus-visible an jedem Halt)
+- Bestehende Suiten decken axe je Route und Zustand (leer, Fehler, reserviert, verkauft, Menü), Tastatur-Durchläufe (Menü, Galerie/Zoom, Auftragsformular, Verwaltung), AK-DS-07/08/09 und V-26 ab; keine neuen Befunde, nichts zu beheben (keine Konformitätsaussage)
+- Stand ohne die Kunst-Phase P9: nach Zusammenführung wiederholen (OFFENE-PUNKTE)
+- Tests: E2E desktop 215 Tests grün (a11y, keyboard, forms, frontend, security-headers u. a.)
+
+## 2026-10-05 – P10.6
+
+- Rate-Limits: tests/int/security/rate-limits.int.spec.ts liest die Grenzen aus ARCHITEKTUR §8.5 und prüft jeden Bucket tabellengetrieben an der echten Stelle (cart_add, checkout_start, checkout_start_day, checkout_submit, commission_submit/_day, commission_upload, commission_form_uploads, withdrawal_submit, admin_login, forgot_password, token_pages über 5 Stellen, product_status, client_errors): N-ter Aufruf erlaubt, N+1 abgelehnt mit Retry-After (429) bzw. stilles Verwerfen (204), andere IP unberührt
+- i18n-Texte der 429-Antworten DE/EN geprüft, nur Hashes gespeichert (keine Klar-IP, kein Klar-Token), Zähler nach 24 h per purgeRateLimits (Wartungs-Job) gelöscht
+- Honeypot und Zeitfalle: Schein-Erfolg ohne Datensatz und ohne Zähler (Auftragsanfrage, Widerruf)
+- R-162: tests/e2e/privacy/forms.e2e.spec.ts crawlt alle Registry-Routen DE/EN plus 404: Texteingaben im Formular nur auf Kasse, Auftragsarbeiten, Widerruf (einzige Ausnahme: Stücknummern-Suche der 404-Seite, OFFENE-PUNKTE)
+- R-137/T-20: Logger-Schwärzung und URL-Prüfungen der bestehenden Tests bleiben maßgeblich (logger.unit, redact.unit, E2E Kasse/Anfrage/Widerruf); Upload-Grenzen 413/415 in commission/upload.int
+- Tests: 31 neue Int-Tests, 2 E2E, pnpm check grün
+
+## 2026-10-05 – P10.5
+
+- Audit über alle Registry-Routen DE/EN und alle Kontexte (public, dynamic, checkout, admin, api): tests/unit/security/audit.unit.spec.ts (Kontext je Route nach ARCHITEKTUR §8.1, Umgebung x Kontext, HSTS nur production/staging, noindex außer Produktion, keine unsafe-inline in Nonce-Kontexten, ignoreCves nur CVE-IDs mit OFFENE-PUNKTE-Zeile), tests/e2e/security-headers.e2e.spec.ts erweitert (noindex/kein HSTS auf allen Routen, alle API-Endpunkte im Kontext api auch bei Fehlern, Admin-Login/Manifest/Service Worker mit Nonce, R-136 privat ohne Anmeldung 401/403, /admin und GraphQL 404, Verwaltungspfad in keinem öffentlichen HTML, Selbsttest des CSP-Wächters)
+- CSP-Wächter: Auto-Fixture cspViolations in tests/e2e/fixtures.ts lässt jeden E2E-Test bei securitypolicyviolation oder CSP-Konsolenfehler scheitern; 22 Spezifikationen laufen jetzt über die Fixtures
+- Spike B-03 erneut bewertet: Rückfall bleibt (public: script-src 'self' 'unsafe-inline', keine Fremd-Hosts), B-01 Soll (Nonce) erfüllt; in ARCHITEKTUR Anhang B und ADR 0002 eingetragen
+- Abhängigkeiten: pnpm audit --prod ohne high/critical: nodemailer 10.0.15 und undici 7.30.0 per Override (gepatcht), braces nur als ignoreCves CVE-2026-93687 (kein Fix vorhanden), alle mit OFFENE-PUNKTE-Zeile; pnpm check:external --built grün (560 Dateien, Verwaltungspfad nicht enthalten)
+- gitleaks läuft nur im CI (lokal nicht installierbar), siehe OFFENE-PUNKTE
+- Tests: pnpm check grün, pnpm test:int 166 Dateien grün, E2E security-headers (desktop) grün
+
 ## 2026-10-05 – P10.19
 
 - RECHT §7 Teil A vollständig abgehakt (05.10.2026): R-049 (amtliche Grafik offline nicht ladbar, Platzhalter in OFFENE-PUNKTE), R-095 (Token withdrawalUrl und phone), R-156 (VVT V1–V19 vollständig, zugleich R-210 Nr. 14), R-157 (RUNBOOK §9 und Handbuch Kapitel 16), R-161, R-190, V-18/V-28/V-29 erneut gesichtet (nur EN-Fachbegriff legal guarantee), EK-09 erneut (Paritäts- und lorem-Tests grün)

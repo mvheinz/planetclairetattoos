@@ -145,7 +145,7 @@ test.describe('R-191 Kauf und Widerruf nur mit der Tastatur @a11y', () => {
       await typeInto(page, page.locator('[name="email"]'), email)
       // Honeypot ist nie per Tab erreichbar
       await expect(page.locator('[name="website"]')).not.toBeFocused()
-      // Schritt 1 und Schritt 2 teilen sich den Knopf `intent=next` („Weiter“ bzw. „Widerruf bestätigen“)
+      // Schritt 1: „Weiter“ (`intent=next`), Schritt 2: „Widerruf bestätigen“ (`intent=confirm`)
       const forward = page.locator('button[name="intent"][value="next"]')
       await tabTo(page, forward)
       expect(await page.evaluate(() => (document.activeElement as HTMLInputElement).name)).toBe(
@@ -153,7 +153,7 @@ test.describe('R-191 Kauf und Widerruf nur mit der Tastatur @a11y', () => {
       )
       await page.keyboard.press('Enter')
       await expect(page.locator('[data-withdraw-summary]')).toBeVisible()
-      await tabTo(page, forward)
+      await tabTo(page, page.locator('button[name="intent"][value="confirm"]'))
       await page.keyboard.press('Enter')
       await expect(page.locator('[data-withdraw-reference]')).toBeVisible()
     })

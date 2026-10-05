@@ -201,7 +201,7 @@ Lücken in der Nummerierung sind Reserve.
 | R-181 | `SEED_PREVIEW_MODE` nie in Produktion | P8 | unit, int | nein | `tests/unit/env/seed-preview.unit.spec.ts`, `tests/unit/env/assert-production.unit.spec.ts`, `tests/int/media/owner-approved.int.spec.ts`, `tests/int/legal/gallery-consent.int.spec.ts` |
 | R-182 | Vorschau-Datei als interne Datei | P10 | unit | nein | – |
 | R-190 | BFSG-Ausnahme dokumentiert, keine Konformitätsbehauptung | P10 | manuell | nein | – |
-| R-191 | Freiwillige Barrierearmut (Ziel WCAG 2.2 AA) | P2, P10 | e2e | nein | `tests/e2e/a11y.e2e.spec.ts`, `tests/e2e/keyboard.e2e.spec.ts` |
+| R-191 | Freiwillige Barrierearmut (Ziel WCAG 2.2 AA) | P2, P10 | e2e | nein | `tests/e2e/a11y.e2e.spec.ts`, `tests/e2e/keyboard.e2e.spec.ts`, `tests/e2e/a11y/keyboard.e2e.spec.ts`, `tests/e2e/a11y/audit.e2e.spec.ts` |
 | R-200 | LUCID-Registrierung und Systembeteiligung | P10, P11 | unit, manuell | ja | – |
 | R-201 | Verpackungsmengen erfassen (je Sendung, Jahres-Export) | P5 | int | nein | `tests/int/legal/packaging-report.int.spec.ts`, `tests/unit/settings/rules.unit.spec.ts`, `tests/int/globals/settings.int.spec.ts` |
 | R-202 | EU-Länder nur mit Pflicht-Bestätigung freischaltbar | P5 | int | nein | `tests/int/legal/eu-activation.int.spec.ts`, `tests/unit/settings/rules.unit.spec.ts`, `tests/int/globals/settings.int.spec.ts` |

@@ -5097,7 +5097,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
     `tests/e2e/metrics/admin-taps.e2e.spec.ts`.
   - Ohne Jutta: automatisch messbar. P11-Nacharbeit: Stoppuhr-Test „Neues Stück ≤ 3 min“ mit Jutta (EK-08, P11.9).
 
-- [ ] **P10.3 Barrierefreiheits-Audit** – T-11 über jede Registry-Route DE/EN und die Zustände leer, Fehler,
+- [x] **P10.3 Barrierefreiheits-Audit** – T-11 über jede Registry-Route DE/EN und die Zustände leer, Fehler,
   reserviert, verkauft sowie jede Admin-Handy-Ansicht; Tastatur-Durchläufe (Menü, Galerie/Zoom, Warenkorb, Kasse,
   Widerruf, Auftragsformular, Verwaltung); sichtbarer Fokus; 200 % Schriftgröße bei 390 px ohne horizontales Scrollen;
   erzwungene Farben; `prefers-reduced-motion` auf allen Routen (AK-DS-14); Alt-Texte DE/EN aller öffentlichen Bilder;
@@ -5121,7 +5121,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: `pnpm test:perf`, `pnpm check:bundle`, `pnpm test:e2e --grep @perf --project=pixel-7`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P10.5 Sicherheits-Header und CSP-Audit** – T-16/AK-A-8-01 über alle Registry-Routen und die Kontexte
+- [x] **P10.5 Sicherheits-Header und CSP-Audit** – T-16/AK-A-8-01 über alle Registry-Routen und die Kontexte
   `public`, `dynamic`, `checkout`, `admin`, `api` (ARCHITEKTUR §8.1); CSP-Hosts ⊆ DIENSTE-YAML je Kontext (R-131);
   Spike B-03 (`script-src` ohne `'unsafe-inline'`) entscheiden und in ARCHITEKTUR Anhang B + ADR eintragen; Kontext
   `admin` mit Nonce, Rückfall `'unsafe-inline'` nur mit `'self'`-Hosts und nur per ADR (Spike B-01);
@@ -5137,7 +5137,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: Erweiterung `tests/unit/security/*.unit.spec.ts` und `tests/e2e/security-headers.e2e.spec.ts`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P10.6 Rate-Limits, Spamschutz und Datensparsamkeit** – Jeder Bucket aus ARCHITEKTUR §8.5 mit Grenzwert-Test
+- [x] **P10.6 Rate-Limits, Spamschutz und Datensparsamkeit** – Jeder Bucket aus ARCHITEKTUR §8.5 mit Grenzwert-Test
   (N-ter Aufruf erlaubt, N+1 → 429 mit `Retry-After` und i18n-Text am Formular); Löschung der Zähler nach 24 h durch
   den Wartungs-Job (R-134, L-13a); Honeypot und Zeitfalle; R-137/T-20 (keine Personendaten in URLs und Logs,
   Logger-Schwärzung); R-162 (Crawl: `<form>` mit Text-/E-Mail-Eingaben nur auf Kasse, Widerruf, Auftragsarbeiten);
