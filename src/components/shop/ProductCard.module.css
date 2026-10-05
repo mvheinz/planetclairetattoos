@@ -31,7 +31,7 @@
 }
 
 /* Marken-Handlinie um das Passepartout: unregelmäßige Ecken und Randstärken wie Juttas Filzstift. Bewusst ein Rahmen aus
-   `border` statt einer Maske/SVG: Chrome zählt Masken- und Hintergrundbilder als LCP-Kandidaten (R02-LCP 2,76 s statt 1,66 s). */
+   `border`, keine Maske und kein SVG: Chrome zählt Masken- und Hintergrundbilder als LCP-Kandidaten (R02-LCP 2,76 s gegen 1,66 s). */
 .photo::after {
   content: '';
   position: absolute;
@@ -45,7 +45,7 @@
   transform: rotate(0.3deg);
 }
 
-/* Zweiter, dünnerer Zug leicht versetzt und gedreht: die Linie wirkt nachgezogen statt als Rechteck (R1-05-01). */
+/* Zweiter, dünnerer Zug leicht versetzt und gedreht: die Linie wirkt nachgezogen und nicht wie ein Rechteck (R1-05-01). */
 .photo::before {
   content: '';
   position: absolute;
