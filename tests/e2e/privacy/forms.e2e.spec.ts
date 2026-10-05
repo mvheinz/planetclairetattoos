@@ -7,28 +7,40 @@ import { expect, test } from '../fixtures'
 // Passwort-Eingabe oder Textfeld gibt es nur auf Kasse (R07), Auftragsarbeiten (R10) und Widerruf (R26).
 
 const ALLOWED = new Set(['R07', 'R10', 'R26'])
+/**
+ * Einziges erlaubtes Eingabefeld außerhalb der drei Seiten: die Stücknummern-Suche der 404-Seite (`<form method="get">`,
+ * Feld `nummer`, Ziel `/nr/<Nummer>`, R31). Sie erhebt keine Personendaten – eine Zahl, die schon der Katalog kennt.
+ */
+const NON_PERSONAL_FIELDS = ['nummer']
 const TEXT_TYPES = ['text', 'email', 'tel', 'url', 'search', 'password', 'number', 'date']
 
 /** Alle Formulare einer Seite mit Texteingaben: Beschreibung je Formular. */
 async function textForms(page: import('@playwright/test').Page): Promise<string[]> {
-  return page.evaluate((types) => {
-    const out: string[] = []
-    for (const form of Array.from(document.querySelectorAll('form'))) {
-      const fields = Array.from(form.querySelectorAll('input, textarea'))
-      const text = fields.filter((el) => {
-        if (el.tagName === 'TEXTAREA') return true
-        const t = (el.getAttribute('type') ?? 'text').toLowerCase()
-        return types.includes(t) && !el.hasAttribute('hidden') && !el.closest('[hidden]')
-      })
-      // Honeypot-Felder sind für Menschen unsichtbar (R-134) – sie sammeln nichts.
-      const real = text.filter((el) => !/honey|website|hp_/i.test(el.getAttribute('name') ?? ''))
-      if (real.length)
-        out.push(
-          `${form.getAttribute('method') ?? 'post'}: ${real.map((e) => e.getAttribute('name') ?? e.tagName).join(',')}`,
+  return page.evaluate(
+    ({ types, allowed }) => {
+      const out: string[] = []
+      for (const form of Array.from(document.querySelectorAll('form'))) {
+        const fields = Array.from(form.querySelectorAll('input, textarea'))
+        const text = fields.filter((el) => {
+          if (el.tagName === 'TEXTAREA') return true
+          const t = (el.getAttribute('type') ?? 'text').toLowerCase()
+          return types.includes(t) && !el.hasAttribute('hidden') && !el.closest('[hidden]')
+        })
+        // Honeypot-Felder sind für Menschen unsichtbar (R-134) – sie sammeln nichts.
+        const real = text.filter(
+          (el) =>
+            !/honey|website|hp_/i.test(el.getAttribute('name') ?? '') &&
+            !allowed.includes(el.getAttribute('name') ?? ''),
         )
-    }
-    return out
-  }, TEXT_TYPES)
+        if (real.length)
+          out.push(
+            `${form.getAttribute('method') ?? 'post'}: ${real.map((e) => e.getAttribute('name') ?? e.tagName).join(',')}`,
+          )
+      }
+      return out
+    },
+    { types: TEXT_TYPES, allowed: NON_PERSONAL_FIELDS },
+  )
 }
 
 test.describe('R-162 Formulare mit personenbezogenen Eingaben @privacy', () => {

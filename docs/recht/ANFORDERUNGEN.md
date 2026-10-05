@@ -177,7 +177,7 @@ Lücken in der Nummerierung sind Reserve.
 | R-131 | Keine Drittanbieter-Requests, CSP, selbst gehostete Schriften | P2 | unit, e2e | nein | `tests/unit/legal/services.unit.spec.ts`, `tests/unit/security/csp.unit.spec.ts`, `tests/unit/security/headers.unit.spec.ts`, `tests/unit/tooling/check-external.unit.spec.ts` |
 | R-132 | Statistik (Vercel Web Analytics) nur nach Freigabe | P10 | unit, e2e | ja | – |
 | R-133 | Fehlerüberwachung ohne Personenbezug | P10 | unit, e2e | nein | – |
-| R-134 | Spamschutz ohne Drittanbieter | P6, P7 | int | nein | `tests/int/legal/retention.int.spec.ts`, `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/int/legal/withdrawal.int.spec.ts`, `tests/unit/lib/keys.unit.spec.ts`, `tests/int/commission/submit.int.spec.ts` |
+| R-134 | Spamschutz ohne Drittanbieter | P6, P7 | int | nein | `tests/int/legal/retention.int.spec.ts`, `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/int/legal/withdrawal.int.spec.ts`, `tests/unit/lib/keys.unit.spec.ts`, `tests/int/commission/submit.int.spec.ts`, `tests/int/security/rate-limits.int.spec.ts` |
 | R-135 | Metadaten aus allen Bild-Uploads entfernen | P1, P7 | int | nein | `tests/int/collections/media.int.spec.ts`, `tests/int/collections/private-uploads.int.spec.ts`, `tests/e2e/admin-product-form.e2e.spec.ts`, `tests/int/commission/upload.int.spec.ts` |
 | R-136 | Technisch-organisatorische Maßnahmen | P1, P10 | int, e2e | nein | `tests/int/access/access-matrix.int.spec.ts`, `tests/int/adapters/storage.contract.int.spec.ts`, `tests/int/collections/private-uploads.int.spec.ts`, `tests/int/collections/users.int.spec.ts` |
 | R-137 | Keine personenbezogenen Daten in URLs und Logs | P4 | unit, e2e | nein | `tests/int/legal/privacy-export.int.spec.ts`, `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts`, `tests/unit/lib/logger.unit.spec.ts`, `tests/e2e/commission/form.e2e.spec.ts` |
@@ -193,7 +193,7 @@ Lücken in der Nummerierung sind Reserve.
 | R-157 | Prozess Datenpanne | P10 | manuell | ja | – |
 | R-160 | Anfrageformular Auftragsarbeiten | P7 | int, e2e | nein | `tests/int/commission/submit.int.spec.ts`, `tests/int/commission/upload.int.spec.ts`, `tests/unit/email/inquiry-receipt.unit.spec.ts`, `tests/e2e/commission/form.e2e.spec.ts`, `tests/e2e/commission/flow.e2e.spec.ts` |
 | R-161 | Verträge über Auftragsarbeiten außerhalb des Shops | P7, P11 | manuell | ja | §7 |
-| R-162 | Keine weiteren Datenerhebungen | P10 | e2e | nein | – |
+| R-162 | Keine weiteren Datenerhebungen | P10 | e2e | nein | `tests/e2e/privacy/forms.e2e.spec.ts` |
 | R-170 | Tattoo-Bereich ohne Online-Vertragsschluss | P7 | unit, int, e2e | nein | `tests/unit/legal/tattoo-content.unit.spec.ts`, `tests/unit/tattoo/mailto.unit.spec.ts`, `tests/int/legal/tattoo-cart.int.spec.ts`, `tests/e2e/tattoo/no-purchase.e2e.spec.ts`, `tests/e2e/tattoo/flash.e2e.spec.ts` |
 | R-171 | Abgelaufene Flash-Days/Aktionen ausblenden | P7 | int | nein | `tests/int/tattoo/offers.int.spec.ts`, `tests/int/jobs/revalidate-offers.int.spec.ts`, `tests/e2e/tattoo/offers.e2e.spec.ts` |
 | R-172 | Portfolio-Fotos nur mit Einwilligung | P7 | int | ja | `tests/int/legal/gallery-consent.int.spec.ts`, `tests/int/legal/gallery-withdraw.int.spec.ts`, `tests/e2e/tattoo/gallery.e2e.spec.ts` |

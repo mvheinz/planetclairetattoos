@@ -119,6 +119,8 @@ interface Case {
   who?: 'ip' | 'token'
   /** erwarteter Status des abgelehnten Aufrufs (Standard 429) */
   blockedStatus?: number
+  /** Die Stelle liefert nur ja/nein (Server-Action, Seite, stilles Verwerfen): kein Header zu prüfen */
+  noHeader?: true
   call: Call
 }
 
@@ -163,6 +165,7 @@ const CASES: Case[] = [
   {
     name: 'cart_add – Server-Action „In den Korb“ (60 / 10 min)',
     buckets: ['cart_add'],
+    noHeader: true,
     limit: 60,
     call: async (ip, now) => {
       const out = await addToCart(
@@ -175,12 +178,14 @@ const CASES: Case[] = [
   {
     name: 'checkout_start – „Zur Kasse“ (10 / 10 min)',
     buckets: ['checkout_start'],
+    noHeader: true,
     limit: 10,
     call: async (ip, now) => ({ blocked: !(await checkoutStartAllowed(ip, now, payload)) }),
   },
   {
     name: 'checkout_start_day – „Zur Kasse“ (30 / Tag, über Fenster verteilt)',
     buckets: ['checkout_start_day'],
+    noHeader: true,
     limit: 30,
     spreadMs: 10 * MINUTE,
     call: async (ip, now) => ({ blocked: !(await checkoutStartAllowed(ip, now, payload)) }),
@@ -188,6 +193,7 @@ const CASES: Case[] = [
   {
     name: 'checkout_submit – „Zahlungspflichtig bestellen“ je Kassen-Token (10 / 30 min)',
     buckets: ['checkout_submit'],
+    noHeader: true,
     limit: 10,
     who: 'token',
     call: async (token, now) => ({ blocked: !(await checkoutSubmitAllowed(token, now, payload)) }),
@@ -244,6 +250,7 @@ const CASES: Case[] = [
   {
     name: 'commission_form_uploads – höchstens 5 Bilder je Formular (409 mit Text)',
     buckets: ['commission_form_uploads'],
+    noHeader: true,
     limit: 5,
     blockedStatus: 409,
     call: async (ip, now) => {
@@ -359,6 +366,7 @@ const CASES: Case[] = [
   {
     name: 'token_pages – Seiten R08 und R09 (60 / min, zusammen)',
     buckets: ['token_pages'],
+    noHeader: true,
     limit: 60,
     call: async (ip, now, i) => {
       const headers = new Headers(fromIp(ip))
@@ -381,6 +389,8 @@ const CASES: Case[] = [
   {
     name: 'client_errors – POST /api/client-errors (10 / min, darüber stilles Verwerfen mit 204)',
     buckets: ['client_errors'],
+    noHeader: true,
+    blockedStatus: 204,
     limit: 10,
     call: async (ip, now) => {
       const reported = vi.fn()
@@ -437,16 +447,14 @@ describe('AK-A-8-03 R-134 Grenzwert je Bucket (tabellengetrieben)', () => {
     vi.setSystemTime(at(c.limit))
     const over = await c.call(who, at(c.limit), c.limit)
     expect(over.blocked, `${c.name}: Aufruf ${c.limit + 1} muss abgelehnt werden`).toBe(true)
-    if (c.blockedStatus ?? 429)
-      expect(over.status ?? c.blockedStatus ?? 429).toBe(c.blockedStatus ?? 429)
-    if (over.status === 429 && c.buckets[0] !== 'client_errors') {
-      // Retry-After nur dort, wo die Antwort einen Header bzw. ein Feld trägt
-      if (over.retryAfter !== undefined) {
-        expect(over.retryAfter).toBeGreaterThanOrEqual(1)
-        expect(over.retryAfter).toBeLessThanOrEqual(
-          Math.ceil(RATE_LIMITS[c.buckets[0]!].windowMs / 1000),
-        )
-      }
+    expect(over.status ?? c.blockedStatus ?? 429, c.name).toBe(c.blockedStatus ?? 429)
+    if (!c.noHeader) {
+      // 429 mit `Retry-After` (Sekunden bis zum Fensterende, höchstens die Fensterlänge)
+      expect(over.retryAfter, `${c.name}: Retry-After`).toBeDefined()
+      expect(over.retryAfter!).toBeGreaterThanOrEqual(1)
+      expect(over.retryAfter!).toBeLessThanOrEqual(
+        Math.ceil(RATE_LIMITS[c.buckets[0]!].windowMs / 1000),
+      )
     }
     // Eine andere IP (bzw. ein anderes Token) ist nicht betroffen.
     vi.setSystemTime(at(0))
@@ -529,5 +537,47 @@ describe('R-134 L-13a Zähler: nur Hash, Löschung nach 24 h durch den Wartungs-
     expect(left).toHaveLength(1)
     expect(new Date(String(left[0]!.window_start)).getTime()).toBe(young.getTime())
     await db.execute(sql`DELETE FROM rate_limit_hits WHERE key_hash = ${key}`)
+  })
+})
+
+describe('R-134 Honeypot und Zeitfalle (Antwort 200, nichts gespeichert, kein Zähler)', () => {
+  it('Auftragsanfrage: gefülltes Honeypot-Feld und Absenden unter 3 s → Schein-Erfolg ohne Datensatz und ohne Zähler', async () => {
+    const ip = freshIp()
+    const loaded = new Date(NOW.getTime() - 2 * MINUTE)
+    const honey = await submitCommission(
+      { ...COMMISSION_FORM(loaded), website: 'http://spam.example' },
+      { now: NOW, ip, payload },
+    )
+    expect(honey).toEqual({ ok: true, status: 200, spam: true })
+    const fast = await submitCommission(COMMISSION_FORM(new Date(NOW.getTime() - 1000)), {
+      now: NOW,
+      ip,
+      payload,
+    })
+    expect(fast).toEqual({ ok: true, status: 200, spam: true })
+    const key = ipHash(ip, { now: () => NOW })
+    const rows = await dbOf(payload).execute(
+      sql`SELECT 1 FROM rate_limit_hits WHERE key_hash = ${hashRateLimitKey(key)}`,
+    )
+    expect(rows.rows).toHaveLength(0)
+    // ohne Formular-Token: abgelehnt (400), ebenfalls ohne Zähler
+    const none = await submitCommission(
+      { ...COMMISSION_FORM(loaded), formToken: '' },
+      { now: NOW, ip, payload },
+    )
+    expect(none).toMatchObject({ ok: false, status: 400, code: 'expired' })
+  })
+
+  it('Widerruf: gefülltes Honeypot-Feld → Schein-Erfolg ohne Datensatz und ohne Zähler (Zeitfalle gibt es hier nicht, R-134)', async () => {
+    const ip = freshIp()
+    const res = await submitWithdrawal({ website: 'x' }, { now: NOW, ip, payload })
+    expect(res).toEqual({ ok: true, status: 200, spam: true })
+    const key = ipHash(ip, { now: () => NOW })
+    const rows = await dbOf(payload).execute(
+      sql`SELECT 1 FROM rate_limit_hits WHERE key_hash = ${hashRateLimitKey(key)}`,
+    )
+    expect(rows.rows).toHaveLength(0)
+    // kein Honeypot, leere Eingabe → 400 und der Zähler läuft
+    expect(await submitWithdrawal({}, { now: NOW, ip, payload })).toMatchObject({ status: 400 })
   })
 })
