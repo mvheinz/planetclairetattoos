@@ -59,8 +59,11 @@ test(
           const x = Math.max(0, Math.min(...boxes.map((b) => b.x)) - lupe.pad)
           const y = Math.max(0, Math.min(...boxes.map((b) => b.y)) - lupe.pad)
           const width = Math.min(vw - x, Math.max(...boxes.map((b) => b.r)) + lupe.pad - x)
-          const height = Math.max(...boxes.map((b) => b.b)) + lupe.pad - y
-          zoom = { x, y, width, height, to: Math.round(width * lupe.k) }
+          const vh = page.viewportSize()!.height
+          const height = Math.min(vh - y, Math.max(...boxes.map((b) => b.b)) + lupe.pad - y)
+          // außerhalb des Sichtbereichs (Handy): keine Lupe statt „Clipped area is either empty or outside“
+          if (width > 20 && height > 20)
+            zoom = { x, y, width, height, to: Math.round(width * lupe.k) }
         }
       }
       const element = mi.viewport || zoom ? undefined : stage
