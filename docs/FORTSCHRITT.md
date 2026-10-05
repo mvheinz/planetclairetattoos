@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-05 – P9 Kunst-QA: dritter Lauf in CI
+
+Im letzten CI-Lauf war nur noch eine Messung rot (Tempo der Linie auf dem iPhone-Profil). Ursache war ein echter Fehler (die Linie reagierte beim schnellen Wischen nur auf gedrosselte Scroll-Ereignisse) plus ein Messproblem; beides ist behoben. Außerdem nehmen drei Worker parallel auf, damit der Lauf kürzer wird. Der Lauf bestätigt das auf einer ruhigen Maschine.
+
 ## 2026-10-05 – P9 Kunst-QA in CI: Zeitlimit 60 Minuten
 
 Der zweite Kunst-Lauf in CI brauchte allein für die Aufnahmen 41 Minuten (mehr Szenarien als beim ersten Lauf) und lief ins 45-Minuten-Limit. Limit auf 60 Minuten angehoben (öffentliches Repo); Lauf startet erneut.
