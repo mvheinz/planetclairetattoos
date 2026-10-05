@@ -534,9 +534,15 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     const total = geometry.totalLength
     // Gemessene Position statt `window.scrollY` (kein erzwungenes Layout); der nächste Frame gleicht nach.
     const target = scrollTarget(mm.scrollY)
+    const running = intro
     intro = null
     if (tier === 'C') drawnLen = total
-    else if (first) {
+    else if (!first && running) {
+      // Neuaufbau mitten im Intro (z. B. späte Schrift): weiterzeichnen statt zum Ziel zu springen (R2-05)
+      running.to = target
+      intro = running
+      drawnLen = Math.min(total, prevDrawn)
+    } else if (first) {
       if (cfg.draw === 'scroll' && !(cfg.intro && m.scrollY < 8)) drawnLen = target
       else {
         // Intro (journey, MI-10) bzw. einmaliges Zeichnen; Einstieg mitten in der Seite ohne Animation.
