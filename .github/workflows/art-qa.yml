@@ -147,6 +147,9 @@ jobs:
       - name: Aufnahme
         id: record
         if: steps.mode.outputs.run == 'true'
+        # 3 Worker für die Bild-Läufe (Lauf 37303234309: 2 Worker = 34 min Aufnahme, davon SC-18 allein ≈ 7 min); Tempo-Lauf läuft allein.
+        env:
+          ART_WORKERS: '3'
         run: pnpm run art:record
       - name: Lauf-ID
         id: runid

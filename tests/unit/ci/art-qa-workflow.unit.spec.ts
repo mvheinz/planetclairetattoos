@@ -113,6 +113,10 @@ describe('P9.7 art-qa.yml – Ablauf (KUNST-QA §9)', () => {
     expect(job['timeout-minutes']).toBeLessThanOrEqual(60)
   })
 
+  it('Aufnahme mit 3 Workern für die Bild-Läufe (Laufzeit, OFFENE-PUNKTE 2026-10-05 P9.7)', () => {
+    expect((step('Aufnahme') as { env?: Record<string, string> }).env?.ART_WORKERS).toBe('3')
+  })
+
   it('Chromium und WebKit, nie PW_SKIP_WEBKIT', () => {
     expect(step('Playwright Chromium + WebKit').run).toBe(
       'pnpm exec playwright install --with-deps chromium webkit',

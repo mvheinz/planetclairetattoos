@@ -617,7 +617,8 @@ toolVersions: {playwright, chromium, webkit, node}, sizes: {totalMB} }`.
   `pnpm art:record` → `pnpm art:metrics` → `pnpm art:sheets` → `pnpm art:check` (Gate) → `pnpm art:bundle` → ältere
   `art-qa-*` löschen → `actions/upload-artifact` (grün: Name `art-qa-<lauf-id>`, `retention-days: 30`; rot: Budget-Schritt,
   dann nur `art-qa-check-<lauf-id>`, `retention-days: 2`, §8).
-- Laufzeit-Ziel ≤ 25 min; Tempo-Läufe (SC-18) nur mit Chromium.
+- Laufzeit-Ziel ≤ 25 min (Aufnahme; Gate ≤ 45 min Gesamtlauf, Abbruch bei 60 min). Gemessen: Lauf 37303234309 mit 2 Workern 40 min gesamt (Aufnahme 34 min, Kontaktbögen 2,5 min); die Bild-Läufe laufen daher auf 3 Workern (`ART_WORKERS=3` im Workflow), der Tempo-Lauf SC-18 (Chromium, ≈ 7 min) allein danach. Größte Posten: SC-14 (≈ 13 min Gerätezeit), SC-18, SC-01.
+- Tempo-Läufe (SC-18) nur mit Chromium.
 - Ab P9 enthält die reguläre E2E-Suite (`tests/e2e/`, Job `e2e-full` in `ci-full.yml` bei jedem Phasenende `[ci:full pN]`
   und beim Zwischenlauf `[ci:full]`, ARCHITEKTUR §6.4, §6.7) als schnelle Teilmenge: DESIGN AK-DS-09, -11, -13, -14 und
   §5 LG-01 für R01 (Projekt `pixel-7`, ohne Video). Das verhindert, dass spätere Phasen die Kunst-Abnahme unbemerkt brechen.
