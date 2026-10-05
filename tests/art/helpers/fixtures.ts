@@ -275,6 +275,21 @@ export class ArtSession {
     return scrollRun(this.page, to, pxPerSec)
   }
 
+  /** Uhr vorspulen, bis die Engine eingehängt ist (bzw. die Seite keine Linie hat) – höchstens 4 s virtuell. */
+  async runUntilLeash(): Promise<number> {
+    let waited = 0
+    for (let i = 0; i < 160; i++) {
+      const ready = await this.page.evaluate(() => {
+        const layer = document.querySelector('[data-leash-layer][data-leash-preset]')
+        return !layer || !!(window as Window & { __leash?: unknown }).__leash
+      })
+      if (ready) break
+      await this.page.clock.runFor(25)
+      waited += 25
+    }
+    return waited
+  }
+
   /** Browser-Uhr anhalten (ab jetzt nur noch `runFor`). */
   async pauseClock(): Promise<void> {
     if (this.clockPaused) return
@@ -305,9 +320,15 @@ export class ArtSession {
     offsetMs?: number
     /** Lupe: fester Ausschnitt (Seitenkoordinaten im Sichtbereich), auf `to` px Breite vergrößert. */
     zoom?: FrameOptions['zoom']
+    /** Reduziert nicht auf die Engine warten (Frames vor dem Einhängen, z. B. „geladen“). */
+    keepPreEngine?: boolean
   }): Promise<string[]> {
     await this.pauseClock()
     await opts.start?.()
+    // Reduzierte Bewegung: die Linie steht „sofort“ (DESIGN §9.11) – gemeint ab dem Einhängen der Engine. Bei angehaltener Uhr
+    // hängt die Engine erst nach vorgespulter Zeit ein; ohne das zeigte t0000 die Seite vor der Engine, und die Linie „erschien“
+    // erst Sekunden später (R3-08-01, Aufnahme-Artefakt: in Echtzeit steht sie nach ≈ 0,6 s).
+    if (this.reduced && !opts.keepPreEngine) await this.runUntilLeash()
     const out: string[] = []
     for (let t = 0; t <= opts.untilMs + 0.5; t += opts.stepMs) {
       if (t > 0) await this.page.clock.runFor(opts.stepMs)

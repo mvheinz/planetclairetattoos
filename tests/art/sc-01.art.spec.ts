@@ -22,7 +22,8 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
   // Frames beschriftet mit der VIRTUELLEN Zeit (`intro-virtuell-tNNNN`: angehaltene Uhr, vorgespult bis die Engine steht – die echte
   // Ladezeit bis LCP und Engine-Start steckt nicht darin). Der Beleg für Start ≥ LCP + 300 ms und Dauer ≈ 900 ms ist die Messung
   // im Echtzeit-Kontext (`mo10`, `introTiming`), nicht die Frame-Beschriftung (R2-06-02). Vorher ein Bild „Seite geladen, Linie noch leer“.
-  await art.settledFrame('intro-t0000-geladen')
+  // (nur in Bewegung: bei reduzierter Bewegung steht die Linie mit dem Einhängen der Engine, ein Bild davor belegt nichts)
+  if (!art.reduced) await art.settledFrame('intro-t0000-geladen')
   let waited = 0
   for (let i = 0; i < 160; i++) {
     if (await page.evaluate(() => !!(window as Window & { __leash?: unknown }).__leash)) break
@@ -35,6 +36,16 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
     prefix: 'intro-virtuell',
     offsetMs: waited,
   })
+
+  // Ruhe nach dem Intro (R2-08-07): Uhr weiter, ohne zu scrollen – Coco bremst und sitzt (Beleg „sitzt nach dem Laden“).
+  if (!art.reduced) {
+    await art.pauseClock()
+    await page.clock.runFor(1500)
+    await art.settledFrame('intro-ruhe-t1500')
+    await page.clock.runFor(1500)
+    await art.settledFrame('intro-ruhe-t3000')
+    await art.resumeClock()
+  }
 
   // (b)–(d) Echtzeit für das Video.
   const bottom = await maxScroll(page)
@@ -80,6 +91,8 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
   await page.clock.runFor(1500)
   await art.settledFrame('station8-ende-stay3000-y1000000')
   {
+    // Handy: Coco liegt am Linienende unter dem Bildrand – ins Bild holen (R2-08-08)
+    await page.locator('.coco[data-leash-coco]').scrollIntoViewIfNeeded()
     const box = await page.locator('.coco[data-leash-coco]').boundingBox()
     const vh = page.viewportSize()!.height
     if (box && !art.reduced && box.y >= 0 && box.y + box.height <= vh) {
