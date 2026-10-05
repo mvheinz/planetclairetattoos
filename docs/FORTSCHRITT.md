@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-05 – P9 Kunst-QA: vierter Lauf in CI
+
+Zwei Aufnahme-Worker statt drei (drei störten sich gegenseitig), die Kassen-Szenarien laufen nacheinander, und rote Kriterien stehen jetzt mit Messwert im Log. Die Messung der Linien-Nachführung auf dem iPhone-Profil ist genauer geworden. Der Lauf zeigt auf einer ruhigen Maschine, ob alles besteht.
+
 ## 2026-10-05 – P9 Kunst-QA: dritter Lauf in CI
 
 Im letzten CI-Lauf war nur noch eine Messung rot (Tempo der Linie auf dem iPhone-Profil). Ursache war ein echter Fehler (die Linie reagierte beim schnellen Wischen nur auf gedrosselte Scroll-Ereignisse) plus ein Messproblem; beides ist behoben. Außerdem nehmen drei Worker parallel auf, damit der Lauf kürzer wird. Der Lauf bestätigt das auf einer ruhigen Maschine.
