@@ -41,7 +41,17 @@ export async function tabOrder(page: Page, n = 25): Promise<string[]> {
 export function followSamples(
   page: Page,
   to: number,
-): Promise<{ t: number; coco: number; drawn: number; target: number; scrolling: boolean }[]> {
+): Promise<
+  {
+    t: number
+    coco: number
+    drawn: number
+    target: number
+    scrolling: boolean
+    sy: number
+    stale: boolean
+  }[]
+> {
   return page.evaluate(
     (to) =>
       new Promise((resolve) => {
@@ -52,6 +62,8 @@ export function followSamples(
           drawn: number
           target: number
           scrolling: boolean
+          sy: number
+          stale: boolean
         }[] = []
         const from = scrollY
         const dur = (Math.abs(to - from) / 3000) * 1000
@@ -88,6 +100,8 @@ export function followSamples(
               drawn: Math.round(l.drawnLen() * 10) / 10,
               target: Math.round(Math.min(mapped, l.drawnLen()) * 10) / 10,
               scrolling: k < 1,
+              sy: Math.round(scrollY),
+              stale: !!document.querySelector('[data-leash-layer]')?.hasAttribute('data-stale'),
             })
           }
           if (now - t0 < dur + 1200) requestAnimationFrame(step)

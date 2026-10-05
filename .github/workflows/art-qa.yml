@@ -147,9 +147,10 @@ jobs:
       - name: Aufnahme
         id: record
         if: steps.mode.outputs.run == 'true'
-        # 3 Worker für die Bild-Läufe (Lauf 37303234309: 2 Worker = 34 min Aufnahme, davon SC-18 allein ≈ 7 min); Tempo-Lauf läuft allein.
+        # 2 Worker für die Bild-Läufe: 3 Worker (Lauf 37315719966) sprengten den Fixture-Bereich 990–999 der Kassen-Szenarien
+        # (SC-06/07/09, 2 Blöcke) und verfälschten PF-04 (Build-Zeit, 4 vCPU). Messungen vor Laufzeit; Tempo-Lauf läuft allein.
         env:
-          ART_WORKERS: '3'
+          ART_WORKERS: '2'
         run: pnpm run art:record
       - name: Lauf-ID
         id: runid
