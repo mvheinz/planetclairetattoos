@@ -30,17 +30,17 @@
   isolation: isolate;
 }
 
-/* Marken-Handlinie um das Passepartout: unregelmäßig, vier offene Seiten mit Überstand (wie Juttas Filzstift). */
+/* Marken-Handlinie um das Passepartout: unregelmäßige Ecken und Randstärken wie Juttas Filzstift. Bewusst ein Rahmen aus
+   `border` statt einer Maske/SVG: Chrome zählt Masken- und Hintergrundbilder als LCP-Kandidaten (R02-LCP 2,76 s statt 1,66 s). */
 .photo::after {
   content: '';
   position: absolute;
-  inset: 0;
+  inset: 2px;
   z-index: 1;
   pointer-events: none;
-  background: var(--ink);
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 121' preserveAspectRatio='none'%3E%3Cg fill='none' stroke='%23000' stroke-width='0.8' stroke-linecap='round'%3E%3Cpath d='M2.6 3.2C20 2.2 45 3.6 70 2.7S92 3 98 2.4'/%3E%3Cpath d='M97.4 2.1C98.5 30 97.2 60 98 88s-.6 22 .1 31.2'/%3E%3Cpath d='M98.3 118.6C70 119.6 40 118.3 10 119.1S4 118.7 1.8 119'/%3E%3Cpath d='M2.4 119.4C1.6 90 2.9 50 2 20S2.7 6 2.3 1.6'/%3E%3C/g%3E%3C/svg%3E");
-  mask-size: 100% 100%;
-  mask-repeat: no-repeat;
+  border: solid var(--ink);
+  border-width: 1.1px 1.5px 1.2px 1px;
+  border-radius: 2% 1.2% 3% 1.5% / 1.6% 3% 1.4% 2.2%;
   opacity: 0.8;
 }
 
