@@ -270,7 +270,7 @@
     },
     {
       "key": "ph:teller-02",
-      "wash": "sky",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: kleiner Teller mit Fuchs auf dem Mond",
         "en": "Placeholder drawing: small plate with a fox on the moon"
@@ -278,7 +278,7 @@
     },
     {
       "key": "ph:fliese-01",
-      "wash": "mat",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: Fliese mit Reh im Planetenregen",
         "en": "Placeholder drawing: tile with a deer in planet rain"
@@ -294,7 +294,7 @@
     },
     {
       "key": "ph:shirt-02",
-      "wash": "clay",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: T-Shirt mit Coco auf einer Rakete",
         "en": "Placeholder drawing: T-shirt with Coco on a rocket"
@@ -302,7 +302,7 @@
     },
     {
       "key": "ph:shirt-03",
-      "wash": "pink",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: Ringer-Shirt mit Fuchs",
         "en": "Placeholder drawing: ringer tee with a fox"
@@ -310,7 +310,7 @@
     },
     {
       "key": "ph:kleid-01",
-      "wash": "mat",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: Kleid mit Hasen-Bordüre",
         "en": "Placeholder drawing: dress with a bunny border"
@@ -334,7 +334,7 @@
     },
     {
       "key": "ph:cap-02",
-      "wash": "pink",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: Cap mit kleinem Planeten",
         "en": "Placeholder drawing: cap with a little planet"
@@ -350,7 +350,7 @@
     },
     {
       "key": "ph:zeichnung-02",
-      "wash": "pink",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: Zeichnung: Flammenwesen",
         "en": "Placeholder drawing: drawing: flame creature"
@@ -358,7 +358,7 @@
     },
     {
       "key": "ph:zeichnung-03",
-      "wash": "mat",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: Skizze: drei Hasen im Halbkreis"
       }
@@ -373,7 +373,7 @@
     },
     {
       "key": "ph:anhaenger-02",
-      "wash": "sky",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: Mini-Planet-Anhänger",
         "en": "Placeholder drawing: mini planet pendant"
@@ -485,7 +485,7 @@
     },
     {
       "key": "ph:tattoo-03",
-      "wash": "clay",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: frisches Tattoo Coco am Oberarm",
         "en": "Placeholder drawing: fresh Coco tattoo on an upper arm"

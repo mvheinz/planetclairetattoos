@@ -653,7 +653,7 @@ export async function inkHeightRatio(svg: string): Promise<number> {
 
 export function ar04(items: readonly PlaceholderInput[]): CheckResult {
   const th =
-    'viewBox 400×500, genau eine Wash-Farbe aus §3.1, Strich 2,8, kein <text>, Motiv 55–70 % der Höhe'
+    'viewBox 400×500, höchstens eine Wash-Farbe aus §3.1, Strich 2,8, kein <text>, Motiv 55–70 % der Höhe'
   if (!items.length) return noData('AR-04', th, 'keine Platzhalter')
   const bad: string[] = []
   for (const p of items) {

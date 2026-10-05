@@ -78,15 +78,15 @@ describe('P8.12/P8.13 Platzhalter-Zeichnungen', () => {
     }
   })
 
-  it('AR-04 DESIGN §12.3: genau eine Wash-Farbe (laut media.json), Flash ohne Wash auf Papier-2', () => {
+  it('AR-04 DESIGN §12.3: höchstens eine Wash-Farbe (laut media.json; ohne Wash = Flash und Stufe 1 der Stil-Leiter), Papier-2 als Grund', () => {
     for (const name of names) {
       const svg = read(name)
       const fills = [...svg.matchAll(/fill="(#[0-9A-F]{6})"/gi)].map((m) => m[1]!.toUpperCase())
       expect(fills[0], name).toBe(ART.paper2)
       const used = fills.filter((f) => (WASH_HEX as string[]).includes(f))
       const wash = washes.get(name)
-      if (name.startsWith('flash-')) {
-        expect(wash, name).toBeNull()
+      if (name.startsWith('flash-')) expect(wash, name).toBeNull()
+      if (wash === null) {
         expect(used, name).toEqual([])
       } else {
         expect(used, name).toEqual([ART.wash[wash!]])

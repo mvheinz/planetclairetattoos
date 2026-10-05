@@ -279,7 +279,7 @@ Beleg) **· Schwere bei Verfehlung** (B = Blocker, M = Major, m = Minor; Definit
 | AR-01 | Quelle und Rechte | jede Stationszeichnung stammt aus der Zuordnung DESIGN §12.4; **keine** Kundenhaut-Fotos, kein Godzilla, keine Bilder mit Jutta | auto (`content/art/sources.json`) + R1 | B |
 | AR-02 | Strichtreue der Vektorisierung | Median-Strichbreite (Distanztransformation) der Zeichnung 0,75–1,25 × Median im Schwellwertbild der Quelle; keine Klumpen (zusammengelaufene Flächen > 2 % der Bildfläche, die im Original offen sind) | auto + R1 | M |
 | AR-03 | Größe | Station ≤ 8 KB, Platzhalter ≤ 6 KB, Motive ≤ 1,5 KB, Icons ≤ 600 B, Wortmarke ≤ 5 KB | auto | m |
-| AR-04 | Platzhalter-Regeln | viewBox 400×500, genau eine Wash-Farbe aus §3.1, Strich 2,8 (seit P9.13; vorher 2,4), kein `<text>`, Motiv 55–70 % der Höhe | auto | m |
+| AR-04 | Platzhalter-Regeln | viewBox 400×500, höchstens eine Wash-Farbe aus §3.1 (ohne Wash erlaubt), Strich 2,8 (seit P9.13; vorher 2,4), kein `<text>`, Motiv 55–70 % der Höhe | auto | m |
 | AR-05 | Platzhalter wirken wie Juttas Hand | Bewertung ≥ 4 (Rubrik §6.5), im Shop-Raster zwischen echten Fotos nicht „fremd“ | R1 | M |
 | AR-06 | Weltraum-Motive | handgezeichnet, max. 1 Marke/Station, ≤ 3 Sterne/Bildschirmhöhe, keine Band-Bezüge (Liedtext, Logo, Albumgrafik) | auto (Dichte) + R1 | B (Band-Bezug) / m |
 | AR-07 | Marke klein lesbar | Favicon 16 px als Planet mit Ring erkennbar; Wortmarke ab 24 px Höhe lesbar | R1 | m |
