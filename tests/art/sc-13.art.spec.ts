@@ -105,9 +105,30 @@ async function leashLoupes(art: ArtSession, prefix: string): Promise<void> {
   await page.waitForTimeout(1500)
   const vh = page.viewportSize()!.height
   const vw = page.viewportSize()!.width
+  // Die Geometrie wird neu gebaut, wenn nachladende Bilder das Layout verschieben (Scrollen lädt weiter unten liegende Bilder):
+  // Stelle je Versuch frisch aus der aktuellen Geometrie lesen, hinscrollen, setzen lassen und erst bei ruhiger Lage aufnehmen.
+  const resolve = (tag: string) =>
+    page.evaluate((tag) => {
+      const g = (window as LoupeWin).__leash?.geometry
+      if (!g) return null
+      const m = /^naht-(\d)$/.exec(tag)
+      if (m) return g.segments[Number(m[1])]?.len0 ?? null
+      return g.stations.find((s) => `schlaufenstart-${s.id}` === tag)?.loopLen0 ?? null
+    }, tag)
   for (const spot of spots) {
-    await drawnTo(spot.len + 12)
-    const p = await linePoint(page, spot.len)
+    let len = spot.len
+    let p = await linePoint(page, len)
+    for (let attempt = 0; attempt < 5 && p; attempt++) {
+      await page.evaluate((y) => scrollTo(0, Math.max(0, y)), p.y - vh / 2)
+      await page.waitForTimeout(800)
+      len = (await resolve(spot.tag)) ?? len
+      await drawnTo(len + 12)
+      const q = await linePoint(page, len)
+      if (!q) break
+      const settled = Math.abs(q.y - p.y) < 1.5 && Math.abs(q.x - p.x) < 1.5
+      p = q
+      if (settled) break
+    }
     if (!p) continue
     await page.evaluate((y) => scrollTo(0, Math.max(0, y)), p.y - vh / 2)
     const sy = await page.evaluate(() => scrollY)
