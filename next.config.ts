@@ -41,7 +41,9 @@ const nextConfig: NextConfig = {
       './src/admin/pwa/*.png',
       './docs/recht/VVT.md',
       './node_modules/react-dom/{package.json,*.js,cjs/*.production.js}',
-      './node_modules/react/{package.json,*.js,cjs/*.production.js}',
+      // Auch die development-Dateien: `index.js` verweist auf beide, und Node findet die benannten Exporte für ESM-Importe
+      // (`import { createElement } from 'react'` in @react-pdf/renderer) nur, wenn beide vorhanden sind (sonst 500 in Docker).
+      './node_modules/react/{package.json,*.js,cjs/*.js}',
     ],
   },
   // 404 mit Seitenrahmen schon im HTML (src/app/global-not-found.tsx): das Wurzel-Layout liegt unter [locale].
