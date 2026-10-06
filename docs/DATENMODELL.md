@@ -463,6 +463,8 @@ export type DeletionTrigger = (typeof DELETION_TRIGGERS)[number]
 // Tattoo & Anfragen
 export const FLASH_STATUSES = ['available', 'claimed'] as const
 export type FlashStatus = (typeof FLASH_STATUSES)[number]
+export const TOUR_STATUSES = ['planned', 'cancelled', 'past'] as const
+export type TourStatus = (typeof TOUR_STATUSES)[number]
 export const TATTOO_PHOTO_KINDS = ['fresh', 'healed'] as const
 export type TattooPhotoKind = (typeof TATTOO_PHOTO_KINDS)[number]
 export const CONSENT_SCOPES = ['tattoo_only', 'with_face'] as const

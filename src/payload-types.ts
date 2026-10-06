@@ -85,6 +85,7 @@ export interface Config {
     complaints: Complaint;
     flash: Flash;
     'tattoo-gallery': TattooGallery;
+    'tour-dates': TourDate;
     inquiries: Inquiry;
     faqs: Faq;
     pages: Page;
@@ -128,6 +129,7 @@ export interface Config {
     complaints: ComplaintsSelect<false> | ComplaintsSelect<true>;
     flash: FlashSelect<false> | FlashSelect<true>;
     'tattoo-gallery': TattooGallerySelect<false> | TattooGallerySelect<true>;
+    'tour-dates': TourDatesSelect<false> | TourDatesSelect<true>;
     inquiries: InquiriesSelect<false> | InquiriesSelect<true>;
     faqs: FaqsSelect<false> | FaqsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
@@ -1803,7 +1805,7 @@ export interface TattooGallery {
   consentScope?: ('tattoo_only' | 'with_face') | null;
   consentDate?: string | null;
   /**
-   * z. B. „per DM am 02.10.2026“
+   * z. B. „per Mail am 02.10.2026“
    */
   consentNote?: string | null;
   consentEvidence?: (number | null) | PrivateUpload;
@@ -1992,6 +1994,56 @@ export interface LegalSnippet {
   sha256En?: string | null;
   activatedAt?: string | null;
   supersededAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Märkte, Flohmärkte und Kunstmärkte („Planet Claire on Tour“, rechte Spalte der Startseite). Vergangene Termine stehen eingeklappt.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tour-dates".
+ */
+export interface TourDate {
+  id: number;
+  name: string;
+  startsAt: string;
+  /**
+   * Leer = eintägig. Der letzte Tag zählt bis 23:59 Uhr.
+   */
+  endsAt?: string | null;
+  /**
+   * z. B. „Berlin-Prenzlauer Berg“
+   */
+  place: string;
+  /**
+   * Adresse des Marktes, nicht die des Privatstudios.
+   */
+  address?: string | null;
+  /**
+   * Nur ein Textlink zur Seite des Marktes (keine Karte).
+   */
+  link?: string | null;
+  standNumber?: string | null;
+  /**
+   * z. B. 10:00
+   */
+  timeFrom?: string | null;
+  /**
+   * z. B. 18:00
+   */
+  timeTo?: string | null;
+  /**
+   * Kurz, z. B. „Coco ist dabei.“
+   */
+  note?: string | null;
+  image?: (number | null) | Media;
+  /**
+   * „Vorbei“ wird nach dem Datum automatisch gesetzt – du musst nichts tun.
+   */
+  status: 'planned' | 'cancelled' | 'past';
+  published?: boolean | null;
+  seed?: boolean | null;
+  seedKey?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2688,6 +2740,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tattoo-gallery';
         value: number | TattooGallery;
+      } | null)
+    | ({
+        relationTo: 'tour-dates';
+        value: number | TourDate;
       } | null)
     | ({
         relationTo: 'inquiries';
@@ -3674,6 +3730,29 @@ export interface TattooGallerySelect<T extends boolean = true> {
   published?: T;
   featured?: T;
   sortOrder?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tour-dates_select".
+ */
+export interface TourDatesSelect<T extends boolean = true> {
+  name?: T;
+  startsAt?: T;
+  endsAt?: T;
+  place?: T;
+  address?: T;
+  link?: T;
+  standNumber?: T;
+  timeFrom?: T;
+  timeTo?: T;
+  note?: T;
+  image?: T;
+  status?: T;
+  published?: T;
   seed?: T;
   seedKey?: T;
   updatedAt?: T;

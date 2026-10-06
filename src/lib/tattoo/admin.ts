@@ -141,6 +141,7 @@ function assertTranslation(): void {
 
 export const FLASH_TRANSLATE_PATHS = ['title', 'sizeNote'] as const
 export const FAQ_TRANSLATE_PATHS = ['question', 'answer'] as const
+export const TOUR_TRANSLATE_PATHS = ['name', 'place', 'note'] as const
 
 /** EN-Wert ist eine unveränderte Kopie des deutschen (Pflichtfeld beim Speichern aufgefüllt) → darf überschrieben werden. */
 const sameAsGerman = (de: Doc) => (path: string, en: Doc) =>
@@ -148,7 +149,7 @@ const sameAsGerman = (de: Doc) => (path: string, en: Doc) =>
 
 async function readLocale(
   req: PayloadRequest,
-  collection: 'flash' | 'faqs' | 'pages',
+  collection: 'flash' | 'faqs' | 'pages' | 'tour-dates',
   id: number,
   locale: Locale,
 ): Promise<Doc> {
@@ -170,12 +171,17 @@ async function readLocale(
 
 export async function translateTattooDocument(
   req: PayloadRequest,
-  collection: 'flash' | 'faqs',
+  collection: 'flash' | 'faqs' | 'tour-dates',
   id: number,
   { force = false }: { force?: boolean } = {},
 ) {
   assertTranslation()
-  const paths = collection === 'flash' ? FLASH_TRANSLATE_PATHS : FAQ_TRANSLATE_PATHS
+  const paths =
+    collection === 'flash'
+      ? FLASH_TRANSLATE_PATHS
+      : collection === 'tour-dates'
+        ? TOUR_TRANSLATE_PATHS
+        : FAQ_TRANSLATE_PATHS
   const de = await readLocale(req, collection, id, 'de')
   return translateDocumentFields(req, collection, id, paths, {
     force,

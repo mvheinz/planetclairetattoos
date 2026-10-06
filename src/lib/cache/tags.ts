@@ -9,6 +9,7 @@ export const TAGS = {
   settings: 'settings',
   flash: 'flash',
   tattooGallery: 'tattoo-gallery',
+  tourDates: 'tour-dates',
   product: (id: number | string) => `product:${id}`,
   category: (key: string) => `category:${key}`,
   page: (key: string) => `page:${key}`,

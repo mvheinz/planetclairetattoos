@@ -89,6 +89,7 @@ const ADOPT_TITLE: Record<AdoptGroup['collection'], (d: Record<string, unknown>)
   flash: (d) =>
     d.number ? `F-${String(d.number).padStart(3, '0')} · ${String(d.title ?? '')}` : d.title,
   'tattoo-gallery': (d) => d.caption,
+  'tour-dates': (d) => d.name,
   media: (d) => d.filename,
 }
 
