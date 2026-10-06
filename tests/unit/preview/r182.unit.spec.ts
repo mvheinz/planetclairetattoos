@@ -123,5 +123,8 @@ describe('R-182 Vorschau-Datei als interne Datei', () => {
       'file://',
       '/home/user/repo',
     ])
+    // CSS-Modul-Klassennamen der Kunst-QA-Seiten enthalten „__leash“ nur als Wortteil – kein Fund
+    expect(forbiddenStrings('.qa-module__O2_KOq__leashPage{position:relative}', '/x')).toEqual([])
+    expect(forbiddenStrings('window.__leash.step()', '/x')).toEqual(['__leash'])
   })
 })

@@ -2,6 +2,16 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P10.1/P10.2/P10.4/P10.20/P10.21 Vorbereitung für den Phasenlauf
+
+- Neue Kennzahl-Tests `tests/e2e/metrics/purchase-path.e2e.spec.ts` (EK-02: Karte, PayPal, Vorkasse, Abholung bei 390×844 und 412×915, genau 4 Seiten) und `tests/e2e/metrics/admin-taps.e2e.spec.ts` (EK-08/AK-7-05/AK-7-04: „bezahlt → versendet“ in höchstens 5 Taps, kein waagerechtes Scrollen); lokal gegen den Produktions-Build grün (18 Tests auf `iphone-15`/`pixel-7`), Kennzahlen als JSON unter `test-results/metrics/`.
+- Flaky-Wächter `pnpm ci:flaky` (`scripts/ci/flaky-check.ts`) im Job `e2e-full`: ein Test, der erst im Wiederholungslauf besteht, macht den Lauf rot; Playwright schreibt dazu in CI `test-results/report.json`.
+- `ci-full` Job `quality`: neuer Schritt `check:bundle` (Tempo-Budgets je Seitentyp); lokal ohne Debug-Flag alle Budgets eingehalten.
+- Fehler behoben: `preview-export.yml` installierte nur Chromium, der Portabilitätstest braucht aber auch WebKit. Der Portabilitätstest meldete außerdem fälschlich „__leash“ in CSS-Klassennamen der Kunst-QA-Seiten (jetzt wie im Int-Test nur als eigenes Wort).
+- Lokal geprüft: `pnpm preview:export` (7,88 MB) und `pnpm test:preview-export` (Chromium und WebKit) grün, `pnpm test:int` (166 Dateien) grün, `pnpm check` grün.
+- Hinweis zu `E2E_SERVER=start`: Der 308 beim Vorwärmen (`/de/about` → `/de/ueber-mich`) entsteht nur, wenn auf dem Port ein anderer Server als der aus `.next` läuft (z. B. `pnpm dev` oder ein älterer Build); mit frischem Start ist es 200. Kein Fehler im Code; `global-setup.ts` nennt jetzt die Ursache.
+- Der Phasenlauf `[ci:full p10]` muss noch belegen: Abdeckungs-Schwellen, E2E-Gesamtlauf ohne flaky, Lighthouse (Median aus 3), visuelle Prüfung, docker-Job, Restore-Drill, `verify-asset` und PR-Probelauf von `release.yml`.
+
 ## 2026-10-06 – P9 CI grün
 
 Phasenlauf `d912802`: CI, CI full (sechs Browser-Hälften, Abdeckung, visuelle Prüfung, Lighthouse), Vorschau-Export und Kunst-QA grün. Vorschau-Artefakt `planet-claire-vorschau-p9-d912802`. P9.17 (Tempo/Barrierefreiheit: `art:check` 62/62, Lighthouse und axe in CI full) und P9.19 (Abschluss, Bündel `art-qa-20261006-iter01-b093408`) abgehakt; `LEGAL_TRACE_PHASE = 9`, `art:space`/`art:admin-icons` in ARCHITEKTUR §6.10 nachgetragen.

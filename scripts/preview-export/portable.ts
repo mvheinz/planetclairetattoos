@@ -22,7 +22,11 @@ export const FORBIDDEN_STRINGS = [
 
 /** Verbotene Zeichenketten, die in `html` vorkommen (inklusive des absoluten Build-Pfads `cwd`). */
 export function forbiddenStrings(html: string, cwd: string): string[] {
-  const found: string[] = FORBIDDEN_STRINGS.filter((s) => html.includes(s))
+  // `__leash` nur als eigenes Wort (die Test-Schnittstelle `window.__leash`): CSS-Modul-Klassennamen wie
+  // `qa-module__O2_KOq__leashPage` (Kunst-QA-Seiten) enthalten die Zeichenfolge zufällig und zählen nicht.
+  const found: string[] = FORBIDDEN_STRINGS.filter((s) =>
+    s === '__leash' ? /(?<![A-Za-z0-9_$])__leash(?![A-Za-z0-9_$])/.test(html) : html.includes(s),
+  )
   if (cwd.length > 1 && html.includes(cwd)) found.push(cwd)
   return found
 }
