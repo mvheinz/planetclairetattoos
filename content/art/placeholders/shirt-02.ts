@@ -24,7 +24,7 @@ const motif: Motif = {
     tshirt(),
     place(moon(), { x: 286, y: 196, s: 1.7, r: 20 }),
     place(rocket, { x: 222, y: 324, s: 0.86, r: -26 }),
-    place(cocoSitting(0.5, -6), { x: 204, y: 314, s: 0.66, r: -18 }),
+    place(cocoSitting(0.5, -6, 'punkt'), { x: 204, y: 314, s: 0.66, r: -18 }),
     {
       strokes: [
         // Helm (runde Glaskugel um den Kopf)

@@ -132,3 +132,48 @@ describe('P8.12/P8.13 Platzhalter-Zeichnungen', () => {
     }, 60_000)
   })
 })
+
+// P12.12 (U-23, KUNST-QA AR-05): jede Figur trägt ihr eigenes Gesicht – keine Schablone.
+describe('P12.12 Gesichts-Stile der Platzhalter (AR-05)', () => {
+  const FIGURE_CALLS =
+    /\b(cocoHead|cocoSitting|cocoDangling|bunny|bunnyMarch|bunnyPeek)\(([^)]*)\)/g
+
+  it('mindestens vier verschiedene Gesichts-Stile sind in den Motiven im Einsatz', async () => {
+    const { readFileSync, readdirSync } = await import('node:fs')
+    const used = new Set<string>()
+    for (const f of readdirSync('content/art/placeholders').filter((n) => /^[a-z]+-\d+\.ts$/.test(n)))
+      for (const m of readFileSync(path.join('content/art/placeholders', f), 'utf8').matchAll(
+        FIGURE_CALLS,
+      )) {
+        const style = /'([a-z]+)'/.exec(m[2]!)
+        if (style) used.add(style[1]!)
+      }
+    expect(used.size).toBeGreaterThanOrEqual(4)
+  })
+
+  it('jeder Stil zeichnet andere Augen und einen anderen Mund', async () => {
+    const { FACE_STYLES, faceParts } = await import('../../../content/art/placeholders/_parts')
+    const sig = FACE_STYLES.map((s) => {
+      const f = faceParts(s, [-15, -18, 9], [12, -19, 9.8], -0.4, [-2, 12, 20])
+      return JSON.stringify([f.eyes.strokes, f.eyes.dots, f.mouth?.strokes ?? null])
+    })
+    expect(new Set(sig).size).toBe(FACE_STYLES.length)
+  })
+
+  it('die sechs Coco-Platzhalter haben je ein anderes Gesicht, die zwei Hasen in flash-902 und spiegel-01 auch', () => {
+    const faceOf = (name: string) => {
+      const svg = read(name)
+      return svg.replace(/<g transform="rotate[^>]*>/, '')
+    }
+    const cocos = ['cap-01', 'shirt-02', 'flash-906', 'tattoo-03', 'zeichnung-01', 'anhaenger-01']
+    const src = (n: string) =>
+      readFileSync(path.join('content/art/placeholders', `${n}.ts`), 'utf8')
+    const styles = cocos.map((n) => /'(schlaf|punkt|blinzel|schief|staunen)'/.exec(src(n))?.[1] ?? 'ring')
+    expect(new Set(styles).size).toBe(cocos.length)
+    expect(new Set(cocos.map(faceOf)).size).toBe(cocos.length)
+    for (const n of ['flash-902', 'spiegel-01']) {
+      const found = [...src(n).matchAll(/'(schlaf|punkt|blinzel|schief|staunen)'/g)].map((m) => m[1])
+      expect(new Set(found).size, n).toBe(2)
+    }
+  })
+})

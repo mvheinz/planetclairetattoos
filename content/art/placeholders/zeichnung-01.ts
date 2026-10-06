@@ -8,7 +8,7 @@ const motif: Motif = {
   ...merge(
     sheet(),
     place(moon(), { x: 196, y: 286, s: 4.4, r: -96 }),
-    place(cocoDangling(-0.5), { x: 204, y: 250, s: 1.25 }),
+    place(cocoDangling(-0.5, 'staunen'), { x: 204, y: 250, s: 1.25 }),
     place(star4(), { x: 112, y: 150, s: 1.56 }),
     place(star4(), { x: 290, y: 132, s: 1.3, r: 10 }),
   ),
