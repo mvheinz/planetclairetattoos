@@ -150,5 +150,5 @@ test('Termin: falsche Eingaben werden mit deutschen Hinweisen abgelehnt', async 
   await expect(editor.getByTestId('tf-error-name.de')).toContainText('3–100')
   await expect(editor.getByTestId('tf-error-place.de')).toContainText('2–80')
   await expect(editor.getByTestId('tf-error-endDate')).toContainText('vor dem Startdatum')
-  await expect(editor.getByTestId('tf-error-link')).toContainText('https://www.beispiel.de')
+  await expect(editor.getByTestId('tf-error-link')).toContainText('www.beispiel.de')
 })

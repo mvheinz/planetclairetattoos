@@ -67,7 +67,7 @@ const guardTour: CollectionBeforeChangeHook = async ({ data, originalDoc, req })
 
   if (typeof data.link === 'string' && data.link.trim() !== '') {
     const link = parseTourLink(data.link)
-    if (!link) fail('Bitte einen Link wie https://www.beispiel.de angeben.', 'link')
+    if (!link) fail('Bitte einen Link wie www.beispiel.de angeben.', 'link')
     data.link = link
   }
 

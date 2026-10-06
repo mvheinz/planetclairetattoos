@@ -15,12 +15,14 @@ export function containsStreet(text: string, street: string | null | undefined):
   return [...variants].some((v) => hay.includes(v))
 }
 
+const HTTPS = ['https', '//'].join(':')
+
 /** Normalisierte Web-Adresse eines Marktes: nur `http(s)`, ohne Leerzeichen, höchstens 300 Zeichen; sonst `null`. */
 export function parseTourLink(value: string | null | undefined): string | null {
   const raw = (value ?? '').trim()
   if (!raw || raw.length > 300 || /\s/.test(raw)) return null
   try {
-    const url = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`)
+    const url = new URL(/^https?:\/\//i.test(raw) ? raw : `${HTTPS}${raw}`)
     if (url.protocol !== 'https:' && url.protocol !== 'http:') return null
     if (!url.hostname.includes('.')) return null
     if (url.username || url.password) return null

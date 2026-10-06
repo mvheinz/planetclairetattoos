@@ -2,6 +2,18 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P12.8
+
+- Neue Collection `tour-dates` (Migration, Zugriff nur Admin schreiben, Revalidierung, Beispieltermine `seed`) und Reiter „Termine“ in der Verwaltung (Liste, Neuer Termin, Absagen, Offline, Löschen, Übersetzen).
+- Startseite: rechte Spalte (mobil darunter) mit leerem Platz für Koko (`data-slot="chairwoman"`) und „Planet Claire on Tour“: kommende oben, vergangene eingeklappt, abgesagte durchgestrichen; keine Karte, keine Fremd-Requests.
+- Tests: Unit (Datum/Status/Texte), Int (Zugriff, Hook, Loader, Seed, Constraints), E2E Verwaltung → Startseite und Startseite mit Beispielbestand (Desktop, Pixel 7), check:external grün.
+
+## 2026-10-06 – P12.7
+
+- „Angebote“ (Seite R13, Menüpunkt, Verwaltungs-Reiter, Collection samt Beispieldaten, Task `revalidateEndedOffers`, Block `offersList`) entfernt; Migration `p12_remove_offers` (+ Aufräum-Migration) läuft auf frischer und gefüllter Datenbank.
+- Alle DM-Hinweise weg: Anfrage im Tattoo-Bereich nur per Mail (Betreff-Vorlage bleibt); Instagram-Profil nur noch im Fuß (und im Menü).
+- Tests: pnpm check (Unit außer dem schon vorher roten Abschlussbericht-Test), Int-Gesamtlauf + Nachläufe grün, Build, Desktop und Pixel-7: home, tattoo, admin, seed, empty-states, a11y, menu, about, contact grün.
+
 ## 2026-10-06 – P12 gestartet: deine Änderungswünsche
 
 Danke für deine Rückmeldungen und die Zeichnungen! Ich habe alles in `docs/UEBERARBEITUNG.md` festgehalten und als eigene Phase P12 vor dem Go-live angelegt: neue Sitzpose und mehr Posen für Coco (Knickohr rechts), Fitness-Coco auf der Startseite, die Vorsitzende der Goth Dogs Berlin mit wandernden Pupillen, Schrift Spectral, Olivgrün mit Petrol und Scroll-Verlauf, Goth-Rahmen für alle Fotos, „Angebote“ und DM-Hinweise raus, „Planet Claire on Tour“, komplett neue Texte, vollständige Rechtstexte mit Schutz für deine Werke, und die ganze Seite dauerhaft auf Deutsch und Englisch. Am Ende bekommst du eine neue HTML-Vorschau. Deine Skizzenfotos der Fitness-Übungen konnte ich nur im Chat ansehen; ich habe sie beschrieben abgelegt. Wenn du magst, lädst du die Originale später in den Ordner `content/art/jutta-skizzen` hoch (Anleitung G4).

@@ -5537,12 +5537,12 @@ Nach dem Merge automatisch (ohne Checkbox; prüft P11.1):
 - [ ] **P12.6 Koko, Vorsitzende der Goth Dogs Berlin** (U-08) – freigestellt, sauber nachgezeichnet (ohne Knochenkreuz), Pupillen
   wandern links↔rechts, Standbild bei reduzierter Bewegung; rechte Spalte oben der Startseite; mobil untereinander.
   - Akzeptanz: Bild-Budget; Test: nur Pupillen animiert; `prefers-reduced-motion`; DE/EN alt-Text.
-- [ ] **P12.7 „Angebote“ und DM entfernen** (U-14, U-15) – Seite R13, Navigation, Verwaltungs-Reiter, Collection samt Daten
+- [x] **P12.7 „Angebote“ und DM entfernen** (U-14, U-15) – Seite R13, Navigation, Verwaltungs-Reiter, Collection samt Daten
   (Migration), Verweise/Sitemap/Tests/Handbuch bereinigt; alle DM-Erwähnungen weg; Anfrage nur per E-Mail; Instagram-Link nur im
   Footer.
   - Akzeptanz: Route `/tattoo/angebote` (und EN) liefert 404 bzw. ist nicht in der Registry; Volltextsuche im Repo nach „DM“/
     „Direktnachricht“ in Texten leer; Migration läuft vorwärts auf frischer und auf gefüllter DB.
-- [ ] **P12.8 Planet Claire on Tour** (U-20) – Collection `tour-dates` (Migration, Zugriff, Hooks, Revalidierung), Verwaltung
+- [x] **P12.8 Planet Claire on Tour** (U-20) – Collection `tour-dates` (Migration, Zugriff, Hooks, Revalidierung), Verwaltung
   („Termine“, Liste/Neu/Status), Startseite rechte Spalte unter Koko (kommende oben, vergangene einklappbar), Beispieltermine
   `seed:true`, DE/EN, Handbuch-Kapitel.
   - Akzeptanz: Int-/E2E-Tests (Anlegen in der Verwaltung → erscheint öffentlich); keine Karte/Drittanbieter; Seed/Entfernen
