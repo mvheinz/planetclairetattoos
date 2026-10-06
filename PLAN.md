@@ -5523,18 +5523,18 @@ Nach dem Merge automatisch (ohne Checkbox; prüft P11.1):
   festen Seitenverhältnissen, Ecken-Ornamente) für alle Foto-Kontexte; ersetzt Passepartout/Doppelrahmen; Leine bleibt wirksam.
   - Akzeptanz: alle Foto-Stellen nutzen die Komponente (Test per Registry-Suche); CLS ≤ 0,1; SVG-Budget (PF-10) eingehalten;
     Referenzen neu; Linsen-Prüfpunkt IM-04 dokumentiert.
-- [ ] **P12.4 Coco: Sitzpose, Warte-Aktionen, neue Posen, Größe, Tempo, Knickohr** (U-02 … U-07a) – Charakterblatt/Sprite
+- [x] **P12.4 Coco: Sitzpose, Warte-Aktionen, neue Posen, Größe, Tempo, Knickohr** (U-02 … U-07a) – Charakterblatt/Sprite
   aktualisiert (Seiten-Sitzpose nach Fotos, Knickohr rechts immer), Warte-Aktionen gestaffelt, vier neue Posen (je ≥ 3 Frames),
   Coco +25 %, Linien-Aufbau ≈ 2× langsamer, Leine in Raster-Seiten nur in der Rinne am Rand (Flash/Shop/Galerie); Engine
   ≤ 12 000 B gz; Tests, `art:check`.
   - Akzeptanz: Sprite/Posen-Tests (CO-xx) grün; E2E Raster-Seiten: Linie überdeckt nie Karten (LG-01); PF-02/04 grün;
     Reduced-Motion-Standbilder; Knickohr-Test (Sprite-Geometrie).
-- [ ] **P12.5 Fitness-Coco** (U-09) – 7 Übungen + Liegen nach `FITNESS-COCO.md`, Endlosschleife, mit orangem Buntstift-Strich,
+- [x] **P12.5 Fitness-Coco** (U-09) – 7 Übungen + Liegen nach `FITNESS-COCO.md`, Endlosschleife, mit orangem Buntstift-Strich,
   hand-gezeichnet gewirkt (12–24 Frames je Übung), nachgeladen nach dem ersten Bild, ersetzt die große sitzende Coco auf der
   Startseite; Standbild bei reduzierter Bewegung; alt-Texte DE/EN.
   - Akzeptanz: Startseite R01 zeigt keine alte Sitz-Coco mehr; Animation startet nach `load`; Datenbudget (PF-10) und LCP
     eingehalten; Kunst-QA-Szenario aufgenommen.
-- [ ] **P12.6 Koko, Vorsitzende der Goth Dogs Berlin** (U-08) – freigestellt, sauber nachgezeichnet (ohne Knochenkreuz), Pupillen
+- [x] **P12.6 Koko, Vorsitzende der Goth Dogs Berlin** (U-08) – freigestellt, sauber nachgezeichnet (ohne Knochenkreuz), Pupillen
   wandern links↔rechts, Standbild bei reduzierter Bewegung; rechte Spalte oben der Startseite; mobil untereinander.
   - Akzeptanz: Bild-Budget; Test: nur Pupillen animiert; `prefers-reduced-motion`; DE/EN alt-Text.
 - [ ] **P12.7 „Angebote“ und DM entfernen** (U-14, U-15) – Seite R13, Navigation, Verwaltungs-Reiter, Collection samt Daten

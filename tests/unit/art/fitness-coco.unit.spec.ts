@@ -11,6 +11,7 @@ import {
   FRAME_MS,
   FRAME_RANGE,
   buildFitness,
+  stillSvg,
   loopMs,
   lying,
   standing,
@@ -52,10 +53,15 @@ describe('Fitness-Coco Daten', () => {
     expect(loopMs(data)).toBeGreaterThan(38_000)
   })
 
-  it('Datenbudget: ≤ 150 KB gz insgesamt; Standbild für die Startseite ≤ 6 KB', () => {
+  it('Datenbudget: ≤ 150 KB gz insgesamt; Standbild (eigene SVG-Datei, <img>) ≤ 6 KB', () => {
     const json = readFileSync(FITNESS_JSON)
     expect(gzipSync(json, { level: 9 }).length).toBeLessThanOrEqual(BUDGET_GZ)
-    expect(readFileSync(FITNESS_STILL).length).toBeLessThanOrEqual(6000)
+    const still = readFileSync(FITNESS_STILL, 'utf8')
+    expect(still.length).toBeLessThanOrEqual(6000)
+    expect(still).not.toMatch(/<text|<image|<circle|<rect/)
+    // Tusche schwarz, Buntstift orange (Linie bleibt schwarz)
+    expect(still).toContain('stroke="#1C1A17"')
+    expect(still).toContain('stroke="#D9822B"')
   })
 
   it('Bilder: schwarze Tuschelinie (Pfade) + oranger Buntstift getrennt, keine Beschriftung (kein <text>)', () => {
@@ -69,8 +75,9 @@ describe('Fitness-Coco Daten', () => {
   })
 
   it('Quelle ist die aktuelle Generator-Ausgabe (pnpm art:fitness)', () => {
-    const { data: fresh } = buildFitness()
+    const { data: fresh, still } = buildFitness()
     expect(JSON.stringify(fresh)).toBe(JSON.stringify(data))
+    expect(readFileSync(FITNESS_STILL, 'utf8')).toBe(stillSvg(still))
   })
 })
 

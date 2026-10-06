@@ -87,7 +87,12 @@ test.describe('Startseite – Choreografie (Preset journey)', () => {
       (window as Win).__leash!.geometry!.stations.slice(2, 4),
     )
     await page.evaluate(([y]) => (window as Win).__leash!.setReadingY(y!), [a!.y + 20])
-    await page.evaluate(([y]) => (window as Win).__leash!.setReadingY(y!), [(a!.y + b!.y) / 2])
+    // in kleinen Schritten wie beim Scrollen (U-06: Schlaufen brauchen den doppelten Scroll-Weg; ein Sprung über
+    // > 300 px Bogenlänge lässt Coco direkt springen statt zu rennen)
+    for (let y = a!.y + 20; y < (a!.y + b!.y) / 2; y += 60) {
+      await page.evaluate((v) => (window as Win).__leash!.setReadingY(v), y)
+      await page.waitForTimeout(30)
+    }
     await expect.poll(() => pose(page), { timeout: 3000 }).toBe('rennen')
     await expect.poll(() => pose(page), { timeout: 5000 }).toBe('sitzen')
   })

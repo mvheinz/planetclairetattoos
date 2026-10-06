@@ -120,7 +120,7 @@ export function staticHeaderRules(o: { appEnv: AppEnvName; nodeEnv?: string }) {
  * `fitness-coco.v{N}.json` (P12.5) – neue Zeichnungen bekommen eine neue Nummer.
  */
 export const IMMUTABLE_ART_SOURCE =
-  '/art/:file((?:coco-sprite|coco-extra)\\.v\\d+\\.svg|fitness-coco\\.v\\d+\\.json)'
+  '/art/:file((?:coco-sprite|coco-extra|koko|fitness-still)\\.v\\d+\\.svg|fitness-coco\\.v\\d+\\.json)'
 export const IMMUTABLE_CACHE = 'public, max-age=31536000, immutable'
 
 export interface PathContext {

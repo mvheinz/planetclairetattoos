@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount, timeline, type FitnessData } from '@/behaviors/fitness-coco'
 
 // P12.5: Endlosschleife (Übergang → Übung im Kreis → nächste …), Laden nach dem `load`, Standbild bei reduzierter
-// Bewegung, Pause außerhalb des Bildes, Aufräumen.
+// Bewegung, Pause außerhalb des Bildes, Aufräumen. Gezeichnet wird auf einer Leinwand (hier mit Stummel-Kontext).
 
 const data: FitnessData = {
   f: 100,
@@ -39,14 +39,43 @@ describe('timeline', () => {
 })
 
 let root: HTMLElement
-const ink = () => root.querySelector('[data-fitness-ink]')!.getAttribute('d')
-const pencil = () => root.querySelector('[data-fitness-pencil]')!.getAttribute('d')
+let drawn: string[]
+const still = () => root.querySelector<HTMLElement>('[data-fitness-still]')!
+const canvas = () => root.querySelector<HTMLCanvasElement>('[data-fitness-canvas]')!
 
 function setup(motion?: 'reduced') {
   document.body.innerHTML =
-    '<div id="r" data-behavior="fitness-coco" data-fitness-src="/art/fitness-coco.v1.json"><svg><path data-fitness-pencil d="PS"/><path data-fitness-ink d="IS"/></svg></div>'
+    '<div id="r" data-behavior="fitness-coco" data-fitness-src="/art/fitness-coco.v1.json"><img data-fitness-still src="/s.svg"><canvas data-fitness-canvas hidden></canvas></div>'
   root = document.getElementById('r')!
   if (motion) document.documentElement.setAttribute('data-motion', motion)
+  drawn = []
+  // Stummel-Kontext: merkt sich die Pfadtexte der gezeichneten Striche (zuerst Buntstift, dann Tusche)
+  const strokes: string[] = []
+  const stub = {
+    setTransform: vi.fn(),
+    clearRect: vi.fn(),
+    setLineDash: vi.fn(),
+    stroke: vi.fn<(p: { d: string }) => void>(),
+    lineCap: '',
+    lineJoin: '',
+    lineWidth: 0,
+    strokeStyle: '',
+  }
+  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(((kind: string) => {
+    if (kind !== '2d') return null
+    // jedes Bild = zwei Striche; nach dem zweiten Strich Pfadtext „ink“ notieren
+    stub.stroke.mockImplementation((p: { d: string }) => {
+      strokes.push(p.d)
+      if (strokes.length % 2 === 0) drawn.push(strokes[strokes.length - 1]!)
+    })
+    return stub
+  }) as never)
+  vi.stubGlobal(
+    'Path2D',
+    class {
+      constructor(public d: string) {}
+    },
+  )
 }
 
 beforeEach(() => {
@@ -56,6 +85,7 @@ beforeEach(() => {
 afterEach(() => {
   vi.useRealTimers()
   vi.unstubAllGlobals()
+  vi.restoreAllMocks()
   document.documentElement.removeAttribute('data-motion')
   document.body.innerHTML = ''
 })
@@ -65,37 +95,38 @@ const flush = async () => {
 }
 
 describe('fitness-coco mount', () => {
-  it('holt die Bildfolge und spielt sie im 10-Bilder/s-Takt; unmount stellt das Standbild wieder her', async () => {
+  it('holt die Bildfolge, spielt sie im 10-Bilder/s-Takt auf der Leinwand; unmount stellt das Standbild wieder her', async () => {
     setup()
-    const fetchMock = vi.fn((_url: string) => Promise.resolve(data as unknown))
-    const fitnessData = fetchMock
+    const fitnessData = vi.fn((_url: string) => Promise.resolve(data as unknown))
     const unmount = mount(root, { mode: 'app', actions: { fitnessData } })
-    expect(fetchMock).toHaveBeenCalledWith('/art/fitness-coco.v1.json')
+    expect(fitnessData).toHaveBeenCalledWith('/art/fitness-coco.v1.json')
     await flush()
-    expect(ink()).toBe('t0')
-    expect(pencil()).toBe('u0')
+    expect(drawn).toEqual(['t0']) // erstes Bild: Übergang vor Übung 1 (Tusche-Pfad „t0“)
+    expect(canvas().hidden).toBe(false)
+    expect(still().style.visibility).toBe('hidden')
     vi.advanceTimersByTime(100)
-    expect(ink()).toBe('a0')
+    expect(drawn.at(-1)).toBe('a0')
     vi.advanceTimersByTime(300)
-    expect(ink()).toBe('a1') // nach 4 Bildern: a0 a1 a0 a1 … weiter
+    expect(drawn.at(-1)).toBe('a1')
     unmount()
-    expect(ink()).toBe('IS')
+    expect(canvas().hidden).toBe(true)
+    expect(still().style.visibility).toBe('')
+    const n = drawn.length
     vi.advanceTimersByTime(10_000)
-    expect(ink()).toBe('IS')
+    expect(drawn).toHaveLength(n)
     expect(vi.getTimerCount()).toBe(0)
   })
 
   it('reduzierte Bewegung: kein Abruf, Standbild bleibt; im Vorschau-Modus ebenfalls', () => {
     setup('reduced')
-    const fetchMock = vi.fn((_url: string) => Promise.resolve(data as unknown))
-    const fitnessData = fetchMock
+    const fitnessData = vi.fn((_url: string) => Promise.resolve(data as unknown))
     const un = mount(root, { mode: 'app', actions: { fitnessData } })
-    expect(fetchMock).not.toHaveBeenCalled()
-    expect(ink()).toBe('IS')
+    expect(fitnessData).not.toHaveBeenCalled()
+    expect(canvas().hidden).toBe(true)
     un()
     document.documentElement.removeAttribute('data-motion')
     const un2 = mount(root, { mode: 'preview', actions: { fitnessData } })
-    expect(fetchMock).not.toHaveBeenCalled()
+    expect(fitnessData).not.toHaveBeenCalled()
     un2()
   })
 
@@ -105,12 +136,14 @@ describe('fitness-coco mount', () => {
     const un = mount(root, { mode: 'app', actions: { fitnessData } })
     await flush()
     vi.advanceTimersByTime(200)
-    expect(ink()).not.toBe('IS')
+    expect(canvas().hidden).toBe(false)
     document.documentElement.setAttribute('data-motion', 'reduced')
     await flush()
-    expect(ink()).toBe('IS')
+    expect(canvas().hidden).toBe(true)
+    expect(still().style.visibility).toBe('')
+    const n = drawn.length
     vi.advanceTimersByTime(1000)
-    expect(ink()).toBe('IS')
+    expect(drawn).toHaveLength(n)
     un()
   })
 })

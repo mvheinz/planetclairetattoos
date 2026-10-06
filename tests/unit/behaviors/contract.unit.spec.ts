@@ -117,7 +117,7 @@ const FIXTURES: Record<BehaviorName, { html: string; exercise: (root: Element) =
     },
   },
   'fitness-coco': {
-    html: '<div data-behavior="fitness-coco" data-fitness-src="/art/fitness-coco.v1.json"><svg><path data-fitness-pencil d="M1 1"/><path data-fitness-ink d="M2 2"/></svg></div>',
+    html: '<div data-behavior="fitness-coco" data-fitness-src="/art/fitness-coco.v1.json"><img data-fitness-still src="/art/fitness-still.v1.svg"><canvas data-fitness-canvas hidden></canvas></div>',
     exercise: () => {
       document.documentElement.setAttribute('data-motion', 'reduced')
       document.documentElement.removeAttribute('data-motion')

@@ -10,6 +10,9 @@ import { pathToFileURL } from 'node:url'
 import { blob, mulberry32, retrace, toPath, type P } from './draw-coco'
 
 export const KOKO_JSON = 'src/art/koko/koko.json'
+export const KOKO_VERSION = 1
+/** Ausgelieferte Zeichnung (ohne Pupillen); Pupillen sind CSS-Elemente darüber (nur sie bewegen sich, kein Inline-SVG im HTML). */
+export const KOKO_SVG = `public/art/koko.v${KOKO_VERSION}.svg`
 export const KOKO_W = 300
 export const KOKO_H = 390
 export const KOKO_MAX_BYTES = 16_000
@@ -487,9 +490,58 @@ export function buildKoko(): { w: number; h: number; parts: KokoPart[] } {
 
 export const sizeOf = (k: ReturnType<typeof buildKoko>) => JSON.stringify(k).length
 
+/** Farben der Zeichnung (fest eingebrannt: das Bild wird als <img> geladen und hat keinen Zugriff auf Seiten-Token). */
+export const KOKO_COLORS: Record<string, string> = {
+  ink: '#1C1A17',
+  orange: '#D9892B',
+  'orange-dark': '#9A5A14',
+  paper: '#F4EFE6',
+  white: '#FBF8F1',
+  green: '#4E7A52',
+  'green-dark': '#24402A',
+  none: 'none',
+}
+
+/** Pupillen als Mittelpunkt und Halbachsen (Einheiten der viewBox) – die Komponente legt CSS-Elemente darüber. */
+export function pupilsOf(k: ReturnType<typeof buildKoko>) {
+  return k.parts
+    .filter((p) => p.id.startsWith('pupil-'))
+    .map((p) => {
+      const nums = [...p.d.matchAll(/-?\d+(?:\.\d+)?/g)].map((m) => Number(m[0]))
+      const xs = nums.filter((_, i) => i % 2 === 0)
+      const ys = nums.filter((_, i) => i % 2 === 1)
+      const x0 = Math.min(...xs)
+      const x1 = Math.max(...xs)
+      const y0 = Math.min(...ys)
+      const y1 = Math.max(...ys)
+      return {
+        id: p.id,
+        cx: (x0 + x1) / 2,
+        cy: (y0 + y1) / 2,
+        rx: (x1 - x0) / 2,
+        ry: (y1 - y0) / 2,
+      }
+    })
+}
+
+export function kokoSvg(k: ReturnType<typeof buildKoko>): string {
+  const body = k.parts
+    .filter((p) => !p.id.startsWith('pupil-'))
+    .map(
+      (p) =>
+        `<path d="${p.d}" fill="${KOKO_COLORS[p.fill]}"${p.stroke !== 'none' ? ` stroke="${KOKO_COLORS[p.stroke]}" stroke-width="${p.w}"` : ''}${p.o !== undefined ? ` opacity="${p.o}"` : ''}/>`,
+    )
+    .join('')
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${k.w} ${k.h}" stroke-linecap="round" stroke-linejoin="round">${body}</svg>\n`
+}
+
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   const koko = buildKoko()
   mkdirSync('src/art/koko', { recursive: true })
-  writeFileSync(KOKO_JSON, `${JSON.stringify(koko)}\n`)
-  console.log(`art:koko: ${KOKO_JSON} ${sizeOf(koko)} B (Budget ${KOKO_MAX_BYTES} B).`)
+  mkdirSync('public/art', { recursive: true })
+  writeFileSync(KOKO_JSON, `${JSON.stringify({ w: koko.w, h: koko.h, pupils: pupilsOf(koko) })}\n`)
+  writeFileSync(KOKO_SVG, kokoSvg(koko))
+  console.log(
+    `art:koko: ${KOKO_SVG} ${kokoSvg(koko).length} B (Budget ${KOKO_MAX_BYTES} B), ${KOKO_JSON}.`,
+  )
 }

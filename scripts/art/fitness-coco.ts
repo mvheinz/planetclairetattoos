@@ -25,7 +25,24 @@ import {
 
 export const FITNESS_VERSION = 1
 export const FITNESS_JSON = `public/art/fitness-coco.v${FITNESS_VERSION}.json`
-export const FITNESS_STILL = 'src/art/fitness/still.json'
+export const FITNESS_STILL = `public/art/fitness-still.v${FITNESS_VERSION}.svg`
+/** Farben und Strichmaße von Standbild und Leinwand (Behaviour `fitness-coco` zeichnet mit denselben Werten). */
+export const PENCIL = {
+  color: '#D9822B',
+  width: 1.2,
+  dash: '5 1.2 3 1.6 7 1',
+  opacity: 0.85,
+} as const
+export const INK = { color: '#1C1A17', width: 1.5 } as const
+
+/** Standbild als eigenständiges SVG (wird als <img> geladen: kein Inline-SVG im HTML der Startseite, PF-10). */
+export function stillSvg(f: Frame): string {
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 250" fill="none" stroke-linecap="round" stroke-linejoin="round">` +
+    `<path d="${f.pencil}" stroke="${PENCIL.color}" stroke-width="${PENCIL.width}" stroke-dasharray="${PENCIL.dash}" opacity="${PENCIL.opacity}"/>` +
+    `<path d="${f.ink}" stroke="${INK.color}" stroke-width="${INK.width}"/></svg>\n`
+  )
+}
 export const FITNESS_W = 200
 export const FITNESS_H = 250
 export const GROUND = 238
@@ -906,9 +923,8 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   const { data, still } = buildFitness()
   const json = JSON.stringify(data)
   mkdirSync('public/art', { recursive: true })
-  mkdirSync('src/art/fitness', { recursive: true })
   writeFileSync(FITNESS_JSON, json)
-  writeFileSync(FITNESS_STILL, `${JSON.stringify(still)}\n`)
+  writeFileSync(FITNESS_STILL, stillSvg(still))
   const gz = gzipSync(json, { level: 9 }).length
   const frames =
     data.ex.reduce((n, e) => n + e.fr.length, 0) + data.tr.reduce((n, t) => n + t.length, 0)

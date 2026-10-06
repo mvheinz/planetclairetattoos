@@ -1,90 +1,50 @@
-/* Koko, Vorsitzende der Goth Dogs Berlin (P12.6, U-08): feste Box, Farben aus den Tokens, nur die Pupillen bewegen sich. */
+/* Koko, Vorsitzende der Goth Dogs Berlin (P12.6, U-08): feste Box, Zeichnung als Bild, nur die Pupillen bewegen sich. */
 .koko {
-  --koko-orange: #d9892b;
-  --koko-orange-dark: #9a5a14;
-  --koko-green: #4e7a52;
-  --koko-green-dark: #24402a;
   --koko-look: 9s; /* ein Hin und Zurück der Pupillen */
+  position: relative;
   aspect-ratio: 300 / 390;
   width: 100%;
   max-width: 300px;
   color: var(--ink);
 }
 
-.koko svg {
+.drawing {
   display: block;
   width: 100%;
   height: 100%;
-  overflow: visible;
 }
 
-.koko path {
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.f-ink {
-  fill: var(--ink);
-}
-.f-orange {
-  fill: var(--koko-orange);
-}
-.f-white {
-  fill: var(--paper-field, #fbf8f1);
-}
-.f-green {
-  fill: var(--koko-green);
-}
-.f-none {
-  fill: none;
-}
-.s-ink {
-  stroke: var(--ink);
-}
-.s-paper {
-  stroke: var(--paper);
-}
-.s-orange-dark {
-  stroke: var(--koko-orange-dark);
-}
-.s-green-dark {
-  stroke: var(--koko-green-dark);
-}
-.s-none {
-  stroke: none;
-}
-
-/* Seitenblick: die Pupillen wandern gemächlich nach rechts und zurück (Ruhelage = Blick leicht nach links). */
-.pupils {
+/* Pupillen: zwei kleine, leicht unregelmäßige Tintenflecken über den weißen Augen; Seitenblick nach rechts unten. */
+.pupil {
+  position: absolute;
+  background: var(--ink);
+  border-radius: 52% 48% 55% 45% / 50% 55% 45% 50%;
   animation: koko-look var(--koko-look) var(--ease-swing) infinite;
 }
 
+/* Hin und Zurück um ±60 % der Pupillenbreite (≈ ±5 Einheiten der Zeichnung); Ruhelage = Blick leicht nach links. */
 @keyframes koko-look {
   0%,
   100% {
-    transform: translateX(-5px);
+    transform: translateX(-30%);
   }
   50% {
-    transform: translateX(5px);
+    transform: translateX(30%);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html:not([data-motion='full']) .pupils {
+  html:not([data-motion='full']) .pupil {
     animation: none;
   }
 }
 
-html[data-motion='reduced'] .pupils {
+html[data-motion='reduced'] .pupil {
   animation: none;
 }
 
 @media (forced-colors: active) {
-  .f-ink {
-    fill: CanvasText;
-  }
-  .s-ink,
-  .s-paper {
-    stroke: CanvasText;
+  .pupil {
+    background: CanvasText;
   }
 }

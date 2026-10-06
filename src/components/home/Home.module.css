@@ -218,41 +218,37 @@
   height: 100%;
 }
 
-/* Fitness-Coco (P12.5): Standbild/Schleife in der 4:5-Box; Tusche schwarz, Buntstift orange mit Papierkörnung */
+/* Der Fitness-Coco braucht mehr Platz als die frühere Stationszeichnung (ganze Figur auf zwei Beinen). */
+.artFrame:has([data-station-art='fitness']) {
+  width: min(360px, 82vw);
+}
+
+/* Fitness-Coco (P12.5): Standbild (<img>) und Leinwand für die Schleife in der 4:5-Box */
 .fitness {
+  position: relative;
   aspect-ratio: 4 / 5;
   width: 100%;
   color: var(--ink);
 }
 
-.fitness svg {
+.fitnessStill,
+.fitnessCanvas {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
 }
 
-.fitnessInk {
-  fill: none;
-  stroke: var(--ink);
-  stroke-width: 1.7px;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
-}
-
-.fitnessPencil {
-  fill: none;
-  stroke: #d9822b;
-  stroke-width: 1.3px;
-  stroke-linecap: round;
-  stroke-dasharray: 6px 1.5px 3px 2px 8px 1px; /* unregelmäßig unterbrochen = Papierkörnung */
-  opacity: 0.85;
-  vector-effect: non-scaling-stroke;
+/* `display: block` oben schlüge sonst das Attribut `hidden` der Leinwand */
+.fitnessCanvas[hidden] {
+  display: none;
 }
 
 @media (forced-colors: active) {
-  .fitnessPencil {
-    stroke: CanvasText;
+  .fitnessStill,
+  .fitnessCanvas {
+    forced-color-adjust: none;
   }
 }
 

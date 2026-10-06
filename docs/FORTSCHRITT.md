@@ -2,6 +2,22 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P12.6
+
+- Koko, Vorsitzende der Goth Dogs Berlin: freigestellt und von Hand nachgezeichnet (schwarzes Fell mit Tuschestrich, orange Flächen, weiße Brust/Pfoten, Narrenkappe mit grünen Bommeln, Seitenblick-Augen, ohne Knochenkreuz); nur die Pupillen bewegen sich (9 s, CSS), Standbild bei reduzierter Bewegung; Komponente ChairwomanKoko rechts neben dem Hero (mobil darunter, Platzhalter data-slot="chairwoman"); Bild 9 KB (<img>), Alt-Text DE/EN.
+- Tests: Unit (Quelle, Budget, nur Pupillen animiert, reduzierte Bewegung, Alt-Text), E2E (nur zwei animierte Pupillen-Elemente, reduziert 0).
+
+## 2026-10-06 – P12.5
+
+- Fitness-Coco ersetzt die große sitzende Coco der Station „Hallo“: sieben Übungen in Juttas Reihenfolge + erschöpft Liegen, Endlosschleife (≈ 42 s), je Übung 12–20 gezeichnete Zwischenbilder, weiche Übergänge, schwarze Tuschelinie mit Zittern, oranger Buntstift mit Papierkörnung, keine Beschriftung, Knickohr; Standbild als <img>, Bildfolge (120 KB gz) nach dem load nachgeladen und auf einer Leinwand gespielt; Standbild bei reduzierter Bewegung; Alt-Texte DE/EN.
+- Tests: Unit (Daten, Budget, Knickohr, Verhalten), E2E (home-fitness: Daten erst nach load, Schleife läuft, reduziert still), check:bundle (SVG der Startseite 54,3 KB ≤ 60). Kunst-QA: SC-01 um Fitness-Coco- und Koko-Bilder erweitert und lokal aufgenommen (art-desktop motion + reduced).
+
+## 2026-10-06 – P12.4
+
+- Coco: Sitzen/Kopf schief neu in Seitenansicht (Juttas Foto), Knickohr (hinteres Ohr) in allen Posen, Warte-Aktionen gestaffelt (Hecheln, Ohr zucken, Kratzen, Gähnen, Strecken, Wedeln, Hinlegen → Einrollen → Schlafen) und vier neue Posen (Spielverbeugung, Schütteln, Freudenhüpfer mit Drehung bei „Korb gefüllt“/„Bestellung abgeschickt“, Hinlegen mit Bauch hoch) in der nachgeladenen Datei coco-extra (27 Symbole); Coco +25 % (70/110 px, Rinne 56/88 px); Tuschelinie doppelt so langsam; Leine in Raster-Seiten (Flash, Shop, Kategorie, Archiv) nur in der Rinne am Rand, kringelt sich zwischen den Zeilen, umwickelt nie Karten.
+- Budgets: Engine 11 805 B gz (≤ 12 000), Coco-Steuerung 2 884 B (≤ 3 000), Zusatz-Chunk 1 072 B, Sprite 43,8 KB/10,3 KB gz, Zusatz-Datei 56 KB/12,6 KB gz.
+- Tests: Unit (Sprite, CO-01…08 mit Zusatz-Posen, Knickohr, Zusatz-Aktionen, Raster-Geometrie), E2E Raster-Seiten (LG-01 Flash/Shop, 390 und 1280 px), leash/coco/home-choreo/reduced-motion/a11y/home (desktop + pixel-7), check:bundle, pnpm check, Int 1 101 grün. Tempo-Gates (PF-02/04, LCP) und Kunst-QA-Linsen: CI/P12.13.
+
 ## 2026-10-06 – P12 gestartet: deine Änderungswünsche
 
 Danke für deine Rückmeldungen und die Zeichnungen! Ich habe alles in `docs/UEBERARBEITUNG.md` festgehalten und als eigene Phase P12 vor dem Go-live angelegt: neue Sitzpose und mehr Posen für Coco (Knickohr rechts), Fitness-Coco auf der Startseite, die Vorsitzende der Goth Dogs Berlin mit wandernden Pupillen, Schrift Spectral, Olivgrün mit Petrol und Scroll-Verlauf, Goth-Rahmen für alle Fotos, „Angebote“ und DM-Hinweise raus, „Planet Claire on Tour“, komplett neue Texte, vollständige Rechtstexte mit Schutz für deine Werke, und die ganze Seite dauerhaft auf Deutsch und Englisch. Am Ende bekommst du eine neue HTML-Vorschau. Deine Skizzenfotos der Fitness-Übungen konnte ich nur im Chat ansehen; ich habe sie beschrieben abgelegt. Wenn du magst, lädst du die Originale später in den Ordner `content/art/jutta-skizzen` hoch (Anleitung G4).
