@@ -92,6 +92,9 @@ describe('U-13 Goth-Fotorahmen: Einbindung', () => {
       'src/components/shop/WarrantyNotice.tsx',
       'src/components/commission/CommissionImages.tsx',
       'src/app/(frontend)/[locale]/qa/art/page.tsx',
+      // P12.5/P12.6: gezeichnete Figuren (keine Fotos) – Fitness-Coco und Koko, Vorsitzende der Goth Dogs Berlin
+      'src/components/home/FitnessCoco.tsx',
+      'src/components/home/ChairwomanKoko.tsx',
     ])
     const stray = files
       .filter((f) => f.endsWith('.tsx') && !f.startsWith('src/components/media/'))
