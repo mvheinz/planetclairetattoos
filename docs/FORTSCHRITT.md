@@ -2,6 +2,19 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P10 Kennzahlen aus dem grünen Phasenlauf (3ff41ee)
+
+Erster vollständig grüner Phasenlauf von Phase 10 (CI, CI full mit allen sechs Browser-Hälften, Abdeckung, Docker, Lighthouse, Vorschau-Export, Kunst-QA, Restore-Drill, Release-Probelauf). Die Tempo-Messung (Lighthouse, Median aus 3, Handy, gedrosselt):
+
+| Seite | LCP | CLS | TBT |
+|---|---|---|---|
+| Startseite (R01) | 1669 ms | 0,005 | 183 ms (Gate ≤ 200, Ziel ≤ 150 knapp verfehlt) |
+| Shop (R02) | 1669 ms | 0,034 | 110 ms |
+| Produktseite (R04) | 1738 ms | 0,000 | 106 ms |
+| Tattoo (R11) | 1479 ms | 0,008 | 122 ms |
+
+Gate (LCP ≤ 2,5 s, CLS ≤ 0,1, TBT ≤ 200 ms) überall eingehalten; Ziele (LCP ≤ 2,0 s, CLS ≤ 0,05) erreicht, nur der Blockierzeit-Wert der Startseite (TBT) liegt knapp über dem Ziel von 150 ms. Abdeckung insgesamt: 92 % Zeilen, 81 % Zweige; die geforderten Schwellen für Kasse, Zahlung, Sicherheit und Recht sind eingehalten. Vorschau-Datei ≈ 7,9 MB (Ziel ≤ 20 MB). Für die Abnahme von P10.2 („zwei aufeinanderfolgende Volläufe grün“) läuft ein zweiter Phasenlauf.
+
 ## 2026-10-06 – P10 CI-Reparatur, vierte Runde (Vorschau-Datei)
 
 Bei der Vorschau-Datei ist eine Seite („schon ein Zuhause“, englische Variante) im GitHub-Lauf einmal nicht fertig im Browser erfasst worden; lokal trat das nie auf. Die Erfassung versucht es jetzt bis zu dreimal mit frischer Seite, und scheitert sie doch, bricht der Export mit einer klaren Meldung ab statt später mit einem unklaren Testfehler. Der Phasenlauf startet erneut.
