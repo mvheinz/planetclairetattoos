@@ -8,15 +8,13 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import {
   BRICOLAGE_WGHT,
   buildFonts,
-  coverageModule,
-  coverageRanges,
+  DISPLAY_REQUIRED_GLYPHS,
   FONT_BUDGET_BYTES,
   type BuiltFont,
 } from '../../../scripts/fonts/copy'
 import { checkFonts } from '../../../scripts/check-bundle'
-import { MANSALVA_REQUIRED_GLYPHS } from '@/styles/glyphs'
 
-// P2.4 `pnpm fonts:copy` (DESIGN §4.1, AK-DS-04): genau 3 WOFF2, ≤ 100 KB, deterministisch, Bricolage auf wght
+// P2.4 `pnpm fonts:copy` (DESIGN §4.1, AK-DS-04): genau 4 WOFF2, ≤ 100 KB, deterministisch, Bricolage auf wght
 // 400–700 beschnitten; eingecheckte Dateien entsprechen der Skript-Ausgabe.
 
 const nodeModules = path.resolve('node_modules')
@@ -37,8 +35,8 @@ describe('P2.4 fonts:copy', () => {
     }
   })
 
-  it('AK-DS-04 genau 3 WOFF2-Dateien, zusammen ≤ 100 KB', () => {
-    expect(first).toHaveLength(3)
+  it('AK-DS-04 genau 4 WOFF2-Dateien, zusammen ≤ 100 KB', () => {
+    expect(first).toHaveLength(4)
     for (const font of first) {
       expect(font.file).toMatch(/\.woff2$/)
       expect(font.data.subarray(0, 4).toString('latin1')).toBe('wOF2')
@@ -52,10 +50,6 @@ describe('P2.4 fonts:copy', () => {
       const checkedIn = readFileSync(path.join(fontsDir, font.file))
       expect(Buffer.compare(checkedIn, font.data), font.file).toBe(0)
     }
-    const mansalva = first.find((f) => f.file.startsWith('mansalva'))!
-    expect(readFileSync(path.resolve('src/styles/mansalvaCoverage.generated.ts'), 'utf8')).toBe(
-      coverageModule(coverageRanges(mansalva.data)),
-    )
   })
 
   it('beschnittene Bricolage deckt wght 400–700 und die Glyphen-Pflichtliste ab', () => {
@@ -64,7 +58,7 @@ describe('P2.4 fonts:copy', () => {
     const axes = font.variationAxes as Record<string, { min: number; max: number }>
     expect(axes.wght?.min).toBe(BRICOLAGE_WGHT.min)
     expect(axes.wght?.max).toBe(BRICOLAGE_WGHT.max)
-    const missing = [...MANSALVA_REQUIRED_GLYPHS].filter(
+    const missing = [...DISPLAY_REQUIRED_GLYPHS].filter(
       (c) => !font.hasGlyphForCodePoint(c.codePointAt(0)!),
     )
     expect(missing).toEqual([])
@@ -74,13 +68,17 @@ describe('P2.4 fonts:copy', () => {
     expect(Object.keys(tables)).toEqual(expect.arrayContaining(['fvar', 'gvar']))
   })
 
-  it('Plex Mono nur 400, Mansalva mit Handschrift-Alternativen (calt)', () => {
+  it('Plex Mono nur 400; Spectral (normal und kursiv) deckt die Pflicht-Glyphen ab', () => {
     const plex = fontkit.create(first.find((f) => f.file.startsWith('ibm'))!.data) as fontkit.Font
     expect(plex.variationAxes).toEqual({})
-    const mansalva = fontkit.create(
-      first.find((f) => f.file.startsWith('mansalva'))!.data,
-    ) as fontkit.Font
-    expect(mansalva.availableFeatures).toContain('calt')
+    for (const f of first.filter((x) => x.file.startsWith('spectral'))) {
+      const spectral = fontkit.create(f.data) as fontkit.Font
+      const missing = [...DISPLAY_REQUIRED_GLYPHS].filter(
+        (c) => !spectral.hasGlyphForCodePoint(c.codePointAt(0)!),
+      )
+      expect(missing, f.file).toEqual([])
+      expect(spectral.availableFeatures).toContain('kern')
+    }
   })
 })
 
@@ -97,7 +95,7 @@ describe('AK-DS-04 check:bundle Schriftprüfung', () => {
         '@import url(https://fonts.googleapis.com/css2?family=X)',
       )
       const errors = checkFonts(dir).errors
-      expect(errors.some((e) => e.includes('4 .woff2'))).toBe(true)
+      expect(errors.some((e) => e.includes('5 .woff2'))).toBe(true)
       expect(errors.some((e) => e.includes('Google-Fonts'))).toBe(true)
       writeFileSync(path.join(dir, 'media', 'extra.woff2'), Buffer.alloc(FONT_BUDGET_BYTES))
       expect(checkFonts(dir).errors.some((e) => e.includes('Budget'))).toBe(true)

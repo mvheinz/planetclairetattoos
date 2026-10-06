@@ -222,8 +222,8 @@ describe('Inline-Skript pc-motion (DESIGN §11.7, ARCHITEKTUR §8.1)', () => {
     const ok = run()
     // Familiennamen wie in src/styles/fonts.ts (next/font: Name der Konstante = font-family).
     const fontsTs = readFileSync(path.join(ROOT, 'src/styles/fonts.ts'), 'utf8')
-    const families = [...fontsTs.matchAll(/export const (\w+) = localFont\(/g)].map(
-      (m) => `1em ${m[1]}`,
+    const families = [...fontsTs.matchAll(/export const (\w+) = localFont\(/g)].map((m) =>
+      m[1] === 'spectralItalic' ? `italic 1em ${m[1]}` : `1em ${m[1]}`,
     )
     expect(ok.requested).toEqual(families)
     expect(ok.attrs).toEqual({ 'data-fonts': 'wait' })
@@ -232,6 +232,7 @@ describe('Inline-Skript pc-motion (DESIGN §11.7, ARCHITEKTUR §8.1)', () => {
     await flush()
     expect(ok.attrs).toEqual({ 'data-fonts': 'wait' })
     ok.pending[2]!.resolve()
+    ok.pending[3]!.resolve()
     await flush()
     expect(ok.attrs).toEqual({})
 
@@ -251,11 +252,12 @@ describe('Inline-Skript pc-motion (DESIGN §11.7, ARCHITEKTUR §8.1)', () => {
     const fonts = readFileSync(path.join(ROOT, 'src/styles/fonts.ts'), 'utf8')
     expect(fonts).not.toMatch(/preload:\s*true/)
     const names = [...fonts.matchAll(/export const (\w+) = localFont\(/g)].map((m) => m[1])
-    expect(names).toEqual(['mansalva', 'bricolage', 'plexMono'])
+    expect(names).toEqual(['spectral', 'spectralItalic', 'bricolage', 'plexMono'])
     const css = readFileSync(path.join(ROOT, 'src/styles/global.css'), 'utf8')
     const gate = /:root\[data-fonts='wait'\]\s*\{([^}]*)\}/.exec(css)?.[1] ?? ''
     const flat = gate.replace(/\s+/g, ' ')
-    expect(flat).toContain("--font-hand: 'mansalva Fallback'")
+    expect(flat).toContain("--font-display: 'spectral Fallback'")
+    expect(flat).toContain("--font-accent: 'spectralItalic Fallback'")
     expect(flat).toContain("--font-body: 'bricolage Fallback'")
     expect(flat).toContain("--font-mono: 'plexMono Fallback'")
   })
@@ -266,7 +268,7 @@ describe('Inline-Skript pc-motion (DESIGN §11.7, ARCHITEKTUR §8.1)', () => {
     const faces = [...css.matchAll(/@font-face\s*\{([^}]*)\}/g)].map((m) =>
       m[1]!.replace(/\s+/g, ' '),
     )
-    for (const name of ['mansalva', 'bricolage', 'plexMono']) {
+    for (const name of ['spectral', 'spectralItalic', 'bricolage', 'plexMono']) {
       const block =
         new RegExp(`export const ${name} = localFont\\(\\{([\\s\\S]*?)\\n\\}\\)`).exec(
           fonts,
@@ -275,7 +277,12 @@ describe('Inline-Skript pc-motion (DESIGN §11.7, ARCHITEKTUR §8.1)', () => {
       expect(block).toMatch(/adjustFontFallback:\s*false/)
       expect(block).toMatch(new RegExp(`fallback:\\s*\\[\\s*'${name} Fallback',`))
       const face = faces.find((f) => f.includes(`font-family: '${name} Fallback'`)) ?? ''
-      expect(face).toMatch(/src: local\('Arial'\).*local\('Liberation Sans'\).*local\('Arimo'\)/)
+      const serif = name.startsWith('spectral')
+      expect(face).toMatch(
+        serif
+          ? /src: local\('Times New Roman[^)]*'\).*local\('Liberation Serif[^)]*'\).*local\('Tinos[^)]*'\)/
+          : /src: local\('Arial'\).*local\('Liberation Sans'\).*local\('Arimo'\)/,
+      )
       expect(face).toMatch(/size-adjust: \d+(\.\d+)?%/)
       expect(face).toMatch(/ascent-override: \d+(\.\d+)?%/)
     }

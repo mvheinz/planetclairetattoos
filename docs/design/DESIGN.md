@@ -54,7 +54,7 @@
 7. **Lesbarkeit vor Kunst:** Text mindestens 4,5:1 (groß 3:1). Linie und Coco überdecken nie Text oder Bedienelemente.
 8. **„Bewegung reduzieren“ heißt Stillstand:** Linie fertig gezeichnet, Coco still, keine Übergänge.
 9. **Pflichtlinks unten auf jeder Seite**, „Vertrag widerrufen“ hervorgehoben (E-44, KONZEPT §3.0.3).
-10. **Nur drei Schriften:** Mansalva, Bricolage Grotesque, IBM Plex Mono, selbst gehostet (E-79).
+10. **Nur drei Familien (vier Dateien):** Spectral (+ Spectral Italic als Akzent-Schrift), Bricolage Grotesque, IBM Plex Mono, selbst gehostet (E-79, U-10). Die frühere Handschrift Mansalva ist entfernt.
 11. **Tempo zuerst:** Animationscode lädt nach dem LCP, bleibt im Budget (§9.10) und erzeugt 0 Layoutverschiebung.
 12. **Juttas Strich ist die Messlatte** (E-76, E-80). Referenzen: `content/seed/instagram/post-DbJ1QRrjCcb.jpg` (Kelch) und `post-DaJH_kADpsK.jpg` (zwei Figuren).
 
@@ -70,7 +70,7 @@ Gesichtet am 26.09.2026: alle 22 Bilder in `content/seed/instagram/` (Beiträge 
 | Schatten und Flächen | Dichte Parallelschraffur (Kelch rechts), chaotisches Gekritzel für Haare, keine Verläufe | „Schatten“ im UI = Schraffur (§6.3), dunkle Flächen = Gekritzel oder Vollfläche |
 | Figuren | Naiv, freie Proportionen; Tiere mit großen „Kulleraugen“ (weißes Oval, schwarzer Punkt, oft versetzt), lange Schnauzen, 2–3 lange Schnurrhaar-Striche (Keramikschalen, Fuchs-Aquarell, Cap-Wesen) | Coco-Augen groß und dunkel mit Glanzpunkt; Platzhalter-Zeichnungen im selben naiven Ton |
 | Farbe | Flache Deckfarbe hinter der Linie (Keramik grau, Cap-Wesen rot-orange), Aquarell mit weichen Rändern (Fuchs, Reh) | Im Web nur **flache** Farbflächen („Washes“) hinter der Linie, leicht versetzt |
-| Handschrift | Verbundene Schreibschrift mit langen Ober-/Unterlängen (Fliese, Cap „sometimes“, Schälchen) | Keine eigene Font (E-79); Mansalva ersetzt sie |
+| Handschrift | Verbundene Schreibschrift mit langen Ober-/Unterlängen (Fliese, Cap „sometimes“, Schälchen) | Keine eigene Font (E-79); Spectral Italic (U-10) ersetzt sie |
 | Untergründe | Grüne Schneidematte mit cm-Raster, Papier, Holz; Tageslicht mit harten Schatten | Zartes Schneidematten-Raster als Seitengrund (E-74); Fotos auf Matte/Papier (§12.1) |
 | Coco | Siehe §10.1 | Charakterblatt |
 
@@ -80,25 +80,28 @@ Gesichtet am 26.09.2026: alle 22 Bilder in `content/seed/instagram/` (Beiträge 
 
 ### 3.1 Finale Farb-Tokens mit gemessenen Kontrasten
 
-Kontrast nach WCAG 2.2 (relative Luminanz), berechnet am 26.09.2026. Spalten: **Papier** = `--paper` (Seitengrund), **Papier-2** = `--paper-2` (Karten, Preisschilder, Fußbereich), **Raster** = Farbe einer Raster-Hauptlinie (`#E2E3D8`, dunkelster flächig vorkommender Grund, §3.4). Formularfelder (`--paper-field`) sind heller als Papier und damit immer mindestens so kontrastreich.
+Kontrast nach WCAG 2.2 (relative Luminanz), neu berechnet am 06.10.2026 (P12.2, U-11/U-12: helles Olivgrün mit Verlauf nach Petrol). Spalten: **Papier** = `--paper` (Seitengrund am Seitenanfang), **Papier-2** = `--paper-2` (Karten, Preisschilder, Fußbereich), **Raster** = Farbe einer Raster-Hauptlinie auf Papier (`#D6DFC2`, §3.4), **Verlauf-Ende** = `--paper-deep` (Grund am Seitenende, §3.5; der Verlauf liegt zwischen Papier und Verlauf-Ende, jede Zwischenfarbe ist heller als dieses Ende, ein Text-Token besteht also im ganzen Verlauf). Formularfelder (`--paper-field`) sind heller als Papier und damit immer mindestens so kontrastreich.
 
-| Token | Hex | Rolle | Papier | Papier-2 | Raster | Freigabe |
-|---|---|---|---|---|---|---|
-| `--paper` | `#F4EFE6` | Seitengrund | – | – | – | Grund |
-| `--paper-2` | `#EAE2D4` | Karten, Preisschild, Fußbereich, Callouts | – | – | – | Grund |
-| `--paper-field` | `#FBF8F1` | Formularfelder, Lightbox-Grund | – | – | – | Grund |
-| `--ink` | `#1C1A17` | **Tuschelinie**, Text, Primärknopf, Icons | 15,16 | 13,50 | 13,40 | Text jeder Größe |
-| `--ink-2` | `#4B463F` | Sekundärtext, Meta, Feldränder | 8,16 | 7,27 | 7,22 | Text jeder Größe; UI-Ränder |
-| `--ink-3` | `#665F55` | Platzhaltertext in Feldern, deaktiviert | 5,50 | 4,90 | 4,86 | Text jeder Größe (nur diese Rollen) |
-| `--clay` | `#CBBBA2` | Trennlinien, Deko-Ränder | 1,64 | 1,46 | 1,41 | **nur Deko** (nie Text, nie einzige Grenze eines Bedienelements) |
-| `--mat` | `#2F6B4C` | Links, Erfolg | 5,51 | 4,91 | 4,87 | Text jeder Größe |
-| `--fox` | `#B84E1A` | „sold“-Stempel, Deko-Akzente | 4,43 | 3,94 | 3,91 | **nur Text ≥ 24 px** (groß, ≥ 3:1) oder Deko |
-| `--fox-text` | `#A8430F` | Hinweistext in Fuchs, Countdown < 1 min | 5,28 | 4,70 | 4,67 | Text jeder Größe |
-| `--stencil` | `#5A4BC4` | Fokusring, Info-Badges (Deko-Hinweis), Flash-Status | 5,66 | 5,04 | 5,01 | Text jeder Größe; Fokusring |
-| `--pink` | `#E58FB0` | Cap-Pink, kleine Flächenakzente | 2,06 | 1,84 | 1,77 | **nur Fläche/Deko** |
-| `--warn` | `#8F5400` | Warnhinweise, Countdown < 5 min | 5,34 | 4,75 | 4,72 | Text jeder Größe |
-| `--error` | `#A6261C` | Formularfehler | 6,29 | 5,60 | 5,56 | Text jeder Größe |
-| `--ok` | = `--mat` | Erfolgsmeldungen | 5,51 | 4,91 | 4,87 | Text jeder Größe |
+| Token | Hex | Rolle | Papier | Papier-2 | Raster | Verlauf-Ende | Freigabe |
+|---|---|---|---|---|---|---|---|
+| `--paper` | `#E6EACD` | Seitengrund oben (helles Olivgrün) | – | – | – | – | Grund |
+| `--paper-deep` | `#BDD6CE` | Seitengrund unten (Petrol-Hauch), Ende des Scroll-Verlaufs | – | – | – | – | Grund |
+| `--paper-2` | `#DCE2C2` | Karten, Preisschild, Fußbereich, Callouts | – | – | – | – | Grund |
+| `--paper-field` | `#F8F9EC` | Formularfelder, Lightbox-Grund | – | – | – | – | Grund |
+| `--ink` | `#1C1A17` | **Tuschelinie**, Text, Icons | 14,07 | 12,98 | 12,56 | 11,31 | Text jeder Größe |
+| `--ink-2` | `#4B463F` | Sekundärtext, Meta, Feldränder | 7,57 | 6,99 | 6,76 | 6,09 | Text jeder Größe; UI-Ränder |
+| `--ink-3` | `#524C43` | Platzhaltertext in Feldern, deaktiviert | 6,88 | 6,35 | 6,14 | 5,53 | Text jeder Größe (nur diese Rollen) |
+| `--clay` | `#CBBBA2` | Trennlinien, Deko-Ränder | 1,52 | 1,41 | 1,36 | 1,22 | **nur Deko** (nie Text, nie einzige Grenze eines Bedienelements) |
+| `--mat` | `#2F6B4C` | Schneidematten-Raster, grüne Flächen | – | – | – | – | **nur Deko/Fläche** (kein Text mehr; Links sind `--petrol`) |
+| `--petrol` | `#0F4C57` | **Akzent (U-12):** Links, Primärknöpfe, „sold“-Stempel, Fokus-Grundton | 7,76 | 7,16 | 6,93 | 6,24 | Text jeder Größe |
+| `--petrol-deep` | `#0A3841` | Hover, Fokusring | 10,28 | 9,49 | 9,18 | 8,26 | Text jeder Größe; Fokusring |
+| `--fox` | `#AA4515` | Deko-Akzente (Warenkorb-Hinweis) | 4,76 | 4,40 | 4,25 | 3,83 | **nur Text ≥ 24 px** (groß, ≥ 3:1) oder Deko |
+| `--fox-text` | `#843709` | Hinweistext in Fuchs, Countdown < 1 min | 6,72 | 6,20 | 6,00 | 5,40 | Text jeder Größe |
+| `--stencil` | `#4638A8` | Info-Badges (Deko-Hinweis), Flash-Status | 7,11 | 6,57 | 6,35 | 5,72 | Text jeder Größe |
+| `--pink` | `#E58FB0` | Cap-Pink, kleine Flächenakzente | 1,91 | 1,77 | 1,71 | 1,54 | **nur Fläche/Deko** |
+| `--warn` | `#714300` | Warnhinweise, Countdown < 5 min | 6,79 | 6,27 | 6,07 | 5,46 | Text jeder Größe |
+| `--error` | `#92211A` | Formularfehler | 6,93 | 6,40 | 6,19 | 5,57 | Text jeder Größe |
+| `--ok` | `#1B5538` | Erfolgsmeldungen | 7,08 | 6,53 | 6,32 | 5,69 | Text jeder Größe |
 
 Kunst-Farben (nur in Zeichnungen, nie für UI-Text):
 
@@ -111,27 +114,27 @@ Kunst-Farben (nur in Zeichnungen, nie für UI-Text):
 | `--wash-mat` | `#CFE2D5` | Wash | 12,81 |
 | `--wash-sky` | `#D6E4EC` | Wash | 13,37 |
 
-Umgekehrte Kombinationen (Text auf Farbfläche): Papier auf Tusche 15,16 · Papier auf Matte 5,51 · Papier auf Stencil 5,66 · Papier auf Error 6,29. Weiß (`#FFFFFF`) wird im UI nicht verwendet.
+Umgekehrte Kombinationen (Text auf Farbfläche): Papier-Feld auf Petrol 9,01 (Primärknopf) · Papier-Feld auf Petrol-tief 11,94 (Hover) · Papier auf Tusche 14,07 · Papier auf Stencil 7,11 · Papier auf Error 6,93. Weiß (`#FFFFFF`) wird im UI nicht verwendet.
 
-Die Werte stammen aus der Konzeptseite (Papier, Papier-2, Tusche, Tusche-2, Ton, Matte, Fuchs, Pink, Stencil) und wurden nur dort nachgeschärft, wo ein Text-Kontrast unter 4,5:1 lag: `--warn` (Konzept `#9A5B00`: 4,22 auf Papier-2 → `#8F5400`), neu `--fox-text` (Konzept-Fuchs 4,43 auf Papier), neu `--ink-3`, `--error`, `--paper-field`.
+Die Werte stammten ursprünglich aus der Konzeptseite; in P12.2 (U-10 … U-12) wurden Papier, Papier-2 und Papier-Feld auf Olivgrün umgestellt, `--paper-deep` und `--petrol`/`--petrol-deep` neu eingeführt und alle Text-Tokens (`--ink-3`, `--fox-text`, `--stencil`, `--warn`, `--error`, `--ok`) gegenüber dem dunkelsten Grund (Verlauf-Ende) nachgedunkelt, damit sie überall ≥ 4,5:1 halten. `--mat` ist kein Text-Token mehr (Links wurden Petrol).
 
 ### 3.2 Regeln
 
 1. **Tuschelinie, Coco-Linien, Preisschild-Schnur, Icons:** immer `--ink`. Keine Transparenz auf der Linie (Deckkraft 1).
-2. **Links im Fließtext:** `--mat`, unterstrichen (`text-underline-offset: 0.18em`, `text-decoration-thickness: 1px`); Hover/Fokus: Farbe `--ink`, Unterstrich 2px. Besuchte Links gleich. Navigationslinks in Kopf und Menü in `--ink` mit gezeichneter Unterstreichung (KO-03, MI-06); Fußbereich-Links in `--ink` mit normaler Unterstreichung (KO-04).
-3. **Fokus:** `outline: 3px solid var(--stencil); outline-offset: 2px`. Auf Fotos und dunklen Flächen zusätzlich `box-shadow: 0 0 0 2px var(--paper)` (Papier-Halo). Fokus nie entfernen, nie nur Farbwechsel.
+2. **Links im Fließtext:** `--petrol` (U-12), unterstrichen (`text-underline-offset: 0.18em`, `text-decoration-thickness: 1px`); Hover/Fokus: Farbe `--ink`, Unterstrich 2px. **Primärknöpfe** (KO-11): Grund `--petrol`, Text `--paper-field`, gedruckter Schatten in `--ink`; Hover Grund `--petrol-deep`. Der „sold“-Stempel steht in `--petrol`. Besuchte Links gleich. Navigationslinks in Kopf und Menü in `--ink` mit gezeichneter Unterstreichung (KO-03, MI-06); Fußbereich-Links in `--ink` mit normaler Unterstreichung (KO-04).
+3. **Fokus:** `outline: 3px solid var(--petrol-deep); outline-offset: 2px`. Auf Fotos und dunklen Flächen zusätzlich `box-shadow: 0 0 0 2px var(--paper)` (Papier-Halo). Fokus nie entfernen, nie nur Farbwechsel.
 4. **Verboten:** `--fox` für Text < 24 px; `--pink`, `--clay`, Kunst-Farben für Text oder als einzige Grenze eines Bedienelements; farbige Flächen hinter Fließtext außer `--paper-2`, `--paper-field` und den Washes (nur für kurze Labels in `--ink`).
 5. **Zustände nie nur über Farbe:** Fehler = Text + Icon; „sold“ = Stempel-Text; aktiv = Unterstreichung + `aria-current`.
-6. **Statusfarben:** Erfolg `--ok`, Warnung `--warn`, Fehler `--error`, Info `--stencil`. Fuchs ist **kein** Fehlerrot (Fuchs = „sold“ und Deko).
+6. **Statusfarben:** Erfolg `--ok`, Warnung `--warn`, Fehler `--error`, Info `--stencil`. Fuchs ist **kein** Fehlerrot (Fuchs ist nur Deko-Akzent).
 
-**AK-DS-01** Ein Vitest-Test liest `src/styles/tokens.css`, berechnet für jede Paarung aus §3.1 den Kontrast und schlägt fehl, wenn ein als „Text jeder Größe“ freigegebenes Token gegen Papier, Papier-2 oder Raster (`#E2E3D8`) unter 4,50 liegt.
+**AK-DS-01** Ein Vitest-Test liest `src/styles/tokens.css`, berechnet für jede Paarung aus §3.1 den Kontrast und schlägt fehl, wenn ein als „Text jeder Größe“ freigegebenes Token gegen Papier, Papier-2, Raster (`#D6DFC2`) oder Verlauf-Ende (`--paper-deep`) unter 4,50 liegt.
 **AK-DS-02** Ein Lint-Test durchsucht `src/**/*.{css,scss,tsx}` und schlägt fehl bei `color: var(--fox)` außerhalb der Komponenten `SoldStamp` und `CartLine` (Stempel-Text „sold“ ≥ 24 px, KO-13), bei `color: var(--pink|--clay|--coco-*|--wash-*)` und bei `#FFF`/`#FFFFFF`/`white` als Textfarbe.
 
 ### 3.3 Nur hell – Entscheidung zum Dunkelmodus
 
 - **Die Website ist ausschließlich hell** (E-74). Es gibt keinen `prefers-color-scheme: dark`-Zweig und keinen Umschalter.
 - `:root { color-scheme: only light; }` und `<meta name="color-scheme" content="only light">` (verhindert automatisches Abdunkeln in Chrome; Samsung Internet kann trotzdem zwangsabdunkeln – bekannte Grenze, wird nicht bekämpft).
-- `<meta name="theme-color" content="#F4EFE6">`.
+- `<meta name="theme-color" content="#E6EACD">`.
 - Die Konzeptseite hatte Dunkel-Tokens für ihre eigene Darstellung; sie werden **nicht** übernommen.
 - **Verwaltung:** behält das Payload-Standard-Theme (hell/dunkel nach Payload-Einstellung). Eigene Handy-Ansichten (P5) nutzen Payload-CSS-Variablen (`--theme-*`), nicht die Website-Tokens. Einzige Übernahmen: Planet-Marke als Login-Logo und PWA-Icon (§12.6).
 - **Erzwungene Farben** (Windows-Kontrastmodus, `@media (forced-colors: active)`): Raster aus, Linie und Coco-Striche `stroke: CanvasText`, Washes und Fell `fill: none`, Fokus `outline-color: Highlight`.
@@ -141,11 +144,11 @@ Die Werte stammen aus der Konzeptseite (Papier, Papier-2, Tusche, Tusche-2, Ton,
 
 ### 3.4 Schneidematten-Raster (Seitengrund)
 
-Zartes Raster wie auf Juttas grüner Matte (E-74): Nebenlinien alle 32 px, Hauptlinien alle 160 px (5 Felder). Die Hauptlinie ist so gewählt, dass sie zusammen mit der darunterliegenden Nebenlinie genau 9 % Matte ergibt.
+Zartes Raster wie auf Juttas grüner Matte (E-74): Nebenlinien alle 32 px, Hauptlinien alle 160 px (5 Felder). Die Hauptlinie ist so gewählt, dass sie zusammen mit der darunterliegenden Nebenlinie genau 9 % Matte ergibt. Seit P12.2 liegt das Raster auf dem Verlauf aus §3.5: `body` hat keine eigene Grundfarbe (`transparent`), der Grund kommt von `html`.
 
 ```css
 body {
-  background-color: var(--paper);
+  background-color: transparent; /* Grund + Verlauf liegen auf html (§3.5) */
   background-image:
     linear-gradient(var(--grid-line-major) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid-line-major) 1px, transparent 1px),
@@ -159,12 +162,19 @@ body {
 
 | Linie | Deckkraft Matte | effektive Farbe auf Papier |
 |---|---|---|
-| Nebenlinie `--grid-line` | 5 % | `#EAE8DE` |
-| Hauptlinie (`--grid-line-major` über Nebenlinie) | 9 % gesamt | `#E2E3D8` |
+| Nebenlinie `--grid-line` | 5 % | `#DDE4C7` |
+| Hauptlinie (`--grid-line-major` über Nebenlinie) | 9 % gesamt | `#D6DFC2` |
 
 - Das Raster liegt nur auf `body`. Karten, Preisschilder, Fußbereich, Formularfelder, Menü-Overlay (Papier deckend mit eigenem Raster) und Lightbox decken es ab.
 - Kreuzungspunkte (einzelne Pixel) werden für Kontrast nicht gewertet.
 - Kein Papierkorn-Bild in P2. P9 DARF ein Papierkorn ergänzen, wenn Prüfer:in R1 (KUNST-QA) es verlangt, nur als Kachel ≤ 12 KB und nur, wenn AK-DS-01 mit der dunkelsten Korn-Farbe weiter besteht.
+
+### 3.5 Seitengrund-Verlauf Olivgrün → Petrol (U-11, P12.2)
+
+- **Grundton:** helles Olivgrün `--paper` (`#E6EACD`). **Verlaufsende:** `--paper-deep` (`#BDD6CE`, Petrol-Hauch) – bewusst nur so dunkel, dass jeder Text-Token (§3.1) und die Tuschelinie auch am Seitenende ≥ 4,5:1 halten; Karten (`--paper-2`), Felder und Menü bleiben deckend hell.
+- **Grundfassung (immer):** `html` trägt `linear-gradient(180deg, var(--paper), var(--paper-deep))` über die ganze Dokumentlänge. Der Verlauf scrollt mit dem Inhalt (Leinwand-Hintergrund, kein Layout, kein Repaint) und ist **statisch** bei `prefers-reduced-motion: reduce`, bei `html[data-motion='reduced']` und in Browsern ohne Scroll-Zeitleiste.
+- **Verbesserung (CSS-only):** Mit `@supports (animation-timeline: scroll())`, `prefers-reduced-motion: no-preference` und ohne `data-motion='reduced'` legt `html::before` eine feste Fläche (`position: fixed`, `z-index: -1`, Verlauf transparent → `--paper-deep`) hinter den Inhalt, deren **`opacity` 0 → 1** über die Scrollstrecke (`animation-timeline: scroll(root block)`) läuft. Es ist ein einziger Compositor-Layer ohne JavaScript, ohne Layout und Repaint; der Verlauf gehört **nicht** in die Leine-Engine (Budget CO-08/PF-01, Engine ≤ 12 000 B gz unberührt). Wirkt unabhängig von der Seitenlänge: Am Seitenende ist der Grund immer am dunkelsten.
+- **Test:** AK-DS-01 prüft alle Text-Tokens gegen Papier, Papier-2, Raster und Verlauf-Ende; `tests/unit/design/page-gradient.unit.spec.ts` prüft die CSS-Regeln (statische Fassung, Scroll-Zeitleiste nur unter `no-preference`, nur `opacity` animiert).
 
 ---
 
@@ -174,29 +184,30 @@ body {
 
 | Rolle | Familie | Quelle (npm, OFL) | Datei (Subset „latin“) | Achsen/Schnitte | Laden |
 |---|---|---|---|---|---|
-| Display, Preisschild, Menü | **Mansalva** | `@fontsource/mansalva` | `mansalva-latin-400-normal.woff2` | 400 | kein Preload, `font-display: swap`, nach dem ersten Bild (Schriften-Tor) |
+| Display, Überschriften, Menü | **Spectral** | `@fontsource/spectral` (exakt 5.3.0) | `spectral-latin-500-normal.woff2` | 500 (ein Schnitt; Anfragen nach 400/600 treffen ihn ohne Synthese) | kein Preload, `font-display: swap`, nach dem ersten Bild (Schriften-Tor) |
+| Akzent: Preisschild, Produktpreis, „sold“, Betonungen | **Spectral Italic** | `@fontsource/spectral` | `spectral-latin-500-italic.woff2` | 500 kursiv (`font-style: italic` ist Pflicht, sonst greift der Schnitt nicht) | wie oben |
 | Text, UI, Knöpfe | **Bricolage Grotesque** | `@fontsource-variable/bricolage-grotesque` | `bricolage-grotesque-latin-wght-normal.woff2` | Variable `wght` 200–800 (opsz/wdth auf Standard) | kein Preload, `swap`, nach dem ersten Bild (Schriften-Tor) |
 | Nummern, Maße, Preise in Tabellen, Kicker | **IBM Plex Mono** | `@fontsource/ibm-plex-mono` | `ibm-plex-mono-latin-400-normal.woff2` | nur 400 | kein Preload, `swap`, nach dem ersten Bild (Schriften-Tor) |
 
 - Einbindung mit `next/font/local` aus Dateien, die `pnpm fonts:copy` (`scripts/fonts/`, ARCHITEKTUR §6.10) aus `node_modules/@fontsource*` nach `src/styles/fonts/` kopiert; sie werden eingecheckt (reproduzierbar, offline, für die Vorschau-Datei inline-bar). **Nie** Google-Fonts-CDN, auch nicht `next/font/google` (E-43, E-79).
 - **Schriften-Tor (P2.20, Tempo-Budget §9.10):** Das erste Bild steht mit den metrisch angeglichenen Ersatzschriften von
-  `next/font` (`'mansalva Fallback'`, `'bricolage Fallback'`, `'plexMono Fallback'`, kein Netzabruf); zwei Frames später
-  werden die drei Webschriften angefordert und per `swap` getauscht. Umsetzung: `html[data-fonts="wait"]` (Regel in
+  `next/font` (`'spectral Fallback'`, `'spectralItalic Fallback'`, `'bricolage Fallback'`, `'plexMono Fallback'`, kein Netzabruf); zwei Frames später
+  werden die vier Webschriften angefordert und per `swap` getauscht. Umsetzung: `html[data-fonts="wait"]` (Regel in
   `global.css`), gesetzt und nach zwei `requestAnimationFrame` (spätestens 2 s) entfernt vom Inline-Skript `pc-motion`
   (`src/lib/security/inlineScripts.ts`). Kein Tor, wenn die Seite von derselben Website aufgerufen wird (Schriften liegen
   im Cache), und ohne JavaScript (Vorschau-Datei, Skripte aus) – dann laden die Schriften sofort. Grund: Mit Preload
   zählen ~100 KB Schriften in Lighthouse (simulierte Drosselung) zum LCP-Pfad der Startseite und reißen das Gate
   „mobil LCP < 2,5 s“; der Tausch kostet eine Neuberechnung des Layouts nach dem ersten Bild (TBT) und CLS ≈ 0,01.
   Die Tuschelinie misst nach jedem Schriftwechsel neu (`document.fonts` `loadingdone`).
-- `adjustFontFallback` aktiv (Metrik-Fallback gegen CLS). Fallback-Stapel: Mansalva → `"Segoe Print", "Bradley Hand", cursive`; Bricolage → `ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif`; Plex Mono → `ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace`.
+- `adjustFontFallback` aktiv (Metrik-Fallback gegen CLS). Fallback-Stapel: Spectral → `'spectral Fallback', Georgia, "Times New Roman", serif` (Fläche `local('Times New Roman'/'Liberation Serif'/'Tinos')` mit `size-adjust` 111,34 % / Kursiv 102,4 %, gemessen mit `fontkit` gegen Liberation Serif); Bricolage → `ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif`; Plex Mono → `ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace`.
 - Das Subset „latin“ der Fontsource-Dateien enthält U+0000–00FF, Gedankenstriche, typografische Anführungszeichen, € (U+20AC). Mehr wird nicht geladen.
-- `font-synthesis: none` global (kein falsches Fett/Kursiv; Mansalva hat nur 400).
-- Budget: **genau 3 Dateien, zusammen ≤ 100 KB**. Liegt Bricolage (wght) über 45 KB, beschneidet `pnpm fonts:copy` die Datei mit dem npm-Paket `subset-font` (harfbuzz-wasm, ohne Python; ARCHITEKTUR §1.2) auf `wght 400–700` (Achse `variationAxes: { wght: { min: 400, max: 700 } }`, Zeichenumfang unverändert „latin“, Ausgabe WOFF2).
-- Glyphen-Pflicht für Mansalva (Überschriften, Preise): `a–z A–Z 0–9 ä ö ü Ä Ö Ü ß € „ “ ‚ ‘ – · , . : ! ? & ' ( ) / %`. Fehlt ein Zeichen, wird es per Komponente `GlyphFallback` in Bricolage 600 gesetzt (nie Systemschrift-Mischung).
-- Für OG-Bilder (satori, §12.6) liegen TTF-Fassungen von Mansalva und Bricolage (statische Instanz 600) in `src/og/fonts/` – werden nie an Browser ausgeliefert. `pnpm fonts:copy` erzeugt sie per Umwandlung aus den WOFF/WOFF2-Dateien der `@fontsource*`-Pakete (Bricolage 600 aus `@fontsource/bricolage-grotesque`; Wandler als npm-DevDependency, ARCHITEKTUR §1.2); **kein** Download von fonts.gstatic.com oder anderen Schrift-Servern.
+- `font-synthesis: none` global (kein falsches Fett/Kursiv; Spectral liegt nur als 500 normal und 500 kursiv vor).
+- Budget: **genau 4 Dateien, zusammen ≤ 100 KB** (Ist: 73,2 KB). Liegt Bricolage (wght) über 45 KB, beschneidet `pnpm fonts:copy` die Datei mit dem npm-Paket `subset-font` (harfbuzz-wasm, ohne Python; ARCHITEKTUR §1.2) auf `wght 400–700` (Achse `variationAxes: { wght: { min: 400, max: 700 } }`, Zeichenumfang unverändert „latin“, Ausgabe WOFF2).
+- Glyphen-Pflicht für Spectral (Überschriften, Preise): `a–z A–Z 0–9 ä ö ü Ä Ö Ü ß € „ “ ‚ ‘ – · , . : ! ? & ' ( ) / %`. Die Pflichtliste ist in beiden Schnitten vollständig (Test); eine Ersatz-Komponente (früher `GlyphFallback`) entfällt.
+- Für OG-Bilder (satori, §12.6) liegen TTF-Fassungen von Spectral Italic 500 und Bricolage (statische Instanz 600) in `src/og/fonts/` – werden nie an Browser ausgeliefert. `pnpm fonts:copy` erzeugt sie per Umwandlung aus den WOFF/WOFF2-Dateien der `@fontsource*`-Pakete (Bricolage 600 aus `@fontsource/bricolage-grotesque`; Wandler als npm-DevDependency, ARCHITEKTUR §1.2); **kein** Download von fonts.gstatic.com oder anderen Schrift-Servern.
 
-**AK-DS-04** Build-Test: Summe der ausgelieferten `.woff2` ≤ 100 KB, genau 3 Dateien; kein Request an `fonts.googleapis.com`/`fonts.gstatic.com` auf irgendeiner Route.
-**AK-DS-05** Unit-Test mit `fontkit` (oder `opentype.js`) prüft die Glyphen-Pflichtliste gegen die Mansalva-Datei; bei Fehlen muss `GlyphFallback` für genau diese Zeichen aktiv sein (Snapshot-Test des Preisschilds mit „38,50 €“).
+**AK-DS-04** Build-Test: Summe der ausgelieferten `.woff2` ≤ 100 KB, genau 4 Dateien; kein Request an `fonts.googleapis.com`/`fonts.gstatic.com` auf irgendeiner Route.
+**AK-DS-05** Unit-Test mit `fontkit` (oder `opentype.js`) prüft die Glyphen-Pflichtliste gegen beide Spectral-Dateien (U-10: Mansalva und `GlyphFallback` sind entfernt).
 
 ### 4.2 Schriftskala
 
@@ -204,9 +215,9 @@ Fluide Größen zwischen 360 px und 1280 px Viewport (`clamp()` mit rem-Anteil, 
 
 | Token | Schrift | Gewicht | mobil | Desktop | `clamp()` | Zeilenhöhe | Laufweite | Einsatz |
 |---|---|---|---|---|---|---|---|---|
-| `--fs-display` | Mansalva | 400 | 44 | 76 | `clamp(2.75rem, 1.9674rem + 3.4783vw, 4.75rem)` | 1.0 | 0 | H1 Startseite |
-| `--fs-h1` | Mansalva | 400 | 36 | 56 | `clamp(2.25rem, 1.7609rem + 2.1739vw, 3.5rem)` | 1.05 | 0 | H1 übrige Seiten, Produkttitel |
-| `--fs-h2` | Mansalva | 400 | 30 | 44 | `clamp(1.875rem, 1.5326rem + 1.5217vw, 2.75rem)` | 1.08 | 0 | Stationen, Abschnitte |
+| `--fs-display` | Spectral | 500 | 44 | 76 | `clamp(2.75rem, 1.9674rem + 3.4783vw, 4.75rem)` | 1.0 | 0 | H1 Startseite |
+| `--fs-h1` | Spectral | 500 | 36 | 56 | `clamp(2.25rem, 1.7609rem + 2.1739vw, 3.5rem)` | 1.05 | 0 | H1 übrige Seiten, Produkttitel |
+| `--fs-h2` | Spectral | 500 | 30 | 44 | `clamp(1.875rem, 1.5326rem + 1.5217vw, 2.75rem)` | 1.08 | 0 | Stationen, Abschnitte |
 | `--fs-h3` | Bricolage | 700 | 19 | 22 | `clamp(1.1875rem, 1.1141rem + 0.3261vw, 1.375rem)` | 1.3 | −0.005em | Unterabschnitte |
 | `--fs-lede` | Bricolage | 400 | 18 | 20 | `clamp(1.125rem, 1.0761rem + 0.2174vw, 1.25rem)` | 1.55 | 0 | Einleitungen |
 | `--fs-body` | Bricolage | 400 | 16 | 17 | `clamp(1rem, 0.9755rem + 0.1087vw, 1.0625rem)` | 1.62 | 0 | Fließtext |
@@ -217,16 +228,16 @@ Fluide Größen zwischen 360 px und 1280 px Viewport (`clamp()` mit rem-Anteil, 
 | `--fs-meta` | Plex Mono | 400 | 13 | 14 | `clamp(0.8125rem, 0.788rem + 0.1087vw, 0.875rem)` | 1.45 | 0 | `Nr. 017 · Keramik · Ø 14 cm` |
 | `--fs-price-mono` | Plex Mono | 400 | 15 | 16 | `clamp(0.9375rem, 0.913rem + 0.1087vw, 1rem)` | 1.4 | 0 | Preise in Korb/Kasse |
 | `--fs-total` | Plex Mono | 400 | 18 | 20 | `clamp(1.125rem, 1.0761rem + 0.2174vw, 1.25rem)` | 1.3 | 0 | Gesamtsumme |
-| `--fs-price-tag` | Mansalva | 400 | 28 | 32 | `clamp(1.75rem, 1.6522rem + 0.4348vw, 2rem)` | 1.0 | 0 | Preis auf Preisschild |
-| `--fs-price-pdp` | Mansalva | 400 | 36 | 44 | `clamp(2.25rem, 2.0543rem + 0.8696vw, 2.75rem)` | 1.0 | 0 | Preis Produktseite |
-| `--fs-stamp` | Mansalva | 400 | 24 | 28 | `clamp(1.5rem, 1.4022rem + 0.4348vw, 1.75rem)` | 1.0 | 0.02em | „sold“ |
-| `--fs-menu` | Mansalva | 400 | 36 | 48 | `clamp(2.25rem, 1.9565rem + 1.3043vw, 3rem)` | 1.1 | 0 | Menü-Hauptlinks |
+| `--fs-price-tag` | Spectral Italic | 500 | 28 | 32 | `clamp(1.75rem, 1.6522rem + 0.4348vw, 2rem)` | 1.0 | 0 | Preis auf Preisschild |
+| `--fs-price-pdp` | Spectral Italic | 500 | 36 | 44 | `clamp(2.25rem, 2.0543rem + 0.8696vw, 2.75rem)` | 1.0 | 0 | Preis Produktseite |
+| `--fs-stamp` | Spectral Italic | 500 | 24 | 28 | `clamp(1.5rem, 1.4022rem + 0.4348vw, 1.75rem)` | 1.0 | 0.02em | „sold“ |
+| `--fs-menu` | Spectral | 500 | 36 | 48 | `clamp(2.25rem, 1.9565rem + 1.3043vw, 3rem)` | 1.1 | 0 | Menü-Hauptlinks |
 | `--fs-wordmark` | (SVG, §12.6) | – | 24 | 28 | `clamp(1.5rem, 1.4022rem + 0.4348vw, 1.75rem)` | 1 | – | Höhe der Wortmarke |
 
 ### 4.3 Regeln
 
-1. **Mansalva** nur für Überschriften H1/H2, Preisschild-Preis, Produktpreis, Stempel, Menü-Hauptlinks, Datums-Badges. Nie unter 24 px (Ausnahme: keine), nie für Fließtext, Formulare, Knöpfe, Rechtstexte, Tabellen, Kasse.
-2. **Kasse, Warenkorb, Rechtstexte, Widerruf:** H1 in Mansalva erlaubt, alles andere Bricolage/Plex Mono. Preise dort in Plex Mono.
+1. **Spectral** (normal) nur für Überschriften H1/H2, Menü-Hauptlinks; **Spectral Italic** nur für Preisschild-Preis, Produktpreis, Stempel, Betonungen (Akzent-Schrift, U-10). Anzeige-Größen ab 16 px (Prüfung LG-03), nie für Fließtext, Formulare, Knöpfe, Rechtstexte, Tabellen, Kasse.
+2. **Kasse, Warenkorb, Rechtstexte, Widerruf:** H1 in Spectral erlaubt, alles andere Bricolage/Plex Mono. Preise dort in Plex Mono.
 3. Ziffern in Tabellen und Summen: `font-variant-numeric: tabular-nums` (Plex Mono ist ohnehin monospaced).
 4. Zeilenlänge Fließtext ≤ 66ch, Rechtstexte ≤ 72ch.
 5. Überschriften `text-wrap: balance`; Fließtext `text-wrap: pretty`; `hyphens: auto` mit korrektem `lang` (DE-Texte haben lange Komposita).
@@ -236,7 +247,7 @@ Fluide Größen zwischen 360 px und 1280 px Viewport (`clamp()` mit rem-Anteil, 
 ### 4.4 Zahlen und Preise
 
 Formate laut KONZEPT §0.4: DE `53,90 €`, EN `€53.90`; Objektnummer `Nr. 017` / `No. 017`.
-- **Preisschild** (Mansalva): ganze Euro ohne Nachkommastellen (`45 €`, EN `€45`), sonst mit (`38,50 €`). Sternchen `*` direkt am Preis, Fußnote gemäß KONZEPT §3.4.
+- **Preisschild** (Spectral Italic): ganze Euro ohne Nachkommastellen (`45 €`, EN `€45`), sonst mit (`38,50 €`). Sternchen `*` direkt am Preis, Fußnote gemäß KONZEPT §3.4.
 - **Korb, Kasse, Rechnungsbezüge** (Plex Mono): immer mit zwei Nachkommastellen, rechtsbündig.
 - Formatierung zentral über `formatMoney(cents, locale, { style: 'tag' | 'full' })` aus `src/lib/money.ts` (einzige Formatierfunktion für Beträge, ARCHITEKTUR §15.4; Standard `style: 'full'`) mit `Intl.NumberFormat` (`de-DE`; EN `en-IE` ergibt `€53.90`).
 
@@ -376,27 +387,30 @@ P2 legt `src/styles/tokens.css` exakt mit diesem Inhalt an (Werte sind verbindli
   color-scheme: only light;
 
   /* Grund */
-  --paper: #F4EFE6;
-  --paper-2: #EAE2D4;
-  --paper-field: #FBF8F1;
+  --paper: #E6EACD;           /* helles Olivgrün, Seitenanfang (U-11) */
+  --paper-deep: #BDD6CE;      /* Petrol-Hauch, Verlaufsende am Seitenende (U-11) */
+  --paper-2: #DCE2C2;
+  --paper-field: #F8F9EC;
   --grid-line: rgb(47 107 76 / 0.05);
   --grid-line-major: rgb(47 107 76 / 0.042);
 
   /* Tusche und Ton */
   --ink: #1C1A17;
   --ink-2: #4B463F;
-  --ink-3: #665F55;
+  --ink-3: #524C43;
   --clay: #CBBBA2;
 
   /* Akzente */
-  --mat: #2F6B4C;
-  --fox: #B84E1A;
-  --fox-text: #A8430F;
-  --stencil: #5A4BC4;
+  --mat: #2F6B4C;             /* nur noch Schneidematten-Raster und Flächen, kein Text */
+  --petrol: #0F4C57;          /* Akzent: Links, Knöpfe, Stempel (U-12) */
+  --petrol-deep: #0A3841;     /* Hover und Fokus */
+  --fox: #AA4515;
+  --fox-text: #843709;
+  --stencil: #4638A8;
   --pink: #E58FB0;
-  --warn: #8F5400;
-  --error: #A6261C;
-  --ok: var(--mat);
+  --warn: #714300;
+  --error: #92211A;
+  --ok: #1B5538;
 
   /* Kunst */
   --coco-fur: #E2BF8E;
@@ -411,15 +425,16 @@ P2 legt `src/styles/tokens.css` exakt mit diesem Inhalt an (Werte sind verbindli
   --color-surface: var(--paper-2);
   --color-text: var(--ink);
   --color-text-muted: var(--ink-2);
-  --color-link: var(--mat);
-  --color-focus: var(--stencil);
+  --color-link: var(--petrol);
+  --color-focus: var(--petrol-deep);
   --color-line: var(--ink);
-  --color-sold: var(--fox);
+  --color-sold: var(--petrol);
   --color-border-ui: var(--ink-2);
   --color-border-deco: var(--clay);
 
   /* Schriften (Familien setzt next/font als Variablen) */
-  --font-hand: var(--font-mansalva), "Segoe Print", "Bradley Hand", cursive;
+  --font-display: var(--font-spectral), Georgia, "Times New Roman", serif;
+  --font-accent: var(--font-spectral-italic), Georgia, "Times New Roman", serif;
   --font-body: var(--font-bricolage), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
@@ -544,7 +559,7 @@ Jede Komponente: **Zweck · Aufbau · Maße · Zustände · Bewegung · Barriere
 
 ### KO-03 Menü (`MenuOverlay`)
 
-- **Aufbau:** natives `<dialog id="menu" aria-label="Menü">` (modal, `showModal()`), Vollbild, Grund `--paper` mit eigenem Raster. Oben: Wortmarke + Knopf „Schließen“ (Text + Icon). Hauptliste (KONZEPT §3.0.2) in Mansalva `--fs-menu`: Start · Shop · Archiv · Auftragsarbeiten · Tattoo · Über mich & Coco · Kontakt. Unter „Shop“ klein (Bricolage 17 px) die Kategorien; unter „Tattoo“ die Tattoo-Unterseiten. Unten: Sprachumschalter „Deutsch · English“, Instagram-Link, Pflichtlinks klein inkl. „Vertrag widerrufen“. Rechts unten schaut Coco herein (Pose `kopfschief`, Größe `--coco-m`, `aria-hidden`).
+- **Aufbau:** natives `<dialog id="menu" aria-label="Menü">` (modal, `showModal()`), Vollbild, Grund `--paper` mit eigenem Raster. Oben: Wortmarke + Knopf „Schließen“ (Text + Icon). Hauptliste (KONZEPT §3.0.2) in Spectral `--fs-menu`: Start · Shop · Archiv · Auftragsarbeiten · Tattoo · Über mich & Coco · Kontakt. Unter „Shop“ klein (Bricolage 17 px) die Kategorien; unter „Tattoo“ die Tattoo-Unterseiten. Unten: Sprachumschalter „Deutsch · English“, Instagram-Link, Pflichtlinks klein inkl. „Vertrag widerrufen“. Rechts unten schaut Coco herein (Pose `kopfschief`, Größe `--coco-m`, `aria-hidden`).
 - **Unterstreichung:** jeder Hauptlink trägt ein Inline-SVG `LinkUnderline` (drei Pfadvarianten, Wahl per Hash des `href`), 100 % Linkbreite + 8 px Überstand, Strich `--stroke-ink`, `--ink`. Zustände: unsichtbar → bei Hover (nur `(hover: hover) and (pointer: fine)`), `:focus-visible` und `:active` wird sie gezeichnet (MI-06); aktuelle Seite: statisch gezeichnet + `aria-current="page"`.
 - **Öffnen/Schließen:** MI-05. `Esc` und „Schließen“ schließen; Fokus kehrt zum Menü-Knopf zurück; `<html>` bekommt `overflow: hidden` + `scrollbar-gutter: stable` (keine Verschiebung). Klick auf einen Link schließt das Menü sofort (ohne Schließ-Animation) und navigiert.
 - **Ohne JavaScript:** der Menü-Knopf ist ein Link `#fussnavigation` auf die Navigation im Fußbereich.
@@ -586,7 +601,7 @@ Flohmarkt-Anhänger, handgeschrieben, an der Schnur hängend (E-77).
 
 ### KO-06 „sold“-Stempel (`SoldStamp`)
 
-- **Aufbau:** Wort `sold` (Mansalva `--fs-stamp`, Farbe `--fox`, `lang="en"`) in einem Rahmen (SVG-Rechteck mit rauen Kanten, 2.5 px `--fox`, Radius 4 px), Ausbrüche: 3–5 kleine Lücken im Rahmen und leichte Fehlstellen im Wort über eine statische Maske (Stempel-Druckbild). `mix-blend-mode: multiply`, `opacity: 0.92`, Drehung −14° (±2° nach Objektnummer), `filter: url(#ink-rough)` erlaubt (statisch, klein).
+- **Aufbau:** Wort `sold` (Spectral Italic `--fs-stamp`, Farbe `--petrol`, `lang="en"`) in einem Rahmen (SVG-Rechteck mit rauen Kanten, 2.5 px `--petrol`, Radius 4 px), Ausbrüche: 3–5 kleine Lücken im Rahmen und leichte Fehlstellen im Wort über eine statische Maske (Stempel-Druckbild). `mix-blend-mode: multiply`, `opacity: 0.92`, Drehung −14° (±2° nach Objektnummer), `filter: url(#ink-rough)` erlaubt (statisch, klein).
 - **Platzierung:** Shop-Karte: über dem Preisschild, 110 % Schildbreite, Mitte auf der Preiszeile. Produktseite: über dem Preisschild `pinned`, zusätzlich Text „Schon verkauft“ (KONZEPT §3.4 Punkt 6).
 - **Barrierefreiheit:** Stempel ist `aria-hidden`; der Verkauft-Zustand steht als Text im zugänglichen Namen der Karte bzw. als Text auf der Produktseite („verkauft“ / „sold“).
 - **Bewegung:** MI-03 (Knall) **nur im Moment des Verkaufs** (KONZEPT §3.5): (a) auf der Danke-Seite, wenn die Zahlung bestätigt ist, auf dem Mini-Schild des gekauften Stücks; (b) wenn eine geöffnete Shop-/Produktseite eine Statusänderung auf `sold` live übernimmt. Beim Laden von Seiten mit verkauften Stücken: statisch.
@@ -690,7 +705,7 @@ Gilt für Kasse, Auftragsarbeiten (R10), Vertrag widerrufen (R26), 404-Nummernfe
 
 ### KO-13 Warenkorb (R06)
 
-- **Aufbau** (KONZEPT §3.6): H1 „Dein Korb“ (Mansalva) → Positionen → Lieferart → Summen → Hinweise → „Zur Kasse“.
+- **Aufbau** (KONZEPT §3.6): H1 „Dein Korb“ (Spectral) → Positionen → Lieferart → Summen → Hinweise → „Zur Kasse“.
 - **Position:** Foto 64×80 (4:5), Titel (Link), `Nr. 017 · Keramik` (Plex Mono `--ink-2`), Preis rechts (Plex Mono `--fs-price-mono`), Text-Knopf „Entfernen“. Nicht mehr verfügbar → Badge „gerade reserviert“ bzw. Stempel-Text „sold“ in `--fox` ≥ 24 px, Zeile gedämpft, aus der Summe ausgeschlossen, Hinweis oben, „Zur Kasse“ `aria-disabled` bis entfernt.
 - **Lieferart:** Radio-Gruppe „Versand innerhalb Deutschlands (DHL)“ mit Preis / „Abholung in Berlin – 0,00 €“. Darunter Versandklasse als Text („Versandklasse: Keramik – die größte Klasse im Korb zählt“).
 - **Summen:** Zwischensumme, Versand, **Gesamt** (Plex Mono `--fs-total`, Trennlinie 1.5 px `--ink` darüber); Steuerhinweis; Lieferzeit; Liefergebiet; akzeptierte Zahlarten als Text „Karte · Apple Pay · Google Pay · PayPal · Vorkasse“ (keine Anbieter-Logos).
@@ -701,7 +716,7 @@ Gilt für Kasse, Auftragsarbeiten (R10), Vertrag widerrufen (R26), 404-Nummernfe
 ### KO-14 Kasse (R07)
 
 - **Aufbau** (KONZEPT §3.7): Countdown KO-15 ganz oben (nicht sticky) → Abschnitte 1 Kontakt · 2 Lieferung · 3 Rechnungsadresse · 4 Zahlart · 5 Übersicht → Hinweistext (AGB/Widerrufsbelehrung, Wortlaut RECHT) → Knopf „Zahlungspflichtig bestellen“ → kompakte Countdown-Wiederholung („Noch 24:12 reserviert“) → Fußbereich.
-- **Abschnitte:** nummerierte Überschriften (Plex Mono Kicker „1 Kontakt“ + Bricolage 700 H2 20 px; hier **kein** Mansalva außer H1), Abschnitte als Kästen `--paper-2`, `--r-card`, Innenrand 16/24.
+- **Abschnitte:** nummerierte Überschriften (Plex Mono Kicker „1 Kontakt“ + Bricolage 700 H2 20 px; hier **kein** Spectral außer H1), Abschnitte als Kästen `--paper-2`, `--r-card`, Innenrand 16/24.
 - **Übersicht:** Positionen mit Foto 48×60, Titel, Nr., Preis; Versand; Gesamt; Lieferzeit; Adressen; Zahlart; je Block Text-Knopf „Ändern“ (springt zum Abschnitt und setzt Fokus).
 - **Layout ab 1200:** Formular 7/12 links, Übersicht 5/12 rechts (sticky oben); Knopf unter der Übersicht.
 - **Tuschelinie:** `calm` – statische Linie 1.25 px entlang der linken Kante der Abschnitte (ab 768) bzw. unter der H1 (mobil). **Keine** Animation, keine View Transition, kein Boil.
@@ -726,7 +741,7 @@ Gilt für Kasse, Auftragsarbeiten (R10), Vertrag widerrufen (R26), 404-Nummernfe
 
 ### KO-17 Leere Zustände (`EmptyState`)
 
-Aufbau: Coco (`--coco-xl`, statisch; Boil 2 s nach Eintritt, dann Stillstand) · Satz in Juttas Ton (H2 Mansalva) · 1 Satz Erklärung · 1 Weiter-Link als Sekundärknopf. Mittig, max. 36ch.
+Aufbau: Coco (`--coco-xl`, statisch; Boil 2 s nach Eintritt, dann Stillstand) · Satz in Juttas Ton (H2 Spectral) · 1 Satz Erklärung · 1 Weiter-Link als Sekundärknopf. Mittig, max. 36ch.
 
 | Ort | Coco-Pose | Text DE (Vorschlag, P8 kann umformulieren) | EN | Link |
 |---|---|---|---|---|
@@ -765,14 +780,14 @@ Aufbau: Coco (`--coco-xl`, statisch; Boil 2 s nach Eintritt, dann Stillstand) ·
 - **Unter-Navigation:** horizontale Link-Reihe wie Filter-Chips (KO-08), `aria-current`.
 - **Flash-Raster:** 2 Spalten mobil, 3 ab 768; Spalten- und Zeilenabstand ≥ 32 px (Platz für die `contour`-Linie, §9.5).
 - **Flash-Karte:** Zeichnung (Seitenverhältnis des Motivs, Grund `--paper-field`, `--r-photo`), Titel, Nummer `F-012` (Plex Mono), Größe, Preis als **Text** (Bricolage 600 17 px, „120 €*“ bzw. „ab 90 €*“) – **kein Preisschild** (KONZEPT §3.11). Status (Feld `status`, DATENMODELL `FLASH_STATUSES`): bei `available` Badge `verfügbar` (Rand `--stencil`), bei `claimed` Stempel „vergeben“ (Stempeloptik wie KO-06, aber Farbe `--stencil`, Text „vergeben“/„taken“). Bei `available` zwei Sekundärknöpfe untereinander (KONZEPT §9.3/§9.4): „Per Mail anfragen“ (öffnet `mailto:` mit Betreff „Flash-Anfrage F-012 – {Titel}“, EN „Flash request F-012 – {title}“) und „Per DM anfragen“ (Instagram-Link), daneben der Text-Baustein „F-012 – {Titel}“ mit Text-Knopf „Kopieren“ und Hinweis „Schick mir das in die DM“; bei `claimed` keine Knöpfe. Hover/Fokus: `--shadow-stencil` (Schablonen-Abdruck), 0 ms (ohne Übergang).
-- **Angebotskarte:** Datums-Badge handgeschrieben (Mansalva 28 px, z. B. „12.10.“) in einem gezeichneten Kreis, Titel, Text, Preisinfo als Text.
+- **Angebotskarte:** Datums-Badge (Spectral Italic 28 px, z. B. „12.10.“) in einem gezeichneten Kreis, Titel, Text, Preisinfo als Text.
 - **Kontakt-Block:** Knöpfe „Mail schreiben“, „Instagram-DM“, E-Mail-Adresse als Text + „Adresse kopieren“ (Rückmeldung „Kopiert“ als Text, `aria-live`, 2 s).
 - **Galerie:** Raster wie Shop ohne Schnur/Preisschilder; nur Fotos mit Einwilligung (E-42).
 - **Linie:** Preset `stencil` (§9.7): Konturen um Flash-Karten, tuscheschwarz (E-73).
 
 ### KO-21 Station (Startseite, `Station`)
 
-- **Aufbau:** Kicker „Station 01“ (Plex Mono) · H2 (Mansalva) · 1–2 Sätze · Stationszeichnung (§12.4) · bis zu 4 Karten (KO-07, auf der Startseite **ohne** Schnur, Preisschild `pinned` am Kartenfuß) · Link „Alle {Kategorie}“.
+- **Aufbau:** Kicker „Station 01“ (Plex Mono) · H2 (Spectral) · 1–2 Sätze · Stationszeichnung (§12.4) · bis zu 4 Karten (KO-07, auf der Startseite **ohne** Schnur, Preisschild `pinned` am Kartenfuß) · Link „Alle {Kategorie}“.
 - **Stationsmarke:** kleiner handgezeichneter Planet/Stern (§12.5) links neben dem Kicker; Anker der Linie (`data-leash-station`).
 - **Abstände:** Stationen mit `--space-8` (mobil) / `--space-9` (Desktop) Abstand.
 - **Reihenfolge und Inhalte:** KONZEPT §3.1 (Planet Claire, Hallo, Keramik, Textil, Zeichnungen, Schmuck, Tattoo, Jutta & Coco).
@@ -1425,12 +1440,12 @@ Die potrace-Ausgabe ist ein gefüllter Umriss (Juttas echte Strichbreite bleibt 
 
 ### 12.6 Wortmarke, Favicon, App-Icons, OG-Bilder
 
-- **Wortmarke:** „planet claire“ in Kleinbuchstaben, Mansalva-Umrisse als SVG (Glyphen-Umwandlung ist nach OFL für ein Logo zulässig), leicht nachbearbeitet (Grundlinie wackelt ±1 Einheit); der i-Punkt ist ein winziger Planet mit Ring. `public/art/wordmark.svg` ≤ 5 KB, `role="img"` im Link mit zugänglichem Namen über den Link-Text.
+- **Wortmarke:** „planet claire“ in Kleinbuchstaben, Umrisse der früheren Handschrift als SVG (eingecheckte Marke; Neuerzeugung mit Spectral Italic über `pnpm art:brand --regen-wordmark`) (Glyphen-Umwandlung ist nach OFL für ein Logo zulässig), leicht nachbearbeitet (Grundlinie wackelt ±1 Einheit); der i-Punkt ist ein winziger Planet mit Ring. `public/art/wordmark.svg` ≤ 5 KB, `role="img"` im Link mit zugänglichem Namen über den Link-Text.
 - **Planet-Marke:** Planet mit Ring (§12.5), Tusche auf Papierscheibe. Grundlage für Favicon und Icons.
 - **Favicon und App-Icon** nach den Next.js-Dateikonventionen (ARCHITEKTUR §2.1; Next erzeugt die `<link>`-Tags selbst, nichts davon liegt in `public/`): `src/app/icon.svg` (Planet auf `--paper`-Kreis, damit er auf dunklen Tab-Leisten sichtbar bleibt) + `src/app/favicon.ico` (16/32) + `src/app/apple-icon.png` 180×180 (Papiergrund, Planet 70 %).
 - **Verwaltung (PWA, E-93):** `icon-192.png`, `icon-512.png` in `src/admin/pwa/` (nur unter `ADMIN_ROUTE` ausgeliefert, ARCHITEKTUR §2.1), maskierbar, **Matte-Grün** `#2F6B4C` als Grund mit Planet in `--paper` – unterscheidet die Verwaltung auf dem Homescreen vom Shop.
-- **OG-Standardbild** (1200×630, KONZEPT §3.0.5): Papier mit Schneidematten-Raster, Tuschelinie in einem Bogen mit Orbit um die Planet-Marke, Wortmarke groß (Mansalva), Zeile „Tattoos & Unikate aus Berlin“ (Bricolage 600), Coco `rennen` an der Linienspitze.
-- **OG-Produktbild** (1200×630, P3, `next/og` `ImageResponse` mit satori, TTF-Schriften aus `src/og/fonts/`): links das erste Foto 4:5 (504×630, Fokuspunkt), rechts auf Papier: Titel (Bricolage 600, max. 3 Zeilen), Preisschild (Mansalva, Preis mit Sternchen, darunter klein „Endpreis zzgl. Versand“ [Annahme DA-6]), `Nr. 017`, Wortmarke klein unten rechts, Linie vom Schild zur Wortmarke. Verkaufte Stücke: Stempel „sold“.
+- **OG-Standardbild** (1200×630, KONZEPT §3.0.5): Papier mit Schneidematten-Raster, Tuschelinie in einem Bogen mit Orbit um die Planet-Marke, Wortmarke groß, Zeile „Tattoos & Unikate aus Berlin“ (Bricolage 600), Coco `rennen` an der Linienspitze.
+- **OG-Produktbild** (1200×630, P3, `next/og` `ImageResponse` mit satori, TTF-Schriften aus `src/og/fonts/`): links das erste Foto 4:5 (504×630, Fokuspunkt), rechts auf Papier: Titel (Bricolage 600, max. 3 Zeilen), Preisschild (Spectral Italic, Preis mit Sternchen, darunter klein „Endpreis zzgl. Versand“ [Annahme DA-6]), `Nr. 017`, Wortmarke klein unten rechts, Linie vom Schild zur Wortmarke. Verkaufte Stücke: Stempel „sold“.
 
 ---
 
@@ -1475,7 +1490,7 @@ Umgesetzt wird jeweils die Spalte „Standard“. IDs `DA-n` (Design-Annahme) si
 | Empfehlung (`docs/research/design-navigation.md`) | Stattdessen | Grund |
 |---|---|---|
 | Dunkler Tattoo-Bereich „Planet-Nacht“ `#1B1836` | Tattoo hell, Stencil-Kontur in Tusche, Violett nur als Abdruck-Schatten | E-73, E-74, Konzeptseite „Tattoo“ |
-| Eigene Handschrift-Font (Calligraphr), Fraunces, Atkinson Hyperlegible, Big Shoulders Stencil | Mansalva, Bricolage Grotesque, IBM Plex Mono | E-79 |
+| Eigene Handschrift-Font (Calligraphr), Fraunces, Atkinson Hyperlegible, Big Shoulders Stencil | Spectral (+ Italic), Bricolage Grotesque, IBM Plex Mono (U-10; zuvor Mansalva) | E-79, U-10 |
 | Mobile Bottom-Bar als Hauptnavigation | schmale Kopfleiste (Shop, Tattoo, Korb, Menü) + Fußnavigation | Konzeptseite „Menü“, KONZEPT §3.0.1 |
 | Flash-Bogen / Orbit / Drehscheibe als Navigation | Tuschelinie als Leitmotiv, Navigation als normale Links | E-70 |
 | Stempel „schon zuhause“, Badge „nur noch 1“ | Stempel „sold“, Badge „Unikat“ | E-77, E-10 |

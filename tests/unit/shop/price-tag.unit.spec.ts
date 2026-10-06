@@ -81,7 +81,7 @@ describe('PriceTag – Geometrie aus der Objektnummer (KO-05)', () => {
 })
 
 describe('PriceTag – Darstellung', () => {
-  it('Preis in Mansalva mit formatMoney(tag) und Sternchen, darunter „Nr. 017“ (DE/EN)', () => {
+  it('Preis in Spectral Italic mit formatMoney(tag) und Sternchen, darunter „Nr. 017“ (DE/EN)', () => {
     const de = render(h(PriceTag, { itemNumber: 17, priceCents: 4500, locale: 'de' })).container
     const tag = de.querySelector('[data-price-tag="hanging"]')!
     expect(tag.textContent).toBe('45\u00a0€*Nr. 017')

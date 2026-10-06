@@ -19,14 +19,14 @@
 }
 
 .h1 {
-  font-family: var(--font-hand);
+  font-family: var(--font-display);
   font-size: var(--fs-h1);
   font-weight: 400;
   line-height: 1.05;
 }
 
 .h2 {
-  font-family: var(--font-body); /* unter 24 px keine Mansalva (DESIGN §4.3) */
+  font-family: var(--font-body); /* unter 24 px keine Spectral (DESIGN §4.3) */
   font-size: var(--fs-h3);
   font-weight: 700;
   margin-bottom: var(--space-3);
@@ -241,7 +241,7 @@
 .copyStatus {
   margin-inline-start: var(--space-2);
   font-size: var(--fs-small);
-  color: var(--mat);
+  color: var(--ok);
 }
 
 .qr {

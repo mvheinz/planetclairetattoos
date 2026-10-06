@@ -1,18 +1,16 @@
-// `pnpm fonts:copy` (ARCHITEKTUR §6.10, DESIGN §4.1, PLAN P2.4): kopiert genau drei WOFF2-Dateien aus den
+// `pnpm fonts:copy` (ARCHITEKTUR §6.10, DESIGN §4.1, PLAN P2.4, P12.2): kopiert genau vier WOFF2-Dateien aus den
 // `@fontsource*`-Paketen nach `src/styles/fonts/` – offline, ohne Python, deterministisch (harfbuzz-wasm über das
-// npm-Paket `subset-font`). Budget laut AK-DS-04: genau 3 Dateien, zusammen ≤ 100 KB.
+// npm-Paket `subset-font`). Budget laut AK-DS-04: genau 4 Dateien, zusammen ≤ 100 KB.
 //
 // Damit das Budget hält (Rohdateien zusammen ~123 KB), wird jede Datei neu verpackt, ohne den Zeichenumfang
 // „latin“ zu ändern (`keepAllGlyphs`):
-// - Mansalva 400: ohne TrueType-Hinting (nur ≥ 24 px im Einsatz, DESIGN §4.3) und nur die Layout-Features, die
-//   Handschrift und Text brauchen (`calt`, `ccmp`, `liga`, `kern`); die Bruchziffern-Features entfallen.
+// - Spectral 500 (normal) und Spectral 500 Italic (U-10: Überschriften und Akzent-Schrift): ohne TrueType-Hinting und
+//   nur die Layout-Features, die Text braucht (`ccmp`, `liga`, `kern`, `lnum`, `onum`).
 // - Bricolage Grotesque (variabel): Achse `wght` auf 400–700 beschnitten (DESIGN §4.1; die Skala nutzt 400–700).
 // - IBM Plex Mono 400: ohne TrueType-Hinting.
-// Außerdem schreibt das Skript die Zeichenabdeckung der Mansalva-Datei nach `src/styles/mansalvaCoverage.generated.ts`
-// (Grundlage für `GlyphFallback`, DESIGN §4.4).
 //
 // P3.14 (DESIGN §12.6, ARCHITEKTUR §1.2): TTF-Dateien für die OG-Bilder nach `src/og/fonts/` – satori liest weder WOFF2
-// noch variable Schriften. Mansalva 400 und Bricolage Grotesque **statisch** 600 (`@fontsource/bricolage-grotesque`)
+// noch variable Schriften. Spectral 500 Italic und Bricolage Grotesque **statisch** 600 (`@fontsource/bricolage-grotesque`)
 // werden offline mit `wawoff2` (WOFF2 → TTF) umgewandelt, ohne Download. Das Skript prüft die Glyphen (Umlaute, ß, €,
 // „“) und schreibt Zeichenabdeckung und Laufweiten nach `src/og/fontMetrics.generated.ts` (Zeilenumbruch und
 // Zeichenfilter der OG-Bilder ohne Schriftbibliothek zur Laufzeit). Die TTF-Dateien gehen nie an den Browser.
@@ -34,18 +32,31 @@ export interface FontJob {
 
 /** Achsenbereich der beschnittenen Bricolage-Datei. */
 export const BRICOLAGE_WGHT = { min: 400, max: 700 } as const
+/** Zeichen, die Spectral für Überschriften, Preise und Stempel haben muss (DESIGN §4.1, AK-DS-05). */
+export const DISPLAY_REQUIRED_GLYPHS =
+  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789äöüÄÖÜß€„“‚‘–·,.:!?&'()/%"
 /** Budget AK-DS-04 (Bytes). */
 export const FONT_BUDGET_BYTES = 100 * 1000
 
 export const FONT_JOBS: readonly FontJob[] = [
   {
-    file: 'mansalva-latin-400-normal.woff2',
-    source: '@fontsource/mansalva/files/mansalva-latin-400-normal.woff2',
+    file: 'spectral-latin-500-normal.woff2',
+    source: '@fontsource/spectral/files/spectral-latin-500-normal.woff2',
     options: {
       targetFormat: 'woff2',
       keepAllGlyphs: true,
       noHinting: true,
-      keepFeatures: ['calt', 'ccmp', 'liga', 'kern'],
+      keepFeatures: ['ccmp', 'liga', 'kern', 'lnum', 'onum'],
+    },
+  },
+  {
+    file: 'spectral-latin-500-italic.woff2',
+    source: '@fontsource/spectral/files/spectral-latin-500-italic.woff2',
+    options: {
+      targetFormat: 'woff2',
+      keepAllGlyphs: true,
+      noHinting: true,
+      keepFeatures: ['ccmp', 'liga', 'kern', 'lnum', 'onum'],
     },
   },
   {
@@ -92,7 +103,7 @@ export const OG_REQUIRED_GLYPHS = 'äöüÄÖÜß€„“'
 
 export interface OgFontJob {
   /** Schlüssel im erzeugten Modul. */
-  key: 'mansalva400' | 'bricolage600'
+  key: 'spectral500i' | 'bricolage600'
   /** Dateiname unter `src/og/fonts/`. */
   file: string
   /** WOFF2-Quelle relativ zu `node_modules` (statischer Schnitt). */
@@ -101,9 +112,9 @@ export interface OgFontJob {
 
 export const OG_FONT_JOBS: readonly OgFontJob[] = [
   {
-    key: 'mansalva400',
-    file: 'mansalva-400.ttf',
-    source: '@fontsource/mansalva/files/mansalva-latin-400-normal.woff2',
+    key: 'spectral500i',
+    file: 'spectral-500-italic.ttf',
+    source: '@fontsource/spectral/files/spectral-latin-500-italic.woff2',
   },
   {
     key: 'bricolage600',
@@ -204,31 +215,6 @@ export async function buildPdfFonts(nodeModules: string): Promise<BuiltFont[]> {
   return out
 }
 
-/** Zusammenhängende Bereiche der Code Points, die eine Schrift abdeckt. */
-export function coverageRanges(font: Buffer): [number, number][] {
-  const parsed = fontkit.create(font) as fontkit.Font
-  const points = [...new Set(parsed.characterSet)].sort((a, b) => a - b)
-  const ranges: [number, number][] = []
-  for (const cp of points) {
-    const last = ranges.at(-1)
-    if (last && cp === last[1] + 1) last[1] = cp
-    else ranges.push([cp, cp])
-  }
-  return ranges
-}
-
-export function coverageModule(ranges: [number, number][]): string {
-  const body = ranges.map(([a, b]) => `  [0x${a.toString(16)}, 0x${b.toString(16)}],`).join('\n')
-  return [
-    '// Erzeugt von `pnpm fonts:copy` (scripts/fonts/copy.ts) – nicht von Hand ändern.',
-    '// Zeichenabdeckung von src/styles/fonts/mansalva-latin-400-normal.woff2 (DESIGN §4.4, GlyphFallback).',
-    'export const MANSALVA_COVERAGE: readonly (readonly [number, number])[] = [',
-    body,
-    ']',
-    '',
-  ].join('\n')
-}
-
 async function main(): Promise<void> {
   const root = process.cwd()
   const outDir = path.join(root, 'src/styles/fonts')
@@ -240,14 +226,9 @@ async function main(): Promise<void> {
     total += font.data.length
     console.log(`fonts:copy: ${font.file} ${(font.data.length / 1000).toFixed(1)} KB`)
   }
-  const mansalva = fonts.find((f) => f.file.startsWith('mansalva'))!
-  writeFileSync(
-    path.join(root, 'src/styles/mansalvaCoverage.generated.ts'),
-    coverageModule(coverageRanges(mansalva.data)),
-  )
   console.log(`fonts:copy: zusammen ${(total / 1000).toFixed(1)} KB (Budget 100 KB)`)
-  if (fonts.length !== 3 || total > FONT_BUDGET_BYTES) {
-    console.error('fonts:copy: Budget verletzt (genau 3 Dateien, ≤ 100 KB, AK-DS-04).')
+  if (fonts.length !== 4 || total > FONT_BUDGET_BYTES) {
+    console.error('fonts:copy: Budget verletzt (genau 4 Dateien, ≤ 100 KB, AK-DS-04).')
     process.exit(1)
   }
 

@@ -88,7 +88,7 @@ export async function productPhotoDataUrl(
     if (!image) return null
     const jpeg = await image
       .resize(OG_PHOTO.width, OG_PHOTO.height, { fit: 'cover' })
-      .flatten({ background: '#F4EFE6' })
+      .flatten({ background: '#E6EACD' })
       .jpeg({ quality: 84, mozjpeg: true })
       .toBuffer()
     return `data:image/jpeg;base64,${jpeg.toString('base64')}`

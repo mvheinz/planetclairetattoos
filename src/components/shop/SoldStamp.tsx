@@ -4,7 +4,7 @@ import { STAMP_VIEWBOX, stampAngle, stampFramePaths } from '@/lib/shop/priceTag'
 
 import styles from './SoldStamp.module.css'
 
-// „sold“-Stempel (DESIGN KO-06): Wort `sold` (Mansalva, `--fox`, `lang="en"`) in einem rauen Rahmen mit Lücken,
+// „sold“-Stempel (DESIGN KO-06): Wort `sold` (Spectral Italic, `--petrol`, `lang="en"`) in einem rauen Rahmen mit Lücken,
 // Fehlstellen im Wort über eine statische Maske (Druckbild), `mix-blend-mode: multiply`, Deckkraft 0.92, Drehung
 // −14° ± 2° nach Objektnummer. Rein dekorativ (`aria-hidden`): der Zustand „verkauft“ steht als Text im zugänglichen
 // Namen der Karte bzw. auf der Produktseite. Statisch; den „Knall“ (MI-03) spielt nur `sold-stamp` beim Live-Wechsel.

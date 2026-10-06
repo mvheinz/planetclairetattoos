@@ -18,8 +18,8 @@ const root = () => process.cwd()
 export interface OgFont {
   name: string
   data: ArrayBuffer
-  weight: 400 | 600
-  style: 'normal'
+  weight: 400 | 500 | 600
+  style: 'normal' | 'italic'
 }
 
 let fontsPromise: Promise<OgFont[]> | undefined
@@ -29,13 +29,13 @@ async function readArrayBuffer(file: string): Promise<ArrayBuffer> {
   return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer
 }
 
-/** Mansalva 400 und Bricolage Grotesque 600 als TTF für `ImageResponse({ fonts })`. */
+/** Spectral 500 Italic und Bricolage Grotesque 600 als TTF für `ImageResponse({ fonts })`. */
 export function loadOgFonts(): Promise<OgFont[]> {
   fontsPromise ??= Promise.all([
-    readArrayBuffer(path.join(root(), OG_FONT_DIR, OG_FONT_METRICS.mansalva400.file)),
+    readArrayBuffer(path.join(root(), OG_FONT_DIR, OG_FONT_METRICS.spectral500i.file)),
     readArrayBuffer(path.join(root(), OG_FONT_DIR, OG_FONT_METRICS.bricolage600.file)),
-  ]).then(([mansalva, bricolage]) => [
-    { name: 'Mansalva', data: mansalva, weight: 400, style: 'normal' },
+  ]).then(([spectral, bricolage]) => [
+    { name: 'Spectral', data: spectral, weight: 500, style: 'italic' },
     { name: 'Bricolage Grotesque', data: bricolage, weight: 600, style: 'normal' },
   ])
   fontsPromise.catch(() => (fontsPromise = undefined))

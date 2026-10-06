@@ -16,7 +16,7 @@ import { LOCALES, ROUTES } from '../../src/lib/routes/registry'
 const FILE = path.resolve('dist/planet-claire-vorschau.html')
 const REPORT = path.resolve('dist/planet-claire-vorschau.report.json')
 const URL_BASE = pathToFileURL(FILE).href
-const FONT_FAMILIES = ['mansalva', 'bricolage', 'plexMono']
+const FONT_FAMILIES = ['spectral', 'spectralItalic', 'bricolage', 'plexMono']
 const NOT_INCLUDED = '/vorschau/nicht-enthalten'
 const S01 = '/de/shop/901-schale-langohr-wuschel'
 
@@ -187,8 +187,15 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
         `${r.route}: Bilder`,
       ).toEqual([])
       const fonts = await page.evaluate(async (families) => {
-        await Promise.all(families.map((f) => document.fonts.load(`16px ${f}`)))
-        return families.map((f) => ({ f, ok: document.fonts.check(`16px ${f}`) }))
+        await Promise.all(
+          families.map((f) =>
+            document.fonts.load(`${f.endsWith('Italic') ? 'italic ' : ''}16px ${f}`),
+          ),
+        )
+        return families.map((f) => ({
+          f,
+          ok: document.fonts.check(`${f.endsWith('Italic') ? 'italic ' : ''}16px ${f}`),
+        }))
       }, FONT_FAMILIES)
       expect(
         fonts.filter((x) => !x.ok),

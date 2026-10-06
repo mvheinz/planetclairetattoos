@@ -179,8 +179,8 @@ test.describe('Schriften-Tor (DESIGN §4.1, P2.20)', () => {
     expect(r.fcp).toBeGreaterThan(0)
     expect(r.fonts.length).toBeGreaterThanOrEqual(2)
     for (const start of r.fonts) expect(start).toBeGreaterThan(r.fcp)
-    expect(r.family).toMatch(/^["']?mansalva["']?,/i)
-    expect(await page.evaluate(() => document.fonts.check('400 16px mansalva'))).toBe(true)
+    expect(r.family).toMatch(/^["']?spectral["']?,/i)
+    expect(await page.evaluate(() => document.fonts.check('500 16px spectral'))).toBe(true)
   })
 })
 

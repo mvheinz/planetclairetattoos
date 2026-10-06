@@ -178,26 +178,13 @@ function measure(args: ProbeArgs): Probe {
       if (srOnly(el, root)) continue
       const range = document.createRange()
       range.selectNodeContents(n)
-      // Mansalva hat eine sehr hohe Zeilenbox (Ober-/Unterlänge der Schrift ≈ 0,5 em über/unter der Tinte): als Fläche
-      // zählt die Tinte (Oberkante der Versalien/Akzente, Unterkante der Unterlängen), nicht die leere Zeilenbox.
-      let up = 0
-      let down = 0
-      if (/mansalva/i.test(st.fontFamily)) {
-        const m = document.createElement('canvas').getContext('2d')
-        if (m) {
-          m.font = `${st.fontStyle} ${st.fontWeight} ${st.fontSize} ${st.fontFamily}`
-          const t = m.measureText('ÅÄgy')
-          up = Math.max(0, t.fontBoundingBoxAscent - t.actualBoundingBoxAscent)
-          down = Math.max(0, t.fontBoundingBoxDescent - t.actualBoundingBoxDescent)
-        }
-      }
       for (const r of Array.from(range.getClientRects()))
         if (inView(r))
           push4(text, {
             left: r.left,
-            top: r.top + up,
+            top: r.top,
             width: r.width,
-            height: Math.max(1, r.height - up - down),
+            height: Math.max(1, r.height),
           } as DOMRect)
     }
   }
@@ -257,7 +244,7 @@ function measure(args: ProbeArgs): Probe {
   }
 
   // ---- Schriften (LG-03) ----
-  const mansalva: Probe['mansalva'] = []
+  const display: Probe['display'] = []
   for (const el of Array.from(document.querySelectorAll('body *'))) {
     if (!el.childNodes.length || el.closest(DECO)) continue
     let own = false
@@ -265,7 +252,7 @@ function measure(args: ProbeArgs): Probe {
       if (c.nodeType === 3 && c.textContent?.trim()) own = true
     if (!own) continue
     const st = getComputedStyle(el)
-    if (!/mansalva/i.test(st.fontFamily) || srOnly(el)) continue
+    if (!/spectral/i.test(st.fontFamily) || srOnly(el)) continue
     const role = el.closest('button, input, select, textarea, label, table, form')
       ? 'control'
       : el.closest('h1')
@@ -283,7 +270,7 @@ function measure(args: ProbeArgs): Probe {
                   : el.closest('p, li')
                     ? 'body'
                     : 'other'
-    mansalva.push({ tag: el.tagName.toLowerCase(), size: parseFloat(st.fontSize), role })
+    display.push({ tag: el.tagName.toLowerCase(), size: parseFloat(st.fontSize), role })
   }
 
   // ---- Speicher (A11Y-02, EK-04) ----
@@ -478,7 +465,7 @@ function measure(args: ProbeArgs): Probe {
     ctrl,
     anims,
     deco,
-    mansalva,
+    display,
     storage,
     marks: { stars, perStation: Math.max(0, ...perStation.values()) },
     transitions,

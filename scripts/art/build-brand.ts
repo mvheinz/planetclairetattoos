@@ -1,7 +1,8 @@
 // `pnpm art:brand` (PLAN P2.5, DESIGN §12.6): erzeugt aus den Quellen unter `src/art/` die ausgelieferten Marken –
 // offline und ohne Fremd-Requests:
 // - `src/art/wordmark.svg` (Quelle, nur wenn sie fehlt oder mit `--regen-wordmark`): „planet claire“ aus den
-//   Mansalva-Umrissen (OFL erlaubt die Umwandlung für ein Logo), Grundlinie wackelt ±1 Einheit, i-Punkt = Planet;
+//   Spectral-Italic-Umrissen (OFL erlaubt die Umwandlung für ein Logo; die eingecheckte Wortmarke stammt aus der früheren
+//   Handschrift und bleibt als Marken-Vektor unverändert, bis Jutta ein neues Logo wünscht), Grundlinie wackelt ±1 Einheit, i-Punkt = Planet;
 // - `public/art/wordmark.svg` (≤ 5 KB), `src/app/icon.svg`, `src/app/favicon.ico` (16/32), `src/app/apple-icon.png`
 //   (180 px, Papiergrund, Planet 70 %), `public/og/default.png` (1200×630, `sharp`).
 // Marken sind vorläufig vektorisiert; P9 verfeinert die Quellen von Hand (E-76) und ruft das Skript erneut auf.
@@ -156,9 +157,9 @@ const WOBBLE_DEG = [-1.2, 0.8, -0.4, 1.5, -0.9, 0.6, 0, -1.4, 0.9, -0.6, 1.1, -1
 const WORDMARK_EM = 80
 const WOBBLE_UNIT = WORDMARK_EM / 40
 
-export function buildWordmark(mansalva: fontkit.Font, planetSvg: string): string {
-  const s = WORDMARK_EM / mansalva.unitsPerEm
-  const run = mansalva.layout(WORDMARK_TEXT)
+export function buildWordmark(face: fontkit.Font, planetSvg: string): string {
+  const s = WORDMARK_EM / face.unitsPerEm
+  const run = face.layout(WORDMARK_TEXT)
   const baseline = 0
   let pen = 0
   const d = new PathWriter(0)
@@ -342,9 +343,9 @@ async function ogSvg(wordmarkSvg: string, planetSvg: string, bricolage600: fontk
 
 // ---------------------------------------------------------------------------------------------------------------
 
-export function loadMansalva(): fontkit.Font {
+export function loadSpectralItalic(): fontkit.Font {
   return fontkit.create(
-    readFileSync(p('src/styles/fonts/mansalva-latin-400-normal.woff2')),
+    readFileSync(p('src/styles/fonts/spectral-latin-500-italic.woff2')),
   ) as fontkit.Font
 }
 
@@ -378,8 +379,8 @@ async function main(): Promise<void> {
   const planet = readFileSync(p('src/art/planet.svg'), 'utf8')
   const wordmarkSrc = p('src/art/wordmark.svg')
   if (!existsSync(wordmarkSrc) || process.argv.includes('--regen-wordmark')) {
-    writeFileSync(wordmarkSrc, buildWordmark(loadMansalva(), planet))
-    console.log('art:brand: src/art/wordmark.svg aus Mansalva erzeugt')
+    writeFileSync(wordmarkSrc, buildWordmark(loadSpectralItalic(), planet))
+    console.log('art:brand: src/art/wordmark.svg aus Spectral Italic erzeugt')
   }
   const { wordmark, icon } = buildBrandSvgs()
   mkdirSync(p('public/art'), { recursive: true })

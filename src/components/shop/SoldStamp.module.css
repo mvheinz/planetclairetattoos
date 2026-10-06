@@ -7,7 +7,7 @@
   place-items: center;
   width: 110%;
   aspect-ratio: 110 / 46;
-  color: var(--fox);
+  color: var(--petrol);
   opacity: 0.92;
   mix-blend-mode: multiply;
   transform: rotate(var(--stamp-angle, -14deg));
@@ -39,7 +39,8 @@
 /* Fehlstellen im Wort: statische Maske aus kleinen Aussparungen (Inline-SVG, kein Bild-Request). */
 .word {
   position: relative;
-  font-family: var(--font-hand);
+  font-family: var(--font-accent);
+  font-style: italic;
   font-size: var(--fs-stamp);
   line-height: 1;
   letter-spacing: 0.1em;

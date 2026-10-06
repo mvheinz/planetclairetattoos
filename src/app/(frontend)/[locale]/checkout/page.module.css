@@ -14,6 +14,6 @@
 }
 
 .title {
-  font-family: var(--font-hand, inherit);
+  font-family: var(--font-display, inherit);
   margin: 0;
 }

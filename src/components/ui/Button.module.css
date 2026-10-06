@@ -27,11 +27,11 @@
   flex: none;
 }
 
-/* Primär: Tusche-Grund, gedruckter Schatten; MI-16 beim Drücken (Schatten wechselt diskret). */
+/* Primär: Petrol-Grund (U-12), gedruckter Schatten in Tusche; MI-16 beim Drücken (Schatten wechselt diskret). */
 .primary {
   min-height: 52px;
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--petrol);
+  color: var(--paper-field);
   box-shadow: var(--shadow-press);
   transition: transform 80ms var(--ease-calm);
 }
@@ -39,12 +39,13 @@
 .primary:visited,
 .primary:hover,
 .primary:focus-visible {
-  color: var(--paper);
+  color: var(--paper-field);
   text-decoration: none;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .primary:not([aria-disabled='true']):hover {
+    background: var(--petrol-deep);
     transform: translate(-1px, -1px);
     box-shadow: 4px 4px 0 0 var(--ink);
   }

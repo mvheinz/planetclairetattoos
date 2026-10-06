@@ -12,16 +12,18 @@ import {
   resolveToken,
 } from '../../helpers/designLint'
 
-// AK-DS-01 (DESIGN §3.1): Jedes für Text freigegebene Token hat gegen Papier, Papier-2 und Raster (#E2E3D8) ≥ 4,50.
+// AK-DS-01 (DESIGN §3.1): Jedes für Text freigegebene Token hat gegen Papier, Papier-2, Raster (#D6DFC2) und das Ende des
+// Seitenverlaufs (--paper-deep, §3.5) ≥ 4,50.
 const tokensCss = readFileSync(path.join(ROOT, 'src/styles/tokens.css'), 'utf8')
 const tokens = readTokens(tokensCss)
 const hex = (name: string) => parseHex(resolveToken(tokens, name))
 
-const GRID_MAJOR = '#E2E3D8'
+const GRID_MAJOR = '#D6DFC2'
 const BACKGROUNDS: [string, ReturnType<typeof parseHex>][] = [
   ['--paper', hex('--paper')],
   ['--paper-2', hex('--paper-2')],
   ['Raster', parseHex(GRID_MAJOR)],
+  ['Verlauf-Ende', hex('--paper-deep')],
 ]
 
 interface DesignRow {
@@ -44,10 +46,10 @@ function designRows(): DesignRow[] {
     rows.push({
       token,
       hex: /`(#[0-9A-Fa-f]{6})`/.exec(cells[2] ?? '')?.[1] ?? null,
-      ratios: [cells[4], cells[5], cells[6]].map((c) =>
+      ratios: [cells[4], cells[5], cells[6], cells[7]].map((c) =>
         Number.parseFloat((c ?? '').replace(',', '.')),
       ),
-      release: cells[7] ?? '',
+      release: cells[8] ?? '',
     })
   }
   return rows
@@ -61,7 +63,8 @@ describe('Kontrast der Farb-Tokens (AK-DS-01)', () => {
       '--ink',
       '--ink-2',
       '--ink-3',
-      '--mat',
+      '--petrol',
+      '--petrol-deep',
       '--fox-text',
       '--stencil',
       '--warn',
@@ -71,7 +74,7 @@ describe('Kontrast der Farb-Tokens (AK-DS-01)', () => {
   })
 
   it.each(textTokens.map((r) => [r.token, r] as const))(
-    'AK-DS-01 %s ≥ 4,50 gegen Papier, Papier-2 und Raster',
+    'AK-DS-01 %s ≥ 4,50 gegen Papier, Papier-2, Raster und Verlauf-Ende',
     (token, row) => {
       if (row.hex) expect(resolveToken(tokens, token).toUpperCase()).toBe(row.hex.toUpperCase())
       BACKGROUNDS.forEach(([bgName, bg], i) => {
@@ -87,13 +90,13 @@ describe('Kontrast der Farb-Tokens (AK-DS-01)', () => {
     for (const [, bg] of BACKGROUNDS) expect(contrast(hex('--fox'), bg)).toBeGreaterThanOrEqual(3)
   })
 
-  it('Raster-Hauptlinie ergibt auf Papier die geprüfte Farbe #E2E3D8 (§3.4)', () => {
+  it('Raster-Hauptlinie ergibt auf Papier die geprüfte Farbe #D6DFC2 (§3.4)', () => {
     const paper = hex('--paper')
     const minor = composite(tokens.get('--grid-line')!, paper)
     const major = composite(tokens.get('--grid-line-major')!, minor)
     const expected = parseHex(GRID_MAJOR)
     major.forEach((c, i) => expect(Math.abs(c - expected[i]!)).toBeLessThanOrEqual(1))
-    expect(minor.map((c) => c.toString(16).padStart(2, '0')).join('')).toBe('eae8de')
+    expect(minor.map((c) => c.toString(16).padStart(2, '0')).join('')).toBe('dde4c7')
   })
 
   it('Papier-Feld ist heller als Papier (Felder mindestens so kontrastreich)', () => {

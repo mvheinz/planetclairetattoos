@@ -111,7 +111,7 @@ aus §10–§13 dieses Dokuments); DNS-Umstellung und Start-Checkliste für P11 
 | `exifr` (dev) | aktuell | P1 | EXIF-Tests (R-135) |
 | `yaml` (dev) | 2.x | P1 | Workflow-Test `tests/unit/ci/workflows.unit.spec.ts` parst `.github/**/*.yml` (P1.33) |
 | `next-intl` | 4.x (≥ 4.14) | P2 | Routing DE/EN, Nachrichten; `localeCookie: false` (R-130) |
-| `@fontsource/mansalva`, `@fontsource-variable/bricolage-grotesque`, `@fontsource/ibm-plex-mono` | aktuell | P2 | nur Quelle für das Kopierskript nach `src/styles/fonts/` (DESIGN §4.1) |
+| `@fontsource/spectral` (5.3.0, exakt gepinnt, P12.2; löst `@fontsource/mansalva` ab), `@fontsource-variable/bricolage-grotesque`, `@fontsource/ibm-plex-mono` | aktuell | P2 | nur Quelle für das Kopierskript nach `src/styles/fonts/` (DESIGN §4.1) |
 | `subset-font` (dev) | aktuell | P2 | Schrift-Subsetting in `pnpm fonts:copy` (harfbuzz-wasm, ohne Python): beschneidet Bricolage bei Bedarf auf `wght 400–700` (DESIGN §4.1); Skripte bleiben TypeScript über `tsx` |
 | `@fontsource/bricolage-grotesque` (dev), `wawoff2` (dev, MIT; oder gleichwertiger WOFF2→TTF-Wandler aus npm) | 5.3.0 / 2.0.1 (exakt gepinnt, P3.14) | P3 | `pnpm fonts:copy` erzeugt daraus die TTF-Dateien für OG-Bilder in `src/og/fonts/` (Mansalva 400, Bricolage statisch 600; DESIGN §4.1, P3.14) und `src/og/fontMetrics.generated.ts` (Abdeckung, Laufweiten); **kein** Download von fonts.gstatic.com oder anderen Schrift-Servern |
 | `@axe-core/playwright` (dev) | 4.x | P2 | Barrierefreiheit |

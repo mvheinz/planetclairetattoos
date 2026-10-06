@@ -37,7 +37,7 @@ export const TAG_HEIGHT: Record<PriceTagVariant, number> = { hanging: 72, pinned
 export const EYELET_Y = 10
 
 /**
- * Geschätzte Breite des Schilds (viewBox der Kontur): Mansalva-Zeichen sind im Mittel etwa 0,46 em breit. Das Schild wächst
+ * Geschätzte Breite des Schilds (viewBox der Kontur): Spectral-Italic-Ziffern sind im Mittel etwa 0,46 em breit. Das Schild wächst
  * per CSS mit dem Inhalt; die Schätzung hält nur die Kontur nahe an ihren natürlichen Proportionen.
  */
 export function estimateTagWidth(priceText: string, variant: PriceTagVariant): number {

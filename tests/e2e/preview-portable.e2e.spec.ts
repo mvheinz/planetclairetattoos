@@ -20,7 +20,7 @@ import { localizedPath } from '../../src/lib/routes/paths'
 // heruntergeladene Release-Asset (`release.yml`, Job `verify-asset`: Datei liegt dann in `dist/`).
 
 const SOURCE = path.resolve(process.env.PREVIEW_FILE ?? 'dist/planet-claire-vorschau.html')
-const FONT_FAMILIES = ['mansalva', 'bricolage', 'plexMono']
+const FONT_FAMILIES = ['spectral', 'spectralItalic', 'bricolage', 'plexMono']
 const PRODUCT = '/de/shop/901-schale-langohr-wuschel'
 const SIZE_LIMIT = 40_000_000
 
@@ -114,8 +114,12 @@ async function expectImagesAndFonts(page: Page, where: string): Promise<void> {
   })
   expect(images, `${where}: Bilder nicht geladen`).toBe(0)
   const fonts = await page.evaluate(async (families) => {
-    await Promise.all(families.map((f) => document.fonts.load(`16px ${f}`)))
-    return families.filter((f) => !document.fonts.check(`16px ${f}`))
+    await Promise.all(
+      families.map((f) => document.fonts.load(`${f.endsWith('Italic') ? 'italic ' : ''}16px ${f}`)),
+    )
+    return families.filter(
+      (f) => !document.fonts.check(`${f.endsWith('Italic') ? 'italic ' : ''}16px ${f}`),
+    )
   }, FONT_FAMILIES)
   expect(fonts, `${where}: Schriften`).toEqual([])
 }
