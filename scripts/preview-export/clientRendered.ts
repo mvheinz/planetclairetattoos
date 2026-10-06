@@ -14,6 +14,8 @@ export function clientRenderedPaths(): string[] {
   return LOCALES.map((lang) => localizedPath('R04', lang, s08[lang]))
 }
 
+const ATTEMPTS = 3
+
 export async function captureClientRendered(
   origin: string,
   paths: readonly string[] = clientRenderedPaths(),
@@ -43,28 +45,43 @@ export async function captureClientRendered(
       (route) =>
         allowed.has(new URL(route.request().url()).pathname) ? route.continue() : route.abort(),
     )
-    const page = await context.newPage()
+    // Mehrere Versuche mit frischer Seite: Die erste Antwort einer kalten ISR-Route kann unvollständig sein; ein
+    // einzelner Fehlschlag (CI: nur die EN-Variante, einmal 30 s Zeitüberschreitung) darf den Export nicht kippen.
     for (const path of paths) {
-      try {
-        const shell = await (await context.request.get(path)).text()
-        // Pfade stehen im HTML absolut (`/_next/static/…`) oder im RSC-Datenstrom relativ (`static/chunks/…`).
-        for (const m of shell.matchAll(/(?:\/_next\/)?(static\/[^"'\s\\)]+?\.js)/g))
-          allowed.add(`/_next/${m[1]}`)
-        const res = await page.goto(path, { waitUntil: 'load' })
-        await page.locator('main h1').first().waitFor({ state: 'visible', timeout: 30_000 })
-        const html = await page.evaluate(
-          () => `<!DOCTYPE html>${document.documentElement.outerHTML}`,
-        )
-        pages.set(path, {
-          status: res?.status() ?? 200,
-          contentType: 'text/html; charset=utf-8',
-          body: Buffer.from(html, 'utf8'),
+      const problems: string[] = []
+      for (let attempt = 1; attempt <= ATTEMPTS && !pages.has(path); attempt++) {
+        const page = await context.newPage()
+        const seen: string[] = []
+        page.on('pageerror', (err) => seen.push(`pageerror: ${err.message.split('\n')[0]}`))
+        page.on('console', (msg) => {
+          if (msg.type() === 'error') seen.push(`console: ${msg.text().slice(0, 160)}`)
         })
-      } catch (e) {
-        warnings.push(
-          `Im Browser gerendert: ${path} – ${e instanceof Error ? e.message.split('\n')[0] : String(e)}`,
-        )
+        page.on('requestfailed', (req) => seen.push(`abgebrochen: ${req.url().slice(0, 120)}`))
+        try {
+          const shell = await (await context.request.get(path)).text()
+          // Pfade stehen im HTML absolut (`/_next/static/…`) oder im RSC-Datenstrom relativ (`static/chunks/…`).
+          for (const m of shell.matchAll(/(?:\/_next\/)?(static\/[^"'\s\\)]+?\.js)/g))
+            allowed.add(`/_next/${m[1]}`)
+          const res = await page.goto(path, { waitUntil: 'load' })
+          await page.locator('main h1').first().waitFor({ state: 'visible', timeout: 20_000 })
+          const html = await page.evaluate(
+            () => `<!DOCTYPE html>${document.documentElement.outerHTML}`,
+          )
+          pages.set(path, {
+            status: res?.status() ?? 200,
+            contentType: 'text/html; charset=utf-8',
+            body: Buffer.from(html, 'utf8'),
+          })
+        } catch (e) {
+          problems.push(
+            `Versuch ${attempt}: ${e instanceof Error ? e.message.split('\n')[0] : String(e)}` +
+              (seen.length ? ` [${seen.slice(0, 6).join(' | ')}]` : ''),
+          )
+        } finally {
+          await page.close()
+        }
       }
+      if (!pages.has(path)) warnings.push(`Im Browser gerendert: ${path} – ${problems.join(' ; ')}`)
     }
     await context.close()
   } finally {
