@@ -348,7 +348,7 @@ jobs:
           test "$n" -gt 0
       - name: Aufräumen
         if: always()
-        run: docker compose --env-file .env.production down -v
+        run: test ! -f .env.production || docker compose --env-file .env.production down -v
 
   snapshots:
     name: snapshots
