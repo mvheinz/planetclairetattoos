@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P10 CI-Reparatur, dritte Runde
+
+Zwei echte Funde: Im Docker-Image fehlten ein paar Dateien des React-Pakets, deshalb lieferte die Startseite dort einen Fehler (der Gesundheits-Check lief trotzdem durch) – jetzt werden sie mitgepackt. Und ein Test mit absichtlicher Fremd-Anfrage verhält sich unter WebKit anders; er prüft dort jetzt genau die zwei erwarteten Sicherheits-Meldungen und lässt alles andere durchfallen. Der Phasenlauf startet erneut.
+
 ## 2026-10-06 – P10 CI-Reparatur, zweite Runde
 
 Gefunden und behoben: Die Vorschau-Seite der Verwaltung hatte in ihrer Sicherheitsrichtlinie den Hash eines kleinen Skripts vergessen; ein Test lief versehentlich im normalen Browser-Lauf statt im eigenen Vorschau-Lauf; ein Gesundheitstest brauchte in frischer Umgebung einen ersten Takt; im Docker-Job fehlte die Umgebungsdatei beim Warten; und für die Abdeckung der Rechts-Bausteine gibt es jetzt elf zusätzliche Tests. Ein Test mit absichtlicher Fremd-Anfrage prüft unter WebKit jetzt den erwarteten Sicherheits-Hinweis und entfernt nur genau diesen. Der Phasenlauf startet erneut.
