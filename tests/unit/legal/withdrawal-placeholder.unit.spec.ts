@@ -18,15 +18,23 @@ describe('R-095 Platzhalter-Widerrufsbelehrung (Grund-Seed)', () => {
 
   it('R-095 ist als Platzhalter gekennzeichnet und enthält kein Verbotsmuster', () => {
     expect(belehrung.sourceNote).toMatch(/Platzhalter/)
-    expect(text).toMatch(/folgt von der Kanzlei/)
+    // P12.11: ausformuliert, aber weiterhin Platzhalter-Herkunft (Kanzlei-Prüfung in P11)
+    expect(text).toMatch(/binnen vierzehn Tagen/)
     expect(text).not.toMatch(/ec\.europa\.eu\/consumers\/odr|inkl\.\s*MwSt/i)
   })
 
   it('R-095 jedes {{Token}} im Text gehört zur geschlossenen Liste', () => {
     const tokens = [...text.matchAll(/\{\{(\w+)\}\}/g)].map((m) => m[1])
     for (const t of tokens)
-      expect(['withdrawalUrl', 'phone', 'name', 'street', 'postalCode', 'city', 'email']).toContain(
-        t,
-      )
+      expect([
+        'withdrawalUrl',
+        'phone',
+        'name',
+        'street',
+        'postalCode',
+        'city',
+        'email',
+        'returnCostsNote',
+      ]).toContain(t)
   })
 })

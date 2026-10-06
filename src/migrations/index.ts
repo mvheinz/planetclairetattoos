@@ -42,6 +42,7 @@ import * as migration_20261002_130126_p6_invoice_reissue from './20261002_130126
 import * as migration_20261002_130238_p6_invoice_reissue_constraints from './20261002_130238_p6_invoice_reissue_constraints';
 import * as migration_20261002_143151_p7_revalidate_offers_task from './20261002_143151_p7_revalidate_offers_task';
 import * as migration_20261003_065710_p8_media_owner_approved from './20261003_065710_p8_media_owner_approved';
+import * as migration_20261006_210529_p12_ip_snippets from './20261006_210529_p12_ip_snippets';
 
 export const migrations = [
   {
@@ -262,6 +263,11 @@ export const migrations = [
   {
     up: migration_20261003_065710_p8_media_owner_approved.up,
     down: migration_20261003_065710_p8_media_owner_approved.down,
-    name: '20261003_065710_p8_media_owner_approved'
+    name: '20261003_065710_p8_media_owner_approved',
+  },
+  {
+    up: migration_20261006_210529_p12_ip_snippets.up,
+    down: migration_20261006_210529_p12_ip_snippets.down,
+    name: '20261006_210529_p12_ip_snippets'
   },
 ];
