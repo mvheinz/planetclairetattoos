@@ -110,7 +110,7 @@ const ROW_ENTER_LINE = 0.95
  * Rechenzeit je Idle-Teilstück des Aufbaus (ms, ungedrosselt; mindestens ein Schritt je Teilstück, ein weiterer nur, wenn
  * er – geschätzt wie der vorige – noch hineinpasst).
  */
-const STEP_BUDGET_MS = 1.5
+const STEP_BUDGET_MS = 1
 /** Coco springt statt zu rennen, wenn sie weiter zurückliegt (§9.6). */
 const COCO_JUMP = 300
 
