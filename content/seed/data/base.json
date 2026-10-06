@@ -108,7 +108,7 @@
     "pickup": {
       "instructions": {
         "de": "Abholung in Berlin nach Absprache: Wir machen per Mail einen Termin aus, die Adresse bekommst du mit der Terminbestätigung. Bring bitte deine Bestellnummer mit.",
-        "en": "Pickup in Berlin by arrangement: we'll set a time by email, and you'll get the address with the confirmation. Please bring your order number."
+        "en": "Pickup in Berlin by arrangement: we agree on a time by email, and you receive the address with the confirmation. Please bring your order number."
       }
     },
     "payment": {
@@ -126,7 +126,7 @@
       "customPriceToCents": 40000,
       "priceNote": {
         "de": "Alle Preise sind Endpreise. Flash hat einen Festpreis direkt am Motiv, eigene Ideen rechne ich nach Größe und Aufwand.",
-        "en": "All prices are final prices. Flash has a fixed price right on the design; custom ideas are priced by size and effort."
+        "en": "All prices are final prices. Flash has a fixed price right on the design; ideas of your own I price by size and effort."
       }
     },
     "social": {
@@ -267,8 +267,8 @@
       "sortOrder": 10,
       "showInNavigation": true,
       "intro": {
-        "de": "Alles hier ist von Hand geformt und bemalt – mit Tieren, die zurückgucken. Jede Keramik ist ein Deko-Stück: schön für Schlüssel, Ringe und Kleinkram, nicht für Essen.",
-        "en": "Everything here is shaped and painted by hand – with animals that look back at you. Every ceramic piece is decorative: great for keys, rings and odds and ends, not for food."
+        "de": "Alles hier ist von Hand geformt und bemalt – mit Tieren, die zurückschauen. Jede Keramik ist ein Deko-Stück: für Schlüssel, Ringe und Kleinkram, nicht für Essen.",
+        "en": "Everything here is shaped and painted by hand – with animals that look back at you. Every ceramic piece is decorative: for keys, rings and small things, not for food."
       }
     },
     {
@@ -284,8 +284,8 @@
       "sortOrder": 20,
       "showInNavigation": true,
       "intro": {
-        "de": "Second-Hand-Teile, die ich bemale. Größe, Zustand und Material stehen bei jedem Stück – bitte kurz nachmessen, jedes gibt es nur einmal.",
-        "en": "Second-hand pieces that I paint. Size, condition and fabric are listed for each one – please measure, every piece exists only once."
+        "de": "Stoffe mit einer Vorgeschichte, die ich weitermale. Größe, Zustand und Material stehen bei jedem Stück – bitte miss kurz nach, jedes gibt es nur einmal.",
+        "en": "Cloth with a past, which I paint onward. Size, condition and fabric are given for every piece – please measure, each exists only once."
       }
     },
     {
@@ -302,7 +302,7 @@
       "showInNavigation": true,
       "intro": {
         "de": "Gebrauchte Caps mit neuen Bewohnern. Ob verstellbar oder feste Größe, steht bei jeder Cap dabei.",
-        "en": "Pre-loved caps with new residents. Whether adjustable or a fixed size is listed on each cap."
+        "en": "Pre-loved caps with new residents. Whether adjustable or a fixed size is stated on each cap."
       }
     },
     {
@@ -318,8 +318,8 @@
       "sortOrder": 40,
       "showInNavigation": true,
       "intro": {
-        "de": "Originale auf Papier: Tusche, Aquarell, Skizzenbuchseiten. Keine Drucke – was du siehst, ist genau das Blatt, das du bekommst.",
-        "en": "Originals on paper: ink, watercolour, sketchbook pages. No prints – what you see is exactly the sheet you get."
+        "de": "Originale auf Papier: Tusche, Aquarell, Seiten aus dem Skizzenbuch. Keine Drucke – was du siehst, ist genau das Blatt, das zu dir kommt.",
+        "en": "Originals on paper: ink, watercolour, pages from the sketchbook. No prints – what you see is exactly the sheet that will come to you."
       }
     },
     {
@@ -335,8 +335,8 @@
       "sortOrder": 50,
       "showInNavigation": true,
       "intro": {
-        "de": "Winzige Anhänger aus Keramik mit Öse aus Edelstahl. Die Kette ist nicht dabei – du hast bestimmt schon eine Lieblingskette.",
-        "en": "Tiny ceramic pendants with a stainless steel loop. Chain not included – you've probably got a favourite one already."
+        "de": "Winzige Anhänger aus Keramik mit Öse aus Edelstahl. Die Kette ist nicht dabei – deine Lieblingskette wartet bestimmt schon.",
+        "en": "Tiny ceramic pendants with a stainless steel loop. The chain is not included – your favourite one is surely waiting already."
       }
     },
     {
@@ -352,8 +352,8 @@
       "sortOrder": 60,
       "showInNavigation": false,
       "intro": {
-        "de": "Was nirgends reinpasst: Flohmarktfunde, die ich bemalt habe.",
-        "en": "Things that don't fit anywhere else: flea market finds I've painted."
+        "de": "Was nirgends hineinpasst: Fundstücke vom Markt, die ich weitergemalt habe.",
+        "en": "Whatever fits nowhere else: market finds that I have painted onward."
       }
     }
   ],

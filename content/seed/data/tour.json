@@ -17,7 +17,7 @@
     "timeTo": "17:00",
     "note": {
       "de": "Coco war dabei und hat alle Tüten bewacht.",
-      "en": "Coco came along and guarded all the bags."
+      "en": "Coco came along and guarded every bag."
     },
     "status": "planned"
   },
@@ -101,7 +101,7 @@
     "timeTo": "17:30",
     "note": {
       "de": "Neue Zeichnungen im Gepäck.",
-      "en": "With new drawings in my bag."
+      "en": "New drawings in my luggage."
     },
     "status": "planned"
   },
@@ -122,8 +122,8 @@
     "timeFrom": "10:00",
     "timeTo": "16:00",
     "note": {
-      "de": "Der Markt wurde vom Veranstalter abgesagt.",
-      "en": "The organiser has cancelled this market."
+      "de": "Der Veranstalter hat den Markt abgesagt.",
+      "en": "The organiser has cancelled the market."
     },
     "status": "cancelled"
   },

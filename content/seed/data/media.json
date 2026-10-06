@@ -344,23 +344,24 @@
       "key": "ph:zeichnung-01",
       "wash": "sky",
       "alt": {
-        "de": "Platzhalter-Zeichnung: Zeichnung: Coco auf dem Mond",
-        "en": "Placeholder drawing: drawing: Coco on the moon"
+        "de": "Platzhalter-Zeichnung: Coco auf dem Mond",
+        "en": "Placeholder drawing: Coco on the moon"
       }
     },
     {
       "key": "ph:zeichnung-02",
       "wash": null,
       "alt": {
-        "de": "Platzhalter-Zeichnung: Zeichnung: Flammenwesen",
-        "en": "Placeholder drawing: drawing: flame creature"
+        "de": "Platzhalter-Zeichnung: Flammenwesen",
+        "en": "Placeholder drawing: flame creature"
       }
     },
     {
       "key": "ph:zeichnung-03",
       "wash": null,
       "alt": {
-        "de": "Platzhalter-Zeichnung: Skizze: ein Hase"
+        "de": "Platzhalter-Zeichnung: Skizze: ein Hase",
+        "en": "Placeholder drawing: sketch of a bunny"
       }
     },
     {

@@ -9,7 +9,7 @@
     },
     "answer": {
       "de": "Ab 18. Bring zum Termin bitte deinen Ausweis mit.",
-      "en": "18 and up. Please bring your ID to the appointment."
+      "en": "18 and over. Please bring your ID to the appointment."
     }
   },
   {
@@ -21,8 +21,8 @@
       "en": "Where is your studio?"
     },
     "answer": {
-      "de": "In meinem Privatstudio in Berlin. Den Bezirk findest du auf der Tattoo-Seite, die genaue Adresse schicke ich dir mit der Terminbestätigung.",
-      "en": "In my private studio in Berlin. You'll find the district on the tattoo page, and I'll send you the exact address with your appointment confirmation."
+      "de": "In einem Raum in Berlin, in dem es still wird: meinem Privatstudio. Den Bezirk findest du auf der Tattoo-Seite, die genaue Adresse schicke ich dir mit der Terminbestätigung.",
+      "en": "In a room in Berlin where things go quiet: my private studio. You will find the district on the tattoo page, and I send you the exact address with your appointment confirmation."
     }
   },
   {
@@ -34,8 +34,8 @@
       "en": "Do I need to pay a deposit?"
     },
     "answer": {
-      "de": "Ja, für jeden Termin. Wie hoch und wie wir das machen, besprechen wir persönlich per Mail – online zahlst du hier nichts.",
-      "en": "Yes, for every appointment. We'll agree on the amount and how it works personally by email – you don't pay anything online here."
+      "de": "Ja, für jeden Termin. Wie hoch sie ist und wie wir es machen, besprechen wir persönlich per Mail – online zahlst du hier nichts.",
+      "en": "Yes, for every appointment. How high it is and how we handle it we settle personally by email – you pay nothing online here."
     }
   },
   {
@@ -47,8 +47,8 @@
       "en": "I can't make my appointment – what now?"
     },
     "answer": {
-      "de": "Sag mir so früh wie möglich Bescheid, per Mail. Dann suchen wir einen neuen Termin. Was mit der Anzahlung passiert, haben wir vorher gemeinsam abgemacht.",
-      "en": "Let me know as early as you can by email, and we'll find a new date. What happens to the deposit is whatever we agreed on together beforehand."
+      "de": "Dinge ändern sich. Sag mir so früh wie möglich Bescheid, per Mail – dann suchen wir einen neuen Tag. Was mit der Anzahlung geschieht, haben wir vorher gemeinsam abgemacht.",
+      "en": "Things change. Tell me as early as you can, by email – then we find a new day. What happens to the deposit is what we agreed on together beforehand."
     }
   },
   {
@@ -60,8 +60,8 @@
       "en": "Is Coco around during the session?"
     },
     "answer": {
-      "de": "Coco ist oft im Studio, schläft aber meistens in ihrem Körbchen. Wenn du Hunde nicht verträgst oder lieber ohne sie bist, sag's mir vorher – dann hat sie an dem Tag frei.",
-      "en": "Coco is often in the studio, but she mostly naps in her basket. If dogs don't agree with you or you'd rather be without her, tell me beforehand – she'll take the day off."
+      "de": "Sie ist oft im Studio und schläft meistens in ihrem Körbchen. Verträgst du keine Hunde oder bist lieber allein, sag es mir vorher – dann hat sie an diesem Tag frei.",
+      "en": "She is often in the studio and mostly sleeps in her basket. If you do not get along with dogs or prefer to be alone, tell me beforehand – then she has that day off."
     }
   },
   {
@@ -73,8 +73,8 @@
       "en": "Do you do colour?"
     },
     "answer": {
-      "de": "Mein Ding ist schwarze Fine Line. Kleine Farbtupfer gehen manchmal – frag einfach mit deiner Idee.",
-      "en": "My thing is black fine line. Small touches of colour sometimes work – just ask with your idea."
+      "de": "Mein Ding ist schwarze Fine Line. Kleine Farbtupfer gehen manchmal – frag mit deiner Idee.",
+      "en": "My thing is black fine line. Small touches of colour sometimes work – ask with your idea."
     }
   },
   {
@@ -86,8 +86,8 @@
       "en": "Do you do cover-ups?"
     },
     "answer": {
-      "de": "Eher selten, weil feine Linien wenig abdecken. Schick mir ein Foto vom alten Tattoo per Mail, dann sag ich dir ehrlich, ob es passt.",
-      "en": "Rarely, because fine lines don't cover much. Email me a photo of the old tattoo and I'll tell you honestly whether it works."
+      "de": "Eher selten, denn feine Linien decken wenig zu. Schick mir per Mail ein Foto vom alten Tattoo, dann sage ich dir ehrlich, ob es passt.",
+      "en": "Rarely, because fine lines hide little. Email me a photo of the old tattoo and I will tell you honestly whether it works."
     }
   },
   {
@@ -99,8 +99,8 @@
       "en": "How do I request a tattoo?"
     },
     "answer": {
-      "de": "Schreib mir eine Mail. Dort geht nichts unter, und du kannst Bilder in Ruhe anhängen. Für Flash schick einfach die Nummer mit, zum Beispiel F-902.",
-      "en": "Send me an email. Nothing gets lost that way, and you can attach pictures easily. For flash, just include the number, for example F-902."
+      "de": "Mit einer Mail. Dort geht nichts verloren, und Bilder kannst du in Ruhe anhängen. Bei Flash schreib die Nummer dazu, zum Beispiel F-902.",
+      "en": "With an email. Nothing gets lost there, and you can attach pictures at your leisure. For flash, add the number, for example F-902."
     }
   },
   {
@@ -112,8 +112,8 @@
       "en": "How long does healing take?"
     },
     "answer": {
-      "de": "Die Oberfläche ist meist nach zwei bis drei Wochen zu, ganz durch ist die Haut nach etwa vier bis sechs Wochen. Die Schritte stehen oben auf dieser Seite.",
-      "en": "The surface usually closes after two to three weeks; the skin is fully through after about four to six weeks. The steps are listed above on this page."
+      "de": "Haut lässt sich nicht hetzen. Die Oberfläche ist meist nach zwei bis drei Wochen zu, ganz durch ist die Haut nach etwa vier bis sechs Wochen. Die Schritte stehen oben auf dieser Seite.",
+      "en": "Skin cannot be hurried. The surface is usually closed after two to three weeks; the skin is fully through after about four to six weeks. The steps are listed above on this page."
     }
   },
   {
@@ -125,8 +125,8 @@
       "en": "Why is the ceramic labelled “decorative”?"
     },
     "answer": {
-      "de": "Weil es für meine Glasuren noch keine Konformitätserklärung gibt. Bis dahin steht bei jedem Stück: Deko – nicht für Lebensmittel. Für Schlüssel, Ringe, Pinsel und Kleinkram sind sie super.",
-      "en": "Because there's no declaration of conformity for my glazes yet. Until then, every piece says: decorative – not for food. They're great for keys, rings, brushes and odds and ends."
+      "de": "Weil es für meine Glasuren noch keine Konformitätserklärung gibt. Bis dahin steht bei jedem Stück: Deko – nicht für Lebensmittel. Für Schlüssel, Ringe, Pinsel und Kleinkram sind sie wunderbar.",
+      "en": "Because there is no declaration of conformity for my glazes yet. Until then each piece says: decorative – not for food. For keys, rings, brushes and small things they are wonderful."
     }
   },
   {
@@ -138,8 +138,8 @@
       "en": "Where do you ship, and what does shipping cost?"
     },
     "answer": {
-      "de": "Zurzeit nur innerhalb Deutschlands. Was der Versand kostet, hängt vom Stück ab (Brief, kleines Paket oder Keramik-Paket) – im Warenkorb gilt immer die höchste Versandart. Alles Weitere steht unter Versand & Zahlung. Abholen in Berlin kostet nichts.",
-      "en": "Only within Germany for now. The shipping cost depends on the piece (letter, small parcel or ceramics parcel) – in the cart, the highest one applies. Details are on the Shipping & payment page. Pickup in Berlin is free."
+      "de": "Zurzeit nur innerhalb Deutschlands. Was der Versand kostet, hängt vom Stück ab (Brief, kleines Paket oder Keramik-Paket) – im Korb gilt immer die höchste Versandart. Alles Weitere steht unter Versand & Zahlung. Abholen in Berlin kostet nichts.",
+      "en": "For now only within Germany. The shipping cost depends on the piece (letter, small parcel or ceramics parcel) – in the basket the highest one applies. Everything else is on the Shipping & payment page. Pickup in Berlin is free."
     }
   },
   {
@@ -151,8 +151,8 @@
       "en": "Can I order something custom?"
     },
     "answer": {
-      "de": "Ja! Eine Cap mit deinem Hund, ein Teller zur Hochzeit, eine Zeichnung – schreib mir über das Formular bei den Auftragsarbeiten. Ich antworte mit einem Angebot per Mail; bezahlt wird nicht über den Shop. Fremde Figuren aus Comics, Filmen oder von Marken male ich nicht.",
-      "en": "Yes! A cap with your dog, a plate for a wedding, a drawing – write to me via the form on the commissions page. I'll reply with an offer by email; payment doesn't go through the shop. I don't paint characters from comics, films or brands."
+      "de": "Ja. Eine Cap, auf der dein Hund wohnt, ein Teller zur Hochzeit, eine Zeichnung – schreib mir über das Formular bei den Auftragsarbeiten. Ich antworte mit einem Angebot per Mail; bezahlt wird nicht über den Shop. Fremde Figuren aus Comics, Filmen oder von Marken male ich nicht.",
+      "en": "Yes. A cap where your dog lives, a plate for a wedding, a drawing – write to me through the form on the commissions page. I answer with an offer by email; payment does not go through the shop. I do not paint characters from comics, films or brands."
     }
   }
 ]

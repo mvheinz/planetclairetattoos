@@ -1,7 +1,7 @@
 {
   "common": {
     "siteName": "Planet Claire",
-    "claim": "Tattoos, Keramik und Zeichnungen aus Berlin",
+    "claim": "Tinte auf Haut, Ton und Papier – von einem kleinen Planeten in Berlin",
     "routes": {
       "R01": "Start",
       "R02": "Shop",
@@ -31,8 +31,8 @@
       "R27": "Konformitätserklärungen"
     },
     "faq": {
-      "emptyTitle": "Noch keine Fragen",
-      "emptyText": "Frag mich einfach per Mail.",
+      "emptyTitle": "Noch hat niemand gefragt",
+      "emptyText": "Die erste Frage darfst du stellen – per Mail.",
       "emptyAction": "Zum Kontakt"
     }
   },
@@ -103,40 +103,40 @@
     }
   },
   "errors": {
-    "notFoundTitle": "Coco hat sich losgerissen",
-    "notFoundText": "Diese Seite gibt es nicht (mehr).",
-    "linksLabel": "Weiter geht’s",
-    "numberLabel": "Du suchst ein Stück? Nummer eingeben",
+    "notFoundTitle": "Diese Seite hat sich in den Nebel gezeichnet",
+    "notFoundText": "Coco ist der Linie nachgelaufen und nicht zurückgekommen. Hier gibt es nichts – oder nichts mehr.",
+    "linksLabel": "Wohin der Faden dich führen kann",
+    "numberLabel": "Ein bestimmtes Stück im Kopf? Nummer eingeben",
     "numberSubmit": "Stück suchen",
-    "homeTitle": "Dieses Stück hat schon ein Zuhause gefunden",
-    "homeText": "Es ist verkauft und wohnt jetzt woanders. Im Shop wartet noch mehr.",
+    "homeTitle": "Dieses Stück ist weitergezogen",
+    "homeText": "Es hat ein Zuhause gefunden und leuchtet jetzt in einem anderen Zimmer. Im Shop wohnen noch andere.",
     "soldStamp": "sold",
-    "serverErrorTitle": "Hoppla – die Leine hat sich verheddert",
-    "serverErrorText": "Da ist gerade etwas schiefgelaufen. Versuch es gleich noch einmal.",
+    "serverErrorTitle": "Der Faden hat sich verheddert",
+    "serverErrorText": "Etwas ist schiefgelaufen, und ich weiß noch nicht, was. Atme kurz durch und versuch es noch einmal.",
     "retry": "Nochmal versuchen",
     "toHome": "Zur Startseite"
   },
   "home": {
     "title": "Planet Claire",
-    "intro": "Tattoos, handgemachte Unikat-Keramik und Zeichnungen aus Berlin.",
+    "intro": "Ein kleiner Planet in Berlin. Tinte auf Haut, Ton und Papier – und manchmal läuft jemand mit sehr großen Ohren vorbei.",
     "stationKicker": "Station {number}",
-    "stationMore": "Mehr ansehen",
+    "stationMore": "Weiter hinein",
     "stationAll": "Alle {category}",
-    "stationEmpty": "Gerade ist hier nichts – schau bald wieder oder stöbere im Archiv",
-    "stationArchive": "Zum Archiv",
+    "stationEmpty": "Gerade ist es hier still. Komm später wieder – oder wandere durchs Archiv.",
+    "stationArchive": "Ins Archiv",
     "stationProducts": "Stücke: {station}",
-    "emptyTitle": "Hier wird gerade umgeräumt.",
-    "emptyText": "Die Startseite ist gleich wieder da. Schau so lange bei den Kontaktwegen vorbei.",
+    "emptyTitle": "Der Planet dreht sich gerade um.",
+    "emptyText": "Gleich liegt alles wieder an seinem Platz. Bis dahin erreichst du mich per Mail.",
     "emptyAction": "Zum Kontakt",
     "stationCommissions": "Auftragsarbeiten",
     "chairwomanAlt": "Koko, Vorsitzende der Goth Dogs Berlin",
     "fitnessAlt": "Coco, die Hündin, macht Gymnastik auf zwei Beinen: sieben Übungen nacheinander, am Ende liegt sie erschöpft am Boden – dann geht es von vorn los.",
     "tour": {
       "heading": "Planet Claire on Tour",
-      "intro": "Hier findest du mich außer Haus: auf Märkten, Flohmärkten und Kunstmärkten.",
-      "upcomingHeading": "Kommende Termine",
-      "empty": "Gerade sind keine Termine geplant.",
-      "pastSummary": "Vergangene Termine ({count})",
+      "intro": "Manchmal verlasse ich meinen Planeten und stelle einen Tisch auf – auf Floh-, Kunst- und Hinterhofmärkten, zwischen fremden Stimmen und Tüten voller Zeug.",
+      "upcomingHeading": "Wo du mich triffst",
+      "empty": "Gerade ruht mein Tisch im Schrank. Neue Termine erscheinen hier.",
+      "pastSummary": "Wo ich schon war ({count})",
       "cancelled": "abgesagt",
       "running": "läuft gerade",
       "stand": "Stand {number}",
@@ -195,16 +195,16 @@
   },
   "seo": {
     "descriptions": {
-      "default": "Planet Claire aus Berlin: Tattoos, handgemachte Unikat-Keramik und Zeichnungen von Jutta – Einzelstücke, Tattoo-Termine und Auftragsarbeiten.",
-      "home": "Planet Claire aus Berlin: Tattoos, handgemachte Unikat-Keramik und Zeichnungen von Jutta. Stöbere im Shop, entdecke Flash-Motive oder frag ein Tattoo an.",
-      "contact": "So erreichst du Planet Claire in Berlin: Fragen zu Unikaten, Bestellungen, Tattoo-Terminen oder Auftragsarbeiten – per Mail.",
+      "default": "Planet Claire, ein kleiner Planet in Berlin: Fine-Line-Tattoos, handgemachte Unikat-Keramik und Zeichnungen von Jutta – jedes Stück nur einmal.",
+      "home": "Ein kleiner Planet in Berlin: Fine-Line-Tattoos, handgemachte Unikat-Keramik und Zeichnungen von Jutta. Wandere durch den Shop oder schreib mir.",
+      "contact": "Ein Brief an Planet Claire in Berlin: Fragen zu Unikaten, Bestellungen, Tattoo-Terminen oder Auftragsarbeiten – am besten per Mail.",
       "legal": "Rechtliche Informationen von Planet Claire, Berlin: Impressum, Datenschutz, AGB, Widerrufsbelehrung sowie Versand und Zahlung für den Unikat-Shop.",
       "withdrawal": "Hier kannst du einen Vertrag mit Planet Claire widerrufen: Bestellung angeben, Erklärung absenden und sofort eine Eingangsbestätigung per E-Mail erhalten.",
       "conformity": "Konformitätserklärungen von Planet Claire, Berlin, zu handgemachter Keramik mit Lebensmittelkontakt – aktuelle Erklärungen zum Ansehen und Herunterladen.",
-      "shop": "Handgemachte Unikate von Planet Claire aus Berlin: bemalte Keramik, Textil, Caps, Zeichnungen und Schmuck – jedes Stück gibt es nur einmal.",
-      "category": "Handgemachte Unikate von Planet Claire aus Berlin in dieser Kategorie – jedes Stück ist ein Einzelstück, Lieferung innerhalb Deutschlands.",
-      "archive": "Archiv von Planet Claire aus Berlin: Keramik, Textil und Zeichnungen, die schon ein Zuhause gefunden haben – zum Anschauen und Stöbern.",
-      "about": "Jutta und Coco von Planet Claire in Berlin: Fine-Line-Tattoos, bemalte Keramik, Shirts und Zeichnungen – wer hinter den Unikaten steckt und wie sie entstehen."
+      "shop": "Stücke aus meinen Händen, Berlin: bemalte Keramik, Textil, Caps, Zeichnungen und Schmuck – jedes gibt es nur ein einziges Mal.",
+      "category": "Handgemachte Unikate von Planet Claire aus Berlin in dieser Kategorie – jedes Stück ein Einzelstück, Lieferung innerhalb Deutschlands.",
+      "archive": "Archiv von Planet Claire, Berlin: Keramik, Textil und Zeichnungen, die weitergezogen sind und ein Zuhause gefunden haben.",
+      "about": "Jutta und Coco von Planet Claire in Berlin: Fine-Line-Tattoos, bemalte Keramik, Shirts und Zeichnungen – ein kleiner Planet mit zittriger Linie."
     },
     "og": {
       "tagline": "Tattoos & Unikate aus Berlin",
@@ -213,13 +213,13 @@
       "defaultAlt": "Planet Claire – Tattoos & Unikate aus Berlin"
     },
     "tattoo": {
-      "R11": "Tattoos von Planet Claire in Berlin: Fine Line mit Humor im Privatstudio. Flash-Motive mit Festpreis, Preise, Galerie und Anfrage per Mail.",
-      "R12": "Flash-Motive von Planet Claire, Berlin: fertige Fine-Line-Zeichnungen mit Festpreis, einmalig oder wiederholbar – anfragen per Mail.",
-      "R14": "Tattoo-Preise bei Planet Claire, Berlin: Mindestpreis, Festpreise für Flash, Preisrahmen für eigene Ideen und wie wir die Anzahlung persönlich vereinbaren.",
-      "R15": "Galerie von Planet Claire, Berlin: frisch gestochene und abgeheilte Fine-Line-Tattoos – gezeigt nur mit Einwilligung der Menschen, die sie tragen.",
-      "R16": "So läuft ein Tattoo-Termin bei Planet Claire in Berlin ab: Anfrage per Mail, Termin, Anzahlung, Stechen im Privatstudio und Pflege danach.",
-      "R17": "Tattoo-Aftercare von Planet Claire, Berlin: Pflege in Phasen von direkt danach bis langfristig, Warnzeichen für den Arztbesuch – auch zum Ausdrucken.",
-      "R18": "Häufige Fragen an Planet Claire in Berlin: Mindestalter, Privatstudio, Anzahlung, Termin verschieben, Coco im Studio, Farbe, Cover-ups und Anfrage per Mail."
+      "R11": "Tattoos von Planet Claire in Berlin: eine feine, zittrige Linie im Privatstudio. Flash-Motive mit Festpreis, Preise, Galerie und Anfrage per Mail.",
+      "R12": "Flash-Motive von Planet Claire, Berlin: Zeichnungen, die auf Haut warten – mit Festpreis, einmalig oder wiederholbar, anfragen per Mail.",
+      "R14": "Tattoo-Preise bei Planet Claire, Berlin: Mindestpreis, Festpreise für Flash, Preisrahmen für eigene Ideen und die persönlich vereinbarte Anzahlung.",
+      "R15": "Galerie von Planet Claire, Berlin: Linien, die geblieben sind – frisch gestochen und verheilt, gezeigt nur mit Einwilligung der Menschen, die sie tragen.",
+      "R16": "Der Weg zum Tattoo bei Planet Claire in Berlin: Anfrage per Mail, Termin, Anzahlung, Stechen im Privatstudio und Pflege danach.",
+      "R17": "Tattoo-Aftercare von Planet Claire, Berlin: wie die Haut in Phasen heilt, von direkt danach bis langfristig, mit Warnzeichen – auch zum Ausdrucken.",
+      "R18": "Fragen an Planet Claire in Berlin: Mindestalter, Privatstudio, Anzahlung, Termin verschieben, Coco im Studio, Farbe, Cover-ups und Anfrage per Mail."
     }
   },
   "contact": {
@@ -227,8 +227,8 @@
     "studio": "Privatstudio in Berlin-{district}",
     "withdrawHint": "Du willst einen Vertrag widerrufen?",
     "legalNoticeHint": "Angaben zur Anbieterin:",
-    "emptyTitle": "Die Kontaktseite entsteht gerade",
-    "emptyText": "Schreib mir einfach eine Mail.",
+    "emptyTitle": "Diese Seite wird gerade geschrieben",
+    "emptyText": "Schreib mir einfach eine Mail – sie findet ihren Weg.",
     "copyEmail": "Adresse kopieren",
     "copied": "Kopiert",
     "copyFailed": "Kopieren hat nicht geklappt – bitte markieren und kopieren."
@@ -284,9 +284,9 @@
   },
   "shop": {
     "list": {
-      "empty": "Gerade ist alles weg – neue Stücke kommen auf Instagram zuerst.",
-      "intro": "Keramik, Textil, Zeichnungen und Schmuck – von Hand gemacht in Berlin, und jedes Stück gibt es nur einmal.",
-      "emptyText": "Im Archiv siehst du, was schon ausgezogen ist.",
+      "empty": "Gerade sind alle Stücke weitergezogen. Bald ziehen neue ein.",
+      "intro": "Dinge, die aus meinen Händen kommen: Keramik, Textil, Zeichnungen, Schmuck. Jedes Stück gibt es nur ein einziges Mal.",
+      "emptyText": "Im Archiv wohnen die Stücke, die schon ein Zuhause gefunden haben.",
       "emptyAction": "Zum Archiv",
       "filterLabel": "Stücke filtern",
       "all": "Alle",
@@ -296,7 +296,7 @@
       "more": "Mehr zeigen",
       "delivery": "Lieferung innerhalb Deutschlands · Abholung in {city} möglich",
       "deliveryNoPickup": "Lieferung innerhalb Deutschlands",
-      "closedFallback": "Der Shop macht gerade Pause – bestellen geht im Moment nicht."
+      "closedFallback": "Der Shop schläft gerade – bestellen ist im Moment nicht möglich."
     },
     "warranty": {
       "title": "Gesetzliche Gewährleistung",
@@ -319,8 +319,8 @@
       "smallParts": "Kein Spielzeug – verschluckbare Kleinteile"
     },
     "category": {
-      "emptyTitle": "In dieser Ecke ist gerade nichts.",
-      "emptyText": "Schau bald wieder vorbei – oder stöbere bei allen Stücken.",
+      "emptyTitle": "In dieser Ecke ist es gerade still.",
+      "emptyText": "Komm später wieder – oder wandere zu den anderen Stücken.",
       "emptyAction": "Alle Stücke"
     },
     "product": {
@@ -335,12 +335,12 @@
       "notes": {
         "cart_full": "Dein Korb ist voll – höchstens 20 Stücke passen hinein.",
         "rate_limited": "Das ging gerade zu schnell. Bitte versuch es in ein paar Minuten noch einmal.",
-        "shop_closed": "Der Shop macht gerade Pause – in den Korb legen geht im Moment nicht.",
+        "shop_closed": "Der Shop schläft gerade – in den Korb legen ist im Moment nicht möglich.",
         "product_unavailable": "Dieses Stück ist gerade nicht mehr zu haben.",
         "invalid": "Das hat nicht geklappt. Bitte lade die Seite neu und versuch es noch einmal."
       },
       "soldText": "Schon verkauft",
-      "similar": "Ähnliche Stücke",
+      "similar": "Verwandte Stücke",
       "archive": "Archiv",
       "deliveryArea": "Lieferung nur innerhalb Deutschlands, Abholung in {city} nach Absprache",
       "deliveryAreaNoPickup": "Lieferung nur innerhalb Deutschlands",
@@ -352,7 +352,7 @@
       "technique": "Technik und Material",
       "dimensions": "Maße",
       "descriptionHeading": "Beschreibung",
-      "juttaSays": "Jutta sagt",
+      "juttaSays": "Ein Wort von mir",
       "detailsHeading": "Details",
       "details": {
         "dimensions": "Maße",
@@ -399,10 +399,10 @@
     }
   },
   "archive": {
-    "lead": "Schon ausgezogen – aber schön anzusehen",
+    "lead": "Hier wohnen die Stücke, die weitergezogen sind.",
     "filterLabel": "Archiv nach Kategorie filtern",
-    "emptyTitle": "Noch ist nichts verkauft.",
-    "emptyText": "Alles, was ein Zuhause gefunden hat, zieht hierher um.",
+    "emptyTitle": "Noch ist niemand weitergezogen.",
+    "emptyText": "Was ein Zuhause findet, lässt hier ein Bild von sich zurück.",
     "emptyAction": "Zum Shop"
   },
   "order": {
@@ -453,8 +453,8 @@
     "paidTitle": "Danke!",
     "received": "Deine Bestellung ist eingegangen.",
     "prepaymentReceived": "Deine Bestellung ist eingegangen. Du hast Vorkasse per Überweisung gewählt.",
-    "nextHeading": "So geht es weiter",
-    "nextShipping": "Ich packe dein Paket in den nächsten Tagen und schreibe dir, sobald es unterwegs ist.",
+    "nextHeading": "Was jetzt geschieht",
+    "nextShipping": "Ich packe dein Stück in den nächsten Tagen sorgfältig ein und schreibe dir, sobald es sich auf den Weg macht.",
     "nextPickup": "Ich melde mich bei dir wegen der Abholung.",
     "nextPrepayment": "Bitte überweise den Betrag bis {date}. Bis dahin ist alles für dich reserviert. Sobald das Geld da ist, bekommst du eine Mail mit der Rechnung.",
     "nextOther": "Den aktuellen Stand siehst du jederzeit im Bestellstatus.",
@@ -516,9 +516,9 @@
       "reserved": "{items} {count, plural, one {ist} other {sind}} gerade reserviert – schau in 30 Minuten nochmal.",
       "unavailable": "{items} {count, plural, one {ist} other {sind}} leider schon verkauft.",
       "too_many": "Höchstens {max} Stücke pro Bestellung.",
-      "shop_closed": "Der Shop macht gerade Pause – bestellen geht im Moment nicht.",
+      "shop_closed": "Der Shop schläft gerade – bestellen ist im Moment nicht möglich.",
       "payment_running": "Deine Zahlung läuft gerade – warte bitte kurz, bis sie abgeschlossen ist.",
-      "empty": "Hier ist noch nichts drin.",
+      "empty": "Noch liegt nichts in deinem Korb.",
       "shipping": "Der Versand für diesen Korb lässt sich gerade nicht berechnen. Wähl bitte Abholung oder schreib mir.",
       "pickup_only": "{items} gibt es nur zur Abholung.",
       "rate_limited": "Das ging gerade zu schnell. Bitte versuch es in ein paar Minuten noch einmal.",
@@ -555,14 +555,14 @@
     "toCheckout": "Zur Kasse",
     "blocked": {
       "unavailable": "Entferne bitte zuerst die Stücke, die gerade nicht zu haben sind.",
-      "shop_closed": "Der Shop macht gerade Pause – bestellen geht im Moment nicht.",
+      "shop_closed": "Der Shop schläft gerade – bestellen ist im Moment nicht möglich.",
       "too_many": "Höchstens {max} Stücke pro Bestellung.",
       "shipping": "Der Versand für diesen Korb lässt sich gerade nicht berechnen. Wähl bitte Abholung oder schreib mir.",
-      "empty": "Hier ist noch nichts drin."
+      "empty": "Noch liegt nichts in deinem Korb."
     },
     "empty": {
-      "title": "Hier ist noch nichts drin.",
-      "text": "Schau dich im Shop um – jedes Stück gibt es nur einmal.",
+      "title": "Noch liegt nichts in deinem Korb.",
+      "text": "Wandere ein wenig durch den Shop – jedes Stück gibt es nur einmal.",
       "action": "Zum Shop"
     }
   },
@@ -795,7 +795,7 @@
     },
     "orderConfirmation": {
       "subject": "Danke! Deine Bestellung {orderNumber}",
-      "title": "Danke für deine Bestellung!",
+      "title": "Danke – dein Stück macht sich bereit",
       "intro": "deine Zahlung ist angekommen und deine Bestellung {orderNumber} ist eingegangen. Hier sind alle Angaben auf einen Blick."
     },
     "prepaymentInstructions": {
@@ -808,7 +808,7 @@
     },
     "prepaymentReceived": {
       "subject": "Zahlung erhalten – Bestellung {orderNumber}",
-      "title": "Deine Zahlung ist angekommen",
+      "title": "Deine Zahlung ist bei mir angekommen",
       "intro": "danke! Deine Überweisung über {amount} für die Bestellung {orderNumber} ist angekommen.",
       "nextShipping": "Als Nächstes packe ich deine Bestellung sorgfältig ein und schicke sie los. Sobald sie unterwegs ist, bekommst du eine Mail.",
       "nextPickup": "Als Nächstes lege ich deine Bestellung für die Abholung bereit und melde mich wegen eines Termins.",
@@ -840,7 +840,7 @@
     },
     "orderShipped": {
       "subject": "Dein Paket ist unterwegs – {orderNumber}",
-      "title": "Dein Paket ist unterwegs",
+      "title": "Dein Stück ist auf Reise",
       "intro": "deine Bestellung {orderNumber} ist am {date} verschickt worden.",
       "itemsHeading": "Im Paket",
       "shippedAt": "Versanddatum",
@@ -857,7 +857,7 @@
     },
     "pickupReady": {
       "subject": "Abholbereit: Bestellung {orderNumber}",
-      "title": "Deine Bestellung ist abholbereit",
+      "title": "Dein Stück wartet auf dich",
       "itemsHeading": "Zum Abholen",
       "reply": "Antworte einfach auf diese Mail, um einen Termin auszumachen."
     },
@@ -968,7 +968,7 @@
     },
     "inquiryReceipt": {
       "subject": "Deine Anfrage {reference} ist angekommen",
-      "title": "Anfrage angekommen",
+      "title": "Deine Idee ist bei mir angekommen",
       "intro": "danke für deine Anfrage! Hier ist noch einmal, was du mir geschickt hast:",
       "reference": "Referenz",
       "receivedAt": "Eingegangen am",
@@ -1117,24 +1117,24 @@
     "subnavOverview": "Übersicht",
     "star": "*",
     "overview": {
-      "lead": "Fine Line mit Humor, gestochen in meinem Privatstudio in Berlin. Hier findest du freie Motive, Preise und alles rund um deinen Termin.",
-      "styleHeading": "Mein Stil",
-      "flashHeading": "Flash – gerade frei",
+      "lead": "Eine feine Linie, die zittern darf, und ein Raum in Berlin, in dem es still wird. Privatstudio, nur nach Verabredung.",
+      "styleHeading": "Die Linie",
+      "flashHeading": "Flash – noch ohne Haut",
       "flashAll": "Alle Flash-Motive",
       "galleryHeading": "Fresh & healed",
       "galleryAll": "Zur Galerie",
-      "pagesHeading": "Alles rund ums Tattoo",
+      "pagesHeading": "Wege zum Tattoo",
       "pageHints": {
-        "R12": "Fertige Motive mit Festpreis – such dir eins aus.",
-        "R14": "Mindestpreis, Preisrahmen für eigene Ideen und die Anzahlung.",
-        "R15": "Frisch gestochen und abgeheilt.",
-        "R16": "Von der Anfrage bis zur Pflege in fünf Schritten.",
-        "R17": "So heilt dein Tattoo in Ruhe – auch zum Ausdrucken.",
-        "R18": "Antworten auf die häufigsten Fragen."
+        "R12": "Fertige Motive mit Festpreis, die auf Haut warten.",
+        "R14": "Was es kostet: Mindestpreis, Rahmen für eigene Ideen, Anzahlung.",
+        "R15": "Frisch gestochen und verheilt – was bleibt.",
+        "R16": "Fünf Schritte von der ersten Mail bis zur Pflege.",
+        "R17": "Wie die Haut heilt, wenn man sie lässt – auch zum Ausdrucken.",
+        "R18": "Fragen, die oft kommen, mit kurzen Antworten."
       }
     },
     "flash": {
-      "intro": "Fertige Motive mit Festpreis. Einmalige Motive steche ich nur ein einziges Mal, wiederholbare auch öfter. Frag einfach per Mail an.",
+      "intro": "Zeichnungen, die auf Haut warten. Manche steche ich nur ein einziges Mal, andere dürfen wiederkehren. Jedes hat einen Festpreis; anfragen kannst du per Mail.",
       "filterLabel": "Flash-Motive filtern",
       "all": "Alle",
       "available": "verfügbar",
@@ -1145,21 +1145,21 @@
       "repeatable": "wiederholbar",
       "statusAvailable": "verfügbar",
       "taken": "vergeben",
-      "takenText": "Schon vergeben – schau dir die anderen an",
+      "takenText": "Dieses Motiv trägt schon jemand. Schau dir die anderen an.",
       "mail": "Per Mail anfragen",
       "copy": "Kopieren",
       "copied": "Kopiert",
       "copyFailed": "Markiert – jetzt kopieren",
       "price": "Preis",
-      "emptyTitle": "Gerade keine Flash-Motive online",
-      "emptyText": "Gerade sind keine Motive online. Schreib mir gern deine eigene Idee.",
+      "emptyTitle": "Gerade ist das Blatt leer",
+      "emptyText": "Neue Motive entstehen noch. Schreib mir gern deine eigene Idee.",
       "emptyAction": "Zum Ablauf",
-      "allTakenTitle": "Gerade sind alle Flash-Motive vergeben.",
-      "allTakenText": "Schreib mir deine eigene Idee per Mail.",
+      "allTakenTitle": "Alle Motive haben ihre Haut gefunden.",
+      "allTakenText": "Neue entstehen bald – oder schreib mir deine eigene Idee per Mail.",
       "allTakenAction": "Zum Kontakt"
     },
     "prices": {
-      "intro": "Alle Preise sind Gesamtpreise – so viel zahlst du am Ende, nicht mehr.",
+      "intro": "Was ein Tattoo kostet, sage ich dir offen. Alle Preise sind Gesamtpreise – mehr kommt nicht dazu.",
       "minHeading": "Mindestpreis",
       "minPrice": "Mindestpreis {amount}*",
       "customHeading": "Eigene Ideen",
@@ -1174,7 +1174,7 @@
       "totalPrice": "Gesamtpreis"
     },
     "gallery": {
-      "intro": "Frisch gestochen und abgeheilt – hier zeige ich nur Fotos, deren Träger:innen zugestimmt haben.",
+      "intro": "Linien, die geblieben sind – frisch gestochen und verheilt. Du siehst nur Fotos von Menschen, die ausdrücklich zugestimmt haben.",
       "filterLabel": "Fotos filtern",
       "all": "Alle",
       "fresh": "fresh",
@@ -1189,12 +1189,12 @@
       "open": "Groß ansehen",
       "dialog": "Foto in groß",
       "close": "Schließen",
-      "emptyTitle": "Hier kommen bald Fotos",
-      "emptyText": "Bis dahin schau dir die Flash-Motive an.",
+      "emptyTitle": "Noch keine Spuren auf dieser Seite",
+      "emptyText": "Schau in der Zwischenzeit bei den Flash-Motiven vorbei.",
       "emptyAction": "Zu den Flash-Motiven"
     },
     "process": {
-      "intro": "So läuft es vom ersten Hallo bis zur Pflege – ganz ohne Online-Buchung.",
+      "intro": "Vom ersten Wort bis zur verheilten Haut. Eine Online-Buchung gibt es nicht – alles beginnt mit einer Mail.",
       "stepsHeading": "In fünf Schritten",
       "steps": {
         "1": {
@@ -1224,7 +1224,7 @@
       "placeNoDistrict": "Privatstudio in Berlin. Die genaue Adresse bekommst du mit der Terminbestätigung."
     },
     "aftercare": {
-      "intro": "Ein frisches Tattoo ist eine kleine Wunde. Mit diesen Schritten heilt es in Ruhe – und wenn du unsicher bist, schreib mir.",
+      "intro": "Haut vergisst nicht, aber sie braucht Zeit. Ein frisches Tattoo ist eine kleine Wunde; mit diesen Schritten heilt es in Ruhe. Bist du unsicher, schreib mir.",
       "emptyText": "Die Pflegeschritte gebe ich dir beim Termin mit. Bei Fragen schreib mir einfach.",
       "warnHeading": "Warnzeichen – wann zur Ärztin oder zum Arzt?",
       "warnText": "Wenn die Rötung nach drei Tagen weiter zunimmt, die Stelle heiß wird oder stark anschwillt, Eiter austritt, rote Streifen entstehen oder du Fieber bekommst. Sag mir danach gern Bescheid.",
@@ -1232,13 +1232,13 @@
       "saferLink": "Safer-Tattoo-Checklisten des Bundesumweltministeriums"
     },
     "faq": {
-      "intro": "Die häufigsten Fragen rund um deinen Termin. Fehlt etwas? Schreib mir.",
-      "emptyTitle": "Noch keine Fragen",
-      "emptyText": "Frag mich einfach per Mail."
+      "intro": "Manches fragt man sich leise, bevor man schreibt. Hier stehen die Antworten – fehlt eine, schreib mir.",
+      "emptyTitle": "Noch hat niemand gefragt",
+      "emptyText": "Die erste Frage darfst du stellen – per Mail."
     },
     "contact": {
       "heading": "Anfrage per Mail",
-      "intro": "Kein Formular, keine Online-Buchung – schreib mir einfach.",
+      "intro": "Kein Formular, keine Buchung. Nur eine Mail – und dann sehen wir weiter.",
       "mail": "Mail schreiben",
       "emailLabel": "E-Mail-Adresse",
       "copy": "Adresse kopieren",
@@ -1262,8 +1262,8 @@
     }
   },
   "commission": {
-    "lead": "Eine Cap mit deinem Hund, ein Teller mit Wunschtext, ein Bild für jemanden, den du magst: Erzähl mir deine Idee – ich male sie dir.",
-    "stepsHeading": "So läuft’s",
+    "lead": "Eine Cap, auf der dein Hund wohnt. Ein Teller mit einem Satz, den nur ihr versteht. Ein Bild für jemanden, den du magst. Erzähl mir davon – ich male es.",
+    "stepsHeading": "Der Weg dorthin",
     "steps": {
       "1": {
         "title": "Anfrage",
@@ -1282,13 +1282,13 @@
         "text": "Ich male, schicke dir ein Foto, dann geht dein Stück auf die Reise."
       }
     },
-    "examplesHeading": "Beispiele",
+    "examplesHeading": "Was schon entstanden ist",
     "notice": "Auftragsarbeiten werden individuell vereinbart: Angebot und Absprache laufen per Mail, bezahlt wird nicht hier im Shop, und über diese Seite kommt kein Online-Vertrag zustande.",
     "formHeading": "Deine Idee",
     "formIntro": "Erzähl mir, was du dir vorstellst. Bitte keine Fotos von Personen und keine Gesundheitsinfos.",
     "formPlaceholder": "Das Formular ist gleich da. Bis dahin schreib mir gern eine Mail.",
     "faqHeading": "Fragen zu Auftragsarbeiten",
-    "contactHeading": "Lieber direkt schreiben?",
+    "contactHeading": "Lieber leise per Mail?",
     "contactText": "Du kannst mir deine Idee auch direkt per Mail schicken.",
     "emailSubject": "Auftragsarbeit – meine Idee",
     "form": {
@@ -1367,14 +1367,14 @@
   },
   "about": {
     "title": "Jutta & Coco",
-    "lead": "Tattoos, Keramik, Shirts und Zeichnungen aus Berlin – und ein kleiner Hund mit sehr großen Ohren.",
-    "whatHeading": "Was ich mache",
+    "lead": "Ich zeichne, was zwischen den Dingen wohnt – auf Haut, Ton, Stoff und Papier. Coco läuft voraus.",
+    "whatHeading": "Wo ich zeichne",
     "whatShop": "Shop",
     "whatTattoo": "Tattoo",
     "whatCommissions": "Auftragsarbeiten",
     "cocoAlt": "Coco, gezeichnet",
-    "emptyTitle": "Hier zieht gerade etwas um.",
-    "emptyText": "Die Seite über Jutta und Coco ist gleich wieder da. Bis dahin: schau im Shop vorbei.",
+    "emptyTitle": "Diese Seite schläft noch.",
+    "emptyText": "Gleich ist sie wach. Bis dahin kannst du durch den Shop wandern.",
     "emptyAction": "Zum Shop"
   },
   "qa": {

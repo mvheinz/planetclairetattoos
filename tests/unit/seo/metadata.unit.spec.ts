@@ -189,7 +189,7 @@ describe('P3.13 Produkt, 404-Varianten, Sitemap mit Daten', () => {
 
   it('404-Varianten: noindex, ohne canonical und hreflang, Titel je Variante', () => {
     expect(notFoundMetadata('de')).toEqual({
-      title: { absolute: 'Coco hat sich losgerissen · Planet Claire' },
+      title: { absolute: `${de.errors.notFoundTitle} · Planet Claire` },
       robots: { index: false },
     })
     expect(notFoundMetadata('en', 'home').title).toEqual({
