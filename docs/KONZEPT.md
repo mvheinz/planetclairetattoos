@@ -431,7 +431,7 @@ Link-Liste im Fuß erreichbar.
   7. **Tattoo:** 1–2 Sätze, bis zu 3 verfügbare Flash-Motive, Link „Zum Tattoo-Bereich“ → R11.
   8. **Jutta & Coco:** Teaser-Text, Link „Mehr über uns“ → R19, Zeile „Eigene Idee? → Auftragsarbeiten“ → R10,
      Instagram-Link.
-- **Rechte Spalte (P12.7/P12.8, U-08, U-20):** Ab 1100 px steht rechts neben Kopf und Stationen eine Spalte (sticky), mobil
+- **Rechte Spalte (P12.7/P12.8, U-08, U-20):** Ab 1100 px steht rechts neben Kopf und Stationen eine Spalte (nicht haftend, damit aufgeklappte vergangene Termine erreichbar bleiben), mobil
   steht sie unter dem Kopf der Seite. Oben der leere, benannte Bereich `data-slot="chairwoman"` für Koko, die Vorsitzende
   der Goth Dogs Berlin (P12.6 füllt ihn), darunter „Planet Claire on Tour“ (§3.1a). Instagram: nur im Fuß (U-15).
 - **Datenquelle:** `pages` mit `key = home` (Blöcke `hero` und `station`, Texte DE/EN), `settings.business`

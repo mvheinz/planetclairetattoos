@@ -118,19 +118,17 @@ for (const locale of ['de', 'en'] as const) {
   })
 }
 
-test('AK-3-13 vergangene Termine lassen sich ohne JavaScript aufklappen', async ({ browser }) => {
-  const items = await seededDates('de')
-  const { past } = splitTourDates(items, new Date())
-  expect(past.length, 'Beispieltermine in der Vergangenheit').toBeGreaterThan(0)
-  const context = await browser.newContext({ javaScriptEnabled: false })
-  try {
-    const page = await context.newPage()
+test.describe('ohne JavaScript', () => {
+  test.use({ javaScriptEnabled: false })
+
+  test('AK-3-13 vergangene Termine lassen sich ohne JavaScript aufklappen', async ({ page }) => {
+    const items = await seededDates('de')
+    const { past } = splitTourDates(items, new Date())
+    expect(past.length, 'Beispieltermine in der Vergangenheit').toBeGreaterThan(0)
     await page.goto('/de')
     const details = page.locator('[data-tour] details[data-tour-past]')
     await expect(details.locator('li').first()).toBeHidden()
     await details.locator('summary').click()
     await expect(details.locator('li').first()).toBeVisible()
-  } finally {
-    await context.close()
-  }
+  })
 })

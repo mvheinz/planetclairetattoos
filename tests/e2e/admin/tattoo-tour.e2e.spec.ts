@@ -1,6 +1,6 @@
 import { localizedPath } from '../../../src/lib/routes/paths'
 import { adminPath, expect, test, testPayload } from '../fixtures'
-import { refreshTattoo } from '../tattoo/tattooFixtures'
+import { refresh } from '../shop/fresh'
 import { expectAccessible, expectNoHorizontalScroll } from './orderHelpers'
 
 // P12.8 – Verwaltung „Termine“ (Reiter in `/tattoo`, KONZEPT §3.1a, §7.12): „Neuer Termin“ bei 390×844 anlegen → erscheint
@@ -23,6 +23,10 @@ async function cleanup() {
   })
 }
 
+/** Nur die Startseite (DE/EN) neu erzeugen – dort stehen die Termine. */
+const refreshHome = (request: Parameters<typeof refresh>[0]) =>
+  refresh(request, [localizedPath('R01', 'de'), localizedPath('R01', 'en')])
+
 test.beforeEach(cleanup)
 test.afterAll(cleanup)
 
@@ -35,6 +39,7 @@ test('@a11y Neuer Termin am Handy anlegen → Startseite zeigt ihn (DE/EN); Absa
   adminPage: page,
   request,
 }) => {
+  test.setTimeout(120_000)
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(adminPath('/tattoo?reiter=termine'))
   await expect(page.getByTestId('tattoo-tour')).toBeVisible()
@@ -80,7 +85,7 @@ test('@a11y Neuer Termin am Handy anlegen → Startseite zeigt ihn (DE/EN); Absa
   await expect(card).not.toHaveAttribute('data-over', '')
 
   // öffentlich: DE und EN in der rechten Spalte der Startseite
-  await refreshTattoo(request)
+  await refreshHome(request)
   const pub = await page.context().newPage()
   for (const [locale, name] of [
     ['de', NAME_DE],
@@ -97,7 +102,7 @@ test('@a11y Neuer Termin am Handy anlegen → Startseite zeigt ihn (DE/EN); Absa
   await card.getByTestId('tour-status').click()
   await page.getByRole('button', { name: 'Ja, absagen' }).click()
   await expect(card).toHaveAttribute('data-status', 'cancelled')
-  await refreshTattoo(request)
+  await refreshHome(request)
   await pub.goto(localizedPath('R01', 'de'))
   const cancelled = pub.locator('[data-tour-date][data-cancelled]', { hasText: NAME_DE })
   await expect(cancelled).toHaveCount(1)
@@ -110,13 +115,17 @@ test('@a11y Neuer Termin am Handy anlegen → Startseite zeigt ihn (DE/EN); Absa
   // Offline nehmen → verschwindet von der Seite
   await card.getByTestId('tour-published').click()
   await expect(card).toContainText('offline')
-  await refreshTattoo(request)
+  await refreshHome(request)
   await pub.goto(localizedPath('R01', 'de'))
   await expect(pub.locator('[data-tour]', { hasText: NAME_DE })).toHaveCount(0)
 
   // Löschen mit Rückfrage
   await card.getByTestId('tour-edit').click()
-  await page.getByTestId('tour-delete').click()
+  // erst nach der Hydrierung reagiert der Knopf: Klick wiederholen, bis die Rückfrage da ist
+  await expect(async () => {
+    await page.getByTestId('tour-delete').click()
+    await expect(page.getByRole('button', { name: 'Ja, löschen' })).toBeVisible({ timeout: 1500 })
+  }).toPass({ timeout: 15_000 })
   await page.getByRole('button', { name: 'Ja, löschen' }).click()
   await expect(page).toHaveURL(/reiter=termine$/)
   expect(

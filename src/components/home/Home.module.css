@@ -18,7 +18,7 @@
 }
 
 /* Rechte Spalte (P12.8, U-20): oben der Bereich für Koko, die Vorsitzende der Goth Dogs Berlin (`data-slot="chairwoman"`,
-   P12.6), darunter „Planet Claire on Tour“. Mobil steht sie unter dem Kopf der Seite, ab 1100 px rechts neben allem. */
+   P12.6), darunter „Planet Claire on Tour“. Mobil steht sie unter dem Kopf der Seite, ab 1100 px rechts neben Kopf und Stationen. */
 .aside {
   grid-area: aside;
   display: flex;
@@ -46,10 +46,10 @@
     column-gap: var(--space-8);
   }
 
+  /* Nicht „sticky“: Die Spalte kann höher sein als der Bildschirm (vergangene Termine aufgeklappt) – ein haftender Block
+     ließe ihren unteren Teil unerreichbar. */
   .aside {
     align-self: start;
-    position: sticky;
-    top: var(--space-6);
   }
 }
 
