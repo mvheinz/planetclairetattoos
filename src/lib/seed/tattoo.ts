@@ -110,3 +110,38 @@ export async function importGallery(
     })
   }
 }
+
+/** „Planet Claire on Tour“ (SEED-SPEC §12.4): Termine mit Datum relativ zu N; übernommene (`seed = false`) bleiben unberührt. */
+export async function importTourDates(
+  req: PayloadRequest,
+  data: SeedData,
+  options: TattooImportOptions,
+): Promise<void> {
+  for (const t of data.tour) {
+    const content = () =>
+      compact({
+        name: t.name.de,
+        startsAt: resolveSeedDate(t.startsAt, options.now).toISOString(),
+        endsAt: resolveSeedDate(t.endsAt, options.now).toISOString(),
+        place: t.place.de,
+        address: t.address,
+        link: t.link,
+        standNumber: t.standNumber,
+        timeFrom: t.timeFrom,
+        timeTo: t.timeTo,
+        note: t.note?.de,
+        status: t.status,
+      })
+    const en = compact({ name: t.name.en, place: t.place.en, note: t.note?.en })
+    await upsertBySeedKey({
+      req,
+      report: options.report,
+      collection: 'tour-dates',
+      seedKey: `tour-dates:${t.key}`,
+      group: 'content',
+      create: async () => ({ ...content(), published: true }),
+      en,
+      update: async () => ({ de: content(), en }),
+    })
+  }
+}

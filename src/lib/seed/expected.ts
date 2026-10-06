@@ -42,6 +42,7 @@ export const SEED_EXPECTED_COUNTS = {
   'privacy-requests': 5,
   flash: 10,
   'tattoo-gallery': 6,
+  'tour-dates': 8,
   pages: 13,
   faqs: 12,
   'revenue-entries': 18,

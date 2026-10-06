@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import React from 'react'
 
 import { HomeStation } from '@/components/home/HomeStation'
+import { TourDates } from '@/components/home/TourDates'
 import styles from '@/components/home/Home.module.css'
 import { PlanetMark } from '@/components/home/SpaceMarks'
 import { Station } from '@/components/leash/Station'
@@ -14,6 +15,7 @@ import { getHomeView } from '@/lib/data/home'
 import { getSiteNavigation, instagramUrl } from '@/lib/data/navigation'
 import { listStationProducts } from '@/lib/data/products'
 import { getTattooSettings, listFlash } from '@/lib/data/tattoo'
+import { listTourDates } from '@/lib/data/tour'
 import { getShopDisplaySettings, taxSettingsFor } from '@/lib/data/shopSettings'
 import { isLocale, localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
@@ -23,7 +25,7 @@ import { routeMetadata } from '@/lib/seo/metadata'
 export const generateMetadata = routeMetadata('R01')
 
 // ISR (ARCHITEKTUR §9.1): gezielt erneuert über die Tags `home`, `products`, `category:<key>`, `page:home` (P3.15),
-// `flash` (Tattoo-Station); Rückfall nach einer
+// `flash` (Tattoo-Station) und `tour-dates` (rechte Spalte, P12.8); Rückfall nach einer
 // Stunde.
 export const revalidate = 3600
 
@@ -40,12 +42,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   if (!isLocale(requested)) notFound()
   const locale: Locale = requested
   setRequestLocale(locale)
-  const [t, tCard, nav, home, settings] = await Promise.all([
+  const [t, tCard, tTour, nav, home, settings, tourItems] = await Promise.all([
     getTranslations({ locale, namespace: 'home' }),
     getTranslations({ locale, namespace: 'shop.card' }),
+    getTranslations({ locale, namespace: 'home.tour' }),
     getSiteNavigation(locale),
     getHomeView(locale),
     getShopDisplaySettings(locale),
+    listTourDates(locale),
   ])
   const name = home?.name ?? t('title')
   const shelves = await Promise.all(
@@ -97,34 +101,41 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         )}
       </header>
 
-      {home && home.stations.length > 0 ? (
-        // Stationen als statisches HTML (nicht hydriert, Lighthouse-TBT P7): reines Server-Markup, Bilder alle
-        // `loading="lazy"`; Live-Zustand der Karten und Linie laufen über DOM-Module.
-        <StaticHtml
-          as="div"
-          className={styles.stations}
-          data-home-stations=""
-          data-behavior={hasCards ? 'product-status' : undefined}
-          {...(hasCards ? statusLabelAttrs(tCard) : {})}
-        >
-          {home.stations.map((station, i) => (
-            <HomeStation
-              key={station.stationId}
-              station={station}
-              locale={locale}
-              products={shelves[i] ?? null}
-              tattoo={station.stationId === 'tattoo' ? tattoo : null}
-            />
-          ))}
-        </StaticHtml>
-      ) : (
-        <EmptyState
-          title={t('emptyTitle')}
-          text={t('emptyText')}
-          pose="kopfschief"
-          action={{ href: localizedPath('R20', locale), label: t('emptyAction') }}
-        />
-      )}
+      <aside className={styles.aside} aria-label={tTour('heading')} data-home-aside="">
+        <div className={styles.chairwomanSlot} data-slot="chairwoman" />
+        <TourDates items={tourItems} locale={locale} now={new Date()} />
+      </aside>
+
+      <div className={styles.body}>
+        {home && home.stations.length > 0 ? (
+          // Stationen als statisches HTML (nicht hydriert, Lighthouse-TBT P7): reines Server-Markup, Bilder alle
+          // `loading="lazy"`; Live-Zustand der Karten und Linie laufen über DOM-Module.
+          <StaticHtml
+            as="div"
+            className={styles.stations}
+            data-home-stations=""
+            data-behavior={hasCards ? 'product-status' : undefined}
+            {...(hasCards ? statusLabelAttrs(tCard) : {})}
+          >
+            {home.stations.map((station, i) => (
+              <HomeStation
+                key={station.stationId}
+                station={station}
+                locale={locale}
+                products={shelves[i] ?? null}
+                tattoo={station.stationId === 'tattoo' ? tattoo : null}
+              />
+            ))}
+          </StaticHtml>
+        ) : (
+          <EmptyState
+            title={t('emptyTitle')}
+            text={t('emptyText')}
+            pose="kopfschief"
+            action={{ href: localizedPath('R20', locale), label: t('emptyAction') }}
+          />
+        )}
+      </div>
       {hasCards ? (
         <PriceFootnote
           locale={locale}

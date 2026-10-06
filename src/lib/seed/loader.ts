@@ -22,6 +22,7 @@ import {
   type RevenueData,
   type SeedFileName,
   type TattooData,
+  type TourSeed,
   type WithdrawalSeed,
 } from './schemas'
 import { dateTokenExprs } from './lexical'
@@ -49,6 +50,7 @@ export interface SeedData {
   privacyRequests: PrivacyRequestSeed[]
   revenue: RevenueData
   tattoo: TattooData
+  tour: TourSeed[]
   logs: LogsData
 }
 
@@ -75,6 +77,7 @@ const EMPTY: Omit<SeedData, 'base'> = {
   privacyRequests: [],
   revenue: [],
   tattoo: { flash: [], gallery: [] },
+  tour: [],
   logs: { email: [], consent: [], audit: [] },
 }
 
@@ -149,6 +152,7 @@ export function crossCheck(data: SeedData, now: Date): string[] {
     ['tattoo.json flash', data.tattoo.flash.map((f) => f.key)],
     ['tattoo.json flash number', data.tattoo.flash.map((f) => String(f.number))],
     ['tattoo.json gallery', data.tattoo.gallery.map((g) => g.key)],
+    ['tour.json', data.tour.map((t) => t.key)],
     ['logs.json audit', data.logs.audit.map((a) => a.key)],
   ]
   for (const [file, keys] of dupLists) {
@@ -365,6 +369,11 @@ function crossCheckCases(
       issues.push(`${where}: claimedAt genau bei status = claimed`)
     }
   }
+  for (const t of data.tour) {
+    const where = `tour.json ${t.key}`
+    time(`${where} startsAt`, t.startsAt)
+    time(`${where} endsAt`, t.endsAt)
+  }
   for (const g of data.tattoo.gallery) {
     const where = `tattoo.json ${g.key}`
     has(keys.mediaKeys, where, g.image)
@@ -434,6 +443,7 @@ export async function loadSeedData(options: LoadOptions): Promise<SeedData> {
       (parse('privacy-requests.json') as PrivacyRequestSeed[] | undefined) ?? EMPTY.privacyRequests,
     revenue: (parse('revenue.json') as RevenueData | undefined) ?? EMPTY.revenue,
     tattoo: (parse('tattoo.json') as TattooData | undefined) ?? EMPTY.tattoo,
+    tour: (parse('tour.json') as TourSeed[] | undefined) ?? EMPTY.tour,
     logs: (parse('logs.json') as LogsData | undefined) ?? EMPTY.logs,
   }
   if (issues.length === 0) issues.push(...crossCheck(data, options.now))

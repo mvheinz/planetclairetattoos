@@ -128,7 +128,23 @@
     "emptyTitle": "We’re rearranging things.",
     "emptyText": "The home page will be back shortly. In the meantime, here’s how to reach us.",
     "emptyAction": "Contact",
-    "stationCommissions": "Commissions"
+    "stationCommissions": "Commissions",
+    "tour": {
+      "heading": "Planet Claire on Tour",
+      "intro": "This is where you can find me outside the studio: at markets, flea markets and art markets.",
+      "upcomingHeading": "Upcoming dates",
+      "empty": "No dates planned right now.",
+      "pastSummary": "Past dates ({count})",
+      "cancelled": "cancelled",
+      "running": "on now",
+      "stand": "Stand {number}",
+      "link": "Market website",
+      "linkLabel": "Market website: {name}",
+      "dateLabel": "Date",
+      "placeLabel": "Place",
+      "hoursLabel": "Opening hours",
+      "photoAlt": "Planet Claire's stand at the market {name}"
+    }
   },
   "a11y": {
     "skipToContent": "Skip to content",

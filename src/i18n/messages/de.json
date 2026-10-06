@@ -128,7 +128,23 @@
     "emptyTitle": "Hier wird gerade umgeräumt.",
     "emptyText": "Die Startseite ist gleich wieder da. Schau so lange bei den Kontaktwegen vorbei.",
     "emptyAction": "Zum Kontakt",
-    "stationCommissions": "Auftragsarbeiten"
+    "stationCommissions": "Auftragsarbeiten",
+    "tour": {
+      "heading": "Planet Claire on Tour",
+      "intro": "Hier findest du mich außer Haus: auf Märkten, Flohmärkten und Kunstmärkten.",
+      "upcomingHeading": "Kommende Termine",
+      "empty": "Gerade sind keine Termine geplant.",
+      "pastSummary": "Vergangene Termine ({count})",
+      "cancelled": "abgesagt",
+      "running": "läuft gerade",
+      "stand": "Stand {number}",
+      "link": "Zur Seite des Marktes",
+      "linkLabel": "Zur Seite des Marktes: {name}",
+      "dateLabel": "Datum",
+      "placeLabel": "Ort",
+      "hoursLabel": "Uhrzeiten",
+      "photoAlt": "Stand von Planet Claire auf dem Markt {name}"
+    }
   },
   "a11y": {
     "skipToContent": "Zum Inhalt springen",

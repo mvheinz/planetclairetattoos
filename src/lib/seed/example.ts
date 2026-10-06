@@ -21,7 +21,7 @@ import { seedIso } from './time'
 import { seedReservationRef } from './orderPlan'
 import { importInvoices } from './invoices'
 import { importAuditLog, importConsentLog, importEmailLog } from './logs'
-import { importFlash, importGallery } from './tattoo'
+import { importFlash, importGallery, importTourDates } from './tattoo'
 import { importPrivateUpload } from './uploads'
 import { importCheckouts, importOrders, importReservations } from './orders'
 import {
@@ -47,6 +47,7 @@ export const EXAMPLE_STEPS = [
   'products',
   'flash',
   'tattoo-gallery',
+  'tour-dates',
   'pages',
   'faqs',
   'checkouts',
@@ -99,7 +100,8 @@ export function hasExampleData(data: SeedData): boolean {
       data.privacyRequests.length +
       data.revenue.length +
       data.tattoo.flash.length +
-      data.tattoo.gallery.length >
+      data.tattoo.gallery.length +
+      data.tour.length >
     0
   )
 }
@@ -613,6 +615,9 @@ export async function importExample(
   if (run('flash')) await seedStep(payload, (req) => importFlash(req, data, tattoo), options.now)
   if (run('tattoo-gallery')) {
     await seedStep(payload, (req) => importGallery(req, data, tattoo), options.now)
+  }
+  if (run('tour-dates')) {
+    await seedStep(payload, (req) => importTourDates(req, data, tattoo), options.now)
   }
   if (run('pages')) await seedStep(payload, (req) => importPages(req, data, options))
   if (run('faqs')) await seedStep(payload, (req) => importFaqs(req, data, options))
