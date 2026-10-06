@@ -55,30 +55,6 @@
 
 /* ---------- Kopf-Station ---------- */
 
-/* Hero-Zeile: links Titel/Untertitel, rechts Koko (U-08, Platz `data-slot="chairwoman"`); mobil untereinander. */
-.heroRow {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-6);
-  align-items: start;
-}
-
-.heroSide {
-  width: min(220px, 56vw);
-}
-
-@media (min-width: 900px) {
-  .heroRow {
-    grid-template-columns: minmax(0, 1fr) minmax(200px, 280px);
-    gap: var(--space-7, var(--space-6));
-  }
-
-  .heroSide {
-    width: 100%;
-    justify-self: end;
-  }
-}
-
 .hero {
   grid-area: hero;
   display: flex;
