@@ -163,9 +163,9 @@ test.describe('Tuschelinie-Laufzeit', () => {
     }
 
     expect(await resizeAndRebuild(768)).toEqual([])
-    expect(await gutter()).toBe(64)
+    expect(await gutter()).toBe(88)
     expect(await resizeAndRebuild(390)).toEqual([])
-    expect(await gutter()).toBe(44)
+    expect(await gutter()).toBe(56)
     expect(errors).toEqual([])
     const width = await page.evaluate(
       () => document.querySelector('[data-leash-layer]')!.getBoundingClientRect().width,

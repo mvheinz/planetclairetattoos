@@ -218,12 +218,13 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
 
   // Leinen-Anschluss (§9.8): Beginn an der Unterkante der Kopfleiste, 24-px-Kurve ins Preset.
   push(start)
-  push({ x: start.x, y: start.y + 12 })
-  // Raster-Seiten: Leinen-Anschluss führt gleich in die Rinne (nie quer über die Karten)
   if (grid && Math.abs(start.x - railX) > 6) {
-    push({ x: (start.x + railX) / 2, y: start.y + 36 })
-    push({ x: railX, y: start.y + 64 })
-  }
+    // Raster-Seiten: Leinen-Anschluss führt noch in der Coco-Zeile flach in die Rinne (nie über die Karten)
+    const dx = railX - start.x
+    push({ x: start.x + 0.35 * dx, y: start.y + 10 })
+    push({ x: start.x + 0.8 * dx, y: start.y + 18 })
+    push({ x: railX, y: start.y + 26 })
+  } else push({ x: start.x, y: start.y + 12 })
 
   // Endanker mit abschließender Schlaufe (`data-leash-anchor="end"` + `data-leash-loop="heart"`, MI-09): wird wie eine
   // letzte Station behandelt (R2-06-03: bisher blieb das Herz aus).
