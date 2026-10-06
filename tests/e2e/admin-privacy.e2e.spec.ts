@@ -71,6 +71,18 @@ test.describe('Verwaltung ohne Fremd-Requests @smoke', () => {
       const probe = cspViolations.filter((v) => v.includes('example.com/probe'))
       if (browserName === 'webkit') expect(probe.length).toBeGreaterThan(0)
       for (const v of probe) cspViolations.splice(cspViolations.indexOf(v), 1)
+      // WebKit meldet dieselbe Anfrage außerdem zweimal ohne URL auf der Konsole (CSP-Block und „Failed to load
+      // resource“). Genau diese beiden Zeilen gehören zur Fremd-Anfrage und werden je einmal entfernt; weitere oder
+      // andere CSP-Konsolenfehler lassen den Test scheitern.
+      if (browserName === 'webkit') {
+        for (const text of [
+          'console: Blocked by Content Security Policy.',
+          'console: Failed to load resource: Blocked by Content Security Policy.',
+        ]) {
+          const at = cspViolations.indexOf(text)
+          if (at >= 0) cspViolations.splice(at, 1)
+        }
+      }
     })
   })
 })
