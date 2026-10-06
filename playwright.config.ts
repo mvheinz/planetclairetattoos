@@ -31,7 +31,9 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   timeout: devServer ? 120_000 : 30_000,
   expect: { timeout: devServer ? 20_000 : 5_000 },
-  reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : [['list']],
+  reporter: process.env.CI
+    ? [['list'], ['html', { open: 'never' }], ['json', { outputFile: 'test-results/report.json' }]]
+    : [['list']],
   use: {
     baseURL,
     // Artefakte nur bei Fehlschlag, kein Video (Videos nur im KUNST-QA-Lauf, ARCHITEKTUR §6.1/§6.2).
@@ -44,7 +46,12 @@ export default defineConfig({
     {
       name: 'desktop',
       // Der Kaufpfad Ende-zu-Ende läuft auf den Geräteprofilen `iphone-15` und `pixel-7` (PLAN P4.24).
-      testIgnore: ['**/preview-export.e2e.spec.ts', '**/maintenance.e2e.spec.ts', '**/purchase/**'],
+      testIgnore: [
+        '**/preview-export.e2e.spec.ts',
+        '**/maintenance.e2e.spec.ts',
+        '**/purchase/**',
+        '**/metrics/purchase-path*',
+      ],
       use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } },
     },
     {

@@ -465,6 +465,7 @@ gekennzeichnet. Unter „Heute“ weist ein Hinweis darauf hin, solange sie vorh
 **Vorschau-Datei:** Die ganze Website steckt als **eine einzige Datei** (`planet-claire-vorschau.html`), die du ohne Internet
 im Browser öffnest. Dort blätterst du durch alle Seiten, siehst die Verwaltung als Bilder und kannst nichts kaufen.
 
+- Die fertige Vorschau liegt unter `https://github.com/mvheinz/planetclairetattoos/releases/tag/vorschau-p10` (erscheint automatisch nach dem Merge, P10.21).
 - Herunterladen: [Anleitung G7](ANLEITUNGEN.md#g7) (fertige Fassung) und [G6](ANLEITUNGEN.md#g6) (Zwischenstände).
 - Öffnen: [Anleitung V1](ANLEITUNGEN.md#v1), worauf du achten kannst: [V2](ANLEITUNGEN.md#v2).
 - **Nur für dich.** Die Datei enthält Beispieldaten und Fotos, die noch nicht freigegeben sind. Gib sie nicht

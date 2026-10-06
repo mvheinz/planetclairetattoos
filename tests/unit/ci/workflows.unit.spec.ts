@@ -636,7 +636,7 @@ describe('preview-export.yml (§6.5, P2.28)', () => {
   it('Ablauf: Installation → Chromium → preview:export (PREVIEW_PHASE) → test:preview-export ohne continue-on-error → Upload → Aufräumen → Summary → Kommentar', () => {
     const order = [
       /^pnpm install --frozen-lockfile$/,
-      /playwright install --with-deps chromium$/m,
+      /playwright install --with-deps chromium webkit$/m,
       /^pnpm run preview:export$/,
       /^pnpm run test:preview-export$/,
     ].map((re) => findStep(job, re))

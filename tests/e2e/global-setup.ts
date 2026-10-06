@@ -80,7 +80,14 @@ export async function revalidatePrerendered(
     const cache = res.headers.get('x-nextjs-cache')
     if (allowNotFound && res.status === 404) continue
     if (res.status !== 200 || cache !== 'REVALIDATED') {
-      failures.push(`${route}: HTTP ${res.status}, x-nextjs-cache=${cache ?? '–'}`)
+      // 307/308 heißt: Der Server kennt den Schlüssel `previewModeId` nicht und hat die Anfrage durch den Proxy geschickt
+      // (öffentliche Pfade wie `/de/about` werden dort auf `/de/ueber-mich` umgeleitet). Kein Fehler im Code: Auf dem Port
+      // läuft ein anderer Server (z. B. `pnpm dev`, `reuseExistingServer`) oder einer aus einem älteren Build.
+      const hint =
+        res.status === 307 || res.status === 308
+          ? ' – Server passt nicht zum Build in .next (läuft dort ein Dev-Server oder ein Server aus einem früheren Build? Beenden und neu starten)'
+          : ''
+      failures.push(`${route}: HTTP ${res.status}, x-nextjs-cache=${cache ?? '–'}${hint}`)
     }
   }
   return failures

@@ -159,6 +159,10 @@ jobs:
       # Eine Projekt-Hälfte je Job (workers: 1 in CI), alle Tests außer @visual/@perf – inkl. @a11y und @privacy.
       - name: E2E ${{ matrix.project }}
         run: pnpm run test:e2e --project=${{ matrix.project }} --shard=${{ matrix.shard }}/2 --grep-invert "@visual|@perf"
+      # P10.2: ein Test, der erst im Wiederholungslauf besteht, gilt als flaky und macht den Lauf rot (ARCHITEKTUR §7.2).
+      - name: Keine flaky-Tests
+        if: success()
+        run: pnpm run ci:flaky
       # Bei Fehler (§6.2): erst der Budget-Schritt, dann – nur bei upload_optional=true – der Fehlerbericht (2 Tage).
       - name: Artefakt-Budget
         id: budget
@@ -236,6 +240,9 @@ jobs:
         run: pnpm run seed && pnpm run build
       - name: Kein Debug im Build
         run: pnpm run check:no-debug
+      # P10.4: Tempo-Budgets je Seitentyp (JS beim ersten Laden, Lazy-Chunks, Schriften, LCP-Bild, R01-Gewicht) am Build.
+      - name: Bundle-Budgets
+        run: pnpm run check:bundle
       # §7.6: Referenzen entstehen nur per [ci:update-snapshots]. Solange keine Linux-Referenz eingecheckt ist, steht ein
       # Hinweis im Job-Summary (nicht rot, OFFENE-PUNKTE); sobald Referenzen da sind, ist jede Abweichung rot.
       - name: Visuelle Referenzen vorhanden?
