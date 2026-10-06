@@ -3,7 +3,7 @@
 // - `next.config.ts headers()`: allgemeine Header + CSP `public` für alle Pfade, CSP `api` für `/api/*`;
 // - `src/proxy.ts`: Nonce-Kontexte `dynamic`, `checkout`, `admin` überschreiben CSP und ergänzen ihre Zusatz-Header.
 import { matchRoute, splitLocale } from '../routes/paths'
-import { xRobotsTag, type AppEnvName } from '../seo/robots'
+import { aiRobotsTag, TDM_RESERVATION, xRobotsTag, type AppEnvName } from '../seo/robots'
 
 import { buildCsp, type CspContext, type CspOptions, type NonceContext } from './csp'
 
@@ -24,7 +24,9 @@ export function baseHeaders(appEnv: AppEnvName): HeaderMap {
   if (appEnv === 'production' || appEnv === 'staging') {
     h['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
   }
-  const robots = xRobotsTag(appEnv)
+  // KI/TDM-Vorbehalt (U-22 c): TDMRep-Header immer, `noai` nur in Produktion (sonst gilt `noindex, nofollow`).
+  h[TDM_RESERVATION.name] = TDM_RESERVATION.content
+  const robots = xRobotsTag(appEnv) ?? aiRobotsTag(appEnv)
   if (robots) h['X-Robots-Tag'] = robots
   return h
 }

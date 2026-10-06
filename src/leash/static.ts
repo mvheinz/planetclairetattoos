@@ -13,6 +13,8 @@ export const SVG_NS = 'http://www.w3.org/2000/svg'
 /** Rand der SVG-Box um die Segment-Bbox (§9.4). */
 export const PAD = 8
 const STEP = 4
+/** Höchstzahl der Stützpunkte je Linie: sehr lange Textseiten (Datenschutz) halten so das Pfaddaten-Budget (P12.11). */
+const MAX_POINTS = 1400
 const REBUILD_DEBOUNCE_MS = 150
 /** Ruhiger Wackel (§9.3 Nr. 6, Profil `calm`): Amplituden in px, Wellenlängen in px Bogenlänge. */
 const WOBBLE = { a1: 0.5, a2: 0.12, l1: 90, l2: 13 }
@@ -70,7 +72,7 @@ export function quietLine(a: Pt, b: Pt, baseWidth: number, seed: number): LeashG
   const dx = b.x - a.x
   const dy = b.y - a.y
   const length = Math.hypot(dx, dy)
-  const n = Math.max(1, Math.ceil(length / STEP))
+  const n = Math.max(1, Math.min(MAX_POINTS, Math.ceil(length / STEP)))
   const ux = length > 0 ? dx / length : 0
   const uy = length > 0 ? dy / length : 1
   const nx = -uy

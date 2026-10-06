@@ -52,7 +52,12 @@ function tokensIn(file: string, startHeading: RegExp): string[] {
 
 describe('R-095 Platzhalter-Belehrung und Token-Liste (P6.3)', () => {
   it('R-095 gerenderte Platzhalter-Belehrung (DE) enthält genau die R26-URL und die Telefonnummer', () => {
-    const values = buildLegalTokenValues({ settings, siteUrl: SITE, locale: 'de' })
+    const values = buildLegalTokenValues({
+      settings,
+      siteUrl: SITE,
+      locale: 'de',
+      returnCostsNote: 'Die unmittelbaren Kosten der Rücksendung der Waren trägst du.',
+    })
     const r = renderLegalContent(placeholder('widerrufsbelehrung'), values)
     expect(r.plainText).toContain(`${SITE}/de/vertrag-widerrufen`)
     expect(r.plainText).toContain(PHONE)

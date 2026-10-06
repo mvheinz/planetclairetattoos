@@ -1977,7 +1977,11 @@ export interface LegalSnippet {
     | 'commission.offer'
     | 'translation.disclaimer'
     | 'privacyRequest.accessResponse'
-    | 'privacyRequest.erasureResponse';
+    | 'privacyRequest.erasureResponse'
+    | 'ip.copyrightNotice'
+    | 'ip.aiMiningReservation'
+    | 'ip.purchaseClause'
+    | 'ip.tattooFlashNotice';
   version?: number | null;
   status: 'draft' | 'scheduled' | 'active' | 'superseded';
   validFrom: string;
