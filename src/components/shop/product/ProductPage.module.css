@@ -234,6 +234,18 @@
   font-weight: 600;
 }
 
+/* MI-19 (P12.12): die Bestätigung „Liegt in deinem Korb“ gleitet beim Erscheinen 6 px herauf und blendet ein. */
+.confirm:not([hidden]) {
+  animation: confirm-in var(--dur-short) var(--ease-ink-out) both;
+}
+
+@keyframes confirm-in {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+
 .buyNote:target {
   display: block;
 }

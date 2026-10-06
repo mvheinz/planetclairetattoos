@@ -32,6 +32,24 @@ export function leashRouteKey(match: RouteMatch): string {
   return [match.route.id, ...params].join('/')
 }
 
+/** Seitenwechsel in diesem Dokument; ab dem zweiten Einhängen ist jede Seite eine „Ankunft“ (P12.12, MO-14). */
+let visits = 0
+/** Ob diese Seite über einen Seitenwechsel der eigenen Seite erreicht wurde (weich: zweites Einhängen; hart: Referrer). */
+function arrivedFromOwnPage(): boolean {
+  if (visits++ > 0) return true
+  try {
+    const nav = performance.getEntriesByType('navigation')[0] as
+      PerformanceNavigationTiming | undefined
+    return (
+      !!document.referrer &&
+      new URL(document.referrer).origin === location.origin &&
+      nav?.type !== 'reload'
+    )
+  } catch {
+    return false
+  }
+}
+
 /** Ohne JavaScript keine Coco an der (fehlenden) Linie (§9.4 „ohne JS“). */
 const NOSCRIPT_CSS = '.coco[data-leash-coco]{display:none}'
 
@@ -67,6 +85,10 @@ export function LeashLayer({
   useEffect(() => {
     const el = ref.current
     if (!el || !preset) return
+    // Coco reist mit (MO-14): nach einem Seitenwechsel sitzt sie schon am Linienanfang (kein Hereinrennen von links)
+    const arrived = arrivedFromOwnPage()
+    if (cocoOnLeash && arrived && getMotion() === 'full')
+      cocoRef.current?.setAttribute('data-arrived', '')
     // `?leash=off` (nur mit ART_QA, KUNST-QA §3.1): Grundlinie ohne Engine – kein Laufzeit- und kein Coco-Chunk.
     if (readQaSwitches().leashOff) return
     let cancelled = false
@@ -85,6 +107,10 @@ export function LeashLayer({
         let handle: InspectableLeashHandle | null = null
         let coco: CocoController | null = null
         if (cocoMod && cocoEl) {
+          if (getMotion() === 'full')
+            void import('@/leash/cocoTravel').then((t) => {
+              if (!cancelled && coco) cleanups.push(t.attachTravel(coco))
+            })
           coco = cocoMod.mountCoco(cocoEl, {
             pose: rest,
             motion: getMotion(),

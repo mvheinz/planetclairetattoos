@@ -1411,6 +1411,8 @@
     "stationsCount": "{count} Stationen",
     "stationLabel": "Station {n}",
     "pressHint": "Zum Prüfen den Knopf gedrückt halten.",
+    "hoverHint": "Zum Prüfen den Zeiger über das Element bewegen.",
+    "demoCard": "Ein Stück, das auf dich wartet",
     "linkLabel": "Ein Navigationslink",
     "demoButton": "In den Korb",
     "cartCount": "Im Korb"

@@ -35,6 +35,11 @@
       "gzipMax": 2500
     },
     {
+      "name": "Coco reist mit (nachgeladen, P12.12: Lauf-Pose beim Seitenwechsel, MO-14)",
+      "entries": ["src/leash/cocoTravel.ts"],
+      "gzipMax": 2000
+    },
+    {
       "name": "Mikro-Interaktionen Seitenrahmen (auf jeder Seite: cart-count, menu, motion-toggle; 404: lost)",
       "entries": [
         "src/behaviors/cart-count.ts",

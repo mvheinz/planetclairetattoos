@@ -200,6 +200,131 @@ test.describe('Weiche Navigation mit View Transitions (ADR 0003)', () => {
     expect(await softNavigate(page, '/de/impressum')).toEqual([])
   })
 
+  /** Namen der CSS-Animationen (Schlüsselbilder) und Dauern der Coco-Pseudo-Elemente im aufgezeichneten Übergang. */
+  async function cocoTransition(page: Page, path: string) {
+    await page.addInitScript(() => {
+      const w = window as Window & { __cocoVt?: unknown }
+      const orig = document.startViewTransition?.bind(document)
+      if (!orig) return
+      document.startViewTransition = ((arg: never) => {
+        // Pose von Coco im Moment des Übergangsstarts (alter Schnappschuss, P12.12)
+        const pose = document.querySelector('[data-leash-coco]')?.getAttribute('data-pose') ?? null
+        const t = orig(arg)
+        const rec = { pose, anims: [] as { name: string; pe: string; d: unknown }[] }
+        w.__cocoVt = rec
+        void t.ready
+          .then(() => {
+            rec.anims = document
+              .getAnimations()
+              .filter((a) =>
+                /\(coco\)/.test((a.effect as KeyframeEffect | null)?.pseudoElement ?? ''),
+              )
+              .map((a) => ({
+                name: (a as CSSAnimation).animationName ?? '',
+                pe: (a.effect as KeyframeEffect).pseudoElement ?? '',
+                d: a.effect!.getTiming().duration,
+              }))
+          })
+          .catch(() => {})
+        return t
+      }) as typeof document.startViewTransition
+    })
+    return async () => {
+      await page.evaluate(
+        (u) =>
+          (window as Window & { next?: { router: { push(u: string): void } } }).next!.router.push(
+            u,
+          ),
+        path,
+      )
+      await page.waitForURL(`**${path}`)
+      await page.waitForTimeout(600)
+      return page.evaluate(
+        () =>
+          (
+            window as Window & {
+              __cocoVt?: { pose: string | null; anims: { name: string; pe: string; d: number }[] }
+            }
+          ).__cocoVt!,
+      )
+    }
+  }
+
+  test('Coco reist mit (MO-14): Lauf-Pose beim Aufbruch, ohne Gegenstück läuft sie hinaus, 350 ms', async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' })
+    const go = await cocoTransition(page, '/de/kontakt')
+    await page.goto('/de')
+    await page.waitForLoadState('load')
+    await expect(leashCoco(page)).toHaveAttribute('data-placed', '')
+    await page.waitForTimeout(1500) // Reise-Modul nachgeladen
+    const vt = await go()
+    expect(vt.pose).toBe('rennen')
+    const away = vt.anims.find((a) => a.name === 'pc-coco-away')
+    expect(away?.pe).toBe('::view-transition-old(coco)')
+    expect(away?.d).toBe(350)
+  })
+
+  test('Coco reist mit (MO-14): Start → Über mich wandert von Leinenspitze zu Leinenspitze und steht sofort', async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' })
+    const go = await cocoTransition(page, '/de/ueber-mich')
+    await page.goto('/de')
+    await page.waitForLoadState('load')
+    await expect(leashCoco(page)).toHaveAttribute('data-placed', '')
+    await page.waitForTimeout(1500)
+    const vt = await go()
+    // Paar: Gruppe wandert in 350 ms, kein „hinaus“/„herein“
+    expect(vt.anims.some((a) => a.pe === '::view-transition-group(coco)' && a.d === 350)).toBe(true)
+    expect(vt.anims.some((a) => a.name === 'pc-coco-away' || a.name === 'pc-coco-in')).toBe(false)
+    // neue Seite: Coco kam über einen Übergang → steht am Linienanfang, ohne Hereinrennen von links
+    await expect(leashCoco(page)).toHaveAttribute('data-arrived', '')
+  })
+
+  test('Coco reist mit (MO-14): Kontakt → Start läuft herein; Erststart und calm-Wege ohne Reise', async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' })
+    const go = await cocoTransition(page, '/de')
+    await page.goto('/de/kontakt')
+    await page.waitForLoadState('load')
+    await page.waitForTimeout(1200)
+    const vt = await go()
+    const inn = vt.anims.find((a) => a.name === 'pc-coco-in')
+    expect(inn?.pe).toBe('::view-transition-new(coco)')
+    expect(inn?.d).toBe(350)
+    await expect(leashCoco(page)).toHaveAttribute('data-arrived', '')
+    // Erstaufruf ohne Referrer: kein `data-arrived` (Coco rennt im Intro herein, MI-10)
+    await page.goto('about:blank')
+    await page.goto('/de')
+    await expect(leashCoco(page)).not.toHaveAttribute('data-arrived', '')
+  })
+
+  test('Coco reist nicht bei reduzierter Bewegung und nicht mit dem Schalter „Animationen“ aus', async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await page.goto('/de')
+    await page.waitForLoadState('load')
+    await page.waitForTimeout(1500)
+    await expect(leashCoco(page)).not.toHaveAttribute('data-arrived', '')
+    const nav = () =>
+      page.evaluate(() => {
+        const n = (window as Window & { navigation?: EventTarget }).navigation
+        return !!n
+      })
+    expect(await nav()).toBe(true) // Chromium hat die API – trotzdem keine Lauf-Pose
+    await page.evaluate(() =>
+      (window as Window & { next?: { router: { push(u: string): void } } }).next!.router.push(
+        '/de/kontakt',
+      ),
+    )
+    await page.waitForURL('**/de/kontakt')
+    await expect(page.locator('[data-leash-coco]')).toHaveCount(0)
+  })
+
   test('reduzierte Bewegung: kein Übergang', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await recordTransitions(page)

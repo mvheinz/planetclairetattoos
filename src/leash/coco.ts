@@ -462,7 +462,8 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
       lastLen = s.len
       // Intro MI-10: in 600 ms von links hereinrennen (ease-out), danach an der Leinenspitze
       let x = s.x
-      if (s.intro && s.motion !== 'reduced') {
+      // (bei einem Seitenwechsel mit Übergang steht sie schon am Linienanfang: `data-arrived`, P12.12)
+      if (s.intro && s.motion !== 'reduced' && !el.hasAttribute('data-arrived')) {
         introAt ??= now()
         x -= Math.max(0, 1 - (now() - introAt) / INTRO_RUN_MS) ** 2 * (x + width + 8)
       }

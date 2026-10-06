@@ -94,6 +94,18 @@
   font-size: var(--fs-menu);
   line-height: 1.1;
   text-decoration: none;
+  /* MI-18 (P12.12): der Link rückt bei Hover/Fokus 6 px ein – `translate`, damit MI-05 (`transform` der Zeilen) frei bleibt */
+  transition: translate var(--dur-short) var(--ease-ink-out);
+}
+
+.mainLink:focus-visible {
+  translate: 6px 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .mainLink:hover {
+    translate: 6px 0;
+  }
 }
 
 .mainLink:visited,

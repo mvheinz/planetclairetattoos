@@ -194,7 +194,7 @@ Tempo-Läufe laufen **ohne** Videoaufnahme (Video kostet CPU) und getrennt von B
 | SC-11 | R01 → R02 → R04 → R06 (weiche Navigation) | `art-pixel7`, `art-desktop` | Links klicken | Video; View-Transition-Sequenz alle 50 ms |
 | SC-12 | `/de/qa/coco` | `art-desktop` (+ `art-iphone15` Stichprobe) | alle Symbole, `?parts=1`, je Frame einzeln | Standbilder je Symbol in 7 Größen; Boil-Sequenz bei 0/1/2 Frame-Längen |
 | SC-13 | `/de/qa/art` | `art-desktop` | – | Standbilder in 1× und 3× |
-| SC-14 | `/de/qa/motion?mi=…` für MI-01…MI-16 | `art-desktop`, `art-iphone15` | je MI „Abspielen“ | Sequenz alle 20 ms (per Seek, §4.4) |
+| SC-14 | `/de/qa/motion?mi=…` für MI-01…MI-19 (MI-17/MI-18 nur Desktop, Zeiger schwebt) | `art-desktop`, `art-iphone15` | je MI „Abspielen“ | Sequenz alle 20 ms (per Seek, §4.4) |
 | SC-15 | R01, R04 | `art-pixel7` | Resize 412→768→412, Querformat, Schrift nachladen verzögert (Font-Request 2 s blockieren) | Frames vor/nach; Neuaufbau-Zähler |
 | SC-16 | Alle Titelbilder des Beispielbestands | – (Skript, kein Browser) | Pipeline-Ergebnis vs. Original | Kontaktbogen Vorher/Nachher, `metrics/images.json` |
 | SC-17 | R01 | `art-pixel7` | `forcedColors: 'active'` | Frames |
@@ -280,7 +280,7 @@ Beleg) **· Schwere bei Verfehlung** (B = Blocker, M = Major, m = Minor; Definit
 | AR-02 | Strichtreue der Vektorisierung | Median-Strichbreite (Distanztransformation) der Zeichnung 0,75–1,25 × Median im Schwellwertbild der Quelle; keine Klumpen (zusammengelaufene Flächen > 2 % der Bildfläche, die im Original offen sind) | auto + R1 | M |
 | AR-03 | Größe | Station ≤ 8 KB, Platzhalter ≤ 6 KB, Motive ≤ 1,5 KB, Icons ≤ 600 B, Wortmarke ≤ 5 KB | auto | m |
 | AR-04 | Platzhalter-Regeln | viewBox 400×500, höchstens eine Wash-Farbe aus §3.1 (ohne Wash erlaubt), Strich 2,8 (seit P9.13; vorher 2,4), kein `<text>`, Motiv 55–70 % der Höhe | auto | m |
-| AR-05 | Platzhalter wirken wie Juttas Hand | Bewertung ≥ 4 (Rubrik §6.5), im Shop-Raster zwischen echten Fotos nicht „fremd“ | R1 | M |
+| AR-05 | Platzhalter wirken wie Juttas Hand | Bewertung ≥ 4 (Rubrik §6.5), im Shop-Raster zwischen echten Fotos nicht „fremd“; seit P12.12 trägt jede Figur ein eigenes Gesicht (sechs Stile `FACE_STYLES` in `content/art/placeholders/_parts.ts`: Kulleraugen, Schlaflider, Knopfaugen, Blinzeln, Schiefblick, Staunen; Einzelgesichter statt Schablone, Test `placeholders.unit.spec.ts`) | R1 | M |
 | AR-06 | Weltraum-Motive | handgezeichnet, max. 1 Marke/Station, ≤ 3 Sterne/Bildschirmhöhe, keine Band-Bezüge (Liedtext, Logo, Albumgrafik) | auto (Dichte) + R1 | B (Band-Bezug) / m |
 | AR-07 | Marke klein lesbar | Favicon 16 px als Planet mit Ring erkennbar; Wortmarke ab 24 px Höhe lesbar | R1 | m |
 
@@ -298,10 +298,10 @@ Beleg) **· Schwere bei Verfehlung** (B = Blocker, M = Major, m = Minor; Definit
 | MO-08 | Posen je Station | Pose bei Ankunft/Verweilen = Tabelle DESIGN §11.4 an allen 9 Stationen | auto (`__leash.pose()`) + R2 (Bögen) | M |
 | MO-09 | Brücken | jeder Posenwechsel mit der definierten Brücke bzw. Frame-Grenze; keine Überblendung | auto (`poseLog`) + R2 | m |
 | MO-10 | Intro | Start ≥ LCP + 300 ms; Dauer 1800 ms ± 180 (P12.4/U-06: doppelt so langsam; vorher 900 ± 90) (aus der Kurvenanpassung der `drawnLen`-Reihe, nicht aus dem ersten sichtbaren Bild; `art-iphone15`: Dauer nur informativ, weil WebKit ohne GPU in der Aufnahme-Sitzung nur ≈ 10 Bilder/s liefert; Start ≥ LCP + 300 gilt weiter); Coco rennt herein (MI-10) | auto | M |
-| MO-11 | Katalog vollständig | jede MI-01…MI-16 in SC-14 aufgenommen und entspricht Ablauf/Eigenschaften der Tabelle | R2 | M |
+| MO-11 | Katalog vollständig | jede MI-01…MI-19 in SC-14 aufgenommen und entspricht Ablauf/Eigenschaften der Tabelle | R2 | M |
 | MO-12 | Timing-Gefühl | Bewertung ≥ 4 (Rubrik §6.5): Feder statt Maschine, Staffelungen leicht unregelmäßig, nichts „schwimmt“ | R2 | M |
 | MO-13 | Stempel nur im Verkaufsmoment | Archiv/Shop-Aufruf: 0 Stempel-Animationen; Danke „bezahlt“: MI-03 ≤ 3× | auto | M |
-| MO-14 | Seitenübergänge | Coco wandert in 350 ms ± 35; keine Übergänge von/zu `calm`-Routen | auto + R2 | m |
+| MO-14 | Seitenübergänge | Coco **reist mit** (P12.12): wandert in 350 ms ± 35 (mit Gegenstück von Leinenspitze zu Leinenspitze, sonst hinaus/herein), auf der neuen Seite steht sie beim Aufdecken am Linienanfang (`data-arrived`); keine Übergänge von/zu `calm`-Routen | auto + R2 | m |
 | MO-15 | Flackern | kein Element blinkt > 3× pro Sekunde | auto (Frame-Differenzen SC-01/03/09/10) | B |
 
 ### 5.5 Lesbarkeit (LG) – Linse R3

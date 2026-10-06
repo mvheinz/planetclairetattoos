@@ -1411,6 +1411,8 @@
     "stationsCount": "{count} stations",
     "stationLabel": "Station {n}",
     "pressHint": "Press and hold the button to check.",
+    "hoverHint": "Move the pointer over the element to check.",
+    "demoCard": "A piece waiting for you",
     "linkLabel": "A navigation link",
     "demoButton": "Add to basket",
     "cartCount": "In basket"
