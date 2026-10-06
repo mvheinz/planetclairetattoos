@@ -1392,6 +1392,16 @@ Budgets (Median über den Beispielbestand): `thumb` ≤ 40 KB, `card` ≤ 90 KB;
 
 **AK-DS-17** Vitest mit Fixture-Bildern: `thumb`/`card` haben Seitenverhältnis 0,800 ± 0,002, `detail`/`zoom` das Seitenverhältnis des Originals ± 0,01, keine EXIF/GPS-Daten (`sharp().metadata()` ohne `exif`), Kanal-Verstärkungen innerhalb [0.92, 1.08], eine Graukarten-Fixture wird auf ΔE2000 ≤ 3 neutralisiert, eine Nur-Matte-Fixture bleibt unverändert.
 
+### 12.2a Goth-Fotorahmen (U-13, P12.3)
+
+Jedes Foto – Shop-Karten, Produktseite (Galerie), Galerie, Flash, „Über mich“, Startseiten-Stationen, Teaser, Korb und Kasse – trägt denselben **viktorianischen Zierrahmen mit Filigran** im Goth-Ton. Er ersetzt das frühere Passepartout aus Papierton mit Doppelrahmen (Kunst-QA IM-04).
+
+- **Zeichnung:** dünne Tuschelinie (Außenlinie 2, Innenlinie 1,4 Einheiten von 120; nie ein dicker schwarzer Block, damit die Leine wirkt), dazwischen ein Filigranband aus Ranke, kleinen Schnecken und Perlen; Ecken: eingekerbte Außenecke mit Perle, symmetrisches Schneckenpaar mit Knospe, Ranken zu beiden Kanten. Strich mit leichtem Zittern, Bandgrund `--paper-field`.
+- **Technik (PF-10):** **eine** SVG-Datei `public/art/photo-frame.v1.svg` (≈ 3,9 KB, 9 Teile à 40 Einheiten; Ecke und Kante je einmal gezeichnet und per `<use>` für alle vier Seiten gespiegelt/gedreht; erzeugt von `pnpm art:frame`, `scripts/art/build-photo-frame.ts`). Sie hängt als `border-image: url(…) 40 / var(--pf-band) round` am Bildrahmen in `ResponsiveImage` (`.frame`, `data-photo-frame`): kein zusätzliches Element, **kein SVG je Foto** und kein SVG im DOM der Seite. Das Kantenband wiederholt sich (`round`), die Ecken bleiben ganz.
+- **Maße und CLS:** Das Band (`--pf-band`: `clamp(14px, 6.5cqi, 28px)`; `frameSize="thumb"` für Vorschauen ≤ 96 px: 6 px) liegt **innerhalb** der festen `aspect-ratio` (Border-Box). Außenmaße ändern sich nie (CLS 0); das Foto füllt die Innenfläche (`object-fit: cover`, Fokuspunkt). Bis die Datei geladen ist, steht ein Papierrand gleicher Breite. `border-image` ist kein LCP-Kandidat.
+- **Leine:** Rahmen und Foto liegen im Inhalt, die Leine läuft in der Rinne (U-07a); keine Leine-Datei kennt den Rahmen (Test). Forced-Colors: einfache `CanvasText`-Linie.
+- **Test:** `tests/unit/design/photo-frame.unit.spec.ts` (Datei = Skript-Ausgabe, ≤ 4 KB, dünne Linie, Registry-Suche „jede Foto-Stelle über `ResponsiveImage`“); Playwright-Prüfung der Rahmen je Kontext; visuelle Referenzen. Ausnahmen ohne Rahmen: Wortmarke/Icons, QR-Code (BankDetails), Vorschau eigener Uploads im Anfrageformular, Lightbox-Vollbild.
+
 ### 12.3 Platzhalter-Illustrationen
 
 Der Beispielbestand (E-63, Mengen laut SEED-SPEC §0.1) hat mehr Stücke als Instagram-Fotos. Wo kein Foto passt, entstehen **Platzhalter im Linienstil** (Konzeptseite „Beispielbestand“).

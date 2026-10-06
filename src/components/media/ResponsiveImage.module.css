@@ -5,7 +5,7 @@
    liegt innerhalb der festen `aspect-ratio` (Border-Box), die Außenmaße ändern sich also nie (CLS 0). `border-image` zählt
    Chrome nicht als LCP-Kandidat. Bis die Datei da ist, steht ein einfarbiger Papierrand gleicher Breite. */
 .frame {
-  --pf-band: clamp(11px, 5.5cqi, 24px);
+  --pf-band: clamp(14px, 6.5cqi, 28px);
   position: relative;
   display: block;
   width: 100%;

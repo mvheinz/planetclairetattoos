@@ -358,7 +358,7 @@ Beleg) **· Schwere bei Verfehlung** (B = Blocker, M = Major, m = Minor; Definit
 | IM-01 | Technik | DESIGN AK-DS-17 grün | auto | B |
 | IM-02 | Einheitlichkeit | über alle Titelbilder: Standardabweichung Median-L* ≤ 6; neutrale Flächen (Papier) a*, b* innerhalb ± 4 | auto (SC-16) | M |
 | IM-03 | Keine Überkorrektur | Holz, Haut, Aquarellpapier behalten ihren Charakter; Zeichnungen nicht farbstichig; Vorher/Nachher-Bogen | R1 | M |
-| IM-04 | Wie aus einem Guss | Shop-Raster mit Fotos und Platzhaltern: Bewertung ≥ 4 | R1 | M |
+| IM-04 | Wie aus einem Guss | Shop-Raster mit Fotos und Platzhaltern: Bewertung ≥ 4. **Seit P12.3 (U-13):** Maßstab ist der Goth-Fotorahmen (DESIGN §12.2a) um jedes Foto und jeden Platzhalter – gleiche Rahmung, dünne Tuschelinie, Filigran ohne Überladung, Leine daneben gut lesbar; ersetzt das Passepartout. | R1 | M |
 | IM-05 | Budgets | DESIGN §12.2: Median `thumb` ≤ 40 KB, `card` ≤ 90 KB; im Profil `art-pixel7` geladenes LCP-Bild der Produktseite ≤ 120 KB | auto | m |
 
 ### 5.10 Ruhezonen und Ausschlüsse – Linse R2

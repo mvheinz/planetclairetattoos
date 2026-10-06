@@ -244,9 +244,7 @@
   position: relative;
   display: grid;
   place-items: center;
-  padding: var(--space-3);
-  border-radius: var(--r-photo);
-  background: var(--paper-field);
+  /* Der Goth-Fotorahmen (U-13) sitzt am Bild selbst – kein zweiter Rand/Passepartout mehr darum. */
 }
 
 .flashImage {

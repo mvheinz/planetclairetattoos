@@ -23,11 +23,8 @@
   width: 100%;
   /* U-13 / P12.3: Der Goth-Fotorahmen kommt aus `ResponsiveImage` (`data-photo-frame`, DESIGN §12.2a) und ersetzt das frühere
      Passepartout samt Doppelrahmen. Hier bleibt nur der Bezugsrahmen für Hinweisschilder auf dem Foto. */
-  --pf-band: clamp(
-    11px,
-    5.5cqi,
-    24px
-  ); /* gleiche Formel wie der Rahmen in ResponsiveImage.module.css */
+  /* gleiche Formel wie der Rahmen in ResponsiveImage.module.css */
+  --pf-band: clamp(14px, 6.5cqi, 28px);
   isolation: isolate;
 }
 
