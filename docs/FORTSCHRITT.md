@@ -2,6 +2,19 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P12.3
+
+- Goth-Fotorahmen: viktorianischer Filigran-Rahmen mit dünner Tuschelinie als eine gemeinsame SVG-Datei (3,9 KB, scripts/art/build-photo-frame.ts), per border-image an ResponsiveImage (alle Foto-Stellen: Karten, Produktseite, Galerie, Flash, Über mich, Startseite, Teaser, Korb, Kasse); Passepartout/Doppelrahmen und Flash-Rand ersetzt.
+- Außenmaße fest (CLS 0), kein SVG im DOM je Foto (PF-10), IM-04 in KUNST-QA und DESIGN §12.2a dokumentiert.
+- Tests: Unit photo-frame (Registry-Suche, Größe, dünne Linie), E2E photo-frame (alle Kontexte, CLS ≤ 0,1, einmaliger Abruf), Visual-Referenzen neu.
+
+## 2026-10-06 – P12.2
+
+- Schrift: Spectral 500 und Spectral 500 Italic (@fontsource/spectral 5.3.0 exakt gepinnt, selbst gehostet, 4 Dateien zusammen 73,2 KB); Mansalva, GlyphFallback, Mansalva-Abdeckung und Fallback-Fläche entfernt, Metrik-Ersatzflächen für Spectral gemessen.
+- Farben: helles Olivgrün als Grund, Petrol-Akzent (Links, Primärknöpfe, sold-Stempel, Fokus), Text-Tokens für AA nachgedunkelt; DESIGN §3/§4/§7 neu.
+- Verlauf Olivgrün → Petrol-Hauch: statisch auf html, mit Scroll-Zeitleiste ein einziger opacity-Layer, statisch bei weniger Bewegung; Leine-Engine unberührt (Budget 12 000 B gz eingehalten).
+- Tests: pnpm check (nur der schon vorher rote Test final-report offen), Int 1101 grün, E2E desktop/pixel-7 (Rahmen, a11y, home, shell, shop; Leine-Tests brauchen Debug-Build), Visual 70 neu erzeugt und im zweiten Lauf stabil, check:bundle und check:external grün.
+
 ## 2026-10-06 – P12 gestartet: deine Änderungswünsche
 
 Danke für deine Rückmeldungen und die Zeichnungen! Ich habe alles in `docs/UEBERARBEITUNG.md` festgehalten und als eigene Phase P12 vor dem Go-live angelegt: neue Sitzpose und mehr Posen für Coco (Knickohr rechts), Fitness-Coco auf der Startseite, die Vorsitzende der Goth Dogs Berlin mit wandernden Pupillen, Schrift Spectral, Olivgrün mit Petrol und Scroll-Verlauf, Goth-Rahmen für alle Fotos, „Angebote“ und DM-Hinweise raus, „Planet Claire on Tour“, komplett neue Texte, vollständige Rechtstexte mit Schutz für deine Werke, und die ganze Seite dauerhaft auf Deutsch und Englisch. Am Ende bekommst du eine neue HTML-Vorschau. Deine Skizzenfotos der Fitness-Übungen konnte ich nur im Chat ansehen; ich habe sie beschrieben abgelegt. Wenn du magst, lädst du die Originale später in den Ordner `content/art/jutta-skizzen` hoch (Anleitung G4).
