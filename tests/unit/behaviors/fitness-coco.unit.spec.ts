@@ -67,10 +67,9 @@ const flush = async () => {
 describe('fitness-coco mount', () => {
   it('holt die Bildfolge und spielt sie im 10-Bilder/s-Takt; unmount stellt das Standbild wieder her', async () => {
     setup()
-    const fetchMock = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(data) }))
-    vi.stubGlobal('fetch', fetchMock)
-    window.fetch = fetchMock as never
-    const unmount = mount(root, { mode: 'app' })
+    const fetchMock = vi.fn((_url: string) => Promise.resolve(data as unknown))
+    const fitnessData = fetchMock
+    const unmount = mount(root, { mode: 'app', actions: { fitnessData } })
     expect(fetchMock).toHaveBeenCalledWith('/art/fitness-coco.v1.json')
     await flush()
     expect(ink()).toBe('t0')
@@ -88,24 +87,22 @@ describe('fitness-coco mount', () => {
 
   it('reduzierte Bewegung: kein Abruf, Standbild bleibt; im Vorschau-Modus ebenfalls', () => {
     setup('reduced')
-    const fetchMock = vi.fn()
-    window.fetch = fetchMock as never
-    const un = mount(root, { mode: 'app' })
+    const fetchMock = vi.fn((_url: string) => Promise.resolve(data as unknown))
+    const fitnessData = fetchMock
+    const un = mount(root, { mode: 'app', actions: { fitnessData } })
     expect(fetchMock).not.toHaveBeenCalled()
     expect(ink()).toBe('IS')
     un()
     document.documentElement.removeAttribute('data-motion')
-    const un2 = mount(root, { mode: 'preview' })
+    const un2 = mount(root, { mode: 'preview', actions: { fitnessData } })
     expect(fetchMock).not.toHaveBeenCalled()
     un2()
   })
 
   it('wechselt der Schalter auf „Animationen aus“, steht sofort wieder das Standbild', async () => {
     setup()
-    window.fetch = vi.fn(() =>
-      Promise.resolve({ ok: true, json: () => Promise.resolve(data) }),
-    ) as never
-    const un = mount(root, { mode: 'app' })
+    const fitnessData = vi.fn((_url: string) => Promise.resolve(data as unknown))
+    const un = mount(root, { mode: 'app', actions: { fitnessData } })
     await flush()
     vi.advanceTimersByTime(200)
     expect(ink()).not.toBe('IS')

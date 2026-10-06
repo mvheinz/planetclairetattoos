@@ -72,15 +72,21 @@ export function mount(root: Element, ctx: BehaviorContext = { mode: 'app' }): Un
     }
   }
   const load = () => {
-    if (loading || data || !src || !win || ctx.mode === 'preview' || getMotion(doc) === 'reduced')
+    if (
+      loading ||
+      data ||
+      !src ||
+      !ctx.actions?.fitnessData ||
+      ctx.mode === 'preview' ||
+      getMotion(doc) === 'reduced'
+    )
       return
     loading = true
-    win
-      .fetch(src)
-      .then((r) => (r.ok ? (r.json() as Promise<FitnessData>) : null))
+    ctx.actions
+      ?.fitnessData?.(src)
       .then((json) => {
         if (destroyed || !json) return
-        data = json
+        data = json as FitnessData
         update()
       })
       .catch(() => {})
