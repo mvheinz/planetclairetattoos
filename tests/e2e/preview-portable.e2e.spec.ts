@@ -53,10 +53,12 @@ interface Watch {
 
 const test = base.extend<{ watch: Watch; portable: Page }>({
   watch: async ({}, provide) => provide({ requests: [], errors: [] }),
-  portable: async ({ browser, watch }, provide) => {
+  portable: async ({ browser, browserName, watch }, provide) => {
     const url = pathToFileURL(file).href
     const context = await browser.newContext({
-      offline: true,
+      // WebKit (Linux) bricht `file://` im Offline-Modus mit einem internen Fehler ab; dort sperrt die Route unten jede
+      // Anfrage außer der Datei selbst – „0 Anfragen“ gilt in beiden Browsern.
+      offline: browserName === 'chromium',
       locale: 'en-US',
       timezoneId: 'America/New_York',
       viewport: { width: 1280, height: 900 },

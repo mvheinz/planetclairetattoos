@@ -38,6 +38,8 @@ const URL_ATTRS = new Set([
   'xlink:href',
 ])
 const ALLOWED_SCHEME = /^(data:|blob:|#)/i
+/** In CSS zusätzlich Verweise auf Fragmente innerhalb der Datei (`url(#filter)`, auch als `%23` kodiert). */
+const ALLOWED_CSS_URL = /^(data:|blob:|#|%23)/i
 
 /**
  * Alle Verweise, die über die Datei hinausgehen: jedes `src`/`href`/… muss `data:`, `blob:`, `#…` sein; erlaubt sind
@@ -50,6 +52,12 @@ export function externalReferences(html: string): string[] {
   $('*').each((_, el) => {
     const tag = (el as { tagName?: string }).tagName ?? ''
     for (const [name, value] of Object.entries($(el).attr() ?? {})) {
+      if (name === 'style') {
+        for (const m of value.matchAll(/url\(\s*['"]?([^'")\s]+)/gi)) {
+          if (!ALLOWED_CSS_URL.test(m[1]!)) found.push(`<${tag} style url(${m[1]!.slice(0, 80)})>`)
+        }
+        continue
+      }
       if (!URL_ATTRS.has(name)) continue
       const v = value.trim()
       if (v === '' || ALLOWED_SCHEME.test(v)) continue
@@ -61,7 +69,7 @@ export function externalReferences(html: string): string[] {
   $('style').each((_, el) => {
     const css = $(el).text()
     for (const m of css.matchAll(/url\(\s*['"]?([^'")\s]+)/gi)) {
-      if (!ALLOWED_SCHEME.test(m[1]!)) found.push(`url(${m[1]!.slice(0, 80)})`)
+      if (!ALLOWED_CSS_URL.test(m[1]!)) found.push(`url(${m[1]!.slice(0, 80)})`)
     }
     if (/@import/i.test(css)) found.push('@import')
   })

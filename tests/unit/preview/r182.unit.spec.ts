@@ -78,6 +78,19 @@ describe('R-182 Vorschau-Datei als interne Datei', () => {
         '<img src="data:image/webp;base64,AA" srcset="data:image/webp;base64,AA 1x"></template>',
     ])
     expect(externalReferences(clean)).toEqual([])
+    // Verweise auf Fragmente in der Datei (SVG-Filter) sind erlaubt, externe in style-Attributen nicht
+    const fragments = document_(
+      [
+        '<template data-route="/de"><svg style="filter:url(%23h)"><g style="filter:url(#h)"></g></svg></template>',
+      ],
+      '.a{filter:url(#h)}',
+    )
+    expect(externalReferences(fragments)).toEqual([])
+    expect(
+      externalReferences(
+        document_(['<template><p style="background:url(https://x.test/a.png)"></p></template>']),
+      ),
+    ).toEqual(['<p style url(https://x.test/a.png)>'])
 
     const bad = document_(
       [
