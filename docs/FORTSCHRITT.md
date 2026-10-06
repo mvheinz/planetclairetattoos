@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P10 Phasenlauf
+
+Alles für Phase 10 ist umgesetzt. Der Phasenlauf prüft jetzt auf GitHub: Abdeckung, alle Browser-Tests in zwei Durchläufen ohne Wackler, Tempo (Lighthouse), den Docker-Ausweg, die Wiederherstellungsübung und die finale Vorschau-Datei mit Offline-Test. Danach schreibe ich den Abschlussbericht für dich.
+
 ## 2026-10-06 – P10.1/P10.2/P10.4/P10.20/P10.21 Vorbereitung für den Phasenlauf
 
 - Neue Kennzahl-Tests `tests/e2e/metrics/purchase-path.e2e.spec.ts` (EK-02: Karte, PayPal, Vorkasse, Abholung bei 390×844 und 412×915, genau 4 Seiten) und `tests/e2e/metrics/admin-taps.e2e.spec.ts` (EK-08/AK-7-05/AK-7-04: „bezahlt → versendet“ in höchstens 5 Taps, kein waagerechtes Scrollen); lokal gegen den Produktions-Build grün (18 Tests auf `iphone-15`/`pixel-7`), Kennzahlen als JSON unter `test-results/metrics/`.
