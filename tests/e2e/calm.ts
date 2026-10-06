@@ -22,9 +22,7 @@ export async function expectCalm(page: Page, label: string) {
     // sie zählen nicht als Bewegung; zeitgesteuerte Animationen bleiben verboten.
     const timed = document
       .getAnimations()
-      .filter(
-        (a) => !(typeof ScrollTimeline !== 'undefined' && a.timeline instanceof ScrollTimeline),
-      )
+      .filter((a) => !(a.timeline?.constructor?.name === 'ScrollTimeline'))
     return { animations: timed.length, moving, count: els.length }
   })
   expect(result.count, `${label} <main> vorhanden`).toBeGreaterThan(1)
