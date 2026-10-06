@@ -471,7 +471,7 @@ P2 legt `src/styles/tokens.css` exakt mit diesem Inhalt an (Werte sind verbindli
   --shadow-stencil: 3px 2px 0 0 var(--stencil);
 
   /* Coco */
-  --coco-leash: 56px;          /* Breite an der Leinenspitze */
+  --coco-leash: 70px;          /* Breite an der Leinenspitze (+25 %, U-05) */
   --coco-s: 40px;
   --coco-m: 72px;
   --coco-xl: 180px;
@@ -491,8 +491,8 @@ P2 legt `src/styles/tokens.css` exakt mit diesem Inhalt an (Werte sind verbindli
   --dur-short: 200ms;
   --dur-medium: 320ms;
   --dur-long: 600ms;
-  --dur-draw: 900ms;
-  --dur-draw-max: 1200ms;
+  --dur-draw: 1800ms;
+  --dur-draw-max: 2400ms;
   --dur-page: 350ms;
   --dur-underline: 280ms;
   --dur-swing: 900ms;
@@ -510,7 +510,7 @@ P2 legt `src/styles/tokens.css` exakt mit diesem Inhalt an (Werte sind verbindli
 }
 
 @media (min-width: 768px) {
-  :root { --page-pad: 24px; --header-h: 64px; --leash-w: 2.6px; --coco-leash: 88px; --coco-stroke: 1.8px; }
+  :root { --page-pad: 24px; --header-h: 64px; --leash-w: 2.6px; --coco-leash: 110px; --coco-stroke: 1.8px; }
 }
 @media (min-width: 1200px) {
   :root { --page-pad: 32px; }
@@ -924,13 +924,13 @@ Alle Formen erhalten den Wackel aus §9.3 Schritt 6 und sind nie geometrisch per
 - **Coco folgt der Lesezeile:** `cocoTargetLen = min(map(readingY), drawnLen)`. Beim Hochscrollen läuft Coco also auf der schon gezeichneten Linie zurück (gespiegelt, Pose `rennen`).
 - **Keine Glättung der Linie** (sie folgt dem Scroll exakt). **Coco wird geglättet:** `cocoLen += (cocoTargetLen − cocoLen) × (1 − (1 − 0.35)^(dt/16.7))`; Abstand > 300 px Bogenlänge → Coco springt direkt (kein langes Hinterherrennen).
 - **Einstieg mitten in der Seite** (Anker-Link, Zurück-Navigation, Neuladen): `drawnLen` wird ohne Animation auf `map(readingY)` gesetzt.
-- **Intro** (nur `journey`): nach dem Aufbau zeichnet sich die Linie von 0 bis `map(readingY₀)` in `--dur-draw` (900 ms, `--ease-ink-out`), inklusive Orbit um die Planet-Marke; Coco rennt dabei von links in die Rinne (MI-10).
+- **Intro** (nur `journey`): nach dem Aufbau zeichnet sich die Linie von 0 bis `map(readingY₀)` in `--dur-draw` (1800 ms, U-06; `--ease-ink-out`), inklusive Orbit um die Planet-Marke; Coco rennt dabei von links in die Rinne (MI-10).
 
 ### 9.7 Presets je Seitentyp
 
 | Preset | Routen (KONZEPT §2.2) | Rinne | Zeichnen | Linienform | Coco | Besonderheiten |
 |---|---|---|---|---|---|---|
-| `journey` | R01 Startseite | 44 / 64 | scrollgekoppelt + Intro | Rinnen-Serpentine, Schlaufen je Station (Tabelle §11.4), ≥ 1200 zusätzlich `lasso` | an der Spitze, `--coco-leash`, Posen je Station | Orbit um die Planet-Marke der Kopf-Station |
+| `journey` | R01 Startseite | 56 / 88 | scrollgekoppelt + Intro | Rinnen-Serpentine, Schlaufen je Station (Tabelle §11.4), ≥ 1200 zusätzlich `lasso` | an der Spitze, `--coco-leash`, Posen je Station | Orbit um die Planet-Marke der Kopf-Station |
 | `about` | R19 Über mich | 44 / 64 | scrollgekoppelt | wie `journey`, 3 Stationen (Jutta, Coco, Werkstatt), Schlaufen `right`/`left` | an der Spitze, Posen `sitzen`, `kopfschief`, `schnueffeln` | „Coco läuft ein kurzes Stück mit“ (KONZEPT §3.12) |
 | `shopString` | R02, R03, R05 | 0 | je Kartenreihe einmal beim Eintritt (IO-Schwelle 0.3), 500 ms `--ease-ink-out`, Richtung der Serpentine; danach Schilder der Reihe schwingen (MI-02, 60 ms versetzt) | **Schnur** durch die Faden-Anker aller Karten einer Reihe; zwischen zwei Ankern Durchhang `clamp(4, 0.03 × Abstand, 14)` px; am Reihenende 12 px Überstand, dann Kurve (Radius ≤ Seitenrand) zur nächsten Reihe (Serpentine) | `sitzen` am Schnuranfang über der ersten Reihe, `--coco-m`, Boil 2 s, dann Stillstand | „Mehr zeigen“ hängt Reihen an, bestehende bleiben gezeichnet; Filterwechsel = Neuaufbau ohne Wiederholung schon gezeichneter Reihen |
 | `product` | R04 | 0 | einmal, 600 ms, nach LCP + Idle | Unterstreichung des H1 (Titelbreite + 12 px), weiter senkrecht rechts am Preisschild vorbei (Schild `pinned` hängt daran), endet mit `hook` am Knopf „In den Korb“ | `sitzen` in einer reservierten Box 48×40 neben dem Preisschild, `--coco-s`; MI-01 beim Hinzufügen | Kauf-Leiste (KO-09a) ohne Linie und ohne Coco |
@@ -958,7 +958,7 @@ R29 (500) nutzt kein Preset mit Engine: statisches Knäuel-SVG (KO-18).
 1. Linien-Ebene und Coco: `aria-hidden="true"`, `focusable="false"`, `pointer-events: none`, nicht im Tab-Fluss, kein `role`.
 2. Die Linie ist nie Navigation. Jede Station hat eine echte Überschrift und echte Links.
 3. **Keine Überdeckung:** Linie und Coco (gemessen wird die gezeichnete Figur, waagerecht 0,10–0,90 der Coco-Box, §10.5) schneiden keine Textzeile (auch nicht in Links/Knöpfen), kein Formularfeld, keinen Knopf, keinen Fußbereich-Link. Einzige Ausnahme: **Block-Links** wie Produktkarten – die Schnur (`shopString`) läuft absichtlich durch deren Schild-Zone zwischen Foto und Titel, nie durch deren Text. Durchsetzung: Rinne (§5.3) bzw. Anker außerhalb von Textflächen; QA-Test LG-01 (KUNST-QA).
-4. Mobile Rinne: 44 px, Linie in Rinnenmitte ± Schwung, Coco 56 px breit (Hund ≈ 0,77 davon, ≈ 43 px) passt in die Rinne; Stationsfotos beginnen an der Rinnenkante; Schlaufen-Radius ≤ 22 px.
+4. Mobile Rinne: 56 px (U-05; vorher 44), Linie in Rinnenmitte ± Schwung, Coco 70 px breit (Hund ≈ 0,77 davon, ≈ 54 px) passt in die Rinne; Stationsfotos beginnen an der Rinnenkante; Schlaufen-Radius ≤ 22 px.
 5. `content-visibility: auto` ist auf Abschnitten mit Linien-Ankern **verboten** (verfälscht Messungen).
 6. Die Linie ändert nie das Layout (absolut positionierte Ebene) → CLS-Beitrag 0.
 7. Erzwungene Farben: `fill: CanvasText` für Umriss, Masken entfallen (Stufe C).
@@ -1185,7 +1185,7 @@ html[data-motion="reduced"] .coco .f-b, html[data-motion="reduced"] .coco .f-c {
 | Token | Breite | Einsatz | Strich gerendert |
 |---|---|---|---|
 | (Horizont) | 24 px | 404, rennt weg | 1.2 px (fester Wert) |
-| `--coco-leash` | 56 px mobil / 88 px ab 768 (Qualitäts-QA iter-03, R2-03-01: Boxbreite, der Hund füllt ≈ 0,13–0,90 davon) | Leinenspitze (`journey`, `about`) | 1.6 / 1.8 px |
+| `--coco-leash` | 70 px mobil / 110 px ab 768 (U-05: +25 % gegenüber 56/88; Boxbreite, der Hund füllt ≈ 0,13–0,90 davon, Rinne `journey`/`about` entsprechend 56 / 88 px) | Leinenspitze (`journey`, `about`) | 1.6 / 1.8 px |
 | `--coco-s` | 40 px | Produktseite neben dem Preisschild | 1.6 px |
 | `--coco-m` | 72 px | Menü, Korb, Countdown, Shop-Schnuranfang, Tattoo, Formular | 1.8 px |
 | `--coco-xl` | 180 px | leere Zustände, 404-Variante „Zuhause“, 500 | 2.2 px |
@@ -1234,7 +1234,7 @@ Maßgeblich für leere Zustände und die Danke-Seite sind die Tabellen in KO-17 
 
 1. **Tinte zuerst, Bewegung danach:** Beim LCP ist alles vollständig und statisch lesbar. Kein Preloader, kein Intro vor dem Inhalt.
 2. **Von Hand, nicht von der Maschine:** eigene Easings (§11.2), Line Boil mit 8–12 fps, kleine gesäte Zeitversätze (0–20 ms) bei Staffelungen.
-3. **Kurz:** Mikro-Interaktionen 120–360 ms, Seitenwechsel 350 ms, Zeichnen ≤ 1,2 s. Nichts läuft > 5 s ohne Nutzeraktion.
+3. **Kurz:** Mikro-Interaktionen 120–360 ms, Seitenwechsel 350 ms, Zeichnen ≤ 2,4 s (U-06: die Tuschelinie baut sich doppelt so langsam auf). Nichts läuft > 5 s ohne Nutzeraktion.
 4. **Bewegung mit Bedeutung:** Linie = Weg/Leine · Schwingen = Preisschild „lebt“ · Stempel = verkauft · Hüpfer = in den Korb · Einrollen = fertig/gut aufgehoben · Weglaufen = Seite fehlt.
 5. **Nur Compositor-freundlich:** `transform`, `opacity`; SVG-Enthüllung über `stroke-dashoffset` (nur aktive, kleine Segmente). Nie `width/height/top/left/margin`, nie `box-shadow`-Animationen, nie Filter-Animationen.
 6. **Kein Scroll-Jacking:** keine Pins, kein Einfangen, kein Parallax. Die Seite scrollt normal.
@@ -1264,8 +1264,8 @@ Maßgeblich für leere Zustände und die Danke-Seite sind die Tabellen in KO-17 
 | `--dur-short` | 200 ms | Kauf-Leiste, Überblendung |
 | `--dur-medium` | 320 ms | Menü-Links (einzeln) |
 | `--dur-long` | 600 ms | Produktseiten-Linie |
-| `--dur-draw` | 900 ms | Intro-Linie, Danke-Linie |
-| `--dur-draw-max` | 1200 ms | Obergrenze jeder Zeichen-Animation |
+| `--dur-draw` | 1800 ms | Intro-Linie, Danke-Linie (U-06: doppelt so langsam wie in P9) |
+| `--dur-draw-max` | 2400 ms | Obergrenze jeder Zeichen-Animation |
 | `--dur-page` | 350 ms | View Transition Coco |
 | `--dur-underline` | 280 ms | gezeichnete Unterstreichung |
 | `--dur-swing` | 900 ms | Preisschild-Schwingen |

@@ -113,11 +113,15 @@ export interface CocoFollow {
  */
 export interface CocoHooks {
   groups: Map<string, Element>
+  /** D-Ring der Zusatz-Posen (die Haupt-Anker stehen in `cocoSprite.ts`). */
+  anchors: Record<string, [number, number]>
   show(key: string): void
   /** Boil ohne Budget-Nachlauf ein-/ausschalten (die Aktion bestimmt die Dauer, ≤ 5 s). */
   boil(on: boolean): void
   /** Nach jedem abgeschlossenen Posenwechsel; `null` = Bewegung/Abbruch. */
   tap: ((pose: SpritePose | null) => void) | null
+  /** Reduzierte Bewegung aktiv: keine Aktionen. */
+  reduced: boolean
   /** Bricht eine laufende Aktion ab (Posenwechsel, reduzierte Bewegung, Abbau). */
   stop: (() => void) | null
   /** Beim Abbau: Ereignis-Abos der Zusatz-Aktionen lösen. */
@@ -212,6 +216,7 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
   let stepTimer: ReturnType<typeof setTimeout> | null = null
   let boilTimer: ReturnType<typeof setTimeout> | null = null
   let squashTimer: ReturnType<typeof setTimeout> | null = null
+  let extraTimer: ReturnType<typeof setTimeout> | null = null
   let destroyed = false
   // Choreografie (`follow`)
   let restTimer: ReturnType<typeof setTimeout> | null = null
@@ -299,7 +304,7 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     }
     options.onPose?.({ t: now(), from, to: shown, bridge: used?.join('+') || null })
     boil(BOIL.afterPose)
-    x.tap?.(shown)
+    hk.tap?.(shown)
   }
 
   function step(
@@ -333,7 +338,7 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
   // Warte-Aktionen und neue Posen (U-03/U-04): eigener Chunk + eigene Sprite-Datei, erst im Leerlauf (nicht in der
   // Vorschau-Datei, dort ohne `href`/Server)
   if (!options.href)
-    setTimeout(() => {
+    extraTimer = setTimeout(() => {
       if (!destroyed && motion === 'full')
         void import('./cocoExtra').then((m) => !destroyed && m.attachExtra(api))
     }, EXTRA_DELAY_MS)
@@ -346,7 +351,7 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     gutter?: [number, number, number] | null,
   ) {
     placed = [x, y, direction, gutter]
-    const [ax, ay] = COCO_ANCHORS[curKey] ?? COCO_ANCHORS[shown] ?? [80, 60]
+    const [ax, ay] = hk.anchors[curKey] ?? COCO_ANCHORS[curKey] ?? COCO_ANCHORS[shown] ?? [80, 60]
     const s = width / COCO_VIEWBOX.w
     let tx = x
     if (gutter) {
@@ -358,27 +363,29 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     el.style.transform = `translate(${tx.toFixed(1)}px,${y.toFixed(1)}px) scaleX(${direction}) translate(${(-ax * s).toFixed(1)}px,${(-ay * s).toFixed(1)}px)`
   }
 
-  const x: CocoHooks = {
+  const hk: CocoHooks = {
     groups,
+    anchors: {},
     show,
     boil(v) {
       boilTimer = clear(boilTimer)
       setBoil(v)
     },
     tap: null,
+    reduced: motion === 'reduced',
     stop: null,
     off: null,
   }
 
   const api: CocoController = {
-    x,
+    x: hk,
     el,
     pose: () => shown,
     boiling: () => el.getAttribute('data-boil') === 'on',
     setPose(pose) {
       if (destroyed || pose === target) return
-      x.stop?.()
-      x.tap?.(null)
+      hk.stop?.()
+      hk.tap?.(null)
       target = pose
       if (motion === 'reduced') {
         const from = shown
@@ -467,8 +474,9 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     setMotion(next, restPose) {
       if (destroyed) return
       motion = next
+      hk.reduced = next === 'reduced'
       if (next === 'reduced') {
-        x.stop?.()
+        hk.stop?.()
         stepTimer = clear(stepTimer)
         boilTimer = clear(boilTimer)
         squashTimer = clear(squashTimer)
@@ -486,9 +494,10 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     },
     destroy() {
       destroyed = true
-      x.stop?.()
-      x.off?.()
-      x.tap = null
+      extraTimer = clear(extraTimer)
+      hk.stop?.()
+      hk.off?.()
+      hk.tap = null
       restTimer = clear(restTimer)
       dwellTimer = clear(dwellTimer)
       jumpTimer = clear(jumpTimer)

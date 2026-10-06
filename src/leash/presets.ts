@@ -184,6 +184,7 @@ export const READING_LINE = 0.72
 export function loopScroll(loop: LoopKind, viewportW: number): number {
   const desktop = viewportW >= BP_TABLET
   // U-06: Schlaufen entstehen doppelt so langsam (doppelter Scroll-Weg)
+  if (loop === 'orbit') return desktop ? 180 : 140 // Kopf-Station: zeichnet sich im Intro, Platz bis zur ersten Station knapp
   if (loop === 'spiral') return desktop ? 440 : 360
   if (loop === 'contour') return desktop ? 480 : 400
   return desktop ? 360 : 280

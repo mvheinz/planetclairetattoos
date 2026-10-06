@@ -264,7 +264,7 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
     return { pts, loops }
   }
   const end: Pt = endAnchor
-    ? { x: endAnchor.x + endAnchor.w / 2, y: endAnchor.y }
+    ? { x: grid ? railX : endAnchor.x + endAnchor.w / 2, y: endAnchor.y }
     : { x: onRail ? railX : pts[pts.length - 1]!.x, y: root.h }
   section(end)
   return { pts, loops }

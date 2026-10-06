@@ -3,7 +3,7 @@ import extra from '../art/coco/coco-extra-anchors.json'
 import { COCO_JOY_EVENT } from '../behaviors/types'
 
 import type { CocoController } from './coco'
-import { COCO_ANCHORS, COCO_FRAMES, makeGroup } from './cocoSprite'
+import { COCO_FRAMES, makeGroup } from './cocoSprite'
 import type { SpritePose } from './types'
 
 // Zusatz-Aktionen der Coco (P12.4, U-03/U-04) – eigener, im Leerlauf nachgeladener Chunk samt eigener Sprite-Datei
@@ -45,7 +45,7 @@ export function attachExtra(ctl: CocoController): void {
   const { x, el } = ctl
   const svg = el.querySelector('svg')
   if (!svg || x.groups.has('freude')) return
-  Object.assign(COCO_ANCHORS, extra.anchors)
+  Object.assign(x.anchors, extra.anchors)
   for (const key of Object.keys(extra.anchors))
     x.groups.set(
       key,
@@ -68,7 +68,7 @@ export function attachExtra(ctl: CocoController): void {
     x.show(ctl.pose())
   }
   const play = (key: ExtraPose, ms: number, done?: () => void) => {
-    if (document.hidden) return
+    if (document.hidden || x.reduced) return
     playing = true
     x.show(key)
     x.boil(true)
