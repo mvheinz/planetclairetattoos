@@ -476,8 +476,8 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       else again = true
     } else if (tier !== 'C') {
       if (cfg.draw === 'rowEnter' && target > drawnLen + 0.5) {
-        // Neue Reihe im Sichtbereich: ihre Schnur zeichnet sich in `durationMs` (500 ms, `--ease-ink-out`).
-        intro = { from: drawnLen, to: target, start: now, dur: 500 }
+        // Neue Reihe im Sichtbereich: ihre Schnur zeichnet sich in `durationMs` (1000 ms, `--ease-ink-out`, U-06).
+        intro = { from: drawnLen, to: target, start: now, dur: 1000 }
         again = true
       } else drawnLen = Math.max(drawnLen, target)
     }
@@ -557,7 +557,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       else {
         // Intro (journey, MI-10) bzw. einmaliges Zeichnen; Einstieg mitten in der Seite ohne Animation.
         drawnLen = 0
-        intro = { from: 0, to: target, start: null, dur: cfg.durationMs ?? 900 }
+        intro = { from: 0, to: target, start: null, dur: cfg.durationMs ?? 1800 }
       }
     } else {
       // Gezeichneter Fortschritt bleibt je Station erhalten.

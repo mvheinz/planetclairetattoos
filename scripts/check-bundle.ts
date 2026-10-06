@@ -50,6 +50,8 @@ export interface Budgets {
   svg: {
     /** `file` fehlt → ausgelieferter Sprite laut `coco-anchors.json` (Version nur in `scripts/art/build-sprite.ts`). */
     cocoSprite: { file?: string; rawMax: number; gzipMax: number }
+    /** Nachgeladene Zusatz-Dateien (P12.4 Coco-Zusatz-Posen, P12.5 Fitness-Coco): je Datei roh/gzip. */
+    lazy?: { name: string; file: string; rawMax: number; gzipMax: number }[]
     stationRawMax: number
     stationGlob: string
     iconRawMax: number
@@ -212,6 +214,15 @@ export async function measureModules(
       target: 'es2022',
       write: false,
       logLevel: 'silent',
+      // Nachgeladene Chunks zählen nicht zum Einstieg (P12.4: `coco.ts` lädt `cocoExtra.ts` nach, wie in Next ein
+      // eigener Chunk); sie haben ein eigenes Budget.
+      plugins: [
+        {
+          name: 'lazy-chunks',
+          setup: (b) =>
+            b.onResolve({ filter: /\/cocoExtra$/ }, (a) => ({ path: a.path, external: true })),
+        },
+      ],
     })
     const data = res.outputFiles[0]!.contents
     const gzipBytes = gzipSync(data, { level: 9 }).length
@@ -245,6 +256,12 @@ export function checkSvgFiles(svg: Budgets['svg']): { lines: string[]; errors: s
   if (sprite.rawBytes <= svg.cocoSprite.rawMax && sprite.gzipBytes <= svg.cocoSprite.gzipMax)
     lines.push(spriteLine)
   else errors.push(`${spriteLine} ÜBERSCHRITTEN`)
+  for (const l of svg.lazy ?? []) {
+    const m = measureFile(l.file)
+    const line = `${l.name} ${m.rawBytes} B roh / ${m.gzipBytes} B gz, Budget ${l.rawMax} / ${l.gzipMax} B.`
+    if (m.rawBytes <= l.rawMax && m.gzipBytes <= l.gzipMax) lines.push(line)
+    else errors.push(`${line} ÜBERSCHRITTEN`)
+  }
   const each = (glob: string, max: number, label: string) => {
     const files = expandGlob(glob)
     for (const f of files) {

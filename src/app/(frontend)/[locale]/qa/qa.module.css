@@ -223,14 +223,14 @@
 
 /* Rinne wie `body[data-preset]` (global.css §5.3). */
 .gutterWide {
-  --leash-gutter: 44px;
+  --leash-gutter: 56px;
 }
 .gutterNarrow {
   --leash-gutter: 16px;
 }
 @media (min-width: 768px) {
   .gutterWide {
-    --leash-gutter: 64px;
+    --leash-gutter: 88px;
   }
   .gutterNarrow {
     --leash-gutter: 24px;

@@ -81,6 +81,7 @@ export function measure(root: HTMLElement, preset: PresetId): Measurement {
       root: { w: rootRect.width, h: rootRect.height },
       viewport: { w: innerWidth, h: innerHeight },
       gutter,
+      railX: startX,
       baseWidth,
       anchors,
     },

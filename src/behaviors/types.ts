@@ -44,6 +44,15 @@ export interface CartChangeDetail {
   count?: number
 }
 
+/**
+ * Erfolgsmoment (U-04): Korb gefüllt (`add-to-cart`) bzw. Bestellung abgeschickt (Kasse) → Freudenhüpfer mit Drehung der
+ * Coco (`src/leash/cocoExtra.ts`, nur wenn dort eine Coco mit Zusatz-Posen steht; sonst wirkungslos).
+ */
+export const COCO_JOY_EVENT = 'pc:coco-joy'
+export interface CocoJoyDetail {
+  reason: 'cart' | 'order'
+}
+
 /** Stück live auf `sold` gewechselt → Stempel-Knall (MI-03, Modul `sold-stamp`). */
 export const SOLD_EVENT = 'pc:product-sold'
 export interface SoldEventDetail {
