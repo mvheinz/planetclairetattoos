@@ -58,11 +58,19 @@ test.describe('Verwaltung ohne Fremd-Requests @smoke', () => {
     test('Gegenprobe: der Wächter erkennt und blockiert eine Fremd-Anfrage', async ({
       page,
       foreignRequests,
+      cspViolations,
+      browserName,
     }) => {
       await page.goto(adminPath('/login'))
       await page.evaluate(() => fetch('https://example.com/probe').catch(() => null))
       expect(foreignRequests).toEqual(['https://example.com/probe'])
       foreignRequests.length = 0
+      // WebKit ignoriert `bypassCSP`: Die absichtliche Fremd-Anfrage meldet dort zusätzlich einen CSP-Verstoß. Er wird
+      // erwartet und geprüft (der CSP-Wächter schlägt also an) und nur dieser eine Eintrag wird entfernt – jeder andere
+      // Verstoß lässt den Test weiterhin scheitern.
+      const probe = cspViolations.filter((v) => v.includes('example.com/probe'))
+      if (browserName === 'webkit') expect(probe.length).toBeGreaterThan(0)
+      for (const v of probe) cspViolations.splice(cspViolations.indexOf(v), 1)
     })
   })
 })

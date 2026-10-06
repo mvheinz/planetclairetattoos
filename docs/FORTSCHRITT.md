@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P10 CI-Reparatur, zweite Runde
+
+Gefunden und behoben: Die Vorschau-Seite der Verwaltung hatte in ihrer Sicherheitsrichtlinie den Hash eines kleinen Skripts vergessen; ein Test lief versehentlich im normalen Browser-Lauf statt im eigenen Vorschau-Lauf; ein Gesundheitstest brauchte in frischer Umgebung einen ersten Takt; im Docker-Job fehlte die Umgebungsdatei beim Warten; und für die Abdeckung der Rechts-Bausteine gibt es jetzt elf zusätzliche Tests. Ein Test mit absichtlicher Fremd-Anfrage prüft unter WebKit jetzt den erwarteten Sicherheits-Hinweis und entfernt nur genau diesen. Der Phasenlauf startet erneut.
+
 ## 2026-10-06 – P10 CI-Reparatur (veralteter Test-Schnappschuss, Docker-Build)
 
 Im ersten Phasenlauf von P10 scheiterten zwei Dinge: ein veralteter Schnappschuss eines E-Mail-Tests (nur in CI ein Fehler, jetzt bereinigt) und der Docker-Build, der beim Bauen ohne Zugangsdaten über ein fehlendes Geheimnis stolperte (jetzt nur in der Bauphase ein Platzhalter, nie zur Laufzeit). Der Phasenlauf startet erneut.
