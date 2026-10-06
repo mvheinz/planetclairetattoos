@@ -5068,7 +5068,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
 
 ### Aufgaben
 
-- [ ] **P10.1 Testinventur, Rückverfolgbarkeit und Abdeckung** – R-001 auf `LEGAL_TRACE_PHASE = 10` stellen und
+- [x] **P10.1 Testinventur, Rückverfolgbarkeit und Abdeckung** – R-001 auf `LEGAL_TRACE_PHASE = 10` stellen und
   fehlende Tests zu R-IDs mit Test-Art `unit`/`int`/`e2e` ergänzen. Neuer Meta-Test
   `tests/unit/meta/ak-trace.unit.spec.ts`: sammelt alle Akzeptanz-IDs aus KONZEPT (`AK-…`, `EK-…`), DATENMODELL
   (`DM-…`), ARCHITEKTUR (`AK-A-…`, `T-01`…`T-22`), DESIGN (`AK-DS-…`) und SEED-SPEC (`AK-SEED-…`) und verlangt je ID
@@ -5083,7 +5083,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: die beiden Meta-Tests; `pnpm test:coverage`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: manuelle Punkte aus `tests/manual-checks.json` mit Phase P11.
 
-- [ ] **P10.2 E2E-Gesamtlauf und Kaufpfad-Kennzahlen** – Alle Playwright-Projekte (`desktop`, `iphone-15` WebKit,
+- [x] **P10.2 E2E-Gesamtlauf und Kaufpfad-Kennzahlen** – Alle Playwright-Projekte (`desktop`, `iphone-15` WebKit,
   `pixel-7`) mit allen Tags außer `@visual`/`@perf` sowie `pnpm test:visual` (Referenzen nur Linux und nur in CI
   erzeugt: Commit mit `[ci:update-snapshots]` → Artefakt → `gh run download` → Commit mit Begründung).
   Kennzahlen-Tests: EK-02 (Produkt → Warenkorb → Kasse → Danke in ≤ 4 Seiten für Karte, PayPal, Vorkasse, Abholung bei
@@ -5097,7 +5097,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
     `tests/e2e/metrics/admin-taps.e2e.spec.ts`.
   - Ohne Jutta: automatisch messbar. P11-Nacharbeit: Stoppuhr-Test „Neues Stück ≤ 3 min“ mit Jutta (EK-08, P11.9).
 
-- [ ] **P10.3 Barrierefreiheits-Audit** – T-11 über jede Registry-Route DE/EN und die Zustände leer, Fehler,
+- [x] **P10.3 Barrierefreiheits-Audit** – T-11 über jede Registry-Route DE/EN und die Zustände leer, Fehler,
   reserviert, verkauft sowie jede Admin-Handy-Ansicht; Tastatur-Durchläufe (Menü, Galerie/Zoom, Warenkorb, Kasse,
   Widerruf, Auftragsformular, Verwaltung); sichtbarer Fokus; 200 % Schriftgröße bei 390 px ohne horizontales Scrollen;
   erzwungene Farben; `prefers-reduced-motion` auf allen Routen (AK-DS-14); Alt-Texte DE/EN aller öffentlichen Bilder;
@@ -5109,7 +5109,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: Erweiterung der `@a11y`-Suite; `tests/e2e/a11y/keyboard.e2e.spec.ts`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P10.4 Tempo-Budgets als Gate** – `pnpm test:perf` (Lighthouse-CI mobil, Median aus 3) für R01, R02, R04, R11
+- [x] **P10.4 Tempo-Budgets als Gate** – `pnpm test:perf` (Lighthouse-CI mobil, Median aus 3) für R01, R02, R04, R11
   (LCP ≤ 2,5 s, TBT ≤ 200 ms, CLS ≤ 0,1) und CLS zusätzlich für R06/R07; `pnpm check:bundle` für alle Seitentypen
   (ARCHITEKTUR §7.7: R01 ≤ 170 KB, R02–R05/R11–R27 ≤ 150 KB, R06/R07 ≤ 220 KB ohne Stripe.js; Lazy-Chunks laut DESIGN
   §9.10; drei Schriften ≤ 100 KB; LCP-Bild ≤ 120 KB; R01 ≤ 1,5 MB); INP-Ersatz (`@perf`, `pixel-7`, CPU 4×).
@@ -5121,7 +5121,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: `pnpm test:perf`, `pnpm check:bundle`, `pnpm test:e2e --grep @perf --project=pixel-7`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P10.5 Sicherheits-Header und CSP-Audit** – T-16/AK-A-8-01 über alle Registry-Routen und die Kontexte
+- [x] **P10.5 Sicherheits-Header und CSP-Audit** – T-16/AK-A-8-01 über alle Registry-Routen und die Kontexte
   `public`, `dynamic`, `checkout`, `admin`, `api` (ARCHITEKTUR §8.1); CSP-Hosts ⊆ DIENSTE-YAML je Kontext (R-131);
   Spike B-03 (`script-src` ohne `'unsafe-inline'`) entscheiden und in ARCHITEKTUR Anhang B + ADR eintragen; Kontext
   `admin` mit Nonce, Rückfall `'unsafe-inline'` nur mit `'self'`-Hosts und nur per ADR (Spike B-01);
@@ -5137,7 +5137,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: Erweiterung `tests/unit/security/*.unit.spec.ts` und `tests/e2e/security-headers.e2e.spec.ts`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P10.6 Rate-Limits, Spamschutz und Datensparsamkeit** – Jeder Bucket aus ARCHITEKTUR §8.5 mit Grenzwert-Test
+- [x] **P10.6 Rate-Limits, Spamschutz und Datensparsamkeit** – Jeder Bucket aus ARCHITEKTUR §8.5 mit Grenzwert-Test
   (N-ter Aufruf erlaubt, N+1 → 429 mit `Retry-After` und i18n-Text am Formular); Löschung der Zähler nach 24 h durch
   den Wartungs-Job (R-134, L-13a); Honeypot und Zeitfalle; R-137/T-20 (keine Personendaten in URLs und Logs,
   Logger-Schwärzung); R-162 (Crawl: `<form>` mit Text-/E-Mail-Eingaben nur auf Kasse, Widerruf, Auftragsarbeiten);
@@ -5146,7 +5146,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: `tests/int/security/rate-limits.int.spec.ts`; `tests/e2e/privacy/forms.e2e.spec.ts` (R-162).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P10.7 Wartungsmodus** – `MAINTENANCE_MODE` in `src/lib/env.ts` (+ `.env.example`), Verhalten nach ARCHITEKTUR
+- [x] **P10.7 Wartungsmodus** – `MAINTENANCE_MODE` in `src/lib/env.ts` (+ `.env.example`), Verhalten nach ARCHITEKTUR
   §5.2/§10.5, KONZEPT R26 und RECHT R-090: öffentliche Seiten antworten 503 mit Hinweis in Juttas Ton; Impressum,
   Datenschutz, AGB, Widerrufsbelehrung und R26 „Vertrag widerrufen“ samt Fußlink bleiben erreichbar. Ist die Datenbank
   erreichbar, arbeitet die Widerrufsfunktion R26 auch im Wartungsmodus vollständig (zweistufiges Formular, Datensatz,
@@ -5161,7 +5161,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: `tests/int/maintenance.int.spec.ts`, `tests/e2e/maintenance.e2e.spec.ts`.
   - Ohne Jutta: vollständig machbar; die Regel steht als Annahme KA-30 in OFFENE-PUNKTE. P11-Nacharbeit: –
 
-- [ ] **P10.8 Backup I: Dump und Wiederherstellung (Spike B-06)** – `src/lib/backup/dump.ts` („pcdump v1“,
+- [x] **P10.8 Backup I: Dump und Wiederherstellung (Spike B-06)** – `src/lib/backup/dump.ts` („pcdump v1“,
   ARCHITEKTUR §10.3: `REPEATABLE READ, READ ONLY`, Tabellen aus `pg_catalog` ohne `rate_limit_hits`, COPY-Text sortiert
   nach Primärschlüssel über `pg-copy-streams`, Kopf- und Abschluss-Kommentar mit Zeilenzahl und MD5 je Tabelle,
   `setval`), Kette gzip → age (`age-encryption`) → Ziel (`--to=file:<pfad>` oder S3 per `@aws-sdk/lib-storage`),
@@ -5173,7 +5173,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
     Fremdschlüssel, Trigger, Sequenzen); `tests/unit/backup/format.unit.spec.ts`.
   - Ohne Jutta: nur synthetische Schlüssel und Daten. P11-Nacharbeit: age-Schlüsselpaar von Jutta (P11.12).
 
-- [ ] **P10.9 Backup II: Spiegel, Cron-Route, Status, Übung** – `src/lib/backup/mirror.ts` (§10.4), Route
+- [x] **P10.9 Backup II: Spiegel, Cron-Route, Status, Übung** – `src/lib/backup/mirror.ts` (§10.4), Route
   `GET /api/cron/backup` (§10.3: nur bei `APP_ENV=production` **und** `BACKUP_ENABLED=true`, sonst 404 ohne
   DB-Verbindung; Bearer `CRON_SECRET`, sonst 401; Advisory-Lock `backup`; `maxDuration = 300`), `backup-status.json` über
   `systemFiles`, Monatsstand per `CopyObject`, gedrosselte A12-Mail bei Fehlern; `backup`-Wert in
@@ -5196,7 +5196,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Ohne Jutta: alles vorhanden, aber inaktiv. P11-Nacharbeit: Bucket `pct-backups`, Backup-Token, Empfänger-Schlüssel,
     `BACKUP_ENABLED=true` (P11.3, P11.12).
 
-- [ ] **P10.10 Fehlerüberwachung und Monitoring (Sentry, ohne DSN inaktiv)** – `@sentry/nextjs` 11 (exakt gepinnt)
+- [x] **P10.10 Fehlerüberwachung und Monitoring (Sentry, ohne DSN inaktiv)** – `@sentry/nextjs` 11 (exakt gepinnt)
   **nur** in `instrumentation.ts`: `register()` initialisiert nur bei `NEXT_RUNTIME === 'nodejs'` und gesetztem
   `SENTRY_DSN`; `onRequestError = Sentry.captureRequestError`; Optionen nach ARCHITEKTUR §11.4 (`sendDefaultPii: false`,
   `tracesSampleRate: 0`, `maxBreadcrumbs: 20`, `beforeSend`/`beforeBreadcrumb` → `redactSentryEvent()` in
@@ -5214,7 +5214,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Ohne Jutta: DSN leer, Browser-Fehlermeldungen aus. P11-Nacharbeit: Sentry-Projekt in der EU, DSN in Vercel
     (P11.7); `NEXT_PUBLIC_CLIENT_ERRORS_ENABLED` erst nach der Antwort auf Kanzleifrage K-30 (c) (P11.11).
 
-- [ ] **P10.11 Statistik (cookielos, standardmäßig aus)** – `@vercel/analytics` exakt gepinnt;
+- [x] **P10.11 Statistik (cookielos, standardmäßig aus)** – `@vercel/analytics` exakt gepinnt;
   `src/lib/analytics/AnalyticsSlot.tsx` rendert `<Analytics />` nur bei `NEXT_PUBLIC_ANALYTICS_ENABLED === 'true'`
   **und** `APP_ENV === 'production'` **und** Einstellung `settings.analytics.enabled` mit Pflichtfeld
   `settings.analytics.confirmedAt` und Notiz `settings.analytics.note` „Kanzlei hat Kanzleifrage K-30 bestätigt“ (R-210
@@ -5227,7 +5227,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: `tests/unit/analytics/before-send.unit.spec.ts`; `tests/e2e/privacy/analytics.e2e.spec.ts`.
   - Ohne Jutta: aus. P11-Nacharbeit: Entscheidung nach Kanzlei-Antwort (A36, P11.11).
 
-- [ ] **P10.12 Docker-Exit-Pfad und CI-Job `docker`** – `Dockerfile` ergänzen (Ziel `migrator` auf Basis `builder`
+- [x] **P10.12 Docker-Exit-Pfad und CI-Job `docker`** – `Dockerfile` ergänzen (Ziel `migrator` auf Basis `builder`
   mit `CMD ["pnpm","payload","migrate"]`, `HEALTHCHECK` gegen `/api/health`, Kopie von `src/styles/fonts` und
   `src/og/fonts`, falls das Standalone-Tracing sie nicht erfasst); `BUILD_WITHOUT_DB=1` (Spike B-08, Ergebnis in
   Anhang B); `docker-compose.prod.yml` (caddy, app, migrate, postgres ohne veröffentlichten Port, scheduler mit
@@ -5240,7 +5240,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: CI-Job `docker`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: – (Umzug nur mit Juttas Entscheidung, ARCHITEKTUR §13).
 
-- [ ] **P10.13 Deploy-Vorbereitung für Vercel und Produktionsschutz** – `vercel.json` (`"regions": ["fra1"]`, Crons
+- [x] **P10.13 Deploy-Vorbereitung für Vercel und Produktionsschutz** – `vercel.json` (`"regions": ["fra1"]`, Crons
   `/api/cron/tick` jede Minute und `/api/cron/backup` `30 1 * * *`, „Ignored Build Step“-Skript für Änderungen nur an
   `docs/**`, `tests/**`, `content/art/**`); Build-Befehl `pnpm payload migrate && pnpm build` im RUNBOOK. Skripte
   `pnpm db:mark-production`, `pnpm admin:create` (interaktiv, Passwort nie als Argument, verweigert ein zweites Konto,
@@ -5259,7 +5259,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: Produktionswert für `ADMIN_ROUTE`, ggf. Ordner-Umbenennung (B-01
     Rückfall) per PR.
 
-- [ ] **P10.14 Startklar-Prüfung und Go-live-Sperre** – `pnpm check:golive` und Ansicht Einstellungen → System →
+- [x] **P10.14 Startklar-Prüfung und Go-live-Sperre** – `pnpm check:golive` und Ansicht Einstellungen → System →
   „Startklar“ (grün/rot mit Erklärung in Juttas Sprache) als Vereinigung von R-210 Nr. 1–15, KONZEPT §7.16 Nr. 1–14 und
   DATENMODELL §13.7 (Speichern von `settings.shop.isOpen = true` in Produktion wird mit der Liste aller offenen Punkte
   abgelehnt; maßgeblich ist `APP_ENV`, ARCHITEKTUR §4.2). Die Ansicht ersetzt ausdrücklich den Platzhalter „Startklar
@@ -5288,7 +5288,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
     Suche aus `tests/e2e/admin/texts-pages.e2e.spec.ts` (P8.19a) ohne Ausnahme für „kommt in P10“.
   - Ohne Jutta: bleibt absichtlich rot. P11-Nacharbeit: wird in P11.13 grün.
 
-- [ ] **P10.15 Betriebshandbuch `docs/RUNBOOK.md`** – Kapitel: Überblick/Topologie (ARCHITEKTUR §12.1); Konfiguration
+- [x] **P10.15 Betriebshandbuch `docs/RUNBOOK.md`** – Kapitel: Überblick/Topologie (ARCHITEKTUR §12.1); Konfiguration
   – alle Variablen aus §5.2 je Umgebung **ohne Werte**; Deploy, Rollback, rückwärtsverträgliche Migrationen (§6.7
   Nr. 5, §6.9); Schlüsseltausch je Geheimnis (§8.9); Verfahren „Sicherheitsupdate“ (§1.3); Backups, Wiederherstellung
   Schritt für Schritt (§10.5), manuelle Übung halbjährlich (§10.6); Wartungsmodus; Alarme M-01…M-12 mit Handlungsanweisung
@@ -5303,7 +5303,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: `tests/unit/docs/runbook.unit.spec.ts` (Variablen-Vollständigkeit, M-01…M-12, Pflichtüberschriften).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: Protokolleinträge (DNS-Ist-Stand, Kosten) in P11.
 
-- [ ] **P10.16 Go-live-Leitfaden `docs/GO-LIVE.md` (DNS-Umstellung und Start-Checkliste)** – Schritt-für-Schritt-Ablauf
+- [x] **P10.16 Go-live-Leitfaden `docs/GO-LIVE.md` (DNS-Umstellung und Start-Checkliste)** – Schritt-für-Schritt-Ablauf
   für die P11-Session mit Jutta in der Reihenfolge von P11.1–P11.17, verknüpft mit AUFGABEN A23–A41 und ANLEITUNGEN
   (S3, S4, P2, D0–D6, N1, I3, T3, Z1): wer tippt was (Jutta gibt alle Passwörter, Schlüssel, IBAN, Karten selbst ein;
   Claude zeigt nur wohin), Konten- und Ressourcenliste (ARCHITEKTUR §12.2), Variablen je Vercel-Umgebung (§4.1, §5.2),
@@ -5320,7 +5320,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: `tests/unit/docs/golive.unit.spec.ts` (Abschnitte P11.1–P11.17 vorhanden, DNS-Tabellen = ARCHITEKTUR).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: wird in P11 abgearbeitet.
 
-- [ ] **P10.17 Bildschirmfotos für das Handbuch** – `scripts/handbook/shots.ts` als `pnpm handbook:shots` (in
+- [x] **P10.17 Bildschirmfotos für das Handbuch** – `scripts/handbook/shots.ts` als `pnpm handbook:shots` (in
   ARCHITEKTUR §6.10 eintragen): nutzt die Ansichtsliste des Vorschau-Exports (`scripts/preview-export/adminViews.ts`)
   und nimmt mit Seed-Daten und festem `SEED_NOW` bei 390×844 (DPR 2) jede Handy-Ansicht aus KONZEPT §7.3–§7.16 sowie die
   wichtigsten Dialoge auf (Neues Stück mit Pflichtfeldern, Übersetzen, Gepackt/Versendet melden, Zahlung erhalten,
@@ -5333,7 +5333,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: `tests/unit/docs/handbook-images.unit.spec.ts` (Größen, alle referenzierten Bilder existieren).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P10.18 Handbuch für Jutta `docs/owner/HANDBUCH.md`** – Du-Form, kurz, ohne Fachjargon (Fachbegriffe im
+- [x] **P10.18 Handbuch für Jutta `docs/owner/HANDBUCH.md`** – Du-Form, kurz, ohne Fachjargon (Fachbegriffe im
   Halbsatz erklärt), jedes Kapitel mit Bildschirmfoto aus P10.17: Anmelden und die Verwaltung aufs Handy legen (PWA);
   „Heute“; Neues Stück (Objektnummer, Pflichtangaben je Kategorie, Fotos nach DESIGN §12.1, Übersetzen-Knopf); Meine
   Stücke, Ausblenden, Offline verkauft, Archiv-Schalter; Zu packen → Versendet; Vorkasse; Abholung; Widerrufe und
@@ -5348,7 +5348,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: `tests/unit/docs/handbook.unit.spec.ts` (Link-/Bildprüfung, Pflichtkapitel, V-26-Muster).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: Jutta liest es vor dem Start (A31).
 
-- [ ] **P10.19 Endkontrolle Inhalte und Recht (RECHT §7 Teil A)** – Checkliste RECHT §7 Teil A vollständig abhaken und
+- [x] **P10.19 Endkontrolle Inhalte und Recht (RECHT §7 Teil A)** – Checkliste RECHT §7 Teil A vollständig abhaken und
   mit Datum in FORTSCHRITT vermerken: R-049 (harmonisierte Mitteilung mit amtlicher Vorlage verglichen oder Platzhalter
   in OFFENE-PUNKTE), R-095 (Platzhalter-Widerrufsbelehrung enthält `{{withdrawalUrl}}` und `{{phone}}`), R-156
   (`docs/recht/VVT.md` vollständig; zugleich R-210 Nr. 14), R-157 (RUNBOOK + Handbuch), R-161 (`commission.offer` als
@@ -5361,7 +5361,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: bestehende Suiten; `tests/unit/legal/withdrawal-placeholder.unit.spec.ts` (R-095-Token).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: RECHT §7 Teil B (P11).
 
-- [ ] **P10.20 Finale Vorschau-Datei und Offline-Abnahmetest** – Die finale Single-File-Vorschau nach E-98:
+- [x] **P10.20 Finale Vorschau-Datei und Offline-Abnahmetest** – Die finale Single-File-Vorschau nach E-98:
   `pnpm preview:export` auf dem Endstand erzeugt `dist/planet-claire-vorschau.html` – die ganze Website als **eine**
   HTML-Datei (alle Seiten, Bilder, Schriften, Animationen inline, Kasse als Attrappe): alle Registry-Routen gebaut
   (kein `not-built`), alle Verwaltungsansichten als Bilder (`adminViews` alle `ok`), Banner nach KONZEPT §12.5 Nr. 8 mit
@@ -5390,7 +5390,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
     `tests/unit/preview/r182.unit.spec.ts`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P10.21 GitHub-Release „Vorschau“ (automatisch, sobald der Plan leer ist)** – `.github/workflows/release.yml`
+- [x] **P10.21 GitHub-Release „Vorschau“ (automatisch, sobald der Plan leer ist)** – `.github/workflows/release.yml`
   nach ARCHITEKTUR §6.6 und `.github/vorschau-release.json` (`tag: vorschau-p10`, `title: "Planet Claire – Vorschau
   (Stand P10)"`, `notesDe` mit Öffnen-Anleitung nach ANLEITUNGEN V1, dem Satz „Nur privat ansehen, nicht weitergeben,
   nicht veröffentlichen“ (R-182; Seed-Tattoofotos ohne Einwilligung, CLOUD-SETUP) und einer Zeile „Stand: TT.MM.JJJJ“).
@@ -5439,7 +5439,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Ohne Jutta: vollständig machbar (Veröffentlichung spätestens mit Juttas Merge-Klick, A07). P11-Nacharbeit: in
     P11.1 prüfen, dass das Release existiert und sich auf Juttas Rechner öffnen lässt.
 
-- [ ] **P10.22 Abschlussbericht für Jutta und Anhalten** – Abschluss nach CLAUDE.md §8, in dieser Reihenfolge:
+- [x] **P10.22 Abschlussbericht für Jutta und Anhalten** – Abschluss nach CLAUDE.md §8, in dieser Reihenfolge:
   1. `docs/FORTSCHRITT.md` um den Abschlussbericht ergänzen (Deutsch, du-Form, ohne Fachjargon), mit genau diesen
      Teilen: was fertig ist; wie sie die Vorschau-Datei öffnet (Link zum Release `vorschau-p10`, ANLEITUNGEN G7/V1, auf
      jedem Rechner offline, nur privat ansehen); welche Punkte aus `docs/OFFENE-PUNKTE.md` sie entscheiden sollte
@@ -5477,22 +5477,22 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
 
 ### Phasen-Abnahme
 
-- [ ] Alle Aufgaben P10.1–P10.22 abgehakt; Gate G5 erfüllt, soweit vor dem Merge prüfbar (G3 + PR-Probelauf von
+- [x] Alle Aufgaben P10.1–P10.22 abgehakt; Gate G5 erfüllt, soweit vor dem Merge prüfbar (G3 + PR-Probelauf von
   `release.yml` + Startklar-Trockenlauf mit `APP_ENV=production`-Simulation, ARCHITEKTUR §7.9).
-- [ ] `pnpm check`, `pnpm test:int`, `pnpm build`, `pnpm test:e2e`, `pnpm test:visual`, `pnpm test:perf`,
+- [x] `pnpm check`, `pnpm test:int`, `pnpm build`, `pnpm test:e2e`, `pnpm test:visual`, `pnpm test:perf`,
   `pnpm test:coverage` lokal grün.
-- [ ] EK-01, EK-04, EK-05, EK-07, EK-09, EK-11 durch Tests belegt; R-001 mit `LEGAL_TRACE_PHASE = 10` grün.
-- [ ] Finale Vorschau `dist/planet-claire-vorschau.html` besteht Offline- und Portabilitätstest (P10.20); keine
+- [x] EK-01, EK-04, EK-05, EK-07, EK-09, EK-11 durch Tests belegt; R-001 mit `LEGAL_TRACE_PHASE = 10` grün.
+- [x] Finale Vorschau `dist/planet-claire-vorschau.html` besteht Offline- und Portabilitätstest (P10.20); keine
   HTML-Vorschau im Repository.
-- [ ] Doku vollständig: `docs/RUNBOOK.md`, `docs/GO-LIVE.md`, `docs/owner/HANDBUCH.md`, ARCHITEKTUR §6.10 und Anhang B
+- [x] Doku vollständig: `docs/RUNBOOK.md`, `docs/GO-LIVE.md`, `docs/owner/HANDBUCH.md`, ARCHITEKTUR §6.10 und Anhang B
   (B-03, B-06, B-08 mit Ergebnis), `.env.example` und `.env.production.example` aus `src/lib/env.ts` konsistent.
-- [ ] `docs/FORTSCHRITT.md` mit Abschlussbericht nach CLAUDE.md §8, `docs/OFFENE-PUNKTE.md` aktuell.
-- [ ] CI grün: Phasenende-Commit `chore(P10): finish phase [ci:full p10]` → `ci.yml`, `ci-full.yml` (inkl. `docker`),
+- [x] `docs/FORTSCHRITT.md` mit Abschlussbericht nach CLAUDE.md §8, `docs/OFFENE-PUNKTE.md` aktuell.
+- [x] CI grün: Phasenende-Commit `chore(P10): finish phase [ci:full p10]` → `ci.yml`, `ci-full.yml` (inkl. `docker`),
   `preview-export.yml` und der Probelauf von `release.yml` grün; `restore-drill.yml` (über `pull_request`) und
   `art-qa.yml` (Label `art` oder `workflow_dispatch`) je einmal grün. Dieses Häkchen setzt erst der Doku-Commit mit
   `[skip ci]` nach dem grünen Lauf (P10.22 Schritt 5, ARCHITEKTUR §6.7).
-- [ ] `bash scripts/cloud-setup.sh --plan-status` zeigt `OFFEN_P1_P10=0` (auch als letzte Ausgabe vor dem Anhalten).
-- [ ] PR-Beschreibung aktualisiert; gemergt oder oben „Bitte mergen – CI ist grün“.
+- [x] `bash scripts/cloud-setup.sh --plan-status` zeigt `OFFEN_P1_P10=0` (auch als letzte Ausgabe vor dem Anhalten).
+- [x] PR-Beschreibung aktualisiert; gemergt oder oben „Bitte mergen – CI ist grün“.
 
 Nach dem Merge automatisch (ohne Checkbox; prüft P11.1):
 

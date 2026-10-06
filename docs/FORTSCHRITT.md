@@ -2,6 +2,130 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P10 CI grün
+
+Phasenlauf `238d9f6`: CI, CI full (sechs Browser-Hälften, Abdeckung, Docker, Lighthouse), Vorschau-Export, Kunst-QA, Restore-Drill und der Probelauf des Vorschau-Releases grün; zuvor schon `a912d25` grün (zwei Volläufe hintereinander ohne Wackler). Vorschau-Artefakt `planet-claire-vorschau-p10-238d9f6`. Plan P1–P10 abgehakt.
+
+## 2026-10-06 – P10 Abschlussbericht (P1–P10) – für Jutta
+
+### Phase 10 fertig: Die Vorschau-Datei steht bereit, der Plan ist bis auf den Start (P11) leer
+
+Hallo Jutta,
+
+alle Phasen von P1 bis P10 sind fertig. Auf GitHub sind alle Prüfläufe grün: die normalen Tests, der große Lauf mit allen Browsern, die Tempo-Messung, die Übung „Datenbank aus dem Backup wiederherstellen“, der Docker-Notausgang (ein Umzug auf einen eigenen Server, falls Vercel einmal ausfällt) und die Kunst-Prüfung. Die Tempo-Werte stehen weiter unten im Eintrag „P10 Kennzahlen“. Jetzt bist du dran: lesen, ansehen, entscheiden – und dann gemeinsam der Start (P11).
+
+### Was fertig ist
+
+- **Seite und Shop (P1–P5):** Startseite, Über mich, Tattoo-Bereich mit Anfrageformular, Shop mit Keramik, Schmuck, Textil und Zeichnungen. Jedes Unikat kann nur einmal verkauft werden. Bezahlen mit Karte und PayPal (über Stripe) oder per Vorkasse, Abholung oder Versand, Rechnungen und Bestätigungs-Mails. Alles läuft bisher nur zum Üben (mit Test-Zahlungen, ohne echtes Geld).
+- **Verwaltung (P5–P6):** Du bearbeitest Bestellungen mit wenigen Taps am Handy („bezahlt → versendet“ in höchstens fünf Taps), druckst Etiketten und Beileger und siehst den Umsatz-Wächter für die Kleinunternehmer-Grenze.
+- **Recht und Datenschutz (P7):** Widerruf in zwei Schritten (Link „Vertrag widerrufen“ in jedem Seitenfuß), Einwilligung pro Tattoo-Foto, Löschfristen, keine Cookies vor dem ersten Warenkorb-Klick, keine Fremd-Dienste auf den öffentlichen Seiten. Die Rechtstexte sind noch Platzhalter, bis die Kanzlei liefert.
+- **Beispielbestand (P8):** Rund dreißig Beispiel-Stücke, Tattoos und Texte, damit du die Seite „wie echt“ sehen kannst. Alles ist als Beispiel markiert und wird vor dem Start restlos entfernt.
+- **Kunst und Bewegung (P9):** Coco nach deinen Fotos, die Tuschelinie, Zeichnungen und Seitenübergänge; wer „weniger Bewegung“ eingestellt hat, bekommt ruhige Seiten.
+- **Betrieb und Absicherung (P10):** Backups samt Wiederherstellungs-Übung, Überwachung mit Alarmen, Besucher-Statistik ohne Cookies (ausgeschaltet), die „Startklar“-Prüfung (bleibt absichtlich rot, bis wir die echten Angaben eingetragen haben), Betriebs- und Start-Handbuch (`docs/RUNBOOK.md`, `docs/GO-LIVE.md`), dein Handbuch mit 41 Bildschirmfotos (`docs/owner/HANDBUCH.md`) und die fertige Vorschau-Datei.
+
+### So öffnest du die Vorschau-Datei
+
+1. Öffne den Link: https://github.com/mvheinz/planetclairetattoos/releases/tag/vorschau-p10 (Release „Planet Claire – Vorschau (Stand P10)“). Er funktioniert erst, nachdem der Pull Request übernommen („gemergt“) ist; dann erscheint die Vorschau automatisch dort.
+2. Klicke unter „Assets“ auf `planet-claire-vorschau.html`; die Datei lädt direkt herunter (Schritt für Schritt: `docs/owner/ANLEITUNGEN.md`, G7).
+3. Doppelklick darauf. Sie öffnet sich im Browser, **auf jedem Rechner ganz ohne Internet** (V1). Warnt der Browser („selten heruntergeladen“), wähle „Behalten“: Die Datei kommt aus deinem eigenen Repo und schickt nichts ins Netz. Sie ist ca. 8 MB groß; am Handy klappt es nicht zuverlässig.
+4. **Nur privat ansehen**, nicht weitergeben und nicht veröffentlichen: Sie enthält Beispieldaten, zwei Tattoo-Fotos ohne Einwilligung und Rechtstexte, die noch Platzhalter sind.
+
+### Video-Bündel der Kunst-Prüfung
+
+Die Videos der Kunst-Prüfung (Handy und Desktop) liegen im Lauf https://github.com/mvheinz/planetclairetattoos/actions/runs/37403045986 unter „Artifacts“ als `art-qa-20261006-iter01-b093408`. Sie sind **30 Tage ab dem 06.10.2026** abrufbar. Danach lasse ich den Lauf `art-qa.yml` neu starten (Actions → „art-qa“ → „Run workflow“) und trage den neuen Link ein.
+
+### Diese Punkte aus `docs/OFFENE-PUNKTE.md` solltest du entscheiden (nach Wichtigkeit)
+
+1. **Kanzlei beauftragen (J-04)**: Ohne die fertigen Rechtstexte (Impressum, Datenschutz, AGB, Widerrufsbelehrung) geht die Seite nicht live; die Kanzlei braucht Zeit, also zuerst.
+2. **Deine Adresse im Impressum (J-01)**: Privatadresse lassen oder eine Geschäftsadresse nehmen – die Kanzlei klärt, was reicht.
+3. **Telefonnummer (J-02)**: Sie ist Pflicht im Impressum und in der Widerrufsbelehrung; eine eigene Geschäftsnummer ist am besten.
+4. **Verpackung (J-03)**: LUCID-Registrierung und Verpackungslizenz brauchst du vor dem ersten Paket; das kannst nur du selbst anlegen.
+5. **Steuer und Rechnungen (J-09, J-11)**: Mit der Steuerberatung Steuernummer, Kleinunternehmer-Status und die Aufbewahrung der Rechnungen (10 statt der Mindest-8 Jahre) klären.
+6. **Instagram-Export (J-06)**: Er fehlt noch; der Beispielbestand nutzt die kleinen 640-Pixel-Bilder. Sobald du ihn hochlädst, baue ich alles in voller Qualität neu.
+7. **Kunst-QA offen (J-07, KUNST-QA)**: Die Platzhalter-Bilder haben Note 3 statt 4 (die Gesichter wirken noch zu glatt), und Coco wandert beim Seitenwechsel noch nicht mit. Das schauen wir in P11 gemeinsam an; du entscheidest, ob du die Gesichter selbst zeichnest.
+8. **Amtliche Widerrufs-Grafik (R-049)**: Die Grafik zum Widerruf ist noch eine Platzhalter-Grafik; die endgültige Fassung kommt von der Kanzlei bzw. aus der amtlichen Vorlage.
+9. **Echtes iPhone (und Instagram-Browser) prüfen**: Alle Tests laufen auf Test-Browsern; ein Blick auf einem echten Handy gehört zur Start-Checkliste (P11.16).
+10. **Nickel-/Glasur-/Produktsicherheit (J-12, J-13, J-14)**: Nachweise vor dem ersten Schmuckstück, Entscheidung „Deko“ oder „lebensmittelecht“ bei Keramik.
+11. **Einwilligungen für Tattoo-Fotos (J-05)** und **Statistik an oder aus (J-16)**: Einwilligungen einholen; die Statistik bleibt aus, bis die Kanzlei zustimmt.
+12. **Kleine Shop-Regeln (J-25 bis J-35)**: Je ein Satz zum Bestätigen, z. B. wer bei doppelter Zahlung erstattet oder wie lange du in der Verwaltung angemeldet bleibst.
+13. **Beispielbestand-Fragen (J-21 bis J-24)**: Stimmen Material und Maße, ist auf den Fotos etwas Fremdes zu sehen?
+
+Alle Punkte mit Hintergrund und Frist stehen in `docs/OFFENE-PUNKTE.md`.
+
+### Das kannst du vor dem Start erledigen (AUFGABEN §3, A23–A32)
+
+- **A23** Stripe-Konto verifizieren (Ausweis, IBAN, Steuernummer gibst du selbst ein) und **A24** PayPal in Stripe verbinden.
+- **A25** Konten anlegen (alle auf jutta@planetclairetattoos.com, mit Zwei-Faktor-Anmeldung).
+- **A26** Stammdaten und Bankverbindung für Vorkasse bereitlegen.
+- **A27** Bei IONOS die DNS-Seite (Adress-Einstellungen der Domain) finden und Bildschirmfotos machen, aber nichts ändern.
+- **A28** Prüfen, ob die Kanzleitexte vollständig da sind (als Text- und HTML-Datei).
+- **A29** Erste echte Stücke fotografieren und die Angaben notieren.
+- **A30** Die Vorschau-Datei anschauen und Anmerkungen notieren; **A31** diesen Bericht und die offenen Punkte lesen.
+- **A32** Den Termin für den Start-Tag festlegen (ca. 5–6 Stunden am Computer, gern auf zwei Termine verteilt).
+
+### Das passiert in P11 gemeinsam (AUFGABEN §4, A33–A41; Ablauf in `docs/GO-LIVE.md`)
+
+Du meldest dich überall selbst an und gibst Passwörter, Schlüssel und IBAN selbst ein; ich sage dir, wo du klickst, und prüfe, was keine Geheimnisse zeigt.
+
+- **A33** Konten verbinden und Schlüssel sicher hinterlegen; **A33a** Probelauf auf der Test-Seite, alles einmal durchklicken.
+- **A34** In der Verwaltung eintragen: Passwort, Stammdaten, IBAN, LUCID-Nummer, Rechtstexte.
+- **A35** Verträge zur Auftragsverarbeitung (Datenschutz-Verträge mit den Diensten) bestätigen; **A36** Statistik an oder aus; **A36a** Backup-Schlüssel erzeugen und sicher aufheben.
+- **A41** Beispieldaten entfernen und „Startklar“ komplett grün sehen.
+- **A37** DNS bei IONOS umstellen (spätestens einen Tag vorher die Mail-Einträge); **A38** Stripe live schalten.
+- **A39** Echter Testkauf: kaufen, widerrufen, erstatten; **A40** Links in die Instagram-Bio setzen (Website und Impressum).
+
+### Nach dem Start (AUFGABEN §5, A42–A50)
+
+- **A42** Bestellungen bearbeiten (packen, Paketmarke, Sendungsnummer); **A43** Vorkasse: „Zahlung erhalten“ antippen.
+- **A44** Widerrufe: Ware prüfen und spätestens 14 Tage nach dem Widerruf erstatten.
+- **A45** Monatlich: Einnahmen in den Umsatz-Wächter eintragen, Monatsexport herunterladen; **A46** jährlich bis 1. Juni Verpackungsmengen melden.
+- **A47** Jährlich Rechtstexte prüfen lassen; **A48** Tattoo-Fotos nur mit Einwilligung zeigen; **A49** Datenschutz-Anfragen innerhalb eines Monats beantworten, Datenpannen innerhalb von 72 Stunden melden; **A50** Kosten im Blick behalten.
+
+Ab hier halte ich an. Ich beginne P11 nicht allein: Echte Konten und Schlüssel gibt es nur gemeinsam mit dir.
+
+## 2026-10-06 – P10 Kennzahlen aus dem grünen Phasenlauf (3ff41ee)
+
+Erster vollständig grüner Phasenlauf von Phase 10 (CI, CI full mit allen sechs Browser-Hälften, Abdeckung, Docker, Lighthouse, Vorschau-Export, Kunst-QA, Restore-Drill, Release-Probelauf). Die Tempo-Messung (Lighthouse, Median aus 3, Handy, gedrosselt):
+
+| Seite | LCP | CLS | TBT |
+|---|---|---|---|
+| Startseite (R01) | 1669 ms | 0,005 | 183 ms (Gate ≤ 200, Ziel ≤ 150 knapp verfehlt) |
+| Shop (R02) | 1669 ms | 0,034 | 110 ms |
+| Produktseite (R04) | 1738 ms | 0,000 | 106 ms |
+| Tattoo (R11) | 1479 ms | 0,008 | 122 ms |
+
+Gate (LCP ≤ 2,5 s, CLS ≤ 0,1, TBT ≤ 200 ms) überall eingehalten; Ziele (LCP ≤ 2,0 s, CLS ≤ 0,05) erreicht, nur der Blockierzeit-Wert der Startseite (TBT) liegt knapp über dem Ziel von 150 ms. Abdeckung insgesamt: 92 % Zeilen, 81 % Zweige; die geforderten Schwellen für Kasse, Zahlung, Sicherheit und Recht sind eingehalten. Vorschau-Datei ≈ 7,9 MB (Ziel ≤ 20 MB). Für die Abnahme von P10.2 („zwei aufeinanderfolgende Volläufe grün“) läuft ein zweiter Phasenlauf.
+
+## 2026-10-06 – P10 CI-Reparatur, vierte Runde (Vorschau-Datei)
+
+Bei der Vorschau-Datei ist eine Seite („schon ein Zuhause“, englische Variante) im GitHub-Lauf einmal nicht fertig im Browser erfasst worden; lokal trat das nie auf. Die Erfassung versucht es jetzt bis zu dreimal mit frischer Seite, und scheitert sie doch, bricht der Export mit einer klaren Meldung ab statt später mit einem unklaren Testfehler. Der Phasenlauf startet erneut.
+
+## 2026-10-06 – P10 CI-Reparatur, dritte Runde
+
+Zwei echte Funde: Im Docker-Image fehlten ein paar Dateien des React-Pakets, deshalb lieferte die Startseite dort einen Fehler (der Gesundheits-Check lief trotzdem durch) – jetzt werden sie mitgepackt. Und ein Test mit absichtlicher Fremd-Anfrage verhält sich unter WebKit anders; er prüft dort jetzt genau die zwei erwarteten Sicherheits-Meldungen und lässt alles andere durchfallen. Der Phasenlauf startet erneut.
+
+## 2026-10-06 – P10 CI-Reparatur, zweite Runde
+
+Gefunden und behoben: Die Vorschau-Seite der Verwaltung hatte in ihrer Sicherheitsrichtlinie den Hash eines kleinen Skripts vergessen; ein Test lief versehentlich im normalen Browser-Lauf statt im eigenen Vorschau-Lauf; ein Gesundheitstest brauchte in frischer Umgebung einen ersten Takt; im Docker-Job fehlte die Umgebungsdatei beim Warten; und für die Abdeckung der Rechts-Bausteine gibt es jetzt elf zusätzliche Tests. Ein Test mit absichtlicher Fremd-Anfrage prüft unter WebKit jetzt den erwarteten Sicherheits-Hinweis und entfernt nur genau diesen. Der Phasenlauf startet erneut.
+
+## 2026-10-06 – P10 CI-Reparatur (veralteter Test-Schnappschuss, Docker-Build)
+
+Im ersten Phasenlauf von P10 scheiterten zwei Dinge: ein veralteter Schnappschuss eines E-Mail-Tests (nur in CI ein Fehler, jetzt bereinigt) und der Docker-Build, der beim Bauen ohne Zugangsdaten über ein fehlendes Geheimnis stolperte (jetzt nur in der Bauphase ein Platzhalter, nie zur Laufzeit). Der Phasenlauf startet erneut.
+
+## 2026-10-06 – P10 Phasenlauf
+
+Alles für Phase 10 ist umgesetzt. Der Phasenlauf prüft jetzt auf GitHub: Abdeckung, alle Browser-Tests in zwei Durchläufen ohne Wackler, Tempo (Lighthouse), den Docker-Ausweg, die Wiederherstellungsübung und die finale Vorschau-Datei mit Offline-Test. Danach schreibe ich den Abschlussbericht für dich.
+
+## 2026-10-06 – P10.1/P10.2/P10.4/P10.20/P10.21 Vorbereitung für den Phasenlauf
+
+- Neue Kennzahl-Tests `tests/e2e/metrics/purchase-path.e2e.spec.ts` (EK-02: Karte, PayPal, Vorkasse, Abholung bei 390×844 und 412×915, genau 4 Seiten) und `tests/e2e/metrics/admin-taps.e2e.spec.ts` (EK-08/AK-7-05/AK-7-04: „bezahlt → versendet“ in höchstens 5 Taps, kein waagerechtes Scrollen); lokal gegen den Produktions-Build grün (18 Tests auf `iphone-15`/`pixel-7`), Kennzahlen als JSON unter `test-results/metrics/`.
+- Flaky-Wächter `pnpm ci:flaky` (`scripts/ci/flaky-check.ts`) im Job `e2e-full`: ein Test, der erst im Wiederholungslauf besteht, macht den Lauf rot; Playwright schreibt dazu in CI `test-results/report.json`.
+- `ci-full` Job `quality`: neuer Schritt `check:bundle` (Tempo-Budgets je Seitentyp); lokal ohne Debug-Flag alle Budgets eingehalten.
+- Fehler behoben: `preview-export.yml` installierte nur Chromium, der Portabilitätstest braucht aber auch WebKit. Der Portabilitätstest meldete außerdem fälschlich „__leash“ in CSS-Klassennamen der Kunst-QA-Seiten (jetzt wie im Int-Test nur als eigenes Wort).
+- Lokal geprüft: `pnpm preview:export` (7,88 MB) und `pnpm test:preview-export` (Chromium und WebKit) grün, `pnpm test:int` (166 Dateien) grün, `pnpm check` grün.
+- Hinweis zu `E2E_SERVER=start`: Der 308 beim Vorwärmen (`/de/about` → `/de/ueber-mich`) entsteht nur, wenn auf dem Port ein anderer Server als der aus `.next` läuft (z. B. `pnpm dev` oder ein älterer Build); mit frischem Start ist es 200. Kein Fehler im Code; `global-setup.ts` nennt jetzt die Ursache.
+- Der Phasenlauf `[ci:full p10]` muss noch belegen: Abdeckungs-Schwellen, E2E-Gesamtlauf ohne flaky, Lighthouse (Median aus 3), visuelle Prüfung, docker-Job, Restore-Drill, `verify-asset` und PR-Probelauf von `release.yml`.
+
 ## 2026-10-06 – P9 CI grün
 
 Phasenlauf `d912802`: CI, CI full (sechs Browser-Hälften, Abdeckung, visuelle Prüfung, Lighthouse), Vorschau-Export und Kunst-QA grün. Vorschau-Artefakt `planet-claire-vorschau-p9-d912802`. P9.17 (Tempo/Barrierefreiheit: `art:check` 62/62, Lighthouse und axe in CI full) und P9.19 (Abschluss, Bündel `art-qa-20261006-iter01-b093408`) abgehakt; `LEGAL_TRACE_PHASE = 9`, `art:space`/`art:admin-icons` in ARCHITEKTUR §6.10 nachgetragen.
@@ -40,6 +164,103 @@ Neun Prüfrunden mit Videoaufnahmen auf Handy und Desktop, jedes Mal von drei un
 
 Im letzten CI-Lauf war nur noch eine Messung rot: der Aufbau der Linie am Desktop dauerte in einzelnen Teilstücken bis zu 9,5 ms statt höchstens 8. Die Linie wird jetzt in noch kleineren Stücken aufgebaut (höchstens ca. 1 ms je Stück). Der Lauf bestätigt das auf einer ruhigen Maschine.
 
+## 2026-10-05 – P10.3
+
+- Neue Suiten tests/e2e/a11y/audit.e2e.spec.ts (je Registry-Route DE/EN: 200 % Schrift bei 390 px ohne waagerechtes Scrollen, erzwungene Farben, prefers-reduced-motion ohne laufende Animation/Maske, Alt-Texte aller Bilder, Produkt-Alt DE/EN verschieden; Verwaltung: Login und jede Hauptansicht bei 390x844 mit axe) und tests/e2e/a11y/keyboard.e2e.spec.ts (Kauf Produktseite → Korb → Kasse → Danke und Widerruf vom Fußbereich, DE/EN, nur Tab/Enter/Pfeiltasten, :focus-visible an jedem Halt)
+- Bestehende Suiten decken axe je Route und Zustand (leer, Fehler, reserviert, verkauft, Menü), Tastatur-Durchläufe (Menü, Galerie/Zoom, Auftragsformular, Verwaltung), AK-DS-07/08/09 und V-26 ab; keine neuen Befunde, nichts zu beheben (keine Konformitätsaussage)
+- Stand ohne die Kunst-Phase P9: nach Zusammenführung wiederholen (OFFENE-PUNKTE)
+- Tests: E2E desktop 215 Tests grün (a11y, keyboard, forms, frontend, security-headers u. a.)
+
+## 2026-10-05 – P10.6
+
+- Rate-Limits: tests/int/security/rate-limits.int.spec.ts liest die Grenzen aus ARCHITEKTUR §8.5 und prüft jeden Bucket tabellengetrieben an der echten Stelle (cart_add, checkout_start, checkout_start_day, checkout_submit, commission_submit/_day, commission_upload, commission_form_uploads, withdrawal_submit, admin_login, forgot_password, token_pages über 5 Stellen, product_status, client_errors): N-ter Aufruf erlaubt, N+1 abgelehnt mit Retry-After (429) bzw. stilles Verwerfen (204), andere IP unberührt
+- i18n-Texte der 429-Antworten DE/EN geprüft, nur Hashes gespeichert (keine Klar-IP, kein Klar-Token), Zähler nach 24 h per purgeRateLimits (Wartungs-Job) gelöscht
+- Honeypot und Zeitfalle: Schein-Erfolg ohne Datensatz und ohne Zähler (Auftragsanfrage, Widerruf)
+- R-162: tests/e2e/privacy/forms.e2e.spec.ts crawlt alle Registry-Routen DE/EN plus 404: Texteingaben im Formular nur auf Kasse, Auftragsarbeiten, Widerruf (einzige Ausnahme: Stücknummern-Suche der 404-Seite, OFFENE-PUNKTE)
+- R-137/T-20: Logger-Schwärzung und URL-Prüfungen der bestehenden Tests bleiben maßgeblich (logger.unit, redact.unit, E2E Kasse/Anfrage/Widerruf); Upload-Grenzen 413/415 in commission/upload.int
+- Tests: 31 neue Int-Tests, 2 E2E, pnpm check grün
+
+## 2026-10-05 – P10.5
+
+- Audit über alle Registry-Routen DE/EN und alle Kontexte (public, dynamic, checkout, admin, api): tests/unit/security/audit.unit.spec.ts (Kontext je Route nach ARCHITEKTUR §8.1, Umgebung x Kontext, HSTS nur production/staging, noindex außer Produktion, keine unsafe-inline in Nonce-Kontexten, ignoreCves nur CVE-IDs mit OFFENE-PUNKTE-Zeile), tests/e2e/security-headers.e2e.spec.ts erweitert (noindex/kein HSTS auf allen Routen, alle API-Endpunkte im Kontext api auch bei Fehlern, Admin-Login/Manifest/Service Worker mit Nonce, R-136 privat ohne Anmeldung 401/403, /admin und GraphQL 404, Verwaltungspfad in keinem öffentlichen HTML, Selbsttest des CSP-Wächters)
+- CSP-Wächter: Auto-Fixture cspViolations in tests/e2e/fixtures.ts lässt jeden E2E-Test bei securitypolicyviolation oder CSP-Konsolenfehler scheitern; 22 Spezifikationen laufen jetzt über die Fixtures
+- Spike B-03 erneut bewertet: Rückfall bleibt (public: script-src 'self' 'unsafe-inline', keine Fremd-Hosts), B-01 Soll (Nonce) erfüllt; in ARCHITEKTUR Anhang B und ADR 0002 eingetragen
+- Abhängigkeiten: pnpm audit --prod ohne high/critical: nodemailer 10.0.15 und undici 7.30.0 per Override (gepatcht), braces nur als ignoreCves CVE-2026-93687 (kein Fix vorhanden), alle mit OFFENE-PUNKTE-Zeile; pnpm check:external --built grün (560 Dateien, Verwaltungspfad nicht enthalten)
+- gitleaks läuft nur im CI (lokal nicht installierbar), siehe OFFENE-PUNKTE
+- Tests: pnpm check grün, pnpm test:int 166 Dateien grün, E2E security-headers (desktop) grün
+
+## 2026-10-05 – P10.19
+
+- RECHT §7 Teil A vollständig abgehakt (05.10.2026): R-049 (amtliche Grafik offline nicht ladbar, Platzhalter in OFFENE-PUNKTE), R-095 (Token withdrawalUrl und phone), R-156 (VVT V1–V19 vollständig, zugleich R-210 Nr. 14), R-157 (RUNBOOK §9 und Handbuch Kapitel 16), R-161, R-190, V-18/V-28/V-29 erneut gesichtet (nur EN-Fachbegriff legal guarantee), EK-09 erneut (Paritäts- und lorem-Tests grün)
+- Instagram-Export fehlt weiter (nur LIESMICH): seed:import-instagram/--refresh-media entfallen, art:vectorize und art:coco-refs unverändert reproduzierbar; KUNST-QA-Teilaufnahme bewusst auf den Abschlusslauf nach dem Zusammenführen mit P9 verschoben (OFFENE-PUNKTE)
+- OFFENE-PUNKTE bereinigt: Überblick nach Zuständigkeit (Jutta, Kanzlei, Steuerberatung, technisch erledigt), neuer Abschnitt 4.2, veraltete Angaben zu Coco-Fotos und DATEV korrigiert
+- Tests: tests/unit/legal/withdrawal-placeholder.unit.spec.ts (3), pnpm check grün (1960 Tests)
+
+## 2026-10-05 – P10.18
+
+- docs/owner/HANDBUCH.md: 20 Kapitel in Du-Form (Anmelden/PWA, Heute, Neues Stück mit Pflichtangaben und Fotoregeln, Meine Stücke, Packen/Versendet, Vorkasse, Abholung, Widerruf und Erstattung, Anfragen, Tattoo, Texte, Einstellungen, Umsatz-Wächter, Export, Datenschutz-Anfragen, Datenpanne nach R-157, Startklar, Beispieldaten, Vorschau-Datei und Hinweis zur Barrierefreiheit nach R-190, Notfall und Hilfe), jedes mit Bildschirmfoto aus P10.17
+- AUFGABEN §5 und ANLEITUNGEN §17 verlinken das Handbuch statt „kommt in P10“
+- Verwaltungspfad steht bewusst nicht im Handbuch (kommt als Lesezeichen in P11)
+- Tests: tests/unit/docs/handbook.unit.spec.ts (7: Kapitel, Links/Bilder/Anker, V-26, R-157, keine Geheimnisse); pnpm check grün (1957 Tests)
+
+## 2026-10-05 – P10.17
+
+- pnpm handbook:shots (scripts/handbook/shots.ts, shotList.ts): 41 WebP-Bilder 390x844 DPR 2 nach docs/owner/img/handbuch/ (alle Handy-Ansichten, Detail- und Dialogansichten, 3 öffentliche Seiten), zusammen 1,5 MB, je Bild max. 68 KB
+- Deterministisch (Wiederholung byte-gleich), nur Beispieldaten, kein Verwaltungspfad im Bild (Textprüfung)
+- Beispieldaten-entfernen-Knopf ist im Beispielbestand gesperrt: Bild zeigt den gesperrten Knopf
+- Tests: tests/unit/docs/handbook-images.unit.spec.ts, pnpm check grün (1950 Tests)
+
+## 2026-10-05 – P10.16
+
+- docs/GO-LIVE.md: Spielregeln (wer tippt was), Konten-/Ressourcenliste (§12.2), Variablen je Vercel-Umgebung, Datenbank-Ablauf (Migration, Beispielbestand in `main`, Zweige seed-root/staging/preview, `db:mark-production`), DNS-Umstellung mit Ist-/Soll-Tabelle wörtlich aus ARCHITEKTUR §12.4, `dig`-Befehle, TTL T−1/T+7, Rückweg, AK-A-12-01…03, Stand der Spikes (B-01 Soll erfüllt, B-07 im Staging bestätigen), je ein Abschnitt P11.1–P11.17 mit Prüfkriterium und Verknüpfung zu AUFGABEN A23–A41/ANLEITUNGEN, Testkauf-Drehbuch, KUNST-QA §10 Nr. 4, EK-08-Stoppuhr, 7-Tage-Überwachung.
+- Tests: tests/unit/docs/golive (5: Abschnitte P11.1–P11.17, DNS-Tabellen = ARCHITEKTUR, Verknüpfungen, B-01, keine Geheimnisse/tiefen URLs)
+
+## 2026-10-05 – P10.15
+
+- docs/RUNBOOK.md (14 Kapitel): Topologie, Konfiguration (alle 68 Variablen aus der Registry mit „Pflicht in“/Geheim, ohne Werte), Deploy/Rollback/rückwärtsverträgliche Migrationen, Schlüsseltausch je Geheimnis (§8.9), Sicherheitsupdate (Session starten, 48 h), Backups und Wiederherstellung Schritt für Schritt (Flags wie in den Skripten), halbjährliche Übung, Wartungsmodus, Alarme M-01…M-12 mit Handlungsanweisung, Datenpanne (R-157: erkennen, bewerten, 72 h, Online-Formular der Berliner Beauftragten, Betroffene, DE-Vorlagen, Kontaktliste), Kosten-Routine, DNS-Verweis auf GO-LIVE, Docker-Umzug, Vorlage Vorfallprotokoll, Betriebsprotokoll.
+- Tests: tests/unit/docs/runbook (7: Überschriften, Variablen-Vollständigkeit, M-01…M-12, Geheimnisse, Datenpanne, pnpm-Befehle/Flags gegen package.json und Skripte, keine Geheimniswerte)
+
+## 2026-10-05 – P10.14
+
+- src/lib/golive/{checks,collect}.ts: eine Prüffunktion (15 Punkte R-210 Nr. 1–15 inkl. KONZEPT §7.16/DATENMODELL §13.7) für `pnpm check:golive [--json]`, Ansicht Einstellungen → System → „Startklar“ (grün/rot mit Erklärung, AVV-Liste aus services.generated.ts), Hinweis „Startklar-Prüfung nicht grün“ mit Link unter „Heute“ und die Go-live-Sperre „Shop öffnen“ in Produktion (Settings.ts listet alle offenen Punkte; Knopf in den Shop-Einstellungen zeigt dieselbe Liste). Platzhalter „kommt in P10“ entfernt (`systemStartklarLater`/`todayStartklarLater`, `STARTKLAR_PLANNED`); `countUnapprovedOwnerPhotos` und Galerie ohne Einwilligung fließen in Punkt 15 ein; `docs/recht/VVT.md` per outputFileTracingIncludes im Build.
+- Trockenlauf `pnpm check:golive` gegen die Grund-Seed-Datenbank (Exit 1): rot sind Rechtstexte, Bausteine, Stammdaten, IBAN, LUCID/Systembeteiligung, AVVs (7 Dienste), Beispielbestand/Vorschau-Modus, ADMIN_ROUTE, Treiber/Stripe, Statistik-Entscheidung, harmonisierte Mitteilung (Platzhalter-Grafik), Steuer/Vorjahresumsatz – grün: Lieferländer, VVT, Fotos (12 von 15 offen, erwartet).
+- Tests: tests/unit/golive/checks (25, jede Prüfung einzeln grün/rot, R-155 AVV), tests/int/golive/shop-open-lock (3), settings-part3/today int angepasst; E2E today + settings-system (pixel-7) grün, Suche „kommt in P…“ ohne Ausnahme; pnpm check/build grün
+
+## 2026-10-05 – P10.13
+
+- vercel.json (fra1, Crons tick/backup, Ignored Build Step scripts/vercel-ignore-build.mjs); Origin-Listen cors/csrf (Apex + Vercel-Produktions-Domain in Produktion); pnpm db:mark-production (--yes); /api/health?deep=1 mit Bearer (DB- und Speicher-Ping)\n- admin:create/unlock und assertProductionEnv bereits vorhanden; Spike B-01 Stand: Soll erfüllt (ARCHITEKTUR Anhang B)\n- Tests: tests/unit/deploy/vercel-json, tests/unit/security/origins, tests/int/admin/admin-create, tests/int/health/deep; AK-1-02/AK-A-3-02/AK-A-4-01/AK-A-4-02 weiter grün
+
+## 2026-10-05 – P10.12
+
+- Dockerfile: Ziel migrator, HEALTHCHECK, Schriften, BUILD_WITHOUT_DB=1; docker-compose.prod.yml (caddy, app, migrate, postgres ohne Port, scheduler 30 1 * * *), deploy/Caddyfile, .env.production.example (generiert), .dockerignore; Job docker in ci-full.yml\n- Spike B-08 bestanden: Build ohne DB (dbGate/connection()), danach gegen befüllte DB gestartet: /api/health, /de, /en, Shop, Archiv 200; Ergebnis in ARCHITEKTUR Anhang B\n- Tests: tests/unit/deploy/docker-files, tests/unit/ci/workflows; Image-Größe/UID/Compose-Lauf belegt der CI-Job docker im Phasenende-PR (Docker-Daemon lokal nicht verfügbar)
+
+## 2026-10-05 – P10.11
+
+- @vercel/analytics 2.0.1 exakt gepinnt; AnalyticsSlot/AnalyticsClient (nur mit NEXT_PUBLIC_ANALYTICS_ENABLED, APP_ENV=production, kein PREVIEW_EXPORT, settings.analytics.enabled+confirmedAt+Notiz), beforeSend filtert R06–R09/R26/Admin/API und Query
+- Tests: tests/unit/analytics/before-send (inkl. Registry-Abgleich), tests/e2e/privacy/analytics (desktop+pixel-7 grün), check:external und check:bundle grün
+
+## 2026-10-05 – P10.10
+
+- @sentry/nextjs 11.4.0 nur in instrumentation.ts (ohne DSN nie geladen), redactSentryEvent, Logger→Sentry-Brücke, /api/client-errors (aus, 404), Client-Slot, check:external prüft Sentry-Leaks, System-Ansicht zeigt Backup
+- Tests: tests/int/monitoring/{sentry,client-errors,alert-throttle}; Unit check-external; Build + check:external grün
+
+## 2026-10-05 – P10.9
+
+- Spiegel (mirror.ts), Cron-Route /api/cron/backup, backup-status.json, Monatsstand, A12 bei Fehlern, Nach-Wiederherstellung-Abgleich (postRestore.ts, Endpoint, Ansicht System), restore-drill.yml + scripts/ci/restore-drill.ts
+- Tests: tests/int/backup/{mirror,cron-route,retention-replay,post-restore}; Drill lokal grün; GitHub-Lauf folgt im PR der Phasen-Abnahme
+
+## 2026-10-05 – P10.8
+
+- Backup I: src/lib/backup/{format,dump,crypto,run,restore,s3}.ts („pcdump v1“: REPEATABLE READ/READ ONLY, COPY nach Primärschlüssel, md5 je Tabelle, setval; gzip → age; Datei oder S3-Multipart); Wiederherstellung in einer Transaktion (Fremdschlüssel/Trigger, Rollback bei Abweichung)
+- Skripte pnpm backup:run, backup:restore, backup:verify (Schlüssel nur als Datei)
+- Spike B-06 bestanden (400 000 Zeilen in 3,4 s, 33 MB, konstanter Speicher) und in ARCHITEKTUR Anhang B eingetragen
+- Tests: tests/unit/backup/format (6), tests/int/backup/roundtrip (8: AK-A-10-01/-02/-05)
+
+## 2026-10-05 – P10.7
+
+- Wartungsmodus: Proxy liefert 503-Seite in Juttas Ton (DE/EN, mit Fußlink „Vertrag widerrufen“); Impressum, Datenschutz, AGB, Widerrufsbelehrung und R26 bleiben offen; Webhook/Kasse-Zustand/Upload 503, Tick 204, Health mit maintenance
+- R26 ohne erreichbare Datenbank: mailto-Weg an MAIL_REPLY_TO (isDatabaseReachable)
+- Tests: tests/int/maintenance.int.spec.ts (10), tests/e2e/maintenance.e2e.spec.ts (4, eigener Server: pnpm test:e2e:maintenance)
 ## 2026-10-06 – P9.12, P9.13, P9.18 abgehakt (Kunst-QA, Fall b)
 
 Neun Prüf-Durchgänge (Iteration 01–09, Protokolle in `docs/design/qa-log/`, Reviews je Linse) mit jeweils grünem `art:check` auf der Vollaufnahme in Iteration 06–09. Die Schleife endet nach Fall b (8+ Iterationen): alle nicht verhandelbaren Punkte bestehen, der Prüfer R3 meldet PASS. Offen als „Kunst-QA offen“ (in `docs/OFFENE-PUNKTE.md`): Platzhalter noch nicht ganz auf Note 4 (AR-05 = 3; nächste Stufe: Gesichter neu zeichnen, gemeinsam mit Jutta in P11), die Bewegungs-Feinheiten MO-11/MO-12 und Cocos Wanderung im Seitenübergang (MO-14). Gefundener und behobener Fehler: Der Seitenübergang stand am Ende der Seite statt im Kopf und wurde von Chromium übersprungen.

@@ -1,0 +1,16 @@
+# Nie ins Image: Geheimnisse, lokale Daten, Build-Ausgaben, Abhängigkeiten (werden im Build installiert).
+.git
+.github
+node_modules
+.next
+.next-*
+.data
+dist
+.env
+.env.*
+!.env.example
+!.env.production.example
+test-results
+playwright-report
+coverage
+*.log

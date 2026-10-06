@@ -1102,7 +1102,7 @@ die 2FA-Codes und zum Testen). Du meldest dich überall selbst an, Claude sagt d
 <a id="z2"></a>
 ## 17. Nach dem Start: was regelmäßig anfällt
 
-Die genaue Bedienung der Verwaltung erklärt dein Handbuch, das in P10 in diesen Ordner kommt.
+Die genaue Bedienung der Verwaltung erklärt dein [Handbuch](HANDBUCH.md).
 
 | Wie oft | Was |
 |---|---|
@@ -1114,7 +1114,7 @@ Die genaue Bedienung der Verwaltung erklärt dein Handbuch, das in P10 in diesen
 | jährlich | Rechtstexte von der Kanzlei prüfen lassen. Die Verwaltung erinnert dich. |
 | laufend | neue Tattoo-Fotos erst nach einer Einwilligung zeigen ([E1](#e1)) |
 | bei einer Anfrage „Welche Daten habt ihr von mir?“ | innerhalb eines Monats antworten, mit dem Knopf „Auskunft“ in der Verwaltung |
-| im Notfall (Daten in falsche Hände geraten, zum Beispiel ein gehacktes Konto) | innerhalb von 72 Stunden an die Berliner Datenschutzbeauftragte melden. Die Anleitung steht im Handbuch. |
+| im Notfall (Daten in falsche Hände geraten, zum Beispiel ein gehacktes Konto) | innerhalb von 72 Stunden an die Berliner Datenschutzbeauftragte melden. Die Anleitung steht im [Handbuch, Kapitel 16](HANDBUCH.md#16-datenpanne-was-tun-im-ernstfall). |
 | wenn eine Kosten-Warnung kommt | ernst nehmen: Das Ziel sind höchstens ca. 25 € im Monat, die Warnung kommt ab 30 €. |
 
 ---

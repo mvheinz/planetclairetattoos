@@ -134,6 +134,9 @@ export async function runExport(args: ExportArgs, root = process.cwd()): Promise
     const cart = await captureCartSession(server.origin)
     log('Im Browser gerenderte Seiten (S08 „schon ein Zuhause“)')
     const rendered = await captureClientRendered(server.origin)
+    // Ohne die Browser-Fassung bliebe von S08 nur die leere Fehler-Hülle (kein H1): Export lieber abbrechen, damit der
+    // Grund (Warnung mit Konsole/Netz) im Log steht, statt eine kaputte Vorschau-Datei zu schreiben.
+    if (rendered.warnings.length > 0) throw new ExportError(1, rendered.warnings.join('\n'))
     for (const [p, r] of rendered.pages) cart.pages.set(p, r)
     cart.warnings.push(...rendered.warnings)
     const fetcher = await createServerFetcher(server.origin)

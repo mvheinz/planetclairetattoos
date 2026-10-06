@@ -44,7 +44,7 @@ afterAll(async () => {
 })
 
 describe('Frische-Prüfung', () => {
-  it('Lauf vor 1 h → jobs ok, 200; vor 3 h 1 min → jobs late, 503; ohne Lauf → late', async () => {
+  it('AK-A-11-03 Lauf vor 1 h → jobs ok, 200; vor 3 h 1 min → jobs late, 503; ohne Lauf → late', async () => {
     await jobAlarm.markFullRun(hoursAgo(1), null)
     const fresh = await computeFreshness(env, NOW)
     expect(fresh).toEqual({ jobs: 'ok', backup: 'off' })

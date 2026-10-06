@@ -60,6 +60,8 @@ const WRITE_ALLOWED: Record<string, string[]> = {
   'preview-export.yml/export': ['actions', 'pull-requests'],
   // P9.7: ältere art-qa-* vor dem Upload löschen (KUNST-QA §8)
   'art-qa.yml/art-qa': ['actions'],
+  // P10.21: nur `publish` legt das Release an (ARCHITEKTUR §6.6); Probelauf und verify-asset bleiben bei `read`
+  'release.yml/publish': ['contents'],
 }
 
 const ci = load('ci.yml')
@@ -78,8 +80,11 @@ describe('Workflows allgemein (§6.2)', () => {
   it('jede Datei hat concurrency, minimale permissions und timeout-minutes je Job', () => {
     for (const file of workflowFiles) {
       const wf = load(file)
-      expect(wf.concurrency?.group, file).toContain('${{ github.ref }}')
-      expect(wf.concurrency?.['cancel-in-progress'], file).toBe(true)
+      // release.yml (P10.21): eigene Gruppe `release`, nie abbrechen – geprüft in tests/unit/release/config.unit.spec.ts
+      if (file !== 'release.yml') {
+        expect(wf.concurrency?.group, file).toContain('${{ github.ref }}')
+        expect(wf.concurrency?.['cancel-in-progress'], file).toBe(true)
+      }
       expect(wf.permissions?.contents, file).toBe('read')
       for (const [name, job] of Object.entries(wf.jobs)) {
         expect(job['timeout-minutes'], `${file}/${name}`).toBeGreaterThan(0)
@@ -436,8 +441,8 @@ describe('ci-full.yml (§6.4, P2.28)', () => {
   })
 
   it('Jobs e2e-full, quality, snapshots hängen an mode und laufen nur in ihrem Fall', () => {
-    expect(Object.keys(full.jobs)).toEqual(['mode', 'e2e-full', 'quality', 'snapshots'])
-    for (const name of ['e2e-full', 'quality']) {
+    expect(Object.keys(full.jobs)).toEqual(['mode', 'e2e-full', 'quality', 'docker', 'snapshots'])
+    for (const name of ['e2e-full', 'quality', 'docker']) {
       expect(full.jobs[name]!.needs).toBe('mode')
       expect(full.jobs[name]!.if).toBe("needs.mode.outputs.full == 'true'")
     }
@@ -510,9 +515,9 @@ describe('ci-full.yml (§6.4, P2.28)', () => {
     expectBudgetBeforeOptionalUpload(job, 'ci-full-quality-report')
   })
 
-  it('P4.2 e2e-full: Unit-Tests des Rechenkerns (commerce, tax) zusätzlich mit TZ=Europe/Berlin', () => {
+  it('P4.2/P10.1 e2e-full: alle Unit-Tests zusätzlich mit TZ=Europe/Berlin', () => {
     const job = full.jobs['e2e-full']!
-    const step = findStep(job, /^pnpm run test:unit tests\/unit\/commerce tests\/unit\/tax$/)
+    const step = findStep(job, /^pnpm run test:unit$/)
     expect(step).toBeGreaterThan(findStep(job, /pnpm install --frozen-lockfile/))
     expect(job.steps[step]!.env?.TZ).toBe('Europe/Berlin')
     expect(full.env?.TZ).toBe('UTC')
@@ -631,7 +636,7 @@ describe('preview-export.yml (§6.5, P2.28)', () => {
   it('Ablauf: Installation → Chromium → preview:export (PREVIEW_PHASE) → test:preview-export ohne continue-on-error → Upload → Aufräumen → Summary → Kommentar', () => {
     const order = [
       /^pnpm install --frozen-lockfile$/,
-      /playwright install --with-deps chromium$/m,
+      /playwright install --with-deps chromium webkit$/m,
       /^pnpm run preview:export$/,
       /^pnpm run test:preview-export$/,
     ].map((re) => findStep(job, re))

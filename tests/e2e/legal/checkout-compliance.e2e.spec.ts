@@ -71,7 +71,7 @@ test('R-036 Zahlarten und Lieferbeschränkungen spätestens zu Beginn des Bestel
   await expect(page.locator('input[name="paymentChoice"][value="prepayment"]')).toHaveCount(1)
 })
 
-test('R-064 genau ein Bestellknopf mit exakt „Zahlungspflichtig bestellen“ (EN „Order with obligation to pay“), ohne Icon; keine andere Kauf-Beschriftung', async ({
+test('R-064 AK-4-04 genau ein Bestellknopf mit exakt „Zahlungspflichtig bestellen“ (EN „Order with obligation to pay“), ohne Icon; keine andere Kauf-Beschriftung', async ({
   page,
   context,
   fixtureProducts,

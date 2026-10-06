@@ -1,3 +1,5 @@
+import { getEnv } from '@/lib/env'
+import { maintenanceApiResponse } from '@/lib/maintenance'
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
@@ -9,5 +11,7 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: Request): Promise<Response> {
+  // Wartungsmodus: Formulare gesperrt.
+  if (getEnv().MAINTENANCE_MODE) return maintenanceApiResponse()
   return handleCommissionUpload(request, await getPayload({ config }), new Date())
 }

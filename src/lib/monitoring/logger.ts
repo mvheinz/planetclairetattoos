@@ -3,6 +3,7 @@ import 'server-only'
 import { getEnv } from '../env'
 import { normalizeLogPath } from '../routes/paths'
 import { redact } from '../security/redact'
+import { reportError } from './errorReporter'
 
 // Einziger Logger (ARCHITEKTUR §8.11): JSON-Zeilen nach stdout, ohne Personendaten.
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error'
@@ -51,6 +52,7 @@ export function createLogger(
       ...(redact(normalizePaths(fields)) as LogFields),
     }
     sink(JSON.stringify(record), level)
+    if (level === 'error') reportError(event, record as LogFields)
   }
   return {
     debug: (e, f) => write('debug', e, f),

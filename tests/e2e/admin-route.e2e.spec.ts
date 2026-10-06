@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from './fixtures'
 
 import { adminRoute, serverURL } from '../helpers/adminEnv'
 import { seedTestUser } from '../helpers/seedUser'

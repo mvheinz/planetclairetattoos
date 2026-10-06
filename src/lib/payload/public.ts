@@ -5,6 +5,7 @@ import { getPayload, type Payload } from 'payload'
 
 import type { Locale } from '@/lib/enums'
 import { systemClock, type Clock } from '@/lib/time'
+import { dbGate } from '@/lib/db/buildGate'
 
 // Frontend-Lesezugriffe (DATENMODELL §1.4 Regel 3): immer `overrideAccess: false`, ohne `user` und ohne `req`,
 // damit Where-Queries (inkl. Seed-Filter) und Feldzugriff greifen.
@@ -29,7 +30,7 @@ export function toPublicPayload(payload: Payload): PublicPayload {
 }
 
 export async function getPublicPayload(): Promise<PublicPayload> {
-  return toPublicPayload(await getPayload({ config }))
+  return toPublicPayload((await dbGate(), await getPayload({ config })))
 }
 
 /**
@@ -99,7 +100,7 @@ export async function getPublicSettings(
   clock: Clock = systemClock,
   options: { locale?: Locale } = {},
 ): Promise<Obj> {
-  const payload = await getPayload({ config })
+  const payload = (await dbGate(), await getPayload({ config }))
   // Das Global ist nur für Admins lesbar; die Whitelist ersetzt hier den Feldzugriff (§7.1).
   const raw = await payload.findGlobal({
     slug: 'settings',

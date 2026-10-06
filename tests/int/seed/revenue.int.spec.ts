@@ -105,7 +105,7 @@ describe('Umsätze (SEED-SPEC §15)', () => {
     expect(prod.totalCents).toBe(0)
   })
 
-  it('AK-SEED-21: Monats-CSV, DATEV-Export, Rechnungs-ZIP und Verpackungs-CSV enthalten keine Beispieldaten – auch mit SEED_PREVIEW_MODE', async () => {
+  it('AK-SEED-21 / AK-11-05: Monats-CSV, DATEV-Export, Rechnungs-ZIP und Verpackungs-CSV enthalten keine Beispieldaten – auch mit SEED_PREVIEW_MODE', async () => {
     await payload.updateGlobal({
       slug: 'settings',
       data: {

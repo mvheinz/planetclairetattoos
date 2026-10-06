@@ -139,7 +139,7 @@ describe('Datenschutz-Anfragen: Erfassung und Fristen (P6.16)', () => {
     expect(again.unchanged).toBe(true)
   })
 
-  it('R-153 Erinnerungen genau an Tag −7 und −1, keine sonst; verlängerte Frist verschiebt die Erinnerungen', async () => {
+  it('R-153 DM-PRQ-02 Erinnerungen genau an Tag −7 und −1, keine sonst; verlängerte Frist verschiebt die Erinnerungen', async () => {
     const r = await create('2026-10-15')
     const due = at('2026-11-15')
     for (let n = -20; n <= 2; n++) {

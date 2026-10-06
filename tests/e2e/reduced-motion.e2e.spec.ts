@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test } from './fixtures'
+import { type Page } from '@playwright/test'
 
 // P2.17 Reduzierte Bewegung (DESIGN §9.4 Stufe C, §9.11, §10.6, §9.13): AK-DS-14 und AK-DS-03 (P2-Umfang R01, R21;
 // Produktseite und Kasse folgen in P3/P4). Braucht `window.__leash` (Build/Dev-Server mit NEXT_PUBLIC_LEASH_DEBUG=1).

@@ -5,21 +5,25 @@ import { isResendable } from '@/lib/commerce/resendEmail'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { EmailTemplate } from '@/lib/enums'
 import { getEnv } from '@/lib/env'
+import { runGoliveCheck } from '@/lib/golive/collect'
 import { jobAlarm } from '@/lib/jobs/alarm'
+import type { BackupStatus } from '@/lib/backup/cron'
+import { BACKUP_STATUS_KEY } from '@/lib/monitoring/freshness'
+import { readJson } from '@/lib/storage/systemFiles'
 import { JOB_RUN_RETENTION_DAYS, listJobRuns, poolDb } from '@/lib/jobs/runLog'
 import { formatBerlin } from '@/lib/time'
 
-import { Notice } from '../../components/Notice'
 import { StatusBadge, type StatusTone } from '../../components/StatusBadge'
 import { adminText } from '../../translations'
 import type { AdminViewBodyProps } from '../AdminViewBody'
 import { adminView } from '../registry'
-import { FailedMailAction, RunTaskButton } from './SystemActions'
+import { StartklarSection } from './StartklarSection'
+import { FailedMailAction, PostRestoreForm, RunTaskButton } from './SystemActions'
 
 // Einstellungen → System `/einstellungen/system` (PLAN P5.22, ARCHITEKTUR §11.5, KONZEPT §8.1 Nr. 4): App-Version,
 // `APP_ENV`, letzter voller Job-Lauf und nächster Weckzeitpunkt, „Jetzt ausführen“ je Task, Lauf-Protokoll der
 // letzten 90 Tage (`job_runs`), fehlgeschlagene Mails (Kund:innen-Mails einer Bestellung lassen sich erneut senden),
-// nicht verarbeitete Webhook-Ereignisse. Startklar-Prüfung folgt in P10.
+// nicht verarbeitete Webhook-Ereignisse. Startklar-Prüfung (P10.14).
 
 const RUN_LIMIT = 100
 const fmt = (d: Date | string | null | undefined) =>
@@ -30,6 +34,7 @@ export async function SystemView({ adminRoute, req }: AdminViewBodyProps) {
   const env = getEnv()
   const now = new Date()
   const alarm = await jobAlarm.read().catch(() => ({ nextDueAt: null, lastFullRunAt: null }))
+  const backup = await readJson<BackupStatus>(BACKUP_STATUS_KEY).catch(() => null)
   const since = new Date(now.getTime() - JOB_RUN_RETENTION_DAYS * 24 * 60 * 60 * 1000)
   const runs = await listJobRuns(poolDb(req.payload), { since, limit: RUN_LIMIT })
   const tasks = JOB_TASKS.map((t) => ({ slug: t.slug, label: String(t.label ?? t.slug) }))
@@ -76,8 +81,22 @@ export async function SystemView({ adminRoute, req }: AdminViewBodyProps) {
     req,
   })
 
+  const startklar = await runGoliveCheck(req.payload, now)
+  const settings = await req.payload.findGlobal({
+    slug: 'settings',
+    depth: 0,
+    overrideAccess: true,
+  })
+  const signed = new Set(
+    (settings.processorAgreements ?? [])
+      .filter((a) => a.signedAt && a.serviceId)
+      .map((a) => a.serviceId),
+  )
+
   return (
     <div className="pc-order pc-settings" data-testid="settings-system-view">
+      <StartklarSection report={startklar} signedAgreementIds={signed} />
+
       <section className="pc-order__section" aria-labelledby="system-state">
         <h2 id="system-state">{adminText('systemState')}</h2>
         <dl className="pc-order__facts">
@@ -91,9 +110,33 @@ export async function SystemView({ adminRoute, req }: AdminViewBodyProps) {
           <dd data-testid="system-last-full-run">{fmt(alarm.lastFullRunAt)}</dd>
           <dt>{adminText('systemNextWake')}</dt>
           <dd>{fmt(alarm.nextDueAt)}</dd>
+          <dt>{adminText('systemBackup')}</dt>
+          <dd data-testid="system-backup">
+            {env.APP_ENV !== 'production' || !env.BACKUP_ENABLED
+              ? adminText('systemBackupOff')
+              : backup?.lastSuccessAt
+                ? adminText('systemBackupLine', {
+                    date: fmt(backup.lastSuccessAt),
+                    size: ((backup.sizeBytes ?? 0) / 1048576).toFixed(1),
+                    monthly: backup.lastMonthlyKey
+                      ? (backup.lastMonthlyKey.match(/\d{4}-\d{2}/)?.[0] ?? '–')
+                      : '–',
+                  })
+                : adminText('systemBackupNone')}
+            {backup?.lastFailureAt
+              ? ` · ${adminText('systemBackupFailed', { date: fmt(backup.lastFailureAt), code: backup.errorCode ?? '' })}`
+              : ''}
+          </dd>
         </dl>
-        <Notice tone="info">{adminText('systemStartklarLater')}</Notice>
       </section>
+
+      {env.MAINTENANCE_MODE ? (
+        <section className="pc-order__section" aria-labelledby="system-post-restore">
+          <h2 id="system-post-restore">{adminText('systemPostRestore')}</h2>
+          <p className="pc-order__muted">{adminText('systemPostRestoreHint')}</p>
+          <PostRestoreForm />
+        </section>
+      ) : null}
 
       <section className="pc-order__section" aria-labelledby="system-tasks">
         <h2 id="system-tasks">{adminText('systemTasks')}</h2>

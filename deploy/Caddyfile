@@ -1,0 +1,18 @@
+# Caddy für den Docker-Exit-Pfad (ARCHITEKTUR §13.1): TLS (Let's Encrypt), www → Hauptdomain (308), Reverse-Proxy auf die
+# App, Kompression. Kein Zugriffsprotokoll (L-13 c/e: keine IP-Listen). `SITE_DOMAIN` und `ACME_EMAIL` kommen aus der
+# Compose-Datei (Umgebung des caddy-Dienstes). Caddy überschreibt `X-Forwarded-For` mit der echten Client-Adresse – nur
+# diesem Header vertraut das Rate-Limit.
+{
+	email {$ACME_EMAIL}
+}
+
+www.{$SITE_DOMAIN} {
+	redir https://{$SITE_DOMAIN}{uri} 308
+}
+
+{$SITE_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy app:3000 {
+		header_up X-Forwarded-For {remote_host}
+	}
+}

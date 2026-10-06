@@ -25,9 +25,26 @@ export function parseEnv(source: Record<string, string | undefined>): Env {
   return Object.freeze(result.data) as Env
 }
 
+/**
+ * Docker-Build ohne Zugangsdaten (`BUILD_WITHOUT_DB=1` in der Build-Phase, Spike B-08): `next build` wertet beim
+ * Sammeln der Seitendaten die Payload-Konfiguration aus. Dafür genügt ein Platzhalter für das (sonst Pflicht-)Geheimnis;
+ * er gilt nur in dieser Phase, wird nie gecacht oder ausgeliefert, und zur Laufzeit gilt der echte Wert.
+ */
+export const BUILD_PLACEHOLDER_SECRET = 'build-only-placeholder-never-used-at-runtime-0000'
+
+export function withBuildPlaceholders(
+  source: Record<string, string | undefined>,
+): Record<string, string | undefined> {
+  const building =
+    source.NEXT_PHASE === 'phase-production-build' &&
+    ['1', 'true'].includes((source.BUILD_WITHOUT_DB ?? '').toLowerCase())
+  if (!building || source.PAYLOAD_SECRET) return source
+  return { ...source, PAYLOAD_SECRET: BUILD_PLACEHOLDER_SECRET }
+}
+
 /** Einmal geparst und gecacht. */
 export function getEnv(): Env {
-  if (!cached) cached = parseEnv(process.env)
+  if (!cached) cached = parseEnv(withBuildPlaceholders(process.env))
   return cached
 }
 
@@ -142,4 +159,9 @@ export function artQaActive(env: Env = getEnv()): boolean {
 
 export function isProduction(env: Env = getEnv()): boolean {
   return env.APP_ENV === 'production'
+}
+
+/** `next build` ohne Datenbank (Docker, Spike B-08): `BUILD_WITHOUT_DB=1` und Build-Phase (`NEXT_PHASE`). */
+export function buildWithoutDb(env: Env = getEnv()): boolean {
+  return env.BUILD_WITHOUT_DB === true && process.env.NEXT_PHASE === 'phase-production-build'
 }

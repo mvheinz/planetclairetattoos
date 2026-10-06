@@ -71,6 +71,7 @@ export async function issueInvoicePdf(
       filename: `${invoice.number}.pdf`,
       bytes: Buffer.from(pdf.data),
       contentType: 'application/pdf',
+      metadata: { 'invoice-number': invoice.number },
       data: { relatedInvoice: invoice.id, seed: invoice.seed === true },
       context,
     })

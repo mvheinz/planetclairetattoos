@@ -175,9 +175,9 @@ Lücken in der Nummerierung sind Reserve.
 | R-127 | „Offline verkauft“ ohne Kassenfunktion | P5 | int | nein | `tests/int/legal/offline-sale.int.spec.ts` |
 | R-130 | Kein Speichern/Auslesen auf dem Endgerät vor Nutzeraktion | P2, P4 | e2e | nein | `tests/unit/behaviors/motion-toggle.unit.spec.ts`, `tests/e2e/motion-toggle.e2e.spec.ts`, `tests/e2e/privacy.e2e.spec.ts`, `tests/e2e/privacy/cart-cookie.e2e.spec.ts` |
 | R-131 | Keine Drittanbieter-Requests, CSP, selbst gehostete Schriften | P2 | unit, e2e | nein | `tests/unit/legal/services.unit.spec.ts`, `tests/unit/security/csp.unit.spec.ts`, `tests/unit/security/headers.unit.spec.ts`, `tests/unit/tooling/check-external.unit.spec.ts` |
-| R-132 | Statistik (Vercel Web Analytics) nur nach Freigabe | P10 | unit, e2e | ja | – |
-| R-133 | Fehlerüberwachung ohne Personenbezug | P10 | unit, e2e | nein | – |
-| R-134 | Spamschutz ohne Drittanbieter | P6, P7 | int | nein | `tests/int/legal/retention.int.spec.ts`, `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/int/legal/withdrawal.int.spec.ts`, `tests/unit/lib/keys.unit.spec.ts`, `tests/int/commission/submit.int.spec.ts` |
+| R-132 | Statistik (Vercel Web Analytics) nur nach Freigabe | P10 | unit, e2e | ja | `tests/unit/analytics/before-send.unit.spec.ts`, `tests/e2e/privacy/analytics.e2e.spec.ts`, `tests/int/admin/settings-part3.int.spec.ts` |
+| R-133 | Fehlerüberwachung ohne Personenbezug | P10 | unit, e2e | nein | `tests/int/monitoring/sentry.int.spec.ts`, `tests/int/monitoring/client-errors.int.spec.ts`, `tests/e2e/privacy/client-errors.e2e.spec.ts` |
+| R-134 | Spamschutz ohne Drittanbieter | P6, P7 | int | nein | `tests/int/legal/retention.int.spec.ts`, `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/int/legal/withdrawal.int.spec.ts`, `tests/unit/lib/keys.unit.spec.ts`, `tests/int/commission/submit.int.spec.ts`, `tests/int/security/rate-limits.int.spec.ts` |
 | R-135 | Metadaten aus allen Bild-Uploads entfernen | P1, P7 | int | nein | `tests/int/collections/media.int.spec.ts`, `tests/int/collections/private-uploads.int.spec.ts`, `tests/e2e/admin-product-form.e2e.spec.ts`, `tests/int/commission/upload.int.spec.ts` |
 | R-136 | Technisch-organisatorische Maßnahmen | P1, P10 | int, e2e | nein | `tests/int/access/access-matrix.int.spec.ts`, `tests/int/adapters/storage.contract.int.spec.ts`, `tests/int/collections/private-uploads.int.spec.ts`, `tests/int/collections/users.int.spec.ts` |
 | R-137 | Keine personenbezogenen Daten in URLs und Logs | P4 | unit, e2e | nein | `tests/int/legal/privacy-export.int.spec.ts`, `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts`, `tests/unit/lib/logger.unit.spec.ts`, `tests/e2e/commission/form.e2e.spec.ts` |
@@ -188,27 +188,27 @@ Lücken in der Nummerierung sind Reserve.
 | R-152 | Berichtigung, Widerspruch, Widerruf von Einwilligungen | P6 | int | nein | `tests/unit/legal/p6-mails.unit.spec.ts`, `tests/int/legal/privacy-erasure.int.spec.ts` |
 | R-153 | Fristüberwachung Betroffenenanfragen | P6 | int | nein | `tests/unit/legal/gdpr-deadline.unit.spec.ts`, `tests/int/legal/privacy-requests.int.spec.ts` |
 | R-154 | Automatische Löschjobs | P6 | int | nein | `tests/unit/legal/no-versions.unit.spec.ts`, `tests/int/legal/retention.int.spec.ts` |
-| R-155 | Auftragsverarbeitungsverträge vor Go-live | P10, P11 | unit, manuell | ja | – |
+| R-155 | Auftragsverarbeitungsverträge vor Go-live | P10, P11 | unit, manuell | ja | `tests/unit/legal/services.unit.spec.ts`, `tests/unit/golive/checks.unit.spec.ts`, `tests/int/admin/processor-agreements.int.spec.ts`, `tests/e2e/legal/processor-table.e2e.spec.ts`, §7 |
 | R-156 | Verzeichnis von Verarbeitungstätigkeiten | P6 | manuell | ja | `tests/unit/legal/briefing.unit.spec.ts`, `tests/unit/legal/services.unit.spec.ts` |
-| R-157 | Prozess Datenpanne | P10 | manuell | ja | – |
+| R-157 | Prozess Datenpanne | P10 | manuell | ja | `tests/unit/docs/runbook.unit.spec.ts`, §7 |
 | R-160 | Anfrageformular Auftragsarbeiten | P7 | int, e2e | nein | `tests/int/commission/submit.int.spec.ts`, `tests/int/commission/upload.int.spec.ts`, `tests/unit/email/inquiry-receipt.unit.spec.ts`, `tests/e2e/commission/form.e2e.spec.ts`, `tests/e2e/commission/flow.e2e.spec.ts` |
 | R-161 | Verträge über Auftragsarbeiten außerhalb des Shops | P7, P11 | manuell | ja | §7 |
-| R-162 | Keine weiteren Datenerhebungen | P10 | e2e | nein | – |
+| R-162 | Keine weiteren Datenerhebungen | P10 | e2e | nein | `tests/e2e/privacy/forms.e2e.spec.ts` |
 | R-170 | Tattoo-Bereich ohne Online-Vertragsschluss | P7 | unit, int, e2e | nein | `tests/unit/legal/tattoo-content.unit.spec.ts`, `tests/unit/tattoo/mailto.unit.spec.ts`, `tests/int/legal/tattoo-cart.int.spec.ts`, `tests/e2e/tattoo/no-purchase.e2e.spec.ts`, `tests/e2e/tattoo/flash.e2e.spec.ts` |
 | R-171 | Abgelaufene Flash-Days/Aktionen ausblenden | P7 | int | nein | `tests/int/tattoo/offers.int.spec.ts`, `tests/int/jobs/revalidate-offers.int.spec.ts`, `tests/e2e/tattoo/offers.e2e.spec.ts` |
 | R-172 | Portfolio-Fotos nur mit Einwilligung | P7 | int | ja | `tests/int/legal/gallery-consent.int.spec.ts`, `tests/int/legal/gallery-withdraw.int.spec.ts`, `tests/e2e/tattoo/gallery.e2e.spec.ts` |
 | R-180 | Beispielbestand kennzeichnen und entfernbar | P8 | int | nein | `tests/int/seed/admin-remove.int.spec.ts`, `tests/int/collections/logs.int.spec.ts`, `tests/unit/seed/persons.unit.spec.ts`, `tests/e2e/admin-seed.e2e.spec.ts` |
 | R-181 | `SEED_PREVIEW_MODE` nie in Produktion | P8 | unit, int | nein | `tests/unit/env/seed-preview.unit.spec.ts`, `tests/unit/env/assert-production.unit.spec.ts`, `tests/int/media/owner-approved.int.spec.ts`, `tests/int/legal/gallery-consent.int.spec.ts` |
-| R-182 | Vorschau-Datei als interne Datei | P10 | unit | nein | – |
-| R-190 | BFSG-Ausnahme dokumentiert, keine Konformitätsbehauptung | P10 | manuell | nein | – |
-| R-191 | Freiwillige Barrierearmut (Ziel WCAG 2.2 AA) | P2, P10 | e2e | nein | `tests/e2e/a11y.e2e.spec.ts`, `tests/e2e/keyboard.e2e.spec.ts` |
-| R-200 | LUCID-Registrierung und Systembeteiligung | P10, P11 | unit, manuell | ja | – |
+| R-182 | Vorschau-Datei als interne Datei | P10 | unit | nein | `tests/unit/preview/r182.unit.spec.ts`, `tests/e2e/preview-export.e2e.spec.ts` |
+| R-190 | BFSG-Ausnahme dokumentiert, keine Konformitätsbehauptung | P10 | manuell | nein | `tests/unit/docs/handbook.unit.spec.ts`, §7 |
+| R-191 | Freiwillige Barrierearmut (Ziel WCAG 2.2 AA) | P2, P10 | e2e | nein | `tests/e2e/a11y.e2e.spec.ts`, `tests/e2e/keyboard.e2e.spec.ts`, `tests/e2e/a11y/keyboard.e2e.spec.ts`, `tests/e2e/a11y/audit.e2e.spec.ts` |
+| R-200 | LUCID-Registrierung und Systembeteiligung | P10, P11 | unit, manuell | ja | `tests/unit/golive/checks.unit.spec.ts`, §7 |
 | R-201 | Verpackungsmengen erfassen (je Sendung, Jahres-Export) | P5 | int | nein | `tests/int/legal/packaging-report.int.spec.ts`, `tests/unit/settings/rules.unit.spec.ts`, `tests/int/globals/settings.int.spec.ts` |
 | R-202 | EU-Länder nur mit Pflicht-Bestätigung freischaltbar | P5 | int | nein | `tests/int/legal/eu-activation.int.spec.ts`, `tests/unit/settings/rules.unit.spec.ts`, `tests/int/globals/settings.int.spec.ts` |
 | R-203 | GPSR-Herstellerpflichten am Produkt, Etiketten und Beileger | P5, P11 | int, manuell | ja | `tests/int/legal/compliance-docs.int.spec.ts`, `tests/int/legal/gpsr-label.int.spec.ts` |
 | R-204 | Markenrecherche „Planet Claire“ (empfohlen) | P11 | manuell | ja | – |
 | R-205 | Stammdaten und steuerliche Klärung | P11 | manuell | ja | – |
-| R-210 | Startklar-Prüfung (Go-live-Gate) | P10, P11 | unit | ja | – |
+| R-210 | Startklar-Prüfung (Go-live-Gate) | P10, P11 | unit | ja | `tests/unit/golive/checks.unit.spec.ts`, `tests/int/golive/shop-open-lock.int.spec.ts` |
 | R-211 | Produktions-Rauchtest Recht | P11 | manuell | ja | – |
 
 ---
@@ -1822,13 +1822,13 @@ Arbeitsfassung sinngemäß (`origin: 'draft'`).
 ## 7. Manuelle Abnahme-Checkliste
 
 **Teil A – vor Abschluss von P10 (Cloud-Session hakt ab, Eintrag in `docs/FORTSCHRITT.md`):**
-- [ ] R-049: Harmonisierte Mitteilung mit amtlicher Vorlage verglichen (oder Platzhalter in OFFENE-PUNKTE).
-- [x] R-095: Platzhalter-Widerrufsbelehrung enthält Token `{{withdrawalUrl}}` und `{{phone}}`. (02.10.2026, P6.23; Grund-Seed `content/seed/data/base.json`, Prüfung `tests/unit/legal/render-tokens.unit.spec.ts`)
-- [x] R-156: `docs/recht/VVT.md` vollständig. (02.10.2026, P6.21)
-- [ ] R-157: Datenpannen-Abschnitt im RUNBOOK und Owner-Anleitung vorhanden.
+- [x] R-049: Harmonisierte Mitteilung mit amtlicher Vorlage verglichen (oder Platzhalter in OFFENE-PUNKTE). (05.10.2026, P10.19; amtliche Grafik offline nicht ladbar, Platzhalter-Grafik und Arbeitsfassung des Textes stehen in OFFENE-PUNKTE, Protokoll P3.3 und P10.19, Nacharbeit P11)
+- [x] R-095: Platzhalter-Widerrufsbelehrung enthält Token `{{withdrawalUrl}}` und `{{phone}}`. (02.10.2026, P6.23; Grund-Seed `content/seed/data/base.json`, Prüfung `tests/unit/legal/render-tokens.unit.spec.ts`; erneut 05.10.2026, P10.19, `tests/unit/legal/withdrawal-placeholder.unit.spec.ts`)
+- [x] R-156: `docs/recht/VVT.md` vollständig. (02.10.2026, P6.21; erneut geprüft 05.10.2026, P10.19: V1–V19, TOM und Dienste vollständig, zugleich R-210 Nr. 14)
+- [x] R-157: Datenpannen-Abschnitt im RUNBOOK und Owner-Anleitung vorhanden. (05.10.2026, P10.19; `docs/RUNBOOK.md` §9 mit DE-Vorlagen und Kontaktliste, `docs/owner/HANDBUCH.md` Kapitel 16; Tests `tests/unit/docs/runbook.unit.spec.ts`, `handbook.unit.spec.ts`)
 - [x] R-161: Vorlage `commission.offer` als Platzhalter vorhanden. (02.10.2026, P7.14; Grund-Seed `src/lib/legal/snippetSeed.ts` mit Gliederung, Knopf „Angebots-Vorlage kopieren“ im Anfrage-Detail; Prüfung `tests/unit/legal/snippets.unit.spec.ts`)
 - [x] R-190: Keine Barrierefreiheits-/Zertifikatsbehauptungen in Texten. (03.10.2026, P8.15; Scan `src/i18n`, `src/globals`, `content/seed/data`, Mail-Vorlagen ohne Treffer zu V-26)
-- [x] V-18, V-28, V-29: manuelle Sichtung aller Seitentexte, FAQ, Aftercare, Mails. (03.10.2026, P8.15; „Garantie“ nur als EN-Fachbegriff „legal guarantee“ der EU-Mitteilung, kein Liedtext/Audio, Rechtstexte tragen das Platzhalter-Band aus P6)
+- [x] V-18, V-28, V-29: manuelle Sichtung aller Seitentexte, FAQ, Aftercare, Mails. (03.10.2026, P8.15, erneut 05.10.2026, P10.19 ohne neue Treffer; „Garantie“ nur als EN-Fachbegriff „legal guarantee“ der EU-Mitteilung, kein Liedtext/Audio, Rechtstexte tragen das Platzhalter-Band aus P6)
 - [x] Alle FAQ-/Tattoo-/Über-mich-Entwürfe (E-62) gegen §5 geprüft. (03.10.2026, P8.15; Verbotsmuster-Tests unit + E2E grün)
 
 **Teil B – P11 mit Jutta (vor und nach DNS-Umstellung):**

@@ -139,7 +139,7 @@ afterAll(async () => {
 })
 
 describe('Anfragen: Löschung nach 6 Monaten (P7.14)', () => {
-  it('R-154 L-10 Anfrage bleibt bis Eingang + 6 Monate, ist am Tag danach samt Dateien gelöscht – auch nach späterer Aktivität; deletion-log ohne Inhalte', async () => {
+  it('R-154 DM-INQ-01 L-10 Anfrage bleibt bis Eingang + 6 Monate, ist am Tag danach samt Dateien gelöscht – auch nach späterer Aktivität; deletion-log ohne Inhalte', async () => {
     const q = await inquiry(2)
     const due = retainUntil(L_10_INQUIRIES, RECEIVED)
     expect(due.getTime()).toBeGreaterThan(plus(RECEIVED, 180 * DAY).getTime())

@@ -86,7 +86,9 @@ function scriptSrc(context: CspContext, o: CspOptions): string[] {
       return ["'self'", nonce(), "'strict-dynamic'", MOTION_SCRIPT_HASH]
     case 'admin':
       return ADMIN_SCRIPT_POLICY === 'nonce'
-        ? ["'self'", nonce(), "'strict-dynamic'"]
+        ? // Die Entwurfs-Vorschau (`/admin/stuecke/:id/vorschau`) rendert das öffentliche Dokument mit `pc-motion`
+          // ohne Nonce → auch hier sein Hash.
+          ["'self'", nonce(), "'strict-dynamic'", MOTION_SCRIPT_HASH]
         : ["'self'", "'unsafe-inline'"]
     case 'api':
       return []

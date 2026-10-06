@@ -223,6 +223,8 @@
   },
   "withdraw": {
     "policyLink": "Zur Widerrufsbelehrung",
+    "maintenanceMail": "Gerade ist die Verwaltung im Wartungsmodus und das Formular nicht erreichbar. Du kannst deinen Widerruf trotzdem jetzt abgeben: Schreib mir eine E-Mail an {email} (Bestellnummer oder Angaben zum Vertrag, dein Name, ggf. welche Stücke). Entscheidend ist, dass deine E-Mail bei mir eingeht – das Absenden genügt.",
+    "maintenanceMailLink": "Widerruf per E-Mail schreiben",
     "emailAlternative": "Alternativ per E-Mail:",
     "intro": "Hier widerrufst du einen Vertrag mit mir – ohne Konto und ohne Begründung. Zuerst trägst du deine Angaben ein, dann bestätigst du sie.",
     "stepForm": "Schritt 1 von 2: Deine Erklärung",

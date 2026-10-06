@@ -26,5 +26,7 @@ export default defineConfig({
     include: ['tests/int/**/*.int.spec.ts'],
     testTimeout: 30_000,
     hookTimeout: 60_000,
+    // next-intl importiert `next/server` ohne Endung (Proxy-Tests, P10.7); inline gebündelt löst Vite das auf.
+    server: { deps: { inline: ['next-intl'] } },
   },
 })

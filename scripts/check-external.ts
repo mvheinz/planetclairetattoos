@@ -10,7 +10,7 @@
 // Checklisten (R17, P7.4) als Linkziele,
 // eigene Adresse (NEXT_PUBLIC_SITE_URL), Namensraum-/Vokabular-Kennungen, die nie geladen werden (SVG/XLink/XHTML/
 // MathML, Sitemap-Schema, JSON-LD `https://schema.org`), und in Framework-JS eingebaute Fehlertext-Verweise
-// (react.dev/errors, nextjs.org/docs, core-js-Lizenz) – nur in `.js`. Die OS-Plattform bleibt verboten (CLAUDE.md §6).
+// (react.dev/errors, nextjs.org/docs, vercel.com/docs/analytics (Hinweistext im Statistik-Paket), core-js-Lizenz) – nur in `.js`. Die OS-Plattform bleibt verboten (CLAUDE.md §6).
 import 'dotenv/config'
 
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
@@ -105,6 +105,16 @@ export const EXTERNAL_ALLOWLIST: readonly { prefix: string; why: string; jsOnly?
   { prefix: 'https://schema.org', why: 'JSON-LD-Vokabular (`@context`)' },
   { prefix: 'https://react.dev/errors/', why: 'React-Fehlertext', jsOnly: true },
   { prefix: 'https://nextjs.org/docs/', why: 'Next.js-Fehlertext', jsOnly: true },
+  {
+    prefix: 'https://va.vercel-scripts.com/v1/script.debug.js',
+    why: 'Entwicklungs-Skript in @vercel/analytics; mit mode="production" (AnalyticsClient) nie geladen',
+    jsOnly: true,
+  },
+  {
+    prefix: 'https://vercel.com/docs/analytics/',
+    why: 'Hinweistext in @vercel/analytics (nie geladen, P10.11)',
+    jsOnly: true,
+  },
   { prefix: 'https://github.com/zloirock/core-js', why: 'core-js-Lizenzhinweis', jsOnly: true },
   {
     prefix: 'http://json-schema.org/',
@@ -163,6 +173,13 @@ export function findAdminRouteLeaks(files: BuiltFile[], adminRoute: string): str
   return files.filter((f) => f.content.includes(adminRoute)).map((f) => f.path)
 }
 
+/** Sentry-Code oder -Hosts in ausgelieferten Dateien (ARCHITEKTUR §11.4, AK-A-11-02): Sentry läuft nur auf dem Server. */
+export function findSentryLeaks(files: BuiltFile[]): string[] {
+  return files
+    .filter((f) => /@sentry|sentry\.io|ingest\.[a-z]+\.sentry|__SENTRY__/.test(f.content))
+    .map((f) => f.path)
+}
+
 function main(): void {
   const args = process.argv.slice(2)
   if (!args.includes('--built')) {
@@ -182,6 +199,12 @@ function main(): void {
   if (leaks.length > 0) {
     console.error('check:external: Der Verwaltungspfad steht in ausgelieferten Dateien:')
     for (const l of leaks) console.error(`- ${l}`)
+    process.exit(1)
+  }
+  const sentry = findSentryLeaks(files)
+  if (sentry.length > 0) {
+    console.error('check:external: Sentry-Code oder -Host in ausgelieferten Dateien (AK-A-11-02):')
+    for (const l of sentry.slice(0, 50)) console.error(`- ${l}`)
     process.exit(1)
   }
   const publicFiles = collectPublicFiles(distDir)

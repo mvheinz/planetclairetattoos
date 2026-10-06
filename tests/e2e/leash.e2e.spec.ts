@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test } from './fixtures'
+import { type Page } from '@playwright/test'
 
 // P2.16 Tuschelinie-Laufzeit (DESIGN §9.4, §9.6, §9.9, §9.10, §9.13): AK-DS-13, AK-DS-15, Chunk-Analyse.
 // Braucht `window.__leash` (Build/Dev-Server mit NEXT_PUBLIC_LEASH_DEBUG=1, siehe playwright.config.ts).

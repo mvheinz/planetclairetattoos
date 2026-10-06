@@ -58,11 +58,31 @@ test.describe('Verwaltung ohne Fremd-Requests @smoke', () => {
     test('Gegenprobe: der Wächter erkennt und blockiert eine Fremd-Anfrage', async ({
       page,
       foreignRequests,
+      cspViolations,
+      browserName,
     }) => {
       await page.goto(adminPath('/login'))
       await page.evaluate(() => fetch('https://example.com/probe').catch(() => null))
       expect(foreignRequests).toEqual(['https://example.com/probe'])
       foreignRequests.length = 0
+      // WebKit ignoriert `bypassCSP`: Die absichtliche Fremd-Anfrage meldet dort zusätzlich einen CSP-Verstoß. Er wird
+      // erwartet und geprüft (der CSP-Wächter schlägt also an) und nur dieser eine Eintrag wird entfernt – jeder andere
+      // Verstoß lässt den Test weiterhin scheitern.
+      const probe = cspViolations.filter((v) => v.includes('example.com/probe'))
+      if (browserName === 'webkit') expect(probe.length).toBeGreaterThan(0)
+      for (const v of probe) cspViolations.splice(cspViolations.indexOf(v), 1)
+      // WebKit meldet dieselbe Anfrage außerdem zweimal ohne URL auf der Konsole (CSP-Block und „Failed to load
+      // resource“). Genau diese beiden Zeilen gehören zur Fremd-Anfrage und werden je einmal entfernt; weitere oder
+      // andere CSP-Konsolenfehler lassen den Test scheitern.
+      if (browserName === 'webkit') {
+        for (const text of [
+          'console: Blocked by Content Security Policy.',
+          'console: Failed to load resource: Blocked by Content Security Policy.',
+        ]) {
+          const at = cspViolations.indexOf(text)
+          if (at >= 0) cspViolations.splice(at, 1)
+        }
+      }
     })
   })
 })

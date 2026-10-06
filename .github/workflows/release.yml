@@ -1,0 +1,261 @@
+name: Vorschau-Release
+
+# ARCHITEKTUR §6.6 (PLAN P10.21): veröffentlicht die Vorschau-Datei als GitHub-Release `vorschau-p10` – automatisch, sobald
+# der Plan leer ist (`scripts/cloud-setup.sh --plan-status` meldet `OFFEN_P1_P10=0`) und das Release fehlt oder veraltet ist.
+# Einziger Workflow mit `push`-Auslöser (AK-A-6-01): nur bei Änderung der Konfiguration oder dieser Datei; Juttas Uploads
+# nach `content/seed/instagram-export/` und `content/seed/coco/` starten ihn nicht. Rückfall: täglich 06:00 UTC.
+# Bei Pull Requests, die diese Datei oder `.github/vorschau-release.json` ändern, läuft nur der Probelauf (bauen und
+# testen, nichts veröffentlichen, nur Lesezugriff). Release-Text und Entscheidung: `scripts/release/` (Node, ohne Install).
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/vorschau-release.json
+      - .github/workflows/release.yml
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - .github/vorschau-release.json
+      - .github/workflows/release.yml
+
+# Push- und Zeitplan-Lauf nie gleichzeitig und nie abbrechen; Probeläufe je PR getrennt.
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('release-pr-{0}', github.ref) || 'release' }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  # 0. Schneller Prüfschritt (Sekunden, ohne Postgres und ohne Build): endet, solange der Plan nicht leer ist oder das
+  #    Release aktuell ist.
+  gate:
+    name: gate
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      publish: ${{ steps.decide.outputs.publish }}
+      tag: ${{ steps.decide.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # package.json: `cloud-setup.sh` erkennt das Repository daran.
+          sparse-checkout: |
+            PLAN.md
+            package.json
+            scripts/cloud-setup.sh
+            scripts/release
+            .github/vorschau-release.json
+          sparse-checkout-cone-mode: false
+      - name: Plan-Stand
+        env:
+          CLAUDE_PROJECT_DIR: ${{ github.workspace }}
+        run: bash scripts/cloud-setup.sh --plan-status | tee "$RUNNER_TEMP/plan-status.txt"
+      - name: Release-Stand
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag=$(node -p "require('./.github/vorschau-release.json').tag")
+          gh release view "$tag" --json assets,body > "$RUNNER_TEMP/release.json" || echo null > "$RUNNER_TEMP/release.json"
+      - name: Entscheidung
+        id: decide
+        env:
+          PLAN_STATUS_FILE: ${{ runner.temp }}/plan-status.txt
+          RELEASE_JSON_FILE: ${{ runner.temp }}/release.json
+        run: node scripts/release/gate.mjs
+
+  # Probelauf im PR: nur Bauen und Tests, ohne Veröffentlichung, ohne verify-asset, nur Lesezugriff.
+  probe:
+    name: probe
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: planetclaire_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      APP_ENV: test
+      TZ: UTC
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/planetclaire_test
+      PAYLOAD_SECRET: ci-only-secret-not-used-anywhere-else-0000
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Installation
+        run: pnpm install --frozen-lockfile
+      - name: Konfiguration prüfen
+        run: pnpm exec vitest run --config ./vitest.unit.config.mts tests/unit/release
+      - name: Playwright-Version
+        id: pw
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Playwright-Browser-Cache
+        id: pw-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-chromium-webkit-${{ steps.pw.outputs.version }}
+      - name: Playwright Chromium und WebKit
+        run: pnpm exec playwright install --with-deps chromium webkit
+      - name: Vorschau exportieren
+        run: pnpm run preview:export
+      - name: Export-Test
+        run: pnpm run test:preview-export
+      - name: Probelauf-Hinweis
+        run: echo "Probelauf grün – es wurde nichts veröffentlicht (nur Bauen und Tests)." >> "$GITHUB_STEP_SUMMARY"
+
+  # 1. Bauen, prüfen, veröffentlichen – nur bei gate = true.
+  publish:
+    name: publish
+    needs: gate
+    if: needs.gate.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    outputs:
+      sha256: ${{ steps.notes.outputs.sha256 }}
+      tag: ${{ steps.notes.outputs.tag }}
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: planetclaire_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      APP_ENV: test
+      TZ: UTC
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/planetclaire_test
+      PAYLOAD_SECRET: ci-only-secret-not-used-anywhere-else-0000
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Installation
+        run: pnpm install --frozen-lockfile
+      - name: Playwright-Version
+        id: pw
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Playwright-Browser-Cache
+        id: pw-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-chromium-webkit-${{ steps.pw.outputs.version }}
+      - name: Playwright Chromium und WebKit
+        run: pnpm exec playwright install --with-deps chromium webkit
+      - name: Vorschau exportieren
+        run: pnpm run preview:export
+      # Eigener Schritt ohne continue-on-error: ein roter Test verhindert die Veröffentlichung.
+      - name: Export-Test inkl. Portabilitätstest
+        run: pnpm run test:preview-export
+      - name: Release-Text, Größe und Prüfsumme
+        id: notes
+        run: node scripts/release/notes.mjs
+      - name: Release veröffentlichen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ steps.notes.outputs.tag }}
+          TITLE: ${{ steps.notes.outputs.title }}
+        run: |
+          file=dist/planet-claire-vorschau.html
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" "$file" --clobber
+            gh release edit "$TAG" --title "$TITLE" --notes-file dist/release-notes.md
+          else
+            gh release create "$TAG" "$file" --title "$TITLE" --notes-file dist/release-notes.md --target "${{ github.sha }}"
+          fi
+          {
+            echo "## Vorschau veröffentlicht"
+            echo ""
+            echo "Release \`$TAG\`: ${{ github.server_url }}/${{ github.repository }}/releases/tag/$TAG"
+            echo ""
+            echo "SHA-256: \`${{ steps.notes.outputs.sha256 }}\` · Größe: ${{ steps.notes.outputs.size }} Byte"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # 2. Nachweis „läuft auf einem anderen Rechner“: frischer Runner, frischer Checkout, ohne Postgres und ohne Build.
+  verify-asset:
+    name: verify-asset
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      TZ: UTC
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Installation
+        run: pnpm install --frozen-lockfile
+      - name: Playwright-Version
+        id: pw
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Playwright-Browser-Cache
+        id: pw-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-chromium-webkit-${{ steps.pw.outputs.version }}
+      - name: Playwright Chromium und WebKit
+        run: pnpm exec playwright install --with-deps chromium webkit
+      - name: Asset herunterladen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.publish.outputs.tag }}
+        run: gh release download "$TAG" --pattern planet-claire-vorschau.html --dir dist
+      - name: Prüfsumme vergleichen
+        env:
+          EXPECTED: ${{ needs.publish.outputs.sha256 }}
+        run: |
+          actual=$(sha256sum dist/planet-claire-vorschau.html | cut -d' ' -f1)
+          echo "veröffentlicht: $EXPECTED"
+          echo "heruntergeladen: $actual"
+          test "$actual" = "$EXPECTED"
+      - name: Portabilitätstest gegen das heruntergeladene Asset
+        run: pnpm run test:preview-portable
+      - name: Ergebnis
+        run: echo "verify-asset grün – die heruntergeladene Datei läuft aus einem frischen Verzeichnis (Chromium und WebKit)." >> "$GITHUB_STEP_SUMMARY"

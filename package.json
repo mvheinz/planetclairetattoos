@@ -21,15 +21,19 @@
     "test:unit": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.unit.config.mts",
     "test:int": "pnpm run db:ensure && pnpm run db:reset --test && cross-env PC_DB_READY=1 NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
     "test:e2e": "pnpm run db:ensure && pnpm run db:reset --test --seed=all && cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm --import=./scripts/lib/register-server-only.mjs\" playwright test --config=playwright.config.ts",
+    "test:e2e:maintenance": "playwright test --config playwright.maintenance.config.ts",
     "test:coverage": "pnpm run db:ensure && pnpm run db:reset --test && cross-env PC_DB_READY=1 NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.coverage.config.mts --coverage",
     "test:perf": "lhci collect --config=tests/perf/lighthouserc.cjs && lhci upload --config=tests/perf/lighthouserc.cjs && tsx scripts/perf/lighthouse-report.ts && lhci assert --config=tests/perf/lighthouserc.cjs",
     "test:visual": "pnpm run db:ensure && cross-env SEED_NOW=2026-10-15T10:00:00+02:00 pnpm run db:reset --test --seed=all && cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm --import=./scripts/lib/register-server-only.mjs\" playwright test --config=playwright.visual.config.ts",
     "preview:export": "cross-env NODE_OPTIONS=--no-deprecation tsx --import=./scripts/lib/register-server-only.mjs scripts/preview-export/index.ts",
     "test:preview-export": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm --import=./scripts/lib/register-server-only.mjs\" playwright test --config=playwright.preview.config.ts",
+    "test:preview-portable": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm --import=./scripts/lib/register-server-only.mjs\" playwright test --config=playwright.preview.config.ts --project=pv-portable-*",
     "check": "pnpm run lint && pnpm run typecheck && pnpm run check:static && pnpm run test:unit",
     "check:versions": "tsx scripts/check-versions.ts",
     "legal:services": "tsx scripts/legal/gen-services.ts",
     "env:example": "tsx --import=./scripts/lib/register-server-only.mjs scripts/gen-env-example.ts",
+    "check:golive": "tsx --import=./scripts/lib/register-server-only.mjs scripts/check-golive.ts",
+    "handbook:shots": "tsx --import=./scripts/lib/register-server-only.mjs scripts/handbook/shots.ts",
     "check:static": "tsx --import=./scripts/lib/register-server-only.mjs scripts/check-static.ts",
     "db:ensure": "tsx --import=./scripts/lib/register-server-only.mjs scripts/db-ensure.ts",
     "db:reset": "tsx --import=./scripts/lib/register-server-only.mjs scripts/db-reset.ts",
@@ -43,8 +47,12 @@
     "seed:reset": "cross-env NODE_OPTIONS=\"--no-deprecation --import=./scripts/lib/register-server-only.mjs\" payload run scripts/seed/cli.ts -- reset",
     "jobs:run": "tsx --import=./scripts/lib/register-server-only.mjs scripts/jobs-run.ts",
     "retention:replay": "tsx --import=./scripts/lib/register-server-only.mjs scripts/retention-replay.ts",
+    "backup:run": "tsx --import=./scripts/lib/register-server-only.mjs scripts/backup-run.ts",
+    "backup:restore": "tsx --import=./scripts/lib/register-server-only.mjs scripts/backup-restore.ts",
+    "backup:verify": "tsx --import=./scripts/lib/register-server-only.mjs scripts/backup-verify.ts",
     "payments:reconcile": "tsx --import=./scripts/lib/register-server-only.mjs scripts/payments-reconcile.ts",
     "stripe:fixture": "tsx --import=./scripts/lib/register-server-only.mjs scripts/stripe-fixture.ts",
+    "db:mark-production": "tsx --import=./scripts/lib/register-server-only.mjs scripts/db-mark-production.ts",
     "admin:create": "tsx --import=./scripts/lib/register-server-only.mjs scripts/admin-create.ts",
     "admin:unlock": "tsx --import=./scripts/lib/register-server-only.mjs scripts/admin-unlock.ts",
     "check:external": "tsx scripts/check-external.ts",
@@ -52,6 +60,7 @@
     "check:no-debug": "tsx scripts/check-no-debug.ts",
     "ci:artifacts": "tsx scripts/ci/artifact-budget.ts",
     "ci:minutes": "tsx scripts/ci/minutes.ts",
+    "ci:flaky": "tsx scripts/ci/flaky-check.ts",
     "fonts:copy": "tsx scripts/fonts/copy.ts",
     "art:brand": "tsx scripts/art/build-brand.ts",
     "art:icons": "tsx scripts/art/build-icons.ts",
@@ -75,6 +84,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1141.0",
+    "@aws-sdk/lib-storage": "3.1141.0",
     "@aws-sdk/s3-request-presigner": "3.1141.0",
     "@date-fns/tz": "1.2.0",
     "@payloadcms/db-postgres": "3.90.2",
@@ -85,9 +95,12 @@
     "@payloadcms/translations": "3.90.2",
     "@payloadcms/ui": "3.90.2",
     "@react-pdf/renderer": "4.9.0",
+    "@sentry/nextjs": "11.4.0",
     "@stripe/stripe-js": "9.17.0",
+    "@vercel/analytics": "2.0.1",
     "@zxing/browser": "0.2.1",
     "@zxing/library": "0.23.0",
+    "age-encryption": "0.3.1",
     "cross-env": "7.0.3",
     "date-fns": "4.1.0",
     "dotenv": "16.4.7",
@@ -95,9 +108,10 @@
     "graphql": "16.14.2",
     "next": "16.3.6",
     "next-intl": "4.14.7",
-    "nodemailer": "9.1.1",
+    "nodemailer": "10.0.15",
     "payload": "3.90.2",
     "pg": "8.20.0",
+    "pg-copy-streams": "7.0.0",
     "qrcode": "1.5.4",
     "react": "19.2.6",
     "react-dom": "19.2.6",
@@ -120,6 +134,7 @@
     "@types/node": "22.19.9",
     "@types/nodemailer": "8.0.2",
     "@types/pg": "8.20.0",
+    "@types/pg-copy-streams": "1.2.5",
     "@types/qrcode": "1.5.6",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
@@ -158,6 +173,15 @@
       "esbuild",
       "sharp",
       "unrs-resolver"
-    ]
+    ],
+    "overrides": {
+      "nodemailer": "10.0.15",
+      "undici": "7.30.0"
+    },
+    "auditConfig": {
+      "ignoreCves": [
+        "CVE-2026-93687"
+      ]
+    }
   }
 }

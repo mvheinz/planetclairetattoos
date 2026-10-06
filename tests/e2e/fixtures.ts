@@ -84,6 +84,7 @@ async function removeFixtureProducts(payload: Payload, numbers: number[]): Promi
 
 interface Fixtures {
   foreignRequests: string[]
+  cspViolations: string[]
   adminPage: Page
   fixtureProducts: FixtureProducts
 }
@@ -114,6 +115,33 @@ export const test = base.extend<Fixtures>({
         }),
       )
       await provide(blocked)
+    },
+    { auto: true },
+  ],
+
+  // P10.5 (ARCHITEKTUR §8.1): Ein CSP-Verstoß (`securitypolicyviolation` oder CSP-Fehler auf der Konsole) in irgendeiner
+  // Seite irgendeines Tests lässt diesen Test scheitern – nach dem Test, damit der Fehlerbericht alle Verstöße nennt.
+  cspViolations: [
+    async ({ context }, provide) => {
+      const found: string[] = []
+      await context.exposeBinding('__pcCspViolation', (_source, text: string) => {
+        found.push(text)
+      })
+      await context.addInitScript(() => {
+        document.addEventListener('securitypolicyviolation', (e) => {
+          const hook = (window as unknown as { __pcCspViolation?: (t: string) => void })
+            .__pcCspViolation
+          hook?.(`${e.violatedDirective} ${e.blockedURI} (${e.documentURI})`)
+        })
+      })
+      context.on('page', (page) =>
+        page.on('console', (msg) => {
+          if (msg.type() === 'error' && /Content[ -]Security[ -]Policy/i.test(msg.text()))
+            found.push(`console: ${msg.text()}`)
+        }),
+      )
+      await provide(found)
+      expect(found, 'CSP-Verstöße (ARCHITEKTUR §8.1)').toEqual([])
     },
     { auto: true },
   ],

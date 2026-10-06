@@ -128,11 +128,11 @@ jobs:
           cache: pnpm
       - name: Installation
         run: pnpm install --frozen-lockfile
-      # P4.2: Rechenkern (Fristen, Summen, Steuer) zusätzlich in Berliner Ortszeit – Ergebnisse dürfen nicht von TZ abhängen.
-      - name: Unit Rechenkern mit TZ=Europe/Berlin
+      # P4.2/P10.1: alle Unit-Tests zusätzlich in Berliner Ortszeit – Ergebnisse (Fristen, Summen, Steuer) dürfen nicht von TZ abhängen.
+      - name: Unit-Tests mit TZ=Europe/Berlin
         env:
           TZ: Europe/Berlin
-        run: pnpm run test:unit tests/unit/commerce tests/unit/tax
+        run: pnpm run test:unit
       - name: Playwright-Version
         id: pw
         run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
@@ -159,6 +159,10 @@ jobs:
       # Eine Projekt-Hälfte je Job (workers: 1 in CI), alle Tests außer @visual/@perf – inkl. @a11y und @privacy.
       - name: E2E ${{ matrix.project }}
         run: pnpm run test:e2e --project=${{ matrix.project }} --shard=${{ matrix.shard }}/2 --grep-invert "@visual|@perf"
+      # P10.2: ein Test, der erst im Wiederholungslauf besteht, gilt als flaky und macht den Lauf rot (ARCHITEKTUR §7.2).
+      - name: Keine flaky-Tests
+        if: success()
+        run: pnpm run ci:flaky
       # Bei Fehler (§6.2): erst der Budget-Schritt, dann – nur bei upload_optional=true – der Fehlerbericht (2 Tage).
       - name: Artefakt-Budget
         id: budget
@@ -236,6 +240,9 @@ jobs:
         run: pnpm run seed && pnpm run build
       - name: Kein Debug im Build
         run: pnpm run check:no-debug
+      # P10.4: Tempo-Budgets je Seitentyp (JS beim ersten Laden, Lazy-Chunks, Schriften, LCP-Bild, R01-Gewicht) am Build.
+      - name: Bundle-Budgets
+        run: pnpm run check:bundle
       # §7.6: Referenzen entstehen nur per [ci:update-snapshots]. Solange keine Linux-Referenz eingecheckt ist, steht ein
       # Hinweis im Job-Summary (nicht rot, OFFENE-PUNKTE); sobald Referenzen da sind, ist jede Abweichung rot.
       - name: Visuelle Referenzen vorhanden?
@@ -276,6 +283,75 @@ jobs:
           if-no-files-found: ignore
 
   # §7.6: Referenzbilder erzeugen (Pflicht-Upload, 2 Tage); danach `gh run download` und Commit mit [skip ci].
+  # AK-A-13-01/-02 (ARCHITEKTUR §13, P10.12): Docker-Exit-Pfad. Build ohne DB und Zugangsdaten (Standalone,
+  # `BUILD_WITHOUT_DB=1`), Image ≤ 500 MB und UID 1001, Compose-Start mit Testwerten, `/api/health` ≤ 120 s, `GET /de` 200,
+  # Migrationen angewendet, `down -v` räumt auf.
+  docker:
+    name: docker
+    needs: mode
+    if: needs.mode.outputs.full == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      COMPOSE_FILE: docker-compose.prod.yml
+      ENV_FILE: .env.production
+      # Alle `docker compose`-Aufrufe (exec, logs, down) lesen die Testwerte, nicht nur `up`.
+      COMPOSE_ENV_FILES: .env.production
+      HTTP_PORT: '8080'
+      HTTPS_PORT: '8443'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Installation
+        run: pnpm install --frozen-lockfile
+      - name: Beispieldatei aktuell
+        run: pnpm run env:example && git diff --exit-code -- .env.production.example
+      - name: Image bauen (ohne Datenbank, ohne Zugangsdaten)
+        run: docker build -t planetclaire .
+      - name: Image prüfen (Größe, Benutzer)
+        run: |
+          size=$(docker image inspect planetclaire --format '{{.Size}}')
+          echo "Image: $((size / 1024 / 1024)) MB" | tee -a "$GITHUB_STEP_SUMMARY"
+          test "$size" -le 524288000
+          test "$(docker run --rm --entrypoint id planetclaire -u)" = "1001"
+      - name: Testwerte
+        run: |
+          cp .env.production.example .env.production
+          set_var() { sed -i "s|^$1=.*|$1=$2|" .env.production; }
+          set_var POSTGRES_PASSWORD ci-db-password
+          set_var APP_ENV staging
+          set_var DATABASE_URL postgres://planetclaire:ci-db-password@postgres:5432/planetclaire
+          set_var PAYLOAD_SECRET ci-only-secret-not-used-anywhere-else-0000
+          set_var CRON_SECRET ci-only-cron-secret-000000000000000000
+          set_var NEXT_PUBLIC_SITE_URL http://localhost:8080
+          set_var SEED_PREVIEW_MODE true
+          set_var EMAIL_DRIVER file
+          set_var PAYMENTS_DRIVER mock
+          set_var TRANSLATION_DRIVER mock
+          set_var STORAGE_DRIVER local
+          echo "SITE_DOMAIN=localhost" >> .env.production
+      - name: Starten
+        run: docker compose --env-file .env.production up -d --build
+      - name: Warten auf /api/health (höchstens 120 s)
+        run: |
+          for i in $(seq 1 60); do
+            if docker compose exec -T app wget -qO- http://127.0.0.1:3000/api/health | grep -q '"status":"ok"'; then ok=1; break; fi
+            sleep 2
+          done
+          test "${ok:-0}" = "1" || { docker compose logs --tail=100; exit 1; }
+      - name: GET /de = 200, Migrationen angewendet
+        run: |
+          docker compose exec -T app wget -S -O /dev/null http://127.0.0.1:3000/de 2>&1 | grep -q "HTTP/1.1 200"
+          n=$(docker compose exec -T postgres psql -U planetclaire -tAc "select count(*) from payload_migrations")
+          test "$n" -gt 0
+      - name: Aufräumen
+        if: always()
+        run: test ! -f .env.production || docker compose --env-file .env.production down -v
+
   snapshots:
     name: snapshots
     needs: mode
