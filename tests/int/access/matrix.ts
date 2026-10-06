@@ -119,6 +119,8 @@ export const COLLECTION_ACCESS: Record<CollectionSlug, CollectionAccessEntry> = 
   complaints: deny,
   // §6.14: veröffentlichte Motive
   flash: pub(publicRead({ published: { equals: true } })),
+  // P12.8: veröffentlichte Termine („Planet Claire on Tour“), auch vergangene
+  'tour-dates': pub(publicRead({ published: { equals: true } })),
   // §6.16: veröffentlicht und (kein Kundenfoto oder Einwilligung); Vorschau zeigt veröffentlichte Seed-Einträge
   'tattoo-gallery': pub(
     ({ preview }): Where =>

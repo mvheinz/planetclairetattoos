@@ -45,6 +45,7 @@ Grund-Seed und den Mini-Satz an (Spalte „Phase“, §1.8).
 | `privacy-requests` | 5 (je einer aus `PRIVACY_REQUEST_STATUSES`) | `true` | P8 | §11a |
 | `flash` | 10 | `true` | P8 | §12.1 |
 | `tattoo-gallery` | 6 | `true` | P8 | §12.3 |
+| `tour-dates` | 8 | `true` | P12 | §12.5 |
 | `pages` | 13 (alle `PAGE_KEYS`) | `true` | P1 Mini-Satz (`home`, `contact`) · P8 vollständig | §13 |
 | `faqs` | 12 | `true` | P8 | §14 |
 | `revenue-entries` | 18 (9 Monate × Tattoo/Flohmarkt) | `true` | P8 | §15 |
@@ -77,7 +78,7 @@ Grund-Seed und den Mini-Satz an (Spalte „Phase“, §1.8).
 - **Anfragen:** alle `INQUIRY_STATUSES`, eine mit Referenzbild, zwei auf Englisch.
 - **Datenschutz-Anfragen** (`privacy-requests`): alle `PRIVACY_REQUEST_STATUSES`; Arten Auskunft, Löschung; Kanäle E-Mail,
   Brief, Instagram-Nachricht; eine auf Englisch; Fristen `dueAt` vor und nach `N`.
-- **Tattoo:** 10 Flash (4 wiederholbar, 2 vergeben), 6 Galerie-Einträge
+- **Tattoo:** 10 Flash (4 wiederholbar, 2 vergeben), 8 Termine „Planet Claire on Tour“ (§12.5), 6 Galerie-Einträge
   (2 echte Fotos ohne Einwilligung, 4 Platzhalter), Preisrahmen.
 - **Texte:** alle 13 Seiten, Startseite mit Kopf-Station + 7 Stationen, 12 FAQ, Aftercare-Phasen – DE und EN.
 
@@ -140,7 +141,7 @@ Grund-Seed und den Mini-Satz an (Spalte „Phase“, §1.8).
 | `invoices` | `<Bestellung>:invoice` / `<Bestellung>:credit_note:<k>` | `invoices:O05:credit_note:1` |
 | `withdrawals` / `inquiries` | `W1`…`W7` / `A1`…`A7` | `withdrawals:W2` |
 | `complaints` / `privacy-requests` | `RK1`…`RK4` / `DS1`…`DS5` | `complaints:RK2`, `privacy-requests:DS3` |
-| `flash` / `tattoo-gallery` | `F901`…`F910` / `G1`…`G6` | `flash:F907` |
+| `flash` / `tattoo-gallery` / `tour-dates` | `F901`…`F910` / `G1`…`G6` / `TD1`…`TD8` | `flash:F907` |
 | `pages` / `faqs` | Page-Key / `FAQ01`…`FAQ12` | `pages:home`, `faqs:FAQ05` |
 | `revenue-entries` | `<M-k>:<source>` | `revenue-entries:M-9:tattoo` |
 | `email-log` / `consent-log` / `audit-log` | `<Bezug>:<template/zweck>` | `email-log:O05:refund_confirmation` |
@@ -151,7 +152,7 @@ Ein zweiter Lauf von `pnpm seed` ändert keine Anzahl (AK-SEED-01). Suche immer 
 
 | Gruppe | Collections | Regel bei vorhandenem `seedKey` |
 |---|---|---|
-| Inhalt | `media`, `products`, `flash`, `tattoo-gallery`, `pages`, `faqs` | Dokument mit `seed = false` (übernommen) → **überspringen**. Sonst Inhaltsfelder aktualisieren (Texte, Alt-Texte, Maße, Bilder-Reihenfolge, Pflichtangaben). **Nie** ändern: `itemNumber`/`number`, `status` und alle Verkaufsfelder (§5.3), `category` außer bei `draft`, `priceCents` bei `reserved`/`sold`. Leere Verweise (`currentOrder`, `reservationRef`) dürfen ergänzt werden. Mediendateien werden nur mit `--refresh-media` neu hochgeladen. |
+| Inhalt | `media`, `products`, `flash`, `tattoo-gallery`, `tour-dates`, `pages`, `faqs` | Dokument mit `seed = false` (übernommen) → **überspringen**. Sonst Inhaltsfelder aktualisieren (Texte, Alt-Texte, Maße, Bilder-Reihenfolge, Pflichtangaben). **Nie** ändern: `itemNumber`/`number`, `status` und alle Verkaufsfelder (§5.3), `category` außer bei `draft`, `priceCents` bei `reserved`/`sold`. Leere Verweise (`currentOrder`, `reservationRef`) dürfen ergänzt werden. Mediendateien werden nur mit `--refresh-media` neu hochgeladen. |
 | Vorgänge | `checkouts`, `orders`, `reservations`, `invoices`, `withdrawals`, `complaints`, `inquiries`, `privacy-requests`, `revenue-entries`, `private-uploads`, alle Logs | **nur anlegen**; vorhandene nie ändern. Abweichungen zur Datei meldet der Lauf als „unverändert (create-only)“. Änderungen wirken erst nach `pnpm seed:reset`. |
 | Grund-Seed | `categories`, `settings`, `site-texts`, `legal-texts`, Admin | **nur fehlende** Dokumente anlegen bzw. **leere** Felder füllen; nie Juttas Werte überschreiben. |
 
@@ -213,7 +214,7 @@ Ausnahmen gelten nur bei `req.context.seed === true`, nie über die Verwaltung o
 1. Guard (§1.5), `SEED_NOW` auflösen (§2.2), Daten laden und mit zod prüfen (alles oder nichts).
 2. Grund-Seed (§3).
 3. `media` (Ausschnitte erzeugen, §4) → `private-uploads` (§4.4).
-4. `products` (ohne `currentOrder`) → `flash` → `tattoo-gallery` → `pages` → `faqs`.
+4. `products` (ohne `currentOrder`) → `flash` → `tattoo-gallery` → `tour-dates` → `pages` → `faqs`.
 5. `checkouts` (§7.3) → `orders` in Reihenfolge `placedAt` → `reservations` (§8); danach `checkouts.order`,
    `orders.checkout`, `reservations.order` und `products.currentOrder`/`reservationRef` setzen.
 6. `invoices`: je Serie streng nach `issueAt` (§9), danach `orders.invoice` und `refunds[].creditNote` verknüpfen.
@@ -251,6 +252,7 @@ Ausnahmen gelten nur bei `req.context.seed === true`, nie über die Verwaltung o
 | `content/seed/data/orders.json` | §7, §8, §9 (Kassen, Bestellungen inkl. Reservierungen, Erstattungen, Belegen) |
 | `content/seed/data/withdrawals.json`, `complaints.json`, `inquiries.json`, `privacy-requests.json` | §10, §10a, §11, §11a |
 | `content/seed/data/tattoo.json` | §12 (Flash, Galerie) |
+| `content/seed/data/tour.json` | §12.5 (Termine „Planet Claire on Tour“) |
 | `content/seed/data/pages.json`, `faqs.json` | §13, §14 |
 | `content/seed/data/revenue.json` | §15 |
 | `content/seed/data/logs.json` | §16 (Regeln + Ausnahmen) |
@@ -1346,6 +1348,23 @@ gelöscht (§18).
 
 Kommen aus `settings.tattoo` (§3.1): Mindestpreis 80 €, eigene Ideen meist 150–400 €. Text im Block `priceInfo` (§13.5).
 
+### 12.5 Termine „Planet Claire on Tour“ (`tour-dates`, 8)
+
+Fiktive Märkte in Berlin (Straßen heißen „Beispiel…“), `published = true`, ohne Link und Foto; Datum relativ zu `N`, ganze Berliner Tage (Beginn 00:00, Ende 23:59:59). „vorbei“ ergibt sich aus dem Datum, `cancelled` ist abgesagt. Alle Texte DE und EN.
+
+| Key | `name` DE / EN | `startsAt` → `endsAt` | `status` | Zustand (kanonisch) | `place` | `address` · Stand · Zeit | `note` DE / EN |
+|---|---|---|---|---|---|---|---|
+| TD1 | Hinterhof-Flohmarkt Nord / Backyard flea market North | `D-52` → `D-52` | planned | vorbei | Berlin-Wedding | Hof der Alten Bäckerei, Beispielweg 3 · B12 · 10:00–17:00 | Coco war dabei und hat alle Tüten bewacht. / Coco came along and guarded all the bags. |
+| TD2 | Sommerflohmarkt am Kanal / Summer flea market by the canal | `D-24` → `D-23` | planned | vorbei | Berlin-Neukölln | Uferweg am Beispielkanal · Platz 27 · 11:00–18:00 | – |
+| TD3 | Kunstmarkt in der Remise / Art market in the carriage house | `D-10` → `D-10` | cancelled | abgesagt, vorbei | Berlin-Friedrichshain | Remise Beispielhof, Beispielallee 8 · A4 · 12:00–19:00 | Fällt leider aus. / Sadly cancelled. |
+| TD4 | Herbstmarkt der Hinterhöfe / Autumn market of the backyards | `D-1` → `D+1` | planned | läuft gerade | Berlin-Kreuzberg | Innenhof am Beispielplatz 1 · H7 · 10:00–18:00 | Drei Tage, viele kleine Stände, Coco ist dabei. / Three days, many small stalls, Coco is coming along. |
+| TD5 | Design- und Zeichenmarkt / Design and drawing market | `D+9` → `D+9` | planned | kommt | Berlin-Prenzlauer Berg | Bürgersaal Beispielstraße 10 · D3 · 11:00–17:30 | Neue Zeichnungen im Gepäck. / With new drawings in my bag. |
+| TD6 | Flohmarkt auf dem Parkdeck / Flea market on the car park roof | `D+16` → `D+16` | cancelled | abgesagt, kommt | Berlin-Schöneberg | Parkdeck Beispielring · C21 · 10:00–16:00 | Der Markt wurde vom Veranstalter abgesagt. / The organiser has cancelled this market. |
+| TD7 | Winter-Kunstmarkt in der Schalterhalle / Winter art market in the ticket hall | `D+37` → `D+38` | planned | kommt | Berlin-Mitte | Alte Schalterhalle, Beispieldamm 2 · S9 · 11:00–19:00 | – |
+| TD8 | Markt der kleinen Läden / Market of the little shops | `D+58` → `D+58` | planned | kommt | Berlin-Charlottenburg | – · – · 12:00–18:00 | Ort und Stand folgen. / Place and stall to follow. |
+
+Sichtbar: alle acht; die kommenden (TD4–TD8) oben (TD6 durchgestrichen), die vergangenen (TD1–TD3) eingeklappt (AK-SEED-23).
+
 ---
 
 ## 13. Seiten (`pages`, 13)
@@ -1675,6 +1694,7 @@ Kunden-E-Mail. Bezug `checkout` nur, wenn die Kasse noch existiert (§7.3).
 | AK-SEED-20 | Status-URLs aus `seedToken('orders:<Key>', 'status')` für O01, O10, O13 und Danke-URLs aus `seedToken('checkouts:<Key>', 'checkout')` für O13, O14 öffnen die Seiten und zeigen „Beispiel“; ein anderer Token liefert 404; `seedToken()` hängt nicht von `PAYLOAD_SECRET` ab | e2e |
 | AK-SEED-21 | Nach `pnpm seed` mit `SEED_PREVIEW_MODE=true` und `APP_ENV=preview`: Monats-CSV, DATEV-Export, Rechnungs-ZIP und der Jahres-Export der Verpackungsmengen (`GET /api/admin/packaging-report?year=`) enthalten keinen Datensatz mit `seed = true` (bei reinem Beispielbestand: nur Kopfzeile bzw. leeres Archiv) | int |
 | AK-SEED-22 | Jeder Wert aus `WITHDRAWAL_STATUSES`, `WITHDRAWAL_MATCH_STATUSES`, `COMPLAINT_STATUSES`, `INQUIRY_STATUSES` und `PRIVACY_REQUEST_STATUSES` kommt mindestens einmal vor (Mengen §0.1); `closed` hat `closeReason`, `rejected` hat `closeNote` bzw. `resultNote`; jede Reklamation hängt an einer bezahlten Bestellung und hat `receivedAt` nach `shippedAt`/`pickedUpAt`; Nummern `WR`, `AA`, `DS` steigen mit `receivedAt`/`createdAt`; bei kanonischem `N` ist keine Datenschutz-Erinnerung fällig und keine Exportdatei vorhanden; `seed:remove --yes` hinterlässt 0 Reklamationen, 0 Datenschutz-Anfragen und keine `complaint_photo`-Dateien mit `seed = true` | int |
+| AK-SEED-23 | Termine TD1–TD8 (P12.8): 8 Beispiel-Termine; bei kanonischem `N` stehen TD4–TD8 oben (TD6 abgesagt), TD1–TD3 eingeklappt; jeder Termin DE und EN | int, e2e |
 
 ---
 

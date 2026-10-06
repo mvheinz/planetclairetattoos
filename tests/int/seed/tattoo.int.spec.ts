@@ -2,6 +2,8 @@ import type { Payload, PayloadRequest } from 'payload'
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { loadFlash, loadGallery, toPublicGallery } from '@/lib/data/tattoo'
+import { loadTourDates } from '@/lib/data/tour'
+import { splitTourDates, tourState } from '@/lib/tour/dates'
 import { getEnv, resetEnvCache, type Env } from '@/lib/env'
 import { fileResponseHandler } from '@/lib/storage'
 import { expectedCount } from '@/lib/seed/expected'
@@ -114,6 +116,46 @@ describe('Flash (SEED-SPEC §12.1)', () => {
     )
     expect(en.sizeNote).toBeNull()
     expect((await loadFlash('en')).find((f) => f.number === 902)!.sizeNote).toBe('size adjustable')
+  })
+})
+
+describe('Termine „Planet Claire on Tour“ (SEED-SPEC §12.5)', () => {
+  it('AK-SEED-23: 8 Termine; bei kanonischem N stehen TD4–TD8 oben (TD6 abgesagt), TD1–TD3 eingeklappt; DE und EN vollständig', async () => {
+    setEnv(true, 'preview')
+    const de = await loadTourDates('de')
+    const en = await loadTourDates('en')
+    expect(de).toHaveLength(expectedCount('tour-dates'))
+    expect(en).toHaveLength(expectedCount('tour-dates'))
+    const { upcoming, past } = splitTourDates(de, SEED_N)
+    expect(upcoming.map((t) => t.name)).toEqual([
+      'Herbstmarkt der Hinterhöfe',
+      'Design- und Zeichenmarkt',
+      'Flohmarkt auf dem Parkdeck',
+      'Winter-Kunstmarkt in der Schalterhalle',
+      'Markt der kleinen Läden',
+    ])
+    expect(past.map((t) => t.name)).toEqual([
+      'Kunstmarkt in der Remise',
+      'Sommerflohmarkt am Kanal',
+      'Hinterhof-Flohmarkt Nord',
+    ])
+    expect(upcoming.map((t) => tourState(t, SEED_N))).toEqual([
+      'running',
+      'upcoming',
+      'cancelled',
+      'upcoming',
+      'upcoming',
+    ])
+    expect(tourState(past[0]!, SEED_N)).toBe('cancelled')
+    // Englisch eigenständig formuliert, nicht der deutsche Text
+    for (const t of de) {
+      const e = en.find((x) => x.id === t.id)!
+      expect(e.name, t.name).not.toBe(t.name)
+      if (t.note) expect(e.note, t.name).not.toBe(t.note)
+    }
+    // Beispiel-Termine nur im Vorschau-Modus öffentlich
+    setEnv(false, 'production')
+    expect(await loadTourDates('de')).toEqual([])
   })
 })
 

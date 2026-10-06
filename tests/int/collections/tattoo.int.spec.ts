@@ -180,7 +180,11 @@ describe('tattoo-gallery (DATENMODELL §6.16)', () => {
       /Einwilligung erteilt|5–300/,
     )
     await rejects(
-      entry({ consentGiven: true, consentDate: '2027-01-01T00:00:00.000Z', consentNote: 'per DM' }),
+      entry({
+        consentGiven: true,
+        consentDate: '2027-01-01T00:00:00.000Z',
+        consentNote: 'per Mail',
+      }),
       /Zukunft/,
     )
     await rejects(entry({ kind: 'healed' }), /healed/)
@@ -189,7 +193,7 @@ describe('tattoo-gallery (DATENMODELL §6.16)', () => {
       published: true,
       consentGiven: true,
       consentDate: '2026-10-02T00:00:00.000Z',
-      consentNote: 'per DM am 02.10.2026',
+      consentNote: 'per Mail am 02.10.2026',
       extraImages: [imageB],
       creditHandle: '@erika.tattoo',
     })
