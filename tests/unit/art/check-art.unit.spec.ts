@@ -196,9 +196,10 @@ describe('P9.5 Coco CO', () => {
 
   it('CO-07: Sprite mit <circle> scheitert; gespiegelter Frame scheitert; eigenständige Frames bestehen', async () => {
     const own = `<svg>${STYLE}${symbol('coco-sitzen-a', blob(0))}${symbol('coco-sitzen-b', `${blob(0)}<path d="M40 90q10 8 30 2"/>`)}</svg>`
-    expect(A.co07(own, await A.silhouettes(own, 128)).status).toBe('PASS')
+    const ownSil = await A.silhouettes(own, 128)
+    expect(A.co07(own, ownSil).status).toBe('PASS')
     const circle = own.replace('</symbol>', '<circle cx="5" cy="5" r="3"/></symbol>')
-    const c = A.co07(circle, await A.silhouettes(own, 128))
+    const c = A.co07(circle, ownSil)
     expect(c.status).toBe('FAIL')
     expect(c.details!.join()).toMatch(/circle/)
     const mirrored = `<svg>${STYLE}${symbol('coco-sitzen-a', blob(0))}${symbol('coco-sitzen-b', blobMirror(0))}</svg>`
@@ -209,7 +210,8 @@ describe('P9.5 Coco CO', () => {
     expect(A.co07(shifted, await A.silhouettes(shifted, 128)).details!.join()).toMatch(
       /Verschiebung/,
     )
-  })
+    // Rastert mit sharp; unter Coverage (CI) dauert das > 5 s → eigenes Zeitlimit.
+  }, 30_000)
 
   it('CO-04: D-Ring springt um 4 Einheiten → FAIL', () => {
     const sym = (pose: string, frame: string, x: number) => ({
