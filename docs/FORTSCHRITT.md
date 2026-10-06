@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P10 CI grün
+
+Phasenlauf `238d9f6`: CI, CI full (sechs Browser-Hälften, Abdeckung, Docker, Lighthouse), Vorschau-Export, Kunst-QA, Restore-Drill und der Probelauf des Vorschau-Releases grün; zuvor schon `a912d25` grün (zwei Volläufe hintereinander ohne Wackler). Vorschau-Artefakt `planet-claire-vorschau-p10-238d9f6`. Plan P1–P10 abgehakt.
+
 ## 2026-10-06 – P10 Abschlussbericht (P1–P10) – für Jutta
 
 ### Phase 10 fertig: Die Vorschau-Datei steht bereit, der Plan ist bis auf den Start (P11) leer

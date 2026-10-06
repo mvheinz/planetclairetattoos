@@ -5487,12 +5487,12 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
 - [x] Doku vollständig: `docs/RUNBOOK.md`, `docs/GO-LIVE.md`, `docs/owner/HANDBUCH.md`, ARCHITEKTUR §6.10 und Anhang B
   (B-03, B-06, B-08 mit Ergebnis), `.env.example` und `.env.production.example` aus `src/lib/env.ts` konsistent.
 - [x] `docs/FORTSCHRITT.md` mit Abschlussbericht nach CLAUDE.md §8, `docs/OFFENE-PUNKTE.md` aktuell.
-- [ ] CI grün: Phasenende-Commit `chore(P10): finish phase [ci:full p10]` → `ci.yml`, `ci-full.yml` (inkl. `docker`),
+- [x] CI grün: Phasenende-Commit `chore(P10): finish phase [ci:full p10]` → `ci.yml`, `ci-full.yml` (inkl. `docker`),
   `preview-export.yml` und der Probelauf von `release.yml` grün; `restore-drill.yml` (über `pull_request`) und
   `art-qa.yml` (Label `art` oder `workflow_dispatch`) je einmal grün. Dieses Häkchen setzt erst der Doku-Commit mit
   `[skip ci]` nach dem grünen Lauf (P10.22 Schritt 5, ARCHITEKTUR §6.7).
-- [ ] `bash scripts/cloud-setup.sh --plan-status` zeigt `OFFEN_P1_P10=0` (auch als letzte Ausgabe vor dem Anhalten).
-- [ ] PR-Beschreibung aktualisiert; gemergt oder oben „Bitte mergen – CI ist grün“.
+- [x] `bash scripts/cloud-setup.sh --plan-status` zeigt `OFFEN_P1_P10=0` (auch als letzte Ausgabe vor dem Anhalten).
+- [x] PR-Beschreibung aktualisiert; gemergt oder oben „Bitte mergen – CI ist grün“.
 
 Nach dem Merge automatisch (ohne Checkbox; prüft P11.1):
 
