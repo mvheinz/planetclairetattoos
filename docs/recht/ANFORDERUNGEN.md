@@ -1504,7 +1504,7 @@ Lücken in der Nummerierung sind Reserve.
 - **Rechtsgrundlage:** §§ 312c, 312g, 356a BGB (kein Online-Vertrag); Art. 9 DSGVO (keine Gesundheitsdaten über die
   Website); E-51, E-53. Kanzlei: K-26.
 - **Abnahme:** `int` – Warenkorb-API lehnt Tattoo-IDs ab; `e2e` – Mail-Knopf hat `href` `mailto:…?subject=…` mit
-  „Flash-Anfrage F-…“, DM-Knopf verlinkt `ig.me`; `unit` – V-24/V-25-Scan der Tattoo-Inhalte.
+  „Flash-Anfrage F-…“; kein DM-Knopf (P12.7); `unit` – V-24/V-25-Scan der Tattoo-Inhalte.
 - **Phase:** P7 · **Owner:** nein
 
 #### R-171 · (entfallen) Abgelaufene Flash-Days/Aktionen ausblenden
