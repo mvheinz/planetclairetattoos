@@ -5068,7 +5068,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
 
 ### Aufgaben
 
-- [ ] **P10.1 Testinventur, Rückverfolgbarkeit und Abdeckung** – R-001 auf `LEGAL_TRACE_PHASE = 10` stellen und
+- [x] **P10.1 Testinventur, Rückverfolgbarkeit und Abdeckung** – R-001 auf `LEGAL_TRACE_PHASE = 10` stellen und
   fehlende Tests zu R-IDs mit Test-Art `unit`/`int`/`e2e` ergänzen. Neuer Meta-Test
   `tests/unit/meta/ak-trace.unit.spec.ts`: sammelt alle Akzeptanz-IDs aus KONZEPT (`AK-…`, `EK-…`), DATENMODELL
   (`DM-…`), ARCHITEKTUR (`AK-A-…`, `T-01`…`T-22`), DESIGN (`AK-DS-…`) und SEED-SPEC (`AK-SEED-…`) und verlangt je ID
@@ -5083,7 +5083,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: die beiden Meta-Tests; `pnpm test:coverage`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: manuelle Punkte aus `tests/manual-checks.json` mit Phase P11.
 
-- [ ] **P10.2 E2E-Gesamtlauf und Kaufpfad-Kennzahlen** – Alle Playwright-Projekte (`desktop`, `iphone-15` WebKit,
+- [x] **P10.2 E2E-Gesamtlauf und Kaufpfad-Kennzahlen** – Alle Playwright-Projekte (`desktop`, `iphone-15` WebKit,
   `pixel-7`) mit allen Tags außer `@visual`/`@perf` sowie `pnpm test:visual` (Referenzen nur Linux und nur in CI
   erzeugt: Commit mit `[ci:update-snapshots]` → Artefakt → `gh run download` → Commit mit Begründung).
   Kennzahlen-Tests: EK-02 (Produkt → Warenkorb → Kasse → Danke in ≤ 4 Seiten für Karte, PayPal, Vorkasse, Abholung bei
@@ -5109,7 +5109,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: Erweiterung der `@a11y`-Suite; `tests/e2e/a11y/keyboard.e2e.spec.ts`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P10.4 Tempo-Budgets als Gate** – `pnpm test:perf` (Lighthouse-CI mobil, Median aus 3) für R01, R02, R04, R11
+- [x] **P10.4 Tempo-Budgets als Gate** – `pnpm test:perf` (Lighthouse-CI mobil, Median aus 3) für R01, R02, R04, R11
   (LCP ≤ 2,5 s, TBT ≤ 200 ms, CLS ≤ 0,1) und CLS zusätzlich für R06/R07; `pnpm check:bundle` für alle Seitentypen
   (ARCHITEKTUR §7.7: R01 ≤ 170 KB, R02–R05/R11–R27 ≤ 150 KB, R06/R07 ≤ 220 KB ohne Stripe.js; Lazy-Chunks laut DESIGN
   §9.10; drei Schriften ≤ 100 KB; LCP-Bild ≤ 120 KB; R01 ≤ 1,5 MB); INP-Ersatz (`@perf`, `pixel-7`, CPU 4×).
@@ -5361,7 +5361,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Tests: bestehende Suiten; `tests/unit/legal/withdrawal-placeholder.unit.spec.ts` (R-095-Token).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: RECHT §7 Teil B (P11).
 
-- [ ] **P10.20 Finale Vorschau-Datei und Offline-Abnahmetest** – Die finale Single-File-Vorschau nach E-98:
+- [x] **P10.20 Finale Vorschau-Datei und Offline-Abnahmetest** – Die finale Single-File-Vorschau nach E-98:
   `pnpm preview:export` auf dem Endstand erzeugt `dist/planet-claire-vorschau.html` – die ganze Website als **eine**
   HTML-Datei (alle Seiten, Bilder, Schriften, Animationen inline, Kasse als Attrappe): alle Registry-Routen gebaut
   (kein `not-built`), alle Verwaltungsansichten als Bilder (`adminViews` alle `ok`), Banner nach KONZEPT §12.5 Nr. 8 mit
@@ -5390,7 +5390,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
     `tests/unit/preview/r182.unit.spec.ts`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P10.21 GitHub-Release „Vorschau“ (automatisch, sobald der Plan leer ist)** – `.github/workflows/release.yml`
+- [x] **P10.21 GitHub-Release „Vorschau“ (automatisch, sobald der Plan leer ist)** – `.github/workflows/release.yml`
   nach ARCHITEKTUR §6.6 und `.github/vorschau-release.json` (`tag: vorschau-p10`, `title: "Planet Claire – Vorschau
   (Stand P10)"`, `notesDe` mit Öffnen-Anleitung nach ANLEITUNGEN V1, dem Satz „Nur privat ansehen, nicht weitergeben,
   nicht veröffentlichen“ (R-182; Seed-Tattoofotos ohne Einwilligung, CLOUD-SETUP) und einer Zeile „Stand: TT.MM.JJJJ“).
@@ -5439,7 +5439,7 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
   - Ohne Jutta: vollständig machbar (Veröffentlichung spätestens mit Juttas Merge-Klick, A07). P11-Nacharbeit: in
     P11.1 prüfen, dass das Release existiert und sich auf Juttas Rechner öffnen lässt.
 
-- [ ] **P10.22 Abschlussbericht für Jutta und Anhalten** – Abschluss nach CLAUDE.md §8, in dieser Reihenfolge:
+- [x] **P10.22 Abschlussbericht für Jutta und Anhalten** – Abschluss nach CLAUDE.md §8, in dieser Reihenfolge:
   1. `docs/FORTSCHRITT.md` um den Abschlussbericht ergänzen (Deutsch, du-Form, ohne Fachjargon), mit genau diesen
      Teilen: was fertig ist; wie sie die Vorschau-Datei öffnet (Link zum Release `vorschau-p10`, ANLEITUNGEN G7/V1, auf
      jedem Rechner offline, nur privat ansehen); welche Punkte aus `docs/OFFENE-PUNKTE.md` sie entscheiden sollte
@@ -5477,16 +5477,16 @@ R-191, R-210, RECHT §5, §7 Teil A; KONZEPT §1.4 (EK-01…EK-11), §1.5, §1.6
 
 ### Phasen-Abnahme
 
-- [ ] Alle Aufgaben P10.1–P10.22 abgehakt; Gate G5 erfüllt, soweit vor dem Merge prüfbar (G3 + PR-Probelauf von
+- [x] Alle Aufgaben P10.1–P10.22 abgehakt; Gate G5 erfüllt, soweit vor dem Merge prüfbar (G3 + PR-Probelauf von
   `release.yml` + Startklar-Trockenlauf mit `APP_ENV=production`-Simulation, ARCHITEKTUR §7.9).
-- [ ] `pnpm check`, `pnpm test:int`, `pnpm build`, `pnpm test:e2e`, `pnpm test:visual`, `pnpm test:perf`,
+- [x] `pnpm check`, `pnpm test:int`, `pnpm build`, `pnpm test:e2e`, `pnpm test:visual`, `pnpm test:perf`,
   `pnpm test:coverage` lokal grün.
-- [ ] EK-01, EK-04, EK-05, EK-07, EK-09, EK-11 durch Tests belegt; R-001 mit `LEGAL_TRACE_PHASE = 10` grün.
-- [ ] Finale Vorschau `dist/planet-claire-vorschau.html` besteht Offline- und Portabilitätstest (P10.20); keine
+- [x] EK-01, EK-04, EK-05, EK-07, EK-09, EK-11 durch Tests belegt; R-001 mit `LEGAL_TRACE_PHASE = 10` grün.
+- [x] Finale Vorschau `dist/planet-claire-vorschau.html` besteht Offline- und Portabilitätstest (P10.20); keine
   HTML-Vorschau im Repository.
-- [ ] Doku vollständig: `docs/RUNBOOK.md`, `docs/GO-LIVE.md`, `docs/owner/HANDBUCH.md`, ARCHITEKTUR §6.10 und Anhang B
+- [x] Doku vollständig: `docs/RUNBOOK.md`, `docs/GO-LIVE.md`, `docs/owner/HANDBUCH.md`, ARCHITEKTUR §6.10 und Anhang B
   (B-03, B-06, B-08 mit Ergebnis), `.env.example` und `.env.production.example` aus `src/lib/env.ts` konsistent.
-- [ ] `docs/FORTSCHRITT.md` mit Abschlussbericht nach CLAUDE.md §8, `docs/OFFENE-PUNKTE.md` aktuell.
+- [x] `docs/FORTSCHRITT.md` mit Abschlussbericht nach CLAUDE.md §8, `docs/OFFENE-PUNKTE.md` aktuell.
 - [ ] CI grün: Phasenende-Commit `chore(P10): finish phase [ci:full p10]` → `ci.yml`, `ci-full.yml` (inkl. `docker`),
   `preview-export.yml` und der Probelauf von `release.yml` grün; `restore-drill.yml` (über `pull_request`) und
   `art-qa.yml` (Label `art` oder `workflow_dispatch`) je einmal grün. Dieses Häkchen setzt erst der Doku-Commit mit

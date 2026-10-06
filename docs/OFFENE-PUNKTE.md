@@ -1,6 +1,6 @@
 # Offene Punkte
 
-> **Stand:** 05.10.2026 (Endkontrolle P10.19) · **Für:** Jutta und alle Claude-Sessions P1–P10 · **Durchsicht:** in P11
+> **Stand:** 06.10.2026 (Abschluss P10.22) · **Für:** Jutta und alle Claude-Sessions P1–P10 · **Durchsicht:** in P11
 > gemeinsam (AUFGABEN A31, PLAN P11.1)
 
 ## 1. Was ist diese Liste?
@@ -62,6 +62,18 @@ W-Liste vor Phase P1) · KUNST-QA = `docs/design/KUNST-QA.md` · CLOUD-SETUP = `
 Hier stehen nur Punkte, bei denen es um eine Entscheidung, eine Lieferung oder eine Annahme geht, die du kennen
 solltest. Alle Schritt-für-Schritt-Aufgaben (Konten, Stripe, PayPal, DNS, Start-Tag) stehen in
 `docs/owner/AUFGABEN.md` (A01–A50) und werden hier nicht wiederholt.
+
+### Überblick nach Stand P10 (06.10.2026)
+
+Sortiert nach Zuständigkeit; Einzelheiten in den Tabellen darunter (§2 Jutta, §3 Kanzlei, §4.2 technisch erledigt).
+
+- **Jutta entscheidet (§2):** zuerst J-04 (Kanzlei beauftragen), J-01, J-02, J-03, J-09, J-11; dann J-06 (Instagram-Export fehlt),
+  Kunst-QA offen (AR-05, Platzhalter-Gesichter und Coco beim Seitenwechsel, Protokoll P9.18a), R-049 (amtliche Widerrufs-Grafik
+  ist noch Platzhalter), Prüfung auf einem echten iPhone und im Instagram-Browser (P11.16); danach J-05, J-12 bis J-16 und die
+  kleinen Regeln J-17 bis J-35.
+- **Kanzlei (§3):** K-xx, gebündelt in `docs/recht/KANZLEI-BRIEFING.md`; offen bis die Texte geliefert sind (J-04).
+- **Steuerberatung:** J-09, J-11, J-36 bis J-38 (§2.5); nichts davon blockiert die Vorschau.
+- **Technisch erledigt:** siehe §4.2 (P9 und P10 vollständig, inkl. grünem Phasenlauf, Docker-Nachweis B-08, Restore-Drill B-06).
 
 ### 2.1 Wichtig – bitte zuerst
 
@@ -307,7 +319,7 @@ ausführen; die Studio-Abnahme der Figur erfolgte in P9 (KUNST-QA), Jutta schaut
 
 ### 4.2 Erledigt bis P10 (technisch, nichts für Jutta zu tun)
 
-Stand der Endkontrolle P10.19 (05.10.2026). Quelle: `docs/FORTSCHRITT.md`; Einzelheiten und Annahmen stehen im
+Stand der Endkontrolle P10.19 (05.10.2026), ergänzt am 06.10.2026 um den grünen Phasenlauf. Quelle: `docs/FORTSCHRITT.md`; Einzelheiten und Annahmen stehen im
 Protokoll (§5).
 
 | Bereich | Stand |
@@ -315,11 +327,15 @@ Protokoll (§5).
 | Backup und Wiederherstellung (P10.8, P10.9) | Dump, Spiegel, `backup:verify`, Wiederherstellung Schritt für Schritt im RUNBOOK; Spike B-06 bestanden |
 | Überwachung (P10.10) | Alarme M-01 bis M-12 mit Handlungsanweisung im RUNBOOK |
 | Statistik (P10.11) | gebaut, ohne Cookies, **aus** (Entscheidung J-16 nach Kanzlei K-30) |
-| Docker-Umzug, Vercel, Absicherung (P10.12, P10.13) | Exit-Pfad, `vercel.json`, Origin-Listen, `db:mark-production`; Docker-Bau-Nachweis (B-08) kommt mit der CI in P10.21 |
+| Docker-Umzug, Vercel, Absicherung (P10.12, P10.13) | Exit-Pfad, `vercel.json`, Origin-Listen, `db:mark-production`; Docker-Bau-Nachweis (B-08) erbracht im `docker`-Job von `ci-full` |
 | Startklar-Prüfung (P10.14) | `pnpm check:golive` und Ansicht; bleibt absichtlich rot bis P11 |
 | Dokumente (P10.15 bis P10.18) | RUNBOOK, GO-LIVE, Handbuch für Jutta mit 41 Bildschirmfotos (`pnpm handbook:shots`) |
 | Rechts-Endkontrolle (P10.19) | RECHT §7 Teil A abgehakt; R-049 hat weiter die Platzhalter-Grafik (siehe Protokoll P3.3, bis P11) |
 | Kunst (P9) | Studio-Abnahme der Zeichnungen und Coco (KUNST-QA); Coco nach Juttas 5 Fotos |
+| Phasenlauf P10 (06.10.2026) | `ci.yml`, `ci-full.yml` (alle Browser-Hälften, Abdeckung, Lighthouse, Bundle, `docker`), `preview-export.yml`, Kunst-QA, Restore-Drill und Probelauf `release.yml` grün; Kennzahlen in `docs/FORTSCHRITT.md` |
+| Docker-Bau-Nachweis (B-08) | erledigt im grünen `docker`-Job von `ci-full` |
+| Vorschau-Datei (P10.20, P10.21) | Offline- und Portabilitätstest grün (ca. 8 MB); Release `vorschau-p10` entsteht automatisch nach dem Merge (P11.1 prüft es) |
+| Abschlussbericht (P10.22) | in `docs/FORTSCHRITT.md`; Test `tests/unit/docs/final-report.unit.spec.ts` |
 
 ---
 

@@ -2,6 +2,83 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P10 Abschlussbericht (P1–P10) – für Jutta
+
+### Phase 10 fertig: Die Vorschau-Datei steht bereit, der Plan ist bis auf den Start (P11) leer
+
+Hallo Jutta,
+
+alle Phasen von P1 bis P10 sind fertig. Auf GitHub sind alle Prüfläufe grün: die normalen Tests, der große Lauf mit allen Browsern, die Tempo-Messung, die Übung „Datenbank aus dem Backup wiederherstellen“, der Docker-Notausgang (ein Umzug auf einen eigenen Server, falls Vercel einmal ausfällt) und die Kunst-Prüfung. Die Tempo-Werte stehen weiter unten im Eintrag „P10 Kennzahlen“. Jetzt bist du dran: lesen, ansehen, entscheiden – und dann gemeinsam der Start (P11).
+
+### Was fertig ist
+
+- **Seite und Shop (P1–P5):** Startseite, Über mich, Tattoo-Bereich mit Anfrageformular, Shop mit Keramik, Schmuck, Textil und Zeichnungen. Jedes Unikat kann nur einmal verkauft werden. Bezahlen mit Karte und PayPal (über Stripe) oder per Vorkasse, Abholung oder Versand, Rechnungen und Bestätigungs-Mails. Alles läuft bisher nur zum Üben (mit Test-Zahlungen, ohne echtes Geld).
+- **Verwaltung (P5–P6):** Du bearbeitest Bestellungen mit wenigen Taps am Handy („bezahlt → versendet“ in höchstens fünf Taps), druckst Etiketten und Beileger und siehst den Umsatz-Wächter für die Kleinunternehmer-Grenze.
+- **Recht und Datenschutz (P7):** Widerruf in zwei Schritten (Link „Vertrag widerrufen“ in jedem Seitenfuß), Einwilligung pro Tattoo-Foto, Löschfristen, keine Cookies vor dem ersten Warenkorb-Klick, keine Fremd-Dienste auf den öffentlichen Seiten. Die Rechtstexte sind noch Platzhalter, bis die Kanzlei liefert.
+- **Beispielbestand (P8):** Rund dreißig Beispiel-Stücke, Tattoos und Texte, damit du die Seite „wie echt“ sehen kannst. Alles ist als Beispiel markiert und wird vor dem Start restlos entfernt.
+- **Kunst und Bewegung (P9):** Coco nach deinen Fotos, die Tuschelinie, Zeichnungen und Seitenübergänge; wer „weniger Bewegung“ eingestellt hat, bekommt ruhige Seiten.
+- **Betrieb und Absicherung (P10):** Backups samt Wiederherstellungs-Übung, Überwachung mit Alarmen, Besucher-Statistik ohne Cookies (ausgeschaltet), die „Startklar“-Prüfung (bleibt absichtlich rot, bis wir die echten Angaben eingetragen haben), Betriebs- und Start-Handbuch (`docs/RUNBOOK.md`, `docs/GO-LIVE.md`), dein Handbuch mit 41 Bildschirmfotos (`docs/owner/HANDBUCH.md`) und die fertige Vorschau-Datei.
+
+### So öffnest du die Vorschau-Datei
+
+1. Öffne den Link: https://github.com/mvheinz/planetclairetattoos/releases/tag/vorschau-p10 (Release „Planet Claire – Vorschau (Stand P10)“). Er funktioniert erst, nachdem der Pull Request übernommen („gemergt“) ist; dann erscheint die Vorschau automatisch dort.
+2. Klicke unter „Assets“ auf `planet-claire-vorschau.html`; die Datei lädt direkt herunter (Schritt für Schritt: `docs/owner/ANLEITUNGEN.md`, G7).
+3. Doppelklick darauf. Sie öffnet sich im Browser, **auf jedem Rechner ganz ohne Internet** (V1). Warnt der Browser („selten heruntergeladen“), wähle „Behalten“: Die Datei kommt aus deinem eigenen Repo und schickt nichts ins Netz. Sie ist ca. 8 MB groß; am Handy klappt es nicht zuverlässig.
+4. **Nur privat ansehen**, nicht weitergeben und nicht veröffentlichen: Sie enthält Beispieldaten, zwei Tattoo-Fotos ohne Einwilligung und Rechtstexte, die noch Platzhalter sind.
+
+### Video-Bündel der Kunst-Prüfung
+
+Die Videos der Kunst-Prüfung (Handy und Desktop) liegen im Lauf https://github.com/mvheinz/planetclairetattoos/actions/runs/37403045986 unter „Artifacts“ als `art-qa-20261006-iter01-b093408`. Sie sind **30 Tage ab dem 06.10.2026** abrufbar. Danach lasse ich den Lauf `art-qa.yml` neu starten (Actions → „art-qa“ → „Run workflow“) und trage den neuen Link ein.
+
+### Diese Punkte aus `docs/OFFENE-PUNKTE.md` solltest du entscheiden (nach Wichtigkeit)
+
+1. **Kanzlei beauftragen (J-04)**: Ohne die fertigen Rechtstexte (Impressum, Datenschutz, AGB, Widerrufsbelehrung) geht die Seite nicht live; die Kanzlei braucht Zeit, also zuerst.
+2. **Deine Adresse im Impressum (J-01)**: Privatadresse lassen oder eine Geschäftsadresse nehmen – die Kanzlei klärt, was reicht.
+3. **Telefonnummer (J-02)**: Sie ist Pflicht im Impressum und in der Widerrufsbelehrung; eine eigene Geschäftsnummer ist am besten.
+4. **Verpackung (J-03)**: LUCID-Registrierung und Verpackungslizenz brauchst du vor dem ersten Paket; das kannst nur du selbst anlegen.
+5. **Steuer und Rechnungen (J-09, J-11)**: Mit der Steuerberatung Steuernummer, Kleinunternehmer-Status und die Aufbewahrung der Rechnungen (10 statt der Mindest-8 Jahre) klären.
+6. **Instagram-Export (J-06)**: Er fehlt noch; der Beispielbestand nutzt die kleinen 640-Pixel-Bilder. Sobald du ihn hochlädst, baue ich alles in voller Qualität neu.
+7. **Kunst-QA offen (J-07, KUNST-QA)**: Die Platzhalter-Bilder haben Note 3 statt 4 (die Gesichter wirken noch zu glatt), und Coco wandert beim Seitenwechsel noch nicht mit. Das schauen wir in P11 gemeinsam an; du entscheidest, ob du die Gesichter selbst zeichnest.
+8. **Amtliche Widerrufs-Grafik (R-049)**: Die Grafik zum Widerruf ist noch eine Platzhalter-Grafik; die endgültige Fassung kommt von der Kanzlei bzw. aus der amtlichen Vorlage.
+9. **Echtes iPhone (und Instagram-Browser) prüfen**: Alle Tests laufen auf Test-Browsern; ein Blick auf einem echten Handy gehört zur Start-Checkliste (P11.16).
+10. **Nickel-/Glasur-/Produktsicherheit (J-12, J-13, J-14)**: Nachweise vor dem ersten Schmuckstück, Entscheidung „Deko“ oder „lebensmittelecht“ bei Keramik.
+11. **Einwilligungen für Tattoo-Fotos (J-05)** und **Statistik an oder aus (J-16)**: Einwilligungen einholen; die Statistik bleibt aus, bis die Kanzlei zustimmt.
+12. **Kleine Shop-Regeln (J-25 bis J-35)**: Je ein Satz zum Bestätigen, z. B. wer bei doppelter Zahlung erstattet oder wie lange du in der Verwaltung angemeldet bleibst.
+13. **Beispielbestand-Fragen (J-21 bis J-24)**: Stimmen Material und Maße, ist auf den Fotos etwas Fremdes zu sehen?
+
+Alle Punkte mit Hintergrund und Frist stehen in `docs/OFFENE-PUNKTE.md`.
+
+### Das kannst du vor dem Start erledigen (AUFGABEN §3, A23–A32)
+
+- **A23** Stripe-Konto verifizieren (Ausweis, IBAN, Steuernummer gibst du selbst ein) und **A24** PayPal in Stripe verbinden.
+- **A25** Konten anlegen (alle auf jutta@planetclairetattoos.com, mit Zwei-Faktor-Anmeldung).
+- **A26** Stammdaten und Bankverbindung für Vorkasse bereitlegen.
+- **A27** Bei IONOS die DNS-Seite (Adress-Einstellungen der Domain) finden und Bildschirmfotos machen, aber nichts ändern.
+- **A28** Prüfen, ob die Kanzleitexte vollständig da sind (als Text- und HTML-Datei).
+- **A29** Erste echte Stücke fotografieren und die Angaben notieren.
+- **A30** Die Vorschau-Datei anschauen und Anmerkungen notieren; **A31** diesen Bericht und die offenen Punkte lesen.
+- **A32** Den Termin für den Start-Tag festlegen (ca. 5–6 Stunden am Computer, gern auf zwei Termine verteilt).
+
+### Das passiert in P11 gemeinsam (AUFGABEN §4, A33–A41; Ablauf in `docs/GO-LIVE.md`)
+
+Du meldest dich überall selbst an und gibst Passwörter, Schlüssel und IBAN selbst ein; ich sage dir, wo du klickst, und prüfe, was keine Geheimnisse zeigt.
+
+- **A33** Konten verbinden und Schlüssel sicher hinterlegen; **A33a** Probelauf auf der Test-Seite, alles einmal durchklicken.
+- **A34** In der Verwaltung eintragen: Passwort, Stammdaten, IBAN, LUCID-Nummer, Rechtstexte.
+- **A35** Verträge zur Auftragsverarbeitung (Datenschutz-Verträge mit den Diensten) bestätigen; **A36** Statistik an oder aus; **A36a** Backup-Schlüssel erzeugen und sicher aufheben.
+- **A41** Beispieldaten entfernen und „Startklar“ komplett grün sehen.
+- **A37** DNS bei IONOS umstellen (spätestens einen Tag vorher die Mail-Einträge); **A38** Stripe live schalten.
+- **A39** Echter Testkauf: kaufen, widerrufen, erstatten; **A40** Links in die Instagram-Bio setzen (Website und Impressum).
+
+### Nach dem Start (AUFGABEN §5, A42–A50)
+
+- **A42** Bestellungen bearbeiten (packen, Paketmarke, Sendungsnummer); **A43** Vorkasse: „Zahlung erhalten“ antippen.
+- **A44** Widerrufe: Ware prüfen und spätestens 14 Tage nach dem Widerruf erstatten.
+- **A45** Monatlich: Einnahmen in den Umsatz-Wächter eintragen, Monatsexport herunterladen; **A46** jährlich bis 1. Juni Verpackungsmengen melden.
+- **A47** Jährlich Rechtstexte prüfen lassen; **A48** Tattoo-Fotos nur mit Einwilligung zeigen; **A49** Datenschutz-Anfragen innerhalb eines Monats beantworten, Datenpannen innerhalb von 72 Stunden melden; **A50** Kosten im Blick behalten.
+
+Ab hier halte ich an. Ich beginne P11 nicht allein: Echte Konten und Schlüssel gibt es nur gemeinsam mit dir.
+
 ## 2026-10-06 – P10 Kennzahlen aus dem grünen Phasenlauf (3ff41ee)
 
 Erster vollständig grüner Phasenlauf von Phase 10 (CI, CI full mit allen sechs Browser-Hälften, Abdeckung, Docker, Lighthouse, Vorschau-Export, Kunst-QA, Restore-Drill, Release-Probelauf). Die Tempo-Messung (Lighthouse, Median aus 3, Handy, gedrosselt):
