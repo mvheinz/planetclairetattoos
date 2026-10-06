@@ -508,7 +508,12 @@ nicht auf Seed-Medien zeigen). `intro`:
 ### 3.4 `legal-texts` (6 Platzhalter)
 
 Grund-Seed (`seed = false`), nicht Beispielbestand: Die Platzhalter bleiben beim Entfernen der Beispieldaten erhalten,
-bis Kanzleitexte aktiviert sind (R-002, DATENMODELL §13.1). Die Seed-Datei formuliert keinen Rechtstext.
+bis Kanzleitexte aktiviert sind (R-002, DATENMODELL §13.1). **Stand P12.11 (UEBERARBEITUNG U-22):** Die Seed-Datei enthält
+die Texte vollständig ausformuliert (DE verbindlich, EN gleichwertig; `intro`/`introEn`, `sections`/`sectionsEn` je Typ);
+sie bleiben `origin = placeholder`, bis die Kanzlei sie in P11 ersetzt. Die Tabelle unten beschreibt den früheren Stand
+(nur Gliederung); abweichend gilt: `content.de` und `content.en` sind gefüllt, `sourceNote` lautet
+„Platzhalter-Fassung (ausformuliert in P12.11, Kanzlei-Prüfung offen)“. Bestehende Datenbanken mit der alten Gliederung
+bekommen beim nächsten `seed:base` automatisch eine neue aktive Fassung (v2).
 
 | Feld | Wert |
 |---|---|
