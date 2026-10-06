@@ -4,7 +4,7 @@ import { splitTourDates, tourState } from '../../src/lib/tour/dates'
 import type { Locale } from '../../src/lib/routes/registry'
 
 // P12.8 (U-20, KONZEPT §3.1a) – „Planet Claire on Tour“ auf der Startseite mit dem Beispielbestand (SEED-SPEC §12.5): rechte
-// Spalte neben dem Kopf (ab 1100 px) bzw. darunter (mobil), oben der leere benannte Bereich für Koko
+// Spalte neben dem Kopf (ab 1100 px) bzw. darunter (mobil), oben der benannte Bereich mit Koko
 // (`data-slot="chairwoman"`), kommende Termine oben, vergangene in `<details>` eingeklappt, abgesagte durchgestrichen mit
 // Text, keine Karte und keine Anfrage an Dritte. Erwartungen aus den Daten und der aktuellen Uhr berechnet (der
 // Beispielbestand liegt relativ zu `SEED_NOW`, der Server rechnet mit der echten Zeit).
@@ -54,10 +54,10 @@ for (const locale of ['de', 'en'] as const) {
     const aside = page.locator('[data-home-aside]')
     await expect(aside).toHaveCount(1)
 
-    // leerer, benannter Bereich für die Vorsitzende (P12.6) – oberhalb der Termine
+    // benannter Bereich mit Koko, der Vorsitzenden (P12.6) – oberhalb der Termine
     const slot = aside.locator('[data-slot="chairwoman"]')
     await expect(slot).toHaveCount(1)
-    expect(await slot.evaluate((el) => el.childElementCount + el.textContent!.length)).toBe(0)
+    expect(await slot.evaluate((el) => el.childElementCount)).toBeGreaterThan(0)
     const slotBox = await slot.boundingBox()
     const tour = aside.locator('[data-tour]')
     const tourBox = await tour.boundingBox()
