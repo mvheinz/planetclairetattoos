@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P10 CI-Reparatur, vierte Runde (Vorschau-Datei)
+
+Bei der Vorschau-Datei ist eine Seite („schon ein Zuhause“, englische Variante) im GitHub-Lauf einmal nicht fertig im Browser erfasst worden; lokal trat das nie auf. Die Erfassung versucht es jetzt bis zu dreimal mit frischer Seite, und scheitert sie doch, bricht der Export mit einer klaren Meldung ab statt später mit einem unklaren Testfehler. Der Phasenlauf startet erneut.
+
 ## 2026-10-06 – P10 CI-Reparatur, dritte Runde
 
 Zwei echte Funde: Im Docker-Image fehlten ein paar Dateien des React-Pakets, deshalb lieferte die Startseite dort einen Fehler (der Gesundheits-Check lief trotzdem durch) – jetzt werden sie mitgepackt. Und ein Test mit absichtlicher Fremd-Anfrage verhält sich unter WebKit anders; er prüft dort jetzt genau die zwei erwarteten Sicherheits-Meldungen und lässt alles andere durchfallen. Der Phasenlauf startet erneut.
