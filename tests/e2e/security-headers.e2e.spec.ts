@@ -239,6 +239,12 @@ test.describe('P10.5 Sicherheits-Audit', () => {
       { method: 'GET', path: '/api/private-uploads/file/gibt-es-nicht.pdf' },
       { method: 'GET', path: '/api/users/me' },
     ]
+    // `/api/health/freshness` antwortet absichtlich 503, solange nie ein voller Job-Lauf stattfand (ARCHITEKTUR §11.3):
+    // In einer frischen CI-Umgebung zuerst einen Lauf des Job-Weckers anstoßen (wie ihn Vercel Cron jede Minute tut).
+    const tick = await request.get('/api/cron/tick', {
+      headers: { authorization: `Bearer ${process.env.CRON_SECRET ?? ''}` },
+    })
+    expect([200, 204], 'Job-Wecker').toContain(tick.status())
     for (const { method, path } of calls) {
       const res = await request.fetch(path, {
         method,

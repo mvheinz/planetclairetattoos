@@ -23,7 +23,11 @@ export default defineConfig({
   testDir: './tests/e2e',
   testMatch: '**/*.e2e.spec.ts',
   // Die Vorschau-Datei läuft offline gegen file:// in eigenem Lauf (`pnpm test:preview-export`, §7.1, §14.10).
-  testIgnore: ['**/preview-export.e2e.spec.ts', '**/maintenance.e2e.spec.ts'],
+  testIgnore: [
+    '**/preview-export.e2e.spec.ts',
+    '**/preview-portable.e2e.spec.ts',
+    '**/maintenance.e2e.spec.ts',
+  ],
   // Gegen den Produktions-Build: vorgerenderte Seiten nach dem Start auf den Stand der Test-DB bringen (global-setup.ts).
   globalSetup: './tests/e2e/global-setup.ts',
   forbidOnly: !!process.env.CI,
@@ -48,6 +52,7 @@ export default defineConfig({
       // Der Kaufpfad Ende-zu-Ende läuft auf den Geräteprofilen `iphone-15` und `pixel-7` (PLAN P4.24).
       testIgnore: [
         '**/preview-export.e2e.spec.ts',
+        '**/preview-portable.e2e.spec.ts',
         '**/maintenance.e2e.spec.ts',
         '**/purchase/**',
         '**/metrics/purchase-path*',

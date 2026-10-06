@@ -295,6 +295,8 @@ jobs:
     env:
       COMPOSE_FILE: docker-compose.prod.yml
       ENV_FILE: .env.production
+      # Alle `docker compose`-Aufrufe (exec, logs, down) lesen die Testwerte, nicht nur `up`.
+      COMPOSE_ENV_FILES: .env.production
       HTTP_PORT: '8080'
       HTTPS_PORT: '8443'
     steps:

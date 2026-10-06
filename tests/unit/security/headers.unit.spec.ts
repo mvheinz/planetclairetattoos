@@ -145,7 +145,7 @@ describe('T-16 Header je Kontext', () => {
     expect(ADMIN_SCRIPT_POLICY).toBe('nonce')
     const h = contextHeaders('admin', { ...PROD, nonce: NONCE })
     expect(h['Content-Security-Policy']).toBe(
-      `default-src 'self'; script-src 'self' 'nonce-${NONCE}' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; ` +
+      `default-src 'self'; script-src 'self' 'nonce-${NONCE}' 'strict-dynamic' ${MOTION_SCRIPT_HASH}; style-src 'self' 'unsafe-inline'; ` +
         "img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; " +
         "object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
     )
