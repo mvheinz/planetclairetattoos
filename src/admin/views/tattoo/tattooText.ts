@@ -1,13 +1,12 @@
 // Texte der Tattoo-Verwaltung `/tattoo` (PLAN P7.6–P7.9, KONZEPT §7.12). Verwaltung nur Deutsch (DATENMODELL §1.2);
 // eine Quelle für Server- und Client-Komponenten. `{{name}}` wird ersetzt.
 
-export const TATTOO_TABS = ['flash', 'angebote', 'galerie', 'texte'] as const
+export const TATTOO_TABS = ['flash', 'galerie', 'texte'] as const
 export type TattooTab = (typeof TATTOO_TABS)[number]
 
 export const TATTOO_TEXT = {
   tabsLabel: 'Bereiche',
   tab_flash: 'Flash',
-  tab_angebote: 'Angebote',
   tab_galerie: 'Galerie',
   tab_texte: 'Texte',
   allDataHint: 'Alle Felder findest du auch in der Standard-Verwaltung.',
@@ -64,34 +63,6 @@ export const TATTOO_TEXT = {
   flashRepeatableLabel: 'wiederholbar (kann mehrmals gestochen werden)',
   flashRepeatableHint: 'Wiederholbare Motive werden nie „vergeben“.',
   flashImageMissing: 'Bitte eine Zeichnung hinzufügen.',
-
-  // Angebote (P7.7)
-  offerNew: 'Neues Angebot',
-  offerEditHeading: 'Angebot bearbeiten',
-  offerHint: 'Abgelaufene Angebote verschwinden automatisch von der Website und stehen hier grau.',
-  offerEmpty: 'Noch keine Angebote.',
-  offerUpcoming: 'kommt',
-  offerRunning: 'läuft',
-  offerEnded: 'abgelaufen',
-  offerTime: '{{from}}–{{to}} Uhr',
-  offerType: 'Art',
-  offerDescription: 'Text',
-  offerTitleInvalid: 'Titel (Deutsch): 3–80 Zeichen.',
-  offerDescriptionInvalid: 'Text (Deutsch): 10–1500 Zeichen.',
-  offerWhen: 'Wann?',
-  offerWhenHint:
-    'Eintägig: Enddatum leer lassen. Ohne Uhrzeit gilt der ganze Tag (bis 23:59 Uhr am Enddatum).',
-  offerStartDate: 'Startdatum',
-  offerEndDate: 'Enddatum',
-  offerEndDateHint: 'Leer = gleicher Tag.',
-  offerStartTime: 'Beginn (Uhrzeit, optional)',
-  offerEndTime: 'Ende (Uhrzeit, optional)',
-  offerLocation: 'Ort',
-  offerLocationHint:
-    'Keine Adresse – nur der Bezirk, z. B. „Privatstudio in Neukölln“. Leer = Bezirk aus den Einstellungen.',
-  offerPriceNote: 'Preis-Info',
-  offerPriceNoteHint: 'Gesamtpreise nennen, z. B. „Motive 80–150 €“.',
-  offerFlashes: 'Verknüpfte Flash-Motive',
 
   // Galerie (P7.8)
   galleryNew: 'Neues Galerie-Foto',

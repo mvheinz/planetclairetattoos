@@ -44,16 +44,13 @@ export async function HomeStation({
   locale,
   products = null,
   tattoo = null,
-  instagramHref = null,
 }: {
   station: HomeStationData
   locale: Locale
-  /** Tattoo-Station (KONZEPT §3.1 Nr. 7): laufendes/nächstes Angebot und bis zu 3 freie Flash-Motive (P7.3). */
+  /** Tattoo-Station (KONZEPT §3.1 Nr. 7): bis zu 3 freie Flash-Motive (P7.3). */
   tattoo?: TattooTeaserData | null
   /** Karten der Kategorie-Station (`listStationProducts`); `null` bei Stationen ohne Stücke (Hallo, Tattoo, …). */
   products?: PublicProduct[] | null
-  /** Station „Jutta & Coco“ (KONZEPT §3.1): neben „Mehr über uns“ (R19) auch Auftragsarbeiten (R10) und Instagram. */
-  instagramHref?: string | null
 }) {
   const t = await getTranslations({ locale, namespace: 'home' })
   const loop = loopFor(station.stationId, station.number)
@@ -93,18 +90,6 @@ export async function HomeStation({
             {t('stationCommissions')}
           </Button>
         </li>
-        {instagramHref ? (
-          <li>
-            <Button
-              variant="secondary"
-              href={instagramHref}
-              rel="noopener noreferrer"
-              icon={ICON_EXTERNAL}
-            >
-              {t('stationInstagram')}
-            </Button>
-          </li>
-        ) : null}
       </ul>
     ) : null
 

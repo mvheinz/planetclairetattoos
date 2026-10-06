@@ -84,7 +84,6 @@ export interface Config {
     'legal-snippets': LegalSnippet;
     complaints: Complaint;
     flash: Flash;
-    'tattoo-offers': TattooOffer;
     'tattoo-gallery': TattooGallery;
     inquiries: Inquiry;
     faqs: Faq;
@@ -128,7 +127,6 @@ export interface Config {
     'legal-snippets': LegalSnippetsSelect<false> | LegalSnippetsSelect<true>;
     complaints: ComplaintsSelect<false> | ComplaintsSelect<true>;
     flash: FlashSelect<false> | FlashSelect<true>;
-    'tattoo-offers': TattooOffersSelect<false> | TattooOffersSelect<true>;
     'tattoo-gallery': TattooGallerySelect<false> | TattooGallerySelect<true>;
     inquiries: InquiriesSelect<false> | InquiriesSelect<true>;
     faqs: FaqsSelect<false> | FaqsSelect<true>;
@@ -178,7 +176,6 @@ export interface Config {
       invoiceIntegrityCheck: TaskInvoiceIntegrityCheck;
       complianceDocsReview: TaskComplianceDocsReview;
       activateScheduledLegalTexts: TaskActivateScheduledLegalTexts;
-      revalidateEndedOffers: TaskRevalidateEndedOffers;
       retentionAbandonedCheckouts: TaskRetentionAbandonedCheckouts;
       retentionOrderMinimize: TaskRetentionOrderMinimize;
       retentionOrders: TaskRetentionOrders;
@@ -1999,38 +1996,6 @@ export interface LegalSnippet {
   createdAt: string;
 }
 /**
- * Flash-Days und Aktionen. Nach dem Ende verschwindet ein Angebot automatisch von der Website.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tattoo-offers".
- */
-export interface TattooOffer {
-  id: number;
-  type: 'flash_day' | 'aktion';
-  title: string;
-  description: string;
-  startsAt: string;
-  /**
-   * Leer = Ende des Starttags (23:59 Uhr). Ab hier unsichtbar.
-   */
-  endsAt: string;
-  /**
-   * Keine Adresse – nur der Bezirk.
-   */
-  locationNote?: string | null;
-  image?: (number | null) | Media;
-  flashes?: (number | Flash)[] | null;
-  /**
-   * Gesamtpreise nennen.
-   */
-  priceNote?: string | null;
-  published?: boolean | null;
-  seed?: boolean | null;
-  seedKey?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "faqs".
  */
@@ -2202,13 +2167,6 @@ export interface Page {
           }
         | {
             heading?: string | null;
-            emptyText?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'offersList';
-          }
-        | {
-            heading?: string | null;
             filter?: ('all' | 'fresh' | 'healed') | null;
             limit?: number | null;
             id?: string | null;
@@ -2283,7 +2241,6 @@ export interface Page {
         | {
             heading?: string | null;
             showEmail?: boolean | null;
-            showInstagram?: boolean | null;
             showDistrict?: boolean | null;
             emailSubject?: string | null;
             id?: string | null;
@@ -2569,7 +2526,6 @@ export interface PayloadJob {
           | 'invoiceIntegrityCheck'
           | 'complianceDocsReview'
           | 'activateScheduledLegalTexts'
-          | 'revalidateEndedOffers'
           | 'retentionAbandonedCheckouts'
           | 'retentionOrderMinimize'
           | 'retentionOrders'
@@ -2632,7 +2588,6 @@ export interface PayloadJob {
         | 'invoiceIntegrityCheck'
         | 'complianceDocsReview'
         | 'activateScheduledLegalTexts'
-        | 'revalidateEndedOffers'
         | 'retentionAbandonedCheckouts'
         | 'retentionOrderMinimize'
         | 'retentionOrders'
@@ -2729,10 +2684,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'flash';
         value: number | Flash;
-      } | null)
-    | ({
-        relationTo: 'tattoo-offers';
-        value: number | TattooOffer;
       } | null)
     | ({
         relationTo: 'tattoo-gallery';
@@ -3700,26 +3651,6 @@ export interface FlashSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tattoo-offers_select".
- */
-export interface TattooOffersSelect<T extends boolean = true> {
-  type?: T;
-  title?: T;
-  description?: T;
-  startsAt?: T;
-  endsAt?: T;
-  locationNote?: T;
-  image?: T;
-  flashes?: T;
-  priceNote?: T;
-  published?: T;
-  seed?: T;
-  seedKey?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tattoo-gallery_select".
  */
 export interface TattooGallerySelect<T extends boolean = true> {
@@ -3890,14 +3821,6 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
-        offersList?:
-          | T
-          | {
-              heading?: T;
-              emptyText?: T;
-              id?: T;
-              blockName?: T;
-            };
         tattooGallery?:
           | T
           | {
@@ -3957,7 +3880,6 @@ export interface PagesSelect<T extends boolean = true> {
           | {
               heading?: T;
               showEmail?: T;
-              showInstagram?: T;
               showDistrict?: T;
               emailSubject?: T;
               id?: T;
@@ -5287,22 +5209,6 @@ export interface TaskActivateScheduledLegalTexts {
     activated?: number | null;
     failed?: number | null;
     nextDueAt?: string | null;
-  };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "TaskRevalidateEndedOffers".
- */
-export interface TaskRevalidateEndedOffers {
-  input?: unknown;
-  output: {
-    skipped: boolean;
-    revalidated?: boolean | null;
-    boundaries?: number | null;
-    period?: string | null;
-    handledUntil?: string | null;
-    nextDueAt?: string | null;
-    targets?: number | null;
   };
 }
 /**

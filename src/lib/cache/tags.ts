@@ -8,7 +8,6 @@ export const TAGS = {
   siteTexts: 'site-texts',
   settings: 'settings',
   flash: 'flash',
-  tattooOffers: 'tattoo-offers',
   tattooGallery: 'tattoo-gallery',
   product: (id: number | string) => `product:${id}`,
   category: (key: string) => `category:${key}`,

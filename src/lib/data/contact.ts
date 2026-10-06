@@ -54,5 +54,3 @@ export async function loadContactInfo(): Promise<ContactInfo> {
 export const getContactInfo = (): Promise<ContactInfo> =>
   unstable_cache(loadContactInfo, ['contact-info'], { tags: [TAGS.settings], revalidate: 60 })()
 
-/** Direktnachricht auf Instagram (KONZEPT §3.13). */
-export const instagramDmUrl = (handle: string) => `https://ig.me/m/${handle}`

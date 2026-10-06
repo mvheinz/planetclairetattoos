@@ -64,31 +64,6 @@ export function revalidateContent(key: string, opts: RevalidateOptions = {}): st
   return expireTags([key], { ...opts, immediate })
 }
 
-/** Routen mit Angeboten (R-171, KONZEPT §8.2): Startseite, Tattoo-Übersicht und Angebote. */
-export const OFFER_ROUTE_IDS = ['R01', 'R11', 'R13'] as const
-
-/**
- * Beginn oder Ende eines Angebots (Task `revalidateEndedOffers`, ARCHITEKTUR §9.3): `tattoo-offers` und `home` sofort
- * (`{ expire: 0 }`) und die Pfade von R01, R11, R13 in beiden Sprachen. Liefert die erneuerten Tags und Pfade.
- */
-export function revalidateOfferPages(opts: Pick<RevalidateOptions, 'context'> = {}): string[] {
-  const tags = expireTags([TAGS.tattooOffers, TAGS.home], { ...opts, immediate: true })
-  if (opts.context?.seed) return tags
-  const paths: string[] = []
-  for (const id of OFFER_ROUTE_IDS) {
-    for (const locale of LOCALES) {
-      const path = localizedPath(id, locale)
-      try {
-        revalidatePath(path)
-      } catch (err) {
-        skipped(path, err)
-      }
-      paths.push(path)
-    }
-  }
-  return [...tags, ...paths]
-}
-
 /** Alles erneuern (z. B. nach „Beispieldaten entfernen“). */
 export function revalidateAll(opts: Pick<RevalidateOptions, 'context'> = {}): boolean {
   if (opts.context?.seed) return false

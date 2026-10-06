@@ -48,7 +48,6 @@ export const REMOVE_ORDER: readonly Step[] = [
   { kind: 'delete', collection: 'inquiries' },
   { kind: 'delete', collection: 'revenue-entries' },
   { kind: 'delete', collection: 'tattoo-gallery' },
-  { kind: 'delete', collection: 'tattoo-offers' },
   { kind: 'delete', collection: 'flash' },
   { kind: 'texts' },
   { kind: 'delete', collection: 'products' },

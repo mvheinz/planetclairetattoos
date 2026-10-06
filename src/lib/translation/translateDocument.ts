@@ -17,7 +17,7 @@ import {
 // Felder (Text oder Lexical-Rich-Text, Pfade mit Punkt für Gruppen, z. B. `dimensions.note`) in einem gebündelten
 // Adapter-Aufruf und speichert EN mit `context.translation` (Hooks setzen daran `enStatus = machine`). Leere EN-Felder
 // werden immer gefüllt, vorhandene nur mit `force` (Rückfrage-Dialog im Knopf) oder wenn `mayOverwrite` es erlaubt.
-// Wiederverwendet für Stücke (P5.4) und in P7 für Flash, Angebote, Tattoo-Seiten und FAQ.
+// Wiederverwendet für Stücke (P5.4) und in P7 für Flash, Tattoo-Seiten und FAQ.
 
 type Doc = Record<string, unknown>
 

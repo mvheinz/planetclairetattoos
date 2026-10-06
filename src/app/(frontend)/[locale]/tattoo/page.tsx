@@ -5,7 +5,6 @@ import { RichTextContent } from '@/components/content/RichTextContent'
 import styles from '@/components/tattoo/Tattoo.module.css'
 import { FlashCard } from '@/components/tattoo/FlashCard'
 import { GalleryGrid } from '@/components/tattoo/GalleryGrid'
-import { OfferCard } from '@/components/tattoo/OfferCard'
 import { TattooPriceFootnote } from '@/components/tattoo/TattooPriceFootnote'
 import { LeashEnd, TattooShell } from '@/components/tattoo/TattooShell'
 import { tattooLocale, tattooMetadata } from '@/components/tattoo/tattooRoute'
@@ -17,21 +16,19 @@ import {
   getTattooSettings,
   listFlash,
   listGallery,
-  listOffers,
 } from '@/lib/data/tattoo'
 import { localizedPath } from '@/lib/routes/paths'
-import { currentOrNextOffer } from '@/lib/tattoo/offers'
 
 // R11 Tattoo-Übersicht (KONZEPT §9.2, DESIGN KO-20, Preset `stencil`): H1 „Tattoo“, „Mein Stil“ (Textblöcke der Seite
-// `tattoo`), laufendes bzw. nächstes Angebot als Karte (dieselbe Abfrage wie R13 und die Startseite, P7.3), 3 verfügbare
+// `tattoo`), 3 verfügbare
 // Flash-Motive, 3 Galerie-Bilder (bevorzugt `healed`, nur sichtbare – `isPubliclyVisible`, P7.5), Links zu allen
 // Unterseiten mit je einem Satz, Kontakt-Block. Leere Blöcke entfallen. Statisch mit gezielter Erneuerung über die Tags
-// `flash`, `tattoo-offers`, `tattoo-gallery`, `page:tattoo`, `settings` (Task `revalidateEndedOffers` an Beginn/Ende).
+// `flash`, `tattoo-gallery`, `page:tattoo`, `settings`.
 
 export const revalidate = 3600
 export const generateMetadata = tattooMetadata('R11')
 
-const SUBPAGES = ['R12', 'R13', 'R14', 'R15', 'R16', 'R17', 'R18'] as const
+const SUBPAGES = ['R12', 'R14', 'R15', 'R16', 'R17', 'R18'] as const
 
 export default async function TattooOverviewPage({
   params,
@@ -40,18 +37,15 @@ export default async function TattooOverviewPage({
 }) {
   const locale = tattooLocale((await params).locale)
   setRequestLocale(locale)
-  const [t, tRoutes, settings, page, flash, offers, gallery] = await Promise.all([
+  const [t, tRoutes, settings, page, flash, gallery] = await Promise.all([
     getTranslations({ locale, namespace: 'tattoo.overview' }),
     getTranslations({ locale, namespace: 'common.routes' }),
     getTattooSettings(locale),
     getTattooPage(locale),
     listFlash(locale),
-    listOffers(locale),
     listGallery(locale),
   ])
-  const now = new Date()
   const style = blocksOfType(page, 'richText')
-  const offer = currentOrNextOffer(offers, now)
   const available = flash.filter((f) => f.status === 'available').slice(0, 3)
   const photos = galleryTeaser(gallery, 3)
 
@@ -73,24 +67,6 @@ export default async function TattooOverviewPage({
               <RichTextContent key={b.id ?? i} data={b.content} />
             ))}
           </div>
-        </section>
-      ) : null}
-
-      {offer ? (
-        <section
-          className={styles.section}
-          aria-labelledby="tattoo-offer"
-          data-tattoo-offer-teaser=""
-        >
-          <h2 id="tattoo-offer" className={styles.sectionHeading}>
-            {t('offerHeading')}
-          </h2>
-          <OfferCard offer={offer} locale={locale} settings={settings} now={now} compact />
-          <p className={styles.more}>
-            <Button variant="secondary" href={localizedPath('R13', locale)}>
-              {t('offersAll')}
-            </Button>
-          </p>
         </section>
       ) : null}
 

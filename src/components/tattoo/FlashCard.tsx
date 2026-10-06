@@ -5,11 +5,10 @@ import { ICON_MAIL, ICON_INSTAGRAM } from '@/components/icons/icons.generated'
 import { Station } from '@/components/leash/Station'
 import { ResponsiveImage } from '@/components/media/ResponsiveImage'
 import { Button } from '@/components/ui/Button'
-import { instagramDmUrl } from '@/lib/data/contact'
 import type { PublicFlash, TattooSettings } from '@/lib/data/tattoo'
 import { localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
-import { flashDmSnippet, tattooMailto } from '@/lib/tattoo/mailto'
+import { tattooMailto } from '@/lib/tattoo/mailto'
 import { formatTattooPrice } from '@/lib/tattoo/price'
 
 import styles from './Tattoo.module.css'
@@ -50,7 +49,6 @@ export async function FlashCard({
         locale,
       )
     : null
-  const snippetId = `${flash.anchor}-snippet`
   const size = new Intl.NumberFormat(locale === 'en' ? 'en-GB' : 'de-DE', {
     maximumFractionDigits: 1,
   }).format(flash.sizeCm)
@@ -135,41 +133,6 @@ export async function FlashCard({
                 {t('mail')}
               </Button>
             ) : null}
-            <Button
-              variant="secondary"
-              href={instagramDmUrl(settings.instagramHandle)}
-              rel="noopener noreferrer"
-              icon={ICON_INSTAGRAM}
-              data={{ 'data-flash-dm': '' }}
-            >
-              {t('dm')}
-            </Button>
-            <p className={styles.snippet}>
-              <span id={snippetId} className={styles.snippetText} data-flash-snippet="">
-                {flashDmSnippet(flash.number, flash.title)}
-              </span>{' '}
-              <button
-                type="button"
-                className={styles.copy}
-                data-behavior="copy-button"
-                data-copy={flashDmSnippet(flash.number, flash.title)}
-                data-copy-select={snippetId}
-                data-copied-text={t('copied')}
-                data-copy-failed-text={t('copyFailed')}
-                data-copy-status-id={`${snippetId}-status`}
-                aria-describedby={snippetId}
-                hidden
-              >
-                {t('copy')}
-              </button>
-              <span
-                id={`${snippetId}-status`}
-                className={styles.copyStatus}
-                role="status"
-                aria-live="polite"
-              />
-            </p>
-            <p className={styles.snippetHint}>{t('snippetHint')}</p>
           </div>
         ) : null}
       </div>

@@ -24,7 +24,6 @@ import { LegalTexts } from './collections/LegalTexts'
 import { LegalSnippets } from './collections/LegalSnippets'
 import { Complaints } from './collections/Complaints'
 import { Flash } from './collections/Flash'
-import { TattooOffers } from './collections/TattooOffers'
 import { TattooGallery } from './collections/TattooGallery'
 import { Inquiries } from './collections/Inquiries'
 import { Faqs } from './collections/Faqs'
@@ -126,7 +125,6 @@ export default buildConfig({
     LegalSnippets,
     Complaints,
     Flash,
-    TattooOffers,
     TattooGallery,
     Inquiries,
     Faqs,

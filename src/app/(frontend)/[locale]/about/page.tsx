@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { listAllCategories } from '@/lib/data/categories'
 import { getContactInfo } from '@/lib/data/contact'
-import { instagramUrl } from '@/lib/data/navigation'
 import { getPublicPage } from '@/lib/data/pages'
 import { isLocale, localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
@@ -59,7 +58,6 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   const richTexts = blocks.filter((b): b is BlockOf<'richText'> => b.blockType === 'richText')
   // Der Coco-Abschnitt ist der zweite Textblock (SEED-SPEC §13.2), sonst keiner.
   const cocoText = richTexts[1] ?? null
-  const instagram = contact.instagramHandle ? instagramUrl(contact.instagramHandle) : null
 
   const whatLinks = (heading: string, keys: readonly string[] | null) => {
     const shown = categories.filter(
@@ -205,7 +203,6 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             contact={contact}
             heading={block.heading}
             showEmail={block.showEmail}
-            showInstagram={block.showInstagram}
             showDistrict={block.showDistrict}
             emailSubject={block.emailSubject}
           />
@@ -239,13 +236,6 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           {whatLinks(t('whatHeading'), null)}
         </>
       )}
-      {instagram ? (
-        <p>
-          <a href={instagram} rel="noopener noreferrer" data-about-instagram="">
-            {t('instagram')}
-          </a>
-        </p>
-      ) : null}
     </div>
   )
 }

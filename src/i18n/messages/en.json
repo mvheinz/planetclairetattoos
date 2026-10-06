@@ -15,7 +15,6 @@
       "R10": "Commissions",
       "R11": "Tattoo",
       "R12": "Flash",
-      "R13": "Offers",
       "R14": "Prices",
       "R15": "Gallery",
       "R16": "Process",
@@ -33,7 +32,7 @@
     },
     "faq": {
       "emptyTitle": "No questions yet",
-      "emptyText": "Just ask me – by email or DM.",
+      "emptyText": "Just ask me by email.",
       "emptyAction": "Get in touch"
     }
   },
@@ -129,8 +128,7 @@
     "emptyTitle": "We’re rearranging things.",
     "emptyText": "The home page will be back shortly. In the meantime, here’s how to reach us.",
     "emptyAction": "Contact",
-    "stationCommissions": "Commissions",
-    "stationInstagram": "Instagram"
+    "stationCommissions": "Commissions"
   },
   "a11y": {
     "skipToContent": "Skip to content",
@@ -181,7 +179,7 @@
     "descriptions": {
       "default": "Planet Claire from Berlin: tattoos, handmade one-of-a-kind ceramics and drawings by Jutta – unique pieces, tattoo appointments and commissioned work.",
       "home": "Planet Claire from Berlin: tattoos, handmade one-of-a-kind ceramics and drawings by Jutta. Browse the shop, discover flash designs or ask for a tattoo.",
-      "contact": "How to reach Planet Claire in Berlin: questions about unique pieces, orders, tattoo appointments or commissioned work – by email or via Instagram.",
+      "contact": "How to reach Planet Claire in Berlin: questions about unique pieces, orders, tattoo appointments or commissioned work – by email.",
       "legal": "Legal information from Planet Claire, Berlin: legal notice, privacy policy, terms, right of withdrawal and shipping and payment for the one-of-a-kind shop.",
       "withdrawal": "Withdraw from a contract with Planet Claire here: identify your order, send your declaration and immediately receive a confirmation of receipt by email.",
       "conformity": "Declarations of conformity from Planet Claire, Berlin, for handmade ceramics in contact with food – current declarations to view and download.",
@@ -197,26 +195,22 @@
       "defaultAlt": "Planet Claire – tattoos & one-offs from Berlin"
     },
     "tattoo": {
-      "R11": "Tattoos by Planet Claire in Berlin: fine line with a sense of humour in a private studio. Flash with fixed prices, offers, prices, gallery, requests by email.",
-      "R12": "Flash designs by Planet Claire, Berlin: ready-made fine line drawings with a fixed price, one-off or repeatable – ask by email or Instagram direct message.",
-      "R13": "Flash days and tattoo offers by Planet Claire in Berlin: dates, designs and prices of current and upcoming offers in the private studio at a glance.",
+      "R11": "Tattoos by Planet Claire in Berlin: fine line with a sense of humour in a private studio. Flash with fixed prices, prices, gallery, requests by email.",
+      "R12": "Flash designs by Planet Claire, Berlin: ready-made fine line drawings with a fixed price, one-off or repeatable – ask by email.",
       "R14": "Tattoo prices at Planet Claire, Berlin: minimum price, fixed prices for flash, price range for custom ideas and how we agree on the deposit in person.",
       "R15": "Gallery of Planet Claire, Berlin: freshly tattooed and healed fine line tattoos – shown only with the consent of the people who wear them.",
-      "R16": "How a tattoo appointment with Planet Claire in Berlin works: request by email or DM, appointment, deposit, tattooing in the private studio and aftercare.",
+      "R16": "How a tattoo appointment with Planet Claire in Berlin works: request by email, appointment, deposit, tattooing in the private studio and aftercare.",
       "R17": "Tattoo aftercare by Planet Claire, Berlin: care in phases from right after to long term, warning signs for seeing a doctor – printable as well.",
-      "R18": "Common questions for Planet Claire in Berlin: minimum age, private studio, deposit, rescheduling, Coco in the studio, colour, cover-ups, email or DM."
+      "R18": "Common questions for Planet Claire in Berlin: minimum age, private studio, deposit, rescheduling, Coco in the studio, colour, cover-ups, requests by email."
     }
   },
   "contact": {
     "emailLabel": "Email",
-    "instagramLabel": "Instagram",
-    "instagramProfile": "Profile @{handle}",
-    "instagramDm": "Direct message on Instagram",
     "studio": "Private studio in Berlin-{district}",
     "withdrawHint": "Want to withdraw from a contract?",
     "legalNoticeHint": "Provider details:",
     "emptyTitle": "The contact page is on its way",
-    "emptyText": "Just send me an email or a message on Instagram.",
+    "emptyText": "Just send me an email.",
     "copyEmail": "Copy address",
     "copied": "Copied",
     "copyFailed": "Copying didn't work – please select and copy."
@@ -1105,10 +1099,8 @@
     "subnavOverview": "Overview",
     "star": "*",
     "overview": {
-      "lead": "Fine line with a sense of humour, tattooed in my private studio in Berlin. Here you'll find available designs, offers, prices and everything about your appointment.",
+      "lead": "Fine line with a sense of humour, tattooed in my private studio in Berlin. Here you'll find available designs, prices and everything about your appointment.",
       "styleHeading": "My style",
-      "offerHeading": "Next offer",
-      "offersAll": "All offers",
       "flashHeading": "Flash – available now",
       "flashAll": "All flash designs",
       "galleryHeading": "Fresh & healed",
@@ -1116,7 +1108,6 @@
       "pagesHeading": "Everything about tattoos",
       "pageHints": {
         "R12": "Ready-made designs with a fixed price – pick one.",
-        "R13": "Flash days and offers, while they last.",
         "R14": "Minimum price, price range for custom ideas and the deposit.",
         "R15": "Freshly tattooed and healed.",
         "R16": "From your request to aftercare in five steps.",
@@ -1125,7 +1116,7 @@
       }
     },
     "flash": {
-      "intro": "Ready-made designs with a fixed price. One-off designs are tattooed only once, repeatable ones more often. Just ask by email or DM.",
+      "intro": "Ready-made designs with a fixed price. One-off designs are tattooed only once, repeatable ones more often. Just ask by email.",
       "filterLabel": "Filter flash designs",
       "all": "All",
       "available": "available",
@@ -1138,36 +1129,16 @@
       "taken": "taken",
       "takenText": "Already taken – have a look at the others",
       "mail": "Ask by email",
-      "dm": "Ask by DM",
-      "snippetHint": "Send me this in your DM",
       "copy": "Copy",
       "copied": "Copied",
       "copyFailed": "Selected – copy now",
       "price": "Price",
       "emptyTitle": "No flash designs online right now",
-      "emptyText": "Have a look on Instagram – that's where new designs show up first.",
-      "emptyAction": "To Instagram",
+      "emptyText": "There are no designs online right now. Feel free to send me your own idea.",
+      "emptyAction": "To the process",
       "allTakenTitle": "All flash designs are taken right now.",
-      "allTakenText": "Have a look at the offers or send me your own idea.",
-      "allTakenAction": "To the offers"
-    },
-    "offers": {
-      "intro": "Flash days and offers. Once an offer is over, it disappears from here.",
-      "listHeading": "Current and upcoming offers",
-      "running": "on now",
-      "startsIn": "{days, plural, =0 {today} one {tomorrow} other {in # days}}",
-      "time": "{from}–{to}",
-      "dateLabel": "Date",
-      "flashHeading": "Designs for this offer",
-      "mail": "Ask by email",
-      "dm": "Ask by DM",
-      "types": {
-        "flash_day": "Flash day",
-        "aktion": "Offer"
-      },
-      "emptyTitle": "No offers right now",
-      "emptyText": "Follow @{handle} so you don't miss anything.",
-      "emptyAction": "To Instagram"
+      "allTakenText": "Send me your own idea by email.",
+      "allTakenAction": "To contact"
     },
     "prices": {
       "intro": "All prices are total prices – that's what you pay in the end, nothing more.",
@@ -1201,8 +1172,8 @@
       "dialog": "Large photo",
       "close": "Close",
       "emptyTitle": "Photos are coming soon",
-      "emptyText": "Until then you'll find fresh tattoos on Instagram.",
-      "emptyAction": "To Instagram"
+      "emptyText": "Until then, have a look at the flash designs.",
+      "emptyAction": "To the flash designs"
     },
     "process": {
       "intro": "How it works from the first hello to aftercare – no online booking.",
@@ -1210,7 +1181,7 @@
       "steps": {
         "1": {
           "title": "Request",
-          "text": "Email or DM me: your idea or the flash number, placement, rough size."
+          "text": "Email me: your idea or the flash number, placement, rough size."
         },
         "2": {
           "title": "Appointment",
@@ -1245,13 +1216,12 @@
     "faq": {
       "intro": "The most common questions about your appointment. Something missing? Message me.",
       "emptyTitle": "No questions yet",
-      "emptyText": "Just ask me by email or DM."
+      "emptyText": "Just ask me by email."
     },
     "contact": {
-      "heading": "Ask by email or DM",
+      "heading": "Request by email",
       "intro": "No form, no online booking – just message me.",
       "mail": "Write an email",
-      "dm": "Instagram DM",
       "emailLabel": "Email address",
       "copy": "Copy address",
       "copied": "Copied",
@@ -1259,12 +1229,10 @@
     },
     "mail": {
       "subjectFlash": "Flash request {number} – {title}",
-      "subjectOffer": "Request {title} on {date}",
       "subjectGeneral": "Tattoo request",
       "subjectCustom": "Tattoo request – custom idea",
       "greeting": "Hi Jutta,",
       "introFlash": "I'm interested in flash {number} (“{title}”).",
-      "introOffer": "I'm interested in “{title}” on {date}.",
       "introGeneral": "I'm interested in a tattoo.",
       "introCustom": "I have my own idea for a tattoo.",
       "fieldIdea": "My idea:",
@@ -1303,7 +1271,7 @@
     "formPlaceholder": "The form is coming soon. Until then, feel free to send me an email.",
     "faqHeading": "Questions about commissions",
     "contactHeading": "Rather write directly?",
-    "contactText": "You can also send me your idea by email or as an Instagram message.",
+    "contactText": "You can also send me your idea directly by email.",
     "emailSubject": "Commission – my idea",
     "form": {
       "requiredNote": "* Required field",
@@ -1386,10 +1354,9 @@
     "whatShop": "Shop",
     "whatTattoo": "Tattoo",
     "whatCommissions": "Commissions",
-    "instagram": "More of us on Instagram",
     "cocoAlt": "Coco, drawn",
     "emptyTitle": "Things are moving around here.",
-    "emptyText": "The page about Jutta and Coco will be back soon. Until then, have a look around the shop or on Instagram.",
+    "emptyText": "The page about Jutta and Coco will be back soon. Until then, have a look around the shop.",
     "emptyAction": "To the shop"
   },
   "qa": {

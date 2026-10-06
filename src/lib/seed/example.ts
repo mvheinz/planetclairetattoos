@@ -21,7 +21,7 @@ import { seedIso } from './time'
 import { seedReservationRef } from './orderPlan'
 import { importInvoices } from './invoices'
 import { importAuditLog, importConsentLog, importEmailLog } from './logs'
-import { importFlash, importGallery, importOffers } from './tattoo'
+import { importFlash, importGallery } from './tattoo'
 import { importPrivateUpload } from './uploads'
 import { importCheckouts, importOrders, importReservations } from './orders'
 import {
@@ -46,7 +46,6 @@ export const EXAMPLE_STEPS = [
   'private-uploads',
   'products',
   'flash',
-  'tattoo-offers',
   'tattoo-gallery',
   'pages',
   'faqs',
@@ -100,7 +99,6 @@ export function hasExampleData(data: SeedData): boolean {
       data.privacyRequests.length +
       data.revenue.length +
       data.tattoo.flash.length +
-      data.tattoo.offers.length +
       data.tattoo.gallery.length >
     0
   )
@@ -432,7 +430,6 @@ async function blockData(
         blockType: 'contactLinks',
         heading: pick(block.heading),
         showEmail: block.showEmail ?? true,
-        showInstagram: block.showInstagram ?? true,
         showDistrict: block.showDistrict ?? true,
         emailSubject: pick(block.emailSubject),
       }
@@ -471,12 +468,6 @@ async function blockData(
         heading: pick(block.heading),
         intro: pick(block.intro),
         successText: pick(block.successText),
-      }
-    case 'offersList':
-      return {
-        blockType: 'offersList',
-        heading: pick(block.heading),
-        emptyText: pick(block.emptyText),
       }
     case 'flashGrid':
       return {
@@ -616,13 +607,10 @@ export async function importExample(
   if (run('private-uploads')) {
     await seedStep(payload, (req) => importPrivateUploads(req, data, options))
   }
-  // Schritt 4: Stücke → (Flash, Angebote, Galerie ab P8) → Seiten → (FAQ ab P8)
+  // Schritt 4: Stücke → (Flash, Galerie ab P8) → Seiten → (FAQ ab P8)
   if (run('products')) await seedStep(payload, (req) => importProducts(req, data, options))
   const tattoo = { report: options.report, now: options.now }
   if (run('flash')) await seedStep(payload, (req) => importFlash(req, data, tattoo), options.now)
-  if (run('tattoo-offers')) {
-    await seedStep(payload, (req) => importOffers(req, data, tattoo), options.now)
-  }
   if (run('tattoo-gallery')) {
     await seedStep(payload, (req) => importGallery(req, data, tattoo), options.now)
   }

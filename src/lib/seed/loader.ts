@@ -74,7 +74,7 @@ const EMPTY: Omit<SeedData, 'base'> = {
   inquiries: [],
   privacyRequests: [],
   revenue: [],
-  tattoo: { flash: [], offers: [], gallery: [] },
+  tattoo: { flash: [], gallery: [] },
   logs: { email: [], consent: [], audit: [] },
 }
 
@@ -148,7 +148,6 @@ export function crossCheck(data: SeedData, now: Date): string[] {
     ['revenue.json', data.revenue.map((r) => `${r.month}:${r.source}`)],
     ['tattoo.json flash', data.tattoo.flash.map((f) => f.key)],
     ['tattoo.json flash number', data.tattoo.flash.map((f) => String(f.number))],
-    ['tattoo.json offers', data.tattoo.offers.map((o) => o.key)],
     ['tattoo.json gallery', data.tattoo.gallery.map((g) => g.key)],
     ['logs.json audit', data.logs.audit.map((a) => a.key)],
   ]
@@ -365,12 +364,6 @@ function crossCheckCases(
     if ((f.status === 'claimed') !== !!f.claimedAt) {
       issues.push(`${where}: claimedAt genau bei status = claimed`)
     }
-  }
-  for (const o of data.tattoo.offers) {
-    const where = `tattoo.json ${o.key}`
-    for (const f of o.flashes) has(flashKeys, where, f)
-    time(`${where} startsAt`, o.startsAt)
-    time(`${where} endsAt`, o.endsAt)
   }
   for (const g of data.tattoo.gallery) {
     const where = `tattoo.json ${g.key}`

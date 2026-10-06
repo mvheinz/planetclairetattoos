@@ -1927,7 +1927,7 @@ wird über `key` gefunden. Es gibt **keine** eigenen Globals für einzelne Seite
 | `processSteps` | `heading` (text), `steps` (array 1–8: `title` text R, `text` textarea R) |
 | `aftercareSteps` | `heading` (text), `phases` (array 1–8: `title` text R, `content` richText R), `pdf` (documents) |
 | `faqList` | `heading` (text), `category` (FaqCategory R) |
-| `contactLinks` | `heading` (text), `showEmail`, `showInstagram`, `showDistrict` (checkbox, Default `true`), `emailSubject` (text) |
+| `contactLinks` | `heading` (text), `showEmail`, `showDistrict` (checkbox, Default `true`), `emailSubject` (text) |
 | `commissionForm` | `heading` (text), `intro` (textarea), `successText` (textarea R) |
 | `callout` | `text` (textarea R), `tone` (select `info`, `hint`) |
 

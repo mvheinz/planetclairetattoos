@@ -27,7 +27,7 @@ import {
 
 // Admin-Endpunkte der Tattoo-Verwaltung `/tattoo` (PLAN P7.6–P7.9, alle nur für die Verwaltung):
 // `GET /api/flash/next-number` · `POST /api/flash/:id/status` `{ status }` · `POST /api/flash/:id/published`
-// `{ published }` · `POST /api/{flash,tattoo-offers,faqs,pages}/:id/translate` `{ force }` ·
+// `{ published }` · `POST /api/{flash,faqs,pages}/:id/translate` `{ force }` ·
 // `POST /api/tattoo-gallery/:id/withdraw-consent` `{ email?, locale? }` · `POST /api/pages/tattoo-texts`
 // `{ key, blocks, title? }` · `POST /api/faqs/tattoo-save` `{ id?, category, question, answer, published }` ·
 // `POST /api/faqs/:id/move` `{ direction }` · `POST /api/{flash,tattoo-gallery,media}/:id/adopt` (P8.19) ·
@@ -122,7 +122,7 @@ const enhancePreview: Endpoint = {
 
 export const mediaAdminEndpoints: Endpoint[] = [adopt('media'), enhancePreview]
 
-const translate = (collection: 'flash' | 'tattoo-offers' | 'faqs') =>
+const translate = (collection: 'flash' | 'faqs') =>
   idAction('translate', (req, id, body) =>
     translateTattooDocument(req, collection, id, { force: body.force === true }),
   )
@@ -150,8 +150,6 @@ export const flashAdminEndpoints: Endpoint[] = [
   translate('flash'),
   adopt('flash'),
 ]
-
-export const offerAdminEndpoints: Endpoint[] = [translate('tattoo-offers')]
 
 export const galleryAdminEndpoints: Endpoint[] = [
   idAction('withdraw-consent', (req, id, body) =>

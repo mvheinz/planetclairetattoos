@@ -128,8 +128,8 @@
           "en": "Tattoo"
         },
         "text": {
-          "de": "Fine Line, naiv, mit Humor. Flash mit Festpreis oder deine eigene Idee – Anfragen per Mail oder DM, gestochen wird im Privatstudio in Berlin.",
-          "en": "Fine line, naive, with a sense of humour. Flash with fixed prices or your own idea – ask by email or DM, tattooed in a private studio in Berlin."
+          "de": "Fine Line, naiv, mit Humor. Flash mit Festpreis oder deine eigene Idee – Anfragen per Mail, gestochen wird im Privatstudio in Berlin.",
+          "en": "Fine line, naive, with a sense of humour. Flash with fixed prices or your own idea – ask by email, tattooed in a private studio in Berlin."
         },
         "cocoPose": "head_tilt",
         "ornament": "planet",
@@ -249,8 +249,8 @@
       {
         "blockType": "richText",
         "content": {
-          "de": "Am schnellsten erreichst du mich per Mail. Auf Instagram bin ich auch – schreib mir gern eine DM.",
-          "en": "The quickest way to reach me is by email. I'm on Instagram too – feel free to send a DM."
+          "de": "Am schnellsten erreichst du mich per Mail.",
+          "en": "The quickest way to reach me is by email."
         }
       },
       {
@@ -260,7 +260,6 @@
           "en": "Write to me"
         },
         "showEmail": true,
-        "showInstagram": true,
         "showDistrict": true,
         "emailSubject": {
           "de": "Hallo Jutta",
@@ -270,8 +269,8 @@
       {
         "blockType": "callout",
         "text": {
-          "de": "Frage zu einer Bestellung? Nenn bitte deine Bestellnummer. Tattoo-Anfragen bitte per Mail oder DM, eigene Ideen für Keramik und Co. über das Formular bei den Auftragsarbeiten.",
-          "en": "Question about an order? Please include your order number. Tattoo requests by email or DM, please; custom ideas for ceramics and more via the commissions form."
+          "de": "Frage zu einer Bestellung? Nenn bitte deine Bestellnummer. Tattoo-Anfragen bitte per Mail, eigene Ideen für Keramik und Co. über das Formular bei den Auftragsarbeiten.",
+          "en": "Question about an order? Please include your order number. Tattoo requests by email, please; custom ideas for ceramics and more via the commissions form."
         },
         "tone": "info"
       },
@@ -406,17 +405,6 @@
         }
       },
       {
-        "blockType": "offersList",
-        "heading": {
-          "de": "Angebote",
-          "en": "Offers"
-        },
-        "emptyText": {
-          "de": "Gerade keine Aktionen. Folge @planet.claire.tattoos, dann verpasst du nichts.",
-          "en": "No offers right now. Follow @planet.claire.tattoos so you don't miss anything."
-        }
-      },
-      {
         "blockType": "flashGrid",
         "heading": {
           "de": "Flash",
@@ -457,8 +445,8 @@
               "en": "Request"
             },
             "text": {
-              "de": "Schreib mir per Mail oder DM: Idee oder Flash-Nummer, Stelle am Körper, ungefähre Größe.",
-              "en": "Email or DM me: your idea or the flash number, placement, rough size."
+              "de": "Schreib mir per Mail: Idee oder Flash-Nummer, Stelle am Körper, ungefähre Größe.",
+              "en": "Email me: your idea or the flash number, placement, rough size."
             }
           },
           {
@@ -522,8 +510,8 @@
       {
         "blockType": "contactLinks",
         "heading": {
-          "de": "Anfragen per Mail oder DM",
-          "en": "Ask by email or DM"
+          "de": "Anfrage per Mail",
+          "en": "Request by email"
         },
         "emailSubject": {
           "de": "Tattoo-Anfrage",

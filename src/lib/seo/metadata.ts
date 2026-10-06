@@ -77,7 +77,6 @@ export function descriptionFor(
 /** Unterseiten des Tattoo-Bereichs (R12–R18) tragen „Tattoo“ im Titel (PLAN P7.1). */
 const TATTOO_SUBPAGES: ReadonlySet<string> = new Set([
   'R12',
-  'R13',
   'R14',
   'R15',
   'R16',
