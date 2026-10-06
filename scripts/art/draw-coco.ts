@@ -339,7 +339,7 @@ function sideHead(t: Tf, o: HeadOpts = {}): Stroke[] {
   const earN0 = earPts(eh, near)
   const upF = map({ x: -5, y: -12.5 }, earAsym(earPts(eh, far), earN0, [-3, 0]))
   // Knickohr (U-07): hinteres Ohr geknickt, außer beim Aufspitzen (`earUp`); beim Blick nach links das vordere
-  const kF = knickEarPts(eh * 0.95, far)
+  const kF = knickEarPts(eh, far)
   const kN = knickEarPts(eh, near)
   const farKnick = !o.earUp && !o.knickNear
   const earF = farKnick ? map({ x: -5, y: -12.5 }, kF.outer) : upF.slice(0, 5)
@@ -1000,6 +1000,8 @@ export interface SitOpts {
   yawn?: boolean
   earUp?: boolean
   eyesClosed?: boolean
+  /** Ohr-Skalierung (Kopf schief wirkt sonst zu groß, CO-02). */
+  earScale?: number
   /** Hinterbein kratzt hinterm Ohr: Pfotenposition (Versatz in Einheiten). */
   scratch?: P
   /** Schwanzspitze (Versatz in Einheiten) – wedelt zwischen den Frames. */
@@ -1168,7 +1170,7 @@ export function sitSide(o: SitOpts = {}): Figure {
     ...sideHead(H, {
       earNear: -4,
       earFar: -14,
-      earScale: 1,
+      earScale: o.earScale ?? 1,
       pant: o.pant,
       tongue: o.tongue,
       yawn: o.yawn,
@@ -1242,6 +1244,7 @@ function kopfschief(frame: 'a' | 'b' | 'c'): Figure {
   return sitSide({
     tilt: 14,
     head: [109, 38],
+    earScale: 0.94,
     wag: frame === 'b' ? [1.2, -0.6] : frame === 'c' ? [-1, -0.4] : [0, 0],
   })
 }
@@ -1398,18 +1401,20 @@ function freude(frame: 'a' | 'b' | 'c'): Figure {
     })
   if (frame === 'a') return base(0, TAIL_HIGH)
   if (frame === 'b') {
-    // Drehung: Figur von vorn gestaucht (Breite 0,55) auf dem Scheitelpunkt
-    const f = base(12, TAIL_HIGH)
-    const m = ([x, y]: P): P => [80 + (x - 80) * 0.55, y]
+    // Drehung: Figur von vorn gestaucht (Breite 0,55) auf dem Scheitelpunkt, um den D-Ring gestaucht (Anker bleibt)
+    const f = base(8, TAIL_HIGH)
+    const px = f.ring[0]
+    const m = ([x, y]: P): P => [px + (x - px) * 0.55, y]
     return {
       ...f,
       ring: m(f.ring),
       strokes: f.strokes.map((st) => ({ ...st, pts: st.pts.map(m) })),
     }
   }
-  // Landung: gespiegelt (Blick nach links), Beine fangen auf
-  const f = base(-7, TAIL_SICKLE)
-  const m = ([x, y]: P): P => [160 - x, y]
+  // Landung: gespiegelt um den D-Ring (Blick nach links, Anker bleibt), Beine fangen auf
+  const f = base(-2, TAIL_SICKLE)
+  const px = f.ring[0]
+  const m = ([x, y]: P): P => [2 * px - x, y]
   return { ...f, ring: m(f.ring), strokes: f.strokes.map((st) => ({ ...st, pts: st.pts.map(m) })) }
 }
 
@@ -1958,7 +1963,7 @@ export function symbolSpecs(set: SpriteSet = 'main'): SymbolSpec[] {
 }
 
 /** Ohren-Asymmetrie eines fertig nachgezeichneten Frames: Höhe kleineres/größeres Ohr in {@link EAR_RATIO} halten. */
-const EAR_RATIO = [0.87, 0.93] as const
+const EAR_RATIO = [0.89, 0.93] as const
 function rebalanceEars(strokes: Stroke[]): Stroke[] {
   const parts = (['ear-l', 'ear-r'] as const).map((part) => {
     const pts = strokes

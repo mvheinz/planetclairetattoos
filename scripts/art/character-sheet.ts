@@ -12,6 +12,7 @@ import sharp from 'sharp'
 
 import {
   BRIDGES,
+  EXTRA_POSES,
   K,
   SPRITE_POSES,
   SPRITE_STYLE,
@@ -29,7 +30,7 @@ export const SHEET_WEBP = path.join(SHEET_DIR, 'character-sheet.webp')
 export const SHEET_MAX_BYTES = 300_000
 
 const W = 1600
-const H = 1260
+const H = 1400
 const INK = '#1C1A17'
 const PAPER = '#F4EFE6'
 const RED = '#C23B2A'
@@ -101,14 +102,14 @@ function marker(n: number, [x, y]: P, dx: number, dy: number): string {
 }
 
 export const FEATURES = [
-  'Große aufrechte Ohren mit gerundeter Spitze (Juttas Fotos), leicht asymmetrisch, je eine Innenohr-Linie',
+  'Große aufrechte Ohren; das hintere (rechte) Ohr geknickt (U-07)',
   'Runder Kopf; große runde Augen, offener Ring, große Pupille mit Glanzpunkt (Seitenblick)',
   'Kurze helle Schnauze (Papier), deutlicher Stopp',
   'Dicke schwarze Nase, gefülltes Oval (0,13–0,15 K)',
   'Helle Blesse zwischen den Augen – nur ausgesparter Wash',
   'Tiefe helle Brust, schlanke Taille',
   'Dünne gerade Beine mit hellen „Söckchen“, kleine Pfoten',
-  'Sichelschwanz locker nach oben über den Rücken',
+  'Buschiger Schwanz (Sichel nach oben, sitzend am Boden mit Zacken)',
   'Rotes Geschirr: Halsring, Bauchgurt, Rückensteg; D-Ring = Leinen-Anker',
 ] as const
 
@@ -135,7 +136,7 @@ export async function buildSheet(): Promise<{
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">`,
     `<style>${SPRITE_STYLE.replace(/var\(--[\w-]+,([^)]+)\)/g, '$1')}.line,.harness{stroke-width:2.4px}</style>`,
     `<path d="M0 0H${W}V${H}H0Z" fill="${PAPER}"/>`,
-    text(40, 46, 'Coco – Charakterblatt (P9.8)', 30, ' font-weight="bold"'),
+    text(40, 46, 'Coco – Charakterblatt (P9.8, P12.4)', 30, ' font-weight="bold"'),
     text(
       40,
       74,
@@ -202,19 +203,25 @@ export async function buildSheet(): Promise<{
     marker(9, [X(fig.ring[0]), Y(fig.ring[1])], -10, -80),
   )
 
-  // --- ¾-Ansicht sitzend ---
+  // --- Sitzen, Seitenansicht (Foto „Profil sitzend“) ---
   const sit = figureFor('sitzen', 'a')
   const sx = 800
   const sy = 96
   const X2 = (x: number) => sx + x * S
   const Y2 = (y: number) => sy + y * S
   out.push(
-    text(sx + 30, sy + 14, '¾-Ansicht (sitzen, Kopf zum Betrachter)', 17, ' font-weight="bold"'),
+    text(
+      sx + 30,
+      sy + 14,
+      'Sitzen, Seitenansicht (U-02: wie Juttas Foto, Knickohr hinten)',
+      17,
+      ' font-weight="bold"',
+    ),
     place(renderSymbol(spec('coco-sitzen-a', 'sitzen')), sx, sy, S),
     marker(1, [X2(centroid(sit, 'ear-r')[0]), Y2(centroid(sit, 'ear-r')[1])], 60, -20),
     marker(
       2,
-      [X2(centroid(sit, 'eye-r', 'solid')[0]), Y2(centroid(sit, 'eye-r', 'solid')[1])],
+      [X2(centroid(sit, 'eye-l', 'solid')[0]), Y2(centroid(sit, 'eye-l', 'solid')[1])],
       90,
       -10,
     ),
@@ -224,9 +231,10 @@ export async function buildSheet(): Promise<{
       90,
       20,
     ),
-    marker(5, [X2(86), Y2(32)], -10, -60),
-    marker(6, [X2(100), Y2(70)], 80, 0),
-    marker(7, [X2(96), Y2(100)], 80, 0),
+    marker(5, [X2(98), Y2(24)], -10, -60),
+    marker(6, [X2(112), Y2(70)], 70, 10),
+    marker(7, [X2(106), Y2(98)], 70, 20),
+    marker(8, [X2(40), Y2(100)], -10, -40),
     marker(9, [X2(sit.ring[0]), Y2(sit.ring[1])], -90, -10),
   )
 
@@ -244,7 +252,7 @@ export async function buildSheet(): Promise<{
     text(tx, ty, 'Messtabelle (wie art:check CO-02, Bbox der Teile)', 17, ' font-weight="bold"'),
   )
   const cols = [tx, tx + 230, tx + 360, tx + 500, tx + 610, tx + 720]
-  const head2 = ['Maß', 'Soll §10.1', 'Bereich CO-02', 'Seite', '¾', 'ok']
+  const head2 = ['Maß', 'Soll §10.1', 'Bereich CO-02', 'Seite', 'Sitzen', 'ok']
   head2.forEach((h, i) => out.push(text(cols[i]!, ty + 30, h, 14, ' font-weight="bold"')))
   rows.forEach(([label, soll, key], r) => {
     const y = ty + 56 + r * 24
@@ -266,7 +274,7 @@ export async function buildSheet(): Promise<{
     text(
       tx,
       y2,
-      `Ohren-Asymmetrie Seite ${de((side.earAsym ?? 0) * 100, 0)} %, ¾ ${de((front.earAsym ?? 0) * 100, 0)} % (CO-06: 5–15 %); Augen ¾ ${de((front.eyeDiff ?? 0) * 100, 0)} % verschieden (≥ 3 %).`,
+      `Ohren-Asymmetrie Seite ${de((side.earAsym ?? 0) * 100, 0)} %, Sitzen ${de((front.earAsym ?? 0) * 100, 0)} % (CO-06: 5–15 %).`,
       13,
     ),
     text(
@@ -311,6 +319,22 @@ export async function buildSheet(): Promise<{
   // --- Gesten-Skizzen ---
   const gy = 1120
   out.push(text(40, gy - 8, 'Gesten: 6 Posen (Frame A) und 4 Brücken', 15, ' font-weight="bold"'))
+  // Zusatz-Posen (nachgeladene Datei): Warte-Aktionen und die vier neuen Posen
+  const ey = 1262
+  out.push(
+    text(
+      40,
+      ey - 8,
+      'Zusatz-Posen (nachgeladen): Warte-Aktionen und neue Posen (Frame A)',
+      15,
+      ' font-weight="bold"',
+    ),
+  )
+  EXTRA_POSES.forEach((p, i) => {
+    const x = 40 + i * 168
+    const sym = renderSymbol({ id: `coco-${p}-a`, pose: p, frame: 'a', bridge: false })
+    out.push(place(sym, x, ey, 0.95), text(x + 4, ey + 124, p, 11))
+  })
   const all = [
     ...SPRITE_POSES.map((p) => ({ id: `coco-${p}-a`, pose: p, label: p })),
     ...BRIDGES.map((b) => ({ id: `coco-bridge-${b}`, pose: b, label: `Brücke ${b}` })),
