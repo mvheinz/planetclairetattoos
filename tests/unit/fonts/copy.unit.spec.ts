@@ -68,7 +68,7 @@ describe('P2.4 fonts:copy', () => {
     expect(Object.keys(tables)).toEqual(expect.arrayContaining(['fvar', 'gvar']))
   })
 
-  it('Plex Mono nur 400; Spectral (normal und kursiv) deckt die Pflicht-Glyphen ab', () => {
+  it('AK-DS-05 Plex Mono nur 400; Spectral (normal und kursiv) deckt die Pflicht-Glyphen ab', () => {
     const plex = fontkit.create(first.find((f) => f.file.startsWith('ibm'))!.data) as fontkit.Font
     expect(plex.variationAxes).toEqual({})
     for (const f of first.filter((x) => x.file.startsWith('spectral'))) {

@@ -10,6 +10,7 @@ import styles from './ResponsiveImage.module.css'
 // Keine Next-Bildoptimierung; die Größen erzeugt die Pipeline (`thumb`, `card`, `detail`, `zoom`).
 // Standard `loading="lazy"`; das LCP-Bild bzw. die ersten Karten mit `eager` (optional `fetchPriority="high"`, dann
 // `decoding="sync"`).
+// Jedes Foto trägt den Goth-Fotorahmen (`data-photo-frame`, `ResponsiveImage.module.css`, U-13): einzige Stelle für Fotos.
 
 export type MediaSizeName = 'thumb' | 'card' | 'detail' | 'zoom'
 
@@ -50,6 +51,8 @@ export interface ResponsiveImageProps {
   /** `eager`: ohne `loading="lazy"` (erste Karten, LCP). */
   loading?: 'lazy' | 'eager'
   fetchPriority?: 'high' | 'auto'
+  /** `thumb`: schmales Rahmenband für kleine Vorschauen (≤ 96 px); sonst der volle Goth-Rahmen (U-13). */
+  frameSize?: 'full' | 'thumb'
   className?: string
   /** Zusätzliche Klasse am `<img>`. */
   imgClassName?: string
@@ -62,6 +65,7 @@ export function ResponsiveImage({
   srcSizes,
   loading = 'lazy',
   fetchPriority,
+  frameSize = 'full',
   className,
   imgClassName,
 }: ResponsiveImageProps) {
@@ -71,13 +75,22 @@ export function ResponsiveImage({
     ...(color ? { '--img-bg': color } : {}),
   } as React.CSSProperties
   const src = media ? fallbackSrc(media, srcSizes) : null
-  const frameClass = [styles.frame, color ? '' : styles.hatch, className].filter(Boolean).join(' ')
+  const frameClass = [
+    styles.frame,
+    frameSize === 'thumb' ? styles.thumb : '',
+    color ? '' : styles.hatch,
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ')
   if (!media || !src)
-    return <span className={frameClass} style={frameStyle} data-image-missing="" />
+    return (
+      <span className={frameClass} style={frameStyle} data-photo-frame="" data-image-missing="" />
+    )
   const focal = `${media.focalX ?? 50}% ${media.focalY ?? 50}%`
   const card = media.sizes?.[srcSizes[srcSizes.length - 1]!]
   return (
-    <span className={frameClass} style={frameStyle}>
+    <span className={frameClass} style={frameStyle} data-photo-frame="">
       {/* eslint-disable-next-line @next/next/no-img-element -- keine Next-Bildoptimierung (ARCHITEKTUR §9.4), Größen aus der Pipeline */}
       <img
         className={imgClassName ? `${styles.img} ${imgClassName}` : styles.img}

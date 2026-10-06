@@ -133,7 +133,9 @@
   width: 48px;
   height: 60px;
   object-fit: cover;
-  border-radius: 2px 6px 3px 5px;
+  /* Goth-Fotorahmen (U-13, gleiche gemeinsame SVG-Datei wie `ResponsiveImage`), schmales Band für Vorschaubilder */
+  border: 6px solid var(--paper-field);
+  border-image: url('/art/photo-frame.v1.svg') 40 / 6px round;
   background: var(--paper-field);
 }
 

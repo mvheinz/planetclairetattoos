@@ -63,6 +63,7 @@
     "ci:flaky": "tsx scripts/ci/flaky-check.ts",
     "fonts:copy": "tsx scripts/fonts/copy.ts",
     "art:brand": "tsx scripts/art/build-brand.ts",
+    "art:frame": "tsx scripts/art/build-photo-frame.ts",
     "art:icons": "tsx scripts/art/build-icons.ts",
     "art:admin-icons": "tsx scripts/art/admin-icons.ts",
     "art:coco": "tsx scripts/art/draw-coco.ts",
