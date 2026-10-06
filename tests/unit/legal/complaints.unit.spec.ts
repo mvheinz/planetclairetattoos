@@ -36,7 +36,7 @@ const order = (over: Record<string, unknown> = {}) =>
 
 function req(complaint: Record<string, unknown> | null, collections: object = { complaints: {} }) {
   const update = vi.fn(async ({ data }: { data: object }) => ({ ...complaint, ...data }))
-  const create = vi.fn(async ({ data }: { data: object }) => ({ id: 1, ...data }))
+  const create = vi.fn(async ({ data }: { data: Record<string, unknown> }) => ({ id: 1, ...data }))
   const count = vi.fn(async () => ({ totalDocs: 1 }))
   return {
     req: {

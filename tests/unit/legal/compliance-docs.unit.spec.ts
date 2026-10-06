@@ -19,7 +19,7 @@ function fakePayload(data: {
   uploads?: unknown[]
   declarations?: unknown[]
 }) {
-  const find = vi.fn(async ({ collection }: { collection: string }) => ({
+  const find = vi.fn(async ({ collection }: { collection: string; where?: unknown }) => ({
     docs:
       collection === 'products'
         ? (data.products ?? [])

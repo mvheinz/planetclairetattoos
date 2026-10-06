@@ -92,7 +92,7 @@ describe('R-014 jährliche Prüf-Erinnerung (Zweige)', () => {
   })
 
   const makeReq = (settings: unknown, texts: unknown[] = []) => {
-    const updateGlobal = vi.fn(async () => ({}))
+    const updateGlobal = vi.fn(async (_a: unknown) => ({}))
     const payload = {
       find: vi.fn(async () => ({ docs: texts })),
       findGlobal: vi.fn(async () => settings),
