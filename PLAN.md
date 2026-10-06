@@ -4848,7 +4848,7 @@ KUNST-QA §0–§10 (vollständig).
     Schlaufen, Nahtüberlappung).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.12 Stationszeichnungen final, Weltraum-Motive und Marke** – `content/art/sources.json` je Quelle
+- [x] **P9.12 Stationszeichnungen final, Weltraum-Motive und Marke** – `content/art/sources.json` je Quelle
   feinjustieren und `pnpm art:vectorize` erneut (bei gemapptem Instagram-Export mit voller Auflösung); manuelle
   Nacharbeit nur als dokumentierte Pfad-Korrektur. Weltraum-Motive `src/art/space/*.svg` nach DESIGN §12.5 (Planet mit
   Ring, 4- und 5-zackiger Stern, Mondsichel, gestrichelte Umlaufbahn, Retro-Untertasse, Morse-Leiste „CLAIRE“, je
@@ -4862,7 +4862,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: `tests/unit/art/stations.unit.spec.ts` und `tests/unit/art/space.unit.spec.ts` (Größen, Dichte-Regeln).
   - Ohne Jutta: aus 640-px-Quellen. P11-Nacharbeit: nach dem Export `pnpm art:vectorize` und SC-13 wiederholen.
 
-- [ ] **P9.13 Platzhalter-Feinschliff** – Alle Platzhalter (SEED-SPEC §4.2) gegen DESIGN §12.3 und Juttas Referenzen prüfen und dort
+- [x] **P9.13 Platzhalter-Feinschliff** – Alle Platzhalter (SEED-SPEC §4.2) gegen DESIGN §12.3 und Juttas Referenzen prüfen und dort
   nachzeichnen, wo sie generisch wirken (Ziel Rubrik ≥ 4, AR-05; im Shop-Raster zwischen echten Fotos nicht „fremd“,
   IM-04); `pnpm art:placeholders && pnpm seed:example --refresh-media`.
   - Akzeptanz:
@@ -4932,7 +4932,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: `pnpm art:check`, `pnpm test:perf`, `pnpm test:e2e --grep @a11y`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.18 Studio-QA-Schleife I: erste vollständige Iteration mit Protokoll** – Das Verfahren aus KUNST-QA §1 und
+- [x] **P9.18 Studio-QA-Schleife I: erste vollständige Iteration mit Protokoll** – Das Verfahren aus KUNST-QA §1 und
   §6; jede Iteration ist ein eigener Arbeitsblock mit eigenem Protokoll, die Nummer NN läuft fortlaufend über ganz P9.
   Diese Aufgabe führt Iteration 01 durch, immer mit **vollständiger** Aufnahme; P9.18a wiederholt den Ablauf bis PASS
   oder Obergrenze. Ablauf je Iteration NN:

@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P9.12, P9.13, P9.18 abgehakt (Kunst-QA, Fall b)
+
+Neun Prüf-Durchgänge (Iteration 01–09, Protokolle in `docs/design/qa-log/`, Reviews je Linse) mit jeweils grünem `art:check` auf der Vollaufnahme in Iteration 06–09. Die Schleife endet nach Fall b (8+ Iterationen): alle nicht verhandelbaren Punkte bestehen, der Prüfer R3 meldet PASS. Offen als „Kunst-QA offen“ (in `docs/OFFENE-PUNKTE.md`): Platzhalter noch nicht ganz auf Note 4 (AR-05 = 3; nächste Stufe: Gesichter neu zeichnen, gemeinsam mit Jutta in P11), die Bewegungs-Feinheiten MO-11/MO-12 und Cocos Wanderung im Seitenübergang (MO-14). Gefundener und behobener Fehler: Der Seitenübergang stand am Ende der Seite statt im Kopf und wurde von Chromium übersprungen.
+
 ## 2026-10-06 – P9.18a
 
 - Fall b (KUNST-QA §6.6 Nr. 6.1) nach 9 Iterationen (Iteration 06–09 in dieser Session): alle nicht verhandelbaren Punkte PASS, `art:check` 62/62 in jedem Lauf. Iteration 09: R1 FAIL (AR-05 Note 3), R2 FAIL (MO-11, MO-12 Note 3), R3 PASS.
