@@ -2,6 +2,14 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P9.18a
+
+- Fall b (KUNST-QA §6.6 Nr. 6.1) nach 9 Iterationen (Iteration 06–09 in dieser Session): alle nicht verhandelbaren Punkte PASS, `art:check` 62/62 in jedem Lauf. Iteration 09: R1 FAIL (AR-05 Note 3), R2 FAIL (MO-11, MO-12 Note 3), R3 PASS.
+- Offen als „Kunst-QA offen“ (docs/OFFENE-PUNKTE.md): AR-05, MO-11/MO-12 (MI-01 Posenwechsel, MI-06/07/10/12 Aufnahme), MO-14 (Coco wandert nicht, ADR 0003). Protokolle: docs/design/qa-log/2026-10-05-iter-06.md bis -09.md, Reviews unter reviews/iter-06 bis iter-09.
+- Echter Produktfund: `@view-transition` stand am Ende des `<body>`, Chromium übersprang den Seitenübergang; jetzt im `<head>` (MO-14 misst 242 statt 0 Animationen).
+- Weitere Produkt-Änderungen: Nr. 922 im Raster nicht mehr schwarz (kein Multiplizieren bei Aquarellen), Coco-Boil ohne Lücke, Ruheplatz hinter der Kopf-Schlaufe (reduziert), Herz am Endanker, Planeten-Marke bei erzwungenen Farben ohne Füllung, Stationen hallo/jutta-und-coco neu, zehn Platzhalter ohne Wash.
+- Tests: pnpm check grün (207 Dateien, 1 889 Tests), pnpm build grün, pnpm test:perf (Lighthouse-Gates) Exit 0, visuelle Referenzen für 6 Bilder erneuert, E2E-Teilauswahl (desktop + pixel-7: leash, coco, home, home-choreo, reduced-motion, motion-toggle, art-gate, error-pages, menu) 81 grün; rot bleiben in dieser Umgebung `coco.e2e` „Weiche Navigation“ (2 Fälle, rot auch mit dem alten `SiteDocument`, einzeln mit `-g` grün) und ein reihenfolge-abhängiger Fall in `home.e2e` (einzeln grün); `@a11y`-Auswahl: `keyboard.e2e` EK-07 scheitert am Footer-Schalter „Animationen: aus (Systemeinstellung)“ (Umgebung mit System-Bewegungsreduktion) – nicht abgehakt, siehe Bericht.
+
 ## 2026-10-05 – P9.7 Kunst-QA-Workflow bewiesen
 
 `[ci:art]`-Lauf 37329881684 (Commit 85347b4) ist grün: 62 von 62 automatischen Kriterien bestanden, Bündel `art-qa-20261005-iter01-85347b4` (≈ 100 MB) hochgeladen, genau ein Bündel vorhanden, Laufzeit ≈ 44 Minuten (Gate ≤ 45, Abbruch 60). Probe `gh run download`: Der Download der Artefakt-Datei ist von dieser Cloud-Umgebung aus nicht möglich (Proxy erlaubt keine Weiterleitung auf den Blob-Speicher); Auswertung läuft deshalb über die Zeilen im Job-Log (`ROT <ID>: …`) – Eintrag in OFFENE-PUNKTE.

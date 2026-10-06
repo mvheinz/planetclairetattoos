@@ -4963,7 +4963,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: `pnpm art:check`; `pnpm art:bundle` (Vollständigkeit).
   - Ohne Jutta: die drei Subagenten-Linsen ersetzen menschliche Prüfer. P11-Nacharbeit: –
 
-- [ ] **P9.18a Studio-QA-Schleife II: nachbessern bis PASS oder Obergrenze** – Je weitere Iteration zuerst
+- [x] **P9.18a Studio-QA-Schleife II: nachbessern bis PASS oder Obergrenze** – Je weitere Iteration zuerst
   nachbessern, dann den Ablauf aus P9.18 (Schritte 1–4) mit der nächsten Nummer; braucht die Iteration einen Lauf von
   `art-qa.yml`, trägt ihr Aufnahme-Commit `[ci:art]` (z. B. `chore(P9.18a): record iteration 03 [ci:art]`). Diese
   Läufe sind von der Regel „höchstens ein Zwischenlauf je Phase“ ausgenommen; ihre Zahl begrenzt Fall c unten
