@@ -28,7 +28,7 @@ Drei Dinge vorab:
 7. [Abholung](#7-abholung)
 8. [Widerrufe und Erstattung](#8-widerrufe-und-erstattung)
 9. [Anfragen für Auftragsarbeiten](#9-anfragen-für-auftragsarbeiten)
-10. [Tattoo: Flash, Angebote, Galerie](#10-tattoo-flash-angebote-galerie)
+10. [Tattoo: Flash und Galerie](#10-tattoo-flash-und-galerie)
 11. [Texte bearbeiten](#11-texte-bearbeiten)
 12. [Einstellungen](#12-einstellungen)
 13. [Umsatz-Wächter](#13-umsatz-wächter)
@@ -269,7 +269,7 @@ eine kurze Mail mit der Nummer, ohne Namen und ohne Inhalt. Den Inhalt siehst du
 
 Eine Anfrage ist noch kein Vertrag, und der Preis steht nirgends fest. Du sagst in deiner Antwort, was du anbietest.
 
-## 10. Tattoo: Flash, Angebote, Galerie
+## 10. Tattoo: Flash und Galerie
 
 ![Der Bereich „Tattoo“](img/handbuch/tattoo.webp)
 
@@ -280,11 +280,6 @@ Eine Anfrage ist noch kein Vertrag, und der Preis steht nirgends fest. Du sagst 
 - **Flash:** Ein einmaliges Motiv wechselst du mit zwei Tipps zwischen „verfügbar“ und „vergeben“. Ein wiederholbares
   Motiv pausierst du mit „Offline nehmen“. Ein neues Motiv brauchst du nur mit Bild, Titel, Größe und Festpreis.
   „Übersetzen“ gibt es auch hier.
-
-![Angebote](img/handbuch/tattoo-angebote.webp)
-
-- **Angebote:** zum Beispiel ein Flash-Tag oder eine Aktion mit Beginn, Ende und Ort (nur als Text, ohne genaue
-  Adresse). Ob ein Angebot „kommt“, „läuft“ oder „abgelaufen“ ist, ergibt sich von selbst aus den Daten.
 
 ![Galerie mit Einwilligungsfeldern](img/handbuch/tattoo-galerie.webp)
 

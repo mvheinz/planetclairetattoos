@@ -2,7 +2,7 @@ import { expect, test } from '../fixtures'
 import { refreshTattoo } from './tattooFixtures'
 
 // P8.6 – Tattoo-Bestand des Beispielbestands (SEED-SPEC §12, §17): Mail-Betreff von F-907 (AK-9-02), F-901 mit echtem
-// Instagram-Bild, Angebote TO1/TO2 sichtbar und TO3 nicht (AK-9-03, AK-SEED-10, relativ zu N = Zeitpunkt des Seeds),
+// Instagram-Bild, keine Angebote mehr (AK-9-03, P12.7),
 // Galerie G1/G2 im Vorschau-Modus mit Etikett (AK-9-04). Voraussetzung: `db:reset --test --seed=all`.
 
 test.describe.configure({ mode: 'serial' })
@@ -29,23 +29,18 @@ test('AK-9-02 Seed: Mail-Knopf F-907 mit exaktem Betreff (DE/EN); F-901 zeigt da
   )
 })
 
-test('AK-9-03 Seed: TO1 und TO2 auf R13, TO2 als laufendes Angebot auf R11 und der Startseite; TO3 nirgends', async ({
+test('AK-9-03 AK-SEED-10 R-171 (P12.7, U-14) Keine „Angebote“ mehr: R13 gibt es nicht, Tattoo-Übersicht und Startseite zeigen keine Aktionskarte', async ({
   page,
 }) => {
-  const to1 = 'Flash-Day: kleine Motive ab 80 €'
-  const to2 = 'Spontane Lücken: winzige Planeten'
-  const to3 = 'Flash-Day im Spätsommer'
-  await page.goto('/de/tattoo/angebote')
-  await expect(page.locator('main')).toContainText(to1)
-  await expect(page.locator('main')).toContainText(to2)
-  await expect(page.locator('main')).not.toContainText(to3)
+  for (const path of ['/de/tattoo/angebote', '/en/tattoo/offers']) {
+    const res = await page.goto(path)
+    expect(res?.status(), path).toBe(404)
+  }
   await page.goto('/de/tattoo')
-  await expect(page.locator('[data-tattoo-offer-teaser]')).toContainText(to2)
-  await expect(page.locator('main')).not.toContainText(to3)
+  await expect(page.locator('[data-tattoo-offer-teaser], [data-offer-card]')).toHaveCount(0)
+  await expect(page.locator('a[href*="angebote"]')).toHaveCount(0)
   await page.goto('/de')
-  await expect(page.locator('[data-home-station="tattoo"]')).toContainText(to2)
-  await page.goto('/en/tattoo/offers')
-  await expect(page.locator('main')).toContainText('Last-minute gaps: tiny planets')
+  await expect(page.locator('[data-offer-card]')).toHaveCount(0)
 })
 
 test('AK-9-04 Seed: G1/G2 nur im Vorschau-Modus mit Etikett „intern – Einwilligung fehlt“; G3–G6 ohne Etikett', async ({

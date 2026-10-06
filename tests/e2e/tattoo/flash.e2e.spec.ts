@@ -85,9 +85,9 @@ test('AK-9-02 Mail-Knopf von F-981 mit exaktem Betreff; vergebene ohne Anfrage-K
   expect(decodeURIComponent(/body=([^&]+)/.exec(href)![1]!)).toContain(
     'Bitte keine Gesundheitsinfos – die klären wir persönlich.',
   )
-  await expect(card.locator('[data-flash-dm]')).toHaveAttribute('href', /^https:\/\/ig\.me\/m\//)
-  await expect(card.locator('[data-flash-dm]')).toHaveAttribute('rel', 'noopener noreferrer')
-  await expect(card.locator('[data-flash-snippet]')).toHaveText('F-981 – Kelch mit Schlange')
+  // P12.7 (U-15): Anfrageweg nur E-Mail – kein DM-Knopf, kein DM-Baustein.
+  await expect(card.locator('[data-flash-dm], [data-flash-snippet]')).toHaveCount(0)
+  await expect(card.locator('a[href*="ig.me"]')).toHaveCount(0)
   await expect(card.locator('[data-flash-number]')).toHaveText('F-981')
 
   const order = await page
@@ -98,9 +98,7 @@ test('AK-9-02 Mail-Knopf von F-981 mit exaktem Betreff; vergebene ohne Anfrage-K
   for (const n of ['983', '985']) {
     const claimed = page.locator(`#f-${n}`)
     await expect(claimed).toHaveAttribute('data-flash-status', 'claimed')
-    await expect(
-      claimed.locator('[data-flash-mail], [data-flash-dm], [data-flash-snippet]'),
-    ).toHaveCount(0)
+    await expect(claimed.locator('[data-flash-mail]')).toHaveCount(0)
     await expect(claimed.locator('[data-flash-taken]')).toContainText(
       'Schon vergeben – schau dir die anderen an',
     )
@@ -165,7 +163,6 @@ test('AK-9-02 R12 axe ohne serious/critical und ohne JavaScript vollständig les
     await noJs.goto('/de/tattoo/flash')
     await expect(noJs.locator('#f-981 h3')).toHaveText('Kelch mit Schlange')
     await expect(noJs.locator('#f-981 [data-flash-mail]')).toBeVisible()
-    await expect(noJs.locator('#f-981 [data-flash-snippet]')).toBeVisible()
     await expect(noJs.locator('#tattoo-price-footnote')).toBeVisible()
     await expect(noJs.locator('[data-tattoo-contact] [data-tattoo-email]')).toBeVisible()
   } finally {

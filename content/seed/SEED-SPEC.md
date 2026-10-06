@@ -44,7 +44,6 @@ Grund-Seed und den Mini-Satz an (Spalte „Phase“, §1.8).
 | `inquiries` | 7 (je einer aus `INQUIRY_STATUSES`) | `true` | P8 | §11 |
 | `privacy-requests` | 5 (je einer aus `PRIVACY_REQUEST_STATUSES`) | `true` | P8 | §11a |
 | `flash` | 10 | `true` | P8 | §12.1 |
-| `tattoo-offers` | 3 | `true` | P8 | §12.2 |
 | `tattoo-gallery` | 6 | `true` | P8 | §12.3 |
 | `pages` | 13 (alle `PAGE_KEYS`) | `true` | P1 Mini-Satz (`home`, `contact`) · P8 vollständig | §13 |
 | `faqs` | 12 | `true` | P8 | §14 |
@@ -78,7 +77,7 @@ Grund-Seed und den Mini-Satz an (Spalte „Phase“, §1.8).
 - **Anfragen:** alle `INQUIRY_STATUSES`, eine mit Referenzbild, zwei auf Englisch.
 - **Datenschutz-Anfragen** (`privacy-requests`): alle `PRIVACY_REQUEST_STATUSES`; Arten Auskunft, Löschung; Kanäle E-Mail,
   Brief, Instagram-Nachricht; eine auf Englisch; Fristen `dueAt` vor und nach `N`.
-- **Tattoo:** 10 Flash (4 wiederholbar, 2 vergeben), 3 Angebote (künftig, laufend, vergangen), 6 Galerie-Einträge
+- **Tattoo:** 10 Flash (4 wiederholbar, 2 vergeben), 6 Galerie-Einträge
   (2 echte Fotos ohne Einwilligung, 4 Platzhalter), Preisrahmen.
 - **Texte:** alle 13 Seiten, Startseite mit Kopf-Station + 7 Stationen, 12 FAQ, Aftercare-Phasen – DE und EN.
 
@@ -141,7 +140,7 @@ Grund-Seed und den Mini-Satz an (Spalte „Phase“, §1.8).
 | `invoices` | `<Bestellung>:invoice` / `<Bestellung>:credit_note:<k>` | `invoices:O05:credit_note:1` |
 | `withdrawals` / `inquiries` | `W1`…`W7` / `A1`…`A7` | `withdrawals:W2` |
 | `complaints` / `privacy-requests` | `RK1`…`RK4` / `DS1`…`DS5` | `complaints:RK2`, `privacy-requests:DS3` |
-| `flash` / `tattoo-offers` / `tattoo-gallery` | `F901`…`F910` / `TO1`…`TO3` / `G1`…`G6` | `flash:F907` |
+| `flash` / `tattoo-gallery` | `F901`…`F910` / `G1`…`G6` | `flash:F907` |
 | `pages` / `faqs` | Page-Key / `FAQ01`…`FAQ12` | `pages:home`, `faqs:FAQ05` |
 | `revenue-entries` | `<M-k>:<source>` | `revenue-entries:M-9:tattoo` |
 | `email-log` / `consent-log` / `audit-log` | `<Bezug>:<template/zweck>` | `email-log:O05:refund_confirmation` |
@@ -152,7 +151,7 @@ Ein zweiter Lauf von `pnpm seed` ändert keine Anzahl (AK-SEED-01). Suche immer 
 
 | Gruppe | Collections | Regel bei vorhandenem `seedKey` |
 |---|---|---|
-| Inhalt | `media`, `products`, `flash`, `tattoo-offers`, `tattoo-gallery`, `pages`, `faqs` | Dokument mit `seed = false` (übernommen) → **überspringen**. Sonst Inhaltsfelder aktualisieren (Texte, Alt-Texte, Maße, Bilder-Reihenfolge, Pflichtangaben). **Nie** ändern: `itemNumber`/`number`, `status` und alle Verkaufsfelder (§5.3), `category` außer bei `draft`, `priceCents` bei `reserved`/`sold`. Leere Verweise (`currentOrder`, `reservationRef`) dürfen ergänzt werden. Mediendateien werden nur mit `--refresh-media` neu hochgeladen. |
+| Inhalt | `media`, `products`, `flash`, `tattoo-gallery`, `pages`, `faqs` | Dokument mit `seed = false` (übernommen) → **überspringen**. Sonst Inhaltsfelder aktualisieren (Texte, Alt-Texte, Maße, Bilder-Reihenfolge, Pflichtangaben). **Nie** ändern: `itemNumber`/`number`, `status` und alle Verkaufsfelder (§5.3), `category` außer bei `draft`, `priceCents` bei `reserved`/`sold`. Leere Verweise (`currentOrder`, `reservationRef`) dürfen ergänzt werden. Mediendateien werden nur mit `--refresh-media` neu hochgeladen. |
 | Vorgänge | `checkouts`, `orders`, `reservations`, `invoices`, `withdrawals`, `complaints`, `inquiries`, `privacy-requests`, `revenue-entries`, `private-uploads`, alle Logs | **nur anlegen**; vorhandene nie ändern. Abweichungen zur Datei meldet der Lauf als „unverändert (create-only)“. Änderungen wirken erst nach `pnpm seed:reset`. |
 | Grund-Seed | `categories`, `settings`, `site-texts`, `legal-texts`, Admin | **nur fehlende** Dokumente anlegen bzw. **leere** Felder füllen; nie Juttas Werte überschreiben. |
 
@@ -214,7 +213,7 @@ Ausnahmen gelten nur bei `req.context.seed === true`, nie über die Verwaltung o
 1. Guard (§1.5), `SEED_NOW` auflösen (§2.2), Daten laden und mit zod prüfen (alles oder nichts).
 2. Grund-Seed (§3).
 3. `media` (Ausschnitte erzeugen, §4) → `private-uploads` (§4.4).
-4. `products` (ohne `currentOrder`) → `flash` → `tattoo-offers` → `tattoo-gallery` → `pages` → `faqs`.
+4. `products` (ohne `currentOrder`) → `flash` → `tattoo-gallery` → `pages` → `faqs`.
 5. `checkouts` (§7.3) → `orders` in Reihenfolge `placedAt` → `reservations` (§8); danach `checkouts.order`,
    `orders.checkout`, `reservations.order` und `products.currentOrder`/`reservationRef` setzen.
 6. `invoices`: je Serie streng nach `issueAt` (§9), danach `orders.invoice` und `refunds[].creditNote` verknüpfen.
@@ -230,7 +229,7 @@ Ausnahmen gelten nur bei `req.context.seed === true`, nie über die Verwaltung o
 |---|---|
 | **P1** | Seed-Rahmen: `src/lib/seed/*` (Lader, zod-Schemas, Guard, `time.ts`, `tokens.ts`, `fallbackArt.ts`, `remove.ts`) und `scripts/seed/cli.ts` mit allen Befehlen §1.4; Grund-Seed §3 (Plan P1.29). Vom Beispielbestand nur der **Mini-Satz** (Plan P1.30, DATENMODELL §13.1, W-21): Stücke S01, S06, S09, S11, S15, S18, S20, S25, S26, S27 (alle Kategorien außer `sonstiges` – S30 hängt an der Bestellung O09 –, jeder `ProductStatus`), dazu die offene Kasse KS2 mit ihrer Reservierung, die privaten Dateien `nickel-demo` und `glaze-demo` (Nachweise für S26), die dafür und für die Startseite nötigen Medien (Instagram-Ausschnitte §4.1 über die Pipeline aus P1.13; `ph:`-Bilder über `fallbackArt.ts`, §4.3) und die Seiten `home` und `contact`. Die Datendateien tragen schon die endgültigen `seedKey`s; spätere Phasen ergänzen nur |
 | P4 | Beleg-PDF-Renderer mit Wasserzeichen „BEISPIELBELEG“ (§9), den der Seed ab P8 direkt (ohne Job) nutzt. Tests zu Kasse, Danke- und Statusseite laufen bis P8 gegen gleichartige Fixtures (Nummern 980–999) statt gegen die Anker §17 (Regel „Beispielbestand vor P8“ in den Arbeitsregeln von `PLAN.md`; mit den echten Ankern prüft P8.21) |
-| P7 | Tattoo-Seiten für `flash`, `tattoo-offers`, `tattoo-gallery` und die Seiten-Blöcke aus §13.5; bis P8 mit Test-Fixtures |
+| P7 | Tattoo-Seiten für `flash`, `tattoo-gallery` und die Seiten-Blöcke aus §13.5; bis P8 mit Test-Fixtures |
 | **P8** | Vollständiger Bestand laut §0.1: alle übrigen Datensätze aus §4–§15 (Medien, private Dateien, Stücke, Kund:innen, Bestellungen, Kassen, Reservierungen, Belege mit BSP-PDFs, Widerrufe, Reklamationen, Anfragen, Datenschutz-Anfragen, Tattoo, Seiten, FAQ, Umsätze; Reklamationen und Datenschutz-Anfragen samt aller Status in Plan P8.5a), Logs (§16), echte Platzhalter-SVGs nach DESIGN §12.3 in `src/art/placeholders/`, Texte gegenlesen, Import aus dem Instagram-Export (bessere Auflösung, gleiche `seedKey`s), AK-SEED vollständig grün |
 | P9 | Feinschliff Platzhalter (`--refresh-media`), Stationszeichnungen (Code-Assets, nicht in `media`) |
 | P10 | Vorschau-Datei liest den Bestand mit `SEED_PREVIEW_MODE=true` (§17) |
@@ -251,7 +250,7 @@ Ausnahmen gelten nur bei `req.context.seed === true`, nie über die Verwaltung o
 | `content/seed/data/customers.json` | §6 |
 | `content/seed/data/orders.json` | §7, §8, §9 (Kassen, Bestellungen inkl. Reservierungen, Erstattungen, Belegen) |
 | `content/seed/data/withdrawals.json`, `complaints.json`, `inquiries.json`, `privacy-requests.json` | §10, §10a, §11, §11a |
-| `content/seed/data/tattoo.json` | §12 (Flash, Angebote, Galerie) |
+| `content/seed/data/tattoo.json` | §12 (Flash, Galerie) |
 | `content/seed/data/pages.json`, `faqs.json` | §13, §14 |
 | `content/seed/data/revenue.json` | §15 |
 | `content/seed/data/logs.json` | §16 (Regeln + Ausnahmen) |
@@ -856,7 +855,7 @@ keine fremden Figuren oder Marken, keine Liedzeilen.
 **S15 · 915 · Pinke Cap „sometimes“** · EN Pink cap “sometimes”
 - DE: Pinke Cap mit einem roten Fabelwesen, schwarzen Ranken und kleinen blauen Schlangen. Auf dem Schirm steht „sometimes“ – manchmal eben.
 - EN: Pink cap with a red creature, black vines and little blue snakes. The brim says “sometimes” – because sometimes, well.
-- juttaSays: DE „Das Wesen hat keinen Namen. Vorschläge nehme ich gern per DM.“ · EN “The creature doesn't have a name yet. Suggestions welcome by DM.”
+- juttaSays: DE „Das Wesen hat keinen Namen. Vorschläge nehme ich gern per Mail.“ · EN “The creature doesn't have a name yet. Suggestions welcome by email.”
 
 **S16 · 916 · Graue Cap „Flammenwesen“** · EN Grey cap “Flame Creature”
 - DE: Grau gewaschene Cap, vorne springt ein schwarzes Wesen durch bunte Flammen. Mit Schriftzug auf dem Schirm.
@@ -1314,21 +1313,9 @@ Gesamtpreise (Festpreis, E-53).
 
 Mail-Betreff (KONZEPT §9.4) z. B. `Flash-Anfrage F-907 – Winziger Planet` / `Flash request F-907 – Tiny planet`.
 
-### 12.2 Angebote (`tattoo-offers`, 3)
+### 12.2 Angebote (entfallen, P12.7)
 
-`locationNote` leer → Default „Privatstudio in {Bezirk}“. `published = true` bei allen.
-
-| Key | `type` | `startsAt` | `endsAt` | Sichtbar (kanonisch) | `flashes` |
-|---|---|---|---|---|---|
-| TO1 | flash_day | `SAT>=D+56@12:00` (Sa 12.12.2026) | `SAT>=D+56@19:00` | ja, „in 58 Tagen“ | F902, F906, F907, F910 |
-| TO2 | aktion | `D-3@00:00` | `D+4@23:59` | ja, „läuft gerade“ | F907 |
-| TO3 | flash_day | `SAT>=D-50@12:00` (Sa 29.08.2026) | `SAT>=D-50@19:00` | **nein** (abgelaufen) | F902, F906 |
-
-| Key | `title` DE / EN | `description` DE / EN | `priceNote` DE / EN |
-|---|---|---|---|
-| TO1 | Flash-Day: kleine Motive ab 80 € / Flash day: small designs from 80 € | Ein Tag, vier kleine Motive, Kaffee und Coco. Such dir ein Motiv aus, schreib mir vorher per Mail oder DM, dann halte ich dir eine Uhrzeit frei. / One day, four small designs, coffee and Coco. Pick a design, message me by email or DM beforehand and I'll keep a time slot for you. | Hasen-Trio 90 €, Coco sitzt 80 €, Winziger Planet 80 €, Herz mit Beinen 80 € (Gesamtpreise) / Bunny trio 90 €, Coco sitting 80 €, tiny planet 80 €, heart with legs 80 € (total prices) |
-| TO2 | Spontane Lücken: winzige Planeten / Last-minute gaps: tiny planets | Diese Woche habe ich ein paar freie Stunden. Winzige Planeten (F-907) passen perfekt rein – einfach per DM fragen. / I've got a few free hours this week. Tiny planets (F-907) fit in perfectly – just ask by DM. | Winziger Planet 80 € (Gesamtpreis) / Tiny planet 80 € (total price) |
-| TO3 | Flash-Day im Spätsommer / Late summer flash day | Kleine Motive, großer Spaß – danke an alle, die da waren! / Small designs, big fun – thanks to everyone who came! | Motive ab 80 € / designs from 80 € |
+„Angebote“ (frühere TO1–TO3) gibt es nicht mehr (U-14). Die Nummer 12.2 bleibt unbelegt.
 
 ### 12.3 Galerie (`tattoo-gallery`, 6)
 
@@ -1392,7 +1379,7 @@ Texte (`subheading` bzw. `text`, ≤ 400 Zeichen):
 | 3 | Second-Hand-Shirts, Kleider und Caps, von Hand bemalt. Jedes Teil gibt's genau einmal – in genau einer Größe. | Second-hand shirts, dresses and caps, painted by hand. Every piece exists exactly once – in exactly one size. |
 | 4 | Tusche, Aquarell, Skizzenbuchseiten. Hier fängt eigentlich alles an. | Ink, watercolour, sketchbook pages. This is where it all starts, really. |
 | 5 | Winzige Anhänger aus Keramik: Füchse, Planeten, Rehköpfchen. Klein genug für die Hosentasche, groß genug für gute Laune. | Tiny ceramic pendants: foxes, planets, little deer. Small enough for your pocket, big enough for a good mood. |
-| 6 | Fine Line, naiv, mit Humor. Flash mit Festpreis oder deine eigene Idee – Anfragen per Mail oder DM, gestochen wird im Privatstudio in Berlin. | Fine line, naive, with a sense of humour. Flash with fixed prices or your own idea – ask by email or DM, tattooed in a private studio in Berlin. |
+| 6 | Fine Line, naiv, mit Humor. Flash mit Festpreis oder deine eigene Idee – Anfragen per Mail, gestochen wird im Privatstudio in Berlin. | Fine line, naive, with a sense of humour. Flash with fixed prices or your own idea – ask by email, tattooed in a private studio in Berlin. |
 | 7 | Werkstatt unter der Woche, Flohmarkt am Wochenende, Coco immer dabei. Und falls du eine eigene Idee hast: Auftragsarbeiten gehen auch. | Workshop during the week, flea market at the weekend, Coco always along. And if you've got your own idea: commissions are possible too. |
 
 ### 13.2 `about` – „Jutta & Coco“ / “Jutta & Coco”
@@ -1425,9 +1412,9 @@ Texte:
 
 | # | Block | Inhalt DE / EN |
 |---|---|---|
-| 1 | richText | Am schnellsten erreichst du mich per Mail. Auf Instagram bin ich auch – schreib mir gern eine DM. / The quickest way to reach me is by email. I'm on Instagram too – feel free to send a DM. |
+| 1 | richText | Am schnellsten erreichst du mich per Mail. / The quickest way to reach me is by email. |
 | 2 | contactLinks | `heading` „Schreib mir“ / “Write to me”, alle `show*` an, `emailSubject` „Hallo Jutta“ / “Hi Jutta” |
-| 3 | callout (`tone` info) | Frage zu einer Bestellung? Nenn bitte deine Bestellnummer. Tattoo-Anfragen bitte per Mail oder DM, eigene Ideen für Keramik und Co. über das Formular bei den Auftragsarbeiten. / Question about an order? Please include your order number. Tattoo requests by email or DM, please; custom ideas for ceramics and more via the commissions form. |
+| 3 | callout (`tone` info) | Frage zu einer Bestellung? Nenn bitte deine Bestellnummer. Tattoo-Anfragen bitte per Mail, eigene Ideen für Keramik und Co. über das Formular bei den Auftragsarbeiten. / Question about an order? Please include your order number. Tattoo requests by email, please; custom ideas for ceramics and more via the commissions form. |
 | 4 | faqList | `category` shop, `heading` „Shop“ / “Shop” |
 | 5 | faqList | `category` shipping, `heading` „Versand“ / “Shipping” |
 
@@ -1445,25 +1432,24 @@ Schritte (`title` / `text`): 1 „Anfrage“ / “Request” – „Schick mir �
 
 ### 13.5 `tattoo` – „Tattoo“ / “Tattoo”
 
-Die Unterseiten R12–R18 nutzen die Blöcke dieser Seite nach Typ (Flash → `flashGrid`, Angebote → `offersList`, Preise →
+Die Unterseiten R12–R18 nutzen die Blöcke dieser Seite nach Typ (Flash → `flashGrid`, Preise →
 `priceInfo`, Galerie → `tattooGallery`, Ablauf → `processSteps`, FAQ → `faqList`) (SE-09).
 
 | # | Block | Inhalt |
 |---|---|---|
 | 1 | richText | Mein Stil (unten) |
-| 2 | offersList | `heading` „Angebote“ / “Offers”; `emptyText` „Gerade keine Aktionen. Folge @planet.claire.tattoos, dann verpasst du nichts.“ / “No offers right now. Follow @planet.claire.tattoos so you don't miss anything.” |
-| 3 | flashGrid | `heading` „Flash“ / “Flash”; `showClaimed` true |
-| 4 | tattooGallery | `heading` „Fresh & healed“; `filter` all; `limit` 12 |
-| 5 | priceInfo | `heading` „Preise“ / “Prices”; `content` DE „Jedes Flash-Motiv hat einen Festpreis, der direkt am Motiv steht. Für eigene Ideen findest du oben meinen Preisrahmen. Die Anzahlung besprechen wir persönlich per Mail – auf dieser Website zahlst du nichts.“ · EN “Every flash design has a fixed price shown right next to it. For custom ideas you'll find my price range above. We'll sort out the deposit personally by email – you don't pay anything on this website.” |
-| 6 | processSteps | `heading` „Ablauf“ / “How it works”; 5 Schritte unten |
-| 7 | callout (`tone` hint) | Tattoos erst ab 18. / Tattoos for 18+ only. |
-| 8 | faqList | `category` tattoo, `heading` „FAQ“ |
-| 9 | contactLinks | `heading` „Anfragen per Mail oder DM“ / “Ask by email or DM”; `emailSubject` „Tattoo-Anfrage“ / “Tattoo request” |
+| 2 | flashGrid | `heading` „Flash“ / “Flash”; `showClaimed` true |
+| 3 | tattooGallery | `heading` „Fresh & healed“; `filter` all; `limit` 12 |
+| 4 | priceInfo | `heading` „Preise“ / “Prices”; `content` DE „Jedes Flash-Motiv hat einen Festpreis, der direkt am Motiv steht. Für eigene Ideen findest du oben meinen Preisrahmen. Die Anzahlung besprechen wir persönlich per Mail – auf dieser Website zahlst du nichts.“ · EN “Every flash design has a fixed price shown right next to it. For custom ideas you'll find my price range above. We'll sort out the deposit personally by email – you don't pay anything on this website.” |
+| 5 | processSteps | `heading` „Ablauf“ / “How it works”; 5 Schritte unten |
+| 6 | callout (`tone` hint) | Tattoos erst ab 18. / Tattoos for 18+ only. |
+| 7 | faqList | `category` tattoo, `heading` „FAQ“ |
+| 8 | contactLinks | `heading` „Anfrage per Mail“ / “Request by email”; `emailSubject` „Tattoo-Anfrage“ / “Tattoo request” |
 
 - **Mein Stil DE:** Fine Line, naiv, mit Humor. Ich steche am liebsten kleine Tiere mit Kulleraugen, Figuren mit zittriger Linie und Motive, die ein bisschen schief gucken. Schwarz, fein und so, dass es zu dir passt.
 - **Mein Stil EN:** Fine line, naive, with a sense of humour. My favourite things to tattoo are small animals with googly eyes, figures with a shaky line and designs that look at you slightly sideways. Black, fine, and made to suit you.
 
-Ablauf (KONZEPT R16): 1 „Anfrage“ / “Request” – „Schreib mir per Mail oder DM: Idee oder Flash-Nummer, Stelle am Körper, ungefähre Größe.“ / “Email or DM me: your idea or the flash number, placement, rough size.” · 2 „Termin“ / “Appointment” – „Wir finden einen Tag. Die genaue Adresse bekommst du mit der Bestätigung.“ / “We find a date. You'll get the exact address with the confirmation.” · 3 „Anzahlung“ / “Deposit” – „Klären wir persönlich per Mail, nicht hier auf der Website.“ / “We sort that out personally by email, not on this website.” · 4 „Stechen“ / “Tattooing” – „Bring deinen Ausweis mit, komm ausgeschlafen und mit etwas im Bauch. Coco schläft meistens nebenan.“ / “Bring your ID, come well rested and with something in your stomach. Coco is usually asleep next door.” · 5 „Aftercare“ – „Du bekommst die Pflegeschritte mit, alles steht auch auf der Aftercare-Seite.“ / “You'll get the aftercare steps to take home, and everything's on the aftercare page too.”
+Ablauf (KONZEPT R16): 1 „Anfrage“ / “Request” – „Schreib mir per Mail: Idee oder Flash-Nummer, Stelle am Körper, ungefähre Größe.“ / “Email me: your idea or the flash number, placement, rough size.” · 2 „Termin“ / “Appointment” – „Wir finden einen Tag. Die genaue Adresse bekommst du mit der Bestätigung.“ / “We find a date. You'll get the exact address with the confirmation.” · 3 „Anzahlung“ / “Deposit” – „Klären wir persönlich per Mail, nicht hier auf der Website.“ / “We sort that out personally by email, not on this website.” · 4 „Stechen“ / “Tattooing” – „Bring deinen Ausweis mit, komm ausgeschlafen und mit etwas im Bauch. Coco schläft meistens nebenan.“ / “Bring your ID, come well rested and with something in your stomach. Coco is usually asleep next door.” · 5 „Aftercare“ – „Du bekommst die Pflegeschritte mit, alles steht auch auf der Aftercare-Seite.“ / “You'll get the aftercare steps to take home, and everything's on the aftercare page too.”
 
 ### 13.6 `tattoo_aftercare` – „Aftercare“ / “Aftercare”
 
@@ -1521,7 +1507,7 @@ fachliche Annahmen (SE-07).
 | FAQ05 | tattoo | 50 | Ist Coco beim Tätowieren dabei? | Is Coco around during the session? |
 | FAQ06 | tattoo | 60 | Machst du auch Farbe? | Do you do colour? |
 | FAQ07 | tattoo | 70 | Machst du Cover-ups? | Do you do cover-ups? |
-| FAQ08 | tattoo | 80 | Mail oder DM – was ist besser? | Email or DM – which is better? |
+| FAQ08 | tattoo | 80 | Wie frage ich ein Tattoo an? | How do I request a tattoo? |
 | FAQ09 | aftercare | 10 | Wie lange dauert das Abheilen? | How long does healing take? |
 | FAQ10 | shop | 10 | Warum steht bei der Keramik „Deko“? | Why is the ceramic labelled “decorative”? |
 | FAQ11 | shipping | 10 | Wohin verschickst du, und was kostet der Versand? | Where do you ship, and what does shipping cost? |
@@ -1531,11 +1517,11 @@ Antworten:
 - **FAQ01** DE: Ab 18. Bring zum Termin bitte deinen Ausweis mit. · EN: 18 and up. Please bring your ID to the appointment.
 - **FAQ02** DE: In meinem Privatstudio in Berlin. Den Bezirk findest du auf der Tattoo-Seite, die genaue Adresse schicke ich dir mit der Terminbestätigung. · EN: In my private studio in Berlin. You'll find the district on the tattoo page, and I'll send you the exact address with your appointment confirmation.
 - **FAQ03** DE: Ja, für jeden Termin. Wie hoch und wie wir das machen, besprechen wir persönlich per Mail – online zahlst du hier nichts. · EN: Yes, for every appointment. We'll agree on the amount and how it works personally by email – you don't pay anything online here.
-- **FAQ04** DE: Sag mir so früh wie möglich Bescheid, per Mail oder DM. Dann suchen wir einen neuen Termin. Was mit der Anzahlung passiert, haben wir vorher gemeinsam abgemacht. · EN: Let me know as early as you can by email or DM, and we'll find a new date. What happens to the deposit is whatever we agreed on together beforehand.
+- **FAQ04** DE: Sag mir so früh wie möglich Bescheid, per Mail. Dann suchen wir einen neuen Termin. Was mit der Anzahlung passiert, haben wir vorher gemeinsam abgemacht. · EN: Let me know as early as you can by email, and we'll find a new date. What happens to the deposit is whatever we agreed on together beforehand.
 - **FAQ05** DE: Coco ist oft im Studio, schläft aber meistens in ihrem Körbchen. Wenn du Hunde nicht verträgst oder lieber ohne sie bist, sag's mir vorher – dann hat sie an dem Tag frei. · EN: Coco is often in the studio, but she mostly naps in her basket. If dogs don't agree with you or you'd rather be without her, tell me beforehand – she'll take the day off.
 - **FAQ06** DE: Mein Ding ist schwarze Fine Line. Kleine Farbtupfer gehen manchmal – frag einfach mit deiner Idee. · EN: My thing is black fine line. Small touches of colour sometimes work – just ask with your idea.
 - **FAQ07** DE: Eher selten, weil feine Linien wenig abdecken. Schick mir ein Foto vom alten Tattoo per Mail, dann sag ich dir ehrlich, ob es passt. · EN: Rarely, because fine lines don't cover much. Email me a photo of the old tattoo and I'll tell you honestly whether it works.
-- **FAQ08** DE: Beides geht. Per Mail geht nichts unter, und du kannst Bilder in Ruhe anhängen. Für Flash schick einfach die Nummer mit, zum Beispiel F-902. · EN: Both work. Nothing gets lost by email, and you can attach pictures easily. For flash, just include the number, for example F-902.
+- **FAQ08** DE: Schreib mir eine Mail. Dort geht nichts unter, und du kannst Bilder in Ruhe anhängen. Für Flash schick einfach die Nummer mit, zum Beispiel F-902. · EN: Send me an email. Nothing gets lost that way, and you can attach pictures easily. For flash, just include the number, for example F-902.
 - **FAQ09** DE: Die Oberfläche ist meist nach zwei bis drei Wochen zu, ganz durch ist die Haut nach etwa vier bis sechs Wochen. Die Schritte stehen oben auf dieser Seite. · EN: The surface usually closes after two to three weeks; the skin is fully through after about four to six weeks. The steps are listed above on this page.
 - **FAQ10** DE: Weil es für meine Glasuren noch keine Konformitätserklärung gibt. Bis dahin steht bei jedem Stück: Deko – nicht für Lebensmittel. Für Schlüssel, Ringe, Pinsel und Kleinkram sind sie super. · EN: Because there's no declaration of conformity for my glazes yet. Until then, every piece says: decorative – not for food. They're great for keys, rings, brushes and odds and ends.
 - **FAQ11** DE: Zurzeit nur innerhalb Deutschlands. Was der Versand kostet, hängt vom Stück ab (Brief, kleines Paket oder Keramik-Paket) – im Warenkorb gilt immer die höchste Versandart. Alles Weitere steht unter Versand & Zahlung. Abholen in Berlin kostet nichts. · EN: Only within Germany for now. The shipping cost depends on the piece (letter, small parcel or ceramics parcel) – in the cart, the highest one applies. Details are on the Shipping & payment page. Pickup in Berlin is free.
@@ -1676,7 +1662,7 @@ Kunden-E-Mail. Bezug `checkout` nur, wenn die Kasse noch existiert (§7.3).
 | AK-SEED-07 | Jeder der 13 Werte aus `ORDER_STATUSES` und jeder aus `PAYMENT_METHODS` kommt vor, kein anderer Status; beide `FULFILLMENT_METHODS`; jede `products.status`-Ausprägung; `checkouts` in `completed`, `expired` und `open`; jede Bestellung hat einen erlaubten Endstatus laut DATENMODELL §6.8.5 (`cancelled` mit `cancelReason`, `disputed` mit `statusBeforeDispute`, Erstattungsgründe aus `REFUND_REASONS`) | int |
 | AK-SEED-08 | Belegnummern exakt wie §9; Zähler `BSP-RE` = 12, `BSP-GS` = 3; `RE`/`GS`-Zähler unverändert | int |
 | AK-SEED-09 | Zeitlogik je Bestellung monoton (Kasse `createdAt` < placed ≤ paid ≤ packed ≤ shipped ≤ delivered ≤ withdrawal ≤ return ≤ refunded; `disputedAt` nach dem Zeitpunkt von `statusBeforeDispute`); jeder Widerruf mit Bestellung liegt ≤ 14 Tage nach `deliveredAt`/`pickedUpAt`; `firstPublishedAt` jedes Stücks < `placedAt` seiner Bestellungen; jede versendete oder gepackte Bestellung hat `packaging.templateKey` und ≥ 1 Komponente | unit |
-| AK-SEED-10 | Kanonisches `N`: TO1 und TO2 öffentlich sichtbar, TO3 nicht | int |
+| AK-SEED-10 | (entfallen, P12.7) Angebote TO1–TO3 gibt es nicht mehr; stattdessen keine Angebotskarte und R13 = 404 | e2e |
 | AK-SEED-11 | `SEED_PREVIEW_MODE=false`: G1/G2 fehlen in der öffentlichen API, ihre Bild-URLs liefern 404; `SEED_PREVIEW_MODE=true` + `APP_ENV=preview`: sichtbar; G3–G6 immer sichtbar | int |
 | AK-SEED-12 | Alle Personen-E-Mails enden auf `@example.com` oder `@example.org`; kein Datensatz hat eine Telefonnummer | unit |
 | AK-SEED-13 | Verbotsmuster-Test (RECHT §5) über `content/seed/**` grün; einzige Allowlist-Ausnahme der Figurenname in `tattoo.json` | unit |

@@ -53,4 +53,3 @@ export async function loadContactInfo(): Promise<ContactInfo> {
 /** Kontaktwege (gecacht, Tag `settings`). */
 export const getContactInfo = (): Promise<ContactInfo> =>
   unstable_cache(loadContactInfo, ['contact-info'], { tags: [TAGS.settings], revalidate: 60 })()
-

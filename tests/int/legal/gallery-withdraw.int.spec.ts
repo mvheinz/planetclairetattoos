@@ -81,7 +81,7 @@ async function publishedEntry(): Promise<{
       showsCustomer: true,
       consentGiven: true,
       consentDate: '2026-10-01T12:00:00.000Z',
-      consentNote: 'per DM am 01.10.2026',
+      consentNote: 'per Mail am 01.10.2026',
       consentEvidence: proof.id,
       published: true,
     } as never,

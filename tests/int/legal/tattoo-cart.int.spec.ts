@@ -8,15 +8,14 @@ import { startCheckout } from '@/lib/commerce/checkout'
 import { getTestPayload } from '../helpers/payload'
 import { createTestImage } from '../helpers/products'
 
-// P7.15 – R-170 (Tattoo-Bereich ohne Online-Vertragsschluss, E-51): Flash-Motive und Angebote sind keine Stücke. Der
-// Warenkorb kennt nur `products`; eine Warenkorb-Aktion bzw. „Zur Kasse“ mit der ID eines Flash-Motivs oder Angebots
+// P7.15 – R-170 (Tattoo-Bereich ohne Online-Vertragsschluss, E-51): Flash-Motive sind keine Stücke. Der
+// Warenkorb kennt nur `products`; eine Warenkorb-Aktion bzw. „Zur Kasse“ mit der ID eines Flash-Motivs
 // wird abgelehnt und setzt kein Cookie.
 
 const NOW = new Date('2026-10-02T10:00:00.000Z')
 let payload: Payload
 let image: number
 const flashIds: number[] = []
-const offerIds: number[] = []
 let ipSeq = 0
 const ip = () => `10.7.15.${++ipSeq}`
 
@@ -46,17 +45,11 @@ afterAll(async () => {
     overrideAccess: true,
     context: { seed: true },
   })
-  await payload.delete({
-    collection: 'tattoo-offers',
-    where: { id: { in: offerIds } },
-    overrideAccess: true,
-    context: { seed: true },
-  })
   await payload.delete({ collection: 'media', id: image, overrideAccess: true }).catch(() => null)
 })
 
 describe('R-170 Warenkorb ohne Tattoo-Leistungen', () => {
-  it('R-170 Warenkorb-Aktion und „Zur Kasse“ mit Flash- oder Angebots-ID werden abgelehnt', async () => {
+  it('R-170 Warenkorb-Aktion und „Zur Kasse“ mit Flash-ID werden abgelehnt', async () => {
     const flashId = await freeOfProducts(async () => {
       const doc = await payload.create({
         collection: 'flash',
@@ -74,26 +67,7 @@ describe('R-170 Warenkorb ohne Tattoo-Leistungen', () => {
       flashIds.push(doc.id as number)
       return doc.id as number
     })
-    const offerId = await freeOfProducts(async () => {
-      const doc = await payload.create({
-        collection: 'tattoo-offers',
-        data: {
-          type: 'flash_day',
-          title: 'Flash-Day (R-170)',
-          description: 'Kleine Motive, Kaffee und Coco.',
-          startsAt: '2026-10-10T09:00:00.000Z',
-          endsAt: '2026-10-10T16:00:00.000Z',
-          published: true,
-          seed: false,
-        } as never,
-        overrideAccess: true,
-        context: { seed: true, now: NOW.toISOString() },
-      })
-      offerIds.push(doc.id as number)
-      return doc.id as number
-    })
-
-    for (const id of [flashId, offerId]) {
+    for (const id of [flashId]) {
       const out = await addToCart(
         { productId: id, locale: 'de', cookie: null, ip: ip(), now: NOW },
         payload,

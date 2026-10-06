@@ -6,7 +6,7 @@ import { adminPath, expect, test, testPayload } from '../fixtures'
 import { refreshTattoo, removeMedia, uploadImage } from '../tattoo/tattooFixtures'
 import { expectAccessible, expectNoHorizontalScroll } from './orderHelpers'
 
-// P7.6 – Tattoo-Verwaltung `/tattoo`, Reiter „Flash“ (KONZEPT §7.12): Reiter Flash · Angebote · Galerie · Texte;
+// P7.6 – Tattoo-Verwaltung `/tattoo`, Reiter „Flash“ (KONZEPT §7.12): Reiter Flash · Galerie · Texte;
 // „verfügbar → vergeben“ bei 390×844 in höchstens 2 Taps (Chip antippen, bestätigen), danach Stempel auf der
 // öffentlichen Seite; wiederholbares Motiv → Ablehnung mit Hinweis auf „Offline nehmen“; „Neuer Flash“ mit
 // Nummernvorschlag (ohne Seed/Fixtures) und Foto-Baustein. Fixtures 986/987 (`seed = true`).
@@ -59,7 +59,7 @@ test('@a11y Flash: verfügbar → vergeben in 2 Taps, Stempel öffentlich; wiede
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(adminPath('/tattoo'))
   const tabs = page.getByRole('navigation', { name: 'Bereiche' })
-  for (const name of ['Flash', 'Angebote', 'Galerie', 'Texte'])
+  for (const name of ['Flash', 'Galerie', 'Texte'])
     await expect(tabs.getByRole('link', { name, exact: true })).toBeVisible()
   await expect(tabs.getByRole('link', { name: 'Flash', exact: true })).toHaveAttribute(
     'aria-current',

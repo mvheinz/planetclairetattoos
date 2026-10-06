@@ -1721,7 +1721,7 @@ password, authorization, cookie` werden zu `"[redacted]"`; Freitext wird per Reg
 |---|---|---|
 | R01 Start, R02 Shop, R03 Kategorie, R05 Archiv | statisch + ISR | Cache-Tags §9.3; Rückfall `revalidate = 3600` |
 | R04 Produkt | statisch je Stück (`generateStaticParams`: alle öffentlichen Stücke; `dynamicParams = true`) | `product:<id>`, `products` |
-| R11–R18 Tattoo, R19–R25, R27 | statisch | Tags je Inhalt; Angebote zusätzlich per Job zu `startsAt`/`endsAt` (§9.3) |
+| R11–R18 Tattoo, R19–R25, R27 | statisch | Tags je Inhalt |
 | R28 404, R29 500 | statisch | – |
 | R06 Warenkorb, R07 Kasse, R08 Danke, R09 Status, R10 Auftragsarbeiten, R26 Widerruf | dynamisch (Cookies/Token/Formular), `Cache-Control: private, no-store` | – |
 | OG-Bilder (`opengraph-image.tsx`) | statisch je Stück | `product:<id>` |
@@ -1750,7 +1750,7 @@ damit grün sind. Der Wechsel betrifft nur `cached.ts` und Segment-Konfiguration
 | Stück reserviert / freigegeben / verkauft (Webhook, Job, Kasse, „Offline verkauft“) | `product:<id>`, `products`, `category:<key>`, `home`, `sitemap` | `revalidateTag(tag, { expire: 0 })` (Route-Handler/Job); in Server-Actions `updateTag(tag)` | ≤ 5 s (T-21) |
 | Stück in der Verwaltung bearbeitet | wie oben | `revalidateTag(tag, 'max')` | ≤ 60 s |
 | Seite, FAQ, Texte, Einstellungen | `page:<key>`, `faqs`, `site-texts`, `settings` | `revalidateTag(tag, 'max')` | ≤ 60 s |
-| Flash, Angebote, Galerie | `flash`, `tattoo-offers`, `tattoo-gallery`, `home` | `'max'`; Beginn und Ende eines Angebots per Job `revalidateEndedOffers` mit `{ expire: 0 }` (Weckzeit exakt `startsAt` bzw. `endsAt`, tägliches Sicherheitsnetz ab 00:05 Berlin, Anhang A.3) | ≤ 60 s |
+| Flash, Galerie | `flash`, `tattoo-gallery`, `home` | `'max'` | ≤ 60 s |
 | Rechtstext aktiviert | `legal:<type>` | `{ expire: 0 }` | ≤ 5 s |
 | Bild geändert | `media:<id>` | `'max'` | ≤ 60 s |
 | Beispieldaten entfernt | alle | `revalidatePath('/', 'layout')` | ≤ 60 s |
@@ -2614,7 +2614,6 @@ widersprüchlichen Fristen gilt für Löschungen LOESCHKONZEPT, für Abläufe KO
 | `renderInvoicePdf` | documents | bei Bedarf | – | `renderInvoicePdf` | – |
 | `renderLegalTextPdf` | documents | bei Bedarf | – | `renderLegalTextPdf` | – |
 | `activateScheduledLegalTexts` | maintenance | Weckzeit `validFrom` | – | `activateScheduledLegalTexts` | – |
-| `revalidateEndedOffers` | maintenance | Weckzeit exakt `startsAt` bzw. `endsAt` jedes Angebots; tägliches Sicherheitsnetz ab 00:05 Berlin | `offers-expiry` | `revalidateEndedOffers` | – |
 | `markDelivered` | commerce | täglich (automatisch 10 Berliner Kalendertage nach dem Versandtag, `deliveredSource = auto`) | `mark-delivered` | – (fehlt) | – |
 | `withdrawalDeadlines` | commerce | täglich ab 08:00 Berlin (A13 je Widerruf einmal ab Tag 10, ohne Beispieldaten) | `withdrawal-deadlines` | – (fehlt) | – |
 | `legalReviewReminder` | maintenance | täglich | `legal-review-reminder` | `legalReviewReminder` | `legalTextsAnnualReview` |

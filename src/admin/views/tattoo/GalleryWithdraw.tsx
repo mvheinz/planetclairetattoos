@@ -11,7 +11,7 @@ import { tattooText } from './tattooText'
 
 // „Einwilligung widerrufen“ am Galerie-Foto (PLAN P7.8, R-172, R-152, LOESCHKONZEPT §5.10): Dialog nennt die Folgen
 // (sofort offline, Bilder gesperrt, Dateien nach 24 h gelöscht, Nachweis 3 Jahre); optional eine Adresse für die
-// Bestätigung M16 (Variante Portfolio) – der Galerie-Eintrag speichert sie nicht. Kam der Widerruf per DM, antwortest
+// Bestätigung M16 (Variante Portfolio) – der Galerie-Eintrag speichert sie nicht. Kam der Widerruf nicht per Mail, antwortest
 // du dort und lässt das Feld leer.
 
 export function GalleryWithdraw({ id, title }: { id: number; title: string }) {

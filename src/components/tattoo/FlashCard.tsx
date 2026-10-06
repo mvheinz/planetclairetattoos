@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
-import { ICON_MAIL, ICON_INSTAGRAM } from '@/components/icons/icons.generated'
+import { ICON_MAIL } from '@/components/icons/icons.generated'
 import { Station } from '@/components/leash/Station'
 import { ResponsiveImage } from '@/components/media/ResponsiveImage'
 import { Button } from '@/components/ui/Button'

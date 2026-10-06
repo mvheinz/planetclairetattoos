@@ -52,10 +52,8 @@ for (const locale of ['de', 'en'] as const) {
     await expect(
       what.locator(`a[href="${locale === 'de' ? '/de/auftragsarbeiten' : '/en/commissions'}"]`),
     ).toHaveCount(1)
-    // Instagram (R-139)
-    const insta = main.locator('a[href^="https://www.instagram.com/"]')
-    expect(await insta.count()).toBeGreaterThan(0)
-    for (const a of await insta.all()) await expect(a).toHaveAttribute('rel', 'noopener noreferrer')
+    // P12.7 (U-15): Das Instagram-Profil ist nur im Fuß verlinkt, nicht im Inhalt der Seite.
+    await expect(main.locator('a[href*="instagram.com"], a[href*="ig.me"]')).toHaveCount(0)
     // drei Stationen der Linie: Jutta → Coco → Werkstatt
     expect(
       await page

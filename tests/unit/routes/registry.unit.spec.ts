@@ -28,7 +28,7 @@ describe('Routen-Registry (T-07, AK-2-01)', () => {
     expect(result.errors).toEqual([])
   })
 
-  it('AK-2-01 alle R01–R31 aus der KONZEPT-Tabelle, R01–R27 mit DE- und EN-Muster', () => {
+  it('AK-2-01 alle R01–R31 (ohne R13) aus der KONZEPT-Tabelle, R01–R27 mit DE- und EN-Muster', () => {
     const rows = parseKonzeptRouteTable(readFileSync(path.join(root, 'docs/KONZEPT.md'), 'utf8'))
     expect(rows.map((r) => r.id)).toEqual(ROUTES.map((r) => r.id))
     for (const r of ROUTES.filter((x) => Number(x.id.slice(1)) <= 27)) {
@@ -58,7 +58,7 @@ describe('Routen-Registry (T-07, AK-2-01)', () => {
     expect(bad.errors.join('\n')).toMatch(/Pfad \/de\/warenkorb doppelt/)
   })
 
-  it('P8.18: live sind R01–R29 (R31 als Weiterleitung)', () => {
+  it('P8.18: live sind R01–R29 ohne R13 (R31 als Weiterleitung)', () => {
     expect(
       ROUTES.filter((r) => r.status === 'live' && r.kind !== 'redirect').map((r) => r.id),
     ).toEqual([
@@ -74,7 +74,6 @@ describe('Routen-Registry (T-07, AK-2-01)', () => {
       'R10',
       'R11',
       'R12',
-      'R13',
       'R14',
       'R15',
       'R16',
@@ -131,8 +130,11 @@ describe('Pfad-Helfer', () => {
       route: expect.objectContaining({ id: 'R04' }),
       params: { nummer: '017', slug: 'schale' },
     })
-    expect(matchRoute('/tattoo/angebote', 'de')?.route.id).toBe('R13')
-    expect(matchRoute('/tattoo/angebote', 'en')).toBeNull()
+    expect(matchRoute('/tattoo/preise', 'de')?.route.id).toBe('R14')
+    expect(matchRoute('/tattoo/preise', 'en')).toBeNull()
+    // P12.7 (U-14): „Angebote“ (frühere R13) gibt es nicht mehr.
+    expect(matchRoute('/tattoo/angebote', 'de')).toBeNull()
+    expect(matchRoute('/tattoo/offers', 'en')).toBeNull()
   })
 
   it('Aliasse /en/imprint und /en/impressum → /en/legal-notice', () => {

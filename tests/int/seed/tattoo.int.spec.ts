@@ -1,17 +1,15 @@
 import type { Payload, PayloadRequest } from 'payload'
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
-import { loadFlash, loadGallery, loadOffers, toPublicGallery } from '@/lib/data/tattoo'
+import { loadFlash, loadGallery, toPublicGallery } from '@/lib/data/tattoo'
 import { getEnv, resetEnvCache, type Env } from '@/lib/env'
 import { fileResponseHandler } from '@/lib/storage'
 import { expectedCount } from '@/lib/seed/expected'
 import { resolveSeedDate } from '@/lib/seed/time'
 import { tattooMailSubject } from '@/lib/tattoo/mailto'
-import { currentOrNextOffer } from '@/lib/tattoo/offers'
 import { isMediaPubliclyVisible } from '@/lib/tattoo/visibility'
 import type { TattooGallery } from '@/payload-types'
 
-import { withClock } from '../helpers/payload'
 import { getTestPayload } from '../helpers/payload'
 import { rest } from '../helpers/rest'
 import {
@@ -23,12 +21,11 @@ import {
   type SeedDoc,
 } from './canonical'
 
-// P8.6: Tattoo-Bestand (SEED-SPEC §12) – Flash F901–F910, Angebote TO1–TO3 mit vorgestellter Uhr (AK-SEED-10,
+// P8.6: Tattoo-Bestand (SEED-SPEC §12) – Flash F901–F910 (Angebote entfielen in P12.7,
 // AK-9-03), Galerie G1–G6 mit Einwilligungsregel (AK-SEED-11, AK-9-04, AK-1-03), Mail-Betreff (AK-9-02).
 
 let payload: Payload
 const key = (doc: SeedDoc) => String(doc.seedKey).split(':')[1]!
-const N_ISO = SEED_N.toISOString()
 
 /** Datei-Handler der Mediathek mit injizierter Umgebung (anonym), wie die Route `/api/media/file/:name`. */
 async function serveFile(filename: string, env: Env): Promise<number | undefined> {
@@ -117,46 +114,6 @@ describe('Flash (SEED-SPEC §12.1)', () => {
     )
     expect(en.sizeNote).toBeNull()
     expect((await loadFlash('en')).find((f) => f.number === 902)!.sizeNote).toBe('size adjustable')
-  })
-})
-
-describe('Angebote (SEED-SPEC §12.2)', () => {
-  it('AK-SEED-10 / AK-9-03: bei kanonischem N sind TO1 und TO2 sichtbar (R11, R13, Startseite), TO3 nicht', async () => {
-    setEnv(true, 'preview')
-    const titles = await withClock(N_ISO, async () => {
-      const offers = await loadOffers('de')
-      return {
-        list: offers.map((o) => o.title),
-        current: currentOrNextOffer(offers, SEED_N)?.title,
-      }
-    })
-    expect(titles.list).toEqual([
-      'Spontane Lücken: winzige Planeten',
-      'Flash-Day: kleine Motive ab 80 €',
-    ])
-    // Startseite und R11 zeigen das laufende bzw. nächste Angebot: TO2 läuft gerade.
-    expect(titles.current).toBe('Spontane Lücken: winzige Planeten')
-    const to1 = await bySeedKey(payload, 'tattoo-offers', 'TO1', { locale: 'de' })
-    expect(to1).toMatchObject({
-      startsAt: '2026-12-12T11:00:00.000Z',
-      endsAt: '2026-12-12T18:00:00.000Z',
-      type: 'flash_day',
-    })
-    expect(String(to1.locationNote)).toMatch(/^Privatstudio in /)
-    const to3 = await bySeedKey(payload, 'tattoo-offers', 'TO3')
-    expect(to3.endsAt).toBe('2026-08-29T17:00:00.000Z')
-    const flashes = (to1.flashes as number[]).length
-    expect(flashes).toBe(4)
-  })
-
-  it('EN-Texte der Angebote', async () => {
-    setEnv(true, 'preview')
-    const en = await withClock(N_ISO, () => loadOffers('en'))
-    expect(en.map((o) => o.title)).toEqual([
-      'Last-minute gaps: tiny planets',
-      'Flash day: small designs from 80 €',
-    ])
-    expect(en[1]!.flashes.map((f) => f.display)).toEqual(['F-902', 'F-906', 'F-907', 'F-910'])
   })
 })
 

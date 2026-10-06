@@ -122,7 +122,7 @@ Leine ist (E-70…E-73). Technisch ist es eine Next.js-16-App mit eingebettetem 
 | Warenkorb/Kasse/Bezahlen | Korb, Versand, Kasse, Reservierung, Stripe, Vorkasse, Abholung, Rechnung, Mails | P4 |
 | Abläufe hinter den Kulissen | Handy-Ansichten, Packen, Versand, Abholung, Export, Verpackungsmengen, Umsatz-Wächter, PWA | P5 |
 | Recht & Datenschutz | Rechtstexte versioniert, Widerrufsbutton, Erstattung, Löschfristen, DSGVO-Werkzeuge | P6 |
-| Tattoo & Auftragsarbeiten | Tattoo-Seiten, Flash, Angebote, Galerie mit Einwilligung, Anfrageformular | P7 |
+| Tattoo & Auftragsarbeiten | Tattoo-Seiten, Flash, Galerie mit Einwilligung, Anfrageformular | P7 |
 | Inhalte & Beispielbestand | Alle Texte DE/EN, kompletter Seed, Übersetzen-Knopf, leere Zustände | P8 |
 | Kunst & Bewegung | Coco-Posen, Line Boil, Choreografie, Foto-Look, Studio-QA | P9 |
 | Qualität & Start | Tests, Barrierefreiheit, Tempo, Handbuch, Vorschau-Datei final | P10 |
@@ -134,7 +134,7 @@ Leine ist (E-70…E-73). Technisch ist es eine Next.js-16-App mit eingebettetem 
 |---|---|---|---|
 | **Instagram-Follower** (Hauptgruppe, ca. 90 % mobil) | Tippen in Story/Post/Bio auf einen Link, landen im **Instagram-In-App-Browser** (iOS: WebKit; Android: WebView) auf Startseite oder direkt auf einem Stück | Schnell sehen, ob das Stück noch da ist, Preis inkl. Versand, in 2–3 Minuten gekauft | Mobile-first (360–430 px), LCP < 2,5 s, direkter Produktlink `/de/shop/017-…` und Kurzlink `/nr/17`, keine Pop-ups/neuen Tabs im Kaufpfad, Karte + PayPal funktionieren auch ohne Apple/Google Pay |
 | Kaufende aus Berlin | Wollen abholen statt Versand | Abholung wählen, Absprache per Mail | Lieferart „Abholung in Berlin“ 0 €, Ort erst in der Abholmail (E-29) |
-| Tattoo-Interessierte | Wollen Stil, Flash, Preise, Termine sehen | Motiv-Nummer, Preis, Kontaktweg | Flash mit Nummer, Festpreis, Status; Mail-Knopf mit Motiv im Betreff; Adresse kopierbar; DM-Link (E-51) |
+| Tattoo-Interessierte | Wollen Stil, Flash, Preise, Termine sehen | Motiv-Nummer, Preis, Kontaktweg | Flash mit Nummer, Festpreis, Status; Mail-Knopf mit Motiv im Betreff; Adresse kopierbar; Anfrage nur per Mail (E-51, P12.7) |
 | Auftragsarbeit-Interessierte | Haben eine Idee (Cap, Teller …) | Unkompliziert anfragen, Bilder mitschicken | Kurzes Formular, bis 5 Bilder, Bestätigungsmail (E-11) |
 | Englischsprachige Besucher:innen | Touristen, internationale Follower | Gleiche Inhalte auf Englisch | Alle öffentlichen Seiten unter `/en/…` (E-60) |
 | **Jutta** (einzige Admin-Person, E-03) | Am Handy (Flohmarkt, Atelier, unterwegs) und am Laptop | Stück in Minuten online, Bestellung am Handy packen/versenden, Warnungen | Eigene Handy-Ansichten, PWA-Icon, Bestätigungsdialoge, klare Texte ohne Technikbegriffe |
@@ -237,7 +237,6 @@ der Cloud-Sandbox grün (nur lokales Postgres nötig).
 | R10 | Auftragsarbeiten | `/de/auftragsarbeiten` | `/en/commissions` | ja | P7 |
 | R11 | Tattoo – Übersicht | `/de/tattoo` | `/en/tattoo` | ja | P7 |
 | R12 | Tattoo – Flash | `/de/tattoo/flash` | `/en/tattoo/flash` | ja | P7 |
-| R13 | Tattoo – Angebote | `/de/tattoo/angebote` | `/en/tattoo/offers` | ja | P7 |
 | R14 | Tattoo – Preise | `/de/tattoo/preise` | `/en/tattoo/prices` | ja | P7 |
 | R15 | Tattoo – Galerie (fresh & healed) | `/de/tattoo/galerie` | `/en/tattoo/gallery` | ja | P7 |
 | R16 | Tattoo – Ablauf | `/de/tattoo/ablauf` | `/en/tattoo/process` | ja | P7 |
@@ -429,12 +428,11 @@ Link-Liste im Fuß erreichbar.
      Stationszeichnung, Überschrift, 1–2 Sätze, bis zu 4 Stücke der Kategorie (Status `available` oder `reserved`, neueste
      zuerst, als Preisschild-Karten; die Karten kommen in P3, P2 zeigt die Stationen ohne Karten), Link „Alle {Kategorie}“
      → R03. `sonstiges` hat keine eigene Station.
-  7. **Tattoo:** 1–2 Sätze, bis zu 3 verfügbare Flash-Motive, laufendes oder nächstes Angebot als Datums-Badge (falls
-     vorhanden), Link „Zum Tattoo-Bereich“ → R11.
+  7. **Tattoo:** 1–2 Sätze, bis zu 3 verfügbare Flash-Motive, Link „Zum Tattoo-Bereich“ → R11.
   8. **Jutta & Coco:** Teaser-Text, Link „Mehr über uns“ → R19, Zeile „Eigene Idee? → Auftragsarbeiten“ → R10,
      Instagram-Link.
 - **Datenquelle:** `pages` mit `key = home` (Blöcke `hero` und `station`, Texte DE/EN), `settings.business`
-  (Name/Geschäftsbezeichnung), Collections `products`, `categories`, `flash`, `tattoo-offers`.
+  (Name/Geschäftsbezeichnung), Collections `products`, `categories`, `flash`.
 - **Zustände:** Kategorie ohne sichtbare Stücke → Station zeigt Zeichnung, Text „Gerade ist hier nichts – schau bald
   wieder oder stöbere im Archiv“ und Link auf das Archiv. Kein Flash → Tattoo-Station ohne Motivreihe.
 - **Recht:** Preise auf Karten mit Sternchen, Fußnote gemäß §3.4 (Steuer-/Versandhinweis) einmal pro Seite.
@@ -588,7 +586,7 @@ widerrufen“ (vorbelegt mit Bestellnummer), Kontakt. Personenbezogene Daten gek
 - **Zweck:** Zeigen, was auf Anfrage geht, und Anfragen einsammeln (E-11). Nicht kaufbar.
 - **Blöcke:** H1 „Auftragsarbeiten“ (EN „Commissions“); Text „So läuft’s“ (Anfrage → Angebot per Mail → Bezahlung
   außerhalb des Shops → Anfertigung); Beispiele (3–9 Bilder mit Bildunterschrift); Formular (§10); Datenschutzhinweis;
-  Kontaktalternative (Mail, DM).
+  Kontaktalternative (Mail).
 - **Datenquelle:** `pages` mit `key = commissions` (Texte, Beispielbilder, Block `commissionForm`), Collection
   `inquiries` (schreiben nur über die Server-Action des Formulars, §10).
 - **Zustände:** Formular leer / Fehler / gesendet (Bestätigung mit Referenz `AA-2026-0007`) / zu viele Anfragen (429).
@@ -598,8 +596,8 @@ widerrufen“ (vorbelegt mit Bestellnummer), Kontakt. Personenbezogene Daten gek
 ### 3.11 Tattoo-Seiten (R11–R18) [P7]
 
 Inhalt und Regeln in §9. Gemeinsam für alle Tattoo-Seiten:
-- Unter-Navigation (Links): Übersicht · Flash · Angebote · Preise · Galerie · Ablauf · Aftercare · FAQ.
-- **Kontakt-Block** am Ende jeder Tattoo-Seite: „Mail schreiben“ (mailto), „Instagram-DM“ (Link), E-Mail-Adresse als Text
+- Unter-Navigation (Links): Übersicht · Flash · Preise · Galerie · Ablauf · Aftercare · FAQ.
+- **Kontakt-Block** am Ende jeder Tattoo-Seite: „Mail schreiben“ (mailto; Anfrageweg nur E-Mail, P12.7/U-15), E-Mail-Adresse als Text
   mit Knopf „Adresse kopieren“ (E-51).
 - **Nirgends** „In den Korb“, Preisschild-Kaufoptik oder Warenkorb-Aktion (Test).
 - Ort: nur „Privatstudio in Berlin-{Bezirk}“ (E-50), nie Straße.
@@ -618,10 +616,9 @@ Inhalt und Regeln in §9. Gemeinsam für alle Tattoo-Seiten:
 
 ### 3.13 Kontakt (R20) [P6]
 
-- **Blöcke:** H1 „Kontakt“; E-Mail `jutta@planetclairetattoos.com` (mailto + „Adresse kopieren“); Instagram (Profil-Link
-  und DM-Link `https://ig.me/m/planet.claire.tattoos`); „Privatstudio in Berlin-{Bezirk}“; Hinweise: „Frage zu einer
+- **Blöcke:** H1 „Kontakt“; E-Mail `jutta@planetclairetattoos.com` (mailto + „Adresse kopieren“); (Instagram-Profil nur im Fuß, P12.7); „Privatstudio in Berlin-{Bezirk}“; Hinweise: „Frage zu einer
   Bestellung? Nenn bitte deine Bestellnummer.“, „Du willst widerrufen? → Vertrag widerrufen“, „Tattoo-Anfragen bitte per
-  Mail oder DM“, „Auftragsarbeit? → Formular“; Link Impressum.
+  Mail“, „Auftragsarbeit? → Formular“; Link Impressum.
 - **Kein** Kontaktformular (E-51 sinngemäß; kein Bedarf, R-162).
 - **Datenquelle:** `pages` mit `key = contact` (Block `contactLinks`), `settings.business.email`, `settings.social.*`,
   `settings.tattoo.studioDistrict`.
@@ -1343,7 +1340,6 @@ verschiebt sich dadurch **nicht**, L-10). Angebote und Bezahlung laufen per Mail
 | Objekt | Zustände | Regel |
 |---|---|---|
 | Flash | `status` = `available` / `claimed` + Schalter `repeatable`, `published` | einmalige Motive werden nach dem Stechen `claimed` und bleiben mit Stempel „vergeben“ sichtbar; wiederholbare sind immer `available` (DB-CHECK) und werden zum Pausieren über `published=false` („Offline nehmen“) ausgeblendet (E-52) |
-| Angebot (Flash-Day/Aktion) | kein gespeicherter Status; abgeleitet aus `startsAt`/`endsAt`: kommt (vor `startsAt`), läuft (zwischen Beginn und Ende), vorbei (nach `endsAt`) + `published` | Vergangene Angebote sind nie öffentlich: Abfragefilter `endsAt > jetzt` plus Revalidierung durch `revalidateEndedOffers` (E-53, R-171) |
 | Galerie-Eintrag | `published` bei `showsCustomer=true` nur möglich mit `consentGiven=true`, `consentDate` und `consentNote` (E-42) | Ausnahme nur `seed=true` bei wirksamem `SEED_PREVIEW_MODE` (§9.7) |
 
 **AK-5-01** Matrix-Tests für Produkt, Kasse, Bestellung, Widerruf und Anfrage: alle Übergänge aus den Tabellen gelingen, alle anderen werden abgelehnt.
@@ -1729,11 +1725,6 @@ Unterbereiche (Details §9):
   Motive) mit höchstens 2 Taps; wiederholbare Motive pausiert Jutta mit „Offline nehmen“ (`published = false`); „Neuer
   Flash“ (Bild `image`, weitere Bilder, Nummer `number` vorbelegt, Titel DE + Übersetzen, Größe `sizeCm` + `sizeNote`,
   Festpreis `priceCents`, einmalig/wiederholbar `repeatable`, veröffentlichen `published`).
-- **Angebote** (`tattoo-offers`): Liste mit abgeleitetem Zustand (kommt / läuft / abgelaufen aus `startsAt`/`endsAt`, kein
-  gespeicherter Status); „Neues Angebot“ (Art `type` = `flash_day` | `aktion`, Titel, Text `description`, Beginn
-  `startsAt` und Ende `endsAt` mit Uhrzeit – Standard-Ende 23:59 des Starttags –, Ort-Text `locationNote` ohne Adresse,
-  Preis-Info `priceNote`, Bild, verknüpfte Flash-Motive `flashes`). Der Uhrzeit-Text auf der Seite entsteht aus
-  `startsAt`/`endsAt`.
 - **Galerie** (`tattoo-gallery`): Liste mit Einwilligungsangaben je Foto (`showsCustomer`, `consentGiven`, `consentDate`,
   `consentNote`, optional Nachweis `consentEvidence`; E-42); „Veröffentlichen“ ohne vollständige Einwilligung ist bei
   `showsCustomer` gesperrt mit Hinweis „Ohne Einwilligung der Kundin/des Kunden nicht veröffentlichen“; Knopf
@@ -1906,7 +1897,6 @@ Widerrufserklärungen nur lesen (Notizen separat); keine Lösch-Knöpfe für ver
 | `sendEmail` | direkt nach jedem Commit; Wiederholungen über Weckzeitpunkte | offene Mails senden; Wiederholung nach 1, 5, 15, 60, 240 min; danach `failed` + A12. **M08:** Wiederholung im Abstand von höchstens 5 min bis 24 h nach Eingang; A12 schon nach dem 2. Fehlversuch und erneut nach 24 h ohne Versand (dann `failed`, Bestätigung manuell senden), Hinweis unter „Heute“ (R-093) | P4 |
 | `renderInvoicePdf`, `renderLegalTextPdf` | bei Bedarf (Rechnung/Gutschrift ausgestellt bzw. Rechtstext aktiviert) | PDF erzeugen, SHA-256 speichern; ab P4, weil M01/M02 die Rechtstext-PDFs anhängen | P4 |
 | `activateScheduledLegalTexts` | Weckzeitpunkt `validFrom`; stündliches Sicherheitsnetz | Rechtstexte (ab P6 auch Rechtsbausteine) im Status `scheduled` mit `validFrom ≤ jetzt` aktivieren, Vorgängerfassung `superseded` | P6 |
-| `revalidateEndedOffers` („Flash-Day-Ablauf“) | Weckzeitpunkte exakt `startsAt` und `endsAt` jedes Angebots (Revalidierung spätestens 15 min danach, R-171); tägliches Sicherheitsnetz ab 00:05 | Angebote mit `endsAt ≤ jetzt` sind nicht mehr öffentlich (die Abfrage filtert `endsAt > jetzt`, kein gespeicherter Status); Tattoo-Seiten und Startseite revalidieren, damit statische Seiten den Wechsel sehen; ebenso beim Start eines Angebots | P7 |
 | `markDelivered` | täglich ab 03:00 | `shipped` am 10. Berliner Kalendertag nach dem Versandtag (`timestamps.shippedAt`) → `delivered` (O10, `shipment.deliveredSource = auto`); in der Verwaltung als „geschätzt“ gekennzeichnet | P5 |
 | `retention…`-Tasks (`retentionAbandonedCheckouts`, `retentionOrderMinimize`, `retentionOrders`, `retentionInvoices`, `retentionWithdrawals`, `retentionCommissionInquiries`, `retentionEmailLog`, `retentionConsentEvidence`, `retentionPrivacyRequests`, `retentionDeletionLog`) | täglich ab 03:05 (Reihenfolge und Richtzeiten LOESCHKONZEPT §4) | Löschfristen §8.3 ausführen, `deletion-log` schreiben, Legal Holds überspringen (Details: LOESCHKONZEPT §4) | P6 |
 | `retentionTechnical` | stündlich | Reservierungen 7 Tage nach Ablauf/Umwandlung (L-02), nicht abgeschickte Uploads und Rate-Limit-Zähler älter als 24 h, Webhook-Event-IDs und Job-Protokoll älter als 90 Tage, `audit-log`-Einträge nach ihrer Frist (L-13) | P4 (Reservierungen), P7 (Uploads) |
@@ -1989,8 +1979,8 @@ Server- und Hosting-Logs mit IP (L-13 e) regelt die Hosting-Einstellung außerha
 
 - **Nicht kaufbar:** keine Warenkorb-Aktion, keine Online-Zahlung, keine Online-Anzahlung, **kein Anfrageformular** (E-51).
   Damit entstehen hier keine Online-Verträge (Konzeptseite „Tattoo“).
-- **Anfragen nur per E-Mail oder Instagram-DM** (E-51); die E-Mail-Adresse steht zusätzlich als kopierbarer Text da, weil
-  Mail-Links im Instagram-In-App-Browser nicht immer funktionieren.
+- **Anfragen nur per E-Mail** (E-51, seit P12.7/U-15 ohne Instagram-DM); die E-Mail-Adresse steht zusätzlich als kopierbarer
+  Text da, weil Mail-Links nicht in jedem Browser funktionieren.
 - **Ort:** Privatstudio; öffentlich nur „Privatstudio in Berlin-{Bezirk}“ (E-50). Keine Straße auf Tattoo-Seiten, in
   Angeboten oder in JSON-LD.
 - **Preise** sind Gesamtpreise mit Kleinunternehmer-Hinweis (Sternchen, gleiche Fußnote wie im Shop ohne Versandteil).
@@ -2002,9 +1992,8 @@ Server- und Hosting-Logs mit IP (L-13 e) regelt die Hosting-Einstellung außerha
 
 | Seite | Blöcke (Reihenfolge) | Leerzustand |
 |---|---|---|
-| R11 Übersicht | H1 „Tattoo“; **Mein Stil** (Fine Line, naiv, mit Humor – Text in Juttas Ton); laufendes/nächstes Angebot als Karte; 3 verfügbare Flash-Motive; 3 Bilder aus der Galerie (bevorzugt „healed“); Links zu allen Unterseiten mit je einem Satz; Kontakt-Block | Blöcke ohne Inhalt entfallen |
-| R12 Flash | Einleitung; Filter „alle“/„verfügbar“ (Links, `?available=1`); Raster der Motive (§9.3); Kontakt-Block | „Gerade keine Flash-Motive online – schau auf Instagram vorbei“ |
-| R13 Angebote | Einleitung; Karten aller laufenden und kommenden Angebote, nach Startdatum (§9.5); Kontakt-Block | „Gerade keine Aktionen. Folge @planet.claire.tattoos, dann verpasst du nichts.“ |
+| R11 Übersicht | H1 „Tattoo“; **Mein Stil** (Fine Line, naiv, mit Humor – Text in Juttas Ton); 3 verfügbare Flash-Motive; 3 Bilder aus der Galerie (bevorzugt „healed“); Links zu allen Unterseiten mit je einem Satz; Kontakt-Block | Blöcke ohne Inhalt entfallen |
+| R12 Flash | Einleitung; Filter „alle“/„verfügbar“ (Links, `?available=1`); Raster der Motive (§9.3); Kontakt-Block | „Gerade keine Flash-Motive online – schreib mir deine eigene Idee“ |
 | R14 Preise | Mindestpreis; Flash: „Jedes Flash-Motiv hat einen Festpreis – steht direkt am Motiv“ + Link R12; Custom: Preisrahmen-Text; Anzahlung: Text (vereinbaren wir persönlich, außerhalb der Website); Kleinunternehmer-Fußnote; Kontakt-Block | – |
 | R15 Galerie | Filter „alle“/„fresh“/„healed“ (Links, `?kind=fresh|healed`); Raster; Bild antippen → Vollbild mit Bildunterschrift; Kontakt-Block | „Hier kommen bald Fotos“ |
 | R16 Ablauf | 5 Schritte (Konzeptseite): **Anfrage → Termin → Anzahlung (offline) → Stechen → Aftercare**, je Schritt 1–3 Sätze; Hinweis „Tattoos erst ab 18“; Ort; Kontakt-Block | – |
@@ -2020,19 +2009,19 @@ z. B. „Größe anpassbar“), `priceCents` (**Festpreis, Pflicht**, ≥ 10,00 
 wiederholbar = an), `status` (`available` | `claimed`), `claimedAt`, `published`, `sortOrder`.
 
 **Anzeige je Karte:** Zeichnung, `F-012`, Titel, Größe, Preis mit Sternchen, Badge „einmalig“ bzw. „wiederholbar“.
-- `available`: Knöpfe **„Per Mail anfragen“** und **„Per DM anfragen“** (§9.4).
+- `available`: Knopf **„Per Mail anfragen“** (§9.4).
 - `claimed`: Stempel **„vergeben“** (EN-Anzeigetext „taken“; gespeichert wird nur `status = claimed`), keine
   Anfrage-Knöpfe, Text „Schon vergeben – schau dir die anderen an“;
   bleibt sichtbar (hinter den verfügbaren), außer `published=false`.
 - Sortierung: `available` nach `sortOrder`, dann `claimed` nach `sortOrder`.
-- Jede Karte hat den Anker `#f-012`, damit Angebote und Instagram direkt auf ein Motiv verlinken können.
+- Jede Karte hat den Anker `#f-012`, damit Links direkt auf ein Motiv verlinken können.
 
 **Admin:** „verfügbar ↔ vergeben“ mit höchstens 2 Taps (§7.12). Es gibt nur das Feld `status` mit den Werten aus
 DATENMODELL `FLASH_STATUSES` (`available`, `claimed`); Filter wie `?available=1` (§2.3) lesen dieses Feld. Einmalige
 Motive stellt Jutta nach dem Stechen auf `claimed`. Wiederholbare Motive bleiben immer `available` (DB-CHECK); zum Pausieren nimmt Jutta sie offline
 (`published = false`).
 
-### 9.4 Mail- und DM-Knöpfe
+### 9.4 Mail-Knopf (seit P12.7 ohne DM)
 
 **Mail-Knopf:** `mailto:{settings.social.contactEmail}?subject={Betreff}&body={Text}`; Kodierung nach RFC 6068
 (`encodeURIComponent`, Zeilenumbruch `%0D%0A`).
@@ -2040,7 +2029,6 @@ Motive stellt Jutta nach dem Stechen auf `claimed`. Wiederholbare Motive bleiben
 | Anlass | Betreff DE | Betreff EN |
 |---|---|---|
 | Flash | `Flash-Anfrage F-012 – Kelch mit Schlange` | `Flash request F-012 – Chalice with snake` |
-| Angebot | `Anfrage {Angebotstitel} am 12.10.2026` | `Request {offer title} on 12 Oct 2026` |
 | Kontakt-Block allgemein | `Tattoo-Anfrage` | `Tattoo request` |
 | Eigene Idee (R14, R16) | `Tattoo-Anfrage – eigene Idee` | `Tattoo request – custom idea` |
 
@@ -2060,28 +2048,18 @@ Wunschzeitraum:
 Liebe Grüße
 ```
 
-**DM-Knopf:** Link `https://ig.me/m/{settings.social.instagramHandle}` (Standard `planet.claire.tattoos`; öffnet den Chat
-in Instagram). Daneben der Text-Baustein
-„F-012 – Kelch mit Schlange“ mit Knopf „Kopieren“ und Hinweis „Schick mir das in die DM“ (DMs lassen sich nicht vorbefüllen).
+**Kein DM-Knopf (P12.7, U-15):** Es gibt keine Direktnachricht-Links und keinen kopierbaren DM-Baustein mehr; das
+Instagram-Profil ist nur im Fuß verlinkt, ohne Anfrage-Aufforderung.
 
 **Kopierbare Adresse** (Kontakt-Block und neben jedem Mail-Knopf erreichbar): E-Mail als Text + Knopf „Adresse kopieren“
 (Clipboard-API; Rückfall: Text wird markiert mit Hinweis „Jetzt kopieren“). Rückmeldung „Kopiert“ (`aria-live`).
 
-### 9.5 Angebote: Flash-Days und Aktionen (E-53)
+### 9.5 Angebote: entfallen (P12.7, U-14)
 
-**Felder** (`tattoo-offers`, DATENMODELL §6.15): `type` (`flash_day` | `aktion`), `title` (DE/EN), `description` (DE/EN),
-`startsAt` und `endsAt` (Datum + Uhrzeit, Pflicht; Standard-Ende 23:59 Europe/Berlin am Starttag; `endsAt > startsAt`),
-`locationNote` (DE/EN, Standard „Privatstudio in {settings.tattoo.studioDistrict}“, **keine Adresse**), `priceNote` (DE/EN,
-z. B. „Flash ab 80 €“, Gesamtpreise), `flashes` (Verknüpfung, bis 30), `image` (optional), `published`. Den Uhrzeit-Text
-(z. B. „11–18 Uhr“) bildet der Code aus `startsAt`/`endsAt`.
-
-**Sichtbarkeit:** öffentlich, wenn `published = true` und `endsAt > jetzt`. Es gibt **keinen** gespeicherten Status
-(„kommt“, „läuft“, „abgelaufen“ werden aus `startsAt`/`endsAt` abgeleitet); nach `endsAt` **automatisch ausgeblendet**
-(Abfrage-Filter + Task `revalidateEndedOffers` für statische Seiten, §8.2, R-171). Keine Archivseite.
-
-**Karte:** Datums-Badge (DE „Sa 12.10.“, mehrtägig „12.–13.10.“), Titel, Text, Zeit, Ort, Preis-Info, Vorschaubilder der
-verknüpften Flash-Motive (Link auf `R12#f-012`), Mail-Knopf (Betreff §9.4), DM-Knopf, Status-Hinweis „läuft gerade“ bzw.
-„in X Tagen“.
+„Angebote“ (Flash-Days und Aktionen, Collection `tattoo-offers`, Route R13, Task `revalidateEndedOffers`) gibt es nicht mehr.
+Seite, Navigationspunkt, Verwaltungs-Reiter, Collection samt Beispieldaten und Task sind entfernt (Migration
+`p12_remove_offers`); die Routen-IDs R14–R18 bleiben unverändert. Termine außer Haus zeigt die Startseite als
+„Planet Claire on Tour“ (§3.1a, U-20).
 
 ### 9.6 Preise
 
@@ -2098,7 +2076,7 @@ Online-Anzahlung (E-53).
 DE und EN), `kind` (`fresh` | `healed`), `healedDurationMonths` (Pflicht bei `healed`, Anzeige z. B. „3,5 Jahre verheilt“)
 bzw. `healedLabel` (DE/EN, überschreibt die Anzeige), `caption` (DE/EN), `placement` (optional), `flash` (optional),
 `showsCustomer` (Standard an), `consentGiven` (**Standard aus**), `consentScope`, `consentDate` und `consentNote` (Pflicht
-bei `consentGiven`, z. B. „per DM am …“), `consentEvidence` (privat, empfohlen), `creditHandleAllowed`/`creditHandle`,
+bei `consentGiven`, z. B. „per Mail am …“), `consentEvidence` (privat, empfohlen), `creditHandleAllowed`/`creditHandle`,
 `published`, `featured`, `sortOrder`, `seed`.
 
 **Regel (E-42, R-172, R-181)** – gilt für die Galerie und für alle Bilder in `media`:
@@ -2134,7 +2112,7 @@ isPubliclyVisible(media) =
 
 **AK-9-01** Auf keiner Tattoo-Route (DE/EN) existiert ein Element „In den Korb“, ein Formular oder ein Stripe-Request.
 **AK-9-02** Der Mail-Knopf von `F-012` hat exakt den Betreff `Flash-Anfrage F-012 – {Titel}` (DE) bzw. `Flash request F-012 – {title}` (EN).
-**AK-9-03** Ein Angebot mit `endsAt` in der Vergangenheit ist auf R11, R13 und der Startseite nicht sichtbar (Uhr vorgestellt, nach Joblauf).
+**AK-9-03** (P12.7, U-14) Es gibt keine Angebote mehr: `/de/tattoo/angebote` und `/en/tattoo/offers` liefern 404, R11 und die Startseite zeigen keine Angebotskarte.
 **AK-9-04** Mit `APP_ENV=production` und `SEED_PREVIEW_MODE=true` startet die App nicht (Abbruch mit Fehlermeldung), und `seedPreviewModeActive()` liefert `false` (Unit-Test); mit `APP_ENV=preview` und `SEED_PREVIEW_MODE=true` antwortet die Bildroute eines Seed-Tattoofotos mit 200; ohne die Variable mit 404.
 **AK-9-05** Auf Tattoo-Seiten erscheint keine Straßenadresse (Test sucht nach der Straße aus den Stammdaten).
 
@@ -2221,7 +2199,6 @@ Dokument wiederholt keine Anzahlen, sondern legt fest, was der Bestand fachlich 
 | Reklamationen | mindestens eine je Wert aus `COMPLAINT_STATUSES` (Transportschaden und Mangel, mit und ohne Fotos, Reparatur-Wahl M12 und Streitbeilegungshinweis M13), jeweils an einer bezahlten Beispiel-Bestellung |
 | Datenschutz-Anfragen | Nummern `DS-2026-900N`, mindestens eine je Wert aus `PRIVACY_REQUEST_STATUSES` (verschiedene Arten und Eingangskanäle, Fristen passend zu `SEED_NOW`); Exportdateien nur, solange sie nach L-17 noch existieren würden |
 | Flash | Nummern ab 901 (Anzeige `F-901`); einmalige und wiederholbare Motive, darunter `claimed` |
-| Angebote | ein kommender Flash-Day, eine laufende Aktion, ein abgelaufenes Angebot (prüft das Ausblenden) |
 | Galerie | fresh und healed, darunter die Tattoofotos aus dem Manifest (`showsCustomer = true`, `consentGiven = false`) und Platzhalter |
 | Texte | alle Seiten (`pages`, jeder Wert aus `PAGE_KEYS`: Startseite mit Stationen, Über mich & Coco, Auftragsarbeiten, Kontakt, Shop, Archiv, Tattoo, Aftercare, Danke, Bestellstatus, Widerruf, Konformität, 404) und FAQ – **alles DE und EN ausformuliert** in Juttas Ton (E-62), kein „Lorem ipsum“ |
 | Rechtstexte | **kein Beispielbestand:** der Grund-Seed (P1) legt je Typ eine Platzhalter-Fassung an (`seed = false`, `origin = placeholder`, `isPlaceholder = true`, `validFrom = 2026-01-01`), deutlich gekennzeichnet („PLATZHALTER – nicht rechtsverbindlich“), mit Tokens aus §7.13; sie bleiben beim Entfernen der Beispieldaten, bis echte Texte aktiv sind |
@@ -2258,7 +2235,7 @@ Dokument wiederholt keine Anzahlen, sondern legt fest, was der Bestand fachlich 
    lebensmittelechte Keramik mit Konformitätserklärung – **nicht** im Seed). Der Bereich 901–999 ist für Juttas Nummern
    gesperrt, solange Beispieldaten existieren (DATENMODELL §13.3); nach dem Entfernen ist er wieder frei.
 6. **Relative Daten:** Alle Datumsangaben werden relativ zu `SEED_NOW` berechnet (ISO 8601; leer = jetzt; CI
-   `2026-10-15T10:00:00+02:00`; Vorschau-Export: Exportdatum 12:00 Berlin), damit Angebote „kommend/laufend“ und
+   `2026-10-15T10:00:00+02:00`; Vorschau-Export: Exportdatum 12:00 Berlin), damit Termine „kommend/vorbei“ und
    Vorkasse-Fristen plausibel sind. Ausnahme: Seed-Rechtstexte haben fest `validFrom = 2026-01-01`.
 7. **Einwilligung:** Tattoofotos von Kund:innen aus dem Manifest werden als Galerie-Einträge mit `showsCustomer = true`,
    `consentGiven = false` und ihre Bilder mit `showsPerson = customer`, `restricted = true` angelegt (§9.7). Fotos, die
@@ -2530,7 +2507,6 @@ Mikromomente („In den Korb“, sold-Stempel, schwingendes Preisschild, Danke-S
 | **Archiv** | Öffentliche Liste verkaufter Stücke mit „sold“-Stempel (pro Stück abschaltbar, E-14). |
 | **Ausgeblendet** (`archived`) | Unverkauftes Stück, das nicht mehr angeboten wird; nicht öffentlich. |
 | **Flash** | Fertiges Tattoo-Motiv mit Nummer `F-012`, Festpreis, Status verfügbar/vergeben, einmalig oder wiederholbar (E-52). |
-| **Flash-Day / Aktion** | Tattoo-Angebot mit Datum; nach Ablauf automatisch ausgeblendet (E-53). |
 | **Fresh / Healed** | Frisch gestochenes bzw. verheiltes Tattoo in der Galerie. |
 | **Einwilligungs-Häkchen** (`tattoo-gallery.consentGiven` mit `consentDate`, `consentNote`) | Nachweis, dass die abgebildete Person der Veröffentlichung zugestimmt hat (E-42); ohne ihn bleibt das Bild `media.restricted`. |
 | **Auftragsarbeit** | Individuelle Anfertigung auf Anfrage (Formular), nicht im Shop kaufbar (E-11). |
@@ -2611,7 +2587,7 @@ nicht umgesetzt werden:
 | Markt-Modus mit Marktkiste, QR-Bezahllink, Tap to Pay im Shop | zahlung-versand-betrieb | nur „Offline verkauft“ | E-28 |
 | Automatische Artikelnummern (`PCT-KER-26-0042`, `PC-K-0042`) | tech-stack, produkt-compliance, recht-shop, design | reine Zahlen, von Jutta vergeben, UNIQUE, Vorschlag der nächsten | E-12 |
 | Varianten/Lagerartikel, „Collections/Drops“ | tech-stack | nur Unikate | E-10 |
-| Tattoo-Anfrageformular (mehrstufig, ALTCHA, Uploads, Kaution, Termine) | tattoo-bereich, design, claude-code-cloud | nur Mail/DM-Knöpfe + kopierbare Adresse | E-51 |
+| Tattoo-Anfrageformular (mehrstufig, ALTCHA, Uploads, Kaution, Termine) | tattoo-bereich, design, claude-code-cloud | nur Mail-Knopf + kopierbare Adresse | E-51 |
 | Flash-Status mit 7 Werten (reserviert, Wanna-do, nur Flash Day …), Guest Spots, „Books open/closed“ | tattoo-bereich | `available`/`claimed` + `repeatable`; Flash-Days/Aktionen mit Datum | E-52, E-53 |
 | Online-Kaution/Anzahlung für Tattoos | tattoo-bereich | keine | E-53 |
 | Rechtstexte per IT-Recht-Kanzlei-Abo mit LTI-Push jetzt | recht-shop | einmalig Kanzlei, CMS-Versionierung; LTI später | E-41 |

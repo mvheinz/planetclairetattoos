@@ -15,17 +15,7 @@ import { refresh } from '../shop/fresh'
 
 const IMAGE = path.resolve('tests/fixtures/images/landscape-small.jpg')
 
-export const TATTOO_ROUTES = [
-  'R01',
-  'R11',
-  'R12',
-  'R13',
-  'R14',
-  'R15',
-  'R16',
-  'R17',
-  'R18',
-] as const
+export const TATTOO_ROUTES = ['R01', 'R11', 'R12', 'R14', 'R15', 'R16', 'R17', 'R18'] as const
 
 /** Alle Tattoo-Seiten (und die Startseite) beider Sprachen inklusive der Filter-Varianten neu erzeugen. */
 export async function refreshTattoo(request: APIRequestContext): Promise<void> {

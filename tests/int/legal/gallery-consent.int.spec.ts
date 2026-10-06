@@ -170,7 +170,7 @@ describe('Galerie-Einwilligung (P7.5)', () => {
       kind: 'fresh',
       consentGiven: true,
       consentDate: '2026-09-30T00:00:00.000Z',
-      consentNote: 'per DM am 30.09.2026',
+      consentNote: 'per Mail am 30.09.2026',
       published: true,
     })
     const after = await rest('GET', `/tattoo-gallery/${withConsent.id}?depth=0`)

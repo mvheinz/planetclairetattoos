@@ -44,9 +44,7 @@ export function buildMailto({
 
 /** Anlass einer Tattoo-Mail (KONZEPT §9.4). */
 export type TattooMailTopic =
-  | { kind: 'flash'; number: number; title: string }
-  | { kind: 'general' }
-  | { kind: 'custom' }
+  { kind: 'flash'; number: number; title: string } | { kind: 'general' } | { kind: 'custom' }
 
 /** Betreff je Anlass, z. B. `Flash-Anfrage F-012 – Kelch mit Schlange` (AK-9-02). */
 export function tattooMailSubject(topic: TattooMailTopic, locale: Locale): string {

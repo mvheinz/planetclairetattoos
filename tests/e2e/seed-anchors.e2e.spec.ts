@@ -135,7 +135,7 @@ test.describe('P8.21 Seed-Anker öffentlich', () => {
     for (const n of ['903', '905']) {
       const card = page.locator(`#f-${n}`)
       await expect(card).toHaveAttribute('data-flash-status', 'claimed')
-      await expect(card.locator('[data-flash-mail], [data-flash-dm]')).toHaveCount(0)
+      await expect(card.locator('[data-flash-mail]')).toHaveCount(0)
     }
     const statuses = await page
       .locator('[data-flash-status]')

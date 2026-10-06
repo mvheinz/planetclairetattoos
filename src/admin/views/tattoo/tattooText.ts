@@ -91,7 +91,7 @@ export const TATTOO_TEXT = {
   galleryConsentScope: 'Umfang',
   galleryConsentDate: 'Datum der Einwilligung',
   galleryConsentNote: 'Wie/wo erteilt',
-  galleryConsentNoteHint: 'z. B. „per DM am 02.10.2026“ (5–300 Zeichen).',
+  galleryConsentNoteHint: 'z. B. „per Mail am 02.10.2026“ (5–300 Zeichen).',
   galleryEvidence: 'Nachweis (Screenshot oder Formular, privat)',
   galleryEvidenceHint:
     'Empfohlen. Nur für dich sichtbar; wird 3 Jahre nach einem Widerruf gelöscht.',
@@ -111,7 +111,7 @@ export const TATTOO_TEXT = {
   withdrawConfirm: 'Widerrufen',
   withdrawEmail: 'Bestätigung an (E-Mail, optional)',
   withdrawEmailHint:
-    'Wird nicht gespeichert. Kam der Widerruf per DM, lass das Feld leer und antworte dort.',
+    'Wird nicht gespeichert. Kam der Widerruf per Brief oder mündlich, lass das Feld leer und antworte dort.',
   withdrawLocale: 'Sprache der Bestätigung',
   withdrawDone: 'Einwilligung widerrufen – das Foto ist offline.',
   withdrawDoneMail: 'Einwilligung widerrufen – das Foto ist offline, die Bestätigung geht raus.',

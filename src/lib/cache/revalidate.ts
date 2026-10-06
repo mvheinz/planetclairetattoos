@@ -2,10 +2,8 @@ import { revalidatePath, revalidateTag, updateTag } from 'next/cache'
 
 import { createLogger } from '@/lib/monitoring/logger'
 import type { AppContext } from '@/lib/payload/context'
-import { localizedPath } from '@/lib/routes/paths'
-import { LOCALES } from '@/lib/routes/registry'
 
-import { TAGS, productTags } from './tags'
+import { productTags } from './tags'
 
 // Einziger Weg zur Cache-Erneuerung (ARCHITEKTUR §9.3, PLAN P3.15). Bei `context.seed` wird nichts ausgelöst.
 // - Statuswechsel (`immediate`): `revalidateTag(tag, { expire: 0 })` – die nächste Anfrage rendert blockierend neu

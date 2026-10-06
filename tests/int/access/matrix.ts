@@ -119,14 +119,6 @@ export const COLLECTION_ACCESS: Record<CollectionSlug, CollectionAccessEntry> = 
   complaints: deny,
   // §6.14: veröffentlichte Motive
   flash: pub(publicRead({ published: { equals: true } })),
-  // §6.15: veröffentlicht und noch nicht beendet
-  'tattoo-offers': pub(({ now, preview }) => ({
-    and: [
-      { published: { equals: true } },
-      { endsAt: { greater_than: now.toISOString() } },
-      ...(preview ? [] : [NOT_SEED]),
-    ],
-  })),
   // §6.16: veröffentlicht und (kein Kundenfoto oder Einwilligung); Vorschau zeigt veröffentlichte Seed-Einträge
   'tattoo-gallery': pub(
     ({ preview }): Where =>
