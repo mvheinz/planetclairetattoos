@@ -21,7 +21,7 @@ const CHAPTERS = [
   'Abholung',
   'Widerrufe und Erstattung',
   'Anfragen für Auftragsarbeiten',
-  'Tattoo: Flash, Angebote, Galerie',
+  'Tattoo: Flash und Galerie',
   'Texte bearbeiten',
   'Einstellungen',
   'Umsatz-Wächter',

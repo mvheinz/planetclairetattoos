@@ -287,16 +287,9 @@ describe('P3.16 R-096 und R-139 im Quelltext', () => {
       if (/\b(?:src|srcSet|data|poster)=\{?[^}>]*instagram/i.test(text))
         bad.push(`${file}: Instagram als eingebettete Ressource`)
     }
-    // Menü, Fuß und Kontakt (Profil + Direktnachricht) verlinken Instagram; der Tattoo-Bereich die DM (P7).
+    // Nur Menü und Fuß verlinken das Instagram-Profil (P12.7, U-15: keine Direktnachricht, kein Anfrageweg).
     expect(new Set(links)).toEqual(
-      new Set([
-        'src/components/content/ContactLinks.tsx',
-        'src/components/layout/MenuOverlay.tsx',
-        'src/components/layout/SiteFooter.tsx',
-        'src/components/tattoo/FlashCard.tsx',
-        'src/components/tattoo/OfferCard.tsx',
-        'src/components/tattoo/TattooContactBlock.tsx',
-      ]),
+      new Set(['src/components/layout/MenuOverlay.tsx', 'src/components/layout/SiteFooter.tsx']),
     )
     expect(bad).toEqual([])
   })

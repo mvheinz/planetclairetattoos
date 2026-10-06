@@ -1,13 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  buildMailto,
-  flashDmSnippet,
-  offerDateText,
-  tattooMailBody,
-  tattooMailSubject,
-  tattooMailto,
-} from '@/lib/tattoo/mailto'
+import { buildMailto, tattooMailBody, tattooMailSubject, tattooMailto } from '@/lib/tattoo/mailto'
 
 // P7.1 – Mail-Knöpfe des Tattoo-Bereichs (KONZEPT §9.4, AK-9-02, R-170): Betreff exakt, Kodierung nach RFC 6068.
 
@@ -35,20 +28,11 @@ describe('tattoo/mailto', () => {
     expect(decode(href, 'subject')).toBe('Flash-Anfrage F-012 – Kelch mit Schlange')
   })
 
-  it('R-170 Betreff der übrigen Anlässe: Angebot mit Datum, allgemein, eigene Idee', () => {
-    const startsAt = '2026-10-12T09:00:00.000Z'
-    expect(tattooMailSubject({ kind: 'offer', title: 'Flash-Day', startsAt }, 'de')).toBe(
-      'Anfrage Flash-Day am 12.10.2026',
-    )
-    expect(tattooMailSubject({ kind: 'offer', title: 'Flash day', startsAt }, 'en')).toBe(
-      'Request Flash day on 12 Oct 2026',
-    )
+  it('R-170 Betreff der übrigen Anlässe: allgemein, eigene Idee', () => {
     expect(tattooMailSubject({ kind: 'general' }, 'de')).toBe('Tattoo-Anfrage')
     expect(tattooMailSubject({ kind: 'general' }, 'en')).toBe('Tattoo request')
     expect(tattooMailSubject({ kind: 'custom' }, 'de')).toBe('Tattoo-Anfrage – eigene Idee')
     expect(tattooMailSubject({ kind: 'custom' }, 'en')).toBe('Tattoo request – custom idea')
-    // Datum nach Europe/Berlin: 23:30 UTC am 11.10. ist in Berlin schon der 12.10.
-    expect(offerDateText('2026-10-11T23:30:00.000Z', 'de')).toBe('12.10.2026')
   })
 
   it('R-170 Betreff: Umlaute, „&“, „?“ und Zeilenumbrüche sind korrekt kodiert', () => {
@@ -80,9 +64,7 @@ describe('tattoo/mailto', () => {
     }
   })
 
-  it('Anzeige-Nummer F- dreistellig, DM-Baustein und fehlende Adresse', () => {
-    expect(flashDmSnippet(12, 'Kelch mit Schlange')).toBe('F-012 – Kelch mit Schlange')
-    expect(flashDmSnippet(1234, 'X')).toBe('F-1234 – X')
+  it('fehlende Adresse', () => {
     expect(tattooMailto(null, { kind: 'general' }, 'de')).toBeNull()
     expect(tattooMailto('', { kind: 'general' }, 'de')).toBeNull()
   })

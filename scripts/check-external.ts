@@ -87,7 +87,6 @@ export function collectPublicFiles(distDir: string): BuiltFile[] {
 /** Erlaubte absolute URLs (Präfixe). `jsOnly`: nur als Text in Framework-JS, nie in HTML. */
 export const EXTERNAL_ALLOWLIST: readonly { prefix: string; why: string; jsOnly?: boolean }[] = [
   { prefix: 'https://www.instagram.com/', why: 'Linkziel Instagram (E-43)' },
-  { prefix: 'https://ig.me/m/', why: 'Linkziel Instagram-Direktnachricht (Kontakt)' },
   {
     prefix: 'https://europa.eu/youreurope/citizens/consumers/shopping/guarantees-returns/',
     why: 'Linkziel der harmonisierten Gewährleistungs-Mitteilung (R-049), kein Request',

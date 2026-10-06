@@ -47,8 +47,8 @@
       "en": "I can't make my appointment – what now?"
     },
     "answer": {
-      "de": "Sag mir so früh wie möglich Bescheid, per Mail oder DM. Dann suchen wir einen neuen Termin. Was mit der Anzahlung passiert, haben wir vorher gemeinsam abgemacht.",
-      "en": "Let me know as early as you can by email or DM, and we'll find a new date. What happens to the deposit is whatever we agreed on together beforehand."
+      "de": "Sag mir so früh wie möglich Bescheid, per Mail. Dann suchen wir einen neuen Termin. Was mit der Anzahlung passiert, haben wir vorher gemeinsam abgemacht.",
+      "en": "Let me know as early as you can by email, and we'll find a new date. What happens to the deposit is whatever we agreed on together beforehand."
     }
   },
   {
@@ -95,12 +95,12 @@
     "category": "tattoo",
     "sortOrder": 80,
     "question": {
-      "de": "Mail oder DM – was ist besser?",
-      "en": "Email or DM – which is better?"
+      "de": "Wie frage ich ein Tattoo an?",
+      "en": "How do I request a tattoo?"
     },
     "answer": {
-      "de": "Beides geht. Per Mail geht nichts unter, und du kannst Bilder in Ruhe anhängen. Für Flash schick einfach die Nummer mit, zum Beispiel F-902.",
-      "en": "Both work. Nothing gets lost by email, and you can attach pictures easily. For flash, just include the number, for example F-902."
+      "de": "Schreib mir eine Mail. Dort geht nichts unter, und du kannst Bilder in Ruhe anhängen. Für Flash schick einfach die Nummer mit, zum Beispiel F-902.",
+      "en": "Send me an email. Nothing gets lost that way, and you can attach pictures easily. For flash, just include the number, for example F-902."
     }
   },
   {

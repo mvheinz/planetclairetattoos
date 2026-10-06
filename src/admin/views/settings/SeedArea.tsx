@@ -23,7 +23,7 @@ export interface SeedCountRow {
 }
 
 export interface AdoptGroup {
-  collection: 'products' | 'flash' | 'tattoo-gallery' | 'media'
+  collection: 'products' | 'flash' | 'tattoo-gallery' | 'tour-dates' | 'media'
   label: string
   items: Array<{ id: number; title: string }>
 }

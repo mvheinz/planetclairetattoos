@@ -750,8 +750,7 @@ Aufbau: Coco (`--coco-xl`, statisch; Boil 2 s nach Eintritt, dann Stillstand) ·
 | Kategorie leer | `kopfschief` | „In dieser Ecke ist gerade nichts.“ | „Nothing in this corner right now.“ | Alle Stücke |
 | Archiv leer | `sitzen` | „Noch ist nichts verkauft.“ (KONZEPT §3.5) | „Nothing sold yet.“ | Shop |
 | Startseiten-Station ohne Stücke | (keine, Stationszeichnung bleibt) | KONZEPT §3.1 | – | Archiv |
-| Kein Flash verfügbar | `schlafen` | „Gerade sind alle Flash-Motive vergeben.“ | „All flash designs are taken right now.“ | Angebote / Kontakt |
-| Keine Angebote | `kopfschief` | „Gerade keine Aktion – schau auf Instagram vorbei.“ | „No offers right now – check Instagram.“ | Instagram |
+| Kein Flash verfügbar | `schlafen` | „Gerade sind alle Flash-Motive vergeben.“ | „All flash designs are taken right now.“ | Kontakt |
 | Bestellstatus-Token unbekannt | – (404-Seite) | – | – | – |
 
 ### KO-18 404, „schon ein Zuhause“, 500
@@ -780,8 +779,8 @@ Aufbau: Coco (`--coco-xl`, statisch; Boil 2 s nach Eintritt, dann Stillstand) ·
 - **Unter-Navigation:** horizontale Link-Reihe wie Filter-Chips (KO-08), `aria-current`.
 - **Flash-Raster:** 2 Spalten mobil, 3 ab 768; Spalten- und Zeilenabstand ≥ 32 px (Platz für die `contour`-Linie, §9.5).
 - **Flash-Karte:** Zeichnung (Seitenverhältnis des Motivs, Grund `--paper-field`, `--r-photo`), Titel, Nummer `F-012` (Plex Mono), Größe, Preis als **Text** (Bricolage 600 17 px, „120 €*“ bzw. „ab 90 €*“) – **kein Preisschild** (KONZEPT §3.11). Status (Feld `status`, DATENMODELL `FLASH_STATUSES`): bei `available` Badge `verfügbar` (Rand `--stencil`), bei `claimed` Stempel „vergeben“ (Stempeloptik wie KO-06, aber Farbe `--stencil`, Text „vergeben“/„taken“). Bei `available` zwei Sekundärknöpfe untereinander (KONZEPT §9.3/§9.4): „Per Mail anfragen“ (öffnet `mailto:` mit Betreff „Flash-Anfrage F-012 – {Titel}“, EN „Flash request F-012 – {title}“) und „Per DM anfragen“ (Instagram-Link), daneben der Text-Baustein „F-012 – {Titel}“ mit Text-Knopf „Kopieren“ und Hinweis „Schick mir das in die DM“; bei `claimed` keine Knöpfe. Hover/Fokus: `--shadow-stencil` (Schablonen-Abdruck), 0 ms (ohne Übergang).
-- **Angebotskarte:** Datums-Badge (Spectral Italic 28 px, z. B. „12.10.“) in einem gezeichneten Kreis, Titel, Text, Preisinfo als Text.
-- **Kontakt-Block:** Knöpfe „Mail schreiben“, „Instagram-DM“, E-Mail-Adresse als Text + „Adresse kopieren“ (Rückmeldung „Kopiert“ als Text, `aria-live`, 2 s).
+- **Angebotskarte:** Datums-Badge Spectral Italic 28 px, z. B. „12.10.“) in einem gezeichneten Kreis, Titel, Text, Preisinfo als Text.
+- **Kontakt-Block:** Knopf „Mail schreiben“ (kein Instagram-DM seit P12.7), E-Mail-Adresse als Text + „Adresse kopieren“ (Rückmeldung „Kopiert“ als Text, `aria-live`, 2 s).
 - **Galerie:** Raster wie Shop ohne Schnur/Preisschilder; nur Fotos mit Einwilligung (E-42).
 - **Linie:** Preset `stencil` (§9.7): Konturen um Flash-Karten, tuscheschwarz (E-73).
 
@@ -1225,7 +1224,7 @@ Höhe = Breite × 0,75 (viewBox 160×120). Coco-Boxen haben feste Maße (keine V
 | Startseite, Über mich | `sitzen` an der ersten Station |
 | Shop-Schnur, Korb, Countdown, Formular (`frame`), Produktseite | `sitzen` |
 | Shop leer, Archiv leer, 404-Variante „Zuhause“, Danke (wartet, Vorkasse offen) | `sitzen` |
-| Menü, Tattoo (`stencil`), Kategorie leer, Keine Angebote, 500, Danke (fehlgeschlagen, leider schon weg) | `kopfschief` |
+| Menü, Tattoo (`stencil`), Kategorie leer, 500, Danke (fehlgeschlagen, leider schon weg) | `kopfschief` |
 | Korb leer | `schnueffeln` |
 | Kein Flash, Danke (bezahlt) | `schlafen` |
 | 404 | nicht sichtbar (weggelaufen) |

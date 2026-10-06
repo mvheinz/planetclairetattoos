@@ -1,0 +1,131 @@
+import { getTranslations } from 'next-intl/server'
+import React from 'react'
+
+import { ResponsiveImage } from '@/components/media/ResponsiveImage'
+import type { PublicTourDate } from '@/lib/data/tour'
+import type { Locale } from '@/lib/routes/registry'
+import {
+  splitTourDates,
+  tourDateIso,
+  tourDateText,
+  tourHoursText,
+  tourState,
+} from '@/lib/tour/dates'
+
+import styles from './TourDates.module.css'
+
+// „Planet Claire on Tour“ (P12.8, U-20, KONZEPT §3.1a): rechte Spalte der Startseite unter dem Bereich für die
+// Vorsitzende (`data-slot="chairwoman"`, ihn füllt P12.6), mobil unter dem Kopf der Seite. Kommende Termine stehen oben,
+// vergangene eingeklappt in `<details>` (ohne JavaScript bedienbar); abgesagte Termine sind durchgestrichen und tragen
+// zusätzlich den Text „abgesagt“. Adresse und Link sind einfacher Text bzw. Textlink – keine Karte, keine Einbettung,
+// keine Anfrage an Dritte. Reines Server-Markup (nicht hydriert); der Zustand folgt dem Datum beim Rendern (ISR ≤ 1 h).
+
+function TourItem({
+  item,
+  locale,
+  now,
+  t,
+}: {
+  item: PublicTourDate
+  locale: Locale
+  now: Date
+  t: Awaited<ReturnType<typeof getTranslations>>
+}) {
+  const state = tourState(item, now)
+  const hours = tourHoursText(item.timeFrom, item.timeTo, locale)
+  const place = [item.place, item.address].filter(Boolean).join(' · ')
+  return (
+    <li
+      className={styles.item}
+      data-tour-date={item.id}
+      data-tour-state={state}
+      data-cancelled={state === 'cancelled' ? '' : undefined}
+    >
+      <h3 className={styles.name}>
+        <span className={styles.struck}>{item.name}</span>
+        {state === 'cancelled' ? (
+          <span className={styles.badge} data-tour-badge="cancelled">
+            {t('cancelled')}
+          </span>
+        ) : state === 'running' ? (
+          <span className={styles.badge} data-tour-badge="running">
+            {t('running')}
+          </span>
+        ) : null}
+      </h3>
+      <p className={`${styles.when} ${styles.struck}`}>
+        <time dateTime={tourDateIso(item)}>{tourDateText(item, locale)}</time>
+        {hours ? <span> · {hours}</span> : null}
+      </p>
+      <p className={`${styles.where} ${styles.struck}`}>
+        {place}
+        {item.standNumber ? <span> · {t('stand', { number: item.standNumber })}</span> : null}
+      </p>
+      {item.note ? <p className={`${styles.note} ${styles.struck}`}>{item.note}</p> : null}
+      {item.link ? (
+        <p className={styles.link}>
+          <a
+            href={item.link}
+            rel="noopener noreferrer"
+            aria-label={t('linkLabel', { name: item.name })}
+            data-tour-link=""
+          >
+            {t('link')}
+          </a>
+        </p>
+      ) : null}
+      {item.image ? (
+        <ResponsiveImage
+          media={{ ...item.image, alt: item.image.alt || t('photoAlt', { name: item.name }) }}
+          aspectRatio="4 / 3"
+          sizes="(min-width: 1100px) 20rem, 90vw"
+          srcSizes={['thumb', 'card']}
+          className={styles.photo}
+        />
+      ) : null}
+    </li>
+  )
+}
+
+export async function TourDates({
+  items,
+  locale,
+  now,
+}: {
+  items: PublicTourDate[]
+  locale: Locale
+  now: Date
+}) {
+  const t = await getTranslations({ locale, namespace: 'home.tour' })
+  const { upcoming, past } = splitTourDates(items, now)
+  return (
+    <section className={styles.tour} aria-labelledby="tour-heading" data-tour="">
+      <h2 id="tour-heading" className={styles.heading}>
+        {t('heading')}
+      </h2>
+      <p className={styles.intro}>{t('intro')}</p>
+      <h3 className={styles.sub}>{t('upcomingHeading')}</h3>
+      {upcoming.length > 0 ? (
+        <ol className={styles.list} data-tour-upcoming="">
+          {upcoming.map((item) => (
+            <TourItem key={item.id} item={item} locale={locale} now={now} t={t} />
+          ))}
+        </ol>
+      ) : (
+        <p className={styles.empty} data-tour-empty="">
+          {t('empty')}
+        </p>
+      )}
+      {past.length > 0 ? (
+        <details className={styles.past} data-tour-past="">
+          <summary className={styles.summary}>{t('pastSummary', { count: past.length })}</summary>
+          <ol className={styles.list}>
+            {past.map((item) => (
+              <TourItem key={item.id} item={item} locale={locale} now={now} t={t} />
+            ))}
+          </ol>
+        </details>
+      ) : null}
+    </section>
+  )
+}

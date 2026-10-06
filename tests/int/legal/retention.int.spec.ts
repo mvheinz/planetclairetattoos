@@ -703,7 +703,7 @@ describe('Löschjobs Teil 2 (R-154, R-134)', () => {
         showsCustomer: true,
         consentGiven: true,
         consentDate: '2026-05-01T00:00:00.000Z',
-        consentNote: 'per DM bestätigt',
+        consentNote: 'per Mail bestätigt',
         published: false,
       } as never,
       overrideAccess: true,

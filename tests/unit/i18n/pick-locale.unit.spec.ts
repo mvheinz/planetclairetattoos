@@ -38,9 +38,9 @@ describe('decidePublicRoute (ARCHITEKTUR §2.3)', () => {
   })
 
   it('unpräfixierte Pfade → 307, übersetzt in die erkannte Sprache', () => {
-    expect(decidePublicRoute('/tattoo/angebote', '', 'en')).toMatchObject({
+    expect(decidePublicRoute('/tattoo/preise', '', 'en')).toMatchObject({
       status: 307,
-      location: '/en/tattoo/offers',
+      location: '/en/tattoo/prices',
     })
     expect(decidePublicRoute('/legal-notice', '?x=1', 'de')).toMatchObject({
       status: 307,

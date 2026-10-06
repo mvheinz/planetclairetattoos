@@ -6,11 +6,11 @@ import type { Locale } from '@/lib/routes/registry'
 
 import styles from './Tattoo.module.css'
 
-// Unter-Navigation des Tattoo-Bereichs (DESIGN KO-20, KO-08): Übersicht · Flash · Angebote · Preise · Galerie · Ablauf
+// Unter-Navigation des Tattoo-Bereichs (DESIGN KO-20, KO-08): Übersicht · Flash · Preise · Galerie · Ablauf
 // · Aftercare · FAQ als Reihe von Chip-Links, mobil seitlich scrollbar; die aktuelle Seite trägt
 // `aria-current="page"`. Reines Server-HTML, ohne JavaScript bedienbar.
 
-export const TATTOO_SUBNAV = ['R11', 'R12', 'R13', 'R14', 'R15', 'R16', 'R17', 'R18'] as const
+export const TATTOO_SUBNAV = ['R11', 'R12', 'R14', 'R15', 'R16', 'R17', 'R18'] as const
 export type TattooRouteId = (typeof TATTOO_SUBNAV)[number]
 
 export async function TattooSubNav({

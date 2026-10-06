@@ -51,7 +51,6 @@ const LISTS: { id: string; params?: Record<Locale, Record<string, string>>; pose
   { id: 'R05', pose: 'sitzen' },
   { id: 'R06', pose: 'schnueffeln' },
   { id: 'R12', pose: 'schlafen' },
-  { id: 'R13', pose: 'kopfschief' },
   { id: 'R15' },
   { id: 'R18', pose: 'kopfschief' },
   { id: 'R27' },

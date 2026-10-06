@@ -9,7 +9,7 @@ import { refreshTattoo } from './tattooFixtures'
 // V-31); Instagram nur als einfacher Link mit `rel="noopener noreferrer"`, ohne Einbettung und ohne Anfrage an Instagram
 // (R-139, V-05). Für AK-9-05 steht vorübergehend eine echte Straße in den Stammdaten (danach wiederhergestellt).
 
-const TATTOO = ['R11', 'R12', 'R13', 'R14', 'R15', 'R16', 'R17', 'R18'] as const
+const TATTOO = ['R11', 'R12', 'R14', 'R15', 'R16', 'R17', 'R18'] as const
 const PAGES = TATTOO.flatMap((id) => LOCALES.map((locale) => ({ id, locale })))
 
 test.describe.configure({ mode: 'serial' })

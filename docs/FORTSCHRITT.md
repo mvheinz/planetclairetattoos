@@ -29,6 +29,17 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 - Coco: Sitzen/Kopf schief neu in Seitenansicht (Juttas Foto), Knickohr (hinteres Ohr) in allen Posen, Warte-Aktionen gestaffelt (Hecheln, Ohr zucken, Kratzen, Gähnen, Strecken, Wedeln, Hinlegen → Einrollen → Schlafen) und vier neue Posen (Spielverbeugung, Schütteln, Freudenhüpfer mit Drehung bei „Korb gefüllt“/„Bestellung abgeschickt“, Hinlegen mit Bauch hoch) in der nachgeladenen Datei coco-extra (27 Symbole); Coco +25 % (70/110 px, Rinne 56/88 px); Tuschelinie doppelt so langsam; Leine in Raster-Seiten (Flash, Shop, Kategorie, Archiv) nur in der Rinne am Rand, kringelt sich zwischen den Zeilen, umwickelt nie Karten.
 - Budgets: Engine 11 805 B gz (≤ 12 000), Coco-Steuerung 2 884 B (≤ 3 000), Zusatz-Chunk 1 072 B, Sprite 43,8 KB/10,3 KB gz, Zusatz-Datei 56 KB/12,6 KB gz.
 - Tests: Unit (Sprite, CO-01…08 mit Zusatz-Posen, Knickohr, Zusatz-Aktionen, Raster-Geometrie), E2E Raster-Seiten (LG-01 Flash/Shop, 390 und 1280 px), leash/coco/home-choreo/reduced-motion/a11y/home (desktop + pixel-7), check:bundle, pnpm check, Int 1 101 grün. Tempo-Gates (PF-02/04, LCP) und Kunst-QA-Linsen: CI/P12.13.
+## 2026-10-06 – P12.8
+
+- Neue Collection `tour-dates` (Migration, Zugriff nur Admin schreiben, Revalidierung, Beispieltermine `seed`) und Reiter „Termine“ in der Verwaltung (Liste, Neuer Termin, Absagen, Offline, Löschen, Übersetzen).
+- Startseite: rechte Spalte (mobil darunter) mit leerem Platz für Koko (`data-slot="chairwoman"`) und „Planet Claire on Tour“: kommende oben, vergangene eingeklappt, abgesagte durchgestrichen; keine Karte, keine Fremd-Requests.
+- Tests: Unit (Datum/Status/Texte), Int (Zugriff, Hook, Loader, Seed, Constraints), E2E Verwaltung → Startseite und Startseite mit Beispielbestand (Desktop, Pixel 7), check:external grün.
+
+## 2026-10-06 – P12.7
+
+- „Angebote“ (Seite R13, Menüpunkt, Verwaltungs-Reiter, Collection samt Beispieldaten, Task `revalidateEndedOffers`, Block `offersList`) entfernt; Migration `p12_remove_offers` (+ Aufräum-Migration) läuft auf frischer und gefüllter Datenbank.
+- Alle DM-Hinweise weg: Anfrage im Tattoo-Bereich nur per Mail (Betreff-Vorlage bleibt); Instagram-Profil nur noch im Fuß (und im Menü).
+- Tests: pnpm check (Unit außer dem schon vorher roten Abschlussbericht-Test), Int-Gesamtlauf + Nachläufe grün, Build, Desktop und Pixel-7: home, tattoo, admin, seed, empty-states, a11y, menu, about, contact grün.
 
 ## 2026-10-06 – P12 gestartet: deine Änderungswünsche
 

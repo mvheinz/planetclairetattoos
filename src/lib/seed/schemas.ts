@@ -24,8 +24,8 @@ import {
   PRIVACY_REQUEST_STATUSES,
   PRIVACY_REQUEST_TYPES,
   REVENUE_SOURCES,
-  TATTOO_OFFER_TYPES,
   TATTOO_PHOTO_KINDS,
+  TOUR_STATUSES,
   WITHDRAWAL_CLOSE_REASONS,
   WITHDRAWAL_MATCH_STATUSES,
   WITHDRAWAL_STATUSES,
@@ -474,7 +474,6 @@ export const pageBlockSchema = z.discriminatedUnion('blockType', [
     blockType: z.literal('contactLinks'),
     heading: l10nBoth.optional(),
     showEmail: z.boolean().optional(),
-    showInstagram: z.boolean().optional(),
     showDistrict: z.boolean().optional(),
     emailSubject: l10nBoth.optional(),
   }),
@@ -514,11 +513,6 @@ export const pageBlockSchema = z.discriminatedUnion('blockType', [
     heading: l10nBoth.optional(),
     intro: l10nBoth.optional(),
     successText: l10nBoth,
-  }),
-  z.strictObject({
-    blockType: z.literal('offersList'),
-    heading: l10nBoth.optional(),
-    emptyText: l10nBoth.optional(),
   }),
   z.strictObject({
     blockType: z.literal('flashGrid'),
@@ -708,18 +702,6 @@ export const tattooSchema = z.strictObject({
       sortOrder: z.number().int().min(0),
     }),
   ),
-  offers: z.array(
-    z.strictObject({
-      key: z.string().regex(/^TO\d$/),
-      type: z.enum(TATTOO_OFFER_TYPES),
-      title: l10nBoth,
-      description: l10nBoth,
-      startsAt: timeExpr,
-      endsAt: timeExpr,
-      priceNote: l10nBoth.optional(),
-      flashes: z.array(ref('flash')),
-    }),
-  ),
   gallery: z.array(
     z.strictObject({
       key: z.string().regex(/^G\d$/),
@@ -739,6 +721,31 @@ export const tattooSchema = z.strictObject({
   ),
 })
 export type TattooData = z.infer<typeof tattooSchema>
+
+// „Planet Claire on Tour“ (P12.8, SEED-SPEC §12.4): fiktive Märkte in Berlin, DE und EN, `seed = true`.
+export const tourSchema = z.array(
+  z.strictObject({
+    key: z.string().regex(/^TD\d$/),
+    name: l10nBoth,
+    startsAt: timeExpr,
+    endsAt: timeExpr,
+    place: l10nBoth,
+    address: z.string().min(3).max(160).optional(),
+    link: z.string().url().optional(),
+    standNumber: z.string().max(20).optional(),
+    timeFrom: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):[0-5]\d$/)
+      .optional(),
+    timeTo: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):[0-5]\d$/)
+      .optional(),
+    note: l10nBoth.optional(),
+    status: z.enum(TOUR_STATUSES),
+  }),
+)
+export type TourSeed = z.infer<typeof tourSchema>[number]
 
 // ---------------------------------------------------------------------------------------------------------------
 // logs.json (§16): Ableitungsregeln (Mails, Einwilligungen) und die Audit-Einträge
@@ -823,6 +830,7 @@ export const SEED_FILE_SCHEMAS = {
   'privacy-requests.json': privacyRequestsSchema,
   'revenue.json': revenueSchema,
   'tattoo.json': tattooSchema,
+  'tour.json': tourSchema,
   'logs.json': logsSchema,
 } as const
 export type SeedFileName = keyof typeof SEED_FILE_SCHEMAS

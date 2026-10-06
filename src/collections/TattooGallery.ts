@@ -292,7 +292,7 @@ export const TattooGallery: CollectionConfig = {
           type: 'text',
           label: 'Wie/wo erteilt',
           maxLength: 300,
-          admin: { description: 'z. B. „per DM am 02.10.2026“' },
+          admin: { description: 'z. B. „per Mail am 02.10.2026“' },
         },
         {
           name: 'consentEvidence',

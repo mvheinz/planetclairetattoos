@@ -42,7 +42,7 @@ describe('T-16 AK-A-8-01 Kontext je Registry-Route', () => {
         checked++
       }
     }
-    expect(checked).toBeGreaterThanOrEqual(2 * 25)
+    expect(checked).toBeGreaterThanOrEqual(2 * 24)
   })
 
   it('Kontext public: Seiten der Registry mit Eingabefeldern gibt es dort nicht (Formulare laufen dynamisch)', () => {

@@ -1,0 +1,168 @@
+[
+  {
+    "key": "TD1",
+    "name": {
+      "de": "Hinterhof-Flohmarkt Nord",
+      "en": "Backyard flea market North"
+    },
+    "startsAt": "D-52@00:00",
+    "endsAt": "D-52@23:59",
+    "place": {
+      "de": "Berlin-Wedding",
+      "en": "Berlin-Wedding"
+    },
+    "address": "Hof der Alten Bäckerei, Beispielweg 3",
+    "standNumber": "B12",
+    "timeFrom": "10:00",
+    "timeTo": "17:00",
+    "note": {
+      "de": "Coco war dabei und hat alle Tüten bewacht.",
+      "en": "Coco came along and guarded all the bags."
+    },
+    "status": "planned"
+  },
+  {
+    "key": "TD2",
+    "name": {
+      "de": "Sommerflohmarkt am Kanal",
+      "en": "Summer flea market by the canal"
+    },
+    "startsAt": "D-24@00:00",
+    "endsAt": "D-23@23:59",
+    "place": {
+      "de": "Berlin-Neukölln",
+      "en": "Berlin-Neukölln"
+    },
+    "address": "Uferweg am Beispielkanal",
+    "standNumber": "Platz 27",
+    "timeFrom": "11:00",
+    "timeTo": "18:00",
+    "status": "planned"
+  },
+  {
+    "key": "TD3",
+    "name": {
+      "de": "Kunstmarkt in der Remise",
+      "en": "Art market in the carriage house"
+    },
+    "startsAt": "D-10@00:00",
+    "endsAt": "D-10@23:59",
+    "place": {
+      "de": "Berlin-Friedrichshain",
+      "en": "Berlin-Friedrichshain"
+    },
+    "address": "Remise Beispielhof, Beispielallee 8",
+    "standNumber": "A4",
+    "timeFrom": "12:00",
+    "timeTo": "19:00",
+    "note": {
+      "de": "Fällt leider aus.",
+      "en": "Sadly cancelled."
+    },
+    "status": "cancelled"
+  },
+  {
+    "key": "TD4",
+    "name": {
+      "de": "Herbstmarkt der Hinterhöfe",
+      "en": "Autumn market of the backyards"
+    },
+    "startsAt": "D-1@00:00",
+    "endsAt": "D+1@23:59",
+    "place": {
+      "de": "Berlin-Kreuzberg",
+      "en": "Berlin-Kreuzberg"
+    },
+    "address": "Innenhof am Beispielplatz 1",
+    "standNumber": "H7",
+    "timeFrom": "10:00",
+    "timeTo": "18:00",
+    "note": {
+      "de": "Drei Tage, viele kleine Stände, Coco ist dabei.",
+      "en": "Three days, many small stalls, Coco is coming along."
+    },
+    "status": "planned"
+  },
+  {
+    "key": "TD5",
+    "name": {
+      "de": "Design- und Zeichenmarkt",
+      "en": "Design and drawing market"
+    },
+    "startsAt": "D+9@00:00",
+    "endsAt": "D+9@23:59",
+    "place": {
+      "de": "Berlin-Prenzlauer Berg",
+      "en": "Berlin-Prenzlauer Berg"
+    },
+    "address": "Bürgersaal Beispielstraße 10",
+    "standNumber": "D3",
+    "timeFrom": "11:00",
+    "timeTo": "17:30",
+    "note": {
+      "de": "Neue Zeichnungen im Gepäck.",
+      "en": "With new drawings in my bag."
+    },
+    "status": "planned"
+  },
+  {
+    "key": "TD6",
+    "name": {
+      "de": "Flohmarkt auf dem Parkdeck",
+      "en": "Flea market on the car park roof"
+    },
+    "startsAt": "D+16@00:00",
+    "endsAt": "D+16@23:59",
+    "place": {
+      "de": "Berlin-Schöneberg",
+      "en": "Berlin-Schöneberg"
+    },
+    "address": "Parkdeck Beispielring",
+    "standNumber": "C21",
+    "timeFrom": "10:00",
+    "timeTo": "16:00",
+    "note": {
+      "de": "Der Markt wurde vom Veranstalter abgesagt.",
+      "en": "The organiser has cancelled this market."
+    },
+    "status": "cancelled"
+  },
+  {
+    "key": "TD7",
+    "name": {
+      "de": "Winter-Kunstmarkt in der Schalterhalle",
+      "en": "Winter art market in the ticket hall"
+    },
+    "startsAt": "D+37@00:00",
+    "endsAt": "D+38@23:59",
+    "place": {
+      "de": "Berlin-Mitte",
+      "en": "Berlin-Mitte"
+    },
+    "address": "Alte Schalterhalle, Beispieldamm 2",
+    "standNumber": "S9",
+    "timeFrom": "11:00",
+    "timeTo": "19:00",
+    "status": "planned"
+  },
+  {
+    "key": "TD8",
+    "name": {
+      "de": "Markt der kleinen Läden",
+      "en": "Market of the little shops"
+    },
+    "startsAt": "D+58@00:00",
+    "endsAt": "D+58@23:59",
+    "place": {
+      "de": "Berlin-Charlottenburg",
+      "en": "Berlin-Charlottenburg"
+    },
+    "timeFrom": "12:00",
+    "timeTo": "18:00",
+    "note": {
+      "de": "Ort und Stand folgen.",
+      "en": "Place and stall to follow."
+    },
+    "status": "planned"
+  }
+]

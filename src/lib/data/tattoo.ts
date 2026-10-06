@@ -8,17 +8,16 @@ import { TAX_MODES, type FaqCategory, type Locale, type TaxMode } from '@/lib/en
 import { createLogger } from '@/lib/monitoring/logger'
 import { getPublicPayload, getPublicSettings } from '@/lib/payload/public'
 import { formatFlashNumber } from '@/lib/tattoo/flash'
-import { isOfferVisible, sortOffers } from '@/lib/tattoo/offers'
 import {
   isMediaPubliclyVisible,
   isPubliclyVisible,
   isSeedConsentException,
 } from '@/lib/tattoo/visibility'
 import { systemClock } from '@/lib/time'
-import type { Faq, Flash, Media, Page, TattooGallery, TattooOffer } from '@/payload-types'
+import type { Faq, Flash, Media, Page, TattooGallery } from '@/payload-types'
 
 // Gecachte Lesefunktionen des Tattoo-Bereichs (R11–R18, ARCHITEKTUR §9.2/§9.3, PLAN P7.1): Flash (Tag `flash`),
-// Angebote (`tattoo-offers`), Galerie (`tattoo-gallery`), FAQ (`faqs`), Seiten `tattoo` und `tattoo_aftercare`
+// Galerie (`tattoo-gallery`), FAQ (`faqs`), Seiten `tattoo` und `tattoo_aftercare`
 // (`page:tattoo`, `page:tattoo_aftercare`) und die öffentlichen Tattoo-Einstellungen (`settings`). Gelesen wird über
 // `getPublicPayload()` (Zugriffsregeln samt Seed-Filter greifen); zusätzlich prüft der Code dieselben Regeln noch
 // einmal (Abwehr in der Tiefe: Angebote `endsAt > jetzt`, Galerie `isPubliclyVisible`, Bilder
@@ -205,80 +204,6 @@ export async function loadFlash(locale: Locale): Promise<PublicFlash[]> {
 
 /** Alle veröffentlichten Motive (verfügbare zuerst). */
 export const listFlash = cached(loadFlash, { key: 'tattoo-flash', tags: [TAGS.flash] })
-
-// --- Angebote --------------------------------------------------------------------------------------------------------
-
-export interface PublicOffer {
-  id: number
-  type: TattooOffer['type']
-  title: string
-  description: string
-  startsAt: string
-  endsAt: string
-  locationNote: string | null
-  priceNote: string | null
-  image: TattooImage | null
-  flashes: {
-    number: number
-    display: string
-    anchor: string
-    title: string
-    image: TattooImage | null
-  }[]
-}
-
-function toPublicOffer(doc: TattooOffer): PublicOffer {
-  const flashes = (doc.flashes ?? [])
-    .filter((f): f is Flash => typeof f === 'object' && f !== null && f.published !== false)
-    .map(toPublicFlash)
-    .filter((f): f is PublicFlash => f !== null)
-    .map(({ number, display, anchor, title, image }) => ({ number, display, anchor, title, image }))
-  return {
-    id: doc.id,
-    type: doc.type,
-    title: doc.title,
-    description: doc.description,
-    startsAt: doc.startsAt,
-    endsAt: doc.endsAt,
-    locationNote: text(doc.locationNote),
-    priceNote: text(doc.priceNote),
-    image: publicImage(doc.image),
-    flashes,
-  }
-}
-
-/**
- * Laufende und kommende Angebote nach Beginn (DATENMODELL §6.15): die Zugriffsregel liefert nur `published` und
- * `endsAt > jetzt`; der Loader filtert zusätzlich mit derselben Uhr. R13, der Teaser auf R11 und die Startseite nutzen
- * dieselbe Abfrage (P7.3).
- */
-export async function loadOffers(locale: Locale): Promise<PublicOffer[]> {
-  try {
-    const now = systemClock.now()
-    const payload = await getPublicPayload()
-    const res = await payload.find({
-      collection: 'tattoo-offers',
-      where: {
-        and: [{ published: { equals: true } }, { endsAt: { greater_than: now.toISOString() } }],
-      },
-      locale,
-      fallbackLocale: 'de',
-      depth: 2,
-      limit: 100,
-      pagination: false,
-      sort: 'startsAt',
-    })
-    return sortOffers(res.docs.filter((d) => isOfferVisible(d, now)).map(toPublicOffer))
-  } catch (err) {
-    log.warn('tattoo.offers_load_failed', { reason: (err as Error).message })
-    return []
-  }
-}
-
-export const listOffers = cached(loadOffers, {
-  key: 'tattoo-offers',
-  tags: [TAGS.tattooOffers, TAGS.flash],
-})
 
 // --- Galerie ---------------------------------------------------------------------------------------------------------
 

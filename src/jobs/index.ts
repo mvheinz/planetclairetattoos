@@ -38,7 +38,6 @@ import {
   retentionTechnicalTask,
   retentionWithdrawalsTask,
 } from './retention'
-import { revalidateEndedOffersTask } from './revalidateEndedOffers'
 import { revenueGuardCheckTask } from './revenueGuardCheck'
 import { sendEmailTask } from './sendEmail'
 
@@ -60,7 +59,6 @@ export const TASK_DEFS = {
   renderInvoicePdf: { queue: 'documents', phase: 'P4', needsInput: true },
   renderLegalTextPdf: { queue: 'documents', phase: 'P4', needsInput: true },
   activateScheduledLegalTexts: { queue: 'maintenance', phase: 'P6' },
-  revalidateEndedOffers: { queue: 'maintenance', phase: 'P7' },
   markDelivered: { queue: 'commerce', phase: 'P5' },
   withdrawalDeadlines: { queue: 'commerce', phase: 'P6' },
   legalReviewReminder: { queue: 'maintenance', phase: 'P6' },
@@ -110,7 +108,6 @@ export const JOB_TASKS: TaskConfig<any>[] = [
   invoiceIntegrityCheckTask,
   complianceDocsReviewTask,
   activateScheduledLegalTextsTask,
-  revalidateEndedOffersTask,
   retentionAbandonedCheckoutsTask,
   retentionOrderMinimizeTask,
   retentionOrdersTask,
@@ -149,7 +146,6 @@ export const WAKE_TASK_SLUGS: readonly TaskSlug[] = (
     'invoiceIntegrityCheck',
     'complianceDocsReview',
     'activateScheduledLegalTexts',
-    'revalidateEndedOffers',
     ...(Object.keys(RETENTION_SCHEDULE) as (keyof typeof RETENTION_SCHEDULE)[]),
     'retentionTechnical',
     'legalHoldReview',

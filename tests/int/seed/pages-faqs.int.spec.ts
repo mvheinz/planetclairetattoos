@@ -103,7 +103,6 @@ describe('Seiten (SEED-SPEC §13)', () => {
     ])
     expect(await types('tattoo')).toEqual([
       'richText',
-      'offersList',
       'flashGrid',
       'tattooGallery',
       'priceInfo',
@@ -149,7 +148,7 @@ describe('Seiten (SEED-SPEC §13)', () => {
     expect(plain(phases(aftercareEn)[0]!.content)).toMatch(/^I'll cover your tattoo with film/)
     const tattooEn = await page('tattoo', 'en')
     expect(tattooEn.title).toBe('Tattoo')
-    const steps = tattooEn.layout[5]!.steps as { title: string; text: string }[]
+    const steps = tattooEn.layout[4]!.steps as { title: string; text: string }[]
     expect(steps.map((s) => s.title)).toEqual([
       'Request',
       'Appointment',
@@ -190,8 +189,8 @@ describe('FAQ (SEED-SPEC §14)', () => {
   it('Fragen und Antworten DE/EN, Antworten als Lexical', async () => {
     const de = await bySeedKey(payload, 'faqs', 'FAQ08', { locale: 'de' })
     const en = await bySeedKey(payload, 'faqs', 'FAQ08', { locale: 'en' })
-    expect(de.question).toBe('Mail oder DM – was ist besser?')
-    expect(en.question).toBe('Email or DM – which is better?')
+    expect(de.question).toBe('Wie frage ich ein Tattoo an?')
+    expect(en.question).toBe('How do I request a tattoo?')
     expect(plain(de.answer)).toContain('zum Beispiel F-902')
     expect(plain(en.answer)).toContain('for example F-902')
     expect(de.category).toBe('tattoo')

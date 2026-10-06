@@ -2,9 +2,55 @@
    `.u-container` frei (Preset `journey`, §5.3). */
 
 .home {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'hero'
+    'aside'
+    'body'
+    'foot';
+  row-gap: var(--space-8);
+}
+
+.body {
+  grid-area: body;
+  min-width: 0;
+}
+
+/* Rechte Spalte (P12.8, U-20): oben der Bereich für Koko, die Vorsitzende der Goth Dogs Berlin (`data-slot="chairwoman"`,
+   P12.6), darunter „Planet Claire on Tour“. Mobil steht sie unter dem Kopf der Seite, ab 1100 px rechts neben Kopf und Stationen. */
+.aside {
+  grid-area: aside;
   display: flex;
   flex-direction: column;
-  gap: var(--space-8);
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+/* Benannter Platz für Koko: leer, solange P12.6 ihn nicht füllt – dann ohne Höhe und ohne Abstand. */
+.chairwomanSlot {
+  min-width: 0;
+}
+
+.chairwomanSlot:empty {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .home {
+    grid-template-columns: minmax(0, 1fr) clamp(16rem, 24vw, 20rem);
+    grid-template-areas:
+      'hero aside'
+      'body aside'
+      'foot aside';
+    column-gap: var(--space-8);
+  }
+
+  /* Nicht „sticky“: Die Spalte kann höher sein als der Bildschirm (vergangene Termine aufgeklappt) – ein haftender Block
+     ließe ihren unteren Teil unerreichbar. */
+  .aside {
+    align-self: start;
+  }
 }
 
 /* ---------- Kopf-Station ---------- */
@@ -34,6 +80,7 @@
 }
 
 .hero {
+  grid-area: hero;
   display: flex;
   flex-direction: column;
   /* LG-01 (R3-05): 24 px statt 16 px zwischen Marke und Untertitel – Coco sitzt beim Schlaufenende neben der Marke, ihre Pfoten (bis 0,96–0,99 der Box) bleiben so aus dem Untertitel-Zeilenrechteck. */
@@ -194,6 +241,7 @@
 }
 
 .footnote {
+  grid-area: foot;
   max-width: 44rem;
 }
 

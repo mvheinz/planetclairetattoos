@@ -15,7 +15,6 @@
       "R10": "Auftragsarbeiten",
       "R11": "Tattoo",
       "R12": "Flash",
-      "R13": "Angebote",
       "R14": "Preise",
       "R15": "Galerie",
       "R16": "Ablauf",
@@ -33,7 +32,7 @@
     },
     "faq": {
       "emptyTitle": "Noch keine Fragen",
-      "emptyText": "Frag mich einfach – per Mail oder DM.",
+      "emptyText": "Frag mich einfach per Mail.",
       "emptyAction": "Zum Kontakt"
     }
   },
@@ -130,9 +129,24 @@
     "emptyText": "Die Startseite ist gleich wieder da. Schau so lange bei den Kontaktwegen vorbei.",
     "emptyAction": "Zum Kontakt",
     "stationCommissions": "Auftragsarbeiten",
-    "stationInstagram": "Instagram",
     "chairwomanAlt": "Koko, Vorsitzende der Goth Dogs Berlin",
-    "fitnessAlt": "Coco, die Hündin, macht Gymnastik auf zwei Beinen: sieben Übungen nacheinander, am Ende liegt sie erschöpft am Boden – dann geht es von vorn los."
+    "fitnessAlt": "Coco, die Hündin, macht Gymnastik auf zwei Beinen: sieben Übungen nacheinander, am Ende liegt sie erschöpft am Boden – dann geht es von vorn los.",
+    "tour": {
+      "heading": "Planet Claire on Tour",
+      "intro": "Hier findest du mich außer Haus: auf Märkten, Flohmärkten und Kunstmärkten.",
+      "upcomingHeading": "Kommende Termine",
+      "empty": "Gerade sind keine Termine geplant.",
+      "pastSummary": "Vergangene Termine ({count})",
+      "cancelled": "abgesagt",
+      "running": "läuft gerade",
+      "stand": "Stand {number}",
+      "link": "Zur Seite des Marktes",
+      "linkLabel": "Zur Seite des Marktes: {name}",
+      "dateLabel": "Datum",
+      "placeLabel": "Ort",
+      "hoursLabel": "Uhrzeiten",
+      "photoAlt": "Stand von Planet Claire auf dem Markt {name}"
+    }
   },
   "a11y": {
     "skipToContent": "Zum Inhalt springen",
@@ -183,7 +197,7 @@
     "descriptions": {
       "default": "Planet Claire aus Berlin: Tattoos, handgemachte Unikat-Keramik und Zeichnungen von Jutta – Einzelstücke, Tattoo-Termine und Auftragsarbeiten.",
       "home": "Planet Claire aus Berlin: Tattoos, handgemachte Unikat-Keramik und Zeichnungen von Jutta. Stöbere im Shop, entdecke Flash-Motive oder frag ein Tattoo an.",
-      "contact": "So erreichst du Planet Claire in Berlin: Fragen zu Unikaten, Bestellungen, Tattoo-Terminen oder Auftragsarbeiten – per Mail oder über Instagram.",
+      "contact": "So erreichst du Planet Claire in Berlin: Fragen zu Unikaten, Bestellungen, Tattoo-Terminen oder Auftragsarbeiten – per Mail.",
       "legal": "Rechtliche Informationen von Planet Claire, Berlin: Impressum, Datenschutz, AGB, Widerrufsbelehrung sowie Versand und Zahlung für den Unikat-Shop.",
       "withdrawal": "Hier kannst du einen Vertrag mit Planet Claire widerrufen: Bestellung angeben, Erklärung absenden und sofort eine Eingangsbestätigung per E-Mail erhalten.",
       "conformity": "Konformitätserklärungen von Planet Claire, Berlin, zu handgemachter Keramik mit Lebensmittelkontakt – aktuelle Erklärungen zum Ansehen und Herunterladen.",
@@ -199,26 +213,22 @@
       "defaultAlt": "Planet Claire – Tattoos & Unikate aus Berlin"
     },
     "tattoo": {
-      "R11": "Tattoos von Planet Claire in Berlin: Fine Line mit Humor im Privatstudio. Flash-Motive mit Festpreis, Aktionen, Preise, Galerie und Anfrage per Mail oder DM.",
-      "R12": "Flash-Motive von Planet Claire, Berlin: fertige Fine-Line-Zeichnungen mit Festpreis, einmalig oder wiederholbar – anfragen per Mail oder Instagram-DM.",
-      "R13": "Flash-Days und Tattoo-Aktionen von Planet Claire in Berlin: Termine, Motive und Preise der laufenden und kommenden Aktionen im Privatstudio auf einen Blick.",
+      "R11": "Tattoos von Planet Claire in Berlin: Fine Line mit Humor im Privatstudio. Flash-Motive mit Festpreis, Preise, Galerie und Anfrage per Mail.",
+      "R12": "Flash-Motive von Planet Claire, Berlin: fertige Fine-Line-Zeichnungen mit Festpreis, einmalig oder wiederholbar – anfragen per Mail.",
       "R14": "Tattoo-Preise bei Planet Claire, Berlin: Mindestpreis, Festpreise für Flash, Preisrahmen für eigene Ideen und wie wir die Anzahlung persönlich vereinbaren.",
       "R15": "Galerie von Planet Claire, Berlin: frisch gestochene und abgeheilte Fine-Line-Tattoos – gezeigt nur mit Einwilligung der Menschen, die sie tragen.",
-      "R16": "So läuft ein Tattoo-Termin bei Planet Claire in Berlin ab: Anfrage per Mail oder DM, Termin, Anzahlung, Stechen im Privatstudio und Pflege danach.",
+      "R16": "So läuft ein Tattoo-Termin bei Planet Claire in Berlin ab: Anfrage per Mail, Termin, Anzahlung, Stechen im Privatstudio und Pflege danach.",
       "R17": "Tattoo-Aftercare von Planet Claire, Berlin: Pflege in Phasen von direkt danach bis langfristig, Warnzeichen für den Arztbesuch – auch zum Ausdrucken.",
-      "R18": "Häufige Fragen an Planet Claire in Berlin: Mindestalter, Privatstudio, Anzahlung, Termin verschieben, Coco im Studio, Farbe, Cover-ups und Mail oder DM."
+      "R18": "Häufige Fragen an Planet Claire in Berlin: Mindestalter, Privatstudio, Anzahlung, Termin verschieben, Coco im Studio, Farbe, Cover-ups und Anfrage per Mail."
     }
   },
   "contact": {
     "emailLabel": "E-Mail",
-    "instagramLabel": "Instagram",
-    "instagramProfile": "Profil @{handle}",
-    "instagramDm": "Direktnachricht auf Instagram",
     "studio": "Privatstudio in Berlin-{district}",
     "withdrawHint": "Du willst einen Vertrag widerrufen?",
     "legalNoticeHint": "Angaben zur Anbieterin:",
     "emptyTitle": "Die Kontaktseite entsteht gerade",
-    "emptyText": "Schreib mir einfach eine Mail oder auf Instagram.",
+    "emptyText": "Schreib mir einfach eine Mail.",
     "copyEmail": "Adresse kopieren",
     "copied": "Kopiert",
     "copyFailed": "Kopieren hat nicht geklappt – bitte markieren und kopieren."
@@ -1107,10 +1117,8 @@
     "subnavOverview": "Übersicht",
     "star": "*",
     "overview": {
-      "lead": "Fine Line mit Humor, gestochen in meinem Privatstudio in Berlin. Hier findest du freie Motive, Aktionen, Preise und alles rund um deinen Termin.",
+      "lead": "Fine Line mit Humor, gestochen in meinem Privatstudio in Berlin. Hier findest du freie Motive, Preise und alles rund um deinen Termin.",
       "styleHeading": "Mein Stil",
-      "offerHeading": "Nächste Aktion",
-      "offersAll": "Alle Angebote",
       "flashHeading": "Flash – gerade frei",
       "flashAll": "Alle Flash-Motive",
       "galleryHeading": "Fresh & healed",
@@ -1118,7 +1126,6 @@
       "pagesHeading": "Alles rund ums Tattoo",
       "pageHints": {
         "R12": "Fertige Motive mit Festpreis – such dir eins aus.",
-        "R13": "Flash-Days und Aktionen, solange sie laufen.",
         "R14": "Mindestpreis, Preisrahmen für eigene Ideen und die Anzahlung.",
         "R15": "Frisch gestochen und abgeheilt.",
         "R16": "Von der Anfrage bis zur Pflege in fünf Schritten.",
@@ -1127,7 +1134,7 @@
       }
     },
     "flash": {
-      "intro": "Fertige Motive mit Festpreis. Einmalige Motive steche ich nur ein einziges Mal, wiederholbare auch öfter. Frag einfach per Mail oder DM an.",
+      "intro": "Fertige Motive mit Festpreis. Einmalige Motive steche ich nur ein einziges Mal, wiederholbare auch öfter. Frag einfach per Mail an.",
       "filterLabel": "Flash-Motive filtern",
       "all": "Alle",
       "available": "verfügbar",
@@ -1140,36 +1147,16 @@
       "taken": "vergeben",
       "takenText": "Schon vergeben – schau dir die anderen an",
       "mail": "Per Mail anfragen",
-      "dm": "Per DM anfragen",
-      "snippetHint": "Schick mir das in die DM",
       "copy": "Kopieren",
       "copied": "Kopiert",
       "copyFailed": "Markiert – jetzt kopieren",
       "price": "Preis",
       "emptyTitle": "Gerade keine Flash-Motive online",
-      "emptyText": "Schau auf Instagram vorbei – da zeige ich neue Motive zuerst.",
-      "emptyAction": "Zu Instagram",
+      "emptyText": "Gerade sind keine Motive online. Schreib mir gern deine eigene Idee.",
+      "emptyAction": "Zum Ablauf",
       "allTakenTitle": "Gerade sind alle Flash-Motive vergeben.",
-      "allTakenText": "Schau bei den Angeboten vorbei oder schreib mir deine eigene Idee.",
-      "allTakenAction": "Zu den Angeboten"
-    },
-    "offers": {
-      "intro": "Flash-Days und Aktionen. Ist eine Aktion vorbei, verschwindet sie von hier.",
-      "listHeading": "Laufende und kommende Aktionen",
-      "running": "läuft gerade",
-      "startsIn": "{days, plural, =0 {heute} one {morgen} other {in # Tagen}}",
-      "time": "{from}–{to} Uhr",
-      "dateLabel": "Datum",
-      "flashHeading": "Motive für diese Aktion",
-      "mail": "Per Mail anfragen",
-      "dm": "Per DM anfragen",
-      "types": {
-        "flash_day": "Flash-Day",
-        "aktion": "Aktion"
-      },
-      "emptyTitle": "Gerade keine Aktion",
-      "emptyText": "Folge @{handle}, dann verpasst du nichts.",
-      "emptyAction": "Zu Instagram"
+      "allTakenText": "Schreib mir deine eigene Idee per Mail.",
+      "allTakenAction": "Zum Kontakt"
     },
     "prices": {
       "intro": "Alle Preise sind Gesamtpreise – so viel zahlst du am Ende, nicht mehr.",
@@ -1203,8 +1190,8 @@
       "dialog": "Foto in groß",
       "close": "Schließen",
       "emptyTitle": "Hier kommen bald Fotos",
-      "emptyText": "Bis dahin findest du frische Tattoos auf Instagram.",
-      "emptyAction": "Zu Instagram"
+      "emptyText": "Bis dahin schau dir die Flash-Motive an.",
+      "emptyAction": "Zu den Flash-Motiven"
     },
     "process": {
       "intro": "So läuft es vom ersten Hallo bis zur Pflege – ganz ohne Online-Buchung.",
@@ -1212,7 +1199,7 @@
       "steps": {
         "1": {
           "title": "Anfrage",
-          "text": "Schreib mir per Mail oder DM: Idee oder Flash-Nummer, Stelle am Körper, ungefähre Größe."
+          "text": "Schreib mir per Mail: Idee oder Flash-Nummer, Stelle am Körper, ungefähre Größe."
         },
         "2": {
           "title": "Termin",
@@ -1247,13 +1234,12 @@
     "faq": {
       "intro": "Die häufigsten Fragen rund um deinen Termin. Fehlt etwas? Schreib mir.",
       "emptyTitle": "Noch keine Fragen",
-      "emptyText": "Frag mich einfach per Mail oder DM."
+      "emptyText": "Frag mich einfach per Mail."
     },
     "contact": {
-      "heading": "Anfragen per Mail oder DM",
+      "heading": "Anfrage per Mail",
       "intro": "Kein Formular, keine Online-Buchung – schreib mir einfach.",
       "mail": "Mail schreiben",
-      "dm": "Instagram-DM",
       "emailLabel": "E-Mail-Adresse",
       "copy": "Adresse kopieren",
       "copied": "Kopiert",
@@ -1261,12 +1247,10 @@
     },
     "mail": {
       "subjectFlash": "Flash-Anfrage {number} – {title}",
-      "subjectOffer": "Anfrage {title} am {date}",
       "subjectGeneral": "Tattoo-Anfrage",
       "subjectCustom": "Tattoo-Anfrage – eigene Idee",
       "greeting": "Hi Jutta,",
       "introFlash": "ich interessiere mich für Flash {number} („{title}“).",
-      "introOffer": "ich interessiere mich für „{title}“ am {date}.",
       "introGeneral": "ich interessiere mich für ein Tattoo.",
       "introCustom": "ich habe eine eigene Idee für ein Tattoo.",
       "fieldIdea": "Meine Idee:",
@@ -1305,7 +1289,7 @@
     "formPlaceholder": "Das Formular ist gleich da. Bis dahin schreib mir gern eine Mail.",
     "faqHeading": "Fragen zu Auftragsarbeiten",
     "contactHeading": "Lieber direkt schreiben?",
-    "contactText": "Du kannst mir deine Idee auch per Mail oder als Instagram-Nachricht schicken.",
+    "contactText": "Du kannst mir deine Idee auch direkt per Mail schicken.",
     "emailSubject": "Auftragsarbeit – meine Idee",
     "form": {
       "requiredNote": "* Pflichtfeld",
@@ -1388,10 +1372,9 @@
     "whatShop": "Shop",
     "whatTattoo": "Tattoo",
     "whatCommissions": "Auftragsarbeiten",
-    "instagram": "Mehr von uns auf Instagram",
     "cocoAlt": "Coco, gezeichnet",
     "emptyTitle": "Hier zieht gerade etwas um.",
-    "emptyText": "Die Seite über Jutta und Coco ist gleich wieder da. Bis dahin: schau im Shop vorbei oder auf Instagram.",
+    "emptyText": "Die Seite über Jutta und Coco ist gleich wieder da. Bis dahin: schau im Shop vorbei.",
     "emptyAction": "Zum Shop"
   },
   "qa": {

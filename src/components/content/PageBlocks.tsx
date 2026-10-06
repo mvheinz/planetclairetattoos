@@ -45,7 +45,6 @@ export function PageBlocks({
                 contact={contact}
                 heading={block.heading}
                 showEmail={block.showEmail}
-                showInstagram={block.showInstagram}
                 showDistrict={block.showDistrict}
                 emailSubject={block.emailSubject}
               />

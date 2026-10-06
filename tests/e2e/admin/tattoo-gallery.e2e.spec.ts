@@ -43,7 +43,7 @@ test.beforeEach(async () => {
       showsCustomer: true,
       consentGiven: true,
       consentDate: '2026-09-01T12:00:00.000Z',
-      consentNote: 'per DM am 01.09.2026',
+      consentNote: 'per Mail am 01.09.2026',
       published: true,
       sortOrder: 0,
     } as never,

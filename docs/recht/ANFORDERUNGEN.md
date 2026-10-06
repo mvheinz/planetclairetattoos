@@ -195,7 +195,7 @@ Lücken in der Nummerierung sind Reserve.
 | R-161 | Verträge über Auftragsarbeiten außerhalb des Shops | P7, P11 | manuell | ja | §7 |
 | R-162 | Keine weiteren Datenerhebungen | P10 | e2e | nein | `tests/e2e/privacy/forms.e2e.spec.ts` |
 | R-170 | Tattoo-Bereich ohne Online-Vertragsschluss | P7 | unit, int, e2e | nein | `tests/unit/legal/tattoo-content.unit.spec.ts`, `tests/unit/tattoo/mailto.unit.spec.ts`, `tests/int/legal/tattoo-cart.int.spec.ts`, `tests/e2e/tattoo/no-purchase.e2e.spec.ts`, `tests/e2e/tattoo/flash.e2e.spec.ts` |
-| R-171 | Abgelaufene Flash-Days/Aktionen ausblenden | P7 | int | nein | `tests/int/tattoo/offers.int.spec.ts`, `tests/int/jobs/revalidate-offers.int.spec.ts`, `tests/e2e/tattoo/offers.e2e.spec.ts` |
+| R-171 | (entfallen, P12.7/U-14: „Angebote“ gibt es nicht mehr; Prüfung: R13 = 404) | P7 | e2e | nein | `tests/e2e/tattoo/seed-tattoo.e2e.spec.ts` |
 | R-172 | Portfolio-Fotos nur mit Einwilligung | P7 | int | ja | `tests/int/legal/gallery-consent.int.spec.ts`, `tests/int/legal/gallery-withdraw.int.spec.ts`, `tests/e2e/tattoo/gallery.e2e.spec.ts` |
 | R-180 | Beispielbestand kennzeichnen und entfernbar | P8 | int | nein | `tests/int/seed/admin-remove.int.spec.ts`, `tests/int/collections/logs.int.spec.ts`, `tests/unit/seed/persons.unit.spec.ts`, `tests/e2e/admin-seed.e2e.spec.ts` |
 | R-181 | `SEED_PREVIEW_MODE` nie in Produktion | P8 | unit, int | nein | `tests/unit/env/seed-preview.unit.spec.ts`, `tests/unit/env/assert-production.unit.spec.ts`, `tests/int/media/owner-approved.int.spec.ts`, `tests/int/legal/gallery-consent.int.spec.ts` |
@@ -471,8 +471,7 @@ Lücken in der Nummerierung sind Reserve.
 - **Phase:** P3 · **Owner:** nein
 
 #### R-034 · Tattoo-Preise als Gesamtpreise
-- **Anforderung:** Flash-Festpreise (`flash.priceCents`), Preisangaben zu Flash-Days (`tattoo-offers.priceNote`),
-  Mindestpreis (`settings.tattoo.minPriceCents`) und Preisrahmen für Custom-Motive (`settings.tattoo.customPriceFromCents`
+- **Anforderung:** Flash-Festpreise (`flash.priceCents`),   Mindestpreis (`settings.tattoo.minPriceCents`) und Preisrahmen für Custom-Motive (`settings.tattoo.customPriceFromCents`
   / `customPriceToCents`, E-53) werden als Gesamtpreise in Euro mit Baustein `price.tattooNote` angezeigt. „ab“-Preise
   nur, wenn der genannte Preis tatsächlich angeboten wird. Keine Anzahlungsbeträge mit Verfallsklausel (V-24).
 - **Rechtsgrundlage:** § 3 PAngV; § 5 UWG; E-53.
@@ -1354,8 +1353,8 @@ Lücken in der Nummerierung sind Reserve.
 - **Phase:** P4, P6, P7 · **Owner:** nein
 
 #### R-139 · Instagram nur als Link
-- **Anforderung:** Instagram nur als einfacher Link (`https://www.instagram.com/planet.claire.tattoos/`,
-  DM: `https://ig.me/m/planet.claire.tattoos`, jeweils `rel="noopener noreferrer"`). Bilder nur als selbst gehostete
+- **Anforderung:** Instagram nur als einfacher Link (`https://www.instagram.com/planet.claire.tattoos/`, `rel="noopener noreferrer"`), seit P12.7 (U-15) nur im Fuß und im Menü, ohne
+  Direktnachricht-Link und ohne Anfrage-Aufforderung. Bilder nur als selbst gehostete
   Kopien (E-64). Kein Embed, kein oEmbed, kein Feed über die Graph-API, kein Widget.
 - **Rechtsgrundlage:** § 25 TDDDG; EuGH C-40/17; Art. 26 DSGVO.
 - **Abnahme:** `unit` – V-05-Scan.
@@ -1505,18 +1504,13 @@ Lücken in der Nummerierung sind Reserve.
 - **Rechtsgrundlage:** §§ 312c, 312g, 356a BGB (kein Online-Vertrag); Art. 9 DSGVO (keine Gesundheitsdaten über die
   Website); E-51, E-53. Kanzlei: K-26.
 - **Abnahme:** `int` – Warenkorb-API lehnt Tattoo-IDs ab; `e2e` – Mail-Knopf hat `href` `mailto:…?subject=…` mit
-  „Flash-Anfrage F-…“, DM-Knopf verlinkt `ig.me`; `unit` – V-24/V-25-Scan der Tattoo-Inhalte.
+  „Flash-Anfrage F-…“; kein DM-Knopf (P12.7); `unit` – V-24/V-25-Scan der Tattoo-Inhalte.
 - **Phase:** P7 · **Owner:** nein
 
-#### R-171 · Abgelaufene Flash-Days/Aktionen ausblenden
-- **Anforderung:** E-53. Angebote (`tattoo-offers`), deren `endsAt` erreicht ist (Standard: Ende des Starttags,
-  23:59 Europe/Berlin), erscheinen nicht mehr öffentlich. Es wird **kein** Status gespeichert: Die öffentliche Abfrage
-  filtert `endsAt > jetzt`, und der Task `revalidateEndedOffers` rendert zwischengespeicherte Seiten zu Beginn und Ende
-  jedes Angebots neu (Weckzeit, spätestens 15 min nach `endsAt`).
-- **Rechtsgrundlage:** § 5 UWG (keine abgelaufenen Angebote bewerben); E-53.
-- **Abnahme:** `int` – Angebot mit `endsAt` in der Vergangenheit wird nicht ausgeliefert; nach Ablauf (vorgestellte
-  Uhr) ist es spätestens nach dem nächsten Task-Lauf von allen Seiten verschwunden.
-- **Phase:** P7 · **Owner:** nein
+#### R-171 · (entfallen) Abgelaufene Flash-Days/Aktionen ausblenden
+- **Anforderung:** Entfällt mit P12.7 (U-14): Es gibt keine Angebote, Flash-Days oder Aktionen mehr; die Route R13 liefert 404.
+- **Abnahme:** `e2e` – `tests/e2e/tattoo/seed-tattoo.e2e.spec.ts` (AK-9-03).
+- **Phase:** P12 · **Owner:** nein
 
 #### R-172 · Portfolio-Fotos nur mit Einwilligung
 - **Anforderung:** E-42. Je Galerie-Eintrag (`tattoo-gallery`, DATENMODELL §6.16): `showsCustomer` (Standard

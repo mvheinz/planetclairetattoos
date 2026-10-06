@@ -615,20 +615,7 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
       for (const lang of LOCALES)
         expect(builtIds.has(`${id}:${lang}`), `${id} ${lang} gebaut`).toBe(true)
     // P4.25 EK-11 / P8.21: Danke- und Statusseiten mit den Seed-Ankern gebaut; R19 und alle Tattoo-Routen `ok`.
-    for (const id of [
-      'R08',
-      'R09',
-      'R10',
-      'R11',
-      'R12',
-      'R13',
-      'R14',
-      'R15',
-      'R16',
-      'R17',
-      'R18',
-      'R19',
-    ])
+    for (const id of ['R08', 'R09', 'R10', 'R11', 'R12', 'R14', 'R15', 'R16', 'R17', 'R18', 'R19'])
       for (const lang of LOCALES)
         expect(builtIds.has(`${id}:${lang}`), `${id} ${lang} gebaut (ok)`).toBe(true)
     for (const variant of [

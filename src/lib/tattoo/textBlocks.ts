@@ -209,13 +209,6 @@ export const PAGE_TEXT_BLOCKS: Readonly<Record<string, BlockDef>> = {
       },
     ],
   },
-  offersList: {
-    label: 'Aktionen',
-    fields: [
-      HEADING,
-      { name: 'emptyText', label: 'Text, wenn keine Aktion läuft', kind: 'text', maxLength: 200 },
-    ],
-  },
   contactLinks: {
     label: 'Kontakt-Links',
     fields: [

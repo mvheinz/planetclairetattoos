@@ -1,12 +1,11 @@
 import de from '@/i18n/messages/de.json'
 import en from '@/i18n/messages/en.json'
 import type { Locale } from '@/lib/enums'
-import { formatBerlin } from '@/lib/time'
 
 import { formatFlashNumber } from './flash'
 
 // Mail-Knöpfe des Tattoo-Bereichs (KONZEPT §9.4, E-51, R-170): `mailto:` nach RFC 6068 mit Betreff und Text-Vorlage
-// je Anlass (Flash, Angebot, allgemein, eigene Idee) in DE/EN. Die Vorlage enthält nie vorbefüllte Personendaten und
+// je Anlass (Flash, allgemein, eigene Idee) in DE/EN. Die Vorlage enthält nie vorbefüllte Personendaten und
 // immer den Satz „(Bitte keine Gesundheitsinfos – die klären wir persönlich.)“. Texte aus den Nachrichten
 // (`tattoo.mail.*`), damit Jutta sie mit den übrigen Texten übersetzt bekommt. Rein, ohne Datenbank.
 
@@ -45,16 +44,7 @@ export function buildMailto({
 
 /** Anlass einer Tattoo-Mail (KONZEPT §9.4). */
 export type TattooMailTopic =
-  | { kind: 'flash'; number: number; title: string }
-  | { kind: 'offer'; title: string; startsAt: Date | string }
-  | { kind: 'general' }
-  | { kind: 'custom' }
-
-/** Datum im Angebots-Betreff: DE „12.10.2026“, EN „12 Oct 2026“ (Europe/Berlin). */
-export function offerDateText(startsAt: Date | string, locale: Locale): string {
-  const d = typeof startsAt === 'string' ? new Date(startsAt) : startsAt
-  return locale === 'en' ? formatBerlin(d, 'd MMM yyyy', 'en') : formatBerlin(d, 'dd.MM.yyyy')
-}
+  { kind: 'flash'; number: number; title: string } | { kind: 'general' } | { kind: 'custom' }
 
 /** Betreff je Anlass, z. B. `Flash-Anfrage F-012 – Kelch mit Schlange` (AK-9-02). */
 export function tattooMailSubject(topic: TattooMailTopic, locale: Locale): string {
@@ -64,11 +54,6 @@ export function tattooMailSubject(topic: TattooMailTopic, locale: Locale): strin
       return fill(m.subjectFlash, {
         number: formatFlashNumber(topic.number),
         title: topic.title.trim(),
-      })
-    case 'offer':
-      return fill(m.subjectOffer, {
-        title: topic.title.trim(),
-        date: offerDateText(topic.startsAt, locale),
       })
     case 'custom':
       return m.subjectCustom
@@ -88,12 +73,6 @@ export function tattooMailBody(topic: TattooMailTopic, locale: Locale): string {
         title: topic.title.trim(),
       })
       break
-    case 'offer':
-      intro = fill(m.introOffer, {
-        title: topic.title.trim(),
-        date: offerDateText(topic.startsAt, locale),
-      })
-      break
     case 'custom':
       intro = m.introCustom
       break
@@ -109,7 +88,7 @@ export function tattooMailBody(topic: TattooMailTopic, locale: Locale): string {
   return [m.greeting, '', intro, '', ...fields, '', m.health, '', m.closing].join('\n')
 }
 
-/** Fertiger Mail-Link eines Anlasses; ohne Adresse `null` (Knopf entfällt, die DM bleibt). */
+/** Fertiger Mail-Link eines Anlasses; ohne Adresse `null` (Knopf entfällt). */
 export function tattooMailto(
   to: string | null | undefined,
   topic: TattooMailTopic,
@@ -121,9 +100,4 @@ export function tattooMailto(
     subject: tattooMailSubject(topic, locale),
     body: tattooMailBody(topic, locale),
   })
-}
-
-/** Kopierbarer DM-Baustein „F-012 – Kelch mit Schlange“ (KONZEPT §9.4). */
-export function flashDmSnippet(number: number, title: string): string {
-  return `${formatFlashNumber(number)} – ${title.trim()}`
 }

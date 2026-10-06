@@ -27,7 +27,7 @@ import {
 
 // Admin-Endpunkte der Tattoo-Verwaltung `/tattoo` (PLAN P7.6–P7.9, alle nur für die Verwaltung):
 // `GET /api/flash/next-number` · `POST /api/flash/:id/status` `{ status }` · `POST /api/flash/:id/published`
-// `{ published }` · `POST /api/{flash,tattoo-offers,faqs,pages}/:id/translate` `{ force }` ·
+// `{ published }` · `POST /api/{flash,faqs,pages,tour-dates}/:id/translate` `{ force }` ·
 // `POST /api/tattoo-gallery/:id/withdraw-consent` `{ email?, locale? }` · `POST /api/pages/tattoo-texts`
 // `{ key, blocks, title? }` · `POST /api/faqs/tattoo-save` `{ id?, category, question, answer, published }` ·
 // `POST /api/faqs/:id/move` `{ direction }` · `POST /api/{flash,tattoo-gallery,media}/:id/adopt` (P8.19) ·
@@ -98,7 +98,7 @@ function plainAction(
 }
 
 /** `POST /api/{flash,tattoo-gallery,media}/:id/adopt` – Beispiel übernehmen (DATENMODELL §13.4, PLAN P8.19). */
-const adopt = (collection: 'flash' | 'tattoo-gallery' | 'media') =>
+const adopt = (collection: 'flash' | 'tattoo-gallery' | 'media' | 'tour-dates') =>
   idAction('adopt', (req, id) => adoptSeedDocument(req, collection, id))
 
 /** `GET /api/media/:id/enhance-preview` – Vorher/Nachher des Foto-Looks (DESIGN §12.2 Schritt 6, P9.14). */
@@ -122,7 +122,7 @@ const enhancePreview: Endpoint = {
 
 export const mediaAdminEndpoints: Endpoint[] = [adopt('media'), enhancePreview]
 
-const translate = (collection: 'flash' | 'tattoo-offers' | 'faqs') =>
+const translate = (collection: 'flash' | 'faqs' | 'tour-dates') =>
   idAction('translate', (req, id, body) =>
     translateTattooDocument(req, collection, id, { force: body.force === true }),
   )
@@ -151,7 +151,8 @@ export const flashAdminEndpoints: Endpoint[] = [
   adopt('flash'),
 ]
 
-export const offerAdminEndpoints: Endpoint[] = [translate('tattoo-offers')]
+/** `POST /api/tour-dates/:id/translate` und `/adopt` (P12.8, „Planet Claire on Tour“). */
+export const tourAdminEndpoints: Endpoint[] = [translate('tour-dates'), adopt('tour-dates')]
 
 export const galleryAdminEndpoints: Endpoint[] = [
   idAction('withdraw-consent', (req, id, body) =>

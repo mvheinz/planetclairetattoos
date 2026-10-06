@@ -1,15 +1,12 @@
 import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
-import { Icon } from '@/components/icons/Icon'
-import { instagramDmUrl, type ContactInfo } from '@/lib/data/contact'
-import { instagramUrl } from '@/lib/data/navigation'
+import type { ContactInfo } from '@/lib/data/contact'
 import type { Locale } from '@/lib/routes/registry'
 
 import styles from './ContactLinks.module.css'
 
-// Block `contactLinks` (KONZEPT §3.13): E-Mail als `mailto:` (optional mit Betreff), Instagram-Profil und
-// Direktnachricht, „Privatstudio in Berlin-{Bezirk}“. Werte nur aus `getPublicSettings()`; kein Formular (E-51).
+// Block `contactLinks` (KONZEPT §3.13): E-Mail als `mailto:` (optional mit Betreff), „Privatstudio in Berlin-{Bezirk}“. Werte nur aus `getPublicSettings()`; kein Formular (E-51).
 // „Adresse kopieren“ (Modul `copy-button`, ohne JavaScript verborgen – die Adresse steht als markierbarer Text daneben;
 // P6.5, R-023).
 export interface ContactLinksProps {
@@ -17,7 +14,6 @@ export interface ContactLinksProps {
   contact: ContactInfo
   heading?: string | null
   showEmail?: boolean | null
-  showInstagram?: boolean | null
   showDistrict?: boolean | null
   emailSubject?: string | null
 }
@@ -27,7 +23,6 @@ export async function ContactLinks({
   contact,
   heading,
   showEmail = true,
-  showInstagram = true,
   showDistrict = true,
   emailSubject,
 }: ContactLinksProps) {
@@ -64,28 +59,6 @@ export async function ContactLinks({
               role="status"
               aria-live="polite"
             />
-          </li>
-        ) : null}
-        {showInstagram !== false ? (
-          <li>
-            <span className={styles.label}>{t('instagramLabel')}</span>
-            <a
-              href={instagramUrl(contact.instagramHandle)}
-              rel="noopener noreferrer"
-              className={styles.link}
-              data-contact-instagram=""
-            >
-              <Icon name="instagram" size={22} />
-              {t('instagramProfile', { handle: contact.instagramHandle })}
-            </a>
-            <a
-              href={instagramDmUrl(contact.instagramHandle)}
-              rel="noopener noreferrer"
-              className={styles.link}
-              data-contact-dm=""
-            >
-              {t('instagramDm')}
-            </a>
           </li>
         ) : null}
         {showDistrict !== false && contact.studioDistrict ? (

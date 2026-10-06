@@ -84,8 +84,8 @@ export interface Config {
     'legal-snippets': LegalSnippet;
     complaints: Complaint;
     flash: Flash;
-    'tattoo-offers': TattooOffer;
     'tattoo-gallery': TattooGallery;
+    'tour-dates': TourDate;
     inquiries: Inquiry;
     faqs: Faq;
     pages: Page;
@@ -128,8 +128,8 @@ export interface Config {
     'legal-snippets': LegalSnippetsSelect<false> | LegalSnippetsSelect<true>;
     complaints: ComplaintsSelect<false> | ComplaintsSelect<true>;
     flash: FlashSelect<false> | FlashSelect<true>;
-    'tattoo-offers': TattooOffersSelect<false> | TattooOffersSelect<true>;
     'tattoo-gallery': TattooGallerySelect<false> | TattooGallerySelect<true>;
+    'tour-dates': TourDatesSelect<false> | TourDatesSelect<true>;
     inquiries: InquiriesSelect<false> | InquiriesSelect<true>;
     faqs: FaqsSelect<false> | FaqsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
@@ -178,7 +178,6 @@ export interface Config {
       invoiceIntegrityCheck: TaskInvoiceIntegrityCheck;
       complianceDocsReview: TaskComplianceDocsReview;
       activateScheduledLegalTexts: TaskActivateScheduledLegalTexts;
-      revalidateEndedOffers: TaskRevalidateEndedOffers;
       retentionAbandonedCheckouts: TaskRetentionAbandonedCheckouts;
       retentionOrderMinimize: TaskRetentionOrderMinimize;
       retentionOrders: TaskRetentionOrders;
@@ -1806,7 +1805,7 @@ export interface TattooGallery {
   consentScope?: ('tattoo_only' | 'with_face') | null;
   consentDate?: string | null;
   /**
-   * z. B. „per DM am 02.10.2026“
+   * z. B. „per Mail am 02.10.2026“
    */
   consentNote?: string | null;
   consentEvidence?: (number | null) | PrivateUpload;
@@ -1999,31 +1998,49 @@ export interface LegalSnippet {
   createdAt: string;
 }
 /**
- * Flash-Days und Aktionen. Nach dem Ende verschwindet ein Angebot automatisch von der Website.
+ * Märkte, Flohmärkte und Kunstmärkte („Planet Claire on Tour“, rechte Spalte der Startseite). Vergangene Termine stehen eingeklappt.
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tattoo-offers".
+ * via the `definition` "tour-dates".
  */
-export interface TattooOffer {
+export interface TourDate {
   id: number;
-  type: 'flash_day' | 'aktion';
-  title: string;
-  description: string;
+  name: string;
   startsAt: string;
   /**
-   * Leer = Ende des Starttags (23:59 Uhr). Ab hier unsichtbar.
+   * Leer = eintägig. Der letzte Tag zählt bis 23:59 Uhr.
    */
-  endsAt: string;
+  endsAt?: string | null;
   /**
-   * Keine Adresse – nur der Bezirk.
+   * z. B. „Berlin-Prenzlauer Berg“
    */
-  locationNote?: string | null;
+  place: string;
+  /**
+   * Adresse des Marktes, nicht die des Privatstudios.
+   */
+  address?: string | null;
+  /**
+   * Nur ein Textlink zur Seite des Marktes (keine Karte).
+   */
+  link?: string | null;
+  standNumber?: string | null;
+  /**
+   * z. B. 10:00
+   */
+  timeFrom?: string | null;
+  /**
+   * z. B. 18:00
+   */
+  timeTo?: string | null;
+  /**
+   * Kurz, z. B. „Coco ist dabei.“
+   */
+  note?: string | null;
   image?: (number | null) | Media;
-  flashes?: (number | Flash)[] | null;
   /**
-   * Gesamtpreise nennen.
+   * „Vorbei“ wird nach dem Datum automatisch gesetzt – du musst nichts tun.
    */
-  priceNote?: string | null;
+  status: 'planned' | 'cancelled' | 'past';
   published?: boolean | null;
   seed?: boolean | null;
   seedKey?: string | null;
@@ -2202,13 +2219,6 @@ export interface Page {
           }
         | {
             heading?: string | null;
-            emptyText?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'offersList';
-          }
-        | {
-            heading?: string | null;
             filter?: ('all' | 'fresh' | 'healed') | null;
             limit?: number | null;
             id?: string | null;
@@ -2283,7 +2293,6 @@ export interface Page {
         | {
             heading?: string | null;
             showEmail?: boolean | null;
-            showInstagram?: boolean | null;
             showDistrict?: boolean | null;
             emailSubject?: string | null;
             id?: string | null;
@@ -2569,7 +2578,6 @@ export interface PayloadJob {
           | 'invoiceIntegrityCheck'
           | 'complianceDocsReview'
           | 'activateScheduledLegalTexts'
-          | 'revalidateEndedOffers'
           | 'retentionAbandonedCheckouts'
           | 'retentionOrderMinimize'
           | 'retentionOrders'
@@ -2632,7 +2640,6 @@ export interface PayloadJob {
         | 'invoiceIntegrityCheck'
         | 'complianceDocsReview'
         | 'activateScheduledLegalTexts'
-        | 'revalidateEndedOffers'
         | 'retentionAbandonedCheckouts'
         | 'retentionOrderMinimize'
         | 'retentionOrders'
@@ -2731,12 +2738,12 @@ export interface PayloadLockedDocument {
         value: number | Flash;
       } | null)
     | ({
-        relationTo: 'tattoo-offers';
-        value: number | TattooOffer;
-      } | null)
-    | ({
         relationTo: 'tattoo-gallery';
         value: number | TattooGallery;
+      } | null)
+    | ({
+        relationTo: 'tour-dates';
+        value: number | TourDate;
       } | null)
     | ({
         relationTo: 'inquiries';
@@ -3700,26 +3707,6 @@ export interface FlashSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tattoo-offers_select".
- */
-export interface TattooOffersSelect<T extends boolean = true> {
-  type?: T;
-  title?: T;
-  description?: T;
-  startsAt?: T;
-  endsAt?: T;
-  locationNote?: T;
-  image?: T;
-  flashes?: T;
-  priceNote?: T;
-  published?: T;
-  seed?: T;
-  seedKey?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tattoo-gallery_select".
  */
 export interface TattooGallerySelect<T extends boolean = true> {
@@ -3743,6 +3730,29 @@ export interface TattooGallerySelect<T extends boolean = true> {
   published?: T;
   featured?: T;
   sortOrder?: T;
+  seed?: T;
+  seedKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tour-dates_select".
+ */
+export interface TourDatesSelect<T extends boolean = true> {
+  name?: T;
+  startsAt?: T;
+  endsAt?: T;
+  place?: T;
+  address?: T;
+  link?: T;
+  standNumber?: T;
+  timeFrom?: T;
+  timeTo?: T;
+  note?: T;
+  image?: T;
+  status?: T;
+  published?: T;
   seed?: T;
   seedKey?: T;
   updatedAt?: T;
@@ -3890,14 +3900,6 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
-        offersList?:
-          | T
-          | {
-              heading?: T;
-              emptyText?: T;
-              id?: T;
-              blockName?: T;
-            };
         tattooGallery?:
           | T
           | {
@@ -3957,7 +3959,6 @@ export interface PagesSelect<T extends boolean = true> {
           | {
               heading?: T;
               showEmail?: T;
-              showInstagram?: T;
               showDistrict?: T;
               emailSubject?: T;
               id?: T;
@@ -5287,22 +5288,6 @@ export interface TaskActivateScheduledLegalTexts {
     activated?: number | null;
     failed?: number | null;
     nextDueAt?: string | null;
-  };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "TaskRevalidateEndedOffers".
- */
-export interface TaskRevalidateEndedOffers {
-  input?: unknown;
-  output: {
-    skipped: boolean;
-    revalidated?: boolean | null;
-    boundaries?: number | null;
-    period?: string | null;
-    handledUntil?: string | null;
-    nextDueAt?: string | null;
-    targets?: number | null;
   };
 }
 /**

@@ -16,7 +16,7 @@ const WITHDRAW_H1: Record<Locale, string> = {
 
 test.describe('Kontakt R20 @smoke', () => {
   for (const locale of LOCALES) {
-    test(`R-010 ${locale}: 200, eine h1, E-Mail und Instagram aus den Einstellungen, kein Formular @smoke`, async ({
+    test(`R-010 ${locale}: 200, eine h1, E-Mail aus den Einstellungen, kein Formular @smoke`, async ({
       page,
     }) => {
       const path = localizedPath('R20', locale)
@@ -29,14 +29,8 @@ test.describe('Kontakt R20 @smoke', () => {
         'href',
         new RegExp(`^mailto:${EMAIL.replace('.', '\\.')}`),
       )
-      await expect(main.locator('[data-contact-instagram]')).toHaveAttribute(
-        'href',
-        'https://www.instagram.com/planet.claire.tattoos/',
-      )
-      await expect(main.locator('[data-contact-dm]')).toHaveAttribute(
-        'href',
-        'https://ig.me/m/planet.claire.tattoos',
-      )
+      // P12.7 (U-15): Anfrageweg nur E-Mail; das Profil ist nur im Fuß verlinkt.
+      await expect(main.locator('a[href*="instagram.com"], a[href*="ig.me"]')).toHaveCount(0)
       await expect(main.locator('form')).toHaveCount(0)
       await expect(main.locator('[data-withdraw-cta]')).toHaveAttribute(
         'href',

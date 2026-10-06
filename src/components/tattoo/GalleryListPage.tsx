@@ -2,7 +2,6 @@ import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
 import { EmptyState } from '@/components/ui/EmptyState'
-import { instagramUrl } from '@/lib/data/navigation'
 import { blocksOfType, getTattooPage, getTattooSettings, listGallery } from '@/lib/data/tattoo'
 import { localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
@@ -69,11 +68,7 @@ export async function GalleryListPage({ locale, list }: { locale: Locale; list: 
           pose="sitzen"
           title={t('emptyTitle')}
           text={t('emptyText')}
-          action={{
-            href: instagramUrl(settings.instagramHandle),
-            label: t('emptyAction'),
-            rel: 'noopener noreferrer',
-          }}
+          action={{ href: localizedPath('R12', locale), label: t('emptyAction') }}
         />
       )}
     </TattooShell>

@@ -7,7 +7,7 @@ import type { SeedReport } from './report'
 import { resolveSeedDate } from './time'
 import { findBySeedKey, upsertBySeedKey } from './upsert'
 
-// Tattoo-Bestand (SEED-SPEC §12, PLAN P8.6): Flash F901–F910 → Angebote TO1–TO3 → Galerie G1–G6 (§1.7 Schritt 4).
+// Tattoo-Bestand (SEED-SPEC §12, PLAN P8.6): Flash F901–F910 → Galerie G1–G6 (§1.7 Schritt 4).
 // Gruppe „Inhalt“ (§1.3): übernommene Einträge (`seed = false`) überspringen, sonst Texte, Bilder und Sortierung
 // aktualisieren – nie `number`, `status`/`claimedAt` (Flash). G1/G2 zeigen Kund:innen ohne Einwilligung: angelegt im
 // Seed-Kontext, öffentlich nur bei wirksamem SEED_PREVIEW_MODE (Lesezugriff `tattoo-gallery`, Medien `restricted`).
@@ -70,41 +70,6 @@ export async function importFlash(
   }
 }
 
-export async function importOffers(
-  req: PayloadRequest,
-  data: SeedData,
-  options: TattooImportOptions,
-): Promise<void> {
-  for (const o of data.tattoo.offers) {
-    const content = async () =>
-      compact({
-        type: o.type,
-        title: o.title.de,
-        description: o.description.de,
-        startsAt: resolveSeedDate(o.startsAt, options.now).toISOString(),
-        endsAt: resolveSeedDate(o.endsAt, options.now).toISOString(),
-        priceNote: o.priceNote?.de,
-        flashes: await Promise.all(o.flashes.map((k) => idOf(req, k))),
-      })
-    const en = compact({
-      title: o.title.en,
-      description: o.description.en,
-      priceNote: o.priceNote?.en,
-    })
-    await upsertBySeedKey({
-      req,
-      report: options.report,
-      collection: 'tattoo-offers',
-      seedKey: `tattoo-offers:${o.key}`,
-      group: 'content',
-      // `locationNote` leer → Standard „Privatstudio in {Bezirk}“ (Hook, §12.2)
-      create: async () => ({ ...(await content()), published: true }),
-      en,
-      update: async () => ({ de: await content(), en }),
-    })
-  }
-}
-
 export async function importGallery(
   req: PayloadRequest,
   data: SeedData,
@@ -142,6 +107,41 @@ export async function importGallery(
       }),
       en,
       update: async () => ({ de: await content(), en }),
+    })
+  }
+}
+
+/** „Planet Claire on Tour“ (SEED-SPEC §12.4): Termine mit Datum relativ zu N; übernommene (`seed = false`) bleiben unberührt. */
+export async function importTourDates(
+  req: PayloadRequest,
+  data: SeedData,
+  options: TattooImportOptions,
+): Promise<void> {
+  for (const t of data.tour) {
+    const content = () =>
+      compact({
+        name: t.name.de,
+        startsAt: resolveSeedDate(t.startsAt, options.now).toISOString(),
+        endsAt: resolveSeedDate(t.endsAt, options.now).toISOString(),
+        place: t.place.de,
+        address: t.address,
+        link: t.link,
+        standNumber: t.standNumber,
+        timeFrom: t.timeFrom,
+        timeTo: t.timeTo,
+        note: t.note?.de,
+        status: t.status,
+      })
+    const en = compact({ name: t.name.en, place: t.place.en, note: t.note?.en })
+    await upsertBySeedKey({
+      req,
+      report: options.report,
+      collection: 'tour-dates',
+      seedKey: `tour-dates:${t.key}`,
+      group: 'content',
+      create: async () => ({ ...content(), published: true }),
+      en,
+      update: async () => ({ de: content(), en }),
     })
   }
 }

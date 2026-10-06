@@ -18,7 +18,6 @@ import { ADMIN_TEMPLATE_KEYS, renderAdminTemplate, templateFitsOrder } from '@/l
 import { inTransaction } from '@/lib/payload/transaction'
 import { createPrivacyExport, type PrivacyExportData } from '@/lib/privacy/export'
 import { readStoredFile } from '@/lib/storage/read'
-import { daysUntilStart, offerState } from '@/lib/tattoo/offers'
 import type { EmailLog, Order } from '@/payload-types'
 
 import { FORBIDDEN_CONTENT_PATTERNS } from '../../helpers/forbiddenPatterns'
@@ -328,19 +327,5 @@ describe('P8.21 Anker aus P6 (Recht)', () => {
     expect(data.counts.emailLog).toBe(
       await n(sql`SELECT count(*)::int AS n FROM email_log WHERE lower("to") = ${email}`),
     )
-  })
-})
-
-describe('P8.21 Anker aus P7 (Tattoo)', () => {
-  it('P8.21 TO1–TO3 (P7.3, SEED-SPEC §12.2): bei kanonischem N kommt TO1 (in Tagen), TO2 läuft, TO3 ist vorbei', async () => {
-    const to = async (k: string) => {
-      const d = await bySeedKey(payload, 'tattoo-offers', k)
-      return { startsAt: String(d.startsAt), endsAt: String(d.endsAt) }
-    }
-    const to1 = await to('TO1')
-    expect(offerState(to1, SEED_N)).toBe('upcoming')
-    expect(daysUntilStart(to1, SEED_N)).toBeGreaterThan(0)
-    expect(offerState(await to('TO2'), SEED_N)).toBe('running')
-    expect(offerState(await to('TO3'), SEED_N)).toBe('ended')
   })
 })
