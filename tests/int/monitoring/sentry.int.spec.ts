@@ -65,7 +65,7 @@ describe('Sentry (nur Server, geschwärzt)', () => {
     ).toBe('staging')
   })
 
-  it('AK-A-11-01 ein Fehler mit E-Mail-Adresse und Token erzeugt ein Ereignis ohne diese Zeichenketten', async () => {
+  it('R-133 AK-A-11-01 ein Fehler mit E-Mail-Adresse und Token erzeugt ein Ereignis ohne diese Zeichenketten', async () => {
     events.length = 0
     Sentry.captureException(
       new Error(`Zahlung für erika@example.com fehlgeschlagen, Token ${TOKEN}`),

@@ -102,7 +102,7 @@ test('R-101 DHL-Einwilligung: optional, nicht angehakt, Baustein-Text, nur bei V
   await expect(consent).toBeHidden()
 })
 
-test('R-138 Link zur Datenschutzerklärung am Formular; V-03 keine Checkbox beim Laden angehakt (auch Abweichung)', async ({
+test('R-138 AK-4-06 Link zur Datenschutzerklärung am Formular; V-03 keine Checkbox beim Laden angehakt (auch Abweichung)', async ({
   page,
   context,
   fixtureProducts,

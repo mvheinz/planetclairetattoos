@@ -128,11 +128,11 @@ jobs:
           cache: pnpm
       - name: Installation
         run: pnpm install --frozen-lockfile
-      # P4.2: Rechenkern (Fristen, Summen, Steuer) zusätzlich in Berliner Ortszeit – Ergebnisse dürfen nicht von TZ abhängen.
-      - name: Unit Rechenkern mit TZ=Europe/Berlin
+      # P4.2/P10.1: alle Unit-Tests zusätzlich in Berliner Ortszeit – Ergebnisse (Fristen, Summen, Steuer) dürfen nicht von TZ abhängen.
+      - name: Unit-Tests mit TZ=Europe/Berlin
         env:
           TZ: Europe/Berlin
-        run: pnpm run test:unit tests/unit/commerce tests/unit/tax
+        run: pnpm run test:unit
       - name: Playwright-Version
         id: pw
         run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"

@@ -146,7 +146,7 @@ describe('R-210 Startklar-Prüfung', () => {
     expect(ids(d)).toEqual([])
   })
 
-  it('Nr. 5 LUCID und duales System', () => {
+  it('R-200 Nr. 5 LUCID und duales System', () => {
     for (const patch of [
       { lucidNumber: '' },
       { packagingScheme: { name: '', contractFrom: '2026-10-01' } },

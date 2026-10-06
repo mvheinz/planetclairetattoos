@@ -336,7 +336,46 @@ describe('Löschjobs Teil 1 (R-154)', () => {
     expect((await run('retentionOrders', plus(until, 2 * DAY))).processed).toBe(0)
   })
 
-  it('R-154 L-06 Beleg nach Fristende: PDF gelöscht, Registerzeile anonymisiert (pc.now); L-07 Monatsexport gelöscht', async () => {
+  it('DM-CMP-02 Stufe D: Reklamationen der Bestellung und deren Fotos gelöscht, je Datensatz ein deletion-log-Eintrag', async () => {
+    const until = new Date('2032-12-31T23:00:00.000Z')
+    const ts = {
+      placedAt: '2026-05-01T10:00:00.000Z',
+      paidAt: '2026-05-01T10:05:00.000Z',
+      deliveredAt: '2026-05-10T10:00:00.000Z',
+      finalStatusAt: '2026-05-20T10:00:00.000Z',
+    }
+    const o = await order({ status: 'delivered', timestamps: ts, retainUntil: iso(until) })
+    const complaint = await payload.create({
+      collection: 'complaints',
+      data: {
+        order: o.id,
+        kind: 'defect',
+        receivedAt: '2026-05-12T09:00:00.000Z',
+        description: 'Haarriss in der Glasur',
+      } as never,
+      overrideAccess: true,
+      context: { now: '2026-05-12T10:00:00.000Z' },
+    })
+    const data = await readFile(PHOTO)
+    const cp = await payload.create({
+      collection: 'private-uploads',
+      data: { purpose: 'complaint_photo', relatedComplaint: complaint.id } as never,
+      file: {
+        data,
+        name: `reklamation-${complaint.id}.jpg`,
+        mimetype: 'image/jpeg',
+        size: data.length,
+      },
+      overrideAccess: true,
+    })
+    await run('retentionOrders', plus(until, DAY))
+    expect(await exists('complaints', complaint.id)).toBe(false)
+    expect(await exists('private_uploads', cp.id as number)).toBe(false)
+    expect((await logsFor('complaints', complaint.id)).map((l) => l.ruleId)).toContain('L-09')
+    expect((await logsFor('orders', o.id)).map((l) => l.ruleId)).toContain('L-05 Stufe D')
+  })
+
+  it('R-154 DM-PRIV-03 L-06 Beleg nach Fristende: PDF gelöscht, Registerzeile anonymisiert (pc.now); L-07 Monatsexport gelöscht', async () => {
     const issuedAt = new Date('2026-10-14T09:30:00.000Z')
     const o = (await createOrder(payload, orderData(++orderNo, [item]))) as Order
     const req = await createLocalReq({}, payload)
@@ -482,7 +521,7 @@ describe('Löschjobs Teil 1 (R-154)', () => {
     expect(await exists('withdrawals', held.id as number)).toBe(true)
   })
 
-  it('R-154 deletion-log ohne Inhalte, keine Versions-Tabellen der betroffenen Collections; Task über die Jobs-Queue', async () => {
+  it('R-154 DM-DEL-01 deletion-log ohne Inhalte, keine Versions-Tabellen der betroffenen Collections; Task über die Jobs-Queue', async () => {
     const all = await payload.find({ collection: 'deletion-log', overrideAccess: true, limit: 500 })
     expect(all.docs.length).toBeGreaterThan(5)
     const text = JSON.stringify(all.docs)
@@ -618,7 +657,7 @@ describe('Löschjobs Teil 2 (R-154, R-134)', () => {
     expect((await logsFor('consent-log', consentId))[0]?.ruleId).toBe('L-19 a')
   })
 
-  it('R-154 L-17 Datenschutz-Anfrage: Exportdatei 30 Tage nach Antwort, Datensatz nach retainUntil', async () => {
+  it('R-154 DM-PRQ-03 L-17 Datenschutz-Anfrage: Exportdatei 30 Tage nach Antwort, Datensatz nach retainUntil', async () => {
     const answered = new Date('2026-10-01T10:00:00.000Z')
     const until = new Date('2029-12-31T23:00:00.000Z')
     const exportFile = await payload.create({

@@ -41,7 +41,7 @@ test.describe('Routing @smoke', () => {
     }
   })
 
-  test('R-010 AK-A-2-04 Kurz-URLs → 308 auf die kanonische DE-Route, ohne Cookie @smoke', async ({
+  test('R-010 AK-2-07 AK-A-2-04 Kurz-URLs → 308 auf die kanonische DE-Route, ohne Cookie @smoke', async ({
     request,
   }) => {
     expect(shortLinks).toHaveLength(7)

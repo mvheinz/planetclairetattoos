@@ -147,7 +147,7 @@ async function cocoTransform(page: Page): Promise<string> {
 }
 
 test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
-  test('T-13 Nr. 1–4: jede Route mit H1, Banner, „Vertrag widerrufen“, Bildern, Schriften und gültigen Links; 0 Anfragen, 0 Fehler', async ({
+  test('T-13 AK-12-01 Nr. 1–4: jede Route mit H1, Banner, „Vertrag widerrufen“, Bildern, Schriften und gültigen Links; 0 Anfragen, 0 Fehler', async ({
     page,
     watch,
   }) => {

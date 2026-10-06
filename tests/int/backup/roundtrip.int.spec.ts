@@ -128,7 +128,7 @@ describe('Backup-Rundlauf (pcdump v1)', () => {
     if (sourceEmail) expect(text).toContain(sourceEmail)
   }, 120_000)
 
-  it('AK-A-10-01 Wiederherstellung in eine leere DB: Zeilenzahl und md5 je Tabelle, Sequenzen, Fremdschlüssel, Trigger', async () => {
+  it('AK-A-10-01 T-22 Wiederherstellung in eine leere DB: Zeilenzahl und md5 je Tabelle, Sequenzen, Fremdschlüssel, Trigger', async () => {
     const before = await plaintextOf(backupFile)
     const fkCount = `SELECT count(*)::int AS n FROM pg_constraint WHERE contype='f' AND connamespace='public'::regnamespace`
     const trgCount = `SELECT count(*)::int AS n FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid WHERE NOT t.tgisinternal AND c.relnamespace='public'::regnamespace AND t.tgenabled='O'`

@@ -175,8 +175,8 @@ Lücken in der Nummerierung sind Reserve.
 | R-127 | „Offline verkauft“ ohne Kassenfunktion | P5 | int | nein | `tests/int/legal/offline-sale.int.spec.ts` |
 | R-130 | Kein Speichern/Auslesen auf dem Endgerät vor Nutzeraktion | P2, P4 | e2e | nein | `tests/unit/behaviors/motion-toggle.unit.spec.ts`, `tests/e2e/motion-toggle.e2e.spec.ts`, `tests/e2e/privacy.e2e.spec.ts`, `tests/e2e/privacy/cart-cookie.e2e.spec.ts` |
 | R-131 | Keine Drittanbieter-Requests, CSP, selbst gehostete Schriften | P2 | unit, e2e | nein | `tests/unit/legal/services.unit.spec.ts`, `tests/unit/security/csp.unit.spec.ts`, `tests/unit/security/headers.unit.spec.ts`, `tests/unit/tooling/check-external.unit.spec.ts` |
-| R-132 | Statistik (Vercel Web Analytics) nur nach Freigabe | P10 | unit, e2e | ja | – |
-| R-133 | Fehlerüberwachung ohne Personenbezug | P10 | unit, e2e | nein | – |
+| R-132 | Statistik (Vercel Web Analytics) nur nach Freigabe | P10 | unit, e2e | ja | `tests/unit/analytics/before-send.unit.spec.ts`, `tests/e2e/privacy/analytics.e2e.spec.ts`, `tests/int/admin/settings-part3.int.spec.ts` |
+| R-133 | Fehlerüberwachung ohne Personenbezug | P10 | unit, e2e | nein | `tests/int/monitoring/sentry.int.spec.ts`, `tests/int/monitoring/client-errors.int.spec.ts`, `tests/e2e/privacy/client-errors.e2e.spec.ts` |
 | R-134 | Spamschutz ohne Drittanbieter | P6, P7 | int | nein | `tests/int/legal/retention.int.spec.ts`, `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/int/legal/withdrawal.int.spec.ts`, `tests/unit/lib/keys.unit.spec.ts`, `tests/int/commission/submit.int.spec.ts`, `tests/int/security/rate-limits.int.spec.ts` |
 | R-135 | Metadaten aus allen Bild-Uploads entfernen | P1, P7 | int | nein | `tests/int/collections/media.int.spec.ts`, `tests/int/collections/private-uploads.int.spec.ts`, `tests/e2e/admin-product-form.e2e.spec.ts`, `tests/int/commission/upload.int.spec.ts` |
 | R-136 | Technisch-organisatorische Maßnahmen | P1, P10 | int, e2e | nein | `tests/int/access/access-matrix.int.spec.ts`, `tests/int/adapters/storage.contract.int.spec.ts`, `tests/int/collections/private-uploads.int.spec.ts`, `tests/int/collections/users.int.spec.ts` |
@@ -188,9 +188,9 @@ Lücken in der Nummerierung sind Reserve.
 | R-152 | Berichtigung, Widerspruch, Widerruf von Einwilligungen | P6 | int | nein | `tests/unit/legal/p6-mails.unit.spec.ts`, `tests/int/legal/privacy-erasure.int.spec.ts` |
 | R-153 | Fristüberwachung Betroffenenanfragen | P6 | int | nein | `tests/unit/legal/gdpr-deadline.unit.spec.ts`, `tests/int/legal/privacy-requests.int.spec.ts` |
 | R-154 | Automatische Löschjobs | P6 | int | nein | `tests/unit/legal/no-versions.unit.spec.ts`, `tests/int/legal/retention.int.spec.ts` |
-| R-155 | Auftragsverarbeitungsverträge vor Go-live | P10, P11 | unit, manuell | ja | – |
+| R-155 | Auftragsverarbeitungsverträge vor Go-live | P10, P11 | unit, manuell | ja | `tests/unit/legal/services.unit.spec.ts`, `tests/unit/golive/checks.unit.spec.ts`, `tests/int/admin/processor-agreements.int.spec.ts`, `tests/e2e/legal/processor-table.e2e.spec.ts`, §7 |
 | R-156 | Verzeichnis von Verarbeitungstätigkeiten | P6 | manuell | ja | `tests/unit/legal/briefing.unit.spec.ts`, `tests/unit/legal/services.unit.spec.ts` |
-| R-157 | Prozess Datenpanne | P10 | manuell | ja | – |
+| R-157 | Prozess Datenpanne | P10 | manuell | ja | `tests/unit/docs/runbook.unit.spec.ts`, §7 |
 | R-160 | Anfrageformular Auftragsarbeiten | P7 | int, e2e | nein | `tests/int/commission/submit.int.spec.ts`, `tests/int/commission/upload.int.spec.ts`, `tests/unit/email/inquiry-receipt.unit.spec.ts`, `tests/e2e/commission/form.e2e.spec.ts`, `tests/e2e/commission/flow.e2e.spec.ts` |
 | R-161 | Verträge über Auftragsarbeiten außerhalb des Shops | P7, P11 | manuell | ja | §7 |
 | R-162 | Keine weiteren Datenerhebungen | P10 | e2e | nein | `tests/e2e/privacy/forms.e2e.spec.ts` |
@@ -199,16 +199,16 @@ Lücken in der Nummerierung sind Reserve.
 | R-172 | Portfolio-Fotos nur mit Einwilligung | P7 | int | ja | `tests/int/legal/gallery-consent.int.spec.ts`, `tests/int/legal/gallery-withdraw.int.spec.ts`, `tests/e2e/tattoo/gallery.e2e.spec.ts` |
 | R-180 | Beispielbestand kennzeichnen und entfernbar | P8 | int | nein | `tests/int/seed/admin-remove.int.spec.ts`, `tests/int/collections/logs.int.spec.ts`, `tests/unit/seed/persons.unit.spec.ts`, `tests/e2e/admin-seed.e2e.spec.ts` |
 | R-181 | `SEED_PREVIEW_MODE` nie in Produktion | P8 | unit, int | nein | `tests/unit/env/seed-preview.unit.spec.ts`, `tests/unit/env/assert-production.unit.spec.ts`, `tests/int/media/owner-approved.int.spec.ts`, `tests/int/legal/gallery-consent.int.spec.ts` |
-| R-182 | Vorschau-Datei als interne Datei | P10 | unit | nein | – |
-| R-190 | BFSG-Ausnahme dokumentiert, keine Konformitätsbehauptung | P10 | manuell | nein | – |
+| R-182 | Vorschau-Datei als interne Datei | P10 | unit | nein | `tests/unit/preview/r182.unit.spec.ts`, `tests/e2e/preview-export.e2e.spec.ts` |
+| R-190 | BFSG-Ausnahme dokumentiert, keine Konformitätsbehauptung | P10 | manuell | nein | `tests/unit/docs/handbook.unit.spec.ts`, §7 |
 | R-191 | Freiwillige Barrierearmut (Ziel WCAG 2.2 AA) | P2, P10 | e2e | nein | `tests/e2e/a11y.e2e.spec.ts`, `tests/e2e/keyboard.e2e.spec.ts`, `tests/e2e/a11y/keyboard.e2e.spec.ts`, `tests/e2e/a11y/audit.e2e.spec.ts` |
-| R-200 | LUCID-Registrierung und Systembeteiligung | P10, P11 | unit, manuell | ja | – |
+| R-200 | LUCID-Registrierung und Systembeteiligung | P10, P11 | unit, manuell | ja | `tests/unit/golive/checks.unit.spec.ts`, §7 |
 | R-201 | Verpackungsmengen erfassen (je Sendung, Jahres-Export) | P5 | int | nein | `tests/int/legal/packaging-report.int.spec.ts`, `tests/unit/settings/rules.unit.spec.ts`, `tests/int/globals/settings.int.spec.ts` |
 | R-202 | EU-Länder nur mit Pflicht-Bestätigung freischaltbar | P5 | int | nein | `tests/int/legal/eu-activation.int.spec.ts`, `tests/unit/settings/rules.unit.spec.ts`, `tests/int/globals/settings.int.spec.ts` |
 | R-203 | GPSR-Herstellerpflichten am Produkt, Etiketten und Beileger | P5, P11 | int, manuell | ja | `tests/int/legal/compliance-docs.int.spec.ts`, `tests/int/legal/gpsr-label.int.spec.ts` |
 | R-204 | Markenrecherche „Planet Claire“ (empfohlen) | P11 | manuell | ja | – |
 | R-205 | Stammdaten und steuerliche Klärung | P11 | manuell | ja | – |
-| R-210 | Startklar-Prüfung (Go-live-Gate) | P10, P11 | unit | ja | – |
+| R-210 | Startklar-Prüfung (Go-live-Gate) | P10, P11 | unit | ja | `tests/unit/golive/checks.unit.spec.ts`, `tests/int/golive/shop-open-lock.int.spec.ts` |
 | R-211 | Produktions-Rauchtest Recht | P11 | manuell | ja | – |
 
 ---

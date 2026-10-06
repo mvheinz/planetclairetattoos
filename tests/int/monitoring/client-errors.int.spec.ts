@@ -41,7 +41,7 @@ describe('POST /api/client-errors', () => {
     expect(payload).not.toHaveBeenCalled()
   })
 
-  it('an: Schwärzung, keine Cookies, keine IP im Zähler, Rate-Limit → stilles Verwerfen (204)', async () => {
+  it('R-133 an: Schwärzung, keine Cookies, keine IP im Zähler, Rate-Limit → stilles Verwerfen (204)', async () => {
     const env = envOf({ NEXT_PUBLIC_CLIENT_ERRORS_ENABLED: 'true', APP_ENV: 'production' })
     const payload = await getTestPayload()
     await dbOf(payload).execute(sql`DELETE FROM rate_limit_hits WHERE bucket = 'client_errors'`)

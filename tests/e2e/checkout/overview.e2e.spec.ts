@@ -72,7 +72,7 @@ test('R-064 genau ein Knopf „Zahlungspflichtig bestellen“ (EN „Order with 
   }
 })
 
-test('R-063 Übersicht vor dem Knopf: Positionen mit Nr., Eigenschaften, Preis; Versand 8,90 €; Gesamt 117,90 €; Lieferzeit; Adressen; Zahlart; vier „Ändern“-Links springen und fokussieren ohne Datenverlust', async ({
+test('R-063 AK-4-05 Übersicht vor dem Knopf: Positionen mit Nr., Eigenschaften, Preis; Versand 8,90 €; Gesamt 117,90 €; Lieferzeit; Adressen; Zahlart; vier „Ändern“-Links springen und fokussieren ohne Datenverlust', async ({
   page,
   context,
   fixtureProducts,

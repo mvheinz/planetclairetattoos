@@ -27,6 +27,7 @@
     "test:visual": "pnpm run db:ensure && cross-env SEED_NOW=2026-10-15T10:00:00+02:00 pnpm run db:reset --test --seed=all && cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm --import=./scripts/lib/register-server-only.mjs\" playwright test --config=playwright.visual.config.ts",
     "preview:export": "cross-env NODE_OPTIONS=--no-deprecation tsx --import=./scripts/lib/register-server-only.mjs scripts/preview-export/index.ts",
     "test:preview-export": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm --import=./scripts/lib/register-server-only.mjs\" playwright test --config=playwright.preview.config.ts",
+    "test:preview-portable": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm --import=./scripts/lib/register-server-only.mjs\" playwright test --config=playwright.preview.config.ts --project=pv-portable-*",
     "check": "pnpm run lint && pnpm run typecheck && pnpm run check:static && pnpm run test:unit",
     "check:versions": "tsx scripts/check-versions.ts",
     "legal:services": "tsx scripts/legal/gen-services.ts",
