@@ -95,7 +95,9 @@ test.describe('Rechtsseiten P6.5 @smoke', () => {
         })
         expect(bannerFirst, `${path}: Band über der h1`).toBe(true)
         await expect(page.locator('[data-legal-as-of]').first(), path).toBeVisible()
-        await expect(page.locator('[data-legal-text]').first(), path).toContainText(
+        // P12.11: ausformulierte Platzhalter-Fassung (Gliederung mit Überschriften, kein „Text folgt …“ mehr)
+        await expect(page.locator('[data-legal-text] h2').first(), path).toBeVisible()
+        await expect(page.locator('[data-legal-text]').first(), path).not.toContainText(
           'Text folgt von der Kanzlei.',
         )
         const pdfs = page.locator('main [data-legal-pdf]')
@@ -112,13 +114,14 @@ test.describe('Rechtsseiten P6.5 @smoke', () => {
     })
   }
 
-  test('R-015 /en/terms ohne EN-Fassung: deutscher Text mit „Only available in German“, ohne Übersetzungs-Hinweis @smoke', async ({
+  test('R-015 /en/terms mit EN-Fassung: englischer Text mit Übersetzungs-Hinweis, kein „Only available in German“ @smoke', async ({
     page,
   }) => {
     await page.goto('/en/terms')
-    await expect(page.getByText('Only available in German.').first()).toBeVisible()
-    await expect(page.locator('[data-legal-text="agb"] [lang="de"]')).toHaveCount(1)
-    await expect(page.locator('[data-translation-disclaimer]')).toHaveCount(0)
+    await expect(page.getByText('Only available in German.')).toHaveCount(0)
+    await expect(page.locator('[data-translation-disclaimer]')).toHaveCount(1)
+    await expect(page.locator('[data-legal-text="agb"] h2').first()).toHaveText('Scope')
+    await expect(page.locator('[data-legal-text="agb"] [lang="de"]')).toHaveCount(0)
   })
 
   test('R24 Belehrung mit {{withdrawalUrl}}, Muster-Formular als HTML und PDF, Link „Vertrag widerrufen“ (R-095) @smoke', async ({

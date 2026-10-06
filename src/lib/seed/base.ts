@@ -185,7 +185,7 @@ async function seedLegalTexts(payload: Payload, base: BaseData, report: SeedRepo
         // Erstbefüllung: Fassung 1 direkt aktiv, beide Sprachen in einem Schritt (aktive Fassungen sind unveränderlich).
         const created = await req.payload.create({
           collection: 'legal-texts',
-          locale: 'all',
+          locale: 'all' as never, // beide Sprachen in einem Schritt
           data: {
             type: text.type,
             version: 1,
@@ -209,7 +209,7 @@ async function seedLegalTexts(payload: Payload, base: BaseData, report: SeedRepo
       // neue Version anlegen und aktivieren (die alte wird abgelöst; Bestellungen behalten ihre Fassung, R-013).
       const draft = await req.payload.create({
         collection: 'legal-texts',
-        locale: 'all',
+        locale: 'all' as never,
         data: {
           type: text.type,
           origin: 'placeholder',

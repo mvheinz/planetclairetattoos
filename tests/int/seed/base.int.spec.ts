@@ -1,13 +1,19 @@
 import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 
+import { sql } from '@payloadcms/db-postgres'
 import type { Payload } from 'payload'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import { DEFAULT_IBAN } from '@/globals/settingsDefaults'
 import { LEGAL_TEXT_TYPES, PRODUCT_CATEGORIES } from '@/lib/enums'
 import { getActiveLegalText } from '@/lib/legal/getActive'
-import { buildLegalTokenValues, renderLegalContent, type LexicalContent } from '@/lib/legal/render'
+import {
+  activeReturnCostsNote,
+  buildLegalTokenValues,
+  renderLegalContent,
+  type LexicalContent,
+} from '@/lib/legal/render'
 import { loadSeedData } from '@/lib/seed/loader'
 import { runSeed } from '@/lib/seed/run'
 import { CANONICAL_SEED_NOW } from '@/lib/seed/time'
@@ -177,19 +183,68 @@ describe('Grund-Seed (DM-P1-04, AK-SEED-02)', () => {
       locale: 'de',
       overrideAccess: true,
     })
-    const values = buildLegalTokenValues({
-      settings: settings as never,
-      siteUrl: 'https://planetclairetattoos.com',
-      locale: 'de',
-    })
-    for (const type of LEGAL_TEXT_TYPES) {
-      const text = await getActiveLegalText(type, new Date(), { payload, locale: 'de' })
-      expect(text, type).not.toBeNull()
-      const rendered = renderLegalContent(text!.content as unknown as LexicalContent, values)
-      expect(rendered.plainText).toContain('Text folgt von der Kanzlei.')
-      expect(rendered.plainText).not.toMatch(/PLATZHALTER/)
-      expect(rendered.plainText).not.toMatch(/\{\{|\}\}/)
+    // P12.11: ausformulierte Fassungen in DE und EN (U-00), Tokens aus den Einstellungen der jeweiligen Sprache
+    for (const locale of ['de', 'en'] as const) {
+      const settingsInLocale = await payload.findGlobal({
+        slug: 'settings',
+        locale,
+        overrideAccess: true,
+      })
+      const values = buildLegalTokenValues({
+        settings: settingsInLocale as never,
+        siteUrl: 'https://planetclairetattoos.com',
+        locale,
+        returnCostsNote: activeReturnCostsNote(locale),
+      })
+      for (const type of LEGAL_TEXT_TYPES) {
+        // ohne Rückfall auf Deutsch: die englische Fassung muss wirklich vorhanden sein (U-00, R-015)
+        const text = await getActiveLegalText(type, new Date(), {
+          payload,
+          locale,
+          fallbackLocale: false,
+        })
+        expect(text, `${type} ${locale}`).not.toBeNull()
+        const rendered = renderLegalContent(text!.content as unknown as LexicalContent, values)
+        expect(rendered.plainText.length, `${type} ${locale}`).toBeGreaterThan(400)
+        expect(rendered.plainText).not.toContain('Text folgt von der Kanzlei.')
+        expect(rendered.plainText).not.toMatch(/PLATZHALTER/)
+        expect(rendered.plainText).not.toMatch(/\{\{|\}\}/)
+      }
     }
+  })
+})
+
+describe('Grund-Seed: Rechtstexte nachrüsten (P12.11)', () => {
+  it('R-002 R-013 ältere Platzhalter-Gliederung (v1, alter Quellenvermerk) → ausformulierte v2 DE+EN, v1 abgelöst, zweiter Lauf ändert nichts', async () => {
+    const db = (payload.db as unknown as { drizzle: { execute: (q: unknown) => Promise<unknown> } })
+      .drizzle
+    await db.execute(
+      sql`UPDATE legal_texts SET source_note = 'Platzhalter aus dem Grund-Seed' WHERE type = 'impressum'`,
+    )
+    const { report } = await seedBase()
+    expect(report.get('legal-texts', 'updated')).toBe(1)
+    expect(report.get('legal-texts', 'created')).toBe(0)
+    const docs = await payload.find({
+      collection: 'legal-texts',
+      where: { type: { equals: 'impressum' } },
+      sort: 'version',
+      locale: 'all',
+      overrideAccess: true,
+      pagination: false,
+    })
+    expect(docs.docs.map((d) => [d.version, d.status])).toEqual([
+      [1, 'superseded'],
+      [2, 'active'],
+    ])
+    const v2 = docs.docs[1]!
+    expect(v2.origin).toBe('placeholder')
+    expect(v2.isPlaceholder).toBe(true)
+    expect(JSON.stringify(v2.content)).toContain('Anbieterin')
+    expect(JSON.stringify(v2.content)).toContain('Provider')
+    expect(v2.pdfDe).toBeTruthy()
+    const again = await seedBase()
+    expect(again.report.get('legal-texts', 'updated')).toBe(0)
+    expect(again.report.get('legal-texts', 'created')).toBe(0)
   })
 })
 

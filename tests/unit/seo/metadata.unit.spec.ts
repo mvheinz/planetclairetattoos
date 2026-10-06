@@ -80,7 +80,7 @@ describe('buildMetadata', () => {
   })
 
   it('robots aus der Registry; R26 „noindex, follow“ ohne canonical/hreflang', () => {
-    expect(robotsFor('index')).toEqual({ index: true, follow: true })
+    expect(robotsFor('index')).toBe('index, follow, noai, noimageai')
     expect(robotsFor('noindex')).toEqual({ index: false })
     const r26 = buildMetadata('R26', 'de', {}, { siteUrl: SITE })
     expect(r26.robots).toEqual({ index: false, follow: true })
@@ -114,7 +114,11 @@ describe('robots.txt, X-Robots-Tag, Sitemap', () => {
   it('Produktion: Allow + Sperrliste laut KONZEPT §2.5 + Sitemap', () => {
     const rules = robotsRules('production', SITE)
     expect(rules.sitemap).toBe(`${SITE}/sitemap.xml`)
-    expect(rules.rules.allow).toBe('/')
+    // P12.11: Gruppe `*` (Allow + Sperrliste) und eigene Gruppe `Disallow: /` für KI-Crawler
+    const groups = Array.isArray(rules.rules) ? rules.rules : [rules.rules]
+    expect(groups).toHaveLength(2)
+    expect(groups[0]!.userAgent).toBe('*')
+    expect(groups[0]!.allow).toBe('/')
     expect([...disallowedPaths()].sort()).toEqual(
       [
         '/api/',

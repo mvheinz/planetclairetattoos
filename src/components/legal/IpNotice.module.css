@@ -1,0 +1,18 @@
+/* Hinweise zum Schutz des geistigen Eigentums (U-22): ruhig, lesbar, nie animiert. */
+.notice {
+  margin: var(--space-4) 0 0;
+  max-width: 62ch;
+  font-size: var(--fs-small);
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.footer {
+  margin: 0;
+  max-width: 68ch;
+}
+
+.block {
+  padding-inline-start: var(--space-3);
+  border-inline-start: 2px solid currentColor;
+}

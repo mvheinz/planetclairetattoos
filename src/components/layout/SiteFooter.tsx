@@ -3,6 +3,7 @@ import React from 'react'
 
 import { FOOTER_LINE_PATH, HAND_LINE_HEIGHT, HAND_LINE_LENGTH } from '@/art/handLine'
 import { Icon } from '@/components/icons/Icon'
+import { IpNotice } from '@/components/legal/IpNotice'
 import { StaticHtml } from '@/components/StaticHtml'
 import { instagramUrl, type SiteNavigation } from '@/lib/data/navigation'
 import { localizedPath } from '@/lib/routes/paths'
@@ -17,7 +18,7 @@ import styles from './SiteFooter.module.css'
 // Fußbereich (DESIGN KO-04, KONZEPT §3.0.3) auf jeder öffentlichen Seite, auch 404/500. DOM-Reihenfolge:
 // 1.+2. LegalFooter („Vertrag widerrufen“ + Pflichtlinks) · 3. `<nav id="fussnavigation">` (Menüliste als Ersatz ohne
 // JavaScript, Instagram als einfacher Link) · 4. Sprachumschalter · 5. Schalter „Animationen“ (Modul `motion-toggle`,
-// ohne JavaScript verborgen) · 6. Platz für die Preis-Fußnote (ab P3) · 7. „© {Berliner Jahr} Planet Claire · Berlin“.
+// ohne JavaScript verborgen) · 6. Platz für die Preis-Fußnote (ab P3) · 7. Urheberrechtsvermerk und KI-/TDM-Vorbehalt (Bausteine `ip.*`, P12.11), 8. „© {Berliner Jahr} Planet Claire · Berlin“.
 // Nie animiert; liegt über Dekor-Ebenen (z-index), die keine Zeigerereignisse annehmen. Linie, Pflichtlinks und
 // Fußnavigation sind statisches HTML (`StaticHtml`, nicht hydriert, TBT P7); der Sprachumschalter hängt an der Route.
 export async function SiteFooter({
@@ -103,6 +104,10 @@ export async function SiteFooter({
         </div>
 
         {priceNote ? <div className={styles.priceNote}>{priceNote}</div> : null}
+
+        <div className={styles.ipNotice}>
+          <IpNotice locale={locale} kind="footer" />
+        </div>
 
         <p className={styles.copyright}>{t('copyright', { year: berlinYear(clock.now()) })}</p>
       </div>

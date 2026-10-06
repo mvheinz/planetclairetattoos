@@ -108,15 +108,15 @@ Lücken in der Nummerierung sind Reserve.
 | ID | Titel | Phase | Test | Owner | Nachweis |
 |---|---|---|---|---|---|
 | R-001 | Nachverfolgbarkeit Anforderung ↔ Test | P1 | unit | nein | `tests/unit/legal/traceability.unit.spec.ts` |
-| R-002 | Keine selbst formulierten Rechtstexte, Platzhalter-Kennzeichnung | P6 | unit, e2e | ja | `tests/int/legal/legal-pdf.int.spec.ts`, `tests/int/legal/legal-texts.int.spec.ts`, `tests/int/legal/public-pages.int.spec.ts`, `tests/e2e/legal-pages.e2e.spec.ts` |
+| R-002 | Keine selbst formulierten Rechtstexte, Platzhalter-Kennzeichnung | P6 | unit, e2e | ja | `tests/int/legal/legal-pdf.int.spec.ts`, `tests/int/legal/legal-texts.int.spec.ts`, `tests/int/legal/public-pages.int.spec.ts`, `tests/e2e/legal-pages.e2e.spec.ts`, `tests/unit/legal/legal-texts-p12.unit.spec.ts` |
 | R-010 | Pflichtseiten und stabile URLs | P2, P6 | e2e | nein | `tests/e2e/legal-pages.e2e.spec.ts`, `tests/e2e/legal/pages.e2e.spec.ts`, `tests/unit/routes/registry.unit.spec.ts`, `tests/e2e/contact-withdraw.e2e.spec.ts` |
 | R-011 | Footer mit Pflichtlinks auf jeder Seite | P2 | e2e | nein | `tests/unit/legal/footer-links.unit.spec.ts`, `tests/e2e/legal/footer.e2e.spec.ts`, `tests/e2e/contact-withdraw.e2e.spec.ts`, `tests/e2e/error-pages.e2e.spec.ts` |
-| R-012 | Rechtstexte und Textbausteine versioniert im CMS | P1, P6 | int | nein | `tests/unit/legal/briefing.unit.spec.ts`, `tests/unit/legal/render-tokens.unit.spec.ts`, `tests/unit/legal/snippets.unit.spec.ts`, `tests/int/legal/legal-texts-admin.int.spec.ts` |
+| R-012 | Rechtstexte und Textbausteine versioniert im CMS | P1, P6 | int | nein | `tests/unit/legal/briefing.unit.spec.ts`, `tests/unit/legal/render-tokens.unit.spec.ts`, `tests/unit/legal/snippets.unit.spec.ts`, `tests/int/legal/legal-texts-admin.int.spec.ts`, `tests/unit/legal/legal-texts-p12.unit.spec.ts` |
 | R-013 | Bestellung speichert Rechtstext-Versionen und Snapshot | P4 | int | nein | `tests/int/legal/contract-confirmation.int.spec.ts`, `tests/e2e/legal/checkout-compliance.e2e.spec.ts`, `tests/int/commerce/submit-checkout.int.spec.ts` |
 | R-014 | Jährliche Prüf-Erinnerung Rechtstexte | P6 | int | ja | `tests/int/legal/legal-texts-admin.int.spec.ts`, `tests/int/jobs/legal-review.int.spec.ts` |
-| R-015 | Englische Rechtstexte als unverbindliche Übersetzung | P6 | e2e | nein | `tests/int/legal/contract-confirmation.int.spec.ts`, `tests/int/legal/public-pages.int.spec.ts`, `tests/e2e/legal/pages.e2e.spec.ts` |
-| R-020 | Impressum aus Stammdaten | P6 | int, e2e | ja | `tests/int/legal/business-profile.int.spec.ts`, `tests/e2e/legal/pages.e2e.spec.ts`, `tests/unit/settings/rules.unit.spec.ts` |
-| R-021 | Telefonnummer für Impressum und Widerrufsbelehrung | P6 | unit | ja | `tests/unit/legal/phone.unit.spec.ts`, `tests/int/legal/business-profile.int.spec.ts`, `tests/e2e/legal/pages.e2e.spec.ts`, `tests/unit/email/layout.unit.spec.ts` |
+| R-015 | Englische Rechtstexte als unverbindliche Übersetzung | P6 | e2e | nein | `tests/int/legal/contract-confirmation.int.spec.ts`, `tests/int/legal/public-pages.int.spec.ts`, `tests/e2e/legal/pages.e2e.spec.ts`, `tests/unit/legal/legal-texts-p12.unit.spec.ts` |
+| R-020 | Impressum aus Stammdaten | P6 | int, e2e | ja | `tests/int/legal/business-profile.int.spec.ts`, `tests/e2e/legal/pages.e2e.spec.ts`, `tests/unit/settings/rules.unit.spec.ts`, `tests/unit/legal/legal-texts-p12.unit.spec.ts` |
+| R-021 | Telefonnummer für Impressum und Widerrufsbelehrung | P6 | unit | ja | `tests/unit/legal/phone.unit.spec.ts`, `tests/int/legal/business-profile.int.spec.ts`, `tests/e2e/legal/pages.e2e.spec.ts`, `tests/unit/email/layout.unit.spec.ts`, `tests/unit/legal/legal-texts-p12.unit.spec.ts` |
 | R-022 | Impressum-Link im Instagram-Profil | P11 | manuell | ja | – |
 | R-023 | Kontaktseite ohne Formular und ohne Karte | P6 | e2e | nein | `tests/e2e/legal/pages.e2e.spec.ts` |
 | R-030 | Kleinunternehmer-Preishinweis an jedem Preis | P3 | unit, e2e | nein | `tests/unit/shop/list-page.unit.spec.ts`, `tests/unit/shop/price-note.unit.spec.ts`, `tests/unit/static/money-usage.unit.spec.ts` |
@@ -157,7 +157,7 @@ Lücken in der Nummerierung sind Reserve.
 | R-092 | Widerrufsfunktion Schritt 2: „Widerruf bestätigen“ | P6 | e2e | nein | `tests/unit/legal/constants.unit.spec.ts`, `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts` |
 | R-093 | Widerruf speichern und sofort bestätigen | P6 | int, e2e | nein | `tests/int/legal/withdrawal.int.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts`, `tests/unit/email/templates/withdrawal-receipt.unit.spec.ts`, `tests/int/email/logs-admin.int.spec.ts` |
 | R-094 | Widerrufs-Posteingang in der Verwaltung | P6 | int | nein | `tests/int/legal/withdrawal-inbox.int.spec.ts`, `tests/int/collections/withdrawals.int.spec.ts`, `tests/e2e/admin/withdrawal-inbox.e2e.spec.ts` |
-| R-095 | Widerrufsbelehrung, Muster-Formular, Rücksendekosten | P6 | unit, manuell | ja | `tests/unit/legal/render-tokens.unit.spec.ts`, `tests/int/legal/legal-texts.int.spec.ts`, `tests/e2e/legal/pages.e2e.spec.ts` |
+| R-095 | Widerrufsbelehrung, Muster-Formular, Rücksendekosten | P6 | unit, manuell | ja | `tests/unit/legal/render-tokens.unit.spec.ts`, `tests/int/legal/legal-texts.int.spec.ts`, `tests/e2e/legal/pages.e2e.spec.ts`, `tests/unit/legal/legal-texts-p12.unit.spec.ts` |
 | R-096 | Kein Widerrufsausschluss im Shop | P3, P6 | unit | nein | `tests/unit/legal/forbidden.unit.spec.ts`, `tests/e2e/legal/forbidden.e2e.spec.ts` |
 | R-100 | Transportrisiko trägt die Verkäuferin | P5 | int | nein | `tests/int/legal/packing-hints.int.spec.ts`, `tests/int/legal/transport-risk.int.spec.ts` |
 | R-101 | E-Mail-Adresse an DHL nur mit Einwilligung | P4, P5 | unit, e2e | nein | `tests/unit/legal/address-formatter.unit.spec.ts`, `tests/int/legal/packing-hints.int.spec.ts`, `tests/e2e/legal/checkout-fields.e2e.spec.ts`, `tests/int/commerce/submit-checkout.int.spec.ts` |
@@ -173,7 +173,7 @@ Lücken in der Nummerierung sind Reserve.
 | R-125 | Umsatz-Wächter Kleinunternehmergrenzen | P5 | unit, int | ja | `tests/unit/legal/revenue-guard.unit.spec.ts`, `tests/unit/email/templates/admin-mails.unit.spec.ts`, `tests/int/jobs/revenue-guard.int.spec.ts` |
 | R-126 | Kein Umsatzsteuerausweis im Kleinunternehmer-Modus | P3 | unit, e2e | nein | `tests/unit/seo/jsonld.unit.spec.ts`, `tests/unit/shop/price-note.unit.spec.ts`, `tests/e2e/seo/meta.e2e.spec.ts` |
 | R-127 | „Offline verkauft“ ohne Kassenfunktion | P5 | int | nein | `tests/int/legal/offline-sale.int.spec.ts` |
-| R-130 | Kein Speichern/Auslesen auf dem Endgerät vor Nutzeraktion | P2, P4 | e2e | nein | `tests/unit/behaviors/motion-toggle.unit.spec.ts`, `tests/e2e/motion-toggle.e2e.spec.ts`, `tests/e2e/privacy.e2e.spec.ts`, `tests/e2e/privacy/cart-cookie.e2e.spec.ts` |
+| R-130 | Kein Speichern/Auslesen auf dem Endgerät vor Nutzeraktion | P2, P4 | e2e | nein | `tests/unit/behaviors/motion-toggle.unit.spec.ts`, `tests/e2e/motion-toggle.e2e.spec.ts`, `tests/e2e/privacy.e2e.spec.ts`, `tests/e2e/privacy/cart-cookie.e2e.spec.ts`, `tests/unit/legal/legal-texts-p12.unit.spec.ts` |
 | R-131 | Keine Drittanbieter-Requests, CSP, selbst gehostete Schriften | P2 | unit, e2e | nein | `tests/unit/legal/services.unit.spec.ts`, `tests/unit/security/csp.unit.spec.ts`, `tests/unit/security/headers.unit.spec.ts`, `tests/unit/tooling/check-external.unit.spec.ts` |
 | R-132 | Statistik (Vercel Web Analytics) nur nach Freigabe | P10 | unit, e2e | ja | `tests/unit/analytics/before-send.unit.spec.ts`, `tests/e2e/privacy/analytics.e2e.spec.ts`, `tests/int/admin/settings-part3.int.spec.ts` |
 | R-133 | Fehlerüberwachung ohne Personenbezug | P10 | unit, e2e | nein | `tests/int/monitoring/sentry.int.spec.ts`, `tests/int/monitoring/client-errors.int.spec.ts`, `tests/e2e/privacy/client-errors.e2e.spec.ts` |
@@ -183,6 +183,8 @@ Lücken in der Nummerierung sind Reserve.
 | R-137 | Keine personenbezogenen Daten in URLs und Logs | P4 | unit, e2e | nein | `tests/int/legal/privacy-export.int.spec.ts`, `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts`, `tests/unit/lib/logger.unit.spec.ts`, `tests/e2e/commission/form.e2e.spec.ts` |
 | R-138 | Datenschutzhinweise am Ort der Erhebung | P4, P6, P7 | e2e | nein | `tests/e2e/legal/checkout-fields.e2e.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts`, `tests/e2e/commission/form.e2e.spec.ts` |
 | R-139 | Instagram nur als Link | P3 | unit | nein | `tests/unit/legal/forbidden.unit.spec.ts`, `tests/e2e/legal/forbidden.e2e.spec.ts`, `tests/e2e/tattoo/no-purchase.e2e.spec.ts` |
+| R-140 | Schutz des geistigen Eigentums: Urheberrechtsvermerk, Kaufklausel, Flash-Genehmigung | P12 | unit, e2e | nein | `tests/unit/legal/legal-texts-p12.unit.spec.ts`, `tests/e2e/legal/ip-notices.e2e.spec.ts` |
+| R-141 | KI-/Text-und-Data-Mining-Vorbehalt (§ 44b UrhG) technisch und im Text | P12 | unit, e2e | nein | `tests/unit/seo/ai-reservation.unit.spec.ts`, `tests/e2e/legal/ip-notices.e2e.spec.ts` |
 | R-150 | Auskunft und Datenübertragbarkeit (Art. 15, 20 DSGVO) | P6 | int | nein | `tests/unit/legal/p6-mails.unit.spec.ts`, `tests/int/legal/privacy-export.int.spec.ts` |
 | R-151 | Löschen und Einschränken mit Aufbewahrungssperre (Art. 17, 18) | P6 | int | nein | `tests/unit/legal/p6-mails.unit.spec.ts`, `tests/int/legal/privacy-erasure.int.spec.ts` |
 | R-152 | Berichtigung, Widerspruch, Widerruf von Einwilligungen | P6 | int | nein | `tests/unit/legal/p6-mails.unit.spec.ts`, `tests/int/legal/privacy-erasure.int.spec.ts` |
@@ -200,7 +202,7 @@ Lücken in der Nummerierung sind Reserve.
 | R-180 | Beispielbestand kennzeichnen und entfernbar | P8 | int | nein | `tests/int/seed/admin-remove.int.spec.ts`, `tests/int/collections/logs.int.spec.ts`, `tests/unit/seed/persons.unit.spec.ts`, `tests/e2e/admin-seed.e2e.spec.ts` |
 | R-181 | `SEED_PREVIEW_MODE` nie in Produktion | P8 | unit, int | nein | `tests/unit/env/seed-preview.unit.spec.ts`, `tests/unit/env/assert-production.unit.spec.ts`, `tests/int/media/owner-approved.int.spec.ts`, `tests/int/legal/gallery-consent.int.spec.ts` |
 | R-182 | Vorschau-Datei als interne Datei | P10 | unit | nein | `tests/unit/preview/r182.unit.spec.ts`, `tests/e2e/preview-export.e2e.spec.ts` |
-| R-190 | BFSG-Ausnahme dokumentiert, keine Konformitätsbehauptung | P10 | manuell | nein | `tests/unit/docs/handbook.unit.spec.ts`, §7 |
+| R-190 | BFSG-Ausnahme dokumentiert, keine Konformitätsbehauptung | P10 | manuell | nein | `tests/unit/docs/handbook.unit.spec.ts`, §7, `tests/unit/legal/legal-texts-p12.unit.spec.ts` |
 | R-191 | Freiwillige Barrierearmut (Ziel WCAG 2.2 AA) | P2, P10 | e2e | nein | `tests/e2e/a11y.e2e.spec.ts`, `tests/e2e/keyboard.e2e.spec.ts`, `tests/e2e/a11y/keyboard.e2e.spec.ts`, `tests/e2e/a11y/audit.e2e.spec.ts` |
 | R-200 | LUCID-Registrierung und Systembeteiligung | P10, P11 | unit, manuell | ja | `tests/unit/golive/checks.unit.spec.ts`, §7 |
 | R-201 | Verpackungsmengen erfassen (je Sendung, Jahres-Export) | P5 | int | nein | `tests/int/legal/packaging-report.int.spec.ts`, `tests/unit/settings/rules.unit.spec.ts`, `tests/int/globals/settings.int.spec.ts` |
@@ -231,7 +233,13 @@ Lücken in der Nummerierung sind Reserve.
 - **Phase:** P1 anlegen, jede Phase fortschreiben · **Owner:** nein
 
 #### R-002 · Keine selbst formulierten Rechtstexte, Platzhalter-Kennzeichnung
-- **Anforderung:** Sessions verfassen Impressum, Datenschutzerklärung, AGB, Widerrufsbelehrung,
+- **Änderung P12.11 (UEBERARBEITUNG U-22, geht dieser Anforderung vor):** Die sechs Rechtstexte stehen seit P12.11
+  **vollständig ausformuliert** in DE (verbindlich) und EN (gleichwertig) im Grund-Seed (`content/seed/data/base.json`,
+  `sections`/`sectionsEn`), mit Platzhaltern aus R-012 für alle persönlichen Angaben (Anschrift, E-Mail, Telefon,
+  W-IdNr./USt-IdNr.; IBAN steht in der Bestellbestätigung aus den Einstellungen). Sie bleiben `origin = placeholder`:
+  Banner „PLATZHALTER – nicht rechtsverbindlich“ und Go-live-Gate R-210 bleiben, bis die Kanzlei in P11 geprüft hat
+  (OFFENE-PUNKTE). Der folgende Absatz beschreibt den früheren Stand.
+- **Anforderung (früherer Stand):** Sessions verfassen Impressum, Datenschutzerklärung, AGB, Widerrufsbelehrung,
   Muster-Widerrufsformular und Versand-/Zahlungsbedingungen **nicht** selbst. Bis zur Kanzlei-Lieferung gibt es
   Gliederungs-Platzhalter: Überschriften laut KANZLEI-BRIEFING §1, unter jeder Überschrift nur der Satz
   „Text folgt von der Kanzlei.“ Jede Seite mit Platzhalter zeigt oben ein gut sichtbares Band „PLATZHALTER – nicht
@@ -1361,6 +1369,40 @@ Lücken in der Nummerierung sind Reserve.
 - **Abnahme:** `unit` – V-05-Scan.
 - **Phase:** P3, P7 · **Owner:** nein
 
+#### R-140 · Schutz des geistigen Eigentums: Urheberrechtsvermerk, Kaufklausel, Flash-Genehmigung
+- **Anforderung:** (a) Urheberrechtsvermerk und Nutzungsbedingungen für alle Bilder und Texte (Vervielfältigung,
+  Weitergabe, Download, gewerbliche Nutzung nur mit Erlaubnis in Textform; Zitate nur mit Quellenangabe, soweit gesetzlich
+  erlaubt) im Footer jeder Seite (Baustein `ip.copyrightNotice`), im Impressum und in den AGB; (b) **Kaufklausel**: Käufer:in
+  erwirbt nur das Unikat (Eigentum), keine Nutzungsrechte am Motiv (kein Nachdruck, Merchandise, Digitalisierung,
+  Reproduktion, Weiterverkauf als Reproduktion, kein Nachstechen); Unikate werden nicht in Serie gebracht – auf jeder
+  Produktseite (Baustein `ip.purchaseClause`) und in den AGB (Abschnitt „Urheberrecht und Kaufklausel“); (c) Tattoo-Motive und
+  Flash: Nachstechen oder Weiterverwendung nur mit schriftlicher Genehmigung, Verstöße werden verfolgt – bei den
+  Flash-Motiven, auf den Seiten Preise und Ablauf (Baustein `ip.tattooFlashNotice`) und in den AGB (Abschnitt „Tattoo-Motive und
+  Flash“). Die vier Bausteine `ip.*` sind in der Verwaltung pflegbar (Texte → Rechtliche Bausteine, `origin = draft`, nicht
+  „Kanzlei: ja“, Durchsicht empfohlen). Keine Verbotsmuster (V-08: kein Ausschluss des Widerrufsrechts; die Kaufklausel
+  betrifft nur Nutzungsrechte am Motiv, nie das Widerrufsrecht).
+- **Rechtsgrundlage:** §§ 15 ff., 97 UrhG; § 17 UrhG (Erschöpfung nur am Werkstück); § 44a ff./§ 51 UrhG (Schranken
+  bleiben unberührt); Transparenzgebot § 307 BGB.
+- **Umsetzung:** Bausteine `ip.copyrightNotice`, `ip.aiMiningReservation`, `ip.purchaseClause`, `ip.tattooFlashNotice`
+  (§ 6), Komponente `IpNotice` (Footer, `ProductPage`, `TattooShell` für R12/R14/R16), Abschnitte in AGB und Impressum.
+- **Abnahme:** `unit` – Bausteine DE/EN vorhanden, Klauseln in AGB/Impressum; `e2e` – Footer, Produktseite, Flash/Preise/Ablauf.
+- **Phase:** P12 · **Owner:** nein (Kanzlei-Durchsicht P11 empfohlen)
+
+#### R-141 · KI-/Text-und-Data-Mining-Vorbehalt (§ 44b Abs. 3 UrhG) technisch und im Text
+- **Anforderung:** Der Nutzungsvorbehalt steht im Text (Impressum, AGB, Footer; Baustein `ip.aiMiningReservation`) **und**
+  maschinenlesbar: `robots.txt` (Produktion: eigene Gruppe `Disallow: /` für bekannte KI-Crawler – GPTBot, ClaudeBot,
+  CCBot, Google-Extended, PerplexityBot, Bytespider, anthropic-ai u. a., Liste `AI_CRAWLERS` in `src/lib/seo/robots.ts`),
+  `/ai.txt`, `<meta name="robots" content="index, follow, noai, noimageai">` auf indexierbaren Seiten, `<meta
+  name="tdm-reservation" content="1">`, Header `X-Robots-Tag: noai, noimageai` (Produktion) und `tdm-reservation: 1`,
+  `/.well-known/tdmrep.json`. Suchmaschinen bleiben erlaubt (Gruppe `*` mit `Allow: /`); außerhalb der Produktion bleibt
+  alles gesperrt (AK-A-4-03).
+- **Rechtsgrundlage:** § 44b Abs. 3 UrhG (maschinenlesbarer Vorbehalt), Art. 4 Abs. 3 DSM-Richtlinie (EU) 2019/790.
+- **Umsetzung:** `src/lib/seo/robots.ts`, `src/app/robots.ts`, `public/ai.txt`, `public/.well-known/tdmrep.json`,
+  `src/lib/seo/metadata.ts`, `src/lib/security/headers.ts`.
+- **Abnahme:** `unit` – Gruppen, ai.txt = Crawler-Liste, Header/Meta; `e2e` – `/ai.txt` und `/.well-known/tdmrep.json`
+  erreichbar, Header `tdm-reservation`.
+- **Phase:** P12 · **Owner:** nein
+
 ### 4.14 Datenschutz-Organisation
 
 #### R-150 · Auskunft und Datenübertragbarkeit (Art. 15, 20 DSGVO)
@@ -1815,6 +1857,10 @@ Feste UI-Texte (nicht editierbar, keine Bausteine): „Zahlungspflichtig bestell
 | `translation.disclaimer` | EN-Rechtsseiten (R-015) | ja | „This English version is provided for convenience only. Only the German version is legally binding.“ |
 | `privacyRequest.accessResponse` | R-150 | ja | – (Kanzlei, optional) |
 | `privacyRequest.erasureResponse` | R-151 | ja | – (Kanzlei, optional) |
+| `ip.copyrightNotice` | Footer jeder Seite (R-140) | nein | „Alle Bilder, Zeichnungen, Fotos und Texte auf dieser Website sind urheberrechtlich geschützt. Vervielfältigung, Weitergabe, Download und gewerbliche Nutzung nur mit meiner Erlaubnis in Textform; Zitate nur mit Quellenangabe, soweit das Gesetz sie erlaubt.“ |
+| `ip.aiMiningReservation` | Footer (R-141) | nein | „Nutzungsvorbehalt nach § 44b Abs. 3 UrhG: Ich untersage die Nutzung meiner Bilder und Texte für das Training von KI-Systemen sowie für Text- und Data-Mining.“ |
+| `ip.purchaseClause` | Produktseite (Kaufklausel, R-140) | nein | „Mit dem Kauf erwirbst du dieses eine Unikat, nicht die Rechte am Motiv: kein Nachdruck, keine Vervielfältigung, kein Merchandise, keine Digitalisierung und kein Weiterverkauf als Reproduktion. Das Urheberrecht bleibt bei mir; meine Unikate werden nicht in Serie gebracht.“ |
+| `ip.tattooFlashNotice` | Flash, Preise, Ablauf (R-140) | nein | „Dieses Motiv ist von mir gezeichnet und urheberrechtlich geschützt. Nachstechen oder jede andere Weiterverwendung, auch durch andere Tätowierer:innen, nur mit meiner schriftlichen Genehmigung. Verstöße verfolge ich.“ |
 
 Englische Fassungen der Bausteine werden aus der Kanzlei-Lieferung übernommen; bis dahin übersetzt Claude die
 Arbeitsfassung sinngemäß (`origin: 'draft'`).

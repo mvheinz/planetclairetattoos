@@ -61,6 +61,9 @@ describe('T-16 Header je Kontext', () => {
       'Permissions-Policy':
         'camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()',
       'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+      // P12.11 (U-22 c): TDMRep-Vorbehalt und KI-Ausschluss, Indexierung bleibt erlaubt
+      'tdm-reservation': '1',
+      'X-Robots-Tag': 'noai, noimageai',
     })
     expect(baseHeaders('staging')['Strict-Transport-Security']).toBe(
       'max-age=31536000; includeSubDomains',

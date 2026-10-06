@@ -423,7 +423,8 @@ export const LEGAL_SNIPPET_KEYS = ['price.kleinunternehmerNote', 'price.shipping
   'withdrawal.receiptNotice', 'withdrawal.returnInfo', 'withdrawal.returnCostsNote', 'complaint.repairChoice',
   'dispute.vsbg37',
   'inquiry.privacyNotice', 'inquiry.autoReply', 'commission.offer', 'translation.disclaimer',
-  'privacyRequest.accessResponse', 'privacyRequest.erasureResponse'] as const
+  'privacyRequest.accessResponse', 'privacyRequest.erasureResponse',
+  'ip.copyrightNotice', 'ip.aiMiningReservation', 'ip.purchaseClause', 'ip.tattooFlashNotice'] as const
 export type LegalSnippetKey = (typeof LEGAL_SNIPPET_KEYS)[number]
 export const WITHDRAWAL_STATUSES = ['received', 'goods_returned', 'partially_refunded', 'refunded', 'rejected',
   'closed'] as const

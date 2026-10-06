@@ -327,7 +327,7 @@ describe('R-110/R-036 AGB, Versand und Zahlung (P12.11)', () => {
   })
 })
 
-describe('U-22 Schutz des geistigen Eigentums (P12.11)', () => {
+describe('R-140 Schutz des geistigen Eigentums (U-22, P12.11)', () => {
   const IP_KEYS = [
     'ip.copyrightNotice',
     'ip.aiMiningReservation',
@@ -335,7 +335,7 @@ describe('U-22 Schutz des geistigen Eigentums (P12.11)', () => {
     'ip.tattooFlashNotice',
   ] as const
 
-  it('(a)(b)(c)(d) vier Bausteine DE+EN als Arbeitsfassung (draft), ohne Platzhalter, nicht „Kanzlei: ja“', () => {
+  it('R-140 vier Bausteine (a)(b)(c)(d) DE+EN als Arbeitsfassung (draft), ohne Platzhalter, nicht „Kanzlei: ja“', () => {
     for (const k of IP_KEYS) {
       expect(LEGAL_SNIPPET_KEYS).toContain(k)
       const s = LEGAL_SNIPPET_SEED[k]
@@ -359,7 +359,7 @@ describe('U-22 Schutz des geistigen Eigentums (P12.11)', () => {
     expect(LEGAL_SNIPPET_SEED['ip.tattooFlashNotice'].en).toMatch(/written permission/)
   })
 
-  it('AGB und Impressum tragen dieselben Klauseln als eigene Abschnitte (Kaufklausel, KI/TDM, Flash-Nachstechen) in DE und EN', () => {
+  it('R-140 AGB und Impressum tragen dieselben Klauseln als eigene Abschnitte (Kaufklausel, KI/TDM, Flash-Nachstechen) in DE und EN', () => {
     const agbDe = flat(text('agb').sections)
     const agbEn = flat(text('agb').sectionsEn)
     for (const h of [
