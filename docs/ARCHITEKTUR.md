@@ -1751,6 +1751,7 @@ damit grün sind. Der Wechsel betrifft nur `cached.ts` und Segment-Konfiguration
 | Stück in der Verwaltung bearbeitet | wie oben | `revalidateTag(tag, 'max')` | ≤ 60 s |
 | Seite, FAQ, Texte, Einstellungen | `page:<key>`, `faqs`, `site-texts`, `settings` | `revalidateTag(tag, 'max')` | ≤ 60 s |
 | Flash, Galerie | `flash`, `tattoo-gallery`, `home` | `'max'` | ≤ 60 s |
+| Termine „on Tour“ (P12.8) | `tour-dates`, `home` | `'max'` (Rückfall `revalidate = 3600`; „vorbei“ aus dem Datum beim Rendern) | ≤ 60 s |
 | Rechtstext aktiviert | `legal:<type>` | `{ expire: 0 }` | ≤ 5 s |
 | Bild geändert | `media:<id>` | `'max'` | ≤ 60 s |
 | Beispieldaten entfernt | alle | `revalidatePath('/', 'layout')` | ≤ 60 s |

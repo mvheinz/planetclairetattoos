@@ -227,6 +227,7 @@ Die **Verpackungsmengen** (E-47, R-201) sind dagegen im Umfang: je Sendung Verpa
 | 27 | `deletion-log` | Löschprotokoll | System | Nachweis jeder Löschung/Anonymisierung/Einschränkung ohne Inhalte; Grundlage für `pnpm retention:replay` (L-18) | nein | – | P1 (Logik P6) |
 | 28 | `legal-snippets` | Rechtsbausteine | Inhalte | versionierte kurze Rechtstexte (Schlüssel aus RECHT ANFORDERUNGEN §6, R-012) | ja (aktive) | – | P6 (Migration §10.1; bis dahin Konstanten) |
 | 29 | `complaints` | Reklamationen | Shop | Reklamationsakte je Bestellung: Art, Eingang, Fotos, Abhilfe, Fristen (R-110, R-111) | nein | ✓ | P6 (Migration §10.1) |
+| 30 | `tour-dates` | Termine (on Tour) | Tattoo | Märkte „Planet Claire on Tour“ (U-20) | ja (veröffentlichte) | – | P12 |
 | G1 | `settings` | Einstellungen | – | Betriebs-, Steuer-, Versand-, Verpackungs-, Aufbewahrungs-, Stamm- und Go-live-Daten | nur Whitelist | – | P1 |
 | G2 | `site-texts` | Texte & Navigation | – | UI-Texte DE/EN, Navigation | ja | – | P1 |
 
@@ -2286,6 +2287,34 @@ Stufe D anonymisiert wird; `deletion-log` je Datensatz.
   Datensatz einen `deletion-log`-Eintrag.
 
 ---
+
+
+### 6.30 `tour-dates` – Termine „Planet Claire on Tour“ (P12.8, U-20)
+
+**Zweck:** Märkte, Flohmärkte, Kunstmärkte, auf denen Jutta steht; rechte Spalte der Startseite (KONZEPT §3.1a). Nur
+Textlink, keine Karte. Keine Versionen, keine Entwürfe.
+
+| Feld | Typ | Pfl. | L | Default | Validierung / Regel | Admin-Hinweis |
+|---|---|---|---|---|---|---|
+| `name` | text | R | ✓ | – | 3–100 | Name des Marktes |
+| `startsAt` | date | R | – | – | Hook legt auf 00:00 Europe/Berlin des ersten Tages | Von (Datum) |
+| `endsAt` | date | – | – | = `startsAt` | Hook legt auf 23:59:59 Berlin des letzten Tages; nicht vor `startsAt` | Bis (Datum), leer = eintägig |
+| `place` | text | R | ✓ | – | 2–80 | Ort / Bezirk |
+| `address` | text | – | – | – | ≤ 160; **nie die Straße aus `settings.business.street`** (E-50) | Adresse des Marktes |
+| `link` | text | – | – | – | `http(s)`-Adresse mit Punkt im Host, ≤ 300, ohne Zugangsdaten; wird normalisiert | nur Textlink |
+| `standNumber` | text | – | – | – | ≤ 20 | – |
+| `timeFrom`, `timeTo` | text | – | – | – | `HH:mm` | Anzeigetext „10–18 Uhr“ |
+| `note` | textarea | – | ✓ | – | ≤ 240 | z. B. „Coco ist dabei.“ |
+| `image` | upload → `media` | – | – | – | – | Foto vom Stand (Bild eines veröffentlichten Termins nicht löschbar, §6.2) |
+| `status` | select `TourStatus` | R | – | `planned` | `planned` · `cancelled` · `past` | „vorbei“ folgt auch aus `endsAt` |
+| `published` | checkbox | R | – | `true` | – | – |
+| `seed` | checkbox | S | – | `false` | – | – |
+
+**Access:** `read`: öffentlich `{ published = true }` (+ Seed-Filter; auch vergangene Termine – sie stehen eingeklappt),
+Admin alles · `create`/`update`/`delete`: `isAdmin`. **Hooks:** `beforeChange` normalisiert den Zeitraum und prüft Adresse und
+Link; `afterChange`/`afterDelete` erneuern `tour-dates` und `home`. **Anzeige-Zustand** (nicht gespeichert): `abgesagt`
+(`status = cancelled`), sonst `vorbei` (`status = past` oder `endsAt ≤ jetzt`), sonst `läuft` (ab `startsAt`) bzw. `kommt`.
+**Migration:** `p12_tour_dates`. **Akzeptanz:** DM-TOUR-01…04 (`tests/int/collections/tour-dates.int.spec.ts`).
 
 ## 7. Globals
 

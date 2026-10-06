@@ -431,6 +431,9 @@ Link-Liste im Fuß erreichbar.
   7. **Tattoo:** 1–2 Sätze, bis zu 3 verfügbare Flash-Motive, Link „Zum Tattoo-Bereich“ → R11.
   8. **Jutta & Coco:** Teaser-Text, Link „Mehr über uns“ → R19, Zeile „Eigene Idee? → Auftragsarbeiten“ → R10,
      Instagram-Link.
+- **Rechte Spalte (P12.7/P12.8, U-08, U-20):** Ab 1100 px steht rechts neben Kopf und Stationen eine Spalte (sticky), mobil
+  steht sie unter dem Kopf der Seite. Oben der leere, benannte Bereich `data-slot="chairwoman"` für Koko, die Vorsitzende
+  der Goth Dogs Berlin (P12.6 füllt ihn), darunter „Planet Claire on Tour“ (§3.1a). Instagram: nur im Fuß (U-15).
 - **Datenquelle:** `pages` mit `key = home` (Blöcke `hero` und `station`, Texte DE/EN), `settings.business`
   (Name/Geschäftsbezeichnung), Collections `products`, `categories`, `flash`.
 - **Zustände:** Kategorie ohne sichtbare Stücke → Station zeigt Zeichnung, Text „Gerade ist hier nichts – schau bald
@@ -442,6 +445,26 @@ Link-Liste im Fuß erreichbar.
   Reduced Motion: Linie fertig gezeichnet, Coco still.
 - **AK-3-01** Die Startseite zeigt die Kopf-Station „Planet Claire“ und danach genau 7 Stationen in dieser Reihenfolge: Hallo, Keramik, Textil, Zeichnungen, Schmuck, Tattoo, Jutta & Coco.
 - **AK-3-02** Pro Kategorie-Station höchstens 4 Stücke, nie `sold`, `draft` oder `archived`.
+
+### 3.1a Planet Claire on Tour (rechte Spalte der Startseite) [P12.8]
+
+- **Zweck (U-20):** Märkte, Flohmärkte und Kunstmärkte, auf denen Jutta steht. Komponente `TourDates` in der rechten Spalte
+  der Startseite unter dem Platz für die Vorsitzende (`data-slot="chairwoman"`), mobil unter dem Kopf der Seite.
+- **Je Termin:** Name des Marktes, Datum von–bis (Text „Sa 12.10.2026“ bzw. „12.–13.10.2026“; EN „Sat 12 Oct 2026“),
+  Uhrzeiten („10–18 Uhr“), Ort/Bezirk, Adresse (Text), Standnummer, kurze Notiz (DE/EN), optional Textlink („Zur Seite des
+  Marktes“, `rel="noopener noreferrer"`) und Foto vom Stand. **Keine Karte, keine Einbettung, keine Drittanbieter-Anfrage.**
+- **Reihenfolge:** Kommende Termine (nach Beginn aufsteigend, auch abgesagte) stehen oben; vergangene (neueste zuerst, höchstens
+  12) sind in `<details>` eingeklappt (ohne JavaScript bedienbar, Beschriftung „Vergangene Termine (n)“).
+- **Status:** `planned` (geplant), `cancelled` (abgesagt: Name, Datum, Ort und Notiz durchgestrichen **und** Text „abgesagt“),
+  `past` (vorbei). „Vorbei“ folgt zusätzlich automatisch aus dem Datum (`endsAt` erreicht); „läuft gerade“ zeigt eine Plakette.
+- **Datenquelle:** Collection `tour-dates` (DATENMODELL §6.30), gecacht mit Tag `tour-dates` (Rückfall 1 h); der Zustand wird
+  beim Rendern aus dem Datum berechnet. Leerzustand: „Gerade sind keine Termine geplant.“
+- **Pflege:** Verwaltung `/tattoo`, Reiter „Termine“ (Liste kommend/vergangen, „Neuer Termin“, Absagen, Offline nehmen,
+  Löschen, Übersetzen). Beispieltermine `seed = true` (SEED-SPEC §12.5).
+- **Recht:** Die Adresse eines Termins ist die des Marktes, nie die des Privatstudios (E-50, Prüfung gegen
+  `settings.business.street`). Keine Cookies, keine Fremd-Requests (R-130, R-139).
+- **AK-3-13** Ein in der Verwaltung angelegter Termin erscheint nach der Revalidierung in der rechten Spalte der Startseite
+  (DE und EN); ein abgesagter ist durchgestrichen mit Text „abgesagt“; vergangene stehen eingeklappt unter den kommenden.
 
 ### 3.2 Shop (R02) [P3]
 
