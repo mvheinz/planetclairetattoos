@@ -29,7 +29,7 @@ interface Pt {
 export const SAMPLE_STEP = 2
 export const LUT_STEP = 4
 /** Proben je Teilstück in den Schleifen von Schritt 6/7 (PF-04: kalter JIT am Desktop hält jedes Teilstück ≤ 8 ms). */
-export const SAMPLE_CHUNK = 768
+export const SAMPLE_CHUNK = 384
 /** Toleranz der Umriss-/Mittellinien-Vereinfachung (Schritt 8). */
 const RDP_TOLERANCE = 0.2
 /** Überlappung benachbarter Segmente (Schritt 9). */
@@ -813,7 +813,7 @@ export function* geometrySteps(input: BuildInput): Generator<void, GeometryResul
     const i0 = idxAt(bounds[k]!)
     const i1 = k === bounds.length - 2 ? n - 1 : idxAt(bounds[k + 1]! + SEGMENT_OVERLAP)
     if (i1 <= i0) continue
-    segments.push(buildSegment(`s${k}`, i0, i1, { wx, wy, nx, ny, ang, w, ss }, dots, bw))
+    segments.push(yield* buildSegment(`s${k}`, i0, i1, { wx, wy, nx, ny, ang, w, ss }, dots, bw))
     yield
   }
 
@@ -943,14 +943,14 @@ function buildStrokes(i0: number, i1: number, d: SegmentData, dots: number[], bw
   return out
 }
 
-function buildSegment(
+function* buildSegment(
   id: string,
   i0: number,
   i1: number,
   d: SegmentData,
   dots: number[],
   bw: number,
-): LeashSegment {
+): Generator<void, LeashSegment, void> {
   // Bbox aus der Mittellinie ± halber Breite bzw. Tintenpunkt-Radius (umschließt Umriss und Striche).
   let minX = Infinity
   let minY = Infinity
@@ -971,6 +971,7 @@ function buildSegment(
   const ccx = keepC.map((k) => cx[k]!)
   const ccy = keepC.map((k) => cy[k]!)
   const centerD = polyD(ccx, ccy, false)
+  yield
   const strokes = buildStrokes(i0, i1, d, segDots, bw)
   const x = Math.floor(minX)
   const y = Math.floor(minY)
@@ -1064,10 +1065,9 @@ function buildScrollMap(
     const prev = out[out.length - 1]!
     const p = raw[k]!
     const last = k === raw.length - 1
-    let readingY = Math.max(p.readingY, prev.readingY + 1)
+    const readingY = Math.max(p.readingY, prev.readingY + 1)
     let len = Math.min(total, Math.max(p.len, prev.len + 0.01))
     if (last) {
-      readingY = Math.max(readingY, prev.readingY + 1)
       len = total
       if (len <= prev.len) out.pop()
     } else if (len >= total) continue

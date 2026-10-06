@@ -110,7 +110,7 @@ const ROW_ENTER_LINE = 0.95
  * Rechenzeit je Idle-Teilstück des Aufbaus (ms, ungedrosselt; mindestens ein Schritt je Teilstück, ein weiterer nur, wenn
  * er – geschätzt wie der vorige – noch hineinpasst).
  */
-const STEP_BUDGET_MS = 3
+const STEP_BUDGET_MS = 1.5
 /** Coco springt statt zu rennen, wenn sie weiter zurückliegt (§9.6). */
 const COCO_JUMP = 300
 
@@ -140,7 +140,7 @@ interface SegView {
 
 type IdleWin = Window & {
   requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number
-  cancelIdleCallback?: (id: number) => void
+  cancelIdleCallback?: (id?: number) => void
 }
 
 export function mountLeash(root: HTMLElement, options: MountOptions): InspectableLeashHandle {
@@ -611,22 +611,15 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       return finishBuild(first, ...r.value, t0)
     }
     let cancelled = false
-    let handle: number | null = null
+    let handle: number | undefined
     const job = (stepped = {
       cancel() {
         cancelled = true
-        if (handle !== null) win.cancelIdleCallback?.(handle)
+        win.cancelIdleCallback?.(handle)
       },
     })
     const next = (fn: () => void) => {
-      handle = ric.call(
-        win,
-        () => {
-          handle = null
-          if (!cancelled && !destroyed) fn()
-        },
-        { timeout: 300 },
-      )
+      handle = ric.call(win, () => cancelled || destroyed || fn(), { timeout: 300 })
     }
     const run = () => {
       const t1 = performance.now()
