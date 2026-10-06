@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P9 CI-Reparatur (zwei Testfehler)
+
+Im Phasenlauf von P9 scheiterten zwei Tests, beides Testprobleme und keine Fehler auf der Seite: Eine Prüfung auf „__leash“ im Vorschau-Export traf versehentlich Klassennamen der QA-Seiten (jetzt wird nur der eigenständige Name geprüft, wie im Debug-Check), und ein Test für Cocos Sprite lief in CI knapp über sein Zeitlimit (jetzt 30 Sekunden). Der Phasenlauf startet erneut.
+
 ## 2026-10-06 – P9 Phasen-Abnahme (Kunst & Bewegung) – für Jutta
 
 ### Phase 9 fertig: Zeichnungen und Animationen sind gebaut und dreifach geprüft
