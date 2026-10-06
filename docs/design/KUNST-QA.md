@@ -279,7 +279,7 @@ Beleg) **· Schwere bei Verfehlung** (B = Blocker, M = Major, m = Minor; Definit
 | AR-01 | Quelle und Rechte | jede Stationszeichnung stammt aus der Zuordnung DESIGN §12.4; **keine** Kundenhaut-Fotos, kein Godzilla, keine Bilder mit Jutta | auto (`content/art/sources.json`) + R1 | B |
 | AR-02 | Strichtreue der Vektorisierung | Median-Strichbreite (Distanztransformation) der Zeichnung 0,75–1,25 × Median im Schwellwertbild der Quelle; keine Klumpen (zusammengelaufene Flächen > 2 % der Bildfläche, die im Original offen sind) | auto + R1 | M |
 | AR-03 | Größe | Station ≤ 8 KB, Platzhalter ≤ 6 KB, Motive ≤ 1,5 KB, Icons ≤ 600 B, Wortmarke ≤ 5 KB | auto | m |
-| AR-04 | Platzhalter-Regeln | viewBox 400×500, genau eine Wash-Farbe aus §3.1, Strich 2,8 (seit P9.13; vorher 2,4), kein `<text>`, Motiv 55–70 % der Höhe | auto | m |
+| AR-04 | Platzhalter-Regeln | viewBox 400×500, höchstens eine Wash-Farbe aus §3.1 (ohne Wash erlaubt), Strich 2,8 (seit P9.13; vorher 2,4), kein `<text>`, Motiv 55–70 % der Höhe | auto | m |
 | AR-05 | Platzhalter wirken wie Juttas Hand | Bewertung ≥ 4 (Rubrik §6.5), im Shop-Raster zwischen echten Fotos nicht „fremd“ | R1 | M |
 | AR-06 | Weltraum-Motive | handgezeichnet, max. 1 Marke/Station, ≤ 3 Sterne/Bildschirmhöhe, keine Band-Bezüge (Liedtext, Logo, Albumgrafik) | auto (Dichte) + R1 | B (Band-Bezug) / m |
 | AR-07 | Marke klein lesbar | Favicon 16 px als Planet mit Ring erkennbar; Wortmarke ab 24 px Höhe lesbar | R1 | m |
@@ -617,7 +617,8 @@ toolVersions: {playwright, chromium, webkit, node}, sizes: {totalMB} }`.
   `pnpm art:record` → `pnpm art:metrics` → `pnpm art:sheets` → `pnpm art:check` (Gate) → `pnpm art:bundle` → ältere
   `art-qa-*` löschen → `actions/upload-artifact` (grün: Name `art-qa-<lauf-id>`, `retention-days: 30`; rot: Budget-Schritt,
   dann nur `art-qa-check-<lauf-id>`, `retention-days: 2`, §8).
-- Laufzeit-Ziel ≤ 25 min; Tempo-Läufe (SC-18) nur mit Chromium.
+- Laufzeit-Ziel: Aufnahme ≈ 30 min (realistisch auf 4 vCPU), Gate ≤ 45 min Gesamtlauf, Abbruch bei 60 min. Gemessen: Lauf 37303234309 mit 2 Workern 40 min gesamt (Aufnahme 34 min); mit 3 Workern (Lauf 37315719966) 44 min gesamt, aber Kassen-Szenarien SC-06/07/09 kollidierten (Fixture-Bereich 990–999 reicht für 2 Worker) und PF-04 (Build-Zeit) wurde verfälscht. Daher `ART_WORKERS=2` (Workflow, Bild-Läufe); Kassen-Szenarien laufen nach den übrigen Szenarien mit höchstens 2 Workern, der Tempo-Lauf SC-18 (Chromium, ≈ 7 min) allein danach. Größte Posten: SC-14 (≈ 13 min Gerätezeit), SC-18, SC-01.
+- Tempo-Läufe (SC-18) nur mit Chromium.
 - Ab P9 enthält die reguläre E2E-Suite (`tests/e2e/`, Job `e2e-full` in `ci-full.yml` bei jedem Phasenende `[ci:full pN]`
   und beim Zwischenlauf `[ci:full]`, ARCHITEKTUR §6.4, §6.7) als schnelle Teilmenge: DESIGN AK-DS-09, -11, -13, -14 und
   §5 LG-01 für R01 (Projekt `pixel-7`, ohne Video). Das verhindert, dass spätere Phasen die Kunst-Abnahme unbemerkt brechen.

@@ -119,11 +119,12 @@
 .coco[data-pose='schlafen'] {
   --boil-frame: var(--sleep-frame);
 }
+/* 33,4 % statt 33,333 %: die Frames überlappen um 0,2 ms statt eine Lücke zu lassen (Aufnahmen im 100-ms-Takt, gleich der Boil-Frame-Länge, trafen die Kante und zeigten kein Coco, R2-06-01). */
 @keyframes coco-boil {
   0% {
     opacity: 1;
   }
-  33.333% {
+  33.4% {
     opacity: 0;
   }
   100% {

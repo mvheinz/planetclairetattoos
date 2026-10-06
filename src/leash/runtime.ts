@@ -162,6 +162,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   let visible = true
   let rafId: number | null = null
   let lastFrame = 0
+  let lastSY = -1
   let lastScrollAt = -Infinity
   let intro: { from: number; to: number; start: number | null; dur: number } | null = null
   let debounce: ReturnType<typeof setTimeout> | null = null
@@ -371,9 +372,13 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     )
   }
 
-  /** Ruheplatz bei reduzierter Bewegung: erste Station (`journey`/`about`, §9.11), sonst Linienanfang. */
+  /**
+   * Ruheplatz bei reduzierter Bewegung: erste Station (`journey`/`about`, §9.11), sonst Linienanfang. Coco sitzt 48 px
+   * hinter dem Ende der Schlaufe (`loopLen1`), nicht am Beginn und nicht am Ring der Planeten-Marke (R3-06-01, R3-07-01).
+   */
   function restLen(): number {
-    return geometry?.stations[0]?.loopLen0 ?? 0
+    const s = geometry?.stations[0]
+    return s ? s.loopLen1 + 48 : 0
   }
 
   /** Ziel-Pose (§10.3, §10.6): reduziert → Ruhe-Pose; in Bewegung `rennen`; an einer Station deren Pose. */
@@ -457,6 +462,11 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     const t0 = performance.now()
     let again = false
     const target = scrollTarget()
+    // WebKit liefert Scroll-Ereignisse beim Wischen gedrosselt (≈ alle 150 ms): solange sich die Position ändert, im Takt weiterlaufen
+    if (win.scrollY !== lastSY) {
+      lastSY = win.scrollY
+      again = true
+    }
     if (intro) {
       if (intro.start === null) intro.start = now
       if (cfg.draw === 'scroll' || cfg.draw === 'rowEnter') intro.to = Math.max(intro.to, target)

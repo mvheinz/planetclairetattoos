@@ -1,5 +1,12 @@
 import { spawnSync } from 'node:child_process'
-import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
+import {
+  appendFileSync,
+  existsSync,
+  readFileSync,
+  readdirSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { gunzipSync, gzipSync } from 'node:zlib'
@@ -660,7 +667,31 @@ async function main(): Promise<void> {
   console.log(
     `art:check: ${runId}: ${report.summary.pass}/${report.summary.auto} auto-Kriterien bestanden${failed.length ? `, rot: ${failed.join(', ')}` : ''}; ${report.summary.judgement} Urteilspunkte offen → ${path.join(runDir, 'check.md')}`,
   )
+  // Rote Kriterien mit Messwert, Schwelle und Einzelbefunden (Profil/Szenario) direkt im Log: CI-Ergebnisse sind ohne
+  // Artefakt-Download auswertbar (und im Step-Summary, falls gesetzt).
+  const lines = failureLines(report.criteria.filter((r) => r.result?.status === 'FAIL'))
+  if (lines.length > 0) {
+    console.log(lines.join('\n'))
+    if (process.env.GITHUB_STEP_SUMMARY)
+      appendFileSync(
+        process.env.GITHUB_STEP_SUMMARY,
+        `\n### Rote Kriterien\n\n\`\`\`\n${lines.join('\n')}\n\`\`\`\n`,
+      )
+  }
   process.exit(report.pass ? 0 : 1)
+}
+
+/** Zeilen je rotes Kriterium: ID, Messwert, Schwelle, Einzelbefunde (Profil/Szenario stehen in den Befunden). */
+export function failureLines(
+  failed: {
+    id: string
+    result?: { value: string; threshold: string; details?: string[] } | null
+  }[],
+): string[] {
+  return failed.flatMap((r) => [
+    `ROT ${r.id}: Messwert ${r.result?.value ?? '?'} | Schwelle ${r.result?.threshold ?? '?'}`,
+    ...(r.result?.details ?? []).map((d) => `    - ${d}`),
+  ])
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href)

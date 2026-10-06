@@ -81,25 +81,54 @@ async function leashLoupes(art: ArtSession, prefix: string): Promise<void> {
         .map((s) => ({ tag: `schlaufenstart-${s.id}`, len: s.loopLen0 })),
     ]
   })
-  // Intro und Zeichnen abwarten: sonst liegt die Lupe am Seitenanfang (Kopf-Station) auf noch leerem Papier (R1-05-04)
-  await page
-    .waitForFunction(
-      () => {
-        const l = (
-          window as unknown as {
-            __leash?: { drawnLen(): number; geometry: { totalLength: number } | null }
-          }
-        ).__leash
-        return !!l?.geometry && l.drawnLen() >= l.geometry.totalLength - 1
-      },
-      undefined,
-      { timeout: 8000 },
-    )
-    .catch(() => undefined)
+  // Je Stelle abwarten, bis die Linie dort gezeichnet ist (drawnLen > Position): unter Rechnerlast zeichnet sie langsamer, ein
+  // einmaliges Warten mit kurzer Frist ließ bei 5 von 8 Schlaufenstarts die Lupe auf noch leerem Papier stehen (R1-06-02)
+  const drawnTo = (len: number) =>
+    page
+      .waitForFunction(
+        (len) => {
+          const l = (window as unknown as { __leash?: { drawnLen(): number } }).__leash
+          return !!l && l.drawnLen() >= len
+        },
+        len,
+        { timeout: 60_000 },
+      )
+      .catch(() => undefined)
+  // erst die ganze Linie (wie im Einzeltest, der alle Punkte zeigt), dann je Stelle prüfen: `drawnLen` ist die Zielgröße, die Striche
+  // der weiter unten liegenden Schlaufen stehen erst kurz danach (R1-07-03: 6 von 8 Lupen ohne Punkt)
+  const total = await page.evaluate(
+    () =>
+      (window as LoupeWin & { __leash?: { geometry: { totalLength: number } | null } }).__leash
+        ?.geometry?.totalLength ?? 0,
+  )
+  await drawnTo(total - 1)
+  await page.waitForTimeout(1500)
   const vh = page.viewportSize()!.height
   const vw = page.viewportSize()!.width
+  // Die Geometrie wird neu gebaut, wenn nachladende Bilder das Layout verschieben (Scrollen lädt weiter unten liegende Bilder):
+  // Stelle je Versuch frisch aus der aktuellen Geometrie lesen, hinscrollen, setzen lassen und erst bei ruhiger Lage aufnehmen.
+  const resolve = (tag: string) =>
+    page.evaluate((tag) => {
+      const g = (window as LoupeWin).__leash?.geometry
+      if (!g) return null
+      const m = /^naht-(\d)$/.exec(tag)
+      if (m) return g.segments[Number(m[1])]?.len0 ?? null
+      return g.stations.find((s) => `schlaufenstart-${s.id}` === tag)?.loopLen0 ?? null
+    }, tag)
   for (const spot of spots) {
-    const p = await linePoint(page, spot.len)
+    let len = spot.len
+    let p = await linePoint(page, len)
+    for (let attempt = 0; attempt < 5 && p; attempt++) {
+      await page.evaluate((y) => scrollTo(0, Math.max(0, y)), p.y - vh / 2)
+      await page.waitForTimeout(800)
+      len = (await resolve(spot.tag)) ?? len
+      await drawnTo(len + 12)
+      const q = await linePoint(page, len)
+      if (!q) break
+      const settled = Math.abs(q.y - p.y) < 1.5 && Math.abs(q.x - p.x) < 1.5
+      p = q
+      if (settled) break
+    }
     if (!p) continue
     await page.evaluate((y) => scrollTo(0, Math.max(0, y)), p.y - vh / 2)
     const sy = await page.evaluate(() => scrollY)

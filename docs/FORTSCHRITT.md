@@ -99,6 +99,33 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 - Wartungsmodus: Proxy liefert 503-Seite in Juttas Ton (DE/EN, mit Fußlink „Vertrag widerrufen“); Impressum, Datenschutz, AGB, Widerrufsbelehrung und R26 bleiben offen; Webhook/Kasse-Zustand/Upload 503, Tick 204, Health mit maintenance
 - R26 ohne erreichbare Datenbank: mailto-Weg an MAIL_REPLY_TO (isDatabaseReachable)
 - Tests: tests/int/maintenance.int.spec.ts (10), tests/e2e/maintenance.e2e.spec.ts (4, eigener Server: pnpm test:e2e:maintenance)
+## 2026-10-06 – P9.12, P9.13, P9.18 abgehakt (Kunst-QA, Fall b)
+
+Neun Prüf-Durchgänge (Iteration 01–09, Protokolle in `docs/design/qa-log/`, Reviews je Linse) mit jeweils grünem `art:check` auf der Vollaufnahme in Iteration 06–09. Die Schleife endet nach Fall b (8+ Iterationen): alle nicht verhandelbaren Punkte bestehen, der Prüfer R3 meldet PASS. Offen als „Kunst-QA offen“ (in `docs/OFFENE-PUNKTE.md`): Platzhalter noch nicht ganz auf Note 4 (AR-05 = 3; nächste Stufe: Gesichter neu zeichnen, gemeinsam mit Jutta in P11), die Bewegungs-Feinheiten MO-11/MO-12 und Cocos Wanderung im Seitenübergang (MO-14). Gefundener und behobener Fehler: Der Seitenübergang stand am Ende der Seite statt im Kopf und wurde von Chromium übersprungen.
+
+## 2026-10-06 – P9.18a
+
+- Fall b (KUNST-QA §6.6 Nr. 6.1) nach 9 Iterationen (Iteration 06–09 in dieser Session): alle nicht verhandelbaren Punkte PASS, `art:check` 62/62 in jedem Lauf. Iteration 09: R1 FAIL (AR-05 Note 3), R2 FAIL (MO-11, MO-12 Note 3), R3 PASS.
+- Offen als „Kunst-QA offen“ (docs/OFFENE-PUNKTE.md): AR-05, MO-11/MO-12 (MI-01 Posenwechsel, MI-06/07/10/12 Aufnahme), MO-14 (Coco wandert nicht, ADR 0003). Protokolle: docs/design/qa-log/2026-10-05-iter-06.md bis -09.md, Reviews unter reviews/iter-06 bis iter-09.
+- Echter Produktfund: `@view-transition` stand am Ende des `<body>`, Chromium übersprang den Seitenübergang; jetzt im `<head>` (MO-14 misst 242 statt 0 Animationen).
+- Weitere Produkt-Änderungen: Nr. 922 im Raster nicht mehr schwarz (kein Multiplizieren bei Aquarellen), Coco-Boil ohne Lücke, Ruheplatz hinter der Kopf-Schlaufe (reduziert), Herz am Endanker, Planeten-Marke bei erzwungenen Farben ohne Füllung, Stationen hallo/jutta-und-coco neu, zehn Platzhalter ohne Wash.
+- Tests: pnpm check grün (207 Dateien, 1 889 Tests), pnpm build grün, pnpm test:perf (Lighthouse-Gates) Exit 0, visuelle Referenzen für 6 Bilder erneuert, E2E-Teilauswahl (desktop + pixel-7: leash, coco, home, home-choreo, reduced-motion, motion-toggle, art-gate, error-pages, menu) 81 grün; rot bleiben in dieser Umgebung `coco.e2e` „Weiche Navigation“ (2 Fälle, rot auch mit dem alten `SiteDocument`, einzeln mit `-g` grün) und ein reihenfolge-abhängiger Fall in `home.e2e` (einzeln grün); `@a11y`-Auswahl: `keyboard.e2e` EK-07 scheitert am Footer-Schalter „Animationen: aus (Systemeinstellung)“ (Umgebung mit System-Bewegungsreduktion) – nicht abgehakt, siehe Bericht.
+
+## 2026-10-05 – P9.7 Kunst-QA-Workflow bewiesen
+
+`[ci:art]`-Lauf 37329881684 (Commit 85347b4) ist grün: 62 von 62 automatischen Kriterien bestanden, Bündel `art-qa-20261005-iter01-85347b4` (≈ 100 MB) hochgeladen, genau ein Bündel vorhanden, Laufzeit ≈ 44 Minuten (Gate ≤ 45, Abbruch 60). Probe `gh run download`: Der Download der Artefakt-Datei ist von dieser Cloud-Umgebung aus nicht möglich (Proxy erlaubt keine Weiterleitung auf den Blob-Speicher); Auswertung läuft deshalb über die Zeilen im Job-Log (`ROT <ID>: …`) – Eintrag in OFFENE-PUNKTE.
+
+## 2026-10-05 – P9 Kunst-QA: vierter Lauf in CI
+
+Zwei Aufnahme-Worker statt drei (drei störten sich gegenseitig), die Kassen-Szenarien laufen nacheinander, und rote Kriterien stehen jetzt mit Messwert im Log. Die Messung der Linien-Nachführung auf dem iPhone-Profil ist genauer geworden. Der Lauf zeigt auf einer ruhigen Maschine, ob alles besteht.
+
+## 2026-10-05 – P9 Kunst-QA: dritter Lauf in CI
+
+Im letzten CI-Lauf war nur noch eine Messung rot (Tempo der Linie auf dem iPhone-Profil). Ursache war ein echter Fehler (die Linie reagierte beim schnellen Wischen nur auf gedrosselte Scroll-Ereignisse) plus ein Messproblem; beides ist behoben. Außerdem nehmen drei Worker parallel auf, damit der Lauf kürzer wird. Der Lauf bestätigt das auf einer ruhigen Maschine.
+
+## 2026-10-05 – P9 Kunst-QA in CI: Zeitlimit 60 Minuten
+
+Der zweite Kunst-Lauf in CI brauchte allein für die Aufnahmen 41 Minuten (mehr Szenarien als beim ersten Lauf) und lief ins 45-Minuten-Limit. Limit auf 60 Minuten angehoben (öffentliches Repo); Lauf startet erneut.
 
 ## 2026-10-05 – P9 Kunst-QA: zweiter Lauf in CI
 

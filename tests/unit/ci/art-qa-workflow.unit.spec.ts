@@ -110,7 +110,20 @@ describe('P9.7 art-qa.yml – Ablauf (KUNST-QA §9)', () => {
     expect(wf.permissions).toEqual({ contents: 'read' })
     expect(job.permissions).toEqual({ contents: 'read', actions: 'write' })
     expect(wf.env.PAYMENTS_DRIVER).toBe('mock')
-    expect(job['timeout-minutes']).toBeLessThanOrEqual(45)
+    expect(job['timeout-minutes']).toBeLessThanOrEqual(60)
+  })
+
+  it('Aufnahme mit 2 Workern für die Bild-Läufe (Laufzeit, OFFENE-PUNKTE 2026-10-05 P9.7)', () => {
+    expect((step('Aufnahme') as { env?: Record<string, string> }).env?.ART_WORKERS).toBe('2')
+  })
+
+  it('Kassen-Szenarien (SC-06/07/09) laufen getrennt von den übrigen und mit höchstens 2 Workern', () => {
+    const rec = readFileSync(path.join(ROOT, 'scripts/art/record.ts'), 'utf8')
+    expect(rec).toContain('sc-0[679]')
+    expect(rec).toContain('Math.min(workers, 2)')
+    expect(readFileSync(path.join(ROOT, 'tests/art/helpers/commerce.ts'), 'utf8')).toMatch(
+      /höchstens 2 parallele Worker/,
+    )
   })
 
   it('Chromium und WebKit, nie PW_SKIP_WEBKIT', () => {

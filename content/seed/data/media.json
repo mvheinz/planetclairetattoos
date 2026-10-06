@@ -264,13 +264,13 @@
       "key": "ph:teller-01",
       "wash": "clay",
       "alt": {
-        "de": "Platzhalter-Zeichnung: Teller mit drei Hasen im Kreis",
-        "en": "Placeholder drawing: plate with three bunnies in a circle"
+        "de": "Platzhalter-Zeichnung: Teller mit einem Hasen am Rand",
+        "en": "Placeholder drawing: plate with one bunny on the rim"
       }
     },
     {
       "key": "ph:teller-02",
-      "wash": "sky",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: kleiner Teller mit Fuchs auf dem Mond",
         "en": "Placeholder drawing: small plate with a fox on the moon"
@@ -278,7 +278,7 @@
     },
     {
       "key": "ph:fliese-01",
-      "wash": "mat",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: Fliese mit Reh im Planetenregen",
         "en": "Placeholder drawing: tile with a deer in planet rain"
@@ -288,13 +288,13 @@
       "key": "ph:shirt-01",
       "wash": "sky",
       "alt": {
-        "de": "Platzhalter-Zeichnung: T-Shirt mit zwei marschierenden Hasen",
-        "en": "Placeholder drawing: T-shirt with two marching bunnies"
+        "de": "Platzhalter-Zeichnung: T-Shirt mit einem marschierenden Hasen",
+        "en": "Placeholder drawing: T-shirt with one marching bunny"
       }
     },
     {
       "key": "ph:shirt-02",
-      "wash": "clay",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: T-Shirt mit Coco auf einer Rakete",
         "en": "Placeholder drawing: T-shirt with Coco on a rocket"
@@ -302,7 +302,7 @@
     },
     {
       "key": "ph:shirt-03",
-      "wash": "pink",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: Ringer-Shirt mit Fuchs",
         "en": "Placeholder drawing: ringer tee with a fox"
@@ -310,7 +310,7 @@
     },
     {
       "key": "ph:kleid-01",
-      "wash": "mat",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: Kleid mit Hasen-Bordüre",
         "en": "Placeholder drawing: dress with a bunny border"
@@ -318,7 +318,7 @@
     },
     {
       "key": "ph:kleid-02",
-      "wash": "sky",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: Kleid mit Planeten und Sternen",
         "en": "Placeholder drawing: dress with planets and stars"
@@ -334,7 +334,7 @@
     },
     {
       "key": "ph:cap-02",
-      "wash": "pink",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: Cap mit kleinem Planeten",
         "en": "Placeholder drawing: cap with a little planet"
@@ -350,7 +350,7 @@
     },
     {
       "key": "ph:zeichnung-02",
-      "wash": "pink",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: Zeichnung: Flammenwesen",
         "en": "Placeholder drawing: drawing: flame creature"
@@ -358,14 +358,14 @@
     },
     {
       "key": "ph:zeichnung-03",
-      "wash": "mat",
+      "wash": null,
       "alt": {
-        "de": "Platzhalter-Zeichnung: Skizze: drei Hasen im Halbkreis"
+        "de": "Platzhalter-Zeichnung: Skizze: ein Hase"
       }
     },
     {
       "key": "ph:anhaenger-01",
-      "wash": "pink",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: Anhänger Coco mit Planetenring",
         "en": "Placeholder drawing: pendant Coco with a planet ring"
@@ -373,7 +373,7 @@
     },
     {
       "key": "ph:anhaenger-02",
-      "wash": "sky",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: Mini-Planet-Anhänger",
         "en": "Placeholder drawing: mini planet pendant"
@@ -399,8 +399,8 @@
       "key": "ph:flash-902",
       "wash": null,
       "alt": {
-        "de": "Platzhalter-Zeichnung: Flash-Motiv Hasen-Trio",
-        "en": "Placeholder drawing: flash design bunny trio"
+        "de": "Platzhalter-Zeichnung: Flash-Motiv Hasen-Duo",
+        "en": "Placeholder drawing: flash design bunny duo"
       }
     },
     {
@@ -471,8 +471,8 @@
       "key": "ph:tattoo-01",
       "wash": "clay",
       "alt": {
-        "de": "Platzhalter-Zeichnung: frisches Tattoo Hasen-Trio am Knöchel",
-        "en": "Placeholder drawing: fresh bunny trio tattoo on an ankle"
+        "de": "Platzhalter-Zeichnung: frisches Tattoo mit Hase am Knöchel",
+        "en": "Placeholder drawing: fresh bunny tattoo on an ankle"
       }
     },
     {
@@ -485,7 +485,7 @@
     },
     {
       "key": "ph:tattoo-03",
-      "wash": "clay",
+      "wash": null,
       "alt": {
         "de": "Platzhalter-Zeichnung: frisches Tattoo Coco am Oberarm",
         "en": "Placeholder drawing: fresh Coco tattoo on an upper arm"

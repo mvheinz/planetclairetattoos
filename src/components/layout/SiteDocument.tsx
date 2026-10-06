@@ -51,6 +51,9 @@ export async function SiteDocument({
       <head>
         <script id="pc-motion" dangerouslySetInnerHTML={{ __html: MOTION_SCRIPT }} />
         {artQa ? <meta name={QA_META_NAME} content="1" /> : null}
+        {/* Im <head>: am Ende des <body> kam die Regel erst nach dem ersten Rendern an, Chromium überspringt dann den Übergang
+            (`pagereveal.viewTransition` null, R2-06-04). */}
+        <ViewTransitionOptIn />
       </head>
       <RouteOverride value={notFound ? null : undefined}>
         <PresetBody>
@@ -60,7 +63,6 @@ export async function SiteDocument({
             <AppShell locale={locale}>{children}</AppShell>
           </ErrorTextsProvider>
           <BehaviorHost />
-          <ViewTransitionOptIn />
           {artQa ? <QaRuntime /> : null}
         </PresetBody>
       </RouteOverride>

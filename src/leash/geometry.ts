@@ -278,6 +278,10 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
   push(start)
   push({ x: start.x, y: start.y + 12 })
 
+  // Endanker mit abschließender Schlaufe (`data-leash-anchor="end"` + `data-leash-loop="heart"`, MI-09): wird wie eine
+  // letzte Station behandelt (R2-06-03: bisher blieb das Herz aus).
+  if (endAnchor && TERMINAL_LOOPS.includes(endAnchor.loop) && cfg.loops.includes(endAnchor.loop))
+    middle.push(endAnchor)
   for (const anchor of middle) {
     let kind: LoopKind = cfg.loops.includes(anchor.loop) ? anchor.loop : 'none'
     if (kind === 'lasso' && !wide) kind = cfg.loops.includes('right') ? 'right' : 'none'

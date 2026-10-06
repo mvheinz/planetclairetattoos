@@ -14,6 +14,8 @@ test(
     // `ART_MI=MI-04,MI-11` nimmt nur diese auf (Probelauf nach einer Änderung); ohne Angabe alle 16.
     const only = process.env.ART_MI?.split(',')
     for (const mi of QA_MICROS.filter((m) => !only || only.includes(m.id))) {
+      // MI-15 (Kauf-Leiste) gibt es nur auf Handy-Breite (`ProductPage.module.css`): auf dem Desktop zeigt die Bühne nichts (R2-06-03)
+      if (mi.id === 'MI-15' && art.profile === 'art-desktop') continue
       await art.goto(`/de/qa/motion?mi=${mi.id}`, { waitLeash: false })
       const stage = page.locator(`[data-qa-stage="${mi.id}"]`)
       await page.waitForSelector(`[data-qa-stage="${mi.id}"][data-qa-played="1"]`, {
@@ -41,6 +43,10 @@ test(
         'MI-02': { sel: '[data-price-tag]', pad: 28, k: 3 },
         'MI-03': { sel: '[data-price-tag]', pad: 28, k: 4 },
         'MI-09': { sel: '[data-thanks-coco-spot]', pad: 90, k: 2 },
+        // MI-12: Planet-Pop und Sterndrehung der Stationsmarken (R2-06-03: im Bogen zu klein)
+        'MI-12': { sel: '[data-mark="star"]', pad: 40, k: 8 },
+        // MI-07: Badge „2“ mit Peak scale 1,25 (R2-08-04)
+        'MI-07': { sel: '[data-behavior="cart-count"]', pad: 20, k: 5 },
       }
       const lupe = lupeOf[mi.id]
       if (lupe) {
@@ -55,8 +61,11 @@ test(
           const x = Math.max(0, Math.min(...boxes.map((b) => b.x)) - lupe.pad)
           const y = Math.max(0, Math.min(...boxes.map((b) => b.y)) - lupe.pad)
           const width = Math.min(vw - x, Math.max(...boxes.map((b) => b.r)) + lupe.pad - x)
-          const height = Math.max(...boxes.map((b) => b.b)) + lupe.pad - y
-          zoom = { x, y, width, height, to: Math.round(width * lupe.k) }
+          const vh = page.viewportSize()!.height
+          const height = Math.min(vh - y, Math.max(...boxes.map((b) => b.b)) + lupe.pad - y)
+          // außerhalb des Sichtbereichs (Handy): keine Lupe statt „Clipped area is either empty or outside“
+          if (width > 20 && height > 20)
+            zoom = { x, y, width, height, to: Math.round(width * lupe.k) }
         }
       }
       const element = mi.viewport || zoom ? undefined : stage
@@ -78,10 +87,37 @@ test(
           }
           return
         }
+        // CSS-/WAAPI-Abläufe (nicht Uhr, nicht MI-04): jede neu startende Animation sofort anhalten und auf 0 setzen. Sonst läuft
+        // sie schon in Echtzeit, bis der Seek greift (langsamer Rechner), und verschwindet nach dem Ende aus `getAnimations()` –
+        // MI-03 zeigte dann den fertigen Stempel in jedem Bild (R2-06-03).
+        if (!mi.clock && mi.id !== 'MI-04')
+          await page.evaluate(() => {
+            const hold = (e: Event) => {
+              const t = e.target as Element | null
+              for (const a of t?.getAnimations?.() ?? []) {
+                a.pause()
+                a.currentTime = 0
+              }
+            }
+            for (const type of ['animationstart', 'transitionrun'])
+              document.addEventListener(type, hold, true)
+            // WAAPI (`el.animate`, z. B. Korbzahl MI-07, Hüpfer MI-01): ebenfalls angehalten starten
+            const orig = Element.prototype.animate
+            Element.prototype.animate = function (...args: Parameters<Element['animate']>) {
+              const a = orig.apply(this, args)
+              a.pause()
+              return a
+            }
+          })
         await page.evaluate(() => document.querySelector<HTMLElement>('[data-qa-play]')?.click())
         // Uhr steht: bis zum Auslösen (zwei Frames nach dem Binden) in 16-ms-Schritten vorspulen.
         const played = stage.and(page.locator('[data-qa-played="2"]'))
-        for (let i = 0; i < 200 && (await played.count()) === 0; i++) await page.clock.runFor(16)
+        // Zwischen den Schritten echte Zeit lassen: das Einhängen der Module ist asynchron, ohne Pause verbrauchte die Schleife
+        // bis zu 3 s virtuelle Uhr und der Ablauf (MI-10: Einlauf, MI-06: Unterstreichung) war vor dem ersten Bild vorbei (R2-08-02/03).
+        for (let i = 0; i < 200 && (await played.count()) === 0; i++) {
+          await page.waitForTimeout(25)
+          await page.clock.runFor(16)
+        }
         // MI-04: Die Pseudo-Elemente der View Transition entstehen erst nach echten Render-Schritten (nicht per Playwright-
         // Uhr). In Echtzeit auf sie warten und sofort auf 0 anhalten, damit der Seek die Wanderung Bild für Bild zeigt
         // (R2-04-02: vorher fehlten die Animationen beim ersten Seek, Coco stand schon am Ziel).
@@ -132,6 +168,26 @@ test(
             zoom: lupe,
             start,
           })
+        }
+      }
+      // MI-12 (R2-08-04): Planet-„pop“ (scale 0,6 → 1, 240 ms) als eigene Lupen-Serie neben der Stern-Drehung
+      if (mi.id === 'MI-12' && !art.reduced && art.isDesktop) {
+        const box = await stage.locator('[data-mark="planet"]').first().boundingBox()
+        if (box) {
+          const vh = page.viewportSize()!.height
+          const pad = 40
+          const x = Math.max(0, box.x - pad)
+          const y = Math.max(0, box.y - pad)
+          const width = box.width + 2 * pad
+          const height = Math.min(vh - y, box.height + 2 * pad)
+          if (width > 20 && height > 20)
+            await art.sequence({
+              stepMs,
+              untilMs: mi.durationMs,
+              prefix: `${prefix}-planet-lupe`,
+              zoom: { x, y, width, height, to: Math.round(width * 8) },
+              start,
+            })
         }
       }
       if (mi.press) await page.mouse.up()

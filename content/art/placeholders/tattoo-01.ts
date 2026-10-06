@@ -1,7 +1,7 @@
 // G3 frisches Tattoo „Hasen-Trio“ (F902) am Knöchel: Umriss Knöchel/Fuß seitlich, Linie des Tattoos etwas
 // kräftiger (frisch).
 import type { Motif } from '../../../scripts/art/lib/handline'
-import { bunny, bunnyMarch, merge, place } from './_parts'
+import { bunny, merge, place } from './_parts'
 
 const motif: Motif = {
   tilt: -1.8,
@@ -18,9 +18,7 @@ const motif: Motif = {
   inset: {
     width: 3,
     ink: merge(
-      place(bunnyMarch(0.9, 5), { x: 172, y: 384, s: 0.46, r: 4 }),
-      place(bunny(-0.8, -9), { x: 248, y: 386, s: 0.44, sy: 0.58, r: 4, flip: true }),
-      place(bunny(0.2, 0), { x: 210, y: 386, s: 0.6, r: 4 }),
+      place(bunny(-0.8, -9), { x: 214, y: 386, s: 0.56, sy: 0.72, r: 4, flip: true }),
     ),
   },
   shadow: { x: 200, y: 424, w: 90, count: 6, len: 15 },

@@ -44,7 +44,7 @@ jobs:
   art-qa:
     name: art-qa
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     # Schreibrecht nur für das Löschen älterer Bündel (actions: write, KUNST-QA §8).
     permissions:
       contents: read
@@ -147,6 +147,10 @@ jobs:
       - name: Aufnahme
         id: record
         if: steps.mode.outputs.run == 'true'
+        # 2 Worker für die Bild-Läufe: 3 Worker (Lauf 37315719966) sprengten den Fixture-Bereich 990–999 der Kassen-Szenarien
+        # (SC-06/07/09, 2 Blöcke) und verfälschten PF-04 (Build-Zeit, 4 vCPU). Messungen vor Laufzeit; Tempo-Lauf läuft allein.
+        env:
+          ART_WORKERS: '2'
         run: pnpm run art:record
       - name: Lauf-ID
         id: runid

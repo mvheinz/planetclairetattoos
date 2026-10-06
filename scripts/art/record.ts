@@ -118,6 +118,7 @@ function main(): void {
     // Beide Teile laufen immer (ein roter Bild-Lauf überspringt die Tempo-Messung nicht).
     // Kassen-Szenarien (SC-06/07/09) legen Fixture-Stücke 990–999 an, die im Shop sichtbar sind: sie laufen nach den übrigen
     // Szenarien, nie gleichzeitig (R3-05-03: SC-17 motion/reduced zeigten sonst verschiedene Stücke).
+    // Höchstens 2 Worker für Kassen-Szenarien: Fixture-Bereich 990–999 = 2 Blöcke (tests/art/helpers/commerce.ts).
     const commerce = (f: string) => /sc-0[679]\.art\.spec\.ts$/.test(f)
     const workers = Number(process.env.ART_WORKERS || 2)
     const plainSpecs = imageSpecs.filter((f) => !commerce(f))
@@ -125,7 +126,9 @@ function main(): void {
     const plain =
       plainSpecs.length > 0 ? playwright(plainSpecs, ['--grep-invert', '@tempo'], workers) : 0
     const shop =
-      commerceSpecs.length > 0 ? playwright(commerceSpecs, ['--grep-invert', '@tempo'], workers) : 0
+      commerceSpecs.length > 0
+        ? playwright(commerceSpecs, ['--grep-invert', '@tempo'], Math.min(workers, 2))
+        : 0
     const images = plain || shop
     if (specs.some((f) => f.endsWith('sc-18.art.spec.ts')))
       console.log(

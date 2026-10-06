@@ -19,9 +19,11 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
   // (a) Intro: Uhr vor dem Laden anhalten, bis die Engine steht vorspulen, dann Sequenz.
   await art.pauseClock()
   await page.goto('/de', { waitUntil: 'load' })
-  // Frames beschriftet mit der Zeit seit der Navigation (R2-01-01: Intro-Start ≥ LCP + 300 ms ist so ablesbar);
-  // vor dem Laden der Engine ein Bild „Seite geladen, Linie noch leer“.
-  await art.settledFrame('intro-t0000-geladen')
+  // Frames beschriftet mit der VIRTUELLEN Zeit (`intro-virtuell-tNNNN`: angehaltene Uhr, vorgespult bis die Engine steht – die echte
+  // Ladezeit bis LCP und Engine-Start steckt nicht darin). Der Beleg für Start ≥ LCP + 300 ms und Dauer ≈ 900 ms ist die Messung
+  // im Echtzeit-Kontext (`mo10`, `introTiming`), nicht die Frame-Beschriftung (R2-06-02). Vorher ein Bild „Seite geladen, Linie noch leer“.
+  // (nur in Bewegung: bei reduzierter Bewegung steht die Linie mit dem Einhängen der Engine, ein Bild davor belegt nichts)
+  if (!art.reduced) await art.settledFrame('intro-t0000-geladen')
   let waited = 0
   for (let i = 0; i < 160; i++) {
     if (await page.evaluate(() => !!(window as Window & { __leash?: unknown }).__leash)) break
@@ -31,9 +33,19 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
   await art.sequence({
     stepMs: art.step(50, 1200),
     untilMs: 1200,
-    prefix: 'intro',
+    prefix: 'intro-virtuell',
     offsetMs: waited,
   })
+
+  // Ruhe nach dem Intro (R2-08-07): Uhr weiter, ohne zu scrollen – Coco bremst und sitzt (Beleg „sitzt nach dem Laden“).
+  if (!art.reduced) {
+    await art.pauseClock()
+    await page.clock.runFor(1500)
+    await art.settledFrame('intro-ruhe-t1500')
+    await page.clock.runFor(1500)
+    await art.settledFrame('intro-ruhe-t3000')
+    await art.resumeClock()
+  }
 
   // (b)–(d) Echtzeit für das Video.
   const bottom = await maxScroll(page)
@@ -68,6 +80,29 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
       const height = box.height + 2 * pad
       await art.frame(`station${i}-${s.id}-coco-lupe-y${Math.round(s.y + s.loopScroll)}`, {
         zoom: { x, y, width, height, to: Math.round(width * 4) },
+      })
+    }
+  }
+  // Station 8 „Ende“ (DESIGN §11.4: oberhalb des Fußbereichs, `sitzen`, Blick zum Betrachter): Seitenende ansteuern, Verweilen,
+  // Lupe auf Coco (R2-07-03: bisher gab es nur die Stationen 0–7).
+  await readingFrame(art, 1e6, 'station8-ende-arrive-y1000000')
+  await page.clock.runFor(1500)
+  await art.settledFrame('station8-ende-stay1500-y1000000')
+  await page.clock.runFor(1500)
+  await art.settledFrame('station8-ende-stay3000-y1000000')
+  {
+    // Handy: Coco liegt am Linienende unter dem Bildrand – ins Bild holen (R2-08-08)
+    await page.locator('.coco[data-leash-coco]').scrollIntoViewIfNeeded()
+    const box = await page.locator('.coco[data-leash-coco]').boundingBox()
+    const vh = page.viewportSize()!.height
+    if (box && !art.reduced && box.y >= 0 && box.y + box.height <= vh) {
+      const pad = 16
+      const vw = page.viewportSize()!.width
+      const x = Math.max(0, box.x - pad)
+      const y = Math.max(0, box.y - pad)
+      const width = Math.min(vw - x, box.width + 2 * pad)
+      await art.frame('station8-ende-coco-lupe-y1000000', {
+        zoom: { x, y, width, height: box.height + 2 * pad, to: Math.round(width * 4) },
       })
     }
   }
