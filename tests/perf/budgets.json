@@ -98,6 +98,12 @@
         "file": "public/art/coco-extra.v1.svg",
         "rawMax": 60000,
         "gzipMax": 14000
+      },
+      {
+        "name": "Fitness-Coco-Bildfolge (nachgeladen, P12.5)",
+        "file": "public/art/fitness-coco.v1.json",
+        "rawMax": 480000,
+        "gzipMax": 150000
       }
     ],
     "stationRawMax": 8000,

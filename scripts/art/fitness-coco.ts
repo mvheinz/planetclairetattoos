@@ -18,7 +18,6 @@ import {
   leg,
   mulberry32,
   retrace,
-  rotAround,
   tailOutline,
   toPath,
   type P,
@@ -288,8 +287,10 @@ export interface Frame {
   pencil: string
 }
 
-interface Ink {
+export interface Ink {
   pts: P[]
+  /** Strich gehört zum geknickten Ohr (U-07). */
+  knick?: boolean
   closed?: boolean
   gap?: boolean
   j?: number
@@ -462,8 +463,12 @@ export function standing(pose: Pose): Built {
   const earAt = (x: number): P => Hf(x, -17)
   const ek = knickEarPts(30, -16 + hAng)
   const ekOuter = ek.outer.map(([x, y]): P => add(earAt(-15), [x * 1.15, y * 1.15]))
-  ink.push({ pts: ekOuter, j: 0.4 })
-  ink.push({ pts: ek.inner.map(([x, y]): P => add(earAt(-15), [x * 1.15, y * 1.15])), j: 0.5 })
+  ink.push({ pts: ekOuter, j: 0.4, knick: true })
+  ink.push({
+    pts: ek.inner.map(([x, y]): P => add(earAt(-15), [x * 1.15, y * 1.15])),
+    j: 0.5,
+    knick: true,
+  })
   fur.push(ekOuter)
   const eu = earPts(33, 14 + hAng).map(([x, y]): P => add(earAt(15), [x * 1.15, y * 1.15]))
   ink.push({ pts: eu, j: 0.4 })
@@ -708,8 +713,8 @@ export function lying(t: number): Built {
     j: 0.3,
   })
   const e = knickEarPts(24, -64)
-  ink.push({ pts: e.outer.map(([x, y]): P => add([hx - 12, hy - 8], [x, y])), j: 0.4 })
-  ink.push({ pts: e.inner.map(([x, y]): P => add([hx - 12, hy - 8], [x, y])), j: 0.5 })
+  ink.push({ pts: e.outer.map(([x, y]): P => add([hx - 12, hy - 8], [x, y])), j: 0.4, knick: true })
+  ink.push({ pts: e.inner.map(([x, y]): P => add([hx - 12, hy - 8], [x, y])), j: 0.5, knick: true })
   fur.push([
     [56, g - 8],
     [70, g - 20],
