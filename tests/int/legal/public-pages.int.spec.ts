@@ -75,6 +75,14 @@ describe('Rechtsseiten-Loader (P2.13)', () => {
     expect(plain(de)).toContain('/de/vertrag-widerrufen')
   })
 
+  it('R-095 Widerrufsbelehrung mit {{returnCostsNote}}: der Baustein „Rücksendekosten“ wird eingesetzt, kein Render-Fehler (P12.11)', async () => {
+    await activeText('widerrufsbelehrung', lexical('Rücksendung. {{returnCostsNote}}'))
+    const de = await loadLegalText('widerrufsbelehrung', 'de', { clock })
+    expect(de.state).toBe('ok')
+    expect(plain(de)).toContain('Die unmittelbaren Kosten der Rücksendung der Waren trägst du.')
+    expect(plain(de)).not.toContain('{{')
+  })
+
   it('R-015 EN-Seite ohne EN-Fassung: deutscher Text mit Kennzeichen „germanOnly“', async () => {
     const en = await loadLegalText('agb', 'en', { clock })
     expect(en).toMatchObject({ state: 'ok', germanOnly: true })
@@ -111,7 +119,7 @@ describe('Rechtsseiten-Loader (P2.13)', () => {
   })
 
   it('R-012 nicht ersetzbares Token: Zustand „unavailable“ statt Fehler, nie ein rohes Token', async () => {
-    await activeText('versand-zahlung', lexical('Kosten: {{returnCostsNote}}'))
+    await activeText('versand-zahlung', lexical('Kosten: {{unbekannt}}'))
     expect(await loadLegalText('versand-zahlung', 'de', { clock })).toEqual({
       state: 'unavailable',
       type: 'versand-zahlung',

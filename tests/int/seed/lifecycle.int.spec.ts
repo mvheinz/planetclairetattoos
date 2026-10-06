@@ -209,8 +209,8 @@ describe('Seed-Lebenszyklus (AK-SEED-01, -02, -03, -14, -15; AK-11-01, AK-11-02)
         products: 1, // echtes Stück Nr. 17
         'legal-texts': SEED_EXPECTED_COUNTS['legal-texts'],
         categories: SEED_EXPECTED_COUNTS.categories,
-        // PDFs der Platzhalter-Rechtstexte (Grund-Seed, seed = false)
-        documents: SEED_EXPECTED_COUNTS['legal-texts'],
+        // PDFs der Platzhalter-Rechtstexte (Grund-Seed, seed = false), seit P12.11 je Typ DE und EN
+        documents: SEED_EXPECTED_COUNTS['legal-texts'] * 2,
       }
       // audit-log: echte Einträge (z. B. seed_removed, Anlage des echten Stücks) sind keine Seed-Dokumente.
       if (c === 'audit-log') {

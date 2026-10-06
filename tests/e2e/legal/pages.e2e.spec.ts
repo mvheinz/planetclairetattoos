@@ -129,8 +129,9 @@ test.describe('Rechtsseiten P6.5 @smoke', () => {
   }) => {
     for (const locale of LOCALES) {
       await page.goto(localizedPath('R24', locale))
+      // EN-Fassung (seit P12.11 vorhanden, U-00) löst {{withdrawalUrl}} zur englischen Adresse auf (R-095)
       await expect(page.locator('[data-legal-text="widerrufsbelehrung"]')).toContainText(
-        '/de/vertrag-widerrufen',
+        locale === 'de' ? '/de/vertrag-widerrufen' : '/en/withdraw-from-contract',
       )
       await expect(page.locator('[data-legal-text="widerrufsformular"]')).toBeVisible()
       await expect(page.locator('[data-legal-pdf="widerrufsformular"]')).toHaveAttribute(

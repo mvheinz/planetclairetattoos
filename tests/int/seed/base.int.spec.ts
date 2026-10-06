@@ -178,11 +178,6 @@ describe('Grund-Seed (DM-P1-04, AK-SEED-02)', () => {
     const agb = await getActiveLegalText('agb', new Date(), { payload })
     expect(agb?.version).toBe(1)
     expect(agb?.isPlaceholder).toBe(true)
-    const settings = await payload.findGlobal({
-      slug: 'settings',
-      locale: 'de',
-      overrideAccess: true,
-    })
     // P12.11: ausformulierte Fassungen in DE und EN (U-00), Tokens aus den Einstellungen der jeweiligen Sprache
     for (const locale of ['de', 'en'] as const) {
       const settingsInLocale = await payload.findGlobal({

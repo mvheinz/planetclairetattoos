@@ -614,7 +614,7 @@
         {
           "heading": "Übermittlung in Drittländer",
           "paragraphs": [
-            "Einige Dienstleister sitzen in den USA (Vercel, Neon, Cloudflare, Stripe, Sentry) oder gehören zu US-Konzernen. Die Daten verarbeiten sie nach Möglichkeit in der EU (Frankfurt). Soweit dennoch Daten in die USA gelangen oder von dort eingesehen werden können, stützt sich die Übermittlung auf den Angemessenheitsbeschluss der EU-Kommission zum EU-US Data Privacy Framework, soweit der Anbieter zertifiziert ist, und im Übrigen auf Standardvertragsklauseln (Art. 44 ff. DSGVO). Auf Anfrage nenne ich dir Kopien der Garantien."
+            "Einige Dienstleister sitzen in den USA (Vercel, Neon, Cloudflare, Stripe, Sentry) oder gehören zu US-Konzernen. Die Daten verarbeiten sie nach Möglichkeit in der EU (Frankfurt). Soweit dennoch Daten in die USA gelangen oder von dort eingesehen werden können, stützt sich die Übermittlung auf den Angemessenheitsbeschluss der EU-Kommission zum EU-US Data Privacy Framework, soweit der Anbieter dem Rahmenwerk beigetreten ist, und im Übrigen auf Standardvertragsklauseln (Art. 44 ff. DSGVO). Auf Anfrage sage ich dir, wie du Kopien der Schutzvorkehrungen erhältst."
           ]
         },
         {
@@ -749,7 +749,7 @@
         {
           "heading": "Transfers to third countries",
           "paragraphs": [
-            "Some providers are based in the USA (Vercel, Neon, Cloudflare, Stripe, Sentry) or belong to US groups. Where possible they process the data in the EU (Frankfurt). Where data nevertheless reaches the USA or can be accessed from there, the transfer relies on the European Commission’s adequacy decision for the EU-US Data Privacy Framework where the provider is certified and otherwise on standard contractual clauses (Art. 44 et seq. GDPR). On request I will tell you where to obtain copies of the safeguards."
+            "Some providers are based in the USA (Vercel, Neon, Cloudflare, Stripe, Sentry) or belong to US groups. Where possible they process the data in the EU (Frankfurt). Where data nevertheless reaches the USA or can be accessed from there, the transfer relies on the European Commission’s adequacy decision for the EU-US Data Privacy Framework where the provider has joined the framework and otherwise on standard contractual clauses (Art. 44 et seq. GDPR). On request I will tell you where to obtain copies of the safeguards."
           ]
         },
         {
@@ -996,7 +996,7 @@
         {
           "heading": "Final provisions",
           "paragraphs": [
-            "German law applies, excluding the UN Convention on Contracts for the International Sale of Goods. If you are a consumer and habitually reside in another state, the mandatory consumer protection provisions of that state remain available to you. If any provision of these terms is invalid, the remainder stays valid; the statutory rule replaces the invalid provision."
+            "German law applies, excluding the CISG (UN sales law). If you are a consumer and habitually reside in another state, the mandatory consumer protection provisions of that state remain available to you. If any provision of these terms is invalid, the remainder stays valid; the statutory rule replaces the invalid provision."
           ]
         }
       ]
@@ -1098,7 +1098,7 @@
           "paragraphs": [
             "(Complete and return this form only if you wish to withdraw from the contract.)",
             "To {{name}}, {{street}}, {{postalCode}} {{city}}, email: {{email}}:",
-            "I/We (*) hereby give notice that I/We (*) withdraw from my/our (*) contract of sale of the following goods (*) / for the provision of the following service (*)",
+            "I/We (*) hereby give notice that I/We (*) withdraw from my/our (*) contract for the purchase of the following goods (*) / for the provision of the following service (*)",
             "- Ordered on (*) / received on (*):\n- Name of consumer(s):\n- Address of consumer(s):\n- Signature of consumer(s) (only if this form is notified on paper):\n- Date:",
             "(*) Delete as appropriate."
           ]

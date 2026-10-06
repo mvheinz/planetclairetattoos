@@ -10,6 +10,7 @@ import {
   renderLegalContent,
   type LegalTokenSettings,
 } from '@/lib/legal/render'
+import { lintText, V13_UNPROVEN_CLAIMS } from '@/lib/legal/forbidden'
 import { LEGAL_SNIPPET_SEED } from '@/lib/legal/snippetSeed'
 import { LEGAL_SNIPPET_REQUIRES_LAWYER, snippetTokens } from '@/lib/legal/snippets'
 import { toLexical } from '@/lib/seed/lexical'
@@ -152,6 +153,11 @@ describe('R-002 Rechtstexte ausformuliert, Herkunft bleibt Platzhalter (P12.11)'
       ]),
     ].join('\n')
     for (const p of FORBIDDEN_CONTENT_PATTERNS) expect(corpus, p.id).not.toMatch(p.re)
+    // dieselben Muster, die die gerenderten Seiten im E2E (forbidden.e2e.spec.ts) prüfen: V-13, V-18, V-20, V-26
+    expect(lintText(corpus, V13_UNPROVEN_CLAIMS)).toEqual([])
+    expect(corpus).not.toMatch(/Garantie|garantiert/iu)
+    expect(corpus).not.toMatch(/\bstatt\b|\bUVP\b|\bSale\b|-\d+\s*%/iu)
+    expect(corpus).not.toMatch(/zertifiziert|certified/iu)
     expect(corpus).not.toMatch(/inkl\.?\s*(MwSt|USt)|OS-Plattform|ec\.europa\.eu/i)
   })
 })
