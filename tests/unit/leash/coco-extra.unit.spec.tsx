@@ -71,8 +71,8 @@ describe('Warte-Aktionen (U-03)', () => {
 
   it('Zusatz-Posen haben je 3 Gruppen-Frames und einen Anker (D-Ring) wie die Haupt-Posen', () => {
     for (const pose of Object.keys(extra.anchors)) {
-      expect(coco.x.groups.get(pose)?.querySelectorAll('use'), pose).toHaveLength(3)
-      expect(coco.x.anchors[pose], pose).toHaveLength(2)
+      expect(coco.x.g.get(pose)?.querySelectorAll('use'), pose).toHaveLength(3)
+      expect(coco.x.a[pose], pose).toHaveLength(2)
     }
     // der Haupt-Anker-Satz bleibt unverändert (kein Zustand zwischen Einhängungen)
     expect(Object.keys(COCO_ANCHORS)).not.toContain('freude')

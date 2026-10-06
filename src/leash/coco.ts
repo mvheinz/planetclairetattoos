@@ -111,21 +111,22 @@ export interface CocoFollow {
  * Haken für die nachgeladenen Zusatz-Aktionen (`cocoExtra.ts`, P12.4): Posen-Gruppen, Anzeige, Boil, Ruhe-Meldung.
  * Klein gehalten – die Aktionen selbst liegen im nachgeladenen Chunk, nicht in der Engine (Budget §9.10).
  */
+/** Kurznamen (Eigenschaften werden nicht verkürzt, Budget §9.10): g Gruppen · a Anker · s zeigen · b Boil · t Ruhe-Meldung · r reduziert · p Abbruch · o Abbau. */
 export interface CocoHooks {
-  groups: Map<string, Element>
+  g: Map<string, Element>
   /** D-Ring der Zusatz-Posen (die Haupt-Anker stehen in `cocoSprite.ts`). */
-  anchors: Record<string, [number, number]>
-  show(key: string): void
+  a: Record<string, [number, number]>
+  s(key: string): void
   /** Boil ohne Budget-Nachlauf ein-/ausschalten (die Aktion bestimmt die Dauer, ≤ 5 s). */
-  boil(on: boolean): void
+  b(on: boolean): void
   /** Nach jedem abgeschlossenen Posenwechsel; `null` = Bewegung/Abbruch. */
-  tap: ((pose: SpritePose | null) => void) | null
+  t: ((pose: SpritePose | null) => void) | null
   /** Reduzierte Bewegung aktiv: keine Aktionen. */
-  reduced: boolean
+  r: boolean
   /** Bricht eine laufende Aktion ab (Posenwechsel, reduzierte Bewegung, Abbau). */
-  stop: (() => void) | null
+  p: (() => void) | null
   /** Beim Abbau: Ereignis-Abos der Zusatz-Aktionen lösen. */
-  off: (() => void) | null
+  o: (() => void) | null
 }
 
 export interface CocoController {
@@ -304,7 +305,7 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     }
     options.onPose?.({ t: now(), from, to: shown, bridge: used?.join('+') || null })
     boil(BOIL.afterPose)
-    hk.tap?.(shown)
+    hk.t?.(shown)
   }
 
   function step(
@@ -351,7 +352,7 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     gutter?: [number, number, number] | null,
   ) {
     placed = [x, y, direction, gutter]
-    const [ax, ay] = hk.anchors[curKey] ?? COCO_ANCHORS[curKey] ?? COCO_ANCHORS[shown] ?? [80, 60]
+    const [ax, ay] = hk.a[curKey] ?? COCO_ANCHORS[curKey] ?? COCO_ANCHORS[shown] ?? [80, 60]
     const s = width / COCO_VIEWBOX.w
     let tx = x
     if (gutter) {
@@ -364,17 +365,17 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
   }
 
   const hk: CocoHooks = {
-    groups,
-    anchors: {},
-    show,
-    boil(v) {
+    g: groups,
+    a: {},
+    s: show,
+    b(v) {
       boilTimer = clear(boilTimer)
       setBoil(v)
     },
-    tap: null,
-    reduced: motion === 'reduced',
-    stop: null,
-    off: null,
+    t: null,
+    r: motion === 'reduced',
+    p: null,
+    o: null,
   }
 
   const api: CocoController = {
@@ -384,8 +385,8 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     boiling: () => el.getAttribute('data-boil') === 'on',
     setPose(pose) {
       if (destroyed || pose === target) return
-      hk.stop?.()
-      hk.tap?.(null)
+      hk.p?.()
+      hk.t?.(null)
       target = pose
       if (motion === 'reduced') {
         const from = shown
@@ -474,9 +475,9 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     setMotion(next, restPose) {
       if (destroyed) return
       motion = next
-      hk.reduced = next === 'reduced'
+      hk.r = next === 'reduced'
       if (next === 'reduced') {
-        hk.stop?.()
+        hk.p?.()
         stepTimer = clear(stepTimer)
         boilTimer = clear(boilTimer)
         squashTimer = clear(squashTimer)
@@ -495,9 +496,9 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     destroy() {
       destroyed = true
       extraTimer = clear(extraTimer)
-      hk.stop?.()
-      hk.off?.()
-      hk.tap = null
+      hk.p?.()
+      hk.o?.()
+      hk.t = null
       restTimer = clear(restTimer)
       dwellTimer = clear(dwellTimer)
       jumpTimer = clear(jumpTimer)

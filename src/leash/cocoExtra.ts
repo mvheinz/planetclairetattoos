@@ -12,7 +12,7 @@ import type { SpritePose } from './types'
 //   Gähnen und Strecken, Schwanz wedelt; bei sehr langer Ruhe Hinlegen (Bauch hoch), Einrollen und Schlafen.
 // - Freudenhüpfer mit Drehung (U-04) bei Erfolg: Ereignis `pc:coco-joy` (Korb gefüllt, Bestellung abgeschickt).
 // - Jede Aktion dauert ≤ 5 s und endet im Standbild (WCAG 2.2.2); der Boil-Takt je Pose steht in `coco.css`.
-//   Reduzierte Bewegung: der Chunk wird gar nicht geladen bzw. bricht sofort ab (`x.stop`).
+//   Reduzierte Bewegung: der Chunk wird gar nicht geladen bzw. bricht sofort ab (`x.p`).
 
 /** Dauer des Freudenhüpfers in ms (3 Frames im Boil-Takt, mehrfach durchlaufen). */
 export const JOY_MS = 1800
@@ -44,10 +44,10 @@ const REST: readonly (SpritePose | null)[] = ['sitzen', 'kopfschief']
 export function attachExtra(ctl: CocoController): void {
   const { x, el } = ctl
   const svg = el.querySelector('svg')
-  if (!svg || x.groups.has('freude')) return
-  Object.assign(x.anchors, extra.anchors)
+  if (!svg || x.g.has('freude')) return
+  Object.assign(x.a, extra.anchors)
   for (const key of Object.keys(extra.anchors))
-    x.groups.set(
+    x.g.set(
       key,
       makeGroup(
         svg,
@@ -56,7 +56,7 @@ export function attachExtra(ctl: CocoController): void {
       ),
     )
 
-  let timers: ReturnType<typeof setTimeout>[] = []
+  const timers: ReturnType<typeof setTimeout>[] = []
   let playing = false
   const clear = () => {
     for (const t of timers.splice(0)) clearTimeout(t)
@@ -64,14 +64,14 @@ export function attachExtra(ctl: CocoController): void {
   const end = () => {
     if (!playing) return
     playing = false
-    x.boil(false)
-    x.show(ctl.pose())
+    x.b(false)
+    x.s(ctl.pose())
   }
   const play = (key: ExtraPose, ms: number, done?: () => void) => {
-    if (document.hidden || x.reduced) return
+    if (document.hidden || x.r) return
     playing = true
-    x.show(key)
-    x.boil(true)
+    x.s(key)
+    x.b(true)
     timers.push(
       setTimeout(() => {
         end()
@@ -88,21 +88,21 @@ export function attachExtra(ctl: CocoController): void {
         ),
       )
   }
-  x.stop = () => {
+  x.p = () => {
     clear()
     end()
   }
-  x.tap = (pose) => {
-    x.stop?.()
+  x.t = (pose) => {
+    x.p?.()
     if (REST.includes(pose)) schedule()
   }
   const onJoy = () => {
     // nur wenn sie nicht gerade läuft oder springt (Pose und Brücken-Frames)
     if (!REST.includes(ctl.pose()) || !el.getAttribute('data-pose')?.match(/^[a-z]+$/)) return
-    x.stop?.()
-    play('freude', JOY_MS, () => x.tap?.(ctl.pose()))
+    x.p?.()
+    play('freude', JOY_MS, () => x.t?.(ctl.pose()))
   }
   document.addEventListener(COCO_JOY_EVENT, onJoy)
-  x.off = () => document.removeEventListener(COCO_JOY_EVENT, onJoy)
-  x.tap(ctl.pose())
+  x.o = () => document.removeEventListener(COCO_JOY_EVENT, onJoy)
+  x.t(ctl.pose())
 }
