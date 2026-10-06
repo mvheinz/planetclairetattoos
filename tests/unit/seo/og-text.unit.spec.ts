@@ -68,7 +68,7 @@ describe('Titel des OG-Produktbilds (Bricolage 600, 52 px, Spalte 572 px)', () =
     expect(productTitleLines('🚀🚀🚀')).toEqual([])
     for (const c of 'äöüÄÖÜß€„“') {
       expect(hasGlyph('bricolage600', c.codePointAt(0)!), c).toBe(true)
-      expect(hasGlyph('mansalva400', c.codePointAt(0)!), c).toBe(true)
+      expect(hasGlyph('spectral500i', c.codePointAt(0)!), c).toBe(true)
     }
   })
 })

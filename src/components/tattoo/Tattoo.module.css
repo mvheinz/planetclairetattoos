@@ -244,9 +244,7 @@
   position: relative;
   display: grid;
   place-items: center;
-  padding: var(--space-3);
-  border-radius: var(--r-photo);
-  background: var(--paper-field);
+  /* Der Goth-Fotorahmen (U-13) sitzt am Bild selbst – kein zweiter Rand/Passepartout mehr darum. */
 }
 
 .flashImage {
@@ -390,7 +388,7 @@
   padding: var(--space-3);
   border: 2px solid var(--ink);
   border-radius: 52% 48% 55% 45% / 47% 55% 45% 53%;
-  font-family: var(--font-hand);
+  font-family: var(--font-display);
   font-size: 28px;
   line-height: 1;
   text-align: center;
@@ -398,7 +396,7 @@
 }
 
 .dateText {
-  font-size: 24px; /* Mansalva nie unter 24 px (DESIGN §4.3, LG-03) */
+  font-size: 24px; /* Spectral nie unter 24 px (DESIGN §4.3, LG-03) */
 }
 
 .offerBody > * + * {
@@ -613,7 +611,7 @@
   height: 2.5rem;
   border: 2px solid var(--ink);
   border-radius: 50% 46% 52% 48%;
-  font-family: var(--font-hand);
+  font-family: var(--font-display);
   font-size: 22px;
 }
 

@@ -22,7 +22,7 @@ import {
 import { NavLinkView } from './NavLinkView'
 
 // Menü (DESIGN KO-03, KONZEPT §3.0.2): natives `<dialog id="menu">`, serverseitig gerendert; das Verhaltensmodul
-// `menu` öffnet es modal (Fokus, Tab-Falle, `Esc`, MI-05). Hauptliste in Mansalva, unter „Shop“ die Kategorien
+// `menu` öffnet es modal (Fokus, Tab-Falle, `Esc`, MI-05). Hauptliste in Spectral, unter „Shop“ die Kategorien
 // (`showInNavigation`), unter „Tattoo“ die Tattoo-Unterseiten; unten Sprachumschalter, Instagram und die Pflichtlinks
 // klein inkl. „Vertrag widerrufen“. Ohne JavaScript bleibt der Dialog zu, der Menü-Knopf führt zur Fußnavigation.
 // Der Inhalt steht als statisches HTML im Dialog (`StaticHtml`): React hydriert ihn nicht – das sind gut

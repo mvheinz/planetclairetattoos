@@ -79,7 +79,7 @@ describe('T-09 budgets.json enthält alle Werte aus ARCHITEKTUR §7.7 und DESIGN
   })
 
   it('Schriften 3 Dateien ≤ 100 KB; R01-Seitengewicht ≤ 1,5 MB (Ziel 1,0 MB); SVG-Budgets', () => {
-    expect(budgets.fonts).toEqual({ files: 3, maxBytes: 100_000 })
+    expect(budgets.fonts).toEqual({ files: 4, maxBytes: 100_000 })
     expect(budgets.pageWeight.R01).toEqual({ max: 1_500_000, target: 1_000_000 })
     expect(budgets.svg).toMatchObject({
       cocoSprite: { rawMax: 45_000, gzipMax: 12_000 },
@@ -189,7 +189,7 @@ describe('T-09 check:bundle – Abbruch mit Fixture-Budget (CLI)', () => {
     mkdirSync(chunks, { recursive: true })
     mkdirSync(media, { recursive: true })
     writeFileSync(path.join(chunks, 'a.js'), 'console.log(1)')
-    for (const f of ['a', 'b', 'c']) writeFileSync(path.join(media, `${f}.woff2`), 'x')
+    for (const f of ['a', 'b', 'c', 'd']) writeFileSync(path.join(media, `${f}.woff2`), 'x')
     return path.join(dir, 'dist')
   }
 

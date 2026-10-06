@@ -19,7 +19,8 @@ const networkFetches = () =>
     .map(([input]) => (input instanceof Request ? input.url : String(input)))
     .filter((url) => !url.startsWith('data:'))
 
-const FOX = { r: 0xb8, g: 0x4e, b: 0x1a }
+// Stempelfarbe seit U-12: Petrol (#0F4C57)
+const FOX = { r: 0x0f, g: 0x4c, b: 0x57 }
 
 /** Anteil der Pixel nahe der Stempelfarbe rechts vom Foto (x ≥ 504). */
 async function foxShare(png: Buffer): Promise<number> {
@@ -31,9 +32,9 @@ async function foxShare(png: Buffer): Promise<number> {
       const i = (y * info.width + x) * 3
       total++
       if (
-        Math.abs(data[i]! - FOX.r) < 40 &&
-        Math.abs(data[i + 1]! - FOX.g) < 40 &&
-        Math.abs(data[i + 2]! - FOX.b) < 40
+        Math.abs(data[i]! - FOX.r) < 20 &&
+        Math.abs(data[i + 1]! - FOX.g) < 20 &&
+        Math.abs(data[i + 2]! - FOX.b) < 20
       )
         hits++
     }
@@ -62,7 +63,7 @@ describe('P3.14 OG-Bilder', () => {
     expect(networkFetches()).toEqual([])
   }, 60_000)
 
-  it('Produktbild: PNG 1200 × 630; verkauft mit Stempel (Fuchs-Farbe), sonst ohne; ohne Netzwerk', async () => {
+  it('Produktbild: PNG 1200 × 630; verkauft mit Stempel (Petrol-Farbe), sonst ohne; ohne Netzwerk', async () => {
     const available = Buffer.from(await (await renderProductOg(product(), 'de')).arrayBuffer())
     const sold = Buffer.from(
       await (await renderProductOg(product({ status: 'sold' }), 'en')).arrayBuffer(),
@@ -70,7 +71,7 @@ describe('P3.14 OG-Bilder', () => {
     for (const png of [available, sold])
       expect(await sharp(png).metadata()).toMatchObject({ format: 'png', width: 1200, height: 630 })
     expect(await foxShare(available)).toBe(0)
-    expect(await foxShare(sold)).toBeGreaterThan(0.002)
+    expect(await foxShare(sold)).toBeGreaterThan(0.001)
     expect(networkFetches()).toEqual([])
   }, 60_000)
 

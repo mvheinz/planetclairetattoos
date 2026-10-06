@@ -625,26 +625,27 @@ export function lg02(files: readonly ProbeFile[]): CheckResult {
   return result('LG-02', bad.length === 0, `${rows.length} Messungen`, th, bad)
 }
 
-const MANSALVA_ROLES = ['h1', 'h2', 'price', 'stamp', 'menu', 'badge']
+const DISPLAY_ROLES = ['h1', 'h2', 'price', 'stamp', 'menu', 'badge']
 
 export function lg03(files: readonly ProbeFile[]): CheckResult {
-  const th = 'Mansalva nur in erlaubten Rollen (DESIGN §4.3; Ruhe-Routen nur H1), nie < 24 px'
+  const th =
+    'Spectral (Überschrift-/Akzent-Schrift, U-10) nur in erlaubten Rollen (DESIGN §4.3; Ruhe-Routen nur H1), nie < 16 px'
   const rows = entries(files)
   if (!rows.length) return noData('LG-03', th, 'keine Sonden')
   const bad = new Set<string>()
   let n = 0
   for (const e of rows) {
     const calm = isCalmRoute(e.p.url)
-    for (const m of e.p.mansalva) {
+    for (const m of e.p.display) {
       n++
       const route = routeOf(e.p.url)?.id ?? e.p.url
-      if (m.size < 24) bad.add(`${route}: <${m.tag}> ${m.size} px`)
-      if (!MANSALVA_ROLES.includes(m.role)) bad.add(`${route}: <${m.tag}> Rolle ${m.role}`)
+      if (m.size < 16) bad.add(`${route}: <${m.tag}> ${m.size} px`)
+      if (!DISPLAY_ROLES.includes(m.role)) bad.add(`${route}: <${m.tag}> Rolle ${m.role}`)
       else if (calm && m.role !== 'h1' && m.role !== 'menu')
         bad.add(`${route}: <${m.tag}> Rolle ${m.role} auf Ruhe-Route`)
     }
   }
-  return result('LG-03', bad.size === 0, `${n} Mansalva-Elemente`, th, [...bad])
+  return result('LG-03', bad.size === 0, `${n} Spectral-Elemente`, th, [...bad])
 }
 
 export function lg04(files: readonly ProbeFile[]): CheckResult {

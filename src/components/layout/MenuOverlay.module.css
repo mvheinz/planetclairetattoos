@@ -1,4 +1,4 @@
-/* KO-03 Menü: Vollbild-Dialog auf Papier mit eigenem Raster; Hauptliste Mansalva --fs-menu, Unterlisten 17 px. */
+/* KO-03 Menü: Vollbild-Dialog auf Papier mit eigenem Raster; Hauptliste Spectral --fs-menu, Unterlisten 17 px. */
 .menu {
   width: 100%;
   max-width: none;
@@ -90,7 +90,7 @@
   align-items: center;
   min-height: var(--tap-min);
   color: var(--ink);
-  font-family: var(--font-hand);
+  font-family: var(--font-display);
   font-size: var(--fs-menu);
   line-height: 1.1;
   text-decoration: none;

@@ -3,27 +3,30 @@
   color-scheme: only light;
 
   /* Grund */
-  --paper: #F4EFE6;
-  --paper-2: #EAE2D4;
-  --paper-field: #FBF8F1;
+  --paper: #E6EACD;           /* helles Olivgrün, Seitenanfang (U-11) */
+  --paper-deep: #BDD6CE;      /* Petrol-Hauch, Verlaufsende am Seitenende (U-11) */
+  --paper-2: #DCE2C2;
+  --paper-field: #F8F9EC;
   --grid-line: rgb(47 107 76 / 0.05);
   --grid-line-major: rgb(47 107 76 / 0.042);
 
   /* Tusche und Ton */
   --ink: #1C1A17;
   --ink-2: #4B463F;
-  --ink-3: #665F55;
+  --ink-3: #524C43;
   --clay: #CBBBA2;
 
   /* Akzente */
-  --mat: #2F6B4C;
-  --fox: #B84E1A;
-  --fox-text: #A8430F;
-  --stencil: #5A4BC4;
+  --mat: #2F6B4C;             /* nur noch Schneidematten-Raster und Flächen, kein Text */
+  --petrol: #0F4C57;          /* Akzent: Links, Knöpfe, Stempel (U-12) */
+  --petrol-deep: #0A3841;     /* Hover und Fokus */
+  --fox: #AA4515;
+  --fox-text: #843709;
+  --stencil: #4638A8;
   --pink: #E58FB0;
-  --warn: #8F5400;
-  --error: #A6261C;
-  --ok: var(--mat);
+  --warn: #714300;
+  --error: #92211A;
+  --ok: #1B5538;
 
   /* Kunst */
   --coco-fur: #E2BF8E;
@@ -38,15 +41,16 @@
   --color-surface: var(--paper-2);
   --color-text: var(--ink);
   --color-text-muted: var(--ink-2);
-  --color-link: var(--mat);
-  --color-focus: var(--stencil);
+  --color-link: var(--petrol);
+  --color-focus: var(--petrol-deep);
   --color-line: var(--ink);
-  --color-sold: var(--fox);
+  --color-sold: var(--petrol);
   --color-border-ui: var(--ink-2);
   --color-border-deco: var(--clay);
 
   /* Schriften (Familien setzt next/font als Variablen) */
-  --font-hand: var(--font-mansalva), "Segoe Print", "Bradley Hand", cursive;
+  --font-display: var(--font-spectral), Georgia, "Times New Roman", serif;
+  --font-accent: var(--font-spectral-italic), Georgia, "Times New Roman", serif;
   --font-body: var(--font-bricolage), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 

@@ -28,7 +28,7 @@
   /* LG-01 (R3-04-01): Coco sitzt über der Kopf-Station; ihre Pfoten reichen bis ≈ 0,96 der Box. 8 px mehr Luft über der
      H1-Zeile (Zeilenrechteck ohne Spielraum) halten die Pfoten – auch bei 200 % Schrift und im Querformat – aus der Zeile. */
   margin-block-start: var(--space-2);
-  font-family: var(--font-hand);
+  font-family: var(--font-display);
   font-size: var(--fs-display);
   font-weight: 400;
   line-height: 1;
@@ -113,7 +113,7 @@
 }
 
 .heading {
-  font-family: var(--font-hand);
+  font-family: var(--font-display);
   font-size: var(--fs-h2);
   font-weight: 400;
   line-height: 1.05;

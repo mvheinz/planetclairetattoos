@@ -21,7 +21,7 @@ export function cocoSpriteFile(b: { file?: string }): string {
 //    Fehlerseiten R28/R29 gegen `next start`, liest die Skript-URLs aus `/_next/static`, die vor dem `load`-Ereignis
 //    geladen wurden, und gzipt die zugehörigen Dateien aus `<distDir>/static` mit Stufe 9 (Budget je Routen-ID).
 //    Dazu je Seite die erzeugten Pfaddaten im DOM (DESIGN §9.10) und auf R01 alle SVG der Startseite zusammen.
-// 2. Schriften AK-DS-04 (DESIGN §4.1): genau 3 ausgelieferte `.woff2`, zusammen ≤ 100 KB, kein Google-Fonts-Verweis;
+// 2. Schriften AK-DS-04 (DESIGN §4.1): genau 4 ausgelieferte `.woff2`, zusammen ≤ 100 KB, kein Google-Fonts-Verweis;
 //    keine TTF/OTF (OG-Schriften, P3.14).
 // 3. Lazy-Module (DESIGN §9.10): jedes Modul einzeln mit esbuild gebündelt und minifiziert (unabhängig von der
 //    Chunk-Aufteilung durch Next), gzip Stufe 9.
@@ -110,7 +110,7 @@ export function expandGlob(pattern: string): string[] {
 // Schriften (AK-DS-04)
 
 /** Budget AK-DS-04: genau so viele Schriftdateien, zusammen höchstens so viele Bytes. */
-export const FONT_FILES = 3
+export const FONT_FILES = 4
 export const FONT_BUDGET_BYTES = 100 * 1000
 const GOOGLE_FONTS = /fonts\.(googleapis|gstatic)\.com/
 

@@ -19,14 +19,14 @@
 }
 
 .h1 {
-  font-family: var(--font-hand);
+  font-family: var(--font-display);
   font-size: var(--fs-h1);
   font-weight: 400;
   line-height: 1.05;
 }
 
 .h2 {
-  font-family: var(--font-body); /* unter 24 px keine Mansalva (DESIGN §4.3) */
+  font-family: var(--font-body); /* unter 24 px keine Spectral (DESIGN §4.3) */
   font-size: var(--fs-h3);
   font-weight: 700;
   margin-bottom: var(--space-3);
@@ -133,7 +133,9 @@
   width: 48px;
   height: 60px;
   object-fit: cover;
-  border-radius: 2px 6px 3px 5px;
+  /* Goth-Fotorahmen (U-13, gleiche gemeinsame SVG-Datei wie `ResponsiveImage`), schmales Band für Vorschaubilder */
+  border: 6px solid var(--paper-field);
+  border-image: url('/art/photo-frame.v1.svg') 40 / 6px round;
   background: var(--paper-field);
 }
 
@@ -241,7 +243,7 @@
 .copyStatus {
   margin-inline-start: var(--space-2);
   font-size: var(--fs-small);
-  color: var(--mat);
+  color: var(--ok);
 }
 
 .qr {

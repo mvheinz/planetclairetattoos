@@ -5513,13 +5513,13 @@ Nach dem Merge automatisch (ohne Checkbox; prüft P11.1):
   Notiz in `docs/ENTSCHEIDUNGEN.md` „Umsetzungsnotizen“ (verweist auf U-xx); `CLAUDE.md` nennt P12 und die dauerhafte
   Zweisprachigkeits-Regel U-00; `bash scripts/cloud-setup.sh --plan-status` zeigt zusätzlich `OFFEN_P12=<n>`.
   - Akzeptanz: Dateien committet; `--plan-status` zeigt OFFEN_P12 und nennt P12 als nächste Aufgabe, solange offen.
-- [ ] **P12.2 Schrift, Farben und Hintergrund** (U-10, U-11, U-12) – `@fontsource/spectral` (exakt gepinnt, selbst gehostet,
+- [x] **P12.2 Schrift, Farben und Hintergrund** (U-10, U-11, U-12) – `@fontsource/spectral` (exakt gepinnt, selbst gehostet,
   `font-display`/Fallback-Faces ohne Layout-Sprung), Mansalva samt Akzent-Stile entfernt; Tokens für hellolive Grundton und Petrol in
   `docs/design/DESIGN.md` und `src/styles`; Scroll-Verlauf (Oliv → Petrol, `scroll-timeline`/IntersectionObserver-frei oder minimaler
   rAF-Pfad, Budget!), statisch bei reduzierter Bewegung; Kontraste AA (A11Y, axe); Visuelle Referenzen neu.
   - Akzeptanz: kein Mansalva mehr im Build/Netz; Fonts nur selbst gehostet (`check:external`); axe/Kontrast grün (EK-07);
     LCP/CLS-Gates grün; Unit-Tests der Tokens.
-- [ ] **P12.3 Goth-Fotorahmen** (U-13) – Komponente für den viktorianischen Filigran-Rahmen (dünne Tuschelinie, SVG-Rahmen mit
+- [x] **P12.3 Goth-Fotorahmen** (U-13) – Komponente für den viktorianischen Filigran-Rahmen (dünne Tuschelinie, SVG-Rahmen mit
   festen Seitenverhältnissen, Ecken-Ornamente) für alle Foto-Kontexte; ersetzt Passepartout/Doppelrahmen; Leine bleibt wirksam.
   - Akzeptanz: alle Foto-Stellen nutzen die Komponente (Test per Registry-Suche); CLS ≤ 0,1; SVG-Budget (PF-10) eingehalten;
     Referenzen neu; Linsen-Prüfpunkt IM-04 dokumentiert.

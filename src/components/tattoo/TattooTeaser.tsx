@@ -50,6 +50,7 @@ export async function TattooTeaser({ data, locale }: { data: TattooTeaserData; l
                   aspectRatio="4 / 5"
                   sizes="96px"
                   srcSizes={['thumb']}
+                  frameSize="thumb"
                   className={styles.offerFlashImage}
                 />
                 <span className={styles.flashNumber} data-stamp="">

@@ -58,7 +58,13 @@ export async function CartLine({
       data-purchasable={line.purchasable ? 'true' : 'false'}
     >
       <div className={styles.photo}>
-        <ResponsiveImage media={media} aspectRatio="4 / 5" sizes="64px" srcSizes={['thumb']} />
+        <ResponsiveImage
+          media={media}
+          aspectRatio="4 / 5"
+          sizes="64px"
+          srcSizes={['thumb']}
+          frameSize="thumb"
+        />
       </div>
       <div className={styles.body}>
         <p className={styles.title}>{href ? <a href={href}>{title}</a> : <span>{title}</span>}</p>

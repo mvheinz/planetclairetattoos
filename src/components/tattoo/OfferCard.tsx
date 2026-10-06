@@ -13,7 +13,7 @@ import { daysUntilStart, offerDateBadge, offerState, offerTimeParts } from '@/li
 
 import styles from './Tattoo.module.css'
 
-// Angebotskarte (KONZEPT §9.5, DESIGN KO-20): Datums-Badge in Mansalva im gezeichneten Kreis („Sa 12.10.“, mehrtägig
+// Angebotskarte (KONZEPT §9.5, DESIGN KO-20): Datums-Badge in Spectral im gezeichneten Kreis („Sa 12.10.“, mehrtägig
 // „12.–13.10.“), Art, Hinweis „läuft gerade“ bzw. „in X Tagen“, Titel, Text, Uhrzeit aus `startsAt`/`endsAt` (nur wenn
 // nicht ganztägig), Ort (`locationNote`, sonst „Privatstudio in Berlin-{Bezirk}“, E-50), Preis-Info, Vorschaubilder der
 // verknüpften Flash-Motive mit Link auf `R12#f-012`, Mail-Knopf (Angebots-Betreff) und DM-Knopf. Der Zustand wird beim
