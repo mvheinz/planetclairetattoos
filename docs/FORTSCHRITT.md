@@ -2,6 +2,32 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P9 Phasen-Abnahme (Kunst & Bewegung) – für Jutta
+
+### Phase 9 fertig: Zeichnungen und Animationen sind gebaut und dreifach geprüft
+
+Hallo Jutta,
+
+Phase 9 ist fertig. Coco, die Tuschelinie, die Zeichnungen und die Bewegungen sind jetzt so umgesetzt, wie ich deinen Strich aus den Skizzen und den Coco-Fotos verstanden habe.
+
+### Was neu ist
+
+- **Coco** ist nach deinen Fotos neu gezeichnet: große aufrechte Ohren, runder Kopf, helle Schnauze, weiße Brust und Pfoten. Sie läuft an der Linie mit, setzt sich, wenn du stehen bleibst, und blickt zur Seite.
+- **Die Tuschelinie** wird von Hand gezeichnet gewirkt (Absetzer, leichtes Zittern) und führt dich durch die Startseite. Am Ende bildet sie ein Herz.
+- **Stationen und Platzhalter** sind frei im Linienstil gezeichnet, mit viel Papier und nur kleinen schwarzen Punkten.
+- **Fotos** bekommen einen einheitlichen Look; Produktfotos sitzen in einem Papierrand.
+- **Seitenübergänge** und kleine Bewegungen (Hover, Korb, 404-Seite). Wer „weniger Bewegung“ eingestellt hat, bekommt ruhige Seiten.
+
+### Wie es geprüft wurde
+
+Neun Prüfrunden mit Videoaufnahmen auf Handy und Desktop, jedes Mal von drei unabhängigen Prüfern („Linsen“) ohne Vorwissen. Der automatische Check bestand am Ende mit 62 von 62 Kriterien, auch auf dem GitHub-Rechner ([Lauf mit den Videos](https://github.com/mvheinz/planetclairetattoos/actions/runs/37403045986), das Paket „art-qa-20261006-iter01-b093408“ ist 30 Tage verfügbar).
+
+### Was noch offen ist (in `docs/OFFENE-PUNKTE.md`, „Kunst-QA offen“)
+
+- Die Platzhalter-Bilder wirken auf den Prüfer noch nicht ganz handgemacht genug (Note 3 statt 4). Der nächste Schritt wäre, die Gesichter neu zu zeichnen – das machen wir gemeinsam in Phase 11.
+- Kleine Bewegungs-Feinheiten (Coco wandert beim Seitenwechsel noch nicht mit).
+- Du schaust dir alles einmal auf einem echten Handy an (auch im Instagram-Browser) – Liste in der Go-live-Checkliste.
+
 ## 2026-10-06 – P9 Kunst-QA: Abschlusslauf in CI (Tempo der Linie)
 
 Im letzten CI-Lauf war nur noch eine Messung rot: der Aufbau der Linie am Desktop dauerte in einzelnen Teilstücken bis zu 9,5 ms statt höchstens 8. Die Linie wird jetzt in noch kleineren Stücken aufgebaut (höchstens ca. 1 ms je Stück). Der Lauf bestätigt das auf einer ruhigen Maschine.
