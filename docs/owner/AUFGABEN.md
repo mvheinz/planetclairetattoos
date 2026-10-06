@@ -347,7 +347,7 @@ Die Reihenfolge steht in [Z1](ANLEITUNGEN.md#z1).
 
 ## 5. Nach dem Start
 
-Die genaue Bedienung erklärt dein Handbuch, das in P10 in diesen Ordner kommt.
+Die genaue Bedienung erklärt dein [Handbuch](HANDBUCH.md).
 Überblick: [Z2](ANLEITUNGEN.md#z2).
 
 - [ ] **A42 · Bestellungen bearbeiten:** „Zu packen“ → packen (Checkliste, 2 Fotos, Verpackung bestätigen) → Paketmarke → Sendungsnummer eintragen

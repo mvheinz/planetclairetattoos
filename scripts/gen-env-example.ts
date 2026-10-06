@@ -3,8 +3,9 @@ import { writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { renderEnvExample } from '../src/lib/env.schema'
+import { renderEnvExample, renderEnvProductionExample } from '../src/lib/env.schema'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 writeFileSync(path.join(root, '.env.example'), renderEnvExample())
-console.log('.env.example erzeugt')
+writeFileSync(path.join(root, '.env.production.example'), renderEnvProductionExample())
+console.log('.env.example und .env.production.example erzeugt')

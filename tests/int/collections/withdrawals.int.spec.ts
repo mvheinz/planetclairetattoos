@@ -88,7 +88,7 @@ describe('withdrawals (DATENMODELL §6.11)', () => {
     expect(audit.docs.map((d) => d.action)).toEqual(['withdrawal_received'])
   })
 
-  it('ohne passende Bestellung: needs_manual_match, Aufbewahrung bis Ende Eingangsjahr + 6', async () => {
+  it('DM-WDR-01 ohne passende Bestellung: needs_manual_match, Aufbewahrung bis Ende Eingangsjahr + 6', async () => {
     const w = await submit({
       contractIdentification: 'Die Tasse vom Flohmarkt',
       email: 'x@planetclairetattoos.com',

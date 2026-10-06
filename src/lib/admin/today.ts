@@ -94,8 +94,6 @@ export interface TodaySummary {
     statusLabel: string
     seed: boolean
   }[]
-  /** Startklar-Prüfung: Platzhalter bis P10.14. */
-  startklar: 'later'
 }
 
 type Privacy = {
@@ -538,7 +536,6 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
       statusLabel: ENUM_LABELS.ORDER_STATUSES[o.status].de,
       seed: o.seed === true,
     })),
-    startklar: 'later',
   }
 }
 

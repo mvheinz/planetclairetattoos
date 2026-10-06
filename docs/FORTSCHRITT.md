@@ -40,6 +40,103 @@ Neun Prüfrunden mit Videoaufnahmen auf Handy und Desktop, jedes Mal von drei un
 
 Im letzten CI-Lauf war nur noch eine Messung rot: der Aufbau der Linie am Desktop dauerte in einzelnen Teilstücken bis zu 9,5 ms statt höchstens 8. Die Linie wird jetzt in noch kleineren Stücken aufgebaut (höchstens ca. 1 ms je Stück). Der Lauf bestätigt das auf einer ruhigen Maschine.
 
+## 2026-10-05 – P10.3
+
+- Neue Suiten tests/e2e/a11y/audit.e2e.spec.ts (je Registry-Route DE/EN: 200 % Schrift bei 390 px ohne waagerechtes Scrollen, erzwungene Farben, prefers-reduced-motion ohne laufende Animation/Maske, Alt-Texte aller Bilder, Produkt-Alt DE/EN verschieden; Verwaltung: Login und jede Hauptansicht bei 390x844 mit axe) und tests/e2e/a11y/keyboard.e2e.spec.ts (Kauf Produktseite → Korb → Kasse → Danke und Widerruf vom Fußbereich, DE/EN, nur Tab/Enter/Pfeiltasten, :focus-visible an jedem Halt)
+- Bestehende Suiten decken axe je Route und Zustand (leer, Fehler, reserviert, verkauft, Menü), Tastatur-Durchläufe (Menü, Galerie/Zoom, Auftragsformular, Verwaltung), AK-DS-07/08/09 und V-26 ab; keine neuen Befunde, nichts zu beheben (keine Konformitätsaussage)
+- Stand ohne die Kunst-Phase P9: nach Zusammenführung wiederholen (OFFENE-PUNKTE)
+- Tests: E2E desktop 215 Tests grün (a11y, keyboard, forms, frontend, security-headers u. a.)
+
+## 2026-10-05 – P10.6
+
+- Rate-Limits: tests/int/security/rate-limits.int.spec.ts liest die Grenzen aus ARCHITEKTUR §8.5 und prüft jeden Bucket tabellengetrieben an der echten Stelle (cart_add, checkout_start, checkout_start_day, checkout_submit, commission_submit/_day, commission_upload, commission_form_uploads, withdrawal_submit, admin_login, forgot_password, token_pages über 5 Stellen, product_status, client_errors): N-ter Aufruf erlaubt, N+1 abgelehnt mit Retry-After (429) bzw. stilles Verwerfen (204), andere IP unberührt
+- i18n-Texte der 429-Antworten DE/EN geprüft, nur Hashes gespeichert (keine Klar-IP, kein Klar-Token), Zähler nach 24 h per purgeRateLimits (Wartungs-Job) gelöscht
+- Honeypot und Zeitfalle: Schein-Erfolg ohne Datensatz und ohne Zähler (Auftragsanfrage, Widerruf)
+- R-162: tests/e2e/privacy/forms.e2e.spec.ts crawlt alle Registry-Routen DE/EN plus 404: Texteingaben im Formular nur auf Kasse, Auftragsarbeiten, Widerruf (einzige Ausnahme: Stücknummern-Suche der 404-Seite, OFFENE-PUNKTE)
+- R-137/T-20: Logger-Schwärzung und URL-Prüfungen der bestehenden Tests bleiben maßgeblich (logger.unit, redact.unit, E2E Kasse/Anfrage/Widerruf); Upload-Grenzen 413/415 in commission/upload.int
+- Tests: 31 neue Int-Tests, 2 E2E, pnpm check grün
+
+## 2026-10-05 – P10.5
+
+- Audit über alle Registry-Routen DE/EN und alle Kontexte (public, dynamic, checkout, admin, api): tests/unit/security/audit.unit.spec.ts (Kontext je Route nach ARCHITEKTUR §8.1, Umgebung x Kontext, HSTS nur production/staging, noindex außer Produktion, keine unsafe-inline in Nonce-Kontexten, ignoreCves nur CVE-IDs mit OFFENE-PUNKTE-Zeile), tests/e2e/security-headers.e2e.spec.ts erweitert (noindex/kein HSTS auf allen Routen, alle API-Endpunkte im Kontext api auch bei Fehlern, Admin-Login/Manifest/Service Worker mit Nonce, R-136 privat ohne Anmeldung 401/403, /admin und GraphQL 404, Verwaltungspfad in keinem öffentlichen HTML, Selbsttest des CSP-Wächters)
+- CSP-Wächter: Auto-Fixture cspViolations in tests/e2e/fixtures.ts lässt jeden E2E-Test bei securitypolicyviolation oder CSP-Konsolenfehler scheitern; 22 Spezifikationen laufen jetzt über die Fixtures
+- Spike B-03 erneut bewertet: Rückfall bleibt (public: script-src 'self' 'unsafe-inline', keine Fremd-Hosts), B-01 Soll (Nonce) erfüllt; in ARCHITEKTUR Anhang B und ADR 0002 eingetragen
+- Abhängigkeiten: pnpm audit --prod ohne high/critical: nodemailer 10.0.15 und undici 7.30.0 per Override (gepatcht), braces nur als ignoreCves CVE-2026-93687 (kein Fix vorhanden), alle mit OFFENE-PUNKTE-Zeile; pnpm check:external --built grün (560 Dateien, Verwaltungspfad nicht enthalten)
+- gitleaks läuft nur im CI (lokal nicht installierbar), siehe OFFENE-PUNKTE
+- Tests: pnpm check grün, pnpm test:int 166 Dateien grün, E2E security-headers (desktop) grün
+
+## 2026-10-05 – P10.19
+
+- RECHT §7 Teil A vollständig abgehakt (05.10.2026): R-049 (amtliche Grafik offline nicht ladbar, Platzhalter in OFFENE-PUNKTE), R-095 (Token withdrawalUrl und phone), R-156 (VVT V1–V19 vollständig, zugleich R-210 Nr. 14), R-157 (RUNBOOK §9 und Handbuch Kapitel 16), R-161, R-190, V-18/V-28/V-29 erneut gesichtet (nur EN-Fachbegriff legal guarantee), EK-09 erneut (Paritäts- und lorem-Tests grün)
+- Instagram-Export fehlt weiter (nur LIESMICH): seed:import-instagram/--refresh-media entfallen, art:vectorize und art:coco-refs unverändert reproduzierbar; KUNST-QA-Teilaufnahme bewusst auf den Abschlusslauf nach dem Zusammenführen mit P9 verschoben (OFFENE-PUNKTE)
+- OFFENE-PUNKTE bereinigt: Überblick nach Zuständigkeit (Jutta, Kanzlei, Steuerberatung, technisch erledigt), neuer Abschnitt 4.2, veraltete Angaben zu Coco-Fotos und DATEV korrigiert
+- Tests: tests/unit/legal/withdrawal-placeholder.unit.spec.ts (3), pnpm check grün (1960 Tests)
+
+## 2026-10-05 – P10.18
+
+- docs/owner/HANDBUCH.md: 20 Kapitel in Du-Form (Anmelden/PWA, Heute, Neues Stück mit Pflichtangaben und Fotoregeln, Meine Stücke, Packen/Versendet, Vorkasse, Abholung, Widerruf und Erstattung, Anfragen, Tattoo, Texte, Einstellungen, Umsatz-Wächter, Export, Datenschutz-Anfragen, Datenpanne nach R-157, Startklar, Beispieldaten, Vorschau-Datei und Hinweis zur Barrierefreiheit nach R-190, Notfall und Hilfe), jedes mit Bildschirmfoto aus P10.17
+- AUFGABEN §5 und ANLEITUNGEN §17 verlinken das Handbuch statt „kommt in P10“
+- Verwaltungspfad steht bewusst nicht im Handbuch (kommt als Lesezeichen in P11)
+- Tests: tests/unit/docs/handbook.unit.spec.ts (7: Kapitel, Links/Bilder/Anker, V-26, R-157, keine Geheimnisse); pnpm check grün (1957 Tests)
+
+## 2026-10-05 – P10.17
+
+- pnpm handbook:shots (scripts/handbook/shots.ts, shotList.ts): 41 WebP-Bilder 390x844 DPR 2 nach docs/owner/img/handbuch/ (alle Handy-Ansichten, Detail- und Dialogansichten, 3 öffentliche Seiten), zusammen 1,5 MB, je Bild max. 68 KB
+- Deterministisch (Wiederholung byte-gleich), nur Beispieldaten, kein Verwaltungspfad im Bild (Textprüfung)
+- Beispieldaten-entfernen-Knopf ist im Beispielbestand gesperrt: Bild zeigt den gesperrten Knopf
+- Tests: tests/unit/docs/handbook-images.unit.spec.ts, pnpm check grün (1950 Tests)
+
+## 2026-10-05 – P10.16
+
+- docs/GO-LIVE.md: Spielregeln (wer tippt was), Konten-/Ressourcenliste (§12.2), Variablen je Vercel-Umgebung, Datenbank-Ablauf (Migration, Beispielbestand in `main`, Zweige seed-root/staging/preview, `db:mark-production`), DNS-Umstellung mit Ist-/Soll-Tabelle wörtlich aus ARCHITEKTUR §12.4, `dig`-Befehle, TTL T−1/T+7, Rückweg, AK-A-12-01…03, Stand der Spikes (B-01 Soll erfüllt, B-07 im Staging bestätigen), je ein Abschnitt P11.1–P11.17 mit Prüfkriterium und Verknüpfung zu AUFGABEN A23–A41/ANLEITUNGEN, Testkauf-Drehbuch, KUNST-QA §10 Nr. 4, EK-08-Stoppuhr, 7-Tage-Überwachung.
+- Tests: tests/unit/docs/golive (5: Abschnitte P11.1–P11.17, DNS-Tabellen = ARCHITEKTUR, Verknüpfungen, B-01, keine Geheimnisse/tiefen URLs)
+
+## 2026-10-05 – P10.15
+
+- docs/RUNBOOK.md (14 Kapitel): Topologie, Konfiguration (alle 68 Variablen aus der Registry mit „Pflicht in“/Geheim, ohne Werte), Deploy/Rollback/rückwärtsverträgliche Migrationen, Schlüsseltausch je Geheimnis (§8.9), Sicherheitsupdate (Session starten, 48 h), Backups und Wiederherstellung Schritt für Schritt (Flags wie in den Skripten), halbjährliche Übung, Wartungsmodus, Alarme M-01…M-12 mit Handlungsanweisung, Datenpanne (R-157: erkennen, bewerten, 72 h, Online-Formular der Berliner Beauftragten, Betroffene, DE-Vorlagen, Kontaktliste), Kosten-Routine, DNS-Verweis auf GO-LIVE, Docker-Umzug, Vorlage Vorfallprotokoll, Betriebsprotokoll.
+- Tests: tests/unit/docs/runbook (7: Überschriften, Variablen-Vollständigkeit, M-01…M-12, Geheimnisse, Datenpanne, pnpm-Befehle/Flags gegen package.json und Skripte, keine Geheimniswerte)
+
+## 2026-10-05 – P10.14
+
+- src/lib/golive/{checks,collect}.ts: eine Prüffunktion (15 Punkte R-210 Nr. 1–15 inkl. KONZEPT §7.16/DATENMODELL §13.7) für `pnpm check:golive [--json]`, Ansicht Einstellungen → System → „Startklar“ (grün/rot mit Erklärung, AVV-Liste aus services.generated.ts), Hinweis „Startklar-Prüfung nicht grün“ mit Link unter „Heute“ und die Go-live-Sperre „Shop öffnen“ in Produktion (Settings.ts listet alle offenen Punkte; Knopf in den Shop-Einstellungen zeigt dieselbe Liste). Platzhalter „kommt in P10“ entfernt (`systemStartklarLater`/`todayStartklarLater`, `STARTKLAR_PLANNED`); `countUnapprovedOwnerPhotos` und Galerie ohne Einwilligung fließen in Punkt 15 ein; `docs/recht/VVT.md` per outputFileTracingIncludes im Build.
+- Trockenlauf `pnpm check:golive` gegen die Grund-Seed-Datenbank (Exit 1): rot sind Rechtstexte, Bausteine, Stammdaten, IBAN, LUCID/Systembeteiligung, AVVs (7 Dienste), Beispielbestand/Vorschau-Modus, ADMIN_ROUTE, Treiber/Stripe, Statistik-Entscheidung, harmonisierte Mitteilung (Platzhalter-Grafik), Steuer/Vorjahresumsatz – grün: Lieferländer, VVT, Fotos (12 von 15 offen, erwartet).
+- Tests: tests/unit/golive/checks (25, jede Prüfung einzeln grün/rot, R-155 AVV), tests/int/golive/shop-open-lock (3), settings-part3/today int angepasst; E2E today + settings-system (pixel-7) grün, Suche „kommt in P…“ ohne Ausnahme; pnpm check/build grün
+
+## 2026-10-05 – P10.13
+
+- vercel.json (fra1, Crons tick/backup, Ignored Build Step scripts/vercel-ignore-build.mjs); Origin-Listen cors/csrf (Apex + Vercel-Produktions-Domain in Produktion); pnpm db:mark-production (--yes); /api/health?deep=1 mit Bearer (DB- und Speicher-Ping)\n- admin:create/unlock und assertProductionEnv bereits vorhanden; Spike B-01 Stand: Soll erfüllt (ARCHITEKTUR Anhang B)\n- Tests: tests/unit/deploy/vercel-json, tests/unit/security/origins, tests/int/admin/admin-create, tests/int/health/deep; AK-1-02/AK-A-3-02/AK-A-4-01/AK-A-4-02 weiter grün
+
+## 2026-10-05 – P10.12
+
+- Dockerfile: Ziel migrator, HEALTHCHECK, Schriften, BUILD_WITHOUT_DB=1; docker-compose.prod.yml (caddy, app, migrate, postgres ohne Port, scheduler 30 1 * * *), deploy/Caddyfile, .env.production.example (generiert), .dockerignore; Job docker in ci-full.yml\n- Spike B-08 bestanden: Build ohne DB (dbGate/connection()), danach gegen befüllte DB gestartet: /api/health, /de, /en, Shop, Archiv 200; Ergebnis in ARCHITEKTUR Anhang B\n- Tests: tests/unit/deploy/docker-files, tests/unit/ci/workflows; Image-Größe/UID/Compose-Lauf belegt der CI-Job docker im Phasenende-PR (Docker-Daemon lokal nicht verfügbar)
+
+## 2026-10-05 – P10.11
+
+- @vercel/analytics 2.0.1 exakt gepinnt; AnalyticsSlot/AnalyticsClient (nur mit NEXT_PUBLIC_ANALYTICS_ENABLED, APP_ENV=production, kein PREVIEW_EXPORT, settings.analytics.enabled+confirmedAt+Notiz), beforeSend filtert R06–R09/R26/Admin/API und Query
+- Tests: tests/unit/analytics/before-send (inkl. Registry-Abgleich), tests/e2e/privacy/analytics (desktop+pixel-7 grün), check:external und check:bundle grün
+
+## 2026-10-05 – P10.10
+
+- @sentry/nextjs 11.4.0 nur in instrumentation.ts (ohne DSN nie geladen), redactSentryEvent, Logger→Sentry-Brücke, /api/client-errors (aus, 404), Client-Slot, check:external prüft Sentry-Leaks, System-Ansicht zeigt Backup
+- Tests: tests/int/monitoring/{sentry,client-errors,alert-throttle}; Unit check-external; Build + check:external grün
+
+## 2026-10-05 – P10.9
+
+- Spiegel (mirror.ts), Cron-Route /api/cron/backup, backup-status.json, Monatsstand, A12 bei Fehlern, Nach-Wiederherstellung-Abgleich (postRestore.ts, Endpoint, Ansicht System), restore-drill.yml + scripts/ci/restore-drill.ts
+- Tests: tests/int/backup/{mirror,cron-route,retention-replay,post-restore}; Drill lokal grün; GitHub-Lauf folgt im PR der Phasen-Abnahme
+
+## 2026-10-05 – P10.8
+
+- Backup I: src/lib/backup/{format,dump,crypto,run,restore,s3}.ts („pcdump v1“: REPEATABLE READ/READ ONLY, COPY nach Primärschlüssel, md5 je Tabelle, setval; gzip → age; Datei oder S3-Multipart); Wiederherstellung in einer Transaktion (Fremdschlüssel/Trigger, Rollback bei Abweichung)
+- Skripte pnpm backup:run, backup:restore, backup:verify (Schlüssel nur als Datei)
+- Spike B-06 bestanden (400 000 Zeilen in 3,4 s, 33 MB, konstanter Speicher) und in ARCHITEKTUR Anhang B eingetragen
+- Tests: tests/unit/backup/format (6), tests/int/backup/roundtrip (8: AK-A-10-01/-02/-05)
+
+## 2026-10-05 – P10.7
+
+- Wartungsmodus: Proxy liefert 503-Seite in Juttas Ton (DE/EN, mit Fußlink „Vertrag widerrufen“); Impressum, Datenschutz, AGB, Widerrufsbelehrung und R26 bleiben offen; Webhook/Kasse-Zustand/Upload 503, Tick 204, Health mit maintenance
+- R26 ohne erreichbare Datenbank: mailto-Weg an MAIL_REPLY_TO (isDatabaseReachable)
+- Tests: tests/int/maintenance.int.spec.ts (10), tests/e2e/maintenance.e2e.spec.ts (4, eigener Server: pnpm test:e2e:maintenance)
 ## 2026-10-06 – P9.12, P9.13, P9.18 abgehakt (Kunst-QA, Fall b)
 
 Neun Prüf-Durchgänge (Iteration 01–09, Protokolle in `docs/design/qa-log/`, Reviews je Linse) mit jeweils grünem `art:check` auf der Vollaufnahme in Iteration 06–09. Die Schleife endet nach Fall b (8+ Iterationen): alle nicht verhandelbaren Punkte bestehen, der Prüfer R3 meldet PASS. Offen als „Kunst-QA offen“ (in `docs/OFFENE-PUNKTE.md`): Platzhalter noch nicht ganz auf Note 4 (AR-05 = 3; nächste Stufe: Gesichter neu zeichnen, gemeinsam mit Jutta in P11), die Bewegungs-Feinheiten MO-11/MO-12 und Cocos Wanderung im Seitenübergang (MO-14). Gefundener und behobener Fehler: Der Seitenübergang stand am Ende der Seite statt im Kopf und wurde von Chromium übersprungen.

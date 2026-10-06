@@ -45,7 +45,7 @@ import {
   type FieldIssue,
   type TaxModeEntry,
 } from '@/lib/settings/rules'
-import { shopOpenBlockedMessage, startklarStatus } from '@/lib/settings/readiness'
+import { shopOpenBlockedMessage, startklarFromReport } from '@/lib/settings/readiness'
 import { isKnownServiceId } from '@/lib/legal/services'
 import { formatBerlin } from '@/lib/time'
 
@@ -947,7 +947,7 @@ const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !
 const group = (doc: unknown, name: string): Obj => (isObj(doc) && isObj(doc[name]) ? doc[name] : {})
 
 /** Querschnittsregeln und abgeleitete Felder (DATENMODELL §7.1 Spalte „Validierung / Regel“). */
-const validateSettings: GlobalBeforeChangeHook = ({ data, originalDoc, req }) => {
+const validateSettings: GlobalBeforeChangeHook = async ({ data, originalDoc, req }) => {
   const ctx = getAppContext(req)
   const privileged = Boolean(ctx.system || ctx.seed)
   const now = requestNow(req)
@@ -961,7 +961,8 @@ const validateSettings: GlobalBeforeChangeHook = ({ data, originalDoc, req }) =>
     !ctx.seed &&
     getEnv().APP_ENV === 'production'
   ) {
-    const status = startklarStatus()
+    const { runGoliveCheck } = await import('@/lib/golive/collect')
+    const status = startklarFromReport(await runGoliveCheck(req.payload, now))
     if (!status.ready) issues.push({ path: 'shop.isOpen', message: shopOpenBlockedMessage(status) })
   }
 

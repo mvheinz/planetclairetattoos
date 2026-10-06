@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { routing } from '@/i18n/routing'
 import { getEnv } from '@/lib/env'
+import { isBlockedInMaintenance, maintenancePage } from '@/lib/maintenance'
 import { decidePublicRoute } from '@/lib/routes/redirects'
 import { createNonce, type NonceContext } from '@/lib/security/csp'
 import { decideListVariant } from '@/lib/shop/listParams'
@@ -128,6 +129,15 @@ export function proxy(request: NextRequest): NextResponse {
   }
   if (route.kind === 'not-found') return notFound()
   if (route.kind === 'pass') return NextResponse.next()
+
+  // Wartungsmodus (§10.5, R-090): alles außer Rechtstexten und R26 → 503 in Juttas Ton (auch Server-Action-POSTs).
+  if (env.MAINTENANCE_MODE && isBlockedInMaintenance(pathname)) {
+    const locale = pathname.startsWith('/en') ? 'en' : 'de'
+    const page = maintenancePage(locale)
+    return withBaseHeaders(
+      new NextResponse(page.body, { status: page.status, headers: page.headers }),
+    )
+  }
 
   // Bekannte Listen-Parameter → statische Variante; sichtbare URL bleibt die Query-Form. Öffentliche Listen haben den
   // Header-Kontext `public` (ohne Nonce), die Umschreibung braucht deshalb nur die Sprache für next-intl.

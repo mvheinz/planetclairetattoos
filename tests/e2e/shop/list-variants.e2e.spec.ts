@@ -1,7 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import { test, expect, request as playwrightRequest, type APIResponse } from '@playwright/test'
+import { expect, test } from '../fixtures'
+import { request as playwrightRequest, type APIResponse } from '@playwright/test'
 
 import { serverURL } from '../../helpers/adminEnv'
 import { holdListData } from './fresh'

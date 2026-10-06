@@ -35,6 +35,8 @@ export interface StorePrivateFileInput {
   filename: string
   bytes: Buffer
   contentType: string
+  /** Objekt-Metadaten (Belege: `invoice-number`, ARCHITEKTUR §10.4). */
+  metadata?: Record<string, string>
   /** Weitere Felder des Datensatzes (z. B. `relatedInvoice`, `note`, `seed`). */
   data?: Record<string, unknown>
   /** Zusätzlicher Kontext für die Anlage (z. B. injizierte Zeit `now`). */
@@ -91,6 +93,7 @@ async function writeOnce(
       filename,
       bytes: input.bytes,
       contentType: input.contentType,
+      ...(input.metadata ? { metadata: input.metadata } : {}),
     })
     return filename
   } catch (e) {

@@ -89,11 +89,9 @@ describe('P8.20 Fotos von Jutta nur mit Freigabe (R-181)', () => {
   })
 })
 
-describe('P8.20 Startklar-Punkt vorgemerkt (P10.14)', () => {
+describe('P8.20 Startklar-Zähler (P10.14)', () => {
   it('countUnapprovedOwnerPhotos zählt nur Fotos von Jutta ohne Freigabe', async () => {
     const { countUnapprovedOwnerPhotos } = await import('@/lib/media/ownerPhotos')
-    const { STARTKLAR_PLANNED } = await import('@/lib/settings/readiness')
-    expect(STARTKLAR_PLANNED.map((p) => p.id)).toContain('owner-photos-unapproved')
     const before = await countUnapprovedOwnerPhotos(payload)
     await upload({ showsPerson: 'jutta' })
     await upload({ showsPerson: 'jutta', ownerApproved: true })

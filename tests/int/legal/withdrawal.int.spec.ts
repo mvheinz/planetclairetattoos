@@ -257,7 +257,7 @@ describe('Widerruf annehmen (R-093)', () => {
     expect(a04?.subject).toContain('nicht zugeordnet')
   })
 
-  it('AK-3-12 nach dem Bestätigen genau ein unveränderlicher Datensatz, M08 im Mail-Log', async () => {
+  it('AK-3-12 DM-WDR-02 nach dem Bestätigen genau ein unveränderlicher Datensatz, M08 im Mail-Log', async () => {
     const email = 'mia@planetclaire.local'
     const res = await submitWithdrawal(input({ email, contractIdentification: 'PC-2026-09999' }), {
       now: new Date(T_SUMMER),

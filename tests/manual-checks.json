@@ -1,0 +1,40 @@
+{
+  "$comment": "Manuelle Prüfpunkte (ARCHITEKTUR §7, PLAN P10.1): Akzeptanz-IDs ohne Testtitel mit dieser ID – mit Begründung und Phase, in der der Punkt abgenommen wird. `tests/unit/meta/ak-trace.unit.spec.ts` verlangt für jede ID aus KONZEPT, DATENMODELL, ARCHITEKTUR, DESIGN und SEED-SPEC einen Testtitel mit der ID oder einen Eintrag hier. Phase P11: gemeinsam mit Jutta bzw. nach dem Go-live.",
+  "checks": [
+    {
+      "id": "AK-1-01",
+      "phase": "P10",
+      "reason": "Summenkriterium: `pnpm build`, `pnpm test`, `pnpm test:e2e` und `pnpm preview:export` laufen ohne Zugangsdaten grün. Belegt durch den grünen Phasenlauf (`ci.yml`, `ci-full.yml`, `preview-export.yml` laufen ohne secrets, AK-A-3-01 prüft die Workflow-Dateien); kein einzelner Test kann den Gesamtlauf ersetzen."
+    },
+    {
+      "id": "EK-08",
+      "phase": "P11",
+      "reason": "Teil Stoppuhr: „Neues Stück“ bis „online“ in höchstens 3 Minuten mit Jutta am Handy. Der automatische Teil (Eingaben und Taps bei 390×844) steht in tests/e2e/admin/new-piece.e2e.spec.ts und ship-order.e2e.spec.ts."
+    },
+    {
+      "id": "EK-10",
+      "phase": "P11",
+      "reason": "Laufende Kosten ≤ 25 €/Monat (E-05): Kostenaufstellung aus den echten Rechnungen des ersten vollen Monats nach Go-live (RUNBOOK-Protokoll, AK-A-12-03)."
+    },
+    {
+      "id": "EK-12",
+      "phase": "P9",
+      "reason": "Kunst-Qualität: Abnahme durch das Studio-QA-Verfahren (docs/design/KUNST-QA.md, Protokolle in docs/design/qa-log, Läufe per [ci:art]); keine Aussage, die ein Vitest-Titel tragen könnte."
+    },
+    {
+      "id": "AK-A-12-01",
+      "phase": "P11",
+      "reason": "DNS-Umstellung (MX, SPF, DKIM, DMARC) und Testmail an das IONOS-Postfach: braucht die echten Konten (Domain, IONOS, Cloudflare); Checkliste in docs/RUNBOOK.md und docs/owner/AUFGABEN.md."
+    },
+    {
+      "id": "AK-A-12-02",
+      "phase": "P11",
+      "reason": "Weiterleitungen http→https und www→apex, Zertifikat, HSTS, keine AAAA-Antwort mit IONOS-Adresse: nur an der echten Domain prüfbar (P11, Startklar-Prüfung R-210)."
+    },
+    {
+      "id": "AK-A-12-03",
+      "phase": "P11",
+      "reason": "Rechnungen des ersten vollen Monats (Vercel, Neon, Cloudflare, Lettermint, Sentry, DeepL) ≤ 25 €: Nachweis im RUNBOOK-Protokoll nach Go-live."
+    }
+  ]
+}

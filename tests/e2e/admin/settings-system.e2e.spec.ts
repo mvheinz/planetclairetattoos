@@ -70,7 +70,11 @@ test('@a11y System: „Jetzt ausführen“ markDelivered schreibt job_runs; fehl
     const view = page.getByTestId('settings-system-view')
     await expect(view).toBeVisible()
     await expect(page.getByTestId('system-env')).not.toBeEmpty()
-    await expect(view).toContainText('Startklar-Prüfung kommt in P10')
+    await expect(page.getByTestId('startklar')).toContainText('Noch nicht startklar')
+    await expect(page.getByTestId('startklar-check')).toHaveCount(15)
+    await expect(page.locator('[data-check="R210-06"]')).toHaveAttribute('data-ok', 'false')
+    await expect(page.getByTestId('startklar-avv')).toContainText('Vercel')
+    await expect(view).not.toContainText('kommt in P')
     await expectNoHorizontalScroll(page)
     await expectAccessible(page, '.pc-admin-view')
 

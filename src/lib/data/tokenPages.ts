@@ -16,6 +16,7 @@ import {
 } from '@/lib/commerce/thanksState'
 import { hitTokenPages } from '@/lib/commerce/tokenPages'
 import type { Locale } from '@/lib/enums'
+import { dbGate } from '@/lib/db/buildGate'
 
 // Daten der Token-Seiten R08 (Danke) und R09 (Bestellstatus) (ARCHITEKTUR §2.2: öffentliche Seiten lesen nur über
 // `src/lib/data/*`). Zuerst das Rate-Limit `token_pages`, dann die Token-Prüfung; unbekannt → `not_found` (404).
@@ -30,7 +31,7 @@ export async function loadThanksPage(
   requestHeaders: Pick<Headers, 'get'>,
   now: Date,
 ): Promise<TokenPageResult<{ state: ThanksState; view: OrderView | null }>> {
-  const payload = await getPayload({ config })
+  const payload = (await dbGate(), await getPayload({ config }))
   const limit = await hitTokenPages(requestHeaders, payload, now)
   if (!limit.allowed) return { kind: 'rate_limited' }
   const state = await getThanksState(token, now, { payload })
@@ -46,7 +47,7 @@ export async function loadOrderStatusPage(
   requestHeaders: Pick<Headers, 'get'>,
   now: Date,
 ): Promise<TokenPageResult<{ view: OrderView; documents: OrderViewDocument[] }>> {
-  const payload = await getPayload({ config })
+  const payload = (await dbGate(), await getPayload({ config }))
   const limit = await hitTokenPages(requestHeaders, payload, now)
   if (!limit.allowed) return { kind: 'rate_limited' }
   const order = await findOrderByStatusToken(payload, token)

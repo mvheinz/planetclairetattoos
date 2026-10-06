@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest'
 // liest der Parser die Spalten über die Kopfzeile (`| ID | Titel | Phase | Test | Owner | Nachweis |`); jede Zeile bis
 // zur aktuellen Phase nennt in „Nachweis“ Testdateien (die existieren müssen) bzw. „§7“ für manuelle Punkte (EK-06).
 
-export const LEGAL_TRACE_PHASE = 9
+export const LEGAL_TRACE_PHASE = 10
 
 const ROOT = path.resolve(__dirname, '../../..')
 const AUTOMATED = new Set(['unit', 'int', 'e2e'])
@@ -284,6 +284,18 @@ describe('R-001 Nachverfolgbarkeit Anforderung ↔ Test', () => {
     // Gegenprobe mit einer P8-ID: fehlt sie in allen Titeln, ist R-001 rot.
     const without = titles.map((t) => t.replace(/R-181\b/g, 'R-xxx'))
     expect(missingIds(required, without)).toEqual(['R-181'])
+  })
+
+  it('R-001 Phase 10 (P10.1): Überwachungs-, Vorschau- und Go-live-Anforderungen stehen in Testtiteln', () => {
+    const p10 = ['R-132', 'R-133', 'R-155', 'R-182', 'R-200', 'R-210']
+    const required = requiredIds(requirements, 10)
+    for (const id of p10) expect(required).toContain(id)
+    // Rein manuelle Anforderungen (R-157, R-190) zählen nicht
+    for (const id of ['R-157', 'R-190']) expect(required).not.toContain(id)
+    expect(missingIds(p10, titles)).toEqual([])
+    // Gegenprobe mit einer P10-ID: fehlt sie in allen Titeln, ist R-001 rot.
+    const without = titles.map((t) => t.replace(/R-133\b/g, 'R-xxx'))
+    expect(missingIds(required, without)).toEqual(['R-133'])
   })
 
   it(`R-001 EK-06 jede Anforderung bis Phase P${LEGAL_TRACE_PHASE} hat einen Nachweis, jeder genannte Pfad existiert`, () => {

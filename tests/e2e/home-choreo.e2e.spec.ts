@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test } from './fixtures'
+import { type Page } from '@playwright/test'
 
 // P9.15 Choreografie der Startseite (DESIGN §11.4, MO-08): Pose je Station über `__leash.pose()` – Ankunft und Verweilen
 // (Kopf-Station 1,2 s → kopfschief, Textil 1,5 s → kopfschief, Schmuck: Sprung-Sequenz endet sitzend), Scrollstopp

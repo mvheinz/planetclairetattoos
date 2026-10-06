@@ -1,3 +1,5 @@
+import { getEnv } from '@/lib/env'
+import { maintenanceApiResponse } from '@/lib/maintenance'
 import { handleCheckoutState } from '@/lib/commerce/tokenPages'
 import { systemClock } from '@/lib/time'
 
@@ -11,6 +13,8 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ token: string }> },
 ): Promise<Response> {
+  // Wartungsmodus: Kasse gesperrt.
+  if (getEnv().MAINTENANCE_MODE) return maintenanceApiResponse()
   const { token } = await params
   return handleCheckoutState(request, token, systemClock.now())
 }

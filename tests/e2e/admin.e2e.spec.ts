@@ -1,4 +1,5 @@
-import { test, expect, type Browser, type Page } from '@playwright/test'
+import { expect, test } from './fixtures'
+import { type Browser, type Page } from '@playwright/test'
 
 import { adminRoute, serverURL } from '../helpers/adminEnv'
 import { holdAdminSessions, type ReleaseLock } from '../helpers/adminSessionLock'

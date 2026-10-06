@@ -3,9 +3,9 @@ import { defineConfig } from 'vitest/config'
 import { intWorkerCount } from './tests/int/setup/workers'
 
 // Abdeckung (ARCHITEKTUR §7.8, PLAN P4.25 / P10.1): Unit- und Integrationstests in einem Lauf (v8, zusammengeführt).
-// Aufruf über `pnpm test:coverage` (setzt die Test-DB vorher zurück wie `test:int`). Schwellen je Bereich: ab P4
-// `src/lib/commerce/**` und `src/lib/payments/**` ≥ 90 % Zeilen / ≥ 85 % Zweige; die übrigen Bereiche aus §7.8
-// (`security`, `legal`, `src/lib/**` gesamt) kommen mit P10.1 als Gate dazu und stehen bis dahin nur im Bericht.
+// Aufruf über `pnpm test:coverage` (setzt die Test-DB vorher zurück wie `test:int`). Schwellen je Bereich (§7.8, seit
+// P10.1 alle Gates): `src/lib/{commerce,payments,security,legal}/**` ≥ 90 % Zeilen / ≥ 85 % Zweige, `src/lib/**`
+// gesamt ≥ 70 % Zeilen.
 export default defineConfig({
   test: {
     projects: [
@@ -28,6 +28,9 @@ export default defineConfig({
       thresholds: {
         'src/lib/commerce/**': { lines: 90, branches: 85 },
         'src/lib/payments/**': { lines: 90, branches: 85 },
+        'src/lib/security/**': { lines: 90, branches: 85 },
+        'src/lib/legal/**': { lines: 90, branches: 85 },
+        'src/lib/**': { lines: 70 },
       },
     },
   },

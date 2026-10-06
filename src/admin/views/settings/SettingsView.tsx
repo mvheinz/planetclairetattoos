@@ -16,7 +16,8 @@ import { previewRetention, type RetentionPreviewRow } from '@/lib/retention/jobs
 import { ADOPTABLE_COLLECTIONS } from '@/lib/seed/adopt'
 import { seedSummary } from '@/lib/seed/remove'
 import { seedRemovalLockedTypes } from '@/lib/seed/removeLock'
-import { startklarStatus } from '@/lib/settings/readiness'
+import { runGoliveCheck } from '@/lib/golive/collect'
+import { startklarFromReport } from '@/lib/settings/readiness'
 import { translationAvailability } from '@/lib/translation'
 import { berlinDateKey, formatBerlin } from '@/lib/time'
 import type { Setting } from '@/payload-types'
@@ -224,7 +225,9 @@ export async function SettingsView({ adminRoute, req }: AdminViewBodyProps) {
   const payment = settings.payment ?? {}
   const countries = enumOptions(COUNTRY_CODES, ENUM_LABELS.COUNTRY_CODES)
   const production = getEnv().APP_ENV === 'production'
-  const startklar = startklarStatus()
+  const startklar = production
+    ? startklarFromReport(await runGoliveCheck(req.payload, now))
+    : { ready: true, openItems: [] as string[] }
   const translation = translationAvailability()
   const seedCounts = Object.entries(await seedSummary(req.payload))
   const seedLocked = await seedRemovalLockedTypes(req.payload, now)

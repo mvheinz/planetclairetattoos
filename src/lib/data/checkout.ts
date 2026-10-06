@@ -18,6 +18,7 @@ import { pickShopDisplaySettings, type ShopDisplaySettings } from '@/lib/shop/di
 import type { Checkout, Media } from '@/payload-types'
 
 import { getCartMedia } from './cart'
+import { dbGate } from '@/lib/db/buildGate'
 
 // Daten der Kasse R07 (KONZEPT §4.4–§4.7, PLAN P4.9): Kasse zum Token aus `pc_checkout` (Hash-Suche), Einstellungen,
 // Zahlwege, Fotos, Versandpreise beider Lieferarten und – nur mit `PAYMENTS_DRIVER=stripe` – das Client-Secret der
@@ -61,7 +62,7 @@ export async function loadCheckoutPage(input: {
   locale: Locale
   now: Date
 }): Promise<CheckoutPageData> {
-  const payload = await getPayload({ config })
+  const payload = (await dbGate(), await getPayload({ config }))
   const { now } = input
   let checkout = await findCheckoutByToken(payload, input.token)
   if (!checkout) return { state: 'redirect', notice: 'no_checkout' }
@@ -202,7 +203,7 @@ export async function activeCheckoutCountdown(
 ): Promise<{ displayExpiresAt: Date } | null> {
   if (!token) return null
   try {
-    const payload = await getPayload({ config })
+    const payload = (await dbGate(), await getPayload({ config }))
     const checkout = await findCheckoutByToken(payload, token)
     if (!checkout || (checkout.status !== 'open' && checkout.status !== 'confirming')) return null
     if (new Date(checkout.expiresAt).getTime() <= now.getTime()) return null

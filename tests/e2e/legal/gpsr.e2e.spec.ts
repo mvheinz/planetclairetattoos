@@ -88,7 +88,7 @@ async function expectSafetyBlock(
   }
 }
 
-test.describe('R-040 Herstellerin & Sicherheit (GPSR)', () => {
+test.describe('R-040 AK-3-06 Herstellerin & Sicherheit (GPSR)', () => {
   for (const { category, nr } of SEED_BY_CATEGORY) {
     for (const locale of ['de', 'en'] as const) {
       test(`R-040 ${category} (Nr. ${nr}) /${locale}: Block ohne Interaktion mit Name, Straße, E-Mail, Nr. und Warntext`, async ({

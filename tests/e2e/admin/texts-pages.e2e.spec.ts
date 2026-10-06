@@ -11,7 +11,7 @@ import { expectAccessible, expectNoHorizontalScroll } from './orderHelpers'
 // P8.19a – Verwaltung „Texte“ → „Seiten und FAQ“ (KONZEPT §7.13) auf dem Handy (390 × 844): jede Seite aus `PAGE_KEYS`
 // mit Titel/SEO/Textblöcken DE und EN, „Übersetzen“ (Mock „[EN] …“), Speichern → öffentlich ≤ 60 s; FAQ-Reihenfolge per
 // „Hoch“ (Tastatur) erscheint öffentlich genauso; axe ohne serious/critical; keine Verwaltungsansicht zeigt mehr
-// „kommt in P…“ außer dem Startklar-Hinweis „kommt in P10“. Geänderte Seed-Seite und FAQ werden danach per Local API
+// „kommt in P…“ (ohne Ausnahme; P10.14 ersetzt den Startklar-Platzhalter). Geänderte Seed-Seite und FAQ werden danach per Local API
 // in den Seed-Zustand zurückgesetzt (gemeinsame E2E-Datenbank, andere Suiten prüfen die Seed-Texte).
 
 test.describe.configure({ mode: 'serial' })
@@ -194,7 +194,7 @@ test('P8.19a FAQ-Reihenfolge per Tastatur ändern – erscheint öffentlich gena
   }
 })
 
-test('P8.19a keine Verwaltungsansicht zeigt mehr „kommt in P…“ außer „kommt in P10“ (Startklar)', async ({
+test('P8.19a keine Verwaltungsansicht zeigt mehr „kommt in P…“ (ohne Ausnahme, P10.14)', async ({
   adminPage: page,
 }) => {
   // 20+ Ansichten nacheinander: eigenes Zeitbudget. Eine Ansicht, die nach dem Laden selbst neu lädt (z. B.
@@ -215,9 +215,6 @@ test('P8.19a keine Verwaltungsansicht zeigt mehr „kommt in P…“ außer „k
     await expect(page.locator('body')).not.toHaveText(/^$/)
     const text = await page.locator('body').innerText()
     const hits = [...text.matchAll(/kommt in P(\d+)/g)].map((m) => m[0])
-    expect(
-      hits.filter((h) => h !== 'kommt in P10'),
-      `${view.key} (${view.path || '/'})`,
-    ).toEqual([])
+    expect(hits, `${view.key} (${view.path || '/'})`).toEqual([])
   }
 })

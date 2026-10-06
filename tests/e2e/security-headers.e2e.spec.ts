@@ -48,6 +48,7 @@ test.describe('Sicherheits-Header', () => {
   test('AK-A-8-01 T-16 jede live-Route trägt die Header ihres Kontexts (DE/EN, inkl. 404) @smoke', async ({
     request,
   }) => {
+    test.slow() // Entwicklungsserver: jede Seite wird beim ersten Aufruf übersetzt
     const cases = [
       ...livePages.flatMap((r) =>
         LOCALES.map((l) => ({ path: samplePath(r.id, l), context: r.headerContext })),
@@ -189,5 +190,121 @@ test.describe('Keine CSP-Verstöße', () => {
     await expect(adminPage.locator('input[name="email"]')).toBeVisible()
     await adminPage.waitForLoadState('networkidle')
     expect([...list, ...(await violations())]).toEqual([])
+  })
+})
+
+// P10.5 (T-16, AK-A-8-01/-02, AK-A-4-03): Audit über alle Registry-Routen und alle Kontexte.
+const ROBOTS = 'noindex, nofollow' // E2E läuft mit APP_ENV=test: außerhalb von Produktion überall noindex (AK-A-4-03)
+
+test.describe('P10.5 Sicherheits-Audit', () => {
+  test('AK-A-4-03 jede Antwort trägt außerhalb von Produktion X-Robots-Tag und keinen HSTS', async ({
+    request,
+  }) => {
+    const paths = [
+      ...pageRoutes()
+        .filter((r) => hasSamplePath(r))
+        .flatMap((r) => LOCALES.map((l) => samplePath(r.id, l))),
+      '/de/gibt-es-nicht',
+      '/admin', // 404 des Proxys
+      '/api/health',
+      '/robots.txt',
+    ]
+    for (const path of paths) {
+      const res = await request.get(path, { maxRedirects: 0 })
+      const h = res.headers()
+      expect(h['x-robots-tag'], path).toBe(ROBOTS)
+      expect(h['strict-transport-security'], path).toBeUndefined()
+      expect(h['x-content-type-options'], path).toBe('nosniff')
+    }
+  })
+
+  test('AK-A-8-01 Kontext api: jeder API-Endpunkt trägt default-src none und die Grundheader (auch bei Fehlern)', async ({
+    request,
+  }) => {
+    const calls: { method: 'GET' | 'POST'; path: string }[] = [
+      { method: 'GET', path: '/api/health' },
+      { method: 'GET', path: '/api/health/freshness' },
+      { method: 'GET', path: '/api/public/product-status?ids=1' },
+      { method: 'POST', path: '/api/client-errors' },
+      { method: 'GET', path: '/api/cron/tick' },
+      { method: 'GET', path: '/api/cron/run/retention' },
+      { method: 'POST', path: '/api/stripe/webhook' },
+      { method: 'POST', path: '/api/uploads/commission' },
+      { method: 'GET', path: '/api/checkout/ungueltig/state' },
+      { method: 'GET', path: '/api/orders/ungueltig/documents/x.pdf' },
+      { method: 'GET', path: '/api/privacy-export/ungueltig' },
+      { method: 'GET', path: '/api/legal/gibt-es-nicht' },
+      { method: 'GET', path: '/api/gibt-es-nicht' },
+      { method: 'GET', path: '/api/graphql' },
+      { method: 'GET', path: '/api/private-uploads/file/gibt-es-nicht.pdf' },
+      { method: 'GET', path: '/api/users/me' },
+    ]
+    for (const { method, path } of calls) {
+      const res = await request.fetch(path, {
+        method,
+        maxRedirects: 0,
+        data: method === 'POST' ? '{}' : undefined,
+      })
+      const label = `${method} ${path} → ${res.status()}`
+      expect(res.status(), label).toBeLessThan(500)
+      const h = res.headers()
+      expect(h, label).toMatchObject(BASE)
+      expect(h['referrer-policy'], label).toBe('strict-origin-when-cross-origin')
+      expect(h['content-security-policy'], label).toBe("default-src 'none'; frame-ancestors 'none'")
+      expect(h['x-robots-tag'], label).toBe(ROBOTS)
+    }
+  })
+
+  test('R-136 AK-A-8-02 private Datei ohne Anmeldung 403, GraphQL und /admin 404, Verwaltungspfad in keinem öffentlichen HTML', async ({
+    request,
+  }) => {
+    const priv = await request.get('/api/private-uploads/file/beleg.pdf')
+    expect([401, 403]).toContain(priv.status())
+    for (const p of ['/admin', '/admin/collections/users', '/api/graphql'])
+      expect((await request.get(p, { maxRedirects: 0 })).status(), p).toBe(404)
+    const login = await request.get(adminRoute, { maxRedirects: 0 })
+    expect([200, 307]).toContain(login.status())
+    for (const r of pageRoutes().filter((x) => hasSamplePath(x))) {
+      for (const l of LOCALES) {
+        const path = samplePath(r.id, l)
+        const res = await request.get(path, { maxRedirects: 0 })
+        expect(await res.text(), path).not.toContain(adminRoute)
+      }
+    }
+  })
+
+  test('Kontext admin: Login, Manifest und Service Worker tragen Nonce-CSP, camera=(self), noindex', async ({
+    request,
+  }) => {
+    for (const p of ['/login', '/forgot', '/manifest.webmanifest', '/sw.js']) {
+      const res = await request.get(`${adminRoute}${p}`, { maxRedirects: 0 })
+      const label = `${adminRoute}${p} → ${res.status()}`
+      const h = res.headers()
+      expect(res.status(), label).toBeLessThan(500)
+      expect(h['content-security-policy'], label).toMatch(
+        /script-src 'self' 'nonce-[^']+' 'strict-dynamic'/,
+      )
+      expect(h['content-security-policy'], label).not.toContain("'unsafe-inline' 'nonce")
+      expect(h['permissions-policy'], label).toContain('camera=(self)')
+      expect(h['x-robots-tag'], label).toBe(ROBOTS)
+      expect(h['x-frame-options'], label).toBe('DENY')
+    }
+  })
+
+  test('CSP-Verstöße lassen Tests scheitern: der Wächter fängt securitypolicyviolation (Selbsttest)', async ({
+    page,
+    cspViolations,
+  }) => {
+    await page.goto('/de')
+    // Kontext `dynamic` (Nonce, ohne unsafe-inline): ein Inline-Ereignis-Handler ist verboten und löst den Verstoß aus.
+    await page.goto('/de/warenkorb')
+    await page.evaluate(() => {
+      document.body.insertAdjacentHTML(
+        'beforeend',
+        '<img alt="" src="/__csp-selbsttest.png" onerror="window.__csp_test=1">',
+      )
+    })
+    await expect.poll(() => cspViolations.length).toBeGreaterThan(0)
+    cspViolations.length = 0 // erwartet – der Wächter am Testende bleibt grün
   })
 })

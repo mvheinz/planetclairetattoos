@@ -1,6 +1,7 @@
 import { spawn, type ChildProcess } from 'node:child_process'
 
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test } from './fixtures'
+import { type Page } from '@playwright/test'
 
 // P9.1 QA-Modus (KUNST-QA §3.1/§3.2, ARCHITEKTUR §5.2 `ART_QA`): ohne Schalter sind die QA-Seiten 404 und nirgends
 // verlinkt (Sitemap, robots), Query-Schalter wirken nicht. Mit `ART_QA=1` (zweiter Server aus demselben Build bzw.

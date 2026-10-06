@@ -6,6 +6,7 @@ import { getPayload, type Payload, type PayloadRequest } from 'payload'
 import type { LegalTextType, Locale } from '@/lib/enums'
 import { preservingReq } from '@/lib/payload/localReq'
 import type { LegalText } from '@/payload-types'
+import { dbGate } from '@/lib/db/buildGate'
 
 // Gültige Rechtstext-Fassung zu einem Zeitpunkt (DATENMODELL §6.12, R-012): die veröffentlichte bzw. abgelöste Fassung
 // mit dem spätesten `validFrom ≤ at` (bei gleichem Datum die höhere Version). Entwürfe und geplante Fassungen zählen
@@ -25,7 +26,8 @@ export async function getActiveLegalText(
   at: Date,
   options: GetActiveLegalTextOptions = {},
 ): Promise<LegalText | null> {
-  const payload = options.payload ?? options.req?.payload ?? (await getPayload({ config }))
+  const payload =
+    options.payload ?? options.req?.payload ?? (await dbGate(), await getPayload({ config }))
   const find = () =>
     payload.find({
       collection: 'legal-texts',

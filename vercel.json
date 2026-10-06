@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["fra1"],
+  "crons": [
+    { "path": "/api/cron/tick", "schedule": "* * * * *" },
+    { "path": "/api/cron/backup", "schedule": "30 1 * * *" }
+  ],
+  "ignoreCommand": "node scripts/vercel-ignore-build.mjs"
+}

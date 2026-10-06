@@ -33,3 +33,6 @@
   und fehlende Nutzereingaben auf diesen Seiten verhindert; Kasse, Warenkorb, Token-Seiten, Widerruf und Verwaltung
   bleiben strikt (Nonce). Wieder prüfen, wenn Next.js Hashes für Inline-RSC-Daten statischer Seiten anbietet
   (`PUBLIC_SCRIPT_POLICY = 'hash'`, `experimental.sri`, E2E `security-headers` zeigt Verstöße sofort).
+- **Bestätigung P10.5 (05.10.2026):** Entscheidung B-03 und der CSP-Teil von B-01 unverändert. Audit: Kontext je
+  Registry-Route (Unit, alle Umgebungen x Kontexte), Header aller API-Endpunkte (Kontext `api`), Verwaltungs-Kontext,
+  Auto-Fixture `cspViolations` in `tests/e2e/fixtures.ts` (jeder CSP-Verstoß in jedem E2E-Test lässt ihn scheitern).

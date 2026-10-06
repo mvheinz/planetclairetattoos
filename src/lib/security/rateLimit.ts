@@ -30,6 +30,8 @@ export const RATE_LIMITS = {
   /** „Zahlungspflichtig bestellen“ je Kassen-Token (Schlüssel: Token-Hash). */
   checkout_submit: { limit: 10, windowMs: 30 * MINUTE },
   product_status: { limit: 120, windowMs: MINUTE },
+  /** `POST /api/client-errors` (P10.10, M-02): darüber stilles Verwerfen. */
+  client_errors: { limit: 10, windowMs: MINUTE },
   /** R08, R09, `GET /api/checkout/[token]/state`, Dokument-Downloads (P4.17/P4.23). */
   token_pages: { limit: 60, windowMs: MINUTE },
   /** „Widerruf bestätigen“ (R26): großzügig, damit echte Widerrufe nie blockiert werden (KONZEPT §3.16, R-134). */

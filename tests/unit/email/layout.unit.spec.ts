@@ -112,7 +112,7 @@ describe('Layout', () => {
   })
 })
 
-describe('Alle umgesetzten Vorlagen (AK-6-03, R-080, V-01, V-02, V-09)', () => {
+describe('T-08 Alle umgesetzten Vorlagen (AK-6-03, R-080, V-01, V-02, V-09)', () => {
   it('R-080 keine externen Bild-URLs, keine Tracking-Parameter, kein OS-Link, keine Werbung', async () => {
     const templates = implementedTemplates()
     expect(templates).toContain('admin_alert')
