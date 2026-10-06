@@ -26,6 +26,18 @@ export const SPRITE_POSES = [
   'springen',
   'kopfschief',
 ] as const
+/** Zusatz-Posen der nachgeladenen Datei `coco-extra` (P12.4, U-03/U-04). */
+export const EXTRA_POSES = [
+  'hecheln',
+  'zucken',
+  'kratzen',
+  'gaehnen',
+  'wedeln',
+  'verbeugung',
+  'schuetteln',
+  'freude',
+  'liegen',
+] as const
 export const SPRITE_BRIDGES = ['bremsen', 'abspringen', 'einrollen-1', 'einrollen-2'] as const
 export const SPRITE_PARTS = [
   'head',
@@ -51,6 +63,14 @@ export interface SpriteSymbol {
   hiddenParts: string[]
   node: XNode
   style: string
+}
+
+/** Haupt- und Zusatz-Sprite zu einem Dokument (für Messungen über alle Symbole; Stil nur einmal). */
+export function combineSprites(main: string, extra: string): string {
+  return (
+    main.replace(/<\/svg>\s*$/, '') +
+    extra.replace(/^[\s\S]*?<\/style>/, '').replace(/^<svg[^>]*>/, '')
+  )
 }
 
 export function spriteSymbols(svg: string): SpriteSymbol[] {
@@ -83,13 +103,17 @@ function partsOf(sym: SpriteSymbol): Set<string> {
   return s
 }
 
-export function co01(svg: string): CheckResult {
+export function co01(svg: string, extraSvg = ''): CheckResult {
   const th =
-    '≥ 22 Symbole (6 Posen × 3 + 4 Brücken, IDs DESIGN §10.4), gleiche viewBox, alle data-part vorhanden oder begründet'
-  const syms = spriteSymbols(svg)
+    '≥ 22 Symbole (6 Posen × 3 + 4 Brücken, IDs DESIGN §10.4) + 27 Zusatz-Symbole (9 Posen × 3, nachgeladen, P12.4), gleiche viewBox, alle data-part vorhanden oder begründet'
+  const syms = [...spriteSymbols(svg), ...(extraSvg ? spriteSymbols(extraSvg) : [])]
   const ids = new Set(syms.map((s) => s.id))
   const bad: string[] = []
   for (const id of expectedIds()) if (!ids.has(id)) bad.push(`${id} fehlt`)
+  if (extraSvg)
+    for (const p of EXTRA_POSES)
+      for (const f of ['a', 'b', 'c'])
+        if (!ids.has(`coco-${p}-${f}`)) bad.push(`coco-${p}-${f} fehlt`)
   const boxes = new Set(syms.map((s) => s.viewBox))
   if (boxes.size > 1) bad.push(`verschiedene viewBox: ${[...boxes].join(' | ')}`)
   for (const s of syms) {
@@ -170,7 +194,25 @@ export async function cocoProportions(sym: SpriteSymbol): Promise<CocoProportion
 }
 
 const SIDE_POSES = ['rennen', 'schnueffeln', 'springen']
-const CO02_POSES = [...SIDE_POSES, 'sitzen', 'kopfschief']
+const CO02_POSES = [...SIDE_POSES, 'sitzen', 'kopfschief', ...EXTRA_POSES]
+/**
+ * Abweichende Obergrenzen einzelner Zusatz-Frames (P12.4, begründet in OFFENE-PUNKTE): geschlossene Augen sind
+ * Bögen (breiter als der Ring), das weit offene Maul beim Gähnen verlängert die Schnauze, die Drehung des
+ * Freudenhüpfers (Frame B, von vorn gestaucht) verkürzt die Kopfbreite.
+ */
+const CO02_EXTRA_MAX: {
+  re: RegExp
+  eye?: number
+  snout?: number
+  snoutMin?: number
+  ear?: number
+}[] = [
+  { re: /^coco-(kratzen|liegen-c|gaehnen-[bc])/, eye: 0.32 },
+  { re: /^coco-gaehnen-[bc]/, snout: 0.55 },
+  { re: /^coco-(schuetteln|liegen)/, snoutMin: 0.28 },
+  { re: /^coco-freude-b/, ear: 1.0, snout: 0.5 },
+  { re: /^coco-zucken-b/, ear: 0.92 },
+]
 
 export function co02(props: readonly CocoProportions[]): CheckResult {
   const th =
@@ -189,9 +231,18 @@ export function co02(props: readonly CocoProportions[]): CheckResult {
   for (const p of frames) {
     // große aufrechte Ohren nach Juttas Coco-Fotos (04.10.2026, gemessen ≈ 0,65; OFFENE-PUNKTE): früher 0,80–1,10
     // (Fennek), dann 0,35–0,65 (kleine Ohren nach der Skizze)
-    check(p, 'Ohr/Kopf', p.earToHead, 0.55, 0.85)
-    check(p, 'Auge/Kopf', p.eyeToHead, 0.18, 0.26)
-    check(p, 'Schnauze/Kopf', p.snoutToHead, 0.3, 0.45)
+    const over = CO02_EXTRA_MAX.filter((o) => o.re.test(p.id))
+    const max = (k: 'eye' | 'snout' | 'ear', d: number) =>
+      Math.max(d, ...over.map((o) => o[k] ?? 0))
+    check(p, 'Ohr/Kopf', p.earToHead, 0.55, max('ear', 0.85))
+    check(p, 'Auge/Kopf', p.eyeToHead, 0.18, max('eye', 0.26))
+    check(
+      p,
+      'Schnauze/Kopf',
+      p.snoutToHead,
+      Math.min(0.3, ...over.map((o) => o.snoutMin ?? 1)),
+      max('snout', 0.45),
+    )
     check(p, 'Nase/Kopf', p.noseToHead, 0, 0.15)
     if (SIDE_POSES.includes(POSE_OF(p.id)?.[1] ?? ''))
       check(p, 'Bein Breite/Länge', p.legWidthToLength, 0, 0.18)
@@ -217,18 +268,28 @@ export interface ManifestSymbol {
   fps?: number
 }
 
+/** Zusatz-Posen, deren Körper sich über die Frames bewegt (Anker darf stärker wandern). */
+const MOVING_EXTRA: Record<string, number> = {
+  verbeugung: 4,
+  kratzen: 4,
+  schuetteln: 6,
+  freude: 12,
+}
+
 export function co04(symbols: readonly ManifestSymbol[]): CheckResult {
-  const th = 'D-Ring je Pose über A/B/C ± 2 (rennen ± 3), data-ground-y ± 2'
+  const th =
+    'D-Ring je Pose über A/B/C ± 2 (rennen ± 3; bewegte Zusatz-Posen: Verbeugung/Kratzen ± 4, Schütteln ± 6, Freudenhüpfer ± 12 – der Hüpfer hebt den Körper), data-ground-y ± 2'
   const bad: string[] = []
   const vals: string[] = []
-  for (const pose of SPRITE_POSES) {
+  const extra = symbols.some((s) => (EXTRA_POSES as readonly string[]).includes(s.pose))
+  for (const pose of [...SPRITE_POSES, ...(extra ? EXTRA_POSES : [])]) {
     const f = symbols.filter((s) => s.pose === pose && !s.bridge)
     if (f.length !== 3) {
       bad.push(`${pose}: ${f.length} Frames`)
       continue
     }
     const span = (v: number[]) => Math.max(...v) - Math.min(...v)
-    const tol = pose === 'rennen' ? 3 : 2
+    const tol = pose === 'rennen' ? 3 : (MOVING_EXTRA[pose] ?? 2)
     const dx = span(f.map((s) => s.anchor.x))
     const dy = span(f.map((s) => s.anchor.y))
     const dg = span(f.map((s) => s.groundY))
@@ -252,17 +313,30 @@ export async function silhouettes(svg: string, width = 256): Promise<Map<string,
   return out
 }
 
+/** Silhouetten-IoU je Zusatz-Pose: die Aktionen sind echte Bewegung (nicht nur Boil), daher breitere Bänder. */
+const EXTRA_IOU: Record<string, [number, number]> = {
+  zucken: [0.8, 0.97],
+  kratzen: [0.8, 0.97],
+  gaehnen: [0.8, 0.97],
+  verbeugung: [0.7, 0.97],
+  schuetteln: [0.6, 0.97],
+  freude: [0.1, 0.9], // Drehung: gespiegelt und von vorn gestaucht
+  liegen: [0.8, 0.97],
+}
+
 export function co05(masks: ReadonlyMap<string, Mask>): CheckResult {
-  const th = 'Silhouetten-IoU (256 px, 50 %) je Pose 0,88–0,97; rennen 0,55–0,85'
+  const th =
+    'Silhouetten-IoU (256 px, 50 %) je Pose 0,88–0,97; rennen 0,55–0,85; Zusatz-Posen mit Bewegung breiter (EXTRA_IOU)'
   const bad: string[] = []
   const vals: string[] = []
-  for (const pose of SPRITE_POSES) {
+  const extra = masks.has('coco-freude-a')
+  for (const pose of [...SPRITE_POSES, ...(extra ? EXTRA_POSES : [])]) {
     const f = ['a', 'b', 'c'].map((k) => masks.get(`coco-${pose}-${k}`))
     if (f.some((m) => !m)) {
       bad.push(`${pose}: Frames fehlen`)
       continue
     }
-    const [lo, hi] = pose === 'rennen' ? [0.55, 0.85] : [0.88, 0.97]
+    const [lo, hi] = pose === 'rennen' ? [0.55, 0.85] : (EXTRA_IOU[pose] ?? [0.88, 0.97])
     for (const [i, j] of [
       [0, 1],
       [1, 2],

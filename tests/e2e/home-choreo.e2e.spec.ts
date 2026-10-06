@@ -27,17 +27,21 @@ const ARRIVE: Record<string, string> = {
 const DWELL: Record<string, string> = { 'planet-claire': 'kopfschief', textil: 'kopfschief' }
 
 const loopScroll = (id: string, vw: number) =>
-  id === 'zeichnungen'
+  id === 'planet-claire'
     ? vw >= 768
-      ? 220
-      : 180
-    : id === 'tattoo'
+      ? 180
+      : 140
+    : id === 'zeichnungen'
       ? vw >= 768
-        ? 240
-        : 200
-      : vw >= 768
-        ? 180
-        : 140
+        ? 440
+        : 360
+      : id === 'tattoo'
+        ? vw >= 768
+          ? 480
+          : 400
+        : vw >= 768
+          ? 360
+          : 280
 
 async function ready(page: Page) {
   await page.emulateMedia({ reducedMotion: 'no-preference' })
@@ -83,7 +87,12 @@ test.describe('Startseite – Choreografie (Preset journey)', () => {
       (window as Win).__leash!.geometry!.stations.slice(2, 4),
     )
     await page.evaluate(([y]) => (window as Win).__leash!.setReadingY(y!), [a!.y + 20])
-    await page.evaluate(([y]) => (window as Win).__leash!.setReadingY(y!), [(a!.y + b!.y) / 2])
+    // in kleinen Schritten wie beim Scrollen (U-06: Schlaufen brauchen den doppelten Scroll-Weg; ein Sprung über
+    // > 300 px Bogenlänge lässt Coco direkt springen statt zu rennen)
+    for (let y = a!.y + 20; y < (a!.y + b!.y) / 2; y += 60) {
+      await page.evaluate((v) => (window as Win).__leash!.setReadingY(v), y)
+      await page.waitForTimeout(30)
+    }
     await expect.poll(() => pose(page), { timeout: 3000 }).toBe('rennen')
     await expect.poll(() => pose(page), { timeout: 5000 }).toBe('sitzen')
   })
@@ -97,7 +106,7 @@ test.describe('Startseite – Choreografie (Preset journey)', () => {
     await page.evaluate(([y]) => (window as Win).__leash!.setReadingY(y!), [hallo.y - 30])
     await page.waitForTimeout(1500)
     const box = await page.locator('[data-leash-coco]').boundingBox()
-    // Text beginnt bei x = 44 (Rinne): der Hund (füllt 0,13–0,90 der Box, P9.18) ragt höchstens 1 px darüber
-    expect(box!.x + 0.9 * box!.width).toBeLessThanOrEqual(45)
+    // Text beginnt bei x = 56 (Rinne, U-05): der Hund (füllt 0,13–0,90 der Box, P9.18) ragt höchstens 1 px darüber
+    expect(box!.x + 0.9 * box!.width).toBeLessThanOrEqual(57)
   })
 })

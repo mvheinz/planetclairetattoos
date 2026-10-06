@@ -23,3 +23,29 @@ export const bridgeSymbol = (bridge: CocoBridge): string => `coco-bridge-${bridg
 
 /** `href` eines Symbols; `base` leer → Symbol im selben Dokument (Vorschau-Datei, §9.12). */
 export const cocoHref = (id: string, base: string = COCO_SPRITE_HREF): string => `${base}#${id}`
+
+const SVG_NS = 'http://www.w3.org/2000/svg'
+
+/**
+ * Gruppe `<g class="cg">` mit drei `<use>` (A/B/C); `reuse` übernimmt vorhandene `<use>`. Sichtbar ist nur die Gruppe
+ * mit `data-on`. Ein Posenwechsel schaltet nur dieses Attribut um – ein neues `href` würde den Schatten-Baum des
+ * `<use>` neu aufbauen und je Wechsel ein Layout auslösen (KUNST-QA PF-05).
+ */
+export function makeGroup(
+  svg: Element,
+  ids: string[],
+  href: string,
+  reuse: Element[] = [],
+): Element {
+  const g = svg.ownerDocument.createElementNS(SVG_NS, 'g')
+  g.setAttribute('class', 'cg')
+  COCO_FRAMES.forEach((f, i) => {
+    const use = reuse[i] ?? svg.ownerDocument.createElementNS(SVG_NS, 'use')
+    use.setAttribute('class', `f f-${f}`)
+    use.setAttribute('href', cocoHref(ids[i]!, href))
+    use.removeAttribute('data-href')
+    g.appendChild(use)
+  })
+  svg.appendChild(g)
+  return g
+}

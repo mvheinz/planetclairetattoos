@@ -446,7 +446,7 @@ describe('P9.6 Bewegung MO', () => {
 
   it('MO-01: Dauer außerhalb der Token ± 10 % scheitert', () => {
     const allowed = rt.allowedDurations(tokens, readFileSync('docs/design/DESIGN.md', 'utf8'))
-    expect(allowed).toEqual(expect.arrayContaining([120, 200, 350, 900]))
+    expect(allowed).toEqual(expect.arrayContaining([120, 200, 350, 1800]))
     expect(rt.mo01([file('SC-05', [probe({ anims: [anim({ d: 360 })] })])], allowed).status).toBe(
       'PASS',
     )

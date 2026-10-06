@@ -3,6 +3,7 @@ import * as addToCart from '../behaviors/add-to-cart'
 import * as buyBar from '../behaviors/buy-bar'
 import * as cartCount from '../behaviors/cart-count'
 import * as copyButton from '../behaviors/copy-button'
+import * as fitnessCoco from '../behaviors/fitness-coco'
 import * as gallery from '../behaviors/gallery'
 import * as lightbox from '../behaviors/lightbox'
 import * as lost from '../behaviors/lost'
@@ -34,6 +35,7 @@ export const STATIC_BEHAVIORS: Record<(typeof BEHAVIOR_NAMES)[number], BehaviorM
   'buy-bar': buyBar,
   'cart-count': cartCount,
   'copy-button': copyButton,
+  'fitness-coco': fitnessCoco,
   gallery,
   lightbox,
   lost,

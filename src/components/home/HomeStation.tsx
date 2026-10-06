@@ -68,7 +68,7 @@ export async function HomeStation({
       <span>{t('stationKicker', { number: String(station.number).padStart(2, '0') })}</span>
     </p>
   )
-  const art = <StationArt stationId={station.stationId} />
+  const art = <StationArt stationId={station.stationId} locale={locale} />
   const pose = station.pose ?? undefined
   const shelf = station.categories !== null && products !== null
   const allLink = station.link ? (

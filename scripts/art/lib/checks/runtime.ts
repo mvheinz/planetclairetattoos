@@ -388,7 +388,7 @@ export function mo09(files: readonly ProbeFile[]): CheckResult {
 }
 
 export function mo10(files: readonly ProbeFile[]): CheckResult {
-  const th = 'Start ≥ LCP + 300 ms; Dauer 900 ms ± 90'
+  const th = 'Start ≥ LCP + 300 ms; Dauer 1800 ms ± 180 (U-06)'
   const runs = extra<{
     lcp: number | null
     start: number | null
@@ -410,7 +410,7 @@ export function mo10(files: readonly ProbeFile[]): CheckResult {
         bad.push(`${file.profile}: Start ${start} ms < LCP ${lcp} + 300`)
       // WebKit (art-iphone15) rendert hier in Software, die Aufnahme-Sitzung (Netzwächter, Video) liefert nur ≈ 10 Bilder/s und
       // das Intro springt dort gelegentlich (Messung 255–355 ms, allein im Browser 710–940 ms, R2-05): Dauer nur Chromium-Profile
-      if (file.profile !== 'art-iphone15' && Math.abs(dur - 900) > 90)
+      if (file.profile !== 'art-iphone15' && Math.abs(dur - 1800) > 180)
         bad.push(`${file.profile}: Dauer ${dur} ms`)
     }
   }

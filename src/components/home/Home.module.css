@@ -9,6 +9,30 @@
 
 /* ---------- Kopf-Station ---------- */
 
+/* Hero-Zeile: links Titel/Untertitel, rechts Koko (U-08, Platz `data-slot="chairwoman"`); mobil untereinander. */
+.heroRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.heroSide {
+  width: min(220px, 56vw);
+}
+
+@media (min-width: 900px) {
+  .heroRow {
+    grid-template-columns: minmax(0, 1fr) minmax(200px, 280px);
+    gap: var(--space-7, var(--space-6));
+  }
+
+  .heroSide {
+    width: 100%;
+    justify-self: end;
+  }
+}
+
 .hero {
   display: flex;
   flex-direction: column;
@@ -192,6 +216,40 @@
   display: block;
   width: 100%;
   height: 100%;
+}
+
+/* Der Fitness-Coco braucht mehr Platz als die frühere Stationszeichnung (ganze Figur auf zwei Beinen). */
+.artFrame:has([data-station-art='fitness']) {
+  width: min(360px, 82vw);
+}
+
+/* Fitness-Coco (P12.5): Standbild (<img>) und Leinwand für die Schleife in der 4:5-Box */
+.fitness {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  width: 100%;
+  color: var(--ink);
+}
+
+.fitnessStill,
+.fitnessCanvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* `display: block` oben schlüge sonst das Attribut `hidden` der Leinwand */
+.fitnessCanvas[hidden] {
+  display: none;
+}
+
+@media (forced-colors: active) {
+  .fitnessStill,
+  .fitnessCanvas {
+    forced-color-adjust: none;
+  }
 }
 
 .artCoco {

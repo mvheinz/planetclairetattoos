@@ -77,14 +77,8 @@ export interface LeashSamples {
 
 // ---------- Schritt 1–3: Anker, Wegpunkte, Schlaufen ----------
 
-/** Schnur `shopString` (§9.7): Überstand am Reihenende und Toleranz für „gleiche Reihe“. */
-export const STRING_OVERHANG = 12
+/** Toleranz für „gleiche Zeile“ (Kartenraster) in px. */
 const ROW_TOLERANCE = 12
-
-/** Durchhang zwischen zwei Aufhängepunkten (§9.7): `clamp(4, 0.03 × Abstand, 14)` px. */
-export function stringSag(distance: number): number {
-  return Math.min(14, Math.max(4, 0.03 * distance))
-}
 
 /** Faden-Anker (`kind = 'tag'`) zu Reihen gruppiert (oben → unten, je Reihe links → rechts). */
 export function stringRows(anchors: readonly LeashAnchor[]): { y: number; xs: number[] }[] {
@@ -103,106 +97,48 @@ export function stringRows(anchors: readonly LeashAnchor[]): { y: number; xs: nu
 }
 
 /**
- * Preset `shopString` (§9.7, KO-07/KO-08): Die Linie wird zur Schnur. Sie beginnt am Start-Anker (Coco über der ersten
- * Reihe), läuft im Seitenrand hinunter zur ersten Reihe und dann durch die Faden-Anker aller Karten einer Reihe –
- * zwischen zwei Ankern mit Durchhang –, am Reihenende 12 px über das Raster hinaus, in einer Kurve (Radius ≤ Seitenrand)
- * im Rand hinunter zur nächsten Reihe, die in Gegenrichtung läuft (Serpentine). Die Reihen werden als „Stationen“
- * `row-<n>` gemeldet (Bogenlänge vom Ende der vorigen Reihe bis zum Ende dieser Reihe) – damit zeichnet die Laufzeit je
- * Reihe beim Eintritt (`draw: 'rowEnter'`) und behält gezeichnete Reihen beim Neuaufbau.
- * Rastergrenzen: Anker `kind = 'target'` (volle Rasterbreite), sonst aus den Faden-Ankern geschätzt.
+ * Raster-Seiten (U-07a): Shop-Listen (`shopString`) und Tattoo-Flash (`stencil`). Die Leine läuft ausschließlich in der
+ * Rinne am Seitenrand; zwischen zwei Kartenzeilen kringelt sie sich zu einer Schlaufe (abwechselnd rechts/links) und
+ * wickelt nie eine Karte ein. Liefert je Zeile einen Stations-Anker `row-<n>` mit der Schlaufe in der Lücke zur nächsten
+ * Zeile; die Laufzeit zeichnet die Zeilen beim Eintritt (`rowEnter`) bzw. einmal (`enter`).
  */
-function planShopString(input: BuildInput): Plan {
-  const { root } = input
-  const startAnchor = input.anchors.find((a) => a.kind === 'start')
-  const bounds = input.anchors.find((a) => a.kind === 'target')
-  const rows = stringRows(input.anchors)
-  const pts: Pt[] = []
-  const loops: LoopMark[] = []
-  const push = (p: Pt) => pts.push(p) - 1
-  /** Gerade senkrecht im Rand: Zwischenpunkte alle ≤ 60 px, damit der Spline nicht nach außen ausbaucht. */
-  const straightDown = (x: number, fromY: number, toY: number) => {
-    const n = Math.floor((toY - fromY) / 60)
-    for (let k = 1; k <= n; k++) push({ x, y: fromY + ((toY - fromY) * k) / (n + 1) })
-  }
-  const start: Pt = startAnchor
-    ? { x: startAnchor.x + startAnchor.w / 2, y: startAnchor.y + startAnchor.h }
-    : { x: 24, y: 0 }
-  push(start)
-  if (rows.length === 0) {
-    // Ohne Karten nur der Leinen-Anschluss (§9.8): kurzes Stück nach unten.
-    push({ x: start.x, y: start.y + 24 })
-    return { pts, loops }
-  }
-  const gridLeft = bounds ? bounds.x : 16
-  const gridRight = bounds ? bounds.x + bounds.w : root.w - 16
-  // Seitenrand links/rechts des Rasters: Überstand 12 px, aber nie über den Rand der Linien-Ebene hinaus.
-  const margin = (edge: number, dir: 1 | -1) => {
-    const room = dir > 0 ? root.w - edge : edge
-    return edge + dir * Math.max(2, Math.min(STRING_OVERHANG, room - 6))
-  }
-  const sideX: Record<'left' | 'right', number> = {
-    left: margin(gridLeft, -1),
-    right: margin(gridRight, 1),
-  }
-  // Kurvenradius im Rand: höchstens der Überstand (≤ Seitenrand), höchstens 10 px.
-  const radius = (side: 'left' | 'right') =>
-    Math.min(10, side === 'left' ? gridLeft - sideX.left : sideX.right - gridRight)
-
-  // Vom Start (Coco) in den linken Rand und hinunter bis kurz vor die erste Reihe.
-  let side: 'left' | 'right' = 'left'
-  const firstY = rows[0]!.y
-  const rStart = radius('left')
-  if (firstY - start.y > 3 * rStart) {
-    push({ x: (start.x + sideX.left) / 2, y: start.y + Math.min(14, (firstY - start.y) / 4) })
-    const y0 = Math.min(firstY - rStart, start.y + 28)
-    push({ x: sideX.left, y: y0 })
-    straightDown(sideX.left, y0, firstY - rStart)
-  }
-  let prevEnd = 0
-  rows.forEach((row, k) => {
-    const dir: 1 | -1 = side === 'left' ? 1 : -1
-    const r = radius(side)
-    const x0 = sideX[side]
-    // Kurve aus dem Rand in die Reihe.
-    push({ x: x0, y: row.y - r })
-    push({ x: x0 + dir * r * 0.35, y: row.y - r * 0.35 })
-    const xs = dir > 0 ? row.xs : [...row.xs].reverse()
-    const exitSide: 'left' | 'right' = side === 'left' ? 'right' : 'left'
-    const exitX = sideX[exitSide]
-    const next = rows[k + 1]
-    const r2 = radius(exitSide)
-    // Letzter Punkt der Reihe: mit Folgereihe kurz vor der Kurve, sonst das Schnurende im Rand (Überstand).
-    const hang = [x0 + dir * r, ...xs, next ? exitX - dir * r2 : exitX]
-    for (let i = 0; i < hang.length; i++) {
-      const x = hang[i]!
-      if (i > 0) {
-        const px = hang[i - 1]!
-        push({ x: (px + x) / 2, y: row.y + stringSag(Math.abs(x - px)) })
-      }
-      push({ x, y: row.y })
-    }
-    const i1 = pts.length - 1
-    loops.push({
-      anchor: { id: `row-${k}`, kind: 'station', x: 0, y: row.y, w: 0, h: 0, loop: 'none' },
-      kind: 'none',
-      i0: prevEnd,
-      i1,
-      dot: false,
+function gridCoils(input: BuildInput, others: LeashAnchor[]): LeashAnchor[] {
+  const desktop = input.viewport.w >= BP_TABLET
+  const rows: { id: string; top: number; bottom: number }[] = []
+  if (input.preset === 'shopString') {
+    const r = stringRows(input.anchors)
+    r.forEach((row, k) => {
+      const next = r[k + 1]
+      const bottom = next ? (row.y + next.y) / 2 : row.y + 48
+      rows.push({ id: `row-${k}`, top: row.y, bottom })
     })
-    prevEnd = i1
-    if (next) {
-      // Kurve im Rand hinunter zur nächsten Reihe (Serpentine).
-      push({ x: exitX - dir * r2 * 0.35, y: row.y + r2 * 0.35 })
-      push({ x: exitX, y: row.y + r2 })
-      straightDown(exitX, row.y + r2, next.y - r2)
+  } else {
+    const cards = others.filter((a) => a.loop === 'contour').sort((a, b) => a.y - b.y)
+    const cells: { top: number; bottom: number; id: string }[] = []
+    for (const c of cards) {
+      const last = cells[cells.length - 1]
+      if (last && Math.abs(c.y - last.top) <= ROW_TOLERANCE)
+        last.bottom = Math.max(last.bottom, c.y + c.h)
+      else cells.push({ id: c.id, top: c.y, bottom: c.y + c.h })
     }
-    side = exitSide
-  })
-  return { pts, loops }
+    cells.forEach((c, k) => {
+      const next = cells[k + 1]
+      rows.push({ id: c.id, top: c.top, bottom: next ? (c.bottom + next.top) / 2 : c.bottom + 20 })
+    })
+  }
+  const coils = rows.map((row, k): LeashAnchor => ({
+    id: row.id,
+    kind: 'station',
+    x: 0,
+    y: row.bottom - (desktop ? 28 : 16),
+    w: 0,
+    h: 0,
+    loop: k % 2 ? 'left' : 'right',
+  }))
+  return [...others.filter((a) => a.loop !== 'contour'), ...coils]
 }
 
 function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
-  if (input.preset === 'shopString') return planShopString(input)
   const cfg = PRESET_CONFIG[input.preset]
   const { viewport, root, gutter } = input
   const desktop = viewport.w >= BP_TABLET
@@ -212,13 +148,20 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
   const sorted = [...input.anchors].sort((a, b) => a.y - b.y || a.x - b.x)
   const startAnchor = sorted.find((a) => a.kind === 'start')
   const endAnchor = sorted.find((a) => a.kind === 'end')
-  const middle = sorted.filter((a) => a.kind !== 'start' && a.kind !== 'end')
+  const P = input.preset
+  const grid = P === 'shopString' || P === 'stencil'
+  let middle = sorted.filter((a) => a.kind !== 'start' && a.kind !== 'end')
+  if (grid)
+    middle = gridCoils(
+      input,
+      P === 'stencil' ? middle.filter((a) => a.kind === 'station') : [],
+    ).sort((a, b) => a.y - b.y)
 
   const fallbackX = onRail ? gutter / 2 : (desktop ? 24 : 16) + 8
   const start: Pt = startAnchor
     ? { x: startAnchor.x + startAnchor.w / 2, y: startAnchor.y + startAnchor.h }
     : { x: fallbackX, y: 0 }
-  const railX = start.x
+  const railX = grid ? (input.railX ?? start.x) : start.x
 
   const pts: Pt[] = []
   const loops: LoopMark[] = []
@@ -232,8 +175,7 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
   let swaySign = rand() < 0.5 ? 1 : -1
   // Ohne Rinne: stencil und product laufen in einer Randbahn links neben dem Inhalt, thanks mobil im Seitenrand statt
   // quer über Text; thanks am Desktop erst quer unter der Kopfleiste, dann hinunter zum Ende.
-  const P = input.preset
-  const side = P === 'stencil' || P === 'product'
+  const side = P === 'product'
   const lane = side
     ? Math.max(6, Math.min(...middle.map((a) => a.x), endAnchor?.x ?? start.x) - 10)
     : 6
@@ -276,7 +218,13 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
 
   // Leinen-Anschluss (§9.8): Beginn an der Unterkante der Kopfleiste, 24-px-Kurve ins Preset.
   push(start)
-  push({ x: start.x, y: start.y + 12 })
+  if (grid && Math.abs(start.x - railX) > 6) {
+    // Raster-Seiten: Leinen-Anschluss führt noch in der Coco-Zeile flach in die Rinne (nie über die Karten)
+    const dx = railX - start.x
+    push({ x: start.x + 0.35 * dx, y: start.y + 10 })
+    push({ x: start.x + 0.8 * dx, y: start.y + 18 })
+    push({ x: railX, y: start.y + 26 })
+  } else push({ x: start.x, y: start.y + 12 })
 
   // Endanker mit abschließender Schlaufe (`data-leash-anchor="end"` + `data-leash-loop="heart"`, MI-09): wird wie eine
   // letzte Station behandelt (R2-06-03: bisher blieb das Herz aus).
@@ -295,7 +243,7 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
     })
     if (loopPts.length === 0) {
       // Station ohne Schlaufe: kurzer Abschnitt auf der Linie als Stationsbereich.
-      const x = onRail ? railX : P === 'stencil' ? lane : anchor.x
+      const x = onRail ? railX : side ? lane : anchor.x
       const i0 = section({ x, y: anchor.y })
       const i1 = push({ x, y: anchor.y + 24 })
       loops.push({ anchor, kind: 'none', i0, i1, dot: false })
@@ -310,8 +258,14 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
     if (TERMINAL_LOOPS.includes(kind)) return { pts, loops }
   }
 
+  if (P === 'shopString') {
+    // Schnur endet in der Rinne kurz hinter der letzten Schlaufe (nicht bis zum Seitenende)
+    const last = pts[pts.length - 1]!
+    push({ x: railX, y: last.y + 24 })
+    return { pts, loops }
+  }
   const end: Pt = endAnchor
-    ? { x: endAnchor.x + endAnchor.w / 2, y: endAnchor.y }
+    ? { x: grid ? railX : endAnchor.x + endAnchor.w / 2, y: endAnchor.y }
     : { x: onRail ? railX : pts[pts.length - 1]!.x, y: root.h }
   section(end)
   return { pts, loops }

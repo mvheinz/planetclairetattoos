@@ -181,7 +181,7 @@ Tempo-Läufe laufen **ohne** Videoaufnahme (Video kostet CPU) und getrennt von B
 | ID | Route | Profile | Ablauf | Aufnahmen |
 |---|---|---|---|---|
 | SC-00 | Startseite | alle | Smoke: laden, 1× bis unten scrollen | Video, 3 Frames |
-| SC-01 | R01 Startseite | alle | (a) Intro abwarten; (b) langsam scrollen 600 px/s bis Ende; (c) schnell „wischen“ 3000 px/s; (d) 400 px hoch; (e) 1,5 s stehen an jeder Station | Video; Frames an jeder Station-Grenze (`y − 40`, `y`, `y + loopScroll/2`, `y + loopScroll`, `+1,5 s`); Intro-Sequenz alle 100 ms |
+| SC-01 | R01 Startseite | alle | (a) Intro abwarten; (b) langsam scrollen 600 px/s bis Ende; (c) schnell „wischen“ 3000 px/s; (d) 400 px hoch; (e) 1,5 s stehen an jeder Station; (f) P12: Fitness-Coco der Hallo-Station (alle 3 s ein Bild über 42 s, Uhr angehalten) und Koko (Pupillen alle 1,5 s über 9 s); reduziert je ein Standbild | Video; Frames an jeder Station-Grenze (`y − 40`, `y`, `y + loopScroll/2`, `y + loopScroll`, `+1,5 s`); Intro-Sequenz alle 100 ms |
 | SC-02 | R01 | alle, `reduced` | laden, bis Ende scrollen | Frames an denselben Positionen; Zeitvergleich t=0 vs t=2 s |
 | SC-03 | Menü (auf R02) | alle | öffnen, 1 s, Link fokussieren (Tab), schließen (Esc) | Video; Öffnen-Sequenz alle 40 ms bis 800 ms; Unterstreichung alle 40 ms |
 | SC-04 | R02 Shop, R05 Archiv | alle | laden, Reihe für Reihe scrollen; Desktop: Hover über 2 Karten | Video; je Reihe: vor Eintritt, +250 ms, +500 ms, +900 ms (Schwingen) |
@@ -260,11 +260,11 @@ Beleg) **· Schwere bei Verfehlung** (B = Blocker, M = Major, m = Minor; Definit
 
 | ID | Kriterium | Schwelle | Methode | Schwere |
 |---|---|---|---|---|
-| CO-01 | Vollständigkeit | mindestens 22 Symbole (6 Posen × 3 Frames + 4 Brücken) mit IDs aus DESIGN §10.4, gleiche `viewBox`, alle `data-part` vorhanden oder in `data-hidden-parts` begründet | auto | B |
+| CO-01 | Vollständigkeit | mindestens 22 Symbole (6 Posen × 3 Frames + 4 Brücken) mit IDs aus DESIGN §10.4 **plus 27 Zusatz-Symbole** (9 Zusatz-Posen × 3 Frames in der nachgeladenen Datei, DESIGN §10.8, P12.4), gleiche `viewBox`, alle `data-part` vorhanden oder in `data-hidden-parts` begründet | auto | B |
 | CO-02 | Proportionen (Seitenansicht-Posen `rennen`, `schnueffeln`, `springen`; Sitzposen analog aus Kopfteilen) | Ohrhöhe / Kopflänge 0,55–0,85 (große aufrechte Ohren nach Juttas Coco-Fotos vom 04.10.2026, gemessen ≈ 0,65; vorher 0,80–1,10 bzw. 0,35–0,65) · Augenbreite / Kopflänge 0,18–0,26 · Schnauzenlänge / Kopflänge 0,30–0,45 · Beinbreite / Beinlänge ≤ 0,18 · Nase ≤ 0,15 Kopflänge | auto (`getBBox()` der `data-part`-Gruppen auf `/qa/coco`) | M |
 | CO-03 | Merkmale | runder Kopf, große aufrechte Ohren mit gerundeter Spitze (bei `kopfschief` eines leicht geknickt; Juttas Coco-Fotos 04.10.2026), große runde dunkle Augen mit Glanzpunkt, kurze Schnauze, dicke schwarze Nase, schlanke Beine, Sichelschwanz (außer `schlafen`), **rotes Geschirr mit D-Ring** in jeder Pose, in der Rücken/Brust sichtbar ist | R1 (Checkliste je Frame im Befund-Format) | B |
-| CO-04 | Anker stabil | D-Ring je Pose über A/B/C ± 2 Einheiten, `rennen` ± 3; `data-ground-y` ± 2 | auto | M |
-| CO-05 | Boil-Stärke | Silhouetten-IoU (gerastert 256 px, Schwelle 50 %) zwischen Frames derselben Pose 0,88–0,97; `rennen` 0,55–0,85 (echte Gangphasen) | auto | M |
+| CO-04 | Anker stabil | D-Ring je Pose über A/B/C ± 2 Einheiten, `rennen` ± 3, bewegte Zusatz-Posen weiter (Verbeugung/Kratzen ± 4, Schütteln ± 6, Freudenhüpfer ± 12; P12.4); `data-ground-y` ± 2 | auto | M |
+| CO-05 | Boil-Stärke | Silhouetten-IoU (gerastert 256 px, Schwelle 50 %) zwischen Frames derselben Pose 0,88–0,97; `rennen` 0,55–0,85 (echte Gangphasen); Zusatz-Posen mit echter Bewegung breiter (Zucken/Kratzen/Gähnen/Liegen 0,80–0,97, Verbeugung 0,70–0,97, Schütteln 0,60–0,97, Freudenhüpfer 0,10–0,90; P12.4) | auto | M |
 | CO-06 | Handmerkmale je Frame | ≥ 2 offene Konturstellen, ≥ 1 Überstand, ≥ 1 Doppelkontur; Ohren-Asymmetrie (Höhe) 5–15 %; Augen verschieden (Breite ≥ 3 % Unterschied) | auto (Geometrie) + R1 (offene Stellen) | M |
 | CO-07 | Keine Primitive, keine Symmetrie-Kopien | kein `<circle\|ellipse\|rect\|line\|polygon>` im Sprite; kein Frame ist Spiegel/Verschiebung eines anderen (Pfaddaten-Vergleich) | auto | M |
 | CO-08 | Strichstärke gerendert | 24 px: 1,0–1,4 px · 40/42 px: 1,4–1,8 px · 64/72 px: 1,6–2,0 px · 180/240 px: 2,0–2,4 px (Sollwerte DESIGN §10.5) (Messung quer zum Strich an 10 Stellen) | auto | m |
@@ -297,7 +297,7 @@ Beleg) **· Schwere bei Verfehlung** (B = Blocker, M = Major, m = Minor; Definit
 | MO-07 | Coco folgt | nach Scrollstopp ≤ 400 ms bis Abstand < 1 px; beim schnellen Wischen nie > 300 px Bogenlänge Rückstand (sonst Sprung) | auto | m |
 | MO-08 | Posen je Station | Pose bei Ankunft/Verweilen = Tabelle DESIGN §11.4 an allen 9 Stationen | auto (`__leash.pose()`) + R2 (Bögen) | M |
 | MO-09 | Brücken | jeder Posenwechsel mit der definierten Brücke bzw. Frame-Grenze; keine Überblendung | auto (`poseLog`) + R2 | m |
-| MO-10 | Intro | Start ≥ LCP + 300 ms; Dauer 900 ms ± 90 (aus der Kurvenanpassung der `drawnLen`-Reihe, nicht aus dem ersten sichtbaren Bild; `art-iphone15`: Dauer nur informativ, weil WebKit ohne GPU in der Aufnahme-Sitzung nur ≈ 10 Bilder/s liefert; Start ≥ LCP + 300 gilt weiter); Coco rennt herein (MI-10) | auto | M |
+| MO-10 | Intro | Start ≥ LCP + 300 ms; Dauer 1800 ms ± 180 (P12.4/U-06: doppelt so langsam; vorher 900 ± 90) (aus der Kurvenanpassung der `drawnLen`-Reihe, nicht aus dem ersten sichtbaren Bild; `art-iphone15`: Dauer nur informativ, weil WebKit ohne GPU in der Aufnahme-Sitzung nur ≈ 10 Bilder/s liefert; Start ≥ LCP + 300 gilt weiter); Coco rennt herein (MI-10) | auto | M |
 | MO-11 | Katalog vollständig | jede MI-01…MI-16 in SC-14 aufgenommen und entspricht Ablauf/Eigenschaften der Tabelle | R2 | M |
 | MO-12 | Timing-Gefühl | Bewertung ≥ 4 (Rubrik §6.5): Feder statt Maschine, Staffelungen leicht unregelmäßig, nichts „schwimmt“ | R2 | M |
 | MO-13 | Stempel nur im Verkaufsmoment | Archiv/Shop-Aufruf: 0 Stempel-Animationen; Danke „bezahlt“: MI-03 ≤ 3× | auto | M |

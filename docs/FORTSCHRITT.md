@@ -14,6 +14,21 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 - Farben: helles Olivgrün als Grund, Petrol-Akzent (Links, Primärknöpfe, sold-Stempel, Fokus), Text-Tokens für AA nachgedunkelt; DESIGN §3/§4/§7 neu.
 - Verlauf Olivgrün → Petrol-Hauch: statisch auf html, mit Scroll-Zeitleiste ein einziger opacity-Layer, statisch bei weniger Bewegung; Leine-Engine unberührt (Budget 12 000 B gz eingehalten).
 - Tests: pnpm check (nur der schon vorher rote Test final-report offen), Int 1101 grün, E2E desktop/pixel-7 (Rahmen, a11y, home, shell, shop; Leine-Tests brauchen Debug-Build), Visual 70 neu erzeugt und im zweiten Lauf stabil, check:bundle und check:external grün.
+## 2026-10-06 – P12.6
+
+- Koko, Vorsitzende der Goth Dogs Berlin: freigestellt und von Hand nachgezeichnet (schwarzes Fell mit Tuschestrich, orange Flächen, weiße Brust/Pfoten, Narrenkappe mit grünen Bommeln, Seitenblick-Augen, ohne Knochenkreuz); nur die Pupillen bewegen sich (9 s, CSS), Standbild bei reduzierter Bewegung; Komponente ChairwomanKoko rechts neben dem Hero (mobil darunter, Platzhalter data-slot="chairwoman"); Bild 9 KB (<img>), Alt-Text DE/EN.
+- Tests: Unit (Quelle, Budget, nur Pupillen animiert, reduzierte Bewegung, Alt-Text), E2E (nur zwei animierte Pupillen-Elemente, reduziert 0).
+
+## 2026-10-06 – P12.5
+
+- Fitness-Coco ersetzt die große sitzende Coco der Station „Hallo“: sieben Übungen in Juttas Reihenfolge + erschöpft Liegen, Endlosschleife (≈ 42 s), je Übung 12–20 gezeichnete Zwischenbilder, weiche Übergänge, schwarze Tuschelinie mit Zittern, oranger Buntstift mit Papierkörnung, keine Beschriftung, Knickohr; Standbild als <img>, Bildfolge (120 KB gz) nach dem load nachgeladen und auf einer Leinwand gespielt; Standbild bei reduzierter Bewegung; Alt-Texte DE/EN.
+- Tests: Unit (Daten, Budget, Knickohr, Verhalten), E2E (home-fitness: Daten erst nach load, Schleife läuft, reduziert still), check:bundle (SVG der Startseite 54,3 KB ≤ 60). Kunst-QA: SC-01 um Fitness-Coco- und Koko-Bilder erweitert und lokal aufgenommen (art-desktop motion + reduced).
+
+## 2026-10-06 – P12.4
+
+- Coco: Sitzen/Kopf schief neu in Seitenansicht (Juttas Foto), Knickohr (hinteres Ohr) in allen Posen, Warte-Aktionen gestaffelt (Hecheln, Ohr zucken, Kratzen, Gähnen, Strecken, Wedeln, Hinlegen → Einrollen → Schlafen) und vier neue Posen (Spielverbeugung, Schütteln, Freudenhüpfer mit Drehung bei „Korb gefüllt“/„Bestellung abgeschickt“, Hinlegen mit Bauch hoch) in der nachgeladenen Datei coco-extra (27 Symbole); Coco +25 % (70/110 px, Rinne 56/88 px); Tuschelinie doppelt so langsam; Leine in Raster-Seiten (Flash, Shop, Kategorie, Archiv) nur in der Rinne am Rand, kringelt sich zwischen den Zeilen, umwickelt nie Karten.
+- Budgets: Engine 11 805 B gz (≤ 12 000), Coco-Steuerung 2 884 B (≤ 3 000), Zusatz-Chunk 1 072 B, Sprite 43,8 KB/10,3 KB gz, Zusatz-Datei 56 KB/12,6 KB gz.
+- Tests: Unit (Sprite, CO-01…08 mit Zusatz-Posen, Knickohr, Zusatz-Aktionen, Raster-Geometrie), E2E Raster-Seiten (LG-01 Flash/Shop, 390 und 1280 px), leash/coco/home-choreo/reduced-motion/a11y/home (desktop + pixel-7), check:bundle, pnpm check, Int 1 101 grün. Tempo-Gates (PF-02/04, LCP) und Kunst-QA-Linsen: CI/P12.13.
 
 ## 2026-10-06 – P12 gestartet: deine Änderungswünsche
 

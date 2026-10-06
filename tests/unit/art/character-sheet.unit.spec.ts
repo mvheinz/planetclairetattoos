@@ -62,7 +62,8 @@ describe('P9.8 Coco-Charakterblatt', () => {
   it('enthält Seiten- und ¾-Ansicht mit K-Hilfslinien, Merkmale, Strich-Regeln und Gesten aller 10 Posen/Brücken', () => {
     for (const s of [
       'Seitenansicht',
-      '¾-Ansicht',
+      'Sitzen, Seitenansicht',
+      'Zusatz-Posen',
       'Widerrist',
       'Ohrspitze',
       '1 K',

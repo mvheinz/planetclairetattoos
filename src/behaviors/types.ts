@@ -20,6 +20,8 @@ export interface BehaviorActions {
   ) => Promise<Record<string, unknown> | null>
   /** Zustandscode der Danke-Seite (`GET /api/checkout/[token]/state`, P4.17); `null` bei Fehlern (404, 429, Netz). */
   thanksState?: (url: string, signal?: AbortSignal) => Promise<string | null>
+  /** Bildfolge des Fitness-Coco (P12.5, `/art/fitness-coco.v{N}.json`); `null` bei Fehlern. */
+  fitnessData?: (url: string) => Promise<unknown>
 }
 
 export interface BehaviorContext {
@@ -42,6 +44,15 @@ export interface BehaviorModule {
 export const CART_CHANGE_EVENT = 'pc:cart-change'
 export interface CartChangeDetail {
   count?: number
+}
+
+/**
+ * Erfolgsmoment (U-04): Korb gefüllt (`add-to-cart`) bzw. Bestellung abgeschickt (Kasse) → Freudenhüpfer mit Drehung der
+ * Coco (`src/leash/cocoExtra.ts`, nur wenn dort eine Coco mit Zusatz-Posen steht; sonst wirkungslos).
+ */
+export const COCO_JOY_EVENT = 'pc:coco-joy'
+export interface CocoJoyDetail {
+  reason: 'cart' | 'order'
 }
 
 /** Stück live auf `sold` gewechselt → Stempel-Knall (MI-03, Modul `sold-stamp`). */

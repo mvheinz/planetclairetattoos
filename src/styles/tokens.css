@@ -102,7 +102,7 @@
   --shadow-stencil: 3px 2px 0 0 var(--stencil);
 
   /* Coco */
-  --coco-leash: 56px;          /* Breite an der Leinenspitze */
+  --coco-leash: 70px;          /* Breite an der Leinenspitze (+25 %, U-05) */
   --coco-s: 40px;
   --coco-m: 72px;
   --coco-xl: 180px;
@@ -122,8 +122,8 @@
   --dur-short: 200ms;
   --dur-medium: 320ms;
   --dur-long: 600ms;
-  --dur-draw: 900ms;
-  --dur-draw-max: 1200ms;
+  --dur-draw: 1800ms;
+  --dur-draw-max: 2400ms;
   --dur-page: 350ms;
   --dur-underline: 280ms;
   --dur-swing: 900ms;
@@ -141,7 +141,7 @@
 }
 
 @media (min-width: 768px) {
-  :root { --page-pad: 24px; --header-h: 64px; --leash-w: 2.6px; --coco-leash: 88px; --coco-stroke: 1.8px; }
+  :root { --page-pad: 24px; --header-h: 64px; --leash-w: 2.6px; --coco-leash: 110px; --coco-stroke: 1.8px; }
 }
 @media (min-width: 1200px) {
   :root { --page-pad: 32px; }

@@ -1,0 +1,50 @@
+/* Koko, Vorsitzende der Goth Dogs Berlin (P12.6, U-08): feste Box, Zeichnung als Bild, nur die Pupillen bewegen sich. */
+.koko {
+  --koko-look: 9s; /* ein Hin und Zurück der Pupillen */
+  position: relative;
+  aspect-ratio: 300 / 390;
+  width: 100%;
+  max-width: 300px;
+  color: var(--ink);
+}
+
+.drawing {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Pupillen: zwei kleine, leicht unregelmäßige Tintenflecken über den weißen Augen; Seitenblick nach rechts unten. */
+.pupil {
+  position: absolute;
+  background: var(--ink);
+  border-radius: 52% 48% 55% 45% / 50% 55% 45% 50%;
+  animation: koko-look var(--koko-look) var(--ease-swing) infinite;
+}
+
+/* Hin und Zurück um ±60 % der Pupillenbreite (≈ ±5 Einheiten der Zeichnung); Ruhelage = Blick leicht nach links. */
+@keyframes koko-look {
+  0%,
+  100% {
+    transform: translateX(-30%);
+  }
+  50% {
+    transform: translateX(30%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion='full']) .pupil {
+    animation: none;
+  }
+}
+
+html[data-motion='reduced'] .pupil {
+  animation: none;
+}
+
+@media (forced-colors: active) {
+  .pupil {
+    background: CanvasText;
+  }
+}

@@ -125,9 +125,9 @@ describe('leash/runtime – mountLeash', () => {
     // Lage inline, Rest aus global.css; die Ebene ist aria-hidden (PF-10)
     for (const svg of svgs) expect(svg.style.left).toMatch(/px$/)
 
-    // Intro (journey) von 0 bis zur Lesezeile in 900 ms
+    // Intro (journey) von 0 bis zur Lesezeile in 1800 ms (U-06: doppelt so langsam)
     expect(handle.inspect().drawnLen).toBe(0)
-    advance(1000)
+    advance(2000)
     const afterIntro = handle.inspect().drawnLen
     expect(afterIntro).toBeGreaterThan(0)
 
@@ -464,7 +464,7 @@ describe('leash/debug – window.__leash und window.__qa (P2.17, §9.13, KUNST-Q
     const w = window as W
     const api = w.__leash!
     w.__qa!.start()
-    advance(1000)
+    advance(2000) // Intro (1800 ms, U-06) ist vorbei
     expect(api.pose()).not.toBeNull()
     // Lesezeile ein kurzes Stück weiter (< 300 px Bogenlänge): Coco rennt geglättet hinterher.
     const near = api.geometry.scrollMap.find((r) => r.len >= api.cocoLen() + 150)!

@@ -344,7 +344,7 @@ html[data-menu-open] {
 /* Linien-Rinne je Preset (§5.3); das Preset setzt das Layout als `data-preset` am body (§9.7). */
 body[data-preset='journey'],
 body[data-preset='about'] {
-  --leash-gutter: 44px;
+  --leash-gutter: 56px;
 }
 
 body[data-preset='legal'],
@@ -352,15 +352,26 @@ body[data-preset='margin'] {
   --leash-gutter: 16px;
 }
 
+/* Raster-Seiten (U-07a): Shop-Listen und Tattoo/Flash – die Leine läuft in einer schmalen Rinne am Seitenrand */
+body[data-preset='shopString'],
+body[data-preset='stencil'] {
+  --leash-gutter: 32px;
+}
+
 @media (min-width: 768px) {
   body[data-preset='journey'],
   body[data-preset='about'] {
-    --leash-gutter: 64px;
+    --leash-gutter: 88px;
   }
 
   body[data-preset='legal'],
   body[data-preset='margin'] {
     --leash-gutter: 24px;
+  }
+
+  body[data-preset='shopString'],
+  body[data-preset='stencil'] {
+    --leash-gutter: 56px;
   }
 }
 

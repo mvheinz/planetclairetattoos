@@ -1,0 +1,597 @@
+{
+  "version": 1,
+  "href": "/art/coco-extra.v1.svg",
+  "viewBox": [
+    0,
+    0,
+    160,
+    120
+  ],
+  "symbols": [
+    {
+      "id": "coco-hecheln-a",
+      "pose": "hecheln",
+      "frame": "a",
+      "bridge": false,
+      "anchor": {
+        "x": 80,
+        "y": 65.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 38,
+        "y": 10,
+        "w": 88,
+        "h": 105
+      },
+      "fps": 10,
+      "hiddenParts": [
+        "eye-r",
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-hecheln-b",
+      "pose": "hecheln",
+      "frame": "b",
+      "bridge": false,
+      "anchor": {
+        "x": 80,
+        "y": 65.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 38,
+        "y": 10.5,
+        "w": 88,
+        "h": 104.5
+      },
+      "fps": 10,
+      "hiddenParts": [
+        "eye-r",
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-hecheln-c",
+      "pose": "hecheln",
+      "frame": "c",
+      "bridge": false,
+      "anchor": {
+        "x": 80,
+        "y": 65.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 37,
+        "y": 9,
+        "w": 89,
+        "h": 106
+      },
+      "fps": 10,
+      "hiddenParts": [
+        "eye-r",
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-zucken-a",
+      "pose": "zucken",
+      "frame": "a",
+      "bridge": false,
+      "anchor": {
+        "x": 80,
+        "y": 65.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 38,
+        "y": 10.5,
+        "w": 88,
+        "h": 103.5
+      },
+      "fps": 10,
+      "hiddenParts": [
+        "eye-r",
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-zucken-b",
+      "pose": "zucken",
+      "frame": "b",
+      "bridge": false,
+      "anchor": {
+        "x": 80,
+        "y": 65.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 38,
+        "y": 9,
+        "w": 87.5,
+        "h": 104
+      },
+      "fps": 10,
+      "hiddenParts": [
+        "eye-r",
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-zucken-c",
+      "pose": "zucken",
+      "frame": "c",
+      "bridge": false,
+      "anchor": {
+        "x": 80,
+        "y": 65.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 38,
+        "y": 10.5,
+        "w": 88,
+        "h": 104.5
+      },
+      "fps": 10,
+      "hiddenParts": [
+        "eye-r",
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-kratzen-a",
+      "pose": "kratzen",
+      "frame": "a",
+      "bridge": false,
+      "anchor": {
+        "x": 80,
+        "y": 65.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 38,
+        "y": 10.5,
+        "w": 86.5,
+        "h": 103.5
+      },
+      "fps": 10,
+      "hiddenParts": [
+        "eye-r",
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-kratzen-b",
+      "pose": "kratzen",
+      "frame": "b",
+      "bridge": false,
+      "anchor": {
+        "x": 80,
+        "y": 65.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 38,
+        "y": 10.5,
+        "w": 87,
+        "h": 104.5
+      },
+      "fps": 10,
+      "hiddenParts": [
+        "eye-r",
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-kratzen-c",
+      "pose": "kratzen",
+      "frame": "c",
+      "bridge": false,
+      "anchor": {
+        "x": 80,
+        "y": 65.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 38,
+        "y": 10.5,
+        "w": 86.5,
+        "h": 104.5
+      },
+      "fps": 10,
+      "hiddenParts": [
+        "eye-r",
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-gaehnen-a",
+      "pose": "gaehnen",
+      "frame": "a",
+      "bridge": false,
+      "anchor": {
+        "x": 80,
+        "y": 65.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 38,
+        "y": 11,
+        "w": 87.5,
+        "h": 103
+      },
+      "fps": 4,
+      "hiddenParts": [
+        "eye-r",
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-gaehnen-b",
+      "pose": "gaehnen",
+      "frame": "b",
+      "bridge": false,
+      "anchor": {
+        "x": 80,
+        "y": 65.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 38,
+        "y": 14.5,
+        "w": 89,
+        "h": 99.5
+      },
+      "fps": 4,
+      "hiddenParts": [
+        "eye-r",
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-gaehnen-c",
+      "pose": "gaehnen",
+      "frame": "c",
+      "bridge": false,
+      "anchor": {
+        "x": 80,
+        "y": 65.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 37,
+        "y": 14.5,
+        "w": 90,
+        "h": 99.5
+      },
+      "fps": 4,
+      "hiddenParts": [
+        "eye-r",
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-wedeln-a",
+      "pose": "wedeln",
+      "frame": "a",
+      "bridge": false,
+      "anchor": {
+        "x": 80,
+        "y": 65.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 36,
+        "y": 10,
+        "w": 90,
+        "h": 105
+      },
+      "fps": 8,
+      "hiddenParts": [
+        "eye-r",
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-wedeln-b",
+      "pose": "wedeln",
+      "frame": "b",
+      "bridge": false,
+      "anchor": {
+        "x": 80,
+        "y": 65.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 41,
+        "y": 10,
+        "w": 85,
+        "h": 106
+      },
+      "fps": 8,
+      "hiddenParts": [
+        "eye-r",
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-wedeln-c",
+      "pose": "wedeln",
+      "frame": "c",
+      "bridge": false,
+      "anchor": {
+        "x": 80,
+        "y": 65.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 38,
+        "y": 10,
+        "w": 88,
+        "h": 104
+      },
+      "fps": 8,
+      "hiddenParts": [
+        "eye-r",
+        "leg-hr"
+      ]
+    },
+    {
+      "id": "coco-verbeugung-a",
+      "pose": "verbeugung",
+      "frame": "a",
+      "bridge": false,
+      "anchor": {
+        "x": 89.5,
+        "y": 66.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 28,
+        "y": 36,
+        "w": 117.5,
+        "h": 72.2
+      },
+      "fps": 6,
+      "hiddenParts": [
+        "eye-r"
+      ]
+    },
+    {
+      "id": "coco-verbeugung-b",
+      "pose": "verbeugung",
+      "frame": "b",
+      "bridge": false,
+      "anchor": {
+        "x": 89.5,
+        "y": 65.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 37,
+        "y": 38,
+        "w": 108.5,
+        "h": 68.2
+      },
+      "fps": 6,
+      "hiddenParts": [
+        "eye-r"
+      ]
+    },
+    {
+      "id": "coco-verbeugung-c",
+      "pose": "verbeugung",
+      "frame": "c",
+      "bridge": false,
+      "anchor": {
+        "x": 89.5,
+        "y": 67.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 34,
+        "y": 40,
+        "w": 111,
+        "h": 69.7
+      },
+      "fps": 6,
+      "hiddenParts": [
+        "eye-r"
+      ]
+    },
+    {
+      "id": "coco-schuetteln-a",
+      "pose": "schuetteln",
+      "frame": "a",
+      "bridge": false,
+      "anchor": {
+        "x": 91.5,
+        "y": 65
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 32,
+        "y": 23.5,
+        "w": 110,
+        "h": 94.5
+      },
+      "fps": 12,
+      "hiddenParts": [
+        "eye-r"
+      ]
+    },
+    {
+      "id": "coco-schuetteln-b",
+      "pose": "schuetteln",
+      "frame": "b",
+      "bridge": false,
+      "anchor": {
+        "x": 86.5,
+        "y": 63
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 21,
+        "y": 24,
+        "w": 122.5,
+        "h": 90
+      },
+      "fps": 12,
+      "hiddenParts": [
+        "eye-r"
+      ]
+    },
+    {
+      "id": "coco-schuetteln-c",
+      "pose": "schuetteln",
+      "frame": "c",
+      "bridge": false,
+      "anchor": {
+        "x": 90,
+        "y": 64.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 32,
+        "y": 25.5,
+        "w": 110,
+        "h": 91.5
+      },
+      "fps": 12,
+      "hiddenParts": [
+        "eye-r"
+      ]
+    },
+    {
+      "id": "coco-freude-a",
+      "pose": "freude",
+      "frame": "a",
+      "bridge": false,
+      "anchor": {
+        "x": 88.5,
+        "y": 47.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 35,
+        "y": 17.5,
+        "w": 111,
+        "h": 85.5
+      },
+      "fps": 8,
+      "hiddenParts": [
+        "eye-r"
+      ]
+    },
+    {
+      "id": "coco-freude-b",
+      "pose": "freude",
+      "frame": "b",
+      "bridge": false,
+      "anchor": {
+        "x": 88.5,
+        "y": 39.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 59,
+        "y": 9.5,
+        "w": 61,
+        "h": 85.5
+      },
+      "fps": 8,
+      "hiddenParts": [
+        "eye-r"
+      ]
+    },
+    {
+      "id": "coco-freude-c",
+      "pose": "freude",
+      "frame": "c",
+      "bridge": false,
+      "anchor": {
+        "x": 88.5,
+        "y": 49.5
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 31,
+        "y": 19.5,
+        "w": 113,
+        "h": 85.5
+      },
+      "fps": 8,
+      "hiddenParts": [
+        "eye-r"
+      ]
+    },
+    {
+      "id": "coco-liegen-a",
+      "pose": "liegen",
+      "frame": "a",
+      "bridge": false,
+      "anchor": {
+        "x": 60,
+        "y": 110
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 20,
+        "y": 57,
+        "w": 128,
+        "h": 58
+      },
+      "fps": 5,
+      "hiddenParts": [
+        "eye-r",
+        "ring"
+      ]
+    },
+    {
+      "id": "coco-liegen-b",
+      "pose": "liegen",
+      "frame": "b",
+      "bridge": false,
+      "anchor": {
+        "x": 60,
+        "y": 110
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 20,
+        "y": 57,
+        "w": 128.5,
+        "h": 58
+      },
+      "fps": 5,
+      "hiddenParts": [
+        "eye-r",
+        "ring"
+      ]
+    },
+    {
+      "id": "coco-liegen-c",
+      "pose": "liegen",
+      "frame": "c",
+      "bridge": false,
+      "anchor": {
+        "x": 60,
+        "y": 110
+      },
+      "groundY": 112,
+      "bbox": {
+        "x": 21,
+        "y": 56,
+        "w": 127,
+        "h": 59.5
+      },
+      "fps": 5,
+      "hiddenParts": [
+        "eye-r",
+        "ring"
+      ]
+    }
+  ]
+}

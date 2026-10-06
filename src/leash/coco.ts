@@ -4,6 +4,7 @@ import {
   COCO_SPRITE_HREF,
   COCO_VIEWBOX,
   cocoHref,
+  makeGroup,
   poseSymbol,
   type CocoBridge,
   type CocoSize,
@@ -47,6 +48,8 @@ export const DWELL: Readonly<
   'planet-claire': { after: 1200, pose: 'kopfschief', hold: 3000 },
   textil: { after: 1500, pose: 'kopfschief' },
 }
+/** Zusatz-Chunk (Warte-Aktionen) lädt erst so lange nach dem Einhängen – nie vor dem ersten Bild (P12.4). */
+export const EXTRA_DELAY_MS = 3500
 export const BOIL = { afterActivity: 1500, afterPose: 2000, maxWithoutAction: 5000 } as const
 
 /** Brücken zwischen zwei Posen (§10.3); `null` = direkter Schnitt mit Stauchung. */
@@ -104,7 +107,30 @@ export interface CocoFollow {
   gutter: [number, number, number] | null
 }
 
+/**
+ * Haken für die nachgeladenen Zusatz-Aktionen (`cocoExtra.ts`, P12.4): Posen-Gruppen, Anzeige, Boil, Ruhe-Meldung.
+ * Klein gehalten – die Aktionen selbst liegen im nachgeladenen Chunk, nicht in der Engine (Budget §9.10).
+ */
+/** Kurznamen (Eigenschaften werden nicht verkürzt, Budget §9.10): g Gruppen · a Anker · s zeigen · b Boil · t Ruhe-Meldung · r reduziert · p Abbruch · o Abbau. */
+export interface CocoHooks {
+  g: Map<string, Element>
+  /** D-Ring der Zusatz-Posen (die Haupt-Anker stehen in `cocoSprite.ts`). */
+  a: Record<string, [number, number]>
+  s(key: string): void
+  /** Boil ohne Budget-Nachlauf ein-/ausschalten (die Aktion bestimmt die Dauer, ≤ 5 s). */
+  b(on: boolean): void
+  /** Nach jedem abgeschlossenen Posenwechsel; `null` = Bewegung/Abbruch. */
+  t: ((pose: SpritePose | null) => void) | null
+  /** Reduzierte Bewegung aktiv: keine Aktionen. */
+  r: boolean
+  /** Bricht eine laufende Aktion ab (Posenwechsel, reduzierte Bewegung, Abbau). */
+  p: (() => void) | null
+  /** Beim Abbau: Ereignis-Abos der Zusatz-Aktionen lösen. */
+  o: (() => void) | null
+}
+
 export interface CocoController {
+  readonly x: CocoHooks
   readonly el: HTMLElement
   /** Aktuell gezeigte Pose. */
   pose(): SpritePose
@@ -161,31 +187,13 @@ const groupIds = (key: string): string[] =>
     ? COCO_FRAMES.map(() => `coco-${key}`)
     : COCO_FRAMES.map((f) => poseSymbol(key as SpritePose, f))
 
-/**
- * Alle Posen und Brücken als vorab angelegte Gruppen (`<g class="cg">` mit drei `<use>`); sichtbar ist nur die Gruppe
- * mit `data-on`. Ein Posenwechsel schaltet nur dieses Attribut um – ein neues `href` würde den Schatten-Baum des
- * `<use>` neu aufbauen und je Wechsel ein Layout auslösen (KUNST-QA PF-05).
- */
 function buildGroups(el: HTMLElement, href: string, shown: string): Map<string, Element> {
   const svg = el.querySelector('svg')
   const groups = new Map<string, Element>()
   if (!svg) return groups
-  const doc = el.ownerDocument
   const existing = Array.from(svg.querySelectorAll('use'))
-  for (const key of Object.keys(COCO_ANCHORS)) {
-    const g = doc.createElementNS(SVG_NS, 'g')
-    g.setAttribute('class', 'cg')
-    const ids = groupIds(key)
-    COCO_FRAMES.forEach((f, i) => {
-      const use = key === shown && existing[i] ? existing[i] : doc.createElementNS(SVG_NS, 'use')
-      use.setAttribute('class', `f f-${f}`)
-      use.setAttribute('href', cocoHref(ids[i]!, href))
-      use.removeAttribute('data-href')
-      g.appendChild(use)
-    })
-    groups.set(key, g)
-    svg.appendChild(g)
-  }
+  for (const key of Object.keys(COCO_ANCHORS))
+    groups.set(key, makeGroup(svg, groupIds(key), href, key === shown ? existing : []))
   for (const u of existing) if (u.parentNode === svg) u.remove()
   groups.get(shown)?.setAttribute('data-on', '')
   return groups
@@ -196,6 +204,8 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
   const href = options.href ?? COCO_SPRITE_HREF
   const groups = buildGroups(el, href, options.pose)
   let on: Element | null = groups.get(options.pose) ?? null
+  let curKey: string = options.pose
+  let placed: Parameters<CocoController['place']> | null = null
   const hop = el.querySelector<HTMLElement>('.coco__hop')
   let motion: Motion = options.motion ?? 'full'
   let shown: SpritePose = options.pose
@@ -207,6 +217,7 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
   let stepTimer: ReturnType<typeof setTimeout> | null = null
   let boilTimer: ReturnType<typeof setTimeout> | null = null
   let squashTimer: ReturnType<typeof setTimeout> | null = null
+  let extraTimer: ReturnType<typeof setTimeout> | null = null
   let destroyed = false
   // Choreografie (`follow`)
   let restTimer: ReturnType<typeof setTimeout> | null = null
@@ -243,7 +254,9 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
       next?.setAttribute('data-on', '')
       on = next
     }
-    el.setAttribute('data-pose', pose)
+    el.setAttribute('data-pose', (curKey = pose))
+    // Anker der neuen Pose (Zusatz-Posen haben eigene): Leinenspitze bleibt am D-Ring, auch ohne Scroll-Frame
+    if (placed) place(...placed)
   }
 
   function setBoil(on: boolean) {
@@ -292,6 +305,7 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     }
     options.onPose?.({ t: now(), from, to: shown, bridge: used?.join('+') || null })
     boil(BOIL.afterPose)
+    hk.t?.(shown)
   }
 
   function step(
@@ -322,6 +336,13 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
   }
 
   boil(BOIL.afterPose) // Seiteneintritt
+  // Warte-Aktionen und neue Posen (U-03/U-04): eigener Chunk + eigene Sprite-Datei, erst im Leerlauf (nicht in der
+  // Vorschau-Datei, dort ohne `href`/Server)
+  if (!options.href)
+    extraTimer = setTimeout(() => {
+      if (!destroyed && motion === 'full')
+        void import('./cocoExtra').then((m) => !destroyed && m.attachExtra(api))
+    }, EXTRA_DELAY_MS)
 
   /** D-Ring an (x, y); die Box rutscht aus dem Text, wenn die Leinenspitze nahe der Rinne liegt (LG-01). */
   function place(
@@ -330,8 +351,8 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     direction: 1 | -1 = 1,
     gutter?: [number, number, number] | null,
   ) {
-    const key = bridge ? `bridge-${bridge}` : shown
-    const [ax, ay] = COCO_ANCHORS[key] ?? COCO_ANCHORS[shown] ?? [80, 60]
+    placed = [x, y, direction, gutter]
+    const [ax, ay] = hk.a[curKey] ?? COCO_ANCHORS[curKey] ?? COCO_ANCHORS[shown] ?? [80, 60]
     const s = width / COCO_VIEWBOX.w
     let tx = x
     if (gutter) {
@@ -343,12 +364,29 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     el.style.transform = `translate(${tx.toFixed(1)}px,${y.toFixed(1)}px) scaleX(${direction}) translate(${(-ax * s).toFixed(1)}px,${(-ay * s).toFixed(1)}px)`
   }
 
+  const hk: CocoHooks = {
+    g: groups,
+    a: {},
+    s: show,
+    b(v) {
+      boilTimer = clear(boilTimer)
+      setBoil(v)
+    },
+    t: null,
+    r: motion === 'reduced',
+    p: null,
+    o: null,
+  }
+
   const api: CocoController = {
+    x: hk,
     el,
     pose: () => shown,
     boiling: () => el.getAttribute('data-boil') === 'on',
     setPose(pose) {
       if (destroyed || pose === target) return
+      hk.p?.()
+      hk.t?.(null)
       target = pose
       if (motion === 'reduced') {
         const from = shown
@@ -437,7 +475,9 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     setMotion(next, restPose) {
       if (destroyed) return
       motion = next
+      hk.r = next === 'reduced'
       if (next === 'reduced') {
+        hk.p?.()
         stepTimer = clear(stepTimer)
         boilTimer = clear(boilTimer)
         squashTimer = clear(squashTimer)
@@ -455,6 +495,10 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     },
     destroy() {
       destroyed = true
+      extraTimer = clear(extraTimer)
+      hk.p?.()
+      hk.o?.()
+      hk.t = null
       restTimer = clear(restTimer)
       dwellTimer = clear(dwellTimer)
       jumpTimer = clear(jumpTimer)

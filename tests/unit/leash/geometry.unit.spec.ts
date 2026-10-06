@@ -212,7 +212,7 @@ describe('leash/presets', () => {
     expect(isScrollCoupled('journey')).toBe(true)
     expect(isScrollCoupled('margin')).toBe(true)
     expect(isScrollCoupled('lost')).toBe(false)
-    expect(PRESET_CONFIG.journey.gutter).toEqual({ mobile: 44, desktop: 64 })
+    expect(PRESET_CONFIG.journey.gutter).toEqual({ mobile: 56, desktop: 88 })
     expect(PRESET_CONFIG.legal.gutter).toEqual({ mobile: 16, desktop: 24 })
   })
 })

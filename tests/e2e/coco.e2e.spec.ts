@@ -58,11 +58,11 @@ test.describe('Coco', () => {
         el.getBoundingClientRect().height,
       ])
     const before = await size()
-    expect(before[0]).toBe(56)
+    expect(before[0]).toBe(70)
     release()
     await page.waitForResponse((r) => r.url().endsWith(SPRITE))
     await page.waitForTimeout(500)
-    expect((await size())[0]).toBe(56)
+    expect((await size())[0]).toBe(70)
     expect(
       await leashCoco(page).evaluate((el: HTMLElement) => el.offsetHeight),
     ).toBeGreaterThanOrEqual(31)

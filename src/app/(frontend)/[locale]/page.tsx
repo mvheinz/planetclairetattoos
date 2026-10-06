@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import React from 'react'
 
+import { ChairwomanKoko } from '@/components/home/ChairwomanKoko'
 import { HomeStation } from '@/components/home/HomeStation'
 import styles from '@/components/home/Home.module.css'
 import { PlanetMark } from '@/components/home/SpaceMarks'
@@ -78,28 +79,34 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           __html: serializeJsonLd(organizationJsonLd(instagramUrl(nav.instagramHandle))),
         }}
       />
-      <header className={styles.hero} data-home-hero="">
-        <h1 className={styles.title}>
-          <Station
-            id="planet-claire"
-            as="span"
-            pose="sitzen"
-            loop="orbit"
-            className={styles.planet}
-          >
-            <PlanetMark />
-          </Station>
-          <span>{name}</span>
-        </h1>
-        {home?.hero ? (
-          <>
-            <p className={styles.lede}>{home.hero.heading}</p>
-            {home.hero.subheading ? <p className={styles.intro}>{home.hero.subheading}</p> : null}
-          </>
-        ) : (
-          <p className={styles.lede}>{t('intro')}</p>
-        )}
-      </header>
+      <div className={styles.heroRow}>
+        <header className={styles.hero} data-home-hero="">
+          <h1 className={styles.title}>
+            <Station
+              id="planet-claire"
+              as="span"
+              pose="sitzen"
+              loop="orbit"
+              className={styles.planet}
+            >
+              <PlanetMark />
+            </Station>
+            <span>{name}</span>
+          </h1>
+          {home?.hero ? (
+            <>
+              <p className={styles.lede}>{home.hero.heading}</p>
+              {home.hero.subheading ? <p className={styles.intro}>{home.hero.subheading}</p> : null}
+            </>
+          ) : (
+            <p className={styles.lede}>{t('intro')}</p>
+          )}
+        </header>
+        {/* rechte Spalte: Koko (U-08); der Platz `data-slot="chairwoman"` nimmt später auch „on Tour“ (U-20) darunter auf */}
+        <aside className={styles.heroSide} data-slot="chairwoman">
+          <ChairwomanKoko locale={locale} />
+        </aside>
+      </div>
 
       {home && home.stations.length > 0 ? (
         // Stationen als statisches HTML (nicht hydriert, Lighthouse-TBT P7): reines Server-Markup, Bilder alle

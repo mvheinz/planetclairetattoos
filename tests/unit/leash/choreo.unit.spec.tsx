@@ -218,11 +218,11 @@ describe('Blickrichtung und Rinne', () => {
   })
 
   it('LG-01 die Box ragt nicht aus der Rinne in den Text (Spitze in der Rinne)', () => {
-    // D-Ring von `sitzen` liegt bei ≈ 49 % der Breite → Box [x − 20,5 , x + 21,5]; Rinne 0…44
+    // D-Ring von `sitzen` (Seitenansicht, P12.4) liegt bei 50 % der Breite; der Hund reicht bis 0,9 der Box → Rinne 0…44
     coco.follow(state({ moving: false, x: 38, y: 100, gutter: [0, 44, 40] }))
     const m = /translate\(([-\d.]+)px,/.exec(el.style.transform)
     const shift = 38 - Number(m![1])
-    expect(shift).toBeGreaterThan(14) // 38 + 21,5 = 59,5 → auf ≤ 43 zurück
+    expect(shift).toBeGreaterThan(10) // Box ragt über die Rinne → auf ≤ 43 zurück
     // weit außerhalb der Rinne (Lasso, Schlaufen): keine Verschiebung
     coco.follow(state({ moving: false, x: 200, y: 100, gutter: [0, 44, 40] }))
     expect(Number(/translate\(([-\d.]+)px,/.exec(el.style.transform)![1])).toBeCloseTo(200, 0)
