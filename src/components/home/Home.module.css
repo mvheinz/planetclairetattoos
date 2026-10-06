@@ -194,6 +194,44 @@
   height: 100%;
 }
 
+/* Fitness-Coco (P12.5): Standbild/Schleife in der 4:5-Box; Tusche schwarz, Buntstift orange mit Papierkörnung */
+.fitness {
+  aspect-ratio: 4 / 5;
+  width: 100%;
+  color: var(--ink);
+}
+
+.fitness svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.fitnessInk {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.7px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.fitnessPencil {
+  fill: none;
+  stroke: #d9822b;
+  stroke-width: 1.3px;
+  stroke-linecap: round;
+  stroke-dasharray: 6px 1.5px 3px 2px 8px 1px; /* unregelmäßig unterbrochen = Papierkörnung */
+  opacity: 0.85;
+  vector-effect: non-scaling-stroke;
+}
+
+@media (forced-colors: active) {
+  .fitnessPencil {
+    stroke: CanvasText;
+  }
+}
+
 .artCoco {
   display: flex;
   align-items: flex-end;

@@ -59,6 +59,11 @@
       "gzipMax": 4000
     },
     {
+      "name": "Mikro-Interaktionen Startseite (fitness-coco, P12.5)",
+      "entries": ["src/behaviors/fitness-coco.ts"],
+      "gzipMax": 4000
+    },
+    {
       "name": "Mikro-Interaktionen Live-Zustand und Korb (product-status, add-to-cart)",
       "entries": ["src/behaviors/product-status.ts", "src/behaviors/add-to-cart.ts"],
       "gzipMax": 4000

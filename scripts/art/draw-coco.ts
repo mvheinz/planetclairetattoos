@@ -67,7 +67,7 @@ export const EXTRA_POSES = [
 ] as const
 export const BRIDGES = ['bremsen', 'abspringen', 'einrollen-1', 'einrollen-2'] as const
 
-interface Stroke {
+export interface Stroke {
   layer: Layer
   part: Part
   pts: P[]
@@ -107,7 +107,7 @@ export function apply(t: Tf, [px, py]: P): P {
   return [t.x + x * Math.cos(a) - y * Math.sin(a), t.y + x * Math.sin(a) + y * Math.cos(a)]
 }
 const map = (t: Tf, pts: P[]): P[] => pts.map((p) => apply(t, p))
-const rotAround = (pts: P[], c: P, deg: number): P[] =>
+export const rotAround = (pts: P[], c: P, deg: number): P[] =>
   map(
     { x: c[0], y: c[1], rot: deg },
     pts.map(([x, y]) => [x - c[0], y - c[1]]),
@@ -163,7 +163,7 @@ function balanceEars(
 }
 
 /** Kleiner unruhiger Klecks (Nase, Pupille, Ballen) – nie ein perfekter Kreis. */
-function blob(c: P, rx: number, ry: number, tilt = 0, n = 6, bump = 0.08): P[] {
+export function blob(c: P, rx: number, ry: number, tilt = 0, n = 6, bump = 0.08): P[] {
   return Array.from({ length: n }, (_, i) => {
     const a = (i / n) * 2 * Math.PI + 0.3
     const k = 1 + bump * Math.sin(a * 3 + 1.1)
@@ -175,7 +175,7 @@ function blob(c: P, rx: number, ry: number, tilt = 0, n = 6, bump = 0.08): P[] {
  * Dünnes Bein als Gelenkkette ab `pivot` (Winkel je Segment in Grad aus der Senkrechten, + = in Blickrichtung `face`),
  * gezeichnet als offene U-Form: hintere Kante hinunter, kleine Pfote nach vorn, vordere Kante hinauf (oben offen).
  */
-function leg(pivot: P, segs: [number, number][], face: 1 | -1, w = 2.2, paw = 2.2): P[] {
+export function leg(pivot: P, segs: [number, number][], face: 1 | -1, w = 2.2, paw = 2.2): P[] {
   const joints: P[] = [pivot]
   let p = pivot
   for (const [l, a] of segs) {
@@ -205,7 +205,7 @@ function leg(pivot: P, segs: [number, number][], face: 1 | -1, w = 2.2, paw = 2.
 }
 
 /** Fernes Bein als ein Strich: Gelenkkette mit kleinem Pfotenhaken nach vorn. */
-function legLine(pivot: P, segs: [number, number][], face: 1 | -1): P[] {
+export function legLine(pivot: P, segs: [number, number][], face: 1 | -1): P[] {
   const joints: P[] = [pivot]
   let p = pivot
   for (const [l, a] of segs) {
@@ -230,7 +230,7 @@ function legEnd(pivot: P, segs: [number, number][], face: 1 | -1): { e: P; d: P 
 }
 
 /** Schwanz: sich verjüngender, an der Spitze offener Umriss entlang der Mittellinie `c` (Wurzelbreite `w0`). */
-function tailOutline(c: P[], w0: number): { line: P[]; fill: P[] } {
+export function tailOutline(c: P[], w0: number): { line: P[]; fill: P[] } {
   const a: P[] = []
   const b: P[] = []
   c.forEach((p, i) => {
@@ -273,7 +273,7 @@ const EAR_H = 26
  * Ohr (lokal, Basis bei `base`), Höhe `h`: groß und aufrecht mit breiter Basis und leicht gerundeter Spitze – so wie auf
  * Juttas Coco-Fotos (`content/seed/coco/`, 04.10.2026: Profil sitzend, frontal nah, stehend mit Schulterblick).
  */
-function earPts(h: number, lean: number): P[] {
+export function earPts(h: number, lean: number): P[] {
   // breite Basis (≈ 0,45 K), Außenkante bauchig, Spitze leicht gerundet
   const pts: P[] = [
     [-11.5, 1.5],
@@ -293,7 +293,7 @@ function earPts(h: number, lean: number): P[] {
  * Knickohr (U-07): breite Basis, die Spitze knickt im oberen Drittel nach vorn-unten ab (Juttas Coco: das rechte Ohr
  * steht nie ganz gerade). Liefert Außenkante mit Knick und die kurze Innenkante zur Basis.
  */
-function knickEarPts(h: number, lean: number): { outer: P[]; inner: P[] } {
+export function knickEarPts(h: number, lean: number): { outer: P[]; inner: P[] } {
   const outer: P[] = [
     [-11.5, 1.5],
     [-13.4, -0.3 * h],
@@ -1816,7 +1816,7 @@ function curl(awake: boolean): Figure {
 
 // ---------- Handmerkmale und Pfade ----------
 
-function mulberry32(seed: number): () => number {
+export function mulberry32(seed: number): () => number {
   let a = seed >>> 0
   return () => {
     a = (a + 0x6d2b79f5) >>> 0
@@ -1828,7 +1828,7 @@ function mulberry32(seed: number): () => number {
 }
 
 /** Neu nachgezeichnet: jeder Punkt um 0,5–1,5 Einheiten (× Faktor) in eine zufällige Richtung versetzt. */
-function retrace(pts: P[], rand: () => number, k: number): P[] {
+export function retrace(pts: P[], rand: () => number, k: number): P[] {
   return pts.map(([x, y]) => {
     const a = rand() * 2 * Math.PI
     const r = (0.5 + rand()) * k * 0.62

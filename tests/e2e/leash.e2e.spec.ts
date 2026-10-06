@@ -61,8 +61,8 @@ test.describe('Tuschelinie-Laufzeit', () => {
     await page.goto('/de')
     await waitForLeash(page)
     await ensureScrollable(page)
-    // Intro (journey, MI-10) abwarten
-    await page.waitForTimeout(1200)
+    // Intro (journey, MI-10; U-06: 1800 ms) abwarten
+    await page.waitForTimeout(2200)
 
     await expect(layer(page)).toHaveAttribute('aria-hidden', 'true')
     const focusables = await layer(page)
