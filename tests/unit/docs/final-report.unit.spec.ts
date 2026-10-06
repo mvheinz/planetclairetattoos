@@ -15,10 +15,8 @@ const next = rest.indexOf('\n## ', 4)
 const report = next === -1 ? rest : rest.slice(0, next)
 
 describe('Abschlussbericht (P10.22)', () => {
-  it('ist vorhanden und der neueste Eintrag', () => {
+  it('ist vorhanden (spätere Phasen, z. B. P12, dürfen darüber neue Einträge anlegen)', () => {
     expect(start).toBeGreaterThan(0)
-    const firstHeading = progress.match(/^## .+$/m)?.[0] ?? ''
-    expect(firstHeading).toContain('P10 Abschlussbericht')
   })
 
   it('enthält den Release-Link vorschau-p10', () => {
