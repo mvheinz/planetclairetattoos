@@ -1,12 +1,11 @@
-import type { Access, CollectionBeforeChangeHook, CollectionConfig, Where } from 'payload'
+import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
 
-import { isAdmin, isAdminRequest, NOT_SEED } from '@/access'
+import { isAdmin, publicRead } from '@/access'
 import { seedField } from '@/fields'
 import { revalidateContent } from '@/lib/cache/revalidate'
 import { TAGS } from '@/lib/cache/tags'
 import { ENUM_LABELS, enumOptions } from '@/lib/enumLabels'
 import { TOUR_STATUSES } from '@/lib/enums'
-import { seedPreviewModeActive } from '@/lib/env'
 import { registerMediaReference } from '@/lib/media/references'
 import { getAppContext } from '@/lib/payload/context'
 import { preservingReq } from '@/lib/payload/localReq'
@@ -35,14 +34,6 @@ registerMediaReference({
 
 const ADDRESS_MESSAGE =
   'Das ist die Adresse des Privatstudios. Bitte nur die Adresse des Marktes angeben (E-50).'
-
-/** Öffentlich: veröffentlichte Termine plus Seed-Filter (vergangene bleiben lesbar, sie stehen eingeklappt). */
-export const readTourDates: Access = ({ req }) => {
-  if (isAdminRequest(req)) return true
-  const clauses: Where[] = [{ published: { equals: true } }]
-  if (!seedPreviewModeActive()) clauses.push(NOT_SEED)
-  return { and: clauses }
-}
 
 const len =
   (min: number, max: number) =>
@@ -101,7 +92,8 @@ export const TourDates: CollectionConfig = {
       'Märkte, Flohmärkte und Kunstmärkte („Planet Claire on Tour“, rechte Spalte der Startseite). Vergangene Termine stehen eingeklappt.',
   },
   access: {
-    read: readTourDates,
+    // öffentlich: veröffentlichte Termine (auch vergangene – sie stehen eingeklappt), Seed-Filter wie bei allen Beispielen
+    read: publicRead({ published: { equals: true } }),
     create: isAdmin,
     update: isAdmin,
     delete: isAdmin,

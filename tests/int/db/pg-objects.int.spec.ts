@@ -2,6 +2,7 @@ import pg from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { CENT_COLUMNS, down, up } from '@/migrations/20260927_145135_p1_constraints'
+import * as p12 from '@/migrations/20261006_191836_p12_tour_dates_constraints'
 import * as p6 from '@/migrations/20261002_020601_p6_legal_snippets_complaints_constraints'
 
 // P1.26 (T-14, DM-P1-02): Alle eigenen Postgres-Objekte aus DATENMODELL §9 existieren – geprüft über die Kataloge
@@ -28,7 +29,6 @@ const CHECKS: [table: string, name: string][] = [
   ['invoices', 'invoices_credit_note_has_parent'],
   ['flash', 'flash_repeatable_available'],
   ['revenue_entries', 'revenue_entries_non_negative'],
-  ['tattoo_offers', 'tattoo_offers_dates'],
 ]
 
 const PARTIAL_INDEXES: [table: string, name: string, where: RegExp][] = [
@@ -45,6 +45,8 @@ const PARTIAL_INDEXES: [table: string, name: string, where: RegExp][] = [
 
 /** Indizes späterer Migrationen (nicht Teil von `p1_constraints`). */
 const LATER_INDEXES = ['legal_snippets_one_active_per_key', 'complaints_seed_key_unique']
+/** P12.8: Index und CHECK von `tour-dates` (eigene Migration `p12_tour_dates_constraints`). */
+const P12_INDEXES = ['tour_dates_seed_key_unique']
 
 let client: pg.Client
 
@@ -65,7 +67,7 @@ async function objectCounts() {
     `SELECT count(*) AS n FROM pg_indexes WHERE schemaname = 'public'
        AND (indexname = ANY($1) OR indexname LIKE '%\\_seed\\_key\\_unique')
        AND indexname <> ALL($2)`,
-    [PARTIAL_INDEXES.map((i) => i[1]), LATER_INDEXES],
+    [PARTIAL_INDEXES.map((i) => i[1]), [...LATER_INDEXES, ...P12_INDEXES]],
   )
   const [trg] = await rows<{ n: string }>(
     `SELECT count(*) AS n FROM pg_trigger WHERE tgname = 'invoices_guard' AND NOT tgisinternal`,
@@ -227,6 +229,53 @@ describe('Postgres-Objekte (DATENMODELL §9)', () => {
       expect(await count()).toBe(0)
       await p6.up({ db } as never)
       expect(await count()).toBe(2)
+    } finally {
+      await client.query('ROLLBACK')
+    }
+  })
+
+  it('T-14 p12_tour_dates_constraints: partieller UNIQUE-Index auf seed_key und CHECK „Ende nicht vor Beginn“; down/up', async () => {
+    const present = async () => ({
+      idx: Number(
+        (
+          await rows<{ n: string }>(
+            `SELECT count(*) AS n FROM pg_indexes WHERE schemaname = 'public' AND indexname = 'tour_dates_seed_key_unique'`,
+          )
+        )[0]!.n,
+      ),
+      chk: Number(
+        (
+          await rows<{ n: string }>(
+            `SELECT count(*) AS n FROM pg_constraint WHERE contype = 'c' AND conname = 'tour_dates_range'`,
+          )
+        )[0]!.n,
+      ),
+    })
+    expect(await present()).toEqual({ idx: 1, chk: 1 })
+    const db = {
+      execute: (q: unknown) => {
+        const chunks = (q as { queryChunks: { value?: string[] }[] }).queryChunks
+        return client.query(
+          chunks.map((c) => (Array.isArray(c.value) ? c.value.join('') : '')).join(''),
+        )
+      },
+    }
+    await client.query('BEGIN')
+    try {
+      await expect(
+        client.query(
+          `INSERT INTO tour_dates (starts_at, ends_at, status) VALUES ('2026-10-10', '2026-10-09', 'planned')`,
+        ),
+      ).rejects.toThrow(/tour_dates_range/)
+    } finally {
+      await client.query('ROLLBACK')
+    }
+    await client.query('BEGIN')
+    try {
+      await p12.down({ db } as never)
+      expect(await present()).toEqual({ idx: 0, chk: 0 })
+      await p12.up({ db } as never)
+      expect(await present()).toEqual({ idx: 1, chk: 1 })
     } finally {
       await client.query('ROLLBACK')
     }

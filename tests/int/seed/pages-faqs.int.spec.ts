@@ -148,7 +148,7 @@ describe('Seiten (SEED-SPEC §13)', () => {
     expect(plain(phases(aftercareEn)[0]!.content)).toMatch(/^I'll cover your tattoo with film/)
     const tattooEn = await page('tattoo', 'en')
     expect(tattooEn.title).toBe('Tattoo')
-    const steps = tattooEn.layout[5]!.steps as { title: string; text: string }[]
+    const steps = tattooEn.layout[4]!.steps as { title: string; text: string }[]
     expect(steps.map((s) => s.title)).toEqual([
       'Request',
       'Appointment',

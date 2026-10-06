@@ -45,6 +45,7 @@ import * as migration_20261003_065710_p8_media_owner_approved from './20261003_0
 import * as migration_20261006_180016_p12_remove_offers_cleanup from './20261006_180016_p12_remove_offers_cleanup';
 import * as migration_20261006_180017_p12_remove_offers from './20261006_180017_p12_remove_offers';
 import * as migration_20261006_183113_p12_tour_dates from './20261006_183113_p12_tour_dates';
+import * as migration_20261006_191836_p12_tour_dates_constraints from './20261006_191836_p12_tour_dates_constraints';
 
 export const migrations = [
   {
@@ -280,6 +281,11 @@ export const migrations = [
   {
     up: migration_20261006_183113_p12_tour_dates.up,
     down: migration_20261006_183113_p12_tour_dates.down,
-    name: '20261006_183113_p12_tour_dates'
+    name: '20261006_183113_p12_tour_dates',
+  },
+  {
+    up: migration_20261006_191836_p12_tour_dates_constraints.up,
+    down: migration_20261006_191836_p12_tour_dates_constraints.down,
+    name: '20261006_191836_p12_tour_dates_constraints'
   },
 ];
