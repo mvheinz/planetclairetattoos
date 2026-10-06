@@ -5501,6 +5501,82 @@ Nach dem Merge automatisch (ohne Checkbox; prüft P11.1):
   `verify-asset` grün (Gate G5, zweiter Teil; bei eigenem Merge mit `gh release view` geprüft).
 - Die Session hat angehalten; P11 wird nicht autonom begonnen.
 
+## P12 – Überarbeitung nach Juttas Rückmeldung (Oktober 2026)
+
+> Grundlage: `docs/UEBERARBEITUNG.md` (U-00 … U-30, verbindlich für P12; geht Fachdokumenten und E-xx vor). Jutta hat nach der
+> Vorschau `vorschau-p10` Änderungen verlangt. P12 steht **vor P11** (Go-live). Arbeitsweise: ohne Rückfragen, Selbst-Merge
+> (Squash) je Teilphase bei grüner CI, Phasenende-Commit `chore(P12.n): … [ci:full p12]`, **eine** neue HTML-Vorschau am Ende
+> (Release `vorschau-p12`). Alle Texte dauerhaft DE/EN (U-00). Engine-Budget 12 000 B gz und Tempo-Budgets (LCP ≤ 2,5 s,
+> CLS ≤ 0,1, TBT ≤ 200 ms) bleiben; wo ein Wunsch sie reißt, wird anders gelöst (Nachladen, Vereinfachung) – nicht gelockert.
+
+- [x] **P12.1 Planung und Verbindlichkeit** – `docs/UEBERARBEITUNG.md` und `content/art/jutta-skizzen/FITNESS-COCO.md` angelegt;
+  Notiz in `docs/ENTSCHEIDUNGEN.md` „Umsetzungsnotizen“ (verweist auf U-xx); `CLAUDE.md` nennt P12 und die dauerhafte
+  Zweisprachigkeits-Regel U-00; `bash scripts/cloud-setup.sh --plan-status` zeigt zusätzlich `OFFEN_P12=<n>`.
+  - Akzeptanz: Dateien committet; `--plan-status` zeigt OFFEN_P12 und nennt P12 als nächste Aufgabe, solange offen.
+- [ ] **P12.2 Schrift, Farben und Hintergrund** (U-10, U-11, U-12) – `@fontsource/spectral` (exakt gepinnt, selbst gehostet,
+  `font-display`/Fallback-Faces ohne Layout-Sprung), Mansalva samt Akzent-Stile entfernt; Tokens für hellolive Grundton und Petrol in
+  `docs/design/DESIGN.md` und `src/styles`; Scroll-Verlauf (Oliv → Petrol, `scroll-timeline`/IntersectionObserver-frei oder minimaler
+  rAF-Pfad, Budget!), statisch bei reduzierter Bewegung; Kontraste AA (A11Y, axe); Visuelle Referenzen neu.
+  - Akzeptanz: kein Mansalva mehr im Build/Netz; Fonts nur selbst gehostet (`check:external`); axe/Kontrast grün (EK-07);
+    LCP/CLS-Gates grün; Unit-Tests der Tokens.
+- [ ] **P12.3 Goth-Fotorahmen** (U-13) – Komponente für den viktorianischen Filigran-Rahmen (dünne Tuschelinie, SVG-Rahmen mit
+  festen Seitenverhältnissen, Ecken-Ornamente) für alle Foto-Kontexte; ersetzt Passepartout/Doppelrahmen; Leine bleibt wirksam.
+  - Akzeptanz: alle Foto-Stellen nutzen die Komponente (Test per Registry-Suche); CLS ≤ 0,1; SVG-Budget (PF-10) eingehalten;
+    Referenzen neu; Linsen-Prüfpunkt IM-04 dokumentiert.
+- [ ] **P12.4 Coco: Sitzpose, Warte-Aktionen, neue Posen, Größe, Tempo, Knickohr** (U-02 … U-07a) – Charakterblatt/Sprite
+  aktualisiert (Seiten-Sitzpose nach Fotos, Knickohr rechts immer), Warte-Aktionen gestaffelt, vier neue Posen (je ≥ 3 Frames),
+  Coco +25 %, Linien-Aufbau ≈ 2× langsamer, Leine in Raster-Seiten nur in der Rinne am Rand (Flash/Shop/Galerie); Engine
+  ≤ 12 000 B gz; Tests, `art:check`.
+  - Akzeptanz: Sprite/Posen-Tests (CO-xx) grün; E2E Raster-Seiten: Linie überdeckt nie Karten (LG-01); PF-02/04 grün;
+    Reduced-Motion-Standbilder; Knickohr-Test (Sprite-Geometrie).
+- [ ] **P12.5 Fitness-Coco** (U-09) – 7 Übungen + Liegen nach `FITNESS-COCO.md`, Endlosschleife, mit orangem Buntstift-Strich,
+  hand-gezeichnet gewirkt (12–24 Frames je Übung), nachgeladen nach dem ersten Bild, ersetzt die große sitzende Coco auf der
+  Startseite; Standbild bei reduzierter Bewegung; alt-Texte DE/EN.
+  - Akzeptanz: Startseite R01 zeigt keine alte Sitz-Coco mehr; Animation startet nach `load`; Datenbudget (PF-10) und LCP
+    eingehalten; Kunst-QA-Szenario aufgenommen.
+- [ ] **P12.6 Koko, Vorsitzende der Goth Dogs Berlin** (U-08) – freigestellt, sauber nachgezeichnet (ohne Knochenkreuz), Pupillen
+  wandern links↔rechts, Standbild bei reduzierter Bewegung; rechte Spalte oben der Startseite; mobil untereinander.
+  - Akzeptanz: Bild-Budget; Test: nur Pupillen animiert; `prefers-reduced-motion`; DE/EN alt-Text.
+- [ ] **P12.7 „Angebote“ und DM entfernen** (U-14, U-15) – Seite R13, Navigation, Verwaltungs-Reiter, Collection samt Daten
+  (Migration), Verweise/Sitemap/Tests/Handbuch bereinigt; alle DM-Erwähnungen weg; Anfrage nur per E-Mail; Instagram-Link nur im
+  Footer.
+  - Akzeptanz: Route `/tattoo/angebote` (und EN) liefert 404 bzw. ist nicht in der Registry; Volltextsuche im Repo nach „DM“/
+    „Direktnachricht“ in Texten leer; Migration läuft vorwärts auf frischer und auf gefüllter DB.
+- [ ] **P12.8 Planet Claire on Tour** (U-20) – Collection `tour-dates` (Migration, Zugriff, Hooks, Revalidierung), Verwaltung
+  („Termine“, Liste/Neu/Status), Startseite rechte Spalte unter Koko (kommende oben, vergangene einklappbar), Beispieltermine
+  `seed:true`, DE/EN, Handbuch-Kapitel.
+  - Akzeptanz: Int-/E2E-Tests (Anlegen in der Verwaltung → erscheint öffentlich); keine Karte/Drittanbieter; Seed/Entfernen
+    der Beispieldaten; Vorschau-Datei zeigt Termine.
+- [ ] **P12.9 Zweisprachigkeit prüfen und schließen** (U-00) – Parität aller Texte (Seiten, Beispieldaten, Fehler, E-Mails,
+  Verwaltung, Alt-Texte) DE/EN, eigenständig formuliert; Test auf fehlende/identische EN-Texte.
+  - Akzeptanz: Paritäts-Test grün; keine „lorem“/Platzhalter-EN; Stichprobe durch Prüf-Subagent.
+- [ ] **P12.10 Alle Texte neu** (U-21) – verträumt-philosophischer Ton, Ich-Form, Sachtexte poetisch gerahmt; Seiten, Stationen,
+  Shop, Tattoo, FAQ, Über mich, Leerzustände, Fehlerseiten, Beispieldaten; Pflichttexte und Button „Zahlungspflichtig bestellen“
+  unverändert; Verbotsliste/V-xx-Tests grün.
+  - Akzeptanz: Textinventur-Test (keine Reste alter Texte), V-Muster-Tests, Paritäts-Test; Lektorats-Subagent (frischer Kontext)
+    bewertet Ton/Fehler; `docs/design/…` Text-Leitfaden.
+- [ ] **P12.11 Rechtstexte und Schutz des geistigen Eigentums** (U-22) – Impressum, Datenschutz, AGB, Widerruf (+ Formular),
+  Versand/Zahlung, Speicher-Hinweis, Barrierefreiheit vollständig mit Platzhaltern; IP-Klauseln (Urheberrechtsvermerk/
+  Nutzungsbedingungen, Kaufklausel, KI/TDM-Vorbehalt mit `robots.txt`/`ai.txt`/Meta, Flash-Nachstech-Genehmigung) sichtbar im
+  Shop und als Verwaltungs-Bausteine; R-xxx-Nachweise nachgezogen.
+  - Akzeptanz: Legal-Tests (Platzhalter-Befüllung, Vollständigkeit der Pflichtangaben), `robots.txt`/`ai.txt`-Test,
+    Traceability grün; Eintrag in OFFENE-PUNKTE (Kanzlei-Prüfung P11).
+- [ ] **P12.12 Platzhalter-Gesichter, Seitenwechsel, Mikro-Animationen** (U-23) – Platzhalter (AR-05 ≥ 4), Coco wandert im Seitenwechsel
+  mit (MO-14), weitere Mikro-Animationen.
+  - Akzeptanz: `art:check` grün; Linsen-Noten laut P12.13.
+- [ ] **P12.13 Kunst-QA-Runde und Tempo-Gates** – vollständige Aufnahme + drei unabhängige Linsen (KUNST-QA §6) nach allen Änderungen,
+  `[ci:art]`-Lauf grün, `test:perf`/axe/E2E grün; Protokoll `docs/design/qa-log/`.
+  - Akzeptanz: Fall a, b oder c nach KUNST-QA §6.6 erreicht und dokumentiert; `art:check` 62/62 in CI.
+- [ ] **P12.14 Abschluss P12** – neue finale Vorschau (`vorschau-p12`: `.github/vorschau-release.json`/Release-Workflow), Abschlussbericht
+  für Jutta in `docs/FORTSCHRITT.md` (du-Form), OFFENE-PUNKTE aktuell, Handbuch/Go-live-Doku nachgezogen; `OFFEN_P12=0`.
+  - Akzeptanz: CI grün, Release-Probelauf, Bericht-Test; `--plan-status`: OFFEN_P1_P10=0 und OFFEN_P12=0.
+
+### Phasen-Abnahme
+
+- [ ] Alle Aufgaben P12.1–P12.14 abgehakt; CI grün (`ci.yml`, `ci-full.yml`, `preview-export.yml`, Kunst-QA, Restore-Drill, Release-Probelauf).
+- [ ] `bash scripts/cloud-setup.sh --plan-status` zeigt `OFFEN_P1_P10=0` und `OFFEN_P12=0`.
+- [ ] PR-Beschreibung aktualisiert; gemergt oder oben „Bitte mergen – CI ist grün“; Release `vorschau-p12` veröffentlicht.
+
 ## P11 – Go-live gemeinsam mit Jutta
 
 **Ziel:** Die Seite geht unter https://planetclairetattoos.com live – zusammen mit Jutta, in der Reihenfolge von

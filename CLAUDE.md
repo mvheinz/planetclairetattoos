@@ -139,3 +139,11 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## 10. Phase P12 – Überarbeitung nach Juttas Rückmeldung (06.10.2026)
+
+Nach P10 hat Jutta Änderungen verlangt. Sie stehen verbindlich in **`docs/UEBERARBEITUNG.md`** (U-00 … U-30, gehen
+Fachdokumenten und E-xx vor) und als Phase **P12** in `PLAN.md` (vor P11). **Dauerhafte Regel U-00: Die Seite ist komplett
+zweisprachig (DE/EN); auch wenn Jutta nur deutsche Texte liefert, schreibst du die englischen eigenständig im selben Ton mit.**
+Die Autonomie-Regeln (§2) gelten weiter; Selbst-Merge je Teilphase ist erlaubt (Squash, grüne CI).
+`bash scripts/cloud-setup.sh --plan-status` zeigt zusätzlich `OFFEN_P12=<n>`.

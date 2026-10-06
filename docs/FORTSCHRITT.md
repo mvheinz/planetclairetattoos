@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P12 gestartet: deine Änderungswünsche
+
+Danke für deine Rückmeldungen und die Zeichnungen! Ich habe alles in `docs/UEBERARBEITUNG.md` festgehalten und als eigene Phase P12 vor dem Go-live angelegt: neue Sitzpose und mehr Posen für Coco (Knickohr rechts), Fitness-Coco auf der Startseite, die Vorsitzende der Goth Dogs Berlin mit wandernden Pupillen, Schrift Spectral, Olivgrün mit Petrol und Scroll-Verlauf, Goth-Rahmen für alle Fotos, „Angebote“ und DM-Hinweise raus, „Planet Claire on Tour“, komplett neue Texte, vollständige Rechtstexte mit Schutz für deine Werke, und die ganze Seite dauerhaft auf Deutsch und Englisch. Am Ende bekommst du eine neue HTML-Vorschau. Deine Skizzenfotos der Fitness-Übungen konnte ich nur im Chat ansehen; ich habe sie beschrieben abgelegt. Wenn du magst, lädst du die Originale später in den Ordner `content/art/jutta-skizzen` hoch (Anleitung G4).
+
 ## 2026-10-06 – P10 CI grün
 
 Phasenlauf `238d9f6`: CI, CI full (sechs Browser-Hälften, Abdeckung, Docker, Lighthouse), Vorschau-Export, Kunst-QA, Restore-Drill und der Probelauf des Vorschau-Releases grün; zuvor schon `a912d25` grün (zwei Volläufe hintereinander ohne Wackler). Vorschau-Artefakt `planet-claire-vorschau-p10-238d9f6`. Plan P1–P10 abgehakt.
