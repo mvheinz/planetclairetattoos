@@ -4921,7 +4921,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: Unit-Test der Dauer-/Easing-Tabelle gegen DESIGN §11.3/§11.5; E2E-Teilmenge auf `/de/qa/motion`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.17 Tempo, Lesbarkeit und Barrierefreiheit feinschleifen** – Vollständige Aufnahme, dann alle automatischen
+- [x] **P9.17 Tempo, Lesbarkeit und Barrierefreiheit feinschleifen** – Vollständige Aufnahme, dann alle automatischen
   Kriterien aus KUNST-QA §5.5–§5.8 grün machen: LG-01…LG-04, PF-01…PF-12, A11Y-01…A11Y-07, CT-01…CT-03; JS- und
   SVG-Budgets (PF-09, PF-10; DESIGN §9.10). Engpässe nur bei verhandelbaren Punkten über die Vereinfachungsleiter
   (KUNST-QA §6.6 Nr. 5) lösen und dokumentieren.
@@ -4995,7 +4995,7 @@ KUNST-QA §0–§10 (vollständig).
   - Ohne Jutta: die drei Subagenten-Linsen ersetzen menschliche Prüfer. P11-Nacharbeit: Sichtprüfung durch Jutta auf
     echten Geräten (KUNST-QA §10 Nr. 4); bei Fall b oder c entscheidet Jutta über die offenen Punkte (P11.1).
 
-- [ ] **P9.19 Abschluss P9 und Übergabe** – KUNST-QA §10: End-Bündel als CI-Artefakt `art-qa-<lauf-id>` (30 Tage) –
+- [x] **P9.19 Abschluss P9 und Übergabe** – KUNST-QA §10: End-Bündel als CI-Artefakt `art-qa-<lauf-id>` (30 Tage) –
   stammt das PASS-Bündel schon aus `art-qa.yml`, ist es das End-Bündel; sonst `art-qa.yml` auf dem PASS-Stand
   auslösen – per Commit mit `[ci:art]` (nach dem PASS-Commit nur Doku- und Protokoll-Änderungen, notfalls ein leerer
   Commit), per Label `art` am PR mit einem Head-Commit ohne `[skip ci]` oder per `workflow_dispatch`, sobald
@@ -5023,24 +5023,24 @@ KUNST-QA §0–§10 (vollständig).
 
 ### Phasen-Abnahme
 
-- [ ] Alle Aufgaben P9.1–P9.19 (einschließlich P9.18a) abgehakt; KUNST-QA §0 „P9 ist fertig“ Nr. 1–4 erfüllt (Gate G4,
+- [x] Alle Aufgaben P9.1–P9.19 (einschließlich P9.18a) abgehakt; KUNST-QA §0 „P9 ist fertig“ Nr. 1–4 erfüllt (Gate G4,
   ARCHITEKTUR §7.9) – oder P9.18a endete nach Fall b bzw. c mit Vermerk, und die offenen Punkte stehen in OFFENE-PUNKTE
   (Fall c zusätzlich als Blocker oben im PR).
-- [ ] EK-12 belegt (PASS-Iteration im qa-log, bei Fall b/c der Abschlussvermerk); EK-01 (Lighthouse-CI) und EK-07 (axe)
+- [x] EK-12 belegt (PASS-Iteration im qa-log, bei Fall b/c der Abschlussvermerk); EK-01 (Lighthouse-CI) und EK-07 (axe)
   unverändert grün.
-- [ ] `pnpm check`, `pnpm test:int`, `pnpm build`, `pnpm test:e2e` lokal grün; `pnpm test:preview-export` lokal grün
+- [x] `pnpm check`, `pnpm test:int`, `pnpm build`, `pnpm test:e2e` lokal grün; `pnpm test:preview-export` lokal grün
   inklusive Linien- und Coco-Bewegung (KONZEPT §12.7 Nr. 5) und reduzierter Bewegung; Datei ≤ 40 MB.
-- [ ] `art-qa.yml` auf dem Endstand von P9.18a (PASS-Commit bzw. letzter Stand bei Fall b/c) grün (P9.19; danach nur
+- [x] `art-qa.yml` auf dem Endstand von P9.18a (PASS-Commit bzw. letzter Stand bei Fall b/c) grün (P9.19; danach nur
   Doku-, Bild- und Referenz-Commits); bei Fall c rot nur mit den im PR genannten Blockern.
-- [ ] R-001: `LEGAL_TRACE_PHASE = 9`.
-- [ ] Doku geprüft: alle `art:*`-Skripte stehen so in ARCHITEKTUR §6.10 und `package.json`; Anhang B/ADR (View
+- [x] R-001: `LEGAL_TRACE_PHASE = 9`.
+- [x] Doku geprüft: alle `art:*`-Skripte stehen so in ARCHITEKTUR §6.10 und `package.json`; Anhang B/ADR (View
   Transitions; GSAP nur falls per ADR eingeführt); DESIGN nur mit begründeter Änderung (z. B. DA-7 Proportionen);
   `.gitignore` enthält `artifacts/`.
-- [ ] `docs/FORTSCHRITT.md` (du-Form, Video-Link) und `docs/OFFENE-PUNKTE.md` aktualisiert.
-- [ ] CI grün: Phasenende-Commit `chore(P9): finish phase [ci:full p9]` → `ci.yml`, `ci-full.yml` und
+- [x] `docs/FORTSCHRITT.md` (du-Form, Video-Link) und `docs/OFFENE-PUNKTE.md` aktualisiert.
+- [x] CI grün: Phasenende-Commit `chore(P9): finish phase [ci:full p9]` → `ci.yml`, `ci-full.yml` und
   `preview-export.yml` grün, Vorschau-Artefakt `planet-claire-vorschau-p9-<sha7>` erzeugt. Dieses Häkchen setzt erst
   ein reiner Doku-Commit mit `[skip ci]`, nachdem der Lauf grün ist (ARCHITEKTUR §6.7).
-- [ ] PR-Beschreibung aktualisiert; gemergt oder oben „Bitte mergen – CI ist grün“.
+- [x] PR-Beschreibung aktualisiert; gemergt oder oben „Bitte mergen – CI ist grün“.
 
 ## P10 – Qualität, Startvorbereitung, finale Vorschau
 

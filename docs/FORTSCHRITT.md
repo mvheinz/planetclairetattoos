@@ -2,6 +2,10 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P9 CI grün
+
+Phasenlauf `d912802`: CI, CI full (sechs Browser-Hälften, Abdeckung, visuelle Prüfung, Lighthouse), Vorschau-Export und Kunst-QA grün. Vorschau-Artefakt `planet-claire-vorschau-p9-d912802`. P9.17 (Tempo/Barrierefreiheit: `art:check` 62/62, Lighthouse und axe in CI full) und P9.19 (Abschluss, Bündel `art-qa-20261006-iter01-b093408`) abgehakt; `LEGAL_TRACE_PHASE = 9`, `art:space`/`art:admin-icons` in ARCHITEKTUR §6.10 nachgetragen.
+
 ## 2026-10-06 – P9 CI-Reparatur (zwei Testfehler)
 
 Im Phasenlauf von P9 scheiterten zwei Tests, beides Testprobleme und keine Fehler auf der Seite: Eine Prüfung auf „__leash“ im Vorschau-Export traf versehentlich Klassennamen der QA-Seiten (jetzt wird nur der eigenständige Name geprüft, wie im Debug-Check), und ein Test für Cocos Sprite lief in CI knapp über sein Zeitlimit (jetzt 30 Sekunden). Der Phasenlauf startet erneut.
