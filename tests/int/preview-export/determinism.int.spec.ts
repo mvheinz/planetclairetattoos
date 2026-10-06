@@ -72,10 +72,12 @@ describe('pnpm preview:export – Determinismus und Inhalt (AK-A-14-01, AK-A-14-
         '/_next/',
         EXPORT_ORIGIN.replace('http://', ''),
         '__next_f',
-        '__leash',
         '/werkstatt',
       ])
         expect(html, `AK-A-14-02: ${needle}`).not.toContain(needle)
+      // Debug-Schnittstelle als eigener Bezeichner (wie `pnpm check:no-debug`) – nicht als Teil eines
+      // CSS-Modul-Klassennamens wie `qa-module__O2_KOq__leashPage`.
+      expect(html, 'AK-A-14-02: __leash').not.toMatch(/(?<![A-Za-z0-9_$])__leash(?![A-Za-z0-9_$])/)
       expect(externalResources(html)).toEqual([])
       expect(html).toContain('<meta name="robots" content="noindex, nofollow">')
       expect(html).toMatch(

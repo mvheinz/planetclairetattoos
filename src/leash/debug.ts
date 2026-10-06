@@ -144,11 +144,20 @@ export function createQa(win: Window = window): QaApi & { destroy(): void } {
   return qa
 }
 
+/**
+ * Nur der Frame-Logger `window.__qa` – auch ohne Linie (Seiten ohne Preset, `?leash=off` als Grundlinie der
+ * Tempo-Messung SC-18, KUNST-QA §4.6).
+ */
+export function exposeQa(win: Window = window): QaApi {
+  const w = win as DebugWindow
+  return w.__qa ?? (w.__qa = createQa(win))
+}
+
 /** Hängt `window.__leash` und `window.__qa` an den Griff der Linie; gibt die Abmeldung zurück. */
 export function exposeLeashDebug(handle: InspectableLeashHandle, win: Window = window): () => void {
   const w = win as DebugWindow
   // `__qa` überlebt Routenwechsel (Aufnahmen über mehrere Seiten); neu angelegt nur beim ersten Mal.
-  const qa = w.__qa ?? (w.__qa = createQa(win))
+  const qa = exposeQa(win)
   const probe: LeashProbe = {
     pose: (entry) => {
       qa.poseLog.push(entry)

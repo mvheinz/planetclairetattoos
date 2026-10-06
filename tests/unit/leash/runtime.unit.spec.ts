@@ -6,14 +6,19 @@ import { easeInkOut } from '@/leash/easing'
 import {
   FRAME_MEASURE_CAP,
   LEASH_MEASURES,
-  mountLeash,
+  mountLeash as mountStepwise,
   type InspectableLeashHandle,
+  type MountOptions,
 } from '@/leash/runtime'
 import { resetLeashSchedule, whenLeashReady } from '@/leash/schedule'
 
 import { installTracker, type Tracker } from '../behaviors/harness'
 
 // P2.16 Laufzeit der Tuschelinie unter jsdom (DESIGN §9.4, §9.6, §9.10, §9.12 AK-DS-18).
+
+/** Aufbau in einem Zug (die Idle-Teilstücke prüft ein eigener Test). */
+const mountLeash = (root: HTMLElement, o: MountOptions) =>
+  mountStepwise(root, { stepwise: false, ...o })
 
 const VIEW = { w: 390, h: 844 }
 const PAGE_H = 4000
@@ -98,7 +103,7 @@ afterEach(() => {
 const advance = (ms: number) => vi.advanceTimersByTime(ms)
 
 describe('leash/runtime – mountLeash', () => {
-  it('baut Segmente in Stufe A (Maske) und zeichnet beim Scrollen monoton (§9.4, §9.6)', () => {
+  it('baut Segmente in Stufe A (Strich-Stücke ohne Maske) und zeichnet beim Scrollen monoton (§9.4, §9.6)', () => {
     const root = setupDom()
     const handle = mountLeash(root, { preset: 'journey', routeKey: 'R01' })
     const state = handle.inspect()
@@ -106,8 +111,19 @@ describe('leash/runtime – mountLeash', () => {
     expect(state.geometry!.segments.length).toBeGreaterThan(0)
     const svgs = root.querySelectorAll('svg')
     expect(svgs.length).toBe(state.geometry!.segments.length)
-    expect(root.querySelectorAll('mask').length).toBe(svgs.length)
-    for (const svg of svgs) expect(svg.getAttribute('focusable')).toBe('false')
+    // PF-05: keine Masken (deren Änderung erzwingt je Frame ein Layout), je Stück ein runder Strich mit Dash
+    expect(root.querySelectorAll('mask, [mask]').length).toBe(0)
+    const strokes = state.geometry!.segments.reduce((n, g) => n + g.strokes!.length, 0)
+    // PF-05/PF-10: Dash-Muster und „verborgen“ am `<svg>` (vererbt), die Stücke tragen nur `d` und Breite
+    const all = [...root.querySelectorAll<SVGPathElement>('path')]
+    expect(all.length).toBe(strokes)
+    for (const p of all) {
+      expect(p.closest('svg')!.getAttribute('stroke-linecap')).toBe('round')
+      expect(p.closest('svg')!.getAttribute('stroke-dasharray')).toBe('2000 2000')
+      expect(p.hasAttribute('stroke-dasharray')).toBe(false)
+    }
+    // Lage inline, Rest aus global.css; die Ebene ist aria-hidden (PF-10)
+    for (const svg of svgs) expect(svg.style.left).toMatch(/px$/)
 
     // Intro (journey) von 0 bis zur Lesezeile in 900 ms
     expect(handle.inspect().drawnLen).toBe(0)
@@ -126,9 +142,11 @@ describe('leash/runtime – mountLeash', () => {
     advance(1000)
     expect(handle.inspect().cocoLen).toBeLessThan(down)
 
-    // Fertige Segmente verlieren die Maske, zukünftige sind unsichtbar
-    const ink = [...root.querySelectorAll<SVGPathElement>('path.ink')]
-    expect(ink.some((p) => !p.hasAttribute('mask'))).toBe(true)
+    // Gezeichnete Stücke ganz sichtbar (Versatz 0), höchstens eines anteilig, zukünftige Segmente unsichtbar
+    const ink = [...root.querySelectorAll<SVGPathElement>('path')]
+    const offsets = ink.map((p) => parseFloat(p.getAttribute('stroke-dashoffset') ?? 'NaN'))
+    expect(offsets.some((o) => o === 0)).toBe(true) // fertige Stücke
+    expect(offsets.filter((o) => o > 0 && o < 2000).length).toBeLessThanOrEqual(1) // höchstens eines anteilig
     expect([...svgs].some((s) => (s as SVGSVGElement).style.visibility === 'hidden')).toBe(true)
 
     setScroll(PAGE_H + 400 - VIEW.h)
@@ -214,6 +232,53 @@ describe('leash/runtime – mountLeash', () => {
     handle.destroy()
   })
 
+  it('PF-04: erster Aufbau in Idle-Teilstücken, jedes mit eigener leash:build-Messung; whenBuilt danach', () => {
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number
+      cancelIdleCallback?: (id: number) => void
+    }
+    w.requestIdleCallback = (cb) => setTimeout(cb, 1) as unknown as number
+    w.cancelIdleCallback = (id) => clearTimeout(id)
+    const measure = vi.spyOn(performance, 'measure')
+    try {
+      const root = setupDom()
+      let scrollReads = 0
+      const scrollY = vi.spyOn(window, 'scrollY', 'get').mockImplementation(() => {
+        scrollReads++
+        return 0
+      })
+      const handle = mountStepwise(root, { preset: 'journey', routeKey: 'R01' })
+      const built = vi.fn()
+      handle.whenBuilt(built)
+      // Auch die Lesephase wartet auf den Idle-Callback (Layout nach dem Frame aktuell) – noch keine Linie
+      expect(handle.inspect().geometry).toBeNull()
+      expect(root.querySelectorAll('svg').length).toBe(0)
+      expect(measure.mock.calls.filter((c) => c[0] === LEASH_MEASURES.build)).toHaveLength(0)
+      for (let i = 0; i < 40 && !built.mock.calls.length; i++) advance(2)
+      // `scrollY` nur in der Lesephase: die Schreibphase erzwingt kein Layout (PF-04/PF-05)
+      expect(scrollReads).toBe(1)
+      scrollY.mockRestore()
+      expect(built).toHaveBeenCalledTimes(1)
+      expect(root.querySelectorAll('svg').length).toBe(handle.inspect().geometry!.segments.length)
+      const builds = measure.mock.calls.filter((c) => c[0] === LEASH_MEASURES.build)
+      expect(builds.length).toBeGreaterThanOrEqual(3)
+      const later = vi.fn()
+      handle.whenBuilt(later)
+      expect(later).toHaveBeenCalledTimes(1)
+      // Abbruch mitten im Aufbau räumt die Idle-Callbacks
+      const root2 = setupDom()
+      const h2 = mountStepwise(root2, { preset: 'journey', routeKey: 'R01' })
+      advance(2)
+      h2.destroy()
+      handle.destroy()
+      expect(vi.getTimerCount()).toBe(0)
+    } finally {
+      measure.mockRestore()
+      Reflect.deleteProperty(w, 'requestIdleCallback')
+      Reflect.deleteProperty(w, 'cancelIdleCallback')
+    }
+  })
+
   it('AK-DS-18: destroy() räumt Listener, Observer, Timer und DOM; zweites mount auf neuem DOM funktioniert', () => {
     const before = baseListeners()
     const timers0 = vi.getTimerCount()
@@ -245,7 +310,10 @@ describe('leash/runtime – mountLeash', () => {
     const d = (key: string) => {
       const root = setupDom()
       const h = mountLeash(root, { preset: 'margin', routeKey: key })
-      const out = root.querySelector('path.ink')!.getAttribute('d')
+      const out = h
+        .inspect()
+        .geometry!.segments.flatMap((g) => g.strokes!.map((x) => x.d))
+        .join('')
       h.destroy()
       return out
     }
@@ -301,52 +369,6 @@ describe('leash/runtime – mountLeash', () => {
     handle.destroy()
   })
 
-  it('PF-04 phased: Messen, Geometrie und Zeichnen je als eigene Aufgabe; leash:build misst nur die Arbeit; Intro bleibt', () => {
-    const measure = vi.spyOn(performance, 'measure')
-    const root = setupDom()
-    const handle = mountLeash(root, { preset: 'journey', routeKey: 'R01', phased: true })
-    // Beim Einhängen noch nichts gebaut (kein langes Stück im Aufruf selbst).
-    expect(handle.inspect().geometry).toBeNull()
-    expect(root.querySelector('svg')).toBeNull()
-    vi.advanceTimersToNextTimer() // Messen
-    expect(handle.inspect().geometry).toBeNull()
-    vi.advanceTimersToNextTimer() // Geometrie
-    expect(handle.inspect().geometry).toBeNull()
-    vi.advanceTimersToNextTimer() // Zeichnen
-    expect(handle.inspect().geometry).not.toBeNull()
-    expect(root.querySelectorAll('svg').length).toBeGreaterThan(0)
-    const build = measure.mock.calls.filter((c) => c[0] === LEASH_MEASURES.build)
-    expect(build).toHaveLength(1)
-    expect(build[0]![1]).toMatchObject({ start: expect.any(Number), duration: expect.any(Number) })
-    // journey-Intro wie beim synchronen Aufbau: startet bei 0 und zeichnet dann.
-    expect(handle.inspect().drawnLen).toBe(0)
-    advance(1000)
-    expect(handle.inspect().drawnLen).toBeGreaterThan(0)
-    handle.destroy()
-  })
-
-  it('PF-04 phased: destroy() und überholte Teilstücke bauen nichts mehr; Neuaufbau vor dem ersten bleibt „erster“', () => {
-    const root = setupDom()
-    const gone = mountLeash(root, { preset: 'journey', routeKey: 'R01', phased: true })
-    vi.advanceTimersToNextTimer()
-    gone.destroy()
-    advance(100)
-    expect(gone.inspect().geometry).toBeNull()
-    expect(root.querySelector('svg')).toBeNull()
-
-    const root2 = setupDom()
-    const handle = mountLeash(root2, { preset: 'journey', routeKey: 'R01', phased: true })
-    vi.advanceTimersToNextTimer()
-    // Synchroner Neuaufbau (Debug-API) mitten im Aufbau: verwirft die Teilstücke, gilt aber noch als erster Aufbau.
-    handle.rebuild()
-    expect(handle.inspect().geometry).not.toBeNull()
-    expect(handle.inspect().drawnLen).toBe(0)
-    const svgs = root2.querySelectorAll('svg').length
-    advance(50)
-    expect(root2.querySelectorAll('svg').length).toBe(svgs)
-    handle.destroy()
-  })
-
   it('exposeLeashDebug stellt window.__leash bereit und räumt es wieder ab', () => {
     const root = setupDom()
     const handle = mountLeash(root, { preset: 'margin', routeKey: 'R20' })
@@ -371,7 +393,7 @@ describe('leash/runtime – reduzierte Bewegung (P2.17, §9.11, §10.6)', () => 
     expect(s.drawnLen).toBe(s.geometry!.totalLength)
     expect(root.querySelectorAll('[mask], mask').length).toBe(0)
     expect(s.pose).toBe('sitzen')
-    expect(s.cocoLen).toBe(s.geometry!.stations[0]!.loopLen0)
+    expect(s.cocoLen).toBe(s.geometry!.stations[0]!.loopLen1 + 48)
     // Scrollen bewegt Coco nicht und startet keine Schleife.
     setScroll(1500)
     advance(500)
@@ -490,6 +512,36 @@ describe('leash/schedule – Ladezeitpunkt (§9.2)', () => {
     expect(cb2).not.toHaveBeenCalled()
     expect(vi.getTimerCount()).toBe(0)
     delete (document as unknown as { readyState?: string }).readyState
+  })
+
+  it('R2-02-01: LCP + 300 ms ab dem letzten LCP-Kandidaten (startTime), spätere Kandidaten schieben nach hinten', () => {
+    resetLeashSchedule()
+    Object.defineProperty(document, 'readyState', { configurable: true, value: 'loading' })
+    const g = globalThis as unknown as { PerformanceObserver: unknown }
+    const orig = g.PerformanceObserver
+    let deliver: ((startTime: number) => void) | null = null
+    g.PerformanceObserver = class {
+      constructor(cb: (list: { getEntries(): { startTime: number }[] }) => void) {
+        deliver = (startTime) => cb({ getEntries: () => [{ startTime }] })
+      }
+      observe() {}
+      disconnect() {}
+    }
+    try {
+      const cb = vi.fn()
+      const t0 = performance.now()
+      whenLeashReady(cb)
+      deliver!(t0 + 100) // erster Kandidat bei 100 ms → frühestens 400 ms
+      advance(350)
+      deliver!(t0 + 300) // größerer Kandidat bei 300 ms → frühestens 600 ms
+      advance(200)
+      expect(cb).not.toHaveBeenCalled()
+      advance(100)
+      expect(cb).toHaveBeenCalledTimes(1)
+    } finally {
+      g.PerformanceObserver = orig
+      delete (document as unknown as { readyState?: string }).readyState
+    }
   })
 })
 

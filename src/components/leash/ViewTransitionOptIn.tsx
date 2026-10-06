@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react'
 
 import { useCurrentPreset } from '@/components/layout/useCurrentRoute'
 import { getMotion, onMotionChange, type Motion } from '@/leash/motion'
-import { PRESET_CONFIG } from '@/leash/presets'
+import { viewTransitionAllowed } from '@/leash/presets'
 
 // View Transitions bei harter Navigation (DESIGN §9.8, ADR 0003): `@view-transition { navigation: auto }` nur unter
 // `prefers-reduced-motion: no-preference`, nur auf Seiten mit Preset, das Übergänge erlaubt (nie `calm`: Korb, Kasse,
@@ -18,7 +18,7 @@ const MEDIA_ON = '(prefers-reduced-motion: no-preference)'
 export function ViewTransitionOptIn() {
   const ref = useRef<HTMLStyleElement>(null)
   const preset = useCurrentPreset()
-  const allowed = preset !== null && PRESET_CONFIG[preset].viewTransition
+  const allowed = preset !== null && viewTransitionAllowed(preset)
 
   useEffect(() => {
     const el = ref.current

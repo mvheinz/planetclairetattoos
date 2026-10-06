@@ -13,13 +13,15 @@
 
 .title {
   margin: 0;
+  /* Abstand zur Randbahn der Linie (x ≈ 6–14 px): Mansalva ragt mit „S“/„&“ links über die Textkante (LG-01, P9.17) */
+  padding-inline-start: 6px;
   overflow-wrap: anywhere;
 }
 
 /* Anker der Titel-Unterstreichung (Tuschelinie `product`): Start links unter der H1, Ende nach höchstens 22rem. */
 .titleLine {
   position: relative;
-  height: 0;
+  height: 22px;
 }
 
 .lineStart,
@@ -30,8 +32,8 @@
 }
 
 .lineStart {
-  top: 2px;
-  left: 0;
+  top: 6px;
+  left: -10px;
 }
 
 .lineEnd {
@@ -305,8 +307,8 @@
 }
 
 .juttaLabel {
-  font-family: var(--font-hand);
-  font-size: 1.125rem;
+  /* Beschriftung, kein Titel: Mansalva ist dafür nicht vorgesehen (DESIGN §4.3 Nr. 1) */
+  font-weight: 600;
 }
 
 .juttaQuote {

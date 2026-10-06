@@ -14,6 +14,7 @@ export function TakenStamp({ number, label }: { number: number; label: string })
       className={`${stampStyles.stamp} ${styles.takenStamp}`}
       style={{ '--stamp-angle': `${angle}deg` } as React.CSSProperties}
       data-taken-stamp=""
+      data-stamp=""
       aria-hidden="true"
     >
       <svg

@@ -9,8 +9,10 @@ import type { CocoController } from '@/leash/coco'
 import { getMotion, onMotionChange } from '@/leash/motion'
 import { PRESET_CONFIG, REST_POSE, isStaticPreset } from '@/leash/presets'
 import type { InspectableLeashHandle, MountOptions } from '@/leash/runtime'
-import { nextTask, whenLeashReady } from '@/leash/schedule'
+import { whenLeashReady } from '@/leash/schedule'
+import { readQaSwitches } from '@/lib/qa/switches'
 import type { RouteMatch } from '@/lib/routes/paths'
+import type { PresetId } from '@/lib/routes/registry'
 
 // Linien-Ebene (DESIGN §9.1, §9.2, §9.9): leerer, `aria-hidden` Container im Seitencontainer. Die Engine lädt erst
 // nach dem LCP + 300 ms (spätestens `load` + 1200 ms) per Idle-Callback als eigener Chunk und wird bei jedem
@@ -33,18 +35,40 @@ export function leashRouteKey(match: RouteMatch): string {
 /** Ohne JavaScript keine Coco an der (fehlenden) Linie (§9.4 „ohne JS“). */
 const NOSCRIPT_CSS = '.coco[data-leash-coco]{display:none}'
 
-export function LeashLayer({ className }: { className?: string }) {
+export function LeashLayer({
+  className,
+  preset: presetOverride,
+  routeKey: routeKeyOverride,
+}: {
+  className?: string
+  /** Nur QA-Seiten (`/qa/leash`, `/qa/motion`, KUNST-QA §3.2): festes Preset statt Registry-Route. */
+  preset?: PresetId
+  /** Nur QA-Seiten: Seed-Schlüssel der Linie. */
+  routeKey?: string
+}) {
   const ref = useRef<HTMLDivElement>(null)
   const cocoRef = useRef<HTMLDivElement>(null)
   const match = useCurrentRoute()
-  const preset = useCurrentPreset()
+  const routePreset = useCurrentPreset()
+  const preset = presetOverride ?? routePreset
   // Ohne Registry-Route (404): fester Schlüssel `R28` – gleiche lose Leine auf jeder unbekannten Adresse.
-  const routeKey = match ? leashRouteKey(match) : 'R28'
+  const routeKey = routeKeyOverride ?? (match ? leashRouteKey(match) : 'R28')
   const cocoOnLeash = preset !== null && PRESET_CONFIG[preset].coco?.size === 'leash'
+
+  // Frame-Logger `__qa` auch ohne Linie (Grundlinie `?leash=off`, Seiten ohne Preset; nur Debug-Build, KUNST-QA §4.6).
+  useEffect(() => {
+    // eslint-disable-next-line no-restricted-properties -- öffentliche Build-Konstante, kein getEnv() im Browser
+    if (process.env.NEXT_PUBLIC_LEASH_DEBUG === '1')
+      void import('@/leash/debug').then(({ exposeQa }) => {
+        exposeQa()
+      })
+  }, [])
 
   useEffect(() => {
     const el = ref.current
     if (!el || !preset) return
+    // `?leash=off` (nur mit ART_QA, KUNST-QA §3.1): Grundlinie ohne Engine – kein Laufzeit- und kein Coco-Chunk.
+    if (readQaSwitches().leashOff) return
     let cancelled = false
     const cleanups: (() => void)[] = []
     const cancelWait = whenLeashReady(() => {
@@ -55,8 +79,7 @@ export function LeashLayer({ className }: { className?: string }) {
             import('@/leash/runtime'),
             cocoEl ? import('@/leash/coco') : Promise.resolve(null),
           ]).then(([runtime, coco]) => ({ mount: runtime.mountLeash, coco }))
-      // Je eine Aufgabe: Module auswerten | Coco einhängen | Linie (selbst in Teilstücken, `phased`) – PF-04, TBT.
-      void load.then(nextTask).then(async ({ mount, coco: cocoMod }) => {
+      void load.then(({ mount, coco: cocoMod }) => {
         if (cancelled) return
         const rest = REST_POSE[preset] ?? 'sitzen'
         let handle: InspectableLeashHandle | null = null
@@ -68,17 +91,16 @@ export function LeashLayer({ className }: { className?: string }) {
             onPose: (e) => handle?.notePose(e),
           })
           cleanups.push(() => coco?.destroy())
-          await nextTask(null)
-          if (cancelled) return
+          cocoMod.armStations(document, getMotion() !== 'reduced')
         }
-        const options: MountOptions = { preset, routeKey, phased: true }
+        const options: MountOptions = { preset, routeKey }
         if (coco) {
           const c = coco
           options.cocoPose = () => c.pose()
           options.onCoco = (s) => {
-            c.setPose(s.pose)
+            // Choreografie der Linie (§11.4): Pose, Verweilen, Sprung, Blickrichtung, Intro-Lauf, Platz
             if (s.moving) c.activity()
-            c.place(s.x, s.y, s.direction)
+            c.follow(s)
             cocoEl?.setAttribute('data-placed', '')
           }
         }
@@ -88,6 +110,7 @@ export function LeashLayer({ className }: { className?: string }) {
         cleanups.push(
           onMotionChange((m) => {
             coco?.setMotion(m, rest)
+            cocoMod?.armStations(document, m !== 'reduced')
             h.setMotion(m)
           }),
         )
@@ -96,7 +119,10 @@ export function LeashLayer({ className }: { className?: string }) {
         // eslint-disable-next-line no-restricted-properties -- öffentliche Build-Konstante, kein getEnv() im Browser
         if (process.env.NEXT_PUBLIC_LEASH_DEBUG === '1')
           void import('@/leash/debug').then(({ exposeLeashDebug }) => {
-            if (!cancelled) cleanups.push(exposeLeashDebug(h))
+            // erst nach dem ersten Aufbau (in Idle-Teilstücken) – dann steht `geometry`
+            h.whenBuilt(() => {
+              if (!cancelled) cleanups.push(exposeLeashDebug(h))
+            })
           })
       })
     })

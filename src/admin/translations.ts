@@ -60,6 +60,12 @@ export const ADMIN_CUSTOM_DE = {
   downscaleWorking: 'Foto wird verkleinert …',
   downscaleDone: 'Foto verkleinert auf {{width}} × {{height}} Pixel.',
   downscaleFailed: 'Verkleinern im Browser nicht möglich – das Foto wird unverändert hochgeladen.',
+  enhanceShow: 'Vorher/Nachher ansehen',
+  enhanceBefore: 'So ist das Bild gespeichert',
+  enhanceAfter: 'Mit Angleichung (Vorschau)',
+  enhanceNone: 'Hier gibt es nichts anzugleichen – das Bild passt schon.',
+  enhanceFailed: 'Vorschau nicht möglich.',
+  enhanceSaveFirst: 'Die Vorschau gibt es, sobald das Bild gespeichert ist.',
   ruleIdInvalid: 'Regel muss L-xx (z. B. „L-13 a“, „L-05 Stufe C“), DSGVO oder ADMIN sein.',
   // Verwaltungs-Gerüst (P5.1): Navigation, Platzhalter, Bausteine
   shellBottomBarLabel: 'Schnellzugriff',

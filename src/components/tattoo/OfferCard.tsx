@@ -64,7 +64,7 @@ export async function OfferCard({
       data-offer-card={offer.id}
       data-offer-state={state}
     >
-      <p className={styles.dateBadge} data-offer-date="">
+      <p className={styles.dateBadge} data-offer-date="" data-badge="">
         <span className="u-sr-only">{t('dateLabel')}: </span>
         <span className={styles.dateText}>{offerDateBadge(offer, locale)}</span>
       </p>
@@ -101,7 +101,9 @@ export async function OfferCard({
                       srcSizes={['thumb']}
                       className={styles.offerFlashImage}
                     />
-                    <span className={styles.flashNumber}>{f.display}</span>
+                    <span className={styles.flashNumber} data-stamp="">
+                      {f.display}
+                    </span>
                     <span>{f.title}</span>
                   </a>
                 </li>

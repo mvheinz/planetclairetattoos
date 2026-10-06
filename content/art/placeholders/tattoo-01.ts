@@ -18,9 +18,7 @@ const motif: Motif = {
   inset: {
     width: 3,
     ink: merge(
-      place(bunny(0.9, 2), { x: 172, y: 384, s: 0.5, r: 4 }),
-      place(bunny(-0.8, -3), { x: 248, y: 386, s: 0.5, r: 4, flip: true }),
-      place(bunny(0.2, 0), { x: 210, y: 386, s: 0.6, r: 4 }),
+      place(bunny(-0.8, -9), { x: 214, y: 386, s: 0.56, sy: 0.72, r: 4, flip: true }),
     ),
   },
   shadow: { x: 200, y: 424, w: 90, count: 6, len: 15 },

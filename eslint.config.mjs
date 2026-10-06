@@ -126,6 +126,8 @@ export default defineConfig([
   globalIgnores([
     '.next/**',
     '.next-preview/**',
+    '.next-art/**',
+    'artifacts/**',
     '.lighthouseci/**',
     'coverage/**',
     'node_modules/**',

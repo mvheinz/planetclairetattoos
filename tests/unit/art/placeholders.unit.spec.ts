@@ -52,7 +52,7 @@ describe('P8.12/P8.13 Platzhalter-Zeichnungen', () => {
     for (const name of names) expect(() => read(name), name).not.toThrow()
   })
 
-  it('AR-03 AR-04: viewBox 400×500, Strich 2.4 Tusche mit runden Enden, kein Text, keine Formen-Primitive, ≤ 6 KB, ±3°', () => {
+  it('AR-03 AR-04: viewBox 400×500, Strich 2.8 Tusche (P9.13) mit runden Enden, kein Text, keine Formen-Primitive, ≤ 6 KB, ±3°', () => {
     for (const name of names) {
       const svg = read(name)
       expect(svg, name).toContain('viewBox="0 0 400 500"')
@@ -69,24 +69,24 @@ describe('P8.12/P8.13 Platzhalter-Zeichnungen', () => {
       expect(tilt, name).not.toBeNull()
       expect(Math.abs(Number(tilt![1])), name).toBeLessThanOrEqual(3)
       expect(Math.abs(Number(tilt![1])), name).toBeGreaterThan(0)
-      // eigene Strichstärken nur für das Tattoo im Körperumriss (frisch kräftiger, verheilt feiner)
+      // Strichstärken-Gruppen (R1-03-02): Grundstärke 2.8 plus dünne/kräftige Gruppe; Tattoo zusätzlich die Teilzeichnung
       const widths = [...svg.matchAll(/stroke-width="([\d.]+)"/g)].map((m) => Number(m[1]))
-      if (name.startsWith('tattoo-')) {
-        expect(widths.length, name).toBe(2)
-        expect(widths[1], name).not.toBe(STROKE_WIDTH)
-      } else expect(widths, name).toEqual([STROKE_WIDTH])
+      expect(widths[0], name).toBe(STROKE_WIDTH)
+      for (const w of widths.slice(1))
+        expect(w, name).toBeGreaterThanOrEqual(name.startsWith('tattoo-') ? 1 : 2.3)
+      if (name.startsWith('tattoo-')) expect(widths.length, name).toBeGreaterThanOrEqual(2)
     }
   })
 
-  it('AR-04 DESIGN §12.3: genau eine Wash-Farbe (laut media.json), Flash ohne Wash auf Papier-2', () => {
+  it('AR-04 DESIGN §12.3: höchstens eine Wash-Farbe (laut media.json; ohne Wash = Flash und Stufe 1 der Stil-Leiter), Papier-2 als Grund', () => {
     for (const name of names) {
       const svg = read(name)
       const fills = [...svg.matchAll(/fill="(#[0-9A-F]{6})"/gi)].map((m) => m[1]!.toUpperCase())
       expect(fills[0], name).toBe(ART.paper2)
       const used = fills.filter((f) => (WASH_HEX as string[]).includes(f))
       const wash = washes.get(name)
-      if (name.startsWith('flash-')) {
-        expect(wash, name).toBeNull()
+      if (name.startsWith('flash-')) expect(wash, name).toBeNull()
+      if (wash === null) {
         expect(used, name).toEqual([])
       } else {
         expect(used, name).toEqual([ART.wash[wash!]])

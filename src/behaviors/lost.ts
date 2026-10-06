@@ -36,15 +36,23 @@ export function swingKeyframes(deg: number, swingEasing: string): Keyframe[] {
 export function mount(root: Element, ctx: BehaviorContext = { mode: 'app' }): Unmount {
   void ctx
   const doc = root.ownerDocument
-  const layer = doc.querySelector<HTMLElement>('[data-leash-layer]')
+  // Die Linien-Ebene ist Geschwister des Inhalts: vom Inhalt aufwärts die nächste suchen (auf der QA-Bühne gibt es
+  // zusätzlich die Ebene der Seitenhülle; `doc.querySelector` träfe diese und sähe die Linie nie „fertig“, R2-04-01).
+  const layer =
+    root
+      .closest(':has(> [data-leash-layer])')
+      ?.querySelector<HTMLElement>(':scope > [data-leash-layer]') ?? null
   const anchor = root.querySelector<HTMLElement>('[data-leash-anchor="start"]')
   const end = root.querySelector<HTMLElement>('[data-lost-end]')
   const coco = root.querySelector<HTMLElement>('[data-lost-coco]')
   const animations: Animation[] = []
   let played = false
   let observer: MutationObserver | null = null
+  let timer: number | null = null
 
   const stop = () => {
+    if (timer !== null) doc.defaultView?.clearTimeout(timer)
+    timer = null
     for (const a of animations.splice(0)) a.cancel()
     coco?.setAttribute('data-boil', 'off')
     coco?.removeAttribute('data-running')
@@ -87,10 +95,14 @@ export function mount(root: Element, ctx: BehaviorContext = { mode: 'app' }): Un
         { duration: RUN_MS, easing: 'linear', fill: 'none' },
       )
       animations.push(run)
-      run.onfinish = () => {
+      const finishRun = () => {
         coco.setAttribute('data-boil', 'off')
         coco.removeAttribute('data-running')
       }
+      // Ende doppelt abgesichert: `finish` fehlt, wenn die Animation von außen angehalten wird (QA-Takt, Tab im
+      // Hintergrund); der Boil darf nie länger als der Lauf (≤ 5 s, WCAG 2.2.2) weiterlaufen.
+      run.onfinish = finishRun
+      timer = doc.defaultView?.setTimeout(finishRun, RUN_MS) ?? null
     }
   }
 

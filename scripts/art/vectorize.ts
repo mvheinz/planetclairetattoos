@@ -17,7 +17,7 @@ import sharp from 'sharp'
 import { optimize } from 'svgo'
 
 import { exportSource, readExportMap, EXPORT_MAP_FILE } from '../../src/lib/seed/exportMap'
-import { handBlob, handStroke, type Ink, placePath } from './lib/handline'
+import { handBlob, handStroke, type Ink, placePath, widthClass } from './lib/handline'
 
 export const SOURCES_FILE = path.join('content', 'art', 'sources.json')
 export const STATIONS_DIR = path.join('src', 'art', 'stations')
@@ -43,8 +43,17 @@ export interface VectorizeSource {
 export interface DerivedSource {
   id: string
   from: string
-  kind: 'planet-mark' | 'sprite' | 'placeholder-style'
+  /** `drawn`: frei mit der Handlinie neu gezeichnet nach dem Motiv der Vorlage `reference` (P9.12). */
+  kind: 'planet-mark' | 'sprite' | 'placeholder-style' | 'drawn'
   reference?: string
+}
+
+/** Modul einer gezeichneten Station (`content/art/stations/{id}.ts`). */
+interface DrawnStation {
+  ink: Ink
+  tilt: number
+  /** viewBox der Zeichnung (Standard `0 0 400 500`; `drawn`: beliebiger Ausschnitt, Strichstärke per `stationStrokeWidth`). */
+  viewBox?: string
 }
 
 export interface SourcesFile {
@@ -249,69 +258,137 @@ async function sourceBuffer(
 const LINE_ATTRS =
   'fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"'
 
+/**
+ * Einheitliche Strichstärke aller Stationen (P9.12, Prüf-Linse AR-07 „Strichstärken uneinheitlich“): Stationen stehen
+ * in einem 4:5-Rahmen mit 208 × 260 px Zeichenfläche (Home.module.css `.artFrame`/`.art`, `meet`). Die Strichbreite in
+ * viewBox-Einheiten wird so gewählt, dass sie dort {@link STATION_STROKE_PX} px ergibt – egal wie groß der Ausschnitt ist.
+ */
+export const STATION_STROKE_PX = 2
+/** Stützpunkt-Abstand der Handlinie in Stationen (statt 14): spart Pfaddaten für das Startseiten-Budget (PF-10). */
+const STATION_MAX_STEP = 28
+export const STATION_BOX = { w: 208, h: 260 } as const
+
+export function stationStrokeWidth(viewBox: string, px = STATION_STROKE_PX): number {
+  const [, , vw, vh] = viewBox.split(' ').map(Number) as [number, number, number, number]
+  const scale = Math.min(STATION_BOX.w / vw, STATION_BOX.h / vh)
+  return Math.round((px / scale) * 100) / 100
+}
+
 /** Planet-Marke in `currentColor` (Körper in Papierfarbe). */
-function planetMarkGroup(root: string, at: { x: number; y: number; s: number }): string {
+function planetMarkGroup(
+  root: string,
+  at: { x: number; y: number; s: number },
+  strokeWidth = 2.6,
+): string {
   const src = readFileSync(path.join(root, 'src/art/planet.svg'), 'utf8')
   const inner = /<svg[^>]*>([\s\S]*)<\/svg>/
     .exec(src)![1]!
     .replace(/fill="#F4EFE6"/g, 'style="fill:var(--paper,#F4EFE6)"')
     .replace(/#1C1A17/g, 'currentColor')
-  return `<g transform="translate(${at.x} ${at.y}) scale(${at.s})" ${LINE_ATTRS} stroke-width="2.6">${inner}</g>`
+  return `<g transform="translate(${at.x} ${at.y}) scale(${at.s})" ${LINE_ATTRS} stroke-width="${Math.round(strokeWidth * 100) / 100}">${inner}</g>`
 }
+
+const COCO_VIEWBOX = '30 -6 96 120'
+const COCO_SW = stationStrokeWidth(COCO_VIEWBOX)
 
 /** Coco `sitzen` (Frame A) aus dem Sprite, Klassen in Attribute übersetzt (kein globales CSS im Seiten-HTML). */
 function cocoSitzen(root: string): string {
   const sprite = readFileSync(path.join(root, 'src/art/coco/coco-sprite.svg'), 'utf8')
   const symbol = /<symbol id="coco-sitzen-a"[^>]*>([\s\S]*?)<\/symbol>/.exec(sprite)
   if (!symbol) throw new Error('coco-sitzen-a fehlt im Sprite')
-  return symbol[1]!
-    .replace(/ data-part="[^"]*"/g, '')
-    .replace(/class="fur"/g, 'style="fill:var(--coco-fur,#E2BF8E)"')
-    .replace(
-      /class="harness"/g,
-      'style="fill:var(--coco-harness,#C23B2A)" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"',
-    )
-    .replace(/class="line"/g, `${LINE_ATTRS} stroke-width="1.1"`)
-    .replace(/class="solid"/g, 'fill="currentColor"')
-    .replace(/class="hi"/g, 'style="fill:var(--paper,#F4EFE6)"')
+  return (
+    symbol[1]!
+      .replace(/ data-part="[^"]*"/g, '')
+      // Präsentationsattribute der Sprite-Ebenen (WebKit, P9.17) weichen den Kunst-Token mit Rückfall (E-73)
+      .replace(/(<g class="[a-z]+")( (?:fill|stroke)="[^"]*")+/g, '$1')
+      .replace(/class="fur"/g, 'style="fill:var(--coco-fur,#E2BF8E)"')
+      .replace(
+        /class="harness"/g,
+        `style="fill:var(--coco-harness,#C23B2A)" stroke="currentColor" stroke-width="${COCO_SW}" stroke-linejoin="round"`,
+      )
+      .replace(/class="line"/g, `${LINE_ATTRS} stroke-width="${COCO_SW}"`)
+      .replace(/class="solid"/g, 'fill="currentColor"')
+      .replace(/class="hi"/g, 'style="fill:var(--paper,#F4EFE6)"')
+  )
 }
 
 /** Linienzeichnung im Platzhalter-Stil (DESIGN §12.3), aber ohne Grund und Wash, Tusche über `currentColor`. */
-export function lineStation(ink: Ink, seed: number, tilt = 0): string {
-  const strokes = ink.strokes.flatMap((s, i) => handStroke(s, seed + i * 104729)).join('')
+export function lineStation(
+  ink: Ink,
+  seed: number,
+  tilt = 0,
+  opts: { viewBox?: string; strokeWidth?: number } = {},
+): string {
+  // Strichstärken-Gruppen (R1-03-01): dünn / normal / kräftig je (Teil-)Strich, nicht konstant
+  const groups: [string[], string[], string[]] = [[], [], []]
+  let n = 0
+  ink.strokes.forEach((s, i) => {
+    for (const piece of handStroke(s, seed + i * 104729, {
+      maxStep: STATION_MAX_STEP,
+      press: true,
+      coarseFrom: 12,
+      pressRate: 0.3,
+    }))
+      groups[widthClass(seed, n++)].push(piece)
+  })
+  const sw = opts.strokeWidth ?? 3.2
+  const [thin, normal, thick] = groups.map((g) => g.join('')) as [string, string, string]
   const dots = (ink.dots ?? []).map((d, i) => handBlob(d, seed + 11 + i * 31, 0.45)).join('')
   const lights = (ink.lights ?? []).map((d, i) => handBlob(d, seed + 23 + i * 31, 0.45)).join('')
+  const vb = opts.viewBox ?? '0 0 400 500'
+  const [, , vw, vh] = vb.split(' ').map(Number) as [number, number, number, number]
   return [
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500"><g transform="rotate(${tilt} 200 250)">`,
-    `<path ${LINE_ATTRS} stroke-width="3.2" d="${strokes}"/>`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}"><g transform="rotate(${tilt} ${vw / 2} ${vh / 2})">`,
+    `<path ${LINE_ATTRS} stroke-width="${sw}" d="${normal}"/>`,
+    thin
+      ? `<path ${LINE_ATTRS} stroke-width="${Math.round(sw * 0.82 * 10) / 10}" d="${thin}"/>`
+      : '',
+    thick
+      ? `<path ${LINE_ATTRS} stroke-width="${Math.round(sw * 1.22 * 10) / 10}" d="${thick}"/>`
+      : '',
     dots ? `<path fill="currentColor" d="${dots}"/>` : '',
     lights ? `<path style="fill:var(--paper,#F4EFE6)" d="${lights}"/>` : '',
     '</g></svg>',
   ].join('')
 }
 
+/** Fester Seed je Station (FNV-1a über die ID) – gleiche Zeichnung bei jedem Lauf. */
+function fnvSeed(id: string): number {
+  let h = 0x811c9dc5
+  for (let i = 0; i < id.length; i++) h = Math.imul(h ^ id.charCodeAt(i), 0x01000193)
+  return (h >>> 0) % 100000
+}
+
 async function derivedStation(root: string, src: DerivedSource): Promise<string> {
-  switch (src.id) {
+  switch (src.kind === 'drawn' ? 'drawn' : src.id) {
     case 'planet-claire':
       return compact(
-        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500">${planetMarkGroup(root, { x: 40, y: 90, s: 5 })}</svg>`,
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500">${planetMarkGroup(root, { x: 40, y: 90, s: 5 }, 0.8)}</svg>`,
       )
     case 'hallo':
       return compact(
-        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="30 -6 96 120">${cocoSitzen(root)}</svg>`,
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${COCO_VIEWBOX}">${cocoSitzen(root)}</svg>`,
       )
     case 'jutta-und-coco':
       return compact(
-        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="30 -6 96 120">${cocoSitzen(root)}${planetMarkGroup(root, { x: 92, y: 0, s: 0.42 })}</svg>`,
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${COCO_VIEWBOX}">${cocoSitzen(root)}${planetMarkGroup(root, { x: 31, y: -4, s: 0.42 }, COCO_SW / 0.42)}</svg>`,
       )
-    case 'schmuck': {
+    default: {
+      if (src.kind !== 'placeholder-style' && src.kind !== 'drawn')
+        throw new Error(`Unbekannte abgeleitete Station „${src.id}“`)
+      // Linienzeichnung aus Kontrollpunkten (Schmuck: Platzhalter-Stil; drawn: frei nach dem Motiv der Vorlage)
       const mod = (await import(pathToFileURL(path.join(root, src.from)).href)) as {
-        default: { ink: Ink; tilt: number }
+        default: DrawnStation
       }
-      return compact(lineStation(mod.default.ink, 0x5c4d, mod.default.tilt))
+      const d = mod.default
+      const seed = src.id === 'schmuck' ? 0x5c4d : fnvSeed(src.id)
+      return compact(
+        lineStation(d.ink, seed, d.tilt, {
+          viewBox: d.viewBox,
+          strokeWidth: stationStrokeWidth(d.viewBox ?? '0 0 400 500'),
+        }),
+      )
     }
-    default:
-      throw new Error(`Unbekannte abgeleitete Station „${src.id}“`)
   }
 }
 

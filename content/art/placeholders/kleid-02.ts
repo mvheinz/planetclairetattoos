@@ -1,4 +1,4 @@
-// S14 Kleid „Planeten-Nacht“: langärmliges Kleid auf einem Bügel, verstreute Planeten und Sterne; am Saum hinten eine
+// S14 Kleid „Planeten-Nacht“: langärmliges Kleid auf einem Bügel, zwei Planeten und ein Stern; am Saum hinten eine
 // kleine Fläche ohne Muster.
 import type { Motif } from '../../../scripts/art/lib/handline'
 import { hanger, merge, place, planet, star4 } from './_parts'
@@ -20,13 +20,8 @@ const motif: Motif = {
     },
     place(planet(), { x: 172, y: 226, s: 1.5, r: -12 }),
     place(planet(), { x: 236, y: 300, s: 1.8, r: 8 }),
-    place(planet(), { x: 150, y: 360, s: 1.2, r: -20 }),
-    place(planet(), { x: 296, y: 270, s: 1, r: 4 }),
-    place(star4(), { x: 220, y: 198, s: 1.3 }),
-    place(star4(), { x: 196, y: 258, s: 1.3, r: 15 }),
-    place(star4(), { x: 112, y: 250, s: 1.3 }),
+    // ein einziger Stern (R1-05-05: vorher zwei, wirkte wie ein Sternenmuster)
     place(star4(), { x: 258, y: 372, s: 1.3, r: -10 }),
-    place(star4(), { x: 190, y: 334, s: 1.3 }),
   ),
   wash: 'M172 140C182 158 218 158 228 140C252 144 272 152 284 162C292 212 298 270 302 318C294 322 286 322 278 320L294 410C232 420 168 420 106 410L122 320C114 322 106 322 98 318C102 270 108 212 116 162C128 152 148 144 172 140Z',
   shadow: { x: 236, y: 440, w: 70, count: 5, len: 14 },

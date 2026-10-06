@@ -398,7 +398,7 @@
 }
 
 .dateText {
-  font-size: clamp(18px, 4.6vw, 24px);
+  font-size: 24px; /* Mansalva nie unter 24 px (DESIGN §4.3, LG-03) */
 }
 
 .offerBody > * + * {

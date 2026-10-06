@@ -471,7 +471,7 @@ P2 legt `src/styles/tokens.css` exakt mit diesem Inhalt an (Werte sind verbindli
   --shadow-stencil: 3px 2px 0 0 var(--stencil);
 
   /* Coco */
-  --coco-leash: 42px;          /* Breite an der Leinenspitze */
+  --coco-leash: 56px;          /* Breite an der Leinenspitze */
   --coco-s: 40px;
   --coco-m: 72px;
   --coco-xl: 180px;
@@ -510,7 +510,7 @@ P2 legt `src/styles/tokens.css` exakt mit diesem Inhalt an (Werte sind verbindli
 }
 
 @media (min-width: 768px) {
-  :root { --page-pad: 24px; --header-h: 64px; --leash-w: 2.6px; --coco-leash: 64px; --coco-stroke: 1.8px; }
+  :root { --page-pad: 24px; --header-h: 64px; --leash-w: 2.6px; --coco-leash: 88px; --coco-stroke: 1.8px; }
 }
 @media (min-width: 1200px) {
   :root { --page-pad: 32px; }
@@ -838,7 +838,9 @@ export interface LeashSegment {
   id: string;
   bbox: { x: number; y: number; w: number; h: number };
   centerD: string;              // Mittellinie (für Enthüllung/Stufe B)
-  outlineD: string;             // gefüllter Umriss mit variabler Breite (Stufe A/C)
+  outlineD: string;             // gefüllter Umriss mit variabler Breite (Stufe C; erst bei Zugriff berechnet)
+  centerL?: number;             // Länge der Polylinie centerD (Stufe B ohne getTotalLength)
+  strokes?: LeashStroke[];      // Stufe A: { d, w, L, len0, len1 } – Mittellinie in Stücken nahezu gleicher Breite
   len0: number; len1: number;   // Bogenlängen-Bereich im Gesamtpfad
 }
 export interface LeashGeometry {
@@ -875,8 +877,8 @@ Scroll/Resize/Fonts → rAF-gedrosselte Aktualisierung (nur Schreibzugriffe, §9
 3. **Schlaufen einsetzen** an Ankern mit `loop ≠ 'none'` (Formen §9.5). Jede Schlaufe hat eigene Bogenlängen `loopLen0 … loopLen1`.
 4. **Glätten:** zentripetale Catmull-Rom-Kurve (α = 0.5) durch alle Wegpunkte → kubische Bézier-Segmente.
 5. **Abtasten** nach Bogenlänge alle 2 px → Punkte `P_i` mit Normalen `N_i`.
-6. **Wackel (Zittern der Hand):** `P_i += N_i × (A1·noise(s/λ1) + A2·noise(s/λ2))` mit `A1 = 0.9 px` (mobil) / `1.2 px` (ab 768), `λ1 = 90 px`, `A2 = 0.22 px`, `λ2 = 13 px` (seeded Value-Noise). Presets `legal`/`calm`: `A1 = 0.5`, `A2 = 0.12`.
-7. **Breitenprofil:** `w(s) = baseWidth × (0.85 + 0.30 × noise(s/220)) × (1 + min(0.25, 12 × |κ(s)|))`, begrenzt auf `[0.8, 1.35] × baseWidth`. Anfangsverjüngung über 28 px von 0.35 → 1 (`ease-out`), Endverjüngung über 18 px auf 0.45 (Stift hebt ab). An Schlaufen-Starts ein Tintenpunkt (Kreis, Radius `0.65 × w`), wo die Feder kurz ruht.
+6. **Wackel (Zittern der Hand):** `P_i += N_i × (A1·noise(s/λ1) + A2·noise(s/λ2))` mit `A1 = 0.9 px` (mobil) / `1.2 px` (ab 768), `λ1 = 90 px`, `A2 = 0.22 px`, `λ2 = 13 px` (seeded Zitter-Noise: Gitterwerte mit wechselndem Vorzeichen, Betrag 0.8–1, damit keine 120 px lange gerade Strecke entsteht – KUNST-QA LQ-03). Über die ersten 28 px wächst der Wackel von 0 an (Leinen-Anschluss exakt, §9.8). Presets `legal`/`calm`: `A1 = 0.5`, `A2 = 0.12`.
+7. **Breitenprofil:** `w(s) = baseWidth × (0.85 + 0.30 × noise(s/220)) × (1 + min(0.25, 12 × |κ(s)|))`, begrenzt auf `[0.8, 1.35] × baseWidth`. Anfangsverjüngung über 28 px von 0.35 → 1 (`ease-out`; die ersten 4 px ruht die Feder auf 0.35), Endverjüngung über 18 px auf 0.45 (Stift hebt ab; die letzten 4 px auf 0.45); in den Verjüngungen gilt die Grundbreite ohne Zuschläge (KUNST-QA LQ-05). An Schlaufen-Starts ein Tintenpunkt (Kreis, Radius `1.3 × w`, vorher 0.9 – P9.18a, R1-05-04; P9.18, R1-03-05: bei 0.65 war er auf der Linie kaum zu sehen), wo die Feder kurz ruht.
 8. **Umriss:** linke/rechte Kante `P_i ± N_i × w_i/2`, runde Kappen (Halbkreis, 8 Punkte), Vereinfachung mit Ramer-Douglas-Peucker (Toleranz 0.2 px), Ausgabe als `M … L … Z` mit 1 Nachkommastelle.
 9. **Segmente:** Schnitt an Schlaufen-Enden und spätestens alle `max(600, 1.25 × viewport.h)` px Bogenlänge; Nachbar-Segmente überlappen 2 px Bogenlänge (keine Nahtlücke).
 10. **LUT:** alle 4 px Bogenlänge `[len, x, y, angle]` aus den eigenen Bézier-Daten (analytisch, **ohne** `getPointAtLength`).
@@ -888,17 +890,18 @@ Determinismus: gleiche Eingabe → byte-gleiche `outlineD`/`centerD` (Seed aus R
 
 | Stufe | Wann | Technik | Kosten |
 |---|---|---|---|
-| **A „Tusche“** (Standard) | volle Bewegung, `hardwareConcurrency ≥ 4` (falls bekannt) und `deviceMemory ≥ 4` (falls bekannt) | Pro Segment ein `<svg>` mit `<path class="ink" d={outlineD} fill="var(--ink)" mask="url(#m-k)">`; die Maske enthält die Mittellinie `centerD` als Strich (Breite `1.35 × baseWidth + 4`, weiß) mit `stroke-dasharray: L L` und `stroke-dashoffset` = noch nicht gezeichnete Länge. `maskUnits="userSpaceOnUse"` mit Segment-Bbox + 8 px. `L` = `getTotalLength()` der Maskenlinie, einmal beim Aufbau gemessen. | Repaint nur im aktiven Segment |
+| **A „Tusche“** (Standard) | volle Bewegung, `hardwareConcurrency ≥ 4` (falls bekannt) und `deviceMemory ≥ 4` (falls bekannt) | Pro Segment ein `<svg>`; darin die gewackelte Mittellinie in **Stücken nahezu gleicher Breite** (`strokes`: Breite weicht im Stück ≤ 0.09 × `baseWidth` ab, Stück ≤ 420 px), je Stück `<path d stroke-width={w} pathLength="1">`; Farbe, `stroke-linecap="round"`, `fill="none"`, `stroke-dasharray="1 2"` und der Versatz stehen einmal am `<svg>` und werden vererbt (verborgen: `stroke-dashoffset="1.01"`; fertiges Stück `0`, aktives anteilig `1 − Anteil`; ist ein Segment fertig, steht `0` am `<svg>` und die Stücke tragen kein eigenes Attribut). Nachbar-Stücke teilen den Endpunkt, die runden Kappen schließen die Fuge; Tintenpunkte sind eigene Stücke der Länge 0.1 (Breite 2.6 × w). Alle Stücke stehen ab dem Aufbau im DOM: Einhängen oder Entfernen von `stroke-dasharray` löst in Chromium ein Layout aus (P9.15-Messung, PF-05), ein geänderter `stroke-dashoffset` nicht. **Keine Maske** – eine animierte Maske erzwingt in Chromium je Frame ein Layout (P9.11-Messung, KUNST-QA PF-05); `stroke-dashoffset` an sichtbaren Strichen ist reines Paint. | Repaint nur am aktiven Stück |
 | **B „Feder“** | Laufzeit-Abstufung (unten) oder Browser-Ausnahme (in `presets.ts` pflegbar, z. B. falls Safari-Masken in QA ruckeln) | Nur Mittellinie als `stroke` (`--leash-w`, runde Kappen) mit Dash-Enthüllung, keine Maske, keine Breitenvariation; Wackel bleibt | geringer |
 | **C „Statisch“** | reduzierte Bewegung, Schalter „Animationen aus“, Ruhe-Presets (`calm`, `legal`) | Umriss `outlineD` ohne Maske, vollständig sichtbar | keine Laufzeit |
 | ohne JS | – | keine Linie; Coco statisch per SSR nur dort, wo sie Inhalt ist (leere Zustände, 404, Danke) | – |
 
 **Laufzeit-Abstufung A → B:** Die Runtime misst während der ersten 2 s Scroll-Aktivität die rAF-Abstände. Sind > 25 % der Frames > 20 ms, schaltet sie für die restliche Sitzung (nur im Speicher, **kein** Storage, E-43) auf Stufe B.
-**Segment-Zustände:** fertig (Maske entfernt, `mask`-Attribut gelöscht → statischer Pfad), aktiv (Maske aktualisiert), zukünftig (`visibility: hidden`).
+**Segment-Zustände:** fertig (alle Stücke Versatz 0 bzw. Stufe B ohne Dash), aktiv (nur das Stück an der Feder ändert `stroke-dashoffset`), zukünftig (`visibility: hidden`). Im Scroll-Pfad ändern sich nur `stroke-dashoffset`, `visibility` und Cocos `transform` – keine Layout-Ereignisse (PF-05).
+**Aufbau in Teilstücken:** Der erste Aufbau und jeder Neuaufbau nach Resize/Schriften laufen als Idle-Teilstücke (`requestIdleCallback`): Lesephase (`measure`, erst im ersten Idle-Callback – nach dem Rendern ist das Layout aktuell), dann `geometrySteps` (Pfad, Abtasten, Wackel/Breiten in Blöcken zu 768 Proben, je Segment ein Halt, LUT/Scroll-Abbildung; ≤ 3 ms je Teilstück ungedrosselt, ein weiterer Schritt nur, wenn er – geschätzt wie der vorige – noch hineinpasst), zuletzt die Schreibphase (Einhängen; die Ziel-Länge aus der gemessenen Scroll-Position, kein `scrollY`-Lesen nach dem Schreiben = kein erzwungenes Layout); jedes Teilstück ist eine eigene `leash:build`-Messung (PF-04). Der Umriss `outlineD` entsteht erst bei Bedarf (Stufe C).
 
 ### 9.5 Schlaufenformen
 
-Alle Formen erhalten den Wackel aus §9.3 Schritt 6 und sind nie geometrisch perfekt (Radius schwankt ±12 %, Ellipsen leicht verkippt).
+Alle Formen erhalten den Wackel aus §9.3 Schritt 6 und sind nie geometrisch perfekt (Radius schwankt ±12 %: glattes Rauschen plus eine Vierer-Welle je Umlauf, die kein Kreis-/Ellipsen-Fit glättet, KUNST-QA LQ-04; Ellipsen leicht verkippt, die Achsen mit versetzter Unruhe).
 
 **Freiraum-Regeln:** Schlaufen in der Rinne haben ihren Mittelpunkt auf der Rinnenmitte und bleiben vollständig in der Rinne (Radius + halbe Linienbreite + 2 px ≤ halbe Rinnenbreite). `lasso` und `contour` laufen nur um Elemente mit mindestens 40 px (lasso) bzw. 16 px (contour) freiem Rand zu jeder Textzeile; das jeweilige Layout (KO-20 Flash-Raster, KO-21 Station, Auftragsarbeiten-Formular) reserviert diesen Rand.
 
@@ -954,8 +957,8 @@ R29 (500) nutzt kein Preset mit Engine: statisches Knäuel-SVG (KO-18).
 
 1. Linien-Ebene und Coco: `aria-hidden="true"`, `focusable="false"`, `pointer-events: none`, nicht im Tab-Fluss, kein `role`.
 2. Die Linie ist nie Navigation. Jede Station hat eine echte Überschrift und echte Links.
-3. **Keine Überdeckung:** Linie und Coco schneiden keine Textzeile (auch nicht in Links/Knöpfen), kein Formularfeld, keinen Knopf, keinen Fußbereich-Link. Einzige Ausnahme: **Block-Links** wie Produktkarten – die Schnur (`shopString`) läuft absichtlich durch deren Schild-Zone zwischen Foto und Titel, nie durch deren Text. Durchsetzung: Rinne (§5.3) bzw. Anker außerhalb von Textflächen; QA-Test LG-01 (KUNST-QA).
-4. Mobile Rinne: 44 px, Linie in Rinnenmitte ± Schwung, Coco 42 px breit passt in die Rinne; Stationsfotos beginnen an der Rinnenkante; Schlaufen-Radius ≤ 22 px.
+3. **Keine Überdeckung:** Linie und Coco (gemessen wird die gezeichnete Figur, waagerecht 0,10–0,90 der Coco-Box, §10.5) schneiden keine Textzeile (auch nicht in Links/Knöpfen), kein Formularfeld, keinen Knopf, keinen Fußbereich-Link. Einzige Ausnahme: **Block-Links** wie Produktkarten – die Schnur (`shopString`) läuft absichtlich durch deren Schild-Zone zwischen Foto und Titel, nie durch deren Text. Durchsetzung: Rinne (§5.3) bzw. Anker außerhalb von Textflächen; QA-Test LG-01 (KUNST-QA).
+4. Mobile Rinne: 44 px, Linie in Rinnenmitte ± Schwung, Coco 56 px breit (Hund ≈ 0,77 davon, ≈ 43 px) passt in die Rinne; Stationsfotos beginnen an der Rinnenkante; Schlaufen-Radius ≤ 22 px.
 5. `content-visibility: auto` ist auf Abschnitten mit Linien-Ankern **verboten** (verfälscht Messungen).
 6. Die Linie ändert nie das Layout (absolut positionierte Ebene) → CLS-Beitrag 0.
 7. Erzwungene Farben: `fill: CanvasText` für Umriss, Masken entfallen (Stufe C).
@@ -1058,11 +1061,11 @@ Referenzen: `highlight-more-ceramics.jpg` (Ganzkörper stehend, Geschirr, Schwan
 
 | Teil | Maß | Merkmal |
 |---|---|---|
-| Schädel | Höhe 0,75 K | rund, deutlicher Stopp zur Schnauze |
+| Schädel | Höhe 0,8 K | **rund** (von vorn fast ein Kreis, Juttas Skizze), deutlicher Stopp zur Schnauze |
 | Schnauze | Länge 0,38 K, Höhe an der Wurzel 0,35 K, verjüngt | hell (Papier), kurz bis mittel |
-| Nase | 0,12 K breit | schwarz gefülltes, leicht herzförmiges Oval |
-| Ohren | Höhe 0,95 K, Basis 0,5 K | **groß, aufrecht**, Spitzen leicht gerundet, 15–25° nach außen/hinten; eine Innenohr-Linie; **asymmetrisch** (ein Ohr 5–10 % anders geneigt; bei `kopfschief` knickt ein Ohr leicht ab) |
-| Augen | Ø 0,22 K, auf halber Schädelhöhe, weit gesetzt | **groß, dunkel**, mandel-rund, schwarz gefüllt mit Glanzpunkt (Papier, Ø 0,06 K, oben seitlich); beide Augen minimal verschieden |
+| Nase | 0,13–0,15 K breit | **dick**, schwarz gefülltes Oval (Juttas Skizze) |
+| Ohren | Höhe ≈ 0,65 K, Basis 0,45 K | **groß, aufrecht**, breite Basis, Spitzen leicht gerundet, 10–20° nach außen (Juttas Coco-Fotos `content/seed/coco/`, 04.10.2026, gemessen Ohr/Kopflänge ≈ 0,65; vorher 0,95 K nach 150-px-Highlights, dann kurz klein und rund nach der Skizze `coco-oh-01.jpg`); eine Innenohr-Linie; **asymmetrisch** (ein Ohr ≈ 10 % kleiner; bei `kopfschief` knickt eines oben leicht nach außen ab, wie auf den Fotos) |
+| Augen | Ø 0,22 K, auf halber Schädelhöhe, weit gesetzt | **groß, rund**, offener Ring mit großer Pupille (Juttas Skizze), schwarz gefüllt mit Glanzpunkt (Papier, Ø 0,06 K, oben seitlich); beide Augen minimal verschieden |
 | Stirn | – | feine helle Blesse zwischen den Augen (nur als ausgesparter Wash) |
 | Schnurrhaare | 2–3 Striche je Seite | wie Juttas Fuchs: lang, leicht gebogen |
 | Körper | Länge (Brust bis Po) 1,9 K, Brusttiefe 0,9 K, Taille 0,6 K | kompakt, tiefe helle Brust, schlanke Taille, Rücken leicht gewölbt |
@@ -1070,7 +1073,7 @@ Referenzen: `highlight-more-ceramics.jpg` (Ganzkörper stehend, Geschirr, Schwan
 | Schwanz | Länge 1,1 K | dünn zur Spitze; stehend/laufend als lockere **Sichel nach oben über den Rücken**; schlafend um den Körper gelegt |
 | Fell | Rücken, Kopfoberseite, Ohren außen, Schwanz: `--coco-fur`; Schnauze, Brust, Bauch, untere Beine: Papier | Farbgrenze nur durch den Wash, **ohne** eigene Linie |
 | **Geschirr** | Halsring + Bauchgurt hinter den Vorderbeinen + Rückensteg | **rot** `--coco-harness`, Kontur `--ink`; **D-Ring** (Ø 0,1 K) auf dem Rücken zwischen den Schulterblättern = **Leinen-Anker** |
-| Gesamthöhe stehend | Widerrist 1,3 K; Ohrspitzen 2,2 K über Boden | – |
+| Gesamthöhe stehend | Widerrist 1,3 K; Ohrspitzen ≈ 2,3 K über Boden (P9.18: große aufrechte Ohren nach Juttas Coco-Fotos, vorher 2,0 K) | – |
 
 ### 10.2 Strich (passend zu Juttas Zeichnungen)
 
@@ -1108,7 +1111,7 @@ Neue Posen kommen immer paarweise dazu (Wert in `COCO_POSES` + Sprite-ID + Eintr
 
 | Brücke | Zeigt | verbindet |
 |---|---|---|
-| `bremsen` | Vorderbeine gestemmt, Körper nach hinten, Ohren vor | `rennen → schnueffeln/sitzen/kopfschief` |
+| `bremsen` | Vorderbeine gestemmt, Körper nach hinten, Ohren vor | `rennen → schnueffeln/sitzen/kopfschief`; ebenso `springen → sitzen/schnueffeln/kopfschief` (Sprung-Sequenz Schmuck, §11.4) |
 | `abspringen` | geduckt, Hinterbeine gebeugt | `sitzen/schnueffeln → rennen`, `* → springen` |
 | `einrollen-1`, `einrollen-2` | halb liegend → fast rund | `sitzen → schlafen` |
 
@@ -1182,7 +1185,7 @@ html[data-motion="reduced"] .coco .f-b, html[data-motion="reduced"] .coco .f-c {
 | Token | Breite | Einsatz | Strich gerendert |
 |---|---|---|---|
 | (Horizont) | 24 px | 404, rennt weg | 1.2 px (fester Wert) |
-| `--coco-leash` | 42 px mobil / 64 px ab 768 | Leinenspitze (`journey`, `about`) | 1.6 / 1.8 px |
+| `--coco-leash` | 56 px mobil / 88 px ab 768 (Qualitäts-QA iter-03, R2-03-01: Boxbreite, der Hund füllt ≈ 0,13–0,90 davon) | Leinenspitze (`journey`, `about`) | 1.6 / 1.8 px |
 | `--coco-s` | 40 px | Produktseite neben dem Preisschild | 1.6 px |
 | `--coco-m` | 72 px | Menü, Korb, Countdown, Shop-Schnuranfang, Tattoo, Formular | 1.8 px |
 | `--coco-xl` | 180 px | leere Zustände, 404-Variante „Zuhause“, 500 | 2.2 px |
@@ -1361,8 +1364,8 @@ Für Juttas Handbuch (P10) und die Beispielbilder (P8):
 | 1 Verkleinern im Browser | P1 | ≤ 2560 px lange Kante, JPEG q 0.85 (Upload-Regeln ARCHITEKTUR §8.8) |
 | 2 Normieren | P1 | sharp: `rotate()` (EXIF-Orientierung), in sRGB wandeln, **alle Metadaten entfernen** (EXIF/GPS), Original als WebP q 90, `fit: inside` 2560 (maßgeblich: `docs/DATENMODELL.md`, Collection `media`) |
 | 3 Zuschnitt 4:5 am Fokuspunkt | P1 | nur für `thumb` und `card`: größtmögliches 4:5-Rechteck, zentriert auf `focalX/focalY` (Payload-Fokuspunkt, Standard 50/50), an den Rändern begrenzt; nie auffüllen, nie hochskalieren. `detail` und `zoom` behalten das Originalformat |
-| 4 Weißabgleich | **P9** | Neutralpunkt aus „hellen, unbunten“ Pixeln (L* im oberen 5 %-Quantil **und** Chroma < 12 in Lab); Kanal-Verstärkung, begrenzt auf **[0.92, 1.08]**; bei < 0,5 % geeigneten Pixeln (z. B. alles grüne Matte) **kein** Abgleich. Kategorie `drawing` halbe Stärke |
-| 5 Belichtung | **P9** | Median-L* des mittleren 60 %-Bereichs → Ziel **62 ± 6** (nur korrigieren, wenn der Median außerhalb 56–68 liegt); Gamma `γ = ln(Ziel/100) / ln(Median/100)`, begrenzt auf **[0.8, 1.25]**, angewandt als Tonwertkurve `v' = v^γ` auf R, G, B (normiert 0–1, per Lookup-Tabelle); wenn danach > 1 % Pixel clippen, Abstand von γ zu 1 halbieren |
+| 4 Weißabgleich | **P9** | Neutralpunkt aus „hellen, unbunten“ Pixeln (L* im oberen 5 %-Quantil **und** Chroma < 12 in Lab); Kanal-Verstärkung, begrenzt auf **[0.92, 1.08]** (P9.17: zwei Durchgänge – der zweite wählt die unbunten Pixel auf dem schon abgeglichenen Bild neu; Gesamtverstärkung bleibt in den Grenzen); bei < 0,5 % geeigneten Pixeln (z. B. alles grüne Matte) **kein** Abgleich. Kategorie `drawing` halbe Stärke |
+| 5 Belichtung | **P9** | Median-L* des mittleren 60 %-Bereichs → Ziel **62 ± 6** (nur korrigieren, wenn der Median außerhalb 56–68 liegt); Gamma `γ = ln(Ziel/100) / ln(Median/100)`, begrenzt auf **[0.7, 1.25]** (P9.17: vorher 0,8 – dunkle Instagram-Fotos mit Median-L* ≈ 40 blieben bei ≈ 47 und verfehlten IM-02 σ ≤ 6), angewandt als Tonwertkurve `v' = v^γ` auf R, G, B (normiert 0–1, per Lookup-Tabelle); wenn danach > 1 % Pixel clippen, Abstand von γ zu 1 halbieren |
 | 6 Schalter je Bild | P9 | Feld `enhance` (`auto` oder `off`, Standard `auto`; DATENMODELL `media`), Vorher/Nachher-Vorschau in der Verwaltung |
 | 7 Größen | P1 | wie DATENMODELL `media.imageSizes`: `thumb` 400×500 und `card` 800×1000 (4:5, WebP) · `detail` Breite 1600 und `zoom` Breite 2560 (Originalformat, WebP) · `og` 1200×630 (JPEG). `withoutEnlargement`: fehlende Größen entfallen im `srcset` |
 | 8 Dominanzfarbe, LQIP | P1 | `sharp.stats().dominant` → Feld `dominantColor` für den Lade-Hintergrund (KO-07); `placeholderDataUrl` laut DATENMODELL |
@@ -1379,7 +1382,7 @@ Budgets (Median über den Beispielbestand): `thumb` ≤ 40 KB, `card` ≤ 90 KB;
 Der Beispielbestand (E-63, Mengen laut SEED-SPEC §0.1) hat mehr Stücke als Instagram-Fotos. Wo kein Foto passt, entstehen **Platzhalter im Linienstil** (Konzeptseite „Beispielbestand“).
 
 - **Format:** SVG `viewBox="0 0 400 500"` (4:5), Grund `--paper-2` oder eine Wash-Farbe (§3.1).
-- **Strich:** 2.4 Einheiten `--ink`, runde Enden, eine Werkzeugstärke, Wackel, offene Enden, 1–2 Doppelkonturen, Schatten als 5–7 Schraffurstriche (40°).
+- **Strich:** 2.8 Einheiten `--ink` (P9.13: kräftiger, näher an Juttas Filzstift; vorher 2.4), runde Enden, eine Werkzeugstärke, Wackel, offene Enden mit Absetzern, 1–2 Doppelkonturen, Schatten als 5–7 Schraffurstriche (40°).
 - **Farbe:** höchstens **eine** flache Wash-Fläche hinter der Linie, 3–4 Einheiten versetzt.
 - **Motiv:** das Stück selbst (Schale, Teller, Fliese, Cap, T-Shirt, Kleid, Anhänger, Zeichnungsblatt, Spiegel; Rahmen nur, wenn das Stück laut `framed` gerahmt ist), 55–70 % der Bildhöhe, leicht schief (±3°); auf Keramik-Platzhaltern kleine naive Tiere (Hund/Hase mit Kulleraugen) wie auf Juttas Schalen.
 - **Kein Text im Bild**, keine Kopie konkreter Werke, keine fremden Figuren.

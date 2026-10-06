@@ -22,6 +22,10 @@
 
 .page {
   position: relative;
+  /* PF-02: begrenzt die Überlappungsprüfung des Compositors auf die Seitenbreite. Ohne die Kappung wertete Chromium
+     die bewegte Coco-Ebene gegen die ganze Seitenebene und rasterte sie jeden Frame voll neu (R01 p95 33,3 statt
+     16,8 ms bei 4× CPU). `clip` statt `hidden`: kein Scroll-Container, `position: sticky` bleibt wirksam. */
+  overflow-x: clip;
 }
 
 .lineLayer {

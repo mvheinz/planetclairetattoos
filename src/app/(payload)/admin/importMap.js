@@ -1,4 +1,5 @@
 import { DownscaleUpload as DownscaleUpload_60428e1d0e1d797dec143ee1805fc4e3 } from '../../../admin/components/DownscaleUpload'
+import { EnhancePreview as EnhancePreview_7ed0e6b0cf98fe111afd3e7651ccf234 } from '../../../admin/components/EnhancePreview'
 import { EuroInput as EuroInput_85a9e8de8381e199937d3ef07e44d52a } from '../../../admin/components/EuroInput'
 import { JsonPreview as JsonPreview_8c4063ec2bb3d8d4a131991061a488f8 } from '../../../admin/components/JsonPreview'
 import { OrderActions as OrderActions_3a7e21027e39a0e378080172b55c97b0 } from '../../../admin/components/OrderActions'
@@ -40,6 +41,7 @@ import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc056
 /** @type import('payload').ImportMap */
 export const importMap = {
   "/admin/components/DownscaleUpload#DownscaleUpload": DownscaleUpload_60428e1d0e1d797dec143ee1805fc4e3,
+  "/admin/components/EnhancePreview#EnhancePreview": EnhancePreview_7ed0e6b0cf98fe111afd3e7651ccf234,
   "/admin/components/EuroInput#EuroInput": EuroInput_85a9e8de8381e199937d3ef07e44d52a,
   "/admin/components/JsonPreview#JsonPreview": JsonPreview_8c4063ec2bb3d8d4a131991061a488f8,
   "/admin/components/OrderActions#OrderActions": OrderActions_3a7e21027e39a0e378080172b55c97b0,

@@ -11,8 +11,8 @@ interface LeashApi {
 }
 type LeashWindow = Window & { __leash?: LeashApi }
 
-/** Unverwechselbarer Text aus `src/leash/runtime.ts` (Masken-ID-Präfix) für die Chunk-Analyse. */
-const RUNTIME_MARKER = 'pc-leash-m-'
+/** Unverwechselbarer Text aus `src/leash/runtime.ts` (Stufenwahl nach Kernzahl) für die Chunk-Analyse. */
+const RUNTIME_MARKER = 'hardwareConcurrency'
 
 const layer = (page: Page) => page.locator('[data-leash-layer]')
 
@@ -68,7 +68,14 @@ test.describe('Tuschelinie-Laufzeit', () => {
       .locator('a, button, input, select, textarea, [tabindex], [contenteditable]')
       .count()
     expect(focusables).toBe(0)
-    expect(await layer(page).locator('svg[focusable="false"]').count()).toBeGreaterThan(0)
+    // Segmente ohne eigenes aria-hidden/focusable (PF-10): sie liegen in der aria-hidden-Ebene und sind kein Ziel
+    expect(await layer(page).locator('svg[data-leash-seg]').count()).toBeGreaterThan(0)
+    expect(
+      await layer(page)
+        .locator('svg[data-leash-seg]')
+        .first()
+        .evaluate((el) => getComputedStyle(el).position),
+    ).toBe('absolute')
     expect(await layer(page).evaluate((el) => getComputedStyle(el).pointerEvents)).toBe('none')
     expect(await page.evaluate(() => (window as LeashWindow).__leash!.tier())).toBe('A')
 

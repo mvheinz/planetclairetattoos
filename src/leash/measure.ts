@@ -5,20 +5,6 @@ import type { BuildInput, LeashAnchor, LoopKind, PresetId } from './types'
 // Messung der Tuschelinie (DESIGN §9.2): alle Anker, Viewport und CSS-Variablen in EINER Lesephase – keine
 // Schreibzugriffe. Koordinaten relativ zur Linien-Ebene (liegt mit `inset: 0` im Seitencontainer).
 
-const LOOPS: readonly LoopKind[] = [
-  'none',
-  'left',
-  'right',
-  'spiral',
-  'lasso',
-  'orbit',
-  'hook',
-  'contour',
-  'heart',
-  'coil',
-]
-const KINDS: readonly LeashAnchor['kind'][] = ['start', 'station', 'tag', 'target', 'end']
-
 export interface Measurement {
   input: Omit<BuildInput, 'preset' | 'seed'>
   /** Oberkante der Linien-Ebene in Dokument-Koordinaten. */
@@ -35,8 +21,8 @@ function cssPx(style: CSSStyleDeclaration, name: string): number | null {
   return Number.isFinite(v) ? v : null
 }
 
-const asLoop = (v: string | null): LoopKind =>
-  v && (LOOPS as readonly string[]).includes(v) ? (v as LoopKind) : 'none'
+// Unbekannte Werte erreicht `planPath` nie: Schlaufen außerhalb von `PRESET_CONFIG[preset].loops` werden zu `none`.
+const asLoop = (v: string | null): LoopKind => (v || 'none') as LoopKind
 
 export function measure(root: HTMLElement, preset: PresetId): Measurement {
   const doc = root.ownerDocument
@@ -51,9 +37,7 @@ export function measure(root: HTMLElement, preset: PresetId): Measurement {
   const cfg = PRESET_CONFIG[preset]
 
   const gutter = cssPx(style, '--leash-gutter') ?? gutterFor(preset, innerWidth)
-  const baseWidth =
-    cssPx(style, cfg.width === 'calm' ? '--leash-w-calm' : '--leash-w') ??
-    (cfg.width === 'calm' ? 1.25 : innerWidth >= 768 ? 2.6 : 2.2)
+  const baseWidth = cssPx(style, cfg.width === 'calm' ? '--leash-w-calm' : '--leash-w') ?? 2.4
   const pagePad = cssPx(style, '--page-pad') ?? 16
 
   const rel = (el: Element) => {
@@ -82,7 +66,7 @@ export function measure(root: HTMLElement, preset: PresetId): Measurement {
   })
   scope.querySelectorAll<HTMLElement>('[data-leash-anchor]').forEach((el, i) => {
     const kind = el.dataset.leashAnchor as LeashAnchor['kind']
-    if (!(KINDS as readonly string[]).includes(kind) || kind === 'station') return
+    if (kind === 'station') return
     anchors.push({
       id: el.id || `${kind}-${i}`,
       kind,

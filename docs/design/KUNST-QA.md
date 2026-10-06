@@ -225,7 +225,9 @@ Tempo-Läufe laufen **ohne** Videoaufnahme (Video kostet CPU) und getrennt von B
 - Profil `art-pixel7`, CPU 4×, kein Video, Cache warm (1 Vorlauf verwerfen), je Route 3 Läufe **mit** Engine und 3 **ohne**
   (`?leash=off`).
 - Ablauf pro Lauf: laden → LCP abwarten → `__qa.start()` → 5 s gleichmäßig scrollen (Chromium: CDP
-  `Input.synthesizeScrollGesture`, 900 px/s, touch) → Menü öffnen/schließen → (R04) „In den Korb“ → `__qa.stop()` → `dump()`.
+  `Input.synthesizeScrollGesture`, 900 px/s, `gestureSourceType: 'mouse'` – synthetische Touch-Gesten scrollen im
+  Headless-Chromium nicht (P9.11 gemessen: 0 px); der Gesten-Weg wird einmal kalibriert, weil die Mobil-Emulation ihn
+  skaliert) → Menü öffnen/schließen → (R04) „In den Korb“ → `__qa.stop()` → `dump()`.
 - Zusätzlich CDP-Trace (`devtools.timeline`) für einen Lauf je Route zum Zählen von `Layout`-Ereignissen während des Scrollens.
 - Auswertung (`pnpm art:metrics`): rAF-Intervalle (p50, p95, Anteil > 33,4 ms), LoAF-Einträge > 50 ms mit Skript-Zuordnung
   (URL enthält Chunk-Namen `leash`/`coco`/`micro`), Summe `leash:frame`-Messungen je Frame, `leash:build`, CLS-Summe und
@@ -259,8 +261,8 @@ Beleg) **· Schwere bei Verfehlung** (B = Blocker, M = Major, m = Minor; Definit
 | ID | Kriterium | Schwelle | Methode | Schwere |
 |---|---|---|---|---|
 | CO-01 | Vollständigkeit | mindestens 22 Symbole (6 Posen × 3 Frames + 4 Brücken) mit IDs aus DESIGN §10.4, gleiche `viewBox`, alle `data-part` vorhanden oder in `data-hidden-parts` begründet | auto | B |
-| CO-02 | Proportionen (Seitenansicht-Posen `rennen`, `schnueffeln`, `springen`; Sitzposen analog aus Kopfteilen) | Ohrhöhe / Kopflänge 0,80–1,10 · Augenbreite / Kopflänge 0,18–0,26 · Schnauzenlänge / Kopflänge 0,30–0,45 · Beinbreite / Beinlänge ≤ 0,18 · Nase ≤ 0,15 Kopflänge | auto (`getBBox()` der `data-part`-Gruppen auf `/qa/coco`) | M |
-| CO-03 | Merkmale | große aufrechte Ohren (bei `kopfschief` eines leicht geknickt), große dunkle Augen mit Glanzpunkt, kurze Schnauze, schwarze Nase, schlanke Beine, Sichelschwanz (außer `schlafen`), **rotes Geschirr mit D-Ring** in jeder Pose, in der Rücken/Brust sichtbar ist | R1 (Checkliste je Frame im Befund-Format) | B |
+| CO-02 | Proportionen (Seitenansicht-Posen `rennen`, `schnueffeln`, `springen`; Sitzposen analog aus Kopfteilen) | Ohrhöhe / Kopflänge 0,55–0,85 (große aufrechte Ohren nach Juttas Coco-Fotos vom 04.10.2026, gemessen ≈ 0,65; vorher 0,80–1,10 bzw. 0,35–0,65) · Augenbreite / Kopflänge 0,18–0,26 · Schnauzenlänge / Kopflänge 0,30–0,45 · Beinbreite / Beinlänge ≤ 0,18 · Nase ≤ 0,15 Kopflänge | auto (`getBBox()` der `data-part`-Gruppen auf `/qa/coco`) | M |
+| CO-03 | Merkmale | runder Kopf, große aufrechte Ohren mit gerundeter Spitze (bei `kopfschief` eines leicht geknickt; Juttas Coco-Fotos 04.10.2026), große runde dunkle Augen mit Glanzpunkt, kurze Schnauze, dicke schwarze Nase, schlanke Beine, Sichelschwanz (außer `schlafen`), **rotes Geschirr mit D-Ring** in jeder Pose, in der Rücken/Brust sichtbar ist | R1 (Checkliste je Frame im Befund-Format) | B |
 | CO-04 | Anker stabil | D-Ring je Pose über A/B/C ± 2 Einheiten, `rennen` ± 3; `data-ground-y` ± 2 | auto | M |
 | CO-05 | Boil-Stärke | Silhouetten-IoU (gerastert 256 px, Schwelle 50 %) zwischen Frames derselben Pose 0,88–0,97; `rennen` 0,55–0,85 (echte Gangphasen) | auto | M |
 | CO-06 | Handmerkmale je Frame | ≥ 2 offene Konturstellen, ≥ 1 Überstand, ≥ 1 Doppelkontur; Ohren-Asymmetrie (Höhe) 5–15 %; Augen verschieden (Breite ≥ 3 % Unterschied) | auto (Geometrie) + R1 (offene Stellen) | M |
@@ -277,7 +279,7 @@ Beleg) **· Schwere bei Verfehlung** (B = Blocker, M = Major, m = Minor; Definit
 | AR-01 | Quelle und Rechte | jede Stationszeichnung stammt aus der Zuordnung DESIGN §12.4; **keine** Kundenhaut-Fotos, kein Godzilla, keine Bilder mit Jutta | auto (`content/art/sources.json`) + R1 | B |
 | AR-02 | Strichtreue der Vektorisierung | Median-Strichbreite (Distanztransformation) der Zeichnung 0,75–1,25 × Median im Schwellwertbild der Quelle; keine Klumpen (zusammengelaufene Flächen > 2 % der Bildfläche, die im Original offen sind) | auto + R1 | M |
 | AR-03 | Größe | Station ≤ 8 KB, Platzhalter ≤ 6 KB, Motive ≤ 1,5 KB, Icons ≤ 600 B, Wortmarke ≤ 5 KB | auto | m |
-| AR-04 | Platzhalter-Regeln | viewBox 400×500, genau eine Wash-Farbe aus §3.1, Strich 2,4, kein `<text>`, Motiv 55–70 % der Höhe | auto | m |
+| AR-04 | Platzhalter-Regeln | viewBox 400×500, höchstens eine Wash-Farbe aus §3.1 (ohne Wash erlaubt), Strich 2,8 (seit P9.13; vorher 2,4), kein `<text>`, Motiv 55–70 % der Höhe | auto | m |
 | AR-05 | Platzhalter wirken wie Juttas Hand | Bewertung ≥ 4 (Rubrik §6.5), im Shop-Raster zwischen echten Fotos nicht „fremd“ | R1 | M |
 | AR-06 | Weltraum-Motive | handgezeichnet, max. 1 Marke/Station, ≤ 3 Sterne/Bildschirmhöhe, keine Band-Bezüge (Liedtext, Logo, Albumgrafik) | auto (Dichte) + R1 | B (Band-Bezug) / m |
 | AR-07 | Marke klein lesbar | Favicon 16 px als Planet mit Ring erkennbar; Wortmarke ab 24 px Höhe lesbar | R1 | m |
@@ -295,7 +297,7 @@ Beleg) **· Schwere bei Verfehlung** (B = Blocker, M = Major, m = Minor; Definit
 | MO-07 | Coco folgt | nach Scrollstopp ≤ 400 ms bis Abstand < 1 px; beim schnellen Wischen nie > 300 px Bogenlänge Rückstand (sonst Sprung) | auto | m |
 | MO-08 | Posen je Station | Pose bei Ankunft/Verweilen = Tabelle DESIGN §11.4 an allen 9 Stationen | auto (`__leash.pose()`) + R2 (Bögen) | M |
 | MO-09 | Brücken | jeder Posenwechsel mit der definierten Brücke bzw. Frame-Grenze; keine Überblendung | auto (`poseLog`) + R2 | m |
-| MO-10 | Intro | Start ≥ LCP + 300 ms; Dauer 900 ms ± 90; Coco rennt herein (MI-10) | auto | M |
+| MO-10 | Intro | Start ≥ LCP + 300 ms; Dauer 900 ms ± 90 (aus der Kurvenanpassung der `drawnLen`-Reihe, nicht aus dem ersten sichtbaren Bild; `art-iphone15`: Dauer nur informativ, weil WebKit ohne GPU in der Aufnahme-Sitzung nur ≈ 10 Bilder/s liefert; Start ≥ LCP + 300 gilt weiter); Coco rennt herein (MI-10) | auto | M |
 | MO-11 | Katalog vollständig | jede MI-01…MI-16 in SC-14 aufgenommen und entspricht Ablauf/Eigenschaften der Tabelle | R2 | M |
 | MO-12 | Timing-Gefühl | Bewertung ≥ 4 (Rubrik §6.5): Feder statt Maschine, Staffelungen leicht unregelmäßig, nichts „schwimmt“ | R2 | M |
 | MO-13 | Stempel nur im Verkaufsmoment | Archiv/Shop-Aufruf: 0 Stempel-Animationen; Danke „bezahlt“: MI-03 ≤ 3× | auto | M |
@@ -306,7 +308,7 @@ Beleg) **· Schwere bei Verfehlung** (B = Blocker, M = Major, m = Minor; Definit
 
 | ID | Kriterium | Schwelle | Methode | Schwere |
 |---|---|---|---|---|
-| LG-01 | Keine Überdeckung | an allen Frame-Positionen aus SC-01, SC-04, SC-05, SC-08, SC-09, SC-10: Schnittmenge aus (gezeichneten LUT-Punkten ± halbe Breite) ∪ Coco-Bbox mit (Rects aller Textzeilen via `Range.getClientRects()` in `main`/`footer`, auch innerhalb von Links/Knöpfen) ∪ (vollständige Rects aller Formularfelder, Knöpfe, Icon-Knöpfe und Fußbereich-Links) = **leer**. Block-Links (Produktkarten) zählen nur mit ihren Textzeilen (DESIGN §9.9 Nr. 3) | auto | B |
+| LG-01 | Keine Überdeckung | an allen Frame-Positionen aus SC-01, SC-04, SC-05, SC-08, SC-09, SC-10: Schnittmenge aus (gezeichneten LUT-Punkten ± halbe Breite) ∪ **Hundekante der Coco** (Bbox der gezeichneten Figur: waagerecht 0,10–0,90 der Box-Breite – die Sprite-Hüllen aller 22 Symbole liegen bei 0,131–0,903 –, senkrecht die volle Box; **keine** Zusatz-Toleranz, einzige Toleranz sind die 1 px, um die jedes Textzeilen-Rechteck schrumpft; die Box selbst ist breiter als der Hund, DESIGN §10.5 – ihre Überdeckungen weist `check.json` nur informativ aus) mit (Rects aller Textzeilen via `Range.getClientRects()` in `main`/`footer`, auch innerhalb von Links/Knöpfen) ∪ (vollständige Rects aller Formularfelder, Knöpfe, Icon-Knöpfe und Fußbereich-Links) = **leer**. Block-Links (Produktkarten) zählen nur mit ihren Textzeilen (DESIGN §9.9 Nr. 3) | auto | B |
 | LG-02 | Pflichtlinks frei | DESIGN AK-DS-09 auf allen Routen | auto | B |
 | LG-03 | Schrift-Regeln | Mansalva nur in erlaubten Rollen (DESIGN §4.3), nie < 24 px; Scan per `getComputedStyle` | auto | M |
 | LG-04 | Textgröße 200 % | `document.documentElement.style.fontSize = '32px'` bei 390 px: kein horizontales Scrollen, LG-01 weiterhin leer, Linie neu aufgebaut | auto | M |
@@ -390,6 +392,8 @@ R2 Bewegung/Timing | R3 Tempo/Barrierefreiheit}. Du prüfst NUR, du änderst nic
 Lies zuerst: docs/design/KUNST-QA.md §5.{…} (deine Checkliste), §6.3 (Antwortformat), §6.5 (Bewertungsrubrik),
 docs/design/DESIGN.md §{…}.
 Material: artifacts/art-qa/{lauf-id}/ – nur die Ordner {…}. Referenzbilder: content/seed/instagram/{…}.
+R1 zusätzlich: Juttas Stil-Skizzen `referenzen/jutta-skizzen/` samt `content/art/jutta-skizzen/README.md` (Stil-Beobachtungen: Monoline,
+offene Konturen, nur kleine Punkte gefüllt, Schraffur nur als Akzent, viel Weißraum) – Messlatte für LQ-08, AR-05, CO-09.
 Kalibrierung (nur R1): bewerte zuerst sheets/art/calibration-p2-placeholder.webp (der grobe P2-Platzhalter) nach Rubrik
 §6.5. Gib ihm ehrlich eine Note; eine Note ≥ 3 macht deine Prüfung ungültig.
 Nachprüfliste (ab Iteration 2): {Befund-IDs mit Kurzbeschreibung}.
@@ -460,6 +464,14 @@ Aufnahme (alle Szenarien, alle Profile, beide Varianten), und `pnpm art:check` g
    2. Effekt auf statischen Endzustand reduzieren (z. B. MI-13 ohne Wisch);
    3. Stufe B statt A für das betroffene Profil/den Browser (`presets.ts`);
    4. Choreografie-Moment streichen (Station behält Pose ohne Extra).
+
+   **Stufen für Stil-Urteile** (Zeichnungen und Bilder: LQ-08, AR-05, IM-04, CO-09 – dort sind Parameter, Effekte und Abläufe nicht
+   betroffen, Stufen 1–4 greifen nicht; eingeführt in P9.18 nach Iteration 3, konservativ, in `docs/OFFENE-PUNKTE.md` vermerkt):
+   1. **Weniger Motive pro Bild, mehr Papier** (Platzhalter, Stationen, Raster): Wiederholungen streichen, Figuren einzeln zeichnen.
+   2. **Einzelmotiv ersetzen:** das beanstandete Motiv durch eine Coco-Skizze nach Juttas Vorlage (`content/art/jutta-skizzen/`)
+      ersetzen bzw. im Raster das Foto durch einen Platzhalter.
+   3. **Station behält nur die einfachste Zeichnung** – ohne Schraffur, ohne Gekritzelfläche.
+   Die Stufen werden der Reihe nach angewendet; jede zählt als „Fortschritt“ im Sinn von Nr. 6.2.
    **Nicht verhandelbar** (keine Vereinfachung, sondern Behebung): alle B-Punkte aus §5.5–5.8, mindestens 6 Posen × 3 Frames, Linie
    tuscheschwarz, reduzierte Bewegung, Ruhezonen.
 6. **Obergrenzen** (die Schleife endet immer):
@@ -605,7 +617,8 @@ toolVersions: {playwright, chromium, webkit, node}, sizes: {totalMB} }`.
   `pnpm art:record` → `pnpm art:metrics` → `pnpm art:sheets` → `pnpm art:check` (Gate) → `pnpm art:bundle` → ältere
   `art-qa-*` löschen → `actions/upload-artifact` (grün: Name `art-qa-<lauf-id>`, `retention-days: 30`; rot: Budget-Schritt,
   dann nur `art-qa-check-<lauf-id>`, `retention-days: 2`, §8).
-- Laufzeit-Ziel ≤ 25 min; Tempo-Läufe (SC-18) nur mit Chromium.
+- Laufzeit-Ziel: Aufnahme ≈ 30 min (realistisch auf 4 vCPU), Gate ≤ 45 min Gesamtlauf, Abbruch bei 60 min. Gemessen: Lauf 37303234309 mit 2 Workern 40 min gesamt (Aufnahme 34 min); mit 3 Workern (Lauf 37315719966) 44 min gesamt, aber Kassen-Szenarien SC-06/07/09 kollidierten (Fixture-Bereich 990–999 reicht für 2 Worker) und PF-04 (Build-Zeit) wurde verfälscht. Daher `ART_WORKERS=2` (Workflow, Bild-Läufe); Kassen-Szenarien laufen nach den übrigen Szenarien mit höchstens 2 Workern, der Tempo-Lauf SC-18 (Chromium, ≈ 7 min) allein danach. Größte Posten: SC-14 (≈ 13 min Gerätezeit), SC-18, SC-01.
+- Tempo-Läufe (SC-18) nur mit Chromium.
 - Ab P9 enthält die reguläre E2E-Suite (`tests/e2e/`, Job `e2e-full` in `ci-full.yml` bei jedem Phasenende `[ci:full pN]`
   und beim Zwischenlauf `[ci:full]`, ARCHITEKTUR §6.4, §6.7) als schnelle Teilmenge: DESIGN AK-DS-09, -11, -13, -14 und
   §5 LG-01 für R01 (Projekt `pixel-7`, ohne Video). Das verhindert, dass spätere Phasen die Kunst-Abnahme unbemerkt brechen.

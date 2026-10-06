@@ -2,6 +2,170 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P9 CI grün
+
+Phasenlauf `d912802`: CI, CI full (sechs Browser-Hälften, Abdeckung, visuelle Prüfung, Lighthouse), Vorschau-Export und Kunst-QA grün. Vorschau-Artefakt `planet-claire-vorschau-p9-d912802`. P9.17 (Tempo/Barrierefreiheit: `art:check` 62/62, Lighthouse und axe in CI full) und P9.19 (Abschluss, Bündel `art-qa-20261006-iter01-b093408`) abgehakt; `LEGAL_TRACE_PHASE = 9`, `art:space`/`art:admin-icons` in ARCHITEKTUR §6.10 nachgetragen.
+
+## 2026-10-06 – P9 CI-Reparatur (zwei Testfehler)
+
+Im Phasenlauf von P9 scheiterten zwei Tests, beides Testprobleme und keine Fehler auf der Seite: Eine Prüfung auf „__leash“ im Vorschau-Export traf versehentlich Klassennamen der QA-Seiten (jetzt wird nur der eigenständige Name geprüft, wie im Debug-Check), und ein Test für Cocos Sprite lief in CI knapp über sein Zeitlimit (jetzt 30 Sekunden). Der Phasenlauf startet erneut.
+
+## 2026-10-06 – P9 Phasen-Abnahme (Kunst & Bewegung) – für Jutta
+
+### Phase 9 fertig: Zeichnungen und Animationen sind gebaut und dreifach geprüft
+
+Hallo Jutta,
+
+Phase 9 ist fertig. Coco, die Tuschelinie, die Zeichnungen und die Bewegungen sind jetzt so umgesetzt, wie ich deinen Strich aus den Skizzen und den Coco-Fotos verstanden habe.
+
+### Was neu ist
+
+- **Coco** ist nach deinen Fotos neu gezeichnet: große aufrechte Ohren, runder Kopf, helle Schnauze, weiße Brust und Pfoten. Sie läuft an der Linie mit, setzt sich, wenn du stehen bleibst, und blickt zur Seite.
+- **Die Tuschelinie** wird von Hand gezeichnet gewirkt (Absetzer, leichtes Zittern) und führt dich durch die Startseite. Am Ende bildet sie ein Herz.
+- **Stationen und Platzhalter** sind frei im Linienstil gezeichnet, mit viel Papier und nur kleinen schwarzen Punkten.
+- **Fotos** bekommen einen einheitlichen Look; Produktfotos sitzen in einem Papierrand.
+- **Seitenübergänge** und kleine Bewegungen (Hover, Korb, 404-Seite). Wer „weniger Bewegung“ eingestellt hat, bekommt ruhige Seiten.
+
+### Wie es geprüft wurde
+
+Neun Prüfrunden mit Videoaufnahmen auf Handy und Desktop, jedes Mal von drei unabhängigen Prüfern („Linsen“) ohne Vorwissen. Der automatische Check bestand am Ende mit 62 von 62 Kriterien, auch auf dem GitHub-Rechner ([Lauf mit den Videos](https://github.com/mvheinz/planetclairetattoos/actions/runs/37403045986), das Paket „art-qa-20261006-iter01-b093408“ ist 30 Tage verfügbar).
+
+### Was noch offen ist (in `docs/OFFENE-PUNKTE.md`, „Kunst-QA offen“)
+
+- Die Platzhalter-Bilder wirken auf den Prüfer noch nicht ganz handgemacht genug (Note 3 statt 4). Der nächste Schritt wäre, die Gesichter neu zu zeichnen – das machen wir gemeinsam in Phase 11.
+- Kleine Bewegungs-Feinheiten (Coco wandert beim Seitenwechsel noch nicht mit).
+- Du schaust dir alles einmal auf einem echten Handy an (auch im Instagram-Browser) – Liste in der Go-live-Checkliste.
+
+## 2026-10-06 – P9 Kunst-QA: Abschlusslauf in CI (Tempo der Linie)
+
+Im letzten CI-Lauf war nur noch eine Messung rot: der Aufbau der Linie am Desktop dauerte in einzelnen Teilstücken bis zu 9,5 ms statt höchstens 8. Die Linie wird jetzt in noch kleineren Stücken aufgebaut (höchstens ca. 1 ms je Stück). Der Lauf bestätigt das auf einer ruhigen Maschine.
+
+## 2026-10-06 – P9.12, P9.13, P9.18 abgehakt (Kunst-QA, Fall b)
+
+Neun Prüf-Durchgänge (Iteration 01–09, Protokolle in `docs/design/qa-log/`, Reviews je Linse) mit jeweils grünem `art:check` auf der Vollaufnahme in Iteration 06–09. Die Schleife endet nach Fall b (8+ Iterationen): alle nicht verhandelbaren Punkte bestehen, der Prüfer R3 meldet PASS. Offen als „Kunst-QA offen“ (in `docs/OFFENE-PUNKTE.md`): Platzhalter noch nicht ganz auf Note 4 (AR-05 = 3; nächste Stufe: Gesichter neu zeichnen, gemeinsam mit Jutta in P11), die Bewegungs-Feinheiten MO-11/MO-12 und Cocos Wanderung im Seitenübergang (MO-14). Gefundener und behobener Fehler: Der Seitenübergang stand am Ende der Seite statt im Kopf und wurde von Chromium übersprungen.
+
+## 2026-10-06 – P9.18a
+
+- Fall b (KUNST-QA §6.6 Nr. 6.1) nach 9 Iterationen (Iteration 06–09 in dieser Session): alle nicht verhandelbaren Punkte PASS, `art:check` 62/62 in jedem Lauf. Iteration 09: R1 FAIL (AR-05 Note 3), R2 FAIL (MO-11, MO-12 Note 3), R3 PASS.
+- Offen als „Kunst-QA offen“ (docs/OFFENE-PUNKTE.md): AR-05, MO-11/MO-12 (MI-01 Posenwechsel, MI-06/07/10/12 Aufnahme), MO-14 (Coco wandert nicht, ADR 0003). Protokolle: docs/design/qa-log/2026-10-05-iter-06.md bis -09.md, Reviews unter reviews/iter-06 bis iter-09.
+- Echter Produktfund: `@view-transition` stand am Ende des `<body>`, Chromium übersprang den Seitenübergang; jetzt im `<head>` (MO-14 misst 242 statt 0 Animationen).
+- Weitere Produkt-Änderungen: Nr. 922 im Raster nicht mehr schwarz (kein Multiplizieren bei Aquarellen), Coco-Boil ohne Lücke, Ruheplatz hinter der Kopf-Schlaufe (reduziert), Herz am Endanker, Planeten-Marke bei erzwungenen Farben ohne Füllung, Stationen hallo/jutta-und-coco neu, zehn Platzhalter ohne Wash.
+- Tests: pnpm check grün (207 Dateien, 1 889 Tests), pnpm build grün, pnpm test:perf (Lighthouse-Gates) Exit 0, visuelle Referenzen für 6 Bilder erneuert, E2E-Teilauswahl (desktop + pixel-7: leash, coco, home, home-choreo, reduced-motion, motion-toggle, art-gate, error-pages, menu) 81 grün; rot bleiben in dieser Umgebung `coco.e2e` „Weiche Navigation“ (2 Fälle, rot auch mit dem alten `SiteDocument`, einzeln mit `-g` grün) und ein reihenfolge-abhängiger Fall in `home.e2e` (einzeln grün); `@a11y`-Auswahl: `keyboard.e2e` EK-07 scheitert am Footer-Schalter „Animationen: aus (Systemeinstellung)“ (Umgebung mit System-Bewegungsreduktion) – nicht abgehakt, siehe Bericht.
+
+## 2026-10-05 – P9.7 Kunst-QA-Workflow bewiesen
+
+`[ci:art]`-Lauf 37329881684 (Commit 85347b4) ist grün: 62 von 62 automatischen Kriterien bestanden, Bündel `art-qa-20261005-iter01-85347b4` (≈ 100 MB) hochgeladen, genau ein Bündel vorhanden, Laufzeit ≈ 44 Minuten (Gate ≤ 45, Abbruch 60). Probe `gh run download`: Der Download der Artefakt-Datei ist von dieser Cloud-Umgebung aus nicht möglich (Proxy erlaubt keine Weiterleitung auf den Blob-Speicher); Auswertung läuft deshalb über die Zeilen im Job-Log (`ROT <ID>: …`) – Eintrag in OFFENE-PUNKTE.
+
+## 2026-10-05 – P9 Kunst-QA: vierter Lauf in CI
+
+Zwei Aufnahme-Worker statt drei (drei störten sich gegenseitig), die Kassen-Szenarien laufen nacheinander, und rote Kriterien stehen jetzt mit Messwert im Log. Die Messung der Linien-Nachführung auf dem iPhone-Profil ist genauer geworden. Der Lauf zeigt auf einer ruhigen Maschine, ob alles besteht.
+
+## 2026-10-05 – P9 Kunst-QA: dritter Lauf in CI
+
+Im letzten CI-Lauf war nur noch eine Messung rot (Tempo der Linie auf dem iPhone-Profil). Ursache war ein echter Fehler (die Linie reagierte beim schnellen Wischen nur auf gedrosselte Scroll-Ereignisse) plus ein Messproblem; beides ist behoben. Außerdem nehmen drei Worker parallel auf, damit der Lauf kürzer wird. Der Lauf bestätigt das auf einer ruhigen Maschine.
+
+## 2026-10-05 – P9 Kunst-QA in CI: Zeitlimit 60 Minuten
+
+Der zweite Kunst-Lauf in CI brauchte allein für die Aufnahmen 41 Minuten (mehr Szenarien als beim ersten Lauf) und lief ins 45-Minuten-Limit. Limit auf 60 Minuten angehoben (öffentliches Repo); Lauf startet erneut.
+
+## 2026-10-05 – P9 Kunst-QA: zweiter Lauf in CI
+
+Stand nach den Prüf-Durchgängen 2–5 (PF-02/PF-04 behoben, Coco größer an der Linienspitze, Stationen und Platzhalter freier gezeichnet, Papierrand um Produktfotos). Der zweite `[ci:art]`-Lauf misst Tempo und Bewegungen auf einer ruhigen Maschine, weil der lokale Rechner stark schwankt.
+
+## 2026-10-04 – P9 erster Kunst-QA-Lauf in CI
+
+Stand der Kunst-Arbeit (Coco nach deinen Fotos, neue Stationszeichnungen, Linie, Foto-Look, Bewegungen) ist im Arbeitsbranch. Der erste `[ci:art]`-Lauf nimmt Videos und Messwerte auf einer ruhigen Maschine auf (P9.7).
+
+## 2026-10-04 – P9 (Arbeitsstand, nicht abgehakt: P9.12, P9.13, P9.17, P9.18)
+
+- P8-Stand übernommen (parallele Int-Worker, E2E-Shards, Test-Fixes); `pnpm check` grün, `PC_INT_WORKERS=3 pnpm test:int` 153/153 Dateien grün (ohne preview-export); visuelle Referenzen jetzt immer mit kanonischem SEED_NOW (`test:visual`), zwei Läufe 70/70.
+- Coco nach Juttas 5 Fotos: große aufrechte Ohren (Ohr/Kopf ≈ 0,68), kürzere Beine, buschigerer Schwanz, Nase/Maul mittig; Charakterblatt, Platzhalter, Stationen und OG-Bild neu. CO-01…CO-08 PASS (Lauf iter44/iter45).
+- Stationen keramik, tattoo, zeichnungen frei neu gezeichnet, einheitlich 2 px Strich; Platzhalter: Schraffur je Motiv verschieden, Hand und Wade lesbar.
+- Foto-Look: Gamma-Untergrenze 0,7 und Weißabgleich in zwei Durchgängen – IM-02 jetzt auch bei frischem Seed grün (σ 4,97).
+- Kunst-QA Iteration 01 (Lauf iter45): art:check 59/62 (PF-02/PF-04 unter Fremdlast, LQ-06 einmalig); Linsen R1/R2/R3 FAIL – R1: CO-09 4, AR-05 3, IM-04 3, LQ-08 3, AR-07 PASS; Details `docs/design/qa-log/2026-10-04-iter-01.md`.
+- Lighthouse (3 Durchläufe): LCP überall ≤ 2,1 s; TBT 86–275 ms, schwankt mit der Rechnerlast.
+
+## 2026-10-04 – P9.16
+
+- Letztes offenes Kriterium Vorschau-Datei (KONZEPT §12.7 Nr. 5 und 7) im Arbeitsbaum mit eigener DB/Port belegt: pnpm preview:export (PREVIEW_EXPORT_DB_NAME=planetclaire_c_preview_export, Port 3250) → 164 Routen, 0 Warnungen; pnpm test:preview-export 32/32 grün (Nr. 5: Linie zeichnet beim Scrollen weiter, Coco bewegt sich; reduzierte Bewegung statisch; Nr. 7 und P3.16: „In den Korb“-Mikromoment, Schild-Schwingen ohne Anfragen)\n- MO-01…MO-04, MO-13…MO-15, RZ-01/02, A11Y-06 PASS in art:check (Lauf iter39); AK-DS-11/16 grün\n- Tests: pnpm test:preview-export (32), pnpm check
+
+## 2026-10-04 – P9.15
+
+- Choreografie journey (Stationen, Posen, Brücken, Intro) in coco.ts/runtime.ts/presets.ts\n- Lauf iter39: MO-04…MO-10 PASS in allen Profilen, LG-01 auf SC-01 leer, PF-01…PF-06 PASS\n- Tests: tests/unit/leash/choreo.unit.spec.tsx, tests/e2e/home-choreo.e2e.spec.ts (421 E2E grün, desktop + pixel-7)
+
+## 2026-10-04 – P9.14
+
+- Foto-Look-Pipeline (Weißabgleich, Belichtung, Schalter) in enhance.ts, media:regenerate idempotent\n- Lauf iter39: IM-01, IM-02 (σ Median-L* 3,28 über 9 Fotos), IM-05 PASS; Population und Papier-Anteil in OFFENE-PUNKTE\n- Tests: enhance.unit.spec.ts, regenerate.int.spec.ts
+
+## 2026-10-04 – P9.11
+
+- Engine-Parameter wie DESIGN, Randbahn-Routing und Stale-Linie in geometry.ts/runtime.ts; Engine 11 998 B gz (Budget 12 000 gehalten)\n- Lauf 20261004-iter39-9953802: LQ-01…LQ-06 und A11Y-05 PASS, PF-09/PF-12 PASS\n- Tests: tests/unit/leash/{ink,geometry,loops,routing}.unit.spec.ts, E2E leash/home-choreo grün
+
+## 2026-10-03 – P9.11–P9.13 (Zwischenstand, noch nicht abgehakt)
+
+- Tuschelinie Stufe A: LQ-01…LQ-06 PASS (Lauf 20261003-iter23-a0f8bdc, LQ-06 11,7 L*), PF-09 Engine 11 759 B gz (Luft 241 B), PF-12 PASS (A → B), PF-04 Desktop max. 12,9 ms unter Fremdlast. Offen für P9.11: A11Y-05/LG-01 (Coco-Box über Text auf R01, kommt mit P9.15), PF-05 (R01 16 Layouts, R07 10: Countdown-Sekundentakt und nachgeladene Karten, nicht die Engine), PF-10 Startseite (siehe OFFENE-PUNKTE).
+- Stationen/Weltraum/Marke: AR-01…AR-03, AR-06 PASS; 16-px-Favicon mit dickerem Strich (Planet mit Ring lesbar). Frische Prüf-Linse (Lauf lens5): Stationen keramik/tattoo/zeichnungen noch als „Trace-nah“ bemängelt, Strichstärke zwischen Stationen uneinheitlich – AR-07 daher offen.
+- Platzhalter: AR-03/AR-04 PASS; Linse AR-05 = 3, IM-04 = 3, CO-09 = 3 (Ziel ≥ 4): Platzhalter „niedlicher als Juttas Hand“, Raster beginnt mit zwei reinen Platzhalter-Reihen; Coco-Dynamikposen haben spitze Schnauzen.
+- Tests: `pnpm check` (1833 Unit-Tests) grün.
+
+## 2026-10-03 – P9.10
+
+- `rennen` mit drei echten Gangphasen (A Streckung, B Sammlung, C Flug; IoU 0,59–0,66, Anker ± 1,5), `schnueffeln` (Nase am Boden, C 1 Einheit Schnüffel-Zucken), `springen` (Luftbogen, Ballen sichtbar wie in Juttas Sprung-Skizze), Brücken `bremsen`, `abspringen` – alle 22 Symbole final.
+- PF-10 Sprite 42,4 KB roh / 10,7 KB gz (≤ 45/12), PF-09 Coco-Steuerung 1,7 KB gz; MO-03 PASS (12/10/8 fps, Seek 0/1/2 → a/b/c).
+- Tests: Erweiterung `sprite.unit.spec.ts` (COCO_POSE_TO_SPRITE, fps, Budgets, B/C neu gezeichnet, Schlaf-Schraffur).
+
+## 2026-10-03 – P9.9
+
+- Neuer Zeichen-Generator `scripts/art/draw-coco.ts` (`pnpm art:coco`, ersetzt den Platzhalter-Generator): Frame A je Pose von Hand gesetzt (Stützpunkte, keine Primitive), B/C jede Linie neu nachgezeichnet (0,5–1,5 Einheiten), Juttas Strich: offene Konturen, Haken an Strichenden, offene Augenringe mit Seitenblick, ferne Beine als ein Strich; `sitzen`, `kopfschief` (rechtes Ohr an der Spitze geknickt), `schlafen` (Augen als Bögen, 5 Schraffurstriche), Brücken `einrollen-1/-2`.
+- Sprite v2: `public/art/coco-sprite.v2.svg` 42,4 KB / 10,7 KB gz; Version nur in `SPRITE_VERSION` (build-sprite.ts) – art:check, check-bundle, Tests lesen den Pfad aus `coco-sprite.json`/`coco-anchors.json`; v1 gelöscht.
+- `art:check` (Lauf 20261003-iter18-09c99dd, SC-12): CO-01, CO-02, CO-04, CO-05, CO-06, CO-07, CO-08, MO-03 PASS. CO-02 gilt laut KUNST-QA nicht für `schlafen` (Checker korrigiert, OFFENE-PUNKTE).
+- Prüf-Linse auf dem Coco-Bogen: Coco in allen 22 Frames erkennbar; Geschirr überall, wo Rücken/Brust sichtbar; D-Ring nach Vergrößerung/Anbindung an den Rückensteg; Hinweis: Nase im Schlafgesicht klein. Stilnote 3.
+- Tests: `tests/unit/art/sprite.unit.spec.ts` (21 inkl. Charakterblatt), `pnpm check` (1817), Int (1006), E2E Coco/Leash (13 bestanden, 13 projektbedingt übersprungen).
+
+## 2026-10-03 – P9.8
+
+- Coco-Charakterblatt `content/art/coco/character-sheet.svg` + `.webp` (219 KB) mit `pnpm art:character-sheet` (`scripts/art/character-sheet.ts`): Seitenansicht (stehend) mit K-Hilfslinien (Boden, Widerrist 1,3 K, Ohrspitze, K-Raster), ¾-Ansicht (sitzen), 9 nummerierte Merkmale, Messtabelle (gemessen wie art:check CO-02: Ohr 0,88/0,92, Auge 0,19, Schnauze 0,34/0,37, Nase 0,10/0,14, Bein 0,14 – alle im Bereich), Wash-Versatz, Strich-Regeln, Gesten aller 6 Posen + 4 Brücken. Kein `<image>`, nicht in `public/`, nicht im Build.
+- Grundlage ohne eigene Fotos: Juttas Skizzen + 9 Highlights (Annahme in OFFENE-PUNKTE); kein Instagram-Export vorhanden.
+- Frische Prüf-Linse (4 getrennte Headless-Läufe, KUNST-QA §6.1 Nr. 5): letzte Iteration „Coco erkennbar? ja (eingeschränkt)“; CO-03: Ohren groß/aufrecht ja (Knick bei kopfschief im Blatt-Thumbnail schwer sichtbar), Augen mit Glanzpunkt ja, kurze Schnauze ja, schwarze Nase ja, schlanke Beine ja, Sichelschwanz ja, Geschirr mit D-Ring ja (D-Ring klein). Stilnote CO-09: 3 (Ziel ≥ 4 erst P9.13). Offene Hinweise der Linse: Ohren eher fennekartig, Fell-Wash heller als Cocos Goldton, Strich zu gleichmäßig – Nacharbeit P9.13/P11 (Jutta).
+- Tests: `tests/unit/art/character-sheet.unit.spec.ts` (5, grün).
+
+## 2026-10-03 – P9.6
+
+- pnpm art:check um MO-01…10/13…15, LG-01…04, PF-01…12, A11Y-01…07, CT-01…03, RZ-01/02 ergänzt (Sonden: getAnimations mit Easing, poseLog, data-boil, Textzeilen per Range.getClientRects, Fokusring, Zusatzmessungen Intro/Folgen/Lesezeile/Tab-Reihenfolge/200 %/qa-jank/verborgener Tab/Desktop-Messungen); PF gegen perf.json (P9.4); --evidence führt AK-DS-01/AK-DS-17 aus
+- Stand iter15: 34/62 auto grün; rot u. a. LQ-03/04/05 (Engine-Parameter, P9.11), PF-04/PF-05 (P9.11/P9.15), LG-01 (Coco-Box/Linie über Text R01/R08), CO-02/05/06 (Sprite v1, P9.9), IM-02 (P9.14), A11Y-06/RZ-01 (je 1 Transition auf Ruhe-Routen), MO-02/14 (View Transition ease/250 ms)
+- Tests: check-art.unit.spec.ts (Abgleich AUTO_IDS ↔ KUNST-QA §5; ease/MO-02, 7 s Boil/MO-04, Linie über Text/LG-01, LoAF 80 ms leash/PF-01)
+
+## 2026-10-03 – P9.5
+
+- pnpm art:sheets (Kontaktbögen 2400 px/6 Spalten, Coco je Pose A/B/C + ?parts=1, Stationen neben Quelle, Kalibrierbogen; je ≤ 1,5 MB), pnpm art:bundle (manifest.json §8, Vollständigkeit §4.3, ≤ 100 MB, Sonden gzip), pnpm art:check (check.json/check.md, Kriterien aus KUNST-QA §5 geparst, R1/R2/R3 offen markiert, Exit ≠ 0 bei FAIL)
+- Kunst-Kriterien LQ-01…06, CO-01/02/04…08, AR-01…04/06, IM-01/02/05; Aufnahme-Sonden je Standbild (raw/**/probes.json) und axe je Route
+- Lauf 20261003-iter15-21c6686 (alle Bild-Szenarien, 81/81 grün, Last bis 11 bei 4 Kernen): 167 Bögen (56 MB), Bündel 100 MB (Pflichtteil 62 MB)
+- Tests: tests/unit/art/check-art.unit.spec.ts, tests/unit/art/bundle.unit.spec.ts (Negativ-Fixtures Kreisschlaufe/LQ-04, <circle>+Spiegelung/CO-07, #333333/LQ-01, <text>/AR-04; fehlendes Video/Frames/Kalibrierbogen)
+
+## 2026-10-03 – P9.4
+
+- `tests/art/sc-18.art.spec.ts` (Pixel 7, CPU 4×, ohne Video, Vorlauf verworfen, R01/R02/R04/R07 je 3× mit und 3× `?leash=off`, CDP-Trace je Route) und `pnpm art:metrics` → `metrics/perf.json` mit allen Größen, Gates PF-01…PF-08 relativ zur Grundlinie plus absolute Grenzen; Rechnerlast je Lauf (`host.reliable`).
+- Basis-Lauf im qa-log (`docs/design/qa-log/2026-10-03-basislauf-sc18.md`), bei ruhiger Maschine wiederholt (`iter14`, Last ≤ 2,6 bei 4 Kernen): rot nur PF-04 (R01/R02) und PF-05 – Arbeitspunkte für P9.11/P9.15, Grenzwerte unverändert.
+- Tests: `tests/unit/art/metrics.unit.spec.ts` mit Beispiel-JSONs aus `tests/fixtures/art/` (grün), `pnpm check`, Int grün.
+
+## 2026-10-03 – P9.3
+
+- Szenarien SC-01…SC-11, SC-14, SC-15, SC-17 als `tests/art/sc-XX.art.spec.ts` nach KUNST-QA §4.3 (Frames mit `t`/`y` in der Beschriftung, Kasse/Danke mit Mock-Zahlung, Fremd-Host-Wächter).
+- `art:record` verteilt die Bild-Läufe auf 2 Worker und misst SC-18 danach allein; Rechnerlast wird in `run.json` protokolliert.
+- Leere Frames (nicht gerasterte Kacheln nach Scroll-Sprung in der Pixel-7-Emulation) werden erkannt und neu aufgenommen (`retakes.json`).
+- Tests: vollständige Aufnahme `20261003-iter13-bb9ffe0`: 81 Bild-Tests + SC-18 grün, 3 968 Frames, 81 Videos, 0 leere Frames, 0 Fremd-Hosts; 26,3 min unter Fremdlast (ohne Fremdlast 24,0 min, `iter11`); `pnpm check`, Int grün.
+
+## 2026-10-03 – P9.2
+
+- `playwright.art.config.ts`: Projekte `art-iphone15` (WebKit), `art-pixel7`, `art-desktop` × `motion`/`reduced` + `art-pixel7-tempo`; Auswahl per Tags am Test; Server = QA-Build `.next-art` (`pnpm art:build`, Debug + ART_QA) auf Port 3200\n- Helfer `tests/art/helpers/` (Clock vor Navigation, scrollTo + 2 rAF, WAAPI-Seek, Boil-Seek, Sequenzen per Clock, Video in Viewport-Größe, Fremd-Hosts blockiert = Testfehler); `pnpm art:record` (Lauf-ID, verweigert bei unsauberem git status, `artifacts/art-qa/<lauf-id>/`), `pnpm art:compare`\n- SC-00, SC-12, SC-13 (Playwright), SC-16 (Skript, `metrics/images.json`); Kalibrierbogen vom unveränderten Sprite v1 neu (72 + 180 px, 137 KB)\n- Nachweis: `art:record --scope SC-00,SC-12,SC-13` zweimal auf Commit 050a858 → 12/12 grün je Lauf, `art:compare`: 75 reduced-Frames pixelgleich\n- Tests: tests/unit/art/record.unit.spec.ts (7), sprite.unit.spec.ts angepasst
+
+## 2026-10-03 – P9.1
+
+- QA-Modus `ART_QA` (`artQaActive`, Startregel: in Produktion Abbruch), QA-Seiten `/{locale}/qa/{coco,art,motion,leash,error}` (dynamisch, sonst 404, noindex, nicht in Registry/Sitemap/robots/Vorschau-Export)\n- Query-Schalter `?leash=off` (kein Engine-/Coco-Chunk), `?freeze=1`, `?qa-jank=30` nur mit Server-Marke `pc-art-qa` (`src/lib/qa/switches.ts`, `QaRuntime`); `/qa/motion` spielt MI-01…16 mit Produkt-Komponenten und -Modulen (`QaReplay`, Modus preview)\n- `check:no-debug`: Marker nur als eigener Bezeichner (CSS-Modul-Klassen wie `…__leashEnd` lösten fälschlich aus)\n- Tests: tests/unit/qa/qa-mode.unit.spec.ts (11), tests/e2e/qa-mode.e2e.spec.ts (7 je Projekt, desktop+pixel-7 grün), pnpm check, check:no-debug grün
+## 2026-10-04 – Coco-Fotos von Jutta
+
+Danke für die fünf Fotos von Coco! Sie liegen jetzt als Vorlage im Projekt (zusammengerollt, frontal liegend, stehend mit Blick über die Schulter, frontal von nah, im Profil sitzend). Coco wird in Phase 9 danach nachgezeichnet – vor allem Kopfform, Ohren, die helle Schnauze und die Haltung. Die Fotos sind recht klein; wenn du irgendwann größere Originale hast, werden Details noch genauer. Das ist aber kein Muss.
+
 ## 2026-10-04 – P8 CI grün
 
 Phasenlauf `8518023`: CI, CI full (alle sechs Browser-Hälften, Abdeckung, visuelle Prüfung, Lighthouse) und Vorschau-Export grün. Vorschau-Artefakt `planet-claire-vorschau-p8-8518023`.

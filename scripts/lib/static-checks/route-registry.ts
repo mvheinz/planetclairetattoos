@@ -75,6 +75,12 @@ export const variantPageFileForKey = (key: string) =>
  */
 export const NON_REGISTRY_PAGE_FILES: readonly string[] = [
   'src/app/(frontend)/[locale]/%5F%5Ffehler-test/page.tsx',
+  // QA-Seiten der Kunst-Abnahme (P9.1, KUNST-QA §3.2): nur mit ART_QA=1, sonst 404; nie in Registry/Sitemap/robots.
+  'src/app/(frontend)/[locale]/qa/coco/page.tsx',
+  'src/app/(frontend)/[locale]/qa/art/page.tsx',
+  'src/app/(frontend)/[locale]/qa/motion/page.tsx',
+  'src/app/(frontend)/[locale]/qa/leash/page.tsx',
+  'src/app/(frontend)/[locale]/qa/error/page.tsx',
 ]
 
 export interface RegistryInput {

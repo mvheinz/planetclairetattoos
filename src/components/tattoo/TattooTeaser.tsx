@@ -52,7 +52,9 @@ export async function TattooTeaser({ data, locale }: { data: TattooTeaserData; l
                   srcSizes={['thumb']}
                   className={styles.offerFlashImage}
                 />
-                <span className={styles.flashNumber}>{f.display}</span>
+                <span className={styles.flashNumber} data-stamp="">
+                  {f.display}
+                </span>
                 <span>{f.title}</span>
               </a>
             </li>

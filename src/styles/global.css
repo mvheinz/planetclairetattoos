@@ -152,6 +152,13 @@ h3 {
   letter-spacing: -0.005em;
 }
 
+/* Ruhe-Seiten und Rechtstexte: Mansalva nur für die H1 (DESIGN §4.3 Nr. 2), alles andere Bricolage. */
+body[data-preset='calm'] main :is(h2, h3),
+body[data-preset='legal'] main :is(h2, h3) {
+  font-family: var(--font-body);
+  font-weight: 700;
+}
+
 /* Zeichen, die Mansalva fehlen (Komponente GlyphFallback, §4.4): Bricolage 600, nie Systemschrift-Mischung. */
 .glyph-fallback {
   font-family: var(--font-body);
@@ -262,6 +269,11 @@ html[data-menu-open] {
   display: inline-block;
 }
 
+/* Die Linie liegt unter der Grundlinie, nicht im Wort (R3-05-01: bei `aria-current` wirkte sie wie durchgestrichen). */
+.nav-link__text > [data-ink-underline] {
+  bottom: -7px;
+}
+
 /* ---------- Fokus (§3.2 Nr. 3) – nie entfernen ---------- */
 :focus-visible {
   outline: 3px solid var(--color-focus);
@@ -343,6 +355,17 @@ body[data-preset='margin'] {
   z-index: var(--z-leash);
   pointer-events: none;
 }
+/* Segment-`<svg>` der Linie (Lage je Segment inline als left/top; Rest hier statt 13× im DOM, PF-10). Die Ebene selbst
+   ist `aria-hidden`, die Segmente brauchen kein eigenes. */
+[data-leash-seg] {
+  position: absolute;
+  overflow: visible;
+}
+
+/* Layout hat sich geändert, Neuaufbau steht aus: die veraltete Produktlinie nicht über neuen Text stehen lassen. */
+[data-leash-preset='product'][data-stale] {
+  visibility: hidden;
+}
 
 .u-layer-sticky {
   z-index: var(--z-sticky);
@@ -394,7 +417,7 @@ body[data-preset='legal'] main *::after {
   html:not([data-motion='full']) *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition: none !important;
     scroll-behavior: auto !important;
   }
 }
@@ -404,7 +427,7 @@ html[data-motion='reduced'] *::before,
 html[data-motion='reduced'] *::after {
   animation-duration: 0.01ms !important;
   animation-iteration-count: 1 !important;
-  transition-duration: 0.01ms !important;
+  transition: none !important;
   scroll-behavior: auto !important;
 }
 
@@ -420,6 +443,11 @@ html[data-motion='reduced'] {
 
   :focus-visible {
     outline-color: Highlight;
+  }
+
+  /* Planet-Marke: Washes `fill: none` (DESIGN §3.3) – der Körper trägt sonst seine Papierfüllung (R3-08-03). */
+  [data-mark='planet'] path {
+    fill: none !important;
   }
 }
 
@@ -462,4 +490,14 @@ body[data-page-error] main *::before,
 body[data-page-error] main *::after {
   animation: none !important;
   transition: none !important;
+}
+
+/* Handgezeichnete Icons (Glyph, DESIGN §6.5): Strich 1.75, runde Enden, `currentColor` – einmal hier statt als Attribute an
+   jedem Icon (PF-10). Spezifität 0: jede Komponenten-Regel darf überschreiben, wie zuvor die Attribute. */
+:where(.glyph) {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }

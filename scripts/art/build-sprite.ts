@@ -8,7 +8,7 @@ import { pathToFileURL } from 'node:url'
 
 import { optimize } from 'svgo'
 
-export const SPRITE_VERSION = 1
+export const SPRITE_VERSION = 2
 export const SPRITE_SOURCE = 'src/art/coco/coco-sprite.svg'
 export const SPRITE_JSON = 'src/art/coco/coco-sprite.json'
 /** Kompakte Anker je Pose/Brücke (Mittel über die Frames) für die Coco-Steuerung im Browser (klein halten). */

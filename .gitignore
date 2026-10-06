@@ -58,6 +58,7 @@ node_modules/
 /.data
 /.data-w*
 /.next-preview
+/.next-art
 
 # Lighthouse-CI (pnpm test:perf, Berichte nur lokal/als CI-Artefakt)
 /.lighthouseci/

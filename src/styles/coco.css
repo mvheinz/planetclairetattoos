@@ -4,6 +4,7 @@
 
 .coco {
   --coco-w: var(--coco-m);
+  --coco-sw: 4; /* Strichbreite in Sprite-Einheiten = Pixel × 160 / Breite (nur WebKit, s. u.) */
   --boil-frame: 100ms;
   position: relative;
   width: var(--coco-w);
@@ -15,31 +16,50 @@
 .coco[data-size='horizon'] {
   --coco-w: 24px;
   --coco-stroke: 1.2px;
+  --coco-sw: 8;
 }
 .coco[data-size='leash'] {
   --coco-w: var(--coco-leash);
+  --coco-sw: 4.6; /* 1,6 px bei 56 px Breite */
+}
+@media (min-width: 768px) {
+  .coco[data-size='leash'] {
+    --coco-sw: 3.3; /* 1,8 px bei 88 px Breite (tokens.css) */
+  }
 }
 .coco[data-size='s'] {
   --coco-w: var(--coco-s);
   --coco-stroke: 1.6px;
+  --coco-sw: 6.4;
 }
 .coco[data-size='m'] {
   --coco-w: var(--coco-m);
   --coco-stroke: 1.8px;
+  --coco-sw: 4;
 }
 .coco[data-size='xl'] {
   --coco-w: var(--coco-xl);
   --coco-stroke: 2.2px;
+  --coco-sw: 2;
 }
 .coco[data-size='xxl'] {
   --coco-w: min(var(--coco-xxl), 60vw);
   --coco-stroke: 2.2px;
+  --coco-sw: 1.5;
 }
 
 .coco__hop {
   width: 100%;
   height: 100%;
   transform-origin: 50% 93%;
+}
+/* WebKit (Safari, iOS) wendet das <style> des extern eingebundenen Sprites nicht an: Strichbreite, Enden und Ecken
+   erbt der Klon vom <use> (Farben stehen als Attribute im Sprite). In Chromium/Firefox hat das Sprite-CSS Vorrang
+   (nicht skalierende Strichbreite `--coco-stroke`, Token-Farben, erzwungene Farben). */
+.coco use {
+  stroke-width: var(--coco-sw);
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 .coco svg {
   display: block;
@@ -74,6 +94,13 @@
   fill: var(--paper);
 }
 
+/* Vorab angelegte Posen-Gruppen der Steuerung (`coco.ts`): nur die Gruppe mit `data-on` ist sichtbar. Der Boil läuft
+   in allen Gruppen mit (gleiches Frame-Raster); ein Wechsel schaltet nur `visibility` an der Gruppe – Starten/Stoppen
+   der Animation oder `opacity` an `<use>` erzwängen in Chromium je Wechsel ein Layout (KUNST-QA PF-05). */
+.coco .cg:not([data-on]) {
+  visibility: hidden;
+}
+
 /* Boil: drei Frames A → B → C; b um 2, c um 1 Frame-Länge vorgespult. */
 .coco .f {
   animation: coco-boil calc(var(--boil-frame) * 3) steps(1, end) infinite;
@@ -92,11 +119,12 @@
 .coco[data-pose='schlafen'] {
   --boil-frame: var(--sleep-frame);
 }
+/* 33,4 % statt 33,333 %: die Frames überlappen um 0,2 ms statt eine Lücke zu lassen (Aufnahmen im 100-ms-Takt, gleich der Boil-Frame-Länge, trafen die Kante und zeigten kein Coco, R2-06-01). */
 @keyframes coco-boil {
   0% {
     opacity: 1;
   }
-  33.333% {
+  33.4% {
     opacity: 0;
   }
   100% {
@@ -129,6 +157,15 @@ html[data-motion='reduced'] .coco .f-c {
 }
 
 @media (forced-colors: active) {
+  /* Das externe Sprite (`<use href="/art/coco-sprite…">`) wertet seine eigene Medienabfrage im Sprite-Dokument aus;
+     Chromium überträgt die Farbemulation dorthin nicht immer (A11Y-05, R3-01-03). Die Farb-Token erben aber in den
+     geklonten Baum – darüber wird das Fell flächenfrei und der Strich Systemfarbe. */
+  .coco {
+    --coco-fur: transparent;
+    --coco-harness: transparent;
+    --ink: CanvasText;
+    --paper: Canvas;
+  }
   .coco .fur,
   .coco .harness {
     fill: none;
@@ -150,12 +187,31 @@ html[data-motion='reduced'] .coco .f-c {
   left: calc(
     max(0px, (100% - var(--content-max) - 2 * var(--page-pad)) / 2) + var(--leash-gutter) / 2
   );
-  z-index: 1;
+  /* über der Linien-Ebene (`--z-leash`): Coco steht vor der Leine, der Papier-Rand unterbricht die Tusche (R2-02-04) */
+  z-index: calc(var(--z-leash) + 1);
   transform: translate(-37.8%, -55.8%);
   transform-origin: 0 0;
 }
 .coco[data-leash-coco][data-placed] {
   left: 0;
+}
+/* Startseite (journey): Coco rennt im Intro von links herein (MI-10) – bis die Engine sie platziert, sitzt sie nicht
+   sichtbar am Linienanfang unter der Kopfleiste (dort läge sie über dem Hinweisbanner, R2-02-02). */
+[data-leash-preset='journey'] ~ .coco[data-leash-coco]:not([data-placed]) {
+  visibility: hidden;
+}
+/* Coco steht vor der Linie (R2-01-02): ein schmaler Papier-Rand um jeden Strich unterbricht die Tusche hinter ihr,
+   sonst läuft die Leine sichtbar durch den (unausgefüllten) Körper und die kleine Figur wird zum dunklen Fleck. Der
+   Filter liegt auf der festen 64×48-Box und wird nur bei einem Boil-Bildwechsel neu gerastert. Harte Versätze ohne
+   Unschärfe (AK-DS-06: keine weichen Schatten) – nacheinander waagerecht und senkrecht ergeben einen ±1,5-px-Rand. */
+.coco[data-leash-coco] .coco__hop {
+  filter: drop-shadow(1.5px 0 0 var(--paper)) drop-shadow(-1.5px 0 0 var(--paper))
+    drop-shadow(0 1.5px 0 var(--paper)) drop-shadow(0 -1.5px 0 var(--paper));
+}
+@media (forced-colors: active) {
+  .coco[data-leash-coco] .coco__hop {
+    filter: none;
+  }
 }
 
 /* View Transitions (§9.8, ADR 0003): Coco wandert in --dur-page von der alten zur neuen Position; übriger Inhalt
@@ -163,6 +219,11 @@ html[data-motion='reduced'] .coco .f-c {
 @media (prefers-reduced-motion: no-preference) {
   html:not([data-motion='reduced']) .coco[data-leash-coco] {
     view-transition-name: coco;
+  }
+  /* Easing aller Übergangs-Pseudoelemente aus den Tokens (MO-02): die Gruppe gibt ihre Kurve an Bildpaar, alt und neu
+     weiter; ohne diese Zeile gälte der Browser-Standard `ease`. */
+  ::view-transition-group(*) {
+    animation-timing-function: var(--ease-calm);
   }
   ::view-transition-group(coco) {
     animation-duration: var(--dur-page);

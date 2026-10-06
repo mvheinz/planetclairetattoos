@@ -79,7 +79,6 @@
   },
   "svg": {
     "cocoSprite": {
-      "file": "public/art/coco-sprite.v1.svg",
       "rawMax": 45000,
       "gzipMax": 12000
     },

@@ -275,7 +275,7 @@ export interface Media {
   source: 'upload' | 'instagram_seed' | 'instagram_export' | 'placeholder' | 'generated';
   sourceRef?: string | null;
   /**
-   * Wirkt ab P9 (einheitlicher Bildlook).
+   * Gleicht Weißabgleich und Helligkeit sanft an. „Aus“ lässt das Foto, wie es ist (gilt beim nächsten Hochladen).
    */
   enhance: 'auto' | 'off';
   derivativesVersion?: number | null;

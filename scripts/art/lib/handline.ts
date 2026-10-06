@@ -50,7 +50,7 @@ export function zoomMotif(motif: Motif): Motif {
   const at: Place = { x: 200 * (1 - z), y: 250 * (1 - z), s: z }
   return {
     ...motif,
-    ...place(motif, at),
+    ...place(motif, at, true),
     wash: motif.wash ? placePath(motif.wash, at) : undefined,
     shadow: motif.shadow && {
       ...motif.shadow,
@@ -58,7 +58,7 @@ export function zoomMotif(motif: Motif): Motif {
       y: motif.shadow.y * z + 250 * (1 - z),
       w: motif.shadow.w * z,
     },
-    inset: motif.inset && { ...motif.inset, ink: place(motif.inset.ink, at) },
+    inset: motif.inset && { ...motif.inset, ink: place(motif.inset.ink, at, true) },
     zoom: 1,
   }
 }
@@ -72,7 +72,8 @@ export const ART = {
 } as const
 export type WashName = keyof typeof ART.wash
 
-export const STROKE_WIDTH = 2.4
+/** Strichstärke der Platzhalter (DESIGN §12.3): 2.8 seit P9.13 (vorher 2.4, zu dünn gegenüber Juttas Filzstift). */
+export const STROKE_WIDTH = 2.8
 export const VIEW = { w: 400, h: 500 } as const
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -232,8 +233,106 @@ export function placePath(d: string, at: Place): string {
   )
 }
 
-/** Baustein an eine Stelle setzen (alle Striche, Punkte, Glanzpunkte). */
-export function place(ink: Ink, at: Place): Ink {
+/** Punkte eines Pfads in eigenen Koordinaten verformen (für `handVary`). */
+function mapPath(d: string, m: (p: Pt) => Pt): string {
+  return serializePath(
+    parsePath(d).map((s): Seg => {
+      switch (s.k) {
+        case 'M':
+          return { k: 'M', p: m(s.p) }
+        case 'L':
+          return { k: 'L', p: m(s.p) }
+        case 'Q':
+          return { k: 'Q', c: m(s.c), p: m(s.p) }
+        case 'C':
+          return { k: 'C', c1: m(s.c1), c2: m(s.c2), p: m(s.p) }
+        case 'Z':
+          return s
+      }
+    }),
+  )
+}
+
+/**
+ * Jede Kopie von Hand neu gezeichnet (Kunst-QA R1-01-02, „kopierte Hasen“): ein Baustein wird vor dem Setzen sanft
+ * verformt – Breite/Höhe ±6 %, leichte Scherung und eine weiche Welle (≈ 3,5 % der Größe) über die ganze Figur, so
+ * dass Ohren, Köpfe und Kreise bei jeder Kopie etwas anders ausfallen, die Figur aber zusammenhängend bleibt.
+ * Deterministisch je Lage (`at`) – gleiche Eingabe, gleiches SVG.
+ */
+export function handVary(ink: Ink, at: Place, amount = 1): Ink {
+  const all = [
+    ...ink.strokes.map((s) => (typeof s === 'string' ? s : s.d)),
+    ...(ink.dots ?? []),
+    ...(ink.harness ?? []),
+  ]
+  let x0 = Infinity
+  let y0 = Infinity
+  let x1 = -Infinity
+  let y1 = -Infinity
+  for (const d of all)
+    for (const sub of sample(d))
+      for (const [x, y] of sub) {
+        x0 = Math.min(x0, x)
+        y0 = Math.min(y0, y)
+        x1 = Math.max(x1, x)
+        y1 = Math.max(y1, y)
+      }
+  if (!Number.isFinite(x0)) return ink
+  const w = Math.max(1e-6, x1 - x0)
+  const h = Math.max(1e-6, y1 - y0)
+  const size = Math.max(w, h)
+  const rand = mulberry32(
+    fnv1a32(
+      `${f1(at.x ?? 0)}|${f1(at.y ?? 0)}|${f1(at.s ?? 1)}|${f1(at.r ?? 0)}|${at.flip ? 1 : 0}|${f1(w)}|${f1(h)}`,
+    ),
+  )
+  // große Motive (Schmetterling, Planet über die ganze Kachel) weniger, damit nichts aus dem Bild läuft
+  const placed = size * (at.s ?? 1)
+  amount *= Math.min(1, 170 / placed)
+  const sx = 1 + (rand() - 0.5) * 0.12 * amount
+  const sy = 1 + (rand() - 0.5) * 0.12 * amount
+  const shear = (rand() - 0.5) * 0.12 * amount
+  const amp = 0.035 * size * amount
+  const f1x = 0.6 + rand() * 0.7
+  const f1y = 0.6 + rand() * 0.7
+  const ph = [rand(), rand(), rand(), rand()].map((v) => v * Math.PI * 2) as [
+    number,
+    number,
+    number,
+    number,
+  ]
+  const cx = (x0 + x1) / 2
+  const cy = (y0 + y1) / 2
+  const m = (p: Pt): Pt => {
+    const u = (p[0] - x0) / size
+    const v = (p[1] - y0) / size
+    const dx =
+      amp *
+      (0.6 * Math.sin(Math.PI * 2 * f1y * v + ph[0]) +
+        0.4 * Math.sin(Math.PI * 2 * f1x * u + ph[1]))
+    const dy =
+      amp *
+      (0.6 * Math.sin(Math.PI * 2 * f1x * u + ph[2]) +
+        0.4 * Math.sin(Math.PI * 2 * f1y * v + ph[3]))
+    const lx = (p[0] - cx) * sx + (p[1] - cy) * shear
+    const ly = (p[1] - cy) * sy
+    return [cx + lx + dx, cy + ly + dy]
+  }
+  const mp = (d: string) => mapPath(d, m)
+  return {
+    strokes: ink.strokes.map((s) => (typeof s === 'string' ? mp(s) : { ...s, d: mp(s.d) })),
+    dots: ink.dots?.map(mp),
+    lights: ink.lights?.map(mp),
+    harness: ink.harness?.map(mp),
+  }
+}
+
+/**
+ * Baustein an eine Stelle setzen (alle Striche, Punkte, Glanzpunkte). Standard: vorher von Hand variiert
+ * ({@link handVary}); `exact` setzt ihn unverändert (z. B. Zoom eines fertigen Motivs).
+ */
+export function place(input: Ink, at: Place, exact = false): Ink {
+  const ink = exact ? input : handVary(input, at, 1.5)
   const pp = (d: string) => placePath(d, at)
   return {
     strokes: ink.strokes.map((s) => (typeof s === 'string' ? pp(s) : { ...s, d: pp(s.d) })),
@@ -365,9 +464,26 @@ export interface HandOptions {
   wave?: number
   /** Feines Zittern (zweite, kürzere Welle). */
   tremor?: number
+  /** Druckstellen (Platzhalter, P9.13): lange Striche an einer Stelle noch einmal leicht versetzt nachgezogen. */
+  press?: boolean
+  /** Größter Abstand der Stützpunkte (Einheiten); größer = weniger Pfaddaten (Stationen, PF-10). */
+  maxStep?: number
+  /** Ganzzahlige Koordinaten ab dieser Strichlänge (Standard 36; Stationen kleiner – Startseiten-Budget PF-10). */
+  coarseFrom?: number
+  /** Anteil der langen Striche mit Druckstelle (Standard 0,78; Stationen weniger – PF-10). */
+  pressRate?: number
 }
 
-const DEFAULT_HAND: Required<HandOptions> = { wobble: 1.5, wave: 44, tremor: 0.7 }
+// P9.13: etwas mehr Zittern als in P8 – näher an Juttas Filzstift (ART-NOTES, `coco-oh-01.jpg`)
+const DEFAULT_HAND: Required<Omit<HandOptions, 'press'>> & { press: boolean } = {
+  maxStep: 14,
+  coarseFrom: 36,
+  pressRate: 0.78,
+  wobble: 1.8,
+  wave: 40,
+  tremor: 0.9,
+  press: false,
+}
 
 /** Zahlen kompakt verketten (Leerzeichen nur, wo kein Minus trennt). */
 function nums(list: readonly number[]): string {
@@ -400,10 +516,10 @@ export function pointsToPath(pts: readonly Pt[], coarse = false): string {
 }
 
 /** Ein Teilstrich: Wackel anwenden und als Pfad ausgeben. */
-function wobbleLine(pts: readonly Pt[], seed: number, opts: Required<HandOptions>): string {
+function wobbleLine(pts: readonly Pt[], seed: number, opts: typeof DEFAULT_HAND): string {
   const total = lengthOf(pts)
   if (total < 0.5) return ''
-  const step = Math.min(14, Math.max(2.6, total / 6))
+  const step = Math.min(opts.maxStep, Math.max(2.6, total / 6))
   const res = resample(pts, step)
   const lo = valueNoise1D(seed)
   const hi = valueNoise1D(seed ^ 0x5bd1e995)
@@ -418,8 +534,31 @@ function wobbleLine(pts: readonly Pt[], seed: number, opts: Required<HandOptions
     const off = amp * lo(s / opts.wave) + opts.tremor * Math.min(1, total / 40) * hi(s / 21)
     return [p[0] + nx * off, p[1] + ny * off]
   })
+  // Druckstelle: auf langen Strichen drückt die Hand an einer Stelle fester auf – dieselbe Linie dort noch einmal,
+  // um 0,8 Einheiten versetzt (gleiche Werkzeugstärke, wirkt dicker; Juttas Filzstift, ART-NOTES)
+  let press = ''
+  if (opts.press && total > 70 && out.length > 6) {
+    const r = mulberry32(seed ^ 0x51ed270b)
+    // P9.18 (R1-01-02): öfter und unterschiedlich fest aufgedrückt (Versatz 0,6–1,3 statt fest 0,8)
+    if (r() < opts.pressRate) {
+      const n = out.length
+      const len = Math.max(3, Math.round(n * (0.16 + r() * 0.2)))
+      const at = Math.floor(r() * (n - len))
+      const side = (r() < 0.5 ? 1 : -1) * (0.6 + r() * 0.7)
+      const part = out.slice(at, at + len + 1)
+      press = pointsToPath(
+        part.map((q, i) => {
+          const a2 = part[Math.max(0, i - 1)]!
+          const b2 = part[Math.min(part.length - 1, i + 1)]!
+          const l = dist(a2, b2) || 1
+          return [q[0] - ((b2[1] - a2[1]) / l) * side, q[1] + ((b2[0] - a2[0]) / l) * side] as Pt
+        }),
+        total > opts.coarseFrom,
+      )
+    }
+  }
   // lange Striche ganzzahlig (spart Bytes; die Rundung wirkt wie zusätzliches Handzittern)
-  return pointsToPath(out, total > 36)
+  return pointsToPath(out, total > opts.coarseFrom) + press
 }
 
 /** Handstrich aus einem gezeichneten Pfad: Wackel, offene Enden, Absetzer, ggf. Doppelkontur. */
@@ -441,7 +580,8 @@ export function handStroke(spec: StrokeSpec, seed: number, opts: HandOptions = {
       else pts = slice(pts, 0, total - (2.5 + rand() * 2.5))
     }
     const len = lengthOf(pts)
-    if (!exact && len > 170 && rand() < 0.6) {
+    // P9.13: mehr Absetzer (ab 110 Einheiten, 80 %) – Juttas Konturen setzen oft ab
+    if (!exact && len > 110 && rand() < 0.8) {
       // Absetzer: Stift abgesetzt und knapp daneben neu angesetzt
       const at = len * (0.38 + rand() * 0.24)
       const a = slice(pts, 0, at)
@@ -504,19 +644,24 @@ export function handBlob(d: string, seed: number, amount = 0.5): string {
 /** Schatten aus `count` Schraffurstrichen unter 40° (DESIGN §12.3). */
 export function hatch(shadow: NonNullable<Motif['shadow']>, seed: number): string[] {
   const rand = mulberry32(seed)
-  const count = shadow.count ?? 6
-  const len = shadow.len ?? 18
-  const a = (40 * Math.PI) / 180
-  const dx = Math.cos(a)
+  const count = shadow.count ?? 5 + Math.floor(rand() * 3)
+  const len = (shadow.len ?? 18) * (0.8 + rand() * 0.25)
+  // 40° mit leichter Streuung je Motiv (jede Schraffur von Hand, nie ein Stempel)
+  const a = ((40 + (rand() - 0.5) * 12) * Math.PI) / 180
+  // Je Motiv anders (Prüf-Linse P9.13: „gleiche Schraffur in jeder Kachel wirkt wie ein Stempel“): Richtung gespiegelt
+  // (40° nach rechts oder links geneigt), Schattenlage etwas nach links/rechts verrückt, Abstände ungleich.
+  const mirror = rand() < 0.5 ? -1 : 1
+  const dx = Math.cos(a) * mirror
   const dy = -Math.sin(a)
+  const shift = (rand() - 0.5) * shadow.w * 0.5
   const out: string[] = []
   for (let i = 0; i < count; i++) {
-    const t = i / (count - 1)
+    const t = Math.min(1, Math.max(0, i / (count - 1) + (rand() - 0.5) * 0.12))
     // mittlere Striche etwas länger (Schattenform), Ränder kürzer
     const l = len * (0.7 + 0.45 * Math.sin(Math.PI * t)) * (0.9 + rand() * 0.2)
-    const x0 = shadow.x + shadow.w * t + (rand() - 0.5) * 1.5
-    const y0 = shadow.y + (rand() - 0.5) * 2
-    const bend = (rand() - 0.5) * 1.6
+    const x0 = shadow.x + shift + shadow.w * t + (rand() - 0.5) * 3.2
+    const y0 = shadow.y + (rand() - 0.5) * 4
+    const bend = (rand() - 0.5) * 2.6
     const mx = x0 + (dx * l) / 2 - dy * bend
     const my = y0 + (dy * l) / 2 + dx * bend
     out.push(
@@ -534,7 +679,25 @@ export function washPath(d: string, seed: number): { d: string; dx: number; dy: 
   const rand = mulberry32(seed)
   const dx = 3 + rand()
   const dy = 3 + rand()
-  return { d: placePath(handBlob(d, seed + 1, 2), { x: dx, y: dy }), dx, dy }
+  // P9.18 (R1, „mehr Papier“): der Wash deckt die Form nicht ganz, sondern sitzt etwas kleiner und schief darin –
+  // wie ein schneller Pinselzug; oben links bleibt Papier stehen.
+  const blob = handBlob(d, seed + 1, 5)
+  let x0 = Infinity
+  let y0 = Infinity
+  let x1 = -Infinity
+  let y1 = -Infinity
+  for (const sub of sample(blob))
+    for (const [x, y] of sub) {
+      x0 = Math.min(x0, x)
+      y0 = Math.min(y0, y)
+      x1 = Math.max(x1, x)
+      y1 = Math.max(y1, y)
+    }
+  const k = 0.9 + rand() * 0.04
+  const cx = (x0 + x1) / 2
+  const cy = (y0 + y1) / 2
+  const shrunk = placePath(blob, { x: cx * (1 - k), y: cy * (1 - k), s: k })
+  return { d: placePath(shrunk, { x: dx + 2, y: dy + 2 }), dx, dy }
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -545,16 +708,29 @@ export interface RenderOptions {
   wash: WashName | null
 }
 
+/** Strichstärken-Gruppen (R1-03-01/02, „Linie gleichförmig“): dünn / normal / kräftig – je Strich bzw. Teilstrich. */
+export const WIDTH_CLASSES = [2.3, STROKE_WIDTH, 3.5] as const
+
+/** Gruppe 0–2 eines (Teil-)Strichs, deterministisch aus Seed und Laufnummer (55 % normal, 25 % dünn, 20 % kräftig). */
+export function widthClass(seed: number, i: number): 0 | 1 | 2 {
+  const r = mulberry32(seed ^ Math.imul(i + 1, 0x9e3779b1))()
+  return r < 0.25 ? 0 : r < 0.8 ? 1 : 2
+}
+
 function renderInk(
   ink: Ink,
   seed: number,
-): { strokes: string; dots: string; lights: string; harness: string } {
-  const strokes: string[] = []
-  ink.strokes.forEach((s, i) => strokes.push(...handStroke(s, seed + i * 104729)))
+): { strokes: [string, string, string]; dots: string; lights: string; harness: string } {
+  const strokes: [string[], string[], string[]] = [[], [], []]
+  let n = 0
+  ink.strokes.forEach((s, i) => {
+    for (const piece of handStroke(s, seed + i * 104729, { press: true }))
+      strokes[widthClass(seed, n++)].push(piece)
+  })
   const blob = (list: string[] | undefined, salt: number) =>
     (list ?? []).map((d, i) => handBlob(d, seed + salt + i * 31, 0.45)).join('')
   return {
-    strokes: strokes.join(''),
+    strokes: [strokes[0].join(''), strokes[1].join(''), strokes[2].join('')],
     dots: blob(ink.dots, 11),
     lights: blob(ink.lights, 23),
     harness: blob(ink.harness, 37),
@@ -585,10 +761,16 @@ export function renderMotif(input: Motif, options: RenderOptions): string {
   if (harness) parts.push(`<path fill="${ART.harness}" d="${harness}"/>`)
   parts.push(
     `<g fill="none" stroke="${ART.ink}" stroke-width="${STROKE_WIDTH}" stroke-linecap="round" stroke-linejoin="round">`,
-    `<path d="${main.strokes}${shadow}"/>`,
+    `<path d="${main.strokes[1]}"/>`,
   )
+  // Gruppen: dünn (Schatten-Schraffur als Akzent gehört dazu) und kräftig
+  if (main.strokes[0] || shadow)
+    parts.push(`<path stroke-width="${WIDTH_CLASSES[0]}" d="${main.strokes[0]}${shadow}"/>`)
+  if (main.strokes[2])
+    parts.push(`<path stroke-width="${WIDTH_CLASSES[2]}" d="${main.strokes[2]}"/>`)
+  // Tattoo-Teilzeichnung mit eigener Strichstärke (frisch kräftiger, verheilt feiner)
   if (inset && motif.inset)
-    parts.push(`<path stroke-width="${motif.inset.width}" d="${inset.strokes}"/>`)
+    parts.push(`<path stroke-width="${motif.inset.width}" d="${inset.strokes.join('')}"/>`)
   parts.push('</g>')
   if (dots) parts.push(`<path fill="${ART.ink}" d="${dots}"/>`)
   if (lights) parts.push(`<path fill="${ART.paper}" d="${lights}"/>`)

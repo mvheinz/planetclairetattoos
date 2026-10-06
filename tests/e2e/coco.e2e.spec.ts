@@ -1,12 +1,13 @@
 import { expect, test, type Page } from '@playwright/test'
 
+import { COCO_SPRITE_HREF } from '../../src/leash/cocoSprite'
 import { SPRITE_POSES } from '../../src/leash/poses'
 
 // P2.18 Coco (DESIGN §10.4–§10.6, §9.8, §9.9; ADR 0003): Sprite-Datei, feste Box ohne CLS, Coco an der Leinenspitze
 // (R01), Menü, Boil-Budget, ohne JavaScript unsichtbar, View Transitions mit Coco (weich und hart).
 
 type LeashWindow = Window & { __leash?: { pose(): string | null } }
-const SPRITE = '/art/coco-sprite.v1.svg'
+const SPRITE = COCO_SPRITE_HREF
 const leashCoco = (page: Page) => page.locator('[data-leash-coco]')
 
 test.describe('Coco', () => {
@@ -56,11 +57,11 @@ test.describe('Coco', () => {
         el.getBoundingClientRect().height,
       ])
     const before = await size()
-    expect(before[0]).toBe(42)
+    expect(before[0]).toBe(56)
     release()
     await page.waitForResponse((r) => r.url().endsWith(SPRITE))
     await page.waitForTimeout(500)
-    expect((await size())[0]).toBe(42)
+    expect((await size())[0]).toBe(56)
     expect(
       await leashCoco(page).evaluate((el: HTMLElement) => el.offsetHeight),
     ).toBeGreaterThanOrEqual(31)
@@ -82,7 +83,7 @@ test.describe('Coco', () => {
     expect(await coco.evaluate((el) => getComputedStyle(el).pointerEvents)).toBe('none')
     const pose = await page.evaluate(() => (window as LeashWindow).__leash?.pose())
     expect(SPRITE_POSES).toContain(pose)
-    const href = await coco.locator('use.f-a').getAttribute('href')
+    const href = await coco.locator('.cg[data-on] use.f-a').getAttribute('href')
     expect(href).toMatch(new RegExp(`^${SPRITE.replace(/\./g, '\\.')}#coco-[a-z-]+$`))
     // Boil-Budget (§10.3, WCAG 2.2.2): spätestens 5 s nach der letzten Aktion steht Frame A.
     await page.waitForTimeout(5200)

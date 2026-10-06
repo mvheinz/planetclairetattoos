@@ -31,6 +31,14 @@ export interface LeashSegment {
   centerD: string;              // Mittellinie (für Enthüllung/Stufe B)
   outlineD: string;             // gefüllter Umriss mit variabler Breite (Stufe A/C)
   len0: number; len1: number;   // Bogenlängen-Bereich im Gesamtpfad
+  centerL?: number;             // Länge der Polylinie `centerD` (Dash-Enthüllung ohne getTotalLength)
+  strokes?: LeashStroke[];      // Stufe A: Mittellinie in Stücken nahezu gleicher Breite (Dash-Enthüllung ohne Maske)
+}
+export interface LeashStroke {
+  d: string;                    // Polylinie der Mittellinie (gewackelt)
+  w: number;                    // Strichbreite in px (Mittel der Breiten im Stück)
+  L: number;                    // Länge der Polylinie `d`
+  len0: number; len1: number;   // Bogenlängen-Bereich im Gesamtpfad (Tintenpunkt: len0 = len1)
 }
 export interface LeashGeometry {
   segments: LeashSegment[];

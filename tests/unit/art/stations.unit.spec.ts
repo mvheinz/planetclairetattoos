@@ -28,14 +28,19 @@ const HOME_STATIONS = [
   'tattoo',
   'jutta-und-coco',
 ]
-/** Zuordnung DESIGN §12.4 – einzige erlaubte Foto-Vorlagen. */
-const ALLOWED_VECTORIZE: Record<string, string> = {
+/** Zuordnung DESIGN §12.4 – einzige erlaubte Foto-Vorlagen (vektorisiert bzw. von Hand nachgezeichnet, P9.12). */
+const ALLOWED_VECTORIZE: Record<string, string> = {}
+const ALLOWED_DRAWN: Record<string, string> = {
+  tattoo: 'post-DbJ1QRrjCcb.jpg',
   keramik: 'post-DdUPhoZOoMW.jpg',
   textil: 'post-DcT7ErBDsWi.jpg',
   zeichnungen: 'post-DaJH_kADpsK.jpg',
-  tattoo: 'post-DbJ1QRrjCcb.jpg',
+  // P9.18a (R1-05-03): frei gezeichnet nach Juttas Skizze bzw. der Marke, nicht aus dem Sprite abgeleitet
+  hallo: 'coco-oh-01.jpg',
+  'jutta-und-coco': 'coco-oh-01.jpg',
+  'planet-claire': 'src/art/planet.svg',
 }
-const DERIVED = ['planet-claire', 'hallo', 'schmuck', 'jutta-und-coco']
+const DERIVED = ['schmuck', ...Object.keys(ALLOWED_DRAWN)]
 const files = readdirSync(STATIONS_DIR).filter((f) => f.endsWith('.svg'))
 const read = (id: string) => readFileSync(path.join(STATIONS_DIR, `${id}.svg`), 'utf8')
 
@@ -56,6 +61,10 @@ describe('P8.14 Stationszeichnungen', () => {
     const vec = Object.fromEntries(sources.vectorize.map((s) => [s.id, s.file]))
     expect(vec).toEqual(ALLOWED_VECTORIZE)
     expect(sources.derived.map((d) => d.id).sort()).toEqual([...DERIVED].sort())
+    const drawn = Object.fromEntries(
+      sources.derived.filter((d) => d.kind === 'drawn').map((d) => [d.id, d.reference]),
+    )
+    expect(drawn).toEqual(ALLOWED_DRAWN)
     const all = JSON.stringify(sources)
     expect(all).not.toMatch(/highlight-|profil\.jpg|DdHXUQsDjqm/)
     // Kundenhaut-Fotos der Galerie (showsCustomer) tauchen nie als Quelle auf
@@ -126,4 +135,87 @@ describe('P8.14 Stationszeichnungen', () => {
     )
     expect(Buffer.byteLength(a)).toBeLessThanOrEqual(STATION_MAX_BYTES)
   }, 30_000)
+})
+
+describe('P9.12 Stationen als Linienzeichnung (Juttas Stil: nur kleine Punkte gefüllt)', () => {
+  /** Anteil schwarz gefüllter Fläche an der Bildfläche und größte zusammenhängende Füllung (gerastert, 200 px breit). */
+  async function fills(svg: string): Promise<{ filled: number; largest: number }> {
+    const only = svg.replace(/<path[^>]*stroke="currentColor"[^>]*\/>/g, '')
+    const { data, info } = await sharp(Buffer.from(only.replace(/currentColor/g, '#000')))
+      .resize({ width: 200 })
+      .flatten({ background: '#fff' })
+      .greyscale()
+      .raw()
+      .toBuffer({ resolveWithObject: true })
+    const n = info.width * info.height
+    const on = new Uint8Array(n)
+    let filled = 0
+    for (let k = 0; k < n; k++)
+      if (data[k]! < 128) {
+        on[k] = 1
+        filled++
+      }
+    let largest = 0
+    const seen = new Uint8Array(n)
+    for (let k = 0; k < n; k++) {
+      if (!on[k] || seen[k]) continue
+      let size = 0
+      const stack = [k]
+      seen[k] = 1
+      while (stack.length) {
+        const q = stack.pop()!
+        size++
+        const x = q % info.width
+        for (const r of [q - 1, q + 1, q - info.width, q + info.width]) {
+          if (r < 0 || r >= n || seen[r] || !on[r]) continue
+          if ((r === q - 1 && x === 0) || (r === q + 1 && x === info.width - 1)) continue
+          seen[r] = 1
+          stack.push(r)
+        }
+      }
+      largest = Math.max(largest, size)
+    }
+    return { filled: filled / n, largest: largest / n }
+  }
+
+  it('keramik, textil, zeichnungen, tattoo: Strich-Zeichnung (stroke), Füllung nur als kleine Punkte (je ≤ 1,5 % der Fläche)', async () => {
+    for (const id of Object.keys(ALLOWED_DRAWN)) {
+      const svg = read(id)
+      expect(svg, id).toMatch(/stroke="currentColor"/)
+      const f = await fills(svg)
+      expect(f.filled, `${id} gefüllt`).toBeLessThan(0.03)
+      expect(f.largest, `${id} größter Punkt`).toBeLessThan(0.015)
+    }
+  })
+
+  it('Coco-Stationen und Planet sind frei gezeichnet (Kontrollpunkte unter content/art/stations/, nicht aus dem Sprite abgeleitet)', () => {
+    const sources = readSources()
+    for (const id of ['hallo', 'jutta-und-coco', 'planet-claire']) {
+      const d = sources.derived.find((x) => x.id === id)!
+      expect(d.kind, id).toBe('drawn')
+      expect(d.from, id).toBe(`content/art/stations/${id}.ts`)
+    }
+  })
+})
+
+describe('P9.12 einheitliche Strichstärke der Stationen (AR-07)', () => {
+  it('Grundstärke jeder Linien-Station ergibt im 208 × 260-px-Rahmen 2 px ± 10 %, dünne/kräftige Gruppen 1,6–2,5 px (LQ-08)', async () => {
+    const { stationStrokeWidth, STATION_BOX } = await import('../../../scripts/art/vectorize')
+    for (const id of ['keramik', 'tattoo', 'textil', 'zeichnungen', 'schmuck', 'hallo']) {
+      const svg = readFileSync(path.join('src/art/stations', `${id}.svg`), 'utf8')
+      const vb = /viewBox="([^"]+)"/.exec(svg)![1]!
+      const [, , vw, vh] = vb.split(' ').map(Number) as [number, number, number, number]
+      const scale = Math.min(STATION_BOX.w / vw, STATION_BOX.h / vh)
+      const widths = [
+        ...svg.matchAll(/<(?:path|g)[^>]*fill="none"[^>]*stroke-width="([\d.]+)"/g),
+      ].map((m) => Number(m[1]) * scale)
+      expect(widths.length, id).toBeGreaterThan(0)
+      expect(Math.abs(widths[0]! - 2), `${id}: ${widths[0]} px`).toBeLessThanOrEqual(0.2)
+      for (const px of widths) {
+        expect(px, `${id}: ${px} px`).toBeGreaterThanOrEqual(1.6)
+        expect(px, `${id}: ${px} px`).toBeLessThanOrEqual(2.5)
+      }
+      expect(stationStrokeWidth(vb) * scale).toBeCloseTo(2, 1)
+    }
+  })
 })

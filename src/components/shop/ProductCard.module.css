@@ -6,6 +6,10 @@
   color: var(--ink);
   text-decoration: none;
   border-radius: var(--r-card);
+  /* Textgröße 200 % (LG-04): das Preisschild darf nie breiter als die Karte werden; Mansalva bleibt ≥ 24 px. Der
+     Wert wird am Preis ausgewertet (cqi = Kartenbreite), bei normaler Schrift gilt weiter `--fs-price-tag`. */
+  container-type: inline-size;
+  --fs-price-tag: min(clamp(1.75rem, 1.6522rem + 0.4348vw, 2rem), max(24px, 20cqi));
 }
 
 .card:focus-visible {
@@ -17,10 +21,39 @@
   position: relative;
   display: block;
   width: 100%;
+  /* Kunst-QA IM-04 (R1-01-03, R1-04-05): Fotos und Platzhalter „aus einem Guss“ – jedes Bild liegt wie ein Abzug in einem
+     Passepartout aus Papierton (8 % Rand rundum, Verhältnis fest, kein CLS), umrandet von der Marken-Handlinie. Der Rand
+     bettet grüne Matte, orange Aquarelle und beige Platzhalter gleich ein, ohne ein Foto umzufärben (DESIGN §12.2). */
+  padding: 8%;
+  background: var(--paper-2);
+  /* Marken-Handlinie um das Passepartout: Rahmen mit ungleichen Stärken und Radien wie Juttas Filzstift, innen ein zweiter,
+     blasserer Zug (inset-Schatten). Bewusst am Element selbst: Zusatz-Elemente je Karte (Pseudo-Elemente) kosteten auf der
+     Startseite messbar Bilder (PF-02, R01 p95 rAF), Masken und Hintergrundbilder zählt Chrome als LCP-Kandidaten (R02). */
+  border: solid color-mix(in srgb, var(--ink) 80%, transparent);
+  border-width: 1.1px 1.5px 1.2px 1px;
+  border-radius: 2% 1.2% 3% 1.5% / 1.6% 3% 1.4% 2.2%;
+  box-shadow:
+    inset 0 0 0 3px var(--paper-2),
+    inset 0 0 0 4px color-mix(in srgb, var(--ink) 35%, transparent);
+  isolation: isolate;
 }
 
 .image {
-  border-radius: var(--r-photo);
+  border-radius: calc(var(--r-photo) / 2);
+}
+
+/* Gescannte Zeichnungen auf weißem Papier: Weiß nimmt den Papierton an (Multiplizieren), Tusche bleibt schwarz.
+   Farbige Aquarelle (dunkler Rand der Skizzenbuch-Aufnahme) nicht: Multiplizieren machte Nr. 922 fast schwarz (R1-06-04). */
+.card[data-category='zeichnung']:not([data-color-art]) .image img {
+  mix-blend-mode: multiply;
+}
+
+@media (forced-colors: active) {
+  .photo {
+    background: Canvas;
+    border: 1px solid CanvasText;
+    box-shadow: none;
+  }
 }
 
 .card[data-status='sold'] .image img,

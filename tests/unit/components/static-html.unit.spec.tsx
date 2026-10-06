@@ -44,7 +44,7 @@ describe('StaticHtml (TBT P7)', () => {
     const html = renderToStaticMarkup(<>{resolved}</>)
     expect(html).toContain('<a href="/en" hrefLang="en">English</a>')
     expect(html).toContain('<span data-async="">Kontakt</span>')
-    expect(html).toContain('stroke-width="1.75"')
+    expect(html).toContain('<svg viewBox="0 0 24 24" width="16" height="16" class="glyph"')
   })
 
   it('P7 HTML gleicht normalem Rendern (ohne async-Teil) – Optik und Barrierefreiheit bleiben gleich', async () => {

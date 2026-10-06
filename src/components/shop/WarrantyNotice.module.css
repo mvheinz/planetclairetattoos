@@ -25,6 +25,8 @@
 
 .title {
   margin: 0 0 var(--space-2);
+  font-family: var(--font-body); /* unter 24 px keine Mansalva (DESIGN §4.3) */
+  font-weight: 700;
   font-size: var(--fs-h3);
 }
 

@@ -36,9 +36,12 @@ const HORIZON_PATH = handLinePath(29, { length: 1200, y: 4, amplitude: 1.4, step
 export async function NotFoundContent({
   locale,
   variant = 'lost',
+  marker = true,
 }: {
   locale: Locale
   variant?: NotFoundVariant
+  /** `false` nur auf der QA-Seite `/qa/motion` (MI-11): kein globales 404-Preset, die Bühne bringt ihre Linie mit. */
+  marker?: boolean
 }) {
   const [t, tRoutes, page] = await Promise.all([
     getTranslations({ locale, namespace: 'errors' }),
@@ -124,7 +127,7 @@ export async function NotFoundContent({
           </Button>
         </form>
       ) : null}
-      <NotFoundMarker />
+      {marker ? <NotFoundMarker /> : null}
     </div>
   )
 }

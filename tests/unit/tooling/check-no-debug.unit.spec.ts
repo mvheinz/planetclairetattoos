@@ -24,6 +24,9 @@ describe('check:no-debug', () => {
     mkdirSync(html, { recursive: true })
     writeFileSync(path.join(stat, 'a.js'), 'console.log(1)')
     writeFileSync(path.join(html, 'de.html'), '<html></html>')
+    // P9.1: CSS-Modul-Klassennamen (`Commission-module__e0cIba__leashEnd`) sind keine Debug-Schnittstelle.
+    writeFileSync(path.join(stat, 'c.css'), '.Commission-module__e0cIba__leashEnd{width:0}')
+    writeFileSync(path.join(html, 'x.html'), '<span class="Tattoo-module__ab12__qaNote"></span>')
     expect(findDebugMarkers(path.join(dir, 'static'), [html])).toEqual([])
     writeFileSync(path.join(stat, 'b.js'), 'window.__leash={}')
     writeFileSync(path.join(html, 'en.html'), '<script>window.__qa</script>')

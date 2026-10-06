@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 // P8.14 Stationszeichnungen (DESIGN §12.4, KO-21, E-73): die Startseite zeigt 7 Stationszeichnungen aus
-// `src/art/stations/` (keine Ersatzzeichnung mehr), `aria-hidden`, Tusche über `currentColor`, ohne Konsolenfehler.
+// `src/art/stations/` bzw. dem Coco-Sprite (keine Ersatzzeichnung mehr), `aria-hidden`, Tusche über `currentColor`, ohne Konsolenfehler.
 
 const STATION_IDS = [
   'hallo',
@@ -30,8 +30,9 @@ test('P8.14: Startseite zeigt 7 Stationszeichnungen ohne Konsolenfehler', async 
     const art = page.locator(`[data-station-art="${id}"]`)
     await expect(art).toHaveAttribute('aria-hidden', 'true')
     const svg = art.locator('svg')
-    await expect(svg).toHaveCount(1)
-    await expect(svg).toBeVisible()
+    // „Hallo“/„Jutta & Coco“: Coco aus dem Sprite (DESIGN §12.4), bei Jutta & Coco zusätzlich die Planet-Marke
+    await expect(svg).toHaveCount(id === 'jutta-und-coco' ? 2 : 1)
+    await expect(svg.first()).toBeVisible()
     // Tusche: currentColor löst auf die Tuschefarbe auf (E-73)
     const color = await art.evaluate((el) => getComputedStyle(el).color)
     expect(color, id).toBe('rgb(28, 26, 23)')

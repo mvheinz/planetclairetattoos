@@ -12,7 +12,8 @@
 .hero {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  /* LG-01 (R3-05): 24 px statt 16 px zwischen Marke und Untertitel – Coco sitzt beim Schlaufenende neben der Marke, ihre Pfoten (bis 0,96–0,99 der Box) bleiben so aus dem Untertitel-Zeilenrechteck. */
+  gap: var(--space-5);
   max-width: 40rem;
 }
 
@@ -21,7 +22,12 @@
   flex-wrap: wrap;
   align-items: center;
   /* Abstand ≥ 0,4 × Markenbreite: der Orbit (rx 0,9 w) bleibt vor dem ersten Buchstaben. */
-  gap: var(--space-2) var(--space-5);
+  /* Zeilenabstand 16 px (R3-05, LG-04): bricht die Marke bei 200 % Schrift über der H1 um, sitzt Coco neben dem Planeten – ihre
+     Pfoten (bis 0,96–0,99 der Box) bleiben so aus dem H1-Zeilenrechteck. */
+  gap: var(--space-4) var(--space-5);
+  /* LG-01 (R3-04-01): Coco sitzt über der Kopf-Station; ihre Pfoten reichen bis ≈ 0,96 der Box. 8 px mehr Luft über der
+     H1-Zeile (Zeilenrechteck ohne Spielraum) halten die Pfoten – auch bei 200 % Schrift und im Querformat – aus der Zeile. */
+  margin-block-start: var(--space-2);
   font-family: var(--font-hand);
   font-size: var(--fs-display);
   font-weight: 400;
@@ -92,6 +98,8 @@
   display: inline-flex;
   flex: none;
   color: var(--ink);
+  /* Der Pop (MI-12) startet erst beim Erreichen: ohne eigene Ebene löst schon der Animationsstart ein Layout aus (PF-05). */
+  will-change: transform;
 }
 
 .mark[data-station-mark='planet'] svg {
@@ -190,7 +198,6 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  background: var(--paper-2);
 }
 
 .artCoco :global(.coco) {
@@ -252,21 +259,83 @@
   }
 }
 
-/* MI-12 Stationsmarke „pop“, wenn die Linie sie erreicht (`data-leash-reached` setzt die Engine): Planet
+/* MI-12 Stationsmarke „pop“, wenn die Linie sie erreicht (`data-leash-reached` setzt die Engine); die Animation liegt
+   am Wrapper `.mark`, nicht am `<svg>` (eine Animation am äußeren `<svg>` löst je Station ein Layout aus, PF-05): Planet
    `scale 0.6 → 1` 240 ms `--ease-stamp`, Stern `rotate 0 → 15°` 400 ms `--ease-swing`, einmal. Reduziert: aus. */
 @media (prefers-reduced-motion: no-preference) {
   html:not([data-motion='reduced'])
     .station:has([data-leash-reached])
-    .mark[data-station-mark='planet']
-    svg {
+    .mark[data-station-mark='planet'] {
     animation: pc-mark-pop 240ms var(--ease-stamp) both;
   }
 
   html:not([data-motion='reduced'])
     .station:has([data-leash-reached])
-    .mark[data-station-mark='star']
-    svg {
+    .mark[data-station-mark='star'] {
     animation: pc-mark-turn 400ms var(--ease-swing) both;
+  }
+}
+
+/* MI-12 Kopf-Station: die Planet-Marke an der H1 „poppt“, wenn der Orbit sich schließt (§11.4). */
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-motion='reduced']) .planet[data-leash-reached] svg {
+    animation: pc-mark-pop 240ms var(--ease-stamp) both;
+  }
+
+  /* MI-13 Stationszeichnung „zieht ein“ (Zeichnungen): bis zur Ankunft der Linie verborgen (`data-leash-armed`, nur
+     mit Tinte in Bewegung), dann Masken-Wisch von links, 700 ms, einmal. */
+  html:not([data-motion='reduced'])
+    .station[data-home-station='zeichnungen']:has([data-leash-armed]:not([data-leash-reached]))
+    .artFrame {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  html:not([data-motion='reduced'])
+    .station[data-home-station='zeichnungen']:has([data-leash-reached])
+    .artFrame {
+    animation: pc-art-in 700ms var(--ease-ink-out) both;
+  }
+
+  /* MI-14 Stencil-Abdruck: die Zeichnung der Tattoo-Station bekommt einmal `--shadow-stencil`, wenn die Kontur sie
+     erreicht (Schatten an einem Pseudo-Element, nur `opacity` animiert). */
+  html:not([data-motion='reduced']) .station[data-home-station='tattoo'] .artFrame {
+    position: relative;
+  }
+
+  html:not([data-motion='reduced']) .station[data-home-station='tattoo'] .artFrame::after {
+    content: '';
+    position: absolute;
+    inset: var(--space-4);
+    border-radius: var(--r-card);
+    box-shadow: var(--shadow-stencil);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  html:not([data-motion='reduced'])
+    .station[data-home-station='tattoo']:has([data-leash-reached])
+    .artFrame::after {
+    animation: pc-art-stencil 400ms var(--ease-calm) both;
+  }
+}
+
+@keyframes pc-art-in {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes pc-art-stencil {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }
 

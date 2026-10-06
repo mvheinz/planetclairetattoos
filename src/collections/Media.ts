@@ -33,6 +33,7 @@ import {
   isCompleteSize,
   normalizeUpload,
 } from '@/lib/media/pipeline'
+import { DERIVATIVES_VERSION } from '@/lib/media/version'
 import { getAppContext } from '@/lib/payload/context'
 import { uploadStaticDir, uploadStorage } from '@/lib/storage'
 import { mediaVisibleInGallery } from '@/lib/tattoo/gallery'
@@ -66,6 +67,7 @@ export const readMedia: Access = ({ req, isReadingStaticFile }) => {
 }
 
 export const DOWNSCALE_UPLOAD_COMPONENT = '/admin/components/DownscaleUpload#DownscaleUpload'
+export const ENHANCE_PREVIEW_COMPONENT = '/admin/components/EnhancePreview#EnhancePreview'
 
 /**
  * Bildgrößen – verbindliche Liste (DATENMODELL §6.2). Unvollständige Größen entfallen (`isCompleteSize`). Jede Größe hat
@@ -146,8 +148,14 @@ async function fileBuffer(file: { data?: Buffer; tempFilePath?: string }): Promi
 const normalizeIncomingFile: CollectionBeforeOperationHook = async ({ args, operation, req }) => {
   if ((operation !== 'create' && operation !== 'update') || !req.file) return args
   const file = req.file
+  const data = (args as { data?: { enhance?: unknown; source?: unknown } }).data
   try {
-    const normalized = await normalizeUpload(await fileBuffer(file), file.name, file.mimetype)
+    // Eigene Zeichnungen und Platzhalter (source placeholder/generated) tragen exakt die Marken-Farben: kein Foto-Look.
+    const artwork = data?.source === 'placeholder' || data?.source === 'generated'
+    const normalized = await normalizeUpload(await fileBuffer(file), file.name, file.mimetype, {
+      enhance: data?.enhance === 'off' || artwork ? 'off' : 'auto',
+      category: 'photo',
+    })
     req.file = { ...file, ...normalized, tempFilePath: undefined }
   } catch (e) {
     if (e instanceof MediaFileError) {
@@ -206,6 +214,7 @@ const computeDerived: CollectionBeforeChangeHook = async ({ data, req, originalD
   if (req.file) {
     const buffer = await fileBuffer(req.file)
     if (buffer.length > 0) Object.assign(data, await computePlaceholder(buffer))
+    data.derivativesVersion = DERIVATIVES_VERSION
   }
   // `restricted` steuert die Tattoo-Galerie (§6.16, Hook `tattoo-gallery.afterChange`). Sonst gilt: Kund:innen-Haut
   // ist gesperrt, solange kein öffentlich sichtbarer Galerie-Eintrag mit Einwilligung darauf verweist.
@@ -319,7 +328,16 @@ export const Media: CollectionConfig = {
         { label: 'automatisch', value: 'auto' },
         { label: 'aus', value: 'off' },
       ],
-      admin: { position: 'sidebar', description: 'Wirkt ab P9 (einheitlicher Bildlook).' },
+      admin: {
+        position: 'sidebar',
+        description:
+          'Gleicht Weißabgleich und Helligkeit sanft an. „Aus“ lässt das Foto, wie es ist (gilt beim nächsten Hochladen).',
+      },
+    },
+    {
+      name: 'enhancePreview',
+      type: 'ui',
+      admin: { position: 'sidebar', components: { Field: ENHANCE_PREVIEW_COMPONENT } },
     },
     {
       name: 'derivativesVersion',

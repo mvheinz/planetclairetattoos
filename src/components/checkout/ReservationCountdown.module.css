@@ -16,11 +16,19 @@
 }
 
 .note {
-  display: grid;
-  gap: var(--space-1);
+  /* Block statt Grid: ein Grid-Item ist keine Layout-Grenze (Sekundentakt, PF-05). */
+  display: block;
+}
+
+.note > .text {
+  margin-block-start: var(--space-1);
 }
 
 .time {
+  /* Layout-Grenze: der Sekundentakt relayoutet nur diese Zeile (PF-05), nicht die Seite. */
+  contain: layout paint;
+  width: 5ch;
+  height: 1.1em;
   margin: 0;
   font-family: var(--font-mono);
   font-size: 28px;
@@ -69,6 +77,8 @@
 }
 
 .compactTime {
+  contain: layout paint;
+  height: 1lh;
   margin: 0;
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;

@@ -30,14 +30,19 @@ function lattice(i: number, seed: number): number {
  * Geglättetes 1D-Value-Noise (Gitter im Abstand 1, Übergang mit Smootherstep, stetig differenzierbar).
  * Liefert eine Funktion `x → [-1, 1]`; gleiche Seeds liefern gleiche Werte.
  */
-export function valueNoise1D(seed: number): (x: number) => number {
+export function valueNoise1D(seed: number, tremor = false): (x: number) => number {
   const s = seed >>> 0
+  // Zittern (Tuschelinie, LQ-03): Gitterwerte mit wechselndem Vorzeichen und Betrag 0,8–1 – nie 120 px lang gerade.
+  const at = (i: number) => {
+    const v = lattice(i, s)
+    return tremor ? (i & 1 ? -1 : 1) * (0.8 + 0.1 * (v + 1)) : v
+  }
   return (x: number) => {
     const i = Math.floor(x)
     const f = x - i
     const u = f * f * f * (f * (f * 6 - 15) + 10)
-    const a = lattice(i, s)
-    const b = lattice(i + 1, s)
+    const a = at(i)
+    const b = at(i + 1)
     return a + (b - a) * u
   }
 }

@@ -24,8 +24,9 @@ let tracker: Tracker
 let el: HTMLElement
 let events: PoseEvent[]
 
+/** Sichtbare Frames: die Gruppe mit `data-on` (vorab angelegte Posen-Gruppen, PF-05). */
 const hrefs = () =>
-  [...el.querySelectorAll('use')].map((u) => u.getAttribute('href')!.split('#')[1])
+  [...el.querySelectorAll('.cg[data-on] use')].map((u) => u.getAttribute('href')!.split('#')[1])
 const advance = (ms: number) => vi.advanceTimersByTime(ms)
 
 function mount(
@@ -127,6 +128,21 @@ describe('Coco – Posenwechsel nur an Frame-Grenzen (Fake-Timer)', () => {
     expect(bridgesFor('schlafen', 'springen')).toEqual(['abspringen'])
     expect(bridgesFor('rennen', 'kopfschief')).toEqual(['bremsen'])
     expect(bridgesFor('kopfschief', 'schnueffeln')).toBeNull()
+    c.destroy()
+  })
+
+  it('MO-09: Ziel wechselt während der Brücke – neue Brücke von der Ausgangspose, nie die alte', () => {
+    const c = mount('rennen')
+    advance(10)
+    c.setPose('springen') // Brücke „abspringen“
+    advance(75)
+    expect(el.getAttribute('data-pose')).toBe('bridge-abspringen')
+    c.setPose('kopfschief') // Ziel ändert sich mitten in der Brücke
+    advance(BRIDGE_MS * 4)
+    expect(c.pose()).toBe('kopfschief')
+    const last = events.at(-1)!
+    expect(last).toMatchObject({ from: 'rennen', to: 'kopfschief', bridge: 'bremsen' })
+    expect(events.filter((e) => e.from !== e.to && e.bridge === 'abspringen')).toEqual([])
     c.destroy()
   })
 

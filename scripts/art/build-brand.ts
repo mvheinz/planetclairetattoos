@@ -220,6 +220,16 @@ export function buildIconSvg(planetSvg: string): string {
   )
 }
 
+/** 16-px-Fassung (AR-07): dickerer Strich, damit Planet und Ring bei 0,9 px Linie nicht verlaufen. */
+function smallIconSvg(planetSvg: string): string {
+  return (
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">' +
+    `<circle cx="32" cy="32" r="31.5" fill="${PAPER}"/>` +
+    planetGroup(planetSvg, 32, 32, 62, 6.4) +
+    '</svg>\n'
+  )
+}
+
 function appleIconSvg(planetSvg: string): string {
   return (
     '<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">' +
@@ -269,6 +279,33 @@ function textPath(font: fontkit.Font, text: string, x: number, y: number, size: 
 
 export const OG_TAGLINE = 'Tattoos & Unikate aus Berlin'
 
+/** Coco `rennen` (Frame A) aus dem Sprite, gespiegelt, D-Ring (Anker) auf (x, y); Klassen in Attribute übersetzt. */
+function cocoRennen(x: number, y: number, s: number): string {
+  const sprite = readFileSync(p('src/art/coco/coco-sprite.svg'), 'utf8')
+  const symbol = /<symbol id="coco-rennen-a"[^>]*>([\s\S]*?)<\/symbol>/.exec(sprite)
+  if (!symbol) throw new Error('coco-rennen-a fehlt im Sprite')
+  const anchors = JSON.parse(readFileSync(p('src/art/coco/coco-anchors.json'), 'utf8')) as {
+    anchors: Record<string, [number, number]>
+  }
+  const [ax, ay] = anchors.anchors.rennen ?? [80, 60]
+  const inner = symbol[1]!
+    .replace(/ data-part="[^"]*"/g, '')
+    // Präsentationsattribute der Ebenen (WebKit, P9.17) weichen den festen OG-Farben – sonst doppelte Attribute
+    .replace(/(<g class="[a-z]+")( (?:fill|stroke)="[^"]*")+/g, '$1')
+    .replace(/class="fur"/g, 'fill="#E2BF8E"')
+    .replace(
+      /class="harness"/g,
+      `fill="#C23B2A" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round"`,
+    )
+    .replace(
+      /class="line"/g,
+      `fill="none" stroke="${INK}" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"`,
+    )
+    .replace(/class="solid"/g, `fill="${INK}"`)
+    .replace(/class="hi"/g, `fill="${PAPER}"`)
+  return `<g transform="translate(${fmt(x + ax * s, 2)} ${fmt(y - ay * s, 2)}) scale(${-s} ${s})">${inner}</g>`
+}
+
 async function ogSvg(wordmarkSvg: string, planetSvg: string, bricolage600: fontkit.Font) {
   const W = 1200
   const H = 630
@@ -285,8 +322,9 @@ async function ogSvg(wordmarkSvg: string, planetSvg: string, bricolage600: fontk
   const wmX = 88
   const wmY = 170
   // Tuschelinie: kommt von links unten, schwingt unter der Wortmarke entlang und umkreist die Planet-Marke.
+  // Coco `rennen` an der Linienspitze links unten (DESIGN §12.6), gespiegelt: sie läuft die Leine entlang nach links.
   const line =
-    'M-20 560C140 520 300 470 470 480S760 560 880 520C1010 476 1080 380 1040 292' +
+    'M210 516C270 500 330 470 470 480S760 560 880 520C1010 476 1080 380 1040 292' +
     'C1000 206 880 176 830 244C790 300 850 392 950 398C1060 404 1130 330 1150 250'
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">` +
@@ -295,6 +333,7 @@ async function ogSvg(wordmarkSvg: string, planetSvg: string, bricolage600: fontk
     `<path d="${major}" stroke="${GRID}" stroke-opacity="0.12" stroke-width="1.5"/>` +
     `<path d="${line}" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>` +
     planetGroup(planetSvg, 960, 300, 250, 2.4) +
+    cocoRennen(210, 516, 1.75) +
     `<g transform="translate(${fmt(wmX - vx * k, 2)} ${fmt(wmY - vy * k, 2)}) scale(${fmt(k, 4)})">${wm.inner}</g>` +
     `<path fill="${INK}" d="${textPath(bricolage600, OG_TAGLINE, wmX + 6, wmY + vh * k + 78, 46)}"/>` +
     '</svg>'
@@ -354,7 +393,7 @@ async function main(): Promise<void> {
       .png({ compressionLevel: 9 })
       .toBuffer()
   const ico = buildIco([
-    { size: 16, png: await png(icon, 16) },
+    { size: 16, png: await png(smallIconSvg(planet), 16) },
     { size: 32, png: await png(icon, 32) },
   ])
   writeFileSync(p('src/app/favicon.ico'), ico)

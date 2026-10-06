@@ -2,7 +2,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { getMotion, onMotionChange } from '@/leash/motion'
-import { mountLeash } from '@/leash/runtime'
+import { mountLeash as mountStepwise, type MountOptions } from '@/leash/runtime'
+
+const mountLeash = (root: HTMLElement, o: MountOptions) =>
+  mountStepwise(root, { stepwise: false, ...o })
 
 // Bewegungszustand (DESIGN §9.11, §11.7) – angelegt in P2.6 für `cart-count`; P2.16 ergänzt die Engine-Fälle.
 

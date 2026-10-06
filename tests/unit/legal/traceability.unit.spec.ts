@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest'
 // liest der Parser die Spalten über die Kopfzeile (`| ID | Titel | Phase | Test | Owner | Nachweis |`); jede Zeile bis
 // zur aktuellen Phase nennt in „Nachweis“ Testdateien (die existieren müssen) bzw. „§7“ für manuelle Punkte (EK-06).
 
-export const LEGAL_TRACE_PHASE = 8
+export const LEGAL_TRACE_PHASE = 9
 
 const ROOT = path.resolve(__dirname, '../../..')
 const AUTOMATED = new Set(['unit', 'int', 'e2e'])

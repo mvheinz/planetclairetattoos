@@ -4648,7 +4648,7 @@ KUNST-QA §0–§10 (vollständig).
 
 ### Aufgaben
 
-- [ ] **P9.1 QA-Modus und QA-Seiten** – `ART_QA` in `src/lib/env.ts` aufnehmen (Text laut ARCHITEKTUR §5.2,
+- [x] **P9.1 QA-Modus und QA-Seiten** – `ART_QA` in `src/lib/env.ts` aufnehmen (Text laut ARCHITEKTUR §5.2,
   `.env.example` neu erzeugen). QA-Seiten unter `src/app/(frontend)/[locale]/qa/` nach KUNST-QA §3.2: `coco` (alle 22
   Symbole in 24/40/42/64/72/180/240 px mit passendem `data-size`, Boil an/aus, `?parts=1` färbt `data-part`-Gruppen,
   `?frame=a|b|c`), `art` (Stationszeichnungen neben ihrer Quelle im gleichen Maßstab, Platzhalter, Weltraum-Motive,
@@ -4667,7 +4667,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: `tests/e2e/qa-mode.e2e.spec.ts` (mit/ohne Schalter); Unit-Test der Parameter-Auswertung.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.2 Aufnahme-Grundgerüst und Kalibrierbogen** – `playwright.art.config.ts` mit Projekten `art-iphone15`
+- [x] **P9.2 Aufnahme-Grundgerüst und Kalibrierbogen** – `playwright.art.config.ts` mit Projekten `art-iphone15`
   (WebKit, `devices['iPhone 15']`, Viewport aus dem Deskriptor), `art-pixel7` (Chromium, `devices['Pixel 7']`, CPU 4×
   per CDP nur in Tempo-Läufen), `art-desktop` (1440×900) und den Varianten `motion`/`reduced` (KUNST-QA §4.2). Helfer
   in `tests/art/helpers/` für die deterministische Aufnahme (§4.4: `scrollTo` + 2 rAF bzw. `__leash.setReadingY`,
@@ -4686,7 +4686,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: `tests/art/sc-00.art.spec.ts` läuft in der Sandbox grün; Unit-Test der Dateinamen- und Lauf-ID-Logik.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.3 Bewegungs-Szenarien aufnehmen** – Szenarien SC-01 bis SC-11, SC-14, SC-15 und SC-17 exakt nach KUNST-QA
+- [x] **P9.3 Bewegungs-Szenarien aufnehmen** – Szenarien SC-01 bis SC-11, SC-14, SC-15 und SC-17 exakt nach KUNST-QA
   §4.3 als `tests/art/sc-XX.art.spec.ts`: Startseite (Intro, 600 px/s, 3000 px/s, 400 px zurück, 1,5 s je Station;
   Frames an `y − 40`, `y`, `y + loopScroll/2`, `y + loopScroll`, `+1,5 s`; Intro alle 100 ms), reduzierte Variante,
   Menü (Öffnen alle 40 ms), Shop/Archiv-Reihen, Produktseite mit „In den Korb“, Korb/Kasse (Mock-Zahlung)/Status/
@@ -4701,7 +4701,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: die Szenario-Dateien selbst; Vollständigkeitsprüfung im Bündel-Manifest (P9.5).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.4 Tempo-Messung (SC-18) und Auswertung** – `tests/art/sc-18.art.spec.ts` nach KUNST-QA §4.6 (Profil
+- [x] **P9.4 Tempo-Messung (SC-18) und Auswertung** – `tests/art/sc-18.art.spec.ts` nach KUNST-QA §4.6 (Profil
   `art-pixel7`, CPU 4×, ohne Video, 1 Vorlauf verworfen, je Route R01, R02, R04, R07 drei Läufe **mit** Engine und drei
   mit `?leash=off`; `__qa.start()` → 5 s Scroll per `Input.synthesizeScrollGesture` 900 px/s → Menü → (R04) „In den
   Korb“ → `dump()`; ein CDP-Trace je Route). `scripts/art/metrics.ts` als `pnpm art:metrics` → `metrics/*.json`:
@@ -4716,7 +4716,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: `tests/unit/art/metrics.unit.spec.ts` mit aufgezeichneten Beispiel-JSONs in `tests/fixtures/art/`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.5 Kontaktbögen, Bündel und automatische Prüfung I (Kunst)** – `scripts/art/sheets.ts` als
+- [x] **P9.5 Kontaktbögen, Bündel und automatische Prüfung I (Kunst)** – `scripts/art/sheets.ts` als
   `pnpm art:sheets` (sharp-Raster ≤ 2400 px breit, 6 Spalten, Beschriftung Szenario/Profil/`t`/`y`; Coco-Bögen je Pose
   A/B/C in allen Größen plus `?parts=1`-Fassung; Stationszeichnung neben Quelle; `sheets/art|motion|a11y/*.webp` je
   ≤ 1,5 MB; der Kalibrierbogen aus P9.2 liegt in jedem Bündel als `sheets/art/calibration-p2-placeholder.webp`),
@@ -4736,7 +4736,7 @@ KUNST-QA §0–§10 (vollständig).
     (Vollständigkeit, Manifest, Budget).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.6 Automatische Prüfung II (Bewegung, Lesbarkeit, Tempo, Barrierefreiheit)** – `pnpm art:check` um MO-01…
+- [x] **P9.6 Automatische Prüfung II (Bewegung, Lesbarkeit, Tempo, Barrierefreiheit)** – `pnpm art:check` um MO-01…
   MO-10, MO-13…MO-15, LG-01…LG-04, PF-01…PF-12, A11Y-01…A11Y-07, CT-01…CT-03, RZ-01 und RZ-02 ergänzen (Methoden laut
   KUNST-QA §5: LG-01 als Schnittmenge aus gezeichneten LUT-Punkten ± halbe Breite und Coco-Bbox mit
   `Range.getClientRects()` aller Textzeilen, Formularfelder, Knöpfe und Fußbereich-Links; PF gegen die Grundlinie aus
@@ -4749,7 +4749,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: Erweiterung `tests/unit/art/check-art.unit.spec.ts`; Parser-Test gegen KUNST-QA §5.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.7 CI-Workflow `art-qa.yml` und Dauer-Gate** – `.github/workflows/art-qa.yml` nach KUNST-QA §9 und
+- [x] **P9.7 CI-Workflow `art-qa.yml` und Dauer-Gate** – `.github/workflows/art-qa.yml` nach KUNST-QA §9 und
   ARCHITEKTUR §6.2: Auslöser `workflow_dispatch` und `pull_request` (`labeled`, `synchronize`); der Job läuft, wenn der
   PR das Label `art` trägt oder die Nachricht des Head-Commits `[ci:art]` enthält (z. B.
   `chore(P9.18): record iteration 01 [ci:art]`); kein `push`-Auslöser. Postgres-Service, Installation (Cache),
@@ -4780,7 +4780,7 @@ KUNST-QA §0–§10 (vollständig).
     Budget-Schritt).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.8 Coco-Charakterblatt aus den Referenzfotos** – `content/art/coco/character-sheet.svg` und gerendert
+- [x] **P9.8 Coco-Charakterblatt aus den Referenzfotos** – `content/art/coco/character-sheet.svg` und gerendert
   `content/art/coco/character-sheet.webp` (≤ 300 KB): Seiten- und ¾-Ansicht mit Hilfslinien in der Einheit K
   (Kopflänge, DESIGN §10.1), alle Merkmale (große aufrechte, asymmetrische Ohren mit Innenohr-Linie; große dunkle Augen mit
   Glanzpunkt; kurze helle Schnauze; schwarze, leicht herzförmige Nase; Blesse; tiefe helle Brust; dünne Beine mit
@@ -4802,7 +4802,7 @@ KUNST-QA §0–§10 (vollständig).
   - Ohne Jutta: Highlights (150 px) als Referenz. P11-Nacharbeit: Jutta beantwortet „Ist das Coco?“ (KUNST-QA §10
     Nr. 4); Korrekturen an Ohren, Farbe, Geschirr als Nacharbeit.
 
-- [ ] **P9.9 Coco-Posen I: `sitzen`, `kopfschief`, `schlafen` + Brücken `einrollen-1`, `einrollen-2`** – Frame A je
+- [x] **P9.9 Coco-Posen I: `sitzen`, `kopfschief`, `schlafen` + Brücken `einrollen-1`, `einrollen-2`** – Frame A je
   Pose als gezeichnete Pfade (keine Formen-Primitive), Frames B und C als echte Nachzeichnungen (jede Linie neu,
   Abweichung 0,5–1,5 Einheiten, gleiche Anatomie, Anker ± 2) nach DESIGN §10.2–§10.4 und §10.7 in
   `src/art/coco/coco-sprite.svg` (Ebenen `fur`/`harness`/`line`/`solid`/`hi`, `data-part`-Gruppen,
@@ -4821,7 +4821,7 @@ KUNST-QA §0–§10 (vollständig).
     aus `coco-sprite.json`).
   - Ohne Jutta: nach Charakterblatt. P11-Nacharbeit: siehe P9.8.
 
-- [ ] **P9.10 Coco-Posen II: `rennen`, `schnueffeln`, `springen` + Brücken `bremsen`, `abspringen`** – `rennen` mit
+- [x] **P9.10 Coco-Posen II: `rennen`, `schnueffeln`, `springen` + Brücken `bremsen`, `abspringen`** – `rennen` mit
   drei echten Gangphasen (A Streckung, B Sammlung, C Flug; Silhouette wechselt deutlich, Anker am Rücken ± 3),
   `schnueffeln` (Nase am Boden, in C 1 Einheit Schnüffel-Zucken), `springen` (Luftbogen) und die Brücken; damit sind
   alle 22 Symbole final. `pnpm art:sprite` erneut, Größen-Budget prüfen.
@@ -4834,7 +4834,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: Erweiterung `tests/unit/art/sprite.unit.spec.ts` (Budgets, fps-Zuordnung).
   - Ohne Jutta: nach Charakterblatt. P11-Nacharbeit: siehe P9.8.
 
-- [ ] **P9.11 Lebendige Tuschelinie (Stufe A)** – Engine-Parameter innerhalb der DESIGN-Bereiche feinjustieren
+- [x] **P9.11 Lebendige Tuschelinie (Stufe A)** – Engine-Parameter innerhalb der DESIGN-Bereiche feinjustieren
   (§9.3 Schritte 6–9, §9.4, §9.5): Wackel-Amplituden je Breite, Breitenprofil mit Krümmungszuschlag im Band
   [0,8; 1,35] × Grundbreite, Federansatz (0,35 → 1 über 28 px) und Abheben (→ 0,45 über 18 px), Tintenpunkte an jedem
   Schlaufenstart, Schlaufen nie perfekt (Radius ±12 %, verkippte Ellipsen), nahtlose Segmente (2 px Überlappung), Stufe B
@@ -4848,7 +4848,7 @@ KUNST-QA §0–§10 (vollständig).
     Schlaufen, Nahtüberlappung).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.12 Stationszeichnungen final, Weltraum-Motive und Marke** – `content/art/sources.json` je Quelle
+- [x] **P9.12 Stationszeichnungen final, Weltraum-Motive und Marke** – `content/art/sources.json` je Quelle
   feinjustieren und `pnpm art:vectorize` erneut (bei gemapptem Instagram-Export mit voller Auflösung); manuelle
   Nacharbeit nur als dokumentierte Pfad-Korrektur. Weltraum-Motive `src/art/space/*.svg` nach DESIGN §12.5 (Planet mit
   Ring, 4- und 5-zackiger Stern, Mondsichel, gestrichelte Umlaufbahn, Retro-Untertasse, Morse-Leiste „CLAIRE“, je
@@ -4862,7 +4862,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: `tests/unit/art/stations.unit.spec.ts` und `tests/unit/art/space.unit.spec.ts` (Größen, Dichte-Regeln).
   - Ohne Jutta: aus 640-px-Quellen. P11-Nacharbeit: nach dem Export `pnpm art:vectorize` und SC-13 wiederholen.
 
-- [ ] **P9.13 Platzhalter-Feinschliff** – Alle Platzhalter (SEED-SPEC §4.2) gegen DESIGN §12.3 und Juttas Referenzen prüfen und dort
+- [x] **P9.13 Platzhalter-Feinschliff** – Alle Platzhalter (SEED-SPEC §4.2) gegen DESIGN §12.3 und Juttas Referenzen prüfen und dort
   nachzeichnen, wo sie generisch wirken (Ziel Rubrik ≥ 4, AR-05; im Shop-Raster zwischen echten Fotos nicht „fremd“,
   IM-04); `pnpm art:placeholders && pnpm seed:example --refresh-media`.
   - Akzeptanz:
@@ -4872,7 +4872,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: `tests/unit/art/placeholders.unit.spec.ts` bleibt grün.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.14 Foto-Look-Pipeline (Weißabgleich, Belichtung, Schalter)** – DESIGN §12.2 Schritte 4–6 in
+- [x] **P9.14 Foto-Look-Pipeline (Weißabgleich, Belichtung, Schalter)** – DESIGN §12.2 Schritte 4–6 in
   `src/lib/media/enhance.ts` (rein, testbar): Neutralpunkt aus hellen, unbunten Pixeln (L* im oberen 5 %-Quantil und
   Chroma < 12 in Lab), Kanal-Verstärkung begrenzt auf [0,92; 1,08], kein Abgleich bei < 0,5 % geeigneten Pixeln,
   Kategorie `drawing` halbe Stärke; Belichtung: Median-L* des mittleren 60 %-Bereichs, Korrektur nur außerhalb 56–68 auf
@@ -4889,7 +4889,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: `tests/unit/media/enhance.unit.spec.ts`; `tests/int/media/regenerate.int.spec.ts`.
   - Ohne Jutta: mit Seed-Bildern. P11-Nacharbeit: –
 
-- [ ] **P9.15 Choreografie der Startseite (Preset `journey`)** – DESIGN §11.4 vollständig in `src/leash/coco.ts`,
+- [x] **P9.15 Choreografie der Startseite (Preset `journey`)** – DESIGN §11.4 vollständig in `src/leash/coco.ts`,
   `runtime.ts` und `presets.ts`: Stationen S0–S8 mit Ankern und Schlaufen (`orbit` um die Planet-Marke, `right`,
   `right` + `lasso` ab 1200 px, `left`, `spiral`, Ketten-Schlaufe mit Tintenperle, `contour`, `left`), Posen
   „Ankunft → Verweilen“ mit den Brücken aus §10.3, Verweil-Timer 1,2 s bzw. 1,5 s, Sprung-Sequenz Schmuck (415 ms ab
@@ -4906,7 +4906,7 @@ KUNST-QA §0–§10 (vollständig).
     `tests/e2e/home-choreo.e2e.spec.ts` (Pose je Station über `__leash.pose()`).
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.16 Mikro-Interaktionen und Seitenübergänge polieren** – MI-01 bis MI-16 exakt nach DESIGN §11.5
+- [x] **P9.16 Mikro-Interaktionen und Seitenübergänge polieren** – MI-01 bis MI-16 exakt nach DESIGN §11.5
   (Auslöser, Ablauf, Dauer-Tokens §11.3, Easing-Tokens §11.2, nur `transform`/`opacity`/`clip-path`/
   `stroke-dashoffset`, Verhalten bei reduzierter Bewegung, „Nie auf“-Liste); Ruhezonen DESIGN §11.6 unverändert.
   View Transitions nach §9.8 (Namen `coco` und `leash-head`, nie von/zu `calm`-Routen, harte Navigation nur mit
@@ -4921,7 +4921,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: Unit-Test der Dauer-/Easing-Tabelle gegen DESIGN §11.3/§11.5; E2E-Teilmenge auf `/de/qa/motion`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.17 Tempo, Lesbarkeit und Barrierefreiheit feinschleifen** – Vollständige Aufnahme, dann alle automatischen
+- [x] **P9.17 Tempo, Lesbarkeit und Barrierefreiheit feinschleifen** – Vollständige Aufnahme, dann alle automatischen
   Kriterien aus KUNST-QA §5.5–§5.8 grün machen: LG-01…LG-04, PF-01…PF-12, A11Y-01…A11Y-07, CT-01…CT-03; JS- und
   SVG-Budgets (PF-09, PF-10; DESIGN §9.10). Engpässe nur bei verhandelbaren Punkten über die Vereinfachungsleiter
   (KUNST-QA §6.6 Nr. 5) lösen und dokumentieren.
@@ -4932,7 +4932,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: `pnpm art:check`, `pnpm test:perf`, `pnpm test:e2e --grep @a11y`.
   - Ohne Jutta: vollständig machbar. P11-Nacharbeit: –
 
-- [ ] **P9.18 Studio-QA-Schleife I: erste vollständige Iteration mit Protokoll** – Das Verfahren aus KUNST-QA §1 und
+- [x] **P9.18 Studio-QA-Schleife I: erste vollständige Iteration mit Protokoll** – Das Verfahren aus KUNST-QA §1 und
   §6; jede Iteration ist ein eigener Arbeitsblock mit eigenem Protokoll, die Nummer NN läuft fortlaufend über ganz P9.
   Diese Aufgabe führt Iteration 01 durch, immer mit **vollständiger** Aufnahme; P9.18a wiederholt den Ablauf bis PASS
   oder Obergrenze. Ablauf je Iteration NN:
@@ -4963,7 +4963,7 @@ KUNST-QA §0–§10 (vollständig).
   - Tests: `pnpm art:check`; `pnpm art:bundle` (Vollständigkeit).
   - Ohne Jutta: die drei Subagenten-Linsen ersetzen menschliche Prüfer. P11-Nacharbeit: –
 
-- [ ] **P9.18a Studio-QA-Schleife II: nachbessern bis PASS oder Obergrenze** – Je weitere Iteration zuerst
+- [x] **P9.18a Studio-QA-Schleife II: nachbessern bis PASS oder Obergrenze** – Je weitere Iteration zuerst
   nachbessern, dann den Ablauf aus P9.18 (Schritte 1–4) mit der nächsten Nummer; braucht die Iteration einen Lauf von
   `art-qa.yml`, trägt ihr Aufnahme-Commit `[ci:art]` (z. B. `chore(P9.18a): record iteration 03 [ci:art]`). Diese
   Läufe sind von der Regel „höchstens ein Zwischenlauf je Phase“ ausgenommen; ihre Zahl begrenzt Fall c unten
@@ -4995,7 +4995,7 @@ KUNST-QA §0–§10 (vollständig).
   - Ohne Jutta: die drei Subagenten-Linsen ersetzen menschliche Prüfer. P11-Nacharbeit: Sichtprüfung durch Jutta auf
     echten Geräten (KUNST-QA §10 Nr. 4); bei Fall b oder c entscheidet Jutta über die offenen Punkte (P11.1).
 
-- [ ] **P9.19 Abschluss P9 und Übergabe** – KUNST-QA §10: End-Bündel als CI-Artefakt `art-qa-<lauf-id>` (30 Tage) –
+- [x] **P9.19 Abschluss P9 und Übergabe** – KUNST-QA §10: End-Bündel als CI-Artefakt `art-qa-<lauf-id>` (30 Tage) –
   stammt das PASS-Bündel schon aus `art-qa.yml`, ist es das End-Bündel; sonst `art-qa.yml` auf dem PASS-Stand
   auslösen – per Commit mit `[ci:art]` (nach dem PASS-Commit nur Doku- und Protokoll-Änderungen, notfalls ein leerer
   Commit), per Label `art` am PR mit einem Head-Commit ohne `[skip ci]` oder per `workflow_dispatch`, sobald
@@ -5023,24 +5023,24 @@ KUNST-QA §0–§10 (vollständig).
 
 ### Phasen-Abnahme
 
-- [ ] Alle Aufgaben P9.1–P9.19 (einschließlich P9.18a) abgehakt; KUNST-QA §0 „P9 ist fertig“ Nr. 1–4 erfüllt (Gate G4,
+- [x] Alle Aufgaben P9.1–P9.19 (einschließlich P9.18a) abgehakt; KUNST-QA §0 „P9 ist fertig“ Nr. 1–4 erfüllt (Gate G4,
   ARCHITEKTUR §7.9) – oder P9.18a endete nach Fall b bzw. c mit Vermerk, und die offenen Punkte stehen in OFFENE-PUNKTE
   (Fall c zusätzlich als Blocker oben im PR).
-- [ ] EK-12 belegt (PASS-Iteration im qa-log, bei Fall b/c der Abschlussvermerk); EK-01 (Lighthouse-CI) und EK-07 (axe)
+- [x] EK-12 belegt (PASS-Iteration im qa-log, bei Fall b/c der Abschlussvermerk); EK-01 (Lighthouse-CI) und EK-07 (axe)
   unverändert grün.
-- [ ] `pnpm check`, `pnpm test:int`, `pnpm build`, `pnpm test:e2e` lokal grün; `pnpm test:preview-export` lokal grün
+- [x] `pnpm check`, `pnpm test:int`, `pnpm build`, `pnpm test:e2e` lokal grün; `pnpm test:preview-export` lokal grün
   inklusive Linien- und Coco-Bewegung (KONZEPT §12.7 Nr. 5) und reduzierter Bewegung; Datei ≤ 40 MB.
-- [ ] `art-qa.yml` auf dem Endstand von P9.18a (PASS-Commit bzw. letzter Stand bei Fall b/c) grün (P9.19; danach nur
+- [x] `art-qa.yml` auf dem Endstand von P9.18a (PASS-Commit bzw. letzter Stand bei Fall b/c) grün (P9.19; danach nur
   Doku-, Bild- und Referenz-Commits); bei Fall c rot nur mit den im PR genannten Blockern.
-- [ ] R-001: `LEGAL_TRACE_PHASE = 9`.
-- [ ] Doku geprüft: alle `art:*`-Skripte stehen so in ARCHITEKTUR §6.10 und `package.json`; Anhang B/ADR (View
+- [x] R-001: `LEGAL_TRACE_PHASE = 9`.
+- [x] Doku geprüft: alle `art:*`-Skripte stehen so in ARCHITEKTUR §6.10 und `package.json`; Anhang B/ADR (View
   Transitions; GSAP nur falls per ADR eingeführt); DESIGN nur mit begründeter Änderung (z. B. DA-7 Proportionen);
   `.gitignore` enthält `artifacts/`.
-- [ ] `docs/FORTSCHRITT.md` (du-Form, Video-Link) und `docs/OFFENE-PUNKTE.md` aktualisiert.
-- [ ] CI grün: Phasenende-Commit `chore(P9): finish phase [ci:full p9]` → `ci.yml`, `ci-full.yml` und
+- [x] `docs/FORTSCHRITT.md` (du-Form, Video-Link) und `docs/OFFENE-PUNKTE.md` aktualisiert.
+- [x] CI grün: Phasenende-Commit `chore(P9): finish phase [ci:full p9]` → `ci.yml`, `ci-full.yml` und
   `preview-export.yml` grün, Vorschau-Artefakt `planet-claire-vorschau-p9-<sha7>` erzeugt. Dieses Häkchen setzt erst
   ein reiner Doku-Commit mit `[skip ci]`, nachdem der Lauf grün ist (ARCHITEKTUR §6.7).
-- [ ] PR-Beschreibung aktualisiert; gemergt oder oben „Bitte mergen – CI ist grün“.
+- [x] PR-Beschreibung aktualisiert; gemergt oder oben „Bitte mergen – CI ist grün“.
 
 ## P10 – Qualität, Startvorbereitung, finale Vorschau
 

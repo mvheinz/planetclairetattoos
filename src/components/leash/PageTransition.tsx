@@ -5,7 +5,7 @@ import React, { ViewTransition, useState, useSyncExternalStore } from 'react'
 
 import { useCurrentPreset } from '@/components/layout/useCurrentRoute'
 import { getMotion, onMotionChange } from '@/leash/motion'
-import { PRESET_CONFIG } from '@/leash/presets'
+import { viewTransitionAllowed } from '@/leash/presets'
 import type { PresetId } from '@/leash/types'
 
 // Weiche Navigation (App Router) mit View Transitions (DESIGN §9.8, ADR 0003 Punkt 2): Seiteninhalt blendet in 250 ms
@@ -14,7 +14,7 @@ import type { PresetId } from '@/leash/types'
 
 const subscribe = (cb: () => void) => onMotionChange(cb)
 const serverMotion = () => 'reduced' as const
-const allows = (p: PresetId | null) => p !== null && PRESET_CONFIG[p].viewTransition
+const allows = (p: PresetId | null) => p !== null && viewTransitionAllowed(p)
 
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const preset = useCurrentPreset()

@@ -1,7 +1,16 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 
-const SKIP = new Set(['node_modules', '.next', '.next-preview', '.git', 'dist', '.data'])
+const SKIP = new Set([
+  'node_modules',
+  '.next',
+  '.next-preview',
+  '.next-art',
+  'artifacts',
+  '.git',
+  'dist',
+  '.data',
+])
 
 /** Alle Dateien unter `dir` (relativ zu root, mit `/`), gefiltert nach Endung. */
 export function listFiles(

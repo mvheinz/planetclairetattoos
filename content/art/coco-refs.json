@@ -1,6 +1,6 @@
 {
   "_hinweis": "Erzeugt von pnpm art:coco-refs (PLAN P8.11). Nur Zeichenvorlagen – nie veröffentlichen (ANLEITUNGEN C1). Normalisierte Kopien liegen lokal in .data/art-refs/coco/.",
-  "note": "keine eigenen Fotos",
+  "note": null,
   "refs": [
     {
       "source": "content/seed/instagram/highlight-ceramics.jpg",
@@ -82,6 +82,51 @@
       "height": 150,
       "pose": "unbekannt",
       "output": null
+    },
+    {
+      "source": "content/seed/coco/coco-frontal-liegend-01.jpg",
+      "origin": "foto",
+      "sha256": "9efb19acc02f8e4f718bab83e0ef1988e74263bcda6e15aede391deb560ef1c7",
+      "width": 240,
+      "height": 320,
+      "pose": "unbekannt",
+      "output": ".data/art-refs/coco/coco-frontal-liegend-01.jpg"
+    },
+    {
+      "source": "content/seed/coco/coco-frontal-nah-01.jpg",
+      "origin": "foto",
+      "sha256": "2106fbfd5c919cf40b82d64f7424356fe8c5f78efbf62ede856ec2d413943a43",
+      "width": 240,
+      "height": 320,
+      "pose": "unbekannt",
+      "output": ".data/art-refs/coco/coco-frontal-nah-01.jpg"
+    },
+    {
+      "source": "content/seed/coco/coco-profil-sitzend-01.jpg",
+      "origin": "foto",
+      "sha256": "372c2bbe6f828e82ee58106ceee851af244af2faa3320889fca70f939f40d497",
+      "width": 240,
+      "height": 320,
+      "pose": "unbekannt",
+      "output": ".data/art-refs/coco/coco-profil-sitzend-01.jpg"
+    },
+    {
+      "source": "content/seed/coco/coco-stehend-schulterblick-01.jpg",
+      "origin": "foto",
+      "sha256": "eb6f2bd0d3569ef5ddb7fb565721caba0c0194a492f9c61a72aa1bca1b5edd73",
+      "width": 240,
+      "height": 320,
+      "pose": "unbekannt",
+      "output": ".data/art-refs/coco/coco-stehend-schulterblick-01.jpg"
+    },
+    {
+      "source": "content/seed/coco/coco-zusammengerollt-01.jpg",
+      "origin": "foto",
+      "sha256": "ac412aa5f017e2043f78d5a31a818fdd5a8152d141e436292690ba49677eefbf",
+      "width": 240,
+      "height": 320,
+      "pose": "unbekannt",
+      "output": ".data/art-refs/coco/coco-zusammengerollt-01.jpg"
     },
     {
       "source": "content/art/jutta-skizzen/coco-als-bowie-01.jpg",

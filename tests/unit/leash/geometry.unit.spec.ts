@@ -4,13 +4,20 @@ import { describe, expect, it } from 'vitest'
 
 import {
   LUT_STEP,
+  SAMPLE_CHUNK,
   buildGeometry,
   buildGeometryWithSamples,
   geometrySteps,
   mapReadingY,
   pointAt,
 } from '@/leash/geometry'
-import { PRESET_CONFIG, READING_LINE, isScrollCoupled, loopScroll } from '@/leash/presets'
+import {
+  PRESET_CONFIG,
+  READING_LINE,
+  isScrollCoupled,
+  loopScroll,
+  viewTransitionAllowed,
+} from '@/leash/presets'
 import { PRESET_DOCS } from '@/leash/presetDocs'
 import type { BuildInput, PresetId } from '@/leash/types'
 import { PRESETS, ROUTES } from '@/lib/routes/registry'
@@ -119,8 +126,8 @@ describe('leash/geometry – AK-DS-12', () => {
       for (let k = 0; k < g.segments.length; k++) {
         const s = g.segments[k]!
         expect(s.len1 - s.len0).toBeLessThanOrEqual(maxLen + 4)
-        expect(s.outlineD).toMatch(/^M[\d.-]+ [\d.-]+L[\d. -]+Z/)
-        expect(s.centerD).toMatch(/^M[\d.-]+ [\d.-]+L[\d. -]+$/)
+        expect(s.outlineD).toMatch(/^M[\d.-]+ [\d.-]+l[\d. -]+z/)
+        expect(s.centerD).toMatch(/^M[\d.-]+ [\d.-]+l[\d. -]+$/)
         expect(s.outlineD).not.toMatch(/\d\.\d\d/) // höchstens 1 Nachkommastelle
         expect(s.bbox.w).toBeGreaterThan(0)
         expect(s.bbox.h).toBeGreaterThan(0)
@@ -200,7 +207,7 @@ describe('leash/presets', () => {
   it('Ruhe-Presets zeichnen nie, journey hat Intro, calm ohne View Transition', () => {
     expect(PRESET_CONFIG.calm.draw).toBe('never')
     expect(PRESET_CONFIG.legal.draw).toBe('never')
-    expect(PRESET_CONFIG.calm.viewTransition).toBe(false)
+    expect(viewTransitionAllowed('calm')).toBe(false)
     expect(PRESET_CONFIG.journey.intro).toBe(true)
     expect(isScrollCoupled('journey')).toBe(true)
     expect(isScrollCoupled('margin')).toBe(true)
@@ -226,6 +233,12 @@ describe('leash/geometry – Teilschritte (KUNST-QA PF-04)', () => {
       }
       // Abtastung, Wackel/Normalen, Breite und je Segment ein Halt.
       expect(pauses).toBeGreaterThanOrEqual(3 + r.value.geometry.segments.length)
+      // Schleifen über die Proben halten spätestens alle SAMPLE_CHUNK Proben an (kalter JIT am Desktop ≤ 8 ms):
+      // Abtasten, Wackel, Normalen, Breite – je ⌈n / SAMPLE_CHUNK⌉ − 1 Halte mindestens.
+      const n = r.value.samples.s.length
+      expect(pauses).toBeGreaterThanOrEqual(
+        4 * (Math.ceil(n / SAMPLE_CHUNK) - 1) + r.value.geometry.segments.length,
+      )
       expect(r.value).toEqual(buildGeometryWithSamples(input))
     }
   })

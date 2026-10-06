@@ -12,6 +12,7 @@ import type {
   LeashAnchor,
   LeashGeometry,
   LeashSegment,
+  LeashStroke,
   LoopKind,
   SpritePose,
 } from './types'
@@ -27,13 +28,23 @@ interface Pt {
 /** Abtastabstand nach Bogenlänge (Schritt 5) und LUT-Raster (Schritt 10). */
 export const SAMPLE_STEP = 2
 export const LUT_STEP = 4
+/** Proben je Teilstück in den Schleifen von Schritt 6/7 (PF-04: kalter JIT am Desktop hält jedes Teilstück ≤ 8 ms). */
+export const SAMPLE_CHUNK = 384
 /** Toleranz der Umriss-/Mittellinien-Vereinfachung (Schritt 8). */
 const RDP_TOLERANCE = 0.2
 /** Überlappung benachbarter Segmente (Schritt 9). */
 const SEGMENT_OVERLAP = 2
+/** Stufe A: Stücke der Mittellinie, deren Breite höchstens so weit vom Stückanfang abweicht (× Grundbreite). */
+const STROKE_WIDTH_TOL = 0.09
+/** Stufe A: Toleranz der Vereinfachung der Strich-Stücke (die Mittellinie ist bereits gewackelt). */
+const STROKE_RDP_TOLERANCE = 0.5
+/** Stufe A: längstes Stück in px Bogenlänge. */
+const STROKE_MAX_LEN = 420
 /** Anfangs-/Endverjüngung (Schritt 7). */
 const TAPER_START = 28
 const TAPER_END = 18
+/** Federansatz bzw. Abheben: die ersten/letzten 4 px ruht die Feder auf der Ansatz-/Abhebebreite (LQ-05). */
+const TAPER_REST = 4
 /** Sicherheitsabstand der Rinnen-Schlaufen zur Rinnenkante (§9.5 Freiraum-Regel). */
 const GUTTER_CLEARANCE = 2
 /** Schlaufen, nach denen die Linie endet (Danke-Herz, 404-Knäuel, Haken am Knopf). */
@@ -59,6 +70,9 @@ export interface LeashSamples {
   x: Float64Array
   y: Float64Array
   w: Float64Array
+  /** Glatte Linie vor dem Wackel (Schritt 5) – Bezug für KUNST-QA LQ-03. */
+  sx: Float64Array
+  sy: Float64Array
 }
 
 // ---------- Schritt 1–3: Anker, Wegpunkte, Schlaufen ----------
@@ -169,15 +183,7 @@ function planShopString(input: BuildInput): Plan {
     }
     const i1 = pts.length - 1
     loops.push({
-      anchor: {
-        id: `row-${k}`,
-        kind: 'station',
-        x: 0,
-        y: row.y,
-        w: 0,
-        h: 0,
-        loop: 'none',
-      },
+      anchor: { id: `row-${k}`, kind: 'station', x: 0, y: row.y, w: 0, h: 0, loop: 'none' },
       kind: 'none',
       i0: prevEnd,
       i1,
@@ -224,13 +230,29 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
   }
   const swayBase = 0.18 * gutter
   let swaySign = rand() < 0.5 ? 1 : -1
+  // Ohne Rinne: stencil und product laufen in einer Randbahn links neben dem Inhalt, thanks mobil im Seitenrand statt
+  // quer über Text; thanks am Desktop erst quer unter der Kopfleiste, dann hinunter zum Ende.
+  const P = input.preset
+  const side = P === 'stencil' || P === 'product'
+  const lane = side
+    ? Math.max(6, Math.min(...middle.map((a) => a.x), endAnchor?.x ?? start.x) - 10)
+    : 6
 
   // S-Kurve zwischen zwei Punkten: in der Rinne alternierender Schwung ±0.18 × Rinne (Schritt 2).
   const section = (to: Pt) => {
     const from = pts[pts.length - 1]!
     const dy = to.y - from.y
     const dist = Math.hypot(to.x - from.x, dy)
-    if (onRail && dy > 48) {
+    if (dy > 48 && P === 'thanks' && desktop) push({ x: to.x, y: from.y })
+    else if (dy > 48 && (side || P === 'thanks')) {
+      const y = from.y + 8
+      if (from.x > lane + 30) {
+        push({ x: from.x - 30, y })
+        push({ x: lane + 16, y })
+      }
+      // in der Randbahn alle ≤ 120 px ein Punkt: sonst bauscht der Spline lange Geraden nach außen aus
+      for (let q = y + 16; q < to.y + 95; q += 120) push({ x: lane, y: Math.min(q, to.y - 24) })
+    } else if (onRail && dy > 48) {
       const n = Math.max(1, Math.round(dy / (300 + rand() * 120)))
       for (let k = 0; k < n; k++) {
         const t = (k + 0.5) / n
@@ -242,7 +264,7 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
       }
     } else if (dist > 48) {
       // ruhiger Bogen ohne Rinne: leichte Auslenkung quer zur Richtung
-      const bend = swaySign * Math.min(24, dist * 0.06) * (0.8 + 0.4 * rand())
+      const bend = (side ? 1 : swaySign) * Math.min(24, dist * 0.06) * (0.8 + 0.4 * rand())
       swaySign = -swaySign
       push({
         x: (from.x + to.x) / 2 + (-dy / dist) * bend,
@@ -256,6 +278,10 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
   push(start)
   push({ x: start.x, y: start.y + 12 })
 
+  // Endanker mit abschließender Schlaufe (`data-leash-anchor="end"` + `data-leash-loop="heart"`, MI-09): wird wie eine
+  // letzte Station behandelt (R2-06-03: bisher blieb das Herz aus).
+  if (endAnchor && TERMINAL_LOOPS.includes(endAnchor.loop) && cfg.loops.includes(endAnchor.loop))
+    middle.push(endAnchor)
   for (const anchor of middle) {
     let kind: LoopKind = cfg.loops.includes(anchor.loop) ? anchor.loop : 'none'
     if (kind === 'lasso' && !wide) kind = cfg.loops.includes('right') ? 'right' : 'none'
@@ -269,12 +295,14 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
     })
     if (loopPts.length === 0) {
       // Station ohne Schlaufe: kurzer Abschnitt auf der Linie als Stationsbereich.
-      const x = onRail ? railX : anchor.x
+      const x = onRail ? railX : P === 'stencil' ? lane : anchor.x
       const i0 = section({ x, y: anchor.y })
       const i1 = push({ x, y: anchor.y + 24 })
       loops.push({ anchor, kind: 'none', i0, i1, dot: false })
       continue
     }
+    // Kontur: erst auf der Rinne bis kurz vor die Zeichnung, dann hinein – sonst läuft die Linie diagonal durch den Text
+    if (onRail && kind === 'contour') section({ x: railX, y: loopPts[0]!.y - 40 })
     const i0 = section(loopPts[0]!)
     let i1 = i0
     for (let k = 1; k < loopPts.length; k++) i1 = push(loopPts[k]!)
@@ -317,41 +345,39 @@ function loopPoints(kind: LoopKind, a: LeashAnchor, ctx: LoopCtx): Pt[] {
   const squash = 0.9 + 0.08 * rand()
   // Radius-Unruhe als glattes Rauschen über dem Winkel (eine Delle je ~1,4 rad), nicht Punkt für Punkt.
   const rn = valueNoise1D(Math.floor(rand() * 4294967296))
-  const jitter = (th: number) => 1 + 0.12 * rn(th / 1.4)
+  const phase = rand() * 2 * Math.PI
+  // Plus eine Vierer-Welle (kein Kegelschnitt kann sie glätten) – zusammen höchstens ±12 %.
+  const jitter = (th: number) => 1 + 0.12 * (0.35 * rn(th / 1.4) + 0.65 * Math.sin(4 * th + phase))
   switch (kind) {
     case 'right':
-    case 'left': {
-      // Tropfenschlaufe ~330° (im / gegen den Uhrzeigersinn), Mittelpunkt auf der Rinnenmitte.
-      const dir = kind === 'right' ? 1 : -1
-      const nominal = desktop ? 28 : Math.min(22, Math.max(14, 0.3 * gutter))
+    case 'left':
+    case 'spiral': {
+      // Tropfenschlaufe ~330° (rechts im / links gegen den Uhrzeigersinn) bzw. Spirale mit 2,5 Windungen (Radius
+      // r → 0.4 r, „Feder prüft die Tinte“), Mittelpunkt auf der Rinnenmitte, danach nach unten hinaus.
+      const sp = kind === 'spiral'
+      const dir = kind === 'left' ? -1 : 1
+      const nominal = sp
+        ? desktop
+          ? 26
+          : 18
+        : desktop
+          ? 28
+          : Math.min(22, Math.max(14, 0.3 * gutter))
       const r = ctx.onRail ? Math.min(nominal, rMax / 1.12) : nominal
       const c = { x: ctx.onRail ? railX : a.x, y: a.y + r }
-      const sweep = 330 * DEG
-      const steps = 15
+      const sweep = sp ? 5 * Math.PI : 330 * DEG
+      const steps = sp ? 36 : 15
       for (let k = 0; k <= steps; k++) {
         const th = (sweep * k) / steps
-        const rr = Math.min(r * jitter(th), ctx.onRail ? rMax : Infinity)
-        const drift = (0.35 * r * th) / (2 * Math.PI)
+        const rr = Math.min(
+          r * (sp ? 1 - (0.6 * th) / sweep : 1) * jitter(th),
+          ctx.onRail ? rMax : Infinity,
+        )
+        const drift = sp ? 0 : (0.35 * r * th) / (2 * Math.PI)
         const p = { x: c.x + dir * rr * Math.sin(th), y: c.y - rr * squash * Math.cos(th) + drift }
         pts.push(rotate(p, c, tilt))
       }
-      pts.push({ x: c.x, y: c.y + r + 16 })
-      return pts
-    }
-    case 'spiral': {
-      // 2,5 Windungen, Radius r → 0.4 r („Feder prüft die Tinte“), danach nach unten hinaus.
-      const nominal = desktop ? 26 : 18
-      const r = ctx.onRail ? Math.min(nominal, rMax / 1.12) : nominal
-      const c = { x: ctx.onRail ? railX : a.x, y: a.y + r }
-      const sweep = 5 * Math.PI
-      const steps = 36
-      for (let k = 0; k <= steps; k++) {
-        const th = (sweep * k) / steps
-        const rr = Math.min(r * (1 - (0.6 * th) / sweep) * jitter(th), ctx.onRail ? rMax : Infinity)
-        const p = { x: c.x + rr * Math.sin(th), y: c.y - rr * squash * Math.cos(th) }
-        pts.push(rotate(p, c, tilt))
-      }
-      pts.push({ x: c.x, y: c.y + r + 18 })
+      pts.push({ x: c.x, y: c.y + r + (sp ? 18 : 16) })
       return pts
     }
     case 'lasso':
@@ -391,12 +417,8 @@ function loopPoints(kind: LoopKind, a: LeashAnchor, ctx: LoopCtx): Pt[] {
       const steps = 32
       for (let i = 0; i <= steps; i++) {
         const t = Math.PI + (2 * Math.PI * i) / steps
-        let x = 16 * Math.sin(t) ** 3
-        let y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t))
-        if (x < 0) {
-          x *= 1.08
-          y *= 1.04
-        }
+        const x = 16 * Math.sin(t) ** 3 * (Math.sin(t) < 0 ? 1.08 : 1)
+        const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t))
         pts.push({ x: c.x + x * k, y: c.y + y * k })
       }
       const tip = pts[pts.length - 1]!
@@ -436,8 +458,14 @@ function ellipse(
   const steps = Math.round(stepsPerTurn * turns)
   for (let k = 0; k <= steps; k++) {
     const th = Math.PI + (2 * Math.PI * turns * k) / steps
-    const j = jitter(th)
-    pts.push(rotate({ x: c.x + rx * j * Math.cos(th), y: c.y + ry * j * Math.sin(th) }, c, tilt))
+    // Achsen mit versetzter Unruhe: die Hand zieht die Ellipse nie gleichmäßig (LQ-04).
+    pts.push(
+      rotate(
+        { x: c.x + rx * jitter(th) * Math.cos(th), y: c.y + ry * jitter(th + 1.1) * Math.sin(th) },
+        c,
+        tilt,
+      ),
+    )
   }
   return pts
 }
@@ -485,20 +513,18 @@ type Cubic = [number, number, number, number, number, number, number, number]
 function catmullRom(pts: Pt[]): Cubic[] {
   const out: Cubic[] = []
   const n = pts.length
-  const at = (i: number): Pt => {
-    if (i < 0) return { x: 2 * pts[0]!.x - pts[1]!.x, y: 2 * pts[0]!.y - pts[1]!.y }
-    if (i >= n)
-      return { x: 2 * pts[n - 1]!.x - pts[n - 2]!.x, y: 2 * pts[n - 1]!.y - pts[n - 2]!.y }
-    return pts[i]!
-  }
+  const mirror = (a: Pt, b: Pt): Pt => ({ x: 2 * a.x - b.x, y: 2 * a.y - b.y })
+  const at = (i: number): Pt =>
+    i < 0 ? mirror(pts[0]!, pts[1]!) : i >= n ? mirror(pts[n - 1]!, pts[n - 2]!) : pts[i]!
+  const chord = (a: Pt, b: Pt) => Math.max(Math.sqrt(Math.hypot(a.x - b.x, a.y - b.y)), 1e-4)
   for (let i = 0; i < n - 1; i++) {
     const p0 = at(i - 1)
     const p1 = at(i)
     const p2 = at(i + 1)
     const p3 = at(i + 2)
-    const d1 = Math.max(Math.sqrt(Math.hypot(p1.x - p0.x, p1.y - p0.y)), 1e-4)
-    const d2 = Math.max(Math.sqrt(Math.hypot(p2.x - p1.x, p2.y - p1.y)), 1e-4)
-    const d3 = Math.max(Math.sqrt(Math.hypot(p3.x - p2.x, p3.y - p2.y)), 1e-4)
+    const d1 = chord(p1, p0)
+    const d2 = chord(p2, p1)
+    const d3 = chord(p3, p2)
     const a1 = 2 * d1 * d1 + 3 * d1 * d2 + d2 * d2
     const n1 = 3 * d1 * (d1 + d2)
     const a2 = 2 * d3 * d3 + 3 * d3 * d2 + d2 * d2
@@ -527,13 +553,18 @@ interface Fine {
   knot: number[]
 }
 
-function flatten(cubics: Cubic[]): Fine {
+function* flatten(cubics: Cubic[]): Generator<void, Fine, void> {
   const x: number[] = []
   const y: number[] = []
   const s: number[] = []
   const knot: number[] = []
   let len = 0
+  let mark = 0
   for (let j = 0; j < cubics.length; j++) {
+    if (x.length - mark >= 2 * SAMPLE_CHUNK) {
+      mark = x.length
+      yield
+    }
     const [x0, y0, x1, y1, x2, y2, x3, y3] = cubics[j]!
     const poly =
       Math.hypot(x1 - x0, y1 - y0) + Math.hypot(x2 - x1, y2 - y1) + Math.hypot(x3 - x2, y3 - y2)
@@ -563,7 +594,7 @@ function flatten(cubics: Cubic[]): Fine {
   return { x, y, s, knot }
 }
 
-function resample(fine: Fine, step: number) {
+function* resample(fine: Fine, step: number) {
   const total = fine.s[fine.s.length - 1]!
   const count = Math.floor(total / step) + 1
   const extra = total - (count - 1) * step > 1e-6 ? 1 : 0
@@ -588,13 +619,14 @@ function resample(fine: Fine, step: number) {
     ss[i] = s
     tx[i] = dx / d
     ty[i] = dy / d
+    if (i % SAMPLE_CHUNK === SAMPLE_CHUNK - 1) yield
   }
   return { sx, sy, ss, tx, ty, total }
 }
 
 // ---------- Schritt 8: Vereinfachung und Ausgabe ----------
 
-function rdp(xs: number[], ys: number[], tol: number): number[] {
+function rdp(xs: ArrayLike<number>, ys: ArrayLike<number>, tol: number): number[] {
   const n = xs.length
   if (n <= 2) return Array.from({ length: n }, (_, i) => i)
   const keep = new Uint8Array(n)
@@ -631,28 +663,40 @@ function rdp(xs: number[], ys: number[], tol: number): number[] {
 
 /** Zahl mit höchstens 1 Nachkommastelle (Schritt 8), ohne `-0`. */
 function fmt(n: number): string {
-  const r = Math.round(n * 10) / 10
-  return String(r === 0 ? 0 : r)
+  return String(Math.round(n * 10) / 10 || 0)
 }
 
-function polyD(xs: number[], ys: number[], close: boolean): string {
-  let d = `M${fmt(xs[0]!)} ${fmt(ys[0]!)}L`
-  for (let i = 1; i < xs.length; i++) d += `${i > 1 ? ' ' : ''}${fmt(xs[i]!)} ${fmt(ys[i]!)}`
-  return close ? `${d}Z` : d
+/** Offene Polylinie als `M x y l dx dy …` (relativ, aus den gerundeten Koordinaten – kürzer als absolut). */
+function relD(xs: number[], ys: number[]): string {
+  let px = +fmt(xs[0]!)
+  let py = +fmt(ys[0]!)
+  let d = `M${fmt(px)} ${fmt(py)}l`
+  for (let i = 1; i < xs.length; i++) {
+    const x = +fmt(xs[i]!)
+    const y = +fmt(ys[i]!)
+    const dx = fmt(x - px)
+    const dy = fmt(y - py)
+    d += `${i > 1 && !dx.startsWith('-') ? ' ' : ''}${dx}${dy.startsWith('-') ? '' : ' '}${dy}`
+    px = x
+    py = y
+  }
+  return d
+}
+
+/** Polylinie bzw. Polygon relativ (`M x y l dx dy … z`, PF-10: etwa halb so lang wie absolute `L`-Koordinaten). */
+function polyD(xs: ArrayLike<number>, ys: ArrayLike<number>, close: boolean): string {
+  const d = relD(Array.from(xs), Array.from(ys))
+  return close ? `${d}z` : d
 }
 
 // ---------- Hauptfunktion ----------
 
-/** `buildGeometry` plus die abgetasteten Punkte und Breiten (Tests, Stufe C). */
-export interface GeometryResult {
-  geometry: LeashGeometry
-  samples: LeashSamples
-}
+type GeometryResult = { geometry: LeashGeometry; samples: LeashSamples }
 
 /**
- * Geometrie in Teilschritten (Generator): hält nach Abtastung, Wackel/Normalen, Breitenprofil und jedem Segment an.
- * Ergebnis identisch zu `buildGeometryWithSamples`; die Laufzeit (`phased`) verteilt die Schritte auf Aufgaben ≤ 50 ms
- * bei 4× (KUNST-QA PF-04).
+ * `buildGeometry` in Teilstücken (DESIGN §9.10 „bei 4× Drosselung in Idle-Teilstücken, kein Task > 50 ms“): Der
+ * Generator hält nach jedem Schritt bzw. Segment an; die Laufzeit führt jedes Teilstück in einem eigenen Idle-Callback
+ * aus. Das Ergebnis ist identisch mit {@link buildGeometryWithSamples}.
  */
 export function* geometrySteps(input: BuildInput): Generator<void, GeometryResult, void> {
   const cfg = PRESET_CONFIG[input.preset]
@@ -668,21 +712,26 @@ export function* geometrySteps(input: BuildInput): Generator<void, GeometryResul
   const rand = mulberry32(input.seed)
   const plan = planPath(input, rand, rMax)
   if (plan.pts.length < 2) plan.pts.push({ x: plan.pts[0]!.x, y: plan.pts[0]!.y + 24 })
-  const fine = flatten(catmullRom(plan.pts))
-  const { sx, sy, ss, tx, ty, total } = resample(fine, SAMPLE_STEP)
-  const n = ss.length
   yield
+  const fine = yield* flatten(catmullRom(plan.pts))
+  yield
+  const { sx, sy, ss, tx, ty, total } = yield* resample(fine, SAMPLE_STEP)
+  const n = ss.length
 
+  yield
   // Schritt 6: Wackel entlang der Normalen.
-  const n1 = valueNoise1D(input.seed ^ 0x9e3779b9)
-  const n2 = valueNoise1D(input.seed ^ 0x85ebca6b)
+  const n1 = valueNoise1D(input.seed ^ 0x9e3779b9, true)
+  const n2 = valueNoise1D(input.seed ^ 0x85ebca6b, true)
   const n3 = valueNoise1D(input.seed ^ 0xc2b2ae35)
   const wx = new Float64Array(n)
   const wy = new Float64Array(n)
   for (let i = 0; i < n; i++) {
-    const off = a1 * n1(ss[i]! / WOBBLE.lambda1) + a2 * n2(ss[i]! / WOBBLE.lambda2)
+    // Die Feder setzt genau am Leinen-Anschluss an (§9.8); das Zittern wächst über die Anfangsverjüngung hinein.
+    const fade = Math.min(1, ss[i]! / TAPER_START)
+    const off = fade * (a1 * n1(ss[i]! / WOBBLE.lambda1) + a2 * n2(ss[i]! / WOBBLE.lambda2))
     wx[i] = sx[i]! - ty[i]! * off
     wy[i] = sy[i]! + tx[i]! * off
+    if (i % SAMPLE_CHUNK === SAMPLE_CHUNK - 1) yield
   }
 
   // Tangenten/Normalen der gewackelten Linie und Krümmung der geglätteten Linie.
@@ -702,20 +751,7 @@ export function* geometrySteps(input: BuildInput): Generator<void, GeometryResul
     nx[i] = -dy / d
     ny[i] = dx / d
     ang[i] = Math.atan2(dy, dx)
-  }
-  yield
-  const theta = new Float64Array(n)
-  let prevRaw = 0
-  for (let i = 0; i < n; i++) {
-    const t = Math.atan2(ty[i]!, tx[i]!)
-    if (i === 0) theta[i] = t
-    else {
-      let d = t - prevRaw
-      while (d > Math.PI) d -= 2 * Math.PI
-      while (d < -Math.PI) d += 2 * Math.PI
-      theta[i] = theta[i - 1]! + d
-    }
-    prevRaw = t
+    if (i % SAMPLE_CHUNK === SAMPLE_CHUNK - 1) yield
   }
 
   // Schritt 7: Breitenprofil mit Krümmungsverdickung, Grenzen und Verjüngungen.
@@ -723,23 +759,32 @@ export function* geometrySteps(input: BuildInput): Generator<void, GeometryResul
   for (let i = 0; i < n; i++) {
     const a = Math.max(0, i - 3)
     const b = Math.min(n - 1, i + 3)
-    const kappa = b > a ? (theta[b]! - theta[a]!) / (ss[b]! - ss[a]! || 1) : 0
+    // Winkeländerung der geglätteten Tangente (Kreuz-/Skalarprodukt statt aufgerolltem Winkel).
+    const dTheta = Math.atan2(tx[a]! * ty[b]! - ty[a]! * tx[b]!, tx[a]! * tx[b]! + ty[a]! * ty[b]!)
+    const kappa = b > a ? dTheta / (ss[b]! - ss[a]! || 1) : 0
     const noise = (n3(ss[i]! / 220) + 1) / 2
     let width = bw * (0.85 + 0.3 * noise) * (1 + Math.min(0.25, 12 * Math.abs(kappa)))
     width = Math.min(1.35 * bw, Math.max(0.8 * bw, width))
     const s = ss[i]!
+    // Federansatz: 4 px Ruhe auf 0,35, dann ease-out auf die volle Breite (bis 28 px). Abheben: ease-in auf 0,45,
+    // die letzten 4 px auf 0,45. In den Verjüngungen gilt die Grundbreite (keine Krümmungszuschläge an der Spitze).
     if (s < TAPER_START) {
-      const t = s / TAPER_START
-      width *= 0.35 + 0.65 * (1 - (1 - t) * (1 - t))
+      const t = Math.max(0, (s - TAPER_REST) / (TAPER_START - TAPER_REST))
+      const e = 1 - (1 - t) * (1 - t)
+      width = bw + (width - bw) * e
+      width *= 0.35 + 0.65 * e
     }
     if (total - s < TAPER_END) {
-      const t = 1 - (total - s) / TAPER_END
-      width *= 1 - 0.55 * t * t
+      const t = Math.min(1, (TAPER_END - (total - s)) / (TAPER_END - TAPER_REST))
+      const e = t * t
+      width = width + (bw - width) * e
+      width *= 1 - 0.55 * e
     }
     w[i] = width
+    if (i % SAMPLE_CHUNK === SAMPLE_CHUNK - 1) yield
   }
-  yield
 
+  yield
   // Schritt 9: Segmente – Schnitt an Schlaufen-Enden und spätestens alle max(600, 1.25 × Viewport-Höhe).
   const knotLen = (i: number) => fine.knot[Math.min(i, fine.knot.length - 1)]!
   const maxLen = Math.max(600, 1.25 * viewport.h)
@@ -768,7 +813,7 @@ export function* geometrySteps(input: BuildInput): Generator<void, GeometryResul
     const i0 = idxAt(bounds[k]!)
     const i1 = k === bounds.length - 2 ? n - 1 : idxAt(bounds[k + 1]! + SEGMENT_OVERLAP)
     if (i1 <= i0) continue
-    segments.push(buildSegment(`s${k}`, i0, i1, { wx, wy, nx, ny, ang, w, ss }, dots))
+    segments.push(yield* buildSegment(`s${k}`, i0, i1, { wx, wy, nx, ny, ang, w, ss }, dots, bw))
     yield
   }
 
@@ -805,14 +850,14 @@ export function* geometrySteps(input: BuildInput): Generator<void, GeometryResul
       segments,
       totalLength: total,
       lut,
-      stations: stations.map(({ loop: _loop, ...s }) => s),
+      stations,
       scrollMap,
     },
-    samples: { s: ss, x: wx, y: wy, w },
+    samples: { s: ss, x: wx, y: wy, w, sx, sy },
   }
 }
 
-/** Alle Teilschritte am Stück. */
+/** `buildGeometry` plus die abgetasteten Punkte und Breiten (Tests, Stufe C). */
 export function buildGeometryWithSamples(input: BuildInput): GeometryResult {
   const steps = geometrySteps(input)
   for (;;) {
@@ -836,100 +881,162 @@ interface SegmentData {
   ss: Float64Array
 }
 
-function buildSegment(
+/** Länge einer Polylinie aus den gerundeten Koordinaten (wie der Browser sie misst). */
+function polyLen(xs: ArrayLike<number>, ys: ArrayLike<number>): number {
+  let L = 0
+  for (let k = 1; k < xs.length; k++)
+    L += Math.hypot(+fmt(xs[k]!) - +fmt(xs[k - 1]!), +fmt(ys[k]!) - +fmt(ys[k - 1]!))
+  return Math.round(L * 100) / 100
+}
+
+/**
+ * Stufe A „Tusche“ ohne Maske (DESIGN §9.4): die gewackelte Mittellinie in Stücken, in denen die Breite fast gleich
+ * bleibt (± {@link STROKE_WIDTH_TOL} × Grundbreite); jedes Stück wird als runder Strich mit seiner mittleren Breite
+ * gezeichnet und per `stroke-dashoffset` enthüllt (nur Paint, kein Layout – KUNST-QA PF-05). Benachbarte Stücke teilen
+ * den Endpunkt, die runden Kappen überdecken die Fuge. Tintenpunkte sind eigene, fast punktförmige Stücke.
+ */
+function buildStrokes(i0: number, i1: number, d: SegmentData, dots: number[], bw: number) {
+  const out: LeashStroke[] = []
+  const tol = STROKE_WIDTH_TOL * bw
+  const stops = new Set(dots.filter((i) => i >= i0 && i < i1))
+  let a = i0
+  while (a < i1) {
+    const w0 = d.w[a]!
+    let b = a + 1
+    // Stück endet an einem Tintenpunkt, damit er an der Stückgrenze (Strich → Punkt → nächster Strich) erscheint
+    while (
+      b < i1 &&
+      !stops.has(b) &&
+      Math.abs(d.w[b + 1]! - w0) <= tol &&
+      d.ss[b + 1]! - d.ss[a]! <= STROKE_MAX_LEN
+    )
+      b++
+    const xs: number[] = []
+    const ys: number[] = []
+    let sum = 0
+    for (let i = a; i <= b; i++) {
+      xs.push(d.wx[i]!)
+      ys.push(d.wy[i]!)
+      sum += d.w[i]!
+    }
+    const keep = rdp(xs, ys, STROKE_RDP_TOLERANCE)
+    const kx = keep.map((k) => xs[k]!)
+    const ky = keep.map((k) => ys[k]!)
+    out.push({
+      d: relD(kx, ky),
+      w: Math.round((sum / (b - a + 1)) * 10) / 10,
+      L: polyLen(kx, ky),
+      len0: d.ss[a]!,
+      len1: d.ss[b]!,
+    })
+    // Tintenpunkt am Schlaufenstart: Strich der Länge 0,1 mit runder Kappe (Ø 2,6 × Breite, R1-03-05, R1-05-04).
+    if (stops.has(b))
+      out.push({
+        d: `M${fmt(d.wx[b]!)} ${fmt(d.wy[b]!)}h0.1`,
+        w: Math.round(2.6 * d.w[b]! * 10) / 10,
+        L: 0.1,
+        len0: d.ss[b]!,
+        len1: d.ss[b]!,
+      })
+    a = b
+  }
+  return out
+}
+
+function* buildSegment(
   id: string,
   i0: number,
   i1: number,
   d: SegmentData,
   dots: number[],
-): LeashSegment {
-  const lx: number[] = []
-  const ly: number[] = []
-  const rx: number[] = []
-  const ry: number[] = []
-  const cx: number[] = []
-  const cy: number[] = []
-  for (let i = i0; i <= i1; i++) {
-    const h = d.w[i]! / 2
-    lx.push(d.wx[i]! + d.nx[i]! * h)
-    ly.push(d.wy[i]! + d.ny[i]! * h)
-    rx.push(d.wx[i]! - d.nx[i]! * h)
-    ry.push(d.wy[i]! - d.ny[i]! * h)
-    cx.push(d.wx[i]!)
-    cy.push(d.wy[i]!)
-  }
-  const keepL = rdp(lx, ly, RDP_TOLERANCE)
-  const keepR = rdp(rx, ry, RDP_TOLERANCE)
-  const ox: number[] = []
-  const oy: number[] = []
-  for (const k of keepL) {
-    ox.push(lx[k]!)
-    oy.push(ly[k]!)
-  }
-  // Runde Kappe am Ende (Halbkreis, 8 Punkte inkl. der Kanten).
-  const cap = (i: number, fromAngle: number, sign: number) => {
-    const h = d.w[i]! / 2
-    for (let k = 1; k <= 6; k++) {
-      const a = fromAngle + (sign * k * Math.PI) / 7
-      ox.push(d.wx[i]! + Math.cos(a) * h)
-      oy.push(d.wy[i]! + Math.sin(a) * h)
-    }
-  }
-  cap(i1, Math.atan2(d.ny[i1]!, d.nx[i1]!), -1)
-  for (let j = keepR.length - 1; j >= 0; j--) {
-    ox.push(rx[keepR[j]!]!)
-    oy.push(ry[keepR[j]!]!)
-  }
-  cap(i0, Math.atan2(d.ny[i0]!, d.nx[i0]!) + Math.PI, -1)
-  let outlineD = polyD(ox, oy, true)
-
-  // Tintenpunkte an Schlaufen-Starts (Feder ruht kurz), Radius 0.65 × Breite.
+  bw: number,
+): Generator<void, LeashSegment, void> {
+  // Bbox aus der Mittellinie ± halber Breite bzw. Tintenpunkt-Radius (umschließt Umriss und Striche).
   let minX = Infinity
   let minY = Infinity
   let maxX = -Infinity
   let maxY = -Infinity
-  const extend = (x: number, y: number) => {
-    if (x < minX) minX = x
-    if (y < minY) minY = y
-    if (x > maxX) maxX = x
-    if (y > maxY) maxY = y
+  const grow = (x: number, y: number, h: number) => {
+    minX = Math.min(minX, x - h)
+    minY = Math.min(minY, y - h)
+    maxX = Math.max(maxX, x + h)
+    maxY = Math.max(maxY, y + h)
   }
-  for (let k = 0; k < ox.length; k++) extend(ox[k]!, oy[k]!)
-  // Umlaufsinn des Umrisses (Shoelace): Tintenpunkte laufen gleich herum, sonst stanzt `nonzero` ein Loch.
-  let area = 0
-  for (let k = 0, j = ox.length - 1; k < ox.length; j = k++)
-    area += ox[j]! * oy[k]! - ox[k]! * oy[j]!
-  const turn = area >= 0 ? 1 : -1
-  for (const i of dots) {
-    if (i < i0 || i >= i1) continue
-    const r = 0.65 * d.w[i]!
-    const px: number[] = []
-    const py: number[] = []
-    for (let k = 0; k < 12; k++) {
-      const a = (turn * k * Math.PI) / 6
-      px.push(d.wx[i]! + Math.cos(a) * r)
-      py.push(d.wy[i]! + Math.sin(a) * r)
-      extend(px[k]!, py[k]!)
-    }
-    outlineD += polyD(px, py, true)
-  }
-
+  const cx = d.wx.slice(i0, i1 + 1)
+  const cy = d.wy.slice(i0, i1 + 1)
+  for (let i = i0; i <= i1; i++) grow(d.wx[i]!, d.wy[i]!, d.w[i]! / 2 + 0.5)
+  const segDots = dots.filter((i) => i >= i0 && i < i1)
+  for (const i of segDots) grow(d.wx[i]!, d.wy[i]!, 1.3 * d.w[i]! + 0.5)
   const keepC = rdp(cx, cy, RDP_TOLERANCE)
-  const centerD = polyD(
-    keepC.map((k) => cx[k]!),
-    keepC.map((k) => cy[k]!),
-    false,
-  )
+  const ccx = keepC.map((k) => cx[k]!)
+  const ccy = keepC.map((k) => cy[k]!)
+  const centerD = polyD(ccx, ccy, false)
+  yield
+  const strokes = buildStrokes(i0, i1, d, segDots, bw)
   const x = Math.floor(minX)
   const y = Math.floor(minY)
+  // Der Umriss (Stufe C, Schritt 8) entsteht erst beim ersten Zugriff – Stufe A/B brauchen ihn nicht (PF-04).
+  let outline: string | null = null
   return {
     id,
     bbox: { x, y, w: Math.ceil(maxX) - x, h: Math.ceil(maxY) - y },
     centerD,
-    outlineD,
+    get outlineD() {
+      return (outline ??= outlineOf(i0, i1, d, segDots))
+    },
     len0: d.ss[i0]!,
     len1: d.ss[i1]!,
+    centerL: polyLen(ccx, ccy),
+    strokes,
   }
+}
+
+/** Schritt 8: gefüllter Umriss mit runden Kappen und Tintenpunkten (Kreis, Radius 1.3 × Breite). */
+function outlineOf(i0: number, i1: number, d: SegmentData, dots: number[]): string {
+  const side = (sign: number) => {
+    const xs: number[] = []
+    const ys: number[] = []
+    for (let i = i0; i <= i1; i++) {
+      const h = (sign * d.w[i]!) / 2
+      xs.push(d.wx[i]! + d.nx[i]! * h)
+      ys.push(d.wy[i]! + d.ny[i]! * h)
+    }
+    return { xs, ys, keep: rdp(xs, ys, RDP_TOLERANCE) }
+  }
+  const L = side(1)
+  const R = side(-1)
+  const ox = L.keep.map((k) => L.xs[k]!)
+  const oy = L.keep.map((k) => L.ys[k]!)
+  // Runde Kappe am Ende (Halbkreis, 8 Punkte inkl. der Kanten).
+  const cap = (i: number, fromAngle: number) => {
+    const h = d.w[i]! / 2
+    for (let k = 1; k <= 6; k++) {
+      const a = fromAngle - (k * Math.PI) / 7
+      ox.push(d.wx[i]! + Math.cos(a) * h)
+      oy.push(d.wy[i]! + Math.sin(a) * h)
+    }
+  }
+  cap(i1, Math.atan2(d.ny[i1]!, d.nx[i1]!))
+  for (const k of R.keep.reverse()) {
+    ox.push(R.xs[k]!)
+    oy.push(R.ys[k]!)
+  }
+  cap(i0, Math.atan2(d.ny[i0]!, d.nx[i0]!) + Math.PI)
+  let outlineD = polyD(ox, oy, true)
+  // Der Umriss läuft immer im Uhrzeigersinn (links vorwärts, rechts zurück): Tintenpunkte laufen gleich herum,
+  // sonst stanzt `nonzero` ein Loch.
+  for (const i of dots) {
+    const r = 1.3 * d.w[i]!
+    const px: number[] = []
+    const py: number[] = []
+    for (let k = 0; k < 12; k++) {
+      const a = (-k * Math.PI) / 6
+      px.push(d.wx[i]! + Math.cos(a) * r)
+      py.push(d.wy[i]! + Math.sin(a) * r)
+    }
+    outlineD += polyD(px, py, true)
+  }
+  return outlineD
 }
 
 function buildScrollMap(
@@ -958,10 +1065,9 @@ function buildScrollMap(
     const prev = out[out.length - 1]!
     const p = raw[k]!
     const last = k === raw.length - 1
-    let readingY = Math.max(p.readingY, prev.readingY + 1)
+    const readingY = Math.max(p.readingY, prev.readingY + 1)
     let len = Math.min(total, Math.max(p.len, prev.len + 0.01))
     if (last) {
-      readingY = Math.max(readingY, prev.readingY + 1)
       len = total
       if (len <= prev.len) out.pop()
     } else if (len >= total) continue
