@@ -75,7 +75,7 @@ export function LeashLayer({
     // Coco reist mit (MO-14): nach einem Seitenwechsel sitzt sie schon am Linienanfang (kein Hereinrennen von links)
     const arrived = arrivedFromOwnPage()
     if (cocoOnLeash && arrived && getMotion() === 'full')
-      cocoRef.current?.setAttribute('data-arrived', '')
+      cocoRef.current?.setAttribute('data-arrived', '1')
     // `?leash=off` (nur mit ART_QA, KUNST-QA §3.1): Grundlinie ohne Engine – kein Laufzeit- und kein Coco-Chunk.
     if (readQaSwitches().leashOff) return
     let cancelled = false

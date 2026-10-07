@@ -6,6 +6,7 @@
 import { matchRoute, splitLocale } from '@/lib/routes/paths'
 
 import type { CocoController } from './coco'
+import type { SpritePose } from './types'
 import { viewTransitionAllowed } from './presets'
 
 /** Wie lange der Lauf-Zustand höchstens hält, falls der Seitenwechsel doch nicht stattfindet (Abbruch, Download). */
@@ -43,16 +44,21 @@ export function transitionTarget(url: string, origin = location.origin): boolean
 export function attachTravel(coco: CocoController): () => void {
   const nav = (globalThis as { navigation?: NavigationApi }).navigation
   let timer: ReturnType<typeof setTimeout> | null = null
+  let before: SpritePose | null = null
+  /** Zurück in den Normalbetrieb (Seitenwechsel blieb aus) in der vorherigen Pose. */
   const rest = () => {
     timer = null
-    coco.el.removeAttribute('data-travel')
     coco.x.b(false)
-    coco.x.s(coco.pose())
+    coco.setMotion('full')
+    if (before) coco.setPose(before)
+    before = null
   }
   const run = () => {
     coco.x.p?.() // laufende Warte-Aktion abbrechen
-    coco.el.setAttribute('data-travel', '') // Brücken-/Posenwechsel dürfen die Lauf-Pose nicht überschreiben
-    coco.x.s('rennen')
+    before ??= coco.pose()
+    // „Reduziert“ räumt Brücken und Timer ab und hält die Pose fest: eine laufende Brücke überschreibt `rennen` nicht mehr
+    // (CI-Fund „bridge-bremsen“); das Boil läuft über den eigenen Haken weiter.
+    coco.setMotion('reduced', 'rennen')
     coco.x.b(true)
     if (timer !== null) clearTimeout(timer)
     timer = setTimeout(rest, GIVE_UP_MS)
@@ -72,12 +78,13 @@ export function attachTravel(coco: CocoController): () => void {
     if (a.pathname === location.pathname || a.hash) return
     if (transitionTarget(a.href)) run()
   }
+  coco.el.setAttribute('data-travel-ready', '') // Hinweis für Tests und QA: Reise-Modul ist angehängt
   nav?.addEventListener('navigate', onNavigate)
   document.addEventListener('click', onClick, true)
   return () => {
     nav?.removeEventListener('navigate', onNavigate)
     document.removeEventListener('click', onClick, true)
     if (timer !== null) clearTimeout(timer)
-    coco.el.removeAttribute('data-travel')
+    coco.el.removeAttribute('data-travel-ready')
   }
 }

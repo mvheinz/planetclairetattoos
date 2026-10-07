@@ -1,6 +1,6 @@
 /* Koko, Vorsitzende der Goth Dogs Berlin (P12.6, U-08): feste Box, Zeichnung als Bild, nur die Pupillen bewegen sich. */
 .koko {
-  --koko-look: 9s; /* ein Hin und Zurück der Pupillen */
+  --koko-look: var(--dur-koko-look); /* ein Hin und Zurück der Pupillen */
   position: relative;
   aspect-ratio: 300 / 390;
   width: 100%;

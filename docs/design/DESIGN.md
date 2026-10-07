@@ -513,6 +513,7 @@ P2 legt `src/styles/tokens.css` exakt mit diesem Inhalt an (Werte sind verbindli
   --dur-swing: 900ms;
   --dur-stamp: 260ms;
   --dur-hop: 360ms;
+  --dur-koko-look: 9000ms;
   --dur-menu-open: 420ms;
   --dur-menu-close: 180ms;
   --stagger: 40ms;
@@ -1300,6 +1301,7 @@ Maßgeblich für leere Zustände und die Danke-Seite sind die Tabellen in KO-17 
 | `--dur-swing` | 900 ms | Preisschild-Schwingen |
 | `--dur-stamp` | 260 ms | Stempel |
 | `--dur-hop` | 360 ms | Coco-Hüpfer |
+| `--dur-koko-look` | 9000 ms | Koko: ein Hin und Zurück der Pupillen (U-08, P12.6; MO-01 kennt die 9 s als Token) |
 | `--dur-menu-open` / `--dur-menu-close` | 420 / 180 ms | Menü |
 | `--stagger` | 40 ms | Staffelung (+ 0–20 ms gesäter Versatz) |
 | `--boil-frame` / `--run-frame` / `--sleep-frame` | 100 / 83 / 125 ms | Boil 10 fps / Lauf und Sprung 12 fps / Schlafen 8 fps |

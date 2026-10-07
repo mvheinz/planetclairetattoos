@@ -248,8 +248,6 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
   }
 
   function show(pose: string) {
-    // Reisemodus (P12.12): nur noch `rennen` – Brücken und Posenwechsel laufen im Hintergrund weiter, zeigen aber nichts
-    if (pose !== 'rennen' && el.hasAttribute('data-travel')) return
     const next = groups.get(pose) ?? null
     if (next !== on) {
       on?.removeAttribute('data-on')
@@ -465,7 +463,7 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
       // Intro MI-10: in 600 ms von links hereinrennen (ease-out), danach an der Leinenspitze
       let x = s.x
       // (bei einem Seitenwechsel mit Übergang steht sie schon am Linienanfang: `data-arrived`, P12.12)
-      if (s.intro && s.motion !== 'reduced' && !el.hasAttribute('data-arrived')) {
+      if (s.intro && s.motion !== 'reduced' && !el.dataset.arrived) {
         introAt ??= now()
         x -= Math.max(0, 1 - (now() - introAt) / INTRO_RUN_MS) ** 2 * (x + width + 8)
       }

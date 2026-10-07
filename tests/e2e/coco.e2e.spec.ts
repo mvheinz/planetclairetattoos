@@ -264,7 +264,7 @@ test.describe('Weiche Navigation mit View Transitions (ADR 0003)', () => {
     await page.goto('/de')
     await page.waitForLoadState('load')
     await expect(leashCoco(page)).toHaveAttribute('data-placed', '')
-    await page.waitForTimeout(1500) // Reise-Modul nachgeladen
+    await expect(leashCoco(page)).toHaveAttribute('data-travel-ready', '') // Reise-Modul nachgeladen und angehängt
     const vt = await go()
     expect(vt.pose).toBe('rennen')
     const away = vt.anims.find((a) => a.name === 'pc-coco-away')
@@ -280,13 +280,13 @@ test.describe('Weiche Navigation mit View Transitions (ADR 0003)', () => {
     await page.goto('/de')
     await page.waitForLoadState('load')
     await expect(leashCoco(page)).toHaveAttribute('data-placed', '')
-    await page.waitForTimeout(1500)
+    await expect(leashCoco(page)).toHaveAttribute('data-travel-ready', '')
     const vt = await go()
     // Paar: Gruppe wandert in 350 ms, kein „hinaus“/„herein“
     expect(vt.anims.some((a) => a.pe === '::view-transition-group(coco)' && a.d === 350)).toBe(true)
     expect(vt.anims.some((a) => a.name === 'pc-coco-away' || a.name === 'pc-coco-in')).toBe(false)
     // neue Seite: Coco kam über einen Übergang → steht am Linienanfang, ohne Hereinrennen von links
-    await expect(leashCoco(page)).toHaveAttribute('data-arrived', '')
+    await expect(leashCoco(page)).toHaveAttribute('data-arrived', '1')
   })
 
   test('Coco reist mit (MO-14): Kontakt → Start läuft herein; Erststart ohne Reise', async ({
@@ -301,11 +301,11 @@ test.describe('Weiche Navigation mit View Transitions (ADR 0003)', () => {
     const inn = vt.anims.find((a) => a.name === 'pc-coco-in')
     expect(inn?.pe).toBe('::view-transition-new(coco)')
     expect(inn?.d).toBe(350)
-    await expect(leashCoco(page)).toHaveAttribute('data-arrived', '')
+    await expect(leashCoco(page)).toHaveAttribute('data-arrived', '1')
     // Erstaufruf ohne Referrer: kein `data-arrived` (Coco rennt im Intro herein, MI-10)
     await page.goto('about:blank')
     await page.goto('/de')
-    await expect(leashCoco(page)).not.toHaveAttribute('data-arrived', '')
+    await expect(leashCoco(page)).not.toHaveAttribute('data-arrived', '1')
   })
 
   test('Coco reist nicht bei reduzierter Bewegung', async ({ page }) => {
@@ -313,7 +313,7 @@ test.describe('Weiche Navigation mit View Transitions (ADR 0003)', () => {
     await page.goto('/de')
     await page.waitForLoadState('load')
     await page.waitForTimeout(1500)
-    await expect(leashCoco(page)).not.toHaveAttribute('data-arrived', '')
+    await expect(leashCoco(page)).not.toHaveAttribute('data-arrived', '1')
     await page.evaluate(() =>
       document.querySelector<HTMLAnchorElement>('a[href="/de/kontakt"]')!.click(),
     )

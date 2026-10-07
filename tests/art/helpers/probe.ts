@@ -200,39 +200,46 @@ function measure(args: ProbeArgs): Probe {
   }
 
   // ---- Animationen ----
-  const anims = document.getAnimations().map((a) => {
-    const eff = a.effect as KeyframeEffect | null
-    const timing = eff?.getTiming()
-    const ct = eff?.getComputedTiming()
-    let ke: string[] = []
-    try {
-      ke = [...new Set((eff?.getKeyframes() ?? []).map((k) => String(k.easing ?? 'linear')))]
-    } catch {
-      ke = []
-    }
-    const target = (eff?.target ?? null) as Element | null
-    const it = Number(timing?.iterations ?? 1)
-    return {
-      n: String(
-        (a as CSSAnimation).animationName ?? (a as CSSTransition).transitionProperty ?? a.id ?? '',
-      ),
-      k: a.constructor.name,
-      s: a.playState,
-      d: typeof timing?.duration === 'number' ? r1(timing.duration) : null,
-      dl: r1(Number(timing?.delay ?? 0)),
-      it: Number.isFinite(it) ? it : -1,
-      e: String(timing?.easing ?? 'linear'),
-      ke,
-      ct: a.currentTime === null ? null : r1(Number(a.currentTime)),
-      act: ct?.progress !== null && ct?.progress !== undefined,
-      tg: desc(target),
-      z: zone(target),
-      pe: eff?.pseudoElement ?? null,
-      // Boil-Animation einer Coco mit `data-boil="off"`: nur von der Aufnahme per `pause()` festgehalten (Chromium
-      // verwirft eine so angehaltene CSS-Animation trotz `animation: none` nicht), läuft in Wirklichkeit nicht.
-      bo: !!target?.closest?.('.coco[data-boil="off"]'),
-    }
-  })
+  // Scroll-gebundene Animationen (Seitengrund `pc-sky`, P12.2) haben keine Dauer in ms und zählen nicht (MO-01)
+  const anims = document
+    .getAnimations()
+    .filter((a) => !(a.timeline && 'source' in a.timeline))
+    .map((a) => {
+      const eff = a.effect as KeyframeEffect | null
+      const timing = eff?.getTiming()
+      const ct = eff?.getComputedTiming()
+      let ke: string[] = []
+      try {
+        ke = [...new Set((eff?.getKeyframes() ?? []).map((k) => String(k.easing ?? 'linear')))]
+      } catch {
+        ke = []
+      }
+      const target = (eff?.target ?? null) as Element | null
+      const it = Number(timing?.iterations ?? 1)
+      return {
+        n: String(
+          (a as CSSAnimation).animationName ??
+            (a as CSSTransition).transitionProperty ??
+            a.id ??
+            '',
+        ),
+        k: a.constructor.name,
+        s: a.playState,
+        d: typeof timing?.duration === 'number' ? r1(timing.duration) : null,
+        dl: r1(Number(timing?.delay ?? 0)),
+        it: Number.isFinite(it) ? it : -1,
+        e: String(timing?.easing ?? 'linear'),
+        ke,
+        ct: a.currentTime === null ? null : r1(Number(a.currentTime)),
+        act: ct?.progress !== null && ct?.progress !== undefined,
+        tg: desc(target),
+        z: zone(target),
+        pe: eff?.pseudoElement ?? null,
+        // Boil-Animation einer Coco mit `data-boil="off"`: nur von der Aufnahme per `pause()` festgehalten (Chromium
+        // verwirft eine so angehaltene CSS-Animation trotz `animation: none` nicht), läuft in Wirklichkeit nicht.
+        bo: !!target?.closest?.('.coco[data-boil="off"]'),
+      }
+    })
 
   // ---- Deko für Hilfstechnik (A11Y-03) ----
   const decoEls = Array.from(document.querySelectorAll(DECO))

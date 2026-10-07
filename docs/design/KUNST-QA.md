@@ -194,7 +194,7 @@ Tempo-Läufe laufen **ohne** Videoaufnahme (Video kostet CPU) und getrennt von B
 | SC-11 | R01 → R02 → R04 → R06 (weiche Navigation) | `art-pixel7`, `art-desktop` | Links klicken | Video; View-Transition-Sequenz alle 50 ms |
 | SC-12 | `/de/qa/coco` | `art-desktop` (+ `art-iphone15` Stichprobe) | alle Symbole, `?parts=1`, je Frame einzeln | Standbilder je Symbol in 7 Größen; Boil-Sequenz bei 0/1/2 Frame-Längen |
 | SC-13 | `/de/qa/art` | `art-desktop` | – | Standbilder in 1× und 3× |
-| SC-14 | `/de/qa/motion?mi=…` für MI-01…MI-19 (MI-17/MI-18 nur Desktop, Zeiger schwebt) | `art-desktop`, `art-iphone15` | je MI „Abspielen“ | Sequenz alle 20 ms (per Seek, §4.4) |
+| SC-14 | `/de/qa/motion?mi=…` für MI-01…MI-19 (MI-17/MI-18 nur Desktop, Zeiger schwebt) | `art-desktop`, `art-iphone15` | je MI „Abspielen“ | Sequenz alle 20 ms (per Seek, §4.4; die 5-s-Abläufe MI-09/MI-11 alle 30 ms, weil die Frame-Nummer bei 999 endet) |
 | SC-15 | R01, R04 | `art-pixel7` | Resize 412→768→412, Querformat, Schrift nachladen verzögert (Font-Request 2 s blockieren) | Frames vor/nach; Neuaufbau-Zähler |
 | SC-16 | Alle Titelbilder des Beispielbestands | – (Skript, kein Browser) | Pipeline-Ergebnis vs. Original | Kontaktbogen Vorher/Nachher, `metrics/images.json` |
 | SC-17 | R01 | `art-pixel7` | `forcedColors: 'active'` | Frames |

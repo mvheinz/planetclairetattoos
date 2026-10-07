@@ -23,7 +23,15 @@ class FakeNavigation extends EventTarget {
 function fakeCoco() {
   const x = { p: vi.fn(), s: vi.fn(), b: vi.fn() }
   const el = document.createElement('div')
-  return { coco: { x, el, pose: () => 'sitzen' } as unknown as CocoController, x, el }
+  const setMotion = vi.fn()
+  const setPose = vi.fn()
+  return {
+    coco: { x, el, pose: () => 'sitzen', setMotion, setPose } as unknown as CocoController,
+    x,
+    el,
+    setMotion,
+    setPose,
+  }
 }
 
 describe('transitionTarget', () => {
@@ -53,45 +61,45 @@ describe('attachTravel', () => {
   })
 
   it('Aufbruch zu einer Seite mit Übergang: Lauf-Pose und Boil an, nach Frist zurück', () => {
-    const { coco, x, el } = fakeCoco()
+    const { coco, x, el, setMotion, setPose } = fakeCoco()
     attachTravel(coco)
+    expect(el.hasAttribute('data-travel-ready')).toBe(true)
     nav.go('http://localhost:3000/de/kontakt')
-    expect(x.s).toHaveBeenCalledWith('rennen')
+    // „reduziert“ mit Pose `rennen`: räumt Brücken ab und hält die Pose fest (CI-Fund „bridge-bremsen“)
+    expect(setMotion).toHaveBeenCalledWith('reduced', 'rennen')
     expect(x.b).toHaveBeenCalledWith(true)
-    // Reisemodus gesetzt: laufende Brücken dürfen die Lauf-Pose nicht überschreiben (CI-Fund „bridge-bremsen“)
-    expect(el.hasAttribute('data-travel')).toBe(true)
     vi.advanceTimersByTime(1500)
-    expect(el.hasAttribute('data-travel')).toBe(false)
     expect(x.b).toHaveBeenLastCalledWith(false)
-    expect(x.s).toHaveBeenLastCalledWith('sitzen')
+    expect(setMotion).toHaveBeenLastCalledWith('full')
+    expect(setPose).toHaveBeenLastCalledWith('sitzen')
   })
 
   it('kein Lauf bei calm-Ziel, Anker, gleicher Seite, Download und Reload', () => {
-    const { coco, x } = fakeCoco()
+    const { coco, setMotion } = fakeCoco()
     attachTravel(coco)
     nav.go('http://localhost:3000/de/warenkorb')
     nav.go('http://localhost:3000/de#oben', { hashChange: true })
     nav.go('http://localhost:3000/de')
     nav.go('http://localhost:3000/de/kontakt', { downloadRequest: 'x.pdf' })
     nav.go('http://localhost:3000/de/kontakt', { navigationType: 'reload' })
-    expect(x.s).not.toHaveBeenCalled()
+    expect(setMotion).not.toHaveBeenCalled()
   })
 
   it('Abmelden: keine Reaktion mehr, kein Timer; ohne Navigation-API passiert nichts', () => {
-    const { coco, x } = fakeCoco()
+    const { coco, setMotion } = fakeCoco()
     const off = attachTravel(coco)
     nav.go('http://localhost:3000/de/kontakt')
     off()
     vi.advanceTimersByTime(3000)
-    expect(x.s).toHaveBeenCalledTimes(1)
+    expect(setMotion).toHaveBeenCalledTimes(1)
     nav.go('http://localhost:3000/de/shop')
-    expect(x.s).toHaveBeenCalledTimes(1)
+    expect(setMotion).toHaveBeenCalledTimes(1)
     delete (globalThis as { navigation?: unknown }).navigation
     expect(() => attachTravel(coco)()).not.toThrow()
   })
 
   it('Klick auf einen internen Link (weiche Navigation) macht sie vor dem Übergang zur Läuferin', () => {
-    const { coco, x } = fakeCoco()
+    const { coco, setMotion } = fakeCoco()
     attachTravel(coco)
     const link = (href: string, attrs: Record<string, string> = {}) => {
       const a = document.createElement('a')
@@ -109,9 +117,9 @@ describe('attachTravel', () => {
     click(link('/de/kontakt'), { ctrlKey: true })
     click(link('/de#oben'))
     click(link('https://other.test/de/kontakt'))
-    expect(x.s).not.toHaveBeenCalled()
+    expect(setMotion).not.toHaveBeenCalled()
     click(link('/de/kontakt'))
-    expect(x.s).toHaveBeenCalledWith('rennen')
+    expect(setMotion).toHaveBeenCalledWith('reduced', 'rennen')
     document.body.replaceChildren()
   })
 })

@@ -78,7 +78,11 @@ test(
       // Lupen-Aufnahmen tragen „lupe“ im Namen (R2-05-04: sonst nicht als Lupe auffindbar)
       const prefix = mi.id.toLowerCase() + (zoom ? '-lupe' : '')
       // MI-08 (Countdown) ist keine Animation (DESIGN §11.5): Sekundentakt statt 20 ms.
-      const stepMs = art.step(mi.id === 'MI-08' ? 250 : 20, mi.durationMs)
+      // Lange Abläufe (MI-09, MI-11: 5 s) alle 30 ms: Die Frame-Nummer endet bei 999 je Profil, mit MI-17…MI-19 reichten 20 ms nicht mehr
+      const stepMs = art.step(
+        mi.id === 'MI-08' ? 250 : mi.durationMs >= 5000 ? 30 : 20,
+        mi.durationMs,
+      )
       const start = async () => {
         if (mi.press) {
           const btn = stage.locator('button').first()
@@ -97,6 +101,7 @@ test(
             const hold = (e: Event) => {
               const t = e.target as Element | null
               for (const a of t?.getAnimations?.() ?? []) {
+                if (a.timeline && 'source' in a.timeline) continue // Scroll-Zeitleiste (Seitengrund)
                 a.pause()
                 a.currentTime = 0
               }
@@ -145,6 +150,7 @@ test(
             await new Promise((r) => setTimeout(r, 30))
           await page.evaluate(() =>
             document.getAnimations().forEach((a) => {
+              if (a.timeline && 'source' in a.timeline) return // Scroll-Zeitleiste (Seitengrund)
               a.pause()
               a.currentTime = 0
             }),
