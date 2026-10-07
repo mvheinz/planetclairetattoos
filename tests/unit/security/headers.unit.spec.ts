@@ -170,7 +170,11 @@ describe('T-16 Header je Kontext', () => {
     expect(rules.map((r) => r.source)).toEqual([
       '/:path*',
       '/api/:path*',
+<<<<<<< HEAD
       '/art/:file((?:coco-sprite|coco-extra|fitness-still)\\.v\\d+\\.svg|koko\\.v\\d+\\.webp|fitness-coco\\.v\\d+\\.json)',
+=======
+      '/art/:file((?:coco-sprite|coco-extra|koko)\\.v\\d+\\.svg|fitness-still\\.v\\d+\\.webp|fitness-coco\\.v\\d+\\.json)',
+>>>>>>> wip/p12-fit
     ])
     expect(rules[2]!.headers).toEqual([
       { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
