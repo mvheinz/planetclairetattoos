@@ -8,6 +8,10 @@ import { IDLE_PLAN, JOY_MS, attachExtra } from '@/leash/cocoExtra'
 import extra from '../../../src/art/coco/coco-extra-anchors.json'
 import extraManifest from '../../../src/art/coco/coco-extra.json'
 
+// `attachExtra` lädt `cocoTravel` nach (P12.12); ein nicht abgewartetes dynamisches Import ließe beim Ende des Laufs
+// „Closing rpc while fetch was pending“ entstehen – Reisen prüft `travel.unit.spec.ts`.
+vi.mock('@/leash/cocoTravel', () => ({ attachTravel: () => () => {} }))
+
 // P12.4 Zusatz-Aktionen (U-03/U-04): Warte-Aktionen gestaffelt beim Stillstand, Freudenhüpfer bei Erfolg, Abbruch bei
 // Bewegung, Standbild bei reduzierter Bewegung. Zeit über Fake-Timer.
 
