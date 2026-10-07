@@ -447,7 +447,7 @@
   },
   "thanks": {
     "waitingTitle": "Einen Moment noch …",
-    "waitingText": "Wir warten noch kurz auf die Bestätigung deiner Zahlung. Die Seite aktualisiert sich von selbst.",
+    "waitingText": "Ich warte noch kurz auf die Bestätigung deiner Zahlung. Die Seite aktualisiert sich von selbst.",
     "waitingLong": "Das dauert länger als sonst. Du bekommst eine Mail, sobald alles bestätigt ist.",
     "reload": "Seite neu laden",
     "paidTitle": "Danke!",
@@ -569,7 +569,7 @@
   "checkout": {
     "title": "Kasse",
     "requiredNote": "* Pflichtfeld",
-    "privacy": "Wie wir mit deinen Angaben umgehen, steht in der {link}.",
+    "privacy": "Wie ich mit deinen Angaben umgehe, steht in der {link}.",
     "privacyLink": "Datenschutzerklärung",
     "sections": {
       "kontakt": "Kontakt",
@@ -580,7 +580,7 @@
     },
     "fields": {
       "email": "E-Mail",
-      "emailHint": "Hierhin schicken wir Bestätigung und Rechnung",
+      "emailHint": "Hierhin schicke ich Bestätigung und Rechnung",
       "deliveryLegend": "Lieferart",
       "deliveryShipping": "Versand innerhalb Deutschlands ({carrier})",
       "deliveryPickup": "Abholung in {city}",
@@ -597,12 +597,12 @@
       "pickupHint": "Privatstudio in Berlin-{district}. Ort und Termin sprechen wir per Mail ab.",
       "billingDiffers": "Rechnungsadresse weicht ab",
       "billingSame": "Ohne Häkchen gilt die Lieferadresse auch als Rechnungsadresse.",
-      "billingPickupHint": "Für die Rechnung brauchen wir deine Adresse.",
+      "billingPickupHint": "Für die Rechnung brauche ich deine Adresse.",
       "billingName": "Vor- und Nachname (Rechnung)",
       "paymentLegend": "Zahlart",
       "paymentStripe": "Karte, Apple Pay, Google Pay oder PayPal",
       "paymentPrepayment": "Vorkasse per Überweisung",
-      "prepaymentBank": "Du bekommst unsere Bankverbindung per Mail.",
+      "prepaymentBank": "Du bekommst meine Bankverbindung per Mail.",
       "prepaymentDue": "Zahlungsfrist bei Bestellung jetzt: bis {date}",
       "stripeUnavailable": "Kartenzahlung ist gerade nicht erreichbar – du kannst per Vorkasse bezahlen.",
       "paymentImpossible": "Bezahlen ist gerade nicht möglich.",
@@ -653,7 +653,7 @@
       "deviationHint": "Bitte bestätige zuerst die Besonderheit bei jedem markierten Stück.",
       "processing": "Zahlung wird verarbeitet …",
       "sending": "Bestellung wird gesendet …",
-      "confirming": "Deine Zahlung läuft gerade. Warte bitte kurz – wir melden uns auf der Danke-Seite."
+      "confirming": "Deine Zahlung läuft gerade. Warte bitte kurz – ich melde mich auf der Danke-Seite."
     },
     "errors": {
       "summaryTitle": "Bitte prüf deine Angaben:",
@@ -662,7 +662,7 @@
       "tooShort": "Das ist zu kurz.",
       "tooLong": "Das ist zu lang.",
       "postalCode": "Die PLZ hat genau 5 Ziffern.",
-      "country": "Wir liefern nur innerhalb Deutschlands.",
+      "country": "Ich liefere nur innerhalb Deutschlands.",
       "choice": "Bitte wähl eine der Möglichkeiten.",
       "deviation": "Bitte bestätige die Besonderheit.",
       "fields": {
@@ -767,7 +767,7 @@
       "warrantyLink": "Mitteilung zur gesetzlichen Gewährleistung",
       "attachmentsHeading": "Anhänge",
       "attInvoice": "deine Rechnung ({file})",
-      "attAgb": "unsere AGB in der Fassung vom {date} ({file})",
+      "attAgb": "meine AGB in der Fassung vom {date} ({file})",
       "attWithdrawal": "die Widerrufsbelehrung mit Muster-Widerrufsformular in der Fassung vom {date} ({file})",
       "attEnglish": "zusätzlich die englischen Fassungen ({files})",
       "withdrawalInfo": "Alles zu deinem Widerrufsrecht steht in der Widerrufsbelehrung im Anhang. Widerrufen kannst du ganz einfach online:",
@@ -1224,7 +1224,7 @@
       "placeNoDistrict": "Privatstudio in Berlin. Die genaue Adresse bekommst du mit der Terminbestätigung."
     },
     "aftercare": {
-      "intro": "Haut vergisst nicht, aber sie braucht Zeit. Ein frisches Tattoo ist eine kleine Wunde; mit diesen Schritten heilt es in Ruhe. Bist du unsicher, schreib mir.",
+      "intro": "Haut vergisst nicht, aber sie braucht Zeit. Ein frisches Tattoo ist eine kleine Wunde; diese Schritte begleiten es beim Heilen. Bist du unsicher, schreib mir.",
       "emptyText": "Die Pflegeschritte gebe ich dir beim Termin mit. Bei Fragen schreib mir einfach.",
       "warnHeading": "Warnzeichen – wann zur Ärztin oder zum Arzt?",
       "warnText": "Wenn die Rötung nach drei Tagen weiter zunimmt, die Stelle heiß wird oder stark anschwillt, Eiter austritt, rote Streifen entstehen oder du Fieber bekommst. Sag mir danach gern Bescheid.",
