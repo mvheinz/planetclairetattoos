@@ -36,12 +36,22 @@
   0%,
   44.12% {
     transform: translateX(0);
-    animation-timing-function: var(--ease-swing);
+    animation-timing-function: cubic-bezier(
+      0.45,
+      0,
+      0.55,
+      1
+    ); /* = --ease-swing (var() gilt in @keyframes nicht → sonst „ease“, MO-02) */
   }
   50%,
   94.12% {
     transform: translateX(var(--koko-travel));
-    animation-timing-function: var(--ease-swing);
+    animation-timing-function: cubic-bezier(
+      0.45,
+      0,
+      0.55,
+      1
+    ); /* = --ease-swing (var() gilt in @keyframes nicht → sonst „ease“, MO-02) */
   }
   100% {
     transform: translateX(0);

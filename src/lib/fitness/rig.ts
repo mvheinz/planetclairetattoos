@@ -25,8 +25,6 @@ export const VIEW = { s: 1.2, ox: 100, oy: 232 }
 export const INK_W = 1.25
 export const CRAYON_W = 1.0
 export const GROUND_W = 2.1
-/** Buntstift: leicht körnig unterbrochen (Papierkörnung). */
-export const CRAYON_DASH = [5.5, 0.7, 3.4, 0.9]
 
 // ---------- Parameter ----------
 
@@ -144,7 +142,13 @@ export interface Draw {
   k?: 'knick' | 'collar' | 'tongue'
 }
 
-const n1 = (n: number) => String(Math.round(n * 10) / 10)
+/** Zahl auf eine Nachkommastelle als Text (von Hand zusammengesetzt: `String(Gleitkommazahl)` war der größte Rechenposten). */
+const n1 = (n: number) => {
+  const v = Math.round(n * 10)
+  if (v % 10 === 0) return String(v / 10)
+  const a = v < 0 ? -v : v
+  return (v < 0 ? '-' : '') + String(Math.floor(a / 10)) + '.' + String(a % 10)
+}
 /** Tiefster ausgegebener Punkt des laufenden Bildes (für die Bodenführung). */
 let maxY = 0
 const pt = (p: P2) => {
@@ -558,7 +562,7 @@ function head(out: Draw[], p: Params, hc: V3, Rh: M, seed: number) {
   const eyeL = PJ([-8.6, -4, 16.5]),
     eyeR = PJ([8.6, -4, 16.5])
   let h = ''
-  for (let i = 0; i < 44; i++) {
+  for (let i = 0; i < 30; i++) {
     const az = (hs(seed + i * 3) > 0 ? 1 : -1) * (24 + fr(i * 0.618) * 90)
     const el = -22 + fr(i * 0.7548) * 78
     const l: V3 = [
@@ -709,7 +713,15 @@ export function build(p: Params): Draw[] {
   maxY = 0
   let out = draw(p)
   if (maxY > GROUND + 2.6) out = draw({ ...p, y: p.y - (maxY - (GROUND + 1.6)) })
-  return out.filter((d) => d.d.length > 3)
+  // aufeinanderfolgende Tusche-/Buntstift-Striche zu einem Pfad (weniger Zeichenaufrufe je Bild)
+  const merged: Draw[] = []
+  for (const d of out) {
+    if (d.d.length <= 3) continue
+    const last = merged[merged.length - 1]
+    if (last && last.t === d.t && (d.t === 'i' || d.t === 'h')) last.d += d.d
+    else merged.push({ ...d })
+  }
+  return merged
 }
 
 function draw(p: Params): Draw[] {
@@ -747,7 +759,7 @@ function draw(p: Params): Draw[] {
       z,
       draw: () => {
         const tb = tube([p2(hip), p2(knee), p2(ank)], [10.5, 7, 4.4], 6)
-        drawTube(out, tb, 200 + s * 17, { hatch: [0.05, 0.78], count: 18, len: 8 })
+        drawTube(out, tb, 200 + s * 17, { hatch: [0.05, 0.78], count: 12, len: 9 })
         // Pfote (weiße „Söckchen“)
         const toe = va(ank, mv(Rf, [s * 1, 3.2, 11]))
         const sock = va(ank, vk(dir, -5))
@@ -799,7 +811,7 @@ function draw(p: Params): Draw[] {
       z,
       draw: () => {
         const tb = tube(J.map(p2), [5.2, 4.6, 4.0, 4.2], 6)
-        drawTube(out, tb, 300 + s * 13, { hatch: [0.08, 0.66], count: 12, len: 7 })
+        drawTube(out, tb, 300 + s * 13, { hatch: [0.08, 0.66], count: 9, len: 8 })
         // Pfote
         const e = p2(J[3]!),
           w = p2(J[2]!)
@@ -852,7 +864,7 @@ function draw(p: Params): Draw[] {
     const tip = tube([tb.at(0.72, 0), tb.at(0.86, 0), tb.at(1, 0)], [4.4, 3.2, 1.2], 4)
     out.push({ t: 'f', d: smooth(tip.poly, true), c: 'paper' })
     let h = ''
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 8; i++) {
       const t = 0.08 + (i / 12) * 0.6
       h += slash(tb.poly, tb.at(t, (hs(400 + i) * 0.5 + (i % 2 ? 0.3 : -0.3)) * 3.4), 7)
     }
@@ -911,7 +923,7 @@ function draw(p: Params): Draw[] {
   bibEdge(-1, [0.06, 0.2, 0.4, 0.6, 0.8, 0.96])
   if (bib.length > 6) out.push({ t: 'f', d: smooth(bib, true), c: 'paper' })
   let h = ''
-  for (let i = 0; i < 130; i++) {
+  for (let i = 0; i < 90; i++) {
     const s = 0.04 + fr(i * 0.6180339) * 0.92
     const phi = (i % 2 ? 1 : -1) * (46 + fr(i * 0.7548777) * 120)
     const q = torsoSurf(S, s, phi)
@@ -1011,7 +1023,7 @@ export function toSvg(
     else if (d.t === 'i')
       s += `<path d="${d.d}" fill="none" stroke="${COLORS.ink}" stroke-width="${INK_W}"/>`
     else if (d.t === 'h')
-      s += `<path d="${d.d}" fill="none" stroke="${COLORS.crayon}" stroke-width="${CRAYON_W}" stroke-dasharray="${CRAYON_DASH.join(' ')}" opacity=".9"/>`
+      s += `<path d="${d.d}" fill="none" stroke="${COLORS.crayon}" stroke-width="${CRAYON_W}" opacity=".9"/>`
     else s += `<path d="${d.d}" fill="none" stroke="${COLORS.ink}" stroke-width="${GROUND_W}"/>`
   }
   return s + '</g></svg>\n'

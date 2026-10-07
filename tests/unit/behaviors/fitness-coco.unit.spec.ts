@@ -18,9 +18,9 @@ let strokes: number
 const still = () => root.querySelector<HTMLElement>('[data-fitness-still]')!
 const canvas = () => root.querySelector<HTMLCanvasElement>('[data-fitness-canvas]')!
 /** Ein Anzeige-Takt (16 ms): ruft die vorgemerkten rAF-Rückrufe auf. */
-const tick = (n = 1) => {
+const tick = (n = 1, step = 16.7) => {
   for (let i = 0; i < n; i++) {
-    now += 16.7
+    now += step
     const q = queue
     queue = []
     q.forEach((cb) => cb(now))
@@ -47,7 +47,8 @@ function setup(motion?: 'reduced') {
   }) as typeof window.cancelAnimationFrame
   const stub = {
     setTransform: vi.fn(),
-    clearRect: vi.fn(() => paints++),
+    clearRect: vi.fn(),
+    drawImage: vi.fn(() => paints++),
     setLineDash: vi.fn(),
     fill: vi.fn(() => fills++),
     stroke: vi.fn(() => strokes++),
@@ -74,7 +75,7 @@ afterEach(() => {
 })
 
 describe('fitness-coco mount', () => {
-  it('holt den Ablaufplan, zeichnet ≈ 30 Bilder/s auf der Leinwand; unmount stellt das Standbild wieder her', async () => {
+  it('holt den Ablaufplan, zeichnet 20 Bilder/s auf der Leinwand; unmount stellt das Standbild wieder her', async () => {
     setup()
     const fitnessData = vi.fn((_url: string) => Promise.resolve(data as unknown))
     const unmount = mount(root, { mode: 'app', actions: { fitnessData } })
@@ -84,16 +85,18 @@ describe('fitness-coco mount', () => {
     expect(still().style.visibility).toBe('hidden')
     expect(paints).toBe(1) // erstes Bild sofort
     expect(fills).toBeGreaterThan(5) // Papier-/Waschflächen
-    tick() // erster Takt setzt die Uhr
     const first = paints
-    tick() // 17 ms später: noch kein neues Bild (Takt ≈ 33 ms)
-    expect(paints).toBe(first)
-    tick()
+    tick() // Takt 1: Uhr setzen, nächste Pose rechnen
+    tick() // Takt 2: erste Hälfte in den Puffer
+    expect(paints).toBe(first) // noch nichts auf der Leinwand (Puffer wird erst fertig gezeigt)
+    tick() // Takt 3: zweite Hälfte, dann auf die Leinwand
+    expect(paints).toBe(first + 1)
+    tick(2) // Wartezeit (Bildabstand 50 ms): kein neues Bild
     expect(paints).toBe(first + 1)
     const n = paints
-    tick(60) // ≈ 1 s → ≈ 30 Bilder
-    expect(paints - n).toBeGreaterThanOrEqual(28)
-    expect(paints - n).toBeLessThanOrEqual(32)
+    tick(60) // ≈ 1 s → ≈ 20 Bilder
+    expect(paints - n).toBeGreaterThanOrEqual(17)
+    expect(paints - n).toBeLessThanOrEqual(22)
     expect(strokes).toBeGreaterThan(0)
     unmount()
     expect(canvas().hidden).toBe(true)
@@ -102,6 +105,29 @@ describe('fitness-coco mount', () => {
     tick(30)
     expect(paints).toBe(m)
     expect(queue).toHaveLength(0)
+  })
+
+  it('fallen Anzeige-Takte aus (verspätete Takte), schaltet es auf 10 Bilder/s zurück – nie ruckelnd', async () => {
+    setup()
+    const un = mount(root, {
+      mode: 'app',
+      actions: { fitnessData: () => Promise.resolve(data as unknown) },
+    })
+    await flush()
+    tick(100) // Einblenden (1,4 s) abwarten: davor zählen verspätete Takte nicht
+    const n = paints
+    tick(60)
+    const fast = paints - n
+    expect(fast).toBeGreaterThanOrEqual(17)
+    // vier Takte à 45 ms (Gerät kommt nicht mehr hinterher) → dauerhaft Stufe 1
+    tick(4, 45)
+    tick(3)
+    const m = paints
+    tick(60)
+    const slow = paints - m
+    expect(slow).toBeLessThanOrEqual(11)
+    expect(slow).toBeGreaterThanOrEqual(8)
+    un()
   })
 
   it('reduzierte Bewegung: kein Abruf, Standbild bleibt; im Vorschau-Modus kommt der Plan aus der Datei (kein Netz)', () => {
