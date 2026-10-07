@@ -5561,7 +5561,7 @@ Nach dem Merge automatisch (ohne Checkbox; prüft P11.1):
   Shop und als Verwaltungs-Bausteine; R-xxx-Nachweise nachgezogen.
   - Akzeptanz: Legal-Tests (Platzhalter-Befüllung, Vollständigkeit der Pflichtangaben), `robots.txt`/`ai.txt`-Test,
     Traceability grün; Eintrag in OFFENE-PUNKTE (Kanzlei-Prüfung P11).
-- [ ] **P12.12 Platzhalter-Gesichter, Seitenwechsel, Mikro-Animationen** (U-23) – Platzhalter (AR-05 ≥ 4), Coco wandert im Seitenwechsel
+- [x] **P12.12 Platzhalter-Gesichter, Seitenwechsel, Mikro-Animationen** (U-23) – Platzhalter (AR-05 ≥ 4), Coco wandert im Seitenwechsel
   mit (MO-14), weitere Mikro-Animationen.
   - Akzeptanz: `art:check` grün; Linsen-Noten laut P12.13.
 - [ ] **P12.13 Kunst-QA-Runde und Tempo-Gates** – vollständige Aufnahme + drei unabhängige Linsen (KUNST-QA §6) nach allen Änderungen,
