@@ -5564,18 +5564,18 @@ Nach dem Merge automatisch (ohne Checkbox; prüft P11.1):
 - [x] **P12.12 Platzhalter-Gesichter, Seitenwechsel, Mikro-Animationen** (U-23) – Platzhalter (AR-05 ≥ 4), Coco wandert im Seitenwechsel
   mit (MO-14), weitere Mikro-Animationen.
   - Akzeptanz: `art:check` grün; Linsen-Noten laut P12.13.
-- [ ] **P12.13 Kunst-QA-Runde und Tempo-Gates** – vollständige Aufnahme + drei unabhängige Linsen (KUNST-QA §6) nach allen Änderungen,
+- [x] **P12.13 Kunst-QA-Runde und Tempo-Gates** – vollständige Aufnahme + drei unabhängige Linsen (KUNST-QA §6) nach allen Änderungen,
   `[ci:art]`-Lauf grün, `test:perf`/axe/E2E grün; Protokoll `docs/design/qa-log/`.
   - Akzeptanz: Fall a, b oder c nach KUNST-QA §6.6 erreicht und dokumentiert; `art:check` 62/62 in CI.
-- [ ] **P12.14 Abschluss P12** – neue finale Vorschau (`vorschau-p12`: `.github/vorschau-release.json`/Release-Workflow), Abschlussbericht
+- [x] **P12.14 Abschluss P12** – neue finale Vorschau (`vorschau-p12`: `.github/vorschau-release.json`/Release-Workflow), Abschlussbericht
   für Jutta in `docs/FORTSCHRITT.md` (du-Form), OFFENE-PUNKTE aktuell, Handbuch/Go-live-Doku nachgezogen; `OFFEN_P12=0`.
   - Akzeptanz: CI grün, Release-Probelauf, Bericht-Test; `--plan-status`: OFFEN_P1_P10=0 und OFFEN_P12=0.
 
 ### Phasen-Abnahme
 
-- [ ] Alle Aufgaben P12.1–P12.14 abgehakt; CI grün (`ci.yml`, `ci-full.yml`, `preview-export.yml`, Kunst-QA, Restore-Drill, Release-Probelauf).
-- [ ] `bash scripts/cloud-setup.sh --plan-status` zeigt `OFFEN_P1_P10=0` und `OFFEN_P12=0`.
-- [ ] PR-Beschreibung aktualisiert; gemergt oder oben „Bitte mergen – CI ist grün“; Release `vorschau-p12` veröffentlicht.
+- [x] Alle Aufgaben P12.1–P12.14 abgehakt; CI grün (`ci.yml`, `ci-full.yml`, `preview-export.yml`, Kunst-QA, Restore-Drill, Release-Probelauf).
+- [x] `bash scripts/cloud-setup.sh --plan-status` zeigt `OFFEN_P1_P10=0` und `OFFEN_P12=0`.
+- [x] PR-Beschreibung aktualisiert; gemergt oder oben „Bitte mergen – CI ist grün“; Release `vorschau-p12` veröffentlicht.
 
 ## P11 – Go-live gemeinsam mit Jutta
 

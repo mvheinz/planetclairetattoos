@@ -2,6 +2,45 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-07 – P12 Abschlussbericht (Überarbeitung nach deiner Rückmeldung) – für Jutta
+
+### Phase 12 fertig: Deine Wünsche vom 06.10. sind umgesetzt, die neue Vorschau-Datei entsteht nach dem Merge
+
+Hallo Jutta,
+
+alles, was du dir bei der Überarbeitung gewünscht hast, ist eingebaut. Auf GitHub sind alle Prüfläufe grün: die normalen Tests, der große Lauf mit allen Browsern (Desktop, iPhone, Android), die Tempo-Messung, die Bildvergleiche und die Kunst-Prüfung (62 von 62 automatischen Punkten). Die Prüfung „sieht das wirklich schön aus?“ durch Menschenaugen steht noch aus – die machen wir zusammen (siehe unten).
+
+### Was neu ist
+
+- **Coco:** Sie sitzt jetzt seitlich (wie auf deinem Foto), wartet mit kleinen Aktionen, hat vier neue Posen, ist ein Viertel größer, die Tuschelinie zeichnet doppelt so langsam, das rechte Ohr ist immer geknickt, und die Leine liegt nur noch am Rand der Raster, nie quer über Karten. Beim Seitenwechsel läuft Coco mit.
+- **Fitness-Coco:** Auf der Startseite ersetzt sie die große sitzende Coco: sieben Übungen aus deinem Skizzenblatt, am Ende liegt sie erschöpft mit Zunge da, dann geht es von vorn los. Ohne Beschriftung.
+- **Koko:** Die Vorsitzende der Goth Dogs Berlin sitzt oben in der rechten Spalte (mit Narrenhut, ohne Knochenkreuz); nur die Pupillen wandern immer von links nach rechts. Darunter steht „Planet Claire on Tour“.
+- **Planet Claire on Tour:** Ein kleiner Kalender mit deinen Terminen (kommende oben, vergangene eingeklappt, abgesagte durchgestrichen, ohne Karte oder Fremddienste). In der Verwaltung pflegst du die Termine im Bereich „Tattoo“, Reiter „Termine“. Beispieltermine sind dabei.
+- **Aussehen:** Spectral als Schrift, helles Olivgrün mit Verlauf nach Petrol beim Scrollen, Petrol als Akzentfarbe, dünne Goth-Rahmen aus Filigran um alle Fotos.
+- **Aufgeräumt:** „Angebote“ und alle DM-Hinweise sind weg; Instagram steht nur noch als Profil-Link im Fuß.
+- **Alle Texte neu:** verträumt und philosophisch in der Ich-Form; Preise, Versand und Pflege stehen weiter klar und verständlich darin. Die Seite ist dauerhaft zweisprachig (Deutsch und Englisch), das Englische ist eigenständig geschrieben, nicht wörtlich übersetzt.
+- **Rechtstexte und Schutz deiner Werke:** Impressum, Datenschutz, AGB, Widerruf (mit Muster-Formular), Versand und Zahlung sind vollständig ausformuliert (mit Platzhaltern für deine Angaben). Dazu: Urheberrechtsvermerk, Kaufklausel (was Käufer:innen mit dem Stück dürfen), Vorbehalt gegen KI-Training (`robots.txt`, `ai.txt`, Hinweise im Seitenkopf) und der Hinweis, dass Flash-Motive nur mit deiner Erlaubnis nachgestochen werden.
+- **Platzhalter-Gesichter:** Jede Figur hat ein eigenes, einzeln gezeichnetes Gesicht (sechs Stile). Neue kleine Animationen: Karten heben sich leicht, Menü-Links rücken ein, die Korb-Bestätigung gleitet herein.
+
+### So öffnest du die neue Vorschau-Datei
+
+1. Öffne den Link: https://github.com/mvheinz/planetclairetattoos/releases/tag/vorschau-p12 (Release „Planet Claire – Vorschau (Stand P12)“). Er funktioniert erst, nachdem der Pull Request übernommen („gemergt“) ist; das erledige ich gleich nach diesem Eintrag.
+2. Klicke unter „Assets“ auf `planet-claire-vorschau.html`; die Datei lädt direkt herunter.
+3. Doppelklick darauf: Sie öffnet sich im Browser, auf jedem Rechner ganz ohne Internet. Warnt der Browser, wähle „Behalten“.
+4. **Nur privat ansehen**, nicht weitergeben und nicht veröffentlichen: Sie enthält Beispieldaten, zwei Tattoo-Fotos ohne Einwilligung und Rechtstexte, die noch Platzhalter sind. Die ältere Fassung „Stand P10“ bleibt zum Vergleich stehen.
+
+### Diese Punkte aus `docs/OFFENE-PUNKTE.md` solltest du entscheiden
+
+1. **Rechtstexte durch die Kanzlei prüfen lassen (J-04):** Das gilt jetzt auch für die neuen Schutz-Klauseln (Kaufklausel, KI-Vorbehalt, Flash-Nachstechen). Sie sind sorgfältig formuliert, aber nicht anwaltlich geprüft.
+2. **Sichtprüfung gemeinsam (P11):** 25 Urteilspunkte der Kunst-Prüfung sind noch offen, weil die Aufnahmen aus meiner Umgebung nicht abrufbar sind. Schau dir bitte Fitness-Coco, Koko, Coco beim Seitenwechsel, die Rahmen und die Gesichter an und sag mir, was dir noch nicht gefällt.
+3. **Deine Skizzenblätter als Dateien:** Die Fitness-Skizzen liegen bei mir nur als Beschreibung (`content/art/jutta-skizzen/FITNESS-COCO.md`). Lade sie gern als Fotos nach `content/art/jutta-skizzen/` hoch, dann kann ich die Übungen noch genauer an deinen Strich anlehnen.
+4. **Tour-Termine:** Die acht Beispieltermine werden vor dem Start entfernt; du trägst deine echten Termine ein.
+5. Die übrigen Punkte aus dem Bericht „P10“ gelten weiter (Adresse, Telefon, Verpackung, Steuer, Instagram-Export, echtes iPhone).
+
+### Das passiert in P11 gemeinsam
+
+Wie im Bericht „P10“ beschrieben (`docs/GO-LIVE.md`, `docs/owner/AUFGABEN.md`): Konten anlegen, echte Schlüssel, Rechtstexte der Kanzlei einsetzen, Beispieldaten entfernen, Probekauf, dann der Start. Das machen wir zusammen, ich fange nicht allein damit an.
+
 ## 2026-10-06 – P12.12
 
 - Platzhalter: Jede Figur hat jetzt ihr eigenes, einzeln gezeichnetes Gesicht (sechs Stile: Kulleraugen, Schlaflider, Knopfaugen, Blinzeln, Schiefblick, Staunen – je mit eigenen Brauen und eigenem Mund). Die sechs Coco-Platzhalter und die Hasen in `flash-902`/`spiegel-01` teilen kein Gesicht mehr (AR-05; Test `placeholders.unit.spec.ts`).

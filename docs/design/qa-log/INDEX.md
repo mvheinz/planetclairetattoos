@@ -28,3 +28,10 @@ Ablage laut KUNST-QA §8: je Iteration eine Datei `YYYY-MM-DD-iter-NN.md` (ab P9
 | 2026-10-05 | 07 | `633a034` | FAIL | FAIL | FAIL | [Iteration 07](2026-10-05-iter-07.md) (Lauf `20261005-iter07-633a034`, lokal; `art:check` 62/62; MO-14 misst echte Übergänge; Noten LQ-08 3, AR-05 3, MO-12 4, IM-04 3) |
 | 2026-10-05 | 08 | `2738e82` | FAIL | FAIL | FAIL | [Iteration 08](2026-10-05-iter-08.md) (Lauf `20261005-iter08-2738e82`, lokal, frischer Build; `art:check` 62/62; Noten LQ-08 4, AR-05 3, MO-12 3, IM-04 4; R3-Blocker war Aufnahme-Artefakt) |
 | 2026-10-05 | 09 | `0a61d00` | FAIL | FAIL | PASS | [Iteration 09](2026-10-05-iter-09.md) (Lauf `20261005-iter09-0a61d00`, lokal; `art:check` 62/62; **Fall b**, Kunst-QA offen: AR-05 3, MO-11, MO-12 3, MO-14) |
+
+## P12 (Überarbeitung)
+
+| Datum | Eintrag | Commit | Lauf |
+|---|---|---|---|
+| 2026-10-07 | [P12 – `art:check` 62/62, Tempo-Gates grün, Linsen offen (Fall b)](2026-10-07-p12.md) | `1d2e383` | `20261007-iter01-1d2e383` (CI) |
+| 2026-10-07 | [Redaktionelle Prüfung der Texte (P12.10)](text-review-p12.md) | `085cfc6` | – |
