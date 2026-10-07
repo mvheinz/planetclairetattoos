@@ -2,6 +2,11 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-07 – P12.2 (Nacharbeit) Linienpapier statt Karo
+
+- Seitengrund jetzt liniert wie ein Schreibblock statt kariert: Zeilenlinien alle 32 px in zartem Petrol-Grau, oben ein breiteres Kopfband (56 px) mit etwas kräftigerer Linie; der Olivgrün→Petrol-Verlauf bleibt darunter. Kein Rand-Strich links (die Tuschelinie läuft dort). Reines CSS, keine Bilder. Menü-Overlay und Vorschaubilder (OG) ebenfalls liniert; Raster-Tokens entfernt.
+- Tests: `tests/unit/design` (Kontrast gegen die dunkelste Linienstelle, Linien-Regeln), Details DESIGN §3.4.
+
 ## 2026-10-07 – P12.6 (Nacharbeit) Koko aus dem Foto
 
 - Koko nicht mehr nachgezeichnet, sondern aus Juttas Malerei freigestellt und gesäubert (`scripts/art/koko-cutout.py` → `public/art/koko.v2.webp`, 660×867, 66 KB; altes `koko.v1.svg`/`scripts/art/koko.ts` entfernt). Original-Pupillen übermalt, neue Pupillen als SVG-Ellipsen (je Auge Standort + Läufer) in reinem CSS, endlos, links → rechts.

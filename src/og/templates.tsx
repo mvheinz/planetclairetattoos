@@ -23,24 +23,20 @@ const PAPER = '#E6EACD'
 const PAPER_2 = '#DCE2C2'
 const INK = '#1C1A17'
 const INK_2 = '#4B463F'
-const MAT = 'rgb(47,107,76)'
+const RULE = 'rgb(15,76,87)' // Petrol-Grau der Zeilenlinien
 const STAMP = '#0F4C57' // Petrol (U-12)
 
 const svgUrl = (svg: string) =>
   `data:image/svg+xml;base64,${Buffer.from(svg, 'utf8').toString('base64')}`
 
-/** Schneidematten-Raster (DESIGN §12.6): feine Linien alle 24 px, kräftigere alle 120 px. */
-function gridSvg(width: number, height: number, offsetX = 0): string {
-  let fine = ''
-  let major = ''
-  for (let x = 24 - (offsetX % 24); x < width; x += 24) fine += `M${x} 0V${height}`
-  for (let y = 24; y < height; y += 24) fine += `M0 ${y}H${width}`
-  for (let x = 120 - (offsetX % 120); x < width; x += 120) major += `M${x} 0V${height}`
-  for (let y = 120; y < height; y += 120) major += `M0 ${y}H${width}`
+/** Linienpapier (DESIGN §3.4): Zeilenlinien alle 32 px ab einem 56-px-Kopfband, kräftigere Linie unter dem Kopfband. */
+function gridSvg(width: number, height: number): string {
+  let lines = ''
+  for (let y = 56 + 31.5; y < height; y += 32) lines += `M0 ${y}H${width}`
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">` +
-    `<path d="${fine}" stroke="${MAT}" stroke-opacity="0.07" stroke-width="1"/>` +
-    `<path d="${major}" stroke="${MAT}" stroke-opacity="0.12" stroke-width="1.5"/></svg>`
+    `<path d="${lines}" stroke="${RULE}" stroke-opacity="0.12" stroke-width="1"/>` +
+    `<path d="M0 55.5H${width}" stroke="${RULE}" stroke-opacity="0.2" stroke-width="1"/></svg>`
   )
 }
 
@@ -189,7 +185,7 @@ export function ProductOgImage(props: ProductOgProps) {
       <div style={{ display: 'flex', position: 'relative', width: PANEL.width, height: 630 }}>
         {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
         <img
-          src={svgUrl(gridSvg(PANEL.width, 630, PANEL.left))}
+          src={svgUrl(gridSvg(PANEL.width, 630))}
           width={PANEL.width}
           height={630}
           style={abs(0, 0)}

@@ -71,7 +71,7 @@ Gesichtet am 26.09.2026: alle 22 Bilder in `content/seed/instagram/` (Beiträge 
 | Figuren | Naiv, freie Proportionen; Tiere mit großen „Kulleraugen“ (weißes Oval, schwarzer Punkt, oft versetzt), lange Schnauzen, 2–3 lange Schnurrhaar-Striche (Keramikschalen, Fuchs-Aquarell, Cap-Wesen) | Coco-Augen groß und dunkel mit Glanzpunkt; Platzhalter-Zeichnungen im selben naiven Ton |
 | Farbe | Flache Deckfarbe hinter der Linie (Keramik grau, Cap-Wesen rot-orange), Aquarell mit weichen Rändern (Fuchs, Reh) | Im Web nur **flache** Farbflächen („Washes“) hinter der Linie, leicht versetzt |
 | Handschrift | Verbundene Schreibschrift mit langen Ober-/Unterlängen (Fliese, Cap „sometimes“, Schälchen) | Keine eigene Font (E-79); Spectral Italic (U-10) ersetzt sie |
-| Untergründe | Grüne Schneidematte mit cm-Raster, Papier, Holz; Tageslicht mit harten Schatten | Zartes Schneidematten-Raster als Seitengrund (E-74); Fotos auf Matte/Papier (§12.1) |
+| Untergründe | Grüne Schneidematte mit cm-Raster, Papier, Holz; Tageslicht mit harten Schatten | Zartes Linienpapier als Seitengrund (U-12a, löst das Matten-Raster E-74 ab); Fotos auf Matte/Papier (§12.1) |
 | Coco | Siehe §10.1 | Charakterblatt |
 
 ---
@@ -80,28 +80,28 @@ Gesichtet am 26.09.2026: alle 22 Bilder in `content/seed/instagram/` (Beiträge 
 
 ### 3.1 Finale Farb-Tokens mit gemessenen Kontrasten
 
-Kontrast nach WCAG 2.2 (relative Luminanz), neu berechnet am 06.10.2026 (P12.2, U-11/U-12: helles Olivgrün mit Verlauf nach Petrol). Spalten: **Papier** = `--paper` (Seitengrund am Seitenanfang), **Papier-2** = `--paper-2` (Karten, Preisschilder, Fußbereich), **Raster** = Farbe einer Raster-Hauptlinie auf Papier (`#D6DFC2`, §3.4), **Verlauf-Ende** = `--paper-deep` (Grund am Seitenende, §3.5; der Verlauf liegt zwischen Papier und Verlauf-Ende, jede Zwischenfarbe ist heller als dieses Ende, ein Text-Token besteht also im ganzen Verlauf). Formularfelder (`--paper-field`) sind heller als Papier und damit immer mindestens so kontrastreich.
+Kontrast nach WCAG 2.2 (relative Luminanz), neu berechnet am 06.10.2026 (P12.2, U-11/U-12: helles Olivgrün mit Verlauf nach Petrol). Spalten: **Papier** = `--paper` (Seitengrund am Seitenanfang), **Papier-2** = `--paper-2` (Karten, Preisschilder, Fußbereich), **Linie** = Farbe der kräftigeren Kopflinie des Linienpapiers auf Papier (`#BBCAB5`, §3.4; die dunkelste Stelle des Seitengrunds, die normalen Zeilenlinien sind heller), **Verlauf-Ende** = `--paper-deep` (Grund am Seitenende, §3.5; der Verlauf liegt zwischen Papier und Verlauf-Ende, jede Zwischenfarbe ist heller als dieses Ende, ein Text-Token besteht also im ganzen Verlauf). Formularfelder (`--paper-field`) sind heller als Papier und damit immer mindestens so kontrastreich.
 
-| Token | Hex | Rolle | Papier | Papier-2 | Raster | Verlauf-Ende | Freigabe |
+| Token | Hex | Rolle | Papier | Papier-2 | Linie | Verlauf-Ende | Freigabe |
 |---|---|---|---|---|---|---|---|
 | `--paper` | `#E6EACD` | Seitengrund oben (helles Olivgrün) | – | – | – | – | Grund |
 | `--paper-deep` | `#BDD6CE` | Seitengrund unten (Petrol-Hauch), Ende des Scroll-Verlaufs | – | – | – | – | Grund |
 | `--paper-2` | `#DCE2C2` | Karten, Preisschild, Fußbereich, Callouts | – | – | – | – | Grund |
 | `--paper-field` | `#F8F9EC` | Formularfelder, Lightbox-Grund | – | – | – | – | Grund |
-| `--ink` | `#1C1A17` | **Tuschelinie**, Text, Icons | 14,07 | 12,98 | 12,56 | 11,31 | Text jeder Größe |
-| `--ink-2` | `#4B463F` | Sekundärtext, Meta, Feldränder | 7,57 | 6,99 | 6,76 | 6,09 | Text jeder Größe; UI-Ränder |
-| `--ink-3` | `#524C43` | Platzhaltertext in Feldern, deaktiviert | 6,88 | 6,35 | 6,14 | 5,53 | Text jeder Größe (nur diese Rollen) |
-| `--clay` | `#CBBBA2` | Trennlinien, Deko-Ränder | 1,52 | 1,41 | 1,36 | 1,22 | **nur Deko** (nie Text, nie einzige Grenze eines Bedienelements) |
-| `--mat` | `#2F6B4C` | Schneidematten-Raster, grüne Flächen | – | – | – | – | **nur Deko/Fläche** (kein Text mehr; Links sind `--petrol`) |
-| `--petrol` | `#0F4C57` | **Akzent (U-12):** Links, Primärknöpfe, „sold“-Stempel, Fokus-Grundton | 7,76 | 7,16 | 6,93 | 6,24 | Text jeder Größe |
-| `--petrol-deep` | `#0A3841` | Hover, Fokusring | 10,28 | 9,49 | 9,18 | 8,26 | Text jeder Größe; Fokusring |
-| `--fox` | `#AA4515` | Deko-Akzente (Warenkorb-Hinweis) | 4,76 | 4,40 | 4,25 | 3,83 | **nur Text ≥ 24 px** (groß, ≥ 3:1) oder Deko |
-| `--fox-text` | `#843709` | Hinweistext in Fuchs, Countdown < 1 min | 6,72 | 6,20 | 6,00 | 5,40 | Text jeder Größe |
-| `--stencil` | `#4638A8` | Info-Badges (Deko-Hinweis), Flash-Status | 7,11 | 6,57 | 6,35 | 5,72 | Text jeder Größe |
-| `--pink` | `#E58FB0` | Cap-Pink, kleine Flächenakzente | 1,91 | 1,77 | 1,71 | 1,54 | **nur Fläche/Deko** |
-| `--warn` | `#714300` | Warnhinweise, Countdown < 5 min | 6,79 | 6,27 | 6,07 | 5,46 | Text jeder Größe |
-| `--error` | `#92211A` | Formularfehler | 6,93 | 6,40 | 6,19 | 5,57 | Text jeder Größe |
-| `--ok` | `#1B5538` | Erfolgsmeldungen | 7,08 | 6,53 | 6,32 | 5,69 | Text jeder Größe |
+| `--ink` | `#1C1A17` | **Tuschelinie**, Text, Icons | 14,07 | 12,98 | 10,11 | 11,31 | Text jeder Größe |
+| `--ink-2` | `#4B463F` | Sekundärtext, Meta, Feldränder | 7,57 | 6,99 | 5,44 | 6,09 | Text jeder Größe; UI-Ränder |
+| `--ink-3` | `#524C43` | Platzhaltertext in Feldern, deaktiviert | 6,88 | 6,35 | 4,94 | 5,53 | Text jeder Größe (nur diese Rollen) |
+| `--clay` | `#CBBBA2` | Trennlinien, Deko-Ränder | 1,52 | 1,41 | 1,09 | 1,22 | **nur Deko** (nie Text, nie einzige Grenze eines Bedienelements) |
+| `--mat` | `#2F6B4C` | grüne Flächen | – | – | – | – | **nur Deko/Fläche** (kein Text mehr; Links sind `--petrol`) |
+| `--petrol` | `#0F4C57` | **Akzent (U-12):** Links, Primärknöpfe, „sold“-Stempel, Fokus-Grundton | 7,76 | 7,16 | 5,58 | 6,24 | Text jeder Größe |
+| `--petrol-deep` | `#0A3841` | Hover, Fokusring | 10,28 | 9,49 | 7,39 | 8,26 | Text jeder Größe; Fokusring |
+| `--fox` | `#AA4515` | Deko-Akzente (Warenkorb-Hinweis) | 4,76 | 4,40 | 3,42 | 3,83 | **nur Text ≥ 24 px** (groß, ≥ 3:1) oder Deko |
+| `--fox-text` | `#843709` | Hinweistext in Fuchs, Countdown < 1 min | 6,72 | 6,20 | 4,83 | 5,40 | Text jeder Größe |
+| `--stencil` | `#4638A8` | Info-Badges (Deko-Hinweis), Flash-Status | 7,11 | 6,57 | 5,11 | 5,72 | Text jeder Größe |
+| `--pink` | `#E58FB0` | Cap-Pink, kleine Flächenakzente | 1,91 | 1,77 | 1,38 | 1,54 | **nur Fläche/Deko** |
+| `--warn` | `#714300` | Warnhinweise, Countdown < 5 min | 6,79 | 6,27 | 4,88 | 5,46 | Text jeder Größe |
+| `--error` | `#92211A` | Formularfehler | 6,93 | 6,40 | 4,98 | 5,57 | Text jeder Größe |
+| `--ok` | `#1B5538` | Erfolgsmeldungen | 7,08 | 6,53 | 5,09 | 5,69 | Text jeder Größe |
 
 Kunst-Farben (nur in Zeichnungen, nie für UI-Text):
 
@@ -127,7 +127,7 @@ Die Werte stammten ursprünglich aus der Konzeptseite; in P12.2 (U-10 … U-12) 
 5. **Zustände nie nur über Farbe:** Fehler = Text + Icon; „sold“ = Stempel-Text; aktiv = Unterstreichung + `aria-current`.
 6. **Statusfarben:** Erfolg `--ok`, Warnung `--warn`, Fehler `--error`, Info `--stencil`. Fuchs ist **kein** Fehlerrot (Fuchs ist nur Deko-Akzent).
 
-**AK-DS-01** Ein Vitest-Test liest `src/styles/tokens.css`, berechnet für jede Paarung aus §3.1 den Kontrast und schlägt fehl, wenn ein als „Text jeder Größe“ freigegebenes Token gegen Papier, Papier-2, Raster (`#D6DFC2`) oder Verlauf-Ende (`--paper-deep`) unter 4,50 liegt.
+**AK-DS-01** Ein Vitest-Test liest `src/styles/tokens.css`, berechnet für jede Paarung aus §3.1 den Kontrast und schlägt fehl, wenn ein als „Text jeder Größe“ freigegebenes Token gegen Papier, Papier-2, Linie (`#BBCAB5`) oder Verlauf-Ende (`--paper-deep`) unter 4,50 liegt.
 **AK-DS-02** Ein Lint-Test durchsucht `src/**/*.{css,scss,tsx}` und schlägt fehl bei `color: var(--fox)` außerhalb der Komponenten `SoldStamp` und `CartLine` (Stempel-Text „sold“ ≥ 24 px, KO-13), bei `color: var(--pink|--clay|--coco-*|--wash-*)` und bei `#FFF`/`#FFFFFF`/`white` als Textfarbe.
 
 ### 3.3 Nur hell – Entscheidung zum Dunkelmodus
@@ -137,36 +137,33 @@ Die Werte stammten ursprünglich aus der Konzeptseite; in P12.2 (U-10 … U-12) 
 - `<meta name="theme-color" content="#E6EACD">`.
 - Die Konzeptseite hatte Dunkel-Tokens für ihre eigene Darstellung; sie werden **nicht** übernommen.
 - **Verwaltung:** behält das Payload-Standard-Theme (hell/dunkel nach Payload-Einstellung). Eigene Handy-Ansichten (P5) nutzen Payload-CSS-Variablen (`--theme-*`), nicht die Website-Tokens. Einzige Übernahmen: Planet-Marke als Login-Logo und PWA-Icon (§12.6).
-- **Erzwungene Farben** (Windows-Kontrastmodus, `@media (forced-colors: active)`): Raster aus, Linie und Coco-Striche `stroke: CanvasText`, Washes und Fell `fill: none`, Fokus `outline-color: Highlight`.
-- **Druck** (`@media print`): Raster, Linie, Coco, Kopf-Menüknopf ausblenden; Text `#000` auf Weiß; Links mit URL in Klammern nur in Rechtstexten.
+- **Erzwungene Farben** (Windows-Kontrastmodus, `@media (forced-colors: active)`): Zeilenlinien aus, Linie und Coco-Striche `stroke: CanvasText`, Washes und Fell `fill: none`, Fokus `outline-color: Highlight`.
+- **Druck** (`@media print`): Zeilenlinien, Linie, Coco, Kopf-Menüknopf ausblenden; Text `#000` auf Weiß; Links mit URL in Klammern nur in Rechtstexten.
 
 **AK-DS-03** Playwright rendert Startseite, Produktseite und Kasse mit `colorScheme: 'dark'` und `colorScheme: 'light'` bei `reducedMotion: 'reduce'`; die Screenshots sind pixelgleich.
 
-### 3.4 Schneidematten-Raster (Seitengrund)
+### 3.4 Linienpapier (Seitengrund, U-12a)
 
-Zartes Raster wie auf Juttas grüner Matte (E-74): Nebenlinien alle 32 px, Hauptlinien alle 160 px (5 Felder). Die Hauptlinie ist so gewählt, dass sie zusammen mit der darunterliegenden Nebenlinie genau 9 % Matte ergibt. Seit P12.2 liegt das Raster auf dem Verlauf aus §3.5: `body` hat keine eigene Grundfarbe (`transparent`), der Grund kommt von `html`.
+Der Seitengrund ist **liniert wie ein Schreibblock** (amerikanischer Legal Pad, A4 hoch), nicht kariert: waagerechte Zeilenlinien in Petrol-Grau (`rgb(15 76 87)`), 1 px, alle `--rule-step` = 32 px (liegt im Rhythmus der Fließtext-Zeile 17 px × 1,62 ≈ 27,5 px bis 32 px – Text steht freundlich „auf“ den Linien, ohne sie zu erzwingen). Oben ein **Kopfband** von `--rule-head` = 56 px (1,75 Zeilen) mit einer kräftigeren Linie (`--rule-line-head`, 20 %) darunter; erst darunter beginnen die normalen Zeilenlinien (`--rule-line`, 12 %). Das Linienpapier liegt auf dem Verlauf aus §3.5: `body` hat keine eigene Grundfarbe (`transparent`), der Grund kommt von `html`. Das alte Schneidematten-Raster (E-74, Tokens `--grid-line*`) ist entfernt.
 
 ```css
 body {
   background-color: transparent; /* Grund + Verlauf liegen auf html (§3.5) */
   background-image:
-    linear-gradient(var(--grid-line-major) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line-major) 1px, transparent 1px),
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: 160px 160px, 160px 160px, 32px 32px, 32px 32px;
-  background-position: -1px -1px;
+    linear-gradient(var(--rule-line-head), var(--rule-line-head)),       /* Kopflinie */
+    repeating-linear-gradient(180deg, transparent 0, transparent calc(var(--rule-step) - 1px),
+      var(--rule-line) calc(var(--rule-step) - 1px), var(--rule-line) var(--rule-step)); /* Zeilen */
+  background-size: 100% 1px, 100% 24000px;
+  background-repeat: no-repeat;
+  background-position: 0 calc(var(--rule-head) - 1px), 0 var(--rule-head);
   background-attachment: scroll; /* nie fixed (Repaint beim Scrollen) */
 }
 ```
 
-| Linie | Deckkraft Matte | effektive Farbe auf Papier |
-|---|---|---|
-| Nebenlinie `--grid-line` | 5 % | `#DDE4C7` |
-| Hauptlinie (`--grid-line-major` über Nebenlinie) | 9 % gesamt | `#D6DFC2` |
-
-- Das Raster liegt nur auf `body`. Karten, Preisschilder, Fußbereich, Formularfelder, Menü-Overlay (Papier deckend mit eigenem Raster) und Lightbox decken es ab.
-- Kreuzungspunkte (einzelne Pixel) werden für Kontrast nicht gewertet.
+- Reines CSS, kein Bild und keine Anfrage. Die Zeilenebene ist ein hohes Verlaufsbild ab dem Kopfband (nicht wiederholt, auf den body-Kasten beschnitten), damit über der Kopflinie keine zusätzliche Zeile erscheint.
+- **Kein Rand-Strich links:** Die Tuschelinie läuft in der linken Rinne (§5.3); eine Rand-Linie würde mit ihr kollidieren.
+- Die Zeilenlinien liegen nur auf `body`. Karten, Preisschilder, Fußbereich, Formularfelder, Menü-Overlay (Papier deckend mit eigenen Zeilenlinien) und Lightbox decken sie ab. Erzwungene Farben und Druck: keine Linien.
+- Kontrast: Text-Tokens werden gegen die dunkelste Linienstelle (Kopflinie auf Papier, `#BBCAB5`) geprüft (AK-DS-01); einzelne 1-px-Linien sind kein Grund einer Textfläche.
 - Kein Papierkorn-Bild in P2. P9 DARF ein Papierkorn ergänzen, wenn Prüfer:in R1 (KUNST-QA) es verlangt, nur als Kachel ≤ 12 KB und nur, wenn AK-DS-01 mit der dunkelsten Korn-Farbe weiter besteht.
 
 ### 3.5 Seitengrund-Verlauf Olivgrün → Petrol (U-11, P12.2)
@@ -174,7 +171,7 @@ body {
 - **Grundton:** helles Olivgrün `--paper` (`#E6EACD`). **Verlaufsende:** `--paper-deep` (`#BDD6CE`, Petrol-Hauch) – bewusst nur so dunkel, dass jeder Text-Token (§3.1) und die Tuschelinie auch am Seitenende ≥ 4,5:1 halten; Karten (`--paper-2`), Felder und Menü bleiben deckend hell.
 - **Grundfassung (immer):** `html` trägt `linear-gradient(180deg, var(--paper), var(--paper-deep))` über die ganze Dokumentlänge. Der Verlauf scrollt mit dem Inhalt (Leinwand-Hintergrund, kein Layout, kein Repaint) und ist **statisch** bei `prefers-reduced-motion: reduce`, bei `html[data-motion='reduced']` und in Browsern ohne Scroll-Zeitleiste.
 - **Verbesserung (CSS-only):** Mit `@supports (animation-timeline: scroll())`, `prefers-reduced-motion: no-preference` und ohne `data-motion='reduced'` legt `html::before` eine feste Fläche (`position: fixed`, `z-index: -1`, Verlauf transparent → `--paper-deep`) hinter den Inhalt, deren **`opacity` 0 → 1** über die Scrollstrecke (`animation-timeline: scroll(root block)`) läuft. Es ist ein einziger Compositor-Layer ohne JavaScript, ohne Layout und Repaint; der Verlauf gehört **nicht** in die Leine-Engine (Budget CO-08/PF-01, Engine ≤ 12 000 B gz unberührt). Wirkt unabhängig von der Seitenlänge: Am Seitenende ist der Grund immer am dunkelsten.
-- **Test:** AK-DS-01 prüft alle Text-Tokens gegen Papier, Papier-2, Raster und Verlauf-Ende; `tests/unit/design/page-gradient.unit.spec.ts` prüft die CSS-Regeln (statische Fassung, Scroll-Zeitleiste nur unter `no-preference`, nur `opacity` animiert).
+- **Test:** AK-DS-01 prüft alle Text-Tokens gegen Papier, Papier-2, Linie und Verlauf-Ende; `tests/unit/design/page-gradient.unit.spec.ts` prüft die CSS-Regeln (statische Fassung, Scroll-Zeitleiste nur unter `no-preference`, nur `opacity` animiert).
 
 ---
 
@@ -362,7 +359,7 @@ Schraffur-Muster als Inline-SVG-Data-URI (≤ 300 Byte), kein Bild-Request.
 
 ### 6.4 Texturen und Filter
 
-- Erlaubt: Schneidematten-Raster (§3.4), Schraffur (§6.3), Washes als Flächen in SVGs.
+- Erlaubt: Linienpapier (§3.4), Schraffur (§6.3), Washes als Flächen in SVGs.
 - `filter: url(#ink-rough)` (feTurbulence `baseFrequency 0.9`, `numOctaves 1`, feDisplacementMap `scale 0.8`) **nur** auf statischen Elementen ≤ 200×200 px: Stempel, Stationsmarken, Planet der Wortmarke. **Nie** auf der Tuschelinie, auf Coco oder auf animierten Elementen. Definiert einmal im `AppShell` in einem versteckten `<svg width="0" height="0" aria-hidden="true">` zusammen mit dem Schraffur-Muster.
 - `mix-blend-mode: multiply` nur auf dem Stempel (druckt „ins“ Schild).
 
@@ -391,8 +388,10 @@ P2 legt `src/styles/tokens.css` exakt mit diesem Inhalt an (Werte sind verbindli
   --paper-deep: #BDD6CE;      /* Petrol-Hauch, Verlaufsende am Seitenende (U-11) */
   --paper-2: #DCE2C2;
   --paper-field: #F8F9EC;
-  --grid-line: rgb(47 107 76 / 0.05);
-  --grid-line-major: rgb(47 107 76 / 0.042);
+  --rule-line: rgb(15 76 87 / 0.12);       /* Linienpapier: Zeilenlinie, Petrol-Grau (U-12a) */
+  --rule-line-head: rgb(15 76 87 / 0.20);  /* kräftigere Linie unter dem Kopfband */
+  --rule-step: 32px;                       /* Zeilenabstand */
+  --rule-head: 56px;                       /* Kopfband (1,75 Zeilen) */
 
   /* Tusche und Ton */
   --ink: #1C1A17;
@@ -401,7 +400,7 @@ P2 legt `src/styles/tokens.css` exakt mit diesem Inhalt an (Werte sind verbindli
   --clay: #CBBBA2;
 
   /* Akzente */
-  --mat: #2F6B4C;             /* nur noch Schneidematten-Raster und Flächen, kein Text */
+  --mat: #2F6B4C;             /* nur noch grüne Flächen, kein Text */
   --petrol: #0F4C57;          /* Akzent: Links, Knöpfe, Stempel (U-12) */
   --petrol-deep: #0A3841;     /* Hover und Fokus */
   --fox: #AA4515;
@@ -560,7 +559,7 @@ Jede Komponente: **Zweck · Aufbau · Maße · Zustände · Bewegung · Barriere
 
 ### KO-03 Menü (`MenuOverlay`)
 
-- **Aufbau:** natives `<dialog id="menu" aria-label="Menü">` (modal, `showModal()`), Vollbild, Grund `--paper` mit eigenem Raster. Oben: Wortmarke + Knopf „Schließen“ (Text + Icon). Hauptliste (KONZEPT §3.0.2) in Spectral `--fs-menu`: Start · Shop · Archiv · Auftragsarbeiten · Tattoo · Über mich & Coco · Kontakt. Unter „Shop“ klein (Bricolage 17 px) die Kategorien; unter „Tattoo“ die Tattoo-Unterseiten. Unten: Sprachumschalter „Deutsch · English“, Instagram-Link, Pflichtlinks klein inkl. „Vertrag widerrufen“. Rechts unten schaut Coco herein (Pose `kopfschief`, Größe `--coco-m`, `aria-hidden`).
+- **Aufbau:** natives `<dialog id="menu" aria-label="Menü">` (modal, `showModal()`), Vollbild, Grund `--paper` mit eigenen Zeilenlinien. Oben: Wortmarke + Knopf „Schließen“ (Text + Icon). Hauptliste (KONZEPT §3.0.2) in Spectral `--fs-menu`: Start · Shop · Archiv · Auftragsarbeiten · Tattoo · Über mich & Coco · Kontakt. Unter „Shop“ klein (Bricolage 17 px) die Kategorien; unter „Tattoo“ die Tattoo-Unterseiten. Unten: Sprachumschalter „Deutsch · English“, Instagram-Link, Pflichtlinks klein inkl. „Vertrag widerrufen“. Rechts unten schaut Coco herein (Pose `kopfschief`, Größe `--coco-m`, `aria-hidden`).
 - **Unterstreichung:** jeder Hauptlink trägt ein Inline-SVG `LinkUnderline` (drei Pfadvarianten, Wahl per Hash des `href`), 100 % Linkbreite + 8 px Überstand, Strich `--stroke-ink`, `--ink`. Zustände: unsichtbar → bei Hover (nur `(hover: hover) and (pointer: fine)`), `:focus-visible` und `:active` wird sie gezeichnet (MI-06); aktuelle Seite: statisch gezeichnet + `aria-current="page"`.
 - **Öffnen/Schließen:** MI-05. `Esc` und „Schließen“ schließen; Fokus kehrt zum Menü-Knopf zurück; `<html>` bekommt `overflow: hidden` + `scrollbar-gutter: stable` (keine Verschiebung). Klick auf einen Link schließt das Menü sofort (ohne Schließ-Animation) und navigiert.
 - **Ohne JavaScript:** der Menü-Knopf ist ein Link `#fussnavigation` auf die Navigation im Fußbereich.
@@ -581,7 +580,7 @@ Jede Komponente: **Zweck · Aufbau · Maße · Zustände · Bewegung · Barriere
   5. Schalter „Animationen: an/aus“ (§11.7).
   6. Preis-Fußnote nur auf Seiten mit Preisen (Text aus KONZEPT §3.4, Sternchen-Bezug).
   7. Zeile „© {Jahr} Planet Claire · Berlin“ in `--ink-2`.
-- **Optik:** Grund `--paper-2` (deckt Raster), obere Kante eine statische Handlinie `--ink` 1.5px; Links Bricolage 400 15 px in `--ink`, unterstrichen, Zielhöhe ≥ 44 px mobil; Spalten ab 768 (Rechtliches | Seiten | Sprache & Einstellungen).
+- **Optik:** Grund `--paper-2` (deckt die Zeilenlinien), obere Kante eine statische Handlinie `--ink` 1.5px; Links Bricolage 400 15 px in `--ink`, unterstrichen, Zielhöhe ≥ 44 px mobil; Spalten ab 768 (Rechtliches | Seiten | Sprache & Einstellungen).
 - **Linie:** Die Tuschelinie endet oberhalb des Fußbereichs oder verlässt die Seite am unteren Rand der Rinne; sie kreuzt nie einen Fußbereich-Link (§9.9).
 - **Tests:** AK-DS-09 (ergänzt KONZEPT AK-3-11).
 
