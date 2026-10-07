@@ -541,7 +541,13 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   let stepped: { cancel(): void } | null = null
 
   /** Schreibphase nach Messung und Geometrie: Stufe, SVG, gezeichnete Länge, Coco, Intro. */
-  function finishBuild(first: boolean, mm: Measurement, geo: LeashGeometry, pre: Prebuilt, t0: number) {
+  function finishBuild(
+    first: boolean,
+    mm: Measurement,
+    geo: LeashGeometry,
+    pre: Prebuilt,
+    t0: number,
+  ) {
     const prevStations = geometry?.stations ?? []
     const prevTotal = geometry?.totalLength ?? 0
     const prevDrawn = drawnLen
