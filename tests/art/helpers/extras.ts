@@ -259,7 +259,8 @@ export async function introTiming(art: ArtSession): Promise<{
 export async function readingSeries(art: ArtSession): Promise<void> {
   const { page } = art
   await art.goto('/de')
-  await page.waitForTimeout(1600)
+  // Intro 1800 ms ab LCP + 300 ms (MO-10) und der Aufbau der Linie in Idle-Teilstücken (PF-04): erst danach gilt map = drawnLen.
+  await page.waitForTimeout(3200)
   const range = await page.evaluate(() => {
     const sm = (
       window as Window & { __leash?: { geometry: { scrollMap: { readingY: number }[] } } }
