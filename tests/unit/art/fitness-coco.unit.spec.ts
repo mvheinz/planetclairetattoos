@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { gzipSync } from 'node:zlib'
 
+import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -8,22 +9,23 @@ import {
   EXERCISES,
   FITNESS_JSON,
   FITNESS_STILL,
-  FRAME_MS,
-  FRAME_RANGE,
+  STILL_MAX,
+  STILL_SIZE,
   buildFitness,
   stillSvg,
-  loopMs,
-  lying,
-  standing,
   type FitnessData,
 } from '../../../scripts/art/fitness-coco'
+import { loopMs } from '../../../src/lib/fitness/timeline'
 
-// P12.5 Fitness-Coco (U-09, FITNESS-COCO.md): sieben Übungen in Juttas Reihenfolge + erschöpft Liegen, 12–24 Zwischenbilder
-// je Übung, 4–6 s, weiche Übergänge, Knickohr, Datenbudget (≤ 150 KB gz), Quelle = Generator-Ausgabe.
+// P12.5 Fitness-Coco (U-09, FITNESS-COCO.md): sieben Übungen in Juttas Reihenfolge + erschöpft Liegen, je Übung 4–6 s,
+// weiche Überblendungen, kleiner Ablaufplan (Puppen-Gerüst statt Bildfolge), Quelle = Generator-Ausgabe.
 
 const data = JSON.parse(readFileSync(FITNESS_JSON, 'utf8')) as FitnessData
+const budgets = JSON.parse(readFileSync('tests/perf/budgets.json', 'utf8')) as {
+  svg: { lazy: { file: string; rawMax: number; gzipMax: number }[] }
+}
 
-describe('Fitness-Coco Daten', () => {
+describe('Fitness-Coco Ablaufplan', () => {
   it('Reihenfolge: Body wave, Body bounce, Single arm raises, Hip rotation, Chest opener, Trunk twist, Thump up, Liegen', () => {
     expect(data.ex.map((e) => e.id)).toEqual([
       'wave',
@@ -35,65 +37,48 @@ describe('Fitness-Coco Daten', () => {
       'thump',
       'lying',
     ])
-    expect(EXERCISES.map((e) => e.id)).toEqual(data.ex.slice(0, 7).map((e) => e.id))
+    expect(EXERCISES.map((e) => e.id)).toEqual(data.ex.map((e) => e.id))
+    expect(data.v).toBe(2)
   })
 
-  it('je Übung 12–24 Zwischenbilder und 4–6 s; Übergang (3 Bilder) vor jeder Übung; Schleife ≈ 40 s', () => {
+  it('je Übung 4–6 s, Überblendung ≤ 1,7 s, Schleife ≈ 40–45 s', () => {
     for (const e of data.ex) {
-      expect(e.fr.length, e.id).toBeGreaterThanOrEqual(FRAME_RANGE[0])
-      expect(e.fr.length, e.id).toBeLessThanOrEqual(FRAME_RANGE[1])
       expect(e.ms, e.id).toBeGreaterThanOrEqual(4000)
       expect(e.ms, e.id).toBeLessThanOrEqual(6000)
-      // jedes Bild ein eigener Entwurf (kein Wiederholen desselben Pfads) – von Hand gezeichnet gewirkt
-      expect(new Set(e.fr).size, e.id).toBe(e.fr.length)
+      expect(e.w, e.id).toBeGreaterThanOrEqual(600)
+      expect(e.w, e.id).toBeLessThanOrEqual(1700)
     }
-    expect(data.tr).toHaveLength(data.ex.length)
-    for (const t of data.tr) expect(t.length).toBeGreaterThanOrEqual(3)
-    expect(data.f).toBe(FRAME_MS)
     expect(loopMs(data)).toBeGreaterThan(38_000)
+    expect(loopMs(data)).toBeLessThan(46_000)
   })
 
-  it('Datenbudget: ≤ 150 KB gz insgesamt; Standbild (eigene SVG-Datei, <img>) ≤ 6 KB', () => {
+  it('Datenbudget: Ablaufplan ≤ 6 KB gz; Standbild (WebP 720 × 900 mit Transparenz) und Budgets laut Budget-Datei', async () => {
     const json = readFileSync(FITNESS_JSON)
     expect(gzipSync(json, { level: 9 }).length).toBeLessThanOrEqual(BUDGET_GZ)
-    const still = readFileSync(FITNESS_STILL, 'utf8')
-    expect(still.length).toBeLessThanOrEqual(6000)
-    expect(still).not.toMatch(/<text|<image|<circle|<rect/)
-    // Tusche schwarz, Buntstift orange (Linie bleibt schwarz)
-    expect(still).toContain('stroke="#1C1A17"')
-    expect(still).toContain('stroke="#D9822B"')
+    const meta = await sharp(FITNESS_STILL).metadata()
+    expect([meta.width, meta.height, meta.format, meta.hasAlpha]).toEqual([
+      ...STILL_SIZE,
+      'webp',
+      true,
+    ])
+    expect(readFileSync(FITNESS_STILL).length).toBeLessThanOrEqual(STILL_MAX)
+    for (const l of budgets.svg.lazy.filter((x) => /fitness/.test(x.file))) {
+      const raw = readFileSync(l.file)
+      expect(raw.length, l.file).toBeLessThanOrEqual(l.rawMax)
+      expect(gzipSync(raw, { level: 9 }).length, l.file).toBeLessThanOrEqual(l.gzipMax)
+    }
   })
 
-  it('Bilder: schwarze Tuschelinie (Pfade) + oranger Buntstift getrennt, keine Beschriftung (kein <text>)', () => {
-    for (const e of data.ex)
-      for (const f of e.fr) {
-        const [ink, pencil] = f.split('|')
-        expect(ink!.length).toBeGreaterThan(200)
-        expect(pencil!.length).toBeGreaterThan(40)
-        expect(f).not.toMatch(/<|>|text/)
-      }
+  it('Standbild-Quelle (SVG, nicht ausgeliefert): Tusche schwarz, Buntstift orange, keine Beschriftung, kein Bildanteil', () => {
+    const svg = stillSvg()
+    expect(svg).not.toMatch(/<text|<image|<circle|<rect/)
+    expect(svg).toContain('stroke="#1C1A17"')
+    expect(svg).toContain('stroke="#D9822B"')
+    expect(svg).toBe(buildFitness().still)
   })
 
-  it('Quelle ist die aktuelle Generator-Ausgabe (pnpm art:fitness)', () => {
-    const { data: fresh, still } = buildFitness()
-    expect(JSON.stringify(fresh)).toBe(JSON.stringify(data))
-    expect(readFileSync(FITNESS_STILL, 'utf8')).toBe(stillSvg(still))
-  })
-})
-
-describe('Fitness-Coco Zeichnung', () => {
-  it('rechtes Ohr (Bild links) ist in jeder Pose geknickt (U-07), auch liegend', () => {
-    for (const e of EXERCISES)
-      for (const t of [0, 0.25, 0.5, 0.75])
-        expect(
-          standing(e.pose(t)).ink.some((s) => s.knick),
-          `${e.id} ${t}`,
-        ).toBe(true)
-    expect(lying(0).ink.some((s) => s.knick)).toBe(true)
-  })
-
-  it('Buntstift nur im Fell: Schraffur-Flächen vorhanden, weiße Brust und Pfoten bleiben Papier (keine Fläche dort)', () => {
-    const b = standing(EXERCISES[0]!.pose(0))
-    expect(b.fur.length).toBeGreaterThanOrEqual(6)
+  it('Ablaufplan ist die aktuelle Generator-Ausgabe (pnpm art:fitness)', () => {
+    const { data: fresh } = buildFitness()
+    expect(JSON.parse(JSON.stringify(fresh))).toEqual(data)
   })
 })

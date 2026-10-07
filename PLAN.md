@@ -5530,8 +5530,9 @@ Nach dem Merge automatisch (ohne Checkbox; prüft P11.1):
   - Akzeptanz: Sprite/Posen-Tests (CO-xx) grün; E2E Raster-Seiten: Linie überdeckt nie Karten (LG-01); PF-02/04 grün;
     Reduced-Motion-Standbilder; Knickohr-Test (Sprite-Geometrie).
 - [x] **P12.5 Fitness-Coco** (U-09) – 7 Übungen + Liegen nach `FITNESS-COCO.md`, Endlosschleife, mit orangem Buntstift-Strich,
-  hand-gezeichnet gewirkt (12–24 Frames je Übung), nachgeladen nach dem ersten Bild, ersetzt die große sitzende Coco auf der
-  Startseite; Standbild bei reduzierter Bewegung; alt-Texte DE/EN.
+  als Puppen-Gerüst aus Cocos Merkmalen (neu gebaut 07.10.2026, fließend ≈ 30 Bilder/s statt 12–24 Frames je Übung), Ablaufplan
+  nachgeladen nach dem ersten Bild, ersetzt die große sitzende Coco auf der Startseite; Standbild bei reduzierter Bewegung;
+  alt-Texte DE/EN.
   - Akzeptanz: Startseite R01 zeigt keine alte Sitz-Coco mehr; Animation startet nach `load`; Datenbudget (PF-10) und LCP
     eingehalten; Kunst-QA-Szenario aufgenommen.
 - [x] **P12.6 Koko, Vorsitzende der Goth Dogs Berlin** (U-08) – freigestellt, sauber nachgezeichnet (ohne Knochenkreuz), Pupillen

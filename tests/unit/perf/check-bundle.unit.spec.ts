@@ -70,6 +70,7 @@ describe('T-09 budgets.json enthält alle Werte aus ARCHITEKTUR §7.7 und DESIGN
       'src/leash/cocoExtra.ts': 2_500, // nachgeladen (P12.4)
       'src/leash/cocoTravel.ts': 2_500, // nachgeladen (P12.12)
       'src/leash/static.ts': 4_000,
+      'src/behaviors/fitness-coco.ts': 10_000, // P12.5: Verhalten + Puppen-Gerüst, nach dem load, eigener Baustein
     })
     // Mikro-Interaktionen: je gemeinsam geladener Gruppe von Verhaltensmodulen ≤ 4 KB (OFFENE-PUNKTE P3.4)
     const micro = budgets.modules.filter((m) => m.name.startsWith('Mikro-Interaktionen'))

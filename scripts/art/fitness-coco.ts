@@ -1,934 +1,379 @@
 // `pnpm art:fitness` (PLAN P12.5, U-09, `content/art/jutta-skizzen/FITNESS-COCO.md`): Fitness-Coco der Startseite.
-// Sieben Übungen aus Juttas Skizzenblatt (Body wave, Body bounce, Single arm raises, Body bounces with hip rotation,
-// Chest opener, Straight arm trunk twist, Arm raises both arms) und das erschöpfte Liegen als Schluss; danach beginnt die
-// Schleife von vorn. Jede Übung besteht aus 12–24 von Hand gezeichneten Zwischenbildern (Tuschelinie schwarz mit leichtem
-// Zittern, jedes Bild neu nachgezogen) plus zartem orangem Buntstift-Strich im Fell (kreuzfreie Schraffur, je Bild neu,
-// körnig gestrichelt wie Papierkörnung); dazu weiche Übergänge (3–4 Bilder) zwischen den Übungen. Keine Beschriftung.
-// Ausgabe: `public/art/fitness-coco.v1.json` (nachgeladen nach dem ersten Bild, ≤ 150 KB gz) und
-// `src/art/fitness/still.json` (Standbild für die Startseite/reduzierte Bewegung, SSR, wenige KB).
-// Deterministisch (Seed je Bild). Nur Pfade; Zeichen-Helfer aus `draw-coco.ts` (Strich wie Juttas Skizzen).
+// Neu als Puppen-Gerüst (`src/lib/fitness/rig.ts`): Coco ist ein kleines 3D-Skelett mit Röhren-Gliedmaßen, Rumpf-Querschnitten
+// und Kopf (Blesse, Schnauze, Augen, Ohren – rechtes Ohr geknickt), jedes Bild wird daraus als Tusche-Strich mit Wasch-Fläche
+// und oranger Buntstift-Schraffur berechnet (weiße Brust, Schnauze, Pfoten und Schwanzspitze bleiben Papier). Dieses Skript
+// beschreibt nur den Ablauf: sieben Übungen in Juttas Reihenfolge + erschöpft Liegen, weiche Überblendungen, nahtlose Schleife.
+// Ausgabe: `public/art/fitness-coco.v2.json` (nachgeladen nach dem ersten Bild, wenige KB) und
+// `public/art/fitness-still.v2.svg` (Standbild als <img> und für reduzierte Bewegung). Deterministisch.
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 import { gzipSync } from 'node:zlib'
 
+import { build, ground, toSvg } from '../../src/lib/fitness/rig'
 import {
-  blob,
-  earPts,
-  knickEarPts,
-  leg,
-  mulberry32,
-  retrace,
-  tailOutline,
-  toPath,
-  type P,
-} from './draw-coco'
+  REST_POSE,
+  loopMs,
+  type Exercise,
+  type FitnessData,
+  type Term,
+} from '../../src/lib/fitness/timeline'
 
-export const FITNESS_VERSION = 1
+export type { Exercise, FitnessData }
+export const FITNESS_VERSION = 2
 export const FITNESS_JSON = `public/art/fitness-coco.v${FITNESS_VERSION}.json`
-export const FITNESS_STILL = `public/art/fitness-still.v${FITNESS_VERSION}.svg`
-/** Farben und Strichmaße von Standbild und Leinwand (Behaviour `fitness-coco` zeichnet mit denselben Werten). */
-export const PENCIL = {
-  color: '#D9822B',
-  width: 1.2,
-  dash: '5 1.2 3 1.6 7 1',
-  opacity: 0.85,
-} as const
-export const INK = { color: '#1C1A17', width: 1.5 } as const
+export const FITNESS_STILL = `public/art/fitness-still.v${FITNESS_VERSION}.webp`
+/** Standbild als WebP (Pixel, 2× der größten Anzeige von 360 px): bewusst kein SVG, weil „SVG der Startseite ≤ 60 KB“ (PF-10) sonst reißt. */
+export const STILL_SIZE = [720, 900] as const
+export const STILL_MAX = 32_000
+export const BUDGET_GZ = 6000
 
-/** Standbild als eigenständiges SVG (wird als <img> geladen: kein Inline-SVG im HTML der Startseite, PF-10). */
-export function stillSvg(f: Frame): string {
-  return (
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 250" fill="none" stroke-linecap="round" stroke-linejoin="round">` +
-    `<path d="${f.pencil}" stroke="${PENCIL.color}" stroke-width="${PENCIL.width}" stroke-dasharray="${PENCIL.dash}" opacity="${PENCIL.opacity}"/>` +
-    `<path d="${f.ink}" stroke="${INK.color}" stroke-width="${INK.width}"/></svg>\n`
+const m = (v: number): Term => ['m', v]
+const s = (a: number, c: number, ph = 0): Term => ['s', a, c, ph]
+const b = (a: number, c: number, ph = 0): Term => ['b', a, c, ph]
+const k = (c: number, keys: [number, number][]): Term => ['k', c, keys]
+/** Schlüsselwerte skalieren (Verlauf 0 … 1 → Wertebereich). */
+const kk = (c: number, keys: [number, number][], from: number, to: number): Term =>
+  k(
+    c,
+    keys.map(([u, v]) => [u, from + (to - from) * v] as [number, number]),
   )
-}
-export const FITNESS_W = 200
-export const FITNESS_H = 250
-export const GROUND = 238
-/** Bildfolge je Übung: 12–24 Zwischenbilder (U-09). */
-export const FRAME_RANGE = [12, 24] as const
-/** Anzeigedauer je Bild in ms (≈ 10 Bilder/s) und je Übung in ms (≈ 4–6 s, U-09). */
-export const FRAME_MS = 100
-export const BUDGET_GZ = 150_000
 
-const DEG = Math.PI / 180
-const add = (a: P, b: P): P => [a[0] + b[0], a[1] + b[1]]
-const mul = (a: P, k: number): P => [a[0] * k, a[1] * k]
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t
-const ease = (t: number) => t * t * (3 - 2 * t)
-const tri = (t: number) => (t < 0.5 ? t * 2 : 2 - t * 2)
-
-// ---------- Pose ----------
-
-export interface Pose {
-  /** Becken seitlich (px). */
-  sway: number
-  /** Becken abgesenkt (px, Kniebeuge). */
-  down: number
-  /** Rumpfneigung in Grad (+ nach rechts im Bild). */
-  lean: number
-  /** Rumpfdrehung −1…1 (Brust verkürzt sich, Kopf folgt). */
-  twist: number
-  /** Kopfneigung in Grad. */
-  head: number
-  /** Blick/Kopfwendung −1…1. */
-  look: number
-  /** Arme (Absolutwinkel Ober-/Unterarm aus der Senkrechten nach unten; − links, + rechts im Bild). */
-  armL: [number, number]
-  armR: [number, number]
-  /** Armlängen-Faktor (Verkürzung bei Drehung). */
-  armK: [number, number]
-  /** Schwanz: Grundwinkel aus der Senkrechten (+ nach rechts) und Krümmung je Segment. */
-  tail: number
-  curl: number
-  /** Augen: 1 offen, 0,5 halb, 0 geschlossen; Mund: 0 zu … 1 weit auf (Zunge). */
-  eyes: number
-  mouth: number
-}
-
-export const REST: Pose = {
-  sway: 0,
-  down: 0,
-  lean: 0,
-  twist: 0,
-  head: 0,
-  look: 0,
-  armL: [-10, -6],
-  armR: [10, 6],
-  armK: [1, 1],
-  tail: 24,
-  curl: 12,
-  eyes: 1,
-  mouth: 0.1,
-}
-
-const mix = (a: Pose, b: Pose, t: number): Pose => {
-  const m = (x: number, y: number) => lerp(x, y, t)
-  const m2 = (x: [number, number], y: [number, number]): [number, number] => [
-    m(x[0], y[0]),
-    m(x[1], y[1]),
-  ]
-  return {
-    sway: m(a.sway, b.sway),
-    down: m(a.down, b.down),
-    lean: m(a.lean, b.lean),
-    twist: m(a.twist, b.twist),
-    head: m(a.head, b.head),
-    look: m(a.look, b.look),
-    armL: m2(a.armL, b.armL),
-    armR: m2(a.armR, b.armR),
-    armK: m2(a.armK, b.armK),
-    tail: m(a.tail, b.tail),
-    curl: m(a.curl, b.curl),
-    eyes: m(a.eyes, b.eyes),
-    mouth: m(a.mouth, b.mouth),
+/** Hebe-Pulse in den Slots `slots` von `n` (u-Anteil), Verlauf 0 → 1 → 0. */
+const pulse = (slots: number[], n: number): [number, number][] => {
+  const w = 1 / n
+  const out: [number, number][] = [[0, 0]]
+  for (const i of slots) {
+    const a = i * w
+    out.push([a + w * 0.04, 0], [a + w * 0.3, 1], [a + w * 0.58, 1], [a + w * 0.86, 0])
   }
+  return out.sort((x, y) => x[0] - y[0])
 }
+const pv = (slots: number[], n: number, from: number, to: number): Term =>
+  kk(1, pulse(slots, n), from, to)
 
-const withPose = (o: Partial<Pose>): Pose => ({ ...REST, ...o })
-
-// ---------- Übungen (t = 0…1 über einen Durchgang, zyklisch) ----------
-
-export interface Exercise {
-  id: string
-  /** Anzahl Zwischenbilder (12–24). */
-  frames: number
-  /** Dauer in ms (4–6 s). */
-  ms: number
-  pose: (t: number) => Pose
-}
-
-const S = (t: number, k = 1, ph = 0) => Math.sin(2 * Math.PI * (k * t) + ph)
-const C = (t: number, k = 1, ph = 0) => Math.cos(2 * Math.PI * (k * t) + ph)
-
-export const EXERCISES: readonly Exercise[] = [
-  {
-    // 1. Body wave: Körper schwingt in einer Welle, ein Arm kreist über den Kopf, Schwanz schwingt mit, leicht zurückgebogen
-    id: 'wave',
-    frames: 20,
-    ms: 5000,
-    pose: (t) =>
-      withPose({
-        sway: 7 * S(t, 1, -0.5),
-        lean: -6 + 9 * S(t, 1, 1.2),
-        head: 12 * S(t, 1, 0.8),
-        look: 0.3 * S(t, 1, 0.8),
-        armL: [-14 + 6 * S(t, 1, 0.4), -10],
-        armR: [360 * t - 8, 360 * t - 8],
-        tail: 34 + 34 * S(t, 1, -1.2),
-        curl: 18,
-        mouth: 0.25,
-      }),
-  },
-  {
-    // 2. Body bounce („Boing Boing Boing“): ganzer Körper federt, Arme locker, Schwanz hängt
-    id: 'bounce',
-    frames: 14,
-    ms: 5000,
-    pose: (t) =>
-      withPose({
-        down: 10 * (0.5 - 0.5 * C(t)),
-        lean: 2 * S(t, 2),
-        head: 5 * S(t, 2, 0.6),
-        armL: [-14 - 9 * C(t, 1, 0.8), -8 - 14 * C(t, 1, 0.8)],
-        armR: [14 + 9 * C(t, 1, 0.8), 8 + 14 * C(t, 1, 0.8)],
-        tail: 6 + 5 * C(t, 1, 1),
-        curl: 6,
-        eyes: 1 - 0.55 * (0.5 - 0.5 * C(t)),
-        mouth: 0.45,
-      }),
-  },
-  {
-    // 3. Single arm raises: ein Arm gestreckt nach oben, Kopf schaut hin, unbeeindruckter Blick
-    id: 'arm',
-    frames: 16,
-    ms: 5000,
-    pose: (t) => {
-      const up = ease(tri(t))
-      return withPose({
-        lean: -5 * up,
-        head: 11 * up,
-        look: 0.7 * up,
-        armL: [-12, -8],
-        armR: [lerp(12, 176, up), lerp(8, 176, up)],
-        tail: 52,
-        curl: 8,
-        eyes: 0.5,
-        mouth: 0.05,
-      })
-    },
-  },
-  {
-    // 4. Body bounces with hip rotation: hüpft mit kreisender Hüfte, Schwanz peitscht
-    id: 'hip',
-    frames: 18,
-    ms: 5000,
-    pose: (t) =>
-      withPose({
-        sway: 9 * S(t),
-        down: 7 * (0.5 - 0.5 * C(t, 2)),
-        lean: -8 * S(t),
-        twist: 0.35 * C(t),
-        head: 7 * S(t, 1, 2),
-        armL: [-30 - 12 * S(t, 1, 1), -22],
-        armR: [30 + 12 * S(t, 1, 1), 22],
-        tail: 24 + 64 * S(t, 1, 0.6),
-        curl: 26,
-        mouth: 0.4,
-      }),
-  },
-  {
-    // 5. Chest opener: Arme weit auseinander und wieder zusammen, Pfoten treffen vor der Brust, würdevoll halb geschlossene Augen
-    id: 'chest',
-    frames: 16,
-    ms: 5000,
-    pose: (t) => {
-      const open = ease(tri(t))
-      return withPose({
-        head: -5 * open,
-        armL: [lerp(-40, -98, open), lerp(150, -104, open)],
-        armR: [lerp(40, 98, open), lerp(-150, 104, open)],
-        armK: [lerp(0.86, 1, open), lerp(0.86, 1, open)],
-        tail: 20,
-        curl: 10,
-        eyes: 0.45,
-        mouth: 0.05,
-      })
-    },
-  },
-  {
-    // 6. Straight arm trunk twist: gestreckte Arme, Oberkörper dreht sich, Kopf folgt, Füße fest
-    id: 'twist',
-    frames: 20,
-    ms: 5000,
-    pose: (t) => {
-      const w = S(t)
-      return withPose({
-        twist: w,
-        lean: 3 * w,
-        head: -9 * w,
-        look: 0.9 * w,
-        armL: [-92 + 18 * w, -92 + 18 * w],
-        armR: [92 + 18 * w, 92 + 18 * w],
-        armK: [1 - 0.42 * Math.max(0, w), 1 - 0.42 * Math.max(0, -w)],
-        tail: 30 - 20 * w,
-        curl: 14,
-        mouth: 0.2,
-      })
-    },
-  },
-  {
-    // 7. Arm raises both arms (thump up): beide Arme über den Kopf, fallen mit einem „Thump“
-    id: 'thump',
-    frames: 14,
-    ms: 5000,
-    pose: (t) => {
-      const rise = t < 0.62 ? ease(t / 0.62) : 1 - ease(Math.min(1, (t - 0.62) / 0.16))
-      const hit = t > 0.78 && t < 0.92 ? Math.sin(((t - 0.78) / 0.14) * Math.PI) : 0
-      return withPose({
-        twist: 0.45,
-        down: 9 * hit,
-        lean: 5 * hit,
-        head: -6 * rise + 6 * hit,
-        look: 0.35,
-        armL: [lerp(-12, -172, rise), lerp(-8, -172, rise)],
-        armR: [lerp(12, 172, rise), lerp(8, 172, rise)],
-        tail: 64,
-        curl: 8,
-        eyes: 1 - 0.5 * hit,
-        mouth: 0.3 * rise,
-      })
-    },
-  },
+/** Offen → geschlossen → offen (Brustöffner, Periode 1/c). */
+const CLOSE: [number, number][] = [
+  [0, 0],
+  [0.3, 0],
+  [0.5, 1],
+  [0.7, 1],
+  [0.9, 0],
 ]
 
-/** Letzte Pose vor dem Liegen / erste danach: schlaff nach vorn gesunken. */
-export const SLUMP: Pose = withPose({
-  down: 22,
-  lean: 14,
-  head: 18,
-  armL: [-6, -4],
-  armR: [6, 4],
-  tail: -4,
-  curl: 4,
-  eyes: 0.25,
-  mouth: 0.5,
-})
-
-// ---------- Figur (frontal aufrecht auf den Hinterbeinen) ----------
-
-export type Layer = 'ink' | 'pencil'
-export interface Frame {
-  ink: string
-  pencil: string
+const WAVE: Exercise = {
+  id: 'wave',
+  ms: 5200,
+  w: 900,
+  f: {
+    x: [s(7, 4, 0)],
+    y: [m(4), s(2.2, 8, 0.1)],
+    swy: [s(5, 4, 0.05)],
+    bs: [s(-10, 4, 0.12)],
+    bf: [s(8, 4, 0.27)],
+    pit: [m(-2)],
+    hr: [s(9, 4, -0.1)],
+    hy: [s(8, 4, 0.3)],
+    hp: [s(-6, 4, 0.4)],
+    lx: [s(0.35, 4, 0)],
+    mo: [m(1)],
+    ra1: [m(150), s(15, 4, 0.25)],
+    ra2: [m(158), s(13, 4, 0.3)],
+    rb: [m(14), s(70, 4, 0)],
+    la1: [m(30), s(16, 4, 0.5)],
+    la2: [m(22), s(12, 4, 0.55)],
+    lb: [m(8), s(12, 4, 0.3)],
+    tm: [m(30)],
+    ta: [m(76)],
+    tb: [m(8), s(14, 4, 0.5)],
+    tc: [m(18)],
+  },
 }
-
-export interface Ink {
-  pts: P[]
-  /** Strich gehört zum geknickten Ohr (U-07). */
-  knick?: boolean
-  closed?: boolean
-  gap?: boolean
-  j?: number
+const BOUNCE: Exercise = {
+  id: 'bounce',
+  ms: 5000,
+  w: 800,
+  f: {
+    y: [m(11), b(-26, 5, 0)],
+    sq: [m(0.93), b(0.14, 5, 0)],
+    bf: [b(-4, 5, 0)],
+    la1: [m(14), b(26, 5, -0.14)],
+    ra1: [m(14), b(26, 5, -0.14)],
+    la2: [m(8), b(30, 5, -0.2)],
+    ra2: [m(8), b(30, 5, -0.2)],
+    hp: [b(-6, 5, -0.1)],
+    ly: [m(-0.2)],
+    mo: [m(1)],
+    ta: [m(14)],
+    tc: [m(5)],
+    tb: [m(6)],
+    tm: [m(6)],
+    lfx: [m(-6)],
+    rfx: [m(6)],
+  },
 }
-
-/** Zwei-Knochen-Beugung: Gelenk zwischen `hip` und `foot` (Länge a, b), Knie nach `dir` (±1). */
-function knee(hip: P, foot: P, a: number, b: number, dir: 1 | -1): P {
-  const dx = foot[0] - hip[0]
-  const dy = foot[1] - hip[1]
-  const d = Math.min(Math.hypot(dx, dy), a + b - 0.5)
-  const x = (a * a - b * b + d * d) / (2 * d)
-  const h = Math.sqrt(Math.max(0, a * a - x * x))
-  const ux = dx / Math.hypot(dx, dy)
-  const uy = dy / Math.hypot(dx, dy)
-  return [hip[0] + ux * x - uy * h * dir, hip[1] + uy * x + ux * h * dir]
+const ARM: Exercise = {
+  id: 'arm',
+  ms: 5400,
+  w: 800,
+  f: {
+    ra1: [pv([0, 1], 4, 14, 152)],
+    ra2: [pv([0, 1], 4, 8, 156)],
+    la1: [pv([2, 3], 4, 14, 152)],
+    la2: [pv([2, 3], 4, 8, 156)],
+    rb: [m(6)],
+    lb: [m(6)],
+    hy: [kk(1, pulse([0, 1], 4), 0, 30), kk(1, pulse([2, 3], 4), 0, -30)],
+    lx: [kk(1, pulse([0, 1], 4), 0, 0.8), kk(1, pulse([2, 3], 4), 0, -0.8)],
+    swy: [kk(1, pulse([0, 1], 4), 0, -4), kk(1, pulse([2, 3], 4), 0, 4)],
+    lid: [m(0.42)],
+    mo: [m(-0.2)],
+    hp: [m(-4)],
+    ta: [m(60)],
+    tm: [m(10)],
+    tb: [m(6), s(8, 2, 0)],
+  },
 }
-
-/** Torso-Koordinaten (r = rechts, u = oben) → Bildkoordinaten. */
-function frameOf(origin: P, leanDeg: number) {
-  const a = leanDeg * DEG
-  const r: P = [Math.cos(a), Math.sin(a)]
-  const u: P = [Math.sin(a), -Math.cos(a)]
-  return (x: number, y: number): P => [
-    origin[0] + r[0] * x + u[0] * y,
-    origin[1] + r[1] * x + u[1] * y,
-  ]
+const HIP: Exercise = {
+  id: 'hip',
+  ms: 5200,
+  w: 800,
+  f: {
+    hip: [s(34, 3, 0)],
+    tw: [s(-26, 3, 0)],
+    x: [s(5, 3, 0.25)],
+    swy: [s(7, 3, 0.25)],
+    y: [m(8), b(-10, 6, 0.1)],
+    la1: [m(32), s(18, 3, 0.4)],
+    ra1: [m(32), s(18, 3, 0.9)],
+    la2: [m(44), s(10, 3, 0.45)],
+    ra2: [m(44), s(10, 3, 0.95)],
+    lb: [m(22)],
+    rb: [m(22)],
+    hy: [s(-14, 3, 0.1)],
+    hr: [s(6, 3, 0.4)],
+    mo: [m(1)],
+    lx: [s(0.5, 3, 0.1)],
+    tm: [m(55)],
+    ta: [m(80)],
+    tc: [m(18)],
+    tb: [m(6), s(22, 3, 0.5)],
+    lfx: [m(-6)],
+    rfx: [m(6)],
+    kb: [m(14)],
+  },
 }
-
-interface Built {
-  ink: Ink[]
-  fur: P[][]
+const CHEST: Exercise = {
+  id: 'chest',
+  ms: 5400,
+  w: 800,
+  f: {
+    la1: [m(98), kk(3, CLOSE, 0, -48)],
+    ra1: [m(98), kk(3, CLOSE, 0, -48)],
+    la2: [m(98), kk(3, CLOSE, 0, 2)],
+    ra2: [m(98), kk(3, CLOSE, 0, 2)],
+    lb: [m(0), kk(3, CLOSE, 0, 55)],
+    rb: [m(0), kk(3, CLOSE, 0, 55)],
+    lbe: [m(0), kk(3, CLOSE, 0, 105)],
+    rbe: [m(0), kk(3, CLOSE, 0, 105)],
+    bf: [m(-8), kk(3, CLOSE, 0, 9)],
+    hp: [m(-7)],
+    lid: [m(0.55)],
+    mo: [m(0.25)],
+    sq: [m(1.02)],
+    y: [m(3), kk(3, CLOSE, 0, 2)],
+    hr: [s(3, 3, 0)],
+    ta: [m(45)],
+    tm: [m(8)],
+    tb: [m(6)],
+  },
 }
-
-/** Zeichnet die stehende Coco für `pose` (Strichlisten in Bildkoordinaten, ohne Zittern). */
-export function standing(pose: Pose): Built {
-  const ink: Ink[] = []
-  const fur: P[][] = []
-  const tw = 1 - 0.3 * Math.abs(pose.twist)
-  const pelvis: P = [100 + pose.sway, 180 + pose.down * 0.62]
-  const T = frameOf(pelvis, pose.lean)
-  // Torso-Koordinaten: breit und kurz wie ein Hund auf den Hinterbeinen (x ×1,2, y ×0,85)
-  const sh = (x: number, y: number) => T(x * 1.2 * tw + pose.twist * 6, y * 0.85)
-  const sideL: [number, number][] = [
-    [-17, 0],
-    [-17, 12],
-    [-15, 26],
-    [-16, 42],
-    [-20, 55],
-    [-22, 62],
-  ]
-  const sideR: [number, number][] = sideL.map(([x, y]) => [-x, y])
-  ink.push({ pts: sideL.map(([x, y]) => sh(x, y)), gap: true })
-  ink.push({ pts: sideR.map(([x, y]) => sh(x, y)), gap: true })
-  // Brust: heller Latz mit Zacken (Fellkragen wie bei Juttas Koko), Bauchbogen
-  ink.push({ pts: [sh(-10, 52), sh(-6, 40), sh(0, 46), sh(6, 38), sh(10, 52)], j: 0.6 })
-  ink.push({ pts: [sh(-13, 6), sh(-6, 0), sh(6, 0), sh(13, 7)], j: 0.7 })
-  fur.push([
-    sh(-22, 62),
-    sh(-16, 42),
-    sh(-15, 26),
-    sh(-17, 12),
-    sh(-17, 0),
-    sh(-9, 0),
-    sh(-9, 24),
-    sh(-9, 44),
-    sh(-11, 58),
-  ])
-  fur.push([
-    sh(22, 62),
-    sh(16, 42),
-    sh(15, 26),
-    sh(17, 12),
-    sh(17, 0),
-    sh(9, 0),
-    sh(9, 24),
-    sh(9, 44),
-    sh(11, 58),
-  ])
-  const S0 = sh(0, 58)
-  // Kopf (1,45-fach): rund, große Ohren, Seitenblick
-  const hs = 1.45
-  const hAng = pose.lean + pose.head
-  const H = add(S0, mul([Math.sin(hAng * DEG), -Math.cos(hAng * DEG)], 31))
-  const Hf0 = frameOf(H, hAng)
-  const Hf = (x: number, y: number): P => Hf0(x * hs, -y * hs) // Kopf-Koordinaten: y nach unten
-  const lk = pose.look
-  const face = (x: number, y: number): P => Hf(x + lk * 4, y)
-  const skull = [
-    [-24, 4],
-    [-25, -8],
-    [-19, -19],
-    [-8, -24],
-    [4, -25],
-    [16, -21],
-    [24, -11],
-    [25, 2],
-    [20, 14],
-  ]
-  ink.push({ pts: skull.map(([x, y]) => Hf(x!, y!)), gap: true })
-  ink.push({
-    pts: [
-      [-17, 15],
-      [-8, 22],
-      [3, 24],
-      [13, 20],
-      [19, 14],
-    ].map(([x, y]) => Hf(x!, y!)),
-    j: 0.7,
-  })
-  // Schnauze, Nase (dick, gefüllt), Mund wie in Juttas „Oh“-Skizze
-  ink.push({
-    pts: [
-      [-8, 5],
-      [-9, 11],
-      [-4, 15],
-      [5, 15],
-      [10, 10],
-      [8, 4],
-    ].map(([x, y]) => face(x!, y!)),
-    j: 0.6,
-  })
-  ink.push({ pts: blob(face(0, 5), 4.8 * hs, 3.6 * hs, -6, 6), closed: true, j: 0.2 })
-  const mo = pose.mouth
-  ink.push({
-    pts: [
-      [0, 9],
-      [0, 12],
-      [-5, 14.5 + mo * 3],
-      [-8, 12.5 + mo * 2],
-    ].map(([x, y]) => face(x!, y!)),
-    j: 0.5,
-  })
-  ink.push({
-    pts: [
-      [0, 12],
-      [5, 14.5 + mo * 3],
-      [8, 12.5 + mo * 2],
-    ].map(([x, y]) => face(x!, y!)),
-    j: 0.5,
-  })
-  if (mo > 0.4)
-    ink.push({
-      pts: [
-        [-3, 14.5 + mo * 3],
-        [-2, 19 + mo * 4],
-        [3, 20 + mo * 4],
-        [4, 14.5 + mo * 3],
-      ].map(([x, y]) => face(x!, y!)),
-      j: 0.4,
-    })
-  const eye = (ex: number, fl: number) => {
-    const c = face(ex, -5)
-    if (pose.eyes < 0.18) {
-      ink.push({
-        pts: [face(ex - 6, -4), face(ex - 2, -1), face(ex + 3, -1), face(ex + 6, -4)],
-        j: 0.4,
-      })
-      return
-    }
-    ink.push({ pts: blob(c, 6.4 * hs, 5.8 * hs * (0.55 + 0.45 * pose.eyes) + 0.4, fl, 8), j: 0.3 })
-    ink.push({
-      pts: blob(add(c, [lk * 2.6 + 1.4, 0.4]), 3.1 * hs, 3.1 * hs * (0.6 + 0.4 * pose.eyes), 0, 6),
-      closed: true,
-      j: 0.15,
-    })
-  }
-  eye(-10.5, -8)
-  eye(10.5, 8)
-  // Ohren: Bild links = Cocos rechtes Ohr, immer geknickt (U-07); Bild rechts aufrecht, beide groß
-  const earAt = (x: number): P => Hf(x, -17)
-  const ek = knickEarPts(30, -16 + hAng)
-  const ekOuter = ek.outer.map(([x, y]): P => add(earAt(-15), [x * 1.15, y * 1.15]))
-  ink.push({ pts: ekOuter, j: 0.4, knick: true })
-  ink.push({
-    pts: ek.inner.map(([x, y]): P => add(earAt(-15), [x * 1.15, y * 1.15])),
-    j: 0.5,
-    knick: true,
-  })
-  fur.push(ekOuter)
-  const eu = earPts(33, 14 + hAng).map(([x, y]): P => add(earAt(15), [x * 1.15, y * 1.15]))
-  ink.push({ pts: eu, j: 0.4 })
-  fur.push(eu)
-  fur.push(
-    [
-      [-24, 2],
-      [-24, -8],
-      [-18, -19],
-      [-8, -24],
-      [4, -25],
-      [14, -21],
-      [20, -13],
-      [10, -13],
-      [0, -9],
-      [-10, -10],
-      [-18, -4],
-    ].map(([x, y]) => Hf(x!, y!)),
-  )
-  // Arme (kurze Vorderbeine mit Pfoten)
-  const shoulderL = sh(-19, 54)
-  const shoulderR = sh(19, 54)
-  const A1 = 21
-  const A2 = 20
-  const armSegs = (a: [number, number], k: number): [number, number][] => [
-    [A1 * k, a[0]],
-    [A2 * k, a[1]],
-  ]
-  ink.push({ pts: leg(shoulderL, armSegs(pose.armL, pose.armK[0]), 1, 9, 5.5), j: 0.5 })
-  ink.push({ pts: leg(shoulderR, armSegs(pose.armR, pose.armK[1]), 1, 9, 5.5), j: 0.5 })
-  const armTop = (sp: P, a: number, k: number): P[] => {
-    const e = add(sp, [Math.sin(a * DEG) * A1 * k, Math.cos(a * DEG) * A1 * k])
-    const n: P = [Math.cos(a * DEG) * 4.5, -Math.sin(a * DEG) * 4.5]
-    return [add(sp, n), add(e, n), add(e, mul(n, -1)), add(sp, mul(n, -1))]
-  }
-  fur.push(armTop(shoulderL, pose.armL[0], pose.armK[0]))
-  fur.push(armTop(shoulderR, pose.armR[0], pose.armK[1]))
-  // Beine: Zwei-Knochen-Beugung (Sprunggelenk), Pfoten nach außen, Füße fest am Boden
-  for (const s of [-1, 1] as const) {
-    const hip = add(T(s * 14, 6), [0, 4])
-    const foot: P = [100 + s * 22, GROUND - 3]
-    const k = knee(hip, foot, 30, 30, s === -1 ? 1 : -1)
-    const w = 8
-    ink.push({
-      pts: [
-        add(hip, [s * w, 0]),
-        add(k, [s * (w + 3), 0]),
-        add(foot, [s * (w - 2), -5]),
-        add(foot, [s * 15, 2]),
-        add(foot, [s * 4, 3]),
-        add(foot, [-s * 6, -3]),
-      ],
-      j: 0.5,
-    })
-    ink.push({
-      pts: [add(hip, [-s * w * 0.6, 4]), add(k, [-s * 5, 0]), add(foot, [-s * 6, -5])],
-      j: 0.6,
-    })
-    ink.push({ pts: [add(foot, [s * 8, 0]), add(foot, [s * 10, 3])], j: 0.2 })
-    ink.push({ pts: [add(foot, [s * 3, 1]), add(foot, [s * 4, 4])], j: 0.2 })
-    fur.push([
-      add(hip, [s * w, -2]),
-      add(k, [s * (w + 3), 0]),
-      add(k, [-s * 4, 0]),
-      add(hip, [-s * w * 0.4, 2]),
-    ])
-  }
-  // Schwanz hinter der Hüfte (buschig)
-  const tb = T(16, 8)
-  const centre: P[] = [tb]
-  let ang = pose.tail
-  let cur = tb
-  for (let i = 0; i < 4; i++) {
-    cur = add(cur, [Math.sin(ang * DEG) * 15, -Math.cos(ang * DEG) * 12])
-    centre.push(cur)
-    ang += pose.curl
-  }
-  const tl = tailOutline(centre, 14)
-  ink.push({ pts: tl.line, j: 0.7 })
-  fur.push(tl.fill)
-  return { ink, fur }
+const TWIST: Exercise = {
+  id: 'twist',
+  ms: 5200,
+  w: 800,
+  f: {
+    tw: [s(78, 2.5, 0)],
+    hip: [s(-8, 2.5, 0)],
+    hy: [s(-26, 2.5, 0.05)],
+    lx: [s(0.6, 2.5, 0.1)],
+    la1: [m(90)],
+    ra1: [m(90)],
+    la2: [m(90)],
+    ra2: [m(90)],
+    lb: [m(0)],
+    rb: [m(0)],
+    y: [m(4), s(1.5, 5, 0)],
+    mo: [m(0.3)],
+    lid: [m(0.15)],
+    tm: [m(22)],
+    ta: [m(70)],
+    tb: [m(6)],
+  },
 }
-
-/** Erschöpft flach ausgestreckt am Boden (Schlussbild): Zunge seitlich, Augen zu, Schwanz hängt. */
-export function lying(t: number): Built {
-  const b = 0.8 * Math.sin(2 * Math.PI * t)
-  const w = Math.sin(2 * Math.PI * t + 1)
-  const ink: Ink[] = []
-  const fur: P[][] = []
-  const g = GROUND
-  // Rücken (offen), Bauchlinie am Boden
-  ink.push({
-    pts: [
-      [56, g - 8 - b],
-      [70, g - 20 - b],
-      [92, g - 25 - b],
-      [116, g - 22 - b],
-      [132, g - 16 - b],
-    ],
-    gap: true,
-  })
-  ink.push({
-    pts: [
-      [62, g - 2],
-      [88, g - 4],
-      [118, g - 3],
-      [138, g - 5],
-    ],
-    j: 0.6,
-  })
-  // Hinterteil/Schenkel nach hinten gestreckt
-  ink.push({
-    pts: [
-      [56, g - 8],
-      [44, g - 9],
-      [26, g - 7],
-      [14, g - 5],
-      [10, g - 2],
-    ],
-    j: 0.6,
-  })
-  ink.push({
-    pts: [
-      [60, g - 2],
-      [44, g - 2],
-      [26, g - 2],
-      [12, g],
-    ],
-    j: 0.6,
-  })
-  ink.push({
-    pts: [
-      [10, g - 2],
-      [8, g - 6],
-      [14, g - 8],
-    ],
-    j: 0.3,
-  })
-  // Vorderbeine nach vorn gestreckt (Pfoten übereinander)
-  ink.push({
-    pts: [
-      [132, g - 10],
-      [152, g - 8],
-      [172, g - 7],
-      [186, g - 6],
-      [190, g - 2],
-      [182, g],
-    ],
-    j: 0.5,
-  })
-  ink.push({
-    pts: [
-      [130, g - 3],
-      [152, g - 2],
-      [176, g - 1],
-      [186, g - 1],
-    ],
-    j: 0.5,
-  })
-  ink.push({
-    pts: [
-      [176, g - 6],
-      [178, g - 2],
-    ],
-    j: 0.2,
-  })
-  ink.push({
-    pts: [
-      [182, g - 6],
-      [184, g - 2],
-    ],
-    j: 0.2,
-  })
-  // Schwanz hängt über den Boden
-  const tail = tailOutline(
-    [
-      [58, g - 10],
-      [44, g - 14],
-      [30, g - 12],
-      [20, g - 8],
-    ],
-    9,
-  )
-  ink.push({ pts: tail.line, j: 0.6 })
-  // Kopf flach auf den Pfoten, Seitenansicht nach rechts: Schädel, Schnauze, Zunge, geschlossenes Auge, Ohr geknickt
-  const hx = 150
-  const hy = g - 30 - b * 0.6
-  ink.push({
-    pts: [
-      [hx - 22, hy + 20],
-      [hx - 25, hy + 6],
-      [hx - 16, hy - 8],
-      [hx - 2, hy - 12],
-      [hx + 12, hy - 6],
-    ],
-    gap: true,
-  })
-  ink.push({
-    pts: [
-      [hx + 12, hy - 6],
-      [hx + 26, hy - 2],
-      [hx + 34, hy + 4],
-      [hx + 32, hy + 12],
-      [hx + 20, hy + 17],
-    ],
-    j: 0.5,
-  })
-  ink.push({
-    pts: [
-      [hx - 14, hy + 22],
-      [hx, hy + 22],
-      [hx + 14, hy + 19],
-    ],
-    j: 0.5,
-  })
-  ink.push({ pts: blob([hx + 33, hy + 5], 3.4, 2.8, -10, 6), closed: true, j: 0.2 })
-  ink.push({
-    pts: [
-      [hx + 28, hy + 12],
-      [hx + 20, hy + 14],
-      [hx + 12, hy + 12],
-    ],
-    j: 0.5,
-  })
-  // Zunge seitlich heraus
-  ink.push({
-    pts: [
-      [hx + 18, hy + 14],
-      [hx + 19, hy + 22 + w],
-      [hx + 12, hy + 25 + w],
-      [hx + 9, hy + 15],
-    ],
-    j: 0.4,
-  })
-  // Auge geschlossen (Bogen), Ohr geknickt (hinteres, flach nach hinten)
-  ink.push({
-    pts: [
-      [hx + 4, hy - 1],
-      [hx + 9, hy + 3],
-      [hx + 16, hy + 1],
-    ],
-    j: 0.3,
-  })
-  const e = knickEarPts(24, -64)
-  ink.push({ pts: e.outer.map(([x, y]): P => add([hx - 12, hy - 8], [x, y])), j: 0.4, knick: true })
-  ink.push({ pts: e.inner.map(([x, y]): P => add([hx - 12, hy - 8], [x, y])), j: 0.5, knick: true })
-  fur.push([
-    [56, g - 8],
-    [70, g - 20],
-    [92, g - 25],
-    [116, g - 22],
-    [132, g - 16],
-    [120, g - 12],
-    [92, g - 14],
-    [70, g - 10],
-  ])
-  fur.push([
-    [56, g - 8],
-    [26, g - 7],
-    [14, g - 5],
-    [26, g - 2],
-    [60, g - 2],
-  ])
-  fur.push(tail.fill)
-  fur.push([
-    [hx - 22, hy + 20],
-    [hx - 25, hy + 6],
-    [hx - 16, hy - 8],
-    [hx - 2, hy - 12],
-    [hx + 6, hy - 3],
-    [hx - 4, hy + 2],
-    [hx - 12, hy + 12],
-  ])
-  return { ink, fur }
-}
-
-// ---------- Zeichnen: Tuschelinie mit Zittern, Buntstift-Schraffur mit Körnung ----------
-
-/** Bodenlinie: dicker, mehrfach übermalter Tuschestrich. */
-function ground(rand: () => number): Ink[] {
-  const y = GROUND
-  const line = (dy: number, x0: number, x1: number): Ink => ({
-    pts: [x0, lerp(x0, x1, 0.33), lerp(x0, x1, 0.66), x1].map(
-      (x) => [x, y + dy + (rand() - 0.5) * 1.6] as P,
-    ),
-    j: 0.4,
-  })
-  return [line(0, 18, 184), line(1.8, 26, 176), line(-1.2, 40, 160)]
-}
-
-/** Schraffur eines Polygons: Linien unter `deg`, Abstand `gap`, Scanline-Schnitt, je Bild versetzt und gewellt. */
-export function hatch(
-  poly: readonly P[],
-  rand: () => number,
-  deg = 58,
-  gap = 3.6,
-): [number, number, number, number][] {
-  const a = -deg * DEG
-  const rot = (p: P): P => [
-    p[0] * Math.cos(a) - p[1] * Math.sin(a),
-    p[0] * Math.sin(a) + p[1] * Math.cos(a),
-  ]
-  const back = (p: P): P => [
-    p[0] * Math.cos(-a) - p[1] * Math.sin(-a),
-    p[0] * Math.sin(-a) + p[1] * Math.cos(-a),
-  ]
-  const q = poly.map(rot)
-  const ys = q.map((p) => p[1])
-  const y0 = Math.min(...ys)
-  const y1 = Math.max(...ys)
-  const out: [number, number, number, number][] = []
-  for (let y = y0 + rand() * gap; y < y1; y += gap * (0.85 + rand() * 0.3)) {
-    const xs: number[] = []
-    for (let i = 0; i < q.length; i++) {
-      const p = q[i]!
-      const n = q[(i + 1) % q.length]!
-      if ((p[1] <= y && n[1] > y) || (n[1] <= y && p[1] > y))
-        xs.push(lerp(p[0], n[0], (y - p[1]) / (n[1] - p[1])))
-    }
-    xs.sort((m, n) => m - n)
-    for (let i = 0; i + 1 < xs.length; i += 2) {
-      const l = xs[i + 1]! - xs[i]!
-      if (l < 1.6) continue
-      const s = xs[i]! + l * rand() * 0.12
-      const e = xs[i + 1]! - l * rand() * 0.12
-      const A = back([s, y])
-      const B = back([e, y + (rand() - 0.5) * 1.2])
-      out.push([A[0], A[1], B[0], B[1]])
-    }
-  }
-  return out
-}
-
-const r1 = (n: number) => Math.round(n * 2) / 2
-
-/** Pfad der Schraffur: `M x y l dx dy` mit halben Einheiten; Körnung über unregelmäßige Segmente (Papier). */
-function pencilPath(segs: [number, number, number, number][]): string {
-  let d = ''
-  let px = 0
-  let py = 0
-  for (const [x0, y0, x1, y1] of segs) {
-    const ax = r1(x0)
-    const ay = r1(y0)
-    d += `m${r1(ax - px)} ${r1(ay - py)}l${r1(x1 - x0)} ${r1(y1 - y0)}`
-    px = ax + r1(x1 - x0)
-    py = ay + r1(y1 - y0)
-  }
-  return d.replace(/^m/, 'M')
-}
-
-/** Ein fertiges Bild: Tusche (je Strich neu nachgezogen) + Buntstift. */
-export function drawFrame(built: Built, seed: number): Frame {
-  const rand = mulberry32(seed)
-  const inkD: string[] = []
-  for (const s of [...built.ink, ...ground(rand)]) {
-    const pts = retrace(s.pts, rand, (s.j ?? 1) * 0.9)
-    if (s.gap && pts.length > 4 && rand() < 0.85) {
-      // Absetzer: Strich an einer Stelle unterbrechen (offene Kontur)
-      const cut = 1 + Math.floor(rand() * (pts.length - 3))
-      inkD.push(toPath(pts.slice(0, cut + 1), false, true), toPath(pts.slice(cut + 1), false, true))
-    } else inkD.push(toPath(pts, !!s.closed, s.pts.length > 7))
-  }
-  const segs = built.fur.flatMap((poly) => hatch(poly, rand))
-  return { ink: inkD.filter(Boolean).join(''), pencil: pencilPath(segs) }
-}
-
-// ---------- Folge ----------
-
-export interface FitnessData {
-  v: number
-  w: number
-  h: number
-  /** Anzeigedauer je Bild (ms). */
-  f: number
-  /** Übungen in Reihenfolge (Schleife), danach wieder von vorn. */
-  ex: { id: string; ms: number; fr: string[] }[]
-  /** Übergang vor der Übung `ex[i]` (3–4 Bilder, weich). */
-  tr: string[][]
-}
-
-const pack = (f: Frame) => `${f.ink}|${f.pencil}`
-
-export function buildFitness(): { data: FitnessData; still: Frame } {
-  const ex: FitnessData['ex'] = []
-  const lyingEx = { id: 'lying', frames: 12, ms: 5000 }
-  let n = 0
-  for (const e of EXERCISES)
-    ex.push({
-      id: e.id,
-      ms: e.ms,
-      fr: Array.from({ length: e.frames }, (_, k) =>
-        pack(drawFrame(standing(e.pose(k / e.frames)), 1000 * ++n + k)),
+const THUMP_A: [number, number][] = [
+  [0, 14],
+  [0.4, 172],
+  [0.55, 176],
+  [0.68, -8],
+  [0.76, 20],
+]
+const THUMP: Exercise = {
+  id: 'thump',
+  ms: 5200,
+  w: 1500,
+  f: {
+    yaw: [m(90)],
+    rb: [m(80)],
+    lb: [m(100)],
+    ra1: [k(3, THUMP_A)],
+    la1: [
+      k(
+        3,
+        THUMP_A.map(([u, v]) => [u + 0.015, v - 6] as [number, number]),
       ),
-    })
-  ex.push({
-    id: lyingEx.id,
-    ms: lyingEx.ms,
-    fr: Array.from({ length: lyingEx.frames }, (_, k) =>
-      pack(drawFrame(lying(k / lyingEx.frames), 90000 + k)),
-    ),
-  })
-  // Übergänge vor jeder Übung: aus der Endpose der vorigen in die Startpose der nächsten
-  const startPose = (i: number): Pose => EXERCISES[i]!.pose(0)
-  const endPose = (i: number): Pose => EXERCISES[i]!.pose(1 - 1 / EXERCISES[i]!.frames)
-  const tr: string[][] = []
-  const total = EXERCISES.length
-  for (let i = 0; i <= total; i++) {
-    // Übergang VOR Übung i; Übung `total` ist das Liegen; vor Übung 0 kommt die Folge aus dem Liegen
-    const frames: Frame[] = []
-    if (i === 0) {
-      for (const [k, t] of [0.35, 0.7, 0.9].entries())
-        frames.push(drawFrame(standing(mix(SLUMP, startPose(0), ease(t))), 70000 + k))
-    } else if (i === total) {
-      for (const [k, t] of [0.4, 0.8].entries())
-        frames.push(drawFrame(standing(mix(endPose(total - 1), SLUMP, ease(t))), 71000 + k))
-      frames.push(drawFrame(standing({ ...SLUMP, down: 30, lean: 22, eyes: 0.1 }), 71010))
-    } else {
-      for (const [k, t] of [0.25, 0.5, 0.75].entries())
-        frames.push(
-          drawFrame(standing(mix(endPose(i - 1), startPose(i), ease(t))), 72000 + 10 * i + k),
-        )
-    }
-    tr.push(frames.map(pack))
-  }
-  const still = drawFrame(standing(EXERCISES[2]!.pose(0.5)), 4242)
-  return { data: { v: FITNESS_VERSION, w: FITNESS_W, h: FITNESS_H, f: FRAME_MS, ex, tr }, still }
+    ],
+    ra2: [
+      k(3, [
+        [0, 10],
+        [0.42, 170],
+        [0.57, 176],
+        [0.68, -4],
+        [0.77, 16],
+      ]),
+    ],
+    la2: [
+      k(3, [
+        [0.015, 6],
+        [0.435, 166],
+        [0.585, 172],
+        [0.695, -8],
+        [0.785, 12],
+      ]),
+    ],
+    y: [
+      k(3, [
+        [0, 4],
+        [0.4, 0],
+        [0.55, -2],
+        [0.67, 13],
+        [0.78, 5],
+      ]),
+    ],
+    sq: [
+      k(3, [
+        [0, 1],
+        [0.4, 1.03],
+        [0.55, 1.04],
+        [0.67, 0.92],
+        [0.78, 1],
+      ]),
+    ],
+    bf: [
+      k(3, [
+        [0, 0],
+        [0.4, -10],
+        [0.55, -12],
+        [0.68, 18],
+        [0.85, 3],
+      ]),
+    ],
+    hp: [
+      k(3, [
+        [0, 0],
+        [0.4, -8],
+        [0.55, -10],
+        [0.68, 10],
+        [0.85, 0],
+      ]),
+    ],
+    ta: [
+      k(3, [
+        [0, 60],
+        [0.55, 75],
+        [0.68, 40],
+      ]),
+    ],
+    tb: [m(82)],
+    tc: [m(12)],
+    tm: [m(12)],
+    lfz: [m(-8)],
+    rfz: [m(8)],
+    lid: [m(0.25)],
+    mo: [m(0.4)],
+    lx: [m(0.7)],
+  },
+}
+const LYING: Exercise = {
+  id: 'lying',
+  ms: 6000,
+  w: 1700,
+  f: {
+    roll: [m(90)],
+    x: [m(-14)],
+    y: [m(37)],
+    yaw: [m(0)],
+    sq: [m(1), s(0.03, 3, 0)],
+    lfx: [m(-34)],
+    lfy: [m(16)],
+    rfx: [m(-56)],
+    rfy: [m(3)],
+    kb: [m(0)],
+    la1: [m(70)],
+    la2: [m(85)],
+    lb: [m(80)],
+    ra1: [m(60)],
+    ra2: [m(70)],
+    rb: [m(100)],
+    hp: [m(0)],
+    hr: [m(-62)],
+    hy: [m(0)],
+    lid: [m(1)],
+    mo: [m(0.9)],
+    tg: [m(0.95), s(0.07, 6, 0)],
+    tga: [m(-14)],
+    ear: [m(-12)],
+    ta: [m(24)],
+    tc: [m(6)],
+    tb: [m(0)],
+    tm: [m(0)],
+    bf: [m(0)],
+    pit: [m(0)],
+  },
 }
 
-/** Dauer einer vollen Schleife in ms (Übungen + Übergänge). */
-export function loopMs(d: FitnessData): number {
-  return d.ex.reduce((n, e) => n + e.ms, 0) + d.tr.reduce((n, t) => n + t.length * d.f, 0)
+export const EXERCISES: Exercise[] = [WAVE, BOUNCE, ARM, HIP, CHEST, TWIST, THUMP, LYING]
+
+export function buildFitness(): { data: FitnessData; still: string } {
+  const data: FitnessData = { v: 2, ex: EXERCISES }
+  return { data, still: stillSvg() }
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
-  const { data, still } = buildFitness()
-  const json = JSON.stringify(data)
+/** Standbild: Ruhepose (`REST`), freundlich stehend mit leicht geneigtem Kopf (Quelle des WebP, auch für Tests). */
+export function stillSvg(): string {
+  return toSvg([...ground(), ...build(REST_POSE)])
+}
+
+/** SVG → WebP (720 × 900, mit Transparenz; lossy 78 reicht für Linien und Flächen, ≈ 26 KB). */
+export async function stillWebp(): Promise<Buffer> {
+  const { default: sharp } = await import('sharp')
+  const [w, h] = STILL_SIZE
+  const png = await sharp(Buffer.from(stillSvg()), { density: (72 * w) / 200 })
+    .resize(w, h)
+    .png()
+    .toBuffer()
+  return sharp(png).webp({ quality: 78, alphaQuality: 100, effort: 6 }).toBuffer()
+}
+
+export async function main() {
+  const { data } = buildFitness()
   mkdirSync('public/art', { recursive: true })
-  writeFileSync(FITNESS_JSON, json)
-  writeFileSync(FITNESS_STILL, stillSvg(still))
-  const gz = gzipSync(json, { level: 9 }).length
-  const frames =
-    data.ex.reduce((n, e) => n + e.fr.length, 0) + data.tr.reduce((n, t) => n + t.length, 0)
+  const json = JSON.stringify(data)
+  writeFileSync(FITNESS_JSON, json + '\n')
+  const webp = await stillWebp()
+  writeFileSync(FITNESS_STILL, webp)
   console.log(
-    `art:fitness: ${FITNESS_JSON} ${json.length} B roh / ${gz} B gz (${frames} Bilder, Schleife ${(loopMs(data) / 1000).toFixed(1)} s, Budget ${BUDGET_GZ} B gz), ${FITNESS_STILL}.`,
+    `fitness-coco: ${json.length} B roh / ${gzipSync(json, { level: 9 }).length} B gz, Standbild ${webp.length} B WebP, Schleife ${loopMs(data)} ms`,
   )
 }
+
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) void main()

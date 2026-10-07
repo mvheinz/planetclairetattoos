@@ -2,6 +2,14 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-07 – P12.5 Fitness-Coco komplett neu (Überarbeitung)
+
+- Du fandest die Fitness-Coco „schrecklich“ – zu Recht: Die erste Fassung war eine Reihe code-gezeichneter Strichfiguren, die nicht nach Coco aussahen. Ich habe sie **von Grund auf neu** gebaut.
+- **Neu:** Coco ist jetzt eine kleine „Gelenkpuppe“ aus ihren eigenen Merkmalen (hohe Ohren, das rechte geknickt, weiße Blesse, weiße Brust und Pfoten, rotes Halsband mit Ring wie auf der Webseite). Jedes Bild wird frisch gezeichnet: schwarze Tuschelinie, orange Buntstift-Schraffur auf zartem Fellton. Dadurch bewegt sie sich fließend (≈ 30 Bilder pro Sekunde), ohne zu springen.
+- **Die sieben Übungen in deiner Reihenfolge**, je ≈ 5 s: Body wave (Körper schwingt, ein Arm kreist über dem Kopf, Schwanz schwingt) · Body bounce („boing boing“, ganzer Körper federt, Ohren flattern, Schwanz hängt) · Single arm raises (ein Arm nach oben, Kopf und Augen folgen, halbe Lider – unbeeindruckt) · Hüpfer mit Hüftdrehung (Schwanz peitscht) · Brustöffner (Arme weit auf, dann vor der Brust zusammen, würdevoller Blick) · Rumpfdrehung (gestreckte Arme, Oberkörper und Kopf drehen) · Thump up (Seitenansicht, Arme hoch und mit Aufprall runter). Danach liegt sie **erschöpft am Boden, Zunge seitlich heraus, Augen zu**, und die Schleife beginnt nahtlos von vorn.
+- **Technik:** Die Daten sind winzig geworden (Ablaufplan ≈ 1,3 KB statt 120 KB, Standbild ≈ 26 KB als Bild), das Laden nach dem ersten Bild und die Tempo-Grenzen bleiben. Pause im verborgenen Tab und außerhalb des Bildes, bei „weniger Bewegung“ steht ein Standbild.
+- **Getestet:** Unit-Tests für Gerüst und Ablauf (Knickohr in jeder Pose, Bild passt in die Box, nichts unter dem Boden, keine Sprünge, nahtlose Schleife, jede Übung mit ihrem Merkmal), Verhaltens-Test (30 Bilder/s, Pause, reduzierte Bewegung), E2E (läuft, Endlosschleife über 43 s, Pause außerhalb des Bildes, keine Konsolenfehler), Bundle-Budgets, visuelle Referenzen. Offene Sichtprüfung mit dir: siehe `docs/OFFENE-PUNKTE.md` (P12.5).
+
 ## 2026-10-07 – P12 Abschlussbericht (Überarbeitung nach deiner Rückmeldung) – für Jutta
 
 ### Phase 12 fertig: Deine Wünsche vom 06.10. sind umgesetzt, die neue Vorschau-Datei entsteht nach dem Merge
