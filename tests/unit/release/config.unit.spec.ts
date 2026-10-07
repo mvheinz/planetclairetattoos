@@ -50,10 +50,10 @@ const workflow = parse(read('.github/workflows/release.yml')) as {
 const runs = (job: Job) => job.steps.map((s) => s.run ?? '').join('\n')
 
 describe('Release-Konfiguration (vorschau-release.json)', () => {
-  it('AK-12-02 Schema, Tag vorschau-p10, Titel, Hinweis „nur privat“, Stand-Zeile, Asset-Name', () => {
+  it('AK-12-02 Schema, Tag vorschau-p12, Titel, Hinweis „nur privat“, Stand-Zeile, Asset-Name', () => {
     expect(configProblems(config)).toEqual([])
-    expect(config.tag).toBe('vorschau-p10')
-    expect(config.title).toBe('Planet Claire – Vorschau (Stand P10)')
+    expect(config.tag).toBe('vorschau-p12')
+    expect(config.title).toBe('Planet Claire – Vorschau (Stand P12)')
     expect(config.notesDe).toContain('Nur privat ansehen, nicht weitergeben, nicht veröffentlichen')
     expect(config.notesDe).toContain(ASSET_NAME)
     expect(standLine(config.notesDe)).toMatch(/^\d{2}\.\d{2}\.\d{4}$/)
@@ -62,7 +62,7 @@ describe('Release-Konfiguration (vorschau-release.json)', () => {
 
   it('AK-12-02 Gegenprobe: fehlender Hinweis, falscher Tag, fehlende Stand-Zeile oder fertiger Größen-Satz → rot', () => {
     const bad = (over: Record<string, string>) => configProblems({ ...config, ...over })
-    expect(bad({ tag: 'vorschau-p9' })).toContain('tag muss vorschau-p10 sein')
+    expect(bad({ tag: 'vorschau-p9' })).toContain('tag muss vorschau-p12 sein')
     expect(
       bad({ notesDe: config.notesDe.replace('Nur privat ansehen', 'Gern ansehen') }),
     ).toHaveLength(1)
@@ -201,6 +201,8 @@ describe('Entscheidung des Prüfschritts gate (P10.21)', () => {
     }
     expect(decideWith('Fehler ohne Zeile', null).publish).toBe(false)
     expect(openTasks('OFFEN_P1_P10=unbekannt')).toBeNull()
+    expect(openTasks('OFFEN_P1_P10=0\nOFFEN_P12=2\n')).toBe(2)
+    expect(openTasks('OFFEN_P1_P10=0\nOFFEN_P12=0\n')).toBe(0)
   })
 
   it('Plan leer und Release aktuell → „Release aktuell“, keine Veröffentlichung', () => {
@@ -241,7 +243,7 @@ describe('Entscheidung des Prüfschritts gate (P10.21)', () => {
           GITHUB_STEP_SUMMARY: path.join(tmp, 'summary.md'),
         },
       })
-      expect(readFileSync(out, 'utf8')).toBe('publish=false\ntag=vorschau-p10\n')
+      expect(readFileSync(out, 'utf8')).toBe('publish=false\ntag=vorschau-p12\n')
       expect(readFileSync(path.join(tmp, 'summary.md'), 'utf8')).toContain('Plan noch nicht leer')
     } finally {
       rmSync(tmp, { recursive: true, force: true })
