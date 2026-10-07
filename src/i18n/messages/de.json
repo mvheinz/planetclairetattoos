@@ -138,6 +138,7 @@
       "empty": "Gerade ruht mein Tisch im Schrank. Neue Termine erscheinen hier.",
       "pastSummary": "Wo ich schon war ({count})",
       "cancelled": "abgesagt",
+      "next": "als Nächstes",
       "running": "läuft gerade",
       "stand": "Stand {number}",
       "link": "Zur Seite des Marktes",

@@ -1477,6 +1477,14 @@ Die potrace-Ausgabe ist ein gefüllter Umriss (Juttas echte Strichbreite bleibt 
 
 ---
 
+### 12.7 „Planet Claire on Tour“ als Schaukasten (P12.8, U-20)
+
+Gerahmte Tafel in `--petrol-deep` (Tusche-Rahmen 2 px, innen gestrichelte Hilfslinie, `--shadow-press`), darauf angepinnte
+Zettel in `--paper-field`/`--paper` mit statischer Neigung (±0,3–0,8°, keine Animation). Jeder Zettel: Datumsblock links
+(Tageszahl in Spectral 700, Monat als Mono-Kürzel), rechts Name, Datum/Uhrzeit, Ort, Stand, Notiz, Link. Der nächste Termin
+ist das größere Plakat mit Klebeband und Reiter „als Nächstes“ (Datumsblock Petrol). Abgesagt: durchgestrichen, Stempel
+„ABGESAGT“ (Fuchs-Text) unten rechts. Vergangene Zettel gerade, in `<details>` eingeklappt. Ohne Karte, ohne Dritt-Anfragen.
+
 ## 13. Umsetzung nach Phasen und Abnahme
 
 | Phase | Liefert aus diesem Dokument | Abnahme |
