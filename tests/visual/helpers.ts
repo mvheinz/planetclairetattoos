@@ -76,3 +76,31 @@ export async function loadAllImages(page: Page) {
     await Promise.all(imgs.map((img) => img.decode().catch(() => undefined)))
   })
 }
+
+/** Messwerte für Abweichungen zwischen lokalen und CI-Referenzen (Zeile `[VIS-DIAG]` im Log; nur mit `VISUAL_DIAG=1`/CI). */
+export async function diag(page: Page, label: string) {
+  if (!process.env.VISUAL_DIAG && !process.env.CI) return
+  // Als Zeichenkette ausgewertet: tsx fügt in Funktionen sonst `__name` ein (im Browser unbekannt).
+  const data = await page.evaluate(`(() => {
+    var rect = function (sel) {
+      var e = document.querySelector(sel)
+      if (!e) return null
+      var b = e.getBoundingClientRect()
+      return [b.x, b.y + scrollY, b.width, b.height].map(function (n) { return Math.round(n * 10) / 10 })
+    }
+    return {
+      scrollHeight: document.documentElement.scrollHeight,
+      hero: rect('[data-home-hero]'),
+      aside: rect('[data-home-aside]'),
+      koko: rect('[data-slot="chairwoman"]'),
+      tour: rect('[data-tour]'),
+      stations: rect('[data-home-stations]'),
+      footer: rect('[data-site-footer]'),
+      fonts: Array.from(document.fonts).map(function (f) { return f.family + '|' + f.weight + '|' + f.style + '|' + f.status }),
+      lines: Array.from(document.querySelectorAll('main h1, main h2, main p')).slice(0, 40).map(function (e) {
+        return e.tagName + ':' + Math.round(e.getBoundingClientRect().height * 10) / 10
+      }),
+    }
+  })()`)
+  console.log(`[VIS-DIAG] ${label} ${JSON.stringify(data)}`)
+}

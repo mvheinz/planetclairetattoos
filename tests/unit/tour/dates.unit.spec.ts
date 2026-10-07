@@ -12,6 +12,7 @@ import {
   tourRangeFromInput,
   tourState,
 } from '@/lib/tour/dates'
+import { tourNow } from '@/lib/tour/now'
 
 // P12.8 (U-20): reine Bausteine von „Planet Claire on Tour“ – Zeitraum auf ganze Berliner Tage, Zustand nach Datum,
 // Aufteilung kommend/vergangen, Datums- und Uhrzeit-Texte DE/EN, Adress-Schutz (E-50), Link-Prüfung.
@@ -132,5 +133,18 @@ describe('Adresse und Link', () => {
     expect(parseTourLink('https://beispiel')).toBeNull()
     expect(parseTourLink('https://bei spiel.de')).toBeNull()
     expect(parseTourLink('')).toBeNull()
+  })
+})
+
+describe('tourNow', () => {
+  it('gilt SEED_NOW nur in der Testumgebung, sonst die Uhr', () => {
+    expect(tourNow({ APP_ENV: 'test', SEED_NOW: '2026-10-15T10:00:00+02:00' }).toISOString()).toBe(
+      '2026-10-15T08:00:00.000Z',
+    )
+    const real = tourNow({ APP_ENV: 'production', SEED_NOW: '2026-10-15T10:00:00+02:00' })
+    expect(Math.abs(real.getTime() - Date.now())).toBeLessThan(5000)
+    expect(
+      Math.abs(tourNow({ APP_ENV: 'test', SEED_NOW: 'kaputt' }).getTime() - Date.now()),
+    ).toBeLessThan(5000)
   })
 })

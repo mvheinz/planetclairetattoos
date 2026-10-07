@@ -9,6 +9,12 @@ import type { Locale } from '../../src/lib/routes/registry'
 // Text, keine Karte und keine Anfrage an Dritte. Erwartungen aus den Daten und der aktuellen Uhr berechnet (der
 // Beispielbestand liegt relativ zu `SEED_NOW`, der Server rechnet mit der echten Zeit).
 
+// Wie `tourNow()` im Server: in der Testumgebung gilt `SEED_NOW` (sonst wandert der Beispielbestand mit der echten Uhr).
+const tourNow = () =>
+  process.env.APP_ENV === 'test' && process.env.SEED_NOW
+    ? new Date(process.env.SEED_NOW)
+    : new Date()
+
 type Item = {
   id: number
   name: string
@@ -47,7 +53,7 @@ for (const locale of ['de', 'en'] as const) {
   }) => {
     const items = await seededDates(locale)
     expect(items).toHaveLength(8)
-    const { upcoming, past } = splitTourDates(items, new Date())
+    const { upcoming, past } = splitTourDates(items, tourNow())
 
     const res = await page.goto(`/${locale}`)
     expect(res?.status()).toBe(200)
@@ -83,7 +89,7 @@ for (const locale of ['de', 'en'] as const) {
     ).toEqual(upcoming.map((i) => String(i.id)))
     for (const i of upcoming) {
       const li = tour.locator(`[data-tour-date="${i.id}"]`)
-      await expect(li).toHaveAttribute('data-tour-state', tourState(i, new Date()))
+      await expect(li).toHaveAttribute('data-tour-state', tourState(i, tourNow()))
       if (i.status === 'cancelled') {
         await expect(li).toHaveAttribute('data-cancelled', '')
         await expect(li.locator('[data-tour-badge="cancelled"]')).toHaveText(
@@ -123,7 +129,7 @@ test.describe('ohne JavaScript', () => {
 
   test('AK-3-13 vergangene Termine lassen sich ohne JavaScript aufklappen', async ({ page }) => {
     const items = await seededDates('de')
-    const { past } = splitTourDates(items, new Date())
+    const { past } = splitTourDates(items, tourNow())
     expect(past.length, 'Beispieltermine in der Vergangenheit').toBeGreaterThan(0)
     await page.goto('/de')
     const details = page.locator('[data-tour] details[data-tour-past]')

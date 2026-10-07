@@ -17,6 +17,7 @@ import { getSiteNavigation, instagramUrl } from '@/lib/data/navigation'
 import { listStationProducts } from '@/lib/data/products'
 import { getTattooSettings, listFlash } from '@/lib/data/tattoo'
 import { listTourDates } from '@/lib/data/tour'
+import { tourNow } from '@/lib/tour/now'
 import { getShopDisplaySettings, taxSettingsFor } from '@/lib/data/shopSettings'
 import { isLocale, localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
@@ -107,7 +108,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <div className={styles.chairwomanSlot} data-slot="chairwoman">
           <ChairwomanKoko locale={locale} />
         </div>
-        <TourDates items={tourItems} locale={locale} now={new Date()} />
+        <TourDates items={tourItems} locale={locale} now={tourNow()} />
       </aside>
 
       <div className={styles.body}>
