@@ -219,7 +219,11 @@ function scanP6(html: string, routeId: string, streetName: string): string[] {
   if ($('audio').length > 0 || /<audio\b/i.test(html)) out.push('V-28 audio')
   if (streetName && !STREET_ALLOWED_ROUTES.some((r) => r.routeId === routeId)) {
     const $$ = cheerio.load(html)
-    $$('script, style, noscript, template, [data-product-safety]').remove()
+    // Die Rechtstext-Dialoge der Kasse (`LegalNotice`) zeigen AGB, Belehrung und Datenschutz mit der Anbieter-Anschrift:
+    // Rechtstexte sind ein Pflichtort (V-31), also keine Fundstelle.
+    $$(
+      'script, style, noscript, template, [data-product-safety], [data-legal-dialog-panel]',
+    ).remove()
     if ($$('body').text().includes(streetName)) out.push(`V-31 Straße „${streetName}“`)
   }
   return out
@@ -488,7 +492,11 @@ test.describe('P4.25 Verbotsmuster: Korb, Kasse, Danke, Status und Mails', () =>
         const text = visibleText(p.html).all
         if (V11_RE.test(text)) findings.push(`${p.id}: V-11`)
         if (V23_FIELDS.test(p.html)) findings.push(`${p.id}: V-23`)
-        if (text.includes(street)) findings.push(`${p.id}: V-31 Straße „${street}“`)
+        const $street = cheerio.load(p.html)
+        // Rechtstext-Dialoge der Kasse (Pflichtort Rechtstexte, V-31) ausgenommen
+        $street('script, style, noscript, template, [data-legal-dialog-panel]').remove()
+        if ($street('body').text().replace(/\s+/g, ' ').includes(street))
+          findings.push(`${p.id}: V-31 Straße „${street}“`)
         if (!allowed.has(p.id) && /data-countdown=/.test(p.html))
           findings.push(`${p.id}: V-17 Countdown außerhalb der Allowlist`)
         if (/%40|@|Erika|Musterstra|10115/i.test(decodeURIComponent(p.url)))

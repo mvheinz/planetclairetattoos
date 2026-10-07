@@ -8,6 +8,12 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 - Coco reist beim Seitenwechsel mit (MO-14): beim Aufbruch Lauf-Pose, mit Gegenstück (Start ↔ Über mich) wandert sie in 350 ms zur neuen Leinenspitze und steht dort sofort (kein Hereinrennen von links), ohne Gegenstück läuft sie hinaus bzw. herein. Neuer Chunk `src/leash/cocoTravel.ts` (nur bei voller Bewegung, ≤ 2 KB gz); Engine unverändert.
 - Neue Mikro-Animationen MI-17 (Karte hebt sich), MI-18 (Menülink rückt ein), MI-19 (Korb-Bestätigung gleitet ein) – nur CSS, Tokens `--dur-short`/`--ease-ink-out`, bei reduzierter Bewegung/Schalter aus.
 - Katalog nachgezogen: DESIGN §11.5, KUNST-QA (MO-11 auf MI-19, MO-14, AR-05), `/qa/motion`, SC-14 (Hover-Auslöser), Budget `tests/perf/budgets.json`.
+## 2026-10-06 – P12.11
+
+- Alle sechs Rechtstexte (Impressum, Datenschutz, AGB, Widerrufsbelehrung, Muster-Widerrufsformular, Versand & Zahlung) vollständig auf Deutsch (verbindlich) und Englisch (gleichwertig) ausformuliert, knapper Einstieg im Ton der Marke, Platzhalter aus den Einstellungen; bleiben origin=placeholder (Kanzlei-Prüfung P11). Speicher-/Cookie-Hinweis in der Datenschutzerklärung, Barrierefreiheits-Hinweis ohne Konformitätsaussage im Impressum.
+- Schutz des geistigen Eigentums: vier Bausteine ip.* (Urheberrechtsvermerk, KI/TDM-Vorbehalt, Kaufklausel, Flash-Nachstechen) in der Verwaltung pflegbar, sichtbar im Footer, auf der Produktseite und bei Flash/Preisen/Ablauf, Abschnitte in AGB und Impressum; technisch robots.txt-Gruppe für KI-Crawler, ai.txt, tdmrep.json, Meta noai/noimageai und tdm-reservation, X-Robots-Tag in Produktion.
+- Grund-Seed legt DE+EN direkt an; bestehende Datenbanken bekommen automatisch eine neue aktive Fassung (v2).
+- Tests: legal-texts-p12 und ai-reservation (unit), base/public-pages/lifecycle (int), ip-notices (e2e); pnpm check, check:migrations, build und check:bundle grün; Rechtsseiten-E2E bis auf die bereits bestehenden Ruhe-Prüfungen (getAnimations, P12.2) grün. Offene Punkte: docs/OFFENE-PUNKTE.md (P12.11).
 
 ## 2026-10-06 – P12.3
 

@@ -307,6 +307,11 @@ export const LEGAL_SNIPPET_KEYS = [
   'translation.disclaimer',
   'privacyRequest.accessResponse',
   'privacyRequest.erasureResponse',
+  // Schutz des geistigen Eigentums (U-22, P12.11)
+  'ip.copyrightNotice',
+  'ip.aiMiningReservation',
+  'ip.purchaseClause',
+  'ip.tattooFlashNotice',
 ] as const
 export type LegalSnippetKey = (typeof LEGAL_SNIPPET_KEYS)[number]
 export const WITHDRAWAL_STATUSES = [
