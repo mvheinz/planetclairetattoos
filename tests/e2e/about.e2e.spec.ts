@@ -40,8 +40,8 @@ for (const locale of ['de', 'en'] as const) {
     const main = page.locator('[data-about-page]')
     await expect(main).toContainText(
       locale === 'de'
-        ? 'Ich bin Jutta, und das hier ist Planet Claire'
-        : "I'm Jutta, and this is Planet Claire",
+        ? 'Das hier ist Planet Claire – mein kleiner Planet in Berlin'
+        : 'This is Planet Claire – my small planet in Berlin',
     )
     await expect(main).toContainText(locale === 'de' ? 'Und das ist Coco.' : 'And this is Coco.')
     await expect(main.locator('[data-about-coco] svg')).toHaveCount(1)

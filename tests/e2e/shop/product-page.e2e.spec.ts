@@ -352,7 +352,7 @@ test.describe('Produktseite – Beschreibung, Details, Versand & Rückgabe, „M
     await expect(page.locator('[data-product-page] details')).toHaveCount(0)
     await expect(page.locator('[data-product-description] h2')).toHaveText('Beschreibung')
     await expect(page.locator('[data-product-description] p').first()).toContainText(
-      'Kleine Schale, innen wohnen ein Hase',
+      'In dieser Schale wohnen ein Hase',
     )
     await expect(page.locator('[data-jutta-says]')).toContainText('Ein Wort von mir')
     await expect(page.locator('[data-jutta-says] blockquote')).toHaveText(
