@@ -83,6 +83,24 @@ test('R19 in sitemap.xml (DE und EN)', async ({ request }) => {
   expect(xml).toContain('/en/about')
 })
 
+for (const locale of ['de', 'en'] as const) {
+  test(`P12.16 Foto Jutta und Coco im Abschnitt „Zu zweit“ (${locale})`, async ({ page }) => {
+    await page.goto(PATHS[locale])
+    const block = page
+      .locator('[data-about-image-text]')
+      .filter({ hasText: locale === 'de' ? 'Zu zweit' : 'The two of us' })
+    await expect(block).toHaveCount(1)
+    const img = block.locator('img').first()
+    await img.scrollIntoViewIfNeeded()
+    await expect
+      .poll(() => img.evaluate((e: HTMLImageElement) => e.complete && e.naturalWidth > 0))
+      .toBe(true)
+    expect(((await img.getAttribute('alt')) ?? '').toLowerCase()).toContain(
+      locale === 'de' ? 'hund' : 'dog',
+    )
+  })
+}
+
 test('R-181 keine Abbildung von Jutta ohne Freigabe; nur öffentlich sichtbare Bilder', async ({
   page,
 }) => {
@@ -94,10 +112,11 @@ test('R-181 keine Abbildung von Jutta ohne Freigabe; nur öffentlich sichtbare B
     depth: 0,
     overrideAccess: true,
   })
-  const names = jutta.docs.flatMap((m) => [
-    m.filename,
-    ...Object.values(m.sizes ?? {}).map((s) => s?.filename),
-  ])
+  const namesOf = (docs: typeof jutta.docs) =>
+    docs.flatMap((m) => [m.filename, ...Object.values(m.sizes ?? {}).map((s) => s?.filename)])
+  // Freigegebene Fotos (P12.16: „Zu zweit“) dürfen erscheinen, alle anderen nie.
+  const names = namesOf(jutta.docs.filter((m) => m.ownerApproved !== true))
+  const approved = namesOf(jutta.docs.filter((m) => m.ownerApproved === true))
   await page.goto(PATHS.de)
   const srcs = await page
     .locator('[data-about-page] img')
@@ -105,6 +124,8 @@ test('R-181 keine Abbildung von Jutta ohne Freigabe; nur öffentlich sichtbare B
       els.map((e) => `${e.getAttribute('src')} ${e.getAttribute('srcset') ?? ''}`),
     )
   for (const n of names.filter(Boolean)) for (const s of srcs) expect(s).not.toContain(n as string)
+  expect(approved.length).toBeGreaterThan(0)
+  expect(srcs.some((s) => approved.some((n) => n && s.includes(n)))).toBe(true)
   for (const img of await page.locator('[data-about-page] img').all())
     expect((await img.getAttribute('alt'))?.trim().length ?? 0).toBeGreaterThan(0)
 })

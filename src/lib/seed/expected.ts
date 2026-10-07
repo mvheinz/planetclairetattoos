@@ -28,7 +28,7 @@ export const SEED_EXPECTED_COUNTS = {
   settings: 1,
   'site-texts': 1,
   'legal-texts': 6,
-  media: 47,
+  media: 48,
   'private-uploads': 22,
   products: 30,
   checkouts: 14,
@@ -58,7 +58,7 @@ export type SeedExpectedCollection = keyof typeof SEED_EXPECTED_COUNTS
 
 /** Aufteilungen, die §0.1 in Klammern nennt. */
 export const SEED_EXPECTED_DETAIL = {
-  media: { instagram: 17, placeholders: 30 },
+  media: { instagram: 17, owned: 1, placeholders: 30 },
   'private-uploads': { files: 7, invoicePdfs: 15 },
   checkouts: { completed: 12, expired: 1, open: 1 } satisfies Partial<
     Record<CheckoutStatus, number>
