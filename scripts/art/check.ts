@@ -162,7 +162,9 @@ export async function lineFrames(
       const file = path.join(runDir, p.frame!)
       if (!existsSync(file)) continue
       const s = p.scale
-      const ex = [...rects(p.text), ...(p.coco ? [p.coco] : [])].map((r) => ({
+      // Der feste Kopfbereich verdeckt die Linie (wie in `overlaps`, LG-01): sein Teil des Bildes zählt nicht.
+      const head = p.occTop ? [{ x: 0, y: 0, w: p.vw, h: p.occTop }] : []
+      const ex = [...rects(p.text), ...head, ...(p.coco ? [p.coco] : [])].map((r) => ({
         x: r.x * s - 2,
         y: r.y * s - 2,
         w: r.w * s + 4,

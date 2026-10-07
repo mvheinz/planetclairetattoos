@@ -31,15 +31,17 @@ export const LUT_STEP = 4
 /** Proben je Teilstück in den Schleifen von Schritt 6/7 (PF-04: kalter JIT am Desktop hält jedes Teilstück ≤ 8 ms). */
 export const SAMPLE_CHUNK = 256
 /** Toleranz der Umriss-/Mittellinien-Vereinfachung (Schritt 8). */
-const RDP_TOLERANCE = 0.3
+const RDP_TOLERANCE = 0.2
+/** Umriss (Stufe C): gröber als die Mittellinie (PF-10: Startseite ≤ 60 KB SVG); die Mittellinie bestimmt Längen (MO-05). */
+const OUTLINE_RDP_TOLERANCE = 0.3
 /** Überlappung benachbarter Segmente (Schritt 9). */
 const SEGMENT_OVERLAP = 2
 /** Stufe A: Stücke der Mittellinie, deren Breite höchstens so weit vom Stückanfang abweicht (× Grundbreite). */
-const STROKE_WIDTH_TOL = 0.14
+const STROKE_WIDTH_TOL = 0.11
 /** Stufe A: Toleranz der Vereinfachung der Strich-Stücke (die Mittellinie ist bereits gewackelt). */
-const STROKE_RDP_TOLERANCE = 0.5
+const STROKE_RDP_TOLERANCE = 0.7
 /** Stufe A: längstes Stück in px Bogenlänge. */
-const STROKE_MAX_LEN = 600
+const STROKE_MAX_LEN = 420
 /** Anfangs-/Endverjüngung (Schritt 7). */
 const TAPER_START = 28
 const TAPER_END = 18
@@ -955,7 +957,7 @@ function outlineOf(i0: number, i1: number, d: SegmentData, dots: number[]): stri
       xs.push(d.wx[i]! + d.nx[i]! * h)
       ys.push(d.wy[i]! + d.ny[i]! * h)
     }
-    return { xs, ys, keep: rdp(xs, ys, RDP_TOLERANCE) }
+    return { xs, ys, keep: rdp(xs, ys, OUTLINE_RDP_TOLERANCE) }
   }
   const L = side(1)
   const R = side(-1)
