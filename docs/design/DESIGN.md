@@ -144,7 +144,7 @@ Die Werte stammten ursprünglich aus der Konzeptseite; in P12.2 (U-10 … U-12) 
 
 ### 3.4 Linienpapier (Seitengrund, U-12a)
 
-Der Seitengrund ist **liniert wie ein Schreibblock** (amerikanischer Legal Pad, A4 hoch), nicht kariert: waagerechte Zeilenlinien in Petrol-Grau (`rgb(15 76 87)`), 1 px, alle `--rule-step` = 32 px (liegt im Rhythmus der Fließtext-Zeile 17 px × 1,62 ≈ 27,5 px bis 32 px – Text steht freundlich „auf“ den Linien, ohne sie zu erzwingen). Oben ein **Kopfband** von `--rule-head` = 56 px (1,75 Zeilen) mit einer kräftigeren Linie (`--rule-line-head`, 20 %) darunter; erst darunter beginnen die normalen Zeilenlinien (`--rule-line`, 12 %). Das Linienpapier liegt auf dem Verlauf aus §3.5: `body` hat keine eigene Grundfarbe (`transparent`), der Grund kommt von `html`. Das alte Schneidematten-Raster (E-74, Tokens `--grid-line*`) ist entfernt.
+Der Seitengrund ist **liniert wie ein Schreibblock** (amerikanischer Legal Pad, A4 hoch), nicht kariert: waagerechte Zeilenlinien in Petrol-Grau (`rgb(15 76 87)`), 1 px, alle `--rule-step` = 32 px (liegt im Rhythmus der Fließtext-Zeile 17 px × 1,62 ≈ 27,5 px bis 32 px – Text steht freundlich „auf“ den Linien, ohne sie zu erzwingen). Unter der Kopfleiste (sie ist deckend und `--header-h` hoch) liegt ein **Kopfband** von 56 px (1,75 Zeilen; `--rule-head` = Kopfleiste + 56 px) mit einer kräftigeren Linie (`--rule-line-head`, 20 %) darunter; erst darunter beginnen die normalen Zeilenlinien (`--rule-line`, 12 %). Das Linienpapier liegt auf dem Verlauf aus §3.5: `body` hat keine eigene Grundfarbe (`transparent`), der Grund kommt von `html`. Das alte Schneidematten-Raster (E-74, Tokens `--grid-line*`) ist entfernt.
 
 ```css
 body {
@@ -391,7 +391,7 @@ P2 legt `src/styles/tokens.css` exakt mit diesem Inhalt an (Werte sind verbindli
   --rule-line: rgb(15 76 87 / 0.12);       /* Linienpapier: Zeilenlinie, Petrol-Grau (U-12a) */
   --rule-line-head: rgb(15 76 87 / 0.20);  /* kräftigere Linie unter dem Kopfband */
   --rule-step: 32px;                       /* Zeilenabstand */
-  --rule-head: 56px;                       /* Kopfband (1,75 Zeilen) */
+  --rule-head: calc(var(--header-h) + 56px); /* Kopfleiste + Kopfband (1,75 Zeilen) */
 
   /* Tusche und Ton */
   --ink: #1C1A17;

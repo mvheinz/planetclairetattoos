@@ -10,7 +10,7 @@
   --rule-line: rgb(15 76 87 / 0.12);       /* Linienpapier: Zeilenlinie, Petrol-Grau (U-12a) */
   --rule-line-head: rgb(15 76 87 / 0.20);  /* kräftigere Linie unter dem Kopfband */
   --rule-step: 32px;                       /* Zeilenabstand */
-  --rule-head: 56px;                       /* Kopfband (1,75 Zeilen) */
+  --rule-head: calc(var(--header-h) + 56px); /* Kopfleiste + Kopfband (1,75 Zeilen) */
 
   /* Tusche und Ton */
   --ink: #1C1A17;
