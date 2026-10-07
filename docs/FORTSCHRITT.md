@@ -2112,3 +2112,7 @@ gekennzeichnete Platzhalter.
 - App-Gerüst: Next.js 16.3.6 + Payload 3.90.2 (Postgres), pnpm 10.34.5; Lint, Typprüfung, Unit-Test und Build
   lokal grün; CI-Workflow (inkl. Integrationstest gegen Postgres) angelegt.
 - Nächster Schritt: Session in die Cloud verschieben, dort P1 starten (siehe `docs/CLOUD-SETUP.md`).
+
+## 2026-10-07 – P12.8 Tour als Schaukasten
+
+- „Planet Claire on Tour“ ist jetzt eine kompakte, gerahmte Tafel mit angepinnten Zetteln (Datumsblock, nächster Termin als Plakat, Abgesagt-Stempel). Tests: `pnpm check`, `home-tour` (desktop + pixel-7), `check:bundle` grün.
