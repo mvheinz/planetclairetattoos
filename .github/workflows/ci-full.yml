@@ -96,8 +96,9 @@ jobs:
     if: needs.mode.outputs.full == 'true'
     runs-on: ubuntu-latest
     # Je Projekt zwei Hälften (Playwright `--shard`, je Job eigene Datenbank): mit dem vollen Beispielbestand (P8) brauchte
-    # ein ganzes Projekt 30–40 min (iphone-15 lief in die 40-min-Grenze, Lauf 37167124027); eine Hälfte ~20 min.
-    timeout-minutes: 40
+    # ein ganzes Projekt 30–40 min (iphone-15 lief in die 40-min-Grenze, Lauf 37167124027); eine Hälfte ~20 min (bei langsamen
+    # Runnern mit den Ergänzungen aus P12 bis zu 40 min: Grenze 70 min).
+    timeout-minutes: 70
     strategy:
       fail-fast: false
       matrix:
@@ -188,7 +189,7 @@ jobs:
     needs: mode
     if: needs.mode.outputs.full == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     services:
       postgres:
         image: postgres:17-alpine
