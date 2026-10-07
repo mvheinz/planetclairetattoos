@@ -1,7 +1,7 @@
 import { expect, test } from './fixtures'
 
 // P12.5/P12.6 (U-09, U-08): Startseite – Fitness-Coco ersetzt die große sitzende Coco der Hallo-Station, lädt die Bildfolge
-// erst nach dem `load`, steht bei reduzierter Bewegung still; Koko: nur die Pupillen sind animiert.
+// erst nach dem `load`, steht bei reduzierter Bewegung still; Koko steht in `home-koko.e2e.spec.ts`.
 
 test.describe('Startseite: Fitness-Coco und Koko', () => {
   test('keine sitzende Sprite-Coco mehr in „Hallo“; Fitness-Coco mit Alt-Text, Daten erst nach dem load', async ({
@@ -56,26 +56,5 @@ test.describe('Startseite: Fitness-Coco und Koko', () => {
       .locator('[data-chairwoman]')
       .evaluate((el) => el.getAnimations({ subtree: true }).length)
     expect(anims).toBe(0)
-  })
-
-  test('Koko: nur die Pupillen sind animiert, Alt-Text DE/EN, Bild statt Inline-SVG', async ({
-    page,
-  }) => {
-    await page.emulateMedia({ reducedMotion: 'no-preference' })
-    await page.goto('/de')
-    const koko = page.locator('[data-chairwoman]').first()
-    await expect(koko).toHaveAttribute('aria-label', 'Koko, Vorsitzende der Goth Dogs Berlin')
-    await expect(koko.locator('svg')).toHaveCount(0)
-    const targets = await koko.evaluate((el) =>
-      el
-        .getAnimations({ subtree: true })
-        .map((a) => (a.effect as KeyframeEffect).target?.hasAttribute('data-koko-pupil')),
-    )
-    expect(targets).toEqual([true, true])
-    await page.goto('/en')
-    await expect(page.locator('[data-chairwoman]').first()).toHaveAttribute(
-      'aria-label',
-      /Koko, chairwoman of the Goth Dogs Berlin/,
-    )
   })
 })

@@ -117,10 +117,10 @@
         "gzipMax": 3000
       },
       {
-        "name": "Koko-Zeichnung (<img>, P12.6)",
-        "file": "public/art/koko.v1.svg",
-        "rawMax": 16000,
-        "gzipMax": 6000
+        "name": "Koko-Zeichnung (<img>, WebP mit Alpha, P12.6)",
+        "file": "public/art/koko.v2.webp",
+        "rawMax": 80000,
+        "gzipMax": 80000
       }
     ],
     "stationRawMax": 8000,

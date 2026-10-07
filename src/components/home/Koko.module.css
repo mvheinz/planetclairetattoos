@@ -1,50 +1,103 @@
-/* Koko, Vorsitzende der Goth Dogs Berlin (P12.6, U-08): feste Box, Zeichnung als Bild, nur die Pupillen bewegen sich. */
+/* Koko, Vorsitzende der Goth Dogs Berlin (P12.6, U-08): feste Box, Zeichnung als Bild, nur die Pupillen bewegen sich.
+   Reines CSS, endlos (`infinite`), kein Skript und kein Timer – die Bewegung kann nicht anhalten. */
 .koko {
-  --koko-look: var(--dur-koko-look); /* ein Hin und Zurück der Pupillen */
+  /* ein Durchgang: Blick von links nach rechts, kurz stehen, wieder links */
+  --koko-look: var(--dur-koko-look);
   position: relative;
-  aspect-ratio: 300 / 390;
+  aspect-ratio: 660 / 867;
   width: 100%;
-  max-width: 300px;
+  max-width: 330px;
   color: var(--ink);
 }
 
-.drawing {
+.drawing,
+.eyes {
   display: block;
   width: 100%;
   height: 100%;
 }
 
-/* Pupillen: zwei kleine, leicht unregelmäßige Tintenflecken über den weißen Augen; Seitenblick nach rechts unten. */
-.pupil {
+.eyes {
   position: absolute;
-  background: var(--ink);
-  border-radius: 52% 48% 55% 45% / 50% 55% 45% 50%;
-  animation: koko-look var(--koko-look) var(--ease-swing) infinite;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
 }
 
-/* Hin und Zurück um ±60 % der Pupillenbreite (≈ ±5 Einheiten der Zeichnung); Ruhelage = Blick leicht nach links. */
+/* Pupillen: glänzend schwarz wie in Juttas Malerei. „home“ ist der Blick nach links (Standbild), „look“ der Läufer. */
+.home,
+.look {
+  fill: #0d0b0f;
+}
+
+.home {
+  animation: koko-home var(--koko-look) linear infinite;
+}
+
+.look {
+  opacity: 0;
+  animation: koko-look var(--koko-look) linear infinite;
+}
+
+/* Läufer: bleibt am Anfang, gleitet gemächlich nach rechts, verharrt, blendet dort aus – nie rückwärts sichtbar.
+   Währenddessen blendet „home“ links wieder ein (gleiche Stelle, unsichtbarer Wechsel bei 15 %). */
 @keyframes koko-look {
   0%,
-  100% {
-    transform: translateX(-30%);
+  14.9% {
+    opacity: 0;
+    transform: translateX(0);
   }
-  50% {
-    transform: translateX(30%);
+  15% {
+    opacity: 1;
+    transform: translateX(0);
+    animation-timing-function: var(--ease-swing);
+  }
+  68% {
+    opacity: 1;
+    transform: translateX(var(--koko-travel));
+  }
+  84% {
+    opacity: 1;
+    transform: translateX(var(--koko-travel));
+  }
+  89%,
+  100% {
+    opacity: 0;
+    transform: translateX(var(--koko-travel));
   }
 }
 
+@keyframes koko-home {
+  0%,
+  14.9% {
+    opacity: 1;
+  }
+  15%,
+  85% {
+    opacity: 0;
+  }
+  90%,
+  100% {
+    opacity: 1;
+  }
+}
+
+/* weniger Bewegung: Standbild – Blick nach links (wie im Original) */
 @media (prefers-reduced-motion: reduce) {
-  html:not([data-motion='full']) .pupil {
+  html:not([data-motion='full']) .home,
+  html:not([data-motion='full']) .look {
     animation: none;
   }
 }
 
-html[data-motion='reduced'] .pupil {
+html[data-motion='reduced'] .home,
+html[data-motion='reduced'] .look {
   animation: none;
 }
 
 @media (forced-colors: active) {
-  .pupil {
-    background: CanvasText;
+  .home,
+  .look {
+    fill: CanvasText;
   }
 }

@@ -70,7 +70,6 @@
     "art:character-sheet": "tsx scripts/art/character-sheet.ts",
     "art:sprite": "tsx scripts/art/build-sprite.ts",
     "art:fitness": "tsx scripts/art/fitness-coco.ts",
-    "art:koko": "tsx scripts/art/koko.ts",
     "art:calibration": "tsx scripts/art/calibration-sheet.ts",
     "art:coco-refs": "tsx scripts/art/coco-refs.ts",
     "art:placeholders": "tsx scripts/art/placeholders.ts",

@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-07 – P12.6 (Nacharbeit) Koko aus dem Foto
+
+- Koko nicht mehr nachgezeichnet, sondern aus Juttas Malerei freigestellt und gesäubert (`scripts/art/koko-cutout.py` → `public/art/koko.v2.webp`, 660×867, 66 KB; altes `koko.v1.svg`/`scripts/art/koko.ts` entfernt). Original-Pupillen übermalt, neue Pupillen als SVG-Ellipsen (je Auge Standort + Läufer) in reinem CSS, endlos, links → rechts.
+- Fehlersuche „Animation nach 3–4 s weg“: im Code nichts, das anhält; alte Amplitude nur ±2,5 px. Neu: ≥ 20 px, E2E über 22 s (Animationen laufen, Pupille bewegt sich weiter, nie sichtbar rückwärts).
+- Tests: `pnpm check` (Unit inkl. neuer Koko-Tests), `pnpm build`, `check:bundle` grün (Koko 66 KB / Budget 80 KB), E2E home/home-tour/home-fitness/home-koko auf desktop + pixel-7, Referenzbilder r01-start neu.
+
 ## 2026-10-07 – P12 Abschlussbericht (Überarbeitung nach deiner Rückmeldung) – für Jutta
 
 ### Phase 12 fertig: Deine Wünsche vom 06.10. sind umgesetzt, die neue Vorschau-Datei entsteht nach dem Merge
