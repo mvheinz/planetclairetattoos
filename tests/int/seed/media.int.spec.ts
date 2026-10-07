@@ -167,7 +167,9 @@ describe('Medien des Beispielbestands (SEED-SPEC §4.1, §4.2)', () => {
       expect([403, 404]).toContain((await rest('GET', `/media/${doc.id}`)).status)
     }
     const others = media.filter(
-      (m) => !['media:ig:DOZTG7PjLAD', 'media:ig:DZqBCSZDDiE'].includes(String(m.seedKey)),
+      (m) =>
+        !['media:ig:DOZTG7PjLAD', 'media:ig:DZqBCSZDDiE'].includes(String(m.seedKey)) &&
+        !String(m.seedKey).startsWith('media:own:'), // P12.16: von Jutta freigegebene Fotos
     )
     expect(others.every((m) => m.showsPerson === 'none' && m.restricted !== true)).toBe(true)
   })
