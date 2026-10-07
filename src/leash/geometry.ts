@@ -29,17 +29,17 @@ interface Pt {
 export const SAMPLE_STEP = 2
 export const LUT_STEP = 4
 /** Proben je Teilstück in den Schleifen von Schritt 6/7 (PF-04: kalter JIT am Desktop hält jedes Teilstück ≤ 8 ms). */
-export const SAMPLE_CHUNK = 384
+export const SAMPLE_CHUNK = 256
 /** Toleranz der Umriss-/Mittellinien-Vereinfachung (Schritt 8). */
-const RDP_TOLERANCE = 0.2
+const RDP_TOLERANCE = 0.3
 /** Überlappung benachbarter Segmente (Schritt 9). */
 const SEGMENT_OVERLAP = 2
 /** Stufe A: Stücke der Mittellinie, deren Breite höchstens so weit vom Stückanfang abweicht (× Grundbreite). */
-const STROKE_WIDTH_TOL = 0.09
+const STROKE_WIDTH_TOL = 0.14
 /** Stufe A: Toleranz der Vereinfachung der Strich-Stücke (die Mittellinie ist bereits gewackelt). */
 const STROKE_RDP_TOLERANCE = 0.5
 /** Stufe A: längstes Stück in px Bogenlänge. */
-const STROKE_MAX_LEN = 420
+const STROKE_MAX_LEN = 600
 /** Anfangs-/Endverjüngung (Schritt 7). */
 const TAPER_START = 28
 const TAPER_END = 18
@@ -515,7 +515,7 @@ function* flatten(cubics: Cubic[]): Generator<void, Fine, void> {
   let len = 0
   let mark = 0
   for (let j = 0; j < cubics.length; j++) {
-    if (x.length - mark >= 2 * SAMPLE_CHUNK) {
+    if (x.length - mark >= SAMPLE_CHUNK) {
       mark = x.length
       yield
     }
