@@ -178,7 +178,7 @@
 }
 
 .note {
-  font-family: var(--font-accent);
+  font-family: var(--font-body);
   font-style: italic;
 }
 

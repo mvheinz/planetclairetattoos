@@ -90,6 +90,7 @@ describe('Seiten (SEED-SPEC §13)', () => {
       'richText',
       'imageText',
       'richText',
+      'imageText', // „Zu zweit“: Foto von Jutta und Coco (P12.16, von Jutta freigegeben)
       'imageGallery',
       'categoryTeaser',
       'contactLinks',
@@ -166,7 +167,7 @@ describe('Seiten (SEED-SPEC §13)', () => {
     }
   })
 
-  it('V-28: „Über mich“ ohne Foto von Jutta, ohne Band-Namen, ohne Liedzeile', async () => {
+  it('V-28: „Über mich“ nur mit dem von Jutta freigegebenen Foto, ohne Band-Namen, ohne Liedzeile', async () => {
     const about = await page('about', 'de', 1)
     const images = about.layout.flatMap((b) =>
       b.blockType === 'imageText'
@@ -174,9 +175,12 @@ describe('Seiten (SEED-SPEC §13)', () => {
         : b.blockType === 'imageGallery'
           ? (b.images as unknown[])
           : [],
-    ) as { showsPerson: string; sourceRef: string }[]
-    expect(images).toHaveLength(4)
-    expect(images.every((m) => m.showsPerson !== 'jutta')).toBe(true)
+    ) as { showsPerson: string; sourceRef: string; ownerApproved?: boolean }[]
+    expect(images).toHaveLength(5)
+    // Fotos von Jutta nur mit gesetztem Häkchen „ownerApproved“ (R-181): genau das gelieferte Foto
+    const jutta = images.filter((m) => m.showsPerson === 'jutta')
+    expect(jutta.map((m) => m.sourceRef)).toEqual(['own:jutta-coco'])
+    expect(jutta.every((m) => m.ownerApproved === true)).toBe(true)
     expect(images.map((m) => m.sourceRef)).not.toContain('DdHXUQsDjqm')
     const text = JSON.stringify(about.layout)
     expect(text).not.toMatch(/B-?52|Planet Claire, |„[^“]{20,}“/)

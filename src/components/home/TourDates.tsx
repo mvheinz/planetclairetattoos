@@ -50,7 +50,7 @@ function TourItem({
     >
       <span className={styles.pin} aria-hidden="true" />
       {hero ? <span className={styles.next}>{t('next')}</span> : null}
-      <div className={`${styles.dateBlock} ${styles.struck}`} aria-hidden="true">
+      <div className={`${styles.dateBlock} ${styles.struck}`} aria-hidden="true" data-badge="">
         <span className={styles.day}>{day}</span>
         <span className={styles.month}>{month}</span>
       </div>

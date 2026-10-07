@@ -27,7 +27,7 @@
 /* Pupillen: glänzend schwarz wie in Juttas Malerei, beide Augen im Gleichklang; Ruhelage = Blick nach links. */
 .look {
   fill: #0d0b0f;
-  animation: koko-look var(--koko-look) infinite;
+  animation: koko-look var(--koko-look) linear infinite; /* Kurve je Abschnitt in den Keyframes (MO-02: nie die Standardkurve „ease“) */
 }
 
 /* Zeitpunkte für 6,8 s (Token --dur-koko-look): 0–44,1 % Halt links · 44,1–50 % schnell nach rechts (0,4 s) ·

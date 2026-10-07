@@ -123,7 +123,7 @@ export function staticHeaderRules(o: { appEnv: AppEnvName; nodeEnv?: string }) {
  * bekommen eine neue Nummer.
  */
 export const IMMUTABLE_ART_SOURCE =
-  '/art/:file((?:coco-sprite|coco-extra)\.v\d+\.svg|(?:koko|fitness-still)\.v\d+\.webp|fitness-coco\.v\d+\.json)'
+  '/art/:file((?:coco-sprite|coco-extra)\\.v\\d+\\.svg|(?:koko|fitness-still)\\.v\\d+\\.webp|fitness-coco\\.v\\d+\\.json)'
 export const IMMUTABLE_CACHE = 'public, max-age=31536000, immutable'
 
 export interface PathContext {
