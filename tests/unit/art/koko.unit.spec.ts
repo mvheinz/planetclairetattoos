@@ -31,93 +31,96 @@ const inPoly = (x: number, y: number, poly: number[][]) => {
   return inside
 }
 
-describe('Koko (U-08): Freistellung', () => {
+describe('Koko (U-08): Büste', () => {
   it('Maße, Größe und Alpha: WebP mit transparentem Hintergrund, ≈ 2× Anzeigebreite, im Bildbudget', async () => {
-    const bytes = statSync(WEBP).size
-    expect(bytes).toBeLessThanOrEqual(80_000)
+    expect(statSync(WEBP).size).toBeLessThanOrEqual(80_000)
     const img = sharp(WEBP)
     const m = await img.metadata()
     expect(m.format).toBe('webp')
     expect(m.hasAlpha).toBe(true)
     expect([m.width, m.height]).toEqual([meta.w, meta.h])
-    expect(meta.w).toBeGreaterThanOrEqual(600)
-    expect(meta.w).toBeLessThanOrEqual(720)
+    expect(meta.w).toBeGreaterThanOrEqual(640)
+    expect(meta.w).toBeLessThanOrEqual(760)
     const { data, info } = await img.raw().ensureAlpha().toBuffer({ resolveWithObject: true })
     const alpha = (x: number, y: number) =>
       data[(Math.round(y) * info.width + Math.round(x)) * 4 + 3]!
     for (const [x, y] of [
       [3, 3],
-      [info.width - 4, 3],
-      [3, info.height - 4],
       [info.width - 4, info.height - 4],
+      [3, info.height - 4],
+      [info.width - 4, info.height / 2],
     ] as const)
-      expect(alpha(x, y)).toBe(0) // Ecken: kein Shirt
-    expect(alpha(info.width * 0.45, info.height * 0.62)).toBe(255) // Körper
-    expect(alpha(info.width * 0.5, info.height * 0.58)).toBe(255) // weiße Brust bleibt gefüllt
-    // Anteil deckender Pixel: ein Hund, kein Shirt-Rechteck
+      expect(alpha(x, y)).toBe(0)
+    expect(alpha(info.width * 0.5, info.height * 0.6)).toBeGreaterThan(250) // Fell
     let opaque = 0
     for (let i = 3; i < data.length; i += 4) if (data[i]! > 200) opaque++
     const share = opaque / (info.width * info.height)
-    expect(share).toBeGreaterThan(0.25)
-    expect(share).toBeLessThan(0.6)
+    expect(share).toBeGreaterThan(0.35)
+    expect(share).toBeLessThan(0.7)
   })
 
-  it('kein Knochenkreuz: Bild beginnt mit der Kappenspitze, links oben und der Streifen über dem Kopf sind leer', async () => {
+  it('nur Büste: Seitenverhältnis ≈ 1, unterer Rand ist der Kragen (kein Orange, Weiß, Körper, Pfoten, Schwanz, Kreuz)', async () => {
     const { data, info } = await sharp(WEBP)
       .raw()
       .ensureAlpha()
       .toBuffer({ resolveWithObject: true })
-    const rowOpaque = (y: number, x0: number, x1: number) => {
-      let n = 0
-      for (let x = Math.round(x0); x < Math.round(x1); x++)
-        if (data[(y * info.width + x) * 4 + 3]! > 40) n++
-      return n
+    expect(info.height / info.width).toBeGreaterThan(0.85)
+    expect(info.height / info.width).toBeLessThan(1.1)
+    // nirgends deckende, warme (orange) oder helle Pixel in den unteren 15 % – nur schwarzes Fell
+    let bad = 0
+    let seen = 0
+    for (let y = Math.floor(info.height * 0.85); y < info.height; y++)
+      for (let x = 0; x < info.width; x++) {
+        const o = (y * info.width + x) * 4
+        if (data[o + 3]! < 200) continue
+        seen++
+        const [r, g, b] = [data[o]!, data[o + 1]!, data[o + 2]!]
+        if (r - b > 50 || (r + g + b) / 3 > 215) bad++
+      }
+    expect(seen).toBeGreaterThan(500)
+    expect(bad / seen).toBeLessThan(0.03)
+    // Zacken: der untere Rand ist uneben (mehrere Spitzen), keine gerade Kante
+    const bottoms: number[] = []
+    for (let x = Math.floor(info.width * 0.3); x < info.width * 0.7; x += 6) {
+      let yb = 0
+      for (let y = info.height - 1; y >= 0; y--)
+        if (data[(y * info.width + x) * 4 + 3]! > 128) {
+          yb = y
+          break
+        }
+      bottoms.push(yb)
     }
-    // Seitenverhältnis des Zuschnitts ≈ Hund (Kreuz hätte das Bild ≈ 1,4× höher gemacht)
-    expect(info.height / info.width).toBeGreaterThan(1.25)
-    expect(info.height / info.width).toBeLessThan(1.4)
-    // oberes Viertel links der Mitte: nur Kappenspitze links/Fell, nichts Breites in der Mitte über dem Kopf
-    for (let y = 0; y < info.height * 0.1; y += 3)
-      expect(rowOpaque(y, 0, info.width * 0.55)).toBe(0)
+    expect(Math.max(...bottoms) - Math.min(...bottoms)).toBeGreaterThan(info.height * 0.04)
   })
 
-  it('Pupillen sind übermalt: im Bild liegt an den Pupillen-Ausgangsorten (links) Weiß statt Schwarz', async () => {
+  it('Pupillen sind übermalt: im Bild liegt am Ausgangsort und auf dem Weg Weiß statt Schwarz', async () => {
     const { data, info } = await sharp(WEBP)
       .raw()
       .ensureAlpha()
       .toBuffer({ resolveWithObject: true })
-    for (const e of Object.values(meta.eyes)) {
-      // Punkt nahe der rechten Hälfte des Augapfels (Weg der Pupille): hell
-      const x = Math.round(e.cx + e.travel * 0.9)
-      const y = Math.round(e.cy)
-      const o = (y * info.width + x) * 4
-      const lum = (data[o]! + data[o + 1]! + data[o + 2]!) / 3
-      expect(lum).toBeGreaterThan(200)
-      // Ausgangsort der Pupille (hier stand im Foto Schwarz): ebenfalls Weiß (Pupille liegt als Element darüber)
-      const o2 = (Math.round(e.cy) * info.width + Math.round(e.cx)) * 4
-      expect((data[o2]! + data[o2 + 1]! + data[o2 + 2]!) / 3).toBeGreaterThan(200)
-    }
+    for (const e of Object.values(meta.eyes))
+      for (const x of [e.cx, e.cx + e.travel * 0.9]) {
+        const o = (Math.round(e.cy) * info.width + Math.round(x)) * 4
+        expect((data[o]! + data[o + 1]! + data[o + 2]!) / 3).toBeGreaterThan(200)
+      }
   })
 })
 
 describe('Koko (U-08): Augen und Animation', () => {
-  it('Pupillen liegen auf dem ganzen Weg innerhalb des Augapfels (Hülle) und oben im Kopf des Bildes', () => {
+  it('Pupillen liegen auf dem ganzen Weg innerhalb des Augapfels (Hülle), Augen im oberen Teil des Kopfes', () => {
     for (const e of Object.values(meta.eyes)) {
-      expect(e.cy).toBeGreaterThan(meta.h * 0.18)
-      expect(e.cy).toBeLessThan(meta.h * 0.33)
-      expect(e.travel).toBeGreaterThan(e.rx) // sichtbarer Weg: mehr als eine Pupillenbreite/2
+      expect(e.cy).toBeGreaterThan(meta.h * 0.4)
+      expect(e.cy).toBeLessThan(meta.h * 0.6)
+      expect(e.travel).toBeGreaterThan(e.rx)
       for (const f of [0, 0.5, 1]) {
         const x = e.cx + f * e.travel
         expect(inPoly(x, e.cy, e.hull)).toBe(true)
-        // Mittelpunkt und die vier Randpunkte der Pupille liegen (fast) im Auge – der Rest wird beschnitten
         expect(inPoly(x - e.rx * 0.5, e.cy, e.hull)).toBe(true)
         expect(inPoly(x + e.rx * 0.5, e.cy, e.hull)).toBe(true)
       }
     }
-    // linkes Auge links vom rechten, beide in der Kopfmitte
     expect(meta.eyes.l.cx).toBeLessThan(meta.eyes.r.cx)
-    expect(meta.eyes.l.cx).toBeGreaterThan(meta.w * 0.3)
-    expect(meta.eyes.r.cx + meta.eyes.r.travel).toBeLessThan(meta.w * 0.8)
+    expect(meta.eyes.r.cx + meta.eyes.r.travel).toBeLessThan(meta.w * 0.85)
   })
 
   it('Komponente: <img> + kleines Overlay-SVG, Bild mit Maßen, nichts Drittes, kein Skript', () => {
@@ -128,28 +131,31 @@ describe('Koko (U-08): Augen und Animation', () => {
     expect(tsx).not.toMatch(/useEffect|setInterval|setTimeout|requestAnimationFrame|'use client'/)
     expect(tsx).not.toMatch(/https?:\/\//)
     expect(tsx).not.toMatch(/<text|GOTH DOGS BERLIN/)
+    expect((tsx.match(/<ellipse/g) ?? []).length).toBe(1) // eine je Auge (in der Schleife)
   })
 
-  it('reines CSS, endlos, mit Token; nur Pupillen animiert; Standbild bei weniger Bewegung', () => {
+  it('reines CSS, endlos, mit Token; ruhige Halts (≈ 3 s) und schnelle Wechsel (≈ 0,4 s); Standbild bei weniger Bewegung', () => {
     expect(css).toContain('var(--dur-koko-look)')
     const anims = [...css.matchAll(/^\s*animation:\s*([^;]+);/gm)]
       .map((m) => m[1]!)
       .filter((a) => a !== 'none')
-    expect(anims.length).toBe(2)
-    for (const a of anims) expect(a).toMatch(/\binfinite\b/)
-    expect(anims.join(' ')).not.toMatch(/\b\d+s\b|\bforwards\b/)
-    // Läufer und Standort sind die einzigen Elemente mit Animation
-    expect(css).toMatch(/\.home\s*\{[^}]*animation:/s)
-    expect(css).toMatch(/\.look\s*\{[^}]*animation:/s)
+    expect(anims).toHaveLength(1)
+    expect(anims[0]).toMatch(/\binfinite\b/)
+    expect(anims[0]).not.toMatch(/\b\d+m?s\b|\bforwards\b/)
+    // Token 6,8 s = 2 × (3 s Halt + 0,4 s Wechsel); Prozentpunkte im Keyframe passen dazu
+    const tokens = readFileSync('src/styles/tokens.css', 'utf8')
+    expect(tokens).toMatch(/--dur-koko-look:\s*6800ms/)
+    const cycle = 6800
+    const kf = css.slice(css.indexOf('@keyframes koko-look'))
+    const pcts = [...kf.matchAll(/(\d+(?:\.\d+)?)%/g)].map((m) => Number(m[1]))
+    expect(pcts).toEqual(expect.arrayContaining([0, 44.12, 50, 94.12, 100]))
+    expect(((44.12 / 100) * cycle) / 1000).toBeCloseTo(3, 1) // Halt links
+    expect((((50 - 44.12) / 100) * cycle) / 1000).toBeCloseTo(0.4, 1) // Wechsel
+    expect((((94.12 - 50) / 100) * cycle) / 1000).toBeCloseTo(3, 1) // Halt rechts
+    expect((((100 - 94.12) / 100) * cycle) / 1000).toBeCloseTo(0.4, 1)
     expect(css).not.toMatch(/\.drawing\s*\{[^}]*animation/s)
-    // nie sichtbar von rechts nach links: der Läufer ist bei der Rückkehr unsichtbar (Deckkraft 0 am Ende)
-    const look = css.slice(css.indexOf('@keyframes koko-look'), css.indexOf('@keyframes koko-home'))
-    expect(look).toMatch(
-      /89%,\s*100%\s*\{\s*opacity:\s*0;\s*transform:\s*translateX\(var\(--koko-travel\)\)/,
-    )
-    // reduzierte Bewegung: beides ohne Animation (Standbild = Blick nach links)
     expect(css).toMatch(/prefers-reduced-motion: reduce\)[\s\S]*animation:\s*none/)
-    expect(css).toMatch(/html\[data-motion='reduced'\] \.home[\s\S]*animation:\s*none/)
+    expect(css).toMatch(/html\[data-motion='reduced'\] \.look[\s\S]*animation:\s*none/)
   })
 
   it('Alt-Text DE/EN beschreibt den Hund', () => {

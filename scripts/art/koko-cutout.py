@@ -22,7 +22,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 SRC = ROOT / 'content/art/jutta-skizzen/koko-vorsitzende-goth-dogs-01.jpg'
 OUT = ROOT / 'public/art/koko.v2.webp'
 META = ROOT / 'src/art/koko/koko.json'
-OUT_W = 660
+OUT_W = 700
 QUALITY = 80
 
 im = cv2.imread(str(SRC))
@@ -84,6 +84,21 @@ tail = poly([(870, 110), (960, 140), (1040, 160), (1130, 150), (1190, 175), (123
 for p in (paw, tail):
     cv2.fillPoly(F, [p], 1)
 
+# Nur die Büste (Jutta, 07.10.): Kopf mit Narrenkappe, Bommeln und dem spitzen Fellkragen. Der Schnitt folgt den
+# Kragenzacken (Koordinaten im Originalfoto), darunter kein Körper, keine Pfoten, kein Schwanz.
+KEEP = np.array([(395, 815), (425, 792), (455, 770), (480, 772), (497, 800), (507, 826), (522, 828), (535, 800),
+                 (548, 792), (562, 806), (578, 828), (600, 842), (618, 800), (628, 772), (645, 790), (665, 822),
+                 (690, 852), (703, 868), (716, 830), (722, 790), (735, 776), (758, 768), (782, 757), (808, 758),
+                 (838, 780), (900, 780), (900, 250), (100, 250), (100, 815)], np.int32)
+keep_mask = np.zeros((Hh, Ww), np.uint8)
+cv2.fillPoly(keep_mask, [KEEP], 1)
+F = (F & keep_mask).astype(np.uint8)
+n2, l2, s2, _ = cv2.connectedComponentsWithStats(F, connectivity=8)
+F = np.zeros_like(F)
+for i in range(1, n2):
+    if s2[i, 4] > 3000:
+        F[l2 == i] = 1
+
 # ---------------------------------------------------------------- 2) Farben säubern
 warm = rgb[..., 0] - rgb[..., 2]
 Fd = cv2.dilate(F, ell(31))
@@ -100,6 +115,14 @@ lum = adj.mean(-1, keepdims=True)
 adj = np.clip(lum + (adj - lum) * (1 + 0.18 * satw[..., None]), 0, 255)
 adj = np.clip(adj * (1 + 0.06 * satw[..., None]), 0, 255)
 clean = adj * (1 - tw[..., None]) + WHITE * tw[..., None]
+
+# Kragenrand: orange/weiße Reste direkt am Schnitt (≤ 30 px vom Rand) entfernen, nur das schwarze Fell bleibt
+dist = cv2.distanceTransform(F, cv2.DIST_L2, 5)
+bad = (((satw > 0.25) | (tw > 0.35)) & (F > 0) & (dist <= 30) & (yy > 745)).astype(np.uint8)
+free = ((F == 0) | (bad > 0)).astype(np.uint8)
+nb, lb, _, _ = cv2.connectedComponentsWithStats(free, connectivity=8)
+F = np.where((bad > 0) & (lb == lb[0, 0]), 0, F).astype(np.uint8)
+F = cv2.morphologyEx(F, cv2.MORPH_OPEN, ell(3))
 
 # ---------------------------------------------------------------- 4) Augen: Original-Pupillen übermalen
 # Pupille (Originalfoto-Koordinaten): Mitte, Halbachsen. Augapfel = konvexe Hülle aus Weiß und Pupille.
@@ -146,6 +169,12 @@ a = np.where((xx > 800) & (yy < 372), a * bob_soft, a)
 dec = np.clip((rgb - (1 - a[..., None]) * bg) / np.maximum(a, 0.08)[..., None], 0, 255)
 dec = np.minimum(dec, clean)
 col = np.where((core[..., None] > 0) | (Fsoft[..., None] > 0.99), clean, dec)
+
+# Kragenrand: letzte Orange-/Weißreste in den Randpixeln werden Tusche
+dist2 = cv2.distanceTransform((a > 0.5).astype(np.uint8), cv2.DIST_L2, 5)
+edge = (dist2 <= 9) & (yy > 745) & ((satw > 0.12) | (tw > 0.2) | (V > 120))
+col = np.where(edge[..., None], INK * 1.0, col)
+a = np.where((yy > 745) & (dist2 <= 9) & edge & (a < 0.6), 0, a)
 
 # ---------------------------------------------------------------- 5) Zuschnitt, Skalierung, Export
 ys, xs = np.where(a > 0.05)

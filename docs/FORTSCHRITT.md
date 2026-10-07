@@ -2,6 +2,11 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-07 – P12.6 (Nacharbeit 2) Koko als große Büste, Augen links/rechts
+
+- Zuschnitt auf Kopf, Kappe, Bommeln und Fellkragen (kein Körper), 700×690 WebP ≈ 45 KB; Spalte verbreitert, Bild füllt sie. Pupillen: ruhiger Halt 3 s, 0,4 s Wechsel, beide Augen gleichzeitig, rein CSS, endlos (`--dur-koko-look` 6,8 s).
+- Tests: Unit (Koko), E2E `home-koko` (22 s, beide Seiten mehrfach, ruhige Halts), Build, Bundle-Budget.
+
 ## 2026-10-07 – P12.6 (Nacharbeit) Koko aus dem Foto
 
 - Koko nicht mehr nachgezeichnet, sondern aus Juttas Malerei freigestellt und gesäubert (`scripts/art/koko-cutout.py` → `public/art/koko.v2.webp`, 660×867, 66 KB; altes `koko.v1.svg`/`scripts/art/koko.ts` entfernt). Original-Pupillen übermalt, neue Pupillen als SVG-Ellipsen (je Auge Standort + Läufer) in reinem CSS, endlos, links → rechts.

@@ -7,16 +7,12 @@ import { expect, test } from './fixtures'
 
 const sample = () => {
   const el = document.querySelector('[data-chairwoman]')!
-  const look = el.querySelector('[data-koko-pupil="look"]')!
-  const home = el.querySelector('[data-koko-pupil="home"]')!
-  const box = look.getBoundingClientRect()
-  const hbox = home.getBoundingClientRect()
+  const pupil = el.querySelector('[data-koko-pupil]')!
+  const box = pupil.getBoundingClientRect()
   return {
     x: box.x,
     w: box.width,
-    lookOpacity: Number(getComputedStyle(look).opacity),
-    homeOpacity: Number(getComputedStyle(home).opacity),
-    hx: hbox.x,
+    opacity: Number(getComputedStyle(pupil).opacity),
     running: el
       .getAnimations({ subtree: true })
       .map((a) => ({ state: a.playState, t: Number(a.currentTime ?? 0) })),
@@ -34,14 +30,14 @@ test.describe('Startseite: Koko', () => {
     )
     const img = koko.locator('img')
     await expect(img).toHaveAttribute('src', '/art/koko.v2.webp')
-    await expect(img).toHaveAttribute('width', '660')
+    await expect(img).toHaveAttribute('width', '700')
     await expect(img).toHaveAttribute('height', /^\d+$/)
     await expect
       .poll(() => img.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth))
-      .toBe(660)
+      .toBe(700)
     const box = await koko.boundingBox()
     expect(box!.width).toBeGreaterThan(150)
-    expect(box!.height / box!.width).toBeCloseTo(867 / 660, 1)
+    expect(box!.height / box!.width).toBeCloseTo(690 / 700, 1)
     await page.goto('/en')
     await expect(page.locator('[data-chairwoman]').first()).toHaveAttribute(
       'aria-label',
@@ -50,7 +46,7 @@ test.describe('Startseite: Koko', () => {
     expect(foreignRequests).toEqual([])
   })
 
-  test('Pupillen laufen weiter: nach 22 s noch in Bewegung, immer von links nach rechts, nichts bleibt verschwunden', async ({
+  test('Pupillen laufen weiter: 24 s lang mehrfach links und rechts, ruhige Halts, schnelle Wechsel, kein Zittern', async ({
     page,
   }) => {
     test.setTimeout(90_000)
@@ -58,41 +54,62 @@ test.describe('Startseite: Koko', () => {
     await page.goto('/de')
     const koko = page.locator('[data-chairwoman]').first()
     await koko.scrollIntoViewIfNeeded()
-    const samples: Awaited<ReturnType<typeof page.evaluate<ReturnType<typeof sample>>>>[] = []
+    const samples: {
+      t: number
+      x: number
+      w: number
+      opacity: number
+      running: { state: string; t: number }[]
+    }[] = []
     const t0 = Date.now()
-    while (Date.now() - t0 < 22_000) {
-      samples.push(await page.evaluate(sample))
-      await page.waitForTimeout(250)
+    while (Date.now() - t0 < 24_000) {
+      const s = await page.evaluate(sample)
+      samples.push({ t: Date.now() - t0, ...s })
+      await page.waitForTimeout(60)
     }
     const last = samples[samples.length - 1]!
-    // vier CSS-Animationen (zwei je Auge), alle laufen, schon > 20 s
-    expect(last.running).toHaveLength(4)
+    // zwei CSS-Animationen (eine je Auge), laufen noch nach > 20 s
+    expect(last.running).toHaveLength(2)
     for (const a of last.running) {
       expect(a.state).toBe('running')
       expect(a.t).toBeGreaterThan(20_000)
     }
-    // der Läufer ist während der 22 s mindestens zweimal über den Weg gewandert
-    const xs = samples.filter((s) => s.lookOpacity > 0.5).map((s) => s.x)
-    const span = Math.max(...xs) - Math.min(...xs)
-    expect(span).toBeGreaterThan(last.w * 0.8)
-    // sichtbar nie rückwärts (rechts → links): in Folge sichtbarer Messungen wächst x oder bleibt gleich
-    let back = 0
-    for (let i = 1; i < samples.length; i++) {
-      const a = samples[i - 1]!
-      const b = samples[i]!
-      if (a.lookOpacity > 0.5 && b.lookOpacity > 0.5 && b.x < a.x - 0.5) back++
+    for (const s of samples) expect(s.opacity).toBe(1) // nie ausgeblendet
+    const xs = samples.map((s) => s.x)
+    const min = Math.min(...xs)
+    const max = Math.max(...xs)
+    const span = max - min
+    expect(span).toBeGreaterThan(last.w * 0.8) // sichtbarer Weg
+    const near = (x: number, edge: number) => Math.abs(x - edge) < span * 0.04
+    // Seiten besucht: Folge links/rechts-Wechsel – in 24 s (Takt 6,8 s) mindestens 3 Wechsel
+    let side: 'l' | 'r' | null = null
+    let flips = 0
+    for (const s of samples) {
+      const cur = near(s.x, min) ? 'l' : near(s.x, max) ? 'r' : null
+      if (cur && cur !== side) {
+        if (side) flips++
+        side = cur
+      }
     }
-    expect(back).toBe(0)
-    // in jedem 5-Sekunden-Fenster ist mindestens eine Pupille sichtbar (kein leeres Auge, nichts verschwindet)
-    for (let i = 0; i < samples.length; i += 1)
-      expect(Math.max(samples[i]!.lookOpacity, samples[i]!.homeOpacity)).toBeGreaterThan(0)
-    // in den letzten 9 s hat sie sich noch bewegt (nicht eingefroren)
-    const late = samples
-      .slice(-36)
-      .filter((s) => s.lookOpacity > 0.5)
-      .map((s) => s.x)
-    expect(Math.max(...late) - Math.min(...late)).toBeGreaterThan(last.w * 0.3)
-    // Bild und Pupillen noch am Platz
+    expect(flips).toBeGreaterThanOrEqual(5)
+    // Halts: längste Ruhephasen (Abweichung < 0,3 px) dauern ≈ 3 s (≥ 2,4 s); kein Zittern dazwischen
+    let runStart = 0
+    const holds: number[] = []
+    for (let i = 1; i <= samples.length; i++) {
+      if (i === samples.length || Math.abs(samples[i]!.x - samples[runStart]!.x) > 0.3) {
+        const d = samples[i - 1]!.t - samples[runStart]!.t
+        if (d > 600) holds.push(d)
+        runStart = i
+      }
+    }
+    expect(holds.length).toBeGreaterThanOrEqual(5)
+    for (const h of holds.slice(1, -1)) {
+      expect(h).toBeGreaterThan(2_400)
+      expect(h).toBeLessThan(3_800)
+    }
+    // Wechsel sind kurz: Zeit zwischen Halts ≤ 0,9 s (0,4 s Soll)
+    const moving = samples.filter((s) => !near(s.x, min) && !near(s.x, max)).length * 60
+    expect(moving).toBeLessThan(24_000 * 0.2)
     await expect(koko.locator('img')).toBeVisible()
     await expect(koko.locator('svg')).toBeVisible()
   })
@@ -104,10 +121,9 @@ test.describe('Startseite: Koko', () => {
     await expect(koko).toBeVisible()
     const s = await page.evaluate(sample)
     expect(s.running).toHaveLength(0)
-    expect(s.homeOpacity).toBe(1)
-    expect(s.lookOpacity).toBe(0)
+    expect(s.opacity).toBe(1)
     await page.waitForTimeout(1500)
-    expect((await page.evaluate(sample)).hx).toBe(s.hx)
+    expect((await page.evaluate(sample)).x).toBe(s.x)
   })
 
   test('Schalter „Animationen aus“ (data-motion=reduced) stoppt auch Koko', async ({ page }) => {
@@ -116,6 +132,6 @@ test.describe('Startseite: Koko', () => {
     await page.evaluate(() => document.documentElement.setAttribute('data-motion', 'reduced'))
     const s = await page.evaluate(sample)
     expect(s.running).toHaveLength(0)
-    expect(s.homeOpacity).toBe(1)
+    expect(s.opacity).toBe(1)
   })
 })
