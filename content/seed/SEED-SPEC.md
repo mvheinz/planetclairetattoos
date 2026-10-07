@@ -31,7 +31,7 @@ Grund-Seed und den Mini-Satz an (Spalte „Phase“, §1.8).
 | `categories` | 6 | – (Grund-Seed) | P1 | §3.3 |
 | `settings`, `site-texts` (Globals) | je 1 | – (Grund-Seed) | P1 | §3.1 |
 | `legal-texts` | 6 (Platzhalter v1) | `false` (Grund-Seed) | P1 | §3.4 |
-| `media` | 47 (17 Instagram-Ausschnitte + 30 Platzhalter) | `true` | P1 Mini-Satz · P8 vollständig | §4 |
+| `media` | 48 (17 Instagram-Ausschnitte + 1 eigenes Foto von Jutta + 30 Platzhalter) | `true` | P1 Mini-Satz · P8 vollständig | §4 |
 | `private-uploads` | 7 (+ 15 Beleg-PDFs) | `true` | P1 Mini-Satz · P8 vollständig | §4.4, §9 |
 | `products` | 30 | `true` | P1 Mini-Satz · P8 vollständig | §5 |
 | `checkouts` | 14 (12 abgeschlossen, 1 abgelaufen, 1 offen) | `true` | P1 Mini-Satz (KS2) · P8 vollständig | §7.3 |

@@ -201,6 +201,15 @@
         }
       },
       {
+        "blockType": "imageText",
+        "image": "media:own:jutta-coco",
+        "imagePosition": "left",
+        "content": {
+          "de": "## Zu zweit\n\nAm liebsten liegt Coco genau dort, wo ich gerade arbeiten will – gern kopfüber, den Blick nach oben, dicht an meiner Hand mit den kleinen Tätowierungen. Dann bleibe ich einfach liegen, und die Linie wartet.",
+          "en": "## The two of us\n\nCoco likes to lie exactly where I am about to work – preferably upside down, eyes turned up, close against my hand with its small tattoos. Then I simply stay where I am, and the line can wait."
+        }
+      },
+      {
         "blockType": "imageGallery",
         "images": [
           "media:ig:DcrENrOjlGP",

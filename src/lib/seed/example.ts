@@ -40,6 +40,7 @@ import { findBySeedKey, upsertBySeedKey } from './upsert'
 // angelegt.
 
 export const INSTAGRAM_DIR = path.join('content', 'seed', 'instagram')
+export const OWNER_DIR = path.join('content', 'seed', 'owner')
 
 export const EXAMPLE_STEPS = [
   'media',
@@ -87,6 +88,7 @@ type UploadFile = { data: Buffer; mimetype: string; name: string; size: number }
 export function hasExampleData(data: SeedData): boolean {
   return (
     data.media.instagram.length +
+      data.media.owned.length +
       data.media.placeholders.length +
       data.privateUploads.length +
       data.products.length +
@@ -208,6 +210,34 @@ async function importMedia(req: PayloadRequest, data: SeedData, options: Example
       create: () => withSource,
       en,
       update: () => ({ de: options.refreshMedia ? withSource : de, en }),
+      file,
+    })
+    if (res.outcome === 'updated') await refresh(res.doc, file)
+  }
+  for (const entry of data.media.owned) {
+    // Von Jutta selbst gelieferte, bereits aufbereitete Datei (kein EXIF/GPS, ≈ 1200 px, ≤ 150 KB).
+    const name = `${entry.key.replace(':', '-')}.${entry.file.endsWith('.webp') ? 'webp' : 'jpg'}`
+    const mime = entry.file.endsWith('.webp') ? 'image/webp' : 'image/jpeg'
+    const file = async () =>
+      fileOf(await readFile(path.join(root, OWNER_DIR, entry.file)), name, mime)
+    const de = {
+      alt: entry.alt.de,
+      showsPerson: entry.showsPerson,
+      ownerApproved: entry.ownerApproved,
+      source: 'upload',
+      sourceRef: entry.key,
+      ...(entry.focal ? { focalX: entry.focal.x, focalY: entry.focal.y } : {}),
+    }
+    const en = entry.alt.en ? { alt: entry.alt.en } : undefined
+    const res = await upsertBySeedKey({
+      req,
+      report: options.report,
+      collection: 'media',
+      seedKey: `media:${entry.key}`,
+      group: 'content',
+      create: () => de,
+      en,
+      update: () => ({ de, en }),
       file,
     })
     if (res.outcome === 'updated') await refresh(res.doc, file)

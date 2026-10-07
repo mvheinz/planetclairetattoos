@@ -100,7 +100,7 @@ describe('SEED_EXPECTED_COUNTS (SEED-SPEC §0.1)', () => {
     // Texte der Spezifikation (§0.1 Klammern, §0.3 Tabelle, §5.1 Summe) nennen dieselben Zahlen
     const m = SEED_EXPECTED_DETAIL.media
     expect(spec).toContain(
-      `${SEED_EXPECTED_COUNTS.media} (${m.instagram} Instagram-Ausschnitte + ${m.placeholders} Platzhalter)`,
+      `${SEED_EXPECTED_COUNTS.media} (${m.instagram} Instagram-Ausschnitte + ${m.owned} eigenes Foto von Jutta + ${m.placeholders} Platzhalter)`,
     )
     const c = SEED_EXPECTED_DETAIL.checkouts
     expect(spec).toContain(

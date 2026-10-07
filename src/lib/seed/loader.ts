@@ -65,7 +65,7 @@ export class SeedDataError extends Error {
 
 const EMPTY: Omit<SeedData, 'base'> = {
   customers: [],
-  media: { instagram: [], placeholders: [] },
+  media: { instagram: [], owned: [], placeholders: [] },
   privateUploads: [],
   products: [],
   orders: { checkouts: [], orders: [], reservations: [] },
@@ -116,7 +116,9 @@ function duplicates(keys: string[]): string[] {
 export function crossCheck(data: SeedData, now: Date): string[] {
   const issues: string[] = []
   const mediaKeys = new Set(
-    [...data.media.instagram, ...data.media.placeholders].map((m) => `media:${m.key}`),
+    [...data.media.instagram, ...data.media.owned, ...data.media.placeholders].map(
+      (m) => `media:${m.key}`,
+    ),
   )
   const uploadKeys = new Set(data.privateUploads.map((u) => `private-uploads:${u.key}`))
   const productKeys = new Set(data.products.map((p) => `products:${p.key}`))
@@ -130,7 +132,10 @@ export function crossCheck(data: SeedData, now: Date): string[] {
 
   const dupLists: [string, string[]][] = [
     ['media.json', [...mediaKeys.values()]],
-    ['media.json', [...data.media.instagram, ...data.media.placeholders].map((m) => m.key)],
+    [
+      'media.json',
+      [...data.media.instagram, ...data.media.owned, ...data.media.placeholders].map((m) => m.key),
+    ],
     ['private-uploads.json', data.privateUploads.map((u) => u.key)],
     ['products.json', data.products.map((p) => p.key)],
     ['products.json itemNumber', data.products.map((p) => String(p.itemNumber))],
