@@ -1,13 +1,8 @@
 import { expect, test } from './fixtures'
 
-<<<<<<< HEAD
-// P12.5/P12.6 (U-09, U-08): Startseite – Fitness-Coco ersetzt die große sitzende Coco der Hallo-Station, lädt die Bildfolge
-// erst nach dem `load`, steht bei reduzierter Bewegung still; Koko steht in `home-koko.e2e.spec.ts`.
-=======
 // P12.5/P12.6 (U-09, U-08): Startseite – Fitness-Coco (Puppen-Gerüst, `src/lib/fitness`) ersetzt die große sitzende Coco der
 // Hallo-Station, lädt den Ablaufplan erst nach dem `load`, läuft als Endlosschleife, pausiert außerhalb des Bildes, steht bei
 // reduzierter Bewegung still; Koko: nur die Pupillen sind animiert.
->>>>>>> wip/p12-fit
 
 test.describe('Startseite: Fitness-Coco und Koko', () => {
   test('keine sitzende Sprite-Coco mehr in „Hallo“; Fitness-Coco läuft nach dem load, ohne Konsolenfehler', async ({

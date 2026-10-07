@@ -79,7 +79,7 @@
   color: var(--ink);
   border: 1px solid var(--ink);
   border-radius: var(--r-tag);
-  box-shadow: 2px 3px 6px rgb(0 0 0 / 0.35);
+  box-shadow: 2px 3px 0 rgb(0 0 0 / 0.3);
   min-width: 0;
   transform: rotate(-0.8deg);
 }
@@ -109,7 +109,7 @@
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, var(--paper-field) 0 12%, var(--petrol) 14% 100%);
   border: 1px solid var(--ink);
-  box-shadow: 1px 2px 2px rgb(0 0 0 / 0.4);
+  box-shadow: 1px 2px 0 rgb(0 0 0 / 0.35);
 }
 
 /* Datumsblock: große Tageszahl in Spectral, Monat als Mono-Kürzel. */

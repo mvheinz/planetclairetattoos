@@ -28,7 +28,9 @@ describe('U-11 Seitengrund-Verlauf', () => {
     expect(flatBody).not.toMatch(/url\(/)
     expect(flatBody).toContain('background-attachment: scroll')
     expect(css).not.toMatch(/grid-line/)
-    expect(/@media \(forced-colors: active\) \{\s*body \{\s*background-image: none/.test(css)).toBe(true)
+    expect(/@media \(forced-colors: active\) \{\s*body \{\s*background-image: none/.test(css)).toBe(
+      true,
+    )
   })
 
   it('Scroll-Verbesserung nur unter no-preference, @supports und ohne data-motion=reduced', () => {
