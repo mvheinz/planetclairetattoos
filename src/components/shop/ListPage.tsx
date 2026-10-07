@@ -23,6 +23,7 @@ import type { Locale } from '@/lib/enums'
 import { localizedPath } from '@/lib/routes/paths'
 import { breadcrumbItems } from '@/lib/seo/breadcrumbs'
 import { breadcrumbJsonLd } from '@/lib/seo/jsonld'
+import { categoryTile, TILE_SIZE } from '@/lib/shop/categoryTiles'
 import { listSearch, variantKey, type ListParams } from '@/lib/shop/listParams'
 
 import styles from './ListPage.module.css'
@@ -169,19 +170,36 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
         aria-label={archive ? t('archive.filterLabel') : t('shop.list.filterLabel')}
       >
         <ul className={styles.chips}>
-          {chips.map((chip) => (
-            <li key={chip.key}>
-              <a
-                className={styles.chip}
-                href={chip.href}
-                aria-current={chip.current ? 'page' : undefined}
-                data-chip={chip.key}
-              >
-                {chip.label}
-              </a>
-            </li>
-          ))}
-          {!archive ? (
+          {chips.map((chip) => {
+            const tile = categoryTile(chip.key)
+            return (
+              <li key={chip.key}>
+                <a
+                  className={styles.card}
+                  href={chip.href}
+                  aria-current={chip.current ? 'page' : undefined}
+                  data-chip={chip.key}
+                >
+                  {/* Dekorativ: Das Etikett daneben benennt den Link. Feste Größe → kein CLS. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    className={styles.tile}
+                    src={tile.src}
+                    width={TILE_SIZE}
+                    height={TILE_SIZE}
+                    alt=""
+                    decoding="async"
+                    style={{ objectPosition: tile.position }}
+                    data-tile={chip.key}
+                  />
+                  <span className={styles.cardLabel}>{chip.label}</span>
+                </a>
+              </li>
+            )
+          })}
+        </ul>
+        {!archive ? (
+          <ul className={styles.options}>
             <li>
               <a
                 className={`${styles.chip} ${styles.toggle}`}
@@ -198,8 +216,8 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
                 ) : null}
               </a>
             </li>
-          ) : null}
-        </ul>
+          </ul>
+        ) : null}
       </nav>
 
       {!archive && !settings.isOpen ? (

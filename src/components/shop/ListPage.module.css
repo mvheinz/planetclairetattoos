@@ -49,6 +49,74 @@
   scroll-snap-align: start;
 }
 
+/* P12.15 Kategorie-Karten: Coco-Kachel (quadratisch, immer gleich groß) über dem Etikett. Alle Karten haben
+   dieselbe Breite und Höhe; das Etikett ist eine Pille mit fester Höhe. */
+.card {
+  --tile: 104px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-sizing: border-box;
+  width: var(--tile);
+  margin: 2px 0;
+  color: var(--ink);
+  font-family: var(--font-body);
+  text-decoration: none;
+}
+
+.tile {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border: 1.5px solid var(--ink);
+  border-radius: 14px 12px 15px 12px;
+  background: var(--paper-2);
+}
+
+.cardLabel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 36px;
+  padding: 0 8px;
+  border: 1.5px solid var(--ink);
+  border-radius: var(--r-btn);
+  background: var(--paper);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.card[aria-current='page'] .cardLabel {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.card[aria-current='page'] .tile {
+  box-shadow:
+    0 0 0 2px var(--paper),
+    0 0 0 4px var(--ink);
+}
+
+.card:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+  border-radius: 14px;
+}
+
+.options {
+  display: flex;
+  margin: var(--space-3) 0 0;
+  padding: 0 var(--page-pad);
+  list-style: none;
+}
+
 .chip {
   display: inline-flex;
   align-items: center;
@@ -168,8 +236,17 @@
 
   .chips {
     flex-wrap: wrap;
+    gap: var(--space-3);
     padding-inline: 0;
     overflow-x: visible;
+  }
+
+  .card {
+    --tile: 128px;
+  }
+
+  .options {
+    padding-inline: 0;
   }
 
   .grid {
