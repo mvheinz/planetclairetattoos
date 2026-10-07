@@ -141,8 +141,8 @@ test.describe('axe in Zuständen @a11y', () => {
 // Kein Hook läuft (direktes SQL), es entsteht also auch keine Cache-Erneuerung oder Version.
 const HOME_LOCK = 7_314_010
 const EMPTY_TITLE: Record<Locale, string> = {
-  de: 'Hier wird gerade umgeräumt.',
-  en: 'We’re rearranging things.',
+  de: 'Der Planet dreht sich gerade um.',
+  en: 'The planet is turning over.',
 }
 
 function previewModeId(): string {

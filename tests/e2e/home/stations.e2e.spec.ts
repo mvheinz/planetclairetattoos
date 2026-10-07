@@ -234,9 +234,9 @@ test.describe('Startseite – Leerzustand (exklusiv)', () => {
       await expect(schmuck.locator('[data-product-card]')).toHaveCount(0)
       const empty = schmuck.locator('[data-station-empty]')
       await expect(empty).toContainText(
-        'Gerade ist hier nichts – schau bald wieder oder stöbere im Archiv',
+        'Gerade ist es hier still. Komm später wieder – oder wandere durchs Archiv.',
       )
-      await expect(empty.getByRole('link', { name: 'Zum Archiv' })).toHaveAttribute(
+      await expect(empty.getByRole('link', { name: 'Ins Archiv' })).toHaveAttribute(
         'href',
         '/de/archiv',
       )

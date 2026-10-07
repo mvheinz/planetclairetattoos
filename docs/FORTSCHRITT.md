@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P12.9 und P12.10
+
+- P12.10 Alle Texte neu (U-21): Ton verträumt-philosophisch, Ich-Form von Jutta, Sachtexte poetisch gerahmt mit klaren Fakten. Neu sind Sprachdateien (`src/i18n/messages/de.json`, `en.json`), Standardtexte der Verwaltung (`site-texts`), Beispielbestand (Seiten, Stationen, Kategorien, FAQ, Termine, Stücke) und Titelzeilen einiger Mails. Pflichttexte, Button „Zahlungspflichtig bestellen“, Rechtstexte (P12.11) und Verbotsliste (kein DM, kein „inkl. MwSt.“) unverändert beachtet.
+- Leitfaden `docs/design/TEXTE.md` (Stimme, Sachtexte, Verbote, Zweisprachigkeit, Alt-Texte).
+- P12.9 Zweisprachigkeit (U-00): englische Fassungen eigenständig geschrieben; fehlende EN-Alt-Texte ergänzt, doppelte „Zeichnung: Zeichnung:“ bereinigt.
+- Tests: neu `tests/unit/i18n/bilingual.unit.spec.ts` (Schlüssel-Parität, EN ≠ DE mit Allowlist, kein lorem/TODO, keine Umlaute im EN-Text, Platzhalter, Alt-Texte, Beispielbestand DE+EN, site-texts) und `tests/unit/i18n/text-inventory.unit.spec.ts` (keine Reste der ~300 alten Texte aus `tests/fixtures/old-texts-p12.json`, kein DM, Pflichttexte unverändert). Mail-Referenzdateien und Unit-/Int-/E2E-Erwartungen auf die neuen Texte angepasst (Absicht unverändert).
+
 ## 2026-10-06 – P12.3
 
 - Goth-Fotorahmen: viktorianischer Filigran-Rahmen mit dünner Tuschelinie als eine gemeinsame SVG-Datei (3,9 KB, scripts/art/build-photo-frame.ts), per border-image an ResponsiveImage (alle Foto-Stellen: Karten, Produktseite, Galerie, Flash, Über mich, Startseite, Teaser, Korb, Kasse); Passepartout/Doppelrahmen und Flash-Rand ersetzt.

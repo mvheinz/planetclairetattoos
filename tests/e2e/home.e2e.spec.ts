@@ -19,13 +19,29 @@ const STATION_IDS = [
 ]
 
 const HEADINGS: Record<Locale, string[]> = {
-  de: ['Hallo!', 'Keramik', 'Textil & Caps', 'Zeichnungen', 'Schmuck', 'Tattoo', 'Jutta & Coco'],
-  en: ['Hi!', 'Ceramics', 'Textiles & caps', 'Drawings', 'Jewellery', 'Tattoo', 'Jutta & Coco'],
+  de: [
+    'Komm näher.',
+    'Keramik',
+    'Textil & Caps',
+    'Zeichnungen',
+    'Schmuck',
+    'Tattoo',
+    'Jutta & Coco',
+  ],
+  en: [
+    'Come closer.',
+    'Ceramics',
+    'Textiles & caps',
+    'Drawings',
+    'Jewellery',
+    'Tattoo',
+    'Jutta & Coco',
+  ],
 }
 
 const HERO: Record<Locale, string> = {
-  de: 'Tattoos & handgemachte Unikate aus Berlin',
-  en: 'Tattoos & handmade one-offs from Berlin',
+  de: 'Ein kleiner Planet, auf dem alles nur einmal vorkommt',
+  en: 'A small planet where everything happens only once',
 }
 
 async function expectStations(page: Page, locale: Locale) {

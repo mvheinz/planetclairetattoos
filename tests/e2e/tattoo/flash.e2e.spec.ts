@@ -100,7 +100,7 @@ test('AK-9-02 Mail-Knopf von F-981 mit exaktem Betreff; vergebene ohne Anfrage-K
     await expect(claimed).toHaveAttribute('data-flash-status', 'claimed')
     await expect(claimed.locator('[data-flash-mail]')).toHaveCount(0)
     await expect(claimed.locator('[data-flash-taken]')).toContainText(
-      'Schon vergeben – schau dir die anderen an',
+      'Dieses Motiv trägt schon jemand. Schau dir die anderen an.',
     )
     await expect(claimed.locator('[data-taken-stamp]')).toContainText('vergeben')
   }

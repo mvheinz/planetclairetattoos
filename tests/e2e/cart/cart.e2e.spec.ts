@@ -147,17 +147,21 @@ test.describe('Korb mit Seed-Ankern', () => {
     expect((await context.cookies()).map((c) => c.name)).not.toContain('pc_cart')
   })
 
-  test('Leerzustand KO-17 ohne Cookie: „Hier ist noch nichts drin.“ + „Zum Shop“; setzt kein Cookie', async ({
+  test('Leerzustand KO-17 ohne Cookie: „Noch liegt nichts in deinem Korb.“ + „Zum Shop“; setzt kein Cookie', async ({
     page,
     context,
   }) => {
     const res = await page.goto(R06.en)
     expect(res?.status()).toBe(200)
     await expect(page.locator('h1')).toHaveText('Your cart')
-    await expect(page.locator('[data-empty-state] h2')).toHaveText('Nothing in here yet.')
+    await expect(page.locator('[data-empty-state] h2')).toHaveText(
+      'Nothing lies in your basket yet.',
+    )
     await expect(page.locator('[data-empty-state] a')).toHaveAttribute('href', '/en/shop')
     await page.goto(R06.de)
-    await expect(page.locator('[data-empty-state] h2')).toHaveText('Hier ist noch nichts drin.')
+    await expect(page.locator('[data-empty-state] h2')).toHaveText(
+      'Noch liegt nichts in deinem Korb.',
+    )
     await expect(page.locator('[data-empty-state] a')).toHaveText(/Zum Shop/)
     expect(await context.cookies()).toEqual([])
     expect(

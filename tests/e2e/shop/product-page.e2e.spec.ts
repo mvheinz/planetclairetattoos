@@ -126,7 +126,7 @@ test.describe('Produktseite – Aufbau und Reihenfolge', () => {
     await expect(page.locator('[data-sold-text]')).toHaveText('Schon verkauft')
     await expect(page.locator('[data-add-to-cart]')).toHaveCount(0)
     const area = page.locator('[data-buy-area]')
-    await expect(area.getByRole('link', { name: 'Ähnliche Stücke' })).toHaveAttribute(
+    await expect(area.getByRole('link', { name: 'Verwandte Stücke' })).toHaveAttribute(
       'href',
       '/de/shop/kategorie/keramik',
     )
@@ -354,9 +354,9 @@ test.describe('Produktseite – Beschreibung, Details, Versand & Rückgabe, „M
     await expect(page.locator('[data-product-description] p').first()).toContainText(
       'Kleine Schale, innen wohnen ein Hase',
     )
-    await expect(page.locator('[data-jutta-says]')).toContainText('Jutta sagt')
+    await expect(page.locator('[data-jutta-says]')).toContainText('Ein Wort von mir')
     await expect(page.locator('[data-jutta-says] blockquote')).toHaveText(
-      'Die beiden sind unzertrennlich. Bitte nicht auseinanderbringen.',
+      'Die beiden gehören zusammen. Bitte trenn sie nicht.',
     )
   })
 

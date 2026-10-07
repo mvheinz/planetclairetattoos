@@ -5547,10 +5547,10 @@ Nach dem Merge automatisch (ohne Checkbox; prüft P11.1):
   `seed:true`, DE/EN, Handbuch-Kapitel.
   - Akzeptanz: Int-/E2E-Tests (Anlegen in der Verwaltung → erscheint öffentlich); keine Karte/Drittanbieter; Seed/Entfernen
     der Beispieldaten; Vorschau-Datei zeigt Termine.
-- [ ] **P12.9 Zweisprachigkeit prüfen und schließen** (U-00) – Parität aller Texte (Seiten, Beispieldaten, Fehler, E-Mails,
+- [x] **P12.9 Zweisprachigkeit prüfen und schließen** (U-00) – Parität aller Texte (Seiten, Beispieldaten, Fehler, E-Mails,
   Verwaltung, Alt-Texte) DE/EN, eigenständig formuliert; Test auf fehlende/identische EN-Texte.
   - Akzeptanz: Paritäts-Test grün; keine „lorem“/Platzhalter-EN; Stichprobe durch Prüf-Subagent.
-- [ ] **P12.10 Alle Texte neu** (U-21) – verträumt-philosophischer Ton, Ich-Form, Sachtexte poetisch gerahmt; Seiten, Stationen,
+- [x] **P12.10 Alle Texte neu** (U-21) – verträumt-philosophischer Ton, Ich-Form, Sachtexte poetisch gerahmt; Seiten, Stationen,
   Shop, Tattoo, FAQ, Über mich, Leerzustände, Fehlerseiten, Beispieldaten; Pflichttexte und Button „Zahlungspflichtig bestellen“
   unverändert; Verbotsliste/V-xx-Tests grün.
   - Akzeptanz: Textinventur-Test (keine Reste alter Texte), V-Muster-Tests, Paritäts-Test; Lektorats-Subagent (frischer Kontext)

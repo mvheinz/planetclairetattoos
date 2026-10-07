@@ -145,7 +145,7 @@ describe('Seiten (SEED-SPEC §13)', () => {
     expect(phases(aftercareEn).map((x) => (x as { id?: string }).id)).toEqual(
       phases(aftercareDe).map((x) => (x as { id?: string }).id),
     )
-    expect(plain(phases(aftercareEn)[0]!.content)).toMatch(/^I'll cover your tattoo with film/)
+    expect(plain(phases(aftercareEn)[0]!.content)).toMatch(/^I wrap your tattoo in film/)
     const tattooEn = await page('tattoo', 'en')
     expect(tattooEn.title).toBe('Tattoo')
     const steps = tattooEn.layout[4]!.steps as { title: string; text: string }[]
@@ -157,7 +157,7 @@ describe('Seiten (SEED-SPEC §13)', () => {
       'Aftercare',
     ])
     expect(plain((await page('not_found', 'en')).layout[0]!.content)).toBe(
-      "Coco sniffed everywhere – this page doesn't exist (anymore). [Back to the start](/en)",
+      'Coco followed the line and never came back – this page does not exist (anymore). [Back to the start](/en)',
     )
     for (const key of PAGE_KEYS) {
       const [de, en] = [await page(key, 'de'), await page(key, 'en')]

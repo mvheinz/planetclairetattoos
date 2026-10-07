@@ -35,11 +35,11 @@ describe('Startseite (P2.20)', () => {
     const view = await loadHomeView('de')
     expect(view).not.toBeNull()
     expect(view!.name).toBe('Planet Claire')
-    expect(view!.hero?.heading).toBe('Tattoos & handgemachte Unikate aus Berlin')
+    expect(view!.hero?.heading).toBe('Ein kleiner Planet, auf dem alles nur einmal vorkommt')
     expect(view!.stations.map((s) => s.stationId)).toEqual([...HOME_STATION_IDS])
     expect(view!.stations.map((s) => s.number)).toEqual([1, 2, 3, 4, 5, 6, 7])
     const byId = Object.fromEntries(view!.stations.map((s) => [s.stationId, s]))
-    expect(byId.hallo!.heading).toBe('Hallo!')
+    expect(byId.hallo!.heading).toBe('Komm näher.')
     expect(byId.hallo!.link).toBeNull()
     expect(byId.keramik!.pose).toBe('sniff')
     expect(byId.keramik!.link).toEqual({
@@ -53,7 +53,7 @@ describe('Startseite (P2.20)', () => {
 
   it('AK-3-01 EN vollständig: englische Texte und Pfade', async () => {
     const view = await loadHomeView('en')
-    expect(view!.hero?.heading).toBe('Tattoos & handmade one-offs from Berlin')
+    expect(view!.hero?.heading).toBe('A small planet where everything happens only once')
     expect(view!.stations.map((s) => s.stationId)).toEqual([...HOME_STATION_IDS])
     const keramik = view!.stations.find((s) => s.stationId === 'keramik')!
     expect(keramik.heading).toBe('Ceramics')

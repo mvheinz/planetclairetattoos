@@ -245,8 +245,8 @@ const notFound = pageTexts('notFound', 'Seite nicht gefunden', {
   intro: [
     'Text',
     {
-      de: 'Coco ist der Linie nachgelaufen und nicht zurückgekommen. Hier gibt es nichts – oder nichts mehr.',
-      en: 'Coco followed the line and never came back. There is nothing here – or nothing any more.',
+      de: 'Coco ist der Linie nachgelaufen und nicht zurückgekommen. Diese Seite gibt es nicht (mehr).',
+      en: 'Coco followed the line and never came back. This page does not exist (anymore).',
     },
   ],
 })

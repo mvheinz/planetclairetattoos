@@ -547,9 +547,7 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
     expect(productRoute(929, 'en'), 'S29 en').toBeTruthy()
     const s08 = seedProductSlugs('S08').de
     await go(page, `/de/shop/${s08.nummer}-${s08.slug}`)
-    await expect(page.locator('#pv-root h1')).toHaveText(
-      'Dieses Stück hat schon ein Zuhause gefunden',
-    )
+    await expect(page.locator('#pv-root h1')).toHaveText('Dieses Stück ist weitergezogen')
 
     // G1/G2 mit Etikett „intern – Einwilligung fehlt“ (R-182)
     await go(page, localizedPath('R15', 'de'))

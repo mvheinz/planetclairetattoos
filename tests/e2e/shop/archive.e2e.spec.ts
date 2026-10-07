@@ -75,7 +75,7 @@ test.describe('Archiv R05 – lesend (alle Projekte)', () => {
     await expect(page).toHaveTitle('Archiv · Planet Claire')
     await expect(page.locator('h1')).toHaveText('Archiv')
     await expect(page.locator('header p').first()).toHaveText(
-      'Schon ausgezogen – aber schön anzusehen',
+      'Hier wohnen die Stücke, die weitergezogen sind.',
     )
     await expect(page.locator('[data-chip="all"]')).toHaveAttribute('aria-current', 'page')
     // Chips nur für Kategorien mit Archiv-Stücken (als ?category=<DE-Slug>): im Beispielbestand kein verkaufter Schmuck
@@ -99,7 +99,7 @@ test.describe('Archiv R05 – lesend (alle Projekte)', () => {
     await expect(page).toHaveTitle('Archive · Planet Claire')
     await expect(page.locator('h1')).toHaveText('Archive')
     await expect(page.locator('header p').first()).toHaveText(
-      'Already moved out – but lovely to look at',
+      'Here live the pieces that have moved on.',
     )
     await expect(page.locator('[data-chip="keramik"]')).toHaveAttribute(
       'href',
@@ -245,7 +245,7 @@ test.describe('Archiv R05 – mit eigenen Stücken (nur desktop)', () => {
     expect(await cardNumbers(page)).toEqual(await expectedArchive('textil'))
   })
 
-  test('Leerzustand KO-17: „Noch ist nichts verkauft.“ mit Link zum Shop', async ({
+  test('Leerzustand KO-17: „Noch ist niemand weitergezogen.“ mit Link zum Shop', async ({
     page,
     request,
   }) => {
@@ -273,7 +273,7 @@ test.describe('Archiv R05 – mit eigenen Stücken (nur desktop)', () => {
       await refresh(request, [archive, archiveEn])
       await page.goto(archive)
       const empty = page.locator('[data-empty-state]')
-      await expect(empty.locator('h2')).toHaveText('Noch ist nichts verkauft.')
+      await expect(empty.locator('h2')).toHaveText('Noch ist niemand weitergezogen.')
       await expect(empty.getByRole('link', { name: 'Zum Shop' })).toHaveAttribute(
         'href',
         localizedPath('R02', 'de'),
@@ -281,7 +281,7 @@ test.describe('Archiv R05 – mit eigenen Stücken (nur desktop)', () => {
       await expect(page.locator('[data-product-card]')).toHaveCount(0)
       await expect(page.locator('[data-chip]')).toHaveCount(1)
       await page.goto(archiveEn)
-      await expect(page.locator('[data-empty-state] h2')).toHaveText('Nothing sold yet.')
+      await expect(page.locator('[data-empty-state] h2')).toHaveText('Nobody has moved on yet.')
     } finally {
       await hide(true)
       // Alles, was S06 zeigt, frisch erzeugen – falls eine dieser Seiten im Fenster (z. B. nach einer Cache-Erneuerung

@@ -62,7 +62,7 @@ test.describe('P8.21 Seed-Anker öffentlich', () => {
     expect(await res.text()).toMatch(/<meta name="robots" content="noindex"/)
     await freshPage(page)
     await page.goto(S08.de)
-    await expect(page.locator('h1')).toHaveText('Dieses Stück hat schon ein Zuhause gefunden')
+    await expect(page.locator('h1')).toHaveText('Dieses Stück ist weitergezogen')
   })
 
   test('P8.21 Produktseiten S01 (2 Bilder), S11 (Abweichung, Mischgewebe), S14 (reserviert, Etikett fehlt), S19 (verkauft), S26 (Schmuck), S29 (EN-Rückfall), S30 (nur Abholung)', async ({
@@ -156,7 +156,7 @@ test.describe('P8.21 Seed-Anker öffentlich', () => {
     await page.goto('/en/commissions')
     await expect(page.locator('h1')).toHaveCount(1)
     await expect(page.locator('main')).toContainText(
-      "I'll reply by email with a price and a rough timeframe.",
+      'I answer by email with a price and a rough timeframe.',
     )
   })
 })

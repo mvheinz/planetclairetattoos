@@ -399,7 +399,7 @@ test.describe('Shop R03 – Leerzustand (exklusiv)', () => {
       await refresh(request, [url])
       await page.goto(url)
       const empty = page.locator('[data-empty-state]')
-      await expect(empty.locator('h2')).toHaveText('In dieser Ecke ist gerade nichts.')
+      await expect(empty.locator('h2')).toHaveText('In dieser Ecke ist es gerade still.')
       await expect(empty.getByRole('link', { name: 'Alle Stücke' })).toHaveAttribute('href', shop)
       await expect(page.locator('[data-product-card]')).toHaveCount(0)
     } finally {

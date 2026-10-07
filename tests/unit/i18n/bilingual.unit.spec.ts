@@ -193,7 +193,12 @@ const isPlace = (v: string) => /^Berlin-[\p{L} ]+$/u.test(v)
  * Absichtlich nur deutsch: die zwei Stücke, an denen die Verwaltung den Zustand „Übersetzung fehlt“ zeigt
  * (SEED-SPEC §5, `enStatus: missing`, geprüft in tests/int/seed/products.int.spec.ts). Sonst gibt es keine Ausnahme.
  */
-const SEED_EN_MISSING_BY_DESIGN = new Set(['products.json#S25', 'products.json#S29'])
+const SEED_EN_MISSING_BY_DESIGN = new Set([
+  'products.json#S25',
+  'products.json#S29',
+  // Bildbeschreibung der Platzhalter-Zeichnung von S25: der Test AK-SEED-06 prüft, dass S25 genau daran scheitert
+  'media.json#ph:zeichnung-03',
+])
 
 interface Found {
   where: string
@@ -234,7 +239,7 @@ describe('Beispielbestand ist zweisprachig (P12.9, U-00)', () => {
     expect(found.length).toBeGreaterThan(300)
   })
 
-  it('jede Textstelle hat DE und EN – Ausnahme nur die zwei Stücke mit „Übersetzung fehlt“', () => {
+  it('jede Textstelle hat DE und EN – Ausnahme nur S25/S29 mit „Übersetzung fehlt“', () => {
     const missing = found.filter((f) => !f.en?.trim() && !SEED_EN_MISSING_BY_DESIGN.has(f.owner))
     expect(missing.map((m) => m.where)).toEqual([])
     const designMissing = found.filter((f) => !f.en?.trim()).map((f) => f.owner)

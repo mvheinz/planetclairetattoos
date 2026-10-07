@@ -104,7 +104,7 @@
   },
   "errors": {
     "notFoundTitle": "This page has drawn itself into the fog",
-    "notFoundText": "Coco followed the line and never came back. There is nothing here – or nothing any more.",
+    "notFoundText": "Coco followed the line and never came back. This page does not exist (anymore).",
     "linksLabel": "Where the thread can lead you",
     "numberLabel": "A particular piece in mind? Enter its number",
     "numberSubmit": "Find piece",

@@ -104,7 +104,7 @@
   },
   "errors": {
     "notFoundTitle": "Diese Seite hat sich in den Nebel gezeichnet",
-    "notFoundText": "Coco ist der Linie nachgelaufen und nicht zurückgekommen. Hier gibt es nichts – oder nichts mehr.",
+    "notFoundText": "Coco ist der Linie nachgelaufen und nicht zurückgekommen. Diese Seite gibt es nicht (mehr).",
     "linksLabel": "Wohin der Faden dich führen kann",
     "numberLabel": "Ein bestimmtes Stück im Kopf? Nummer eingeben",
     "numberSubmit": "Stück suchen",
