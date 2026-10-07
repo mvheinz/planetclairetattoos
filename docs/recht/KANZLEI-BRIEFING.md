@@ -52,6 +52,13 @@ Bitte senden Sie uns vorab ein **Pauschalangebot**.
 | T12 | Antwortvorlagen für Datenschutz-Anfragen | Auskunft (Art. 15), Löschung/Einschränkung (Art. 17/18) | optional |
 | T13 | Angebot jährliche Durchsicht | Die Mandantin erhält jährlich eine Erinnerung aus dem System | optional |
 
+**Hinweis (Stand P12.11):** Die Website enthält bereits **Arbeitsentwürfe** aller Texte T1–T6 auf Deutsch und Englisch (Datei
+`content/seed/data/base.json`, im System als Platzhalter-Fassungen gekennzeichnet) sowie vier Bausteine zum Schutz des geistigen
+Eigentums (`ip.copyrightNotice`, `ip.aiMiningReservation`, `ip.purchaseClause`, `ip.tattooFlashNotice`) samt Abschnitten in
+Impressum und AGB (Urheberrecht, Kaufklausel, Vorbehalt nach § 44b Abs. 3 UrhG, Nachstechen von Tattoo-Motiven nur mit
+schriftlicher Genehmigung). Sie dürfen als Ausgangspunkt dienen, ersetzen aber keine Prüfung; bitte insbesondere die
+Kaufklausel (Eigentum am Unikat, keine Nutzungsrechte am Motiv), den KI-/TDM-Vorbehalt und die Haftungsklausel durchsehen.
+
 ### 1.2 Formate
 
 - Je Text **zwei Dateien**: reiner Text (`.txt`, UTF-8) und HTML-Fragment (`.html`).

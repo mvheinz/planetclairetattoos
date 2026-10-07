@@ -8,6 +8,7 @@ import { Badge } from '@/components/shop/Badge'
 // Alias: der Streichpreis-Scan (V-20) prüft den Quelltext auf das HTML-Tag für Streichungen.
 import { DeliveryTime as LeadTime } from '@/components/shop/DeliveryTime'
 import { MoneyAmount } from '@/components/shop/MoneyAmount'
+import { IpNotice } from '@/components/legal/IpNotice'
 import { PriceFootnote } from '@/components/shop/PriceFootnote'
 import { PriceTag } from '@/components/shop/PriceTag'
 import { statusLabelAttrs } from '@/components/shop/statusLabels'
@@ -459,6 +460,9 @@ export async function ProductPage({
       </div>
 
       {/* Ab hier reines Server-Markup ohne Formulare: statisches HTML, nicht hydriert (`StaticHtml`, TBT P7). */}
+
+      {/* Kaufklausel: nur das Unikat, keine Rechte am Motiv (U-22 b, Baustein `ip.purchaseClause`) */}
+      <IpNotice locale={locale} kind="purchase" />
 
       {/* Harmonisierte Mitteilung zur Gewährleistung (R-049) */}
       <StaticHtml>

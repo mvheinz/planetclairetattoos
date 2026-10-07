@@ -24,13 +24,14 @@ export function isExcludedPath(pathname: string): boolean {
 
 /**
  * Dateien, die es direkt unter `/` wirklich gibt: Metadaten-Routen aus `src/app/` (`robots.ts`, `sitemap.ts`, `icon.svg`,
- * `apple-icon.png`, `favicon.ico`). Jede andere Datei auf erster Ebene (`/sw.js`, `/manifest.webmanifest`, `/foo.txt`)
+ * `apple-icon.png`, `favicon.ico`) und Dateien aus `public/` (`ai.txt`). Jede andere Datei auf erster Ebene (`/sw.js`, `/manifest.webmanifest`, `/foo.txt`)
  * landete sonst in der ISR-Startseite `[locale]` und endete dort mit 500 („static to dynamic“). `dynamicParams = false`
  * auf der Startseite ist keine Lösung: Nach `revalidateTag('home')` lieferte Next.js 16.3 dann auch `/de` als 404.
  * Ein Unit-Test gleicht die Liste mit `src/app/` und `public/` ab.
  */
 export const ROOT_FILES: ReadonlySet<string> = new Set([
   '/robots.txt',
+  '/ai.txt',
   '/sitemap.xml',
   '/favicon.ico',
   '/icon.svg',

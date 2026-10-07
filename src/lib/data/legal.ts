@@ -7,6 +7,7 @@ import { getEnv } from '@/lib/env'
 import type { LegalTextType, Locale } from '@/lib/enums'
 import { getActiveLegalText } from '@/lib/legal/getActive'
 import {
+  activeReturnCostsNote,
   buildLegalTokenValues,
   LegalRenderError,
   renderLegalContent,
@@ -70,6 +71,8 @@ export async function loadLegalText(
       settings: settings as LegalTokenSettings,
       siteUrl: getEnv().NEXT_PUBLIC_SITE_URL,
       locale: textLocale,
+      // `{{returnCostsNote}}` der Widerrufsbelehrung (R-012, R-095): aktiver Baustein `withdrawal.returnCostsNote`
+      returnCostsNote: activeReturnCostsNote(textLocale),
     })
     const rendered = renderLegalContent(doc.content, values)
     return {

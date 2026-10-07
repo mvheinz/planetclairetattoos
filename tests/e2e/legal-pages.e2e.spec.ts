@@ -52,8 +52,9 @@ test.describe('Rechtsseiten @smoke', () => {
             locale === 'de' ? /Stand: \d{1,2}\. \S+ 20\d\d/ : /Version: \S+ \d{1,2}, 20\d\d/,
           )
           if (locale === 'en') {
-            // Grund-Seed hat nur deutsche Platzhalter → deutscher Text mit Hinweis (R-015).
-            await expect(page.getByText('Only available in German.').first()).toBeVisible()
+            // Seit P12.11 hat der Grund-Seed auch die englische Fassung (U-00): Übersetzungs-Hinweis statt Rückfall (R-015).
+            await expect(page.getByText('Only available in German.')).toHaveCount(0)
+            await expect(page.locator('[data-translation-disclaimer]').first()).toBeVisible()
           }
         }
         await expectCalm(page, path)
@@ -102,7 +103,8 @@ test.describe('Rechtsseiten ohne JavaScript @smoke', () => {
           ).toBeVisible()
         } else {
           await expect(page.locator('[data-placeholder-banner]'), path).toBeVisible()
-          await expect(page.locator('[data-legal-text]').first(), path).toContainText(
+          await expect(page.locator('[data-legal-text] h2').first(), path).toBeVisible()
+          await expect(page.locator('[data-legal-text]').first(), path).not.toContainText(
             'Text folgt von der Kanzlei.',
           )
         }

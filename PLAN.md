@@ -5555,7 +5555,7 @@ Nach dem Merge automatisch (ohne Checkbox; prüft P11.1):
   unverändert; Verbotsliste/V-xx-Tests grün.
   - Akzeptanz: Textinventur-Test (keine Reste alter Texte), V-Muster-Tests, Paritäts-Test; Lektorats-Subagent (frischer Kontext)
     bewertet Ton/Fehler; `docs/design/…` Text-Leitfaden.
-- [ ] **P12.11 Rechtstexte und Schutz des geistigen Eigentums** (U-22) – Impressum, Datenschutz, AGB, Widerruf (+ Formular),
+- [x] **P12.11 Rechtstexte und Schutz des geistigen Eigentums** (U-22) – Impressum, Datenschutz, AGB, Widerruf (+ Formular),
   Versand/Zahlung, Speicher-Hinweis, Barrierefreiheit vollständig mit Platzhaltern; IP-Klauseln (Urheberrechtsvermerk/
   Nutzungsbedingungen, Kaufklausel, KI/TDM-Vorbehalt mit `robots.txt`/`ai.txt`/Meta, Flash-Nachstech-Genehmigung) sichtbar im
   Shop und als Verwaltungs-Bausteine; R-xxx-Nachweise nachgezogen.

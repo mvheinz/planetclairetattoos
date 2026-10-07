@@ -3,6 +3,7 @@ import 'server-only'
 import type { GlobalSlug, Payload, PayloadRequest } from 'payload'
 
 import { LEGAL_SNIPPET_KEYS, LOCALES } from '@/lib/enums'
+import { activateLegalText } from '@/lib/legal/activate'
 import { issueLegalTextPdfs } from '@/lib/legal/pdf'
 import {
   LEGAL_SNIPPET_SEED,
@@ -10,6 +11,7 @@ import {
   LEGAL_SNIPPET_SEED_VERSION,
 } from '@/lib/legal/snippetSeed'
 import { loadLegalSnippets, sha256Text } from '@/lib/legal/snippets'
+import { requestNow } from '@/lib/payload/context'
 
 import { seedOp, seedStep } from './context'
 import {
@@ -139,43 +141,98 @@ async function seedCategories(payload: Payload, base: BaseData, report: SeedRepo
   })
 }
 
+type BaseLegalText = BaseData['legalTexts'][number]
+
+/** Markdown-artiger Klartext eines Rechtstexts (Einstieg, dann `## Überschrift` + Absätze) für `toLexical`. */
+function legalMarkdown(intro: string | undefined, sections: BaseLegalText['sections']): string {
+  return [
+    ...(intro ? [intro] : []),
+    ...sections.map((s) => [`## ${s.heading}`, ...s.paragraphs].join('\n\n')),
+  ].join('\n\n')
+}
+
 async function seedLegalTexts(payload: Payload, base: BaseData, report: SeedReport) {
   await seedStep(payload, async (req) => {
     for (const text of base.legalTexts) {
-      const existing = await req.payload.count({
+      const found = await req.payload.find({
         collection: 'legal-texts',
         where: { type: { equals: text.type } },
+        sort: '-version',
+        limit: 1,
+        depth: 0,
         overrideAccess: true,
         req,
       })
-      if (existing.totalDocs > 0) {
+      const latest = found.docs[0]
+      // Vorhanden und unverändert (oder von Jutta/Kanzlei ersetzt): nichts tun.
+      if (
+        latest &&
+        !(
+          latest.status === 'active' &&
+          latest.origin === 'placeholder' &&
+          latest.sourceNote !== text.sourceNote
+        )
+      ) {
         report.add('legal-texts', 'skipped')
         continue
       }
       const validFrom = new Date(text.validFrom).toISOString()
-      const content = text.sections
-        .map((s) => [`## ${s.heading}`, ...s.paragraphs].join('\n\n'))
-        .join('\n\n')
-      const created = await req.payload.create({
+      const content = {
+        de: toLexical(legalMarkdown(text.intro, text.sections)) as never,
+        en: toLexical(legalMarkdown(text.introEn, text.sectionsEn)) as never,
+      }
+      if (!latest) {
+        // Erstbefüllung: Fassung 1 direkt aktiv, beide Sprachen in einem Schritt (aktive Fassungen sind unveränderlich).
+        const created = await req.payload.create({
+          collection: 'legal-texts',
+          locale: 'all' as never, // beide Sprachen in einem Schritt
+          data: {
+            type: text.type,
+            version: 1,
+            status: 'active',
+            origin: 'placeholder',
+            source: 'manual',
+            validFrom,
+            activatedAt: validFrom,
+            sourceNote: text.sourceNote,
+            content,
+            seed: false,
+          } as never,
+          ...seedOp(req),
+        })
+        // PDFs der Platzhalter-Fassungen direkt, ohne Job (P4.12; M01/M02 hängen sie an).
+        await issueLegalTextPdfs(req, created.id)
+        report.add('legal-texts', 'created')
+        continue
+      }
+      // Bestehende Platzhalter-Fassung aus einem früheren Grund-Seed (nur Gliederung): ausformulierte Fassung als
+      // neue Version anlegen und aktivieren (die alte wird abgelöst; Bestellungen behalten ihre Fassung, R-013).
+      const draft = await req.payload.create({
         collection: 'legal-texts',
-        locale: 'de',
+        locale: 'all' as never,
         data: {
           type: text.type,
-          version: 1,
-          status: 'active',
           origin: 'placeholder',
           source: 'manual',
           validFrom,
-          activatedAt: validFrom,
           sourceNote: text.sourceNote,
-          content: toLexical(content) as never,
+          content,
           seed: false,
-        },
+        } as never,
         ...seedOp(req),
       })
-      // PDFs der Platzhalter-Fassungen direkt, ohne Job (P4.12; M01/M02 hängen sie an).
-      await issueLegalTextPdfs(req, created.id)
-      report.add('legal-texts', 'created')
+      try {
+        await activateLegalText(req, draft.id, { now: requestNow(req) })
+      } catch (error) {
+        // Fehlende Stammdaten (z. B. Telefonnummer) verhindern das Aktivieren; der Entwurf bleibt zur Pflege liegen.
+        report.note(
+          `legal-texts: ${text.type} als Entwurf angelegt, nicht aktiviert (${error instanceof Error ? error.message : String(error)})`,
+        )
+        report.add('legal-texts', 'created')
+        continue
+      }
+      await issueLegalTextPdfs(req, draft.id)
+      report.add('legal-texts', 'updated')
     }
   })
 }

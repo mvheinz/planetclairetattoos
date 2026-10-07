@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P12.11
+
+- Alle sechs Rechtstexte (Impressum, Datenschutz, AGB, Widerrufsbelehrung, Muster-Widerrufsformular, Versand & Zahlung) vollständig auf Deutsch (verbindlich) und Englisch (gleichwertig) ausformuliert, knapper Einstieg im Ton der Marke, Platzhalter aus den Einstellungen; bleiben origin=placeholder (Kanzlei-Prüfung P11). Speicher-/Cookie-Hinweis in der Datenschutzerklärung, Barrierefreiheits-Hinweis ohne Konformitätsaussage im Impressum.
+- Schutz des geistigen Eigentums: vier Bausteine ip.* (Urheberrechtsvermerk, KI/TDM-Vorbehalt, Kaufklausel, Flash-Nachstechen) in der Verwaltung pflegbar, sichtbar im Footer, auf der Produktseite und bei Flash/Preisen/Ablauf, Abschnitte in AGB und Impressum; technisch robots.txt-Gruppe für KI-Crawler, ai.txt, tdmrep.json, Meta noai/noimageai und tdm-reservation, X-Robots-Tag in Produktion.
+- Grund-Seed legt DE+EN direkt an; bestehende Datenbanken bekommen automatisch eine neue aktive Fassung (v2).
+- Tests: legal-texts-p12 und ai-reservation (unit), base/public-pages/lifecycle (int), ip-notices (e2e); pnpm check, check:migrations, build und check:bundle grün; Rechtsseiten-E2E bis auf die bereits bestehenden Ruhe-Prüfungen (getAnimations, P12.2) grün. Offene Punkte: docs/OFFENE-PUNKTE.md (P12.11).
 ## 2026-10-06 – P12.9 und P12.10
 
 - P12.10 Alle Texte neu (U-21): Ton verträumt-philosophisch, Ich-Form von Jutta, Sachtexte poetisch gerahmt mit klaren Fakten. Neu sind Sprachdateien (`src/i18n/messages/de.json`, `en.json`), Standardtexte der Verwaltung (`site-texts`), Beispielbestand (Seiten, Stationen, Kategorien, FAQ, Termine, Stücke) und Titelzeilen einiger Mails. Pflichttexte, Button „Zahlungspflichtig bestellen“, Rechtstexte (P12.11) und Verbotsliste (kein DM, kein „inkl. MwSt.“) unverändert beachtet.
