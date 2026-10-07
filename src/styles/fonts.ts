@@ -10,15 +10,28 @@ import localFont from 'next/font/local'
 // Kein Preload (DESIGN §4.1, P2.20): Die Schriften lädt der Browser erst nach dem ersten Bild (Schriften-Tor
 // `html[data-fonts]` in `global.css`, gesetzt vom Inline-Skript `pc-motion`) – sie zählen so nicht zum LCP-Pfad.
 
-export const mansalva = localFont({
-  src: './fonts/mansalva-latin-400-normal.woff2',
-  weight: '400',
+/** Überschriften und Anzeige-Schrift (U-10): Spectral 500, ein Schnitt – Anfragen nach 400/600 treffen ihn ohne Synthese. */
+export const spectral = localFont({
+  src: './fonts/spectral-latin-500-normal.woff2',
+  weight: '500',
   style: 'normal',
   display: 'swap',
   preload: false,
-  variable: '--font-mansalva',
+  variable: '--font-spectral',
   adjustFontFallback: false,
-  fallback: ['mansalva Fallback', 'Segoe Print', 'Bradley Hand', 'cursive'],
+  fallback: ['spectral Fallback', 'Georgia', 'Times New Roman', 'serif'],
+})
+
+/** Akzent-Schrift (U-10): Spectral Italic 500. */
+export const spectralItalic = localFont({
+  src: './fonts/spectral-latin-500-italic.woff2',
+  weight: '500',
+  style: 'italic',
+  display: 'swap',
+  preload: false,
+  variable: '--font-spectral-italic',
+  adjustFontFallback: false,
+  fallback: ['spectralItalic Fallback', 'Georgia', 'Times New Roman', 'serif'],
 })
 
 export const bricolage = localFont({
@@ -57,5 +70,10 @@ export const plexMono = localFont({
   ],
 })
 
-/** Klassen für `<html>`: setzen `--font-mansalva`, `--font-bricolage`, `--font-plex-mono`. */
-export const fontVariables = [mansalva.variable, bricolage.variable, plexMono.variable].join(' ')
+/** Klassen für `<html>`: setzen `--font-spectral`, `--font-spectral-italic`, `--font-bricolage`, `--font-plex-mono`. */
+export const fontVariables = [
+  spectral.variable,
+  spectralItalic.variable,
+  bricolage.variable,
+  plexMono.variable,
+].join(' ')

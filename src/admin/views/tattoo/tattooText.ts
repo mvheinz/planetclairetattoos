@@ -1,13 +1,13 @@
 // Texte der Tattoo-Verwaltung `/tattoo` (PLAN P7.6–P7.9, KONZEPT §7.12). Verwaltung nur Deutsch (DATENMODELL §1.2);
 // eine Quelle für Server- und Client-Komponenten. `{{name}}` wird ersetzt.
 
-export const TATTOO_TABS = ['flash', 'angebote', 'galerie', 'texte'] as const
+export const TATTOO_TABS = ['flash', 'termine', 'galerie', 'texte'] as const
 export type TattooTab = (typeof TATTOO_TABS)[number]
 
 export const TATTOO_TEXT = {
   tabsLabel: 'Bereiche',
   tab_flash: 'Flash',
-  tab_angebote: 'Angebote',
+  tab_termine: 'Termine',
   tab_galerie: 'Galerie',
   tab_texte: 'Texte',
   allDataHint: 'Alle Felder findest du auch in der Standard-Verwaltung.',
@@ -65,33 +65,57 @@ export const TATTOO_TEXT = {
   flashRepeatableHint: 'Wiederholbare Motive werden nie „vergeben“.',
   flashImageMissing: 'Bitte eine Zeichnung hinzufügen.',
 
-  // Angebote (P7.7)
-  offerNew: 'Neues Angebot',
-  offerEditHeading: 'Angebot bearbeiten',
-  offerHint: 'Abgelaufene Angebote verschwinden automatisch von der Website und stehen hier grau.',
-  offerEmpty: 'Noch keine Angebote.',
-  offerUpcoming: 'kommt',
-  offerRunning: 'läuft',
-  offerEnded: 'abgelaufen',
-  offerTime: '{{from}}–{{to}} Uhr',
-  offerType: 'Art',
-  offerDescription: 'Text',
-  offerTitleInvalid: 'Titel (Deutsch): 3–80 Zeichen.',
-  offerDescriptionInvalid: 'Text (Deutsch): 10–1500 Zeichen.',
-  offerWhen: 'Wann?',
-  offerWhenHint:
-    'Eintägig: Enddatum leer lassen. Ohne Uhrzeit gilt der ganze Tag (bis 23:59 Uhr am Enddatum).',
-  offerStartDate: 'Startdatum',
-  offerEndDate: 'Enddatum',
-  offerEndDateHint: 'Leer = gleicher Tag.',
-  offerStartTime: 'Beginn (Uhrzeit, optional)',
-  offerEndTime: 'Ende (Uhrzeit, optional)',
-  offerLocation: 'Ort',
-  offerLocationHint:
-    'Keine Adresse – nur der Bezirk, z. B. „Privatstudio in Neukölln“. Leer = Bezirk aus den Einstellungen.',
-  offerPriceNote: 'Preis-Info',
-  offerPriceNoteHint: 'Gesamtpreise nennen, z. B. „Motive 80–150 €“.',
-  offerFlashes: 'Verknüpfte Flash-Motive',
+  // Termine „Planet Claire on Tour“ (P12.8, U-20)
+  tourNew: 'Neuer Termin',
+  tourEditHeading: 'Termin bearbeiten',
+  tourPublic: 'Startseite ansehen',
+  tourHint:
+    'Hier pflegst du die Termine von „Planet Claire on Tour“ (Märkte, Flohmärkte, Kunstmärkte). Kommende stehen oben auf der Startseite, vergangene klappen sich ein – „vorbei“ setzt sich nach dem Datum von selbst.',
+  tourEmpty: 'Noch keine Termine.',
+  tourUpcoming: 'Kommende Termine',
+  tourPast: 'Vergangene Termine',
+  tourStatusPlanned: 'geplant',
+  tourStatusCancelled: 'abgesagt',
+  tourStatusPast: 'vorbei',
+  tourCancel: 'Absagen',
+  tourCancelTitle: '„{{name}}“ absagen?',
+  tourCancelText:
+    'Der Termin steht dann durchgestrichen mit dem Hinweis „abgesagt“ auf der Startseite.',
+  tourCancelConfirm: 'Ja, absagen',
+  tourRestore: 'Wieder geplant',
+  tourRestoreTitle: '„{{name}}“ wieder als geplant zeigen?',
+  tourRestoreText: 'Der Termin ist auf der Startseite nicht mehr durchgestrichen.',
+  tourRestoreConfirm: 'Ja, wieder geplant',
+  tourDelete: 'Termin löschen',
+  tourDeleteTitle: '„{{name}}“ löschen?',
+  tourDeleteText:
+    'Der Termin verschwindet von der Startseite und aus der Verwaltung. Das lässt sich nicht rückgängig machen.',
+  tourDeleteConfirm: 'Ja, löschen',
+  tourName: 'Name des Marktes',
+  tourNameInvalid: 'Name (Deutsch): 3–100 Zeichen.',
+  tourPlace: 'Ort / Bezirk',
+  tourPlaceHint: 'z. B. „Berlin-Prenzlauer Berg“.',
+  tourPlaceInvalid: 'Ort (Deutsch): 2–80 Zeichen.',
+  tourWhen: 'Wann?',
+  tourWhenHint: 'Eintägig: Enddatum leer lassen.',
+  tourStartDate: 'Von (Datum)',
+  tourEndDate: 'Bis (Datum)',
+  tourEndDateHint: 'Leer = gleicher Tag.',
+  tourTimeFrom: 'Uhrzeit von (optional)',
+  tourTimeTo: 'Uhrzeit bis (optional)',
+  tourTimeInvalid: 'Uhrzeit wie 10:00 eingeben.',
+  tourAddress: 'Adresse',
+  tourAddressHint: 'Adresse des Marktes – nicht die des Privatstudios.',
+  tourLink: 'Link',
+  tourLinkHint: 'Nur ein Textlink zur Seite des Marktes, zum Beispiel www.beispiel.de.',
+  tourLinkInvalid: 'Bitte einen Link wie www.beispiel.de angeben.',
+  tourStand: 'Standnummer',
+  tourNote: 'Notiz',
+  tourNoteHint: 'Kurz, z. B. „Coco ist dabei.“',
+  tourStatus: 'Status',
+  tourStatusHint: '„Vorbei“ setzt sich nach dem Datum von selbst – du musst nichts tun.',
+  tourPhoto: 'Foto vom Stand (optional)',
+  tourPhotoAlt: 'Bild',
 
   // Galerie (P7.8)
   galleryNew: 'Neues Galerie-Foto',
@@ -120,7 +144,7 @@ export const TATTOO_TEXT = {
   galleryConsentScope: 'Umfang',
   galleryConsentDate: 'Datum der Einwilligung',
   galleryConsentNote: 'Wie/wo erteilt',
-  galleryConsentNoteHint: 'z. B. „per DM am 02.10.2026“ (5–300 Zeichen).',
+  galleryConsentNoteHint: 'z. B. „per Mail am 02.10.2026“ (5–300 Zeichen).',
   galleryEvidence: 'Nachweis (Screenshot oder Formular, privat)',
   galleryEvidenceHint:
     'Empfohlen. Nur für dich sichtbar; wird 3 Jahre nach einem Widerruf gelöscht.',
@@ -140,7 +164,7 @@ export const TATTOO_TEXT = {
   withdrawConfirm: 'Widerrufen',
   withdrawEmail: 'Bestätigung an (E-Mail, optional)',
   withdrawEmailHint:
-    'Wird nicht gespeichert. Kam der Widerruf per DM, lass das Feld leer und antworte dort.',
+    'Wird nicht gespeichert. Kam der Widerruf per Brief oder mündlich, lass das Feld leer und antworte dort.',
   withdrawLocale: 'Sprache der Bestätigung',
   withdrawDone: 'Einwilligung widerrufen – das Foto ist offline.',
   withdrawDoneMail: 'Einwilligung widerrufen – das Foto ist offline, die Bestätigung geht raus.',

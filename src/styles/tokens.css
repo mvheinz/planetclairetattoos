@@ -3,27 +3,30 @@
   color-scheme: only light;
 
   /* Grund */
-  --paper: #F4EFE6;
-  --paper-2: #EAE2D4;
-  --paper-field: #FBF8F1;
+  --paper: #E6EACD;           /* helles Olivgrün, Seitenanfang (U-11) */
+  --paper-deep: #BDD6CE;      /* Petrol-Hauch, Verlaufsende am Seitenende (U-11) */
+  --paper-2: #DCE2C2;
+  --paper-field: #F8F9EC;
   --grid-line: rgb(47 107 76 / 0.05);
   --grid-line-major: rgb(47 107 76 / 0.042);
 
   /* Tusche und Ton */
   --ink: #1C1A17;
   --ink-2: #4B463F;
-  --ink-3: #665F55;
+  --ink-3: #524C43;
   --clay: #CBBBA2;
 
   /* Akzente */
-  --mat: #2F6B4C;
-  --fox: #B84E1A;
-  --fox-text: #A8430F;
-  --stencil: #5A4BC4;
+  --mat: #2F6B4C;             /* nur noch Schneidematten-Raster und Flächen, kein Text */
+  --petrol: #0F4C57;          /* Akzent: Links, Knöpfe, Stempel (U-12) */
+  --petrol-deep: #0A3841;     /* Hover und Fokus */
+  --fox: #AA4515;
+  --fox-text: #843709;
+  --stencil: #4638A8;
   --pink: #E58FB0;
-  --warn: #8F5400;
-  --error: #A6261C;
-  --ok: var(--mat);
+  --warn: #714300;
+  --error: #92211A;
+  --ok: #1B5538;
 
   /* Kunst */
   --coco-fur: #E2BF8E;
@@ -38,15 +41,16 @@
   --color-surface: var(--paper-2);
   --color-text: var(--ink);
   --color-text-muted: var(--ink-2);
-  --color-link: var(--mat);
-  --color-focus: var(--stencil);
+  --color-link: var(--petrol);
+  --color-focus: var(--petrol-deep);
   --color-line: var(--ink);
-  --color-sold: var(--fox);
+  --color-sold: var(--petrol);
   --color-border-ui: var(--ink-2);
   --color-border-deco: var(--clay);
 
   /* Schriften (Familien setzt next/font als Variablen) */
-  --font-hand: var(--font-mansalva), "Segoe Print", "Bradley Hand", cursive;
+  --font-display: var(--font-spectral), Georgia, "Times New Roman", serif;
+  --font-accent: var(--font-spectral-italic), Georgia, "Times New Roman", serif;
   --font-body: var(--font-bricolage), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
@@ -98,7 +102,7 @@
   --shadow-stencil: 3px 2px 0 0 var(--stencil);
 
   /* Coco */
-  --coco-leash: 56px;          /* Breite an der Leinenspitze */
+  --coco-leash: 70px;          /* Breite an der Leinenspitze (+25 %, U-05) */
   --coco-s: 40px;
   --coco-m: 72px;
   --coco-xl: 180px;
@@ -118,13 +122,14 @@
   --dur-short: 200ms;
   --dur-medium: 320ms;
   --dur-long: 600ms;
-  --dur-draw: 900ms;
-  --dur-draw-max: 1200ms;
+  --dur-draw: 1800ms;
+  --dur-draw-max: 2400ms;
   --dur-page: 350ms;
   --dur-underline: 280ms;
   --dur-swing: 900ms;
   --dur-stamp: 260ms;
   --dur-hop: 360ms;
+  --dur-koko-look: 9000ms;
   --dur-menu-open: 420ms;
   --dur-menu-close: 180ms;
   --stagger: 40ms;
@@ -137,7 +142,7 @@
 }
 
 @media (min-width: 768px) {
-  :root { --page-pad: 24px; --header-h: 64px; --leash-w: 2.6px; --coco-leash: 88px; --coco-stroke: 1.8px; }
+  :root { --page-pad: 24px; --header-h: 64px; --leash-w: 2.6px; --coco-leash: 110px; --coco-stroke: 1.8px; }
 }
 @media (min-width: 1200px) {
   :root { --page-pad: 32px; }

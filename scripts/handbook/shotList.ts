@@ -189,16 +189,6 @@ export const SHOT_SPECS: readonly ShotSpec[] = [
     },
   },
   {
-    id: 'tattoo-angebote',
-    kind: 'admin',
-    caption: 'Tattoo: Angebote',
-    path: () => '/tattoo',
-    act: async (page) => {
-      await page.getByTestId('tattoo-tab-angebote').first().click()
-      await page.getByTestId('tattoo-offers').first().waitFor({ state: 'visible', timeout: 15_000 })
-    },
-  },
-  {
     id: 'tattoo-galerie',
     kind: 'admin',
     caption: 'Tattoo: Galerie – Foto nur mit Einwilligung',

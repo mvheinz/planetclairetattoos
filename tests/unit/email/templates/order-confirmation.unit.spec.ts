@@ -100,7 +100,7 @@ describe('M01 order_confirmation – R-081 Pflichtinhalte (DE)', () => {
   it('R-081 Nr. 8 Anhänge mit Versionsnummern „in der Fassung vom“, Rücksendekosten, Link „Vertrag widerrufen“', async () => {
     const m = await render()
     expect(m.text).toContain('deine Rechnung (RE-2026-00042.pdf)')
-    expect(m.text).toContain('unsere AGB in der Fassung vom 01.09.2026 (AGB_v3.pdf)')
+    expect(m.text).toContain('meine AGB in der Fassung vom 01.09.2026 (AGB_v3.pdf)')
     expect(m.text).toContain(
       'Widerrufsbelehrung mit Muster-Widerrufsformular in der Fassung vom 15.08.2026 (Widerrufsbelehrung-und-Formular_v2.pdf)',
     )
@@ -148,7 +148,7 @@ describe('M01 order_confirmation – R-081 Pflichtinhalte (DE)', () => {
       attachmentFiles: [...ORDER_MAIL_FIXTURE.attachmentFiles, 'AGB_v3_EN.pdf'],
     })
     expect(m.text).toContain('plus the English versions (AGB_v3_EN.pdf)')
-    expect(m.text).toMatch(/our terms and conditions, version of 1 Sept? 2026 \(AGB_v3\.pdf\)/)
+    expect(m.text).toMatch(/my terms and conditions, version of 1 Sept? 2026 \(AGB_v3\.pdf\)/)
   })
 })
 

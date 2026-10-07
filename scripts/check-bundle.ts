@@ -21,7 +21,7 @@ export function cocoSpriteFile(b: { file?: string }): string {
 //    Fehlerseiten R28/R29 gegen `next start`, liest die Skript-URLs aus `/_next/static`, die vor dem `load`-Ereignis
 //    geladen wurden, und gzipt die zugehörigen Dateien aus `<distDir>/static` mit Stufe 9 (Budget je Routen-ID).
 //    Dazu je Seite die erzeugten Pfaddaten im DOM (DESIGN §9.10) und auf R01 alle SVG der Startseite zusammen.
-// 2. Schriften AK-DS-04 (DESIGN §4.1): genau 3 ausgelieferte `.woff2`, zusammen ≤ 100 KB, kein Google-Fonts-Verweis;
+// 2. Schriften AK-DS-04 (DESIGN §4.1): genau 4 ausgelieferte `.woff2`, zusammen ≤ 100 KB, kein Google-Fonts-Verweis;
 //    keine TTF/OTF (OG-Schriften, P3.14).
 // 3. Lazy-Module (DESIGN §9.10): jedes Modul einzeln mit esbuild gebündelt und minifiziert (unabhängig von der
 //    Chunk-Aufteilung durch Next), gzip Stufe 9.
@@ -50,6 +50,8 @@ export interface Budgets {
   svg: {
     /** `file` fehlt → ausgelieferter Sprite laut `coco-anchors.json` (Version nur in `scripts/art/build-sprite.ts`). */
     cocoSprite: { file?: string; rawMax: number; gzipMax: number }
+    /** Nachgeladene Zusatz-Dateien (P12.4 Coco-Zusatz-Posen, P12.5 Fitness-Coco): je Datei roh/gzip. */
+    lazy?: { name: string; file: string; rawMax: number; gzipMax: number }[]
     stationRawMax: number
     stationGlob: string
     iconRawMax: number
@@ -110,7 +112,7 @@ export function expandGlob(pattern: string): string[] {
 // Schriften (AK-DS-04)
 
 /** Budget AK-DS-04: genau so viele Schriftdateien, zusammen höchstens so viele Bytes. */
-export const FONT_FILES = 3
+export const FONT_FILES = 4
 export const FONT_BUDGET_BYTES = 100 * 1000
 const GOOGLE_FONTS = /fonts\.(googleapis|gstatic)\.com/
 
@@ -212,6 +214,18 @@ export async function measureModules(
       target: 'es2022',
       write: false,
       logLevel: 'silent',
+      // Nachgeladene Chunks zählen nicht zum Einstieg (P12.4: `coco.ts` lädt `cocoExtra.ts` nach, P12.12: `cocoExtra.ts` lädt `cocoTravel.ts` nach, wie in Next ein
+      // eigener Chunk); sie haben ein eigenes Budget.
+      plugins: [
+        {
+          name: 'lazy-chunks',
+          setup: (b) =>
+            b.onResolve({ filter: /\/(cocoExtra|cocoTravel)$/ }, (a) => ({
+              path: a.path,
+              external: true,
+            })),
+        },
+      ],
     })
     const data = res.outputFiles[0]!.contents
     const gzipBytes = gzipSync(data, { level: 9 }).length
@@ -245,6 +259,12 @@ export function checkSvgFiles(svg: Budgets['svg']): { lines: string[]; errors: s
   if (sprite.rawBytes <= svg.cocoSprite.rawMax && sprite.gzipBytes <= svg.cocoSprite.gzipMax)
     lines.push(spriteLine)
   else errors.push(`${spriteLine} ÜBERSCHRITTEN`)
+  for (const l of svg.lazy ?? []) {
+    const m = measureFile(l.file)
+    const line = `${l.name} ${m.rawBytes} B roh / ${m.gzipBytes} B gz, Budget ${l.rawMax} / ${l.gzipMax} B.`
+    if (m.rawBytes <= l.rawMax && m.gzipBytes <= l.gzipMax) lines.push(line)
+    else errors.push(`${line} ÜBERSCHRITTEN`)
+  }
   const each = (glob: string, max: number, label: string) => {
     const files = expandGlob(glob)
     for (const f of files) {

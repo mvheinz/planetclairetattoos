@@ -116,6 +116,13 @@ const FIXTURES: Record<BehaviorName, { html: string; exercise: (root: Element) =
       vi.runOnlyPendingTimers()
     },
   },
+  'fitness-coco': {
+    html: '<div data-behavior="fitness-coco" data-fitness-src="/art/fitness-coco.v1.json"><img data-fitness-still src="/art/fitness-still.v1.svg"><canvas data-fitness-canvas hidden></canvas></div>',
+    exercise: () => {
+      document.documentElement.setAttribute('data-motion', 'reduced')
+      document.documentElement.removeAttribute('data-motion')
+    },
+  },
   lost: {
     // Linie schon gezeichnet → Schwingen und Weglaufen starten beim Binden (MI-11).
     html:
@@ -192,7 +199,8 @@ const FIXTURES: Record<BehaviorName, { html: string; exercise: (root: Element) =
       document
         .querySelector('#menu')!
         .dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
-      // jsdom legt bei `focus()` einen eigenen Timer an (nicht vom Modul); das Menü selbst nutzt keine Timer.
+      // Das Öffnen läuft 30 ms nach dem Klick (PF-08); jsdom legt bei `focus()` einen eigenen Timer an (nicht vom Modul).
+      vi.runOnlyPendingTimers()
       vi.runOnlyPendingTimers()
     },
   },

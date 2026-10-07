@@ -50,6 +50,12 @@
       "file": "src/lib/tattoo/textWarnings.ts",
       "id": "V-15",
       "reason": "Die Warn-Prüfung der Tattoo-Texte selbst (PLAN P7.9, KONZEPT §9.6): Muster und Warntexte, mit denen die Verwaltung beim Speichern warnt."
+    },
+    {
+      "file": "src/components/home/TourDates.module.css",
+      "id": "V-20",
+      "match": "line-through",
+      "reason": "Abgesagte Markttermine („Planet Claire on Tour“, U-20) stehen durchgestrichen mit zusätzlichem Text „abgesagt“ – kein Preis, keine Preiswerbung."
     }
   ]
 }

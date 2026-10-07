@@ -20,7 +20,6 @@ describe('Farb-Lint (AK-DS-02)', () => {
     const bad = lintColors(
       [
         { path: 'src/components/ProductCard.module.css', source: '.a { color: var(--fox); }' },
-        { path: 'src/components/X.module.css', source: '.b { color: var(--color-sold); }' },
         { path: 'src/components/Y.tsx', source: "<p style={{ color: 'var(--pink)' }} />" },
         {
           path: 'src/components/Z.css',
@@ -31,7 +30,7 @@ describe('Farb-Lint (AK-DS-02)', () => {
       ],
       tokens,
     )
-    expect(bad).toHaveLength(8)
+    expect(bad).toHaveLength(7) // `--color-sold` ist seit U-12 Petrol, kein Fuchs-Alias mehr
   })
 
   it('AK-DS-02 erlaubt Fuchs in SoldStamp/CartLine und Hintergrund-/Randfarben', () => {

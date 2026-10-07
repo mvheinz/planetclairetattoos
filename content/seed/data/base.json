@@ -108,7 +108,7 @@
     "pickup": {
       "instructions": {
         "de": "Abholung in Berlin nach Absprache: Wir machen per Mail einen Termin aus, die Adresse bekommst du mit der Terminbestätigung. Bring bitte deine Bestellnummer mit.",
-        "en": "Pickup in Berlin by arrangement: we'll set a time by email, and you'll get the address with the confirmation. Please bring your order number."
+        "en": "Pickup in Berlin by arrangement: we agree on a time by email, and you receive the address with the confirmation. Please bring your order number."
       }
     },
     "payment": {
@@ -126,7 +126,7 @@
       "customPriceToCents": 40000,
       "priceNote": {
         "de": "Alle Preise sind Endpreise. Flash hat einen Festpreis direkt am Motiv, eigene Ideen rechne ich nach Größe und Aufwand.",
-        "en": "All prices are final prices. Flash has a fixed price right on the design; custom ideas are priced by size and effort."
+        "en": "All prices are final prices. Flash has a fixed price right on the design; ideas of your own I price by size and effort."
       }
     },
     "social": {
@@ -267,8 +267,8 @@
       "sortOrder": 10,
       "showInNavigation": true,
       "intro": {
-        "de": "Alles hier ist von Hand geformt und bemalt – mit Tieren, die zurückgucken. Jede Keramik ist ein Deko-Stück: schön für Schlüssel, Ringe und Kleinkram, nicht für Essen.",
-        "en": "Everything here is shaped and painted by hand – with animals that look back at you. Every ceramic piece is decorative: great for keys, rings and odds and ends, not for food."
+        "de": "Alles hier ist von Hand geformt und bemalt – mit Tieren, die zurückschauen. Jede Keramik ist ein Deko-Stück: für Schlüssel, Ringe und Kleinkram, nicht für Essen.",
+        "en": "Everything here is shaped and painted by hand – with animals that look back at you. Every ceramic piece is decorative: for keys, rings and small things, not for food."
       }
     },
     {
@@ -284,8 +284,8 @@
       "sortOrder": 20,
       "showInNavigation": true,
       "intro": {
-        "de": "Second-Hand-Teile, die ich bemale. Größe, Zustand und Material stehen bei jedem Stück – bitte kurz nachmessen, jedes gibt es nur einmal.",
-        "en": "Second-hand pieces that I paint. Size, condition and fabric are listed for each one – please measure, every piece exists only once."
+        "de": "Stoffe mit einer Vorgeschichte, die ich weitermale. Größe, Zustand und Material stehen bei jedem Stück – bitte miss kurz nach, jedes gibt es nur einmal.",
+        "en": "Cloth with a past, which I paint onward. Size, condition and fabric are given for every piece – please measure, each exists only once."
       }
     },
     {
@@ -302,7 +302,7 @@
       "showInNavigation": true,
       "intro": {
         "de": "Gebrauchte Caps mit neuen Bewohnern. Ob verstellbar oder feste Größe, steht bei jeder Cap dabei.",
-        "en": "Pre-loved caps with new residents. Whether adjustable or a fixed size is listed on each cap."
+        "en": "Pre-loved caps with new residents. Whether adjustable or a fixed size is stated on each cap."
       }
     },
     {
@@ -318,8 +318,8 @@
       "sortOrder": 40,
       "showInNavigation": true,
       "intro": {
-        "de": "Originale auf Papier: Tusche, Aquarell, Skizzenbuchseiten. Keine Drucke – was du siehst, ist genau das Blatt, das du bekommst.",
-        "en": "Originals on paper: ink, watercolour, sketchbook pages. No prints – what you see is exactly the sheet you get."
+        "de": "Originale auf Papier: Tusche, Aquarell, Seiten aus dem Skizzenbuch. Keine Drucke – was du siehst, ist genau das Blatt, das zu dir kommt.",
+        "en": "Originals on paper: ink, watercolour, pages from the sketchbook. No prints – what you see is exactly the sheet that will come to you."
       }
     },
     {
@@ -335,8 +335,8 @@
       "sortOrder": 50,
       "showInNavigation": true,
       "intro": {
-        "de": "Winzige Anhänger aus Keramik mit Öse aus Edelstahl. Die Kette ist nicht dabei – du hast bestimmt schon eine Lieblingskette.",
-        "en": "Tiny ceramic pendants with a stainless steel loop. Chain not included – you've probably got a favourite one already."
+        "de": "Winzige Anhänger aus Keramik mit Öse aus Edelstahl. Die Kette ist nicht dabei – deine Lieblingskette wartet bestimmt schon.",
+        "en": "Tiny ceramic pendants with a stainless steel loop. The chain is not included – your favourite one is surely waiting already."
       }
     },
     {
@@ -352,8 +352,8 @@
       "sortOrder": 60,
       "showInNavigation": false,
       "intro": {
-        "de": "Was nirgends reinpasst: Flohmarktfunde, die ich bemalt habe.",
-        "en": "Things that don't fit anywhere else: flea market finds I've painted."
+        "de": "Was nirgends hineinpasst: Fundstücke vom Markt, die ich weitergemalt habe.",
+        "en": "Whatever fits nowhere else: market finds that I have painted onward."
       }
     }
   ],
@@ -361,29 +361,138 @@
     {
       "type": "impressum",
       "validFrom": "2026-01-01T00:00:00+01:00",
-      "sourceNote": "Platzhalter aus dem Grund-Seed",
+      "sourceNote": "Platzhalter-Fassung (ausformuliert in P12.11, Kanzlei-Prüfung offen)",
+      "intro": "Hier steht schwarz auf weiß, wer hinter Planet Claire steckt.",
+      "introEn": "Here, in plain black and white, is who stands behind Planet Claire.",
       "sections": [
         {
           "heading": "Anbieterin",
           "paragraphs": [
-            "Text folgt von der Kanzlei.",
-            "{{name}}",
-            "{{street}}",
-            "{{postalCode}} {{city}}"
+            "Angaben nach § 5 DDG:",
+            "{{name}}\n{{street}}\n{{postalCode}} {{city}}",
+            "Ich bin Einzelunternehmerin und nicht im Handelsregister eingetragen. Ich beschäftige niemanden."
           ]
         },
         {
           "heading": "Kontakt",
           "paragraphs": [
-            "Text folgt von der Kanzlei.",
-            "{{email}}",
-            "{{phone}}"
+            "E-Mail: {{email}}\nTelefon: {{phone}}",
+            "Am schnellsten erreichst du mich per E-Mail. Auch auf Instagram (@planet.claire.tattoos) kannst du mir schreiben, rechtlich verbindliche Erklärungen schickst du bitte per E-Mail oder Post."
+          ]
+        },
+        {
+          "heading": "Umsatzsteuer",
+          "paragraphs": [
+            "Ich bin Kleinunternehmerin nach § 19 UStG. Deshalb berechne ich keine Umsatzsteuer und weise sie auch nicht aus.",
+            "Identifikationsnummern, soweit vergeben (Wirtschafts-Identifikationsnummer, Umsatzsteuer-Identifikationsnummer): {{wIdNr}} {{ustIdNr}}"
+          ]
+        },
+        {
+          "heading": "Verantwortlich für die Inhalte",
+          "paragraphs": [
+            "Verantwortlich im Sinne des § 18 Abs. 2 MStV ist die oben genannte Anbieterin."
           ]
         },
         {
           "heading": "Instagram-Profil",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Dieses Impressum gilt auch für mein geschäftlich genutztes Instagram-Profil @planet.claire.tattoos. Auf dieser Website ist Instagram nur verlinkt und nicht eingebettet."
+          ]
+        },
+        {
+          "heading": "Urheberrecht und Nutzung der Inhalte",
+          "paragraphs": [
+            "Alle Zeichnungen, Aquarelle, Keramik- und Textilmotive, Tattoo-Entwürfe (Flash), Fotos, Figuren (auch Coco), Grafiken und Texte auf dieser Website stammen von mir oder sind mit Erlaubnis der Urheber:innen abgebildet. Sie sind urheberrechtlich geschützt. © Planet Claire, alle Rechte vorbehalten.",
+            "Ohne meine vorherige Erlaubnis in Textform (E-Mail genügt) ist es nicht gestattet, sie zu vervielfältigen, herunterzuladen, zu speichern, weiterzugeben, öffentlich zugänglich zu machen, zu bearbeiten oder gewerblich zu nutzen. Das gilt auch für Screenshots, Fotos der Bildschirmanzeige und Weitergabe in sozialen Netzwerken, soweit das Gesetz nichts anderes erlaubt.",
+            "Gesetzlich erlaubte Nutzungen bleiben unberührt, zum Beispiel Zitate im Rahmen des § 51 UrhG. Wenn du mich zitierst, nenne bitte die Quelle (Planet Claire, planetclairetattoos.com) und die Urheberin.",
+            "Wer Inhalte ohne Erlaubnis verwendet, muss mit Abmahnung, Unterlassungs- und Schadensersatzforderungen rechnen. Ich verfolge Verstöße.",
+            "Mehr zu Käufen und Tattoo-Motiven steht in den AGB (Abschnitte „Urheberrecht und Kaufklausel“ und „Tattoo-Motive und Flash“)."
+          ]
+        },
+        {
+          "heading": "Vorbehalt für KI-Training und Text- und Data-Mining",
+          "paragraphs": [
+            "Ich behalte mir ausdrücklich alle Rechte vor und widerspreche hiermit jeder Nutzung meiner Bilder, Zeichnungen, Fotos und Texte für das Training, die Entwicklung oder die Verbesserung von Systemen künstlicher Intelligenz sowie für Text- und Data-Mining zu kommerziellen Zwecken (Nutzungsvorbehalt nach § 44b Abs. 3 UrhG, maschinenlesbar). Der Vorbehalt steht zusätzlich in der Datei robots.txt, in der Datei ai.txt, in den Meta-Angaben der Seiten und in den Antwort-Kopfzeilen dieser Website.",
+            "Wer KI-Training oder Datenanalyse betreiben möchte, fragt bitte vorher per E-Mail an {{email}}."
+          ]
+        },
+        {
+          "heading": "Haftung für Links",
+          "paragraphs": [
+            "Diese Website verlinkt auf wenige externe Seiten (zum Beispiel Instagram und die Sendungsverfolgung). Für deren Inhalte sind allein die jeweiligen Anbieter verantwortlich. Zum Zeitpunkt der Verlinkung waren keine Rechtsverstöße erkennbar. Wenn dir einer auffällt, schreib mir bitte, dann prüfe ich den Link."
+          ]
+        },
+        {
+          "heading": "Hinweis zur Barrierefreiheit",
+          "paragraphs": [
+            "Ich baue diese Seite so, dass du sie mit der Tastatur bedienen kannst, Bilder Alternativtexte haben und Bewegung sich abschalten lässt. Eine Erklärung zur Konformität mit einem bestimmten Standard gebe ich damit nicht ab; als Kleinstunternehmerin mit Dienstleistungen unterliege ich der gesetzlichen Pflicht aus dem Barrierefreiheitsstärkungsgesetz derzeit nicht.",
+            "Wenn dir etwas nicht zugänglich ist, schreib mir bitte an {{email}} und beschreibe kurz die Stelle. Ich schaue, wie ich dir helfen kann, und gebe dir die Information gern auf anderem Weg."
+          ]
+        }
+      ],
+      "sectionsEn": [
+        {
+          "heading": "Provider",
+          "paragraphs": [
+            "Information pursuant to Section 5 of the German Digital Services Act (DDG):",
+            "{{name}}\n{{street}}\n{{postalCode}} {{city}}",
+            "I am a sole trader and not entered in the commercial register. I have no employees."
+          ]
+        },
+        {
+          "heading": "Contact",
+          "paragraphs": [
+            "Email: {{email}}\nPhone: {{phone}}",
+            "Email is the quickest way to reach me. You can also write to me on Instagram (@planet.claire.tattoos); legally binding statements, however, please send by email or post."
+          ]
+        },
+        {
+          "heading": "VAT",
+          "paragraphs": [
+            "I am a small business under Section 19 of the German VAT Act (UStG). I therefore do not charge VAT and do not show it separately.",
+            "Identification numbers, where assigned (economic identification number, VAT identification number): {{wIdNr}} {{ustIdNr}}"
+          ]
+        },
+        {
+          "heading": "Responsible for the content",
+          "paragraphs": [
+            "The provider named above is responsible for the content within the meaning of Section 18 (2) of the German Interstate Media Treaty (MStV)."
+          ]
+        },
+        {
+          "heading": "Instagram profile",
+          "paragraphs": [
+            "This legal notice also applies to my business Instagram profile @planet.claire.tattoos. On this website Instagram is only linked, never embedded."
+          ]
+        },
+        {
+          "heading": "Copyright and use of content",
+          "paragraphs": [
+            "All drawings, watercolours, ceramic and textile motifs, tattoo designs (flash), photographs, characters (including Coco), graphics and texts on this website were created by me or are shown with the permission of their authors. They are protected by copyright. © Planet Claire, all rights reserved.",
+            "Without my prior permission in text form (an email is enough), you may not copy, download, store, pass on, make publicly available, edit or use them commercially. This includes screenshots, photos of the screen and sharing on social networks, unless the law provides otherwise.",
+            "Uses permitted by law remain unaffected, for example quotations within the limits of Section 51 of the German Copyright Act (UrhG). If you quote me, please name the source (Planet Claire, planetclairetattoos.com) and the author.",
+            "Anyone who uses content without permission must expect a formal warning as well as claims for injunctive relief and damages. I pursue infringements.",
+            "More on purchases and tattoo designs can be found in the terms and conditions (sections “Copyright and purchase clause” and “Tattoo designs and flash”)."
+          ]
+        },
+        {
+          "heading": "Reservation regarding AI training and text and data mining",
+          "paragraphs": [
+            "I expressly reserve all rights and hereby object to any use of my images, drawings, photographs and texts for the training, development or improvement of artificial intelligence systems and for commercial text and data mining (reservation of use under Section 44b (3) UrhG, machine-readable). The reservation is also stated in the robots.txt file, in the ai.txt file, in the meta tags of the pages and in the response headers of this website.",
+            "If you would like to use content for AI training or data analysis, please ask first by email at {{email}}."
+          ]
+        },
+        {
+          "heading": "Liability for links",
+          "paragraphs": [
+            "This website links to a few external sites (for example Instagram and parcel tracking). Their respective providers are solely responsible for their content. No legal infringements were apparent when the links were set. If you notice one, please write to me and I will check the link."
+          ]
+        },
+        {
+          "heading": "Note on accessibility",
+          "paragraphs": [
+            "I build this site so that you can use it with a keyboard, images have alternative text and motion can be switched off. By doing so I do not make a declaration of conformity with any particular standard; as a micro-enterprise providing services I am currently not subject to the legal obligation under the German Accessibility Strengthening Act (BFSG).",
+            "If something is not accessible to you, please write to me at {{email}} and briefly describe where. I will see how I can help and will gladly give you the information in another way."
           ]
         }
       ]
@@ -391,120 +500,276 @@
     {
       "type": "datenschutz",
       "validFrom": "2026-01-01T00:00:00+01:00",
-      "sourceNote": "Platzhalter aus dem Grund-Seed",
+      "sourceNote": "Platzhalter-Fassung (ausformuliert in P12.11, Kanzlei-Prüfung offen)",
+      "intro": "Ich sammle so wenig wie möglich über dich. Hier steht genau, was trotzdem anfällt, wozu ich es brauche und wann es wieder verschwindet.",
+      "introEn": "I collect as little about you as possible. Here is exactly what still accrues, what I need it for and when it disappears again.",
       "sections": [
         {
           "heading": "Verantwortliche",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Verantwortlich für die Verarbeitung deiner Daten auf dieser Website ist:",
+            "{{name}}\n{{street}}\n{{postalCode}} {{city}}\nE-Mail: {{email}}",
+            "Eine Datenschutzbeauftragte habe ich nicht benannt, weil dafür keine Pflicht besteht. Fragen zum Datenschutz richtest du an die E-Mail-Adresse oben.",
+            "Die Website kennt keine Kundenkonten, keinen Newsletter, kein Kontaktformular, keine Bewertungen und kein Profiling. Es gibt keine automatisierten Entscheidungen, die dich rechtlich betreffen."
           ]
         },
         {
-          "heading": "Hosting",
+          "heading": "Hosting und Server-Logfiles",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Die Website wird bei Vercel Inc. (Covina, USA) betrieben, die Server-Funktionen laufen in Frankfurt am Main. Die Datenbank liegt bei Neon (Databricks, USA) in Frankfurt, hochgeladene Dateien liegen im Objektspeicher von Cloudflare (R2, EU-Rechtsraum). Mit allen drei bestehen Auftragsverarbeitungsverträge.",
+            "Beim Aufruf einer Seite verarbeitet der Server technisch notwendig deine IP-Adresse, die aufgerufene Adresse, den Browser-Typ (User-Agent) und die Uhrzeit, um die Seite auszuliefern und Angriffe abzuwehren. Rechtsgrundlage ist mein berechtigtes Interesse an einem sicheren und stabilen Betrieb (Art. 6 Abs. 1 lit. f DSGVO). Meine eigenen Protokolle halte ich höchstens 14 Tage; die Aufbewahrung beim Hosting-Anbieter richtet sich nach dessen Tarif.",
+            "Schriften sind auf meinem eigenen Server gespeichert. Beim Besuch der Seite werden keine Inhalte von Drittanbietern nachgeladen (Ausnahme: die Kasse, siehe „Zahlung“). Es gibt keine Karten, Videos oder Einbettungen von anderen Diensten und keinen Dienst zur Spam-Abwehr eines Drittanbieters."
           ]
         },
         {
           "heading": "Cookies und lokale Speicherung",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Auf den öffentlichen Seiten setze ich keine Cookies und speichere nichts in deinem Browser, bevor du etwas aktiv auslöst. Deshalb gibt es kein Cookie-Banner. Die Sprache ergibt sich allein aus der Adresse (/de/…, /en/…) und wird nicht gespeichert.",
+            "Erst wenn du eine Funktion bewusst nutzt, entsteht ein technisch notwendiger Eintrag, ohne Namen oder andere Angaben zu deiner Person und ohne Kennung, mit der ich dich wiedererkennen könnte. Das ist nach § 25 Abs. 2 Nr. 2 TDDDG ohne Einwilligung zulässig; die Verarbeitung stützt sich auf Art. 6 Abs. 1 lit. b DSGVO. Vollständig sind das:",
+            "- **pc_cart** (eigenes Cookie): dein Warenkorb. Es enthält nur die Nummern der Stücke, den Preis beim Hinzufügen (damit ich dich auf eine Preisänderung hinweisen kann) und die gewählte Lieferart. Es entsteht beim ersten „In den Korb“ und läuft nach 7 Tagen ab oder wird gelöscht, sobald der Korb leer ist oder die Bestellung abgeschlossen ist. Einen Warenkorb auf dem Server gibt es nicht.\n- **pc_checkout** (eigenes Cookie): ordnet deinen laufenden Bezahlvorgang und die Reservierung des Stücks zu (zufällige Kassen-Kennung, nicht per Skript lesbar). Es entsteht beim Klick auf „Zur Kasse“ und läuft nach 1 Stunde ab.\n- **__stripe_mid** und **__stripe_sid** (Cookies von Stripe): dienen der Betrugsabwehr bei der Zahlung und entstehen nur auf der Kassenseite. Laufzeit laut Stripe etwa 1 Jahr bzw. etwa 30 Minuten.\n- **pc-motion** (lokaler Speicher deines Browsers): merkt sich nur, ob du Bewegung ein- oder ausgeschaltet hast. Er entsteht erst, wenn du den Schalter „Animationen“ betätigst, und bleibt, bis du ihn änderst oder löschst.\n- **payload-token**: Anmelde-Cookie der Verwaltung, nur für mich als Betreiberin, höchstens 7 Tage.",
+            "Sonst entsteht nichts: kein Statistik-Cookie, kein Service Worker, keine Fingerabdruck-Erkennung. Du kannst Cookies und lokalen Speicher jederzeit in deinem Browser löschen."
           ]
         },
         {
-          "heading": "Bestellung",
+          "heading": "Bestellung und Vertragsabwicklung",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Wenn du bestellst, verarbeite ich Name, E-Mail-Adresse, Liefer- und gegebenenfalls Rechnungsadresse sowie die Bestelldaten (Stücke, Preise, Zahlart, Zeitpunkte). Eine Telefonnummer verlange ich nicht. Bestellt wird nur als Gast. Rechtsgrundlagen sind die Vertragserfüllung (Art. 6 Abs. 1 lit. b DSGVO) und meine rechtlichen Pflichten, vor allem Buchführung und Steuerrecht (Art. 6 Abs. 1 lit. c DSGVO).",
+            "Mit der Bestellung speichere ich auch, welche Fassung der AGB, der Widerrufsbelehrung und dieser Erklärung galt. Über einen geheimen Link in der Bestätigungsmail siehst du den Status deiner Bestellung. Der Link ist nicht erratbar; gib ihn bitte nicht weiter.",
+            "Für jede bezahlte Bestellung erstelle ich eine Rechnung, die ich gesetzlich vorgeschrieben aufbewahre (siehe „Speicherdauer“)."
           ]
         },
         {
           "heading": "Zahlung",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Die Zahlung wickelt Stripe Payments Europe, Ltd. (Dublin, Irland) ab. Auf der Kassenseite wird dafür das Skript von Stripe geladen (erst dort, also erst nach deiner Entscheidung zu bestellen). Stripe erhält Name, E-Mail, Adresse, Betrag und deine Zahlungsdaten, die ich selbst nie sehe, und setzt die oben genannten Cookies. Stripe handelt teils als meine Auftragsverarbeiterin, teils in eigener Verantwortung, etwa für Betrugsprävention und gesetzliche Pflichten; dazu gilt dessen Datenschutzerklärung.",
+            "Bei **Apple Pay**, **Google Pay** und **PayPal** sind Apple, Google bzw. PayPal (Europe) S.à r.l. et Cie, S.C.A. (Luxemburg) für ihre Verarbeitung selbst verantwortlich. Bei **Vorkasse** überweist du an mein Bankkonto; deine Bank verarbeitet die Überweisung in eigener Verantwortung, und ich sehe auf dem Kontoauszug Name, IBAN und Verwendungszweck.",
+            "Rechtsgrundlagen: Art. 6 Abs. 1 lit. b, c und f DSGVO (Betrugsprävention). Zahlungsdaten wie Kartennummern speichere ich nie."
           ]
         },
         {
           "heading": "Versand",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Für den Versand gebe ich Name und Lieferadresse an das Versandunternehmen weiter, je nach Stück DHL (DHL Paket GmbH) oder Deutsche Post AG (beide Bonn). Das ist zur Vertragserfüllung erforderlich (Art. 6 Abs. 1 lit. b DSGVO). Deine E-Mail-Adresse gebe ich nur weiter, wenn du an der Kasse ausdrücklich zustimmst (freiwilliges, nicht vorangekreuztes Häkchen, Art. 6 Abs. 1 lit. a DSGVO), damit das Unternehmen dich über die Zustellung informieren kann. Diese Einwilligung kannst du jederzeit mit Wirkung für die Zukunft widerrufen.",
+            "Bei Abholung in Berlin gebe ich nichts an Dritte weiter. Den Ort der Abholung nenne ich dir erst per E-Mail."
           ]
         },
         {
           "heading": "E-Mails",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Bestätigungen, Zahlungshinweise, Versand- und Abholmitteilungen und Antworten auf Widerruf oder Reklamation versende ich über den E-Mail-Dienst Lettermint B.V. (Zwolle, Niederlande, Auftragsverarbeiter, Server in der EU). Dabei werden deine E-Mail-Adresse, dein Name und der Inhalt der Nachricht verarbeitet, außerdem protokolliere ich, ob die Zustellung geklappt hat. Rechtsgrundlagen: Art. 6 Abs. 1 lit. b und c DSGVO. Diese Mails enthalten keine Werbung.",
+            "Mein Postfach und meine Domain werden bei IONOS SE (Montabaur) betrieben (Auftragsverarbeiter)."
           ]
         },
         {
           "heading": "Widerruf",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Wenn du über die Widerrufsfunktion der Website einen Vertrag widerrufst, verarbeite ich deinen Namen, die Angaben zum Vertrag, deine E-Mail-Adresse und gegebenenfalls deine Stückauswahl und den freiwillig genannten Grund. Gespeichert werden außerdem Eingangszeit, Vorgangsnummer und Sprache. Ich speichere keine IP-Adresse und keine Browser-Kennung. Du bekommst sofort eine Eingangsbestätigung per E-Mail. Rechtsgrundlage ist meine gesetzliche Pflicht (Art. 6 Abs. 1 lit. c DSGVO in Verbindung mit § 356a BGB). Die Daten bewahre ich 6 Jahre auf (siehe „Speicherdauer“). Eingaben stehen nie in der Adresszeile; die Seite funktioniert ohne Anmeldung.",
+            "Meldest du Mängel oder Transportschäden, verarbeite ich Kontaktdaten, Fotos und den Schriftwechsel zur Bearbeitung der Reklamation (Art. 6 Abs. 1 lit. b und c DSGVO), so lange wie die Bestellung."
           ]
         },
         {
-          "heading": "Auftragsarbeiten",
+          "heading": "Anfragen zu Auftragsarbeiten",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Das Anfrageformular für Auftragsarbeiten erhebt Name, E-Mail-Adresse, Beschreibung, Gegenstand, optional Wunschzeitraum und Budget sowie bis zu 5 Bilder. Bitte lade keine Fotos von Personen hoch und mache keine Angaben zu deiner Gesundheit. Ich nutze die Angaben nur, um deine Anfrage zu beantworten und gegebenenfalls ein Angebot zu machen (Vertragsanbahnung, Art. 6 Abs. 1 lit. b DSGVO). Bilder werden privat gespeichert und von Metadaten (zum Beispiel Aufnahmeort) befreit. Anfragen werden 6 Monate nach Eingang automatisch samt Bildern gelöscht. Eine Einwilligungs-Checkbox gibt es dort nicht; stattdessen steht der Datenschutzhinweis direkt am Formular."
           ]
         },
         {
           "heading": "Kontakt",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Wenn du mir schreibst, verarbeite ich deine Nachricht und deine Kontaktdaten, um dir zu antworten (Art. 6 Abs. 1 lit. b oder f DSGVO). Geschäftsbriefe bewahre ich bis zu 6 Jahre auf, sonstige Nachrichten so lange, wie es der Zweck verlangt. Schreibst du mir auf Instagram, verarbeitet Meta Platforms Ireland Ltd. deine Daten in eigener Verantwortung; siehe „Instagram“.",
+            "Für Tattoo-Anfragen gibt es kein Formular. Du schreibst mir per E-Mail oder per Instagram-Nachricht; für Termine und eine mögliche Kaution vereinbaren wir alles einzeln und außerhalb dieser Website. Den Aufklärungs- und Einwilligungsbogen füllst du vor Ort auf Papier aus."
           ]
         },
         {
           "heading": "Statistik",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Auf dieser Website setze ich derzeit keine Statistik- oder Analysewerkzeuge ein und erstelle keine Besucherprofile. Sollte ich künftig eine datensparsame Reichweitenmessung ohne Cookies einführen, nehme ich sie hier auf, bevor sie startet."
           ]
         },
         {
           "heading": "Fehlerüberwachung",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Damit ich Fehler erkenne, kann ich serverseitig technische Fehlermeldungen an den Dienst Sentry (Functional Software, Inc., USA, Verarbeitung in der EU-Region Frankfurt) übermitteln, ohne Namen, E-Mail-Adressen oder Bestellinhalte. Im Browser läuft dafür kein Skript. Rechtsgrundlage ist mein berechtigtes Interesse an einem stabilen Betrieb (Art. 6 Abs. 1 lit. f DSGVO). Zur Abwehr von Missbrauch (zum Beispiel automatisierte Formularabsendungen) nutze ich außerdem einen Hash deiner IP-Adresse, den ich nach 24 Stunden verwerfe."
           ]
         },
         {
           "heading": "Tattoo-Portfolio",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Fotos von Tattoos, auf denen Kund:innen zu erkennen sein können, zeige ich nur mit deiner ausdrücklichen, dokumentierten Einwilligung (Art. 6 Abs. 1 lit. a DSGVO, § 22 KUG), getrennt nach „nur Tattoo“ oder „mit Gesicht“ und mit oder ohne Namensnennung. Du kannst die Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen; das Foto nehme ich dann umgehend herunter und lösche die Datei spätestens nach 24 Stunden. Den Nachweis der Einwilligung bewahre ich für die Dauer der Veröffentlichung plus 3 Jahre auf, um Ansprüche abzuwehren."
           ]
         },
         {
           "heading": "Instagram",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Mein Instagram-Profil @planet.claire.tattoos ist nur verlinkt, nicht eingebettet. Erst wenn du den Link anklickst, werden Daten an Instagram übertragen. Verantwortlich für die Verarbeitung dort ist Meta Platforms Ireland Ltd.; für die Statistiken meines Profils bin ich gemeinsam mit Meta verantwortlich (Art. 26 DSGVO). Es gilt die Datenschutzerklärung von Instagram. Rechtsgrundlage für mein Profil ist mein berechtigtes Interesse an einer Präsentation meiner Arbeit (Art. 6 Abs. 1 lit. f DSGVO)."
           ]
         },
         {
-          "heading": "Empfänger",
+          "heading": "Empfänger und Auftragsverarbeiter",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Deine Daten erhalten nur diejenigen, die sie für die genannten Zwecke brauchen: die Dienstleister für Hosting, Datenbank, Dateispeicher, Zahlung, E-Mail-Versand und Fehlerüberwachung, das Versandunternehmen, meine Bank, bei einer Prüfung das Finanzamt sowie auf gesetzliche Pflicht Behörden und Gerichte. Mit allen Auftragsverarbeitern bestehen Verträge nach Art. 28 DSGVO. DeepL SE (Köln) hilft mir beim Übersetzen meiner eigenen Texte und erhält dabei keine personenbezogenen Daten.",
+            "Die vollständige Übersicht mit Rolle, Sitz und Drittlandbezug jedes Dienstleisters findest du in der Tabelle „Auftragsverarbeiter und weitere Empfänger“ direkt unter diesem Text."
           ]
         },
         {
           "heading": "Übermittlung in Drittländer",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Einige Dienstleister sitzen in den USA (Vercel, Neon, Cloudflare, Stripe, Sentry) oder gehören zu US-Konzernen. Die Daten verarbeiten sie nach Möglichkeit in der EU (Frankfurt). Soweit dennoch Daten in die USA gelangen oder von dort eingesehen werden können, stützt sich die Übermittlung auf den Angemessenheitsbeschluss der EU-Kommission zum EU-US Data Privacy Framework, soweit der Anbieter dem Rahmenwerk beigetreten ist, und im Übrigen auf Standardvertragsklauseln (Art. 44 ff. DSGVO). Auf Anfrage sage ich dir, wie du Kopien der Schutzvorkehrungen erhältst."
           ]
         },
         {
           "heading": "Speicherdauer",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Ich speichere deine Daten nur so lange, wie der Zweck es verlangt oder das Gesetz es vorschreibt. Danach werden sie gelöscht oder anonymisiert:",
+            "- Warenkorb: nur in deinem Browser, 7 Tage; Kassen-Cookie 1 Stunde; Reservierungen ohne Personenbezug 7 Tage.\n- Kassen-Daten (auch abgebrochene Bezahlvorgänge): 30 Tage.\n- Bestellungen einschließlich Reklamationen: bis 6 Jahre ab Jahresende, der Status-Link läuft 180 Tage nach Abschluss ab; Pack- und Rückgabefotos 12 Monate.\n- Rechnungen und Gutschriften sowie Monatsübersichten für die Buchhaltung: 10 Jahre ab Jahresende.\n- Widerrufserklärungen: 6 Jahre ab Jahresende.\n- Anfragen zu Auftragsarbeiten samt Bildern: 6 Monate ab Eingang.\n- Nachrichten an mich: Geschäftsbriefe bis 6 Jahre, sonst nach Zweck.\n- Technische Protokolle: 24 Stunden bis 14 Tage, Verwaltungsprotokoll mit unkenntlich gemachten Personendaten bis zu 3 Jahre (bei Belegen und Bestellungen 10 Jahre).\n- Anfragen zu deinen Datenschutzrechten: 3 Jahre ab Jahresende.\n- Einwilligungsnachweise: mit der Bestellung; für Portfolio-Fotos Dauer der Veröffentlichung plus 3 Jahre.\n- Sicherungskopien: täglich 30 Tage, monatlich 12 Monate. Gelöschte Daten können deshalb noch bis zum Ablauf dieser Fristen in verschlüsselten Sicherungen liegen und werden bei einer Wiederherstellung sofort erneut gelöscht."
           ]
         },
         {
           "heading": "Deine Rechte",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Du hast gegenüber mir das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18) und Datenübertragbarkeit (Art. 20). Du kannst einer Verarbeitung auf Grundlage meines berechtigten Interesses jederzeit aus Gründen, die sich aus deiner besonderen Situation ergeben, widersprechen (Art. 21), und eine erteilte Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen (Art. 7 Abs. 3).",
+            "Schreib mir dafür an {{email}}. Ich antworte innerhalb eines Monats. Gesetzliche Aufbewahrungspflichten können einer Löschung entgegenstehen; dann sperre ich die Daten, bis die Frist abgelaufen ist."
           ]
         },
         {
           "heading": "Beschwerderecht",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Du kannst dich bei einer Datenschutz-Aufsichtsbehörde beschweren. Für mich zuständig ist die Berliner Beauftragte für Datenschutz und Informationsfreiheit, Alt-Moabit 59–61, 10555 Berlin. Du kannst dich auch an die Behörde an deinem Wohnort wenden."
+          ]
+        }
+      ],
+      "sectionsEn": [
+        {
+          "heading": "Controller",
+          "paragraphs": [
+            "The controller responsible for processing your data on this website is:",
+            "{{name}}\n{{street}}\n{{postalCode}} {{city}}\nEmail: {{email}}",
+            "I have not appointed a data protection officer because there is no obligation to do so. Please direct questions about data protection to the email address above.",
+            "The website has no customer accounts, no newsletter, no contact form, no reviews and no profiling. There are no automated decisions that have legal effects on you."
+          ]
+        },
+        {
+          "heading": "Hosting and server logs",
+          "paragraphs": [
+            "The website is operated by Vercel Inc. (Covina, USA); the server functions run in Frankfurt am Main. The database is held by Neon (Databricks, USA) in Frankfurt, and uploaded files are stored in Cloudflare object storage (R2, EU jurisdiction). Data processing agreements are in place with all three.",
+            "When you open a page, the server technically needs to process your IP address, the requested address, the browser type (user agent) and the time in order to deliver the page and fend off attacks. The legal basis is my legitimate interest in secure and stable operation (Art. 6 (1) (f) GDPR). I keep my own logs for 14 days at most; retention at the hosting provider depends on its plan.",
+            "Fonts are stored on my own server. Visiting the site does not load any content from third parties (exception: the checkout, see “Payment”). There are no maps, videos or embeds from other services and no third-party spam protection service."
+          ]
+        },
+        {
+          "heading": "Cookies and local storage",
+          "paragraphs": [
+            "On the public pages I set no cookies and store nothing in your browser until you actively trigger something. That is why there is no cookie banner. The language is determined solely by the address (/de/…, /en/…) and is not stored.",
+            "Only when you deliberately use a function is a technically necessary entry created, without your name or other personal details and without any identifier that would let me recognise you. This is permitted without consent under Section 25 (2) no. 2 TDDDG; the processing rests on Art. 6 (1) (b) GDPR. The complete list:",
+            "- **pc_cart** (own cookie): your shopping cart. It contains only the numbers of the pieces, the price when added (so I can tell you if a price has changed) and the chosen delivery method. It is created with the first “Add to cart”, expires after 7 days and is deleted when the cart is empty or the order is completed. There is no cart on the server.\n- **pc_checkout** (own cookie): assigns your current payment process and the reservation of the piece (random checkout identifier, not readable by scripts). It is created when you click “To checkout” and expires after 1 hour.\n- **__stripe_mid** and **__stripe_sid** (cookies from Stripe): used for fraud prevention during payment and only created on the checkout page. Duration according to Stripe about 1 year and about 30 minutes respectively.\n- **pc-motion** (your browser’s local storage): only remembers whether you switched motion on or off. It is created only when you press the “Animations” switch and stays until you change or delete it.\n- **payload-token**: login cookie of the administration area, only for me as the operator, 7 days at most.",
+            "Nothing else is created: no statistics cookie, no service worker, no fingerprinting. You can delete cookies and local storage in your browser at any time."
+          ]
+        },
+        {
+          "heading": "Orders and contract processing",
+          "paragraphs": [
+            "When you order, I process your name, email address, delivery and, if applicable, billing address, and the order data (pieces, prices, payment method, times). I do not ask for a phone number. You order as a guest only. The legal bases are performance of the contract (Art. 6 (1) (b) GDPR) and my legal obligations, above all accounting and tax law (Art. 6 (1) (c) GDPR).",
+            "With the order I also record which version of the terms and conditions, the withdrawal policy and this notice applied. A secret link in the confirmation email shows you the status of your order. The link cannot be guessed; please do not pass it on.",
+            "For every paid order I issue an invoice, which I keep as required by law (see “Storage periods”)."
+          ]
+        },
+        {
+          "heading": "Payment",
+          "paragraphs": [
+            "Payment is handled by Stripe Payments Europe, Ltd. (Dublin, Ireland). For this purpose Stripe’s script is loaded on the checkout page (only there, that is, only after you have decided to order). Stripe receives your name, email, address, the amount and your payment details, which I never see myself, and sets the cookies named above. Stripe acts partly as my processor and partly as an independent controller, for example for fraud prevention and legal obligations; its own privacy policy applies to that.",
+            "With **Apple Pay**, **Google Pay** and **PayPal**, Apple, Google and PayPal (Europe) S.à r.l. et Cie, S.C.A. (Luxembourg) respectively are themselves responsible for their processing. With **payment in advance** you transfer to my bank account; your bank processes the transfer as an independent controller, and on my statement I see name, IBAN and reference.",
+            "Legal bases: Art. 6 (1) (b), (c) and (f) GDPR (fraud prevention). I never store payment data such as card numbers."
+          ]
+        },
+        {
+          "heading": "Shipping",
+          "paragraphs": [
+            "For shipping I pass your name and delivery address to the carrier, depending on the piece DHL (DHL Paket GmbH) or Deutsche Post AG (both Bonn). This is necessary to perform the contract (Art. 6 (1) (b) GDPR). I pass on your email address only if you expressly agree at checkout (voluntary, unticked box, Art. 6 (1) (a) GDPR) so that the carrier can inform you about the delivery. You can withdraw this consent at any time with effect for the future.",
+            "For collection in Berlin I pass nothing on to third parties. I will tell you the place of collection by email only."
+          ]
+        },
+        {
+          "heading": "Emails",
+          "paragraphs": [
+            "Confirmations, payment instructions, shipping and collection notices and replies to withdrawals or complaints are sent through the email service Lettermint B.V. (Zwolle, Netherlands, processor, servers in the EU). Your email address, your name and the content of the message are processed, and I log whether delivery worked. Legal bases: Art. 6 (1) (b) and (c) GDPR. These emails contain no advertising.",
+            "My mailbox and my domain are operated by IONOS SE (Montabaur, Germany) as a processor."
+          ]
+        },
+        {
+          "heading": "Withdrawal",
+          "paragraphs": [
+            "When you withdraw from a contract through the website’s withdrawal function, I process your name, the details of the contract, your email address and, if applicable, your selection of pieces and the reason if you give one voluntarily. Time of receipt, case number and language are stored as well. I store no IP address and no browser identifier. You immediately receive a confirmation of receipt by email. The legal basis is my legal obligation (Art. 6 (1) (c) GDPR in conjunction with Section 356a BGB). I keep the data for 6 years (see “Storage periods”). Entries never appear in the address bar; the page works without logging in.",
+            "If you report defects or transport damage, I process contact details, photos and correspondence to handle the complaint (Art. 6 (1) (b) and (c) GDPR), for as long as the order is kept."
+          ]
+        },
+        {
+          "heading": "Commission requests",
+          "paragraphs": [
+            "The request form for commissioned work collects name, email address, description, subject, optionally preferred period and budget, and up to 5 images. Please do not upload photos of people and do not give details about your health. I use the details only to answer your request and, if applicable, make an offer (pre-contractual steps, Art. 6 (1) (b) GDPR). Images are stored privately and stripped of metadata (for example the place a photo was taken). Requests are deleted automatically, images included, 6 months after receipt. There is no consent checkbox there; instead the privacy note sits right at the form."
+          ]
+        },
+        {
+          "heading": "Contact",
+          "paragraphs": [
+            "When you write to me, I process your message and your contact details in order to reply (Art. 6 (1) (b) or (f) GDPR). I keep business letters for up to 6 years and other messages as long as the purpose requires. If you write to me on Instagram, Meta Platforms Ireland Ltd. processes your data as an independent controller; see “Instagram”.",
+            "There is no form for tattoo enquiries. You write to me by email or Instagram message; for appointments and a possible deposit we agree everything individually and outside this website. You fill in the briefing and consent form on paper on site."
+          ]
+        },
+        {
+          "heading": "Statistics",
+          "paragraphs": [
+            "I currently use no statistics or analytics tools on this website and create no visitor profiles. Should I introduce a data-sparing, cookie-free audience measurement in future, I will add it here before it starts."
+          ]
+        },
+        {
+          "heading": "Error monitoring",
+          "paragraphs": [
+            "So that I can spot errors, I may send technical error reports from the server to the service Sentry (Functional Software, Inc., USA, processed in the EU region Frankfurt), without names, email addresses or order contents. No script runs in your browser for this. The legal basis is my legitimate interest in stable operation (Art. 6 (1) (f) GDPR). To prevent misuse (for example automated form submissions) I also use a hash of your IP address, which I discard after 24 hours."
+          ]
+        },
+        {
+          "heading": "Tattoo portfolio",
+          "paragraphs": [
+            "Photos of tattoos in which clients may be recognisable are shown only with your express, documented consent (Art. 6 (1) (a) GDPR, Section 22 KUG), differentiated between “tattoo only” and “with face” and with or without a mention of your name. You can withdraw consent at any time with effect for the future; I then take the photo down promptly and delete the file within 24 hours at the latest. I keep the proof of consent for the duration of publication plus 3 years in order to defend against claims."
+          ]
+        },
+        {
+          "heading": "Instagram",
+          "paragraphs": [
+            "My Instagram profile @planet.claire.tattoos is only linked, not embedded. Data is transmitted to Instagram only when you click the link. Meta Platforms Ireland Ltd. is responsible for the processing there; for the statistics of my profile I am jointly responsible with Meta (Art. 26 GDPR). Instagram’s privacy policy applies. The legal basis for my profile is my legitimate interest in presenting my work (Art. 6 (1) (f) GDPR)."
+          ]
+        },
+        {
+          "heading": "Recipients and processors",
+          "paragraphs": [
+            "Your data goes only to those who need it for the stated purposes: the service providers for hosting, database, file storage, payment, email delivery and error monitoring, the carrier, my bank, the tax office in case of an audit, and authorities and courts where legally required. Contracts under Art. 28 GDPR are in place with all processors. DeepL SE (Cologne) helps me translate my own texts and receives no personal data in doing so.",
+            "The complete overview with the role, seat and third-country relevance of each provider is in the table “Processors and other recipients” directly below this text."
+          ]
+        },
+        {
+          "heading": "Transfers to third countries",
+          "paragraphs": [
+            "Some providers are based in the USA (Vercel, Neon, Cloudflare, Stripe, Sentry) or belong to US groups. Where possible they process the data in the EU (Frankfurt). Where data nevertheless reaches the USA or can be accessed from there, the transfer relies on the European Commission’s adequacy decision for the EU-US Data Privacy Framework where the provider has joined the framework and otherwise on standard contractual clauses (Art. 44 et seq. GDPR). On request I will tell you where to obtain copies of the safeguards."
+          ]
+        },
+        {
+          "heading": "Storage periods",
+          "paragraphs": [
+            "I store your data only as long as the purpose requires or the law prescribes. After that it is deleted or anonymised:",
+            "- Cart: only in your browser, 7 days; checkout cookie 1 hour; reservations without personal data 7 days.\n- Checkout data (including abandoned payment processes): 30 days.\n- Orders including complaints: up to 6 years from the end of the year; the status link expires 180 days after completion; packing and return photos 12 months.\n- Invoices and credit notes and monthly summaries for bookkeeping: 10 years from the end of the year.\n- Withdrawal declarations: 6 years from the end of the year.\n- Requests for commissioned work including images: 6 months from receipt.\n- Messages to me: business letters up to 6 years, otherwise according to purpose.\n- Technical logs: 24 hours to 14 days; administration log with masked personal data up to 3 years (10 years for receipts and orders).\n- Requests about your data protection rights: 3 years from the end of the year.\n- Proof of consent: with the order; for portfolio photos the duration of publication plus 3 years.\n- Backups: daily for 30 days, monthly for 12 months. Deleted data may therefore remain in encrypted backups until these periods expire and is deleted again immediately if a backup is restored."
+          ]
+        },
+        {
+          "heading": "Your rights",
+          "paragraphs": [
+            "You have the right against me to access (Art. 15 GDPR), rectification (Art. 16), erasure (Art. 17), restriction of processing (Art. 18) and data portability (Art. 20). You can object at any time, on grounds relating to your particular situation, to processing based on my legitimate interest (Art. 21), and withdraw any consent given at any time with effect for the future (Art. 7 (3)).",
+            "Please write to me at {{email}}. I will reply within one month. Statutory retention obligations may prevent erasure; in that case I restrict the data until the period has expired."
+          ]
+        },
+        {
+          "heading": "Right to lodge a complaint",
+          "paragraphs": [
+            "You can lodge a complaint with a data protection supervisory authority. The authority responsible for me is the Berlin Commissioner for Data Protection and Freedom of Information (Berliner Beauftragte für Datenschutz und Informationsfreiheit), Alt-Moabit 59–61, 10555 Berlin. You may also contact the authority where you live."
           ]
         }
       ]
@@ -512,54 +777,226 @@
     {
       "type": "agb",
       "validFrom": "2026-01-01T00:00:00+01:00",
-      "sourceNote": "Platzhalter aus dem Grund-Seed",
+      "sourceNote": "Platzhalter-Fassung (ausformuliert in P12.11, Kanzlei-Prüfung offen)",
+      "intro": "Ein Stück, ein Mensch, ein Vertrag. Die Spielregeln dazu stehen hier.",
+      "introEn": "One piece, one person, one contract. The ground rules are written down here.",
       "sections": [
         {
           "heading": "Geltungsbereich",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Diese Allgemeinen Geschäftsbedingungen gelten für alle Verträge zwischen {{name}}, {{street}}, {{postalCode}} {{city}}, E-Mail {{email}} (im Folgenden „ich“), und dir als Kund:in über den Kauf von Waren im Online-Shop auf {{siteUrl}}. Sie gelten in der Fassung, die bei deiner Bestellung aktuell war.",
+            "Verbraucher:in bist du, wenn du den Vertrag zu Zwecken abschließt, die überwiegend weder deiner gewerblichen noch deiner selbständigen beruflichen Tätigkeit zugerechnet werden können. Der Shop richtet sich an Verbraucher:innen.",
+            "Auftragsarbeiten und Tattoo-Termine sind nicht im Shop bestellbar. Dafür gelten die Regeln im Abschnitt „Auftragsarbeiten und Tattoo-Termine“."
+          ]
+        },
+        {
+          "heading": "Angebot und Unikate",
+          "paragraphs": [
+            "Im Shop verkaufe ich ausschließlich Unikate: Keramik, bemalte Second-Hand-Textilien, Zeichnungen und Aquarelle sowie Keramikschmuck. Jedes Stück gibt es nur einmal und ist mit einer Objektnummer gekennzeichnet. Weil jedes Stück handgemacht ist, können Maße, Farben, Glasuren und Pinselstriche von den Fotos leicht abweichen; wesentliche Eigenschaften und Zustand beschreibe ich auf der Produktseite, bei gebrauchten Textilien auch den Zustand.",
+            "Die Darstellung der Stücke im Shop ist kein verbindliches Angebot, sondern eine Aufforderung an dich, ein Angebot abzugeben."
           ]
         },
         {
           "heading": "Vertragsschluss",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Du legst Stücke in den Warenkorb, gehst zur Kasse und gibst Daten ein. Vor dem Absenden siehst du eine Übersicht mit allen Angaben und kannst Eingabefehler über die „Ändern“-Links korrigieren. Mit dem Klick auf „Zahlungspflichtig bestellen“ gibst du ein verbindliches Angebot zum Kauf der Stücke im Warenkorb ab.",
+            "Bei Zahlung per Karte, Apple Pay, Google Pay oder PayPal nehme ich dein Angebot an, indem ich dir nach bestätigter Zahlung die Bestellbestätigung per E-Mail sende. Scheitert die Zahlung, kommt kein Vertrag zustande.",
+            "Bei Vorkasse nehme ich dein Angebot mit der Bestellbestätigung an, die du sofort per E-Mail erhältst. Dein Stück bleibt bis zum Ende der Zahlungsfrist für dich reserviert. Wird nicht fristgerecht gezahlt, wird die Bestellung nach dem Abschnitt „Zahlung und Vorkasse“ automatisch storniert.",
+            "Mit Beginn des Bezahlvorgangs reserviere ich das Stück 30 Minuten für dich. Läuft die Zeit ab, wird es wieder freigegeben. Da es jedes Stück nur einmal gibt, kann es vorkommen, dass es zuvor verkauft wurde. Ist das Stück nicht mehr verfügbar, kommt kein Vertrag zustande und ich erstatte bereits geleistete Zahlungen unverzüglich."
           ]
         },
         {
-          "heading": "Preise und Zahlung",
+          "heading": "Preise und Steuer",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Alle Preise sind Endpreise in Euro. Ich bin Kleinunternehmerin nach § 19 UStG; deshalb wird keine Umsatzsteuer berechnet und nicht ausgewiesen. Zu den Preisen kommen, soweit angegeben, die Versandkosten; sie stehen vor dem Absenden der Bestellung fest und sind auf der Seite „Versand & Zahlung“ aufgeführt. Die Abholung in Berlin kostet nichts extra."
           ]
         },
         {
-          "heading": "Vorkasse",
+          "heading": "Zahlung und Vorkasse",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Du kannst per Kredit- oder Debitkarte, Apple Pay, Google Pay, PayPal oder per Vorkasse (Überweisung) bezahlen. Aufschläge für eine Zahlart erhebe ich nicht. Karte, Wallets und PayPal werden sofort belastet.",
+            "Bei Vorkasse überweist du den Gesamtbetrag bis 23:59 Uhr (Berliner Zeit) am {{vorkasseDays}}. Kalendertag nach dem Bestelltag an das Konto, das ich dir in der Bestellbestätigung nenne, mit der Bestellnummer als Verwendungszweck. Etwa 72 Stunden nach der Bestellung erinnere ich dich per E-Mail. Geht die Zahlung bis zum Ende der Frist nicht ein, storniere ich die Bestellung automatisch, du bekommst eine Mail darüber, und das Stück wird wieder angeboten. Hast du in der Zwischenzeit schon überwiesen, schreib mir bitte sofort; ich erstatte dir das Geld dann zurück."
           ]
         },
         {
-          "heading": "Lieferung und Abholung",
+          "heading": "Lieferung, Abholung und Transport",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Ich liefere nur innerhalb Deutschlands, außerdem ist Abholung in Berlin nach Absprache möglich. Die Lieferzeit beträgt {{deliveryTime}}, bei Vorkasse ab Zahlungseingang. Das Transportrisiko trage ich: Geht das Paket auf dem Weg zu dir kaputt oder verloren, bin ich dafür verantwortlich, bis es dir übergeben wurde (§ 475 Abs. 2 BGB). Bei Abholung geht die Gefahr mit der Übergabe über.",
+            "Beschädigungen auf dem Transport meldest du mir bitte möglichst schnell mit Fotos des Stücks, der Verpackung und des Versandetiketts; deine gesetzlichen Rechte bleiben davon unberührt.",
+            "Einzelheiten stehen auf der Seite „Versand & Zahlung“."
           ]
         },
         {
           "heading": "Eigentumsvorbehalt",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Die Ware bleibt bis zur vollständigen Bezahlung mein Eigentum."
+          ]
+        },
+        {
+          "heading": "Widerrufsrecht",
+          "paragraphs": [
+            "Als Verbraucher:in hast du ein gesetzliches Widerrufsrecht. Die Einzelheiten, das Muster-Widerrufsformular und die Widerrufsfunktion der Website findest du in der Widerrufsbelehrung. Die unmittelbaren Kosten der Rücksendung trägst du."
           ]
         },
         {
           "heading": "Mängelhaftung",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Es gilt die gesetzliche Mängelhaftung. Freiwillige Zusagen darüber hinaus gebe ich nicht. Gebrauchte Textilien verkaufe ich als Second-Hand-Ware; ihren Zustand beschreibe ich so genau wie möglich. Weicht ein Stück in einem beschriebenen Punkt ab (zum Beispiel ein Fleck oder eine Naht), vereinbare ich das mit dir vor der Bestellung ausdrücklich und gesondert; die Zustimmung gibst du an der Kasse mit einem eigenen Häkchen.",
+            "Bei einem Mangel hast du die gesetzlichen Rechte: Nacherfüllung, Rücktritt, Minderung, Schadensersatz. Seit dem 31.07.2026 hast du bei Kaufverträgen zudem Rechte rund um die Reparatur; entscheidest du dich für Reparatur, verlängert sich die Gewährleistungsfrist nach den gesetzlichen Regeln. Weil jedes Stück ein Unikat ist, ist ein Ersatz durch ein gleichartiges Stück meist nicht möglich. Melde Mängel bitte per E-Mail an {{email}}, am besten mit Fotos."
+          ]
+        },
+        {
+          "heading": "Haftung",
+          "paragraphs": [
+            "Ich hafte unbeschränkt bei Vorsatz und grober Fahrlässigkeit, bei Verletzung von Leben, Körper oder Gesundheit sowie nach dem Produkthaftungsgesetz. Bei leicht fahrlässiger Verletzung einer wesentlichen Vertragspflicht, also einer Pflicht, deren Erfüllung den Vertrag erst ermöglicht und auf die du regelmäßig vertrauen darfst, ist meine Haftung auf den vorhersehbaren, typischen Schaden begrenzt. Im Übrigen ist die Haftung bei leichter Fahrlässigkeit ausgeschlossen. Gesetzliche Rechte, die du nach den Regeln über die Mängelhaftung hast, bleiben unberührt."
+          ]
+        },
+        {
+          "heading": "Urheberrecht und Kaufklausel",
+          "paragraphs": [
+            "Alle Motive, Zeichnungen, Aquarelle, Muster, Figuren, Fotos und Texte dieser Website sind urheberrechtlich geschützt. Die Rechte daran liegen bei mir (© Planet Claire, alle Rechte vorbehalten). Du darfst sie ohne meine vorherige Erlaubnis in Textform nicht vervielfältigen, herunterladen, weitergeben, öffentlich zugänglich machen, bearbeiten oder gewerblich nutzen. Gesetzliche Schranken, zum Beispiel das Zitatrecht, bleiben unberührt; nenne dann bitte die Quelle.",
+            "**Kaufklausel:** Mit dem Kauf erwirbst du das Eigentum an dem einen Stück, das du kaufst, und das Recht, es zu besitzen, zu zeigen, zu verschenken und weiterzuverkaufen. Du erwirbst keine Nutzungsrechte am Motiv oder an der Zeichnung selbst. Nicht erlaubt sind ohne meine schriftliche Erlaubnis insbesondere Nachdruck, Vervielfältigung, Fotografie oder Digitalisierung zur Verwertung, Merchandise, Weiterverkauf als Reproduktion, Übertragung des Motivs auf andere Gegenstände, auf Haut (Nachstechen) oder in digitale Werke sowie die Verwendung als Vorlage für eigene Werke. Meine Unikate werden nicht in Serie gebracht; daran ändert der Verkauf eines Stücks nichts. Das Urheberrecht verbleibt bei mir.",
+            "Ein privates Foto deines gekauften Stücks, zum Beispiel für ein persönliches Profil, ist in Ordnung, solange es nicht gewerblich genutzt wird und du mich als Urheberin nennst."
+          ]
+        },
+        {
+          "heading": "KI-Training und Text- und Data-Mining",
+          "paragraphs": [
+            "Ich behalte mir die Nutzung meiner Werke und Texte für Text- und Data-Mining ausdrücklich vor (Nutzungsvorbehalt nach § 44b Abs. 3 UrhG, auch maschinenlesbar in robots.txt, ai.txt und den Meta-Angaben der Seiten). Insbesondere ist es nicht erlaubt, sie ohne meine Zustimmung zum Training, zur Entwicklung oder Verbesserung von Systemen künstlicher Intelligenz zu verwenden."
+          ]
+        },
+        {
+          "heading": "Tattoo-Motive und Flash",
+          "paragraphs": [
+            "Meine Tattoo-Motive und Flash-Entwürfe, auch solche, die ich auf der Website oder auf Instagram zeige, sind urheberrechtlich geschützt. Ein Motiv darf nur von mir oder mit meiner ausdrücklichen schriftlichen Genehmigung gestochen oder anderweitig verwendet werden, auch nicht in abgewandelter Form und auch nicht von anderen Tätowierer:innen. Wer ein Motiv ohne Genehmigung nachsticht oder verwendet, muss damit rechnen, dass ich dagegen vorgehe. Für ein bestimmtes Motiv fragst du bitte vorher per E-Mail an {{email}}."
+          ]
+        },
+        {
+          "heading": "Auftragsarbeiten und Tattoo-Termine",
+          "paragraphs": [
+            "Anfragen zu Auftragsarbeiten gehen über das Anfrageformular, Tattoo-Anfragen per E-Mail oder Instagram-Nachricht. Ein Vertrag kommt dort erst durch ein individuelles Angebot und deine Annahme per E-Mail zustande; Bezahlung und weitere Bedingungen vereinbaren wir dabei außerhalb des Shops. Diese AGB gelten für solche Verträge nur, soweit ich es in meinem Angebot ausdrücklich sage."
           ]
         },
         {
           "heading": "Vertragstext und Vertragssprache",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Den Vertragstext (deine Bestellung mit allen Angaben) speichere ich. Die AGB und die Widerrufsbelehrung mit Muster-Widerrufsformular erhältst du als PDF mit der Bestellbestätigung; über den Bestellstatus-Link kannst du sie jederzeit erneut abrufen. Vertragssprache ist Deutsch. Die englische Fassung dieser Bedingungen ist eine Lesehilfe; verbindlich ist die deutsche Fassung."
+          ]
+        },
+        {
+          "heading": "Schlussbestimmungen",
+          "paragraphs": [
+            "Es gilt deutsches Recht unter Ausschluss des UN-Kaufrechts. Bist du Verbraucher:in und hast deinen gewöhnlichen Aufenthalt in einem anderen Staat, bleiben dir die zwingenden Verbraucherschutzvorschriften dieses Staates erhalten. Sollte eine Bestimmung dieser Bedingungen unwirksam sein, bleibt der Rest wirksam; an die Stelle der unwirksamen Bestimmung tritt die gesetzliche Regelung."
+          ]
+        }
+      ],
+      "sectionsEn": [
+        {
+          "heading": "Scope",
+          "paragraphs": [
+            "These General Terms and Conditions apply to all contracts between {{name}}, {{street}}, {{postalCode}} {{city}}, email {{email}} (“I”), and you as the customer for the purchase of goods in the online shop at {{siteUrl}}. They apply in the version that was current when you placed your order.",
+            "You are a consumer if you conclude the contract for purposes that cannot predominantly be attributed to your commercial or self-employed professional activity. The shop is aimed at consumers.",
+            "Commissions and tattoo appointments cannot be ordered in the shop. The rules in the section “Commissions and tattoo appointments” apply to them."
+          ]
+        },
+        {
+          "heading": "Offer and unique pieces",
+          "paragraphs": [
+            "In the shop I sell unique pieces only: ceramics, painted second-hand textiles, drawings and watercolours, and ceramic jewellery. Each piece exists only once and carries an object number. Because every piece is handmade, dimensions, colours, glazes and brushstrokes may differ slightly from the photos; I describe essential properties on the product page, and for used textiles also their condition.",
+            "The presentation of pieces in the shop is not a binding offer but an invitation to you to make an offer."
+          ]
+        },
+        {
+          "heading": "Conclusion of contract",
+          "paragraphs": [
+            "You put pieces into the cart, go to the checkout and enter your details. Before submitting you see an overview of all details and can correct input errors using the “Change” links. By clicking “Order with obligation to pay” you make a binding offer to buy the pieces in your cart.",
+            "When you pay by card, Apple Pay, Google Pay or PayPal, I accept your offer by sending you the order confirmation by email after payment has been confirmed. If payment fails, no contract is concluded.",
+            "With payment in advance I accept your offer with the order confirmation, which you receive immediately by email. Your piece stays reserved for you until the end of the payment period. If payment is not made in time, the order is cancelled automatically as described in the section “Payment and payment in advance”.",
+            "When the payment process starts, I reserve the piece for you for 30 minutes. If the time runs out, it is released again. Since each piece exists only once, it may have been sold in the meantime. If the piece is no longer available, no contract is concluded and I refund any payments already made without delay."
+          ]
+        },
+        {
+          "heading": "Prices and tax",
+          "paragraphs": [
+            "All prices are final prices in euros. I am a small business under Section 19 UStG; therefore no VAT is charged or shown. Shipping costs are added where indicated; they are fixed before you submit the order and are listed on the page “Shipping and payment”. Collection in Berlin costs nothing extra."
+          ]
+        },
+        {
+          "heading": "Payment and payment in advance",
+          "paragraphs": [
+            "You can pay by credit or debit card, Apple Pay, Google Pay, PayPal or in advance (bank transfer). I charge no surcharges for any payment method. Cards, wallets and PayPal are charged immediately.",
+            "With payment in advance you transfer the total amount by 11:59 pm (Berlin time) on calendar day {{vorkasseDays}} after the day of the order to the account that I name in the order confirmation, using the order number as the payment reference. About 72 hours after the order I remind you by email. If payment has not been received by the end of the period, I cancel the order automatically, you receive an email about it, and the piece is offered again. If you have already transferred the money in the meantime, please write to me immediately; I will then refund it."
+          ]
+        },
+        {
+          "heading": "Delivery, collection and transport",
+          "paragraphs": [
+            "I deliver within Germany only; collection in Berlin by arrangement is also possible. Delivery takes {{deliveryTime}}, for payment in advance counted from receipt of payment. I bear the transport risk: if the parcel is damaged or lost on its way to you, I am responsible until it has been handed over to you (Section 475 (2) BGB). For collection, the risk passes with handover.",
+            "Please report damage in transit to me as soon as possible with photos of the piece, the packaging and the shipping label; your statutory rights remain unaffected.",
+            "Details are on the page “Shipping and payment”."
+          ]
+        },
+        {
+          "heading": "Retention of title",
+          "paragraphs": [
+            "The goods remain my property until they have been paid for in full."
+          ]
+        },
+        {
+          "heading": "Right of withdrawal",
+          "paragraphs": [
+            "As a consumer you have a statutory right of withdrawal. You will find the details, the model withdrawal form and the website’s withdrawal function in the withdrawal policy. You bear the direct costs of returning the goods."
+          ]
+        },
+        {
+          "heading": "Liability for defects",
+          "paragraphs": [
+            "The statutory liability for defects applies. I give no voluntary undertakings beyond that. I sell used textiles as second-hand goods; I describe their condition as accurately as I can. If a piece deviates in a described respect (for example a stain or a seam), I agree this with you expressly and separately before the order; you give your consent at checkout with a separate tick box.",
+            "In case of a defect you have the statutory rights: subsequent performance, withdrawal, price reduction, damages. Since 31 July 2026 you also have rights concerning repair under sales contracts; if you choose repair, the limitation period for defects is extended under the statutory rules. Because every piece is unique, replacement with a similar piece is usually not possible. Please report defects by email to {{email}}, ideally with photos."
+          ]
+        },
+        {
+          "heading": "Liability",
+          "paragraphs": [
+            "I am liable without limitation for intent and gross negligence, for injury to life, body or health, and under the Product Liability Act. In case of slightly negligent breach of an essential contractual obligation, that is, an obligation whose fulfilment makes the contract possible in the first place and on which you can regularly rely, my liability is limited to the foreseeable, typical damage. In all other respects liability for slight negligence is excluded. Statutory rights you have under the rules on liability for defects remain unaffected."
+          ]
+        },
+        {
+          "heading": "Copyright and purchase clause",
+          "paragraphs": [
+            "All motifs, drawings, watercolours, patterns, characters, photographs and texts on this website are protected by copyright. The rights to them lie with me (© Planet Claire, all rights reserved). Without my prior permission in text form you may not copy, download, pass on, make publicly available, edit or use them commercially. Statutory limitations, for example the right to quote, remain unaffected; please then name the source.",
+            "**Purchase clause:** By purchasing you acquire ownership of the one piece you buy, and the right to own it, show it, give it away and resell it. You do not acquire any rights of use in the motif or in the drawing itself. Without my written permission the following in particular are not permitted: reprints, reproduction, photography or digitisation for exploitation, merchandise, resale as a reproduction, transferring the motif to other objects, to skin (re-tattooing) or into digital works, and use as a template for your own works. My unique pieces are not made into series; selling one piece does not change that. The copyright remains with me.",
+            "A private photo of the piece you bought, for example for a personal profile, is fine as long as it is not used commercially and you name me as the author."
+          ]
+        },
+        {
+          "heading": "AI training and text and data mining",
+          "paragraphs": [
+            "I expressly reserve the use of my works and texts for text and data mining (reservation of use under Section 44b (3) UrhG, also machine-readable in robots.txt, ai.txt and the meta tags of the pages). In particular it is not permitted to use them without my consent for the training, development or improvement of artificial intelligence systems."
+          ]
+        },
+        {
+          "heading": "Tattoo designs and flash",
+          "paragraphs": [
+            "My tattoo designs and flash sheets, including those I show on the website or on Instagram, are protected by copyright. A design may be tattooed or otherwise used only by me or with my express written permission, not in altered form either, and not by other tattoo artists. Anyone who re-tattoos or uses a design without permission must expect me to take action. For a specific design, please ask beforehand by email at {{email}}."
+          ]
+        },
+        {
+          "heading": "Commissions and tattoo appointments",
+          "paragraphs": [
+            "Requests for commissioned work go through the request form, tattoo enquiries by email or Instagram message. There, a contract comes into being only through an individual offer and your acceptance by email; payment and further conditions are agreed outside the shop. These terms apply to such contracts only if I say so expressly in my offer."
+          ]
+        },
+        {
+          "heading": "Contract text and language",
+          "paragraphs": [
+            "I store the contract text (your order with all details). You receive the terms and the withdrawal policy with the model withdrawal form as a PDF with the order confirmation; through the order status link you can retrieve them again at any time. The contract language is German. The English version of these terms is a reading aid; the German version is binding."
+          ]
+        },
+        {
+          "heading": "Final provisions",
+          "paragraphs": [
+            "German law applies, excluding the CISG (UN sales law). If you are a consumer and habitually reside in another state, the mandatory consumer protection provisions of that state remain available to you. If any provision of these terms is invalid, the remainder stays valid; the statutory rule replaces the invalid provision."
           ]
         }
       ]
@@ -567,26 +1004,74 @@
     {
       "type": "widerrufsbelehrung",
       "validFrom": "2026-01-01T00:00:00+01:00",
-      "sourceNote": "Platzhalter aus dem Grund-Seed",
+      "sourceNote": "Platzhalter-Fassung (ausformuliert in P12.11, Kanzlei-Prüfung offen)",
+      "intro": "Überlegen ist erlaubt. Hier steht, wie du einen Kauf innerhalb der Frist wieder rückgängig machst.",
+      "introEn": "Taking time to think is allowed. Here is how you undo a purchase within the period.",
       "sections": [
         {
           "heading": "Widerrufsrecht",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Du hast das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.",
+            "Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag, an dem du oder ein von dir benannter Dritter, der nicht Beförderer ist, die Waren in Besitz genommen hast bzw. hat. Hast du mehrere Waren in einer Bestellung bestellt, die getrennt geliefert werden, beginnt die Frist an dem Tag, an dem du oder ein von dir benannter Dritter, der nicht Beförderer ist, die letzte Ware in Besitz genommen hast bzw. hat.",
+            "Um dein Widerrufsrecht auszuüben, musst du mich ({{name}}, {{street}}, {{postalCode}} {{city}}, Telefon: {{phone}}, E-Mail: {{email}}) mittels einer eindeutigen Erklärung (zum Beispiel ein mit der Post versandter Brief oder eine E-Mail) über deinen Entschluss, diesen Vertrag zu widerrufen, informieren. Du kannst dafür das beigefügte Muster-Widerrufsformular verwenden, das jedoch nicht vorgeschrieben ist."
           ]
         },
         {
           "heading": "Widerruf über die Website",
           "paragraphs": [
-            "Text folgt von der Kanzlei.",
+            "Du kannst deinen Widerruf auch elektronisch über die Widerrufsfunktion auf meiner Website erklären. Du findest sie unter:",
             "{{withdrawalUrl}}",
-            "Telefon: {{phone}}"
+            "Der Link „Vertrag widerrufen“ steht im Fußbereich jeder Seite. Du brauchst dafür kein Konto und keine Anmeldung. Gib deinen Namen, die Angaben zum Vertrag (zum Beispiel die Bestellnummer) und deine E-Mail-Adresse an, prüfe deine Angaben und bestätige den Widerruf mit „Widerruf bestätigen“. Danach bekommst du sofort eine Eingangsbestätigung per E-Mail.",
+            "Zur Wahrung der Widerrufsfrist reicht es aus, dass du die Mitteilung über die Ausübung des Widerrufsrechts vor Ablauf der Widerrufsfrist absendest."
           ]
         },
         {
           "heading": "Folgen des Widerrufs",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Wenn du diesen Vertrag widerrufst, habe ich dir alle Zahlungen, die ich von dir erhalten habe, einschließlich der Lieferkosten (mit Ausnahme der zusätzlichen Kosten, die sich daraus ergeben, dass du eine andere Art der Lieferung als die von mir angebotene, günstigste Standardlieferung gewählt hast), unverzüglich und spätestens binnen vierzehn Tagen ab dem Tag zurückzuzahlen, an dem die Mitteilung über deinen Widerruf dieses Vertrags bei mir eingegangen ist. Für diese Rückzahlung verwende ich dasselbe Zahlungsmittel, das du bei der ursprünglichen Transaktion eingesetzt hast, es sei denn, mit dir wurde ausdrücklich etwas anderes vereinbart; in keinem Fall werden dir wegen dieser Rückzahlung Entgelte berechnet. Bei Vorkasse überweise ich auf das Konto zurück, von dem du gezahlt hast. Ich kann die Rückzahlung verweigern, bis ich die Waren wieder zurückerhalten habe oder bis du den Nachweis erbracht hast, dass du die Waren zurückgesandt hast, je nachdem, welches der frühere Zeitpunkt ist.",
+            "Du hast die Waren unverzüglich und in jedem Fall spätestens binnen vierzehn Tagen ab dem Tag, an dem du mich über den Widerruf dieses Vertrags unterrichtest, an mich zurückzusenden oder zu übergeben. Die Frist ist gewahrt, wenn du die Waren vor Ablauf der Frist von vierzehn Tagen absendest. Schicke sie bitte an die Anschrift oben und verpacke sie so, dass sie unterwegs nicht beschädigt werden.",
+            "{{returnCostsNote}}",
+            "Du musst für einen etwaigen Wertverlust der Waren nur aufkommen, wenn dieser Wertverlust auf einen zur Prüfung der Beschaffenheit, Eigenschaften und Funktionsweise der Waren nicht notwendigen Umgang mit ihnen zurückzuführen ist."
+          ]
+        },
+        {
+          "heading": "Muster-Widerrufsformular",
+          "paragraphs": [
+            "Das Muster-Widerrufsformular findest du auf dieser Seite im Abschnitt darunter und als PDF-Download. Es ist auch der Bestellbestätigung beigefügt."
+          ]
+        }
+      ],
+      "sectionsEn": [
+        {
+          "heading": "Right of withdrawal",
+          "paragraphs": [
+            "You have the right to withdraw from this contract within fourteen days without giving any reason.",
+            "The withdrawal period is fourteen days from the day on which you, or a third party named by you who is not the carrier, took possession of the goods. If you ordered several goods in one order that are delivered separately, the period begins on the day on which you, or a third party named by you who is not the carrier, took possession of the last item.",
+            "To exercise your right of withdrawal, you must inform me ({{name}}, {{street}}, {{postalCode}} {{city}}, phone: {{phone}}, email: {{email}}) of your decision to withdraw from this contract by means of a clear statement (for example a letter sent by post or an email). You may use the attached model withdrawal form for this, but it is not mandatory."
+          ]
+        },
+        {
+          "heading": "Withdrawal through the website",
+          "paragraphs": [
+            "You can also declare your withdrawal electronically using the withdrawal function on my website. You will find it at:",
+            "{{withdrawalUrl}}",
+            "The link “Withdraw from contract here” is in the footer of every page. You need no account and no login. Enter your name, the details of the contract (for example the order number) and your email address, check your entries and confirm the withdrawal with “Confirm withdrawal”. You will then immediately receive a confirmation of receipt by email.",
+            "To meet the withdrawal deadline, it is sufficient that you send your notice of exercising the right of withdrawal before the withdrawal period has expired."
+          ]
+        },
+        {
+          "heading": "Consequences of withdrawal",
+          "paragraphs": [
+            "If you withdraw from this contract, I must reimburse all payments I have received from you, including delivery costs (with the exception of additional costs resulting from your choice of a type of delivery other than the cheapest standard delivery I offer), without undue delay and at the latest within fourteen days from the day on which I received notice of your withdrawal from this contract. For this reimbursement I use the same means of payment that you used for the original transaction, unless expressly agreed otherwise with you; in no event will you be charged any fees because of this reimbursement. For payment in advance I transfer the money back to the account you paid from. I may refuse reimbursement until I have received the goods back or until you have provided evidence that you have sent the goods back, whichever is earlier.",
+            "You must send back or hand over the goods to me without undue delay and in any event within fourteen days from the day on which you inform me of the withdrawal from this contract. The deadline is met if you send the goods before the period of fourteen days has expired. Please send them to the address above and pack them so that they are not damaged on the way.",
+            "{{returnCostsNote}}",
+            "You are liable for any loss in value of the goods only if this loss results from handling the goods in a way that is not necessary to establish their nature, characteristics and functioning."
+          ]
+        },
+        {
+          "heading": "Model withdrawal form",
+          "paragraphs": [
+            "You will find the model withdrawal form on this page in the section below and as a PDF download. It is also attached to the order confirmation."
           ]
         }
       ]
@@ -594,12 +1079,28 @@
     {
       "type": "widerrufsformular",
       "validFrom": "2026-01-01T00:00:00+01:00",
-      "sourceNote": "Platzhalter aus dem Grund-Seed",
+      "sourceNote": "Platzhalter-Fassung (ausformuliert in P12.11, Kanzlei-Prüfung offen)",
       "sections": [
         {
           "heading": "Muster-Widerrufsformular",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "(Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular aus und senden Sie es zurück.)",
+            "An {{name}}, {{street}}, {{postalCode}} {{city}}, E-Mail: {{email}}:",
+            "Hiermit widerrufe(n) ich/wir (*) den von mir/uns (*) abgeschlossenen Vertrag über den Kauf der folgenden Waren (*) / die Erbringung der folgenden Dienstleistung (*)",
+            "- Bestellt am (*) / erhalten am (*):\n- Name des/der Verbraucher(s):\n- Anschrift des/der Verbraucher(s):\n- Unterschrift des/der Verbraucher(s) (nur bei Mitteilung auf Papier):\n- Datum:",
+            "(*) Unzutreffendes streichen."
+          ]
+        }
+      ],
+      "sectionsEn": [
+        {
+          "heading": "Model withdrawal form",
+          "paragraphs": [
+            "(Complete and return this form only if you wish to withdraw from the contract.)",
+            "To {{name}}, {{street}}, {{postalCode}} {{city}}, email: {{email}}:",
+            "I/We (*) hereby give notice that I/We (*) withdraw from my/our (*) contract for the purchase of the following goods (*) / for the provision of the following service (*)",
+            "- Ordered on (*) / received on (*):\n- Name of consumer(s):\n- Address of consumer(s):\n- Signature of consumer(s) (only if this form is notified on paper):\n- Date:",
+            "(*) Delete as appropriate."
           ]
         }
       ]
@@ -607,45 +1108,94 @@
     {
       "type": "versand-zahlung",
       "validFrom": "2026-01-01T00:00:00+01:00",
-      "sourceNote": "Platzhalter aus dem Grund-Seed",
+      "sourceNote": "Platzhalter-Fassung (ausformuliert in P12.11, Kanzlei-Prüfung offen)",
+      "intro": "Wie ein Stück zu dir kommt und wie du dafür bezahlst – kurz und ohne Umwege.",
+      "introEn": "How a piece reaches you and how you pay for it – short and without detours.",
       "sections": [
         {
           "heading": "Liefergebiet",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Ich liefere nur innerhalb Deutschlands. Außerdem kannst du dein Stück in Berlin abholen (siehe „Abholung“). Lieferungen ins Ausland, auch in andere EU-Länder, biete ich derzeit nicht an."
           ]
         },
         {
           "heading": "Versandkosten",
           "paragraphs": [
-            "Text folgt von der Kanzlei.",
-            "{{shippingTable}}"
+            "Die Versandkosten hängen von der Größe des Stücks ab und stehen vor dem Absenden deiner Bestellung fest. Liegen mehrere Stücke im Warenkorb, gilt die höchste Versandklasse; du zahlst den Versand nur einmal.",
+            "{{shippingTable}}",
+            "Zu den Preisen der Stücke kommen die Versandkosten hinzu. Ich erhebe keine weiteren Zuschläge."
           ]
         },
         {
           "heading": "Lieferzeit",
           "paragraphs": [
-            "Text folgt von der Kanzlei.",
-            "{{deliveryTime}}"
+            "Die Lieferzeit beträgt {{deliveryTime}}, bei Vorkasse gerechnet ab Zahlungseingang. Ich verschicke mit DHL bzw. Deutsche Post. Sobald dein Paket unterwegs ist, bekommst du eine E-Mail, bei Paketen mit Sendungsnummer zur Sendungsverfolgung.",
+            "Das Transportrisiko trage ich. Kommt dein Stück beschädigt an, melde dich bitte möglichst schnell mit Fotos des Stücks, der Verpackung (innen und außen) und des Versandetiketts. Deine gesetzlichen Rechte bleiben davon unberührt. Keramik verpacke ich besonders sorgfältig in einem Karton im Karton."
           ]
         },
         {
           "heading": "Abholung",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Du kannst dein Stück in Berlin abholen. Nach deiner Bestellung bzw. bei Vorkasse nach Zahlungseingang melde ich mich per E-Mail, wir vereinbaren einen Termin, und den Ort nenne ich dir erst mit der Terminbestätigung. Abholung kostet nichts extra. Bring bitte deine Bestellnummer mit."
           ]
         },
         {
           "heading": "Zahlarten",
           "paragraphs": [
-            "Text folgt von der Kanzlei."
+            "Du kannst bezahlen per:",
+            "- Kredit- oder Debitkarte, Apple Pay und Google Pay (eingebettet auf der Kassenseite, über Stripe),\n- PayPal (du wirst zu PayPal weitergeleitet),\n- Vorkasse per Überweisung.",
+            "Aufschläge je nach Zahlart gibt es nicht. Karte, Wallets und PayPal werden mit der Bestellung belastet. Zahlung auf Rechnung, Lastschrift und Ratenzahlung biete ich nicht an. Alle Preise sind Endpreise; als Kleinunternehmerin nach § 19 UStG berechne ich keine Umsatzsteuer."
           ]
         },
         {
           "heading": "Vorkasse",
           "paragraphs": [
-            "Text folgt von der Kanzlei.",
-            "{{vorkasseDays}}"
+            "Bei Vorkasse legst du die Bestellung an und bekommst sofort eine Bestätigung per E-Mail mit meiner Bankverbindung (Kontoinhaberin, IBAN) und der Bestellnummer als Verwendungszweck. Dein Stück ist bis zum Ende der Zahlungsfrist für dich reserviert.",
+            "Die Zahlungsfrist endet um 23:59 Uhr (Berliner Zeit) am {{vorkasseDays}}. Kalendertag nach dem Bestelltag. Bestellst du zum Beispiel am 12.10., endet die Frist am 17.10. um 23:59 Uhr. Etwa 72 Stunden nach der Bestellung erinnere ich dich per E-Mail. Geht bis zum Ende der Frist kein Geld ein, storniere ich die Bestellung automatisch, schicke dir eine Mail, und das Stück wird wieder angeboten."
+          ]
+        }
+      ],
+      "sectionsEn": [
+        {
+          "heading": "Delivery area",
+          "paragraphs": [
+            "I deliver within Germany only. You can also collect your piece in Berlin (see “Collection”). I do not currently offer delivery abroad, including other EU countries."
+          ]
+        },
+        {
+          "heading": "Shipping costs",
+          "paragraphs": [
+            "Shipping costs depend on the size of the piece and are fixed before you submit your order. If there are several pieces in the cart, the highest shipping class applies; you pay shipping only once.",
+            "{{shippingTable}}",
+            "Shipping costs are added to the prices of the pieces. I charge no further surcharges."
+          ]
+        },
+        {
+          "heading": "Delivery time",
+          "paragraphs": [
+            "Delivery takes {{deliveryTime}}, for payment in advance counted from receipt of payment. I ship with DHL or Deutsche Post. As soon as your parcel is on its way you receive an email, with a tracking number for parcels that have one.",
+            "I bear the transport risk. If your piece arrives damaged, please get in touch as soon as possible with photos of the piece, the packaging (inside and outside) and the shipping label. Your statutory rights remain unaffected. I pack ceramics with particular care in a box within a box."
+          ]
+        },
+        {
+          "heading": "Collection",
+          "paragraphs": [
+            "You can collect your piece in Berlin. After your order, or for payment in advance after receipt of payment, I will contact you by email, we agree an appointment, and I tell you the place only with the confirmation of the appointment. Collection costs nothing extra. Please bring your order number."
+          ]
+        },
+        {
+          "heading": "Payment methods",
+          "paragraphs": [
+            "You can pay by:",
+            "- credit or debit card, Apple Pay and Google Pay (embedded on the checkout page, via Stripe),\n- PayPal (you are redirected to PayPal),\n- payment in advance by bank transfer.",
+            "There are no surcharges depending on the payment method. Card, wallets and PayPal are charged with the order. I do not offer payment on invoice, direct debit or instalments. All prices are final prices; as a small business under Section 19 UStG I charge no VAT."
+          ]
+        },
+        {
+          "heading": "Payment in advance",
+          "paragraphs": [
+            "With payment in advance you place the order and immediately receive a confirmation by email with my bank details (account holder, IBAN) and the order number as the payment reference. Your piece is reserved for you until the end of the payment period.",
+            "The payment period ends at 11:59 pm (Berlin time) on calendar day {{vorkasseDays}} after the day of the order. If you order on 12 October, for example, the period ends on 17 October at 11:59 pm. About 72 hours after the order I remind you by email. If no money has arrived by the end of the period, I cancel the order automatically, send you an email, and the piece is offered again."
           ]
         }
       ]

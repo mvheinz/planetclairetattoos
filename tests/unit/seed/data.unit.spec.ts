@@ -74,7 +74,6 @@ describe('Seed-Datendateien (zod, SEED-SPEC §2.1)', () => {
       ...data.privacyRequests.map((r) => `privacy-requests:${r.key}`),
       ...data.revenue.map((r) => `revenue-entries:${r.month}:${r.source}`),
       ...data.tattoo.flash.map((f) => `flash:${f.key}`),
-      ...data.tattoo.offers.map((o) => `tattoo-offers:${o.key}`),
       ...data.tattoo.gallery.map((g) => `tattoo-gallery:${g.key}`),
     ]
     for (const k of keys) expect(k).toMatch(SEED_KEY_REGEX)

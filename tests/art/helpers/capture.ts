@@ -70,6 +70,7 @@ export async function seekAnimations(page: Page, t: number): Promise<number> {
     const born = (w.__artBorn ??= new WeakMap())
     let n = 0
     for (const a of document.getAnimations()) {
+      if (a.timeline && 'source' in a.timeline) continue // Scroll-Zeitleiste (Seitengrund `pc-sky`)
       if (a.playState === 'finished' && !born.has(a)) continue
       if (!born.has(a)) born.set(a, t - Number(a.currentTime ?? 0))
       try {
@@ -88,7 +89,8 @@ export async function seekAnimations(page: Page, t: number): Promise<number> {
 export async function releaseAnimations(page: Page): Promise<void> {
   await page.evaluate(() => {
     const w = window as Window & { __artBorn?: WeakMap<Animation, number> }
-    for (const a of document.getAnimations()) if (a.playState === 'paused') a.play()
+    for (const a of document.getAnimations())
+      if (a.playState === 'paused' && !(a.timeline && 'source' in a.timeline)) a.play()
     w.__artBorn = new WeakMap()
   })
 }

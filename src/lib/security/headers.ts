@@ -3,7 +3,7 @@
 // - `next.config.ts headers()`: allgemeine Header + CSP `public` für alle Pfade, CSP `api` für `/api/*`;
 // - `src/proxy.ts`: Nonce-Kontexte `dynamic`, `checkout`, `admin` überschreiben CSP und ergänzen ihre Zusatz-Header.
 import { matchRoute, splitLocale } from '../routes/paths'
-import { xRobotsTag, type AppEnvName } from '../seo/robots'
+import { aiRobotsTag, TDM_RESERVATION, xRobotsTag, type AppEnvName } from '../seo/robots'
 
 import { buildCsp, type CspContext, type CspOptions, type NonceContext } from './csp'
 
@@ -24,7 +24,9 @@ export function baseHeaders(appEnv: AppEnvName): HeaderMap {
   if (appEnv === 'production' || appEnv === 'staging') {
     h['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
   }
-  const robots = xRobotsTag(appEnv)
+  // KI/TDM-Vorbehalt (U-22 c): TDMRep-Header immer, `noai` nur in Produktion (sonst gilt `noindex, nofollow`).
+  h[TDM_RESERVATION.name] = TDM_RESERVATION.content
+  const robots = xRobotsTag(appEnv) ?? aiRobotsTag(appEnv)
   if (robots) h['X-Robots-Tag'] = robots
   return h
 }
@@ -115,8 +117,12 @@ export function staticHeaderRules(o: { appEnv: AppEnvName; nodeEnv?: string }) {
   ]
 }
 
-/** Coco-Sprite `public/art/coco-sprite.v{N}.svg` – neue Zeichnungen bekommen eine neue Nummer. */
-export const IMMUTABLE_ART_SOURCE = '/art/:file(coco-sprite\\.v\\d+\\.svg)'
+/**
+ * Coco-Sprite `public/art/coco-sprite.v{N}.svg`, nachgeladene Zusatz-Posen `coco-extra.v{N}.svg` (P12.4) und Fitness-Coco
+ * `fitness-coco.v{N}.json` (P12.5) – neue Zeichnungen bekommen eine neue Nummer.
+ */
+export const IMMUTABLE_ART_SOURCE =
+  '/art/:file((?:coco-sprite|coco-extra|koko|fitness-still)\\.v\\d+\\.svg|fitness-coco\\.v\\d+\\.json)'
 export const IMMUTABLE_CACHE = 'public, max-age=31536000, immutable'
 
 export interface PathContext {

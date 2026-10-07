@@ -1,9 +1,18 @@
-/* Bildrahmen mit fester Endhöhe (aspect-ratio) und Lade-Hintergrund (Dominanzfarbe bzw. Papier mit Schraffur). */
+/* Bildrahmen mit fester Endhöhe (aspect-ratio) und Lade-Hintergrund (Dominanzfarbe bzw. Papier mit Schraffur).
+   U-13 / P12.3 (DESIGN §12.2a): Goth-Fotorahmen für **alle** Fotos – ein viktorianischer Zierrahmen mit Filigran aus dünner
+   Tuschelinie. Er hängt als `border-image` am Bildrahmen selbst: **eine** gemeinsame SVG-Datei (`/art/photo-frame.v1.svg`,
+   9 Teile, Ecken-Ornamente, Kantenband wiederholt sich), kein zusätzliches Element und kein SVG je Foto (PF-10). Der Rahmen
+   liegt innerhalb der festen `aspect-ratio` (Border-Box), die Außenmaße ändern sich also nie (CLS 0). `border-image` zählt
+   Chrome nicht als LCP-Kandidat. Bis die Datei da ist, steht ein einfarbiger Papierrand gleicher Breite. */
 .frame {
+  --pf-band: clamp(14px, 6.5cqi, 28px);
   position: relative;
   display: block;
   width: 100%;
   overflow: hidden;
+  border: var(--pf-band) solid var(--paper-field);
+  border-image: url('/art/photo-frame.v1.svg') 40 / var(--pf-band) round;
+  background-clip: padding-box;
   /* Größencontainer: das Bild misst sich in cqw/cqh (feste Längen) – so löst das Nachladen kein Layout aus
      (KUNST-QA PF-05, Scrollen ohne Layout-Ereignisse); die Höhe kommt immer aus `aspect-ratio`. */
   container-type: size;
@@ -27,4 +36,16 @@
   /* `max-width: 100%` aus dem Reset ist prozentual – dann rechnet Chromium nach dem Laden doch neu. */
   max-width: none;
   object-fit: cover;
+}
+
+/* Kleine Vorschauen (Korb, Kasse, Teaser, ≤ 96 px): schmaleres Band, Rahmen bleibt erkennbar. */
+.thumb {
+  --pf-band: 6px;
+}
+
+@media (forced-colors: active) {
+  .frame {
+    border-image: none;
+    border: 1px solid CanvasText;
+  }
 }

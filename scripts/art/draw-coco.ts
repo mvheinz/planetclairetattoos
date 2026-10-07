@@ -49,15 +49,33 @@ export const SPRITE_POSES = [
   'springen',
   'kopfschief',
 ] as const
+/**
+ * Zusatz-Posen (P12.4, U-03/U-04) in der nachgeladenen Datei `coco-extra` (nur im Leerlauf geladen): Warte-Aktionen im
+ * Sitzen (Hecheln, Ohr zucken, Kratzen, Gähnen, Schwanz wedeln) und die vier neuen Posen (Spielverbeugung, Schütteln,
+ * Freudenhüpfer mit Drehung, Hinlegen mit Bauch hoch). Je 3 Frames; gleiche IDs-Regeln wie der Haupt-Sprite.
+ */
+export const EXTRA_POSES = [
+  'hecheln',
+  'zucken',
+  'kratzen',
+  'gaehnen',
+  'wedeln',
+  'verbeugung',
+  'schuetteln',
+  'freude',
+  'liegen',
+] as const
 export const BRIDGES = ['bremsen', 'abspringen', 'einrollen-1', 'einrollen-2'] as const
 
-interface Stroke {
+export interface Stroke {
   layer: Layer
   part: Part
   pts: P[]
   closed?: boolean
   /** Handmerkmal: Absetzer (gap), Doppelkontur (double), Überstand an beiden Enden (over), Haken am Ende (hook). */
   feature?: 'gap' | 'double' | 'over' | 'hook'
+  /** Knickohr (U-07): Strich gehört zum geknickten Ohr – nur für Tests/Geometrie, nicht im Sprite. */
+  knick?: boolean
   /** Zitter-Faktor beim Nachzeichnen (Standard 1; Flächen weniger, Punkte kaum). */
   jitter?: number
 }
@@ -89,7 +107,7 @@ export function apply(t: Tf, [px, py]: P): P {
   return [t.x + x * Math.cos(a) - y * Math.sin(a), t.y + x * Math.sin(a) + y * Math.cos(a)]
 }
 const map = (t: Tf, pts: P[]): P[] => pts.map((p) => apply(t, p))
-const rotAround = (pts: P[], c: P, deg: number): P[] =>
+export const rotAround = (pts: P[], c: P, deg: number): P[] =>
   map(
     { x: c[0], y: c[1], rot: deg },
     pts.map(([x, y]) => [x - c[0], y - c[1]]),
@@ -145,7 +163,7 @@ function balanceEars(
 }
 
 /** Kleiner unruhiger Klecks (Nase, Pupille, Ballen) – nie ein perfekter Kreis. */
-function blob(c: P, rx: number, ry: number, tilt = 0, n = 6, bump = 0.08): P[] {
+export function blob(c: P, rx: number, ry: number, tilt = 0, n = 6, bump = 0.08): P[] {
   return Array.from({ length: n }, (_, i) => {
     const a = (i / n) * 2 * Math.PI + 0.3
     const k = 1 + bump * Math.sin(a * 3 + 1.1)
@@ -157,7 +175,7 @@ function blob(c: P, rx: number, ry: number, tilt = 0, n = 6, bump = 0.08): P[] {
  * Dünnes Bein als Gelenkkette ab `pivot` (Winkel je Segment in Grad aus der Senkrechten, + = in Blickrichtung `face`),
  * gezeichnet als offene U-Form: hintere Kante hinunter, kleine Pfote nach vorn, vordere Kante hinauf (oben offen).
  */
-function leg(pivot: P, segs: [number, number][], face: 1 | -1, w = 2.2, paw = 2.2): P[] {
+export function leg(pivot: P, segs: [number, number][], face: 1 | -1, w = 2.2, paw = 2.2): P[] {
   const joints: P[] = [pivot]
   let p = pivot
   for (const [l, a] of segs) {
@@ -187,7 +205,7 @@ function leg(pivot: P, segs: [number, number][], face: 1 | -1, w = 2.2, paw = 2.
 }
 
 /** Fernes Bein als ein Strich: Gelenkkette mit kleinem Pfotenhaken nach vorn. */
-function legLine(pivot: P, segs: [number, number][], face: 1 | -1): P[] {
+export function legLine(pivot: P, segs: [number, number][], face: 1 | -1): P[] {
   const joints: P[] = [pivot]
   let p = pivot
   for (const [l, a] of segs) {
@@ -212,7 +230,7 @@ function legEnd(pivot: P, segs: [number, number][], face: 1 | -1): { e: P; d: P 
 }
 
 /** Schwanz: sich verjüngender, an der Spitze offener Umriss entlang der Mittellinie `c` (Wurzelbreite `w0`). */
-function tailOutline(c: P[], w0: number): { line: P[]; fill: P[] } {
+export function tailOutline(c: P[], w0: number): { line: P[]; fill: P[] } {
   const a: P[] = []
   const b: P[] = []
   c.forEach((p, i) => {
@@ -234,10 +252,18 @@ interface HeadOpts {
   eyesClosed?: boolean
   /** Maul leicht offen (Rennen, Springen). */
   pant?: boolean
+  /** Zunge hängt heraus (Hecheln, Freude); Länge 0–1. */
+  tongue?: number
+  /** Maul weit offen (Gähnen). */
+  yawn?: boolean
   /** Fernes Ohr verdeckt (eingerollt). */
   noFarEar?: boolean
   /** Ohren nach vorn gedreht wirken verkürzt (Schnüffeln). */
   earScale?: number
+  /** Kurzes Aufspitzen (U-07): das hintere Ohr steht gerade statt geknickt (Ohr zucken, Aufmerken). */
+  earUp?: boolean
+  /** Blick nach links (gespiegelter Kopf, `curl`): das vordere (einzige sichtbare) Ohr ist das geknickte. */
+  knickNear?: boolean
 }
 
 /** Ohrhöhe (lokal, vor `earScale`) – Ohr/Kopflänge ≈ 0,65 wie auf den Fotos (KUNST-QA CO-02). */
@@ -247,7 +273,7 @@ const EAR_H = 26
  * Ohr (lokal, Basis bei `base`), Höhe `h`: groß und aufrecht mit breiter Basis und leicht gerundeter Spitze – so wie auf
  * Juttas Coco-Fotos (`content/seed/coco/`, 04.10.2026: Profil sitzend, frontal nah, stehend mit Schulterblick).
  */
-function earPts(h: number, lean: number): P[] {
+export function earPts(h: number, lean: number): P[] {
   // breite Basis (≈ 0,45 K), Außenkante bauchig, Spitze leicht gerundet
   const pts: P[] = [
     [-11.5, 1.5],
@@ -261,6 +287,33 @@ function earPts(h: number, lean: number): P[] {
     [5.4, 1],
   ]
   return rotAround(pts, [-3, 0], lean)
+}
+
+/**
+ * Knickohr (U-07): breite Basis, die Spitze knickt im oberen Drittel nach vorn-unten ab (Juttas Coco: das rechte Ohr
+ * steht nie ganz gerade). Liefert Außenkante mit Knick und die kurze Innenkante zur Basis.
+ */
+export function knickEarPts(h: number, lean: number): { outer: P[]; inner: P[] } {
+  const outer: P[] = [
+    [-11.5, 1.5],
+    [-13.4, -0.3 * h],
+    [-11.8, -0.58 * h],
+    [-8.4, -0.86 * h],
+    [-3.2, -0.92 * h],
+    [1.6, -0.8 * h],
+    [5.2, -0.58 * h],
+    [6, -0.36 * h],
+    [5.4, -0.16 * h],
+  ]
+  const inner: P[] = [
+    [5.6, 1],
+    [4.6, -0.1 * h],
+    [2.6, -0.3 * h],
+  ]
+  // Spitze knickt nach hinten-außen (weg vom Gesicht): gespiegelt an der Ohrmitte, so bleibt sie neben dem nahen Ohr sichtbar
+  const m = (pts: P[]) => pts.map(([x, y]): P => [-6 - x, y])
+  const r = (pts: P[]) => rotAround(m(pts), [-3, 0], lean)
+  return { outer: r(outer), inner: r(inner) }
 }
 
 function sideHead(t: Tf, o: HeadOpts = {}): Stroke[] {
@@ -284,7 +337,13 @@ function sideHead(t: Tf, o: HeadOpts = {}): Stroke[] {
   )
   // fernes Ohr: fast deckungsgleich dahinter, nur Hinterkante und Spitze sichtbar, etwas kleiner (Asymmetrie)
   const earN0 = earPts(eh, near)
-  const earF = map({ x: -2.5, y: -13 }, earAsym(earPts(eh, far), earN0, [-3, 0]).slice(0, 5))
+  const upF = map({ x: -5, y: -12.5 }, earAsym(earPts(eh, far), earN0, [-3, 0]))
+  // Knickohr (U-07): hinteres Ohr geknickt, außer beim Aufspitzen (`earUp`); beim Blick nach links das vordere
+  const kF = knickEarPts(eh, far)
+  const kN = knickEarPts(eh, near)
+  const farKnick = !o.earUp && !o.knickNear
+  const earF = farKnick ? map({ x: -5, y: -12.5 }, kF.outer) : upF.slice(0, 5)
+  const earFIn = farKnick ? map({ x: -5, y: -12.5 }, kF.inner) : null
   const s: Stroke[] = [
     // Schädel: vom Kiefer über den Hinterkopf zur Stirn – offen, mit Absetzer
     {
@@ -327,35 +386,48 @@ function sideHead(t: Tf, o: HeadOpts = {}): Stroke[] {
     {
       layer: 'line',
       part: 'snout',
-      pts: o.pant
+      pts: o.yawn
         ? [
-            [18.8, 3.4],
-            [15.5, 7.8],
-            [11.4, 9.6],
-            [8.8, 8.6],
+            [20, 15.5],
+            [15, 17.8],
+            [10.4, 14.4],
+            [8.2, 8],
           ]
-        : [
-            [19, 4],
-            [15.6, 6.6],
-            [11.4, 7.6],
-            [8.8, 7.4],
-          ],
+        : o.pant
+          ? [
+              [18.8, 3.4],
+              [15.5, 7.8],
+              [11.4, 9.6],
+              [8.8, 8.6],
+            ]
+          : [
+              [19, 4],
+              [15.6, 6.6],
+              [11.4, 7.6],
+              [8.8, 7.4],
+            ],
     },
     // Maul: kleiner Bogen mit Haken wie in Juttas „Oh“-Skizze
     {
       layer: 'line',
       part: 'snout',
-      pts: o.pant
+      pts: o.yawn
         ? [
-            [18.2, 2.8],
-            [14.5, 4.4],
-            [11.4, 4.2],
+            [18.4, 3],
+            [13.5, 4.6],
+            [8.6, 6.6],
           ]
-        : [
-            [17.6, 2.6],
-            [14.6, 3.7],
-            [11.8, 3.2],
-          ],
+        : o.pant
+          ? [
+              [18.2, 2.8],
+              [14.5, 4.4],
+              [11.4, 4.2],
+            ]
+          : [
+              [17.6, 2.6],
+              [14.6, 3.7],
+              [11.8, 3.2],
+            ],
       feature: 'hook',
       jitter: 0.5,
     },
@@ -367,12 +439,70 @@ function sideHead(t: Tf, o: HeadOpts = {}): Stroke[] {
       closed: true,
       jitter: 0.25,
     },
+    ...(o.tongue || o.yawn
+      ? ([
+          {
+            layer: 'harness',
+            part: 'snout',
+            pts: o.yawn
+              ? [
+                  [16.4, 14.6],
+                  [13, 11.4],
+                  [10.4, 12.4],
+                  [11.6, 15.6],
+                ]
+              : [
+                  [15.6, 7],
+                  [17.2, 7 + 5 * (o.tongue ?? 0.6)],
+                  [14.8, 8.6 + 5.4 * (o.tongue ?? 0.6)],
+                  [12.6, 9.4],
+                ],
+            closed: true,
+            jitter: 0.3,
+          },
+        ] satisfies Stroke[])
+      : []),
     // Ohren: nahes Ohr doppelt nachgezogen, Innenohr-Linie; fernes Ohr nur als Kante dahinter
-    { layer: 'line', part: 'ear-l', pts: earN, jitter: 0.3 },
-    { layer: 'line', part: 'ear-l', pts: earNIn, jitter: 0.6 },
+    o.knickNear
+      ? {
+          layer: 'line',
+          part: 'ear-l',
+          pts: map({ x: 0, y: -12.5 }, kN.outer),
+          jitter: 0.3,
+          knick: true,
+        }
+      : { layer: 'line', part: 'ear-l', pts: earN, jitter: 0.3 },
+    o.knickNear
+      ? {
+          layer: 'line',
+          part: 'ear-l',
+          pts: map({ x: 0, y: -12.5 }, kN.inner),
+          jitter: 0.5,
+          knick: true,
+        }
+      : { layer: 'line', part: 'ear-l', pts: earNIn, jitter: 0.6 },
     ...(o.noFarEar
       ? []
-      : [{ layer: 'line', part: 'ear-r', pts: earF, jitter: 0.3 } satisfies Stroke]),
+      : [
+          {
+            layer: 'line',
+            part: 'ear-r',
+            pts: earF,
+            jitter: 0.3,
+            knick: farKnick,
+          } satisfies Stroke,
+          ...(earFIn
+            ? [
+                {
+                  layer: 'line',
+                  part: 'ear-r',
+                  pts: earFIn,
+                  jitter: 0.5,
+                  knick: true,
+                } satisfies Stroke,
+              ]
+            : []),
+        ]),
     // Fell-Wash: Kopfoberseite (Blesse/Schnauze bleiben Papier) und Ohren außen
     {
       layer: 'fur',
@@ -392,7 +522,7 @@ function sideHead(t: Tf, o: HeadOpts = {}): Stroke[] {
     {
       layer: 'fur',
       part: 'ear-l',
-      pts: earN.filter((_, i) => i % 2 === 0),
+      pts: (o.knickNear ? map({ x: 0, y: -12.5 }, kN.outer) : earN).filter((_, i) => i % 2 === 0),
       closed: true,
       jitter: 0.4,
     },
@@ -852,358 +982,134 @@ function abspringen(): Figure {
   })
 }
 
-// ---------- Sitzen / Kopf schief (¾-Ansicht, von Hand gesetzt in viewBox-Koordinaten) ----------
+// ---------- Sitzen / Kopf schief (Seitenansicht nach Juttas Fotos, von Hand gesetzt in viewBox-Koordinaten) ----------
 
-/** ¾-Kopf (lokal: Schädelmitte 0|0), Schnauze nach rechts unten zum Betrachter. */
-function frontHead(t: Tf, knick: boolean, flop: P = [0, 0]): Stroke[] {
-  // Ohren groß, aufrecht und spitz mit gerundeter Spitze, leicht nach außen gestellt (Juttas Coco-Fotos 04.10.2026);
-  // runder Kopf, Augen und Nase nach Juttas Skizze; das rechte Ohr etwas größer (Asymmetrie)
-  const earL0: P[] = [
-    [-16.4, -7.6],
-    [-19.4, -15],
-    [-20.6, -24],
-    [-19.8, -31.4],
-    [-17.2, -34.2],
-    [-13.8, -30.6],
-    [-9.4, -24],
-    [-5.6, -17.6],
-  ]
-  const shrink = ([x, y]: P): P => [x, y]
-  // beim schiefen Kopf das linke Ohr steiler stellen, damit es trotz Neigung aufrecht wirkt
-  const earL1 = earL0.map(([x, y]): P => shrink([x, knick ? y * 1.06 : y]))
-  const earLr = knick ? rotAround(earL1, [-9, -9], 16) : earL1
-  const earR0: P[] = knick
-    ? [
-        // Ohr knickt oben nach außen ab (bei `kopfschief`, wie auf Juttas Fotos)
-        [4.8, -17.4],
-        [8.8, -24.6],
-        [13, -29.6],
-        add([17, -32.2], flop),
-        add([21.4, -30.8], flop),
-        add([23.8, -27.4], flop),
-        add([20.6, -27], flop),
-        [19.4, -21],
-        [18.8, -15],
-        [16.6, -9.6],
-      ]
-    : [
-        [4.8, -17.4],
-        [8.8, -24.6],
-        [13, -31],
-        [16, -34.4],
-        [18.8, -32],
-        [19.8, -24.6],
-        [18.8, -16],
-        [16.6, -9.6],
-      ]
-  // Asymmetrie 10 %: gerade – links kleiner; schief (Knick rechts) – rechts kleiner
-  const earR1 = earR0.map(shrink)
-  const earL = knick ? earLr : earAsym(earLr, earR1, [-11, -7])
-  const earR = knick ? earAsym(earR1, earLr, [11, -9]) : earR1
-  const s: Stroke[] = [
-    // Schädel und Wangen – offen, mit Absetzer oben
-    {
-      layer: 'line',
-      part: 'head',
-      // runder Kopf (Juttas Skizze): fast ein Kreis, offen am Kinn
-      pts: [
-        [-5, 16.4],
-        [-14.6, 11.6],
-        [-18.2, 1.6],
-        [-16.2, -9.6],
-        [-8, -16.6],
-        [2.6, -17.6],
-        [12.2, -13.6],
-        [17.4, -4.6],
-        [17.4, 6],
-        [13.6, 13.4],
-      ],
-      feature: 'gap',
-    },
-    // Schnauze (hell) mit Kinn
-    {
-      layer: 'line',
-      part: 'snout',
-      // Nasenrücken zwischen den Augen hinab (kurz)
-      pts: [
-        [0.6, 0.6],
-        [1.4, 3.2],
-        [2.4, 5],
-      ],
-    },
-    {
-      layer: 'line',
-      part: 'snout',
-      // Kinn
-      pts: [
-        [10.4, 13.2],
-        [7, 15.2],
-        [2.6, 15.6],
-        [-0.6, 14.2],
-      ],
-      feature: 'hook',
-    },
-    // Maul: Lächeln unter der Nase mit Haken (Juttas „Oh“-Skizze)
-    {
-      layer: 'line',
-      part: 'snout',
-      // mittig unter der Nase (vorher nach rechts gezogen – wirkte wie ein Schnurrbart)
-      pts: [
-        [-1.6, 10.6],
-        [1.8, 12.9],
-        [6.8, 12.7],
-        [11, 10],
-      ],
-      feature: 'hook',
-      jitter: 0.5,
-    },
-    {
-      layer: 'solid',
-      part: 'nose',
-      // dicke, gefüllte Nase knapp unter und zwischen den Augen
-      pts: blob([3.2, 7.2], 2.8, 2.4, 4, 7),
-      closed: true,
-      jitter: 0.25,
-    },
-    // Augen: groß, dunkel, verschieden; Glanzpunkte oben seitlich (Blick zum Betrachter)
-    // große runde Augen (Juttas „Oh“-Skizze): Pupillen groß, zur Seite gerückt = Seitenblick, Glanzpunkt oben
-    {
-      layer: 'solid',
-      part: 'eye-l',
-      pts: blob([-6.4, -3.2], 3.9, 3.6, -12, 7),
-      closed: true,
-      jitter: 0.25,
-    },
-    {
-      layer: 'solid',
-      part: 'eye-r',
-      pts: blob([9.2, -3.8], 4.6, 4.0, 10, 7),
-      closed: true,
-      jitter: 0.25,
-    },
-    {
-      layer: 'hi',
-      part: 'eye-l',
-      pts: blob([-5, -4.8], 1.3, 1.2, 0, 5, 0.1),
-      closed: true,
-      jitter: 0.1,
-    },
-    {
-      layer: 'hi',
-      part: 'eye-r',
-      pts: blob([10.6, -5.4], 1.4, 1.25, 0, 5, 0.1),
-      closed: true,
-      jitter: 0.1,
-    },
-    // Augenringe rund und offen, das rechte etwas größer
-    { layer: 'line', part: 'head', pts: blob([-7.8, -3.4], 5.6, 5.4, -12, 8), jitter: 0.4 },
-    { layer: 'line', part: 'head', pts: blob([7.6, -4], 6.2, 5.8, 10, 8), jitter: 0.4 },
-    // Ohren mit Innenohr-Linie
-    { layer: 'line', part: 'ear-l', pts: earL, jitter: 0.3 },
-    {
-      layer: 'line',
-      part: 'ear-l',
-      pts: rotAround(
-        [
-          [-15.2, -11.6],
-          [-17.2, -20],
-          [-16.8, -28],
-        ],
-        [-9, -9],
-        knick ? 16 : 0,
-      ),
-      jitter: 0.6,
-    },
-    { layer: 'line', part: 'ear-r', pts: earR, jitter: 0.3 },
-    {
-      layer: 'line',
-      part: 'ear-r',
-      pts: (knick
-        ? [
-            [8.8, -18.6],
-            [12.6, -24.4],
-            [16, -28],
-          ]
-        : [
-            [8.8, -18.6],
-            [13, -25.4],
-            [16.2, -30],
-          ]) as P[],
-      jitter: 0.6,
-    },
-    // Schnurrhaare (lang, leicht gebogen) – je Seite 2
-    {
-      layer: 'line',
-      part: 'head',
-      pts: [
-        [13, 9],
-        [17.4, 8.6],
-        [20.4, 10],
-      ],
-      jitter: 0.4,
-    },
-    {
-      layer: 'line',
-      part: 'head',
-      pts: [
-        [12.4, 11.4],
-        [16.4, 12.4],
-        [19, 14.4],
-      ],
-      jitter: 0.4,
-    },
-    // Fell-Wash: Stirn links/rechts der Blesse, Ohren außen
-    {
-      layer: 'fur',
-      part: 'head',
-      pts: [
-        [-17.4, 2],
-        [-15.6, -9.6],
-        [-7.6, -16.2],
-        [-2.4, -10],
-        [-2.6, -1],
-        [-14, 6],
-      ],
-      closed: true,
-      jitter: 0.4,
-    },
-    {
-      layer: 'fur',
-      part: 'head',
-      pts: [
-        [3, -17],
-        [12, -13.2],
-        [16.8, -4.6],
-        [14, -1],
-        [3, -9.6],
-      ],
-      closed: true,
-      jitter: 0.4,
-    },
-    { layer: 'fur', part: 'ear-l', pts: earL, closed: true, jitter: 0.4 },
-    { layer: 'fur', part: 'ear-r', pts: earR, closed: true, jitter: 0.4 },
-  ]
-  return balanceEars(
-    s.map((st) => ({ ...st, pts: map(t, st.pts) })),
-    knick ? 'ear-r' : 'ear-l',
-    apply(t, knick ? [11, -9] : [-11, -7]),
-  )
+/** Ganze Figur um `pivot` skalieren (Anker und Striche). */
+function scaleFig(f: Figure, k: number, pivot: P): Figure {
+  const m = ([x, y]: P): P => [pivot[0] + (x - pivot[0]) * k, pivot[1] + (y - pivot[1]) * k]
+  return { ...f, ring: m(f.ring), strokes: f.strokes.map((st) => ({ ...st, pts: st.pts.map(m) })) }
 }
 
-function sitzenFigure(knick: boolean, frame: string): Figure {
-  // Schwanzspitze wedelt zwischen den Frames um gut eine Einheit (lebendig, gleiche Anatomie)
-  const wag: P = frame === 'b' ? [1.6, -0.8] : frame === 'c' ? [-1.2, -0.6] : [0, 0]
-  const ring: P = [62.4, 63.4]
-  const head: Tf = knick ? { x: 85, y: 43, rot: -14, s: 1.1 } : { x: 86, y: 42, rot: -3, s: 1.1 }
+export interface SitOpts {
+  /** Kopfneigung in Grad (+ = Kopf kippt nach vorn-unten zur Schulter, wie bei `kopfschief`). */
+  tilt?: number
+  /** Kopfposition (Schädelmitte). */
+  head?: P
+  pant?: boolean
+  tongue?: number
+  yawn?: boolean
+  earUp?: boolean
+  eyesClosed?: boolean
+  /** Ohr-Skalierung (Kopf schief wirkt sonst zu groß, CO-02). */
+  earScale?: number
+  /** Hinterbein kratzt hinterm Ohr: Pfotenposition (Versatz in Einheiten). */
+  scratch?: P
+  /** Schwanzspitze (Versatz in Einheiten) – wedelt zwischen den Frames. */
+  wag?: P
+  /** Schwanzhaltung: Spitze weiter nach oben (aufmerksam) bzw. flach am Boden. */
+  tailLift?: number
+}
+
+/**
+ * Sitzen in der Seitenansicht (Blick nach rechts), wie auf Juttas Foto „Profil sitzend“: Brust leicht vorgestreckt,
+ * gerade Vorderbeine, Hinterteil seitlich abgesetzt (Oberschenkel mit nach vorn gelegter Hinterpfote), buschiger
+ * Schwanz am Boden, große aufrechte Ohren (hinteres Ohr geknickt, U-07). Nicht katzenhaft: Schnauze, Beine, Schwanz.
+ */
+export function sitSide(o: SitOpts = {}): Figure {
+  const hp = o.head ?? [108, 37]
+  const H: Tf = { x: hp[0], y: hp[1], rot: o.tilt ?? -4, s: 1.1 }
+  const th = apply(H, [0, 10.4])
+  const nb = apply(H, [-12, 4])
+  const w = o.wag ?? [0, 0]
+  const lift = o.tailLift ?? 3
+  const ring: P = [80, 59]
+  const tailC: P[] = [
+    [62, 106],
+    [52, 109.5],
+    [42, 108.5 - lift * 0.3],
+    [34.5, 103 - lift],
+    [32.5 + w[0], 95 - lift * 1.6 + w[1]],
+  ]
+  const tl = tailOutline(tailC, 11)
+  // buschig: Außenkante mit kleinen Zacken (Juttas Zackenschwanz)
+  const bushy = tl.line.map(([x, y], i): P =>
+    i % 2 === 1 ? [x + (i < 5 ? 0.4 : -1.1), y + 1.1] : [x, y],
+  )
   const strokes: Stroke[] = [
+    // fernes Vorderbein: ein Strich mit kleinem Pfotenhaken
+    { layer: 'line', part: 'leg-fr', pts: legLine([107, 82], [[30, 1]], 1), jitter: 0.6 },
     // Rücken vom Nacken über den Po – offen, doppelt nachgezogen
     {
       layer: 'line',
       part: 'body',
-      pts: [
-        [72, 52],
-        [63, 60],
-        [55, 72],
-        [50, 86],
-        [49, 98],
-        [53, 107],
-        [61, 111],
-      ],
+      pts: [nb, [88, 52], [79, 60], [70, 72], [63, 86], [60, 98], [62, 107], [68, 111]],
       feature: 'double',
     },
-    // Brust (tief, hell) bis zum Ellbogen
+    // Brust (vorgestreckt) vom Hals bis zum Ellbogen
+    {
+      layer: 'line',
+      part: 'body',
+      pts: [th, [112, 53], [116.5, 61], [118, 71], [116, 80]],
+      feature: 'hook',
+    },
+    // nahes Vorderbein: gerade, mit heller „Socke“ und kleiner Pfote
+    {
+      layer: 'line',
+      part: 'leg-fl',
+      pts: leg([114, 78], [[34, 0]], 1, 5, 2.4),
+      feature: 'over',
+      jitter: 0.6,
+    },
+    // Bauchlinie zwischen Vorderbein und Oberschenkel
     {
       layer: 'line',
       part: 'body',
       pts: [
-        [97, 55],
-        [102, 64],
-        [103.6, 75],
-        [101.4, 85],
+        [110, 92],
+        [102, 96.5],
+        [93, 95],
       ],
-      feature: 'hook',
+      jitter: 0.5,
     },
-    // Schenkel (sitzend) mit Hinterpfote vorn
+    // Oberschenkel mit nach vorn gelegter Hinterpfote
     {
       layer: 'line',
       part: 'leg-hl',
       pts: [
-        [60, 78],
-        [70, 82],
-        [76.4, 92],
-        [75.4, 103],
-        [69.4, 107.6],
-        [71, 111.6],
-        [80, 111.8],
-        [83.6, 110.6],
-        [80.6, 108.2],
-        [75.6, 107.4],
+        [64, 90],
+        [67, 80],
+        [76, 77],
+        [85, 83],
+        [89, 95],
+        [89, 105],
+        [94, 110],
+        [98, 111.6],
+        [84, 112],
+        [70, 111.5],
       ],
       feature: 'over',
+      jitter: 0.7,
     },
-    // Vorderbeine: dünn, gerade, Söckchen (Papier), kleine Pfoten; das ferne Bein schaut dahinter hervor
-    {
-      layer: 'line',
-      part: 'leg-fl',
-      pts: [
-        [93, 82],
-        [93.4, 95],
-        [93.6, 108],
-        [93, 111.6],
-        [99, 112],
-        [102.6, 110.6],
-        [99.6, 108.2],
-        [99.2, 97],
-        [99.8, 84],
-      ],
-      feature: 'over',
-    },
-    {
-      layer: 'line',
-      part: 'leg-fr',
-      pts: [
-        [85, 86],
-        [85.2, 97],
-        [85.4, 108.4],
-        [84.8, 111.4],
-        [90, 111.8],
-        [93, 111.2],
-        [89.8, 108],
-        [89.6, 97],
-        [90, 88],
-      ],
-    },
-    // Schwanz seitlich um die Pfoten gelegt (unten vorbei)
-    {
-      layer: 'line',
-      part: 'tail',
-      pts: [
-        [54, 106],
-        [61, 110.6],
-        [72, 113.8],
-        [86, 114.4],
-        add([97.6, 113.6], wag),
-        add([91, 112.6], wag),
-        [74, 111.6],
-        [62, 108.4],
-      ],
-    },
-    // Fell: Rücken/Flanke, Schenkel, Schwanz
+    { layer: 'line', part: 'tail', pts: bushy, jitter: 0.8 },
+    // Fell-Wash: Rücken und Oberschenkel; Brust, Beine, Schnauze bleiben Papier
     {
       layer: 'fur',
       part: 'body',
       pts: [
-        [71, 53],
-        [62, 61],
-        [55, 72],
-        [50, 87],
-        [50, 99],
-        [55, 107],
-        [68, 107],
-        [75, 96],
-        [71, 84],
-        [62, 78],
-        [70, 66],
+        nb,
+        [88, 52],
+        [79, 60],
+        [70, 72],
+        [63, 86],
+        [60, 98],
+        [62, 107],
+        [76, 108],
+        [86, 100],
+        [88, 88],
+        [82, 80],
+        [84, 68],
+        [92, 58],
+        [97, 50],
       ],
       closed: true,
       jitter: 0.4,
@@ -1211,26 +1117,21 @@ function sitzenFigure(knick: boolean, frame: string): Figure {
     {
       layer: 'fur',
       part: 'tail',
-      pts: [
-        [56, 107],
-        [72, 113.4],
-        [94, 113.6],
-        [74, 111.4],
-      ],
+      pts: tl.fill.filter((_, i) => i % 2 === 0),
       closed: true,
-      jitter: 0.3,
+      jitter: 0.4,
     },
-    // Geschirr: Halsring, Bauchgurt hinter den Vorderbeinen, Rückensteg zum D-Ring
+    // Geschirr: Halsring, Rückensteg und Brustgurt hinter den Vorderbeinen
     {
       layer: 'harness',
       part: 'harness',
       pts: [
-        [70, 54],
-        [83, 57.4],
-        [97, 56.8],
-        [98.4, 61.6],
-        [83, 62.2],
-        [70.6, 59],
+        apply(H, [-11, 5.5]),
+        apply(H, [-4, 9]),
+        apply(H, [2.5, 13.5]),
+        apply(H, [-1.6, 16.5]),
+        apply(H, [-8, 12.5]),
+        apply(H, [-13.5, 8.6]),
       ],
       closed: true,
       jitter: 0.3,
@@ -1239,12 +1140,10 @@ function sitzenFigure(knick: boolean, frame: string): Figure {
       layer: 'harness',
       part: 'harness',
       pts: [
-        [59.6, 67.4],
-        [63.4, 65.6],
-        [73.4, 79.4],
-        [79.4, 92.8],
-        [76, 94.4],
-        [69.4, 81.6],
+        [91, 55],
+        [95.4, 55.4],
+        [99, 86],
+        [94, 87.4],
       ],
       closed: true,
       jitter: 0.3,
@@ -1253,10 +1152,10 @@ function sitzenFigure(knick: boolean, frame: string): Figure {
       layer: 'harness',
       part: 'harness',
       pts: [
-        [61, 65.6],
-        [70, 57.4],
-        [72, 60],
-        [64, 67.6],
+        [85, 55],
+        [91, 55],
+        [89, 59.4],
+        [83, 60.2],
       ],
       closed: true,
       jitter: 0.3,
@@ -1264,13 +1163,447 @@ function sitzenFigure(knick: boolean, frame: string): Figure {
     {
       layer: 'line',
       part: 'ring',
-      pts: blob(ring, 2.8, 2.5, -20, 5, 0.12),
+      pts: blob(ring, 2.8, 2.5, 15, 5, 0.12),
       closed: true,
       jitter: 0.2,
     },
-    ...frontHead(head, knick, mul(wag, 1.8)),
+    ...sideHead(H, {
+      earNear: -4,
+      earFar: -14,
+      earScale: o.earScale ?? 1,
+      pant: o.pant,
+      tongue: o.tongue,
+      yawn: o.yawn,
+      earUp: o.earUp,
+      eyesClosed: o.eyesClosed,
+    }),
   ]
-  return { strokes, ring, hidden: ['leg-hr'] }
+  if (o.scratch) {
+    // Hinterbein hoch zum Ohr: Oberschenkel bleibt, Unterschenkel (zwei Kanten) schnellt zum Ohr, Pfote kratzt
+    const i = strokes.findIndex((st) => st.part === 'leg-hl')
+    const paw: P = [98 + o.scratch[0], 43 + o.scratch[1]]
+    strokes.splice(
+      i,
+      1,
+      {
+        layer: 'line',
+        part: 'leg-hl',
+        pts: [
+          [64, 90],
+          [67, 80],
+          [76, 77],
+          [85, 83],
+          [88, 92],
+        ],
+        feature: 'over',
+        jitter: 0.7,
+      },
+      {
+        layer: 'line',
+        part: 'leg-hl',
+        pts: [
+          [72, 111.5],
+          [84, 112],
+          [96, 111],
+        ],
+        jitter: 0.6,
+      },
+      {
+        layer: 'line',
+        part: 'leg-hl',
+        pts: [
+          [75, 86],
+          [80, 72],
+          [88, 60],
+          add(paw, [-2.4, 6]),
+          add(paw, [-1.2, 1.4]),
+          add(paw, [2.4, -2]),
+          add(paw, [4.4, 1.2]),
+        ],
+        feature: 'hook',
+        jitter: 0.5,
+      },
+      {
+        layer: 'line',
+        part: 'leg-hl',
+        pts: [add(paw, [5.4, 4.6]), [101, 56], [95, 70], [90, 86]],
+        jitter: 0.5,
+      },
+    )
+  }
+  return scaleFig({ strokes, ring, hidden: ['eye-r', 'leg-hr'] }, 0.88, [80, 112])
+}
+
+/** Sitzen: A ruhig, B/C wedeln mit der Schwanzspitze (gleiche Anatomie, Boil). */
+function sitzen(frame: 'a' | 'b' | 'c'): Figure {
+  return sitSide({ wag: frame === 'b' ? [1.6, -0.8] : frame === 'c' ? [-1.2, -0.6] : [0, 0] })
+}
+
+/** Kopf schief: Kopf kippt, das geknickte Ohr bleibt (U-07). */
+function kopfschief(frame: 'a' | 'b' | 'c'): Figure {
+  return sitSide({
+    tilt: 14,
+    head: [109, 38],
+    earScale: 0.94,
+    wag: frame === 'b' ? [1.2, -0.6] : frame === 'c' ? [-1, -0.4] : [0, 0],
+  })
+}
+
+// ---------- Warte-Aktionen im Sitzen (U-03) ----------
+
+/** Hecheln: Maul offen, Zunge hängt und wippt, Brust hebt sich (Kopf ±0,8). */
+function hecheln(frame: 'a' | 'b' | 'c'): Figure {
+  const k = frame === 'a' ? 0 : frame === 'b' ? 1 : -1
+  return sitSide({
+    pant: true,
+    tongue: 0.6 + 0.3 * k,
+    head: [108, 37 + 0.8 * k],
+    wag: [0.6 * k, 0],
+  })
+}
+
+/** Kopf schief + Ohr zucken: A/C geknickt, B spitzt kurz auf (U-07). */
+function zucken(frame: 'a' | 'b' | 'c'): Figure {
+  return sitSide({ tilt: frame === 'b' ? 18 : 14, head: [109, 38], earUp: frame === 'b' })
+}
+
+/** Hinterbein kratzt hinterm Ohr: Pfote wippt, Kopf neigt sich, Auge zu. */
+function kratzen(frame: 'a' | 'b' | 'c'): Figure {
+  const o: P = frame === 'a' ? [0, 0] : frame === 'b' ? [2.4, -2.6] : [-1.6, 2]
+  return sitSide({ scratch: o, tilt: 10, head: [107, 38.5], eyesClosed: true })
+}
+
+/** Gähnen: Kopf in den Nacken, Maul weit auf; A öffnet, B/C weit. */
+function gaehnen(frame: 'a' | 'b' | 'c'): Figure {
+  return sitSide({
+    yawn: frame !== 'a',
+    pant: frame === 'a',
+    tilt: frame === 'a' ? -10 : -24,
+    head: frame === 'a' ? [108, 37] : [106, 37],
+    eyesClosed: frame !== 'a',
+  })
+}
+
+/** Schwanz wedelt: Spitze schwingt weit (Freude), Maul leicht offen. */
+function wedeln(frame: 'a' | 'b' | 'c'): Figure {
+  const w: P = frame === 'a' ? [-5, 7] : frame === 'b' ? [6, -9] : [0, -2]
+  return sitSide({ pant: true, tongue: 0.35, wag: w, tailLift: frame === 'b' ? 6 : 1 })
+}
+
+// ---------- Neue Posen (U-04): Spielverbeugung, Schütteln, Freudenhüpfer, Hinlegen ----------
+
+/** Spielverbeugung: Vorderkörper runter, Vorderbeine flach nach vorn, Hinterteil hoch, Schwanz wedelt. */
+function verbeugung(frame: 'a' | 'b' | 'c'): Figure {
+  const d = frame === 'a' ? 0 : frame === 'b' ? -2.2 : 1.6
+  return sideFigure({
+    torso: { x: 72, y: 74 + d * 0.4, rot: 17 },
+    stretch: 1.02,
+    head: { x: 122, y: 87 + d, rot: 14 },
+    headOpts: { earNear: -16, earFar: -22, pant: true, tongue: 0.5 },
+    fl: [
+      [14, 66],
+      [10, 82],
+    ],
+    fr: [
+      [14, 56],
+      [10, 74],
+    ],
+    hl: [
+      [11, -6],
+      [12, 14],
+      [8, -4],
+    ],
+    hr: [
+      [11, -12],
+      [12, 8],
+      [8, -10],
+    ],
+    tail: frame === 'b' ? TAIL_HIGH : frame === 'c' ? TAIL_SICKLE : TAIL_BACK,
+  })
+}
+
+/** Kleine Schüttel-Striche (Bewegungsandeutung) um `c`. */
+function shakeMarks(c: P, r: number, turn: number): Stroke[] {
+  const arc = (a0: number, a1: number): P[] =>
+    [0, 1, 2, 3].map((i) => {
+      const a = (a0 + ((a1 - a0) * i) / 3) * DEG
+      return [c[0] + Math.cos(a) * r, c[1] + Math.sin(a) * r * 0.8]
+    })
+  return [
+    { layer: 'line', part: 'body', pts: arc(150 + turn, 200 + turn), jitter: 0.5 },
+    { layer: 'line', part: 'body', pts: arc(-20 + turn, 30 + turn), jitter: 0.5 },
+  ]
+}
+
+/** Schütteln: Fell auslockern – Rumpf und Kopf schwingen gegeneinander, Ohren klappen, Schüttel-Striche. */
+function schuetteln(frame: 'a' | 'b' | 'c'): Figure {
+  const s = frame === 'a' ? 1 : frame === 'b' ? -1 : 0.4
+  const f = sideFigure({
+    torso: { x: 76 + 1.2 * s, y: 76, rot: 4 * s },
+    head: { x: 118 - 1.5 * s, y: 54, rot: 10 * s },
+    headOpts: { earNear: -26 - 24 * s, earFar: -32 + 20 * s, earScale: 0.8 },
+    fl: [
+      [17, 4],
+      [15, 2],
+    ],
+    fr: [
+      [17, -4],
+      [15, -2],
+    ],
+    hl: [
+      [12, 12],
+      [12, -8],
+      [8, 2],
+    ],
+    hr: [
+      [12, 6],
+      [12, -12],
+      [8, -2],
+    ],
+    tail: frame === 'b' ? TAIL_BACK : TAIL_SICKLE,
+  })
+  return {
+    ...f,
+    strokes: [
+      ...f.strokes,
+      ...shakeMarks([76, 66], 44, s * 8),
+      ...shakeMarks([118, 50], 24, -s * 8),
+    ],
+  }
+}
+
+/** Freudenhüpfer mit Drehung: A Absprung (nach rechts), B Scheitelpunkt (von vorn gestaucht), C Landung (nach links). */
+function freude(frame: 'a' | 'b' | 'c'): Figure {
+  const base = (rise: number, tail: P[]) =>
+    sideFigure({
+      torso: { x: 80, y: 62 - rise, rot: -14 },
+      head: { x: 122, y: 38 - rise, rot: -12 },
+      headOpts: { earNear: -44, earFar: -50, pant: true, tongue: 0.7 },
+      fl: [
+        [16, 24],
+        [14, 36],
+      ],
+      fr: [
+        [16, 10],
+        [14, 22],
+      ],
+      hl: [
+        [12, 2],
+        [12, -8],
+        [8, -4],
+      ],
+      hr: [
+        [12, 14],
+        [12, 2],
+        [8, 6],
+      ],
+      tail,
+    })
+  if (frame === 'a') return base(0, TAIL_HIGH)
+  if (frame === 'b') {
+    // Drehung: Figur von vorn gestaucht (Breite 0,55) auf dem Scheitelpunkt, um den D-Ring gestaucht (Anker bleibt)
+    const f = base(8, TAIL_HIGH)
+    const px = f.ring[0]
+    const m = ([x, y]: P): P => [px + (x - px) * 0.55, y]
+    return {
+      ...f,
+      ring: m(f.ring),
+      strokes: f.strokes.map((st) => ({ ...st, pts: st.pts.map(m) })),
+    }
+  }
+  // Landung: gespiegelt um den D-Ring (Blick nach links, Anker bleibt), Beine fangen auf
+  const f = base(-2, TAIL_SICKLE)
+  const px = f.ring[0]
+  const m = ([x, y]: P): P => [2 * px - x, y]
+  return { ...f, ring: m(f.ring), strokes: f.strokes.map((st) => ({ ...st, pts: st.pts.map(m) })) }
+}
+
+/**
+ * Hinlegen auf den Rücken (U-04): Bauch hoch, Vorderpfoten übereinander auf der Brust, Hinterbeine mit angezogenen
+ * Knien in der Luft, Kopf verkehrt herum mit Zunge. Von Hand gesetzt; B/C wippen mit den Pfoten.
+ */
+function liegen(frame: 'a' | 'b' | 'c'): Figure {
+  const d = frame === 'a' ? 0 : frame === 'b' ? 1.4 : -1.2
+  const ring: P = [60, 110]
+  const H: Tf = { x: 124, y: 83, rot: 180, s: 1.1, flip: true }
+  const head = sideHead(H, { earNear: -34, earFar: -40, tongue: 0.9, eyesClosed: frame === 'c' })
+  const fw = (x: number, y: number): P => [x + d * 0.6, y + d]
+  const strokes: Stroke[] = [
+    // Bauchlinie (oben) von der Brust bis zum Po
+    {
+      layer: 'line',
+      part: 'body',
+      pts: [
+        [104, 88],
+        [92, 80],
+        [76, 78],
+        [60, 83],
+        [50, 93],
+        [49, 102],
+      ],
+      feature: 'double',
+    },
+    // Rücken am Boden
+    {
+      layer: 'line',
+      part: 'body',
+      pts: [
+        [110, 103],
+        [102, 110],
+        [84, 112],
+        [64, 111.6],
+        [52, 107],
+      ],
+      feature: 'gap',
+    },
+    {
+      layer: 'line',
+      part: 'body',
+      pts: [
+        [111, 91],
+        [112, 98],
+        [110, 103],
+      ],
+      feature: 'hook',
+    },
+    // Hinterbeine mit angezogenen Knien (nah und fern)
+    {
+      layer: 'line',
+      part: 'leg-hl',
+      pts: [[56, 84], [53, 70], [57, 59], [66, 55], fw(70, 61), fw(66, 64), [62, 72], [62, 82]],
+      feature: 'over',
+      jitter: 0.7,
+    },
+    {
+      layer: 'line',
+      part: 'leg-hr',
+      pts: [[67, 80], [68, 68], [74, 60], [82, 59], fw(85, 65)],
+      jitter: 0.6,
+    },
+    // Vorderpfoten übereinander auf der Brust
+    {
+      layer: 'line',
+      part: 'leg-fl',
+      pts: [
+        [96, 86],
+        [96, 72],
+        [102, 64],
+        [110, 64],
+        fw(114, 70),
+        fw(108, 72),
+        [104, 76],
+        [103, 86],
+      ],
+      feature: 'over',
+      jitter: 0.7,
+    },
+    {
+      layer: 'line',
+      part: 'leg-fr',
+      pts: [[88, 82], [90, 70], [96, 63], [104, 60], fw(108, 64)],
+      jitter: 0.6,
+    },
+    // Pfotenballen als kleine Punkte
+    {
+      layer: 'solid',
+      part: 'leg-fl',
+      pts: blob(fw(109, 68), 1.4, 1, 20, 5),
+      closed: true,
+      jitter: 0.15,
+    },
+    {
+      layer: 'solid',
+      part: 'leg-hl',
+      pts: blob(fw(66, 59.5), 1.4, 1, -20, 5),
+      closed: true,
+      jitter: 0.15,
+    },
+    // Schwanz hängt locker über den Boden
+    {
+      layer: 'line',
+      part: 'tail',
+      pts: [
+        [50, 98],
+        [42, 104],
+        [34, 106],
+        [26, 104],
+        [22, 99],
+      ],
+      jitter: 0.8,
+    },
+    {
+      layer: 'line',
+      part: 'tail',
+      pts: [
+        [50, 104],
+        [42, 109],
+        [32, 110.4],
+        [24, 108.6],
+        [20, 102],
+      ],
+      jitter: 0.8,
+    },
+    // Fell-Wash: Rückenseite am Boden und Beine außen
+    {
+      layer: 'fur',
+      part: 'body',
+      pts: [
+        [110, 103],
+        [102, 110],
+        [84, 112],
+        [64, 111.6],
+        [52, 107],
+        [58, 100],
+        [80, 104],
+        [100, 100],
+      ],
+      closed: true,
+      jitter: 0.4,
+    },
+    {
+      layer: 'fur',
+      part: 'tail',
+      pts: [
+        [50, 100],
+        [34, 106],
+        [22, 100],
+        [32, 108],
+        [50, 104],
+      ],
+      closed: true,
+      jitter: 0.3,
+    },
+    {
+      layer: 'fur',
+      part: 'leg-hl',
+      pts: [
+        [53, 72],
+        [57, 60],
+        [66, 56],
+        [62, 66],
+        [58, 80],
+      ],
+      closed: true,
+      jitter: 0.3,
+    },
+    // Halsband am verkehrten Kopf
+    {
+      layer: 'harness',
+      part: 'harness',
+      pts: [
+        apply(H, [-11, 5.5]),
+        apply(H, [-4, 9]),
+        apply(H, [2.5, 13.5]),
+        apply(H, [-1.6, 16.5]),
+        apply(H, [-8, 12.5]),
+        apply(H, [-13.5, 8.6]),
+      ],
+      closed: true,
+      jitter: 0.3,
+    },
+    ...head,
+  ]
+  return { strokes, ring, hidden: ['eye-r', 'ring'] }
 }
 
 // ---------- Liegen, Einrollen, Schlafen ----------
@@ -1318,7 +1651,12 @@ function curl(awake: boolean): Figure {
   const headT: Tf = awake
     ? { x: 107, y: 91, rot: -8, s: 1.12, flip: true }
     : { x: 107, y: 95, rot: -14, s: 1.12, flip: true }
-  const head = sideHead(headT, { earNear: awake ? -58 : -66, noFarEar: true, eyesClosed: !awake })
+  const head = sideHead(headT, {
+    earNear: awake ? -58 : -66,
+    noFarEar: true,
+    knickNear: true,
+    eyesClosed: !awake,
+  })
   const strokes: Stroke[] = [
     // Rücken als großer Bogen vom Nacken über den Po – offen, doppelt nachgezogen
     {
@@ -1478,7 +1816,7 @@ function curl(awake: boolean): Figure {
 
 // ---------- Handmerkmale und Pfade ----------
 
-function mulberry32(seed: number): () => number {
+export function mulberry32(seed: number): () => number {
   let a = seed >>> 0
   return () => {
     a = (a + 0x6d2b79f5) >>> 0
@@ -1490,7 +1828,7 @@ function mulberry32(seed: number): () => number {
 }
 
 /** Neu nachgezeichnet: jeder Punkt um 0,5–1,5 Einheiten (× Faktor) in eine zufällige Richtung versetzt. */
-function retrace(pts: P[], rand: () => number, k: number): P[] {
+export function retrace(pts: P[], rand: () => number, k: number): P[] {
   return pts.map(([x, y]) => {
     const a = rand() * 2 * Math.PI
     const r = (0.5 + rand()) * k * 0.62
@@ -1555,13 +1893,31 @@ export function figureFor(pose: string, frame: string): Figure {
     case 'schnueffeln':
       return schnueffeln(f)
     case 'sitzen':
-      return sitzenFigure(false, f)
+      return sitzen(f)
     case 'kopfschief':
-      return sitzenFigure(true, f)
+      return kopfschief(f)
     case 'schlafen':
       return curl(false)
     case 'springen':
       return springen()
+    case 'hecheln':
+      return hecheln(f)
+    case 'zucken':
+      return zucken(f)
+    case 'kratzen':
+      return kratzen(f)
+    case 'gaehnen':
+      return gaehnen(f)
+    case 'wedeln':
+      return wedeln(f)
+    case 'verbeugung':
+      return verbeugung(f)
+    case 'schuetteln':
+      return schuetteln(f)
+    case 'freude':
+      return freude(f)
+    case 'liegen':
+      return liegen(f)
     case 'bremsen':
       return bremsen()
     case 'abspringen':
@@ -1581,7 +1937,18 @@ export interface SymbolSpec {
   bridge: boolean
 }
 
-export function symbolSpecs(): SymbolSpec[] {
+export type SpriteSet = 'main' | 'extra'
+
+export function symbolSpecs(set: SpriteSet = 'main'): SymbolSpec[] {
+  if (set === 'extra')
+    return EXTRA_POSES.flatMap((pose) =>
+      (['a', 'b', 'c'] as const).map((frame) => ({
+        id: `coco-${pose}-${frame}`,
+        pose,
+        frame,
+        bridge: false,
+      })),
+    )
   return [
     ...SPRITE_POSES.flatMap((pose) =>
       (['a', 'b', 'c'] as const).map((frame) => ({
@@ -1596,7 +1963,7 @@ export function symbolSpecs(): SymbolSpec[] {
 }
 
 /** Ohren-Asymmetrie eines fertig nachgezeichneten Frames: Höhe kleineres/größeres Ohr in {@link EAR_RATIO} halten. */
-const EAR_RATIO = [0.87, 0.93] as const
+const EAR_RATIO = [0.89, 0.93] as const
 function rebalanceEars(strokes: Stroke[]): Stroke[] {
   const parts = (['ear-l', 'ear-r'] as const).map((part) => {
     const pts = strokes
@@ -1674,7 +2041,7 @@ export function renderStrokes(
       push(s.layer, s.part, toPath([...pts, hook], false, c))
       continue
     }
-    if (s.layer === 'harness') {
+    if (s.layer === 'harness' && s.part === 'harness') {
       push(s.layer, s.part, `M${pts.map((p) => `${fmtInt(p[0])} ${fmtInt(p[1])}`).join('L')}Z`)
       continue
     }
@@ -1761,13 +2128,16 @@ export const SPRITE_STYLE =
   '.solid{fill:var(--ink,#1C1A17)}.hi{fill:var(--paper,#F4EFE6)}' +
   '@media (forced-colors:active){.fur,.harness{fill:none}.line,.harness{stroke:CanvasText}.solid{fill:CanvasText}.hi{fill:Canvas}}'
 
-export function drawSprite(): string {
+export function drawSprite(set: SpriteSet = 'main'): string {
   const header =
-    '<!-- Coco (P9.9/P9.10) – erzeugt von scripts/art/draw-coco.ts nach dem Charakterblatt ' +
-    'content/art/coco/character-sheet.svg (DESIGN §10). Nicht von Hand ändern: pnpm art:coco && pnpm art:sprite. -->'
+    set === 'main'
+      ? '<!-- Coco (P9.9/P9.10, P12.4) – erzeugt von scripts/art/draw-coco.ts nach dem Charakterblatt ' +
+        'content/art/coco/character-sheet.svg (DESIGN §10). Nicht von Hand ändern: pnpm art:coco && pnpm art:sprite. -->'
+      : '<!-- Coco Zusatz-Posen (P12.4: Warte-Aktionen, Verbeugung, Schütteln, Freudenhüpfer, Hinlegen) – erzeugt von ' +
+        'scripts/art/draw-coco.ts, nachgeladen im Leerlauf (DESIGN §10.8). Nicht von Hand ändern: pnpm art:coco && pnpm art:sprite. -->'
   return (
     `<svg xmlns="http://www.w3.org/2000/svg">${header}<style>${SPRITE_STYLE}</style>` +
-    symbolSpecs()
+    symbolSpecs(set)
       .map((spec) => renderSymbol(spec))
       .join('') +
     '</svg>\n'
@@ -1775,8 +2145,12 @@ export function drawSprite(): string {
 }
 
 export const SPRITE_SOURCE = 'src/art/coco/coco-sprite.svg'
+export const EXTRA_SOURCE = 'src/art/coco/coco-extra.svg'
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
-  writeFileSync(SPRITE_SOURCE, drawSprite())
-  console.log(`art:coco: ${SPRITE_SOURCE} geschrieben (${symbolSpecs().length} Symbole).`)
+  writeFileSync(SPRITE_SOURCE, drawSprite('main'))
+  writeFileSync(EXTRA_SOURCE, drawSprite('extra'))
+  console.log(
+    `art:coco: ${SPRITE_SOURCE} (${symbolSpecs().length} Symbole) und ${EXTRA_SOURCE} (${symbolSpecs('extra').length} Symbole) geschrieben.`,
+  )
 }

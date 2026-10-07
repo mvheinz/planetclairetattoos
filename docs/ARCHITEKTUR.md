@@ -111,7 +111,7 @@ aus §10–§13 dieses Dokuments); DNS-Umstellung und Start-Checkliste für P11 
 | `exifr` (dev) | aktuell | P1 | EXIF-Tests (R-135) |
 | `yaml` (dev) | 2.x | P1 | Workflow-Test `tests/unit/ci/workflows.unit.spec.ts` parst `.github/**/*.yml` (P1.33) |
 | `next-intl` | 4.x (≥ 4.14) | P2 | Routing DE/EN, Nachrichten; `localeCookie: false` (R-130) |
-| `@fontsource/mansalva`, `@fontsource-variable/bricolage-grotesque`, `@fontsource/ibm-plex-mono` | aktuell | P2 | nur Quelle für das Kopierskript nach `src/styles/fonts/` (DESIGN §4.1) |
+| `@fontsource/spectral` (5.3.0, exakt gepinnt, P12.2; löst `@fontsource/mansalva` ab), `@fontsource-variable/bricolage-grotesque`, `@fontsource/ibm-plex-mono` | aktuell | P2 | nur Quelle für das Kopierskript nach `src/styles/fonts/` (DESIGN §4.1) |
 | `subset-font` (dev) | aktuell | P2 | Schrift-Subsetting in `pnpm fonts:copy` (harfbuzz-wasm, ohne Python): beschneidet Bricolage bei Bedarf auf `wght 400–700` (DESIGN §4.1); Skripte bleiben TypeScript über `tsx` |
 | `@fontsource/bricolage-grotesque` (dev), `wawoff2` (dev, MIT; oder gleichwertiger WOFF2→TTF-Wandler aus npm) | 5.3.0 / 2.0.1 (exakt gepinnt, P3.14) | P3 | `pnpm fonts:copy` erzeugt daraus die TTF-Dateien für OG-Bilder in `src/og/fonts/` (Mansalva 400, Bricolage statisch 600; DESIGN §4.1, P3.14) und `src/og/fontMetrics.generated.ts` (Abdeckung, Laufweiten); **kein** Download von fonts.gstatic.com oder anderen Schrift-Servern |
 | `@axe-core/playwright` (dev) | 4.x | P2 | Barrierefreiheit |
@@ -1721,7 +1721,7 @@ password, authorization, cookie` werden zu `"[redacted]"`; Freitext wird per Reg
 |---|---|---|
 | R01 Start, R02 Shop, R03 Kategorie, R05 Archiv | statisch + ISR | Cache-Tags §9.3; Rückfall `revalidate = 3600` |
 | R04 Produkt | statisch je Stück (`generateStaticParams`: alle öffentlichen Stücke; `dynamicParams = true`) | `product:<id>`, `products` |
-| R11–R18 Tattoo, R19–R25, R27 | statisch | Tags je Inhalt; Angebote zusätzlich per Job zu `startsAt`/`endsAt` (§9.3) |
+| R11–R18 Tattoo, R19–R25, R27 | statisch | Tags je Inhalt |
 | R28 404, R29 500 | statisch | – |
 | R06 Warenkorb, R07 Kasse, R08 Danke, R09 Status, R10 Auftragsarbeiten, R26 Widerruf | dynamisch (Cookies/Token/Formular), `Cache-Control: private, no-store` | – |
 | OG-Bilder (`opengraph-image.tsx`) | statisch je Stück | `product:<id>` |
@@ -1750,7 +1750,8 @@ damit grün sind. Der Wechsel betrifft nur `cached.ts` und Segment-Konfiguration
 | Stück reserviert / freigegeben / verkauft (Webhook, Job, Kasse, „Offline verkauft“) | `product:<id>`, `products`, `category:<key>`, `home`, `sitemap` | `revalidateTag(tag, { expire: 0 })` (Route-Handler/Job); in Server-Actions `updateTag(tag)` | ≤ 5 s (T-21) |
 | Stück in der Verwaltung bearbeitet | wie oben | `revalidateTag(tag, 'max')` | ≤ 60 s |
 | Seite, FAQ, Texte, Einstellungen | `page:<key>`, `faqs`, `site-texts`, `settings` | `revalidateTag(tag, 'max')` | ≤ 60 s |
-| Flash, Angebote, Galerie | `flash`, `tattoo-offers`, `tattoo-gallery`, `home` | `'max'`; Beginn und Ende eines Angebots per Job `revalidateEndedOffers` mit `{ expire: 0 }` (Weckzeit exakt `startsAt` bzw. `endsAt`, tägliches Sicherheitsnetz ab 00:05 Berlin, Anhang A.3) | ≤ 60 s |
+| Flash, Galerie | `flash`, `tattoo-gallery`, `home` | `'max'` | ≤ 60 s |
+| Termine „on Tour“ (P12.8) | `tour-dates`, `home` | `'max'` (Rückfall `revalidate = 3600`; „vorbei“ aus dem Datum beim Rendern) | ≤ 60 s |
 | Rechtstext aktiviert | `legal:<type>` | `{ expire: 0 }` | ≤ 5 s |
 | Bild geändert | `media:<id>` | `'max'` | ≤ 60 s |
 | Beispieldaten entfernt | alle | `revalidatePath('/', 'layout')` | ≤ 60 s |
@@ -2614,7 +2615,6 @@ widersprüchlichen Fristen gilt für Löschungen LOESCHKONZEPT, für Abläufe KO
 | `renderInvoicePdf` | documents | bei Bedarf | – | `renderInvoicePdf` | – |
 | `renderLegalTextPdf` | documents | bei Bedarf | – | `renderLegalTextPdf` | – |
 | `activateScheduledLegalTexts` | maintenance | Weckzeit `validFrom` | – | `activateScheduledLegalTexts` | – |
-| `revalidateEndedOffers` | maintenance | Weckzeit exakt `startsAt` bzw. `endsAt` jedes Angebots; tägliches Sicherheitsnetz ab 00:05 Berlin | `offers-expiry` | `revalidateEndedOffers` | – |
 | `markDelivered` | commerce | täglich (automatisch 10 Berliner Kalendertage nach dem Versandtag, `deliveredSource = auto`) | `mark-delivered` | – (fehlt) | – |
 | `withdrawalDeadlines` | commerce | täglich ab 08:00 Berlin (A13 je Widerruf einmal ab Tag 10, ohne Beispieldaten) | `withdrawal-deadlines` | – (fehlt) | – |
 | `legalReviewReminder` | maintenance | täglich | `legal-review-reminder` | `legalReviewReminder` | `legalTextsAnnualReview` |

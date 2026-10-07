@@ -17,7 +17,7 @@ import styles from './SiteHeader.module.css'
 
 /** Bereiche für `aria-current="true"` (aktiver Bereich, KO-02). */
 export const SHOP_AREA = ['R03', 'R04', 'R05'] as const
-export const TATTOO_AREA = ['R12', 'R13', 'R14', 'R15', 'R16', 'R17', 'R18'] as const
+export const TATTOO_AREA = ['R12', 'R14', 'R15', 'R16', 'R17', 'R18'] as const
 
 export async function SiteHeader({ locale }: { locale: Locale }) {
   const t = await getTranslations({ locale, namespace: 'header' })

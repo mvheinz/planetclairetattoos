@@ -2,7 +2,9 @@ import { notFound } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import React from 'react'
 
+import { ChairwomanKoko } from '@/components/home/ChairwomanKoko'
 import { HomeStation } from '@/components/home/HomeStation'
+import { TourDates } from '@/components/home/TourDates'
 import styles from '@/components/home/Home.module.css'
 import { PlanetMark } from '@/components/home/SpaceMarks'
 import { Station } from '@/components/leash/Station'
@@ -13,18 +15,19 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { getHomeView } from '@/lib/data/home'
 import { getSiteNavigation, instagramUrl } from '@/lib/data/navigation'
 import { listStationProducts } from '@/lib/data/products'
-import { getTattooSettings, listFlash, listOffers } from '@/lib/data/tattoo'
+import { getTattooSettings, listFlash } from '@/lib/data/tattoo'
+import { listTourDates } from '@/lib/data/tour'
+import { tourNow } from '@/lib/tour/now'
 import { getShopDisplaySettings, taxSettingsFor } from '@/lib/data/shopSettings'
 import { isLocale, localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
 import { organizationJsonLd, serializeJsonLd } from '@/lib/seo/jsonld'
 import { routeMetadata } from '@/lib/seo/metadata'
-import { currentOrNextOffer } from '@/lib/tattoo/offers'
 
 export const generateMetadata = routeMetadata('R01')
 
 // ISR (ARCHITEKTUR §9.1): gezielt erneuert über die Tags `home`, `products`, `category:<key>`, `page:home` (P3.15),
-// `flash` und `tattoo-offers` (Tattoo-Station, P7.3: Task `revalidateEndedOffers` an Beginn/Ende); Rückfall nach einer
+// `flash` (Tattoo-Station) und `tour-dates` (rechte Spalte, P12.8); Rückfall nach einer
 // Stunde.
 export const revalidate = 3600
 
@@ -35,18 +38,20 @@ export const revalidate = 3600
 // lesbar (reines Server-HTML). Fehlt `home`: neutraler Leerzustand (DM-PAGE-01). Organization-JSON-LD (KONZEPT
 // §3.0.5, ohne Adresse, E-50). Kategorie-Stationen mit bis zu 4 Stücken (P3.12, `listStationProducts`, gecacht mit Tag
 // `home`); Preis-Fußnote einmal pro Seite, Live-Zustand der Karten nach dem Laden (`product-status`). Die
-// Tattoo-Station zeigt das laufende bzw. nächste Angebot und bis zu 3 freie Flash-Motive (P7.3, ohne Preise).
+// Tattoo-Station zeigt bis zu 3 freie Flash-Motive (P7.3, ohne Preise).
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const requested = (await params).locale
   if (!isLocale(requested)) notFound()
   const locale: Locale = requested
   setRequestLocale(locale)
-  const [t, tCard, nav, home, settings] = await Promise.all([
+  const [t, tCard, tTour, nav, home, settings, tourItems] = await Promise.all([
     getTranslations({ locale, namespace: 'home' }),
     getTranslations({ locale, namespace: 'shop.card' }),
+    getTranslations({ locale, namespace: 'home.tour' }),
     getSiteNavigation(locale),
     getHomeView(locale),
     getShopDisplaySettings(locale),
+    listTourDates(locale),
   ])
   const name = home?.name ?? t('title')
   const shelves = await Promise.all(
@@ -57,16 +62,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   )
   const hasCards = shelves.some((p) => !!p?.length)
   const hasTattoo = (home?.stations ?? []).some((s) => s.stationId === 'tattoo')
-  const [offers, flash, tattooSettings] = hasTattoo
-    ? await Promise.all([listOffers(locale), listFlash(locale), getTattooSettings(locale)])
-    : [[], [], null]
-  const now = new Date()
+  const [flash, tattooSettings] = hasTattoo
+    ? await Promise.all([listFlash(locale), getTattooSettings(locale)])
+    : [[], null]
   const tattoo = tattooSettings
     ? {
-        offer: currentOrNextOffer(offers, now),
         flash: flash.filter((f) => f.status === 'available').slice(0, 3),
         settings: tattooSettings,
-        now,
       }
     : null
 
@@ -101,35 +103,44 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         )}
       </header>
 
-      {home && home.stations.length > 0 ? (
-        // Stationen als statisches HTML (nicht hydriert, Lighthouse-TBT P7): reines Server-Markup, Bilder alle
-        // `loading="lazy"`; Live-Zustand der Karten und Linie laufen über DOM-Module.
-        <StaticHtml
-          as="div"
-          className={styles.stations}
-          data-home-stations=""
-          data-behavior={hasCards ? 'product-status' : undefined}
-          {...(hasCards ? statusLabelAttrs(tCard) : {})}
-        >
-          {home.stations.map((station, i) => (
-            <HomeStation
-              key={station.stationId}
-              station={station}
-              locale={locale}
-              products={shelves[i] ?? null}
-              tattoo={station.stationId === 'tattoo' ? tattoo : null}
-              instagramHref={instagramUrl(nav.instagramHandle)}
-            />
-          ))}
-        </StaticHtml>
-      ) : (
-        <EmptyState
-          title={t('emptyTitle')}
-          text={t('emptyText')}
-          pose="kopfschief"
-          action={{ href: localizedPath('R20', locale), label: t('emptyAction') }}
-        />
-      )}
+      <aside className={styles.aside} aria-label={tTour('heading')} data-home-aside="">
+        {/* rechte Spalte: oben Koko, Vorsitzende der Goth Dogs Berlin (U-08), darunter „Planet Claire on Tour“ (U-20) */}
+        <div className={styles.chairwomanSlot} data-slot="chairwoman">
+          <ChairwomanKoko locale={locale} />
+        </div>
+        <TourDates items={tourItems} locale={locale} now={tourNow()} />
+      </aside>
+
+      <div className={styles.body}>
+        {home && home.stations.length > 0 ? (
+          // Stationen als statisches HTML (nicht hydriert, Lighthouse-TBT P7): reines Server-Markup, Bilder alle
+          // `loading="lazy"`; Live-Zustand der Karten und Linie laufen über DOM-Module.
+          <StaticHtml
+            as="div"
+            className={styles.stations}
+            data-home-stations=""
+            data-behavior={hasCards ? 'product-status' : undefined}
+            {...(hasCards ? statusLabelAttrs(tCard) : {})}
+          >
+            {home.stations.map((station, i) => (
+              <HomeStation
+                key={station.stationId}
+                station={station}
+                locale={locale}
+                products={shelves[i] ?? null}
+                tattoo={station.stationId === 'tattoo' ? tattoo : null}
+              />
+            ))}
+          </StaticHtml>
+        ) : (
+          <EmptyState
+            title={t('emptyTitle')}
+            text={t('emptyText')}
+            pose="kopfschief"
+            action={{ href: localizedPath('R20', locale), label: t('emptyAction') }}
+          />
+        )}
+      </div>
       {hasCards ? (
         <PriceFootnote
           locale={locale}

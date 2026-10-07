@@ -20,7 +20,7 @@ export type { PriceTagVariant }
 
 // Preisschild (DESIGN KO-05, E-77): Flohmarkt-Anhänger, handgeschrieben, an der Schnur. Faden (Länge aus der Nummer) →
 // Öse (Drehpunkt) → Schild-Körper „Kofferanhänger“ (SVG-Kontur mit Wackel, `--paper-2`, Schraffur-Schatten) → Preis in
-// Mansalva mit `*` (Auflösung: `PriceFootnote` auf derselben Seite, R-030) und darunter `Nr. 017` in Plex Mono.
+// Spectral mit `*` (Auflösung: `PriceFootnote` auf derselben Seite, R-030) und darunter `Nr. 017` in Plex Mono.
 // Drehung und Fadenlänge sind deterministisch (SSR = Browser). Varianten: `hanging` (Shop, Faden-Anker für die Schnur
 // `shopString`), `pinned` (Produktseite/Startseite, ohne Schnur), `mini` (Danke-Seite, 64 px, ohne Nummer).
 // `sold` → Stempel KO-06 über der Preiszeile, der Preis bleibt lesbar. Das Schild ist nie selbst fokussierbar; in der

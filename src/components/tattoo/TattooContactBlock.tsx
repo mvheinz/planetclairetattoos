@@ -1,9 +1,8 @@
 import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
-import { ICON_MAIL, ICON_INSTAGRAM } from '@/components/icons/icons.generated'
+import { ICON_MAIL } from '@/components/icons/icons.generated'
 import { Button } from '@/components/ui/Button'
-import { instagramDmUrl } from '@/lib/data/contact'
 import type { TattooSettings } from '@/lib/data/tattoo'
 import type { Locale } from '@/lib/routes/registry'
 import { tattooMailto, type TattooMailTopic } from '@/lib/tattoo/mailto'
@@ -11,7 +10,7 @@ import { tattooMailto, type TattooMailTopic } from '@/lib/tattoo/mailto'
 import styles from './Tattoo.module.css'
 
 // Kontakt-Block des Tattoo-Bereichs (DESIGN KO-20, KONZEPT §9.4, E-51): Knöpfe „Mail schreiben“ (`mailto:` mit Betreff
-// und Text-Vorlage des Anlasses) und „Instagram-DM“ (`https://ig.me/m/{handle}`, `rel="noopener noreferrer"`, R-139),
+// und Text-Vorlage des Anlasses) (U-15: Anfrageweg im Tattoo-Bereich nur E-Mail, keine Direktnachricht),
 // darunter die E-Mail-Adresse als markierbarer Text mit „Adresse kopieren“ (Modul `copy-button`, Rückmeldung „Kopiert“
 // per `aria-live` 2 s; Rückfall: Adresse wird markiert, „Jetzt kopieren“). Ort nur als „Privatstudio in
 // Berlin-{Bezirk}“ (E-50). Kein Formular, keine Buchung, keine Zahlung.
@@ -53,15 +52,6 @@ export async function TattooContactBlock({
             {t('mail')}
           </Button>
         ) : null}
-        <Button
-          variant="secondary"
-          href={instagramDmUrl(settings.instagramHandle)}
-          rel="noopener noreferrer"
-          icon={ICON_INSTAGRAM}
-          data={{ 'data-tattoo-dm': '' }}
-        >
-          {t('dm')}
-        </Button>
       </div>
       {settings.email ? (
         <p className={styles.address}>

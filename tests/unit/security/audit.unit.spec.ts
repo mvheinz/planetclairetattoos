@@ -42,7 +42,7 @@ describe('T-16 AK-A-8-01 Kontext je Registry-Route', () => {
         checked++
       }
     }
-    expect(checked).toBeGreaterThanOrEqual(2 * 25)
+    expect(checked).toBeGreaterThanOrEqual(2 * 24)
   })
 
   it('Kontext public: Seiten der Registry mit Eingabefeldern gibt es dort nicht (Formulare laufen dynamisch)', () => {
@@ -65,9 +65,9 @@ describe('AK-A-8-01/AK-A-4-03 Header je Umgebung und Kontext', () => {
       const hsts = appEnv === 'production' || appEnv === 'staging'
       expect(base['Strict-Transport-Security'] !== undefined, appEnv).toBe(hsts)
       if (hsts) expect(base['Strict-Transport-Security']).not.toMatch(/preload/)
-      // Produktion ist indexierbar (Seiten steuern robots selbst), alles andere nie.
+      // Produktion ist indexierbar (Seiten steuern robots selbst, Header schließt nur KI-Nutzung aus), alles andere nie.
       expect(base['X-Robots-Tag'], appEnv).toBe(
-        appEnv === 'production' ? undefined : 'noindex, nofollow',
+        appEnv === 'production' ? 'noai, noimageai' : 'noindex, nofollow',
       )
       for (const context of CSP_CONTEXTS) {
         const csp = buildCsp(context, {

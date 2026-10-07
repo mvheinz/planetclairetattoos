@@ -22,9 +22,9 @@ export function configProblems(config) {
   const keys = Object.keys(config).sort().join(',')
   if (keys !== 'notesDe,tag,title')
     problems.push(`Schlüssel müssen tag, title, notesDe sein (sind: ${keys})`)
-  if (config.tag !== 'vorschau-p10') problems.push('tag muss vorschau-p10 sein')
-  if (config.title !== 'Planet Claire – Vorschau (Stand P10)')
-    problems.push('title muss „Planet Claire – Vorschau (Stand P10)“ sein')
+  if (config.tag !== 'vorschau-p12') problems.push('tag muss vorschau-p12 sein')
+  if (config.title !== 'Planet Claire – Vorschau (Stand P12)')
+    problems.push('title muss „Planet Claire – Vorschau (Stand P12)“ sein')
   const notes = String(config.notesDe ?? '')
   if (!notes.includes(PRIVATE_NOTE))
     problems.push('notesDe nennt den Hinweis „Nur privat ansehen …“ nicht')
@@ -42,10 +42,12 @@ export function standLine(text) {
   return /^Stand: (\d{2}\.\d{2}\.\d{4})$/m.exec(text ?? '')?.[1] ?? null
 }
 
-/** `OFFEN_P1_P10=<n>` aus der Ausgabe von `scripts/cloud-setup.sh --plan-status` (`null` = nicht lesbar). */
+/** `OFFEN_P1_P10=<n>` plus (falls vorhanden) `OFFEN_P12=<n>` aus `scripts/cloud-setup.sh --plan-status` (`null` = nicht lesbar). */
 export function openTasks(planStatusOutput) {
   const m = /^OFFEN_P1_P10=(\d+)\s*$/m.exec(planStatusOutput ?? '')
-  return m ? Number(m[1]) : null
+  if (!m) return null
+  const p12 = /^OFFEN_P12=(\d+)\s*$/m.exec(planStatusOutput ?? '')
+  return Number(m[1]) + (p12 ? Number(p12[1]) : 0)
 }
 
 /**

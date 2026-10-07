@@ -33,7 +33,15 @@ async function waitForLeash(page: Page, tier?: string) {
 }
 
 const runningAnimations = (page: Page) =>
-  page.evaluate(() => document.getAnimations().filter((a) => a.playState === 'running').length)
+  // Scroll-gebundene Animationen (Seitenverlauf, U-11) laufen nur beim Scrollen, nicht über die Zeit: sie zählen nicht.
+  page.evaluate(
+    () =>
+      document
+        .getAnimations()
+        .filter(
+          (a) => a.playState === 'running' && a.timeline?.constructor?.name !== 'ScrollTimeline',
+        ).length,
+  )
 
 test.describe('Reduzierte Bewegung', () => {
   test.beforeEach(({ browserName }, testInfo) => {

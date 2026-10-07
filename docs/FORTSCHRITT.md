@@ -2,6 +2,108 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-07 – P12 Abschlussbericht (Überarbeitung nach deiner Rückmeldung) – für Jutta
+
+### Phase 12 fertig: Deine Wünsche vom 06.10. sind umgesetzt, die neue Vorschau-Datei entsteht nach dem Merge
+
+Hallo Jutta,
+
+alles, was du dir bei der Überarbeitung gewünscht hast, ist eingebaut. Auf GitHub sind alle Prüfläufe grün: die normalen Tests, der große Lauf mit allen Browsern (Desktop, iPhone, Android), die Tempo-Messung, die Bildvergleiche und die Kunst-Prüfung (62 von 62 automatischen Punkten). Die Prüfung „sieht das wirklich schön aus?“ durch Menschenaugen steht noch aus – die machen wir zusammen (siehe unten).
+
+### Was neu ist
+
+- **Coco:** Sie sitzt jetzt seitlich (wie auf deinem Foto), wartet mit kleinen Aktionen, hat vier neue Posen, ist ein Viertel größer, die Tuschelinie zeichnet doppelt so langsam, das rechte Ohr ist immer geknickt, und die Leine liegt nur noch am Rand der Raster, nie quer über Karten. Beim Seitenwechsel läuft Coco mit.
+- **Fitness-Coco:** Auf der Startseite ersetzt sie die große sitzende Coco: sieben Übungen aus deinem Skizzenblatt, am Ende liegt sie erschöpft mit Zunge da, dann geht es von vorn los. Ohne Beschriftung.
+- **Koko:** Die Vorsitzende der Goth Dogs Berlin sitzt oben in der rechten Spalte (mit Narrenhut, ohne Knochenkreuz); nur die Pupillen wandern immer von links nach rechts. Darunter steht „Planet Claire on Tour“.
+- **Planet Claire on Tour:** Ein kleiner Kalender mit deinen Terminen (kommende oben, vergangene eingeklappt, abgesagte durchgestrichen, ohne Karte oder Fremddienste). In der Verwaltung pflegst du die Termine im Bereich „Tattoo“, Reiter „Termine“. Beispieltermine sind dabei.
+- **Aussehen:** Spectral als Schrift, helles Olivgrün mit Verlauf nach Petrol beim Scrollen, Petrol als Akzentfarbe, dünne Goth-Rahmen aus Filigran um alle Fotos.
+- **Aufgeräumt:** „Angebote“ und alle DM-Hinweise sind weg; Instagram steht nur noch als Profil-Link im Fuß.
+- **Alle Texte neu:** verträumt und philosophisch in der Ich-Form; Preise, Versand und Pflege stehen weiter klar und verständlich darin. Die Seite ist dauerhaft zweisprachig (Deutsch und Englisch), das Englische ist eigenständig geschrieben, nicht wörtlich übersetzt.
+- **Rechtstexte und Schutz deiner Werke:** Impressum, Datenschutz, AGB, Widerruf (mit Muster-Formular), Versand und Zahlung sind vollständig ausformuliert (mit Platzhaltern für deine Angaben). Dazu: Urheberrechtsvermerk, Kaufklausel (was Käufer:innen mit dem Stück dürfen), Vorbehalt gegen KI-Training (`robots.txt`, `ai.txt`, Hinweise im Seitenkopf) und der Hinweis, dass Flash-Motive nur mit deiner Erlaubnis nachgestochen werden.
+- **Platzhalter-Gesichter:** Jede Figur hat ein eigenes, einzeln gezeichnetes Gesicht (sechs Stile). Neue kleine Animationen: Karten heben sich leicht, Menü-Links rücken ein, die Korb-Bestätigung gleitet herein.
+
+### So öffnest du die neue Vorschau-Datei
+
+1. Öffne den Link: https://github.com/mvheinz/planetclairetattoos/releases/tag/vorschau-p12 (Release „Planet Claire – Vorschau (Stand P12)“). Er funktioniert erst, nachdem der Pull Request übernommen („gemergt“) ist; das erledige ich gleich nach diesem Eintrag.
+2. Klicke unter „Assets“ auf `planet-claire-vorschau.html`; die Datei lädt direkt herunter.
+3. Doppelklick darauf: Sie öffnet sich im Browser, auf jedem Rechner ganz ohne Internet. Warnt der Browser, wähle „Behalten“.
+4. **Nur privat ansehen**, nicht weitergeben und nicht veröffentlichen: Sie enthält Beispieldaten, zwei Tattoo-Fotos ohne Einwilligung und Rechtstexte, die noch Platzhalter sind. Die ältere Fassung „Stand P10“ bleibt zum Vergleich stehen.
+
+### Diese Punkte aus `docs/OFFENE-PUNKTE.md` solltest du entscheiden
+
+1. **Rechtstexte durch die Kanzlei prüfen lassen (J-04):** Das gilt jetzt auch für die neuen Schutz-Klauseln (Kaufklausel, KI-Vorbehalt, Flash-Nachstechen). Sie sind sorgfältig formuliert, aber nicht anwaltlich geprüft.
+2. **Sichtprüfung gemeinsam (P11):** 25 Urteilspunkte der Kunst-Prüfung sind noch offen, weil die Aufnahmen aus meiner Umgebung nicht abrufbar sind. Schau dir bitte Fitness-Coco, Koko, Coco beim Seitenwechsel, die Rahmen und die Gesichter an und sag mir, was dir noch nicht gefällt.
+3. **Deine Skizzenblätter als Dateien:** Die Fitness-Skizzen liegen bei mir nur als Beschreibung (`content/art/jutta-skizzen/FITNESS-COCO.md`). Lade sie gern als Fotos nach `content/art/jutta-skizzen/` hoch, dann kann ich die Übungen noch genauer an deinen Strich anlehnen.
+4. **Tour-Termine:** Die acht Beispieltermine werden vor dem Start entfernt; du trägst deine echten Termine ein.
+5. Die übrigen Punkte aus dem Bericht „P10“ gelten weiter (Adresse, Telefon, Verpackung, Steuer, Instagram-Export, echtes iPhone).
+
+### Das passiert in P11 gemeinsam
+
+Wie im Bericht „P10“ beschrieben (`docs/GO-LIVE.md`, `docs/owner/AUFGABEN.md`): Konten anlegen, echte Schlüssel, Rechtstexte der Kanzlei einsetzen, Beispieldaten entfernen, Probekauf, dann der Start. Das machen wir zusammen, ich fange nicht allein damit an.
+
+## 2026-10-06 – P12.12
+
+- Platzhalter: Jede Figur hat jetzt ihr eigenes, einzeln gezeichnetes Gesicht (sechs Stile: Kulleraugen, Schlaflider, Knopfaugen, Blinzeln, Schiefblick, Staunen – je mit eigenen Brauen und eigenem Mund). Die sechs Coco-Platzhalter und die Hasen in `flash-902`/`spiegel-01` teilen kein Gesicht mehr (AR-05; Test `placeholders.unit.spec.ts`).
+- Coco reist beim Seitenwechsel mit (MO-14): beim Aufbruch Lauf-Pose, mit Gegenstück (Start ↔ Über mich) wandert sie in 350 ms zur neuen Leinenspitze und steht dort sofort (kein Hereinrennen von links), ohne Gegenstück läuft sie hinaus bzw. herein. Neuer Chunk `src/leash/cocoTravel.ts` (nur bei voller Bewegung, ≤ 2 KB gz); Engine unverändert.
+- Neue Mikro-Animationen MI-17 (Karte hebt sich), MI-18 (Menülink rückt ein), MI-19 (Korb-Bestätigung gleitet ein) – nur CSS, Tokens `--dur-short`/`--ease-ink-out`, bei reduzierter Bewegung/Schalter aus.
+- Katalog nachgezogen: DESIGN §11.5, KUNST-QA (MO-11 auf MI-19, MO-14, AR-05), `/qa/motion`, SC-14 (Hover-Auslöser), Budget `tests/perf/budgets.json`.
+
+## 2026-10-06 – P12.11
+
+- Alle sechs Rechtstexte (Impressum, Datenschutz, AGB, Widerrufsbelehrung, Muster-Widerrufsformular, Versand & Zahlung) vollständig auf Deutsch (verbindlich) und Englisch (gleichwertig) ausformuliert, knapper Einstieg im Ton der Marke, Platzhalter aus den Einstellungen; bleiben origin=placeholder (Kanzlei-Prüfung P11). Speicher-/Cookie-Hinweis in der Datenschutzerklärung, Barrierefreiheits-Hinweis ohne Konformitätsaussage im Impressum.
+- Schutz des geistigen Eigentums: vier Bausteine ip.* (Urheberrechtsvermerk, KI/TDM-Vorbehalt, Kaufklausel, Flash-Nachstechen) in der Verwaltung pflegbar, sichtbar im Footer, auf der Produktseite und bei Flash/Preisen/Ablauf, Abschnitte in AGB und Impressum; technisch robots.txt-Gruppe für KI-Crawler, ai.txt, tdmrep.json, Meta noai/noimageai und tdm-reservation, X-Robots-Tag in Produktion.
+- Grund-Seed legt DE+EN direkt an; bestehende Datenbanken bekommen automatisch eine neue aktive Fassung (v2).
+- Tests: legal-texts-p12 und ai-reservation (unit), base/public-pages/lifecycle (int), ip-notices (e2e); pnpm check, check:migrations, build und check:bundle grün; Rechtsseiten-E2E bis auf die bereits bestehenden Ruhe-Prüfungen (getAnimations, P12.2) grün. Offene Punkte: docs/OFFENE-PUNKTE.md (P12.11).
+## 2026-10-06 – P12.9 und P12.10
+
+- P12.10 Alle Texte neu (U-21): Ton verträumt-philosophisch, Ich-Form von Jutta, Sachtexte poetisch gerahmt mit klaren Fakten. Neu sind Sprachdateien (`src/i18n/messages/de.json`, `en.json`), Standardtexte der Verwaltung (`site-texts`), Beispielbestand (Seiten, Stationen, Kategorien, FAQ, Termine, Stücke) und Titelzeilen einiger Mails. Pflichttexte, Button „Zahlungspflichtig bestellen“, Rechtstexte (P12.11) und Verbotsliste (kein DM, kein „inkl. MwSt.“) unverändert beachtet.
+- Leitfaden `docs/design/TEXTE.md` (Stimme, Sachtexte, Verbote, Zweisprachigkeit, Alt-Texte).
+- P12.9 Zweisprachigkeit (U-00): englische Fassungen eigenständig geschrieben; fehlende EN-Alt-Texte ergänzt, doppelte „Zeichnung: Zeichnung:“ bereinigt.
+- Tests: neu `tests/unit/i18n/bilingual.unit.spec.ts` (Schlüssel-Parität, EN ≠ DE mit Allowlist, kein lorem/TODO, keine Umlaute im EN-Text, Platzhalter, Alt-Texte, Beispielbestand DE+EN, site-texts) und `tests/unit/i18n/text-inventory.unit.spec.ts` (keine Reste der ~300 alten Texte aus `tests/fixtures/old-texts-p12.json`, kein DM, Pflichttexte unverändert). Mail-Referenzdateien und Unit-/Int-/E2E-Erwartungen auf die neuen Texte angepasst (Absicht unverändert).
+
+## 2026-10-06 – P12.3
+
+- Goth-Fotorahmen: viktorianischer Filigran-Rahmen mit dünner Tuschelinie als eine gemeinsame SVG-Datei (3,9 KB, scripts/art/build-photo-frame.ts), per border-image an ResponsiveImage (alle Foto-Stellen: Karten, Produktseite, Galerie, Flash, Über mich, Startseite, Teaser, Korb, Kasse); Passepartout/Doppelrahmen und Flash-Rand ersetzt.
+- Außenmaße fest (CLS 0), kein SVG im DOM je Foto (PF-10), IM-04 in KUNST-QA und DESIGN §12.2a dokumentiert.
+- Tests: Unit photo-frame (Registry-Suche, Größe, dünne Linie), E2E photo-frame (alle Kontexte, CLS ≤ 0,1, einmaliger Abruf), Visual-Referenzen neu.
+
+## 2026-10-06 – P12.2
+
+- Schrift: Spectral 500 und Spectral 500 Italic (@fontsource/spectral 5.3.0 exakt gepinnt, selbst gehostet, 4 Dateien zusammen 73,2 KB); Mansalva, GlyphFallback, Mansalva-Abdeckung und Fallback-Fläche entfernt, Metrik-Ersatzflächen für Spectral gemessen.
+- Farben: helles Olivgrün als Grund, Petrol-Akzent (Links, Primärknöpfe, sold-Stempel, Fokus), Text-Tokens für AA nachgedunkelt; DESIGN §3/§4/§7 neu.
+- Verlauf Olivgrün → Petrol-Hauch: statisch auf html, mit Scroll-Zeitleiste ein einziger opacity-Layer, statisch bei weniger Bewegung; Leine-Engine unberührt (Budget 12 000 B gz eingehalten).
+- Tests: pnpm check (nur der schon vorher rote Test final-report offen), Int 1101 grün, E2E desktop/pixel-7 (Rahmen, a11y, home, shell, shop; Leine-Tests brauchen Debug-Build), Visual 70 neu erzeugt und im zweiten Lauf stabil, check:bundle und check:external grün.
+## 2026-10-06 – P12.6
+
+- Koko, Vorsitzende der Goth Dogs Berlin: freigestellt und von Hand nachgezeichnet (schwarzes Fell mit Tuschestrich, orange Flächen, weiße Brust/Pfoten, Narrenkappe mit grünen Bommeln, Seitenblick-Augen, ohne Knochenkreuz); nur die Pupillen bewegen sich (9 s, CSS), Standbild bei reduzierter Bewegung; Komponente ChairwomanKoko rechts neben dem Hero (mobil darunter, Platzhalter data-slot="chairwoman"); Bild 9 KB (<img>), Alt-Text DE/EN.
+- Tests: Unit (Quelle, Budget, nur Pupillen animiert, reduzierte Bewegung, Alt-Text), E2E (nur zwei animierte Pupillen-Elemente, reduziert 0).
+
+## 2026-10-06 – P12.5
+
+- Fitness-Coco ersetzt die große sitzende Coco der Station „Hallo“: sieben Übungen in Juttas Reihenfolge + erschöpft Liegen, Endlosschleife (≈ 42 s), je Übung 12–20 gezeichnete Zwischenbilder, weiche Übergänge, schwarze Tuschelinie mit Zittern, oranger Buntstift mit Papierkörnung, keine Beschriftung, Knickohr; Standbild als <img>, Bildfolge (120 KB gz) nach dem load nachgeladen und auf einer Leinwand gespielt; Standbild bei reduzierter Bewegung; Alt-Texte DE/EN.
+- Tests: Unit (Daten, Budget, Knickohr, Verhalten), E2E (home-fitness: Daten erst nach load, Schleife läuft, reduziert still), check:bundle (SVG der Startseite 54,3 KB ≤ 60). Kunst-QA: SC-01 um Fitness-Coco- und Koko-Bilder erweitert und lokal aufgenommen (art-desktop motion + reduced).
+
+## 2026-10-06 – P12.4
+
+- Coco: Sitzen/Kopf schief neu in Seitenansicht (Juttas Foto), Knickohr (hinteres Ohr) in allen Posen, Warte-Aktionen gestaffelt (Hecheln, Ohr zucken, Kratzen, Gähnen, Strecken, Wedeln, Hinlegen → Einrollen → Schlafen) und vier neue Posen (Spielverbeugung, Schütteln, Freudenhüpfer mit Drehung bei „Korb gefüllt“/„Bestellung abgeschickt“, Hinlegen mit Bauch hoch) in der nachgeladenen Datei coco-extra (27 Symbole); Coco +25 % (70/110 px, Rinne 56/88 px); Tuschelinie doppelt so langsam; Leine in Raster-Seiten (Flash, Shop, Kategorie, Archiv) nur in der Rinne am Rand, kringelt sich zwischen den Zeilen, umwickelt nie Karten.
+- Budgets: Engine 11 805 B gz (≤ 12 000), Coco-Steuerung 2 884 B (≤ 3 000), Zusatz-Chunk 1 072 B, Sprite 43,8 KB/10,3 KB gz, Zusatz-Datei 56 KB/12,6 KB gz.
+- Tests: Unit (Sprite, CO-01…08 mit Zusatz-Posen, Knickohr, Zusatz-Aktionen, Raster-Geometrie), E2E Raster-Seiten (LG-01 Flash/Shop, 390 und 1280 px), leash/coco/home-choreo/reduced-motion/a11y/home (desktop + pixel-7), check:bundle, pnpm check, Int 1 101 grün. Tempo-Gates (PF-02/04, LCP) und Kunst-QA-Linsen: CI/P12.13.
+## 2026-10-06 – P12.8
+
+- Neue Collection `tour-dates` (Migration, Zugriff nur Admin schreiben, Revalidierung, Beispieltermine `seed`) und Reiter „Termine“ in der Verwaltung (Liste, Neuer Termin, Absagen, Offline, Löschen, Übersetzen).
+- Startseite: rechte Spalte (mobil darunter) mit leerem Platz für Koko (`data-slot="chairwoman"`) und „Planet Claire on Tour“: kommende oben, vergangene eingeklappt, abgesagte durchgestrichen; keine Karte, keine Fremd-Requests.
+- Tests: Unit (Datum/Status/Texte), Int (Zugriff, Hook, Loader, Seed, Constraints), E2E Verwaltung → Startseite und Startseite mit Beispielbestand (Desktop, Pixel 7), check:external grün.
+
+## 2026-10-06 – P12.7
+
+- „Angebote“ (Seite R13, Menüpunkt, Verwaltungs-Reiter, Collection samt Beispieldaten, Task `revalidateEndedOffers`, Block `offersList`) entfernt; Migration `p12_remove_offers` (+ Aufräum-Migration) läuft auf frischer und gefüllter Datenbank.
+- Alle DM-Hinweise weg: Anfrage im Tattoo-Bereich nur per Mail (Betreff-Vorlage bleibt); Instagram-Profil nur noch im Fuß (und im Menü).
+- Tests: pnpm check (Unit außer dem schon vorher roten Abschlussbericht-Test), Int-Gesamtlauf + Nachläufe grün, Build, Desktop und Pixel-7: home, tattoo, admin, seed, empty-states, a11y, menu, about, contact grün.
+
+## 2026-10-06 – P12 gestartet: deine Änderungswünsche
+
+Danke für deine Rückmeldungen und die Zeichnungen! Ich habe alles in `docs/UEBERARBEITUNG.md` festgehalten und als eigene Phase P12 vor dem Go-live angelegt: neue Sitzpose und mehr Posen für Coco (Knickohr rechts), Fitness-Coco auf der Startseite, die Vorsitzende der Goth Dogs Berlin mit wandernden Pupillen, Schrift Spectral, Olivgrün mit Petrol und Scroll-Verlauf, Goth-Rahmen für alle Fotos, „Angebote“ und DM-Hinweise raus, „Planet Claire on Tour“, komplett neue Texte, vollständige Rechtstexte mit Schutz für deine Werke, und die ganze Seite dauerhaft auf Deutsch und Englisch. Am Ende bekommst du eine neue HTML-Vorschau. Deine Skizzenfotos der Fitness-Übungen konnte ich nur im Chat ansehen; ich habe sie beschrieben abgelegt. Wenn du magst, lädst du die Originale später in den Ordner `content/art/jutta-skizzen` hoch (Anleitung G4).
+
 ## 2026-10-06 – P10 CI grün
 
 Phasenlauf `238d9f6`: CI, CI full (sechs Browser-Hälften, Abdeckung, Docker, Lighthouse), Vorschau-Export, Kunst-QA, Restore-Drill und der Probelauf des Vorschau-Releases grün; zuvor schon `a912d25` grün (zwei Volläufe hintereinander ohne Wackler). Vorschau-Artefakt `planet-claire-vorschau-p10-238d9f6`. Plan P1–P10 abgehakt.

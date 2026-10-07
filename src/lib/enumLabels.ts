@@ -541,10 +541,11 @@ export const ENUM_LABELS = {
     available: l('verfügbar', 'available'),
     claimed: l('vergeben', 'taken'),
   } satisfies Labels<E.FlashStatus>,
-  TATTOO_OFFER_TYPES: {
-    flash_day: l('Flash-Day', 'Flash day'),
-    aktion: l('Aktion', 'Special'),
-  } satisfies Labels<E.TattooOfferType>,
+  TOUR_STATUSES: {
+    planned: l('geplant', 'planned'),
+    cancelled: l('abgesagt', 'cancelled'),
+    past: l('vorbei', 'past'),
+  } satisfies Labels<E.TourStatus>,
   TATTOO_PHOTO_KINDS: {
     fresh: l('frisch', 'fresh'),
     healed: l('verheilt', 'healed'),
@@ -730,7 +731,7 @@ export const PUBLIC_ENUMS: readonly EnumName[] = [
   'COMPLAINT_KINDS',
   'CONSENT_PURPOSES',
   'FLASH_STATUSES',
-  'TATTOO_OFFER_TYPES',
+  'TOUR_STATUSES',
   'TATTOO_PHOTO_KINDS',
   'INQUIRY_OBJECT_TYPES',
   'DOCUMENT_KINDS',

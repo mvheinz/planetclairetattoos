@@ -120,9 +120,9 @@ describe('P9.1 QA-Seiten: Parameter und Inventar', () => {
     })
   })
 
-  it('P9.1 /qa/motion: MI-01 … MI-16 vollständig', () => {
+  it('P9.1 /qa/motion: MI-01 … MI-19 vollständig', () => {
     expect(QA_MICROS.map((m) => m.id)).toEqual(
-      Array.from({ length: 16 }, (_, i) => `MI-${String(i + 1).padStart(2, '0')}`),
+      Array.from({ length: 19 }, (_, i) => `MI-${String(i + 1).padStart(2, '0')}`),
     )
     expect(qaMicro('MI-05')?.viewport).toBe(true)
     expect(qaMicro('MI-99')).toBeNull()

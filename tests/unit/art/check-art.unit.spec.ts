@@ -361,7 +361,7 @@ function probe(over: Partial<Probe> = {}): Probe {
     ctrl: [],
     anims: [],
     deco: { hidden: true, focusable: 0, count: 2 },
-    mansalva: [],
+    display: [],
     storage: 0,
     marks: { stars: 0, perStation: 0 },
     transitions: 0,
@@ -446,7 +446,7 @@ describe('P9.6 Bewegung MO', () => {
 
   it('MO-01: Dauer außerhalb der Token ± 10 % scheitert', () => {
     const allowed = rt.allowedDurations(tokens, readFileSync('docs/design/DESIGN.md', 'utf8'))
-    expect(allowed).toEqual(expect.arrayContaining([120, 200, 350, 900]))
+    expect(allowed).toEqual(expect.arrayContaining([120, 200, 350, 1800]))
     expect(rt.mo01([file('SC-05', [probe({ anims: [anim({ d: 360 })] })])], allowed).status).toBe(
       'PASS',
     )
@@ -511,13 +511,12 @@ describe('P9.6 Lesbarkeit LG', () => {
     expect(rt.lg01([file('SC-04', [coco])]).status).toBe('FAIL')
   })
 
-  it('LG-03: Mansalva unter 24 px oder als Fließtext scheitert', () => {
+  it('LG-03: Spectral unter 16 px oder als Fließtext scheitert', () => {
     expect(
-      rt.lg03([file('SC-04', [probe({ mansalva: [{ tag: 'h1', size: 40, role: 'h1' }] })])]).status,
+      rt.lg03([file('SC-04', [probe({ display: [{ tag: 'h1', size: 40, role: 'h1' }] })])]).status,
     ).toBe('PASS')
     expect(
-      rt.lg03([file('SC-04', [probe({ mansalva: [{ tag: 'p', size: 18, role: 'body' }] })])])
-        .status,
+      rt.lg03([file('SC-04', [probe({ display: [{ tag: 'p', size: 18, role: 'body' }] })])]).status,
     ).toBe('FAIL')
   })
 

@@ -57,6 +57,7 @@ export async function CheckoutSummaryItems({
                 aspectRatio="4 / 5"
                 sizes="48px"
                 srcSizes={['thumb']}
+                frameSize="thumb"
               />
             </div>
             <div className={styles.itemBody}>

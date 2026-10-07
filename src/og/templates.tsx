@@ -13,18 +13,18 @@ import { keepCovered, textWidth } from './metrics'
 import { wrapLines } from './text'
 
 // Vorlagen der OG-Bilder (P3.14, DESIGN §12.6) als JSX für `next/og` (`ImageResponse`, satori): nur Flexbox, absolute
-// Positionen, eingebettete Bilder als Data-URL, Schriften Mansalva 400 und Bricolage Grotesque 600 (TTF). Farben aus
+// Positionen, eingebettete Bilder als Data-URL, Schriften Spectral 500 Italic und Bricolage Grotesque 600 (TTF). Farben aus
 // `src/styles/tokens.css` (satori kennt keine CSS-Variablen). Alle Texte laufen durch `keepCovered` – so lädt satori
 // nie Ersatzschriften oder Emoji-Grafiken aus dem Netz.
 
 export const OG_SIZE = { width: 1200, height: 630 } as const
 
-const PAPER = '#F4EFE6'
-const PAPER_2 = '#EAE2D4'
+const PAPER = '#E6EACD'
+const PAPER_2 = '#DCE2C2'
 const INK = '#1C1A17'
 const INK_2 = '#4B463F'
 const MAT = 'rgb(47,107,76)'
-const FOX = '#B84E1A'
+const STAMP = '#0F4C57' // Petrol (U-12)
 
 const svgUrl = (svg: string) =>
   `data:image/svg+xml;base64,${Buffer.from(svg, 'utf8').toString('base64')}`
@@ -113,14 +113,14 @@ export function productTitleLines(title: string): string[] {
 
 export function ProductOgImage(props: ProductOgProps) {
   const lines = productTitleLines(props.title)
-  const price = keepCovered(props.priceText, 'mansalva400')
+  const price = keepCovered(props.priceText, 'spectral500i')
   const nr = keepCovered(props.itemNumberText, 'bricolage600')
   const note = keepCovered(`* ${props.priceNote}`, 'bricolage600')
-  const sold = keepCovered(props.soldText, 'mansalva400')
+  const sold = keepCovered(props.soldText, 'spectral500i')
 
   // Schild (KO-05, Variante „pinned“ vergrößert): Breite aus dem Preis, Drehung um die Öse nach Nummer.
   const tagH = 164
-  const tagW = Math.max(236, Math.round(textWidth(`${price}*`, 'mansalva400', 78) + 80))
+  const tagW = Math.max(236, Math.round(textWidth(`${price}*`, 'spectral500i', 78) + 80))
   const tagLeft = PANEL.padX + 8
   const tagTop = 56 + Math.max(1, lines.length) * PRODUCT_TITLE.lineHeight + 46
   const angle = tagAngle(props.itemNumber)
@@ -161,7 +161,7 @@ export function ProductOgImage(props: ProductOgProps) {
     stampFramePaths(props.itemNumber)
       .map(
         (d) =>
-          `<path d="${d}" fill="none" stroke="${FOX}" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>`,
+          `<path d="${d}" fill="none" stroke="${STAMP}" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>`,
       )
       .join('') +
     '</svg>'
@@ -236,7 +236,8 @@ export function ProductOgImage(props: ProductOgProps) {
               display: 'flex',
               alignItems: 'flex-start',
               marginTop: 32,
-              fontFamily: 'Mansalva',
+              fontFamily: 'Spectral',
+              fontStyle: 'italic',
               fontSize: 78,
               lineHeight: '82px',
               color: INK,
@@ -274,10 +275,11 @@ export function ProductOgImage(props: ProductOgProps) {
               <div
                 style={{
                   display: 'flex',
-                  fontFamily: 'Mansalva',
+                  fontFamily: 'Spectral',
+                  fontStyle: 'italic',
                   fontSize: 86,
                   lineHeight: '86px',
-                  color: FOX,
+                  color: STAMP,
                 }}
               >
                 {sold}

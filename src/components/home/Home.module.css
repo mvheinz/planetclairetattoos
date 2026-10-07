@@ -2,18 +2,66 @@
    `.u-container` frei (Preset `journey`, §5.3). */
 
 .home {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'hero'
+    'aside'
+    'body'
+    'foot';
+  row-gap: var(--space-8);
+}
+
+.body {
+  grid-area: body;
+  min-width: 0;
+}
+
+/* Rechte Spalte (P12.8, U-20): oben der Bereich für Koko, die Vorsitzende der Goth Dogs Berlin (`data-slot="chairwoman"`,
+   P12.6), darunter „Planet Claire on Tour“. Mobil steht sie unter dem Kopf der Seite, ab 1100 px rechts neben Kopf und Stationen. */
+.aside {
+  grid-area: aside;
   display: flex;
   flex-direction: column;
-  gap: var(--space-8);
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+/* Benannter Platz für Koko: leer, solange P12.6 ihn nicht füllt – dann ohne Höhe und ohne Abstand. */
+.chairwomanSlot {
+  min-width: 0;
+}
+
+.chairwomanSlot:empty {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .home {
+    grid-template-columns: minmax(0, 1fr) clamp(16rem, 24vw, 20rem);
+    grid-template-areas:
+      'hero aside'
+      'body aside'
+      'foot aside';
+    column-gap: var(--space-8);
+  }
+
+  /* Nicht „sticky“: Die Spalte kann höher sein als der Bildschirm (vergangene Termine aufgeklappt) – ein haftender Block
+     ließe ihren unteren Teil unerreichbar. */
+  .aside {
+    align-self: start;
+  }
 }
 
 /* ---------- Kopf-Station ---------- */
 
 .hero {
+  grid-area: hero;
   display: flex;
   flex-direction: column;
-  /* LG-01 (R3-05): 24 px statt 16 px zwischen Marke und Untertitel – Coco sitzt beim Schlaufenende neben der Marke, ihre Pfoten (bis 0,96–0,99 der Box) bleiben so aus dem Untertitel-Zeilenrechteck. */
-  gap: var(--space-5);
+  /* P12.13 (LG-01): 32 px – Coco ist 25 % größer (P12.4); ihre Box (bis 0,96–0,99 der Höhe Pfoten) endete 1 px im Untertitel-Zeilenrechteck.
+     (frühere Begründung:) 24 px statt 16 px zwischen Marke und Untertitel – Coco sitzt beim Schlaufenende neben der Marke, ihre Pfoten (bis 0,96–0,99 der Box) bleiben so aus dem Untertitel-Zeilenrechteck. */
+  gap: var(--space-6);
   max-width: 40rem;
 }
 
@@ -24,11 +72,12 @@
   /* Abstand ≥ 0,4 × Markenbreite: der Orbit (rx 0,9 w) bleibt vor dem ersten Buchstaben. */
   /* Zeilenabstand 16 px (R3-05, LG-04): bricht die Marke bei 200 % Schrift über der H1 um, sitzt Coco neben dem Planeten – ihre
      Pfoten (bis 0,96–0,99 der Box) bleiben so aus dem H1-Zeilenrechteck. */
-  gap: var(--space-4) var(--space-5);
+  /* P12.13: 24 px – der Orbit (Unterkante bis ≈ 16 px unter der Marke) berührt bei 200 % Schrift sonst die Zeilenbox der H1. */
+  gap: var(--space-5);
   /* LG-01 (R3-04-01): Coco sitzt über der Kopf-Station; ihre Pfoten reichen bis ≈ 0,96 der Box. 8 px mehr Luft über der
      H1-Zeile (Zeilenrechteck ohne Spielraum) halten die Pfoten – auch bei 200 % Schrift und im Querformat – aus der Zeile. */
   margin-block-start: var(--space-2);
-  font-family: var(--font-hand);
+  font-family: var(--font-display);
   font-size: var(--fs-display);
   font-weight: 400;
   line-height: 1;
@@ -47,6 +96,14 @@
   display: block;
   width: 100%;
   height: 100%;
+}
+
+@media (min-width: 768px) {
+  /* P12.13 (LG-01): Coco läuft die Linie am Kopf entlang; die rechte Hundekante (0,90 der größeren Box) lag 0,3 px im Zeilenrechteck. */
+  .lede,
+  .intro {
+    padding-inline-start: 8px;
+  }
 }
 
 .lede {
@@ -113,7 +170,7 @@
 }
 
 .heading {
-  font-family: var(--font-hand);
+  font-family: var(--font-display);
   font-size: var(--fs-h2);
   font-weight: 400;
   line-height: 1.05;
@@ -170,6 +227,7 @@
 }
 
 .footnote {
+  grid-area: foot;
   max-width: 44rem;
 }
 
@@ -192,6 +250,40 @@
   display: block;
   width: 100%;
   height: 100%;
+}
+
+/* Der Fitness-Coco braucht mehr Platz als die frühere Stationszeichnung (ganze Figur auf zwei Beinen). */
+.artFrame:has([data-station-art='fitness']) {
+  width: min(360px, 82vw);
+}
+
+/* Fitness-Coco (P12.5): Standbild (<img>) und Leinwand für die Schleife in der 4:5-Box */
+.fitness {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  width: 100%;
+  color: var(--ink);
+}
+
+.fitnessStill,
+.fitnessCanvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* `display: block` oben schlüge sonst das Attribut `hidden` der Leinwand */
+.fitnessCanvas[hidden] {
+  display: none;
+}
+
+@media (forced-colors: active) {
+  .fitnessStill,
+  .fitnessCanvas {
+    forced-color-adjust: none;
+  }
 }
 
 .artCoco {

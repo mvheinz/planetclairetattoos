@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-import { dynamicMasks, linuxOnly, prepare, settle } from './helpers'
+import { diag, dynamicMasks, linuxOnly, prepare, settle } from './helpers'
 
 // T-12 Seitenrahmen (ARCHITEKTUR §7.6, PLAN P2.24): Kopf (KO-02), offenes Menü (KO-03) und Fuß (KO-04) auf R01 DE,
 // je Projekt `desktop` und `mobile`, reduzierte Bewegung.
@@ -37,6 +37,7 @@ test.describe('Seitenrahmen', () => {
     const footer = page.locator('[data-site-footer]')
     await footer.scrollIntoViewIfNeeded()
     await settle(page)
+    await diag(page, 'fuss')
     await expect(footer).toHaveScreenshot('fuss.png', { mask: dynamicMasks(page) })
   })
 })

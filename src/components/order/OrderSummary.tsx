@@ -64,6 +64,7 @@ export async function OrderSummary({
               // eslint-disable-next-line @next/next/no-img-element -- Bild aus dem Snapshot (`coverImageUrl`), feste Größe
               <img
                 className={styles.photo}
+                data-photo-frame=""
                 src={item.imageUrl}
                 alt=""
                 width={64}
@@ -72,7 +73,7 @@ export async function OrderSummary({
                 decoding="async"
               />
             ) : (
-              <span className={styles.photo} aria-hidden="true" />
+              <span className={styles.photo} data-photo-frame="" aria-hidden="true" />
             )}
             <span className={styles.itemText}>
               <span className={styles.itemTitle}>{item.title}</span>

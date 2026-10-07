@@ -28,7 +28,7 @@ Drei Dinge vorab:
 7. [Abholung](#7-abholung)
 8. [Widerrufe und Erstattung](#8-widerrufe-und-erstattung)
 9. [Anfragen für Auftragsarbeiten](#9-anfragen-für-auftragsarbeiten)
-10. [Tattoo: Flash, Angebote, Galerie](#10-tattoo-flash-angebote-galerie)
+10. [Tattoo: Flash und Galerie](#10-tattoo-flash-und-galerie)
 11. [Texte bearbeiten](#11-texte-bearbeiten)
 12. [Einstellungen](#12-einstellungen)
 13. [Umsatz-Wächter](#13-umsatz-wächter)
@@ -269,11 +269,11 @@ eine kurze Mail mit der Nummer, ohne Namen und ohne Inhalt. Den Inhalt siehst du
 
 Eine Anfrage ist noch kein Vertrag, und der Preis steht nirgends fest. Du sagst in deiner Antwort, was du anbietest.
 
-## 10. Tattoo: Flash, Angebote, Galerie
+## 10. Tattoo: Flash und Galerie
 
 ![Der Bereich „Tattoo“](img/handbuch/tattoo.webp)
 
-**Flash** sind Motive, die du zu einem festen Preis stichst. Du findest drei Reiter:
+**Flash** sind Motive, die du zu einem festen Preis stichst. Außerdem pflegst du hier deine Markttermine („Planet Claire on Tour“) und die Galerie. Du findest die Reiter Flash, Termine, Galerie und Texte:
 
 ![Flash-Motive](img/handbuch/tattoo-flash.webp)
 
@@ -281,10 +281,15 @@ Eine Anfrage ist noch kein Vertrag, und der Preis steht nirgends fest. Du sagst 
   Motiv pausierst du mit „Offline nehmen“. Ein neues Motiv brauchst du nur mit Bild, Titel, Größe und Festpreis.
   „Übersetzen“ gibt es auch hier.
 
-![Angebote](img/handbuch/tattoo-angebote.webp)
-
-- **Angebote:** zum Beispiel ein Flash-Tag oder eine Aktion mit Beginn, Ende und Ort (nur als Text, ohne genaue
-  Adresse). Ob ein Angebot „kommt“, „läuft“ oder „abgelaufen“ ist, ergibt sich von selbst aus den Daten.
+- **Termine – „Planet Claire on Tour“:** Hier trägst du Märkte, Flohmärkte und Kunstmärkte ein. Auf der Startseite stehen
+  sie in der rechten Spalte (am Handy darunter): kommende Termine oben, vergangene eingeklappt. Tippe auf „Neuer Termin“
+  und fülle aus: Name des Marktes, Ort oder Bezirk, Datum von–bis (bei einem Tag das Enddatum leer lassen), Uhrzeiten,
+  Adresse des Marktes, Standnummer, eine kurze Notiz (zum Beispiel „Coco ist dabei“) und – wenn du magst – einen Link zur
+  Seite des Marktes und ein Foto von deinem Stand. Es gibt keine Karte, nur Text. Bitte nie die Adresse deines
+  Privatstudios eintragen, die Verwaltung lehnt sie ab. Fällt ein Markt aus, tippst du bei dem Termin auf „Absagen“: Er
+  steht dann durchgestrichen mit dem Hinweis „abgesagt“ auf der Seite. „Vorbei“ musst du nicht setzen, das passiert nach
+  dem Datum von selbst. „Übersetzen“ füllt die englischen Texte vor. Die Beispiel-Termine verschwinden mit den übrigen
+  [Beispieldaten](#18-beispieldaten).
 
 ![Galerie mit Einwilligungsfeldern](img/handbuch/tattoo-galerie.webp)
 
@@ -465,7 +470,7 @@ gekennzeichnet. Unter „Heute“ weist ein Hinweis darauf hin, solange sie vorh
 **Vorschau-Datei:** Die ganze Website steckt als **eine einzige Datei** (`planet-claire-vorschau.html`), die du ohne Internet
 im Browser öffnest. Dort blätterst du durch alle Seiten, siehst die Verwaltung als Bilder und kannst nichts kaufen.
 
-- Die fertige Vorschau liegt unter `https://github.com/mvheinz/planetclairetattoos/releases/tag/vorschau-p10` (erscheint automatisch nach dem Merge, P10.21).
+- Die fertige Vorschau liegt unter `https://github.com/mvheinz/planetclairetattoos/releases/tag/vorschau-p12` (erscheint automatisch nach dem Merge, P10.21/P12.14; die ältere Fassung `vorschau-p10` bleibt zum Vergleich).
 - Herunterladen: [Anleitung G7](ANLEITUNGEN.md#g7) (fertige Fassung) und [G6](ANLEITUNGEN.md#g6) (Zwischenstände).
 - Öffnen: [Anleitung V1](ANLEITUNGEN.md#v1), worauf du achten kannst: [V2](ANLEITUNGEN.md#v2).
 - **Nur für dich.** Die Datei enthält Beispieldaten und Fotos, die noch nicht freigegeben sind. Gib sie nicht

@@ -51,7 +51,6 @@ const LISTS: { id: string; params?: Record<Locale, Record<string, string>>; pose
   { id: 'R05', pose: 'sitzen' },
   { id: 'R06', pose: 'schnueffeln' },
   { id: 'R12', pose: 'schlafen' },
-  { id: 'R13', pose: 'kopfschief' },
   { id: 'R15' },
   { id: 'R18', pose: 'kopfschief' },
   { id: 'R27' },
@@ -97,7 +96,7 @@ test.describe('P8.16 mit Beispielbestand', () => {
     for (const r of robots) expect(r).toMatch(/noindex/)
     const nf = page.locator('[data-not-found]')
     await expect(nf).toHaveAttribute('data-variant', 'home')
-    await expect(page.locator('h1')).toHaveText('Dieses Stück hat schon ein Zuhause gefunden')
+    await expect(page.locator('h1')).toHaveText('Dieses Stück ist weitergezogen')
     const links = nf.locator('nav a')
     await expect(links).toHaveCount(2)
     await expect(links.nth(0)).toHaveAttribute('href', '/de/shop')
@@ -183,7 +182,7 @@ test.describe('P8.16 ohne Beispieldaten (seed:remove --drop-texts)', () => {
     await expectNoSeriousViolations(page, '404')
     const res = await page.goto('/de/__fehler-test')
     expect(res?.status(), 'R29 nur mit APP_ENV=test').toBe(500)
-    await expect(page.locator('h1')).toHaveText('Hoppla – die Leine hat sich verheddert')
+    await expect(page.locator('h1')).toHaveText('Der Faden hat sich verheddert')
     await expectNoSeriousViolations(page, '500')
   })
 
@@ -201,7 +200,11 @@ test.describe('P8.16 ohne Beispieldaten (seed:remove --drop-texts)', () => {
       // nach load und dem verzögerten Laden der Module (Leerlauf) darf nichts laufen
       await page.waitForTimeout(1500)
       const running = await page.evaluate(
-        () => document.getAnimations().filter((a) => a.playState === 'running').length,
+        () =>
+          document
+            .getAnimations()
+            .filter((a) => a.timeline?.constructor?.name !== 'ScrollTimeline')
+            .filter((a) => a.playState === 'running').length,
       )
       expect(running, url).toBe(0)
     }

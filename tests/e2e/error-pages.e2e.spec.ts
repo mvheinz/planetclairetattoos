@@ -10,26 +10,26 @@ import { expectCalm } from './calm'
 // „Vertrag widerrufen“ sichtbar (AK-3-11, R-011). Der 500-Auslöser `/<sprache>/__fehler-test` wirft nur bei
 // APP_ENV=test (Playwright-Webserver).
 
-// Text: Rich Text der Seite `not_found` (Beispielbestand „Coco hat überall geschnüffelt – diese Seite …“) oder der
+// Text: Rich Text der Seite `not_found` (Beispielbestand „Coco ist der Linie nachgelaufen … diese Seite …“) oder der
 // Rückfall „Diese Seite gibt es nicht (mehr).“ (P8.16) – beide enthalten denselben Kernsatz.
 const NOT_FOUND: Record<Locale, { path: string; h1: string; text: RegExp; withdraw: string }> = {
   de: {
     path: '/de/gibt-es-nicht',
-    h1: 'Coco hat sich losgerissen',
+    h1: 'Diese Seite hat sich in den Nebel gezeichnet',
     text: /diese Seite gibt es nicht \(mehr\)/i,
     withdraw: 'Vertrag widerrufen',
   },
   en: {
     path: '/en/does-not-exist',
-    h1: 'Coco slipped her leash',
+    h1: 'This page has drawn itself into the fog',
     text: /this page does(n't| not) exist \(anymore\)/i,
     withdraw: 'Withdraw from contract here',
   },
 }
 
 const SERVER_ERROR: Record<Locale, { h1: string; retry: string }> = {
-  de: { h1: 'Hoppla – die Leine hat sich verheddert', retry: 'Nochmal versuchen' },
-  en: { h1: 'Oops – the leash got tangled', retry: 'Try again' },
+  de: { h1: 'Der Faden hat sich verheddert', retry: 'Nochmal versuchen' },
+  en: { h1: 'The thread has tangled itself', retry: 'Try again' },
 }
 
 async function expectWithdrawVisible(page: Page, locale: Locale) {
@@ -44,7 +44,11 @@ async function expectWithdrawVisible(page: Page, locale: Locale) {
 const animationCount = (page: Page, selector?: string) =>
   page.evaluate((sel) => {
     const el = sel ? document.querySelector(sel) : null
-    return (sel ? (el?.getAnimations({ subtree: true }) ?? []) : document.getAnimations()).length
+    return (
+      sel
+        ? (el?.getAnimations({ subtree: true }) ?? [])
+        : document.getAnimations().filter((a) => a.timeline?.constructor?.name !== 'ScrollTimeline')
+    ).length
   }, selector)
 
 test.describe('Fehlerseiten @smoke', () => {

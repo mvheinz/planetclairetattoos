@@ -9,12 +9,12 @@
       {
         "blockType": "hero",
         "heading": {
-          "de": "Tattoos & handgemachte Unikate aus Berlin",
-          "en": "Tattoos & handmade one-offs from Berlin"
+          "de": "Ein kleiner Planet, auf dem alles nur einmal vorkommt",
+          "en": "A small planet where everything happens only once"
         },
         "subheading": {
-          "de": "Fine-Line-Tattoos, bemalte Keramik, Caps und Shirts, Tusche auf Papier – alles von Hand, alles nur einmal. Coco passt auf.",
-          "en": "Fine line tattoos, painted ceramics, caps and shirts, ink on paper – all by hand, each one only once. Coco keeps an eye on things."
+          "de": "Tattoos, bemalter Ton, Stoff und Tusche aus Berlin – mit leiser Hand gezeichnet. Coco läuft voraus.",
+          "en": "Tattoos, painted clay, cloth and ink from Berlin – drawn with a quiet hand. Coco runs ahead."
         },
         "cocoPose": "run"
       },
@@ -22,12 +22,12 @@
         "blockType": "station",
         "stationId": "hallo",
         "heading": {
-          "de": "Hallo!",
-          "en": "Hi!"
+          "de": "Komm näher.",
+          "en": "Come closer."
         },
         "text": {
-          "de": "Ich bin Jutta. Ich zeichne Tiere mit Kulleraugen – auf Haut, auf Ton, auf Stoff und auf Papier. Und das ist Coco. Sie rennt schon mal vor.",
-          "en": "I'm Jutta. I draw animals with googly eyes – on skin, clay, fabric and paper. And that's Coco. She's already running ahead."
+          "de": "Ich bin Jutta. Ich zeichne die Wesen, die mich nachts besuchen – auf Haut, auf Ton, auf Stoff und auf Papier. Das da vorn ist Coco. Sie kennt den Weg.",
+          "en": "I am Jutta. I draw the creatures that visit me at night – on skin, on clay, on cloth and on paper. That one up front is Coco. She knows the way."
         },
         "cocoPose": "sit",
         "ornament": "star"
@@ -40,8 +40,8 @@
           "en": "Ceramics"
         },
         "text": {
-          "de": "Schalen, Tellerchen, Fliesen – gekniffen, gedreht, bemalt. Jede Form ist ein bisschen schief, genau so soll sie sein. Alles Deko, nicht für Essen.",
-          "en": "Bowls, little plates, tiles – pinched, shaped, painted. Every piece is a little wonky, exactly as it should be. All decorative, not for food."
+          "de": "Ton erinnert sich an jede Berührung. Schalen, Tellerchen und Fliesen, gekniffen, gedreht, bemalt – alle ein wenig schief, und genau richtig so. Dekoration, nicht für Lebensmittel.",
+          "en": "Clay remembers every touch. Bowls, little plates and tiles, pinched, turned, painted – all a little crooked, and exactly right. Decorative, not for food."
         },
         "cocoPose": "sniff",
         "ornament": "planet",
@@ -62,8 +62,8 @@
           "en": "Textiles & caps"
         },
         "text": {
-          "de": "Second-Hand-Shirts, Kleider und Caps, von Hand bemalt. Jedes Teil gibt's genau einmal – in genau einer Größe.",
-          "en": "Second-hand shirts, dresses and caps, painted by hand. Every piece exists exactly once – in exactly one size."
+          "de": "Stoffe, die schon ein Leben hatten, und ein zweites bekommen: Shirts, Kleider und Caps, von Hand bemalt. Jedes Teil gibt es nur einmal, in genau einer Größe.",
+          "en": "Cloth that has already had one life and is given a second: shirts, dresses and caps, painted by hand. Each piece exists once, in exactly one size."
         },
         "cocoPose": "sniff",
         "ornament": "star",
@@ -84,8 +84,8 @@
           "en": "Drawings"
         },
         "text": {
-          "de": "Tusche, Aquarell, Skizzenbuchseiten. Hier fängt eigentlich alles an.",
-          "en": "Ink, watercolour, sketchbook pages. This is where it all starts, really."
+          "de": "Tusche, Aquarell, Seiten aus dem Skizzenbuch. Hier beginnt jedes Wesen, bevor es eine Haut oder eine Schale findet.",
+          "en": "Ink, watercolour, sketchbook pages. This is where every creature begins, before it finds a skin or a bowl."
         },
         "cocoPose": "sit",
         "ornament": "none",
@@ -106,8 +106,8 @@
           "en": "Jewellery"
         },
         "text": {
-          "de": "Winzige Anhänger aus Keramik: Füchse, Planeten, Rehköpfchen. Klein genug für die Hosentasche, groß genug für gute Laune.",
-          "en": "Tiny ceramic pendants: foxes, planets, little deer. Small enough for your pocket, big enough for a good mood."
+          "de": "Winzige Anhänger aus Keramik: Füchse, Planeten, Rehköpfchen. Klein genug für die Hosentasche, groß genug, um einen Tag zu verändern.",
+          "en": "Tiny ceramic pendants: foxes, planets, little deer heads. Small enough for a pocket, big enough to change a day."
         },
         "cocoPose": "jump",
         "ornament": "none",
@@ -116,7 +116,7 @@
           "category": "schmuck",
           "label": {
             "de": "Zum Schmuck",
-            "en": "See the jewellery"
+            "en": "To the jewellery"
           }
         }
       },
@@ -128,8 +128,8 @@
           "en": "Tattoo"
         },
         "text": {
-          "de": "Fine Line, naiv, mit Humor. Flash mit Festpreis oder deine eigene Idee – Anfragen per Mail oder DM, gestochen wird im Privatstudio in Berlin.",
-          "en": "Fine line, naive, with a sense of humour. Flash with fixed prices or your own idea – ask by email or DM, tattooed in a private studio in Berlin."
+          "de": "Eine feine Linie, die zittern darf. Flash mit Festpreis oder deine eigene Idee – du schreibst mir eine Mail, gestochen wird im Privatstudio in Berlin.",
+          "en": "A fine line that is allowed to tremble. Flash with a fixed price or your own idea – you write me an email, and the tattooing happens in a private studio in Berlin."
         },
         "cocoPose": "head_tilt",
         "ornament": "planet",
@@ -137,7 +137,7 @@
           "target": "tattoo",
           "label": {
             "de": "Zum Tattoo-Bereich",
-            "en": "Go to tattoos"
+            "en": "To the tattoo area"
           }
         }
       },
@@ -149,8 +149,8 @@
           "en": "Jutta & Coco"
         },
         "text": {
-          "de": "Werkstatt unter der Woche, Flohmarkt am Wochenende, Coco immer dabei. Und falls du eine eigene Idee hast: Auftragsarbeiten gehen auch.",
-          "en": "Workshop during the week, flea market at the weekend, Coco always along. And if you've got your own idea: commissions are possible too."
+          "de": "Werkstatt unter der Woche, Markttisch am Wochenende, Coco immer ein Stück vor mir. Wenn du ein Bild im Kopf hast, das noch nicht existiert: Auftragsarbeiten gibt es auch.",
+          "en": "Workshop during the week, market table at the weekend, Coco always a step ahead of me. If you carry a picture in your head that does not exist yet: commissions are possible, too."
         },
         "cocoPose": "sit",
         "ornament": "star",
@@ -180,8 +180,8 @@
       {
         "blockType": "richText",
         "content": {
-          "de": "## Hallo, ich bin Jutta.\n\nIch bin Jutta, und das hier ist Planet Claire – mein kleiner Planet in Berlin. Ich tätowiere Fine Line in einem Privatstudio, und wenn ich nicht tätowiere, male ich: auf Ton, auf alte Shirts und Caps, auf Papier. Meistens Tiere mit Kulleraugen, manchmal Figuren, die kopfüber hängen.\n\nDer Name ist eine kleine Verbeugung vor einem Lied, das ich sehr mag – und vor allem, was ein bisschen nach Weltraum aussieht.",
-          "en": "## Hi, I'm Jutta.\n\nI'm Jutta, and this is Planet Claire – my little planet in Berlin. I do fine line tattoos in a private studio, and when I'm not tattooing, I paint: on clay, on old shirts and caps, on paper. Mostly animals with googly eyes, sometimes figures hanging upside down.\n\nThe name is a little nod to a song I really love – and to anything that looks a bit like outer space."
+          "de": "## Ich bin Jutta.\n\nDas hier ist Planet Claire – mein kleiner Planet in Berlin. Ich steche feine Linien in Haut, und wenn die Nacht lang genug ist, male ich: auf Ton, auf alte Shirts und Caps, auf Papier. Tiere mit Kulleraugen, manchmal Gestalten, die kopfüber hängen und nichts dabei finden.\n\nDer Name verneigt sich vor einem Lied, das ich sehr mag – und vor allem, was ein bisschen nach Weltraum aussieht.",
+          "en": "## I am Jutta.\n\nThis is Planet Claire – my small planet in Berlin. I put fine lines into skin, and when the night is long enough I paint: on clay, on old shirts and caps, on paper. Animals with googly eyes, sometimes figures that hang upside down and see nothing odd in it.\n\nThe name bows to a song I love very much – and to everything that looks a little like outer space."
         }
       },
       {
@@ -189,15 +189,15 @@
         "image": "media:ig:DaJH_kADpsK",
         "imagePosition": "right",
         "content": {
-          "de": "## Wie ich zeichne\n\nAlles fängt im Skizzenbuch an. Ich zeichne mit Tusche, die Linie darf zittern. Was mir gefällt, wandert auf eine Schale, eine Cap oder als Flash auf die Haut. Am Wochenende stehe ich oft auf dem Flohmarkt – dort finde ich Sachen zum Bemalen, und dort treffe ich Leute, die meine Sachen mitnehmen. Der Shop hier ist die Verlängerung von diesem Tisch.",
-          "en": "## How I draw\n\nEverything starts in the sketchbook. I draw with ink, and the line is allowed to wobble. What I like ends up on a bowl, a cap, or on skin as flash. At weekends I'm often at the flea market – that's where I find things to paint and meet people who take my things home. This shop is an extension of that table."
+          "de": "## Die zittrige Linie\n\nEs beginnt im Skizzenbuch, mit Tusche. Was bleiben will, wandert auf eine Schale, eine Cap oder auf die Haut. Am Wochenende sitze ich oft an einem Markttisch: Dort finde ich, was ich bemalen will, und dort holen sich Menschen ab, was für sie gezeichnet wurde. Der Shop ist der verlängerte Tisch.",
+          "en": "## The trembling line\n\nIt begins in the sketchbook, with ink. Whatever wants to stay moves onto a bowl, a cap or onto skin. At the weekend I often sit at a market table: that is where I find what I want to paint, and where people pick up what was drawn for them. The shop is the table, made longer."
         }
       },
       {
         "blockType": "richText",
         "content": {
-          "de": "**Und das ist Coco.** Ein kleiner Chihuahua-Mix mit sehr großen Ohren und einer sehr großen Meinung. Sie ist fast immer dabei – in der Werkstatt, auf dem Flohmarkt, im Studio (dort meistens schlafend). Auf dieser Seite rennt sie der Linie hinterher. Im echten Leben rennt sie grünen Bällen hinterher.",
-          "en": "**And this is Coco.** A small chihuahua mix with very big ears and very big opinions. She's almost always around – in the workshop, at the flea market, in the studio (mostly asleep). On this site she chases the line. In real life she chases green balls."
+          "de": "**Und das ist Coco.** Große Ohren, größere Meinung. Sie war schon da, bevor ich anfing zu zeichnen. Auf dieser Seite folgt sie der Linie; im echten Leben folgt sie grünen Bällen.",
+          "en": "**And this is Coco.** Big ears, bigger opinions. She was here before I began to draw. On this site she follows the line; in real life she follows green balls."
         }
       },
       {
@@ -208,15 +208,15 @@
           "media:ig:DblvrTRiUqi"
         ],
         "caption": {
-          "de": "Aus Werkstatt, Skizzenbuch und vom Flohmarkttisch",
-          "en": "From the workshop, the sketchbook and the flea market table"
+          "de": "Spuren aus Werkstatt, Skizzenbuch und vom Markttisch",
+          "en": "Traces from the workshop, the sketchbook and the market table"
         }
       },
       {
         "blockType": "categoryTeaser",
         "heading": {
-          "de": "Was ich mache",
-          "en": "What I make"
+          "de": "Wo ich zeichne",
+          "en": "Where I draw"
         },
         "categories": [
           "keramik",
@@ -229,12 +229,12 @@
       {
         "blockType": "contactLinks",
         "heading": {
-          "de": "Sag Hallo",
-          "en": "Say hi"
+          "de": "Sag etwas",
+          "en": "Say something"
         },
         "emailSubject": {
           "de": "Hallo Jutta",
-          "en": "Hi Jutta"
+          "en": "Hello Jutta"
         }
       }
     ]
@@ -249,8 +249,8 @@
       {
         "blockType": "richText",
         "content": {
-          "de": "Am schnellsten erreichst du mich per Mail. Auf Instagram bin ich auch – schreib mir gern eine DM.",
-          "en": "The quickest way to reach me is by email. I'm on Instagram too – feel free to send a DM."
+          "de": "Ich antworte am liebsten per Mail – Briefe dürfen sich Zeit lassen.",
+          "en": "I prefer to answer by email – letters are allowed to take their time."
         }
       },
       {
@@ -260,18 +260,17 @@
           "en": "Write to me"
         },
         "showEmail": true,
-        "showInstagram": true,
         "showDistrict": true,
         "emailSubject": {
           "de": "Hallo Jutta",
-          "en": "Hi Jutta"
+          "en": "Hello Jutta"
         }
       },
       {
         "blockType": "callout",
         "text": {
-          "de": "Frage zu einer Bestellung? Nenn bitte deine Bestellnummer. Tattoo-Anfragen bitte per Mail oder DM, eigene Ideen für Keramik und Co. über das Formular bei den Auftragsarbeiten.",
-          "en": "Question about an order? Please include your order number. Tattoo requests by email or DM, please; custom ideas for ceramics and more via the commissions form."
+          "de": "Eine Frage zu einer Bestellung? Nenn bitte deine Bestellnummer. Tattoo-Anfragen kommen per Mail, eigene Ideen für Keramik und Co. über das Formular bei den Auftragsarbeiten.",
+          "en": "A question about an order? Please include your order number. Tattoo enquiries come by email; ideas of your own for ceramics and more go through the form on the commissions page."
         },
         "tone": "info"
       },
@@ -303,8 +302,8 @@
       {
         "blockType": "processSteps",
         "heading": {
-          "de": "So läuft's",
-          "en": "How it works"
+          "de": "Der Weg dorthin",
+          "en": "The way there"
         },
         "steps": [
           {
@@ -313,8 +312,8 @@
               "en": "Request"
             },
             "text": {
-              "de": "Schick mir über das Formular, was du dir wünschst: Gegenstand, Motiv, Zeitraum.",
-              "en": "Use the form to tell me what you'd like: object, motif, timeframe."
+              "de": "Du schickst mir über das Formular, was du dir wünschst: Gegenstand, Motiv, Zeitraum.",
+              "en": "You send me what you wish for through the form: object, motif, timeframe."
             }
           },
           {
@@ -324,7 +323,7 @@
             },
             "text": {
               "de": "Ich antworte per Mail mit Preis und ungefährer Dauer.",
-              "en": "I'll reply by email with a price and a rough timeframe."
+              "en": "I answer by email with a price and a rough timeframe."
             }
           },
           {
@@ -334,7 +333,7 @@
             },
             "text": {
               "de": "Passt alles, überweist du außerhalb des Shops.",
-              "en": "If it all works for you, you pay by bank transfer outside the shop."
+              "en": "If everything fits, you pay by bank transfer outside the shop."
             }
           },
           {
@@ -343,8 +342,8 @@
               "en": "Making it"
             },
             "text": {
-              "de": "Ich male, schicke dir ein Foto, dann geht dein Stück auf die Reise.",
-              "en": "I paint, send you a photo, and then your piece is on its way."
+              "de": "Ich male, schicke dir ein Foto – und dein Stück macht sich auf den Weg.",
+              "en": "I paint, send you a photo – and your piece sets off on its way."
             }
           }
         ]
@@ -358,16 +357,16 @@
           "media:ig:Da2WrEgDpC_#pendant"
         ],
         "caption": {
-          "de": "Solche Sachen mache ich – deins wird anders.",
-          "en": "This is the kind of thing I make – yours will be different."
+          "de": "So etwas ist schon entstanden – deins wird anders.",
+          "en": "Things like these have already come to be – yours will be different."
         }
       },
       {
         "blockType": "callout",
         "tone": "hint",
         "text": {
-          "de": "Auftragsarbeiten vereinbaren wir einzeln per Mail, bezahlt wird nicht hier im Shop. Fremde Figuren aus Comics, Filmen oder von Marken male ich nicht.",
-          "en": "Commissions are agreed individually by email; payment doesn't go through this shop. I don't paint characters from comics, films or brands."
+          "de": "Auftragsarbeiten vereinbaren wir einzeln per Mail; bezahlt wird nicht hier im Shop. Fremde Figuren aus Comics, Filmen oder von Marken male ich nicht.",
+          "en": "We agree on commissions one by one by email; payment does not go through this shop. I do not paint characters from comics, films or brands."
         }
       },
       {
@@ -378,11 +377,11 @@
         },
         "intro": {
           "de": "Erzähl mir, was du dir vorstellst. Bitte keine Fotos von Personen und keine Gesundheitsinfos.",
-          "en": "Tell me what you have in mind. Please no photos of people and no health information."
+          "en": "Tell me what you picture. Please no photos of people and no health information."
         },
         "successText": {
-          "de": "Danke! Deine Anfrage ist angekommen, die Referenz steht in deiner Bestätigungsmail. Ich melde mich per Mail.",
-          "en": "Thank you! Your request has arrived – the reference is in your confirmation email. I'll get back to you by email."
+          "de": "Danke! Deine Idee ist angekommen, die Referenz steht in deiner Bestätigungsmail. Ich melde mich per Mail.",
+          "en": "Thank you! Your idea has arrived – the reference is in your confirmation email. I will answer by email."
         }
       },
       {
@@ -401,19 +400,8 @@
       {
         "blockType": "richText",
         "content": {
-          "de": "Fine Line, naiv, mit Humor. Ich steche am liebsten kleine Tiere mit Kulleraugen, Figuren mit zittriger Linie und Motive, die ein bisschen schief gucken. Schwarz, fein und so, dass es zu dir passt.",
-          "en": "Fine line, naive, with a sense of humour. My favourite things to tattoo are small animals with googly eyes, figures with a shaky line and designs that look at you slightly sideways. Black, fine, and made to suit you."
-        }
-      },
-      {
-        "blockType": "offersList",
-        "heading": {
-          "de": "Angebote",
-          "en": "Offers"
-        },
-        "emptyText": {
-          "de": "Gerade keine Aktionen. Folge @planet.claire.tattoos, dann verpasst du nichts.",
-          "en": "No offers right now. Follow @planet.claire.tattoos so you don't miss anything."
+          "de": "Eine feine Linie, die zittern darf. Ich steche am liebsten kleine Tiere mit Kulleraugen, Gestalten mit unruhiger Hand und Motive, die ein wenig schief schauen. Schwarz, fein – und so, dass es zu dir gehört.",
+          "en": "A fine line that is allowed to tremble. I like best to tattoo small animals with googly eyes, figures drawn with an unsteady hand and designs that look a little sideways. Black, fine – and made to belong to you."
         }
       },
       {
@@ -441,14 +429,14 @@
         },
         "content": {
           "de": "Jedes Flash-Motiv hat einen Festpreis, der direkt am Motiv steht. Für eigene Ideen findest du oben meinen Preisrahmen. Die Anzahlung besprechen wir persönlich per Mail – auf dieser Website zahlst du nichts.",
-          "en": "Every flash design has a fixed price shown right next to it. For custom ideas you'll find my price range above. We'll sort out the deposit personally by email – you don't pay anything on this website."
+          "en": "Every flash design has a fixed price, shown right beside it. For ideas of your own you will find my price range above. We settle the deposit personally by email – you pay nothing on this website."
         }
       },
       {
         "blockType": "processSteps",
         "heading": {
           "de": "Ablauf",
-          "en": "How it works"
+          "en": "How it goes"
         },
         "steps": [
           {
@@ -457,8 +445,8 @@
               "en": "Request"
             },
             "text": {
-              "de": "Schreib mir per Mail oder DM: Idee oder Flash-Nummer, Stelle am Körper, ungefähre Größe.",
-              "en": "Email or DM me: your idea or the flash number, placement, rough size."
+              "de": "Du schreibst mir eine Mail: Idee oder Flash-Nummer, Stelle am Körper, ungefähre Größe.",
+              "en": "You write me an email: your idea or the flash number, the place on your body, a rough size."
             }
           },
           {
@@ -468,7 +456,7 @@
             },
             "text": {
               "de": "Wir finden einen Tag. Die genaue Adresse bekommst du mit der Bestätigung.",
-              "en": "We find a date. You'll get the exact address with the confirmation."
+              "en": "We find a day. You receive the exact address with the confirmation."
             }
           },
           {
@@ -478,7 +466,7 @@
             },
             "text": {
               "de": "Klären wir persönlich per Mail, nicht hier auf der Website.",
-              "en": "We sort that out personally by email, not on this website."
+              "en": "We settle that personally by email, not here on the website."
             }
           },
           {
@@ -488,7 +476,7 @@
             },
             "text": {
               "de": "Bring deinen Ausweis mit, komm ausgeschlafen und mit etwas im Bauch. Coco schläft meistens nebenan.",
-              "en": "Bring your ID, come well rested and with something in your stomach. Coco is usually asleep next door."
+              "en": "Bring your ID, come rested and with something in your stomach. Coco is usually asleep next door."
             }
           },
           {
@@ -497,8 +485,8 @@
               "en": "Aftercare"
             },
             "text": {
-              "de": "Du bekommst die Pflegeschritte mit, alles steht auch auf der Aftercare-Seite.",
-              "en": "You'll get the aftercare steps to take home, and everything's on the aftercare page too."
+              "de": "Du nimmst die Pflegeschritte mit nach Hause; alles steht auch auf der Aftercare-Seite.",
+              "en": "You take the aftercare steps home with you; everything is also on the aftercare page."
             }
           }
         ]
@@ -508,26 +496,26 @@
         "tone": "hint",
         "text": {
           "de": "Tattoos erst ab 18.",
-          "en": "Tattoos for 18+ only."
+          "en": "Tattoos from 18 only."
         }
       },
       {
         "blockType": "faqList",
         "heading": {
-          "de": "FAQ",
-          "en": "FAQ"
+          "de": "Fragen",
+          "en": "Questions"
         },
         "category": "tattoo"
       },
       {
         "blockType": "contactLinks",
         "heading": {
-          "de": "Anfragen per Mail oder DM",
-          "en": "Ask by email or DM"
+          "de": "Eine Mail genügt",
+          "en": "An email is enough"
         },
         "emailSubject": {
           "de": "Tattoo-Anfrage",
-          "en": "Tattoo request"
+          "en": "Tattoo enquiry"
         }
       }
     ]
@@ -542,15 +530,15 @@
       {
         "blockType": "richText",
         "content": {
-          "de": "Ein frisches Tattoo ist eine kleine Wunde. Mit diesen Schritten heilt es in Ruhe – und wenn du unsicher bist, schreib mir.",
-          "en": "A fresh tattoo is a small wound. These steps help it heal in peace – and if you're unsure, just message me."
+          "de": "Haut vergisst nicht, aber sie braucht Zeit. Ein frisches Tattoo ist eine kleine Wunde; mit diesen Schritten heilt es in Ruhe. Bist du unsicher, schreib mir.",
+          "en": "Skin does not forget, but it needs time. A fresh tattoo is a small wound; these steps let it heal in peace. If you are unsure, write to me."
         }
       },
       {
         "blockType": "aftercareSteps",
         "heading": {
           "de": "Pflege in Phasen",
-          "en": "Aftercare step by step"
+          "en": "Care, phase by phase"
         },
         "phases": [
           {
@@ -560,7 +548,7 @@
             },
             "content": {
               "de": "Ich verpacke dein Tattoo mit Folie. Wie lange sie drauf bleibt, sage ich dir beim Termin. Sammelt sich darunter etwas Flüssigkeit, ist das normal.",
-              "en": "I'll cover your tattoo with film. I'll tell you at the appointment how long to leave it on. A little fluid collecting underneath is normal."
+              "en": "I wrap your tattoo in film. I will tell you at the appointment how long it stays on. A little fluid collecting underneath is normal."
             }
           },
           {
@@ -570,7 +558,7 @@
             },
             "content": {
               "de": "Vor dem Anfassen Hände waschen. Nach dem Abnehmen der Folie lauwarm mit milder, parfümfreier Seife waschen und trocken tupfen. Dünn eincremen – weniger ist mehr.",
-              "en": "Wash your hands before touching it. After removing the film, wash with lukewarm water and a mild, unscented soap and pat dry. Apply a thin layer of cream – less is more."
+              "en": "Wash your hands before touching it. After removing the film, wash with lukewarm water and mild, unscented soap and pat dry. Apply a thin layer of cream – less is more."
             }
           },
           {
@@ -579,8 +567,8 @@
               "en": "Weeks 1–2"
             },
             "content": {
-              "de": "Es schuppt und juckt – nicht kratzen, nicht pulen. Kein Schwimmbad, keine Sauna, kein Solarium, keine pralle Sonne. Weite Kleidung über dem Tattoo.",
-              "en": "It will flake and itch – don't scratch or pick. No swimming pools, saunas, sunbeds or strong sun. Wear loose clothing over the tattoo."
+              "de": "Die Haut schuppt und juckt – nicht kratzen, nicht pulen. Kein Schwimmbad, keine Sauna, kein Solarium, keine pralle Sonne. Weite Kleidung über dem Tattoo.",
+              "en": "The skin flakes and itches – do not scratch or pick. No swimming pools, saunas, sunbeds or strong sun. Wear loose clothing over the tattoo."
             }
           },
           {
@@ -590,7 +578,7 @@
             },
             "content": {
               "de": "Die Oberfläche ist zu, darunter arbeitet die Haut noch. Weiter eincremen, weiter Sonne meiden. Sieht etwas ungleichmäßig aus, schick mir ein Foto – dann schauen wir, ob ein Nachstechen sinnvoll ist.",
-              "en": "The surface has closed, but the skin underneath is still working. Keep moisturising and keep avoiding the sun. If something looks patchy, send me a photo and we'll see whether a touch-up makes sense."
+              "en": "The surface has closed, but underneath the skin is still at work. Keep moisturising and keep avoiding the sun. If something looks patchy, send me a photo – then we will see whether a touch-up makes sense."
             }
           },
           {
@@ -600,7 +588,7 @@
             },
             "content": {
               "de": "Sonnenschutz mit hohem Lichtschutzfaktor, jedes Mal. Fine Line bleibt am schönsten, wenn die Sonne sie nicht zu oft erwischt.",
-              "en": "High-SPF sunscreen, every time. Fine line stays crisp for longest when the sun doesn't get to it too often."
+              "en": "High-SPF sunscreen, every time. Fine line stays most beautiful when the sun does not catch it too often."
             }
           }
         ]
@@ -610,7 +598,7 @@
         "tone": "hint",
         "text": {
           "de": "Wann zur Ärztin oder zum Arzt? Wenn die Rötung nach drei Tagen weiter zunimmt, die Stelle heiß wird oder stark anschwillt, Eiter austritt, rote Streifen entstehen oder du Fieber bekommst. Sag mir danach gern Bescheid.",
-          "en": "When to see a doctor? If the redness keeps spreading after three days, the area gets hot or very swollen, pus comes out, red streaks appear or you get a fever. Please let me know afterwards, too."
+          "en": "When should you see a doctor? If the redness keeps spreading after three days, the area turns hot or badly swollen, pus comes out, red streaks appear or you get a fever. Please let me know afterwards, too."
         }
       },
       {
@@ -636,15 +624,15 @@
       {
         "blockType": "richText",
         "content": {
-          "de": "Alles Unikate – jedes Stück gibt es genau einmal. Was weg ist, zieht mit „sold“-Stempel ins Archiv.",
-          "en": "All one-offs – each piece exists exactly once. Once it's gone, it moves to the archive with a “sold” stamp."
+          "de": "Alles Unikate – jedes Stück gibt es genau einmal. Was weitergezogen ist, wandert mit „sold“-Stempel ins Archiv.",
+          "en": "All one-offs – each piece exists exactly once. Whatever has moved on wanders into the archive with a “sold” stamp."
         }
       },
       {
         "blockType": "categoryTeaser",
         "heading": {
-          "de": "Stöbern",
-          "en": "Browse"
+          "de": "Umhergehen",
+          "en": "Wandering"
         },
         "categories": [
           "keramik",
@@ -666,8 +654,8 @@
       {
         "blockType": "richText",
         "content": {
-          "de": "Schon ausgezogen. Zum Gucken bleibt's hier – und wenn du etwas Ähnliches möchtest, frag nach einer Auftragsarbeit.",
-          "en": "Already moved out. They stay here to look at – and if you'd like something similar, ask about a commission."
+          "de": "Hier wohnen die Stücke, die weitergezogen sind. Zum Anschauen bleiben sie – und wenn dich etwas Ähnliches ruft, frag nach einer Auftragsarbeit.",
+          "en": "Here live the pieces that have moved on. They stay to be looked at – and if something similar calls to you, ask about a commission."
         }
       }
     ]
@@ -683,7 +671,7 @@
         "blockType": "richText",
         "content": {
           "de": "Hier stehen die Konformitätserklärungen zu meinen Glasuren, sobald es welche gibt. Bis dahin ist jede Keramik im Shop ein Deko-Stück – nicht für Lebensmittel.",
-          "en": "This is where the declarations of conformity for my glazes will go once there are any. Until then, every ceramic piece in the shop is decorative – not for food."
+          "en": "This is where the declarations of conformity for my glazes will stand once there are any. Until then every ceramic piece in the shop is decorative – not for food."
         }
       }
     ]
@@ -715,8 +703,8 @@
       {
         "blockType": "richText",
         "content": {
-          "de": "Hier siehst du, wie weit deine Bestellung ist. Den Link hast du per Mail bekommen – bitte nicht weitergeben.",
-          "en": "Here's how far along your order is. You got this link by email – please don't share it."
+          "de": "Hier siehst du, wie weit dein Stück auf seinem Weg ist. Den Link hast du per Mail bekommen – bitte gib ihn nicht weiter.",
+          "en": "Here you can see how far your piece has travelled. You received this link by email – please do not pass it on."
         }
       }
     ]
@@ -732,7 +720,7 @@
         "blockType": "richText",
         "content": {
           "de": "Coco macht einen Freudensprung. Deine Bestätigung ist per Mail unterwegs.",
-          "en": "Coco is doing a happy jump. Your confirmation is on its way by email."
+          "en": "Coco is leaping for joy. Your confirmation is on its way by email."
         }
       }
     ]
@@ -747,8 +735,8 @@
       {
         "blockType": "richText",
         "content": {
-          "de": "Coco hat überall geschnüffelt – diese Seite gibt es nicht (mehr). [Zur Startseite](/)",
-          "en": "Coco sniffed everywhere – this page doesn't exist (anymore). [Back to the start](/en)"
+          "de": "Coco ist der Linie nachgelaufen und nicht zurückgekommen – diese Seite gibt es nicht (mehr). [Zur Startseite](/)",
+          "en": "Coco followed the line and never came back – this page does not exist (anymore). [Back to the start](/en)"
         }
       }
     ]

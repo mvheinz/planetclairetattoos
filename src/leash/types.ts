@@ -22,6 +22,7 @@ export interface BuildInput {
   root: { w: number; h: number };
   viewport: { w: number; h: number };
   gutter: number;               // §5.3
+  railX?: number;               // x der Rinnenmitte (Raster-Seiten: Linie läuft dort, U-07a)
   baseWidth: number;            // --leash-w in px
   anchors: LeashAnchor[];
 }

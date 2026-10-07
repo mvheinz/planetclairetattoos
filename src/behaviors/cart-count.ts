@@ -18,7 +18,7 @@ import {
 export { CART_CHANGE_EVENT, type CartChangeDetail }
 
 const BOUNCE_MS = 240
-const FALLBACK_EASE = 'cubic-bezier(0.18, 1.6, 0.4, 1)'
+const FALLBACK_EASE = 'ease-out'
 
 /** Anzahl im Speicher der Vorschau (bleibt über Seitenwechsel innerhalb der Vorschau-Datei erhalten). */
 let previewCount = 0

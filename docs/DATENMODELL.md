@@ -166,7 +166,7 @@ Quelle `content/seed/SEED-SPEC.md` §1.6). Ohne dieses Flag gilt immer die Spalt
 |---|---|---|
 | `products` | **keine** Versionen/Drafts | Payload-Drafts würden beim Veröffentlichen den Verkaufsstatus überschreiben; eigener `status` ersetzt Drafts (E-13); Änderungsverlauf über `audit-log` |
 | `pages` | `versions: { drafts: true, maxPerDoc: 25 }` | Texte in Ruhe vorbereiten |
-| `faqs`, `categories`, `flash`, `tattoo-offers`, `conformity-declarations` | `versions: { maxPerDoc: 10 }`, keine Drafts; Sichtbarkeit über eigenes Feld | einfache Bedienung am Handy |
+| `faqs`, `categories`, `flash`, `conformity-declarations` | `versions: { maxPerDoc: 10 }`, keine Drafts; Sichtbarkeit über eigenes Feld | einfache Bedienung am Handy |
 | `tattoo-gallery` | **keine** Versionen/Drafts | Einwilligungsangaben und Kundenfotos sind Personendaten; ein Widerruf muss ohne Rest in Versions-Tabellen wirken (L-19, L-20) |
 | `legal-texts`, `legal-snippets` | keine Payload-Versionen – **jede Fassung ist ein eigenes Dokument** | Unveränderlichkeit, Bestellungen verweisen auf Fassungen |
 | `settings`, `site-texts` | `versions: { max: 50 }`, keine Drafts | Nachvollziehbarkeit |
@@ -212,7 +212,7 @@ Die **Verpackungsmengen** (E-47, R-201) sind dagegen im Umfang: je Sendung Verpa
 | 12 | `legal-texts` | Rechtstexte | Inhalte | versionierte Rechtstexte | ja (aktive/abgelöste) | – | P1 (PDF-Erzeugung P4, Aktivierung/Versionierung P6) |
 | 13 | `conformity-declarations` | Konformitätserklärungen | Shop | Glasur-Nachweise Keramik (E-15) | ja (aktive) | ✓ | P1 |
 | 14 | `flash` | Flash | Tattoo | Flash-Motive (E-52) | ja | ✓ | P1 (UI P7) |
-| 15 | `tattoo-offers` | Angebote | Tattoo | Flash-Days/Aktionen (E-53) | ja (laufende/künftige) | ✓ | P1 (UI P7) |
+| 15 | – | (entfallen, P12.7/U-14: früher `tattoo-offers`) | | | | | |
 | 16 | `tattoo-gallery` | Galerie | Tattoo | Fresh & Healed mit Einwilligung (E-42) | ja (mit Einwilligung) | ✓ | P1 (UI P7) |
 | 17 | `inquiries` | Anfragen | Anfragen | Auftragsarbeiten-Formular (E-11) | nein | ✓ | P1 (UI P7) |
 | 18 | `faqs` | FAQ | Inhalte | Fragen & Antworten | ja | ✓ | P1 |
@@ -227,6 +227,7 @@ Die **Verpackungsmengen** (E-47, R-201) sind dagegen im Umfang: je Sendung Verpa
 | 27 | `deletion-log` | Löschprotokoll | System | Nachweis jeder Löschung/Anonymisierung/Einschränkung ohne Inhalte; Grundlage für `pnpm retention:replay` (L-18) | nein | – | P1 (Logik P6) |
 | 28 | `legal-snippets` | Rechtsbausteine | Inhalte | versionierte kurze Rechtstexte (Schlüssel aus RECHT ANFORDERUNGEN §6, R-012) | ja (aktive) | – | P6 (Migration §10.1; bis dahin Konstanten) |
 | 29 | `complaints` | Reklamationen | Shop | Reklamationsakte je Bestellung: Art, Eingang, Fotos, Abhilfe, Fristen (R-110, R-111) | nein | ✓ | P6 (Migration §10.1) |
+| 30 | `tour-dates` | Termine (on Tour) | Tattoo | Märkte „Planet Claire on Tour“ (U-20) | ja (veröffentlichte) | – | P12 |
 | G1 | `settings` | Einstellungen | – | Betriebs-, Steuer-, Versand-, Verpackungs-, Aufbewahrungs-, Stamm- und Go-live-Daten | nur Whitelist | – | P1 |
 | G2 | `site-texts` | Texte & Navigation | – | UI-Texte DE/EN, Navigation | ja | – | P1 |
 
@@ -423,7 +424,8 @@ export const LEGAL_SNIPPET_KEYS = ['price.kleinunternehmerNote', 'price.shipping
   'withdrawal.receiptNotice', 'withdrawal.returnInfo', 'withdrawal.returnCostsNote', 'complaint.repairChoice',
   'dispute.vsbg37',
   'inquiry.privacyNotice', 'inquiry.autoReply', 'commission.offer', 'translation.disclaimer',
-  'privacyRequest.accessResponse', 'privacyRequest.erasureResponse'] as const
+  'privacyRequest.accessResponse', 'privacyRequest.erasureResponse',
+  'ip.copyrightNotice', 'ip.aiMiningReservation', 'ip.purchaseClause', 'ip.tattooFlashNotice'] as const
 export type LegalSnippetKey = (typeof LEGAL_SNIPPET_KEYS)[number]
 export const WITHDRAWAL_STATUSES = ['received', 'goods_returned', 'partially_refunded', 'refunded', 'rejected',
   'closed'] as const
@@ -463,8 +465,8 @@ export type DeletionTrigger = (typeof DELETION_TRIGGERS)[number]
 // Tattoo & Anfragen
 export const FLASH_STATUSES = ['available', 'claimed'] as const
 export type FlashStatus = (typeof FLASH_STATUSES)[number]
-export const TATTOO_OFFER_TYPES = ['flash_day', 'aktion'] as const
-export type TattooOfferType = (typeof TATTOO_OFFER_TYPES)[number]
+export const TOUR_STATUSES = ['planned', 'cancelled', 'past'] as const
+export type TourStatus = (typeof TOUR_STATUSES)[number]
 export const TATTOO_PHOTO_KINDS = ['fresh', 'healed'] as const
 export type TattooPhotoKind = (typeof TATTOO_PHOTO_KINDS)[number]
 export const CONSENT_SCOPES = ['tattoo_only', 'with_face'] as const
@@ -701,7 +703,7 @@ Payload-Standardfelder (`filename`, `mimeType`, `filesize`, `width`, `height`, `
 **Hooks**
 - `beforeOperation`: Orientierung normalisieren (s. o.).
 - `beforeChange`: `placeholderDataUrl` und `dominantColor` mit sharp berechnen; `restricted = true` erzwingen, wenn `showsPerson = customer` und kein veröffentlichter Galerie-Eintrag mit Einwilligung darauf verweist.
-- `beforeDelete`: Löschen verweigern, wenn referenziert von: Produkten mit `status ≠ draft`, veröffentlichten `flash`, `tattoo-gallery`, `tattoo-offers`, `pages`, `categories`, `site-texts`. Meldung listet die Verweise.
+- `beforeDelete`: Löschen verweigern, wenn referenziert von: Produkten mit `status ≠ draft`, veröffentlichten `flash`, `tattoo-gallery`, `pages`, `categories`, `site-texts`. Meldung listet die Verweise.
 - `afterChange`: `revalidateTag('media:<id>')` (außer `context.seed`).
 
 **Access:** `read`: Admin → alles; öffentlich → `{ restricted: { not_equals: true } }` und ab P8 zusätzlich
@@ -1754,33 +1756,11 @@ Jutta es offline nimmt (`published = false`).
 
 ---
 
-### 6.15 `tattoo-offers` – Angebote (Flash-Days, Aktionen)
+### 6.15 `tattoo-offers` – entfallen (P12.7, U-14)
 
-**Zweck:** Angebote mit Datum, die nach Ablauf automatisch verschwinden (E-53). Keine Guest Spots, keine Buchung.
-
-| Feld | Typ | Pfl. | L | Default | Validierung / Regel | Admin-Hinweis |
-|---|---|---|---|---|---|---|
-| `type` | select `TattooOfferType` | R | – | `flash_day` | – | – |
-| `title` | text | R | ✓ | – | 3–80 | – |
-| `description` | textarea | R | ✓ | – | 10–1500 | – |
-| `startsAt` | date (Datum + Uhrzeit) | R | – | – | – | – |
-| `endsAt` | date (Datum + Uhrzeit) | R | – | Ende des Starttags 23:59 (Europe/Berlin) | `> startsAt` | ab hier unsichtbar |
-| `locationNote` | text | – | ✓ | „Privatstudio in {settings.tattoo.studioDistrict}“ | ≤ 120; **keine Adresse** (E-50) | – |
-| `image` | upload → `media` | – | – | – | – | – |
-| `flashes` | relationship → `flash`, hasMany | – | – | – | max. 30 | Auswahl für den Flash-Day |
-| `priceNote` | text | – | ✓ | – | ≤ 160 | Gesamtpreise nennen |
-| `published` | checkbox | R | – | `true` | – | – |
-| `seed` | checkbox | S | – | `false` | – | – |
-
-**Access:** `read`: öffentlich `{ and: [ { published: { equals: true } }, { endsAt: { greater_than: now } } ] }`
-(+ Seed-Filter); Admin sieht alles (Liste „vergangen“ grau) · `create`/`update`/`delete`: `isAdmin`.
-**Jobs:** `revalidateEndedOffers` (§11) sorgt dafür, dass gecachte Seiten nach `endsAt` neu gerendert werden.
-Es gibt **keinen** gespeicherten Status (kommend/laufend/abgelaufen wird aus `startsAt`/`endsAt` abgeleitet; R-171 ist
-durch den Abfrage-Filter plus Revalidierung erfüllt). Den Uhrzeit-Text eines Angebots bildet der Code aus
-`startsAt`/`endsAt` (kein eigenes Feld).
-**Akzeptanz:** DM-OFF-01: Angebot mit `endsAt` in der Vergangenheit fehlt in öffentlichen Abfragen und nach spätestens 15 min auf der Seite.
-
----
+Die Collection „Angebote“ (Flash-Days, Aktionen), ihr Enum `TATTOO_OFFER_TYPES`, der Block `offersList` und der Task
+`revalidateEndedOffers` sind entfernt. Die Migration `p12_remove_offers` löscht Tabellen, Versionen, Enums und
+Task-Läufe (auch auf gefüllter Datenbank). Die Nummer 15 bleibt unbelegt.
 
 ### 6.16 `tattoo-gallery` – Galerie Fresh & Healed (E-42)
 
@@ -1800,7 +1780,7 @@ durch den Abfrage-Filter plus Revalidierung erfüllt). Den Uhrzeit-Text eines An
 | `consentGiven` | checkbox | R | – | `false` | – | „Einwilligung zur Veröffentlichung auf der Website liegt vor“ |
 | `consentScope` | select `ConsentScope` | – | – | `tattoo_only` | – | – |
 | `consentDate` | date | V (bei `consentGiven`) | – | – | ≤ heute | – |
-| `consentNote` | text | V (bei `consentGiven`) | – | – | 5–300 | wie/wo erteilt, z. B. „per DM am 02.10.2026“ |
+| `consentNote` | text | V (bei `consentGiven`) | – | – | 5–300 | wie/wo erteilt, z. B. „per Mail am 02.10.2026“ |
 | `consentEvidence` | upload → `private-uploads` | – | – | – | `purpose = consent_evidence` | Screenshot/Formular, empfohlen |
 | `consentWithdrawnAt` | date | S | – | – | gesetzt nur durch „Einwilligung widerrufen“ | Fristbeginn für L-20 (Dateien ≤ 24 h) und L-19 b (Nachweis + 3 Jahre) |
 | `creditHandleAllowed` | checkbox | – | – | `false` | – | „Kund:in erlaubt die Nennung ihres Instagram-Namens“ (R-172); eine Instagram-Freigabe deckt die Website nicht automatisch ab |
@@ -1927,7 +1907,7 @@ wird über `key` gefunden. Es gibt **keine** eigenen Globals für einzelne Seite
 | `processSteps` | `heading` (text), `steps` (array 1–8: `title` text R, `text` textarea R) |
 | `aftercareSteps` | `heading` (text), `phases` (array 1–8: `title` text R, `content` richText R), `pdf` (documents) |
 | `faqList` | `heading` (text), `category` (FaqCategory R) |
-| `contactLinks` | `heading` (text), `showEmail`, `showInstagram`, `showDistrict` (checkbox, Default `true`), `emailSubject` (text) |
+| `contactLinks` | `heading` (text), `showEmail`, `showDistrict` (checkbox, Default `true`), `emailSubject` (text) |
 | `commissionForm` | `heading` (text), `intro` (textarea), `successText` (textarea R) |
 | `callout` | `text` (textarea R), `tone` (select `info`, `hint`) |
 
@@ -2308,6 +2288,34 @@ Stufe D anonymisiert wird; `deletion-log` je Datensatz.
   Datensatz einen `deletion-log`-Eintrag.
 
 ---
+
+
+### 6.30 `tour-dates` – Termine „Planet Claire on Tour“ (P12.8, U-20)
+
+**Zweck:** Märkte, Flohmärkte, Kunstmärkte, auf denen Jutta steht; rechte Spalte der Startseite (KONZEPT §3.1a). Nur
+Textlink, keine Karte. Keine Versionen, keine Entwürfe.
+
+| Feld | Typ | Pfl. | L | Default | Validierung / Regel | Admin-Hinweis |
+|---|---|---|---|---|---|---|
+| `name` | text | R | ✓ | – | 3–100 | Name des Marktes |
+| `startsAt` | date | R | – | – | Hook legt auf 00:00 Europe/Berlin des ersten Tages | Von (Datum) |
+| `endsAt` | date | – | – | = `startsAt` | Hook legt auf 23:59:59 Berlin des letzten Tages; nicht vor `startsAt` | Bis (Datum), leer = eintägig |
+| `place` | text | R | ✓ | – | 2–80 | Ort / Bezirk |
+| `address` | text | – | – | – | ≤ 160; **nie die Straße aus `settings.business.street`** (E-50) | Adresse des Marktes |
+| `link` | text | – | – | – | `http(s)`-Adresse mit Punkt im Host, ≤ 300, ohne Zugangsdaten; wird normalisiert | nur Textlink |
+| `standNumber` | text | – | – | – | ≤ 20 | – |
+| `timeFrom`, `timeTo` | text | – | – | – | `HH:mm` | Anzeigetext „10–18 Uhr“ |
+| `note` | textarea | – | ✓ | – | ≤ 240 | z. B. „Coco ist dabei.“ |
+| `image` | upload → `media` | – | – | – | – | Foto vom Stand (Bild eines veröffentlichten Termins nicht löschbar, §6.2) |
+| `status` | select `TourStatus` | R | – | `planned` | `planned` · `cancelled` · `past` | „vorbei“ folgt auch aus `endsAt` |
+| `published` | checkbox | R | – | `true` | – | – |
+| `seed` | checkbox | S | – | `false` | – | – |
+
+**Access:** `read`: öffentlich `{ published = true }` (+ Seed-Filter; auch vergangene Termine – sie stehen eingeklappt),
+Admin alles · `create`/`update`/`delete`: `isAdmin`. **Hooks:** `beforeChange` normalisiert den Zeitraum und prüft Adresse und
+Link; `afterChange`/`afterDelete` erneuern `tour-dates` und `home`. **Anzeige-Zustand** (nicht gespeichert): `abgesagt`
+(`status = cancelled`), sonst `vorbei` (`status = past` oder `endsAt ≤ jetzt`), sonst `läuft` (ab `startsAt`) bzw. `kommt`.
+**Migration:** `p12_tour_dates`. **Akzeptanz:** DM-TOUR-01…04 (`tests/int/collections/tour-dates.int.spec.ts`).
 
 ## 7. Globals
 
@@ -2783,6 +2791,7 @@ Migrationen späterer Phasen gibt es nur für:
 | P6 | `p6_withdrawal_inbox_refunds` | Felder `withdrawals.returnConditionNote` (§6.11) sowie `orders.refunds[].withdrawal` und `orders.refunds[].note` (Erstattung je Widerruf, P6.9/P6.10); nullable, rein erweiternd |
 | P6 | `p6_invoice_reissue`, `p6_invoice_reissue_constraints` | Feld `invoices.replacesInvoice`, Enum-Wert `correction` für `invoices.reason` und `orders.refunds[].reason` (P6.18); eigenes SQL: partieller UNIQUE-Index „eine ursprüngliche Rechnung je Bestellung“ nur über Rechnungen ohne `replaces_invoice_id`, UNIQUE „jede Rechnung höchstens einmal ersetzt“, GoBD-Trigger (§9.4) schützt den Verweis |
 | P7 | `p7_revalidate_offers_task` | nur Task-Slug `revalidateEndedOffers` im Enum der Jobs-Queue (P7.3); keine Collection-/Feldänderung – `tattoo-gallery.consentWithdrawnAt` liegt seit `p1_tattoo` im Schema |
+| P12 | `p12_remove_offers_cleanup`, `p12_remove_offers` | „Angebote“ entfallen (P12.7, U-14): Collection `tattoo-offers` samt Versionen/Enums, Block `offersList`, Block-Feld `contactLinks.showInstagram` und Task-Slug `revalidateEndedOffers` werden entfernt; die erste Migration räumt Task-Läufe und Listen-Einstellungen, die zweite ist generiert (nur `DROP CONSTRAINT IF EXISTS` von Hand) |
 | P8 | `p8_media_owner_approved` | Feld `media.ownerApproved` (§6.2) samt Zugriffsregel (R-181) |
 
 Neue Task-Slugs (Anhang A.3 der ARCHITEKTUR) erweitern die Payload-Job-Enums immer per generierter Migration der Phase, die den Task registriert. Neue Werte oder Felder, die eine Phase darüber hinaus braucht, kommen per eigener Migration dieser Phase **und**
@@ -2828,7 +2837,6 @@ KONZEPT §8.2.
 | `markDelivered` | commerce | täglich ab 03:00 | – | `shipped`, deren Versandtag (Berliner Datum von `shippedAt`) + 10 Kalendertage ≤ heutiges Berliner Datum ⇒ O10 (`deliveredSource = auto`) | 3 |
 | `withdrawalDeadlines` | commerce | täglich ab 08:00 | – | Widerrufe `received`/`goods_returned` mit `receivedAt ≤ $now − 10 Tage`, ohne Erstattung, `deadlineReminderSentAt` leer ⇒ Mail `admin_withdrawal_deadline` (A13), Zeitstempel | 3 |
 | `activateScheduledLegalTexts` | maintenance | Weckzeit `validFrom`; stündliches Netz | – | `legal-texts` und (ab P6) `legal-snippets` im Status `scheduled` mit `validFrom ≤ $now` aktivieren | 3 |
-| `revalidateEndedOffers` | maintenance | Weckzeit Beginn/Ende eines Angebots; täglich ab 00:05 | – | Angebote, deren Beginn oder `endsAt` seit dem letzten Lauf erreicht ist ⇒ Revalidierung `tattoo-offers`, `home` | 1 |
 | `legalReviewReminder` | maintenance | täglich ab 08:30 | – | je Typ (R-014): fällig, wenn max(`activatedAt` der aktiven Fassung, `settings.legal.reviews[type].reviewedAt`) + `reviewIntervalDays` ≤ heute und `lastReminderSentAt` leer oder ≥ 30 Tage her ⇒ eine Mail `admin_legal_review_due` mit allen fälligen Typen, `lastReminderSentAt` je Typ, Dashboard-Hinweis | 3 |
 | `revenueGuardCheck` | maintenance | täglich ab 07:00 + bei Bedarf | – | Gesamtumsatz laufendes Jahr = Rechnungen − Gutschriften (nach Rechnungsdatum) + `revenue-entries` aller Quellen; Vorjahr ebenso bzw. `manualYearTotals`. Stufen (KONZEPT §8.4, R-125): U1 ≥ `u1`, U2 > `previousYearLimitCents`, U3 ≥ `u3`, U3a ≥ `u3a`, U4 ≥ `u4`, U5 > `currentYearLimitCents`, U0 am 1. Januar, wenn das Vorjahr > `previousYearLimitCents` war. Jede Stufe einmal je Jahr: Mail `admin_revenue_guard`, Eintrag in `settings.revenueGuard.lastNotified` | 3 |
 | `invoiceIntegrityCheck` | maintenance | monatlich am 1. ab 04:00 (nach `monthlyClose`) | – | SHA-256 **aller** gespeicherten Rechnungs-/Gutschrift-PDFs gegen `invoices.sha256` (R-122); Abweichung oder fehlende Datei ⇒ `admin_alert` | 3 |
@@ -2964,7 +2972,7 @@ wiederholt keine Zahlen. Für das Datenmodell gilt:
   Import (nur Zeichenvorlage P9). Bilder mit Juttas Gesicht (`showsPerson = jutta`) nicht auf der Seite „Über mich“,
   bis Jutta freigibt.
 - **Zeitbezug:** alle Datumswerte relativ zu `SEED_NOW` (leer = Ausführungszeit; CI `2026-10-15T10:00:00+02:00`;
-  Vorschau-Export: Exportdatum 12:00 Berlin), damit Fristen (Vorkasse, Angebote) plausibel sind. Seed-Rechtstexte
+  Vorschau-Export: Exportdatum 12:00 Berlin), damit Fristen (Vorkasse, Termine) plausibel sind. Seed-Rechtstexte
   (Grund-Seed) haben `validFrom = 2026-01-01`, damit alle Seed-Bestellungen auf Version 1 verweisen.
 
 ### 13.3 Nummernbereiche (keine Kollision mit echten Daten)
@@ -3009,7 +3017,7 @@ zusätzlich sichtbar „Beispiel“ (Badge in der Verwaltung und auf Token-Seite
 - Reihenfolge (eine Transaktion je Schritt, `context.seed = true`, keine Mails): `email-log` → `consent-log` →
   `privacy-requests` → `webhook-events` (Seed-Bezug) → `withdrawals` → `invoices` (erst `credit_note`, dann `invoice`;
   Trigger erlaubt `seed`) → `invoice-counters` (nur Serien `BSP-RE`/`BSP-GS`) → `reservations` → `complaints` →
-  `orders` → `checkouts` → `inquiries` → `revenue-entries` → `tattoo-gallery` → `tattoo-offers` → `flash` → `faqs`/`pages` (je nach `keepTexts`) → `products` →
+  `orders` → `checkouts` → `inquiries` → `revenue-entries` → `tattoo-gallery` → `flash` → `faqs`/`pages` (je nach `keepTexts`) → `products` →
   `conformity-declarations` → `private-uploads` → `documents` → `media` (nur `seed = true` und von keinem verbleibenden
   Dokument referenziert) → `audit-log` (seed) → `settings.seed`. Grund-Seed wird nie gelöscht. Danach existiert in keiner
   Collection mehr ein Dokument mit `seed = true`. Die Seed-Entfernung schreibt einen zusammenfassenden Audit-Eintrag

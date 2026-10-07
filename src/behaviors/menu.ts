@@ -15,7 +15,7 @@ const CLOSE_MS = 180
 const COCO_MS = 300
 const COCO_DELAY = 200
 const STAGGER_FALLBACK = 40
-const EASE_FALLBACK = 'cubic-bezier(0.3, 0.7, 0.2, 1)'
+const EASE_FALLBACK = 'ease-out'
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
@@ -78,6 +78,8 @@ export function mount(root: Element, _ctx: BehaviorContext = { mode: 'app' }): U
   const animations = new Set<Animation>()
   let lastTrigger: HTMLElement | null = null
   let closing = false
+  /** Timer des verzögerten Öffnens (`open`); `unmount` stoppt ihn. */
+  let timer: ReturnType<typeof setTimeout> | undefined
 
   const isOpen = () => dialog.open === true || dialog.hasAttribute('open')
   const reduced = () => getMotion(doc) === 'reduced'
@@ -150,7 +152,7 @@ export function mount(root: Element, _ctx: BehaviorContext = { mode: 'app' }): U
     }
   }
 
-  const open = (trigger: HTMLElement | null) => {
+  const present = (trigger: HTMLElement | null) => {
     if (isOpen()) return
     cancelAll()
     closing = false
@@ -163,6 +165,21 @@ export function mount(root: Element, _ctx: BehaviorContext = { mode: 'app' }): U
     const first = dialog.querySelector<HTMLElement>('[data-menu-item] a[href]') ?? focusables()[0]
     first?.focus()
     animateOpen(trigger)
+  }
+
+  /**
+   * `showModal()` macht die ganze Seite inert und erzwingt damit eine Neuberechnung aller Stile (auf der langen
+   * Startseite bei 4× Drosselung ≈ 80–110 ms, KUNST-QA PF-08). Mit Animation (der Kreis braucht 420 ms) beginnt das
+   * Öffnen deshalb kurz nach dem Klick (30 ms): Der Klick selbst wird sofort gemalt, das Menü öffnet im nächsten Task.
+   * Bei reduzierter Bewegung (oder ohne Web-Animations) bleibt es synchron: Endzustand nach ≤ 1 Frame (AK-DS-08).
+   */
+  const open = (trigger: HTMLElement | null) => {
+    if (isOpen() || timer) return
+    if (reduced() || typeof dialog.animate !== 'function') return present(trigger)
+    timer = setTimeout(() => {
+      timer = undefined
+      present(trigger)
+    }, 30)
   }
 
   const finishClose = (restoreFocus: boolean) => {
@@ -187,7 +204,7 @@ export function mount(root: Element, _ctx: BehaviorContext = { mode: 'app' }): U
     cancelAll()
     const anim = dialog.animate([{ opacity: 1 }, { opacity: 0 }], {
       duration: CLOSE_MS,
-      easing: cssVar('--ease-calm', 'cubic-bezier(0.2, 0, 0, 1)'),
+      easing: cssVar('--ease-calm', EASE_FALLBACK),
     })
     track(anim)
     anim.onfinish = () => {
@@ -266,6 +283,7 @@ export function mount(root: Element, _ctx: BehaviorContext = { mode: 'app' }): U
     dialog.removeEventListener('cancel', onCancel)
     dialog.removeEventListener('close', onClose)
     dialog.removeEventListener('click', onDialogClick)
+    clearTimeout(timer)
     if (isOpen() || html.hasAttribute(MENU_OPEN_ATTR)) finishClose(false)
     cancelAll()
   }

@@ -202,11 +202,17 @@ test.describe('P3.13 SEO der Shop-Routen', () => {
     await refresh(request, [gone])
 
     const cases: [string, RegExp][] = [
-      [gone, /^Dieses Stück hat schon ein Zuhause gefunden · Planet Claire$/],
-      ['/de/shop/909-reh-im-planetenregen', /^Coco hat sich losgerissen · Planet Claire$/], // S09 archiviert
-      ['/en/shop/918', /^Coco slipped her leash · Planet Claire$/], // S18 Entwurf
-      ['/de/shop/kategorie/gibt-es-nicht', /^Coco hat sich losgerissen · Planet Claire$/],
-      ['/de/shop?page=99', /^Coco hat sich losgerissen · Planet Claire$/],
+      [gone, /^Dieses Stück ist weitergezogen · Planet Claire$/],
+      [
+        '/de/shop/909-reh-im-planetenregen',
+        /^Diese Seite hat sich in den Nebel gezeichnet · Planet Claire$/,
+      ], // S09 archiviert
+      ['/en/shop/918', /^This page has drawn itself into the fog · Planet Claire$/], // S18 Entwurf
+      [
+        '/de/shop/kategorie/gibt-es-nicht',
+        /^Diese Seite hat sich in den Nebel gezeichnet · Planet Claire$/,
+      ],
+      ['/de/shop?page=99', /^Diese Seite hat sich in den Nebel gezeichnet · Planet Claire$/],
     ]
     for (const [url, title] of cases) {
       const { status, $ } = await html(request, url)

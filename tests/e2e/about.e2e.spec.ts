@@ -40,8 +40,8 @@ for (const locale of ['de', 'en'] as const) {
     const main = page.locator('[data-about-page]')
     await expect(main).toContainText(
       locale === 'de'
-        ? 'Ich bin Jutta, und das hier ist Planet Claire'
-        : "I'm Jutta, and this is Planet Claire",
+        ? 'Das hier ist Planet Claire – mein kleiner Planet in Berlin'
+        : 'This is Planet Claire – my small planet in Berlin',
     )
     await expect(main).toContainText(locale === 'de' ? 'Und das ist Coco.' : 'And this is Coco.')
     await expect(main.locator('[data-about-coco] svg')).toHaveCount(1)
@@ -52,10 +52,8 @@ for (const locale of ['de', 'en'] as const) {
     await expect(
       what.locator(`a[href="${locale === 'de' ? '/de/auftragsarbeiten' : '/en/commissions'}"]`),
     ).toHaveCount(1)
-    // Instagram (R-139)
-    const insta = main.locator('a[href^="https://www.instagram.com/"]')
-    expect(await insta.count()).toBeGreaterThan(0)
-    for (const a of await insta.all()) await expect(a).toHaveAttribute('rel', 'noopener noreferrer')
+    // P12.7 (U-15): Das Instagram-Profil ist nur im Fuß verlinkt, nicht im Inhalt der Seite.
+    await expect(main.locator('a[href*="instagram.com"], a[href*="ig.me"]')).toHaveCount(0)
     // drei Stationen der Linie: Jutta → Coco → Werkstatt
     expect(
       await page
@@ -174,7 +172,11 @@ test.describe('R19 Tuschelinie', () => {
     })
     expect(s).toEqual({ tier: 'C', full: true })
     const running = await page.evaluate(
-      () => document.getAnimations().filter((a) => a.playState === 'running').length,
+      () =>
+        document
+          .getAnimations()
+          .filter((a) => a.timeline?.constructor?.name !== 'ScrollTimeline')
+          .filter((a) => a.playState === 'running').length,
     )
     expect(running).toBe(0)
   })

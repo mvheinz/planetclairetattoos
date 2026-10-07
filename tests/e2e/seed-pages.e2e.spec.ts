@@ -8,27 +8,27 @@ const PAGES: { de: string; en: string; textDe: string; textEn: string }[] = [
   {
     de: '/de',
     en: '/en',
-    textDe: 'Tattoos & handgemachte Unikate aus Berlin',
-    textEn: 'Tattoos & handmade one-offs from Berlin',
+    textDe: 'Ein kleiner Planet, auf dem alles nur einmal vorkommt',
+    textEn: 'A small planet where everything happens only once',
   },
   { de: '/de/kontakt', en: '/en/contact', textDe: 'Schreib mir', textEn: 'Write to me' },
   {
     de: '/de/auftragsarbeiten',
     en: '/en/commissions',
     textDe: 'Ich antworte per Mail mit Preis und ungefährer Dauer.',
-    textEn: "I'll reply by email with a price and a rough timeframe.",
+    textEn: 'I answer by email with a price and a rough timeframe.',
   },
   {
     de: '/de/tattoo',
     en: '/en/tattoo',
-    textDe: 'Fine Line, naiv, mit Humor.',
-    textEn: 'Fine line, naive, with a sense of humour.',
+    textDe: 'Eine feine Linie, die zittern darf.',
+    textEn: 'A fine line that is allowed to tremble.',
   },
   {
     de: '/de/tattoo/aftercare',
     en: '/en/tattoo/aftercare',
     textDe: 'Pflege in Phasen',
-    textEn: 'Aftercare step by step',
+    textEn: 'Care, phase by phase',
   },
   {
     de: '/de/konformitaetserklaerungen',

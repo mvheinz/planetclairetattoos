@@ -8,7 +8,7 @@ import { getTestPayload } from '../helpers/payload'
 import { createTestImage } from '../helpers/products'
 import { rest } from '../helpers/rest'
 
-// P1.23: Tattoo-Collections `flash`, `tattoo-offers`, `tattoo-gallery` (DATENMODELL §6.14–§6.16, E-42, E-52, E-53).
+// P1.23: Tattoo-Collections `flash`, `tattoo-gallery` (DATENMODELL §6.14–§6.16, E-42, E-52, E-53).
 
 const NOW = '2026-10-10T10:00:00.000Z'
 
@@ -29,7 +29,7 @@ async function rejects(promise: Promise<unknown>, re: RegExp): Promise<void> {
 }
 
 async function cleanup() {
-  for (const collection of ['tattoo-gallery', 'tattoo-offers', 'flash'] as const) {
+  for (const collection of ['tattoo-gallery', 'flash'] as const) {
     await payload.delete({
       collection,
       where: { id: { exists: true } },
@@ -64,7 +64,7 @@ afterAll(async () => {
   }
 })
 
-const publicFind = (collection: 'flash' | 'tattoo-offers' | 'tattoo-gallery', now = NOW) =>
+const publicFind = (collection: 'flash' | 'tattoo-gallery', now = NOW) =>
   payload.find({
     collection,
     overrideAccess: false,
@@ -159,61 +159,6 @@ describe('flash (DATENMODELL §6.14)', () => {
   })
 })
 
-describe('tattoo-offers (DATENMODELL §6.15)', () => {
-  it('DM-OFF-01 abgelaufene Angebote fehlen in öffentlichen Abfragen; Ende standardmäßig 23:59 Berlin', async () => {
-    const offer = (data: Record<string, unknown>) =>
-      payload.create({
-        collection: 'tattoo-offers',
-        data: {
-          title: 'Flash-Day Oktober',
-          description: 'Kleine Motive zum Festpreis, ohne Termin einfach vorbeischreiben.',
-          ...data,
-        } as never,
-        overrideAccess: true,
-      })
-    const past = await offer({ startsAt: '2026-10-09T08:00:00.000Z' })
-    // Ende des Starttags 23:59 Uhr Berlin (MESZ = UTC+2)
-    expect(past.endsAt).toBe('2026-10-09T21:59:00.000Z')
-    const running = await offer({
-      startsAt: '2026-10-10T08:00:00.000Z',
-      endsAt: '2026-10-10T16:00:00.000Z',
-    })
-    const hidden = await offer({ startsAt: '2026-10-20T08:00:00.000Z', published: false })
-    const winter = await offer({ startsAt: '2026-12-05T08:00:00.000Z' })
-    expect(winter.endsAt).toBe('2026-12-05T22:59:00.000Z')
-
-    const ids = (await publicFind('tattoo-offers')).docs.map((d) => d.id)
-    expect(ids).toContain(running.id)
-    expect(ids).toContain(winter.id)
-    expect(ids).not.toContain(past.id)
-    expect(ids).not.toContain(hidden.id)
-    // nach dem Ende verschwindet auch das laufende Angebot
-    const later = (await publicFind('tattoo-offers', '2026-10-10T16:00:01.000Z')).docs.map(
-      (d) => d.id,
-    )
-    expect(later).not.toContain(running.id)
-    // anonymes REST (Systemuhr) zeigt keine abgelaufenen Angebote
-    const old = await offer({ startsAt: '2020-01-01T08:00:00.000Z' })
-    const res = await rest('GET', '/tattoo-offers?limit=50&depth=0')
-    const body = (await res.json()) as { docs: { id: number }[] }
-    expect(body.docs.map((d) => d.id)).not.toContain(old.id)
-
-    await rejects(
-      offer({ startsAt: '2026-10-20T08:00:00.000Z', endsAt: '2026-10-20T07:00:00.000Z' }),
-      /nach dem Beginn/,
-    )
-    await rejects(
-      offer({ startsAt: '2026-10-20T08:00:00.000Z', locationNote: 'Musterstraße 12, Berlin' }),
-      /keine Adresse/,
-    )
-    await rejects(
-      offer({ startsAt: '2026-10-20T08:00:00.000Z', locationNote: 'Studio, 12043 Berlin' }),
-      /keine Adresse/,
-    )
-    expect((await rest('POST', '/tattoo-offers', { title: 'x' })).status).toBe(403)
-  })
-})
-
 describe('tattoo-gallery (DATENMODELL §6.16)', () => {
   const entry = (data: Record<string, unknown>, context = {}) =>
     payload.create({
@@ -235,7 +180,11 @@ describe('tattoo-gallery (DATENMODELL §6.16)', () => {
       /Einwilligung erteilt|5–300/,
     )
     await rejects(
-      entry({ consentGiven: true, consentDate: '2027-01-01T00:00:00.000Z', consentNote: 'per DM' }),
+      entry({
+        consentGiven: true,
+        consentDate: '2027-01-01T00:00:00.000Z',
+        consentNote: 'per Mail',
+      }),
       /Zukunft/,
     )
     await rejects(entry({ kind: 'healed' }), /healed/)
@@ -244,7 +193,7 @@ describe('tattoo-gallery (DATENMODELL §6.16)', () => {
       published: true,
       consentGiven: true,
       consentDate: '2026-10-02T00:00:00.000Z',
-      consentNote: 'per DM am 02.10.2026',
+      consentNote: 'per Mail am 02.10.2026',
       extraImages: [imageB],
       creditHandle: '@erika.tattoo',
     })

@@ -4,9 +4,11 @@ import { getMotion } from '../leash/motion'
 
 import {
   CART_CHANGE_EVENT,
+  COCO_JOY_EVENT,
   PRODUCT_STATE_EVENT,
   SOLD_EVENT,
   type BehaviorContext,
+  type CocoJoyDetail,
   type ProductStateDetail,
   type SoldEventDetail,
   type Unmount,
@@ -185,6 +187,9 @@ export function mount(root: Element, ctx: BehaviorContext = { mode: 'app' }): Un
     if (next.added) {
       if (ctx.mode === 'app') doc.dispatchEvent(new CustomEvent(CART_CHANGE_EVENT, { detail: {} }))
       bounceCoco()
+      doc.dispatchEvent(
+        new CustomEvent<CocoJoyDetail>(COCO_JOY_EVENT, { detail: { reason: 'cart' } }),
+      )
     }
   }
 

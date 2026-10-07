@@ -12,7 +12,7 @@ import { aboutInput } from './fixtures'
 describe('Preset about (R19, P8.18)', () => {
   it('Konfiguration laut DESIGN §9.7', () => {
     const c = PRESET_CONFIG.about
-    expect(c.gutter).toEqual({ mobile: 44, desktop: 64 })
+    expect(c.gutter).toEqual({ mobile: 56, desktop: 88 })
     expect(c.rail).toBe('center')
     expect(c.draw).toBe('scroll')
     expect(c.intro).toBe(false)

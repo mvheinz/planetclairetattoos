@@ -85,8 +85,8 @@ export interface Probe {
   ctrl: number[]
   anims: ProbeAnim[]
   deco: { hidden: boolean; focusable: number; count: number }
-  /** Elemente in Mansalva mit Schriftgröße und Rolle */
-  mansalva: { tag: string; size: number; role: string }[]
+  /** Elemente in Spectral (Überschrift-/Akzent-Schrift) mit Schriftgröße und Rolle */
+  display: { tag: string; size: number; role: string }[]
   /** Einträge in localStorage + sessionStorage + Cookies */
   storage: number
   /** Weltraum-Marken: Sterne im Bild, max. Marken je Station */

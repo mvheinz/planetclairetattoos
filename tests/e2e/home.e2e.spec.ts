@@ -2,9 +2,6 @@ import { expect, test } from './fixtures'
 import { type Page } from '@playwright/test'
 
 import type { Locale } from '../../src/lib/routes/registry'
-import { offerState } from '../../src/lib/tattoo/offers'
-
-import { testPayload } from './fixtures'
 
 // P2.20 Startseite R01 (KONZEPT §3.1, DESIGN KO-21/§11.4): Kopf-Station „Planet Claire“ und genau 7 Stationen aus dem
 // Seed `pages:home` (AK-3-01, AK-SEED-18), ohne JavaScript vollständig lesbar, DE und EN vollständig, Linie zeichnet
@@ -22,13 +19,29 @@ const STATION_IDS = [
 ]
 
 const HEADINGS: Record<Locale, string[]> = {
-  de: ['Hallo!', 'Keramik', 'Textil & Caps', 'Zeichnungen', 'Schmuck', 'Tattoo', 'Jutta & Coco'],
-  en: ['Hi!', 'Ceramics', 'Textiles & caps', 'Drawings', 'Jewellery', 'Tattoo', 'Jutta & Coco'],
+  de: [
+    'Komm näher.',
+    'Keramik',
+    'Textil & Caps',
+    'Zeichnungen',
+    'Schmuck',
+    'Tattoo',
+    'Jutta & Coco',
+  ],
+  en: [
+    'Come closer.',
+    'Ceramics',
+    'Textiles & caps',
+    'Drawings',
+    'Jewellery',
+    'Tattoo',
+    'Jutta & Coco',
+  ],
 }
 
 const HERO: Record<Locale, string> = {
-  de: 'Tattoos & handgemachte Unikate aus Berlin',
-  en: 'Tattoos & handmade one-offs from Berlin',
+  de: 'Ein kleiner Planet, auf dem alles nur einmal vorkommt',
+  en: 'A small planet where everything happens only once',
 }
 
 async function expectStations(page: Page, locale: Locale) {
@@ -179,8 +192,8 @@ test.describe('Schriften-Tor (DESIGN §4.1, P2.20)', () => {
     expect(r.fcp).toBeGreaterThan(0)
     expect(r.fonts.length).toBeGreaterThanOrEqual(2)
     for (const start of r.fonts) expect(start).toBeGreaterThan(r.fcp)
-    expect(r.family).toMatch(/^["']?mansalva["']?,/i)
-    expect(await page.evaluate(() => document.fonts.check('400 16px mansalva'))).toBe(true)
+    expect(r.family).toMatch(/^["']?spectral["']?,/i)
+    expect(await page.evaluate(() => document.fonts.check('500 16px spectral'))).toBe(true)
   })
 })
 
@@ -202,8 +215,7 @@ test.describe('Startseite ohne JavaScript @smoke', () => {
 })
 
 // P8.17 Startseite mit vollständigem Beispielbestand (KONZEPT §3.1, SEED-SPEC §5.1, §12.2, §13.1): Stücke je Station,
-// Tattoo-Station mit laufendem Angebot TO2 (Badge) und bis zu 3 freien Flash-Motiven, „Jutta & Coco“ mit Links zu R19,
-// R10 und Instagram, Preisfußnote einmal, JSON-LD `Organization` ohne Adresse. Liest nur den Beispielbestand
+// Tattoo-Station mit bis zu 3 freien Flash-Motiven, „Jutta & Coco“ mit Links zu R19 und R10, Preisfußnote einmal, JSON-LD `Organization` ohne Adresse. Liest nur den Beispielbestand
 // (Stücke paralleler Fixture-Tests 975–999 werden ignoriert).
 const SEED_STATIONS: Record<string, { exact?: number[]; pool?: number[] }> = {
   keramik: { exact: [901, 904, 905, 907] },
@@ -218,7 +230,7 @@ const JUTTA_LINKS: Record<Locale, { about: string; commissions: string }> = {
 
 test.describe('Startseite mit Beispielbestand (P8.17)', () => {
   for (const locale of ['de', 'en'] as const) {
-    test(`AK-3-01 AK-3-02 AK-SEED-18 /${locale}: Stationen, Stücke, Tattoo-Badge, Links, Fußnote, JSON-LD`, async ({
+    test(`AK-3-01 AK-3-02 AK-SEED-18 /${locale}: Stationen, Stücke, Flash-Teaser, Links, Fußnote, JSON-LD`, async ({
       page,
     }) => {
       const res = await page.goto(`/${locale}`)
@@ -240,25 +252,7 @@ test.describe('Startseite mit Beispielbestand (P8.17)', () => {
       }
 
       const tattoo = page.locator('[data-home-station="tattoo"]')
-      const offer = tattoo.locator('[data-offer-card]')
-      await expect(offer).toHaveCount(1)
-      // Zustand gegen die echte Uhr: Der Beispielbestand liegt relativ zu `SEED_NOW` (CI fest 15.10.2026), der Server
-      // rechnet mit der aktuellen Zeit – „läuft“ gilt also nur, wenn beide nahe beieinander liegen.
-      const offerId = Number(await offer.getAttribute('data-offer-card'))
-      const stored = await (
-        await testPayload()
-      ).findByID({ collection: 'tattoo-offers', id: offerId, depth: 0, overrideAccess: true })
-      await expect(offer).toHaveAttribute(
-        'data-offer-state',
-        offerState({ startsAt: stored.startsAt, endsAt: stored.endsAt }, new Date()),
-      )
-      await expect(offer.locator('[data-offer-date]')).toBeVisible()
-      await expect(offer).toContainText(
-        locale === 'de' ? 'Spontane Lücken: winzige Planeten' : 'Last-minute gaps: tiny planets',
-      )
-      await expect(tattoo).not.toContainText(
-        locale === 'de' ? 'Flash-Day im Spätsommer' : 'Late summer flash day',
-      )
+      await expect(tattoo.locator('[data-offer-card]')).toHaveCount(0)
       const flash = tattoo.locator('[data-teaser-flash]')
       expect(await flash.count()).toBeGreaterThan(0)
       expect(await flash.count()).toBeLessThanOrEqual(3)
@@ -266,9 +260,9 @@ test.describe('Startseite mit Beispielbestand (P8.17)', () => {
       const jutta = page.locator('[data-home-station="jutta-und-coco"]')
       await expect(jutta.locator(`a[href="${JUTTA_LINKS[locale].about}"]`)).toHaveCount(1)
       await expect(jutta.locator(`a[href="${JUTTA_LINKS[locale].commissions}"]`)).toHaveCount(1)
-      const insta = jutta.locator('a[href^="https://www.instagram.com/"]')
-      await expect(insta).toHaveCount(1)
-      await expect(insta).toHaveAttribute('rel', 'noopener noreferrer')
+      // P12.7 (U-15): Das Instagram-Profil ist nur im Fuß verlinkt, nicht in der Station.
+      await expect(jutta.locator('a[href*="instagram.com"]')).toHaveCount(0)
+      await expect(page.locator('main a[href*="ig.me"]')).toHaveCount(0)
 
       await expect(page.locator('[data-price-footnote]')).toHaveCount(1)
       const ld = await page

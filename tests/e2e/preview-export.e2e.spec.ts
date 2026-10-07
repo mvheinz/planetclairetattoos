@@ -16,7 +16,7 @@ import { LOCALES, ROUTES } from '../../src/lib/routes/registry'
 const FILE = path.resolve('dist/planet-claire-vorschau.html')
 const REPORT = path.resolve('dist/planet-claire-vorschau.report.json')
 const URL_BASE = pathToFileURL(FILE).href
-const FONT_FAMILIES = ['mansalva', 'bricolage', 'plexMono']
+const FONT_FAMILIES = ['spectral', 'spectralItalic', 'bricolage', 'plexMono']
 const NOT_INCLUDED = '/vorschau/nicht-enthalten'
 const S01 = '/de/shop/901-schale-langohr-wuschel'
 
@@ -187,8 +187,15 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
         `${r.route}: Bilder`,
       ).toEqual([])
       const fonts = await page.evaluate(async (families) => {
-        await Promise.all(families.map((f) => document.fonts.load(`16px ${f}`)))
-        return families.map((f) => ({ f, ok: document.fonts.check(`16px ${f}`) }))
+        await Promise.all(
+          families.map((f) =>
+            document.fonts.load(`${f.endsWith('Italic') ? 'italic ' : ''}16px ${f}`),
+          ),
+        )
+        return families.map((f) => ({
+          f,
+          ok: document.fonts.check(`${f.endsWith('Italic') ? 'italic ' : ''}16px ${f}`),
+        }))
       }, FONT_FAMILIES)
       expect(
         fonts.filter((x) => !x.ok),
@@ -540,9 +547,7 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
     expect(productRoute(929, 'en'), 'S29 en').toBeTruthy()
     const s08 = seedProductSlugs('S08').de
     await go(page, `/de/shop/${s08.nummer}-${s08.slug}`)
-    await expect(page.locator('#pv-root h1')).toHaveText(
-      'Dieses Stück hat schon ein Zuhause gefunden',
-    )
+    await expect(page.locator('#pv-root h1')).toHaveText('Dieses Stück ist weitergezogen')
 
     // G1/G2 mit Etikett „intern – Einwilligung fehlt“ (R-182)
     await go(page, localizedPath('R15', 'de'))
@@ -608,20 +613,7 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
       for (const lang of LOCALES)
         expect(builtIds.has(`${id}:${lang}`), `${id} ${lang} gebaut`).toBe(true)
     // P4.25 EK-11 / P8.21: Danke- und Statusseiten mit den Seed-Ankern gebaut; R19 und alle Tattoo-Routen `ok`.
-    for (const id of [
-      'R08',
-      'R09',
-      'R10',
-      'R11',
-      'R12',
-      'R13',
-      'R14',
-      'R15',
-      'R16',
-      'R17',
-      'R18',
-      'R19',
-    ])
+    for (const id of ['R08', 'R09', 'R10', 'R11', 'R12', 'R14', 'R15', 'R16', 'R17', 'R18', 'R19'])
       for (const lang of LOCALES)
         expect(builtIds.has(`${id}:${lang}`), `${id} ${lang} gebaut (ok)`).toBe(true)
     for (const variant of [

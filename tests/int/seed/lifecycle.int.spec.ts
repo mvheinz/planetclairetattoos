@@ -13,6 +13,7 @@ import { seedCollections, seedSummary } from '@/lib/seed/remove'
 import { resolveSeedTime } from '@/lib/seed/time'
 
 import { getTestPayload } from '../helpers/payload'
+import { createTestImage } from '../helpers/products'
 import { findAll, runCanonicalSeed, SEED_CLOCK, SEED_N, SEED_TIMEOUT } from './canonical'
 
 // P8.9: Lebenszyklus des Beispielbestands (SEED-SPEC §1.3–§1.7, §18; DATENMODELL §13.5) – Idempotenz, Mengen,
@@ -162,8 +163,8 @@ afterAll(async () => {
   await runCanonicalSeed(payload, 'remove', { yes: true, dropTexts: true })
   await dropAdoptedTexts()
   await payload.delete({
-    collection: 'tattoo-offers',
-    where: { title: { equals: 'Echte Aktion mit Seed-Flash' } },
+    collection: 'tattoo-gallery',
+    where: { caption: { equals: 'Echtes Foto mit Seed-Flash' } },
     overrideAccess: true,
   })
   await payload.delete({ collection: 'revenue-entries', where: {}, overrideAccess: true })
@@ -209,8 +210,8 @@ describe('Seed-Lebenszyklus (AK-SEED-01, -02, -03, -14, -15; AK-11-01, AK-11-02)
         products: 1, // echtes Stück Nr. 17
         'legal-texts': SEED_EXPECTED_COUNTS['legal-texts'],
         categories: SEED_EXPECTED_COUNTS.categories,
-        // PDFs der Platzhalter-Rechtstexte (Grund-Seed, seed = false)
-        documents: SEED_EXPECTED_COUNTS['legal-texts'],
+        // PDFs der Platzhalter-Rechtstexte (Grund-Seed, seed = false), seit P12.11 je Typ DE und EN
+        documents: SEED_EXPECTED_COUNTS['legal-texts'] * 2,
       }
       // audit-log: echte Einträge (z. B. seed_removed, Anlage des echten Stücks) sind keine Seed-Dokumente.
       if (c === 'audit-log') {
@@ -290,19 +291,20 @@ describe('Seed-Lebenszyklus (AK-SEED-01, -02, -03, -14, -15; AK-11-01, AK-11-02)
 
   it('AK-SEED-14/AK-SEED-15: seed:remove --yes → 0 Dokumente mit seed = true, keine BSP-Zähler, Seiten/FAQ übernommen, Sequenzen und echte Daten unverändert; Verweise echter Dokumente im Bericht', async () => {
     const flashes = await findAll(payload, 'flash', {
-      seedKey: { in: ['flash:F902', 'flash:F906'] },
+      seedKey: { in: ['flash:F902'] },
     })
-    expect(flashes).toHaveLength(2)
-    const offer = await payload.create({
-      collection: 'tattoo-offers',
+    expect(flashes).toHaveLength(1)
+    const realPhoto = await payload.create({
+      collection: 'tattoo-gallery',
       data: {
-        type: 'aktion',
-        title: 'Echte Aktion mit Seed-Flash',
-        description: 'Gegenprobe: echte Aktion, die auf Beispiel-Flash verweist.',
-        startsAt: '2026-11-07T11:00:00.000Z',
-        endsAt: '2026-11-07T18:00:00.000Z',
-        flashes: flashes.map((f) => f.id),
+        image: await createTestImage(payload, 'Echtes Foto mit Seed-Flash'),
+        kind: 'fresh',
+        caption: 'Echtes Foto mit Seed-Flash',
+        flash: flashes[0]!.id,
+        showsCustomer: false,
+        consentGiven: false,
         published: false,
+        sortOrder: 99,
       } as never,
       overrideAccess: true,
     })
@@ -326,18 +328,17 @@ describe('Seed-Lebenszyklus (AK-SEED-01, -02, -03, -14, -15; AK-11-01, AK-11-02)
     expect(await count('privacy-requests')).toBe(0)
     expect(await count('checkouts')).toBe(0)
 
-    // Verweis der echten Aktion auf Seed-Flash: entfernt und im Bericht gelistet.
+    // Verweis des echten Galerie-Fotos auf Seed-Flash: entfernt und im Bericht gelistet.
     const after = await payload.findByID({
-      collection: 'tattoo-offers',
-      id: offer.id,
+      collection: 'tattoo-gallery',
+      id: realPhoto.id,
       depth: 0,
       overrideAccess: true,
     })
-    expect(after.flashes ?? []).toEqual([])
-    expect(report.get('tattoo-offers', 'unlinked')).toBe(2)
-    expect(report.notes).toContain(
-      `Verweis entfernt: tattoo-offers ${offer.id} „Echte Aktion mit Seed-Flash“ (flashes) → flash:F902`,
-    )
+    expect(after.flash ?? null).toBeNull()
+    expect(report.get('tattoo-gallery', 'unlinked')).toBe(1)
+    expect(report.notes.join('\n')).toContain(`tattoo-gallery ${realPhoto.id}`)
+    expect(report.notes.join('\n')).toContain('→ flash:F902')
 
     const settings = (await payload.findGlobal({ slug: 'settings', overrideAccess: true })) as {
       seed?: { exampleDataPresent?: boolean }

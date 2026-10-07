@@ -15,7 +15,7 @@ export const SWING_MS = 1200
 export const SWING_TIMES = 2
 export const SWING_DEG = 2
 export const RUN_MS = 2400
-const FALLBACK_SWING_EASE = 'cubic-bezier(0.45, 0, 0.55, 1)'
+const FALLBACK_SWING_EASE = 'ease-in-out'
 
 function cssVar(doc: Document, name: string, fallback: string): string {
   const win = doc.defaultView

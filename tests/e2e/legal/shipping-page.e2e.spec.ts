@@ -95,7 +95,7 @@ test.describe('R25 Versand & Zahlung – Grund-Seed-Preise', () => {
           brief: ['Letter', 'Deutsche Post'],
           keramik: ['Ceramics parcel', 'DHL'],
           pickup: 'Pickup in Berlin',
-          rule: 'the highest shipping class in your cart applies',
+          rule: 'the highest shipping class in your basket applies',
           time: 'Delivery time: 2–5 working days (for payment in advance, from receipt of payment)',
           area: "I only deliver within Germany. Pickup in Berlin is possible by arrangement. I don't ship abroad at the moment.",
           stripe: ['Credit or debit card', 'Apple Pay', 'Google Pay', 'PayPal', 'Stripe'],

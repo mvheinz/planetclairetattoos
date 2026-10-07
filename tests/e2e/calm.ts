@@ -18,7 +18,12 @@ export async function expectCalm(page: Page, label: string) {
       )
       .filter(({ d }) => d.split(',').some((part) => part.trim() !== '0s'))
       .map(({ el, d }) => `${el.tagName.toLowerCase()}.${el.className}: ${d}`)
-    return { animations: document.getAnimations().length, moving, count: els.length }
+    // Scroll-gebundene Animationen (Seitenverlauf Olivgrün → Petrol, U-11) laufen nicht über die Zeit, sondern nur beim Scrollen:
+    // sie zählen nicht als Bewegung; zeitgesteuerte Animationen bleiben verboten.
+    const timed = document
+      .getAnimations()
+      .filter((a) => !(a.timeline?.constructor?.name === 'ScrollTimeline'))
+    return { animations: timed.length, moving, count: els.length }
   })
   expect(result.count, `${label} <main> vorhanden`).toBeGreaterThan(1)
   expect(result.animations, `${label} getAnimations()`).toBe(0)

@@ -8,7 +8,6 @@ export const ContactLinks: Block = {
   fields: [
     heading(),
     { name: 'showEmail', type: 'checkbox', label: 'E-Mail zeigen', defaultValue: true },
-    { name: 'showInstagram', type: 'checkbox', label: 'Instagram zeigen', defaultValue: true },
     { name: 'showDistrict', type: 'checkbox', label: 'Bezirk zeigen', defaultValue: true },
     {
       name: 'emailSubject',

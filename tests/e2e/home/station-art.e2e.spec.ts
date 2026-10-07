@@ -4,7 +4,7 @@ import { expect, test } from '../fixtures'
 // `src/art/stations/` bzw. dem Coco-Sprite (keine Ersatzzeichnung mehr), `aria-hidden`, Tusche über `currentColor`, ohne Konsolenfehler.
 
 const STATION_IDS = [
-  'hallo',
+  'fitness',
   'keramik',
   'textil',
   'zeichnungen',
@@ -28,6 +28,11 @@ test('P8.14: Startseite zeigt 7 Stationszeichnungen ohne Konsolenfehler', async 
   ).toEqual(STATION_IDS)
   for (const id of STATION_IDS) {
     const art = page.locator(`[data-station-art="${id}"]`)
+    if (id === 'fitness') {
+      // Fitness-Coco (P12.5): Standbild mit Alt-Text statt Inline-SVG
+      await expect(art.locator('img')).toHaveCount(1) // Standbild (bei laufender Schleife verdeckt von der Leinwand)
+      continue
+    }
     await expect(art).toHaveAttribute('aria-hidden', 'true')
     const svg = art.locator('svg')
     // „Hallo“/„Jutta & Coco“: Coco aus dem Sprite (DESIGN §12.4), bei Jutta & Coco zusätzlich die Planet-Marke

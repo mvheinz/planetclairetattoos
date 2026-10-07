@@ -8,12 +8,12 @@
       "en": "Bowl “Long Ears & Fluff”"
     },
     "description": {
-      "de": "Kleine Schale, innen wohnen ein Hase mit sehr langen Ohren und ein Wuschelhund, der ihn anhimmelt. Leicht schief geformt, weiß glasiert, schwarze Linie. Für Ringe, Schlüssel oder Kleinkram.",
-      "en": "A small bowl where a very long-eared bunny lives with a fluffy dog who adores him. Slightly wonky, white glaze, black line. For rings, keys or odds and ends."
+      "de": "In dieser Schale wohnen ein Hase mit sehr langen Ohren und ein Wuschelhund, der ihn anhimmelt. Leicht schief geformt, weiß glasiert, mit schwarzer Linie. Für Ringe, Schlüssel und Kleinkram.",
+      "en": "A bunny with very long ears lives in this bowl, together with a fluffy dog who adores him. Slightly crooked in shape, white glaze, black line. For rings, keys and small things."
     },
     "juttaSays": {
-      "de": "Die beiden sind unzertrennlich. Bitte nicht auseinanderbringen.",
-      "en": "These two are inseparable. Please don't split them up."
+      "de": "Die beiden gehören zusammen. Bitte trenn sie nicht.",
+      "en": "These two belong together. Please do not part them."
     },
     "priceCents": 4500,
     "vatCategory": "standard",
@@ -49,8 +49,8 @@
       "en": "Bowl “Two Dogs”"
     },
     "description": {
-      "de": "Zwei Hunde in einer Schale: einer hell mit Schlappohren, einer schwarz und sehr aufgeregt. Handgeformt, weiß glasiert, innen bemalt.",
-      "en": "Two dogs in one bowl: a light one with floppy ears and a black one who is very excited. Hand-formed, white glaze, painted inside."
+      "de": "Zwei Hunde teilen sich eine Schale: einer hell mit Schlappohren, einer schwarz und sehr aufgeregt. Handgeformt, weiß glasiert, innen bemalt.",
+      "en": "Two dogs share one bowl: a light one with floppy ears, a black one who is very excited. Hand-formed, white glaze, painted inside."
     },
     "priceCents": 4800,
     "vatCategory": "standard",
@@ -88,8 +88,8 @@
       "en": "Bowl “Dog & Black Bunny”"
     },
     "description": {
-      "de": "Ein heller Hund mit Kulleraugen trifft einen schwarzen Hasen mit Riesenohren. Wer hier wen erschreckt, ist noch nicht geklärt.",
-      "en": "A light dog with googly eyes meets a black bunny with giant ears. Who's scaring whom is still up for debate."
+      "de": "Ein heller Hund mit Kulleraugen begegnet einem schwarzen Hasen mit Riesenohren. Wer hier wen erschreckt, bleibt ein Geheimnis. Handgeformt, weiß glasiert.",
+      "en": "A light dog with googly eyes meets a black bunny with giant ears. Who frightens whom remains a secret. Hand-formed, white glaze."
     },
     "priceCents": 4500,
     "vatCategory": "standard",
@@ -127,8 +127,8 @@
       "en": "Round butterfly dish"
     },
     "description": {
-      "de": "Flaches rundes Schälchen mit einem Schmetterling aus meinem Skizzenbuch und einer handgeschriebenen Zeile. Rundherum kleine Punkte am Rand. Für Ohrringe, Ringe oder einfach zum Angucken.",
-      "en": "A flat round dish with a butterfly from my sketchbook and a handwritten line. Little dots all around the rim. For earrings, rings or just to look at."
+      "de": "Ein flaches, rundes Schälchen: In der Mitte flattert ein Schmetterling aus meinem Skizzenbuch, darüber eine handgeschriebene Zeile, am Rand ein Kranz aus Punkten. Für Ohrringe, Ringe oder nur zum Ansehen.",
+      "en": "A flat, round dish: in the middle a butterfly from my sketchbook flutters, above it a handwritten line, around the rim a wreath of dots. For earrings, rings or simply for looking."
     },
     "priceCents": 3800,
     "vatCategory": "standard",
@@ -165,8 +165,8 @@
       "en": "Butterfly dish for hanging"
     },
     "description": {
-      "de": "Flaches Schälchen mit Lasche: ein zart gefärbter Schmetterling, drumherum handgeschriebene Worte. Hängt am Nagel genauso schön, wie es auf dem Tisch liegt.",
-      "en": "A flat dish with a tab: a softly coloured butterfly with handwritten words around it. Looks just as good on a nail as it does on a table."
+      "de": "Ein flaches Schälchen mit Lasche: ein zart gefärbter Schmetterling, umgeben von handgeschriebenen Worten. Am Nagel hängt es so schön, wie es auf dem Tisch liegt.",
+      "en": "A flat dish with a tab: a softly coloured butterfly surrounded by handwritten words. It hangs from a nail as beautifully as it rests on a table."
     },
     "priceCents": 4200,
     "vatCategory": "standard",
@@ -203,8 +203,8 @@
       "en": "Tile “On Stage”"
     },
     "description": {
-      "de": "Bemalte Fliese: Jemand im dunklen Anzug steht auf der Bühne, die Worte schweben drumherum. Vom Flohmarkttisch direkt in die Welt.",
-      "en": "A painted tile: someone in a dark suit on stage, words floating all around. Straight from the flea market table out into the world."
+      "de": "Eine bemalte Fliese: Jemand im dunklen Anzug steht auf einer Bühne, die Worte schweben um ihn. Vom Markttisch direkt in die Welt.",
+      "en": "A painted tile: someone in a dark suit stands on a stage, the words floating around them. From the market table straight into the world."
     },
     "priceCents": 6500,
     "vatCategory": "standard",
@@ -244,12 +244,12 @@
       "en": "Plate “Bunny Round Dance”"
     },
     "description": {
-      "de": "Fünf Hasen laufen im Kreis um den Teller, und keiner weiß mehr, wer angefangen hat. In der Mitte parkt ein kleiner Planet. Zum Hinstellen oder Aufhängen (Aufhänger nicht dabei).",
-      "en": "Five bunnies running in circles around the plate, and nobody remembers who started it. A little planet is parked in the middle. To stand up or hang (hanger not included)."
+      "de": "Fünf Hasen laufen im Kreis um den Teller, und keiner weiß mehr, wer damit angefangen hat. In der Mitte parkt ein kleiner Planet. Zum Hinstellen oder Aufhängen (Aufhänger nicht dabei).",
+      "en": "Five bunnies run in circles around the plate, and nobody remembers who started it. A small planet is parked in the middle. To stand up or to hang (hanger not included)."
     },
     "juttaSays": {
-      "de": "Der war schon einmal unterwegs und ist zurückgekommen. Ganz heil, nur etwas reiseerfahrener.",
-      "en": "This one went on a trip and came back. Perfectly fine, just a bit more well-travelled."
+      "de": "Er war schon einmal unterwegs und ist zurückgekehrt. Heil, nur ein wenig weitgereister.",
+      "en": "He has travelled once already and come back. Unharmed, only a little more widely travelled."
     },
     "priceCents": 5800,
     "vatCategory": "standard",
@@ -285,8 +285,8 @@
       "en": "Small plate “Fox on the Moon”"
     },
     "description": {
-      "de": "Ein Fuchs macht es sich in der Mondsichel gemütlich, drei Sterne gucken zu. Kleiner Deko-Teller.",
-      "en": "A fox getting cosy in a crescent moon while three stars watch. Small decorative plate."
+      "de": "Ein Fuchs macht es sich in der Mondsichel bequem, drei Sterne sehen zu. Ein kleiner Deko-Teller.",
+      "en": "A fox settles into the crescent moon while three stars look on. A small decorative plate."
     },
     "priceCents": 4900,
     "vatCategory": "standard",
@@ -326,7 +326,7 @@
     },
     "description": {
       "de": "Ein Reh mit Tupfen bleibt ganz ruhig, während es kleine Planeten regnet. Quadratische Fliese zum Hinstellen oder Aufhängen.",
-      "en": "A spotted deer stays perfectly calm while it rains little planets. Square tile to stand up or hang."
+      "en": "A spotted deer stays perfectly calm while small planets rain down. Square tile to stand up or to hang."
     },
     "priceCents": 8500,
     "vatCategory": "standard",
@@ -364,8 +364,8 @@
       "en": "T-shirt “Bunny Parade”"
     },
     "description": {
-      "de": "Weißes Second-Hand-Shirt, vorne marschieren vier Hasen im Gleichschritt. Von Hand bemalt, schön weich gewaschen.",
-      "en": "White second-hand tee with four bunnies marching in step across the front. Painted by hand, nice and soft from washing."
+      "de": "Ein weißes Second-Hand-Shirt, auf dem vier Hasen im Gleichschritt über die Brust marschieren. Von Hand bemalt, weich gewaschen.",
+      "en": "A white second-hand tee on which four bunnies march in step across the chest. Painted by hand, washed soft."
     },
     "priceCents": 6800,
     "vatCategory": "standard",
@@ -418,12 +418,12 @@
       "en": "T-shirt “Coco Flies to the Moon”"
     },
     "description": {
-      "de": "Graues Shirt: Coco sitzt mit Helm auf einer Rakete und will zum Mond. Second-Hand, von Hand bemalt.",
-      "en": "Grey tee: Coco in a helmet, riding a rocket to the moon. Second-hand, painted by hand."
+      "de": "Ein graues Shirt: Coco sitzt mit Helm auf einer Rakete und will zum Mond. Second-Hand, von Hand bemalt.",
+      "en": "A grey tee: Coco sits in a helmet on a rocket, bound for the moon. Second-hand, painted by hand."
     },
     "juttaSays": {
-      "de": "Das Loch hab ich extra bunt gestopft – Coco findet, das gehört jetzt dazu.",
-      "en": "I darned the hole in a bright colour on purpose – Coco says it's part of the look now."
+      "de": "Das Loch habe ich absichtlich bunt gestopft – Coco findet, es gehört jetzt dazu.",
+      "en": "I darned the hole in bright thread on purpose – Coco says it belongs now."
     },
     "priceCents": 6400,
     "vatCategory": "standard",
@@ -488,8 +488,8 @@
       "en": "Ringer tee “Fox”"
     },
     "description": {
-      "de": "Ringer-Shirt mit roten Bündchen und einem Fuchs mit Kulleraugen auf der Brust. Kaum getragen.",
-      "en": "Ringer tee with red trims and a googly-eyed fox on the chest. Barely worn."
+      "de": "Ein Ringer-Shirt mit roten Bündchen, auf der Brust ein Fuchs mit Kulleraugen. Kaum getragen.",
+      "en": "A ringer tee with red trims and a googly-eyed fox on the chest. Barely worn."
     },
     "priceCents": 7200,
     "vatCategory": "standard",
@@ -541,8 +541,8 @@
       "en": "Dress “Bunny Border”"
     },
     "description": {
-      "de": "Leichtes Sommerkleid, am Saum eine gemalte Bordüre aus Hasenköpfen und Tupfen. Mit Futter, Second-Hand.",
-      "en": "Light summer dress with a painted border of bunny heads and dots along the hem. Lined, second-hand."
+      "de": "Ein leichtes Sommerkleid; am Saum zieht eine gemalte Bordüre aus Hasenköpfen und Tupfen entlang. Mit Futter, Second-Hand.",
+      "en": "A light summer dress; along the hem runs a painted border of bunny heads and dots. Lined, second-hand."
     },
     "priceCents": 14500,
     "vatCategory": "standard",
@@ -600,8 +600,8 @@
       "en": "Dress “Planet Night”"
     },
     "description": {
-      "de": "Dunkelblaues Kleid mit langen Ärmeln, übersät mit Planeten und Sternen. Das Etikett fehlt – nach bestem Wissen Baumwolle.",
-      "en": "Dark blue long-sleeved dress scattered with planets and stars. The label is missing – to the best of my knowledge it's cotton."
+      "de": "Ein dunkelblaues Kleid mit langen Ärmeln, übersät mit Planeten und Sternen – eine Nacht zum Anziehen. Das Etikett fehlt, nach bestem Wissen ist es Baumwolle.",
+      "en": "A dark blue long-sleeved dress scattered with planets and stars – a night to put on. The label is missing; to the best of my knowledge it is cotton."
     },
     "priceCents": 12800,
     "vatCategory": "standard",
@@ -664,12 +664,12 @@
       "en": "Pink cap “sometimes”"
     },
     "description": {
-      "de": "Pinke Cap mit einem roten Fabelwesen, schwarzen Ranken und kleinen blauen Schlangen. Auf dem Schirm steht „sometimes“ – manchmal eben.",
-      "en": "Pink cap with a red creature, black vines and little blue snakes. The brim says “sometimes” – because sometimes, well."
+      "de": "Eine pinke Cap mit einem roten Fabelwesen, schwarzen Ranken und kleinen blauen Schlangen. Auf dem Schirm steht „sometimes“ – manchmal eben.",
+      "en": "A pink cap with a red creature, black vines and little blue snakes. The brim says “sometimes” – sometimes, after all."
     },
     "juttaSays": {
-      "de": "Das Wesen hat keinen Namen. Vorschläge nehme ich gern per DM.",
-      "en": "The creature doesn't have a name yet. Suggestions welcome by DM."
+      "de": "Das Wesen hat keinen Namen. Vorschläge nehme ich gern per Mail entgegen.",
+      "en": "The creature has no name. I gladly accept suggestions by email."
     },
     "priceCents": 8500,
     "vatCategory": "standard",
@@ -720,8 +720,8 @@
       "en": "Grey cap “Flame Creature”"
     },
     "description": {
-      "de": "Grau gewaschene Cap, vorne springt ein schwarzes Wesen durch bunte Flammen. Mit Schriftzug auf dem Schirm.",
-      "en": "Washed grey cap with a black creature leaping through colourful flames. Lettering on the brim."
+      "de": "Eine grau gewaschene Cap, auf der ein schwarzes Wesen durch bunte Flammen springt. Mit Schriftzug auf dem Schirm.",
+      "en": "A washed grey cap on which a black creature leaps through colourful flames. Lettering on the brim."
     },
     "priceCents": 8900,
     "vatCategory": "standard",
@@ -774,8 +774,8 @@
       "en": "Cap “Coco Head”"
     },
     "description": {
-      "de": "Sandfarbene Cap, vorne guckt Coco mit ihren Riesenohren raus. Wie neu.",
-      "en": "Sand-coloured cap with Coco and her giant ears peeking out from the front. Like new."
+      "de": "Eine sandfarbene Cap, auf der Coco mit ihren Riesenohren hervorschaut. Wie neu.",
+      "en": "A sand-coloured cap on which Coco peeks out with her giant ears. Like new."
     },
     "priceCents": 7900,
     "vatCategory": "standard",
@@ -826,8 +826,8 @@
       "en": "Cap “Little Planet”"
     },
     "description": {
-      "de": "Schwarze Cap mit einem kleinen Planeten und zwei Sternen an der Seite.",
-      "en": "Black cap with a little planet and two stars on the side."
+      "de": "Eine schwarze Cap mit einem kleinen Planeten und zwei Sternen an der Seite.",
+      "en": "A black cap with a small planet and two stars at the side."
     },
     "priceCents": 7500,
     "vatCategory": "standard",
@@ -874,7 +874,7 @@
     },
     "description": {
       "de": "Ein Fuchs mit großen Augen und langen Schnurrhaaren, leuchtend orange auf Grün und Pink. Original-Aquarell, ungerahmt.",
-      "en": "A fox with big eyes and long whiskers, bright orange on green and pink. Original watercolour, unframed."
+      "en": "A fox with big eyes and long whiskers, glowing orange on green and pink. Original watercolour, unframed."
     },
     "priceCents": 12000,
     "vatCategory": "reduced_art",
@@ -912,8 +912,8 @@
       "en": "“Two Figures”, ink"
     },
     "description": {
-      "de": "Eine Figur im karierten Kleid mit tätowierten Beinen, daneben hängt jemand kopfüber ab. Feine, zittrige Linie – mein Lieblingsstrich.",
-      "en": "A figure in a checked dress with tattooed legs, and someone hanging upside down next to her. Fine, shaky line – my favourite kind."
+      "de": "Eine Figur im karierten Kleid mit tätowierten Beinen, neben ihr hängt jemand kopfüber und scheint zufrieden. Feine, zittrige Linie – mein liebster Strich.",
+      "en": "A figure in a checked dress with tattooed legs; beside her someone hangs upside down and seems content. Fine, trembling line – my favourite stroke."
     },
     "priceCents": 9500,
     "vatCategory": "reduced_art",
@@ -950,7 +950,7 @@
     },
     "description": {
       "de": "Aus einem Kelch windet sich eine Schlange. Klare schwarze Linie auf Weiß. Das Motiv gibt es auch als Flash F-901.",
-      "en": "A snake winding its way out of a chalice. Clean black line on white. The design is also available as flash F-901."
+      "en": "A snake winds out of a chalice. Clean black line on white. The design also exists as flash F-901."
     },
     "priceCents": 8000,
     "vatCategory": "reduced_art",
@@ -988,12 +988,12 @@
       "en": "“Deer”, sketchbook watercolour"
     },
     "description": {
-      "de": "Ein Rehkitz mit großen Ohren und hellen Tupfen, direkt aus meinem Skizzenbuch getrennt.",
-      "en": "A fawn with big ears and pale spots, taken straight out of my sketchbook."
+      "de": "Ein Rehkitz mit großen Ohren und hellen Tupfen, geradewegs aus meinem Skizzenbuch gelöst.",
+      "en": "A fawn with big ears and pale spots, lifted straight out of my sketchbook."
     },
     "juttaSays": {
-      "de": "Die Welle im Papier kommt vom Wasser. Das gehört beim Aquarell dazu.",
-      "en": "The wave in the paper comes from the water. That's just watercolour."
+      "de": "Die Welle im Papier kommt vom Wasser. Sie gehört zum Aquarell.",
+      "en": "The wave in the paper comes from the water. It belongs to watercolour."
     },
     "priceCents": 11000,
     "vatCategory": "reduced_art",
@@ -1071,8 +1071,8 @@
       "en": "“Flame Creature”, watercolour"
     },
     "description": {
-      "de": "Das Wesen von der grauen Cap hat sein eigenes Blatt bekommen: schwarz, mit einer Mähne aus bunten Flammen.",
-      "en": "The creature from the grey cap got its own sheet: black, with a mane of colourful flames."
+      "de": "Das Wesen von der grauen Cap hat ein eigenes Blatt bekommen: schwarz, mit einer Mähne aus bunten Flammen.",
+      "en": "The creature from the grey cap was given a sheet of its own: black, with a mane of colourful flames."
     },
     "priceCents": 18000,
     "vatCategory": "reduced_art",
@@ -1109,7 +1109,7 @@
       "de": "„Kleine Hasenversammlung“, Tusche"
     },
     "description": {
-      "de": "Fünf Hasen stehen im Halbkreis und beraten etwas sehr Wichtiges. Tusche, A5."
+      "de": "Fünf Hasen stehen im Halbkreis und beraten etwas sehr Wichtiges – leise, damit niemand es hört. Tusche, A5."
     },
     "priceCents": 6000,
     "vatCategory": "reduced_art",
@@ -1144,7 +1144,7 @@
       "en": "Fox pendant"
     },
     "description": {
-      "de": "Winziger Fuchs aus Keramik, orange-weiß glasiert, mit schwarz gemaltem Gesicht und Öse. Kette nicht dabei.",
+      "de": "Ein winziger Fuchs aus Keramik, orange-weiß glasiert, mit schwarz gemaltem Gesicht und Öse. Kette nicht dabei.",
       "en": "A tiny ceramic fox, glazed orange and white, with a black-painted face and a loop. Chain not included."
     },
     "juttaSays": {
@@ -1191,8 +1191,8 @@
       "en": "Pendant “Coco with a Planet Ring”"
     },
     "description": {
-      "de": "Coco als Planet – mit Ring um den Kopf. Kleiner Keramik-Anhänger mit Öse.",
-      "en": "Coco as a planet – with a ring around her head. Small ceramic pendant with a loop."
+      "de": "Coco als Planet, mit einem Ring um den Kopf. Kleiner Keramik-Anhänger mit Öse.",
+      "en": "Coco as a planet, with a ring around her head. Small ceramic pendant with a loop."
     },
     "priceCents": 3200,
     "vatCategory": "standard",
@@ -1278,7 +1278,7 @@
       "de": "Reh-Köpfchen-Anhänger"
     },
     "description": {
-      "de": "Ein Rehköpfchen mit großen Ohren und Tupfen auf der Stirn. Keramik, glasiert, mit Öse."
+      "de": "Ein Rehköpfchen mit großen Ohren und Tupfen auf der Stirn, als lauschte es dem Mond. Keramik, glasiert, mit Öse."
     },
     "priceCents": 2900,
     "vatCategory": "standard",
@@ -1320,12 +1320,12 @@
       "en": "Flea-market mirror “Bunny Frame”"
     },
     "description": {
-      "de": "Alter Holzspiegel vom Flohmarkt, auf dem Rahmen gucken Hasen über die Kante. Zu schwer und zu zerbrechlich für die Post – nur Abholung in Berlin.",
-      "en": "An old wooden mirror from the flea market, with bunnies peeking over the edge of the frame. Too heavy and fragile to post – pickup in Berlin only."
+      "de": "Ein alter Holzspiegel vom Flohmarkt; auf dem Rahmen schauen Hasen über die Kante. Zu schwer und zu zerbrechlich für die Post – nur Abholung in Berlin.",
+      "en": "An old wooden mirror from the flea market; bunnies peer over the edge of its frame. Too heavy and too fragile to post – pickup in Berlin only."
     },
     "juttaSays": {
-      "de": "Die Hasen gucken dir beim Zähneputzen zu. Sorry.",
-      "en": "The bunnies will watch you brush your teeth. Sorry."
+      "de": "Die Hasen sehen dir beim Zähneputzen zu. Verzeih.",
+      "en": "The bunnies will watch you brush your teeth. Forgive them."
     },
     "priceCents": 9800,
     "vatCategory": "standard",

@@ -14,11 +14,11 @@ import { tattooTextWarnings } from '@/lib/tattoo/textWarnings'
 const DIR = path.resolve('src/admin/views/tattoo')
 
 describe('Tattoo-Verwaltung (P7.6–P7.9)', () => {
-  it('Reiter Flash · Angebote · Galerie · Texte mit deutschen Beschriftungen', () => {
-    expect(TATTOO_TABS).toEqual(['flash', 'angebote', 'galerie', 'texte'])
+  it('Reiter Flash · Termine · Galerie · Texte mit deutschen Beschriftungen', () => {
+    expect(TATTOO_TABS).toEqual(['flash', 'termine', 'galerie', 'texte'])
     expect(TATTOO_TABS.map((t) => TATTOO_TEXT[`tab_${t}`])).toEqual([
       'Flash',
-      'Angebote',
+      'Termine',
       'Galerie',
       'Texte',
     ])

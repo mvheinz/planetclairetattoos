@@ -106,8 +106,6 @@ describe('POST /api/cron/run/[task]', () => {
     // Seit P7 sind alle Slugs aus Anhang A.3 umgesetzt; 501 gibt es nur noch für künftige Einträge.
     const pending = TASK_SLUGS.filter((s) => !isImplementedTask(s))
     for (const slug of pending) expect((await run(slug, `Bearer ${SECRET}`)).status).toBe(501)
-    const p7 = await run('revalidateEndedOffers', `Bearer ${SECRET}`)
-    expect(p7.status).toBe(200)
   })
 
   it('„Jetzt ausführen“ mit Bearer bzw. Admin-Sitzung → 200 und je Lauf ein Eintrag in job_runs', async () => {

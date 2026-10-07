@@ -1,6 +1,6 @@
 name: Vorschau-Release
 
-# ARCHITEKTUR §6.6 (PLAN P10.21): veröffentlicht die Vorschau-Datei als GitHub-Release `vorschau-p10` – automatisch, sobald
+# ARCHITEKTUR §6.6 (PLAN P10.21): veröffentlicht die Vorschau-Datei als GitHub-Release `vorschau-p12` – automatisch, sobald
 # der Plan leer ist (`scripts/cloud-setup.sh --plan-status` meldet `OFFEN_P1_P10=0`) und das Release fehlt oder veraltet ist.
 # Einziger Workflow mit `push`-Auslöser (AK-A-6-01): nur bei Änderung der Konfiguration oder dieser Datei; Juttas Uploads
 # nach `content/seed/instagram-export/` und `content/seed/coco/` starten ihn nicht. Rückfall: täglich 06:00 UTC.

@@ -27,7 +27,7 @@ export interface PresetConfig {
   draw: DrawMode
   /** Intro beim Aufbau (nur `journey`, MI-10). */
   intro: boolean
-  /** Dauer einer einmaligen Zeichnung in ms (§9.7, ≤ `--dur-draw-max`). */
+  /** Dauer einer einmaligen Zeichnung in ms (§9.7, U-06: doppelt so langsam wie in P9, ≤ `--dur-draw-max`). */
   durationMs: number | null
   /** Strichstärke: `--leash-w` oder `--leash-w-calm`. */
   width: 'leash' | 'calm'
@@ -40,18 +40,18 @@ export interface PresetConfig {
 
 export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
   journey: {
-    gutter: { mobile: 44, desktop: 64 },
+    gutter: { mobile: 56, desktop: 88 },
     rail: 'center',
     draw: 'scroll',
     intro: true,
-    durationMs: 900,
+    durationMs: 1800,
     width: 'leash',
     wobble: 'normal',
     loops: ['right', 'left', 'spiral', 'lasso', 'orbit', 'contour'],
     coco: { size: 'leash' },
   },
   about: {
-    gutter: { mobile: 44, desktop: 64 },
+    gutter: { mobile: 56, desktop: 88 },
     rail: 'center',
     draw: 'scroll',
     intro: false,
@@ -62,14 +62,14 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     coco: { size: 'leash' },
   },
   shopString: {
-    gutter: { mobile: 0, desktop: 0 },
-    rail: 'none',
+    gutter: { mobile: 32, desktop: 56 },
+    rail: 'center',
     draw: 'rowEnter',
     intro: false,
-    durationMs: 500,
+    durationMs: 1000,
     width: 'leash',
     wobble: 'normal',
-    loops: [],
+    loops: ['right', 'left'],
     coco: { size: 'm' },
   },
   product: {
@@ -77,7 +77,7 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     rail: 'none',
     draw: 'once',
     intro: false,
-    durationMs: 600,
+    durationMs: 1200,
     width: 'leash',
     wobble: 'normal',
     loops: ['hook'],
@@ -95,14 +95,14 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     coco: { size: 's' },
   },
   stencil: {
-    gutter: { mobile: 0, desktop: 0 },
-    rail: 'none',
+    gutter: { mobile: 32, desktop: 56 },
+    rail: 'center',
     draw: 'enter',
     intro: false,
-    durationMs: 700,
+    durationMs: 1400,
     width: 'leash',
     wobble: 'normal',
-    loops: ['contour'],
+    loops: ['right', 'left'],
     coco: { size: 'm' },
   },
   frame: {
@@ -110,7 +110,7 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     rail: 'none',
     draw: 'enter',
     intro: false,
-    durationMs: 700,
+    durationMs: 1400,
     width: 'leash',
     wobble: 'normal',
     loops: ['contour'],
@@ -143,7 +143,7 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     rail: 'none',
     draw: 'once',
     intro: false,
-    durationMs: 900,
+    durationMs: 1800,
     width: 'leash',
     wobble: 'normal',
     loops: ['heart'],
@@ -154,7 +154,7 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     rail: 'none',
     draw: 'once',
     intro: false,
-    durationMs: 700,
+    durationMs: 1400,
     width: 'leash',
     wobble: 'normal',
     loops: ['coil'],
@@ -183,9 +183,11 @@ export const READING_LINE = 0.72
 /** Scroll-Weg einer Schlaufe (§9.6, §11.4): mobil / ab 768. */
 export function loopScroll(loop: LoopKind, viewportW: number): number {
   const desktop = viewportW >= BP_TABLET
-  if (loop === 'spiral') return desktop ? 220 : 180
-  if (loop === 'contour') return desktop ? 240 : 200
-  return desktop ? 180 : 140
+  // U-06: Schlaufen entstehen doppelt so langsam (doppelter Scroll-Weg)
+  if (loop === 'orbit') return desktop ? 180 : 140 // Kopf-Station: zeichnet sich im Intro, Platz bis zur ersten Station knapp
+  if (loop === 'spiral') return desktop ? 440 : 360
+  if (loop === 'contour') return desktop ? 480 : 400
+  return desktop ? 360 : 280
 }
 
 /** Rinnenbreite eines Presets bei gegebener Viewport-Breite (§5.3). */

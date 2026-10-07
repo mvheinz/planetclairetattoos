@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
 import { Station } from '@/components/leash/Station'
+import { IpNotice } from '@/components/legal/IpNotice'
 import type { TattooSettings } from '@/lib/data/tattoo'
 import type { Locale } from '@/lib/routes/registry'
 import type { TattooMailTopic } from '@/lib/tattoo/mailto'
@@ -13,6 +14,9 @@ import { TattooSubNav, type TattooRouteId } from './TattooSubNav'
 // Rahmen der Tattoo-Seiten R11–R18 (KONZEPT §9.2, DESIGN KO-20, Preset `stencil`): H1 (Coco `kopfschief` an der
 // Seiten-H1 über den Stations-Anker), Einleitung, Unter-Navigation, Inhalt und am Ende der Kontakt-Block. Keine Kauf-,
 // Formular- oder Zahlungselemente (E-51, AK-9-01).
+
+/** Seiten mit Flash-Motiven bzw. Preis-/Ablauf-Angaben: R12 Flash, R14 Preise, R16 Ablauf. */
+const FLASH_NOTICE_ROUTES: ReadonlySet<string> = new Set(['R12', 'R14', 'R16'])
 
 /** Endpunkt der Tuschelinie (DESIGN §9.7 `stencil`): links am Inhalt, ohne Größe. */
 export function LeashEnd() {
@@ -61,6 +65,8 @@ export async function TattooShell({
       {leashEnd === 'header' ? <LeashEnd /> : null}
       <TattooSubNav locale={locale} current={routeId} />
       <div className={styles.body}>{children}</div>
+      {/* Nachstech-Genehmigung bei Flash-Motiven, Preisen und Ablauf (U-22 d, Baustein `ip.tattooFlashNotice`) */}
+      {FLASH_NOTICE_ROUTES.has(routeId) ? <IpNotice locale={locale} kind="flash" /> : null}
       <TattooContactBlock
         locale={locale}
         settings={settings}

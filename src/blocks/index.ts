@@ -10,7 +10,6 @@ import { FlashGrid } from './FlashGrid'
 import { Hero } from './Hero'
 import { ImageGallery } from './ImageGallery'
 import { ImageText } from './ImageText'
-import { OffersList } from './OffersList'
 import { PriceInfo } from './PriceInfo'
 import { ProcessSteps } from './ProcessSteps'
 import { ProductTeaser } from './ProductTeaser'
@@ -28,7 +27,6 @@ export const PAGE_BLOCKS: Block[] = [
   ProductTeaser,
   CategoryTeaser,
   FlashGrid,
-  OffersList,
   TattooGalleryBlock,
   PriceInfo,
   ProcessSteps,

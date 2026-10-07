@@ -16,7 +16,7 @@ export const SEED_KEY_TABLES = [
   'withdrawals',
   'conformity_declarations',
   'flash',
-  'tattoo_offers',
+  // 'tattoo_offers' entfiel mit P12.7 (Tabelle gelöscht in `p12_remove_offers`)
   'tattoo_gallery',
   'inquiries',
   'privacy_requests',
@@ -105,7 +105,6 @@ export const CHECKS: readonly (readonly [table: string, name: string, expr: stri
   ],
   ['flash', 'flash_repeatable_available', "repeatable IS NOT TRUE OR status = 'available'"],
   ['revenue_entries', 'revenue_entries_non_negative', 'amount_cents >= 0'],
-  ['tattoo_offers', 'tattoo_offers_dates', 'ends_at > starts_at'],
 ]
 
 export const SEQUENCES = [

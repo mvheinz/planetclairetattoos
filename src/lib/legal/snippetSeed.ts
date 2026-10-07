@@ -174,6 +174,23 @@ const TEXTS: Record<LegalSnippetKey, LegalSnippetSeedText> = {
   ),
   'privacyRequest.accessResponse': placeholder(),
   'privacyRequest.erasureResponse': placeholder(),
+  // Schutz des geistigen Eigentums (U-22, P12.11) – sichtbar im Footer, auf der Produktseite, bei Flash/Preisen/Ablauf
+  'ip.copyrightNotice': draft(
+    'Alle Bilder, Zeichnungen, Fotos und Texte auf dieser Website sind urheberrechtlich geschützt. Vervielfältigung, Weitergabe, Download und gewerbliche Nutzung nur mit meiner Erlaubnis in Textform; Zitate nur mit Quellenangabe, soweit das Gesetz sie erlaubt.',
+    'All images, drawings, photographs and texts on this website are protected by copyright. Copying, passing on, downloading and commercial use only with my permission in text form; quotations only with a credit to the source, where the law allows them.',
+  ),
+  'ip.aiMiningReservation': draft(
+    'Nutzungsvorbehalt nach § 44b Abs. 3 UrhG: Ich untersage die Nutzung meiner Bilder und Texte für das Training von KI-Systemen sowie für Text- und Data-Mining.',
+    'Reservation of use under Section 44b (3) UrhG: I prohibit the use of my images and texts for training AI systems and for text and data mining.',
+  ),
+  'ip.purchaseClause': draft(
+    'Mit dem Kauf erwirbst du dieses eine Unikat, nicht die Rechte am Motiv: kein Nachdruck, keine Vervielfältigung, kein Merchandise, keine Digitalisierung und kein Weiterverkauf als Reproduktion. Das Urheberrecht bleibt bei mir; meine Unikate werden nicht in Serie gebracht.',
+    'By buying, you acquire this one unique piece, not the rights to the motif: no reprints, no reproduction, no merchandise, no digitisation and no resale as a reproduction. The copyright stays with me; my unique pieces are never made into series.',
+  ),
+  'ip.tattooFlashNotice': draft(
+    'Dieses Motiv ist von mir gezeichnet und urheberrechtlich geschützt. Nachstechen oder jede andere Weiterverwendung, auch durch andere Tätowierer:innen, nur mit meiner schriftlichen Genehmigung. Verstöße verfolge ich.',
+    'This design was drawn by me and is protected by copyright. Re-tattooing or any other further use, including by other tattoo artists, only with my written permission. I pursue infringements.',
+  ),
 }
 
 /** Seed-Texte aller Schlüssel aus `LEGAL_SNIPPET_KEYS` (unveränderlich). */

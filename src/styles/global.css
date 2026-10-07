@@ -2,7 +2,8 @@
 
 /* Rückfall-Familien, falls die next/font-Klassen (src/styles/fonts.ts) fehlen; Spezifität 0, damit next/font gewinnt. */
 :where(html) {
-  --font-mansalva: 'Segoe Print';
+  --font-spectral: Georgia;
+  --font-spectral-italic: Georgia;
   --font-bricolage: ui-sans-serif;
   --font-plex-mono: ui-monospace;
 }
@@ -12,12 +13,21 @@
    und Arimo – ohne sie bleibt die Fläche auf Rechnern ohne Arial leer, und Chrome fragt jede Familie des Stapels einzeln
    beim Systemschrift-Dienst ab (langes erstes Layout, TBT ARCHITEKTUR §7.7). */
 @font-face {
-  font-family: 'mansalva Fallback';
-  src: local('Arial'), local('Liberation Sans'), local('Arimo');
-  ascent-override: 113.96%;
-  descent-override: 47.76%;
+  font-family: 'spectral Fallback';
+  src: local('Times New Roman'), local('Liberation Serif'), local('Tinos');
+  ascent-override: 95.12%;
+  descent-override: 41.59%;
   line-gap-override: 0%;
-  size-adjust: 97.58%;
+  size-adjust: 111.34%;
+}
+
+@font-face {
+  font-family: 'spectralItalic Fallback';
+  src: local('Times New Roman Italic'), local('Liberation Serif Italic'), local('Tinos Italic');
+  ascent-override: 103.42%;
+  descent-override: 45.21%;
+  line-gap-override: 0%;
+  size-adjust: 102.4%;
 }
 
 @font-face {
@@ -43,7 +53,8 @@
    Attribut setzt und entfernt das Inline-Skript `pc-motion` (src/lib/security/inlineScripts.ts); ohne JavaScript fehlt
    es und die Webschriften laden sofort. */
 :root[data-fonts='wait'] {
-  --font-hand: 'mansalva Fallback', 'Segoe Print', 'Bradley Hand', cursive;
+  --font-display: 'spectral Fallback', Georgia, 'Times New Roman', serif;
+  --font-accent: 'spectralItalic Fallback', Georgia, 'Times New Roman', serif;
   --font-body:
     'bricolage Fallback', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'plexMono Fallback', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
@@ -93,11 +104,53 @@ button {
   cursor: pointer;
 }
 
+/* ---------- Seitengrund: Olivgrün mit Verlauf nach Petrol (U-11, DESIGN §3.5) ---------- */
+/* Grundfassung (immer, auch bei „weniger Bewegung“ und ohne `animation-timeline`): ein statischer Verlauf über die ganze
+   Dokumentlänge auf der Leinwand (`html`); er scrollt mit dem Inhalt mit, kostet kein Layout und keinen Repaint. */
+html {
+  min-height: 100%;
+  background-color: var(--paper);
+  background-image: linear-gradient(180deg, var(--paper) 0%, var(--paper-deep) 100%);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+/* Verbesserung (nur mit Scroll-Zeitleiste und ohne Bewegungsreduktion): Eine feste, auf einer eigenen Ebene liegende
+   Fläche blendet über die Scrollstrecke von transparent zu Petrol-Hauch ein – nur `opacity` (Compositor), ohne
+   JavaScript, ohne Einfluss auf die Leine-Engine (Budget CO-08/PF-01). Unabhängig von der Seitenlänge: Am Seitenende ist
+   der Grund immer am dunkelsten (Kontrast gegen `--paper-deep` geprüft, AK-DS-01). */
+@keyframes pc-sky {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    html:not([data-motion='reduced'])::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-image: linear-gradient(180deg, transparent 0%, var(--paper-deep) 100%);
+      opacity: 0;
+      will-change: opacity;
+      animation: pc-sky linear both;
+      animation-timeline: scroll(root block);
+    }
+  }
+}
+
 /* ---------- Seitengrund: Schneidematten-Raster (§3.4) ---------- */
 body {
   min-height: 100vh;
   color: var(--color-text);
-  background-color: var(--paper);
+  background-color: transparent;
   background-image:
     linear-gradient(var(--grid-line-major) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid-line-major) 1px, transparent 1px),
@@ -131,14 +184,14 @@ h4 {
 }
 
 h1 {
-  font-family: var(--font-hand);
+  font-family: var(--font-display);
   font-weight: 400;
   font-size: var(--fs-h1);
   line-height: 1.05;
 }
 
 h2 {
-  font-family: var(--font-hand);
+  font-family: var(--font-display);
   font-weight: 400;
   font-size: var(--fs-h2);
   line-height: 1.08;
@@ -152,17 +205,11 @@ h3 {
   letter-spacing: -0.005em;
 }
 
-/* Ruhe-Seiten und Rechtstexte: Mansalva nur für die H1 (DESIGN §4.3 Nr. 2), alles andere Bricolage. */
+/* Ruhe-Seiten und Rechtstexte: Spectral nur für die H1 (DESIGN §4.3 Nr. 2), alles andere Bricolage. */
 body[data-preset='calm'] main :is(h2, h3),
 body[data-preset='legal'] main :is(h2, h3) {
   font-family: var(--font-body);
   font-weight: 700;
-}
-
-/* Zeichen, die Mansalva fehlen (Komponente GlyphFallback, §4.4): Bricolage 600, nie Systemschrift-Mischung. */
-.glyph-fallback {
-  font-family: var(--font-body);
-  font-weight: 600;
 }
 
 /* Wortmarke (§12.6): Höhe über --fs-wordmark, Breite aus dem Seitenverhältnis. */
@@ -186,7 +233,7 @@ blockquote {
 }
 
 .t-display {
-  font-family: var(--font-hand);
+  font-family: var(--font-display);
   font-weight: 400;
   font-size: var(--fs-display);
   line-height: 1;
@@ -297,7 +344,7 @@ html[data-menu-open] {
 /* Linien-Rinne je Preset (§5.3); das Preset setzt das Layout als `data-preset` am body (§9.7). */
 body[data-preset='journey'],
 body[data-preset='about'] {
-  --leash-gutter: 44px;
+  --leash-gutter: 56px;
 }
 
 body[data-preset='legal'],
@@ -305,15 +352,26 @@ body[data-preset='margin'] {
   --leash-gutter: 16px;
 }
 
+/* Raster-Seiten (U-07a): Shop-Listen und Tattoo/Flash – die Leine läuft in einer schmalen Rinne am Seitenrand */
+body[data-preset='shopString'],
+body[data-preset='stencil'] {
+  --leash-gutter: 32px;
+}
+
 @media (min-width: 768px) {
   body[data-preset='journey'],
   body[data-preset='about'] {
-    --leash-gutter: 64px;
+    --leash-gutter: 88px;
   }
 
   body[data-preset='legal'],
   body[data-preset='margin'] {
     --leash-gutter: 24px;
+  }
+
+  body[data-preset='shopString'],
+  body[data-preset='stencil'] {
+    --leash-gutter: 56px;
   }
 }
 

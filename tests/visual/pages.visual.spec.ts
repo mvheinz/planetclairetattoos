@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 import { localizedPath } from '../../src/lib/routes/paths'
-import { dynamicMasks, linuxOnly, loadAllImages, prepare, settle } from './helpers'
+import { diag, dynamicMasks, linuxOnly, loadAllImages, prepare, settle } from './helpers'
 
 // T-12 Seiten (ARCHITEKTUR §7.6, PLAN P2.24): P2-Umfang R01, Impressum (R21), Vertrag widerrufen (R26), 404 (R28) und
 // 500 (R29) – je Seitentyp ein ganzseitiges Bild pro Projekt, DE, reduzierte Bewegung. Referenzen R01 (Stationen mit
@@ -28,6 +28,7 @@ for (const p of PAGES) {
     // Seit P3.12 zeigt die Startseite Karten mit Fotos (lazy) – für die ganzseitige Aufnahme alle laden.
     await loadAllImages(page)
     await settle(page)
+    if (p.name === 'r01-start') await diag(page, `${p.name}`)
     await expect(page).toHaveScreenshot(`${p.name}.png`, {
       fullPage: true,
       mask: dynamicMasks(page),

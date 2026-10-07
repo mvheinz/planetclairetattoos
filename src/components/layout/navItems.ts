@@ -4,7 +4,7 @@
 export const MENU_MAIN = ['R01', 'R02', 'R05', 'R10', 'R11', 'R19', 'R20'] as const
 
 /** Tattoo-Unterseiten (unter „Tattoo“ im Menü). */
-export const TATTOO_PAGES = ['R12', 'R13', 'R14', 'R15', 'R16', 'R17', 'R18'] as const
+export const TATTOO_PAGES = ['R12', 'R14', 'R15', 'R16', 'R17', 'R18'] as const
 
 /** Pflichtlink-Block (R-011): Impressum, Datenschutz, AGB, Widerrufsbelehrung, Versand & Zahlung, Kontakt. */
 export const LEGAL_LINKS = ['R21', 'R22', 'R23', 'R24', 'R25', 'R20'] as const

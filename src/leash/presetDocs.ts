@@ -41,7 +41,7 @@ export const PRESET_DOCS: Readonly<Record<PresetId, PresetDoc>> = {
     notes: 'keine View Transition hinein/hinaus',
   },
   stencil: {
-    routes: ['R11', 'R12', 'R13', 'R14', 'R15', 'R16', 'R17', 'R18'],
+    routes: ['R11', 'R12', 'R14', 'R15', 'R16', 'R17', 'R18'],
     shape: 'contour um jede Flash-Karte, dann zur nächsten; ohne Flash wie margin',
     notes: 'Linie bleibt --ink; Violett nur als --shadow-stencil an Karten',
   },

@@ -9,13 +9,19 @@ import { preservingReq } from '@/lib/payload/localReq'
 
 import { referencedIds } from './references'
 
-// „Übernehmen“ (DATENMODELL §13.4, PLAN P8.19): ein Beispiel-Dokument aus `products`, `flash`, `tattoo-gallery` oder
+// „Übernehmen“ (DATENMODELL §13.4, PLAN P8.19): ein Beispiel-Dokument aus `products`, `flash`, `tattoo-gallery`, `tour-dates` oder
 // `media` wird zu einem echten (`seed = false`); Medien, auf die es verweist (Bilder, Blöcke …), werden mit übernommen.
 // Nummer und `seedKey` bleiben (ein erneuter Seed-Lauf überspringt übernommene Dokumente, SEED-SPEC §1.3). Audit
 // `product_adopted` (einzige Übernahme-Aktion laut DATENMODELL §13.4). Bei `tattoo-gallery` bleibt der Eintrag ohne
 // echte Einwilligung unveröffentlicht (Regel der Galerie selbst). Ein zweites Mal → 409.
 
-export const ADOPTABLE_COLLECTIONS = ['products', 'flash', 'tattoo-gallery', 'media'] as const
+export const ADOPTABLE_COLLECTIONS = [
+  'products',
+  'flash',
+  'tattoo-gallery',
+  'tour-dates',
+  'media',
+] as const
 export type AdoptableCollection = (typeof ADOPTABLE_COLLECTIONS)[number]
 
 export const isAdoptable = (v: unknown): v is AdoptableCollection =>
@@ -25,6 +31,7 @@ const LABEL: Record<AdoptableCollection, string> = {
   products: 'Stück',
   flash: 'Flash',
   'tattoo-gallery': 'Galerie-Eintrag',
+  'tour-dates': 'Termin',
   media: 'Bild',
 }
 
@@ -36,7 +43,9 @@ function titleOf(collection: AdoptableCollection, doc: Record<string, unknown>):
         ? (doc.title ?? doc.number)
         : collection === 'media'
           ? doc.filename
-          : doc.caption
+          : collection === 'tour-dates'
+            ? doc.name
+            : doc.caption
   return typeof t === 'string' || typeof t === 'number'
     ? `${LABEL[collection]} ${t}`
     : `${LABEL[collection]} ${String(doc.id)}`

@@ -85,19 +85,19 @@ const navigation = textGroup('navigation', 'Navigation', [
     fields: internalLinkFields(),
   },
   text('menuTagline', 'Satz im Menü', {
-    de: 'Tattoos, Keramik und bemalte Einzelstücke aus Berlin.',
-    en: 'Tattoos, ceramics and hand-painted one-offs from Berlin.',
+    de: 'Ein kleiner Planet in Berlin: Tinte, Ton und Linien, die zittern dürfen.',
+    en: 'A small planet in Berlin: ink, clay and lines that are allowed to tremble.',
   }),
 ])
 
 const footer = textGroup('footer', 'Fußzeile', [
   text('tagline', 'Satz in der Fußzeile', {
-    de: 'Handgemacht in Berlin – jedes Stück gibt es nur einmal.',
-    en: 'Handmade in Berlin – every piece exists only once.',
+    de: 'Aus meinen Händen, in Berlin – jedes Stück gibt es nur einmal.',
+    en: 'From my hands, in Berlin – every piece exists only once.',
   }),
   text('instagramLabel', 'Instagram-Link', {
-    de: 'Folge mir auf Instagram',
-    en: 'Follow me on Instagram',
+    de: 'Mein Instagram-Profil',
+    en: 'My Instagram profile',
   }),
 ])
 
@@ -118,15 +118,15 @@ const shop = textGroup('shop', 'Shop', [
   }),
   text('uniqueHint', 'Hinweis „Unikat“', { de: 'Unikat', en: 'One of a kind' }),
   text('emptyCategory', 'Leere Kategorie', {
-    de: 'Hier ist gerade alles weg. Neue Stücke kommen bald!',
-    en: 'Everything here is gone for now. New pieces are coming soon!',
+    de: 'In dieser Ecke ist gerade alles weitergezogen. Neue Stücke kommen bald.',
+    en: 'Everything in this corner has moved on for now. New pieces will arrive soon.',
   }),
   text(
     'archiveIntro',
     'Einleitung Archiv',
     {
-      de: 'Schon verkauft, aber zu schön zum Vergessen.',
-      en: 'Already sold, but too lovely to forget.',
+      de: 'Weitergezogen, aber zu schön zum Vergessen.',
+      en: 'Moved on, but too lovely to forget.',
     },
     { multiline: true },
   ),
@@ -152,16 +152,16 @@ const product = textGroup('product', 'Stück', [
 
 const cart = textGroup('cart', 'Warenkorb', [
   text('empty', 'Leerer Warenkorb', {
-    de: 'Dein Korb ist noch leer.',
-    en: 'Your basket is still empty.',
+    de: 'Noch liegt nichts in deinem Korb.',
+    en: 'Nothing lies in your basket yet.',
   }),
   text('countdown', 'Countdown', {
-    de: 'Coco hält dein Stück noch {time} fest',
-    en: 'Coco is holding your piece for another {time}',
+    de: 'Coco hütet dein Stück noch {time}',
+    en: 'Coco is guarding your piece for another {time}',
   }),
   text('reservationExpired', 'Reservierung abgelaufen', {
-    de: 'Die Reservierung ist abgelaufen – das Stück ist wieder für alle da.',
-    en: 'The reservation has expired – the piece is available to everyone again.',
+    de: 'Die Reservierung ist abgelaufen – das Stück gehört wieder allen.',
+    en: 'The reservation has expired – the piece belongs to everyone again.',
   }),
   text('pickupOption', 'Option Abholung', {
     de: 'Abholung in Berlin',
@@ -175,8 +175,8 @@ const checkout = textGroup('checkout', 'Kasse', [
     'intro',
     'Einleitung',
     {
-      de: 'Fast geschafft! Prüf bitte kurz deine Angaben.',
-      en: 'Almost there! Please check your details.',
+      de: 'Gleich ist es so weit. Prüf noch einmal kurz deine Angaben.',
+      en: 'Nearly there. Look over your details once more.',
     },
     { multiline: true },
   ),
@@ -193,12 +193,12 @@ const pageTexts = (name: string, label: string, texts: Record<string, [string, L
   )
 
 const thanks = pageTexts('thanks', 'Danke-Seite', {
-  heading: ['Überschrift', { de: 'Danke dir!', en: 'Thank you!' }],
+  heading: ['Überschrift', { de: 'Danke dir.', en: 'Thank you.' }],
   intro: [
     'Einleitung',
     {
-      de: 'Deine Bestellung ist angekommen. Eine Bestätigung ist per Mail unterwegs.',
-      en: 'Your order has arrived. A confirmation is on its way by email.',
+      de: 'Deine Bestellung ist bei mir angekommen. Eine Bestätigung ist per Mail unterwegs.',
+      en: 'Your order has reached me. A confirmation is on its way by email.',
     },
   ],
 })
@@ -206,15 +206,15 @@ const orderStatus = pageTexts('orderStatus', 'Bestellstatus', {
   intro: [
     'Einleitung',
     {
-      de: 'Hier siehst du, wo deine Bestellung gerade ist.',
-      en: 'Here you can see where your order is right now.',
+      de: 'Hier siehst du, wo dein Stück gerade unterwegs ist.',
+      en: 'Here you can see where your piece is travelling right now.',
     },
   ],
   linkInvalid: [
     'Link ungültig',
     {
-      de: 'Dieser Link funktioniert nicht mehr. Schreib mir gern eine Mail.',
-      en: 'This link no longer works. Feel free to send me an email.',
+      de: 'Dieser Weg führt nirgendwohin mehr. Schreib mir gern eine Mail.',
+      en: 'This path no longer leads anywhere. Feel free to send me an email.',
     },
   ],
 })
@@ -235,12 +235,18 @@ const withdrawal = pageTexts('withdrawal', 'Widerruf', {
   ],
 })
 const notFound = pageTexts('notFound', 'Seite nicht gefunden', {
-  heading: ['Überschrift', { de: 'Coco hat sich losgerissen', en: 'Coco slipped her leash' }],
+  heading: [
+    'Überschrift',
+    {
+      de: 'Diese Seite hat sich in den Nebel gezeichnet',
+      en: 'This page has drawn itself into the fog',
+    },
+  ],
   intro: [
     'Text',
     {
-      de: 'Coco hat überall geschnüffelt – diese Seite gibt es nicht (mehr).',
-      en: "Coco sniffed everywhere – this page doesn't exist (anymore).",
+      de: 'Coco ist der Linie nachgelaufen und nicht zurückgekommen. Diese Seite gibt es nicht (mehr).',
+      en: 'Coco followed the line and never came back. This page does not exist (anymore).',
     },
   ],
 })
@@ -248,22 +254,22 @@ const errors = pageTexts('errors', 'Fehler', {
   generic: [
     'Allgemeiner Fehler',
     {
-      de: 'Da ist etwas schiefgegangen. Versuch es bitte gleich noch einmal.',
-      en: 'Something went wrong. Please try again in a moment.',
+      de: 'Etwas hat sich verheddert. Atme kurz durch und versuch es gleich noch einmal.',
+      en: 'Something got tangled. Take a breath and try again in a moment.',
     },
   ],
   shopClosed: [
     'Shop pausiert',
     {
-      de: 'Der Shop macht gerade Pause – bestellen geht im Moment nicht.',
-      en: 'The shop is taking a break – ordering is not possible right now.',
+      de: 'Der Shop schläft gerade – bestellen ist im Moment nicht möglich.',
+      en: 'The shop is asleep for now – ordering isn’t possible at the moment.',
     },
   ],
   alreadyReserved: [
     'Stück schon reserviert',
     {
-      de: 'Jemand war schneller – das Stück ist gerade reserviert.',
-      en: 'Someone was quicker – the piece is reserved right now.',
+      de: 'Jemand war schneller – das Stück ist gerade reserviert und hält still.',
+      en: 'Someone was quicker – the piece is reserved right now and holding still.',
     },
   ],
 })
@@ -274,8 +280,8 @@ const emails = textGroup('emails', 'E-Mails', [
     'signature',
     'Grußformel und Signatur',
     {
-      de: 'Liebe Grüße\nJutta von Planet Claire',
-      en: 'Best wishes,\nJutta from Planet Claire',
+      de: 'Liebe Grüße von meinem kleinen Planeten\nJutta',
+      en: 'Warm greetings from my small planet\nJutta',
     },
     { multiline: true, description: 'Steht unter jeder Mail an Kund:innen.' },
   ),

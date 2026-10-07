@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { buildGeometry } from '@/leash/geometry'
 import type { BuildInput, LeashAnchor, LoopKind, PresetId } from '@/leash/types'
 
-// P9.17 Randbahn: ohne Rinne läuft die Linie von `stencil`, `product` und (mobil) `thanks` nicht quer über Text,
-// sondern seitlich neben dem Inhalt (KUNST-QA LG-01).
+// P9.17 Randbahn: ohne Rinne läuft die Linie von `product` und (mobil) `thanks` nicht quer über Text, sondern seitlich
+// neben dem Inhalt (KUNST-QA LG-01). `stencil` (Flash) läuft seit U-07a in einer Rinne am Seitenrand (P12.4).
 
 const A = (
   id: string,
@@ -30,6 +30,8 @@ const inRect = (
 ) => p.x > r.x - pad && p.x < r.x + r.w + pad && p.y > r.y - pad && p.y < r.y + r.h + pad
 
 function stencil(viewportW: number, left: number, cardW: number, columns = 2): BuildInput {
+  const gutter = viewportW >= 768 ? 56 : 32
+  const rail = left - gutter / 2
   const cards =
     columns === 2
       ? [
@@ -47,10 +49,11 @@ function stencil(viewportW: number, left: number, cardW: number, columns = 2): B
     seed: 12345,
     root: { w: viewportW, h: 2000 },
     viewport: { w: viewportW, h: 900 },
-    gutter: 0,
+    gutter,
+    railX: rail,
     baseWidth: 2.6,
     anchors: [
-      A('start', 'start', 24, 0),
+      A('start', 'start', rail, 0),
       A('h1', 'station', left, 131),
       ...cards,
       A('end', 'end', left, columns === 2 ? 1400 : 1750),
@@ -59,20 +62,22 @@ function stencil(viewportW: number, left: number, cardW: number, columns = 2): B
 }
 
 describe('Randbahn ohne Rinne (P9.17, LG-01)', () => {
-  it('stencil Desktop: nie durch die Überschrift, nie links von x = 0, Rückweg zwischen den Reihen am Kartenrand', () => {
+  it('stencil Desktop (U-07a): Leine nur in der Rinne links der Karten, nie durch Überschrift oder Karten', () => {
     const heading = { x: 120, y: 131, w: 366, h: 54 }
     const pts = points(stencil(1440, 120, 385))
     expect(Math.min(...pts.map((p) => p.x))).toBeGreaterThanOrEqual(0)
     expect(pts.filter((p) => inRect(p, heading, 0))).toEqual([])
-    // die zweite Reihe wird über die Randbahn (x ≈ Kartenrand − 10) erreicht, nicht diagonal über Reihe 1
+    // die zweite Reihe wird über die Rinne erreicht, nicht diagonal über Reihe 1
     const row1Text = { x: 120, y: 700, w: 800, h: 180 }
     expect(pts.filter((p) => inRect(p, row1Text, 0))).toEqual([])
+    expect(Math.max(...pts.map((p) => p.x))).toBeLessThan(120 - 2)
   })
 
-  it('stencil mobil: Randbahn bleibt im Seitenrand (x ≥ 0), Station ohne Schlaufe läuft nicht an der Textkante', () => {
-    const pts = points(stencil(390, 16, 358, 1))
+  it('stencil mobil: Rinne bleibt im Seitenrand (x ≥ 0), nie an der Textkante der Karten', () => {
+    const pts = points(stencil(390, 32, 342, 1))
     expect(Math.min(...pts.map((p) => p.x))).toBeGreaterThanOrEqual(0)
-    const h1 = { x: 16, y: 131, w: 150, h: 54 }
+    expect(Math.max(...pts.map((p) => p.x))).toBeLessThan(32 - 2)
+    const h1 = { x: 32, y: 131, w: 150, h: 54 }
     expect(pts.filter((p) => inRect(p, h1, 0))).toEqual([])
   })
 

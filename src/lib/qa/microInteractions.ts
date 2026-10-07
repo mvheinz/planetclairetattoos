@@ -1,7 +1,7 @@
 // Katalog der Mikro-Interaktionen für `/qa/motion` und SC-14 (DESIGN §11.5, KUNST-QA §3.2/§4.3). `clock`: Ablauf hängt
 // an rAF/Timern (Aufnahme per Playwright-Clock), sonst WAAPI/CSS (Aufnahme per Seek über `getAnimations()`). `viewport`:
 // Aufnahme des ganzen Sichtbereichs statt nur der Bühne (Menü, Kauf-Leiste, Seitenübergang). `press`: Auslöser ist
-// ein gedrückter Zeiger (`:active`), den nur die Aufnahme erzeugen kann.
+// ein gedrückter Zeiger (`:active`), den nur die Aufnahme erzeugen kann (MI-17/MI-18 analog `hover`).
 
 export interface QaMicro {
   id: `MI-${string}`
@@ -11,6 +11,8 @@ export interface QaMicro {
   clock?: true
   viewport?: true
   press?: true
+  /** Auslöser ist ein schwebender Zeiger (`:hover`), den nur die Aufnahme erzeugen kann. */
+  hover?: true
 }
 
 export const QA_MICROS: readonly QaMicro[] = [
@@ -30,6 +32,9 @@ export const QA_MICROS: readonly QaMicro[] = [
   { id: 'MI-14', name: 'Stencil-Abdruck', durationMs: 450 },
   { id: 'MI-15', name: 'Kauf-Leiste', durationMs: 250, viewport: true },
   { id: 'MI-16', name: 'Knopf drücken', durationMs: 120, press: true },
+  { id: 'MI-17', name: 'Karte hebt sich', durationMs: 260, hover: true },
+  { id: 'MI-18', name: 'Menülink rückt ein', durationMs: 260, hover: true },
+  { id: 'MI-19', name: 'Korb-Bestätigung gleitet ein', durationMs: 260 },
 ]
 
 export const qaMicro = (id: string | undefined): QaMicro | null =>

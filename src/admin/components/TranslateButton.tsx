@@ -11,7 +11,7 @@ import { Notice } from './Notice'
 // Rumpf `{ force }`) auf und meldet das Ergebnis als Text. Leere englische Felder werden immer gefüllt; gibt es schon
 // englische Texte, fragt ein Dialog, ob sie überschrieben werden sollen („Nur leere Felder“ oder „Alles
 // überschreiben“ = `force`). In Produktion ohne DeepL ist der Knopf gesperrt mit Hinweis („Übersetzen ist noch nicht
-// eingerichtet“). Allgemein gehalten – P7 nutzt ihn für Flash, Angebote, Tattoo-Seiten und FAQ.
+// eingerichtet“). Allgemein gehalten – P7 nutzt ihn für Flash, Tattoo-Seiten und FAQ.
 
 export interface TranslateButtonProps<T = Record<string, unknown>> {
   /** Endpunkt, z. B. `/api/products/17/translate`; `null` = Dokument noch nicht gespeichert. */

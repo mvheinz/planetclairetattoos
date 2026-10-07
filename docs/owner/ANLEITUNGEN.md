@@ -219,8 +219,8 @@ Phase P3“ mit einer kurzen Anleitung. Sonst so:
 ### G7 · Die fertige Vorschau herunterladen (nach P10)
 
 1. Öffne dein Repo und klick rechts auf „Releases“.
-2. Klick auf „Planet Claire – Vorschau (Stand P10)“ (Kurzname `vorschau-p10`). Spätere Fassungen heißen
-   `vorschau-JJJJ-MM-TT`.
+2. Klick auf „Planet Claire – Vorschau (Stand P12)“ (Kurzname `vorschau-p12`, die neueste Fassung nach deiner
+   Überarbeitung; die ältere „Stand P10“ bleibt zum Vergleich stehen). Spätere Fassungen heißen `vorschau-JJJJ-MM-TT`.
 3. Klick unter „Assets“ auf `planet-claire-vorschau.html`. Die Datei lädt direkt herunter, ohne ZIP.
 4. Öffne sie wie in [V1](#v1) beschrieben.
 

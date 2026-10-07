@@ -178,26 +178,13 @@ function measure(args: ProbeArgs): Probe {
       if (srOnly(el, root)) continue
       const range = document.createRange()
       range.selectNodeContents(n)
-      // Mansalva hat eine sehr hohe Zeilenbox (Ober-/Unterlänge der Schrift ≈ 0,5 em über/unter der Tinte): als Fläche
-      // zählt die Tinte (Oberkante der Versalien/Akzente, Unterkante der Unterlängen), nicht die leere Zeilenbox.
-      let up = 0
-      let down = 0
-      if (/mansalva/i.test(st.fontFamily)) {
-        const m = document.createElement('canvas').getContext('2d')
-        if (m) {
-          m.font = `${st.fontStyle} ${st.fontWeight} ${st.fontSize} ${st.fontFamily}`
-          const t = m.measureText('ÅÄgy')
-          up = Math.max(0, t.fontBoundingBoxAscent - t.actualBoundingBoxAscent)
-          down = Math.max(0, t.fontBoundingBoxDescent - t.actualBoundingBoxDescent)
-        }
-      }
       for (const r of Array.from(range.getClientRects()))
         if (inView(r))
           push4(text, {
             left: r.left,
-            top: r.top + up,
+            top: r.top,
             width: r.width,
-            height: Math.max(1, r.height - up - down),
+            height: Math.max(1, r.height),
           } as DOMRect)
     }
   }
@@ -213,39 +200,46 @@ function measure(args: ProbeArgs): Probe {
   }
 
   // ---- Animationen ----
-  const anims = document.getAnimations().map((a) => {
-    const eff = a.effect as KeyframeEffect | null
-    const timing = eff?.getTiming()
-    const ct = eff?.getComputedTiming()
-    let ke: string[] = []
-    try {
-      ke = [...new Set((eff?.getKeyframes() ?? []).map((k) => String(k.easing ?? 'linear')))]
-    } catch {
-      ke = []
-    }
-    const target = (eff?.target ?? null) as Element | null
-    const it = Number(timing?.iterations ?? 1)
-    return {
-      n: String(
-        (a as CSSAnimation).animationName ?? (a as CSSTransition).transitionProperty ?? a.id ?? '',
-      ),
-      k: a.constructor.name,
-      s: a.playState,
-      d: typeof timing?.duration === 'number' ? r1(timing.duration) : null,
-      dl: r1(Number(timing?.delay ?? 0)),
-      it: Number.isFinite(it) ? it : -1,
-      e: String(timing?.easing ?? 'linear'),
-      ke,
-      ct: a.currentTime === null ? null : r1(Number(a.currentTime)),
-      act: ct?.progress !== null && ct?.progress !== undefined,
-      tg: desc(target),
-      z: zone(target),
-      pe: eff?.pseudoElement ?? null,
-      // Boil-Animation einer Coco mit `data-boil="off"`: nur von der Aufnahme per `pause()` festgehalten (Chromium
-      // verwirft eine so angehaltene CSS-Animation trotz `animation: none` nicht), läuft in Wirklichkeit nicht.
-      bo: !!target?.closest?.('.coco[data-boil="off"]'),
-    }
-  })
+  // Scroll-gebundene Animationen (Seitengrund `pc-sky`, P12.2) haben keine Dauer in ms und zählen nicht (MO-01)
+  const anims = document
+    .getAnimations()
+    .filter((a) => !(a.timeline && 'source' in a.timeline))
+    .map((a) => {
+      const eff = a.effect as KeyframeEffect | null
+      const timing = eff?.getTiming()
+      const ct = eff?.getComputedTiming()
+      let ke: string[] = []
+      try {
+        ke = [...new Set((eff?.getKeyframes() ?? []).map((k) => String(k.easing ?? 'linear')))]
+      } catch {
+        ke = []
+      }
+      const target = (eff?.target ?? null) as Element | null
+      const it = Number(timing?.iterations ?? 1)
+      return {
+        n: String(
+          (a as CSSAnimation).animationName ??
+            (a as CSSTransition).transitionProperty ??
+            a.id ??
+            '',
+        ),
+        k: a.constructor.name,
+        s: a.playState,
+        d: typeof timing?.duration === 'number' ? r1(timing.duration) : null,
+        dl: r1(Number(timing?.delay ?? 0)),
+        it: Number.isFinite(it) ? it : -1,
+        e: String(timing?.easing ?? 'linear'),
+        ke,
+        ct: a.currentTime === null ? null : r1(Number(a.currentTime)),
+        act: ct?.progress !== null && ct?.progress !== undefined,
+        tg: desc(target),
+        z: zone(target),
+        pe: eff?.pseudoElement ?? null,
+        // Boil-Animation einer Coco mit `data-boil="off"`: nur von der Aufnahme per `pause()` festgehalten (Chromium
+        // verwirft eine so angehaltene CSS-Animation trotz `animation: none` nicht), läuft in Wirklichkeit nicht.
+        bo: !!target?.closest?.('.coco[data-boil="off"]'),
+      }
+    })
 
   // ---- Deko für Hilfstechnik (A11Y-03) ----
   const decoEls = Array.from(document.querySelectorAll(DECO))
@@ -257,7 +251,7 @@ function measure(args: ProbeArgs): Probe {
   }
 
   // ---- Schriften (LG-03) ----
-  const mansalva: Probe['mansalva'] = []
+  const display: Probe['display'] = []
   for (const el of Array.from(document.querySelectorAll('body *'))) {
     if (!el.childNodes.length || el.closest(DECO)) continue
     let own = false
@@ -265,7 +259,7 @@ function measure(args: ProbeArgs): Probe {
       if (c.nodeType === 3 && c.textContent?.trim()) own = true
     if (!own) continue
     const st = getComputedStyle(el)
-    if (!/mansalva/i.test(st.fontFamily) || srOnly(el)) continue
+    if (!/spectral/i.test(st.fontFamily) || srOnly(el)) continue
     const role = el.closest('button, input, select, textarea, label, table, form')
       ? 'control'
       : el.closest('h1')
@@ -283,7 +277,7 @@ function measure(args: ProbeArgs): Probe {
                   : el.closest('p, li')
                     ? 'body'
                     : 'other'
-    mansalva.push({ tag: el.tagName.toLowerCase(), size: parseFloat(st.fontSize), role })
+    display.push({ tag: el.tagName.toLowerCase(), size: parseFloat(st.fontSize), role })
   }
 
   // ---- Speicher (A11Y-02, EK-04) ----
@@ -478,7 +472,7 @@ function measure(args: ProbeArgs): Probe {
     ctrl,
     anims,
     deco,
-    mansalva,
+    display,
     storage,
     marks: { stars, perStation: Math.max(0, ...perStation.values()) },
     transitions,

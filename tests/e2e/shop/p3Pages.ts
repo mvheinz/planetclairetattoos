@@ -128,7 +128,7 @@ export const P3_PAGES: readonly GatePage[] = [
 
 /**
  * Fixture analog S08 (`sold`, `showInArchiveAfterSale = false`) im Block des Projekts → Pfad der 404-Variante
- * „Dieses Stück hat schon ein Zuhause gefunden“ (KO-18) in der Sprache `locale`, frisch erzeugt.
+ * „Dieses Stück ist weitergezogen“ (KO-18) in der Sprache `locale`, frisch erzeugt.
  */
 export async function homeVariant(
   fixtureProducts: FixtureProducts,

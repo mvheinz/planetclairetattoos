@@ -162,7 +162,9 @@ export async function lineFrames(
       const file = path.join(runDir, p.frame!)
       if (!existsSync(file)) continue
       const s = p.scale
-      const ex = [...rects(p.text), ...(p.coco ? [p.coco] : [])].map((r) => ({
+      // Der feste Kopfbereich verdeckt die Linie (wie in `overlaps`, LG-01): sein Teil des Bildes zählt nicht.
+      const head = p.occTop ? [{ x: 0, y: 0, w: p.vw, h: p.occTop }] : []
+      const ex = [...rects(p.text), ...head, ...(p.coco ? [p.coco] : [])].map((r) => ({
         x: r.x * s - 2,
         y: r.y * s - 2,
         w: r.w * s + 4,
@@ -341,7 +343,14 @@ export async function runAllChecks(inp: CheckInputs): Promise<CheckResult[]> {
     symbols: art.ManifestSymbol[]
   }
   // ausgelieferter Sprite in der aktuellen Version (Versionsnummer nur in scripts/art/build-sprite.ts)
-  const sprite = read(`public${manifest.href}`)
+  const mainSprite = read(`public${manifest.href}`)
+  // nachgeladene Zusatz-Posen (P12.4): gemeinsam mit dem Haupt-Sprite geprüft
+  const extraManifest = JSON.parse(read('src/art/coco/coco-extra.json')) as {
+    href: string
+    symbols: art.ManifestSymbol[]
+  }
+  const extraSprite = read(`public${extraManifest.href}`)
+  const sprite = art.combineSprites(mainSprite, extraSprite)
   const sources = JSON.parse(read('content/art/sources.json')) as art.SourcesJson
   const tattoo = JSON.parse(read('content/seed/data/tattoo.json')) as {
     gallery: { image: string; showsCustomer: boolean }[]
@@ -371,9 +380,9 @@ export async function runAllChecks(inp: CheckInputs): Promise<CheckResult[]> {
   const masks = await art.silhouettes(sprite)
   const small = await art.silhouettes(sprite, 128)
   R.push(
-    art.co01(sprite),
+    art.co01(mainSprite, extraSprite),
     art.co02(props),
-    art.co04(manifest.symbols),
+    art.co04([...manifest.symbols, ...extraManifest.symbols]),
     art.co05(masks),
     art.co06(sprite, props),
     art.co07(sprite, small),
@@ -491,7 +500,10 @@ export async function runAllChecks(inp: CheckInputs): Promise<CheckResult[]> {
     gate('PF-07', 'LCP mit Engine − Grundlinie ≤ 100 ms (EK-01: Lighthouse-CI)'),
     gate('PF-08', 'Event-Timing Menü und „In den Korb“ ≤ 150 ms (4×)'),
     rt.pf09(modules, gsapUses()),
-    rt.pf10({ raw: Buffer.byteLength(sprite), gz: gzipSync(sprite, { level: 9 }).length }, files),
+    rt.pf10(
+      { raw: Buffer.byteLength(mainSprite), gz: gzipSync(mainSprite, { level: 9 }).length },
+      files,
+    ),
     rt.pf11(files),
     rt.pf12(files),
   )

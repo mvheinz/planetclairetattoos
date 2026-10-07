@@ -8,12 +8,19 @@ import { pathToFileURL } from 'node:url'
 
 import { optimize } from 'svgo'
 
-export const SPRITE_VERSION = 2
+export const SPRITE_VERSION = 3
+/** Nachgeladene Zusatz-Posen (P12.4): eigene Datei, eigene Versionsnummer. */
+export const EXTRA_VERSION = 1
 export const SPRITE_SOURCE = 'src/art/coco/coco-sprite.svg'
 export const SPRITE_JSON = 'src/art/coco/coco-sprite.json'
 /** Kompakte Anker je Pose/Brücke (Mittel über die Frames) für die Coco-Steuerung im Browser (klein halten). */
 export const ANCHORS_JSON = 'src/art/coco/coco-anchors.json'
 export const spritePublicPath = (v = SPRITE_VERSION) => `public/art/coco-sprite.v${v}.svg`
+export const EXTRA_SOURCE = 'src/art/coco/coco-extra.svg'
+export const EXTRA_JSON = 'src/art/coco/coco-extra.json'
+/** Anker + Datei der Zusatz-Posen für die nachgeladene Steuerung (`src/leash/cocoExtra.ts`). */
+export const EXTRA_ANCHORS_JSON = 'src/art/coco/coco-extra-anchors.json'
+export const extraPublicPath = (v = EXTRA_VERSION) => `public/art/coco-extra.v${v}.svg`
 
 /** Bildrate je Pose (DESIGN §10.3); Brücken 1 Frame à 83 ms. */
 export const POSE_FPS: Record<string, number> = {
@@ -24,6 +31,16 @@ export const POSE_FPS: Record<string, number> = {
   springen: 12,
   kopfschief: 10,
   bridge: 12,
+  // Zusatz-Posen (P12.4)
+  hecheln: 10,
+  zucken: 10,
+  kratzen: 10,
+  gaehnen: 4,
+  wedeln: 8,
+  verbeugung: 6,
+  schuetteln: 12,
+  freude: 8,
+  liegen: 5,
 }
 
 export interface SpriteSymbolMeta {
@@ -194,12 +211,17 @@ export function anchorTable(manifest: SpriteManifest): {
   return { href: manifest.href, anchors }
 }
 
-export function buildSprite(): { svg: string; manifest: SpriteManifest } {
-  const source = readFileSync(SPRITE_SOURCE, 'utf8')
+export function buildSprite(set: 'main' | 'extra' = 'main'): {
+  svg: string
+  manifest: SpriteManifest
+} {
+  const extra = set === 'extra'
+  const source = readFileSync(extra ? EXTRA_SOURCE : SPRITE_SOURCE, 'utf8')
   const svg = optimizeSprite(source)
+  const version = extra ? EXTRA_VERSION : SPRITE_VERSION
   const manifest: SpriteManifest = {
-    version: SPRITE_VERSION,
-    href: `/art/coco-sprite.v${SPRITE_VERSION}.svg`,
+    version,
+    href: `/art/coco-${extra ? 'extra' : 'sprite'}.v${version}.svg`,
     viewBox: [0, 0, 160, 120],
     symbols: readSymbols(svg),
   }
@@ -211,7 +233,11 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   writeFileSync(spritePublicPath(), svg)
   writeFileSync(SPRITE_JSON, `${JSON.stringify(manifest, null, 2)}\n`)
   writeFileSync(ANCHORS_JSON, `${JSON.stringify(anchorTable(manifest))}\n`)
+  const ex = buildSprite('extra')
+  writeFileSync(extraPublicPath(), ex.svg)
+  writeFileSync(EXTRA_JSON, `${JSON.stringify(ex.manifest, null, 2)}\n`)
+  writeFileSync(EXTRA_ANCHORS_JSON, `${JSON.stringify(anchorTable(ex.manifest))}\n`)
   console.log(
-    `art:sprite: ${spritePublicPath()} (${svg.length} B, ${manifest.symbols.length} Symbole) und ${SPRITE_JSON} geschrieben.`,
+    `art:sprite: ${spritePublicPath()} (${svg.length} B, ${manifest.symbols.length} Symbole), ${extraPublicPath()} (${ex.svg.length} B, ${ex.manifest.symbols.length} Symbole) und die Manifeste geschrieben.`,
   )
 }

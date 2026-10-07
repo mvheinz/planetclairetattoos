@@ -95,7 +95,9 @@ test.describe('Rechtsseiten P6.5 @smoke', () => {
         })
         expect(bannerFirst, `${path}: Band über der h1`).toBe(true)
         await expect(page.locator('[data-legal-as-of]').first(), path).toBeVisible()
-        await expect(page.locator('[data-legal-text]').first(), path).toContainText(
+        // P12.11: ausformulierte Platzhalter-Fassung (Gliederung mit Überschriften, kein „Text folgt …“ mehr)
+        await expect(page.locator('[data-legal-text] h2').first(), path).toBeVisible()
+        await expect(page.locator('[data-legal-text]').first(), path).not.toContainText(
           'Text folgt von der Kanzlei.',
         )
         const pdfs = page.locator('main [data-legal-pdf]')
@@ -112,13 +114,14 @@ test.describe('Rechtsseiten P6.5 @smoke', () => {
     })
   }
 
-  test('R-015 /en/terms ohne EN-Fassung: deutscher Text mit „Only available in German“, ohne Übersetzungs-Hinweis @smoke', async ({
+  test('R-015 /en/terms mit EN-Fassung: englischer Text mit Übersetzungs-Hinweis, kein „Only available in German“ @smoke', async ({
     page,
   }) => {
     await page.goto('/en/terms')
-    await expect(page.getByText('Only available in German.').first()).toBeVisible()
-    await expect(page.locator('[data-legal-text="agb"] [lang="de"]')).toHaveCount(1)
-    await expect(page.locator('[data-translation-disclaimer]')).toHaveCount(0)
+    await expect(page.getByText('Only available in German.')).toHaveCount(0)
+    await expect(page.locator('[data-translation-disclaimer]')).toHaveCount(1)
+    await expect(page.locator('[data-legal-text="agb"] h2').first()).toHaveText('Scope')
+    await expect(page.locator('[data-legal-text="agb"] [lang="de"]')).toHaveCount(0)
   })
 
   test('R24 Belehrung mit {{withdrawalUrl}}, Muster-Formular als HTML und PDF, Link „Vertrag widerrufen“ (R-095) @smoke', async ({
@@ -126,8 +129,9 @@ test.describe('Rechtsseiten P6.5 @smoke', () => {
   }) => {
     for (const locale of LOCALES) {
       await page.goto(localizedPath('R24', locale))
+      // EN-Fassung (seit P12.11 vorhanden, U-00) löst {{withdrawalUrl}} zur englischen Adresse auf (R-095)
       await expect(page.locator('[data-legal-text="widerrufsbelehrung"]')).toContainText(
-        '/de/vertrag-widerrufen',
+        locale === 'de' ? '/de/vertrag-widerrufen' : '/en/withdraw-from-contract',
       )
       await expect(page.locator('[data-legal-text="widerrufsformular"]')).toBeVisible()
       await expect(page.locator('[data-legal-pdf="widerrufsformular"]')).toHaveAttribute(
@@ -170,8 +174,9 @@ test.describe('Rechtsseiten P6.5 @smoke', () => {
       const copy = main.locator('[data-contact-copy]').first()
       await expect(copy).toBeVisible()
       await expect(copy).toHaveText(locale === 'de' ? 'Adresse kopieren' : 'Copy address')
-      await expect(main.locator('[data-contact-instagram]').first()).toBeVisible()
-      await expect(main.locator('[data-contact-dm]').first()).toBeVisible()
+      await expect(main.locator('[data-contact-instagram]')).toHaveCount(0) // Instagram nur im Fuß (U-15)
+      await expect(page.locator('footer a[href*="instagram.com"]').first()).toBeVisible()
+      await expect(main.locator('[data-contact-dm]')).toHaveCount(0) // keine DM-Wege mehr (U-15)
       await expect(page.locator('form')).toHaveCount(0)
       await expect(page.locator('iframe')).toHaveCount(0)
       // Nur der Bezirk, keine Straße

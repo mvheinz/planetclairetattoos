@@ -46,7 +46,7 @@ a.badge {
 }
 
 .foodSafe {
-  --badge-color: var(--mat);
+  --badge-color: var(--ok);
 }
 
 .reserved {

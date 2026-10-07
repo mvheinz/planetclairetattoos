@@ -17,7 +17,7 @@ import { CRAWLER } from './crawler'
 
 const SITE = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '')
 const PRODUCTION = process.env.E2E_SERVER === 'start'
-const FOX = { r: 0xb8, g: 0x4e, b: 0x1a }
+const FOX = { r: 0x0f, g: 0x4c, b: 0x57 } // Stempelfarbe Petrol (U-12, früher Fuchs)
 
 interface OgMeta {
   url: string
@@ -141,7 +141,8 @@ test.describe('P3.14 OG-Bilder', () => {
         pngs.set(`${p.itemNumber}:${locale}`, png)
         const share = await foxShare(png)
         if (p.status === 'sold') expect(share, `${path} Stempel`).toBeGreaterThan(0.002)
-        else expect(share, `${path} ohne Stempel`).toBe(0)
+        // Petrol kann in Fotos vereinzelt vorkommen: ohne Stempel höchstens ein verschwindender Anteil
+        else expect(share, `${path} ohne Stempel`).toBeLessThan(0.0005)
       }
     }
     // S01 hat einen eigenen EN-Titel → das EN-Bild unterscheidet sich vom DE-Bild.

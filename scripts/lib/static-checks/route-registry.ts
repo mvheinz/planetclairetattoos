@@ -27,6 +27,9 @@ export const R010_SHORT_LINKS = [
   '/widerruf',
 ]
 
+/** Entfallene Routen: IDs bleiben stabil und werden nicht neu vergeben (P12.7: R13 „Angebote“, U-14). */
+export const RETIRED_ROUTE_IDS: readonly string[] = ['R13']
+
 export interface KonzeptRouteRow {
   id: string
   de: string
@@ -100,7 +103,10 @@ export function checkRouteRegistry(input: RegistryInput): CheckResult {
 
   if (konzept.length === 0) errors.push('KONZEPT §2.2: Routentabelle nicht gefunden.')
   if (byId.size !== routes.length) errors.push('Registry: Routen-IDs sind nicht eindeutig.')
-  const expectedIds = Array.from({ length: 31 }, (_, i) => `R${String(i + 1).padStart(2, '0')}`)
+  const expectedIds = Array.from(
+    { length: 31 },
+    (_, i) => `R${String(i + 1).padStart(2, '0')}`,
+  ).filter((id) => !RETIRED_ROUTE_IDS.includes(id))
   for (const id of expectedIds) {
     if (!byId.has(id)) errors.push(`Registry: ${id} fehlt.`)
     if (konzept.length && !konzept.some((k) => k.id === id))

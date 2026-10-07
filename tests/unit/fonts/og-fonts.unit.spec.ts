@@ -7,6 +7,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { checkFonts } from '../../../scripts/check-bundle'
 import {
+  DISPLAY_REQUIRED_GLYPHS,
   OG_FONT_DIR,
   OG_METRICS_MODULE,
   OG_REQUIRED_GLYPHS,
@@ -14,10 +15,9 @@ import {
   ogMetricsModule,
   type BuiltOgFont,
 } from '../../../scripts/fonts/copy'
-import { MANSALVA_REQUIRED_GLYPHS } from '@/styles/glyphs'
 
 // P3.14 OG-Schriften (DESIGN §12.6, ARCHITEKTUR §1.2): `pnpm fonts:copy` wandelt offline die statischen WOFF2 von
-// Mansalva 400 und Bricolage Grotesque 600 per `wawoff2` in TTF um – ohne Netz, byte-gleich bei jedem Lauf, keine
+// Spectral 500 Italic und Bricolage Grotesque 600 per `wawoff2` in TTF um – ohne Netz, byte-gleich bei jedem Lauf, keine
 // variable Schrift (satori), Pflicht-Glyphen vorhanden; die Dateien gehen nie an den Browser.
 
 const nodeModules = path.resolve('node_modules')
@@ -46,9 +46,9 @@ describe('P3.14 OG-Schriften', () => {
       expect(Buffer.compare(font.data, second[i]!.data), font.file).toBe(0)
   })
 
-  it('src/og/fonts enthält nur .ttf – genau die Skript-Ausgabe (Mansalva 400, Bricolage 600)', () => {
+  it('src/og/fonts enthält nur .ttf – genau die Skript-Ausgabe (Spectral 500 Italic, Bricolage 600)', () => {
     const files = readdirSync(path.resolve(OG_FONT_DIR)).sort()
-    expect(files).toEqual(['bricolage-grotesque-600.ttf', 'mansalva-400.ttf'])
+    expect(files).toEqual(['bricolage-grotesque-600.ttf', 'spectral-500-italic.ttf'])
     for (const font of first) {
       const checkedIn = readFileSync(path.resolve(OG_FONT_DIR, font.file))
       expect(Buffer.compare(checkedIn, font.data), font.file).toBe(0)
@@ -69,16 +69,16 @@ describe('P3.14 OG-Schriften', () => {
       (bricolage as unknown as { 'OS/2': { usWeightClass: number } })['OS/2'].usWeightClass,
     ).toBe(600)
     expect(bricolage.variationAxes).toEqual({})
-    const mansalva = fontkit.create(
-      first.find((f) => f.key === 'mansalva400')!.data,
+    const spectral = fontkit.create(
+      first.find((f) => f.key === 'spectral500i')!.data,
     ) as fontkit.Font
-    expect(mansalva.familyName).toBe('Mansalva')
+    expect(spectral.familyName).toMatch(/^Spectral/)
   })
 
-  it('Glyphen-Abdeckung: Umlaute, ß, €, „“ und die Mansalva-Pflichtliste', () => {
+  it('Glyphen-Abdeckung: Umlaute, ß, €, „“ und die Spectral-Pflichtliste', () => {
     for (const font of first) {
       const parsed = fontkit.create(font.data) as fontkit.Font
-      const missing = [...`${OG_REQUIRED_GLYPHS}${MANSALVA_REQUIRED_GLYPHS}`].filter(
+      const missing = [...`${OG_REQUIRED_GLYPHS}${DISPLAY_REQUIRED_GLYPHS}`].filter(
         (c) => !parsed.hasGlyphForCodePoint(c.codePointAt(0)!),
       )
       expect(missing, font.file).toEqual([])
@@ -95,11 +95,11 @@ describe('P3.14 OG-Schriften', () => {
     const dir = mkdtempSync(path.join(tmpdir(), 'pc-ogfonts-'))
     try {
       mkdirSync(path.join(dir, 'media'))
-      for (const f of ['a.woff2', 'b.woff2', 'c.woff2'])
+      for (const f of ['a.woff2', 'b.woff2', 'c.woff2', 'd.woff2'])
         writeFileSync(path.join(dir, 'media', f), Buffer.alloc(10))
       expect(checkFonts(dir).errors).toEqual([])
-      writeFileSync(path.join(dir, 'media', 'mansalva-400.ttf'), first[0]!.data)
-      expect(checkFonts(dir).errors.some((e) => e.includes('mansalva-400.ttf'))).toBe(true)
+      writeFileSync(path.join(dir, 'media', 'spectral-500-italic.ttf'), first[0]!.data)
+      expect(checkFonts(dir).errors.some((e) => e.includes('spectral-500-italic.ttf'))).toBe(true)
     } finally {
       rmSync(dir, { recursive: true, force: true })
     }

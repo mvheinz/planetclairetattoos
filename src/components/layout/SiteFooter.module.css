@@ -152,6 +152,10 @@
   color: var(--ink-2);
 }
 
+.ipNotice {
+  min-width: 0;
+}
+
 @media (min-width: 768px) {
   .inner {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -160,6 +164,7 @@
 
   .withdraw,
   .priceNote,
+  .ipNotice,
   .copyright {
     grid-column: 1 / -1;
   }

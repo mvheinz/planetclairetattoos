@@ -101,7 +101,7 @@
 /* ---------- Text ---------- */
 
 .title {
-  font-family: var(--font-hand);
+  font-family: var(--font-display);
   font-size: var(--fs-h1);
   font-weight: 400;
   line-height: 1.05;

@@ -735,7 +735,7 @@ plan_status_raw() {
         open[key]++
         label = (hasCur ? head " → " : "") item
         if (nxtAny == "") nxtAny = label
-        if (nxt == "" && key != "x" && p + 0 >= 1 && p + 0 <= 10) nxt = label
+        if (nxt == "" && key != "x" && p + 0 >= 1 && (p + 0 <= 10 || p + 0 == 12)) nxt = label
       }
     }
     END {
@@ -766,12 +766,14 @@ plan_summary() {
         else
           PLAN_TABLE="${PLAN_TABLE}P${a} ${b}/${c}; "
           if [ "$a" -ge 1 ] && [ "$a" -le 10 ]; then sum=$((sum + b)); fi
+          if [ "$a" -eq 12 ]; then PLAN_OPEN_P12="$b"; fi
         fi
         ;;
     esac
   done <<<"$raw"
   PLAN_TABLE="${PLAN_TABLE%; }"
   PLAN_OPEN_P1_P10="$sum"
+  PLAN_OPEN_P12="${PLAN_OPEN_P12:-0}"
   PLAN_NEXT="$(printf '%s\n' "$raw" | sed -n 's/^NEXT //p' | head -n 1)"
   if [ -z "$PLAN_NEXT" ]; then
     PLAN_NEXT="$(printf '%s\n' "$raw" | sed -n 's/^NEXTANY //p' | head -n 1)"
@@ -967,6 +969,7 @@ run_plan_status() {
   echo "PLAN.md – offene/gesamte Checkboxen je Phase:"
   printf '%s\n' "$raw" | awk '$1 == "PHASE" { printf "  %s: %s/%s offen\n", ($2 == "x" ? "ohne Phase" : "P" $2), $3, $4 }'
   echo "OFFEN_P1_P10=${PLAN_OPEN_P1_P10}"
+  echo "OFFEN_P12=${PLAN_OPEN_P12:-0}"
   echo "ERSTE_OFFENE_AUFGABE: ${PLAN_NEXT}"
 }
 

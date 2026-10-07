@@ -20,11 +20,11 @@
 }
 .coco[data-size='leash'] {
   --coco-w: var(--coco-leash);
-  --coco-sw: 4.6; /* 1,6 px bei 56 px Breite */
+  --coco-sw: 3.7; /* 1,6 px bei 70 px Breite (tokens.css) */
 }
 @media (min-width: 768px) {
   .coco[data-size='leash'] {
-    --coco-sw: 3.3; /* 1,8 px bei 88 px Breite (tokens.css) */
+    --coco-sw: 2.6; /* 1,8 px bei 110 px Breite (tokens.css) */
   }
 }
 .coco[data-size='s'] {
@@ -119,6 +119,20 @@
 .coco[data-pose='schlafen'] {
   --boil-frame: var(--sleep-frame);
 }
+/* Zusatz-Posen (P12.4, `cocoExtra.ts`): eigener Takt je Aktion – Schütteln und Freudenhüpfer im Lauftakt, Gähnen/Hinlegen
+   langsam (die Frames sind Stufen einer Bewegung, kein Zittern). */
+.coco[data-pose='schuetteln'],
+.coco[data-pose='freude'] {
+  --boil-frame: var(--run-frame);
+}
+.coco[data-pose='wedeln'],
+.coco[data-pose='verbeugung'],
+.coco[data-pose='liegen'] {
+  --boil-frame: var(--sleep-frame);
+}
+.coco[data-pose='gaehnen'] {
+  --boil-frame: calc(var(--sleep-frame) * 2);
+}
 /* 33,4 % statt 33,333 %: die Frames überlappen um 0,2 ms statt eine Lücke zu lassen (Aufnahmen im 100-ms-Takt, gleich der Boil-Frame-Länge, trafen die Kante und zeigten kein Coco, R2-06-01). */
 @keyframes coco-boil {
   0% {
@@ -189,7 +203,7 @@ html[data-motion='reduced'] .coco .f-c {
   );
   /* über der Linien-Ebene (`--z-leash`): Coco steht vor der Leine, der Papier-Rand unterbricht die Tusche (R2-02-04) */
   z-index: calc(var(--z-leash) + 1);
-  transform: translate(-37.8%, -55.8%);
+  transform: translate(-50%, -54.6%);
   transform-origin: 0 0;
 }
 .coco[data-leash-coco][data-placed] {
@@ -199,6 +213,18 @@ html[data-motion='reduced'] .coco .f-c {
    sichtbar am Linienanfang unter der Kopfleiste (dort läge sie über dem Hinweisbanner, R2-02-02). */
 [data-leash-preset='journey'] ~ .coco[data-leash-coco]:not([data-placed]) {
   visibility: hidden;
+}
+/* Coco reist mit (P12.12, MO-14): Kommt die Seite über einen Übergang, steht Coco schon am Linienanfang – sichtbar auch
+   auf der Startseite, damit der Übergang sie (alt → neu) mitnimmt, statt dass sie später von links hereinrennt.
+   `:active-view-transition` (harte Navigation, schon vor dem Hydratisieren) und `data-arrived` (gesetzt von LeashLayer)
+   in getrennten Regeln: ein unbekannter Selektor würde sonst die ganze Liste verwerfen. */
+html:active-view-transition
+  [data-leash-preset='journey']
+  ~ .coco[data-leash-coco]:not([data-placed]) {
+  visibility: visible;
+}
+[data-leash-preset='journey'] ~ .coco[data-leash-coco][data-arrived]:not([data-placed]) {
+  visibility: visible;
 }
 /* Coco steht vor der Linie (R2-01-02): ein schmaler Papier-Rand um jeden Strich unterbricht die Tusche hinter ihr,
    sonst läuft die Leine sichtbar durch den (unausgefüllten) Körper und die kleine Figur wird zum dunklen Fleck. Der
@@ -232,6 +258,29 @@ html[data-motion='reduced'] .coco .f-c {
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation-duration: 250ms;
+  }
+}
+
+/* Coco ohne Gegenstück auf der anderen Seite (z. B. Startseite → Shop): sie läuft nach rechts hinaus bzw. von links
+   herein – gleiche Dauer und Kurve wie das Wandern (MO-14, MI-04); Transform/Opacity, keine Layout-Eigenschaften. */
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-motion='reduced'])::view-transition-old(coco):only-child {
+    animation: pc-coco-away var(--dur-page) var(--ease-ink-inout) both;
+  }
+  html:not([data-motion='reduced'])::view-transition-new(coco):only-child {
+    animation: pc-coco-in var(--dur-page) var(--ease-ink-inout) both;
+  }
+}
+@keyframes pc-coco-away {
+  to {
+    opacity: 0;
+    transform: translateX(72px);
+  }
+}
+@keyframes pc-coco-in {
+  from {
+    opacity: 0;
+    transform: translateX(-72px);
   }
 }
 

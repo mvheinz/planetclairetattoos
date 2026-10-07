@@ -13,7 +13,7 @@ const motif: Motif = {
     'M132 190C152 204 180 208 212 198',
   ],
   wash: 'M126 112C156 96 196 94 228 104C262 116 276 150 278 186C290 236 292 292 282 340C276 370 276 396 278 420L130 420C122 356 112 294 104 232C92 176 98 128 126 112Z',
-  inset: { width: 3, ink: place(cocoSitting(-0.4, -8), { x: 196, y: 370, s: 0.95 }) },
+  inset: { width: 3, ink: place(cocoSitting(-0.4, -8, 'blinzel'), { x: 196, y: 370, s: 0.95 }) },
   shadow: { x: 210, y: 440, w: 80, count: 6, len: 14 },
 }
 export default motif

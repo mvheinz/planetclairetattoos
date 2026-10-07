@@ -103,7 +103,6 @@ describe('Seiten (SEED-SPEC §13)', () => {
     ])
     expect(await types('tattoo')).toEqual([
       'richText',
-      'offersList',
       'flashGrid',
       'tattooGallery',
       'priceInfo',
@@ -146,10 +145,10 @@ describe('Seiten (SEED-SPEC §13)', () => {
     expect(phases(aftercareEn).map((x) => (x as { id?: string }).id)).toEqual(
       phases(aftercareDe).map((x) => (x as { id?: string }).id),
     )
-    expect(plain(phases(aftercareEn)[0]!.content)).toMatch(/^I'll cover your tattoo with film/)
+    expect(plain(phases(aftercareEn)[0]!.content)).toMatch(/^I wrap your tattoo in film/)
     const tattooEn = await page('tattoo', 'en')
     expect(tattooEn.title).toBe('Tattoo')
-    const steps = tattooEn.layout[5]!.steps as { title: string; text: string }[]
+    const steps = tattooEn.layout[4]!.steps as { title: string; text: string }[]
     expect(steps.map((s) => s.title)).toEqual([
       'Request',
       'Appointment',
@@ -158,7 +157,7 @@ describe('Seiten (SEED-SPEC §13)', () => {
       'Aftercare',
     ])
     expect(plain((await page('not_found', 'en')).layout[0]!.content)).toBe(
-      "Coco sniffed everywhere – this page doesn't exist (anymore). [Back to the start](/en)",
+      'Coco followed the line and never came back – this page does not exist (anymore). [Back to the start](/en)',
     )
     for (const key of PAGE_KEYS) {
       const [de, en] = [await page(key, 'de'), await page(key, 'en')]
@@ -190,8 +189,8 @@ describe('FAQ (SEED-SPEC §14)', () => {
   it('Fragen und Antworten DE/EN, Antworten als Lexical', async () => {
     const de = await bySeedKey(payload, 'faqs', 'FAQ08', { locale: 'de' })
     const en = await bySeedKey(payload, 'faqs', 'FAQ08', { locale: 'en' })
-    expect(de.question).toBe('Mail oder DM – was ist besser?')
-    expect(en.question).toBe('Email or DM – which is better?')
+    expect(de.question).toBe('Wie frage ich ein Tattoo an?')
+    expect(en.question).toBe('How do I request a tattoo?')
     expect(plain(de.answer)).toContain('zum Beispiel F-902')
     expect(plain(en.answer)).toContain('for example F-902')
     expect(de.category).toBe('tattoo')

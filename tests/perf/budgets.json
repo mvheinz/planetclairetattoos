@@ -30,6 +30,16 @@
       "gzipMax": 3000
     },
     {
+      "name": "Coco-Zusatz-Aktionen (nachgeladen, P12.4: Warte-Aktionen, Freudenhüpfer)",
+      "entries": ["src/leash/cocoExtra.ts"],
+      "gzipMax": 2500
+    },
+    {
+      "name": "Coco reist mit (nachgeladen, P12.12: Lauf-Pose beim Seitenwechsel, MO-14)",
+      "entries": ["src/leash/cocoTravel.ts"],
+      "gzipMax": 2500
+    },
+    {
       "name": "Mikro-Interaktionen Seitenrahmen (auf jeder Seite: cart-count, menu, motion-toggle; 404: lost)",
       "entries": [
         "src/behaviors/cart-count.ts",
@@ -54,6 +64,11 @@
       "gzipMax": 4000
     },
     {
+      "name": "Mikro-Interaktionen Startseite (fitness-coco, P12.5)",
+      "entries": ["src/behaviors/fitness-coco.ts"],
+      "gzipMax": 4000
+    },
+    {
       "name": "Mikro-Interaktionen Live-Zustand und Korb (product-status, add-to-cart)",
       "entries": ["src/behaviors/product-status.ts", "src/behaviors/add-to-cart.ts"],
       "gzipMax": 4000
@@ -74,7 +89,7 @@
     }
   ],
   "fonts": {
-    "files": 3,
+    "files": 4,
     "maxBytes": 100000
   },
   "svg": {
@@ -82,6 +97,32 @@
       "rawMax": 45000,
       "gzipMax": 12000
     },
+    "lazy": [
+      {
+        "name": "Coco-Zusatz-Posen (nachgeladen, P12.4)",
+        "file": "public/art/coco-extra.v1.svg",
+        "rawMax": 60000,
+        "gzipMax": 14000
+      },
+      {
+        "name": "Fitness-Coco-Bildfolge (nachgeladen, P12.5)",
+        "file": "public/art/fitness-coco.v1.json",
+        "rawMax": 480000,
+        "gzipMax": 150000
+      },
+      {
+        "name": "Fitness-Coco-Standbild (<img>, P12.5)",
+        "file": "public/art/fitness-still.v1.svg",
+        "rawMax": 6000,
+        "gzipMax": 3000
+      },
+      {
+        "name": "Koko-Zeichnung (<img>, P12.6)",
+        "file": "public/art/koko.v1.svg",
+        "rawMax": 16000,
+        "gzipMax": 6000
+      }
+    ],
     "stationRawMax": 8000,
     "stationGlob": "src/art/stations/*.svg",
     "iconRawMax": 600,

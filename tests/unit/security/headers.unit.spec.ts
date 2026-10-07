@@ -61,6 +61,9 @@ describe('T-16 Header je Kontext', () => {
       'Permissions-Policy':
         'camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()',
       'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+      // P12.11 (U-22 c): TDMRep-Vorbehalt und KI-Ausschluss, Indexierung bleibt erlaubt
+      'tdm-reservation': '1',
+      'X-Robots-Tag': 'noai, noimageai',
     })
     expect(baseHeaders('staging')['Strict-Transport-Security']).toBe(
       'max-age=31536000; includeSubDomains',
@@ -167,7 +170,7 @@ describe('T-16 Header je Kontext', () => {
     expect(rules.map((r) => r.source)).toEqual([
       '/:path*',
       '/api/:path*',
-      '/art/:file(coco-sprite\\.v\\d+\\.svg)',
+      '/art/:file((?:coco-sprite|coco-extra|koko|fitness-still)\\.v\\d+\\.svg|fitness-coco\\.v\\d+\\.json)',
     ])
     expect(rules[2]!.headers).toEqual([
       { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },

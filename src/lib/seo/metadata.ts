@@ -4,6 +4,7 @@ import de from '@/i18n/messages/de.json'
 import en from '@/i18n/messages/en.json'
 import { getEnv } from '@/lib/env'
 import { getRoute, isLocale, localizedPath, type RouteParams } from '@/lib/routes/paths'
+import { AI_ROBOTS_DIRECTIVES, TDM_RESERVATION } from '@/lib/seo/robots'
 import {
   DEFAULT_LOCALE,
   LOCALES,
@@ -57,7 +58,8 @@ export function absoluteUrl(path: string, siteUrl: string = getEnv().NEXT_PUBLIC
 
 /** Registry-Angabe → Next-`robots` (`noindex` → „noindex“, `noindex,follow` → „noindex, follow“). */
 export function robotsFor(mode: RobotsMode): NonNullable<Metadata['robots']> {
-  if (mode === 'index') return { index: true, follow: true }
+  // Indexierbare Seiten tragen zusätzlich den KI-Vorbehalt (U-22 c): „index, follow, noai, noimageai“.
+  if (mode === 'index') return `index, follow, ${AI_ROBOTS_DIRECTIVES}`
   if (mode === 'noindex,follow') return { index: false, follow: true }
   return { index: false }
 }
@@ -75,15 +77,7 @@ export function descriptionFor(
 }
 
 /** Unterseiten des Tattoo-Bereichs (R12–R18) tragen „Tattoo“ im Titel (PLAN P7.1). */
-const TATTOO_SUBPAGES: ReadonlySet<string> = new Set([
-  'R12',
-  'R13',
-  'R14',
-  'R15',
-  'R16',
-  'R17',
-  'R18',
-])
+const TATTOO_SUBPAGES: ReadonlySet<string> = new Set(['R12', 'R14', 'R15', 'R16', 'R17', 'R18'])
 
 export function titleFor(routeId: string, locale: Locale, pageTitle?: string): string {
   const common = MESSAGES[locale].common
@@ -118,6 +112,7 @@ export function buildMetadata(
     title: { absolute: title },
     description,
     robots: robotsFor(route.robots),
+    other: { [TDM_RESERVATION.name]: TDM_RESERVATION.content },
     openGraph: {
       ...(options.ogType === 'product' ? {} : { type: 'website' as const }),
       siteName: SITE_NAME,

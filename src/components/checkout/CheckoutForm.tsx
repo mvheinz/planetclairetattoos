@@ -10,6 +10,7 @@ import {
   submitCheckout,
 } from '@/app/(frontend)/[locale]/checkout/actions'
 import { RESERVATION_EXPIRED_EVENT } from '@/behaviors/reservation-countdown'
+import { COCO_JOY_EVENT } from '@/behaviors/types'
 import { Checkbox, Radio } from '@/components/ui/Choice'
 import { Field, RequiredNote } from '@/components/ui/Field'
 import {
@@ -283,6 +284,8 @@ export function CheckoutForm(props: CheckoutFormProps) {
       }
       if (res.next !== 'confirm') return
       setStatus('processing')
+      // Bestellung abgeschickt: Freudenhüpfer der Coco, falls eine mit Zusatz-Posen auf der Seite steht (U-04)
+      document.dispatchEvent(new CustomEvent(COCO_JOY_EVENT, { detail: { reason: 'order' } }))
       if (props.payment.driver === 'mock') {
         const outcome = String(fd.get('mockOutcome') ?? 'success')
         const mockMethod = String(fd.get('mockMethod') ?? 'card')

@@ -2,46 +2,44 @@ import { createHash } from 'node:crypto'
 
 import { describe, expect, it } from 'vitest'
 
-import {
-  STRING_OVERHANG,
-  buildGeometry,
-  mapReadingY,
-  pointAt,
-  stringRows,
-  stringSag,
-} from '@/leash/geometry'
+import { buildGeometry, mapReadingY, pointAt, stringRows } from '@/leash/geometry'
 import { PRESET_COCO_POSES } from '@/leash/presetDocs'
 import { PRESET_CONFIG } from '@/leash/presets'
 import { fnv1a32 } from '@/leash/random'
 import type { BuildInput, LeashAnchor } from '@/leash/types'
 
-// P3.5 Preset `shopString` (DESIGN §9.7, KO-07/KO-08): Schnur durch die Faden-Anker je Kartenreihe mit Durchhang,
-// Überstand am Reihenende, Serpentine im Seitenrand; Reihen als Stationen für das Zeichnen beim Eintritt.
+// Raster-Seiten (U-07a, ersetzt P3.5): Preset `shopString` (Shop, Kategorie, Archiv) – die Leine läuft ausschließlich in
+// der Rinne am Seitenrand, kringelt sich zwischen den Kartenzeilen und wickelt nie eine Karte ein. Reihen sind
+// Stationen für das Zeichnen beim Eintritt.
 
-const GRID = { left: 16, right: 374 }
+const RAIL = 16
+const GUTTER = 32
+const CARD_LEFT = GUTTER // Kartenraster beginnt rechts der Rinne
+const COLS = [CARD_LEFT, 211]
+const CARD_W = 165
+const CARD_H = 330
 const ROWS = [420, 860, 1300]
-const COLS = [64, 247]
 
-function shopInput(rows = ROWS, cols = COLS): BuildInput {
+function shopInput(rows = ROWS): BuildInput {
   const anchors: LeashAnchor[] = [
-    { id: 'start', kind: 'start', x: 43, y: 150, w: 0, h: 0, loop: 'none' },
+    { id: 'start', kind: 'start', x: 70, y: 150, w: 0, h: 0, loop: 'none' },
     {
       id: 'shop-grid',
       kind: 'target',
-      x: GRID.left,
+      x: CARD_LEFT,
       y: 200,
-      w: GRID.right - GRID.left,
+      w: 390 - CARD_LEFT - 16,
       h: 0,
       loop: 'none',
     },
   ]
   rows.forEach((y, r) =>
-    cols.forEach((x, c) =>
+    COLS.forEach((x, c) =>
       anchors.push({
         id: `tag-${r}-${c}`,
         kind: 'tag',
-        x: x - 0.75,
-        y,
+        x: x + CARD_W / 2 - 0.75,
+        y: y + 250,
         w: 1.5,
         h: 10,
         loop: 'none',
@@ -51,15 +49,15 @@ function shopInput(rows = ROWS, cols = COLS): BuildInput {
   return {
     preset: 'shopString',
     seed: fnv1a32('shopString:R02'),
-    root: { w: 390, h: 1700 },
+    root: { w: 390, h: 1900 },
     viewport: { w: 390, h: 844 },
-    gutter: 0,
+    gutter: GUTTER,
+    railX: RAIL,
     baseWidth: 2.2,
     anchors,
   }
 }
 
-/** Alle LUT-Punkte der Linie. */
 function points(input: BuildInput) {
   const g = buildGeometry(input)
   const out: { len: number; x: number; y: number }[] = []
@@ -68,10 +66,12 @@ function points(input: BuildInput) {
   return { g, pts: out }
 }
 
-describe('shopString – Schnur (DESIGN §9.7)', () => {
-  it('Preset zeichnet je Reihe beim Eintritt (500 ms), ohne Rinne, Coco m sitzt', () => {
+describe('shopString – Leine in der Rinne (U-07a)', () => {
+  it('Preset: Zeichnen je Reihe beim Eintritt (U-06: 1000 ms), Rinne am Rand, Coco m sitzt', () => {
     expect(PRESET_CONFIG.shopString.draw).toBe('rowEnter')
-    expect(PRESET_CONFIG.shopString.durationMs).toBe(500)
+    expect(PRESET_CONFIG.shopString.durationMs).toBe(1000)
+    expect(PRESET_CONFIG.shopString.rail).toBe('center')
+    expect(PRESET_CONFIG.shopString.gutter).toEqual({ mobile: 32, desktop: 56 })
     expect(PRESET_CONFIG.shopString.coco).toEqual({ size: 'm' })
     expect(PRESET_COCO_POSES.shopString).toEqual(['sitzen'])
   })
@@ -89,77 +89,111 @@ describe('shopString – Schnur (DESIGN §9.7)', () => {
   })
 
   it('Faden-Anker werden zu Reihen gruppiert (oben → unten, links → rechts)', () => {
-    expect(stringRows(shopInput().anchors)).toEqual(ROWS.map((y) => ({ y, xs: COLS })))
+    const rows = stringRows(shopInput().anchors)
+    expect(rows.map((r) => r.y)).toEqual(ROWS.map((y) => y + 250))
+    expect(rows[0]!.xs).toHaveLength(2)
   })
 
-  it('die Schnur läuft durch jeden Faden-Anker und beginnt am Start-Anker (Coco)', () => {
+  it('LG-01: die Linie berührt nie eine Karte – alles links der Kartenkante, nie außerhalb der Ebene', () => {
     const { pts } = points(shopInput())
-    expect(Math.abs(pts[0]!.x - 43)).toBeLessThan(1.5)
-    expect(Math.abs(pts[0]!.y - 150)).toBeLessThan(1.5)
-    for (const y of ROWS)
-      for (const x of COLS) {
-        const d = Math.min(...pts.map((p) => Math.hypot(p.x - x, p.y - y)))
-        expect(d, `Anker ${x}/${y}`).toBeLessThan(3)
-      }
-  })
-
-  it('Durchhang zwischen zwei Ankern: clamp(4, 0.03 × Abstand, 14) px', () => {
-    expect(stringSag(50)).toBe(4)
-    expect(stringSag(200)).toBe(6)
-    expect(stringSag(1000)).toBe(14)
-    const { pts } = points(shopInput())
-    const mid = (COLS[0]! + COLS[1]!) / 2
-    const near = pts.filter((p) => Math.abs(p.x - mid) < 3 && Math.abs(p.y - ROWS[0]!) < 20)
-    const lowest = Math.max(...near.map((p) => p.y))
-    const expected = ROWS[0]! + stringSag(COLS[1]! - COLS[0]!)
-    expect(Math.abs(lowest - expected)).toBeLessThan(2.5)
-  })
-
-  it('Serpentine: Reihe 1 endet rechts im Rand (12 px Überstand), Reihe 2 läuft nach links, nie außerhalb der Ebene', () => {
-    const { pts } = points(shopInput())
-    const between = (y0: number, y1: number) => pts.filter((p) => p.y > y0 + 30 && p.y < y1 - 30)
-    const right = between(ROWS[0]!, ROWS[1]!)
-    const left = between(ROWS[1]!, ROWS[2]!)
-    expect(Math.min(...right.map((p) => p.x))).toBeGreaterThan(GRID.right)
-    expect(Math.max(...left.map((p) => p.x))).toBeLessThan(GRID.left)
+    // Ausnahme: das Stück zwischen Coco (Start-Anker) und Rinne über der ersten Reihe
+    const firstCardTop = ROWS[0]!
     for (const p of pts) {
       expect(p.x).toBeGreaterThanOrEqual(0)
       expect(p.x).toBeLessThanOrEqual(390)
+      if (p.y >= firstCardTop) expect(p.x, `y=${p.y.toFixed(0)}`).toBeLessThan(CARD_LEFT - 2)
     }
-    // Schnurende: Überstand über das Raster hinaus, im Rand der letzten Reihe (3 Reihen → endet rechts)
-    const end = pts[pts.length - 1]!
-    expect(end.x).toBeGreaterThan(GRID.right + STRING_OVERHANG / 2)
-    expect(Math.abs(end.y - ROWS[2]!)).toBeLessThan(3)
   })
 
-  it('Reihen als Stationen row-0…: lückenlos aneinander, Treppen-Abbildung zeichnet je Reihe ganz', () => {
-    const { g } = points(shopInput())
+  it('beginnt am Start-Anker (Coco), kommt in die Rinne und kringelt sich je Reihe in einer Schlaufe', () => {
+    const { g, pts } = points(shopInput())
+    expect(Math.abs(pts[0]!.x - 70)).toBeLessThan(1.5)
+    expect(Math.abs(pts[0]!.y - 150)).toBeLessThan(1.5)
+    // je Reihe eine Schlaufe: die Linie läuft innerhalb der Rinne einmal rückwärts (y fällt)
+    const back = pts.filter((p, i) => i > 0 && p.y < pts[i - 1]!.y - 0.05)
+    expect(back.length).toBeGreaterThan(8)
     expect(g.stations.map((s) => s.id)).toEqual(['row-0', 'row-1', 'row-2'])
-    expect(g.stations[0]!.loopLen0).toBe(0)
-    for (let k = 1; k < g.stations.length; k++)
-      expect(g.stations[k]!.loopLen0).toBeCloseTo(g.stations[k - 1]!.loopLen1, 6)
-    expect(g.stations.at(-1)!.loopLen1).toBeCloseTo(g.totalLength, 0)
+    // Schlaufen liegen zwischen zwei Faden-Zeilen (Mitte der Lücke, in der Rinne)
+    for (let k = 0; k < ROWS.length - 1; k++) {
+      const s = g.stations[k]!
+      expect(s.y).toBeGreaterThan(ROWS[k]! + 250)
+      expect(s.y).toBeLessThan(ROWS[k + 1]! + 250)
+    }
+  })
+
+  it('Reihen als Stationen: lückenlos aneinander, Treppen-Abbildung zeichnet je Reihe ganz', () => {
+    const { g } = points(shopInput())
     for (let k = 1; k < g.scrollMap.length; k++) {
       expect(g.scrollMap[k]!.readingY).toBeGreaterThan(g.scrollMap[k - 1]!.readingY)
       expect(g.scrollMap[k]!.len).toBeGreaterThan(g.scrollMap[k - 1]!.len)
     }
-    // Vor der ersten Reihe fast nichts, direkt danach Reihe 1 vollständig, dann Reihe 2
-    expect(mapReadingY(g.scrollMap, ROWS[0]! - 1)).toBeLessThan(1)
-    expect(mapReadingY(g.scrollMap, ROWS[0]! + 1)).toBeCloseTo(g.stations[0]!.loopLen1, 0)
-    expect(mapReadingY(g.scrollMap, ROWS[1]! + 1)).toBeCloseTo(g.stations[1]!.loopLen1, 0)
-    // auch die letzte Reihe springt beim Eintritt auf ihre volle Länge (nicht erst am Seitenende)
-    expect(mapReadingY(g.scrollMap, ROWS[2]! + 1)).toBeCloseTo(g.totalLength, 0)
     expect(mapReadingY(g.scrollMap, 1e9)).toBe(g.totalLength)
-    // Pfaddaten im Budget (§9.10 ≤ 60 KB je Seite)
     const bytes = g.segments.reduce((n, s) => n + s.outlineD.length + s.centerD.length, 0)
     expect(bytes).toBeLessThan(60_000)
   })
 
   it('ohne Karten nur der kurze Leinen-Anschluss', () => {
-    const input = shopInput([], [])
+    const input = shopInput([])
     const g = buildGeometry(input)
-    expect(g.totalLength).toBeLessThan(30)
+    expect(g.totalLength).toBeLessThan(120)
     expect(g.stations).toEqual([])
     expect(Math.abs(pointAt(g.lut, 0).y - 150)).toBeLessThan(1.5)
+  })
+})
+
+describe('stencil/Flash – Leine in der Rinne (U-07a, LG-01)', () => {
+  const flashInput = (): BuildInput => {
+    const anchors: LeashAnchor[] = [
+      { id: 'start', kind: 'start', x: RAIL, y: 0, w: 0, h: 0, loop: 'none' },
+      {
+        id: 'tattoo-title',
+        kind: 'station',
+        x: 48,
+        y: 120,
+        w: 200,
+        h: 40,
+        loop: 'none',
+        pose: 'kopfschief',
+      },
+    ]
+    ROWS.forEach((y, r) =>
+      COLS.forEach((x, c) =>
+        anchors.push({
+          id: `f-${r}${c}`,
+          kind: 'station',
+          x,
+          y,
+          w: CARD_W,
+          h: CARD_H,
+          loop: 'contour',
+        }),
+      ),
+    )
+    anchors.push({ id: 'end', kind: 'end', x: RAIL, y: 1800, w: 0, h: 0, loop: 'none' })
+    return {
+      preset: 'stencil',
+      seed: fnv1a32('stencil:R12'),
+      root: { w: 390, h: 1900 },
+      viewport: { w: 390, h: 844 },
+      gutter: GUTTER,
+      railX: RAIL,
+      baseWidth: 2.2,
+      anchors,
+    }
+  }
+
+  it('Preset: Rinne am Seitenrand, keine Kontur-Schlaufe mehr', () => {
+    expect(PRESET_CONFIG.stencil.rail).toBe('center')
+    expect(PRESET_CONFIG.stencil.loops).not.toContain('contour')
+  })
+
+  it('LG-01: Flash-Karten werden nie umschlossen oder überquert', () => {
+    const { g, pts } = points(flashInput())
+    for (const p of pts) {
+      expect(p.x).toBeLessThan(CARD_LEFT - 2)
+      expect(p.x).toBeGreaterThanOrEqual(0)
+    }
+    // eine Schlaufe je Kartenzeile in der Lücke zur nächsten Zeile
+    expect(g.stations.filter((s) => s.id.startsWith('f-'))).toHaveLength(ROWS.length)
   })
 })

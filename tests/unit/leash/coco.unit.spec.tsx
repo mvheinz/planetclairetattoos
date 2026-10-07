@@ -227,3 +227,20 @@ describe('Coco – reduzierte Bewegung und Aufräumen', () => {
     expect(tracker.sensitive).toEqual([])
   })
 })
+
+describe('Coco – Reisemodus (P12.12, MO-14)', () => {
+  it('setMotion(reduced, rennen) hält `rennen` fest: eine laufende Brücke überschreibt die Pose nicht', () => {
+    const c = mount('sitzen')
+    advance(300)
+    c.setPose('rennen') // Brücke `abspringen` läuft an
+    c.setMotion('reduced', 'rennen')
+    expect(el.getAttribute('data-pose')).toBe('rennen')
+    advance(BRIDGE_MS * 4)
+    expect(el.getAttribute('data-pose')).toBe('rennen')
+    c.setMotion('full')
+    c.setPose('sitzen')
+    advance(1000)
+    expect(c.pose()).toBe('sitzen')
+    c.destroy()
+  })
+})

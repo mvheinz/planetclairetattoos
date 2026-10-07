@@ -86,6 +86,7 @@ test.describe('Seitenrahmen und Kopfleiste @smoke', () => {
       await page.setViewportSize({ width, height: 800 })
       await context.clearCookies()
       await page.goto('/de')
+      await page.evaluate(() => document.fonts.ready) // Schrift geladen, sonst misst WebKit vor dem Tausch
       const before = await boxes(page)
       await expect(page.locator('[data-cart-count]')).toBeHidden()
 
@@ -93,6 +94,7 @@ test.describe('Seitenrahmen und Kopfleiste @smoke', () => {
       await page.reload()
       await expect(page.locator('[data-cart-count]')).toHaveText('2')
       await expect(page.locator('[data-cart-count]')).toBeVisible()
+      await page.evaluate(() => document.fonts.ready)
       const after = await boxes(page)
       expect(after, `Breite ${width}`).toEqual(before)
     }

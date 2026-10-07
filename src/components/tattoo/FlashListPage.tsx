@@ -3,7 +3,6 @@ import React from 'react'
 
 import { Icon } from '@/components/icons/Icon'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { instagramUrl } from '@/lib/data/navigation'
 import { blocksOfType, getTattooPage, getTattooSettings, listFlash } from '@/lib/data/tattoo'
 import { localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
@@ -93,18 +92,14 @@ export async function FlashListPage({ locale, list }: { locale: Locale; list: Li
           pose="schlafen"
           title={t('allTakenTitle')}
           text={t('allTakenText')}
-          action={{ href: localizedPath('R13', locale), label: t('allTakenAction') }}
+          action={{ href: localizedPath('R20', locale), label: t('allTakenAction') }}
         />
       ) : (
         <EmptyState
           pose="schlafen"
           title={t('emptyTitle')}
           text={t('emptyText')}
-          action={{
-            href: instagramUrl(settings.instagramHandle),
-            label: t('emptyAction'),
-            rel: 'noopener noreferrer',
-          }}
+          action={{ href: localizedPath('R16', locale), label: t('emptyAction') }}
         />
       )}
     </TattooShell>

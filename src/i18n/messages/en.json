@@ -1,7 +1,7 @@
 {
   "common": {
     "siteName": "Planet Claire",
-    "claim": "Tattoos, ceramics and drawings from Berlin",
+    "claim": "Ink on skin, clay and paper – from a small planet in Berlin",
     "routes": {
       "R01": "Home",
       "R02": "Shop",
@@ -15,7 +15,6 @@
       "R10": "Commissions",
       "R11": "Tattoo",
       "R12": "Flash",
-      "R13": "Offers",
       "R14": "Prices",
       "R15": "Gallery",
       "R16": "Process",
@@ -32,8 +31,8 @@
       "R27": "Declarations of conformity"
     },
     "faq": {
-      "emptyTitle": "No questions yet",
-      "emptyText": "Just ask me – by email or DM.",
+      "emptyTitle": "Nobody has asked yet",
+      "emptyText": "You may ask the first question – by email.",
       "emptyAction": "Get in touch"
     }
   },
@@ -104,33 +103,50 @@
     }
   },
   "errors": {
-    "notFoundTitle": "Coco slipped her leash",
-    "notFoundText": "This page does not exist (anymore).",
-    "linksLabel": "Where to next",
-    "numberLabel": "Looking for a piece? Enter its number",
+    "notFoundTitle": "This page has drawn itself into the fog",
+    "notFoundText": "Coco followed the line and never came back. This page does not exist – or no longer does.",
+    "linksLabel": "Where the thread can lead you",
+    "numberLabel": "A particular piece in mind? Enter its number",
     "numberSubmit": "Find piece",
-    "homeTitle": "This piece has already found a home",
-    "homeText": "It has been sold and lives somewhere else now. There is more waiting in the shop.",
+    "homeTitle": "This piece has moved on",
+    "homeText": "It found a home and now glows in another room. Others still live in the shop.",
     "soldStamp": "sold",
-    "serverErrorTitle": "Oops – the leash got tangled",
-    "serverErrorText": "Something just went wrong. Please try again in a moment.",
+    "serverErrorTitle": "The thread has tangled itself",
+    "serverErrorText": "Something went wrong, and I don’t know what yet. Take a breath and try again.",
     "retry": "Try again",
     "toHome": "To the home page"
   },
   "home": {
     "title": "Planet Claire",
-    "intro": "Tattoos, handmade one-of-a-kind ceramics and drawings from Berlin.",
+    "intro": "A small planet in Berlin. Ink on skin, clay and paper – and now and then someone with very big ears runs past.",
     "stationKicker": "Station {number}",
-    "stationMore": "Take a look",
+    "stationMore": "Step further in",
     "stationAll": "All {category}",
-    "stationEmpty": "Nothing here right now – check back soon or browse the archive",
-    "stationArchive": "To the archive",
+    "stationEmpty": "It is quiet here for now. Come back later – or wander through the archive.",
+    "stationArchive": "Into the archive",
     "stationProducts": "Pieces: {station}",
-    "emptyTitle": "We’re rearranging things.",
-    "emptyText": "The home page will be back shortly. In the meantime, here’s how to reach us.",
+    "emptyTitle": "The planet is turning over.",
+    "emptyText": "In a moment everything will be back in its place. Until then you can reach me by email.",
     "emptyAction": "Contact",
     "stationCommissions": "Commissions",
-    "stationInstagram": "Instagram"
+    "chairwomanAlt": "Koko, chairwoman of the Goth Dogs Berlin",
+    "fitnessAlt": "Coco the dog working out on two legs: seven exercises one after the other, then she flops down worn out on the floor – and starts all over again.",
+    "tour": {
+      "heading": "Planet Claire on Tour",
+      "intro": "Sometimes I leave my planet and set up a table – at flea, art and backyard markets, between strangers’ voices and bags full of things.",
+      "upcomingHeading": "Where you can find me",
+      "empty": "For now my table rests in the cupboard. New dates will appear here.",
+      "pastSummary": "Where I have been ({count})",
+      "cancelled": "cancelled",
+      "running": "on now",
+      "stand": "Stand {number}",
+      "link": "Market website",
+      "linkLabel": "Market website: {name}",
+      "dateLabel": "Date",
+      "placeLabel": "Place",
+      "hoursLabel": "Opening hours",
+      "photoAlt": "Planet Claire's stand at the market {name}"
+    }
   },
   "a11y": {
     "skipToContent": "Skip to content",
@@ -147,7 +163,7 @@
     "allPages": "All pages",
     "dialogTitle": "Preview – nothing can be bought here",
     "dialogClose": "Close",
-    "cartDemo": "In the preview, the cart shows an example",
+    "cartDemo": "In the preview, the basket shows an example",
     "groups": {
       "start": "Start",
       "shop": "Shop",
@@ -179,16 +195,16 @@
   },
   "seo": {
     "descriptions": {
-      "default": "Planet Claire from Berlin: tattoos, handmade one-of-a-kind ceramics and drawings by Jutta – unique pieces, tattoo appointments and commissioned work.",
-      "home": "Planet Claire from Berlin: tattoos, handmade one-of-a-kind ceramics and drawings by Jutta. Browse the shop, discover flash designs or ask for a tattoo.",
-      "contact": "How to reach Planet Claire in Berlin: questions about unique pieces, orders, tattoo appointments or commissioned work – by email or via Instagram.",
+      "default": "Planet Claire, a small planet in Berlin: fine line tattoos, handmade one-off ceramics and drawings by Jutta – every piece only once.",
+      "home": "A small planet in Berlin: fine line tattoos, handmade one-off ceramics and drawings by Jutta. Wander through the shop, discover flash designs or write to me.",
+      "contact": "A letter to Planet Claire in Berlin: questions about one-offs, orders, tattoo appointments or commissions – best by email.",
       "legal": "Legal information from Planet Claire, Berlin: legal notice, privacy policy, terms, right of withdrawal and shipping and payment for the one-of-a-kind shop.",
       "withdrawal": "Withdraw from a contract with Planet Claire here: identify your order, send your declaration and immediately receive a confirmation of receipt by email.",
       "conformity": "Declarations of conformity from Planet Claire, Berlin, for handmade ceramics in contact with food – current declarations to view and download.",
-      "shop": "Handmade one-offs by Planet Claire from Berlin: painted ceramics, textiles, caps, drawings and jewellery – every piece exists only once.",
-      "category": "Handmade one-offs by Planet Claire from Berlin in this category – every piece is unique, with delivery anywhere within Germany.",
-      "archive": "The Planet Claire archive from Berlin: ceramics, textiles and drawings that have already found a home – to look at and browse.",
-      "about": "Jutta and Coco of Planet Claire in Berlin: fine line tattoos, painted ceramics, shirts and drawings – who is behind the one-offs and how they come about."
+      "shop": "Pieces from my hands, Berlin: painted ceramics, textiles, caps, drawings and jewellery – each one exists only once, and then it is gone.",
+      "category": "Handmade one-offs from Planet Claire in Berlin in this category – every piece is unique and delivered within Germany. Take your time and look around.",
+      "archive": "Archive of Planet Claire, Berlin: ceramics, textiles and drawings that have moved on and found a home – to look at and to remember.",
+      "about": "Jutta and Coco of Planet Claire in Berlin: fine line tattoos, painted ceramics, shirts and drawings – a small planet with a trembling line."
     },
     "og": {
       "tagline": "Tattoos & one-offs from Berlin",
@@ -197,26 +213,22 @@
       "defaultAlt": "Planet Claire – tattoos & one-offs from Berlin"
     },
     "tattoo": {
-      "R11": "Tattoos by Planet Claire in Berlin: fine line with a sense of humour in a private studio. Flash with fixed prices, offers, prices, gallery, requests by email.",
-      "R12": "Flash designs by Planet Claire, Berlin: ready-made fine line drawings with a fixed price, one-off or repeatable – ask by email or Instagram direct message.",
-      "R13": "Flash days and tattoo offers by Planet Claire in Berlin: dates, designs and prices of current and upcoming offers in the private studio at a glance.",
-      "R14": "Tattoo prices at Planet Claire, Berlin: minimum price, fixed prices for flash, price range for custom ideas and how we agree on the deposit in person.",
-      "R15": "Gallery of Planet Claire, Berlin: freshly tattooed and healed fine line tattoos – shown only with the consent of the people who wear them.",
-      "R16": "How a tattoo appointment with Planet Claire in Berlin works: request by email or DM, appointment, deposit, tattooing in the private studio and aftercare.",
-      "R17": "Tattoo aftercare by Planet Claire, Berlin: care in phases from right after to long term, warning signs for seeing a doctor – printable as well.",
-      "R18": "Common questions for Planet Claire in Berlin: minimum age, private studio, deposit, rescheduling, Coco in the studio, colour, cover-ups, email or DM."
+      "R11": "Tattoos by Planet Claire in Berlin: a fine, trembling line in a private studio. Flash designs with fixed prices, prices, gallery and enquiries by email.",
+      "R12": "Flash designs by Planet Claire, Berlin: drawings waiting for skin – fixed price, one-off or repeatable, enquire by email.",
+      "R14": "Tattoo prices at Planet Claire, Berlin: minimum price, fixed prices for flash, price range for your own ideas and the personally agreed deposit.",
+      "R15": "Gallery of Planet Claire, Berlin: lines that stayed – fresh and healed, shown only with the consent of the people who wear them.",
+      "R16": "The path to a tattoo at Planet Claire in Berlin: enquiry by email, appointment, deposit, tattooing in a private studio and aftercare.",
+      "R17": "Tattoo aftercare by Planet Claire, Berlin: how skin heals in phases, from right after to the long term, with warning signs for seeing a doctor – printable, too.",
+      "R18": "Questions for Planet Claire in Berlin: minimum age, private studio, deposit, rescheduling, Coco in the studio, colour, cover-ups and enquiries by email."
     }
   },
   "contact": {
     "emailLabel": "Email",
-    "instagramLabel": "Instagram",
-    "instagramProfile": "Profile @{handle}",
-    "instagramDm": "Direct message on Instagram",
     "studio": "Private studio in Berlin-{district}",
-    "withdrawHint": "Want to withdraw from a contract?",
+    "withdrawHint": "Do you want to withdraw from a contract?",
     "legalNoticeHint": "Provider details:",
-    "emptyTitle": "The contact page is on its way",
-    "emptyText": "Just send me an email or a message on Instagram.",
+    "emptyTitle": "This page is still being written",
+    "emptyText": "Just write me an email – it will find its way.",
     "copyEmail": "Copy address",
     "copied": "Copied",
     "copyFailed": "Copying didn't work – please select and copy."
@@ -261,7 +273,7 @@
     "spamDone": "Thank you, your details have arrived.",
     "again": "Declare another withdrawal",
     "errorSummary": "Please check your details:",
-    "errorRequired": "Please fill in.",
+    "errorRequired": "Please fill this in.",
     "errorInvalid": "This doesn't look right yet.",
     "errorEmail": "Please enter a valid email address.",
     "noticeRateLimited": "A lot of withdrawals have just come from your connection. Please try again in an hour or send me an email – the receipt of the email counts too.",
@@ -272,9 +284,9 @@
   },
   "shop": {
     "list": {
-      "empty": "Everything is gone right now – new pieces show up on Instagram first.",
-      "intro": "Ceramics, textiles, drawings and jewellery – handmade in Berlin, and every piece exists only once.",
-      "emptyText": "The archive shows what has already moved out.",
+      "empty": "All the pieces have moved on for now. New ones will move in soon.",
+      "intro": "Things that come out of my hands: ceramics, textiles, drawings, jewellery. Every piece exists only once.",
+      "emptyText": "The archive is where the pieces live that have already found a home.",
       "emptyAction": "To the archive",
       "filterLabel": "Filter pieces",
       "all": "All",
@@ -282,9 +294,9 @@
       "filterOn": "(on)",
       "heading": "Pieces",
       "more": "Show more",
-      "delivery": "Delivery within Germany · Pick-up in {city} possible",
+      "delivery": "Delivery within Germany · Pickup in {city} possible",
       "deliveryNoPickup": "Delivery within Germany",
-      "closedFallback": "The shop is taking a break – ordering is not possible right now."
+      "closedFallback": "The shop is asleep for now – ordering isn’t possible at the moment."
     },
     "warranty": {
       "title": "Legal guarantee",
@@ -307,8 +319,8 @@
       "smallParts": "Not a toy – small parts can be swallowed"
     },
     "category": {
-      "emptyTitle": "Nothing in this corner right now.",
-      "emptyText": "Check back soon – or browse all pieces.",
+      "emptyTitle": "This corner is quiet for now.",
+      "emptyText": "Come back later – or wander over to the other pieces.",
       "emptyAction": "All pieces"
     },
     "product": {
@@ -323,24 +335,24 @@
       "notes": {
         "cart_full": "Your basket is full – it holds 20 pieces at most.",
         "rate_limited": "That was a bit too fast. Please try again in a few minutes.",
-        "shop_closed": "The shop is taking a break – adding to the basket is not possible right now.",
+        "shop_closed": "The shop is asleep for now – adding to the basket isn’t possible at the moment.",
         "product_unavailable": "This piece is no longer available right now.",
         "invalid": "That did not work. Please reload the page and try again."
       },
       "soldText": "Already sold",
-      "similar": "Similar pieces",
+      "similar": "Kindred pieces",
       "archive": "Archive",
-      "deliveryArea": "Delivery within Germany only, collection in {city} by arrangement",
+      "deliveryArea": "Delivery within Germany only, pickup in {city} by arrangement",
       "deliveryAreaNoPickup": "Delivery within Germany only",
       "fibers": "Material",
-      "labelMissing": "Label missing – material to the best of our knowledge: {text}",
+      "labelMissing": "Label missing – material to the best of my knowledge: {text}",
       "size": "Size",
       "condition": "Condition",
       "metalParts": "Metal parts",
       "technique": "Technique and material",
       "dimensions": "Dimensions",
       "descriptionHeading": "Description",
-      "juttaSays": "Jutta says",
+      "juttaSays": "A word from me",
       "detailsHeading": "Details",
       "details": {
         "dimensions": "Dimensions",
@@ -366,8 +378,8 @@
         "heading": "Shipping & returns",
         "parcel": "Shipping: {shippingClass}, {price}",
         "noRate": "Shipping costs: see <link>Shipping & payment</link>",
-        "pickupOnly": "Collection only in {city} by arrangement",
-        "pickup": "Collection in {city} possible",
+        "pickupOnly": "Pickup only in {city} by arrangement",
+        "pickup": "Pickup in {city} possible",
         "withdrawal": "You can find information about your right of withdrawal in the <link>withdrawal policy</link>.",
         "costsLink": "Shipping & payment"
       },
@@ -387,10 +399,10 @@
     }
   },
   "archive": {
-    "lead": "Already moved out – but lovely to look at",
+    "lead": "Here live the pieces that have moved on.",
     "filterLabel": "Filter the archive by category",
-    "emptyTitle": "Nothing sold yet.",
-    "emptyText": "Everything that has found a home moves in here.",
+    "emptyTitle": "Nobody has moved on yet.",
+    "emptyText": "Whatever finds a home leaves an image of itself here.",
     "emptyAction": "To the shop"
   },
   "order": {
@@ -435,14 +447,14 @@
   },
   "thanks": {
     "waitingTitle": "Just a moment …",
-    "waitingText": "We're still waiting for your payment to be confirmed. This page updates by itself.",
+    "waitingText": "I’m still waiting for your payment to be confirmed. This page updates by itself.",
     "waitingLong": "This is taking longer than usual. You'll get an email as soon as everything is confirmed.",
     "reload": "Reload page",
     "paidTitle": "Thank you!",
     "received": "Your order has been received.",
     "prepaymentReceived": "Your order has been received. You chose to pay in advance by bank transfer.",
-    "nextHeading": "What happens next",
-    "nextShipping": "I'll pack your parcel in the next few days and let you know as soon as it's on its way.",
+    "nextHeading": "What happens now",
+    "nextShipping": "In the next few days I will wrap your piece with care and write to you as soon as it sets off.",
     "nextPickup": "I'll get in touch with you about the pickup.",
     "nextPrepayment": "Please transfer the amount by {date}. Until then everything is reserved for you. As soon as the money arrives, you'll get an email with the invoice.",
     "nextOther": "You can always see the current status on the order status page.",
@@ -504,23 +516,23 @@
       "reserved": "{items} {count, plural, one {is} other {are}} reserved right now – check back in 30 minutes.",
       "unavailable": "{items} {count, plural, one {has} other {have}} already been sold, sorry.",
       "too_many": "At most {max} pieces per order.",
-      "shop_closed": "The shop is taking a break – ordering isn't possible right now.",
+      "shop_closed": "The shop is asleep for now – ordering isn’t possible at the moment.",
       "payment_running": "Your payment is in progress – please wait a moment until it's finished.",
-      "empty": "Nothing in here yet.",
-      "shipping": "Shipping for this cart can't be calculated right now. Please choose pickup or write to me.",
+      "empty": "Nothing lies in your basket yet.",
+      "shipping": "Shipping for this basket can't be calculated right now. Please choose pickup or write to me.",
       "pickup_only": "{items} {count, plural, one {is} other {are}} available for pickup only.",
       "rate_limited": "That was a bit fast. Please try again in a few minutes.",
       "invalid": "That didn't work. Please reload the page and try again.",
       "checkout_ended": "This checkout is no longer open. You can start it again here.",
-      "cart_changed": "Your cart has changed – please start the checkout again.",
+      "cart_changed": "Your basket has changed – please start the checkout again.",
       "expired": "Your reservation has expired. You can reserve again.",
-      "no_checkout": "Please start the checkout here in the cart."
+      "no_checkout": "Please start the checkout here in the basket."
     },
-    "title": "Your cart",
-    "itemsHeading": "Pieces in your cart",
+    "title": "Your basket",
+    "itemsHeading": "Pieces in your basket",
     "meta": "{number} · {category}",
     "remove": "Remove",
-    "removeLabel": "Remove {title} from the cart",
+    "removeLabel": "Remove {title} from the basket",
     "state": {
       "reserved": "Reserved right now – check back in 30 minutes",
       "sold": "Sorry, already sold",
@@ -533,7 +545,7 @@
     "deliveryShipping": "Shipping within Germany ({carrier})",
     "deliveryPickup": "Pickup in {city}",
     "deliveryApply": "Apply delivery option",
-    "shippingClassLine": "Shipping class: {shippingClass} – the largest class in your cart applies",
+    "shippingClassLine": "Shipping class: {shippingClass} – the largest class in your basket applies",
     "summaryHeading": "Summary",
     "subtotal": "Subtotal",
     "shipping": "Shipping",
@@ -543,21 +555,21 @@
     "toCheckout": "Go to checkout",
     "blocked": {
       "unavailable": "Please remove the pieces that aren't available right now first.",
-      "shop_closed": "The shop is taking a break – ordering isn't possible right now.",
+      "shop_closed": "The shop is asleep for now – ordering isn’t possible at the moment.",
       "too_many": "At most {max} pieces per order.",
-      "shipping": "Shipping for this cart can't be calculated right now. Please choose pickup or write to me.",
-      "empty": "Nothing in here yet."
+      "shipping": "Shipping for this basket can't be calculated right now. Please choose pickup or write to me.",
+      "empty": "Nothing lies in your basket yet."
     },
     "empty": {
-      "title": "Nothing in here yet.",
-      "text": "Have a look around the shop – every piece exists only once.",
+      "title": "Nothing lies in your basket yet.",
+      "text": "Wander through the shop for a while – every piece exists only once.",
       "action": "To the shop"
     }
   },
   "checkout": {
     "title": "Checkout",
     "requiredNote": "* Required field",
-    "privacy": "How we handle your details is explained in the {link}.",
+    "privacy": "How I handle your details is explained in the {link}.",
     "privacyLink": "privacy policy",
     "sections": {
       "kontakt": "Contact",
@@ -568,12 +580,12 @@
     },
     "fields": {
       "email": "Email",
-      "emailHint": "We send the confirmation and invoice here",
+      "emailHint": "I send the confirmation and invoice here",
       "deliveryLegend": "Delivery method",
       "deliveryShipping": "Shipping within Germany ({carrier})",
-      "deliveryPickup": "Collection in {city}",
+      "deliveryPickup": "Pickup in {city}",
       "deliveryApply": "Apply delivery method",
-      "deliveryPickupOnly": "{items} is available for collection only.",
+      "deliveryPickupOnly": "{items} can only be picked up.",
       "name": "First and last name",
       "line1": "Street and house number",
       "line1Hint": "Packstation: “Packstation 123” and your customer number in the additional address line",
@@ -585,16 +597,16 @@
       "pickupHint": "Private studio in Berlin-{district}. We will arrange place and time by email.",
       "billingDiffers": "Billing address is different",
       "billingSame": "Without a tick, the delivery address is also the billing address.",
-      "billingPickupHint": "We need your address for the invoice.",
+      "billingPickupHint": "I need your address for the invoice.",
       "billingName": "First and last name (invoice)",
       "paymentLegend": "Payment method",
       "paymentStripe": "Card, Apple Pay, Google Pay or PayPal",
       "paymentPrepayment": "Payment in advance by bank transfer",
-      "prepaymentBank": "You will receive our bank details by email.",
+      "prepaymentBank": "You will receive my bank details by email.",
       "prepaymentDue": "Payment deadline if you order now: by {date}",
       "stripeUnavailable": "Card payment is currently unavailable – you can pay in advance by bank transfer.",
       "paymentImpossible": "Payment is currently not possible.",
-      "toCart": "To the cart",
+      "toCart": "To the basket",
       "instagramHint": "Tip: for Apple Pay or Google Pay, open the page in your browser (⋯ → Open in browser). Card and PayPal work here too."
     },
     "mock": {
@@ -602,7 +614,7 @@
       "outcomeLegend": "Result",
       "success": "Success",
       "declined": "Declined",
-      "cancelled": "Cancelled (like PayPal back)",
+      "cancelled": "Cancelled (like coming back from PayPal)",
       "delayed": "Delayed",
       "methodLegend": "Test payment method",
       "card": "Card",
@@ -620,12 +632,12 @@
     "overview": {
       "shipping": "Shipping",
       "shippingLine": "Shipped as a {shippingClass} parcel ({carrier})",
-      "pickupLine": "Collection in {city}",
+      "pickupLine": "Pickup in {city}",
       "total": "Total",
       "deliveryTime": "Delivery time",
       "fromPayment": "from receipt of payment",
       "deliveryAddress": "Delivery address",
-      "pickup": "Collection in {city}",
+      "pickup": "Pickup in {city}",
       "billingAddress": "Billing address",
       "billingSame": "same as delivery address",
       "email": "Email",
@@ -641,16 +653,16 @@
       "deviationHint": "Please first confirm the special feature of each marked piece.",
       "processing": "Processing payment …",
       "sending": "Sending order …",
-      "confirming": "Your payment is in progress. Please wait a moment – we will let you know on the thank-you page."
+      "confirming": "Your payment is in progress. Please wait a moment – I will let you know on the thank-you page."
     },
     "errors": {
       "summaryTitle": "Please check your details:",
-      "required": "Please fill in.",
+      "required": "Please fill this in.",
       "email": "Please enter a valid email address.",
       "tooShort": "This is too short.",
       "tooLong": "This is too long.",
       "postalCode": "The postcode has exactly 5 digits.",
-      "country": "We only deliver within Germany.",
+      "country": "I only deliver within Germany.",
       "choice": "Please choose one of the options.",
       "deviation": "Please confirm the special feature.",
       "fields": {
@@ -674,17 +686,17 @@
         "deviationAgreements": "Confirm special feature"
       },
       "codes": {
-        "not_found": "This checkout no longer exists. Please start again from the cart.",
+        "not_found": "This checkout no longer exists. Please start again from the basket.",
         "not_open": "This checkout is not open right now. Please reload the page.",
         "expired": "Your reservation has expired.",
         "session_expired": "The payment has expired. Please reserve again.",
-        "cart_changed": "Your cart has changed.",
+        "cart_changed": "Your basket has changed.",
         "delivery_changed": "The delivery method has changed – please check the summary and then order.",
         "invalid": "Please check your details.",
         "deviation_missing": "Please confirm the special feature of each marked piece.",
         "prepayment_disabled": "Payment in advance is currently not available.",
         "legal_missing": "Ordering is not possible right now. Please try again later.",
-        "not_orderable_in_country": "An item in your cart cannot be delivered to this country.",
+        "not_orderable_in_country": "An item in your basket cannot be delivered to this country.",
         "rate_limited": "That was a bit too fast. Please try again in a few minutes.",
         "failed": "That did not work. Please try again."
       }
@@ -696,7 +708,7 @@
       "last": "Only 1 minute left",
       "expired": "Your reservation has expired.",
       "again": "Reserve again",
-      "toCart": "To the cart",
+      "toCart": "To the basket",
       "compact": "{time} of reservation left",
       "announce10": "10 minutes of reservation left.",
       "announce5": "5 minutes of reservation left.",
@@ -733,7 +745,7 @@
       "itemsHeading": "Your order",
       "deviation": "Expressly agreed deviation: {text}",
       "shipping": "Shipping",
-      "pickup": "Collection in Berlin",
+      "pickup": "Pickup in Berlin",
       "total": "Total",
       "paymentHeading": "Payment",
       "paymentMethod": "Payment method: {method}",
@@ -750,12 +762,12 @@
       "billingAddress": "Billing address",
       "billingSame": "same as delivery address",
       "deliveryHeading": "Delivery",
-      "pickupNote": "You'll collect your order in Berlin. I'll get in touch about the collection.",
+      "pickupNote": "You’ll pick up your order in Berlin. I’ll get in touch about the pickup.",
       "warranty": "The statutory legal guarantee (liability for defects) applies to all pieces. The EU-wide harmonised notice on this is on the “Shipping & payment” page:",
       "warrantyLink": "Notice on the legal guarantee",
       "attachmentsHeading": "Attachments",
       "attInvoice": "your invoice ({file})",
-      "attAgb": "our terms and conditions, version of {date} ({file})",
+      "attAgb": "my terms and conditions, version of {date} ({file})",
       "attWithdrawal": "the withdrawal policy with the model withdrawal form, version of {date} ({file})",
       "attEnglish": "plus the English versions ({files})",
       "withdrawalInfo": "Everything about your right of withdrawal is in the attached withdrawal policy. You can withdraw easily online:",
@@ -783,7 +795,7 @@
     },
     "orderConfirmation": {
       "subject": "Thank you! Your order {orderNumber}",
-      "title": "Thank you for your order!",
+      "title": "Thank you – your piece is getting ready",
       "intro": "your payment has arrived and your order {orderNumber} has been received. Here are all the details at a glance."
     },
     "prepaymentInstructions": {
@@ -796,10 +808,10 @@
     },
     "prepaymentReceived": {
       "subject": "Payment received – order {orderNumber}",
-      "title": "Your payment has arrived",
+      "title": "Your payment has reached me",
       "intro": "thank you! Your transfer of {amount} for order {orderNumber} has arrived.",
       "nextShipping": "Next, I'll pack your order carefully and send it off. As soon as it's on its way, you'll get an email.",
-      "nextPickup": "Next, I'll get your order ready for collection and get in touch about an appointment.",
+      "nextPickup": "Next, I'll get your order ready for pickup and get in touch about an appointment.",
       "invoiceAttached": "Your invoice ({file}) is attached."
     },
     "prepaymentReminder": {
@@ -828,7 +840,7 @@
     },
     "orderShipped": {
       "subject": "Your parcel is on its way – {orderNumber}",
-      "title": "Your parcel is on its way",
+      "title": "Your piece is on its way",
       "intro": "your order {orderNumber} was sent on {date}.",
       "itemsHeading": "In the parcel",
       "shippedAt": "Date of dispatch",
@@ -845,7 +857,7 @@
     },
     "pickupReady": {
       "subject": "Ready for pickup: order {orderNumber}",
-      "title": "Your order is ready for pickup",
+      "title": "Your piece is waiting for you",
       "itemsHeading": "Ready for pickup",
       "reply": "Just reply to this email to arrange a time."
     },
@@ -956,7 +968,7 @@
     },
     "inquiryReceipt": {
       "subject": "Your request {reference} has arrived",
-      "title": "Request received",
+      "title": "Your idea has reached me",
       "intro": "thank you for your request! Here's what you sent me:",
       "reference": "Reference",
       "receivedAt": "Received on",
@@ -999,9 +1011,9 @@
       "pickup": "Pickup in {city}",
       "forPickup": "all pieces, appointment by arrangement",
       "carrierPickup": "in person",
-      "empty": "Shipping prices are being updated right now. You will see the exact amount in your cart before you order."
+      "empty": "Shipping prices are being updated right now. You will see the exact amount in your basket before you order."
     },
-    "highestClassRule": "If you order several pieces, the highest shipping class in your cart applies – you only pay shipping once.",
+    "highestClassRule": "If you order several pieces, the highest shipping class in your basket applies – you only pay shipping once.",
     "deliveryTimeHeading": "Delivery time",
     "areaHeading": "Delivery area",
     "area": "I only deliver within Germany. Pickup in {city} is possible by arrangement. I don't ship abroad at the moment.",
@@ -1040,7 +1052,7 @@
     },
     "purposesHeading": "a) What I use your data for",
     "purposes": [
-      "Processing your orders: purchase contract, shipping or pick-up, payment, invoice (Art. 6(1)(b) GDPR)",
+      "Processing your orders: purchase contract, shipping or pickup, payment, invoice (Art. 6(1)(b) GDPR)",
       "Withdrawal, complaints and statutory warranty (Art. 6(1)(b) and (c) GDPR)",
       "Replying to your commission request (Art. 6(1)(b) GDPR)",
       "Keeping invoices and business records as required by tax and commercial law (Art. 6(1)(c) GDPR)",
@@ -1105,27 +1117,24 @@
     "subnavOverview": "Overview",
     "star": "*",
     "overview": {
-      "lead": "Fine line with a sense of humour, tattooed in my private studio in Berlin. Here you'll find available designs, offers, prices and everything about your appointment.",
-      "styleHeading": "My style",
-      "offerHeading": "Next offer",
-      "offersAll": "All offers",
-      "flashHeading": "Flash – available now",
+      "lead": "A fine line that is allowed to tremble, and a room in Berlin where things go quiet. Private studio, by appointment only.",
+      "styleHeading": "The line",
+      "flashHeading": "Flash – still looking for skin",
       "flashAll": "All flash designs",
       "galleryHeading": "Fresh & healed",
       "galleryAll": "To the gallery",
-      "pagesHeading": "Everything about tattoos",
+      "pagesHeading": "Paths to a tattoo",
       "pageHints": {
-        "R12": "Ready-made designs with a fixed price – pick one.",
-        "R13": "Flash days and offers, while they last.",
-        "R14": "Minimum price, price range for custom ideas and the deposit.",
-        "R15": "Freshly tattooed and healed.",
-        "R16": "From your request to aftercare in five steps.",
-        "R17": "How your tattoo heals in peace – printable too.",
-        "R18": "Answers to the most common questions."
+        "R12": "Finished designs with a fixed price, waiting for skin.",
+        "R14": "What it costs: minimum price, range for your own ideas, deposit.",
+        "R15": "Freshly done and healed – what stays.",
+        "R16": "Five steps from the first email to aftercare.",
+        "R17": "How skin heals when you let it – printable, too.",
+        "R18": "Questions that come up often, with short answers."
       }
     },
     "flash": {
-      "intro": "Ready-made designs with a fixed price. One-off designs are tattooed only once, repeatable ones more often. Just ask by email or DM.",
+      "intro": "Drawings that wait for skin. Some I tattoo only once, others are allowed to return. Each has a fixed price; you can ask by email.",
       "filterLabel": "Filter flash designs",
       "all": "All",
       "available": "available",
@@ -1136,41 +1145,21 @@
       "repeatable": "repeatable",
       "statusAvailable": "available",
       "taken": "taken",
-      "takenText": "Already taken – have a look at the others",
+      "takenText": "Someone already wears this design. Have a look at the others.",
       "mail": "Ask by email",
-      "dm": "Ask by DM",
-      "snippetHint": "Send me this in your DM",
       "copy": "Copy",
       "copied": "Copied",
       "copyFailed": "Selected – copy now",
       "price": "Price",
-      "emptyTitle": "No flash designs online right now",
-      "emptyText": "Have a look on Instagram – that's where new designs show up first.",
-      "emptyAction": "To Instagram",
-      "allTakenTitle": "All flash designs are taken right now.",
-      "allTakenText": "Have a look at the offers or send me your own idea.",
-      "allTakenAction": "To the offers"
-    },
-    "offers": {
-      "intro": "Flash days and offers. Once an offer is over, it disappears from here.",
-      "listHeading": "Current and upcoming offers",
-      "running": "on now",
-      "startsIn": "{days, plural, =0 {today} one {tomorrow} other {in # days}}",
-      "time": "{from}–{to}",
-      "dateLabel": "Date",
-      "flashHeading": "Designs for this offer",
-      "mail": "Ask by email",
-      "dm": "Ask by DM",
-      "types": {
-        "flash_day": "Flash day",
-        "aktion": "Offer"
-      },
-      "emptyTitle": "No offers right now",
-      "emptyText": "Follow @{handle} so you don't miss anything.",
-      "emptyAction": "To Instagram"
+      "emptyTitle": "The page is blank for now",
+      "emptyText": "New designs are still taking shape. Feel free to write me your own idea.",
+      "emptyAction": "To the process",
+      "allTakenTitle": "Every design has found its skin.",
+      "allTakenText": "New ones will follow – or write me your own idea by email.",
+      "allTakenAction": "To contact"
     },
     "prices": {
-      "intro": "All prices are total prices – that's what you pay in the end, nothing more.",
+      "intro": "I tell you openly what a tattoo costs. All prices are totals – nothing is added on top.",
       "minHeading": "Minimum price",
       "minPrice": "Minimum price {amount}*",
       "customHeading": "Custom ideas",
@@ -1185,7 +1174,7 @@
       "totalPrice": "Total price"
     },
     "gallery": {
-      "intro": "Freshly tattooed and healed – I only show photos whose wearers have agreed.",
+      "intro": "Lines that stayed – freshly done and healed. You only see photos of people who have expressly agreed.",
       "filterLabel": "Filter photos",
       "all": "All",
       "fresh": "fresh",
@@ -1200,17 +1189,17 @@
       "open": "View large",
       "dialog": "Large photo",
       "close": "Close",
-      "emptyTitle": "Photos are coming soon",
-      "emptyText": "Until then you'll find fresh tattoos on Instagram.",
-      "emptyAction": "To Instagram"
+      "emptyTitle": "No traces on this page yet",
+      "emptyText": "In the meantime, have a look at the flash designs.",
+      "emptyAction": "To the flash designs"
     },
     "process": {
-      "intro": "How it works from the first hello to aftercare – no online booking.",
+      "intro": "From the first word to healed skin. There is no online booking – everything begins with an email.",
       "stepsHeading": "In five steps",
       "steps": {
         "1": {
           "title": "Request",
-          "text": "Email or DM me: your idea or the flash number, placement, rough size."
+          "text": "Email me: your idea or the flash number, placement, rough size."
         },
         "2": {
           "title": "Appointment",
@@ -1235,7 +1224,7 @@
       "placeNoDistrict": "Private studio in Berlin. You'll get the exact address with the appointment confirmation."
     },
     "aftercare": {
-      "intro": "A fresh tattoo is a small wound. These steps help it heal in peace – and if you're unsure, just message me.",
+      "intro": "Skin does not forget, but it needs time. A fresh tattoo is a small wound; these steps keep it company while it heals. If you are unsure, write to me.",
       "emptyText": "I'll give you the aftercare steps at your appointment. If you have questions, just message me.",
       "warnHeading": "Warning signs – when to see a doctor?",
       "warnText": "If the redness keeps spreading after three days, the area gets hot or very swollen, pus comes out, red streaks appear or you get a fever. Please let me know afterwards, too.",
@@ -1243,15 +1232,14 @@
       "saferLink": "Safer Tattoo checklists by the German Environment Ministry"
     },
     "faq": {
-      "intro": "The most common questions about your appointment. Something missing? Message me.",
-      "emptyTitle": "No questions yet",
-      "emptyText": "Just ask me by email or DM."
+      "intro": "Some things you ask yourself quietly before you write. The answers are here – if one is missing, write to me.",
+      "emptyTitle": "Nobody has asked yet",
+      "emptyText": "You may ask the first question – by email."
     },
     "contact": {
-      "heading": "Ask by email or DM",
-      "intro": "No form, no online booking – just message me.",
+      "heading": "Request by email",
+      "intro": "No form, no booking. Just an email – and then we will see.",
       "mail": "Write an email",
-      "dm": "Instagram DM",
       "emailLabel": "Email address",
       "copy": "Copy address",
       "copied": "Copied",
@@ -1259,12 +1247,10 @@
     },
     "mail": {
       "subjectFlash": "Flash request {number} – {title}",
-      "subjectOffer": "Request {title} on {date}",
       "subjectGeneral": "Tattoo request",
       "subjectCustom": "Tattoo request – custom idea",
       "greeting": "Hi Jutta,",
       "introFlash": "I'm interested in flash {number} (“{title}”).",
-      "introOffer": "I'm interested in “{title}” on {date}.",
       "introGeneral": "I'm interested in a tattoo.",
       "introCustom": "I have my own idea for a tattoo.",
       "fieldIdea": "My idea:",
@@ -1276,8 +1262,8 @@
     }
   },
   "commission": {
-    "lead": "A cap with your dog on it, a plate with your own words, a picture for someone you like: tell me your idea – I'll paint it for you.",
-    "stepsHeading": "How it works",
+    "lead": "A cap where your dog lives. A plate with a sentence only the two of you understand. A picture for someone you like. Tell me about it – I will paint it.",
+    "stepsHeading": "The way there",
     "steps": {
       "1": {
         "title": "Request",
@@ -1296,14 +1282,14 @@
         "text": "I paint, send you a photo, and then your piece is on its way."
       }
     },
-    "examplesHeading": "Examples",
+    "examplesHeading": "What has already come to be",
     "notice": "Commissions are agreed individually: we sort out the offer and details by email, payment doesn't go through this shop, and no online contract is concluded on this page.",
     "formHeading": "Your idea",
     "formIntro": "Tell me what you have in mind. Please no photos of people and no health information.",
     "formPlaceholder": "The form is coming soon. Until then, feel free to send me an email.",
     "faqHeading": "Questions about commissions",
-    "contactHeading": "Rather write directly?",
-    "contactText": "You can also send me your idea by email or as an Instagram message.",
+    "contactHeading": "Prefer a quiet email?",
+    "contactText": "You can also send me your idea directly by email.",
     "emailSubject": "Commission – my idea",
     "form": {
       "requiredNote": "* Required field",
@@ -1354,7 +1340,7 @@
       "privacyLink": "More in the privacy policy",
       "errorSummary": "Please check your details:",
       "errors": {
-        "required": "Please fill in.",
+        "required": "Please fill this in.",
         "name": "Please use 2–100 characters.",
         "email": "Please enter a valid email address.",
         "objectType": "Please choose what it should be.",
@@ -1381,15 +1367,14 @@
   },
   "about": {
     "title": "Jutta & Coco",
-    "lead": "Tattoos, ceramics, shirts and drawings from Berlin – and a small dog with very big ears.",
-    "whatHeading": "What I make",
+    "lead": "I draw whatever lives between things – on skin, clay, cloth and paper. Coco runs ahead.",
+    "whatHeading": "Where I draw",
     "whatShop": "Shop",
     "whatTattoo": "Tattoo",
     "whatCommissions": "Commissions",
-    "instagram": "More of us on Instagram",
     "cocoAlt": "Coco, drawn",
-    "emptyTitle": "Things are moving around here.",
-    "emptyText": "The page about Jutta and Coco will be back soon. Until then, have a look around the shop or on Instagram.",
+    "emptyTitle": "This page is still asleep.",
+    "emptyText": "In a moment she will be awake. Until then you can wander through the shop.",
     "emptyAction": "To the shop"
   },
   "qa": {
@@ -1426,6 +1411,8 @@
     "stationsCount": "{count} stations",
     "stationLabel": "Station {n}",
     "pressHint": "Press and hold the button to check.",
+    "hoverHint": "Move the pointer over the element to check.",
+    "demoCard": "A piece waiting for you",
     "linkLabel": "A navigation link",
     "demoButton": "Add to basket",
     "cartCount": "In basket"

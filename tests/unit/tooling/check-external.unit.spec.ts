@@ -43,6 +43,8 @@ describe('check:external --built', () => {
     ]
     expect(findForeignUrls(files, ['https://planetclairetattoos.com'])).toEqual([
       { path: '.next/server/app/de.html', url: 'https://fonts.googleapis.com/css2?family=X' },
+      // P12.7 (U-15): Direktnachricht-Links gibt es nicht mehr, `ig.me` ist nicht mehr erlaubt.
+      { path: '.next/server/app/de.html', url: 'https://ig.me/m/planet.claire.tattoos' },
       { path: '.next/server/app/de.html', url: '//cdn.example.net/x.png' },
       { path: '.next/server/app/de.html', url: 'https://react.dev/errors/1' },
       { path: '.next/static/chunks/a.js', url: 'https://www.google-analytics.com/collect' },

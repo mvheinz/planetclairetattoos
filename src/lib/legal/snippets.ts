@@ -53,7 +53,17 @@ export const SNIPPET_CONTEXT_TOKENS = [
 
 /** Spalte „Kanzlei: ja“ aus ANFORDERUNGEN §6 (Go-live verlangt `origin = lawyer`, DATENMODELL §13.7). */
 export const LEGAL_SNIPPET_REQUIRES_LAWYER: readonly LegalSnippetKey[] = LEGAL_SNIPPET_KEYS.filter(
-  (k) => !['product.noSpecialWarnings', 'product.glassFrame', 'email.pickup.ready'].includes(k),
+  (k) =>
+    ![
+      'product.noSpecialWarnings',
+      'product.glassFrame',
+      'email.pickup.ready',
+      // Schutz des geistigen Eigentums (U-22): Juttas eigene Klauseln, keine Pflichttexte; Kanzlei-Durchsicht empfohlen
+      'ip.copyrightNotice',
+      'ip.aiMiningReservation',
+      'ip.purchaseClause',
+      'ip.tattooFlashNotice',
+    ].includes(k),
 )
 
 const TOKEN_RE = /\{\{([^{}]*)\}\}/g

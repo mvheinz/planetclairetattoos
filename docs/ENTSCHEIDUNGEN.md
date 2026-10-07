@@ -123,3 +123,8 @@ EU-Versand je Land, Schweiz, DHL-API-Labels, Produktvideos, Drops/Countdown/News
 ## Umsetzungsnotizen (von Cloud-Sessions ergänzt)
 
 _(leer)_
+
+- **06.10.2026 – Überarbeitung P12:** Jutta hat nach der Vorschau `vorschau-p10` Änderungen verlangt (Schrift Spectral, Olive/Petrol,
+  Goth-Rahmen, Coco-Sitzpose und -Posen, Fitness-Coco, „Angebote“ und DM entfernt, „Planet Claire on Tour“, neue Texte,
+  vollständige Rechtstexte mit IP-Schutz, dauerhaft zweisprachig). Maßgeblich ist `docs/UEBERARBEITUNG.md` (U-00 … U-30); wo es
+  frühere Einträge dieser Datei berührt, gilt U-xx. Die Einträge oben bleiben als Historie unverändert.
