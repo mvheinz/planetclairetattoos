@@ -199,7 +199,8 @@ const FIXTURES: Record<BehaviorName, { html: string; exercise: (root: Element) =
       document
         .querySelector('#menu')!
         .dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
-      // jsdom legt bei `focus()` einen eigenen Timer an (nicht vom Modul); das Menü selbst nutzt keine Timer.
+      // Das Öffnen läuft 30 ms nach dem Klick (PF-08); jsdom legt bei `focus()` einen eigenen Timer an (nicht vom Modul).
+      vi.runOnlyPendingTimers()
       vi.runOnlyPendingTimers()
     },
   },
