@@ -34,12 +34,8 @@ export function leashRouteKey(match: RouteMatch): string {
 
 /** Seitenwechsel in diesem Dokument; ab dem zweiten Einhängen ist jede Seite eine „Ankunft“ (P12.12, MO-14). */
 let visits = 0
-/** Ob diese Seite über einen Seitenwechsel der eigenen Seite erreicht wurde (weich: zweites Einhängen; hart: Referrer, nicht bei Reload). */
-const arrivedFromOwnPage = () =>
-  visits++ > 0 ||
-  (document.referrer.startsWith(location.origin) &&
-    (performance.getEntriesByType('navigation') as PerformanceNavigationTiming[])[0]?.type !==
-      'reload')
+/** Ob diese Seite über einen Seitenwechsel der eigenen Seite erreicht wurde (weich: zweites Einhängen; hart: Referrer). */
+const arrivedFromOwnPage = () => visits++ > 0 || document.referrer.startsWith(location.origin)
 
 /** Ohne JavaScript keine Coco an der (fehlenden) Linie (§9.4 „ohne JS“). */
 const NOSCRIPT_CSS = '.coco[data-leash-coco]{display:none}'
@@ -98,10 +94,6 @@ export function LeashLayer({
         let handle: InspectableLeashHandle | null = null
         let coco: CocoController | null = null
         if (cocoMod && cocoEl) {
-          if (getMotion() === 'full')
-            void import('@/leash/cocoTravel').then((t) => {
-              if (!cancelled && coco) cleanups.push(t.attachTravel(coco))
-            })
           coco = cocoMod.mountCoco(cocoEl, {
             pose: rest,
             motion: getMotion(),

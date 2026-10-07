@@ -214,13 +214,16 @@ export async function measureModules(
       target: 'es2022',
       write: false,
       logLevel: 'silent',
-      // Nachgeladene Chunks zählen nicht zum Einstieg (P12.4: `coco.ts` lädt `cocoExtra.ts` nach, wie in Next ein
+      // Nachgeladene Chunks zählen nicht zum Einstieg (P12.4: `coco.ts` lädt `cocoExtra.ts` nach, P12.12: `cocoExtra.ts` lädt `cocoTravel.ts` nach, wie in Next ein
       // eigener Chunk); sie haben ein eigenes Budget.
       plugins: [
         {
           name: 'lazy-chunks',
           setup: (b) =>
-            b.onResolve({ filter: /\/cocoExtra$/ }, (a) => ({ path: a.path, external: true })),
+            b.onResolve({ filter: /\/(cocoExtra|cocoTravel)$/ }, (a) => ({
+              path: a.path,
+              external: true,
+            })),
         },
       ],
     })
