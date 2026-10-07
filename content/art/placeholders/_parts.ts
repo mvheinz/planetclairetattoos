@@ -32,6 +32,120 @@ export function dot(cx: number, cy: number, w: number, h = w * 0.8): string {
 }
 
 // ---------------------------------------------------------------------------------------------------------------
+// Gesichts-Stile (P12.12, U-23, KUNST-QA AR-05): jede Figur bekommt ihr eigenes Gesicht – Augen, Brauen und Mund
+// werden einzeln von Hand gesetzt, nicht aus einer Schablone. Fünf Stile neben den Kulleraugen (`ring`).
+
+export type FaceStyle = 'ring' | 'schlaf' | 'punkt' | 'blinzel' | 'schief' | 'staunen'
+export const FACE_STYLES: readonly FaceStyle[] = [
+  'ring',
+  'schlaf',
+  'punkt',
+  'blinzel',
+  'schief',
+  'staunen',
+]
+
+/** Gefüllter, leicht schiefer Tupfer (Pupille) mit eigener Neigung. */
+const blob = (cx: number, cy: number, rx: number, ry: number, skew = 0.12): string =>
+  `M${cx - rx} ${cy + ry * skew}C${cx - rx * 1.04} ${cy - ry * 1.3} ${cx + rx * 0.96} ${cy - ry * 1.26} ${cx + rx} ${cy - ry * skew}C${cx + rx * 0.94} ${cy + ry * 1.3} ${cx - rx * 1.06} ${cy + ry * 1.22} ${cx - rx} ${cy + ry * skew}Z`
+
+/**
+ * Augen, Brauen und Mund eines Gesichts im gewählten Stil. `l`/`r` = linkes/rechtes Auge (x, y, Radius), `m` = Mundmitte
+ * (x, y, Breite), `look` −1 … 1 Blickrichtung. Der Mund ersetzt den Standardmund der Figur (`mouth = false` lässt ihn stehen).
+ */
+export function faceParts(
+  style: FaceStyle,
+  l: [number, number, number],
+  r: [number, number, number],
+  look: number,
+  m: [number, number, number],
+): { eyes: Ink; mouth: Ink | null } {
+  const [lx, ly, lr] = l
+  const [rx, ry, rr] = r
+  const [mx, my, mw] = m
+  const h = mw / 2
+  switch (style) {
+    case 'schlaf':
+      // schwere Lider: ein Bogen über halb geschlossenem Auge, darunter nur ein Pupillen-Halbmond, Wimpernstrich außen
+      return {
+        eyes: ink(
+          [
+            `M${lx - lr} ${ly - 0.4}C${lx - lr * 0.4} ${ly + lr * 0.5} ${lx + lr * 0.5} ${ly + lr * 0.52} ${lx + lr} ${ly - 0.2}`,
+            `M${rx - rr} ${ry - 0.2}C${rx - rr * 0.4} ${ry + rr * 0.54} ${rx + rr * 0.5} ${ry + rr * 0.5} ${rx + rr} ${ry - 0.5}`,
+            `M${lx - lr} ${ly - 0.4}L${lx - lr * 1.3} ${ly - lr * 0.5}`,
+            `M${rx + rr} ${ry - 0.5}L${rx + rr * 1.3} ${ry - rr * 0.46}`,
+            `M${lx - lr * 0.5} ${ly - lr * 0.62}C${lx} ${ly - lr * 0.82} ${lx + lr * 0.5} ${ly - lr * 0.7} ${lx + lr * 0.8} ${ly - lr * 0.4}`,
+          ],
+          {
+            dots: [
+              blob(lx + look * lr * 0.2, ly + lr * 0.12, lr * 0.46, lr * 0.2),
+              blob(rx + look * rr * 0.2, ry + rr * 0.1, rr * 0.46, rr * 0.2),
+            ],
+          },
+        ),
+        mouth: ink([`M${mx - h * 0.8} ${my}C${mx - h * 0.2} ${my + 1.4} ${mx + h * 0.3} ${my + 1.2} ${mx + h * 0.7} ${my - 0.6}`]),
+      }
+    case 'punkt':
+      // Knopfaugen: zwei ungleiche Tupfer, eine Braue hoch, kleines „w“ als Mund
+      return {
+        eyes: ink(
+          [`M${rx - rr * 0.9} ${ry - rr * 1.5}C${rx - rr * 0.2} ${ry - rr * 2} ${rx + rr * 0.6} ${ry - rr * 1.9} ${rx + rr} ${ry - rr * 1.4}`],
+          {
+            dots: [
+              blob(lx + look * lr * 0.12, ly, lr * 0.62, lr * 0.7, 0.2),
+              blob(rx + look * rr * 0.12, ry, rr * 0.78, rr * 0.82, -0.1),
+            ],
+          },
+        ),
+        mouth: ink([
+          `M${mx - h} ${my - 0.4}C${mx - h * 0.8} ${my + 2.4} ${mx - h * 0.1} ${my + 2.4} ${mx} ${my - 0.4}C${mx + h * 0.1} ${my + 2.4} ${mx + h * 0.8} ${my + 2.4} ${mx + h} ${my - 0.6}`,
+        ]),
+      }
+    case 'blinzel':
+      // ein Auge offen mit Seitenblick, das andere ein zugekniffener Bogen („^“), Zungenspitze
+      return {
+        eyes: merge(
+          eye(lx, ly, lr, look, 0.1),
+          ink([`M${rx - rr * 0.95} ${ry + rr * 0.3}C${rx - rr * 0.4} ${ry - rr * 0.9} ${rx + rr * 0.4} ${ry - rr * 0.9} ${rx + rr} ${ry + rr * 0.35}`]),
+        ),
+        mouth: ink(
+          [
+            `M${mx - h} ${my - 1}C${mx - h * 0.4} ${my + 3.4} ${mx + h * 0.6} ${my + 3.6} ${mx + h} ${my - 1.4}`,
+            `M${mx + h * 0.2} ${my + 2.2}C${mx + h * 0.3} ${my + 5.4} ${mx + h * 0.8} ${my + 5.2} ${mx + h * 0.7} ${my + 1.8}`,
+          ],
+          { dots: [dot(mx + h * 0.5, my + 3.6, mw * 0.16, mw * 0.12)] },
+        ),
+      }
+    case 'schief':
+      // ungleich groß, Blick weit zur Seite, schräge Braue, Mund ein schiefer Strich
+      return {
+        eyes: merge(
+          ink([`M${lx - lr * 1.1} ${ly - lr * 1.5}L${lx + lr * 0.8} ${ly - lr * 1.9}`]),
+          eye(lx, ly, lr * 1.18, -look * 0.9 || 0.9),
+          eye(rx + 1, ry + 1, rr * 0.72, look * 0.7 || -0.7),
+        ),
+        mouth: ink([`M${mx - h} ${my + 1.6}C${mx - h * 0.3} ${my - 0.4} ${mx + h * 0.5} ${my + 0.4} ${mx + h} ${my - 1.8}`]),
+      }
+    case 'staunen':
+      // große Ringe mit winzigen Pupillen, zwei Brauenbögen hoch, Mund als offenes „o“
+      return {
+        eyes: ink(
+          [
+            `M${lx - lr * 1.05} ${ly - lr * 0.1}C${lx - lr * 1.1} ${ly - lr * 1.5} ${lx + lr * 1.0} ${ly - lr * 1.5} ${lx + lr * 1.08} ${ly}C${lx + lr * 1.1} ${ly + lr * 1.4} ${lx - lr * 0.9} ${ly + lr * 1.36} ${lx - lr * 1.05} ${ly - lr * 0.1}`,
+            `M${rx - rr * 1.0} ${ry}C${rx - rr * 1.04} ${ry - rr * 1.4} ${rx + rr * 1.06} ${ry - rr * 1.44} ${rx + rr * 1.02} ${ry + rr * 0.1}C${rx + rr} ${ry + rr * 1.3} ${rx - rr * 1.0} ${ry + rr * 1.34} ${rx - rr * 1.0} ${ry}`,
+            `M${lx - lr} ${ly - lr * 2.1}C${lx - lr * 0.3} ${ly - lr * 2.7} ${lx + lr * 0.7} ${ly - lr * 2.6} ${lx + lr * 1.1} ${ly - lr * 2.1}`,
+            `M${rx - rr * 1.1} ${ry - rr * 2.1}C${rx - rr * 0.4} ${ry - rr * 2.7} ${rx + rr * 0.6} ${ry - rr * 2.6} ${rx + rr} ${ry - rr * 2.0}`,
+          ],
+          { dots: [blob(lx + look * lr * 0.25, ly + 0.2, lr * 0.3, lr * 0.32), blob(rx + look * rr * 0.25, ry + 0.2, rr * 0.3, rr * 0.32)] },
+        ),
+        mouth: ink([`M${mx - h * 0.45} ${my}C${mx - h * 0.5} ${my - 3} ${mx + h * 0.5} ${my - 3} ${mx + h * 0.45} ${my}C${mx + h * 0.5} ${my + 3.2} ${mx - h * 0.5} ${my + 3.2} ${mx - h * 0.45} ${my}`]),
+      }
+    default:
+      return { eyes: merge(eye(lx, ly, lr, look), eye(rx, ry, rr, look)), mouth: null }
+  }
+}
+
+// ---------------------------------------------------------------------------------------------------------------
 // Weltraum (DESIGN §12.5)
 
 /** Planet mit Ring, Körper-Radius 10 (Ring hinter dem Körper unterbrochen, vorne drüber). */
@@ -62,23 +176,28 @@ export const moon = (): Ink =>
 // ---------------------------------------------------------------------------------------------------------------
 // Hase (Fußpunkt unten Mitte, Höhe ~115, Blick nach rechts)
 
-export function bunnyHead(look = 0.7, earTilt = 0): Ink {
+export function bunnyHead(look = 0.7, earTilt = 0, style: FaceStyle = 'ring'): Ink {
+  const f = faceParts(style, [-7.5, -49, 5.6], [8.5, -49.5, 5.4], look, [1, -33.5, 9])
   return merge(
-    ink([
-      `M-12 -64C-21 -82 ${-24 - earTilt} -103 ${-16 - earTilt} -110C-9 -115 -4 -98 -3 -70`,
-      `M5 -69C9 -90 ${18 + earTilt} -107 ${25 + earTilt} -103C31 -97 22 -80 13 -66`,
-      'M15 -95C13 -88 11 -81 9 -74',
-      { d: 'M-13 -64C-24 -58 -27 -41 -18 -33C-10 -25.5 8 -24.5 17 -31C25 -38 24 -56 15 -64', double: false },
-      'M1 -36.5L1 -33.5M-3.5 -32.4C-1.6 -30.4 0.6 -31 1 -33.5C1.6 -31 3.8 -30.4 6 -32.6',
-    ], { dots: [dot(1.4, -38.6, 4.2, 3.2)] }),
-    eye(-7.5, -49, 5.6, look),
-    eye(8.5, -49.5, 5.4, look),
+    ink(
+      [
+        `M-12 -64C-21 -82 ${-24 - earTilt} -103 ${-16 - earTilt} -110C-9 -115 -4 -98 -3 -70`,
+        `M5 -69C9 -90 ${18 + earTilt} -107 ${25 + earTilt} -103C31 -97 22 -80 13 -66`,
+        'M15 -95C13 -88 11 -81 9 -74',
+        { d: 'M-13 -64C-24 -58 -27 -41 -18 -33C-10 -25.5 8 -24.5 17 -31C25 -38 24 -56 15 -64', double: false },
+        'M1 -36.5L1 -33.5',
+        ...(f.mouth ? [] : ['M-3.5 -32.4C-1.6 -30.4 0.6 -31 1 -33.5C1.6 -31 3.8 -30.4 6 -32.6']),
+      ],
+      { dots: [dot(1.4, -38.6, 4.2, 3.2)] },
+    ),
+    f.eyes,
+    ...(f.mouth ? [f.mouth] : []),
   )
 }
 
-export function bunny(look = 0.7, earTilt = 0): Ink {
+export function bunny(look = 0.7, earTilt = 0, style: FaceStyle = 'ring'): Ink {
   return merge(
-    bunnyHead(look, earTilt),
+    bunnyHead(look, earTilt, style),
     ink([
       'M-16 -30C-30 -20 -32 -4 -22 1.5',
       'M15.5 -31C26 -24 31 -10 26.5 -1',
@@ -91,9 +210,9 @@ export function bunny(look = 0.7, earTilt = 0): Ink {
 }
 
 /** Hase im Gleichschritt (aufrecht, ein Bein vor, Arm schwingt). */
-export function bunnyMarch(look = 0.8, earTilt = 0): Ink {
+export function bunnyMarch(look = 0.8, earTilt = 0, style: FaceStyle = 'ring'): Ink {
   return merge(
-    bunnyHead(look, earTilt),
+    bunnyHead(look, earTilt, style),
     ink([
       'M-15 -30C-24 -20 -24 -8 -16 -2',
       'M15 -31C22 -22 22 -10 16 -2',
@@ -226,7 +345,8 @@ export function deer(look = 0.4): Ink {
  * (`content/seed/coco/`, 04.10.2026): runder Kopf, große aufrechte Ohren mit gerundeter Spitze (das rechte etwas
  * größer), große runde Augen mit großer Pupille und Glanzpunkt, dicke gefüllte Nase, Lächeln mit Haken. Mitte, Breite ~90; `collar` = roter Halsring.
  */
-export function cocoHead(look = -0.4, collar = true): Ink {
+export function cocoHead(look = -0.4, collar = true, style: FaceStyle = 'ring'): Ink {
+  const f = faceParts(style, [-15, -18, 9], [12, -19, 9.8], look, [-2, 12, 20])
   const face = merge(
     ink([
       // runder Kopf, oben und am Kinn offen
@@ -238,8 +358,8 @@ export function cocoHead(look = -0.4, collar = true): Ink {
       'M-31 -50C-32 -57 -32 -64 -31 -70',
       'M6 -48C10 -59 17 -72 27 -81C30 -84 34 -83 34 -79C35 -67 36 -52 33 -38',
       'M14 -54C18 -61 23 -68 28 -73',
-      // Lächeln mit Haken, Kinn
-      'M-14 9C-8 15 2 16 9 10C10 9 11 8 10 6',
+      // Lächeln mit Haken, Kinn (je Stil eigener Mund)
+      ...(f.mouth ? [] : ['M-14 9C-8 15 2 16 9 10C10 9 11 8 10 6']),
       'M-9 19C-3 22 5 22 11 18',
       // Schnurrhaare kurz
       'M-22 6C-31 5 -39 7 -45 11',
@@ -249,10 +369,11 @@ export function cocoHead(look = -0.4, collar = true): Ink {
       // dicke Nase: schiefer, gefüllter Tupfer zwischen den Augen
       dots: [dot(-3, 1, 14, 11)],
     }),
-    eye(-15, -18, 9, look, 0.15),
-    eye(12, -19, 9.8, look, 0.15),
+    style === 'ring' ? merge(eye(-15, -18, 9, look, 0.15), eye(12, -19, 9.8, look, 0.15)) : f.eyes,
+    ...(f.mouth ? [f.mouth] : []),
   )
   // große runde Pupillen, Glanzpunkt bleibt
+  if (style !== 'ring') return finish(face, collar)
   const big = (cx: number, cy: number, r: number) =>
     `M${cx - r} ${cy}C${cx - r} ${cy - r * 1.3} ${cx + r * 1.04} ${cy - r * 1.26} ${cx + r} ${cy}C${cx + r * 0.96} ${cy + r * 1.2} ${cx - r} ${cy + r * 1.16} ${cx - r} ${cy}Z`
   face.dots = [
@@ -264,6 +385,10 @@ export function cocoHead(look = -0.4, collar = true): Ink {
     `M${-17.4 + look * 2.4} -20.6c0-1.8 2.4-1.8 2.4 0s-2.4 1.8-2.4 0Z`,
     `M${9.4 + look * 2.4} -21.8c0-1.8 2.4-1.8 2.4 0s-2.4 1.8-2.4 0Z`,
   ]
+  return finish(face, collar)
+}
+
+function finish(face: Ink, collar: boolean): Ink {
   if (!collar) return face
   return merge(
     face,
@@ -275,9 +400,9 @@ export function cocoHead(look = -0.4, collar = true): Ink {
 
 /** Coco sitzend (Seitenansicht nach links, Kopf leicht schief), Schwanz als Sichel; Geschirr mit Halsring,
  * Bauchgurt und D-Ring. Fußpunkt unten Mitte, Höhe ~150. */
-export function cocoSitting(look = -0.4, tilt = -8): Ink {
+export function cocoSitting(look = -0.4, tilt = -8, style: FaceStyle = 'ring'): Ink {
   return merge(
-    place(cocoHead(look, false), { x: -6, y: -106, s: 0.74, r: tilt }),
+    place(cocoHead(look, false, style), { x: -6, y: -106, s: 0.74, r: tilt }),
     ink([
       'M-24 -88C-31 -74 -31 -56 -24 -42',
       { d: 'M14 -94C25 -84 33 -64 33 -42C33 -26 27 -12 17 -7', double: true },
@@ -483,7 +608,8 @@ export function bunnyMini(step = 1): Ink {
 }
 
 /** Hase, der über eine Kante guckt: Ohren, Kopf oben, Kulleraugen, zwei Pfoten auf der Kante (Kante bei y = 0). */
-export function bunnyPeek(look = 0.5, earTilt = 0): Ink {
+export function bunnyPeek(look = 0.5, earTilt = 0, style: FaceStyle = 'ring'): Ink {
+  const f = faceParts(style, [-7.5, -19, 5.8], [8.5, -19.5, 5.6], look, [1, -9, 8])
   return merge(
     ink([
       `M-12 -34C-21 -52 ${-24 - earTilt} -73 ${-16 - earTilt} -80C-9 -85 -4 -68 -3 -40`,
@@ -494,15 +620,15 @@ export function bunnyPeek(look = 0.5, earTilt = 0): Ink {
       'M-20 0C-20 -6 -12 -6 -11 0',
       'M12 0C12 -6 20 -6 21 0',
     ]),
-    eye(-7.5, -19, 5.8, look),
-    eye(8.5, -19.5, 5.6, look),
+    f.eyes,
+    ...(f.mouth ? [f.mouth] : []),
   )
 }
 
 /** Coco sitzt auf einer Kante und lässt die Beine baumeln (Sitzfläche bei y = 0, Beine hängen nach unten). */
-export function cocoDangling(look = -0.4): Ink {
+export function cocoDangling(look = -0.4, style: FaceStyle = 'ring'): Ink {
   return merge(
-    place(cocoHead(look, false), { x: -4, y: -80, s: 0.72, r: -6 }),
+    place(cocoHead(look, false, style), { x: -4, y: -80, s: 0.72, r: -6 }),
     ink([
       'M-22 -62C-30 -48 -30 -30 -24 -16',
       { d: 'M14 -68C26 -56 32 -36 30 -16C29 -6 22 0 12 1', double: true },

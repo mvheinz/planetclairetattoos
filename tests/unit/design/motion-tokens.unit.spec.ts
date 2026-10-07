@@ -60,11 +60,11 @@ describe('Bewegungs-Tokens (DESIGN §11.2/§11.3)', () => {
     expect(cssVar('--sleep-frame')).toBe('125ms')
   })
 
-  it('P9.16 Katalog MI-01…MI-16 vollständig und eindeutig (SC-14)', () => {
+  it('P9.16 Katalog MI-01…MI-19 vollständig und eindeutig (SC-14)', () => {
     const ids = [...section('### 11.5 Katalog', '### 11.6').matchAll(/^\| (MI-\d\d) \|/gm)].map(
       (m) => m[1],
     )
-    expect(ids).toHaveLength(16)
+    expect(ids).toHaveLength(19)
     expect(QA_MICROS.map((m) => m.id)).toEqual(ids)
   })
 })

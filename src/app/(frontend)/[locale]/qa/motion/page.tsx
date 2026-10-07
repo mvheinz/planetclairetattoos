@@ -7,10 +7,12 @@ import { Coco } from '@/components/Coco'
 import { HomeStation } from '@/components/home/HomeStation'
 import { PlanetMark } from '@/components/home/SpaceMarks'
 import { NotFoundContent } from '@/components/layout/NotFoundContent'
+import menuStyles from '@/components/layout/MenuOverlay.module.css'
 import header from '@/components/layout/SiteHeader.module.css'
 import { Station } from '@/components/leash/Station'
 import orderStyles from '@/components/order/Order.module.css'
 import { QaReplay } from '@/components/qa/QaReplay'
+import cardStyles from '@/components/shop/ProductCard.module.css'
 import { PriceTag } from '@/components/shop/PriceTag'
 import productStyles from '@/components/shop/product/ProductPage.module.css'
 import { Button } from '@/components/ui/Button'
@@ -175,6 +177,35 @@ async function Demo({ mi, locale }: { mi: string; locale: Locale }) {
           </Button>
         </div>
       )
+    case 'MI-17':
+      return (
+        <a href="#qa-card" className={cardStyles.card} style={{ width: 240 }} data-qa-hover="">
+          <span
+            className={cardStyles.photo}
+            style={{ height: 200, background: 'var(--paper-2)', border: '1.5px solid var(--ink)' }}
+          />
+          <span className={cardStyles.title}>{t('demoCard')}</span>
+        </a>
+      )
+    case 'MI-18':
+      return (
+        <a href="#qa-menu" className={menuStyles.mainLink} data-qa-hover="">
+          {t('linkLabel')}
+        </a>
+      )
+    case 'MI-19':
+      return (
+        <div data-buy-area="" style={{ display: 'grid', gap: 16, justifyItems: 'start' }}>
+          <form data-behavior="add-to-cart" data-product-id={QA_ID}>
+            <Button variant="primary" type="submit">
+              {t('demoButton')}
+            </Button>
+          </form>
+          <p className={productStyles.confirm} data-buy-confirm="" hidden>
+            {t('cartCount')}
+          </p>
+        </div>
+      )
     default:
       return null
   }
@@ -212,7 +243,9 @@ export default async function QaMotionPage({
           <h2 className={styles.sectionTitle}>
             {micro.id} · {micro.name}
           </h2>
-          <p className={styles.note}>{micro.press ? t('pressHint') : t('miHint')}</p>
+          <p className={styles.note}>
+            {micro.press ? t('pressHint') : micro.hover ? t('hoverHint') : t('miHint')}
+          </p>
           <QaReplay mi={micro.id} label={t('play')} className={styles.stage}>
             <Demo mi={micro.id} locale={locale} />
           </QaReplay>

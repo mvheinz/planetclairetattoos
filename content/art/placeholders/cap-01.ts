@@ -17,7 +17,7 @@ const motif: Motif = {
       ],
       dots: [dot(200, 108, 12, 8)],
     },
-    place(cocoHead(-0.3, true), { x: 206, y: 252, s: 0.92, r: 4 }),
+    place(cocoHead(-0.3, true, 'schlaf'), { x: 206, y: 252, s: 0.92, r: 4 }),
   ),
   wash: 'M58 298C56 204 122 118 200 116C278 118 342 204 340 296C250 316 150 316 58 298Z',
   shadow: { x: 218, y: 402, w: 90, count: 6, len: 15 },

@@ -105,4 +105,14 @@ export function attachExtra(ctl: CocoController): void {
   document.addEventListener(COCO_JOY_EVENT, onJoy)
   x.o = () => document.removeEventListener(COCO_JOY_EVENT, onJoy)
   x.t(ctl.pose())
+  // Coco reist mit (P12.12, MO-14): eigener nachgeladener Chunk, erst jetzt – nur bei voller Bewegung (`attachExtra` läuft nur dann)
+  void import('./cocoTravel').then((t) => {
+    if (!el.isConnected) return
+    const stop = t.attachTravel(ctl)
+    const prev = x.o
+    x.o = () => {
+      prev?.()
+      stop()
+    }
+  })
 }

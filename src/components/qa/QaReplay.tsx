@@ -22,16 +22,16 @@ const reach: Step = (stage) =>
     .forEach((el) => el.setAttribute('data-leash-reached', ''))
 
 /** Vorbereitung vor dem Binden der Module (z. B. frische Produkt-ID je Durchlauf). */
-const PREPARE: Record<string, Step> = {
-  'MI-01': (stage, run) =>
-    stage
-      .querySelectorAll('[data-product-id]')
-      .forEach((el) => el.setAttribute('data-product-id', `qa-mi01-${run}`)),
-}
+const freshProductId: Step = (stage, run) =>
+  stage
+    .querySelectorAll('[data-product-id]')
+    .forEach((el) => el.setAttribute('data-product-id', `qa-mi01-${run}`))
+const PREPARE: Record<string, Step> = { 'MI-01': freshProductId, 'MI-19': freshProductId }
 
 /** Auslöser nach dem Binden. */
 const PLAY: Record<string, Step> = {
   'MI-01': (stage) => stage.querySelector('form')?.requestSubmit(),
+  'MI-19': (stage) => stage.querySelector('form')?.requestSubmit(),
   'MI-03': (stage) => {
     const id = stage.querySelector('[data-product-id]')?.getAttribute('data-product-id')
     if (id) document.dispatchEvent(new CustomEvent(SOLD_EVENT, { detail: { id } }))

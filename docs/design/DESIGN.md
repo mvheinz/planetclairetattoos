@@ -818,6 +818,7 @@ deshalb unter `src/components/leash/` (ARCHITEKTUR §2.1).
 | `src/leash/measure.ts` | liest Anker aus dem DOM (eine Lesephase) | Browser |
 | `src/leash/runtime.ts` | `mountLeash(root, options): LeashHandle` – Stufenwahl, SVG-Aufbau, Scroll/rAF, Coco-Kopplung, Neuaufbau | Browser, dynamisch importiert (in der Vorschau statisch gebündelt) |
 | `src/leash/coco.ts` | Coco-Steuerung (Posen, Brücken, Boil, Hüpfer) | Browser |
+| `src/leash/cocoTravel.ts` | Coco reist mit (P12.12, MO-14): Lauf-Pose beim Seitenwechsel über die Navigation-API, nachgeladen (≤ 2 KB gz), nur bei voller Bewegung | Browser |
 | `src/leash/motion.ts` | `getMotion(): 'full' \| 'reduced'` und `onMotionChange(cb)` aus `prefers-reduced-motion` + `html[data-motion]` (§9.11, §11.7) – gemeinsam für Engine und `src/behaviors/*` | Browser, framework-frei |
 | `src/components/leash/LeashLayer.tsx` | Client-Komponente (in `src/app/(frontend)/[locale]/layout.tsx`): rendert leeren Container, importiert `runtime` nach dem LCP, ruft `mountLeash`/`destroy` | React |
 | `src/components/leash/Station.tsx` | `<Station id pose loop>` rendert `data-leash-station`-Anker | React (Server-tauglich) |
@@ -1045,7 +1046,7 @@ nicht selbst, sondern binden dieselben Module ein (im Effekt bzw. über `Behavio
 
 Die Tabelle nennt die gestalterisch relevanten Module; fachliche Module (z. B. Live-Zustand der Stücke) regeln KONZEPT und
 ARCHITEKTUR. MI-10 und MI-12 bis MI-14 steuert die Engine selbst (`src/leash/`); MI-04 läuft über View Transitions (§9.8,
-in der Vorschau per `@view-transition` bzw. ohne Übergang); MI-06 (Unterstreichung) und MI-16 (Knopf drücken) sind reines CSS.
+in der Vorschau per `@view-transition` bzw. ohne Übergang); MI-06 (Unterstreichung), MI-16 (Knopf drücken), MI-17 (Karte hebt sich), MI-18 (Menülink rückt ein) und MI-19 (Korb-Bestätigung) sind reines CSS.
 
 **AK-DS-18** Unit-Test (jsdom) je Modul der Tabelle und für `mountLeash`: `mount()` → `unmount()` (bzw. `destroy()`) entfernt
 alle eigenen Listener, Observer, Timer und Animationen (`document.getAnimations()` ohne Einträge des Moduls, keine
@@ -1328,7 +1329,7 @@ Zwischen Stationen: `rennen` (12 fps), Blickrichtung nach Schwung der Linie (Ums
 | MI-01 | Hüpfer „In den Korb“ | Server bestätigt „In den Korb“ | Coco (`--coco-s`): `abspringen` (83 ms) → `springen` mit `translateY(0 → −14px)` 140 ms `--ease-hop-up`, zurück 220 ms `--ease-hop-down`, Landung `scaleY(0.92)` 80 ms → `sitzen` | 83 + 360 + 80 ms | transform | kein Hüpfer, Zustandstext sofort | Kauf-Leiste, Korb, Kasse |
 | MI-02 | Preisschild schwingt | Reihe tritt erstmals in den Sichtbereich; Hover/Fokus der Karte (feiner Zeiger) | Pendel um die Öse: Winkel `a → a+5° → a−3.5° → a+1.5° → a` bei 0/20/45/70/100 % | 900 ms, `--ease-swing` je Teilstück | transform (rotate) | aus | Korb, Kasse, Tattoo |
 | MI-03 | Stempel-Knall | Moment des Verkaufs (KO-06) | `scale 1.8 / rotate −22° / opacity 0` → 60 %: `scale 0.94 / −13° / 1` → `scale 1 / −14°`; danach Schild-Ruck `translateY(1.5px)` 80 ms; höchstens 3 Knalle je Seitenansicht, gestaffelt 120 ms | 260 ms `--ease-stamp` + 80 ms | transform, opacity | Stempel sofort statisch | Archiv-/Shop-Seitenaufruf, Kasse |
-| MI-04 | Seitenübergang | weiche Navigation zwischen nicht-ruhigen Routen | Coco wandert (View Transition `coco`), Rest überblendet | 350 ms `--ease-ink-inout` / 250 ms `--ease-calm` | VT-Pseudo-Elemente | aus | von/zu `calm`-Routen |
+| MI-04 | Seitenübergang | Seitenwechsel (weich und hart) zwischen nicht-ruhigen Routen | Coco **reist mit** (P12.12, U-23): beim Aufbruch Lauf-Pose `rennen`; mit Gegenstück (Startseite ↔ Über mich) wandert sie von der alten zur neuen Leinenspitze (View Transition `coco`) und steht auf der neuen Seite sofort am Linienanfang (`data-arrived`: kein Hereinrennen von links); ohne Gegenstück läuft sie nach rechts hinaus bzw. von links herein (`pc-coco-away`/`pc-coco-in`, 72 px, Opacity); Rest überblendet | 350 ms `--ease-ink-inout` / 250 ms `--ease-calm` | VT-Pseudo-Elemente | aus | von/zu `calm`-Routen |
 | MI-05 | Menü öffnen/schließen | Menü-Knopf / Schließen | Öffnen: `clip-path: circle(0 at <Knopfmitte>) → circle(150vmax)` 420 ms `--ease-ink-out`; Links `opacity 0→1`, `translateY(10px→0)` je 320 ms, gestaffelt `--stagger` + 0–20 ms Seed, Summe ≤ 700 ms; Coco schiebt sich unten rechts herein (`translateY(100% → 0)`, 300 ms, Verzögerung 200 ms, Pose `kopfschief`). Schließen: `opacity 1→0` 180 ms, ohne Staffel | s. links | clip-path, opacity, transform | sofort | – |
 | MI-06 | Unterstreichung zeichnen | Hover (feiner Zeiger), `:focus-visible`, `:active` auf Navigationslinks | Pfad `stroke-dashoffset 1 → 0` (normiert), beim Verlassen `opacity → 0` 150 ms (nie rückwärts „radieren“) | 280 ms `--ease-ink-out` | stroke-dashoffset, opacity | Unterstreichung sofort sichtbar bei Fokus/Hover | Fließtext-Links (dort normale `text-decoration`), Kasse |
 | MI-07 | Korbzahl hüpft | Anzahl im Kopf ändert sich | `scale 1 → 1.25 → 1` | 240 ms `--ease-stamp` | transform | Zahl wechselt sofort | – |
@@ -1341,6 +1342,9 @@ Zwischen Stationen: `rennen` (12 fps), Blickrichtung nach Schwung der Linie (Ums
 | MI-14 | Stencil-Abdruck | Station 6 erreicht; Hover/Fokus Flash-Karte | `--shadow-stencil` erscheint (Startseite: `opacity` eines Pseudo-Elements 0 → 1 in 400 ms; Tattoo-Seiten: sofort ohne Übergang) | 400 ms `--ease-calm` / 0 | opacity | sofort | – |
 | MI-15 | Kauf-Leiste | KO-09a | `translateY(100% → 0)` | 200 ms `--ease-calm` | transform | sofort | – |
 | MI-16 | Knopf drücken | `:active` Primärknopf (nicht Kasse) | `translate(2px,2px)` + Schatten 1 px | 80 ms `--ease-calm` | transform, box-shadow (Sprung, keine Animation des Schattens: Schatten wechselt diskret) | ohne Übergang | Kasse |
+| MI-17 | Karte hebt sich | Hover (feiner Zeiger) und `:focus-visible` einer Produktkarte (Shop-Listen, Startseite) | Foto-Rahmen `translate 0 → 0 −3px`, zurück beim Verlassen | 200 ms `--ease-ink-out` | translate | aus (Transition entfällt) | Ruheseiten, Tattoo-Seiten ohne Karten |
+| MI-18 | Menülink rückt ein | Hover (feiner Zeiger) und `:focus-visible` der Hauptlinks im Menü-Overlay | `translate 0 → 6px 0` (frei von MI-05, das `transform` nutzt) | 200 ms `--ease-ink-out` | translate | aus | – |
+| MI-19 | Korb-Bestätigung gleitet ein | „Liegt in deinem Korb“ erscheint nach dem Hinzufügen (3 s sichtbar) | `opacity 0 → 1`, `translate 0 6px → 0` | 200 ms `--ease-ink-out` | opacity, translate | sofort sichtbar | Kasse, Korb |
 
 ### 11.6 Was sich **nie** bewegt
 

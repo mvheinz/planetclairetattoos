@@ -1,7 +1,7 @@
 import { QA_MICROS } from '../../src/lib/qa/microInteractions'
 import { artTags, test } from './helpers/fixtures'
 
-// SC-14 (KUNST-QA §4.3, §4.4): jede Mikro-Interaktion MI-01 … MI-16 isoliert auf `/de/qa/motion?mi=…` – „Abspielen“,
+// SC-14 (KUNST-QA §4.3, §4.4): jede Mikro-Interaktion MI-01 … MI-19 isoliert auf `/de/qa/motion?mi=…` – „Abspielen“,
 // dann Sequenz alle 20 ms per Seek (WAAPI/CSS über `getAnimations()`, rAF/Timer über die Playwright-Clock) bis zum Ende
 // des Ablaufs. Bühne als Ausschnitt; Menü, Kauf-Leiste und Seitenübergang im ganzen Sichtbereich. MI-16 (`:active`)
 // per gedrücktem Zeiger.
@@ -11,11 +11,13 @@ test(
   { tag: artTags(['art-desktop', 'art-iphone15']) },
   async ({ art }) => {
     const { page } = art
-    // `ART_MI=MI-04,MI-11` nimmt nur diese auf (Probelauf nach einer Änderung); ohne Angabe alle 16.
+    // `ART_MI=MI-04,MI-11` nimmt nur diese auf (Probelauf nach einer Änderung); ohne Angabe alle 19.
     const only = process.env.ART_MI?.split(',')
     for (const mi of QA_MICROS.filter((m) => !only || only.includes(m.id))) {
       // MI-15 (Kauf-Leiste) gibt es nur auf Handy-Breite (`ProductPage.module.css`): auf dem Desktop zeigt die Bühne nichts (R2-06-03)
       if (mi.id === 'MI-15' && art.profile === 'art-desktop') continue
+      // MI-17/MI-18 brauchen einen schwebenden Zeiger (`hover: hover`): nicht auf dem Handy-Profil
+      if (mi.hover && !art.isDesktop) continue
       await art.goto(`/de/qa/motion?mi=${mi.id}`, { waitLeash: false })
       const stage = page.locator(`[data-qa-stage="${mi.id}"]`)
       await page.waitForSelector(`[data-qa-stage="${mi.id}"][data-qa-played="1"]`, {
@@ -109,6 +111,12 @@ test(
               return a
             }
           })
+        // MI-17/MI-18 (`:hover`): der Zeiger schwebt über dem Element – das löst die Transition aus (Auslöser statt „Abspielen“)
+        if (mi.hover) {
+          const box = await stage.locator('[data-qa-hover]').first().boundingBox()
+          if (box) await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+          return
+        }
         await page.evaluate(() => document.querySelector<HTMLElement>('[data-qa-play]')?.click())
         // Uhr steht: bis zum Auslösen (zwei Frames nach dem Binden) in 16-ms-Schritten vorspulen.
         const played = stage.and(page.locator('[data-qa-played="2"]'))
@@ -191,6 +199,7 @@ test(
         }
       }
       if (mi.press) await page.mouse.up()
+      if (mi.hover) await page.mouse.move(0, 0)
     }
   },
 )
