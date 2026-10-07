@@ -68,6 +68,7 @@ describe('T-09 budgets.json enthält alle Werte aus ARCHITEKTUR §7.7 und DESIGN
       'src/leash/runtime.ts': 12_000,
       'src/leash/coco.ts': 3_000,
       'src/leash/cocoExtra.ts': 2_500, // nachgeladen (P12.4)
+      'src/leash/cocoTravel.ts': 2_000, // nachgeladen (P12.12)
       'src/leash/static.ts': 4_000,
     })
     // Mikro-Interaktionen: je gemeinsam geladener Gruppe von Verhaltensmodulen ≤ 4 KB (OFFENE-PUNKTE P3.4)

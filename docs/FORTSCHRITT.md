@@ -2,6 +2,13 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-06 – P12.12
+
+- Platzhalter: Jede Figur hat jetzt ihr eigenes, einzeln gezeichnetes Gesicht (sechs Stile: Kulleraugen, Schlaflider, Knopfaugen, Blinzeln, Schiefblick, Staunen – je mit eigenen Brauen und eigenem Mund). Die sechs Coco-Platzhalter und die Hasen in `flash-902`/`spiegel-01` teilen kein Gesicht mehr (AR-05; Test `placeholders.unit.spec.ts`).
+- Coco reist beim Seitenwechsel mit (MO-14): beim Aufbruch Lauf-Pose, mit Gegenstück (Start ↔ Über mich) wandert sie in 350 ms zur neuen Leinenspitze und steht dort sofort (kein Hereinrennen von links), ohne Gegenstück läuft sie hinaus bzw. herein. Neuer Chunk `src/leash/cocoTravel.ts` (nur bei voller Bewegung, ≤ 2 KB gz); Engine unverändert.
+- Neue Mikro-Animationen MI-17 (Karte hebt sich), MI-18 (Menülink rückt ein), MI-19 (Korb-Bestätigung gleitet ein) – nur CSS, Tokens `--dur-short`/`--ease-ink-out`, bei reduzierter Bewegung/Schalter aus.
+- Katalog nachgezogen: DESIGN §11.5, KUNST-QA (MO-11 auf MI-19, MO-14, AR-05), `/qa/motion`, SC-14 (Hover-Auslöser), Budget `tests/perf/budgets.json`.
+
 ## 2026-10-06 – P12.3
 
 - Goth-Fotorahmen: viktorianischer Filigran-Rahmen mit dünner Tuschelinie als eine gemeinsame SVG-Datei (3,9 KB, scripts/art/build-photo-frame.ts), per border-image an ResponsiveImage (alle Foto-Stellen: Karten, Produktseite, Galerie, Flash, Über mich, Startseite, Teaser, Korb, Kasse); Passepartout/Doppelrahmen und Flash-Rand ersetzt.

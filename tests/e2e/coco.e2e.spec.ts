@@ -200,53 +200,59 @@ test.describe('Weiche Navigation mit View Transitions (ADR 0003)', () => {
     expect(await softNavigate(page, '/de/impressum')).toEqual([])
   })
 
-  /** Namen der CSS-Animationen (Schlüsselbilder) und Dauern der Coco-Pseudo-Elemente im aufgezeichneten Übergang. */
-  async function cocoTransition(page: Page, path: string) {
+  interface CocoVt {
+    pose: string | null
+    anims: { name: string; pe: string; d: number }[]
+  }
+
+  /**
+   * Harte Navigation (die Seite nutzt `<a href>`, ADR 0003): zeichnet im alten Dokument die Pose von Coco beim
+   * `pageswap` auf und im neuen die animierten Coco-Pseudo-Elemente beim `pagereveal`; `exposeFunction` überlebt den
+   * Dokumentwechsel. Gibt eine Funktion zurück, die den Link anklickt und beide Aufzeichnungen liefert.
+   */
+  async function hardTransition(page: Page, path: string) {
+    const rec: Partial<CocoVt> = {}
+    await page.exposeFunction('__cocoSwap', (pose: string | null) => (rec.pose = pose))
+    await page.exposeFunction('__cocoReveal', (anims: CocoVt['anims']) => (rec.anims = anims))
     await page.addInitScript(() => {
-      const w = window as Window & { __cocoVt?: unknown }
-      const orig = document.startViewTransition?.bind(document)
-      if (!orig) return
-      document.startViewTransition = ((arg: never) => {
-        // Pose von Coco im Moment des Übergangsstarts (alter Schnappschuss, P12.12)
-        const pose = document.querySelector('[data-leash-coco]')?.getAttribute('data-pose') ?? null
-        const t = orig(arg)
-        const rec = { pose, anims: [] as { name: string; pe: string; d: unknown }[] }
-        w.__cocoVt = rec
-        void t.ready
-          .then(() => {
-            rec.anims = document
-              .getAnimations()
-              .filter((a) =>
-                /\(coco\)/.test((a.effect as KeyframeEffect | null)?.pseudoElement ?? ''),
-              )
-              .map((a) => ({
-                name: (a as CSSAnimation).animationName ?? '',
-                pe: (a.effect as KeyframeEffect).pseudoElement ?? '',
-                d: a.effect!.getTiming().duration,
-              }))
-          })
-          .catch(() => {})
-        return t
-      }) as typeof document.startViewTransition
+      type W = Window & {
+        __cocoSwap(p: string | null): void
+        __cocoReveal(a: unknown[]): void
+      }
+      addEventListener('pageswap', () =>
+        (window as unknown as W).__cocoSwap(
+          document.querySelector('[data-leash-coco]')?.getAttribute('data-pose') ?? null,
+        ),
+      )
+      addEventListener('pagereveal', (e) => {
+        const vt = (e as Event & { viewTransition?: { ready: Promise<void> } | null })
+          .viewTransition
+        void vt?.ready
+          .then(() =>
+            (window as unknown as W).__cocoReveal(
+              document
+                .getAnimations()
+                .filter((a) =>
+                  /\(coco\)/.test((a.effect as KeyframeEffect | null)?.pseudoElement ?? ''),
+                )
+                .map((a) => ({
+                  name: (a as CSSAnimation).animationName ?? '',
+                  pe: (a.effect as KeyframeEffect).pseudoElement ?? '',
+                  d: a.effect!.getTiming().duration,
+                })),
+            ),
+          )
+          .catch(() => undefined)
+      })
     })
-    return async () => {
+    return async (): Promise<CocoVt> => {
       await page.evaluate(
-        (u) =>
-          (window as Window & { next?: { router: { push(u: string): void } } }).next!.router.push(
-            u,
-          ),
+        (u) => document.querySelector<HTMLAnchorElement>(`a[href="${u}"]`)!.click(),
         path,
       )
       await page.waitForURL(`**${path}`)
-      await page.waitForTimeout(600)
-      return page.evaluate(
-        () =>
-          (
-            window as Window & {
-              __cocoVt?: { pose: string | null; anims: { name: string; pe: string; d: number }[] }
-            }
-          ).__cocoVt!,
-      )
+      await expect.poll(() => rec.anims !== undefined, { timeout: 10_000 }).toBe(true)
+      return { pose: rec.pose ?? null, anims: rec.anims! }
     }
   }
 
@@ -254,7 +260,7 @@ test.describe('Weiche Navigation mit View Transitions (ADR 0003)', () => {
     page,
   }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' })
-    const go = await cocoTransition(page, '/de/kontakt')
+    const go = await hardTransition(page, '/de/kontakt')
     await page.goto('/de')
     await page.waitForLoadState('load')
     await expect(leashCoco(page)).toHaveAttribute('data-placed', '')
@@ -270,7 +276,7 @@ test.describe('Weiche Navigation mit View Transitions (ADR 0003)', () => {
     page,
   }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' })
-    const go = await cocoTransition(page, '/de/ueber-mich')
+    const go = await hardTransition(page, '/de/ueber-mich')
     await page.goto('/de')
     await page.waitForLoadState('load')
     await expect(leashCoco(page)).toHaveAttribute('data-placed', '')
@@ -283,11 +289,11 @@ test.describe('Weiche Navigation mit View Transitions (ADR 0003)', () => {
     await expect(leashCoco(page)).toHaveAttribute('data-arrived', '')
   })
 
-  test('Coco reist mit (MO-14): Kontakt → Start läuft herein; Erststart und calm-Wege ohne Reise', async ({
+  test('Coco reist mit (MO-14): Kontakt → Start läuft herein; Erststart ohne Reise', async ({
     page,
   }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' })
-    const go = await cocoTransition(page, '/de')
+    const go = await hardTransition(page, '/de')
     await page.goto('/de/kontakt')
     await page.waitForLoadState('load')
     await page.waitForTimeout(1200)
@@ -302,24 +308,14 @@ test.describe('Weiche Navigation mit View Transitions (ADR 0003)', () => {
     await expect(leashCoco(page)).not.toHaveAttribute('data-arrived', '')
   })
 
-  test('Coco reist nicht bei reduzierter Bewegung und nicht mit dem Schalter „Animationen“ aus', async ({
-    page,
-  }) => {
+  test('Coco reist nicht bei reduzierter Bewegung', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.goto('/de')
     await page.waitForLoadState('load')
     await page.waitForTimeout(1500)
     await expect(leashCoco(page)).not.toHaveAttribute('data-arrived', '')
-    const nav = () =>
-      page.evaluate(() => {
-        const n = (window as Window & { navigation?: EventTarget }).navigation
-        return !!n
-      })
-    expect(await nav()).toBe(true) // Chromium hat die API – trotzdem keine Lauf-Pose
     await page.evaluate(() =>
-      (window as Window & { next?: { router: { push(u: string): void } } }).next!.router.push(
-        '/de/kontakt',
-      ),
+      document.querySelector<HTMLAnchorElement>('a[href="/de/kontakt"]')!.click(),
     )
     await page.waitForURL('**/de/kontakt')
     await expect(page.locator('[data-leash-coco]')).toHaveCount(0)

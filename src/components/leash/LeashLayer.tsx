@@ -34,21 +34,12 @@ export function leashRouteKey(match: RouteMatch): string {
 
 /** Seitenwechsel in diesem Dokument; ab dem zweiten Einhängen ist jede Seite eine „Ankunft“ (P12.12, MO-14). */
 let visits = 0
-/** Ob diese Seite über einen Seitenwechsel der eigenen Seite erreicht wurde (weich: zweites Einhängen; hart: Referrer). */
-function arrivedFromOwnPage(): boolean {
-  if (visits++ > 0) return true
-  try {
-    const nav = performance.getEntriesByType('navigation')[0] as
-      PerformanceNavigationTiming | undefined
-    return (
-      !!document.referrer &&
-      new URL(document.referrer).origin === location.origin &&
-      nav?.type !== 'reload'
-    )
-  } catch {
-    return false
-  }
-}
+/** Ob diese Seite über einen Seitenwechsel der eigenen Seite erreicht wurde (weich: zweites Einhängen; hart: Referrer, nicht bei Reload). */
+const arrivedFromOwnPage = () =>
+  visits++ > 0 ||
+  (document.referrer.startsWith(location.origin) &&
+    (performance.getEntriesByType('navigation') as PerformanceNavigationTiming[])[0]?.type !==
+      'reload')
 
 /** Ohne JavaScript keine Coco an der (fehlenden) Linie (§9.4 „ohne JS“). */
 const NOSCRIPT_CSS = '.coco[data-leash-coco]{display:none}'

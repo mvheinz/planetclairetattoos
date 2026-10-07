@@ -37,31 +37,44 @@ export function transitionTarget(url: string, origin = location.origin): boolean
 }
 
 /**
- * Macht Coco beim Aufbruch zur Läuferin. Gibt die Abmeldung zurück. Ohne Navigation-API (Firefox, Safari) passiert
- * nichts – der Seitenwechsel läuft dann ohne Lauf-Pose, nur mit Überblendung.
+ * Macht Coco beim Aufbruch zur Läuferin. Gibt die Abmeldung zurück. Ohne Navigation-API (Firefox, Safari) gilt nur der
+ * Klick auf einen Link; andere Wege (Adressleiste) laufen ohne Lauf-Pose, nur mit Überblendung.
  */
 export function attachTravel(coco: CocoController): () => void {
   const nav = (globalThis as { navigation?: NavigationApi }).navigation
-  if (!nav) return () => undefined
   let timer: ReturnType<typeof setTimeout> | null = null
   const rest = () => {
     timer = null
     coco.x.b(false)
     coco.x.s(coco.pose())
   }
-  const onNavigate = (e: NavigateEvent) => {
-    if (e.hashChange || e.downloadRequest !== null || e.navigationType === 'reload') return
-    if (new URL(e.destination.url).pathname === location.pathname) return
-    if (!transitionTarget(e.destination.url)) return
+  const run = () => {
     coco.x.p?.() // laufende Warte-Aktion abbrechen
     coco.x.s('rennen')
     coco.x.b(true)
     if (timer !== null) clearTimeout(timer)
     timer = setTimeout(rest, GIVE_UP_MS)
   }
-  nav.addEventListener('navigate', onNavigate)
+  const onNavigate = (e: NavigateEvent) => {
+    if (e.hashChange || e.downloadRequest !== null || e.navigationType === 'reload') return
+    if (new URL(e.destination.url).pathname === location.pathname) return
+    if (transitionTarget(e.destination.url)) run()
+  }
+  // Weiche Navigation: Der App Router startet den Übergang vor `navigate` (Verlauf wird erst beim Einsetzen geschrieben) –
+  // der alte Schnappschuss entsteht also schon vorher. Deshalb zusätzlich beim Klick (Erfassungsphase, vor React).
+  const onClick = (e: MouseEvent) => {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+      return
+    const a = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null
+    if (!a || (a.target && a.target !== '_self') || a.hasAttribute('download')) return
+    if (a.pathname === location.pathname || a.hash) return
+    if (transitionTarget(a.href)) run()
+  }
+  nav?.addEventListener('navigate', onNavigate)
+  document.addEventListener('click', onClick, true)
   return () => {
-    nav.removeEventListener('navigate', onNavigate)
+    nav?.removeEventListener('navigate', onNavigate)
+    document.removeEventListener('click', onClick, true)
     if (timer !== null) clearTimeout(timer)
   }
 }
