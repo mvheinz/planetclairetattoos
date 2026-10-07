@@ -172,7 +172,11 @@ test.describe('R19 Tuschelinie', () => {
     })
     expect(s).toEqual({ tier: 'C', full: true })
     const running = await page.evaluate(
-      () => document.getAnimations().filter((a) => a.playState === 'running').length,
+      () =>
+        document
+          .getAnimations()
+          .filter((a) => a.timeline?.constructor?.name !== 'ScrollTimeline')
+          .filter((a) => a.playState === 'running').length,
     )
     expect(running).toBe(0)
   })

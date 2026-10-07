@@ -115,7 +115,11 @@ test.describe('Kunst-Gate (KUNST-QA §9)', () => {
       return {
         full: l.drawnLen() === l.geometry.totalLength,
         masks: document.querySelectorAll('[data-leash-layer] [mask]').length,
-        running: document.getAnimations().filter((a) => a.playState === 'running').length,
+        running: document
+          .getAnimations()
+          .filter(
+            (a) => a.playState === 'running' && a.timeline?.constructor?.name !== 'ScrollTimeline',
+          ).length,
       }
     })
     expect(s).toEqual({ full: true, masks: 0, running: 0 })

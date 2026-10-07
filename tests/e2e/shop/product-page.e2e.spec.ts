@@ -438,7 +438,7 @@ test.describe('Produktseite – Beschreibung, Details, Versand & Rückgabe, „M
       'Shipping: Letter, €4.50',
     )
     await expect(page.locator('[data-product-shipping] [data-pickup]')).toHaveText(
-      'Collection in Berlin possible',
+      'Pickup in Berlin possible',
     )
   })
 

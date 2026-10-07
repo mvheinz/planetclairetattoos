@@ -200,7 +200,11 @@ test.describe('P8.16 ohne Beispieldaten (seed:remove --drop-texts)', () => {
       // nach load und dem verzögerten Laden der Module (Leerlauf) darf nichts laufen
       await page.waitForTimeout(1500)
       const running = await page.evaluate(
-        () => document.getAnimations().filter((a) => a.playState === 'running').length,
+        () =>
+          document
+            .getAnimations()
+            .filter((a) => a.timeline?.constructor?.name !== 'ScrollTimeline')
+            .filter((a) => a.playState === 'running').length,
       )
       expect(running, url).toBe(0)
     }

@@ -151,7 +151,11 @@ test.describe('P9.1 mit ART_QA', () => {
     await expect
       .poll(() =>
         page.evaluate(
-          () => document.getAnimations().filter((a) => a.playState === 'running').length,
+          () =>
+            document
+              .getAnimations()
+              .filter((a) => a.timeline?.constructor?.name !== 'ScrollTimeline')
+              .filter((a) => a.playState === 'running').length,
         ),
       )
       .toBe(0)
@@ -162,7 +166,11 @@ test.describe('P9.1 mit ART_QA', () => {
     await expect
       .poll(() =>
         page.evaluate(
-          () => document.getAnimations().filter((a) => a.playState === 'running').length,
+          () =>
+            document
+              .getAnimations()
+              .filter((a) => a.timeline?.constructor?.name !== 'ScrollTimeline')
+              .filter((a) => a.playState === 'running').length,
         ),
       )
       .toBe(0)

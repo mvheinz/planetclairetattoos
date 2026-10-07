@@ -174,8 +174,9 @@ test.describe('Rechtsseiten P6.5 @smoke', () => {
       const copy = main.locator('[data-contact-copy]').first()
       await expect(copy).toBeVisible()
       await expect(copy).toHaveText(locale === 'de' ? 'Adresse kopieren' : 'Copy address')
-      await expect(main.locator('[data-contact-instagram]').first()).toBeVisible()
-      await expect(main.locator('[data-contact-dm]').first()).toBeVisible()
+      await expect(main.locator('[data-contact-instagram]')).toHaveCount(0) // Instagram nur im Fuß (U-15)
+      await expect(page.locator('footer a[href*="instagram.com"]').first()).toBeVisible()
+      await expect(main.locator('[data-contact-dm]')).toHaveCount(0) // keine DM-Wege mehr (U-15)
       await expect(page.locator('form')).toHaveCount(0)
       await expect(page.locator('iframe')).toHaveCount(0)
       // Nur der Bezirk, keine Straße

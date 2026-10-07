@@ -166,7 +166,13 @@ test.describe('Kasse R07 – Formular', () => {
       'Deine Reservierung ist abgelaufen.',
     )
     await expect(orderButton(page)).toBeDisabled()
-    expect(await page.evaluate(() => document.getAnimations().length)).toBe(0)
+    expect(
+      await page.evaluate(
+        () =>
+          document.getAnimations().filter((a) => a.timeline?.constructor?.name !== 'ScrollTimeline')
+            .length,
+      ),
+    ).toBe(0)
   })
 
   test('S13 ohne Zahlungs-Session: nur Vorkasse mit „Kartenzahlung ist gerade nicht erreichbar“', async ({

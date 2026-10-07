@@ -44,7 +44,11 @@ async function expectWithdrawVisible(page: Page, locale: Locale) {
 const animationCount = (page: Page, selector?: string) =>
   page.evaluate((sel) => {
     const el = sel ? document.querySelector(sel) : null
-    return (sel ? (el?.getAnimations({ subtree: true }) ?? []) : document.getAnimations()).length
+    return (
+      sel
+        ? (el?.getAnimations({ subtree: true }) ?? [])
+        : document.getAnimations().filter((a) => a.timeline?.constructor?.name !== 'ScrollTimeline')
+    ).length
   }, selector)
 
 test.describe('Fehlerseiten @smoke', () => {

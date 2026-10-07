@@ -59,7 +59,7 @@ test('R-066 AK-4-12 S10 „wartet“ → „bezahlt“ nach der nächsten Abfrag
   expect(page.url()).not.toMatch(/@|jutta|Erika/i)
   const root = page.locator('[data-thanks-page]')
   await expect(root).toHaveAttribute('data-thanks-state', 'waiting')
-  await expect(page.getByText('Wir warten noch kurz auf die Bestätigung')).toBeVisible()
+  await expect(page.getByText('Ich warte noch kurz auf die Bestätigung')).toBeVisible()
   await expectAccessible(page)
 
   // Testhilfe: Mock-Zustand der Session auf bezahlt → nächste Abfrage (2 s) → neu laden → „bezahlt“
@@ -70,7 +70,7 @@ test('R-066 AK-4-12 S10 „wartet“ → „bezahlt“ nach der nächsten Abfrag
   await expect(page.locator('[data-thanks-order-number]')).toContainText(/PC-\d{4}-\d{5}/)
   await expect(page.locator('[data-order-item]')).toHaveCount(1)
   await expect(page.locator('[data-price-tag="mini"]')).toHaveCount(1)
-  await expect(page.getByText('Ich packe dein Paket')).toBeVisible()
+  await expect(page.getByText('Ich packe dein Stück in den nächsten Tagen')).toBeVisible()
   const withdraw = page.getByRole('link', { name: 'Vertrag widerrufen' }).first()
   await expect(withdraw).toHaveAttribute('href', /\/de\/vertrag-widerrufen\?order=PC-\d{4}-\d{5}/)
   await expectAccessible(page)

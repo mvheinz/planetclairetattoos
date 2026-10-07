@@ -153,7 +153,7 @@ test.describe('Korb mit Seed-Ankern', () => {
   }) => {
     const res = await page.goto(R06.en)
     expect(res?.status()).toBe(200)
-    await expect(page.locator('h1')).toHaveText('Your cart')
+    await expect(page.locator('h1')).toHaveText('Your basket')
     await expect(page.locator('[data-empty-state] h2')).toHaveText(
       'Nothing lies in your basket yet.',
     )
