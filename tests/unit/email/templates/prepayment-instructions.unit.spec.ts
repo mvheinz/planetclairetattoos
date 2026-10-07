@@ -74,7 +74,7 @@ describe('M02 prepayment_instructions', () => {
 
   it('R-081 Anhänge: nur die Rechtstexte (keine Rechnung) mit Fassung; Anbieterkennung mit Telefon (R-021)', async () => {
     const m = plain(await render())
-    expect(m.text).toContain('unsere AGB in der Fassung vom 01.09.2026 (AGB_v3.pdf)')
+    expect(m.text).toContain('meine AGB in der Fassung vom 01.09.2026 (AGB_v3.pdf)')
     expect(m.text).toContain('(Widerrufsbelehrung-und-Formular_v2.pdf)')
     expect(m.text).not.toContain('deine Rechnung (')
     expect(m.text).toContain('Die Rechnung bekommst du, sobald deine Zahlung angekommen ist.')
