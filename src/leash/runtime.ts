@@ -123,6 +123,13 @@ interface StrokeView {
   len1: number
 }
 
+/** Vorab erzeugte Ansichten samt Stufe/Farbmodus, für die sie gelten (`work`, `render`). */
+interface Prebuilt {
+  tier: Tier
+  forced: boolean
+  views: SegView[]
+}
+
 interface SegView {
   svg: SVGSVGElement
   /** Erstes Element des Segments (Stufe B/C: der Pfad; Stufe A: erstes Strich-Stück). */
@@ -257,12 +264,14 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
 
   const forcedColors = () => !!win.matchMedia?.('(forced-colors: active)').matches
 
-  /** Schreibphase: alle Segmente auf einmal einhängen. */
-  function render() {
+  /** Schreibphase: alle Segmente auf einmal einhängen (die Ansichten entstehen vorab in Teilstücken, `work`). */
+  function render(pre?: Prebuilt) {
     if (!geometry || !m) return
-    const bw = m.input.baseWidth
     const forced = forcedColors()
-    views = geometry.segments.map((seg) => segmentView(seg, tier, bw, forced))
+    views =
+      pre && pre.tier === tier && pre.forced === forced
+        ? pre.views
+        : geometry.segments.map((seg) => segmentView(seg, tier, m!.input.baseWidth, forced))
     const frag = doc.createDocumentFragment()
     for (const v of views) frag.appendChild(v.svg)
     root.replaceChildren(frag)
@@ -532,7 +541,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   let stepped: { cancel(): void } | null = null
 
   /** Schreibphase nach Messung und Geometrie: Stufe, SVG, gezeichnete Länge, Coco, Intro. */
-  function finishBuild(first: boolean, mm: Measurement, geo: LeashGeometry, t0: number) {
+  function finishBuild(first: boolean, mm: Measurement, geo: LeashGeometry, pre: Prebuilt, t0: number) {
     const prevStations = geometry?.stations ?? []
     const prevTotal = geometry?.totalLength ?? 0
     const prevDrawn = drawnLen
@@ -540,7 +549,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     geometry = geo
     delete root.dataset.stale
     tier = chooseTier()
-    render()
+    render(pre)
     const total = geometry.totalLength
     // Gemessene Position statt `window.scrollY` (kein erzwungenes Layout); der nächste Frame gleicht nach.
     const target = scrollTarget(mm.scrollY)
@@ -586,11 +595,20 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
    * Der Aufbau als Ablauf (DESIGN §9.10, KUNST-QA PF-04): Lesephase als eigenes Teilstück, dann die Geometrie Schritt
    * für Schritt und je Segment ein abgehängtes SVG (Stufe/Farben wie jetzt; die Schreibphase prüft, ob sie noch passen).
    */
-  function* work(): Generator<boolean | void, [Measurement, LeashGeometry], void> {
+  function* work(): Generator<boolean | void, [Measurement, LeashGeometry, Prebuilt], void> {
     measuredAt = performance.now()
     const mm = measure(root, options.preset)
     yield true
-    return [mm, (yield* geometrySteps({ preset: options.preset, seed, ...mm.input })).geometry]
+    const geo = (yield* geometrySteps({ preset: options.preset, seed, ...mm.input })).geometry
+    // Ansichten (SVG-Knoten) je Segment in eigenen Teilstücken vorab; die Schreibphase hängt sie nur noch ein.
+    const t = chooseTier()
+    const forced = forcedColors()
+    const vs: SegView[] = []
+    for (const seg of geo.segments) {
+      vs.push(segmentView(seg, t, mm.input.baseWidth, forced))
+      yield
+    }
+    return [mm, geo, { tier: t, forced, views: vs }]
   }
 
   /**
@@ -612,16 +630,26 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     }
     let cancelled = false
     let handle: number | undefined
+    let frame: number | undefined
     const job = (stepped = {
       cancel() {
         cancelled = true
         win.cancelIdleCallback?.(handle)
+        win.cancelAnimationFrame?.(frame!)
       },
     })
     const next = (fn: () => void) => {
       handle = ric.call(win, () => cancelled || destroyed || fn(), { timeout: 300 })
     }
+    let primed = !win.requestAnimationFrame
     const run = () => {
+      // Das erste Idle-Callback läuft oft direkt nach anderem Idle-Code, der den Stil unsauber hinterlassen hat (≈ 5 ms
+      // Neuberechnung in der Lesephase, PF-04): erst einen Frame malen lassen, dann lesen.
+      if (!primed) {
+        primed = true
+        frame = win.requestAnimationFrame(() => next(run))
+        return
+      }
       const t1 = performance.now()
       let r: ReturnType<typeof steps.next>
       let ts: number
