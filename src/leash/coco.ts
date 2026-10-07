@@ -248,6 +248,8 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
   }
 
   function show(pose: string) {
+    // Reisemodus (P12.12): nur noch `rennen` – Brücken und Posenwechsel laufen im Hintergrund weiter, zeigen aber nichts
+    if (pose !== 'rennen' && el.hasAttribute('data-travel')) return
     const next = groups.get(pose) ?? null
     if (next !== on) {
       on?.removeAttribute('data-on')

@@ -22,7 +22,8 @@ class FakeNavigation extends EventTarget {
 
 function fakeCoco() {
   const x = { p: vi.fn(), s: vi.fn(), b: vi.fn() }
-  return { coco: { x, pose: () => 'sitzen' } as unknown as CocoController, x }
+  const el = document.createElement('div')
+  return { coco: { x, el, pose: () => 'sitzen' } as unknown as CocoController, x, el }
 }
 
 describe('transitionTarget', () => {
@@ -52,12 +53,15 @@ describe('attachTravel', () => {
   })
 
   it('Aufbruch zu einer Seite mit Übergang: Lauf-Pose und Boil an, nach Frist zurück', () => {
-    const { coco, x } = fakeCoco()
+    const { coco, x, el } = fakeCoco()
     attachTravel(coco)
     nav.go('http://localhost:3000/de/kontakt')
     expect(x.s).toHaveBeenCalledWith('rennen')
     expect(x.b).toHaveBeenCalledWith(true)
+    // Reisemodus gesetzt: laufende Brücken dürfen die Lauf-Pose nicht überschreiben (CI-Fund „bridge-bremsen“)
+    expect(el.hasAttribute('data-travel')).toBe(true)
     vi.advanceTimersByTime(1500)
+    expect(el.hasAttribute('data-travel')).toBe(false)
     expect(x.b).toHaveBeenLastCalledWith(false)
     expect(x.s).toHaveBeenLastCalledWith('sitzen')
   })

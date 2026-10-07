@@ -45,11 +45,13 @@ export function attachTravel(coco: CocoController): () => void {
   let timer: ReturnType<typeof setTimeout> | null = null
   const rest = () => {
     timer = null
+    coco.el.removeAttribute('data-travel')
     coco.x.b(false)
     coco.x.s(coco.pose())
   }
   const run = () => {
     coco.x.p?.() // laufende Warte-Aktion abbrechen
+    coco.el.setAttribute('data-travel', '') // Brücken-/Posenwechsel dürfen die Lauf-Pose nicht überschreiben
     coco.x.s('rennen')
     coco.x.b(true)
     if (timer !== null) clearTimeout(timer)
@@ -76,5 +78,6 @@ export function attachTravel(coco: CocoController): () => void {
     nav?.removeEventListener('navigate', onNavigate)
     document.removeEventListener('click', onClick, true)
     if (timer !== null) clearTimeout(timer)
+    coco.el.removeAttribute('data-travel')
   }
 }
