@@ -7,8 +7,10 @@
   --paper-deep: #BDD6CE;      /* Petrol-Hauch, Verlaufsende am Seitenende (U-11) */
   --paper-2: #DCE2C2;
   --paper-field: #F8F9EC;
-  --grid-line: rgb(47 107 76 / 0.05);
-  --grid-line-major: rgb(47 107 76 / 0.042);
+  --rule-line: rgb(15 76 87 / 0.12);       /* Linienpapier: Zeilenlinie, Petrol-Grau (U-12a) */
+  --rule-line-head: rgb(15 76 87 / 0.20);  /* kräftigere Linie unter dem Kopfband */
+  --rule-step: 32px;                       /* Zeilenabstand */
+  --rule-head: calc(var(--header-h) + 56px); /* Kopfleiste + Kopfband (1,75 Zeilen) */
 
   /* Tusche und Ton */
   --ink: #1C1A17;
@@ -17,7 +19,7 @@
   --clay: #CBBBA2;
 
   /* Akzente */
-  --mat: #2F6B4C;             /* nur noch Schneidematten-Raster und Flächen, kein Text */
+  --mat: #2F6B4C;             /* nur noch grüne Flächen, kein Text */
   --petrol: #0F4C57;          /* Akzent: Links, Knöpfe, Stempel (U-12) */
   --petrol-deep: #0A3841;     /* Hover und Fokus */
   --fox: #AA4515;

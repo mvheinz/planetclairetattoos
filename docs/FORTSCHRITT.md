@@ -6,6 +6,10 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 
 - Zuschnitt auf Kopf, Kappe, Bommeln und Fellkragen (kein Körper), 700×690 WebP ≈ 45 KB; Spalte verbreitert, Bild füllt sie. Pupillen: ruhiger Halt 3 s, 0,4 s Wechsel, beide Augen gleichzeitig, rein CSS, endlos (`--dur-koko-look` 6,8 s).
 - Tests: Unit (Koko), E2E `home-koko` (22 s, beide Seiten mehrfach, ruhige Halts), Build, Bundle-Budget.
+## 2026-10-07 – P12.2 (Nacharbeit) Linienpapier statt Karo
+
+- Seitengrund jetzt liniert wie ein Schreibblock statt kariert: Zeilenlinien alle 32 px in zartem Petrol-Grau, oben ein breiteres Kopfband (56 px) mit etwas kräftigerer Linie; der Olivgrün→Petrol-Verlauf bleibt darunter. Kein Rand-Strich links (die Tuschelinie läuft dort). Reines CSS, keine Bilder. Menü-Overlay und Vorschaubilder (OG) ebenfalls liniert; Raster-Tokens entfernt.
+- Tests: `tests/unit/design` (Kontrast gegen die dunkelste Linienstelle, Linien-Regeln), Details DESIGN §3.4.
 
 ## 2026-10-07 – P12.6 (Nacharbeit) Koko aus dem Foto
 

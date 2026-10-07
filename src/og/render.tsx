@@ -54,7 +54,7 @@ async function png(element: React.ReactElement): Promise<Response> {
   return new Response(body, { headers: { 'content-type': OG_CONTENT_TYPE } })
 }
 
-/** Standardbild (Papier-Raster, Planet-Marke, Wortmarke, Zeile „Tattoos & Unikate aus Berlin“, Coco). */
+/** Standardbild (Linienpapier, Planet-Marke, Wortmarke, Zeile „Tattoos & Unikate aus Berlin“, Coco). */
 export async function renderDefaultOg(locale: Locale): Promise<Response> {
   const art = await loadOgArt()
   return png(<DefaultOgImage tagline={og(locale).tagline} art={art} />)
