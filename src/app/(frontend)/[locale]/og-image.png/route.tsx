@@ -3,7 +3,7 @@ import { isLocale } from '@/lib/routes/paths'
 import { renderDefaultOg } from '@/og/render'
 
 // Standard-OG-Bild (P3.14, DESIGN §12.6, KONZEPT §3.0.5) für alle Seiten außer der Produktseite: `/de/og-image.png`,
-// `/en/og-image.png` – Papier-Raster, Planet-Marke, Wortmarke, Zeile „Tattoos & Unikate aus Berlin“, Coco. Beim Build
+// `/en/og-image.png` – Linienpapier, Planet-Marke, Wortmarke, Zeile „Tattoos & Unikate aus Berlin“, Coco. Beim Build
 // statisch erzeugt; scheitert das Erzeugen, liefert die Route `public/og/default.png`. `buildMetadata` verweist absolut
 // hierher.
 

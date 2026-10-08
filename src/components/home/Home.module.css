@@ -38,7 +38,7 @@
 
 @media (min-width: 1100px) {
   .home {
-    grid-template-columns: minmax(0, 1fr) clamp(16rem, 24vw, 20rem);
+    grid-template-columns: minmax(0, 1fr) clamp(17rem, 28vw, 22rem);
     grid-template-areas:
       'hero aside'
       'body aside'

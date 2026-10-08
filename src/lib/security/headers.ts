@@ -118,11 +118,12 @@ export function staticHeaderRules(o: { appEnv: AppEnvName; nodeEnv?: string }) {
 }
 
 /**
- * Coco-Sprite `public/art/coco-sprite.v{N}.svg`, nachgeladene Zusatz-Posen `coco-extra.v{N}.svg` (P12.4) und Fitness-Coco
- * `fitness-coco.v{N}.json` (P12.5) – neue Zeichnungen bekommen eine neue Nummer.
+ * Coco-Sprite `public/art/coco-sprite.v{N}.svg`, nachgeladene Zusatz-Posen `coco-extra.v{N}.svg` (P12.4), Koko `koko.v{N}.webp`
+ * (P12.6), Fitness-Coco Standbild `fitness-still.v{N}.webp` und Ablaufplan `fitness-coco.v{N}.json` (P12.5) – neue Zeichnungen
+ * bekommen eine neue Nummer.
  */
 export const IMMUTABLE_ART_SOURCE =
-  '/art/:file((?:coco-sprite|coco-extra|koko|fitness-still)\\.v\\d+\\.svg|fitness-coco\\.v\\d+\\.json)'
+  '/art/:file((?:coco-sprite|coco-extra)\\.v\\d+\\.svg|(?:koko|fitness-still)\\.v\\d+\\.webp|fitness-coco\\.v\\d+\\.json)'
 export const IMMUTABLE_CACHE = 'public, max-age=31536000, immutable'
 
 export interface PathContext {

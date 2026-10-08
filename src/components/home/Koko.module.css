@@ -1,50 +1,76 @@
-/* Koko, Vorsitzende der Goth Dogs Berlin (P12.6, U-08): feste Box, Zeichnung als Bild, nur die Pupillen bewegen sich. */
+/* Koko, Vorsitzende der Goth Dogs Berlin (P12.6, U-08): Büste als Bild, füllt die Spalte; nur die Pupillen bewegen sich.
+   Reines CSS, endlos (`infinite`), kein Skript und kein Timer – die Bewegung kann nicht anhalten. */
 .koko {
-  --koko-look: var(--dur-koko-look); /* ein Hin und Zurück der Pupillen */
+  /* ein Durchgang (Token): 3 s Blick links · 0,4 s hin · 3 s Blick rechts · 0,4 s zurück */
+  --koko-look: var(--dur-koko-look);
   position: relative;
-  aspect-ratio: 300 / 390;
+  aspect-ratio: 700 / 690;
   width: 100%;
-  max-width: 300px;
+  max-width: 24rem;
   color: var(--ink);
 }
 
-.drawing {
+.drawing,
+.eyes {
   display: block;
   width: 100%;
   height: 100%;
 }
 
-/* Pupillen: zwei kleine, leicht unregelmäßige Tintenflecken über den weißen Augen; Seitenblick nach rechts unten. */
-.pupil {
+.eyes {
   position: absolute;
-  background: var(--ink);
-  border-radius: 52% 48% 55% 45% / 50% 55% 45% 50%;
-  animation: koko-look var(--koko-look) var(--ease-swing) infinite;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
 }
 
-/* Hin und Zurück um ±60 % der Pupillenbreite (≈ ±5 Einheiten der Zeichnung); Ruhelage = Blick leicht nach links. */
+/* Pupillen: glänzend schwarz wie in Juttas Malerei, beide Augen im Gleichklang; Ruhelage = Blick nach links. */
+.look {
+  fill: #0d0b0f;
+  animation: koko-look var(--koko-look) linear infinite; /* Kurve je Abschnitt in den Keyframes (MO-02: nie die Standardkurve „ease“) */
+}
+
+/* Zeitpunkte für 6,8 s (Token --dur-koko-look): 0–44,1 % Halt links · 44,1–50 % schnell nach rechts (0,4 s) ·
+   50–94,1 % Halt rechts · 94,1–100 % schnell zurück. Sanft an- und auslaufend (--ease-swing), kein Zittern im Halt. */
 @keyframes koko-look {
   0%,
-  100% {
-    transform: translateX(-30%);
+  44.12% {
+    transform: translateX(0);
+    animation-timing-function: cubic-bezier(
+      0.45,
+      0,
+      0.55,
+      1
+    ); /* = --ease-swing (var() gilt in @keyframes nicht → sonst „ease“, MO-02) */
   }
-  50% {
-    transform: translateX(30%);
+  50%,
+  94.12% {
+    transform: translateX(var(--koko-travel));
+    animation-timing-function: cubic-bezier(
+      0.45,
+      0,
+      0.55,
+      1
+    ); /* = --ease-swing (var() gilt in @keyframes nicht → sonst „ease“, MO-02) */
+  }
+  100% {
+    transform: translateX(0);
   }
 }
 
+/* weniger Bewegung: Standbild – Blick nach links (wie im Original) */
 @media (prefers-reduced-motion: reduce) {
-  html:not([data-motion='full']) .pupil {
+  html:not([data-motion='full']) .look {
     animation: none;
   }
 }
 
-html[data-motion='reduced'] .pupil {
+html[data-motion='reduced'] .look {
   animation: none;
 }
 
 @media (forced-colors: active) {
-  .pupil {
-    background: CanvasText;
+  .look {
+    fill: CanvasText;
   }
 }

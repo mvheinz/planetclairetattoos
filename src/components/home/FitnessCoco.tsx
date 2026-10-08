@@ -5,15 +5,15 @@ import type { Locale } from '@/lib/routes/registry'
 
 import styles from './Home.module.css'
 
-// Fitness-Coco der Startseite (P12.5, U-09): Standbild einer Übung als <img> (feste Box 4:5, kein CLS, ≈ 3 KB, zählt
-// nicht zum Inline-SVG der Startseite, PF-10). Das Verhaltensmodul `fitness-coco` holt nach dem `load` die Bildfolge und
-// spielt die Endlosschleife (sieben Übungen + erschöpftes Liegen) auf einer Leinwand über dem Standbild; bei reduzierter
-// Bewegung bleibt das Standbild. Tusche schwarz, Buntstift orange mit Papierkörnung (gestrichelt). Keine Beschriftung in
-// der Zeichnung; Alt-Text DE/EN am Bild.
+// Fitness-Coco der Startseite (P12.5, U-09): Standbild (Ruhepose) als <img> (feste Box 4:5, kein CLS, ≈ 26 KB WebP, bewusst kein SVG: „SVG der
+// Startseite ≤ 60 KB“ (PF-10) zählt auch eigene .svg-Dateien). Das Verhaltensmodul `fitness-coco` holt nach dem `load` den kleinen Ablaufplan und
+// spielt die Endlosschleife (sieben Übungen + erschöpftes Liegen) aus dem Puppen-Gerüst (`src/lib/fitness/rig.ts`) auf einer
+// Leinwand über dem Standbild; bei reduzierter Bewegung bleibt das Standbild. Tusche schwarz, Buntstift orange, weiße Brust
+// und Pfoten bleiben Papier. Keine Beschriftung in der Zeichnung; Alt-Text DE/EN am Bild.
 
-/** Ausgelieferte Bildfolge und Standbild (Version im Dateinamen, `pnpm art:fitness`). */
-export const FITNESS_HREF = '/art/fitness-coco.v1.json'
-export const FITNESS_STILL_HREF = '/art/fitness-still.v1.svg'
+/** Ausgelieferter Ablaufplan und Standbild (Version im Dateinamen, `pnpm art:fitness`). */
+export const FITNESS_HREF = '/art/fitness-coco.v2.json'
+export const FITNESS_STILL_HREF = '/art/fitness-still.v2.webp'
 
 export async function FitnessCoco({ locale }: { locale: Locale }) {
   const t = await getTranslations({ locale, namespace: 'home' })

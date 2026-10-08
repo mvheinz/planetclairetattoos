@@ -19,6 +19,20 @@ describe('U-11 Seitengrund-Verlauf', () => {
     expect(body).toMatch(/background-color:\s*transparent/)
   })
 
+  it('U-12a Linienpapier: waagerechte Zeilen + Kopflinie, kein Raster, nur Verlaufsbilder (keine Anfrage)', () => {
+    const body = /\nbody \{([^}]*)\}/.exec(css)?.[1] ?? ''
+    const flatBody = body.replace(/\s+/g, ' ')
+    expect(flatBody).toContain('var(--rule-line-head)')
+    expect(flatBody).toContain('repeating-linear-gradient( 180deg')
+    expect(flatBody).not.toContain('90deg')
+    expect(flatBody).not.toMatch(/url\(/)
+    expect(flatBody).toContain('background-attachment: scroll')
+    expect(css).not.toMatch(/grid-line/)
+    expect(/@media \(forced-colors: active\) \{\s*body \{\s*background-image: none/.test(css)).toBe(
+      true,
+    )
+  })
+
   it('Scroll-Verbesserung nur unter no-preference, @supports und ohne data-motion=reduced', () => {
     const start = flat.indexOf('@media (prefers-reduced-motion: no-preference) { @supports')
     expect(start).toBeGreaterThan(-1)

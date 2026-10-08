@@ -149,6 +149,14 @@ const instagramFile = z
   .string()
   .regex(/^post-[A-Za-z0-9_-]+\.jpg$/, 'nur Beiträge (post-*.jpg), nie Highlights oder profil.jpg')
 
+/**
+ * Von Jutta selbst gelieferte Fotos (nicht aus Instagram): ausdrücklich freigegeben, mit `ownerApproved`.
+ * Eigene Dateien `content/seed/owner/own-*.webp|jpg`; Highlights und `profil.jpg` bleiben auch hier ausgeschlossen.
+ */
+const ownedFile = z
+  .string()
+  .regex(/^own-[a-z0-9-]+\.(webp|jpg)$/, 'nur eigene Fotos (own-*.webp|jpg) aus content/seed/owner')
+
 export const WASH_TOKENS = ['clay', 'pink', 'mat', 'sky'] as const
 
 export const mediaSchema = z.strictObject({
@@ -162,6 +170,19 @@ export const mediaSchema = z.strictObject({
       alt: l10n,
     }),
   ),
+  owned: z
+    .array(
+      z.strictObject({
+        key: localKey.refine((k) => /^own:[a-z0-9-]+$/.test(k), 'Schlüssel own:<name>'),
+        file: ownedFile,
+        focal: z.strictObject({ x: pct, y: pct }).optional(),
+        showsPerson: z.enum(SHOWS_PERSON),
+        /** Jutta hat die Veröffentlichung ausdrücklich verlangt (R-181). */
+        ownerApproved: z.boolean(),
+        alt: l10n,
+      }),
+    )
+    .default([]),
   placeholders: z.array(
     z.strictObject({
       key: localKey.refine((k) => /^ph:[a-z]+-\d+$/.test(k), 'Platzhalter-Schlüssel ph:<typ>-<n>'),

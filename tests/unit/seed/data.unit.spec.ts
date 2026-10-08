@@ -1,5 +1,5 @@
 import os from 'node:os'
-import { readFile } from 'node:fs/promises'
+import { readFile, stat } from 'node:fs/promises'
 import path from 'node:path'
 
 import sharp from 'sharp'
@@ -149,6 +149,20 @@ describe('Seed-Datendateien (zod, SEED-SPEC §2.1)', () => {
       expect(m.file).not.toMatch(/highlight|profil/)
       if (m.file === 'post-DdHXUQsDjqm.jpg') expect(m.key).toBe('ig:DdHXUQsDjqm#cap')
       expect(m.key.slice(3).split('#')[0]).toBe(m.file.slice(5, -4))
+    }
+  })
+
+  it('Eigene Fotos von Jutta: Datei vorhanden, freigegeben, ≤ 150 KB, zweisprachiger Alt-Text, im About-Text eingebunden', async () => {
+    const data = await loadSeedData({ dir, now })
+    expect(data.media.owned.length).toBeGreaterThan(0)
+    const about = JSON.stringify(data.pages.find((p) => p.key === 'about'))
+    for (const m of data.media.owned) {
+      const st = await stat(path.join(process.cwd(), 'content/seed/owner', m.file))
+      expect(st.size).toBeLessThanOrEqual(150 * 1024)
+      if (m.showsPerson === 'jutta') expect(m.ownerApproved, m.key).toBe(true)
+      expect(m.alt.de.length).toBeGreaterThan(20)
+      expect(m.alt.en?.length ?? 0).toBeGreaterThan(20)
+      expect(about).toContain(`media:${m.key}`)
     }
   })
 

@@ -23,3 +23,9 @@ Reihenfolge (Streifen 1 oben→unten, dann Streifen 2, dann Streifen 3):
 
 Danach beginnt die Schleife von vorn (Endlosschleife). Für die Animation: ruhiger Wechsel, je Übung ca. 4–6 s, Zwischenbilder
 im selben Strich, orange Buntstift-Schraffur mit Papierkörnung (keine glatten Flächen).
+
+## Umsetzung (Stand 07.10.2026)
+
+Neu gebaut als Puppen-Gerüst (`src/lib/fitness/rig.ts`, Ablauf `src/lib/fitness/timeline.ts`, Übungen `scripts/art/fitness-coco.ts`,
+`pnpm art:fitness`); Beschreibung und Entscheidungen in `docs/design/DESIGN.md` §10.9 und `docs/OFFENE-PUNKTE.md` (P12.5).
+Wer die Übungen ändert: in `scripts/art/fitness-coco.ts` die Terme je Übung anpassen (Winkel in Grad), `pnpm art:fitness`.

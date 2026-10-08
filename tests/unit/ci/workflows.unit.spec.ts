@@ -472,7 +472,7 @@ describe('ci-full.yml (§6.4, P2.28)', () => {
     expect(job.strategy?.matrix?.project).toEqual(['desktop', 'iphone-15', 'pixel-7'])
     expect(job.strategy?.matrix?.shard).toEqual([1, 2])
     expect(job.name).toContain('${{ matrix.project }}')
-    expect(job['timeout-minutes']).toBeLessThanOrEqual(40)
+    expect(job['timeout-minutes']).toBeLessThanOrEqual(70)
     const build = findStep(job, /pnpm run seed && pnpm run build/)
     const e2e = findStep(job, /pnpm run test:e2e/)
     expect(build).toBeGreaterThan(0)

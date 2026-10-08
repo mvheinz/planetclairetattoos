@@ -129,7 +129,7 @@
     "emptyText": "Gleich liegt alles wieder an seinem Platz. Bis dahin erreichst du mich per Mail.",
     "emptyAction": "Zum Kontakt",
     "stationCommissions": "Auftragsarbeiten",
-    "chairwomanAlt": "Koko, Vorsitzende der Goth Dogs Berlin",
+    "chairwomanAlt": "Koko, Vorsitzende der Goth Dogs Berlin: Kopf eines zotteligen schwarzen Hundes mit Narrenkappe und grünen Bommeln und spitzem Fellkragen, große Augen, die zur Seite schauen",
     "fitnessAlt": "Coco, die Hündin, macht Gymnastik auf zwei Beinen: sieben Übungen nacheinander, am Ende liegt sie erschöpft am Boden – dann geht es von vorn los.",
     "tour": {
       "heading": "Planet Claire on Tour",
@@ -138,6 +138,7 @@
       "empty": "Gerade ruht mein Tisch im Schrank. Neue Termine erscheinen hier.",
       "pastSummary": "Wo ich schon war ({count})",
       "cancelled": "abgesagt",
+      "next": "als Nächstes",
       "running": "läuft gerade",
       "stand": "Stand {number}",
       "link": "Zur Seite des Marktes",

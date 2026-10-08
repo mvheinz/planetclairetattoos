@@ -71,7 +71,7 @@ Gesichtet am 26.09.2026: alle 22 Bilder in `content/seed/instagram/` (Beiträge 
 | Figuren | Naiv, freie Proportionen; Tiere mit großen „Kulleraugen“ (weißes Oval, schwarzer Punkt, oft versetzt), lange Schnauzen, 2–3 lange Schnurrhaar-Striche (Keramikschalen, Fuchs-Aquarell, Cap-Wesen) | Coco-Augen groß und dunkel mit Glanzpunkt; Platzhalter-Zeichnungen im selben naiven Ton |
 | Farbe | Flache Deckfarbe hinter der Linie (Keramik grau, Cap-Wesen rot-orange), Aquarell mit weichen Rändern (Fuchs, Reh) | Im Web nur **flache** Farbflächen („Washes“) hinter der Linie, leicht versetzt |
 | Handschrift | Verbundene Schreibschrift mit langen Ober-/Unterlängen (Fliese, Cap „sometimes“, Schälchen) | Keine eigene Font (E-79); Spectral Italic (U-10) ersetzt sie |
-| Untergründe | Grüne Schneidematte mit cm-Raster, Papier, Holz; Tageslicht mit harten Schatten | Zartes Schneidematten-Raster als Seitengrund (E-74); Fotos auf Matte/Papier (§12.1) |
+| Untergründe | Grüne Schneidematte mit cm-Raster, Papier, Holz; Tageslicht mit harten Schatten | Zartes Linienpapier als Seitengrund (U-12a, löst das Matten-Raster E-74 ab); Fotos auf Matte/Papier (§12.1) |
 | Coco | Siehe §10.1 | Charakterblatt |
 
 ---
@@ -80,28 +80,28 @@ Gesichtet am 26.09.2026: alle 22 Bilder in `content/seed/instagram/` (Beiträge 
 
 ### 3.1 Finale Farb-Tokens mit gemessenen Kontrasten
 
-Kontrast nach WCAG 2.2 (relative Luminanz), neu berechnet am 06.10.2026 (P12.2, U-11/U-12: helles Olivgrün mit Verlauf nach Petrol). Spalten: **Papier** = `--paper` (Seitengrund am Seitenanfang), **Papier-2** = `--paper-2` (Karten, Preisschilder, Fußbereich), **Raster** = Farbe einer Raster-Hauptlinie auf Papier (`#D6DFC2`, §3.4), **Verlauf-Ende** = `--paper-deep` (Grund am Seitenende, §3.5; der Verlauf liegt zwischen Papier und Verlauf-Ende, jede Zwischenfarbe ist heller als dieses Ende, ein Text-Token besteht also im ganzen Verlauf). Formularfelder (`--paper-field`) sind heller als Papier und damit immer mindestens so kontrastreich.
+Kontrast nach WCAG 2.2 (relative Luminanz), neu berechnet am 06.10.2026 (P12.2, U-11/U-12: helles Olivgrün mit Verlauf nach Petrol). Spalten: **Papier** = `--paper` (Seitengrund am Seitenanfang), **Papier-2** = `--paper-2` (Karten, Preisschilder, Fußbereich), **Linie** = Farbe der kräftigeren Kopflinie des Linienpapiers auf Papier (`#BBCAB5`, §3.4; die dunkelste Stelle des Seitengrunds, die normalen Zeilenlinien sind heller), **Verlauf-Ende** = `--paper-deep` (Grund am Seitenende, §3.5; der Verlauf liegt zwischen Papier und Verlauf-Ende, jede Zwischenfarbe ist heller als dieses Ende, ein Text-Token besteht also im ganzen Verlauf). Formularfelder (`--paper-field`) sind heller als Papier und damit immer mindestens so kontrastreich.
 
-| Token | Hex | Rolle | Papier | Papier-2 | Raster | Verlauf-Ende | Freigabe |
+| Token | Hex | Rolle | Papier | Papier-2 | Linie | Verlauf-Ende | Freigabe |
 |---|---|---|---|---|---|---|---|
 | `--paper` | `#E6EACD` | Seitengrund oben (helles Olivgrün) | – | – | – | – | Grund |
 | `--paper-deep` | `#BDD6CE` | Seitengrund unten (Petrol-Hauch), Ende des Scroll-Verlaufs | – | – | – | – | Grund |
 | `--paper-2` | `#DCE2C2` | Karten, Preisschild, Fußbereich, Callouts | – | – | – | – | Grund |
 | `--paper-field` | `#F8F9EC` | Formularfelder, Lightbox-Grund | – | – | – | – | Grund |
-| `--ink` | `#1C1A17` | **Tuschelinie**, Text, Icons | 14,07 | 12,98 | 12,56 | 11,31 | Text jeder Größe |
-| `--ink-2` | `#4B463F` | Sekundärtext, Meta, Feldränder | 7,57 | 6,99 | 6,76 | 6,09 | Text jeder Größe; UI-Ränder |
-| `--ink-3` | `#524C43` | Platzhaltertext in Feldern, deaktiviert | 6,88 | 6,35 | 6,14 | 5,53 | Text jeder Größe (nur diese Rollen) |
-| `--clay` | `#CBBBA2` | Trennlinien, Deko-Ränder | 1,52 | 1,41 | 1,36 | 1,22 | **nur Deko** (nie Text, nie einzige Grenze eines Bedienelements) |
-| `--mat` | `#2F6B4C` | Schneidematten-Raster, grüne Flächen | – | – | – | – | **nur Deko/Fläche** (kein Text mehr; Links sind `--petrol`) |
-| `--petrol` | `#0F4C57` | **Akzent (U-12):** Links, Primärknöpfe, „sold“-Stempel, Fokus-Grundton | 7,76 | 7,16 | 6,93 | 6,24 | Text jeder Größe |
-| `--petrol-deep` | `#0A3841` | Hover, Fokusring | 10,28 | 9,49 | 9,18 | 8,26 | Text jeder Größe; Fokusring |
-| `--fox` | `#AA4515` | Deko-Akzente (Warenkorb-Hinweis) | 4,76 | 4,40 | 4,25 | 3,83 | **nur Text ≥ 24 px** (groß, ≥ 3:1) oder Deko |
-| `--fox-text` | `#843709` | Hinweistext in Fuchs, Countdown < 1 min | 6,72 | 6,20 | 6,00 | 5,40 | Text jeder Größe |
-| `--stencil` | `#4638A8` | Info-Badges (Deko-Hinweis), Flash-Status | 7,11 | 6,57 | 6,35 | 5,72 | Text jeder Größe |
-| `--pink` | `#E58FB0` | Cap-Pink, kleine Flächenakzente | 1,91 | 1,77 | 1,71 | 1,54 | **nur Fläche/Deko** |
-| `--warn` | `#714300` | Warnhinweise, Countdown < 5 min | 6,79 | 6,27 | 6,07 | 5,46 | Text jeder Größe |
-| `--error` | `#92211A` | Formularfehler | 6,93 | 6,40 | 6,19 | 5,57 | Text jeder Größe |
-| `--ok` | `#1B5538` | Erfolgsmeldungen | 7,08 | 6,53 | 6,32 | 5,69 | Text jeder Größe |
+| `--ink` | `#1C1A17` | **Tuschelinie**, Text, Icons | 14,07 | 12,98 | 10,11 | 11,31 | Text jeder Größe |
+| `--ink-2` | `#4B463F` | Sekundärtext, Meta, Feldränder | 7,57 | 6,99 | 5,44 | 6,09 | Text jeder Größe; UI-Ränder |
+| `--ink-3` | `#524C43` | Platzhaltertext in Feldern, deaktiviert | 6,88 | 6,35 | 4,94 | 5,53 | Text jeder Größe (nur diese Rollen) |
+| `--clay` | `#CBBBA2` | Trennlinien, Deko-Ränder | 1,52 | 1,41 | 1,09 | 1,22 | **nur Deko** (nie Text, nie einzige Grenze eines Bedienelements) |
+| `--mat` | `#2F6B4C` | grüne Flächen | – | – | – | – | **nur Deko/Fläche** (kein Text mehr; Links sind `--petrol`) |
+| `--petrol` | `#0F4C57` | **Akzent (U-12):** Links, Primärknöpfe, „sold“-Stempel, Fokus-Grundton | 7,76 | 7,16 | 5,58 | 6,24 | Text jeder Größe |
+| `--petrol-deep` | `#0A3841` | Hover, Fokusring | 10,28 | 9,49 | 7,39 | 8,26 | Text jeder Größe; Fokusring |
+| `--fox` | `#AA4515` | Deko-Akzente (Warenkorb-Hinweis) | 4,76 | 4,40 | 3,42 | 3,83 | **nur Text ≥ 24 px** (groß, ≥ 3:1) oder Deko |
+| `--fox-text` | `#843709` | Hinweistext in Fuchs, Countdown < 1 min | 6,72 | 6,20 | 4,83 | 5,40 | Text jeder Größe |
+| `--stencil` | `#4638A8` | Info-Badges (Deko-Hinweis), Flash-Status | 7,11 | 6,57 | 5,11 | 5,72 | Text jeder Größe |
+| `--pink` | `#E58FB0` | Cap-Pink, kleine Flächenakzente | 1,91 | 1,77 | 1,38 | 1,54 | **nur Fläche/Deko** |
+| `--warn` | `#714300` | Warnhinweise, Countdown < 5 min | 6,79 | 6,27 | 4,88 | 5,46 | Text jeder Größe |
+| `--error` | `#92211A` | Formularfehler | 6,93 | 6,40 | 4,98 | 5,57 | Text jeder Größe |
+| `--ok` | `#1B5538` | Erfolgsmeldungen | 7,08 | 6,53 | 5,09 | 5,69 | Text jeder Größe |
 
 Kunst-Farben (nur in Zeichnungen, nie für UI-Text):
 
@@ -127,7 +127,7 @@ Die Werte stammten ursprünglich aus der Konzeptseite; in P12.2 (U-10 … U-12) 
 5. **Zustände nie nur über Farbe:** Fehler = Text + Icon; „sold“ = Stempel-Text; aktiv = Unterstreichung + `aria-current`.
 6. **Statusfarben:** Erfolg `--ok`, Warnung `--warn`, Fehler `--error`, Info `--stencil`. Fuchs ist **kein** Fehlerrot (Fuchs ist nur Deko-Akzent).
 
-**AK-DS-01** Ein Vitest-Test liest `src/styles/tokens.css`, berechnet für jede Paarung aus §3.1 den Kontrast und schlägt fehl, wenn ein als „Text jeder Größe“ freigegebenes Token gegen Papier, Papier-2, Raster (`#D6DFC2`) oder Verlauf-Ende (`--paper-deep`) unter 4,50 liegt.
+**AK-DS-01** Ein Vitest-Test liest `src/styles/tokens.css`, berechnet für jede Paarung aus §3.1 den Kontrast und schlägt fehl, wenn ein als „Text jeder Größe“ freigegebenes Token gegen Papier, Papier-2, Linie (`#BBCAB5`) oder Verlauf-Ende (`--paper-deep`) unter 4,50 liegt.
 **AK-DS-02** Ein Lint-Test durchsucht `src/**/*.{css,scss,tsx}` und schlägt fehl bei `color: var(--fox)` außerhalb der Komponenten `SoldStamp` und `CartLine` (Stempel-Text „sold“ ≥ 24 px, KO-13), bei `color: var(--pink|--clay|--coco-*|--wash-*)` und bei `#FFF`/`#FFFFFF`/`white` als Textfarbe.
 
 ### 3.3 Nur hell – Entscheidung zum Dunkelmodus
@@ -137,36 +137,33 @@ Die Werte stammten ursprünglich aus der Konzeptseite; in P12.2 (U-10 … U-12) 
 - `<meta name="theme-color" content="#E6EACD">`.
 - Die Konzeptseite hatte Dunkel-Tokens für ihre eigene Darstellung; sie werden **nicht** übernommen.
 - **Verwaltung:** behält das Payload-Standard-Theme (hell/dunkel nach Payload-Einstellung). Eigene Handy-Ansichten (P5) nutzen Payload-CSS-Variablen (`--theme-*`), nicht die Website-Tokens. Einzige Übernahmen: Planet-Marke als Login-Logo und PWA-Icon (§12.6).
-- **Erzwungene Farben** (Windows-Kontrastmodus, `@media (forced-colors: active)`): Raster aus, Linie und Coco-Striche `stroke: CanvasText`, Washes und Fell `fill: none`, Fokus `outline-color: Highlight`.
-- **Druck** (`@media print`): Raster, Linie, Coco, Kopf-Menüknopf ausblenden; Text `#000` auf Weiß; Links mit URL in Klammern nur in Rechtstexten.
+- **Erzwungene Farben** (Windows-Kontrastmodus, `@media (forced-colors: active)`): Zeilenlinien aus, Linie und Coco-Striche `stroke: CanvasText`, Washes und Fell `fill: none`, Fokus `outline-color: Highlight`.
+- **Druck** (`@media print`): Zeilenlinien, Linie, Coco, Kopf-Menüknopf ausblenden; Text `#000` auf Weiß; Links mit URL in Klammern nur in Rechtstexten.
 
 **AK-DS-03** Playwright rendert Startseite, Produktseite und Kasse mit `colorScheme: 'dark'` und `colorScheme: 'light'` bei `reducedMotion: 'reduce'`; die Screenshots sind pixelgleich.
 
-### 3.4 Schneidematten-Raster (Seitengrund)
+### 3.4 Linienpapier (Seitengrund, U-12a)
 
-Zartes Raster wie auf Juttas grüner Matte (E-74): Nebenlinien alle 32 px, Hauptlinien alle 160 px (5 Felder). Die Hauptlinie ist so gewählt, dass sie zusammen mit der darunterliegenden Nebenlinie genau 9 % Matte ergibt. Seit P12.2 liegt das Raster auf dem Verlauf aus §3.5: `body` hat keine eigene Grundfarbe (`transparent`), der Grund kommt von `html`.
+Der Seitengrund ist **liniert wie ein Schreibblock** (amerikanischer Legal Pad, A4 hoch), nicht kariert: waagerechte Zeilenlinien in Petrol-Grau (`rgb(15 76 87)`), 1 px, alle `--rule-step` = 32 px (liegt im Rhythmus der Fließtext-Zeile 17 px × 1,62 ≈ 27,5 px bis 32 px – Text steht freundlich „auf“ den Linien, ohne sie zu erzwingen). Unter der Kopfleiste (sie ist deckend und `--header-h` hoch) liegt ein **Kopfband** von 56 px (1,75 Zeilen; `--rule-head` = Kopfleiste + 56 px) mit einer kräftigeren Linie (`--rule-line-head`, 20 %) darunter; erst darunter beginnen die normalen Zeilenlinien (`--rule-line`, 12 %). Das Linienpapier liegt auf dem Verlauf aus §3.5: `body` hat keine eigene Grundfarbe (`transparent`), der Grund kommt von `html`. Das alte Schneidematten-Raster (E-74, Tokens `--grid-line*`) ist entfernt.
 
 ```css
 body {
   background-color: transparent; /* Grund + Verlauf liegen auf html (§3.5) */
   background-image:
-    linear-gradient(var(--grid-line-major) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line-major) 1px, transparent 1px),
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: 160px 160px, 160px 160px, 32px 32px, 32px 32px;
-  background-position: -1px -1px;
+    linear-gradient(var(--rule-line-head), var(--rule-line-head)),       /* Kopflinie */
+    repeating-linear-gradient(180deg, transparent 0, transparent calc(var(--rule-step) - 1px),
+      var(--rule-line) calc(var(--rule-step) - 1px), var(--rule-line) var(--rule-step)); /* Zeilen */
+  background-size: 100% 1px, 100% 24000px;
+  background-repeat: no-repeat;
+  background-position: 0 calc(var(--rule-head) - 1px), 0 var(--rule-head);
   background-attachment: scroll; /* nie fixed (Repaint beim Scrollen) */
 }
 ```
 
-| Linie | Deckkraft Matte | effektive Farbe auf Papier |
-|---|---|---|
-| Nebenlinie `--grid-line` | 5 % | `#DDE4C7` |
-| Hauptlinie (`--grid-line-major` über Nebenlinie) | 9 % gesamt | `#D6DFC2` |
-
-- Das Raster liegt nur auf `body`. Karten, Preisschilder, Fußbereich, Formularfelder, Menü-Overlay (Papier deckend mit eigenem Raster) und Lightbox decken es ab.
-- Kreuzungspunkte (einzelne Pixel) werden für Kontrast nicht gewertet.
+- Reines CSS, kein Bild und keine Anfrage. Die Zeilenebene ist ein hohes Verlaufsbild ab dem Kopfband (nicht wiederholt, auf den body-Kasten beschnitten), damit über der Kopflinie keine zusätzliche Zeile erscheint.
+- **Kein Rand-Strich links:** Die Tuschelinie läuft in der linken Rinne (§5.3); eine Rand-Linie würde mit ihr kollidieren.
+- Die Zeilenlinien liegen nur auf `body`. Karten, Preisschilder, Fußbereich, Formularfelder, Menü-Overlay (Papier deckend mit eigenen Zeilenlinien) und Lightbox decken sie ab. Erzwungene Farben und Druck: keine Linien.
+- Kontrast: Text-Tokens werden gegen die dunkelste Linienstelle (Kopflinie auf Papier, `#BBCAB5`) geprüft (AK-DS-01); einzelne 1-px-Linien sind kein Grund einer Textfläche.
 - Kein Papierkorn-Bild in P2. P9 DARF ein Papierkorn ergänzen, wenn Prüfer:in R1 (KUNST-QA) es verlangt, nur als Kachel ≤ 12 KB und nur, wenn AK-DS-01 mit der dunkelsten Korn-Farbe weiter besteht.
 
 ### 3.5 Seitengrund-Verlauf Olivgrün → Petrol (U-11, P12.2)
@@ -174,7 +171,7 @@ body {
 - **Grundton:** helles Olivgrün `--paper` (`#E6EACD`). **Verlaufsende:** `--paper-deep` (`#BDD6CE`, Petrol-Hauch) – bewusst nur so dunkel, dass jeder Text-Token (§3.1) und die Tuschelinie auch am Seitenende ≥ 4,5:1 halten; Karten (`--paper-2`), Felder und Menü bleiben deckend hell.
 - **Grundfassung (immer):** `html` trägt `linear-gradient(180deg, var(--paper), var(--paper-deep))` über die ganze Dokumentlänge. Der Verlauf scrollt mit dem Inhalt (Leinwand-Hintergrund, kein Layout, kein Repaint) und ist **statisch** bei `prefers-reduced-motion: reduce`, bei `html[data-motion='reduced']` und in Browsern ohne Scroll-Zeitleiste.
 - **Verbesserung (CSS-only):** Mit `@supports (animation-timeline: scroll())`, `prefers-reduced-motion: no-preference` und ohne `data-motion='reduced'` legt `html::before` eine feste Fläche (`position: fixed`, `z-index: -1`, Verlauf transparent → `--paper-deep`) hinter den Inhalt, deren **`opacity` 0 → 1** über die Scrollstrecke (`animation-timeline: scroll(root block)`) läuft. Es ist ein einziger Compositor-Layer ohne JavaScript, ohne Layout und Repaint; der Verlauf gehört **nicht** in die Leine-Engine (Budget CO-08/PF-01, Engine ≤ 12 000 B gz unberührt). Wirkt unabhängig von der Seitenlänge: Am Seitenende ist der Grund immer am dunkelsten.
-- **Test:** AK-DS-01 prüft alle Text-Tokens gegen Papier, Papier-2, Raster und Verlauf-Ende; `tests/unit/design/page-gradient.unit.spec.ts` prüft die CSS-Regeln (statische Fassung, Scroll-Zeitleiste nur unter `no-preference`, nur `opacity` animiert).
+- **Test:** AK-DS-01 prüft alle Text-Tokens gegen Papier, Papier-2, Linie und Verlauf-Ende; `tests/unit/design/page-gradient.unit.spec.ts` prüft die CSS-Regeln (statische Fassung, Scroll-Zeitleiste nur unter `no-preference`, nur `opacity` animiert).
 
 ---
 
@@ -362,7 +359,7 @@ Schraffur-Muster als Inline-SVG-Data-URI (≤ 300 Byte), kein Bild-Request.
 
 ### 6.4 Texturen und Filter
 
-- Erlaubt: Schneidematten-Raster (§3.4), Schraffur (§6.3), Washes als Flächen in SVGs.
+- Erlaubt: Linienpapier (§3.4), Schraffur (§6.3), Washes als Flächen in SVGs.
 - `filter: url(#ink-rough)` (feTurbulence `baseFrequency 0.9`, `numOctaves 1`, feDisplacementMap `scale 0.8`) **nur** auf statischen Elementen ≤ 200×200 px: Stempel, Stationsmarken, Planet der Wortmarke. **Nie** auf der Tuschelinie, auf Coco oder auf animierten Elementen. Definiert einmal im `AppShell` in einem versteckten `<svg width="0" height="0" aria-hidden="true">` zusammen mit dem Schraffur-Muster.
 - `mix-blend-mode: multiply` nur auf dem Stempel (druckt „ins“ Schild).
 
@@ -391,8 +388,10 @@ P2 legt `src/styles/tokens.css` exakt mit diesem Inhalt an (Werte sind verbindli
   --paper-deep: #BDD6CE;      /* Petrol-Hauch, Verlaufsende am Seitenende (U-11) */
   --paper-2: #DCE2C2;
   --paper-field: #F8F9EC;
-  --grid-line: rgb(47 107 76 / 0.05);
-  --grid-line-major: rgb(47 107 76 / 0.042);
+  --rule-line: rgb(15 76 87 / 0.12);       /* Linienpapier: Zeilenlinie, Petrol-Grau (U-12a) */
+  --rule-line-head: rgb(15 76 87 / 0.20);  /* kräftigere Linie unter dem Kopfband */
+  --rule-step: 32px;                       /* Zeilenabstand */
+  --rule-head: calc(var(--header-h) + 56px); /* Kopfleiste + Kopfband (1,75 Zeilen) */
 
   /* Tusche und Ton */
   --ink: #1C1A17;
@@ -401,7 +400,7 @@ P2 legt `src/styles/tokens.css` exakt mit diesem Inhalt an (Werte sind verbindli
   --clay: #CBBBA2;
 
   /* Akzente */
-  --mat: #2F6B4C;             /* nur noch Schneidematten-Raster und Flächen, kein Text */
+  --mat: #2F6B4C;             /* nur noch grüne Flächen, kein Text */
   --petrol: #0F4C57;          /* Akzent: Links, Knöpfe, Stempel (U-12) */
   --petrol-deep: #0A3841;     /* Hover und Fokus */
   --fox: #AA4515;
@@ -513,7 +512,7 @@ P2 legt `src/styles/tokens.css` exakt mit diesem Inhalt an (Werte sind verbindli
   --dur-swing: 900ms;
   --dur-stamp: 260ms;
   --dur-hop: 360ms;
-  --dur-koko-look: 9000ms;
+  --dur-koko-look: 6800ms;
   --dur-menu-open: 420ms;
   --dur-menu-close: 180ms;
   --stagger: 40ms;
@@ -560,7 +559,7 @@ Jede Komponente: **Zweck · Aufbau · Maße · Zustände · Bewegung · Barriere
 
 ### KO-03 Menü (`MenuOverlay`)
 
-- **Aufbau:** natives `<dialog id="menu" aria-label="Menü">` (modal, `showModal()`), Vollbild, Grund `--paper` mit eigenem Raster. Oben: Wortmarke + Knopf „Schließen“ (Text + Icon). Hauptliste (KONZEPT §3.0.2) in Spectral `--fs-menu`: Start · Shop · Archiv · Auftragsarbeiten · Tattoo · Über mich & Coco · Kontakt. Unter „Shop“ klein (Bricolage 17 px) die Kategorien; unter „Tattoo“ die Tattoo-Unterseiten. Unten: Sprachumschalter „Deutsch · English“, Instagram-Link, Pflichtlinks klein inkl. „Vertrag widerrufen“. Rechts unten schaut Coco herein (Pose `kopfschief`, Größe `--coco-m`, `aria-hidden`).
+- **Aufbau:** natives `<dialog id="menu" aria-label="Menü">` (modal, `showModal()`), Vollbild, Grund `--paper` mit eigenen Zeilenlinien. Oben: Wortmarke + Knopf „Schließen“ (Text + Icon). Hauptliste (KONZEPT §3.0.2) in Spectral `--fs-menu`: Start · Shop · Archiv · Auftragsarbeiten · Tattoo · Über mich & Coco · Kontakt. Unter „Shop“ klein (Bricolage 17 px) die Kategorien; unter „Tattoo“ die Tattoo-Unterseiten. Unten: Sprachumschalter „Deutsch · English“, Instagram-Link, Pflichtlinks klein inkl. „Vertrag widerrufen“. Rechts unten schaut Coco herein (Pose `kopfschief`, Größe `--coco-m`, `aria-hidden`).
 - **Unterstreichung:** jeder Hauptlink trägt ein Inline-SVG `LinkUnderline` (drei Pfadvarianten, Wahl per Hash des `href`), 100 % Linkbreite + 8 px Überstand, Strich `--stroke-ink`, `--ink`. Zustände: unsichtbar → bei Hover (nur `(hover: hover) and (pointer: fine)`), `:focus-visible` und `:active` wird sie gezeichnet (MI-06); aktuelle Seite: statisch gezeichnet + `aria-current="page"`.
 - **Öffnen/Schließen:** MI-05. `Esc` und „Schließen“ schließen; Fokus kehrt zum Menü-Knopf zurück; `<html>` bekommt `overflow: hidden` + `scrollbar-gutter: stable` (keine Verschiebung). Klick auf einen Link schließt das Menü sofort (ohne Schließ-Animation) und navigiert.
 - **Ohne JavaScript:** der Menü-Knopf ist ein Link `#fussnavigation` auf die Navigation im Fußbereich.
@@ -581,7 +580,7 @@ Jede Komponente: **Zweck · Aufbau · Maße · Zustände · Bewegung · Barriere
   5. Schalter „Animationen: an/aus“ (§11.7).
   6. Preis-Fußnote nur auf Seiten mit Preisen (Text aus KONZEPT §3.4, Sternchen-Bezug).
   7. Zeile „© {Jahr} Planet Claire · Berlin“ in `--ink-2`.
-- **Optik:** Grund `--paper-2` (deckt Raster), obere Kante eine statische Handlinie `--ink` 1.5px; Links Bricolage 400 15 px in `--ink`, unterstrichen, Zielhöhe ≥ 44 px mobil; Spalten ab 768 (Rechtliches | Seiten | Sprache & Einstellungen).
+- **Optik:** Grund `--paper-2` (deckt die Zeilenlinien), obere Kante eine statische Handlinie `--ink` 1.5px; Links Bricolage 400 15 px in `--ink`, unterstrichen, Zielhöhe ≥ 44 px mobil; Spalten ab 768 (Rechtliches | Seiten | Sprache & Einstellungen).
 - **Linie:** Die Tuschelinie endet oberhalb des Fußbereichs oder verlässt die Seite am unteren Rand der Rinne; sie kreuzt nie einen Fußbereich-Link (§9.9).
 - **Tests:** AK-DS-09 (ergänzt KONZEPT AK-3-11).
 
@@ -627,6 +626,7 @@ Flohmarkt-Anhänger, handgeschrieben, an der Schnur hängend (E-77).
 
 - **Raster:** §5.4. Die Linie läuft als Schnur durch jede Kartenreihe (§9.7 `shopString`).
 - **Filter-Chips** (KONZEPT §3.2): horizontale Reihe, mobil seitlich scrollbar (`overflow-x: auto`, Scroll-Snap, sichtbarer Fade-Rand rechts als Hinweis), Chips = Links. Chip: Höhe 40 px + 2 px Außenabstand (Zielfläche 44), Bricolage 500 15 px, Rand 1.5 px `--ink`, `--r-btn`, Grund `--paper`. Aktiv: Grund `--ink`, Text `--paper`, `aria-current="page"`. Zustandswechsel ohne Animation (ruhiger Shop).
+- **Kategorie-Karten (P12.15, ersetzen die reinen Text-Chips der Kategorien):** jede Kategorie (und „Alle“) ist ein Link-Karte: quadratische Coco-Kachel (1:1, `object-fit: cover`, `aspect-ratio`, 150 × 150 px WebP ≤ 5 KB, Rand 1.5 px `--ink`, leicht schiefe Ecken) mit darunterliegender Etikett-Pille (Höhe 36 px). Alle Karten exakt gleich groß: Breite 104 px mobil (seitlich scrollbar wie zuvor, Fade-Rand), 128 px ab 768 (eine Reihe, bei Bedarf Umbruch). Je Kategorie ein anderes Coco-Foto (Zuordnung `src/lib/shop/categoryTiles.ts`, Dateien `public/shop-tiles/*.v1.webp` aus `content/seed/instagram/highlight-*.jpg`). Bild `alt=""` (dekorativ, das Etikett benennt den Link), feste `width`/`height` (kein CLS). Aktiv: Etikett invertiert plus Doppelring um die Kachel. Fokusring um die ganze Karte. Kein Goth-Rahmen (bei 104 px zu schwer), nur die dünne Tuschelinie.
 - **„nur verfügbare“:** als Chip-Umschalter mit Häkchen-Icon (Link auf `?available=1`, KONZEPT §3.2).
 - **„Mehr zeigen“:** Sekundärknopf (KO-11) als echter Link `?page=n+1`, mittig unter dem Raster.
 - **Fußnote:** Preis-/Versandhinweis einmal pro Seite (KONZEPT §3.4) unter dem Raster, Bricolage 14 px `--ink-2`.
@@ -1254,6 +1254,10 @@ Maßgeblich für leere Zustände und die Danke-Seite sind die Tabellen in KO-17 
 ### 10.9 Fitness-Coco und Koko (P12.5, P12.6; U-09, U-08)
 
 - **Fitness-Coco** (Station „Hallo“ der Startseite, ersetzt die große sitzende Coco): sieben Übungen nach `content/art/jutta-skizzen/FITNESS-COCO.md` in Juttas Reihenfolge (Body wave, Body bounce, Single arm raises, Body bounces with hip rotation, Chest opener, Straight arm trunk twist, Arm raises both arms), danach liegt Coco erschöpft ausgestreckt mit Zunge; Endlosschleife (≈ 42 s). Je Übung ≈ 5 s und 12–20 gezeichnete Zwischenbilder (10 Bilder/s, jedes Bild neu nachgezogen = Zittern), vor jeder Übung ein weicher Übergang (3 Bilder). Tuschelinie schwarz, **zarter oranger Buntstift-Strich** im Fell (kreuzfreie Schraffur, gestrichelt = Papierkörnung, die Linie bleibt schwarz); weiße Brust/Pfoten bleiben Papier; Bodenlinie dick und mehrfach übermalt; **keine Beschriftung**; rechtes Ohr geknickt. Standbild als `<img>` (`public/art/fitness-still.v{N}.svg`, ≈ 3 KB, feste Box 4:5 – kein Inline-SVG, damit „SVG der Startseite ≤ 60 KB“ hält), Bildfolge `public/art/fitness-coco.v{N}.json` (≤ 150 KB gz) nach dem `load` per Modul `fitness-coco`, gespielt auf einer Leinwand (`Path2D`) über dem Standbild; pausiert im verborgenen Tab, außerhalb des Bildes und bei „Animationen aus“/reduzierter Bewegung (dann Standbild). Alt-Text DE/EN (`home.fitnessAlt`). Quelle: `pnpm art:fitness` (`scripts/art/fitness-coco.ts`).
+- **Koko, Vorsitzende der Goth Dogs Berlin** (U-08): **Juttas Malerei selbst**, freigestellt und gesäubert (`python3 scripts/art/koko-cutout.py`, Vorlage `content/art/jutta-skizzen/koko-vorsitzende-goth-dogs-01.jpg`), **nur als Büste** (Wunsch 07.10.: Koko war zu klein, kein Unterkörper): Kopf mit Narrenkappe, Bommeln und spitzem Fellkragen, der Schnitt folgt den Kragenzacken (Orange-/Weißreste am Rand entfernt) – kein Körper, keine Pfoten, kein Schwanz, kein Knochenkreuz, keine Schrift, kein Shirt. Weiße Flächen zu Warmweiß, Tuschestrich und Fellstruktur unverändert, Kanten folgen der Tusche. Auslieferung `public/art/koko.v{N}.webp` (RGBA, 700×690, ≈ 45 KB, Budget 80 KB). Die Spalte ist breiter (`clamp(17rem, 28vw, 22rem)`), das Bild füllt sie (≈ 1,6× so groß wie der frühere Kopf), feste Seitenverhältnisbox (kein CLS). Original-Pupillen im Bild übermalt (Augapfel = Weiß mit Lidstrich); darüber ein kleines Inline-SVG (< 1 KB) mit je Auge einer Ellipse, beschnitten auf den Augapfel; Daten in `src/art/koko/koko.json`. **Nur die Augen bewegen sich: links und rechts**, beide Pupillen im Gleichklang, in reinem CSS ohne Skript/Timer, `infinite` (`--dur-koko-look` = 6,8 s): 3 s ruhiger Halt links → 0,4 s schneller, weicher Wechsel (`--ease-swing`) → 3 s Halt rechts → 0,4 s zurück; im Halt kein Zittern. Reduzierte Bewegung/„Animationen aus“: Standbild, Blick nach links wie im Original. Komponente `ChairwomanKoko` (Platz `data-slot="chairwoman"`, oben in der rechten Spalte), Alt-Text DE/EN beschreibt den Hund (`home.chairwomanAlt`). Test: `tests/e2e/home-koko.e2e.spec.ts` (22 s Dauerlauf: beide Seiten mehrfach, Halts ruhig).
+- **Fitness-Coco** (Station „Hallo“ der Startseite, ersetzt die große sitzende Coco; **neu gebaut am 07.10.2026**, weil die erste Fassung – eine Bildfolge aus code-gezeichneten Strichfiguren – nicht nach Coco aussah): Coco steht aufrecht auf den Hinterbeinen, die Vorderbeine sind Arme. Sie ist ein **Puppen-Gerüst** (`src/lib/fitness/rig.ts`): kleines 3D-Skelett (Becken, Wirbelsäule, Kopf, Arme, Beine mit Zwei-Knochen-IK, Schwanzkette), jedes Bild wird daraus gezeichnet – Gliedmaßen als weich gebogene Röhren (Catmull-Rom), Rumpf aus Querschnitten (dreht sich echt bei Twist und Seitenansicht), Kopf als Kugel mit Schnauze (Blesse, große dunkle Augen mit Glanzpunkt, Lider, schwarze Nase, Mund, Zunge), hohe Ohren (**rechtes Ohr, im Bild links, ist immer geknickt**, U-07), rotes Halsband mit D-Ring wie auf dem Coco-Sprite. Strich wie Juttas Skizzen: schwarze Tusche mit leichtem Zittern, offene Konturen mit Absetzern und kleinem Haken am Ende; **orange Buntstift-Schraffur** (kurze Schrägstriche immer in derselben Richtung, kreuzfrei, körnig unterbrochen, am Fell haftend – wandert mit dem Körperteil, wächst beim Wegdrehen ein/aus statt aufzuploppen) auf einer zarten **Wasch-Fläche** (`#F1DCB8`, wie im Sprite); weiße Brust, Schnauze, Blesse, Pfoten und Schwanzspitze bleiben Papier (`--paper`); Bodenlinie als dicker, dreifach übermalter Tuschestrich. **Keine Beschriftung.**
+  **Ablauf** (`src/lib/fitness/timeline.ts`, Daten `scripts/art/fitness-coco.ts` → `public/art/fitness-coco.v{N}.json`, ≈ 1,3 KB gz): sieben Übungen in Juttas Reihenfolge, je ≈ 5 s – (1) **Body wave**: Körper schwingt in einer Welle (Hüfte → Brust → Kopf mit Verzögerung), ein Arm kreist über dem Kopf, der andere pendelt, Schwanz schwingt; (2) **Body bounce** („boing boing“): ganzer Körper federt, Beine stauchen/strecken, Füße heben ab, Arme und Ohren schweben mit Verzögerung, Schwanz hängt; (3) **Single arm raises**: ein Arm gestreckt nach oben (erst rechts, dann links), Kopf und Pupillen folgen, halbe Lider und gerader Mund („unbeeindruckt“); (4) **Hüpfer mit Hüftdrehung**: Hüfte kreist, Oberkörper gegenläufig, Beine pendeln (Füße bleiben, Knie drehen mit), Schwanz peitscht; (5) **Brustöffner**: Arme weit seitlich offen, dann Pfoten vor der Brust zusammen, Kopf leicht gehoben, halb geschlossene Augen („würdevoll“); (6) **Rumpfdrehung**: Arme gestreckt seitlich, Oberkörper und Kopf drehen kräftig (≈ 78°), Füße fest; (7) **Thump up**: **Seitenansicht** (Körper dreht ein), beide Arme über den Kopf, dann Aufprall mit Einfedern, Schwanz nach hinten; dann (8) **erschöpftes Liegen**: Coco kippt zur Seite, liegt flach am Boden, Pfoten vor der Brust, Augen zu, **rosa Zunge seitlich heraus** (hechelt leicht), Schwanz hängt; danach dreht sich die Schleife (≈ 42,6 s) **nahtlos** zurück zur ersten Übung. Übungen sind **Summen kleiner Terme** (Konstante, Sinus, Hüpfer, periodische Schlüsselwerte) und werden an den Grenzen weich überblendet (0,8–1,7 s, Kosinus-Glättung, an den Grenzen sind die Gewichte komplementär) – kein Springen. Sekundäre Bewegung: Ohrenwippen aus der senkrechten Beckengeschwindigkeit, Schwanzwelle mit Phasenverzug je Glied, Atmen, Blinzeln (alle ≈ 3,7 s) – alles ganzzahlig in die Schleife eingepasst. Bodenführung: nichts ragt unter die Bodenlinie (Körper wird angehoben).
+  **Technik:** Standbild (Ruhepose) als `<img>` `public/art/fitness-still.v{N}.webp` (720 × 900 mit Transparenz, ≈ 26 KB, feste Box 4:5; **bewusst WebP statt SVG**: die Zeichnung hat ≈ 20 KB Pfadtext, und „SVG der Startseite ≤ 60 KB“ (PF-10) zählt auch eigene `.svg`-Dateien – Erzeugung aus dem Gerüst per `pnpm art:fitness`); der Ablaufplan kommt erst nach dem `load` (`fitness-coco.v{N}.json`, nicht im Erstlade-JS), das Modul `fitness-coco` (≈ 14 KB roh, Budget `tests/perf/budgets.json`) rechnet jedes Bild neu (≈ 0,8 ms nativ) und malt es auf eine Leinwand über dem Standbild (`Path2D`, **20 Bilder/s** in drei aufeinanderfolgenden Anzeige-Takten: Rechnen · Malen 1/2 · Malen 2/2 in einen Zeichenpuffer, der fertig auf die Leinwand gelegt wird – so bleibt jeder Takt kurz, PF-02; fallen Takte aus, schaltet es einmalig auf 10 Bilder/s in kleineren Häppchen zurück; Pixelgröße höchstens 1,5 × CSS-Breite; kein Strichel-Muster mehr); Bewegung blendet in 1,4 s aus der Ruhepose ein (kein Sprung vom Standbild). Pausiert im verborgenen Tab, außerhalb des Bildes und über den Schalter „Animationen“/reduzierte Bewegung (WCAG 2.2.2; dann Standbild); in der Vorschau-Datei nur das Standbild (kein Netz); kein Speicher, keine Cookies, keine Drittanbieter. Alt-Text DE/EN (`home.fitnessAlt`). Quelle: `pnpm art:fitness`.
 - **Koko, Vorsitzende der Goth Dogs Berlin** (Vorlage T-Shirt-Malerei, freigestellt, ohne Knochenkreuz): schwarzes Fell mit Tuschestrich-Struktur, orange Flächen, weiße Brust/Pfoten, Narrenkappe mit grünen Bommeln, Seitenblick-Augen; **nur die Pupillen bewegen sich** (9 s, links → rechts → links, `--ease-swing`), Standbild bei reduzierter Bewegung. Komponente `ChairwomanKoko` (Hero-Zeile, rechts; mobil darunter; Platz `data-slot="chairwoman"`), Zeichnung als `<img>` `public/art/koko.v{N}.svg` (≈ 9 KB, `pnpm art:koko`; Pupillen sind zwei CSS-Elemente darüber, Positionen in `src/art/koko/koko.json`), Alt-Text „Koko, Vorsitzende der Goth Dogs Berlin“ (DE/EN).
 
 ---
@@ -1301,7 +1305,7 @@ Maßgeblich für leere Zustände und die Danke-Seite sind die Tabellen in KO-17 
 | `--dur-swing` | 900 ms | Preisschild-Schwingen |
 | `--dur-stamp` | 260 ms | Stempel |
 | `--dur-hop` | 360 ms | Coco-Hüpfer |
-| `--dur-koko-look` | 9000 ms | Koko: ein Hin und Zurück der Pupillen (U-08, P12.6; MO-01 kennt die 9 s als Token) |
+| `--dur-koko-look` | 6800 ms | Koko: ein Hin und Zurück der Pupillen: 3 s Halt links · 0,4 s hin · 3 s Halt rechts · 0,4 s zurück (U-08, P12.6) |
 | `--dur-menu-open` / `--dur-menu-close` | 420 / 180 ms | Menü |
 | `--stagger` | 40 ms | Staffelung (+ 0–20 ms gesäter Versatz) |
 | `--boil-frame` / `--run-frame` / `--sleep-frame` | 100 / 83 / 125 ms | Boil 10 fps / Lauf und Sprung 12 fps / Schlafen 8 fps |
@@ -1477,6 +1481,14 @@ Die potrace-Ausgabe ist ein gefüllter Umriss (Juttas echte Strichbreite bleibt 
 - **OG-Produktbild** (1200×630, P3, `next/og` `ImageResponse` mit satori, TTF-Schriften aus `src/og/fonts/`): links das erste Foto 4:5 (504×630, Fokuspunkt), rechts auf Papier: Titel (Bricolage 600, max. 3 Zeilen), Preisschild (Spectral Italic, Preis mit Sternchen, darunter klein „Endpreis zzgl. Versand“ [Annahme DA-6]), `Nr. 017`, Wortmarke klein unten rechts, Linie vom Schild zur Wortmarke. Verkaufte Stücke: Stempel „sold“.
 
 ---
+
+### 12.7 „Planet Claire on Tour“ als Schaukasten (P12.8, U-20)
+
+Gerahmte Tafel in `--petrol-deep` (Tusche-Rahmen 2 px, innen gestrichelte Hilfslinie, `--shadow-press`), darauf angepinnte
+Zettel in `--paper-field`/`--paper` mit statischer Neigung (±0,3–0,8°, keine Animation). Jeder Zettel: Datumsblock links
+(Tageszahl in Spectral 700, Monat als Mono-Kürzel), rechts Name, Datum/Uhrzeit, Ort, Stand, Notiz, Link. Der nächste Termin
+ist das größere Plakat mit Klebeband und Reiter „als Nächstes“ (Datumsblock Petrol). Abgesagt: durchgestrichen, Stempel
+„ABGESAGT“ (Fuchs-Text) unten rechts. Vergangene Zettel gerade, in `<details>` eingeklappt. Ohne Karte, ohne Dritt-Anfragen.
 
 ## 13. Umsetzung nach Phasen und Abnahme
 

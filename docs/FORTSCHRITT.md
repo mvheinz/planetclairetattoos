@@ -2,6 +2,44 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-07 – P12.6 (Nacharbeit 2) Koko als große Büste, Augen links/rechts
+
+- Zuschnitt auf Kopf, Kappe, Bommeln und Fellkragen (kein Körper), 700×690 WebP ≈ 45 KB; Spalte verbreitert, Bild füllt sie. Pupillen: ruhiger Halt 3 s, 0,4 s Wechsel, beide Augen gleichzeitig, rein CSS, endlos (`--dur-koko-look` 6,8 s).
+- Tests: Unit (Koko), E2E `home-koko` (22 s, beide Seiten mehrfach, ruhige Halts), Build, Bundle-Budget.
+## 2026-10-07 – P12.2 (Nacharbeit) Linienpapier statt Karo
+
+- Seitengrund jetzt liniert wie ein Schreibblock statt kariert: Zeilenlinien alle 32 px in zartem Petrol-Grau, oben ein breiteres Kopfband (56 px) mit etwas kräftigerer Linie; der Olivgrün→Petrol-Verlauf bleibt darunter. Kein Rand-Strich links (die Tuschelinie läuft dort). Reines CSS, keine Bilder. Menü-Overlay und Vorschaubilder (OG) ebenfalls liniert; Raster-Tokens entfernt.
+- Tests: `tests/unit/design` (Kontrast gegen die dunkelste Linienstelle, Linien-Regeln), Details DESIGN §3.4.
+
+## 2026-10-07 – P12.6 (Nacharbeit) Koko aus dem Foto
+
+- Koko nicht mehr nachgezeichnet, sondern aus Juttas Malerei freigestellt und gesäubert (`scripts/art/koko-cutout.py` → `public/art/koko.v2.webp`, 660×867, 66 KB; altes `koko.v1.svg`/`scripts/art/koko.ts` entfernt). Original-Pupillen übermalt, neue Pupillen als SVG-Ellipsen (je Auge Standort + Läufer) in reinem CSS, endlos, links → rechts.
+- Fehlersuche „Animation nach 3–4 s weg“: im Code nichts, das anhält; alte Amplitude nur ±2,5 px. Neu: ≥ 20 px, E2E über 22 s (Animationen laufen, Pupille bewegt sich weiter, nie sichtbar rückwärts).
+- Tests: `pnpm check` (Unit inkl. neuer Koko-Tests), `pnpm build`, `check:bundle` grün (Koko 66 KB / Budget 80 KB), E2E home/home-tour/home-fitness/home-koko auf desktop + pixel-7, Referenzbilder r01-start neu.
+## 2026-10-07 – P12.5 Fitness-Coco komplett neu (Überarbeitung)
+
+- Du fandest die Fitness-Coco „schrecklich“ – zu Recht: Die erste Fassung war eine Reihe code-gezeichneter Strichfiguren, die nicht nach Coco aussahen. Ich habe sie **von Grund auf neu** gebaut.
+- **Neu:** Coco ist jetzt eine kleine „Gelenkpuppe“ aus ihren eigenen Merkmalen (hohe Ohren, das rechte geknickt, weiße Blesse, weiße Brust und Pfoten, rotes Halsband mit Ring wie auf der Webseite). Jedes Bild wird frisch gezeichnet: schwarze Tuschelinie, orange Buntstift-Schraffur auf zartem Fellton. Dadurch bewegt sie sich fließend (≈ 30 Bilder pro Sekunde), ohne zu springen.
+- **Die sieben Übungen in deiner Reihenfolge**, je ≈ 5 s: Body wave (Körper schwingt, ein Arm kreist über dem Kopf, Schwanz schwingt) · Body bounce („boing boing“, ganzer Körper federt, Ohren flattern, Schwanz hängt) · Single arm raises (ein Arm nach oben, Kopf und Augen folgen, halbe Lider – unbeeindruckt) · Hüpfer mit Hüftdrehung (Schwanz peitscht) · Brustöffner (Arme weit auf, dann vor der Brust zusammen, würdevoller Blick) · Rumpfdrehung (gestreckte Arme, Oberkörper und Kopf drehen) · Thump up (Seitenansicht, Arme hoch und mit Aufprall runter). Danach liegt sie **erschöpft am Boden, Zunge seitlich heraus, Augen zu**, und die Schleife beginnt nahtlos von vorn.
+- **Technik:** Die Daten sind winzig geworden (Ablaufplan ≈ 1,3 KB statt 120 KB, Standbild ≈ 26 KB als Bild), das Laden nach dem ersten Bild und die Tempo-Grenzen bleiben. Pause im verborgenen Tab und außerhalb des Bildes, bei „weniger Bewegung“ steht ein Standbild.
+- **Getestet:** Unit-Tests für Gerüst und Ablauf (Knickohr in jeder Pose, Bild passt in die Box, nichts unter dem Boden, keine Sprünge, nahtlose Schleife, jede Übung mit ihrem Merkmal), Verhaltens-Test (30 Bilder/s, Pause, reduzierte Bewegung), E2E (läuft, Endlosschleife über 43 s, Pause außerhalb des Bildes, keine Konsolenfehler), Bundle-Budgets, visuelle Referenzen. Offene Sichtprüfung mit dir: siehe `docs/OFFENE-PUNKTE.md` (P12.5).
+
+## 2026-10-08 – P12b Nachbesserung nach deiner zweiten Rückmeldung – für Jutta
+
+Hallo Jutta,
+
+die Nachbesserungen sind fertig und alle Prüfläufe auf GitHub sind grün (normale Tests, alle Browser, Tempo, Bildvergleiche, Kunst-Prüfung 62 von 62 automatischen Punkten):
+
+- **Koko:** aus deinem Originalbild ausgeschnitten und nur als Büste gezeigt (Kopf, Mütze, Fellkragen), deutlich größer. Die Augen schauen ruhig nach links und rechts, mit langen Pausen dazwischen; sie bleiben endlos in Bewegung.
+- **Gymnastik-Coco:** komplett neu, als Gelenkpuppe in Cocos Zeichenstil: sieben Übungen, am Ende liegt sie erschöpft mit Zunge da, dann geht es von vorn los. Deine Skizzenfotos habe ich weiterhin nicht als Dateien, die Bewegungen folgen deiner Beschreibung.
+- **Hintergrund:** liniert wie ein Notizblock, mit breiterer erster Zeile oben.
+- **Termine („Planet Claire on Tour“):** ein kompakter Schaukasten mit angepinnten Zetteln; der nächste Termin ist als Plakat hervorgehoben.
+- **Shop:** Kategorie-Kacheln mit Coco-Bildern, alle gleich groß (aus dem Instagram-Material; die Bilder sind klein und auf scharfen Bildschirmen etwas weich, größere Originale ersetzen sie später).
+- **Über mich:** dein Foto mit Coco in einem eigenen Abschnitt „Zu zweit“. Beim Start (P11) muss es beim Entfernen der Beispieldaten erhalten bleiben (steht in den offenen Punkten).
+- **Fehler behoben:** In der Vorschau-Datei verschwand die kleine Coco bei ihren Warte-Aktionen (Hecheln, Zucken …), weil deren Bilder dort nicht geladen wurden. Jetzt sind sie in der Datei enthalten.
+
+Die neue Vorschau-Datei liegt als Release „Planet Claire – Vorschau (Stand P12)“ bereit: https://github.com/mvheinz/planetclairetattoos/releases/tag/vorschau-p12
+
 ## 2026-10-07 – P12 Abschlussbericht (Überarbeitung nach deiner Rückmeldung) – für Jutta
 
 ### Phase 12 fertig: Deine Wünsche vom 06.10. sind umgesetzt, die neue Vorschau-Datei entsteht nach dem Merge
@@ -2106,3 +2144,12 @@ gekennzeichnete Platzhalter.
 - App-Gerüst: Next.js 16.3.6 + Payload 3.90.2 (Postgres), pnpm 10.34.5; Lint, Typprüfung, Unit-Test und Build
   lokal grün; CI-Workflow (inkl. Integrationstest gegen Postgres) angelegt.
 - Nächster Schritt: Session in die Cloud verschieben, dort P1 starten (siehe `docs/CLOUD-SETUP.md`).
+
+## 2026-10-07 – P12.8 Tour als Schaukasten
+
+- „Planet Claire on Tour“ ist jetzt eine kompakte, gerahmte Tafel mit angepinnten Zetteln (Datumsblock, nächster Termin als Plakat, Abgesagt-Stempel). Tests: `pnpm check`, `home-tour` (desktop + pixel-7), `check:bundle` grün.
+## 2026-10-07 – P12.15 Shop: Kategorie-Karten mit Coco
+
+- Jede Kategorie im Shop (und „Alle“) ist jetzt eine kleine Karte: oben ein Coco-Foto aus deinem Instagram-Material, darunter der Name. Alle Karten sind gleich groß (mobil seitlich wischbar, am Rechner in einer Reihe). Das gilt auch im Archiv.
+- Tests: Unit (Zuordnung, Dateigröße), E2E (gleiche Größe, Bilder geladen, Links, DE/EN, Desktop und Pixel 7).
+- P12.16: Dein Foto mit Coco ist auf „Über mich“ eingebaut (Block „Zu zweit“ unter dem Coco-Abschnitt, Goth-Rahmen, beide Gesichter im Ausschnitt). Hinweis für P11: Das Foto muss beim Entfernen der Beispieldaten behalten werden (siehe OFFENE-PUNKTE).

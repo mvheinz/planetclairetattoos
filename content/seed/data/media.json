@@ -259,6 +259,22 @@
       }
     }
   ],
+  "owned": [
+    {
+      "key": "own:jutta-coco",
+      "file": "own-jutta-coco.webp",
+      "focal": {
+        "x": 45,
+        "y": 62
+      },
+      "showsPerson": "jutta",
+      "ownerApproved": true,
+      "alt": {
+        "de": "Jutta liegt mit der Wange an einem hellbraunen Hund, der kopfüber in die Kamera schaut; ihre Hand mit kleinen Tätowierungen ruht auf dem Hund",
+        "en": "Jutta lying with her cheek against a light-brown dog that looks up into the camera upside down; her hand with small tattoos rests on the dog"
+      }
+    }
+  ],
   "placeholders": [
     {
       "key": "ph:teller-01",

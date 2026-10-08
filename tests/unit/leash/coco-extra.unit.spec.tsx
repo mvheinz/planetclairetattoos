@@ -167,3 +167,18 @@ describe('Freudenhüpfer (U-04)', () => {
     expect(shown()).toBe('sitzen')
   })
 })
+
+describe('Vorschau-Datei (file://)', () => {
+  it('Symbole im selben Dokument (`href="#id"`): Zusatz-Posen verweisen ebenfalls auf `#id`, nie auf einen Dateipfad', () => {
+    coco.destroy()
+    document.body.innerHTML = ''
+    el = createCocoElement(document, 'leash', 'sitzen', '')
+    document.body.appendChild(el)
+    const c = mountCoco(el, { pose: 'sitzen', motion: 'full', href: '' })
+    attachExtra(c)
+    const hrefs = [...el.querySelectorAll('use')].map((u) => u.getAttribute('href') ?? '')
+    expect(hrefs.length).toBeGreaterThan(20)
+    expect(hrefs.every((h) => h.startsWith('#'))).toBe(true)
+    coco = c
+  })
+})

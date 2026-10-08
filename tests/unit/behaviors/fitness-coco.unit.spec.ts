@@ -1,123 +1,136 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { mount, timeline, type FitnessData } from '@/behaviors/fitness-coco'
+import { mount } from '@/behaviors/fitness-coco'
+import { EXERCISES } from '../../../scripts/art/fitness-coco'
 
-// P12.5: Endlosschleife (Übergang → Übung im Kreis → nächste …), Laden nach dem `load`, Standbild bei reduzierter
-// Bewegung, Pause außerhalb des Bildes, Aufräumen. Gezeichnet wird auf einer Leinwand (hier mit Stummel-Kontext).
+// P12.5: Endlosschleife aus dem Puppen-Gerüst – Laden nach dem `load`, ≈ 30 Bilder/s auf einer Leinwand, Standbild bei
+// reduzierter Bewegung, Pause außerhalb des Bildes und im verborgenen Tab, Aufräumen. Gezeichnet wird mit Stummel-Kontext.
 
-const data: FitnessData = {
-  f: 100,
-  ex: [
-    { id: 'a', ms: 400, fr: ['a0|p0', 'a1|p1'] },
-    { id: 'b', ms: 300, fr: ['b0|q0', 'b1|q1', 'b2|q2'] },
-  ],
-  tr: [['t0|u0'], ['t1|u1', 't2|u2']],
-}
-
-describe('timeline', () => {
-  it('je Übung erst der Übergang, dann die Bilder im Kreis bis zur Dauer; danach von vorn', () => {
-    const it2 = timeline(data)
-    const out = Array.from({ length: 14 }, () => it2.next().value as string)
-    expect(out.map((s) => s.split('|')[0])).toEqual([
-      't0',
-      'a0',
-      'a1',
-      'a0',
-      'a1',
-      't1',
-      't2',
-      'b0',
-      'b1',
-      'b2',
-      't0',
-      'a0',
-      'a1',
-      'a0',
-    ])
-  })
-})
+const data = { v: 2, ex: EXERCISES }
 
 let root: HTMLElement
-let drawn: string[]
+let queue: FrameRequestCallback[]
+let now: number
+let fills: number
+let paints: number
+let strokes: number
 const still = () => root.querySelector<HTMLElement>('[data-fitness-still]')!
 const canvas = () => root.querySelector<HTMLCanvasElement>('[data-fitness-canvas]')!
+/** Ein Anzeige-Takt (16 ms): ruft die vorgemerkten rAF-Rückrufe auf. */
+const tick = (n = 1, step = 16.7) => {
+  for (let i = 0; i < n; i++) {
+    now += step
+    const q = queue
+    queue = []
+    q.forEach((cb) => cb(now))
+  }
+}
+const flush = async () => {
+  for (let i = 0; i < 5; i++) await Promise.resolve()
+}
 
 function setup(motion?: 'reduced') {
   document.body.innerHTML =
-    '<div id="r" data-behavior="fitness-coco" data-fitness-src="/art/fitness-coco.v1.json"><img data-fitness-still src="/s.svg"><canvas data-fitness-canvas hidden></canvas></div>'
+    '<div id="r" data-behavior="fitness-coco" data-fitness-src="/art/fitness-coco.v2.json"><img data-fitness-still src="/s.svg"><canvas data-fitness-canvas hidden></canvas></div>'
   root = document.getElementById('r')!
   if (motion) document.documentElement.setAttribute('data-motion', motion)
-  drawn = []
-  // Stummel-Kontext: merkt sich die Pfadtexte der gezeichneten Striche (zuerst Buntstift, dann Tusche)
-  const strokes: string[] = []
+  queue = []
+  now = 0
+  fills = 0
+  paints = 0
+  strokes = 0
+  window.requestAnimationFrame = ((cb: FrameRequestCallback) =>
+    queue.push(cb)) as typeof window.requestAnimationFrame
+  window.cancelAnimationFrame = (() => {
+    queue = []
+  }) as typeof window.cancelAnimationFrame
   const stub = {
     setTransform: vi.fn(),
     clearRect: vi.fn(),
+    drawImage: vi.fn(() => paints++),
     setLineDash: vi.fn(),
-    stroke: vi.fn<(p: { d: string }) => void>(),
+    fill: vi.fn(() => fills++),
+    stroke: vi.fn(() => strokes++),
     lineCap: '',
     lineJoin: '',
     lineWidth: 0,
     strokeStyle: '',
+    fillStyle: '',
+    globalAlpha: 1,
   }
-  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(((kind: string) => {
-    if (kind !== '2d') return null
-    // jedes Bild = zwei Striche; nach dem zweiten Strich Pfadtext „ink“ notieren
-    stub.stroke.mockImplementation((p: { d: string }) => {
-      strokes.push(p.d)
-      if (strokes.length % 2 === 0) drawn.push(strokes[strokes.length - 1]!)
-    })
-    return stub
-  }) as never)
-  vi.stubGlobal(
-    'Path2D',
-    class {
-      constructor(public d: string) {}
-    },
-  )
+  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(((kind: string) =>
+    kind === '2d' ? stub : null) as never)
+  vi.stubGlobal('Path2D', class {})
 }
 
 beforeEach(() => {
-  vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
   Object.defineProperty(document, 'hidden', { configurable: true, value: false })
 })
 afterEach(() => {
-  vi.useRealTimers()
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
   document.documentElement.removeAttribute('data-motion')
   document.body.innerHTML = ''
 })
 
-const flush = async () => {
-  for (let i = 0; i < 5; i++) await Promise.resolve()
-}
-
 describe('fitness-coco mount', () => {
-  it('holt die Bildfolge, spielt sie im 10-Bilder/s-Takt auf der Leinwand; unmount stellt das Standbild wieder her', async () => {
+  it('holt den Ablaufplan, zeichnet 20 Bilder/s auf der Leinwand; unmount stellt das Standbild wieder her', async () => {
     setup()
     const fitnessData = vi.fn((_url: string) => Promise.resolve(data as unknown))
     const unmount = mount(root, { mode: 'app', actions: { fitnessData } })
-    expect(fitnessData).toHaveBeenCalledWith('/art/fitness-coco.v1.json')
+    expect(fitnessData).toHaveBeenCalledWith('/art/fitness-coco.v2.json')
     await flush()
-    expect(drawn).toEqual(['t0']) // erstes Bild: Übergang vor Übung 1 (Tusche-Pfad „t0“)
     expect(canvas().hidden).toBe(false)
     expect(still().style.visibility).toBe('hidden')
-    vi.advanceTimersByTime(100)
-    expect(drawn.at(-1)).toBe('a0')
-    vi.advanceTimersByTime(300)
-    expect(drawn.at(-1)).toBe('a1')
+    expect(paints).toBe(1) // erstes Bild sofort
+    expect(fills).toBeGreaterThan(5) // Papier-/Waschflächen
+    const first = paints
+    tick() // Takt 1: Uhr setzen, nächste Pose rechnen
+    tick() // Takt 2: erste Hälfte in den Puffer
+    expect(paints).toBe(first) // noch nichts auf der Leinwand (Puffer wird erst fertig gezeigt)
+    tick() // Takt 3: zweite Hälfte, dann auf die Leinwand
+    expect(paints).toBe(first + 1)
+    tick(2) // Wartezeit (Bildabstand 50 ms): kein neues Bild
+    expect(paints).toBe(first + 1)
+    const n = paints
+    tick(60) // ≈ 1 s → ≈ 20 Bilder
+    expect(paints - n).toBeGreaterThanOrEqual(17)
+    expect(paints - n).toBeLessThanOrEqual(22)
+    expect(strokes).toBeGreaterThan(0)
     unmount()
     expect(canvas().hidden).toBe(true)
     expect(still().style.visibility).toBe('')
-    const n = drawn.length
-    vi.advanceTimersByTime(10_000)
-    expect(drawn).toHaveLength(n)
-    expect(vi.getTimerCount()).toBe(0)
+    const m = paints
+    tick(30)
+    expect(paints).toBe(m)
+    expect(queue).toHaveLength(0)
   })
 
-  it('reduzierte Bewegung: kein Abruf, Standbild bleibt; im Vorschau-Modus ebenfalls', () => {
+  it('fallen Anzeige-Takte aus (verspätete Takte), schaltet es auf 10 Bilder/s zurück – nie ruckelnd', async () => {
+    setup()
+    const un = mount(root, {
+      mode: 'app',
+      actions: { fitnessData: () => Promise.resolve(data as unknown) },
+    })
+    await flush()
+    tick(100) // Einblenden (1,4 s) abwarten: davor zählen verspätete Takte nicht
+    const n = paints
+    tick(60)
+    const fast = paints - n
+    expect(fast).toBeGreaterThanOrEqual(17)
+    // vier Takte à 45 ms (Gerät kommt nicht mehr hinterher) → dauerhaft Stufe 1
+    tick(4, 45)
+    tick(3)
+    const m = paints
+    tick(60)
+    const slow = paints - m
+    expect(slow).toBeLessThanOrEqual(11)
+    expect(slow).toBeGreaterThanOrEqual(8)
+    un()
+  })
+
+  it('reduzierte Bewegung: kein Abruf, Standbild bleibt; im Vorschau-Modus kommt der Plan aus der Datei (kein Netz)', () => {
     setup('reduced')
     const fitnessData = vi.fn((_url: string) => Promise.resolve(data as unknown))
     const un = mount(root, { mode: 'app', actions: { fitnessData } })
@@ -126,7 +139,7 @@ describe('fitness-coco mount', () => {
     un()
     document.documentElement.removeAttribute('data-motion')
     const un2 = mount(root, { mode: 'preview', actions: { fitnessData } })
-    expect(fitnessData).not.toHaveBeenCalled()
+    expect(fitnessData).toHaveBeenCalledTimes(1)
     un2()
   })
 
@@ -135,15 +148,80 @@ describe('fitness-coco mount', () => {
     const fitnessData = vi.fn((_url: string) => Promise.resolve(data as unknown))
     const un = mount(root, { mode: 'app', actions: { fitnessData } })
     await flush()
-    vi.advanceTimersByTime(200)
+    tick(4)
     expect(canvas().hidden).toBe(false)
     document.documentElement.setAttribute('data-motion', 'reduced')
     await flush()
     expect(canvas().hidden).toBe(true)
     expect(still().style.visibility).toBe('')
-    const n = drawn.length
-    vi.advanceTimersByTime(1000)
-    expect(drawn).toHaveLength(n)
+    const n = paints
+    tick(30)
+    expect(paints).toBe(n)
+    un()
+  })
+
+  it('pausiert im verborgenen Tab und läuft danach weiter', async () => {
+    setup()
+    const un = mount(root, {
+      mode: 'app',
+      actions: { fitnessData: () => Promise.resolve(data as unknown) },
+    })
+    await flush()
+    tick(4)
+    Object.defineProperty(document, 'hidden', { configurable: true, value: true })
+    document.dispatchEvent(new Event('visibilitychange'))
+    expect(queue).toHaveLength(0)
+    const n = paints
+    tick(20)
+    expect(paints).toBe(n)
+    Object.defineProperty(document, 'hidden', { configurable: true, value: false })
+    document.dispatchEvent(new Event('visibilitychange'))
+    tick(4)
+    expect(paints).toBeGreaterThan(n)
+    un()
+  })
+
+  it('pausiert außerhalb des Bildes (IntersectionObserver)', async () => {
+    setup()
+    let cb: IntersectionObserverCallback = () => {}
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(c: IntersectionObserverCallback) {
+          cb = c
+          window.IntersectionObserver = this.constructor as never
+        }
+        observe() {}
+        disconnect() {}
+      },
+    )
+    window.IntersectionObserver = globalThis.IntersectionObserver
+    const un = mount(root, {
+      mode: 'app',
+      actions: { fitnessData: () => Promise.resolve(data as unknown) },
+    })
+    await flush()
+    tick(4)
+    cb([{ isIntersecting: false } as IntersectionObserverEntry], {} as IntersectionObserver)
+    expect(queue).toHaveLength(0)
+    const n = paints
+    tick(20)
+    expect(paints).toBe(n)
+    cb([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver)
+    tick(4)
+    expect(paints).toBeGreaterThan(n)
+    un()
+  })
+
+  it('unbrauchbare Daten werden ignoriert (Standbild bleibt)', async () => {
+    setup()
+    const un = mount(root, {
+      mode: 'app',
+      actions: { fitnessData: () => Promise.resolve({ v: 1, ex: [] } as unknown) },
+    })
+    await flush()
+    expect(canvas().hidden).toBe(true)
+    expect(queue).toHaveLength(0)
     un()
   })
 })

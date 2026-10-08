@@ -102,6 +102,31 @@ for (const locale of ['de', 'en'] as const) {
       }
     }
 
+    // Schaukasten (U-20): Tafel mit Zetteln; der erste kommende Termin ist das Plakat „als Nächstes“, alle anderen kleine Zettel
+    await expect(tour.locator('[data-tour-next]')).toHaveCount(upcoming.length > 0 ? 1 : 0)
+    if (upcoming.length > 0) {
+      await expect(list.first()).toHaveAttribute('data-tour-next', '')
+      const heroDay = await list
+        .first()
+        .locator('div[aria-hidden="true"] span')
+        .first()
+        .boundingBox()
+      expect(heroDay).not.toBeNull()
+      if (upcoming.length > 1) {
+        const otherDay = await list
+          .nth(1)
+          .locator('div[aria-hidden="true"] span')
+          .first()
+          .boundingBox()
+        expect(heroDay!.height).toBeGreaterThan(otherDay!.height)
+      }
+      // kompakt: ein kleiner Zettel ist nicht höher als 14 rem
+      for (let k = 1; k < upcoming.length; k++) {
+        const b = await list.nth(k).boundingBox()
+        expect(b!.height).toBeLessThan(14 * 16)
+      }
+    }
+
     // vergangene: eingeklappt, Anzahl in der Beschriftung, nach dem Aufklappen sichtbar
     const details = tour.locator('details[data-tour-past]')
     if (past.length > 0) {

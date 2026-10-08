@@ -2,8 +2,12 @@
 // Sprites einbetten, Seiten in Templates umwandeln, Zusatzseiten `#/vorschau/nicht-enthalten` und
 // `#/vorschau/verwaltung` (DE/EN) erzeugen, `#pv-data` und `#pv-assets` füllen. Ergebnis ist ein String plus
 // Größen je Art für den Bericht (§14.8). Rein bis auf die Bildkodierung (`sharp`).
+import { readFile } from 'node:fs/promises'
+import path from 'node:path'
+
 import * as cheerio from 'cheerio'
 
+import cocoExtra from '../../src/art/coco/coco-extra-anchors.json'
 import { localizedPath } from '../../src/lib/routes/paths'
 import { LOCALES, ROUTES, type Locale } from '../../src/lib/routes/registry'
 import { formatBerlin } from '../../src/lib/time'
@@ -144,11 +148,20 @@ export async function assemble(input: AssembleInput): Promise<Assembled> {
       if (t) spritePaths.add(new URL(t.file, `http://x${page.path}`).pathname)
     })
   }
-  const sprites = buildSpriteSheet(
-    assets
+  // Zusatz-Posen von Coco (Warte-Aktionen, P12.4) lädt die Seite erst zur Laufzeit nach – im Vorschau-Dokument müssen
+  // ihre Symbole von Anfang an im Sprite-Blatt liegen (sonst verschwindet Coco bei der ersten Aktion).
+  const lazySprites: { path: string; svg: string }[] = []
+  for (const href of [cocoExtra.href]) {
+    if (spritePaths.has(href)) continue
+    const file = path.join(process.cwd(), 'public', href)
+    lazySprites.push({ path: href, svg: await readFile(file, 'utf8') })
+  }
+  const sprites = buildSpriteSheet([
+    ...assets
       .filter((a) => spritePaths.has(a.path))
       .map((a) => ({ path: a.path, svg: a.body.toString('utf8') })),
-  )
+    ...lazySprites,
+  ])
 
   // Bilder (inkl. SVG-Bilder und Bilder aus CSS), Schriften.
   const imageInputs = assets.filter(

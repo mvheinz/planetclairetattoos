@@ -517,10 +517,6 @@ function* flatten(cubics: Cubic[]): Generator<void, Fine, void> {
   let len = 0
   let mark = 0
   for (let j = 0; j < cubics.length; j++) {
-    if (x.length - mark >= SAMPLE_CHUNK) {
-      mark = x.length
-      yield
-    }
     const [x0, y0, x1, y1, x2, y2, x3, y3] = cubics[j]!
     const poly =
       Math.hypot(x1 - x0, y1 - y0) + Math.hypot(x2 - x1, y2 - y1) + Math.hypot(x3 - x2, y3 - y2)
@@ -532,6 +528,11 @@ function* flatten(cubics: Cubic[]): Generator<void, Fine, void> {
     }
     knot.push(len)
     for (let k = 1; k <= n; k++) {
+      // Auch mitten in einer langen Kurve anhalten (PF-04: ein Teilstück ≤ ≈ SAMPLE_CHUNK Punkte)
+      if (x.length - mark >= SAMPLE_CHUNK) {
+        mark = x.length
+        yield
+      }
       const t = k / n
       const u = 1 - t
       const b0 = u * u * u
@@ -851,7 +852,13 @@ function polyLen(xs: ArrayLike<number>, ys: ArrayLike<number>): number {
  * gezeichnet und per `stroke-dashoffset` enthüllt (nur Paint, kein Layout – KUNST-QA PF-05). Benachbarte Stücke teilen
  * den Endpunkt, die runden Kappen überdecken die Fuge. Tintenpunkte sind eigene, fast punktförmige Stücke.
  */
-function buildStrokes(i0: number, i1: number, d: SegmentData, dots: number[], bw: number) {
+function* buildStrokes(
+  i0: number,
+  i1: number,
+  d: SegmentData,
+  dots: number[],
+  bw: number,
+): Generator<void, LeashStroke[], void> {
   const out: LeashStroke[] = []
   const tol = STROKE_WIDTH_TOL * bw
   const stops = new Set(dots.filter((i) => i >= i0 && i < i1))
@@ -895,6 +902,8 @@ function buildStrokes(i0: number, i1: number, d: SegmentData, dots: number[], bw
         len1: d.ss[b]!,
       })
     a = b
+    // Lange Segmente (Textseiten): alle 8 Stücke anhalten (PF-04, kalter JIT)
+    if (out.length % 8 === 0) yield
   }
   return out
 }
@@ -928,7 +937,7 @@ function* buildSegment(
   const ccy = keepC.map((k) => cy[k]!)
   const centerD = polyD(ccx, ccy, false)
   yield
-  const strokes = buildStrokes(i0, i1, d, segDots, bw)
+  const strokes = yield* buildStrokes(i0, i1, d, segDots, bw)
   const x = Math.floor(minX)
   const y = Math.floor(minY)
   // Der Umriss (Stufe C, Schritt 8) entsteht erst beim ersten Zugriff – Stufe A/B brauchen ihn nicht (PF-04).

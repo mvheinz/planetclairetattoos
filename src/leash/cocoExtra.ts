@@ -46,13 +46,16 @@ export function attachExtra(ctl: CocoController): void {
   const svg = el.querySelector('svg')
   if (!svg || x.g.has('freude')) return
   Object.assign(x.a, extra.anchors)
+  // Vorschau-Datei (file://): die Symbole liegen im selben Dokument (`href="#id"`); ein externer Pfad lüde dort nicht
+  // und die Warte-Aktionen ließen Coco verschwinden.
+  const base = svg.querySelector('use')?.getAttribute('href')?.startsWith('#') ? '' : extra.href
   for (const key of Object.keys(extra.anchors))
     x.g.set(
       key,
       makeGroup(
         svg,
         COCO_FRAMES.map((f) => `coco-${key}-${f}`),
-        extra.href,
+        base,
       ),
     )
 

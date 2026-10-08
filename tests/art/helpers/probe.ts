@@ -264,7 +264,7 @@ function measure(args: ProbeArgs): Probe {
       ? 'control'
       : el.closest('h1')
         ? 'h1'
-        : el.closest('h2')
+        : el.closest('h2, h3')
           ? 'h2'
           : el.closest('[data-price-tag], [data-price], [data-product-price]')
             ? 'price'

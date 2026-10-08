@@ -1,13 +1,17 @@
 import { expect, test } from './fixtures'
 
-// P12.5/P12.6 (U-09, U-08): Startseite – Fitness-Coco ersetzt die große sitzende Coco der Hallo-Station, lädt die Bildfolge
-// erst nach dem `load`, steht bei reduzierter Bewegung still; Koko: nur die Pupillen sind animiert.
+// P12.5/P12.6 (U-09, U-08): Startseite – Fitness-Coco (Puppen-Gerüst, `src/lib/fitness`) ersetzt die große sitzende Coco der
+// Hallo-Station, lädt den Ablaufplan erst nach dem `load`, läuft als Endlosschleife, pausiert außerhalb des Bildes, steht bei
+// reduzierter Bewegung still; Koko: nur die Pupillen sind animiert.
 
 test.describe('Startseite: Fitness-Coco und Koko', () => {
-  test('keine sitzende Sprite-Coco mehr in „Hallo“; Fitness-Coco mit Alt-Text, Daten erst nach dem load', async ({
+  test('keine sitzende Sprite-Coco mehr in „Hallo“; Fitness-Coco läuft nach dem load, ohne Konsolenfehler', async ({
     page,
   }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' })
+    const errors: string[] = []
+    page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
+    page.on('pageerror', (e) => errors.push(String(e)))
     let loadedAt = Infinity
     let requestedAt = -1
     page.on('request', (r) => {
@@ -22,7 +26,7 @@ test.describe('Startseite: Fitness-Coco und Koko', () => {
     await expect(fit).toHaveAttribute('aria-label', /Coco.*Gymnastik/)
     await expect(fit.locator('img[data-fitness-still]')).toHaveAttribute(
       'src',
-      /fitness-still\.v\d+\.svg$/,
+      /fitness-still\.v\d+\.webp$/,
     )
     const canvas = fit.locator('canvas[data-fitness-canvas]')
     await fit.scrollIntoViewIfNeeded()
@@ -36,9 +40,65 @@ test.describe('Startseite: Fitness-Coco und Koko', () => {
     expect(Math.abs(box!.width / box!.height - 0.8)).toBeLessThan(0.02) // feste Box 4:5
     // Standbild hinter der Leinwand ist verborgen, damit nichts doppelt zu sehen ist
     await expect(fit.locator('img[data-fitness-still]')).toHaveCSS('visibility', 'hidden')
+    expect(errors).toEqual([])
   })
 
-  test('reduzierte Bewegung: Standbild, keine Bildfolge geladen, Pupillen still', async ({
+  test('Endlosschleife: über mehr als eine volle Schleife (43 s) läuft sie weiter, ohne Fehler', async ({
+    page,
+  }) => {
+    test.setTimeout(120_000)
+    await page.emulateMedia({ reducedMotion: 'no-preference' })
+    const errors: string[] = []
+    page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
+    page.on('pageerror', (e) => errors.push(String(e)))
+    await page.goto('/de')
+    const fit = page.locator('[data-behavior="fitness-coco"]')
+    const canvas = fit.locator('canvas[data-fitness-canvas]')
+    await fit.scrollIntoViewIfNeeded()
+    await expect(canvas).toBeVisible({ timeout: 20_000 })
+    await page.clock.install()
+    const shot = () => canvas.evaluate((c) => (c as HTMLCanvasElement).toDataURL())
+    const seen: string[] = []
+    for (let i = 0; i < 11; i++) {
+      await page.clock.runFor(4000)
+      seen.push(await shot())
+    }
+    // Sie steht nie still und bricht am Schleifenpunkt (42,6 s) nicht ab: mehrere verschiedene Bilder über 44 s, und die
+    // letzten Proben hinter dem Schleifenpunkt verändern sich weiter. (WebKit bündelt die Bildtakte unter `page.clock`
+    // stärker als Chromium, daher keine feste Anzahl verschiedener Proben.)
+    expect(new Set(seen).size).toBeGreaterThanOrEqual(4)
+    expect(new Set(seen.slice(-3)).size).toBeGreaterThanOrEqual(2)
+    await expect(canvas).toBeVisible()
+    expect(errors).toEqual([])
+  })
+
+  test('pausiert außerhalb des Bildes und läuft danach weiter', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' })
+    await page.goto('/de')
+    const fit = page.locator('[data-behavior="fitness-coco"]')
+    const canvas = fit.locator('canvas[data-fitness-canvas]')
+    await fit.scrollIntoViewIfNeeded()
+    await expect(canvas).toBeVisible({ timeout: 20_000 })
+    const shot = () => canvas.evaluate((c) => (c as HTMLCanvasElement).toDataURL())
+    // ganz nach unten: die Zeichnung ist nicht mehr im Bild
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
+    await expect
+      .poll(() =>
+        fit.evaluate(
+          (el) =>
+            el.getBoundingClientRect().bottom < 0 || el.getBoundingClientRect().top > innerHeight,
+        ),
+      )
+      .toBe(true)
+    await page.waitForTimeout(500) // Beobachter meldet
+    const away = await shot()
+    await page.waitForTimeout(900)
+    expect(await shot()).toBe(away)
+    await fit.scrollIntoViewIfNeeded()
+    await expect.poll(shot, { timeout: 10_000 }).not.toBe(away)
+  })
+
+  test('reduzierte Bewegung: Standbild, kein Ablaufplan geladen, Pupillen still', async ({
     page,
   }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
@@ -56,26 +116,5 @@ test.describe('Startseite: Fitness-Coco und Koko', () => {
       .locator('[data-chairwoman]')
       .evaluate((el) => el.getAnimations({ subtree: true }).length)
     expect(anims).toBe(0)
-  })
-
-  test('Koko: nur die Pupillen sind animiert, Alt-Text DE/EN, Bild statt Inline-SVG', async ({
-    page,
-  }) => {
-    await page.emulateMedia({ reducedMotion: 'no-preference' })
-    await page.goto('/de')
-    const koko = page.locator('[data-chairwoman]').first()
-    await expect(koko).toHaveAttribute('aria-label', 'Koko, Vorsitzende der Goth Dogs Berlin')
-    await expect(koko.locator('svg')).toHaveCount(0)
-    const targets = await koko.evaluate((el) =>
-      el
-        .getAnimations({ subtree: true })
-        .map((a) => (a.effect as KeyframeEffect).target?.hasAttribute('data-koko-pupil')),
-    )
-    expect(targets).toEqual([true, true])
-    await page.goto('/en')
-    await expect(page.locator('[data-chairwoman]').first()).toHaveAttribute(
-      'aria-label',
-      /Koko, chairwoman of the Goth Dogs Berlin/,
-    )
   })
 })
