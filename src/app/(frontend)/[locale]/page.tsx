@@ -4,6 +4,7 @@ import React from 'react'
 
 import { ChairwomanKoko } from '@/components/home/ChairwomanKoko'
 import { HomeStation } from '@/components/home/HomeStation'
+import { InstagramLink } from '@/components/home/InstagramLink'
 import { TourDates } from '@/components/home/TourDates'
 import styles from '@/components/home/Home.module.css'
 import { PlanetMark } from '@/components/home/SpaceMarks'
@@ -27,13 +28,13 @@ import { routeMetadata } from '@/lib/seo/metadata'
 export const generateMetadata = routeMetadata('R01')
 
 // ISR (ARCHITEKTUR §9.1): gezielt erneuert über die Tags `home`, `products`, `category:<key>`, `page:home` (P3.15),
-// `flash` (Tattoo-Station) und `tour-dates` (rechte Spalte, P12.8); Rückfall nach einer
+// `flash` (Tattoo-Station) und `tour-dates` (Schaukasten oben rechts, P12.8/P13.3); Rückfall nach einer
 // Stunde.
 export const revalidate = 3600
 
 // R01 Startseite (KONZEPT §3.1, DESIGN KO-21/§11.4, Preset `journey`): Kopf-Station „Planet Claire“ (H1 mit
 // Planet-Marke links vor dem Namen, Anker `orbit` für das Intro MI-10 – die Linie kreuzt so keinen Text) und danach die Stationen aus `pages:home` in fester Reihenfolge
-// (Hallo, Keramik, Textil, Zeichnungen, Schmuck, Tattoo, Jutta & Coco). Die Tuschelinie verbindet sie beim Scrollen,
+// (Keramik, Textil, Zeichnungen, Schmuck, Tattoo, Jutta & Coco; „Hallo“/„Komm näher.“ entfiel mit U-40). Die Tuschelinie verbindet sie beim Scrollen,
 // Coco läuft an der Spitze mit den Posen der Stationen (`cocoPose` → `COCO_POSE_TO_SPRITE`). Ohne JavaScript ist alles
 // lesbar (reines Server-HTML). Fehlt `home`: neutraler Leerzustand (DM-PAGE-01). Organization-JSON-LD (KONZEPT
 // §3.0.5, ohne Adresse, E-50). Kategorie-Stationen mit bis zu 4 Stücken (P3.12, `listStationProducts`, gecacht mit Tag
@@ -104,11 +105,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </header>
 
       <aside className={styles.aside} aria-label={tTour('heading')} data-home-aside="">
-        {/* rechte Spalte: oben Koko, Vorsitzende der Goth Dogs Berlin (U-08), darunter „Planet Claire on Tour“ (U-20) */}
+        {/* oben rechts (U-42): Koko, Vorsitzende der Goth Dogs Berlin (U-08, U-41), direkt rechts daneben der schmale
+            Schaukasten „Planet Claire on Tour“ (U-20) mit dem Instagram-Hinweis darunter; mobil untereinander */}
         <div className={styles.chairwomanSlot} data-slot="chairwoman">
           <ChairwomanKoko locale={locale} />
         </div>
-        <TourDates items={tourItems} locale={locale} now={tourNow()} />
+        <div className={styles.tourCol} data-slot="tour">
+          <TourDates items={tourItems} locale={locale} now={tourNow()} />
+          <InstagramLink handle={nav.instagramHandle} locale={locale} />
+        </div>
       </aside>
 
       <div className={styles.body}>
