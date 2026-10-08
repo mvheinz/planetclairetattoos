@@ -15,10 +15,12 @@ import { requestNow } from '@/lib/payload/context'
 
 import { seedOp, seedStep } from './context'
 import {
+  clearLegacyPlaceholders,
   deepMerge,
   fieldDefaults,
   fillEmpty,
   isEmptyValue,
+  LEGACY_SETTINGS_PLACEHOLDERS,
   pickLocaleTree,
   stripMeta,
 } from './globals'
@@ -66,7 +68,12 @@ async function seedGlobal(
         await fieldDefaults(config.fields, locale, req),
         pickLocaleTree(desiredFromData, locale) as Obj,
       )
-      const next = fillEmpty(current, desired) as Obj
+      // Frühere Grund-Seed-Platzhalter (z. B. „[Adresse folgt]“) gelten als leer (U-46, P13.7).
+      const base =
+        slug === 'settings'
+          ? clearLegacyPlaceholders(current, LEGACY_SETTINGS_PLACEHOLDERS)
+          : current
+      const next = fillEmpty(base, desired) as Obj
       if (neverSaved || JSON.stringify(next) !== JSON.stringify(current)) {
         await req.payload.updateGlobal({ slug, data: next as never, locale, ...seedOp(req) })
         changed = true

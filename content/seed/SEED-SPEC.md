@@ -430,14 +430,16 @@ usw.), nicht aus der Datei.
 
 ### 3.1 `settings`
 
-Nur leere Felder werden gefüllt (§1.3). Alle nicht genannten Felder: Default aus DATENMODELL §7.1.
+Nur leere Felder werden gefüllt (§1.3); Ausnahme U-46 (P13.7): die früheren Platzhalter `[Name folgt]`, `[Adresse folgt]`
+und PLZ `00000` gelten als leer und werden durch Juttas Anschrift ersetzt (`LEGACY_SETTINGS_PLACEHOLDERS` in
+`src/lib/seed/globals.ts`). Alle nicht genannten Felder: Default aus DATENMODELL §7.1.
 
 | Feld | Wert |
 |---|---|
-| `business.legalName` | `[Name folgt]` |
+| `business.legalName` | `Jutta Dollmann` (U-46) |
 | `business.tradeName` | `Planet Claire` |
-| `business.street` | `[Adresse folgt]` |
-| `business.postalCode` / `business.city` / `business.country` | `00000` / `Berlin` / `DE` |
+| `business.street` | `Anklamer Straße 28` (U-46) |
+| `business.postalCode` / `business.city` / `business.country` | `10115` / `Berlin` / `DE` (U-46) |
 | `business.email` | `jutta@planetclairetattoos.com` |
 | `business.phone` | `[Telefon folgt]` |
 | `business.economicId` | `[W-IdNr. folgt]` |

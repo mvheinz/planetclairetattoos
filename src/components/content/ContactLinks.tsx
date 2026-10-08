@@ -6,7 +6,10 @@ import type { Locale } from '@/lib/routes/registry'
 
 import styles from './ContactLinks.module.css'
 
-// Block `contactLinks` (KONZEPT §3.13): E-Mail als `mailto:` (optional mit Betreff), „Privatstudio in Berlin-{Bezirk}“. Werte nur aus `getPublicSettings()`; kein Formular (E-51).
+// Block `contactLinks` (KONZEPT §3.13): E-Mail als `mailto:` (optional mit Betreff) und die vollständige Anschrift aus
+// den Stammdaten (U-46, P13.7: „Jutta Dollmann, Anklamer Straße 28, 10115 Berlin“ statt nur des Bezirks); solange die
+// Anschrift ein Platzhalter ist, „Privatstudio in Berlin-{Bezirk}“. Werte nur aus `getPublicSettings()`; kein
+// Formular (E-51). Schalter `showDistrict` (Verwaltung „Anschrift zeigen“) blendet die Zeile aus.
 // „Adresse kopieren“ (Modul `copy-button`, ohne JavaScript verborgen – die Adresse steht als markierbarer Text daneben;
 // P6.5, R-023).
 export interface ContactLinksProps {
@@ -61,7 +64,18 @@ export async function ContactLinks({
             />
           </li>
         ) : null}
-        {showDistrict !== false && contact.studioDistrict ? (
+        {showDistrict !== false && contact.address ? (
+          <li data-contact-address="">
+            <span className={styles.label}>{t('addressLabel')}</span>
+            <address className={styles.address}>
+              {contact.address.name}
+              <br />
+              {contact.address.street}
+              <br />
+              {contact.address.postalCode} {contact.address.city}
+            </address>
+          </li>
+        ) : showDistrict !== false && contact.studioDistrict ? (
           <li data-contact-studio="">{t('studio', { district: contact.studioDistrict })}</li>
         ) : null}
       </ul>

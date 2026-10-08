@@ -24,6 +24,11 @@
   color: var(--ink-2);
 }
 
+.address {
+  font-style: normal;
+  line-height: 1.5;
+}
+
 .link {
   display: inline-flex;
   align-items: center;

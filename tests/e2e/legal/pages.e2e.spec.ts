@@ -162,7 +162,7 @@ test.describe('Rechtsseiten P6.5 @smoke', () => {
     }
   })
 
-  test('R-023 Kontaktseite: E-Mail als Text und mailto, „Adresse kopieren“, Instagram, kein Formular, kein iframe @smoke', async ({
+  test('R-023 Kontaktseite: E-Mail als Text und mailto, „Adresse kopieren“, Anschrift (U-46), Instagram, kein Formular, kein iframe @smoke', async ({
     page,
   }) => {
     for (const locale of LOCALES) {
@@ -179,9 +179,13 @@ test.describe('Rechtsseiten P6.5 @smoke', () => {
       await expect(main.locator('[data-contact-dm]')).toHaveCount(0) // keine DM-Wege mehr (U-15)
       await expect(page.locator('form')).toHaveCount(0)
       await expect(page.locator('iframe')).toHaveCount(0)
-      // Nur der Bezirk, keine Straße
-      const studio = main.locator('[data-contact-studio]')
-      if (await studio.count()) await expect(studio.first()).toContainText(/Berlin-/)
+      // U-46 (P13.7, bewusst geändert): die vollständige Anschrift aus den Stammdaten statt nur des Bezirks
+      const address = main.locator('[data-contact-address] address')
+      await expect(address).toHaveCount(1)
+      await expect(address).toContainText('Jutta Dollmann')
+      await expect(address).toContainText('Anklamer Straße 28')
+      await expect(address).toContainText('10115 Berlin')
+      await expect(main.locator('[data-contact-studio]')).toHaveCount(0)
     }
   })
 })
