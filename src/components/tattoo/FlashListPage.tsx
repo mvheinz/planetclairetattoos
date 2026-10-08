@@ -11,7 +11,7 @@ import { listSearch, type ListParams } from '@/lib/shop/listParams'
 import { FlashCard } from './FlashCard'
 import styles from './Tattoo.module.css'
 import { TattooPriceFootnote } from './TattooPriceFootnote'
-import { LeashEnd, TattooShell } from './TattooShell'
+import { TattooShell } from './TattooShell'
 
 // R12 Flash (KONZEPT §9.3, DESIGN KO-20): Einleitung (Block `flashGrid` der Seite `tattoo`: Überschrift; sonst Text aus
 // den Nachrichten), Filter „alle“/„verfügbar“ als Links (`?available=1`, statische Variante wie im Shop, Spike B-05),
@@ -37,7 +37,6 @@ export async function FlashListPage({ locale, list }: { locale: Locale; list: Li
       locale={locale}
       routeId="R12"
       settings={settings}
-      leashEnd={visible.length > 0 ? 'content' : 'header'}
       lead={
         <>
           {block?.heading ? <p className={styles.muted}>{block.heading}</p> : null}
@@ -84,7 +83,6 @@ export async function FlashListPage({ locale, list }: { locale: Locale; list: Li
               </li>
             ))}
           </ul>
-          <LeashEnd />
           <TattooPriceFootnote locale={locale} taxMode={settings.taxMode} />
         </section>
       ) : all.length > 0 && !anyAvailable ? (

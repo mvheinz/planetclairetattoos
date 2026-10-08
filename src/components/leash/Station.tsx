@@ -11,6 +11,7 @@ export function Station({
   loop = 'none',
   as: Tag = 'div',
   className,
+  attrs,
   children,
 }: {
   id: string
@@ -18,10 +19,13 @@ export function Station({
   loop?: LoopKind
   as?: 'div' | 'span' | 'section'
   className?: string
+  /** Weitere `data-*`-Attribute am Anker (z. B. `data-about-image-text` auf R19). */
+  attrs?: Readonly<Record<`data-${string}`, string>>
   children?: React.ReactNode
 }) {
   return (
     <Tag
+      {...attrs}
       className={className}
       data-leash-station={id}
       data-leash-pose={pose}
@@ -30,4 +34,15 @@ export function Station({
       {children}
     </Tag>
   )
+}
+
+/**
+ * Kringel der Tuschelinie an einem vorhandenen Element (U-44): Attribute für eine Abschnitts-Überschrift o. Ä. – die
+ * Leine kringelt sich dort in der Rinne, abwechselnd rechts/links nach `index` (fest je Seite, kein Zufall).
+ */
+export function coil(id: string, index: number, loop?: LoopKind) {
+  return {
+    'data-leash-station': id,
+    'data-leash-loop': loop ?? (index % 2 ? 'left' : 'right'),
+  } as const
 }

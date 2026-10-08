@@ -1,19 +1,14 @@
 import { expect, test } from '../fixtures'
 
-// P8.14 Stationszeichnungen (DESIGN §12.4, KO-21, E-73): die Startseite zeigt 7 Stationszeichnungen aus
+// P8.14 Stationszeichnungen (DESIGN §12.4, KO-21, E-73): die Startseite zeigt 6 Stationszeichnungen aus
 // `src/art/stations/` bzw. dem Coco-Sprite (keine Ersatzzeichnung mehr), `aria-hidden`, Tusche über `currentColor`, ohne Konsolenfehler.
+// P13.1 (U-40): Station „Komm näher.“ samt Fitness-Coco entfernt.
 
-const STATION_IDS = [
-  'fitness',
-  'keramik',
-  'textil',
-  'zeichnungen',
-  'schmuck',
-  'tattoo',
-  'jutta-und-coco',
-]
+const STATION_IDS = ['keramik', 'textil', 'zeichnungen', 'schmuck', 'tattoo', 'jutta-und-coco']
 
-test('P8.14: Startseite zeigt 7 Stationszeichnungen ohne Konsolenfehler', async ({ page }) => {
+test('P8.14 P13.1: Startseite zeigt 6 Stationszeichnungen ohne Konsolenfehler', async ({
+  page,
+}) => {
   const errors: string[] = []
   page.on('console', (msg) => {
     if (msg.type() === 'error') errors.push(msg.text())
@@ -22,20 +17,15 @@ test('P8.14: Startseite zeigt 7 Stationszeichnungen ohne Konsolenfehler', async 
   const res = await page.goto('/de')
   expect(res?.status()).toBe(200)
   const arts = page.locator('[data-home-station] [data-station-art]')
-  await expect(arts).toHaveCount(7)
+  await expect(arts).toHaveCount(6)
   expect(
     await arts.evaluateAll((els) => els.map((e) => e.getAttribute('data-station-art'))),
   ).toEqual(STATION_IDS)
   for (const id of STATION_IDS) {
     const art = page.locator(`[data-station-art="${id}"]`)
-    if (id === 'fitness') {
-      // Fitness-Coco (P12.5): Standbild mit Alt-Text statt Inline-SVG
-      await expect(art.locator('img')).toHaveCount(1) // Standbild (bei laufender Schleife verdeckt von der Leinwand)
-      continue
-    }
     await expect(art).toHaveAttribute('aria-hidden', 'true')
     const svg = art.locator('svg')
-    // „Hallo“/„Jutta & Coco“: Coco aus dem Sprite (DESIGN §12.4), bei Jutta & Coco zusätzlich die Planet-Marke
+    // „Jutta & Coco“: Coco aus dem Sprite (DESIGN §12.4), bei Jutta & Coco zusätzlich die Planet-Marke
     await expect(svg).toHaveCount(id === 'jutta-und-coco' ? 2 : 1)
     await expect(svg.first()).toBeVisible()
     // Tusche: currentColor löst auf die Tuschefarbe auf (E-73)

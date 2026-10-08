@@ -629,7 +629,7 @@ const DISPLAY_ROLES = ['h1', 'h2', 'price', 'stamp', 'menu', 'badge']
 
 export function lg03(files: readonly ProbeFile[]): CheckResult {
   const th =
-    'Spectral (Überschrift-/Akzent-Schrift, U-10) nur in erlaubten Rollen (DESIGN §4.3; Ruhe-Routen nur H1), nie < 16 px'
+    'Spectral (Überschrift-/Akzent-Schrift, U-10) nur in erlaubten Rollen (DESIGN §4.3; Ruhe-Routen nur Überschriften H1–H4, U-43), nie < 16 px'
   const rows = entries(files)
   if (!rows.length) return noData('LG-03', th, 'keine Sonden')
   const bad = new Set<string>()
@@ -641,7 +641,8 @@ export function lg03(files: readonly ProbeFile[]): CheckResult {
       const route = routeOf(e.p.url)?.id ?? e.p.url
       if (m.size < 16) bad.add(`${route}: <${m.tag}> ${m.size} px`)
       if (!DISPLAY_ROLES.includes(m.role)) bad.add(`${route}: <${m.tag}> Rolle ${m.role}`)
-      else if (calm && m.role !== 'h1' && m.role !== 'menu')
+      // U-43 (P13.4): Überschriften H1–H4 (Rollen h1/h2) auf allen Seiten in Spectral, auch auf Ruhe-Routen.
+      else if (calm && m.role !== 'h1' && m.role !== 'h2' && m.role !== 'menu')
         bad.add(`${route}: <${m.tag}> Rolle ${m.role} auf Ruhe-Route`)
     }
   }

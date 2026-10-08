@@ -7,10 +7,10 @@ import type { BehaviorContext, BehaviorModule, Unmount } from './types'
 export const BEHAVIOR_LOADERS = {
   'add-to-cart': () => import('./add-to-cart'),
   'copy-button': () => import('./copy-button'),
-  'fitness-coco': () => import('./fitness-coco'),
   'buy-bar': () => import('./buy-bar'),
   'cart-count': () => import('./cart-count'),
   gallery: () => import('./gallery'),
+  'language-targets': () => import('./language-targets'),
   lightbox: () => import('./lightbox'),
   lost: () => import('./lost'),
   menu: () => import('./menu'),

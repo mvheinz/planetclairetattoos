@@ -3,7 +3,7 @@ import React from 'react'
 
 import { addToCart } from '@/app/(frontend)/[locale]/shop/[product]/actions'
 
-import { Station } from '@/components/leash/Station'
+import { coil } from '@/components/leash/Station'
 import { Badge } from '@/components/shop/Badge'
 // Alias: der Streichpreis-Scan (V-20) prüft den Quelltext auf das HTML-Tag für Streichungen.
 import { DeliveryTime as LeadTime } from '@/components/shop/DeliveryTime'
@@ -58,9 +58,9 @@ import styles from './ProductPage.module.css'
 // Kaufknopf und nie hinter einem Klick (AK-3-05, AK-3-07): H1 → Kurzdaten (`Nr. 017` · „Unikat“ · Kategorie · Maße) →
 // Preisschild `pinned` mit Steuer-/Versandhinweis und Lieferzeit (R-030, R-031, R-035) → Pflichtangaben je Kategorie
 // (R-043 bis R-046, Bausteine `product.*`) → Abweichungs-Kasten (R-048 Nr. 1) → Kaufbereich je Zustand samt Satz zum
-// Liefergebiet (R-036). Fehlt ein EN-Text, steht der DE-Text mit `lang="de"`. Tuschelinie `product` (DESIGN §9.7):
-// Start unter der H1 (Unterstreichung), Haken (`hook`) am Knopf „In den Korb“; daneben die reservierte Coco-Box
-// 48 × 40 am Preisschild (Coco-Hüpfer MI-01 als Grundfassung im Modul `add-to-cart`). „In den Korb“ ist ein Formular
+// Liefergebiet (R-036). Fehlt ein EN-Text, steht der DE-Text mit `lang="de"`. Tuschelinie `product` (DESIGN §9.7,
+// U-44): wie im Shop in der Rinne links, Coco läuft an der Leine mit, Kringel an Titel, Preis und den Abschnitten; der
+// Coco-Hüpfer MI-01 (Modul `add-to-cart`) springt mit der Leinen-Coco. „In den Korb“ ist ein Formular
 // mit der Server-Action `addToCart` (P3.11): ohne JavaScript 303 zurück mit `#in-cart` bzw. Meldung (CSS `:target`), mit
 // JavaScript ohne Seitenwechsel (`add-to-cart`); Live-Zustand per `product-status` (+ `sold-stamp`). Direkt nach
 // dem Kaufbereich die harmonisierte Mitteilung zur Gewährleistung (R-049, Bereich Preis/Produktangaben), danach die
@@ -194,7 +194,7 @@ export async function ProductPage({
     <article
       className={`u-container ${styles.page}`}
       data-product-page=""
-      data-behavior="product-status sold-stamp"
+      data-behavior="product-status sold-stamp language-targets"
       data-product-id={product.id}
       data-item-number={product.itemNumber}
       data-status={state}
@@ -209,14 +209,10 @@ export async function ProductPage({
       />
 
       {/* 2. Titel */}
-      <header className={styles.head}>
+      <header className={styles.head} {...coil('title', 0)} data-leash-pose="sitzen">
         <h1 className={styles.title} lang={de('title')} data-product-title="">
           {product.title}
         </h1>
-        <div className={styles.titleLine} aria-hidden="true">
-          <span className={styles.lineStart} data-leash-anchor="start" />
-          <Station id="title" as="span" className={styles.lineEnd} />
-        </div>
       </header>
 
       {/* 3. Kurzdaten */}
@@ -234,7 +230,7 @@ export async function ProductPage({
       </ul>
 
       {/* 4. Preisschild mit Steuer-/Versandhinweis und Lieferzeit */}
-      <div className={styles.price} data-product-price="">
+      <div className={styles.price} data-product-price="" {...coil('price', 1)}>
         <div className={styles.tagRow}>
           <PriceTag
             itemNumber={product.itemNumber}
@@ -244,7 +240,6 @@ export async function ProductPage({
             sold={state === 'sold'}
             stampSlot
           />
-          <span className={styles.cocoSlot} data-product-coco="" aria-hidden="true" />
         </div>
         <PriceFootnote
           locale={locale}
@@ -423,8 +418,6 @@ export async function ProductPage({
               data-text-add={t('addToCart')}
               data-text-reserved={tBadges('reservedLong')}
               data-closed={closed ? '' : undefined}
-              data-leash-anchor="target"
-              data-leash-loop="hook"
             >
               {cartFields}
               <Button variant="primary" type="submit" disabled={!canAdd}>
@@ -470,7 +463,7 @@ export async function ProductPage({
       </StaticHtml>
 
       {/* 7. Beschreibung und „Jutta sagt“ */}
-      <StaticHtml>
+      <StaticHtml {...coil('description', 0, 'spiral')}>
         <ProductDescription product={product} locale={locale} langOf={de} />
       </StaticHtml>
 
@@ -480,7 +473,7 @@ export async function ProductPage({
       </StaticHtml>
 
       {/* 9. Herstellerin & Sicherheit (GPSR) */}
-      <StaticHtml>
+      <StaticHtml {...coil('safety', 1)}>
         <ProductSafetyBlock
           product={product}
           locale={locale}
@@ -502,7 +495,7 @@ export async function ProductPage({
       </StaticHtml>
 
       {/* 11. Mehr aus {Kategorie} */}
-      <StaticHtml>
+      <StaticHtml {...coil('more', 0)}>
         <MoreFromCategory
           products={related.filter((p) => p.status !== 'sold' && p.id !== product.id)}
           locale={locale}

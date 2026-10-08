@@ -1,0 +1,43 @@
+/* Instagram-Hinweis unter dem Schaukasten (P13.3, U-42): gezeichnetes Zeichen + Name, Textlink in Tusche. */
+.instagram {
+  margin: 0;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px; /* Zielgröße (WCAG 2.5.8) */
+  color: var(--ink);
+  font-size: var(--fs-small);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.glyph {
+  flex: none;
+  width: 28px;
+  height: 28px;
+}
+
+.handle {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.link:hover .handle {
+  text-decoration-thickness: 2px;
+}
+
+.link:focus-visible {
+  outline: var(--stroke-ink) solid var(--ink);
+  outline-offset: 3px;
+  border-radius: var(--r-badge);
+}
+
+@media (forced-colors: active) {
+  .link {
+    color: LinkText;
+  }
+}

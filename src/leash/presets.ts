@@ -8,10 +8,6 @@ import type { LoopKind, PresetId, SpritePose } from './types'
 export type DrawMode =
   /** scrollgekoppelt (Lesezeile, §9.6) */
   | 'scroll'
-  /** je Kartenreihe einmal beim Eintritt (IO-Schwelle) */
-  | 'rowEnter'
-  /** je Karte/Formular einmal beim Eintritt */
-  | 'enter'
   /** einmal nach LCP + Idle */
   | 'once'
   /** nie – Stufe C, statisch */
@@ -38,6 +34,23 @@ export interface PresetConfig {
   coco: { size: CocoSize } | null
 }
 
+/**
+ * Shop- und Tattoo-Seiten (U-44, P13.5): wie die Startseite – scrollgekoppelt, Rinne 56 / 88 (Coco an der Leine passt
+ * hinein, §5.3), Coco läuft an der Leine mit, Kringel zwischen den Blöcken, ab und zu eine Umrundung eines Bildes.
+ */
+const TRAIL: PresetConfig = {
+  gutter: { mobile: 56, desktop: 88 },
+  rail: 'center',
+  draw: 'scroll',
+  // wie die Startseite: Coco läuft beim Laden die Leine bis zur Lesezeile entlang (MI-10, auch um ein Bild am Anfang)
+  intro: true,
+  durationMs: 1800,
+  width: 'leash',
+  wobble: 'normal',
+  loops: ['right', 'left', 'spiral', 'lasso', 'contour'],
+  coco: { size: 'leash' },
+}
+
 export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
   journey: {
     gutter: { mobile: 56, desktop: 88 },
@@ -61,28 +74,8 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     loops: ['right', 'left'],
     coco: { size: 'leash' },
   },
-  shopString: {
-    gutter: { mobile: 32, desktop: 56 },
-    rail: 'center',
-    draw: 'rowEnter',
-    intro: false,
-    durationMs: 1000,
-    width: 'leash',
-    wobble: 'normal',
-    loops: ['right', 'left'],
-    coco: { size: 'm' },
-  },
-  product: {
-    gutter: { mobile: 0, desktop: 0 },
-    rail: 'none',
-    draw: 'once',
-    intro: false,
-    durationMs: 1200,
-    width: 'leash',
-    wobble: 'normal',
-    loops: ['hook'],
-    coco: { size: 's' },
-  },
+  shopString: TRAIL,
+  product: TRAIL,
   calm: {
     gutter: { mobile: 0, desktop: 0 },
     rail: 'none',
@@ -94,28 +87,8 @@ export const PRESET_CONFIG: Readonly<Record<PresetId, PresetConfig>> = {
     loops: [],
     coco: { size: 's' },
   },
-  stencil: {
-    gutter: { mobile: 32, desktop: 56 },
-    rail: 'center',
-    draw: 'enter',
-    intro: false,
-    durationMs: 1400,
-    width: 'leash',
-    wobble: 'normal',
-    loops: ['right', 'left'],
-    coco: { size: 'm' },
-  },
-  frame: {
-    gutter: { mobile: 0, desktop: 0 },
-    rail: 'none',
-    draw: 'enter',
-    intro: false,
-    durationMs: 1400,
-    width: 'leash',
-    wobble: 'normal',
-    loops: ['contour'],
-    coco: { size: 'm' },
-  },
+  stencil: TRAIL,
+  frame: TRAIL,
   legal: {
     gutter: { mobile: 16, desktop: 24 },
     rail: 'margin',

@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import React from 'react'
 
+import { coil } from '@/components/leash/Station'
 import styles from '@/components/tattoo/Tattoo.module.css'
 import { TattooShell } from '@/components/tattoo/TattooShell'
 import { tattooLocale, tattooMetadata } from '@/components/tattoo/tattooRoute'
@@ -42,7 +43,7 @@ export default async function ProcessPage({ params }: { params: Promise<{ locale
       contactTopic={{ kind: 'custom' }}
     >
       <section className={styles.section} aria-labelledby="process-steps" data-tattoo-steps="">
-        <h2 id="process-steps" className={styles.sectionHeading}>
+        <h2 id="process-steps" className={styles.sectionHeading} {...coil('steps', 1)}>
           {block?.heading || t('stepsHeading')}
         </h2>
         <ol className={styles.steps}>
@@ -60,7 +61,7 @@ export default async function ProcessPage({ params }: { params: Promise<{ locale
         <p data-tattoo-age="">{t('ageHint')}</p>
       </Callout>
       <section className={styles.section} aria-labelledby="process-place" data-tattoo-place="">
-        <h2 id="process-place" className={styles.sectionHeading}>
+        <h2 id="process-place" className={styles.sectionHeading} {...coil('place', 2, 'spiral')}>
           {t('placeHeading')}
         </h2>
         <p>

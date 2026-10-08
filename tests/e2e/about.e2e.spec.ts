@@ -4,9 +4,9 @@ import { type Page } from '@playwright/test'
 import { expectNoSeriousViolations } from './axe'
 import { testPayload } from './fixtures'
 
-// P8.18 Über mich & Coco (R19, KONZEPT §3.12, SEED-SPEC §13.2, DESIGN §9.7 Preset `about`): Route DE/EN mit Inhalt aus
-// `pages:about`, in der Sitemap, canonical + drei hreflang (AK-2-05), keine Abbildung von Jutta ohne Freigabe (R-181),
-// Instagram mit `rel="noopener noreferrer"` (R-139), Linie überdeckt keinen Text (DESIGN §9.9), reduzierte Bewegung →
+// P8.18 Über mich & Coco (R19, KONZEPT §3.12, SEED-SPEC §13.2, DESIGN §9.7 Preset `about`; gekürzt nach U-48, P13.9):
+// Route DE/EN mit Inhalt aus `pages:about`, in der Sitemap, canonical + drei hreflang (AK-2-05), keine Abbildung von
+// Jutta ohne Freigabe (R-181), Instagram mit `rel="noopener noreferrer"` (R-139), Linie überdeckt keinen Text (DESIGN §9.9), reduzierte Bewegung →
 // Linie sofort vollständig und statisch (AK-DS-14), axe ohne serious/critical. Linien-Prüfungen brauchen
 // `window.__leash` (Build mit NEXT_PUBLIC_LEASH_DEBUG=1).
 
@@ -28,7 +28,7 @@ async function waitForLeash(page: Page) {
 }
 
 for (const locale of ['de', 'en'] as const) {
-  test(`AK-2-05 R19 ${PATHS[locale]}: Inhalt, canonical/hreflang, Instagram, Leine-Stationen`, async ({
+  test(`AK-2-05 R19 ${PATHS[locale]}: Inhalt (U-48), canonical/hreflang, Instagram, Leine-Stationen`, async ({
     page,
   }) => {
     const res = await page.goto(PATHS[locale])
@@ -38,28 +38,32 @@ for (const locale of ['de', 'en'] as const) {
     await expect(page.locator('h1')).toHaveCount(1)
     await expect(page.locator('h1')).toHaveText('Jutta & Coco')
     const main = page.locator('[data-about-page]')
-    await expect(main).toContainText(
-      locale === 'de'
-        ? 'Das hier ist Planet Claire – mein kleiner Planet in Berlin'
-        : 'This is Planet Claire – my small planet in Berlin',
-    )
-    await expect(main).toContainText(locale === 'de' ? 'Und das ist Coco.' : 'And this is Coco.')
-    await expect(main.locator('[data-about-coco] svg')).toHaveCount(1)
-    // „Was ich mache“: Shop, Tattoo, Auftragsarbeiten
-    const what = main.locator('[data-about-what]')
-    await expect(what.locator(`a[href="/${locale}/shop"]`)).toHaveCount(1)
-    await expect(what.locator(`a[href="/${locale}/tattoo"]`)).toHaveCount(1)
+    // U-48 (P13.9): nur „Zu zweit“ (Foto) und „Sag etwas“; gelöscht sind „Ich bin Jutta“, „Die zittrige Linie“, der
+    // Coco-Absatz mit gezeichneter Coco, die Galerie und „Wo ich zeichne“ mit den Kategorie-Aufrufen.
+    await expect(main).toContainText(locale === 'de' ? 'Zu zweit' : 'The two of us')
     await expect(
-      what.locator(`a[href="${locale === 'de' ? '/de/auftragsarbeiten' : '/en/commissions'}"]`),
+      main.locator('h2', { hasText: locale === 'de' ? 'Sag etwas' : 'Say something' }),
     ).toHaveCount(1)
+    await expect(main).not.toContainText(locale === 'de' ? 'Ich bin Jutta' : 'I am Jutta')
+    await expect(main).not.toContainText(
+      locale === 'de' ? 'Die zittrige Linie' : 'The trembling line',
+    )
+    await expect(main).not.toContainText(
+      locale === 'de' ? 'Und das ist Coco.' : 'And this is Coco.',
+    )
+    await expect(main).not.toContainText(locale === 'de' ? 'Wo ich zeichne' : 'Where I draw')
+    await expect(main.locator('[data-about-coco]')).toHaveCount(0)
+    await expect(main.locator('[data-about-gallery]')).toHaveCount(0)
+    await expect(main.locator('[data-about-what]')).toHaveCount(0)
+    await expect(main.locator('[data-about-image-text]')).toHaveCount(1)
     // P12.7 (U-15): Das Instagram-Profil ist nur im Fuß verlinkt, nicht im Inhalt der Seite.
     await expect(main.locator('a[href*="instagram.com"], a[href*="ig.me"]')).toHaveCount(0)
-    // drei Stationen der Linie: Jutta → Coco → Werkstatt
+    // zwei Stationen der Linie: „Zu zweit“ → „Sag etwas“
     expect(
       await page
         .locator('[data-about-page] [data-leash-station]')
         .evaluateAll((els) => els.map((e) => e.getAttribute('data-leash-station'))),
-    ).toEqual(['jutta', 'coco', 'werkstatt'])
+    ).toEqual(['zu-zweit', 'sag-etwas'])
     // canonical + hreflang de/en/x-default
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       'href',

@@ -54,7 +54,8 @@
 .filters {
   position: relative;
   margin-top: var(--space-5);
-  margin-inline: calc(-1 * var(--page-pad));
+  /* nur rechts bis zum Rand: links liegt die Rinne mit Coco an der Leine (U-44, LG-01) */
+  margin-inline: 0 calc(-1 * var(--page-pad));
 }
 
 .subnav::after,
@@ -72,7 +73,7 @@
   display: flex;
   gap: var(--space-2);
   margin: 0;
-  padding: 2px var(--space-6) 2px var(--page-pad);
+  padding: 2px var(--space-6) 2px 4px;
   overflow-x: auto;
   list-style: none;
   scroll-snap-type: x proximity;
@@ -383,6 +384,38 @@
 
 .galleryItem {
   margin: 0;
+}
+
+/* Kleine Bilderleiste (R11-Teaser, U-44): Coco läuft an der Leine einmal darum herum (Freiraum `u-leash-room`). */
+.galleryStrip {
+  display: flex;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* mobil zwei Bilder (die Gruppe muss samt Freiraum neben Coco in die Spalte passen), ab 768 drei */
+.galleryStrip > li {
+  width: 112px;
+}
+
+.galleryStrip > li:nth-child(n + 3) {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .galleryStrip {
+    gap: var(--space-4);
+  }
+
+  .galleryStrip > li {
+    width: 168px;
+  }
+
+  .galleryStrip > li:nth-child(n + 3) {
+    display: list-item;
+  }
 }
 
 .galleryLink {

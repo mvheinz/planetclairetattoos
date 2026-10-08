@@ -260,23 +260,25 @@ function measure(args: ProbeArgs): Probe {
     if (!own) continue
     const st = getComputedStyle(el)
     if (!/spectral/i.test(st.fontFamily) || srOnly(el)) continue
-    const role = el.closest('button, input, select, textarea, label, table, form')
-      ? 'control'
-      : el.closest('h1')
+    // U-43: Überschriften (auch Abschnittsköpfe innerhalb eines Formulars, z. B. Kasse) zählen als Überschrift.
+    const heading = el.closest('h1, h2, h3, h4')
+    const role = heading
+      ? heading.tagName === 'H1'
         ? 'h1'
-        : el.closest('h2, h3')
-          ? 'h2'
-          : el.closest('[data-price-tag], [data-price], [data-product-price]')
-            ? 'price'
-            : el.closest('[data-sold-stamp], [data-stamp]')
-              ? 'stamp'
-              : el.closest('nav')
-                ? 'menu'
-                : el.closest('[data-badge], time')
-                  ? 'badge'
-                  : el.closest('p, li')
-                    ? 'body'
-                    : 'other'
+        : 'h2'
+      : el.closest('button, input, select, textarea, label, table, form')
+        ? 'control'
+        : el.closest('[data-price-tag], [data-price], [data-product-price]')
+          ? 'price'
+          : el.closest('[data-sold-stamp], [data-stamp]')
+            ? 'stamp'
+            : el.closest('nav')
+              ? 'menu'
+              : el.closest('[data-badge], time')
+                ? 'badge'
+                : el.closest('p, li')
+                  ? 'body'
+                  : 'other'
     display.push({ tag: el.tagName.toLowerCase(), size: parseFloat(st.fontSize), role })
   }
 

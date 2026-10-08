@@ -111,11 +111,12 @@ describe('PriceTag – Darstellung', () => {
     expect(a).toBe(b)
   })
 
-  it('Varianten: hanging mit Faden-Anker der Schnur, pinned ohne, mini ohne Nummer', () => {
+  it('Varianten: hanging mit Faden, pinned, mini ohne Nummer; kein Leinen-Anker (U-44: Rasterzelle ist die Karte)', () => {
     const hanging = render(
       h(PriceTag, { itemNumber: 1, priceCents: 900, locale: 'de', variant: 'hanging' }),
     ).container
-    expect(hanging.querySelector('[data-leash-anchor="tag"]')).not.toBeNull()
+    expect(hanging.querySelector('[data-price-tag="hanging"]')).not.toBeNull()
+    expect(hanging.querySelector('[data-leash-anchor]')).toBeNull()
     cleanup()
     const pinned = render(
       h(PriceTag, { itemNumber: 1, priceCents: 900, locale: 'de', variant: 'pinned' }),

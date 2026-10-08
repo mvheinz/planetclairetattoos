@@ -205,19 +205,13 @@ h2 {
   line-height: 1.08;
 }
 
+/* U-43 (P13.4): alle Überschriften H1–H3 auf allen Seiten in Spectral wie der Titel – auch auf Ruhe- und
+   Rechtsseiten (die frühere Ausnahme „nur H1“ entfällt). Fließtext bleibt Bricolage. */
 h3 {
-  font-family: var(--font-body);
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-weight: 400;
   font-size: var(--fs-h3);
-  line-height: 1.3;
-  letter-spacing: -0.005em;
-}
-
-/* Ruhe-Seiten und Rechtstexte: Spectral nur für die H1 (DESIGN §4.3 Nr. 2), alles andere Bricolage. */
-body[data-preset='calm'] main :is(h2, h3),
-body[data-preset='legal'] main :is(h2, h3) {
-  font-family: var(--font-body);
-  font-weight: 700;
+  line-height: 1.25;
 }
 
 /* Wortmarke (§12.6): Höhe über --fs-wordmark, Breite aus dem Seitenverhältnis. */
@@ -349,9 +343,14 @@ html[data-menu-open] {
   padding-inline-end: var(--page-pad);
 }
 
-/* Linien-Rinne je Preset (§5.3); das Preset setzt das Layout als `data-preset` am body (§9.7). */
+/* Linien-Rinne je Preset (§5.3); das Preset setzt das Layout als `data-preset` am body (§9.7). Startseite, Über mich
+   und (U-44) alle Shop- und Tattoo-Seiten: Coco läuft an der Leine mit und braucht die breite Rinne. */
 body[data-preset='journey'],
-body[data-preset='about'] {
+body[data-preset='about'],
+body[data-preset='shopString'],
+body[data-preset='product'],
+body[data-preset='stencil'],
+body[data-preset='frame'] {
   --leash-gutter: 56px;
 }
 
@@ -360,15 +359,13 @@ body[data-preset='margin'] {
   --leash-gutter: 16px;
 }
 
-/* Raster-Seiten (U-07a): Shop-Listen und Tattoo/Flash – die Leine läuft in einer schmalen Rinne am Seitenrand */
-body[data-preset='shopString'],
-body[data-preset='stencil'] {
-  --leash-gutter: 32px;
-}
-
 @media (min-width: 768px) {
   body[data-preset='journey'],
-  body[data-preset='about'] {
+  body[data-preset='about'],
+  body[data-preset='shopString'],
+  body[data-preset='product'],
+  body[data-preset='stencil'],
+  body[data-preset='frame'] {
     --leash-gutter: 88px;
   }
 
@@ -376,10 +373,28 @@ body[data-preset='stencil'] {
   body[data-preset='margin'] {
     --leash-gutter: 24px;
   }
+}
 
-  body[data-preset='shopString'],
-  body[data-preset='stencil'] {
-    --leash-gutter: 56px;
+/* Freiraum um eine Bildgruppe, die Coco an der Leine umrundet (`data-leash-loop="contour"`, U-44): Die Hundefigur ragt
+   bis ≈ 29 / 45 px über und ≈ 24 / 37 px unter die Linie (mobil / ab 768; die Linie läuft 10 px neben der Gruppe) und
+   ≈ 26 / 44 px zu jeder Seite – innen hält das Polster Bilder und Beschriftung frei, außen der Abstand Überschrift und
+   Folgetext (KUNST-QA LG-01). `-wide` nur ab 768 (mobil ist dort kein Platz, die Engine macht daraus einen Kringel). */
+.u-leash-room.u-leash-room {
+  box-sizing: border-box;
+  width: fit-content;
+  max-width: 100%;
+  padding: 26px;
+  margin-block: 40px;
+}
+
+@media (min-width: 768px) {
+  .u-leash-room.u-leash-room,
+  .u-leash-room-wide.u-leash-room-wide {
+    box-sizing: border-box;
+    width: fit-content;
+    max-width: 100%;
+    padding: 40px;
+    margin-block: 56px;
   }
 }
 
@@ -427,10 +442,19 @@ body[data-preset='stencil'] {
   position: absolute;
   overflow: visible;
 }
-
-/* Layout hat sich geändert, Neuaufbau steht aus: die veraltete Produktlinie nicht über neuen Text stehen lassen. */
-[data-leash-preset='product'][data-stale] {
-  visibility: hidden;
+/* Stufe A (`runtime.ts`): Strich-Stücke erben Füllung, runde Enden, Farbe und das Dash-Muster `DASH` (2000 px) vom Segment;
+   nur `stroke-dashoffset` steht am Element und ändert sich beim Zeichnen. */
+[data-leash-seg].lx {
+  fill: none;
+  stroke: var(--ink);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 2000px 2000px;
+}
+@media (forced-colors: active) {
+  [data-leash-seg].lx {
+    stroke: CanvasText;
+  }
 }
 
 .u-layer-sticky {

@@ -331,6 +331,9 @@ Schreibe in Rechtstexten nie selbst um, was die Kanzlei geliefert hat.
 Alles, was selten geändert wird, liegt hier. Die wichtigsten Bereiche:
 
 - **Stammdaten & Impressum:** Name, Anschrift, E-Mail, Telefon, Steuernummer. Die Steuernummer erscheint nie öffentlich.
+  Deine Anschrift (Jutta Dollmann, Anklamer Straße 28, 10115 Berlin) ist schon eingetragen; Impressum, Datenschutz,
+  AGB, Widerruf, Rechnungen, Mails und die Kontaktseite übernehmen sie von hier. Auf der Kontaktseite und bei „Sag
+  etwas“ kannst du sie im Baustein „Kontakt-Links“ mit dem Häkchen „Anschrift zeigen“ ausblenden.
 - **Steuer:** Solange du Kleinunternehmerin bist, schreibt der Shop „Kein Ausweis von Umsatzsteuer“. Den Modus änderst du
   nur nach Rücksprache mit der Steuerberatung.
 - **Versand:** Preise, Lieferzeit, Lieferländer und Abholung. Es ist erst einmal nur Deutschland eingeschaltet.

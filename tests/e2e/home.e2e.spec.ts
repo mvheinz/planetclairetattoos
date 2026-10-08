@@ -3,40 +3,16 @@ import { type Page } from '@playwright/test'
 
 import type { Locale } from '../../src/lib/routes/registry'
 
-// P2.20 Startseite R01 (KONZEPT §3.1, DESIGN KO-21/§11.4): Kopf-Station „Planet Claire“ und genau 7 Stationen aus dem
-// Seed `pages:home` (AK-3-01, AK-SEED-18), ohne JavaScript vollständig lesbar, DE und EN vollständig, Linie zeichnet
+// P2.20 Startseite R01 (KONZEPT §3.1, DESIGN KO-21/§11.4): Kopf-Station „Planet Claire“ und genau 6 Stationen aus dem
+// Seed `pages:home` (AK-3-01, AK-SEED-18; „Komm näher.“ entfiel mit U-40, Keramik = Station 01), ohne JavaScript vollständig lesbar, DE und EN vollständig, Linie zeichnet
 // beim Scrollen (AK-DS-13), Tempo-Budget mobil (LCP < 2,5 s, CLS < 0,1). DM-PAGE-01 (fehlende Seite → Leerzustand)
 // prüft `tests/int/pages/home-data.int.spec.ts` – hier würde das Löschen der Seite parallele Specs stören.
 
-const STATION_IDS = [
-  'hallo',
-  'keramik',
-  'textil',
-  'zeichnungen',
-  'schmuck',
-  'tattoo',
-  'jutta-und-coco',
-]
+const STATION_IDS = ['keramik', 'textil', 'zeichnungen', 'schmuck', 'tattoo', 'jutta-und-coco']
 
 const HEADINGS: Record<Locale, string[]> = {
-  de: [
-    'Komm näher.',
-    'Keramik',
-    'Textil & Caps',
-    'Zeichnungen',
-    'Schmuck',
-    'Tattoo',
-    'Jutta & Coco',
-  ],
-  en: [
-    'Come closer.',
-    'Ceramics',
-    'Textiles & caps',
-    'Drawings',
-    'Jewellery',
-    'Tattoo',
-    'Jutta & Coco',
-  ],
+  de: ['Keramik', 'Textil & Caps', 'Zeichnungen', 'Schmuck', 'Tattoo', 'Jutta & Coco'],
+  en: ['Ceramics', 'Textiles & caps', 'Drawings', 'Jewellery', 'Tattoo', 'Jutta & Coco'],
 }
 
 const HERO: Record<Locale, string> = {
@@ -49,18 +25,18 @@ async function expectStations(page: Page, locale: Locale) {
   await expect(page.locator('h1')).toHaveText('Planet Claire')
   await expect(page.locator('[data-home-hero]')).toContainText(HERO[locale])
   const stations = page.locator('[data-home-station]')
-  await expect(stations).toHaveCount(7)
+  await expect(stations).toHaveCount(6)
   expect(
     await stations.evaluateAll((els) => els.map((el) => el.getAttribute('data-home-station'))),
   ).toEqual(STATION_IDS)
   await expect(stations.locator('h2')).toHaveText(HEADINGS[locale])
   await expect(stations.first()).toContainText('Station 01')
-  await expect(stations.last()).toContainText('Station 07')
+  await expect(stations.last()).toContainText('Station 06')
 }
 
 test.describe('Startseite @smoke', () => {
   for (const locale of ['de', 'en'] as const) {
-    test(`AK-3-01 AK-SEED-18 /${locale}: Kopf-Station und 7 Stationen in fester Reihenfolge @smoke`, async ({
+    test(`AK-3-01 AK-SEED-18 /${locale}: Kopf-Station und 6 Stationen in fester Reihenfolge @smoke`, async ({
       page,
     }) => {
       const res = await page.goto(`/${locale}`)
@@ -112,14 +88,15 @@ test.describe('Startseite @smoke', () => {
         (window as unknown as { __leash: { drawnLen(): number } }).__leash.drawnLen(),
       )
     const before = await drawn()
-    expect(await page.locator('[data-leash-reached]').count()).toBeLessThan(8)
+    // Kopf-Station + 6 Stationen (U-40: „Komm näher.“ entfiel)
+    expect(await page.locator('[data-leash-reached]').count()).toBeLessThan(7)
     const height = await page.evaluate(() => document.documentElement.scrollHeight)
     for (let y = 0; y <= height; y += 300) {
       await page.evaluate((top) => window.scrollTo({ top, behavior: 'instant' }), y)
       await page.waitForTimeout(40)
     }
     await expect.poll(drawn).toBeGreaterThan(before)
-    await expect(page.locator('[data-leash-reached]')).toHaveCount(8)
+    await expect(page.locator('[data-leash-reached]')).toHaveCount(7)
   })
 
   test('Tempo mobil: LCP < 2,5 s, CLS < 0,1 @smoke', async ({ page, browserName }, testInfo) => {

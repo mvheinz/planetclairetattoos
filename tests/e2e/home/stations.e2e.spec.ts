@@ -5,21 +5,13 @@ import { completeProduct, createProductFixtures } from '../../int/helpers/produc
 import { expect, test, testPayload } from '../fixtures'
 import { freshPage, holdListData, refresh } from '../shop/fresh'
 
-// P3.12 Startseite: Kategorie-Stationen mit echten Stücken (KONZEPT §3.1, DESIGN KO-21, KA-17): Kopf-Station + genau 7
-// Stationen (AK-3-01), je Kategorie-Station höchstens 4 Stücke, nur `available`/`reserved`, neueste zuerst (AK-3-02),
+// P3.12 Startseite: Kategorie-Stationen mit echten Stücken (KONZEPT §3.1, DESIGN KO-21, KA-17): Kopf-Station + genau 6
+// Stationen (AK-3-01; „Komm näher.“ entfiel mit U-40), je Kategorie-Station höchstens 4 Stücke, nur `available`/`reserved`, neueste zuerst (AK-3-02),
 // Station Textil = `textil` + `cap`, Karten ohne Schnur mit Schild `pinned` am Kartenfuß, Link „Alle …“ → R03,
 // Preis-Fußnote einmal pro Seite, Leerzustand mit Archiv-Link (Test-Kategorie `sonstiges` ohne Stücke). Die Tattoo-Station
 // bleibt ohne Karten (P7).
 
-const STATION_IDS = [
-  'hallo',
-  'keramik',
-  'textil',
-  'zeichnungen',
-  'schmuck',
-  'tattoo',
-  'jutta-und-coco',
-]
+const STATION_IDS = ['keramik', 'textil', 'zeichnungen', 'schmuck', 'tattoo', 'jutta-und-coco']
 const SHELVES = ['keramik', 'textil', 'zeichnungen', 'schmuck']
 const CATEGORIES: Record<string, string[]> = {
   keramik: ['keramik'],
@@ -55,13 +47,13 @@ async function lookup(numbers: number[]) {
 test.describe('Startseite – Stationen mit Stücken (lesend)', () => {
   holdListData(test, 'shared')
 
-  test('AK-3-01 AK-3-02: 7 Stationen; je Kategorie-Station ≤ 4 Karten, nur available/reserved, neueste zuerst, passende Kategorie', async ({
+  test('AK-3-01 AK-3-02: 6 Stationen; je Kategorie-Station ≤ 4 Karten, nur available/reserved, neueste zuerst, passende Kategorie', async ({
     page,
     request,
   }) => {
     await openHome(page, request)
     const stations = page.locator('[data-home-station]')
-    await expect(stations).toHaveCount(7)
+    await expect(stations).toHaveCount(6)
     expect(
       await stations.evaluateAll((els) => els.map((el) => el.getAttribute('data-home-station'))),
     ).toEqual(STATION_IDS)
@@ -93,7 +85,7 @@ test.describe('Startseite – Stationen mit Stücken (lesend)', () => {
     }
     expect(total).toBeGreaterThan(0)
     // Keine Karten außerhalb der Kategorie-Stationen (Tattoo bis P7 unverändert).
-    for (const id of ['hallo', 'tattoo', 'jutta-und-coco'])
+    for (const id of ['tattoo', 'jutta-und-coco'])
       await expect(station(page, id).locator('[data-product-card]')).toHaveCount(0)
     // „Alle …“ → R03; Preis-Fußnote genau einmal.
     await expect(station(page, 'keramik').locator('[data-station-all] a')).toHaveAttribute(

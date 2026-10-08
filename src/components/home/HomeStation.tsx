@@ -21,15 +21,16 @@ import { StationArt } from './StationArt'
 // (KO-07 ohne Schnur, Schild `pinned` am Kartenfuß, Fotos `lazy`) und danach „Alle {Kategorie}“ → R03; ohne sichtbare
 // Stücke den Leerzustand „Gerade ist hier nichts …“ mit Link aufs Archiv (KONZEPT §3.1). Anker der Tuschelinie
 // (`data-leash-station`) mit Coco-Pose aus `cocoPose` und der Schlaufe laut Choreografie §11.4: am Kicker bzw. – für
-// `lasso` (Keramik, ab 1200 px) und `contour` (Tattoo) – an der Stationszeichnung.
+// `lasso` (Keramik, Schmuck, ab 1200 px) und `contour` (Textil, Tattoo) – an der Stationszeichnung.
 
 /** Schlaufe je Station (DESIGN §11.4); unbekannte Stationen wechseln rechts/links. */
 export const STATION_LOOPS: Readonly<Record<string, LoopKind>> = {
-  hallo: 'right',
   keramik: 'lasso',
-  textil: 'left',
+  // U-44: Coco läuft auf der Startseite um mehr Zeichnungen: Textil (immer), Schmuck (Lasso ab 1200 px; mehr
+  // Umrundungen sprengten das SVG-Budget der Startseite, PF-10)
+  textil: 'contour',
   zeichnungen: 'spiral',
-  schmuck: 'right',
+  schmuck: 'lasso',
   tattoo: 'contour',
   'jutta-und-coco': 'left',
 }
@@ -49,7 +50,7 @@ export async function HomeStation({
   locale: Locale
   /** Tattoo-Station (KONZEPT §3.1 Nr. 7): bis zu 3 freie Flash-Motive (P7.3). */
   tattoo?: TattooTeaserData | null
-  /** Karten der Kategorie-Station (`listStationProducts`); `null` bei Stationen ohne Stücke (Hallo, Tattoo, …). */
+  /** Karten der Kategorie-Station (`listStationProducts`); `null` bei Stationen ohne Stücke (Tattoo, Jutta & Coco). */
   products?: PublicProduct[] | null
 }) {
   const t = await getTranslations({ locale, namespace: 'home' })
@@ -65,7 +66,7 @@ export async function HomeStation({
       <span>{t('stationKicker', { number: String(station.number).padStart(2, '0') })}</span>
     </p>
   )
-  const art = <StationArt stationId={station.stationId} locale={locale} />
+  const art = <StationArt stationId={station.stationId} />
   const pose = station.pose ?? undefined
   const shelf = station.categories !== null && products !== null
   const allLink = station.link ? (

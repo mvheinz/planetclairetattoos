@@ -68,12 +68,19 @@ describe('Logger-Schwärzung (T-20)', () => {
         orderNumber: 'PC-2026-00017',
         invoice: 'RE-2026-00001',
         template: 'admin_alert',
+        // UUIDs mit führenden Ziffern sind keine Telefonnummern (Kassen-Referenz `checkoutRef`)
+        checkoutRef: '08274916-9ea3-4b22-bb1a-28edb0f37e5e',
+        ref2: 'a1b2c3d4-0123-4567-8901-234567890123',
+        ref3: '00123456-7a8b-4c9d-8e0f-012345678901',
       }),
     ).toEqual({
       orderId: 7,
       orderNumber: 'PC-2026-00017',
       invoice: 'RE-2026-00001',
       template: 'admin_alert',
+      checkoutRef: '08274916-9ea3-4b22-bb1a-28edb0f37e5e',
+      ref2: 'a1b2c3d4-0123-4567-8901-234567890123',
+      ref3: '00123456-7a8b-4c9d-8e0f-012345678901',
     })
   })
 })

@@ -64,13 +64,12 @@
       "gzipMax": 4000
     },
     {
-      "name": "Fitness-Coco Startseite (Verhalten + Puppen-Gerüst, P12.5; nach dem load, eigener Baustein)",
-      "entries": ["src/behaviors/fitness-coco.ts"],
-      "gzipMax": 10000
-    },
-    {
-      "name": "Mikro-Interaktionen Live-Zustand und Korb (product-status, add-to-cart)",
-      "entries": ["src/behaviors/product-status.ts", "src/behaviors/add-to-cart.ts"],
+      "name": "Mikro-Interaktionen Live-Zustand und Korb (product-status, add-to-cart; Kategorie/Stück: language-targets, U-47)",
+      "entries": [
+        "src/behaviors/product-status.ts",
+        "src/behaviors/add-to-cart.ts",
+        "src/behaviors/language-targets.ts"
+      ],
       "gzipMax": 4000
     },
     {
@@ -105,20 +104,8 @@
         "gzipMax": 14000
       },
       {
-        "name": "Fitness-Coco-Ablaufplan (nachgeladen, P12.5)",
-        "file": "public/art/fitness-coco.v2.json",
-        "rawMax": 9000,
-        "gzipMax": 3000
-      },
-      {
-        "name": "Fitness-Coco-Standbild (<img>, WebP 720 × 900, P12.5)",
-        "file": "public/art/fitness-still.v2.webp",
-        "rawMax": 32000,
-        "gzipMax": 32000
-      },
-      {
-        "name": "Koko-Zeichnung (<img>, WebP mit Alpha, P12.6)",
-        "file": "public/art/koko.v2.webp",
+        "name": "Koko-Zeichnung (<img>, WebP mit Alpha, P12.6/P13.2)",
+        "file": "public/art/koko.v3.webp",
         "rawMax": 80000,
         "gzipMax": 80000
       }

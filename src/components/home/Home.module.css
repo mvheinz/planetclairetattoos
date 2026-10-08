@@ -17,37 +17,83 @@
   min-width: 0;
 }
 
-/* Rechte Spalte (P12.8, U-20): oben der Bereich für Koko, die Vorsitzende der Goth Dogs Berlin (`data-slot="chairwoman"`,
-   P12.6), darunter „Planet Claire on Tour“. Mobil steht sie unter dem Kopf der Seite, ab 1100 px rechts neben Kopf und Stationen. */
+/* Oben rechts (P12.8 U-20, P13.3 U-42): Koko (`data-slot="chairwoman"`) und direkt rechts daneben der schmale Schaukasten
+   „Planet Claire on Tour“ mit dem Instagram-Hinweis (`data-slot="tour"`). Handy: untereinander unter dem Kopf der Seite;
+   ab 600 px nebeneinander unter dem Kopf; ab 1100 px rechts neben dem Titel „Planet Claire“ (beides über dem Falz bei
+   1280 × 800), die Stationen laufen darunter über die volle Breite. */
 .aside {
   grid-area: aside;
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  align-items: flex-start;
+  gap: var(--space-5);
   min-width: 0;
 }
 
-/* Benannter Platz für Koko: leer, solange P12.6 ihn nicht füllt – dann ohne Höhe und ohne Abstand. */
+/* Benannter Platz für Koko */
 .chairwomanSlot {
+  width: min(100%, 17rem);
   min-width: 0;
+  align-self: center;
 }
 
 .chairwomanSlot:empty {
   display: none;
 }
 
-@media (min-width: 1100px) {
-  .home {
-    grid-template-columns: minmax(0, 1fr) clamp(17rem, 28vw, 22rem);
-    grid-template-areas:
-      'hero aside'
-      'body aside'
-      'foot aside';
-    column-gap: var(--space-8);
+.tourCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: 26rem;
+  min-width: 0;
+}
+
+@media (min-width: 600px) {
+  .aside {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--space-5);
   }
 
-  /* Nicht „sticky“: Die Spalte kann höher sein als der Bildschirm (vergangene Termine aufgeklappt) – ein haftender Block
-     ließe ihren unteren Teil unerreichbar. */
+  .chairwomanSlot {
+    flex: 0 1 15rem;
+    align-self: flex-start;
+  }
+
+  .tourCol {
+    flex: 1 1 14rem;
+    max-width: 18rem;
+  }
+}
+
+@media (min-width: 1100px) {
+  .home {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'hero aside'
+      'body body'
+      'foot foot';
+    column-gap: var(--space-6);
+  }
+
+  .aside {
+    gap: var(--space-4);
+  }
+
+  /* Koko links, der Schaukasten schmal rechts daneben */
+  .chairwomanSlot {
+    flex: none;
+    width: clamp(13rem, 20vw, 16rem);
+  }
+
+  .tourCol {
+    flex: none;
+    width: 14.5rem;
+  }
+
+  /* Nicht „sticky“: aufgeklappte Termine machen die Spalte länger – sie schiebt die Stationen dann nach unten. */
   .aside {
     align-self: start;
   }
@@ -250,40 +296,6 @@
   display: block;
   width: 100%;
   height: 100%;
-}
-
-/* Der Fitness-Coco braucht mehr Platz als die frühere Stationszeichnung (ganze Figur auf zwei Beinen). */
-.artFrame:has([data-station-art='fitness']) {
-  width: min(360px, 82vw);
-}
-
-/* Fitness-Coco (P12.5): Standbild (<img>) und Leinwand für die Schleife in der 4:5-Box */
-.fitness {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  width: 100%;
-  color: var(--ink);
-}
-
-.fitnessStill,
-.fitnessCanvas {
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-/* `display: block` oben schlüge sonst das Attribut `hidden` der Leinwand */
-.fitnessCanvas[hidden] {
-  display: none;
-}
-
-@media (forced-colors: active) {
-  .fitnessStill,
-  .fitnessCanvas {
-    forced-color-adjust: none;
-  }
 }
 
 .artCoco {

@@ -49,8 +49,8 @@ const TAPER_END = 18
 const TAPER_REST = 4
 /** Sicherheitsabstand der Rinnen-Schlaufen zur Rinnenkante (§9.5 Freiraum-Regel). */
 const GUTTER_CLEARANCE = 2
-/** Schlaufen, nach denen die Linie endet (Danke-Herz, 404-Knäuel, Haken am Knopf). */
-const TERMINAL_LOOPS: readonly LoopKind[] = ['heart', 'coil', 'hook']
+/** Schlaufen, nach denen die Linie endet (Danke-Herz, 404-Knäuel). */
+const TERMINAL_LOOPS: readonly LoopKind[] = ['heart', 'coil']
 
 interface LoopMark {
   anchor: LeashAnchor
@@ -82,62 +82,38 @@ export interface LeashSamples {
 /** Toleranz für „gleiche Zeile“ (Kartenraster) in px. */
 const ROW_TOLERANCE = 12
 
-/** Faden-Anker (`kind = 'tag'`) zu Reihen gruppiert (oben → unten, je Reihe links → rechts). */
-export function stringRows(anchors: readonly LeashAnchor[]): { y: number; xs: number[] }[] {
-  const tags = anchors
-    .filter((a) => a.kind === 'tag')
-    .map((a) => ({ x: a.x + a.w / 2, y: a.y }))
-    .sort((a, b) => a.y - b.y || a.x - b.x)
-  const rows: { y: number; xs: number[] }[] = []
-  for (const t of tags) {
+/** Rasterzellen (`kind = 'tag'`: Karten in Shop-, Flash- und Galerie-Rastern) zu Zeilen gruppiert (oben → unten). */
+export function stringRows(anchors: readonly LeashAnchor[]): { y: number; bottom: number }[] {
+  const rows: { y: number; bottom: number }[] = []
+  for (const a of anchors.filter((a) => a.kind === 'tag').sort((a, b) => a.y - b.y)) {
     const row = rows[rows.length - 1]
-    if (row && Math.abs(t.y - row.y) <= ROW_TOLERANCE) row.xs.push(t.x)
-    else rows.push({ y: t.y, xs: [t.x] })
+    if (row && Math.abs(a.y - row.y) <= ROW_TOLERANCE) row.bottom = Math.max(row.bottom, a.y + a.h)
+    else rows.push({ y: a.y, bottom: a.y + a.h })
   }
-  for (const row of rows) row.xs.sort((a, b) => a - b)
   return rows
 }
 
 /**
- * Raster-Seiten (U-07a): Shop-Listen (`shopString`) und Tattoo-Flash (`stencil`). Die Leine läuft ausschließlich in der
- * Rinne am Seitenrand; zwischen zwei Kartenzeilen kringelt sie sich zu einer Schlaufe (abwechselnd rechts/links) und
- * wickelt nie eine Karte ein. Liefert je Zeile einen Stations-Anker `row-<n>` mit der Schlaufe in der Lücke zur nächsten
- * Zeile; die Laufzeit zeichnet die Zeilen beim Eintritt (`rowEnter`) bzw. einmal (`enter`).
+ * Raster (U-07a, U-44): Die Leine läuft in der Rinne am Seitenrand und kringelt sich in der Lücke zwischen zwei
+ * Kartenzeilen (abwechselnd rechts/links); sie wickelt nie eine Karte ein (Umrundungen nur um ganze Bildgruppen mit
+ * Freiraum, `contour`).
  */
-function gridCoils(input: BuildInput, others: LeashAnchor[]): LeashAnchor[] {
-  const desktop = input.viewport.w >= BP_TABLET
-  const rows: { id: string; top: number; bottom: number }[] = []
-  if (input.preset === 'shopString') {
-    const r = stringRows(input.anchors)
-    r.forEach((row, k) => {
-      const next = r[k + 1]
-      const bottom = next ? (row.y + next.y) / 2 : row.y + 48
-      rows.push({ id: `row-${k}`, top: row.y, bottom })
-    })
-  } else {
-    const cards = others.filter((a) => a.loop === 'contour').sort((a, b) => a.y - b.y)
-    const cells: { top: number; bottom: number; id: string }[] = []
-    for (const c of cards) {
-      const last = cells[cells.length - 1]
-      if (last && Math.abs(c.y - last.top) <= ROW_TOLERANCE)
-        last.bottom = Math.max(last.bottom, c.y + c.h)
-      else cells.push({ id: c.id, top: c.y, bottom: c.y + c.h })
+function gridCoils(input: BuildInput): LeashAnchor[] {
+  const rows = stringRows(input.anchors)
+  return rows.map((row, k): LeashAnchor => {
+    const next = rows[k + 1]
+    return {
+      id: `row-${k}`,
+      kind: 'station',
+      x: 0,
+      y:
+        (next ? (row.bottom + next.y) / 2 : row.bottom + 20) -
+        (input.viewport.w >= BP_TABLET ? 28 : 16),
+      w: 0,
+      h: 0,
+      loop: k % 2 ? 'left' : 'right',
     }
-    cells.forEach((c, k) => {
-      const next = cells[k + 1]
-      rows.push({ id: c.id, top: c.top, bottom: next ? (c.bottom + next.top) / 2 : c.bottom + 20 })
-    })
-  }
-  const coils = rows.map((row, k): LeashAnchor => ({
-    id: row.id,
-    kind: 'station',
-    x: 0,
-    y: row.bottom - (desktop ? 28 : 16),
-    w: 0,
-    h: 0,
-    loop: k % 2 ? 'left' : 'right',
-  }))
-  return [...others.filter((a) => a.loop !== 'contour'), ...coils]
+  })
 }
 
 function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
@@ -151,19 +127,16 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
   const startAnchor = sorted.find((a) => a.kind === 'start')
   const endAnchor = sorted.find((a) => a.kind === 'end')
   const P = input.preset
-  const grid = P === 'shopString' || P === 'stencil'
-  let middle = sorted.filter((a) => a.kind !== 'start' && a.kind !== 'end')
-  if (grid)
-    middle = gridCoils(
-      input,
-      P === 'stencil' ? middle.filter((a) => a.kind === 'station') : [],
-    ).sort((a, b) => a.y - b.y)
+  const middle = [
+    ...sorted.filter((a) => a.kind === 'station' || a.kind === 'target'),
+    ...gridCoils(input),
+  ].sort((a, b) => a.y - b.y)
 
   const fallbackX = onRail ? gutter / 2 : (desktop ? 24 : 16) + 8
   const start: Pt = startAnchor
     ? { x: startAnchor.x + startAnchor.w / 2, y: startAnchor.y + startAnchor.h }
     : { x: fallbackX, y: 0 }
-  const railX = grid ? (input.railX ?? start.x) : start.x
+  const railX = onRail ? (input.railX ?? start.x) : start.x
 
   const pts: Pt[] = []
   const loops: LoopMark[] = []
@@ -175,12 +148,8 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
   }
   const swayBase = 0.18 * gutter
   let swaySign = rand() < 0.5 ? 1 : -1
-  // Ohne Rinne: stencil und product laufen in einer Randbahn links neben dem Inhalt, thanks mobil im Seitenrand statt
-  // quer über Text; thanks am Desktop erst quer unter der Kopfleiste, dann hinunter zum Ende.
-  const side = P === 'product'
-  const lane = side
-    ? Math.max(6, Math.min(...middle.map((a) => a.x), endAnchor?.x ?? start.x) - 10)
-    : 6
+  // Ohne Rinne: thanks mobil im Seitenrand statt quer über Text; am Desktop erst quer unter der Kopfleiste, dann hinunter.
+  const lane = 6
 
   // S-Kurve zwischen zwei Punkten: in der Rinne alternierender Schwung ±0.18 × Rinne (Schritt 2).
   const section = (to: Pt) => {
@@ -188,7 +157,7 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
     const dy = to.y - from.y
     const dist = Math.hypot(to.x - from.x, dy)
     if (dy > 48 && P === 'thanks' && desktop) push({ x: to.x, y: from.y })
-    else if (dy > 48 && (side || P === 'thanks')) {
+    else if (dy > 48 && P === 'thanks') {
       const y = from.y + 8
       if (from.x > lane + 30) {
         push({ x: from.x - 30, y })
@@ -208,7 +177,7 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
       }
     } else if (dist > 48) {
       // ruhiger Bogen ohne Rinne: leichte Auslenkung quer zur Richtung
-      const bend = (side ? 1 : swaySign) * Math.min(24, dist * 0.06) * (0.8 + 0.4 * rand())
+      const bend = swaySign * Math.min(24, dist * 0.06) * (0.8 + 0.4 * rand())
       swaySign = -swaySign
       push({
         x: (from.x + to.x) / 2 + (-dy / dist) * bend,
@@ -220,8 +189,8 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
 
   // Leinen-Anschluss (§9.8): Beginn an der Unterkante der Kopfleiste, 24-px-Kurve ins Preset.
   push(start)
-  if (grid && Math.abs(start.x - railX) > 6) {
-    // Raster-Seiten: Leinen-Anschluss führt noch in der Coco-Zeile flach in die Rinne (nie über die Karten)
+  if (Math.abs(start.x - railX) > 6) {
+    // Anfang neben der Rinne (Shop-Listen): der Leinen-Anschluss führt noch in der Coco-Zeile flach in die Rinne
     const dx = railX - start.x
     push({ x: start.x + 0.35 * dx, y: start.y + 10 })
     push({ x: start.x + 0.8 * dx, y: start.y + 18 })
@@ -235,6 +204,14 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
   for (const anchor of middle) {
     let kind: LoopKind = cfg.loops.includes(anchor.loop) ? anchor.loop : 'none'
     if (kind === 'lasso' && !wide) kind = cfg.loops.includes('right') ? 'right' : 'none'
+    // Umrundung nur um kompakte Gruppen mit Platz rechts daneben für Coco (sonst ragte sie aus dem Bild oder liefe aus
+    // dem Sichtbereich): sonst ein Kringel in der Rinne
+    if (
+      kind === 'contour' &&
+      onRail &&
+      (anchor.x + anchor.w + (desktop ? 56 : 40) > root.w || anchor.h > 0.45 * viewport.h)
+    )
+      kind = 'right'
     const loopPts = loopPoints(kind, anchor, {
       railX,
       onRail,
@@ -245,7 +222,7 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
     })
     if (loopPts.length === 0) {
       // Station ohne Schlaufe: kurzer Abschnitt auf der Linie als Stationsbereich.
-      const x = onRail ? railX : side ? lane : anchor.x
+      const x = onRail ? railX : anchor.x
       const i0 = section({ x, y: anchor.y })
       const i1 = push({ x, y: anchor.y + 24 })
       loops.push({ anchor, kind: 'none', i0, i1, dot: false })
@@ -260,14 +237,8 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
     if (TERMINAL_LOOPS.includes(kind)) return { pts, loops }
   }
 
-  if (P === 'shopString') {
-    // Schnur endet in der Rinne kurz hinter der letzten Schlaufe (nicht bis zum Seitenende)
-    const last = pts[pts.length - 1]!
-    push({ x: railX, y: last.y + 24 })
-    return { pts, loops }
-  }
   const end: Pt = endAnchor
-    ? { x: grid ? railX : endAnchor.x + endAnchor.w / 2, y: endAnchor.y }
+    ? { x: onRail ? railX : endAnchor.x + endAnchor.w / 2, y: endAnchor.y }
     : { x: onRail ? railX : pts[pts.length - 1]!.x, y: root.h }
   section(end)
   return { pts, loops }
@@ -351,17 +322,6 @@ function loopPoints(kind: LoopKind, a: LeashAnchor, ctx: LoopCtx): Pt[] {
         jitter,
         24,
       )
-    }
-    case 'hook': {
-      // Halbschlaufe (180°) um die linke Kante des Knopfs, Radius = halbe Knopfhöhe + 6.
-      const R = a.h / 2 + 6
-      const c = { x: a.x, y: a.y + a.h / 2 }
-      for (let k = 0; k <= 10; k++) {
-        const th = (Math.PI * k) / 10
-        pts.push({ x: c.x - R * Math.sin(th), y: c.y - R * Math.cos(th) })
-      }
-      pts.push({ x: c.x + 6, y: c.y + R })
-      return pts
     }
     case 'contour':
       return contour(a, rand)
@@ -459,6 +419,8 @@ function contour(a: LeashAnchor, rand: () => number): Pt[] {
   edge(x0, y1 - rad, x0, y0 + rad)
   corner(x0 + rad, y0 + rad, Math.PI)
   pts.push({ x: x0 + rad + 8, y: y0 + 0.5 })
+  // Ausgang links außen am Bild hinab (nie quer über den Text darunter zurück in die Rinne)
+  pts.push({ x: x0 - 4, y: y0 + rad + 10 }, { x: x0 - 6, y: y1 - rad })
   return pts
 }
 
@@ -1006,22 +968,20 @@ function outlineOf(i0: number, i1: number, d: SegmentData, dots: number[]): stri
 
 function buildScrollMap(
   input: BuildInput,
-  stations: { y: number; loopLen0: number; loopLen1: number; loop: LoopKind }[],
+  stations: { id: string; y: number; loopLen0: number; loopLen1: number; loop: LoopKind }[],
   total: number,
 ): { readingY: number; len: number }[] {
   const raw: { readingY: number; len: number }[] = [{ readingY: 0, len: 0 }]
   if (isScrollCoupled(input.preset)) {
-    for (const s of stations) {
+    stations.forEach((s, k) => {
+      // Kringel der Kartenzeilen liegen dicht: höchstens der halbe Weg bis zur nächsten Station (Coco hetzte sonst dazwischen)
+      const gap = s.id.startsWith('row-') ? (stations[k + 1]?.y ?? Infinity) - s.y : Infinity
       raw.push({ readingY: s.y, len: s.loopLen0 })
-      raw.push({ readingY: s.y + loopScroll(s.loop, input.viewport.w), len: s.loopLen1 })
-    }
-  } else if (PRESET_CONFIG[input.preset].draw === 'rowEnter') {
-    // Treppe: erreicht die Eintrittslinie eine Reihe, gilt sie als ganz gezeichnet (Laufzeit animiert 500 ms).
-    for (const s of stations) {
-      raw.push({ readingY: s.y, len: s.loopLen0 })
-      // knapp unter der Gesamtlänge, sonst entfiele die Stufe der letzten Reihe (nur der Endpunkt darf `total` sein)
-      raw.push({ readingY: s.y + 1, len: Math.min(s.loopLen1, total - 0.02) })
-    }
+      raw.push({
+        readingY: s.y + Math.min(loopScroll(s.loop, input.viewport.w), gap / 2),
+        len: s.loopLen1,
+      })
+    })
   }
   raw.push({ readingY: input.root.h, len: total })
   // Beide Spalten streng monoton: zu dichte oder rückläufige Punkte werden verschoben bzw. ausgelassen.

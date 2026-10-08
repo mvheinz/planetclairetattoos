@@ -108,9 +108,13 @@ test.describe('Shop R02/R03 – lesend (alle Projekte)', () => {
     )
     // AK-3-07: kein „inkl. MwSt“ im Kleinunternehmer-Modus
     expect(await page.content()).not.toMatch(/inkl\.?\s*MwSt/i)
-    // Leine: Preset shopString, Coco-Platzhalter am Schnuranfang, Faden-Anker je Karte
+    // Leine (U-44): Preset shopString, Coco an der Leine, jede Karte eine Rasterzelle, Umrundung der Kategorie-Bilder
     await expect(page.locator('body')).toHaveAttribute('data-preset', 'shopString')
-    await expect(page.locator('[data-string-coco]')).toHaveCount(1)
+    await expect(page.locator('.coco[data-leash-coco]')).toHaveCount(1)
+    await expect(page.locator('[data-leash-station="kategorien"]')).toHaveAttribute(
+      'data-leash-loop',
+      'contour',
+    )
     expect(await page.locator('[data-leash-anchor="tag"]').count()).toBe(
       await page.locator('[data-product-card]').count(),
     )

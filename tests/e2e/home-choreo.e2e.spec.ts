@@ -16,7 +16,6 @@ type Win = Window & {
 
 const ARRIVE: Record<string, string> = {
   'planet-claire': 'sitzen',
-  hallo: 'sitzen',
   keramik: 'schnueffeln',
   textil: 'schnueffeln',
   zeichnungen: 'sitzen',
@@ -35,7 +34,7 @@ const loopScroll = (id: string, vw: number) =>
       ? vw >= 768
         ? 440
         : 360
-      : id === 'tattoo'
+      : id === 'tattoo' || id === 'textil' // Umrundung (contour, U-44)
         ? vw >= 768
           ? 480
           : 400
@@ -102,8 +101,9 @@ test.describe('Startseite – Choreografie (Preset journey)', () => {
   }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await ready(page)
-    const hallo = await page.evaluate(() => (window as Win).__leash!.geometry!.stations[1]!)
-    await page.evaluate(([y]) => (window as Win).__leash!.setReadingY(y!), [hallo.y - 30])
+    // erste Station nach der Kopf-Station (seit U-40 Keramik)
+    const first = await page.evaluate(() => (window as Win).__leash!.geometry!.stations[1]!)
+    await page.evaluate(([y]) => (window as Win).__leash!.setReadingY(y!), [first.y - 30])
     await page.waitForTimeout(1500)
     const box = await page.locator('[data-leash-coco]').boundingBox()
     // Text beginnt bei x = 56 (Rinne, U-05): der Hund (füllt 0,13–0,90 der Box, P9.18) ragt höchstens 1 px darüber

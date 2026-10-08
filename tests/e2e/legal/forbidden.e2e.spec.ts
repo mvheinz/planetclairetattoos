@@ -190,6 +190,11 @@ export const STREET_ALLOWED_ROUTES: readonly { routeId: string; reason: string }
   { routeId: 'R24', reason: 'Widerrufsbelehrung und Muster-Formular: Adressatin des Widerrufs.' },
   { routeId: 'R25', reason: 'Versand & Zahlung (Rechtstext): Abholung/Rücksendung.' },
   { routeId: 'R27', reason: 'Konformitätserklärungen: Herstellerangaben (GPSR).' },
+  {
+    routeId: 'R19',
+    reason: 'Über mich: Kontaktblock mit Anschrift (U-46, Juttas Wunsch 08.10.2026).',
+  },
+  { routeId: 'R20', reason: 'Kontakt: Anschrift (U-46, Juttas Wunsch 08.10.2026).' },
 ]
 const V11_PAGE =
   /(innerhalb|binnen)\s+(von\s+)?\d+\s+Tag(en)?.{0,60}(sonst|andernfalls|ausgeschlossen|erlischt|verfällt)/iu

@@ -60,8 +60,11 @@
   display: inline-block;
 }
 
+/* Formular-Karte: früher rahmte sie die Tuschelinie (`contour`); seit U-44 läuft die Leine mit Coco in der Rinne
+   daneben, die Karte trägt ihren Rand selbst. */
 .frame {
   padding: var(--space-5) var(--space-4);
+  border: 1.5px solid var(--ink);
   border-radius: var(--r-card);
   background: var(--paper);
 }
@@ -70,12 +73,6 @@
   .frame {
     padding: var(--space-6);
   }
-}
-
-.lineEnd {
-  display: block;
-  width: 0;
-  height: 0;
 }
 
 .form {

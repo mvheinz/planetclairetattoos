@@ -129,14 +129,15 @@
     "emptyText": "Gleich liegt alles wieder an seinem Platz. Bis dahin erreichst du mich per Mail.",
     "emptyAction": "Zum Kontakt",
     "stationCommissions": "Auftragsarbeiten",
-    "chairwomanAlt": "Koko, Vorsitzende der Goth Dogs Berlin: Kopf eines zotteligen schwarzen Hundes mit Narrenkappe und grünen Bommeln und spitzem Fellkragen, große Augen, die zur Seite schauen",
-    "fitnessAlt": "Coco, die Hündin, macht Gymnastik auf zwei Beinen: sieben Übungen nacheinander, am Ende liegt sie erschöpft am Boden – dann geht es von vorn los.",
+    "chairwomanAlt": "Koko, Vorsitzende der Goth Dogs Berlin: Kopf und Brust eines zotteligen schwarzen Hundes mit Narrenkappe, grünen Bommeln und spitzem Fellkragen, darunter orangefarbene Brust mit weißem Fleck; große Augen, die zur Seite schauen",
+    "instagramLabel": "Planet Claire auf Instagram: @{handle}",
     "tour": {
       "heading": "Planet Claire on Tour",
       "intro": "Manchmal verlasse ich meinen Planeten und stelle einen Tisch auf – auf Floh-, Kunst- und Hinterhofmärkten, zwischen fremden Stimmen und Tüten voller Zeug.",
-      "upcomingHeading": "Wo du mich triffst",
       "empty": "Gerade ruht mein Tisch im Schrank. Neue Termine erscheinen hier.",
       "pastSummary": "Wo ich schon war ({count})",
+      "moreSummary": "Weitere und vergangene Termine ({count})",
+      "laterSummary": "Weitere Termine ({count})",
       "cancelled": "abgesagt",
       "next": "als Nächstes",
       "running": "läuft gerade",
@@ -146,7 +147,9 @@
       "dateLabel": "Datum",
       "placeLabel": "Ort",
       "hoursLabel": "Uhrzeiten",
-      "photoAlt": "Stand von Planet Claire auf dem Markt {name}"
+      "photoAlt": "Stand von Planet Claire auf dem Markt {name}",
+      "laterHeading": "Danach",
+      "pastHeading": "Wo ich schon war"
     }
   },
   "a11y": {
@@ -225,6 +228,7 @@
   },
   "contact": {
     "emailLabel": "E-Mail",
+    "addressLabel": "Anschrift",
     "studio": "Privatstudio in Berlin-{district}",
     "withdrawHint": "Du willst einen Vertrag widerrufen?",
     "legalNoticeHint": "Angaben zur Anbieterin:",
@@ -301,9 +305,12 @@
     },
     "warranty": {
       "title": "Gesetzliche Gewährleistung",
-      "alt": "Harmonisierte Mitteilung der EU zur gesetzlichen Gewährleistung (Platzhalter – die amtliche Grafik folgt)",
-      "text": "Beim Kauf von Waren hast du nach EU-Recht ein gesetzliches Gewährleistungsrecht, wenn die Ware mangelhaft ist. Die Einzelheiten erklärt die Informationsseite der Europäischen Union.",
-      "link": "Informationen der EU zur gesetzlichen Gewährleistung"
+      "alt": "Harmonisierte Mitteilung der EU: Gesetzliche Gewährleistung – mindestens zwei Jahre für Waren, die in der EU verkauft werden (Platzhalter-Fassung, die amtliche Grafik folgt)",
+      "lead": "Mindestens zwei Jahre gesetzliche Gewährleistung für Waren, die in der Europäischen Union verkauft werden.",
+      "rights": "Ist eine Ware mangelhaft oder entspricht sie nicht der Beschreibung, haben Sie gegenüber dem Verkäufer Anspruch auf kostenlose Reparatur oder Ersatz, in bestimmten Fällen auf Preisminderung oder Erstattung des Kaufpreises.",
+      "duration": "Die gesetzliche Gewährleistung gilt nach EU-Recht mindestens zwei Jahre ab Erhalt der Ware; in einigen Ländern gilt ein längerer Zeitraum. Für gebrauchte Waren kann ein kürzerer Zeitraum gelten, jedoch nicht weniger als ein Jahr.",
+      "placeholderNote": "Platzhalter-Fassung: Wortlaut nach der EU-Durchführungsverordnung (EU) 2025/1960, Prüfung durch die Kanzlei steht noch aus; die amtliche Grafik folgt.",
+      "link": "Weitere Informationen der EU zur gesetzlichen Gewährleistung"
     },
     "card": {
       "stateReserved": "gerade reserviert",
@@ -1369,11 +1376,6 @@
   "about": {
     "title": "Jutta & Coco",
     "lead": "Ich zeichne, was zwischen den Dingen wohnt – auf Haut, Ton, Stoff und Papier. Coco läuft voraus.",
-    "whatHeading": "Wo ich zeichne",
-    "whatShop": "Shop",
-    "whatTattoo": "Tattoo",
-    "whatCommissions": "Auftragsarbeiten",
-    "cocoAlt": "Coco, gezeichnet",
     "emptyTitle": "Diese Seite schläft noch.",
     "emptyText": "Gleich ist sie wach. Bis dahin kannst du durch den Shop wandern.",
     "emptyAction": "Zum Shop"

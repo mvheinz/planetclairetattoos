@@ -56,7 +56,7 @@ describe('P8.19a Seiten und FAQ', () => {
       ).toBe(true)
     }
     const home = await loadPageTexts(req, 'home')
-    expect(home.blocks.map((b) => b.blockType)).toEqual(['hero', ...Array(7).fill('station')])
+    expect(home.blocks.map((b) => b.blockType)).toEqual(['hero', ...Array(6).fill('station')])
     expect(home.blocks.every((b) => b.editable)).toBe(true)
   })
 
@@ -94,7 +94,7 @@ describe('P8.19a Seiten und FAQ', () => {
     const form = await loadPageTexts(req, 'home')
     const blocks = structuredClone(form.blocks)
     blocks[0]!.fields.subheading = { de: 'Neue Unterzeile von Jutta', en: 'New subline by Jutta' }
-    blocks[2]!.fields.text = { de: 'Keramik, frisch aus dem Ofen.', en: '' }
+    blocks[1]!.fields.text = { de: 'Keramik, frisch aus dem Ofen.', en: '' } // Station 01 Keramik (U-40)
     const res = await rest(
       'POST',
       '/pages/texts',
@@ -118,10 +118,9 @@ describe('P8.19a Seiten und FAQ', () => {
     const layoutEn = en.layout as Array<Record<string, unknown>>
     expect(layoutDe[0]!.subheading).toBe('Neue Unterzeile von Jutta')
     expect(layoutEn[0]!.subheading).toBe('New subline by Jutta')
-    expect(layoutDe[2]!.text).toBe('Keramik, frisch aus dem Ofen.')
+    expect(layoutDe[1]!.text).toBe('Keramik, frisch aus dem Ofen.')
     // Stationen bleiben vollständig (stationId, Pose, Link unverändert)
     expect(layoutDe.filter((b) => b.blockType === 'station').map((b) => b.stationId)).toEqual([
-      'hallo',
       'keramik',
       'textil',
       'zeichnungen',

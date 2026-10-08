@@ -46,8 +46,11 @@ export function standLine(text) {
 export function openTasks(planStatusOutput) {
   const m = /^OFFEN_P1_P10=(\d+)\s*$/m.exec(planStatusOutput ?? '')
   if (!m) return null
-  const p12 = /^OFFEN_P12=(\d+)\s*$/m.exec(planStatusOutput ?? '')
-  return Number(m[1]) + (p12 ? Number(p12[1]) : 0)
+  // Spätere Überarbeitungs-Phasen (P12, P13 …) zählen mit
+  let open = Number(m[1])
+  for (const x of (planStatusOutput ?? '').matchAll(/^OFFEN_P1[2-9]=(\d+)\s*$/gm))
+    open += Number(x[1])
+  return open
 }
 
 /**

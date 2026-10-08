@@ -2,6 +2,32 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-08 – P13 abgeschlossen: zweite Runde nach deiner Rückmeldung – für Jutta
+
+Hallo Jutta,
+
+deine zweite Runde ist fertig und auf der Seite. Das hat sich geändert:
+
+- **Startseite:** Die Station „Komm näher.“ und die Fitness-Coco sind ganz weg, die Stationen sind neu durchnummeriert.
+  Koko mit der Mütze ist jetzt direkt aus deinem Bild ausgeschnitten – Augäpfel und Lidstriche genau wie gemalt, nur die
+  Pupillen wandern ruhig nach links und rechts. Unten sieht man jetzt auch Fellkragen, orange Brust und die weiße Blesse.
+  Rechts neben Koko steht die schmale Tour-Tafel, darunter der Link zu Instagram mit einem von Hand gezeichneten Zeichen.
+- **Coco läuft überall mit:** auf allen Shop- und Tattoo-Seiten, mit Schleifen an den Überschriften und Bögen um die
+  Bilder; auf der Startseite zwei Umrundungen mehr. Die Pausen-Spielereien kommen etwa ein Fünftel schneller.
+- **Schrift:** Alle Überschriften sind jetzt in derselben Schrift wie der Titel (Spectral).
+- **Gewährleistung:** Der neue EU-Pflichthinweis steht mit dem offiziellen Wortlaut im Shop – als Platzhalter, bis die
+  Kanzlei drüberschaut.
+- **Anschrift:** „Jutta Dollmann, Anklamer Straße 28, 10115 Berlin“ steht in Impressum, Rechtstexten, Mails, auf der
+  Kontaktseite und bei „Über mich“.
+- **Sprache:** Rechts neben „Menü“ kannst du mit „DE | EN“ die Sprache wechseln.
+- **Über mich:** nur noch Überschrift, euer Foto mit „Zu zweit“ und „Sag etwas“.
+
+Die neue Vorschau-Datei (HTML) bekommst du direkt hier im Chat; außerdem liegt sie wieder unter „Releases“ auf GitHub.
+
+Technik-Notiz: CI und Kunst-QA grün (u. a. Schrift-Regel für Überschriften auch in Formularen, Startseiten-Grafik unter
+60 KB durch schlankere Koko-Augen-Umrisse und Linien-Attribute im Stylesheet, Anschrift auf R19/R20 laut U-46 erlaubt),
+Referenzbilder erneuert.
+
 ## 2026-10-07 – P12.6 (Nacharbeit 2) Koko als große Büste, Augen links/rechts
 
 - Zuschnitt auf Kopf, Kappe, Bommeln und Fellkragen (kein Körper), 700×690 WebP ≈ 45 KB; Spalte verbreitert, Bild füllt sie. Pupillen: ruhiger Halt 3 s, 0,4 s Wechsel, beide Augen gleichzeitig, rein CSS, endlos (`--dur-koko-look` 6,8 s).
@@ -2153,3 +2179,35 @@ gekennzeichnete Platzhalter.
 - Jede Kategorie im Shop (und „Alle“) ist jetzt eine kleine Karte: oben ein Coco-Foto aus deinem Instagram-Material, darunter der Name. Alle Karten sind gleich groß (mobil seitlich wischbar, am Rechner in einer Reihe). Das gilt auch im Archiv.
 - Tests: Unit (Zuordnung, Dateigröße), E2E (gleiche Größe, Bilder geladen, Links, DE/EN, Desktop und Pixel 7).
 - P12.16: Dein Foto mit Coco ist auf „Über mich“ eingebaut (Block „Zu zweit“ unter dem Coco-Abschnitt, Goth-Rahmen, beide Gesichter im Ausschnitt). Hinweis für P11: Das Foto muss beim Entfernen der Beispieldaten behalten werden (siehe OFFENE-PUNKTE).
+## 2026-10-08 – P13.1–P13.3 Startseite: ohne „Komm näher.“, neue Koko, Koko + Tour nebeneinander
+
+- **P13.1 (U-40):** Die Station „Komm näher.“ mit Text und Gymnastik-Coco ist weg – samt Programmcode, Bilddaten, Budgets und Tests. Keramik ist jetzt Station 01, insgesamt 6 Stationen.
+- **P13.2 (U-41):** Koko hat wieder ihre gemalten Augen aus deinem Bild (unregelmäßig, zittrige Lidstriche, auch der linke Augenschlitz); nur die Pupillen wandern links ↔ rechts. Der Ausschnitt reicht jetzt ein Drittel weiter nach unten: Kragenspitzen ganz, orange Brust mit weißem Fleck, unten ein gezeichneter Tuschebogen als Abschluss.
+- **P13.3 (U-42):** Oben rechts steht Koko, direkt daneben ein schmaler Schaukasten „Planet Claire on Tour“ mit den nächsten drei Terminen; alle weiteren und vergangenen klappen darunter auf. Darunter ein Link zu deinem Instagram mit einem von Hand gezeichneten Instagram-Zeichen (nicht das bunte Logo). Auf dem Handy stehen Koko und Schaukasten untereinander.
+- Tests: `pnpm check` (Unit 2182), Int (Startseite, Seed, Übernahme), E2E desktop + pixel-7 + iphone-15 (`home`, `home-tour`, `home-koko`, `home/*`, `home-choreo`, `admin/tattoo-tour`), `check:bundle`. Visuelle Referenzen erneuert die Hauptsession zentral.
+
+## 2026-10-08 – P13.5 Coco läuft überall mit (U-44)
+
+- Im Shop (auch Kategorien, Archiv und auf jeder Produktseite), bei den Auftragsarbeiten und auf allen Tattoo-Seiten läuft Coco jetzt wie auf der Startseite an der Leine mit: Sie läuft vorn und zieht die Tusche hinter sich her, die Linie kringelt sich an den Überschriften und zwischen den Kartenreihen. Beim Öffnen einer Seite läuft sie die Leine bis zur Leseposition entlang, zwischen diesen Seiten reist sie mit.
+- Umrundungen: Im Shop läuft sie (am Rechner) einmal um die Kategorie-Bilder, auf der Tattoo-Übersicht um eine kleine Galerie-Leiste, auf der Startseite zusätzlich um die Zeichnung „Textil & Caps“ und (am großen Bildschirm) mit einem Lasso um „Schmuck“. Formulare, Knöpfe und Karten mit Text umrundet sie nie (sie würde sie sonst verdecken).
+- Warte-Aktionen (Hecheln, Ohr zucken, Kratzen …) kommen etwa 20 % schneller hintereinander. Ruheseiten (Rechtliches, Korb, Kasse) bleiben ruhig; bei „Animationen aus“ steht die Linie still und Coco sitzt.
+- Tests: Unit (Spur, Kringel, Umrundung nur mit Platz, Warte-Plan), neuer E2E `leash-trail` (13 Seiten × 14 Lesepositionen, Desktop und Pixel 7: Linie und Coco überdecken keinen Text und keine Knöpfe, Linie nie vor Coco), Coco reist Start → Shop → Tattoo (MO-14); Leinen-, Coco-, Choreografie-, Shop-, Tattoo- und Auftragsarbeiten-E2E.
+
+## 2026-10-08 – P13.4, P13.6–P13.9 Schriften, Gewährleistung, Anschrift, Sprache, „Jutta & Coco“
+
+- P13.4 (U-43): Alle Überschriften auf allen Seiten (außer den Startseiten-Bausteinen) stehen jetzt in Spectral wie der
+  Titel – auch Produkt-Abschnitte, Kasse, Rechtsseiten und die Spalten im Fuß. Fließtext bleibt Bricolage. Neuer Test
+  geht alle Seiten durch (`tests/e2e/headings-font.e2e.spec.ts`); die Kunst-Prüfung LG-03 erlaubt Überschriften jetzt
+  auch auf den ruhigen Seiten.
+- P13.6 (U-45): Das leere Feld „Gesetzliche Gewährleistung“ zeigt jetzt den Inhalt der EU-Mitteilung auf Deutsch und
+  Englisch (mindestens zwei Jahre, Reparatur oder Ersatz, Rechte gegenüber dem Verkäufer …) in Text und Grafik, deutlich
+  als „Platzhalter-Fassung“ markiert, bis die Kanzlei sie mit der amtlichen Vorlage abgleicht (OFFENE-PUNKTE).
+- P13.7 (U-46): Deine Anschrift „Jutta Dollmann, Anklamer Straße 28, 10115 Berlin“ steht in den Einstellungen
+  (Stammdaten); Impressum, Datenschutz, AGB, Widerruf, Rechnungen und Mails übernehmen sie, die Kontaktseite zeigt sie
+  jetzt vollständig statt nur des Bezirks.
+- P13.8 (U-47): In der Kopfzeile rechts neben „Menü“ steht „DE | EN“; die aktive Sprache ist mit einer kleinen
+  Tusche-Linie unterstrichen, ein Klick führt auf dieselbe Seite in der anderen Sprache (auch bei Stücken und
+  Kategorien). Auf dem Handy zeigt der Korb dafür nur noch Symbol und Anzahl.
+- P13.9 (U-48): „Jutta & Coco“ ist gekürzt: Überschrift, dein Foto mit Coco („Zu zweit“) und „Sag etwas“.
+- Tests: Unit (Kunst-Prüfung LG-03, Mitteilung, Stammdaten, Sprachdateien), Integration (Grund-Seed, Seiten, Kontakt),
+  E2E (Überschriften, Über mich, Sprach-Umschalter, Kontakt/Rechtsseiten) – Einzelheiten im PR-Text.

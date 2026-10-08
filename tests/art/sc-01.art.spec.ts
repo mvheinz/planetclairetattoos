@@ -124,11 +124,9 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
   // MO-05/MO-06: Lesezeilen-Treue auf frischer Seite (12 Positionen), dann 400 px zurück.
   if (!art.reduced) await readingSeries(art)
 
-  // P12.5/P12.6 (U-09, U-08): Fitness-Coco der Hallo-Station (alle 3 s ein Bild über eine halbe Schleife, Uhr angehalten)
-  // und Koko (Pupillen alle 1,5 s über einen Hin-und-Zurück-Lauf von 9 s). Nur in Bewegung; bei reduzierter Bewegung je ein
-  // Standbild (nichts bewegt sich).
+  // P12.6/P13.2 (U-08, U-41): Koko (Pupillen alle 1,5 s über einen Hin-und-Zurück-Lauf von 9 s). Nur in Bewegung; bei
+  // reduzierter Bewegung ein Standbild (nichts bewegt sich). Der Fitness-Coco der früheren Hallo-Station entfiel mit U-40.
   {
-    const fit = page.locator('[data-station-art="fitness"]').first()
     const koko = page.locator('[data-chairwoman]').first()
     await page.evaluate(() => scrollTo(0, 0))
     if (await koko.count()) {
@@ -139,18 +137,6 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
         for (let t = 0; t <= 9000; t += 1500) {
           await art.settledFrame(`koko-t${String(t).padStart(5, '0')}`)
           await page.clock.runFor(1500)
-        }
-        await art.resumeClock()
-      }
-    }
-    if (await fit.count()) {
-      await fit.scrollIntoViewIfNeeded()
-      if (art.reduced) await art.settledFrame('fitness-still')
-      else {
-        await art.pauseClock()
-        for (let t = 0; t <= 42_000; t += 3000) {
-          await art.settledFrame(`fitness-t${String(t).padStart(5, '0')}`)
-          await page.clock.runFor(3000)
         }
         await art.resumeClock()
       }

@@ -289,6 +289,33 @@ test.describe('Weiche Navigation mit View Transitions (ADR 0003)', () => {
     await expect(leashCoco(page)).toHaveAttribute('data-arrived', '1')
   })
 
+  test('Coco reist mit (MO-14, U-44): Start → Shop und Shop → Tattoo wandern von Leinenspitze zu Leinenspitze', async ({
+    page,
+  }) => {
+    for (const [from, to] of [
+      ['/de', '/de/shop'],
+      ['/de/shop', '/de/tattoo'],
+    ] as const) {
+      // je Paar eine eigene Seite (die Aufzeichnung meldet sich per `exposeFunction` einmal je Seite an)
+      const p = from === '/de' ? page : await page.context().newPage()
+      await p.emulateMedia({ reducedMotion: 'no-preference' })
+      const go = await hardTransition(p, to)
+      await p.goto(from)
+      await p.waitForLoadState('load')
+      await expect(leashCoco(p)).toHaveAttribute('data-placed', '')
+      await expect(leashCoco(p)).toHaveAttribute('data-travel-ready', '')
+      const vt = await go()
+      expect(vt.pose, `${from} → ${to}`).toBe('rennen')
+      expect(
+        vt.anims.some((a) => a.pe === '::view-transition-group(coco)' && a.d === 350),
+        `${from} → ${to}`,
+      ).toBe(true)
+      expect(vt.anims.some((a) => a.name === 'pc-coco-away' || a.name === 'pc-coco-in')).toBe(false)
+      await expect(leashCoco(p)).toHaveAttribute('data-arrived', '1')
+      await expect(leashCoco(p)).toHaveAttribute('data-placed', '')
+    }
+  })
+
   test('Coco reist mit (MO-14): Kontakt → Start läuft herein; Erststart ohne Reise', async ({
     page,
   }) => {

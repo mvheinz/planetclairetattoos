@@ -20,20 +20,6 @@
       },
       {
         "blockType": "station",
-        "stationId": "hallo",
-        "heading": {
-          "de": "Komm näher.",
-          "en": "Come closer."
-        },
-        "text": {
-          "de": "Ich bin Jutta. Ich zeichne die Wesen, die mich nachts besuchen – auf Haut, auf Ton, auf Stoff und auf Papier. Das da vorn ist Coco. Sie kennt den Weg.",
-          "en": "I am Jutta. I draw the creatures that visit me at night – on skin, on clay, on cloth and on paper. That one up front is Coco. She knows the way."
-        },
-        "cocoPose": "sit",
-        "ornament": "star"
-      },
-      {
-        "blockType": "station",
         "stationId": "keramik",
         "heading": {
           "de": "Keramik",
@@ -178,29 +164,6 @@
     },
     "layout": [
       {
-        "blockType": "richText",
-        "content": {
-          "de": "## Ich bin Jutta.\n\nDas hier ist Planet Claire – mein kleiner Planet in Berlin. Ich steche feine Linien in Haut, und wenn die Nacht lang genug ist, male ich: auf Ton, auf alte Shirts und Caps, auf Papier. Tiere mit Kulleraugen, manchmal Gestalten, die kopfüber hängen und nichts dabei finden.\n\nDer Name verneigt sich vor einem Lied, das ich sehr mag – und vor allem, was ein bisschen nach Weltraum aussieht.",
-          "en": "## I am Jutta.\n\nThis is Planet Claire – my small planet in Berlin. I put fine lines into skin, and when the night is long enough I paint: on clay, on old shirts and caps, on paper. Animals with googly eyes, sometimes figures that hang upside down and see nothing odd in it.\n\nThe name bows to a song I love very much – and to everything that looks a little like outer space."
-        }
-      },
-      {
-        "blockType": "imageText",
-        "image": "media:ig:DaJH_kADpsK",
-        "imagePosition": "right",
-        "content": {
-          "de": "## Die zittrige Linie\n\nEs beginnt im Skizzenbuch, mit Tusche. Was bleiben will, wandert auf eine Schale, eine Cap oder auf die Haut. Am Wochenende sitze ich oft an einem Markttisch: Dort finde ich, was ich bemalen will, und dort holen sich Menschen ab, was für sie gezeichnet wurde. Der Shop ist der verlängerte Tisch.",
-          "en": "## The trembling line\n\nIt begins in the sketchbook, with ink. Whatever wants to stay moves onto a bowl, a cap or onto skin. At the weekend I often sit at a market table: that is where I find what I want to paint, and where people pick up what was drawn for them. The shop is the table, made longer."
-        }
-      },
-      {
-        "blockType": "richText",
-        "content": {
-          "de": "**Und das ist Coco.** Große Ohren, größere Meinung. Sie war schon da, bevor ich anfing zu zeichnen. Auf dieser Seite folgt sie der Linie; im echten Leben folgt sie grünen Bällen.",
-          "en": "**And this is Coco.** Big ears, bigger opinions. She was here before I began to draw. On this site she follows the line; in real life she follows green balls."
-        }
-      },
-      {
         "blockType": "imageText",
         "image": "media:own:jutta-coco",
         "imagePosition": "left",
@@ -208,32 +171,6 @@
           "de": "## Zu zweit\n\nAm liebsten liegt Coco genau dort, wo ich gerade arbeiten will – gern kopfüber, den Blick nach oben, dicht an meiner Hand mit den kleinen Tätowierungen. Dann bleibe ich einfach liegen, und die Linie wartet.",
           "en": "## The two of us\n\nCoco likes to lie exactly where I am about to work – preferably upside down, eyes turned up, close against my hand with its small tattoos. Then I simply stay where I am, and the line can wait."
         }
-      },
-      {
-        "blockType": "imageGallery",
-        "images": [
-          "media:ig:DcrENrOjlGP",
-          "media:ig:Dav1kUkDgR7",
-          "media:ig:DblvrTRiUqi"
-        ],
-        "caption": {
-          "de": "Spuren aus Werkstatt, Skizzenbuch und vom Markttisch",
-          "en": "Traces from the workshop, the sketchbook and the market table"
-        }
-      },
-      {
-        "blockType": "categoryTeaser",
-        "heading": {
-          "de": "Wo ich zeichne",
-          "en": "Where I draw"
-        },
-        "categories": [
-          "keramik",
-          "textil",
-          "cap",
-          "zeichnung",
-          "schmuck"
-        ]
       },
       {
         "blockType": "contactLinks",

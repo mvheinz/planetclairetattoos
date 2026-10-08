@@ -49,18 +49,15 @@ describe('check:bundle – Modul-Budgets (§9.10)', () => {
     const behaviors = readdirSync('src/behaviors')
       .filter((f) => f.endsWith('.ts') && !['index.ts', 'types.ts'].includes(f))
       .map((f) => `src/behaviors/${f}`)
-    // P12.5: Fitness-Coco rechnet die Zeichnung selbst (Puppen-Gerüst) und hat einen eigenen, größeren Baustein (≤ 10 KB gz).
-    const groups = MODULE_BUDGETS.filter(
-      (b) => b.name.startsWith('Mikro-Interaktionen') || b.name.startsWith('Fitness-Coco'),
-    )
+    // P13.1 (U-40): der eigene Baustein des Fitness-Coco ist mit ihm entfallen – nur noch Mikro-Interaktionen-Gruppen.
+    const groups = MODULE_BUDGETS.filter((b) => b.name.startsWith('Mikro-Interaktionen'))
     expect(groups.length).toBeGreaterThanOrEqual(2)
     for (const file of behaviors)
       expect(
         groups.filter((g) => g.entries.includes(file)).map((g) => g.name),
         file,
       ).toHaveLength(1)
-    for (const g of groups)
-      expect(g.gzipMax).toBe(g.name.startsWith('Fitness-Coco') ? 10_000 : 4000)
+    for (const g of groups) expect(g.gzipMax).toBe(4000)
   })
 
   it('Engine ≤ 12 KB gz, statischer Renderer ≤ 4 KB gz, Coco ≤ 3 KB, Mikro-Interaktionen ≤ 4 KB je Gruppe', async () => {

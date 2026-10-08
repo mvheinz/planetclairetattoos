@@ -26,9 +26,9 @@
 }
 
 .h2 {
-  font-family: var(--font-body); /* unter 24 px keine Spectral (DESIGN §4.3) */
+  font-family: var(--font-display); /* U-43: Überschriften in Spectral */
   font-size: var(--fs-h3);
-  font-weight: 700;
+  font-weight: 400;
   margin-bottom: var(--space-3);
 }
 

@@ -15,9 +15,9 @@ import {
   type CommissionViewFlow,
 } from './CommissionView'
 
-// Block `commissionForm` der Seite R10 (DESIGN §9.7 Preset `frame`, KONZEPT §3.10): Überschrift mit Coco `sitzen`
-// (Stations-Anker), Einleitung, Formular-Karte mit `contour` der Tuschelinie (einmal beim Eintritt; das Formular selbst
-// ohne Animation; seine Erstansicht `CommissionView` rendert der Server). Das Formular-Token entsteht hier je Aufruf
+// Block `commissionForm` der Seite R10 (DESIGN §9.7 Preset `frame`, KONZEPT §3.10): Überschrift mit Kringel und Coco
+// `sitzen` (Stations-Anker), Einleitung, Formular-Karte (die Leine läuft daneben in der Rinne – U-44: Coco umrundet nie
+// Felder oder Knöpfe; das Formular selbst ohne Animation; seine Erstansicht `CommissionView` rendert der Server). Das Formular-Token entsteht hier je Aufruf
 // (Zeitfalle und Upload-Berechtigung, ARCHITEKTUR §8.6).
 export async function CommissionFormBlock({
   locale,
@@ -50,12 +50,18 @@ export async function CommissionFormBlock({
       data-commission-form-block=""
     >
       <h2 id="commission-form-title" className={styles.formTitle}>
-        <Station id="commission-coco" as="span" pose="sitzen" className={styles.cocoAnchor}>
+        <Station
+          id="commission-coco"
+          as="span"
+          pose="sitzen"
+          loop="left"
+          className={styles.cocoAnchor}
+        >
           {heading}
         </Station>
       </h2>
       {intro ? <p>{intro}</p> : null}
-      <Station id="commission-form" loop="contour" className={styles.frame}>
+      <div className={styles.frame} data-commission-frame="">
         <CommissionForm
           {...flow}
           initial={initial}
@@ -66,8 +72,7 @@ export async function CommissionFormBlock({
           }
           successText={successText}
         />
-      </Station>
-      <span className={styles.lineEnd} data-leash-anchor="end" aria-hidden="true" />
+      </div>
     </section>
   )
 }

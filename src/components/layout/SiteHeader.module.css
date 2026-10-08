@@ -101,8 +101,71 @@
   flex: none;
 }
 
+/* Sprach-Umschalter „DE | EN“ (U-47): Schrift wie die Kopf-Links, aktive Sprache mit kleiner Tusche-Linie. */
+.lang {
+  gap: 0;
+  /* feste Mindestbreite: Ersatz- und Webschrift sind für „DE | EN“ unterschiedlich breit (WebKit), die Leiste soll sich
+     beim Schriftwechsel nicht verschieben (AK-DS-07) */
+  min-width: 4.25rem;
+}
+
+@media (max-width: 539.98px) {
+  .lang {
+    min-width: 4rem;
+  }
+}
+
+/* etwas Luft zu „Menü“, wo die Breite es erlaubt (bei 320 px zählt jeder Pixel, KO-02) */
+@media (min-width: 360px) and (max-width: 374.98px), (min-width: 400px) {
+  .lang {
+    margin-inline-start: 4px;
+  }
+}
+
+.langSep {
+  margin-inline: 3px;
+  color: var(--ink-2);
+}
+
+.langCode {
+  position: relative;
+  display: inline-block;
+  padding-block: 4px;
+  color: var(--ink-2);
+}
+
+.langCode[data-active] {
+  color: var(--ink);
+}
+
+.langInk {
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  bottom: -2px;
+  width: calc(100% + 2px);
+  height: 5px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5px;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  overflow: visible;
+}
+
+.lang:hover .langCode:not([data-active]),
+.lang:focus-visible .langCode:not([data-active]) {
+  color: var(--ink);
+}
+
+@media (forced-colors: active) {
+  .langInk {
+    stroke: CanvasText;
+  }
+}
+
 /* Schmale Handys: kompaktere Abstände und 15 px, damit bis 320 px nichts umbricht oder überläuft (KO-02). */
-@media (max-width: 419.98px) {
+@media (max-width: 539.98px) {
   .bar {
     gap: var(--space-1);
   }
@@ -111,6 +174,37 @@
     gap: 2px;
     padding-inline: 2px;
     font-size: 0.9375rem;
+  }
+
+  /* U-47: Platz für „DE | EN“ – der Korb zeigt Symbol und Anzahl, das Wort bleibt für Screenreader. */
+  .cartText {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* 320–399 px: ohne Innenabstand (Zielflächen bleiben ≥ 44 px über `min-width`), sonst bricht „DE | EN“ um. */
+@media (max-width: 399.98px) {
+  .list {
+    gap: 1px;
+  }
+
+  .link {
+    padding-inline: 0;
+  }
+
+  /* WebKit setzt die Schrift etwas breiter: „DE | EN“ hier 14 px mit schmalem Trenner. */
+  .lang {
+    min-width: 3.375rem;
+    font-size: 0.875rem;
+  }
+
+  .langSep {
+    margin-inline: 1px;
   }
 }
 

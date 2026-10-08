@@ -104,8 +104,6 @@ const DASH = 2000
 const REBUILD_DEBOUNCE_MS = 150
 /** Viewport-Höhenänderungen darunter lösen keinen Neuaufbau aus (mobile Adressleiste, §9.6). */
 const MIN_VIEWPORT_DH = 120
-/** Eintrittslinie der Kartenreihen (`shopString`): Anteil der Viewport-Höhe von oben (§9.7, IO-Schwelle ≈ 0.3). */
-const ROW_ENTER_LINE = 0.95
 /**
  * Rechenzeit je Idle-Teilstück des Aufbaus (ms, ungedrosselt; mindestens ein Schritt je Teilstück, ein weiterer nur, wenn
  * er – geschätzt wie der vorige – noch hineinpasst).
@@ -233,12 +231,10 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     if (t === 'A' && seg.strokes?.length) {
       // Stufe A „Tusche“: Stücke nahezu gleicher Breite, je ein runder Strich; Enthüllung per Dash (nur Paint).
       const strokes: StrokeView[] = []
-      svg.setAttribute('fill', 'none')
-      svg.setAttribute('stroke-linecap', 'round')
-      svg.setAttribute('stroke-linejoin', 'round')
-      svg.setAttribute('stroke-dasharray', `${DASH} ${DASH}`)
+      // Füllung, runde Enden/Ecken, Farbe und Dash-Muster (`DASH`) stehen in global.css (`[data-leash-seg].lx`, PF-10:
+      // 13 Segmente × Attribute); erzwungene Farben dort per Media-Query.
+      svg.setAttribute('class', 'lx')
       svg.setAttribute('stroke-dashoffset', String(DASH))
-      svg.style.stroke = forced ? 'CanvasText' : 'var(--ink)'
       for (const st of seg.strokes) {
         const v = strokeView(st)
         svg.appendChild(v.el)
@@ -368,17 +364,10 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
    */
   function scrollTarget(scrollY = win.scrollY): number {
     if (!geometry || !m) return 0
-    const rows = cfg.draw === 'rowEnter'
-    if (cfg.draw !== 'scroll' && !rows) return geometry.totalLength
+    if (cfg.draw !== 'scroll') return geometry.totalLength
     if (readingOverride === null && m.maxScroll > 0 && scrollY >= m.maxScroll - 2)
       return geometry.totalLength
-    // Kartenreihen (§9.7): Reihe gilt als eingetreten, wenn ihre Schnur die Eintrittslinie erreicht.
-    return mapReadingY(
-      geometry.scrollMap,
-      rows
-        ? (readingOverride ?? scrollY + ROW_ENTER_LINE * m.innerHeight - m.rootTop)
-        : readingY(scrollY),
-    )
+    return mapReadingY(geometry.scrollMap, readingY(scrollY))
   }
 
   /**
@@ -416,17 +405,17 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   }
 
   /**
-   * Rinne `[links, rechts, Auslauf]` (Linien-Ebene): Mitte der Rinne = Anfang der Linie (§5.3). Beim Orbit der Kopf-Station
+   * Rinne `[links, rechts, Auslauf]` (Linien-Ebene) um die Rinnenmitte (§5.3; Shop-Listen beginnen neben der Rinne). Beim Orbit der Kopf-Station
    * endet sie am Planeten (die Marke steht vor der H1), Coco bleibt dort voll darin.
    */
   function gutterBounds(): [number, number, number] | null {
-    const start = m?.input.anchors.find((a) => a.kind === 'start')
-    if (!m || !start || cfg.rail !== 'center') return null
+    if (!m || cfg.rail !== 'center') return null
+    const x = m.input.railX ?? 0
     const g = m.input.gutter
     const st = stationState()
     const hero =
       st?.inside && st.id === 'planet-claire' && m.input.anchors.find((a) => a.id === st.id)
-    return [start.x - g / 2, hero ? hero.x + hero.w : start.x + g / 2, hero ? 200 : 40]
+    return [x - g / 2, hero ? hero.x + hero.w : x + g / 2, hero ? 200 : 40]
   }
 
   function emitCoco(direction: 1 | -1, moving: boolean) {
@@ -478,23 +467,17 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     }
     if (intro) {
       if (intro.start === null) intro.start = now
-      if (cfg.draw === 'scroll' || cfg.draw === 'rowEnter') intro.to = Math.max(intro.to, target)
+      if (cfg.draw === 'scroll') intro.to = Math.max(intro.to, target)
       const t = Math.min(1, (now - intro.start) / intro.dur)
       drawnLen = Math.max(drawnLen, intro.from + (intro.to - intro.from) * easeInkOut(t))
       if (t >= 1) intro = null
       else again = true
-    } else if (tier !== 'C') {
-      if (cfg.draw === 'rowEnter' && target > drawnLen + 0.5) {
-        // Neue Reihe im Sichtbereich: ihre Schnur zeichnet sich in `durationMs` (1000 ms, `--ease-ink-out`, U-06).
-        intro = { from: drawnLen, to: target, start: now, dur: 1000 }
-        again = true
-      } else drawnLen = Math.max(drawnLen, target)
     }
-    applyDrawn()
 
-    // Coco folgt der Lesezeile auf der gezeichneten Linie, geglättet: 1 − (1 − 0.35)^(dt/16.7).
+    // Coco folgt der Lesezeile, geglättet: 1 − (1 − 0.35)^(dt/16.7); im Intro auf der schon gezeichneten Linie.
     // Bei reduzierter Bewegung bleibt sie an ihrem Ruheplatz (§9.11).
-    const cocoTarget = motion === 'reduced' ? restLen() : Math.min(target, drawnLen)
+    const cocoTarget =
+      motion === 'reduced' ? restLen() : intro ? Math.min(target, drawnLen) : target
     const diff = cocoTarget - cocoLen
     let moving = !!intro
     if (Math.abs(diff) > COCO_JUMP || Math.abs(diff) < 0.1) cocoLen = cocoTarget
@@ -502,6 +485,9 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       cocoLen += diff * (1 - Math.pow(0.65, dt / 16.7))
       again = moving = true
     }
+    // Coco läuft vorn und zieht die Tusche hinter sich her (U-44): die Linie wächst bis zu ihr, nie über sie hinaus.
+    if (!intro && tier !== 'C') drawnLen = Math.max(drawnLen, cfg.coco ? cocoLen : target)
+    applyDrawn()
     emitCoco(diff < 0 ? -1 : 1, moving)
     timing(LEASH_MEASURES.frame, t0)
     if (++frameMeasures >= FRAME_MEASURE_CAP) {
