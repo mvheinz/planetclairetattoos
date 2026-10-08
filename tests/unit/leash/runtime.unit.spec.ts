@@ -118,8 +118,9 @@ describe('leash/runtime – mountLeash', () => {
     const all = [...root.querySelectorAll<SVGPathElement>('path')]
     expect(all.length).toBe(strokes)
     for (const p of all) {
-      expect(p.closest('svg')!.getAttribute('stroke-linecap')).toBe('round')
-      expect(p.closest('svg')!.getAttribute('stroke-dasharray')).toBe('2000 2000')
+      // runde Enden, Farbe und Dash-Muster aus global.css (`[data-leash-seg].lx`), am Segment nur der Versatz
+      expect(p.closest('svg')!.getAttribute('class')).toBe('lx')
+      expect(p.closest('svg')!.getAttribute('stroke-dashoffset')).not.toBeNull()
       expect(p.hasAttribute('stroke-dasharray')).toBe(false)
     }
     // Lage inline, Rest aus global.css; die Ebene ist aria-hidden (PF-10)

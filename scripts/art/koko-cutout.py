@@ -309,13 +309,15 @@ res = np.clip(res, 0, 255).astype(np.uint8)
 Image.fromarray(res, 'RGBA').save(OUT, 'WEBP', quality=QUALITY, method=6, alpha_quality=90, exact=False)
 
 
-def outline(mask, eps):
+def outline(mask, eps, nd=1):
     """Umriss einer Maske in Ausgabe-Koordinaten (Vieleck, gemalte Unregelmäßigkeit bleibt)."""
     cs, _ = cv2.findContours(mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     c = max(cs, key=cv2.contourArea)[:, 0, :].astype(np.float32)
     c = ((c + 0.5 - np.array([x0, y0], np.float32)) * s).astype(np.float32)
     c = cv2.approxPolyDP(c.reshape(-1, 1, 2), eps, True)[:, 0, :]
-    return [[round(float(px), 1), round(float(py), 1)] for px, py in c]
+    if nd == 0:  # ganze Zahlen: knapp im Seiten-SVG (PF-10), 1 Einheit ≈ 0,4 px
+        return [[int(round(float(px))), int(round(float(py)))] for px, py in c]
+    return [[round(float(px), nd), round(float(py), nd)] for px, py in c]
 
 
 def inside(poly, x, y):
@@ -327,9 +329,9 @@ def pupil_shape(ax, ay, seed):
     bis an Juttas Lidstrich reicht – der Augapfel-Umriss schneidet den Rest ab), Rand leicht unregelmäßig."""
     r_ = np.random.default_rng(seed)
     ph = r_.uniform(0, 2 * np.pi, 3)
-    th = np.linspace(0, 2 * np.pi, 40, endpoint=False)
+    th = np.linspace(0, 2 * np.pi, 28, endpoint=False)
     f = 1 + 0.035 * np.sin(2 * th + ph[0]) + 0.025 * np.sin(3 * th + ph[1]) + 0.015 * np.sin(5 * th + ph[2])
-    return [[round(float(ax * f[i] * np.cos(t)), 1), round(float(ay * f[i] * np.sin(t)), 1)] for i, t in enumerate(th)]
+    return [[int(round(float(ax * f[i] * np.cos(t)))), int(round(float(ay * f[i] * np.sin(t))))] for i, t in enumerate(th)]
 
 
 meta = {'w': OUT_W, 'h': out_h, 'eyes': {}}
@@ -337,7 +339,7 @@ for k, d in eye_data.items():
     # Beschnitt der Pupille: der gemalte Augapfel, um ≈ 1 px in den Lidstrich erweitert (keine helle Naht an der Kante) und
     # ohne winzige Ausbuchtungen (Glanzpunkt am rechten Lid), damit die wandernde Pupille dort keinen Höcker bekommt
     clip = cv2.dilate(cv2.morphologyEx(d['ball'], cv2.MORPH_OPEN, ell(15)), ell(3))
-    ball = outline(clip, 0.45)
+    ball = outline(clip, 0.6, 0)  # PF-10: ganzzahlig, etwas gröber – Lidkante bleibt unregelmäßig
     pup = outline(d['pupil'], 0.45)
     pa = np.array(pup)
     cx, cy = (pa[:, 0].min() + pa[:, 0].max()) / 2, (pa[:, 1].min() + pa[:, 1].max()) / 2

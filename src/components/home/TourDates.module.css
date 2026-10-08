@@ -148,7 +148,8 @@
   gap: 2px var(--space-2);
   margin: 0;
   font-family: var(--font-display);
-  font-size: var(--fs-small);
+  /* LG-03: Spectral nie unter 16 px */
+  font-size: 1rem;
   font-weight: 700;
   line-height: 1.15;
 }

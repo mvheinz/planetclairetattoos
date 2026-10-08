@@ -442,6 +442,20 @@ body[data-preset='margin'] {
   position: absolute;
   overflow: visible;
 }
+/* Stufe A (`runtime.ts`): Strich-Stücke erben Füllung, runde Enden, Farbe und das Dash-Muster `DASH` (2000 px) vom Segment;
+   nur `stroke-dashoffset` steht am Element und ändert sich beim Zeichnen. */
+[data-leash-seg].lx {
+  fill: none;
+  stroke: var(--ink);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 2000px 2000px;
+}
+@media (forced-colors: active) {
+  [data-leash-seg].lx {
+    stroke: CanvasText;
+  }
+}
 
 .u-layer-sticky {
   z-index: var(--z-sticky);

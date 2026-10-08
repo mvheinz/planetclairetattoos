@@ -231,12 +231,10 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     if (t === 'A' && seg.strokes?.length) {
       // Stufe A „Tusche“: Stücke nahezu gleicher Breite, je ein runder Strich; Enthüllung per Dash (nur Paint).
       const strokes: StrokeView[] = []
-      svg.setAttribute('fill', 'none')
-      svg.setAttribute('stroke-linecap', 'round')
-      svg.setAttribute('stroke-linejoin', 'round')
-      svg.setAttribute('stroke-dasharray', `${DASH} ${DASH}`)
+      // Füllung, runde Enden/Ecken, Farbe und Dash-Muster (`DASH`) stehen in global.css (`[data-leash-seg].lx`, PF-10:
+      // 13 Segmente × Attribute); erzwungene Farben dort per Media-Query.
+      svg.setAttribute('class', 'lx')
       svg.setAttribute('stroke-dashoffset', String(DASH))
-      svg.style.stroke = forced ? 'CanvasText' : 'var(--ink)'
       for (const st of seg.strokes) {
         const v = strokeView(st)
         svg.appendChild(v.el)
