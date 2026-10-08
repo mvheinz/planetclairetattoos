@@ -24,6 +24,22 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 - **Technik:** Die Daten sind winzig geworden (Ablaufplan ≈ 1,3 KB statt 120 KB, Standbild ≈ 26 KB als Bild), das Laden nach dem ersten Bild und die Tempo-Grenzen bleiben. Pause im verborgenen Tab und außerhalb des Bildes, bei „weniger Bewegung“ steht ein Standbild.
 - **Getestet:** Unit-Tests für Gerüst und Ablauf (Knickohr in jeder Pose, Bild passt in die Box, nichts unter dem Boden, keine Sprünge, nahtlose Schleife, jede Übung mit ihrem Merkmal), Verhaltens-Test (30 Bilder/s, Pause, reduzierte Bewegung), E2E (läuft, Endlosschleife über 43 s, Pause außerhalb des Bildes, keine Konsolenfehler), Bundle-Budgets, visuelle Referenzen. Offene Sichtprüfung mit dir: siehe `docs/OFFENE-PUNKTE.md` (P12.5).
 
+## 2026-10-08 – P12b Nachbesserung nach deiner zweiten Rückmeldung – für Jutta
+
+Hallo Jutta,
+
+die Nachbesserungen sind fertig und alle Prüfläufe auf GitHub sind grün (normale Tests, alle Browser, Tempo, Bildvergleiche, Kunst-Prüfung 62 von 62 automatischen Punkten):
+
+- **Koko:** aus deinem Originalbild ausgeschnitten und nur als Büste gezeigt (Kopf, Mütze, Fellkragen), deutlich größer. Die Augen schauen ruhig nach links und rechts, mit langen Pausen dazwischen; sie bleiben endlos in Bewegung.
+- **Gymnastik-Coco:** komplett neu, als Gelenkpuppe in Cocos Zeichenstil: sieben Übungen, am Ende liegt sie erschöpft mit Zunge da, dann geht es von vorn los. Deine Skizzenfotos habe ich weiterhin nicht als Dateien, die Bewegungen folgen deiner Beschreibung.
+- **Hintergrund:** liniert wie ein Notizblock, mit breiterer erster Zeile oben.
+- **Termine („Planet Claire on Tour“):** ein kompakter Schaukasten mit angepinnten Zetteln; der nächste Termin ist als Plakat hervorgehoben.
+- **Shop:** Kategorie-Kacheln mit Coco-Bildern, alle gleich groß (aus dem Instagram-Material; die Bilder sind klein und auf scharfen Bildschirmen etwas weich, größere Originale ersetzen sie später).
+- **Über mich:** dein Foto mit Coco in einem eigenen Abschnitt „Zu zweit“. Beim Start (P11) muss es beim Entfernen der Beispieldaten erhalten bleiben (steht in den offenen Punkten).
+- **Fehler behoben:** In der Vorschau-Datei verschwand die kleine Coco bei ihren Warte-Aktionen (Hecheln, Zucken …), weil deren Bilder dort nicht geladen wurden. Jetzt sind sie in der Datei enthalten.
+
+Die neue Vorschau-Datei liegt als Release „Planet Claire – Vorschau (Stand P12)“ bereit: https://github.com/mvheinz/planetclairetattoos/releases/tag/vorschau-p12
+
 ## 2026-10-07 – P12 Abschlussbericht (Überarbeitung nach deiner Rückmeldung) – für Jutta
 
 ### Phase 12 fertig: Deine Wünsche vom 06.10. sind umgesetzt, die neue Vorschau-Datei entsteht nach dem Merge
