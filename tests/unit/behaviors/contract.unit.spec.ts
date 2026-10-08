@@ -116,13 +116,6 @@ const FIXTURES: Record<BehaviorName, { html: string; exercise: (root: Element) =
       vi.runOnlyPendingTimers()
     },
   },
-  'fitness-coco': {
-    html: '<div data-behavior="fitness-coco" data-fitness-src="/art/fitness-coco.v2.json"><img data-fitness-still src="/art/fitness-still.v2.webp"><canvas data-fitness-canvas hidden></canvas></div>',
-    exercise: () => {
-      document.documentElement.setAttribute('data-motion', 'reduced')
-      document.documentElement.removeAttribute('data-motion')
-    },
-  },
   lost: {
     // Linie schon gezeichnet → Schwingen und Weglaufen starten beim Binden (MI-11).
     html:

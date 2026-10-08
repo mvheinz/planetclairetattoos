@@ -50,7 +50,7 @@ export interface Budgets {
   svg: {
     /** `file` fehlt → ausgelieferter Sprite laut `coco-anchors.json` (Version nur in `scripts/art/build-sprite.ts`). */
     cocoSprite: { file?: string; rawMax: number; gzipMax: number }
-    /** Nachgeladene Zusatz-Dateien (P12.4 Coco-Zusatz-Posen, P12.5 Fitness-Coco): je Datei roh/gzip. */
+    /** Nachgeladene Zusatz-Dateien (P12.4 Coco-Zusatz-Posen, P12.6/P13.2 Koko): je Datei roh/gzip. */
     lazy?: { name: string; file: string; rawMax: number; gzipMax: number }[]
     stationRawMax: number
     stationGlob: string

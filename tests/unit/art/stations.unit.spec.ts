@@ -19,15 +19,9 @@ import {
 const budgets = JSON.parse(readFileSync('tests/perf/budgets.json', 'utf8')) as {
   svg: { stationRawMax: number; homeTotalRawMax: number }
 }
-const HOME_STATIONS = [
-  'hallo',
-  'keramik',
-  'textil',
-  'zeichnungen',
-  'schmuck',
-  'tattoo',
-  'jutta-und-coco',
-]
+// P13.1 (U-40): „Komm näher.“ (hallo) steht nicht mehr auf der Startseite; die Zeichnung `hallo.svg` bleibt als ungenutzte
+// Vorlage im Bestand (OFFENE-PUNKTE) und zählt nicht mehr zum Startseiten-Budget.
+const HOME_STATIONS = ['keramik', 'textil', 'zeichnungen', 'schmuck', 'tattoo', 'jutta-und-coco']
 /** Zuordnung DESIGN §12.4 – einzige erlaubte Foto-Vorlagen (vektorisiert bzw. von Hand nachgezeichnet, P9.12). */
 const ALLOWED_VECTORIZE: Record<string, string> = {}
 const ALLOWED_DRAWN: Record<string, string> = {
@@ -45,7 +39,7 @@ const files = readdirSync(STATIONS_DIR).filter((f) => f.endsWith('.svg'))
 const read = (id: string) => readFileSync(path.join(STATIONS_DIR, `${id}.svg`), 'utf8')
 
 describe('P8.14 Stationszeichnungen', () => {
-  it('AR-03 DESIGN §9.10: jede Station ≤ 8 KB, die 7 Stationen der Startseite zusammen deutlich unter 60 KB', () => {
+  it('AR-03 DESIGN §9.10: jede Station ≤ 8 KB, die 6 Stationen der Startseite zusammen deutlich unter 60 KB', () => {
     expect(STATION_MAX_BYTES).toBe(budgets.svg.stationRawMax)
     for (const f of files)
       expect(readFileSync(path.join(STATIONS_DIR, f)).length, f).toBeLessThanOrEqual(

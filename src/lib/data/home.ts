@@ -27,9 +27,11 @@ type HeroBlock = Extract<Block, { blockType: 'hero' }>
 type StationBlock = Extract<Block, { blockType: 'station' }>
 type StationLink = NonNullable<StationBlock['link']>
 
-/** Die 7 Stationen der Startseite in ihrer festen Reihenfolge (KONZEPT §3.1, SEED-SPEC `pages:home`, AK-SEED-18). */
+/**
+ * Die 6 Stationen der Startseite in ihrer festen Reihenfolge (KONZEPT §3.1, SEED-SPEC `pages:home`, AK-SEED-18). Die
+ * frühere Station „hallo“ („Komm näher.“) ist seit U-40 (P13.1) entfernt.
+ */
 export const HOME_STATION_IDS = [
-  'hallo',
   'keramik',
   'textil',
   'zeichnungen',
@@ -37,6 +39,12 @@ export const HOME_STATION_IDS = [
   'tattoo',
   'jutta-und-coco',
 ] as const
+
+/**
+ * Entfernte Stationen (U-40, P13.1): Steht so ein Block noch in einer übernommenen oder älteren Startseite (Seed nicht neu
+ * eingespielt), wird er nicht gezeigt und zählt nicht mit – die übrigen Stationen beginnen bei „Station 01“.
+ */
+export const RETIRED_STATION_IDS: ReadonlySet<string> = new Set(['hallo'])
 
 /** Kategorien der Produkt-Stationen, wenn der Stations-Link keine Kategorie nennt (KONZEPT §3.1, KA-17). */
 export const STATION_CATEGORIES: Readonly<Record<string, readonly ProductCategory[]>> = {
@@ -142,6 +150,7 @@ export function toHomeView(page: Page | null, ctx: HomeContext): HomeView | null
   const hero = blocks.find((b): b is HeroBlock => b.blockType === 'hero')
   const stations = blocks
     .filter((b): b is StationBlock => b.blockType === 'station')
+    .filter((b) => !RETIRED_STATION_IDS.has(b.stationId))
     .map((b, i): HomeStation => {
       const categories = stationCategories(b.stationId, b.link)
       const nav = categories ? ctx.categories.find((c) => c.key === categories[0]) : undefined

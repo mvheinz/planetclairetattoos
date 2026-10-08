@@ -423,7 +423,7 @@ Link-Liste im Fuß erreichbar.
   1. **Planet Claire** (oberste Station): H1 als echter Text in Handschrift-Schrift (DE-Vorschlag „Tattoos & handgemachte
      Unikate aus Berlin“, pflegbar), 1–2 Sätze Intro, Knöpfe „Zum Shop“ und „Tattoo“. Die Linie kreist einmal um einen
      kleinen Planeten.
-  2. **Hallo:** 1–3 Sätze von Jutta, Coco steht da.
+  2. ~~**Hallo:** 1–3 Sätze von Jutta, Coco steht da.~~ – entfällt (U-40, P13.1); Keramik ist Station 01.
   3. **Keramik**, 4. **Textil** (Kategorien `textil` und `cap`), 5. **Zeichnungen**, 6. **Schmuck** – je Station:
      Stationszeichnung, Überschrift, 1–2 Sätze, bis zu 4 Stücke der Kategorie (Status `available` oder `reserved`, neueste
      zuerst, als Preisschild-Karten; die Karten kommen in P3, P2 zeigt die Stationen ohne Karten), Link „Alle {Kategorie}“
@@ -443,7 +443,7 @@ Link-Liste im Fuß erreichbar.
 - **Tuschelinie/Coco:** „die große Reise“: Linie zeichnet sich mit dem Scrollen, Coco rennt an der Spitze, wechselt an
   Stationen die Pose (rennen, schnüffeln, sitzen); die Linie macht an jeder Station eine Schlaufe um das Foto.
   Reduced Motion: Linie fertig gezeichnet, Coco still.
-- **AK-3-01** Die Startseite zeigt die Kopf-Station „Planet Claire“ und danach genau 7 Stationen in dieser Reihenfolge: Hallo, Keramik, Textil, Zeichnungen, Schmuck, Tattoo, Jutta & Coco.
+- **AK-3-01** Die Startseite zeigt die Kopf-Station „Planet Claire“ und danach genau 6 Stationen in dieser Reihenfolge (U-40: ohne „Hallo“/„Komm näher.“): Keramik, Textil, Zeichnungen, Schmuck, Tattoo, Jutta & Coco.
 - **AK-3-02** Pro Kategorie-Station höchstens 4 Stücke, nie `sold`, `draft` oder `archived`.
 
 ### 3.1a Planet Claire on Tour (rechte Spalte der Startseite) [P12.8]

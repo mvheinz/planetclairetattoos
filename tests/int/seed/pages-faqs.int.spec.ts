@@ -53,12 +53,11 @@ describe('Seiten (SEED-SPEC §13)', () => {
     )
   })
 
-  it('AK-SEED-18: Startseite hero + genau 7 Stationen in fester Reihenfolge; Feldgrenzen; seo.metaTitle wie §13.7', async () => {
+  it('AK-SEED-18: Startseite hero + genau 6 Stationen in fester Reihenfolge; Feldgrenzen; seo.metaTitle wie §13.7', async () => {
     for (const locale of ['de', 'en'] as const) {
       const home = await page('home', locale)
-      expect(home.layout.map((b) => b.blockType)).toEqual(['hero', ...Array(7).fill('station')])
+      expect(home.layout.map((b) => b.blockType)).toEqual(['hero', ...Array(6).fill('station')])
       expect(home.layout.slice(1).map((b) => b.stationId)).toEqual([
-        'hallo',
         'keramik',
         'textil',
         'zeichnungen',

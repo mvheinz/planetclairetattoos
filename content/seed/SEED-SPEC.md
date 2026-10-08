@@ -1379,13 +1379,13 @@ Bearbeiten (adopt). Link-Felder nach `internalLinkFields()`.
 
 ### 13.1 `home` – Titel „Startseite“ / “Home”
 
-Reihenfolge fest (KONZEPT AK-3-01): `hero` + 7 `station`-Blöcke. Stationsbilder sind Code-Assets
+Reihenfolge fest (KONZEPT AK-3-01): `hero` + 6 `station`-Blöcke (seit U-40/P13.1 ohne die frühere Station `hallo` „Komm näher.“; Keramik = Station 01). Stationsbilder sind Code-Assets
 (`src/art/stations/{stationId}.svg`, DESIGN §12.4) → Feld `image` bleibt leer.
 
 | # | Block | `stationId` | `heading` DE / EN | `cocoPose` | `ornament` | `link` (`target` · Label DE / EN) |
 |---|---|---|---|---|---|---|
 | 0 | hero | – | Tattoos & handgemachte Unikate aus Berlin / Tattoos & handmade one-offs from Berlin | run | – | – |
-| 1 | station | `hallo` | Hallo! / Hi! | sit | star | – |
+| ~~1~~ | ~~station~~ | ~~`hallo`~~ | entfällt (U-40, P13.1) | – | – | – |
 | 2 | station | `keramik` | Keramik / Ceramics | sniff | planet | category `keramik` · Alle Keramik / All ceramics |
 | 3 | station | `textil` | Textil & Caps / Textiles & caps | sniff | star | category `textil` · Alle Textilien / All textiles |
 | 4 | station | `zeichnungen` | Zeichnungen / Drawings | sit | none | category `zeichnung` · Alle Zeichnungen / All drawings |
@@ -1398,7 +1398,7 @@ Texte (`subheading` bzw. `text`, ≤ 400 Zeichen):
 | # | DE | EN |
 |---|---|---|
 | 0 | Fine-Line-Tattoos, bemalte Keramik, Caps und Shirts, Tusche auf Papier – alles von Hand, alles nur einmal. Coco passt auf. | Fine line tattoos, painted ceramics, caps and shirts, ink on paper – all by hand, each one only once. Coco keeps an eye on things. |
-| 1 | Ich bin Jutta. Ich zeichne Tiere mit Kulleraugen – auf Haut, auf Ton, auf Stoff und auf Papier. Und das ist Coco. Sie rennt schon mal vor. | I'm Jutta. I draw animals with googly eyes – on skin, clay, fabric and paper. And that's Coco. She's already running ahead. |
+| ~~1~~ | entfällt mit der Station `hallo` (U-40, P13.1) | – |
 | 2 | Schalen, Tellerchen, Fliesen – gekniffen, gedreht, bemalt. Jede Form ist ein bisschen schief, genau so soll sie sein. Alles Deko, nicht für Essen. | Bowls, little plates, tiles – pinched, shaped, painted. Every piece is a little wonky, exactly as it should be. All decorative, not for food. |
 | 3 | Second-Hand-Shirts, Kleider und Caps, von Hand bemalt. Jedes Teil gibt's genau einmal – in genau einer Größe. | Second-hand shirts, dresses and caps, painted by hand. Every piece exists exactly once – in exactly one size. |
 | 4 | Tusche, Aquarell, Skizzenbuchseiten. Hier fängt eigentlich alles an. | Ink, watercolour, sketchbook pages. This is where it all starts, really. |
@@ -1694,7 +1694,7 @@ Kunden-E-Mail. Bezug `checkout` nur, wenn die Kasse noch existiert (§7.3).
 | AK-SEED-15 | Ein echtes Stück Nr. 17 und ein echter Umsatz `2026-09/tattoo` bleiben bei `seed`, `seed:remove` und `seed:reset` unverändert; der Seed überspringt belegte (`month`, `source`) | int |
 | AK-SEED-16 | `resolveSeedTime` erfüllt die Tabelle §2.2; ein ungültiges `SEED_NOW` (kein ISO 8601 mit Offset) → Exit 1 | unit |
 | AK-SEED-17 | Übernahme: Speichern von FAQ05 im Admin setzt `seed = false`; ein weiterer `pnpm seed` legt FAQ05 nicht neu an und ändert es nicht | int |
-| AK-SEED-18 | Startseite liefert `hero` + genau 7 Stationen mit `stationId` `hallo`, `keramik`, `textil`, `zeichnungen`, `schmuck`, `tattoo`, `jutta-und-coco` in dieser Reihenfolge | int |
+| AK-SEED-18 | Startseite liefert `hero` + genau 6 Stationen mit `stationId` `keramik`, `textil`, `zeichnungen`, `schmuck`, `tattoo`, `jutta-und-coco` in dieser Reihenfolge | int |
 | AK-SEED-19 | Kein importiertes Bild stammt aus Highlights/`profil.jpg`; `DdHXUQsDjqm` existiert nur als Ausschnitt `#cap` (crop % 16, 0, 68, 45; die Prüfung rechnet die Pixel aus den tatsächlichen Quellmaßen – bei der 480×640-Quelle 77, 0, 326, 288) | int |
 | AK-SEED-20 | Status-URLs aus `seedToken('orders:<Key>', 'status')` für O01, O10, O13 und Danke-URLs aus `seedToken('checkouts:<Key>', 'checkout')` für O13, O14 öffnen die Seiten und zeigen „Beispiel“; ein anderer Token liefert 404; `seedToken()` hängt nicht von `PAYLOAD_SECRET` ab | e2e |
 | AK-SEED-21 | Nach `pnpm seed` mit `SEED_PREVIEW_MODE=true` und `APP_ENV=preview`: Monats-CSV, DATEV-Export, Rechnungs-ZIP und der Jahres-Export der Verpackungsmengen (`GET /api/admin/packaging-report?year=`) enthalten keinen Datensatz mit `seed = true` (bei reinem Beispielbestand: nur Kopfzeile bzw. leeres Archiv) | int |

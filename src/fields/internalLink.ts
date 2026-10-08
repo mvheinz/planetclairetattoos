@@ -9,7 +9,7 @@ const filled = (v: unknown) => v !== undefined && v !== null && v !== ''
 
 /**
  * Interner Link für Seitenblöcke und Navigation (DATENMODELL §5). `optional`: der ganze Link darf fehlen (z. B.
- * Station „hallo“ ohne Link, SEED-SPEC §13.1); ist Ziel oder Beschriftung gesetzt, sind beide Pflicht.
+ * eine Station ohne Link, SEED-SPEC §13.1); ist Ziel oder Beschriftung gesetzt, sind beide Pflicht.
  */
 export function internalLinkFields(options: { optional?: boolean } = {}): Field[] {
   const optional = options.optional === true

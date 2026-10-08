@@ -181,7 +181,7 @@ Tempo-Läufe laufen **ohne** Videoaufnahme (Video kostet CPU) und getrennt von B
 | ID | Route | Profile | Ablauf | Aufnahmen |
 |---|---|---|---|---|
 | SC-00 | Startseite | alle | Smoke: laden, 1× bis unten scrollen | Video, 3 Frames |
-| SC-01 | R01 Startseite | alle | (a) Intro abwarten; (b) langsam scrollen 600 px/s bis Ende; (c) schnell „wischen“ 3000 px/s; (d) 400 px hoch; (e) 1,5 s stehen an jeder Station; (f) P12: Fitness-Coco der Hallo-Station (alle 3 s ein Bild über 42 s, Uhr angehalten) und Koko (Pupillen alle 1,5 s über 9 s); reduziert je ein Standbild | Video; Frames an jeder Station-Grenze (`y − 40`, `y`, `y + loopScroll/2`, `y + loopScroll`, `+1,5 s`); Intro-Sequenz alle 100 ms |
+| SC-01 | R01 Startseite | alle | (a) Intro abwarten; (b) langsam scrollen 600 px/s bis Ende; (c) schnell „wischen“ 3000 px/s; (d) 400 px hoch; (e) 1,5 s stehen an jeder Station; (f) P12/P13: Koko (Pupillen alle 1,5 s über 9 s); reduziert ein Standbild (Fitness-Coco entfiel mit U-40) | Video; Frames an jeder Station-Grenze (`y − 40`, `y`, `y + loopScroll/2`, `y + loopScroll`, `+1,5 s`); Intro-Sequenz alle 100 ms |
 | SC-02 | R01 | alle, `reduced` | laden, bis Ende scrollen | Frames an denselben Positionen; Zeitvergleich t=0 vs t=2 s |
 | SC-03 | Menü (auf R02) | alle | öffnen, 1 s, Link fokussieren (Tab), schließen (Esc) | Video; Öffnen-Sequenz alle 40 ms bis 800 ms; Unterstreichung alle 40 ms |
 | SC-04 | R02 Shop, R05 Archiv | alle | laden, Reihe für Reihe scrollen; Desktop: Hover über 2 Karten | Video; je Reihe: vor Eintritt, +250 ms, +500 ms, +900 ms (Schwingen) |
