@@ -86,15 +86,8 @@ describe('Seiten (SEED-SPEC §13)', () => {
 
   it('Blöcke je Seite laut §13.2–§13.7; EN-Texte in der englischen Fassung', async () => {
     const types = async (key: string) => (await page(key, 'de')).layout.map((b) => b.blockType)
-    expect(await types('about')).toEqual([
-      'richText',
-      'imageText',
-      'richText',
-      'imageText', // „Zu zweit“: Foto von Jutta und Coco (P12.16, von Jutta freigegeben)
-      'imageGallery',
-      'categoryTeaser',
-      'contactLinks',
-    ])
+    // U-48 (P13.9): nur noch „Zu zweit“ (Foto von Jutta und Coco, P12.16, von Jutta freigegeben) und „Sag etwas“
+    expect(await types('about')).toEqual(['imageText', 'contactLinks'])
     expect(await types('commissions')).toEqual([
       'processSteps',
       'imageGallery',
@@ -176,7 +169,7 @@ describe('Seiten (SEED-SPEC §13)', () => {
           ? (b.images as unknown[])
           : [],
     ) as { showsPerson: string; sourceRef: string; ownerApproved?: boolean }[]
-    expect(images).toHaveLength(5)
+    expect(images).toHaveLength(1) // U-48: Galerie und „Die zittrige Linie“ gelöscht
     // Fotos von Jutta nur mit gesetztem Häkchen „ownerApproved“ (R-181): genau das gelieferte Foto
     const jutta = images.filter((m) => m.showsPerson === 'jutta')
     expect(jutta.map((m) => m.sourceRef)).toEqual(['own:jutta-coco'])
@@ -186,6 +179,17 @@ describe('Seiten (SEED-SPEC §13)', () => {
     expect(text).not.toMatch(/B-?52|Planet Claire, |„[^“]{20,}“/)
     const en = JSON.stringify((await page('about', 'en')).layout)
     expect(en).not.toMatch(/B-?52/)
+  })
+
+  it('U-48: „Über mich“ ohne „Ich bin Jutta“, „Die zittrige Linie“, Coco-Absatz und „Wo ich zeichne“ (DE/EN)', async () => {
+    for (const locale of ['de', 'en'] as const) {
+      const text = JSON.stringify((await page('about', locale)).layout)
+      expect(text, locale).not.toMatch(
+        /Ich bin Jutta|I am Jutta|zittrige Linie|trembling line|Und das ist Coco|And this is Coco|Wo ich zeichne|Where I draw/,
+      )
+      expect(text, locale).toContain(locale === 'de' ? 'Zu zweit' : 'The two of us')
+      expect(text, locale).toContain(locale === 'de' ? 'Sag etwas' : 'Say something')
+    }
   })
 })
 

@@ -83,8 +83,6 @@ const IDENTICAL_BY_NATURE = new Set([
   'commission.form.objectTypes.shirt',
   'commission.form.budgetLabel',
   'about.title',
-  'about.whatShop',
-  'about.whatTattoo',
   'qa.frame',
   'qa.pose',
   'qa.size',
