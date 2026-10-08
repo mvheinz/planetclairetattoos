@@ -2153,3 +2153,22 @@ gekennzeichnete Platzhalter.
 - Jede Kategorie im Shop (und „Alle“) ist jetzt eine kleine Karte: oben ein Coco-Foto aus deinem Instagram-Material, darunter der Name. Alle Karten sind gleich groß (mobil seitlich wischbar, am Rechner in einer Reihe). Das gilt auch im Archiv.
 - Tests: Unit (Zuordnung, Dateigröße), E2E (gleiche Größe, Bilder geladen, Links, DE/EN, Desktop und Pixel 7).
 - P12.16: Dein Foto mit Coco ist auf „Über mich“ eingebaut (Block „Zu zweit“ unter dem Coco-Abschnitt, Goth-Rahmen, beide Gesichter im Ausschnitt). Hinweis für P11: Das Foto muss beim Entfernen der Beispieldaten behalten werden (siehe OFFENE-PUNKTE).
+
+## 2026-10-08 – P13.4, P13.6–P13.9 Schriften, Gewährleistung, Anschrift, Sprache, „Jutta & Coco“
+
+- P13.4 (U-43): Alle Überschriften auf allen Seiten (außer den Startseiten-Bausteinen) stehen jetzt in Spectral wie der
+  Titel – auch Produkt-Abschnitte, Kasse, Rechtsseiten und die Spalten im Fuß. Fließtext bleibt Bricolage. Neuer Test
+  geht alle Seiten durch (`tests/e2e/headings-font.e2e.spec.ts`); die Kunst-Prüfung LG-03 erlaubt Überschriften jetzt
+  auch auf den ruhigen Seiten.
+- P13.6 (U-45): Das leere Feld „Gesetzliche Gewährleistung“ zeigt jetzt den Inhalt der EU-Mitteilung auf Deutsch und
+  Englisch (mindestens zwei Jahre, Reparatur oder Ersatz, Rechte gegenüber dem Verkäufer …) in Text und Grafik, deutlich
+  als „Platzhalter-Fassung“ markiert, bis die Kanzlei sie mit der amtlichen Vorlage abgleicht (OFFENE-PUNKTE).
+- P13.7 (U-46): Deine Anschrift „Jutta Dollmann, Anklamer Straße 28, 10115 Berlin“ steht in den Einstellungen
+  (Stammdaten); Impressum, Datenschutz, AGB, Widerruf, Rechnungen und Mails übernehmen sie, die Kontaktseite zeigt sie
+  jetzt vollständig statt nur des Bezirks.
+- P13.8 (U-47): In der Kopfzeile rechts neben „Menü“ steht „DE | EN“; die aktive Sprache ist mit einer kleinen
+  Tusche-Linie unterstrichen, ein Klick führt auf dieselbe Seite in der anderen Sprache (auch bei Stücken und
+  Kategorien). Auf dem Handy zeigt der Korb dafür nur noch Symbol und Anzahl.
+- P13.9 (U-48): „Jutta & Coco“ ist gekürzt: Überschrift, dein Foto mit Coco („Zu zweit“) und „Sag etwas“.
+- Tests: Unit (Kunst-Prüfung LG-03, Mitteilung, Stammdaten, Sprachdateien), Integration (Grund-Seed, Seiten, Kontakt),
+  E2E (Überschriften, Über mich, Sprach-Umschalter, Kontakt/Rechtsseiten) – Einzelheiten im PR-Text.
