@@ -104,6 +104,15 @@
 /* Sprach-Umschalter „DE | EN“ (U-47): Schrift wie die Kopf-Links, aktive Sprache mit kleiner Tusche-Linie. */
 .lang {
   gap: 0;
+  /* feste Mindestbreite: Ersatz- und Webschrift sind für „DE | EN“ unterschiedlich breit (WebKit), die Leiste soll sich
+     beim Schriftwechsel nicht verschieben (AK-DS-07) */
+  min-width: 4.25rem;
+}
+
+@media (max-width: 539.98px) {
+  .lang {
+    min-width: 4rem;
+  }
 }
 
 /* etwas Luft zu „Menü“, wo die Breite es erlaubt (bei 320 px zählt jeder Pixel, KO-02) */
@@ -180,12 +189,17 @@
 
 /* 320–399 px: ohne Innenabstand (Zielflächen bleiben ≥ 44 px über `min-width`), sonst bricht „DE | EN“ um. */
 @media (max-width: 399.98px) {
+  .list {
+    gap: 1px;
+  }
+
   .link {
     padding-inline: 0;
   }
 
   /* WebKit setzt die Schrift etwas breiter: „DE | EN“ hier 14 px mit schmalem Trenner. */
   .lang {
+    min-width: 3.375rem;
     font-size: 0.875rem;
   }
 
