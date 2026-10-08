@@ -520,6 +520,15 @@ describe('P9.6 Lesbarkeit LG', () => {
     ).toBe('FAIL')
   })
 
+  it('LG-03 (U-43): Überschriften H2/H3 in Spectral auch auf Ruhe-Routen; Preis dort weiter nicht', () => {
+    const calm = (role: string, tag = 'h2') =>
+      rt.lg03([file('SC-17', [probe({ url: '/de/agb', display: [{ tag, size: 20, role }] })])])
+        .status
+    expect(calm('h2')).toBe('PASS')
+    expect(calm('h2', 'h3')).toBe('PASS')
+    expect(calm('price', 'span')).toBe('FAIL')
+  })
+
   it('LG-04: horizontales Scrollen bei 200 % scheitert', () => {
     const ext = { lg04: { rebuildBefore: 1, rebuildAfter: 2 } }
     expect(rt.lg04([file('SC-15', [probe({ label: 'font200-top' })], 'motion', ext)]).status).toBe(

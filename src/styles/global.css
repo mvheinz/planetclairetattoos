@@ -205,19 +205,13 @@ h2 {
   line-height: 1.08;
 }
 
+/* U-43 (P13.4): alle Überschriften H1–H3 auf allen Seiten in Spectral wie der Titel – auch auf Ruhe- und
+   Rechtsseiten (die frühere Ausnahme „nur H1“ entfällt). Fließtext bleibt Bricolage. */
 h3 {
-  font-family: var(--font-body);
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-weight: 400;
   font-size: var(--fs-h3);
-  line-height: 1.3;
-  letter-spacing: -0.005em;
-}
-
-/* Ruhe-Seiten und Rechtstexte: Spectral nur für die H1 (DESIGN §4.3 Nr. 2), alles andere Bricolage. */
-body[data-preset='calm'] main :is(h2, h3),
-body[data-preset='legal'] main :is(h2, h3) {
-  font-family: var(--font-body);
-  font-weight: 700;
+  line-height: 1.25;
 }
 
 /* Wortmarke (§12.6): Höhe über --fs-wordmark, Breite aus dem Seitenverhältnis. */

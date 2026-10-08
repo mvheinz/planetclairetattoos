@@ -310,7 +310,7 @@ Beleg) **· Schwere bei Verfehlung** (B = Blocker, M = Major, m = Minor; Definit
 |---|---|---|---|---|
 | LG-01 | Keine Überdeckung | an allen Frame-Positionen aus SC-01, SC-04, SC-05, SC-08, SC-09, SC-10: Schnittmenge aus (gezeichneten LUT-Punkten ± halbe Breite) ∪ **Hundekante der Coco** (Bbox der gezeichneten Figur: waagerecht 0,10–0,90 der Box-Breite – die Sprite-Hüllen aller 22 Symbole liegen bei 0,131–0,903 –, senkrecht die volle Box; **keine** Zusatz-Toleranz, einzige Toleranz sind die 1 px, um die jedes Textzeilen-Rechteck schrumpft; die Box selbst ist breiter als der Hund, DESIGN §10.5 – ihre Überdeckungen weist `check.json` nur informativ aus) mit (Rects aller Textzeilen via `Range.getClientRects()` in `main`/`footer`, auch innerhalb von Links/Knöpfen) ∪ (vollständige Rects aller Formularfelder, Knöpfe, Icon-Knöpfe und Fußbereich-Links) = **leer**. Block-Links (Produktkarten) zählen nur mit ihren Textzeilen (DESIGN §9.9 Nr. 3) | auto | B |
 | LG-02 | Pflichtlinks frei | DESIGN AK-DS-09 auf allen Routen | auto | B |
-| LG-03 | Schrift-Regeln | Mansalva nur in erlaubten Rollen (DESIGN §4.3), nie < 24 px; Scan per `getComputedStyle` | auto | M |
+| LG-03 | Schrift-Regeln | Spectral (früher Mansalva, U-10) nur in erlaubten Rollen (DESIGN §4.3; Überschriften H1–H3 auf allen Seiten, auch Ruhe-Routen, U-43), nie < 16 px; Scan per `getComputedStyle` | auto | M |
 | LG-04 | Textgröße 200 % | `document.documentElement.style.fontSize = '32px'` bei 390 px: kein horizontales Scrollen, LG-01 weiterhin leer, Linie neu aufgebaut | auto | M |
 | LG-05 | Stationsinhalt zuerst | bei jedem Stations-Frame sind H2 und Text vollständig sichtbar, bevor/während Coco dort ist | R3 (Bögen) | m |
 

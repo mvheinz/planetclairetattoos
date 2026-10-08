@@ -215,7 +215,7 @@ Fluide Größen zwischen 360 px und 1280 px Viewport (`clamp()` mit rem-Anteil, 
 | `--fs-display` | Spectral | 500 | 44 | 76 | `clamp(2.75rem, 1.9674rem + 3.4783vw, 4.75rem)` | 1.0 | 0 | H1 Startseite |
 | `--fs-h1` | Spectral | 500 | 36 | 56 | `clamp(2.25rem, 1.7609rem + 2.1739vw, 3.5rem)` | 1.05 | 0 | H1 übrige Seiten, Produkttitel |
 | `--fs-h2` | Spectral | 500 | 30 | 44 | `clamp(1.875rem, 1.5326rem + 1.5217vw, 2.75rem)` | 1.08 | 0 | Stationen, Abschnitte |
-| `--fs-h3` | Bricolage | 700 | 19 | 22 | `clamp(1.1875rem, 1.1141rem + 0.3261vw, 1.375rem)` | 1.3 | −0.005em | Unterabschnitte |
+| `--fs-h3` | Spectral | 500 | 19 | 22 | `clamp(1.1875rem, 1.1141rem + 0.3261vw, 1.375rem)` | 1.25 | 0 | Unterabschnitte (U-43) |
 | `--fs-lede` | Bricolage | 400 | 18 | 20 | `clamp(1.125rem, 1.0761rem + 0.2174vw, 1.25rem)` | 1.55 | 0 | Einleitungen |
 | `--fs-body` | Bricolage | 400 | 16 | 17 | `clamp(1rem, 0.9755rem + 0.1087vw, 1.0625rem)` | 1.62 | 0 | Fließtext |
 | `--fs-small` | Bricolage | 400 | 14 | 15 | `clamp(0.875rem, 0.8505rem + 0.1087vw, 0.9375rem)` | 1.5 | 0 | Hinweise, Fußbereich |
@@ -233,8 +233,14 @@ Fluide Größen zwischen 360 px und 1280 px Viewport (`clamp()` mit rem-Anteil, 
 
 ### 4.3 Regeln
 
-1. **Spectral** (normal) nur für Überschriften H1/H2, Menü-Hauptlinks; **Spectral Italic** nur für Preisschild-Preis, Produktpreis, Stempel, Betonungen (Akzent-Schrift, U-10). Anzeige-Größen ab 16 px (Prüfung LG-03), nie für Fließtext, Formulare, Knöpfe, Rechtstexte, Tabellen, Kasse.
-2. **Kasse, Warenkorb, Rechtstexte, Widerruf:** H1 in Spectral erlaubt, alles andere Bricolage/Plex Mono. Preise dort in Plex Mono.
+1. **Spectral** (normal) für **alle Überschriften H1–H3 auf allen Seiten** (U-43, P13.4: auch Abschnittstitel der
+   Produktseite, Kasse, Fußbereich, harmonisierte Mitteilung) und Menü-Hauptlinks; **Spectral Italic** nur für
+   Preisschild-Preis, Produktpreis, Stempel, Betonungen (Akzent-Schrift, U-10). Anzeige-Größen ab 16 px (Prüfung LG-03;
+   kleine Überschriften wie die Spalten im Fußbereich stehen deshalb auf 18 px), nie für Fließtext, Formulare, Knöpfe,
+   Tabellen. Kartentitel (Produktkarte) sind keine Überschriften und bleiben Bricolage. Prüfung:
+   `tests/e2e/headings-font.e2e.spec.ts`.
+2. **Kasse, Warenkorb, Rechtstexte, Widerruf:** Überschriften H1–H3 in Spectral (U-43 ersetzt die frühere Regel „nur
+   H1“), Fließtext, Formulare und Tabellen Bricolage/Plex Mono. Preise dort in Plex Mono.
 3. Ziffern in Tabellen und Summen: `font-variant-numeric: tabular-nums` (Plex Mono ist ohnehin monospaced).
 4. Zeilenlänge Fließtext ≤ 66ch, Rechtstexte ≤ 72ch.
 5. Überschriften `text-wrap: balance`; Fließtext `text-wrap: pretty`; `hyphens: auto` mit korrektem `lang` (DE-Texte haben lange Komposita).
