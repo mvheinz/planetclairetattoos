@@ -1,16 +1,16 @@
-'use client'
-
 import React from 'react'
 
 import { LOCALES, type Locale } from '@/lib/routes/registry'
 
+import { AlternateLink } from './AlternateLink'
 import styles from './SiteHeader.module.css'
-import { useAlternateHref } from './useAlternateHref'
 
 // Sprach-Umschalter „DE | EN“ in der Kopfleiste rechts neben „Menü“ (U-47, P13.8): in der Schrift der Kopf-Links, die
 // aktive Sprache mit einer kleinen Tusche-Linie unterstrichen (Inline-SVG, `currentColor`). Ein Link auf dieselbe Seite
-// in der anderen Sprache (Ziel wie im Fuß: `useAlternateHref`) – eine Zielfläche ≥ 44 × 44 px, damit die Kopfleiste
-// bis 320 px nicht umbricht. Zugänglicher Name in der Zielsprache („Language: English“ bzw. „Sprache: Deutsch“).
+// in der anderen Sprache – Ziel wie im Fuß aus der Registry-Route (`AlternateLink`, nur das Ziel ist Client-Code);
+// Kategorie und Stück (sprachabhängiger Slug) setzt das Modul `language-targets` nach dem Laden aus den hreflang-Alternativen der
+// Seite (`syncLanguageTargets`, ohne zusätzliches Erstlade-JS). Eine Zielfläche ≥ 44 × 44 px, damit die Kopfleiste bis
+// 320 px nicht umbricht. Zugänglicher Name in der Zielsprache („Language: English“ bzw. „Sprache: Deutsch“).
 
 /** Zugänglicher Name des Links je Zielsprache (in der Zielsprache, `lang` am Link). */
 export const LANGUAGE_SWITCH_LABEL: Record<Locale, string> = {
@@ -21,17 +21,13 @@ export const LANGUAGE_SWITCH_LABEL: Record<Locale, string> = {
 const CODE: Record<Locale, string> = { de: 'DE', en: 'EN' }
 
 export function HeaderLanguageSwitch({ locale }: { locale: Locale }) {
-  const hrefFor = useAlternateHref()
   const target = LOCALES.find((l) => l !== locale) ?? locale
   return (
-    <a
-      href={hrefFor(target)}
-      hrefLang={target}
-      lang={target}
+    <AlternateLink
+      target={target}
       aria-label={LANGUAGE_SWITCH_LABEL[target]}
       className={`${styles.link} ${styles.lang}`}
       data-header-language=""
-      data-language-switcher-link=""
     >
       {LOCALES.map((l, i) => (
         <React.Fragment key={l}>
@@ -61,6 +57,6 @@ export function HeaderLanguageSwitch({ locale }: { locale: Locale }) {
           </span>
         </React.Fragment>
       ))}
-    </a>
+    </AlternateLink>
   )
 }

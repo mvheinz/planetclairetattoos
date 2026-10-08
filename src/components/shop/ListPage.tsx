@@ -242,11 +242,14 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
           </div>
           <div className={styles.gridWrap}>
             <span className={styles.bounds} id="shop-grid" data-leash-anchor="target" />
-            {/* Shop/Kategorie: Live-Zustand der Karten nach dem Laden (`product-status`, P3.11) mit Stempel-Knall. */}
+            {/* Shop/Kategorie: Live-Zustand der Karten nach dem Laden (`product-status`, P3.11) mit Stempel-Knall;
+                Ziel der Sprachlinks bei sprachabhängigem Slug (`language-targets`, U-47). */}
             <ul
               className={styles.grid}
               data-behavior={
-                archive ? 'price-tag-swing' : 'price-tag-swing sold-stamp product-status'
+                archive
+                  ? 'price-tag-swing'
+                  : 'price-tag-swing sold-stamp product-status language-targets'
               }
               {...(archive ? {} : statusLabelAttrs((key) => t(`shop.card.${key}`)))}
             >

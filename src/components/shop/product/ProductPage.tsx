@@ -194,7 +194,7 @@ export async function ProductPage({
     <article
       className={`u-container ${styles.page}`}
       data-product-page=""
-      data-behavior="product-status sold-stamp"
+      data-behavior="product-status sold-stamp language-targets"
       data-product-id={product.id}
       data-item-number={product.itemNumber}
       data-status={state}

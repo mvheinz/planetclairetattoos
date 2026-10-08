@@ -2,14 +2,14 @@
 
 import React from 'react'
 
+import { alternateForMatch } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
 
 import { LanguageList } from './LanguageList'
-import { useAlternateHref } from './useAlternateHref'
+import { useCurrentRoute } from './useCurrentRoute'
 
-// Sprachumschalter im Fuß (KONZEPT §2.6, DESIGN KO-04): Ziel ist das Gegenstück der aktuellen Seite (`useAlternateHref`:
-// Registry-Route, bei Kategorie/Stück die hreflang-Alternativen der Seite; sonst Startseite der anderen Sprache) –
-// gleiches Ziel wie der Umschalter „DE | EN“ in der Kopfleiste (U-47). Markup: `LanguageList`.
+// Sprachumschalter im Fuß (KONZEPT §2.6, DESIGN KO-04): Ziel ist das Gegenstück der aktuellen Seite (`alternatePath`;
+// dynamische Routen ohne Gegenstück → Startseite der anderen Sprache). Markup: `LanguageList`.
 
 export function LanguageSwitcher({
   locale,
@@ -23,11 +23,11 @@ export function LanguageSwitcher({
   className?: string
   linkClassName?: string
 }) {
-  const hrefFor = useAlternateHref()
+  const match = useCurrentRoute()
   return (
     <LanguageList
       locale={locale}
-      hrefFor={hrefFor}
+      hrefFor={(l) => alternateForMatch(match, l)}
       label={label}
       className={className}
       linkClassName={linkClassName}

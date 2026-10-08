@@ -11,6 +11,7 @@ export const BEHAVIOR_LOADERS = {
   'buy-bar': () => import('./buy-bar'),
   'cart-count': () => import('./cart-count'),
   gallery: () => import('./gallery'),
+  'language-targets': () => import('./language-targets'),
   lightbox: () => import('./lightbox'),
   lost: () => import('./lost'),
   menu: () => import('./menu'),

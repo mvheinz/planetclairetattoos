@@ -185,6 +185,12 @@ const FIXTURES: Record<BehaviorName, { html: string; exercise: (root: Element) =
       document.documentElement.removeAttribute('data-motion')
     },
   },
+  'language-targets': {
+    html:
+      '<header><a href="/en" hreflang="en" data-header-language="">DE | EN</a></header>' +
+      '<article data-behavior="language-targets"><h1>Stück</h1></article>',
+    exercise: () => {},
+  },
   menu: {
     html:
       '<a href="#fussnavigation" data-menu-trigger aria-controls="menu" aria-expanded="false">Menü</a>' +

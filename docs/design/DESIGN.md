@@ -556,8 +556,9 @@ Jede Komponente: **Zweck · Aufbau · Maße · Zustände · Bewegung · Barriere
 - **Aufbau (links → rechts):** Wortmarke „planet claire“ (SVG, §12.6, Link zur Startseite, zugänglicher Name „planet claire – Startseite“) · Links **Shop**, **Tattoo** · **Korb** mit Anzahl · Knopf **Menü** · Sprach-Umschalter **„DE | EN“** (U-47, P13.8) (KONZEPT §3.0.1; EN: Shop, Tattoo, Basket, Menu).
 - **Sprach-Umschalter (U-47):** ein Link `HeaderLanguageSwitch` in der Schrift der Kopf-Links; die aktive Sprache in
   `--ink` mit kleiner handgezeichneter Tusche-Linie darunter (Inline-SVG, `currentColor`, 1.5 px), die andere in
-  `--ink-2`. Ziel: dieselbe Seite in der anderen Sprache (`useAlternateHref`: Registry-Route; Kategorie/Stück aus den
-  hreflang-Alternativen der Seite; sonst Startseite) – wie der Umschalter im Fuß. `hreflang`/`lang` der Zielsprache,
+  `--ink-2`. Ziel: dieselbe Seite in der anderen Sprache (Registry-Route wie der Umschalter im Fuß; Kategorie/Stück
+  setzt das Modul `language-targets` nach dem Laden aus den hreflang-Alternativen der Seite, auch im Fuß – ohne zusätzliches
+  Erstlade-JS; ohne JavaScript dort die Startseite der anderen Sprache). `hreflang`/`lang` der Zielsprache,
   zugänglicher Name „Language: English“ bzw. „Sprache: Deutsch“, Fokusrahmen wie alle Links. Unter 540 px zeigt der
   Korb nur Symbol + Anzahl (Wort „Korb“ für Screenreader), unter 400 px ohne Innenabstand – so bleibt die Leiste bis
   320 px einzeilig. Test: `tests/e2e/language-switch.e2e.spec.ts`.
@@ -1049,6 +1050,7 @@ nicht selbst, sondern binden dieselben Module ein (im Effekt bzw. über `Behavio
 | `lightbox` | Zoom-Dialog, Pinch/Doppeltipp, Zurück-Taste | KO-09 |
 | `buy-bar` | Kauf-Leiste mobil, MI-15 | KO-09a |
 | `cart-count` | Korb-Anzahl im Kopf (liest nur, wenn `pc_cart` existiert, setzt nichts), MI-07 | KO-02 |
+| `language-targets` | Ziel der Sprachlinks (Kopf „DE \| EN“, Fuß) auf Kategorie-/Stückseiten aus den hreflang-Alternativen; nur App (U-47) | KO-02 |
 | `add-to-cart` | Rückmeldung „In den Korb“, MI-01 (über `src/leash/coco.ts`) | KO-11 |
 | `price-tag-swing` | Preisschild schwingt, MI-02 | KO-05 |
 | `sold-stamp` | Stempel-Knall im Verkaufsmoment, MI-03 | KO-06 |
