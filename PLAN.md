@@ -5578,6 +5578,31 @@ Nach dem Merge automatisch (ohne Checkbox; prüft P11.1):
 - [x] `bash scripts/cloud-setup.sh --plan-status` zeigt `OFFEN_P1_P10=0` und `OFFEN_P12=0`.
 - [x] PR-Beschreibung aktualisiert; gemergt oder oben „Bitte mergen – CI ist grün“; Release `vorschau-p12` veröffentlicht.
 
+## P13 – Zweite Nachbesserung nach Juttas Rückmeldung (08.10.2026)
+
+Verbindlich: `docs/UEBERARBEITUNG.md` U-40 … U-49. Gilt für Handy und Desktop.
+
+- [ ] **P13.1 Startseite ohne „Komm näher.“** (U-40) – Station, Text und Fitness-Coco samt Code/Assets/Tests/Budgets entfernen; Stationen neu nummerieren.
+  - Akzeptanz: keine Fitness-Reste (Grep), Stationen 01…06, Unit/E2E/visuell grün, PF-10 ok.
+- [ ] **P13.2 Koko neu: Augen wie Original, Ausschnitt +⅓** (U-41) – Augäpfel/Lidstrich aus dem Original, Pupillen animiert; Ausschnitt mit Brustansatz.
+  - Akzeptanz: Sichtvergleich mit dem Original (Screenshots), Koko-Unit/E2E grün.
+- [ ] **P13.3 Koko + kompakter Tour-Schaukasten nebeneinander, Instagram-Link** (U-42) – Layout oben rechts, mobil untereinander; handgezeichnetes Instagram-Symbol.
+  - Akzeptanz: Screenshots 390/1280 px, home-tour-E2E angepasst, keine Fremd-Anfragen.
+- [ ] **P13.4 Überschriften in Spectral** (U-43) – alle Überschriften prüfen und vereinheitlichen.
+  - Akzeptanz: Test/Prüfung aller H1–H3 auf Spectral, LG-03 grün.
+- [ ] **P13.5 Coco läuft überall mit** (U-44) – Leinen-Presets der Shop-/Tattoo-Seiten mit laufender Coco, Kringeln und Bild-Umrundungen; Startseite +1–2 Umrundungen; Warte-Aktionen 20 % schneller.
+  - Akzeptanz: Leash-/Coco-E2E auf allen genannten Routen, LG-01/LG-04/PF-* grün in `art:check`.
+- [ ] **P13.6 Harmonisierte Mitteilung** (U-45) – amtlicher Wortlaut DE/EN im leeren Feld.
+  - Akzeptanz: Legal-Tests, Feld nirgends leer.
+- [ ] **P13.7 Anschrift überall** (U-46) – Stammdaten, Kontaktseite, Rechtstexte, Rechnungen, Mails.
+  - Akzeptanz: Token-Tests, Kontakt-E2E, Mail-/Rechnungs-Snapshots.
+- [ ] **P13.8 Sprach-Umschalter DE | EN** (U-47) – Kopfzeile rechts neben „Menü“, gleiche Seite in anderer Sprache.
+  - Akzeptanz: E2E auf mehreren Routen (DE↔EN), Tastatur, 320–1440 px ohne Umbruch.
+- [ ] **P13.9 „Jutta & Coco“ gekürzt** (U-48) – Abschnitte löschen, Foto + „Zu zweit“ + „Sag etwas“ bleiben.
+  - Akzeptanz: About-Unit/Int/E2E angepasst.
+- [ ] **P13.10 Abschluss P13** (U-49) – CI + Kunst-QA grün, visuelle Referenzen erneuert, Merge, Release-Stand aktualisiert, HTML-Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
+  - Akzeptanz: `--plan-status` OFFEN_P13=0.
+
 ## P11 – Go-live gemeinsam mit Jutta
 
 **Ziel:** Die Seite geht unter https://planetclairetattoos.com live – zusammen mit Jutta, in der Reihenfolge von

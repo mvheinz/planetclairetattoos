@@ -54,3 +54,21 @@
 | ID | Entscheidung |
 |---|---|
 | U-30 | Eigene Phase **P12** vor P11. Selbst-Merge (Squash) je Teilphase, wenn die CI grün ist; Zwischenstände nur im PR-Text; **eine** neue HTML-Vorschau (Release `vorschau-p12`) am Ende; Abschlussbericht für Jutta in `docs/FORTSCHRITT.md`. |
+
+## Zweite Runde (08.10.2026, Phase P13)
+
+Antworten von Jutta im Chat (Multiple Choice), verbindlich wie U-00 … U-30. Gilt **für die ganze Seite** (Handy und Desktop).
+
+| ID | Entscheidung |
+|---|---|
+| U-40 | **Startseite:** Station „Komm näher.“ samt Text und Gymnastik-Coco (Fitness-Coco) **komplett entfernen**, auch der Programmcode und die Bilddaten; die übrigen Stationen werden neu durchnummeriert (Keramik = Station 01 …). U-09 entfällt damit. |
+| U-41 | **Koko** (Büste aus dem Originalbild, U-08): Augäpfel und Lidstrich **wie im Original** (leicht unregelmäßige Form, zittriger Tuschestrich, Lid ungleich dick, keine glatten Linsenformen; auch der linke Augenschlitz); nur die Pupillen wandern. Unter dem Fellkragen **etwa ein Drittel der Kappenlänge mehr** aus dem Original: Kragenspitzen ganz, Ansatz der orangen Brust mit weißem Brustfleck, sauberer Abschluss – damit man Coco erkennt. Kappe selbst bleibt. |
+| U-42 | **Koko + Tour nebeneinander:** oben rechts auf der Startseite Koko links, direkt rechts daneben ein **schmaler, deutlich kompakterer Schaukasten** „Planet Claire on Tour“ (nächste 2–3 Termine, ältere aufklappbar); auf dem Handy untereinander. Darunter ein **Instagram-Link** mit handgezeichnetem Instagram-Symbol in Tusche (nicht das bunte Logo) + „@planet.claire.tattoos“ (ändert U-15: Instagram darf zusätzlich hier stehen, weiterhin nicht als Anfrageweg). |
+| U-43 | **Schriften:** alle Überschriften (H1–H3, z. B. „Planet Claire on Tour“) in **Spectral** wie der Titel; Fließtext bleibt Bricolage. Alle Seiten prüfen. |
+| U-44 | **Coco läuft überall mit:** auf allen Shop-, Kategorie-, Produkt-, Archiv-, Tattoo-, Galerie-, Flash-, Preise-, Ablauf-, Pflege-, FAQ- und Auftragsarbeiten-Seiten läuft Coco an der Leine mit (etwas voraus), mit Kringeln und ab und zu einer **Umrundung eines Bildes**; auf der Startseite 1–2 Umrundungen mehr. Warte-Aktionen etwa **20 % schneller** hintereinander. Ruheseiten (Rechtliches, Korb, Kasse) bleiben ruhig. |
+| U-45 | **Harmonisierte Mitteilung zur gesetzlichen Gewährleistung:** amtlicher EU-Wortlaut (DE + EN) einsetzen, als Platzhalter-Fassung markiert bis zur Kanzlei-Prüfung. |
+| U-46 | **Anschrift überall:** „Jutta Dollmann, Anklamer Straße 28, 10115 Berlin“ – Impressum, Datenschutz, AGB, Widerruf, Rechnungen, Mails **und Kontaktseite** (statt nur Bezirk). Eingetragen in den Einstellungen (Stammdaten), damit alle Texte sie übernehmen. |
+| U-47 | **Sprach-Umschalter** in der Kopfzeile rechts neben „Menü“: „DE \| EN“ in der Menü-Schrift, aktive Sprache mit kleiner Tusche-Linie unterstrichen; Klick führt auf dieselbe Seite in der anderen Sprache. |
+| U-48 | **„Jutta & Coco“ (Über uns):** löschen: Abschnitt „Ich bin Jutta …/Hier ist Planet Claire“, „Die zittrige Linie“, den Coco-Absatz mit gezeichneter Coco, die drei Bilder unter dem Foto, „Wo ich zeichne“ mit den Kategorie-Aufrufen. **Es bleiben:** Überschrift, Foto von Jutta und Coco mit dem kurzen Text „Zu zweit“, darunter „Sag etwas“. |
+| U-49 | **Ablauf:** Phase **P13** vor P11, selbst durcharbeiten, CI + Kunst-QA grün, selbst mergen (Squash), am Ende neue HTML-Vorschau (Release `vorschau-p12` mit neuem Stand) an Jutta. |
+

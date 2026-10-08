@@ -203,6 +203,7 @@ describe('Entscheidung des Prüfschritts gate (P10.21)', () => {
     expect(openTasks('OFFEN_P1_P10=unbekannt')).toBeNull()
     expect(openTasks('OFFEN_P1_P10=0\nOFFEN_P12=2\n')).toBe(2)
     expect(openTasks('OFFEN_P1_P10=0\nOFFEN_P12=0\n')).toBe(0)
+    expect(openTasks('OFFEN_P1_P10=0\nOFFEN_P12=0\nOFFEN_P13=3\n')).toBe(3)
   })
 
   it('Plan leer und Release aktuell → „Release aktuell“, keine Veröffentlichung', () => {
