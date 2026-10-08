@@ -135,7 +135,8 @@ for (const locale of ['de', 'en'] as const) {
       if (board.length > 1) expect((await block(0))!.width).toBeGreaterThan((await block(1))!.width)
       for (let k = 0; k < board.length; k++) {
         const b = (await list.nth(k).boundingBox())!
-        expect(b.height, `Zettel ${k}`).toBeLessThan(9 * 16)
+        // 10 rem: Namen in Spectral mindestens 16 px (LG-03) – ein langer englischer Name bricht in der schmalen Spalte um
+        expect(b.height, `Zettel ${k}`).toBeLessThan(10 * 16)
         // eine Zeile unter dem Namen (Ort · Uhrzeit), das volle Datum für Screenreader
         await expect(list.nth(k).locator('p')).toHaveCount(1)
         await expect(list.nth(k).locator('time')).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}/)
