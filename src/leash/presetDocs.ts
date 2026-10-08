@@ -25,14 +25,14 @@ export const PRESET_DOCS: Readonly<Record<PresetId, PresetDoc>> = {
   shopString: {
     routes: ['R02', 'R03', 'R05'],
     shape:
-      'Schnur durch die Faden-Anker je Kartenreihe, Durchhang clamp(4, 0.03 × Abstand, 14), Serpentine',
-    notes:
-      '„Mehr zeigen“ hängt Reihen an; Filterwechsel = Neuaufbau ohne Wiederholung gezeichneter Reihen',
+      'U-44: Spur wie journey in der Rinne am Rand; ab 768 Umrundung der Kategorie-Bilder, Kringel je Kartenzeile',
+    notes: 'Coco läuft an der Leine mit; „Mehr zeigen“ und Filterwechsel = Neuaufbau',
   },
   product: {
     routes: ['R04'],
-    shape: 'Unterstreichung der H1, senkrecht am Preisschild vorbei, hook am Knopf „In den Korb“',
-    notes: 'Kauf-Leiste (KO-09a) ohne Linie und ohne Coco',
+    shape:
+      'U-44: Spur wie journey in der Rinne; Kringel an Titel, Preis, Beschreibung, Sicherheit, „Mehr aus …“',
+    notes: 'Kauf-Leiste (KO-09a) ohne Linie; MI-01 springt mit der Leinen-Coco',
   },
   calm: {
     routes: ['R06', 'R07', 'R09', 'R26'],
@@ -42,13 +42,15 @@ export const PRESET_DOCS: Readonly<Record<PresetId, PresetDoc>> = {
   },
   stencil: {
     routes: ['R11', 'R12', 'R14', 'R15', 'R16', 'R17', 'R18'],
-    shape: 'contour um jede Flash-Karte, dann zur nächsten; ohne Flash wie margin',
+    shape:
+      'U-44: Spur wie journey in der Rinne; Kringel an H1 und Abschnitten, je Kartenzeile; R11 Umrundung der Galerie-Leiste',
     notes: 'Linie bleibt --ink; Violett nur als --shadow-stencil an Karten',
   },
   frame: {
     routes: ['R10'],
-    shape: 'contour um das Formular (KONZEPT §3.10)',
-    notes: 'Formular selbst ohne Animation',
+    shape:
+      'U-44: Spur wie journey in der Rinne; Kringel an den Abschnitten, je Bildzeile und am Formular',
+    notes: 'Formular selbst ohne Animation, Rand der Karte statt Kontur',
   },
   legal: {
     routes: ['R21', 'R22', 'R23', 'R24', 'R25', 'R27'],
@@ -77,11 +79,11 @@ export const PRESET_DOCS: Readonly<Record<PresetId, PresetDoc>> = {
 export const PRESET_COCO_POSES: Readonly<Partial<Record<PresetId, readonly SpritePose[]>>> = {
   journey: ['rennen', 'sitzen', 'schnueffeln', 'kopfschief', 'springen', 'schlafen'],
   about: ['sitzen', 'kopfschief', 'schnueffeln'],
-  shopString: ['sitzen'],
-  product: ['sitzen'],
+  shopString: ['rennen', 'sitzen'],
+  product: ['rennen', 'sitzen'],
   calm: ['sitzen'],
-  stencil: ['kopfschief'],
-  frame: ['sitzen'],
+  stencil: ['rennen', 'kopfschief', 'sitzen'],
+  frame: ['rennen', 'sitzen'],
   thanks: ['sitzen', 'schlafen'],
   lost: ['rennen', 'sitzen'],
 }

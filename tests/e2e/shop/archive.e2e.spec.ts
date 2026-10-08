@@ -92,7 +92,7 @@ test.describe('Archiv R05 – lesend (alle Projekte)', () => {
     // R-030/R-031: Sternchen am Preis, Auflösung auf derselben Seite
     await expect(page.locator('#price-footnote')).toHaveCount(1)
     await expect(page.locator('body')).toHaveAttribute('data-preset', 'shopString')
-    await expect(page.locator('[data-string-coco]')).toHaveCount(1)
+    await expect(page.locator('.coco[data-leash-coco]')).toHaveCount(1)
     expect(await page.content()).not.toMatch(/inkl\.?\s*MwSt/i)
 
     await page.goto(archiveEn)

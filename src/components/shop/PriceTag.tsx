@@ -66,11 +66,7 @@ export function PriceTag({
       data-item-number={itemNumber}
       data-sold={sold ? '' : undefined}
     >
-      <span
-        className={styles.thread}
-        aria-hidden="true"
-        {...(variant === 'hanging' ? { 'data-leash-anchor': 'tag' } : {})}
-      />
+      <span className={styles.thread} aria-hidden="true" />
       <span className={`${styles.body} u-hatch-shadow`} data-price-tag-swing="" data-angle={angle}>
         <svg
           className={styles.outline}

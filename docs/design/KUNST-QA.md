@@ -184,11 +184,11 @@ Tempo-Läufe laufen **ohne** Videoaufnahme (Video kostet CPU) und getrennt von B
 | SC-01 | R01 Startseite | alle | (a) Intro abwarten; (b) langsam scrollen 600 px/s bis Ende; (c) schnell „wischen“ 3000 px/s; (d) 400 px hoch; (e) 1,5 s stehen an jeder Station; (f) P12: Fitness-Coco der Hallo-Station (alle 3 s ein Bild über 42 s, Uhr angehalten) und Koko (Pupillen alle 1,5 s über 9 s); reduziert je ein Standbild | Video; Frames an jeder Station-Grenze (`y − 40`, `y`, `y + loopScroll/2`, `y + loopScroll`, `+1,5 s`); Intro-Sequenz alle 100 ms |
 | SC-02 | R01 | alle, `reduced` | laden, bis Ende scrollen | Frames an denselben Positionen; Zeitvergleich t=0 vs t=2 s |
 | SC-03 | Menü (auf R02) | alle | öffnen, 1 s, Link fokussieren (Tab), schließen (Esc) | Video; Öffnen-Sequenz alle 40 ms bis 800 ms; Unterstreichung alle 40 ms |
-| SC-04 | R02 Shop, R05 Archiv | alle | laden, Reihe für Reihe scrollen; Desktop: Hover über 2 Karten | Video; je Reihe: vor Eintritt, +250 ms, +500 ms, +900 ms (Schwingen) |
+| SC-04 | R02 Shop, R05 Archiv | alle | laden, Reihe für Reihe scrollen; Desktop: Hover über 2 Karten | Video; je Reihe: vor Eintritt, +250 ms, +500 ms, +900 ms (Schwingen); seit U-44 mit laufender Coco, Kringeln je Reihe und (ab 768) Umrundung der Kategorie-Bilder |
 | SC-05 | R04 Produktseite (available) | alle | laden, Galerie wischen, Zoom öffnen/schließen, „In den Korb“ | Video; Linie 0/150/300/450/600 ms; Hüpfer alle 40 ms; Kauf-Leiste |
 | SC-06 | R06 Korb, R07 Kasse (Mock-Zahlung), R09 Bestellstatus, R26 Widerruf | alle | Felder ausfüllen, Fehler auslösen, Ändern-Links | Frames vor/nach jeder Interaktion; `getAnimations()`-Protokoll |
 | SC-07 | R07 Countdown | alle | Clock auf `reservedUntil − 10:05`, `−5:00`, `−1:00`, `0` vorspulen | Frames je Schwelle; Live-Region-Texte |
-| SC-08 | R12 Tattoo-Flash, R11 | alle | laden, scrollen, Desktop-Hover auf Flash-Karte | Video; Kontur je Karte 0/350/700 ms |
+| SC-08 | R12 Tattoo-Flash, R11 | alle | laden, scrollen, Desktop-Hover auf Flash-Karte | Video; je Karte 0/350/700 ms (seit U-44 keine Kontur um Karten, sondern Kringel je Zeile, Coco läuft mit; R11 Umrundung der Galerie-Leiste) |
 | SC-09 | R08 Danke (Zustände: warten, bezahlt, Vorkasse, fehlgeschlagen, leider schon weg) | alle | Zustände per Mock-Zahlung | Video; MI-09 alle 100 ms bis 6 s |
 | SC-10 | R28 404, 404-Variante „Zuhause“, R29 500 | alle | laden, 6 s warten | Video; alle 200 ms bis 6 s |
 | SC-11 | R01 → R02 → R04 → R06 (weiche Navigation) | `art-pixel7`, `art-desktop` | Links klicken | Video; View-Transition-Sequenz alle 50 ms |
@@ -313,6 +313,10 @@ Beleg) **· Schwere bei Verfehlung** (B = Blocker, M = Major, m = Minor; Definit
 | LG-03 | Schrift-Regeln | Mansalva nur in erlaubten Rollen (DESIGN §4.3), nie < 24 px; Scan per `getComputedStyle` | auto | M |
 | LG-04 | Textgröße 200 % | `document.documentElement.style.fontSize = '32px'` bei 390 px: kein horizontales Scrollen, LG-01 weiterhin leer, Linie neu aufgebaut | auto | M |
 | LG-05 | Stationsinhalt zuerst | bei jedem Stations-Frame sind H2 und Text vollständig sichtbar, bevor/während Coco dort ist | R3 (Bögen) | m |
+
+**LG-01 auf allen Seiten mit laufender Coco (U-44, P13.5):** Zusätzlich zu den Szenarien prüft die reguläre E2E-Suite
+(`tests/e2e/leash-trail.e2e.spec.ts`, Desktop und Pixel 7) LG-01 auf R02, R03, R04, R05, R10, R11 (DE/EN), R12, R14–R18 an
+je 14 Lesezeilen-Positionen und dass die Linie nie über Coco hinaus wächst (Coco läuft vorn).
 
 ### 5.6 Tempo (PF) – Linse R3
 

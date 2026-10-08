@@ -2153,3 +2153,10 @@ gekennzeichnete Platzhalter.
 - Jede Kategorie im Shop (und „Alle“) ist jetzt eine kleine Karte: oben ein Coco-Foto aus deinem Instagram-Material, darunter der Name. Alle Karten sind gleich groß (mobil seitlich wischbar, am Rechner in einer Reihe). Das gilt auch im Archiv.
 - Tests: Unit (Zuordnung, Dateigröße), E2E (gleiche Größe, Bilder geladen, Links, DE/EN, Desktop und Pixel 7).
 - P12.16: Dein Foto mit Coco ist auf „Über mich“ eingebaut (Block „Zu zweit“ unter dem Coco-Abschnitt, Goth-Rahmen, beide Gesichter im Ausschnitt). Hinweis für P11: Das Foto muss beim Entfernen der Beispieldaten behalten werden (siehe OFFENE-PUNKTE).
+
+## 2026-10-08 – P13.5 Coco läuft überall mit (U-44)
+
+- Im Shop (auch Kategorien, Archiv und auf jeder Produktseite), bei den Auftragsarbeiten und auf allen Tattoo-Seiten läuft Coco jetzt wie auf der Startseite an der Leine mit: Sie läuft vorn und zieht die Tusche hinter sich her, die Linie kringelt sich an den Überschriften und zwischen den Kartenreihen. Beim Öffnen einer Seite läuft sie die Leine bis zur Leseposition entlang, zwischen diesen Seiten reist sie mit.
+- Umrundungen: Im Shop läuft sie (am Rechner) einmal um die Kategorie-Bilder, auf der Tattoo-Übersicht um eine kleine Galerie-Leiste, auf der Startseite zusätzlich um die Zeichnungen „Textil & Caps“ und „Schmuck“. Formulare, Knöpfe und Karten mit Text umrundet sie nie (sie würde sie sonst verdecken).
+- Warte-Aktionen (Hecheln, Ohr zucken, Kratzen …) kommen etwa 20 % schneller hintereinander. Ruheseiten (Rechtliches, Korb, Kasse) bleiben ruhig; bei „Animationen aus“ steht die Linie still und Coco sitzt.
+- Tests: Unit (Spur, Kringel, Umrundung nur mit Platz, Warte-Plan), neuer E2E `leash-trail` (13 Seiten × 14 Lesepositionen, Desktop und Pixel 7: Linie und Coco überdecken keinen Text und keine Knöpfe, Linie nie vor Coco), Coco reist Start → Shop → Tattoo (MO-14); Leinen-, Coco-, Choreografie-, Shop-, Tattoo- und Auftragsarbeiten-E2E.

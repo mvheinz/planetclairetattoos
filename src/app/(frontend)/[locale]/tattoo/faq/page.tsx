@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import React from 'react'
 
+import { coil } from '@/components/leash/Station'
 import { RichTextContent } from '@/components/content/RichTextContent'
 import styles from '@/components/tattoo/Tattoo.module.css'
 import { TattooShell } from '@/components/tattoo/TattooShell'
@@ -38,8 +39,8 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: st
             {block?.heading || 'FAQ'}
           </h2>
           <ul className={styles.faq}>
-            {faqs.map((faq) => (
-              <li key={faq.id}>
+            {faqs.map((faq, i) => (
+              <li key={faq.id} {...(i % 3 === 0 ? coil(`faq-${i}`, i / 3) : {})}>
                 <details className={styles.faqItem} data-faq={faq.id}>
                   <summary>{faq.question}</summary>
                   <div className={styles.faqAnswer}>

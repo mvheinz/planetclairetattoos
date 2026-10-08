@@ -2,7 +2,6 @@ import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
 import { ICON_MAIL } from '@/components/icons/icons.generated'
-import { Station } from '@/components/leash/Station'
 import { ResponsiveImage } from '@/components/media/ResponsiveImage'
 import { Button } from '@/components/ui/Button'
 import type { PublicFlash, TattooSettings } from '@/lib/data/tattoo'
@@ -15,8 +14,8 @@ import styles from './Tattoo.module.css'
 import { TakenStamp } from './TakenStamp'
 import { TATTOO_PRICE_FOOTNOTE_ID } from './TattooPriceFootnote'
 
-// Flash-Karte (KONZEPT §9.3, DESIGN KO-20): Zeichnung (Grund `--paper-field`, Kontur der Tuschelinie über den
-// Stations-Anker `contour`), Nummer `F-012` (Plex Mono), Titel, Größe „ca. 9 cm“ + Hinweis, Preis als Text mit Sternchen
+// Flash-Karte (KONZEPT §9.3, DESIGN KO-20): Zeichnung (Grund `--paper-field`; die Karte ist eine Rasterzelle der
+// Tuschelinie, `data-leash-anchor="tag"`: Kringel zwischen den Zeilen, nie um die Karte, U-07a), Nummer `F-012` (Plex Mono), Titel, Größe „ca. 9 cm“ + Hinweis, Preis als Text mit Sternchen
 // („120 €*“, kein Preisschild, R-034), Badge „einmalig“/„wiederholbar“. Verfügbar: „Per Mail anfragen“ (Betreff
 // „Flash-Anfrage F-012 – {Titel}“), „Per DM anfragen“ und der kopierbare Baustein „F-012 – {Titel}“; vergeben: Stempel
 // „vergeben“ in `--stencil`, Text „Schon vergeben – …“, keine Anfrage-Knöpfe. Anker `#f-012`. Hover/Fokus:
@@ -60,12 +59,9 @@ export async function FlashCard({
       aria-labelledby={titleId}
       data-flash-card={flash.display}
       data-flash-status={flash.status}
+      data-leash-anchor="tag"
     >
-      <Station
-        id={`${flash.anchor}${compact ? '-teaser' : ''}`}
-        loop="contour"
-        className={styles.flashDrawing}
-      >
+      <div className={styles.flashDrawing}>
         <ResponsiveImage
           media={flash.image}
           aspectRatio={
@@ -79,7 +75,7 @@ export async function FlashCard({
           className={styles.flashImage}
         />
         {!available ? <TakenStamp number={flash.number} label={t('taken')} /> : null}
-      </Station>
+      </div>
       <div className={styles.flashBody}>
         <p className={styles.flashMeta}>
           <span className={styles.flashNumber} data-flash-number="" data-stamp="">

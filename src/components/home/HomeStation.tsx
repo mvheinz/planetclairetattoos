@@ -21,15 +21,16 @@ import { StationArt } from './StationArt'
 // (KO-07 ohne Schnur, Schild `pinned` am Kartenfuß, Fotos `lazy`) und danach „Alle {Kategorie}“ → R03; ohne sichtbare
 // Stücke den Leerzustand „Gerade ist hier nichts …“ mit Link aufs Archiv (KONZEPT §3.1). Anker der Tuschelinie
 // (`data-leash-station`) mit Coco-Pose aus `cocoPose` und der Schlaufe laut Choreografie §11.4: am Kicker bzw. – für
-// `lasso` (Keramik, ab 1200 px) und `contour` (Tattoo) – an der Stationszeichnung.
+// `lasso` (Keramik, ab 1200 px) und `contour` (Textil, Schmuck, Tattoo) – an der Stationszeichnung.
 
 /** Schlaufe je Station (DESIGN §11.4); unbekannte Stationen wechseln rechts/links. */
 export const STATION_LOOPS: Readonly<Record<string, LoopKind>> = {
   hallo: 'right',
   keramik: 'lasso',
-  textil: 'left',
+  // U-44: Coco läuft auf der Startseite um zwei Zeichnungen mehr (Textil, Schmuck)
+  textil: 'contour',
   zeichnungen: 'spiral',
-  schmuck: 'right',
+  schmuck: 'contour',
   tattoo: 'contour',
   'jutta-und-coco': 'left',
 }

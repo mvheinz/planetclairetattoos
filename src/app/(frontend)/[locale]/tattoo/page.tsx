@@ -6,7 +6,7 @@ import styles from '@/components/tattoo/Tattoo.module.css'
 import { FlashCard } from '@/components/tattoo/FlashCard'
 import { GalleryGrid } from '@/components/tattoo/GalleryGrid'
 import { TattooPriceFootnote } from '@/components/tattoo/TattooPriceFootnote'
-import { LeashEnd, TattooShell } from '@/components/tattoo/TattooShell'
+import { TattooShell } from '@/components/tattoo/TattooShell'
 import { tattooLocale, tattooMetadata } from '@/components/tattoo/tattooRoute'
 import { Button } from '@/components/ui/Button'
 import {
@@ -50,16 +50,15 @@ export default async function TattooOverviewPage({
   const photos = galleryTeaser(gallery, 3)
 
   return (
-    <TattooShell
-      locale={locale}
-      routeId="R11"
-      settings={settings}
-      lead={<p>{t('lead')}</p>}
-      leashEnd={available.length > 0 ? 'content' : 'header'}
-    >
+    <TattooShell locale={locale} routeId="R11" settings={settings} lead={<p>{t('lead')}</p>}>
       {style.length > 0 ? (
         <section className={styles.section} aria-labelledby="tattoo-style" data-tattoo-style="">
-          <h2 id="tattoo-style" className={styles.sectionHeading}>
+          <h2
+            id="tattoo-style"
+            className={styles.sectionHeading}
+            data-leash-station="style"
+            data-leash-loop="left"
+          >
             {t('styleHeading')}
           </h2>
           <div className={styles.prose}>
@@ -76,7 +75,12 @@ export default async function TattooOverviewPage({
           aria-labelledby="tattoo-flash"
           data-tattoo-flash-teaser=""
         >
-          <h2 id="tattoo-flash" className={styles.sectionHeading}>
+          <h2
+            id="tattoo-flash"
+            className={styles.sectionHeading}
+            data-leash-station="flash"
+            data-leash-loop="spiral"
+          >
             {t('flashHeading')}
           </h2>
           <ul className={styles.flashGrid}>
@@ -86,7 +90,6 @@ export default async function TattooOverviewPage({
               </li>
             ))}
           </ul>
-          <LeashEnd />
           <p className={styles.more}>
             <Button variant="secondary" href={localizedPath('R12', locale)}>
               {t('flashAll')}
@@ -105,11 +108,13 @@ export default async function TattooOverviewPage({
           <h2 id="tattoo-gallery" className={styles.sectionHeading}>
             {t('galleryHeading')}
           </h2>
+          {/* Coco läuft einmal um die Galerie-Bilder (U-44; ohne Platz daneben ein Kringel) */}
           <GalleryGrid
             entries={photos}
             locale={locale}
             label={t('galleryHeading')}
             eagerCount={0}
+            loop="contour"
           />
           <p className={styles.more}>
             <Button variant="secondary" href={localizedPath('R15', locale)}>
@@ -120,7 +125,12 @@ export default async function TattooOverviewPage({
       ) : null}
 
       <section className={styles.section} aria-labelledby="tattoo-pages" data-tattoo-pages="">
-        <h2 id="tattoo-pages" className={styles.sectionHeading}>
+        <h2
+          id="tattoo-pages"
+          className={styles.sectionHeading}
+          data-leash-station="pages"
+          data-leash-loop="left"
+        >
           {t('pagesHeading')}
         </h2>
         <ul className={styles.pageLinks}>

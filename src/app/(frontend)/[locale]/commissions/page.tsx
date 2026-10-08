@@ -84,7 +84,12 @@ export default async function CommissionsPage({ params }: { params: Promise<{ lo
           aria-labelledby="commission-steps"
           data-commission-steps=""
         >
-          <h2 id="commission-steps" className={tattoo.sectionHeading}>
+          <h2
+            id="commission-steps"
+            className={tattoo.sectionHeading}
+            data-leash-station="steps"
+            data-leash-loop="right"
+          >
             {stepsBlock?.heading || t('stepsHeading')}
           </h2>
           <ol className={tattoo.steps}>
@@ -105,13 +110,18 @@ export default async function CommissionsPage({ params }: { params: Promise<{ lo
             aria-labelledby="commission-examples"
             data-commission-examples=""
           >
-            <h2 id="commission-examples" className={tattoo.sectionHeading}>
+            <h2
+              id="commission-examples"
+              className={tattoo.sectionHeading}
+              data-leash-station="examples"
+              data-leash-loop="spiral"
+            >
               {t('examplesHeading')}
             </h2>
             <figure className={styles.examples}>
               <ul className={tattoo.galleryGrid}>
                 {examples.map((m) => (
-                  <li key={m.id}>
+                  <li key={m.id} data-leash-anchor="tag">
                     <ResponsiveImage
                       media={m}
                       aspectRatio="4 / 5"
@@ -158,7 +168,12 @@ export default async function CommissionsPage({ params }: { params: Promise<{ lo
           aria-labelledby="commission-contact"
           data-commission-contact=""
         >
-          <h2 id="commission-contact" className={tattoo.sectionHeading}>
+          <h2
+            id="commission-contact"
+            className={tattoo.sectionHeading}
+            data-leash-station="contact"
+            data-leash-loop="right"
+          >
             {t('contactHeading')}
           </h2>
           <p>{t('contactText')}</p>

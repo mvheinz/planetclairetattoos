@@ -35,7 +35,7 @@ const loopScroll = (id: string, vw: number) =>
       ? vw >= 768
         ? 440
         : 360
-      : id === 'tattoo'
+      : id === 'tattoo' || id === 'textil' || id === 'schmuck' // Umrundung (contour, U-44)
         ? vw >= 768
           ? 480
           : 400

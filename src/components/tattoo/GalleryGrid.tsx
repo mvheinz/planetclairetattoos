@@ -48,27 +48,35 @@ export async function GalleryGrid({
   locale,
   label,
   eagerCount = 2,
+  loop,
 }: {
   entries: readonly PublicGalleryEntry[]
   locale: Locale
   label: string
   eagerCount?: number
+  /**
+   * Tuschelinie (U-44): `contour` = kleine Bilderleiste (Bildunterschriften nur für Screenreader und in der Lightbox),
+   * um die Coco an der Leine einmal herumläuft (Freiraum `u-leash-room`); sonst ist jedes Bild eine Rasterzelle
+   * (Kringel zwischen den Zeilen).
+   */
+  loop?: 'contour'
 }) {
   const t = await getTranslations({ locale, namespace: 'tattoo.gallery' })
   return (
     <section
-      className={styles.gallery}
+      className={loop ? `${styles.gallery} u-leash-room` : styles.gallery}
+      {...(loop ? { 'data-leash-station': 'gallery', 'data-leash-loop': loop } : {})}
       aria-label={label}
       data-behavior="lightbox"
       data-tattoo-gallery=""
     >
-      <ul className={styles.galleryGrid}>
+      <ul className={loop ? styles.galleryStrip : styles.galleryGrid}>
         {entries.map((entry, i) => {
           const zoom = zoomOf(entry.image)
           const status = entry.kind === 'healed' ? healedText(entry, locale, t) : t('freshLabel')
           const caption = [entry.caption, entry.placement, status].filter(Boolean).join(' · ')
           return (
-            <li key={entry.id}>
+            <li key={entry.id} data-leash-anchor={loop ? undefined : 'tag'}>
               <figure
                 className={styles.galleryItem}
                 data-gallery-entry={entry.id}
@@ -97,7 +105,7 @@ export async function GalleryGrid({
                     </span>
                   ) : null}
                 </a>
-                <figcaption className={styles.galleryCaption}>
+                <figcaption className={loop ? 'u-sr-only' : styles.galleryCaption}>
                   {entry.caption ? <span>{entry.caption}</span> : null}
                   {status ? (
                     <span className={styles.galleryStatus} data-gallery-status="">

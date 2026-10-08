@@ -31,3 +31,14 @@ export function Station({
     </Tag>
   )
 }
+
+/**
+ * Kringel der Tuschelinie an einem vorhandenen Element (U-44): Attribute für eine Abschnitts-Überschrift o. Ä. – die
+ * Leine kringelt sich dort in der Rinne, abwechselnd rechts/links nach `index` (fest je Seite, kein Zufall).
+ */
+export function coil(id: string, index: number, loop?: LoopKind) {
+  return {
+    'data-leash-station': id,
+    'data-leash-loop': loop ?? (index % 2 ? 'left' : 'right'),
+  } as const
+}

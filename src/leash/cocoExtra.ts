@@ -28,15 +28,19 @@ interface Step {
   then?: SpritePose
 }
 
-/** Gestaffelter Ablauf beim Stillstand (U-03); zwischen den Aktionen steht Coco still. */
+/**
+ * Gestaffelter Ablauf beim Stillstand (U-03); zwischen den Aktionen steht Coco still. U-44: die Pausen zwischen den
+ * Aktionen sind 20 % kürzer als in P12.4 (vorher 4 · 2,9 · 3,1 · 3,7 · 1,2 · 4,1 · 10 s, jetzt 3,2 · 2,3 · 2,5 · 3 · 1 ·
+ * 3,3 · 8 s; mindestens 1 s Standbild bleibt).
+ */
 export const IDLE_PLAN: readonly Step[] = [
-  { at: 4000, pose: 'hecheln', ms: 2600 },
-  { at: 9500, pose: 'zucken', ms: 2400 },
-  { at: 15000, pose: 'kratzen', ms: 2800 },
-  { at: 21500, pose: 'gaehnen', ms: 2800 },
-  { at: 25500, pose: 'verbeugung', ms: 2400 },
-  { at: 32000, pose: 'wedeln', ms: 3000 },
-  { at: 45000, pose: 'liegen', ms: 2600, then: 'schlafen' },
+  { at: 3200, pose: 'hecheln', ms: 2600 },
+  { at: 8100, pose: 'zucken', ms: 2400 },
+  { at: 13000, pose: 'kratzen', ms: 2800 },
+  { at: 18800, pose: 'gaehnen', ms: 2800 },
+  { at: 22600, pose: 'verbeugung', ms: 2400 },
+  { at: 28300, pose: 'wedeln', ms: 3000 },
+  { at: 39300, pose: 'liegen', ms: 2600, then: 'schlafen' },
 ]
 
 const REST: readonly (SpritePose | null)[] = ['sitzen', 'kopfschief']
