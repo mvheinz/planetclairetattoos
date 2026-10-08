@@ -6,12 +6,14 @@ import { Icon } from '@/components/icons/Icon'
 import { localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
 
+import { HeaderLanguageSwitch } from './HeaderLanguageSwitch'
 import { HeaderLine } from './HeaderLine'
 import { NavLink } from './NavLink'
 import styles from './SiteHeader.module.css'
 
-// Kopfleiste (DESIGN KO-02, KONZEPT §3.0.1): Wortmarke → Startseite · Shop · Tattoo · Korb mit Anzahl · Menü.
-// Unter 375 px nur die Planet-Marke (Text bleibt als zugänglicher Name). Die Korb-Anzahl liest das Modul
+// Kopfleiste (DESIGN KO-02, KONZEPT §3.0.1): Wortmarke → Startseite · Shop · Tattoo · Korb mit Anzahl · Menü ·
+// Sprach-Umschalter „DE | EN“ (U-47, P13.8). Unter 375 px nur die Planet-Marke (Text bleibt als zugänglicher Name);
+// unter 540 px zeigt der Korb nur Symbol und Anzahl (das Wort „Korb“ bleibt als zugänglicher Name). Die Korb-Anzahl liest das Modul
 // `cart-count` (nur wenn `pc_cart` existiert); ihr Platz ist immer reserviert (kein CLS). Der Menü-Knopf ist ohne
 // JavaScript ein Link auf die Fußnavigation; das Modul `menu` (P2.9) macht daraus den Dialog-Knopf.
 
@@ -66,7 +68,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
                 data-header-cart=""
               >
                 <Icon name="basket" size={22} className={styles.cartIcon} />
-                <span>{t('cart')}</span>
+                <span className={styles.cartText}>{t('cart')}</span>
                 <span className={styles.countSlot}>
                   <span data-cart-count="" className={`${styles.count} t-num`} hidden />
                 </span>
@@ -83,6 +85,9 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
               >
                 {t('menu')}
               </a>
+            </li>
+            <li>
+              <HeaderLanguageSwitch locale={locale} />
             </li>
           </ul>
         </nav>

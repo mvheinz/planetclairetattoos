@@ -553,15 +553,22 @@ Jede Komponente: **Zweck · Aufbau · Maße · Zustände · Bewegung · Barriere
 
 ### KO-02 Kopfleiste (`SiteHeader`)
 
-- **Aufbau (links → rechts):** Wortmarke „planet claire“ (SVG, §12.6, Link zur Startseite, zugänglicher Name „planet claire – Startseite“) · Links **Shop**, **Tattoo** · **Korb** mit Anzahl · Knopf **Menü** (KONZEPT §3.0.1; EN: Shop, Tattoo, Basket, Menu).
-- **Maße:** Höhe `--header-h` (56/64). Seitenrand `--page-pad`. Links Bricolage 500 16 px, Zielfläche ≥ 44×44 (Innenabstand). Korb: Icon `basket` 22 px + Text „Korb“ + Anzahl in Plex Mono (`2`) in einem Kreis 20 px (Rand 1.5px `--ink`, handgezeichnet); ohne Cookie nur „Korb“. Breite für die Zahl ist immer reserviert (keine Verschiebung).
+- **Aufbau (links → rechts):** Wortmarke „planet claire“ (SVG, §12.6, Link zur Startseite, zugänglicher Name „planet claire – Startseite“) · Links **Shop**, **Tattoo** · **Korb** mit Anzahl · Knopf **Menü** · Sprach-Umschalter **„DE | EN“** (U-47, P13.8) (KONZEPT §3.0.1; EN: Shop, Tattoo, Basket, Menu).
+- **Sprach-Umschalter (U-47):** ein Link `HeaderLanguageSwitch` in der Schrift der Kopf-Links; die aktive Sprache in
+  `--ink` mit kleiner handgezeichneter Tusche-Linie darunter (Inline-SVG, `currentColor`, 1.5 px), die andere in
+  `--ink-2`. Ziel: dieselbe Seite in der anderen Sprache (`useAlternateHref`: Registry-Route; Kategorie/Stück aus den
+  hreflang-Alternativen der Seite; sonst Startseite) – wie der Umschalter im Fuß. `hreflang`/`lang` der Zielsprache,
+  zugänglicher Name „Language: English“ bzw. „Sprache: Deutsch“, Fokusrahmen wie alle Links. Unter 540 px zeigt der
+  Korb nur Symbol + Anzahl (Wort „Korb“ für Screenreader), unter 400 px ohne Innenabstand – so bleibt die Leiste bis
+  320 px einzeilig. Test: `tests/e2e/language-switch.e2e.spec.ts`.
+- **Maße:** Höhe `--header-h` (56/64). Seitenrand `--page-pad`. Links Bricolage 500 16 px, Zielfläche ≥ 44×44 (Innenabstand). Korb: Icon `basket` 22 px + Text „Korb“ + Anzahl in Plex Mono (`2`) in einem Kreis 20 px (Rand 1.5px `--ink`, handgezeichnet); ohne Cookie nur „Korb“. Breite für die Zahl ist immer reserviert (keine Verschiebung). Unter 540 px nur Icon + Anzahl (U-47, Platz für „DE | EN“).
 - **Unter 375 px Breite:** Wortmarke schrumpft auf die Planet-Marke (32 px) mit sichtbar verstecktem Text „planet claire – Startseite“; Shop, Tattoo, Korb, Menü bleiben sichtbar. Bei 320 px darf nichts umbrechen oder überlaufen.
 - **Grund:** `--paper` deckend (kein `backdrop-filter`). Unterkante: statische, handgezeichnete Linie (SVG-Pfad 2400 px lang, `preserveAspectRatio="none"` **nicht** verwenden, sondern links verankert und rechts abgeschnitten), `--ink`, 1.5 px, drei Varianten nach Routen-Seed. Diese Linie ist der **Leinen-Anschluss**: jede Seite beginnt ihre Tuschelinie hier (§9.8).
 - **Zustände:** aktiver Bereich (Shop/Tattoo) mit statischer gezeichneter Unterstreichung + `aria-current="page"`; Korb-Anzahl ändert sich → MI-07 (Anzahl hüpft). Beim Scrollen verändert sich die Leiste nicht (kein Ein-/Ausblenden).
 - **Barrierefreiheit:** `<header>` mit `<nav aria-label="Hauptnavigation">`; Menü-Knopf `aria-expanded`, `aria-controls="menu"`, `aria-haspopup="dialog"`.
 - **Tests:** AK-DS-07.
 
-**AK-DS-07** Bei 320, 360, 390 und 1440 px Breite: Kopfleiste ohne Überlauf (`scrollWidth ≤ clientWidth`), Shop/Tattoo/Korb/Menü sichtbar und ≥ 44×44 px klickbar; Korb-Anzahl ändert die Breite der Leiste nicht (Bounding-Box vor/nach „In den Korb“ identisch).
+**AK-DS-07** Bei 320, 360, 390 und 1440 px Breite: Kopfleiste ohne Überlauf (`scrollWidth ≤ clientWidth`), Shop/Tattoo/Korb/Menü/„DE | EN“ sichtbar und ≥ 44×44 px klickbar; Korb-Anzahl ändert die Breite der Leiste nicht (Bounding-Box vor/nach „In den Korb“ identisch).
 
 ### KO-03 Menü (`MenuOverlay`)
 
