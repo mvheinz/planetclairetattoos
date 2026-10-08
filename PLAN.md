@@ -5600,7 +5600,7 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-40 … U-49. Gilt für Handy und Desktop
   - Akzeptanz: E2E auf mehreren Routen (DE↔EN), Tastatur, 320–1440 px ohne Umbruch.
 - [x] **P13.9 „Jutta & Coco“ gekürzt** (U-48) – Abschnitte löschen, Foto + „Zu zweit“ + „Sag etwas“ bleiben.
   - Akzeptanz: About-Unit/Int/E2E angepasst.
-- [ ] **P13.10 Abschluss P13** (U-49) – CI + Kunst-QA grün, visuelle Referenzen erneuert, Merge, Release-Stand aktualisiert, HTML-Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
+- [x] **P13.10 Abschluss P13** (U-49) – CI + Kunst-QA grün, visuelle Referenzen erneuert, Merge, Release-Stand aktualisiert, HTML-Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
   - Akzeptanz: `--plan-status` OFFEN_P13=0.
 
 ## P11 – Go-live gemeinsam mit Jutta

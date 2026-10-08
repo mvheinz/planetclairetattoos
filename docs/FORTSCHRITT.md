@@ -2,6 +2,32 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-08 – P13 abgeschlossen: zweite Runde nach deiner Rückmeldung – für Jutta
+
+Hallo Jutta,
+
+deine zweite Runde ist fertig und auf der Seite. Das hat sich geändert:
+
+- **Startseite:** Die Station „Komm näher.“ und die Fitness-Coco sind ganz weg, die Stationen sind neu durchnummeriert.
+  Koko mit der Mütze ist jetzt direkt aus deinem Bild ausgeschnitten – Augäpfel und Lidstriche genau wie gemalt, nur die
+  Pupillen wandern ruhig nach links und rechts. Unten sieht man jetzt auch Fellkragen, orange Brust und die weiße Blesse.
+  Rechts neben Koko steht die schmale Tour-Tafel, darunter der Link zu Instagram mit einem von Hand gezeichneten Zeichen.
+- **Coco läuft überall mit:** auf allen Shop- und Tattoo-Seiten, mit Schleifen an den Überschriften und Bögen um die
+  Bilder; auf der Startseite zwei Umrundungen mehr. Die Pausen-Spielereien kommen etwa ein Fünftel schneller.
+- **Schrift:** Alle Überschriften sind jetzt in derselben Schrift wie der Titel (Spectral).
+- **Gewährleistung:** Der neue EU-Pflichthinweis steht mit dem offiziellen Wortlaut im Shop – als Platzhalter, bis die
+  Kanzlei drüberschaut.
+- **Anschrift:** „Jutta Dollmann, Anklamer Straße 28, 10115 Berlin“ steht in Impressum, Rechtstexten, Mails, auf der
+  Kontaktseite und bei „Über mich“.
+- **Sprache:** Rechts neben „Menü“ kannst du mit „DE | EN“ die Sprache wechseln.
+- **Über mich:** nur noch Überschrift, euer Foto mit „Zu zweit“ und „Sag etwas“.
+
+Die neue Vorschau-Datei (HTML) bekommst du direkt hier im Chat; außerdem liegt sie wieder unter „Releases“ auf GitHub.
+
+Technik-Notiz: CI und Kunst-QA grün (u. a. Schrift-Regel für Überschriften auch in Formularen, Startseiten-Grafik unter
+60 KB durch schlankere Koko-Augen-Umrisse und Linien-Attribute im Stylesheet, Anschrift auf R19/R20 laut U-46 erlaubt),
+Referenzbilder erneuert.
+
 ## 2026-10-07 – P12.6 (Nacharbeit 2) Koko als große Büste, Augen links/rechts
 
 - Zuschnitt auf Kopf, Kappe, Bommeln und Fellkragen (kein Körper), 700×690 WebP ≈ 45 KB; Spalte verbreitert, Bild füllt sie. Pupillen: ruhiger Halt 3 s, 0,4 s Wechsel, beide Augen gleichzeitig, rein CSS, endlos (`--dur-koko-look` 6,8 s).
