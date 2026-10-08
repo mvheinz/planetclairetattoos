@@ -968,15 +968,14 @@ function outlineOf(i0: number, i1: number, d: SegmentData, dots: number[]): stri
 
 function buildScrollMap(
   input: BuildInput,
-  stations: { y: number; loopLen0: number; loopLen1: number; loop: LoopKind }[],
+  stations: { id: string; y: number; loopLen0: number; loopLen1: number; loop: LoopKind }[],
   total: number,
 ): { readingY: number; len: number }[] {
   const raw: { readingY: number; len: number }[] = [{ readingY: 0, len: 0 }]
   if (isScrollCoupled(input.preset)) {
     stations.forEach((s, k) => {
-      // dicht folgende Kringel (Kartenzeilen): höchstens der halbe Weg bis zur nächsten Station, Coco hetzt sonst dazwischen
-      const gap =
-        s.loop === 'right' || s.loop === 'left' ? (stations[k + 1]?.y ?? Infinity) - s.y : Infinity
+      // Kringel der Kartenzeilen liegen dicht: höchstens der halbe Weg bis zur nächsten Station (Coco hetzte sonst dazwischen)
+      const gap = s.id.startsWith('row-') ? (stations[k + 1]?.y ?? Infinity) - s.y : Infinity
       raw.push({ readingY: s.y, len: s.loopLen0 })
       raw.push({
         readingY: s.y + Math.min(loopScroll(s.loop, input.viewport.w), gap / 2),
