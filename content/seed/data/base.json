@@ -1,10 +1,10 @@
 {
   "settings": {
     "business": {
-      "legalName": "[Name folgt]",
+      "legalName": "Jutta Dollmann",
       "tradeName": "Planet Claire",
-      "street": "[Adresse folgt]",
-      "postalCode": "00000",
+      "street": "Anklamer Straße 28",
+      "postalCode": "10115",
       "city": "Berlin",
       "country": "DE",
       "email": "jutta@planetclairetattoos.com",

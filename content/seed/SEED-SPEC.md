@@ -430,14 +430,16 @@ usw.), nicht aus der Datei.
 
 ### 3.1 `settings`
 
-Nur leere Felder werden gefüllt (§1.3). Alle nicht genannten Felder: Default aus DATENMODELL §7.1.
+Nur leere Felder werden gefüllt (§1.3); Ausnahme U-46 (P13.7): die früheren Platzhalter `[Name folgt]`, `[Adresse folgt]`
+und PLZ `00000` gelten als leer und werden durch Juttas Anschrift ersetzt (`LEGACY_SETTINGS_PLACEHOLDERS` in
+`src/lib/seed/globals.ts`). Alle nicht genannten Felder: Default aus DATENMODELL §7.1.
 
 | Feld | Wert |
 |---|---|
-| `business.legalName` | `[Name folgt]` |
+| `business.legalName` | `Jutta Dollmann` (U-46) |
 | `business.tradeName` | `Planet Claire` |
-| `business.street` | `[Adresse folgt]` |
-| `business.postalCode` / `business.city` / `business.country` | `00000` / `Berlin` / `DE` |
+| `business.street` | `Anklamer Straße 28` (U-46) |
+| `business.postalCode` / `business.city` / `business.country` | `10115` / `Berlin` / `DE` (U-46) |
 | `business.email` | `jutta@planetclairetattoos.com` |
 | `business.phone` | `[Telefon folgt]` |
 | `business.economicId` | `[W-IdNr. folgt]` |
@@ -556,14 +558,14 @@ Quellmaßen.
 | `ig:DdUPhoZOoMW` | post-DdUPhoZOoMW.jpg | ganz, focal 55, 55 | 360×640 | none | S01–S03 (2. Bild), about, commissions |
 | `ig:DcrENrOjlGP#a` | post-DcrENrOjlGP.jpg | 10, 36, 45, 42.1875 | 48, 230, 216, 270 | none | S04 |
 | `ig:DcrENrOjlGP#b` | post-DcrENrOjlGP.jpg | 37.1, 49, 52.1, 48.8 | 178, 314, 250, 312 | none | S05 |
-| `ig:DcrENrOjlGP` | post-DcrENrOjlGP.jpg | 0, 3.125, 100, 93.75 | 0, 20, 480, 600 | none (nur Hand/Arm am Rand) | S04, S05 (2. Bild), about |
-| `ig:Dav1kUkDgR7` | post-Dav1kUkDgR7.jpg | 0, 3.125, 100, 93.75 | 0, 20, 480, 600 | none (nur Hand) | S06, about |
+| `ig:DcrENrOjlGP` | post-DcrENrOjlGP.jpg | 0, 3.125, 100, 93.75 | 0, 20, 480, 600 | none (nur Hand/Arm am Rand) | S04, S05 (2. Bild) |
+| `ig:Dav1kUkDgR7` | post-Dav1kUkDgR7.jpg | 0, 3.125, 100, 93.75 | 0, 20, 480, 600 | none (nur Hand) | S06 |
 | `ig:DcT7ErBDsWi` | post-DcT7ErBDsWi.jpg | 0, 3.125, 100, 93.75 | 0, 20, 480, 600 | none | S15, commissions |
 | `ig:DdHXUQsDjqm#cap` | post-DdHXUQsDjqm.jpg | 16, 0, 68, 45; focal 50, 55 | 77, 0, 326, 288 | **none** (kein Gesicht im Ausschnitt) | S16 |
 | `ig:DaDz8yljp3i` | post-DaDz8yljp3i.jpg | 12.5, 3.125, 75, 93.75 | 80, 20, 480, 600 | none | S19, commissions |
-| `ig:DaJH_kADpsK` | post-DaJH_kADpsK.jpg | 0, 3.125, 100, 93.75 | 0, 20, 480, 600 | none | S20, about |
+| `ig:DaJH_kADpsK` | post-DaJH_kADpsK.jpg | 0, 3.125, 100, 93.75 | 0, 20, 480, 600 | none | S20 |
 | `ig:DbJ1QRrjCcb` | post-DbJ1QRrjCcb.jpg | 0, 3.125, 100, 93.75 | 0, 20, 480, 600 | none | S21, Flash F-901 |
-| `ig:DblvrTRiUqi` | post-DblvrTRiUqi.jpg | 0, 3.125, 100, 93.75 | 0, 20, 480, 600 | none | S22, about |
+| `ig:DblvrTRiUqi` | post-DblvrTRiUqi.jpg | 0, 3.125, 100, 93.75 | 0, 20, 480, 600 | none | S22 |
 | `ig:Da2WrEgDpC_#pendant` | post-Da2WrEgDpC_.jpg | 10, 25, 80, 75 | 48, 160, 384, 480 | none (Größen-Beschriftung liegt außerhalb) | S26, commissions |
 | `ig:DOZTG7PjLAD` | post-DOZTG7PjLAD.jpg | 0, 3.125, 100, 93.75 | 0, 20, 480, 600 | **customer** (Manifest `consentRequired: true`) → `restricted = true` | G1 |
 | `ig:DZqBCSZDDiE` | post-DZqBCSZDDiE.jpg | 0, 3.125, 100, 93.75 | 0, 20, 480, 600 | **customer** (Manifest `consentRequired: true`) → `restricted = true` | G2 |
@@ -1408,29 +1410,21 @@ Texte (`subheading` bzw. `text`, ≤ 400 Zeichen):
 
 ### 13.2 `about` – „Jutta & Coco“ / “Jutta & Coco”
 
-Gliederung (KONZEPT §3.12): Jutta · wie ich zeichne · Coco · was ich mache · Kontakt. **Keine** Fotos von Jutta
-(`profil.jpg`, `DdHXUQsDjqm` ungeschnitten) bis zur Freigabe; kein Band-Name, keine Liedzeilen.
+**Gekürzt nach U-48 (P13.9, 08.10.2026):** Es bleiben die Überschrift (Seitentitel, darunter die feste Einleitung aus
+den Sprachdateien), das von Jutta freigegebene Foto von Jutta und Coco mit dem Text „Zu zweit“ und darunter „Sag
+etwas“. Gelöscht sind „Ich bin Jutta …/Hier ist Planet Claire“, „Die zittrige Linie“, der Coco-Absatz mit gezeichneter
+Coco, die drei Bilder (ig:DcrENrOjlGP, ig:Dav1kUkDgR7, ig:DblvrTRiUqi) und „Wo ich zeichne“ mit den Kategorie-Aufrufen;
+die Bilder bleiben als Produktfotos im Bestand. Kein Band-Name, keine Liedzeilen; Fotos von Jutta nur mit
+`ownerApproved` (R-181).
 
 | # | Block | Inhalt |
 |---|---|---|
-| 1 | richText | **Hallo, ich bin Jutta.** (Text unten) |
-| 2 | imageText (`image` ig:DaJH_kADpsK, `imagePosition` right) | Wie ich zeichne |
-| 3 | richText | Coco |
-| 4 | imageGallery (ig:DcrENrOjlGP, ig:Dav1kUkDgR7, ig:DblvrTRiUqi; `caption` DE „Aus Werkstatt, Skizzenbuch und vom Flohmarkttisch“ · EN “From the workshop, the sketchbook and the flea market table”) | – |
-| 5 | categoryTeaser (`heading` „Was ich mache“ / “What I make”; alle Kategorien außer `sonstiges`) | – |
-| 6 | contactLinks (`heading` „Sag Hallo“ / “Say hi”, `emailSubject` „Hallo Jutta“) | – |
+| 1 | imageText (`image` own:jutta-coco, `imagePosition` left) | „Zu zweit“ / “The two of us” (Text in `content/seed/data/pages.json`) |
+| 2 | contactLinks (`heading` „Sag etwas“ / “Say something”, `emailSubject` „Hallo Jutta“ / “Hello Jutta”) | – |
 
-Texte:
-- **1 DE:** Ich bin Jutta, und das hier ist Planet Claire – mein kleiner Planet in Berlin. Ich tätowiere Fine Line in einem Privatstudio, und wenn ich nicht tätowiere, male ich: auf Ton, auf alte Shirts und Caps, auf Papier. Meistens Tiere mit Kulleraugen, manchmal Figuren, die kopfüber hängen.
-
-  Der Name ist eine kleine Verbeugung vor einem Lied, das ich sehr mag – und vor allem, was ein bisschen nach Weltraum aussieht.
-- **1 EN:** I'm Jutta, and this is Planet Claire – my little planet in Berlin. I do fine line tattoos in a private studio, and when I'm not tattooing, I paint: on clay, on old shirts and caps, on paper. Mostly animals with googly eyes, sometimes figures hanging upside down.
-
-  The name is a little nod to a song I really love – and to anything that looks a bit like outer space.
-- **2 DE:** Alles fängt im Skizzenbuch an. Ich zeichne mit Tusche, die Linie darf zittern. Was mir gefällt, wandert auf eine Schale, eine Cap oder als Flash auf die Haut. Am Wochenende stehe ich oft auf dem Flohmarkt – dort finde ich Sachen zum Bemalen, und dort treffe ich Leute, die meine Sachen mitnehmen. Der Shop hier ist die Verlängerung von diesem Tisch.
-- **2 EN:** Everything starts in the sketchbook. I draw with ink, and the line is allowed to wobble. What I like ends up on a bowl, a cap, or on skin as flash. At weekends I'm often at the flea market – that's where I find things to paint and meet people who take my things home. This shop is an extension of that table.
-- **3 DE:** **Und das ist Coco.** Ein kleiner Chihuahua-Mix mit sehr großen Ohren und einer sehr großen Meinung. Sie ist fast immer dabei – in der Werkstatt, auf dem Flohmarkt, im Studio (dort meistens schlafend). Auf dieser Seite rennt sie der Linie hinterher. Im echten Leben rennt sie grünen Bällen hinterher.
-- **3 EN:** **And this is Coco.** A small chihuahua mix with very big ears and very big opinions. She's almost always around – in the workshop, at the flea market, in the studio (mostly asleep). On this site she chases the line. In real life she chases green balls.
+Bestehende Datenbanken: Ein erneuter Lauf von `pnpm seed` (bzw. `seed:example`) ersetzt das Layout der Seed-Seite
+`about` (Inhaltsgruppe, SEED-SPEC §1.3); eine von Jutta übernommene Seite (`seed = false`) bleibt unverändert – dort
+löscht sie die Abschnitte in der Verwaltung (Seiten → Über mich).
 
 ### 13.3 `contact` – „Kontakt“ / “Contact”
 

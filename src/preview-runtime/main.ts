@@ -4,6 +4,7 @@ import * as buyBar from '../behaviors/buy-bar'
 import * as cartCount from '../behaviors/cart-count'
 import * as copyButton from '../behaviors/copy-button'
 import * as gallery from '../behaviors/gallery'
+import * as languageTargets from '../behaviors/language-targets'
 import * as lightbox from '../behaviors/lightbox'
 import * as lost from '../behaviors/lost'
 import * as menu from '../behaviors/menu'
@@ -35,6 +36,7 @@ export const STATIC_BEHAVIORS: Record<(typeof BEHAVIOR_NAMES)[number], BehaviorM
   'cart-count': cartCount,
   'copy-button': copyButton,
   gallery,
+  'language-targets': languageTargets,
   lightbox,
   lost,
   menu,

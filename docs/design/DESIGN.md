@@ -215,7 +215,7 @@ Fluide Größen zwischen 360 px und 1280 px Viewport (`clamp()` mit rem-Anteil, 
 | `--fs-display` | Spectral | 500 | 44 | 76 | `clamp(2.75rem, 1.9674rem + 3.4783vw, 4.75rem)` | 1.0 | 0 | H1 Startseite |
 | `--fs-h1` | Spectral | 500 | 36 | 56 | `clamp(2.25rem, 1.7609rem + 2.1739vw, 3.5rem)` | 1.05 | 0 | H1 übrige Seiten, Produkttitel |
 | `--fs-h2` | Spectral | 500 | 30 | 44 | `clamp(1.875rem, 1.5326rem + 1.5217vw, 2.75rem)` | 1.08 | 0 | Stationen, Abschnitte |
-| `--fs-h3` | Bricolage | 700 | 19 | 22 | `clamp(1.1875rem, 1.1141rem + 0.3261vw, 1.375rem)` | 1.3 | −0.005em | Unterabschnitte |
+| `--fs-h3` | Spectral | 500 | 19 | 22 | `clamp(1.1875rem, 1.1141rem + 0.3261vw, 1.375rem)` | 1.25 | 0 | Unterabschnitte (U-43) |
 | `--fs-lede` | Bricolage | 400 | 18 | 20 | `clamp(1.125rem, 1.0761rem + 0.2174vw, 1.25rem)` | 1.55 | 0 | Einleitungen |
 | `--fs-body` | Bricolage | 400 | 16 | 17 | `clamp(1rem, 0.9755rem + 0.1087vw, 1.0625rem)` | 1.62 | 0 | Fließtext |
 | `--fs-small` | Bricolage | 400 | 14 | 15 | `clamp(0.875rem, 0.8505rem + 0.1087vw, 0.9375rem)` | 1.5 | 0 | Hinweise, Fußbereich |
@@ -233,8 +233,14 @@ Fluide Größen zwischen 360 px und 1280 px Viewport (`clamp()` mit rem-Anteil, 
 
 ### 4.3 Regeln
 
-1. **Spectral** (normal) nur für Überschriften H1/H2, Menü-Hauptlinks; **Spectral Italic** nur für Preisschild-Preis, Produktpreis, Stempel, Betonungen (Akzent-Schrift, U-10). Anzeige-Größen ab 16 px (Prüfung LG-03), nie für Fließtext, Formulare, Knöpfe, Rechtstexte, Tabellen, Kasse.
-2. **Kasse, Warenkorb, Rechtstexte, Widerruf:** H1 in Spectral erlaubt, alles andere Bricolage/Plex Mono. Preise dort in Plex Mono.
+1. **Spectral** (normal) für **alle Überschriften H1–H3 auf allen Seiten** (U-43, P13.4: auch Abschnittstitel der
+   Produktseite, Kasse, Fußbereich, harmonisierte Mitteilung) und Menü-Hauptlinks; **Spectral Italic** nur für
+   Preisschild-Preis, Produktpreis, Stempel, Betonungen (Akzent-Schrift, U-10). Anzeige-Größen ab 16 px (Prüfung LG-03;
+   kleine Überschriften wie die Spalten im Fußbereich stehen deshalb auf 18 px), nie für Fließtext, Formulare, Knöpfe,
+   Tabellen. Kartentitel (Produktkarte) sind keine Überschriften und bleiben Bricolage. Prüfung:
+   `tests/e2e/headings-font.e2e.spec.ts`.
+2. **Kasse, Warenkorb, Rechtstexte, Widerruf:** Überschriften H1–H3 in Spectral (U-43 ersetzt die frühere Regel „nur
+   H1“), Fließtext, Formulare und Tabellen Bricolage/Plex Mono. Preise dort in Plex Mono.
 3. Ziffern in Tabellen und Summen: `font-variant-numeric: tabular-nums` (Plex Mono ist ohnehin monospaced).
 4. Zeilenlänge Fließtext ≤ 66ch, Rechtstexte ≤ 72ch.
 5. Überschriften `text-wrap: balance`; Fließtext `text-wrap: pretty`; `hyphens: auto` mit korrektem `lang` (DE-Texte haben lange Komposita).
@@ -550,15 +556,23 @@ Jede Komponente: **Zweck · Aufbau · Maße · Zustände · Bewegung · Barriere
 
 ### KO-02 Kopfleiste (`SiteHeader`)
 
-- **Aufbau (links → rechts):** Wortmarke „planet claire“ (SVG, §12.6, Link zur Startseite, zugänglicher Name „planet claire – Startseite“) · Links **Shop**, **Tattoo** · **Korb** mit Anzahl · Knopf **Menü** (KONZEPT §3.0.1; EN: Shop, Tattoo, Basket, Menu).
-- **Maße:** Höhe `--header-h` (56/64). Seitenrand `--page-pad`. Links Bricolage 500 16 px, Zielfläche ≥ 44×44 (Innenabstand). Korb: Icon `basket` 22 px + Text „Korb“ + Anzahl in Plex Mono (`2`) in einem Kreis 20 px (Rand 1.5px `--ink`, handgezeichnet); ohne Cookie nur „Korb“. Breite für die Zahl ist immer reserviert (keine Verschiebung).
+- **Aufbau (links → rechts):** Wortmarke „planet claire“ (SVG, §12.6, Link zur Startseite, zugänglicher Name „planet claire – Startseite“) · Links **Shop**, **Tattoo** · **Korb** mit Anzahl · Knopf **Menü** · Sprach-Umschalter **„DE | EN“** (U-47, P13.8) (KONZEPT §3.0.1; EN: Shop, Tattoo, Basket, Menu).
+- **Sprach-Umschalter (U-47):** ein Link `HeaderLanguageSwitch` in der Schrift der Kopf-Links; die aktive Sprache in
+  `--ink` mit kleiner handgezeichneter Tusche-Linie darunter (Inline-SVG, `currentColor`, 1.5 px), die andere in
+  `--ink-2`. Ziel: dieselbe Seite in der anderen Sprache (Registry-Route wie der Umschalter im Fuß; Kategorie/Stück
+  setzt das Modul `language-targets` nach dem Laden aus den hreflang-Alternativen der Seite, auch im Fuß – ohne zusätzliches
+  Erstlade-JS; ohne JavaScript dort die Startseite der anderen Sprache). `hreflang`/`lang` der Zielsprache,
+  zugänglicher Name „Language: English“ bzw. „Sprache: Deutsch“, Fokusrahmen wie alle Links. Unter 540 px zeigt der
+  Korb nur Symbol + Anzahl (Wort „Korb“ für Screenreader), unter 400 px ohne Innenabstand und „DE | EN“ in 14 px (WebKit setzt breiter) – so bleibt die Leiste bis
+  320 px einzeilig. Test: `tests/e2e/language-switch.e2e.spec.ts`.
+- **Maße:** Höhe `--header-h` (56/64). Seitenrand `--page-pad`. Links Bricolage 500 16 px, Zielfläche ≥ 44×44 (Innenabstand). Korb: Icon `basket` 22 px + Text „Korb“ + Anzahl in Plex Mono (`2`) in einem Kreis 20 px (Rand 1.5px `--ink`, handgezeichnet); ohne Cookie nur „Korb“. Breite für die Zahl ist immer reserviert (keine Verschiebung). Unter 540 px nur Icon + Anzahl (U-47, Platz für „DE | EN“).
 - **Unter 375 px Breite:** Wortmarke schrumpft auf die Planet-Marke (32 px) mit sichtbar verstecktem Text „planet claire – Startseite“; Shop, Tattoo, Korb, Menü bleiben sichtbar. Bei 320 px darf nichts umbrechen oder überlaufen.
 - **Grund:** `--paper` deckend (kein `backdrop-filter`). Unterkante: statische, handgezeichnete Linie (SVG-Pfad 2400 px lang, `preserveAspectRatio="none"` **nicht** verwenden, sondern links verankert und rechts abgeschnitten), `--ink`, 1.5 px, drei Varianten nach Routen-Seed. Diese Linie ist der **Leinen-Anschluss**: jede Seite beginnt ihre Tuschelinie hier (§9.8).
 - **Zustände:** aktiver Bereich (Shop/Tattoo) mit statischer gezeichneter Unterstreichung + `aria-current="page"`; Korb-Anzahl ändert sich → MI-07 (Anzahl hüpft). Beim Scrollen verändert sich die Leiste nicht (kein Ein-/Ausblenden).
 - **Barrierefreiheit:** `<header>` mit `<nav aria-label="Hauptnavigation">`; Menü-Knopf `aria-expanded`, `aria-controls="menu"`, `aria-haspopup="dialog"`.
 - **Tests:** AK-DS-07.
 
-**AK-DS-07** Bei 320, 360, 390 und 1440 px Breite: Kopfleiste ohne Überlauf (`scrollWidth ≤ clientWidth`), Shop/Tattoo/Korb/Menü sichtbar und ≥ 44×44 px klickbar; Korb-Anzahl ändert die Breite der Leiste nicht (Bounding-Box vor/nach „In den Korb“ identisch).
+**AK-DS-07** Bei 320, 360, 390 und 1440 px Breite: Kopfleiste ohne Überlauf (`scrollWidth ≤ clientWidth`), Shop/Tattoo/Korb/Menü/„DE | EN“ sichtbar und ≥ 44×44 px klickbar; Korb-Anzahl ändert die Breite der Leiste nicht (Bounding-Box vor/nach „In den Korb“ identisch).
 
 ### KO-03 Menü (`MenuOverlay`)
 
@@ -1040,6 +1054,7 @@ nicht selbst, sondern binden dieselben Module ein (im Effekt bzw. über `Behavio
 | `lightbox` | Zoom-Dialog, Pinch/Doppeltipp, Zurück-Taste | KO-09 |
 | `buy-bar` | Kauf-Leiste mobil, MI-15 | KO-09a |
 | `cart-count` | Korb-Anzahl im Kopf (liest nur, wenn `pc_cart` existiert, setzt nichts), MI-07 | KO-02 |
+| `language-targets` | Ziel der Sprachlinks (Kopf „DE \| EN“, Fuß) auf Kategorie-/Stückseiten aus den hreflang-Alternativen; nur App (U-47) | KO-02 |
 | `add-to-cart` | Rückmeldung „In den Korb“, MI-01 (über `src/leash/coco.ts`) | KO-11 |
 | `price-tag-swing` | Preisschild schwingt, MI-02 | KO-05 |
 | `sold-stamp` | Stempel-Knall im Verkaufsmoment, MI-03 | KO-06 |

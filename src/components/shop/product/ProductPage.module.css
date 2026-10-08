@@ -263,9 +263,9 @@
 
 .blockTitle {
   margin: 0;
-  font-family: var(--font-body);
+  font-family: var(--font-display); /* U-43: Überschriften in Spectral */
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 400;
   line-height: 1.3;
 }
 

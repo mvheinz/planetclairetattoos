@@ -204,8 +204,54 @@ describe('Grund-Seed (DM-P1-04, AK-SEED-02)', () => {
         expect(rendered.plainText).not.toContain('Text folgt von der Kanzlei.')
         expect(rendered.plainText).not.toMatch(/PLATZHALTER/)
         expect(rendered.plainText).not.toMatch(/\{\{|\}\}/)
+        // U-46 (P13.7): Texte mit Anschrift-Token zeigen Juttas Anschrift aus den Stammdaten
+        if (JSON.stringify(text!.content).includes('{{street}}')) {
+          expect(rendered.plainText, `${type} ${locale}`).toContain('Jutta Dollmann')
+          expect(rendered.plainText, `${type} ${locale}`).toContain('Anklamer Straße 28')
+          expect(rendered.plainText, `${type} ${locale}`).toContain('10115 Berlin')
+        }
       }
     }
+    for (const type of ['impressum', 'agb', 'widerrufsbelehrung', 'widerrufsformular'] as const) {
+      const text = await getActiveLegalText(type, new Date(), { payload })
+      expect(JSON.stringify(text!.content), type).toContain('{{street}}')
+    }
+  })
+
+  it('U-46 (P13.7): Stammdaten-Anschrift „Jutta Dollmann, Anklamer Straße 28, 10115 Berlin“; frühere Platzhalter werden ersetzt, eigene Werte nie', async () => {
+    const business = async () =>
+      (
+        (await payload.findGlobal({ slug: 'settings', overrideAccess: true })) as unknown as {
+          business: Record<string, string>
+        }
+      ).business
+    expect(await business()).toMatchObject({
+      legalName: 'Jutta Dollmann',
+      street: 'Anklamer Straße 28',
+      postalCode: '10115',
+      city: 'Berlin',
+      country: 'DE',
+    })
+    const setBusiness = (data: Record<string, string>) =>
+      payload.updateGlobal({
+        slug: 'settings',
+        data: { business: data } as never,
+        overrideAccess: true,
+        context: { seed: true, skipAudit: true },
+      })
+    // Datenbank aus einem früheren Grund-Seed: Platzhalter → neuer Lauf trägt die Anschrift ein
+    await setBusiness({ legalName: '[Name folgt]', street: '[Adresse folgt]', postalCode: '00000' })
+    await seedBase()
+    expect(await business()).toMatchObject({
+      legalName: 'Jutta Dollmann',
+      street: 'Anklamer Straße 28',
+      postalCode: '10115',
+    })
+    // Von Jutta geänderte Anschrift bleibt
+    await setBusiness({ street: 'Andere Straße 1' })
+    await seedBase()
+    expect((await business()).street).toBe('Andere Straße 1')
+    await setBusiness({ street: 'Anklamer Straße 28' })
   })
 })
 

@@ -11,6 +11,7 @@ export function Station({
   loop = 'none',
   as: Tag = 'div',
   className,
+  attrs,
   children,
 }: {
   id: string
@@ -18,10 +19,13 @@ export function Station({
   loop?: LoopKind
   as?: 'div' | 'span' | 'section'
   className?: string
+  /** Weitere `data-*`-Attribute am Anker (z. B. `data-about-image-text` auf R19). */
+  attrs?: Readonly<Record<`data-${string}`, string>>
   children?: React.ReactNode
 }) {
   return (
     <Tag
+      {...attrs}
       className={className}
       data-leash-station={id}
       data-leash-pose={pose}

@@ -87,6 +87,34 @@ export function fillEmpty(current: unknown, desired: unknown): unknown {
   return current
 }
 
+/**
+ * Frühere Platzhalter des Grund-Seeds, die ein späterer Grund-Seed ersetzen darf, als wären die Felder leer (U-46,
+ * P13.7: Juttas Anschrift kam nach der ersten Befüllung). Nur exakt diese Werte – alles, was Jutta selbst eingetragen
+ * hat, bleibt (SEED-SPEC §1.3).
+ */
+export const LEGACY_SETTINGS_PLACEHOLDERS: Readonly<Record<string, readonly string[]>> = {
+  'business.legalName': ['[Name folgt]'],
+  'business.street': ['[Adresse folgt]'],
+  'business.postalCode': ['00000'],
+}
+
+/** Setzt Felder mit einem früheren Platzhalter-Wert (Pfad → Werte) auf `null`, damit `fillEmpty` sie neu füllt. */
+export function clearLegacyPlaceholders(
+  current: Obj,
+  placeholders: Readonly<Record<string, readonly string[]>>,
+): Obj {
+  const out = clone(current)
+  for (const [dotted, values] of Object.entries(placeholders)) {
+    const keys = dotted.split('.')
+    let node: unknown = out
+    for (const k of keys.slice(0, -1)) node = isObj(node) ? node[k] : undefined
+    const leaf = keys[keys.length - 1]!
+    if (isObj(node) && typeof node[leaf] === 'string' && values.includes(node[leaf] as string))
+      node[leaf] = null
+  }
+  return out
+}
+
 /** Tief zusammenführen (b gewinnt), Arrays werden ersetzt. */
 export function deepMerge(a: Obj, b: Obj): Obj {
   const out: Obj = { ...a }

@@ -64,8 +64,12 @@
       "gzipMax": 4000
     },
     {
-      "name": "Mikro-Interaktionen Live-Zustand und Korb (product-status, add-to-cart)",
-      "entries": ["src/behaviors/product-status.ts", "src/behaviors/add-to-cart.ts"],
+      "name": "Mikro-Interaktionen Live-Zustand und Korb (product-status, add-to-cart; Kategorie/Stück: language-targets, U-47)",
+      "entries": [
+        "src/behaviors/product-status.ts",
+        "src/behaviors/add-to-cart.ts",
+        "src/behaviors/language-targets.ts"
+      ],
       "gzipMax": 4000
     },
     {

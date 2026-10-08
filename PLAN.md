@@ -5588,17 +5588,17 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-40 … U-49. Gilt für Handy und Desktop
   - Akzeptanz: Sichtvergleich mit dem Original (Screenshots), Koko-Unit/E2E grün.
 - [x] **P13.3 Koko + kompakter Tour-Schaukasten nebeneinander, Instagram-Link** (U-42) – Layout oben rechts, mobil untereinander; handgezeichnetes Instagram-Symbol.
   - Akzeptanz: Screenshots 390/1280 px, home-tour-E2E angepasst, keine Fremd-Anfragen.
-- [ ] **P13.4 Überschriften in Spectral** (U-43) – alle Überschriften prüfen und vereinheitlichen.
+- [x] **P13.4 Überschriften in Spectral** (U-43) – alle Überschriften prüfen und vereinheitlichen.
   - Akzeptanz: Test/Prüfung aller H1–H3 auf Spectral, LG-03 grün.
 - [x] **P13.5 Coco läuft überall mit** (U-44) – Leinen-Presets der Shop-/Tattoo-Seiten mit laufender Coco, Kringeln und Bild-Umrundungen; Startseite +1–2 Umrundungen; Warte-Aktionen 20 % schneller.
   - Akzeptanz: Leash-/Coco-E2E auf allen genannten Routen, LG-01/LG-04/PF-* grün in `art:check`.
-- [ ] **P13.6 Harmonisierte Mitteilung** (U-45) – amtlicher Wortlaut DE/EN im leeren Feld.
+- [x] **P13.6 Harmonisierte Mitteilung** (U-45) – amtlicher Wortlaut DE/EN im leeren Feld.
   - Akzeptanz: Legal-Tests, Feld nirgends leer.
-- [ ] **P13.7 Anschrift überall** (U-46) – Stammdaten, Kontaktseite, Rechtstexte, Rechnungen, Mails.
+- [x] **P13.7 Anschrift überall** (U-46) – Stammdaten, Kontaktseite, Rechtstexte, Rechnungen, Mails.
   - Akzeptanz: Token-Tests, Kontakt-E2E, Mail-/Rechnungs-Snapshots.
-- [ ] **P13.8 Sprach-Umschalter DE | EN** (U-47) – Kopfzeile rechts neben „Menü“, gleiche Seite in anderer Sprache.
+- [x] **P13.8 Sprach-Umschalter DE | EN** (U-47) – Kopfzeile rechts neben „Menü“, gleiche Seite in anderer Sprache.
   - Akzeptanz: E2E auf mehreren Routen (DE↔EN), Tastatur, 320–1440 px ohne Umbruch.
-- [ ] **P13.9 „Jutta & Coco“ gekürzt** (U-48) – Abschnitte löschen, Foto + „Zu zweit“ + „Sag etwas“ bleiben.
+- [x] **P13.9 „Jutta & Coco“ gekürzt** (U-48) – Abschnitte löschen, Foto + „Zu zweit“ + „Sag etwas“ bleiben.
   - Akzeptanz: About-Unit/Int/E2E angepasst.
 - [ ] **P13.10 Abschluss P13** (U-49) – CI + Kunst-QA grün, visuelle Referenzen erneuert, Merge, Release-Stand aktualisiert, HTML-Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
   - Akzeptanz: `--plan-status` OFFEN_P13=0.

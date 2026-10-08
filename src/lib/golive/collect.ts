@@ -10,7 +10,7 @@ import { getEnv, type Env } from '@/lib/env'
 import { getActiveLegalText } from '@/lib/legal/getActive'
 import { requiredProductionAgreements } from '@/lib/legal/services'
 import { LEGAL_SNIPPET_REQUIRES_LAWYER, loadLegalSnippets } from '@/lib/legal/snippets'
-import { WARRANTY_NOTICE_GRAPHIC } from '@/lib/legal/warranty'
+import { warrantyNoticeIsPlaceholder } from '@/lib/legal/warranty'
 import { countUnapprovedOwnerPhotos } from '@/lib/media/ownerPhotos'
 import { seedSummary } from '@/lib/seed/remove'
 import type { Setting } from '@/payload-types'
@@ -84,7 +84,7 @@ export async function collectGoliveInput(payload: Payload, now: Date): Promise<G
     seedCounts: await seedSummary(payload),
     ownerPhotosUnapproved: await countUnapprovedOwnerPhotos(payload),
     galleryWithoutConsent,
-    warrantyGraphicPlaceholder: Object.values(WARRANTY_NOTICE_GRAPHIC).some((g) => g.placeholder),
+    warrantyGraphicPlaceholder: warrantyNoticeIsPlaceholder(),
     vvtExists: await fileExists(VVT_PATH),
   }
 }

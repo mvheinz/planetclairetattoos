@@ -154,13 +154,36 @@ describe('Kontaktseite (P2.14)', () => {
       email: 'jutta@planetclairetattoos.com',
       instagramHandle: 'planet.claire.tattoos',
       studioDistrict: 'Neukölln',
+      address: null,
     })
+    // U-46 (P13.7): vollständige Anschrift aus den Stammdaten; Platzhalter („[Adresse folgt]“, PLZ 00000) → keine
+    const business = {
+      legalName: 'Jutta Dollmann',
+      street: 'Anklamer Straße 28',
+      postalCode: '10115',
+      city: 'Berlin',
+    }
+    expect(pickContactInfo({ business }).address).toEqual({
+      name: 'Jutta Dollmann',
+      street: 'Anklamer Straße 28',
+      postalCode: '10115',
+      city: 'Berlin',
+    })
+    expect(
+      pickContactInfo({ business: { ...business, street: '[Adresse folgt]' } }).address,
+    ).toBeNull()
+    expect(pickContactInfo({ business: { ...business, postalCode: '00000' } }).address).toBeNull()
     expect(
       pickContactInfo({
         business: { email: 'keine-adresse' },
         social: { instagramHandle: 'Böse<script>' },
       }),
-    ).toEqual({ email: null, instagramHandle: 'planet.claire.tattoos', studioDistrict: null })
+    ).toEqual({
+      email: null,
+      instagramHandle: 'planet.claire.tattoos',
+      studioDistrict: null,
+      address: null,
+    })
     const info = await loadContactInfo()
     expect(info.instagramHandle).toMatch(/^[a-z0-9._]{1,30}$/)
   })
