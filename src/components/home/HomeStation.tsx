@@ -25,7 +25,6 @@ import { StationArt } from './StationArt'
 
 /** Schlaufe je Station (DESIGN §11.4); unbekannte Stationen wechseln rechts/links. */
 export const STATION_LOOPS: Readonly<Record<string, LoopKind>> = {
-  hallo: 'right',
   keramik: 'lasso',
   textil: 'left',
   zeichnungen: 'spiral',
@@ -49,7 +48,7 @@ export async function HomeStation({
   locale: Locale
   /** Tattoo-Station (KONZEPT §3.1 Nr. 7): bis zu 3 freie Flash-Motive (P7.3). */
   tattoo?: TattooTeaserData | null
-  /** Karten der Kategorie-Station (`listStationProducts`); `null` bei Stationen ohne Stücke (Hallo, Tattoo, …). */
+  /** Karten der Kategorie-Station (`listStationProducts`); `null` bei Stationen ohne Stücke (Tattoo, Jutta & Coco). */
   products?: PublicProduct[] | null
 }) {
   const t = await getTranslations({ locale, namespace: 'home' })
@@ -65,7 +64,7 @@ export async function HomeStation({
       <span>{t('stationKicker', { number: String(station.number).padStart(2, '0') })}</span>
     </p>
   )
-  const art = <StationArt stationId={station.stationId} locale={locale} />
+  const art = <StationArt stationId={station.stationId} />
   const pose = station.pose ?? undefined
   const shelf = station.categories !== null && products !== null
   const allLink = station.link ? (

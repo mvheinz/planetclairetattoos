@@ -20,8 +20,6 @@ export interface BehaviorActions {
   ) => Promise<Record<string, unknown> | null>
   /** Zustandscode der Danke-Seite (`GET /api/checkout/[token]/state`, P4.17); `null` bei Fehlern (404, 429, Netz). */
   thanksState?: (url: string, signal?: AbortSignal) => Promise<string | null>
-  /** Ablaufplan des Fitness-Coco (P12.5, `/art/fitness-coco.v{N}.json`); `null` bei Fehlern. */
-  fitnessData?: (url: string) => Promise<unknown>
 }
 
 export interface BehaviorContext {

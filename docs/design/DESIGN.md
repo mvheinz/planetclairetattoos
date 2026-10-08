@@ -790,7 +790,7 @@ Aufbau: Coco (`--coco-xl`, statisch; Boil 2 s nach Eintritt, dann Stillstand) ·
 - **Aufbau:** Kicker „Station 01“ (Plex Mono) · H2 (Spectral) · 1–2 Sätze · Stationszeichnung (§12.4) · bis zu 4 Karten (KO-07, auf der Startseite **ohne** Schnur, Preisschild `pinned` am Kartenfuß) · Link „Alle {Kategorie}“.
 - **Stationsmarke:** kleiner handgezeichneter Planet/Stern (§12.5) links neben dem Kicker; Anker der Linie (`data-leash-station`).
 - **Abstände:** Stationen mit `--space-8` (mobil) / `--space-9` (Desktop) Abstand.
-- **Reihenfolge und Inhalte:** KONZEPT §3.1 (Planet Claire, Hallo, Keramik, Textil, Zeichnungen, Schmuck, Tattoo, Jutta & Coco).
+- **Reihenfolge und Inhalte:** KONZEPT §3.1 (Planet Claire, Keramik, Textil, Zeichnungen, Schmuck, Tattoo, Jutta & Coco).
 
 ### KO-22 Hinweis-Kasten (`Callout`)
 
@@ -1251,14 +1251,35 @@ Maßgeblich für leere Zustände und die Danke-Seite sind die Tabellen in KO-17 
 - **Größe (U-05):** `--coco-leash` 70 px mobil / 110 px ab 768 (+25 %), Rinne `journey`/`about` 56 / 88 px; Strich 1,6 / 1,8 px (`--coco-sw` 3,7 / 2,6).
 - **Tempo (U-06):** Tuschelinie doppelt so langsam (§9.4, §9.6, §11.3); **Raster-Seiten (U-07a):** Rinne 32 / 56 px am Seitenrand, Leine nur dort, eine Schlaufe je Kartenzeile zwischen den Zeilen (§9.7 `shopString`, `stencil`).
 
-### 10.9 Fitness-Coco und Koko (P12.5, P12.6; U-09, U-08)
+### 10.9 Koko (P12.6, P13.2; U-08, U-41) – Fitness-Coco entfallen (U-40)
 
-- **Fitness-Coco** (Station „Hallo“ der Startseite, ersetzt die große sitzende Coco): sieben Übungen nach `content/art/jutta-skizzen/FITNESS-COCO.md` in Juttas Reihenfolge (Body wave, Body bounce, Single arm raises, Body bounces with hip rotation, Chest opener, Straight arm trunk twist, Arm raises both arms), danach liegt Coco erschöpft ausgestreckt mit Zunge; Endlosschleife (≈ 42 s). Je Übung ≈ 5 s und 12–20 gezeichnete Zwischenbilder (10 Bilder/s, jedes Bild neu nachgezogen = Zittern), vor jeder Übung ein weicher Übergang (3 Bilder). Tuschelinie schwarz, **zarter oranger Buntstift-Strich** im Fell (kreuzfreie Schraffur, gestrichelt = Papierkörnung, die Linie bleibt schwarz); weiße Brust/Pfoten bleiben Papier; Bodenlinie dick und mehrfach übermalt; **keine Beschriftung**; rechtes Ohr geknickt. Standbild als `<img>` (`public/art/fitness-still.v{N}.svg`, ≈ 3 KB, feste Box 4:5 – kein Inline-SVG, damit „SVG der Startseite ≤ 60 KB“ hält), Bildfolge `public/art/fitness-coco.v{N}.json` (≤ 150 KB gz) nach dem `load` per Modul `fitness-coco`, gespielt auf einer Leinwand (`Path2D`) über dem Standbild; pausiert im verborgenen Tab, außerhalb des Bildes und bei „Animationen aus“/reduzierter Bewegung (dann Standbild). Alt-Text DE/EN (`home.fitnessAlt`). Quelle: `pnpm art:fitness` (`scripts/art/fitness-coco.ts`).
-- **Koko, Vorsitzende der Goth Dogs Berlin** (U-08): **Juttas Malerei selbst**, freigestellt und gesäubert (`python3 scripts/art/koko-cutout.py`, Vorlage `content/art/jutta-skizzen/koko-vorsitzende-goth-dogs-01.jpg`), **nur als Büste** (Wunsch 07.10.: Koko war zu klein, kein Unterkörper): Kopf mit Narrenkappe, Bommeln und spitzem Fellkragen, der Schnitt folgt den Kragenzacken (Orange-/Weißreste am Rand entfernt) – kein Körper, keine Pfoten, kein Schwanz, kein Knochenkreuz, keine Schrift, kein Shirt. Weiße Flächen zu Warmweiß, Tuschestrich und Fellstruktur unverändert, Kanten folgen der Tusche. Auslieferung `public/art/koko.v{N}.webp` (RGBA, 700×690, ≈ 45 KB, Budget 80 KB). Die Spalte ist breiter (`clamp(17rem, 28vw, 22rem)`), das Bild füllt sie (≈ 1,6× so groß wie der frühere Kopf), feste Seitenverhältnisbox (kein CLS). Original-Pupillen im Bild übermalt (Augapfel = Weiß mit Lidstrich); darüber ein kleines Inline-SVG (< 1 KB) mit je Auge einer Ellipse, beschnitten auf den Augapfel; Daten in `src/art/koko/koko.json`. **Nur die Augen bewegen sich: links und rechts**, beide Pupillen im Gleichklang, in reinem CSS ohne Skript/Timer, `infinite` (`--dur-koko-look` = 6,8 s): 3 s ruhiger Halt links → 0,4 s schneller, weicher Wechsel (`--ease-swing`) → 3 s Halt rechts → 0,4 s zurück; im Halt kein Zittern. Reduzierte Bewegung/„Animationen aus“: Standbild, Blick nach links wie im Original. Komponente `ChairwomanKoko` (Platz `data-slot="chairwoman"`, oben in der rechten Spalte), Alt-Text DE/EN beschreibt den Hund (`home.chairwomanAlt`). Test: `tests/e2e/home-koko.e2e.spec.ts` (22 s Dauerlauf: beide Seiten mehrfach, Halts ruhig).
-- **Fitness-Coco** (Station „Hallo“ der Startseite, ersetzt die große sitzende Coco; **neu gebaut am 07.10.2026**, weil die erste Fassung – eine Bildfolge aus code-gezeichneten Strichfiguren – nicht nach Coco aussah): Coco steht aufrecht auf den Hinterbeinen, die Vorderbeine sind Arme. Sie ist ein **Puppen-Gerüst** (`src/lib/fitness/rig.ts`): kleines 3D-Skelett (Becken, Wirbelsäule, Kopf, Arme, Beine mit Zwei-Knochen-IK, Schwanzkette), jedes Bild wird daraus gezeichnet – Gliedmaßen als weich gebogene Röhren (Catmull-Rom), Rumpf aus Querschnitten (dreht sich echt bei Twist und Seitenansicht), Kopf als Kugel mit Schnauze (Blesse, große dunkle Augen mit Glanzpunkt, Lider, schwarze Nase, Mund, Zunge), hohe Ohren (**rechtes Ohr, im Bild links, ist immer geknickt**, U-07), rotes Halsband mit D-Ring wie auf dem Coco-Sprite. Strich wie Juttas Skizzen: schwarze Tusche mit leichtem Zittern, offene Konturen mit Absetzern und kleinem Haken am Ende; **orange Buntstift-Schraffur** (kurze Schrägstriche immer in derselben Richtung, kreuzfrei, körnig unterbrochen, am Fell haftend – wandert mit dem Körperteil, wächst beim Wegdrehen ein/aus statt aufzuploppen) auf einer zarten **Wasch-Fläche** (`#F1DCB8`, wie im Sprite); weiße Brust, Schnauze, Blesse, Pfoten und Schwanzspitze bleiben Papier (`--paper`); Bodenlinie als dicker, dreifach übermalter Tuschestrich. **Keine Beschriftung.**
-  **Ablauf** (`src/lib/fitness/timeline.ts`, Daten `scripts/art/fitness-coco.ts` → `public/art/fitness-coco.v{N}.json`, ≈ 1,3 KB gz): sieben Übungen in Juttas Reihenfolge, je ≈ 5 s – (1) **Body wave**: Körper schwingt in einer Welle (Hüfte → Brust → Kopf mit Verzögerung), ein Arm kreist über dem Kopf, der andere pendelt, Schwanz schwingt; (2) **Body bounce** („boing boing“): ganzer Körper federt, Beine stauchen/strecken, Füße heben ab, Arme und Ohren schweben mit Verzögerung, Schwanz hängt; (3) **Single arm raises**: ein Arm gestreckt nach oben (erst rechts, dann links), Kopf und Pupillen folgen, halbe Lider und gerader Mund („unbeeindruckt“); (4) **Hüpfer mit Hüftdrehung**: Hüfte kreist, Oberkörper gegenläufig, Beine pendeln (Füße bleiben, Knie drehen mit), Schwanz peitscht; (5) **Brustöffner**: Arme weit seitlich offen, dann Pfoten vor der Brust zusammen, Kopf leicht gehoben, halb geschlossene Augen („würdevoll“); (6) **Rumpfdrehung**: Arme gestreckt seitlich, Oberkörper und Kopf drehen kräftig (≈ 78°), Füße fest; (7) **Thump up**: **Seitenansicht** (Körper dreht ein), beide Arme über den Kopf, dann Aufprall mit Einfedern, Schwanz nach hinten; dann (8) **erschöpftes Liegen**: Coco kippt zur Seite, liegt flach am Boden, Pfoten vor der Brust, Augen zu, **rosa Zunge seitlich heraus** (hechelt leicht), Schwanz hängt; danach dreht sich die Schleife (≈ 42,6 s) **nahtlos** zurück zur ersten Übung. Übungen sind **Summen kleiner Terme** (Konstante, Sinus, Hüpfer, periodische Schlüsselwerte) und werden an den Grenzen weich überblendet (0,8–1,7 s, Kosinus-Glättung, an den Grenzen sind die Gewichte komplementär) – kein Springen. Sekundäre Bewegung: Ohrenwippen aus der senkrechten Beckengeschwindigkeit, Schwanzwelle mit Phasenverzug je Glied, Atmen, Blinzeln (alle ≈ 3,7 s) – alles ganzzahlig in die Schleife eingepasst. Bodenführung: nichts ragt unter die Bodenlinie (Körper wird angehoben).
-  **Technik:** Standbild (Ruhepose) als `<img>` `public/art/fitness-still.v{N}.webp` (720 × 900 mit Transparenz, ≈ 26 KB, feste Box 4:5; **bewusst WebP statt SVG**: die Zeichnung hat ≈ 20 KB Pfadtext, und „SVG der Startseite ≤ 60 KB“ (PF-10) zählt auch eigene `.svg`-Dateien – Erzeugung aus dem Gerüst per `pnpm art:fitness`); der Ablaufplan kommt erst nach dem `load` (`fitness-coco.v{N}.json`, nicht im Erstlade-JS), das Modul `fitness-coco` (≈ 14 KB roh, Budget `tests/perf/budgets.json`) rechnet jedes Bild neu (≈ 0,8 ms nativ) und malt es auf eine Leinwand über dem Standbild (`Path2D`, **20 Bilder/s** in drei aufeinanderfolgenden Anzeige-Takten: Rechnen · Malen 1/2 · Malen 2/2 in einen Zeichenpuffer, der fertig auf die Leinwand gelegt wird – so bleibt jeder Takt kurz, PF-02; fallen Takte aus, schaltet es einmalig auf 10 Bilder/s in kleineren Häppchen zurück; Pixelgröße höchstens 1,5 × CSS-Breite; kein Strichel-Muster mehr); Bewegung blendet in 1,4 s aus der Ruhepose ein (kein Sprung vom Standbild). Pausiert im verborgenen Tab, außerhalb des Bildes und über den Schalter „Animationen“/reduzierte Bewegung (WCAG 2.2.2; dann Standbild); in der Vorschau-Datei nur das Standbild (kein Netz); kein Speicher, keine Cookies, keine Drittanbieter. Alt-Text DE/EN (`home.fitnessAlt`). Quelle: `pnpm art:fitness`.
-- **Koko, Vorsitzende der Goth Dogs Berlin** (Vorlage T-Shirt-Malerei, freigestellt, ohne Knochenkreuz): schwarzes Fell mit Tuschestrich-Struktur, orange Flächen, weiße Brust/Pfoten, Narrenkappe mit grünen Bommeln, Seitenblick-Augen; **nur die Pupillen bewegen sich** (9 s, links → rechts → links, `--ease-swing`), Standbild bei reduzierter Bewegung. Komponente `ChairwomanKoko` (Hero-Zeile, rechts; mobil darunter; Platz `data-slot="chairwoman"`), Zeichnung als `<img>` `public/art/koko.v{N}.svg` (≈ 9 KB, `pnpm art:koko`; Pupillen sind zwei CSS-Elemente darüber, Positionen in `src/art/koko/koko.json`), Alt-Text „Koko, Vorsitzende der Goth Dogs Berlin“ (DE/EN).
+- **Fitness-Coco** (früher Station „Hallo“/„Komm näher.“, P12.5, U-09): **mit U-40 (P13.1) komplett entfernt** – Station,
+  Text, Puppen-Gerüst, Verhaltensmodul, Bilddaten, Budgets und Tests. Die übrigen Stationen sind neu durchnummeriert
+  (Keramik = Station 01).
+- **Koko, Vorsitzende der Goth Dogs Berlin** (U-08, U-41): **Juttas Malerei selbst**, freigestellt und gesäubert
+  (`python3 scripts/art/koko-cutout.py`, Vorlage `content/art/jutta-skizzen/koko-vorsitzende-goth-dogs-01.jpg`), als
+  **Büste mit Brustansatz**: Kopf mit Narrenkappe, Bommeln, die spitzen Kragenzacken ganz und darunter – ≈ ein Drittel der
+  Kappenlänge – der Ansatz der orangen Brust mit dem weißen Brustfleck, damit man Coco erkennt. Unten schließt ein flacher,
+  leicht welliger Bogen ab, gezogen als **zittriger Tuschestrich** in Juttas Art (ungleich dick 1,8–4,6 px, spitz
+  auslaufend, rechts etwas über den Körperrand hinaus wie ihre offenen Konturen, in der Mitte kurz nachgezogen) – kein
+  gerader Bildschnitt, kein Ausfransen. Kein Bein, kein Knochenkreuz, keine Schrift, kein Shirt. Weiße Flächen werden
+  aufgehellt (Grauschleier des Shirts weg), behalten aber einen Hauch der gemalten Struktur (kein Flachweiß); Tuschestrich
+  und Fellstruktur unverändert, Kanten folgen der Tusche. Auslieferung `public/art/koko.v3.webp` (RGBA, 700 × 783,
+  ≈ 54 KB, Budget 80 KB), feste Seitenverhältnisbox (kein CLS).
+  **Augen (U-41):** Augäpfel und Lidstriche sind **Juttas Original** – unregelmäßige Form, zittriger Tuschestrich, Lid
+  ungleich dick, auch der linke Augenschlitz mit dem hellen Unterlid. Der Augapfel-Umriss wird aus dem Original abgeleitet
+  (Weiß des Auges + gemalte Pupille + Übergang; wo die Pupille im Bild über den Lidstrich reichte, setzt ein Bogen die
+  Lidkante des Weiß zur Pupille hin fort), **keine Hülle, keine Ellipse**. Nur die beiden gemalten Pupillen sind mit dem
+  Augenweiß derselben Zeile übermalt (feines Korn aus dem Weiß daneben, keine Naht). Darüber ein kleines Inline-SVG: je
+  Auge eine **getupfte Pupille** (leicht unregelmäßiges Oval in Größe und Lage der gemalten Pupille, in Ruhe bis an den
+  linken Lidstrich) als Vieleck, beschnitten (`clipPath`) auf den gemalten Augapfel-Umriss (≈ 1 px in den Lidstrich
+  erweitert, ohne den kleinen Glanzpunkt-Höcker am rechten Lid); Daten (`ball`, `pupil`, Weg `travel`) in `src/art/koko/koko.json`. **Nur die Pupillen bewegen sich:
+  links und rechts**, beide im Gleichklang, reines CSS ohne Skript/Timer, `infinite` (`--dur-koko-look` = 6,8 s): 3 s
+  ruhiger Halt links → 0,4 s schneller, weicher Wechsel (`--ease-swing`) → 3 s Halt rechts → 0,4 s zurück; im Halt kein
+  Zittern. Ruhelage = das Original (Blick nach links); reduzierte Bewegung/„Animationen aus“: Standbild.
+  Komponente `ChairwomanKoko` (Platz `data-slot="chairwoman"`, oben rechts links neben dem Schaukasten, §12.7), Alt-Text
+  DE/EN beschreibt Kopf und Brust (`home.chairwomanAlt`). Tests: `tests/unit/art/koko.unit.spec.ts` (Ausschnitt, Bogen,
+  gemalter Umriss, Pupillenweg), `tests/e2e/home-koko.e2e.spec.ts` (24 s Dauerlauf).
 
 ---
 
@@ -1317,7 +1338,7 @@ Auslöser „Lesezeile erreicht Anker“ = `readingY ≥ station.y` (§9.6). „
 | # | Station (KONZEPT §3.1) | Anker | Linie | Coco-Pose (Ankunft → Verweilen) | Timing | Extra |
 |---|---|---|---|---|---|---|
 | 0 | **Planet Claire** (Kopf) | Planet-Marke neben der H1 | Intro: Leinen-Anschluss → `orbit` um die Planet-Marke → Rinne | rennt von links herein (`rennen`, 600 ms) → `bremsen` → `sitzen`; nach 1,2 s Verweilen einmal `kopfschief` (3 s), dann `sitzen` | Start: LCP + 300 ms Idle; Linie 900 ms `--ease-ink-out` | Planet „pop“ (MI-12) beim Schließen des Orbits |
-| 1 | **Hallo** | Kicker der Station | kleine `right`-Schlaufe | `bremsen` → `sitzen` (schaut zum Text) | Schlaufe über 140/180 px Scroll | – |
+| ~~1~~ | ~~**Hallo**~~ | entfällt (U-40, P13.1) | – | – | – | – |
 | 2 | **Keramik** | Ecke der Stationszeichnung | `right`; ≥ 1200 `lasso` um die Zeichnung | `bremsen` → `schnueffeln` | wie oben | Stationsmarke Planet „pop“ (MI-12) |
 | 3 | **Textil** (inkl. Caps) | Ecke der Stationszeichnung | `left` | `bremsen` → `schnueffeln` → nach 1,5 s Verweilen `kopfschief` | wie oben | Stern dreht sich einmal 15° (MI-12) |
 | 4 | **Zeichnungen** | Ecke der Stationszeichnung | `spiral` (Feder prüft die Tinte) | `bremsen` → `sitzen` | Spirale über 180/220 px Scroll | Stationszeichnung „zieht ein“: Masken-Wisch von links, 700 ms, einmal (MI-13) |
@@ -1444,7 +1465,7 @@ Der Beispielbestand (E-63, Mengen laut SEED-SPEC §0.1) hat mehr Stücke als Ins
 | Station | Quelle | Motiv für die Zeichnung | Hinweis |
 |---|---|---|---|
 | Planet Claire | – | Planet-Marke (§12.6) | Eigenzeichnung |
-| Hallo | – | Coco `sitzen` | Sprite |
+| ~~Hallo~~ | – | entfällt (U-40, P13.1) | – |
 | Keramik | `post-DdUPhoZOoMW.jpg` | Hund aus der Schale (oben rechts) | graue Washes stören → nur schwarze Linien extrahieren |
 | Textil | `post-DcT7ErBDsWi.jpg` | Wesen von der pinken Cap (schwarze Linien) | Minimum-Kanal trennt Tusche von Pink |
 | Zeichnungen | `post-DaJH_kADpsK.jpg` | zwei Figuren (Ausschnitt) | beste Linienvorlage |
@@ -1482,13 +1503,26 @@ Die potrace-Ausgabe ist ein gefüllter Umriss (Juttas echte Strichbreite bleibt 
 
 ---
 
-### 12.7 „Planet Claire on Tour“ als Schaukasten (P12.8, U-20)
+### 12.7 „Planet Claire on Tour“ als Schaukasten (P12.8 U-20, P13.3 U-42)
 
-Gerahmte Tafel in `--petrol-deep` (Tusche-Rahmen 2 px, innen gestrichelte Hilfslinie, `--shadow-press`), darauf angepinnte
-Zettel in `--paper-field`/`--paper` mit statischer Neigung (±0,3–0,8°, keine Animation). Jeder Zettel: Datumsblock links
-(Tageszahl in Spectral 700, Monat als Mono-Kürzel), rechts Name, Datum/Uhrzeit, Ort, Stand, Notiz, Link. Der nächste Termin
-ist das größere Plakat mit Klebeband und Reiter „als Nächstes“ (Datumsblock Petrol). Abgesagt: durchgestrichen, Stempel
-„ABGESAGT“ (Fuchs-Text) unten rechts. Vergangene Zettel gerade, in `<details>` eingeklappt. Ohne Karte, ohne Dritt-Anfragen.
+**Platz (U-42):** oben rechts auf der Startseite **Koko links, direkt rechts daneben ein schmaler Schaukasten** (ab 1100 px
+neben dem Titel „Planet Claire“, Koko `clamp(13rem, 20vw, 16rem)`, Schaukasten 14,5rem; bis ≈ 1240 px rutscht die Planet-Marke über den Titel; beides über
+dem Falz bei 1280 × 800; die Stationen laufen darunter über die volle Breite). 600–1099 px: Koko und Schaukasten
+nebeneinander unter dem Kopf; Handy: untereinander (Koko ≤ 17rem mittig, darunter der Schaukasten).
+
+Überschrift „Planet Claire on Tour“ in **Spectral** (U-43). Gerahmte Tafel in `--petrol-deep` (Tusche-Rahmen 2 px, innen
+gestrichelte Hilfslinie, `--shadow-press`), darauf **nur die nächsten drei Termine** als angepinnte Zettel in
+`--paper-field`/`--paper` mit statischer Neigung (±0,3–0,8°, keine Animation). Zettel kompakt: Datumsblock links
+(Tageszahl in Spectral 700, mehrtägig „14–16“, Monat als Mono-Kürzel), rechts Name (Spectral 700) und **eine Zeile** „Ort ·
+Uhrzeit“; das volle Datum steht für Screenreader dabei. Der nächste Termin trägt Klebeband, Reiter „als Nächstes“ und einen
+Petrol-Datumsblock. Abgesagt: durchgestrichen, Stempel „ABGESAGT“ (Fuchs-Text). **Alle weiteren kommenden und die
+vergangenen Termine** liegen ausführlich (Datum, Uhrzeit, Ort, Adresse, Stand, Notiz, Link, Foto) in einem `<details>`
+darunter, mit Juttas Einleitungssatz. Ohne Karte, ohne Dritt-Anfragen.
+
+**Instagram-Hinweis (U-42, ändert U-15):** unter dem Schaukasten ein Textlink „@planet.claire.tattoos“ mit einem **von Hand
+gezeichneten Instagram-Zeichen** (abgerundetes Quadrat mit Linse und Punkt als zittriger, offener Tuschestrich,
+`currentColor`, 28 px; nicht das bunte Logo, kein Bild, keine Anfrage bei Instagram), `rel="me noopener noreferrer"`,
+Zielgröße ≥ 44 px. Weiterhin **kein Anfrageweg** (keine Direktnachricht).
 
 ## 13. Umsetzung nach Phasen und Abnahme
 

@@ -281,15 +281,20 @@ describe('P3.16 R-096 und R-139 im Quelltext', () => {
         const close = text.indexOf('>', m.index)
         const tag = text.slice(open, close + 1)
         links.push(file)
-        if (open < 0 || !/rel="noopener noreferrer"/.test(tag)) bad.push(`${file}: ${tag}`)
+        if (open < 0 || !/rel="(?:me )?noopener noreferrer"/.test(tag)) bad.push(`${file}: ${tag}`)
       }
       // Keine Instagram-Adresse als geladene Ressource (Bild, Rahmen, Skript, Video); JSON-LD `sameAs` ist ein Verweis.
       if (/\b(?:src|srcSet|data|poster)=\{?[^}>]*instagram/i.test(text))
         bad.push(`${file}: Instagram als eingebettete Ressource`)
     }
-    // Nur Menü und Fuß verlinken das Instagram-Profil (P12.7, U-15: keine Direktnachricht, kein Anfrageweg).
+    // Nur Menü, Fuß und – seit U-42 (P13.3) – der Hinweis unter dem Schaukasten der Startseite verlinken das Instagram-Profil
+    // (U-15 gilt weiter: keine Direktnachricht, kein Anfrageweg).
     expect(new Set(links)).toEqual(
-      new Set(['src/components/layout/MenuOverlay.tsx', 'src/components/layout/SiteFooter.tsx']),
+      new Set([
+        'src/components/layout/MenuOverlay.tsx',
+        'src/components/layout/SiteFooter.tsx',
+        'src/components/home/InstagramLink.tsx',
+      ]),
     )
     expect(bad).toEqual([])
   })

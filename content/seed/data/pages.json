@@ -20,20 +20,6 @@
       },
       {
         "blockType": "station",
-        "stationId": "hallo",
-        "heading": {
-          "de": "Komm näher.",
-          "en": "Come closer."
-        },
-        "text": {
-          "de": "Ich bin Jutta. Ich zeichne die Wesen, die mich nachts besuchen – auf Haut, auf Ton, auf Stoff und auf Papier. Das da vorn ist Coco. Sie kennt den Weg.",
-          "en": "I am Jutta. I draw the creatures that visit me at night – on skin, on clay, on cloth and on paper. That one up front is Coco. She knows the way."
-        },
-        "cocoPose": "sit",
-        "ornament": "star"
-      },
-      {
-        "blockType": "station",
         "stationId": "keramik",
         "heading": {
           "de": "Keramik",

@@ -3,7 +3,6 @@ import * as addToCart from '../behaviors/add-to-cart'
 import * as buyBar from '../behaviors/buy-bar'
 import * as cartCount from '../behaviors/cart-count'
 import * as copyButton from '../behaviors/copy-button'
-import * as fitnessCoco from '../behaviors/fitness-coco'
 import * as gallery from '../behaviors/gallery'
 import * as lightbox from '../behaviors/lightbox'
 import * as lost from '../behaviors/lost'
@@ -16,7 +15,6 @@ import * as soldStamp from '../behaviors/sold-stamp'
 import * as thanksMoment from '../behaviors/thanks-moment'
 import * as thanksPoll from '../behaviors/thanks-poll'
 import type { BehaviorModule } from '../behaviors/types'
-import fitnessPlan from '../../public/art/fitness-coco.v2.json'
 
 import { createAssetStore } from './assets'
 import { installBanner } from './banner'
@@ -36,7 +34,6 @@ export const STATIC_BEHAVIORS: Record<(typeof BEHAVIOR_NAMES)[number], BehaviorM
   'buy-bar': buyBar,
   'cart-count': cartCount,
   'copy-button': copyButton,
-  'fitness-coco': fitnessCoco,
   gallery,
   lightbox,
   lost,
@@ -84,15 +81,7 @@ export function start(doc: Document = document): void {
     onMount: (pageRoot, info) => {
       assets.resolve(pageRoot)
       banner.closeList()
-      const behaviors = mountBehaviors(
-        pageRoot,
-        // Fitness-Coco: der kleine Ablaufplan steckt in der Datei (file:// erlaubt kein Nachladen), kein Netz
-        {
-          mode: 'preview',
-          actions: { fitnessData: () => Promise.resolve(fitnessPlan as unknown) },
-        },
-        staticLoader,
-      )
+      const behaviors = mountBehaviors(pageRoot, { mode: 'preview' }, staticLoader)
       let stopLeash: (() => void) | null = null
       let cancelled = false
       // Linie nach dem Layout messen (Schriften geladen, ein Frame später).

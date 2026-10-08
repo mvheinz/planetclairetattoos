@@ -3,11 +3,12 @@ import { refreshTattoo } from './tattoo/tattooFixtures'
 import { splitTourDates, tourState } from '../../src/lib/tour/dates'
 import type { Locale } from '../../src/lib/routes/registry'
 
-// P12.8 (U-20, KONZEPT §3.1a) – „Planet Claire on Tour“ auf der Startseite mit dem Beispielbestand (SEED-SPEC §12.5): rechte
-// Spalte neben dem Kopf (ab 1100 px) bzw. darunter (mobil), oben der benannte Bereich mit Koko
-// (`data-slot="chairwoman"`), kommende Termine oben, vergangene in `<details>` eingeklappt, abgesagte durchgestrichen mit
-// Text, keine Karte und keine Anfrage an Dritte. Erwartungen aus den Daten und der aktuellen Uhr berechnet (der
-// Beispielbestand liegt relativ zu `SEED_NOW`, der Server rechnet mit der echten Zeit).
+// P12.8 (U-20, KONZEPT §3.1a) und P13.3 (U-42) – „Planet Claire on Tour“ auf der Startseite mit dem Beispielbestand
+// (SEED-SPEC §12.5): oben rechts Koko (`data-slot="chairwoman"`) und direkt rechts daneben der schmale Schaukasten (ab 600 px
+// nebeneinander, ab 1100 px neben dem Titel, mobil untereinander). Auf der Tafel nur die nächsten drei Termine (kompakt:
+// Datum, Name, eine Zeile); weitere und vergangene Termine in einem `<details>`; abgesagte durchgestrichen mit Text; darunter
+// der Instagram-Hinweis mit gezeichnetem Zeichen; keine Karte und keine Anfrage an Dritte. Erwartungen aus den Daten und der
+// aktuellen Uhr berechnet (der Beispielbestand liegt relativ zu `SEED_NOW`).
 
 // Wie `tourNow()` im Server: in der Testumgebung gilt `SEED_NOW` (sonst wandert der Beispielbestand mit der echten Uhr).
 const tourNow = () =>
@@ -46,49 +47,71 @@ test.beforeAll(async ({ request }) => {
   await refreshTattoo(request)
 })
 
+const ON_BOARD = 3
+
 for (const locale of ['de', 'en'] as const) {
-  test(`AK-3-13 AK-SEED-23 /${locale}: rechte Spalte mit Platz für Koko und Terminen – kommende oben, vergangene eingeklappt, abgesagte durchgestrichen`, async ({
+  test(`AK-3-13 AK-SEED-23 U-42 /${locale}: Koko und schmaler Schaukasten nebeneinander – nächste drei Termine kompakt, weitere/vergangene eingeklappt, abgesagte durchgestrichen, Instagram darunter`, async ({
     page,
     foreignRequests,
   }) => {
     const items = await seededDates(locale)
     expect(items).toHaveLength(8)
     const { upcoming, past } = splitTourDates(items, tourNow())
+    const board = upcoming.slice(0, ON_BOARD)
+    const later = upcoming.slice(ON_BOARD)
 
     const res = await page.goto(`/${locale}`)
     expect(res?.status()).toBe(200)
     const aside = page.locator('[data-home-aside]')
     await expect(aside).toHaveCount(1)
 
-    // benannter Bereich mit Koko, der Vorsitzenden (P12.6) – oberhalb der Termine
+    // Koko links, der Schaukasten rechts daneben (ab 600 px) bzw. darunter (Handy)
     const slot = aside.locator('[data-slot="chairwoman"]')
     await expect(slot).toHaveCount(1)
     expect(await slot.evaluate((el) => el.childElementCount)).toBeGreaterThan(0)
-    const slotBox = await slot.boundingBox()
+    const kokoBox = (await slot.boundingBox())!
     const tour = aside.locator('[data-tour]')
-    const tourBox = await tour.boundingBox()
-    expect(tourBox).not.toBeNull()
-    if (slotBox) expect(slotBox.y).toBeLessThanOrEqual(tourBox!.y)
+    const tourBox = (await tour.boundingBox())!
+    const vw = page.viewportSize()?.width ?? 0
+    if (vw >= 600) {
+      expect(tourBox.x).toBeGreaterThanOrEqual(kokoBox.x + kokoBox.width - 1) // rechts neben Koko
+      expect(tourBox.y).toBeLessThan(kokoBox.y + kokoBox.height) // auf gleicher Höhe
+      expect(tourBox.width).toBeLessThanOrEqual(20 * 16) // schmal
+    } else {
+      expect(tourBox.y).toBeGreaterThanOrEqual(kokoBox.y + kokoBox.height - 1) // darunter
+    }
 
-    // Platz: rechts neben dem Kopf (Desktop) bzw. darunter (mobil)
+    // Platz: neben dem Titel (≥ 1100 px; beides über dem Falz) bzw. unter dem Kopf der Seite
     const heroBox = (await page.locator('[data-home-hero]').boundingBox())!
     const asideBox = (await aside.boundingBox())!
-    const wide = (page.viewportSize()?.width ?? 0) >= 1100
-    if (wide) {
+    if (vw >= 1100) {
       expect(asideBox.x).toBeGreaterThanOrEqual(heroBox.x + heroBox.width - 1)
+      expect(kokoBox.y + kokoBox.height).toBeLessThanOrEqual(page.viewportSize()!.height)
+      const firstNote = tour.locator('[data-tour-upcoming] > li').first()
+      if (board.length)
+        expect((await firstNote.boundingBox())!.y).toBeLessThan(page.viewportSize()!.height)
+      // Stationen laufen darunter über die volle Breite
+      const stations = (await page.locator('[data-home-stations]').boundingBox())!
+      expect(stations.y).toBeGreaterThanOrEqual(asideBox.y + asideBox.height - 1)
     } else {
       expect(asideBox.y).toBeGreaterThanOrEqual(heroBox.y + heroBox.height - 1)
       expect(asideBox.x).toBeLessThan(heroBox.x + heroBox.width)
     }
 
-    // kommende Termine oben, in der Reihenfolge der Daten
+    // U-43: Überschrift in Spectral
+    expect(
+      await tour.locator('#tour-heading').evaluate((el) => getComputedStyle(el).fontFamily),
+    ).toMatch(/spectral/i)
+
+    // auf der Tafel: die nächsten drei kommenden Termine in der Reihenfolge der Daten
     const list = tour.locator('[data-tour-upcoming] > li')
-    await expect(list).toHaveCount(upcoming.length)
+    await expect(list).toHaveCount(board.length)
     expect(
       await list.evaluateAll((els) => els.map((e) => e.getAttribute('data-tour-date'))),
-    ).toEqual(upcoming.map((i) => String(i.id)))
+    ).toEqual(board.map((i) => String(i.id)))
     for (const i of upcoming) {
       const li = tour.locator(`[data-tour-date="${i.id}"]`)
+      await expect(li).toHaveCount(1)
       await expect(li).toHaveAttribute('data-tour-state', tourState(i, tourNow()))
       if (i.status === 'cancelled') {
         await expect(li).toHaveAttribute('data-cancelled', '')
@@ -102,44 +125,54 @@ for (const locale of ['de', 'en'] as const) {
       }
     }
 
-    // Schaukasten (U-20): Tafel mit Zetteln; der erste kommende Termin ist das Plakat „als Nächstes“, alle anderen kleine Zettel
-    await expect(tour.locator('[data-tour-next]')).toHaveCount(upcoming.length > 0 ? 1 : 0)
-    if (upcoming.length > 0) {
+    // kompakt: der erste Zettel trägt den Reiter „als Nächstes“ und einen größeren Tag; jeder Zettel ist niedrig
+    await expect(tour.locator('[data-tour-next]')).toHaveCount(board.length > 0 ? 1 : 0)
+    if (board.length > 0) {
       await expect(list.first()).toHaveAttribute('data-tour-next', '')
-      const heroDay = await list
-        .first()
-        .locator('div[aria-hidden="true"] span')
-        .first()
-        .boundingBox()
-      expect(heroDay).not.toBeNull()
-      if (upcoming.length > 1) {
-        const otherDay = await list
-          .nth(1)
-          .locator('div[aria-hidden="true"] span')
-          .first()
-          .boundingBox()
-        expect(heroDay!.height).toBeGreaterThan(otherDay!.height)
+      // Petrol-Datumsblock des nächsten Termins ist breiter als die der anderen Zettel
+      const block = (k: number) =>
+        list.nth(k).locator('div[aria-hidden="true"]').first().boundingBox()
+      if (board.length > 1) expect((await block(0))!.width).toBeGreaterThan((await block(1))!.width)
+      for (let k = 0; k < board.length; k++) {
+        const b = (await list.nth(k).boundingBox())!
+        expect(b.height, `Zettel ${k}`).toBeLessThan(9 * 16)
+        // eine Zeile unter dem Namen (Ort · Uhrzeit), das volle Datum für Screenreader
+        await expect(list.nth(k).locator('p')).toHaveCount(1)
+        await expect(list.nth(k).locator('time')).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}/)
       }
-      // kompakt: ein kleiner Zettel ist nicht höher als 14 rem
-      for (let k = 1; k < upcoming.length; k++) {
-        const b = await list.nth(k).boundingBox()
-        expect(b!.height).toBeLessThan(14 * 16)
-      }
+      const tafel = (await tour.boundingBox())!
+      expect(tafel.height).toBeLessThan(32 * 16) // drei Zettel + Aufklapper, keine lange Liste
     }
 
-    // vergangene: eingeklappt, Anzahl in der Beschriftung, nach dem Aufklappen sichtbar
-    const details = tour.locator('details[data-tour-past]')
-    if (past.length > 0) {
+    // weitere und vergangene Termine: eingeklappt, Anzahl in der Beschriftung, nach dem Aufklappen sichtbar
+    const details = tour.locator('details[data-tour-more]')
+    const more = later.length + past.length
+    if (more > 0) {
       await expect(details).toHaveCount(1)
       expect(await details.evaluate((el) => (el as HTMLDetailsElement).open)).toBe(false)
-      await expect(details.locator('summary')).toContainText(`(${past.length})`)
+      await expect(details.locator('summary')).toContainText(`(${more})`)
       await expect(details.locator('li').first()).toBeHidden()
       await details.locator('summary').click()
-      await expect(details.locator('li')).toHaveCount(past.length)
+      await expect(details.locator('[data-tour-later] > li')).toHaveCount(later.length)
+      await expect(details.locator('[data-tour-past] > li')).toHaveCount(past.length)
       await expect(details.locator('li').first()).toBeVisible()
     } else {
       await expect(details).toHaveCount(0)
     }
+
+    // Instagram-Hinweis (U-42): unter dem Schaukasten, gezeichnetes Zeichen, Profil-Link ohne Verweis-Header
+    const ig = aside.locator('[data-home-instagram] a')
+    await expect(ig).toHaveCount(1)
+    await expect(ig).toHaveAttribute('href', 'https://www.instagram.com/planet.claire.tattoos/')
+    await expect(ig).toHaveAttribute('rel', 'me noopener noreferrer')
+    await expect(ig).toContainText('@planet.claire.tattoos')
+    await expect(ig).toHaveAccessibleName(locale === 'de' ? /auf Instagram/ : /on Instagram/)
+    await expect(ig.locator('svg[data-instagram-glyph]')).toHaveCount(1)
+    await expect(ig.locator('img')).toHaveCount(0)
+    const igBox = (await ig.boundingBox())!
+    const boardBox = (await tour.boundingBox())!
+    expect(igBox.y).toBeGreaterThanOrEqual(boardBox.y + boardBox.height - 1)
+    expect(igBox.height).toBeGreaterThanOrEqual(44)
 
     // keine Karte, keine Einbettung, nichts bei Dritten
     await expect(aside.locator('iframe, embed, object, [data-map], img[src*="maps"]')).toHaveCount(
@@ -152,12 +185,14 @@ for (const locale of ['de', 'en'] as const) {
 test.describe('ohne JavaScript', () => {
   test.use({ javaScriptEnabled: false })
 
-  test('AK-3-13 vergangene Termine lassen sich ohne JavaScript aufklappen', async ({ page }) => {
+  test('AK-3-13 weitere und vergangene Termine lassen sich ohne JavaScript aufklappen', async ({
+    page,
+  }) => {
     const items = await seededDates('de')
     const { past } = splitTourDates(items, tourNow())
     expect(past.length, 'Beispieltermine in der Vergangenheit').toBeGreaterThan(0)
     await page.goto('/de')
-    const details = page.locator('[data-tour] details[data-tour-past]')
+    const details = page.locator('[data-tour] details[data-tour-more]')
     await expect(details.locator('li').first()).toBeHidden()
     await details.locator('summary').click()
     await expect(details.locator('li').first()).toBeVisible()

@@ -84,7 +84,7 @@ test('@a11y Neuer Termin am Handy anlegen → Startseite zeigt ihn (DE/EN); Absa
   await expect(card).toHaveAttribute('data-status', 'planned')
   await expect(card).not.toHaveAttribute('data-over', '')
 
-  // öffentlich: DE und EN in der rechten Spalte der Startseite
+  // öffentlich: DE und EN im Schaukasten oben rechts auf der Startseite
   await refreshHome(request)
   const pub = await page.context().newPage()
   for (const [locale, name] of [
@@ -92,10 +92,17 @@ test('@a11y Neuer Termin am Handy anlegen → Startseite zeigt ihn (DE/EN); Absa
     ['en', NAME_EN],
   ] as const) {
     await pub.goto(localizedPath('R01', locale))
-    const item = pub.locator('[data-home-aside] [data-tour-upcoming] li', { hasText: name })
+    // P13.3 (U-42): auf der Tafel stehen nur die nächsten drei Termine kompakt (Name, Ort · Uhrzeit), alle weiteren
+    // ausführlich im aufklappbaren Teil – dort mit Stand und Notiz.
+    const item = pub.locator('[data-home-aside] [data-tour-date]', { hasText: name })
     await expect(item).toHaveCount(1)
-    await expect(item).toContainText('B12')
-    await expect(item).toContainText(locale === 'de' ? 'Coco ist dabei.' : 'Coco is coming along.')
+    await expect(item).toContainText('Berlin-Wedding')
+    if (await item.locator('xpath=ancestor::details[@data-tour-more]').count()) {
+      await expect(item).toContainText('B12')
+      await expect(item).toContainText(
+        locale === 'de' ? 'Coco ist dabei.' : 'Coco is coming along.',
+      )
+    }
   }
 
   // Absagen (mit Rückfrage) → durchgestrichen mit Text

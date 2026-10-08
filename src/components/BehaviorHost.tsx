@@ -6,7 +6,6 @@ import { useEffect } from 'react'
 import { addToCart } from '@/app/(frontend)/[locale]/shop/[product]/actions'
 import { mountBehaviors } from '@/behaviors'
 import type { BehaviorActions } from '@/behaviors/types'
-import { fetchFitnessData } from '@/lib/shop/fitnessDataClient'
 import { fetchProductStates } from '@/lib/shop/productStatusClient'
 import { fetchThanksState } from '@/lib/shop/thanksStateClient'
 
@@ -17,7 +16,6 @@ const ACTIONS: BehaviorActions = {
   addToCart,
   productStatus: fetchProductStates,
   thanksState: fetchThanksState,
-  fitnessData: fetchFitnessData,
 }
 
 export function BehaviorHost() {

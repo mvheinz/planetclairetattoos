@@ -280,7 +280,7 @@ describe('Mini-Beispielbestand (DM-P1-04, AK-11-01, AK-11-02, AK-SEED-06, AK-SEE
     expect(active[0]!.checkout).toBe(ks2!.id)
   })
 
-  it('AK-SEED-18: home hat hero + genau 7 Stationen in fester Reihenfolge; contact laut §13.3 (DE/EN)', async () => {
+  it('AK-SEED-18: home hat hero + genau 6 Stationen in fester Reihenfolge; contact laut §13.3 (DE/EN)', async () => {
     const find = async (key: string, locale: 'de' | 'en') =>
       (
         await payload.find({
@@ -296,9 +296,8 @@ describe('Mini-Beispielbestand (DM-P1-04, AK-11-01, AK-11-02, AK-SEED-06, AK-SEE
       }
     const home = await find('home', 'de')
     expect(home._status).toBe('published')
-    expect(home.layout.map((b) => b.blockType)).toEqual(['hero', ...Array(7).fill('station')])
+    expect(home.layout.map((b) => b.blockType)).toEqual(['hero', ...Array(6).fill('station')])
     expect(home.layout.slice(1).map((b) => b.stationId)).toEqual([
-      'hallo',
       'keramik',
       'textil',
       'zeichnungen',
@@ -308,7 +307,7 @@ describe('Mini-Beispielbestand (DM-P1-04, AK-11-01, AK-11-02, AK-SEED-06, AK-SEE
     ])
     const homeEn = await find('home', 'en')
     expect(homeEn.title).toBe('Home')
-    expect(homeEn.layout[3]!.heading).toBe('Textiles & caps')
+    expect(homeEn.layout[2]!.heading).toBe('Textiles & caps')
     const contact = await find('contact', 'de')
     expect(contact.layout.map((b) => b.blockType)).toEqual([
       'richText',

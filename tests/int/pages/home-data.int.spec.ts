@@ -31,16 +31,16 @@ beforeAll(async () => {
 }, 240_000)
 
 describe('Startseite (P2.20)', () => {
-  it('AK-3-01 AK-SEED-18 Kopf-Station und genau 7 Stationen in der festen Reihenfolge (DE)', async () => {
+  it('AK-3-01 AK-SEED-18 Kopf-Station und genau 6 Stationen in der festen Reihenfolge (DE), Keramik = Station 01 (U-40)', async () => {
     const view = await loadHomeView('de')
     expect(view).not.toBeNull()
     expect(view!.name).toBe('Planet Claire')
     expect(view!.hero?.heading).toBe('Ein kleiner Planet, auf dem alles nur einmal vorkommt')
     expect(view!.stations.map((s) => s.stationId)).toEqual([...HOME_STATION_IDS])
-    expect(view!.stations.map((s) => s.number)).toEqual([1, 2, 3, 4, 5, 6, 7])
+    expect(view!.stations.map((s) => s.number)).toEqual([1, 2, 3, 4, 5, 6])
     const byId = Object.fromEntries(view!.stations.map((s) => [s.stationId, s]))
-    expect(byId.hallo!.heading).toBe('Komm näher.')
-    expect(byId.hallo!.link).toBeNull()
+    expect(byId.hallo).toBeUndefined()
+    expect(byId.keramik!.number).toBe(1)
     expect(byId.keramik!.pose).toBe('sniff')
     expect(byId.keramik!.link).toEqual({
       href: '/de/shop/kategorie/keramik',
@@ -90,6 +90,33 @@ describe('Startseite (P2.20)', () => {
     expect(view!.hero).toBeNull()
   })
 
+  it('P13.1 U-40: eine alte Station „hallo“ (übernommene Seite, Seed nicht neu eingespielt) wird nicht gezeigt und nicht gezählt', () => {
+    const view = toHomeView(
+      {
+        id: 1,
+        key: 'home',
+        title: 'x',
+        layout: [
+          { blockType: 'station', stationId: 'hallo', heading: 'Komm näher.' },
+          { blockType: 'station', stationId: 'keramik', heading: 'Keramik' },
+          { blockType: 'station', stationId: 'tattoo', heading: 'Tattoo' },
+        ],
+        updatedAt: '',
+        createdAt: '',
+      },
+      {
+        locale: 'de',
+        categories: [],
+        contact: { email: null, instagramHandle: 'planet.claire.tattoos' },
+        tradeName: null,
+      },
+    )
+    expect(view!.stations.map((s) => [s.stationId, s.number])).toEqual([
+      ['keramik', 1],
+      ['tattoo', 2],
+    ])
+  })
+
   it('P3.12 KA-17 Kategorien der Stationen: Textil = textil + cap, nur Kategorie-Stationen, Link-Kategorie gilt', async () => {
     const view = await loadHomeView('de')
     const byId = Object.fromEntries(view!.stations.map((s) => [s.stationId, s]))
@@ -97,7 +124,7 @@ describe('Startseite (P2.20)', () => {
     expect(byId.textil!.categories).toEqual(['textil', 'cap'])
     expect(byId.zeichnungen!.categories).toEqual(['zeichnung'])
     expect(byId.schmuck!.categories).toEqual(['schmuck'])
-    for (const id of ['hallo', 'tattoo', 'jutta-und-coco']) expect(byId[id]!.categories).toBeNull()
+    for (const id of ['tattoo', 'jutta-und-coco']) expect(byId[id]!.categories).toBeNull()
     expect(byId.keramik!.categoryName).toBe('Keramik')
     // Link auf eine andere Kategorie (Test-Kategorie) bzw. kein Kategorie-Link → feste Zuordnung.
     expect(stationCategories('schmuck', { target: 'category', category: 'sonstiges' })).toEqual([

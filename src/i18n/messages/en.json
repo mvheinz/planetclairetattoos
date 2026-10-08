@@ -129,14 +129,15 @@
     "emptyText": "In a moment everything will be back in its place. Until then you can reach me by email.",
     "emptyAction": "Contact",
     "stationCommissions": "Commissions",
-    "chairwomanAlt": "Koko, chairwoman of the Goth Dogs Berlin: head of a shaggy black dog in a jester cap with green bobbles and a pointed fur collar, big eyes glancing sideways",
-    "fitnessAlt": "Coco the dog working out on two legs: seven exercises one after the other, then she flops down worn out on the floor – and starts all over again.",
+    "chairwomanAlt": "Koko, chairwoman of the Goth Dogs Berlin: head and chest of a shaggy black dog in a jester cap with green bobbles and a pointed fur collar, an orange chest with a white patch below; big eyes glancing sideways",
+    "instagramLabel": "Planet Claire on Instagram: @{handle}",
     "tour": {
       "heading": "Planet Claire on Tour",
       "intro": "Sometimes I leave my planet and set up a table – at flea, art and backyard markets, between strangers’ voices and bags full of things.",
-      "upcomingHeading": "Where you can find me",
       "empty": "For now my table rests in the cupboard. New dates will appear here.",
       "pastSummary": "Where I have been ({count})",
+      "moreSummary": "More and past dates ({count})",
+      "laterSummary": "More dates ({count})",
       "cancelled": "cancelled",
       "next": "next up",
       "running": "on now",
@@ -146,7 +147,9 @@
       "dateLabel": "Date",
       "placeLabel": "Place",
       "hoursLabel": "Opening hours",
-      "photoAlt": "Planet Claire's stand at the market {name}"
+      "photoAlt": "Planet Claire's stand at the market {name}",
+      "laterHeading": "After that",
+      "pastHeading": "Where I have been"
     }
   },
   "a11y": {

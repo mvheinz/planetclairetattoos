@@ -5582,11 +5582,11 @@ Nach dem Merge automatisch (ohne Checkbox; prüft P11.1):
 
 Verbindlich: `docs/UEBERARBEITUNG.md` U-40 … U-49. Gilt für Handy und Desktop.
 
-- [ ] **P13.1 Startseite ohne „Komm näher.“** (U-40) – Station, Text und Fitness-Coco samt Code/Assets/Tests/Budgets entfernen; Stationen neu nummerieren.
+- [x] **P13.1 Startseite ohne „Komm näher.“** (U-40) – Station, Text und Fitness-Coco samt Code/Assets/Tests/Budgets entfernen; Stationen neu nummerieren.
   - Akzeptanz: keine Fitness-Reste (Grep), Stationen 01…06, Unit/E2E/visuell grün, PF-10 ok.
-- [ ] **P13.2 Koko neu: Augen wie Original, Ausschnitt +⅓** (U-41) – Augäpfel/Lidstrich aus dem Original, Pupillen animiert; Ausschnitt mit Brustansatz.
+- [x] **P13.2 Koko neu: Augen wie Original, Ausschnitt +⅓** (U-41) – Augäpfel/Lidstrich aus dem Original, Pupillen animiert; Ausschnitt mit Brustansatz.
   - Akzeptanz: Sichtvergleich mit dem Original (Screenshots), Koko-Unit/E2E grün.
-- [ ] **P13.3 Koko + kompakter Tour-Schaukasten nebeneinander, Instagram-Link** (U-42) – Layout oben rechts, mobil untereinander; handgezeichnetes Instagram-Symbol.
+- [x] **P13.3 Koko + kompakter Tour-Schaukasten nebeneinander, Instagram-Link** (U-42) – Layout oben rechts, mobil untereinander; handgezeichnetes Instagram-Symbol.
   - Akzeptanz: Screenshots 390/1280 px, home-tour-E2E angepasst, keine Fremd-Anfragen.
 - [ ] **P13.4 Überschriften in Spectral** (U-43) – alle Überschriften prüfen und vereinheitlichen.
   - Akzeptanz: Test/Prüfung aller H1–H3 auf Spectral, LG-03 grün.

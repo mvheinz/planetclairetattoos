@@ -156,7 +156,8 @@ async function Demo({ mi, locale }: { mi: string; locale: Locale }) {
     case 'MI-14': {
       const home = await getHomeView(locale).catch(() => null)
       const want: Record<string, readonly string[]> = {
-        'MI-12': ['hallo', 'keramik'],
+        // P13.1 (U-40): „hallo“ entfiel – Textil trägt jetzt den Stern, Keramik den Planeten
+        'MI-12': ['keramik', 'textil'],
         'MI-13': ['zeichnungen'],
         'MI-14': ['tattoo'],
       }
