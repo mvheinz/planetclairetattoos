@@ -59,6 +59,10 @@ describe('Warte-Aktionen (U-03)', () => {
       'liegen',
     ])
     expect(IDLE_PLAN.at(-1)!.then).toBe('schlafen')
+    // U-44: Pausen ≈ 20 % kürzer als in P12.4 (erste Aktion nach 4 s, Hinlegen nach 45 s)
+    expect(IDLE_PLAN[0]!.at).toBe(3200)
+    expect(IDLE_PLAN.at(-1)!.at).toBeGreaterThan(0.85 * 45_000)
+    expect(IDLE_PLAN.at(-1)!.at).toBeLessThan(0.9 * 45_000)
   })
 
   it('Sitz-Ruhe löst die Aktionen nacheinander aus; dazwischen steht Coco im Standbild (Boil aus)', () => {

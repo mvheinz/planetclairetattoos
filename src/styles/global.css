@@ -349,9 +349,14 @@ html[data-menu-open] {
   padding-inline-end: var(--page-pad);
 }
 
-/* Linien-Rinne je Preset (§5.3); das Preset setzt das Layout als `data-preset` am body (§9.7). */
+/* Linien-Rinne je Preset (§5.3); das Preset setzt das Layout als `data-preset` am body (§9.7). Startseite, Über mich
+   und (U-44) alle Shop- und Tattoo-Seiten: Coco läuft an der Leine mit und braucht die breite Rinne. */
 body[data-preset='journey'],
-body[data-preset='about'] {
+body[data-preset='about'],
+body[data-preset='shopString'],
+body[data-preset='product'],
+body[data-preset='stencil'],
+body[data-preset='frame'] {
   --leash-gutter: 56px;
 }
 
@@ -360,15 +365,13 @@ body[data-preset='margin'] {
   --leash-gutter: 16px;
 }
 
-/* Raster-Seiten (U-07a): Shop-Listen und Tattoo/Flash – die Leine läuft in einer schmalen Rinne am Seitenrand */
-body[data-preset='shopString'],
-body[data-preset='stencil'] {
-  --leash-gutter: 32px;
-}
-
 @media (min-width: 768px) {
   body[data-preset='journey'],
-  body[data-preset='about'] {
+  body[data-preset='about'],
+  body[data-preset='shopString'],
+  body[data-preset='product'],
+  body[data-preset='stencil'],
+  body[data-preset='frame'] {
     --leash-gutter: 88px;
   }
 
@@ -376,10 +379,28 @@ body[data-preset='stencil'] {
   body[data-preset='margin'] {
     --leash-gutter: 24px;
   }
+}
 
-  body[data-preset='shopString'],
-  body[data-preset='stencil'] {
-    --leash-gutter: 56px;
+/* Freiraum um eine Bildgruppe, die Coco an der Leine umrundet (`data-leash-loop="contour"`, U-44): Die Hundefigur ragt
+   bis ≈ 29 / 45 px über und ≈ 24 / 37 px unter die Linie (mobil / ab 768; die Linie läuft 10 px neben der Gruppe) und
+   ≈ 26 / 44 px zu jeder Seite – innen hält das Polster Bilder und Beschriftung frei, außen der Abstand Überschrift und
+   Folgetext (KUNST-QA LG-01). `-wide` nur ab 768 (mobil ist dort kein Platz, die Engine macht daraus einen Kringel). */
+.u-leash-room.u-leash-room {
+  box-sizing: border-box;
+  width: fit-content;
+  max-width: 100%;
+  padding: 26px;
+  margin-block: 40px;
+}
+
+@media (min-width: 768px) {
+  .u-leash-room.u-leash-room,
+  .u-leash-room-wide.u-leash-room-wide {
+    box-sizing: border-box;
+    width: fit-content;
+    max-width: 100%;
+    padding: 40px;
+    margin-block: 56px;
   }
 }
 
@@ -426,11 +447,6 @@ body[data-preset='stencil'] {
 [data-leash-seg] {
   position: absolute;
   overflow: visible;
-}
-
-/* Layout hat sich geändert, Neuaufbau steht aus: die veraltete Produktlinie nicht über neuen Text stehen lassen. */
-[data-leash-preset='product'][data-stale] {
-  visibility: hidden;
 }
 
 .u-layer-sticky {

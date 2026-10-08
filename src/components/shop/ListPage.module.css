@@ -20,7 +20,8 @@
 .filters {
   position: relative;
   margin-top: var(--space-5);
-  margin-inline: calc(-1 * var(--page-pad));
+  /* nur rechts bis zum Rand: links liegt die Rinne mit Coco an der Leine (U-44, LG-01) */
+  margin-inline: 0 calc(-1 * var(--page-pad));
 }
 
 .filters::after {
@@ -37,7 +38,7 @@
   display: flex;
   gap: var(--space-2);
   margin: 0;
-  padding: 2px var(--space-6) 2px var(--page-pad);
+  padding: 2px var(--space-6) 2px 4px;
   overflow-x: auto;
   list-style: none;
   scroll-snap-type: x proximity;
@@ -113,7 +114,7 @@
 .options {
   display: flex;
   margin: var(--space-3) 0 0;
-  padding: 0 var(--page-pad);
+  padding: 0 var(--page-pad) 0 0;
   list-style: none;
 }
 
@@ -167,38 +168,9 @@
   margin-top: var(--space-4);
 }
 
-/* Schnuranfang: Coco (--coco-m) sitzt links über der ersten Reihe, der Anker liegt am D-Ring des Geschirrs. */
-.stringStart {
-  display: flex;
-  align-items: flex-end;
-  height: calc(var(--coco-m) * 0.75);
-}
-
-.coco {
-  position: relative;
-  display: block;
-  width: var(--coco-m);
-}
-
-.startAnchor {
-  position: absolute;
-  top: 54.6%;
-  left: 50%;
-  width: 0;
-  height: 0;
-}
-
 .gridWrap {
   position: relative;
   margin-top: var(--space-4);
-}
-
-.bounds {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  height: 0;
 }
 
 /* §5.4 Shop-Raster: 2 Spalten mobil, 3 ab 768, 4 ab 1200; Zeilenabstand 32 / 48. */

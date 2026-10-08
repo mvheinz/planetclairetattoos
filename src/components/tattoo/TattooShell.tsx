@@ -11,17 +11,13 @@ import styles from './Tattoo.module.css'
 import { TattooContactBlock } from './TattooContactBlock'
 import { TattooSubNav, type TattooRouteId } from './TattooSubNav'
 
-// Rahmen der Tattoo-Seiten R11–R18 (KONZEPT §9.2, DESIGN KO-20, Preset `stencil`): H1 (Coco `kopfschief` an der
-// Seiten-H1 über den Stations-Anker), Einleitung, Unter-Navigation, Inhalt und am Ende der Kontakt-Block. Keine Kauf-,
-// Formular- oder Zahlungselemente (E-51, AK-9-01).
+// Rahmen der Tattoo-Seiten R11–R18 (KONZEPT §9.2, DESIGN KO-20, Preset `stencil`): H1 (Kringel und Coco `kopfschief`
+// an der Seiten-H1 über den Stations-Anker), Einleitung, Unter-Navigation, Inhalt und am Ende der Kontakt-Block. Die
+// Tuschelinie läuft mit Coco in der Rinne bis zum Seitenende (U-44); Abschnitte setzen ihre Kringel selbst
+// (`data-leash-station` an der Abschnitts-Überschrift). Keine Kauf-, Formular- oder Zahlungselemente (E-51, AK-9-01).
 
 /** Seiten mit Flash-Motiven bzw. Preis-/Ablauf-Angaben: R12 Flash, R14 Preise, R16 Ablauf. */
 const FLASH_NOTICE_ROUTES: ReadonlySet<string> = new Set(['R12', 'R14', 'R16'])
-
-/** Endpunkt der Tuschelinie (DESIGN §9.7 `stencil`): links am Inhalt, ohne Größe. */
-export function LeashEnd() {
-  return <span className={styles.lineEnd} data-leash-anchor="end" aria-hidden="true" />
-}
 
 export async function TattooShell({
   locale,
@@ -31,7 +27,6 @@ export async function TattooShell({
   contactTopic = { kind: 'general' },
   contactHeading,
   className,
-  leashEnd = 'header',
   children,
 }: {
   locale: Locale
@@ -41,11 +36,6 @@ export async function TattooShell({
   contactTopic?: TattooMailTopic
   contactHeading?: string | null
   className?: string
-  /**
-   * Ende der Tuschelinie (Preset `stencil`): unter der Kopfzeile, damit sie nicht durch den Text läuft; Seiten mit
-   * Flash-Raster setzen das Ende selbst unter das Raster (`<LeashEnd />`, Konturen um die Karten).
-   */
-  leashEnd?: 'header' | 'content'
   children: React.ReactNode
 }) {
   const tRoutes = await getTranslations({ locale, namespace: 'common.routes' })
@@ -56,13 +46,18 @@ export async function TattooShell({
     >
       <header className={styles.head}>
         <h1 className={styles.title}>
-          <Station id="tattoo-title" as="span" pose="kopfschief" className={styles.titleAnchor}>
+          <Station
+            id="tattoo-title"
+            as="span"
+            pose="kopfschief"
+            loop="right"
+            className={styles.titleAnchor}
+          >
             {tRoutes(routeId)}
           </Station>
         </h1>
         {lead ? <div className={styles.lead}>{lead}</div> : null}
       </header>
-      {leashEnd === 'header' ? <LeashEnd /> : null}
       <TattooSubNav locale={locale} current={routeId} />
       <div className={styles.body}>{children}</div>
       {/* Nachstech-Genehmigung bei Flash-Motiven, Preisen und Ablauf (U-22 d, Baustein `ip.tattooFlashNotice`) */}

@@ -193,12 +193,14 @@ test('@a11y R10 mit Fixture-Seite DE/EN: 200, eine h1, Ablauf, Beispiele mit Bil
       )
       await expect(page.locator('#commission-form-title')).toHaveText('Deine Idee')
     }
-    // Preset `frame`: Coco-Anker an der Formular-Überschrift, Kontur um das Formular
+    // Preset `frame` (U-44): Coco läuft an der Leine mit, Kringel an der Formular-Überschrift; das Formular selbst
+    // wird nicht umrundet (Coco überdeckte sonst Felder)
     await expect(page.locator('body')).toHaveAttribute('data-preset', 'frame')
-    await expect(page.locator('[data-leash-station="commission-form"]')).toHaveAttribute(
+    await expect(page.locator('[data-leash-station="commission-coco"]')).toHaveAttribute(
       'data-leash-loop',
-      'contour',
+      'left',
     )
+    await expect(page.locator('[data-commission-frame] [data-leash-loop]')).toHaveCount(0)
     await expectNoSeriousViolations(page, `R10 ${locale}`)
   }
 })

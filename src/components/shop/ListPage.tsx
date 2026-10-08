@@ -2,7 +2,6 @@ import { getTranslations } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import React from 'react'
 
-import { Coco } from '@/components/Coco'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { PageBlocks } from '@/components/content/PageBlocks'
 import { Icon } from '@/components/icons/Icon'
@@ -34,7 +33,7 @@ import { statusLabelAttrs } from './statusLabels'
 // Listen-Seiten des Shops (KONZEPT §3.2, §3.3, §3.5; DESIGN KO-07, KO-08, KO-17, §9.7 `shopString`): Shop (R02),
 // Kategorie (R03) und Archiv (R05) teilen Aufbau und Verhalten – H1, Einleitung, Filter-Chips als echte Links
 // (`aria-current="page"` am aktiven), Hinweis „Shop pausiert“ über dem Raster (die Stücke bleiben sichtbar), Raster aus
-// Produktkarten (Schnur der Tuschelinie durch die Faden-Anker, Coco-Platzhalter am Schnuranfang), „Mehr zeigen“ als Link
+// Produktkarten (jede Karte ist eine Rasterzelle der Tuschelinie: Kringel zwischen den Zeilen, Coco läuft mit, U-44), „Mehr zeigen“ als Link
 // `?page=n+1`, Preis-Fußnote einmal je Seite (R-030) und Lieferzeile. Leerzustände nach KO-17. Ohne JavaScript voll
 // bedienbar. Seiten > letzte Seite → 404. JSON-LD `BreadcrumbList` (Start → Shop → Kategorie bzw. Start → Archiv,
 // P3.13).
@@ -169,7 +168,12 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
         className={styles.filters}
         aria-label={archive ? t('archive.filterLabel') : t('shop.list.filterLabel')}
       >
-        <ul className={styles.chips}>
+        {/* Coco läuft am Seitenanfang einmal um die Kategorie-Bilder (U-44, ab 768 px; mobil ein Kringel) */}
+        <ul
+          className={`${styles.chips} u-leash-room-wide`}
+          data-leash-station="kategorien"
+          data-leash-loop="contour"
+        >
           {chips.map((chip) => {
             const tile = categoryTile(chip.key)
             return (
@@ -233,15 +237,7 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
           <h2 id="list-heading" className="u-sr-only">
             {t('shop.list.heading')}
           </h2>
-          {/* Schnuranfang (§9.7): Coco sitzt über der ersten Reihe und hält die Schnur. */}
-          <div className={styles.stringStart} aria-hidden="true">
-            <span className={styles.coco}>
-              <Coco pose="sitzen" size="m" data={{ 'data-string-coco': '' }} />
-              <span className={styles.startAnchor} data-leash-anchor="start" />
-            </span>
-          </div>
           <div className={styles.gridWrap}>
-            <span className={styles.bounds} id="shop-grid" data-leash-anchor="target" />
             {/* Shop/Kategorie: Live-Zustand der Karten nach dem Laden (`product-status`, P3.11) mit Stempel-Knall. */}
             <ul
               className={styles.grid}
@@ -254,11 +250,11 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
                 // Karten mit faulen Fotos als statisches HTML (nicht hydriert, TBT P7); die ersten (eager, KO-07)
                 // bleiben normal gerendert, damit ihre Vorlade-Hinweise im <head> bleiben.
                 index < EAGER_CARDS ? (
-                  <li key={product.id}>
+                  <li key={product.id} data-leash-anchor="tag">
                     <ProductCard product={product} locale={locale} index={index} />
                   </li>
                 ) : (
-                  <StaticHtml as="li" key={product.id}>
+                  <StaticHtml as="li" key={product.id} data-leash-anchor="tag">
                     <ProductCard product={product} locale={locale} index={index} />
                   </StaticHtml>
                 ),

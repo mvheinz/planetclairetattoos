@@ -5590,7 +5590,7 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-40 … U-49. Gilt für Handy und Desktop
   - Akzeptanz: Screenshots 390/1280 px, home-tour-E2E angepasst, keine Fremd-Anfragen.
 - [ ] **P13.4 Überschriften in Spectral** (U-43) – alle Überschriften prüfen und vereinheitlichen.
   - Akzeptanz: Test/Prüfung aller H1–H3 auf Spectral, LG-03 grün.
-- [ ] **P13.5 Coco läuft überall mit** (U-44) – Leinen-Presets der Shop-/Tattoo-Seiten mit laufender Coco, Kringeln und Bild-Umrundungen; Startseite +1–2 Umrundungen; Warte-Aktionen 20 % schneller.
+- [x] **P13.5 Coco läuft überall mit** (U-44) – Leinen-Presets der Shop-/Tattoo-Seiten mit laufender Coco, Kringeln und Bild-Umrundungen; Startseite +1–2 Umrundungen; Warte-Aktionen 20 % schneller.
   - Akzeptanz: Leash-/Coco-E2E auf allen genannten Routen, LG-01/LG-04/PF-* grün in `art:check`.
 - [ ] **P13.6 Harmonisierte Mitteilung** (U-45) – amtlicher Wortlaut DE/EN im leeren Feld.
   - Akzeptanz: Legal-Tests, Feld nirgends leer.

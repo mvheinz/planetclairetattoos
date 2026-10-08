@@ -67,17 +67,18 @@ test.describe('Produktseite – Aufbau und Reihenfolge', () => {
       'Lieferzeit: 2–5 Werktage (bei Vorkasse ab Zahlungseingang)',
     )
     expect(await page.content()).not.toMatch(/inkl\.?\s*MwSt/i)
-    // Coco-Box 48 × 40 neben dem Preisschild
-    const box = await page.locator('[data-product-coco]').boundingBox()
-    expect(box).toMatchObject({ width: 48, height: 40 })
     // Liefergebiet direkt am Kaufbereich (R-036)
     await expect(page.locator('[data-buy-area] [data-delivery-area]')).toHaveText(
       'Lieferung nur innerhalb Deutschlands, Abholung in Berlin nach Absprache',
     )
-    // Tuschelinie `product`: Start unter der H1, Haken am Knopf
+    // Tuschelinie `product` (U-44): Spur in der Rinne, Coco an der Leine, Kringel an Titel und Preis
     await expect(page.locator('body')).toHaveAttribute('data-preset', 'product')
-    await expect(page.locator('[data-product-page] [data-leash-anchor="start"]')).toHaveCount(1)
-    await expect(page.locator('[data-add-to-cart]')).toHaveAttribute('data-leash-loop', 'hook')
+    await expect(page.locator('.coco[data-leash-coco]')).toHaveCount(1)
+    await expect(page.locator('[data-leash-station="title"]')).toHaveAttribute(
+      'data-leash-loop',
+      'right',
+    )
+    await expect(page.locator('[data-product-price]')).toHaveAttribute('data-leash-loop', 'left')
   })
 
   test('KO-11 Knopftexte: „In den Korb“ / „Add to basket“, keine Kauf-Beschriftung aus R-064', async ({

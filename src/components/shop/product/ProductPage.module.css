@@ -19,28 +19,6 @@
 }
 
 /* Anker der Titel-Unterstreichung (Tuschelinie `product`): Start links unter der H1, Ende nach höchstens 22rem. */
-.titleLine {
-  position: relative;
-  height: 22px;
-}
-
-.lineStart,
-.lineEnd {
-  position: absolute;
-  width: 0;
-  height: 0;
-}
-
-.lineStart {
-  top: 6px;
-  left: -10px;
-}
-
-.lineEnd {
-  top: 14px;
-  left: min(100%, 22rem);
-}
-
 .facts {
   display: flex;
   flex-wrap: wrap;
@@ -80,13 +58,6 @@
 }
 
 /* Reservierte Coco-Box neben dem Preisschild (48 × 40, Hüpfer MI-01 in P9) – feste Größe, kein CLS. */
-.cocoSlot {
-  flex: none;
-  width: 48px;
-  height: 40px;
-  align-self: flex-end;
-}
-
 .delivery {
   margin: 0;
   color: var(--ink-2);

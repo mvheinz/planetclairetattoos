@@ -158,11 +158,10 @@ describe('leash/loops – Freiraum-Regeln (§9.5)', () => {
     expect(build('heart') - build('none')).toBeGreaterThan(80)
   })
 
-  it('heart, coil und hook beenden die Linie; Herz 36 px mobil / 48 px ab 768', () => {
+  it('heart und coil beenden die Linie; Herz 36 px mobil / 48 px ab 768', () => {
     for (const [preset, loop] of [
       ['thanks', 'heart'],
       ['lost', 'coil'],
-      ['product', 'hook'],
     ] as const) {
       const g = buildGeometry(single(preset, { x: 150, y: 500, w: 60, h: 44, loop }))
       const st = g.stations[0]!

@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import React from 'react'
 
+import { coil } from '@/components/leash/Station'
 import { RichTextContent } from '@/components/content/RichTextContent'
 import styles from '@/components/tattoo/Tattoo.module.css'
 import { TattooShell } from '@/components/tattoo/TattooShell'
@@ -55,7 +56,11 @@ export default async function AftercarePage({ params }: { params: Promise<{ loca
             case 'aftercareSteps':
               return (
                 <section key={key} className={styles.section} aria-label={b.heading ?? undefined}>
-                  {b.heading ? <h2 className={styles.sectionHeading}>{b.heading}</h2> : null}
+                  {b.heading ? (
+                    <h2 className={styles.sectionHeading} {...coil(key, 1)}>
+                      {b.heading}
+                    </h2>
+                  ) : null}
                   <ol className={styles.steps}>
                     {b.phases.map((p, j) => (
                       <li key={p.id ?? j} className={styles.step} data-aftercare-phase="">
@@ -85,7 +90,11 @@ export default async function AftercarePage({ params }: { params: Promise<{ loca
               if (list.length === 0) return null
               return (
                 <section key={key} className={styles.section} aria-label={b.heading ?? 'FAQ'}>
-                  {b.heading ? <h2 className={styles.sectionHeading}>{b.heading}</h2> : null}
+                  {b.heading ? (
+                    <h2 className={styles.sectionHeading} {...coil(key, 2, 'spiral')}>
+                      {b.heading}
+                    </h2>
+                  ) : null}
                   <ul className={styles.faq}>
                     {list.map((faq) => (
                       <li key={faq.id}>
@@ -110,6 +119,7 @@ export default async function AftercarePage({ params }: { params: Promise<{ loca
             className={`${styles.section} ${styles.warn}`}
             aria-labelledby="aftercare-warn"
             data-aftercare-warn=""
+            {...coil('warn', 0)}
           >
             <Callout variant="warn">
               <h2 id="aftercare-warn" className={styles.sectionHeading}>

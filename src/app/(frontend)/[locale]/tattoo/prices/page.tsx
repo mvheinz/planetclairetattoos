@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import React from 'react'
 
+import { coil } from '@/components/leash/Station'
 import { RichTextContent } from '@/components/content/RichTextContent'
 import styles from '@/components/tattoo/Tattoo.module.css'
 import { TattooPriceFootnote } from '@/components/tattoo/TattooPriceFootnote'
@@ -77,7 +78,11 @@ export default async function PricesPage({ params }: { params: Promise<{ locale:
           aria-label={b.heading ?? undefined}
           data-price-info=""
         >
-          {b.heading ? <h2 className={styles.sectionHeading}>{b.heading}</h2> : null}
+          {b.heading ? (
+            <h2 className={styles.sectionHeading} {...coil(`info-${i}`, i + 1)}>
+              {b.heading}
+            </h2>
+          ) : null}
           {b.content ? <RichTextContent data={b.content} /> : null}
         </section>
       ))}

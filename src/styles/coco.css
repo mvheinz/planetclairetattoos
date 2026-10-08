@@ -209,21 +209,20 @@ html[data-motion='reduced'] .coco .f-c {
 .coco[data-leash-coco][data-placed] {
   left: 0;
 }
-/* Startseite (journey): Coco rennt im Intro von links herein (MI-10) – bis die Engine sie platziert, sitzt sie nicht
-   sichtbar am Linienanfang unter der Kopfleiste (dort läge sie über dem Hinweisbanner, R2-02-02). */
-[data-leash-preset='journey'] ~ .coco[data-leash-coco]:not([data-placed]) {
+/* Startseite, Shop und Tattoo (Presets mit Intro, U-44): Coco rennt im Intro von links herein (MI-10) – bis die Engine
+   sie platziert, sitzt sie nicht sichtbar am Linienanfang unter der Kopfleiste (dort läge sie über dem Hinweisbanner,
+   R2-02-02). Über mich (ohne Intro) zeigt sie dort sofort. */
+[data-leash-preset]:not([data-leash-preset='about']) ~ .coco[data-leash-coco]:not([data-placed]) {
   visibility: hidden;
 }
 /* Coco reist mit (P12.12, MO-14): Kommt die Seite über einen Übergang, steht Coco schon am Linienanfang – sichtbar auch
    auf der Startseite, damit der Übergang sie (alt → neu) mitnimmt, statt dass sie später von links hereinrennt.
    `:active-view-transition` (harte Navigation, schon vor dem Hydratisieren) und `data-arrived` (gesetzt von LeashLayer)
    in getrennten Regeln: ein unbekannter Selektor würde sonst die ganze Liste verwerfen. */
-html:active-view-transition
-  [data-leash-preset='journey']
-  ~ .coco[data-leash-coco]:not([data-placed]) {
+html:active-view-transition [data-leash-preset] ~ .coco[data-leash-coco]:not([data-placed]) {
   visibility: visible;
 }
-[data-leash-preset='journey'] ~ .coco[data-leash-coco][data-arrived]:not([data-placed]) {
+[data-leash-preset] ~ .coco[data-leash-coco][data-arrived]:not([data-placed]) {
   visibility: visible;
 }
 /* Coco steht vor der Linie (R2-01-02): ein schmaler Papier-Rand um jeden Strich unterbricht die Tusche hinter ihr,
