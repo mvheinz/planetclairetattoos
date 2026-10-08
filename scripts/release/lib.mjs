@@ -48,7 +48,8 @@ export function openTasks(planStatusOutput) {
   if (!m) return null
   // Spätere Überarbeitungs-Phasen (P12, P13 …) zählen mit
   let open = Number(m[1])
-  for (const x of (planStatusOutput ?? '').matchAll(/^OFFEN_P1[2-9]=(\d+)\s*$/gm)) open += Number(x[1])
+  for (const x of (planStatusOutput ?? '').matchAll(/^OFFEN_P1[2-9]=(\d+)\s*$/gm))
+    open += Number(x[1])
   return open
 }
 
