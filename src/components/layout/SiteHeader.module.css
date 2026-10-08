@@ -183,6 +183,15 @@
   .link {
     padding-inline: 0;
   }
+
+  /* WebKit setzt die Schrift etwas breiter: „DE | EN“ hier 14 px mit schmalem Trenner. */
+  .lang {
+    font-size: 0.875rem;
+  }
+
+  .langSep {
+    margin-inline: 1px;
+  }
 }
 
 /* Platz der Anzahl ist immer reserviert (20 px), auch ohne Cookie (KO-02, keine Verschiebung). */

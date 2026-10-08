@@ -560,7 +560,7 @@ Jede Komponente: **Zweck · Aufbau · Maße · Zustände · Bewegung · Barriere
   setzt das Modul `language-targets` nach dem Laden aus den hreflang-Alternativen der Seite, auch im Fuß – ohne zusätzliches
   Erstlade-JS; ohne JavaScript dort die Startseite der anderen Sprache). `hreflang`/`lang` der Zielsprache,
   zugänglicher Name „Language: English“ bzw. „Sprache: Deutsch“, Fokusrahmen wie alle Links. Unter 540 px zeigt der
-  Korb nur Symbol + Anzahl (Wort „Korb“ für Screenreader), unter 400 px ohne Innenabstand – so bleibt die Leiste bis
+  Korb nur Symbol + Anzahl (Wort „Korb“ für Screenreader), unter 400 px ohne Innenabstand und „DE | EN“ in 14 px (WebKit setzt breiter) – so bleibt die Leiste bis
   320 px einzeilig. Test: `tests/e2e/language-switch.e2e.spec.ts`.
 - **Maße:** Höhe `--header-h` (56/64). Seitenrand `--page-pad`. Links Bricolage 500 16 px, Zielfläche ≥ 44×44 (Innenabstand). Korb: Icon `basket` 22 px + Text „Korb“ + Anzahl in Plex Mono (`2`) in einem Kreis 20 px (Rand 1.5px `--ink`, handgezeichnet); ohne Cookie nur „Korb“. Breite für die Zahl ist immer reserviert (keine Verschiebung). Unter 540 px nur Icon + Anzahl (U-47, Platz für „DE | EN“).
 - **Unter 375 px Breite:** Wortmarke schrumpft auf die Planet-Marke (32 px) mit sichtbar verstecktem Text „planet claire – Startseite“; Shop, Tattoo, Korb, Menü bleiben sichtbar. Bei 320 px darf nichts umbrechen oder überlaufen.
