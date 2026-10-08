@@ -1,10 +1,10 @@
-/* Koko, Vorsitzende der Goth Dogs Berlin (P12.6, U-08): Büste als Bild, füllt die Spalte; nur die Pupillen bewegen sich.
+/* Koko, Vorsitzende der Goth Dogs Berlin (P12.6 U-08, P13.2 U-41): Büste als Bild, füllt ihre Spalte; nur die Pupillen bewegen sich.
    Reines CSS, endlos (`infinite`), kein Skript und kein Timer – die Bewegung kann nicht anhalten. */
 .koko {
   /* ein Durchgang (Token): 3 s Blick links · 0,4 s hin · 3 s Blick rechts · 0,4 s zurück */
   --koko-look: var(--dur-koko-look);
   position: relative;
-  aspect-ratio: 700 / 690;
+  aspect-ratio: 700 / 783; /* = koko.json w / h */
   width: 100%;
   max-width: 24rem;
   color: var(--ink);
@@ -24,7 +24,7 @@
   pointer-events: none;
 }
 
-/* Pupillen: glänzend schwarz wie in Juttas Malerei, beide Augen im Gleichklang; Ruhelage = Blick nach links. */
+/* Pupillen (getupftes Oval in Größe und Lage der gemalten): glänzend schwarz wie in der Malerei, beide Augen im Gleichklang; Ruhelage = Blick nach links. */
 .look {
   fill: #0d0b0f;
   animation: koko-look var(--koko-look) linear infinite; /* Kurve je Abschnitt in den Keyframes (MO-02: nie die Standardkurve „ease“) */

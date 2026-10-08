@@ -1,7 +1,8 @@
 import { expect, test } from './fixtures'
 
-// P12.6 (U-08): Koko, Vorsitzende der Goth Dogs Berlin – freigestelltes Bild von Juttas Malerei, nur die Pupillen sind
-// animiert und gucken immer von links nach rechts. Fehlermeldung der Inhaberin: „die kleine Koko-Animation ist nach
+// P12.6 (U-08) und P13.2 (U-41): Koko, Vorsitzende der Goth Dogs Berlin – freigestelltes Bild von Juttas Malerei (Büste mit
+// Brustansatz), Augäpfel und Lidstriche aus dem Original, nur die Pupillen (getupfte Ovale) sind animiert und gucken immer von
+// links nach rechts, beschnitten auf den gemalten Augapfel. Fehlermeldung der Inhaberin: „die kleine Koko-Animation ist nach
 // 3–4 Sekunden verschwunden“ – darum läuft ein Test über mehr als zwei Durchgänge (22 s) und prüft, dass sich die
 // Pupille weiter bewegt, die Animationen laufen und nichts ausgeblendet bleibt. Bei reduzierter Bewegung: Standbild.
 
@@ -29,7 +30,7 @@ test.describe('Startseite: Koko', () => {
       /^Koko, Vorsitzende der Goth Dogs Berlin: .*Hund/,
     )
     const img = koko.locator('img')
-    await expect(img).toHaveAttribute('src', '/art/koko.v2.webp')
+    await expect(img).toHaveAttribute('src', '/art/koko.v3.webp')
     await expect(img).toHaveAttribute('width', '700')
     await expect(img).toHaveAttribute('height', /^\d+$/)
     await expect
@@ -37,7 +38,16 @@ test.describe('Startseite: Koko', () => {
       .toBe(700)
     const box = await koko.boundingBox()
     expect(box!.width).toBeGreaterThan(150)
-    expect(box!.height / box!.width).toBeCloseTo(690 / 700, 1)
+    expect(box!.height / box!.width).toBeCloseTo(783 / 700, 1)
+    // U-41: Pupillen beschnitten auf den gemalten Augapfel-Umriss (keine Idealform, viele Punkte)
+    await expect(koko.locator('[data-koko-pupil]')).toHaveCount(2)
+    await expect(koko.locator('ellipse')).toHaveCount(0)
+    for (const id of ['l', 'r']) {
+      const pts = await koko
+        .locator(`#koko-eye-${id} polygon`)
+        .evaluate((el) => (el.getAttribute('points') ?? '').trim().split(/\s+/).length)
+      expect(pts).toBeGreaterThanOrEqual(40)
+    }
     await page.goto('/en')
     await expect(page.locator('[data-chairwoman]').first()).toHaveAttribute(
       'aria-label',
