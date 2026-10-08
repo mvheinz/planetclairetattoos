@@ -30,6 +30,18 @@
   font-size: var(--fs-h3);
 }
 
+.lead {
+  margin: 0 0 var(--space-2);
+  font-weight: 600;
+}
+
+.note {
+  margin: 0 0 var(--space-2);
+  font-size: var(--fs-small);
+  color: var(--ink-2);
+  font-style: italic;
+}
+
 .text {
   margin: 0 0 var(--space-2);
   font-size: var(--fs-small);

@@ -225,6 +225,7 @@
   },
   "contact": {
     "emailLabel": "E-Mail",
+    "addressLabel": "Anschrift",
     "studio": "Privatstudio in Berlin-{district}",
     "withdrawHint": "Du willst einen Vertrag widerrufen?",
     "legalNoticeHint": "Angaben zur Anbieterin:",
@@ -301,9 +302,12 @@
     },
     "warranty": {
       "title": "Gesetzliche Gewährleistung",
-      "alt": "Harmonisierte Mitteilung der EU zur gesetzlichen Gewährleistung (Platzhalter – die amtliche Grafik folgt)",
-      "text": "Beim Kauf von Waren hast du nach EU-Recht ein gesetzliches Gewährleistungsrecht, wenn die Ware mangelhaft ist. Die Einzelheiten erklärt die Informationsseite der Europäischen Union.",
-      "link": "Informationen der EU zur gesetzlichen Gewährleistung"
+      "alt": "Harmonisierte Mitteilung der EU: Gesetzliche Gewährleistung – mindestens zwei Jahre für Waren, die in der EU verkauft werden (Platzhalter-Fassung, die amtliche Grafik folgt)",
+      "lead": "Mindestens zwei Jahre gesetzliche Gewährleistung für Waren, die in der Europäischen Union verkauft werden.",
+      "rights": "Ist eine Ware mangelhaft oder entspricht sie nicht der Beschreibung, haben Sie gegenüber dem Verkäufer Anspruch auf kostenlose Reparatur oder Ersatz, in bestimmten Fällen auf Preisminderung oder Erstattung des Kaufpreises.",
+      "duration": "Die gesetzliche Gewährleistung gilt nach EU-Recht mindestens zwei Jahre ab Erhalt der Ware; in einigen Ländern gilt ein längerer Zeitraum. Für gebrauchte Waren kann ein kürzerer Zeitraum gelten, jedoch nicht weniger als ein Jahr.",
+      "placeholderNote": "Platzhalter-Fassung: Wortlaut nach der EU-Durchführungsverordnung (EU) 2025/1960, Prüfung durch die Kanzlei steht noch aus; die amtliche Grafik folgt.",
+      "link": "Weitere Informationen der EU zur gesetzlichen Gewährleistung"
     },
     "card": {
       "stateReserved": "gerade reserviert",

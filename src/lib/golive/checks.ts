@@ -66,7 +66,7 @@ export interface GoliveInput {
   seedCounts: Record<string, number>
   ownerPhotosUnapproved: number
   galleryWithoutConsent: number
-  /** Die Grafik der harmonisierten Mitteilung ist noch die Platzhalter-Grafik (R-049). */
+  /** Grafik oder Text der harmonisierten Mitteilung sind noch Platzhalter (R-049, U-45). */
   warrantyGraphicPlaceholder: boolean
   vvtExists: boolean
 }
@@ -345,12 +345,12 @@ export function evaluateGolive(input: GoliveInput): GoliveReport {
   checks.push({
     id: 'R210-11',
     group: 'content',
-    title: 'Amtliche Grafik der harmonisierten Mitteilung ist eingebaut',
+    title: 'Amtliche Grafik und geprüfter Wortlaut der harmonisierten Mitteilung sind eingebaut',
     ref: 'R-210 Nr. 11, R-049',
     ok: !input.warrantyGraphicPlaceholder,
     detail: input.warrantyGraphicPlaceholder
-      ? 'Noch die Platzhalter-Grafik. Die amtliche Grafik (EU-Durchführungsverordnung 2025/1960) wird beim Start eingesetzt.'
-      : 'Die amtliche Grafik ist eingebaut.',
+      ? 'Noch die Platzhalter-Fassung (Grafik und Text). Die amtliche Grafik (EU-Durchführungsverordnung 2025/1960) und der von der Kanzlei geprüfte Wortlaut werden beim Start eingesetzt.'
+      : 'Die amtliche Grafik und der geprüfte Wortlaut sind eingebaut.',
   })
   // 12 Steuer
   const taxMissing: string[] = []

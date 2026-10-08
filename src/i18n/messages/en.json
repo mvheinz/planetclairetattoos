@@ -225,6 +225,7 @@
   },
   "contact": {
     "emailLabel": "Email",
+    "addressLabel": "Address",
     "studio": "Private studio in Berlin-{district}",
     "withdrawHint": "Do you want to withdraw from a contract?",
     "legalNoticeHint": "Provider details:",
@@ -301,9 +302,12 @@
     },
     "warranty": {
       "title": "Legal guarantee",
-      "alt": "EU harmonised notice on the legal guarantee (placeholder – the official graphic will follow)",
-      "text": "When you buy goods, EU law gives you a legal guarantee if the goods are faulty. The details are explained on the information page of the European Union.",
-      "link": "EU information on the legal guarantee"
+      "alt": "EU harmonised notice: legal guarantee – at least two years for goods sold in the EU (placeholder version, the official graphic will follow)",
+      "lead": "At least two years of legal guarantee for goods sold in the European Union.",
+      "rights": "If goods are faulty or not as described, you are entitled to have them repaired or replaced by the seller free of charge, or in certain cases to a price reduction or a refund.",
+      "duration": "Under EU law, the legal guarantee lasts at least two years from when you receive the goods; in some countries it lasts longer. For second-hand goods a shorter period may apply, but not less than one year.",
+      "placeholderNote": "Placeholder version: wording based on Commission Implementing Regulation (EU) 2025/1960, still to be reviewed by the law firm; the official graphic will follow.",
+      "link": "More information from the EU on the legal guarantee"
     },
     "card": {
       "stateReserved": "reserved right now",

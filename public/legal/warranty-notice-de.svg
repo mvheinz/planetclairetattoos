@@ -1,8 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="120" viewBox="0 0 320 120" role="img" aria-label="Harmonisierte Mitteilung – Platzhalter – amtliche Grafik folgt">
-  <!-- Platzhalter für die harmonisierte Mitteilung (DVO (EU) 2025/1960, R-049). Vor Go-live durch die amtliche Grafik
-       ersetzen (Gate R-210, OFFENE-PUNKTE P3.3). -->
-  <rect x="1" y="1" width="318" height="118" rx="8" fill="#FFFFFF" stroke="#1F1B16" stroke-width="2" stroke-dasharray="6 4"/>
-  <text x="160" y="42" text-anchor="middle" font-family="sans-serif" font-size="18" font-weight="700" fill="#1F1B16">Harmonisierte Mitteilung</text>
-  <text x="160" y="68" text-anchor="middle" font-family="sans-serif" font-size="15" fill="#1F1B16">Gesetzliche Gewährleistung</text>
-  <text x="160" y="96" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#4B463F">Platzhalter – amtliche Grafik folgt</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="176" viewBox="0 0 320 176" role="img" aria-label="Harmonisierte Mitteilung: Gesetzliche Gewährleistung – mindestens zwei Jahre für in der EU verkaufte Waren (Platzhalter-Fassung)">
+  <!-- Harmonisierte Mitteilung zur gesetzlichen Gewährleistung (DVO (EU) 2025/1960 Anhang I, R-049, U-45/P13.6):
+       PLATZHALTER-FASSUNG mit den Kernaussagen der Mitteilung, bis die amtliche Grafik (Kommission, „EU notice in all EU
+       languages“) eingebaut und von der Kanzlei geprüft ist (K-19, Gate R-210, OFFENE-PUNKTE P13.6). Keine eigene
+       Nachbildung des amtlichen Logos. -->
+  <rect x="1" y="1" width="318" height="174" rx="8" fill="#FFFFFF" stroke="#003399" stroke-width="2"/>
+  <path d="M1 9a8 8 0 0 1 8-8h302a8 8 0 0 1 8 8v31H1z" fill="#003399"/>
+  <text x="160" y="27" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" letter-spacing="0.5" fill="#FFFFFF">GESETZLICHE GEWÄHRLEISTUNG</text>
+  <text x="70" y="64" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700" fill="#003399">MINDESTENS</text>
+  <text x="70" y="98" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" fill="#003399">2 JAHRE</text>
+  <line x1="138" y1="52" x2="138" y2="128" stroke="#003399" stroke-width="1"/>
+  <text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1F1B16">
+    <tspan x="150" y="62">für Waren, die in der</tspan>
+    <tspan x="150" y="80">EU verkauft werden.</tspan>
+    <tspan x="150" y="98">Ansprüche gegenüber</tspan>
+    <tspan x="150" y="116">dem Verkäufer.</tspan>
+  </text>
+  <line x1="12" y1="142" x2="308" y2="142" stroke="#4B463F" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="160" y="162" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#4B463F">Platzhalter-Fassung · amtliche Grafik folgt</text>
 </svg>
