@@ -5619,7 +5619,7 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-50 … U-64. Gilt für Handy und Desktop
   - Akzeptanz: check:bundle/Lighthouse, Bildbudget.
 - [ ] **P14.6 Leine ruhiger beim Umwickeln** (U-55) – Zeichentempo an Kringeln/Umrundungen ausgleichen.
   - Akzeptanz: Unit (maximale Zeichengeschwindigkeit je Abschnitt begrenzt), Kunst-QA grün.
-- [ ] **P14.7 Flash ↔ Galerie** (U-56).
+- [x] **P14.7 Flash ↔ Galerie** (U-56).
   - Akzeptanz: Unit/E2E Verknüpfung in beide Richtungen, nur Fotos mit Einwilligung.
 - [ ] **P14.8 Shop: Frage-Link, „Ähnliches anfragen“, verkaufte nicht mischen, Größen-Vergleichsfoto** (U-57) – Schemaänderung per Migration.
   - Akzeptanz: Unit/Int/E2E, DE/EN.

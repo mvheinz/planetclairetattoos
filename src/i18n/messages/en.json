@@ -1164,7 +1164,8 @@
       "emptyAction": "To the process",
       "allTakenTitle": "Every design has found its skin.",
       "allTakenText": "New ones will follow – or write me your own idea by email.",
-      "allTakenAction": "To contact"
+      "allTakenAction": "To contact",
+      "photo": "Already tattooed – see the photo"
     },
     "prices": {
       "intro": "I tell you openly what a tattoo costs. All prices are totals – nothing is added on top.",
@@ -1199,7 +1200,8 @@
       "close": "Close",
       "emptyTitle": "No traces on this page yet",
       "emptyText": "In the meantime, have a look at the flash designs.",
-      "emptyAction": "To the flash designs"
+      "emptyAction": "To the flash designs",
+      "afterFlash": "after flash {number}"
     },
     "process": {
       "intro": "From the first word to healed skin. There is no online booking – everything begins with an email.",

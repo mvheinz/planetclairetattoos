@@ -2,6 +2,17 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-09 – P14.7 Flash ↔ Galerie (U-56)
+
+- Galerie-Einträge haben einen Anker `g-<id>` und kennen die Nummer ihres Flash-Motivs (Feld `flash`, nur veröffentlichte
+  Motive). Flash-Karte (R12): „Schon gestochen – Foto ansehen“ → `/de/tattoo/galerie#g-<id>`; Galerie (R15): „nach Flash
+  F-012“ → `/de/tattoo/flash#f-012` (EN „Already tattooed – see the photo“ / „after flash F-012“).
+- Verlinkt werden nur Fotos, die die Galerie ohnehin öffentlich zeigt (`toPublicGallery`: Einwilligung, Widerruf nimmt
+  den Eintrag offline; Seed-Ausnahme nur im Vorschau-Modus). Cache: R12 liest zusätzlich die Galerie (Tag
+  `tattoo-gallery`), R15 zusätzlich die Motive (Tag `flash`).
+- Tests: Unit `tests/unit/tattoo/flash-gallery-link.unit.spec.ts`, E2E `tests/e2e/tattoo/flash-gallery-link.e2e.spec.ts`
+  (beide Richtungen, Kundenfoto ohne Einwilligung ohne Link, DE/EN) plus bestehende Flash-/Galerie-E2E grün.
+
 ## 2026-10-08 – P13 abgeschlossen: zweite Runde nach deiner Rückmeldung – für Jutta
 
 Hallo Jutta,

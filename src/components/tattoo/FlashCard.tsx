@@ -28,6 +28,7 @@ export async function FlashCard({
   headingLevel = 'h3',
   eager = false,
   compact = false,
+  photoHref = null,
 }: {
   flash: PublicFlash
   locale: Locale
@@ -36,6 +37,8 @@ export async function FlashCard({
   eager?: boolean
   /** Teaser (R11): ohne Anfrage-Knöpfe, Link auf die Karte in R12. */
   compact?: boolean
+  /** U-56: Link auf ein sichtbares Galerie-Foto dieses Motivs („Schon gestochen – Foto ansehen“). */
+  photoHref?: string | null
 }) {
   const t = await getTranslations({ locale, namespace: 'tattoo.flash' })
   const Heading = headingLevel
@@ -117,6 +120,13 @@ export async function FlashCard({
             {t('takenText')}
           </p>
         )}
+        {photoHref && !compact ? (
+          <p className={styles.flashPhoto}>
+            <a href={photoHref} data-flash-photo="">
+              {t('photo')}
+            </a>
+          </p>
+        ) : null}
         {available && !compact ? (
           <div className={styles.flashActions}>
             {mailto ? (

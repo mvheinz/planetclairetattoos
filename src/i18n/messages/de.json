@@ -1164,7 +1164,8 @@
       "emptyAction": "Zum Ablauf",
       "allTakenTitle": "Alle Motive haben ihre Haut gefunden.",
       "allTakenText": "Neue entstehen bald – oder schreib mir deine eigene Idee per Mail.",
-      "allTakenAction": "Zum Kontakt"
+      "allTakenAction": "Zum Kontakt",
+      "photo": "Schon gestochen – Foto ansehen"
     },
     "prices": {
       "intro": "Was ein Tattoo kostet, sage ich dir offen. Alle Preise sind Gesamtpreise – mehr kommt nicht dazu.",
@@ -1199,7 +1200,8 @@
       "close": "Schließen",
       "emptyTitle": "Noch keine Spuren auf dieser Seite",
       "emptyText": "Schau in der Zwischenzeit bei den Flash-Motiven vorbei.",
-      "emptyAction": "Zu den Flash-Motiven"
+      "emptyAction": "Zu den Flash-Motiven",
+      "afterFlash": "nach Flash {number}"
     },
     "process": {
       "intro": "Vom ersten Wort bis zur verheilten Haut. Eine Online-Buchung gibt es nicht – alles beginnt mit einer Mail.",
