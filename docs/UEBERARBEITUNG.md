@@ -94,3 +94,6 @@ Fachdokumenten und E-xx; U-00 (zweisprachig) gilt weiter.
 | U-62 | **Technik:** CI-Minuten etwa halbieren (doppelte Testläufe/Builds zusammenlegen), Wackel-Tests auf Zustände statt feste Wartezeiten umstellen, Ladebudget entlasten (nicht nötige Skripte später laden), gleichartige Listen-Seiten zusammenlegen. |
 | U-63 | **GitHub-Projekt:** Jutta stellt das Repository selbst auf **privat** (Fotos und alte Vorschauen bleiben unverändert, sind dann nur noch für sie sichtbar). |
 | U-64 | **Ablauf:** Phase **P14** vor P11, selbst durcharbeiten, CI + Kunst-QA grün, selbst mergen (Squash), am Ende neue HTML-Vorschau an Jutta. |
+| U-65 | **Keine GitHub-Actions-Minuten:** Alle Prüfungen (bisher `ci.yml`, `ci-full.yml`, `art-qa.yml`, `preview-export.yml`, `release.yml`, `restore-drill.yml`) laufen **lokal in der Claude-Sitzung** über `pnpm ci:local quick|full|art`; die GitHub-Workflows sind nur noch per Hand startbar (`workflow_dispatch`, keine `push`/`pull_request`/`schedule`-Auslöser). Nachweis: Bericht + Commit-Status „lokal/…“ über die GitHub-API. Merge nur bei grünem lokalem Phasenlauf. Vorschauen gehen als HTML im Chat an Jutta. Konzept: `docs/KONZEPT-OHNE-ACTIONS.md`. |
+| U-66 | **Ab sofort:** P14 wird bereits mit der lokalen Prüfschleuse abgeschlossen (keine GitHub-Läufe mehr). |
+

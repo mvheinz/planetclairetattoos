@@ -5633,7 +5633,9 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-50 … U-64. Gilt für Handy und Desktop
   - Akzeptanz: E2E (Teilen-Rückfall „Link kopieren“), keine Fremd-Anfragen, JS-Budget ok, OG-Bilder Unit.
 - [x] **P14.13 Technik: CI-Minuten, Wackel-Tests, Ladebudget, Listen-Seiten zusammenlegen** (U-62).
   - Akzeptanz: Workflow-Unit-Tests angepasst, Minuten-Schätzung in ARCHITEKTUR §6, Budgets grün.
-- [ ] **P14.14 Abschluss P14** (U-64) – CI + Kunst-QA grün, visuelle Referenzen erneuert, Merge, Release-Stand aktualisiert, HTML-Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
+- [ ] **P14.15 Lokale Prüfschleuse statt GitHub Actions** (U-65, U-66) – `pnpm ci:local quick|full|art` bildet alle bisherigen CI-Prüfungen nach (inkl. Geheimnis-Scan, Docker-Build, visuell, Lighthouse/INP, Kunst-QA, Vorschau-Export), Bericht + Commit-Status; alle Workflows nur `workflow_dispatch`; Regeln in CLAUDE.md §3, ARCHITEKTUR §6, CLOUD-SETUP angepasst.
+  - Akzeptanz: Workflow-Unit-Tests (keine automatischen Auslöser), `ci:local quick` grün, `ci:local full` am Phasenende grün mit Bericht und Commit-Status.
+- [ ] **P14.14 Abschluss P14** (U-64) – lokale Prüfschleuse `ci:local full` + `art` grün, visuelle Referenzen erneuert, Merge, Release-Stand aktualisiert, HTML-Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
 
 ## P11 – Go-live gemeinsam mit Jutta
 
