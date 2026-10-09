@@ -3,7 +3,8 @@
 
 Aufruf:  python3 scripts/art/koko-cutout.py            (Python 3 mit pillow, numpy, opencv-python)
 Eingang: content/art/jutta-skizzen/koko-vorsitzende-goth-dogs-01.jpg (Foto, T-Shirt)
-Ausgang: public/art/koko.v3.webp (RGBA, ohne Knochenkreuz/Schrift/Shirt) und src/art/koko/koko.json
+Ausgang: public/art/koko.v3.webp (RGBA, ohne Knochenkreuz/Schrift/Shirt), dazu koko.v3.avif und die schmalen Fassungen
+         koko.v3-360/-520.{webp,avif} (U-54), und src/art/koko/koko.json
          (Maße, Umriss der Augäpfel und Form/Lage der Pupillen für die Animation).
 
 Schritte: 1) Maske aus Tusche (dunkel) + Orange, Löcher gefüllt (weiße Brust/Pfoten), Knochenkreuz abgeschnitten,
@@ -30,6 +31,8 @@ OUT = ROOT / 'public/art/koko.v3.webp'
 META = ROOT / 'src/art/koko/koko.json'
 OUT_W = 700
 QUALITY = 80
+AVIF_QUALITY = 55
+VARIANT_WIDTHS = (360, 520)
 
 im = cv2.imread(str(SRC))
 Hh, Ww = im.shape[:2]
@@ -307,6 +310,22 @@ al = pm[..., 3:4] / 255.0
 res = np.dstack([np.where(al > 0.004, pm[..., :3] / np.maximum(al, 0.004), 0), pm[..., 3]])
 res = np.clip(res, 0, 255).astype(np.uint8)
 Image.fromarray(res, 'RGBA').save(OUT, 'WEBP', quality=QUALITY, method=6, alpha_quality=90, exact=False)
+
+
+def unpremultiply(p):
+    al_ = p[..., 3:4] / 255.0
+    r_ = np.dstack([np.where(al_ > 0.004, p[..., :3] / np.maximum(al_, 0.004), 0), p[..., 3]])
+    return Image.fromarray(np.clip(r_, 0, 255).astype(np.uint8), 'RGBA')
+
+
+# U-54 (P14.5): Koko lädt schneller – zusätzlich AVIF (mit Alpha, deutlich kleiner) und schmalere Fassungen für <picture>
+# (`srcset` 360w/520w/700w); WebP bleibt der Rückfall. Gleiche Version im Namen wie die WebP-Datei.
+Image.fromarray(res, 'RGBA').save(OUT.with_suffix('.avif'), 'AVIF', quality=AVIF_QUALITY, speed=4)
+for vw in VARIANT_WIDTHS:
+    vh = int(round(out_h * vw / OUT_W))
+    small = unpremultiply(cv2.resize(pm, (vw, vh), interpolation=cv2.INTER_AREA))
+    small.save(OUT.with_name(f'{OUT.stem}-{vw}.webp'), 'WEBP', quality=QUALITY, method=6, alpha_quality=90, exact=False)
+    small.save(OUT.with_name(f'{OUT.stem}-{vw}.avif'), 'AVIF', quality=AVIF_QUALITY, speed=4)
 
 
 def outline(mask, eps, nd=1):

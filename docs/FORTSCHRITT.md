@@ -141,6 +141,75 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
   `tattoo-gallery`), R15 zusätzlich die Motive (Tag `flash`).
 - Tests: Unit `tests/unit/tattoo/flash-gallery-link.unit.spec.ts`, E2E `tests/e2e/tattoo/flash-gallery-link.e2e.spec.ts`
   (beide Richtungen, Kundenfoto ohne Einwilligung ohne Link, DE/EN) plus bestehende Flash-/Galerie-E2E grün.
+## 2026-10-09 – P14.6 Leine ruhiger beim Umwickeln (U-55)
+
+- Ursache: Die Scroll-Abbildung gab jeder Schlaufe einen festen Scroll-Weg (`loopScroll`, 280–480 px). Umrundungen
+  (`contour`, 1 400–2 700 px Bogen) liefen so mit 3,2–5,6 px Linie je px Scroll, dicht liegende Schlaufen (Shop/Tattoo)
+  bekamen nur 1 px Scroll-Weg (bis 226 px Linie auf 1 px) – Coco und Tinte schossen dort los.
+- Lösung 1 (Geometrie, `capDrawRate`): kleinstes erreichbares Höchsttempo ≥ 1,8 px/px (`MAX_DRAW_RATE`), wobei kein
+  Knoten mehr als 0,2 × Bildschirmhöhe (`MAX_LOOP_SHIFT`) von seiner Station wegrückt; der ruhige Weg davor/danach gibt
+  dafür Scroll-Weg ab. Gemessen (Dev-Server): Startseite 390/1280 px max. 2,5/2,3 (vorher 3,6/3,2), Shop 1,8/4,2
+  (vorher 1,8/5,6), Tattoo 1,9/2,9 (vorher 226/161), Über uns 1,8.
+- Lösung 2 (Laufzeit): Coco und damit die Tinte rücken höchstens `COCO_MAX_SPEED` = 1,6 px/ms vor (geglättet wie
+  bisher, Sprünge > 300 px Bogen weiter direkt) – glättet, was die Abbildung nicht ausgleichen kann.
+- Gilt für alle Seiten mit scrollgekoppelter Leine (Startseite, Shop, Tattoo, Über uns). Engine gzip 11 762 / 12 000 B.
+- Tests: Unit `leash/draw-rate` (Grenzwert, Wegrücken ≤ Schranke, dichte Schlaufen, Fixtures 390–1440 px),
+  `leash/runtime` (Höchsttempo je Frame für Coco und Tinte), alle Leash-Unit-Tests grün; E2E `home-choreo`, `leash`,
+  `art-gate` LG-01 (Probe übergeht jetzt zugeklappten `<details>`-Inhalt per `checkVisibility()`).
+- Nachtrag (Produktions-Build): Auf R11 (Handy) stand Coco auf der Galerie-Umrundung jetzt öfter knapp unter „Fresh &
+  healed“ – 16 px mehr Luft unter dieser Überschrift (LG-01). Tastatur-Durchlauf zählt zugeklappten `<details>`-Inhalt
+  nicht mehr als Tab-Ziel (U-51). Gegen `next start`: E2E Startseite, Kompass, Tour, Koko (inkl. „Tempo mobil“ LCP/CLS),
+  Choreografie, Leine, Leine Shop/Tattoo (LG-01), Kunst-Gate, Tattoo, Über uns, Tastatur – grün.
+
+## 2026-10-09 – P14.5 Koko lädt schneller (U-54)
+
+- `koko-cutout.py` schreibt zusätzlich AVIF und schmale Fassungen: `koko.v3{-360,-520,}.{avif,webp}` (WebP 700 px und
+  `koko.json` unverändert, Lauf deterministisch). AVIF: 13,0 / 20,0 / 30,3 KB statt WebP 23,0 / 37,0 / 54,0 KB.
+- `<picture>` mit AVIF vor WebP, `srcset` 360w/520w/700w und `sizes` passend zur Spalte. Vorrang nur dort, wo Koko im
+  ersten Bild steht: `<link rel=preload as=image type=image/avif fetchpriority=high media="(min-width: 1100px)">` (auf dem
+  Handy liegt Koko unter dem Falz; dort ist das Foto von Jutta und Coco der LCP-Kandidat und lädt sofort).
+- Budget: `tests/perf/budgets.json` → `koko` (AVIF ≤ 32 KB, WebP ≤ 56 KB je Breite, AVIF < WebP), Gate in
+  `check:bundle` (`checkKokoImages`); Unit `check-bundle`, E2E `home-koko` (AVIF gewählt, Quellen, Rückfall).
+
+## 2026-10-09 – P14.4 Koko schläft nachts (U-53)
+
+- `kokoAsleep(now)` (`src/lib/home/kokoSleep.ts`): Berliner Uhrzeit 22:00–06:59 → Koko hat die Lider zu. Die Startseite
+  entscheidet beim Rendern mit `tourNow()` (Testumgebung: `SEED_NOW`), ISR ≤ 1 h wie bei den Tour-Terminen.
+- Lider (`kokoLids.ts`): je Auge eine Lidfläche in Fellschwarz über dem gemalten Augapfel (Clip aus `koko.json`), zittrige
+  Tusche-Unterkante als müder Bogen, helle Haarstriche wie in der Malerei; keine Pupillen, keine Bewegung, eigener
+  Alt-Text („die Augen sind zu – nachts schläft Koko“, DE/EN).
+- Tests: Unit `home/koko-sleep` (Sommer-/Winterzeit, Umstellungstage, SEED_NOW, Lid-Geometrie); E2E `home-koko` prüft den
+  Zustand passend zur Uhr (lokal zusätzlich mit `SEED_NOW=…T23:00+02:00` gegen den Server: Lider, keine Animation).
+
+## 2026-10-09 – P14.3 Stations-Kompass (U-52)
+
+- Unter dem Kopf der Startseite eine Sprungleiste `<nav aria-label="Stationen">` mit je Station Marke (Planet/Stern aus
+  `SpaceMarks`; Stationen ohne Ornament abwechselnd Planet/Stern) und Namen; reine Anker auf `section#station-<id>`
+  (Überschrift jetzt `#station-<id>-title`), kein Skript, Ziele ≥ 44 × 44 px, `scroll-margin-top` unter der Kopfleiste.
+- Tests: E2E `home/compass` (desktop, pixel-7, iphone-15: 5 Anker DE/EN, Marken, Zielgrößen, Enter-Sprung je Station
+  unter die Kopfleiste, ohne JavaScript).
+
+## 2026-10-09 – P14.2 Handy: Tour hinter Station 01, eingeklappt (U-51)
+
+- Unter 1100 px steht der Schaukasten als zugeklapptes `<details>` („Planet Claire on Tour“ + „nächster Termin: … – …“)
+  zwischen Station 01 und 02; ab 1100 px unverändert offen oben rechts (Zusammenfassung per CSS `::details-content`
+  ausgeblendet, Inhalt sofort sichtbar; Verhaltensmodul `tour-fold` setzt danach `open`, damit WebKit/VoiceOver den
+  Inhalt auch vorliest). Ein einziges Element: per Grid-Reihenfolge umgestellt (`display: contents` an den
+  Stations-Hüllen unter 1100 px), keine doppelten Inhalte.
+- Tests: E2E `home-tour` (desktop, pixel-7, iphone-15: Reihenfolge, zu/auf per Tastatur, Desktop offen, ohne JS
+  aufklappbar), a11y/Tastatur-Specs; Unit `tour-fold`, Verhaltens-Vertrag; Budget-Gruppe „Shop-Listen“ um `tour-fold`
+  ergänzt.
+
+## 2026-10-09 – P14.1 Startseite oben: Foto | Koko | Tour, Station „Jutta & Coco“ entfällt (U-50)
+
+- Unter Titel und Einleitung (volle Breite) ab 1100 px drei Spalten: links das Foto von Jutta und Coco (klein, 230 px,
+  Goth-Fotorahmen, `loading="eager"`) mit dem Text der früheren Station „Jutta & Coco“ und „Mehr über uns“ → R19, Mitte
+  Koko, rechts Schaukasten + Instagram; 600–1099 px Foto/Text und Koko nebeneinander, Handy untereinander.
+- Pflegbar: Foto und Text sind der Block „Bild mit Text“ der Startseite (Seed `pages:home`, Verwaltung → Texte → Startseite
+  „Oben links: Foto mit Text“); das Foto erscheint nur mit Freigabe (R-181, `isMediaPubliclyVisible`). Die Station
+  `jutta-und-coco` ist aus dem Seed entfernt und steht in `RETIRED_STATION_IDS`; Stationen 01–05.
+- Tests: Int `home-data`, `pages-faqs`, `example`, `pages-adopt` (29 grün); E2E `home`, `home/*`, `home-tour`,
+  `home-choreo` (desktop + pixel-7, 33 grün; „Tempo mobil“ nur am Dev-Server rot, siehe P14.5); `pnpm check` grün.
 
 ## 2026-10-08 – P13 abgeschlossen: zweite Runde nach deiner Rückmeldung – für Jutta
 

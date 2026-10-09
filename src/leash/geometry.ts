@@ -1,8 +1,11 @@
 import {
   BP_DESKTOP,
   BP_TABLET,
+  MAX_DRAW_RATE,
+  MAX_LOOP_SHIFT,
   PRESET_CONFIG,
   WOBBLE,
+  READING_LINE,
   isScrollCoupled,
   loopScroll,
 } from './presets'
@@ -999,7 +1002,70 @@ function buildScrollMap(
     out.push({ readingY, len })
   }
   if (out.length < 2) out.push({ readingY: Math.max(1, input.root.h), len: total })
-  return out
+  // Was schon beim Laden über der Lesezeile liegt, zeichnet das Intro (zeitgesteuert) – dort nichts verschieben.
+  return isScrollCoupled(input.preset)
+    ? capDrawRate(
+        out,
+        MAX_DRAW_RATE,
+        READING_LINE * input.viewport.h,
+        MAX_LOOP_SHIFT * input.viewport.h,
+      )
+    : out
+}
+
+/**
+ * U-55 (P14.6): Zeichentempo je Abschnitt der Scroll-Abbildung begrenzen (px Linie je px Scroll). Umrundungen und eng
+ * liegende Kringel bekamen sonst sehr wenig Scroll-Weg und Coco wickelte hektisch. Die Knoten der Abbildung rücken dafür
+ * höchstens `maxShift` px von ihrer Lesezeile weg (Schlaufen bleiben bei ihrer Station); gesucht wird das kleinste
+ * Höchsttempo ≥ `rate`, das so erreichbar ist, und jeder Knoten bleibt dabei so nah wie möglich an seinem Platz. Anfang,
+ * Ende und alles bis `frozenUntil` (zeichnet das Intro) bleiben fest. Was dann noch zu schnell ist, glättet die Laufzeit
+ * (Höchsttempo von Coco, `COCO_MAX_SPEED`).
+ */
+export function capDrawRate(
+  map: readonly { readingY: number; len: number }[],
+  rate: number,
+  frozenUntil = 0,
+  maxShift = Infinity,
+): { readingY: number; len: number }[] {
+  const n = map.length - 1
+  const y0 = map.map((p) => p.readingY)
+  const fixed = (i: number) => i === 0 || i === n || y0[i]! <= frozenUntil
+  const lo = (i: number) => (fixed(i) ? y0[i]! : y0[i]! - maxShift)
+  const hi = (i: number) => (fixed(i) ? y0[i]! : y0[i]! + maxShift)
+  const need = (k: number, r: number) =>
+    y0[k + 1]! <= frozenUntil
+      ? y0[k + 1]! - y0[k]!
+      : Math.max(1, (map[k + 1]!.len - map[k]!.len) / r)
+  // frühestmögliche Lage jedes Knotens bei Höchsttempo r (null: nicht erreichbar)
+  const earliest = (r: number) => {
+    const L = [y0[0]!]
+    for (let i = 1; i <= n; i++) {
+      L.push(Math.max(lo(i), L[i - 1]! + need(i - 1, r)))
+      if (L[i]! > hi(i) + 1e-6) return null
+    }
+    return L
+  }
+  let r = rate
+  if (!earliest(r)) {
+    let a = rate
+    let b = rate
+    for (let k = 0; k < n; k++)
+      b = Math.max(b, (map[k + 1]!.len - map[k]!.len) / Math.max(1e-9, y0[k + 1]! - y0[k]!))
+    for (let it = 0; it < 32; it++) {
+      const m = (a + b) / 2
+      if (earliest(m)) b = m
+      else a = m
+    }
+    r = b
+  }
+  const L = earliest(r) ?? y0
+  const U = [...y0]
+  for (let i = n - 1; i > 0; i--) U[i] = Math.min(hi(i), U[i + 1]! - need(i, r))
+  const y = [y0[0]!]
+  for (let i = 1; i < n; i++)
+    y.push(Math.max(Math.min(Math.max(y0[i]!, L[i]!), U[i]!), y[i - 1]! + need(i - 1, r)))
+  y.push(y0[n]!)
+  return map.map((p, i) => ({ readingY: y[i]!, len: p.len }))
 }
 
 /** Stückweise lineare Abbildung Lesezeile → Bogenlänge (§9.6); `readingY` relativ zum Seitencontainer. */

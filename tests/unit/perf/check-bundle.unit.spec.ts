@@ -6,6 +6,7 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import {
+  checkKokoImages,
   evaluateImages,
   evaluatePages,
   expandGlob,
@@ -227,6 +228,21 @@ describe('T-09 check:bundle – Abbruch mit Fixture-Budget (CLI)', () => {
     expect(bad.stderr).toMatch(/Engine .*ÜBERSCHRITTEN/)
     expect(bad.stderr).toMatch(/Budget überschritten/)
   }, 90_000)
+})
+
+describe('U-54 Koko als AVIF mit WebP-Rückfall (P14.5)', () => {
+  it('alle Breiten vorhanden, AVIF kleiner als WebP und im Budget', () => {
+    expect(budgets.koko).toMatchObject({ widths: [360, 520, 700], avifMax: 32_000 })
+    const r = checkKokoImages(budgets.koko!)
+    expect(r.errors).toEqual([])
+    expect(r.lines).toHaveLength(3)
+  })
+
+  it('fehlende oder zu große Datei wird gemeldet', () => {
+    const r = checkKokoImages({ ...budgets.koko!, avifMax: 1000, widths: [360, 999] })
+    expect(r.errors.join('\n')).toMatch(/Koko 360 px: .*ÜBERSCHRITTEN/)
+    expect(r.errors.join('\n')).toMatch(/Koko 999 px: Datei fehlt/)
+  })
 })
 
 describe('P3.16 Bild-Budgets (DESIGN §12.2) – nur Bericht', () => {

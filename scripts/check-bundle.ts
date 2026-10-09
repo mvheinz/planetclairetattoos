@@ -65,6 +65,15 @@ export interface Budgets {
   }
   pageWeight: Record<string, { max: number; target: number }>
   images: { thumbMedianMax: number; cardMedianMax: number; productLcpMax: number }
+  /** Koko auf der Startseite (U-54, P14.5): AVIF + WebP-Rückfall je Breite; Gate. */
+  koko?: {
+    dir: string
+    stem: string
+    widths: number[]
+    full: number
+    avifMax: number
+    webpMax: number
+  }
   lighthouse: {
     routes: string[]
     runs: number
@@ -253,6 +262,34 @@ export function findDevOnlyStrings(
   return listFiles(staticDir, (n) => /\.(js|css|html|rsc|map)$/.test(n)).filter((f) =>
     pattern.test(readFileSync(f, 'utf8')),
   )
+}
+
+/**
+ * Koko (U-54, P14.5): je Breite eine AVIF- und eine WebP-Datei, AVIF kleiner als WebP und unter ihrem Budget (die volle
+ * Breite trägt keinen Zusatz im Namen, z. B. `koko.v3.avif`, die schmalen `koko.v3-360.avif`).
+ */
+export function checkKokoImages(koko: NonNullable<Budgets['koko']>): {
+  lines: string[]
+  errors: string[]
+} {
+  const lines: string[] = []
+  const errors: string[] = []
+  for (const w of koko.widths) {
+    const base = path.join(koko.dir, `${koko.stem}${w === koko.full ? '' : `-${w}`}`)
+    const size = (ext: string) =>
+      existsSync(`${base}.${ext}`) ? statSync(`${base}.${ext}`).size : null
+    const avif = size('avif')
+    const webp = size('webp')
+    if (avif === null || webp === null) {
+      errors.push(`Koko ${w} px: Datei fehlt (${base}.avif/.webp).`)
+      continue
+    }
+    const line = `Koko ${w} px: AVIF ${kb(avif)} (Budget ${kb(koko.avifMax)}), WebP ${kb(webp)} (Budget ${kb(koko.webpMax)}).`
+    if (avif > koko.avifMax || webp > koko.webpMax || avif >= webp)
+      errors.push(`${line} ÜBERSCHRITTEN`)
+    else lines.push(line)
+  }
+  return { lines, errors }
 }
 
 export function checkSvgFiles(svg: Budgets['svg']): { lines: string[]; errors: string[] } {
@@ -856,6 +893,11 @@ async function main(): Promise<void> {
 
   const svg = checkSvgFiles(budgets.svg)
   report(svg.lines, svg.errors)
+
+  if (budgets.koko) {
+    const koko = checkKokoImages(budgets.koko)
+    report(koko.lines, koko.errors)
+  }
 
   const devOnly = findDevOnlyStrings(staticDir)
   report(

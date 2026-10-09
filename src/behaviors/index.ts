@@ -22,6 +22,7 @@ export const BEHAVIOR_LOADERS = {
   'sold-stamp': () => import('./sold-stamp'),
   'thanks-moment': () => import('./thanks-moment'),
   'thanks-poll': () => import('./thanks-poll'),
+  'tour-fold': () => import('./tour-fold'),
 } satisfies Record<string, () => Promise<BehaviorModule>>
 
 export type BehaviorName = keyof typeof BEHAVIOR_LOADERS

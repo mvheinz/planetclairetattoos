@@ -50,8 +50,12 @@
       "gzipMax": 4000
     },
     {
-      "name": "Mikro-Interaktionen Shop-Listen (price-tag-swing, sold-stamp)",
-      "entries": ["src/behaviors/price-tag-swing.ts", "src/behaviors/sold-stamp.ts"],
+      "name": "Mikro-Interaktionen Shop-Listen (price-tag-swing, sold-stamp; Startseite: tour-fold, U-51)",
+      "entries": [
+        "src/behaviors/price-tag-swing.ts",
+        "src/behaviors/sold-stamp.ts",
+        "src/behaviors/tour-fold.ts"
+      ],
       "gzipMax": 4000
     },
     {
@@ -121,6 +125,15 @@
     "iconGlob": "src/art/icons/*.svg",
     "homeTotalRawMax": 60000,
     "pathDataPerPageMax": 60000
+  },
+  "koko": {
+    "$comment": "U-54 (P14.5): Koko der Startseite als AVIF mit WebP-Rückfall in drei Breiten (python3 scripts/art/koko-cutout.py). Gate in check:bundle: alle Dateien vorhanden, AVIF kleiner als WebP, je Datei unter dem Budget.",
+    "dir": "public/art",
+    "stem": "koko.v3",
+    "widths": [360, 520, 700],
+    "full": 700,
+    "avifMax": 32000,
+    "webpMax": 56000
   },
   "images": {
     "$comment": "Bild-Budgets (ARCHITEKTUR §7.7, DESIGN §12.2) – nur Bericht, blockieren nicht: Median über den Beispielbestand (Größen thumb und card aus den srcset-Angaben von R02) und das im Profil Pixel 7 tatsächlich geladene LCP-Bild der Produktseite (R04). Gemessen von check:bundle.",

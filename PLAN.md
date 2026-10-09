@@ -5607,17 +5607,17 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-40 … U-49. Gilt für Handy und Desktop
 
 Verbindlich: `docs/UEBERARBEITUNG.md` U-50 … U-64. Gilt für Handy und Desktop, DE und EN.
 
-- [ ] **P14.1 Startseite: Foto | Koko | Tour, Station „Jutta & Coco“ entfällt** (U-50) – Foto klein mit dem Stationstext darunter, Koko daneben, Tour rechts; Station 6 aus Seed/Daten entfernen (`RETIRED_STATION_IDS`), Stationen 01–05.
+- [x] **P14.1 Startseite: Foto | Koko | Tour, Station „Jutta & Coco“ entfällt** (U-50) – Foto klein mit dem Stationstext darunter, Koko daneben, Tour rechts; Station 6 aus Seed/Daten entfernen (`RETIRED_STATION_IDS`), Stationen 01–05.
   - Akzeptanz: Screenshots 390/1280 px, home-E2E angepasst, visuelle Referenzen, PF-10/LCP-Budget ok.
-- [ ] **P14.2 Handy: Tour hinter Station 01, eingeklappt** (U-51).
+- [x] **P14.2 Handy: Tour hinter Station 01, eingeklappt** (U-51).
   - Akzeptanz: E2E 390 px (Reihenfolge), Desktop unverändert.
-- [ ] **P14.3 Stations-Kompass** (U-52) – Anker-Leiste ohne Skript, Tastatur bedienbar.
+- [x] **P14.3 Stations-Kompass** (U-52) – Anker-Leiste ohne Skript, Tastatur bedienbar.
   - Akzeptanz: E2E Sprung zu jeder Station, a11y-Prüfung.
-- [ ] **P14.4 Koko schläft nachts** (U-53) – Berliner Uhrzeit serverseitig, ISR-verträglich.
+- [x] **P14.4 Koko schläft nachts** (U-53) – Berliner Uhrzeit serverseitig, ISR-verträglich.
   - Akzeptanz: Unit (Zeitfenster, Sommer-/Winterzeit), E2E mit SEED_NOW.
-- [ ] **P14.5 Koko lädt schneller** (U-54) – Vorrang + AVIF mit WebP-Rückfall.
+- [x] **P14.5 Koko lädt schneller** (U-54) – Vorrang + AVIF mit WebP-Rückfall.
   - Akzeptanz: check:bundle/Lighthouse, Bildbudget.
-- [ ] **P14.6 Leine ruhiger beim Umwickeln** (U-55) – Zeichentempo an Kringeln/Umrundungen ausgleichen.
+- [x] **P14.6 Leine ruhiger beim Umwickeln** (U-55) – Zeichentempo an Kringeln/Umrundungen ausgleichen.
   - Akzeptanz: Unit (maximale Zeichengeschwindigkeit je Abschnitt begrenzt), Kunst-QA grün.
 - [x] **P14.7 Flash ↔ Galerie** (U-56).
   - Akzeptanz: Unit/E2E Verknüpfung in beide Richtungen, nur Fotos mit Einwilligung.

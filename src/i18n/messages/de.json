@@ -134,8 +134,10 @@
     "emptyTitle": "Der Planet dreht sich gerade um.",
     "emptyText": "Gleich liegt alles wieder an seinem Platz. Bis dahin erreichst du mich per Mail.",
     "emptyAction": "Zum Kontakt",
-    "stationCommissions": "Auftragsarbeiten",
+    "compassLabel": "Stationen",
+    "introMore": "Mehr über uns",
     "chairwomanAlt": "Koko, Vorsitzende der Goth Dogs Berlin: Kopf und Brust eines zotteligen schwarzen Hundes mit Narrenkappe, grünen Bommeln und spitzem Fellkragen, darunter orangefarbene Brust mit weißem Fleck; große Augen, die zur Seite schauen",
+    "chairwomanAltAsleep": "Koko, Vorsitzende der Goth Dogs Berlin: Kopf und Brust eines zotteligen schwarzen Hundes mit Narrenkappe, grünen Bommeln und spitzem Fellkragen, darunter orangefarbene Brust mit weißem Fleck; die Augen sind zu – nachts schläft Koko",
     "instagramLabel": "Planet Claire auf Instagram: @{handle}",
     "tour": {
       "heading": "Planet Claire on Tour",
@@ -154,6 +156,8 @@
       "placeLabel": "Ort",
       "hoursLabel": "Uhrzeiten",
       "photoAlt": "Stand von Planet Claire auf dem Markt {name}",
+      "foldNext": "nächster Termin: {date} – {name}",
+      "foldNone": "gerade keine Termine",
       "laterHeading": "Danach",
       "pastHeading": "Wo ich schon war"
     }

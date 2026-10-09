@@ -38,6 +38,8 @@ const tabbables = (page: Page) =>
       .filter((el) => {
         if (el.closest('dialog:not([open])') || el.closest('[inert]')) return false
         if (el.tabIndex < 0) return false
+        // zugeklappter `<details>`-Inhalt (Tour-Schaukasten unter 1100 px, U-51) wird nicht gezeichnet
+        if (el.checkVisibility && !el.checkVisibility()) return false
         const r = el.getBoundingClientRect()
         const s = getComputedStyle(el)
         // Der Skip-Link ist bis zum Fokus aus dem Bild geschoben, aber im Layout.

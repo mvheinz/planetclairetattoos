@@ -6,6 +6,7 @@ import { loadSeedData } from '@/lib/seed/loader'
 import { runSeed } from '@/lib/seed/run'
 import { CANONICAL_SEED_NOW } from '@/lib/seed/time'
 import { fixedClock } from '@/lib/time'
+import type { Media, Page } from '@/payload-types'
 
 import { getTestPayload } from '../helpers/payload'
 
@@ -31,13 +32,13 @@ beforeAll(async () => {
 }, 240_000)
 
 describe('Startseite (P2.20)', () => {
-  it('AK-3-01 AK-SEED-18 Kopf-Station und genau 6 Stationen in der festen Reihenfolge (DE), Keramik = Station 01 (U-40)', async () => {
+  it('AK-3-01 AK-SEED-18 Kopf-Station und genau 5 Stationen in der festen Reihenfolge (DE), Keramik = Station 01 (U-40, U-50)', async () => {
     const view = await loadHomeView('de')
     expect(view).not.toBeNull()
     expect(view!.name).toBe('Planet Claire')
     expect(view!.hero?.heading).toBe('Ein kleiner Planet, auf dem alles nur einmal vorkommt')
     expect(view!.stations.map((s) => s.stationId)).toEqual([...HOME_STATION_IDS])
-    expect(view!.stations.map((s) => s.number)).toEqual([1, 2, 3, 4, 5, 6])
+    expect(view!.stations.map((s) => s.number)).toEqual([1, 2, 3, 4, 5])
     const byId = Object.fromEntries(view!.stations.map((s) => [s.stationId, s]))
     expect(byId.hallo).toBeUndefined()
     expect(byId.keramik!.number).toBe(1)
@@ -48,7 +49,10 @@ describe('Startseite (P2.20)', () => {
       external: false,
     })
     expect(byId.tattoo!.link?.href).toBe('/de/tattoo')
-    expect(byId['jutta-und-coco']!.link?.href).toBe('/de/ueber-mich')
+    expect(byId['jutta-und-coco']).toBeUndefined()
+    // U-50 (P14.1): Foto von Jutta und Coco (freigegeben, R-181) mit dem Text der früheren Station oben links
+    expect(view!.intro?.image?.showsPerson).toBe('jutta')
+    expect(JSON.stringify(view!.intro?.content)).toContain('Werkstatt unter der Woche')
   })
 
   it('AK-3-01 EN vollständig: englische Texte und Pfade', async () => {
@@ -124,7 +128,7 @@ describe('Startseite (P2.20)', () => {
     expect(byId.textil!.categories).toEqual(['textil', 'cap'])
     expect(byId.zeichnungen!.categories).toEqual(['zeichnung'])
     expect(byId.schmuck!.categories).toEqual(['schmuck'])
-    for (const id of ['tattoo', 'jutta-und-coco']) expect(byId[id]!.categories).toBeNull()
+    expect(byId.tattoo!.categories).toBeNull()
     expect(byId.keramik!.categoryName).toBe('Keramik')
     // Link auf eine andere Kategorie (Test-Kategorie) bzw. kein Kategorie-Link → feste Zuordnung.
     expect(stationCategories('schmuck', { target: 'category', category: 'sonstiges' })).toEqual([
@@ -135,6 +139,36 @@ describe('Startseite (P2.20)', () => {
       'cap',
     ])
     expect(stationCategories('tattoo', { target: 'category', category: 'keramik' })).toBeNull()
+  })
+
+  it('P14.1 U-50: alte Station „jutta-und-coco“ fällt weg; Foto ohne Freigabe (R-181) wird nicht gezeigt, Text bleibt', () => {
+    const photo = { id: 7, showsPerson: 'jutta', ownerApproved: false } as unknown as Media
+    const content = { root: { type: 'root', children: [] } } as never
+    const page = {
+      id: 1,
+      key: 'home',
+      title: 'x',
+      layout: [
+        { blockType: 'imageText', image: photo, content },
+        { blockType: 'station', stationId: 'keramik', heading: 'Keramik' },
+        { blockType: 'station', stationId: 'jutta-und-coco', heading: 'Jutta & Coco' },
+      ],
+      updatedAt: '',
+      createdAt: '',
+    } as unknown as Page
+    const ctx = {
+      locale: 'de' as const,
+      categories: [],
+      contact: { email: null, instagramHandle: 'planet.claire.tattoos' },
+      tradeName: null,
+    }
+    const view = toHomeView(page, ctx)
+    expect(view!.stations.map((s) => s.stationId)).toEqual(['keramik'])
+    expect(view!.intro).toEqual({ image: null, content })
+    const approved = toHomeView(page, { ...ctx, mediaVisible: () => true })
+    expect(approved!.intro!.image).toBe(photo)
+    const none = toHomeView({ ...page, layout: page.layout!.slice(1) }, ctx)
+    expect(none!.intro).toBeNull()
   })
 
   it('P3.12 Kategorie-Station ohne Link bekommt „Alle {Kategorie}“ → R03', () => {

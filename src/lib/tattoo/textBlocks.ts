@@ -243,7 +243,8 @@ export const TEXT_PAGES: Readonly<Record<PageKey, TextPageDef>> = {
     label: 'Startseite',
     title: { de: 'Startseite', en: 'Home' },
     addable: [],
-    blockLabels: {},
+    // U-50 (P14.1): der Block „Bild mit Text“ steht oben links (Foto von Jutta und Coco, Text darunter)
+    blockLabels: { imageText: 'Oben links: Foto mit Text' },
   },
   about: { ...textOnly('Über mich', 'About'), addable: ['richText', 'callout'] },
   contact: textOnly('Kontakt', 'Contact'),

@@ -53,23 +53,28 @@ describe('Seiten (SEED-SPEC §13)', () => {
     )
   })
 
-  it('AK-SEED-18: Startseite hero + genau 6 Stationen in fester Reihenfolge; Feldgrenzen; seo.metaTitle wie §13.7', async () => {
+  it('AK-SEED-18 U-50: Startseite hero + Bild mit Text + genau 5 Stationen in fester Reihenfolge; Feldgrenzen; seo.metaTitle wie §13.7', async () => {
     for (const locale of ['de', 'en'] as const) {
       const home = await page('home', locale)
-      expect(home.layout.map((b) => b.blockType)).toEqual(['hero', ...Array(6).fill('station')])
-      expect(home.layout.slice(1).map((b) => b.stationId)).toEqual([
+      expect(home.layout.map((b) => b.blockType)).toEqual([
+        'hero',
+        'imageText',
+        ...Array(5).fill('station'),
+      ])
+      expect(home.layout.slice(2).map((b) => b.stationId)).toEqual([
         'keramik',
         'textil',
         'zeichnungen',
         'schmuck',
         'tattoo',
-        'jutta-und-coco',
       ])
       expect(String(home.layout[0]!.subheading).length).toBeLessThanOrEqual(300)
-      for (const b of home.layout.slice(1)) {
+      for (const b of home.layout.slice(2)) {
         expect(String(b.text ?? '').length).toBeLessThanOrEqual(400)
         expect(b.image ?? null).toBeNull()
       }
+      // U-50 (P14.1): oben links das Foto von Jutta und Coco mit dem Text der früheren Station „Jutta & Coco“
+      expect(home.layout[1]!.image).toBeTruthy()
       expect(String(home.seo?.metaTitle).length).toBeLessThanOrEqual(60)
     }
     expect((await page('home', 'de')).seo?.metaTitle).toBe(
