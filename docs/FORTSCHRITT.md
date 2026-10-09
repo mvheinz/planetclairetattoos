@@ -17,6 +17,10 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 - Tests: Unit `leash/draw-rate` (Grenzwert, Wegrücken ≤ Schranke, dichte Schlaufen, Fixtures 390–1440 px),
   `leash/runtime` (Höchsttempo je Frame für Coco und Tinte), alle Leash-Unit-Tests grün; E2E `home-choreo`, `leash`,
   `art-gate` LG-01 (Probe übergeht jetzt zugeklappten `<details>`-Inhalt per `checkVisibility()`).
+- Nachtrag (Produktions-Build): Auf R11 (Handy) stand Coco auf der Galerie-Umrundung jetzt öfter knapp unter „Fresh &
+  healed“ – 16 px mehr Luft unter dieser Überschrift (LG-01). Tastatur-Durchlauf zählt zugeklappten `<details>`-Inhalt
+  nicht mehr als Tab-Ziel (U-51). Gegen `next start`: E2E Startseite, Kompass, Tour, Koko (inkl. „Tempo mobil“ LCP/CLS),
+  Choreografie, Leine, Leine Shop/Tattoo (LG-01), Kunst-Gate, Tattoo, Über uns, Tastatur – grün.
 
 ## 2026-10-09 – P14.5 Koko lädt schneller (U-54)
 
