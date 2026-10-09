@@ -17,6 +17,7 @@ dist/
 .next-preview/
 .next-art/
 artifacts/
+ci-reports/
 .data/
 .mailbox/
 test-results/

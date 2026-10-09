@@ -69,11 +69,25 @@ const quick = ci.jobs.quick!
 const stepIndex = (re: RegExp) => quick.steps.findIndex((s) => re.test(s.run ?? ''))
 
 describe('Workflows allgemein (§6.2)', () => {
-  it('AK-A-6-01 kein Workflow hat einen push-Auslöser (release.yml erst ab P10)', () => {
+  it('U-65: KEIN Workflow hat einen automatischen Auslöser – nur workflow_dispatch (keine Actions-Minuten)', () => {
+    expect(workflowFiles.sort()).toEqual([
+      'art-qa.yml',
+      'ci-full.yml',
+      'ci.yml',
+      'preview-export.yml',
+      'release.yml',
+      'restore-drill.yml',
+    ])
     for (const file of workflowFiles) {
       const wf = load(file)
-      if (file === 'release.yml') continue
-      expect(Object.keys(wf.on), file).not.toContain('push')
+      expect(Object.keys(wf.on), file).toEqual(['workflow_dispatch'])
+      const raw = readFileSync(path.join(WF_DIR, file), 'utf8')
+      expect(raw, file).not.toMatch(
+        /^\s*(push|pull_request|pull_request_target|schedule|workflow_run|merge_group|issue_comment):/m,
+      )
+      expect(raw, file).toContain(
+        '# Seit U-65 nur per Hand – Prüfungen laufen lokal (pnpm ci:local).',
+      )
     }
   })
 
@@ -146,15 +160,9 @@ describe('Workflows allgemein (§6.2)', () => {
 })
 
 describe('ci.yml – Job quick (§6.3)', () => {
-  it('AK-A-6-01 Auslöser nur pull_request (Typen laut §6.2) und workflow_dispatch', () => {
+  it('U-65 Auslöser nur workflow_dispatch (Vorlage, lokal: pnpm ci:local quick)', () => {
     expect(ci.name).toBe('CI')
-    expect(Object.keys(ci.on).sort()).toEqual(['pull_request', 'workflow_dispatch'])
-    expect((ci.on.pull_request as { types: string[] }).types).toEqual([
-      'opened',
-      'synchronize',
-      'reopened',
-      'ready_for_review',
-    ])
+    expect(Object.keys(ci.on)).toEqual(['workflow_dispatch'])
     expect(ci.permissions).toEqual({ contents: 'read', actions: 'read' })
   })
 
@@ -345,7 +353,6 @@ function runStep(script: string, opts: RunOpts) {
   }
 }
 
-const PR_TYPES = ['opened', 'synchronize', 'reopened', 'ready_for_review']
 const findStep = (job: Job, re: RegExp) => job.steps.findIndex((s) => re.test(s.run ?? ''))
 const usesOf = (job: Job) => job.steps.filter((s) => s.uses).map((s) => s.uses!.split('@')[0])
 
@@ -382,9 +389,8 @@ describe('ci-full.yml (§6.4, P2.28)', () => {
       env: { UPDATE_SNAPSHOTS: String(update) },
     }).output
 
-  it('AK-A-6-01 Auslöser pull_request (Typen wie ci.yml) und workflow_dispatch mit update_snapshots, kein push', () => {
-    expect(Object.keys(full.on).sort()).toEqual(['pull_request', 'workflow_dispatch'])
-    expect((full.on.pull_request as { types: string[] }).types).toEqual(PR_TYPES)
+  it('U-65 Auslöser nur workflow_dispatch mit update_snapshots (Vorlage, lokal: pnpm ci:local full)', () => {
+    expect(Object.keys(full.on)).toEqual(['workflow_dispatch'])
     const inputs = (full.on.workflow_dispatch as { inputs: Record<string, { type: string }> })
       .inputs
     expect(inputs.update_snapshots?.type).toBe('boolean')
@@ -650,10 +656,9 @@ describe('preview-export.yml (§6.5, P2.28)', () => {
   const mode = (msg: string) => runStep(kennung.run!, { event: 'pull_request', out: msg }).output
   const step = (re: RegExp) => job.steps[findStep(job, re)]!
 
-  it('AK-A-6-01 Auslöser pull_request (Typen wie ci.yml) und workflow_dispatch, kein push; ein Job export', () => {
+  it('U-65 Auslöser nur workflow_dispatch (Vorlage, lokal: Schritt preview in pnpm ci:local full); ein Job export', () => {
     expect(pv.name).toBe('Vorschau-Export')
-    expect(Object.keys(pv.on).sort()).toEqual(['pull_request', 'workflow_dispatch'])
-    expect((pv.on.pull_request as { types: string[] }).types).toEqual(PR_TYPES)
+    expect(Object.keys(pv.on)).toEqual(['workflow_dispatch'])
     expect(Object.keys(pv.jobs)).toEqual(['export'])
     expect(job['timeout-minutes']).toBeLessThanOrEqual(30)
   })

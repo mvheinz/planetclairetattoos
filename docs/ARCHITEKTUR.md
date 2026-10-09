@@ -1039,11 +1039,59 @@ Schema-Variable in §5.2 fehlt.
 
 ## 6. CI/CD
 
+### 6.0 Seit U-65: lokale Prüfschleuse statt GitHub Actions (verbindlich, geht §6.1–§6.8 vor)
+
+Jutta (09.10.2026, `docs/UEBERARBEITUNG.md` U-65/U-66, Konzept `docs/KONZEPT-OHNE-ACTIONS.md`): GitHub Actions dürfen
+**keine Minuten** mehr verbrauchen. Alle Prüfungen laufen in der Claude-Sitzung über **`pnpm ci:local <quick|full|art>`**
+(`scripts/ci-local.ts`, Planung `scripts/ci/local-plan.ts`). Die Workflows unter `.github/workflows/` haben nur noch
+den Auslöser `workflow_dispatch` (kein `push`, `pull_request`, `schedule`, `workflow_run`; Unit-Test
+`tests/unit/ci/workflows.unit.spec.ts`) und bleiben als Vorlage; §6.2–§6.8 beschreiben sie als solche. **Actions-
+Minuten: 0.** Wo §6.1–§6.8 und CLAUDE.md §3 von GitHub-Läufen, Kennungen und „CI grün“ sprechen, gilt die folgende
+Zuordnung (U-65 geht vor).
+
+| Bisher (GitHub) | Seit U-65 (lokal) |
+|---|---|
+| `ci.yml` `quick` bei jedem Push | `pnpm ci:local quick` vor jedem Commit: ESLint, Prettier, Typen, `check:static`, Unit-Tests in UTC **und** `TZ=Europe/Berlin`, `.env.example`-Abgleich (`env:example` + `git diff --exit-code`), Geheimnis-Scan (gitleaks 8.30.1 aus PATH oder gepinnt mit Prüfsumme geladen; ohne gitleaks Ersatzprüfung auf Schlüssel-Muster, im Bericht als Hinweis „!“ – nie still grün), `pnpm audit` (critical blockiert) |
+| `ci-full.yml` bei `[ci:full pN]` | `pnpm ci:local full` am Phasenende: quick + Migrationen/Drift, `test:coverage` (Int + Unit mit Abdeckung), Wiederherstellungs-Übung (`restore-drill.yml`), Seed + Build **ohne** Debug-Schalter → `check:no-debug --no-build`, `check:bundle`, `check:external --built`, `test:visual` (ohne Referenzen: „übersprungen“), Lighthouse (`test:perf`), INP (`@perf`, pixel-7); dann Seed + Build **mit** `NEXT_PUBLIC_LEASH_DEBUG=1` und E2E je Gerät `desktop`, `iphone-15`, `pixel-7` (ohne `@visual`/`@perf`, `E2E_SERVER=start`, je Gerät `ci:flaky`); Docker-Image (`docker build`, ≤ 500 MB, UID 1001; ohne Docker „übersprungen“); Vorschau-Export + Export-Test + Budget |
+| `art-qa.yml` bei `[ci:art]` | `pnpm ci:local art`: Migrationen, Seed, `art:build`, `art:record` (2 Worker), `art:metrics`/`art:sheets`/`art:check --evidence` (auch nach Rot, wie `if: always()`), `art:bundle` – Bündel lokal unter `artifacts/art-qa/<lauf-id>/bundle/` |
+| `preview-export.yml`, `release.yml` | Schritt `preview` in `full`; die Datei `dist/planet-claire-vorschau.html` geht als HTML direkt im Chat an Jutta (kein Artefakt, kein Release-Lauf) |
+| `restore-drill.yml` (monatlich) | Schritt `restore-drill` in `full`; ab Go-live Cron auf dem eigenen Server (P11) |
+| „CI grün“ am Phasenende-Commit | Commit-Status **`lokal/ci-full` = success** am geprüften Commit (`pnpm ci:local full --status`), dazu `ci-reports/…/report.json` |
+
+**Ablauf und Regeln:**
+- **Umgebung:** Testwerte wie in den Workflows (§6.3, `CI=1` → Playwright `workers: 1`, `retries: 1`, JSON-Bericht),
+  eigene Datenbanken `planetclaire_ci` und `planetclaire_ci_test` auf dem Postgres der Sitzung (per `db:ensure`; Vorschau
+  `planetclaire_ci_preview`), eigene Ports `3300` … `3305` (App/E2E, `check:bundle`, Lighthouse HTTPS + Upstream,
+  Vorschau-Export, Kunst-QA-Server). `--db`/`--port` überschreiben das (z. B. für parallele Arbeitskopien); belegte Ports
+  brechen den Lauf vor dem ersten Schritt ab. Der Build schreibt nach `.next` (vorher wird `.next/cache/fetch-cache`
+  geleert) – ein laufender `pnpm dev`/`start` in derselben Arbeitskopie gehört vorher beendet.
+- **Bericht:** je Lauf `ci-reports/<zeit>-<sha7>-<modus>/` (in `.gitignore`) mit einer Logdatei je Schritt,
+  `report.json` (Modus, Commit, Branch, sauberer Baum ja/nein, Schritte mit Ergebnis `passed|failed|skipped|warn|not-run`
+  und Dauer) und Zusammenfassung auf der Konsole. Standard: Halt beim ersten roten Schritt (`--keep-going` läuft
+  weiter); `--only a,b` und `--from <schritt>` zum gezielten Wiederholen; `-- <args>` reicht Playwright-Filter an die
+  E2E-Schritte durch; `--dry-run` zeigt den Plan.
+- **Commit-Status:** `--status` setzt nach dem Lauf `gh api -X POST repos/{owner}/{repo}/statuses/<sha>` mit `context`
+  `lokal/ci-<modus>`, `state` `success`/`failure` und der Kurzbilanz – nur bei vollständigem Lauf (ohne
+  `--only`/`--from`), sauberem Arbeitsbaum und gepushtem HEAD; sonst bricht `--status` vor dem Lauf ab. Ein
+  Commit-Status kostet keine Actions-Minuten.
+- **Merge-Regel (statt §6.7 Nr. 3):** Gemergt wird nur, wenn der letzte Nicht-Doku-Commit den Status
+  `lokal/ci-full = success` trägt und danach nur Doku-Commits (`PLAN.md`, `docs/FORTSCHRITT.md`,
+  `docs/OFFENE-PUNKTE.md`) folgen. Zwischenstände: `pnpm ci:local quick` plus die betroffenen Int-/E2E-Tests. Die
+  Kennungen `[skip ci]`/`[ci:full pN]`/`[ci:art]` in Commit-Nachrichten sind nur noch Hinweise (sie starten nichts).
+- **Prozesse:** jeder Schritt läuft in einer eigenen Prozessgruppe; bei Zeitgrenze oder Strg+C beendet das Skript genau
+  diese Gruppe (kein `pkill -f`). Playwright und `check:bundle` beenden ihre Server selbst.
+- **Abweichungen zur früheren CI:** Die Sitzung hat Postgres **16** statt 17 (CLOUD-SETUP §3.3) – SQL muss auf beiden
+  laufen; der `docker`-Schritt baut und prüft das Image, startet aber nicht `docker compose` (der frühere Job prüfte
+  zusätzlich `/api/health` im Verbund). Dauer am Phasenende geschätzt 2–3 h (E2E drei Geräte nacheinander ≈ 90–120 min,
+  Int + Abdeckung ≈ 30 min, Build/Budgets/visuell/Lighthouse ≈ 30 min), läuft im Hintergrund.
+- **Hart abschalten (Jutta, optional):** Settings → Actions → General → „Disable actions“ und unter Billing ein
+  Ausgabelimit von 0 €.
+
 ### 6.1 Rahmenbedingungen (GitHub Free, privates Repository)
 
 | Grenze | Wert | Folge |
 |---|---|---|
-| Actions-Minuten | 2.000 min/Monat (Linux) | CI-Disziplin §6.7 (Zwischen-Commits mit `[skip ci]`), Budget und Minuten-Wächter §6.8; Ziel ≤ 1.500 min für P1–P10 zusammen und ≤ 1.500 min je Monat |
+| Actions-Minuten | 2.000 min/Monat (Linux); **seit U-65 werden keine verbraucht (§6.0)** | CI-Disziplin §6.7 (Zwischen-Commits mit `[skip ci]`), Budget und Minuten-Wächter §6.8; Ziel ≤ 1.500 min für P1–P10 zusammen und ≤ 1.500 min je Monat |
 | Artefakt-Speicher | 500 MB gesamt (gelöschte Artefakte zählen bei GitHub noch einige Stunden mit) | Vorschau-Artefakte: nur die **3 neuesten** (§6.5); Fehlerberichte (`playwright-report/`, `test-results/`) nur bei Fehlschlag, 2 Tage; Traces nur `retain-on-failure`, kein Video außer `art-qa.yml`; KUNST-QA-Bündel ≤ 100 MB (KUNST-QA §8); Budget-Schritt vor jedem optionalen Upload (§6.2) |
 | Runner | `ubuntu-latest` (24.04), 2 vCPU, ca. 7–8 GB RAM | Build-Heap max. 6 GB: Skript `build` mit `--max-old-space-size=6144` (seit P0) |
 | Branch-Schutz / Rulesets | für **private** Repos erst ab GitHub Pro | bis dahin gilt die Merge-Regel §6.7 als verbindliche Arbeitsregel (CLAUDE.md); mit Pro: Einstellungen aus §6.7 aktivieren |
@@ -1290,6 +1338,9 @@ Morgen, 06:00 UTC); P11.1 prüft `publish`, `verify-asset` und das Asset und sta
 
 ### 6.8 Minuten-Budget und Minuten-Wächter
 
+> Seit U-65 (§6.0) laufen keine Workflows mehr automatisch: **0 Actions-Minuten.** Die folgenden Schätzungen beschreiben
+> den früheren Betrieb (Vorlage, Vergleich); `pnpm ci:minutes` bleibt als Kontrolle, dass wirklich nichts läuft.
+
 GitHub rechnet je Job auf volle Minuten auf; parallele Jobs zählen einzeln. Schätzung für **P1–P10 zusammen** (Aufgaben
 laufen dank `[skip ci]` ohne CI, §6.7 Nr. 2; auf `main` läuft bis zum P10-Merge nichts, §6.2):
 
@@ -1373,7 +1424,7 @@ Migration, §6.7 Nr. 5), sonst Hotfix-PR. Details im RUNBOOK (P10).
 | Gruppe | Skripte (Datei, ab Phase) |
 |---|---|
 | Entwicklung | `dev`, `build`, `start`, `lint`, `typecheck`, `format`, `format:check`, `generate:types`, `generate:importmap`, `payload` |
-| CI-Hilfen | `ci:minutes` (`scripts/ci/minutes.ts`, Minuten-Wächter §6.8, P1.33a; gleichwertig `pnpm exec tsx scripts/ci/minutes.ts`), `ci:artifacts` (`scripts/ci/artifact-budget.ts`, Budget-Schritt §6.2, P1) |
+| CI-Hilfen | `ci:local` (`scripts/ci-local.ts`, Planung `scripts/ci/local-plan.ts`: lokale Prüfschleuse `quick\|full\|art`, §6.0, P14.15), `ci:flaky` (`scripts/ci/flaky-check.ts`, §7.2), `ci:minutes` (`scripts/ci/minutes.ts`, Minuten-Wächter §6.8, P1.33a; gleichwertig `pnpm exec tsx scripts/ci/minutes.ts`), `ci:artifacts` (`scripts/ci/artifact-budget.ts`, Budget-Schritt §6.2, P1) |
 | Prüfungen | `check` (= `lint` + `typecheck` + `check:static` + `test:unit`), `check:static` (`scripts/check-static.ts`; Teilprüfungen u. a. Versionen, `.env.example`, i18n-Parität, Routen-Registry, Stripe-Importe, Fremd-URLs, Aktualität von `src/lib/legal/services.generated.ts`), `check:versions` (`scripts/check-versions.ts`, §1.3; auch Teil von `check:static`), `check:migrations` (`scripts/check-migration-drift.ts`), `check:bundle`, `check:external`, `check:no-debug`, `check:golive` (Startklar-Prüfung R-210/KONZEPT §7.16/DATENMODELL §13.7, Exit-Code ≠ 0 bei jedem roten Punkt; P10), `handbook:shots` (`scripts/handbook/shots.ts`: Handy-Bildschirmfotos der Verwaltung und dreier öffentlicher Seiten für das Handbuch → `docs/owner/img/handbuch/*.webp`, nur lokal gegen die Test-Datenbank mit Beispielbestand, P10.17), `env:example` (`scripts/gen-env-example.ts`), `legal:services` (`scripts/legal/gen-services.ts`: DIENSTE-YAML → `src/lib/legal/services.generated.ts`, P6.21) |
 | Tests | `test` (= `test:unit` + `test:int`), `test:unit`, `test:int`, `test:e2e`, `test:visual`, `test:perf`, `test:preview-export`, `test:coverage` |
 | Daten | `seed` (= `seed:base` + `seed:example`), `seed:base`, `seed:example [--only=<collection,…>] [--refresh-media]`, `seed:remove [--yes] [--drop-texts]` (ohne `--yes` nur Mengenvorschau), `seed:reset` (= `seed:remove --yes --drop-texts` + `seed:base` + `seed:example`; nur Entwicklung, Test, Vorschau-Export), `seed:import-instagram` (`scripts/seed/import-instagram.ts`, P8), `db:ensure`, `db:reset --test [--seed=none\|base\|all]` (Standard `base`) (nur dev/test), `db:mark-production`, `media:regenerate` |

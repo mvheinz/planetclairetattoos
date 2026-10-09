@@ -1,11 +1,12 @@
 name: CI full
 
+# Seit U-65 nur per Hand – Prüfungen laufen lokal (pnpm ci:local). Keine automatischen Auslöser (keine Actions-Minuten);
+# der Inhalt bleibt als Vorlage (ARCHITEKTUR §6, docs/KONZEPT-OHNE-ACTIONS.md).
+
 # ARCHITEKTUR §6.2/§6.4/§7.6 (P2.28): nur über den offenen PR oder per Hand, nie bei push auf main.
 # Kennungen im PR-Kopf-Commit: `[ci:full` (auch `[ci:full pN]`) → e2e-full + quality; `[ci:update-snapshots]` → nur
 # snapshots; ohne Kennung (oder `[ci:art]`) → nur mode. `[skip ci]` startet ohnehin keinen Lauf.
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
     inputs:
       update_snapshots:

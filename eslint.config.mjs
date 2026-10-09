@@ -128,6 +128,7 @@ export default defineConfig([
     '.next-preview/**',
     '.next-art/**',
     'artifacts/**',
+    'ci-reports/**',
     '.lighthouseci/**',
     'coverage/**',
     'node_modules/**',

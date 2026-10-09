@@ -93,20 +93,14 @@ describe('Release-Konfiguration (vorschau-release.json)', () => {
 })
 
 describe('release.yml (ARCHITEKTUR §6.6)', () => {
-  it('AK-A-6-01 Auslöser: push auf main mit Pfad vorschau-release.json, schedule 0 6 * * *, workflow_dispatch', () => {
-    expect(workflow.on.push?.branches).toEqual(['main'])
-    expect(workflow.on.push?.paths).toContain('.github/vorschau-release.json')
-    expect(workflow.on.schedule).toEqual([{ cron: '0 6 * * *' }])
-    expect('workflow_dispatch' in workflow.on).toBe(true)
-    // Juttas Uploads starten nichts
-    expect(JSON.stringify(workflow.on.push)).not.toMatch(/instagram-export|seed\/coco/)
+  it('U-65 Auslöser nur workflow_dispatch – kein push, kein Zeitplan, kein PR (Vorschau geht als HTML im Chat an Jutta)', () => {
+    expect(Object.keys(workflow.on)).toEqual(['workflow_dispatch'])
+    expect(workflow.on.push).toBeUndefined()
+    expect(workflow.on.schedule).toBeUndefined()
+    expect(workflow.on.pull_request).toBeUndefined()
   })
 
-  it('Probelauf im PR nur bei Änderung von release.yml oder vorschau-release.json, ohne Veröffentlichung und ohne contents: write', () => {
-    expect(workflow.on.pull_request?.paths?.sort()).toEqual([
-      '.github/vorschau-release.json',
-      '.github/workflows/release.yml',
-    ])
+  it('Probelauf (Vorlage, nur bei pull_request – seit U-65 ohne Auslöser) ohne Veröffentlichung und ohne contents: write', () => {
     const probe = workflow.jobs.probe!
     expect(probe.if).toBe("github.event_name == 'pull_request'")
     expect(probe.permissions).toEqual({ contents: 'read' })

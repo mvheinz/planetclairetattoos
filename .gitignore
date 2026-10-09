@@ -64,3 +64,6 @@ node_modules/
 /.lighthouseci/
 /artifacts/
 /.next-nodb
+
+# lokale Prüfschleuse (pnpm ci:local, U-65)
+/ci-reports/
