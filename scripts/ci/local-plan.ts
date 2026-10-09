@@ -305,7 +305,7 @@ const ALL: Step[] = [
     id: 'audit',
     title: 'Abhängigkeiten (pnpm audit, critical blockiert)',
     modes: ['quick', 'full'],
-    cmd: 'pnpm audit --prod --audit-level=high || echo "Warnung: pnpm audit meldet Lücken der Stufe high (blockiert nur bei critical)"; pnpm audit --prod --audit-level=critical',
+    cmd: 'pnpm audit --prod --audit-level=high || echo "CI_LOCAL_WARN: pnpm audit meldet Lücken der Stufe high (blockiert nur bei critical, siehe Log)"; pnpm audit --prod --audit-level=critical',
     timeoutMin: 5,
   },
   // ---------- full: Datenbank, Int + Abdeckung (quality) ----------
