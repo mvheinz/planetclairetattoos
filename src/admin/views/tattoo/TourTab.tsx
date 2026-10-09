@@ -14,9 +14,9 @@ import { TourCardActions } from './TourCardActions'
 import { TourEditor, type TourFormValues } from './TourEditor'
 import { tattooText } from './tattooText'
 
-// Reiter „Termine“ (P12.8, U-20, KONZEPT §7.12): Liste „Planet Claire on Tour“ – kommende Termine oben, vergangene
-// darunter –, „Neuer Termin“, „Absagen“/„Wieder geplant“, „Offline nehmen“ und „Bearbeiten“. Funktioniert mobil: Karten
-// untereinander, Knöpfe ≥ 44 px.
+// Liste „Termine“ (P12.8, U-20, KONZEPT §7.12; seit P14.11/U-60 eigener Menüpunkt `/termine`): „Planet Claire on Tour“
+// – kommende Termine oben, vergangene darunter –, „Neuer Termin“, „Absagen“/„Wieder geplant“, „Offline nehmen“,
+// „Bearbeiten“; im Formular „Termin kopieren“. Funktioniert mobil: Karten untereinander, Knöpfe ≥ 44 px.
 
 const idOf = (v: unknown): number | null => {
   const raw = v && typeof v === 'object' ? (v as { id?: unknown }).id : v
@@ -29,7 +29,8 @@ export async function TourTab({
   adminRoute,
   edit,
 }: Pick<AdminViewBodyProps, 'req' | 'adminRoute'> & { edit: string | null }) {
-  const tabHref = `${adminRoute}/tattoo?reiter=termine`
+  const listHref = `${adminRoute}/termine`
+  const editHref = (id: number | 'neu') => `${listHref}?bearbeiten=${id}`
   const availability = translationAvailability()
   const translateDisabled = availability.enabled ? null : (availability.reason ?? null)
 
@@ -87,7 +88,14 @@ export async function TourTab({
         photos: [],
       }
     }
-    return <TourEditor initial={initial} backHref={tabHref} translateDisabled={translateDisabled} />
+    return (
+      <TourEditor
+        key={initial.id ?? 'neu'}
+        initial={initial}
+        backHref={listHref}
+        translateDisabled={translateDisabled}
+      />
+    )
   }
 
   const result = await req.payload.find({
@@ -125,11 +133,7 @@ export async function TourTab({
       >
         <div className="pc-pieces__body">
           <h3 className="pc-pieces__title">
-            <a
-              href={`${tabHref}&bearbeiten=${d.id}`}
-              className="pc-admin-link"
-              data-testid="tour-edit"
-            >
+            <a href={editHref(d.id)} className="pc-admin-link" data-testid="tour-edit">
               {d.name}
             </a>
           </h3>
@@ -162,7 +166,7 @@ export async function TourTab({
       <p className="pc-admin-row">
         <a
           className="pc-admin-btn pc-admin-btn--primary"
-          href={`${tabHref}&bearbeiten=neu`}
+          href={editHref('neu')}
           data-testid="tour-new"
         >
           {tattooText('tourNew')}

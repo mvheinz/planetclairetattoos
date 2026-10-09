@@ -29,13 +29,14 @@ const KONZEPT_PATHS = [
   '/widerrufe',
   '/anfragen',
   '/tattoo',
+  '/termine',
   '/texte',
   '/einstellungen',
   '/export',
 ]
 
 describe('Ansichten-Registry (P5.1)', () => {
-  it('alle 13 Pfade aus KONZEPT §7.2 vorhanden, in dieser Reihenfolge', () => {
+  it('alle 14 Pfade aus KONZEPT §7.2 vorhanden (Termine seit P14.11, U-60), in dieser Reihenfolge', () => {
     expect(ADMIN_VIEWS.map((v) => v.path)).toEqual(KONZEPT_PATHS)
     // Die Liste in KONZEPT selbst (Schutz gegen Auseinanderlaufen).
     const konzept = readFileSync('docs/KONZEPT.md', 'utf8')
@@ -74,6 +75,10 @@ describe('Ansichten-Registry (P5.1)', () => {
     for (const p of paths)
       expect(p).not.toMatch(/^\/(collections|globals|login|logout|account|api)\b/)
     expect(ADMIN_VIEWS.find((v) => v.key === 'tattoo')!.phase).toBe(7)
+    expect(ADMIN_VIEWS.find((v) => v.key === 'termine')).toMatchObject({
+      title: 'Termine',
+      allData: '/collections/tour-dates',
+    })
   })
 
   it('Leiste unten: Heute · Neues Stück · Packen (· Mehr)', () => {

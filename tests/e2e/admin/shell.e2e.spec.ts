@@ -5,7 +5,7 @@ import { serverURL } from '../../helpers/adminEnv'
 import { expectNoSeriousViolations } from '../axe'
 import { adminPath, expect, test } from '../fixtures'
 
-// P5.1 – Verwaltungs-Gerüst (KONZEPT §7.1/§7.2, ARCHITEKTUR §8.1/§8.4): alle 13 Ansichten unter ADMIN_ROUTE (200),
+// P5.1 – Verwaltungs-Gerüst (KONZEPT §7.1/§7.2, ARCHITEKTUR §8.1/§8.4): alle 14 Ansichten unter ADMIN_ROUTE (200),
 // `/admin/heute` 404 (AK-2-04), Startseite = „Heute“, Header des Kontexts `admin`, Request-Log nur eigener Origin,
 // Handy (390 × 844): Leiste unten „Heute · Neues Stück · Packen · Mehr“, kein horizontales Scrollen, Tipp-Flächen
 // ≥ 44 px, axe ohne serious/critical (AK-7-04, T-11); Desktop: Seitenleiste mit allen Ansichten vor „Alle Daten“.
@@ -60,7 +60,7 @@ async function noHorizontalScroll(page: Page) {
 }
 
 test.describe('Verwaltungs-Gerüst (P5.1) @a11y', () => {
-  test('AK-2-04 alle 13 Pfade antworten angemeldet mit 200, /admin/heute mit 404; Header admin', async ({
+  test('AK-2-04 alle 14 Pfade antworten angemeldet mit 200, /admin/heute mit 404; Header admin', async ({
     adminPage: page,
     request,
     fixtureProducts,
