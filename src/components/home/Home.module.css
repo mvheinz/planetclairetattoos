@@ -230,6 +230,70 @@
   color: var(--ink-2);
 }
 
+/* ---------- Stations-Kompass (U-52, P14.3) ---------- */
+
+/* Sprungleiste unter dem Kopf: je Station Marke + Name, reine Anker. Ziele ≥ 44 px hoch, umbrechend, kein Skript. */
+.compass {
+  grid-column: 1 / -1;
+  min-width: 0;
+  /* wie der Kopf: kleiner Abstand zur Zeile darunter */
+  margin-block-end: calc(var(--space-6) - var(--space-8));
+}
+
+.compassList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.compassLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 var(--space-3) 0 var(--space-2);
+  border: 1px dashed transparent;
+  border-radius: var(--r-badge);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--fs-kicker);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.compassLink:hover {
+  border-color: var(--ink-2);
+}
+
+.compassLink:focus-visible {
+  outline: var(--stroke-ink) solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.compassMark {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.compassMark[data-compass-mark='planet'] svg {
+  width: 24px;
+  height: 24px;
+}
+
+.compassMark[data-compass-mark='star'] svg {
+  width: 15px;
+  height: 15px;
+}
+
 /* ---------- Stationen ---------- */
 
 .stations {
@@ -242,6 +306,8 @@
   display: grid;
   gap: var(--space-5);
   align-items: start;
+  /* Sprungziel des Kompasses: Abstand zur klebenden Kopfleiste (U-52) */
+  scroll-margin-top: calc(var(--header-h) + var(--space-5));
 }
 
 .stationText {
@@ -380,6 +446,10 @@
 
   .hero {
     margin-block-end: calc(var(--space-7) - var(--space-9));
+  }
+
+  .compass {
+    margin-block-end: calc(var(--space-6) - var(--space-9));
   }
 
   .stations {

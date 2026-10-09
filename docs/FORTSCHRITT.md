@@ -2,6 +2,14 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-09 – P14.3 Stations-Kompass (U-52)
+
+- Unter dem Kopf der Startseite eine Sprungleiste `<nav aria-label="Stationen">` mit je Station Marke (Planet/Stern aus
+  `SpaceMarks`; Stationen ohne Ornament abwechselnd Planet/Stern) und Namen; reine Anker auf `section#station-<id>`
+  (Überschrift jetzt `#station-<id>-title`), kein Skript, Ziele ≥ 44 × 44 px, `scroll-margin-top` unter der Kopfleiste.
+- Tests: E2E `home/compass` (desktop, pixel-7, iphone-15: 5 Anker DE/EN, Marken, Zielgrößen, Enter-Sprung je Station
+  unter die Kopfleiste, ohne JavaScript).
+
 ## 2026-10-09 – P14.2 Handy: Tour hinter Station 01, eingeklappt (U-51)
 
 - Unter 1100 px steht der Schaukasten als zugeklapptes `<details>` („Planet Claire on Tour“ + „nächster Termin: … – …“)

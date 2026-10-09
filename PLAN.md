@@ -5611,7 +5611,7 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-50 … U-64. Gilt für Handy und Desktop
   - Akzeptanz: Screenshots 390/1280 px, home-E2E angepasst, visuelle Referenzen, PF-10/LCP-Budget ok.
 - [x] **P14.2 Handy: Tour hinter Station 01, eingeklappt** (U-51).
   - Akzeptanz: E2E 390 px (Reihenfolge), Desktop unverändert.
-- [ ] **P14.3 Stations-Kompass** (U-52) – Anker-Leiste ohne Skript, Tastatur bedienbar.
+- [x] **P14.3 Stations-Kompass** (U-52) – Anker-Leiste ohne Skript, Tastatur bedienbar.
   - Akzeptanz: E2E Sprung zu jeder Station, a11y-Prüfung.
 - [ ] **P14.4 Koko schläft nachts** (U-53) – Berliner Uhrzeit serverseitig, ISR-verträglich.
   - Akzeptanz: Unit (Zeitfenster, Sommer-/Winterzeit), E2E mit SEED_NOW.

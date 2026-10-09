@@ -9,6 +9,7 @@ import { InstagramLink } from '@/components/home/InstagramLink'
 import { TourDates, TourFold } from '@/components/home/TourDates'
 import styles from '@/components/home/Home.module.css'
 import { PlanetMark } from '@/components/home/SpaceMarks'
+import { StationCompass } from '@/components/home/StationCompass'
 import { Station } from '@/components/leash/Station'
 import { PriceFootnote } from '@/components/shop/PriceFootnote'
 import { StaticHtml } from '@/components/StaticHtml'
@@ -110,6 +111,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <p className={styles.lede}>{t('intro')}</p>
         )}
       </header>
+      {home && home.stations.length > 1 ? (
+        <StationCompass stations={home.stations} locale={locale} />
+      ) : null}
 
       {/* Oben (U-50, P14.1): drei Spalten ab 1100 px – links das Foto von Jutta und Coco mit dem Text darunter, in der
           Mitte Koko, Vorsitzende der Goth Dogs Berlin (U-08, U-41), rechts der Schaukasten „Planet Claire on Tour“ (U-20)

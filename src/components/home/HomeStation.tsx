@@ -15,6 +15,7 @@ import type { Locale } from '@/lib/routes/registry'
 import styles from './Home.module.css'
 import { PlanetMark, StarMark } from './SpaceMarks'
 import { StationArt } from './StationArt'
+import { stationAnchor } from './StationCompass'
 
 // Station der Startseite (DESIGN KO-21, §11.4): Stationsmarke (Planet/Stern, MI-12) + Kicker „Station 01“ (Plex Mono)
 // · H2 (Spectral) · Text · Stationszeichnung · Link „Alle …“. Kategorie-Stationen (P3.12) zeigen darunter bis zu 4 Karten
@@ -54,7 +55,8 @@ export async function HomeStation({
 }) {
   const t = await getTranslations({ locale, namespace: 'home' })
   const loop = loopFor(station.stationId, station.number)
-  const headingId = `station-${station.stationId}`
+  const anchor = stationAnchor(station.stationId)
+  const headingId = `${anchor}-title`
   const kicker = (
     <p className={styles.kicker}>
       {station.ornament !== 'none' ? (
@@ -85,6 +87,7 @@ export async function HomeStation({
 
   return (
     <section
+      id={anchor}
       className={styles.station}
       aria-labelledby={headingId}
       data-home-station={station.stationId}
