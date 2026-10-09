@@ -1,5 +1,6 @@
 import { expect, test } from './fixtures'
 import { type Page } from '@playwright/test'
+import { waitForLeashSettled } from './leashSettle'
 
 // P2.16 Tuschelinie-Laufzeit (DESIGN §9.4, §9.6, §9.9, §9.10, §9.13): AK-DS-13, AK-DS-15, Chunk-Analyse.
 // Braucht `window.__leash` (Build/Dev-Server mit NEXT_PUBLIC_LEASH_DEBUG=1, siehe playwright.config.ts).
@@ -61,8 +62,8 @@ test.describe('Tuschelinie-Laufzeit', () => {
     await page.goto('/de')
     await waitForLeash(page)
     await ensureScrollable(page)
-    // Intro (journey, MI-10; U-06: 1800 ms) abwarten
-    await page.waitForTimeout(2200)
+    // Intro (journey, MI-10; U-06: 1800 ms) abwarten – bis Linie und Coco ruhen (P14.13, statt fester 2,2 s)
+    await waitForLeashSettled(page)
 
     await expect(layer(page)).toHaveAttribute('aria-hidden', 'true')
     const focusables = await layer(page)
@@ -117,7 +118,7 @@ test.describe('Tuschelinie-Laufzeit', () => {
     await page.emulateMedia({ reducedMotion: 'no-preference' })
     await page.goto('/de')
     await waitForLeash(page)
-    await page.waitForTimeout(1200)
+    await waitForLeashSettled(page)
     const rebuilds = () => page.evaluate(() => (window as LeashWindow).__leash!.rebuildCount())
     const gutter = () =>
       page.evaluate(() =>

@@ -105,9 +105,8 @@ test('U-11 Seitengrund: Verlauf Olivgrün → Petrol, Scroll-Ebene nur ohne Bewe
     await page.evaluate(() =>
       window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }),
     )
-    await page.waitForTimeout(400)
-    const bottom = await layer()
-    expect(bottom.opacity).toBeGreaterThan(0.9)
+    // P14.13: auf den Zustand warten (scroll-gebundene Animation folgt mit dem nächsten Frame), statt fester 400 ms
+    await expect.poll(async () => (await layer()).opacity).toBeGreaterThan(0.9)
   }
   // Bewegung reduziert → statischer Verlauf, keine Scroll-Ebene
   await page.emulateMedia({ reducedMotion: 'reduce' })
