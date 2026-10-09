@@ -12,6 +12,10 @@ import { R06, R07, cleanupCheckouts, hydrated, startCheckoutFor } from './checko
 
 const { interaction } = budgets
 
+/** CPU-Drosselung: Budget-Wert (4×); die lokale Prüfschleuse passt sie an einen langsameren Rechner an (U-65,
+ *  `PERF_CPU_RATE` aus `scripts/ci/lighthouse-calibrated.ts --rate`, Lighthouse docs/throttling.md). */
+const cpuRate = () => Number(process.env.PERF_CPU_RATE) || interaction.cpuThrottling
+
 interface Shift {
   value: number
   startTime: number
@@ -83,7 +87,7 @@ for (const id of ['R06', 'R07'] as const) {
     await measured.emulateMedia({ reducedMotion: 'no-preference' })
     await observeShifts(measured)
     const cdp = await context.newCDPSession(measured)
-    await cdp.send('Emulation.setCPUThrottlingRate', { rate: interaction.cpuThrottling })
+    await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuRate() })
     await measured.goto(id === 'R06' ? R06.de : R07.de, { waitUntil: 'load' })
     if (id === 'R07') await hydrated(measured)
     else await expect(measured.locator('[data-cart-line]')).toHaveCount(2)

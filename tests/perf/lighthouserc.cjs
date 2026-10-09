@@ -68,6 +68,11 @@ module.exports = {
       startServerReadyTimeout: 120000,
       settings: {
         onlyCategories: ['performance'],
+        // Lokale Prüfschleuse (U-65): CPU-Drosselung an den Prüfrechner angepasst (Lighthouse docs/throttling.md,
+        // „Calibrating the CPU slowdown“) – gesetzt von `scripts/ci/lighthouse-calibrated.ts`, sonst Standard 4×.
+        ...(process.env.LH_CPU_SLOWDOWN
+          ? { throttling: { cpuSlowdownMultiplier: Number(process.env.LH_CPU_SLOWDOWN) } }
+          : {}),
         // Kein Netz außer zur eigenen Seite: Hintergrunddienste von Chrome aus.
         chromeFlags: [
           '--headless=new',

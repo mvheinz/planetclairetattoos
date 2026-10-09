@@ -118,6 +118,14 @@ export async function captureAdminShots(
       // Hover-Aktualisierung von Chromium ist das Element darunter (z. B. eine Kategorie-Kachel) hervorgehoben oder nicht.
       // Schon ein Pixel Unterschied ändert über die globale Segmentierung von WebP das ganze Bild (AK-A-14-01).
       await page.mouse.move(0, 0)
+      // Kein Fokus, ganz oben: Ein Feld mit Fokus (oder eine Anker-Sprungmarke) scrollte die Ansicht „Versand“ unter Last
+      // um einen Pixel – das ganze Bild verschob sich (AK-A-14-01, P14.14).
+      await page.evaluate(() => {
+        ;(document.activeElement as HTMLElement | null)?.blur?.()
+        window.scrollTo(0, 0)
+        for (const el of Array.from(document.querySelectorAll<HTMLElement>('*')))
+          if (el.scrollTop) el.scrollTop = 0
+      })
       return stableScreenshot(page)
     }
 

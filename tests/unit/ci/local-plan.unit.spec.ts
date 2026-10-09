@@ -148,8 +148,8 @@ describe('Schritte je Modus (bilden die bisherigen Workflows nach)', () => {
     expect(cmdOf('full', 'coverage')).toBe('pnpm run test:coverage')
     expect(cmdOf('full', 'bundle')).toBe('pnpm run check:bundle --port 3301')
     expect(cmdOf('full', 'external')).toBe('pnpm run check:external --built')
-    expect(cmdOf('full', 'lighthouse')).toBe('pnpm run test:perf')
-    expect(cmdOf('full', 'inp')).toBe('pnpm run test:e2e --grep @perf --project=pixel-7')
+    expect(cmdOf('full', 'lighthouse')).toBe('tsx scripts/ci/lighthouse-calibrated.ts')
+    expect(cmdOf('full', 'inp')).toMatch(/lighthouse-calibrated\.ts --rate.*pnpm run test:e2e --grep @perf --project=pixel-7$/)
     expect(cmdOf('full', 'visual')).toContain(SKIP_MARKER)
     for (const p of ['desktop', 'iphone-15', 'pixel-7'])
       expect(cmdOf('full', `e2e-${p}`)).toBe(
@@ -245,6 +245,13 @@ describe('Umgebung', () => {
     for (const k of ['PORT', 'E2E_BASE_URL', 'PREVIEW_EXPORT_PORT', 'ART_PORT', 'PERF_PORT'])
       expect(env[k], k).toBeUndefined()
     expect(envFor(step('quick', 'unit-berlin'), opts, src).TZ).toBe('Europe/Berlin')
+  })
+
+  it('Abdeckung (full) läuft mit den Testwerten von quick – ohne Server-Ports, Website-Adresse wie in CI', () => {
+    const env = envFor(step('full', 'coverage'), parseArgs(['full']), src)
+    expect(env.NEXT_PUBLIC_SITE_URL).toBe('http://localhost:3000')
+    for (const k of ['PORT', 'E2E_BASE_URL', 'PREVIEW_EXPORT_PORT', 'ART_PORT', 'PERF_PORT'])
+      expect(env[k], k).toBeUndefined()
   })
 
   it('Server-Schritte (full): Ports n … n+5, Vorschau-DB mit „preview“, Build mit/ohne Debug-Flag', () => {

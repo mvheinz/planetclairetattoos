@@ -74,7 +74,8 @@ export async function ChairwomanKoko({
       aria-label={asleep ? t('chairwomanAltAsleep') : t('chairwomanAlt')}
     >
       {/* U-54 (P14.5): AVIF zuerst, WebP als Rückfall, je drei Breiten; am Desktop (Koko über dem Falz) mit Vorrang
-          vorgeladen (`preload` mit `media`), auf dem Handy liegt Koko unter dem Falz und lädt normal. */}
+          vorgeladen (`preload` mit `media`), auf dem Handy liegt Koko unter dem Falz und lädt erst bei Annäherung
+          (`loading="lazy"`) – sonst teilte sie sich dort die Leitung mit dem Foto, dem LCP-Element (P14.14). */}
       <picture className={styles.picture}>
         <source type="image/avif" srcSet={kokoSrcSet('avif')} sizes={KOKO_SIZES} />
         <source type="image/webp" srcSet={kokoSrcSet('webp')} sizes={KOKO_SIZES} />
@@ -85,6 +86,7 @@ export async function ChairwomanKoko({
           width={koko.w}
           height={koko.h}
           alt=""
+          loading="lazy"
           decoding="async"
         />
       </picture>

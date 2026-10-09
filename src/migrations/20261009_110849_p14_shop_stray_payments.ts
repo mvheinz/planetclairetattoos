@@ -25,7 +25,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   
   ALTER TABLE "checkouts_stray_payments" ADD CONSTRAINT "checkouts_stray_payments_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."checkouts"("id") ON DELETE cascade ON UPDATE no action;
   CREATE INDEX "checkouts_stray_payments_order_idx" ON "checkouts_stray_payments" USING btree ("_order");
-  CREATE INDEX "checkouts_stray_payments_parent_id_idx" ON "checkouts_stray_payments" USING btree ("_parent_id");`)
+  CREATE INDEX "checkouts_stray_payments_parent_id_idx" ON "checkouts_stray_payments" USING btree ("_parent_id");
+  ALTER TABLE "checkouts_stray_payments" ADD CONSTRAINT "checkouts_stray_payments_amount_cents_ck" CHECK ("amount_cents" >= 0 AND "amount_cents" = trunc("amount_cents"));`)
 }
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {

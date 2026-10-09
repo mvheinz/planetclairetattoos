@@ -192,7 +192,7 @@ export function inheritedEnv(
 export function envFor(step: Step, opts: Options, sourceDbUrl: string): Record<string, string> {
   return {
     ...stepEnv(opts, sourceDbUrl),
-    ...(step.modes.includes('quick') ? {} : serverEnv(opts)),
+    ...(step.modes.includes('quick') || step.noServerEnv ? {} : serverEnv(opts)),
     ...step.env,
   }
 }
@@ -217,6 +217,8 @@ export interface Step {
   requires?: Requirement
   /** Läuft auch nach einem roten Schritt (wie `if: always()` im Workflow), sofern ausführbar. */
   always?: boolean
+  /** Ohne Server-Ports (Testwerte wie `quick`): Int-/Unit-Läufe erwarten die CI-Werte (z. B. Website-Adresse :3000). */
+  noServerEnv?: boolean
   timeoutMin: number
 }
 
@@ -225,6 +227,9 @@ export const SKIP_MARKER = 'CI_LOCAL_SKIP:'
 
 const FETCH_CACHE =
   "node -e \"require('node:fs').rmSync('.next/cache/fetch-cache',{recursive:true,force:true})\""
+/** Frische Datenbank wie je GitHub-Job: der Beispielbestand ließe Reservierungen früherer Läufe stehen. */
+const FRESH_DB =
+  'tsx --import=./scripts/lib/register-server-only.mjs scripts/ci/fresh-db.ts && pnpm payload migrate'
 const E2E_GREP = '--grep-invert "@visual|@perf"'
 const quote = (s: string) => `'${s.replace(/'/g, `'\\''`)}'`
 const e2eExtra = (ctx: RunContext) => ctx.opts.e2eArgs.map(quote).join(' ')
@@ -321,6 +326,7 @@ const ALL: Step[] = [
     title: 'Int + Unit mit Abdeckung (test:coverage)',
     modes: ['full'],
     cmd: 'pnpm run test:coverage',
+    noServerEnv: true,
     // Auf einem geteilten Rechner (mehrere Sitzungen) brauchte der Lauf > 90 min (CI ohne Last: 37 min).
     timeoutMin: 180,
   },
@@ -337,7 +343,7 @@ const ALL: Step[] = [
     id: 'build',
     title: 'Seed + Build ohne Debug-Flag',
     modes: ['full'],
-    cmd: `${FETCH_CACHE} && pnpm run seed && pnpm run build`,
+    cmd: `${FETCH_CACHE} && ${FRESH_DB} && pnpm run seed && pnpm run build`,
     env: { NEXT_PUBLIC_LEASH_DEBUG: '' },
     timeoutMin: 45,
   },
@@ -371,16 +377,17 @@ const ALL: Step[] = [
   },
   {
     id: 'lighthouse',
-    title: 'Lighthouse-CI (test:perf)',
+    title: 'Lighthouse-CI (test:perf, CPU-Drosselung an den Rechner angepasst)',
     modes: ['full'],
-    cmd: 'pnpm run test:perf',
+    cmd: 'tsx scripts/ci/lighthouse-calibrated.ts',
     timeoutMin: 30,
   },
   {
     id: 'inp',
     title: 'INP-Ersatzmessung (@perf, pixel-7)',
     modes: ['full'],
-    cmd: 'pnpm run test:e2e --grep @perf --project=pixel-7',
+    // CPU-Drosselung wie Lighthouse an den Rechner angepasst (benchmarkIndex des Lighthouse-Schritts, sonst 4×)
+    cmd: 'PERF_CPU_RATE="$(tsx scripts/ci/lighthouse-calibrated.ts --rate)" && echo "CPU-Drosselung ${PERF_CPU_RATE}×" && PERF_CPU_RATE="$PERF_CPU_RATE" pnpm run test:e2e --grep @perf --project=pixel-7',
     timeoutMin: 30,
   },
   // ---------- full: E2E je Gerät mit Debug-Build (e2e-full) ----------
@@ -388,7 +395,7 @@ const ALL: Step[] = [
     id: 'build-debug',
     title: 'Seed + Build mit NEXT_PUBLIC_LEASH_DEBUG=1',
     modes: ['full'],
-    cmd: `${FETCH_CACHE} && pnpm run seed && pnpm run build`,
+    cmd: `${FETCH_CACHE} && ${FRESH_DB} && pnpm run seed && pnpm run build`,
     env: { NEXT_PUBLIC_LEASH_DEBUG: '1' },
     timeoutMin: 45,
   },

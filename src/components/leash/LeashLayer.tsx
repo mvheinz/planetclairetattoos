@@ -110,7 +110,7 @@ export function LeashLayer({
             // Choreografie der Linie (§11.4): Pose, Verweilen, Sprung, Blickrichtung, Intro-Lauf, Platz
             if (s.moving) c.activity()
             c.follow(s)
-            cocoEl?.setAttribute('data-placed', '')
+            if (cocoEl && !cocoEl.hasAttribute('data-placed')) cocoEl.setAttribute('data-placed', '')
           }
         }
         handle = mount(el, options)

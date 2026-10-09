@@ -43,6 +43,8 @@ function externalResources(html: string): string[] {
     for (const [name, value] of Object.entries($(el).attr() ?? {})) {
       if (!/https?:\/\//i.test(value)) continue
       if (tag === 'a' && name === 'href') continue
+      // Teilen/Kopieren (P14.12, U-61): Linkadresse als Text zum Teilen bzw. in die Zwischenablage – wird nie geladen
+      if (['data-share-url', 'data-copy', 'data-copy-failed-text'].includes(name)) continue
       if (name === 'xmlns' || name.startsWith('xmlns:')) continue
       found.push(`<${tag} ${name}="${value.slice(0, 80)}">`)
     }
