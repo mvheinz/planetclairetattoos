@@ -113,7 +113,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         )}
       </header>
       {home && home.stations.length > 1 ? (
-        <StationCompass stations={home.stations} locale={locale} />
+        // Kompass, Schaukasten: reines Server-Markup ohne Hydrierung (StaticHtml, Lighthouse-TBT – P14.14: die
+        // Startseite lag mit den neuen Kopf-Teilen knapp über 200 ms)
+        <StaticHtml>
+          <StationCompass stations={home.stations} locale={locale} />
+        </StaticHtml>
       ) : null}
 
       {/* Oben (U-50, P14.1): drei Spalten ab 1100 px – links das Foto von Jutta und Coco mit dem Text darunter, in der
@@ -128,18 +132,19 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         {/* U-53 (P14.4): nachts (Berlin 22–7 Uhr) schläft Koko – entschieden beim Rendern (ISR ≤ 1 h) */}
         <ChairwomanKoko locale={locale} asleep={kokoAsleep(now)} />
       </div>
-      <aside
+      {/* U-51 (P14.2): unter 1100 px eingeklappt hinter Station 01 (CSS-Reihenfolge), am Desktop offen oben rechts */}
+      <StaticHtml
+        as="aside"
         className={styles.tourCol}
         aria-label={tTour('heading')}
         data-home-aside=""
         data-slot="tour"
       >
-        {/* U-51 (P14.2): unter 1100 px eingeklappt hinter Station 01 (CSS-Reihenfolge), am Desktop offen oben rechts */}
         <TourFold items={tourItems} locale={locale} now={now}>
           <TourDates items={tourItems} locale={locale} now={now} />
           <InstagramLink handle={nav.instagramHandle} locale={locale} />
         </TourFold>
-      </aside>
+      </StaticHtml>
 
       <div className={styles.body}>
         {home && home.stations.length > 0 ? (
