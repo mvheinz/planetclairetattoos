@@ -118,6 +118,13 @@ export const ADMIN_CUSTOM_DE = {
   photoUp: 'Hoch',
   photoDown: 'Runter',
   photoRemove: 'Entfernen',
+  // U-57 d: Foto zum Größenvergleich (freiwillig, eins je Stück)
+  scaleHeading: 'Foto zum Größenvergleich (freiwillig)',
+  scaleHint:
+    'Ein Foto mit etwas Bekanntem daneben – z. B. deiner Hand, einer Tasse oder einem Lineal. Es erscheint auf der Stückseite als letztes Bild mit „Zum Größenvergleich“.',
+  scaleRemoveLabel: 'Vergleichsfoto entfernen',
+  scaleAltDe: 'Bildbeschreibung Vergleichsfoto (Deutsch)',
+  scaleAltEn: 'Bildbeschreibung Vergleichsfoto (Englisch)',
   photoUpLabel: 'Foto {{n}} nach vorne',
   photoDownLabel: 'Foto {{n}} nach hinten',
   photoRemoveLabel: 'Foto {{n}} entfernen',

@@ -1302,6 +1302,10 @@ export interface Product {
    * Erstes Bild = Titelbild; Reihenfolge per Ziehen. Empfohlen 2–12 Fotos im Hochformat 4:5.
    */
   images?: (number | Media)[] | null;
+  /**
+   * Ein Foto mit etwas Bekanntem daneben – z. B. deiner Hand, einer Tasse oder einem Lineal –, damit man die Größe gut einschätzen kann. Es erscheint auf der Stückseite als letztes Bild mit „Zum Größenvergleich“.
+   */
+  scalePhoto?: (number | null) | Media;
   status: 'draft' | 'available' | 'reserved' | 'sold' | 'archived';
   showInArchiveAfterSale?: boolean | null;
   firstPublishedAt?: string | null;
@@ -3131,6 +3135,7 @@ export interface ProductsSelect<T extends boolean = true> {
         descriptionEn?: T;
       };
   images?: T;
+  scalePhoto?: T;
   status?: T;
   showInArchiveAfterSale?: T;
   firstPublishedAt?: T;

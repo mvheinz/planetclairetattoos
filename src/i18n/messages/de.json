@@ -301,7 +301,9 @@
       "more": "Mehr zeigen",
       "delivery": "Lieferung innerhalb Deutschlands · Abholung in {city} möglich",
       "deliveryNoPickup": "Lieferung innerhalb Deutschlands",
-      "closedFallback": "Der Shop schläft gerade – bestellen ist im Moment nicht möglich."
+      "closedFallback": "Der Shop schläft gerade – bestellen ist im Moment nicht möglich.",
+      "soldHeading": "Schon weitergezogen",
+      "archiveLink": "Archiv ansehen"
     },
     "warranty": {
       "title": "Gesetzliche Gewährleistung",
@@ -392,7 +394,10 @@
         "costsLink": "Versand & Zahlung"
       },
       "more": "Mehr aus {category}",
-      "buyBar": "Kaufen"
+      "buyBar": "Kaufen",
+      "ask": "Frag nach diesem Stück",
+      "askSimilar": "Etwas Ähnliches anfragen",
+      "scaleCaption": "Zum Größenvergleich"
     },
     "gallery": {
       "label": "Fotos: {title}",
@@ -404,6 +409,13 @@
       "zoom": "Vergrößern",
       "close": "Schließen",
       "dialog": "Foto vergrößert: {title}"
+    },
+    "mail": {
+      "subject": "Frage zu {number} – {title}",
+      "greeting": "Hi Jutta,",
+      "intro": "ich habe eine Frage zu {number} („{title}“):",
+      "link": "Link zum Stück: {url}",
+      "closing": "Liebe Grüße"
     }
   },
   "archive": {

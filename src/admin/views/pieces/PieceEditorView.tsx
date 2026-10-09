@@ -122,6 +122,10 @@ export async function PieceEditorView({ match, adminRoute, req }: AdminViewBodyP
       slug: (de.slug as string | null) ?? null,
       form: formFromDoc(de, en),
       photos: await loadPhotos(payload, imageIds),
+      scalePhotos: await loadPhotos(
+        payload,
+        [idOf(de.scalePhoto)].filter((n): n is number => n !== null),
+      ),
     }
   } else {
     initial = {
@@ -131,6 +135,7 @@ export async function PieceEditorView({ match, adminRoute, req }: AdminViewBodyP
       slug: null,
       form: emptyPieceForm(await computeNextItemNumber(req)),
       photos: [],
+      scalePhotos: [],
     }
   }
 

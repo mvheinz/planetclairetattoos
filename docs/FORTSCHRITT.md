@@ -2,6 +2,24 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-09 – P14.8 Shop: Frage-Link, „Ähnliches anfragen“, verkaufte nicht mischen, Größen-Vergleichsfoto (U-57)
+
+- **Frag nach diesem Stück** (Produktseite, verfügbar/reserviert): Mail-Link an die Kontaktadresse aus den Einstellungen,
+  Betreff „Frage zu Nr. 017 – {Titel}“ (EN „Question about No. 017 – …“), Vorlage mit Link zum Stück, keine
+  Personendaten, kein Formular (`src/lib/shop/mailto.ts`).
+- **Verkauft:** zusätzlich „Etwas Ähnliches anfragen“ → Auftragsarbeiten (R10).
+- **Shop-Liste R02/R03:** Seiten zählen nur verfügbare/reservierte Stücke; verkaufte (Archiv) stehen nur noch als kurze
+  Reihe (höchstens 4, Überschrift „Schon weitergezogen“) unter der letzten Seite, dahinter „Archiv ansehen“ (R03 mit
+  Kategorie-Filter). `?available=1` ohne Reihe. Statische Varianten zählen Folgeseiten damit nur nach verfügbaren.
+- **Foto zum Größenvergleich:** neues Feld `products.scalePhoto` (Migration `p14_shop_scale_photo`), in „Neues
+  Stück“/„Stück bearbeiten“ als eigener Foto-Baustein (ein Foto, Hilfetext) und im Standardformular (Reiter „Bilder“);
+  auf der Stückseite letztes Galeriebild mit Beschriftung „Zum Größenvergleich“ / „For a sense of size“; Bild-Löschschutz
+  wie bei den Stückfotos.
+- Tests: Unit `tests/unit/shop/product-mailto.unit.spec.ts`; Int `tests/int/shop/data.int.spec.ts` (Reihe ≤ 4,
+  Seitenzahl), `tests/int/collections/products-fields.int.spec.ts` (scalePhoto geschützt, öffentlich lesbar); E2E
+  `tests/e2e/shop/ask-and-sold-row.e2e.spec.ts`; Shop-, Produktseiten-, Archiv-, Varianten-, Tattoo- und Foto-Baustein-
+  E2E gegen den Produktions-Build grün.
+
 ## 2026-10-09 – P14.7 Flash ↔ Galerie (U-56)
 
 - Galerie-Einträge haben einen Anker `g-<id>` und kennen die Nummer ihres Flash-Motivs (Feld `flash`, nur veröffentlichte

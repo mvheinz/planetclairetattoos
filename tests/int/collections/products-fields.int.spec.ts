@@ -142,6 +142,21 @@ describe('products: Bilder (DM-MEDIA-05)', () => {
     )
     await payload.delete({ collection: 'media', id: draftOnly, overrideAccess: true })
   })
+
+  it('U-57 d: Größen-Vergleichsfoto (scalePhoto) ist geschützt wie die Bilder und öffentlich lesbar', async () => {
+    const scale = await createTestImage(payload, 'Tasse neben einer Hand')
+    await createProduct(
+      payload,
+      completeProduct('keramik', 985, fx, { status: 'available', scalePhoto: scale }),
+    )
+    await rejects(
+      payload.delete({ collection: 'media', id: scale, overrideAccess: true }),
+      /noch verwendet.*Stück \(Größenvergleich\) Nr\. 985/,
+    )
+    const res = await rest('GET', '/products?where[itemNumber][equals]=985&depth=1')
+    const doc = ((await res.json()) as { docs: { scalePhoto?: { id?: number } }[] }).docs[0]
+    expect(doc?.scalePhoto?.id).toBe(scale)
+  })
 })
 
 describe('products: Kategorie und Voreinstellungen (§6.6.3)', () => {

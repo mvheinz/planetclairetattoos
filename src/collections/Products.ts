@@ -73,6 +73,13 @@ registerMediaReference({
   label: 'Stück',
   titleField: 'adminTitle',
 })
+registerMediaReference({
+  collection: PRODUCTS_SLUG,
+  path: 'scalePhoto',
+  where: { status: { not_equals: 'draft' } },
+  label: 'Stück (Größenvergleich)',
+  titleField: 'adminTitle',
+})
 registerUploadReference({
   target: 'private-uploads',
   collection: PRODUCTS_SLUG,
@@ -624,6 +631,18 @@ const imageFields: Field[] = [
     admin: {
       description:
         'Erstes Bild = Titelbild; Reihenfolge per Ziehen. Empfohlen 2–12 Fotos im Hochformat 4:5.',
+    },
+  },
+  {
+    // U-57 d: optionales Foto zum Größenvergleich; auf der Stückseite als letztes Bild mit Beschriftung.
+    name: 'scalePhoto',
+    type: 'upload',
+    label: 'Foto zum Größenvergleich (freiwillig)',
+    relationTo: 'media',
+    admin: {
+      description:
+        'Ein Foto mit etwas Bekanntem daneben – z. B. deiner Hand, einer Tasse oder einem Lineal –, damit man die ' +
+        'Größe gut einschätzen kann. Es erscheint auf der Stückseite als letztes Bild mit „Zum Größenvergleich“.',
     },
   },
 ]

@@ -301,7 +301,9 @@
       "more": "Show more",
       "delivery": "Delivery within Germany · Pickup in {city} possible",
       "deliveryNoPickup": "Delivery within Germany",
-      "closedFallback": "The shop is asleep for now – ordering isn’t possible at the moment."
+      "closedFallback": "The shop is asleep for now – ordering isn’t possible at the moment.",
+      "soldHeading": "Already found a home",
+      "archiveLink": "View the archive"
     },
     "warranty": {
       "title": "Legal guarantee",
@@ -392,7 +394,10 @@
         "costsLink": "Shipping & payment"
       },
       "more": "More from {category}",
-      "buyBar": "Buy"
+      "buyBar": "Buy",
+      "ask": "Ask about this piece",
+      "askSimilar": "Ask for something similar",
+      "scaleCaption": "For a sense of size"
     },
     "gallery": {
       "label": "Photos: {title}",
@@ -404,6 +409,13 @@
       "zoom": "Enlarge",
       "close": "Close",
       "dialog": "Enlarged photo: {title}"
+    },
+    "mail": {
+      "subject": "Question about {number} – {title}",
+      "greeting": "Hello Jutta,",
+      "intro": "I have a question about {number} (“{title}”):",
+      "link": "Link to the piece: {url}",
+      "closing": "Best wishes"
     }
   },
   "archive": {

@@ -5621,7 +5621,7 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-50 … U-64. Gilt für Handy und Desktop
   - Akzeptanz: Unit (maximale Zeichengeschwindigkeit je Abschnitt begrenzt), Kunst-QA grün.
 - [x] **P14.7 Flash ↔ Galerie** (U-56).
   - Akzeptanz: Unit/E2E Verknüpfung in beide Richtungen, nur Fotos mit Einwilligung.
-- [ ] **P14.8 Shop: Frage-Link, „Ähnliches anfragen“, verkaufte nicht mischen, Größen-Vergleichsfoto** (U-57) – Schemaänderung per Migration.
+- [x] **P14.8 Shop: Frage-Link, „Ähnliches anfragen“, verkaufte nicht mischen, Größen-Vergleichsfoto** (U-57) – Schemaänderung per Migration.
   - Akzeptanz: Unit/Int/E2E, DE/EN.
 - [ ] **P14.9 Kasse: Erstatten-Knopf, „reserviert bis“, Fußzeile Zahlung & Versand** (U-58).
   - Akzeptanz: Int (Erstattung idempotent, nur Admin), E2E Korb, Verbotsliste grün.
