@@ -12,6 +12,7 @@ import * as motionToggle from '../behaviors/motion-toggle'
 import * as priceTagSwing from '../behaviors/price-tag-swing'
 import * as productStatus from '../behaviors/product-status'
 import * as reservationCountdown from '../behaviors/reservation-countdown'
+import * as shareButton from '../behaviors/share-button'
 import * as soldStamp from '../behaviors/sold-stamp'
 import * as thanksMoment from '../behaviors/thanks-moment'
 import * as thanksPoll from '../behaviors/thanks-poll'
@@ -44,6 +45,7 @@ export const STATIC_BEHAVIORS: Record<(typeof BEHAVIOR_NAMES)[number], BehaviorM
   'price-tag-swing': priceTagSwing,
   'product-status': productStatus,
   'reservation-countdown': reservationCountdown,
+  'share-button': shareButton,
   'sold-stamp': soldStamp,
   'thanks-moment': thanksMoment,
   'thanks-poll': thanksPoll,

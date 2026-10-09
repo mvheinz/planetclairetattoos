@@ -220,7 +220,16 @@
       "tagline": "Tattoos & Unikate aus Berlin",
       "priceNote": "Endpreis zzgl. Versand",
       "productAlt": "{title} – {number}: Foto und Preisschild",
-      "defaultAlt": "Planet Claire – Tattoos & Unikate aus Berlin"
+      "defaultAlt": "Planet Claire – Tattoos & Unikate aus Berlin",
+      "flashKicker": "Tattoos von Jutta · Flash",
+      "flashTitle": "Flash-Motive",
+      "flashSubEmpty": "Zeichnungen, die auf Haut warten",
+      "flashAlt": "Flash-Motive von Planet Claire, vorne {number} – {title}",
+      "flashAltEmpty": "Flash-Motive von Planet Claire",
+      "galleryKicker": "Tattoos von Jutta · Galerie",
+      "galleryTitle": "Fresh & healed",
+      "gallerySub": "Linien, die geblieben sind – frisch gestochen und verheilt",
+      "galleryAlt": "Galerie von Planet Claire: Foto eines gestochenen Tattoos"
     },
     "tattoo": {
       "R11": "Tattoos von Planet Claire in Berlin: eine feine, zittrige Linie im Privatstudio. Flash-Motive mit Festpreis, Preise, Galerie und Anfrage per Mail.",
@@ -1441,5 +1450,11 @@
     "linkLabel": "Ein Navigationslink",
     "demoButton": "In den Korb",
     "cartCount": "Im Korb"
+  },
+  "share": {
+    "button": "Teilen",
+    "copy": "Link kopieren",
+    "copied": "Link kopiert",
+    "failed": "Kopieren ging nicht – hier ist der Link: {url}"
   }
 }

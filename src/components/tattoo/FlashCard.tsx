@@ -4,10 +4,12 @@ import React from 'react'
 import { ICON_MAIL } from '@/components/icons/icons.generated'
 import { ResponsiveImage } from '@/components/media/ResponsiveImage'
 import { Button } from '@/components/ui/Button'
+import { ShareButton } from '@/components/ui/ShareButton'
 import type { PublicFlash, TattooSettings } from '@/lib/data/tattoo'
 import { localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
 import { tattooMailto } from '@/lib/tattoo/mailto'
+import { absoluteUrl } from '@/lib/seo/metadata'
 import { formatTattooPrice } from '@/lib/tattoo/price'
 
 import styles from './Tattoo.module.css'
@@ -140,6 +142,15 @@ export async function FlashCard({
               </Button>
             ) : null}
           </div>
+        ) : null}
+        {!compact ? (
+          // U-61: Teilen (Link auf die Karte in R12)
+          <ShareButton
+            url={absoluteUrl(`${localizedPath('R12', locale)}#${flash.anchor}`)}
+            title={`${flash.display} – ${flash.title}`}
+            locale={locale}
+            id={flash.anchor}
+          />
         ) : null}
       </div>
     </article>

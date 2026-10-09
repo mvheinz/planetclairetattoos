@@ -220,7 +220,16 @@
       "tagline": "Tattoos & one-offs from Berlin",
       "priceNote": "Final price plus shipping",
       "productAlt": "{title} – {number}: photo and price tag",
-      "defaultAlt": "Planet Claire – tattoos & one-offs from Berlin"
+      "defaultAlt": "Planet Claire – tattoos & one-offs from Berlin",
+      "flashKicker": "Tattoos by Jutta · Flash",
+      "flashTitle": "Flash designs",
+      "flashSubEmpty": "Drawings waiting for skin",
+      "flashAlt": "Flash designs by Planet Claire, in front {number} – {title}",
+      "flashAltEmpty": "Flash designs by Planet Claire",
+      "galleryKicker": "Tattoos by Jutta · Gallery",
+      "galleryTitle": "Fresh & healed",
+      "gallerySub": "Lines that stayed – freshly tattooed and healed",
+      "galleryAlt": "Planet Claire gallery: photo of a tattoo"
     },
     "tattoo": {
       "R11": "Tattoos by Planet Claire in Berlin: a fine, trembling line in a private studio. Flash designs with fixed prices, prices, gallery and enquiries by email.",
@@ -1441,5 +1450,11 @@
     "linkLabel": "A navigation link",
     "demoButton": "Add to basket",
     "cartCount": "In basket"
+  },
+  "share": {
+    "button": "Share",
+    "copy": "Copy link",
+    "copied": "Link copied",
+    "failed": "Couldn’t copy – here is the link: {url}"
   }
 }

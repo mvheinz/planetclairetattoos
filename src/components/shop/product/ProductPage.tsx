@@ -15,6 +15,7 @@ import { statusLabelAttrs } from '@/components/shop/statusLabels'
 import { WarrantyNotice } from '@/components/shop/WarrantyNotice'
 import { Button } from '@/components/ui/Button'
 import { Callout } from '@/components/ui/Callout'
+import { ShareButton } from '@/components/ui/ShareButton'
 import { StaticHtml } from '@/components/StaticHtml'
 import { ICON_MAIL } from '@/components/icons/icons.generated'
 import { listAllCategories } from '@/lib/data/categories'
@@ -188,15 +189,12 @@ export async function ProductPage({
     </>
   )
   // U-57 a: „Frag nach diesem Stück“ – Mail an die Kontaktadresse, Betreff „Frage zu Nr. 017 – {Titel}“ (kein Formular).
+  const pageUrl = absoluteUrl(productPath(product, locale))
   const askHref = preview
     ? null
     : productMailto(
         contact.email,
-        {
-          itemNumber: product.itemNumber,
-          title: product.title,
-          url: absoluteUrl(productPath(product, locale)),
-        },
+        { itemNumber: product.itemNumber, title: product.title, url: pageUrl },
         locale,
       )
   const soldView = (
@@ -503,6 +501,18 @@ export async function ProductPage({
             : t('deliveryAreaNoPickup')}
         </p>
       </div>
+
+      {/* U-61: Teilen (Teilen-Menü des Geräts, sonst „Link kopieren“) */}
+      {!preview ? (
+        <ShareButton
+          url={pageUrl}
+          title={product.title ?? categoryName}
+          text={formatItemNumber(product.itemNumber, locale)}
+          locale={locale}
+          id={`nr-${product.itemNumber}`}
+          className={styles.share}
+        />
+      ) : null}
 
       {/* Ab hier reines Server-Markup ohne Formulare: statisches HTML, nicht hydriert (`StaticHtml`, TBT P7). */}
 

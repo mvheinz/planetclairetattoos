@@ -2,6 +2,20 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-09 – P14.12 Teilen-Knopf + Vorschaukarten Tattoo (U-61)
+
+- **Teilen** an Stückseiten (unter dem Kaufbereich) und jeder Flash-Karte: „Teilen“ öffnet das Teilen-Menü des Geräts
+  (Web Share API, neues nachgeladenes Modul `share-button`, 580 B gz, eigene Budgetgruppe ≤ 4 KB); wo es das nicht gibt (meist
+  am Computer) steht „Link kopieren“ (vorhandenes Modul `copy-button`) mit Meldung „Link kopiert“. Ohne JavaScript beide
+  verborgen; kein Drittanbieter, keine Cookies, kein Erstlade-JS. Flash-Karten teilen den Link mit Anker (`#f-012`).
+- **Vorschaukarten (OG-Bilder):** Flash (R12) zeigt die Zeichnung des ersten verfügbaren Motivs mit „Flash-Motive“ und
+  „F-012 – Titel“; Galerie (R15) ein Foto mit Einwilligung (nie die Seed-Ausnahme) mit „Fresh & healed“ – ohne solches
+  Foto das Standardbild. DE/EN, Alt-Text je Sprache; gilt auch für die Filter-Varianten.
+- Tests: Unit `tests/unit/behaviors/share-button.unit.spec.ts`, Vertragstest der Module, `tests/unit/seo/og-render.unit.spec.ts`
+  (PNG ohne Netz, Auswahl ohne Seed-Ausnahme, Alt-Texte); E2E `tests/e2e/shop/share.e2e.spec.ts` (Rückfall „Link
+  kopieren“ mit Zwischenablage, nachgebildetes Teilen-Menü, ohne JS, keine Cookies/Fremd-Anfragen) und
+  `tests/e2e/seo/og-image.e2e.spec.ts` gegen den Produktions-Build grün.
+
 ## 2026-10-09 – P14.9 Kasse: Erstatten-Knopf, „reserviert bis“, Fußzeile Zahlung & Versand (U-58)
 
 - **Erstatten (J-26/J-27):** Zahlungen ohne Bestellung (zu spät nach Ende der Kasse, S16; zusätzlich zur Vorkasse, S17)

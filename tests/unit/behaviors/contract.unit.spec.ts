@@ -156,6 +156,15 @@ const FIXTURES: Record<BehaviorName, { html: string; exercise: (root: Element) =
       ;(root as HTMLElement).click()
     },
   },
+  'share-button': {
+    html:
+      '<p data-share=""><span id="sh" role="status"></span><button type="button" data-behavior="share-button" ' +
+      'data-share-url="https://example.org/de/shop/017-vase" data-share-title="Vase" data-copied-text="Link kopiert" ' +
+      'data-copy-failed-text="Ging nicht" data-copy-status-id="sh" hidden>Teilen</button></p>',
+    exercise: (root) => {
+      ;(root as HTMLElement).click()
+    },
+  },
   'thanks-poll': {
     html:
       '<div data-behavior="thanks-poll" data-state="waiting" ' +

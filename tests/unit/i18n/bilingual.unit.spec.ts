@@ -76,6 +76,7 @@ const IDENTICAL_BY_NATURE = new Set([
   'tattoo.prices.flashHeading',
   'tattoo.gallery.fresh',
   'tattoo.gallery.healed',
+  'seo.og.galleryTitle',
   'tattoo.process.steps.5.title',
   'tattoo.mail.greeting',
   'commission.form.nameLabel',
