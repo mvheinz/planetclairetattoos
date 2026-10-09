@@ -3,16 +3,16 @@ import { type Page } from '@playwright/test'
 
 import type { Locale } from '../../src/lib/routes/registry'
 
-// P2.20 Startseite R01 (KONZEPT §3.1, DESIGN KO-21/§11.4): Kopf-Station „Planet Claire“ und genau 6 Stationen aus dem
+// P2.20 Startseite R01 (KONZEPT §3.1, DESIGN KO-21/§11.4): Kopf-Station „Planet Claire“ und genau 5 Stationen aus dem
 // Seed `pages:home` (AK-3-01, AK-SEED-18; „Komm näher.“ entfiel mit U-40, Keramik = Station 01), ohne JavaScript vollständig lesbar, DE und EN vollständig, Linie zeichnet
 // beim Scrollen (AK-DS-13), Tempo-Budget mobil (LCP < 2,5 s, CLS < 0,1). DM-PAGE-01 (fehlende Seite → Leerzustand)
 // prüft `tests/int/pages/home-data.int.spec.ts` – hier würde das Löschen der Seite parallele Specs stören.
 
-const STATION_IDS = ['keramik', 'textil', 'zeichnungen', 'schmuck', 'tattoo', 'jutta-und-coco']
+const STATION_IDS = ['keramik', 'textil', 'zeichnungen', 'schmuck', 'tattoo']
 
 const HEADINGS: Record<Locale, string[]> = {
-  de: ['Keramik', 'Textil & Caps', 'Zeichnungen', 'Schmuck', 'Tattoo', 'Jutta & Coco'],
-  en: ['Ceramics', 'Textiles & caps', 'Drawings', 'Jewellery', 'Tattoo', 'Jutta & Coco'],
+  de: ['Keramik', 'Textil & Caps', 'Zeichnungen', 'Schmuck', 'Tattoo'],
+  en: ['Ceramics', 'Textiles & caps', 'Drawings', 'Jewellery', 'Tattoo'],
 }
 
 const HERO: Record<Locale, string> = {
@@ -25,18 +25,18 @@ async function expectStations(page: Page, locale: Locale) {
   await expect(page.locator('h1')).toHaveText('Planet Claire')
   await expect(page.locator('[data-home-hero]')).toContainText(HERO[locale])
   const stations = page.locator('[data-home-station]')
-  await expect(stations).toHaveCount(6)
+  await expect(stations).toHaveCount(5)
   expect(
     await stations.evaluateAll((els) => els.map((el) => el.getAttribute('data-home-station'))),
   ).toEqual(STATION_IDS)
   await expect(stations.locator('h2')).toHaveText(HEADINGS[locale])
   await expect(stations.first()).toContainText('Station 01')
-  await expect(stations.last()).toContainText('Station 06')
+  await expect(stations.last()).toContainText('Station 05')
 }
 
 test.describe('Startseite @smoke', () => {
   for (const locale of ['de', 'en'] as const) {
-    test(`AK-3-01 AK-SEED-18 /${locale}: Kopf-Station und 6 Stationen in fester Reihenfolge @smoke`, async ({
+    test(`AK-3-01 AK-SEED-18 /${locale}: Kopf-Station und 5 Stationen in fester Reihenfolge @smoke`, async ({
       page,
     }) => {
       const res = await page.goto(`/${locale}`)
@@ -88,15 +88,15 @@ test.describe('Startseite @smoke', () => {
         (window as unknown as { __leash: { drawnLen(): number } }).__leash.drawnLen(),
       )
     const before = await drawn()
-    // Kopf-Station + 6 Stationen (U-40: „Komm näher.“ entfiel)
-    expect(await page.locator('[data-leash-reached]').count()).toBeLessThan(7)
+    // Kopf-Station + 5 Stationen (U-40: „Komm näher.“ entfiel, U-50: „Jutta & Coco“ steht oben)
+    expect(await page.locator('[data-leash-reached]').count()).toBeLessThan(6)
     const height = await page.evaluate(() => document.documentElement.scrollHeight)
     for (let y = 0; y <= height; y += 300) {
       await page.evaluate((top) => window.scrollTo({ top, behavior: 'instant' }), y)
       await page.waitForTimeout(40)
     }
     await expect.poll(drawn).toBeGreaterThan(before)
-    await expect(page.locator('[data-leash-reached]')).toHaveCount(7)
+    await expect(page.locator('[data-leash-reached]')).toHaveCount(6)
   })
 
   test('Tempo mobil: LCP < 2,5 s, CLS < 0,1 @smoke', async ({ page, browserName }, testInfo) => {
@@ -200,9 +200,13 @@ const SEED_STATIONS: Record<string, { exact?: number[]; pool?: number[] }> = {
   zeichnungen: { exact: [920, 922, 923] },
   schmuck: { exact: [926, 927, 928, 929] },
 }
-const JUTTA_LINKS: Record<Locale, { about: string; commissions: string }> = {
-  de: { about: '/de/ueber-mich', commissions: '/de/auftragsarbeiten' },
-  en: { about: '/en/about', commissions: '/en/commissions' },
+const JUTTA_LINKS: Record<Locale, { about: string }> = {
+  de: { about: '/de/ueber-mich' },
+  en: { about: '/en/about' },
+}
+const JUTTA_TEXT: Record<Locale, string> = {
+  de: 'Werkstatt unter der Woche, Markttisch am Wochenende',
+  en: 'Workshop during the week, market table at the weekend',
 }
 
 test.describe('Startseite mit Beispielbestand (P8.17)', () => {
@@ -234,10 +238,14 @@ test.describe('Startseite mit Beispielbestand (P8.17)', () => {
       expect(await flash.count()).toBeGreaterThan(0)
       expect(await flash.count()).toBeLessThanOrEqual(3)
 
-      const jutta = page.locator('[data-home-station="jutta-und-coco"]')
-      await expect(jutta.locator(`a[href="${JUTTA_LINKS[locale].about}"]`)).toHaveCount(1)
-      await expect(jutta.locator(`a[href="${JUTTA_LINKS[locale].commissions}"]`)).toHaveCount(1)
-      // P12.7 (U-15): Das Instagram-Profil ist nur im Fuß verlinkt, nicht in der Station.
+      // U-50 (P14.1): Foto von Jutta und Coco oben links, darunter der Text mit „Mehr über uns“ (keine Station mehr)
+      await expect(page.locator('[data-home-station="jutta-und-coco"]')).toHaveCount(0)
+      const jutta = page.locator('[data-home-intro]')
+      await expect(jutta.locator('[data-photo-frame] img')).toHaveCount(1)
+      await expect(jutta).toContainText(JUTTA_TEXT[locale])
+      await expect(jutta.locator(`a[href="${JUTTA_LINKS[locale].about}"]`)).toHaveText(
+        locale === 'de' ? 'Mehr über uns' : 'More about us',
+      )
       await expect(jutta.locator('a[href*="instagram.com"]')).toHaveCount(0)
       await expect(page.locator('main a[href*="ig.me"]')).toHaveCount(0)
 

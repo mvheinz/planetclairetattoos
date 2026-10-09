@@ -32,7 +32,6 @@ export const STATION_LOOPS: Readonly<Record<string, LoopKind>> = {
   zeichnungen: 'spiral',
   schmuck: 'lasso',
   tattoo: 'contour',
-  'jutta-und-coco': 'left',
 }
 
 export const loopFor = (stationId: string, number: number): LoopKind =>
@@ -50,7 +49,7 @@ export async function HomeStation({
   locale: Locale
   /** Tattoo-Station (KONZEPT §3.1 Nr. 7): bis zu 3 freie Flash-Motive (P7.3). */
   tattoo?: TattooTeaserData | null
-  /** Karten der Kategorie-Station (`listStationProducts`); `null` bei Stationen ohne Stücke (Tattoo, Jutta & Coco). */
+  /** Karten der Kategorie-Station (`listStationProducts`); `null` bei Stationen ohne Stücke (Tattoo). */
   products?: PublicProduct[] | null
 }) {
   const t = await getTranslations({ locale, namespace: 'home' })
@@ -83,16 +82,6 @@ export async function HomeStation({
       </Button>
     </p>
   ) : null
-  const juttaLinks =
-    station.stationId === 'jutta-und-coco' ? (
-      <ul className={styles.moreLinks} data-station-links="">
-        <li>
-          <Button variant="secondary" href={localizedPath('R10', locale)}>
-            {t('stationCommissions')}
-          </Button>
-        </li>
-      </ul>
-    ) : null
 
   return (
     <section
@@ -114,7 +103,6 @@ export async function HomeStation({
         {station.text ? <p className={styles.text}>{station.text}</p> : null}
         {tattoo ? <TattooTeaser data={tattoo} locale={locale} /> : null}
         {shelf ? null : allLink}
-        {juttaLinks}
       </div>
       {onArt(loop) ? (
         <Station id={station.stationId} pose={pose} loop={loop} className={styles.artFrame}>

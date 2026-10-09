@@ -21,7 +21,6 @@ const ARRIVE: Record<string, string> = {
   zeichnungen: 'sitzen',
   schmuck: 'sitzen',
   tattoo: 'kopfschief',
-  'jutta-und-coco': 'sitzen',
 }
 const DWELL: Record<string, string> = { 'planet-claire': 'kopfschief', textil: 'kopfschief' }
 

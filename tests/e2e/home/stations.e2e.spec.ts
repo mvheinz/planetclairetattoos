@@ -11,7 +11,7 @@ import { freshPage, holdListData, refresh } from '../shop/fresh'
 // Preis-Fußnote einmal pro Seite, Leerzustand mit Archiv-Link (Test-Kategorie `sonstiges` ohne Stücke). Die Tattoo-Station
 // bleibt ohne Karten (P7).
 
-const STATION_IDS = ['keramik', 'textil', 'zeichnungen', 'schmuck', 'tattoo', 'jutta-und-coco']
+const STATION_IDS = ['keramik', 'textil', 'zeichnungen', 'schmuck', 'tattoo']
 const SHELVES = ['keramik', 'textil', 'zeichnungen', 'schmuck']
 const CATEGORIES: Record<string, string[]> = {
   keramik: ['keramik'],
@@ -47,13 +47,13 @@ async function lookup(numbers: number[]) {
 test.describe('Startseite – Stationen mit Stücken (lesend)', () => {
   holdListData(test, 'shared')
 
-  test('AK-3-01 AK-3-02: 6 Stationen; je Kategorie-Station ≤ 4 Karten, nur available/reserved, neueste zuerst, passende Kategorie', async ({
+  test('AK-3-01 AK-3-02: 5 Stationen; je Kategorie-Station ≤ 4 Karten, nur available/reserved, neueste zuerst, passende Kategorie', async ({
     page,
     request,
   }) => {
     await openHome(page, request)
     const stations = page.locator('[data-home-station]')
-    await expect(stations).toHaveCount(6)
+    await expect(stations).toHaveCount(5)
     expect(
       await stations.evaluateAll((els) => els.map((el) => el.getAttribute('data-home-station'))),
     ).toEqual(STATION_IDS)
@@ -85,8 +85,7 @@ test.describe('Startseite – Stationen mit Stücken (lesend)', () => {
     }
     expect(total).toBeGreaterThan(0)
     // Keine Karten außerhalb der Kategorie-Stationen (Tattoo bis P7 unverändert).
-    for (const id of ['tattoo', 'jutta-und-coco'])
-      await expect(station(page, id).locator('[data-product-card]')).toHaveCount(0)
+    await expect(station(page, 'tattoo').locator('[data-product-card]')).toHaveCount(0)
     // „Alle …“ → R03; Preis-Fußnote genau einmal.
     await expect(station(page, 'keramik').locator('[data-station-all] a')).toHaveAttribute(
       'href',

@@ -2,6 +2,17 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-09 – P14.1 Startseite oben: Foto | Koko | Tour, Station „Jutta & Coco“ entfällt (U-50)
+
+- Unter Titel und Einleitung (volle Breite) ab 1100 px drei Spalten: links das Foto von Jutta und Coco (klein, 230 px,
+  Goth-Fotorahmen, `loading="eager"`) mit dem Text der früheren Station „Jutta & Coco“ und „Mehr über uns“ → R19, Mitte
+  Koko, rechts Schaukasten + Instagram; 600–1099 px Foto/Text und Koko nebeneinander, Handy untereinander.
+- Pflegbar: Foto und Text sind der Block „Bild mit Text“ der Startseite (Seed `pages:home`, Verwaltung → Texte → Startseite
+  „Oben links: Foto mit Text“); das Foto erscheint nur mit Freigabe (R-181, `isMediaPubliclyVisible`). Die Station
+  `jutta-und-coco` ist aus dem Seed entfernt und steht in `RETIRED_STATION_IDS`; Stationen 01–05.
+- Tests: Int `home-data`, `pages-faqs`, `example`, `pages-adopt` (29 grün); E2E `home`, `home/*`, `home-tour`,
+  `home-choreo` (desktop + pixel-7, 33 grün; „Tempo mobil“ nur am Dev-Server rot, siehe P14.5); `pnpm check` grün.
+
 ## 2026-10-08 – P13 abgeschlossen: zweite Runde nach deiner Rückmeldung – für Jutta
 
 Hallo Jutta,
