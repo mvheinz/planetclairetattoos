@@ -61,6 +61,7 @@
     "ci:artifacts": "tsx scripts/ci/artifact-budget.ts",
     "ci:minutes": "tsx scripts/ci/minutes.ts",
     "ci:flaky": "tsx scripts/ci/flaky-check.ts",
+    "ci:local": "tsx scripts/ci-local.ts",
     "fonts:copy": "tsx scripts/fonts/copy.ts",
     "art:brand": "tsx scripts/art/build-brand.ts",
     "art:frame": "tsx scripts/art/build-photo-frame.ts",

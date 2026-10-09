@@ -1,5 +1,8 @@
 name: Vorschau-Release
 
+# Seit U-65 nur per Hand – Prüfungen laufen lokal (pnpm ci:local). Keine automatischen Auslöser (keine Actions-Minuten);
+# der Inhalt bleibt als Vorlage (ARCHITEKTUR §6, docs/KONZEPT-OHNE-ACTIONS.md).
+
 # ARCHITEKTUR §6.6 (PLAN P10.21): veröffentlicht die Vorschau-Datei als GitHub-Release `vorschau-p12` – automatisch, sobald
 # der Plan leer ist (`scripts/cloud-setup.sh --plan-status` meldet `OFFEN_P1_P10=0`) und das Release fehlt oder veraltet ist.
 # Einziger Workflow mit `push`-Auslöser (AK-A-6-01): nur bei Änderung der Konfiguration oder dieser Datei; Juttas Uploads
@@ -7,19 +10,7 @@ name: Vorschau-Release
 # Bei Pull Requests, die diese Datei oder `.github/vorschau-release.json` ändern, läuft nur der Probelauf (bauen und
 # testen, nichts veröffentlichen, nur Lesezugriff). Release-Text und Entscheidung: `scripts/release/` (Node, ohne Install).
 on:
-  push:
-    branches: [main]
-    paths:
-      - .github/vorschau-release.json
-      - .github/workflows/release.yml
-  schedule:
-    - cron: '0 6 * * *'
   workflow_dispatch:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - .github/vorschau-release.json
-      - .github/workflows/release.yml
 
 # Push- und Zeitplan-Lauf nie gleichzeitig und nie abbrechen; Probeläufe je PR getrennt.
 concurrency:

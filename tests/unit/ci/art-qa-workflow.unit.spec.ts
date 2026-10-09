@@ -68,15 +68,9 @@ function decide(event: string, action: string, msg: string, labels: string, labe
 }
 
 describe('P9.7 art-qa.yml – Auslöser und Kennung', () => {
-  it('nur pull_request (opened, synchronize, reopened, labeled) und workflow_dispatch, kein push', () => {
-    expect(Object.keys(wf.on).sort()).toEqual(['pull_request', 'workflow_dispatch'])
-    expect(wf.on.pull_request!.types!.sort()).toEqual([
-      'labeled',
-      'opened',
-      'reopened',
-      'synchronize',
-    ])
-    expect(raw).not.toMatch(/^\s*push:/m)
+  it('U-65: nur workflow_dispatch (Vorlage; die Kunst-QA läuft lokal als pnpm ci:local art)', () => {
+    expect(Object.keys(wf.on)).toEqual(['workflow_dispatch'])
+    expect(raw).not.toMatch(/^\s*(push|pull_request|schedule|workflow_run):/m)
   })
 
   it('Kennung zuerst ohne Checkout; alle weiteren Schritte hängen an run bzw. an der Lauf-ID', () => {

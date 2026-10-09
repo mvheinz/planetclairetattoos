@@ -311,7 +311,7 @@ testet erneut.
 |---|---|---|---|
 | Node | 20, 21, 22 unter `/opt/node20…22`, 22 im PATH; **wir** installieren 24.21.0 nach `/opt/node24` | `.nvmrc` = 24 | Meldet der Hook „Node v22 aktiv“: `export PATH=/opt/node24/bin:$PATH`. `engines` erlaubt ≥ 22.12, läuft also auch mit 22. |
 | pnpm | vorinstalliert (Version nicht dokumentiert); wir aktivieren `10.34.5` | `packageManager: pnpm@10.34.5` | – |
-| PostgreSQL | **16**, läuft nicht von selbst (`service postgresql start`) | **17** (`postgres:17-alpine`) | Nur SQL, das auf 16 **und** 17 läuft (ARCHITEKTUR §1). Maßgeblich ist die CI. |
+| PostgreSQL | **16**, läuft nicht von selbst (`service postgresql start`) | **17** (`postgres:17-alpine`) | Nur SQL, das auf 16 **und** 17 läuft (ARCHITEKTUR §1). Seit U-65 prüft `pnpm ci:local` gegen die 16 der Sitzung (ARCHITEKTUR §6.0). |
 | Docker | `docker`, `docker compose` vorhanden | lokal: `docker-compose.yml` (Postgres 17 + Mailpit) | In der Cloud nicht nötig. Bei Bedarf `docker compose up -d postgres` statt PG 16 (vorher `service postgresql stop`, Port 5432). Images von Docker Hub sind erlaubt (Standardliste). |
 | Browser | Playwright-Chromium und -WebKit in `/opt/ms-playwright` (durch uns); scheitert die WebKit-Installation, setzt der Hook `PW_SKIP_WEBKIT=1` (Projekt `iphone-15` dann als markierte Chromium-Emulation, ARCHITEKTUR §7.3) | CI installiert selbst und führt WebKit **immer** aus | WebKit-Fehler zeigt spätestens die CI; maßgeblich ist die CI |
 | Sonstiges | `git`, `gh`, `jq`, `yq`, `rg`, `tmux`, Redis 7 (ungenutzt), Befehl `check-tools` (Versionsübersicht) | – | – |
@@ -337,7 +337,21 @@ testet erneut.
   Nicht jede GraphQL-Abfrage ist freigeschaltet. Bei
   `403 … This GraphQL query is not enabled for this session` die REST-Form nehmen: `gh api repos/{owner}/{repo}/…`
   (`{owner}`/`{repo}` ersetzt `gh` selbst aus `GH_REPO`).
-- **CI-Disziplin (ARCHITEKTUR §6.7 Nr. 2, §6.8):** Vor jedem Commit lokal `pnpm check`, `pnpm test:int`, betroffene
+- **Seit U-65: lokale Prüfschleuse statt GitHub Actions (ARCHITEKTUR §6.0).** GitHub-Workflows starten nicht mehr
+  von selbst (nur `workflow_dispatch`, nie aufrufen – jede Minute zählt). Die Sitzung prüft selbst:
+  - vor jedem Commit `pnpm ci:local quick` (≈ 10–15 min; Lint, Format, Typen, statisch, Unit UTC + Berlin,
+    `.env.example`, Geheimnis-Scan, audit) plus die betroffenen Int-/E2E-Tests;
+  - am Phasenende `pnpm ci:local full --status` im Hintergrund (Bash mit `run_in_background`, ≈ 2–3 h): erst committen
+    und pushen (sauberer Baum, HEAD gepusht), dann laufen lassen; grün setzt den Commit-Status `lokal/ci-full` =
+    success. Rot: Log unter `ci-reports/<zeit>-<sha7>-full/<nn>-<schritt>.log`, reparieren, committen, pushen, neu
+    (Probe vorab mit `--only <schritt>` bzw. `--from <schritt>`, Playwright-Filter nach `--`);
+  - Kunst-QA mit `pnpm ci:local art` (Bündel unter `artifacts/art-qa/<lauf-id>/bundle/`).
+  Eigene Datenbanken `planetclaire_ci(_test)` und Ports 3300–3305; arbeiten mehrere Arbeitskopien parallel, je eine
+  eigene `--db planetclaire_ci_<x>` und `--port`. Vorher `pnpm dev`/`start` derselben Arbeitskopie beenden (der
+  Lauf baut nach `.next`). Die Vorschau-Datei `dist/planet-claire-vorschau.html` schickt die Sitzung Jutta direkt im
+  Chat. Die Absätze unten zu Kennungen, Workflow-Läufen, Artefakten und Release beschreiben den früheren Betrieb;
+  „CI grün“ heißt jetzt „`lokal/ci-full` grün“.
+- **CI-Disziplin (früher, ARCHITEKTUR §6.7 Nr. 2, §6.8):** Vor jedem Commit lokal `pnpm check`, `pnpm test:int`, betroffene
   E2E-Tests, bei UI-Änderungen `pnpm build`. Zwischen-Commits tragen `[skip ci]` (`feat(P1.4): … [skip ci]`), der
   letzte Commit einer Phase `[ci:full pN]`; höchstens ein Zwischenlauf `[ci:full]` je Phase, nur bei riskanten Aufgaben.
   Referenzbilder per `[ci:update-snapshots]` oder `gh workflow run ci-full.yml --ref <branch> -f update_snapshots=true`;
