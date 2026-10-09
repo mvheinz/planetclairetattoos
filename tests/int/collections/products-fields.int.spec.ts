@@ -147,13 +147,13 @@ describe('products: Bilder (DM-MEDIA-05)', () => {
     const scale = await createTestImage(payload, 'Tasse neben einer Hand')
     await createProduct(
       payload,
-      completeProduct('keramik', 985, fx, { status: 'available', scalePhoto: scale }),
+      completeProduct('keramik', 998, fx, { status: 'available', scalePhoto: scale }),
     )
     await rejects(
       payload.delete({ collection: 'media', id: scale, overrideAccess: true }),
-      /noch verwendet.*Stück \(Größenvergleich\) Nr\. 985/,
+      /noch verwendet.*Stück \(Größenvergleich\) Nr\. 998/,
     )
-    const res = await rest('GET', '/products?where[itemNumber][equals]=985&depth=1')
+    const res = await rest('GET', '/products?where[itemNumber][equals]=998&depth=1')
     const doc = ((await res.json()) as { docs: { scalePhoto?: { id?: number } }[] }).docs[0]
     expect(doc?.scalePhoto?.id).toBe(scale)
   })
