@@ -10,6 +10,7 @@ import {
   type InspectableLeashHandle,
   type MountOptions,
 } from '@/leash/runtime'
+import { COCO_MAX_SPEED } from '@/leash/presets'
 import { resetLeashSchedule, whenLeashReady } from '@/leash/schedule'
 
 import { installTracker, type Tracker } from '../behaviors/harness'
@@ -493,6 +494,51 @@ describe('leash/debug – window.__leash und window.__qa (P2.17, §9.13, KUNST-Q
     expect(w.__leash).toBeUndefined()
     handle.destroy()
     delete w.__qa
+  })
+})
+
+describe('U-55 Coco und Tinte mit Höchsttempo (P14.6)', () => {
+  it('Coco rückt je Frame höchstens COCO_MAX_SPEED × dt vor; die Linie wächst nie schneller als Coco', () => {
+    const root = setupDom()
+    const handle = mountLeash(root, { preset: 'journey', routeKey: 'R01' })
+    const off = exposeLeashDebug(handle)
+    const api = (
+      window as Window & {
+        __leash?: {
+          cocoLen(): number
+          drawnLen(): number
+          setReadingY(y: number | null): void
+          geometry: { scrollMap: { readingY: number; len: number }[] }
+        }
+      }
+    ).__leash!
+    advance(2000) // Intro vorbei
+    // Ziel knapp unter der Sprung-Schwelle (300 px Bogen): Coco rennt, aber gedeckelt
+    const start = api.cocoLen()
+    const sm = api.geometry.scrollMap
+    const want = start + 280
+    const k = sm.findIndex((r) => r.len >= want)
+    const a = sm[k - 1]!
+    const b = sm[k]!
+    api.setReadingY(a.readingY + ((want - a.len) / (b.len - a.len)) * (b.readingY - a.readingY))
+    let prev = api.cocoLen()
+    let prevDrawn = api.drawnLen()
+    let maxStep = 0
+    let maxInk = 0
+    for (let i = 0; i < 60; i++) {
+      advance(16)
+      maxStep = Math.max(maxStep, api.cocoLen() - prev)
+      maxInk = Math.max(maxInk, api.drawnLen() - prevDrawn)
+      prev = api.cocoLen()
+      prevDrawn = api.drawnLen()
+    }
+    expect(maxStep).toBeGreaterThan(0)
+    // ein Frame dauert in den Tests 16–17 ms (Raster der Fake-Timer)
+    expect(maxStep).toBeLessThanOrEqual(COCO_MAX_SPEED * 17 + 0.01)
+    expect(maxInk).toBeLessThanOrEqual(COCO_MAX_SPEED * 17 + 0.01)
+    expect(api.cocoLen()).toBeGreaterThan(start + 250) // kommt trotzdem an
+    off()
+    handle.destroy()
   })
 })
 

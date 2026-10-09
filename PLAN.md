@@ -5617,7 +5617,7 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-50 … U-64. Gilt für Handy und Desktop
   - Akzeptanz: Unit (Zeitfenster, Sommer-/Winterzeit), E2E mit SEED_NOW.
 - [x] **P14.5 Koko lädt schneller** (U-54) – Vorrang + AVIF mit WebP-Rückfall.
   - Akzeptanz: check:bundle/Lighthouse, Bildbudget.
-- [ ] **P14.6 Leine ruhiger beim Umwickeln** (U-55) – Zeichentempo an Kringeln/Umrundungen ausgleichen.
+- [x] **P14.6 Leine ruhiger beim Umwickeln** (U-55) – Zeichentempo an Kringeln/Umrundungen ausgleichen.
   - Akzeptanz: Unit (maximale Zeichengeschwindigkeit je Abschnitt begrenzt), Kunst-QA grün.
 - [ ] **P14.7 Flash ↔ Galerie** (U-56).
   - Akzeptanz: Unit/E2E Verknüpfung in beide Richtungen, nur Fotos mit Einwilligung.

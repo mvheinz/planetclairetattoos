@@ -2,6 +2,22 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-09 – P14.6 Leine ruhiger beim Umwickeln (U-55)
+
+- Ursache: Die Scroll-Abbildung gab jeder Schlaufe einen festen Scroll-Weg (`loopScroll`, 280–480 px). Umrundungen
+  (`contour`, 1 400–2 700 px Bogen) liefen so mit 3,2–5,6 px Linie je px Scroll, dicht liegende Schlaufen (Shop/Tattoo)
+  bekamen nur 1 px Scroll-Weg (bis 226 px Linie auf 1 px) – Coco und Tinte schossen dort los.
+- Lösung 1 (Geometrie, `capDrawRate`): kleinstes erreichbares Höchsttempo ≥ 1,8 px/px (`MAX_DRAW_RATE`), wobei kein
+  Knoten mehr als 0,2 × Bildschirmhöhe (`MAX_LOOP_SHIFT`) von seiner Station wegrückt; der ruhige Weg davor/danach gibt
+  dafür Scroll-Weg ab. Gemessen (Dev-Server): Startseite 390/1280 px max. 2,5/2,3 (vorher 3,6/3,2), Shop 1,8/4,2
+  (vorher 1,8/5,6), Tattoo 1,9/2,9 (vorher 226/161), Über uns 1,8.
+- Lösung 2 (Laufzeit): Coco und damit die Tinte rücken höchstens `COCO_MAX_SPEED` = 1,6 px/ms vor (geglättet wie
+  bisher, Sprünge > 300 px Bogen weiter direkt) – glättet, was die Abbildung nicht ausgleichen kann.
+- Gilt für alle Seiten mit scrollgekoppelter Leine (Startseite, Shop, Tattoo, Über uns). Engine gzip 11 762 / 12 000 B.
+- Tests: Unit `leash/draw-rate` (Grenzwert, Wegrücken ≤ Schranke, dichte Schlaufen, Fixtures 390–1440 px),
+  `leash/runtime` (Höchsttempo je Frame für Coco und Tinte), alle Leash-Unit-Tests grün; E2E `home-choreo`, `leash`,
+  `art-gate` LG-01 (Probe übergeht jetzt zugeklappten `<details>`-Inhalt per `checkVisibility()`).
+
 ## 2026-10-09 – P14.5 Koko lädt schneller (U-54)
 
 - `koko-cutout.py` schreibt zusätzlich AVIF und schmale Fassungen: `koko.v3{-360,-520,}.{avif,webp}` (WebP 700 px und

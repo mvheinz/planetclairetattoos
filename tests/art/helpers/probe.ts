@@ -175,6 +175,9 @@ function measure(args: ProbeArgs): Probe {
       if (!el || el.closest(DECO) || el.closest('[aria-hidden="true"]')) continue
       const st = getComputedStyle(el)
       if (st.visibility === 'hidden' || st.opacity === '0') continue
+      // zugeklappter Inhalt (`<details>` → `content-visibility: hidden`, P14.2) wird nicht gezeichnet; seine Rechtecke
+      // sind ohne Bedeutung (Chromium meldet sie an der Stelle des Folgeinhalts)
+      if (el.checkVisibility && !el.checkVisibility()) continue
       if (srOnly(el, root)) continue
       const range = document.createRange()
       range.selectNodeContents(n)
