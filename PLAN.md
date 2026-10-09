@@ -5615,7 +5615,7 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-50 … U-64. Gilt für Handy und Desktop
   - Akzeptanz: E2E Sprung zu jeder Station, a11y-Prüfung.
 - [x] **P14.4 Koko schläft nachts** (U-53) – Berliner Uhrzeit serverseitig, ISR-verträglich.
   - Akzeptanz: Unit (Zeitfenster, Sommer-/Winterzeit), E2E mit SEED_NOW.
-- [ ] **P14.5 Koko lädt schneller** (U-54) – Vorrang + AVIF mit WebP-Rückfall.
+- [x] **P14.5 Koko lädt schneller** (U-54) – Vorrang + AVIF mit WebP-Rückfall.
   - Akzeptanz: check:bundle/Lighthouse, Bildbudget.
 - [ ] **P14.6 Leine ruhiger beim Umwickeln** (U-55) – Zeichentempo an Kringeln/Umrundungen ausgleichen.
   - Akzeptanz: Unit (maximale Zeichengeschwindigkeit je Abschnitt begrenzt), Kunst-QA grün.

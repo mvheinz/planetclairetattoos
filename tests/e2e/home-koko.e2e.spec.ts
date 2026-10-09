@@ -60,9 +60,21 @@ test.describe('Startseite: Koko', () => {
     await expect(img).toHaveAttribute('src', '/art/koko.v3.webp')
     await expect(img).toHaveAttribute('width', '700')
     await expect(img).toHaveAttribute('height', /^\d+$/)
+    // U-54 (P14.5): AVIF zuerst (WebP-Rückfall), passende Breite aus 360/520/700
+    await expect(koko.locator('picture source[type="image/avif"]')).toHaveAttribute(
+      'srcset',
+      '/art/koko.v3-360.avif 360w, /art/koko.v3-520.avif 520w, /art/koko.v3.avif 700w',
+    )
+    await expect(koko.locator('picture source[type="image/webp"]')).toHaveAttribute(
+      'srcset',
+      /koko\.v3\.webp 700w$/,
+    )
     await expect
-      .poll(() => img.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth))
-      .toBe(700)
+      .poll(() => img.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0))
+      .toBe(true)
+    expect(await img.evaluate((i: HTMLImageElement) => i.currentSrc)).toMatch(
+      /\/art\/koko\.v3(-360|-520)?\.avif$/,
+    )
     const box = await koko.boundingBox()
     expect(box!.width).toBeGreaterThan(150)
     expect(box!.height / box!.width).toBeCloseTo(783 / 700, 1)

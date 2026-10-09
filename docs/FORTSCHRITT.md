@@ -2,6 +2,16 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-09 – P14.5 Koko lädt schneller (U-54)
+
+- `koko-cutout.py` schreibt zusätzlich AVIF und schmale Fassungen: `koko.v3{-360,-520,}.{avif,webp}` (WebP 700 px und
+  `koko.json` unverändert, Lauf deterministisch). AVIF: 13,0 / 20,0 / 30,3 KB statt WebP 23,0 / 37,0 / 54,0 KB.
+- `<picture>` mit AVIF vor WebP, `srcset` 360w/520w/700w und `sizes` passend zur Spalte. Vorrang nur dort, wo Koko im
+  ersten Bild steht: `<link rel=preload as=image type=image/avif fetchpriority=high media="(min-width: 1100px)">` (auf dem
+  Handy liegt Koko unter dem Falz; dort ist das Foto von Jutta und Coco der LCP-Kandidat und lädt sofort).
+- Budget: `tests/perf/budgets.json` → `koko` (AVIF ≤ 32 KB, WebP ≤ 56 KB je Breite, AVIF < WebP), Gate in
+  `check:bundle` (`checkKokoImages`); Unit `check-bundle`, E2E `home-koko` (AVIF gewählt, Quellen, Rückfall).
+
 ## 2026-10-09 – P14.4 Koko schläft nachts (U-53)
 
 - `kokoAsleep(now)` (`src/lib/home/kokoSleep.ts`): Berliner Uhrzeit 22:00–06:59 → Koko hat die Lider zu. Die Startseite

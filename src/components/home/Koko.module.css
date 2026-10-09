@@ -10,6 +10,11 @@
   color: var(--ink);
 }
 
+/* <picture> (AVIF/WebP, U-54) ohne eigene Box: das <img> füllt die feste Fläche wie bisher */
+.picture {
+  display: contents;
+}
+
 .drawing,
 .eyes {
   display: block;
