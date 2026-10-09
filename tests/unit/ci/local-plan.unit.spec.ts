@@ -149,7 +149,9 @@ describe('Schritte je Modus (bilden die bisherigen Workflows nach)', () => {
     expect(cmdOf('full', 'bundle')).toBe('pnpm run check:bundle --port 3301')
     expect(cmdOf('full', 'external')).toBe('pnpm run check:external --built')
     expect(cmdOf('full', 'lighthouse')).toBe('tsx scripts/ci/lighthouse-calibrated.ts')
-    expect(cmdOf('full', 'inp')).toMatch(/lighthouse-calibrated\.ts --rate.*pnpm run test:e2e --grep @perf --project=pixel-7$/)
+    expect(cmdOf('full', 'inp')).toMatch(
+      /lighthouse-calibrated\.ts --rate.*pnpm run test:e2e --grep @perf --project=pixel-7$/,
+    )
     expect(cmdOf('full', 'visual')).toContain(SKIP_MARKER)
     for (const p of ['desktop', 'iphone-15', 'pixel-7'])
       expect(cmdOf('full', `e2e-${p}`)).toBe(
