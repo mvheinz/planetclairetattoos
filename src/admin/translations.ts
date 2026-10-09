@@ -181,6 +181,14 @@ export const ADMIN_CUSTOM_DE = {
   pieceAnother: 'Noch ein Stück',
   pieceBackToEdit: 'Weiter bearbeiten',
   pieceToList: 'Zu „Meine Stücke“',
+  pieceDuplicate: 'Als neues Stück kopieren',
+  pieceDuplicateTitle: 'Nr. {{nr}} als neues Stück kopieren?',
+  pieceDuplicateText:
+    'Es entsteht ein neuer Entwurf mit denselben Texten, Maßen, Material, Preis, Versand und Sicherheitsangaben. Fotos, Nummer und Abweichungen werden nicht übernommen – die Kopie bekommt die nächste freie Nummer. Bitte vorher speichern: Nicht gespeicherte Änderungen werden nicht mitkopiert.',
+  pieceDuplicateConfirm: 'Ja, kopieren',
+  pieceDuplicateDone: 'Kopie angelegt – sie öffnet sich gleich.',
+  pieceDuplicateHint:
+    'Für ähnliche Stücke: Danach nur Fotos, Titel und Besonderheiten anpassen und „nur eigene Figuren“ bestätigen.',
   pieceField_images: 'Fotos',
   pieceField_itemNumber: 'Objektnummer',
   pieceField_category: 'Kategorie',

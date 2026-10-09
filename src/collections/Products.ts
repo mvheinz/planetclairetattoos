@@ -30,7 +30,7 @@ import {
   PRODUCT_SLUG_RE,
 } from '@/lib/products/itemNumber'
 import { registerUploadReference } from '@/lib/uploads/references'
-import { productTransitionEndpoints } from '@/endpoints/products/actions'
+import { productDuplicateEndpoint, productTransitionEndpoints } from '@/endpoints/products/actions'
 import { adoptEndpoint } from '@/endpoints/products/adopt'
 import { productLabelEndpoint } from '@/endpoints/products/label'
 import {
@@ -790,6 +790,7 @@ export const Products: CollectionConfig = {
     nextItemNumberEndpoint,
     itemNumberStatusEndpoint,
     ...productTransitionEndpoints,
+    productDuplicateEndpoint,
     translateEndpoint,
     adoptEndpoint,
     productLabelEndpoint,

@@ -8,11 +8,13 @@ import {
   type ProductTransition,
 } from '@/lib/commerce/productTransitions'
 import { createLogger } from '@/lib/monitoring/logger'
+import { duplicateProduct } from '@/lib/products/duplicate'
 
 // Admin-Endpunkte der Stücke (DATENMODELL §6.6.10, alle `isAdmin`): je Aktion ein Übergang des Statusautomaten.
 // `publish` P2 · `unpublish` P3 · `sell-offline` P9/P10 · `archive` P12 · `archive-after-return` P13 · `restore` P14 ·
-// `return-to-stock` P11. Antwort: `{ doc, unchanged }` bzw. `{ error, errors? }` mit deutscher Meldung. Zustandsbasiert
-// idempotent (P5.1): steht das Stück schon im Zielzustand des Übergangs, 200 `{ unchanged: true }` ohne Wirkung.
+// `return-to-stock` P11 · `duplicate` (U-60, P14.11: Kopie als Entwurf, ohne Fotos/Nummer). Antwort: `{ doc, unchanged }`
+// bzw. `{ error, errors? }` mit deutscher Meldung. Zustandsbasiert idempotent (P5.1): steht das Stück schon im
+// Zielzustand des Übergangs, 200 `{ unchanged: true }` ohne Wirkung (gilt nicht für `duplicate` – jede Kopie ist neu).
 
 const log = createLogger()
 
@@ -123,3 +125,8 @@ export const productTransitionEndpoints: Endpoint[] = [
       }),
   ),
 ]
+
+/** `POST /api/products/:id/duplicate` – „Als neues Stück kopieren“ (U-60, P14.11): neuer Entwurf, Antwort `{ doc }`. */
+export const productDuplicateEndpoint: Endpoint = productAction('duplicate', (req, id) =>
+  duplicateProduct(req, id),
+)
