@@ -2,6 +2,25 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-09 – P14.15 Lokale Prüfschleuse statt GitHub Actions (U-65, U-66)
+
+- **Workflows:** Alle sechs Dateien unter `.github/workflows/` starten nur noch per Hand (`workflow_dispatch`), mit
+  Kopfkommentar „Seit U-65 nur per Hand – Prüfungen laufen lokal (pnpm ci:local)“; Inhalt bleibt als Vorlage. Unit-Test:
+  kein Workflow hat einen automatischen Auslöser.
+- **`pnpm ci:local <quick|full|art>`** (`scripts/ci-local.ts`, Planung `scripts/ci/local-plan.ts`): bildet `ci.yml`,
+  `ci-full.yml` (quality, E2E je Gerät, Docker), `preview-export.yml`, `restore-drill.yml` und `art-qa.yml` nach. Eigene
+  Datenbanken `planetclaire_ci(_test)`, Ports 3300–3305, Logdatei je Schritt und `report.json` unter
+  `ci-reports/<zeit>-<sha7>-<modus>/`, `--only`/`--from`/`--keep-going`/`--dry-run`, Playwright-Filter nach `--`,
+  `--status` setzt den Commit-Status `lokal/ci-<modus>` (nur vollständig, sauber, gepusht). gitleaks 8.30.1 wird bei
+  Bedarf mit Prüfsumme geladen; ohne gitleaks Ersatzprüfung als Hinweis. Jeder Schritt in eigener Prozessgruppe.
+- **Doku:** ARCHITEKTUR §6.0 (neu, verweist auf U-65), §6.1/§6.8/§6.10, CLOUD-SETUP §3.3/§3.5.
+- **Probeläufe:** `ci:local quick` grün (9/9, 37 min auf dem geteilten Rechner); `full` mit `--only`: `db`,
+  `restore-drill`, `build` (ohne Debug), `check:no-debug`, `check:bundle` (alle Budgets, Shop/Produkt 146,2 KB),
+  `check:external --built` grün; `build-debug` + `e2e-desktop` mit drei Specs grün (16 bestanden, 0 flaky). `coverage` lief
+  unter Last in die Zeitgrenze (OFFENE-PUNKTE) – den vollständigen `full`-Lauf macht die Hauptsitzung am Phasenende.
+- Tests: `tests/unit/ci/local-plan.unit.spec.ts` (16), Workflow-/Release-/Docker-Unit-Tests angepasst, actionlint ohne
+  Befund.
+
 ## 2026-10-09 – P14.13 Technik: CI-Minuten, Wackel-Tests, Ladebudget, Listen-Seiten (U-62)
 
 - **CI-Minuten** (gemessen am P13-Phasenende: ≈ 289 min je `[ci:full pN]`-Lauf): `quick` läuft bei `[ci:full` kurz – keine

@@ -237,7 +237,7 @@ function e2eStep(project: 'desktop' | 'iphone-15' | 'pixel-7'): Step {
     cmd: (ctx) =>
       `pnpm run test:e2e --project=${project} ${E2E_GREP} ${e2eExtra(ctx)}`.trim() +
       ' && pnpm run ci:flaky',
-    timeoutMin: 150,
+    timeoutMin: 240,
   }
 }
 
@@ -321,7 +321,8 @@ const ALL: Step[] = [
     title: 'Int + Unit mit Abdeckung (test:coverage)',
     modes: ['full'],
     cmd: 'pnpm run test:coverage',
-    timeoutMin: 90,
+    // Auf einem geteilten Rechner (mehrere Sitzungen) brauchte der Lauf > 90 min (CI ohne Last: 37 min).
+    timeoutMin: 180,
   },
   // Wie restore-drill.yml: eine Datenbank für Bestand und Übung (die Testdatenbank).
   {
