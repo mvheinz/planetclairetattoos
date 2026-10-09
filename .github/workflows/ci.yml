@@ -62,7 +62,9 @@ jobs:
       NEXT_TELEMETRY_DISABLED: '1'
       E2E_SERVER: start
     steps:
-      # Kennung (§6.2): bei [ci:update-snapshots] und [ci:art] entfällt quick.
+      # Kennung (§6.2): bei [ci:update-snapshots] und [ci:art] entfällt quick. Bei `[ci:full` (P14.13, §6.8) läuft quick
+      # kurz: Integrationstests, Build/Budgets und Rauchtest übernimmt ci-full.yml (quality: test:coverage = Unit + Int,
+      # Build + check:bundle + check:external; e2e-full: alle @smoke-Tests); quick prüft Unit-Tests dann in Berliner Zeit.
       - name: Kennung
         id: mode
         env:
@@ -78,9 +80,15 @@ jobs:
           echo "sha7=${sha:0:7}" >> "$GITHUB_OUTPUT"
           if echo "$msg" | grep -qE '\[ci:update-snapshots\]|\[ci:art\]'; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "full=false" >> "$GITHUB_OUTPUT"
             echo "quick übersprungen (Kennung im Kopf-Commit)" >> "$GITHUB_STEP_SUMMARY"
+          elif echo "$msg" | grep -qF '[ci:full'; then
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "full=true" >> "$GITHUB_OUTPUT"
+            echo "quick kurz: Int-Tests, Build/Budgets und Rauchtest laufen in ci-full.yml (§6.8)" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "full=false" >> "$GITHUB_OUTPUT"
           fi
       - if: steps.mode.outputs.skip != 'true'
         uses: actions/checkout@v7
@@ -106,7 +114,14 @@ jobs:
         if: steps.mode.outputs.skip != 'true'
         run: pnpm run check:static
       - name: Unit-Tests
-        if: steps.mode.outputs.skip != 'true'
+        if: steps.mode.outputs.skip != 'true' && steps.mode.outputs.full != 'true'
+        run: pnpm run test:unit
+      # P4.2/P10.1: Unit-Tests zusätzlich in Berliner Ortszeit (Fristen, Summen, Steuer dürfen nicht von TZ abhängen).
+      # Nur beim vollen Lauf – in UTC laufen sie dann in quality (test:coverage); früher je E2E-Job (6×, P14.13).
+      - name: Unit-Tests mit TZ=Europe/Berlin
+        if: steps.mode.outputs.full == 'true'
+        env:
+          TZ: Europe/Berlin
         run: pnpm run test:unit
       - name: Migrationen
         if: steps.mode.outputs.skip != 'true'
@@ -114,38 +129,38 @@ jobs:
       # Playwright-Chromium vor den Integrationstests: der Vorschau-Export-Test (AK-A-14-01) braucht ihn (ARCHITEKTUR §14.1).
       - name: Playwright-Version
         id: pw
-        if: steps.mode.outputs.skip != 'true'
+        if: steps.mode.outputs.skip != 'true' && steps.mode.outputs.full != 'true'
         run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
       - name: Playwright-Browser-Cache
         id: pw-cache
-        if: steps.mode.outputs.skip != 'true'
+        if: steps.mode.outputs.skip != 'true' && steps.mode.outputs.full != 'true'
         uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-chromium-webkit-${{ steps.pw.outputs.version }}
       - name: Playwright Chromium + WebKit
-        if: steps.mode.outputs.skip != 'true'
+        if: steps.mode.outputs.skip != 'true' && steps.mode.outputs.full != 'true'
         # Immer installieren (lädt nichts nach, was im Cache liegt); Schlüssel je Browser-Satz, damit ein
         # Chromium-only-Cache nie einem WebKit-Job WebKit vorenthält.
         run: pnpm exec playwright install --with-deps chromium webkit
       - name: Integrationstests
-        if: steps.mode.outputs.skip != 'true'
+        if: steps.mode.outputs.skip != 'true' && steps.mode.outputs.full != 'true'
         run: pnpm run test:int
       - name: Next.js-Cache
-        if: steps.mode.outputs.skip != 'true'
+        if: steps.mode.outputs.skip != 'true' && steps.mode.outputs.full != 'true'
         uses: actions/cache@v6
         with:
           path: .next/cache
           key: next-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('src/**') }}
           restore-keys: next-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
       - name: Seed + Build
-        if: steps.mode.outputs.skip != 'true'
+        if: steps.mode.outputs.skip != 'true' && steps.mode.outputs.full != 'true'
         run: pnpm run seed && pnpm run build
       - name: Budgets
-        if: steps.mode.outputs.skip != 'true'
+        if: steps.mode.outputs.skip != 'true' && steps.mode.outputs.full != 'true'
         run: pnpm run check:bundle && pnpm run check:external --built
       - name: E2E-Rauchtest
-        if: steps.mode.outputs.skip != 'true'
+        if: steps.mode.outputs.skip != 'true' && steps.mode.outputs.full != 'true'
         run: pnpm run test:e2e --grep @smoke --project=desktop --project=iphone-15
       - name: Geheimnis-Scan
         if: steps.mode.outputs.skip != 'true'

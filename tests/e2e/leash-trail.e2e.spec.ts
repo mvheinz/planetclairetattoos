@@ -3,6 +3,7 @@ import { expect, test, type Page } from '@playwright/test'
 import { overlaps } from '../../scripts/art/lib/checks/runtime'
 import { localizedPath } from '../../src/lib/routes/paths'
 import { probePage } from '../art/helpers/probe'
+import { waitForLeashSettled } from './leashSettle'
 
 // U-44 (P13.5): Auf allen Shop- und Tattoo-Seiten läuft Coco an der Leine mit – Kringel zwischen den Blöcken, ab und zu
 // eine Umrundung einer Bildgruppe (DESIGN §9.7). Geprüft je Seite an 14 Lesezeilen-Positionen: Linie und Hundekante
@@ -75,8 +76,8 @@ test('U-44: Coco läuft auf allen Shop- und Tattoo-Seiten mit, ohne Text oder Be
   for (const path of paths) {
     await page.goto(path)
     await waitForLeash(page)
-    // Intro (MI-10, 1800 ms) abwarten
-    await page.waitForTimeout(2200)
+    // Intro (MI-10, 1800 ms) abwarten – bis Linie und Coco ruhen (P14.13, statt fester 2,2 s)
+    await waitForLeashSettled(page)
     const coco = page.locator('.coco[data-leash-coco]')
     await expect(coco, path).toHaveAttribute('data-placed', '')
     await expect(coco, path).toBeVisible()

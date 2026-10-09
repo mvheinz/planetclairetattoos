@@ -1,7 +1,7 @@
 {
   "$comment": "Tempo-Budgets (ARCHITEKTUR §7.7, DESIGN §9.10, AK-DS-04). 1 KB = 1000 B, Grenzen gelten einschließlich. Gelesen von scripts/check-bundle.ts (pnpm check:bundle), tests/perf/lighthouserc.cjs (pnpm test:perf) und tests/e2e/perf.e2e.spec.ts (@perf). Nur Gates blockieren, Ziele werden berichtet. Mikro-Interaktionen (DESIGN §9.10 ≤ 4 KB) gelten je Gruppe von Verhaltensmodulen, die eine Seite gemeinsam lädt (Module sind einzelne Lazy-Chunks); jede Datei unter src/behaviors/ gehört zu genau einer Gruppe (OFFENE-PUNKTE P3.4).",
   "firstLoadJs": {
-    "$comment": "JS beim ersten Laden: gzip Stufe 9, Summe aller Skripte aus /_next/static, die vor dem load-Ereignis geladen werden. Schlüssel = Routen-ID der Registry, sonst default (R02–R05, R11–R27 und R28). R06/R07 ohne Stripe.js. R29 (Fehlerzustand, in §7.7 ohne eigene Grenze) lädt die Fehleransicht nach; eigene Grenze laut OFFENE-PUNKTE (P2.23).",
+    "$comment": "JS beim ersten Laden: gzip Stufe 9, Summe aller Skripte aus /_next/static, die das ausgelieferte HTML einbindet (script src ohne nomodule, preload/modulepreload as=script; seit P14.13 deterministisch statt vor dem load-Ereignis geladen). Schlüssel = Routen-ID der Registry, sonst default (R02–R05, R11–R27 und R28). R06/R07 ohne Stripe.js. R29 (Fehlerzustand, in §7.7 ohne eigene Grenze) lädt die Fehleransicht nach; eigene Grenze laut OFFENE-PUNKTE (P2.23).",
     "gzipMax": {
       "default": 150000,
       "R01": 170000,

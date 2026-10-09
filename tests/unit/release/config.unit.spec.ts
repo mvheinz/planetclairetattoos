@@ -120,6 +120,46 @@ describe('release.yml (ARCHITEKTUR §6.6)', () => {
     }
   })
 
+  it('P14.13 Probelauf: bei [ci:full pN]/[ci:art]/[ci:update-snapshots] nur Konfiguration (Export läuft in preview-export.yml)', () => {
+    const probe = workflow.jobs.probe!
+    const kennung = probe.steps[0]!
+    expect(kennung.id).toBe('mode')
+    expect(kennung.uses).toBeUndefined()
+    const decideExport = (msg: string) => {
+      const dir = mkdtempSync(path.join(tmpdir(), 'pc-probe-'))
+      try {
+        const bin = path.join(dir, 'gh')
+        writeFileSync(bin, '#!/bin/sh\nprintf "%s\\n" "$FAKE_OUT"\n', { mode: 0o755 })
+        const out = path.join(dir, 'out')
+        writeFileSync(out, '')
+        const script = kennung
+          .run!.replace('${{ github.event.pull_request.head.sha }}', 'abc')
+          .replace('${{ github.repository }}', 'o/r')
+        execFileSync('bash', ['-e', '-c', script], {
+          env: {
+            ...process.env,
+            PATH: `${dir}:${process.env.PATH ?? ''}`,
+            FAKE_OUT: msg,
+            GITHUB_OUTPUT: out,
+            GITHUB_STEP_SUMMARY: path.join(dir, 'summary'),
+          },
+        })
+        return readFileSync(out, 'utf8').trim()
+      } finally {
+        rmSync(dir, { recursive: true, force: true })
+      }
+    }
+    expect(decideExport('chore(P14): finish [ci:full p14]')).toBe('export=false')
+    expect(decideExport('chore(P9): art [ci:art]')).toBe('export=false')
+    expect(decideExport('test: refs [ci:update-snapshots]')).toBe('export=false')
+    expect(decideExport('feat(P4.3): checkout [ci:full]')).toBe('export=true')
+    expect(decideExport('docs: stand')).toBe('export=true')
+    const gated = (re: RegExp) => probe.steps.find((s) => re.test(s.run ?? ''))!.if
+    expect(gated(/^pnpm run preview:export$/)).toBe("steps.mode.outputs.export == 'true'")
+    expect(gated(/^pnpm run test:preview-export$/)).toBe("steps.mode.outputs.export == 'true'")
+    expect(gated(/tests\/unit\/release/)).toBeUndefined()
+  })
+
   it('kein cancel-in-progress; Gruppe release; Standard-Rechte nur contents: read, Schreibrecht nur in publish', () => {
     expect(workflow.concurrency['cancel-in-progress']).toBe(false)
     expect(workflow.concurrency.group).toContain("'release'")

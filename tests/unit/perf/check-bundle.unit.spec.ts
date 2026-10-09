@@ -11,6 +11,7 @@ import {
   expandGlob,
   findDevOnlyStrings,
   firstLoadBudget,
+  initialScriptUrls,
   loadBudgets,
   pageTargets,
   parseArgs,
@@ -270,5 +271,47 @@ describe('P8.14: potrace nie im Client-Bundle', () => {
     } finally {
       rmSync(dir, { recursive: true, force: true })
     }
+  })
+})
+
+describe('P14.13 JS beim ersten Laden deterministisch: Skripte aus dem ausgelieferten HTML', () => {
+  const base = 'http://localhost:3100'
+  const html = [
+    '<html><head>',
+    '<link rel="preload" as="script" fetchPriority="low" href="/_next/static/chunks/webpack.js"/>',
+    '<link rel="preload" as="font" href="/_next/static/media/a.woff2"/>',
+    '<link rel="stylesheet" href="/_next/static/chunks/a.css"/>',
+    '<link rel="modulepreload" href="/_next/static/chunks/mod.js">',
+    '<script src="/_next/static/chunks/main.js" async=""></script>',
+    "<script src='/_next/static/chunks/page.js?dpl=x&amp;v=1' async></script>",
+    '<script src="/_next/static/chunks/polyfill.js" noModule=""></script>',
+    '<script src="/_next/static/chunks/main.js" async></script>',
+    '<script src="https://js.stripe.com/v3"></script>',
+    '<script>self.__next_f.push([1,"import(\'/_next/static/chunks/lazy.js\')"])</script>',
+    '</head></html>',
+  ].join('\n')
+
+  it('nimmt <script src> ohne nomodule und preload/modulepreload as=script, ohne Duplikate, nur /_next/static/*.js', () => {
+    expect(initialScriptUrls(html, base)).toEqual([
+      `${base}/_next/static/chunks/main.js`,
+      `${base}/_next/static/chunks/page.js?dpl=x&v=1`,
+      `${base}/_next/static/chunks/webpack.js`,
+      `${base}/_next/static/chunks/mod.js`,
+    ])
+  })
+
+  it('nachgeladene Chunks (nur im Flight-Payload oder per import()) zählen nicht – unabhängig vom Zeitpunkt', () => {
+    expect(initialScriptUrls(html, base).some((u) => u.includes('lazy.js'))).toBe(false)
+    expect(initialScriptUrls('<p>kein Skript</p>', base)).toEqual([])
+  })
+
+  it('Bericht nennt zufällig vor load Nachgeladenes nur als Hinweis (kein Fehler)', () => {
+    const b = clone()
+    const { lines, errors } = evaluatePages(
+      [measurement('R02', 149_000, { lazyBeforeLoadGzipBytes: 12_000 })],
+      b,
+    )
+    expect(errors).toEqual([])
+    expect(lines[0]).toContain('nachgeladen vor load 12.0 KB, nur Bericht')
   })
 })

@@ -1089,8 +1089,8 @@ Kosten ≤ 1 min, §6.8). Bei `workflow_dispatch` gelten die Eingaben statt der 
 |---|---|---|---|---|
 | `[skip ci]` | – | – | – | – (auch kein Label-Ereignis) |
 | ohne Kennung (z. B. Dependabot-PR) | ✓ | nur `mode` | übersprungen | nur mit Label `art` |
-| `[ci:full]` (Zwischenlauf) | ✓ | `e2e-full`, `quality` (ab P10 `docker`) | übersprungen | nur mit Label `art` |
-| `[ci:full pN]` (Phasenende) | ✓ | `e2e-full`, `quality` (ab P10 `docker`) | `export` | nur mit Label `art` |
+| `[ci:full]` (Zwischenlauf) | ✓ Kurzform (seit P14.13, §6.3) | `e2e-full` (seit P14.13 nur `desktop` + `iphone-15`, dazu die pixel-7-Gates, §6.4), `quality` (ab P10 `docker`) | übersprungen | nur mit Label `art` |
+| `[ci:full pN]` (Phasenende) | ✓ Kurzform (seit P14.13, §6.3) | `e2e-full` (alle drei Geräteprofile), `quality` (ab P10 `docker`) | `export` | nur mit Label `art` |
 | `[ci:update-snapshots]` | übersprungen | `snapshots` | übersprungen | nur mit Label `art` |
 | `[ci:art]` (nur P9, KUNST-QA §9) | übersprungen | nur `mode` | übersprungen | `art-qa` |
 
@@ -1147,11 +1147,21 @@ oder `[ci:art]`, werden alle folgenden Schritte übersprungen.
 Bei Fehler: Budget-Schritt, dann (nur bei `upload_optional=true`) Upload `playwright-report/` und `test-results/` als
 Artefakt `ci-report-<sha7>` mit `retention-days: 2` (§6.2).
 
+**Kurzform bei `[ci:full` (seit P14.13, U-62):** Trägt der Kopf-Commit `[ci:full` (Zwischenlauf oder Phasenende), setzt
+die Kennung `full=true`, und `quick` lässt alles aus, was `ci-full.yml` ohnehin ausführt: Nr. 7 (Integrationstests – laufen
+in `quality` als `pnpm test:coverage`, Unit + Int mit denselben Dateien und demselben DB-Reset), Nr. 8/9 (Seed + Build,
+`check:bundle` und `check:external --built` – laufen in `quality` am Build ohne Debug-Schalter), Nr. 10 (`@smoke` – die
+Rauchtests sind Teil der vollen Suite in `e2e-full`) samt Playwright-Installation und `.next`-Cache. Statt Nr. 5 in UTC
+laufen die Unit-Tests dann einmal mit `TZ=Europe/Berlin` (P4.2/P10.1; in UTC laufen sie in `test:coverage`). Lint, Typen,
+statische Prüfungen, Migrationen + Drift, Geheimnis-Scan und `pnpm audit` laufen immer. Ohne Kennung (z. B.
+Dependabot-PR) und bei `workflow_dispatch` läuft `quick` vollständig wie in der Tabelle.
+
 ### 6.4 `ci-full.yml`
 
 | Job | Inhalt | Gate |
 |---|---|---|
-| `e2e-full` | ab P3.16 Matrix je Playwright-Projekt `desktop`, `iphone-15` (WebKit), `pixel-7` (je Projekt zwei Playwright-Hälften `--shard=1/2`/`2/2`, also sechs parallele Jobs, `fail-fast: false`): je Job ein Build (`NEXT_PUBLIC_LEASH_DEBUG=1`), dann das Projekt mit allen Tests außer `@visual`, `@perf`; enthält die Suiten `@a11y` (axe, §7.5) und `@privacy` (No-Cookie, No-Third-Party, §7.4 T-03/T-04). Grund: ~1 400 Tests bräuchten nacheinander mit einem Worker ~55 min (> `timeout-minutes: 40`) | alle grün |
+| `e2e-full` | ab P3.16 Matrix je Playwright-Projekt `desktop`, `iphone-15` (WebKit), `pixel-7` (je Projekt zwei Playwright-Hälften `--shard=1/2`/`2/2`, also sechs parallele Jobs, `fail-fast: false`): je Job ein Build (`NEXT_PUBLIC_LEASH_DEBUG=1`), dann das Projekt mit allen Tests außer `@visual`, `@perf`; enthält die Suiten `@a11y` (axe, §7.5) und `@privacy` (No-Cookie, No-Third-Party, §7.4 T-03/T-04). Grund: ~1 400 Tests bräuchten nacheinander mit einem Worker ~55 min (> `timeout-minutes: 40`). Seit P14.13 kommt die Projektliste aus dem Job `mode` (Ausgabe `projects`): Phasenende `[ci:full pN]` und Dispatch alle drei, Zwischenlauf `[ci:full]` nur `desktop` und `iphone-15` (vier Jobs); dann prüft `desktop 1/2` zusätzlich mit `--project=pixel-7` das Kunst-Dauer-Gate (`art-gate.e2e.spec.ts`, KUNST-QA §9) und `purchase/reservation.e2e.spec.ts` (AK-3-10 läuft nur auf pixel-7). Die Unit-Tests mit `TZ=Europe/Berlin` liefen bis P14.12 in jedem dieser Jobs (6×), seit P14.13 einmal in `quick` (§6.3). Ein gemeinsamer Build als Artefakt lohnt nicht: Seed + Build dauern dank `.next/cache` ~1 min, Hoch-/Herunterladen von `.next` ebenso lange und belastete den Artefakt-Speicher | alle grün |
+| `quality` (Ergänzung P14.13) | `pnpm test:coverage` ist der einzige Lauf der Integrationstests beim vollen Lauf (§6.3 Kurzform); der Schritt „Bundle-Budgets“ führt zusätzlich `pnpm check:external --built` aus | alle grün |
 | `quality` | Produktions-Build **ohne** Debug-Schalter; `pnpm check:no-debug` (String `__leash` kommt im Build nicht vor, DESIGN §9.13); `pnpm test:visual` (Chromium, §7.6); `pnpm test:perf` (Lighthouse-CI, §7.7); `pnpm test:e2e --grep @perf --project=pixel-7` (INP-Ersatzmessung) | alle grün |
 | `docker` (ab P10) | `docker build` (Standalone, `BUILD_WITHOUT_DB=1`), `docker compose -f docker-compose.prod.yml up -d` mit Testwerten, warten auf `/api/health`, `GET /de` = 200, `down -v` (§13) | grün |
 | `snapshots` | nur bei `[ci:update-snapshots]` bzw. Dispatch mit `update_snapshots = true`: Produktions-Build ohne Debug-Schalter, `pnpm test:visual --update-snapshots` (ab P9 zusätzlich die Standbild-Referenzen aus `tests/art/`, KUNST-QA §8), Upload der Referenzordner als Artefakt `visual-snapshots-<sha7>` (`retention-days: 2`, Pflicht-Upload) | Upload vorhanden |
@@ -1214,7 +1224,9 @@ cancel-in-progress: false }` (Push- und Zeitplan-Lauf nie gleichzeitig). Jobs:
 
 **Probelauf im PR:** Ändert ein Pull Request `release.yml` oder `vorschau-release.json`, laufen nur Export und Tests (ohne
 Veröffentlichung, ohne `verify-asset`, ohne `contents: write`); ein Unit-Test prüft Schema, Tag, Asset-Namen und
-Hinweis-Satz der JSON-Datei. Spätere Stände: neuer Tag `vorschau-JJJJ-MM-TT`. Die HTML-Datei wird nie committet (`dist/`
+Hinweis-Satz der JSON-Datei. Seit P14.13 liest der Probelauf zuerst die Kennung des Kopf-Commits: Bei `[ci:full pN]`
+exportiert und testet `preview-export.yml` dieselbe Datei mit denselben Befehlen, bei `[ci:art]`/`[ci:update-snapshots]`
+folgt vor dem Merge ohnehin ein Phasenende-Lauf – dann prüft der Probelauf nur die Konfiguration (~3 statt ~9 min). Spätere Stände: neuer Tag `vorschau-JJJJ-MM-TT`. Die HTML-Datei wird nie committet (`dist/`
 in `.gitignore`, KONZEPT AK-12-02).
 
 **Rückfall:** Squash-Nachrichten auf `main` enthalten nie `[skip ci]` (§6.7 Nr. 3), der Push nach dem P10-Merge startet
@@ -1293,6 +1305,44 @@ laufen dank `[skip ci]` ohne CI, §6.7 Nr. 2; auf `main` läuft bis zum P10-Merg
 | Dependabot-Sicherheits-PRs (`quick`) | ~4 × ~15 | ~60 |
 | `release.yml` auf `main` (ab dem P10-Merge) | einmal `publish` + `verify-asset` ~20; `gate` je Push und täglich ~1 bis P11 | ~50 |
 | **Summe** | | **≈ 1.405** (Ziel ≤ 1.500) |
+
+**Stand P14.13 (U-62): gemessen und geschätzt.** Mit dem vollen Beispielbestand und den Ergänzungen aus P12/P13 lag ein
+Lauf weit über den Annahmen oben. Gemessen am grünen P13-Phasenende (Läufe vom 08.10.2026, Commit `a46b29c`; je Job auf
+volle Minuten aufgerundet):
+
+| Posten (Phasenende `[ci:full pN]`) | vorher (gemessen) | nachher (geschätzt) | Änderung P14.13 |
+|---|---|---|---|
+| `ci.yml` `quick` | 56 (davon Int-Tests 32, Rauchtest 15, Build + Budgets 2,5) | ~8 | Kurzform §6.3: Int-Tests, Build/Budgets, Rauchtest laufen nur noch in `ci-full.yml` |
+| `ci-full.yml` `mode` | 1 | 1 | – |
+| `ci-full.yml` `e2e-full` (6 Jobs) | 155 (28 + 17 + 35 + 28 + 30 + 17) | ~143 | Unit-Tests in Berliner Zeit einmal in `quick` statt 6× (je 1,6–2,4 min) |
+| `ci-full.yml` `quality` | 55 (davon Abdeckung 37, visuell 9) | ~56 | + `check:external --built` (Sekunden) |
+| `ci-full.yml` `docker` | 4 | 4 | – |
+| `preview-export.yml` | 8 | 8 | – |
+| `release.yml` Probelauf (PR ändert `vorschau-release.json`) | 9 | ~3 | Export/Test nur, wenn `preview-export.yml` ihn nicht ohnehin ausführt (§6.6) |
+| `art-qa.yml` (nur Kennung) | 1 | 1 | – (mit `[ci:art]`/Label `art` zusätzlich ~47) |
+| **Summe Phasenende** | **≈ 289** | **≈ 224 (−22 %)** | |
+| **Zwischenlauf `[ci:full]`** (ohne Export, mit Probelauf) | ≈ 282 | ≈ 188 (−33 %) | zusätzlich ohne die zwei pixel-7-Jobs (−47 min), dafür ~4 min pixel-7-Gates in `desktop 1/2` |
+
+Der größte Kostentreiber waren **Wiederholungen roter Läufe**: Im P13-Abschluss lief `ci-full.yml` viermal (dreimal rot
+durch Wackel-Tests bzw. kleine Fehler), also ≈ 4 × 289 ≈ 1.150 min für ein Phasenende. Mit der Kurzform kostet jede
+Wiederholung ≈ 224 statt 289 min; P14.13 stabilisiert außerdem die beobachteten Wackler (Unit-RPC-Abbruch,
+`check:bundle`-Zeitabhängigkeit, feste Wartezeiten in E2E) und senkt `retries` auf 1 (§7.2). Für eine Phase mit einem
+Zwischenlauf und einem Phasenende, das einmal wiederholt werden muss, ergibt das ≈ 282 + 2 × 289 ≈ 860 min vorher und
+≈ 188 + 2 × 224 ≈ 636 min nachher (−26 %); entfällt die Wiederholung dank stabiler Tests, ≈ 412 min (−52 %).
+Gemessen wurde auf den 4-vCPU-Runnern des (noch) öffentlichen Repositorys. Die
+Phasenende-Prüfung selbst bleibt vollständig: jede Prüfung (Lint, Typen, statisch, Unit UTC + Berlin, Migrationen/Drift,
+Int + Abdeckung, Build-Budgets, Fremd-URL-Scan, alle E2E auf allen drei Geräteprofilen, visuell, Lighthouse, INP, Docker,
+Export, Geheimnis-Scan, audit) läuft genau einmal.
+
+Bewusst **nicht** umgesetzt: (a) Build einmal bauen und als Artefakt verteilen – Seed + Build dauern dank `.next/cache`
+nur ~1 min je Job, Hoch-/Herunterladen von `.next` ebenso lange, und es belastete den Artefakt-Speicher (500 MB, §6.1);
+(b) mehrere Playwright-Worker in `e2e-full` – einige Specs ändern gemeinsame Daten (z. B. `empty-states`, globale
+Einstellungen); (c) pixel-7 auch am Phasenende auf eine Teilmenge beschränken (weitere ~45 min) – nur nach Entscheidung,
+siehe `docs/OFFENE-PUNKTE.md`. **`release.yml`-Zeitplan:** Der tägliche `gate`-Lauf (06:00 UTC, ~10 s, abgerechnet 1 min)
+kostet ~30 min im Monat; er bleibt als Rückfall für einen ausgefallenen Push-Lauf (§6.6). **Hinweis zum privaten
+Repository (U-63):** Für öffentliche Repositories rechnet GitHub keine Minuten ab und stellt 4 vCPU bereit; nach der
+Umstellung auf privat zählen die Minuten (2.000/Monat) und die Runner haben 2 vCPU – die gemessenen Laufzeiten können
+dann deutlich länger werden. Den tatsächlichen Stand zeigt `pnpm ci:minutes`.
 
 **Minuten-Wächter** (`pnpm ci:minutes` = `tsx scripts/ci/minutes.ts`, §6.10, Aufgabe P1.33a): summiert die abrechenbaren
 Minuten des laufenden Kalendermonats (UTC) über alle Läufe des Repositorys – Liste per
@@ -1396,7 +1446,9 @@ ab 1.500 Minuten `MINUTEN_STATUS=knapp`, ab 2.000 `erschoepft` und bei einem API
   `127.0.0.1`/`localhost`/`::1` mit Fehler abbricht (einzige Ausnahme: `api.stripe.com`, nur mit ausdrücklich gesetztem
   `PC_TEST_ALLOW_STRIPE_API=1` für den Stripe-Testmodus im Zahlungs-Kontrakttest, P4.5). Playwright blockiert per `context.route` alle
   Fremd-Hosts außer in ausdrücklich markierten Stripe-Test-Specs.
-- **Flakiness:** CI wiederholt E2E höchstens 2-mal (`retries: 2`); ein Test, der nur mit Wiederholung grün wird, wird im
+- **Flakiness:** CI wiederholt E2E höchstens einmal (`retries: 1`, seit P14.13; vorher 2 – eine zweite Wiederholung
+  änderte nichts am Ergebnis, weil `pnpm ci:flaky` jeden erst im Wiederholungslauf grünen Test ohnehin rot meldet, und
+  kostete nur Minuten); ein Test, der nur mit Wiederholung grün wird, wird im
   selben PR repariert oder mit `test.fixme` + Eintrag in `docs/OFFENE-PUNKTE.md` markiert (nicht bei Kasse/Reservierung/
   Recht erlaubt).
 - **Fixtures im Repo:** `tests/fixtures/images/` (u. a. `gps-orientation-6.jpg` mit GPS-EXIF, `graycard.jpg`,
@@ -1472,7 +1524,7 @@ Kopf/Menü/Fuß, Preisschild, sold-Stempel, Kasse, 404.
 | CLS | ≤ 0,1 | ≤ 0,05 | Lighthouse-CI + Playwright (`layout-shift`) | alle obigen + R06, R07 |
 | TBT (Labor-Ersatz für INP) | ≤ 200 ms | ≤ 150 ms | Lighthouse-CI | wie LCP |
 | INP-Ersatz | ≤ 200 ms je Interaktion | ≤ 150 ms | Playwright `@perf`, `pixel-7`, CPU 4× (CDP), Event Timing: Menü öffnen, In den Korb, Zoom öffnen, Filter | R01, R02, R04 |
-| JS beim ersten Laden (gzip, Summe aller vor `load` geladenen Skripte) | R01 ≤ 170 KB; R02–R05, R11–R18, R19–R27 ≤ 150 KB; R06/R07 ≤ 220 KB (ohne Stripe.js) | R01 ≤ 140 KB | `pnpm check:bundle` (Playwright lädt die Seite gegen `next start`, liest die Skript-URLs, gzipt die Dateien aus `.next/static` mit Stufe 9) | alle Seitentypen |
+| JS beim ersten Laden (gzip, Summe aller Skripte, die das ausgelieferte HTML einbindet – `<script src>` ohne `nomodule`, `preload`/`modulepreload` as=script; seit P14.13 statt „vor `load` geladen“, das je nach Last nachgeladene Chunks mitzählte; Nachgeladenes hat eigene Modul-Budgets, was zufällig vor `load` kam, steht nur im Bericht) | R01 ≤ 170 KB; R02–R05, R11–R18, R19–R27 ≤ 150 KB; R06/R07 ≤ 220 KB (ohne Stripe.js) | R01 ≤ 140 KB | `pnpm check:bundle` (Playwright lädt die Seite gegen `next start`, liest die Skript-URLs, gzipt die Dateien aus `.next/static` mit Stufe 9) | alle Seitentypen |
 | Lazy-Chunks | DESIGN §9.10: Engine ≤ 12 KB gz, Coco ≤ 3 KB, Mikro-Interaktionen ≤ 4 KB, statischer Renderer ≤ 4 KB; GSAP-Chunk (falls ADR) ≤ 30 KB | – | `check:bundle` | – |
 | Schriften | genau 3 woff2, zusammen ≤ 100 KB | – | DESIGN AK-DS-04 | – |
 | Bilder | LCP-Bild der Produktseite ≤ 120 KB (`pixel-7`); Median `thumb` ≤ 40 KB, `card` ≤ 90 KB | – | DESIGN §12.2; nur Bericht in `check:bundle` (Median aus den `srcset`-Größen von R02, LCP-Bild von R04 im Profil Pixel 7; `images` in budgets.json) | R02, R04 |
