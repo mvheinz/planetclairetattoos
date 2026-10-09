@@ -36,6 +36,7 @@ const CAPTION_EN: Record<(typeof REGISTRY_VIEWS)[number]['key'], string> = {
   widerrufe: 'Withdrawals',
   anfragen: 'Requests (commissions)',
   tattoo: 'Tattoo',
+  termine: 'Tour dates',
   texte: 'Texts',
   einstellungen: 'Settings',
   export: 'Export and privacy tools',

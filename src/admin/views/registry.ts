@@ -15,6 +15,7 @@ export type AdminIconName =
   | 'undo'
   | 'mail'
   | 'needle'
+  | 'pin'
   | 'text'
   | 'gear'
   | 'download'
@@ -146,6 +147,17 @@ export const ADMIN_VIEWS = [
     icon: 'needle',
     ref: 'KONZEPT §7.12',
     allData: '/collections/flash',
+  },
+  {
+    // U-60 (P14.11): Markt-Termine „Planet Claire on Tour“ als eigener Menüpunkt (bisher Reiter in „Tattoo“, P12.8).
+    key: 'termine',
+    path: '/termine',
+    title: 'Termine',
+    phase: 12,
+    task: 'P14.11',
+    icon: 'pin',
+    ref: 'KONZEPT §3.1a, §7.12',
+    allData: '/collections/tour-dates',
   },
   {
     key: 'texte',

@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 
+import { ActionButton } from '../../components/ActionButton'
+import { postAdminAction } from '../../components/adminAction'
 import { CopyButton } from '../../components/CopyButton'
 import { Notice } from '../../components/Notice'
 import { PhotoPicker } from '../../components/PhotoPicker/PhotoPicker'
@@ -132,6 +134,7 @@ export function PieceEditor({
   const router = useRouter()
   const running = useRef(false)
   const resultRef = useRef<HTMLDivElement>(null)
+  const copyId = useRef<number | null>(null)
 
   const locks = pieceLocks(status, firstPublishedAt)
   const category = form.category
@@ -1130,6 +1133,34 @@ export function PieceEditor({
           </button>
         ) : null}
       </div>
+      {id ? (
+        // U-60 (P14.11): „Als neues Stück kopieren“ – neuer Entwurf ohne Fotos und Nummer.
+        <div className="pc-piece__section" data-testid="piece-duplicate-box">
+          <p className="pc-piece__hint">{adminText('pieceDuplicateHint')}</p>
+          <ActionButton
+            variant="secondary"
+            disabled={busy || uploading}
+            data-testid="piece-duplicate"
+            action={async () => {
+              const r = await postAdminAction<{ doc?: { id?: number } }>(
+                `/api/products/${id}/duplicate`,
+              )
+              copyId.current = typeof r.doc?.id === 'number' ? r.doc.id : null
+              return { message: adminText('pieceDuplicateDone') }
+            }}
+            onDone={() => {
+              if (copyId.current) router.push(`${adminRoute}/stuecke/${copyId.current}`)
+            }}
+            confirm={{
+              title: adminText('pieceDuplicateTitle', { nr: padItemNumber(itemNumber ?? 0) }),
+              consequence: adminText('pieceDuplicateText'),
+              confirmLabel: adminText('pieceDuplicateConfirm'),
+            }}
+          >
+            {adminText('pieceDuplicate')}
+          </ActionButton>
+        </div>
+      ) : null}
     </form>
   )
 }

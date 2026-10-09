@@ -72,6 +72,20 @@ export function TourEditor({
   const [issues, setIssues] = useState<FieldIssue[]>([])
   const [saved, setSaved] = useState(false)
   const running = useRef(false)
+  const copyId = useRef<number | null>(null)
+  // Nach „Termin kopieren“ zeigt dieselbe Ansicht einen anderen Termin: Formular mit dessen Werten neu beginnen. (Nach
+  // dem ersten Speichern eines neuen Termins ist `initial.id` die eigene neue ID – dann bleibt alles, auch „Gespeichert“.)
+  const [shownId, setShownId] = useState(initial.id)
+  if (initial.id !== shownId) {
+    setShownId(initial.id)
+    if (initial.id !== form.id) {
+      setForm(initial)
+      setPhotos(initial.photos)
+      setRemoved([])
+      setIssues([])
+      setSaved(false)
+    }
+  }
   const statusId = useId()
   const errors = errorsOf(issues)
   const set = <K extends keyof TourFormValues>(key: K, value: TourFormValues[K]) =>
@@ -143,7 +157,7 @@ export function TourEditor({
     setRemoved([])
     if (!form.id) {
       setForm((f) => ({ ...f, id }))
-      router.replace(`${backHref}&bearbeiten=${id}`)
+      router.replace(`${backHref}?bearbeiten=${id}`)
     }
     return id
   }
@@ -368,6 +382,34 @@ export function TourEditor({
         >
           {busy ? adminText('actionBusy') : tattooText('save')}
         </button>
+        {form.id ? (
+          // U-60 (P14.11): „Termin kopieren“ → neuer Termin eine Woche später, offline.
+          <ActionButton
+            variant="secondary"
+            data-testid="tour-copy"
+            disabled={busy || uploading}
+            action={async () => {
+              const res = await requestJson(`/api/tour-dates/${form.id}/copy`, {
+                method: 'POST',
+                json: {},
+              })
+              if (!res.ok) throw new Error(String(res.json.error ?? res.status))
+              const doc = res.json.doc as { id?: unknown } | undefined
+              copyId.current = typeof doc?.id === 'number' ? doc.id : null
+              return { message: tattooText('tourCopyDone') }
+            }}
+            onDone={() => {
+              if (copyId.current) router.push(`${backHref}?bearbeiten=${copyId.current}`)
+            }}
+            confirm={{
+              title: tattooText('tourCopyTitle', { name: form.name.de }),
+              consequence: tattooText('tourCopyText'),
+              confirmLabel: tattooText('tourCopyConfirm'),
+            }}
+          >
+            {tattooText('tourCopy')}
+          </ActionButton>
+        ) : null}
         {form.id ? (
           <ActionButton
             variant="danger"

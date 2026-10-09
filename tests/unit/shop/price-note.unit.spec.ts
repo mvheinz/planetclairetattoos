@@ -180,9 +180,10 @@ describe('WarrantyNotice (R-049)', () => {
       const messages = (locale === 'de' ? de : en).shop.warranty
       expect(el.textContent).toContain(messages.title)
       // U-45 (P13.6): Wortlaut der Mitteilung, als Platzhalter-Fassung gekennzeichnet
-      expect(el.textContent).toContain(messages.lead)
-      expect(el.textContent).toContain(messages.rights)
-      expect(el.textContent).toContain(messages.duration)
+      // U-59 (P14.10): alle Bausteine in Reihenfolge, die Grafik mit Platzhalter-Kennzeichen
+      const blocks = [...el.querySelectorAll('[data-warranty-block]')].map((p) => p.textContent)
+      expect(blocks).toEqual(Object.values(messages.blocks))
+      expect(img.getAttribute('data-warranty-graphic')).toBe('placeholder')
       expect(el.textContent).toContain(messages.placeholderNote)
       // Keine Werbung mit Selbstverständlichkeiten, keine eigene „Garantie“ (V-19)
       expect(el.textContent).not.toMatch(/2\s*Jahre\s*Gewährleistung|Garantie|rechtssicher/i)

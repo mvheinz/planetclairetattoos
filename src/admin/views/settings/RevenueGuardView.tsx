@@ -23,11 +23,15 @@ import { initialAreaValues, type Obj } from './settingsAreas'
 
 // Einstellungen → Umsatz-Wächter `/einstellungen/umsatz-waechter` (PLAN P5.23, KONZEPT §8.4, R-125): Balken mit Stand
 // und Schwellen, Monatstabelle (Shop, Tattoo, Flohmarkt, Auftragsarbeiten, Sonstiges) mit Eingabe der manuellen
-// Monatssummen, Jahressummen vor dem Shop (dieselbe Komponente wie in Einstellungen → Steuer, P5.22a), Verlauf der
+// Monatssummen (dazu „Markt-Verkäufe (Stücke)“ aus „Offline verkauft“ mit Preis, U-60), Jahressummen vor dem Shop (dieselbe Komponente wie in Einstellungen → Steuer, P5.22a), Verlauf der
 // gemeldeten Stufen und der Satz „Der Wächter ersetzt keine Steuerberatung.“ Daten aus `getRevenueStatus()`.
 
 const COLUMN_LABEL = (c: RevenueColumn) =>
-  c === 'shop' ? adminText('revenueShop') : ENUM_LABELS.REVENUE_SOURCES[c].de
+  c === 'shop'
+    ? adminText('revenueShop')
+    : c === 'offline'
+      ? adminText('revenueOffline')
+      : ENUM_LABELS.REVENUE_SOURCES[c].de
 const MONTH_NAMES = [
   'Jan.',
   'Feb.',
@@ -181,6 +185,9 @@ export async function RevenueGuardView({ req }: AdminViewBodyProps) {
         </div>
         <h3>{adminText('revenueEntryTitle')}</h3>
         <p className="pc-order__muted">{adminText('revenueEntryHint')}</p>
+        <p className="pc-order__muted" data-testid="revenue-offline-hint">
+          {adminText('revenueOfflineHint')}
+        </p>
         <RevenueEntryForm
           months={months.map((m) => ({ value: m, label: monthLabel(m) }))}
           sources={REVENUE_SOURCES.map((s) => ({

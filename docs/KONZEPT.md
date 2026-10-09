@@ -459,7 +459,7 @@ Link-Liste im Fuß erreichbar.
   `past` (vorbei). „Vorbei“ folgt zusätzlich automatisch aus dem Datum (`endsAt` erreicht); „läuft gerade“ zeigt eine Plakette.
 - **Datenquelle:** Collection `tour-dates` (DATENMODELL §6.30), gecacht mit Tag `tour-dates` (Rückfall 1 h); der Zustand wird
   beim Rendern aus dem Datum berechnet. Leerzustand: „Gerade sind keine Termine geplant.“
-- **Pflege:** Verwaltung `/tattoo`, Reiter „Termine“ (Liste kommend/vergangen, „Neuer Termin“, Absagen, Offline nehmen,
+- **Pflege:** Verwaltung `/termine` (eigener Menüpunkt seit U-60/P14.11, vorher Reiter in `/tattoo`; Liste kommend/vergangen, „Neuer Termin“, Absagen, Offline nehmen,
   Löschen, Übersetzen). Beispieltermine `seed = true` (SEED-SPEC §12.5).
 - **Recht:** Die Adresse eines Termins ist die des Marktes, nie die des Privatstudios (E-50, Prüfung gegen
   `settings.business.street`). Keine Cookies, keine Fremd-Requests (R-130, R-139).
@@ -1560,8 +1560,9 @@ Admin-Ansicht. Keine Kund:innen-Freitexte, keine Anfrage-Bilder.
   aus §7.3–7.15 und „Alle Daten“ (Standard-Payload).
 - **Laptop:** Seitenleiste mit allen Ansichten; Standard-Payload-Navigation unter „Alle Daten“.
 - Jede Ansicht hat eine eigene URL unter dem Admin-Pfad (Vorschlag: `/heute`, `/neues-stueck`, `/stuecke`, `/packen`,
-  `/vorkasse`, `/versendet`, `/abholung`, `/widerrufe`, `/anfragen`, `/tattoo`, `/texte`, `/einstellungen`, `/export`;
-  die Datenschutz-Werkzeuge aus §7.15 liegen unter `/export`).
+  `/vorkasse`, `/versendet`, `/abholung`, `/widerrufe`, `/anfragen`, `/tattoo`, `/termine`, `/texte`, `/einstellungen`,
+  `/export`; die Datenschutz-Werkzeuge aus §7.15 liegen unter `/export`; die Markt-Termine „on Tour“ sind seit U-60/P14.11
+  ein eigener Menüpunkt `/termine`, `/tattoo?reiter=termine` leitet dorthin weiter).
 
 ### 7.3 Heute (Start-Ansicht)
 
@@ -1968,8 +1969,9 @@ Server- und Hosting-Logs mit IP (L-13 e) regelt die Hosting-Einstellung außerha
 - **Shop-Umsatz eines Jahres** = Summe der Rechnungsbeträge (Endpreise inkl. Versand) mit Rechnungsdatum im Jahr −
   Summe der Stornorechnungen/Gutschriften im Jahr. Beispieldaten zählen nur bei wirksamem `SEED_PREVIEW_MODE` (§11.4),
   in Produktion also nie.
-- **Gesamtumsatz** = Shop-Umsatz + manuelle Monatssummen (`revenue-entries`, Quellen `tattoo`, `flohmarkt`,
-  `auftragsarbeiten`, `sonstiges`) des Jahres (R-125). Vorjahr: berechnet, für Jahre vor dem Shop aus
+- **Gesamtumsatz** = Shop-Umsatz + Markt-Verkäufe von Stücken mit Preis („Offline verkauft“ mit
+  `offlineSalePriceCents`, nach Verkaufsdatum, U-60/P14.11) + manuelle Monatssummen (`revenue-entries`, Quellen `tattoo`,
+  `flohmarkt`, `auftragsarbeiten`, `sonstiges`) des Jahres (R-125). Vorjahr: berechnet, für Jahre vor dem Shop aus
   `settings.revenueGuard.manualYearTotals`.
 - **Stufen** (Standard, Beträge änderbar in `settings.revenueGuard.*`; Grundlage § 19 UStG in der Fassung ab 01.01.2025):
 

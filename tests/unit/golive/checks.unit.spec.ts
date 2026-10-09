@@ -215,6 +215,13 @@ describe('R-210 Startklar-Prüfung', () => {
     const a = green()
     a.warrantyGraphicPlaceholder = true
     expect(ids(a)).toEqual(['R210-11'])
+    // U-59 (P14.10): Der Check nennt, welche Teile noch Platzhalter sind.
+    a.warrantyPlaceholderParts = ['graphic-en', 'text']
+    const detail = evaluateGolive(a).checks.find((c) => c.id === 'R210-11')?.detail ?? ''
+    expect(detail).toContain('Grafik englisch')
+    expect(detail).toContain('Wortlaut')
+    expect(detail).not.toContain('Grafik deutsch')
+    expect(detail).toContain('2025/1960')
   })
 
   it('Nr. 12 Steuer bestätigt und Vorjahresumsatz (auch 0 €)', () => {

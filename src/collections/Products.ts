@@ -30,7 +30,7 @@ import {
   PRODUCT_SLUG_RE,
 } from '@/lib/products/itemNumber'
 import { registerUploadReference } from '@/lib/uploads/references'
-import { productTransitionEndpoints } from '@/endpoints/products/actions'
+import { productDuplicateEndpoint, productTransitionEndpoints } from '@/endpoints/products/actions'
 import { adoptEndpoint } from '@/endpoints/products/adopt'
 import { productLabelEndpoint } from '@/endpoints/products/label'
 import {
@@ -668,6 +668,23 @@ const saleFields: Field[] = [
     validate: maxLength(120),
     admin: { description: 'z. B. „Flohmarkt Mauerpark“ (ohne Preis).' },
   },
+  {
+    // U-60 (P14.11): Markt-Verkauf einem Tour-Termin zuordnen (statt nur Freitext).
+    name: 'offlineSaleTourDate',
+    type: 'relationship',
+    label: 'Verkauft auf (Termin)',
+    relationTo: 'tour-dates',
+    access: adminField,
+    admin: { description: 'Markt-Termin, auf dem das Stück verkauft wurde (optional).' },
+  },
+  moneyField('offlineSalePriceCents', {
+    label: 'Erzielter Preis beim Markt-Verkauf',
+    access: adminField,
+    admin: {
+      description:
+        'Optional. Mit Preis zählt der Verkauf im Umsatz-Wächter mit (Spalte „Markt-Verkäufe (Stücke)“).',
+    },
+  }),
   { name: 'archivedAt', type: 'date', label: 'Ausgeblendet am', admin: readOnlySystem },
   {
     name: 'reservedUntil',
@@ -790,6 +807,7 @@ export const Products: CollectionConfig = {
     nextItemNumberEndpoint,
     itemNumberStatusEndpoint,
     ...productTransitionEndpoints,
+    productDuplicateEndpoint,
     translateEndpoint,
     adoptEndpoint,
     productLabelEndpoint,

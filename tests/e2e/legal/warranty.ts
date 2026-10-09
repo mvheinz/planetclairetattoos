@@ -16,6 +16,9 @@ export async function expectWarrantyNotice(page: Page, locale: Locale): Promise<
   await expect(notice.locator('[data-warranty-lead]')).toContainText(
     locale === 'de' ? 'Mindestens zwei Jahre' : 'At least two years',
   )
+  // U-59 (P14.10): Wortlaut in Bausteinen, Grafik-Platz mit Platzhalter-Kennzeichen.
+  expect(await notice.locator('[data-warranty-block]').count()).toBeGreaterThanOrEqual(3)
+  await expect(img).toHaveAttribute('data-warranty-graphic', /^(placeholder|official)$/)
   await expect(notice.locator('[data-warranty-placeholder]')).toBeVisible()
   await expect(notice.locator('a')).toHaveAttribute(
     'href',

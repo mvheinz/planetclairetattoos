@@ -14,14 +14,9 @@ import { tattooTextWarnings } from '@/lib/tattoo/textWarnings'
 const DIR = path.resolve('src/admin/views/tattoo')
 
 describe('Tattoo-Verwaltung (P7.6–P7.9)', () => {
-  it('Reiter Flash · Termine · Galerie · Texte mit deutschen Beschriftungen', () => {
-    expect(TATTOO_TABS).toEqual(['flash', 'termine', 'galerie', 'texte'])
-    expect(TATTOO_TABS.map((t) => TATTOO_TEXT[`tab_${t}`])).toEqual([
-      'Flash',
-      'Termine',
-      'Galerie',
-      'Texte',
-    ])
+  it('Reiter Flash · Galerie · Texte mit deutschen Beschriftungen (Termine seit P14.11 eigener Menüpunkt)', () => {
+    expect(TATTOO_TABS).toEqual(['flash', 'galerie', 'texte'])
+    expect(TATTOO_TABS.map((t) => TATTOO_TEXT[`tab_${t}`])).toEqual(['Flash', 'Galerie', 'Texte'])
     expect(TATTOO_TEXT.galleryPublishLocked).toBe(
       'Ohne Einwilligung der Kundin/des Kunden nicht veröffentlichen.',
     )

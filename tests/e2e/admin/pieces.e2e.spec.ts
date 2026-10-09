@@ -180,4 +180,89 @@ test.describe('Meine Stücke (P5.8) @a11y', () => {
     // Mini-Satz (Beispielbestand unter 975) unverändert
     expect(await seedStatuses()).toEqual(before)
   })
+
+  test('U-60 „Offline verkauft“ mit Markt-Termin und Preis; „Als neues Stück kopieren“ ohne Fotos, als Entwurf', async ({
+    adminPage: page,
+    fixtureProducts,
+    request,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop', 'ändert Daten – einmal im Projekt desktop')
+    admin = await adminLogin()
+    const payload = await testPayload()
+    const tour = await payload.create({
+      collection: 'tour-dates',
+      data: {
+        name: 'E2E Markt U60',
+        place: 'Berlin-Wedding',
+        startsAt: new Date().toISOString(),
+      } as never,
+      overrideAccess: true,
+    })
+    const p = await fixtureProducts.create('keramik', { title: 'Markt-Schale' })
+    await adminCall(request, admin, 'post', `/products/${p.id}/publish`)
+    let copyId: number | null = null
+    try {
+      await page.goto(adminPath(`/stuecke?q=${p.itemNumber}`))
+      await cardOf(page, p.itemNumber).getByTestId('piece-sell-offline').click()
+      const dialog = page.getByRole('dialog')
+      await dialog.getByTestId('piece-sell-offline-tour').selectOption(String(tour.id))
+      await dialog.getByTestId('piece-sell-offline-price').fill('45,00')
+      await dialog.getByTestId('confirm-dialog-ok').click()
+      await expect(cardOf(page, p.itemNumber)).toHaveAttribute('data-status', 'sold')
+      const sold = await payload.findByID({
+        collection: 'products',
+        id: p.id,
+        depth: 0,
+        overrideAccess: true,
+      })
+      expect(sold).toMatchObject({ offlineSaleTourDate: tour.id, offlineSalePriceCents: 4500 })
+      await page.goto(adminPath('/einstellungen/umsatz-waechter'))
+      await expect(page.getByTestId('revenue-table')).toContainText('Markt-Verkäufe (Stücke)')
+
+      // Kopieren: neuer Entwurf, nächste freie Nummer, keine Fotos
+      await page.goto(adminPath(`/stuecke/${p.id}`))
+      await expect(async () => {
+        await page.getByTestId('piece-duplicate').click()
+        await expect(page.getByRole('button', { name: 'Ja, kopieren' })).toBeVisible({
+          timeout: 1500,
+        })
+      }).toPass({ timeout: 15_000 })
+      await page.getByRole('button', { name: 'Ja, kopieren' }).click()
+      await page.waitForURL((url) => {
+        const m = /\/stuecke\/(\d+)$/.exec(url.pathname)
+        return !!m && Number(m[1]) !== p.id
+      })
+      copyId = Number(/\/stuecke\/(\d+)$/.exec(new URL(page.url()).pathname)![1])
+      await expect(page.getByTestId('piece-form')).toBeVisible()
+      const copy = await payload.findByID({
+        collection: 'products',
+        id: copyId,
+        depth: 0,
+        locale: 'de',
+        overrideAccess: true,
+      })
+      expect(copy).toMatchObject({
+        status: 'draft',
+        title: 'Markt-Schale (Kopie)',
+        category: 'keramik',
+        priceCents: sold.priceCents,
+      })
+      expect(copy.images ?? []).toEqual([])
+      expect(copy.itemNumber).not.toBe(p.itemNumber)
+    } finally {
+      if (copyId)
+        await payload.delete({
+          collection: 'products',
+          id: copyId,
+          overrideAccess: true,
+          context: { seed: true },
+        })
+      await payload.delete({
+        collection: 'tour-dates',
+        id: tour.id,
+        overrideAccess: true,
+        context: { seed: true },
+      })
+    }
+  })
 })

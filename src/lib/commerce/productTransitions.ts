@@ -112,6 +112,9 @@ export interface ProductTransitionInput {
   channel?: 'online' | 'pickup'
   /** P9/P10: Dialog „Offline verkauft“. */
   note?: string | null
+  /** P9/P10 (U-60): Markt-Termin des Verkaufs und erzielter Preis in Cent (zählt im Umsatz-Wächter). */
+  tourDateId?: number | null
+  priceCents?: number | null
   showInArchive?: boolean
   confirmReservedCheckout?: boolean
   /** Zusätzliche Felder im selben Speichervorgang (z. B. `adminAttention` beim Widerruf einer Erklärung). */
@@ -321,7 +324,13 @@ function sideEffects(
   now: string,
 ): Record<string, unknown> {
   const clearReservation = { reservedUntil: null, reservationRef: null }
-  const clearSale = { soldAt: null, soldChannel: null, currentOrder: null }
+  const clearSale = {
+    soldAt: null,
+    soldChannel: null,
+    currentOrder: null,
+    // U-60: Ein rückgängig gemachter Verkauf zählt nicht mehr im Umsatz-Wächter (die Notiz bleibt als Verlauf).
+    offlineSalePriceCents: null,
+  }
   switch (id) {
     case 'P2':
       return { firstPublishedAt: product.firstPublishedAt ?? now, archivedAt: null }
@@ -347,6 +356,8 @@ function sideEffects(
         soldChannel: 'offline',
         currentOrder: null,
         offlineSaleNote: input.note?.trim() || null,
+        offlineSaleTourDate: input.tourDateId ?? null,
+        offlineSalePriceCents: input.priceCents ?? null,
         ...(typeof input.showInArchive === 'boolean'
           ? { showInArchiveAfterSale: input.showInArchive }
           : {}),

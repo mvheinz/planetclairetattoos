@@ -26,6 +26,39 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
   Build mit Debug-Flag, `check:bundle` (alle Budgets eingehalten, zweimal identisch), `check:external --built`, E2E
   `shop/list-variants`, `shop/shop`, `shop/archive`, `tattoo/gallery`, `tattoo/flash`, `photo-frame`, `leash`,
   `leash-trail` (desktop + pixel-7: 66 bestanden, 14 übersprungen).
+## 2026-10-09 – P14.11 Verwaltung: Termine-Menü, Stück duplizieren, Termin kopieren, Markt-Verkauf zum Termin (U-60)
+
+- **Termine** ist ein eigener Menüpunkt `/termine` (Symbol Stecknadel, Seitenleiste und „Mehr“); „Tattoo“ hat nur noch
+  Flash · Galerie · Texte. Die alte Adresse `/tattoo?reiter=termine[&bearbeiten=…]` leitet weiter. KONZEPT §7.2/§3.1a,
+  Handbuch §10 angepasst.
+- **Als neues Stück kopieren** (Stück-Formular unten, mit Rückfrage): `POST /api/products/:id/duplicate` (nur Verwaltung)
+  legt einen Entwurf mit nächster freier Nummer an – Titel „(Kopie)“/„(copy)“, Kategorie, Texte DE/EN, Maße, Material,
+  Preis, Versand, GPSR-Angaben (Warnhinweise, Metall/Nickel-Nachweis, Glasur, Konformitätserklärungen), Zoll; ohne
+  Fotos, Abweichung, „nur eigene Figuren“, Lagerort, interne Notiz, SEO (`src/lib/products/duplicate.ts`).
+- **Termin kopieren** (Termin-Formular): `POST /api/tour-dates/:id/copy` – neuer Termin eine Woche später (ganze Berliner
+  Tage, auch über die Zeitumstellung), Name/Ort/Notiz DE/EN, Adresse, Link, Uhrzeiten, Status „geplant“, **offline**;
+  ohne Standnummer und Foto (`src/lib/tour/copy.ts`).
+- **Markt-Verkauf zum Termin:** Dialog „Offline verkauft“ mit Auswahl „Auf welchem Termin?“ (letzte 90 Tage) und
+  „Erzielter Preis“; neue Felder `products.offlineSaleTourDate` und `offlineSalePriceCents` (Migration
+  `p14_admin_offline_sale`, CHECK ganze Cent ≥ 0, alte Notizen bleiben). Mit Preis zählt der Verkauf im Umsatz-Wächter
+  (neue Spalte „Markt-Verkäufe (Stücke)“, nach Verkaufsdatum; Job wird eingereiht); „Zurück ins Lager“ nimmt ihn heraus.
+  Weiterhin keine Bestellung, kein Beleg, keine Monatssumme (E-28/R-127).
+- Tests: Int `tests/int/products/duplicate.int.spec.ts`, `tests/int/tattoo/tour-copy.int.spec.ts`,
+  `tests/int/products/offline-sale-tour.int.spec.ts` (+ Zugriffsmatrix, Statusautomat, DB-Objekte, Umsatz-Wächter),
+  Unit `revenue-guard`, `registry`, `tattoo-admin`; E2E `tests/e2e/admin/tattoo-tour.e2e.spec.ts` (Menüpunkt,
+  Weiterleitung, Kopieren), `tests/e2e/admin/pieces.e2e.spec.ts` (Termin + Preis, Kopie), `shell` (14 Ansichten).
+
+## 2026-10-09 – P14.10 EU-Gewährleistungshinweis fertig (U-59)
+
+- Harmonisierte Mitteilung (R-049, DVO (EU) 2025/1960 Anhang I) so gebaut, dass die amtliche Fassung nur noch
+  eingesetzt wird: Wortlaut in Bausteinen (`WARRANTY_NOTICE_BLOCKS` + `shop.warranty.blocks.*` DE/EN: Hauptsatz, Rechte,
+  Dauer, gebrauchte Waren), Grafik-Platz je Sprache (`WARRANTY_NOTICE_GRAPHIC`: SVG/PNG/WebP, Maße, Alt-Text,
+  `placeholder`), Kennzeichen `data-warranty-graphic`/`data-warranty-block` im HTML.
+- Startklar-Check R-210 Nr. 11 nennt jetzt einzeln, was noch Platzhalter ist (Grafik deutsch/englisch, Wortlaut);
+  Anleitung zum Einsetzen in `docs/owner/AUFGABEN.md` (A28, Zuordnungstabelle).
+- Amtliche Fassung erneut nicht abrufbar (EUR-Lex: Bot-Schutz, Sekundärquellen gesperrt) → Platzhalter bleibt.
+- Tests: Unit `tests/unit/legal/warranty-notice.unit.spec.ts`, `tests/unit/shop/price-note.unit.spec.ts`,
+  `tests/unit/golive/checks.unit.spec.ts`, Verbotsliste `tests/unit/legal/forbidden.unit.spec.ts`; `pnpm check` grün.
 
 ## 2026-10-08 – P13 abgeschlossen: zweite Runde nach deiner Rückmeldung – für Jutta
 

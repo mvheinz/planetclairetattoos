@@ -23,6 +23,7 @@ import { SettingsView } from './settings/SettingsView'
 import { ShippingSettingsView } from './settings/ShippingSettingsView'
 import { SystemView } from './settings/SystemView'
 import { TattooView } from './tattoo/TattooView'
+import { TourView } from './tattoo/TourView'
 import { TextsView } from './texts/TextsView'
 import { TodayView } from './today/TodayView'
 import { WithdrawalDetailView } from './withdrawals/WithdrawalDetailView'
@@ -69,6 +70,7 @@ const VIEW_BODIES: Partial<Record<string, ViewBody>> = {
   'datenschutz-anfrage': PrivacyRequestDetailView,
   protokolle: ProtocolsView,
   tattoo: TattooView,
+  termine: TourView,
 }
 
 export function AdminViewBody(props: AdminViewBodyProps) {

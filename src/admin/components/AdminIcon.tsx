@@ -17,6 +17,7 @@ const PATHS: Record<AdminIconName, string> = {
   undo: 'M9 14L4 9l5-5M4 9h10a6 6 0 0 1 0 12h-3',
   mail: 'M3 5h18v14H3zM3 6l9 7 9-7',
   needle: 'M4 20l3-1 11-11-2-2L5 17zM14 6l4 4M16 4l4 4',
+  pin: 'M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',
   text: 'M5 5h14M5 10h14M5 15h10M5 20h7',
   gear: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1',
   download: 'M12 3v12M7 10l5 5 5-5M4 20h16',

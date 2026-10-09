@@ -29,6 +29,8 @@ export const PRODUCT_ADMIN_FIELDS = [
   'nickelEvidence',
   'customs',
   'offlineSaleNote',
+  'offlineSaleTourDate',
+  'offlineSalePriceCents',
   'i18n',
   'adminAttention',
 ] as const

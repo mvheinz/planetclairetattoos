@@ -723,7 +723,22 @@ export const afterProductChange: CollectionAfterChangeHook = async ({
       immediate: statusChanged,
     })
   }
+  // U-60 (P14.11): Markt-Verkauf mit Preis zählt im Umsatz-Wächter – bei jeder Änderung neu prüfen.
+  if (
+    offlineRevenueKey(doc as Doc) !== (previousDoc ? offlineRevenueKey(previousDoc as Doc) : null)
+  ) {
+    const { queueRevenueGuardCheck } = await import('@/lib/revenue/check')
+    await queueRevenueGuardCheck(req)
+  }
   return doc
+}
+
+/** Umsatzwirksamer Markt-Verkauf (Verkaufsdatum + Preis) oder `null`. */
+function offlineRevenueKey(doc: Doc): string | null {
+  const price = doc.offlineSalePriceCents
+  return doc.soldChannel === 'offline' && doc.soldAt && typeof price === 'number'
+    ? `${String(doc.soldAt)}|${price}`
+    : null
 }
 
 /** Referenzprüfung der Bestellpositionen (P15). */

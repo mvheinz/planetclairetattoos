@@ -924,6 +924,8 @@ und `title`. Formular in Tabs „Basis“, „Pflichtangaben“, „Bilder“, �
 | `soldAt` | date | S | – | – | – | – |
 | `soldChannel` | select `SoldChannel` | S | – | – | gesetzt genau dann, wenn `status = sold` | `online` = Bestellung mit Versand, `pickup` = Bestellung mit Abholung, `offline` = außerhalb des Shops (Flohmarkt, Studio) |
 | `offlineSaleNote` | text | – | – | – | ≤ 120 | z. B. „Flohmarkt Mauerpark“ (kein Preis; Flohmarkt-Umsatz kommt als Monatssumme, E-45) |
+| `offlineSaleTourDate` | relationship → `tour-dates` | – | – | – | – | U-60/P14.11: Markt-Termin des Offline-Verkaufs (optional; Termin gelöscht → leer) |
+| `offlineSalePriceCents` | number (Cent) | – | – | – | ≥ 0, ganzzahlig (CHECK) | U-60/P14.11: erzielter Preis (optional); mit Preis zählt der Verkauf im Umsatz-Wächter (Spalte „Markt-Verkäufe“, nach `soldAt`); „Zurück ins Lager“ (P11) und P13 leeren ihn |
 | `archivedAt` | date | S | – | – | – | – |
 | `reservedUntil` | date | S | – | – | gesetzt genau dann, wenn `status = reserved` | öffentlich: „gerade reserviert“ |
 | `reservationRef` | text | S | – | – | UUID; nur Admin lesbar | – |
@@ -1067,7 +1069,7 @@ stateDiagram-v2
 | P6 | reserved → reserved | `convertToPrepayment` | System | Vorkasse bestellt, Reservierung der Kasse gültig | kein Statuswechsel: `reservedUntil = prepayment.dueAt`, `currentOrder` (§8.5) |
 | P7 | reserved → sold | `sell` | System `fulfillCheckout` / Admin „Zahlung erhalten“ | Reservierung gehört zur Bestellung | `soldAt`, `soldChannel = online/pickup`, `currentOrder`; Revalidierung |
 | P8 | available → sold | `sell` | System `fulfillCheckout` (Reservierung abgelaufen, Stück noch frei) / Admin „Nachträglich bezahlt“ (O5) | – | wie P7 (§8.3, Zweig `available`) |
-| P9 | available → sold | `sellOffline` | Admin | – | `soldChannel = offline`, `soldAt`, `offlineSaleNote`, `showInArchiveAfterSale` wie im Dialog gewählt; Audit `product_offline_sold`; kein Betrag, keine Bestellung (R-127) |
+| P9 | available → sold | `sellOffline` | Admin | – | `soldChannel = offline`, `soldAt`, `offlineSaleNote`, `showInArchiveAfterSale` wie im Dialog gewählt, seit U-60 optional `offlineSaleTourDate` und `offlineSalePriceCents`; Audit `product_offline_sold`; keine Bestellung, kein Beleg (R-127) |
 | P10 | reserved (Kasse, `source = checkout_session`) → sold | `sellOffline` mit `confirmReservedCheckout: true` | Admin nach Warndialog (KONZEPT §4.11 S5) | zugehörige Kasse im Status `open` (bei `confirming` gesperrt: „Zahlung läuft gerade“, DM-34) | zuerst Stripe-Session beenden: meldet der Anbieter „bezahlt“, bricht die Aktion ab und `fulfillCheckout` übernimmt; sonst Reservierung `released` (`releaseReason = admin`), Kasse `cancelled` (`closeReason = sold_offline`), dann wie P9 |
 | P11 | sold → available | `returnToStock` | Admin „Wieder verkaufen“ | `soldChannel = offline` (Korrektur) **oder** zugehörige Bestellposition `refunded` und Ware zurück (`timestamps.returnReceivedAt` gesetzt) **oder** Bestellung mit Grund `admin_cancellation` erstattet, bevor das Stück verschickt oder übergeben wurde (`shippedAt`/`pickedUpAt` leer; KONZEPT KA-37); `validateForPublish` | `soldAt`, `soldChannel`, `currentOrder` leeren; Verlauf bleibt; Audit |
 | P12 | draft/available → archived | `archive` | Admin „Ausblenden“ | keine aktive Reservierung | `archivedAt`; Revalidierung |
@@ -1108,7 +1110,7 @@ veröffentlichter Stücke, Ändern der Nummer nach der ersten Veröffentlichung.
 - `read`: Admin → alles. Öffentlich →
   `{ or: [ { status: { in: ['available', 'reserved'] } }, { and: [ { status: { equals: 'sold' } }, { showInArchiveAfterSale: { equals: true } } ] } ] }` (+ Seed-Filter).
 - Feldzugriff `adminField` für `reservationRef`, `currentOrder`, `storageLocation`, `internalNote`, `nickelEvidence`,
-  `customs`, `offlineSaleNote`, `i18n`, `adminAttention`, `blankBrandVisible`.
+  `customs`, `offlineSaleNote`, `offlineSaleTourDate`, `offlineSalePriceCents`, `i18n`, `adminAttention`, `blankBrandVisible`.
 - `create`/`update`: `isAdmin`; `delete`: `isAdmin` + Hook.
 
 #### 6.6.10 Admin-Endpunkte (alle `isAdmin`, `src/endpoints/products/*`)
