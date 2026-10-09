@@ -147,6 +147,12 @@
   color: var(--ink-2);
 }
 
+.shopFacts {
+  margin: 0;
+  font-size: var(--fs-small);
+  color: var(--ink-2);
+}
+
 .copyright {
   font-size: var(--fs-small);
   color: var(--ink-2);
@@ -163,6 +169,7 @@
   }
 
   .withdraw,
+  .shopFacts,
   .priceNote,
   .ipNotice,
   .copyright {

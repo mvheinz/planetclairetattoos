@@ -3,6 +3,7 @@ import React from 'react'
 import { getTodaySummary, type TodayHint, type TodaySummary } from '@/lib/admin/today'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { LegalReviewWarning } from '@/lib/legal/review'
+import { listStrayPayments } from '@/lib/commerce/strayPayments'
 import { runGoliveCheck } from '@/lib/golive/collect'
 import { formatEuroInput } from '@/lib/money'
 import { formatBerlin } from '@/lib/time'
@@ -11,6 +12,7 @@ import { AdminIcon } from '../../components/AdminIcon'
 import { StatusBadge } from '../../components/StatusBadge'
 import { adminText, type AdminCustomKey } from '../../translations'
 import type { AdminViewBodyProps } from '../AdminViewBody'
+import { StrayPaymentsPanel } from '../orders/StrayPaymentsPanel'
 import { adminView, adminViewPath, type AdminViewKey } from '../registry'
 
 // Start-Ansicht „Heute“ `/heute` und `ADMIN_ROUTE` (PLAN P5.28, KONZEPT §7.3): Kacheln mit Zahl und Link, rote und
@@ -123,6 +125,8 @@ function LegalTextsTile({ rows, href }: { rows: TodaySummary['legalTexts']; href
 export async function TodayView({ adminRoute, req }: AdminViewBodyProps) {
   const summary = await getTodaySummary(new Date(), req.payload)
   const startklar = await runGoliveCheck(req.payload, new Date()).catch(() => null)
+  // U-58 a: offene Zahlungen ohne Bestellung mit Knopf „Erstatten“
+  const stray = await listStrayPayments(req.payload, { openOnly: true }).catch(() => [])
   const href = (path: string) => `${adminRoute}${path}`
 
   return (
@@ -207,6 +211,8 @@ export async function TodayView({ adminRoute, req }: AdminViewBodyProps) {
           </p>
         ) : null}
       </section>
+
+      <StrayPaymentsPanel items={stray} adminRoute={adminRoute} />
 
       <LegalTextsTile rows={summary.legalTexts} href={href(adminViewPath('texte'))} />
 

@@ -23,6 +23,7 @@ import type { Order } from '@/payload-types'
 import { transitionCheckout } from './checkoutTransitions'
 import { createOrderFromCheckout, type OrderPaymentInput } from './createOrderFromCheckout'
 import { executeRefund } from './refunds'
+import { recordStrayPayment } from './strayPayments'
 import { intArray } from './reservation'
 import { computeShipping, type ShippingSettings } from './shipping'
 
@@ -186,8 +187,8 @@ async function handleClosed(
       summary: 'Vorkasse bestellt, aber Karte/PayPal bezahlt – bitte eine Zahlung erstatten',
       affected: `Bestellung ${prepaymentOrder.orderNumber}: Betrag ${amount}, ${ids}`,
       automatic: 'Keine zweite Bestellung; die Vorkasse-Bestellung ist markiert.',
-      todo: 'Bitte eine der beiden Zahlungen erstatten (Karte/PayPal im Stripe-Dashboard).',
-      adminPath: `/collections/orders/${prepaymentOrder.id}`,
+      todo: 'Bitte eine der beiden Zahlungen erstatten: in der Bestellung unter „Zahlungen ohne Bestellung“ auf „Erstatten“ tippen (oder im Stripe-Dashboard).',
+      adminPath: `/bestellungen/${prepaymentOrder.id}`,
       now,
     })
   } else {
@@ -196,10 +197,19 @@ async function handleClosed(
       summary: S16_SUMMARY,
       affected: `Kasse ${checkout.id} (${checkout.status}): Betrag ${amount}, ${ids}`,
       automatic: 'Keine Bestellung und keine Rechnung; die Stücke sind unverändert.',
-      todo: 'Bitte die Zahlung im Stripe-Dashboard prüfen und erstatten.',
+      todo: 'Bitte in der Verwaltung unter „Heute“ → „Zahlungen ohne Bestellung“ auf „Erstatten“ tippen (oder im Stripe-Dashboard erstatten).',
+      adminPath: '/heute',
       now,
     })
   }
+  // U-58 a: Zahlung an der Kasse vermerken – Knopf „Erstatten“ in der Verwaltung („Heute“ bzw. Bestellung).
+  await recordStrayPayment(req, checkout.id, {
+    kind: prepaymentOrder ? 'double' : 'late',
+    paymentIntentId: payment.paymentIntentId ?? null,
+    sessionId: payment.sessionId,
+    amountCents: payment.amountReceivedCents,
+    now,
+  })
   log.warn('fulfill.checkout_closed', {
     checkoutId: checkout.id,
     status: checkout.status,

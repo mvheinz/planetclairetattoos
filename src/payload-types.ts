@@ -1046,6 +1046,23 @@ export interface Checkout {
     cancelledAt?: string | null;
     failedAt?: string | null;
   };
+  /**
+   * Zu spät (Kasse schon beendet) oder zusätzlich zur Vorkasse bezahlt. Erstatten über „Heute“ oder die Bestellung.
+   */
+  strayPayments?:
+    | {
+        kind: 'late' | 'double';
+        paymentIntentId: string;
+        sessionId?: string | null;
+        amountCents?: number | null;
+        receivedAt: string;
+        refundStatus?: ('none' | 'pending' | 'succeeded' | 'failed') | null;
+        refundId?: string | null;
+        refundAttempts?: number | null;
+        refundedAt?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   seed?: boolean | null;
   seedKey?: string | null;
   updatedAt: string;
@@ -2381,6 +2398,7 @@ export interface AuditLog {
     | 'order_status_link_rotated'
     | 'order_refund_created'
     | 'order_refund_failed'
+    | 'stray_payment_refunded'
     | 'packing_photo_skipped'
     | 'carrier_consent_withdrawn'
     | 'complaint_changed'
@@ -3274,6 +3292,20 @@ export interface CheckoutsSelect<T extends boolean = true> {
         expiredAt?: T;
         cancelledAt?: T;
         failedAt?: T;
+      };
+  strayPayments?:
+    | T
+    | {
+        kind?: T;
+        paymentIntentId?: T;
+        sessionId?: T;
+        amountCents?: T;
+        receivedAt?: T;
+        refundStatus?: T;
+        refundId?: T;
+        refundAttempts?: T;
+        refundedAt?: T;
+        id?: T;
       };
   seed?: T;
   seedKey?: T;

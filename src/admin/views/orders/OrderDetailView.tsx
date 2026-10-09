@@ -3,6 +3,7 @@ import React from 'react'
 import { MoneyAmount } from '@/components/shop/MoneyAmount'
 import { PACKING_PHOTOS_UI_MAX } from '@/lib/commerce/packOrder'
 import { refundDialogData } from '@/lib/commerce/refundOrder'
+import { listStrayPayments } from '@/lib/commerce/strayPayments'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import { COMPLAINT_KINDS, PACKAGING_MATERIALS } from '@/lib/enums'
 import { consentLogsFor } from '@/lib/privacy/logs'
@@ -19,6 +20,7 @@ import { loadOrderDetail } from './orderQuery'
 import { OrderResend } from './OrderResend'
 import { PackingPanel } from './PackingPanel'
 import { RefundDialog } from './RefundDialog'
+import { StrayPaymentsPanel } from './StrayPaymentsPanel'
 import { HintBadges } from './PackingListView'
 
 /** Gründe für „Erstatten“ aus der Bestellung (O15/O21, KONZEPT §5.3); Widerrufe erstattet Jutta im Widerruf. */
@@ -50,6 +52,8 @@ export async function OrderDetailView({ adminRoute, req, match }: AdminViewBodyP
   const resend = detail.resend.filter((o) => o.sentBefore)
   const refund = await refundDialogData(req, detail.id)
   const complaints = await loadOrderComplaints(req, detail.id)
+  // U-58 a (J-27): zusätzlich zur Vorkasse eingegangene Zahlung mit Knopf „Erstatten“
+  const stray = await listStrayPayments(req.payload, { orderId: detail.id }).catch(() => [])
   return (
     <div className="pc-order pc-order--detail" data-testid="order-detail">
       <p className="pc-order__meta">
@@ -80,6 +84,8 @@ export async function OrderDetailView({ adminRoute, req, match }: AdminViewBodyP
           {p ? <HintBadges hints={p.hints} /> : null}
         </section>
       ) : null}
+
+      <StrayPaymentsPanel items={stray} adminRoute={adminRoute} showOrderLink={false} />
 
       <section className="pc-order__section" aria-labelledby="order-items">
         <h2 id="order-items">{adminText('orderItems')}</h2>

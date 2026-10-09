@@ -61,7 +61,13 @@
     "settingsHeading": "Language & settings",
     "motionLabel": "Animations:",
     "motionOffSystem": "off (system setting)",
-    "copyright": "© {year} Planet Claire · Berlin"
+    "copyright": "© {year} Planet Claire · Berlin",
+    "shopFacts": {
+      "payment": "Pay by card, Apple Pay, Google Pay, PayPal or bank transfer in advance",
+      "paymentNoPrepayment": "Pay by card, Apple Pay, Google Pay or PayPal",
+      "shipping": "Shipping within Germany",
+      "pickup": "Pick-up in {city} by arrangement"
+    }
   },
   "legal": {
     "placeholder": "Placeholder – the binding text will follow after review by the law firm.",
@@ -557,7 +563,9 @@
       "reserved": "Reserved right now – check back in 30 minutes",
       "sold": "Sorry, already sold",
       "reserved_by_you": "Waiting for you at checkout",
-      "priceChanged": "Price has been updated"
+      "priceChanged": "Price has been updated",
+      "reservedUntil": "Reserved until {time} – it may be free again after that",
+      "reservedUntilDate": "Reserved until {date}, {time} – it may be free again after that"
     },
     "soldStamp": "sold",
     "unknownTitle": "Piece {number}",

@@ -61,7 +61,13 @@
     "settingsHeading": "Sprache & Einstellungen",
     "motionLabel": "Animationen:",
     "motionOffSystem": "aus (Systemeinstellung)",
-    "copyright": "© {year} Planet Claire · Berlin"
+    "copyright": "© {year} Planet Claire · Berlin",
+    "shopFacts": {
+      "payment": "Bezahlen mit Karte, Apple Pay, Google Pay, PayPal oder Vorkasse",
+      "paymentNoPrepayment": "Bezahlen mit Karte, Apple Pay, Google Pay oder PayPal",
+      "shipping": "Versand innerhalb Deutschlands",
+      "pickup": "Abholung in {city} nach Absprache"
+    }
   },
   "legal": {
     "placeholder": "Platzhalter – der verbindliche Text folgt nach Prüfung durch die Kanzlei.",
@@ -557,7 +563,9 @@
       "reserved": "Gerade reserviert – schau in 30 Minuten nochmal",
       "sold": "Leider schon verkauft",
       "reserved_by_you": "Liegt für dich in der Kasse bereit",
-      "priceChanged": "Preis wurde aktualisiert"
+      "priceChanged": "Preis wurde aktualisiert",
+      "reservedUntil": "Reserviert bis {time} Uhr – danach wird es vielleicht wieder frei",
+      "reservedUntilDate": "Reserviert bis {date}, {time} Uhr – danach wird es vielleicht wieder frei"
     },
     "soldStamp": "sold",
     "unknownTitle": "Stück {number}",

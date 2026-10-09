@@ -489,6 +489,7 @@ export const AUDIT_LONG_RETENTION_ACTIONS: ReadonlySet<AuditAction> = new Set<Au
   'order_status_link_rotated',
   'order_refund_created',
   'order_refund_failed',
+  'stray_payment_refunded',
   'order_anonymized',
   'packing_photo_skipped',
   'carrier_consent_withdrawn',

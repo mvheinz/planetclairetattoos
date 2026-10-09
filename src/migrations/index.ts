@@ -48,6 +48,7 @@ import * as migration_20261006_183113_p12_tour_dates from './20261006_183113_p12
 import * as migration_20261006_191836_p12_tour_dates_constraints from './20261006_191836_p12_tour_dates_constraints';
 import * as migration_20261006_210529_p12_ip_snippets from './20261006_210529_p12_ip_snippets';
 import * as migration_20261009_085648_p14_shop_scale_photo from './20261009_085648_p14_shop_scale_photo';
+import * as migration_20261009_110849_p14_shop_stray_payments from './20261009_110849_p14_shop_stray_payments';
 
 export const migrations = [
   {
@@ -299,5 +300,10 @@ export const migrations = [
     up: migration_20261009_085648_p14_shop_scale_photo.up,
     down: migration_20261009_085648_p14_shop_scale_photo.down,
     name: '20261009_085648_p14_shop_scale_photo',
+  },
+  {
+    up: migration_20261009_110849_p14_shop_stray_payments.up,
+    down: migration_20261009_110849_p14_shop_stray_payments.down,
+    name: '20261009_110849_p14_shop_stray_payments',
   },
 ];

@@ -103,6 +103,7 @@ const AUDIT_LABELS: Labels<E.AuditAction> = {
   order_status_link_rotated: l('Status-Link erneuert'),
   order_refund_created: l('Erstattung angelegt'),
   order_refund_failed: l('Erstattung gescheitert'),
+  stray_payment_refunded: l('Zahlung ohne Bestellung erstattet'),
   packing_photo_skipped: l('Packfoto übersprungen'),
   carrier_consent_withdrawn: l('Einwilligung DHL-Weitergabe widerrufen'),
   complaint_changed: l('Reklamation geändert'),

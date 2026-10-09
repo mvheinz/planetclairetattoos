@@ -5623,7 +5623,7 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-50 … U-64. Gilt für Handy und Desktop
   - Akzeptanz: Unit/E2E Verknüpfung in beide Richtungen, nur Fotos mit Einwilligung.
 - [x] **P14.8 Shop: Frage-Link, „Ähnliches anfragen“, verkaufte nicht mischen, Größen-Vergleichsfoto** (U-57) – Schemaänderung per Migration.
   - Akzeptanz: Unit/Int/E2E, DE/EN.
-- [ ] **P14.9 Kasse: Erstatten-Knopf, „reserviert bis“, Fußzeile Zahlung & Versand** (U-58).
+- [x] **P14.9 Kasse: Erstatten-Knopf, „reserviert bis“, Fußzeile Zahlung & Versand** (U-58).
   - Akzeptanz: Int (Erstattung idempotent, nur Admin), E2E Korb, Verbotsliste grün.
 - [ ] **P14.10 EU-Gewährleistungshinweis fertig** (U-59).
   - Akzeptanz: Unit (Grafik + Wortlaut DE/EN, Platzhalter-Kennzeichen), Rechts-Tests grün.

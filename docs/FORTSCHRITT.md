@@ -2,6 +2,27 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-09 – P14.9 Kasse: Erstatten-Knopf, „reserviert bis“, Fußzeile Zahlung & Versand (U-58)
+
+- **Erstatten (J-26/J-27):** Zahlungen ohne Bestellung (zu spät nach Ende der Kasse, S16; zusätzlich zur Vorkasse, S17)
+  merkt sich der Webhook jetzt an der Kasse (`checkouts.strayPayments`, Migration `p14_shop_stray_payments`). In der
+  Verwaltung stehen sie unter „Heute“ (alle offenen) bzw. an der Vorkasse-Bestellung mit Knopf „Erstatten“ (Bestätigung
+  mit Betrag). Der Knopf ruft `POST /api/checkouts/:id/refund-stray-payment` (nur Verwaltung, sonst 403), erstattet den
+  ganzen Betrag über den vorhandenen Erstattungs-Adapter (bis P11 Mock), ist idempotent (läuft/erstattet → „schon
+  erledigt“), schreibt `stray_payment_refunded` ins Audit-Log; ein Anbieterfehler bleibt „fehlgeschlagen“ und lässt sich
+  erneut versuchen. Erstattungs-Webhooks ohne Bestellung tragen den Stand nach. Verwaltungs-Mails A12 verweisen auf den
+  Knopf.
+- **Korb:** fremd reservierte Stücke zeigen „Reserviert bis 14:30 Uhr – danach wird es vielleicht wieder frei“
+  (Europe/Berlin; an einem anderen Tag mit Datum, EN „Reserved until …“) – ohne Angaben zur fremden Kasse.
+- **Seitenfuß:** Zeile „Bezahlen mit Karte, Apple Pay, Google Pay, PayPal oder Vorkasse · Versand innerhalb Deutschlands ·
+  Abholung in Berlin nach Absprache · Versand & Zahlung“ (aus den Einstellungen: Vorkasse an/aus, Abholung an/aus und
+  Ort), DE/EN; kein „inkl. MwSt.“, kein EU-OS-Link.
+- Tests: Int `tests/int/commerce/stray-payments.int.spec.ts` (Vermerk einmalig, 403 ohne Anmeldung, erstattet + Audit,
+  zweiter Klick unverändert, Fehler + neuer Versuch, S17 an der Bestellung) plus `fulfill-checkout`/`prepayment` grün;
+  Unit `tests/unit/shop/reserved-until.unit.spec.ts`; E2E Korb (`cart.e2e.spec.ts`), Fußzeile
+  (`legal/footer-shop-facts.e2e.spec.ts`), Verbotsliste, Fußbereich, „Heute“, Bestell-Detail, Vorkasse gegen den
+  Produktions-Build grün (Einzel-Läufe; „Vertrag widerrufen auf jeder Route“ lief unter Last einmal in die Zeitgrenze).
+
 ## 2026-10-09 – P14.8 Shop: Frage-Link, „Ähnliches anfragen“, verkaufte nicht mischen, Größen-Vergleichsfoto (U-57)
 
 - **Frag nach diesem Stück** (Produktseite, verfügbar/reserviert): Mail-Link an die Kontaktadresse aus den Einstellungen,
