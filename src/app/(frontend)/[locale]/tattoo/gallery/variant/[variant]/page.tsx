@@ -1,6 +1,6 @@
-import { setRequestLocale } from 'next-intl/server'
 import React from 'react'
 
+import { listVariantPage, type VariantRouteParams } from '@/components/listVariantPage'
 import { GalleryListPage } from '@/components/tattoo/GalleryListPage'
 import { tattooLocale, tattooMetadata, tattooVariantParams } from '@/components/tattoo/tattooRoute'
 import { GALLERY_KINDS, variantKey } from '@/lib/shop/listParams'
@@ -11,18 +11,16 @@ import { GALLERY_KINDS, variantKey } from '@/lib/shop/listParams'
 export const revalidate = 3600
 export const dynamicParams = true
 
-type Params = { locale: string; variant: string }
+const metadata = tattooMetadata('R15')
 
-export function generateStaticParams(): { variant: string }[] {
-  return GALLERY_KINDS.map((kind) => ({ variant: variantKey({ kind }) }))
-}
+const page = listVariantPage<VariantRouteParams>({
+  locale: tattooLocale,
+  list: (variant) => tattooVariantParams('R15', variant),
+  staticParams: () => GALLERY_KINDS.map((kind) => ({ variant: variantKey({ kind }) })),
+  metadata: (params) => metadata({ params: Promise.resolve(params) }),
+  render: (locale, list) => <GalleryListPage locale={locale} list={list} />,
+})
 
-export const generateMetadata = tattooMetadata('R15')
-
-export default async function GalleryVariantPage({ params }: { params: Promise<Params> }) {
-  const { locale: raw, variant } = await params
-  const locale = tattooLocale(raw)
-  const list = tattooVariantParams('R15', variant)
-  setRequestLocale(locale)
-  return <GalleryListPage locale={locale} list={list} />
-}
+export const generateStaticParams = page.generateStaticParams
+export const generateMetadata = page.generateMetadata
+export default page.Page

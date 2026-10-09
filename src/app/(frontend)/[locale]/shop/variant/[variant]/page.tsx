@@ -1,7 +1,6 @@
-import { setRequestLocale } from 'next-intl/server'
-import type { Metadata } from 'next'
 import React from 'react'
 
+import { listVariantPage, type VariantRouteParams } from '@/components/listVariantPage'
 import { ListPage } from '@/components/shop/ListPage'
 import {
   shopMetadata,
@@ -17,26 +16,14 @@ import {
 export const revalidate = 3600
 export const dynamicParams = true
 
-type Params = { locale: string; variant: string }
+const page = listVariantPage<VariantRouteParams>({
+  locale: toLocale,
+  list: (variant) => variantParams('R02', variant),
+  staticParams: async (locale) => (await shopVariantKeys(locale)).map((variant) => ({ variant })),
+  metadata: ({ locale, variant }) => shopMetadata(toLocale(locale), variantParams('R02', variant)),
+  render: (locale, list) => <ListPage routeId="R02" locale={locale} list={list} />,
+})
 
-export async function generateStaticParams({
-  params,
-}: {
-  params: { locale: string }
-}): Promise<{ variant: string }[]> {
-  return (await shopVariantKeys(toLocale(params.locale))).map((variant) => ({ variant }))
-}
-
-export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
-  const { locale, variant } = await params
-  const list = variantParams('R02', variant)
-  return shopMetadata(toLocale(locale), list)
-}
-
-export default async function ShopVariantPage({ params }: { params: Promise<Params> }) {
-  const { locale: raw, variant } = await params
-  const locale = toLocale(raw)
-  const list = variantParams('R02', variant)
-  setRequestLocale(locale)
-  return <ListPage routeId="R02" locale={locale} list={list} />
-}
+export const generateStaticParams = page.generateStaticParams
+export const generateMetadata = page.generateMetadata
+export default page.Page

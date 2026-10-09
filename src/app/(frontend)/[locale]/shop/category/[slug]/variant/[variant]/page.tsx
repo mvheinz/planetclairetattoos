@@ -1,7 +1,6 @@
-import { setRequestLocale } from 'next-intl/server'
-import type { Metadata } from 'next'
 import React from 'react'
 
+import { listVariantPage, type VariantRouteParams } from '@/components/listVariantPage'
 import { ListPage } from '@/components/shop/ListPage'
 import {
   categoryMetadata,
@@ -17,31 +16,26 @@ import {
 export const revalidate = 3600
 export const dynamicParams = true
 
-type Params = { locale: string; slug: string; variant: string }
+type Params = VariantRouteParams & { slug: string }
 
-/** Parameter der Elternseite kommen nur aus Layouts – hier deshalb Kategorie und Variante zusammen. */
-export async function generateStaticParams({
-  params,
-}: {
-  params: { locale: string }
-}): Promise<{ slug: string; variant: string }[]> {
-  const locale = toLocale(params.locale)
-  const out: { slug: string; variant: string }[] = []
-  for (const slug of await categorySlugs(locale))
-    for (const variant of await categoryVariantKeys(locale, slug)) out.push({ slug, variant })
-  return out
-}
+const page = listVariantPage<Params>({
+  locale: toLocale,
+  list: (variant) => variantParams('R03', variant),
+  /** Parameter der Elternseite kommen nur aus Layouts – hier deshalb Kategorie und Variante zusammen. */
+  staticParams: async (locale) => {
+    const out: { slug: string; variant: string }[] = []
+    for (const slug of await categorySlugs(locale))
+      for (const variant of await categoryVariantKeys(locale, slug)) out.push({ slug, variant })
+    return out
+  },
+  metadata: ({ locale, slug, variant }) =>
+    categoryMetadata(toLocale(locale), slug, variantParams('R03', variant)),
+  render: async (locale, list, { slug }) => {
+    const category = await resolveCategory(locale, slug, list)
+    return <ListPage routeId="R03" locale={locale} list={list} category={category} />
+  },
+})
 
-export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
-  const { locale, slug, variant } = await params
-  return categoryMetadata(toLocale(locale), slug, variantParams('R03', variant))
-}
-
-export default async function CategoryVariantPage({ params }: { params: Promise<Params> }) {
-  const { locale: raw, slug, variant } = await params
-  const locale = toLocale(raw)
-  const list = variantParams('R03', variant)
-  setRequestLocale(locale)
-  const category = await resolveCategory(locale, slug, list)
-  return <ListPage routeId="R03" locale={locale} list={list} category={category} />
-}
+export const generateStaticParams = page.generateStaticParams
+export const generateMetadata = page.generateMetadata
+export default page.Page
