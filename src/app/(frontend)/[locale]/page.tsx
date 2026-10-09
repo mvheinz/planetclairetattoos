@@ -20,6 +20,7 @@ import { getSiteNavigation, instagramUrl } from '@/lib/data/navigation'
 import { listStationProducts } from '@/lib/data/products'
 import { getTattooSettings, listFlash } from '@/lib/data/tattoo'
 import { listTourDates } from '@/lib/data/tour'
+import { kokoAsleep } from '@/lib/home/kokoSleep'
 import { tourNow } from '@/lib/tour/now'
 import { getShopDisplaySettings, taxSettingsFor } from '@/lib/data/shopSettings'
 import { isLocale, localizedPath } from '@/lib/routes/paths'
@@ -124,7 +125,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
       ) : null}
       <div className={styles.chairwomanSlot} data-slot="chairwoman">
-        <ChairwomanKoko locale={locale} />
+        {/* U-53 (P14.4): nachts (Berlin 22–7 Uhr) schläft Koko – entschieden beim Rendern (ISR ≤ 1 h) */}
+        <ChairwomanKoko locale={locale} asleep={kokoAsleep(now)} />
       </div>
       <aside
         className={styles.tourCol}

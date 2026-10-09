@@ -5,6 +5,7 @@ import koko from '@/art/koko/koko.json'
 import type { Locale } from '@/lib/routes/registry'
 
 import styles from './Koko.module.css'
+import { kokoLid } from './kokoLids'
 
 // „Koko, Vorsitzende der Goth Dogs Berlin“ (P12.6 U-08, P13.2 U-41): Juttas T-Shirt-Malerei, freigestellt und gesäubert
 // (`python3 scripts/art/koko-cutout.py`) als Büste: Kopf, Narrenkappe, Bommeln, spitzer Fellkragen und darunter der Ansatz
@@ -21,14 +22,30 @@ export const KOKO_HREF = '/art/koko.v3.webp'
 
 const pts = (list: number[][]) => list.map((p) => p.join(',')).join(' ')
 const eyes = [
-  { id: 'l', ...koko.eyes.l },
-  { id: 'r', ...koko.eyes.r },
+  { id: 'l', ...koko.eyes.l, lid: kokoLid(koko.eyes.l.ball, 1) },
+  { id: 'r', ...koko.eyes.r, lid: kokoLid(koko.eyes.r.ball, 2) },
 ]
 
-export async function ChairwomanKoko({ locale }: { locale: Locale }) {
+/**
+ * Koko auf der Startseite. `asleep` (U-53, P14.4): nachts (Berlin 22–7 Uhr, `kokoAsleep`) hat sie die Lider zu – Lidfläche in
+ * Fellschwarz mit müder Tusche-Unterkante über dem Augapfel statt wandernder Pupillen; ohne Bewegung, Alt-Text sagt es.
+ */
+export async function ChairwomanKoko({
+  locale,
+  asleep = false,
+}: {
+  locale: Locale
+  asleep?: boolean
+}) {
   const t = await getTranslations({ locale, namespace: 'home' })
   return (
-    <div className={styles.koko} data-chairwoman="" role="img" aria-label={t('chairwomanAlt')}>
+    <div
+      className={styles.koko}
+      data-chairwoman=""
+      data-koko-sleep={asleep ? '' : undefined}
+      role="img"
+      aria-label={asleep ? t('chairwomanAltAsleep') : t('chairwomanAlt')}
+    >
       {/* eslint-disable-next-line @next/next/no-img-element -- fertig skaliertes WebP aus public/art, feste Maße */}
       <img
         className={styles.drawing}
@@ -53,14 +70,22 @@ export async function ChairwomanKoko({ locale }: { locale: Locale }) {
         </defs>
         {eyes.map((e) => (
           <g key={e.id} clipPath={`url(#koko-eye-${e.id})`} data-koko-eye={e.id}>
-            <g transform={`translate(${e.cx} ${e.cy})`}>
-              <polygon
-                className={styles.look}
-                data-koko-pupil=""
-                points={pts(e.pupil)}
-                style={{ '--koko-travel': `${e.travel}px` } as React.CSSProperties}
-              />
-            </g>
+            {asleep ? (
+              <g data-koko-lid="">
+                <path className={styles.lid} d={e.lid.fill} />
+                <path className={styles.lidHair} d={e.lid.hair} />
+                <path className={styles.lidEdge} d={e.lid.edge} />
+              </g>
+            ) : (
+              <g transform={`translate(${e.cx} ${e.cy})`}>
+                <polygon
+                  className={styles.look}
+                  data-koko-pupil=""
+                  points={pts(e.pupil)}
+                  style={{ '--koko-travel': `${e.travel}px` } as React.CSSProperties}
+                />
+              </g>
+            )}
           </g>
         ))}
       </svg>

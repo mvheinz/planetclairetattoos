@@ -58,6 +58,27 @@
   }
 }
 
+/* U-53 (P14.4): nachts geschlossene Lider – Fellschwarz wie Juttas Malerei, Unterkante als zittriger Tuschestrich, zwei,
+   drei helle Haarstriche; keine Bewegung. */
+.lid {
+  fill: #141117;
+}
+
+.lidEdge {
+  fill: none;
+  stroke: #0d0b0f;
+  stroke-width: 3.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.lidHair {
+  fill: none;
+  stroke: rgb(248 249 236 / 0.22);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
 /* weniger Bewegung: Standbild – Blick nach links (wie im Original) */
 @media (prefers-reduced-motion: reduce) {
   html:not([data-motion='full']) .look {
@@ -70,7 +91,12 @@ html[data-motion='reduced'] .look {
 }
 
 @media (forced-colors: active) {
-  .look {
+  .look,
+  .lid {
     fill: CanvasText;
+  }
+
+  .lidEdge {
+    stroke: CanvasText;
   }
 }

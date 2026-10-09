@@ -5613,7 +5613,7 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-50 … U-64. Gilt für Handy und Desktop
   - Akzeptanz: E2E 390 px (Reihenfolge), Desktop unverändert.
 - [x] **P14.3 Stations-Kompass** (U-52) – Anker-Leiste ohne Skript, Tastatur bedienbar.
   - Akzeptanz: E2E Sprung zu jeder Station, a11y-Prüfung.
-- [ ] **P14.4 Koko schläft nachts** (U-53) – Berliner Uhrzeit serverseitig, ISR-verträglich.
+- [x] **P14.4 Koko schläft nachts** (U-53) – Berliner Uhrzeit serverseitig, ISR-verträglich.
   - Akzeptanz: Unit (Zeitfenster, Sommer-/Winterzeit), E2E mit SEED_NOW.
 - [ ] **P14.5 Koko lädt schneller** (U-54) – Vorrang + AVIF mit WebP-Rückfall.
   - Akzeptanz: check:bundle/Lighthouse, Bildbudget.

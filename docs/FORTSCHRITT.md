@@ -2,6 +2,16 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-09 – P14.4 Koko schläft nachts (U-53)
+
+- `kokoAsleep(now)` (`src/lib/home/kokoSleep.ts`): Berliner Uhrzeit 22:00–06:59 → Koko hat die Lider zu. Die Startseite
+  entscheidet beim Rendern mit `tourNow()` (Testumgebung: `SEED_NOW`), ISR ≤ 1 h wie bei den Tour-Terminen.
+- Lider (`kokoLids.ts`): je Auge eine Lidfläche in Fellschwarz über dem gemalten Augapfel (Clip aus `koko.json`), zittrige
+  Tusche-Unterkante als müder Bogen, helle Haarstriche wie in der Malerei; keine Pupillen, keine Bewegung, eigener
+  Alt-Text („die Augen sind zu – nachts schläft Koko“, DE/EN).
+- Tests: Unit `home/koko-sleep` (Sommer-/Winterzeit, Umstellungstage, SEED_NOW, Lid-Geometrie); E2E `home-koko` prüft den
+  Zustand passend zur Uhr (lokal zusätzlich mit `SEED_NOW=…T23:00+02:00` gegen den Server: Lider, keine Animation).
+
 ## 2026-10-09 – P14.3 Stations-Kompass (U-52)
 
 - Unter dem Kopf der Startseite eine Sprungleiste `<nav aria-label="Stationen">` mit je Station Marke (Planet/Stern aus
