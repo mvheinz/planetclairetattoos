@@ -2,6 +2,31 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-09 – P14.13 Technik: CI-Minuten, Wackel-Tests, Ladebudget, Listen-Seiten (U-62)
+
+- **CI-Minuten** (gemessen am P13-Phasenende: ≈ 289 min je `[ci:full pN]`-Lauf): `quick` läuft bei `[ci:full` kurz – keine
+  Int-Tests (laufen einmal als `test:coverage` in `quality`), kein Build/Budgets (in `quality`, dort jetzt auch
+  `check:external --built`), kein Rauchtest (Teil von `e2e-full`); Unit-Tests in Berliner Zeit einmal in `quick` statt in
+  jedem der 6 E2E-Jobs; Zwischenlauf `[ci:full]` ohne die zwei pixel-7-Jobs (Kunst-Gate und Reservierung laufen trotzdem
+  mit `--project=pixel-7` in `desktop 1/2`); Release-Probelauf ohne doppelten Export, wenn `preview-export.yml` ihn
+  ohnehin macht; Playwright `retries: 1`. Schätzung: Phasenende ≈ 224 min (−22 %), Zwischenlauf ≈ 188 min (−33 %), eine
+  Phase mit Zwischenlauf und einer Wiederholung ≈ 636 statt 860 min, ohne Wiederholung ≈ 412 min (−52 %) – Tabelle in
+  ARCHITEKTUR §6.8. Am Phasenende läuft jede Prüfung weiterhin genau einmal (alle drei Geräteprofile).
+- **Wackel-Tests:** Unit-Tests warten nach jedem Test auf angestoßene `import()` (`tests/setup/settle-imports.ts`, gegen
+  „Closing rpc while fetch was pending“); `check:bundle` zählt JS beim ersten Laden jetzt aus dem ausgelieferten HTML
+  statt „vor `load`“ (vorher je Lauf ±1–15 KB, z. B. R11 147,5 ↔ 162,8 KB) – Nachgeladenes steht nur im Bericht; E2E
+  `leash`, `leash-trail` warten auf eine ruhende Linie (`tests/e2e/leashSettle.ts`) statt 1,2–2,2 s, `photo-frame` pollt
+  die Deckkraft.
+- **Ladebudget:** Statistik-Bibliothek nachgeladen (−1,2 KB auf allen Seiten): Shop/Produkt/Listen 146,3 KB, R10
+  148,5 KB, R26 148,4 KB (Budget 150 KB). Das Ziel ≥ 10 KB Luft ist so nicht erreichbar: ≈ 135 KB sind React/Next selbst,
+  eigener Erstlade-Code nur ≈ 11 KB (OFFENE-PUNKTE).
+- **Listen-Seiten:** Die fünf Varianten-Seiten (Shop, Kategorie, Archiv, Flash, Galerie) nutzen die gemeinsame Hülle
+  `src/components/listVariantPage.tsx`.
+- Tests: Workflow-/Release-/Bundle-/Analytics-/Varianten-Unit-Tests, actionlint 1.7.7 ohne Befund, `pnpm check`,
+  Build mit Debug-Flag, `check:bundle` (alle Budgets eingehalten, zweimal identisch), `check:external --built`, E2E
+  `shop/list-variants`, `shop/shop`, `shop/archive`, `tattoo/gallery`, `tattoo/flash`, `photo-frame`, `leash`,
+  `leash-trail` (desktop + pixel-7: 66 bestanden, 14 übersprungen).
+
 ## 2026-10-08 – P13 abgeschlossen: zweite Runde nach deiner Rückmeldung – für Jutta
 
 Hallo Jutta,
