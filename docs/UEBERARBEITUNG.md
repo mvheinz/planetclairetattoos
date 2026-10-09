@@ -72,3 +72,25 @@ Antworten von Jutta im Chat (Multiple Choice), verbindlich wie U-00 … U-30. Gi
 | U-48 | **„Jutta & Coco“ (Über uns):** löschen: Abschnitt „Ich bin Jutta …/Hier ist Planet Claire“, „Die zittrige Linie“, den Coco-Absatz mit gezeichneter Coco, die drei Bilder unter dem Foto, „Wo ich zeichne“ mit den Kategorie-Aufrufen. **Es bleiben:** Überschrift, Foto von Jutta und Coco mit dem kurzen Text „Zu zweit“, darunter „Sag etwas“. |
 | U-49 | **Ablauf:** Phase **P13** vor P11, selbst durcharbeiten, CI + Kunst-QA grün, selbst mergen (Squash), am Ende neue HTML-Vorschau (Release `vorschau-p12` mit neuem Stand) an Jutta. |
 
+## Dritte Runde (09.10.2026, Phase P14)
+
+Juttas Wunsch zur Startseite plus ihre Auswahl aus den Verbesserungsvorschlägen (Formulare vom 09.10.2026). Gilt vor
+Fachdokumenten und E-xx; U-00 (zweisprachig) gilt weiter.
+
+| ID | Änderung |
+| --- | --- |
+| U-50 | **Startseite oben:** Titel „Planet Claire“ mit Einleitung über die ganze Breite; darunter **drei Spalten**: links das **Foto von Jutta und Coco, kleiner**, direkt darunter der Text der bisherigen Station „Jutta & Coco“ („Werkstatt unter der Woche …“) mit Link „Mehr über uns“; Mitte **Koko** mit Mütze; rechts der **Tour-Schaukasten** mit Instagram-Link. Auf dem Handy untereinander (Foto + Text, Koko, Tour – Reihenfolge siehe U-51). Die **Station „Jutta & Coco“ entfällt**; Stationen 01–05. |
+| U-51 | **Handy:** Der Tour-Schaukasten steht unter 1100 px **zusammengeklappt hinter Station 01**, damit man schneller zu den Stücken kommt. |
+| U-52 | **Stations-Kompass:** kleine Sprungleiste aus Planeten-/Sternmarken (Keramik, Textil, Zeichnungen, Schmuck, Tattoo) – reine Anker, ohne Skript. |
+| U-53 | **Koko schläft nachts:** nach Berliner Uhrzeit (z. B. 22–7 Uhr) müde/geschlossene Augen, tagsüber wandern die Pupillen wie bisher; serverseitig, ohne Speicher/Skript. |
+| U-54 | **Koko lädt schneller:** Bild mit Vorrang laden, zusätzlich kleineres Bildformat (AVIF mit WebP-Rückfall). |
+| U-55 | **Leine ruhiger:** Beim Umwickeln/Umrunden (Kringel, Bild-Umrundungen) darf die Linie nicht plötzlich extrem schnell werden – Zeichentempo ausgleichen, damit es nicht hektisch wirkt (überall, Startseite, Shop, Tattoo). |
+| U-56 | **Flash ↔ Galerie:** Flash-Motiv zeigt „schon gestochen → Foto“, Galerie-Eintrag „nach Flash F-…“ (vorhandenes Feld `flash`), nur mit Einwilligung des Fotos. |
+| U-57 | **Shop:** „Frag nach diesem Stück“ (Mail-Link mit Nummer im Betreff); bei verkauften Stücken „Etwas Ähnliches anfragen“ → Auftragsarbeiten; verkaufte Stücke nicht mehr seitenweise hinten an die Shop-Liste, sondern nach kurzer Reihe „Archiv ansehen“; optionales **Größen-Vergleichsfoto** je Stück. |
+| U-58 | **Kasse:** Knopf „Erstatten“ in der Verwaltung (zu späte/doppelte Zahlungen, über den vorhandenen Erstattungs-Adapter); im Korb „reserviert bis HH:MM“ statt nur „nicht verfügbar“; im Seitenfuß eine kurze Zeile zu Zahlarten, Versand und Abholung. |
+| U-59 | **EU-Gewährleistungshinweis fertig:** Aufbau für die amtliche Grafik und den amtlichen Wortlaut (DE/EN) vollständig; solange die amtliche Fassung nicht vorliegt bzw. die Kanzlei nicht geprüft hat, bleibt sie als Platzhalter markiert. |
+| U-60 | **Verwaltung:** Tour-Termine als **eigener Menüpunkt**; **Stück duplizieren** („als neues Stück kopieren“, ohne Fotos/Nummer); **Termin kopieren**; **Markt-Verkauf einem Tour-Termin zuordnen**, optional mit Preis (zählt für die Umsatzgrenze). |
+| U-61 | **Teilen:** Teilen-Knopf an Stücken und Flash-Motiven (Teilen-Menü des Geräts, sonst Link kopieren; nachgeladen, kein Drittanbieter); eigene **Vorschaukarten (OG-Bilder)** für Flash und Galerie. |
+| U-62 | **Technik:** CI-Minuten etwa halbieren (doppelte Testläufe/Builds zusammenlegen), Wackel-Tests auf Zustände statt feste Wartezeiten umstellen, Ladebudget entlasten (nicht nötige Skripte später laden), gleichartige Listen-Seiten zusammenlegen. |
+| U-63 | **GitHub-Projekt:** Jutta stellt das Repository selbst auf **privat** (Fotos und alte Vorschauen bleiben unverändert, sind dann nur noch für sie sichtbar). |
+| U-64 | **Ablauf:** Phase **P14** vor P11, selbst durcharbeiten, CI + Kunst-QA grün, selbst mergen (Squash), am Ende neue HTML-Vorschau an Jutta. |
