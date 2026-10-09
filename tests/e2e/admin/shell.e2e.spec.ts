@@ -65,6 +65,8 @@ test.describe('Verwaltungs-Gerüst (P5.1) @a11y', () => {
     request,
     fixtureProducts,
   }) => {
+    // 14 Ansichten nacheinander (seit P14.11 mit „Termine“) – mehr Zeit als der Standard.
+    test.setTimeout(90_000)
     const piece = await fixtureProducts.create('keramik')
     for (const view of ADMIN_VIEWS) {
       const res = await page.goto(adminPath(view.path))

@@ -73,6 +73,19 @@ export function TourEditor({
   const [saved, setSaved] = useState(false)
   const running = useRef(false)
   const copyId = useRef<number | null>(null)
+  // Nach „Termin kopieren“ zeigt dieselbe Ansicht einen anderen Termin: Formular mit dessen Werten neu beginnen. (Nach
+  // dem ersten Speichern eines neuen Termins ist `initial.id` die eigene neue ID – dann bleibt alles, auch „Gespeichert“.)
+  const [shownId, setShownId] = useState(initial.id)
+  if (initial.id !== shownId) {
+    setShownId(initial.id)
+    if (initial.id !== form.id) {
+      setForm(initial)
+      setPhotos(initial.photos)
+      setRemoved([])
+      setIssues([])
+      setSaved(false)
+    }
+  }
   const statusId = useId()
   const errors = errorsOf(issues)
   const set = <K extends keyof TourFormValues>(key: K, value: TourFormValues[K]) =>

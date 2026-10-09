@@ -89,12 +89,7 @@ export async function TourTab({
       }
     }
     return (
-      <TourEditor
-        key={initial.id ?? 'neu'}
-        initial={initial}
-        backHref={listHref}
-        translateDisabled={translateDisabled}
-      />
+      <TourEditor initial={initial} backHref={listHref} translateDisabled={translateDisabled} />
     )
   }
 
@@ -126,7 +121,7 @@ export async function TourTab({
     return (
       <li
         key={d.id}
-        className="pc-pieces__card"
+        className="pc-pieces__card pc-tattoo__card--nophoto"
         data-testid="tour-card"
         data-status={d.status}
         data-over={over ? '' : undefined}

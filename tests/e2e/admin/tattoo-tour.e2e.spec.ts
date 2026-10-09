@@ -114,7 +114,9 @@ test('@a11y Neuer Termin am Handy anlegen → Startseite zeigt ihn (DE/EN); Absa
   const cancelled = pub.locator('[data-tour-date][data-cancelled]', { hasText: NAME_DE })
   await expect(cancelled).toHaveCount(1)
   await expect(cancelled.locator('[data-tour-badge="cancelled"]')).toHaveText('abgesagt')
-  await expect(cancelled.getByRole('heading').locator('span').first()).toHaveCSS(
+  // Der Termin kann auch im eingeklappten Teil stehen (nur die nächsten drei sind offen, P13.3) – dort ist die
+  // Überschrift verborgen, der Stil gilt trotzdem.
+  await expect(cancelled.locator(':is(h3, h4) > span').first()).toHaveCSS(
     'text-decoration-line',
     'line-through',
   )
