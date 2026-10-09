@@ -330,6 +330,18 @@
   font-size: var(--fs-small);
 }
 
+/* U-56: „Schon gestochen – Foto ansehen“ (Link auf den Galerie-Eintrag, Ziel ≥ 24 px). */
+.flashPhoto {
+  font-size: var(--fs-small);
+}
+
+.flashPhoto a,
+.galleryFlash {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+
 .flashActions {
   display: flex;
   flex-direction: column;
@@ -384,6 +396,7 @@
 
 .galleryItem {
   margin: 0;
+  scroll-margin-top: calc(var(--header-h, 64px) + var(--space-4));
 }
 
 /* Kleine Bilderleiste (R11-Teaser, U-44): Coco läuft an der Leine einmal darum herum (Freiraum `u-leash-room`). */
@@ -436,6 +449,15 @@
   gap: 2px;
   margin-top: var(--space-2);
   font-size: var(--fs-small);
+}
+
+.galleryItem:target .galleryLink {
+  box-shadow: var(--shadow-stencil);
+}
+
+.galleryFlash {
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
 }
 
 .galleryStatus {

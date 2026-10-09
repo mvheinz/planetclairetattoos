@@ -164,6 +164,7 @@ export default async function Page({
               line={line}
               locale={locale}
               media={(line.product?.imageId && media.get(line.product.imageId)) || null}
+              now={now}
             />
           ))}
         </ul>

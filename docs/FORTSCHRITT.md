@@ -78,6 +78,69 @@ Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt
 - Amtliche Fassung erneut nicht abrufbar (EUR-Lex: Bot-Schutz, Sekundärquellen gesperrt) → Platzhalter bleibt.
 - Tests: Unit `tests/unit/legal/warranty-notice.unit.spec.ts`, `tests/unit/shop/price-note.unit.spec.ts`,
   `tests/unit/golive/checks.unit.spec.ts`, Verbotsliste `tests/unit/legal/forbidden.unit.spec.ts`; `pnpm check` grün.
+## 2026-10-09 – P14.12 Teilen-Knopf + Vorschaukarten Tattoo (U-61)
+
+- **Teilen** an Stückseiten (unter dem Kaufbereich) und jeder Flash-Karte: „Teilen“ öffnet das Teilen-Menü des Geräts
+  (Web Share API, neues nachgeladenes Modul `share-button`, 580 B gz, eigene Budgetgruppe ≤ 4 KB); wo es das nicht gibt (meist
+  am Computer) steht „Link kopieren“ (vorhandenes Modul `copy-button`) mit Meldung „Link kopiert“. Ohne JavaScript beide
+  verborgen; kein Drittanbieter, keine Cookies, kein Erstlade-JS. Flash-Karten teilen den Link mit Anker (`#f-012`).
+- **Vorschaukarten (OG-Bilder):** Flash (R12) zeigt die Zeichnung des ersten verfügbaren Motivs mit „Flash-Motive“ und
+  „F-012 – Titel“; Galerie (R15) ein Foto mit Einwilligung (nie die Seed-Ausnahme) mit „Fresh & healed“ – ohne solches
+  Foto das Standardbild. DE/EN, Alt-Text je Sprache; gilt auch für die Filter-Varianten.
+- Tests: Unit `tests/unit/behaviors/share-button.unit.spec.ts`, Vertragstest der Module, `tests/unit/seo/og-render.unit.spec.ts`
+  (PNG ohne Netz, Auswahl ohne Seed-Ausnahme, Alt-Texte); E2E `tests/e2e/shop/share.e2e.spec.ts` (Rückfall „Link
+  kopieren“ mit Zwischenablage, nachgebildetes Teilen-Menü, ohne JS, keine Cookies/Fremd-Anfragen) und
+  `tests/e2e/seo/og-image.e2e.spec.ts` gegen den Produktions-Build grün.
+
+## 2026-10-09 – P14.9 Kasse: Erstatten-Knopf, „reserviert bis“, Fußzeile Zahlung & Versand (U-58)
+
+- **Erstatten (J-26/J-27):** Zahlungen ohne Bestellung (zu spät nach Ende der Kasse, S16; zusätzlich zur Vorkasse, S17)
+  merkt sich der Webhook jetzt an der Kasse (`checkouts.strayPayments`, Migration `p14_shop_stray_payments`). In der
+  Verwaltung stehen sie unter „Heute“ (alle offenen) bzw. an der Vorkasse-Bestellung mit Knopf „Erstatten“ (Bestätigung
+  mit Betrag). Der Knopf ruft `POST /api/checkouts/:id/refund-stray-payment` (nur Verwaltung, sonst 403), erstattet den
+  ganzen Betrag über den vorhandenen Erstattungs-Adapter (bis P11 Mock), ist idempotent (läuft/erstattet → „schon
+  erledigt“), schreibt `stray_payment_refunded` ins Audit-Log; ein Anbieterfehler bleibt „fehlgeschlagen“ und lässt sich
+  erneut versuchen. Erstattungs-Webhooks ohne Bestellung tragen den Stand nach. Verwaltungs-Mails A12 verweisen auf den
+  Knopf.
+- **Korb:** fremd reservierte Stücke zeigen „Reserviert bis 14:30 Uhr – danach wird es vielleicht wieder frei“
+  (Europe/Berlin; an einem anderen Tag mit Datum, EN „Reserved until …“) – ohne Angaben zur fremden Kasse.
+- **Seitenfuß:** Zeile „Bezahlen mit Karte, Apple Pay, Google Pay, PayPal oder Vorkasse · Versand innerhalb Deutschlands ·
+  Abholung in Berlin nach Absprache · Versand & Zahlung“ (aus den Einstellungen: Vorkasse an/aus, Abholung an/aus und
+  Ort), DE/EN; kein „inkl. MwSt.“, kein EU-OS-Link.
+- Tests: Int `tests/int/commerce/stray-payments.int.spec.ts` (Vermerk einmalig, 403 ohne Anmeldung, erstattet + Audit,
+  zweiter Klick unverändert, Fehler + neuer Versuch, S17 an der Bestellung) plus `fulfill-checkout`/`prepayment` grün;
+  Unit `tests/unit/shop/reserved-until.unit.spec.ts`; E2E Korb (`cart.e2e.spec.ts`), Fußzeile
+  (`legal/footer-shop-facts.e2e.spec.ts`), Verbotsliste, Fußbereich, „Heute“, Bestell-Detail, Vorkasse gegen den
+  Produktions-Build grün (Einzel-Läufe; „Vertrag widerrufen auf jeder Route“ lief unter Last einmal in die Zeitgrenze).
+
+## 2026-10-09 – P14.8 Shop: Frage-Link, „Ähnliches anfragen“, verkaufte nicht mischen, Größen-Vergleichsfoto (U-57)
+
+- **Frag nach diesem Stück** (Produktseite, verfügbar/reserviert): Mail-Link an die Kontaktadresse aus den Einstellungen,
+  Betreff „Frage zu Nr. 017 – {Titel}“ (EN „Question about No. 017 – …“), Vorlage mit Link zum Stück, keine
+  Personendaten, kein Formular (`src/lib/shop/mailto.ts`).
+- **Verkauft:** zusätzlich „Etwas Ähnliches anfragen“ → Auftragsarbeiten (R10).
+- **Shop-Liste R02/R03:** Seiten zählen nur verfügbare/reservierte Stücke; verkaufte (Archiv) stehen nur noch als kurze
+  Reihe (höchstens 4, Überschrift „Schon weitergezogen“) unter der letzten Seite, dahinter „Archiv ansehen“ (R03 mit
+  Kategorie-Filter). `?available=1` ohne Reihe. Statische Varianten zählen Folgeseiten damit nur nach verfügbaren.
+- **Foto zum Größenvergleich:** neues Feld `products.scalePhoto` (Migration `p14_shop_scale_photo`), in „Neues
+  Stück“/„Stück bearbeiten“ als eigener Foto-Baustein (ein Foto, Hilfetext) und im Standardformular (Reiter „Bilder“);
+  auf der Stückseite letztes Galeriebild mit Beschriftung „Zum Größenvergleich“ / „For a sense of size“; Bild-Löschschutz
+  wie bei den Stückfotos.
+- Tests: Unit `tests/unit/shop/product-mailto.unit.spec.ts`; Int `tests/int/shop/data.int.spec.ts` (Reihe ≤ 4,
+  Seitenzahl), `tests/int/collections/products-fields.int.spec.ts` (scalePhoto geschützt, öffentlich lesbar); E2E
+  `tests/e2e/shop/ask-and-sold-row.e2e.spec.ts`; Shop-, Produktseiten-, Archiv-, Varianten-, Tattoo- und Foto-Baustein-
+  E2E gegen den Produktions-Build grün.
+
+## 2026-10-09 – P14.7 Flash ↔ Galerie (U-56)
+
+- Galerie-Einträge haben einen Anker `g-<id>` und kennen die Nummer ihres Flash-Motivs (Feld `flash`, nur veröffentlichte
+  Motive). Flash-Karte (R12): „Schon gestochen – Foto ansehen“ → `/de/tattoo/galerie#g-<id>`; Galerie (R15): „nach Flash
+  F-012“ → `/de/tattoo/flash#f-012` (EN „Already tattooed – see the photo“ / „after flash F-012“).
+- Verlinkt werden nur Fotos, die die Galerie ohnehin öffentlich zeigt (`toPublicGallery`: Einwilligung, Widerruf nimmt
+  den Eintrag offline; Seed-Ausnahme nur im Vorschau-Modus). Cache: R12 liest zusätzlich die Galerie (Tag
+  `tattoo-gallery`), R15 zusätzlich die Motive (Tag `flash`).
+- Tests: Unit `tests/unit/tattoo/flash-gallery-link.unit.spec.ts`, E2E `tests/e2e/tattoo/flash-gallery-link.e2e.spec.ts`
+  (beide Richtungen, Kundenfoto ohne Einwilligung ohne Link, DE/EN) plus bestehende Flash-/Galerie-E2E grün.
 
 ## 2026-10-08 – P13 abgeschlossen: zweite Runde nach deiner Rückmeldung – für Jutta
 

@@ -913,6 +913,7 @@ und `title`. Formular in Tabs „Basis“, „Pflichtangaben“, „Bilder“, �
 | Feld | Typ | Pfl. | L | Default | Validierung / Regel | Admin-Hinweis |
 |---|---|---|---|---|---|---|
 | `images` | upload → `media`, `hasMany` | R: max. 12 · V: ≥ 1 | – | – | V: jedes Bild mit Alt-Text DE **und** EN; keine `restricted`-Bilder | erstes Bild = Titelbild, Reihenfolge per Drag&Drop; empfohlen 2–12 Fotos im Hochformat 4:5 |
+| `scalePhoto` | upload → `media` | O | – | – | – | Foto zum Größenvergleich (U-57 d, P14.8): auf der Stückseite als letztes Galeriebild mit „Zum Größenvergleich“; Bild-Löschschutz wie `images` |
 
 **Tab „Verkauf“**
 
@@ -2067,6 +2068,7 @@ genau eine Bestellung (O1/O2/O19). **Admin:** Gruppe „System“, nur lesen (Fe
 | `mock.state` | json | S | – | – | nur `PAYMENTS_DRIVER=mock`: Session-Zustand (`open`/`complete`/`expired`, `paymentStatus`, nächstes Test-Ergebnis) – Zustand liegt in der DB, nicht im Prozess (ARCHITEKTUR §3.5); schreibt nur der Mock-Treiber (Trigger `checkouts_keep_mock_state`, Migration `p4_mock_state_guard`), kein Client-Secret | – |
 | `order` | relationship → `orders` | S | – | – | gesetzt bei `completed` | – |
 | `closeReason` | select `CheckoutCloseReason` | S | – | – | Pflicht bei `expired`, `cancelled`, `failed` | – |
+| `strayPayments` | array (`kind` late/double, `paymentIntentId`, `sessionId`, `amountCents`, `receivedAt`, `refundStatus` none/pending/succeeded/failed, `refundId`, `refundAttempts`, `refundedAt`) | S | – | – | – | Zahlungen ohne Bestellung (U-58 a, P14.9; S16 zu spät, S17 zusätzlich zur Vorkasse): vom Webhook angelegt (je PaymentIntent einmal), „Erstatten“ in der Verwaltung (`POST /api/checkouts/:id/refund-stray-payment`, Idempotenz `stray-refund:<pi>:<Versuch>`, Audit `stray_payment_refunded`) |
 | `timestamps.confirmingAt` / `completedAt` / `expiredAt` / `cancelledAt` / `failedAt` | date | S | – | – | `confirmingAt` steuert den Abgleich nach 10 min (KONZEPT §4.10) | – |
 | `seed` / `seedKey` | `seedField()` | S | – | `false` | – | – |
 

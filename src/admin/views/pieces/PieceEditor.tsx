@@ -54,6 +54,8 @@ export interface PieceEditorInitial {
   slug: string | null
   form: PieceForm
   photos: PiecePhoto[]
+  /** U-57 d: Foto zum Größenvergleich (höchstens eins). */
+  scalePhotos?: PiecePhoto[]
 }
 
 export interface PieceEditorProps {
@@ -121,6 +123,8 @@ export function PieceEditor({
   const [form, setForm] = useState<PieceForm>(initial.form)
   const [photos, setPhotos] = useState<PiecePhoto[]>(initial.photos)
   const [savedImages, setSavedImages] = useState<number[]>(initial.photos.map((p) => p.id))
+  const [scalePhotos, setScalePhotos] = useState<PiecePhoto[]>(initial.scalePhotos ?? [])
+  const [savedScale, setSavedScale] = useState<number | null>(initial.scalePhotos?.[0]?.id ?? null)
   const [removed, setRemoved] = useState<number[]>([])
   const [enDirty, setEnDirty] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -146,6 +150,7 @@ export function PieceEditor({
 
   // Automatische Alt-Texte folgen Titel, Kategorie, Nummer und Anzahl der Fotos (abgeleitet, nicht gespeichert).
   const shownPhotos = useMemo(() => refreshAutoAlts(photos, altInfo), [photos, altInfo])
+  const shownScale = useMemo(() => refreshAutoAlts(scalePhotos, altInfo), [scalePhotos, altInfo])
 
   // Live-Prüfung der Objektnummer (nur solange änderbar); das Ergebnis gilt nur für die geprüfte Eingabe.
   const rawItemNumber = form.itemNumber.trim()
@@ -196,8 +201,8 @@ export function PieceEditor({
       throw new IssuesError([{ field: 'priceCents', message: adminText('piecePriceInvalid') }])
     }
 
-    // 1. Bilder: Alt-Texte und Fokuspunkt
-    for (const p of shownPhotos.filter((x) => x.dirty)) {
+    // 1. Bilder: Alt-Texte und Fokuspunkt (auch das Foto zum Größenvergleich)
+    for (const p of [...shownPhotos, ...shownScale].filter((x) => x.dirty)) {
       const de = await requestJson(`/api/media/${p.id}?locale=de&depth=0`, {
         method: 'PATCH',
         json: { alt: p.altDe, focalX: p.focalX, focalY: p.focalY },
@@ -217,10 +222,12 @@ export function PieceEditor({
       if (!en.ok) throw new IssuesError(issuesFromResponse(en.json))
     }
     setPhotos(shownPhotos.map((p) => (p.dirty ? { ...p, dirty: false } : p)))
+    setScalePhotos(shownScale.map((p) => (p.dirty ? { ...p, dirty: false } : p)))
 
     // 2. Stück (DE + nicht lokalisierte Felder)
     const images = shownPhotos.map((p) => p.id)
-    const data = toSaveData(form, { priceCents, images, locks })
+    const scalePhoto = shownScale[0]?.id ?? null
+    const data = { ...toSaveData(form, { priceCents, images, locks }), scalePhoto }
     const res = await requestJson(
       id ? `/api/products/${id}?locale=de&depth=0` : '/api/products?locale=de&depth=0',
       { method: id ? 'PATCH' : 'POST', json: data },
@@ -248,6 +255,7 @@ export function PieceEditor({
     }
     setRemoved([])
     setSavedImages(images)
+    setSavedScale(scalePhoto)
 
     // Server-Vorbelegungen (Kategorie-Vorlagen, Versandklasse) übernehmen, eigene EN-Eingaben behalten.
     setForm((f) => ({ ...formFromDoc(doc, null), en: f.en }))
@@ -258,7 +266,7 @@ export function PieceEditor({
       window.history.replaceState(null, '', `${adminRoute}/stuecke/${newId}`)
     }
     return newId
-  }, [adminRoute, enDirty, form, id, locks, shownPhotos, removed, uploading])
+  }, [adminRoute, enDirty, form, id, locks, shownPhotos, shownScale, removed, uploading])
 
   const guard = async (next: Phase, fn: () => Promise<void>) => {
     if (running.current) return
@@ -379,7 +387,9 @@ export function PieceEditor({
   const textile = isTextile(category)
   const statusLabel = status ? ENUM_LABELS.PRODUCT_STATUSES[status].de : null
   const imagesChanged =
-    savedImages.length !== photos.length || savedImages.some((v, i) => v !== photos[i]?.id)
+    savedImages.length !== photos.length ||
+    savedImages.some((v, i) => v !== photos[i]?.id) ||
+    (scalePhotos[0]?.id ?? null) !== savedScale
 
   if (published) {
     return (
@@ -439,6 +449,25 @@ export function PieceEditor({
         onBusyChange={setUploading}
         onRemoved={(p) => setRemoved((r) => [...r, p.id])}
         disabled={busy}
+      />
+      <PhotoPicker
+        photos={shownScale}
+        setPhotos={setScalePhotos}
+        altInfo={altInfo}
+        onBusyChange={setUploading}
+        onRemoved={(p) => setRemoved((r) => [...r, p.id])}
+        disabled={busy}
+        max={1}
+        recommended={0}
+        single={{
+          heading: adminText('scaleHeading'),
+          hint: adminText('scaleHint'),
+          sectionId: 'pf-scalePhoto',
+          testIdPrefix: 'scale',
+          removeLabel: adminText('scaleRemoveLabel'),
+          altDeLabel: adminText('scaleAltDe'),
+          altEnLabel: adminText('scaleAltEn'),
+        }}
       />
       {imagesChanged ? <p className="pc-piece__hint">{adminText('photoUnsaved')}</p> : null}
 

@@ -2,7 +2,13 @@ import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
 import { EmptyState } from '@/components/ui/EmptyState'
-import { blocksOfType, getTattooPage, getTattooSettings, listGallery } from '@/lib/data/tattoo'
+import {
+  blocksOfType,
+  getTattooPage,
+  getTattooSettings,
+  listFlash,
+  listGallery,
+} from '@/lib/data/tattoo'
 import { localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
 import { listSearch, type ListParams } from '@/lib/shop/listParams'
@@ -23,12 +29,18 @@ const FILTERS = [
 ] as const
 
 export async function GalleryListPage({ locale, list }: { locale: Locale; list: ListParams }) {
-  const [t, settings, page, all] = await Promise.all([
+  const [t, settings, page, all, flash] = await Promise.all([
     getTranslations({ locale, namespace: 'tattoo.gallery' }),
     getTattooSettings(locale),
     getTattooPage(locale),
     listGallery(locale),
+    listFlash(locale),
   ])
+  // U-56: „nach Flash F-012“ nur für veröffentlichte Motive (Tag `flash` hält die Seite aktuell).
+  const flashBase = localizedPath('R12', locale)
+  const flashLinks = new Map(
+    flash.map((f) => [f.number, { href: `${flashBase}#${f.anchor}`, display: f.display }]),
+  )
   const block = blocksOfType(page, 'tattooGallery')[0]
   const entries = list.kind ? all.filter((e) => e.kind === list.kind) : all
   const base = localizedPath('R15', locale)
@@ -62,7 +74,12 @@ export async function GalleryListPage({ locale, list }: { locale: Locale; list: 
         </ul>
       </nav>
       {entries.length > 0 ? (
-        <GalleryGrid entries={entries} locale={locale} label={t('listHeading')} />
+        <GalleryGrid
+          entries={entries}
+          locale={locale}
+          label={t('listHeading')}
+          flashLinks={flashLinks}
+        />
       ) : (
         <EmptyState
           pose="sitzen"

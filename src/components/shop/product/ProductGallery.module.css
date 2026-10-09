@@ -82,6 +82,19 @@
   }
 }
 
+/* U-57 d: Beschriftung des Größen-Vergleichsfotos (oben links, damit sie den Zoom-Hinweis nicht verdeckt). */
+.scaleCaption {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  padding: 4px 10px;
+  border-radius: var(--r-btn);
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+}
+
 .zoomHint {
   position: absolute;
   right: var(--space-2);

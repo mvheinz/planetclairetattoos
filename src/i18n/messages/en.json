@@ -61,7 +61,13 @@
     "settingsHeading": "Language & settings",
     "motionLabel": "Animations:",
     "motionOffSystem": "off (system setting)",
-    "copyright": "© {year} Planet Claire · Berlin"
+    "copyright": "© {year} Planet Claire · Berlin",
+    "shopFacts": {
+      "payment": "Pay by card, Apple Pay, Google Pay, PayPal or bank transfer in advance",
+      "paymentNoPrepayment": "Pay by card, Apple Pay, Google Pay or PayPal",
+      "shipping": "Shipping within Germany",
+      "pickup": "Pick-up in {city} by arrangement"
+    }
   },
   "legal": {
     "placeholder": "Placeholder – the binding text will follow after review by the law firm.",
@@ -214,7 +220,16 @@
       "tagline": "Tattoos & one-offs from Berlin",
       "priceNote": "Final price plus shipping",
       "productAlt": "{title} – {number}: photo and price tag",
-      "defaultAlt": "Planet Claire – tattoos & one-offs from Berlin"
+      "defaultAlt": "Planet Claire – tattoos & one-offs from Berlin",
+      "flashKicker": "Tattoos by Jutta · Flash",
+      "flashTitle": "Flash designs",
+      "flashSubEmpty": "Drawings waiting for skin",
+      "flashAlt": "Flash designs by Planet Claire, in front {number} – {title}",
+      "flashAltEmpty": "Flash designs by Planet Claire",
+      "galleryKicker": "Tattoos by Jutta · Gallery",
+      "galleryTitle": "Fresh & healed",
+      "gallerySub": "Lines that stayed – freshly tattooed and healed",
+      "galleryAlt": "Planet Claire gallery: photo of a tattoo"
     },
     "tattoo": {
       "R11": "Tattoos by Planet Claire in Berlin: a fine, trembling line in a private studio. Flash designs with fixed prices, prices, gallery and enquiries by email.",
@@ -301,7 +316,9 @@
       "more": "Show more",
       "delivery": "Delivery within Germany · Pickup in {city} possible",
       "deliveryNoPickup": "Delivery within Germany",
-      "closedFallback": "The shop is asleep for now – ordering isn’t possible at the moment."
+      "closedFallback": "The shop is asleep for now – ordering isn’t possible at the moment.",
+      "soldHeading": "Already found a home",
+      "archiveLink": "View the archive"
     },
     "warranty": {
       "title": "Legal guarantee",
@@ -395,7 +412,10 @@
         "costsLink": "Shipping & payment"
       },
       "more": "More from {category}",
-      "buyBar": "Buy"
+      "buyBar": "Buy",
+      "ask": "Ask about this piece",
+      "askSimilar": "Ask for something similar",
+      "scaleCaption": "For a sense of size"
     },
     "gallery": {
       "label": "Photos: {title}",
@@ -407,6 +427,13 @@
       "zoom": "Enlarge",
       "close": "Close",
       "dialog": "Enlarged photo: {title}"
+    },
+    "mail": {
+      "subject": "Question about {number} – {title}",
+      "greeting": "Hello Jutta,",
+      "intro": "I have a question about {number} (“{title}”):",
+      "link": "Link to the piece: {url}",
+      "closing": "Best wishes"
     }
   },
   "archive": {
@@ -548,7 +575,9 @@
       "reserved": "Reserved right now – check back in 30 minutes",
       "sold": "Sorry, already sold",
       "reserved_by_you": "Waiting for you at checkout",
-      "priceChanged": "Price has been updated"
+      "priceChanged": "Price has been updated",
+      "reservedUntil": "Reserved until {time} – it may be free again after that",
+      "reservedUntilDate": "Reserved until {date}, {time} – it may be free again after that"
     },
     "soldStamp": "sold",
     "unknownTitle": "Piece {number}",
@@ -1167,7 +1196,8 @@
       "emptyAction": "To the process",
       "allTakenTitle": "Every design has found its skin.",
       "allTakenText": "New ones will follow – or write me your own idea by email.",
-      "allTakenAction": "To contact"
+      "allTakenAction": "To contact",
+      "photo": "Already tattooed – see the photo"
     },
     "prices": {
       "intro": "I tell you openly what a tattoo costs. All prices are totals – nothing is added on top.",
@@ -1202,7 +1232,8 @@
       "close": "Close",
       "emptyTitle": "No traces on this page yet",
       "emptyText": "In the meantime, have a look at the flash designs.",
-      "emptyAction": "To the flash designs"
+      "emptyAction": "To the flash designs",
+      "afterFlash": "after flash {number}"
     },
     "process": {
       "intro": "From the first word to healed skin. There is no online booking – everything begins with an email.",
@@ -1422,5 +1453,11 @@
     "linkLabel": "A navigation link",
     "demoButton": "Add to basket",
     "cartCount": "In basket"
+  },
+  "share": {
+    "button": "Share",
+    "copy": "Copy link",
+    "copied": "Link copied",
+    "failed": "Couldn’t copy – here is the link: {url}"
   }
 }

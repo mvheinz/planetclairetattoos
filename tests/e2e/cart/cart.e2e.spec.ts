@@ -1,4 +1,5 @@
 import { decodeCartCookie } from '../../../src/lib/commerce/cartCookie'
+import { reservedUntilParts } from '../../../src/lib/shop/reservedUntil'
 import { holdShippingRates, type ReleaseLock } from '../../helpers/adminSessionLock'
 import { expectNoSeriousViolations } from '../axe'
 import { expectCalm } from '../calm'
@@ -207,9 +208,12 @@ test.describe('Zustände mit Fixture-Stücken', () => {
       norm(euro(3000)),
     )
     await expect(line(reserved.id)).toHaveAttribute('data-purchasable', 'false')
+    // U-58 b: „Reserviert bis …“ in Berliner Zeit (morgen → mit Datum), keine Angaben zur fremden Kasse
+    const parts = reservedUntilParts(until, new Date(), 'de')!
     await expect(line(reserved.id).locator('[data-cart-line-note]')).toHaveText(
-      'Gerade reserviert – schau in 30 Minuten nochmal',
+      `Reserviert bis ${parts.date}, ${parts.time} Uhr – danach wird es vielleicht wieder frei`,
     )
+    await expect(line(reserved.id)).not.toContainText('e2e-fremde-kasse')
     await expect(line(sold.id)).toHaveAttribute('data-purchasable', 'false')
     await expect(line(sold.id).locator('[data-cart-line-note="sold"]')).toHaveText(
       'Leider schon verkauft',

@@ -5,6 +5,7 @@ import type { Payload, PayloadRequest } from 'payload'
 
 import { newRefundEffects } from '@/lib/commerce/refundFinalize'
 import { runRefundEffects, setRefundStatus } from '@/lib/commerce/refunds'
+import { applyStrayRefundEvent } from '@/lib/commerce/strayPayments'
 import { loadOrder, transitionOrder, updateOrderFields } from '@/lib/commerce/transitionOrder'
 import { dbFor } from '@/lib/db/tx'
 import { sendAdminAlert } from '@/lib/email/alerts'
@@ -121,7 +122,11 @@ export async function handleRefundEvent(
     }
   }
   if (orderId === null || index < 0) {
-    // z. B. im Stripe-Dashboard ausgelöst – die Verwaltung dafür folgt mit P5
+    // Erstattung einer Zahlung ohne Bestellung (U-58 a) – Stand dort nachtragen; sonst z. B. im Stripe-Dashboard
+    // ausgelöst.
+    if (orderId === null && (await applyStrayRefundEvent(req, data.refundId, status, now))) {
+      return { status: 'processed', action: `stray_refund_${status}`, orderId }
+    }
     log.info('payments.refund_unmatched', { refundId: data.refundId, status })
     return { status: 'processed', action: 'refund_unmatched', orderId }
   }

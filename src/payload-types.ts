@@ -1046,6 +1046,23 @@ export interface Checkout {
     cancelledAt?: string | null;
     failedAt?: string | null;
   };
+  /**
+   * Zu spät (Kasse schon beendet) oder zusätzlich zur Vorkasse bezahlt. Erstatten über „Heute“ oder die Bestellung.
+   */
+  strayPayments?:
+    | {
+        kind: 'late' | 'double';
+        paymentIntentId: string;
+        sessionId?: string | null;
+        amountCents?: number | null;
+        receivedAt: string;
+        refundStatus?: ('none' | 'pending' | 'succeeded' | 'failed') | null;
+        refundId?: string | null;
+        refundAttempts?: number | null;
+        refundedAt?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   seed?: boolean | null;
   seedKey?: string | null;
   updatedAt: string;
@@ -1302,6 +1319,10 @@ export interface Product {
    * Erstes Bild = Titelbild; Reihenfolge per Ziehen. Empfohlen 2–12 Fotos im Hochformat 4:5.
    */
   images?: (number | Media)[] | null;
+  /**
+   * Ein Foto mit etwas Bekanntem daneben – z. B. deiner Hand, einer Tasse oder einem Lineal –, damit man die Größe gut einschätzen kann. Es erscheint auf der Stückseite als letztes Bild mit „Zum Größenvergleich“.
+   */
+  scalePhoto?: (number | null) | Media;
   status: 'draft' | 'available' | 'reserved' | 'sold' | 'archived';
   showInArchiveAfterSale?: boolean | null;
   firstPublishedAt?: string | null;
@@ -2385,6 +2406,7 @@ export interface AuditLog {
     | 'order_status_link_rotated'
     | 'order_refund_created'
     | 'order_refund_failed'
+    | 'stray_payment_refunded'
     | 'packing_photo_skipped'
     | 'carrier_consent_withdrawn'
     | 'complaint_changed'
@@ -3139,6 +3161,7 @@ export interface ProductsSelect<T extends boolean = true> {
         descriptionEn?: T;
       };
   images?: T;
+  scalePhoto?: T;
   status?: T;
   showInArchiveAfterSale?: T;
   firstPublishedAt?: T;
@@ -3279,6 +3302,20 @@ export interface CheckoutsSelect<T extends boolean = true> {
         expiredAt?: T;
         cancelledAt?: T;
         failedAt?: T;
+      };
+  strayPayments?:
+    | T
+    | {
+        kind?: T;
+        paymentIntentId?: T;
+        sessionId?: T;
+        amountCents?: T;
+        receivedAt?: T;
+        refundStatus?: T;
+        refundId?: T;
+        refundAttempts?: T;
+        refundedAt?: T;
+        id?: T;
       };
   seed?: T;
   seedKey?: T;

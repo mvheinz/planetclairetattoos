@@ -5619,17 +5619,17 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-50 … U-64. Gilt für Handy und Desktop
   - Akzeptanz: check:bundle/Lighthouse, Bildbudget.
 - [ ] **P14.6 Leine ruhiger beim Umwickeln** (U-55) – Zeichentempo an Kringeln/Umrundungen ausgleichen.
   - Akzeptanz: Unit (maximale Zeichengeschwindigkeit je Abschnitt begrenzt), Kunst-QA grün.
-- [ ] **P14.7 Flash ↔ Galerie** (U-56).
+- [x] **P14.7 Flash ↔ Galerie** (U-56).
   - Akzeptanz: Unit/E2E Verknüpfung in beide Richtungen, nur Fotos mit Einwilligung.
-- [ ] **P14.8 Shop: Frage-Link, „Ähnliches anfragen“, verkaufte nicht mischen, Größen-Vergleichsfoto** (U-57) – Schemaänderung per Migration.
+- [x] **P14.8 Shop: Frage-Link, „Ähnliches anfragen“, verkaufte nicht mischen, Größen-Vergleichsfoto** (U-57) – Schemaänderung per Migration.
   - Akzeptanz: Unit/Int/E2E, DE/EN.
-- [ ] **P14.9 Kasse: Erstatten-Knopf, „reserviert bis“, Fußzeile Zahlung & Versand** (U-58).
+- [x] **P14.9 Kasse: Erstatten-Knopf, „reserviert bis“, Fußzeile Zahlung & Versand** (U-58).
   - Akzeptanz: Int (Erstattung idempotent, nur Admin), E2E Korb, Verbotsliste grün.
 - [x] **P14.10 EU-Gewährleistungshinweis fertig** (U-59).
   - Akzeptanz: Unit (Grafik + Wortlaut DE/EN, Platzhalter-Kennzeichen), Rechts-Tests grün.
 - [x] **P14.11 Verwaltung: Termine-Menü, Stück duplizieren, Termin kopieren, Markt-Verkauf zum Termin** (U-60) – Schema per Migration.
   - Akzeptanz: Int/E2E Admin, Handbuch-Hinweis.
-- [ ] **P14.12 Teilen-Knopf + Vorschaukarten Tattoo** (U-61).
+- [x] **P14.12 Teilen-Knopf + Vorschaukarten Tattoo** (U-61).
   - Akzeptanz: E2E (Teilen-Rückfall „Link kopieren“), keine Fremd-Anfragen, JS-Budget ok, OG-Bilder Unit.
 - [x] **P14.13 Technik: CI-Minuten, Wackel-Tests, Ladebudget, Listen-Seiten zusammenlegen** (U-62).
   - Akzeptanz: Workflow-Unit-Tests angepasst, Minuten-Schätzung in ARCHITEKTUR §6, Budgets grün.

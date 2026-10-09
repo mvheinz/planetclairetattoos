@@ -6,6 +6,7 @@ import { TAGS } from '@/lib/cache/tags'
 import { createLogger } from '@/lib/monitoring/logger'
 import { getPublicPayload, getPublicSettings } from '@/lib/payload/public'
 import type { Locale } from '@/lib/routes/registry'
+import { pickShopDisplaySettings } from '@/lib/shop/displaySettings'
 
 // Daten für Kopf, Menü und Fuß (KONZEPT §3.0.2/§3.0.3): Kategorien mit `showInNavigation`, ob eine aktive
 // Konformitätserklärung existiert (Fußlink R27) und der Instagram-Name. Öffentlich gelesen (`getPublicPayload`,
@@ -26,6 +27,8 @@ export interface SiteNavigation {
   categories: NavCategory[]
   hasActiveConformity: boolean
   instagramHandle: string
+  /** Zeile „Zahlung · Versand · Abholung“ im Seitenfuß (U-58 c); fehlt sie, gelten die Standardwerte. */
+  shopFacts?: { prepaymentEnabled: boolean; pickupEnabled: boolean; pickupCity: string | null }
 }
 
 export const instagramUrl = (handle: string) => `https://www.instagram.com/${handle}/`
@@ -63,6 +66,14 @@ export async function loadNavigation(locale: Locale): Promise<SiteNavigation> {
     const handle = (settings.social as { instagramHandle?: unknown } | undefined)?.instagramHandle
     if (typeof handle === 'string' && /^[a-z0-9._]{1,30}$/.test(handle)) {
       result.instagramHandle = handle
+    }
+    const display = pickShopDisplaySettings(settings)
+    result.shopFacts = {
+      prepaymentEnabled:
+        (settings.payment as { prepaymentEnabled?: unknown } | undefined)?.prepaymentEnabled !==
+        false,
+      pickupEnabled: display.pickupEnabled,
+      pickupCity: display.pickupCity,
     }
   } catch (err) {
     log.warn('navigation.load_failed', { reason: (err as Error).message })

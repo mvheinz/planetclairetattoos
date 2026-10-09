@@ -6,6 +6,7 @@ import React from 'react'
 import de from '@/i18n/messages/de.json'
 import en from '@/i18n/messages/en.json'
 import type { PublicProduct } from '@/lib/data/products'
+import type { PublicFlash, PublicGalleryEntry } from '@/lib/data/tattoo'
 import type { Locale } from '@/lib/enums'
 import { createLogger } from '@/lib/monitoring/logger'
 import { formatItemNumber } from '@/lib/products/itemNumber'
@@ -13,7 +14,7 @@ import { formatTagPrice } from '@/lib/shop/priceTag'
 
 import { loadOgArt, loadOgFonts, readFallbackPng } from './assets'
 import { productPhotoDataUrl, type OgMediaInput } from './photo'
-import { DefaultOgImage, OG_SIZE, ProductOgImage } from './templates'
+import { DefaultOgImage, OG_SIZE, ProductOgImage, TattooOgImage } from './templates'
 
 // OG-Bilder erzeugen (P3.14, DESIGN §12.6, KONZEPT §3.0.5): PNG 1200 × 630 per `next/og` mit den TTF-Schriften aus
 // `src/og/fonts/`. Scheitert das Erzeugen, liefert die Route das statische Standardbild `public/og/default.png`.
@@ -76,6 +77,63 @@ export async function renderProductOg(product: PublicProduct, locale: Locale): P
       sold={product.status === 'sold'}
       soldText={MESSAGES[locale].errors.soldStamp}
       photo={photo}
+      art={art}
+    />,
+  )
+}
+
+// --- Tattoo: Flash und Galerie (U-61, P14.12) ---------------------------------------------------------------------
+
+/** Alt-Text des Flash-Bilds. */
+export function flashOgAlt(flash: Pick<PublicFlash, 'display' | 'title'> | null, locale: Locale) {
+  const m = og(locale)
+  return flash
+    ? m.flashAlt.replace('{number}', flash.display).replace('{title}', flash.title)
+    : m.flashAltEmpty
+}
+
+/** Alt-Text des Galerie-Bilds (ohne passendes Foto: Standardbild). */
+export const galleryOgAlt = (entry: PublicGalleryEntry | null, locale: Locale) =>
+  entry ? og(locale).galleryAlt : og(locale).defaultAlt
+
+/** Flash (R12): Zeichnung des ersten verfügbaren Motivs links, „Flash-Motive“ und „F-012 – Titel“ rechts. */
+export async function renderFlashOg(flash: PublicFlash | null, locale: Locale): Promise<Response> {
+  const m = og(locale)
+  const [art, photo] = await Promise.all([
+    loadOgArt(),
+    productPhotoDataUrl((flash?.image ?? null) as OgMediaInput | null),
+  ])
+  return png(
+    <TattooOgImage
+      kicker={m.flashKicker}
+      title={m.flashTitle}
+      subtitle={flash ? `${flash.display} – ${flash.title}` : m.flashSubEmpty}
+      photo={photo}
+      seed={flash?.number ?? 12}
+      art={art}
+    />,
+  )
+}
+
+/** Galerie (R15): ein Foto mit Einwilligung (nie Seed-Ausnahme); ohne solches Foto das Standardbild. */
+export async function renderGalleryOg(
+  entry: PublicGalleryEntry | null,
+  locale: Locale,
+): Promise<Response> {
+  if (!entry) return renderDefaultOg(locale)
+  const m = og(locale)
+  const [art, photo] = await Promise.all([
+    loadOgArt(),
+    productPhotoDataUrl(entry.image as OgMediaInput),
+  ])
+  if (!photo) return renderDefaultOg(locale)
+  return png(
+    <TattooOgImage
+      kicker={m.galleryKicker}
+      title={m.galleryTitle}
+      subtitle={m.gallerySub}
+      photo={photo}
+      seed={entry.id}
       art={art}
     />,
   )

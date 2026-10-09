@@ -3,7 +3,14 @@ import React from 'react'
 
 import { Icon } from '@/components/icons/Icon'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { blocksOfType, getTattooPage, getTattooSettings, listFlash } from '@/lib/data/tattoo'
+import {
+  blocksOfType,
+  galleryByFlash,
+  getTattooPage,
+  getTattooSettings,
+  listFlash,
+  listGallery,
+} from '@/lib/data/tattoo'
 import { localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
 import { listSearch, type ListParams } from '@/lib/shop/listParams'
@@ -20,12 +27,17 @@ import { TattooShell } from './TattooShell'
 // KO-17. Ohne JavaScript vollständig lesbar.
 
 export async function FlashListPage({ locale, list }: { locale: Locale; list: ListParams }) {
-  const [t, settings, page, all] = await Promise.all([
+  const [t, settings, page, all, gallery] = await Promise.all([
     getTranslations({ locale, namespace: 'tattoo.flash' }),
     getTattooSettings(locale),
     getTattooPage(locale),
     listFlash(locale),
+    listGallery(locale),
   ])
+  // U-56: „Schon gestochen – Foto ansehen“ nur für Fotos, die die Galerie öffentlich zeigt (Einwilligung, Tag
+  // `tattoo-gallery` hält die Seite aktuell).
+  const photos = galleryByFlash(gallery)
+  const galleryBase = localizedPath('R15', locale)
   const block = blocksOfType(page, 'flashGrid')[0]
   const showClaimed = block?.showClaimed !== false
   const visible = all.filter((f) => f.status === 'available' || (showClaimed && !list.available))
@@ -79,7 +91,15 @@ export async function FlashListPage({ locale, list }: { locale: Locale; list: Li
           <ul className={styles.flashGrid}>
             {visible.map((f, i) => (
               <li key={f.id}>
-                <FlashCard flash={f} locale={locale} settings={settings} eager={i < 2} />
+                <FlashCard
+                  flash={f}
+                  locale={locale}
+                  settings={settings}
+                  eager={i < 2}
+                  photoHref={
+                    photos.has(f.number) ? `${galleryBase}#${photos.get(f.number)!.anchor}` : null
+                  }
+                />
               </li>
             ))}
           </ul>

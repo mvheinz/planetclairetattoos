@@ -85,6 +85,11 @@
         "src/behaviors/copy-button.ts"
       ],
       "gzipMax": 4000
+    },
+    {
+      "name": "Mikro-Interaktionen Teilen (share-button an Stück und Flash-Motiv, U-61; Rückfall copy-button aus der Gruppe oben)",
+      "entries": ["src/behaviors/share-button.ts"],
+      "gzipMax": 4000
     }
   ],
   "fonts": {

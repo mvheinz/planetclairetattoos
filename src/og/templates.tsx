@@ -300,6 +300,156 @@ export function ProductOgImage(props: ProductOgProps) {
   )
 }
 
+// --- Tattoo: Flash und Galerie (U-61, P14.12) -------------------------------------------------------------------
+
+export interface TattooOgProps {
+  /** Kleine Zeile über dem Titel (Bricolage 600), z. B. „Tattoo · Flash“. */
+  kicker: string
+  title: string
+  /** Kursive Zeile darunter (Spectral 500 Italic), z. B. „F-012 – Kelch mit Schlange“. */
+  subtitle: string
+  /** JPEG-Data-URL 504 × 630 oder `null` (dann Planet-Marke auf Papier). */
+  photo: string | null
+  /** Zufallssamen der Tuschelinie (stabil je Seite). */
+  seed: number
+  art: { wordmark: string; wordmarkRatio: number; planet: string }
+}
+
+export const TATTOO_TITLE = { fontSize: 64, lineHeight: 70, maxLines: 2, maxWidth: 572 } as const
+const TATTOO_SUB = { fontSize: 38, lineHeight: 46, maxLines: 3, maxWidth: 560 } as const
+
+/** Titel- und Unterzeilen des Tattoo-Bilds (gekürzt mit „…“). */
+export function tattooOgLines(title: string, subtitle: string): { title: string[]; sub: string[] } {
+  return {
+    title: wrapLines(keepCovered(title, 'bricolage600'), {
+      maxWidth: TATTOO_TITLE.maxWidth,
+      maxLines: TATTOO_TITLE.maxLines,
+      measure: (t) => textWidth(t, 'bricolage600', TATTOO_TITLE.fontSize),
+    }),
+    sub: wrapLines(keepCovered(subtitle, 'spectral500i'), {
+      maxWidth: TATTOO_SUB.maxWidth,
+      maxLines: TATTOO_SUB.maxLines,
+      measure: (t) => textWidth(t, 'spectral500i', TATTOO_SUB.fontSize),
+    }),
+  }
+}
+
+export function TattooOgImage(props: TattooOgProps) {
+  const lines = tattooOgLines(props.title, props.subtitle)
+  const kicker = keepCovered(props.kicker, 'bricolage600')
+  const wmW = 250
+  const wmH = Math.round(wmW / props.art.wordmarkRatio)
+  const wmLeft = PANEL.width - PANEL.padX - wmW
+  const wmTop = 630 - 44 - wmH
+  const subTop = 60 + 40 + lines.title.length * TATTOO_TITLE.lineHeight + 22
+  const start = { x: PANEL.padX, y: subTop + lines.sub.length * TATTOO_SUB.lineHeight + 34 }
+  const end = { x: wmLeft - 14, y: wmTop + wmH * 0.62 }
+  // Tuschelinie unter dem Text: ein Kringel, dann zur Wortmarke (wie die Leine auf der Seite).
+  const line = inkLineSvg(
+    PANEL.width,
+    630,
+    [
+      start,
+      { x: start.x + 120, y: start.y + 10 },
+      { x: start.x + 210, y: start.y - 50 },
+      { x: start.x + 170, y: start.y - 70 },
+      { x: start.x + 120, y: start.y - 86 },
+      { x: start.x + 110, y: start.y + 40 },
+      { x: start.x + 230, y: start.y + 44 },
+      { x: start.x + 360, y: start.y + 48 },
+      { x: end.x - 80, y: end.y - 20 },
+      end,
+    ],
+    props.seed,
+    4.2,
+  )
+  const text = (extra: React.CSSProperties): React.CSSProperties => ({
+    display: 'flex',
+    color: INK,
+    whiteSpace: 'nowrap',
+    ...extra,
+  })
+  return (
+    <div style={{ display: 'flex', width: 1200, height: 630, backgroundColor: PAPER }}>
+      {props.photo ? (
+        // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
+        <img src={props.photo} width={504} height={630} style={{ width: 504, height: 630 }} />
+      ) : (
+        <div
+          style={{
+            display: 'flex',
+            width: 504,
+            height: 630,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: PAPER_2,
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
+          <img src={props.art.planet} width={220} height={220} />
+        </div>
+      )}
+      <div style={{ display: 'flex', position: 'relative', width: PANEL.width, height: 630 }}>
+        {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
+        <img
+          src={svgUrl(gridSvg(PANEL.width, 630))}
+          width={PANEL.width}
+          height={630}
+          style={abs(0, 0)}
+        />
+        <div
+          style={abs(PANEL.padX, 60, { flexDirection: 'column', width: TATTOO_SUB.maxWidth + 12 })}
+        >
+          <div
+            style={text({
+              fontFamily: 'Bricolage Grotesque',
+              fontWeight: 600,
+              fontSize: 24,
+              letterSpacing: 1,
+              color: INK_2,
+              lineHeight: '40px',
+            })}
+          >
+            {kicker}
+          </div>
+          {lines.title.map((l, i) => (
+            <div
+              key={`t${i}`}
+              style={text({
+                fontFamily: 'Bricolage Grotesque',
+                fontWeight: 600,
+                fontSize: TATTOO_TITLE.fontSize,
+                lineHeight: `${TATTOO_TITLE.lineHeight}px`,
+              })}
+            >
+              {l}
+            </div>
+          ))}
+          <div style={{ display: 'flex', height: 22 }} />
+          {lines.sub.map((l, i) => (
+            <div
+              key={`s${i}`}
+              style={text({
+                fontFamily: 'Spectral',
+                fontStyle: 'italic',
+                fontSize: TATTOO_SUB.fontSize,
+                lineHeight: `${TATTOO_SUB.lineHeight}px`,
+                color: INK_2,
+              })}
+            >
+              {l}
+            </div>
+          ))}
+        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
+        <img src={svgUrl(line)} width={PANEL.width} height={630} style={abs(0, 0)} />
+        {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
+        <img src={props.art.wordmark} width={wmW} height={wmH} style={abs(wmLeft, wmTop)} />
+      </div>
+    </div>
+  )
+}
+
 // --- Standardbild --------------------------------------------------------------------------------------------------
 
 export interface DefaultOgProps {

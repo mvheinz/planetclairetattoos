@@ -118,6 +118,30 @@ export const ADMIN_CUSTOM_DE = {
   photoUp: 'Hoch',
   photoDown: 'Runter',
   photoRemove: 'Entfernen',
+  // U-58 a: Zahlungen ohne Bestellung (zu spät / zusätzlich zur Vorkasse)
+  strayHeading: 'Zahlungen ohne Bestellung',
+  strayHint:
+    'Diese Zahlungen kamen an, obwohl die Kasse schon beendet war oder schon per Vorkasse bestellt wurde. Es gibt dafür keine Bestellung – erstatte sie hier mit einem Tipp.',
+  strayKindLate: 'Zu spät bezahlt (Kasse schon beendet)',
+  strayKindDouble: 'Zusätzlich zur Vorkasse bezahlt',
+  strayAmountUnknown: 'Betrag unbekannt',
+  strayReceived: 'eingegangen {{date}}',
+  strayStatusNone: 'noch nicht erstattet',
+  strayStatusPending: 'Erstattung läuft',
+  strayStatusSucceeded: 'erstattet',
+  strayStatusFailed: 'Erstattung fehlgeschlagen',
+  strayToOrder: 'Zur Bestellung',
+  strayRefund: 'Erstatten',
+  strayRefundTitle: '{{amount}} erstatten?',
+  strayRefundConsequence:
+    'Der ganze Betrag ({{amount}}) geht über den Zahlungsanbieter an die Person zurück. Das lässt sich nicht rückgängig machen.',
+  // U-57 d: Foto zum Größenvergleich (freiwillig, eins je Stück)
+  scaleHeading: 'Foto zum Größenvergleich (freiwillig)',
+  scaleHint:
+    'Ein Foto mit etwas Bekanntem daneben – z. B. deiner Hand, einer Tasse oder einem Lineal. Es erscheint auf der Stückseite als letztes Bild mit „Zum Größenvergleich“.',
+  scaleRemoveLabel: 'Vergleichsfoto entfernen',
+  scaleAltDe: 'Bildbeschreibung Vergleichsfoto (Deutsch)',
+  scaleAltEn: 'Bildbeschreibung Vergleichsfoto (Englisch)',
   photoUpLabel: 'Foto {{n}} nach vorne',
   photoDownLabel: 'Foto {{n}} nach hinten',
   photoRemoveLabel: 'Foto {{n}} entfernen',

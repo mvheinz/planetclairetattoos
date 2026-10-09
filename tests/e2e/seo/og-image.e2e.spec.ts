@@ -152,8 +152,10 @@ test.describe('P3.14 OG-Bilder', () => {
   test('jede Seite verweist per absolutem og:image auf eine OG-Route (Standardbild DE/EN)', async ({
     request,
   }) => {
+    // R04 (Stück) sowie R12/R15 (Flash, Galerie, U-61) haben eigene Vorschaukarten.
+    const own = new Set(['R04', 'R12', 'R15'])
     const live = pageRoutes().filter(
-      (r) => r.status === 'live' && r.id !== 'R04' && hasSamplePath(r),
+      (r) => r.status === 'live' && !own.has(r.id) && hasSamplePath(r),
     )
     const seen = new Set<string>()
     for (const route of live) {
@@ -170,5 +172,28 @@ test.describe('P3.14 OG-Bilder', () => {
     expect(de!.equals(en!)).toBe(false)
     const unknown = await request.get('/xx/og-image.png')
     expect(unknown.status()).toBe(404)
+  })
+
+  test('U-61 Flash (R12) und Galerie (R15): eigene Vorschaukarte, PNG 1200 × 630, Alt-Text je Sprache', async ({
+    request,
+  }) => {
+    for (const id of ['R12', 'R15'] as const) {
+      const pngs: Buffer[] = []
+      for (const locale of LOCALES) {
+        const path = samplePath(id, locale)
+        const og = await ogMeta(request, path)
+        // Datei-Route im Ordner der Seite (Ordnernamen englisch, z. B. `/de/tattoo/gallery/opengraph-image-…`).
+        const folder = id === 'R12' ? 'flash' : 'gallery'
+        expect(new URL(og.url).pathname, og.url).toMatch(
+          new RegExp(`^/${locale}/tattoo/${folder}/opengraph-image[^/]*/${folder}$`),
+        )
+        if (PRODUCTION) expect(og.url.startsWith(`${SITE}/`), og.url).toBe(true)
+        expect([og.width, og.height], path).toEqual(['1200', '630'])
+        expect(og.alt, path).toMatch(/Planet Claire/)
+        pngs.push(await fetchPng(request, og.url))
+      }
+      // DE und EN tragen eigene Texte
+      expect(pngs[0]!.equals(pngs[1]!), id).toBe(false)
+    }
   })
 })

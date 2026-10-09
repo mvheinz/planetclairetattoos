@@ -115,11 +115,23 @@ export interface ShopListQuery {
   page?: number
 }
 
+/** Höchstens so viele verkaufte Stücke stehen unter den verfügbaren (U-57 c); der Rest wohnt im Archiv (R05). */
+export const SHOP_SOLD_ROW = 4
+
+export interface ShopProductPage extends ProductPage {
+  /** Kurze Reihe verkaufter Stücke (Archiv) – nur auf der letzten Seite der verfügbaren und ohne `availableOnly`. */
+  sold: PublicProduct[]
+  /** Anzahl aller verkauften Stücke mit Archiv in dieser Auswahl (für den Link „Archiv ansehen“). */
+  soldTotal: number
+}
+
 /**
- * Shop-Liste R02/R03 (KONZEPT §3.2): zuerst `available` und `reserved` nach `firstPublishedAt` absteigend, danach
- * `sold` mit `showInArchiveAfterSale` nach `soldAt` absteigend; `availableOnly` ohne `sold`. 24 je Seite.
+ * Shop-Liste R02/R03 (KONZEPT §3.2, U-57 c): `available` und `reserved` nach `firstPublishedAt` absteigend, 24 je
+ * Seite; Seitenzahl nur nach diesen. Verkaufte (`sold` mit `showInArchiveAfterSale`, nach `soldAt` absteigend) werden
+ * nicht mehr seitenweise angehängt: Die letzte Seite bekommt höchstens `SHOP_SOLD_ROW` davon als eigene Reihe, der
+ * Rest steht im Archiv. `availableOnly` ohne `sold`.
  */
-export async function loadShopProducts(query: ShopListQuery): Promise<ProductPage> {
+export async function loadShopProducts(query: ShopListQuery): Promise<ShopProductPage> {
   const page = normalizePage(query.page)
   const [unsold, sold] = await Promise.all([
     sortedIds(withCategories(VISIBLE_UNSOLD, query.categoryKeys), ['-firstPublishedAt', '-id']),
@@ -127,10 +139,14 @@ export async function loadShopProducts(query: ShopListQuery): Promise<ProductPag
       ? Promise.resolve([])
       : sortedIds(withCategories(ARCHIVED_SOLD, query.categoryKeys), ['-soldAt', '-id']),
   ])
-  const all = [...unsold, ...sold]
   const start = (page - 1) * SHOP_PAGE_SIZE
-  const docs = await byIds(all.slice(start, start + SHOP_PAGE_SIZE), query.locale)
-  return pageOf(docs, page, all.length)
+  const result = pageOf([], page, unsold.length)
+  const soldRow = page === result.totalPages ? sold.slice(0, SHOP_SOLD_ROW) : []
+  const [docs, soldDocs] = await Promise.all([
+    byIds(unsold.slice(start, start + SHOP_PAGE_SIZE), query.locale),
+    byIds(soldRow, query.locale),
+  ])
+  return { ...result, docs, sold: soldDocs, soldTotal: sold.length }
 }
 
 export interface ArchiveListQuery {
