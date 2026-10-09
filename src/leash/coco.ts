@@ -259,7 +259,6 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     if (placed) place(...placed)
   }
 
-  let boilArmed = 0
   function setBoil(on: boolean) {
     const was = el.getAttribute('data-boil') === 'on'
     if (on === was) return // im Lauf jeden Frame aufgerufen: nichts schreiben (PF-03)
@@ -274,9 +273,6 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
     boilUntil = Math.max(boilUntil, Math.min(t + ms, lastAction + BOIL.maxWithoutAction))
     if (boilUntil <= t) return
     setBoil(true)
-    // Zeitgeber nur neu stellen, wenn er merklich früher abliefe (im Lauf sonst je Frame clear/set, PF-03)
-    if (boilTimer !== null && boilUntil - boilArmed < 250) return
-    boilArmed = boilUntil
     boilTimer = clear(boilTimer)
     boilTimer = setTimeout(() => {
       boilTimer = null
