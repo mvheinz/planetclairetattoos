@@ -31,7 +31,9 @@ export default defineConfig({
   // Gegen den Produktions-Build: vorgerenderte Seiten nach dem Start auf den Stand der Test-DB bringen (global-setup.ts).
   globalSetup: './tests/e2e/global-setup.ts',
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  // Eine Wiederholung genügt (P14.13): Ein Test, der erst im Wiederholungslauf besteht, macht den Lauf ohnehin rot
+  // (`pnpm ci:flaky`, ARCHITEKTUR §7.2); die Wiederholung zeigt nur, ob er wackelt oder wirklich kaputt ist.
+  retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 1 : undefined,
   timeout: devServer ? 120_000 : 30_000,
   expect: { timeout: devServer ? 20_000 : 5_000 },

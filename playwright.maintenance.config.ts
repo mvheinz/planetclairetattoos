@@ -12,7 +12,7 @@ export default defineConfig({
   testDir: './tests/e2e',
   testMatch: '**/maintenance.e2e.spec.ts',
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 1 : 0,
   workers: 1,
   timeout: 120_000,
   expect: { timeout: 20_000 },

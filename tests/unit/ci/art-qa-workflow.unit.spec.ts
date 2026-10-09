@@ -208,7 +208,12 @@ describe('P9.7 Dauer-Gate in ci-full.yml', () => {
     }
     const e2e = full.jobs['e2e-full']!
     expect(e2e.if).toBe("needs.mode.outputs.full == 'true'")
-    expect(e2e.strategy!.matrix!.project).toContain('pixel-7')
+    // P14.13: Projekte aus dem Job mode – Phasenende alle drei; im Zwischenlauf ohne pixel-7-Jobs läuft das Gate in
+    // desktop 1/2 mit `--project=pixel-7` (workflows.unit.spec.ts prüft die Kennung).
+    expect(e2e.strategy!.matrix!.project).toBe('${{ fromJSON(needs.mode.outputs.projects) }}')
+    const gate = e2e.steps.find((s) => /art-gate\.e2e\.spec\.ts/.test(s.run ?? ''))!
+    expect(gate.run).toContain('--project=pixel-7')
+    expect(gate.if).toContain("!contains(needs.mode.outputs.projects, 'pixel-7')")
     const run = e2e.steps.find((s) => /test:e2e/.test(s.run ?? ''))!.run!
     expect(run).not.toMatch(/art-gate|@art/)
     const cfg = readFileSync(path.join(ROOT, 'playwright.config.ts'), 'utf8')
