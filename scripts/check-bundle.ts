@@ -18,8 +18,12 @@ export function cocoSpriteFile(b: { file?: string }): string {
 // `pnpm check:bundle` (ARCHITEKTUR §6.3 Schritt 9, §7.7, PLAN P2.23 / T-09). Alle Grenzen stehen in
 // `tests/perf/budgets.json` (1 KB = 1000 B, einschließlich). Geprüft wird:
 // 1. JS beim ersten Laden je Seite: Chromium (Playwright) lädt jede `live`-Route der Registry in DE und EN sowie die
-//    Fehlerseiten R28/R29 gegen `next start`, liest die Skript-URLs aus `/_next/static`, die vor dem `load`-Ereignis
-//    geladen wurden, und gzipt die zugehörigen Dateien aus `<distDir>/static` mit Stufe 9 (Budget je Routen-ID).
+//    Fehlerseiten R28/R29 gegen `next start`, liest die Skript-URLs aus `/_next/static`, die das ausgelieferte HTML
+//    einbindet (`<script src>` ohne `nomodule`, `<link rel=preload|modulepreload as=script>`), und gzipt die zugehörigen
+//    Dateien aus `<distDir>/static` mit Stufe 9 (Budget je Routen-ID). Seit P14.13 deterministisch: Bis P14.12 zählten alle
+//    vor dem `load`-Ereignis angefragten Skripte – je nach Last kamen nachgeladene Chunks (Engine, Coco, Behaviors) mal
+//    vor, mal nach `load` (±1–15 KB). Nachgeladenes hat eigene Modul-Budgets (Punkt 3); was zufällig vor `load` kam,
+//    steht nur im Bericht.
 //    Dazu je Seite die erzeugten Pfaddaten im DOM (DESIGN §9.10) und auf R01 alle SVG der Startseite zusammen.
 // 2. Schriften AK-DS-04 (DESIGN §4.1): genau 4 ausgelieferte `.woff2`, zusammen ≤ 100 KB, kein Google-Fonts-Verweis;
 //    keine TTF/OTF (OG-Schriften, P3.14).
@@ -367,6 +371,8 @@ export const P3_VARIANT_TARGETS: readonly PageTarget[] = [
 export interface PageMeasurement extends PageTarget {
   scripts: { url: string; gzipBytes: number }[]
   jsGzipBytes: number
+  /** Nachgeladene Chunks, die in diesem Lauf vor `load` angefragt wurden (nur Bericht, zeitabhängig). */
+  lazyBeforeLoadGzipBytes?: number
   /** Summe der `d`-Attribute aller `<path>` im DOM (Zeichen = Bytes, ASCII). */
   pathDataBytes: number
   /** Inline-`<svg>`-Markup außerhalb der Linien-Ebene + eigene `.svg`-Dateien außer dem Coco-Sprite (roh). */
@@ -413,7 +419,10 @@ export function evaluatePages(measurements: PageMeasurement[], budgets: Budgets)
     const label = `${m.routeId}${m.variant ? ` ${m.variant}` : ''} ${m.locale} (${m.path})`
     const max = firstLoadBudget(m.routeId, budgets)
     const target = budgets.firstLoadJs.gzipTarget[m.routeId]
-    const js = `${label}: JS beim ersten Laden ${kb(m.jsGzipBytes)} gz in ${m.scripts.length} Dateien, Budget ${kb(max)}${target ? `, Ziel ${kb(target)}` : ''}.`
+    const lazy = m.lazyBeforeLoadGzipBytes
+      ? ` (dazu nachgeladen vor load ${kb(m.lazyBeforeLoadGzipBytes)}, nur Bericht)`
+      : ''
+    const js = `${label}: JS beim ersten Laden ${kb(m.jsGzipBytes)} gz in ${m.scripts.length} Dateien, Budget ${kb(max)}${target ? `, Ziel ${kb(target)}` : ''}.${lazy}`
     if (m.jsGzipBytes > max) errors.push(`${js} ÜBERSCHRITTEN`)
     else lines.push(target && m.jsGzipBytes > target ? `${js} (Ziel verfehlt – nur Bericht)` : js)
     if (m.pathDataBytes > budgets.svg.pathDataPerPageMax)
@@ -427,6 +436,39 @@ export function evaluatePages(measurements: PageMeasurement[], budgets: Budgets)
     }
   }
   return { lines, errors }
+}
+
+const attr = (tag: string, name: string): string | null => {
+  const m = new RegExp(`\\s${name}(?=[\\s=/>])(?:=(?:"([^"]*)"|'([^']*)'|([^\\s>]+)))?`, 'i').exec(
+    tag,
+  )
+  if (!m) return null
+  return m[1] ?? m[2] ?? m[3] ?? ''
+}
+
+/**
+ * Skripte, die das ausgelieferte HTML beim ersten Laden einbindet (deterministisch, unabhängig vom Zeitpunkt):
+ * `<script src>` ohne `nomodule` und `<link rel="preload|modulepreload" as="script">`, nur `/_next/static/…js`.
+ * Absolute URLs, ohne Duplikate, in Reihenfolge des Auftretens.
+ */
+export function initialScriptUrls(html: string, baseURL: string): string[] {
+  const out = new Set<string>()
+  const add = (raw: string | null) => {
+    if (!raw) return
+    const url = new URL(raw.replace(/&amp;/g, '&'), baseURL)
+    if (url.pathname.startsWith('/_next/static/') && url.pathname.endsWith('.js')) out.add(url.href)
+  }
+  for (const [tag] of html.matchAll(/<script\b[^>]*>/gi)) {
+    if (attr(tag, 'nomodule') !== null) continue
+    add(attr(tag, 'src'))
+  }
+  for (const [tag] of html.matchAll(/<link\b[^>]*>/gi)) {
+    const rel = (attr(tag, 'rel') ?? '').toLowerCase().split(/\s+/)
+    if (!rel.includes('preload') && !rel.includes('modulepreload')) continue
+    if (rel.includes('preload') && (attr(tag, 'as') ?? '').toLowerCase() !== 'script') continue
+    add(attr(tag, 'href'))
+  }
+  return [...out]
 }
 
 /** `/_next/static/…` (ohne Query) → Datei in `<distDir>/static`. */
@@ -481,6 +523,7 @@ export async function measurePages(
       const page = await context.newPage()
       try {
         const res = await page.goto(new URL(t.path, baseURL).href, { waitUntil: 'load' })
+        const initial = initialScriptUrls((await res?.text().catch(() => '')) ?? '', baseURL)
         // Linie und Zeichnungen bauen nach dem LCP im Leerlauf auf – für die Pfaddaten kurz warten.
         await page.waitForLoadState('networkidle').catch(() => undefined)
         await page.waitForTimeout(300)
@@ -514,22 +557,32 @@ export async function measurePages(
         const status = res?.status() ?? 0
         if (status !== t.status)
           errors.push(`${t.routeId} ${t.locale} (${t.path}): HTTP ${status}, erwartet ${t.status}.`)
-        const scripts: PageMeasurement['scripts'] = []
-        for (const url of [...new Set(sample.scripts)]) {
+        if (initial.length === 0)
+          errors.push(`${t.routeId} ${t.locale} (${t.path}): keine Skripte im ausgelieferten HTML.`)
+        const gzipOf = (url: string): number | null => {
           const file = staticFileFor(url, distDir)
-          if (!file || !existsSync(file)) {
-            errors.push(
-              `${t.routeId} ${t.locale}: Skript ${url} nicht in ${distDir}/static gefunden.`,
-            )
-            continue
-          }
+          if (!file || !existsSync(file)) return null
           let gz = gzCache.get(file)
           if (gz === undefined) {
             gz = measureFile(file).gzipBytes
             gzCache.set(file, gz)
           }
+          return gz
+        }
+        const scripts: PageMeasurement['scripts'] = []
+        for (const url of initial) {
+          const gz = gzipOf(url)
+          if (gz === null) {
+            errors.push(
+              `${t.routeId} ${t.locale}: Skript ${url} nicht in ${distDir}/static gefunden.`,
+            )
+            continue
+          }
           scripts.push({ url, gzipBytes: gz })
         }
+        let lazyBeforeLoadGzipBytes = 0
+        for (const url of new Set(sample.scripts))
+          if (!initial.includes(url)) lazyBeforeLoadGzipBytes += gzipOf(url) ?? 0
         let svgRawBytes = sample.inlineSvgBytes
         for (const url of [...new Set(sample.svgUrls)]) {
           const pathname = new URL(url).pathname
@@ -541,6 +594,7 @@ export async function measurePages(
           ...t,
           scripts,
           jsGzipBytes: scripts.reduce((s, x) => s + x.gzipBytes, 0),
+          lazyBeforeLoadGzipBytes,
           pathDataBytes: sample.pathDataBytes,
           svgRawBytes,
         })
