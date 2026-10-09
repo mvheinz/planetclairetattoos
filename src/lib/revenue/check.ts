@@ -23,6 +23,7 @@ import {
   withNotified,
   type InvoiceMonthSum,
   type ManualYearTotal,
+  type OfflineSaleMonthSum,
   type RevenueEntrySum,
   type RevenueStatus,
 } from './guard'
@@ -75,6 +76,16 @@ export async function getRevenueStatus(
      WHERE month >= ${`${year - 1}-01`} AND month <= ${`${year}-12`}
      GROUP BY 1, 2, 3
   `)
+  // U-60 (P14.11): Markt-Verkäufe von Stücken mit Preis, nach Verkaufsdatum. Ein rückgängig gemachter Verkauf
+  // (zurück ins Lager, Rückgabe) hat kein `sold_at` mehr und zählt nicht; ein später ausgeblendetes Stück zählt weiter.
+  const off = await db.execute(sql`
+    SELECT to_char(sold_at AT TIME ZONE 'Europe/Berlin', 'YYYY-MM') AS month,
+           COALESCE(seed, false) AS seed, SUM(offline_sale_price_cents)::bigint AS cents
+      FROM products
+     WHERE sold_channel = 'offline' AND offline_sale_price_cents IS NOT NULL
+       AND sold_at >= ${from}::timestamptz AND sold_at < ${to}::timestamptz
+     GROUP BY 1, 2
+  `)
   const settings = options.settings ?? (await loadSettings(payload))
   const guard = (settings.revenueGuard ?? {}) as Row
   const manual = (Array.isArray(guard.manualYearTotals) ? guard.manualYearTotals : []) as Row[]
@@ -90,6 +101,11 @@ export async function getRevenueStatus(
     entries: ent.rows.map((r): RevenueEntrySum => ({
       month: String(r.month),
       source: String(r.source) as RevenueSource,
+      seed: r.seed === true,
+      amountCents: Number(r.cents),
+    })),
+    offlineSales: off.rows.map((r): OfflineSaleMonthSum => ({
+      month: String(r.month),
       seed: r.seed === true,
       amountCents: Number(r.cents),
     })),

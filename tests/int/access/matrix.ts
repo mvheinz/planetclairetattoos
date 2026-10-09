@@ -95,6 +95,8 @@ export const COLLECTION_ACCESS: Record<CollectionSlug, CollectionAccessEntry> = 
     'nickelEvidence',
     'customs',
     'offlineSaleNote',
+    'offlineSaleTourDate',
+    'offlineSalePriceCents',
     'reservationRef',
     'currentOrder',
     'storageLocation',

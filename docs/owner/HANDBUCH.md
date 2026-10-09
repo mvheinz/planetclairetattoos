@@ -153,6 +153,17 @@ Bei **Offline verkauft** fragt die Verwaltung noch einmal nach („Nr. 17 als of
 dem Shop.“). Wichtig: Trage das sofort ein, sobald du ein Stück offline verkauft hast. Sonst könnte es noch einmal
 online gekauft werden. Ein Stück gibt es nur einmal.
 
+Im selben Dialog kannst du – wenn du magst – den **Markt-Termin** auswählen, auf dem du es verkauft hast (die Liste zeigt
+deine Termine der letzten drei Monate), und den **erzielten Preis** eintragen, zum Beispiel „45,00“. Mit Preis zählt der
+Verkauf automatisch im [Umsatz-Wächter](#13-umsatz-wächter) mit. Dann trägst du ihn dort nicht noch einmal als
+Flohmarkt-Summe ein.
+
+**Als neues Stück kopieren:** Unten im Formular eines Stücks findest du diesen Knopf. Er legt einen neuen Entwurf an mit
+denselben Texten (Deutsch und Englisch), Maßen, Material, Preis, Versand und Sicherheitsangaben. Fotos und Nummer
+übernimmt er nicht: Die Kopie bekommt die nächste freie Nummer, und du fügst neue Fotos hinzu. Auch Besonderheiten wie
+ein Glasurfleck und das Häkchen „nur eigene Figuren“ musst du für die Kopie neu angeben. Speichere vorher, was du am
+Original geändert hast. Praktisch für eine Serie ähnlicher Stücke.
+
 Ein Stück, das gerade im Warenkorb einer Kundin liegt, ist „reserviert“ und für andere gesperrt. Die Reservierung läuft
 nach kurzer Zeit von selbst ab.
 
@@ -273,7 +284,7 @@ Eine Anfrage ist noch kein Vertrag, und der Preis steht nirgends fest. Du sagst 
 
 ![Der Bereich „Tattoo“](img/handbuch/tattoo.webp)
 
-**Flash** sind Motive, die du zu einem festen Preis stichst. Außerdem pflegst du hier deine Markttermine („Planet Claire on Tour“) und die Galerie. Du findest die Reiter Flash, Termine, Galerie und Texte:
+**Flash** sind Motive, die du zu einem festen Preis stichst. Außerdem pflegst du hier die Galerie. Du findest die Reiter Flash, Galerie und Texte. Deine Markttermine („Planet Claire on Tour“) haben einen eigenen Menüpunkt **Termine** (siehe unten):
 
 ![Flash-Motive](img/handbuch/tattoo-flash.webp)
 
@@ -281,7 +292,9 @@ Eine Anfrage ist noch kein Vertrag, und der Preis steht nirgends fest. Du sagst 
   Motiv pausierst du mit „Offline nehmen“. Ein neues Motiv brauchst du nur mit Bild, Titel, Größe und Festpreis.
   „Übersetzen“ gibt es auch hier.
 
-- **Termine – „Planet Claire on Tour“:** Hier trägst du Märkte, Flohmärkte und Kunstmärkte ein. Auf der Startseite stehen
+![Der Menüpunkt „Termine“](img/handbuch/termine.webp)
+
+- **Termine – „Planet Claire on Tour“ (eigener Menüpunkt „Termine“):** Hier trägst du Märkte, Flohmärkte und Kunstmärkte ein. Auf der Startseite stehen
   sie in der rechten Spalte (am Handy darunter): kommende Termine oben, vergangene eingeklappt. Tippe auf „Neuer Termin“
   und fülle aus: Name des Marktes, Ort oder Bezirk, Datum von–bis (bei einem Tag das Enddatum leer lassen), Uhrzeiten,
   Adresse des Marktes, Standnummer, eine kurze Notiz (zum Beispiel „Coco ist dabei“) und – wenn du magst – einen Link zur
@@ -290,6 +303,9 @@ Eine Anfrage ist noch kein Vertrag, und der Preis steht nirgends fest. Du sagst 
   steht dann durchgestrichen mit dem Hinweis „abgesagt“ auf der Seite. „Vorbei“ musst du nicht setzen, das passiert nach
   dem Datum von selbst. „Übersetzen“ füllt die englischen Texte vor. Die Beispiel-Termine verschwinden mit den übrigen
   [Beispieldaten](#18-beispieldaten).
+  **Termin kopieren:** Gehst du öfter auf denselben Markt, öffnest du den Termin und tippst unten auf „Termin kopieren“.
+  Es entsteht ein neuer Termin eine Woche später mit Name, Ort, Adresse, Uhrzeiten und Notiz. Er ist erst einmal offline:
+  Prüfe das Datum, ändere es bei Bedarf und hake dann „Online“ an. Standnummer und Foto trägst du neu ein.
 
 ![Galerie mit Einwilligungsfeldern](img/handbuch/tattoo-galerie.webp)
 
@@ -364,7 +380,8 @@ Als Kleinunternehmerin darfst du bestimmte Umsatzgrenzen im Jahr nicht überschr
 Der Wächter rechnet **alles** zusammen, nicht nur den Shop: Tattoo, Flohmarkt, Auftragsarbeiten und Sonstiges.
 
 - **Jeden Monat** trägst du die Einnahmen außerhalb des Shops ein (Tattoo, Flohmarkt, Auftragsarbeiten, Sonstiges). Den
-  Shop-Umsatz kennt die Verwaltung selbst.
+  Shop-Umsatz kennt die Verwaltung selbst. Stücke, die du bei „Offline verkauft“ mit Preis eingetragen hast, stehen
+  automatisch in der Spalte „Markt-Verkäufe (Stücke)“ – die zählst du bei „Flohmarkt“ nicht noch einmal mit.
 - Zu Jahresbeginn gibst du den **Umsatz des Vorjahres** ein, falls der Shop später startet.
 - Erreicht die Summe eine Stufe, zeigt „Heute“ einen gelben oder roten Hinweis, und du bekommst eine Mail. Dann sprichst
   du mit der Steuerberatung. Der Shop sperrt sich nicht von allein. Die Entscheidung bleibt bei dir und deiner

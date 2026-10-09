@@ -5627,7 +5627,7 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-50 … U-64. Gilt für Handy und Desktop
   - Akzeptanz: Int (Erstattung idempotent, nur Admin), E2E Korb, Verbotsliste grün.
 - [x] **P14.10 EU-Gewährleistungshinweis fertig** (U-59).
   - Akzeptanz: Unit (Grafik + Wortlaut DE/EN, Platzhalter-Kennzeichen), Rechts-Tests grün.
-- [ ] **P14.11 Verwaltung: Termine-Menü, Stück duplizieren, Termin kopieren, Markt-Verkauf zum Termin** (U-60) – Schema per Migration.
+- [x] **P14.11 Verwaltung: Termine-Menü, Stück duplizieren, Termin kopieren, Markt-Verkauf zum Termin** (U-60) – Schema per Migration.
   - Akzeptanz: Int/E2E Admin, Handbuch-Hinweis.
 - [ ] **P14.12 Teilen-Knopf + Vorschaukarten Tattoo** (U-61).
   - Akzeptanz: E2E (Teilen-Rückfall „Link kopieren“), keine Fremd-Anfragen, JS-Budget ok, OG-Bilder Unit.

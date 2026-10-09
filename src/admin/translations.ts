@@ -270,6 +270,11 @@ export const ADMIN_CUSTOM_DE = {
   piecesSellOfflineConfirm: 'Ja, offline verkauft',
   piecesShowInArchiveSwitch: 'Im Archiv mit sold-Stempel zeigen',
   piecesOfflineNote: 'Notiz (optional, z. B. „Flohmarkt Mauerpark“)',
+  piecesOfflineTourDate: 'Auf welchem Termin? (optional)',
+  piecesOfflineTourDateNone: '– kein Termin –',
+  piecesOfflinePrice: 'Erzielter Preis in Euro (optional)',
+  piecesOfflinePriceHint: 'Mit Preis zählt der Verkauf im Umsatz-Wächter mit.',
+  piecesOfflinePriceInvalid: 'Bitte einen Preis wie 45,00 eingeben (höchstens 10.000 €).',
   piecesToOrder: 'Zur Bestellung',
   piecesUnpublish: 'Offline nehmen',
   piecesUnpublishTitle: '{{nr}} offline nehmen?',
@@ -876,6 +881,9 @@ export const ADMIN_CUSTOM_DE = {
   revenueMonths: 'Monate',
   revenueMonth: 'Monat',
   revenueShop: 'Shop',
+  revenueOffline: 'Markt-Verkäufe (Stücke)',
+  revenueOfflineHint:
+    'Stücke, die du bei „Offline verkauft“ mit Preis einträgst, zählen automatisch in der Spalte „Markt-Verkäufe (Stücke)“. Trage sie nicht noch einmal als Flohmarkt-Monatssumme ein – dort nur, was du ohne Stück-Eintrag verkauft hast.',
   revenueSum: 'Summe',
   revenueEntryTitle: 'Monatssumme eintragen',
   revenueEntryHint:

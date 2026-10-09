@@ -8,6 +8,7 @@ import {
   type ProductTransition,
 } from '@/lib/commerce/productTransitions'
 import { createLogger } from '@/lib/monitoring/logger'
+import { PRICE_CENTS_RANGE } from '@/lib/money'
 import { duplicateProduct } from '@/lib/products/duplicate'
 
 // Admin-Endpunkte der Stücke (DATENMODELL §6.6.10, alle `isAdmin`): je Aktion ein Übergang des Statusautomaten.
@@ -98,6 +99,19 @@ export async function unchangedProduct(
   return { doc, unchanged: true }
 }
 
+const positiveId = (v: unknown): number | null => {
+  const n = typeof v === 'string' && v.trim() !== '' ? Number(v) : v
+  return typeof n === 'number' && Number.isSafeInteger(n) && n > 0 ? n : null
+}
+
+/** Erzielter Preis beim Markt-Verkauf (U-60): ganze Cent ≥ 0, sonst Feldfehler; leer = ohne Preis. */
+function offlinePriceCents(v: unknown): number | null {
+  if (v === undefined || v === null || v === '') return null
+  if (typeof v === 'number' && Number.isSafeInteger(v) && v >= 0 && v <= PRICE_CENTS_RANGE.max)
+    return v
+  throw new APIError('Bitte einen gültigen Preis in Euro eingeben, z. B. 45,00.', 400)
+}
+
 const transitionAction = (path: string, transition: ProductTransition): Endpoint =>
   productAction(
     path,
@@ -120,6 +134,8 @@ export const productTransitionEndpoints: Endpoint[] = [
       transitionProduct(req, id, 'sellOffline', {
         actor: 'admin',
         note: typeof body.note === 'string' ? body.note.slice(0, 120) : null,
+        tourDateId: positiveId(body.tourDate),
+        priceCents: offlinePriceCents(body.priceCents),
         showInArchive: typeof body.showInArchive === 'boolean' ? body.showInArchive : undefined,
         confirmReservedCheckout: body.confirmReservedCheckout === true,
       }),

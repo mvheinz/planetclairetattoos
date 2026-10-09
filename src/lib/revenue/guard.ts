@@ -1,8 +1,9 @@
 // Umsatz-Wächter (KONZEPT §8.4, R-125, E-45, PLAN P5.23) – reine Rechnung ohne Datenbank: Summen je Jahr und Monat,
 // erreichte Stufen U0–U5, noch nicht gemeldete Stufen. Laden und Melden (A09) übernimmt `src/lib/revenue/check.ts`.
 //
-// Shop-Umsatz = Rechnungen − Gutschriften nach Belegdatum (Europe/Berlin), Gesamtumsatz = Shop + manuelle
-// Monatssummen (`revenue-entries`) + `settings.revenueGuard.manualYearTotals` (Umsätze vor dem Shop, die nicht schon als
+// Shop-Umsatz = Rechnungen − Gutschriften nach Belegdatum (Europe/Berlin), Gesamtumsatz = Shop + Markt-Verkäufe von
+// Stücken mit Preis (`products.offlineSalePriceCents`, U-60/P14.11, nach Verkaufsdatum) + manuelle Monatssummen
+// (`revenue-entries`) + `settings.revenueGuard.manualYearTotals` (Umsätze vor dem Shop, die nicht schon als
 // Monatssumme erfasst sind). Beispieldaten (`seed = true`) zählen nur bei wirksamem `SEED_PREVIEW_MODE` (KONZEPT §11.4).
 
 import { REVENUE_GUARD_STAGES, REVENUE_SOURCES, type RevenueGuardStage } from '@/lib/enums'
@@ -23,6 +24,13 @@ export interface InvoiceMonthSum {
 export interface RevenueEntrySum {
   month: string
   source: RevenueSource
+  seed: boolean
+  amountCents: number
+}
+
+/** Monatssumme der Markt-Verkäufe von Stücken mit Preis (U-60): `soldChannel = offline`, nach `soldAt` (Berlin). */
+export interface OfflineSaleMonthSum {
+  month: string
   seed: boolean
   amountCents: number
 }
@@ -63,6 +71,8 @@ export interface RevenueStatusInput {
   now: Date
   invoices: readonly InvoiceMonthSum[]
   entries: readonly RevenueEntrySum[]
+  /** Markt-Verkäufe von Stücken mit Preis (U-60); fehlt = keine. */
+  offlineSales?: readonly OfflineSaleMonthSum[]
   manualYearTotals: readonly ManualYearTotal[]
   thresholds?: RevenueThresholds
   /** `seedPreviewModeActive()` – sonst zählen Beispieldaten nie. */
@@ -70,7 +80,7 @@ export interface RevenueStatusInput {
   lastNotified?: LastNotified | null
 }
 
-export type RevenueColumn = 'shop' | RevenueSource
+export type RevenueColumn = 'shop' | 'offline' | RevenueSource
 
 export interface RevenueMonthRow {
   month: string
@@ -91,6 +101,8 @@ export interface RevenueStatus {
   year: number
   months: RevenueMonthRow[]
   shopCents: number
+  /** Markt-Verkäufe von Stücken mit Preis (U-60). */
+  offlineCents: number
   manualCents: number
   manualYearCents: number
   totalCents: number
@@ -105,14 +117,17 @@ export interface RevenueStatus {
   thresholds: RevenueThresholds
 }
 
-export const REVENUE_COLUMNS: readonly RevenueColumn[] = ['shop', ...REVENUE_SOURCES]
+export const REVENUE_COLUMNS: readonly RevenueColumn[] = ['shop', 'offline', ...REVENUE_SOURCES]
 
 const monthsOf = (year: number) =>
   Array.from({ length: 12 }, (_, i) => `${year}-${String(i + 1).padStart(2, '0')}`)
 
 function yearTotals(
   year: number,
-  input: Pick<RevenueStatusInput, 'invoices' | 'entries' | 'manualYearTotals' | 'includeSeed'>,
+  input: Pick<
+    RevenueStatusInput,
+    'invoices' | 'entries' | 'offlineSales' | 'manualYearTotals' | 'includeSeed'
+  >,
 ) {
   const prefix = `${year}-`
   const rows = new Map<string, RevenueMonthRow>(
@@ -129,6 +144,7 @@ function yearTotals(
     ]),
   )
   let shop = 0
+  let offline = 0
   let manual = 0
   for (const inv of input.invoices) {
     if (!inv.month.startsWith(prefix) || (inv.seed && !input.includeSeed)) continue
@@ -138,6 +154,14 @@ function yearTotals(
     row.cents.shop += signed
     row.totalCents += signed
     shop += signed
+  }
+  for (const o of input.offlineSales ?? []) {
+    if (!o.month.startsWith(prefix) || (o.seed && !input.includeSeed)) continue
+    const row = rows.get(o.month)
+    if (!row) continue
+    row.cents.offline += o.amountCents
+    row.totalCents += o.amountCents
+    offline += o.amountCents
   }
   for (const e of input.entries) {
     if (!e.month.startsWith(prefix) || (e.seed && !input.includeSeed)) continue
@@ -153,9 +177,10 @@ function yearTotals(
   return {
     months: [...rows.values()],
     shopCents: shop,
+    offlineCents: offline,
     manualCents: manual,
     manualYearCents: manualYear,
-    totalCents: shop + manual + manualYear,
+    totalCents: shop + offline + manual + manualYear,
   }
 }
 
@@ -209,6 +234,7 @@ export function computeRevenueStatus(input: RevenueStatusInput): RevenueStatus {
     year: input.year,
     months: cur.months,
     shopCents: cur.shopCents,
+    offlineCents: cur.offlineCents,
     manualCents: cur.manualCents,
     manualYearCents: cur.manualYearCents,
     totalCents: cur.totalCents,
