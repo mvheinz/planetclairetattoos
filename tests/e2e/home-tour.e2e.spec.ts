@@ -73,7 +73,6 @@ for (const locale of ['de', 'en'] as const) {
     const introBox = (await intro.boundingBox())!
     const kokoBox = (await slot.boundingBox())!
     const tour = aside.locator('[data-tour]')
-    const tourBox = (await tour.boundingBox())!
     const heroBox = (await page.locator('[data-home-hero]').boundingBox())!
     const asideBox = (await aside.boundingBox())!
     const vw = page.viewportSize()?.width ?? 0
@@ -81,10 +80,9 @@ for (const locale of ['de', 'en'] as const) {
     expect(introBox.y).toBeGreaterThanOrEqual(heroBox.y + heroBox.height - 1)
     if (vw >= 1100) {
       expect(kokoBox.x).toBeGreaterThanOrEqual(introBox.x + introBox.width - 1) // Koko rechts vom Foto
-      expect(tourBox.x).toBeGreaterThanOrEqual(kokoBox.x + kokoBox.width - 1) // Schaukasten rechts von Koko
+      expect(asideBox.x).toBeGreaterThanOrEqual(kokoBox.x + kokoBox.width - 1) // Schaukasten rechts von Koko
       expect(Math.abs(kokoBox.y - introBox.y)).toBeLessThan(2) // eine Zeile
       expect(Math.abs(asideBox.y - introBox.y)).toBeLessThan(2)
-      expect(tourBox.width).toBeLessThanOrEqual(20 * 16) // schmal
       const firstNote = tour.locator('[data-tour-upcoming] > li').first()
       if (board.length)
         expect((await firstNote.boundingBox())!.y).toBeLessThan(page.viewportSize()!.height)
@@ -93,11 +91,46 @@ for (const locale of ['de', 'en'] as const) {
       expect(stations.y).toBeGreaterThanOrEqual(asideBox.y + asideBox.height - 1)
       expect(stations.y).toBeGreaterThanOrEqual(introBox.y + introBox.height - 1)
     } else {
-      // Handy/Tablet: Foto + Text, dann Koko (ab 600 px daneben), dann der Schaukasten
+      // Handy/Tablet: Foto + Text, dann Koko (ab 600 px daneben); der Schaukasten steht eingeklappt hinter Station 01
+      // (U-51, P14.2) – dasselbe Element (eine Ergänzung, kein Doppel), nur per Grid-Reihenfolge umgestellt.
       if (vw >= 600) expect(kokoBox.x).toBeGreaterThanOrEqual(introBox.x + introBox.width - 1)
       else expect(kokoBox.y).toBeGreaterThanOrEqual(introBox.y + introBox.height - 1)
+      const st1 = (await page.locator('[data-home-station="keramik"]').boundingBox())!
+      const st2 = (await page.locator('[data-home-station="textil"]').boundingBox())!
+      expect(asideBox.y).toBeGreaterThanOrEqual(st1.y + st1.height - 1)
+      expect(asideBox.y + asideBox.height).toBeLessThanOrEqual(st2.y + 1)
       expect(asideBox.y).toBeGreaterThanOrEqual(kokoBox.y + kokoBox.height - 1)
-      expect(asideBox.y).toBeGreaterThanOrEqual(introBox.y + introBox.height - 1)
+    }
+    await expect(page.locator('[data-tour]')).toHaveCount(1)
+    await expect(page.locator('#tour-heading')).toHaveCount(1)
+    const fold = aside.locator('details[data-tour-fold]')
+    await expect(fold).toHaveCount(1)
+    const foldSummary = fold.locator('summary[data-tour-fold-summary]')
+    const nextName = upcoming.find((i) => i.status !== 'cancelled')?.name
+    if (vw >= 1100) {
+      // Desktop unverändert: offen, ohne Zusammenfassung (CSS sofort, nach dem Laden auch `open` für Screenreader)
+      await expect(foldSummary).toBeHidden()
+      await expect(tour).toBeVisible()
+      await expect
+        .poll(() => fold.evaluate((el) => (el as HTMLDetailsElement).open), { timeout: 15_000 })
+        .toBe(true)
+    } else {
+      expect(await fold.evaluate((el) => (el as HTMLDetailsElement).open)).toBe(false)
+      await expect(tour).toBeHidden()
+      await expect(foldSummary).toBeVisible()
+      await expect(foldSummary).toContainText('Planet Claire on Tour')
+      await expect(foldSummary).toContainText(locale === 'de' ? 'nächster Termin' : 'next date')
+      if (nextName) await expect(foldSummary).toContainText(nextName)
+      expect((await foldSummary.boundingBox())!.height).toBeGreaterThanOrEqual(44)
+      // per Tastatur aufklappen
+      await foldSummary.focus()
+      await page.keyboard.press('Enter')
+      await expect(tour).toBeVisible()
+    }
+    const tourBox = (await tour.boundingBox())!
+    if (vw >= 1100) {
+      expect(tourBox.x).toBeGreaterThanOrEqual(kokoBox.x + kokoBox.width - 1)
+      expect(tourBox.width).toBeLessThanOrEqual(20 * 16) // schmal
     }
 
     // U-43: Überschrift in Spectral
@@ -195,6 +228,11 @@ test.describe('ohne JavaScript', () => {
     const { past } = splitTourDates(items, tourNow())
     expect(past.length, 'Beispieltermine in der Vergangenheit').toBeGreaterThan(0)
     await page.goto('/de')
+    // unter 1100 px eingeklappt (U-51) – ohne JavaScript aufklappbar
+    const fold = page.locator('details[data-tour-fold]')
+    if (!(await page.locator('[data-tour]').isVisible()))
+      await fold.locator('summary').first().click()
+    await expect(page.locator('[data-tour]')).toBeVisible()
     const details = page.locator('[data-tour] details[data-tour-more]')
     await expect(details.locator('li').first()).toBeHidden()
     await details.locator('summary').click()

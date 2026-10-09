@@ -148,6 +148,8 @@
       "placeLabel": "Place",
       "hoursLabel": "Opening hours",
       "photoAlt": "Planet Claire's stand at the market {name}",
+      "foldNext": "next date: {date} – {name}",
+      "foldNone": "no dates right now",
       "laterHeading": "After that",
       "pastHeading": "Where I have been"
     }

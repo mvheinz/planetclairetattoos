@@ -148,6 +148,8 @@
       "placeLabel": "Ort",
       "hoursLabel": "Uhrzeiten",
       "photoAlt": "Stand von Planet Claire auf dem Markt {name}",
+      "foldNext": "nächster Termin: {date} – {name}",
+      "foldNone": "gerade keine Termine",
       "laterHeading": "Danach",
       "pastHeading": "Wo ich schon war"
     }

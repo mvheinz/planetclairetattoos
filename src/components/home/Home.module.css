@@ -87,7 +87,52 @@
 
   .tourCol {
     grid-column: 1 / -1;
-    max-width: 18rem;
+    max-width: 26rem;
+  }
+}
+
+/* U-51 (P14.2): unter 1100 px steht der (eingeklappte) Schaukasten hinter Station 01 – dasselbe Element, nur per
+   Grid-Reihenfolge umgestellt: Die Hüllen der Stationen lösen sich dafür auf (`display: contents`), die Stationen werden
+   Zeilen des Seitenrasters. Im Quelltext (Lese- und Tab-Reihenfolge) bleibt er oben bei Foto und Koko. */
+@media (max-width: 1099.98px) {
+  .home .body,
+  .home .stations {
+    display: contents;
+  }
+
+  .hero {
+    order: 0;
+  }
+
+  .compass {
+    order: 1;
+  }
+
+  .intro {
+    order: 2;
+  }
+
+  .chairwomanSlot {
+    order: 3;
+  }
+
+  .home .stations > *,
+  .home .body > * {
+    order: 6;
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  .home .stations > :first-child {
+    order: 4;
+  }
+
+  .tourCol {
+    order: 5;
+  }
+
+  .footnote {
+    order: 7;
   }
 }
 

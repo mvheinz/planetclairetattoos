@@ -5609,7 +5609,7 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-50 … U-64. Gilt für Handy und Desktop
 
 - [x] **P14.1 Startseite: Foto | Koko | Tour, Station „Jutta & Coco“ entfällt** (U-50) – Foto klein mit dem Stationstext darunter, Koko daneben, Tour rechts; Station 6 aus Seed/Daten entfernen (`RETIRED_STATION_IDS`), Stationen 01–05.
   - Akzeptanz: Screenshots 390/1280 px, home-E2E angepasst, visuelle Referenzen, PF-10/LCP-Budget ok.
-- [ ] **P14.2 Handy: Tour hinter Station 01, eingeklappt** (U-51).
+- [x] **P14.2 Handy: Tour hinter Station 01, eingeklappt** (U-51).
   - Akzeptanz: E2E 390 px (Reihenfolge), Desktop unverändert.
 - [ ] **P14.3 Stations-Kompass** (U-52) – Anker-Leiste ohne Skript, Tastatur bedienbar.
   - Akzeptanz: E2E Sprung zu jeder Station, a11y-Prüfung.

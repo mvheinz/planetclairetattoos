@@ -15,6 +15,7 @@ import * as reservationCountdown from '../behaviors/reservation-countdown'
 import * as soldStamp from '../behaviors/sold-stamp'
 import * as thanksMoment from '../behaviors/thanks-moment'
 import * as thanksPoll from '../behaviors/thanks-poll'
+import * as tourFold from '../behaviors/tour-fold'
 import type { BehaviorModule } from '../behaviors/types'
 
 import { createAssetStore } from './assets'
@@ -47,6 +48,7 @@ export const STATIC_BEHAVIORS: Record<(typeof BEHAVIOR_NAMES)[number], BehaviorM
   'sold-stamp': soldStamp,
   'thanks-moment': thanksMoment,
   'thanks-poll': thanksPoll,
+  'tour-fold': tourFold,
 }
 
 const staticLoader: BehaviorLoader = (name) => Promise.resolve(STATIC_BEHAVIORS[name])

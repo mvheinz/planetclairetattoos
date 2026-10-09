@@ -147,6 +147,13 @@ const FIXTURES: Record<BehaviorName, { html: string; exercise: (root: Element) =
       vi.advanceTimersByTime(0)
     },
   },
+  'tour-fold': {
+    html:
+      '<details data-behavior="tour-fold" data-tour-fold><summary>Planet Claire on Tour</summary>' +
+      '<div><p>Termine</p></div></details>',
+    // jsdom kennt kein matchMedia (Modul bleibt passiv); das Umschalten prüft tour-fold.unit.spec.ts
+    exercise: () => {},
+  },
   'copy-button': {
     html:
       '<p><span id="st" role="status"></span><button type="button" data-behavior="copy-button" ' +

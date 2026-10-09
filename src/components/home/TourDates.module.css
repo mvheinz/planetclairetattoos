@@ -344,7 +344,101 @@
   box-shadow: none;
 }
 
+/* ---------- Eingeklappt unter 1100 px (U-51, P14.2) ---------- */
+
+.fold {
+  min-width: 0;
+}
+
+.foldSummary {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  min-height: 44px;
+  padding: var(--space-3) var(--space-4) var(--space-3) calc(var(--space-4) + 1.25rem);
+  position: relative;
+  background: var(--petrol-deep);
+  color: var(--paper-field);
+  border: var(--stroke-ink) solid var(--ink);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-press);
+  cursor: pointer;
+  list-style: none;
+}
+
+.foldSummary::-webkit-details-marker {
+  display: none;
+}
+
+/* Pfeil wie ein kleiner Tusche-Haken: zeigt nach rechts, aufgeklappt nach unten */
+.foldSummary::before {
+  content: '';
+  position: absolute;
+  left: var(--space-4);
+  top: 50%;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-top: -0.35rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+}
+
+.fold[open] > .foldSummary::before {
+  transform: rotate(45deg);
+}
+
+.foldSummary:focus-visible {
+  outline: var(--stroke-ink) solid var(--ink);
+  outline-offset: 3px;
+}
+
+.foldTitle {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  line-height: 1.1;
+}
+
+.foldNext {
+  font-size: var(--fs-kicker);
+  line-height: 1.35;
+  color: var(--paper-2);
+}
+
+.foldBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-4);
+}
+
+/* Desktop: offen wie bisher, ohne Zusammenfassung (nur wo der Browser `::details-content` kennt, sonst aufklappbar). */
+@media (min-width: 1100px) {
+  @supports selector(::details-content) {
+    .fold > .foldSummary {
+      display: none;
+    }
+
+    .fold::details-content {
+      display: block;
+      content-visibility: visible;
+      block-size: auto;
+    }
+
+    .foldBody {
+      padding-top: 0;
+    }
+  }
+}
+
 @media (forced-colors: active) {
+  .foldSummary {
+    background: Canvas;
+    color: CanvasText;
+    border-color: CanvasText;
+  }
+
   .board {
     background: Canvas;
     color: CanvasText;

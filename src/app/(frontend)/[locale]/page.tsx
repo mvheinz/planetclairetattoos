@@ -6,7 +6,7 @@ import { ChairwomanKoko } from '@/components/home/ChairwomanKoko'
 import { HomeIntro } from '@/components/home/HomeIntro'
 import { HomeStation } from '@/components/home/HomeStation'
 import { InstagramLink } from '@/components/home/InstagramLink'
-import { TourDates } from '@/components/home/TourDates'
+import { TourDates, TourFold } from '@/components/home/TourDates'
 import styles from '@/components/home/Home.module.css'
 import { PlanetMark } from '@/components/home/SpaceMarks'
 import { Station } from '@/components/leash/Station'
@@ -57,6 +57,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     listTourDates(locale),
   ])
   const name = home?.name ?? t('title')
+  const now = tourNow()
   const shelves = await Promise.all(
     (home?.stations ?? []).map((s) =>
       // Ohne Datenbank: Station ohne Regal statt Fehlerseite (wie `getHomeView`).
@@ -127,8 +128,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         data-home-aside=""
         data-slot="tour"
       >
-        <TourDates items={tourItems} locale={locale} now={tourNow()} />
-        <InstagramLink handle={nav.instagramHandle} locale={locale} />
+        {/* U-51 (P14.2): unter 1100 px eingeklappt hinter Station 01 (CSS-Reihenfolge), am Desktop offen oben rechts */}
+        <TourFold items={tourItems} locale={locale} now={now}>
+          <TourDates items={tourItems} locale={locale} now={now} />
+          <InstagramLink handle={nav.instagramHandle} locale={locale} />
+        </TourFold>
       </aside>
 
       <div className={styles.body}>

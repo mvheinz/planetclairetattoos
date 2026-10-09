@@ -2,6 +2,17 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-09 – P14.2 Handy: Tour hinter Station 01, eingeklappt (U-51)
+
+- Unter 1100 px steht der Schaukasten als zugeklapptes `<details>` („Planet Claire on Tour“ + „nächster Termin: … – …“)
+  zwischen Station 01 und 02; ab 1100 px unverändert offen oben rechts (Zusammenfassung per CSS `::details-content`
+  ausgeblendet, Inhalt sofort sichtbar; Verhaltensmodul `tour-fold` setzt danach `open`, damit WebKit/VoiceOver den
+  Inhalt auch vorliest). Ein einziges Element: per Grid-Reihenfolge umgestellt (`display: contents` an den
+  Stations-Hüllen unter 1100 px), keine doppelten Inhalte.
+- Tests: E2E `home-tour` (desktop, pixel-7, iphone-15: Reihenfolge, zu/auf per Tastatur, Desktop offen, ohne JS
+  aufklappbar), a11y/Tastatur-Specs; Unit `tour-fold`, Verhaltens-Vertrag; Budget-Gruppe „Shop-Listen“ um `tour-fold`
+  ergänzt.
+
 ## 2026-10-09 – P14.1 Startseite oben: Foto | Koko | Tour, Station „Jutta & Coco“ entfällt (U-50)
 
 - Unter Titel und Einleitung (volle Breite) ab 1100 px drei Spalten: links das Foto von Jutta und Coco (klein, 230 px,

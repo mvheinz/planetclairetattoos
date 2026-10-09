@@ -50,8 +50,12 @@
       "gzipMax": 4000
     },
     {
-      "name": "Mikro-Interaktionen Shop-Listen (price-tag-swing, sold-stamp)",
-      "entries": ["src/behaviors/price-tag-swing.ts", "src/behaviors/sold-stamp.ts"],
+      "name": "Mikro-Interaktionen Shop-Listen (price-tag-swing, sold-stamp; Startseite: tour-fold, U-51)",
+      "entries": [
+        "src/behaviors/price-tag-swing.ts",
+        "src/behaviors/sold-stamp.ts",
+        "src/behaviors/tour-fold.ts"
+      ],
       "gzipMax": 4000
     },
     {
