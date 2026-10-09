@@ -2,6 +2,18 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-09 – P14.10 EU-Gewährleistungshinweis fertig (U-59)
+
+- Harmonisierte Mitteilung (R-049, DVO (EU) 2025/1960 Anhang I) so gebaut, dass die amtliche Fassung nur noch
+  eingesetzt wird: Wortlaut in Bausteinen (`WARRANTY_NOTICE_BLOCKS` + `shop.warranty.blocks.*` DE/EN: Hauptsatz, Rechte,
+  Dauer, gebrauchte Waren), Grafik-Platz je Sprache (`WARRANTY_NOTICE_GRAPHIC`: SVG/PNG/WebP, Maße, Alt-Text,
+  `placeholder`), Kennzeichen `data-warranty-graphic`/`data-warranty-block` im HTML.
+- Startklar-Check R-210 Nr. 11 nennt jetzt einzeln, was noch Platzhalter ist (Grafik deutsch/englisch, Wortlaut);
+  Anleitung zum Einsetzen in `docs/owner/AUFGABEN.md` (A28, Zuordnungstabelle).
+- Amtliche Fassung erneut nicht abrufbar (EUR-Lex: Bot-Schutz, Sekundärquellen gesperrt) → Platzhalter bleibt.
+- Tests: Unit `tests/unit/legal/warranty-notice.unit.spec.ts`, `tests/unit/shop/price-note.unit.spec.ts`,
+  `tests/unit/golive/checks.unit.spec.ts`, Verbotsliste `tests/unit/legal/forbidden.unit.spec.ts`; `pnpm check` grün.
+
 ## 2026-10-08 – P13 abgeschlossen: zweite Runde nach deiner Rückmeldung – für Jutta
 
 Hallo Jutta,

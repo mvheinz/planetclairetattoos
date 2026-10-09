@@ -249,6 +249,10 @@ Wunsch-Starttermin. A30 und A31 gehen erst, wenn P10 fertig ist.
     (Text- und HTML-Datei), nicht nur als PDF.
   - Aufwand: ca. 10 Min.
   - Anleitung: [K1](ANLEITUNGEN.md#k1), Schritt 6
+  - Dazu gehört auch der **EU-Hinweis zur gesetzlichen Gewährleistung** (ein kleines Bild und ein kurzer Text, Deutsch und
+    Englisch, vorgegeben von der EU). Bitte die Kanzlei, ihn mitzuschicken oder den eingebauten Entwurf zu bestätigen
+    (Mappe Frage K-19). Einsetzen macht Claude; bis dahin steht „Platzhalter-Fassung“ darunter und die
+    „Startklar“-Prüfung bleibt an dieser Stelle rot.
 
 - [ ] **A29 · Erste echte Stücke fotografieren und die Angaben notieren**
   - Warum: Zum Start löschen wir alle Beispieldaten, und im Shop sollen echte Stücke stehen.
@@ -435,6 +439,7 @@ Die genaue Bedienung erklärt dein [Handbuch](HANDBUCH.md).
 | A05 | E-75 | `content/seed/coco/` (Ordner mit `LIESMICH.txt` existiert seit P0) → Coco-Zeichnungen in P9 | Highlight-Bilder (150 px) |
 | A07 | E-97 | – | PR-Text „Bitte mergen – CI ist grün“ |
 | A08, A28 | E-41, R-002 | `legal-texts` und `legal-snippets` mit `origin: 'lawyer'` | Rechtstexte als Platzhalter (`origin: 'placeholder'`, Grund-Seed), Textbausteine als Arbeitsfassung (`origin: 'draft'`) |
+| A28 (Gewährleistungs-Mitteilung) | R-049, K-19, U-59 | Amtliche Grafik je Sprache nach `public/legal/` (SVG/PNG/WebP), in `src/lib/legal/warranty.ts` `WARRANTY_NOTICE_GRAPHIC.{de,en}` (`src`, `width`, `height`, `placeholder: false`); amtlicher Wortlaut Anhang I DVO (EU) 2025/1960 je Absatz als Baustein: Liste `WARRANTY_NOTICE_BLOCKS` + Texte `shop.warranty.blocks.*` und `shop.warranty.alt` in `src/i18n/messages/{de,en}.json`; nach Kanzlei-Bestätigung `WARRANTY_NOTICE_TEXT_ORIGIN = 'lawyer'`. Unit-Test `tests/unit/legal/warranty-notice.unit.spec.ts` (Platzhalter-Erwartungen) mit anpassen | Platzhalter-Fassung mit Kernaussagen, Startklar R-210 Nr. 11 rot und nennt die fehlenden Teile |
 | A09, A23, A24, A38 | E-20, E-21 | Stripe-Schlüssel als Vercel-Umgebungsvariablen `STRIPE_*`, eingetragen in P11.6/P11.8. „Live“ heißt: Webhook auf `https://planetclairetattoos.com/api/stripe/webhook` (P11.14) und `settings.shop.isOpen = true` (P11.15). Vorher höchstens **Test**-Schlüssel in der Cloud, bevorzugt als API-Credential der Umgebung (`docs/CLOUD-SETUP.md` §3.9); nie Live-Schlüssel vor P11 | `PAYMENTS_DRIVER=mock` |
 | A11, A12, A26 | E-40, E-46, E-50, KA-14, Kanzleifragen K-28 und K-39, R-021, R-205 | `settings.business.*` (Name, Adresse, Telefon, `economicId`, `taxNumber`), `settings.tax.modes`, `settings.payment.*` (IBAN, Kontoinhaberin), `settings.tattoo.studioDistrict`, `settings.pickup.instructions`. Adresse bleibt laut E-40 die Privatadresse, bis Jutta nach der Kanzleiberatung (Kanzleifrage K-39) anders entscheidet (Geschäftsadresse wäre nur ein anderer Wert im selben Feld) | Platzhalter („[Adresse folgt]“, Beispiel-IBAN) |
 | A13, A48 | E-42, R-172 | `tattoo-gallery`: `consentGiven`, `consentDate`, `consentScope`, `creditHandleAllowed`, `consentEvidence` (privat) | Seed-Fotos nur bei `SEED_PREVIEW_MODE` |

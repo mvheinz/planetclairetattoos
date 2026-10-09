@@ -9,7 +9,11 @@ import type { LegalTextOrigin, Locale } from '@/lib/enums'
 // Textes; das Go-live-Gate R-210 prüft beides.
 
 export interface WarrantyNoticeAsset {
-  /** Pfad der Grafik vom eigenen Origin. */
+  /**
+   * Pfad der Grafik vom eigenen Origin (`public/…`). Die amtliche Grafik darf SVG oder PNG/WebP sein – beim Einsetzen
+   * Datei ablegen, `src`, `width`, `height` (Seitenverhältnis der amtlichen Datei) anpassen und `placeholder: false`.
+   * Der Alt-Text kommt aus `shop.warranty.alt` (DE/EN) und beschreibt den Inhalt der Grafik.
+   */
   src: string
   width: number
   height: number
@@ -37,7 +41,35 @@ export const WARRANTY_INFO_URL: Readonly<Record<Locale, string>> = Object.freeze
  */
 export const WARRANTY_NOTICE_TEXT_ORIGIN = 'placeholder' as LegalTextOrigin
 
+/**
+ * Wortlaut der Mitteilung in Bausteinen (U-59, P14.10): Reihenfolge der Absätze unter `shop.warranty.blocks.<key>` in
+ * beiden Sprachdateien. Der erste Baustein mit `lead: true` wird hervorgehoben. Beim Einsetzen des amtlichen Wortlauts
+ * (Anhang I DVO (EU) 2025/1960) werden nur diese Liste und die Texte `shop.warranty.blocks.*` DE/EN angepasst – je
+ * amtlichem Absatz ein Baustein, wörtlich, ohne eigene Zusätze. Die Komponente `WarrantyNotice` rendert, was hier steht.
+ */
+export interface WarrantyNoticeBlock {
+  key: string
+  lead?: boolean
+}
+
+export const WARRANTY_NOTICE_BLOCKS: readonly WarrantyNoticeBlock[] = Object.freeze([
+  { key: 'lead', lead: true },
+  { key: 'rights' },
+  { key: 'duration' },
+  { key: 'secondHand' },
+])
+
+/** Was an der Mitteilung noch Platzhalter ist – für Startklar-Check (R-210 Nr. 11) und Hinweis auf der Seite. */
+export type WarrantyNoticePlaceholderPart = 'graphic-de' | 'graphic-en' | 'text'
+
+export const warrantyNoticePlaceholderParts = (): WarrantyNoticePlaceholderPart[] => {
+  const parts: WarrantyNoticePlaceholderPart[] = []
+  if (WARRANTY_NOTICE_GRAPHIC.de.placeholder) parts.push('graphic-de')
+  if (WARRANTY_NOTICE_GRAPHIC.en.placeholder) parts.push('graphic-en')
+  if (WARRANTY_NOTICE_TEXT_ORIGIN !== 'lawyer') parts.push('text')
+  return parts
+}
+
 /** `true`, solange Grafik oder Text der Mitteilung Platzhalter sind (Hinweis auf der Seite, Gate R-210). */
 export const warrantyNoticeIsPlaceholder = (): boolean =>
-  Object.values(WARRANTY_NOTICE_GRAPHIC).some((g) => g.placeholder) ||
-  WARRANTY_NOTICE_TEXT_ORIGIN !== 'lawyer'
+  warrantyNoticePlaceholderParts().length > 0

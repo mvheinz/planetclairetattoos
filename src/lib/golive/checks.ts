@@ -68,6 +68,11 @@ export interface GoliveInput {
   galleryWithoutConsent: number
   /** Grafik oder Text der harmonisierten Mitteilung sind noch Platzhalter (R-049, U-45). */
   warrantyGraphicPlaceholder: boolean
+  /**
+   * Welche Teile der Mitteilung noch Platzhalter sind (U-59, P14.10): `graphic-de`, `graphic-en`, `text`. Fehlt die
+   * Liste, nennt der Check Grafik und Text gemeinsam.
+   */
+  warrantyPlaceholderParts?: readonly ('graphic-de' | 'graphic-en' | 'text')[]
   vvtExists: boolean
 }
 
@@ -341,7 +346,13 @@ export function evaluateGolive(input: GoliveInput): GoliveReport {
         : 'Statistik ist bewusst aus, die Entscheidung ist eingetragen.'
       : 'Noch nicht entschieden. Einstellungen → Statistik: an oder aus wählen und speichern.',
   })
-  // 11 amtliche Grafik
+  // 11 amtliche Grafik (U-59: Teile einzeln benannt)
+  const warrantyPartLabel = {
+    'graphic-de': 'Grafik deutsch',
+    'graphic-en': 'Grafik englisch',
+    text: 'Wortlaut deutsch/englisch',
+  } as const
+  const warrantyParts = input.warrantyPlaceholderParts ?? ['graphic-de', 'graphic-en', 'text']
   checks.push({
     id: 'R210-11',
     group: 'content',
@@ -349,7 +360,9 @@ export function evaluateGolive(input: GoliveInput): GoliveReport {
     ref: 'R-210 Nr. 11, R-049',
     ok: !input.warrantyGraphicPlaceholder,
     detail: input.warrantyGraphicPlaceholder
-      ? 'Noch die Platzhalter-Fassung (Grafik und Text). Die amtliche Grafik (EU-Durchführungsverordnung 2025/1960) und der von der Kanzlei geprüfte Wortlaut werden beim Start eingesetzt.'
+      ? `Noch Platzhalter-Fassung: ${warrantyParts.map((p) => warrantyPartLabel[p]).join(', ')}. ` +
+        'Die amtliche Grafik und der amtliche Wortlaut (EU-Durchführungsverordnung 2025/1960, Anhang I) werden beim ' +
+        'Start eingesetzt und von der Kanzlei geprüft – das macht die Technik, du musst nichts tun.'
       : 'Die amtliche Grafik und der geprüfte Wortlaut sind eingebaut.',
   })
   // 12 Steuer
