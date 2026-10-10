@@ -465,6 +465,15 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     lastFrame = now
     if (!visible) {
       lastFrame = 0
+      // Ebene aus dem Bild (z. B. Seitenende, nur der Fuß sichtbar): Coco kommt sofort an, statt unsichtbar
+      // im Lauf stehenzubleiben – dann greift Ankunft/Ruhe wie gewohnt (MO-08, P14.14)
+      const c = motion === 'reduced' ? restLen() : scrollTarget()
+      if (!intro && Math.abs(c - cocoLen) >= 0.1) {
+        cocoLen = c
+        if (tier !== 'C') drawnLen = Math.max(drawnLen, cfg.coco ? cocoLen : c)
+        applyDrawn()
+        emitCoco(1, false)
+      }
       return
     }
     if (continuous) watchFrameTimes(now, dt)

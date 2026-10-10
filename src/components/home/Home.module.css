@@ -304,9 +304,9 @@
 
 .station {
   display: grid;
-  /* 32 px zwischen Text und Zeichnung: die Umrundung der Zeichnung (P13.5) und Coco darauf bleiben aus der letzten
-     Textzeile (LG-01, P14.14 – mit den verschobenen Schlaufen aus U-55 lag Coco sonst knapp neben dem Text) */
-  gap: var(--space-6);
+  /* Handy 48 px zwischen Text und Zeichnung: die Umrundung der Zeichnung (P13.5) und Coco darauf bleiben aus der
+     letzten Textzeile (LG-01, P14.14 – mit den verschobenen Schlaufen aus U-55 lag Coco sonst knapp am Text) */
+  gap: var(--space-7);
   align-items: start;
   /* Sprungziel des Kompasses: Abstand zur klebenden Kopfleiste (U-52) */
   scroll-margin-top: calc(var(--header-h) + var(--space-5));
@@ -463,6 +463,7 @@
     grid-template-columns: auto minmax(0, 1fr);
     /* 64 px: Coco auf der Umrundung der Zeichnung ragt nicht in die Textspalte (LG-01, P14.14) */
     column-gap: var(--space-8);
+    row-gap: var(--space-5);
   }
 
   .station > .artFrame {
