@@ -59,8 +59,10 @@ test('@a11y Flash: verfügbar → vergeben in 2 Taps, Stempel öffentlich; wiede
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(adminPath('/tattoo'))
   const tabs = page.getByRole('navigation', { name: 'Bereiche' })
-  for (const name of ['Flash', 'Termine', 'Galerie', 'Texte'])
+  for (const name of ['Flash', 'Galerie', 'Texte'])
     await expect(tabs.getByRole('link', { name, exact: true })).toBeVisible()
+  // Termine sind seit P14.11 (U-60) ein eigener Menüpunkt, kein Reiter unter „Tattoo“
+  await expect(tabs.getByRole('link', { name: 'Termine', exact: true })).toHaveCount(0)
   await expect(tabs.getByRole('link', { name: 'Flash', exact: true })).toHaveAttribute(
     'aria-current',
     'page',
