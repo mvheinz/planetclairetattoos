@@ -128,6 +128,10 @@ export default defineConfig([
     '.next-preview/**',
     '.next-art/**',
     'artifacts/**',
+    'ci-reports/**',
+    // Playwright-Berichte und -Artefakte lokaler Läufe (wie .gitignore/.prettierignore)
+    'playwright-report/**',
+    'test-results/**',
     '.lighthouseci/**',
     'coverage/**',
     'node_modules/**',

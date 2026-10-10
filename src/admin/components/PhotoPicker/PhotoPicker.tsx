@@ -40,6 +40,19 @@ export interface PhotoPickerProps {
   recommended?: number
   /** Zusätzliche Felder beim Hochladen (z. B. `showsPerson: 'customer'` → Bild bleibt gesperrt, R-172). */
   uploadData?: Record<string, unknown>
+  /**
+   * Einzelnes Zusatzfoto (U-57 d: Foto zum Größenvergleich): eigene Überschrift, Hinweis, Anker und Test-IDs; ohne
+   * „Titelbild“, Verschieben und Mehrfachauswahl.
+   */
+  single?: {
+    heading: string
+    hint: string
+    sectionId: string
+    testIdPrefix: string
+    removeLabel: string
+    altDeLabel: string
+    altEnLabel: string
+  }
 }
 
 type Feedback = { tone: 'error' | 'success' | 'info'; text: string } | null
@@ -92,7 +105,9 @@ export function PhotoPicker({
   max = MAX_PHOTOS,
   recommended = RECOMMENDED_PHOTOS,
   uploadData,
+  single,
 }: PhotoPickerProps) {
+  const tid = (name: string) => `${single?.testIdPrefix ?? 'photo'}-${name}`
   const cameraRef = useRef<HTMLInputElement>(null)
   const galleryRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLOListElement>(null)
@@ -199,9 +214,14 @@ export function PhotoPicker({
   const locked = disabled || busy !== null
 
   return (
-    <section className="pc-photos" aria-labelledby={headingId} id="pf-images" tabIndex={-1}>
+    <section
+      className="pc-photos"
+      aria-labelledby={headingId}
+      id={single?.sectionId ?? 'pf-images'}
+      tabIndex={-1}
+    >
       <h2 id={headingId} className="pc-piece__heading">
-        {adminText('photoHeading', { count: photos.length, max })}
+        {single ? single.heading : adminText('photoHeading', { count: photos.length, max })}
       </h2>
       <div className="pc-admin-row">
         <label
@@ -215,7 +235,7 @@ export function PhotoPicker({
             capture="environment"
             className="pc-photos__input"
             disabled={full || locked}
-            data-testid="photo-camera"
+            data-testid={tid('camera')}
             onChange={(e) => void addFiles(e.currentTarget.files)}
           />
         </label>
@@ -227,10 +247,10 @@ export function PhotoPicker({
             ref={galleryRef}
             type="file"
             accept={PHOTO_ACCEPT}
-            multiple
+            multiple={!single}
             className="pc-photos__input"
             disabled={full || locked}
-            data-testid="photo-gallery"
+            data-testid={tid('gallery')}
             onChange={(e) => void addFiles(e.currentTarget.files)}
           />
         </label>
@@ -240,13 +260,13 @@ export function PhotoPicker({
             className="pc-admin-btn pc-admin-btn--secondary"
             onClick={suggestAll}
             disabled={locked}
-            data-testid="photo-suggest-alt"
+            data-testid={tid('suggest-alt')}
           >
             {adminText('photoSuggestAlt')}
           </button>
         ) : null}
       </div>
-      <p className="pc-piece__hint">{adminText('photoHint')}</p>
+      <p className="pc-piece__hint">{single ? single.hint : adminText('photoHint')}</p>
       <div aria-live="polite" role="status" className="pc-photos__status">
         {busy
           ? adminText('photoUploading', { current: busy.done + 1, total: busy.total })
@@ -255,16 +275,16 @@ export function PhotoPicker({
             : ''}
       </div>
       {photos.length > 0 && photos.length < recommended ? (
-        <Notice tone="warning" data-testid="photo-few">
+        <Notice tone="warning" data-testid={tid('few')}>
           {adminText('photoFew')}
         </Notice>
       ) : null}
       {feedback ? (
-        <Notice tone={feedback.tone} data-testid={`photo-feedback-${feedback.tone}`}>
+        <Notice tone={feedback.tone} data-testid={tid(`feedback-${feedback.tone}`)}>
           {feedback.text}
         </Notice>
       ) : null}
-      <ol className="pc-photos__list" ref={listRef} data-testid="photo-list">
+      <ol className="pc-photos__list" ref={listRef} data-testid={tid('list')}>
         {photos.map((photo, index) => (
           <li
             key={photo.id}
@@ -283,30 +303,38 @@ export function PhotoPicker({
                   style={{ objectPosition: `${photo.focalX}% ${photo.focalY}%` }}
                 />
               ) : null}
-              <span className="pc-photos__nr">
-                {index === 0 ? adminText('photoCover') : adminText('photoNumber', { n: index + 1 })}
-              </span>
+              {single ? null : (
+                <span className="pc-photos__nr">
+                  {index === 0
+                    ? adminText('photoCover')
+                    : adminText('photoNumber', { n: index + 1 })}
+                </span>
+              )}
             </div>
             <div className="pc-photos__fields">
               <label className="pc-field">
-                <span className="pc-field__label">{adminText('photoAltDe', { n: index + 1 })}</span>
+                <span className="pc-field__label">
+                  {single ? single.altDeLabel : adminText('photoAltDe', { n: index + 1 })}
+                </span>
                 <textarea
                   rows={2}
                   maxLength={250}
                   value={photo.altDe}
                   disabled={disabled}
-                  data-testid="photo-alt-de"
+                  data-testid={tid('alt-de')}
                   onChange={(e) => update(index, { altDe: e.target.value, altDeAuto: false })}
                 />
               </label>
               <label className="pc-field">
-                <span className="pc-field__label">{adminText('photoAltEn', { n: index + 1 })}</span>
+                <span className="pc-field__label">
+                  {single ? single.altEnLabel : adminText('photoAltEn', { n: index + 1 })}
+                </span>
                 <textarea
                   rows={2}
                   maxLength={250}
                   value={photo.altEn}
                   disabled={disabled}
-                  data-testid="photo-alt-en"
+                  data-testid={tid('alt-en')}
                   onChange={(e) => update(index, { altEn: e.target.value })}
                 />
               </label>
@@ -315,7 +343,7 @@ export function PhotoPicker({
                 <select
                   value={focalKey(photo.focalX, photo.focalY)}
                   disabled={disabled}
-                  data-testid="photo-focal"
+                  data-testid={tid('focal')}
                   onChange={(e) => {
                     const pos = FOCAL_POSITIONS.find((p) => p.key === e.target.value)
                     if (pos) update(index, { focalX: pos.x, focalY: pos.y })
@@ -329,31 +357,37 @@ export function PhotoPicker({
                 </select>
               </label>
               <div className="pc-admin-row">
-                <button
-                  type="button"
-                  className="pc-admin-btn pc-admin-btn--secondary"
-                  data-move="up"
-                  disabled={disabled || index === 0}
-                  aria-label={adminText('photoUpLabel', { n: index + 1 })}
-                  onClick={() => move(index, -1)}
-                >
-                  {adminText('photoUp')}
-                </button>
-                <button
-                  type="button"
-                  className="pc-admin-btn pc-admin-btn--secondary"
-                  data-move="down"
-                  disabled={disabled || index === photos.length - 1}
-                  aria-label={adminText('photoDownLabel', { n: index + 1 })}
-                  onClick={() => move(index, 1)}
-                >
-                  {adminText('photoDown')}
-                </button>
+                {single ? null : (
+                  <>
+                    <button
+                      type="button"
+                      className="pc-admin-btn pc-admin-btn--secondary"
+                      data-move="up"
+                      disabled={disabled || index === 0}
+                      aria-label={adminText('photoUpLabel', { n: index + 1 })}
+                      onClick={() => move(index, -1)}
+                    >
+                      {adminText('photoUp')}
+                    </button>
+                    <button
+                      type="button"
+                      className="pc-admin-btn pc-admin-btn--secondary"
+                      data-move="down"
+                      disabled={disabled || index === photos.length - 1}
+                      aria-label={adminText('photoDownLabel', { n: index + 1 })}
+                      onClick={() => move(index, 1)}
+                    >
+                      {adminText('photoDown')}
+                    </button>
+                  </>
+                )}
                 <button
                   type="button"
                   className="pc-admin-btn pc-admin-btn--secondary"
                   disabled={disabled}
-                  aria-label={adminText('photoRemoveLabel', { n: index + 1 })}
+                  aria-label={
+                    single ? single.removeLabel : adminText('photoRemoveLabel', { n: index + 1 })
+                  }
                   onClick={() => remove(index)}
                 >
                   {adminText('photoRemove')}

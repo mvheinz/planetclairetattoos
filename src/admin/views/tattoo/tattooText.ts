@@ -1,13 +1,12 @@
 // Texte der Tattoo-Verwaltung `/tattoo` (PLAN P7.6–P7.9, KONZEPT §7.12). Verwaltung nur Deutsch (DATENMODELL §1.2);
 // eine Quelle für Server- und Client-Komponenten. `{{name}}` wird ersetzt.
 
-export const TATTOO_TABS = ['flash', 'termine', 'galerie', 'texte'] as const
+export const TATTOO_TABS = ['flash', 'galerie', 'texte'] as const
 export type TattooTab = (typeof TATTOO_TABS)[number]
 
 export const TATTOO_TEXT = {
   tabsLabel: 'Bereiche',
   tab_flash: 'Flash',
-  tab_termine: 'Termine',
   tab_galerie: 'Galerie',
   tab_texte: 'Texte',
   allDataHint: 'Alle Felder findest du auch in der Standard-Verwaltung.',
@@ -86,6 +85,12 @@ export const TATTOO_TEXT = {
   tourRestoreTitle: '„{{name}}“ wieder als geplant zeigen?',
   tourRestoreText: 'Der Termin ist auf der Startseite nicht mehr durchgestrichen.',
   tourRestoreConfirm: 'Ja, wieder geplant',
+  tourCopy: 'Termin kopieren',
+  tourCopyTitle: '„{{name}}“ als neuen Termin kopieren?',
+  tourCopyText:
+    'Es entsteht ein neuer Termin eine Woche später mit Name, Ort, Adresse, Uhrzeiten und Notiz. Er ist noch offline: Prüfe das Datum und hake dann „Online“ an. Bitte vorher speichern – nicht gespeicherte Änderungen werden nicht mitkopiert.',
+  tourCopyConfirm: 'Ja, kopieren',
+  tourCopyDone: 'Kopie angelegt – sie öffnet sich gleich.',
   tourDelete: 'Termin löschen',
   tourDeleteTitle: '„{{name}}“ löschen?',
   tourDeleteText:

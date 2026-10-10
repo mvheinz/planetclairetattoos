@@ -2,7 +2,14 @@ import { easeInkOut } from './easing'
 import { geometrySteps, mapReadingY, pointAt } from './geometry'
 import { measure, type Measurement } from './measure'
 import { getMotion, type Motion } from './motion'
-import { DOWNGRADE, PRESET_CONFIG, READING_LINE, REST_POSE, isStaticPreset } from './presets'
+import {
+  COCO_MAX_SPEED,
+  DOWNGRADE,
+  PRESET_CONFIG,
+  READING_LINE,
+  REST_POSE,
+  isStaticPreset,
+} from './presets'
 import { fnv1a32 } from './random'
 import { SVG_NS, segmentSvg, staticSegmentSvg } from './static'
 import type {
@@ -393,6 +400,10 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     if (!geometry) return null
     let st: LeashGeometry['stations'][number] | undefined
     for (const x of geometry.stations) if (cocoLen >= x.loopLen0 - 2) st = x
+    // Linienende = Station „Ende“ (DESIGN §11.4: `sitzen`) – auch ohne Station dort (Startseite seit U-50)
+    const end = geometry.totalLength
+    if (cocoLen >= end - 2 && !(st && cocoLen <= st.loopLen1 + 2))
+      return { id: 'ende', pose: 'sitzen', len0: end, len1: end, inside: true }
     return st
       ? {
           id: st.id,
@@ -454,6 +465,15 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     lastFrame = now
     if (!visible) {
       lastFrame = 0
+      // Ebene aus dem Bild (z. B. Seitenende, nur der Fuß sichtbar): Coco kommt sofort an, statt unsichtbar
+      // im Lauf stehenzubleiben – dann greift Ankunft/Ruhe wie gewohnt (MO-08, P14.14)
+      const c = motion === 'reduced' ? restLen() : scrollTarget()
+      if (!intro && Math.abs(c - cocoLen) >= 0.1) {
+        cocoLen = c
+        if (tier !== 'C') drawnLen = Math.max(drawnLen, cfg.coco ? cocoLen : c)
+        applyDrawn()
+        emitCoco(1, false)
+      }
       return
     }
     if (continuous) watchFrameTimes(now, dt)
@@ -482,7 +502,9 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     let moving = !!intro
     if (Math.abs(diff) > COCO_JUMP || Math.abs(diff) < 0.1) cocoLen = cocoTarget
     else {
-      cocoLen += diff * (1 - Math.pow(0.65, dt / 16.7))
+      // U-55: geglättet, höchstens COCO_MAX_SPEED px/ms – Umrundungen werden nicht hektisch
+      const max = COCO_MAX_SPEED * dt
+      cocoLen += Math.max(-max, Math.min(max, diff * (1 - Math.pow(0.65, dt / 16.7))))
       again = moving = true
     }
     // Coco läuft vorn und zieht die Tusche hinter sich her (U-44): die Linie wächst bis zu ihr, nie über sie hinaus.

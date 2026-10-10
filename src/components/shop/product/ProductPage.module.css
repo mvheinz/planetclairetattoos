@@ -246,6 +246,16 @@
   list-style: none;
 }
 
+/* U-61: Teilen unter dem Kaufbereich */
+.share {
+  margin-top: var(--space-4);
+}
+
+/* U-57 a: „Frag nach diesem Stück“ (Mail-Link unter dem Kaufbereich). */
+.ask {
+  margin: 0;
+}
+
 .area {
   margin: 0;
   color: var(--ink-2);

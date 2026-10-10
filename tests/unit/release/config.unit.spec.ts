@@ -93,20 +93,14 @@ describe('Release-Konfiguration (vorschau-release.json)', () => {
 })
 
 describe('release.yml (ARCHITEKTUR §6.6)', () => {
-  it('AK-A-6-01 Auslöser: push auf main mit Pfad vorschau-release.json, schedule 0 6 * * *, workflow_dispatch', () => {
-    expect(workflow.on.push?.branches).toEqual(['main'])
-    expect(workflow.on.push?.paths).toContain('.github/vorschau-release.json')
-    expect(workflow.on.schedule).toEqual([{ cron: '0 6 * * *' }])
-    expect('workflow_dispatch' in workflow.on).toBe(true)
-    // Juttas Uploads starten nichts
-    expect(JSON.stringify(workflow.on.push)).not.toMatch(/instagram-export|seed\/coco/)
+  it('U-65 Auslöser nur workflow_dispatch – kein push, kein Zeitplan, kein PR (Vorschau geht als HTML im Chat an Jutta)', () => {
+    expect(Object.keys(workflow.on)).toEqual(['workflow_dispatch'])
+    expect(workflow.on.push).toBeUndefined()
+    expect(workflow.on.schedule).toBeUndefined()
+    expect(workflow.on.pull_request).toBeUndefined()
   })
 
-  it('Probelauf im PR nur bei Änderung von release.yml oder vorschau-release.json, ohne Veröffentlichung und ohne contents: write', () => {
-    expect(workflow.on.pull_request?.paths?.sort()).toEqual([
-      '.github/vorschau-release.json',
-      '.github/workflows/release.yml',
-    ])
+  it('Probelauf (Vorlage, nur bei pull_request – seit U-65 ohne Auslöser) ohne Veröffentlichung und ohne contents: write', () => {
     const probe = workflow.jobs.probe!
     expect(probe.if).toBe("github.event_name == 'pull_request'")
     expect(probe.permissions).toEqual({ contents: 'read' })
@@ -118,6 +112,46 @@ describe('release.yml (ARCHITEKTUR §6.6)', () => {
       const gated = job.if?.includes('pull_request') || job.needs
       expect(gated, `${name} läuft nicht im PR-Probelauf`).toBeTruthy()
     }
+  })
+
+  it('P14.13 Probelauf: bei [ci:full pN]/[ci:art]/[ci:update-snapshots] nur Konfiguration (Export läuft in preview-export.yml)', () => {
+    const probe = workflow.jobs.probe!
+    const kennung = probe.steps[0]!
+    expect(kennung.id).toBe('mode')
+    expect(kennung.uses).toBeUndefined()
+    const decideExport = (msg: string) => {
+      const dir = mkdtempSync(path.join(tmpdir(), 'pc-probe-'))
+      try {
+        const bin = path.join(dir, 'gh')
+        writeFileSync(bin, '#!/bin/sh\nprintf "%s\\n" "$FAKE_OUT"\n', { mode: 0o755 })
+        const out = path.join(dir, 'out')
+        writeFileSync(out, '')
+        const script = kennung
+          .run!.replace('${{ github.event.pull_request.head.sha }}', 'abc')
+          .replace('${{ github.repository }}', 'o/r')
+        execFileSync('bash', ['-e', '-c', script], {
+          env: {
+            ...process.env,
+            PATH: `${dir}:${process.env.PATH ?? ''}`,
+            FAKE_OUT: msg,
+            GITHUB_OUTPUT: out,
+            GITHUB_STEP_SUMMARY: path.join(dir, 'summary'),
+          },
+        })
+        return readFileSync(out, 'utf8').trim()
+      } finally {
+        rmSync(dir, { recursive: true, force: true })
+      }
+    }
+    expect(decideExport('chore(P14): finish [ci:full p14]')).toBe('export=false')
+    expect(decideExport('chore(P9): art [ci:art]')).toBe('export=false')
+    expect(decideExport('test: refs [ci:update-snapshots]')).toBe('export=false')
+    expect(decideExport('feat(P4.3): checkout [ci:full]')).toBe('export=true')
+    expect(decideExport('docs: stand')).toBe('export=true')
+    const gated = (re: RegExp) => probe.steps.find((s) => re.test(s.run ?? ''))!.if
+    expect(gated(/^pnpm run preview:export$/)).toBe("steps.mode.outputs.export == 'true'")
+    expect(gated(/^pnpm run test:preview-export$/)).toBe("steps.mode.outputs.export == 'true'")
+    expect(gated(/tests\/unit\/release/)).toBeUndefined()
   })
 
   it('kein cancel-in-progress; Gruppe release; Standard-Rechte nur contents: read, Schreibrecht nur in publish', () => {

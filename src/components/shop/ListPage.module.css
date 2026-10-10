@@ -189,6 +189,16 @@
   margin-top: var(--space-7);
 }
 
+/* U-57 c: kurze Reihe verkaufter Stücke, danach „Archiv ansehen“. */
+.soldRow {
+  margin-top: var(--space-8);
+}
+
+.soldHeading {
+  margin: 0;
+  font-size: var(--fs-h3);
+}
+
 .notes {
   display: grid;
   gap: var(--space-2);

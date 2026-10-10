@@ -31,6 +31,13 @@ export function tattooVariantParams(routeId: 'R12' | 'R15', raw: string | undefi
 export function tattooMetadata(routeId: TattooRouteId) {
   return async ({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> => {
     const { locale } = await params
-    return buildMetadata(routeId, isLocale(locale) ? locale : 'de')
+    // R12/R15 haben eigene Vorschaukarten (`opengraph-image.tsx`, U-61) – dort kein Standardbild setzen.
+    const own = routeId === 'R12' || routeId === 'R15'
+    return buildMetadata(
+      routeId,
+      isLocale(locale) ? locale : 'de',
+      {},
+      own ? { ogImage: false } : {},
+    )
   }
 }

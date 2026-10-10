@@ -5603,6 +5603,40 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-40 … U-49. Gilt für Handy und Desktop
 - [x] **P13.10 Abschluss P13** (U-49) – CI + Kunst-QA grün, visuelle Referenzen erneuert, Merge, Release-Stand aktualisiert, HTML-Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
   - Akzeptanz: `--plan-status` OFFEN_P13=0.
 
+## P14 – Dritte Nachbesserung nach Juttas Rückmeldung (09.10.2026)
+
+Verbindlich: `docs/UEBERARBEITUNG.md` U-50 … U-64. Gilt für Handy und Desktop, DE und EN.
+
+- [x] **P14.1 Startseite: Foto | Koko | Tour, Station „Jutta & Coco“ entfällt** (U-50) – Foto klein mit dem Stationstext darunter, Koko daneben, Tour rechts; Station 6 aus Seed/Daten entfernen (`RETIRED_STATION_IDS`), Stationen 01–05.
+  - Akzeptanz: Screenshots 390/1280 px, home-E2E angepasst, visuelle Referenzen, PF-10/LCP-Budget ok.
+- [x] **P14.2 Handy: Tour hinter Station 01, eingeklappt** (U-51).
+  - Akzeptanz: E2E 390 px (Reihenfolge), Desktop unverändert.
+- [x] **P14.3 Stations-Kompass** (U-52) – Anker-Leiste ohne Skript, Tastatur bedienbar.
+  - Akzeptanz: E2E Sprung zu jeder Station, a11y-Prüfung.
+- [x] **P14.4 Koko schläft nachts** (U-53) – Berliner Uhrzeit serverseitig, ISR-verträglich.
+  - Akzeptanz: Unit (Zeitfenster, Sommer-/Winterzeit), E2E mit SEED_NOW.
+- [x] **P14.5 Koko lädt schneller** (U-54) – Vorrang + AVIF mit WebP-Rückfall.
+  - Akzeptanz: check:bundle/Lighthouse, Bildbudget.
+- [x] **P14.6 Leine ruhiger beim Umwickeln** (U-55) – Zeichentempo an Kringeln/Umrundungen ausgleichen.
+  - Akzeptanz: Unit (maximale Zeichengeschwindigkeit je Abschnitt begrenzt), Kunst-QA grün.
+- [x] **P14.7 Flash ↔ Galerie** (U-56).
+  - Akzeptanz: Unit/E2E Verknüpfung in beide Richtungen, nur Fotos mit Einwilligung.
+- [x] **P14.8 Shop: Frage-Link, „Ähnliches anfragen“, verkaufte nicht mischen, Größen-Vergleichsfoto** (U-57) – Schemaänderung per Migration.
+  - Akzeptanz: Unit/Int/E2E, DE/EN.
+- [x] **P14.9 Kasse: Erstatten-Knopf, „reserviert bis“, Fußzeile Zahlung & Versand** (U-58).
+  - Akzeptanz: Int (Erstattung idempotent, nur Admin), E2E Korb, Verbotsliste grün.
+- [x] **P14.10 EU-Gewährleistungshinweis fertig** (U-59).
+  - Akzeptanz: Unit (Grafik + Wortlaut DE/EN, Platzhalter-Kennzeichen), Rechts-Tests grün.
+- [x] **P14.11 Verwaltung: Termine-Menü, Stück duplizieren, Termin kopieren, Markt-Verkauf zum Termin** (U-60) – Schema per Migration.
+  - Akzeptanz: Int/E2E Admin, Handbuch-Hinweis.
+- [x] **P14.12 Teilen-Knopf + Vorschaukarten Tattoo** (U-61).
+  - Akzeptanz: E2E (Teilen-Rückfall „Link kopieren“), keine Fremd-Anfragen, JS-Budget ok, OG-Bilder Unit.
+- [x] **P14.13 Technik: CI-Minuten, Wackel-Tests, Ladebudget, Listen-Seiten zusammenlegen** (U-62).
+  - Akzeptanz: Workflow-Unit-Tests angepasst, Minuten-Schätzung in ARCHITEKTUR §6, Budgets grün.
+- [x] **P14.15 Lokale Prüfschleuse statt GitHub Actions** (U-65, U-66) – `pnpm ci:local quick|full|art` bildet alle bisherigen CI-Prüfungen nach (inkl. Geheimnis-Scan, Docker-Build, visuell, Lighthouse/INP, Kunst-QA, Vorschau-Export), Bericht + Commit-Status; alle Workflows nur `workflow_dispatch`; Regeln in CLAUDE.md §3, ARCHITEKTUR §6, CLOUD-SETUP angepasst.
+  - Akzeptanz: Workflow-Unit-Tests (keine automatischen Auslöser), `ci:local quick` grün, `ci:local full` am Phasenende grün mit Bericht und Commit-Status.
+- [x] **P14.14 Abschluss P14** (U-64) – lokale Prüfschleuse `ci:local full` + `art` grün, visuelle Referenzen erneuert, Merge, Release-Stand aktualisiert, HTML-Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
+
 ## P11 – Go-live gemeinsam mit Jutta
 
 **Ziel:** Die Seite geht unter https://planetclairetattoos.com live – zusammen mit Jutta, in der Reihenfolge von

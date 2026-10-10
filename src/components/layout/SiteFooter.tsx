@@ -18,7 +18,7 @@ import styles from './SiteFooter.module.css'
 // Fußbereich (DESIGN KO-04, KONZEPT §3.0.3) auf jeder öffentlichen Seite, auch 404/500. DOM-Reihenfolge:
 // 1.+2. LegalFooter („Vertrag widerrufen“ + Pflichtlinks) · 3. `<nav id="fussnavigation">` (Menüliste als Ersatz ohne
 // JavaScript, Instagram als einfacher Link) · 4. Sprachumschalter · 5. Schalter „Animationen“ (Modul `motion-toggle`,
-// ohne JavaScript verborgen) · 6. Platz für die Preis-Fußnote (ab P3) · 7. Urheberrechtsvermerk und KI-/TDM-Vorbehalt (Bausteine `ip.*`, P12.11), 8. „© {Berliner Jahr} Planet Claire · Berlin“.
+// ohne JavaScript verborgen) · 5a. Zeile „Zahlung · Versand · Abholung“ mit Link auf R25 (U-58 c) · 6. Platz für die Preis-Fußnote (ab P3) · 7. Urheberrechtsvermerk und KI-/TDM-Vorbehalt (Bausteine `ip.*`, P12.11), 8. „© {Berliner Jahr} Planet Claire · Berlin“.
 // Nie animiert; liegt über Dekor-Ebenen (z-index), die keine Zeigerereignisse annehmen. Linie, Pflichtlinks und
 // Fußnavigation sind statisches HTML (`StaticHtml`, nicht hydriert, TBT P7); der Sprachumschalter hängt an der Route.
 export async function SiteFooter({
@@ -37,6 +37,7 @@ export async function SiteFooter({
     getTranslations({ locale, namespace: 'footer' }),
     getTranslations({ locale, namespace: 'common.routes' }),
   ])
+  const facts = nav.shopFacts ?? { prepaymentEnabled: true, pickupEnabled: true, pickupCity: null }
   return (
     <footer className={styles.footer} data-site-footer="">
       <StaticHtml as="div" className={styles.edgeWrap} aria-hidden="true">
@@ -102,6 +103,23 @@ export async function SiteFooter({
             {t('motionLabel')} <span data-motion-state="">{t('motionOn')}</span>
           </button>
         </div>
+
+        {/* U-58 c: kurze Zeile zu Zahlarten, Versand und Abholung (aus den Shop-Einstellungen) */}
+        <StaticHtml as="p" className={styles.shopFacts} data-footer-shop-facts="">
+          {facts.prepaymentEnabled ? t('shopFacts.payment') : t('shopFacts.paymentNoPrepayment')}
+          {' · '}
+          {t('shopFacts.shipping')}
+          {facts.pickupEnabled ? (
+            <>
+              {' · '}
+              {t('shopFacts.pickup', { city: facts.pickupCity ?? 'Berlin' })}
+            </>
+          ) : null}
+          {' · '}
+          <a href={localizedPath('R25', locale)} className={styles.link}>
+            {tRoutes('R25' as 'R01')}
+          </a>
+        </StaticHtml>
 
         {priceNote ? <div className={styles.priceNote}>{priceNote}</div> : null}
 

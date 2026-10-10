@@ -1,6 +1,6 @@
-import { setRequestLocale } from 'next-intl/server'
 import React from 'react'
 
+import { listVariantPage, type VariantRouteParams } from '@/components/listVariantPage'
 import { FlashListPage } from '@/components/tattoo/FlashListPage'
 import { tattooLocale, tattooMetadata, tattooVariantParams } from '@/components/tattoo/tattooRoute'
 import { variantKey } from '@/lib/shop/listParams'
@@ -11,18 +11,16 @@ import { variantKey } from '@/lib/shop/listParams'
 export const revalidate = 3600
 export const dynamicParams = true
 
-type Params = { locale: string; variant: string }
+const metadata = tattooMetadata('R12')
 
-export function generateStaticParams(): { variant: string }[] {
-  return [{ variant: variantKey({ available: true }) }]
-}
+const page = listVariantPage<VariantRouteParams>({
+  locale: tattooLocale,
+  list: (variant) => tattooVariantParams('R12', variant),
+  staticParams: () => [{ variant: variantKey({ available: true }) }],
+  metadata: (params) => metadata({ params: Promise.resolve(params) }),
+  render: (locale, list) => <FlashListPage locale={locale} list={list} />,
+})
 
-export const generateMetadata = tattooMetadata('R12')
-
-export default async function FlashVariantPage({ params }: { params: Promise<Params> }) {
-  const { locale: raw, variant } = await params
-  const locale = tattooLocale(raw)
-  const list = tattooVariantParams('R12', variant)
-  setRequestLocale(locale)
-  return <FlashListPage locale={locale} list={list} />
-}
+export const generateStaticParams = page.generateStaticParams
+export const generateMetadata = page.generateMetadata
+export default page.Page

@@ -18,6 +18,7 @@ import {
   type FaqForm,
 } from '@/lib/tattoo/admin'
 import { adoptSeedDocument } from '@/lib/seed/adopt'
+import { copyTourDate } from '@/lib/tour/copy'
 import {
   isPageKey as isAnyPageKey,
   TATTOO_TEXT_PAGE_KEYS,
@@ -151,8 +152,15 @@ export const flashAdminEndpoints: Endpoint[] = [
   adopt('flash'),
 ]
 
-/** `POST /api/tour-dates/:id/translate` und `/adopt` (P12.8, „Planet Claire on Tour“). */
-export const tourAdminEndpoints: Endpoint[] = [translate('tour-dates'), adopt('tour-dates')]
+/**
+ * `POST /api/tour-dates/:id/translate` und `/adopt` (P12.8, „Planet Claire on Tour“) sowie `/copy` (U-60, P14.11:
+ * „Termin kopieren“ → neuer Termin eine Woche später, offline).
+ */
+export const tourAdminEndpoints: Endpoint[] = [
+  translate('tour-dates'),
+  adopt('tour-dates'),
+  idAction('copy', (req, id) => copyTourDate(req, id)),
+]
 
 export const galleryAdminEndpoints: Endpoint[] = [
   idAction('withdraw-consent', (req, id, body) =>

@@ -4,10 +4,12 @@ import React from 'react'
 import { ICON_MAIL } from '@/components/icons/icons.generated'
 import { ResponsiveImage } from '@/components/media/ResponsiveImage'
 import { Button } from '@/components/ui/Button'
+import { ShareButton } from '@/components/ui/ShareButton'
 import type { PublicFlash, TattooSettings } from '@/lib/data/tattoo'
 import { localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
 import { tattooMailto } from '@/lib/tattoo/mailto'
+import { absoluteUrl } from '@/lib/seo/metadata'
 import { formatTattooPrice } from '@/lib/tattoo/price'
 
 import styles from './Tattoo.module.css'
@@ -28,6 +30,7 @@ export async function FlashCard({
   headingLevel = 'h3',
   eager = false,
   compact = false,
+  photoHref = null,
 }: {
   flash: PublicFlash
   locale: Locale
@@ -36,6 +39,8 @@ export async function FlashCard({
   eager?: boolean
   /** Teaser (R11): ohne Anfrage-Knöpfe, Link auf die Karte in R12. */
   compact?: boolean
+  /** U-56: Link auf ein sichtbares Galerie-Foto dieses Motivs („Schon gestochen – Foto ansehen“). */
+  photoHref?: string | null
 }) {
   const t = await getTranslations({ locale, namespace: 'tattoo.flash' })
   const Heading = headingLevel
@@ -117,6 +122,13 @@ export async function FlashCard({
             {t('takenText')}
           </p>
         )}
+        {photoHref && !compact ? (
+          <p className={styles.flashPhoto}>
+            <a href={photoHref} data-flash-photo="">
+              {t('photo')}
+            </a>
+          </p>
+        ) : null}
         {available && !compact ? (
           <div className={styles.flashActions}>
             {mailto ? (
@@ -130,6 +142,15 @@ export async function FlashCard({
               </Button>
             ) : null}
           </div>
+        ) : null}
+        {!compact ? (
+          // U-61: Teilen (Link auf die Karte in R12)
+          <ShareButton
+            url={absoluteUrl(`${localizedPath('R12', locale)}#${flash.anchor}`)}
+            title={`${flash.display} – ${flash.title}`}
+            locale={locale}
+            id={flash.anchor}
+          />
         ) : null}
       </div>
     </article>

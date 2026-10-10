@@ -296,18 +296,21 @@ describe('Mini-Beispielbestand (DM-P1-04, AK-11-01, AK-11-02, AK-SEED-06, AK-SEE
       }
     const home = await find('home', 'de')
     expect(home._status).toBe('published')
-    expect(home.layout.map((b) => b.blockType)).toEqual(['hero', ...Array(6).fill('station')])
-    expect(home.layout.slice(1).map((b) => b.stationId)).toEqual([
+    expect(home.layout.map((b) => b.blockType)).toEqual([
+      'hero',
+      'imageText',
+      ...Array(5).fill('station'),
+    ])
+    expect(home.layout.slice(2).map((b) => b.stationId)).toEqual([
       'keramik',
       'textil',
       'zeichnungen',
       'schmuck',
       'tattoo',
-      'jutta-und-coco',
     ])
     const homeEn = await find('home', 'en')
     expect(homeEn.title).toBe('Home')
-    expect(homeEn.layout[2]!.heading).toBe('Textiles & caps')
+    expect(homeEn.layout[3]!.heading).toBe('Textiles & caps')
     const contact = await find('contact', 'de')
     expect(contact.layout.map((b) => b.blockType)).toEqual([
       'richText',

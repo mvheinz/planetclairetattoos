@@ -8,13 +8,14 @@ import type { CartLine as CartLineData } from '@/lib/commerce/evaluateCart'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { Locale, ProductCategory } from '@/lib/enums'
 import { formatItemNumber, productPath } from '@/lib/shop/format'
+import { reservedUntilParts } from '@/lib/shop/reservedUntil'
 import type { Media } from '@/payload-types'
 
 import styles from './CartLine.module.css'
 
 // Korbzeile (DESIGN KO-13): Foto 64×80 (4:5), Titel als Link, `Nr. 017 · Keramik` (Mono, `--ink-2`), Preis rechts
 // (`MoneyAmount`), Text-Knopf „Entfernen“ (POST-Formular, ohne JavaScript 303 zurück auf den Korb). Nicht kaufbar →
-// Zeile gedämpft, Hinweis als Text („Gerade reserviert …“ bzw. Stempel-Text „sold“ in `--fox` ≥ 24 px + „Leider schon
+// Zeile gedämpft, Hinweis als Text („Reserviert bis 14:30 …“, U-58 b bzw. Stempel-Text „sold“ in `--fox` ≥ 24 px + „Leider schon
 // verkauft“), aus der Summe ausgeschlossen. „Preis wurde aktualisiert“, wenn der DB-Preis vom Preis beim Hinzufügen
 // abweicht (angezeigt wird immer der DB-Preis).
 
@@ -24,10 +25,13 @@ export async function CartLine({
   line,
   locale,
   media,
+  now = new Date(),
 }: {
   line: CartLineData
   locale: Locale
   media: Media | null
+  /** Bezugszeit für „reserviert bis …“ (U-58 b). */
+  now?: Date
 }) {
   const t = await getTranslations({ locale, namespace: 'cart' })
   const product = line.product
@@ -45,8 +49,14 @@ export async function CartLine({
     product && product.slug && line.itemNumber !== null
       ? productPath({ itemNumber: line.itemNumber, slug: product.slug }, locale)
       : null
-  const stateNote =
-    line.state === 'reserved' || line.state === 'sold' || line.state === 'reserved_by_you'
+  // U-58 b: fremd reserviert → „Reserviert bis 14:30“ (Europe/Berlin), sonst der allgemeine Hinweis.
+  const until =
+    line.state === 'reserved' ? reservedUntilParts(line.reservedUntil, now, locale) : null
+  const stateNote = until
+    ? until.date
+      ? t('state.reservedUntilDate', { date: until.date, time: until.time })
+      : t('state.reservedUntil', { time: until.time })
+    : line.state === 'reserved' || line.state === 'sold' || line.state === 'reserved_by_you'
       ? t(`state.${line.state}`)
       : null
 

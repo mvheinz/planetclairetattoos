@@ -18,9 +18,11 @@ export const BEHAVIOR_LOADERS = {
   'price-tag-swing': () => import('./price-tag-swing'),
   'product-status': () => import('./product-status'),
   'reservation-countdown': () => import('./reservation-countdown'),
+  'share-button': () => import('./share-button'),
   'sold-stamp': () => import('./sold-stamp'),
   'thanks-moment': () => import('./thanks-moment'),
   'thanks-poll': () => import('./thanks-poll'),
+  'tour-fold': () => import('./tour-fold'),
 } satisfies Record<string, () => Promise<BehaviorModule>>
 
 export type BehaviorName = keyof typeof BEHAVIOR_LOADERS

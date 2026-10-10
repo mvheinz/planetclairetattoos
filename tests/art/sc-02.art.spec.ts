@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test'
 
+import { waitForPaint } from './helpers/capture'
 import { artTags, test } from './helpers/fixtures'
 import { leashStations, readingFrame, releaseReading, stationBounds } from './helpers/leash'
 
@@ -32,6 +33,9 @@ test('SC-02 Startseite reduziert', { tag: artTags('all', ['reduced']) }, async (
         (window as Window & { __leash?: { rebuildCount(): number } }).__leash?.rebuildCount() ??
         null,
     )
+  // Bilder im Sichtbereich fertig geladen und dekodiert (P14.14: das Foto oben auf der Startseite, U-50, lud auf dem
+  // Pixel noch, als t=0 aufgenommen wurde – unten lag noch das Vorschaubild; Laden ist keine Bewegung)
+  await waitForPaint(page, 8000)
   const rebuilds0 = await rebuilds()
   await art.pauseClock()
   await page.clock.runFor(100)

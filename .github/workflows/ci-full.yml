@@ -1,11 +1,12 @@
 name: CI full
 
+# Seit U-65 nur per Hand – Prüfungen laufen lokal (pnpm ci:local). Keine automatischen Auslöser (keine Actions-Minuten);
+# der Inhalt bleibt als Vorlage (ARCHITEKTUR §6, docs/KONZEPT-OHNE-ACTIONS.md).
+
 # ARCHITEKTUR §6.2/§6.4/§7.6 (P2.28): nur über den offenen PR oder per Hand, nie bei push auf main.
 # Kennungen im PR-Kopf-Commit: `[ci:full` (auch `[ci:full pN]`) → e2e-full + quality; `[ci:update-snapshots]` → nur
 # snapshots; ohne Kennung (oder `[ci:art]`) → nur mode. `[skip ci]` startet ohnehin keinen Lauf.
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
     inputs:
       update_snapshots:
@@ -58,6 +59,7 @@ jobs:
       snapshots: ${{ steps.mode.outputs.snapshots }}
       art: ${{ steps.mode.outputs.art }}
       sha7: ${{ steps.mode.outputs.sha7 }}
+      projects: ${{ steps.mode.outputs.projects }}
     steps:
       - name: Kennung
         id: mode
@@ -79,17 +81,27 @@ jobs:
             sha="${{ github.sha }}"
             if [ "$UPDATE_SNAPSHOTS" = "true" ]; then snapshots=true; else full=true; fi
           fi
+          # P14.13 (§6.8): Phasenende `[ci:full pN]` und Dispatch prüfen alle drei Geräteprofile; der Zwischenlauf `[ci:full]`
+          # nur desktop (Chromium) und iphone-15 (WebKit, Mobil-Layout) – pixel-7 folgt spätestens am Phasenende.
+          if [ "$phase" = "px" ] && [ "${{ github.event_name }}" = "pull_request" ]; then
+            projects='["desktop","iphone-15"]'
+          else
+            projects='["desktop","iphone-15","pixel-7"]'
+          fi
           {
             echo "full=$full"
             echo "snapshots=$snapshots"
             echo "art=$art"
             echo "phase=$phase"
             echo "sha7=${sha:0:7}"
+            echo "projects=$projects"
           } >> "$GITHUB_OUTPUT"
-          echo "Kennung: full=$full, snapshots=$snapshots, art=$art, phase=$phase" >> "$GITHUB_STEP_SUMMARY"
+          echo "Kennung: full=$full, snapshots=$snapshots, art=$art, phase=$phase, projects=$projects" >> "$GITHUB_STEP_SUMMARY"
 
   # Ab P3.16 je Playwright-Projekt ein paralleler Job (Matrix): die volle Suite hat ~1 400 Tests; nacheinander mit einem
-  # Worker bräuchte sie ~55 min (> timeout). Jeder Job baut einmal mit Debug-Flag und testet sein Projekt.
+  # Worker bräuchte sie ~55 min (> timeout). Jeder Job baut einmal mit Debug-Flag und testet sein Projekt. Ein gemeinsamer
+  # Build als Artefakt lohnt nicht (P14.13, §6.8): Seed + Build dauern dank `.next/cache` ~1 min, Hoch-/Herunterladen von
+  # `.next` (mehrere 100 MB) ebenso lange und belastete den Artefakt-Speicher (500 MB).
   e2e-full:
     name: e2e-full (${{ matrix.project }} ${{ matrix.shard }}/2)
     needs: mode
@@ -102,7 +114,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        project: [desktop, iphone-15, pixel-7]
+        project: ${{ fromJSON(needs.mode.outputs.projects) }}
         shard: [1, 2]
     services:
       postgres:
@@ -129,11 +141,7 @@ jobs:
           cache: pnpm
       - name: Installation
         run: pnpm install --frozen-lockfile
-      # P4.2/P10.1: alle Unit-Tests zusätzlich in Berliner Ortszeit – Ergebnisse (Fristen, Summen, Steuer) dürfen nicht von TZ abhängen.
-      - name: Unit-Tests mit TZ=Europe/Berlin
-        env:
-          TZ: Europe/Berlin
-        run: pnpm run test:unit
+      # P4.2/P10.1: Die Unit-Tests in Berliner Ortszeit laufen seit P14.13 einmal in ci.yml/quick (vorher hier je Job, 6×).
       - name: Playwright-Version
         id: pw
         run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
@@ -164,6 +172,13 @@ jobs:
       - name: Keine flaky-Tests
         if: success()
         run: pnpm run ci:flaky
+      # P14.13: Im Zwischenlauf ohne pixel-7-Jobs prüft desktop 1/2 die nur auf pixel-7 laufenden Gates trotzdem –
+      # Kunst-Dauer-Gate (KUNST-QA §9, P9.7) und die Reservierung inkl. globaler Klassenpreis-Einstellung (AK-3-10).
+      - name: pixel-7-Gates im Zwischenlauf
+        if: success() && !contains(needs.mode.outputs.projects, 'pixel-7') && matrix.project == 'desktop' && matrix.shard == 1
+        run: |
+          pnpm run test:e2e --project=pixel-7 tests/e2e/art-gate.e2e.spec.ts tests/e2e/purchase/reservation.e2e.spec.ts
+          pnpm run ci:flaky
       # Bei Fehler (§6.2): erst der Budget-Schritt, dann – nur bei upload_optional=true – der Fehlerbericht (2 Tage).
       - name: Artefakt-Budget
         id: budget
@@ -241,9 +256,10 @@ jobs:
         run: pnpm run seed && pnpm run build
       - name: Kein Debug im Build
         run: pnpm run check:no-debug
-      # P10.4: Tempo-Budgets je Seitentyp (JS beim ersten Laden, Lazy-Chunks, Schriften, LCP-Bild, R01-Gewicht) am Build.
+      # P10.4: Tempo-Budgets je Seitentyp (JS beim ersten Laden, Lazy-Chunks, Schriften, LCP-Bild, R01-Gewicht) am Build;
+      # seit P14.13 auch der Fremd-URL-Scan am Build (bei `[ci:full` lässt quick Build und Budgets aus, §6.3).
       - name: Bundle-Budgets
-        run: pnpm run check:bundle
+        run: pnpm run check:bundle && pnpm run check:external --built
       # §7.6: Referenzen entstehen nur per [ci:update-snapshots]. Solange keine Linux-Referenz eingecheckt ist, steht ein
       # Hinweis im Job-Summary (nicht rot, OFFENE-PUNKTE); sobald Referenzen da sind, ist jede Abweichung rot.
       - name: Visuelle Referenzen vorhanden?

@@ -8,11 +8,14 @@ import {
   type ProductTransition,
 } from '@/lib/commerce/productTransitions'
 import { createLogger } from '@/lib/monitoring/logger'
+import { PRICE_CENTS_RANGE } from '@/lib/money'
+import { duplicateProduct } from '@/lib/products/duplicate'
 
 // Admin-Endpunkte der Stücke (DATENMODELL §6.6.10, alle `isAdmin`): je Aktion ein Übergang des Statusautomaten.
 // `publish` P2 · `unpublish` P3 · `sell-offline` P9/P10 · `archive` P12 · `archive-after-return` P13 · `restore` P14 ·
-// `return-to-stock` P11. Antwort: `{ doc, unchanged }` bzw. `{ error, errors? }` mit deutscher Meldung. Zustandsbasiert
-// idempotent (P5.1): steht das Stück schon im Zielzustand des Übergangs, 200 `{ unchanged: true }` ohne Wirkung.
+// `return-to-stock` P11 · `duplicate` (U-60, P14.11: Kopie als Entwurf, ohne Fotos/Nummer). Antwort: `{ doc, unchanged }`
+// bzw. `{ error, errors? }` mit deutscher Meldung. Zustandsbasiert idempotent (P5.1): steht das Stück schon im
+// Zielzustand des Übergangs, 200 `{ unchanged: true }` ohne Wirkung (gilt nicht für `duplicate` – jede Kopie ist neu).
 
 const log = createLogger()
 
@@ -96,6 +99,19 @@ export async function unchangedProduct(
   return { doc, unchanged: true }
 }
 
+const positiveId = (v: unknown): number | null => {
+  const n = typeof v === 'string' && v.trim() !== '' ? Number(v) : v
+  return typeof n === 'number' && Number.isSafeInteger(n) && n > 0 ? n : null
+}
+
+/** Erzielter Preis beim Markt-Verkauf (U-60): ganze Cent ≥ 0, sonst Feldfehler; leer = ohne Preis. */
+function offlinePriceCents(v: unknown): number | null {
+  if (v === undefined || v === null || v === '') return null
+  if (typeof v === 'number' && Number.isSafeInteger(v) && v >= 0 && v <= PRICE_CENTS_RANGE.max)
+    return v
+  throw new APIError('Bitte einen gültigen Preis in Euro eingeben, z. B. 45,00.', 400)
+}
+
 const transitionAction = (path: string, transition: ProductTransition): Endpoint =>
   productAction(
     path,
@@ -118,8 +134,15 @@ export const productTransitionEndpoints: Endpoint[] = [
       transitionProduct(req, id, 'sellOffline', {
         actor: 'admin',
         note: typeof body.note === 'string' ? body.note.slice(0, 120) : null,
+        tourDateId: positiveId(body.tourDate),
+        priceCents: offlinePriceCents(body.priceCents),
         showInArchive: typeof body.showInArchive === 'boolean' ? body.showInArchive : undefined,
         confirmReservedCheckout: body.confirmReservedCheckout === true,
       }),
   ),
 ]
+
+/** `POST /api/products/:id/duplicate` – „Als neues Stück kopieren“ (U-60, P14.11): neuer Entwurf, Antwort `{ doc }`. */
+export const productDuplicateEndpoint: Endpoint = productAction('duplicate', (req, id) =>
+  duplicateProduct(req, id),
+)

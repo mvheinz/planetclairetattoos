@@ -532,6 +532,7 @@ export const AUDIT_ACTIONS = [
   'order_status_link_rotated',
   'order_refund_created',
   'order_refund_failed',
+  'stray_payment_refunded',
   'packing_photo_skipped',
   'carrier_consent_withdrawn',
   'complaint_changed',

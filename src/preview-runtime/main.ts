@@ -12,9 +12,11 @@ import * as motionToggle from '../behaviors/motion-toggle'
 import * as priceTagSwing from '../behaviors/price-tag-swing'
 import * as productStatus from '../behaviors/product-status'
 import * as reservationCountdown from '../behaviors/reservation-countdown'
+import * as shareButton from '../behaviors/share-button'
 import * as soldStamp from '../behaviors/sold-stamp'
 import * as thanksMoment from '../behaviors/thanks-moment'
 import * as thanksPoll from '../behaviors/thanks-poll'
+import * as tourFold from '../behaviors/tour-fold'
 import type { BehaviorModule } from '../behaviors/types'
 
 import { createAssetStore } from './assets'
@@ -44,9 +46,11 @@ export const STATIC_BEHAVIORS: Record<(typeof BEHAVIOR_NAMES)[number], BehaviorM
   'price-tag-swing': priceTagSwing,
   'product-status': productStatus,
   'reservation-countdown': reservationCountdown,
+  'share-button': shareButton,
   'sold-stamp': soldStamp,
   'thanks-moment': thanksMoment,
   'thanks-poll': thanksPoll,
+  'tour-fold': tourFold,
 }
 
 const staticLoader: BehaviorLoader = (name) => Promise.resolve(STATIC_BEHAVIORS[name])

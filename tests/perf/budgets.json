@@ -1,7 +1,7 @@
 {
   "$comment": "Tempo-Budgets (ARCHITEKTUR §7.7, DESIGN §9.10, AK-DS-04). 1 KB = 1000 B, Grenzen gelten einschließlich. Gelesen von scripts/check-bundle.ts (pnpm check:bundle), tests/perf/lighthouserc.cjs (pnpm test:perf) und tests/e2e/perf.e2e.spec.ts (@perf). Nur Gates blockieren, Ziele werden berichtet. Mikro-Interaktionen (DESIGN §9.10 ≤ 4 KB) gelten je Gruppe von Verhaltensmodulen, die eine Seite gemeinsam lädt (Module sind einzelne Lazy-Chunks); jede Datei unter src/behaviors/ gehört zu genau einer Gruppe (OFFENE-PUNKTE P3.4).",
   "firstLoadJs": {
-    "$comment": "JS beim ersten Laden: gzip Stufe 9, Summe aller Skripte aus /_next/static, die vor dem load-Ereignis geladen werden. Schlüssel = Routen-ID der Registry, sonst default (R02–R05, R11–R27 und R28). R06/R07 ohne Stripe.js. R29 (Fehlerzustand, in §7.7 ohne eigene Grenze) lädt die Fehleransicht nach; eigene Grenze laut OFFENE-PUNKTE (P2.23).",
+    "$comment": "JS beim ersten Laden: gzip Stufe 9, Summe aller Skripte aus /_next/static, die das ausgelieferte HTML einbindet (script src ohne nomodule, preload/modulepreload as=script; seit P14.13 deterministisch statt vor dem load-Ereignis geladen). Schlüssel = Routen-ID der Registry, sonst default (R02–R05, R11–R27 und R28). R06/R07 ohne Stripe.js. R29 (Fehlerzustand, in §7.7 ohne eigene Grenze) lädt die Fehleransicht nach; eigene Grenze laut OFFENE-PUNKTE (P2.23).",
     "gzipMax": {
       "default": 150000,
       "R01": 170000,
@@ -50,8 +50,12 @@
       "gzipMax": 4000
     },
     {
-      "name": "Mikro-Interaktionen Shop-Listen (price-tag-swing, sold-stamp)",
-      "entries": ["src/behaviors/price-tag-swing.ts", "src/behaviors/sold-stamp.ts"],
+      "name": "Mikro-Interaktionen Shop-Listen (price-tag-swing, sold-stamp; Startseite: tour-fold, U-51)",
+      "entries": [
+        "src/behaviors/price-tag-swing.ts",
+        "src/behaviors/sold-stamp.ts",
+        "src/behaviors/tour-fold.ts"
+      ],
       "gzipMax": 4000
     },
     {
@@ -85,6 +89,11 @@
         "src/behaviors/copy-button.ts"
       ],
       "gzipMax": 4000
+    },
+    {
+      "name": "Mikro-Interaktionen Teilen (share-button an Stück und Flash-Motiv, U-61; Rückfall copy-button aus der Gruppe oben)",
+      "entries": ["src/behaviors/share-button.ts"],
+      "gzipMax": 4000
     }
   ],
   "fonts": {
@@ -116,6 +125,15 @@
     "iconGlob": "src/art/icons/*.svg",
     "homeTotalRawMax": 60000,
     "pathDataPerPageMax": 60000
+  },
+  "koko": {
+    "$comment": "U-54 (P14.5): Koko der Startseite als AVIF mit WebP-Rückfall in drei Breiten (python3 scripts/art/koko-cutout.py). Gate in check:bundle: alle Dateien vorhanden, AVIF kleiner als WebP, je Datei unter dem Budget.",
+    "dir": "public/art",
+    "stem": "koko.v3",
+    "widths": [360, 520, 700],
+    "full": 700,
+    "avifMax": 32000,
+    "webpMax": 56000
   },
   "images": {
     "$comment": "Bild-Budgets (ARCHITEKTUR §7.7, DESIGN §12.2) – nur Bericht, blockieren nicht: Median über den Beispielbestand (Größen thumb und card aus den srcset-Angaben von R02) und das im Profil Pixel 7 tatsächlich geladene LCP-Bild der Produktseite (R04). Gemessen von check:bundle.",

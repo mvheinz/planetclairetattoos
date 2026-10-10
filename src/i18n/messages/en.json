@@ -61,7 +61,13 @@
     "settingsHeading": "Language & settings",
     "motionLabel": "Animations:",
     "motionOffSystem": "off (system setting)",
-    "copyright": "© {year} Planet Claire · Berlin"
+    "copyright": "© {year} Planet Claire · Berlin",
+    "shopFacts": {
+      "payment": "Pay by card, Apple Pay, Google Pay, PayPal or bank transfer in advance",
+      "paymentNoPrepayment": "Pay by card, Apple Pay, Google Pay or PayPal",
+      "shipping": "Shipping within Germany",
+      "pickup": "Pick-up in {city} by arrangement"
+    }
   },
   "legal": {
     "placeholder": "Placeholder – the binding text will follow after review by the law firm.",
@@ -128,8 +134,10 @@
     "emptyTitle": "The planet is turning over.",
     "emptyText": "In a moment everything will be back in its place. Until then you can reach me by email.",
     "emptyAction": "Contact",
-    "stationCommissions": "Commissions",
+    "compassLabel": "Stations",
+    "introMore": "More about us",
     "chairwomanAlt": "Koko, chairwoman of the Goth Dogs Berlin: head and chest of a shaggy black dog in a jester cap with green bobbles and a pointed fur collar, an orange chest with a white patch below; big eyes glancing sideways",
+    "chairwomanAltAsleep": "Koko, chairwoman of the Goth Dogs Berlin: head and chest of a shaggy black dog in a jester cap with green bobbles and a pointed fur collar, an orange chest with a white patch below; eyes closed – at night Koko sleeps",
     "instagramLabel": "Planet Claire on Instagram: @{handle}",
     "tour": {
       "heading": "Planet Claire on Tour",
@@ -148,6 +156,8 @@
       "placeLabel": "Place",
       "hoursLabel": "Opening hours",
       "photoAlt": "Planet Claire's stand at the market {name}",
+      "foldNext": "next date: {date} – {name}",
+      "foldNone": "no dates right now",
       "laterHeading": "After that",
       "pastHeading": "Where I have been"
     }
@@ -214,7 +224,16 @@
       "tagline": "Tattoos & one-offs from Berlin",
       "priceNote": "Final price plus shipping",
       "productAlt": "{title} – {number}: photo and price tag",
-      "defaultAlt": "Planet Claire – tattoos & one-offs from Berlin"
+      "defaultAlt": "Planet Claire – tattoos & one-offs from Berlin",
+      "flashKicker": "Tattoos by Jutta · Flash",
+      "flashTitle": "Flash designs",
+      "flashSubEmpty": "Drawings waiting for skin",
+      "flashAlt": "Flash designs by Planet Claire, in front {number} – {title}",
+      "flashAltEmpty": "Flash designs by Planet Claire",
+      "galleryKicker": "Tattoos by Jutta · Gallery",
+      "galleryTitle": "Fresh & healed",
+      "gallerySub": "Lines that stayed – freshly tattooed and healed",
+      "galleryAlt": "Planet Claire gallery: photo of a tattoo"
     },
     "tattoo": {
       "R11": "Tattoos by Planet Claire in Berlin: a fine, trembling line in a private studio. Flash designs with fixed prices, prices, gallery and enquiries by email.",
@@ -301,14 +320,19 @@
       "more": "Show more",
       "delivery": "Delivery within Germany · Pickup in {city} possible",
       "deliveryNoPickup": "Delivery within Germany",
-      "closedFallback": "The shop is asleep for now – ordering isn’t possible at the moment."
+      "closedFallback": "The shop is asleep for now – ordering isn’t possible at the moment.",
+      "soldHeading": "Already found a home",
+      "archiveLink": "View the archive"
     },
     "warranty": {
       "title": "Legal guarantee",
       "alt": "EU harmonised notice: legal guarantee – at least two years for goods sold in the EU (placeholder version, the official graphic will follow)",
-      "lead": "At least two years of legal guarantee for goods sold in the European Union.",
-      "rights": "If goods are faulty or not as described, you are entitled to have them repaired or replaced by the seller free of charge, or in certain cases to a price reduction or a refund.",
-      "duration": "Under EU law, the legal guarantee lasts at least two years from when you receive the goods; in some countries it lasts longer. For second-hand goods a shorter period may apply, but not less than one year.",
+      "blocks": {
+        "lead": "At least two years of legal guarantee for goods sold in the European Union.",
+        "rights": "If goods are faulty or not as described, you are entitled to have them repaired or replaced by the seller free of charge, or in certain cases to a price reduction or a refund.",
+        "duration": "Under EU law, the legal guarantee lasts at least two years from when you receive the goods; in some countries it lasts longer.",
+        "secondHand": "For second-hand goods a shorter period may apply, but not less than one year."
+      },
       "placeholderNote": "Placeholder version: wording based on Commission Implementing Regulation (EU) 2025/1960, still to be reviewed by the law firm; the official graphic will follow.",
       "link": "More information from the EU on the legal guarantee"
     },
@@ -392,7 +416,10 @@
         "costsLink": "Shipping & payment"
       },
       "more": "More from {category}",
-      "buyBar": "Buy"
+      "buyBar": "Buy",
+      "ask": "Ask about this piece",
+      "askSimilar": "Ask for something similar",
+      "scaleCaption": "For a sense of size"
     },
     "gallery": {
       "label": "Photos: {title}",
@@ -404,6 +431,13 @@
       "zoom": "Enlarge",
       "close": "Close",
       "dialog": "Enlarged photo: {title}"
+    },
+    "mail": {
+      "subject": "Question about {number} – {title}",
+      "greeting": "Hello Jutta,",
+      "intro": "I have a question about {number} (“{title}”):",
+      "link": "Link to the piece: {url}",
+      "closing": "Best wishes"
     }
   },
   "archive": {
@@ -545,7 +579,9 @@
       "reserved": "Reserved right now – check back in 30 minutes",
       "sold": "Sorry, already sold",
       "reserved_by_you": "Waiting for you at checkout",
-      "priceChanged": "Price has been updated"
+      "priceChanged": "Price has been updated",
+      "reservedUntil": "Reserved until {time} – it may be free again after that",
+      "reservedUntilDate": "Reserved until {date}, {time} – it may be free again after that"
     },
     "soldStamp": "sold",
     "unknownTitle": "Piece {number}",
@@ -1164,7 +1200,8 @@
       "emptyAction": "To the process",
       "allTakenTitle": "Every design has found its skin.",
       "allTakenText": "New ones will follow – or write me your own idea by email.",
-      "allTakenAction": "To contact"
+      "allTakenAction": "To contact",
+      "photo": "Already tattooed – see the photo"
     },
     "prices": {
       "intro": "I tell you openly what a tattoo costs. All prices are totals – nothing is added on top.",
@@ -1199,7 +1236,8 @@
       "close": "Close",
       "emptyTitle": "No traces on this page yet",
       "emptyText": "In the meantime, have a look at the flash designs.",
-      "emptyAction": "To the flash designs"
+      "emptyAction": "To the flash designs",
+      "afterFlash": "after flash {number}"
     },
     "process": {
       "intro": "From the first word to healed skin. There is no online booking – everything begins with an email.",
@@ -1419,5 +1457,11 @@
     "linkLabel": "A navigation link",
     "demoButton": "Add to basket",
     "cartCount": "In basket"
+  },
+  "share": {
+    "button": "Share",
+    "copy": "Copy link",
+    "copied": "Link copied",
+    "failed": "Couldn’t copy – here is the link: {url}"
   }
 }

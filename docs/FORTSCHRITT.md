@@ -2,6 +2,243 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-10 – P14 abgeschlossen: dritte Runde nach deiner Rückmeldung – für Jutta
+
+Hallo Jutta,
+
+deine dritte Runde ist fertig. Das ist neu:
+
+- **Startseite oben:** euer Foto (klein) mit dem Text „Werkstatt unter der Woche …“ und „Mehr über uns“, daneben Koko,
+  rechts die Tour-Tafel. Die Station „Jutta & Coco“ ist weg, es gibt jetzt die Stationen 01–05. Oben eine kleine
+  Sprungleiste zu den Stationen. Auf dem Handy steht die Tour-Tafel zusammengeklappt hinter Station 01.
+- **Koko** schläft nachts (22–7 Uhr) und lädt schneller.
+- **Die Leine** zeichnet beim Umwickeln ruhiger; am Seitenende setzt sich Coco.
+- **Shop:** „Frag nach diesem Stück“ (fertige Mail), bei verkauften Stücken „Etwas Ähnliches anfragen“, verkaufte Stücke
+  nur noch als kurze Reihe mit „Archiv ansehen“, ein Foto „zum Größenvergleich“ je Stück, Teilen-Knopf.
+- **Kasse:** „Erstatten“-Knopf für zu späte oder doppelte Zahlungen, im Korb „Reserviert bis 14:30 Uhr“, unten eine
+  Zeile zu Zahlung und Versand.
+- **Tattoo:** Flash-Motive und Galerie-Fotos zeigen aufeinander; eigene Vorschaubilder beim Teilen.
+- **Verwaltung:** „Termine“ als eigener Menüpunkt, Stück kopieren, Termin kopieren, Markt-Verkauf einem Termin zuordnen.
+- **Gewährleistungshinweis (EU):** fertig vorbereitet; der amtliche Text fehlt noch (die EU-Seite war aus der Cloud nicht
+  erreichbar) – vor dem Start setzen wir ihn gemeinsam mit der Kanzlei ein.
+- **Keine GitHub-Minuten mehr:** Alle Prüfungen laufen jetzt in meiner Sitzung. Auf GitHub startet nichts mehr von selbst.
+
+Was du noch tun solltest: Projekt auf „privat“ stellen und unter Settings → Actions „Disable actions“ wählen (Anleitung
+im Chat).
+
+Technik-Notiz: lokale Prüfschleuse grün (Unit, Int + Abdeckung, Build, Budgets, visuell, E2E Desktop/iPhone/Pixel,
+Vorschau-Export); Lighthouse und Bildrate (PF-02) als Hinweis, weil die Cloud-Maschine dort auch den alten Stand P13 nicht
+grün misst; Kunst-QA 61/62; Docker diesmal ausgelassen (Abruflimit von Docker Hub, Docker-Dateien unverändert).
+
+## 2026-10-09 – P14.15 Lokale Prüfschleuse statt GitHub Actions (U-65, U-66)
+
+- **Workflows:** Alle sechs Dateien unter `.github/workflows/` starten nur noch per Hand (`workflow_dispatch`), mit
+  Kopfkommentar „Seit U-65 nur per Hand – Prüfungen laufen lokal (pnpm ci:local)“; Inhalt bleibt als Vorlage. Unit-Test:
+  kein Workflow hat einen automatischen Auslöser.
+- **`pnpm ci:local <quick|full|art>`** (`scripts/ci-local.ts`, Planung `scripts/ci/local-plan.ts`): bildet `ci.yml`,
+  `ci-full.yml` (quality, E2E je Gerät, Docker), `preview-export.yml`, `restore-drill.yml` und `art-qa.yml` nach. Eigene
+  Datenbanken `planetclaire_ci(_test)`, Ports 3300–3305, Logdatei je Schritt und `report.json` unter
+  `ci-reports/<zeit>-<sha7>-<modus>/`, `--only`/`--from`/`--keep-going`/`--dry-run`, Playwright-Filter nach `--`,
+  `--status` setzt den Commit-Status `lokal/ci-<modus>` (nur vollständig, sauber, gepusht). gitleaks 8.30.1 wird bei
+  Bedarf mit Prüfsumme geladen; ohne gitleaks Ersatzprüfung als Hinweis. Jeder Schritt in eigener Prozessgruppe.
+- **Doku:** ARCHITEKTUR §6.0 (neu, verweist auf U-65), §6.1/§6.8/§6.10, CLOUD-SETUP §3.3/§3.5.
+- **Probeläufe:** `ci:local quick` grün (9/9, 37 min auf dem geteilten Rechner); `full` mit `--only`: `db`,
+  `restore-drill`, `build` (ohne Debug), `check:no-debug`, `check:bundle` (alle Budgets, Shop/Produkt 146,2 KB),
+  `check:external --built` grün; `build-debug` + `e2e-desktop` mit drei Specs grün (16 bestanden, 0 flaky). `coverage` lief
+  unter Last in die Zeitgrenze (OFFENE-PUNKTE) – den vollständigen `full`-Lauf macht die Hauptsitzung am Phasenende.
+- Tests: `tests/unit/ci/local-plan.unit.spec.ts` (16), Workflow-/Release-/Docker-Unit-Tests angepasst, actionlint ohne
+  Befund.
+
+## 2026-10-09 – P14.13 Technik: CI-Minuten, Wackel-Tests, Ladebudget, Listen-Seiten (U-62)
+
+- **CI-Minuten** (gemessen am P13-Phasenende: ≈ 289 min je `[ci:full pN]`-Lauf): `quick` läuft bei `[ci:full` kurz – keine
+  Int-Tests (laufen einmal als `test:coverage` in `quality`), kein Build/Budgets (in `quality`, dort jetzt auch
+  `check:external --built`), kein Rauchtest (Teil von `e2e-full`); Unit-Tests in Berliner Zeit einmal in `quick` statt in
+  jedem der 6 E2E-Jobs; Zwischenlauf `[ci:full]` ohne die zwei pixel-7-Jobs (Kunst-Gate und Reservierung laufen trotzdem
+  mit `--project=pixel-7` in `desktop 1/2`); Release-Probelauf ohne doppelten Export, wenn `preview-export.yml` ihn
+  ohnehin macht; Playwright `retries: 1`. Schätzung: Phasenende ≈ 224 min (−22 %), Zwischenlauf ≈ 188 min (−33 %), eine
+  Phase mit Zwischenlauf und einer Wiederholung ≈ 636 statt 860 min, ohne Wiederholung ≈ 412 min (−52 %) – Tabelle in
+  ARCHITEKTUR §6.8. Am Phasenende läuft jede Prüfung weiterhin genau einmal (alle drei Geräteprofile).
+- **Wackel-Tests:** Unit-Tests warten nach jedem Test auf angestoßene `import()` (`tests/setup/settle-imports.ts`, gegen
+  „Closing rpc while fetch was pending“); `check:bundle` zählt JS beim ersten Laden jetzt aus dem ausgelieferten HTML
+  statt „vor `load`“ (vorher je Lauf ±1–15 KB, z. B. R11 147,5 ↔ 162,8 KB) – Nachgeladenes steht nur im Bericht; E2E
+  `leash`, `leash-trail` warten auf eine ruhende Linie (`tests/e2e/leashSettle.ts`) statt 1,2–2,2 s, `photo-frame` pollt
+  die Deckkraft.
+- **Ladebudget:** Statistik-Bibliothek nachgeladen (−1,2 KB auf allen Seiten): Shop/Produkt/Listen 146,3 KB, R10
+  148,5 KB, R26 148,4 KB (Budget 150 KB). Das Ziel ≥ 10 KB Luft ist so nicht erreichbar: ≈ 135 KB sind React/Next selbst,
+  eigener Erstlade-Code nur ≈ 11 KB (OFFENE-PUNKTE).
+- **Listen-Seiten:** Die fünf Varianten-Seiten (Shop, Kategorie, Archiv, Flash, Galerie) nutzen die gemeinsame Hülle
+  `src/components/listVariantPage.tsx`.
+- Tests: Workflow-/Release-/Bundle-/Analytics-/Varianten-Unit-Tests, actionlint 1.7.7 ohne Befund, `pnpm check`,
+  Build mit Debug-Flag, `check:bundle` (alle Budgets eingehalten, zweimal identisch), `check:external --built`, E2E
+  `shop/list-variants`, `shop/shop`, `shop/archive`, `tattoo/gallery`, `tattoo/flash`, `photo-frame`, `leash`,
+  `leash-trail` (desktop + pixel-7: 66 bestanden, 14 übersprungen).
+## 2026-10-09 – P14.11 Verwaltung: Termine-Menü, Stück duplizieren, Termin kopieren, Markt-Verkauf zum Termin (U-60)
+
+- **Termine** ist ein eigener Menüpunkt `/termine` (Symbol Stecknadel, Seitenleiste und „Mehr“); „Tattoo“ hat nur noch
+  Flash · Galerie · Texte. Die alte Adresse `/tattoo?reiter=termine[&bearbeiten=…]` leitet weiter. KONZEPT §7.2/§3.1a,
+  Handbuch §10 angepasst.
+- **Als neues Stück kopieren** (Stück-Formular unten, mit Rückfrage): `POST /api/products/:id/duplicate` (nur Verwaltung)
+  legt einen Entwurf mit nächster freier Nummer an – Titel „(Kopie)“/„(copy)“, Kategorie, Texte DE/EN, Maße, Material,
+  Preis, Versand, GPSR-Angaben (Warnhinweise, Metall/Nickel-Nachweis, Glasur, Konformitätserklärungen), Zoll; ohne
+  Fotos, Abweichung, „nur eigene Figuren“, Lagerort, interne Notiz, SEO (`src/lib/products/duplicate.ts`).
+- **Termin kopieren** (Termin-Formular): `POST /api/tour-dates/:id/copy` – neuer Termin eine Woche später (ganze Berliner
+  Tage, auch über die Zeitumstellung), Name/Ort/Notiz DE/EN, Adresse, Link, Uhrzeiten, Status „geplant“, **offline**;
+  ohne Standnummer und Foto (`src/lib/tour/copy.ts`).
+- **Markt-Verkauf zum Termin:** Dialog „Offline verkauft“ mit Auswahl „Auf welchem Termin?“ (letzte 90 Tage) und
+  „Erzielter Preis“; neue Felder `products.offlineSaleTourDate` und `offlineSalePriceCents` (Migration
+  `p14_admin_offline_sale`, CHECK ganze Cent ≥ 0, alte Notizen bleiben). Mit Preis zählt der Verkauf im Umsatz-Wächter
+  (neue Spalte „Markt-Verkäufe (Stücke)“, nach Verkaufsdatum; Job wird eingereiht); „Zurück ins Lager“ nimmt ihn heraus.
+  Weiterhin keine Bestellung, kein Beleg, keine Monatssumme (E-28/R-127).
+- Tests: Int `tests/int/products/duplicate.int.spec.ts`, `tests/int/tattoo/tour-copy.int.spec.ts`,
+  `tests/int/products/offline-sale-tour.int.spec.ts` (+ Zugriffsmatrix, Statusautomat, DB-Objekte, Umsatz-Wächter),
+  Unit `revenue-guard`, `registry`, `tattoo-admin`; E2E `tests/e2e/admin/tattoo-tour.e2e.spec.ts` (Menüpunkt,
+  Weiterleitung, Kopieren), `tests/e2e/admin/pieces.e2e.spec.ts` (Termin + Preis, Kopie), `shell` (14 Ansichten).
+
+## 2026-10-09 – P14.10 EU-Gewährleistungshinweis fertig (U-59)
+
+- Harmonisierte Mitteilung (R-049, DVO (EU) 2025/1960 Anhang I) so gebaut, dass die amtliche Fassung nur noch
+  eingesetzt wird: Wortlaut in Bausteinen (`WARRANTY_NOTICE_BLOCKS` + `shop.warranty.blocks.*` DE/EN: Hauptsatz, Rechte,
+  Dauer, gebrauchte Waren), Grafik-Platz je Sprache (`WARRANTY_NOTICE_GRAPHIC`: SVG/PNG/WebP, Maße, Alt-Text,
+  `placeholder`), Kennzeichen `data-warranty-graphic`/`data-warranty-block` im HTML.
+- Startklar-Check R-210 Nr. 11 nennt jetzt einzeln, was noch Platzhalter ist (Grafik deutsch/englisch, Wortlaut);
+  Anleitung zum Einsetzen in `docs/owner/AUFGABEN.md` (A28, Zuordnungstabelle).
+- Amtliche Fassung erneut nicht abrufbar (EUR-Lex: Bot-Schutz, Sekundärquellen gesperrt) → Platzhalter bleibt.
+- Tests: Unit `tests/unit/legal/warranty-notice.unit.spec.ts`, `tests/unit/shop/price-note.unit.spec.ts`,
+  `tests/unit/golive/checks.unit.spec.ts`, Verbotsliste `tests/unit/legal/forbidden.unit.spec.ts`; `pnpm check` grün.
+## 2026-10-09 – P14.12 Teilen-Knopf + Vorschaukarten Tattoo (U-61)
+
+- **Teilen** an Stückseiten (unter dem Kaufbereich) und jeder Flash-Karte: „Teilen“ öffnet das Teilen-Menü des Geräts
+  (Web Share API, neues nachgeladenes Modul `share-button`, 580 B gz, eigene Budgetgruppe ≤ 4 KB); wo es das nicht gibt (meist
+  am Computer) steht „Link kopieren“ (vorhandenes Modul `copy-button`) mit Meldung „Link kopiert“. Ohne JavaScript beide
+  verborgen; kein Drittanbieter, keine Cookies, kein Erstlade-JS. Flash-Karten teilen den Link mit Anker (`#f-012`).
+- **Vorschaukarten (OG-Bilder):** Flash (R12) zeigt die Zeichnung des ersten verfügbaren Motivs mit „Flash-Motive“ und
+  „F-012 – Titel“; Galerie (R15) ein Foto mit Einwilligung (nie die Seed-Ausnahme) mit „Fresh & healed“ – ohne solches
+  Foto das Standardbild. DE/EN, Alt-Text je Sprache; gilt auch für die Filter-Varianten.
+- Tests: Unit `tests/unit/behaviors/share-button.unit.spec.ts`, Vertragstest der Module, `tests/unit/seo/og-render.unit.spec.ts`
+  (PNG ohne Netz, Auswahl ohne Seed-Ausnahme, Alt-Texte); E2E `tests/e2e/shop/share.e2e.spec.ts` (Rückfall „Link
+  kopieren“ mit Zwischenablage, nachgebildetes Teilen-Menü, ohne JS, keine Cookies/Fremd-Anfragen) und
+  `tests/e2e/seo/og-image.e2e.spec.ts` gegen den Produktions-Build grün.
+
+## 2026-10-09 – P14.9 Kasse: Erstatten-Knopf, „reserviert bis“, Fußzeile Zahlung & Versand (U-58)
+
+- **Erstatten (J-26/J-27):** Zahlungen ohne Bestellung (zu spät nach Ende der Kasse, S16; zusätzlich zur Vorkasse, S17)
+  merkt sich der Webhook jetzt an der Kasse (`checkouts.strayPayments`, Migration `p14_shop_stray_payments`). In der
+  Verwaltung stehen sie unter „Heute“ (alle offenen) bzw. an der Vorkasse-Bestellung mit Knopf „Erstatten“ (Bestätigung
+  mit Betrag). Der Knopf ruft `POST /api/checkouts/:id/refund-stray-payment` (nur Verwaltung, sonst 403), erstattet den
+  ganzen Betrag über den vorhandenen Erstattungs-Adapter (bis P11 Mock), ist idempotent (läuft/erstattet → „schon
+  erledigt“), schreibt `stray_payment_refunded` ins Audit-Log; ein Anbieterfehler bleibt „fehlgeschlagen“ und lässt sich
+  erneut versuchen. Erstattungs-Webhooks ohne Bestellung tragen den Stand nach. Verwaltungs-Mails A12 verweisen auf den
+  Knopf.
+- **Korb:** fremd reservierte Stücke zeigen „Reserviert bis 14:30 Uhr – danach wird es vielleicht wieder frei“
+  (Europe/Berlin; an einem anderen Tag mit Datum, EN „Reserved until …“) – ohne Angaben zur fremden Kasse.
+- **Seitenfuß:** Zeile „Bezahlen mit Karte, Apple Pay, Google Pay, PayPal oder Vorkasse · Versand innerhalb Deutschlands ·
+  Abholung in Berlin nach Absprache · Versand & Zahlung“ (aus den Einstellungen: Vorkasse an/aus, Abholung an/aus und
+  Ort), DE/EN; kein „inkl. MwSt.“, kein EU-OS-Link.
+- Tests: Int `tests/int/commerce/stray-payments.int.spec.ts` (Vermerk einmalig, 403 ohne Anmeldung, erstattet + Audit,
+  zweiter Klick unverändert, Fehler + neuer Versuch, S17 an der Bestellung) plus `fulfill-checkout`/`prepayment` grün;
+  Unit `tests/unit/shop/reserved-until.unit.spec.ts`; E2E Korb (`cart.e2e.spec.ts`), Fußzeile
+  (`legal/footer-shop-facts.e2e.spec.ts`), Verbotsliste, Fußbereich, „Heute“, Bestell-Detail, Vorkasse gegen den
+  Produktions-Build grün (Einzel-Läufe; „Vertrag widerrufen auf jeder Route“ lief unter Last einmal in die Zeitgrenze).
+
+## 2026-10-09 – P14.8 Shop: Frage-Link, „Ähnliches anfragen“, verkaufte nicht mischen, Größen-Vergleichsfoto (U-57)
+
+- **Frag nach diesem Stück** (Produktseite, verfügbar/reserviert): Mail-Link an die Kontaktadresse aus den Einstellungen,
+  Betreff „Frage zu Nr. 017 – {Titel}“ (EN „Question about No. 017 – …“), Vorlage mit Link zum Stück, keine
+  Personendaten, kein Formular (`src/lib/shop/mailto.ts`).
+- **Verkauft:** zusätzlich „Etwas Ähnliches anfragen“ → Auftragsarbeiten (R10).
+- **Shop-Liste R02/R03:** Seiten zählen nur verfügbare/reservierte Stücke; verkaufte (Archiv) stehen nur noch als kurze
+  Reihe (höchstens 4, Überschrift „Schon weitergezogen“) unter der letzten Seite, dahinter „Archiv ansehen“ (R03 mit
+  Kategorie-Filter). `?available=1` ohne Reihe. Statische Varianten zählen Folgeseiten damit nur nach verfügbaren.
+- **Foto zum Größenvergleich:** neues Feld `products.scalePhoto` (Migration `p14_shop_scale_photo`), in „Neues
+  Stück“/„Stück bearbeiten“ als eigener Foto-Baustein (ein Foto, Hilfetext) und im Standardformular (Reiter „Bilder“);
+  auf der Stückseite letztes Galeriebild mit Beschriftung „Zum Größenvergleich“ / „For a sense of size“; Bild-Löschschutz
+  wie bei den Stückfotos.
+- Tests: Unit `tests/unit/shop/product-mailto.unit.spec.ts`; Int `tests/int/shop/data.int.spec.ts` (Reihe ≤ 4,
+  Seitenzahl), `tests/int/collections/products-fields.int.spec.ts` (scalePhoto geschützt, öffentlich lesbar); E2E
+  `tests/e2e/shop/ask-and-sold-row.e2e.spec.ts`; Shop-, Produktseiten-, Archiv-, Varianten-, Tattoo- und Foto-Baustein-
+  E2E gegen den Produktions-Build grün.
+
+## 2026-10-09 – P14.7 Flash ↔ Galerie (U-56)
+
+- Galerie-Einträge haben einen Anker `g-<id>` und kennen die Nummer ihres Flash-Motivs (Feld `flash`, nur veröffentlichte
+  Motive). Flash-Karte (R12): „Schon gestochen – Foto ansehen“ → `/de/tattoo/galerie#g-<id>`; Galerie (R15): „nach Flash
+  F-012“ → `/de/tattoo/flash#f-012` (EN „Already tattooed – see the photo“ / „after flash F-012“).
+- Verlinkt werden nur Fotos, die die Galerie ohnehin öffentlich zeigt (`toPublicGallery`: Einwilligung, Widerruf nimmt
+  den Eintrag offline; Seed-Ausnahme nur im Vorschau-Modus). Cache: R12 liest zusätzlich die Galerie (Tag
+  `tattoo-gallery`), R15 zusätzlich die Motive (Tag `flash`).
+- Tests: Unit `tests/unit/tattoo/flash-gallery-link.unit.spec.ts`, E2E `tests/e2e/tattoo/flash-gallery-link.e2e.spec.ts`
+  (beide Richtungen, Kundenfoto ohne Einwilligung ohne Link, DE/EN) plus bestehende Flash-/Galerie-E2E grün.
+## 2026-10-09 – P14.6 Leine ruhiger beim Umwickeln (U-55)
+
+- Ursache: Die Scroll-Abbildung gab jeder Schlaufe einen festen Scroll-Weg (`loopScroll`, 280–480 px). Umrundungen
+  (`contour`, 1 400–2 700 px Bogen) liefen so mit 3,2–5,6 px Linie je px Scroll, dicht liegende Schlaufen (Shop/Tattoo)
+  bekamen nur 1 px Scroll-Weg (bis 226 px Linie auf 1 px) – Coco und Tinte schossen dort los.
+- Lösung 1 (Geometrie, `capDrawRate`): kleinstes erreichbares Höchsttempo ≥ 1,8 px/px (`MAX_DRAW_RATE`), wobei kein
+  Knoten mehr als 0,2 × Bildschirmhöhe (`MAX_LOOP_SHIFT`) von seiner Station wegrückt; der ruhige Weg davor/danach gibt
+  dafür Scroll-Weg ab. Gemessen (Dev-Server): Startseite 390/1280 px max. 2,5/2,3 (vorher 3,6/3,2), Shop 1,8/4,2
+  (vorher 1,8/5,6), Tattoo 1,9/2,9 (vorher 226/161), Über uns 1,8.
+- Lösung 2 (Laufzeit): Coco und damit die Tinte rücken höchstens `COCO_MAX_SPEED` = 1,6 px/ms vor (geglättet wie
+  bisher, Sprünge > 300 px Bogen weiter direkt) – glättet, was die Abbildung nicht ausgleichen kann.
+- Gilt für alle Seiten mit scrollgekoppelter Leine (Startseite, Shop, Tattoo, Über uns). Engine gzip 11 762 / 12 000 B.
+- Tests: Unit `leash/draw-rate` (Grenzwert, Wegrücken ≤ Schranke, dichte Schlaufen, Fixtures 390–1440 px),
+  `leash/runtime` (Höchsttempo je Frame für Coco und Tinte), alle Leash-Unit-Tests grün; E2E `home-choreo`, `leash`,
+  `art-gate` LG-01 (Probe übergeht jetzt zugeklappten `<details>`-Inhalt per `checkVisibility()`).
+- Nachtrag (Produktions-Build): Auf R11 (Handy) stand Coco auf der Galerie-Umrundung jetzt öfter knapp unter „Fresh &
+  healed“ – 16 px mehr Luft unter dieser Überschrift (LG-01). Tastatur-Durchlauf zählt zugeklappten `<details>`-Inhalt
+  nicht mehr als Tab-Ziel (U-51). Gegen `next start`: E2E Startseite, Kompass, Tour, Koko (inkl. „Tempo mobil“ LCP/CLS),
+  Choreografie, Leine, Leine Shop/Tattoo (LG-01), Kunst-Gate, Tattoo, Über uns, Tastatur – grün.
+
+## 2026-10-09 – P14.5 Koko lädt schneller (U-54)
+
+- `koko-cutout.py` schreibt zusätzlich AVIF und schmale Fassungen: `koko.v3{-360,-520,}.{avif,webp}` (WebP 700 px und
+  `koko.json` unverändert, Lauf deterministisch). AVIF: 13,0 / 20,0 / 30,3 KB statt WebP 23,0 / 37,0 / 54,0 KB.
+- `<picture>` mit AVIF vor WebP, `srcset` 360w/520w/700w und `sizes` passend zur Spalte. Vorrang nur dort, wo Koko im
+  ersten Bild steht: `<link rel=preload as=image type=image/avif fetchpriority=high media="(min-width: 1100px)">` (auf dem
+  Handy liegt Koko unter dem Falz; dort ist das Foto von Jutta und Coco der LCP-Kandidat und lädt sofort).
+- Budget: `tests/perf/budgets.json` → `koko` (AVIF ≤ 32 KB, WebP ≤ 56 KB je Breite, AVIF < WebP), Gate in
+  `check:bundle` (`checkKokoImages`); Unit `check-bundle`, E2E `home-koko` (AVIF gewählt, Quellen, Rückfall).
+
+## 2026-10-09 – P14.4 Koko schläft nachts (U-53)
+
+- `kokoAsleep(now)` (`src/lib/home/kokoSleep.ts`): Berliner Uhrzeit 22:00–06:59 → Koko hat die Lider zu. Die Startseite
+  entscheidet beim Rendern mit `tourNow()` (Testumgebung: `SEED_NOW`), ISR ≤ 1 h wie bei den Tour-Terminen.
+- Lider (`kokoLids.ts`): je Auge eine Lidfläche in Fellschwarz über dem gemalten Augapfel (Clip aus `koko.json`), zittrige
+  Tusche-Unterkante als müder Bogen, helle Haarstriche wie in der Malerei; keine Pupillen, keine Bewegung, eigener
+  Alt-Text („die Augen sind zu – nachts schläft Koko“, DE/EN).
+- Tests: Unit `home/koko-sleep` (Sommer-/Winterzeit, Umstellungstage, SEED_NOW, Lid-Geometrie); E2E `home-koko` prüft den
+  Zustand passend zur Uhr (lokal zusätzlich mit `SEED_NOW=…T23:00+02:00` gegen den Server: Lider, keine Animation).
+
+## 2026-10-09 – P14.3 Stations-Kompass (U-52)
+
+- Unter dem Kopf der Startseite eine Sprungleiste `<nav aria-label="Stationen">` mit je Station Marke (Planet/Stern aus
+  `SpaceMarks`; Stationen ohne Ornament abwechselnd Planet/Stern) und Namen; reine Anker auf `section#station-<id>`
+  (Überschrift jetzt `#station-<id>-title`), kein Skript, Ziele ≥ 44 × 44 px, `scroll-margin-top` unter der Kopfleiste.
+- Tests: E2E `home/compass` (desktop, pixel-7, iphone-15: 5 Anker DE/EN, Marken, Zielgrößen, Enter-Sprung je Station
+  unter die Kopfleiste, ohne JavaScript).
+
+## 2026-10-09 – P14.2 Handy: Tour hinter Station 01, eingeklappt (U-51)
+
+- Unter 1100 px steht der Schaukasten als zugeklapptes `<details>` („Planet Claire on Tour“ + „nächster Termin: … – …“)
+  zwischen Station 01 und 02; ab 1100 px unverändert offen oben rechts (Zusammenfassung per CSS `::details-content`
+  ausgeblendet, Inhalt sofort sichtbar; Verhaltensmodul `tour-fold` setzt danach `open`, damit WebKit/VoiceOver den
+  Inhalt auch vorliest). Ein einziges Element: per Grid-Reihenfolge umgestellt (`display: contents` an den
+  Stations-Hüllen unter 1100 px), keine doppelten Inhalte.
+- Tests: E2E `home-tour` (desktop, pixel-7, iphone-15: Reihenfolge, zu/auf per Tastatur, Desktop offen, ohne JS
+  aufklappbar), a11y/Tastatur-Specs; Unit `tour-fold`, Verhaltens-Vertrag; Budget-Gruppe „Shop-Listen“ um `tour-fold`
+  ergänzt.
+
+## 2026-10-09 – P14.1 Startseite oben: Foto | Koko | Tour, Station „Jutta & Coco“ entfällt (U-50)
+
+- Unter Titel und Einleitung (volle Breite) ab 1100 px drei Spalten: links das Foto von Jutta und Coco (klein, 230 px,
+  Goth-Fotorahmen, `loading="eager"`) mit dem Text der früheren Station „Jutta & Coco“ und „Mehr über uns“ → R19, Mitte
+  Koko, rechts Schaukasten + Instagram; 600–1099 px Foto/Text und Koko nebeneinander, Handy untereinander.
+- Pflegbar: Foto und Text sind der Block „Bild mit Text“ der Startseite (Seed `pages:home`, Verwaltung → Texte → Startseite
+  „Oben links: Foto mit Text“); das Foto erscheint nur mit Freigabe (R-181, `isMediaPubliclyVisible`). Die Station
+  `jutta-und-coco` ist aus dem Seed entfernt und steht in `RETIRED_STATION_IDS`; Stationen 01–05.
+- Tests: Int `home-data`, `pages-faqs`, `example`, `pages-adopt` (29 grün); E2E `home`, `home/*`, `home-tour`,
+  `home-choreo` (desktop + pixel-7, 33 grün; „Tempo mobil“ nur am Dev-Server rot, siehe P14.5); `pnpm check` grün.
+
 ## 2026-10-08 – P13 abgeschlossen: zweite Runde nach deiner Rückmeldung – für Jutta
 
 Hallo Jutta,

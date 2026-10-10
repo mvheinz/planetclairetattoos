@@ -1381,19 +1381,20 @@ Bearbeiten (adopt). Link-Felder nach `internalLinkFields()`.
 
 ### 13.1 `home` – Titel „Startseite“ / “Home”
 
-Reihenfolge fest (KONZEPT AK-3-01): `hero` + 6 `station`-Blöcke (seit U-40/P13.1 ohne die frühere Station `hallo` „Komm näher.“; Keramik = Station 01). Stationsbilder sind Code-Assets
+Reihenfolge fest (KONZEPT AK-3-01): `hero` + `imageText` + 5 `station`-Blöcke (seit U-40/P13.1 ohne die frühere Station `hallo` „Komm näher.“; Keramik = Station 01; seit U-50/P14.1 ohne die Station `jutta-und-coco` – ihr Text steht im Block `imageText` „Oben links: Foto mit Text“ unter dem Foto von Jutta und Coco, `media:own:jutta-coco`, Link „Mehr über uns“ fest). Stationsbilder sind Code-Assets
 (`src/art/stations/{stationId}.svg`, DESIGN §12.4) → Feld `image` bleibt leer.
 
 | # | Block | `stationId` | `heading` DE / EN | `cocoPose` | `ornament` | `link` (`target` · Label DE / EN) |
 |---|---|---|---|---|---|---|
 | 0 | hero | – | Tattoos & handgemachte Unikate aus Berlin / Tattoos & handmade one-offs from Berlin | run | – | – |
 | ~~1~~ | ~~station~~ | ~~`hallo`~~ | entfällt (U-40, P13.1) | – | – | – |
+| 1a | imageText (`image` own:jutta-coco) | – | – (Text der früheren Station 7, oben links unter dem Foto, U-50) | – | – | – (Link „Mehr über uns“ / “More about us” → R19 fest) |
 | 2 | station | `keramik` | Keramik / Ceramics | sniff | planet | category `keramik` · Alle Keramik / All ceramics |
 | 3 | station | `textil` | Textil & Caps / Textiles & caps | sniff | star | category `textil` · Alle Textilien / All textiles |
 | 4 | station | `zeichnungen` | Zeichnungen / Drawings | sit | none | category `zeichnung` · Alle Zeichnungen / All drawings |
 | 5 | station | `schmuck` | Schmuck / Jewellery | jump | none | category `schmuck` · Zum Schmuck / See the jewellery |
 | 6 | station | `tattoo` | Tattoo / Tattoo | head_tilt | planet | tattoo · Zum Tattoo-Bereich / Go to tattoos |
-| 7 | station | `jutta-und-coco` | Jutta & Coco / Jutta & Coco | sit | star | about · Mehr über uns / More about us |
+| ~~7~~ | ~~station~~ | ~~`jutta-und-coco`~~ | entfällt (U-50, P14.1) – Text in Block 1a | – | – | – |
 
 Texte (`subheading` bzw. `text`, ≤ 400 Zeichen):
 
@@ -1406,7 +1407,7 @@ Texte (`subheading` bzw. `text`, ≤ 400 Zeichen):
 | 4 | Tusche, Aquarell, Skizzenbuchseiten. Hier fängt eigentlich alles an. | Ink, watercolour, sketchbook pages. This is where it all starts, really. |
 | 5 | Winzige Anhänger aus Keramik: Füchse, Planeten, Rehköpfchen. Klein genug für die Hosentasche, groß genug für gute Laune. | Tiny ceramic pendants: foxes, planets, little deer. Small enough for your pocket, big enough for a good mood. |
 | 6 | Fine Line, naiv, mit Humor. Flash mit Festpreis oder deine eigene Idee – Anfragen per Mail, gestochen wird im Privatstudio in Berlin. | Fine line, naive, with a sense of humour. Flash with fixed prices or your own idea – ask by email, tattooed in a private studio in Berlin. |
-| 7 | Werkstatt unter der Woche, Flohmarkt am Wochenende, Coco immer dabei. Und falls du eine eigene Idee hast: Auftragsarbeiten gehen auch. | Workshop during the week, flea market at the weekend, Coco always along. And if you've got your own idea: commissions are possible too. |
+| 1a (früher 7) | Werkstatt unter der Woche, Flohmarkt am Wochenende, Coco immer dabei. Und falls du eine eigene Idee hast: Auftragsarbeiten gehen auch. | Workshop during the week, flea market at the weekend, Coco always along. And if you've got your own idea: commissions are possible too. |
 
 ### 13.2 `about` – „Jutta & Coco“ / “Jutta & Coco”
 
@@ -1688,7 +1689,7 @@ Kunden-E-Mail. Bezug `checkout` nur, wenn die Kasse noch existiert (§7.3).
 | AK-SEED-15 | Ein echtes Stück Nr. 17 und ein echter Umsatz `2026-09/tattoo` bleiben bei `seed`, `seed:remove` und `seed:reset` unverändert; der Seed überspringt belegte (`month`, `source`) | int |
 | AK-SEED-16 | `resolveSeedTime` erfüllt die Tabelle §2.2; ein ungültiges `SEED_NOW` (kein ISO 8601 mit Offset) → Exit 1 | unit |
 | AK-SEED-17 | Übernahme: Speichern von FAQ05 im Admin setzt `seed = false`; ein weiterer `pnpm seed` legt FAQ05 nicht neu an und ändert es nicht | int |
-| AK-SEED-18 | Startseite liefert `hero` + genau 6 Stationen mit `stationId` `keramik`, `textil`, `zeichnungen`, `schmuck`, `tattoo`, `jutta-und-coco` in dieser Reihenfolge | int |
+| AK-SEED-18 | Startseite liefert `hero` + `imageText` (Foto von Jutta und Coco) + genau 5 Stationen mit `stationId` `keramik`, `textil`, `zeichnungen`, `schmuck`, `tattoo` in dieser Reihenfolge (U-50) | int |
 | AK-SEED-19 | Kein importiertes Bild stammt aus Highlights/`profil.jpg`; `DdHXUQsDjqm` existiert nur als Ausschnitt `#cap` (crop % 16, 0, 68, 45; die Prüfung rechnet die Pixel aus den tatsächlichen Quellmaßen – bei der 480×640-Quelle 77, 0, 326, 288) | int |
 | AK-SEED-20 | Status-URLs aus `seedToken('orders:<Key>', 'status')` für O01, O10, O13 und Danke-URLs aus `seedToken('checkouts:<Key>', 'checkout')` für O13, O14 öffnen die Seiten und zeigen „Beispiel“; ein anderer Token liefert 404; `seedToken()` hängt nicht von `PAYLOAD_SECRET` ab | e2e |
 | AK-SEED-21 | Nach `pnpm seed` mit `SEED_PREVIEW_MODE=true` und `APP_ENV=preview`: Monats-CSV, DATEV-Export, Rechnungs-ZIP und der Jahres-Export der Verpackungsmengen (`GET /api/admin/packaging-report?year=`) enthalten keinen Datensatz mit `seed = true` (bei reinem Beispielbestand: nur Kopfzeile bzw. leeres Archiv) | int |

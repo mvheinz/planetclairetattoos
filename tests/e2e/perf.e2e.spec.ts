@@ -12,6 +12,10 @@ import budgets from '../perf/budgets.json'
 
 const { interaction } = budgets
 
+/** CPU-Drosselung: Budget-Wert (4×); die lokale Prüfschleuse passt sie an einen langsameren Rechner an (U-65,
+ *  `PERF_CPU_RATE` aus `scripts/ci/lighthouse-calibrated.ts --rate`, Lighthouse docs/throttling.md). */
+const cpuRate = () => Number(process.env.PERF_CPU_RATE) || interaction.cpuThrottling
+
 test.beforeEach(({ browserName }, testInfo) => {
   test.skip(
     testInfo.project.name !== 'pixel-7' || browserName !== 'chromium',
@@ -65,7 +69,7 @@ async function observe(page: Page) {
 
 async function throttle(page: Page) {
   const cdp = await page.context().newCDPSession(page)
-  await cdp.send('Emulation.setCPUThrottlingRate', { rate: interaction.cpuThrottling })
+  await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuRate() })
   return cdp
 }
 

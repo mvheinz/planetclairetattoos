@@ -1,5 +1,8 @@
 name: Kunst-QA
 
+# Seit U-65 nur per Hand – Prüfungen laufen lokal (pnpm ci:local). Keine automatischen Auslöser (keine Actions-Minuten);
+# der Inhalt bleibt als Vorlage (ARCHITEKTUR §6, docs/KONZEPT-OHNE-ACTIONS.md).
+
 # KUNST-QA §8/§9, ARCHITEKTUR §6.2 (P9.7): Aufnahme, Auswertung und Bündel der Kunst-Abnahme. Kein push-Auslöser.
 # Arbeitet nur, wenn der PR-Kopf-Commit `[ci:art]` trägt oder am PR das Label `art` hängt (bei `labeled` nur, wenn das
 # gesetzte Label `art` ist), oder per Hand (`workflow_dispatch`, geht erst, wenn die Datei auf main liegt); sonst endet
@@ -7,8 +10,6 @@ name: Kunst-QA
 # Grün → ältere `art-qa-*` löschen, dann `art-qa-<lauf-id>` (≤ 100 MB, 30 Tage) hochladen (höchstens ein Bündel);
 # rot → nach dem Budget-Schritt nur `art-qa-check-<lauf-id>` mit `check.*` und `metrics/*.json` (≤ 5 MB, 2 Tage).
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, labeled]
   workflow_dispatch:
 
 concurrency:

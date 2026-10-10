@@ -15,8 +15,11 @@ import { statusLabelAttrs } from '@/components/shop/statusLabels'
 import { WarrantyNotice } from '@/components/shop/WarrantyNotice'
 import { Button } from '@/components/ui/Button'
 import { Callout } from '@/components/ui/Callout'
+import { ShareButton } from '@/components/ui/ShareButton'
 import { StaticHtml } from '@/components/StaticHtml'
+import { ICON_MAIL } from '@/components/icons/icons.generated'
 import { listAllCategories } from '@/lib/data/categories'
+import { getContactInfo } from '@/lib/data/contact'
 import {
   getPublicProductByItemNumber,
   getUntranslatedFields,
@@ -35,12 +38,15 @@ import { getSnippet } from '@/lib/legal/snippets'
 import type { FiberRow } from '@/lib/products/fibers'
 import { localizedPath } from '@/lib/routes/paths'
 import { BUY_NOTE_CODES, BUY_NOTE_FRAGMENTS, IN_CART_FRAGMENT } from '@/lib/shop/buyArea'
+import { productMailto } from '@/lib/shop/mailto'
 import { buyState, canAddToCart, foodContactDisplay } from '@/lib/shop/productState'
+import { absoluteUrl } from '@/lib/seo/metadata'
 import {
   formatCondition,
   formatDimensions,
   formatFibers,
   formatItemNumber,
+  productPath,
 } from '@/lib/shop/format'
 import { safetyWarningTexts } from '@/lib/shop/productInfo'
 
@@ -103,20 +109,32 @@ export async function ProductPage({
   /** Entwurfs-Vorschau in der Verwaltung (PLAN P5.6): Kaufknopf gesperrt, keine Kauf-Leiste. */
   preview?: boolean
 }) {
-  const [t, tBadges, tList, tCard, settings, categories, untranslated, info, related, german] =
-    await Promise.all([
-      getTranslations({ locale, namespace: 'shop.product' }),
-      getTranslations({ locale, namespace: 'shop.badges' }),
-      getTranslations({ locale, namespace: 'shop.list' }),
-      getTranslations({ locale, namespace: 'shop.card' }),
-      getShopDisplaySettings(locale),
-      listAllCategories(locale),
-      getUntranslatedFields(product.itemNumber, locale),
-      getProductInfoSettings(locale),
-      listRelatedProducts(product, 4, locale),
-      // Warnhinweise stehen immer auch auf Deutsch (R-040).
-      locale === 'de' ? product : getPublicProductByItemNumber(product.itemNumber, 'de'),
-    ])
+  const [
+    t,
+    tBadges,
+    tList,
+    tCard,
+    settings,
+    categories,
+    untranslated,
+    info,
+    related,
+    german,
+    contact,
+  ] = await Promise.all([
+    getTranslations({ locale, namespace: 'shop.product' }),
+    getTranslations({ locale, namespace: 'shop.badges' }),
+    getTranslations({ locale, namespace: 'shop.list' }),
+    getTranslations({ locale, namespace: 'shop.card' }),
+    getShopDisplaySettings(locale),
+    listAllCategories(locale),
+    getUntranslatedFields(product.itemNumber, locale),
+    getProductInfoSettings(locale),
+    listRelatedProducts(product, 4, locale),
+    // Warnhinweise stehen immer auch auf Deutsch (R-040).
+    locale === 'de' ? product : getPublicProductByItemNumber(product.itemNumber, 'de'),
+    getContactInfo(),
+  ])
   const de = (field: ProductTextField) =>
     locale !== 'de' && untranslated.includes(field) ? 'de' : undefined
 
@@ -170,12 +188,31 @@ export async function ProductPage({
       <input type="hidden" name="locale" value={locale} />
     </>
   )
+  // U-57 a: „Frag nach diesem Stück“ – Mail an die Kontaktadresse, Betreff „Frage zu Nr. 017 – {Titel}“ (kein Formular).
+  const pageUrl = absoluteUrl(productPath(product, locale))
+  const askHref = preview
+    ? null
+    : productMailto(
+        contact.email,
+        { itemNumber: product.itemNumber, title: product.title, url: pageUrl },
+        locale,
+      )
   const soldView = (
     <>
       <p className={styles.soldText} data-sold-text="">
         {t('soldText')}
       </p>
       <ul className={styles.soldLinks}>
+        <li>
+          {/* U-57 b: verkauft → Auftragsarbeiten (R10) */}
+          <Button
+            variant="secondary"
+            href={localizedPath('R10', locale)}
+            data={{ 'data-ask-similar': '' }}
+          >
+            {t('askSimilar')}
+          </Button>
+        </li>
         <li>
           <Button variant="secondary" href={similarHref}>
             {t('similar')}
@@ -204,6 +241,7 @@ export async function ProductPage({
       {/* 1. Galerie (KO-09) */}
       <ProductGallery
         images={product.images}
+        scalePhoto={product.scalePhoto}
         title={product.title ?? categoryName}
         locale={locale}
       />
@@ -443,6 +481,18 @@ export async function ProductPage({
             <div className={styles.soldView} data-sold-view="" hidden>
               {soldView}
             </div>
+            {askHref ? (
+              <p className={styles.ask} data-product-ask-row="">
+                <Button
+                  variant="link"
+                  href={askHref}
+                  icon={ICON_MAIL}
+                  data={{ 'data-product-ask': '' }}
+                >
+                  {t('ask')}
+                </Button>
+              </p>
+            ) : null}
           </>
         )}
         <p className={styles.area} data-delivery-area="">
@@ -451,6 +501,18 @@ export async function ProductPage({
             : t('deliveryAreaNoPickup')}
         </p>
       </div>
+
+      {/* U-61: Teilen (Teilen-Menü des Geräts, sonst „Link kopieren“) */}
+      {!preview ? (
+        <ShareButton
+          url={pageUrl}
+          title={product.title ?? categoryName}
+          text={formatItemNumber(product.itemNumber, locale)}
+          locale={locale}
+          id={`nr-${product.itemNumber}`}
+          className={styles.share}
+        />
+      ) : null}
 
       {/* Ab hier reines Server-Markup ohne Formulare: statisches HTML, nicht hydriert (`StaticHtml`, TBT P7). */}
 

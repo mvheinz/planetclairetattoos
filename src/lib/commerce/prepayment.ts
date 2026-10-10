@@ -258,8 +258,8 @@ async function flagPaidDespitePrepayment(
       summary: 'Vorkasse bestellt, aber Karte/PayPal bezahlt – bitte eine Zahlung erstatten',
       affected: `Bestellung ${order.orderNumber}: Betrag ${money(order.totalCents, 'de')}, Session ${sessionId}`,
       automatic: 'Keine zweite Bestellung; die Vorkasse-Bestellung ist markiert.',
-      todo: 'Bitte eine der beiden Zahlungen erstatten (Karte/PayPal im Stripe-Dashboard).',
-      adminPath: `/collections/orders/${order.id}`,
+      todo: 'Bitte eine der beiden Zahlungen erstatten: in der Bestellung unter „Zahlungen ohne Bestellung“ auf „Erstatten“ tippen (oder im Stripe-Dashboard).',
+      adminPath: `/bestellungen/${order.id}`,
       now,
     })
     log.warn('prepayment.paid_despite_prepayment', { orderId: order.id })

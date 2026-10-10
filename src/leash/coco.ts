@@ -261,7 +261,8 @@ export function mountCoco(el: HTMLElement, options: CocoOptions): CocoController
 
   function setBoil(on: boolean) {
     const was = el.getAttribute('data-boil') === 'on'
-    if (on && !was) origin = now() // CSS-Animation startet neu → neues Frame-Raster
+    if (on === was) return // im Lauf jeden Frame aufgerufen: nichts schreiben (PF-03)
+    if (on) origin = now() // CSS-Animation startet neu → neues Frame-Raster
     el.setAttribute('data-boil', on ? 'on' : 'off')
   }
 

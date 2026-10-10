@@ -22,6 +22,8 @@ import {
   type CheckoutStatus,
 } from '@/lib/enums'
 import { getAppContext, requestNow } from '@/lib/payload/context'
+import { strayPaymentEndpoints } from '@/endpoints/strayPayments'
+import { STRAY_PAYMENT_KINDS, STRAY_REFUND_STATUSES } from '@/lib/commerce/strayPaymentRules'
 
 import { failField, groupOf, rejectChanges, SHA256_HEX, UUID_V4 } from './hooks/commerce'
 
@@ -286,7 +288,50 @@ export const Checkouts: CollectionConfig = {
         { name: 'failedAt', type: 'date', admin: ro },
       ],
     },
+    {
+      // U-58 a (J-26/J-27, KONZEPT §4.11 S16/S17): Zahlungen ohne eigene Bestellung – Knopf „Erstatten“ in der Verwaltung.
+      name: 'strayPayments',
+      type: 'array',
+      label: 'Zahlungen ohne Bestellung',
+      admin: {
+        readOnly: true,
+        description:
+          'Zu spät (Kasse schon beendet) oder zusätzlich zur Vorkasse bezahlt. Erstatten über „Heute“ oder die Bestellung.',
+      },
+      fields: [
+        {
+          name: 'kind',
+          type: 'select',
+          label: 'Art',
+          required: true,
+          options: [
+            { label: 'nach Ende der Kasse (S16)', value: STRAY_PAYMENT_KINDS[0] },
+            { label: 'zusätzlich zur Vorkasse (S17)', value: STRAY_PAYMENT_KINDS[1] },
+          ],
+        },
+        { name: 'paymentIntentId', type: 'text', label: 'Zahlung (PaymentIntent)', required: true },
+        { name: 'sessionId', type: 'text', label: 'Session' },
+        moneyField('amountCents', { label: 'Betrag' }),
+        { name: 'receivedAt', type: 'date', label: 'Eingegangen am', required: true },
+        {
+          name: 'refundStatus',
+          type: 'select',
+          label: 'Erstattung',
+          defaultValue: 'none',
+          options: [
+            { label: 'noch nicht erstattet', value: STRAY_REFUND_STATUSES[0] },
+            { label: 'läuft', value: STRAY_REFUND_STATUSES[1] },
+            { label: 'erstattet', value: STRAY_REFUND_STATUSES[2] },
+            { label: 'fehlgeschlagen', value: STRAY_REFUND_STATUSES[3] },
+          ],
+        },
+        { name: 'refundId', type: 'text', label: 'Erstattungs-ID' },
+        { name: 'refundAttempts', type: 'number', label: 'Versuche', defaultValue: 0, min: 0 },
+        { name: 'refundedAt', type: 'date', label: 'Erstattet am' },
+      ],
+    },
     ...seedField(),
   ],
+  endpoints: strayPaymentEndpoints,
   hooks: { beforeChange: [guardCheckout] },
 }

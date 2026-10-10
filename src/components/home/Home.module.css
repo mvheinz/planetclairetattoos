@@ -4,37 +4,50 @@
 .home {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-areas:
-    'hero'
-    'aside'
-    'body'
-    'foot';
   row-gap: var(--space-8);
 }
 
+/* Über die ganze Breite: Kopf-Station, Stationen, Fußnote. */
+.hero,
+.body,
+.footnote {
+  grid-column: 1 / -1;
+}
+
 .body {
-  grid-area: body;
   min-width: 0;
 }
 
-/* Oben rechts (P12.8 U-20, P13.3 U-42): Koko (`data-slot="chairwoman"`) und direkt rechts daneben der schmale Schaukasten
-   „Planet Claire on Tour“ mit dem Instagram-Hinweis (`data-slot="tour"`). Handy: untereinander unter dem Kopf der Seite;
-   ab 600 px nebeneinander unter dem Kopf; ab 1100 px rechts neben dem Titel „Planet Claire“ (beides über dem Falz bei
-   1280 × 800), die Stationen laufen darunter über die volle Breite. */
-.aside {
-  grid-area: aside;
+/* Oben (P14.1, U-50): links das Foto von Jutta und Coco mit dem Text darunter (`data-slot="intro"`), in der Mitte Koko
+   (`data-slot="chairwoman"`), rechts der schmale Schaukasten „Planet Claire on Tour“ mit dem Instagram-Hinweis
+   (`data-slot="tour"`). Handy: untereinander (Foto + Text, Koko, Schaukasten); ab 600 px Foto + Text und Koko
+   nebeneinander; ab 1100 px drei Spalten unter dem Titel. */
+.intro {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--space-5);
+  gap: var(--space-4);
   min-width: 0;
+  max-width: 28rem;
+}
+
+/* Foto klein (U-50: „kleiner“) im Goth-Fotorahmen, Seitenverhältnis 3 : 4 wie das Original. */
+.introPhoto {
+  width: min(220px, 64vw);
+  flex: none;
+}
+
+.introText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 /* Benannter Platz für Koko */
 .chairwomanSlot {
   width: min(100%, 17rem);
   min-width: 0;
-  align-self: center;
+  justify-self: center;
 }
 
 .chairwomanSlot:empty {
@@ -51,64 +64,117 @@
 }
 
 @media (min-width: 600px) {
-  .aside {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: var(--space-5);
+  .home {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--space-6);
+  }
+
+  .intro {
+    grid-column: 1;
   }
 
   .chairwomanSlot {
-    flex: 0 1 15rem;
-    align-self: flex-start;
+    grid-column: 2;
+    justify-self: start;
+    align-self: start;
+    width: min(100%, 15rem);
+  }
+
+  /* ohne Foto-Block steht Koko vorn */
+  .home[data-home-layout='plain'] .chairwomanSlot {
+    grid-column: 1;
   }
 
   .tourCol {
-    flex: 1 1 14rem;
-    max-width: 18rem;
+    grid-column: 1 / -1;
+    max-width: 26rem;
+  }
+}
+
+/* U-51 (P14.2): unter 1100 px steht der (eingeklappte) Schaukasten hinter Station 01 – dasselbe Element, nur per
+   Grid-Reihenfolge umgestellt: Die Hüllen der Stationen lösen sich dafür auf (`display: contents`), die Stationen werden
+   Zeilen des Seitenrasters. Im Quelltext (Lese- und Tab-Reihenfolge) bleibt er oben bei Foto und Koko. */
+@media (max-width: 1099.98px) {
+  .home .body,
+  .home .stations {
+    display: contents;
+  }
+
+  .hero {
+    order: 0;
+  }
+
+  .compass {
+    order: 1;
+  }
+
+  .intro {
+    order: 2;
+  }
+
+  .chairwomanSlot {
+    order: 3;
+  }
+
+  .home .stations > *,
+  .home .body > * {
+    order: 6;
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  .home .stations > :first-child {
+    order: 4;
+  }
+
+  .tourCol {
+    order: 5;
+  }
+
+  .footnote {
+    order: 7;
   }
 }
 
 @media (min-width: 1100px) {
+  /* links schmal (Foto ≈ 230 px, Text darunter), Koko mittig im freien Raum, rechts der Schaukasten */
   .home {
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      'hero aside'
-      'body body'
-      'foot foot';
-    column-gap: var(--space-6);
+    grid-template-columns: 17rem minmax(0, 1fr) 14.5rem;
   }
 
-  .aside {
-    gap: var(--space-4);
+  .introPhoto {
+    width: 230px;
   }
 
-  /* Koko links, der Schaukasten schmal rechts daneben */
   .chairwomanSlot {
-    flex: none;
-    width: clamp(13rem, 20vw, 16rem);
+    grid-column: 2;
+    justify-self: center;
+    width: clamp(13rem, 22vw, 17rem);
   }
 
-  .tourCol {
-    flex: none;
-    width: 14.5rem;
+  .home[data-home-layout='plain'] .chairwomanSlot {
+    grid-column: 2;
   }
 
   /* Nicht „sticky“: aufgeklappte Termine machen die Spalte länger – sie schiebt die Stationen dann nach unten. */
-  .aside {
+  .tourCol {
+    grid-column: 3;
     align-self: start;
+    width: 14.5rem;
   }
 }
 
 /* ---------- Kopf-Station ---------- */
 
 .hero {
-  grid-area: hero;
   display: flex;
   flex-direction: column;
   /* P12.13 (LG-01): 32 px – Coco ist 25 % größer (P12.4); ihre Box (bis 0,96–0,99 der Höhe Pfoten) endete 1 px im Untertitel-Zeilenrechteck.
      (frühere Begründung:) 24 px statt 16 px zwischen Marke und Untertitel – Coco sitzt beim Schlaufenende neben der Marke, ihre Pfoten (bis 0,96–0,99 der Box) bleiben so aus dem Untertitel-Zeilenrechteck. */
   gap: var(--space-6);
-  max-width: 40rem;
+  min-width: 0;
+  /* Abstand zur Zeile darunter (Foto, Koko, Schaukasten) kleiner als zwischen den Stationen: 32 bzw. 48 px */
+  margin-block-end: calc(var(--space-6) - var(--space-8));
 }
 
 .title {
@@ -153,6 +219,7 @@
 }
 
 .lede {
+  max-width: 40rem;
   font-size: var(--fs-lede);
   font-weight: 600;
   line-height: 1.35;
@@ -161,6 +228,70 @@
 .intro {
   max-width: 36rem;
   color: var(--ink-2);
+}
+
+/* ---------- Stations-Kompass (U-52, P14.3) ---------- */
+
+/* Sprungleiste unter dem Kopf: je Station Marke + Name, reine Anker. Ziele ≥ 44 px hoch, umbrechend, kein Skript. */
+.compass {
+  grid-column: 1 / -1;
+  min-width: 0;
+  /* wie der Kopf: kleiner Abstand zur Zeile darunter */
+  margin-block-end: calc(var(--space-6) - var(--space-8));
+}
+
+.compassList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.compassLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 var(--space-3) 0 var(--space-2);
+  border: 1px dashed transparent;
+  border-radius: var(--r-badge);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--fs-kicker);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.compassLink:hover {
+  border-color: var(--ink-2);
+}
+
+.compassLink:focus-visible {
+  outline: var(--stroke-ink) solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.compassMark {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.compassMark[data-compass-mark='planet'] svg {
+  width: 24px;
+  height: 24px;
+}
+
+.compassMark[data-compass-mark='star'] svg {
+  width: 15px;
+  height: 15px;
 }
 
 /* ---------- Stationen ---------- */
@@ -173,8 +304,12 @@
 
 .station {
   display: grid;
-  gap: var(--space-5);
+  /* Handy 48 px zwischen Text und Zeichnung: die Umrundung der Zeichnung (P13.5) und Coco darauf bleiben aus der
+     letzten Textzeile (LG-01, P14.14 – mit den verschobenen Schlaufen aus U-55 lag Coco sonst knapp am Text) */
+  gap: var(--space-7);
   align-items: start;
+  /* Sprungziel des Kompasses: Abstand zur klebenden Kopfleiste (U-52) */
+  scroll-margin-top: calc(var(--header-h) + var(--space-5));
 }
 
 .stationText {
@@ -231,16 +366,6 @@
   margin-top: var(--space-2);
 }
 
-/* Station „Jutta & Coco“: weitere Wege (Auftragsarbeiten, Instagram) unter „Mehr über uns“. */
-.moreLinks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-4);
-  margin: var(--space-2) 0 0;
-  padding: 0;
-  list-style: none;
-}
-
 /* Regal der Kategorie-Stationen (KO-21, P3.12): unter Text und Zeichnung über die volle Breite; Abstand hält die
    Schlaufe um die Zeichnung (`lasso`) frei. */
 .shelf {
@@ -273,7 +398,6 @@
 }
 
 .footnote {
-  grid-area: foot;
   max-width: 44rem;
 }
 
@@ -318,7 +442,18 @@
 }
 
 @media (min-width: 768px) {
-  .home,
+  .home {
+    row-gap: var(--space-9);
+  }
+
+  .hero {
+    margin-block-end: calc(var(--space-7) - var(--space-9));
+  }
+
+  .compass {
+    margin-block-end: calc(var(--space-6) - var(--space-9));
+  }
+
   .stations {
     gap: var(--space-9);
   }
@@ -326,7 +461,9 @@
   /* Zeichnung links an der Rinne, Text rechts: `lasso`/`contour` um die Zeichnung kreuzen so keinen Text. */
   .station {
     grid-template-columns: auto minmax(0, 1fr);
-    column-gap: var(--space-7);
+    /* 64 px: Coco auf der Umrundung der Zeichnung ragt nicht in die Textspalte (LG-01, P14.14) */
+    column-gap: var(--space-8);
+    row-gap: var(--space-5);
   }
 
   .station > .artFrame {

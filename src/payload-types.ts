@@ -1046,6 +1046,23 @@ export interface Checkout {
     cancelledAt?: string | null;
     failedAt?: string | null;
   };
+  /**
+   * Zu spät (Kasse schon beendet) oder zusätzlich zur Vorkasse bezahlt. Erstatten über „Heute“ oder die Bestellung.
+   */
+  strayPayments?:
+    | {
+        kind: 'late' | 'double';
+        paymentIntentId: string;
+        sessionId?: string | null;
+        amountCents?: number | null;
+        receivedAt: string;
+        refundStatus?: ('none' | 'pending' | 'succeeded' | 'failed') | null;
+        refundId?: string | null;
+        refundAttempts?: number | null;
+        refundedAt?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   seed?: boolean | null;
   seedKey?: string | null;
   updatedAt: string;
@@ -1302,6 +1319,10 @@ export interface Product {
    * Erstes Bild = Titelbild; Reihenfolge per Ziehen. Empfohlen 2–12 Fotos im Hochformat 4:5.
    */
   images?: (number | Media)[] | null;
+  /**
+   * Ein Foto mit etwas Bekanntem daneben – z. B. deiner Hand, einer Tasse oder einem Lineal –, damit man die Größe gut einschätzen kann. Es erscheint auf der Stückseite als letztes Bild mit „Zum Größenvergleich“.
+   */
+  scalePhoto?: (number | null) | Media;
   status: 'draft' | 'available' | 'reserved' | 'sold' | 'archived';
   showInArchiveAfterSale?: boolean | null;
   firstPublishedAt?: string | null;
@@ -1311,6 +1332,14 @@ export interface Product {
    * z. B. „Flohmarkt Mauerpark“ (ohne Preis).
    */
   offlineSaleNote?: string | null;
+  /**
+   * Markt-Termin, auf dem das Stück verkauft wurde (optional).
+   */
+  offlineSaleTourDate?: (number | null) | TourDate;
+  /**
+   * Optional. Mit Preis zählt der Verkauf im Umsatz-Wächter mit (Spalte „Markt-Verkäufe (Stücke)“).
+   */
+  offlineSalePriceCents?: number | null;
   archivedAt?: string | null;
   reservedUntil?: string | null;
   reservationRef?: string | null;
@@ -1346,6 +1375,56 @@ export interface Product {
       | null;
     note?: string | null;
   };
+  seed?: boolean | null;
+  seedKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Märkte, Flohmärkte und Kunstmärkte („Planet Claire on Tour“, rechte Spalte der Startseite). Vergangene Termine stehen eingeklappt.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tour-dates".
+ */
+export interface TourDate {
+  id: number;
+  name: string;
+  startsAt: string;
+  /**
+   * Leer = eintägig. Der letzte Tag zählt bis 23:59 Uhr.
+   */
+  endsAt?: string | null;
+  /**
+   * z. B. „Berlin-Prenzlauer Berg“
+   */
+  place: string;
+  /**
+   * Adresse des Marktes, nicht die des Privatstudios.
+   */
+  address?: string | null;
+  /**
+   * Nur ein Textlink zur Seite des Marktes (keine Karte).
+   */
+  link?: string | null;
+  standNumber?: string | null;
+  /**
+   * z. B. 10:00
+   */
+  timeFrom?: string | null;
+  /**
+   * z. B. 18:00
+   */
+  timeTo?: string | null;
+  /**
+   * Kurz, z. B. „Coco ist dabei.“
+   */
+  note?: string | null;
+  image?: (number | null) | Media;
+  /**
+   * „Vorbei“ wird nach dem Datum automatisch gesetzt – du musst nichts tun.
+   */
+  status: 'planned' | 'cancelled' | 'past';
+  published?: boolean | null;
   seed?: boolean | null;
   seedKey?: string | null;
   updatedAt: string;
@@ -2002,56 +2081,6 @@ export interface LegalSnippet {
   createdAt: string;
 }
 /**
- * Märkte, Flohmärkte und Kunstmärkte („Planet Claire on Tour“, rechte Spalte der Startseite). Vergangene Termine stehen eingeklappt.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tour-dates".
- */
-export interface TourDate {
-  id: number;
-  name: string;
-  startsAt: string;
-  /**
-   * Leer = eintägig. Der letzte Tag zählt bis 23:59 Uhr.
-   */
-  endsAt?: string | null;
-  /**
-   * z. B. „Berlin-Prenzlauer Berg“
-   */
-  place: string;
-  /**
-   * Adresse des Marktes, nicht die des Privatstudios.
-   */
-  address?: string | null;
-  /**
-   * Nur ein Textlink zur Seite des Marktes (keine Karte).
-   */
-  link?: string | null;
-  standNumber?: string | null;
-  /**
-   * z. B. 10:00
-   */
-  timeFrom?: string | null;
-  /**
-   * z. B. 18:00
-   */
-  timeTo?: string | null;
-  /**
-   * Kurz, z. B. „Coco ist dabei.“
-   */
-  note?: string | null;
-  image?: (number | null) | Media;
-  /**
-   * „Vorbei“ wird nach dem Datum automatisch gesetzt – du musst nichts tun.
-   */
-  status: 'planned' | 'cancelled' | 'past';
-  published?: boolean | null;
-  seed?: boolean | null;
-  seedKey?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "faqs".
  */
@@ -2377,6 +2406,7 @@ export interface AuditLog {
     | 'order_status_link_rotated'
     | 'order_refund_created'
     | 'order_refund_failed'
+    | 'stray_payment_refunded'
     | 'packing_photo_skipped'
     | 'carrier_consent_withdrawn'
     | 'complaint_changed'
@@ -3131,12 +3161,15 @@ export interface ProductsSelect<T extends boolean = true> {
         descriptionEn?: T;
       };
   images?: T;
+  scalePhoto?: T;
   status?: T;
   showInArchiveAfterSale?: T;
   firstPublishedAt?: T;
   soldAt?: T;
   soldChannel?: T;
   offlineSaleNote?: T;
+  offlineSaleTourDate?: T;
+  offlineSalePriceCents?: T;
   archivedAt?: T;
   reservedUntil?: T;
   reservationRef?: T;
@@ -3269,6 +3302,20 @@ export interface CheckoutsSelect<T extends boolean = true> {
         expiredAt?: T;
         cancelledAt?: T;
         failedAt?: T;
+      };
+  strayPayments?:
+    | T
+    | {
+        kind?: T;
+        paymentIntentId?: T;
+        sessionId?: T;
+        amountCents?: T;
+        receivedAt?: T;
+        refundStatus?: T;
+        refundId?: T;
+        refundAttempts?: T;
+        refundedAt?: T;
+        id?: T;
       };
   seed?: T;
   seedKey?: T;

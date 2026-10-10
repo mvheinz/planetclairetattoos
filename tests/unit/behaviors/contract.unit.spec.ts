@@ -147,11 +147,27 @@ const FIXTURES: Record<BehaviorName, { html: string; exercise: (root: Element) =
       vi.advanceTimersByTime(0)
     },
   },
+  'tour-fold': {
+    html:
+      '<details data-behavior="tour-fold" data-tour-fold><summary>Planet Claire on Tour</summary>' +
+      '<div><p>Termine</p></div></details>',
+    // jsdom kennt kein matchMedia (Modul bleibt passiv); das Umschalten prüft tour-fold.unit.spec.ts
+    exercise: () => {},
+  },
   'copy-button': {
     html:
       '<p><span id="st" role="status"></span><button type="button" data-behavior="copy-button" ' +
       'data-copy="DE36000000000000000000" data-copied-text="Kopiert" data-copy-failed-text="Ging nicht" ' +
       'data-copy-status-id="st" hidden>IBAN kopieren</button></p>',
+    exercise: (root) => {
+      ;(root as HTMLElement).click()
+    },
+  },
+  'share-button': {
+    html:
+      '<p data-share=""><span id="sh" role="status"></span><button type="button" data-behavior="share-button" ' +
+      'data-share-url="https://example.org/de/shop/017-vase" data-share-title="Vase" data-copied-text="Link kopiert" ' +
+      'data-copy-failed-text="Ging nicht" data-copy-status-id="sh" hidden>Teilen</button></p>',
     exercise: (root) => {
       ;(root as HTMLElement).click()
     },

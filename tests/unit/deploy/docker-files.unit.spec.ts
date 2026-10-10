@@ -97,19 +97,12 @@ describe('Docker-Dateien', () => {
     }
     const drillText = read('.github/workflows/restore-drill.yml')
     const drill = parse(drillText) as {
-      on: {
-        schedule: { cron: string }[]
-        pull_request: { paths: string[] }
-        workflow_dispatch: unknown
-      }
+      on: Record<string, unknown>
       permissions: Record<string, string>
     }
-    expect(drill.on.schedule[0]!.cron).toBe('0 4 1 * *')
-    expect(drill.on.pull_request.paths).toEqual([
-      'src/lib/backup/**',
-      '.github/workflows/restore-drill.yml',
-    ])
-    expect(drill.on).toHaveProperty('workflow_dispatch')
+    // U-65: nur per Hand (kein Zeitplan, kein PR-Auslöser); die Übung läuft lokal als Schritt `restore-drill` von
+    // `pnpm ci:local full`, ab Go-live als Cron auf dem eigenen Server (P11).
+    expect(Object.keys(drill.on)).toEqual(['workflow_dispatch'])
     expect(drill.permissions).toEqual({ contents: 'read' })
     expect(drillText).not.toMatch(/secrets\./)
     expect(drillText).toContain('scripts/ci/restore-drill.ts')

@@ -4,8 +4,8 @@ import { splitTourDates, tourState } from '../../src/lib/tour/dates'
 import type { Locale } from '../../src/lib/routes/registry'
 
 // P12.8 (U-20, KONZEPT §3.1a) und P13.3 (U-42) – „Planet Claire on Tour“ auf der Startseite mit dem Beispielbestand
-// (SEED-SPEC §12.5): oben rechts Koko (`data-slot="chairwoman"`) und direkt rechts daneben der schmale Schaukasten (ab 600 px
-// nebeneinander, ab 1100 px neben dem Titel, mobil untereinander). Auf der Tafel nur die nächsten drei Termine (kompakt:
+// (SEED-SPEC §12.5), seit P14.1 (U-50): unter dem Titel Foto + Text | Koko (`data-slot="chairwoman"`) | schmaler Schaukasten
+// (ab 1100 px drei Spalten, darunter untereinander). Auf der Tafel nur die nächsten drei Termine (kompakt:
 // Datum, Name, eine Zeile); weitere und vergangene Termine in einem `<details>`; abgesagte durchgestrichen mit Text; darunter
 // der Instagram-Hinweis mit gezeichnetem Zeichen; keine Karte und keine Anfrage an Dritte. Erwartungen aus den Daten und der
 // aktuellen Uhr berechnet (der Beispielbestand liegt relativ zu `SEED_NOW`).
@@ -50,7 +50,7 @@ test.beforeAll(async ({ request }) => {
 const ON_BOARD = 3
 
 for (const locale of ['de', 'en'] as const) {
-  test(`AK-3-13 AK-SEED-23 U-42 /${locale}: Koko und schmaler Schaukasten nebeneinander – nächste drei Termine kompakt, weitere/vergangene eingeklappt, abgesagte durchgestrichen, Instagram darunter`, async ({
+  test(`AK-3-13 AK-SEED-23 U-42 U-50 /${locale}: Foto, Koko und schmaler Schaukasten – nächste drei Termine kompakt, weitere/vergangene eingeklappt, abgesagte durchgestrichen, Instagram darunter`, async ({
     page,
     foreignRequests,
   }) => {
@@ -65,37 +65,72 @@ for (const locale of ['de', 'en'] as const) {
     const aside = page.locator('[data-home-aside]')
     await expect(aside).toHaveCount(1)
 
-    // Koko links, der Schaukasten rechts daneben (ab 600 px) bzw. darunter (Handy)
-    const slot = aside.locator('[data-slot="chairwoman"]')
+    // U-50 (P14.1): oben Foto + Text | Koko | Schaukasten (ab 1100 px drei Spalten, darunter untereinander)
+    const intro = page.locator('[data-home-intro]')
+    const slot = page.locator('[data-slot="chairwoman"]')
     await expect(slot).toHaveCount(1)
     expect(await slot.evaluate((el) => el.childElementCount)).toBeGreaterThan(0)
+    const introBox = (await intro.boundingBox())!
     const kokoBox = (await slot.boundingBox())!
     const tour = aside.locator('[data-tour]')
-    const tourBox = (await tour.boundingBox())!
-    const vw = page.viewportSize()?.width ?? 0
-    if (vw >= 600) {
-      expect(tourBox.x).toBeGreaterThanOrEqual(kokoBox.x + kokoBox.width - 1) // rechts neben Koko
-      expect(tourBox.y).toBeLessThan(kokoBox.y + kokoBox.height) // auf gleicher Höhe
-      expect(tourBox.width).toBeLessThanOrEqual(20 * 16) // schmal
-    } else {
-      expect(tourBox.y).toBeGreaterThanOrEqual(kokoBox.y + kokoBox.height - 1) // darunter
-    }
-
-    // Platz: neben dem Titel (≥ 1100 px; beides über dem Falz) bzw. unter dem Kopf der Seite
     const heroBox = (await page.locator('[data-home-hero]').boundingBox())!
     const asideBox = (await aside.boundingBox())!
+    const vw = page.viewportSize()?.width ?? 0
+    // Titel und Einleitung über der ganzen Zeile
+    expect(introBox.y).toBeGreaterThanOrEqual(heroBox.y + heroBox.height - 1)
     if (vw >= 1100) {
-      expect(asideBox.x).toBeGreaterThanOrEqual(heroBox.x + heroBox.width - 1)
-      expect(kokoBox.y + kokoBox.height).toBeLessThanOrEqual(page.viewportSize()!.height)
+      expect(kokoBox.x).toBeGreaterThanOrEqual(introBox.x + introBox.width - 1) // Koko rechts vom Foto
+      expect(asideBox.x).toBeGreaterThanOrEqual(kokoBox.x + kokoBox.width - 1) // Schaukasten rechts von Koko
+      expect(Math.abs(kokoBox.y - introBox.y)).toBeLessThan(2) // eine Zeile
+      expect(Math.abs(asideBox.y - introBox.y)).toBeLessThan(2)
       const firstNote = tour.locator('[data-tour-upcoming] > li').first()
       if (board.length)
         expect((await firstNote.boundingBox())!.y).toBeLessThan(page.viewportSize()!.height)
       // Stationen laufen darunter über die volle Breite
       const stations = (await page.locator('[data-home-stations]').boundingBox())!
       expect(stations.y).toBeGreaterThanOrEqual(asideBox.y + asideBox.height - 1)
+      expect(stations.y).toBeGreaterThanOrEqual(introBox.y + introBox.height - 1)
     } else {
-      expect(asideBox.y).toBeGreaterThanOrEqual(heroBox.y + heroBox.height - 1)
-      expect(asideBox.x).toBeLessThan(heroBox.x + heroBox.width)
+      // Handy/Tablet: Foto + Text, dann Koko (ab 600 px daneben); der Schaukasten steht eingeklappt hinter Station 01
+      // (U-51, P14.2) – dasselbe Element (eine Ergänzung, kein Doppel), nur per Grid-Reihenfolge umgestellt.
+      if (vw >= 600) expect(kokoBox.x).toBeGreaterThanOrEqual(introBox.x + introBox.width - 1)
+      else expect(kokoBox.y).toBeGreaterThanOrEqual(introBox.y + introBox.height - 1)
+      const st1 = (await page.locator('[data-home-station="keramik"]').boundingBox())!
+      const st2 = (await page.locator('[data-home-station="textil"]').boundingBox())!
+      expect(asideBox.y).toBeGreaterThanOrEqual(st1.y + st1.height - 1)
+      expect(asideBox.y + asideBox.height).toBeLessThanOrEqual(st2.y + 1)
+      expect(asideBox.y).toBeGreaterThanOrEqual(kokoBox.y + kokoBox.height - 1)
+    }
+    await expect(page.locator('[data-tour]')).toHaveCount(1)
+    await expect(page.locator('#tour-heading')).toHaveCount(1)
+    const fold = aside.locator('details[data-tour-fold]')
+    await expect(fold).toHaveCount(1)
+    const foldSummary = fold.locator('summary[data-tour-fold-summary]')
+    const nextName = upcoming.find((i) => i.status !== 'cancelled')?.name
+    if (vw >= 1100) {
+      // Desktop unverändert: offen, ohne Zusammenfassung (CSS sofort, nach dem Laden auch `open` für Screenreader)
+      await expect(foldSummary).toBeHidden()
+      await expect(tour).toBeVisible()
+      await expect
+        .poll(() => fold.evaluate((el) => (el as HTMLDetailsElement).open), { timeout: 15_000 })
+        .toBe(true)
+    } else {
+      expect(await fold.evaluate((el) => (el as HTMLDetailsElement).open)).toBe(false)
+      await expect(tour).toBeHidden()
+      await expect(foldSummary).toBeVisible()
+      await expect(foldSummary).toContainText('Planet Claire on Tour')
+      await expect(foldSummary).toContainText(locale === 'de' ? 'nächster Termin' : 'next date')
+      if (nextName) await expect(foldSummary).toContainText(nextName)
+      expect((await foldSummary.boundingBox())!.height).toBeGreaterThanOrEqual(44)
+      // per Tastatur aufklappen
+      await foldSummary.focus()
+      await page.keyboard.press('Enter')
+      await expect(tour).toBeVisible()
+    }
+    const tourBox = (await tour.boundingBox())!
+    if (vw >= 1100) {
+      expect(tourBox.x).toBeGreaterThanOrEqual(kokoBox.x + kokoBox.width - 1)
+      expect(tourBox.width).toBeLessThanOrEqual(20 * 16) // schmal
     }
 
     // U-43: Überschrift in Spectral
@@ -193,6 +228,11 @@ test.describe('ohne JavaScript', () => {
     const { past } = splitTourDates(items, tourNow())
     expect(past.length, 'Beispieltermine in der Vergangenheit').toBeGreaterThan(0)
     await page.goto('/de')
+    // unter 1100 px eingeklappt (U-51) – ohne JavaScript aufklappbar
+    const fold = page.locator('details[data-tour-fold]')
+    if (!(await page.locator('[data-tour]').isVisible()))
+      await fold.locator('summary').first().click()
+    await expect(page.locator('[data-tour]')).toBeVisible()
     const details = page.locator('[data-tour] details[data-tour-more]')
     await expect(details.locator('li').first()).toBeHidden()
     await details.locator('summary').click()

@@ -10,6 +10,7 @@ import { CopyButton } from '../../components/CopyButton'
 import { Notice } from '../../components/Notice'
 import { adminText } from '../../translations'
 import type { ProductStatus } from '@/lib/enums'
+import { PRICE_CENTS_RANGE, parseEuroInput } from '@/lib/money'
 
 import type { PieceAction } from './piecesQuery'
 
@@ -27,6 +28,8 @@ export interface PieceCardActionsProps {
   publicUrl: string
   orderId: number | null
   showInArchive: boolean
+  /** U-60: Markt-Termine für „Offline verkauft“ (neueste zuerst). */
+  tourOptions?: { id: number; label: string }[]
 }
 
 async function send(url: string, method: 'PATCH' | 'DELETE', body?: unknown) {
@@ -59,24 +62,37 @@ function SellOfflineButton({
   id,
   nr,
   reserved,
+  tourOptions,
   onDone,
 }: {
   id: number
   nr: string
   reserved: boolean
+  tourOptions: { id: number; label: string }[]
   onDone: () => void
 }) {
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const [archive, setArchive] = useState(true)
   const [note, setNote] = useState('')
+  const [tourDate, setTourDate] = useState('')
+  const [price, setPrice] = useState('')
   const [error, setError] = useState<string | null>(null)
   const running = useRef(false)
   const noteId = useId()
   const switchId = useId()
+  const tourId = useId()
+  const priceId = useId()
 
   const run = async () => {
     if (running.current) return
+    const priceCents = price.trim()
+      ? parseEuroInput(price, { min: 0, max: PRICE_CENTS_RANGE.max })
+      : null
+    if (price.trim() && priceCents === null) {
+      setError(adminText('piecesOfflinePriceInvalid'))
+      return
+    }
     running.current = true
     setBusy(true)
     setError(null)
@@ -84,6 +100,8 @@ function SellOfflineButton({
       await postAdminAction(`/api/products/${id}/sell-offline`, {
         showInArchive: archive,
         note: note.trim() || undefined,
+        ...(tourDate ? { tourDate: Number(tourDate) } : {}),
+        ...(priceCents !== null ? { priceCents } : {}),
         ...(reserved ? { confirmReservedCheckout: true } : {}),
       })
       setOpen(false)
@@ -143,6 +161,44 @@ function SellOfflineButton({
             onChange={(e) => setNote(e.target.value)}
           />
         </div>
+        {tourOptions.length > 0 ? (
+          <div className="pc-field">
+            <label htmlFor={tourId} className="pc-field__label">
+              {adminText('piecesOfflineTourDate')}
+            </label>
+            <select
+              id={tourId}
+              value={tourDate}
+              onChange={(e) => setTourDate(e.target.value)}
+              data-testid="piece-sell-offline-tour"
+            >
+              <option value="">{adminText('piecesOfflineTourDateNone')}</option>
+              {tourOptions.map((o) => (
+                <option key={o.id} value={String(o.id)}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
+        <div className="pc-field">
+          <label htmlFor={priceId} className="pc-field__label">
+            {adminText('piecesOfflinePrice')}
+          </label>
+          <input
+            id={priceId}
+            type="text"
+            inputMode="decimal"
+            autoComplete="off"
+            value={price}
+            aria-describedby={`${priceId}-hint`}
+            onChange={(e) => setPrice(e.target.value)}
+            data-testid="piece-sell-offline-price"
+          />
+          <p id={`${priceId}-hint`} className="pc-piece__hint">
+            {adminText('piecesOfflinePriceHint')}
+          </p>
+        </div>
         {error ? <Notice tone="error">{error}</Notice> : null}
       </ConfirmDialog>
     </>
@@ -157,6 +213,7 @@ export function PieceCardActions({
   publicUrl,
   orderId,
   showInArchive,
+  tourOptions = [],
 }: PieceCardActionsProps) {
   const router = useRouter()
   const refresh = () => router.refresh()
@@ -186,7 +243,13 @@ export function PieceCardActions({
       ) : null}
       {has('copyLink') ? <CopyButton text={publicUrl} label={adminText('pieceCopyLink')} /> : null}
       {has('sellOffline') || has('sellOfflineReserved') ? (
-        <SellOfflineButton id={id} nr={nr} reserved={has('sellOfflineReserved')} onDone={refresh} />
+        <SellOfflineButton
+          id={id}
+          nr={nr}
+          reserved={has('sellOfflineReserved')}
+          tourOptions={tourOptions}
+          onDone={refresh}
+        />
       ) : null}
       {has('toOrder') && orderId ? (
         <a

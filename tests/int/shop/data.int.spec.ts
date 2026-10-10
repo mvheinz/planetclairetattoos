@@ -7,6 +7,7 @@ import { getCategoryBySlug, listNavCategories } from '@/lib/data/categories'
 import {
   PRODUCT_ADMIN_FIELDS,
   SHOP_PAGE_SIZE,
+  SHOP_SOLD_ROW,
   getPublicProductByItemNumber,
   isProductGone,
   listArchiveProducts,
@@ -114,13 +115,20 @@ describe('Status-/Archiv-Kombinationen (AK-3-03, AK-3-04, AK-3-09, DM-PROD-07)',
     await piece(987, { status: 'archived', firstPublishedAt: day(1), archivedAt: day(5) })
   }
 
-  it('R02: zuerst available/reserved nach firstPublishedAt ↓, dann sold+Archiv nach soldAt ↓', async () => {
+  it('R02: available/reserved nach firstPublishedAt ↓; sold+Archiv nach soldAt ↓ als eigene Reihe (U-57 c)', async () => {
     setEnv({ SEED_PREVIEW_MODE: 'false' })
     await createMix()
     const res = await listShopProducts({ locale: 'de', page: 1 })
-    expect(numbers(res.docs)).toEqual([981, 982, 980, 984, 983])
-    expect(res).toMatchObject({ page: 1, totalDocs: 5, totalPages: 1, hasNextPage: false })
-    expectNoAdminFields(res.docs)
+    expect(numbers(res.docs)).toEqual([981, 982, 980])
+    expect(numbers(res.sold)).toEqual([984, 983])
+    expect(res).toMatchObject({
+      page: 1,
+      totalDocs: 3,
+      totalPages: 1,
+      hasNextPage: false,
+      soldTotal: 2,
+    })
+    expectNoAdminFields([...res.docs, ...res.sold])
   })
 
   it('AK-3-03 availableOnly liefert kein sold; Kategorie-Filter (R03)', async () => {
@@ -129,8 +137,10 @@ describe('Status-/Archiv-Kombinationen (AK-3-03, AK-3-04, AK-3-09, DM-PROD-07)',
     const onlyAvailable = await listShopProducts({ locale: 'de', availableOnly: true, page: 1 })
     expect(numbers(onlyAvailable.docs)).toEqual([981, 982, 980])
     expect(onlyAvailable.docs.every((d) => d.status !== 'sold')).toBe(true)
+    expect(onlyAvailable.sold).toEqual([])
     const textil = await listShopProducts({ locale: 'de', categoryKeys: ['textil'], page: 1 })
-    expect(numbers(textil.docs)).toEqual([982, 984])
+    expect(numbers(textil.docs)).toEqual([982])
+    expect(numbers(textil.sold)).toEqual([984])
   })
 
   it('AK-3-04 DM-PROD-07: sold ohne Archiv, draft und archived erscheinen in keiner Liste', async () => {
@@ -227,6 +237,18 @@ describe('Paginierung (KONZEPT §3.2: 24 je Seite)', () => {
     expect(p0.page).toBe(1)
     const p3 = await listShopProducts({ locale: 'de', page: 3 })
     expect(p3.docs).toEqual([])
+  })
+
+  it('U-57 c: verkaufte nicht seitenweise – höchstens 4 auf der letzten Seite, Seitenzahl nur nach verfügbaren', async () => {
+    setEnv({ SEED_PREVIEW_MODE: 'false' })
+    // 5 verkaufte (Archiv) und 20 verfügbare = 1 Seite, darunter eine Reihe mit 4 verkauften
+    for (let i = 0; i < 5; i++) await piece(975 + i, sold(1, 10 + i))
+    for (let i = 5; i < 25; i++) await piece(975 + i, available(1 + i))
+    const p1 = await listShopProducts({ locale: 'de', page: 1 })
+    expect(p1).toMatchObject({ totalDocs: 20, totalPages: 1, hasNextPage: false, soldTotal: 5 })
+    expect(p1.docs.every((d) => d.status !== 'sold')).toBe(true)
+    expect(p1.sold).toHaveLength(SHOP_SOLD_ROW)
+    expect(numbers(p1.sold)).toEqual([979, 978, 977, 976])
   })
 })
 

@@ -219,6 +219,33 @@ export interface PublicGalleryEntry {
   /** Seed-Ausnahme im Vorschau-Modus: Etikett „intern – Einwilligung fehlt“ (R-182). */
   internal: boolean
   featured: boolean
+  /** Anker „g-12“ in R15 (U-56: Link „schon gestochen → Foto ansehen“ von der Flash-Karte). */
+  anchor: string
+  /** Nummer des veröffentlichten Flash-Motivs (Feld `flash`), sonst `null` (U-56: „nach Flash F-012“). */
+  flashNumber: number | null
+}
+
+export const galleryAnchor = (id: number) => `g-${id}`
+
+/** Nummer eines veröffentlichten Flash-Motivs aus der (aufgelösten) Beziehung `flash`. */
+function flashNumberOf(value: TattooGallery['flash']): number | null {
+  if (!value || typeof value !== 'object') return null
+  if (value.published === false || typeof value.number !== 'number') return null
+  return value.number
+}
+
+/**
+ * Flash → erstes sichtbares Galerie-Foto (U-56). `entries` stammen aus `toPublicGallery` – Kund:innen-Fotos also nur
+ * mit Einwilligung (Seed-Ausnahme nur im Vorschau-Modus); ein Widerruf entfernt den Link mit dem Eintrag.
+ */
+export function galleryByFlash(
+  entries: readonly PublicGalleryEntry[],
+): ReadonlyMap<number, PublicGalleryEntry> {
+  const map = new Map<number, PublicGalleryEntry>()
+  for (const e of entries) {
+    if (e.flashNumber !== null && !map.has(e.flashNumber)) map.set(e.flashNumber, e)
+  }
+  return map
 }
 
 /** Reine Auswahl: nur öffentlich sichtbare Einträge mit sichtbarem Bild (KONZEPT §9.7). */
@@ -245,6 +272,8 @@ export function toPublicGallery(
       creditHandle: doc.consentGiven === true ? text(doc.creditHandle) : null,
       internal: isSeedConsentException(doc, env),
       featured: doc.featured === true,
+      anchor: galleryAnchor(doc.id),
+      flashNumber: flashNumberOf(doc.flash),
     })
   }
   return out

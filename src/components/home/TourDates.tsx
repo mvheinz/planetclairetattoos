@@ -253,3 +253,38 @@ export async function TourDates({
     </section>
   )
 }
+
+/**
+ * Handy und Tablet (U-51, P14.2): Der Schaukasten steht unter 1100 px **zusammengeklappt** hinter Station 01 – ein
+ * `<details>` mit der Zusammenfassung „Planet Claire on Tour – nächster Termin: …“. Ab 1100 px ist er wie bisher offen
+ * oben rechts: die Zusammenfassung verschwindet und der Inhalt bleibt sichtbar (`::details-content`, siehe CSS). Ein
+ * einziges Element – keine doppelten Inhalte für Screenreader; ohne Unterstützung für `::details-content` (ältere Browser)
+ * bleibt er auch am Desktop aufklappbar. Nach dem Laden setzt `tour-fold` am Desktop `open` (Zustand auch für Screenreader).
+ */
+export async function TourFold({
+  items,
+  locale,
+  now,
+  children,
+}: {
+  items: PublicTourDate[]
+  locale: Locale
+  now: Date
+  children: React.ReactNode
+}) {
+  const t = await getTranslations({ locale, namespace: 'home.tour' })
+  const next = splitTourDates(items, now).upcoming.find((i) => tourState(i, now) !== 'cancelled')
+  return (
+    <details className={styles.fold} data-tour-fold="" data-behavior="tour-fold">
+      <summary className={styles.foldSummary} data-tour-fold-summary="">
+        <span className={styles.foldTitle}>{t('heading')}</span>
+        <span className={styles.foldNext}>
+          {next
+            ? t('foldNext', { date: tourDateText(next, locale), name: next.name })
+            : t('foldNone')}
+        </span>
+      </summary>
+      <div className={styles.foldBody}>{children}</div>
+    </details>
+  )
+}

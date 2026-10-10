@@ -13,7 +13,8 @@ import styles from './ProductGallery.module.css'
 // JavaScript sind alle Fotos per Scrollen erreichbar; jedes Foto ist ein Link auf die größte vorhandene Datei. Die
 // Module `gallery` (Leiste) und `lightbox` (Vollbild-`<dialog>`) machen daraus Knöpfe, Tastatur und Zoom; Knöpfe und
 // Miniaturen stehen bis dahin auf `hidden`. Erstes Foto = LCP: `fetchpriority="high"`, ohne `lazy`. Verkaufte Stücke:
-// Fotos unverändert (nicht gedämpft).
+// Fotos unverändert (nicht gedämpft). Optionales Größen-Vergleichsfoto (`scalePhoto`, U-57 d) steht als letztes Bild mit
+// sichtbarer Beschriftung „Zum Größenvergleich“.
 
 export const GALLERY_SIZES = '(min-width: 768px) 36rem, 100vw'
 const ZOOM_ORDER: readonly MediaSizeName[] = ['zoom', 'detail', 'card']
@@ -29,17 +30,28 @@ export function zoomSource(media: Media): { url: string; width?: number; height?
     : null
 }
 
+const isMedia = (m: unknown): m is Media => typeof m === 'object' && m !== null
+
 export async function ProductGallery({
   images,
   title,
   locale,
+  scalePhoto,
 }: {
   images: (number | Media)[] | null | undefined
   title: string
   locale: Locale
+  /** U-57 d: Foto zum Größenvergleich (nur wenn öffentlich lesbar, also aufgelöst). */
+  scalePhoto?: number | Media | null
 }) {
-  const photos = (images ?? []).filter((m): m is Media => typeof m === 'object' && m !== null)
-  const t = await getTranslations({ locale, namespace: 'shop.gallery' })
+  const base = (images ?? []).filter(isMedia)
+  const scale = isMedia(scalePhoto) && !base.some((m) => m.id === scalePhoto.id) ? scalePhoto : null
+  const photos = scale ? [...base, scale] : base
+  const [t, tProduct] = await Promise.all([
+    getTranslations({ locale, namespace: 'shop.gallery' }),
+    getTranslations({ locale, namespace: 'shop.product' }),
+  ])
+  const scaleCaption = tProduct('scaleCaption')
   const total = photos.length
   if (total === 0) {
     return (
@@ -71,12 +83,18 @@ export async function ProductGallery({
         >
           {photos.map((media, i) => {
             const zoom = zoomSource(media)
+            const isScale = media === scale
             return (
               <li
                 key={media.id}
                 className={styles.slide}
                 data-gallery-slide={i}
-                aria-label={t('position', { n: i + 1, total })}
+                data-gallery-scale={isScale ? '' : undefined}
+                aria-label={
+                  isScale
+                    ? `${t('position', { n: i + 1, total })}: ${scaleCaption}`
+                    : t('position', { n: i + 1, total })
+                }
               >
                 <a
                   className={styles.zoomLink}
@@ -98,6 +116,11 @@ export async function ProductGallery({
                     <Icon name="zoom" size={20} />
                     {t('zoom')}
                   </span>
+                  {isScale ? (
+                    <span className={styles.scaleCaption} data-scale-caption="">
+                      {scaleCaption}
+                    </span>
+                  ) : null}
                 </a>
               </li>
             )

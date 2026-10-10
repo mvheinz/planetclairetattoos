@@ -48,6 +48,11 @@ export interface CartLine {
   addedPriceCents: number
   /** „Preis wurde aktualisiert“ (DB-Preis ≠ `p`). */
   priceChanged: boolean
+  /**
+   * Nur bei `reserved` (fremde Kasse oder Vorkasse, U-58 b): Ende der Reservierung als ISO-Zeit – nur die Uhrzeit wird
+   * angezeigt („reserviert bis 14:30“), nie wer oder welche Kasse.
+   */
+  reservedUntil: string | null
   product: CartProductFacts | null
 }
 
@@ -120,10 +125,13 @@ export function evaluateCartItems(input: EvaluateCartInput): CartEvaluation {
     const state = lineState(product, input.ownReservationRef, now)
     const visible = product && product.status !== null ? product : null
     const priceCents = visible ? visible.priceCents : null
+    const until =
+      state === 'reserved' && product?.reservedUntil ? new Date(product.reservedUntil) : null
     return {
       id: item.id,
       itemNumber: product?.itemNumber ?? null,
       state,
+      reservedUntil: until && !Number.isNaN(until.getTime()) ? until.toISOString() : null,
       purchasable: state === 'available' || state === 'reserved_by_you',
       priceCents,
       addedPriceCents: item.p,

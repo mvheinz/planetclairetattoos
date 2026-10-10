@@ -189,7 +189,10 @@ describe('P3.15 Bearbeitungen in der Verwaltung: max (≤ 60 s)', () => {
       }
     }
     walk(payload.collections.products.config.fields)
-    expect(names.filter((n) => /price|preis/i.test(n))).toEqual(['priceCents'])
+    // `offlineSalePriceCents` (P14.11, U-60): erzielter Marktpreis eines verkauften Stücks, kein Vergleichspreis
+    expect(names.filter((n) => /price|preis/i.test(n) && !/^offlineSale/.test(n))).toEqual([
+      'priceCents',
+    ])
     expect(
       names.filter((n) => /compare|strike|streich|uvp|rrp|msrp|discount|rabatt|statt/i.test(n)),
     ).toEqual([])

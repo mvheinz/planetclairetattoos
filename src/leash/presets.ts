@@ -163,6 +163,20 @@ export function loopScroll(loop: LoopKind, viewportW: number): number {
   return desktop ? 360 : 280
 }
 
+/**
+ * U-55 (P14.6): höchstens so viele px Linie je px Scroll. Umrundungen (`contour`, 1 400–2 700 px Bogen) entstanden vorher
+ * auf 400–480 px Scroll – 3- bis 5-mal so schnell wie die Linie dazwischen, Coco wickelte hektisch. Die Scroll-Abbildung
+ * verteilt solche Abschnitte auf mehr Scroll-Weg (geliehen vom ruhigen Weg danach, sonst davor), möglichst höchstens
+ * dieses Tempo.
+ */
+export const MAX_DRAW_RATE = 1.8
+
+/** U-55: so weit (× Viewport-Höhe) darf eine Schlaufe dafür von ihrer Station wegrücken (Coco bleibt beim Bild). */
+export const MAX_LOOP_SHIFT = 0.2
+
+/** U-55: Höchsttempo von Coco und Tinte in px je ms – glättet, was die Scroll-Abbildung nicht ausgleichen kann. */
+export const COCO_MAX_SPEED = 1.6
+
 /** Rinnenbreite eines Presets bei gegebener Viewport-Breite (§5.3). */
 export function gutterFor(preset: PresetId, viewportW: number): number {
   const g = PRESET_CONFIG[preset].gutter

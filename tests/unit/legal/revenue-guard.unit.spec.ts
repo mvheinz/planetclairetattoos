@@ -111,6 +111,7 @@ describe('R-125 computeRevenueStatus', () => {
     const oct = s.months.find((m) => m.month === '2026-10')!
     expect(oct.cents).toEqual({
       shop: 7_500,
+      offline: 0,
       tattoo: 0,
       flohmarkt: 0,
       auftragsarbeiten: 7_000,
@@ -184,5 +185,40 @@ describe('R-125 computeRevenueStatus', () => {
     )
     expect(stageMessage('U5', ctx)).toContain('Steuermodus umstellen')
     expect(stageMessage('U0', ctx)).toContain('Dieses Jahr gilt die Kleinunternehmerregelung nicht')
+  })
+})
+
+describe('U-60 Markt-Verkäufe von Stücken mit Preis (P14.11)', () => {
+  it('zählen in Spalte „offline“ und im Gesamtumsatz; Beispiel-Verkäufe nur mit includeSeed; andere Jahre nicht', () => {
+    const base = {
+      year: 2026,
+      now: NOW,
+      invoices: [inv('2026-03', euro(1000))],
+      entries: [entry('2026-03', 'flohmarkt', euro(200))],
+      manualYearTotals: [],
+    }
+    const s = compute({
+      ...base,
+      includeSeed: false,
+      offlineSales: [
+        { month: '2026-03', seed: false, amountCents: euro(45) },
+        { month: '2026-09', seed: false, amountCents: euro(19_000) },
+        { month: '2026-09', seed: true, amountCents: euro(5_000) },
+        { month: '2025-12', seed: false, amountCents: euro(999) },
+      ],
+    })
+    expect(s.offlineCents).toBe(euro(19_045))
+    expect(s.totalCents).toBe(euro(1000 + 200 + 19_045))
+    expect(s.months.find((m) => m.month === '2026-03')!.cents.offline).toBe(euro(45))
+    expect(s.months.find((m) => m.month === '2026-03')!.totalCents).toBe(euro(1245))
+    expect(s.reached.map((r) => r.stage)).toEqual(['U1'])
+    const withSeed = compute({
+      ...base,
+      includeSeed: true,
+      offlineSales: [{ month: '2026-09', seed: true, amountCents: euro(5_000) }],
+    })
+    expect(withSeed.offlineCents).toBe(euro(5_000))
+    // ohne Angabe: wie bisher
+    expect(compute({ ...base, includeSeed: false }).offlineCents).toBe(0)
   })
 })

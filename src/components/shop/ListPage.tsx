@@ -16,6 +16,7 @@ import {
   listArchiveProducts,
   listShopProducts,
   type ProductPage,
+  type PublicProduct,
 } from '@/lib/data/products'
 import { getShopDisplaySettings, taxSettingsFor } from '@/lib/data/shopSettings'
 import type { Locale } from '@/lib/enums'
@@ -35,7 +36,8 @@ import { statusLabelAttrs } from './statusLabels'
 // (`aria-current="page"` am aktiven), Hinweis „Shop pausiert“ über dem Raster (die Stücke bleiben sichtbar), Raster aus
 // Produktkarten (jede Karte ist eine Rasterzelle der Tuschelinie: Kringel zwischen den Zeilen, Coco läuft mit, U-44), „Mehr zeigen“ als Link
 // `?page=n+1`, Preis-Fußnote einmal je Seite (R-030) und Lieferzeile. Leerzustände nach KO-17. Ohne JavaScript voll
-// bedienbar. Seiten > letzte Seite → 404. JSON-LD `BreadcrumbList` (Start → Shop → Kategorie bzw. Start → Archiv,
+// bedienbar. Seiten > letzte Seite → 404. Verkaufte Stücke (R02/R03) nur als kurze Reihe unter der letzten Seite mit
+// Link „Archiv ansehen“ (U-57 c). JSON-LD `BreadcrumbList` (Start → Shop → Kategorie bzw. Start → Archiv,
 // P3.13).
 
 export type ListRoute = 'R02' | 'R03' | 'R05'
@@ -73,6 +75,8 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
 
   let result: ProductPage
   let chips: Chip[]
+  // U-57 c: kurze Reihe verkaufter Stücke unter den verfügbaren (nur letzte Seite), dann „Archiv ansehen“.
+  let soldRow: PublicProduct[] = []
   let archiveCategory: PublicCategory | null = null
   if (archive) {
     const [all, keys] = await Promise.all([listAllCategories(locale), listArchiveCategoryKeys()])
@@ -105,6 +109,7 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
       listNavCategories(locale),
     ])
     result = res
+    soldRow = res.sold
     const keep = listSearch({ available: list.available })
     chips = [
       {
@@ -130,6 +135,10 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
     ? `${base}${listSearch({ ...list, category: archiveCategory?.slug, page: page + 1 })}`
     : null
   const hasCards = result.docs.length > 0
+  const hasSoldRow = soldRow.length > 0
+  const archiveHref = `${localizedPath('R05', locale)}${listSearch({
+    category: routeId === 'R03' ? category?.slug : undefined,
+  })}`
   const now = new Date()
 
   return (
@@ -295,9 +304,36 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
         />
       )}
 
+      {hasSoldRow ? (
+        <section className={styles.soldRow} aria-labelledby="sold-heading" data-sold-row="">
+          <h2 id="sold-heading" className={styles.soldHeading}>
+            {t('shop.list.soldHeading')}
+          </h2>
+          <div className={styles.gridWrap}>
+            <ul className={styles.grid} data-behavior="price-tag-swing">
+              {soldRow.map((product, index) => (
+                <StaticHtml as="li" key={product.id} data-leash-anchor="tag">
+                  {/* Immer faul geladen (statisches HTML, unter dem Raster) */}
+                  <ProductCard
+                    product={product}
+                    locale={locale}
+                    index={EAGER_CARDS + result.docs.length + index}
+                  />
+                </StaticHtml>
+              ))}
+            </ul>
+          </div>
+          <div className={styles.more}>
+            <Button variant="secondary" href={archiveHref} data={{ 'data-archive-link': '' }}>
+              {t('shop.list.archiveLink')}
+            </Button>
+          </div>
+        </section>
+      ) : null}
+
       {hasCards || !archive ? (
         <footer className={styles.notes}>
-          {hasCards ? (
+          {hasCards || hasSoldRow ? (
             <PriceFootnote locale={locale} settings={taxSettingsFor(settings.taxMode)} at={now} />
           ) : null}
           {!archive ? (

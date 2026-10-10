@@ -6,6 +6,8 @@ import { PRODUCT_CATEGORIES, PRODUCT_STATUSES, type ProductStatus } from '@/lib/
 import { getEnv } from '@/lib/env'
 import { formatItemNumber } from '@/lib/products/itemNumber'
 import { productPath } from '@/lib/shop/format'
+import { systemClock } from '@/lib/time'
+import { loadTourSaleOptions } from '@/lib/tour/saleOptions'
 
 import { StatusBadge, type StatusTone } from '../../components/StatusBadge'
 import { adminText } from '../../translations'
@@ -38,6 +40,12 @@ function pageHref(adminRoute: string, query: PiecesQuery, page: number): string 
 export async function PiecesListView({ adminRoute, req, searchParams }: AdminViewBodyProps) {
   const query = parsePiecesQuery(searchParams)
   const result = await queryPieces(req, query)
+  // U-60 (P14.11): „Offline verkauft“ kann einen Markt-Termin zuordnen.
+  const tourOptions = result.cards.some((c) =>
+    c.actions.some((a) => a === 'sellOffline' || a === 'sellOfflineReserved'),
+  )
+    ? await loadTourSaleOptions(req, systemClock.now())
+    : []
   const siteUrl = getEnv().NEXT_PUBLIC_SITE_URL.replace(/\/$/, '')
 
   return (
@@ -162,6 +170,7 @@ export async function PiecesListView({ adminRoute, req, searchParams }: AdminVie
                   publicUrl={publicUrl}
                   orderId={card.orderId}
                   showInArchive={card.showInArchiveAfterSale}
+                  tourOptions={tourOptions}
                 />
               </div>
             </li>

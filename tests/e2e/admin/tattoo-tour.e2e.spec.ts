@@ -3,7 +3,7 @@ import { adminPath, expect, test, testPayload } from '../fixtures'
 import { refresh } from '../shop/fresh'
 import { expectAccessible, expectNoHorizontalScroll } from './orderHelpers'
 
-// P12.8 – Verwaltung „Termine“ (Reiter in `/tattoo`, KONZEPT §3.1a, §7.12): „Neuer Termin“ bei 390×844 anlegen → erscheint
+// P12.8 – Verwaltung „Termine“ (seit P14.11/U-60 eigener Menüpunkt `/termine`, KONZEPT §3.1a, §7.12): „Neuer Termin“ bei 390×844 anlegen → erscheint
 // auf der Startseite (DE und EN, rechte Spalte, kommende oben); „Absagen“ → durchgestrichen mit Text „abgesagt“;
 // „Offline nehmen“ → verschwindet; Adresse des Privatstudios wird abgelehnt (E-50); „Löschen“ mit Rückfrage.
 // Die Termine dieses Tests heißen „E2E …“ und tragen `seed = false` (echter Datensatz).
@@ -41,7 +41,7 @@ test('@a11y Neuer Termin am Handy anlegen → Startseite zeigt ihn (DE/EN); Absa
 }) => {
   test.setTimeout(120_000)
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto(adminPath('/tattoo?reiter=termine'))
+  await page.goto(adminPath('/termine'))
   await expect(page.getByTestId('tattoo-tour')).toBeVisible()
   await expectNoHorizontalScroll(page)
 
@@ -79,7 +79,7 @@ test('@a11y Neuer Termin am Handy anlegen → Startseite zeigt ihn (DE/EN); Absa
   expect((saved.endsAt ?? '') > saved.startsAt).toBe(true)
 
   // Liste zeigt ihn unter den kommenden Terminen
-  await page.goto(adminPath('/tattoo?reiter=termine'))
+  await page.goto(adminPath('/termine'))
   const card = page.locator('[data-testid="tour-card"]', { hasText: NAME_DE })
   await expect(card).toHaveAttribute('data-status', 'planned')
   await expect(card).not.toHaveAttribute('data-over', '')
@@ -114,7 +114,9 @@ test('@a11y Neuer Termin am Handy anlegen → Startseite zeigt ihn (DE/EN); Absa
   const cancelled = pub.locator('[data-tour-date][data-cancelled]', { hasText: NAME_DE })
   await expect(cancelled).toHaveCount(1)
   await expect(cancelled.locator('[data-tour-badge="cancelled"]')).toHaveText('abgesagt')
-  await expect(cancelled.getByRole('heading').locator('span').first()).toHaveCSS(
+  // Der Termin kann auch im eingeklappten Teil stehen (nur die nächsten drei sind offen, P13.3) – dort ist die
+  // Überschrift verborgen, der Stil gilt trotzdem.
+  await expect(cancelled.locator(':is(h3, h4) > span').first()).toHaveCSS(
     'text-decoration-line',
     'line-through',
   )
@@ -134,7 +136,7 @@ test('@a11y Neuer Termin am Handy anlegen → Startseite zeigt ihn (DE/EN); Absa
     await expect(page.getByRole('button', { name: 'Ja, löschen' })).toBeVisible({ timeout: 1500 })
   }).toPass({ timeout: 15_000 })
   await page.getByRole('button', { name: 'Ja, löschen' }).click()
-  await expect(page).toHaveURL(/reiter=termine$/)
+  await expect(page).toHaveURL(/\/termine$/)
   expect(
     (await payload.count({ collection: 'tour-dates', where: { name: { equals: NAME_DE } } }))
       .totalDocs,
@@ -146,7 +148,7 @@ test('Termin: falsche Eingaben werden mit deutschen Hinweisen abgelehnt', async 
   adminPage: page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto(adminPath('/tattoo?reiter=termine&bearbeiten=neu'))
+  await page.goto(adminPath('/termine?bearbeiten=neu'))
   const editor = page.getByTestId('tour-editor')
   await editor.getByTestId('tf-name.de').fill('ab')
   await editor.getByTestId('tf-startDate').fill(isoDay(5))
@@ -158,4 +160,50 @@ test('Termin: falsche Eingaben werden mit deutschen Hinweisen abgelehnt', async 
   await expect(editor.getByTestId('tf-error-place.de')).toContainText('2–80')
   await expect(editor.getByTestId('tf-error-endDate')).toContainText('vor dem Startdatum')
   await expect(editor.getByTestId('tf-error-link')).toContainText('www.beispiel.de')
+})
+
+test('U-60: alte Adresse /tattoo?reiter=termine leitet auf den Menüpunkt „Termine“ weiter', async ({
+  adminPage: page,
+}) => {
+  await page.goto(adminPath('/tattoo?reiter=termine'))
+  await expect(page).toHaveURL(/\/termine$/)
+  await expect(page.getByTestId('tattoo-tour')).toBeVisible()
+  await page.goto(adminPath('/tattoo?reiter=termine&bearbeiten=neu'))
+  await expect(page).toHaveURL(/\/termine\?bearbeiten=neu$/)
+  await expect(page.getByTestId('tour-editor')).toBeVisible()
+  // Der Reiter „Termine“ steht nicht mehr in „Tattoo“, der Menüpunkt schon.
+  await page.goto(adminPath('/tattoo'))
+  await expect(page.getByTestId('tattoo-tab-termine')).toHaveCount(0)
+})
+
+test('U-60: „Termin kopieren“ legt einen Termin eine Woche später an, offline', async ({
+  adminPage: page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  const payload = await testPayload()
+  const src = await payload.create({
+    collection: 'tour-dates',
+    data: {
+      name: 'E2E Kopiermarkt',
+      place: 'Berlin-Pankow',
+      timeFrom: '10:00',
+      startsAt: `${isoDay(10)}T10:00:00.000Z`,
+    } as never,
+    overrideAccess: true,
+  })
+  await page.goto(adminPath(`/termine?bearbeiten=${src.id}`))
+  await expect(async () => {
+    await page.getByTestId('tour-copy').click()
+    await expect(page.getByRole('button', { name: 'Ja, kopieren' })).toBeVisible({ timeout: 1500 })
+  }).toPass({ timeout: 15_000 })
+  await page.getByRole('button', { name: 'Ja, kopieren' }).click()
+  await page.waitForURL((url) => {
+    const id = url.searchParams.get('bearbeiten')
+    return !!id && id !== String(src.id)
+  })
+  const editor = page.getByTestId('tour-editor')
+  await expect(editor.getByTestId('tf-name.de')).toHaveValue('E2E Kopiermarkt')
+  await expect(editor.getByTestId('tf-startDate')).toHaveValue(isoDay(17))
+  await expect(editor.getByTestId('tf-published')).not.toBeChecked()
+  await expectNoHorizontalScroll(page)
 })

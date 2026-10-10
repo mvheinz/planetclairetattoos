@@ -30,7 +30,7 @@ import {
   PRODUCT_SLUG_RE,
 } from '@/lib/products/itemNumber'
 import { registerUploadReference } from '@/lib/uploads/references'
-import { productTransitionEndpoints } from '@/endpoints/products/actions'
+import { productDuplicateEndpoint, productTransitionEndpoints } from '@/endpoints/products/actions'
 import { adoptEndpoint } from '@/endpoints/products/adopt'
 import { productLabelEndpoint } from '@/endpoints/products/label'
 import {
@@ -71,6 +71,13 @@ registerMediaReference({
   path: 'images',
   where: { status: { not_equals: 'draft' } },
   label: 'Stück',
+  titleField: 'adminTitle',
+})
+registerMediaReference({
+  collection: PRODUCTS_SLUG,
+  path: 'scalePhoto',
+  where: { status: { not_equals: 'draft' } },
+  label: 'Stück (Größenvergleich)',
   titleField: 'adminTitle',
 })
 registerUploadReference({
@@ -626,6 +633,18 @@ const imageFields: Field[] = [
         'Erstes Bild = Titelbild; Reihenfolge per Ziehen. Empfohlen 2–12 Fotos im Hochformat 4:5.',
     },
   },
+  {
+    // U-57 d: optionales Foto zum Größenvergleich; auf der Stückseite als letztes Bild mit Beschriftung.
+    name: 'scalePhoto',
+    type: 'upload',
+    label: 'Foto zum Größenvergleich (freiwillig)',
+    relationTo: 'media',
+    admin: {
+      description:
+        'Ein Foto mit etwas Bekanntem daneben – z. B. deiner Hand, einer Tasse oder einem Lineal –, damit man die ' +
+        'Größe gut einschätzen kann. Es erscheint auf der Stückseite als letztes Bild mit „Zum Größenvergleich“.',
+    },
+  },
 ]
 
 const saleFields: Field[] = [
@@ -668,6 +687,23 @@ const saleFields: Field[] = [
     validate: maxLength(120),
     admin: { description: 'z. B. „Flohmarkt Mauerpark“ (ohne Preis).' },
   },
+  {
+    // U-60 (P14.11): Markt-Verkauf einem Tour-Termin zuordnen (statt nur Freitext).
+    name: 'offlineSaleTourDate',
+    type: 'relationship',
+    label: 'Verkauft auf (Termin)',
+    relationTo: 'tour-dates',
+    access: adminField,
+    admin: { description: 'Markt-Termin, auf dem das Stück verkauft wurde (optional).' },
+  },
+  moneyField('offlineSalePriceCents', {
+    label: 'Erzielter Preis beim Markt-Verkauf',
+    access: adminField,
+    admin: {
+      description:
+        'Optional. Mit Preis zählt der Verkauf im Umsatz-Wächter mit (Spalte „Markt-Verkäufe (Stücke)“).',
+    },
+  }),
   { name: 'archivedAt', type: 'date', label: 'Ausgeblendet am', admin: readOnlySystem },
   {
     name: 'reservedUntil',
@@ -790,6 +826,7 @@ export const Products: CollectionConfig = {
     nextItemNumberEndpoint,
     itemNumberStatusEndpoint,
     ...productTransitionEndpoints,
+    productDuplicateEndpoint,
     translateEndpoint,
     adoptEndpoint,
     productLabelEndpoint,

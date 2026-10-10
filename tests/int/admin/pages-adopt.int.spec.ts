@@ -56,7 +56,11 @@ describe('P8.19a Seiten und FAQ', () => {
       ).toBe(true)
     }
     const home = await loadPageTexts(req, 'home')
-    expect(home.blocks.map((b) => b.blockType)).toEqual(['hero', ...Array(6).fill('station')])
+    expect(home.blocks.map((b) => b.blockType)).toEqual([
+      'hero',
+      'imageText',
+      ...Array(5).fill('station'),
+    ])
     expect(home.blocks.every((b) => b.editable)).toBe(true)
   })
 
@@ -64,7 +68,7 @@ describe('P8.19a Seiten und FAQ', () => {
     const req = await adminReq(payload, userId)
     const form = await loadPageTexts(req, 'home')
     const blocks = structuredClone(form.blocks)
-    blocks[1]!.fields.text = { de: 'x'.repeat(401), en: '' }
+    blocks[2]!.fields.text = { de: 'x'.repeat(401), en: '' } // Station 01 Keramik (nach „Bild mit Text“, U-50)
     const res = await rest(
       'POST',
       '/pages/texts',
@@ -79,7 +83,7 @@ describe('P8.19a Seiten und FAQ', () => {
     expect(res.status).toBe(400)
     const body = (await res.json()) as { errors: { path: string }[] }
     expect(body.errors.map((e) => e.path)).toEqual(
-      expect.arrayContaining(['blocks.1.fields.text.de', 'seo.metaTitle.de']),
+      expect.arrayContaining(['blocks.2.fields.text.de', 'seo.metaTitle.de']),
     )
     expect((await bySeedKey(payload, 'pages', 'home')).seed).toBe(true)
   })
@@ -94,7 +98,7 @@ describe('P8.19a Seiten und FAQ', () => {
     const form = await loadPageTexts(req, 'home')
     const blocks = structuredClone(form.blocks)
     blocks[0]!.fields.subheading = { de: 'Neue Unterzeile von Jutta', en: 'New subline by Jutta' }
-    blocks[1]!.fields.text = { de: 'Keramik, frisch aus dem Ofen.', en: '' } // Station 01 Keramik (U-40)
+    blocks[2]!.fields.text = { de: 'Keramik, frisch aus dem Ofen.', en: '' } // Station 01 Keramik (U-40, U-50)
     const res = await rest(
       'POST',
       '/pages/texts',
@@ -118,7 +122,7 @@ describe('P8.19a Seiten und FAQ', () => {
     const layoutEn = en.layout as Array<Record<string, unknown>>
     expect(layoutDe[0]!.subheading).toBe('Neue Unterzeile von Jutta')
     expect(layoutEn[0]!.subheading).toBe('New subline by Jutta')
-    expect(layoutDe[1]!.text).toBe('Keramik, frisch aus dem Ofen.')
+    expect(layoutDe[2]!.text).toBe('Keramik, frisch aus dem Ofen.')
     // Stationen bleiben vollständig (stationId, Pose, Link unverändert)
     expect(layoutDe.filter((b) => b.blockType === 'station').map((b) => b.stationId)).toEqual([
       'keramik',
@@ -126,7 +130,6 @@ describe('P8.19a Seiten und FAQ', () => {
       'zeichnungen',
       'schmuck',
       'tattoo',
-      'jutta-und-coco',
     ])
     expect((de.seo as Record<string, unknown>).metaTitle).toBe('Planet Claire – Keramik')
 

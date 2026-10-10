@@ -49,6 +49,7 @@ export async function GalleryGrid({
   label,
   eagerCount = 2,
   loop,
+  flashLinks,
 }: {
   entries: readonly PublicGalleryEntry[]
   locale: Locale
@@ -60,6 +61,8 @@ export async function GalleryGrid({
    * (Kringel zwischen den Zeilen).
    */
   loop?: 'contour'
+  /** U-56: Flash-Nummer → Link auf die Karte in R12 (nur veröffentlichte Motive); „nach Flash F-012“. */
+  flashLinks?: ReadonlyMap<number, { href: string; display: string }>
 }) {
   const t = await getTranslations({ locale, namespace: 'tattoo.gallery' })
   return (
@@ -75,9 +78,12 @@ export async function GalleryGrid({
           const zoom = zoomOf(entry.image)
           const status = entry.kind === 'healed' ? healedText(entry, locale, t) : t('freshLabel')
           const caption = [entry.caption, entry.placement, status].filter(Boolean).join(' · ')
+          const flash =
+            !loop && entry.flashNumber !== null ? flashLinks?.get(entry.flashNumber) : undefined
           return (
             <li key={entry.id} data-leash-anchor={loop ? undefined : 'tag'}>
               <figure
+                id={loop ? undefined : entry.anchor}
                 className={styles.galleryItem}
                 data-gallery-entry={entry.id}
                 data-gallery-kind={entry.kind}
@@ -111,6 +117,11 @@ export async function GalleryGrid({
                     <span className={styles.galleryStatus} data-gallery-status="">
                       {status}
                     </span>
+                  ) : null}
+                  {flash ? (
+                    <a href={flash.href} className={styles.galleryFlash} data-gallery-flash="">
+                      {t('afterFlash', { number: flash.display })}
+                    </a>
                   ) : null}
                   {entry.creditHandle ? (
                     <span className={styles.muted}>

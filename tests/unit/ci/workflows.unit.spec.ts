@@ -69,11 +69,25 @@ const quick = ci.jobs.quick!
 const stepIndex = (re: RegExp) => quick.steps.findIndex((s) => re.test(s.run ?? ''))
 
 describe('Workflows allgemein (§6.2)', () => {
-  it('AK-A-6-01 kein Workflow hat einen push-Auslöser (release.yml erst ab P10)', () => {
+  it('U-65: KEIN Workflow hat einen automatischen Auslöser – nur workflow_dispatch (keine Actions-Minuten)', () => {
+    expect(workflowFiles.sort()).toEqual([
+      'art-qa.yml',
+      'ci-full.yml',
+      'ci.yml',
+      'preview-export.yml',
+      'release.yml',
+      'restore-drill.yml',
+    ])
     for (const file of workflowFiles) {
       const wf = load(file)
-      if (file === 'release.yml') continue
-      expect(Object.keys(wf.on), file).not.toContain('push')
+      expect(Object.keys(wf.on), file).toEqual(['workflow_dispatch'])
+      const raw = readFileSync(path.join(WF_DIR, file), 'utf8')
+      expect(raw, file).not.toMatch(
+        /^\s*(push|pull_request|pull_request_target|schedule|workflow_run|merge_group|issue_comment):/m,
+      )
+      expect(raw, file).toContain(
+        '# Seit U-65 nur per Hand – Prüfungen laufen lokal (pnpm ci:local).',
+      )
     }
   })
 
@@ -146,15 +160,9 @@ describe('Workflows allgemein (§6.2)', () => {
 })
 
 describe('ci.yml – Job quick (§6.3)', () => {
-  it('AK-A-6-01 Auslöser nur pull_request (Typen laut §6.2) und workflow_dispatch', () => {
+  it('U-65 Auslöser nur workflow_dispatch (Vorlage, lokal: pnpm ci:local quick)', () => {
     expect(ci.name).toBe('CI')
-    expect(Object.keys(ci.on).sort()).toEqual(['pull_request', 'workflow_dispatch'])
-    expect((ci.on.pull_request as { types: string[] }).types).toEqual([
-      'opened',
-      'synchronize',
-      'reopened',
-      'ready_for_review',
-    ])
+    expect(Object.keys(ci.on)).toEqual(['workflow_dispatch'])
     expect(ci.permissions).toEqual({ contents: 'read', actions: 'read' })
   })
 
@@ -345,7 +353,6 @@ function runStep(script: string, opts: RunOpts) {
   }
 }
 
-const PR_TYPES = ['opened', 'synchronize', 'reopened', 'ready_for_review']
 const findStep = (job: Job, re: RegExp) => job.steps.findIndex((s) => re.test(s.run ?? ''))
 const usesOf = (job: Job) => job.steps.filter((s) => s.uses).map((s) => s.uses!.split('@')[0])
 
@@ -382,9 +389,8 @@ describe('ci-full.yml (§6.4, P2.28)', () => {
       env: { UPDATE_SNAPSHOTS: String(update) },
     }).output
 
-  it('AK-A-6-01 Auslöser pull_request (Typen wie ci.yml) und workflow_dispatch mit update_snapshots, kein push', () => {
-    expect(Object.keys(full.on).sort()).toEqual(['pull_request', 'workflow_dispatch'])
-    expect((full.on.pull_request as { types: string[] }).types).toEqual(PR_TYPES)
+  it('U-65 Auslöser nur workflow_dispatch mit update_snapshots (Vorlage, lokal: pnpm ci:local full)', () => {
+    expect(Object.keys(full.on)).toEqual(['workflow_dispatch'])
     const inputs = (full.on.workflow_dispatch as { inputs: Record<string, { type: string }> })
       .inputs
     expect(inputs.update_snapshots?.type).toBe('boolean')
@@ -404,6 +410,7 @@ describe('ci-full.yml (§6.4, P2.28)', () => {
       'art',
       'full',
       'phase',
+      'projects',
       'sha7',
       'snapshots',
     ])
@@ -440,6 +447,15 @@ describe('ci-full.yml (§6.4, P2.28)', () => {
     expect(dispatch(true)).toMatchObject({ full: 'false', snapshots: 'true' })
   })
 
+  it('P14.13 Geräteprofile: Phasenende und Dispatch alle drei, Zwischenlauf [ci:full] nur desktop + iphone-15', () => {
+    const all = ['desktop', 'iphone-15', 'pixel-7']
+    const projects = (out: Record<string, string>) => JSON.parse(out.projects!) as string[]
+    expect(projects(mode('chore(P2): finish phase [ci:full p2]'))).toEqual(all)
+    expect(projects(mode('chore(P14): finish [ci:full  p14]'))).toEqual(all)
+    expect(projects(dispatch(false))).toEqual(all)
+    expect(projects(mode('feat(P4.3): checkout [ci:full]'))).toEqual(['desktop', 'iphone-15'])
+  })
+
   it('Jobs e2e-full, quality, snapshots hängen an mode und laufen nur in ihrem Fall', () => {
     expect(Object.keys(full.jobs)).toEqual(['mode', 'e2e-full', 'quality', 'docker', 'snapshots'])
     for (const name of ['e2e-full', 'quality', 'docker']) {
@@ -469,7 +485,8 @@ describe('ci-full.yml (§6.4, P2.28)', () => {
     const job = full.jobs['e2e-full']!
     expect(job.env?.NEXT_PUBLIC_LEASH_DEBUG).toBe('1')
     expect(job.strategy?.['fail-fast']).toBe(false)
-    expect(job.strategy?.matrix?.project).toEqual(['desktop', 'iphone-15', 'pixel-7'])
+    // P14.13: Projekte aus dem Job mode (Phasenende alle drei, Zwischenlauf ohne pixel-7, Test oben).
+    expect(job.strategy?.matrix?.project).toBe('${{ fromJSON(needs.mode.outputs.projects) }}')
     expect(job.strategy?.matrix?.shard).toEqual([1, 2])
     expect(job.name).toContain('${{ matrix.project }}')
     expect(job['timeout-minutes']).toBeLessThanOrEqual(70)
@@ -515,12 +532,31 @@ describe('ci-full.yml (§6.4, P2.28)', () => {
     expectBudgetBeforeOptionalUpload(job, 'ci-full-quality-report')
   })
 
-  it('P4.2/P10.1 e2e-full: alle Unit-Tests zusätzlich mit TZ=Europe/Berlin', () => {
+  it('P4.2/P10.1 alle Unit-Tests zusätzlich mit TZ=Europe/Berlin – seit P14.13 einmal in quick statt je E2E-Job', () => {
     const job = full.jobs['e2e-full']!
-    const step = findStep(job, /^pnpm run test:unit$/)
-    expect(step).toBeGreaterThan(findStep(job, /pnpm install --frozen-lockfile/))
-    expect(job.steps[step]!.env?.TZ).toBe('Europe/Berlin')
+    expect(findStep(job, /pnpm run test:unit/)).toBe(-1)
+    const berlin = quick.steps.filter((s) => s.env?.TZ === 'Europe/Berlin')
+    expect(berlin).toHaveLength(1)
+    expect(berlin[0]!.run).toBe('pnpm run test:unit')
+    expect(berlin[0]!.if).toBe("steps.mode.outputs.full == 'true'")
     expect(full.env?.TZ).toBe('UTC')
+  })
+
+  it('P14.13 Int-Tests nur einmal: quality führt test:coverage (Unit + Int, gleiche Dateien wie test:int) und Build-Scans aus', () => {
+    const job = full.jobs.quality!
+    expect(findStep(job, /^pnpm run test:coverage$/)).toBeGreaterThan(0)
+    expect(
+      findStep(job, /^pnpm run check:bundle && pnpm run check:external --built$/),
+    ).toBeGreaterThan(findStep(job, /pnpm run seed && pnpm run build/))
+    const cov = read('vitest.coverage.config.mts')
+    expect(cov).toContain("extends: './vitest.unit.config.mts'")
+    expect(cov).toContain("extends: './vitest.config.mts'")
+    expect(cov).not.toMatch(/\binclude:\s*\[\s*'tests/)
+    // test:coverage setzt die Test-DB wie test:int zurück
+    const scripts = (JSON.parse(read('package.json')) as { scripts: Record<string, string> })
+      .scripts
+    expect(scripts['test:coverage']).toContain('db:reset --test')
+    expect(scripts['test:int']).toContain('db:reset --test')
   })
 
   it('T-12 quality: fehlende Referenzbilder = Hinweis im Summary (nicht rot), vorhandene werden streng geprüft', () => {
@@ -568,6 +604,51 @@ describe('ci-full.yml (§6.4, P2.28)', () => {
   })
 })
 
+describe('ci.yml – quick beim vollen Lauf (P14.13, §6.3/§6.8)', () => {
+  const kennung = quick.steps[0]!
+  const mode = (msg: string) => runStep(kennung.run!, { event: 'pull_request', out: msg }).output
+
+  it('Kennung: [ci:full …] → full=true, [ci:art]/[ci:update-snapshots] → skip, sonst voller quick', () => {
+    expect(mode('chore(P14): finish [ci:full p14]')).toMatchObject({ skip: 'false', full: 'true' })
+    expect(mode('feat(P4.3): checkout [ci:full]')).toMatchObject({ skip: 'false', full: 'true' })
+    expect(mode('chore(P9): art [ci:art]')).toMatchObject({ skip: 'true', full: 'false' })
+    expect(mode('test: refs [ci:update-snapshots]')).toMatchObject({ skip: 'true', full: 'false' })
+    expect(mode('build(deps): bump foo')).toMatchObject({ skip: 'false', full: 'false' })
+    expect(runStep(kennung.run!, { event: 'workflow_dispatch' }).output).toMatchObject({
+      skip: 'false',
+      full: 'false',
+    })
+  })
+
+  it('beim vollen Lauf entfallen nur Schritte, die ci-full.yml ohnehin ausführt', () => {
+    const lite = "steps.mode.outputs.skip != 'true' && steps.mode.outputs.full != 'true'"
+    const onlyWithoutFull = quick.steps.filter((s) => s.if === lite).map((s) => s.run ?? s.uses)
+    // test:int → quality (test:coverage); Build + Budgets → quality; @smoke → e2e-full (ohne --grep, alle Tags außer @visual/@perf)
+    expect(onlyWithoutFull).toEqual([
+      'pnpm run test:unit',
+      expect.stringContaining("require('@playwright/test/package.json')"),
+      'actions/cache@v6',
+      'pnpm exec playwright install --with-deps chromium webkit',
+      'pnpm run test:int',
+      'actions/cache@v6',
+      'pnpm run seed && pnpm run build',
+      'pnpm run check:bundle && pnpm run check:external --built',
+      'pnpm run test:e2e --grep @smoke --project=desktop --project=iphone-15',
+    ])
+    // Lint, Typen, statische Prüfungen, Migrationen + Drift, Geheimnis-Scan und audit laufen immer.
+    for (const re of [
+      /pnpm run lint/,
+      /pnpm run typecheck/,
+      /check:static/,
+      /check:migrations/,
+      /gitleaks" detect/,
+      /pnpm audit/,
+    ]) {
+      expect(quick.steps[stepIndex(re)]!.if, String(re)).toBe("steps.mode.outputs.skip != 'true'")
+    }
+  })
+})
+
 describe('preview-export.yml (§6.5, P2.28)', () => {
   const pv = load('preview-export.yml')
   const job = pv.jobs.export!
@@ -575,10 +656,9 @@ describe('preview-export.yml (§6.5, P2.28)', () => {
   const mode = (msg: string) => runStep(kennung.run!, { event: 'pull_request', out: msg }).output
   const step = (re: RegExp) => job.steps[findStep(job, re)]!
 
-  it('AK-A-6-01 Auslöser pull_request (Typen wie ci.yml) und workflow_dispatch, kein push; ein Job export', () => {
+  it('U-65 Auslöser nur workflow_dispatch (Vorlage, lokal: Schritt preview in pnpm ci:local full); ein Job export', () => {
     expect(pv.name).toBe('Vorschau-Export')
-    expect(Object.keys(pv.on).sort()).toEqual(['pull_request', 'workflow_dispatch'])
-    expect((pv.on.pull_request as { types: string[] }).types).toEqual(PR_TYPES)
+    expect(Object.keys(pv.on)).toEqual(['workflow_dispatch'])
     expect(Object.keys(pv.jobs)).toEqual(['export'])
     expect(job['timeout-minutes']).toBeLessThanOrEqual(30)
   })

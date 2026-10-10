@@ -1,10 +1,18 @@
 import { expect, test } from './fixtures'
+import { kokoAsleep } from '../../src/lib/home/kokoSleep'
 
 // P12.6 (U-08) und P13.2 (U-41): Koko, Vorsitzende der Goth Dogs Berlin – freigestelltes Bild von Juttas Malerei (Büste mit
 // Brustansatz), Augäpfel und Lidstriche aus dem Original, nur die Pupillen (getupfte Ovale) sind animiert und gucken immer von
 // links nach rechts, beschnitten auf den gemalten Augapfel. Fehlermeldung der Inhaberin: „die kleine Koko-Animation ist nach
 // 3–4 Sekunden verschwunden“ – darum läuft ein Test über mehr als zwei Durchgänge (22 s) und prüft, dass sich die
 // Pupille weiter bewegt, die Animationen laufen und nichts ausgeblendet bleibt. Bei reduzierter Bewegung: Standbild.
+
+// U-53 (P14.4): nachts (Berlin 22–7 Uhr) schläft Koko – wie `tourNow()` im Server gilt in der Testumgebung `SEED_NOW`.
+const now = () =>
+  process.env.APP_ENV === 'test' && process.env.SEED_NOW
+    ? new Date(process.env.SEED_NOW)
+    : new Date()
+const asleep = () => kokoAsleep(now())
 
 const sample = () => {
   const el = document.querySelector('[data-chairwoman]')!
@@ -21,6 +29,25 @@ const sample = () => {
 }
 
 test.describe('Startseite: Koko', () => {
+  test('U-53 Augen passen zur Berliner Uhrzeit: tagsüber Pupillen, nachts geschlossene Lider (ohne Bewegung)', async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' })
+    await page.goto('/de')
+    const koko = page.locator('[data-chairwoman]').first()
+    if (asleep()) {
+      await expect(koko).toHaveAttribute('data-koko-sleep', '')
+      await expect(koko).toHaveAttribute('aria-label', /Augen sind zu/)
+      await expect(koko.locator('[data-koko-lid]')).toHaveCount(2)
+      await expect(koko.locator('[data-koko-pupil]')).toHaveCount(0)
+      expect(await koko.evaluate((el) => el.getAnimations({ subtree: true }).length)).toBe(0)
+    } else {
+      await expect(koko).not.toHaveAttribute('data-koko-sleep')
+      await expect(koko.locator('[data-koko-lid]')).toHaveCount(0)
+      await expect(koko.locator('[data-koko-pupil]')).toHaveCount(2)
+    }
+  })
+
   test('Bild mit Maßen, Alt-Text DE/EN, keine Drittanfragen', async ({ page, foreignRequests }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' })
     await page.goto('/de')
@@ -33,14 +60,26 @@ test.describe('Startseite: Koko', () => {
     await expect(img).toHaveAttribute('src', '/art/koko.v3.webp')
     await expect(img).toHaveAttribute('width', '700')
     await expect(img).toHaveAttribute('height', /^\d+$/)
+    // U-54 (P14.5): AVIF zuerst (WebP-Rückfall), passende Breite aus 360/520/700
+    await expect(koko.locator('picture source[type="image/avif"]')).toHaveAttribute(
+      'srcset',
+      '/art/koko.v3-360.avif 360w, /art/koko.v3-520.avif 520w, /art/koko.v3.avif 700w',
+    )
+    await expect(koko.locator('picture source[type="image/webp"]')).toHaveAttribute(
+      'srcset',
+      /koko\.v3\.webp 700w$/,
+    )
     await expect
-      .poll(() => img.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth))
-      .toBe(700)
+      .poll(() => img.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0))
+      .toBe(true)
+    expect(await img.evaluate((i: HTMLImageElement) => i.currentSrc)).toMatch(
+      /\/art\/koko\.v3(-360|-520)?\.avif$/,
+    )
     const box = await koko.boundingBox()
     expect(box!.width).toBeGreaterThan(150)
     expect(box!.height / box!.width).toBeCloseTo(783 / 700, 1)
     // U-41: Pupillen beschnitten auf den gemalten Augapfel-Umriss (keine Idealform, viele Punkte)
-    await expect(koko.locator('[data-koko-pupil]')).toHaveCount(2)
+    await expect(koko.locator('[data-koko-pupil]')).toHaveCount(asleep() ? 0 : 2)
     await expect(koko.locator('ellipse')).toHaveCount(0)
     for (const id of ['l', 'r']) {
       const pts = await koko
@@ -59,6 +98,7 @@ test.describe('Startseite: Koko', () => {
   test('Pupillen laufen weiter: 24 s lang mehrfach links und rechts, ruhige Halts, schnelle Wechsel, kein Zittern', async ({
     page,
   }) => {
+    test.skip(asleep(), 'nachts schläft Koko (U-53): keine Pupillen')
     test.setTimeout(90_000)
     await page.emulateMedia({ reducedMotion: 'no-preference' })
     await page.goto('/de')
@@ -125,6 +165,7 @@ test.describe('Startseite: Koko', () => {
   })
 
   test('weniger Bewegung: keine Animation, Pupillen stehen links (Standbild)', async ({ page }) => {
+    test.skip(asleep(), 'nachts schläft Koko (U-53): keine Pupillen')
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.goto('/de')
     const koko = page.locator('[data-chairwoman]').first()
@@ -137,6 +178,7 @@ test.describe('Startseite: Koko', () => {
   })
 
   test('Schalter „Animationen aus“ (data-motion=reduced) stoppt auch Koko', async ({ page }) => {
+    test.skip(asleep(), 'nachts schläft Koko (U-53): keine Pupillen')
     await page.emulateMedia({ reducedMotion: 'no-preference' })
     await page.goto('/de')
     await page.evaluate(() => document.documentElement.setAttribute('data-motion', 'reduced'))

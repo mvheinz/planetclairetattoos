@@ -45,6 +45,12 @@
   margin: 0;
 }
 
+/* U-55 (P14.6, LG-01): Coco läuft auf der Umrundung der Galerie-Leiste über deren Oberkante – 16 px mehr Luft unter der
+   Überschrift, damit ihre Ohren die Zeile nicht berühren (die Schlaufe beginnt jetzt etwas früher, Coco steht dort öfter). */
+[data-tattoo-gallery-teaser] > .sectionHeading {
+  padding-block-end: var(--space-4);
+}
+
 .prose {
   max-width: 65ch;
 }
@@ -330,6 +336,18 @@
   font-size: var(--fs-small);
 }
 
+/* U-56: „Schon gestochen – Foto ansehen“ (Link auf den Galerie-Eintrag, Ziel ≥ 24 px). */
+.flashPhoto {
+  font-size: var(--fs-small);
+}
+
+.flashPhoto a,
+.galleryFlash {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+
 .flashActions {
   display: flex;
   flex-direction: column;
@@ -384,6 +402,7 @@
 
 .galleryItem {
   margin: 0;
+  scroll-margin-top: calc(var(--header-h, 64px) + var(--space-4));
 }
 
 /* Kleine Bilderleiste (R11-Teaser, U-44): Coco läuft an der Leine einmal darum herum (Freiraum `u-leash-room`). */
@@ -436,6 +455,15 @@
   gap: 2px;
   margin-top: var(--space-2);
   font-size: var(--fs-small);
+}
+
+.galleryItem:target .galleryLink {
+  box-shadow: var(--shadow-stencil);
+}
+
+.galleryFlash {
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
 }
 
 .galleryStatus {

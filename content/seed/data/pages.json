@@ -19,6 +19,15 @@
         "cocoPose": "run"
       },
       {
+        "blockType": "imageText",
+        "image": "media:own:jutta-coco",
+        "imagePosition": "left",
+        "content": {
+          "de": "Werkstatt unter der Woche, Markttisch am Wochenende, Coco immer ein Stück vor mir. Wenn du ein Bild im Kopf hast, das noch nicht existiert: Auftragsarbeiten gibt es auch.",
+          "en": "Workshop during the week, market table at the weekend, Coco always a step ahead of me. If you carry a picture in your head that does not exist yet: commissions are possible, too."
+        }
+      },
+      {
         "blockType": "station",
         "stationId": "keramik",
         "heading": {
@@ -124,27 +133,6 @@
           "label": {
             "de": "Zum Tattoo-Bereich",
             "en": "To the tattoo area"
-          }
-        }
-      },
-      {
-        "blockType": "station",
-        "stationId": "jutta-und-coco",
-        "heading": {
-          "de": "Jutta & Coco",
-          "en": "Jutta & Coco"
-        },
-        "text": {
-          "de": "Werkstatt unter der Woche, Markttisch am Wochenende, Coco immer ein Stück vor mir. Wenn du ein Bild im Kopf hast, das noch nicht existiert: Auftragsarbeiten gibt es auch.",
-          "en": "Workshop during the week, market table at the weekend, Coco always a step ahead of me. If you carry a picture in your head that does not exist yet: commissions are possible, too."
-        },
-        "cocoPose": "sit",
-        "ornament": "star",
-        "link": {
-          "target": "about",
-          "label": {
-            "de": "Mehr über uns",
-            "en": "More about us"
           }
         }
       }

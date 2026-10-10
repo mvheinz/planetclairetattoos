@@ -1,5 +1,8 @@
 name: Vorschau-Release
 
+# Seit U-65 nur per Hand – Prüfungen laufen lokal (pnpm ci:local). Keine automatischen Auslöser (keine Actions-Minuten);
+# der Inhalt bleibt als Vorlage (ARCHITEKTUR §6, docs/KONZEPT-OHNE-ACTIONS.md).
+
 # ARCHITEKTUR §6.6 (PLAN P10.21): veröffentlicht die Vorschau-Datei als GitHub-Release `vorschau-p12` – automatisch, sobald
 # der Plan leer ist (`scripts/cloud-setup.sh --plan-status` meldet `OFFEN_P1_P10=0`) und das Release fehlt oder veraltet ist.
 # Einziger Workflow mit `push`-Auslöser (AK-A-6-01): nur bei Änderung der Konfiguration oder dieser Datei; Juttas Uploads
@@ -7,19 +10,7 @@ name: Vorschau-Release
 # Bei Pull Requests, die diese Datei oder `.github/vorschau-release.json` ändern, läuft nur der Probelauf (bauen und
 # testen, nichts veröffentlichen, nur Lesezugriff). Release-Text und Entscheidung: `scripts/release/` (Node, ohne Install).
 on:
-  push:
-    branches: [main]
-    paths:
-      - .github/vorschau-release.json
-      - .github/workflows/release.yml
-  schedule:
-    - cron: '0 6 * * *'
   workflow_dispatch:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - .github/vorschau-release.json
-      - .github/workflows/release.yml
 
 # Push- und Zeitplan-Lauf nie gleichzeitig und nie abbrechen; Probeläufe je PR getrennt.
 concurrency:
@@ -100,6 +91,22 @@ jobs:
       PAYLOAD_SECRET: ci-only-secret-not-used-anywhere-else-0000
       NEXT_TELEMETRY_DISABLED: '1'
     steps:
+      # P14.13 (ARCHITEKTUR §6.8): Kennung des Kopf-Commits ohne Checkout. Trägt er `[ci:full pN]`, exportiert und testet
+      # preview-export.yml dieselbe Datei mit denselben Befehlen – der Probelauf prüft dann nur die Konfiguration. Bei
+      # `[ci:art]` und `[ci:update-snapshots]` ebenso (Sonderläufe; vor dem Merge folgt immer ein `[ci:full pN]`, §6.7).
+      - name: Kennung
+        id: mode
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sha="${{ github.event.pull_request.head.sha }}"
+          msg=$(gh api "repos/${{ github.repository }}/commits/$sha" --jq .commit.message)
+          if echo "$msg" | grep -qE '\[ci:full\s+p[0-9]+\]|\[ci:art\]|\[ci:update-snapshots\]'; then
+            echo "export=false" >> "$GITHUB_OUTPUT"
+            echo "Probelauf: Export und Export-Test laufen in preview-export.yml (bzw. am Phasenende) – hier nur die Konfiguration." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "export=true" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
@@ -112,20 +119,26 @@ jobs:
         run: pnpm exec vitest run --config ./vitest.unit.config.mts tests/unit/release
       - name: Playwright-Version
         id: pw
+        if: steps.mode.outputs.export == 'true'
         run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
       - name: Playwright-Browser-Cache
         id: pw-cache
+        if: steps.mode.outputs.export == 'true'
         uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-chromium-webkit-${{ steps.pw.outputs.version }}
       - name: Playwright Chromium und WebKit
+        if: steps.mode.outputs.export == 'true'
         run: pnpm exec playwright install --with-deps chromium webkit
       - name: Vorschau exportieren
+        if: steps.mode.outputs.export == 'true'
         run: pnpm run preview:export
       - name: Export-Test
+        if: steps.mode.outputs.export == 'true'
         run: pnpm run test:preview-export
       - name: Probelauf-Hinweis
+        if: steps.mode.outputs.export == 'true'
         run: echo "Probelauf grün – es wurde nichts veröffentlicht (nur Bauen und Tests)." >> "$GITHUB_STEP_SUMMARY"
 
   # 1. Bauen, prüfen, veröffentlichen – nur bei gate = true.
