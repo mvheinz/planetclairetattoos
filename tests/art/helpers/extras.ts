@@ -89,8 +89,9 @@ export function followSamples(
           sawScroll = false
           const l = w.__leash
           if (l) {
-            // Ziel der Coco = Abbildung der Lesezeile (höchstens das Gezeichnete): dorthin muss sie folgen. Die
-            // gezeichnete Linie selbst bleibt beim Zurückscrollen stehen und ist kein Maß für den Rückstand.
+            // Ziel der Coco = Abbildung der Lesezeile (außerhalb des Intros nicht durch das Gezeichnete begrenzt): dorthin
+            // muss sie folgen. Seit U-74 wickelt sich die Linie mit Coco auf (drawnLen = cocoLen) und ist kein Maß für den
+            // Rückstand.
             const box = document.querySelector('[data-leash-layer]')?.getBoundingClientRect()
             const sm = l.geometry.scrollMap
             let mapped = 0
@@ -112,7 +113,7 @@ export function followSamples(
               t: Math.round(now - t0),
               coco: Math.round(l.cocoLen() * 10) / 10,
               drawn: Math.round(l.drawnLen() * 10) / 10,
-              target: Math.round(Math.min(mapped, l.drawnLen()) * 10) / 10,
+              target: Math.round(mapped * 10) / 10,
               scrolling: k < 1,
               sy: Math.round(scrollY),
               stale: !!document.querySelector('[data-leash-layer]')?.hasAttribute('data-stale'),

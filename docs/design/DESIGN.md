@@ -1011,7 +1011,7 @@ R29 (500) nutzt kein Preset mit Engine: statisches Knäuel-SVG (KO-18).
 | Arbeit pro Frame | ≤ 2 ms (Desktop), ≤ 6 ms bei 4× CPU-Drosselung (Pixel-7-Profil) |
 | Aufbau | ≤ 8 ms Desktop; bei 4× Drosselung in Idle-Teilstücken, kein Task > 50 ms |
 | IntersectionObserver | Runtime inaktiv, wenn Linien-Ebene nicht sichtbar; Boil pausiert außerhalb des Sichtbereichs und bei `document.hidden` |
-| Neuaufbau | `ResizeObserver` auf den Seitencontainer (Breite ≥ 1 px oder Höhe ≥ 24 px geändert), `document.fonts.ready`, `load`; entprellt 150 ms, in `requestIdleCallback` (timeout 300). Gezeichneter Fortschritt bleibt je Station erhalten |
+| Neuaufbau | `ResizeObserver` auf den Seitencontainer (Breite ≥ 1 px oder Höhe ≥ 24 px geändert), `document.fonts.ready`, `load`; entprellt 150 ms, in `requestIdleCallback` (timeout 300). Gezeichneter Fortschritt bleibt je Station erhalten – nur ohne Coco an der Leine; mit Coco endet die Linie nach dem Neuaufbau bei ihr (U-74) |
 | Bilder | alle Bilder mit fester `aspect-ratio`, damit Bildladen keinen Neuaufbau braucht |
 | Zeitsteuerung | Zeitbasierte Abläufe nur über WAAPI/CSS (per `document.getAnimations()` anhaltbar) oder rAF mit `performance.now()` (per Playwright-Clock steuerbar) – Voraussetzung für die Frame-Aufnahmen in KUNST-QA |
 
@@ -1079,7 +1079,7 @@ ausstehenden Timer unter Fake-Timern); ein zweites `mount()` auf neuem DOM funkt
 **Test-Schnittstelle:** Ist beim Build `NEXT_PUBLIC_LEASH_DEBUG=1` gesetzt (ARCHITEKTUR §5.2; E2E-Build in `ci.yml`/`ci-full.yml` Job `e2e-full`, `pnpm art:build`), stellt die Runtime `window.__leash = { geometry, drawnLen(), cocoLen(), tier(), pose(), rebuildCount(), setReadingY(y) }` bereit. Ohne das Flag wird der Code entfernt (Tree-Shaking; Prüfung `pnpm check:no-debug` im Job `quality`: der String `__leash` kommt im Produktions-Build und in der Vorschau-Datei nicht vor, ARCHITEKTUR §6.4, AK-A-14-02). KUNST-QA nutzt dieselbe Schnittstelle.
 
 **AK-DS-12** Vitest: `buildGeometry` ist deterministisch (gleiche Eingabe → gleicher Hash von `outlineD`), `scrollMap` ist in beiden Spalten streng monoton, `lut` ist nach `len` sortiert mit Abstand 4 ± 0.01, jede Station liegt mit `loopLen0 < loopLen1` im Pfad, Breiten liegen in `[0.8, 1.35] × baseWidth`.
-**AK-DS-13** Playwright (Chromium, 390×844): Linien-Ebene ist `aria-hidden`, hat keine fokussierbaren Nachfahren; nach Scroll bis zur Seitenmitte ist `drawnLen / totalLength` zwischen 0.35 und 0.75; nach Hochscrollen um 400 px ist `drawnLen` unverändert.
+**AK-DS-13** Playwright (Chromium, 390×844): Linien-Ebene ist `aria-hidden`, hat keine fokussierbaren Nachfahren; nach Scroll bis zur Seitenmitte ist `drawnLen / totalLength` zwischen 0.35 und 0.75; nach Hochscrollen um 400 px ist `drawnLen` kleiner als vorher und endet bei Coco (Abstand zu `cocoLen` ≤ 2 px, U-74; auf Presets ohne Coco bleibt `drawnLen` unverändert).
 **AK-DS-14** Mit `reducedMotion: 'reduce'`: nach `load` + 1500 ms ist die Linie vollständig (`drawnLen === totalLength`, keine `mask`-Attribute), `document.getAnimations().filter(a => a.playState === 'running').length === 0`.
 **AK-DS-15** Resize 390 → 768 → 390 px: Linie wird neu aufgebaut, keine Konsolenfehler, CLS-Einträge während Resize-Neuaufbau: 0.
 

@@ -188,8 +188,9 @@ describe('leash/runtime – mountLeash', () => {
     expect(root.querySelectorAll('[mask], mask').length).toBe(0)
     handle.setMotion('full')
     expect(handle.inspect().tier).toBe('A')
-    // bereits gezeichnete Tinte bleibt
-    expect(handle.inspect().drawnLen).toBe(handle.inspect().geometry!.totalLength)
+    // U-74: mit Coco endet die Leine nach dem Umschalten bei ihr (Lesezeile), nicht mehr vollständig
+    expect(handle.inspect().drawnLen).toBeCloseTo(handle.inspect().cocoLen, 1)
+    expect(handle.inspect().drawnLen).toBeLessThan(handle.inspect().geometry!.totalLength)
     handle.destroy()
   })
 
@@ -422,7 +423,7 @@ describe('leash/runtime – reduzierte Bewegung (P2.17, §9.11, §10.6)', () => 
     handle.destroy()
   })
 
-  it('setMotion: reduziert → Linie sofort vollständig ohne Intro; zurück → Tinte bleibt (monoton)', () => {
+  it('setMotion: reduziert → Linie sofort vollständig ohne Intro; zurück → Leine endet bei Coco (U-74)', () => {
     const root = setupDom()
     const handle = mountLeash(root, { preset: 'journey', routeKey: 'R01' })
     expect(handle.inspect().drawnLen).toBe(0) // Intro läuft noch
@@ -435,7 +436,7 @@ describe('leash/runtime – reduzierte Bewegung (P2.17, §9.11, §10.6)', () => 
     handle.setMotion('full')
     s = handle.inspect()
     expect(s.tier).toBe('A')
-    expect(s.drawnLen).toBe(s.geometry!.totalLength)
+    expect(s.drawnLen).toBeCloseTo(s.cocoLen, 1)
     handle.destroy()
   })
 
@@ -765,6 +766,75 @@ describe('U-68 Randfälle aus der Prüfung (P15.1)', () => {
     expect(api().drawnLen()).toBeGreaterThan(0)
     expect(root.hasAttribute('data-leash-drawn')).toBe(true)
     off()
+    handle.destroy()
+  })
+})
+
+describe('U-74 Leine wickelt sich beim Hochscrollen auf (P15.4)', () => {
+  /** Wirksamer Versatz eines Stücks: eigener Wert, sonst der vom `<svg>` geerbte. */
+  const offsetOf = (p: SVGPathElement) =>
+    parseFloat(
+      p.getAttribute('stroke-dashoffset') ??
+        p.closest('svg')!.getAttribute('stroke-dashoffset') ??
+        'NaN',
+    )
+
+  it('Stufe A: nach dem Zurückwickeln ist hinter der Feder kein Stück mehr sichtbar (auch aus fertigen Segmenten)', () => {
+    scrollY = 2600
+    const root = setupDom()
+    const handle = mountLeash(root, { preset: 'journey', routeKey: 'R01' })
+    advance(50)
+    setScroll(2700)
+    advance(50)
+    setScroll(700)
+    advance(1500)
+    const s = handle.inspect()
+    expect(s.drawnLen).toBeCloseTo(s.cocoLen, 1)
+    const segs = s.geometry!.segments
+    for (const seg of segs) {
+      const svg = root.querySelector<SVGSVGElement>(`[data-leash-seg="${seg.id}"]`)!
+      if (svg.style.visibility === 'hidden') continue
+      const paths = [...svg.querySelectorAll<SVGPathElement>('path')]
+      seg.strokes!.forEach((st, i) => {
+        if (st.len0 > s.drawnLen + 1)
+          expect(offsetOf(paths[i]!), `${seg.id}#${i}`).toBeGreaterThanOrEqual(2000)
+      })
+    }
+    // wieder hinunter: die Leine wächst wieder bis zu Coco, fertige Stücke sichtbar
+    setScroll(2600)
+    advance(2000)
+    const d = handle.inspect()
+    expect(d.drawnLen).toBeGreaterThan(s.drawnLen + 500)
+    expect(d.drawnLen).toBeCloseTo(d.cocoLen, 1)
+    handle.destroy()
+  })
+
+  it('Hochscrollen während des Intros: das Intro endet, die Linie läuft nie vor Coco her', () => {
+    const root = setupDom()
+    const handle = mountLeash(root, { preset: 'journey', routeKey: 'R01' })
+    advance(300)
+    setScroll(1600)
+    advance(600)
+    setScroll(200)
+    for (let i = 0; i < 150; i++) {
+      advance(16)
+      if (i > 20)
+        expect(handle.inspect().drawnLen).toBeLessThanOrEqual(handle.inspect().cocoLen + 0.5)
+    }
+    handle.destroy()
+  })
+
+  it('Neuaufbau mit Coco: die Linie endet bei ihr (kein Rest vor ihr); ohne Coco bleibt der Fortschritt', () => {
+    const root = setupDom()
+    const handle = mountLeash(root, { preset: 'journey', routeKey: 'R01' })
+    advance(2000)
+    setScroll(1300)
+    advance(1500)
+    setScroll(400)
+    advance(1500)
+    handle.rebuild()
+    advance(50)
+    expect(handle.inspect().drawnLen).toBeCloseTo(handle.inspect().cocoLen, 1)
     handle.destroy()
   })
 })

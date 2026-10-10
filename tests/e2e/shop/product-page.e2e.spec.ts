@@ -2,6 +2,7 @@ import type { Payload } from 'payload'
 
 import { holdFixtureRange, type ReleaseLock } from '../../helpers/adminSessionLock'
 import { expect, test, testPayload } from '../fixtures'
+import { expectWarrantyNotice } from '../legal/warranty'
 import { freshPage, holdListData, refresh } from './fresh'
 import {
   ANCHORS,
@@ -363,6 +364,21 @@ test.describe('Produktseite – Beschreibung, Details, Versand & Rückgabe, „M
   })
 
   for (const locale of ['de', 'en'] as const) {
+    test(`R-049 /${locale}: harmonisierte Mitteilung auf der Produktseite – Grafik, Alt-Text, Wortlaut, Link; vor „Mehr aus …“ (U-73)`, async ({
+      page,
+      request,
+    }) => {
+      await openProduct(page, request, ANCHORS.S01[locale])
+      await expectWarrantyNotice(page, locale)
+      const more = page.locator('[data-product-more]')
+      if (await more.count())
+        expect(await isBefore(page.locator('[data-warranty-notice]'), more)).toBe(true)
+      // lesbar: die Pflicht-Grafik nie kleiner als 260 px (bzw. die Kastenbreite)
+      const img = await page.locator('[data-warranty-notice] img').boundingBox()
+      const box = await page.locator('[data-warranty-notice]').boundingBox()
+      expect(img!.width).toBeGreaterThanOrEqual(Math.min(259, box!.width - 26))
+    })
+
     test(`Details-Tabelle /${locale}: Gewicht „210 g“ (S01, DA-9), Reihenfolge laut KO-09b, keine leeren Zeilen`, async ({
       page,
       request,

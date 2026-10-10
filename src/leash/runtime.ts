@@ -372,7 +372,8 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
         }
         v.state = state
       }
-      if (v.strokes && state !== 'future') applyStrokes(v)
+      // nur das Segment an der Feder: fertige erben den Versatz 0 vom `<svg>` (ohne eigene Werte, U-74 Zurückwickeln)
+      if (v.strokes && state === 'active') applyStrokes(v)
       else if (state === 'active' && v.reveal)
         v.reveal.style.strokeDashoffset = String(v.L * (1 - p))
     }
@@ -525,7 +526,11 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       const t = Math.min(1, (now - intro.start) / intro.dur)
       drawnLen = Math.max(drawnLen, intro.from + (intro.to - intro.from) * easeInkOut(t))
       if (t >= 1) intro = null
-      else again = true
+      else if (cfg.coco && target < drawnLen) {
+        // U-74: im Intro hinter die schon gezeichnete Spitze hochgescrollt – Intro endet, die Leine wickelt sich auf
+        intro = null
+        drawnLen = Math.max(cocoLen, target)
+      } else again = true
     }
 
     // Coco folgt der Lesezeile, geglättet: 1 − (1 − 0.35)^(dt/16.7); im Intro auf der schon gezeichneten Linie.
@@ -638,7 +643,8 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
         if (done > 0)
           keep = geometry.stations[Math.min(done, geometry.stations.length) - 1]?.loopLen1 ?? 0
       }
-      drawnLen = Math.min(total, Math.max(target, keep))
+      // mit Coco endet die Leine bei ihr (U-74), ohne Coco bleibt der Fortschritt je Station
+      drawnLen = Math.min(total, cfg.coco ? target : Math.max(target, keep))
     }
     cocoLen = motion === 'reduced' ? restLen() : intro ? 0 : Math.min(target, drawnLen)
     applyDrawn()

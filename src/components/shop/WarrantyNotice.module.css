@@ -1,6 +1,6 @@
-/* R-049 hervorgehobene Mitteilung: eigener Kasten mit Grafik und Link. U-73 (P15.3): kompakt – mobil die kleine Grafik
-   neben der Überschrift und der Text darunter über die ganze Breite, ab 768 px die Grafik links neben allem; kleine Schrift,
-   enge Abstände (Abstände nur über `row-gap`). */
+/* R-049 hervorgehobene Mitteilung: eigener Kasten mit Grafik und Link. U-73 (P15.3): kompakt – kleine Schrift, enge
+   Abstände (nur über `row-gap`), der Wortlaut in zwei Absätzen; die Pflicht-Grafik bleibt lesbar (mindestens 260 px breit,
+   ihre kleinste Schrift ≈ 9 px): mobil über dem Text, ab 768 px links daneben. */
 .notice {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -28,16 +28,13 @@
 }
 
 .graphic {
-  grid-row: 1;
-  grid-column: 1;
+  grid-column: 1 / -1;
   display: block;
-  width: 88px;
+  width: min(100%, 260px);
   height: auto;
 }
 
 .body > .title {
-  grid-row: 1;
-  grid-column: 2;
   font-family: var(--font-display); /* U-43: Überschriften in Spectral */
   font-weight: 400;
   font-size: 1.125rem;
@@ -64,6 +61,8 @@
 }
 
 .link {
+  /* nur der Text ist Ziel (Gitterzelle sonst über die ganze Breite) */
+  justify-self: start;
   color: var(--color-link);
   font-size: var(--fs-meta);
 }
@@ -75,7 +74,8 @@
 
   .graphic {
     grid-row: 1 / span 5;
-    width: 128px;
+    grid-column: 1;
+    width: 260px;
   }
 
   .body > * {
