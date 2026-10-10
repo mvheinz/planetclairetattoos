@@ -4,7 +4,14 @@ import { pathToFileURL } from 'node:url'
 
 import { test as base, expect, type Page } from '@playwright/test'
 
+import { BESTAND_TOKEN_PAGES_NOTE } from '../../scripts/preview-export/assemble'
 import { seedProductSlugs } from '../../scripts/preview-export/crawl'
+import {
+  cartAnchors,
+  piecePath,
+  previewPieces,
+  type PreviewInventory,
+} from '../../scripts/preview-export/inventory'
 import { PreviewReportSchema } from '../../scripts/preview-export/report'
 import { seedToken } from '../../src/lib/seed/tokens'
 import { localizedPath, matchRoute, splitLocale } from '../../src/lib/routes/paths'
@@ -18,24 +25,20 @@ const REPORT = path.resolve('dist/planet-claire-vorschau.report.json')
 const URL_BASE = pathToFileURL(FILE).href
 const FONT_FAMILIES = ['spectral', 'spectralItalic', 'bricolage', 'plexMono']
 const NOT_INCLUDED = '/vorschau/nicht-enthalten'
-const S01 = '/de/shop/901-schale-langohr-wuschel'
+/** Bestand der Datei laut Bericht (U-76, P16.3): `bestand` = Juttas Stücke (Standard), `demo` = Beispielbestand. */
+const INVENTORY: PreviewInventory = existsSync(REPORT)
+  ? ((JSON.parse(readFileSync(REPORT, 'utf8')) as { inventory?: PreviewInventory }).inventory ??
+    'demo')
+  : 'bestand'
+/** Korb-Stücke: Keramik mit ≥ 2 Fotos und Textil/Cap mit Abweichung (Demo: S01 und S11). */
+const [PIECE_A, PIECE_B] = cartAnchors(INVENTORY)
+/** Produktseite des ersten Korb-Stücks (Demo: `/de/shop/901-schale-langohr-wuschel`). */
+const S01 = piecePath(PIECE_A, 'de')
+const pad3 = (n: number) => String(n).padStart(3, '0')
 
-/** Öffentliche Stücke des Beispielbestands (SEED-SPEC): verfügbar, reserviert oder verkauft mit Archiv. */
+/** Öffentliche Stücke des Bestands: verfügbar, reserviert oder verkauft mit Archiv. */
 function publicSeedNumbers(): number[] {
-  const products = JSON.parse(
-    readFileSync(path.resolve('content/seed/data/products.json'), 'utf8'),
-  ) as {
-    itemNumber: number
-    state: { status: string; showInArchiveAfterSale?: boolean }
-  }[]
-  return products
-    .filter(
-      (p) =>
-        ['available', 'reserved'].includes(p.state.status) ||
-        (p.state.status === 'sold' && p.state.showInArchiveAfterSale === true),
-    )
-    .map((p) => p.itemNumber)
-    .sort((a, b) => a - b)
+  return previewPieces(INVENTORY).map((p) => p.itemNumber)
 }
 
 /** Zählt `fetch`- und XHR-Aufrufe der Seite (die Vorschau-Laufzeit darf keine absetzen, P3.16). */
@@ -279,12 +282,14 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
     page,
     watch,
   }) => {
-    await open(page, '#/de/shop/901-schale-langohr-wuschel')
+    await open(page, `#${S01}`)
     const track = page.locator('#pv-root [data-gallery-track]')
     await expect(page.locator('#pv-root [data-gallery]')).toHaveAttribute('data-gallery-index', '0')
     await track.focus()
     await page.keyboard.press('ArrowRight')
-    await expect(page.locator('#pv-root [data-gallery-counter]')).toHaveText('2 / 2')
+    await expect(page.locator('#pv-root [data-gallery-counter]')).toHaveText(
+      `2 / ${PIECE_A.photos}`,
+    )
     await page.locator('#pv-root [data-gallery-slide="0"] a').click()
     const img = page.locator('#pv-root [data-lightbox-img]')
     await expect(img).toBeVisible()
@@ -331,7 +336,7 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
     }
   })
 
-  test('P4.25 Korb (S01 + S11) und Kasse je Sprache: Positionen, Zahlungsfeld-Platzhalter, Demo-Countdown ab 30:00, Bestellknopf und Formulare öffnen den Vorschau-Dialog – nichts gespeichert', async ({
+  test('P4.25 Korb (zwei Stücke, Demo S01 + S11) und Kasse je Sprache: Positionen, Zahlungsfeld-Platzhalter, Demo-Countdown ab 30:00, Bestellknopf und Formulare öffnen den Vorschau-Dialog – nichts gespeichert', async ({
     page,
     watch,
   }) => {
@@ -342,8 +347,8 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
       await go(page, cart)
       const lines = page.locator('#pv-root [data-cart-line]')
       await expect(lines).toHaveCount(2)
-      await expect(lines.nth(0)).toContainText('901')
-      await expect(lines.nth(1)).toContainText('911')
+      await expect(lines.nth(0)).toContainText(pad3(PIECE_A.itemNumber))
+      await expect(lines.nth(1)).toContainText(pad3(PIECE_B.itemNumber))
 
       const checkout = localizedPath('R07', lang)
       await go(page, checkout)
@@ -407,11 +412,13 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
       undefined,
       { timeout: 10_000 },
     )
-    // Galerie und Lightbox auf der Produktseite (S01, zwei Fotos).
+    // Galerie und Lightbox auf der Produktseite (erstes Korb-Stück, mindestens zwei Fotos).
     await go(page, S01)
     await page.locator('#pv-root [data-gallery-track]').focus()
     await page.keyboard.press('ArrowRight')
-    await expect(page.locator('#pv-root [data-gallery-counter]')).toHaveText('2 / 2')
+    await expect(page.locator('#pv-root [data-gallery-counter]')).toHaveText(
+      `2 / ${PIECE_A.photos}`,
+    )
     await page.locator('#pv-root [data-gallery-slide="1"] a').click()
     await expect(page.locator('#pv-root [data-lightbox-img]')).toBeVisible()
     await page.keyboard.press('Escape')
@@ -500,54 +507,70 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
     expect(state).toEqual({ cookie: '', local: 0, session: 0 })
   })
 
-  test('P8.21 Anker in der Datei: Korb S01 + S11 (8,90 €, 109,00 €, 117,90 €, Abweichung bestätigen), Danke O14/O13 (IBAN, Frist), Status O10/O13/O01/O03, Produktseiten, S08 als 404-Variante, G1/G2 mit Etikett, Verwaltungsfoto „Heute“', async ({
+  test('P8.21 Anker in der Datei: Korb (Demo S01 + S11: 8,90 €, 109,00 €, 117,90 €, Abweichung bestätigen), Danke O14/O13 (IBAN, Frist), Status O10/O13/O01/O03 und S08 als 404-Variante nur mit Demo-Bestand, Produktseiten, G1/G2 mit Etikett, Verwaltungsfoto „Heute“', async ({
     page,
     watch,
   }) => {
-    const money = (v: string) => new RegExp(v.replace(/ /g, '[\\s\\u00a0]'))
+    const euro = (cents: number) =>
+      new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(cents / 100)
+    const money = (v: string) => new RegExp(v.replace(/[\s\u00a0]/g, '[\\s\\u00a0]'))
     const text = () => page.locator('#pv-root').innerText()
     await open(page)
 
-    // Korb und Kasse (SEED-SPEC §17)
+    // Korb und Kasse (SEED-SPEC §17): Keramik im Korb → Versand 8,90 €
+    const subtotal = PIECE_A.priceCents + PIECE_B.priceCents
+    if (INVENTORY === 'demo') expect(subtotal).toBe(10_900)
     await go(page, localizedPath('R06', 'de'))
-    expect(await text()).toMatch(money('109,00 €'))
+    expect(await text()).toMatch(money(euro(subtotal)))
     await go(page, localizedPath('R07', 'de'))
     const checkout = await text()
     expect(checkout).toMatch(money('8,90 €'))
-    expect(checkout).toMatch(money('117,90 €'))
+    expect(checkout).toMatch(money(euro(subtotal + 890)))
     await expect(page.locator('#pv-root [data-deviations] input[type="checkbox"]')).toHaveCount(1)
     await expect(
       page.locator('#pv-root [data-deviations] input[type="checkbox"]'),
     ).not.toBeChecked()
 
-    // Danke-Seiten O13 (Vorkasse, Beispiel-IBAN, Frist) und O14 (en)
-    await go(page, `/de/danke/${seedToken('checkouts:O13', 'checkout')}`)
-    await expect(page.locator('#pv-root [data-example-note]')).toContainText('Beispiel')
-    await expect(page.locator('#pv-root')).toContainText('DE36 0000 0000 0000 0000 00')
-    await expect(page.locator('#pv-root [data-bank-due]')).toBeVisible()
-    await go(page, `/en/thank-you/${seedToken('checkouts:O14', 'checkout')}`)
-    await expect(page.locator('#pv-root [data-example-note]')).toContainText('Example')
-
-    // Statusseiten O10 (DHL), O13, O01 und O03 (Status vor der Anfechtung)
-    for (const key of ['O10', 'O13', 'O01', 'O03']) {
-      await go(page, `/de/bestellung/${seedToken(`orders:${key}`, 'status')}`)
-      await expect(page.locator('#pv-root'), key).toContainText(`PC-2026-900${key.slice(1)}`)
-    }
-    await expect(page.locator('#pv-root [data-order-status-page]')).toHaveAttribute(
-      'data-order-status',
-      'delivered',
-    )
-
-    // Produktseiten S01, S11, S14, S19, S26, S29 (EN), S30; S08 als 404-Variante „schon ein Zuhause“
     const pvRoutes = await routes(page)
-    const productRoute = (nr: number, lang: 'de' | 'en') =>
-      pvRoutes.find((r) => r.lang === lang && r.built && r.route.startsWith(`/${lang}/shop/${nr}-`))
-    for (const nr of [901, 911, 914, 919, 926, 930])
-      expect(productRoute(nr, 'de'), `S${String(nr).slice(1)} de`).toBeTruthy()
-    expect(productRoute(929, 'en'), 'S29 en').toBeTruthy()
-    const s08 = seedProductSlugs('S08').de
-    await go(page, `/de/shop/${s08.nummer}-${s08.slug}`)
-    await expect(page.locator('#pv-root h1')).toHaveText('Dieses Stück ist weitergezogen')
+    const productRoute = (n: number, lang: 'de' | 'en') =>
+      pvRoutes.find((r) => r.lang === lang && r.built && r.route.startsWith(`/${lang}/shop/${n}-`))
+    if (INVENTORY === 'demo') {
+      // Danke-Seiten O13 (Vorkasse, Beispiel-IBAN, Frist) und O14 (en)
+      await go(page, `/de/danke/${seedToken('checkouts:O13', 'checkout')}`)
+      await expect(page.locator('#pv-root [data-example-note]')).toContainText('Beispiel')
+      await expect(page.locator('#pv-root')).toContainText('DE36 0000 0000 0000 0000 00')
+      await expect(page.locator('#pv-root [data-bank-due]')).toBeVisible()
+      await go(page, `/en/thank-you/${seedToken('checkouts:O14', 'checkout')}`)
+      await expect(page.locator('#pv-root [data-example-note]')).toContainText('Example')
+
+      // Statusseiten O10 (DHL), O13, O01 und O03 (Status vor der Anfechtung)
+      for (const key of ['O10', 'O13', 'O01', 'O03']) {
+        await go(page, `/de/bestellung/${seedToken(`orders:${key}`, 'status')}`)
+        await expect(page.locator('#pv-root'), key).toContainText(`PC-2026-900${key.slice(1)}`)
+      }
+      await expect(page.locator('#pv-root [data-order-status-page]')).toHaveAttribute(
+        'data-order-status',
+        'delivered',
+      )
+
+      // Produktseiten S01, S11, S14, S19, S26, S29 (EN), S30; S08 als 404-Variante „schon ein Zuhause“
+      for (const nr of [901, 911, 914, 919, 926, 930])
+        expect(productRoute(nr, 'de'), `S${String(nr).slice(1)} de`).toBeTruthy()
+      expect(productRoute(929, 'en'), 'S29 en').toBeTruthy()
+      const s08 = seedProductSlugs('S08').de
+      await go(page, `/de/shop/${s08.nummer}-${s08.slug}`)
+      await expect(page.locator('#pv-root h1')).toHaveText('Dieses Stück ist weitergezogen')
+    } else {
+      // Echter Bestand (U-76): Korb-Stücke als Produktseiten; Danke- und Statusseiten sind nicht in der Datei.
+      for (const piece of [PIECE_A, PIECE_B])
+        for (const lang of LOCALES)
+          expect(productRoute(piece.itemNumber, lang), `${piece.key} ${lang}`).toBeTruthy()
+      expect(
+        pvRoutes.some((r) =>
+          /^\/(de\/danke|en\/thank-you|de\/bestellung|en\/order)\//.test(r.route),
+        ),
+      ).toBe(false)
+    }
 
     // G1/G2 mit Etikett „intern – Einwilligung fehlt“ (R-182)
     await go(page, localizedPath('R15', 'de'))
@@ -612,21 +635,47 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
     for (const id of ['R02', 'R03', 'R04', 'R05', 'R06', 'R07', 'R25'])
       for (const lang of LOCALES)
         expect(builtIds.has(`${id}:${lang}`), `${id} ${lang} gebaut`).toBe(true)
-    // P4.25 EK-11 / P8.21: Danke- und Statusseiten mit den Seed-Ankern gebaut; R19 und alle Tattoo-Routen `ok`.
-    for (const id of ['R08', 'R09', 'R10', 'R11', 'R12', 'R14', 'R15', 'R16', 'R17', 'R18', 'R19'])
+    // P4.25 EK-11 / P8.21: Danke- und Statusseiten mit den Seed-Anker gebaut (nur Demo-Bestand; mit echtem Bestand
+    // als „nicht gebaut“ mit Hinweis, U-76); R19 und alle Tattoo-Routen `ok`.
+    const tokenPages = ['R08', 'R09']
+    for (const id of [
+      ...tokenPages,
+      'R10',
+      'R11',
+      'R12',
+      'R14',
+      'R15',
+      'R16',
+      'R17',
+      'R18',
+      'R19',
+    ]) {
+      if (INVENTORY === 'bestand' && tokenPages.includes(id)) continue
       for (const lang of LOCALES)
         expect(builtIds.has(`${id}:${lang}`), `${id} ${lang} gebaut (ok)`).toBe(true)
+    }
+    if (INVENTORY === 'bestand') {
+      const notes = report.routes.filter((r) => r.note === BESTAND_TOKEN_PAGES_NOTE)
+      expect(notes.map((r) => r.route).sort()).toEqual([
+        '/de/bestellung/[token]',
+        '/de/danke/[token]',
+        '/en/order/[token]',
+        '/en/thank-you/[token]',
+      ])
+    }
     for (const variant of [
       '/de/shop?available=1',
       '/en/shop?available=1',
       '/de/shop/kategorie/keramik?available=1',
       '/en/shop/category/ceramics?available=1',
-      '/de/archiv?category=keramik',
-      '/en/archive?category=ceramics',
+      // Archiv-Filter nur mit verkauften Stücken (Demo-Bestand)
+      ...(INVENTORY === 'demo'
+        ? ['/de/archiv?category=keramik', '/en/archive?category=ceramics']
+        : []),
     ])
       expect(listed.has(variant), `Variante ${variant}`).toBe(true)
     const seed = publicSeedNumbers()
-    expect(seed.length).toBeGreaterThan(5)
+    expect(seed.length).toBeGreaterThan(INVENTORY === 'bestand' ? 70 : 5)
     for (const lang of LOCALES)
       expect(
         [...products[lang]].sort((a, b) => a - b),

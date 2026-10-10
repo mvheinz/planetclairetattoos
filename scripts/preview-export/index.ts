@@ -14,7 +14,7 @@ import { captureAdminShots } from './adminShots'
 import { assemble, type PreviewMessages } from './assemble'
 import { captureCartSession } from './cartSession'
 import { captureClientRendered } from './clientRendered'
-import { crawl, createServerFetcher, seedParamProvider, startSet, type CrawlResult } from './crawl'
+import { crawl, createServerFetcher, paramProviderFor, startSet, type CrawlResult } from './crawl'
 import { postgresReachable, prepareExportDatabase } from './db'
 import {
   EXPORT_ADMIN_ROUTE,
@@ -26,6 +26,7 @@ import {
   buildExportEnv,
 } from './env'
 import { CHROMIUM_HELP, ExportError, POSTGRES_HELP } from './errors'
+import { cartAnchors, resolveInventory } from './inventory'
 import { displayPhase, resolvePhase } from './phase'
 import {
   LIMIT_BYTES,
@@ -95,6 +96,12 @@ export async function runExport(args: ExportArgs, root = process.cwd()): Promise
   })
   log(`Phase ${displayPhase(phase)}`)
   const env = buildExportEnv({ source: process.env, example, now, phase })
+  const inventory = resolveInventory(env)
+  log(
+    inventory === 'bestand'
+      ? 'Bestand: echte Stücke (content/bestand)'
+      : 'Bestand: Demo (Beispielbestand)',
+  )
 
   log(`Datenbank ${env.DATABASE_URL!.replace(/\/\/[^@]*@/, '//…@')} vorbereiten`)
   await prepareExportDatabase(env, root)
@@ -118,7 +125,7 @@ export async function runExport(args: ExportArgs, root = process.cwd()): Promise
   try {
     log('Server starten')
     server = await startServer(env)
-    // Verwaltungs-Fotos vor dem Korb: Reservierung und Freigabe von S01/S11 setzen `updatedAt` auf die Wanduhr – die
+    // Verwaltungs-Fotos vor dem Korb: Reservierung und Freigabe der Korb-Stücke setzen `updatedAt` auf die Wanduhr – die
     // Stückliste (sortiert und mit Datumsspalte) wäre sonst von Lauf zu Lauf verschieden (AK-A-14-01).
     log('Verwaltungs-Fotos')
     shots = await captureAdminShots({
@@ -130,21 +137,24 @@ export async function runExport(args: ExportArgs, root = process.cwd()): Promise
       phase,
       views: ADMIN_VIEWS,
     })
-    log('Korb und Kasse (S01 + S11, „Zur Kasse“)')
-    const cart = await captureCartSession(server.origin)
-    log('Im Browser gerenderte Seiten (S08 „schon ein Zuhause“)')
-    const rendered = await captureClientRendered(server.origin)
-    // Ohne die Browser-Fassung bliebe von S08 nur die leere Fehler-Hülle (kein H1): Export lieber abbrechen, damit der
-    // Grund (Warnung mit Konsole/Netz) im Log steht, statt eine kaputte Vorschau-Datei zu schreiben.
-    if (rendered.warnings.length > 0) throw new ExportError(1, rendered.warnings.join('\n'))
-    for (const [p, r] of rendered.pages) cart.pages.set(p, r)
-    cart.warnings.push(...rendered.warnings)
+    const anchors = cartAnchors(inventory).map((p) => p.itemNumber)
+    log(`Korb und Kasse (Nr. ${anchors.join(' + ')}, „Zur Kasse“)`)
+    const cart = await captureCartSession(server.origin, anchors)
+    if (inventory === 'demo') {
+      log('Im Browser gerenderte Seiten (S08 „schon ein Zuhause“)')
+      const rendered = await captureClientRendered(server.origin)
+      // Ohne die Browser-Fassung bliebe von S08 nur die leere Fehler-Hülle (kein H1): Export lieber abbrechen, damit
+      // der Grund (Warnung mit Konsole/Netz) im Log steht, statt eine kaputte Vorschau-Datei zu schreiben.
+      if (rendered.warnings.length > 0) throw new ExportError(1, rendered.warnings.join('\n'))
+      for (const [p, r] of rendered.pages) cart.pages.set(p, r)
+      cart.warnings.push(...rendered.warnings)
+    }
     const fetcher = await createServerFetcher(server.origin)
     try {
       log('Crawl')
       result = await crawl(fetcher.fetch, {
         adminRoute: EXPORT_ADMIN_ROUTE,
-        start: startSet(undefined, seedParamProvider),
+        start: startSet(undefined, paramProviderFor(inventory)),
         pinned: cart.pages,
       })
       result.warnings.unshift(...cart.warnings)
@@ -174,6 +184,7 @@ export async function runExport(args: ExportArgs, root = process.cwd()): Promise
       runtime: runtime.code,
       origin: EXPORT_ORIGIN,
       adminShots: shots.entries,
+      inventory,
     })
     return { ...assembled, sizeBytes: Buffer.byteLength(assembled.html) }
   })
@@ -199,6 +210,7 @@ export async function runExport(args: ExportArgs, root = process.cwd()): Promise
     gitSha: gitSha(root),
     seedNow: env.SEED_NOW!,
     generatedAt: new Date().toISOString(),
+    inventory,
     budget: { limitBytes: LIMIT_BYTES, targetBytes: TARGET_BYTES, result: built.budget },
   }
   writeOutput(root, OUTPUT_DIR, OUTPUT_REPORT, serializeReport(report))

@@ -2,6 +2,48 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-10 – P16 abgeschlossen: dein echter Bestand – für Jutta
+
+Hallo Jutta,
+
+aus deinen 19 Foto-Paketen sind **74 Stücke** geworden: 47 Keramik, 13 Schmuck, 7 Textil und 7 Caps/Hüte – mit allen
+186 Fotos (5 Fotos waren doppelt und sind aussortiert). Der Demo-Bestand ist aus allem verschwunden, was du siehst; die
+automatischen Tests benutzen ihn intern weiter.
+
+- **Namen:** Jedes Stück hat einen erfundenen, eher nüchternen Namen nach dem gemalten Motiv, mit etwas trockenem Humor
+  (z. B. Cap „Fledermaus, schlecht ausgeschlafen“ oder Schälchen „Rose, Dornen inklusive“). Die Schriftzüge auf den
+  Stücken habe ich, wie du wolltest, **nicht gelesen und nirgends verwendet** – in den Texten steht höchstens
+  „handgeschriebener Schriftzug“.
+- **Alles ist geschätzt:** Preise (Vorschläge zwischen 32 und 89 €), Maße (am grünen Teller mit 12 cm abgeschätzt) und
+  Gewichte. Keramik steht vorerst auf „Deko – nicht für Lebensmittel“. Für Textil und Caps fehlen Größe und Fasern vom
+  Etikett, für Schmuck das Material der Ketten – das kann ich auf den Fotos nicht erkennen.
+- **Prüfliste:** In der Datei `planet-claire-pruefliste.html` steht jedes Stück mit kleinen Fotos, allen Angaben und den
+  Punkten, die du prüfen solltest. Öffne sie einfach im Browser und notiere, was nicht stimmt.
+- **Vorschau-Datei:** zeigt jetzt deinen echten Bestand im Shop. Die Beispiel-Seiten „Danke“ und „Bestellstatus“ fehlen
+  darin, weil sie Beispiel-Bestellungen mit Demo-Stücken bräuchten.
+- **Beim Start (P11):** Ich spiele die Stücke mit einem Befehl als Entwürfe in die Verwaltung ein, rot markiert „bitte
+  prüfen“. Du korrigierst sie, setzt den Haken „nur eigene Figuren“ und stellst sie selbst online.
+- **Bitte besonders anschauen:** Bei Nr. 102, 103 und 112 ist auf dem Rohling ein fremdes Logo bzw. ein Aufnäher zu sehen
+  – so lassen sie sich nicht veröffentlichen. Bei Nr. 144 ist ein Henkel gebrochen (steht als Abweichung im Text).
+
+Technik-Notiz: siehe unten bei P16.1–P16.3 und in `docs/OFFENE-PUNKTE.md`.
+
+## 2026-10-10 – P16.1–P16.3 Technik (U-76, U-77)
+
+- **P16.1 Bestandsdaten:** `content/bestand/products.json` (74 Stücke `B001`–`B074`, Nummern 101–174, Texte DE/EN,
+  Prüfpunkte je Stück) und `content/bestand/fotos/` (186 JPEG, 1600 px, ohne EXIF/GPS); Schema und Prüfungen in
+  `src/lib/bestand/schema.ts`. Tests: `tests/unit/bestand/data.unit.spec.ts` (Schema, jedes Foto genau einmal,
+  Metadaten, keine Zitate und keine Bezüge zu Liedern, Bands, Filmen oder Zitaten, Rechts-Lint V-13/V-16, Verbotsliste).
+- **P16.2 Import:** `pnpm bestand:import [--only=B001,…] [--preview]` (`src/lib/bestand/import.ts`): Fotos als Medien
+  (`sourceRef` `bestand:B001-1`), Stücke als Entwurf mit Vermerk und interner Notiz, EN als „maschinell“; wiederholbar
+  ohne Doppel. Tests: `tests/int/bestand/import.int.spec.ts`, `tests/unit/bestand/args.unit.spec.ts`.
+- **P16.3 Vorschau mit echtem Bestand:** `PREVIEW_INVENTORY` (Standard `bestand`, `demo` = alter Stand),
+  `scripts/preview-export/inventory.ts` (Korb-Stücke, Seed-Schritte ohne Demo-Stücke), Danke-/Statusseiten im Bericht
+  als „nicht gebaut“ mit Hinweis; Abnahmetests der Vorschau-Datei je Bestand. Prüfliste: `pnpm bestand:pruefliste`
+  → `dist/planet-claire-pruefliste.html` (auch im Schritt `preview` von `pnpm ci:local full`).
+  Tests: `tests/unit/preview-export/inventory.unit.spec.ts`, `tests/unit/bestand/pruefliste.unit.spec.ts`,
+  `pnpm test:preview-export`.
+
 ## 2026-10-10 – P15 abgeschlossen: vierte Runde nach deiner Rückmeldung – für Jutta
 
 Hallo Jutta,

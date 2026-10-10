@@ -54,6 +54,8 @@ export const PreviewReportSchema = z.object({
   gitSha: z.string().min(1),
   seedNow: z.string().min(1),
   generatedAt: z.string().min(1),
+  /** Bestand der Datei (U-76, P16.3): `bestand` = Juttas Stücke, `demo` = Beispielbestand. Fehlt bei älteren Dateien. */
+  inventory: z.enum(['bestand', 'demo']).optional(),
   budget: z.object({
     limitBytes: z.literal(LIMIT_BYTES),
     targetBytes: z.literal(TARGET_BYTES),

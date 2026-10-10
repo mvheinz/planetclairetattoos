@@ -502,6 +502,14 @@ const DEFS = [
     optionalString,
   ),
   def(
+    'PREVIEW_INVENTORY',
+    T,
+    'P16',
+    'Bestand der Vorschau-Datei: bestand = Juttas echte Stücke (leer = bestand), demo = Beispielbestand',
+    '',
+    optionalString,
+  ),
+  def(
     'E2E_BASE_URL',
     T,
     'P1',
@@ -602,6 +610,7 @@ const PRODUCTION_SKIP = new Set([
   'PREVIEW_PHASE',
   'PREVIEW_EXPORT_DB_NAME',
   'PREVIEW_EXPORT_PORT',
+  'PREVIEW_INVENTORY',
   'NEXT_PUBLIC_LEASH_DEBUG',
   'ART_QA',
   'NEXT_OUTPUT_STANDALONE',

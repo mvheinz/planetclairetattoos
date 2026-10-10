@@ -54,6 +54,8 @@ export interface AssembleInput {
   runtime: string
   origin: string
   adminShots?: AdminShotEntry[]
+  /** Bestand der Datei (U-76); Standard `demo` (Seed-Anker). */
+  inventory?: 'bestand' | 'demo'
 }
 
 export interface SizeByKind {
@@ -261,7 +263,8 @@ export async function assemble(input: AssembleInput): Promise<Assembled> {
   const allPages = [...pages, ...extra]
 
   // Nicht gebaute Registry-Routen (für „Alle Seiten“ und den Bericht).
-  const notBuilt = notBuiltRoutes(crawl)
+  const inventory = input.inventory ?? 'demo'
+  const notBuilt = notBuiltRoutes(crawl, { inventory })
   const routes: PvRoute[] = [
     ...allPages.map((p) => ({
       route: p.route,
@@ -270,7 +273,11 @@ export async function assemble(input: AssembleInput): Promise<Assembled> {
       group: p.group as PvGroup,
       built: true,
     })),
-    ...notBuilt.map(({ note: _note, ...r }) => ({ ...r, built: false })),
+    // Danke- und Statusseiten ohne Beispiel-Bestellungen (echter Bestand) nicht als „Noch nicht gebaut“ zeigen –
+    // sie sind gebaut, nur in dieser Datei nicht enthalten; der Bericht nennt sie mit Hinweis.
+    ...notBuilt
+      .filter((r) => r.note !== BESTAND_TOKEN_PAGES_NOTE)
+      .map(({ note: _note, ...r }) => ({ ...r, built: false })),
   ]
 
   const data: PvData = {
@@ -357,11 +364,16 @@ function pickTexts(m: PreviewMessages): PvTexts {
 
 /** Hinweis im Bericht für Danke- und Statusseiten, solange die Seed-Anker fehlen (PLAN P4.25, P8.4). */
 export const TOKEN_PAGES_NOTE = 'ab P8 (Seed-Anker der Kassen und Bestellungen, P8.4)'
+/** Hinweis im Bericht für Danke- und Statusseiten in der Datei mit echtem Bestand (U-76, P16.3). */
+export const BESTAND_TOKEN_PAGES_NOTE =
+  'nicht in der Datei mit echtem Bestand (brauchen Beispiel-Bestellungen; PREVIEW_INVENTORY=demo)'
 
 /** Registry-Routen ohne Template: `planned` und beim Crawl mit 404 beantwortete (je Sprache). */
 export function notBuiltRoutes(
   crawl: Pick<CrawlResult, 'pages' | 'notBuilt'>,
+  options: { inventory?: 'bestand' | 'demo' } = {},
 ): { route: string; lang: Locale; title: string; group: PvGroup; note?: string }[] {
+  const bestand = options.inventory === 'bestand'
   const out: { route: string; lang: Locale; title: string; group: PvGroup; note?: string }[] = []
   const builtIds = new Set<string>()
   for (const p of crawl.pages) if (p.routeId) builtIds.add(`${p.routeId}:${p.lang}`)
@@ -372,17 +384,20 @@ export function notBuiltRoutes(
       const hasParams = r.paths[lang].includes('[')
       const route = hasParams ? `/${lang}${r.paths[lang]}` : localizedPath(r.id, lang)
       const failed = crawl.notBuilt.some((n) => n.routeId === r.id && n.lang === lang)
-      if (r.status !== 'planned' && !failed) continue
+      const token = r.pageType === 'thankYou' || r.pageType === 'orderStatus'
+      // Echter Bestand: Danke-/Statusseiten haben keine Start-Einträge – trotzdem im Bericht nennen.
+      const missingToken = bestand && token && r.status !== 'planned'
+      if (r.status !== 'planned' && !failed && !missingToken) continue
       if (builtIds.has(`${r.id}:${lang}`) && !failed) continue
       if (seen.has(route)) continue
       seen.add(route)
-      const token = r.pageType === 'thankYou' || r.pageType === 'orderStatus'
+      const note = missingToken ? BESTAND_TOKEN_PAGES_NOTE : TOKEN_PAGES_NOTE
       out.push({
         route,
         lang,
         title: `${r.id} ${route}`,
         group: groupForPageType(r.pageType),
-        ...(token && r.status !== 'planned' ? { note: TOKEN_PAGES_NOTE } : {}),
+        ...(token && r.status !== 'planned' ? { note } : {}),
       })
     }
   }
