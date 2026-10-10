@@ -389,10 +389,15 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     return s ? s.loopLen1 + 48 : 0
   }
 
-  /** U-68: das Intro zeichnet höchstens bis zum Anfang der Schlaufe, in der `len` liegt – den Rest läuft Coco allein. */
+  /**
+   * U-68: das Intro zeichnet höchstens bis zum Anfang der Schlaufe, in der `len` liegt, und nie über eine Umrundung
+   * hinaus (auch nicht, wenn man währenddessen scrollt oder der Bildschirm sehr hoch ist) – den Rest läuft Coco allein.
+   * Einmalige Zeichnungen (404, Danke) zeichnen weiter in einem Zug.
+   */
   function introEnd(len: number): number {
-    for (const s of geometry?.stations ?? [])
-      if (s.loopLen0 < len && len <= s.loopLen1) return s.loopLen0
+    if (cfg.draw === 'scroll')
+      for (const s of geometry?.stations ?? [])
+        if (s.loopLen0 < len && (len <= s.loopLen1 || s.loop === 'contour')) return s.loopLen0
     return len
   }
 
@@ -511,6 +516,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     const diff = cocoTarget - cocoLen
     let moving = !!intro
     const walk = !intro && cocoLen < walkTo
+    if (!intro && !walk) walkTo = 0 // angekommen: der Alleingang ist vorbei
     if ((Math.abs(diff) > COCO_JUMP && !walk) || Math.abs(diff) < 0.1) cocoLen = cocoTarget
     else {
       // U-55: geglättet, höchstens COCO_MAX_SPEED px/ms – Umrundungen werden nicht hektisch; U-68: allein im Schritttempo
@@ -580,6 +586,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     const target = scrollTarget(mm.scrollY)
     const running = intro
     const walking = cocoLen < walkTo
+    const prevWalk = walkTo
     intro = null
     walkTo = 0
     if (tier === 'C') drawnLen = total
@@ -590,7 +597,8 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
         running.to = introEnd(target)
         intro = running
       }
-      walkTo = target
+      // nur den Rest der begonnenen Schlaufe allein laufen – nicht bis zur inzwischen weiter gescrollten Lesezeile
+      walkTo = Math.min(target, prevWalk)
       drawnLen = Math.min(total, prevDrawn)
     } else if (first) {
       if (cfg.draw === 'scroll' && !(cfg.intro && m.scrollY < 8)) drawnLen = target
@@ -716,7 +724,9 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   function rebuild(stepwise = false) {
     if (destroyed) return
     rebuildCount++
-    build(false, stepwise && options.stepwise !== false)
+    // Ersetzt der Neuaufbau einen noch nicht fertigen ersten Aufbau (z. B. `load` oder späte Bilder während der
+    // Idle-Teilstücke), gilt er als erster – sonst fiele das Intro samt Alleingang der Coco (U-68) aus.
+    build(!built, stepwise && options.stepwise !== false)
   }
 
   // ---------- Ereignisse ----------

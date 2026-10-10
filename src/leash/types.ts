@@ -46,7 +46,7 @@ export interface LeashGeometry {
   segments: LeashSegment[];
   totalLength: number;
   lut: Float32Array;            // je 4 px Bogenlänge: [len, x, y, angleRad]
-  stations: { id: string; pose: SpritePose; loopLen0: number; loopLen1: number; y: number }[];
+  stations: { id: string; pose: SpritePose; loopLen0: number; loopLen1: number; y: number; loop: LoopKind }[];
   scrollMap: { readingY: number; len: number }[]; // beide Spalten monoton steigend
 }
 export interface LeashHandle { destroy(): void; rebuild(): void; setMotion(m: 'full' | 'reduced'): void; }

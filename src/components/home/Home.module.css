@@ -61,8 +61,6 @@
   max-width: min(100%, 32ch);
   text-align: center;
   font-size: 1.25rem;
-  /* große, mittige Zeilen: keine Silbentrennung („Auf-tragsarbeiten“) */
-  hyphens: manual;
 }
 
 .introCopy {
@@ -73,6 +71,11 @@
 
 .introText .more {
   margin-top: 0;
+}
+
+/* global.css setzt `hyphens: auto` direkt auf jedes <p> – erben reicht nicht */
+.introText :is(p, li) {
+  hyphens: manual;
 }
 
 .tourCol {
@@ -97,8 +100,9 @@
     padding-inline-start: var(--space-5);
   }
 
+  /* 600–671 px: Spalte schmaler als 260 px + Abstand – dann kleiner statt in Koko hinein */
   .introPhoto {
-    width: 260px;
+    width: min(260px, 100%);
   }
 
   .chairwomanSlot {
@@ -174,6 +178,8 @@
   /* Spalten: Foto (300 px + 48 px Abstand zur Linie) | Koko mit Text | Schaukasten (U-71: oben neben dem Titel) */
   .home {
     grid-template-columns: calc(300px + var(--space-7)) minmax(0, 1fr) 16rem;
+    /* Titel, Kompass nach Inhalt; nur die Zeile Foto/Koko nimmt einen höheren (aufgeklappten) Schaukasten auf */
+    grid-template-rows: auto auto minmax(auto, 1fr);
   }
 
   .home .hero {
@@ -197,14 +203,19 @@
     width: 300px;
   }
 
-  .chairwomanSlot,
-  .home[data-home-layout='plain'] .chairwomanSlot {
+  .chairwomanSlot {
     grid-column: 2;
     grid-row: 3;
   }
 
+  /* ohne Foto (R-181): Koko mit Text mittig unter Titel und Kompass – keine leere Fotospalte */
+  .home[data-home-layout='plain'] .chairwomanSlot {
+    grid-column: 1 / 3;
+  }
+
+  /* große Grundschrift: Koko bleibt in ihrer Spalte */
   .kokoFrame {
-    width: clamp(13rem, 20vw, 17rem);
+    width: min(100%, clamp(13rem, 20vw, 17rem));
   }
 
   .introText {
@@ -212,7 +223,7 @@
   }
 
   /* Nicht „sticky“: aufgeklappte Termine machen die Spalte länger – sie schiebt die Stationen dann nach unten. Über drei
-     Zeilen (Titel, Kompass, Foto/Koko): die Zeilen wachsen so nicht mit dem Schaukasten. */
+     Zeilen (Titel, Kompass, Foto/Koko); wächst er darüber hinaus, wächst nur die Zeile Foto/Koko (siehe oben). */
   .tourCol {
     grid-column: 3;
     grid-row: 1 / 4;
@@ -228,6 +239,30 @@
 
   .footnote {
     grid-row: 5;
+  }
+}
+
+/* ohne Kompass (weniger als zwei Stationen): eine Zeile weniger, keine leere Zeile mit doppeltem Abstand */
+@media (min-width: 1100px) {
+  .home:not(:has(> .compass)) {
+    grid-template-rows: auto minmax(auto, 1fr);
+  }
+
+  .home:not(:has(> .compass)) .photoSlot,
+  .home:not(:has(> .compass)) .chairwomanSlot {
+    grid-row: 2;
+  }
+
+  .home:not(:has(> .compass)) .tourCol {
+    grid-row: 1 / 3;
+  }
+
+  .home:not(:has(> .compass)) .body {
+    grid-row: 3;
+  }
+
+  .home:not(:has(> .compass)) .footnote {
+    grid-row: 4;
   }
 }
 

@@ -84,6 +84,7 @@
 .item p {
   margin: 0;
   overflow-wrap: anywhere;
+  hyphens: manual;
 }
 
 /* Reißzwecke: oben mittig. */
@@ -219,7 +220,8 @@
 
 /* Der nächste Termin: Reiter und Petrol-Datumsblock, sonst so kompakt wie die anderen Zettel. */
 .next {
-  padding-top: 20px;
+  /* Platz für den Reiter „als Nächstes“ (5 px + 0,75rem + 3 px) – wächst mit größerer Schrift mit */
+  padding-top: calc(0.75rem + 8px);
   background: var(--paper-field);
   border-width: var(--stroke-ink);
 }

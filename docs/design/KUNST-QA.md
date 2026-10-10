@@ -188,7 +188,7 @@ Tempo-Läufe laufen **ohne** Videoaufnahme (Video kostet CPU) und getrennt von B
 | SC-05 | R04 Produktseite (available) | alle | laden, Galerie wischen, Zoom öffnen/schließen, „In den Korb“ | Video; Linie 0/150/300/450/600 ms; Hüpfer alle 40 ms; Kauf-Leiste |
 | SC-06 | R06 Korb, R07 Kasse (Mock-Zahlung), R09 Bestellstatus, R26 Widerruf | alle | Felder ausfüllen, Fehler auslösen, Ändern-Links | Frames vor/nach jeder Interaktion; `getAnimations()`-Protokoll |
 | SC-07 | R07 Countdown | alle | Clock auf `reservedUntil − 10:05`, `−5:00`, `−1:00`, `0` vorspulen | Frames je Schwelle; Live-Region-Texte |
-| SC-08 | R12 Tattoo-Flash, R11 | alle | laden, scrollen, Desktop-Hover auf Flash-Karte | Video; je Karte 0/350/700 ms (seit U-44 keine Kontur um Karten, sondern Kringel je Zeile, Coco läuft mit; R11 Umrundung der Galerie-Leiste) |
+| SC-08 | R12 Tattoo-Flash, R11 | alle | laden, scrollen, Desktop-Hover auf Flash-Karte | Video; je Karte 0/350/700 ms (seit U-44 keine Kontur um Karten, sondern Kringel je Zeile, Coco läuft mit; R11 Umrundung der Galerie-Leiste – seit U-68 am Desktop ein Kringel, weil der Umlauf über 1 500 px lang wäre, DESIGN §9.6) |
 | SC-09 | R08 Danke (Zustände: warten, bezahlt, Vorkasse, fehlgeschlagen, leider schon weg) | alle | Zustände per Mock-Zahlung | Video; MI-09 alle 100 ms bis 6 s |
 | SC-10 | R28 404, 404-Variante „Zuhause“, R29 500 | alle | laden, 6 s warten | Video; alle 200 ms bis 6 s |
 | SC-11 | R01 → R02 → R04 → R06 (weiche Navigation) | `art-pixel7`, `art-desktop` | Links klicken | Video; View-Transition-Sequenz alle 50 ms |

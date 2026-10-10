@@ -618,6 +618,146 @@ describe('U-68 Coco läuft eine beim Laden begonnene Schlaufe allein und ruhig z
   })
 })
 
+describe('U-68 Randfälle aus der Prüfung (P15.1)', () => {
+  const CONTOUR = `
+        <div data-leash-station="kategorien" data-leash-loop="contour" data-rect="60,480,200,160"></div>
+        <div data-leash-station="keramik" data-leash-loop="left" data-rect="60,1500,24,24"></div>`
+  type Api = {
+    cocoLen(): number
+    drawnLen(): number
+    setReadingY(y: number | null): void
+    geometry: {
+      stations: { id: string; loopLen0: number; loopLen1: number }[]
+      scrollMap: { readingY: number; len: number }[]
+    }
+  }
+  const api = () => (window as Window & { __leash?: Api }).__leash!
+  const loop = () => api().geometry.stations.find((x) => x.id === 'kategorien')!
+
+  it('Scrollen während des Intros: weder Tinte noch Coco springen über die Umrundung', () => {
+    const handle = mountLeash(setupDom(CONTOUR), { preset: 'journey', routeKey: 'R02' })
+    const off = exposeLeashDebug(handle)
+    advance(800)
+    let prev = { c: api().cocoLen(), d: api().drawnLen() }
+    let maxC = 0
+    let maxD = 0
+    for (let i = 0; i < 40; i++) {
+      if (i < 5) setScroll(scrollY + 40)
+      advance(16)
+      maxC = Math.max(maxC, api().cocoLen() - prev.c)
+      maxD = Math.max(maxD, api().drawnLen() - prev.d)
+      prev = { c: api().cocoLen(), d: api().drawnLen() }
+    }
+    expect(maxD).toBeLessThanOrEqual(60) // vorher ≈ 900 px in einem Bild
+    expect(maxC).toBeLessThanOrEqual(60)
+    expect(api().drawnLen()).toBeLessThanOrEqual(loop().loopLen1)
+    off()
+    handle.destroy()
+  })
+
+  it('Laden mit 1–7 px Scroll oder auf hohem Bildschirm: das Intro endet trotzdem am Anfang der Umrundung', () => {
+    for (const [y, h] of [
+      [3, VIEW.h],
+      [0, 1400],
+    ] as const) {
+      scrollY = y
+      Object.defineProperty(window, 'innerHeight', { configurable: true, value: h })
+      const handle = mountLeash(setupDom(CONTOUR), { preset: 'journey', routeKey: 'R02' })
+      const off = exposeLeashDebug(handle)
+      let introMax = 0
+      for (let t = 0; t < 1750; t += 16) {
+        advance(16)
+        introMax = Math.max(introMax, api().drawnLen())
+      }
+      expect(introMax, `scrollY ${y}, Höhe ${h}`).toBeLessThanOrEqual(loop().loopLen0 + 0.5)
+      advance(6000)
+      expect(api().cocoLen()).toBeGreaterThanOrEqual(loop().loopLen1 - 0.5) // Coco läuft sie danach allein
+      off()
+      handle.destroy()
+      Object.defineProperty(window, 'innerHeight', { configurable: true, value: VIEW.h })
+      scrollY = 0
+    }
+  })
+
+  it('Neuaufbau im Alleingang nach weitem Scrollen: kein Kriechen bis zur Lesezeile, Coco holt per Sprung auf', () => {
+    const handle = mountLeash(setupDom(CONTOUR), { preset: 'journey', routeKey: 'R02' })
+    const off = exposeLeashDebug(handle)
+    advance(1900)
+    setScroll(2400)
+    advance(50)
+    handle.rebuild()
+    // Rest der Umrundung (< 1 000 px) im Schritttempo, danach Sprung zur Lesezeile – vorher ≈ 5,6 s Kriechen bis dorthin
+    advance(2600)
+    expect(api().cocoLen()).toBeGreaterThan(loop().loopLen1 + 1500)
+    expect(Math.abs(api().cocoLen() - api().drawnLen())).toBeLessThan(1)
+    off()
+    handle.destroy()
+  })
+
+  it('angekommen ist angekommen: danach gilt wieder die Sprung-Regel (Lesezeile von Hand gesetzt)', () => {
+    const handle = mountLeash(setupDom(CONTOUR), { preset: 'journey', routeKey: 'R02' })
+    const off = exposeLeashDebug(handle)
+    advance(1900 + 6000)
+    expect(api().cocoLen()).toBeGreaterThanOrEqual(loop().loopLen1 - 0.5)
+    api().setReadingY(0)
+    advance(450)
+    const s = loop()
+    const sm = api().geometry.scrollMap
+    const k = sm.findIndex((p) => p.len >= s.loopLen0 + 400)
+    api().setReadingY(sm[k]!.readingY)
+    advance(50)
+    expect(api().cocoLen()).toBeGreaterThan(s.loopLen0 + 350) // gesprungen, nicht gekrochen
+    off()
+    handle.destroy()
+  })
+
+  it('Neuaufbau, bevor der erste Aufbau fertig ist (z. B. `load`): Intro und Alleingang fallen nicht aus', () => {
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number
+      cancelIdleCallback?: (id: number) => void
+    }
+    w.requestIdleCallback = (cb) => setTimeout(cb, 1) as unknown as number
+    w.cancelIdleCallback = (id) => clearTimeout(id)
+    try {
+      const handle = mountStepwise(setupDom(CONTOUR), { preset: 'journey', routeKey: 'R02' })
+      advance(2) // erster Aufbau läuft in Idle-Teilstücken …
+      handle.rebuild() // … und wird durch einen Neuaufbau ersetzt (wie nach `load` oder späten Bildern)
+      const built = vi.fn()
+      handle.whenBuilt(built)
+      for (let i = 0; i < 200 && !built.mock.calls.length; i++) advance(2)
+      expect(built).toHaveBeenCalledTimes(1)
+      const off = exposeLeashDebug(handle)
+      const s = loop()
+      expect(api().drawnLen()).toBeLessThan(s.loopLen0) // Intro läuft, nicht sofort fertig gezeichnet
+      advance(1800)
+      expect(api().drawnLen()).toBeLessThanOrEqual(s.loopLen0 + 30)
+      off()
+      handle.destroy()
+    } finally {
+      Reflect.deleteProperty(w, 'requestIdleCallback')
+      Reflect.deleteProperty(w, 'cancelIdleCallback')
+    }
+  })
+
+  it('404 (einmalige Zeichnung, Schlusskringel): zeichnet weiter in einem Zug bis zum Ende', () => {
+    document.body.innerHTML = `
+      <div class="page" data-rect="0,0,390,900">
+        <div data-leash-layer aria-hidden="true" data-rect="0,0,390,900"></div>
+        <main><div data-rect="0,0,390,900">
+          <div data-leash-anchor="end" data-leash-loop="coil" data-rect="160,480,60,10"></div>
+        </div></main>
+      </div>`
+    const root = document.querySelector<HTMLElement>('[data-leash-layer]')!
+    const handle = mountLeash(root, { preset: 'lost', routeKey: 'R28' })
+    const off = exposeLeashDebug(handle)
+    advance(1400 + 120)
+    expect(api().drawnLen()).toBeGreaterThan(0)
+    expect(root.hasAttribute('data-leash-drawn')).toBe(true)
+    off()
+    handle.destroy()
+  })
+})
+
 describe('leash/schedule – Ladezeitpunkt (§9.2)', () => {
   it('ohne LCP: load + 1200 ms, dann Idle; danach (weiche Navigation) sofort; Abbruch räumt auf', () => {
     resetLeashSchedule()
