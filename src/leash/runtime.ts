@@ -410,14 +410,16 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   }
 
   /**
-   * U-68: das Intro zeichnet höchstens bis zum Anfang der Schlaufe, in der `len` liegt, und nie über eine Umrundung
-   * hinaus (auch nicht, wenn man währenddessen scrollt oder der Bildschirm sehr hoch ist) – den Rest läuft Coco allein.
+   * U-68: das Intro zeichnet höchstens bis zum Anfang der Schlaufe, in der `len` liegt, und nie über eine schon beim Laden
+   * begonnene Umrundung hinaus (auch nicht, wenn man währenddessen scrollt oder der Bildschirm sehr hoch ist) – den Rest
+   * läuft Coco allein. Umrundungen weiter unten hängen am Scrollen und bremsen das Intro nicht.
    * Einmalige Zeichnungen (404, Danke) zeichnen weiter in einem Zug.
    */
   function introEnd(len: number): number {
     if (cfg.draw === 'scroll')
       for (const s of geometry?.stations ?? [])
-        if (s.loopLen0 < len && (len <= s.loopLen1 || s.loop === 'contour')) return s.loopLen0
+        if (s.loopLen0 < len && (len <= s.loopLen1 || (s.loop === 'contour' && s.y < readingY(0))))
+          return s.loopLen0
     return len
   }
 

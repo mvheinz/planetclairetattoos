@@ -667,6 +667,24 @@ describe('U-68 Randfälle aus der Prüfung (P15.1)', () => {
     handle.destroy()
   })
 
+  it('Umrundung weiter unten (erst beim Scrollen): bremst ein Intro, in dem man weit scrollt, nicht', () => {
+    const handle = mountLeash(
+      setupDom(`
+        <div data-leash-station="hallo" data-leash-loop="right" data-rect="60,700,24,24"></div>
+        <div data-leash-station="textil" data-leash-loop="contour" data-rect="60,1500,200,160"></div>
+        <div data-leash-station="keramik" data-leash-loop="left" data-rect="60,2600,24,24"></div>`),
+      { preset: 'journey', routeKey: 'R01' },
+    )
+    const off = exposeLeashDebug(handle)
+    advance(100)
+    setScroll(2000)
+    advance(1600)
+    const s = api().geometry.stations.find((x) => x.id === 'textil')!
+    expect(api().drawnLen()).toBeGreaterThan(s.loopLen1)
+    off()
+    handle.destroy()
+  })
+
   it('Laden mit 1–7 px Scroll oder auf hohem Bildschirm: das Intro endet trotzdem am Anfang der Umrundung', () => {
     for (const [y, h] of [
       [3, VIEW.h],
