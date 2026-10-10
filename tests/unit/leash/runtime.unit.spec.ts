@@ -769,6 +769,40 @@ describe('U-68 Randfälle aus der Prüfung (P15.1)', () => {
     }
   })
 
+  it('404 (einmalige Zeichnung): Neuaufbau vor dem ersten Aufbau zeichnet sofort ganz – kein spätes Intro (MO-04)', () => {
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number
+      cancelIdleCallback?: (id: number) => void
+    }
+    w.requestIdleCallback = (cb) => setTimeout(cb, 1) as unknown as number
+    w.cancelIdleCallback = (id) => clearTimeout(id)
+    try {
+      document.body.innerHTML = `
+        <div class="page" data-rect="0,0,390,900">
+          <div data-leash-layer aria-hidden="true" data-rect="0,0,390,900"></div>
+          <main><div data-rect="0,0,390,900">
+            <div data-leash-anchor="end" data-leash-loop="coil" data-rect="160,480,60,10"></div>
+          </div></main>
+        </div>`
+      const root = document.querySelector<HTMLElement>('[data-leash-layer]')!
+      const handle = mountStepwise(root, { preset: 'lost', routeKey: 'R28' })
+      advance(2)
+      handle.rebuild()
+      const built = vi.fn()
+      handle.whenBuilt(built)
+      for (let i = 0; i < 200 && !built.mock.calls.length; i++) advance(2)
+      expect(built).toHaveBeenCalledTimes(1)
+      const off = exposeLeashDebug(handle)
+      advance(20)
+      expect(api().drawnLen()).toBeGreaterThanOrEqual(api().geometry.totalLength - 0.5)
+      off()
+      handle.destroy()
+    } finally {
+      Reflect.deleteProperty(w, 'requestIdleCallback')
+      Reflect.deleteProperty(w, 'cancelIdleCallback')
+    }
+  })
+
   it('404 (einmalige Zeichnung, Schlusskringel): zeichnet weiter in einem Zug bis zum Ende', () => {
     document.body.innerHTML = `
       <div class="page" data-rect="0,0,390,900">

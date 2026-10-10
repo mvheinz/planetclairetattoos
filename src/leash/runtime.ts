@@ -754,8 +754,10 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     if (destroyed) return
     rebuildCount++
     // Ersetzt der Neuaufbau einen noch nicht fertigen ersten Aufbau (z. B. `load` oder späte Bilder während der
-    // Idle-Teilstücke), gilt er als erster – sonst fiele das Intro samt Alleingang der Coco (U-68) aus.
-    build(!built, stepwise && options.stepwise !== false)
+    // Idle-Teilstücke), gilt er bei Scroll-Linien als erster – sonst fiele das Intro samt Alleingang der Coco (U-68)
+    // aus. Einmalige Zeichnungen (404, Danke) erscheinen dann wie bisher sofort ganz: Ein spätes Intro schöbe Cocos
+    // Ankunft samt Boil über das 5-s-Budget (MO-04, langsames Laden auf dem iPhone).
+    build(!built && cfg.draw === 'scroll', stepwise && options.stepwise !== false)
   }
 
   // ---------- Ereignisse ----------
