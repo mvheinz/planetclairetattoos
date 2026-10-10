@@ -7,6 +7,7 @@ import { type Page } from '@playwright/test'
 interface LeashApi {
   geometry: { totalLength: number } | null
   drawnLen(): number
+  cocoLen(): number
   tier(): string
   pose(): string | null
   preset(): string
@@ -88,8 +89,13 @@ test.describe('Reduzierte Bewegung', () => {
     ).toBe('auto')
     await page.evaluate(() => document.documentElement.setAttribute('data-motion', 'full'))
     await waitForLeash(page, 'A')
-    // Tinte wird nie weggeradiert (§9.6)
-    expect((await state(page)).full).toBe(true)
+    // U-74 (P15.4): die Linie ist Cocos Leine – nach dem Umschalten endet sie bei Coco an der Lesezeile
+    const back = await page.evaluate(() => {
+      const l = (window as LeashWindow).__leash!
+      return { drawn: l.drawnLen(), coco: l.cocoLen(), total: l.geometry!.totalLength }
+    })
+    expect(Math.abs(back.drawn - back.coco)).toBeLessThanOrEqual(2)
+    expect(back.drawn).toBeLessThan(back.total)
   })
 
   test('Rechtsseite R21: statischer Renderer (Stufe C), Engine-Chunk wird nicht geladen', async ({
