@@ -22,6 +22,10 @@ Nachweis: `ci:local` schreibt einen Bericht (`ci-reports/<datum>-<commit>.json`,
 einen **Commit-Status** „lokal/ci-full: grün“ über die GitHub-API (kostet keine Minuten). Merge nur bei grünem Status
 – so bleibt die Regel „letzter Phasen-Commit muss grün sein“ (CLAUDE.md §3) erhalten.
 
+> Nachtrag 10.10.2026: In der Cloud-Sitzung lehnt der GitHub-Zugang das Schreiben von Commit-Status ab (HTTP 403).
+> Bis sich das ändert, gilt als Nachweis der Bericht unter `ci-reports/` und die Ergebnistabelle im PR-Text
+> (Eintrag in `docs/OFFENE-PUNKTE.md`, P14.15 „Commit-Status“).
+
 ## 2. GitHub Actions abschalten
 
 - Alle Workflows nur noch per Hand startbar (`workflow_dispatch`), keine `push`-/`schedule`-Auslöser mehr
