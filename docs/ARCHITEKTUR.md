@@ -1052,8 +1052,8 @@ Zuordnung (U-65 geht vor).
 | Bisher (GitHub) | Seit U-65 (lokal) |
 |---|---|
 | `ci.yml` `quick` bei jedem Push | `pnpm ci:local quick` vor jedem Commit: ESLint, Prettier, Typen, `check:static`, Unit-Tests in UTC **und** `TZ=Europe/Berlin`, `.env.example`-Abgleich (`env:example` + `git diff --exit-code`), Geheimnis-Scan (gitleaks 8.30.1 aus PATH oder gepinnt mit Prüfsumme geladen; ohne gitleaks Ersatzprüfung auf Schlüssel-Muster, im Bericht als Hinweis „!“ – nie still grün), `pnpm audit` (critical blockiert) |
-| `ci-full.yml` bei `[ci:full pN]` | `pnpm ci:local full` am Phasenende: quick + Migrationen/Drift, `test:coverage` (Int + Unit mit Abdeckung), Wiederherstellungs-Übung (`restore-drill.yml`), Seed + Build **ohne** Debug-Schalter → `check:no-debug --no-build`, `check:bundle`, `check:external --built`, `test:visual` (ohne Referenzen: „übersprungen“), Lighthouse (`test:perf`), INP (`@perf`, pixel-7); dann Seed + Build **mit** `NEXT_PUBLIC_LEASH_DEBUG=1` und E2E je Gerät `desktop`, `iphone-15`, `pixel-7` (ohne `@visual`/`@perf`, `E2E_SERVER=start`, je Gerät `ci:flaky`); Docker-Image (`docker build`, ≤ 500 MB, UID 1001; ohne Docker „übersprungen“); Vorschau-Export + Export-Test + Budget |
-| `art-qa.yml` bei `[ci:art]` | `pnpm ci:local art`: Migrationen, Seed, `art:build`, `art:record` (2 Worker), `art:metrics`/`art:sheets`/`art:check --evidence` (auch nach Rot, wie `if: always()`), `art:bundle` – Bündel lokal unter `artifacts/art-qa/<lauf-id>/bundle/` |
+| `ci-full.yml` bei `[ci:full pN]` | `pnpm ci:local full` am Phasenende: quick + Migrationen/Drift, `test:coverage` (Int + Unit mit Abdeckung), Wiederherstellungs-Übung (`restore-drill.yml`), Seed + Build **ohne** Debug-Schalter → `check:no-debug --no-build`, `check:bundle`, `check:external --built`, `test:visual` (ohne Referenzen: „übersprungen“), Lighthouse (`test:perf`), INP (`@perf`, pixel-7); dann Seed + Build **mit** `NEXT_PUBLIC_LEASH_DEBUG=1` und E2E je Gerät `desktop`, `iphone-15`, `pixel-7` (ohne `@visual`/`@perf`, `E2E_SERVER=start`, je Gerät `ci:flaky`; seit U-67 `iphone-15` nur die mobilen Kernfälle, s. u.); Docker-Image (`docker build`, ≤ 500 MB, UID 1001; ohne Docker „übersprungen“); Vorschau-Export + Export-Test + Budget |
+| `art-qa.yml` bei `[ci:art]` | `pnpm ci:local art` (seit U-67 nur bei Kunst-Änderungen, s. u.): Migrationen, Seed, `art:build`, `art:record` (2 Worker), `art:metrics`/`art:sheets`/`art:check --evidence` (auch nach Rot, wie `if: always()`), `art:bundle` – Bündel lokal unter `artifacts/art-qa/<lauf-id>/bundle/` |
 | `preview-export.yml`, `release.yml` | Schritt `preview` in `full`; die Datei `dist/planet-claire-vorschau.html` geht als HTML direkt im Chat an Jutta (kein Artefakt, kein Release-Lauf) |
 | `restore-drill.yml` (monatlich) | Schritt `restore-drill` in `full`; ab Go-live Cron auf dem eigenen Server (P11) |
 | „CI grün“ am Phasenende-Commit | Commit-Status **`lokal/ci-full` = success** am geprüften Commit (`pnpm ci:local full --status`), dazu `ci-reports/…/report.json` |
@@ -1078,6 +1078,32 @@ Zuordnung (U-65 geht vor).
   `lokal/ci-full = success` trägt und danach nur Doku-Commits (`PLAN.md`, `docs/FORTSCHRITT.md`,
   `docs/OFFENE-PUNKTE.md`) folgen. Zwischenstände: `pnpm ci:local quick` plus die betroffenen Int-/E2E-Tests. Die
   Kennungen `[skip ci]`/`[ci:full pN]`/`[ci:art]` in Commit-Nachrichten sind nur noch Hinweise (sie starten nichts).
+- **Beschleunigung (U-67, 10.10.2026):** (a) **iPhone nur Kernfälle** – `e2e-iphone-15` (WebKit, langsamstes Gerät)
+  nimmt nur die Dateifilter aus `IPHONE_CORE` (`scripts/ci/local-plan.ts`, je Eintrag mit Begründung; `--dry-run`
+  zeigt die Liste): Startseite inkl. Tour-Schaukasten und Koko, Kopfleiste/Menü/Sprache, Shop-Liste, Produktseite mit
+  Galerie und Kauf-Leiste, „In den Korb“, Korb, Kasse mit Bestellknopf und Prüf-Suite § 312j, Kaufpfad,
+  Widerrufsfunktion, Rechtsseiten/Fußlinks, Animationen-Schalter, Tastatur (`a11y/keyboard`, `keyboard`), Datenschutz
+  (`privacy`, `privacy/cart-cookie`, `privacy/p4-pages`). Pflicht sind alle Specs, die `pixel-7` absichtlich auslassen
+  (Paar Chromium + WebKit: `shop/gallery`, P3-Teile von `privacy`/`keyboard`; Unit-Test wacht). Nur auf `desktop`
+  und `pixel-7`: `legal/footer` (setzt 390/1440 px selbst), `a11y` (axe prüft das DOM), Verwaltung, Vorkasse/
+  Reservierung, Kennzahlen, Tattoo/Aufträge/SEO, Linien-Engine (ohnehin nur Chromium). `--iphone-all` nimmt wieder
+  alle; Spec-Dateien nach `--` ersetzen die Liste, Optionen nach `--` (`--grep`, `--shard` …) gelten zusätzlich.
+  Gemessen: ≈ 52 → ≈ 20 min Testzeit. (b) **Kunst-QA nur bei Kunst-Änderungen** – `art` vergleicht den Stand
+  (Commits, Arbeitsbaum, neue Dateien) mit einem nachweislich grünen Vergleichsstand: dem Commit des neuesten Laufs,
+  den ein vollständiges `pnpm ci:local art` angelegt hat (Marke `artifacts/art-qa/<lauf-id>/ci-local.json`; Handläufe
+  mit `art:record`, Teilmengen und `--only`/`--from` zählen nicht), ohne solchen Lauf (frische Arbeitskopie) mit dem
+  Abzweigpunkt von `origin/main`, aber nur, wenn dieser den Commit-Status `lokal/ci-art` = success trägt (gesetzt von
+  `pnpm ci:local art --status`; Squash-Commits auf `main` tragen ihn meist nicht – dann läuft die erste Kunst-QA einer
+  Sitzung vollständig). Ist der Vergleichs-Lauf rot oder unvollständig (Szenarien, echtes WebKit, alle drei Profile),
+  läuft sie ebenfalls. Kunst-relevant (`ART_PATHS`, bewusst weit): Linie, Coco, Zeichnungen und Quellen, `public/art`,
+  `src/styles`, `src/behaviors`, **alle** `src/components/**` und `src/app/(frontend)/**`, Vorschaubilder `src/og`,
+  Routen-Presets, `src/lib/{shop,tattoo,tour,home,qa,media,seed}`, CSP/Inline-Skripte, Texte (`src/i18n/messages`,
+  `SiteTexts`), Beispielbestand `content/seed/*/**`, QA-Werkzeuge, `KUNST-QA.md`, Tempo-Budgets, `next.config.ts`,
+  `pnpm-lock.yaml`; ein Unit-Test verlangt, dass jede Datei unter `src/`, die Linie/Coco/Zeichnungen/
+  Mikro-Interaktionen einbindet, erfasst ist. Ohne Treffer meldet der Lauf alle Schritte „übersprungen“ mit Grund,
+  Urteil `ÜBERSPRUNGEN` (Exit 0, `report.json` → `artGate`). Bleibt als Lücke: übrige Logik unter `src/lib` (z. B.
+  `data`, `commerce`, `legal`), Sammlungen und Blöcke lösen keinen Lauf aus – ändert so etwas sichtbar Seiten der
+  Kunst-Abnahme, `--force`.
 - **Prozesse:** jeder Schritt läuft in einer eigenen Prozessgruppe; bei Zeitgrenze oder Strg+C beendet das Skript genau
   diese Gruppe (kein `pkill -f`). Playwright und `check:bundle` beenden ihre Server selbst.
 - **Abweichungen zur früheren CI:** Die Sitzung hat Postgres **16** statt 17 (CLOUD-SETUP §3.3) – SQL muss auf beiden

@@ -1,12 +1,28 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
 import {
+  ART_CI_MARKER,
+  ART_PATHS,
+  ART_SCRIPT_SCENARIOS,
+  ART_STATUS_CONTEXT,
+  artBase,
+  artBaseline,
+  artGate,
+  artMarkerRun,
+  artRunInfo,
+  artScenarios,
   databaseUrl,
   DEFAULT_DB,
   DEFAULT_PORT,
+  describeIphone,
+  e2eFilters,
+  globToRegExp,
+  hasFileFilter,
+  IPHONE_CORE,
+  isArtRelevant,
   latestArtRun,
   parseArgs,
   planSteps,
@@ -17,9 +33,12 @@ import {
   inheritedEnv,
   serverEnv,
   STRIPPED_ENV,
+  statusSuccess,
   stepsFor,
   summarize,
   UsageError,
+  type ArtGateInput,
+  type ArtRunInfo,
   type RunContext,
   type StepReport,
 } from '../../../scripts/ci/local-plan'
@@ -47,6 +66,8 @@ describe('parseArgs', () => {
       keepGoing: false,
       e2eArgs: [],
       dryRun: false,
+      iphoneAll: false,
+      force: false,
     })
     expect(DEFAULT_DB).toBe('planetclaire_ci')
     expect(DEFAULT_PORT).toBe(3300)
@@ -78,6 +99,8 @@ describe('parseArgs', () => {
       e2eArgs: ['tests/e2e/home.e2e.spec.ts', '--grep', 'x'],
     })
     expect(parseArgs(['art', '--from', 'art-record']).from).toBe('art-record')
+    expect(parseArgs(['full', '--iphone-all']).iphoneAll).toBe(true)
+    expect(parseArgs(['art', '--force']).force).toBe(true)
   })
 
   it('Fehler: ohne/unbekannter Modus, fremde Datenbank, _test-Name, Port, --only mit --from, unbekannte Option', () => {
@@ -93,6 +116,10 @@ describe('parseArgs', () => {
       ['quick', '--only', 'a', '--from', 'b'],
       ['quick', '--fast'],
       ['quick', '--db'],
+      ['quick', '--iphone-all'],
+      ['art', '--iphone-all'],
+      ['full', '--force'],
+      ['quick', '--force'],
     ])
       expect(() => parseArgs(argv), JSON.stringify(argv)).toThrow(UsageError)
   })
@@ -153,10 +180,14 @@ describe('Schritte je Modus (bilden die bisherigen Workflows nach)', () => {
       /lighthouse-calibrated\.ts --rate.*pnpm run test:e2e --grep @perf --project=pixel-7$/,
     )
     expect(cmdOf('full', 'visual')).toContain(SKIP_MARKER)
-    for (const p of ['desktop', 'iphone-15', 'pixel-7'])
+    for (const p of ['desktop', 'pixel-7'])
       expect(cmdOf('full', `e2e-${p}`)).toBe(
         `pnpm run test:e2e --project=${p} --grep-invert "@visual|@perf" && pnpm run ci:flaky`,
       )
+    // U-67 a: iPhone nur mit den Kernfällen
+    expect(cmdOf('full', 'e2e-iphone-15')).toBe(
+      `pnpm run test:e2e --project=iphone-15 --grep-invert "@visual|@perf" ${IPHONE_CORE.map((c) => `'${c.spec}'`).join(' ')} && pnpm run ci:flaky`,
+    )
     expect(step('docker').requires).toBe('docker')
     expect(cmdOf('full', 'docker')).toMatch(/docker build .*524288000.*1001/s)
     expect(cmdOf('full', 'preview')).toMatch(
@@ -166,10 +197,12 @@ describe('Schritte je Modus (bilden die bisherigen Workflows nach)', () => {
 
   it('E2E-Filter nach -- werden (gequotet) an jeden E2E-Schritt gehängt', () => {
     const opts = parseArgs(['full', '--', "tests/e2e/it's.e2e.spec.ts", '--grep', '@smoke'])
-    const step = stepsFor('full').find((s) => s.id === 'e2e-desktop')!
-    expect((step.cmd as (c: RunContext) => string)({ opts })).toBe(
-      `pnpm run test:e2e --project=desktop --grep-invert "@visual|@perf" 'tests/e2e/it'\\''s.e2e.spec.ts' '--grep' '@smoke' && pnpm run ci:flaky`,
-    )
+    for (const p of ['desktop', 'iphone-15', 'pixel-7']) {
+      const step = stepsFor('full').find((s) => s.id === `e2e-${p}`)!
+      expect((step.cmd as (c: RunContext) => string)({ opts })).toBe(
+        `pnpm run test:e2e --project=${p} --grep-invert "@visual|@perf" 'tests/e2e/it'\\''s.e2e.spec.ts' '--grep' '@smoke' && pnpm run ci:flaky`,
+      )
+    }
   })
 
   it('art: wie art-qa.yml; Auswertung/Bögen/Prüfung laufen auch nach Rot, mit der Lauf-ID', () => {
@@ -214,6 +247,468 @@ describe('Schritte je Modus (bilden die bisherigen Workflows nach)', () => {
       expect(new Set(list.map((s) => s.id)).size).toBe(list.length)
       for (const s of list) expect(s.timeoutMin, s.id).toBeGreaterThan(0)
     }
+  })
+})
+
+describe('U-67 a: iPhone 15 am Phasenende nur mit den Kernfällen', () => {
+  const E2E = path.join(ROOT, 'tests/e2e')
+  const specs = (dir: string): string[] =>
+    readdirSync(dir, { withFileTypes: true }).flatMap((d) =>
+      d.isDirectory()
+        ? specs(path.join(dir, d.name))
+        : d.name.endsWith('.e2e.spec.ts')
+          ? [path.relative(ROOT, path.join(dir, d.name)).split(path.sep).join('/')]
+          : [],
+    )
+  const all = specs(E2E)
+
+  it('jeder Eintrag: vorhandene Datei bzw. Ordner, Begründung, keine Doppelten', () => {
+    expect(IPHONE_CORE.length).toBeGreaterThanOrEqual(15)
+    expect(new Set(IPHONE_CORE.map((c) => c.spec)).size).toBe(IPHONE_CORE.length)
+    for (const c of IPHONE_CORE) {
+      const abs = path.join(ROOT, c.spec)
+      expect(existsSync(abs), c.spec).toBe(true)
+      expect(statSync(abs).isDirectory(), c.spec).toBe(c.spec.endsWith('/'))
+      expect(c.covers.length, c.spec).toBeGreaterThan(20)
+    }
+  })
+
+  it('Playwright liest Dateifilter als RegExp (ohne Groß/klein) – jeder trifft genau seine Datei bzw. seinen Ordner', () => {
+    for (const c of IPHONE_CORE) {
+      const re = new RegExp(c.spec, 'i')
+      const hits = all.filter((f) => re.test(path.join(ROOT, f)))
+      const own = all.filter((f) => (c.spec.endsWith('/') ? f.startsWith(c.spec) : f === c.spec))
+      expect(own.length, c.spec).toBeGreaterThan(0)
+      expect(hits, c.spec).toEqual(own)
+    }
+  })
+
+  it('deckt die mobilen Kernabläufe ab (Kauf, Bestellknopf, Widerruf, Datenschutz, Kopf, Startseite)', () => {
+    const list = IPHONE_CORE.map((c) => c.spec)
+    for (const must of [
+      'tests/e2e/home.e2e.spec.ts',
+      'tests/e2e/home-tour.e2e.spec.ts',
+      'tests/e2e/menu.e2e.spec.ts',
+      'tests/e2e/language-switch.e2e.spec.ts',
+      'tests/e2e/shop/product-page.e2e.spec.ts',
+      'tests/e2e/shop/gallery.e2e.spec.ts',
+      'tests/e2e/shop/add-to-cart.e2e.spec.ts',
+      'tests/e2e/cart/cart.e2e.spec.ts',
+      'tests/e2e/checkout/overview.e2e.spec.ts',
+      'tests/e2e/legal/checkout-compliance.e2e.spec.ts',
+      'tests/e2e/purchase/card-paypal.e2e.spec.ts',
+      'tests/e2e/legal/withdrawal-flow.e2e.spec.ts',
+      'tests/e2e/privacy/cart-cookie.e2e.spec.ts',
+      'tests/e2e/privacy/p4-pages.e2e.spec.ts',
+      'tests/e2e/privacy.e2e.spec.ts',
+      'tests/e2e/a11y/keyboard.e2e.spec.ts',
+      'tests/e2e/keyboard.e2e.spec.ts',
+    ])
+      expect(list, must).toContain(must)
+    // Routen-Durchläufe mit eigener Fenstergröße bzw. reiner DOM-Prüfung (≈ 9 min auf dem iPhone) bleiben bei
+    // desktop und pixel-7
+    for (const not of ['tests/e2e/legal/footer.e2e.spec.ts', 'tests/e2e/a11y.e2e.spec.ts'])
+      expect(list, not).not.toContain(not)
+    expect(all.length).toBeGreaterThan(list.length * 4)
+  })
+
+  it('Specs, die pixel-7 auslassen (Paar desktop + iphone-15), stehen in der Liste – sonst liefe ihr Mobil-Teil auf keinem Telefon', () => {
+    const covered = (f: string) =>
+      IPHONE_CORE.some((c) => (c.spec.endsWith('/') ? f.startsWith(c.spec) : f === c.spec))
+    const skipsPixel = all.filter((f) =>
+      /test\.skip\(\s*(?:testInfo\.project\.name === 'pixel-7'|!\[\s*'desktop',\s*'iphone-15'\s*\]\.includes)/.test(
+        readFileSync(path.join(ROOT, f), 'utf8'),
+      ),
+    )
+    expect(skipsPixel).toEqual(
+      expect.arrayContaining([
+        'tests/e2e/shop/gallery.e2e.spec.ts',
+        'tests/e2e/privacy.e2e.spec.ts',
+        'tests/e2e/keyboard.e2e.spec.ts',
+      ]),
+    )
+    for (const f of skipsPixel) expect(covered(f), f).toBe(true)
+  })
+
+  it('Dateifilter nach -- erkennen: Optionen mit Wert zählen nicht als Spec', () => {
+    expect(hasFileFilter([])).toBe(false)
+    expect(hasFileFilter(['--grep', '@smoke', '--shard=1/8', '--repeat-each', '2'])).toBe(false)
+    expect(hasFileFilter(['-g', 'tests/e2e/x'])).toBe(false)
+    expect(hasFileFilter(['tests/e2e/home.e2e.spec.ts'])).toBe(true)
+    expect(hasFileFilter(['--repeat-each=2', 'tests/e2e/a.e2e.spec.ts'])).toBe(true)
+    expect(hasFileFilter(['--headed', 'tests/e2e/a.e2e.spec.ts'])).toBe(true)
+  })
+
+  it('--iphone-all = alles; eigene Specs nach -- ersetzen die Kernfälle; Optionen nach -- gelten zusätzlich', () => {
+    const core = IPHONE_CORE.map((c) => c.spec)
+    expect(e2eFilters('iphone-15', parseArgs(['full']))).toEqual(core)
+    expect(e2eFilters('iphone-15', parseArgs(['full', '--iphone-all']))).toEqual([])
+    expect(
+      e2eFilters('iphone-15', parseArgs(['full', '--', 'tests/e2e/menu.e2e.spec.ts'])),
+    ).toEqual(['tests/e2e/menu.e2e.spec.ts'])
+    expect(e2eFilters('iphone-15', parseArgs(['full', '--', '--shard=1/2']))).toEqual([
+      ...core,
+      '--shard=1/2',
+    ])
+    expect(e2eFilters('desktop', parseArgs(['full']))).toEqual([])
+    expect(e2eFilters('pixel-7', parseArgs(['full', '--', '--grep', 'x']))).toEqual(['--grep', 'x'])
+    const all = parseArgs(['full', '--iphone-all'])
+    expect(
+      (stepsFor('full').find((s) => s.id === 'e2e-iphone-15')!.cmd as (c: RunContext) => string)({
+        opts: all,
+      }),
+    ).toBe(
+      'pnpm run test:e2e --project=iphone-15 --grep-invert "@visual|@perf" && pnpm run ci:flaky',
+    )
+    expect(describeIphone(parseArgs(['full']))[0]).toMatch(/Kernfälle \(U-67, \d+ Filter/)
+    expect(describeIphone(all)).toEqual(['alle E2E-Tests (--iphone-all)'])
+  })
+})
+
+describe('U-67 b: Kunst-QA nur bei Kunst-Änderungen', () => {
+  const run = (id: string, over: Partial<ArtRunInfo> = {}): ArtRunInfo => ({
+    id,
+    commit: `${id.slice(-7)}${'0'.repeat(33)}`,
+    dirty: false,
+    ciLocal: true,
+    ciOk: true,
+    pass: true,
+    gaps: [],
+    ...over,
+  })
+  const files = (dir: string): string[] =>
+    existsSync(path.join(ROOT, dir))
+      ? readdirSync(path.join(ROOT, dir), { withFileTypes: true }).flatMap((d) =>
+          d.isDirectory() ? files(path.posix.join(dir, d.name)) : [path.posix.join(dir, d.name)],
+        )
+      : []
+
+  it('Glob: ** beliebig tief, * innerhalb eines Ordners, Klammern wörtlich', () => {
+    expect(globToRegExp('src/leash/**').test('src/leash/a/b.ts')).toBe(true)
+    expect(globToRegExp('src/components/**/*.css').test('src/components/a.css')).toBe(true)
+    expect(globToRegExp('src/components/**/*.css').test('src/components/shop/x/P.module.css')).toBe(
+      true,
+    )
+    expect(globToRegExp('src/components/Coco*').test('src/components/Coco.tsx')).toBe(true)
+    expect(globToRegExp('src/components/Coco*').test('src/components/home/Coco.tsx')).toBe(false)
+    expect(globToRegExp('content/seed/*/**').test('content/seed/data/products.json')).toBe(true)
+    expect(globToRegExp('content/seed/*/**').test('content/seed/SEED-SPEC.md')).toBe(false)
+    expect(
+      globToRegExp('src/app/(frontend)/[locale]/page.tsx').test(
+        'src/app/(frontend)/[locale]/page.tsx',
+      ),
+    ).toBe(true)
+    expect(
+      globToRegExp('src/app/(frontend)/[locale]/page.tsx').test('src/app/frontend/l/page.tsx'),
+    ).toBe(false)
+  })
+
+  it('kunst-relevant: Linie, Zeichnungen, Coco, Seiten und Bausteine, Texte, Beispielbestand, QA-Werkzeuge, Budgets', () => {
+    for (const f of [
+      'src/leash/runtime.ts',
+      'src/art/stations/keramik.svg',
+      'content/art/stations/sources.json',
+      'public/art/coco-sprite.v3.svg',
+      'src/components/Coco.tsx',
+      'src/components/home/Koko.module.css',
+      'src/components/leash/LeashLayer.tsx',
+      'src/components/layout/MenuOverlay.tsx',
+      'src/components/layout/SiteDocument.tsx',
+      'src/components/layout/PresetBody.tsx',
+      'src/components/errors/ErrorArt.tsx',
+      'src/components/ui/EmptyState.tsx',
+      'src/components/checkout/ReservationCountdown.tsx',
+      'src/components/shop/ListPage.tsx',
+      'src/components/shop/ProductCard.tsx',
+      'src/components/BehaviorHost.tsx',
+      'src/components/shop/product/ProductPage.module.css',
+      'src/app/(frontend)/[locale]/cart/page.tsx',
+      'src/app/(frontend)/[locale]/cart/page.module.css',
+      'src/app/(frontend)/[locale]/thank-you/[token]/page.tsx',
+      'src/app/(frontend)/[locale]/page.tsx',
+      'src/app/(frontend)/[locale]/qa/coco/page.tsx',
+      'src/app/global-not-found.tsx',
+      'src/app/icon.svg',
+      'src/og/templates.tsx',
+      'src/lib/routes/registry.ts',
+      'src/lib/shop/priceTag.ts',
+      'src/proxy.ts',
+      'src/lib/security/csp.ts',
+      'src/behaviors/price-tag-swing.ts',
+      'src/styles/tokens.css',
+      'src/lib/media/pipeline.ts',
+      'src/i18n/messages/de.json',
+      'src/globals/SiteTexts.ts',
+      'content/seed/data/pages.json',
+      'content/seed/owner/own-jutta-coco.webp',
+      'content/seed/coco/coco-frontal-nah-01.jpg',
+      'src/lib/seed/drawings.ts',
+      'tests/art/sc-01.art.spec.ts',
+      'scripts/art/check.ts',
+      'docs/design/KUNST-QA.md',
+      'tests/perf/budgets.json',
+      'pnpm-lock.yaml',
+      './src/leash/presets.ts',
+    ])
+      expect(isArtRelevant(f), f).toBe(true)
+    // Überspringen lohnt sich weiter für Verwaltung, Datenmodell, Logik, Tests und Doku
+    for (const f of [
+      'src/collections/Products.ts',
+      'src/admin/views/orders/Orders.module.css',
+      'src/endpoints/withdrawal.ts',
+      'src/jobs/tasks/sendMail.ts',
+      'src/lib/commerce/reserve.ts',
+      'src/lib/email/templates.ts',
+      'src/lib/security/rateLimit.ts',
+      'src/migrations/20261010_x.ts',
+      'src/preview-runtime/leash.ts',
+      'content/seed/SEED-SPEC.md',
+      'tests/e2e/home.e2e.spec.ts',
+      'tests/unit/leash/presets.unit.spec.ts',
+      'docs/OFFENE-PUNKTE.md',
+      'PLAN.md',
+      'scripts/ci/local-plan.ts',
+    ])
+      expect(isArtRelevant(f), f).toBe(false)
+  })
+
+  it('Wächter: jede Datei unter src/, die Linie, Coco, Zeichnungen oder Mikro-Interaktionen einbindet, ist kunst-relevant', () => {
+    const uses =
+      /from\s+['"](?:@\/|(?:\.\.?\/)+)(?:art|leash|behaviors|components\/Coco|components\/leash)\b|data-leash/
+    // Die Vorschau-Datei prüft der Schritt `preview` in `full`, nicht die Kunst-Abnahme.
+    const outside = (f: string) => f.startsWith('src/preview-runtime/')
+    const hits = files('src').filter(
+      (f) => /\.(ts|tsx)$/.test(f) && uses.test(readFileSync(path.join(ROOT, f), 'utf8')),
+    )
+    expect(hits.length).toBeGreaterThan(20)
+    expect(hits.filter((f) => !outside(f) && !isArtRelevant(f))).toEqual([])
+  })
+
+  it('jedes Muster in ART_PATHS trifft mindestens eine vorhandene Datei', () => {
+    for (const p of ART_PATHS) {
+      expect(p.why.length, p.glob).toBeGreaterThan(5)
+      if (!p.glob.includes('*')) {
+        expect(existsSync(path.join(ROOT, p.glob)), p.glob).toBe(true)
+        continue
+      }
+      // Ordner vor dem ersten `*` durchsuchen
+      const fixed = p.glob.split('*')[0]!
+      const dir = fixed.endsWith('/') ? fixed.slice(0, -1) : path.posix.dirname(fixed)
+      const re = globToRegExp(p.glob)
+      expect(
+        files(dir).some((f) => re.test(f)),
+        p.glob,
+      ).toBe(true)
+    }
+  })
+
+  it('Szenarien eines vollständigen Laufs wie art:record (tests/art + Skript-Szenarien)', () => {
+    const all = artScenarios(readdirSync(path.join(ROOT, 'tests/art')))
+    expect(all).toContain('SC-00')
+    expect(all).toContain('SC-16')
+    expect(all).toContain('SC-18')
+    expect(artScenarios(['sc-01.art.spec.ts', 'helpers', 'sc-01.art.spec.ts'])).toEqual([
+      'SC-01',
+      'SC-16',
+    ])
+    const record = readFileSync(path.join(ROOT, 'scripts/art/record.ts'), 'utf8')
+    const keys = [
+      ...(/SCRIPT_SCENARIOS[^=]*=\s*\{([^}]*)\}/.exec(record)?.[1] ?? '').matchAll(/'(SC-\d{2})'/g),
+    ].map((m) => m[1])
+    expect(keys).toEqual([...ART_SCRIPT_SCENARIOS])
+  })
+
+  it('Lauf-Ordner lesen: Marke von ci:local art, check.json, Lücken (Szenarien, WebKit, Profile)', () => {
+    const sha = 'f91d6ff965250e2aa2e3ccd94791d66d9818e77e'
+    const scenarios = ['SC-00', 'SC-01', 'SC-16']
+    const profiles = ['art-iphone15', 'art-pixel7', 'art-desktop']
+    const full = {
+      run: { commit: sha, dirty: false, scope: scenarios, webkit: 'webkit' },
+      check: { pass: true },
+      marker: { sha, ok: true },
+      profiles: [...profiles, 'script'],
+    }
+    expect(artRunInfo('20261010-iter06-f91d6ff', full, scenarios)).toEqual({
+      id: '20261010-iter06-f91d6ff',
+      commit: sha,
+      dirty: false,
+      ciLocal: true,
+      ciOk: true,
+      pass: true,
+      gaps: [],
+    })
+    // Handlauf ohne Marke, Marke zu anderem Commit, rote Schritte
+    expect(artRunInfo('x', { ...full, marker: null }, scenarios).ciLocal).toBe(false)
+    expect(artRunInfo('x', { ...full, marker: { sha: 'abc', ok: true } }, scenarios).ciLocal).toBe(
+      false,
+    )
+    expect(artRunInfo('x', { ...full, marker: { sha, ok: false } }, scenarios).ciOk).toBe(false)
+    // Teilmenge per --scope (iter02/iter03), Teilmenge per --project, WebKit emuliert, ohne check.json
+    expect(
+      artRunInfo('x', { ...full, run: { ...full.run, scope: ['SC-01'] } }, scenarios).gaps,
+    ).toEqual(['Szenarien fehlen: SC-00, SC-16'])
+    expect(
+      artRunInfo('x', { ...full, profiles: ['art-desktop', 'script'] }, scenarios).gaps,
+    ).toEqual(['Profile fehlen: art-iphone15, art-pixel7'])
+    expect(
+      artRunInfo(
+        'x',
+        { ...full, run: { ...full.run, webkit: 'WebKit emuliert (Chromium, PW_SKIP_WEBKIT=1)' } },
+        scenarios,
+      ).gaps,
+    ).toEqual(['WebKit emuliert'])
+    expect(artRunInfo('x', { ...full, check: null }, scenarios)).toMatchObject({
+      pass: false,
+      gaps: ['check.json fehlt'],
+    })
+    expect(
+      artRunInfo('x', { run: null, check: null, marker: null, profiles: [] }, scenarios),
+    ).toMatchObject({ commit: null, ciLocal: false, pass: false })
+    expect(
+      artRunInfo('x', { ...full, run: { ...full.run, commit: 'nope' } }, scenarios).commit,
+    ).toBe(null)
+  })
+
+  it('Vergleichs-Lauf: neuester Lauf aus ci:local art (grün oder rot); Handläufe und Probeläufe zählen nicht', () => {
+    const runs = [
+      run('20261009-iter01-aaaaaaa'),
+      run('20261010-iter02-bbbbbbb', { pass: false }), // rot – bleibt Vergleichs-Lauf, Gate läuft dann
+      run('20261010-iter03-ccccccc', { ciLocal: false }), // Handlauf art:record (z. B. --scope SC-01)
+      run('20261010-iter04-ddddddd', { dirty: true }), // Probelauf --allow-dirty
+      run('nicht-ein-lauf'),
+    ]
+    expect(artBaseline(runs)?.id).toBe('20261010-iter02-bbbbbbb')
+    expect(artBaseline(runs.filter((r) => r.id !== '20261010-iter02-bbbbbbb'))?.id).toBe(
+      '20261009-iter01-aaaaaaa',
+    )
+    expect(artBaseline([run('20261010-iter03-ccccccc', { ciLocal: false })])).toBeUndefined()
+    expect(artBaseline([])).toBeUndefined()
+    expect(artBase(runs[1], 'eeee')).toEqual({
+      sha: runs[1]!.commit,
+      label: 'Kunst-Lauf 20261010-iter02-bbbbbbb (bbbbbbb)',
+    })
+    expect(artBase(undefined, '0123456789abcdef')).toEqual({
+      sha: '0123456789abcdef',
+      label: 'origin/main (0123456)',
+    })
+    expect(artBase(undefined, null)).toBeNull()
+  })
+
+  it('Marke nur für eine neue Aufnahme aus einem vollständigen, nicht übersprungenen ci:local art', () => {
+    const art = parseArgs(['art'])
+    const before = ['20261010-iter05-babd5d7']
+    expect(artMarkerRun(art, false, before, '20261010-iter06-f91d6ff')).toBe(
+      '20261010-iter06-f91d6ff',
+    )
+    expect(artMarkerRun(art, false, before, '20261010-iter05-babd5d7')).toBeNull() // Aufnahme scheiterte vor dem Ordner
+    expect(artMarkerRun(art, false, before, undefined)).toBeNull()
+    expect(artMarkerRun(art, true, before, '20261010-iter06-f91d6ff')).toBeNull()
+    expect(
+      artMarkerRun(
+        parseArgs(['art', '--from', 'art-record']),
+        false,
+        before,
+        '20261010-iter06-f91d6ff',
+      ),
+    ).toBeNull()
+    expect(
+      artMarkerRun(
+        parseArgs(['art', '--only', 'art-record']),
+        false,
+        before,
+        '20261010-iter06-f91d6ff',
+      ),
+    ).toBeNull()
+    expect(artMarkerRun(parseArgs(['full']), false, [], '20261010-iter06-f91d6ff')).toBeNull()
+    expect(ART_CI_MARKER).toBe('ci-local.json')
+  })
+
+  it('Commit-Status lokal/ci-art aus der GitHub-Antwort lesen', () => {
+    expect(ART_STATUS_CONTEXT).toBe('lokal/ci-art')
+    const res = (state: string, context = 'lokal/ci-art') => ({
+      state,
+      statuses: [
+        { context: 'lokal/ci-full', state: 'success' },
+        { context, state },
+      ],
+    })
+    expect(statusSuccess(res('success'), 'lokal/ci-art')).toBe(true)
+    expect(statusSuccess(res('failure'), 'lokal/ci-art')).toBe(false)
+    expect(statusSuccess(res('success', 'lokal/ci-quick'), 'lokal/ci-art')).toBe(false)
+    expect(statusSuccess({ state: 'pending', statuses: [] }, 'lokal/ci-art')).toBe(false)
+    expect(statusSuccess(null, 'lokal/ci-art')).toBe(false)
+  })
+
+  it('Entscheidung: im Zweifel läuft die Kunst-QA; übersprungen nur ohne Kunst-Änderung seit nachweislich grünem Stand', () => {
+    const baseline = run('20261010-iter02-bbbbbbb')
+    const input: ArtGateInput = {
+      force: false,
+      partial: false,
+      baseline,
+      base: artBase(baseline, null),
+      mainVerified: false,
+      changed: ['src/lib/commerce/reserve.ts', 'docs/PLAN.md'],
+    }
+    const skip = artGate(input)
+    expect(skip.run).toBe(false)
+    expect(skip.reason).toMatch(
+      /keine Kunst-Änderung seit Kunst-Lauf 20261010-iter02-bbbbbbb .*grün.*--force/,
+    )
+    expect(artGate({ ...input, force: true })).toMatchObject({ run: true, reason: '--force' })
+    expect(artGate({ ...input, partial: true }).run).toBe(true)
+    // rot: check.json oder ein Schritt von ci:local art
+    expect(artGate({ ...input, baseline: { ...baseline, pass: false } })).toMatchObject({
+      run: true,
+      reason: expect.stringMatching(/ist rot \(check\.json\)/),
+    })
+    expect(artGate({ ...input, baseline: { ...baseline, ciOk: false } })).toMatchObject({
+      run: true,
+      reason: expect.stringMatching(/ist rot \(ein Schritt/),
+    })
+    // unvollständig: Teilmenge, emuliertes WebKit, fehlende Profile
+    for (const gaps of [
+      ['Szenarien fehlen: SC-00'],
+      ['WebKit emuliert'],
+      ['Profile fehlen: art-iphone15'],
+    ])
+      expect(artGate({ ...input, baseline: { ...baseline, gaps } })).toMatchObject({
+        run: true,
+        reason: expect.stringMatching(/unvollständig/),
+      })
+    expect(artGate({ ...input, changed: null }).run).toBe(true)
+    expect(artGate({ ...input, base: null }).run).toBe(true)
+    // Kunst-Änderungen: Bausteine mit Coco, Texte, Beispielbestand
+    for (const f of [
+      'src/leash/presets.ts',
+      'src/components/layout/MenuOverlay.tsx',
+      'src/i18n/messages/de.json',
+      'content/seed/data/products.json',
+    ]) {
+      const art = artGate({ ...input, changed: [...input.changed!, f] })
+      expect(art, f).toMatchObject({ run: true, artFiles: [f] })
+      expect(art.reason).toMatch(/1 Kunst-Datei\(en\) geändert seit Kunst-Lauf/)
+    }
+    // ohne eigenen Lauf: origin/main nur mit Nachweis lokal/ci-art = success
+    const main = { ...input, baseline: undefined, base: artBase(undefined, 'abcdef1234') }
+    expect(artGate(main)).toMatchObject({
+      run: true,
+      reason: expect.stringMatching(/origin\/main \(abcdef1\) ohne Commit-Status lokal\/ci-art/),
+    })
+    const verified = artGate({ ...main, mainVerified: true })
+    expect(verified).toMatchObject({ run: false })
+    expect(verified.reason).toMatch(/seit origin\/main \(abcdef1\), lokal\/ci-art grün/)
+    expect(artGate({ ...input, changed: [] }).run).toBe(false)
+  })
+
+  it('Runner: Entscheidung vor den Ports, Schritte „übersprungen“, Urteil ÜBERSPRUNGEN, Marke, Status-Nachweis', () => {
+    const runner = readFileSync(path.join(ROOT, 'scripts/ci-local.ts'), 'utf8')
+    expect(runner).toContain('decideArt(opts)')
+    expect(runner).toContain("result: 'skipped'")
+    expect(runner).toContain("'ÜBERSPRUNGEN'")
+    expect(runner).toMatch(/'merge-base', 'origin\/main', 'HEAD'/)
+    expect(runner).toContain('artMarkerRun(opts, !!plannedSkip, artRunsBefore, ctx.artRunId)')
+    expect(runner).toContain('ART_CI_MARKER')
+    expect(runner).toMatch(/repos\/\$\{repo\}\/commits\/\$\{sha\}\/status/)
   })
 })
 

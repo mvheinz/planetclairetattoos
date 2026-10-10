@@ -346,6 +346,10 @@ testet erneut.
     success. Rot: Log unter `ci-reports/<zeit>-<sha7>-full/<nn>-<schritt>.log`, reparieren, committen, pushen, neu
     (Probe vorab mit `--only <schritt>` bzw. `--from <schritt>`, Playwright-Filter nach `--`);
   - Kunst-QA mit `pnpm ci:local art` (Bündel unter `artifacts/art-qa/<lauf-id>/bundle/`).
+  Seit U-67: `full` prüft auf `iphone-15` nur die mobilen Kernfälle (`--iphone-all` = alle), und `art` läuft nur bei
+  Kunst-Änderungen seit dem letzten nachweislich grünen Kunst-Stand – eigener Lauf aus `pnpm ci:local art` (nicht
+  `art:record` von Hand) oder `origin/main` mit Status `lokal/ci-art`; sonst „übersprungen“ mit Grund. In einer frischen
+  Arbeitskopie läuft die erste Kunst-QA daher meist vollständig (`--force` erzwingt; Regeln ARCHITEKTUR §6.0).
   Eigene Datenbanken `planetclaire_ci(_test)` und Ports 3300–3305; arbeiten mehrere Arbeitskopien parallel, je eine
   eigene `--db planetclaire_ci_<x>` und `--port`. Vorher `pnpm dev`/`start` derselben Arbeitskopie beenden (der
   Lauf baut nach `.next`). Die Vorschau-Datei `dist/planet-claire-vorschau.html` schickt die Sitzung Jutta direkt im
