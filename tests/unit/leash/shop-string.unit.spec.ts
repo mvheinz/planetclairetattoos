@@ -155,3 +155,43 @@ describe('Shop/Tattoo – Coco läuft mit (U-44)', () => {
     }
   })
 })
+
+describe('U-68 Kategorie-Bilder im Shop: Coco läuft ruhig herum (P15.1)', () => {
+  const desk = (y: number, w = 900, h = 180, readingY0 = 0.72 * 900 - 64): BuildInput => ({
+    preset: 'shopString',
+    seed: fnv1a32('shopString:R02'),
+    root: { w: 1264, h: 3000 },
+    viewport: { w: 1440, h: 900 },
+    gutter: 88,
+    railX: 44,
+    baseWidth: 2.6,
+    readingY0,
+    anchors: [
+      { id: 'start', kind: 'start', x: 44, y: 0, w: 0, h: 0, loop: 'none' },
+      { id: 'kategorien', kind: 'station', x: 100, y, w, h, loop: 'contour' },
+    ],
+  })
+
+  it('beim Laden schon begonnene Umrundung: Ende der Schlaufe liegt auf der Lesezeile (das Intro zeichnet nur bis zum Anfang, den Rest läuft Coco allein)', () => {
+    const i = desk(260)
+    const g = buildGeometry(i)
+    const s = g.stations.find((x) => x.id === 'kategorien')!
+    expect(s).toMatchObject({ loop: 'contour' })
+    expect(s.loopLen1 - s.loopLen0).toBeGreaterThan(2000)
+    expect(mapReadingY(g.scrollMap, i.readingY0!)).toBeGreaterThanOrEqual(s.loopLen1 - 0.5)
+    expect(mapReadingY(g.scrollMap, s.y - 1)).toBeLessThanOrEqual(s.loopLen0 + 0.5)
+  })
+
+  it('lange Umrundung erst unterhalb der Lesezeile (am Scrollen): wird zum Kringel – kurze bleibt', () => {
+    expect(buildGeometry(desk(1200)).stations[0]).toMatchObject({ loop: 'right' })
+    expect(buildGeometry(desk(1200, 260, 325)).stations[0]).toMatchObject({ loop: 'contour' })
+  })
+
+  it('ohne gemessene Lesezeile wie bisher: 0,72 × Bildschirmhöhe', () => {
+    const { readingY0: _, ...i } = desk(560)
+    // 560 < 0,72 × 900 = 648: gilt als beim Laden begonnen
+    const g = buildGeometry(i as BuildInput)
+    const s = g.stations[0]!
+    expect(mapReadingY(g.scrollMap, 0.72 * 900)).toBeGreaterThanOrEqual(s.loopLen1 - 0.5)
+  })
+})

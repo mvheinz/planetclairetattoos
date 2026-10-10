@@ -25,6 +25,7 @@ export interface BuildInput {
   railX?: number;               // x der Rinnenmitte (Raster-Seiten: Linie läuft dort, U-07a)
   baseWidth: number;            // --leash-w in px
   anchors: LeashAnchor[];
+  readingY0?: number;           // Lesezeile beim Laden (scrollY 0), relativ zum Seitencontainer; sonst READING_LINE × Viewport-Höhe
 }
 export interface LeashSegment {
   id: string;

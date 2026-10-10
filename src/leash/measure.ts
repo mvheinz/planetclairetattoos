@@ -1,5 +1,5 @@
 import { toSpritePose } from './poses'
-import { PRESET_CONFIG, gutterFor, railOffset } from './presets'
+import { PRESET_CONFIG, READING_LINE, gutterFor, railOffset } from './presets'
 import type { BuildInput, LeashAnchor, LoopKind, PresetId } from './types'
 
 // Messung der Tuschelinie (DESIGN §9.2): alle Anker, Viewport und CSS-Variablen in EINER Lesephase – keine
@@ -84,6 +84,7 @@ export function measure(root: HTMLElement, preset: PresetId): Measurement {
       railX: startX,
       baseWidth,
       anchors,
+      readingY0: READING_LINE * innerHeight - rootRect.top - scrollY,
     },
     rootTop: rootRect.top + scrollY,
     scrollY,

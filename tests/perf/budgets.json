@@ -17,7 +17,8 @@
     {
       "name": "Engine (Geometrie + Laufzeit)",
       "entries": ["src/leash/runtime.ts"],
-      "gzipMax": 12000
+      "$comment": "U-68 (P15.1): 12 000 → 12 300 B für Coco im Schritttempo (Rest einer beim Laden begonnenen Schlaufe) und lange Umrundungen als Kringel; vorher 11 923 B belegt.",
+      "gzipMax": 12300
     },
     {
       "name": "Statischer Renderer",

@@ -10,7 +10,7 @@ import {
   type InspectableLeashHandle,
   type MountOptions,
 } from '@/leash/runtime'
-import { COCO_MAX_SPEED } from '@/leash/presets'
+import { COCO_MAX_SPEED, COCO_WALK_SPEED, READING_LINE } from '@/leash/presets'
 import { resetLeashSchedule, whenLeashReady } from '@/leash/schedule'
 
 import { installTracker, type Tracker } from '../behaviors/harness'
@@ -33,15 +33,17 @@ function stubMatchMedia(reduce = false) {
   }))
 }
 
+const STATIONS = `
+        <div data-leash-station="hallo" data-leash-pose="sit" data-leash-loop="right" data-rect="60,700,24,24"></div>
+        <div data-leash-station="keramik" data-leash-pose="sniff" data-leash-loop="left" data-rect="60,1500,24,24"></div>
+        <div data-leash-station="zeichnungen" data-leash-loop="spiral" data-rect="60,2400,24,24"></div>`
+
 /** Seitencontainer mit Linien-Ebene, Inhalt mit Rinne und drei Stationen; Rechtecke über `data-rect`. */
-function setupDom(): HTMLElement {
+function setupDom(stations = STATIONS): HTMLElement {
   document.body.innerHTML = `
     <div class="page" data-rect="0,0,390,${PAGE_H}">
       <div data-leash-layer aria-hidden="true" data-rect="0,0,390,${PAGE_H}"></div>
-      <main><div class="u-container" data-rect="0,0,390,${PAGE_H}">
-        <div data-leash-station="hallo" data-leash-pose="sit" data-leash-loop="right" data-rect="60,700,24,24"></div>
-        <div data-leash-station="keramik" data-leash-pose="sniff" data-leash-loop="left" data-rect="60,1500,24,24"></div>
-        <div data-leash-station="zeichnungen" data-leash-loop="spiral" data-rect="60,2400,24,24"></div>
+      <main><div class="u-container" data-rect="0,0,390,${PAGE_H}">${stations}
       </div></main>
     </div>`
   return document.querySelector<HTMLElement>('[data-leash-layer]')!
@@ -537,6 +539,80 @@ describe('U-55 Coco und Tinte mit Höchsttempo (P14.6)', () => {
     expect(maxStep).toBeLessThanOrEqual(COCO_MAX_SPEED * 17 + 0.01)
     expect(maxInk).toBeLessThanOrEqual(COCO_MAX_SPEED * 17 + 0.01)
     expect(api.cocoLen()).toBeGreaterThan(start + 250) // kommt trotzdem an
+    off()
+    handle.destroy()
+  })
+})
+
+describe('U-68 Coco läuft eine beim Laden begonnene Schlaufe allein und ruhig zu Ende (P15.1)', () => {
+  it('Intro zeichnet nur bis zum Schlaufenanfang; danach läuft Coco im Schritttempo ohne Sprung bis ans Ende', () => {
+    // Umrundung beginnt über der Lesezeile beim Laden (0,72 × 844 ≈ 608 px) – wie die Kategorie-Bilder im Shop
+    const root = setupDom(`
+        <div data-leash-station="kategorien" data-leash-loop="contour" data-rect="60,480,200,160"></div>
+        <div data-leash-station="keramik" data-leash-loop="left" data-rect="60,1500,24,24"></div>`)
+    const handle = mountLeash(root, { preset: 'journey', routeKey: 'R02' })
+    const off = exposeLeashDebug(handle)
+    const api = (
+      window as Window & {
+        __leash?: {
+          cocoLen(): number
+          drawnLen(): number
+          geometry: {
+            stations: { id: string; loopLen0: number; loopLen1: number }[]
+            scrollMap: { readingY: number; len: number }[]
+          }
+        }
+      }
+    ).__leash!
+    const s = api.geometry.stations.find((x) => x.id === 'kategorien')!
+    expect(s.loopLen1 - s.loopLen0).toBeGreaterThan(300) // länger als die Sprung-Schwelle
+    // Die Scroll-Abbildung legt das Schlaufenende auf die Lesezeile beim Laden: ohne Scrollen ist das Ziel das Ende
+    const last = api.geometry.scrollMap.find((p) => Math.abs(p.len - s.loopLen1) < 0.5)!
+    expect(last.readingY).toBeLessThanOrEqual(READING_LINE * VIEW.h + 1)
+    // Intro (1800 ms ab dem ersten Frame): kurz vor seinem Ende fast am Schlaufenanfang, nie darüber hinaus
+    let introMax = 0
+    for (let t = 0; t < 1750; t += 16) {
+      advance(16)
+      introMax = Math.max(introMax, api.drawnLen())
+    }
+    expect(introMax).toBeLessThanOrEqual(s.loopLen0 + 0.5)
+    expect(introMax).toBeGreaterThan(s.loopLen0 - 10)
+    advance(100)
+    let prev = api.cocoLen()
+    let maxStep = 0
+    let maxLead = 0
+    for (let i = 0; i < 600 && api.cocoLen() < s.loopLen1 - 0.5; i++) {
+      advance(16)
+      maxStep = Math.max(maxStep, api.cocoLen() - prev)
+      maxLead = Math.max(maxLead, api.drawnLen() - api.cocoLen())
+      prev = api.cocoLen()
+    }
+    expect(api.cocoLen()).toBeGreaterThan(s.loopLen1 - 0.5) // kommt an
+    expect(maxStep).toBeGreaterThan(0)
+    expect(maxStep).toBeLessThanOrEqual(COCO_WALK_SPEED * 17 + 0.01) // kein Rennen, kein Sprung
+    expect(maxLead).toBeLessThanOrEqual(0.5) // die Tinte läuft hinter Coco her
+    off()
+    handle.destroy()
+  })
+
+  it('wer dabei scrollt, bekommt wieder das normale Höchsttempo; Sprünge erst nach der Schlaufe', () => {
+    const root = setupDom(`
+        <div data-leash-station="kategorien" data-leash-loop="contour" data-rect="60,480,200,160"></div>
+        <div data-leash-station="keramik" data-leash-loop="left" data-rect="60,1500,24,24"></div>`)
+    const handle = mountLeash(root, { preset: 'journey', routeKey: 'R02' })
+    const off = exposeLeashDebug(handle)
+    const api = (window as Window & { __leash?: { cocoLen(): number } }).__leash!
+    advance(1900)
+    let prev = api.cocoLen()
+    let maxStep = 0
+    for (let i = 0; i < 20; i++) {
+      setScroll(scrollY + 40)
+      advance(16)
+      maxStep = Math.max(maxStep, api.cocoLen() - prev)
+      prev = api.cocoLen()
+    }
+    expect(maxStep).toBeGreaterThan(COCO_WALK_SPEED * 17)
+    expect(maxStep).toBeLessThanOrEqual(COCO_MAX_SPEED * 17 + 0.01)
     off()
     handle.destroy()
   })

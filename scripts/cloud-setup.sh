@@ -769,6 +769,7 @@ plan_summary() {
           if [ "$a" -eq 12 ]; then PLAN_OPEN_P12="$b"; fi
           if [ "$a" -eq 13 ]; then PLAN_OPEN_P13="$b"; fi
           if [ "$a" -eq 14 ]; then PLAN_OPEN_P14="$b"; fi
+          if [ "$a" -eq 15 ]; then PLAN_OPEN_P15="$b"; fi
         fi
         ;;
     esac
@@ -778,6 +779,7 @@ plan_summary() {
   PLAN_OPEN_P12="${PLAN_OPEN_P12:-0}"
   PLAN_OPEN_P13="${PLAN_OPEN_P13:-0}"
   PLAN_OPEN_P14="${PLAN_OPEN_P14:-0}"
+  PLAN_OPEN_P15="${PLAN_OPEN_P15:-0}"
   PLAN_NEXT="$(printf '%s\n' "$raw" | sed -n 's/^NEXT //p' | head -n 1)"
   if [ -z "$PLAN_NEXT" ]; then
     PLAN_NEXT="$(printf '%s\n' "$raw" | sed -n 's/^NEXTANY //p' | head -n 1)"
@@ -976,6 +978,7 @@ run_plan_status() {
   echo "OFFEN_P12=${PLAN_OPEN_P12:-0}"
   echo "OFFEN_P13=${PLAN_OPEN_P13:-0}"
   echo "OFFEN_P14=${PLAN_OPEN_P14:-0}"
+  echo "OFFEN_P15=${PLAN_OPEN_P15:-0}"
   echo "ERSTE_OFFENE_AUFGABE: ${PLAN_NEXT}"
 }
 

@@ -4,6 +4,7 @@ import { measure, type Measurement } from './measure'
 import { getMotion, type Motion } from './motion'
 import {
   COCO_MAX_SPEED,
+  COCO_WALK_SPEED,
   DOWNGRADE,
   PRESET_CONFIG,
   READING_LINE,
@@ -177,6 +178,8 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   let lastSY = -1
   let lastScrollAt = -Infinity
   let intro: { from: number; to: number; start: number | null; dur: number } | null = null
+  /** U-68: bis hierhin läuft Coco nach dem Intro allein und ohne Sprung (Rest einer beim Laden begonnenen Schlaufe). */
+  let walkTo = 0
   let debounce: ReturnType<typeof setTimeout> | null = null
   const monitor = { active: 0, frames: 0, slow: 0, done: false }
   const restPose = cfg.coco ? REST_POSE[options.preset] : null
@@ -386,6 +389,13 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     return s ? s.loopLen1 + 48 : 0
   }
 
+  /** U-68: das Intro zeichnet höchstens bis zum Anfang der Schlaufe, in der `len` liegt – den Rest läuft Coco allein. */
+  function introEnd(len: number): number {
+    for (const s of geometry?.stations ?? [])
+      if (s.loopLen0 < len && len <= s.loopLen1) return s.loopLen0
+    return len
+  }
+
   /** Ziel-Pose (§10.3, §10.6): reduziert → Ruhe-Pose; in Bewegung `rennen`; an einer Station deren Pose. */
   function targetPose(moving: boolean): SpritePose | null {
     if (!restPose) return null
@@ -487,7 +497,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     }
     if (intro) {
       if (intro.start === null) intro.start = now
-      if (cfg.draw === 'scroll') intro.to = Math.max(intro.to, target)
+      if (cfg.draw === 'scroll') intro.to = Math.max(intro.to, introEnd(target))
       const t = Math.min(1, (now - intro.start) / intro.dur)
       drawnLen = Math.max(drawnLen, intro.from + (intro.to - intro.from) * easeInkOut(t))
       if (t >= 1) intro = null
@@ -500,10 +510,11 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       motion === 'reduced' ? restLen() : intro ? Math.min(target, drawnLen) : target
     const diff = cocoTarget - cocoLen
     let moving = !!intro
-    if (Math.abs(diff) > COCO_JUMP || Math.abs(diff) < 0.1) cocoLen = cocoTarget
+    const walk = !intro && cocoLen < walkTo
+    if ((Math.abs(diff) > COCO_JUMP && !walk) || Math.abs(diff) < 0.1) cocoLen = cocoTarget
     else {
-      // U-55: geglättet, höchstens COCO_MAX_SPEED px/ms – Umrundungen werden nicht hektisch
-      const max = COCO_MAX_SPEED * dt
+      // U-55: geglättet, höchstens COCO_MAX_SPEED px/ms – Umrundungen werden nicht hektisch; U-68: allein im Schritttempo
+      const max = (walk && now - lastScrollAt > 200 ? COCO_WALK_SPEED : COCO_MAX_SPEED) * dt
       cocoLen += Math.max(-max, Math.min(max, diff * (1 - Math.pow(0.65, dt / 16.7))))
       again = moving = true
     }
@@ -568,19 +579,26 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     // Gemessene Position statt `window.scrollY` (kein erzwungenes Layout); der nächste Frame gleicht nach.
     const target = scrollTarget(mm.scrollY)
     const running = intro
+    const walking = cocoLen < walkTo
     intro = null
+    walkTo = 0
     if (tier === 'C') drawnLen = total
-    else if (!first && running) {
-      // Neuaufbau mitten im Intro (z. B. späte Schrift): weiterzeichnen statt zum Ziel zu springen (R2-05)
-      running.to = target
-      intro = running
+    else if (!first && (running || walking)) {
+      // Neuaufbau mitten im Intro (z. B. späte Schrift) oder im Alleingang (U-68): weiterzeichnen statt zum Ziel zu
+      // springen (R2-05)
+      if (running) {
+        running.to = introEnd(target)
+        intro = running
+      }
+      walkTo = target
       drawnLen = Math.min(total, prevDrawn)
     } else if (first) {
       if (cfg.draw === 'scroll' && !(cfg.intro && m.scrollY < 8)) drawnLen = target
       else {
         // Intro (journey, MI-10) bzw. einmaliges Zeichnen; Einstieg mitten in der Seite ohne Animation.
         drawnLen = 0
-        intro = { from: 0, to: target, start: null, dur: cfg.durationMs ?? 1800 }
+        intro = { from: 0, to: introEnd(target), start: null, dur: cfg.durationMs ?? 1800 }
+        walkTo = target
       }
     } else {
       // Gezeichneter Fortschritt bleibt je Station erhalten.

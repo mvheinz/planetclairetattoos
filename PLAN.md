@@ -5637,6 +5637,16 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-50 … U-64. Gilt für Handy und Desktop
   - Akzeptanz: Workflow-Unit-Tests (keine automatischen Auslöser), `ci:local quick` grün, `ci:local full` am Phasenende grün mit Bericht und Commit-Status.
 - [x] **P14.14 Abschluss P14** (U-64) – lokale Prüfschleuse `ci:local full` + `art` grün, visuelle Referenzen erneuert, Merge, Release-Stand aktualisiert, HTML-Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
 
+## P15 – Vierte Nachbesserung nach Juttas Rückmeldung (10.10.2026)
+
+Verbindlich: `docs/UEBERARBEITUNG.md` U-68 … U-72. Gilt für Handy und Desktop, DE und EN.
+
+- [ ] **P15.1 Coco im Shop ruhiger** (U-68) – Intro mit Tempo-Grenze statt fester Dauer, Umrundung der Kategorie-Bilder ohne Springen und ohne Rennen.
+  - Akzeptanz: Unit (Intro-Tempo, Scroll-Abbildung der Umrundung), Messung Coco-Tempo Shop 1440/390 px beim Laden und Scrollen ohne Sprung, Kunst-QA grün.
+- [ ] **P15.2 Startseite oben neu geordnet** (U-69, U-70, U-71) – Foto größer und von der Linie weg, Text mittig unter Koko und größer, Tour-Schaukasten kompakter mit größerer Schrift oben neben dem Titel.
+  - Akzeptanz: Screenshots 390/768/1280/1440 px, home-E2E angepasst, visuelle Referenzen, LCP/CLS-Budget, Kunst-QA (Linie kreuzt keinen Text).
+- [ ] **P15.3 Abschluss P15** (U-72) – `ci:local full` + `art` grün, Merge, HTML-Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
+
 ## P11 – Go-live gemeinsam mit Jutta
 
 **Ziel:** Die Seite geht unter https://planetclairetattoos.com live – zusammen mit Jutta, in der Reihenfolge von

@@ -1,6 +1,7 @@
 import {
   BP_DESKTOP,
   BP_TABLET,
+  CONTOUR_SCROLL_MAX,
   MAX_DRAW_RATE,
   MAX_LOOP_SHIFT,
   PRESET_CONFIG,
@@ -209,10 +210,13 @@ function planPath(input: BuildInput, rand: () => number, rMax: number): Plan {
     if (kind === 'lasso' && !wide) kind = cfg.loops.includes('right') ? 'right' : 'none'
     // Umrundung nur um kompakte Gruppen mit Platz rechts daneben für Coco (sonst ragte sie aus dem Bild oder liefe aus
     // dem Sichtbereich): sonst ein Kringel in der Rinne
+    // U-68: zu lange Umrundungen unterhalb der Lesezeile beim Laden (Coco rannte oder sprang beim Scrollen) ebenso
     if (
       kind === 'contour' &&
       onRail &&
-      (anchor.x + anchor.w + (desktop ? 56 : 40) > root.w || anchor.h > 0.45 * viewport.h)
+      (anchor.x + anchor.w + (desktop ? 56 : 40) > root.w ||
+        anchor.h > 0.45 * viewport.h ||
+        (anchor.y > reading0(input) && 2 * (anchor.w + anchor.h) > CONTOUR_SCROLL_MAX))
     )
       kind = 'right'
     const loopPts = loopPoints(kind, anchor, {
@@ -969,21 +973,25 @@ function outlineOf(i0: number, i1: number, d: SegmentData, dots: number[]): stri
   return outlineD
 }
 
+/** Lesezeile beim Laden relativ zum Seitencontainer (Messung), sonst wie bisher `READING_LINE` × Viewport-Höhe. */
+const reading0 = (input: BuildInput) => input.readingY0 ?? READING_LINE * input.viewport.h
+
 function buildScrollMap(
   input: BuildInput,
   stations: { id: string; y: number; loopLen0: number; loopLen1: number; loop: LoopKind }[],
   total: number,
 ): { readingY: number; len: number }[] {
   const raw: { readingY: number; len: number }[] = [{ readingY: 0, len: 0 }]
+  const r0 = reading0(input)
   if (isScrollCoupled(input.preset)) {
     stations.forEach((s, k) => {
       // Kringel der Kartenzeilen liegen dicht: höchstens der halbe Weg bis zur nächsten Station (Coco hetzte sonst dazwischen)
       const gap = s.id.startsWith('row-') ? (stations[k + 1]?.y ?? Infinity) - s.y : Infinity
+      const end = s.y + Math.min(loopScroll(s.loop, input.viewport.w), gap / 2)
       raw.push({ readingY: s.y, len: s.loopLen0 })
-      raw.push({
-        readingY: s.y + Math.min(loopScroll(s.loop, input.viewport.w), gap / 2),
-        len: s.loopLen1,
-      })
+      // U-68: eine beim Laden schon begonnene Schlaufe endet an der Lesezeile – das Intro zeichnet bis zu ihrem Anfang,
+      // den Rest läuft Coco danach allein in Schritttempo (`COCO_WALK_SPEED`, Laufzeit), ohne Scroll
+      raw.push({ readingY: s.y < r0 ? Math.min(end, r0) : end, len: s.loopLen1 })
     })
   }
   raw.push({ readingY: input.root.h, len: total })
@@ -1004,12 +1012,7 @@ function buildScrollMap(
   if (out.length < 2) out.push({ readingY: Math.max(1, input.root.h), len: total })
   // Was schon beim Laden über der Lesezeile liegt, zeichnet das Intro (zeitgesteuert) – dort nichts verschieben.
   return isScrollCoupled(input.preset)
-    ? capDrawRate(
-        out,
-        MAX_DRAW_RATE,
-        READING_LINE * input.viewport.h,
-        MAX_LOOP_SHIFT * input.viewport.h,
-      )
+    ? capDrawRate(out, MAX_DRAW_RATE, r0, MAX_LOOP_SHIFT * input.viewport.h)
     : out
 }
 

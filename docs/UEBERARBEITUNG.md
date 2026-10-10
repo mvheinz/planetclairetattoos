@@ -98,3 +98,15 @@ Fachdokumenten und E-xx; U-00 (zweisprachig) gilt weiter.
 | U-66 | **Ab sofort:** P14 wird bereits mit der lokalen Prüfschleuse abgeschlossen (keine GitHub-Läufe mehr). |
 | U-67 | **Schneller prüfen (10.10.2026):** (a) **iPhone-Tests nur Kernfälle** – am Phasenende laufen alle Ende-zu-Ende-Tests auf Desktop und Pixel 7, auf dem iPhone 15 (am langsamsten) nur die mobilen Kernabläufe: Startseite mit Tour-Schaukasten und Koko, Kopfleiste/Menü/Sprache, Shop, Produktseite mit Galerie und Kauf-Leiste, „In den Korb“, Korb, Kasse mit „Zahlungspflichtig bestellen“, Kauf, „Vertrag widerrufen“ (zwei Schritte), Rechtsseiten und Fußlinks, weniger Bewegung, Tastatur, Datenschutz (keine Cookies vor dem Korb, kein Speicher). (b) **Kunst-QA nur bei Kunst-Änderungen** – die Kunst-Abnahme läuft nur, wenn sich seit dem letzten grünen Kunst-Lauf an Linie, Coco, Zeichnungen, Seiten-Bausteinen, Texten, Beispielbestand, Aussehen oder Animationen etwas geändert hat; sonst steht sie im Bericht als „übersprungen“ mit Grund. Als Nachweis zählt nur ein vollständiger Lauf (`pnpm ci:local art`) oder ein `main`-Stand mit grüner Kunst-QA; fehlt er, läuft sie. Umsetzung und Regeln: ARCHITEKTUR §6.0. |
 
+## Vierte Runde (10.10.2026, Phase P15)
+
+Juttas Rückmeldung zur Vorschau P14 (Chat 10.10.2026). Sie bat ausdrücklich darum, ihre Layout-Wünsche zu verbessern,
+wo sie nicht ideal sind („verbessere mich da einfach“). Gilt vor Fachdokumenten und E-xx; U-00 (zweisprachig) gilt weiter.
+
+| ID | Änderung |
+| --- | --- |
+| U-68 | **Coco im Shop ruhiger:** Beim Betreten des Shops und beim Weiterscrollen läuft Coco um die Kategorie-Bilder oben herum (hin, zurück, dann nach unten) – das ist viel zu schnell. Verlangsamen: kein Springen, kein Rennen um die Umrundung, ruhiges Tempo auch beim Aufbau (Intro); gilt für alle Seiten mit Leine. |
+| U-69 | **Startseite – Foto:** Foto von Jutta und Coco **≈ 30 % größer** und **etwas nach rechts**, damit es nicht an der Linie (und an Coco auf der Linie) klebt. |
+| U-70 | **Startseite – Text unter Koko:** Der Text „Werkstatt unter der Woche …“ (mit „Mehr über uns“) steht nicht mehr unter dem Foto, sondern **mittig direkt unter Koko** (die nach links und rechts guckt), **≈ 40 % größer**. |
+| U-71 | **Startseite – Tour-Schaukasten:** Schrift **eine Stufe größer**, Gestaltung **kompakter**, Kasten **weiter oben** (neben dem Titel). |
+| U-72 | **Ablauf:** Phase **P15** vor P11, selbst durcharbeiten, lokale Prüfschleuse (U-65/U-67) grün, selbst mergen (Squash), am Ende neue HTML-Vorschau an Jutta. |

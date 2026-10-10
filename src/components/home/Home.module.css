@@ -18,40 +18,61 @@
   min-width: 0;
 }
 
-/* Oben (P14.1, U-50): links das Foto von Jutta und Coco mit dem Text darunter (`data-slot="intro"`), in der Mitte Koko
-   (`data-slot="chairwoman"`), rechts der schmale Schaukasten „Planet Claire on Tour“ mit dem Instagram-Hinweis
-   (`data-slot="tour"`). Handy: untereinander (Foto + Text, Koko, Schaukasten); ab 600 px Foto + Text und Koko
-   nebeneinander; ab 1100 px drei Spalten unter dem Titel. */
-.intro {
+/* Oben (P14.1, U-50; neu geordnet P15.2, U-69–U-71): das Foto von Jutta und Coco (`data-slot="intro"`), Koko mit dem Text
+   mittig darunter (`data-slot="chairwoman"`) und der Schaukasten „Planet Claire on Tour“ mit dem Instagram-Hinweis
+   (`data-slot="tour"`). Handy: untereinander (Foto, Koko + Text); ab 600 px Foto | Koko + Text nebeneinander; ab 1100 px
+   steht der Schaukasten rechts schon neben Titel und Kompass, Foto | Koko + Text darunter. */
+.photoSlot {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-4);
+  justify-content: center;
   min-width: 0;
-  max-width: 28rem;
 }
 
-/* Foto klein (U-50: „kleiner“) im Goth-Fotorahmen, Seitenverhältnis 3 : 4 wie das Original. */
+/* U-69: ≈ 30 % größer als in P14 (220 → 286 px, Desktop 230 → 300 px), Goth-Fotorahmen, Seitenverhältnis 3 : 4. */
 .introPhoto {
-  width: min(220px, 64vw);
+  width: min(286px, 100%);
   flex: none;
 }
 
-.introText {
+.chairwomanSlot {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-}
-
-/* Benannter Platz für Koko */
-.chairwomanSlot {
-  width: min(100%, 17rem);
+  align-items: center;
+  gap: var(--space-5);
   min-width: 0;
-  justify-self: center;
 }
 
 .chairwomanSlot:empty {
   display: none;
+}
+
+/* Koko: feste Box (kein CLS), Handy ≤ 17rem */
+.kokoFrame {
+  width: min(100%, 17rem);
+}
+
+/* U-70: der Text mittig direkt unter Koko, ≈ 40 % größer als Fließtext (Desktop 24 px statt 17 px; Handy 20 px – dort
+   sonst nur zwei, drei Wörter je Zeile), „Mehr über uns“ darunter. */
+.introText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: min(100%, 32ch);
+  text-align: center;
+  font-size: 1.25rem;
+  /* große, mittige Zeilen: keine Silbentrennung („Auf-tragsarbeiten“) */
+  hyphens: manual;
+}
+
+.introCopy {
+  font-size: inherit;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+.introText .more {
+  margin-top: 0;
 }
 
 .tourCol {
@@ -69,20 +90,33 @@
     column-gap: var(--space-6);
   }
 
-  .intro {
+  /* U-69: Abstand zur Linie in der Rinne – Coco läuft dort, das Foto klebte sonst an ihr */
+  .photoSlot {
     grid-column: 1;
+    justify-content: flex-start;
+    padding-inline-start: var(--space-5);
+  }
+
+  .introPhoto {
+    width: 260px;
   }
 
   .chairwomanSlot {
     grid-column: 2;
-    justify-self: start;
     align-self: start;
+  }
+
+  .kokoFrame {
     width: min(100%, 15rem);
   }
 
-  /* ohne Foto-Block steht Koko vorn */
+  .introText {
+    font-size: 1.3125rem;
+  }
+
+  /* ohne Foto steht Koko mit dem Text über die ganze Breite */
   .home[data-home-layout='plain'] .chairwomanSlot {
-    grid-column: 1;
+    grid-column: 1 / -1;
   }
 
   .tourCol {
@@ -108,7 +142,7 @@
     order: 1;
   }
 
-  .intro {
+  .photoSlot {
     order: 2;
   }
 
@@ -137,30 +171,63 @@
 }
 
 @media (min-width: 1100px) {
-  /* links schmal (Foto ≈ 230 px, Text darunter), Koko mittig im freien Raum, rechts der Schaukasten */
+  /* Spalten: Foto (300 px + 48 px Abstand zur Linie) | Koko mit Text | Schaukasten (U-71: oben neben dem Titel) */
   .home {
-    grid-template-columns: 17rem minmax(0, 1fr) 14.5rem;
+    grid-template-columns: calc(300px + var(--space-7)) minmax(0, 1fr) 16rem;
+  }
+
+  .home .hero {
+    grid-column: 1 / 3;
+    grid-row: 1;
+  }
+
+  .home .compass {
+    grid-column: 1 / 3;
+    grid-row: 2;
+  }
+
+  .photoSlot {
+    grid-column: 1;
+    grid-row: 3;
+    justify-content: flex-end;
+    padding-inline-start: 0;
   }
 
   .introPhoto {
-    width: 230px;
+    width: 300px;
   }
 
-  .chairwomanSlot {
-    grid-column: 2;
-    justify-self: center;
-    width: clamp(13rem, 22vw, 17rem);
-  }
-
+  .chairwomanSlot,
   .home[data-home-layout='plain'] .chairwomanSlot {
     grid-column: 2;
+    grid-row: 3;
   }
 
-  /* Nicht „sticky“: aufgeklappte Termine machen die Spalte länger – sie schiebt die Stationen dann nach unten. */
+  .kokoFrame {
+    width: clamp(13rem, 20vw, 17rem);
+  }
+
+  .introText {
+    font-size: clamp(1.3125rem, 0.55rem + 1.1vw, 1.5rem);
+  }
+
+  /* Nicht „sticky“: aufgeklappte Termine machen die Spalte länger – sie schiebt die Stationen dann nach unten. Über drei
+     Zeilen (Titel, Kompass, Foto/Koko): die Zeilen wachsen so nicht mit dem Schaukasten. */
   .tourCol {
     grid-column: 3;
+    grid-row: 1 / 4;
     align-self: start;
-    width: 14.5rem;
+    width: 16rem;
+    max-width: none;
+    margin-block-start: var(--space-2);
+  }
+
+  .body {
+    grid-row: 4;
+  }
+
+  .footnote {
+    grid-row: 5;
   }
 }
 
