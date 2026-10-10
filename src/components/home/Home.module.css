@@ -304,7 +304,9 @@
 
 .station {
   display: grid;
-  gap: var(--space-5);
+  /* 32 px zwischen Text und Zeichnung: die Umrundung der Zeichnung (P13.5) und Coco darauf bleiben aus der letzten
+     Textzeile (LG-01, P14.14 – mit den verschobenen Schlaufen aus U-55 lag Coco sonst knapp neben dem Text) */
+  gap: var(--space-6);
   align-items: start;
   /* Sprungziel des Kompasses: Abstand zur klebenden Kopfleiste (U-52) */
   scroll-margin-top: calc(var(--header-h) + var(--space-5));
@@ -459,7 +461,8 @@
   /* Zeichnung links an der Rinne, Text rechts: `lasso`/`contour` um die Zeichnung kreuzen so keinen Text. */
   .station {
     grid-template-columns: auto minmax(0, 1fr);
-    column-gap: var(--space-7);
+    /* 64 px: Coco auf der Umrundung der Zeichnung ragt nicht in die Textspalte (LG-01, P14.14) */
+    column-gap: var(--space-8);
   }
 
   .station > .artFrame {

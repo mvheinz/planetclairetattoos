@@ -400,6 +400,10 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     if (!geometry) return null
     let st: LeashGeometry['stations'][number] | undefined
     for (const x of geometry.stations) if (cocoLen >= x.loopLen0 - 2) st = x
+    // Linienende = Station „Ende“ (DESIGN §11.4: `sitzen`) – auch ohne Station dort (Startseite seit U-50)
+    const end = geometry.totalLength
+    if (cocoLen >= end - 2 && !(st && cocoLen <= st.loopLen1 + 2))
+      return { id: 'ende', pose: 'sitzen', len0: end, len1: end, inside: true }
     return st
       ? {
           id: st.id,

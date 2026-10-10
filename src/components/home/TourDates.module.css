@@ -394,10 +394,12 @@
   outline-offset: 3px;
 }
 
+/* Aufklappzeile, keine Überschrift (die steht in der Tafel): Fließtext-Schrift, fett (LG-03: Spectral nur in Überschriften) */
 .foldTitle {
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-  line-height: 1.1;
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.15;
 }
 
 .foldNext {
