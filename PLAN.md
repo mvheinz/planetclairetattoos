@@ -5653,6 +5653,18 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-68 … U-75. Gilt für Handy und Desktop
   - Akzeptanz: Screenshots 390/768/1440 px, home-E2E angepasst (Kompass-Test entfernt), visuelle Referenzen.
 - [ ] **P15.6 Abschluss P15** (U-72) – `ci:local full` + `art` grün, Merge, HTML-Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
 
+## P16 – Echter Bestand aus Juttas Fotos (10.10.2026)
+
+Verbindlich: `docs/UEBERARBEITUNG.md` U-76, U-77. Gilt für Handy und Desktop, DE und EN.
+
+- [ ] **P16.1 Bestandsdaten** (U-76, U-77) – 74 Stücke aus 186 Fotos: Daten in `content/bestand/products.json`, Fotos verkleinert und ohne Ortsdaten in `content/bestand/fotos/`, Prüfpunkte je Stück.
+  - Akzeptanz: Unit (Datei gültig, jedes Foto genau einmal, keine Schriftzug-Zitate/Fremdwerke, Nummern eindeutig, EXIF ohne GPS).
+- [ ] **P16.2 Import** – `pnpm bestand:import` legt Fotos und Stücke als echten Bestand an (`seed: false`, Standard Entwurf mit Vermerk „bitte prüfen“), wiederholbar ohne Doppel.
+  - Akzeptanz: Int (Import, Wiederholung, Status, Vermerk).
+- [ ] **P16.3 Vorschau mit echtem Bestand** – die HTML-Vorschau zeigt Juttas Stücke statt des Demo-Bestands; Prüfliste für Jutta.
+  - Akzeptanz: Vorschau-Export grün, Stichprobe Shop/Produktseite, Prüfliste.
+- [ ] **P16.4 Abschluss P16** – Prüfschleuse, Merge, HTML-Vorschau und Prüfliste an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
+
 ## P11 – Go-live gemeinsam mit Jutta
 
 **Ziel:** Die Seite geht unter https://planetclairetattoos.com live – zusammen mit Jutta, in der Reihenfolge von
