@@ -280,7 +280,13 @@ export function transformPage(
     group: groupForPageType(info.pageType),
     leashKey: info.leashKey,
     // Reste der Export-Adresse in Texten (z. B. „…/vertrag-widerrufen“ als Platzhalter-Text) zeigen die echte Domain.
-    body: ($('body').html() ?? '').trim().split(ctx.link.origin).join(PUBLIC_ORIGIN),
+    // Auch URL-kodiert (Mail-Links „Frag nach diesem Stück“, P14.8: Link zum Stück im `body=` des `mailto:`)
+    body: ($('body').html() ?? '')
+      .trim()
+      .split(ctx.link.origin)
+      .join(PUBLIC_ORIGIN)
+      .split(encodeURIComponent(ctx.link.origin))
+      .join(encodeURIComponent(PUBLIC_ORIGIN)),
   }
 }
 
