@@ -18,6 +18,8 @@ import styles from './Home.module.css'
 /**
  * Das Foto lädt sofort und mit Vorrang: auf dem Handy ist es das LCP-Element (Lighthouse, P14.14 – ohne Vorrang LCP 2,2 s
  * statt ≈ 2,0 s); am Desktop teilt es sich den Vorrang mit Koko (U-54). Fehlt die Freigabe des Fotos (R-181), entfällt es.
+ * `sizes` mobil 228 px statt der gezeigten 286 px (P15.2): bis Pixeldichte 1,75 (Lighthouse mobil) bleibt die 400-px-Fassung
+ * das LCP-Bild (mit 286 px die 800-px-Fassung, LCP bis 2,4 s); ab Dichte 2 lädt das Handy ohnehin die 800-px-Fassung.
  */
 export function HomeIntroPhoto({ intro }: { intro: HomeIntroData }) {
   if (!intro.image) return null
@@ -26,7 +28,7 @@ export function HomeIntroPhoto({ intro }: { intro: HomeIntroData }) {
       <ResponsiveImage
         media={intro.image}
         aspectRatio="3 / 4"
-        sizes="(min-width: 1100px) 300px, (min-width: 600px) 260px, 286px"
+        sizes="(min-width: 1100px) 300px, (min-width: 600px) 260px, 228px"
         srcSizes={['thumb', 'card']}
         loading="eager"
         fetchPriority="high"
