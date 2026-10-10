@@ -316,11 +316,18 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     }
   }
 
-  /** Stufe A: Stücke bis `drawnLen` fertig (Versatz 0), das Stück an der Feder anteilig (nur `stroke-dashoffset`). */
+  /**
+   * Stufe A: Stücke bis `drawnLen` fertig (Versatz 0), das Stück an der Feder anteilig (nur `stroke-dashoffset`); beim
+   * Zurückwickeln (U-74) werden Stücke hinter der Feder wieder verborgen.
+   */
   function applyStrokes(v: SegView) {
     const strokes = v.strokes!
     while (v.next < strokes.length && strokes[v.next]!.len1 <= drawnLen)
       strokes[v.next++]!.el.setAttribute('stroke-dashoffset', '0')
+    const was = v.next
+    while (v.next > 0 && strokes[v.next - 1]!.len1 > drawnLen)
+      strokes[--v.next]!.el.setAttribute('stroke-dashoffset', String(DASH))
+    if (v.next < was) strokes[was]?.el.setAttribute('stroke-dashoffset', String(DASH))
     const st = strokes[v.next]
     if (st && drawnLen > st.len0)
       st.el.setAttribute(
@@ -342,6 +349,18 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       const state: SegState = p >= 1 - 1e-6 ? 'done' : p <= 0 ? 'future' : 'active'
       if (state !== v.state) {
         v.svg.style.visibility = state === 'future' ? 'hidden' : ''
+        // U-74: zurückgewickelt – fertiges Segment wieder enthüllbar, verborgenes Segment von vorn
+        if (v.state === 'done') {
+          if (v.reveal) v.reveal.style.strokeDasharray = `${v.L} ${v.L}`
+          if (v.strokes) {
+            v.svg.setAttribute('stroke-dashoffset', String(DASH))
+            v.next = 0
+          }
+        } else if (state === 'future' && v.strokes) {
+          for (const x of v.strokes.slice(0, v.next + 1))
+            x.el.setAttribute('stroke-dashoffset', String(DASH))
+          v.next = 0
+        }
         if (state === 'done' && v.reveal) {
           v.reveal.style.strokeDasharray = ''
           v.reveal.style.strokeDashoffset = ''
@@ -485,7 +504,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       const c = motion === 'reduced' ? restLen() : scrollTarget()
       if (!intro && Math.abs(c - cocoLen) >= 0.1) {
         cocoLen = c
-        if (tier !== 'C') drawnLen = Math.max(drawnLen, cfg.coco ? cocoLen : c)
+        if (tier !== 'C') drawnLen = cfg.coco ? cocoLen : Math.max(drawnLen, c)
         applyDrawn()
         emitCoco(1, false)
       }
@@ -524,8 +543,10 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       cocoLen += Math.max(-max, Math.min(max, diff * (1 - Math.pow(0.65, dt / 16.7))))
       again = moving = true
     }
-    // Coco läuft vorn und zieht die Tusche hinter sich her (U-44): die Linie wächst bis zu ihr, nie über sie hinaus.
-    if (!intro && tier !== 'C') drawnLen = Math.max(drawnLen, cfg.coco ? cocoLen : target)
+    // Coco läuft vorn und zieht die Tusche hinter sich her (U-44): die Linie wächst bis zu ihr, nie über sie hinaus; läuft
+    // sie zurück (Hochscrollen), wickelt sich die Leine mit ihr auf (U-74).
+    if (!intro && tier !== 'C')
+      drawnLen = cfg.coco && diff < 0 ? cocoLen : Math.max(drawnLen, cfg.coco ? cocoLen : target)
     applyDrawn()
     emitCoco(diff < 0 ? -1 : 1, moving)
     timing(LEASH_MEASURES.frame, t0)

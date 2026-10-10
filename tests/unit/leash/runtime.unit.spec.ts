@@ -106,7 +106,7 @@ afterEach(() => {
 const advance = (ms: number) => vi.advanceTimersByTime(ms)
 
 describe('leash/runtime – mountLeash', () => {
-  it('baut Segmente in Stufe A (Strich-Stücke ohne Maske) und zeichnet beim Scrollen monoton (§9.4, §9.6)', () => {
+  it('baut Segmente in Stufe A (Strich-Stücke ohne Maske), zeichnet beim Scrollen und wickelt beim Hochscrollen auf (§9.4, §9.6, U-74)', () => {
     const root = setupDom()
     const handle = mountLeash(root, { preset: 'journey', routeKey: 'R01' })
     const state = handle.inspect()
@@ -140,11 +140,22 @@ describe('leash/runtime – mountLeash', () => {
     const down = handle.inspect().drawnLen
     expect(down).toBeGreaterThan(afterIntro)
     setScroll(700)
-    advance(20)
-    expect(handle.inspect().drawnLen).toBe(down)
-    // Coco läuft geglättet auf der Linie zurück
-    advance(1000)
+    // Coco läuft geglättet auf der Linie zurück, die Leine wickelt sich mit ihr auf (U-74) – nie über sie hinaus
+    for (let i = 0; i < 60; i++) {
+      advance(16)
+      expect(handle.inspect().drawnLen).toBeLessThanOrEqual(handle.inspect().cocoLen + 0.01)
+    }
     expect(handle.inspect().cocoLen).toBeLessThan(down)
+    expect(handle.inspect().drawnLen).toBeCloseTo(handle.inspect().cocoLen, 1)
+    // zurückgewickelte Stücke wieder verborgen: hinter der Feder kein sichtbares Stück
+    const hidden = handle
+      .inspect()
+      .geometry!.segments.filter((g) => g.len0 > handle.inspect().drawnLen)
+    for (const g of hidden)
+      expect(
+        (root.querySelector(`[data-leash-seg="${g.id}"]`) as SVGSVGElement | null)?.style
+          .visibility ?? 'hidden',
+      ).toBe('hidden')
 
     // Gezeichnete Stücke ganz sichtbar (Versatz 0), höchstens eines anteilig, zukünftige Segmente unsichtbar
     const ink = [...root.querySelectorAll<SVGPathElement>('path')]

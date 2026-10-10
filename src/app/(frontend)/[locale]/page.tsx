@@ -9,7 +9,6 @@ import { InstagramLink } from '@/components/home/InstagramLink'
 import { TourDates, TourFold } from '@/components/home/TourDates'
 import styles from '@/components/home/Home.module.css'
 import { PlanetMark } from '@/components/home/SpaceMarks'
-import { StationCompass } from '@/components/home/StationCompass'
 import { Station } from '@/components/leash/Station'
 import { PriceFootnote } from '@/components/shop/PriceFootnote'
 import { StaticHtml } from '@/components/StaticHtml'
@@ -112,16 +111,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <p className={styles.lede}>{t('intro')}</p>
         )}
       </header>
-      {home && home.stations.length > 1 ? (
-        // Kompass, Schaukasten: reines Server-Markup ohne Hydrierung (StaticHtml, Lighthouse-TBT – P14.14: die
-        // Startseite lag mit den neuen Kopf-Teilen knapp über 200 ms)
-        <StaticHtml>
-          <StationCompass stations={home.stations} locale={locale} />
-        </StaticHtml>
-      ) : null}
 
       {/* Oben (U-50, P14.1; neu geordnet P15.2, U-69–U-71): ab 1100 px rechts der Schaukasten „Planet Claire on Tour“ (U-20)
-          mit dem Instagram-Hinweis schon neben dem Titel; unter Titel und Kompass links das Foto von Jutta und Coco (größer,
+          mit dem Instagram-Hinweis schon neben dem Titel (U-75: ohne Sprungleiste); unter dem Titel links das Foto von Jutta und Coco (größer,
           mit Abstand zur Linie), in der Mitte Koko, Vorsitzende der Goth Dogs Berlin (U-08, U-41), und mittig darunter der
           Text mit „Mehr über uns“. Darunter auf dem Handy untereinander (Foto, Koko mit Text; Schaukasten hinter Station 01). */}
       {home?.intro?.image ? (

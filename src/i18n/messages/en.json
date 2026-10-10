@@ -134,7 +134,6 @@
     "emptyTitle": "The planet is turning over.",
     "emptyText": "In a moment everything will be back in its place. Until then you can reach me by email.",
     "emptyAction": "Contact",
-    "compassLabel": "Stations",
     "introMore": "More about us",
     "chairwomanAlt": "Koko, chairwoman of the Goth Dogs Berlin: head and chest of a shaggy black dog in a jester cap with green bobbles and a pointed fur collar, an orange chest with a white patch below; big eyes glancing sideways",
     "chairwomanAltAsleep": "Koko, chairwoman of the Goth Dogs Berlin: head and chest of a shaggy black dog in a jester cap with green bobbles and a pointed fur collar, an orange chest with a white patch below; eyes closed – at night Koko sleeps",
@@ -333,7 +332,7 @@
         "duration": "Under EU law, the legal guarantee lasts at least two years from when you receive the goods; in some countries it lasts longer.",
         "secondHand": "For second-hand goods a shorter period may apply, but not less than one year."
       },
-      "placeholderNote": "Placeholder version: wording based on Commission Implementing Regulation (EU) 2025/1960, still to be reviewed by the law firm; the official graphic will follow.",
+      "placeholderNote": "Placeholder version based on Implementing Regulation (EU) 2025/1960 – law-firm review and official graphic to follow.",
       "link": "More information from the EU on the legal guarantee"
     },
     "card": {

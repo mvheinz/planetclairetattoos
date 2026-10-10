@@ -106,7 +106,7 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
       })
     }
   }
-  // (d) MO-06: 400 px zurück – Tinte bleibt.
+  // (d) MO-06: 400 px zurück – die Leine wickelt sich mit Coco auf (U-74).
   const mid = stations[Math.floor(stations.length / 2)]
   if (mid) {
     const y = mid.y + mid.loopScroll

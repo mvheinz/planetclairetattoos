@@ -339,13 +339,14 @@ test.describe('Produktseite – Beschreibung, Details, Versand & Rückgabe, „M
     request,
   }) => {
     await openProduct(page, request, ANCHORS.S01.de)
+    // U-73 (P15.3): Gewährleistungshinweis kompakt nach „Versand & Rückgabe“
     const order = [
       page.locator('[data-buy-area]'),
-      page.locator('[data-warranty-notice]'),
       page.locator('[data-product-description]'),
       page.locator('[data-product-details]'),
       page.locator('[data-product-safety]'),
       page.locator('[data-product-shipping]'),
+      page.locator('[data-warranty-notice]'),
     ]
     for (let i = 0; i + 1 < order.length; i++)
       expect(await isBefore(order[i]!, order[i + 1]!)).toBe(true)

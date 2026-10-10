@@ -15,7 +15,9 @@ import type { Locale } from '@/lib/routes/registry'
 import styles from './Home.module.css'
 import { PlanetMark, StarMark } from './SpaceMarks'
 import { StationArt } from './StationArt'
-import { stationAnchor } from './StationCompass'
+
+/** Anker einer Station der Startseite (`#station-…`, z. B. für Links von außen; die Sprungleiste entfiel mit U-75). */
+export const stationAnchor = (stationId: string) => `station-${stationId}`
 
 // Station der Startseite (DESIGN KO-21, §11.4): Stationsmarke (Planet/Stern, MI-12) + Kicker „Station 01“ (Plex Mono)
 // · H2 (Spectral) · Text · Stationszeichnung · Link „Alle …“. Kategorie-Stationen (P3.12) zeigen darunter bis zu 4 Karten

@@ -280,8 +280,7 @@ export const IPHONE_CORE: readonly { spec: string; covers: string }[] = [
   },
   {
     spec: 'tests/e2e/home/',
-    covers:
-      'Stations-Kompass (Anker, Ziele ≥ 44 px, Tastatur), Stationen mit Stücken, Stationszeichnungen',
+    covers: 'Stationen mit Stücken, Stationszeichnungen',
   },
   {
     spec: 'tests/e2e/home-tour.e2e.spec.ts',

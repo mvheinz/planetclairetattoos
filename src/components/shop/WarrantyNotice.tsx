@@ -18,6 +18,8 @@ import styles from './WarrantyNotice.module.css'
 // gebrauchte Waren. Solange Grafik oder Wortlaut Platzhalter sind, steht der Hinweis „Platzhalter-Fassung“ darunter
 // (`data-placeholder`, Gate R-210). U-59 (P14.10): Wortlaut in Bausteinen (`WARRANTY_NOTICE_BLOCKS`), Grafik-Platz je
 // Sprache (`WARRANTY_NOTICE_GRAPHIC`) – die amtliche Fassung wird nur dort eingesetzt, diese Komponente bleibt gleich.
+// U-73 (P15.3): kompakt – kleine Grafik neben dem Text, der Kernsatz hervorgehoben, der übrige (amtliche, nicht gekürzte)
+// Wortlaut als ein Absatz in kleiner Schrift; alles ohne Aufklappen sichtbar.
 export function WarrantyNotice({ locale, className }: { locale: Locale; className?: string }) {
   const t = translatorFor(locale, 'shop.warranty')
   const graphic = WARRANTY_NOTICE_GRAPHIC[locale]
@@ -44,22 +46,24 @@ export function WarrantyNotice({ locale, className }: { locale: Locale; classNam
         <h2 id="warranty-notice-title" className={styles.title}>
           {t('title')}
         </h2>
-        {WARRANTY_NOTICE_BLOCKS.map((block) =>
-          block.lead ? (
-            <p
-              key={block.key}
-              className={styles.lead}
-              data-warranty-lead=""
-              data-warranty-block={block.key}
-            >
-              {t(`blocks.${block.key}`)}
-            </p>
-          ) : (
-            <p key={block.key} className={styles.text} data-warranty-block={block.key}>
-              {t(`blocks.${block.key}`)}
-            </p>
-          ),
-        )}
+        {WARRANTY_NOTICE_BLOCKS.filter((block) => block.lead).map((block) => (
+          <p
+            key={block.key}
+            className={styles.lead}
+            data-warranty-lead=""
+            data-warranty-block={block.key}
+          >
+            {t(`blocks.${block.key}`)}
+          </p>
+        ))}
+        <p className={styles.text}>
+          {WARRANTY_NOTICE_BLOCKS.filter((block) => !block.lead).map((block, i) => (
+            <React.Fragment key={block.key}>
+              {i > 0 ? ' ' : null}
+              <span data-warranty-block={block.key}>{t(`blocks.${block.key}`)}</span>
+            </React.Fragment>
+          ))}
+        </p>
         {placeholder ? (
           <p className={styles.note} data-warranty-placeholder="">
             {t('placeholderNote')}

@@ -5639,13 +5639,19 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-50 … U-64. Gilt für Handy und Desktop
 
 ## P15 – Vierte Nachbesserung nach Juttas Rückmeldung (10.10.2026)
 
-Verbindlich: `docs/UEBERARBEITUNG.md` U-68 … U-72. Gilt für Handy und Desktop, DE und EN.
+Verbindlich: `docs/UEBERARBEITUNG.md` U-68 … U-75. Gilt für Handy und Desktop, DE und EN.
 
 - [ ] **P15.1 Coco im Shop ruhiger** (U-68) – Intro mit Tempo-Grenze statt fester Dauer, Umrundung der Kategorie-Bilder ohne Springen und ohne Rennen.
   - Akzeptanz: Unit (Intro-Tempo, Scroll-Abbildung der Umrundung), Messung Coco-Tempo Shop 1440/390 px beim Laden und Scrollen ohne Sprung, Kunst-QA grün.
 - [ ] **P15.2 Startseite oben neu geordnet** (U-69, U-70, U-71) – Foto größer und von der Linie weg, Text mittig unter Koko und größer, Tour-Schaukasten kompakter mit größerer Schrift oben neben dem Titel.
   - Akzeptanz: Screenshots 390/768/1280/1440 px, home-E2E angepasst, visuelle Referenzen, LCP/CLS-Budget, Kunst-QA (Linie kreuzt keinen Text).
-- [ ] **P15.3 Abschluss P15** (U-72) – `ci:local full` + `art` grün, Merge, HTML-Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
+- [ ] **P15.3 Gewährleistungshinweis kompakter und weiter unten** (U-73) – kleine Grafik, Kernsatz sichtbar, übriger Wortlaut aufklappbar; Produktseite: nach „Versand & Rückgabe“.
+  - Akzeptanz: e2e R-049 (Grafik, Alt-Text, Link, Wortlaut im DOM) auf Produkt-, Korb- und Versandseite, Reihenfolge Produktseite.
+- [ ] **P15.4 Leine wickelt sich beim Hochscrollen auf** (U-74) – gezeichnete Länge folgt Coco auch zurück (Seiten mit Coco an der Leine).
+  - Akzeptanz: Unit (hochscrollen → Linie endet bei Coco), Kunst-QA MO-06 angepasst und grün.
+- [ ] **P15.5 Startseite ohne Sprungleiste** (U-75) – Kompass entfernt, Koko größer, alles rückt nach oben.
+  - Akzeptanz: Screenshots 390/768/1440 px, home-E2E angepasst (Kompass-Test entfernt), visuelle Referenzen.
+- [ ] **P15.6 Abschluss P15** (U-72) – `ci:local full` + `art` grün, Merge, HTML-Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
 
 ## P11 – Go-live gemeinsam mit Jutta
 

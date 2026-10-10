@@ -13,6 +13,7 @@ type LeashWindow = Window & {
   __leash?: {
     geometry: { totalLength: number; scrollMap: { readingY: number }[] }
     drawnLen(): number
+    cocoLen(): number
     setReadingY(y: number | null): void
   }
   __artReadingY?: number | null
@@ -65,7 +66,7 @@ test.describe('Kunst-Gate (KUNST-QA §9)', () => {
     }
   })
 
-  test('AK-DS-13 R01 bei 390×844: Linie aria-hidden ohne Fokusziele, Mitte 0,35–0,75 gezeichnet, Tinte bleibt', async ({
+  test('AK-DS-13 R01 bei 390×844: Linie aria-hidden ohne Fokusziele, Mitte 0,35–0,75 gezeichnet, Leine wickelt sich beim Hochscrollen auf (U-74)', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 390, height: 844 })
@@ -98,8 +99,13 @@ test.describe('Kunst-Gate (KUNST-QA §9)', () => {
       )
       .toBe(true)
     await page.evaluate(() => scrollBy(0, -400))
-    await page.waitForTimeout(500)
-    expect(await page.evaluate(() => (window as LeashWindow).__leash!.drawnLen())).toBe(before)
+    await page.waitForTimeout(800)
+    const up = await page.evaluate(() => {
+      const l = (window as LeashWindow).__leash!
+      return { drawn: l.drawnLen(), coco: l.cocoLen() }
+    })
+    expect(up.drawn).toBeLessThan(before - 50)
+    expect(Math.abs(up.drawn - up.coco)).toBeLessThanOrEqual(2)
   })
 
   test('AK-DS-14 R01 mit reducedMotion: Linie sofort vollständig, nichts läuft', async ({
