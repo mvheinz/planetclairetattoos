@@ -2,6 +2,34 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-10 – P14 abgeschlossen: dritte Runde nach deiner Rückmeldung – für Jutta
+
+Hallo Jutta,
+
+deine dritte Runde ist fertig. Das ist neu:
+
+- **Startseite oben:** euer Foto (klein) mit dem Text „Werkstatt unter der Woche …“ und „Mehr über uns“, daneben Koko,
+  rechts die Tour-Tafel. Die Station „Jutta & Coco“ ist weg, es gibt jetzt die Stationen 01–05. Oben eine kleine
+  Sprungleiste zu den Stationen. Auf dem Handy steht die Tour-Tafel zusammengeklappt hinter Station 01.
+- **Koko** schläft nachts (22–7 Uhr) und lädt schneller.
+- **Die Leine** zeichnet beim Umwickeln ruhiger; am Seitenende setzt sich Coco.
+- **Shop:** „Frag nach diesem Stück“ (fertige Mail), bei verkauften Stücken „Etwas Ähnliches anfragen“, verkaufte Stücke
+  nur noch als kurze Reihe mit „Archiv ansehen“, ein Foto „zum Größenvergleich“ je Stück, Teilen-Knopf.
+- **Kasse:** „Erstatten“-Knopf für zu späte oder doppelte Zahlungen, im Korb „Reserviert bis 14:30 Uhr“, unten eine
+  Zeile zu Zahlung und Versand.
+- **Tattoo:** Flash-Motive und Galerie-Fotos zeigen aufeinander; eigene Vorschaubilder beim Teilen.
+- **Verwaltung:** „Termine“ als eigener Menüpunkt, Stück kopieren, Termin kopieren, Markt-Verkauf einem Termin zuordnen.
+- **Gewährleistungshinweis (EU):** fertig vorbereitet; der amtliche Text fehlt noch (die EU-Seite war aus der Cloud nicht
+  erreichbar) – vor dem Start setzen wir ihn gemeinsam mit der Kanzlei ein.
+- **Keine GitHub-Minuten mehr:** Alle Prüfungen laufen jetzt in meiner Sitzung. Auf GitHub startet nichts mehr von selbst.
+
+Was du noch tun solltest: Projekt auf „privat“ stellen und unter Settings → Actions „Disable actions“ wählen (Anleitung
+im Chat).
+
+Technik-Notiz: lokale Prüfschleuse grün (Unit, Int + Abdeckung, Build, Budgets, visuell, E2E Desktop/iPhone/Pixel,
+Vorschau-Export); Lighthouse und Bildrate (PF-02) als Hinweis, weil die Cloud-Maschine dort auch den alten Stand P13 nicht
+grün misst; Kunst-QA 61/62; Docker diesmal ausgelassen (Abruflimit von Docker Hub, Docker-Dateien unverändert).
+
 ## 2026-10-09 – P14.15 Lokale Prüfschleuse statt GitHub Actions (U-65, U-66)
 
 - **Workflows:** Alle sechs Dateien unter `.github/workflows/` starten nur noch per Hand (`workflow_dispatch`), mit
