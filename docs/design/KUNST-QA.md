@@ -293,7 +293,7 @@ Beleg) **· Schwere bei Verfehlung** (B = Blocker, M = Major, m = Minor; Definit
 | MO-03 | Boil-Takt und -Reihenfolge | 8–12 fps (Frame-Länge 83–125 ms); `rennen`/`springen` 12 fps, `schlafen` 8 fps; Seek auf 0/1/2 Frame-Längen zeigt genau Frame a/b/c (Reihenfolge A → B → C, sonst läuft der Galopp rückwärts) | auto | M |
 | MO-04 | Boil-Budget | kein Boil, kein Atmen und kein Ablauf (auch endliche wie MI-09, MI-11) läuft > 5 s am Stück ohne Nutzereingabe; Danke-Wartezustand: Boil endet 5 s nach Eintritt | auto (`poseLog`, `data-boil`, `getAnimations()`) | B |
 | MO-05 | Lesezeilen-Treue | an 12 Scroll-Positionen: `drawnLen` = `map(readingY)` ± 1 px nach 2 Frames | auto | M |
-| MO-06 | Leine wickelt sich auf (U-74; bis P15: „Tinte bleibt“) | 400 px hochscrollen: `drawnLen` kleiner als vorher und endet bei Coco (`|drawnLen − cocoLen|` ≤ 2 px); Coco läuft gespiegelt zurück | auto + R2 | M |
+| MO-06 | Leine wickelt sich auf (U-74; bis P15: „Tinte bleibt“) | 400 px hochscrollen: `drawnLen` kleiner als vorher und endet bei Coco (Abstand `drawnLen` zu `cocoLen` ≤ 2 px); Coco läuft gespiegelt zurück | auto + R2 | M |
 | MO-07 | Coco folgt | nach Scrollstopp ≤ 400 ms bis Abstand < 1 px; beim schnellen Wischen nie > 300 px Bogenlänge Rückstand (sonst Sprung) | auto | m |
 | MO-08 | Posen je Station | Pose bei Ankunft/Verweilen = Tabelle DESIGN §11.4 an allen 9 Stationen | auto (`__leash.pose()`) + R2 (Bögen) | M |
 | MO-09 | Brücken | jeder Posenwechsel mit der definierten Brücke bzw. Frame-Grenze; keine Überblendung | auto (`poseLog`) + R2 | m |
