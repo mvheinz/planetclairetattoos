@@ -794,7 +794,7 @@ describe('U-68 Randfälle aus der Prüfung (P15.1)', () => {
       expect(built).toHaveBeenCalledTimes(1)
       const off = exposeLeashDebug(handle)
       advance(20)
-      expect(api().drawnLen()).toBeGreaterThanOrEqual(api().geometry.totalLength - 0.5)
+      expect(api().drawnLen()).toBeGreaterThanOrEqual(handle.inspect().geometry!.totalLength - 0.5)
       off()
       handle.destroy()
     } finally {
