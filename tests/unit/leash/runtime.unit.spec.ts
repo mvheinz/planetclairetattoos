@@ -151,10 +151,10 @@ describe('leash/runtime – mountLeash', () => {
     const hidden = handle
       .inspect()
       .geometry!.segments.filter((g) => g.len0 > handle.inspect().drawnLen)
+    expect(hidden.length).toBeGreaterThan(0)
     for (const g of hidden)
       expect(
-        (root.querySelector(`[data-leash-seg="${g.id}"]`) as SVGSVGElement | null)?.style
-          .visibility ?? 'hidden',
+        root.querySelector<SVGSVGElement>(`[data-leash-seg="${g.id}"]`)!.style.visibility,
       ).toBe('hidden')
 
     // Gezeichnete Stücke ganz sichtbar (Versatz 0), höchstens eines anteilig, zukünftige Segmente unsichtbar
@@ -806,6 +806,19 @@ describe('U-74 Leine wickelt sich beim Hochscrollen auf (P15.4)', () => {
     const d = handle.inspect()
     expect(d.drawnLen).toBeGreaterThan(s.drawnLen + 500)
     expect(d.drawnLen).toBeCloseTo(d.cocoLen, 1)
+    handle.destroy()
+  })
+
+  it('ohne Coco (Randlinie `margin`): Tinte bleibt beim Hochscrollen stehen', () => {
+    const root = setupDom()
+    const handle = mountLeash(root, { preset: 'margin', routeKey: 'R21' })
+    setScroll(1500)
+    advance(100)
+    const down = handle.inspect().drawnLen
+    expect(down).toBeGreaterThan(0)
+    setScroll(300)
+    advance(1000)
+    expect(handle.inspect().drawnLen).toBe(down)
     handle.destroy()
   })
 

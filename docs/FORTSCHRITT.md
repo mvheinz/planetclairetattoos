@@ -2,6 +2,31 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-10 – P15 abgeschlossen: vierte Runde nach deiner Rückmeldung – für Jutta
+
+Hallo Jutta,
+
+deine vierte Runde ist fertig. Das ist neu:
+
+- **Coco im Shop:** Beim Betreten des Shops läuft Coco jetzt ruhig um die Kategorie-Bilder herum (etwa 5 Sekunden statt
+  in einem Ruck), ohne zu springen. Lange Umrundungen, die erst beim Scrollen kämen (Galerie auf der Tattoo-Seite am
+  Computer), sind jetzt ein kleiner Kringel – dort raste Coco vorher auch.
+- **Leine beim Hochscrollen:** Scrollst du wieder hoch, läuft Coco zurück und **wickelt die Leine mit auf** – sie bleibt
+  nicht mehr ganz ausgerollt stehen.
+- **Startseite oben:** euer Foto ist etwa ein Drittel größer und steht mit Abstand zur Linie. Der Text „Werkstatt unter
+  der Woche …“ steht jetzt mittig und größer direkt unter Koko, Koko selbst ist auch etwas größer. Die Sprungleiste
+  (Keramik, Textil …) ist weg; dafür steht die Tour-Tafel am Computer oben rechts neben dem Titel – Schrift eine Stufe
+  größer, Tafel kompakter. So ergibt der obere Teil ein geschlossenes Bild.
+- **Gewährleistungshinweis (EU):** deutlich kompakter (kleinere Schrift, Text in zwei kurzen Absätzen) und auf der
+  Produktseite weiter unten (nach „Versand & Rückgabe“). Die Pflicht-Grafik habe ich bewusst nicht kleiner als 260 Pixel
+  gemacht – sonst wäre ihre Schrift unleserlich, und die EU verlangt, dass der Hinweis gut sichtbar ist. Ob die neue Stelle
+  so passt, fragen wir die Kanzlei (steht in den offenen Punkten).
+
+Wo ich deine Wünsche etwas angepasst habe (du hattest darum gebeten): Auf dem Handy ist der Text unter Koko „nur“ ein
+Viertel größer statt 40 % – sonst stünden dort nur zwei, drei Wörter pro Zeile; am Computer sind es die vollen 40 %.
+
+Technik-Notiz: siehe unten bei P15.1–P15.5 und in `docs/OFFENE-PUNKTE.md`.
+
 ## 2026-10-10 – P14 abgeschlossen: dritte Runde nach deiner Rückmeldung – für Jutta
 
 Hallo Jutta,

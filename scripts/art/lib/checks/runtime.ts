@@ -214,7 +214,7 @@ export function mo04(files: readonly ProbeFile[]): CheckResult {
 /** MO-05/MO-06 aus der Lesezeilen-Reihe `mo05-NN` und `mo06-up400` (SC-01, frische Seite). */
 export function mo05(files: readonly ProbeFile[]): CheckResult {
   const th =
-    'an 12 Scroll-Positionen drawnLen = map(readingY) ± 1 px nach 2 Frames (Tinte bleibt: max. mit dem bisher Gezeichneten)'
+    'an 12 Scroll-Positionen drawnLen = map(readingY) ± 1 px nach 2 Frames (abwärts: max. mit dem bisher Gezeichneten)'
   const bad: string[] = []
   let n = 0
   let worst = 0

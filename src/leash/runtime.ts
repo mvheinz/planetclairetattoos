@@ -329,10 +329,10 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       strokes[--v.next]!.el.setAttribute('stroke-dashoffset', String(DASH))
     if (v.next < was) strokes[was]?.el.setAttribute('stroke-dashoffset', String(DASH))
     const st = strokes[v.next]
-    if (st && drawnLen > st.len0)
+    if (st)
       st.el.setAttribute(
         'stroke-dashoffset',
-        String(Math.round((DASH - (drawnLen - st.len0)) * 10) / 10),
+        String(Math.round((DASH - Math.max(0, drawnLen - st.len0)) * 10) / 10),
       )
   }
 

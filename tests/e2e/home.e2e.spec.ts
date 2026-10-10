@@ -32,6 +32,8 @@ async function expectStations(page: Page, locale: Locale) {
   await expect(stations.locator('h2')).toHaveText(HEADINGS[locale])
   await expect(stations.first()).toContainText('Station 01')
   await expect(stations.last()).toContainText('Station 05')
+  // Anker je Station bleiben für Links von außen (die Sprungleiste entfiel mit U-75)
+  for (const id of STATION_IDS) await expect(page.locator(`#station-${id}`)).toHaveCount(1)
 }
 
 test.describe('Startseite @smoke', () => {
