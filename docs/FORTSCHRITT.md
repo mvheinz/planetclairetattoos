@@ -27,6 +27,29 @@ Viertel größer statt 40 % – sonst stünden dort nur zwei, drei Wörter pro Z
 
 Technik-Notiz: siehe unten bei P15.1–P15.5 und in `docs/OFFENE-PUNKTE.md`.
 
+## 2026-10-10 – P15.1–P15.5 Technik (U-68–U-75)
+
+- **P15.1 Coco ruhiger (U-68):** `buildScrollMap` legt das Ende einer beim Laden begonnenen Schlaufe auf die gemessene
+  Lesezeile (`readingY0` aus `measure`); `introEnd` lässt das Intro nur bis zum Schlaufenanfang zeichnen (nie über eine
+  Umrundung hinaus, auch beim Scrollen oder auf hohen Bildschirmen); den Rest läuft Coco allein (`walkTo`,
+  `COCO_WALK_SPEED` 0,55 px/ms, ohne Sprung; beim Scrollen `COCO_MAX_SPEED`). Umrundungen > `CONTOUR_SCROLL_MAX` (1 500 px)
+  unterhalb der Lesezeile werden Kringel (R11-Galerie am Desktop). Ein Neuaufbau vor dem fertigen ersten Aufbau gilt als
+  erster (Intro fiel sonst aus). Engine-Budget 12 000 → 12 300 B gz. Messung Shop 1440 px: beim Laden vorher bis 2 px/ms und
+  Sprünge bis 20 px/ms, jetzt Schritttempo ohne Sprung.
+- **P15.2/P15.5 Startseite (U-69–U-71, U-75):** Foto 286/260/300 px mit Abstand zur Rinne, Text mittig unter Koko
+  (20/21/24 px, ohne Silbentrennung), Koko 18/16,5/19 rem, Tour-Tafel ab 1100 px über Titel- und Foto-Zeile (16 rem, Schrift
+  eine Stufe größer, kompakter), Sprungleiste (U-52) entfernt (Anker `#station-…` bleiben). Mobil `sizes` 228 px, damit
+  bis Pixeldichte 1,75 das 400-px-Foto das LCP-Bild bleibt (Lighthouse R01 LCP ≈ 2,0 s).
+- **P15.3 Gewährleistung (U-73):** `WarrantyNotice` kompakt (Grafik 260 px lesbar, Kernsatz + ein kleiner Absatz, kurzer
+  Platzhalter-Hinweis), Produktseite nach „Versand & Rückgabe“; e2e R-049 jetzt auch auf der Produktseite.
+- **P15.4 Leine wickelt sich auf (U-74):** mit Coco folgt `drawnLen` ihr zurück (`diff < 0`), Stufe A setzt zurückgewickelte
+  Stücke wieder auf verborgen, fertige Segmente werden wieder enthüllbar; Intro endet beim Zurückscrollen; Neuaufbau endet
+  bei Coco. Ohne Coco bleibt „Tinte bleibt“. KUNST-QA MO-06/AK-DS-13 umgestellt.
+- **Zwei unabhängige Prüfrunden** (Workflow, je Befund widerlegt oder bestätigt): bestätigte Befunde behoben (u. a. Sprung
+  beim Scrollen im Intro, Kriechen nach Neuaufbau, 404-Kringel, Layout-Randfälle, Gewährleistungsgrafik lesbar).
+- Tests: Unit Leine 150+ (neu: Alleingang, Randfälle, Zurückwickeln Stufe A, ohne Coco monoton), e2e Startseite/Tour/
+  Leine/Shop-Umrundung/Produktseite R-049, visuelle Referenzen R01, R04, R06, R11, Fuß.
+
 ## 2026-10-10 – P14 abgeschlossen: dritte Runde nach deiner Rückmeldung – für Jutta
 
 Hallo Jutta,
