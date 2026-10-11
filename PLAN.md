@@ -5677,6 +5677,18 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-78–U-84. Gilt für Handy und Desktop, 
   - Akzeptanz: Unit/E2E (Miniaturen ohne `border-image`, Hauptfotos weiter gerahmt).
 - [ ] **P17.4 Abschluss P17** (U-84) – Prüfschleuse, Merge, HTML-Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
 
+## P18 – Arbeiten vom iPad: Excel-Listen und Ansichten (11.10.2026)
+
+Verbindlich: `docs/UEBERARBEITUNG.md` U-85–U-88. Erst nach P17 (Juttas Wunsch).
+
+- [ ] **P18.1 Bestandsliste als Excel** (U-85, U-86) – Export mit Fotos, Rückweg in `content/bestand/products.json`, Spalte „Verkauft“.
+  - Akzeptanz: Unit (Export–Import ohne Änderung = keine Änderung; geänderte Zellen übernommen; ungültige Werte gemeldet; „Verkauft“ wird zum Markt-Verkauf).
+- [ ] **P18.2 Webseitentexte als Excel** (U-87) – Export aller Texte DE/EN nach Bereichen, Rückweg in Sprachdateien und Seiteninhalte, Platzhalter geprüft.
+  - Akzeptanz: Unit (Rundweg ohne Änderung, Platzhalter-Schutz, nur geänderte Zellen).
+- [ ] **P18.3 Ansichten fürs iPad** (U-88) – Katalog als PDF, Rundgang der Internetseite als PDF, Anleitung fürs iPad.
+  - Akzeptanz: PDFs erzeugt und geprüft (Seitenzahl, Bilder), Anleitung in `docs/owner/`.
+- [ ] **P18.4 Abschluss P18** – Prüfschleuse, Merge, Dateien an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
+
 ## P11 – Go-live gemeinsam mit Jutta
 
 **Ziel:** Die Seite geht unter https://planetclairetattoos.com live – zusammen mit Jutta, in der Reihenfolge von

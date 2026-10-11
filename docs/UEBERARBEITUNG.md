@@ -129,3 +129,16 @@ Juttas Rückmeldung zur Vorschau P16 (Chat 11.10.2026). Gilt vor Fachdokumenten 
 | U-82 | **„Planet Claire on Tour“ heißt nur noch „on Tour“** (Überschrift des Schaukastens, auch eingeklappt; DE und EN). |
 | U-83 | **Shop – Miniaturen ohne Rahmen:** Unter dem großen Produktfoto stehen die kleinen Vorschaubilder **ohne Goth-Rahmen** – mit Rahmen sah man die Fotos darin kaum. Ausnahme von U-13 nur für diese Miniaturen. |
 | U-84 | **Ablauf:** Phase **P17** vor P11, selbst durcharbeiten, lokale Prüfschleuse grün, selbst mergen (Squash), am Ende neue HTML-Vorschau an Jutta. |
+
+## Sechste Runde (11.10.2026, Phase P18): Arbeiten vom iPad
+
+Jutta hat keinen Computer, nur ein iPad, und kennt sich mit Technik wenig aus. Sie möchte Katalog und Internetseite per
+E-Mail bekommen und weiterschicken können, den Warenbestand und alle Texte der Seite in Excel-Listen bearbeiten und an
+Claude zurückgeben. Reihenfolge laut Jutta: **erst P17 abschließen, dann die Exporte.**
+
+| ID | Änderung |
+| --- | --- |
+| U-85 | **Bestandsliste als Excel:** alle Stücke mit kleinem Foto, Nummer, Name DE/EN, Kategorie, Preis, Maße, Gewicht, Material, Größe, Zustand, Beschreibung und Prüfpunkten – bearbeitbar auf dem iPad (Excel oder Numbers). Jutta ändert Werte und gibt die Datei zurück; Claude übernimmt die Änderungen in den Bestand (`content/bestand/products.json`) und meldet, was geändert wurde und was nicht ging. |
+| U-86 | **Spalte „Verkauft“ (am Ende der Bestandsliste):** Verkauft Jutta ein Stück (z. B. auf dem Markt), trägt sie es dort ein (Datum oder „ja“, gern mit kurzer Notiz). Beim Zurückspielen gilt das Stück als verkauft (Markt-Verkauf ohne Bestellung, nicht im Shop). |
+| U-87 | **Alle Webseitentexte als Excel:** eine zweite Liste mit allen Texten der Internetseite (DE und EN, nach Bereichen), die Jutta korrigiert und genauso zurückgibt; Claude übernimmt die Änderungen. Platzhalter wie `{name}` müssen erhalten bleiben. Rechtstexte bleiben bei der Kanzlei. |
+| U-88 | **Ansehen und Weiterschicken vom iPad:** Katalog (Prüfliste) als PDF; die Internetseite im jetzigen Zustand in einer Form, die auf dem iPad ohne Computer funktioniert (z. B. Rundgang als PDF mit Bildschirmfotos aller Seiten). Dazu eine einfache Schritt-für-Schritt-Anleitung fürs iPad (Datei öffnen, per Mail schicken, Excel bearbeiten, zurückgeben). |
