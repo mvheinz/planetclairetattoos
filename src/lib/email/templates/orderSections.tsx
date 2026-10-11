@@ -9,6 +9,7 @@ import { getSnippet } from '@/lib/legal/snippets'
 import { vatNote } from '@/lib/legal/constants'
 import { localizedPath } from '@/lib/routes/paths'
 import { formatItemNumber } from '@/lib/products/itemNumber'
+import { deliveryTimeOrDefault } from '@/lib/shop/deliveryTime'
 
 import type { MailBusiness, MailLinks } from '../layout'
 import type { MailAttachment } from '../types'
@@ -175,7 +176,11 @@ function addressLines(a: MailAddress | null | undefined): string[] {
   ].filter((x): x is string => typeof x === 'string' && x.trim() !== '')
 }
 
-/** Liefer- und Rechnungsadresse bzw. Abholung; Lieferzeit bzw. „Ich melde mich wegen der Abholung“. */
+/**
+ * Liefer- und Rechnungsadresse bzw. Abholung; Lieferzeit (R-035, R-081 Nr. 6) – bei Versand Baustein
+ * `delivery.timeShipping`, bei Abholung „Ich melde mich wegen der Abholung“ und Baustein `delivery.timePickup`. Leere oder
+ * vage Lieferzeit → Standard „2–5 Werktage“ (E-31), damit die Angabe nie fehlt (P18.5).
+ */
 export function addressBlocks(d: OrderMailData, locale: Locale): Block[] {
   const t = c(locale)
   const out: Block[] = [block.h(t.addressHeading)]
@@ -191,11 +196,12 @@ export function addressBlocks(d: OrderMailData, locale: Locale): Block[] {
     out.push(block.lines([`${t.billingAddress}:`, ...addressLines(d.billingAddress)]))
   }
   out.push(block.h(t.deliveryHeading))
-  if (d.fulfillmentMethod === 'pickup') out.push(block.p(t.pickupNote))
-  else if (d.deliveryTime) {
-    out.push(
-      block.p(getSnippet('delivery.timeShipping', locale, { deliveryTime: d.deliveryTime }).text),
-    )
+  const deliveryTime = deliveryTimeOrDefault(d.deliveryTime, locale)
+  if (d.fulfillmentMethod === 'pickup') {
+    out.push(block.p(t.pickupNote))
+    out.push(block.p(getSnippet('delivery.timePickup', locale, { deliveryTime }).text))
+  } else {
+    out.push(block.p(getSnippet('delivery.timeShipping', locale, { deliveryTime }).text))
   }
   return out
 }

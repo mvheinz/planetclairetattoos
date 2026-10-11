@@ -10,7 +10,7 @@ Reason: no payment received
 
 If you have already transferred the money after all, just let me know – I'll transfer it back to you.
 
-You can view your order at any time here:
+You can see the status of your order here:
 Order status: https://planetclairetattoos.com/en/order/__STATUS_TOKEN__
 
 How I handle your data is explained in the privacy policy:

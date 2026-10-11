@@ -1425,7 +1425,9 @@ nach dem Zahlungs-Webhook (Outbox):
 3. Versandart und Versandkosten bzw. Abholung; Gesamtpreis; Steuerhinweis (Kleinunternehmerin: „Gemäß § 19 UStG wird keine
    Umsatzsteuer berechnet.“).
 4. Zahlart und „bezahlt am“.
-5. Lieferadresse und Rechnungsadresse; Lieferzeit bzw. „Ich melde mich wegen der Abholung“.
+5. Lieferadresse und Rechnungsadresse; Lieferzeit (Baustein `delivery.timeShipping`) bzw. bei Abholung „Ich melde mich
+   wegen der Abholung“ **und** die Abholzeit (Baustein `delivery.timePickup`) – die Zeitangabe fehlt nie (R-035; leer
+   oder vage → Standard „2–5 Werktage“, E-31; P18.5).
 6. Hinweis auf die Anhänge: Rechnung, AGB (`AGB_v{n}.pdf`) und Widerrufsbelehrung mit Muster-Widerrufsformular
    (`Widerrufsbelehrung-und-Formular_v{n}.pdf`) **in der Fassung vom {Datum der Version}** (Versionen aus
    `orders.legalTextVersions`); bei EN-Bestellung zusätzlich die vorhandenen EN-PDFs.
@@ -1481,7 +1483,8 @@ Bestätigung manuell senden, §8.2).
 PayPal-Konto – sichtbar meist nach 5–10 Werktagen“ bzw. „per Überweisung am {Datum}“), Beleg GS im Anhang.
 
 **M10 Leider schon weg:** Entschuldigung, Erklärung („Jemand war ein paar Sekunden schneller“), voller Betrag erstattet über
-dasselbe Zahlungsmittel, Dauer 5–10 Werktage, Link zum Shop. Keine Rechnung, kein Rabattcode (§13).
+dasselbe Zahlungsmittel, Dauer 5–10 Werktage, ohne Shop-Link (R-080; eine Einladung zum Weiterkaufen wäre Werbung in einer
+Transaktionsmail, P18.5). Keine Rechnung, kein Rabattcode (§13). Die Webseite „Leider schon weg“ behält ihren Shop-Link.
 
 **M11 Anfrage-Bestätigung:** Referenz, Zusammenfassung (Gegenstand, Idee-Text, Wunschzeitraum, Budget, **Anzahl** der Bilder
 – nie die Bilder selbst), Antwortzeit-Satz (Baustein, Standard „Ich melde mich meist innerhalb einer Woche.“ [Annahme]),

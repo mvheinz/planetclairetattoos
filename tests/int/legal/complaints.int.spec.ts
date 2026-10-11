@@ -163,7 +163,7 @@ describe('Reklamationen (P6.11)', () => {
     expect(log).toMatchObject({
       idempotencyKey: `complaint_repair_choice:${id}:1`,
       status: 'sent',
-      templateVersion: 'm12-v1',
+      templateVersion: 'm12-v2',
     })
 
     const mails = await outboxFor('complaint_repair_choice', order.orderNumber)

@@ -61,7 +61,6 @@ const IDENTICAL_BY_NATURE = new Set([
   'email.common.iban',
   'email.common.bic',
   'email.common.bank',
-  'email.oversoldApology.shopLabel',
   'email.orderShipped.carriers.dhl',
   'email.orderShipped.carriers.deutsche_post',
   'email.withdrawalReceipt.name',
