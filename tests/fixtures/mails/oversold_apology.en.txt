@@ -12,10 +12,7 @@ I have refunded the full amount of €51.90 – to the same payment method you u
 
 You won't receive an invoice for this order, and there is nothing else you need to do.
 
-Back to the shop:
-Shop: https://planetclairetattoos.com/en/shop
-
-You can view your order at any time here:
+You can see the status of your order here:
 Order status: https://planetclairetattoos.com/en/order/__STATUS_TOKEN__
 
 How I handle your data is explained in the privacy policy:

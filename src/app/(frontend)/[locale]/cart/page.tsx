@@ -92,6 +92,8 @@ export default async function Page({
       items: numbers(n.itemNumbers),
       count: n.itemNumbers.length,
       max: n.max ?? evaluation.maxItemsPerCheckout,
+      // „schau in … Minuten nochmal“: Reservierungsdauer aus den Einstellungen (P18.5)
+      minutes: display.reservationMinutes,
     })
   const closedText = evaluation.closedMessage ?? tNotes('shop_closed')
   const noticeBlock = notice ? (
@@ -165,6 +167,7 @@ export default async function Page({
               locale={locale}
               media={(line.product?.imageId && media.get(line.product.imageId)) || null}
               now={now}
+              reservationMinutes={display.reservationMinutes}
             />
           ))}
         </ul>

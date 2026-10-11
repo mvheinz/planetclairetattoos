@@ -35,8 +35,8 @@ import { statusAndPrivacyBlocks } from './orderSections'
 //   URL, Arbeitsfassung „nicht bereit und nicht verpflichtet“ bis K-22). Fehlen Anschrift/URL im Baustein, ergänzt die
 //   Mail sie aus `src/lib/legal/vsbg.ts`.
 
-export const COMPLAINT_REPAIR_CHOICE_VERSION = 'm12-v1'
-export const DISPUTE_VSBG_VERSION = 'm13-v1'
+export const COMPLAINT_REPAIR_CHOICE_VERSION = 'm12-v2'
+export const DISPUTE_VSBG_VERSION = 'm13-v2'
 
 const ORDER_NUMBER = z.string().regex(/^(BSP-)?PC-\d{4}-\d{5}$/)
 

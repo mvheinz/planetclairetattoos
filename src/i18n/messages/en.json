@@ -345,7 +345,7 @@
       "decorative": "Decorative – not for food use",
       "foodSafe": "Food-safe – view declaration",
       "reserved": "reserved",
-      "reservedLong": "Reserved right now – check back in 30 minutes",
+      "reservedLong": "Reserved right now – check back in {minutes} minutes",
       "secondHand": "Second-Hand / Vintage",
       "smallParts": "Not a toy – small parts can be swallowed"
     },
@@ -498,7 +498,7 @@
     "nextShipping": "In the next few days I will wrap your piece with care and write to you as soon as it sets off.",
     "nextPickup": "I'll get in touch with you about the pickup.",
     "nextPrepayment": "Please transfer the amount by {date}. Until then everything is reserved for you. As soon as the money arrives, you'll get an email with the invoice.",
-    "nextOther": "You can always see the current status on the order status page.",
+    "nextOther": "You can see the current status on the order status page.",
     "mailHint": "A confirmation with all details is on its way to your inbox.",
     "statusLink": "View order status",
     "goneTitle": "Sorry, already gone",
@@ -554,7 +554,7 @@
   },
   "cart": {
     "notes": {
-      "reserved": "{items} {count, plural, one {is} other {are}} reserved right now – check back in 30 minutes.",
+      "reserved": "{items} {count, plural, one {is} other {are}} reserved right now – check back in {minutes} minutes.",
       "unavailable": "{items} {count, plural, one {has} other {have}} already been sold, sorry.",
       "too_many": "At most {max} pieces per order.",
       "shop_closed": "The shop is asleep for now – ordering isn’t possible at the moment.",
@@ -575,7 +575,7 @@
     "remove": "Remove",
     "removeLabel": "Remove {title} from the basket",
     "state": {
-      "reserved": "Reserved right now – check back in 30 minutes",
+      "reserved": "Reserved right now – check back in {minutes} minutes",
       "sold": "Sorry, already sold",
       "reserved_by_you": "Waiting for you at checkout",
       "priceChanged": "Price has been updated",
@@ -763,7 +763,10 @@
       "agb": "Terms and conditions",
       "widerrufsbelehrung": "Withdrawal policy",
       "datenschutz": "Privacy policy",
-      "unavailable": "The text is currently unavailable. You can also find it on its own page."
+      "unavailable": "The text is currently unavailable. You can also find it on its own page.",
+      "form": "Model withdrawal form",
+      "formUnavailable": "The model withdrawal form is currently unavailable. You can also find it on the withdrawal policy page.",
+      "fullPage": "Open the withdrawal policy and form as a separate page (new tab)"
     },
     "legalLinks": {
       "agb": "terms and conditions",
@@ -817,7 +820,7 @@
       "dhlConsent": "You agreed that I pass your email address on to DHL so that DHL can inform you about the delivery. You can withdraw this consent at any time – a short email to {email} is enough.",
       "unavailableHeading": "Sorry, already gone",
       "unavailableLine": "Sorry, already gone: {item} – refunded: {amount}",
-      "statusLink": "You can view your order at any time here:",
+      "statusLink": "You can see the status of your order here:",
       "statusLinkLabel": "Order status",
       "privacyLink": "How I handle your data is explained in the privacy policy:",
       "privacyLinkLabel": "Privacy policy",
@@ -877,9 +880,7 @@
       "introOne": "I'm really sorry: someone was a few seconds faster. Your piece had already been sold when your payment arrived.",
       "introMany": "I'm really sorry: someone was a few seconds faster. Your pieces had already been sold when your payment arrived.",
       "refund": "I have refunded the full amount of {amount} – to the same payment method you used. Depending on your bank, it usually takes 5–10 working days until you see the money.",
-      "noContract": "You won't receive an invoice for this order, and there is nothing else you need to do.",
-      "shop": "Back to the shop:",
-      "shopLabel": "Shop"
+      "noContract": "You won't receive an invoice for this order, and there is nothing else you need to do."
     },
     "orderShipped": {
       "subject": "Your parcel is on its way – {orderNumber}",
@@ -1012,15 +1013,11 @@
     "inquiryReceipt": {
       "subject": "Your request {reference} has arrived",
       "title": "Your idea has reached me",
-      "intro": "thank you for your request! Here's what you sent me:",
+      "intro": "thank you for your request! It has safely reached me – here are the key details:",
       "reference": "Reference",
       "receivedAt": "Received on",
       "object": "Object",
-      "idea": "Your idea",
-      "timeframe": "Preferred timeframe",
-      "budget": "Budget",
       "images": "Images",
-      "empty": "–",
       "responseTime": "I usually get back to you within a week.",
       "offerByMail": "Your request does not yet create a contract, and you don't pay anything. The offer and payment are handled by email, not through the shop.",
       "deletion": "Your request and your images will be deleted 6 months after receipt at the latest (on {date}).",

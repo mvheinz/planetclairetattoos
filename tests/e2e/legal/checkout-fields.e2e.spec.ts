@@ -117,7 +117,10 @@ test('R-138 AK-4-06 Link zur Datenschutzerklärung am Formular; V-03 keine Check
   })
   used.push(a.id, b.id)
   await startCheckoutFor(context, page, [a, b])
-  await expect(page.locator('[data-privacy-link] a')).toHaveAttribute('href', '/de/datenschutz')
+  await expect(page.locator('[data-privacy-link] a')).toHaveAttribute(
+    'href',
+    '/de/datenschutz#bestellung',
+  )
   const checked = await page
     .locator('input[type="checkbox"]')
     .evaluateAll((els) => els.filter((e) => (e as HTMLInputElement).checked).length)

@@ -5,7 +5,6 @@ import { z } from 'zod'
 import type { Locale } from '@/lib/enums'
 import { getSnippet } from '@/lib/legal/snippets'
 import { formatItemNumber } from '@/lib/products/itemNumber'
-import { localizedPath } from '@/lib/routes/paths'
 
 import type { RenderedMail, TemplateRenderInput } from '../registry'
 
@@ -24,11 +23,12 @@ import { bankBlocks, bankSchema, statusAndPrivacyBlocks } from './orderSections'
 
 // Kund:innen-Mails der Vorkasse und bei „leider schon weg“ (KONZEPT §6.2/§6.3, R-071, R-084, P4.15):
 // M03 `prepayment_reminder`, M04 `prepayment_cancelled` (nur O4 durch Task oder Verwaltung, nie bei Widerruf – dort
-// bestätigt M08), M10 `oversold_apology` (O19: keine Rechnung, kein Rabattcode, nur ein Link zum Shop).
+// bestätigt M08), M10 `oversold_apology` (O19: keine Rechnung, kein Rabattcode, kein Link zum Shop – eine Einladung zum
+// Weiterkaufen wäre Werbung in einer Transaktionsmail, R-080; P18.5).
 
-export const PREPAYMENT_REMINDER_VERSION = 'm03-v1'
-export const PREPAYMENT_CANCELLED_VERSION = 'm04-v1'
-export const OVERSOLD_APOLOGY_VERSION = 'm10-v1'
+export const PREPAYMENT_REMINDER_VERSION = 'm03-v2'
+export const PREPAYMENT_CANCELLED_VERSION = 'm04-v2'
+export const OVERSOLD_APOLOGY_VERSION = 'm10-v2'
 
 const iso = z.iso.datetime({ offset: true })
 const orderNumber = z.string().regex(/^(BSP-)?PC-\d{4}-\d{5}$/)
@@ -162,7 +162,6 @@ export async function renderOversoldApology(
       block.rows([[mailTexts(locale).common.orderNumber, d.orderNumber]]),
       block.p(fill(t.refund, { amount: money(d.refundedCents, locale) })),
       block.p(t.noContract),
-      block.link(t.shop, t.shopLabel, `${links.siteUrl}${localizedPath('R02', locale)}`),
       ...statusAndPrivacyBlocks(locale, links),
       closingBlock(locale, business),
     ],

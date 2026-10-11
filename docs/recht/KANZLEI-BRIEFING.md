@@ -165,8 +165,8 @@ Lieferzeit, Maße und Material.
 - Inhalte: Stil, **Flash-Motive mit Festpreis** (einmalig oder wiederholbar; Status verfügbar/vergeben),
   **Flash-Days/Aktionen mit Datum** (nach Ablauf automatisch ausgeblendet), **Preisrahmen** für Custom-Motive,
   Galerie „fresh & healed“, Ablauf, Pflegehinweise, FAQ (u. a. Mindestalter 18).
-- Anfragen **nur per E-Mail-Link oder Instagram-DM**; kein Formular, keine Uploads, keine Online-Buchung, keine
-  Online-Anzahlung. Eine Kaution wird individuell per E-Mail/DM vereinbart und außerhalb der Website bezahlt;
+- Anfragen **nur per E-Mail-Link** (Instagram ist kein Anfrageweg); kein Formular, keine Uploads, keine Online-Buchung,
+  keine Online-Anzahlung. Eine Kaution wird individuell per E-Mail vereinbart und außerhalb der Website bezahlt;
   Einwilligungs-/Aufklärungsbogen auf Papier vor Ort (K-26).
 - Portfolio-Fotos, die Kund:innen zeigen, werden nur mit dokumentierter Einwilligung veröffentlicht (Häkchen je Foto;
   K-27, T10).
@@ -202,8 +202,9 @@ auf der Website nur verlinkt, nicht eingebettet (K-29).
 3. **Kasse** (eigene Seite, erreicht über den Button „Zur Kasse“, der ein kurzlebiges Kassen-Cookie setzt, §11.3):
    E-Mail, Name (ein Feld „Vor- und Nachname“), bei Versand die Lieferadresse; eine abweichende Rechnungsadresse nur
    über ein nicht vorangekreuztes Häkchen, bei Abholung ist die Rechnungsadresse Pflicht (K-07); Zahlart. **Kein**
-   Telefonfeld. Mit Beginn des Bezahlvorgangs ist das Stück **30 Minuten reserviert** (sichtbarer Countdown); läuft
-   die Zeit ab, wird es freigegeben.
+   Telefonfeld. Mit Beginn des Bezahlvorgangs ist das Stück **30 Minuten reserviert** (sichtbarer Countdown; die Dauer
+   ist einstellbar, 30–60 Minuten, und steht in den AGB als Platzhalter `{{reservationMinutes}}`); läuft die Zeit ab,
+   wird es freigegeben.
 4. Optionale, nicht vorangekreuzte Checkbox: Weitergabe der E-Mail-Adresse an DHL (K-31).
 5. Bei Stücken mit beschriebenen Mängeln: je Stück eine gesonderte Pflicht-Checkbox zur Vereinbarung der Abweichung
    (K-17).
@@ -224,7 +225,8 @@ auf der Website nur verlinkt, nicht eingebettet (K-29).
   Bestellbestätigung, die danach verschickt wird. Scheitert die Zahlung, entsteht keine Bestellung und kein Vertrag.
 - **Vorkasse:** Die Bestellbestätigung mit Zahlungsdaten geht sofort raus. Das Stück bleibt bis zum Ende der
   **Zahlungsfrist** reserviert: 23:59 Uhr (Berliner Zeit) am 5. Kalendertag nach dem Bestelltag (Bestellung am 12.10. →
-  Frist 17.10., 23:59 Uhr). 72 Stunden nach der Bestellung folgt eine Erinnerung; ist bis zum Fristende kein Geld
+  Frist 17.10., 23:59 Uhr). Vor Fristende folgt eine Erinnerung (derzeit 72 Stunden nach der Bestellung; die Verwaltung
+  lässt nur Werte vor Fristende zu); ist bis zum Fristende kein Geld
   eingegangen, wird die Bestellung **automatisch storniert** und das Stück wieder angeboten. Wir benötigen hierfür
   eine tragfähige Regelung in den AGB und die Formulierungen der Mails.
 
@@ -236,8 +238,9 @@ auf der Website nur verlinkt, nicht eingebettet (K-29).
   mit Muster-Formular als PDF-Anhang in der bei Bestellung gültigen Fassung**, Link zur Widerrufsfunktion, Link zum
   Bestellstatus, bei Zahlung die Rechnung als PDF. Keine Werbung.
 - Der Shop speichert jede Bestellung mit den Versionen der geltenden Rechtstexte. Die Kund:in kann die Texte über den
-  Bestellstatus-Link erneut abrufen; die Rechnung gibt es dort bewusst nicht (sie enthält die volle Anschrift und kommt
-  per E-Mail).
+  Bestellstatus-Link bis 180 Tage nach Abschluss der Bestellung erneut abrufen (danach läuft der Link ab, Löschkonzept
+  L-05; auf Anfrage schickt die Mandantin die Texte per E-Mail); die Rechnung gibt es dort bewusst nicht (sie enthält
+  die volle Anschrift und kommt per E-Mail).
 - Eingabefehler lassen sich über „Ändern“-Links vor dem Absenden korrigieren.
 
 ## 6. Zahlungsarten
@@ -544,6 +547,7 @@ Bitte verwenden Sie für änderbare Angaben diese Platzhalter; das System setzt 
 | `{{shippingTable}}` | Tabelle der Versandklassen und Preise |
 | `{{deliveryTime}}` | Lieferzeit, derzeit „2–5 Werktage“ |
 | `{{vorkasseDays}}` | Vorkasse-Frist, derzeit 5 |
+| `{{reservationMinutes}}` | Reservierungsdauer an der Kasse in Minuten, derzeit 30 |
 | `{{returnCostsNote}}` | Satz zur Tragung der Rücksendekosten (Textbaustein `withdrawal.returnCostsNote`, §1.4) |
 
 Weitere Platzhalter oder andere Schreibweisen gibt es nicht; ein unbekannter Platzhalter verhindert die

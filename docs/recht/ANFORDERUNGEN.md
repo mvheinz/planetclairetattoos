@@ -318,6 +318,7 @@ Lücken in der Nummerierung sind Reserve.
   | `{{shippingTable}}` | Tabelle aus `settings.shipping.rates` (Zone DE) plus Abholung und Regel „höchste Versandklasse“ |
   | `{{deliveryTime}}` | `settings.shipping.deliveryTimeText` in der Sprache des Inhalts |
   | `{{vorkasseDays}}` | `settings.payment.prepaymentDays` |
+  | `{{reservationMinutes}}` | `settings.payment.reservationMinutes` (ohne Wert der Standard 30 wie bei der Reservierung selbst; P18.5, damit die AGB nie eine feste Minutenzahl nennen) |
   | `{{returnCostsNote}}` | aktiver Baustein `withdrawal.returnCostsNote` (§6) |
 
   Ein unbekanntes oder unersetztes Token ist ein Render-Fehler (Aktivieren gesperrt, öffentliche Seiten zeigen nie
@@ -709,7 +710,8 @@ Lücken in der Nummerierung sind Reserve.
 #### R-063 · Bestellübersicht unmittelbar vor dem Button
 - **Anforderung:** Direkt oberhalb des Bestell-Buttons (mobil ohne andere Inhalte dazwischen) stehen: je Position
   Miniaturbild, Titel, Objektnummer, wesentliche Eigenschaften (Kategorie, Maße, Material bzw. Faserzusammensetzung,
-  Größe und Zustand bei Textil, Lebensmittelkontakt-Status bei Keramik, Metallteile bei Schmuck, Abweichungstext),
+  „Second-Hand, von Hand bemalt“ (R-043; P18.5), Größe und Zustand bei Textil und Caps, Lebensmittelkontakt-Status bei
+  Keramik, Metallteile bei Schmuck, Abweichungstext),
   Einzelpreis; Versandart und -kosten; **Gesamtpreis** mit Kleinunternehmer-Hinweis; Lieferzeit (R-035);
   Rechnungs-/Lieferadresse bzw. „Abholung in Berlin“; gewählte Zahlart; bei Vorkasse die Zahlungsfrist. Jeder Block
   hat einen „Ändern“-Link, der ohne Datenverlust zum jeweiligen Schritt führt. Darunter Baustein
@@ -1507,7 +1509,9 @@ Lücken in der Nummerierung sind Reserve.
   privaten Speicher (`private-uploads`, R-136), Metadaten entfernt (R-135). Benachrichtigung an Jutta
   (`admin_inquiry_received`) nur mit Referenznummer, Gegenstand, Anzahl der Bilder und Admin-Link – **ohne** Namen,
   Freitext, Bilder oder E-Mail-Adresse. Automatische Antwort (`inquiry_receipt`, Baustein `inquiry.autoReply`):
-  Eingang, Referenz, „noch kein Vertrag, keine Zahlung“, Löschung nach 6 Monaten, Link Datenschutz – ohne Bilder.
+  Eingang, Referenz, „noch kein Vertrag, keine Zahlung“, Löschung nach 6 Monaten, Link Datenschutz – ohne Bilder und
+  ohne Freitexte der Anfrage (kein Name in der Anrede, keine Idee, kein Zeitraum, kein Budget; die Adresse ist ungeprüft,
+  P18.5).
   Löschung 6 Monate nach Eingang (LOESCHKONZEPT L-10).
 - **Rechtsgrundlage:** Art. 6 Abs. 1 lit. b, Art. 5 Abs. 1 lit. c, e, Art. 13 DSGVO; E-11. Kanzlei: K-25.
 - **Abnahme:** `e2e` – Absenden mit 5 Bildern klappt, 6. Bild abgelehnt; `int` – `GET /api/inquiries` ohne Admin →

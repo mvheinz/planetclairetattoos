@@ -949,7 +949,8 @@ und `title`. Formular in Tabs „Basis“, „Pflichtangaben“, „Bilder“, �
 #### 6.6.2 Virtuelle Felder
 `adminTitle` („Nr. 017 · {title}“), `displayNumber` („017“), `isPublic` (status ∈ available/reserved oder sold+Archiv),
 `characteristics` (DE/EN-Zeile der wesentlichen Eigenschaften, z. B. „Keramik · Ø 14 cm · Steinzeug · Deko – nicht für
-Lebensmittel“; Funktion `buildCharacteristics(product, locale)` – wird in Kasse und Bestell-Snapshot verwendet).
+Lebensmittel“, bei Textil/Caps stets mit „Second-Hand, von Hand bemalt“ nach der Kategorie, R-043, P18.5; Funktion
+`buildCharacteristics(product, locale)` – wird in Kasse und Bestell-Snapshot verwendet).
 Umsetzung (P1.16): `adminTitle` ist als lokalisiertes, schreibgeschütztes Textfeld gespeichert und wird von den Hooks
 gesetzt, weil Payload ein rein virtuelles Feld nicht als `useAsTitle` zulässt (OFFENE-PUNKTE §5).
 
@@ -1673,7 +1674,8 @@ Schreibweisen): `{{name}}` (`business.legalName`, mit `business.tradeName`, fall
 nicht vorhanden), `{{ustIdNr}}` (`business.vatId`, ebenso), `{{siteUrl}}` (`NEXT_PUBLIC_SITE_URL`), `{{withdrawalUrl}}`
 (absolute URL von R26 in der Sprache der Fassung: `…/de/vertrag-widerrufen` bzw. `…/en/withdraw-from-contract`),
 `{{shippingTable}}` (Versandklassen und DE-Preise aus `settings.shipping.rates`), `{{deliveryTime}}`
-(`settings.shipping.deliveryTimeText`), `{{vorkasseDays}}` (`settings.payment.prepaymentDays`), `{{returnCostsNote}}`
+(`settings.shipping.deliveryTimeText`), `{{vorkasseDays}}` (`settings.payment.prepaymentDays`), `{{reservationMinutes}}`
+(`settings.payment.reservationMinutes`, ohne Wert 30 wie bei der Reservierung; P18.5), `{{returnCostsNote}}`
 (aktiver Baustein `withdrawal.returnCostsNote`, §6.28, E-27, DM-33). Ein unbekanntes oder nicht ersetzbares Token ist ein Render-Fehler; das gilt auch
 für `{{STEUERNUMMER}}` – die Steuernummer erscheint nie in Rechtstexten (E-46). Renderer: `src/lib/legal/render.ts`.
 Das PDF friert die Werte zum Aktivierungszeitpunkt ein. Die Tabelle der Auftragsverarbeiter ist **kein** Token: eine

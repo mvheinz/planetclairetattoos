@@ -1,6 +1,10 @@
+import { createTranslator } from 'next-intl'
 import { describe, expect, it } from 'vitest'
 
 import { priceNoteText } from '@/components/shop/PriceNote'
+import de from '@/i18n/messages/de.json'
+import en from '@/i18n/messages/en.json'
+import { DEADLINE_DEFAULTS } from '@/lib/commerce/deadlines'
 import { pickShopDisplaySettings, taxSettingsFor } from '@/lib/shop/displaySettings'
 import { buildListMetadata } from '@/lib/seo/metadata'
 
@@ -17,6 +21,7 @@ describe('Shop-Einstellungen für Listen (KONZEPT §3.2)', () => {
       pickupCity: null,
       deliveryTimeText: null,
       taxMode: 'kleinunternehmer',
+      reservationMinutes: DEADLINE_DEFAULTS.reservationMinutes.value,
     })
   })
 
@@ -34,10 +39,52 @@ describe('Shop-Einstellungen für Listen (KONZEPT §3.2)', () => {
       pickupCity: 'Berlin',
       deliveryTimeText: '3–4 Werktage',
       taxMode: 'regelbesteuert',
+      reservationMinutes: 30,
     })
     expect(pickShopDisplaySettings({ tax: { currentMode: 'erfunden' } }).taxMode).toBe(
       'kleinunternehmer',
     )
+  })
+
+  it('P18.5 Reservierungsdauer aus settings.payment (30–60), sonst Standard 30 wie die Reservierung selbst', () => {
+    expect(
+      pickShopDisplaySettings({ payment: { reservationMinutes: 45 } }).reservationMinutes,
+    ).toBe(45)
+    for (const bad of [null, 10, 61, 42.5, '45'])
+      expect(
+        pickShopDisplaySettings({ payment: { reservationMinutes: bad } }).reservationMinutes,
+        String(bad),
+      ).toBe(30)
+  })
+
+  it('P18.5 Hinweise „schau in … Minuten nochmal“ nennen die eingestellte Dauer (Produktseite, Korb)', () => {
+    const tDe = createTranslator({ locale: 'de', messages: de })
+    const tEn = createTranslator({ locale: 'en', messages: en })
+    expect(tDe('shop.badges.reservedLong', { minutes: 45 })).toBe(
+      'Gerade reserviert – schau in 45 Minuten nochmal',
+    )
+    expect(tEn('shop.badges.reservedLong', { minutes: 45 })).toBe(
+      'Reserved right now – check back in 45 minutes',
+    )
+    expect(tDe('cart.state.reserved', { minutes: 60 })).toBe(
+      'Gerade reserviert – schau in 60 Minuten nochmal',
+    )
+    expect(tEn('cart.state.reserved', { minutes: 60 })).toBe(
+      'Reserved right now – check back in 60 minutes',
+    )
+    expect(tDe('cart.notes.reserved', { items: 'Nr. 017', count: 1, minutes: 40 })).toBe(
+      'Nr. 017 ist gerade reserviert – schau in 40 Minuten nochmal.',
+    )
+    expect(tEn('cart.notes.reserved', { items: 'No. 017', count: 2, minutes: 40 })).toBe(
+      'No. 017 are reserved right now – check back in 40 minutes.',
+    )
+    for (const messages of [de, en])
+      for (const text of [
+        messages.shop.badges.reservedLong,
+        messages.cart.state.reserved,
+        messages.cart.notes.reserved,
+      ])
+        expect(text).not.toMatch(/\b30\b/)
   })
 
   it('R-030 taxSettingsFor liefert der Fußnote den aktuellen Modus (nie „inkl. MwSt“ bei Kleinunternehmerin)', () => {

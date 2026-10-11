@@ -223,12 +223,7 @@ export const INQUIRY_RECEIPT_FIXTURE = {
   reference: 'AA-2026-0007',
   receivedAt: '2026-10-12T12:03:00.000Z',
   deleteAfter: '2027-04-12T12:03:00.000Z',
-  name: 'Erika Beispiel',
   objectType: 'cap',
-  objectTypeOther: null,
-  idea: 'Eine Cap mit meinem Dackel Bruno, gern in Grün und mit kleinen Sternen drumherum.',
-  desiredTimeframe: 'bis Weihnachten',
-  budget: 'ca. 80 €',
   imageCount: 2,
   responseTime: null,
 }

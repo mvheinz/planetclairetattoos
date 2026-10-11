@@ -524,7 +524,8 @@ Filter-Chip mit `aria-current="page"`. Unbekannter Slug → 404. SEO-Titel `{Kat
        darüber der Text aus `settings.shop.closedMessage`.
      - `available`, nicht im eigenen Korb → **„In den Korb“** (EN „Add to basket“).
      - bereits im eigenen Korb → „Liegt schon in deinem Korb“ + Link zum Korb.
-     - `reserved` durch fremde Kasse → Knopf deaktiviert, Text „Gerade reserviert – schau in 30 Minuten nochmal“.
+     - `reserved` durch fremde Kasse → Knopf deaktiviert, Text „Gerade reserviert – schau in 30 Minuten nochmal“ (Minuten
+       aus `settings.payment.reservationMinutes`, P18.5).
      - `reserved` durch die eigene Kasse → „Du hast es gerade in der Kasse“ + Link „Zur Kasse“.
      - `sold` → „sold“-Stempel, Text „Schon verkauft“, Links „Ähnliche Stücke“ (Kategorie) und Archiv.
   7. **Beschreibung** (Rich Text DE/EN, EN fehlt → DE).
@@ -761,8 +762,8 @@ Laufzeit, kein Tracking. Ob stattdessen ein Server-Warenkorb mit Zufalls-ID nöt
 
 **Anzeige je Position im Korb:** Foto, Titel, `Nr. 017`, Preis, „Entfernen“ und Zustand:
 - `available` → nichts.
-- `reserved` durch andere Kasse → „Gerade reserviert – schau in 30 Minuten nochmal“; „Zur Kasse“ ist gesperrt, solange
-  diese Position im Korb liegt.
+- `reserved` durch andere Kasse → „Gerade reserviert – schau in 30 Minuten nochmal“ (Minuten aus
+  `settings.payment.reservationMinutes`, P18.5); „Zur Kasse“ ist gesperrt, solange diese Position im Korb liegt.
 - `sold`/nicht mehr öffentlich → „Leider schon verkauft“ + Knopf „Entfernen“; „Zur Kasse“ gesperrt.
 - Preis seit dem Hinzufügen geändert → aktueller Preis wird gezeigt, Hinweis „Preis wurde aktualisiert“.
 
@@ -851,8 +852,9 @@ Weitere Regeln:
 Abschnitt 5 „Übersicht“ steht **unmittelbar** über dem Knopf und aktualisiert sich live (§ 312j Abs. 2 BGB):
 
 1. Jede Position: Foto, Titel, `Nr. 017`, wesentliche Eigenschaften (`buildCharacteristics`, DATENMODELL §6.6.2:
-   Kategorie, Maße, Material bzw. bei Textil/Caps Faserzusammensetzung, Größe und Zustand, bei Keramik „Deko – nicht für
-   Lebensmittel“ bzw. „lebensmittelecht“, bei Schmuck Material der Metallteile, Abweichungstext), Preis.
+   Kategorie, Maße, Material bzw. bei Textil/Caps „Second-Hand, von Hand bemalt“ (immer gebraucht, R-043; P18.5),
+   Faserzusammensetzung, Größe und Zustand, bei Keramik „Deko – nicht für Lebensmittel“ bzw. „lebensmittelecht“, bei
+   Schmuck Material der Metallteile, Abweichungstext), Preis.
 2. Versand: Klasse und Preis (z. B. „Versand als Keramik-Paket (DHL) 8,90 €“) oder „Abholung in Berlin 0,00 €“.
 3. **Gesamtpreis** (hervorgehoben) mit Steuerhinweis (Kleinunternehmerin: „Gemäß § 19 UStG wird keine Umsatzsteuer
    berechnet.“; Regelbesteuerung: enthaltene MwSt. je Satz).
@@ -862,7 +864,9 @@ Abschnitt 5 „Übersicht“ steht **unmittelbar** über dem Knopf und aktualisi
    Zahlart **[Ändern → #zahlart]**.
 6. Hinweistext: Baustein `checkout.legalNotice` (Wortlaut nur in RECHT ANFORDERUNGEN §6, R-063) mit Links auf AGB,
    Widerrufsbelehrung und Datenschutzerklärung; die Links öffnen den Text in einem Dialog auf der Seite (kein
-   Seitenwechsel, kein neuer Tab). Darunter der Baustein `withdrawal.returnCostsNote` (Rücksendekosten, E-27).
+   Seitenwechsel, kein neuer Tab). Der Dialog der Widerrufsbelehrung zeigt wie R24 darunter das Muster-Widerrufsformular
+   mit PDF-Download und einen Link auf R24 (neuer Tab, damit die Eingaben bleiben; P18.5, R-095). Darunter der Baustein
+   `withdrawal.returnCostsNote` (Rücksendekosten, E-27).
 7. Die Bestätigungen zur abweichenden Beschaffenheit (falls vorhanden).
 8. **Knopf mit exakt dem Text „Zahlungspflichtig bestellen“** (E-21), EN „Order with obligation to pay“; kein weiterer
    Text im Knopf, keine Icons, die den Text ersetzen. Gleicher Knopf für Stripe und Vorkasse.
@@ -1422,7 +1426,9 @@ nach dem Zahlungs-Webhook (Outbox):
 3. Versandart und Versandkosten bzw. Abholung; Gesamtpreis; Steuerhinweis (Kleinunternehmerin: „Gemäß § 19 UStG wird keine
    Umsatzsteuer berechnet.“).
 4. Zahlart und „bezahlt am“.
-5. Lieferadresse und Rechnungsadresse; Lieferzeit bzw. „Ich melde mich wegen der Abholung“.
+5. Lieferadresse und Rechnungsadresse; Lieferzeit (Baustein `delivery.timeShipping`) bzw. bei Abholung „Ich melde mich
+   wegen der Abholung“ **und** die Abholzeit (Baustein `delivery.timePickup`) – die Zeitangabe fehlt nie (R-035; leer
+   oder vage → Standard „2–5 Werktage“, E-31; P18.5).
 6. Hinweis auf die Anhänge: Rechnung, AGB (`AGB_v{n}.pdf`) und Widerrufsbelehrung mit Muster-Widerrufsformular
    (`Widerrufsbelehrung-und-Formular_v{n}.pdf`) **in der Fassung vom {Datum der Version}** (Versionen aus
    `orders.legalTextVersions`); bei EN-Bestellung zusätzlich die vorhandenen EN-PDFs.
@@ -1478,12 +1484,16 @@ Bestätigung manuell senden, §8.2).
 PayPal-Konto – sichtbar meist nach 5–10 Werktagen“ bzw. „per Überweisung am {Datum}“), Beleg GS im Anhang.
 
 **M10 Leider schon weg:** Entschuldigung, Erklärung („Jemand war ein paar Sekunden schneller“), voller Betrag erstattet über
-dasselbe Zahlungsmittel, Dauer 5–10 Werktage, Link zum Shop. Keine Rechnung, kein Rabattcode (§13).
+dasselbe Zahlungsmittel, Dauer 5–10 Werktage, ohne Shop-Link (R-080; eine Einladung zum Weiterkaufen wäre Werbung in einer
+Transaktionsmail, P18.5). Keine Rechnung, kein Rabattcode (§13). Die Webseite „Leider schon weg“ behält ihren Shop-Link.
 
-**M11 Anfrage-Bestätigung:** Referenz, Zusammenfassung (Gegenstand, Idee-Text, Wunschzeitraum, Budget, **Anzahl** der Bilder
-– nie die Bilder selbst), Antwortzeit-Satz (Baustein, Standard „Ich melde mich meist innerhalb einer Woche.“ [Annahme]),
-„Angebot und Bezahlung laufen per Mail, nicht über den Shop“, Datenschutz-Kurzinfo „Deine Anfrage und Bilder werden
-spätestens 6 Monate nach Eingang gelöscht“ mit Link R22.
+**M11 Anfrage-Bestätigung:** Anrede ohne Namen („Hallo,“), Referenz, Eingang, Gegenstand (nur die feste Auswahl, bei
+„Etwas anderes“ ohne den Freitext), **Anzahl** der Bilder – nie die Bilder selbst –, Antwortzeit-Satz (Baustein, Standard
+„Ich melde mich meist innerhalb einer Woche.“ [Annahme]), „Angebot und Bezahlung laufen per Mail, nicht über den Shop“,
+Datenschutz-Kurzinfo „Deine Anfrage und Bilder werden spätestens 6 Monate nach Eingang gelöscht“ mit Link R22.
+**Keine Freitexte** (Name, Idee, Wunschzeitraum, Budget): Die Adresse ist ungeprüft, sonst ließe sich das Formular
+nutzen, um beliebigen Text über Juttas Absender an fremde Adressen zu schicken, und eine vertippte Adresse bekäme
+persönliche Angaben (P18.5, Art. 5 Abs. 1 lit. c, f DSGVO; Rückbau siehe `src/lib/email/templates/inquiry.ts`).
 
 **M12 Reklamation: Reparatur oder Ersatz** (R-111, für Kaufverträge ab 31.07.2026): Bestellnummer, betroffene Stücke,
 Eingang der Reklamation, Baustein `complaint.repairChoice` (Wahlrecht Reparatur/Ersatzlieferung, bei Unikaten ist Ersatz in
@@ -1774,7 +1784,8 @@ Unterbereiche (Details §9):
     und wird unveränderlich gespeichert.
   - Platzhalter im Text – genau diese Liste (R-012, KANZLEI-BRIEFING §16.3): `{{name}}`, `{{street}}`, `{{postalCode}}`,
     `{{city}}`, `{{email}}`, `{{phone}}`, `{{wIdNr}}`, `{{ustIdNr}}`, `{{siteUrl}}`, `{{withdrawalUrl}}` (= absolute URL von
-    R26 in der Sprache der Fassung), `{{shippingTable}}`, `{{deliveryTime}}`, `{{vorkasseDays}}`, `{{returnCostsNote}}` –
+    R26 in der Sprache der Fassung), `{{shippingTable}}`, `{{deliveryTime}}`, `{{vorkasseDays}}`, `{{reservationMinutes}}`,
+    `{{returnCostsNote}}` –
     ersetzt aus `settings`, Umgebung bzw. dem Baustein `withdrawal.returnCostsNote` (Quellen DATENMODELL §6.12). Ein unbekanntes oder nicht ersetzbares Token ist ein Render-Fehler und sperrt das
     Veröffentlichen; `{{STEUERNUMMER}}` wird nie ersetzt (E-46).
   - Prüfungen vor dem Veröffentlichen: `widerrufsbelehrung` muss `{{withdrawalUrl}}` oder die URL von R26 enthalten

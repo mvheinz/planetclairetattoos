@@ -168,7 +168,8 @@ describe('Anfrage absenden (P7.12)', () => {
     })) as PrivateUpload
     expect(other.status).toBe('pending')
 
-    // Mails: M11 an die Anfragende (Zusammenfassung mit Anzahl der Bilder), A05 nur Referenz/Gegenstand/Anzahl/Link
+    // Mails: M11 an die Anfragende (Eckdaten mit Anzahl der Bilder, keine Freitexte – P18.5), A05 nur
+    // Referenz/Gegenstand/Anzahl/Link
     const logs = (
       await payload.find({
         collection: 'email-log',
@@ -184,9 +185,16 @@ describe('Anfrage absenden (P7.12)', () => {
     const m11 = getMemoryOutbox().find((m) => m.type === 'inquiry_receipt')!
     expect(m11.to).toContain(EMAIL)
     expect(m11.subject).toBe(`Deine Anfrage ${q.reference} ist angekommen`)
-    for (const part of [q.reference, 'Cap', IDEA, 'bis Weihnachten', 'ca. 80 €', 'Bilder: 2']) {
+    for (const part of [q.reference, 'Hallo,', 'Gegenstand: Cap', 'Bilder: 2']) {
       expect(m11.text, part).toContain(part)
     }
+    // P18.5: die ungeprüfte Adresse bekommt keine Freitexte zurück (Name, Idee, Zeitraum, Budget)
+    const m11All = `${m11.subject}\n${m11.text}\n${m11.html}`
+    for (const echo of ['Erika', 'Dackel', IDEA, 'Weihnachten', 'ca. 80']) {
+      expect(m11All, echo).not.toContain(echo)
+    }
+    const m11Log = logs.find((l) => l.template === 'inquiry_receipt')!
+    expect(m11Log.templateVersion).toBe('m11-v2')
     expect(m11.text).toContain('6 Monate nach Eingang')
     expect(m11.text).toContain('Ich melde mich meist innerhalb einer Woche.')
     expect(m11.html).toContain('#auftragsarbeiten')

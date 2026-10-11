@@ -22,7 +22,7 @@ import { statusAndPrivacyBlocks } from './orderSections'
 // erstattete Stücke, Weg des Geldes (dasselbe Zahlungsmittel bzw. Rücküberweisung bei Vorkasse), Gutschrift GS als
 // PDF-Anhang. Keine Werbung (V-09).
 
-export const REFUND_CONFIRMATION_VERSION = 'm09-v1'
+export const REFUND_CONFIRMATION_VERSION = 'm09-v2'
 
 export const refundConfirmationDataSchema = z.object({
   orderId: z.number().int().positive(),

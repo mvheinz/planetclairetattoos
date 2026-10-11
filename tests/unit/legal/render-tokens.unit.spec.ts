@@ -87,7 +87,7 @@ describe('R-095 Platzhalter-Belehrung und Token-Liste (P6.3)', () => {
 
   it('R-095 Token-Liste des Renderers = R-012 = DATENMODELL §6.12 = KANZLEI-BRIEFING §16.3', () => {
     const renderer = [...LEGAL_TOKENS].sort()
-    expect(renderer).toHaveLength(14)
+    expect(renderer).toHaveLength(15)
     const r012 = tokensIn('docs/recht/ANFORDERUNGEN.md', /^#### R-012 /).filter(
       (t) => !['STEUERNUMMER', 'orderNumber', 'unknown'].includes(t),
     )

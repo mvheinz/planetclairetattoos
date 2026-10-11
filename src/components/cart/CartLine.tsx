@@ -26,12 +26,15 @@ export async function CartLine({
   locale,
   media,
   now = new Date(),
+  reservationMinutes,
 }: {
   line: CartLineData
   locale: Locale
   media: Media | null
   /** Bezugszeit für „reserviert bis …“ (U-58 b). */
   now?: Date
+  /** Reservierungsdauer aus den Einstellungen für „schau in … Minuten nochmal“ (P18.5). */
+  reservationMinutes: number
 }) {
   const t = await getTranslations({ locale, namespace: 'cart' })
   const product = line.product
@@ -57,7 +60,7 @@ export async function CartLine({
       ? t('state.reservedUntilDate', { date: until.date, time: until.time })
       : t('state.reservedUntil', { time: until.time })
     : line.state === 'reserved' || line.state === 'sold' || line.state === 'reserved_by_you'
-      ? t(`state.${line.state}`)
+      ? t(`state.${line.state}`, { minutes: reservationMinutes })
       : null
 
   return (

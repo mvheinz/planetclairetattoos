@@ -21,6 +21,7 @@ export const LEGAL_TOKENS = [
   'shippingTable',
   'deliveryTime',
   'vorkasseDays',
+  'reservationMinutes',
   'returnCostsNote',
 ] as const
 export type LegalToken = (typeof LEGAL_TOKENS)[number]

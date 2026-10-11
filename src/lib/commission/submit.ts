@@ -299,12 +299,8 @@ export async function submitCommission(
         reference: created.reference,
         receivedAt,
         deleteAfter: new Date(created.deleteAfter).toISOString(),
-        name: value.name,
+        // keine Freitexte an die ungeprüfte Adresse (Name, Idee, Zeitraum, Budget, „Etwas anderes“), P18.5
         objectType: value.objectType,
-        objectTypeOther: value.objectTypeOther,
-        idea: value.idea,
-        desiredTimeframe: value.desiredTimeframe,
-        budget: value.budget,
         imageCount: uploads.length,
         responseTime: reply,
       },

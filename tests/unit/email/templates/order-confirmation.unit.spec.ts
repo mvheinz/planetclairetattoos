@@ -76,7 +76,7 @@ describe('M01 order_confirmation – R-081 Pflichtinhalte (DE)', () => {
     expect(m.text).toContain('Lieferzeit: 2–5 Werktage')
   })
 
-  it('R-081 Nr. 6 Abholung: „Ich melde mich wegen der Abholung“, keine Lieferadresse', async () => {
+  it('R-081 Nr. 6 / R-035 Abholung: „Ich melde mich wegen der Abholung“ und Abholzeit, keine Lieferadresse', async () => {
     const m = await render('de', {
       ...ORDER_MAIL_FIXTURE,
       fulfillmentMethod: 'pickup',
@@ -86,9 +86,42 @@ describe('M01 order_confirmation – R-081 Pflichtinhalte (DE)', () => {
       carrierEmailConsent: false,
     })
     expect(m.text).toContain('Ich melde mich wegen der Abholung.')
+    // P18.5: auch bei Abholung steht die Zeitangabe in der Bestätigung (Baustein `delivery.timePickup`)
+    expect(m.text).toMatch(/Abholbereit innerhalb von 2–5 Werktagen? nach Zahlungseingang/)
+    expect(m.text).not.toContain('Lieferzeit:')
     expect(m.text).toContain('Abholung in Berlin: 0,00 €')
     expect(m.text).not.toContain('Lieferadresse')
     expect(m.text).not.toContain('DHL')
+  })
+
+  it('R-035 P18.5 Lieferzeit fehlt nie: leer oder vage → Standard „2–5 Werktage“ (Versand und Abholung, DE/EN)', async () => {
+    for (const deliveryTime of [null, '', 'ca. 3 Werktage']) {
+      const ship = await render('de', { ...ORDER_MAIL_FIXTURE, deliveryTime })
+      expect(ship.text, String(deliveryTime)).toContain('Lieferzeit: 2–5 Werktage')
+      const pickup = await render('en', {
+        ...ORDER_MAIL_FIXTURE,
+        deliveryTime,
+        fulfillmentMethod: 'pickup',
+        shippingCents: 0,
+        totalCents: 8400,
+        shippingAddress: null,
+        carrierEmailConsent: false,
+      })
+      expect(pickup.text, String(deliveryTime)).toContain(
+        'Ready for collection within 2–5 working days after receipt of payment',
+      )
+    }
+    const own = await render('de', { ...ORDER_MAIL_FIXTURE, deliveryTime: '3–4 Werktage' })
+    expect(own.text).toContain('Lieferzeit: 3–4 Werktage')
+  })
+
+  it('R-067 P18.5 Status-Link ohne „jederzeit“ (er läuft 180 Tage nach Abschluss ab)', async () => {
+    const de = await render('de')
+    const en = await render('en')
+    expect(de.text).toContain('Den Stand deiner Bestellung siehst du hier:')
+    expect(en.text).toContain('You can see the status of your order here:')
+    expect(de.text).not.toMatch(/jederzeit hier ansehen/)
+    expect(en.text).not.toMatch(/at any time here/)
   })
 
   it('R-081 Nr. 7 gesetzliche Mängelhaftung mit Link zur harmonisierten Mitteilung (R-049)', async () => {
