@@ -261,7 +261,7 @@ async function importOne(
       action: 'product_offline_sold',
       entityCollection: 'products',
       entityId: created.id,
-      summary: `${label} offline verkauft (aus der Excel-Liste${p.sold?.note ? `: ${p.sold.note.slice(0, 60)}` : ''})`,
+      summary: `${label} offline verkauft (aus der Excel-Liste)`,
       changes: { status: ['draft', 'sold'] },
       actorType: 'system',
     })

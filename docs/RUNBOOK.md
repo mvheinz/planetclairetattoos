@@ -500,6 +500,8 @@ lädt die Datei im Chat hoch (Anleitung für sie: `docs/owner/IPAD.md`).
    abarbeiten (Englisch selbst schreiben, U-00), „Bitte entscheiden“ und „Nicht übernommen“ Jutta in einfachen Worten
    zurückmelden (nicht raten). „Deine Notizen“ umsetzen oder nachfragen. Mail-Texte: auf Werbung prüfen (in
    Transaktionsmails verboten – das erkennt die Prüfung nicht).
+   Datenminimierung: „Verkauft“-Notizen und „Deine Notiz“ landen dauerhaft im Repo – vor dem Commit auf Namen,
+   @-Namen, Telefonnummern oder Adressen von Käufer:innen prüfen und auf Ort/Markt kürzen (Jutta kurz Bescheid geben).
 5. Prüfen: `pnpm check` (Texte: auch `tests/unit/i18n`, Verbotsliste), bei Bestand zusätzlich
    `pnpm bestand:pruefliste`. Commit `feat(pflege): …` mit Listen-Nr. in der Nachricht.
 6. Neue Liste für Jutta: `pnpm pflege:export` → `dist/pflege/planet-claire-{bestand,texte}-<Listen-Nr.>.xlsx`, dazu bei

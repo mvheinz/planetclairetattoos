@@ -236,9 +236,9 @@ describe('bestand:import (P16.2)', () => {
         overrideAccess: true,
       })
       expect(audit.docs).toHaveLength(1)
-      expect(audit.docs[0]!.summary).toMatch(
-        /offline verkauft \(aus der Excel-Liste: Markt Kreuzberg\)/,
-      )
+      // Notiz nicht im Protokoll (könnte Namen enthalten, Datenminimierung)
+      expect(audit.docs[0]!.summary).toMatch(/offline verkauft \(aus der Excel-Liste\)$/)
+      expect(audit.docs[0]!.summary).not.toContain('Kreuzberg')
 
       // ohne Datum und Preis: jetzt, Listenpreis
       await cleanup()

@@ -35,8 +35,10 @@ U-85–U-89).
 2. Unten siehst du Blätter: **Anleitung** und **Bestand** (bei den Texten: Startseite, Shop, Tattoo …).
 3. Tippe zweimal auf ein Feld, ändere den Text oder die Zahl, tippe auf **Fertig** (oder die Eingabetaste).
 4. **Verkauft:** In der letzten Spalte das Datum eintragen, gern mit Preis und Notiz, z. B. `11.10.2026 35 € Markt`.
-   Ohne Datum schreib „ja“ davor, z. B. `ja an Freundin`. Leer lassen (oder „noch da“) heißt: nicht verkauft.
-5. **Deine Notiz:** Alles, was du Claude sagen möchtest („Preis noch unsicher“, „Foto bitte tauschen“).
+   Ohne Datum schreib „ja“ davor, z. B. `ja Markt`. Leer lassen (oder „noch da“) heißt: nicht verkauft.
+   Bitte **keine Namen** von Käufer:innen eintragen – die Listen werden dauerhaft gespeichert.
+5. **Deine Notiz:** Alles, was du Claude sagen möchtest („Preis noch unsicher“, „Foto bitte tauschen“) – auch hier
+   keine Namen oder Kontaktdaten von Kund:innen.
 6. Bitte **nicht**: Zeilen löschen, Überschriften ändern, in grauen Feldern etwas ändern. Englisch musst du nicht
    anfassen – Claude passt es an.
 

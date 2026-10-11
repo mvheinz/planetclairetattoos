@@ -114,7 +114,7 @@ export const BESTAND_COLUMNS: readonly ExcelColumn[] = [
     key: 'verkauft',
     header: 'Verkauft',
     width: 16,
-    hint: 'Datum (z. B. 11.10.2026) oder „ja“, gern mit Preis und kurzer Notiz (z. B. „11.10.2026 35 € Markt“) – leer = noch da',
+    hint: 'Datum (z. B. 11.10.2026) oder „ja“, gern mit Preis und kurzer Notiz (z. B. „11.10.2026 35 € Markt“) – leer = noch da. Bitte keine Namen von Käufer:innen.',
   },
 ]
 
@@ -285,7 +285,7 @@ export function parseSold(
   if (yes) return { sold: noteAndPrice(yes[2]!) }
   return {
     error:
-      'bitte ein Datum oder „ja“ voranstellen (z. B. „ja – an Freundin“); sonst gilt es nicht als verkauft',
+      'bitte ein Datum oder „ja“ voranstellen (z. B. „ja Markt“); sonst gilt es nicht als verkauft',
   }
 }
 
