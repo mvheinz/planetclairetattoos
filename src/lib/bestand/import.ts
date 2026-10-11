@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises'
 
 import { createLocalReq, type Payload, type PayloadRequest, type RequestContext } from 'payload'
 
+import { writeAudit } from '@/lib/audit'
 import { formatItemNumber } from '@/lib/products/itemNumber'
 import { inTransaction } from '@/lib/payload/transaction'
 
@@ -18,6 +19,10 @@ import { bestandPhotoPath, photosOf, type BestandProduct } from './schema'
 // (`bestand:<key>-1`) zeigt – auch nach geänderter Nummer oder geändertem Titel; vorhandene Fotos werden
 // wiederverwendet, nie überschrieben. Ist die Nummer schon an ein anderes Stück vergeben, wird das Stück übersprungen
 // (Meldung), nie umnummeriert. Jedes Stück hat eine eigene Transaktion.
+//
+// Aus Juttas Excel-Liste (U-85, U-86): „Deine Notiz“ steht oben in der internen Notiz; ein als verkauft eingetragenes
+// Stück wird als **Markt-Verkauf** angelegt (Status „verkauft“, Weg „offline“, nicht im Shop, nicht im Archiv, Preis
+// zählt im Umsatz-Wächter) – auch in der Vorschau-Datei nie „verfügbar“.
 
 /** Kürzel eines Fotos in `media.sourceRef`. */
 export const bestandSourceRef = (file: string): string => `bestand:${file.replace(/\.jpg$/, '')}`
@@ -30,9 +35,9 @@ export const ATTENTION_NOTE =
 const NOTE_HEAD = 'Aus deinen Fotos angelegt (Oktober 2026). Bitte prüfen:'
 const NOTE_MAX = 1000
 
-/** Interne Notiz aus den Prüfpunkten (höchstens 1000 Zeichen; zu lange Listen enden mit „…“). */
-export function reviewNote(review: readonly string[]): string {
-  let note = NOTE_HEAD
+/** Interne Notiz aus Juttas Notiz und den Prüfpunkten (höchstens 1000 Zeichen; zu lange Listen enden mit „…“). */
+export function reviewNote(review: readonly string[], ownerNote?: string): string {
+  let note = ownerNote ? `Deine Notiz: ${ownerNote}\n\n${NOTE_HEAD}` : NOTE_HEAD
   for (const point of review) {
     const line = `\n• ${point}`
     if (note.length + line.length > NOTE_MAX - 2) return `${note}\n…`
@@ -44,6 +49,8 @@ export function reviewNote(review: readonly string[]): string {
 export interface BestandImportOptions {
   /** Projektwurzel (Fotos); Standard `process.cwd()`. */
   root?: string
+  /** Zeitpunkt für „verkauft“ ohne Datum (Standard: jetzt bzw. `previewPublish.now`). */
+  now?: Date
   /** Nur diese Schlüssel (`B001`, …). */
   only?: readonly string[]
   /**
@@ -139,13 +146,14 @@ export function productDataDe(
     deviationDecision: p.deviationDecision,
     ownDesignConfirmed: false,
     images,
-    internalNote: reviewNote(p.review),
+    internalNote: reviewNote(p.review, p.ownerNote),
     adminAttention: { flag: true, reason: 'manual', note: ATTENTION_NOTE },
   }
   if (scalePhoto !== undefined) data.scalePhoto = scalePhoto
   if (p.deviationDescription) data.deviationDescription = p.deviationDescription.de
   if (p.sizeLabel) data.sizeLabel = p.sizeLabel.de
   if (p.careInstructions) data.careInstructions = p.careInstructions.de
+  if (p.metalPartsMaterial) data.metalPartsMaterial = p.metalPartsMaterial.de
   for (const key of [
     'isSecondHand',
     'condition',
@@ -170,7 +178,32 @@ export function productDataEn(p: BestandProduct): Record<string, unknown> {
   if (p.sizeLabel) data.sizeLabel = p.sizeLabel.en
   if (p.careInstructions) data.careInstructions = p.careInstructions.en
   if (p.deviationDescription) data.deviationDescription = p.deviationDescription.en
+  if (p.metalPartsMaterial?.en) data.metalPartsMaterial = p.metalPartsMaterial.en
   return data
+}
+
+/** Notiz zum Markt-Verkauf (Feld höchstens 120 Zeichen). */
+const SALE_NOTE_MAX = 120
+
+/**
+ * Felder eines als verkauft eingetragenen Stücks (U-86): Verkaufstag mittags (UTC, damit der Tag in Berlin stimmt),
+ * sonst `now`; erzielter Preis aus der Liste, sonst der Listenpreis (zählt im Umsatz-Wächter – lieber zu früh warnen).
+ */
+export function soldData(p: BestandProduct, now: Date): Record<string, unknown> | null {
+  if (!p.sold) return null
+  const note = p.sold.note
+    ? p.sold.note.length > SALE_NOTE_MAX
+      ? `${p.sold.note.slice(0, SALE_NOTE_MAX - 1)}…`
+      : p.sold.note
+    : null
+  return {
+    status: 'sold',
+    soldChannel: 'offline',
+    soldAt: p.sold.date ? `${p.sold.date}T12:00:00.000Z` : now.toISOString(),
+    offlineSaleNote: note,
+    offlineSalePriceCents: p.sold.priceCents ?? p.priceCents,
+    showInArchiveAfterSale: false,
+  }
 }
 
 async function importOne(
@@ -213,7 +246,26 @@ async function importOne(
     locale: 'en',
     ...op(req, { ...systemContext(), translation: true }),
   })
-  if (options.previewPublish) {
+  const sold = soldData(p, options.now ?? options.previewPublish?.now ?? new Date())
+  if (sold) {
+    // Verkauft, bevor es online war (U-86): Status direkt setzen – der Statusautomat kennt keinen Weg vom Entwurf zu
+    // „verkauft“ (`seed` umgeht die Übergangsregel, `system` die Veröffentlichungsprüfung); Audit wie „Offline verkauft“.
+    await req.payload.update({
+      collection: 'products',
+      id: created.id,
+      data: sold as never,
+      ...op(req, { seed: true, system: true }),
+    })
+    const label = formatItemNumber(p.itemNumber, 'de')
+    await writeAudit(req, {
+      action: 'product_offline_sold',
+      entityCollection: 'products',
+      entityId: created.id,
+      summary: `${label} offline verkauft (aus der Excel-Liste${p.sold?.note ? `: ${p.sold.note.slice(0, 60)}` : ''})`,
+      changes: { status: ['draft', 'sold'] },
+      actorType: 'system',
+    })
+  } else if (options.previewPublish) {
     const at = new Date(options.previewPublish.now.getTime() - index * 60_000)
     // Nur in der Vorschau: Status direkt setzen – `seed` umgeht die Übergangsregel, `system` die
     // Veröffentlichungsprüfung (reiner Systemschreibvorgang); das Stück bleibt echt (`seed: false`).

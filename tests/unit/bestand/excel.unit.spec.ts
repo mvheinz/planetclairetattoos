@@ -1,0 +1,331 @@
+import ExcelJS from 'exceljs'
+import { describe, expect, it } from 'vitest'
+
+import {
+  applyRows,
+  BESTAND_COLUMNS,
+  parseFibers,
+  parseSold,
+  rowOf,
+  soldText,
+  type CellValue,
+} from '@/lib/bestand/excel'
+import { buildBestandBook, BESTAND_SHEET, readBestandBook } from '@/lib/bestand/excelBook'
+import { keepValid } from '@/lib/bestand/excelRepo'
+import { bestandSchema, loadBestand, type BestandProduct } from '@/lib/bestand/schema'
+import { emptyReport } from '@/lib/pflege/merge'
+import { makeSnapshot, type SnapshotRows } from '@/lib/pflege/snapshot'
+
+// P18.1 (U-85, U-86, U-89): Bestandsliste als Excel – Rundweg ohne Änderung ändert nichts, geänderte Zellen werden
+// übernommen, ungültige gemeldet, „Verkauft“ wird zum Markt-Verkauf; gemerkter Stand (Listen-Nr.): ältere Listen setzen
+// nichts zurück, gleiche Zelle hier und dort geändert = Rückfrage; Numbers-Varianten werden gelesen.
+
+const products = await loadBestand()
+const byKey = (list: readonly BestandProduct[], key: string) => list.find((p) => p.key === key)!
+const NOW = new Date('2026-10-11T10:00:00Z')
+
+const snapshotOf = (list: readonly BestandProduct[]) =>
+  makeSnapshot('bestand', NOW, new Map(list.map((p) => [String(p.itemNumber), rowOf(p)])))
+const SNAP = snapshotOf(products)
+const BASE: SnapshotRows = SNAP.rows
+
+const book = (list: readonly BestandProduct[] = products, listId = SNAP.id) =>
+  buildBestandBook({ products: list, thumbs: new Map(), date: '11.10.2026', listId })
+
+async function roundTrip(
+  edit?: (ws: ExcelJS.Worksheet) => void,
+  list: readonly BestandProduct[] = products,
+) {
+  const wb = await book(list)
+  if (edit) edit(wb.getWorksheet(BESTAND_SHEET)!)
+  return readBestandBook(Buffer.from(await wb.xlsx.writeBuffer()))
+}
+
+const col = (key: string) => BESTAND_COLUMNS.findIndex((c) => c.key === key) + 1
+const rowFor = (ws: ExcelJS.Worksheet, nr: number) => {
+  let found: ExcelJS.Row | null = null
+  ws.eachRow((row) => {
+    if (row.getCell(col('nr')).value === nr) found = row
+  })
+  return found!
+}
+const apply = (
+  rows: Record<string, CellValue>[],
+  base: SnapshotRows | null = BASE,
+  list = products,
+) => applyRows(list, rows, { year: 2026, base })
+
+describe('Bestandsliste als Excel (P18.1)', () => {
+  it('Blätter „Anleitung“ und „Bestand“, eine Zeile je Stück, „Verkauft“ am Ende, Listen-Nr. in der Datei', async () => {
+    const wb = await book()
+    expect(wb.worksheets.map((w) => w.name)).toEqual(['Anleitung', 'Bestand'])
+    const ws = wb.getWorksheet(BESTAND_SHEET)!
+    expect(ws.rowCount).toBe(products.length + 1)
+    expect(ws.getRow(1).getCell(col('verkauft')).value).toBe('Verkauft')
+    expect(BESTAND_COLUMNS.at(-1)!.key).toBe('verkauft') // U-86: am Ende
+    const { listId } = await roundTrip()
+    expect(listId).toBe(SNAP.id)
+    expect(SNAP.id).toMatch(/^B-2026-10-11-[0-9a-f]{6}$/)
+  })
+
+  it('Rundweg ohne Änderung: keine Änderung, keine Meldung (mit und ohne gemerkten Stand)', async () => {
+    const { rows } = await roundTrip()
+    expect(rows).toHaveLength(products.length)
+    for (const base of [BASE, null]) {
+      const { products: next, report } = apply(rows, base)
+      expect(report).toEqual(emptyReport())
+      expect(next).toEqual(products)
+    }
+  })
+
+  it('geänderte Zellen werden übernommen, Englisch zum Nachziehen gemeldet, Ergebnis bleibt gültig', async () => {
+    const shirt = products.find((p) => p.category === 'textil')!
+    const bowl = products.find((p) => p.category === 'keramik')!
+    const chain = products.find((p) => p.category === 'schmuck')!
+    const { rows } = await roundTrip((ws) => {
+      const s = rowFor(ws, shirt.itemNumber)
+      s.getCell(col('preis')).value = '49,50'
+      s.getCell(col('fasern')).value = '60 % Baumwolle, 40 % Polyester'
+      s.getCell(col('groesse')).value = 'M'
+      s.getCell(col('zustand')).value = 'gut'
+      const b = rowFor(ws, bowl.itemNumber)
+      b.getCell(col('titleDe')).value = 'Schale „Neuer Name“'
+      b.getCell(col('breite')).value = 12.5
+      b.getCell(col('verkauft')).value = '11.10.2026 35 € Markt Kreuzberg'
+      b.getCell(col('notiz')).value = 'Glasur nochmal anschauen'
+      const c = rowFor(ws, chain.itemNumber)
+      c.getCell(col('metall')).value = 'Edelstahl'
+    })
+    const { products: next, report } = apply(rows)
+    const s = byKey(next, shirt.key)
+    expect(s.priceCents).toBe(4950)
+    expect(s.fiberComposition).toEqual([
+      { component: 'main', fiber: 'cotton', percent: 60 },
+      { component: 'main', fiber: 'polyester', percent: 40 },
+    ])
+    expect(s.sizeLabel).toEqual({ de: 'M', en: 'M' })
+    expect(s.condition).toBe('good')
+    const b = byKey(next, bowl.key)
+    expect(b.title).toEqual({ de: 'Schale „Neuer Name“', en: bowl.title.en })
+    expect(b.dimensions.widthCm).toBe(12.5)
+    expect(b.sold).toEqual({ date: '2026-10-11', priceCents: 3500, note: 'Markt Kreuzberg' })
+    expect(b.ownerNote).toBe('Glasur nochmal anschauen')
+    expect(byKey(next, chain.key).metalPartsMaterial).toEqual({ de: 'Edelstahl' })
+    expect(report.problems).toEqual([])
+    expect(report.conflicts).toEqual([])
+    expect(report.changes.length).toBe(9)
+    expect(report.englishTodo).toEqual([
+      `Nr. ${bowl.itemNumber}: Name (Deutsch geändert)`,
+      `Nr. ${chain.itemNumber}: Metallteile (neu, Englisch fehlt)`,
+    ])
+    expect(bestandSchema.safeParse(next).success).toBe(true)
+    // Original unverändert
+    expect(byKey(products, bowl.key).sold).toBeUndefined()
+  })
+
+  it('ungültige Werte, Kategorie-Wechsel, Lese-Spalten, unbekannte Nummer, neue und fehlende Zeilen werden gemeldet', async () => {
+    const [a, b, c] = products
+    const { rows: all } = await roundTrip((ws) => {
+      const r = rowFor(ws, a!.itemNumber)
+      r.getCell(col('preis')).value = 'teuer'
+      r.getCell(col('kategorie')).value = 'Schmuck'
+      r.getCell(col('pruefen')).value = 'erledigt'
+      rowFor(ws, b!.itemNumber).getCell(col('titleEn')).value = ''
+      rowFor(ws, c!.itemNumber).getCell(col('nr')).value = 999
+      const extra = ws.getRow(ws.rowCount + 1)
+      extra.getCell(col('titleDe')).value = 'Neue Tasse'
+      extra.getCell(col('preis')).value = 30
+    })
+    const rows = all.filter((r) => r.nr !== products[3]!.itemNumber)
+    const { products: next, report } = apply(rows)
+    expect(next).toEqual(products)
+    const text = report.problems.join('\n')
+    expect(text).toMatch(new RegExp(`Nr. ${a!.itemNumber}: Preis „teuer“`))
+    expect(text).toMatch(/Kategorie .* nicht automatisch übernommen/)
+    expect(text).toMatch(/„Bitte prüfen“ ist nur zum Lesen/)
+    expect(text).toMatch(
+      new RegExp(`Nr. ${b!.itemNumber}: Name \\(Englisch\\) „“ – darf nicht leer sein`),
+    )
+    expect(text).toMatch(/Nr. 999 gibt es im Bestand nicht/)
+    expect(text).toMatch(new RegExp(`Nr. ${c!.itemNumber} fehlt in der Liste`))
+    expect(text).toMatch(new RegExp(`Nr. ${products[3]!.itemNumber} fehlt in der Liste`))
+    expect(report.newEntries).toEqual([
+      'Neues Stück „Neue Tasse“, 30 € – bitte mit Fotos anlegen lassen.',
+    ])
+  })
+
+  it('Name zu kurz oder doppelt: nur dieses Stück bleibt beim alten Stand', async () => {
+    const [a, b] = products
+    const { rows } = await roundTrip((ws) => {
+      rowFor(ws, a!.itemNumber).getCell(col('titleDe')).value = 'ab'
+      const r = rowFor(ws, b!.itemNumber)
+      r.getCell(col('titleDe')).value = products[2]!.title.de
+      r.getCell(col('preis')).value = 77
+    })
+    const applied = apply(rows)
+    expect(applied.report.problems.join('\n')).toMatch(
+      /Name \(Deutsch\) „ab“ – bitte 3–120 Zeichen/,
+    )
+    const { products: next, ok } = keepValid(products, applied.products, applied.report)
+    expect(ok).toBe(true)
+    expect(byKey(next, b!.key)).toEqual(b)
+    expect(applied.report.problems.join('\n')).toMatch(
+      new RegExp(
+        `Nr. ${b!.itemNumber}: Änderungen an diesem Stück nicht übernommen – den Namen .* hat schon Nr. ${products[2]!.itemNumber}`,
+      ),
+    )
+    expect(applied.report.changes.some((c) => c.startsWith(`Nr. ${b!.itemNumber}:`))).toBe(false)
+  })
+})
+
+describe('Gemerkter Stand (U-89 a)', () => {
+  const p = products[4]!
+  const q = products[6]!
+
+  it('ältere Liste setzt inzwischen geänderte Werte nicht zurück; Juttas Änderung an anderer Stelle gilt', async () => {
+    const { rows } = await roundTrip((ws) => {
+      rowFor(ws, q.itemNumber).getCell(col('gewicht')).value = 321
+    })
+    // inzwischen (nach dem Ausgeben) geändert: Preis von p
+    const current = products.map((x) =>
+      x.key === p.key ? { ...x, priceCents: x.priceCents + 500 } : x,
+    )
+    const { products: next, report } = apply(rows, BASE, current)
+    expect(byKey(next, p.key).priceCents).toBe(p.priceCents + 500) // nicht zurückgesetzt
+    expect(byKey(next, q.key).weightGrams).toBe(321)
+    expect(report.conflicts).toEqual([])
+    // ohne gemerkten Stand würde die alte Liste den Preis zurücksetzen – deshalb nur mit Freigabe (CLI)
+    expect(byKey(apply(rows, null, current).products, p.key).priceCents).toBe(p.priceCents)
+  })
+
+  it('dieselbe Zelle hier und dort geändert: nichts überschrieben, Rückfrage', async () => {
+    const { rows } = await roundTrip((ws) => {
+      rowFor(ws, p.itemNumber).getCell(col('preis')).value = 60
+    })
+    const current = products.map((x) => (x.key === p.key ? { ...x, priceCents: 5500 } : x))
+    const { products: next, report } = apply(rows, BASE, current)
+    expect(byKey(next, p.key).priceCents).toBe(5500)
+    expect(report.conflicts).toEqual([
+      `Nr. ${p.itemNumber}: Preis (€) – in deiner Liste „60“, inzwischen „55“. Was gilt?`,
+    ])
+    expect(report.changes).toEqual([])
+  })
+
+  it('dieselbe Liste zweimal zurückspielen ändert beim zweiten Mal nichts', async () => {
+    const { rows } = await roundTrip((ws) => {
+      rowFor(ws, p.itemNumber).getCell(col('preis')).value = 61
+      rowFor(ws, q.itemNumber).getCell(col('verkauft')).value = 'ja'
+    })
+    const first = apply(rows)
+    expect(first.report.changes).toHaveLength(2)
+    const second = apply(rows, BASE, first.products)
+    expect(second.report).toEqual(emptyReport())
+    expect(second.products).toEqual(first.products)
+  })
+
+  it('Stück nach dem Ausgeben neu hinzugekommen: fehlt nicht in der Liste', async () => {
+    const { rows } = await roundTrip(undefined, products.slice(1))
+    const base = snapshotOf(products.slice(1)).rows
+    const { report } = apply(rows, base)
+    expect(report).toEqual(emptyReport())
+  })
+})
+
+describe('Numbers-Varianten (U-89 b)', () => {
+  it('Blatt umbenannt, Anleitung entfernt, Spalten verschoben, Kopfzeile tiefer, Listen-Nr. nur im Dateinamen', async () => {
+    const p = products[5]!
+    const wb = await book()
+    wb.removeWorksheet(wb.getWorksheet('Anleitung')!.id)
+    const ws = wb.getWorksheet(BESTAND_SHEET)!
+    ws.name = 'Bestand – Tabelle 1'
+    ws.getRow(1).getCell(col('nr')).note = '' // Kommentar geht in Numbers verloren
+    wb.subject = ''
+    wb.title = ''
+    ws.spliceColumns(col('foto'), 1) // Foto-Spalte entfernt
+    ws.spliceColumns(2, 0, ['Leer']) // leere Spalte eingefügt
+    ws.spliceRows(1, 0, ['Meine Liste'], []) // Titel und Leerzeile über der Kopfzeile
+    const header = ws.getRow(3).values as CellValue[]
+    const preisCol = header.findIndex((v) => v === 'Preis (€)')
+    expect(preisCol).toBeGreaterThan(0)
+    ws.eachRow((row) => {
+      if (row.getCell(1).value === p.itemNumber) row.getCell(preisCol).value = 99
+    })
+    const buf = Buffer.from(await wb.xlsx.writeBuffer())
+    const read = await readBestandBook(buf, `planet-claire-bestand ${SNAP.id}.xlsx`)
+    expect(read.listId).toBe(SNAP.id)
+    const { products: next, report } = apply(read.rows)
+    expect(byKey(next, p.key).priceCents).toBe(9900)
+    expect(report.problems).toEqual([])
+    expect(report.changes).toHaveLength(1)
+  })
+
+  it('keine Bestandsliste in der Datei: verständlicher Fehler; andere Formate abgelehnt', async () => {
+    const wb = new ExcelJS.Workbook()
+    wb.addWorksheet('Tabelle 1').getCell('A1').value = 'Hallo'
+    await expect(readBestandBook(Buffer.from(await wb.xlsx.writeBuffer()))).rejects.toThrow(
+      /keine Bestandsliste .*Spalte „Nr\.“/,
+    )
+    await expect(readBestandBook(Buffer.from('Nr.;Preis\n1;2'))).rejects.toThrow(
+      /keine Excel-Datei/,
+    )
+  })
+})
+
+describe('Spalte „Verkauft“ (U-86)', () => {
+  it('Datum, „ja“, Preis, Notiz, leer', () => {
+    expect(parseSold(null, 2026)).toEqual({ sold: null })
+    expect(parseSold('nein', 2026)).toEqual({ sold: null })
+    expect(parseSold('ja', 2026)).toEqual({ sold: {} })
+    expect(parseSold('x Markt', 2026)).toEqual({ sold: { note: 'Markt' } })
+    expect(parseSold('11.10.', 2026)).toEqual({ sold: { date: '2026-10-11' } })
+    expect(parseSold('3.9.26 – Flohmarkt', 2026)).toEqual({
+      sold: { date: '2026-09-03', note: 'Flohmarkt' },
+    })
+    expect(parseSold('11.10. 35,50 € Mauerpark', 2026)).toEqual({
+      sold: { date: '2026-10-11', priceCents: 3550, note: 'Mauerpark' },
+    })
+    expect(parseSold('ja, 40 Euro', 2026)).toEqual({ sold: { priceCents: 4000 } })
+    expect(parseSold(new Date(Date.UTC(2026, 9, 11)), 2026)).toEqual({
+      sold: { date: '2026-10-11' },
+    })
+    expect(parseSold('an Freundin', 2026)).toEqual({ sold: { note: 'an Freundin' } })
+    expect(parseSold('31.02.2026', 2026)).toEqual({ error: expect.stringMatching(/gibt es nicht/) })
+  })
+
+  it('Anzeige und Rückweg passen zusammen', () => {
+    for (const sold of [
+      { date: '2026-10-11' },
+      { date: '2026-10-11', priceCents: 3550, note: 'Mauerpark' },
+      { priceCents: 4000 },
+      { note: 'an Freundin' },
+      {},
+    ])
+      expect(parseSold(soldText(sold), 2026)).toEqual({ sold })
+  })
+})
+
+describe('Fasern als Text', () => {
+  it('liest Prozent und amtliche Namen (DE/EN), Teile mit Doppelpunkt, prüft 100 %', () => {
+    expect(parseFibers('100 % Baumwolle')).toEqual({
+      rows: [{ component: 'main', fiber: 'cotton', percent: 100 }],
+    })
+    expect(parseFibers('Baumwolle 100%')).toEqual({
+      rows: [{ component: 'main', fiber: 'cotton', percent: 100 }],
+    })
+    expect(parseFibers('100 % cotton; Futter: 100 % Polyester')).toEqual({
+      rows: [
+        { component: 'main', fiber: 'cotton', percent: 100 },
+        { component: 'lining', fiber: 'polyester', percent: 100 },
+      ],
+    })
+    expect(parseFibers('80 % Baumwolle')).toEqual({ error: expect.stringMatching(/80 %/) })
+    expect(parseFibers('100 % Zauberwolle')).toEqual({
+      error: expect.stringMatching(/keine amtliche/),
+    })
+  })
+
+  it('jede Zeile hat für jede Spalte einen Wert (auch leer)', () => {
+    for (const p of products)
+      expect(Object.keys(rowOf(p)).sort()).toEqual(BESTAND_COLUMNS.map((c) => c.key).sort())
+  })
+})

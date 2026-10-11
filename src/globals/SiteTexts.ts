@@ -8,11 +8,20 @@ import { ENUM_LABELS, enumOptions } from '@/lib/enumLabels'
 import { EMAIL_TEMPLATES } from '@/lib/enums'
 import { getAppContext } from '@/lib/payload/context'
 
+import defaultsFile from './siteTexts.defaults.json'
+
 // DATENMODELL §7.2 – kurze UI-Texte DE/EN in Juttas Ton (E-62) und Navigation. Öffentlich lesbar. Rechtlich fixierte
 // Texte (Bestell-Button, „Vertrag widerrufen“, „Widerruf bestätigen“, Steuerhinweis) stehen NICHT hier, sondern in
 // `src/lib/legal/constants.ts`; die Pflichtlinks im Footer rendert der Code immer (E-44).
+// Die Standardtexte DE/EN stehen in `siteTexts.defaults.json` (Gruppe → Feld), damit die Texte-Liste für Jutta sie
+// lesen und zurückschreiben kann (U-87, U-89); ein Textfeld ohne Eintrag dort hat keinen Standard (leer = Vorlage).
 
 type L10n = { de: string; en: string }
+
+/** Standardtexte je Gruppe und Feld (`footer.tagline` → `{ de, en }`). */
+export const SITE_TEXT_DEFAULTS = defaultsFile as Readonly<
+  Record<string, Readonly<Record<string, L10n>>>
+>
 
 interface TextOptions {
   multiline?: boolean
@@ -20,26 +29,35 @@ interface TextOptions {
   description?: string
 }
 
-/** Lokalisiertes Textfeld mit DE/EN-Standard aus dem Code. */
-function text(name: string, label: string, defaults: L10n | null, opts: TextOptions = {}): Field {
+/** Lokalisiertes Textfeld; den DE/EN-Standard setzt `textGroup` aus `siteTexts.defaults.json`. */
+function text(name: string, label: string, opts: TextOptions = {}): Field {
   return {
     name,
     type: opts.multiline ? 'textarea' : 'text',
     label,
     localized: true,
     maxLength: opts.maxLength ?? (opts.multiline ? 600 : 160),
-    ...(defaults
-      ? {
-          defaultValue: ({ locale }: { locale?: string }) =>
-            locale === 'en' ? defaults.en : defaults.de,
-        }
-      : {}),
     ...(opts.description ? { admin: { description: opts.description } } : {}),
   } as Field
 }
 
+/** Gruppe; Textfelder mit Eintrag in `siteTexts.defaults.json` bekommen dort ihren Standard je Sprache. */
 function textGroup(name: string, label: string, fields: Field[]): Field {
-  return { name, type: 'group', label, fields }
+  const own = SITE_TEXT_DEFAULTS[name] ?? {}
+  return {
+    name,
+    type: 'group',
+    label,
+    fields: fields.map((f) => {
+      const d =
+        'name' in f && (f.type === 'text' || f.type === 'textarea') ? own[f.name] : undefined
+      if (!d) return f
+      return {
+        ...f,
+        defaultValue: ({ locale }: { locale?: string }) => (locale === 'en' ? d.en : d.de),
+      } as Field
+    }),
+  }
 }
 
 /** Standard-Links der Navigation (Beschriftung je Sprache). */
@@ -84,216 +102,83 @@ const navigation = textGroup('navigation', 'Navigation', [
     defaultValue: linkDefaults(MENU_LINKS),
     fields: internalLinkFields(),
   },
-  text('menuTagline', 'Satz im Menü', {
-    de: 'Ein kleiner Planet in Berlin: Tinte, Ton und Linien, die zittern dürfen.',
-    en: 'A small planet in Berlin: ink, clay and lines that are allowed to tremble.',
-  }),
+  text('menuTagline', 'Satz im Menü'),
 ])
 
 const footer = textGroup('footer', 'Fußzeile', [
-  text('tagline', 'Satz in der Fußzeile', {
-    de: 'Aus meinen Händen, in Berlin – jedes Stück gibt es nur einmal.',
-    en: 'From my hands, in Berlin – every piece exists only once.',
-  }),
-  text('instagramLabel', 'Instagram-Link', {
-    de: 'Mein Instagram-Profil',
-    en: 'My Instagram profile',
-  }),
+  text('tagline', 'Satz in der Fußzeile'),
+  text('instagramLabel', 'Instagram-Link'),
 ])
 
 const shop = textGroup('shop', 'Shop', [
-  text('filterAll', 'Filter „Alle“', { de: 'Alle', en: 'All' }),
-  text('filterAvailableOnly', 'Filter „Nur verfügbare“', {
-    de: 'Nur verfügbare',
-    en: 'Available only',
-  }),
-  text('soldStamp', 'Stempel „verkauft“', { de: 'sold', en: 'sold' }),
-  text('reservedLabel', 'Hinweis „reserviert“', {
-    de: 'gerade reserviert – schau in 30 Minuten nochmal',
-    en: 'reserved right now – check back in 30 minutes',
-  }),
-  text('reservedPrepaymentLabel', 'Hinweis „reserviert (Vorkasse)“', {
-    de: 'reserviert – wartet auf Überweisung',
-    en: 'reserved – waiting for a bank transfer',
-  }),
-  text('uniqueHint', 'Hinweis „Unikat“', { de: 'Unikat', en: 'One of a kind' }),
-  text('emptyCategory', 'Leere Kategorie', {
-    de: 'In dieser Ecke ist gerade alles weitergezogen. Neue Stücke kommen bald.',
-    en: 'Everything in this corner has moved on for now. New pieces will arrive soon.',
-  }),
-  text(
-    'archiveIntro',
-    'Einleitung Archiv',
-    {
-      de: 'Weitergezogen, aber zu schön zum Vergessen.',
-      en: 'Moved on, but too lovely to forget.',
-    },
-    { multiline: true },
-  ),
+  text('filterAll', 'Filter „Alle“'),
+  text('filterAvailableOnly', 'Filter „Nur verfügbare“'),
+  text('soldStamp', 'Stempel „verkauft“'),
+  text('reservedLabel', 'Hinweis „reserviert“'),
+  text('reservedPrepaymentLabel', 'Hinweis „reserviert (Vorkasse)“'),
+  text('uniqueHint', 'Hinweis „Unikat“'),
+  text('emptyCategory', 'Leere Kategorie'),
+  text('archiveIntro', 'Einleitung Archiv', { multiline: true }),
 ])
 
 const product = textGroup('product', 'Stück', [
-  text('addToCart', 'Knopf „In den Korb“', { de: 'In den Korb', en: 'Add to basket' }),
-  text('shippingLinkLabel', 'Link Versandkosten', { de: 'zzgl. Versand', en: 'plus shipping' }),
-  text('manufacturerHeading', 'Überschrift Herstellerin', {
-    de: 'Herstellerin & Sicherheit',
-    en: 'Maker & safety',
-  }),
-  text('deviationHeading', 'Überschrift Abweichungen', {
-    de: 'Gut zu wissen',
-    en: 'Good to know',
-  }),
-  text('fiberHeading', 'Überschrift Material', { de: 'Material', en: 'Fabric' }),
-  text('labelMissingHint', 'Hinweis fehlendes Etikett', {
-    de: 'Das Originaletikett fehlt – die Angaben stammen von mir.',
-    en: 'The original label is missing – the details come from me.',
-  }),
+  text('addToCart', 'Knopf „In den Korb“'),
+  text('shippingLinkLabel', 'Link Versandkosten'),
+  text('manufacturerHeading', 'Überschrift Herstellerin'),
+  text('deviationHeading', 'Überschrift Abweichungen'),
+  text('fiberHeading', 'Überschrift Material'),
+  text('labelMissingHint', 'Hinweis fehlendes Etikett'),
 ])
 
 const cart = textGroup('cart', 'Warenkorb', [
-  text('empty', 'Leerer Warenkorb', {
-    de: 'Noch liegt nichts in deinem Korb.',
-    en: 'Nothing lies in your basket yet.',
-  }),
-  text('countdown', 'Countdown', {
-    de: 'Coco hütet dein Stück noch {time}',
-    en: 'Coco is guarding your piece for another {time}',
-  }),
-  text('reservationExpired', 'Reservierung abgelaufen', {
-    de: 'Die Reservierung ist abgelaufen – das Stück gehört wieder allen.',
-    en: 'The reservation has expired – the piece belongs to everyone again.',
-  }),
-  text('pickupOption', 'Option Abholung', {
-    de: 'Abholung in Berlin',
-    en: 'Pickup in Berlin',
-  }),
-  text('shippingOption', 'Option Versand', { de: 'Versand', en: 'Shipping' }),
+  text('empty', 'Leerer Warenkorb'),
+  text('countdown', 'Countdown'),
+  text('reservationExpired', 'Reservierung abgelaufen'),
+  text('pickupOption', 'Option Abholung'),
+  text('shippingOption', 'Option Versand'),
 ])
 
 const checkout = textGroup('checkout', 'Kasse', [
-  text(
-    'intro',
-    'Einleitung',
-    {
-      de: 'Gleich ist es so weit. Prüf noch einmal kurz deine Angaben.',
-      en: 'Nearly there. Look over your details once more.',
-    },
-    { multiline: true },
-  ),
-  text('changeLink', 'Link „ändern“', { de: 'ändern', en: 'change' }),
+  text('intro', 'Einleitung', { multiline: true }),
+  text('changeLink', 'Link „ändern“'),
 ])
 
-const pageTexts = (name: string, label: string, texts: Record<string, [string, L10n]>): Field =>
+const pageTexts = (name: string, label: string, texts: Record<string, string>): Field =>
   textGroup(
     name,
     label,
-    Object.entries(texts).map(([key, [fieldLabel, defaults]]) =>
-      text(key, fieldLabel, defaults, { multiline: true }),
-    ),
+    Object.entries(texts).map(([key, fieldLabel]) => text(key, fieldLabel, { multiline: true })),
   )
 
 const thanks = pageTexts('thanks', 'Danke-Seite', {
-  heading: ['Überschrift', { de: 'Danke dir.', en: 'Thank you.' }],
-  intro: [
-    'Einleitung',
-    {
-      de: 'Deine Bestellung ist bei mir angekommen. Eine Bestätigung ist per Mail unterwegs.',
-      en: 'Your order has reached me. A confirmation is on its way by email.',
-    },
-  ],
+  heading: 'Überschrift',
+  intro: 'Einleitung',
 })
 const orderStatus = pageTexts('orderStatus', 'Bestellstatus', {
-  intro: [
-    'Einleitung',
-    {
-      de: 'Hier siehst du, wo dein Stück gerade unterwegs ist.',
-      en: 'Here you can see where your piece is travelling right now.',
-    },
-  ],
-  linkInvalid: [
-    'Link ungültig',
-    {
-      de: 'Dieser Weg führt nirgendwohin mehr. Schreib mir gern eine Mail.',
-      en: 'This path no longer leads anywhere. Feel free to send me an email.',
-    },
-  ],
+  intro: 'Einleitung',
+  linkInvalid: 'Link ungültig',
 })
 const withdrawal = pageTexts('withdrawal', 'Widerruf', {
-  intro: [
-    'Einleitung',
-    {
-      de: 'Du möchtest einen Kauf widerrufen? Füll bitte die Felder aus – du bekommst sofort eine Eingangsbestätigung per Mail.',
-      en: 'Want to withdraw from a purchase? Please fill in the fields – you will get an immediate confirmation of receipt by email.',
-    },
-  ],
-  done: [
-    'Nach dem Absenden',
-    {
-      de: 'Dein Widerruf ist eingegangen. Die Bestätigung ist per Mail unterwegs.',
-      en: 'Your withdrawal has been received. The confirmation is on its way by email.',
-    },
-  ],
+  intro: 'Einleitung',
+  done: 'Nach dem Absenden',
 })
 const notFound = pageTexts('notFound', 'Seite nicht gefunden', {
-  heading: [
-    'Überschrift',
-    {
-      de: 'Diese Seite hat sich in den Nebel gezeichnet',
-      en: 'This page has drawn itself into the fog',
-    },
-  ],
-  intro: [
-    'Text',
-    {
-      de: 'Coco ist der Linie nachgelaufen und nicht zurückgekommen. Diese Seite gibt es nicht (mehr).',
-      en: 'Coco followed the line and never came back. This page does not exist (anymore).',
-    },
-  ],
+  heading: 'Überschrift',
+  intro: 'Text',
 })
 const errors = pageTexts('errors', 'Fehler', {
-  generic: [
-    'Allgemeiner Fehler',
-    {
-      de: 'Etwas hat sich verheddert. Atme kurz durch und versuch es gleich noch einmal.',
-      en: 'Something got tangled. Take a breath and try again in a moment.',
-    },
-  ],
-  shopClosed: [
-    'Shop pausiert',
-    {
-      de: 'Der Shop schläft gerade – bestellen ist im Moment nicht möglich.',
-      en: 'The shop is asleep for now – ordering isn’t possible at the moment.',
-    },
-  ],
-  alreadyReserved: [
-    'Stück schon reserviert',
-    {
-      de: 'Jemand war schneller – das Stück ist gerade reserviert und hält still.',
-      en: 'Someone was quicker – the piece is reserved right now and holding still.',
-    },
-  ],
+  generic: 'Allgemeiner Fehler',
+  shopClosed: 'Shop pausiert',
+  alreadyReserved: 'Stück schon reserviert',
 })
 
 /** Signatur, Antwortzeit und je Mail-Vorlage Betreff, Einleitung, Schluss; Standardtexte der Vorlagen folgen mit den Mails (P5). */
 const emails = textGroup('emails', 'E-Mails', [
-  text(
-    'signature',
-    'Grußformel und Signatur',
-    {
-      de: 'Liebe Grüße von meinem kleinen Planeten\nJutta',
-      en: 'Warm greetings from my small planet\nJutta',
-    },
-    { multiline: true, description: 'Steht unter jeder Mail an Kund:innen.' },
-  ),
-  text(
-    'inquiryResponseTime',
-    'Antwortzeit bei Anfragen',
-    {
-      de: 'Ich melde mich meist innerhalb einer Woche.',
-      en: 'I usually get back to you within a week.',
-    },
-    { multiline: true },
-  ),
+  text('signature', 'Grußformel und Signatur', {
+    multiline: true,
+    description: 'Steht unter jeder Mail an Kund:innen.',
+  }),
+  text('inquiryResponseTime', 'Antwortzeit bei Anfragen', { multiline: true }),
   {
     // Eine Zeile je Vorlage (statt einer Gruppe je Vorlage: Postgres erlaubt höchstens 100 Spalten je Abfrage-Funktion).
     name: 'templates',
@@ -315,9 +200,9 @@ const emails = textGroup('emails', 'E-Mails', [
         required: true,
         options: enumOptions(EMAIL_TEMPLATES, ENUM_LABELS.EMAIL_TEMPLATES),
       },
-      text('subject', 'Betreff', null, { maxLength: 120 }),
-      text('intro', 'Einleitung', null, { multiline: true, maxLength: 1000 }),
-      text('outro', 'Schluss', null, { multiline: true, maxLength: 1000 }),
+      text('subject', 'Betreff', { maxLength: 120 }),
+      text('intro', 'Einleitung', { multiline: true, maxLength: 1000 }),
+      text('outro', 'Schluss', { multiline: true, maxLength: 1000 }),
     ],
   },
 ])

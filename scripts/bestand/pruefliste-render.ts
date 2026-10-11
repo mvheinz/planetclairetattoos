@@ -2,6 +2,7 @@
 // (klein, eingebettet), Name DE/EN, Kategorie, Preis, Maße, Gewicht und die Punkte, die sie prüfen soll. Offline, ohne
 // Anfragen nach außen, druckbar. Nur Deutsch (Arbeitsliste wie die Verwaltung). Reine Funktion; die Fotos verkleinert
 // `pruefliste.ts`.
+import { soldText } from '../../src/lib/bestand/excel'
 import type { BestandProduct } from '../../src/lib/bestand/schema'
 
 export interface PrueflisteInput {
@@ -75,6 +76,9 @@ function card(p: BestandProduct, thumbs: ReadonlyMap<string, string>): string {
     p.condition ? row('Zustand', CONDITION[p.condition] ?? p.condition) : '',
     p.isSecondHand !== undefined ? row('Second Hand', p.isSecondHand ? 'ja' : 'nein') : '',
     p.deviationDescription ? row('Abweichung', p.deviationDescription.de) : '',
+    p.metalPartsMaterial ? row('Metallteile', p.metalPartsMaterial.de) : '',
+    p.sold ? row('Verkauft', soldText(p.sold)) : '',
+    p.ownerNote ? row('Deine Notiz', p.ownerNote) : '',
   ].join('')
   const checks = p.review
     .map(
@@ -83,7 +87,7 @@ function card(p: BestandProduct, thumbs: ReadonlyMap<string, string>): string {
     )
     .join('')
   return `<article id="${p.key}">
-<header><span class="nr">Nr. ${String(p.itemNumber).padStart(3, '0')}</span><h2>${escapeHtml(p.title.de)}</h2><p class="en">${escapeHtml(p.title.en)}</p></header>
+<header><span class="nr">Nr. ${String(p.itemNumber).padStart(3, '0')}</span><h2>${escapeHtml(p.title.de)}</h2>${p.sold ? '<span class="sold">verkauft</span>' : ''}<p class="en">${escapeHtml(p.title.en)}</p></header>
 <div class="photos">${photos}</div>
 <p class="desc">${escapeHtml(p.description.de)}</p>
 <dl>${facts}</dl>
@@ -122,6 +126,7 @@ h1{font-size:1.75rem;margin:0 0 .25rem}
 article{border-top:2px solid var(--line);padding:1.5rem 0;break-inside:avoid}
 article header{display:flex;flex-wrap:wrap;align-items:baseline;gap:.25rem .75rem}
 .nr{font-variant-numeric:tabular-nums;color:var(--accent);font-weight:600}
+.sold{border:1.5px solid var(--accent);color:var(--accent);border-radius:3px;padding:0 .4rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em}
 h2{font-size:1.25rem;margin:0}
 .en{color:var(--muted);margin:0;width:100%}
 .photos{display:flex;flex-wrap:wrap;gap:.5rem;margin:.75rem 0}

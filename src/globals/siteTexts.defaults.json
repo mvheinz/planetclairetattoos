@@ -1,0 +1,174 @@
+{
+  "navigation": {
+    "menuTagline": {
+      "de": "Ein kleiner Planet in Berlin: Tinte, Ton und Linien, die zittern dürfen.",
+      "en": "A small planet in Berlin: ink, clay and lines that are allowed to tremble."
+    }
+  },
+  "footer": {
+    "tagline": {
+      "de": "Aus meinen Händen, in Berlin – jedes Stück gibt es nur einmal.",
+      "en": "From my hands, in Berlin – every piece exists only once."
+    },
+    "instagramLabel": {
+      "de": "Mein Instagram-Profil",
+      "en": "My Instagram profile"
+    }
+  },
+  "shop": {
+    "filterAll": {
+      "de": "Alle",
+      "en": "All"
+    },
+    "filterAvailableOnly": {
+      "de": "Nur verfügbare",
+      "en": "Available only"
+    },
+    "soldStamp": {
+      "de": "sold",
+      "en": "sold"
+    },
+    "reservedLabel": {
+      "de": "gerade reserviert – schau in 30 Minuten nochmal",
+      "en": "reserved right now – check back in 30 minutes"
+    },
+    "reservedPrepaymentLabel": {
+      "de": "reserviert – wartet auf Überweisung",
+      "en": "reserved – waiting for a bank transfer"
+    },
+    "uniqueHint": {
+      "de": "Unikat",
+      "en": "One of a kind"
+    },
+    "emptyCategory": {
+      "de": "In dieser Ecke ist gerade alles weitergezogen. Neue Stücke kommen bald.",
+      "en": "Everything in this corner has moved on for now. New pieces will arrive soon."
+    },
+    "archiveIntro": {
+      "de": "Weitergezogen, aber zu schön zum Vergessen.",
+      "en": "Moved on, but too lovely to forget."
+    }
+  },
+  "product": {
+    "addToCart": {
+      "de": "In den Korb",
+      "en": "Add to basket"
+    },
+    "shippingLinkLabel": {
+      "de": "zzgl. Versand",
+      "en": "plus shipping"
+    },
+    "manufacturerHeading": {
+      "de": "Herstellerin & Sicherheit",
+      "en": "Maker & safety"
+    },
+    "deviationHeading": {
+      "de": "Gut zu wissen",
+      "en": "Good to know"
+    },
+    "fiberHeading": {
+      "de": "Material",
+      "en": "Fabric"
+    },
+    "labelMissingHint": {
+      "de": "Das Originaletikett fehlt – die Angaben stammen von mir.",
+      "en": "The original label is missing – the details come from me."
+    }
+  },
+  "cart": {
+    "empty": {
+      "de": "Noch liegt nichts in deinem Korb.",
+      "en": "Nothing lies in your basket yet."
+    },
+    "countdown": {
+      "de": "Coco hütet dein Stück noch {time}",
+      "en": "Coco is guarding your piece for another {time}"
+    },
+    "reservationExpired": {
+      "de": "Die Reservierung ist abgelaufen – das Stück gehört wieder allen.",
+      "en": "The reservation has expired – the piece belongs to everyone again."
+    },
+    "pickupOption": {
+      "de": "Abholung in Berlin",
+      "en": "Pickup in Berlin"
+    },
+    "shippingOption": {
+      "de": "Versand",
+      "en": "Shipping"
+    }
+  },
+  "checkout": {
+    "intro": {
+      "de": "Gleich ist es so weit. Prüf noch einmal kurz deine Angaben.",
+      "en": "Nearly there. Look over your details once more."
+    },
+    "changeLink": {
+      "de": "ändern",
+      "en": "change"
+    }
+  },
+  "thanks": {
+    "heading": {
+      "de": "Danke dir.",
+      "en": "Thank you."
+    },
+    "intro": {
+      "de": "Deine Bestellung ist bei mir angekommen. Eine Bestätigung ist per Mail unterwegs.",
+      "en": "Your order has reached me. A confirmation is on its way by email."
+    }
+  },
+  "orderStatus": {
+    "intro": {
+      "de": "Hier siehst du, wo dein Stück gerade unterwegs ist.",
+      "en": "Here you can see where your piece is travelling right now."
+    },
+    "linkInvalid": {
+      "de": "Dieser Weg führt nirgendwohin mehr. Schreib mir gern eine Mail.",
+      "en": "This path no longer leads anywhere. Feel free to send me an email."
+    }
+  },
+  "withdrawal": {
+    "intro": {
+      "de": "Du möchtest einen Kauf widerrufen? Füll bitte die Felder aus – du bekommst sofort eine Eingangsbestätigung per Mail.",
+      "en": "Want to withdraw from a purchase? Please fill in the fields – you will get an immediate confirmation of receipt by email."
+    },
+    "done": {
+      "de": "Dein Widerruf ist eingegangen. Die Bestätigung ist per Mail unterwegs.",
+      "en": "Your withdrawal has been received. The confirmation is on its way by email."
+    }
+  },
+  "notFound": {
+    "heading": {
+      "de": "Diese Seite hat sich in den Nebel gezeichnet",
+      "en": "This page has drawn itself into the fog"
+    },
+    "intro": {
+      "de": "Coco ist der Linie nachgelaufen und nicht zurückgekommen. Diese Seite gibt es nicht (mehr).",
+      "en": "Coco followed the line and never came back. This page does not exist (anymore)."
+    }
+  },
+  "errors": {
+    "generic": {
+      "de": "Etwas hat sich verheddert. Atme kurz durch und versuch es gleich noch einmal.",
+      "en": "Something got tangled. Take a breath and try again in a moment."
+    },
+    "shopClosed": {
+      "de": "Der Shop schläft gerade – bestellen ist im Moment nicht möglich.",
+      "en": "The shop is asleep for now – ordering isn’t possible at the moment."
+    },
+    "alreadyReserved": {
+      "de": "Jemand war schneller – das Stück ist gerade reserviert und hält still.",
+      "en": "Someone was quicker – the piece is reserved right now and holding still."
+    }
+  },
+  "emails": {
+    "signature": {
+      "de": "Liebe Grüße von meinem kleinen Planeten\nJutta",
+      "en": "Warm greetings from my small planet\nJutta"
+    },
+    "inquiryResponseTime": {
+      "de": "Ich melde mich meist innerhalb einer Woche.",
+      "en": "I usually get back to you within a week."
+    }
+  }
+}

@@ -809,6 +809,7 @@ export const ART_PATHS: readonly { glob: string; why: string }[] = [
     why: 'Texte DE/EN – Länge der Stationstexte bestimmt das Handy-Layout',
   },
   { glob: 'src/globals/SiteTexts.ts', why: 'Standard-UI-Texte DE/EN' },
+  { glob: 'src/globals/siteTexts.defaults.json', why: 'Standard-UI-Texte DE/EN (U-89)' },
   {
     glob: 'content/seed/*/**',
     why: 'Beispielbestand: Stücke, Seiten, Tour, Fotos, Coco-Vorlagen (art-seed, SC-05, SC-15, SC-16)',

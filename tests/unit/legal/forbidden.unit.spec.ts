@@ -130,7 +130,9 @@ export function applyAllowlist(
   }
 }
 
-const files = [...listFiles('src'), ...listFiles('content')]
+/** Die Musterliste selbst (Quelle der Prüfung, U-89: auch beim Zurückspielen der Texte-Liste genutzt). */
+const PATTERN_SOURCES = new Set(['src/lib/legal/forbiddenContent.ts'])
+const files = [...listFiles('src'), ...listFiles('content')].filter((f) => !PATTERN_SOURCES.has(f))
 const findings = files.flatMap((f) =>
   scanText(f, readFileSync(path.join(ROOT, f), 'utf8'), patternsFor(f)),
 )

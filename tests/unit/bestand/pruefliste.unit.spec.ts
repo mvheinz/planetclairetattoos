@@ -33,6 +33,27 @@ describe('Prüfliste (dist/planet-claire-pruefliste.html)', async () => {
     expect(html).toMatch(/^<!doctype html>/)
   })
 
+  it('aus der Excel-Liste (U-86): verkauft, Metallteile und Juttas Notiz sichtbar', () => {
+    const [first, ...rest] = products
+    const edited = renderPruefliste({
+      products: [
+        {
+          ...first!,
+          sold: { date: '2026-10-11', priceCents: 3500, note: 'Markt' },
+          ownerNote: 'Preis prüfen',
+        },
+        ...rest,
+      ],
+      thumbs,
+      date: '11.10.2026',
+    })
+    const card = edited.slice(edited.indexOf(`id="${first!.key}"`), edited.indexOf('</article>'))
+    expect(card).toContain('<span class="sold">verkauft</span>')
+    expect(card).toContain('<dt>Verkauft</dt><dd>11.10.2026 35 € Markt</dd>')
+    expect(card).toContain('<dt>Deine Notiz</dt><dd>Preis prüfen</dd>')
+    expect(html).not.toContain('class="sold"')
+  })
+
   it('maskiert HTML in Texten', () => {
     expect(escapeHtml('<b>"A" & B</b>')).toBe('&lt;b&gt;&quot;A&quot; &amp; B&lt;/b&gt;')
   })
