@@ -65,8 +65,6 @@ const IDENTICAL_BY_NATURE = new Set([
   'email.orderShipped.carriers.deutsche_post',
   'email.withdrawalReceipt.name',
   'email.disputeVsbg.website',
-  'email.inquiryReceipt.budget',
-  'email.inquiryReceipt.empty',
   'email.inquiryReceipt.objectTypes.cap',
   'email.inquiryReceipt.objectTypes.shirt',
   'privacyExport.role.none',

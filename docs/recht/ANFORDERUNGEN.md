@@ -1509,7 +1509,9 @@ Lücken in der Nummerierung sind Reserve.
   privaten Speicher (`private-uploads`, R-136), Metadaten entfernt (R-135). Benachrichtigung an Jutta
   (`admin_inquiry_received`) nur mit Referenznummer, Gegenstand, Anzahl der Bilder und Admin-Link – **ohne** Namen,
   Freitext, Bilder oder E-Mail-Adresse. Automatische Antwort (`inquiry_receipt`, Baustein `inquiry.autoReply`):
-  Eingang, Referenz, „noch kein Vertrag, keine Zahlung“, Löschung nach 6 Monaten, Link Datenschutz – ohne Bilder.
+  Eingang, Referenz, „noch kein Vertrag, keine Zahlung“, Löschung nach 6 Monaten, Link Datenschutz – ohne Bilder und
+  ohne Freitexte der Anfrage (kein Name in der Anrede, keine Idee, kein Zeitraum, kein Budget; die Adresse ist ungeprüft,
+  P18.5).
   Löschung 6 Monate nach Eingang (LOESCHKONZEPT L-10).
 - **Rechtsgrundlage:** Art. 6 Abs. 1 lit. b, Art. 5 Abs. 1 lit. c, e, Art. 13 DSGVO; E-11. Kanzlei: K-25.
 - **Abnahme:** `e2e` – Absenden mit 5 Bildern klappt, 6. Bild abgelehnt; `int` – `GET /api/inquiries` ohne Admin →

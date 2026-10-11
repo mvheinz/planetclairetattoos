@@ -1487,10 +1487,13 @@ PayPal-Konto – sichtbar meist nach 5–10 Werktagen“ bzw. „per Überweisun
 dasselbe Zahlungsmittel, Dauer 5–10 Werktage, ohne Shop-Link (R-080; eine Einladung zum Weiterkaufen wäre Werbung in einer
 Transaktionsmail, P18.5). Keine Rechnung, kein Rabattcode (§13). Die Webseite „Leider schon weg“ behält ihren Shop-Link.
 
-**M11 Anfrage-Bestätigung:** Referenz, Zusammenfassung (Gegenstand, Idee-Text, Wunschzeitraum, Budget, **Anzahl** der Bilder
-– nie die Bilder selbst), Antwortzeit-Satz (Baustein, Standard „Ich melde mich meist innerhalb einer Woche.“ [Annahme]),
-„Angebot und Bezahlung laufen per Mail, nicht über den Shop“, Datenschutz-Kurzinfo „Deine Anfrage und Bilder werden
-spätestens 6 Monate nach Eingang gelöscht“ mit Link R22.
+**M11 Anfrage-Bestätigung:** Anrede ohne Namen („Hallo,“), Referenz, Eingang, Gegenstand (nur die feste Auswahl, bei
+„Etwas anderes“ ohne den Freitext), **Anzahl** der Bilder – nie die Bilder selbst –, Antwortzeit-Satz (Baustein, Standard
+„Ich melde mich meist innerhalb einer Woche.“ [Annahme]), „Angebot und Bezahlung laufen per Mail, nicht über den Shop“,
+Datenschutz-Kurzinfo „Deine Anfrage und Bilder werden spätestens 6 Monate nach Eingang gelöscht“ mit Link R22.
+**Keine Freitexte** (Name, Idee, Wunschzeitraum, Budget): Die Adresse ist ungeprüft, sonst ließe sich das Formular
+nutzen, um beliebigen Text über Juttas Absender an fremde Adressen zu schicken, und eine vertippte Adresse bekäme
+persönliche Angaben (P18.5, Art. 5 Abs. 1 lit. c, f DSGVO; Rückbau siehe `src/lib/email/templates/inquiry.ts`).
 
 **M12 Reklamation: Reparatur oder Ersatz** (R-111, für Kaufverträge ab 31.07.2026): Bestellnummer, betroffene Stücke,
 Eingang der Reklamation, Baustein `complaint.repairChoice` (Wahlrecht Reparatur/Ersatzlieferung, bei Unikaten ist Ersatz in
