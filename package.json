@@ -47,6 +47,7 @@
     "bestand:pruefliste": "cross-env NODE_OPTIONS=\"--no-deprecation --import=./scripts/lib/register-server-only.mjs\" tsx scripts/bestand/pruefliste.ts",
     "pflege:export": "cross-env NODE_OPTIONS=\"--no-deprecation --import=./scripts/lib/register-server-only.mjs\" tsx scripts/pflege/index.ts export",
     "pflege:import": "cross-env NODE_OPTIONS=\"--no-deprecation --import=./scripts/lib/register-server-only.mjs\" tsx scripts/pflege/index.ts import",
+    "pflege:ansichten": "cross-env NODE_OPTIONS=\"--no-deprecation --import=./scripts/lib/register-server-only.mjs\" tsx scripts/pflege/ansichten.ts",
     "media:regenerate": "tsx --import=./scripts/lib/register-server-only.mjs scripts/media-regenerate.ts",
     "seed:reset": "cross-env NODE_OPTIONS=\"--no-deprecation --import=./scripts/lib/register-server-only.mjs\" payload run scripts/seed/cli.ts -- reset",
     "jobs:run": "tsx --import=./scripts/lib/register-server-only.mjs scripts/jobs-run.ts",

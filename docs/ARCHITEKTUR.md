@@ -33,6 +33,7 @@
 13. [Docker-Exit-Pfad](#13-docker-exit-pfad)
 14. [Single-File-Vorschau – Werkzeug](#14-single-file-vorschau--werkzeug)
 15. [Coding-Konventionen](#15-coding-konventionen)
+16. [Pflege per Excel](#16-pflege-per-excel)
 - [Anhang A – Namensabgleich mit anderen Dokumenten](#anhang-a--namensabgleich-mit-anderen-dokumenten)
 - [Anhang B – Spikes mit Rückfallebene](#anhang-b--spikes-mit-rückfallebene)
 - [Anhang C – Annahmen und offene Punkte](#anhang-c--annahmen-und-offene-punkte)
@@ -2691,6 +2692,55 @@ und für `any` in handgeschriebenem Code (Unit-Test `tests/unit/lint/rules.unit.
 und virtuellen Dateipfaden unter `src/` auf; keine absichtlich fehlerhaften Dateien im Repo).
 **AK-A-15-02** Jede Datei unter `src/behaviors/` exportiert `mount(root, ctx?)` mit Rückgabe `unmount` und ist in
 `src/behaviors/index.ts` registriert (Unit-Test).
+
+---
+
+## 16. Pflege per Excel
+
+Jutta pflegt Bestand und Texte dauerhaft über Excel-Listen, die sie auf dem iPad mit Numbers oder Excel bearbeitet
+(UEBERARBEITUNG U-85–U-90, PLAN P18/P19). Vor dem Start sind die Repo-Dateien der Stand; nach dem Start die Datenbank
+(P19: Herunter- und Hochladen in der Verwaltung).
+
+### 16.1 Bausteine
+
+| Ort | Aufgabe |
+|---|---|
+| `src/lib/pflege/cells.ts` | Zellwerte normalisiert vergleichen (`12,5` = `12.5`, `\r\n` = `\n`, Excel-Datum = Kalendertag) |
+| `src/lib/pflege/merge.ts` | Dreiwege-Entscheidung je Zelle (`keep` / `apply` / `conflict`), gemeinsamer Bericht (`PflegeReport`) |
+| `src/lib/pflege/snapshot.ts` | Listen-Nr. `B-JJJJ-MM-TT-xxxxxx` / `T-…` (Art, Berliner Tag, Prüfsumme) und gemerkter Stand |
+| `src/lib/pflege/repoStore.ts` | Stand vor dem Start: `content/pflege/stand/<Listen-Nr.>.json` (**committen**) |
+| `src/lib/pflege/workbook.ts` | Lesen: Tabellen über die Überschriften finden (erste 10 Zeilen, jedes Blatt), Listen-Nr. in Zellen, Kommentaren, Dateieigenschaften oder Dateiname; nur `.xlsx` |
+| `src/lib/bestand/excel*.ts` | Bestandsliste: Spalten (letzte: „Verkauft“), Zeile je Stück, Rückweg, `keepValid` (ungültiges Stück bleibt alt) |
+| `src/lib/texte/*.ts` | Texte-Liste: Einträge mit fester Kennung, Platzhalter-Prüfung, Rückweg per Kennung |
+| `scripts/pflege/` | `pnpm pflege:export [bestand\|texte]`, `pnpm pflege:import <datei.xlsx> [--trocken] [--ohne-stand]` |
+
+### 16.2 Regeln
+
+1. **Listen-Nr. und gemerkter Stand:** Beim Ausgeben wird je Zeile der Wert jeder Spalte gemerkt. Beim Zurückspielen gilt
+   je Zelle: gleich wie jetzt → nichts; gleich wie gemerkt → nichts (Jutta hat sie nicht geändert); sonst, wenn jetzt noch
+   wie gemerkt → übernehmen; sonst **Rückfrage** („Bitte entscheiden“), nichts überschrieben. Dadurch setzt eine ältere
+   Liste nichts zurück, und dieselbe Liste zweimal ändert nichts zusätzlich.
+2. **Ohne gemerkten Stand** (Listen-Nr. fehlt, Stand nicht committet): Vergleich mit dem jetzigen Stand, aber
+   `pflege:import` schreibt nur mit `--ohne-stand` (Exit-Code 3 sonst) – eine alte Liste könnte sonst Neueres zurücksetzen.
+3. **Geprüft vor dem Schreiben:** Bestand mit `bestandSchema` (ein ungültiges Stück bleibt auf dem alten Stand, Meldung);
+   Texte: Pflichttext, Höchstlänge der Verwaltungsfelder, Platzhalter (`{name}`, Mehrzahl-Fälle, `<link>…</link>`),
+   Verbotsliste RECHT §5 (`src/lib/legal/forbiddenContent.ts`, nur neue Treffer). Kategorie-Wechsel, neue Stücke und
+   neue Texte werden nie automatisch übernommen, nur gemeldet.
+4. **Texte-Liste – Umfang:** `src/i18n/messages` ohne `legal`, `withdraw`, `privacyExport`, `qa`, `previewExport`;
+   Standardtexte der Verwaltung (`src/globals/siteTexts.defaults.json`, von `SiteTexts.ts` als `defaultValue` gesetzt);
+   Seed-Seiten außer „Widerruf“ und „Konformität“, Fragen, Kategorien, drei Einstellungstexte. Nie: `slug`, Pflicht-
+   Warnhinweise. Nur zum Lesen: Namen der Rechtsseiten (`common.routes.R21–R27`) und Texte mit „Vertrag widerrufen“ /
+   „Zahlungspflichtig bestellen“.
+5. **„Verkauft“** (U-86): Datum (auch Excel-Datum, „11.10.“), „ja“, Preis („35 €“) und Notiz → `sold` in
+   `content/bestand/products.json`. `bestand:import` legt so ein Stück als Markt-Verkauf an (Status `sold`, Weg `offline`,
+   Verkaufstag 12:00 UTC, erzielter Preis sonst Listenpreis → Umsatz-Wächter, nicht im Archiv, Audit
+   `product_offline_sold`) – auch in der Vorschau-Datei nie „verfügbar“.
+6. **Englisch** (U-00): Ändert Jutta nur das Deutsche, nennt der Bericht die Stelle unter „Englisch zu ergänzen“; die
+   Sitzung schreibt das Englische vor dem Commit.
+7. **Dateien:** geschrieben wird nur, was sich ändert; Format wie im Repo (`content/` ohne Prettier, sonst Prettier), damit
+   der Diff nur die geänderten Texte zeigt. Bericht: `dist/pflege/bericht-<Listen-Nr.>.md`.
+
+Ablauf für Sitzungen: RUNBOOK §15. Anleitung für Jutta: `docs/owner/IPAD.md`.
 
 ---
 

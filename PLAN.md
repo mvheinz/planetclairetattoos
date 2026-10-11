@@ -5679,15 +5679,29 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-78–U-84. Gilt für Handy und Desktop, 
 
 ## P18 – Arbeiten vom iPad: Excel-Listen und Ansichten (11.10.2026)
 
-Verbindlich: `docs/UEBERARBEITUNG.md` U-85–U-88. Erst nach P17 (Juttas Wunsch).
+Verbindlich: `docs/UEBERARBEITUNG.md` U-85–U-90. Erst nach P17 (Juttas Wunsch). Die Listen sind Juttas dauerhafter Pflegeweg (U-89):
+gemeinsamer Kern in `src/lib/pflege/` (Listen-Nr., gemerkter Stand, Dreiwege-Abgleich, Tabellensuche für Numbers/Excel).
 
 - [ ] **P18.1 Bestandsliste als Excel** (U-85, U-86) – Export mit Fotos, Rückweg in `content/bestand/products.json`, Spalte „Verkauft“.
-  - Akzeptanz: Unit (Export–Import ohne Änderung = keine Änderung; geänderte Zellen übernommen; ungültige Werte gemeldet; „Verkauft“ wird zum Markt-Verkauf).
+  - Akzeptanz: Unit (Export–Import ohne Änderung = keine Änderung; geänderte Zellen übernommen; ungültige Werte gemeldet; „Verkauft“ wird zum Markt-Verkauf; Listen-Nr. und Stand-Abgleich: ältere Liste setzt nichts zurück, dieselbe Zelle hier und dort geändert = Rückfrage; Numbers-Varianten: Blatt umbenannt, Spalten verschoben, Kopfzeile nicht in Zeile 1), Int (Import legt verkaufte Stücke als Markt-Verkauf an).
 - [ ] **P18.2 Webseitentexte als Excel** (U-87) – Export aller Texte DE/EN nach Bereichen, Rückweg in Sprachdateien und Seiteninhalte, Platzhalter geprüft.
-  - Akzeptanz: Unit (Rundweg ohne Änderung, Platzhalter-Schutz, nur geänderte Zellen).
+  - Akzeptanz: Unit (Rundweg ohne Änderung, Platzhalter-Schutz, nur geänderte Zellen, Stand-Abgleich wie P18.1).
 - [ ] **P18.3 Ansichten fürs iPad** (U-88) – Katalog als PDF, Rundgang der Internetseite als PDF, Anleitung fürs iPad.
   - Akzeptanz: PDFs erzeugt und geprüft (Seitenzahl, Bilder), Anleitung in `docs/owner/`.
 - [ ] **P18.4 Abschluss P18** – Prüfschleuse, Merge, Dateien an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
+
+## P19 – Pflege per Excel dauerhaft: in der Verwaltung (11.10.2026)
+
+Verbindlich: `docs/UEBERARBEITUNG.md` U-89, U-90. Für die Zeit nach dem Start (dann ist die Datenbank der Stand, nicht
+`content/bestand/`); vor P11 mit Test-Datenbank geprüft.
+
+- [ ] **P19.1 Bestandsliste in der Verwaltung** (U-89 d) – „Liste herunterladen“ (aus der Datenbank, mit Fotos; Status im Shop nur zum Lesen) und „Liste hochladen“ → Vorschau (übernommen / bitte entscheiden / nicht möglich) → „Übernehmen“. „Verkauft“ läuft über die Aktion „Offline verkauft“ (Statusautomat, Umsatz-Wächter); Stand je Liste in der Datenbank.
+  - Akzeptanz: Int (Ausgabe aus der Datenbank, Rückweg, Rückfrage bei Konflikt, Verkauft über Übergang, nur Verwaltung, Größen-/Dateiprüfung), E2E (Herunter- und Hochladen in der Verwaltung, iPad-Breite).
+- [ ] **P19.2 Seiten- und FAQ-Texte in der Verwaltung** (U-89 d) – Texte-Liste aus der Datenbank herunterladen/hochladen; Änderungen an festen Programmtexten nennt der Bericht („bitte an Claude schicken“).
+  - Akzeptanz: Int (Rundweg, Platzhalter-/Pflichtprüfung, Konflikt), E2E (Hochladen, Bericht).
+- [ ] **P19.3 Ablauf und Anleitungen** (U-89 e) – RUNBOOK „Jutta schickt eine Excel-Liste“ (vor und nach dem Start), HANDBUCH/`docs/owner/` für die Verwaltung.
+  - Akzeptanz: Doku-Prüfung (Links, Befehle existieren).
+- [ ] **P19.4 Abschluss P19** – Prüfschleuse, Merge, Eintrag in `docs/FORTSCHRITT.md`.
 
 ## P11 – Go-live gemeinsam mit Jutta
 

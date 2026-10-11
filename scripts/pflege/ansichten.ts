@@ -1,0 +1,324 @@
+// Ansichten fürs iPad (U-88, PLAN P18.3): zwei PDFs zum Ansehen und Weiterschicken per Mail.
+//   pnpm pflege:ansichten [katalog|rundgang]
+//   → dist/pflege/planet-claire-katalog-<Tag>.pdf   alle noch nicht verkauften Stücke aus content/bestand (Foto, Name,
+//                                                   Preis, Maße, Material, Beschreibung; ohne interne Prüfpunkte)
+//   → dist/pflege/planet-claire-rundgang-<Tag>.pdf  Bildschirmfotos der wichtigsten Seiten (Handy und großer
+//                                                   Bildschirm) aus dist/planet-claire-vorschau.html (vorher
+//                                                   `pnpm preview:export`). Ohne Vorschau-Banner, ohne Tattoo-Galerie;
+//                                                   Fotos von Kund:innen (Galerie-Einträge) sind ausgeblendet.
+// Beide offline erzeugt (Chromium von Playwright), Schriften der Seite eingebettet.
+import { existsSync } from 'node:fs'
+import { mkdir, readFile } from 'node:fs/promises'
+import path from 'node:path'
+import { pathToFileURL } from 'node:url'
+
+import { chromium, type Browser, type BrowserContextOptions } from '@playwright/test'
+import sharp from 'sharp'
+
+import { bestandPhotoPath, loadBestand } from '../../src/lib/bestand/schema'
+import { berlinDay } from '../../src/lib/pflege/snapshot'
+
+import { CATEGORY_LABEL_DE, catalogFacts } from './ansichtenText'
+
+export const ANSICHTEN_OUT = path.join('dist', 'pflege')
+const PREVIEW_FILE = path.join('dist', 'planet-claire-vorschau.html')
+const PREVIEW_REPORT = path.join('dist', 'planet-claire-vorschau.report.json')
+
+const germanDate = (d: Date) =>
+  new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin' }).format(d)
+
+const escapeHtml = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
+async function fontFaces(root: string): Promise<string> {
+  const font = async (rel: string) =>
+    (await readFile(path.join(root, 'node_modules', rel))).toString('base64')
+  const spectral = (w: number, style: string) =>
+    font(`@fontsource/spectral/files/spectral-latin-${w}-${style}.woff2`)
+  return `
+@font-face{font-family:Spectral;font-weight:400;font-style:normal;src:url(data:font/woff2;base64,${await spectral(400, 'normal')}) format('woff2')}
+@font-face{font-family:Spectral;font-weight:600;font-style:normal;src:url(data:font/woff2;base64,${await spectral(600, 'normal')}) format('woff2')}
+@font-face{font-family:Spectral;font-weight:400;font-style:italic;src:url(data:font/woff2;base64,${await spectral(400, 'italic')}) format('woff2')}
+@font-face{font-family:Bricolage;font-weight:200 800;src:url(data:font/woff2;base64,${await font('@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2')}) format('woff2-variations')}`
+}
+
+const BASE_CSS = `
+:root{--ink:#1C1A17;--ink-2:#4B463F;--paper:#FFFFFF;--line:#C9CBB0;--accent:#8a2e2e}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font:10.5pt/1.45 Bricolage,system-ui,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+h1,h2,h3{font-family:Spectral,Georgia,serif;font-weight:600;margin:0}
+.muted{color:var(--ink-2)}
+`
+
+async function renderPdf(
+  browser: Browser,
+  html: string,
+  out: string,
+  footer: string,
+): Promise<void> {
+  const page = await browser.newPage()
+  await page.setContent(html, { waitUntil: 'load' })
+  await page.evaluate(() => document.fonts.ready)
+  await page.pdf({
+    path: out,
+    format: 'A4',
+    printBackground: true,
+    margin: { top: '12mm', right: '12mm', bottom: '16mm', left: '12mm' },
+    displayHeaderFooter: true,
+    headerTemplate: '<span></span>',
+    footerTemplate: `<div style="font:8px sans-serif;color:#4B463F;width:100%;padding:0 12mm;display:flex;justify-content:space-between"><span>${escapeHtml(footer)}</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>`,
+  })
+  await page.close()
+}
+
+export async function katalog(root: string, browser: Browser, now: Date): Promise<string> {
+  const products = (await loadBestand(root))
+    .filter((p) => !p.sold)
+    .sort((a, b) => a.itemNumber - b.itemNumber)
+  const base = JSON.parse(
+    await readFile(path.join(root, 'content/seed/data/base.json'), 'utf8'),
+  ) as {
+    settings: { business: { tradeName: string; legalName: string; city: string; email: string } }
+  }
+  const tagline = (
+    JSON.parse(await readFile(path.join(root, 'src/globals/siteTexts.defaults.json'), 'utf8')) as {
+      footer: { tagline: { de: string } }
+    }
+  ).footer.tagline.de
+  const cards: string[] = []
+  for (const p of products) {
+    const img = await sharp(await readFile(bestandPhotoPath(root, p.images[0]!.file)))
+      .resize(600, 500, { fit: 'cover' })
+      .jpeg({ quality: 74, mozjpeg: true })
+      .toBuffer()
+    const f = catalogFacts(p)
+    cards.push(`<article>
+<img src="data:image/jpeg;base64,${img.toString('base64')}" alt="${escapeHtml(p.images[0]!.alt.de)}">
+<div class="meta"><span class="nr">Nr. ${p.itemNumber}</span><span class="cat">${escapeHtml(CATEGORY_LABEL_DE[p.category] ?? p.category)}</span></div>
+<h2>${escapeHtml(p.title.de)}</h2>
+<p class="price">${escapeHtml(f.price)}</p>
+<p class="facts">${f.facts.map(escapeHtml).join(' · ')}</p>
+<p class="desc">${escapeHtml(f.description)}</p>
+</article>`)
+  }
+  const b = base.settings.business
+  const stand = germanDate(now)
+  const html = `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Planet Claire – Katalog</title><style>
+${await fontFaces(root)}
+${BASE_CSS}
+.cover{padding:0 0 4mm;border-bottom:1.5px solid var(--ink);margin-bottom:5mm}
+.cover h1{font-size:28pt;line-height:1.05}
+.cover .claim{font-family:Spectral,serif;font-style:italic;font-size:13pt;margin:2mm 0 3mm}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:5mm 8mm}
+article{break-inside:avoid;page-break-inside:avoid}
+article img{width:100%;aspect-ratio:6/5;object-fit:cover;border-radius:3px;display:block;background:#ddd}
+.meta{display:flex;justify-content:space-between;margin-top:2mm;font-size:8.5pt;color:var(--ink-2);letter-spacing:.03em;text-transform:uppercase}
+.nr{color:var(--accent);font-weight:600}
+article h2{font-size:13pt;line-height:1.2;margin:1mm 0}
+.price{font-weight:700;margin:0 0 1mm}
+.facts{font-size:9pt;color:var(--ink-2);margin:0 0 1mm}
+.desc{font-size:9pt;margin:0}
+.end{margin-top:8mm;font-size:9pt;color:var(--ink-2)}
+</style></head><body>
+<header class="cover"><h1>${escapeHtml(b.tradeName)}</h1><p class="claim">${escapeHtml(tagline)}</p>
+<p class="muted">Katalog · Stand ${stand} · ${products.length} Stücke · Preise zzgl. Versand, Abholung in ${escapeHtml(b.city)} nach Absprache</p></header>
+<section class="grid">${cards.join('\n')}</section>
+<p class="end">${escapeHtml(b.tradeName)} · ${escapeHtml(b.legalName)} · ${escapeHtml(b.city)} · ${escapeHtml(b.email)} · planetclairetattoos.com</p>
+</body></html>`
+  const out = path.join(root, ANSICHTEN_OUT, `planet-claire-katalog-${berlinDay(now)}.pdf`)
+  await renderPdf(browser, html, out, `${b.tradeName} · Katalog · Stand ${stand}`)
+  return out
+}
+
+/** Seiten des Rundgangs (ohne Tattoo-Galerie: Fotos von Kund:innen). */
+export const RUNDGANG_ROUTES: readonly { route: string; title: string }[] = [
+  { route: '/de', title: 'Startseite' },
+  { route: '/de/shop', title: 'Shop' },
+  { route: '/de/shop/kategorie/keramik', title: 'Shop – Keramik' },
+  { route: 'PRODUCT', title: 'Ein Stück' },
+  { route: '/de/tattoo', title: 'Tattoo' },
+  { route: '/de/tattoo/flash', title: 'Tattoo – Flash' },
+  { route: '/de/auftragsarbeiten', title: 'Auftragsarbeiten' },
+  { route: '/de/ueber-mich', title: 'Über mich & Coco' },
+  { route: '/de/kontakt', title: 'Kontakt' },
+]
+
+/** Für die Fotos: Banner weg, Galerie-Fotos (Kund:innen) verdeckt, keine Bewegung. */
+export const RUNDGANG_CSS = `#pv-banner{display:none!important}
+[data-gallery-entry] img,[data-gallery-entry] picture{visibility:hidden!important}
+[data-gallery-entry]{background:#d6d3c2!important}`
+
+const DEVICES: { key: string; label: string; options: BrowserContextOptions }[] = [
+  {
+    key: 'desktop',
+    label: 'Großer Bildschirm',
+    options: { viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1 },
+  },
+  {
+    key: 'handy',
+    label: 'Handy',
+    options: {
+      viewport: { width: 390, height: 844 },
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    },
+  },
+]
+
+/** Seiteninhalt A4 (186 × 269 mm) minus Kopfzeile: 186 × 255 mm für die Bilder. */
+const DESK_WIDTH = 1100
+const PHONE_WIDTH = 700
+const DESK_SLICE = Math.floor((DESK_WIDTH * 254) / 186)
+const PHONE_SLICE = Math.floor((PHONE_WIDTH * 254) / ((186 - 10) / 3))
+
+/** Langes Bildschirmfoto in gleich hohe Streifen schneiden, keiner höher als eine Seite (JPEG, Base64). */
+async function slices(png: Buffer, maxHeight: number): Promise<string[]> {
+  const { width = 0, height: total = 0 } = await sharp(png).metadata()
+  const n = Math.max(1, Math.ceil(total / maxHeight))
+  const height = Math.ceil(total / n)
+  const out: string[] = []
+  for (let top = 0; top < total; top += height) {
+    const jpg = await sharp(png)
+      .extract({ left: 0, top, width, height: Math.min(height, total - top) })
+      .jpeg({ quality: 68, mozjpeg: true })
+      .toBuffer()
+    out.push(jpg.toString('base64'))
+  }
+  return out
+}
+
+export async function rundgang(root: string, browser: Browser, now: Date): Promise<string> {
+  const file = path.join(root, PREVIEW_FILE)
+  if (!existsSync(file))
+    throw new Error(`${PREVIEW_FILE} fehlt – erst \`pnpm preview:export\` ausführen.`)
+  const report = JSON.parse(await readFile(path.join(root, PREVIEW_REPORT), 'utf8')) as {
+    routes: { route: string; lang: string }[]
+  }
+  const products = (await loadBestand(root)).filter((p) => !p.sold && p.category === 'keramik')
+  const productRoute = report.routes.find(
+    (r) => products[0] && r.route.startsWith(`/de/shop/${products[0].itemNumber}-`),
+  )?.route
+  const routes = RUNDGANG_ROUTES.map((r) =>
+    r.route === 'PRODUCT' ? { ...r, route: productRoute ?? '/de/shop' } : r,
+  )
+  const url = pathToFileURL(file).href
+  const shots = new Map<string, Buffer>()
+  for (const d of DEVICES) {
+    const ctx = await browser.newContext({ ...d.options, reducedMotion: 'reduce', locale: 'de-DE' })
+    const page = await ctx.newPage()
+    await page.goto(`${url}#/de`)
+    for (const r of routes) {
+      await page.evaluate((h) => {
+        window.location.hash = `#${h}`
+      }, r.route)
+      await page.waitForFunction(
+        (h) => document.querySelector(`template[data-route="${h}"]`) !== null,
+        r.route,
+      )
+      await page.locator('#pv-root h1').first().waitFor()
+      await page.addStyleTag({ content: RUNDGANG_CSS })
+      // Bilder sofort laden (sonst fehlen sie unterhalb der ersten Ansicht)
+      await page.locator('#pv-root img').evaluateAll((imgs) => {
+        for (const img of imgs) (img as HTMLImageElement).loading = 'eager'
+      })
+      await page.evaluate(async () => {
+        for (let y = 0; y < document.body.scrollHeight; y += 600) {
+          window.scrollTo(0, y)
+          await new Promise((res) => setTimeout(res, 40))
+        }
+        window.scrollTo(0, 0)
+      })
+      await page
+        .waitForFunction(
+          () =>
+            [...document.querySelectorAll<HTMLImageElement>('#pv-root img')].every(
+              (i) => i.complete,
+            ),
+          undefined,
+          { timeout: 10_000 },
+        )
+        .catch(() => undefined)
+      await page.waitForTimeout(500)
+      const png = await page.screenshot({ fullPage: true, type: 'png' })
+      const width = d.key === 'desktop' ? DESK_WIDTH : PHONE_WIDTH
+      shots.set(
+        `${d.key}:${r.route}`,
+        await sharp(png).resize({ width, withoutEnlargement: true }).png().toBuffer(),
+      )
+    }
+    await ctx.close()
+  }
+  const stand = germanDate(now)
+  const img = (b64: string) => `<img src="data:image/jpeg;base64,${b64}" alt="">`
+  const head = (title: string, what: string, i: number, n: number) =>
+    `<h2>${escapeHtml(title)} <span>${what}${n > 1 ? ` · ${i + 1}/${n}` : ''}</span></h2>`
+  const sections: string[] = []
+  for (const r of routes) {
+    // Großer Bildschirm: ein Streifen je Seite; Handy: drei Streifen nebeneinander je Seite (wie Zeitungsspalten)
+    const desk = await slices(shots.get(`desktop:${r.route}`)!, DESK_SLICE)
+    desk.forEach((b64, i) =>
+      sections.push(
+        `<section>${head(r.title, 'Großer Bildschirm', i, desk.length)}<div class="desk">${img(b64)}</div></section>`,
+      ),
+    )
+    const phone = await slices(shots.get(`handy:${r.route}`)!, PHONE_SLICE)
+    const pages = Math.ceil(phone.length / 3)
+    for (let i = 0; i < pages; i++)
+      sections.push(
+        `<section>${head(r.title, 'Handy', i, pages)}<div class="cols">${phone
+          .slice(i * 3, i * 3 + 3)
+          .map(img)
+          .join('')}</div></section>`,
+      )
+  }
+  const html = `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Planet Claire – Rundgang</title><style>
+${await fontFaces(root)}
+${BASE_CSS}
+.cover{padding:4mm 0 6mm;border-bottom:1.5px solid var(--ink);margin-bottom:4mm}
+.cover h1{font-size:26pt}
+section{break-before:page}
+.toc{font-size:12pt;line-height:1.9;padding-left:1.2em}
+section h2{font-size:14pt;margin:0 0 3mm;height:8mm}
+section h2 span{font-family:Bricolage,sans-serif;font-weight:400;font-size:9pt;color:var(--ink-2);text-transform:uppercase;letter-spacing:.04em;margin-left:2mm}
+.desk img{width:100%;display:block;border:1px solid var(--line)}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:5mm;align-items:start}
+.cols img{width:100%;display:block;border:1px solid var(--line)}
+</style></head><body>
+<header class="cover"><h1>Planet Claire – Rundgang</h1>
+<p class="muted">So sieht die Seite gerade aus (Stand ${stand}, noch nicht online). Je Seite links der große Bildschirm, rechts das Handy. Inhalte teils Beispiele; Fotos von Kund:innen sind ausgeblendet.</p></header>
+<ol class="toc">${routes.map((r) => `<li>${escapeHtml(r.title)}</li>`).join('')}</ol>
+${sections.join('\n')}
+</body></html>`
+  const out = path.join(root, ANSICHTEN_OUT, `planet-claire-rundgang-${berlinDay(now)}.pdf`)
+  await renderPdf(browser, html, out, `Planet Claire · Rundgang · Stand ${stand}`)
+  return out
+}
+
+async function main(argv: readonly string[]): Promise<void> {
+  const root = process.cwd()
+  const now = new Date()
+  const which = argv.filter((a) => a === 'katalog' || a === 'rundgang')
+  const kinds = which.length ? which : ['katalog', 'rundgang']
+  await mkdir(path.join(root, ANSICHTEN_OUT), { recursive: true })
+  const browser = await chromium.launch()
+  try {
+    for (const k of kinds) {
+      const out =
+        k === 'katalog' ? await katalog(root, browser, now) : await rundgang(root, browser, now)
+      const size = (await readFile(out)).length
+      console.log(`${path.relative(root, out)} (${(size / 1024 / 1024).toFixed(1)} MB)`)
+    }
+  } finally {
+    await browser.close()
+  }
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  try {
+    await main(process.argv.slice(2))
+  } catch (e) {
+    console.error(e instanceof Error ? e.message : e)
+    process.exitCode = 1
+  }
+}

@@ -340,6 +340,10 @@ und Zahlung) sind etwas Besonderes:
 
 Schreibe in Rechtstexten nie selbst um, was die Kanzlei geliefert hat.
 
+**Lieber mit Listen?** Bestand und alle Texte der Seite kannst du auch als Excel-Liste bearbeiten – vom iPad, mit der
+kostenlosen App Numbers. Wie das geht, steht in `docs/owner/IPAD.md` (Listen holen, ändern, zurückschicken). Ändert sich
+dasselbe Feld an zwei Stellen, wird nichts überschrieben, sondern nachgefragt.
+
 ## 12. Einstellungen
 
 ![Die Ansicht „Einstellungen“](img/handbuch/einstellungen.webp)
