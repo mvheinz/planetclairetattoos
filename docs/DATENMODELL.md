@@ -2005,7 +2005,7 @@ Geschrieben ausschließlich über `writeAudit(req, entry)` (`src/lib/audit.ts`, 
 | `snippetKey` / `snippetVersion` | text | S | Bausteinschlüssel (z. B. `checkout.dhlEmailConsent`) und Version (`draft-1` bis P6, danach `legal-snippets.version`) – R-101 „snippetVersionId“ |
 | `locale` | select `de`, `en` | R | – |
 | `email` | email | R | – |
-| `checkout` / `order` / `inquiry` / `product` | relationship | – | erfasst bei `submitCheckout` mit `checkout`; `order` wird bei der Bestellanlage ergänzt (`createOrderFromCheckout`, gleiche Transaktion; `retainUntil` folgt dann der Bestellung, P18.5); `product` bei `deviation_agreement` |
+| `checkout` / `order` / `inquiry` / `product` | relationship | – | erfasst bei `submitCheckout` mit `checkout`; `order` wird bei der Bestellanlage ergänzt (`createOrderFromCheckout`, gleiche Transaktion, nur Einträge des maßgeblichen Absendens mit `createdAt = submittedAt` – frühere Versuche bleiben an der Kasse und gehen mit ihr nach L-03; `retainUntil` folgt dann der Bestellung, P18.5); `product` bei `deviation_agreement` |
 | `withdrawnAt` | date | – | Widerruf der Einwilligung (nur `carrier_email_forwarding`) |
 | `retainUntil` | date | S, R | = Bezugsobjekt (L-19 a: mit der Bestellung, Stufe D); ohne Bestellung wie die Kasse (30 Tage) · `retentionConsentEvidence` |
 | `seed` / `seedKey` | `seedField()` | S | – |

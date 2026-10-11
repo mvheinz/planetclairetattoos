@@ -158,7 +158,8 @@ Reparatur + 12 Monate) und die regelmäßige Verjährung (3 Jahre ab Jahresende,
   kein gelöschter Eintrag ein Bild öffentlich hält. Die Nachweisdatei bekommt ihre Frist (3 Jahre ab Widerruf bzw. ab
   dem Löschen) und wird danach gelöscht.
 - DHL-Einwilligung und Abweichungsvereinbarung hängen ab der Bestellanlage an der Bestellung (`consent-log.order`,
-  P18.5) und folgen damit Stufe D; das Löschen der Kasse nach L-03 lässt sie stehen.
+  P18.5) und folgen damit Stufe D; das Löschen der Kasse nach L-03 lässt sie stehen. Einträge früherer, nicht
+  bezahlter Absende-Versuche derselben Kasse gehören nicht zum Vertrag und gehen mit der Kasse (L-03).
 
 ### 3.6 Backups und Wiederherstellung (L-23)
 
