@@ -2,6 +2,62 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-11 – P18.5 Datenschutz- und AGB-Prüfung – für Jutta
+
+Hallo Jutta,
+
+du hattest gebeten, die Seite noch einmal auf Datenschutz- und AGB-Probleme zu prüfen. Mehrere Prüfer haben unabhängig
+gesucht, jeder Fund wurde gegengeprüft. Übrig blieben 32 echte Punkte – alle sind behoben. Die wichtigsten in einfachen
+Worten:
+
+- **Nachweise bleiben, solange sie gebraucht werden:** Dass eine Kundin der Weitergabe ihrer E-Mail an DHL zugestimmt
+  oder eine Abweichung (z. B. kleiner Kratzer) ausdrücklich angenommen hat, wurde bisher nach 30 Tagen gelöscht. Jetzt
+  bleibt es so lange wie die Bestellung.
+- **Fehlermeldungen ohne Kundendaten:** Wenn intern etwas schiefgeht, landen Namen und Adressen nicht mehr in den
+  Fehlerprotokollen.
+- **Rechtstexte stimmen mit der Seite überein:** Instagram wird nirgends mehr als Weg für Anfragen genannt (nur E-Mail).
+  In den AGB stehen keine festen Zahlen mehr, die du in den Einstellungen ändern kannst (z. B. die 30 Minuten
+  Reservierung). Der Bestellstatus-Link gilt ehrlich „bis 180 Tage nach Abschluss“ statt „jederzeit“.
+- **Mails:** Die „Leider schon weg“-Mail lädt nicht mehr zum Weiterkaufen ein (das wäre Werbung). Die automatische
+  Antwort auf eine Auftragsanfrage ist kurz und ohne den Text der Anfrage – so wie du es ausgesucht hast. Bei Abholung
+  steht jetzt auch in der Bestellbestätigung, wann die Bestellung abholbereit ist.
+- **Kasse:** Bei Textilien und Caps steht direkt beim Bestellen „Second-Hand, von Hand bemalt“. Der Widerrufs-Hinweis
+  an der Kasse zeigt jetzt auch das Muster-Formular.
+- **Widerruf von einzelnen Stücken:** Behält eine Kundin einen Teil, kannst du den Rest normal verschicken oder übergeben.
+  Nennt sie Stücke nur im Text, ohne sie anzuhaken, ordnest du sie mit einem Klick zu, statt dass gleich alles widerrufen
+  ist. Hat jemand schon überwiesen und widerruft dann, gibt es den Knopf „Rücküberweisung erledigt“, und die Kundin
+  erfährt, dass sie ihr Geld zurückbekommt.
+- **Schalter „Abholung“:** Ist er aus, kann niemand mehr Abholung wählen. Stücke „nur Abholung“ bleiben sichtbar,
+  sind aber nicht bestellbar – so wie du es ausgesucht hast.
+- **Anfragen nach dem Datenschutz (Auskunft/Löschung):** Die Auskunft enthält nur Daten der fragenden Person. Treffer
+  mit gleichem Namen, aber anderer E-Mail-Adresse zeigt die Verwaltung dir zur Prüfung, statt sie mitzuschicken. Die
+  Antwort auf eine Löschanfrage sagt nur, was wirklich passiert ist.
+- **Tattoo-Galerie:** Ein Foto mit Einwilligung lässt sich nur nach „Einwilligung widerrufen“ löschen. Danach
+  verschwindet es wirklich, und nach drei Jahren wird auch der Nachweis gelöscht. Beim Foto vom Stand (Termine) erinnert
+  ein Hinweis daran, keine fremden Gesichter zu zeigen.
+- **Excel-Listen:** Bitte keine Namen von Käufer:innen eintragen – die Listen werden dauerhaft gespeichert. Die
+  Anleitung sagt das jetzt auch.
+
+Was du entscheiden kannst, steht in `docs/OFFENE-PUNKTE.md` (Einträge „P18.5“). Die Kanzlei schaut sich die
+überarbeiteten Texte in P11 ohnehin an.
+
+## 2026-10-11 – P18.5 Technik (U-91)
+
+- Prüfung: Workflow mit Suche und Gegenprüfung (32 bestätigte Funde, `fix`), Umsetzung in 7 Gruppen auf eigenen
+  Arbeitskopien mit eigenen Test-Datenbanken, danach zusammengeführt und erneut gegengelesen.
+- Gruppen: (1) Schwärzung von Datenbank-Fehlern (`errorSummary`, Sentry-Kette), Bucket `withdrawal_lookup`,
+  EU-Regionen beim Start, Löschregel L-13 i für Mail-Jobs; (2) `consent-log` an der Bestellung, Galerie-Löschschutz und
+  Freigabe der Bilder, L-19-b-Schritt für Galerie-Einträge, Hinweis Standfoto; (3) Auskunft nur eigene/bestätigte
+  Treffer, M15 wahrheitsgemäß (`inUse`, DHL-Satz nur bei Widerruf), Löschplan schont laufende Bestellungen,
+  Empfängerliste; (4) Rechtstexte (Instagram, `{{reservationMinutes}}`, 180 Tage, neue `sourceNote`), M01/M02
+  Abholzeit, M10 ohne Shop-Link, M11 ohne Freitext, Second-Hand-Merkmal, Muster-Formular im Kassendialog,
+  Datenschutz-Anker `#bestellung`; (5) Rest-Lieferung nach Teil-Widerruf/-Erstattung, Freitext-Teil-Widerruf mit
+  „Stücke zuordnen“; (6) Rücküberweisung nach Widerruf/Storno bei Vorkasse, „Wieder verkaufen“ nach Widerruf vor dem
+  Versand, Versandtarife als Snapshot (Migration `20261011_132759_p18_order_shipping_rates`); (7) Schalter Abholung
+  wirksam (`src/lib/shop/pickupPolicy.ts`). Dazu: Baustein `delivery.timePickup` grammatisch („Abholbereit: …“),
+  KANZLEI-BRIEFING und LOESCHKONZEPT Version 1.5.
+- Tests: je Gruppe Unit/Int (eigene DB), nach dem Zusammenführen `pnpm check`, Int und die Prüfschleuse (siehe PR).
+
 ## 2026-10-11 – P17 und P18 abgeschlossen: Startseite, Listen fürs iPad – für Jutta
 
 Hallo Jutta,

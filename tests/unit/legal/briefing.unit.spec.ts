@@ -89,8 +89,9 @@ describe('Kanzlei-Mappe (P6.22)', () => {
     for (const n of ['E-01', 'E-02', 'E-03', 'E-04', 'E-05', 'E-06']) {
       expect(annex).toContain(`(anlagen/${n}.png)`)
     }
-    expect(BRIEFING).toMatch(/\*\*Version:\*\* 1\.4/)
+    expect(BRIEFING).toMatch(/\*\*Version:\*\* 1\.5/)
     expect(section(BRIEFING, '## 19. Entstehung')).toMatch(/\| 1\.4 \|/)
+    expect(section(BRIEFING, '## 19. Entstehung')).toMatch(/\| 1\.5 \|/)
     // Der Block für die Mandantin bleibt unangetastet
     expect(BRIEFING).toContain('**Vor dem Versand von der Mandantin zu ergänzen:**')
   })

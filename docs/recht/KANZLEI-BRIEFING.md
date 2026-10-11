@@ -2,7 +2,7 @@
 
 > **Mandantin:** [Vorname Nachname] („Jutta“), Künstlerin und Tätowiererin, Berlin – Geschäftsbezeichnung
 > [z. B. „Planet Claire“]
-> **Stand:** 02.10.2026 · **Version:** 1.4 · **Vertraulich**
+> **Stand:** 11.10.2026 · **Version:** 1.5 · **Vertraulich**
 > **Erstellt** mit KI-Unterstützung (Claude, Anthropic) auf Grundlage eines Interviews mit der Mandantin und einer
 > Recherche mit Quellen (Stand September 2026). Das Briefing ist keine Rechtsberatung; alle rechtlichen Einordnungen
 > darin sind Arbeitshypothesen, um deren Prüfung wir bitten.
@@ -748,6 +748,7 @@ Briefing und die dort genannten Arbeitsfassungen; Abweichungen zwischen Briefing
 | 26.09.2026 | 1.2 | Kasse ohne Telefonfeld, Name in einem Feld, Rechnungsadresse per Häkchen (§5.1, §12, §11.4); Bestellung erst nach Zahlung (§5.2); keine Rechnung über den Status-Link (§5.3); Versandnachweise mit neuer Frage K-40 (§7); Verpackung nur noch Detailfragen (§7, K-35); vorläufige Teilwiderrufs-Regel (§8, K-09); Widerruf im Wartungsmodus (§8); Browser-Fehler-Endpunkt (§11.2, K-30 c); CSP mit neuer Frage K-41 (§11.2); Speicherdauern (§11.6); Baustein `withdrawal.returnCostsNote` und abschließende Platzhalterliste (§1.4, §16.3); Kennzeichnung der Fassungen (§16.1) |
 | 26.09.2026 | 1.3 | Warenkorb-Cookie mit Preis beim Hinzufügen (§5.1, §11.3, §11.4 V2, K-38); Empfänger-Tabelle wird vom System erzeugt, Platzhalterliste unverändert (§16.3); CSP-Rückfall auch für die Verwaltung (K-41) |
 | 02.10.2026 | 1.4 | An die Umsetzung angeglichen (P6.22): Widerrufsablauf mit Schritten, Feldern, Eingangsbestätigung und englischer Beschriftung (§8); Cookie-/Speicherliste mit den technischen Namen `payload-token` und `pc-motion` (§11.3); Verarbeitungen = Verzeichnis `VVT.md` inkl. V20 Verwaltung, Versand ohne Schnittstelle (§11.4); Speicherdauern mit Verweis auf Anlage C (§11.6); Formulare: Kasse mit Bestellknopf, Widerruf mit Auswahl, Anfrage ohne Einwilligungs-Checkbox mit höchstens 5 Bildern (§12); Empfänger-Tabelle als Komponente, Platzhalterliste unverändert geschlossen (§16.3); Anlage E (Bildschirmfotos) und F (VVT) (§18) |
+| 11.10.2026 | 1.5 | Datenschutz- und AGB-Prüfung (P18.5): Instagram kein Anfrageweg (§3.4); Reservierungsdauer als Platzhalter `{{reservationMinutes}}`, Erinnerung „vor Fristende“ (§5.1, §5.2, §16.3); Status-Link 180 Tage nach Abschluss (§5.3); Widerrufsbestätigung bei unbezahlter Vorkasse mit Hinweis auf Rückzahlung schon überwiesenen Geldes (§8); Teil-Widerruf nur im Freitext wird zugeordnet statt als ganzer Vertrag gebucht, Rest-Lieferung nach Teil-Widerruf (§8, K-11); Mail M11 ohne Freitexte, M10 ohne Shop-Link |
 
 Für Rückfragen steht Ihnen die Mandantin gern zur Verfügung. Vielen Dank für Ihre Unterstützung.
 

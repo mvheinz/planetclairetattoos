@@ -1,6 +1,6 @@
 # Löschkonzept – planetclairetattoos.com
 
-> **Stand:** 27.09.2026 · **Version:** 1.4 · **Status:** verbindliches Fachdokument (Rang wie ANFORDERUNGEN.md)
+> **Stand:** 11.10.2026 · **Version:** 1.5 · **Status:** verbindliches Fachdokument (Rang wie ANFORDERUNGEN.md)
 > **Zweck:** Aufbewahrungs- und Löschfristen je Datenkategorie (L-xx), die automatischen Löschjobs und das Verfahren
 > für Anfragen betroffener Personen. Grundlage für R-150 bis R-154, die Datenschutzerklärung (Kanzlei) und das
 > Verzeichnis von Verarbeitungstätigkeiten (R-156).
@@ -385,3 +385,4 @@ Die Verwaltung unterstützt jeden Schritt (R-150 bis R-153). Antworten in der Sp
 | 26.09.2026 | 1.2 | Angleichung an DATENMODELL und ARCHITEKTUR: Platzhalter `anonymisiert@example.invalid` (§1 Nr. 2); Modul `src/lib/retention/policy.ts` (§1 Nr. 4); Collection-Liste ohne Versionen, `tattoo-gallery`-Versionen werden mitgelöscht (§1 Nr. 6); L-03 alle Kassen 30 Tage nach Anlage, keine Bestellstatus vor der Zahlung; L-04 `cancelled` mit `cancelReason`, Adressen in Stufe 1; L-05/§3.1 ohne Telefonfeld, `markDelivered`, Rückgabefotos, Stufe D mit `email-log`/`consent-log`; L-06/§3.2 `retainUntil` eingefroren, Anonymisierung erst danach (DATENMODELL §9.4); L-09 `complaints`; L-10 `inquiries`; L-13 g) Job-Protokoll, h) `audit-log`; L-19 DHL-Einwilligung mit Widerruf; L-22/§3.7 Grund-Seed und Ablauf in P11; L-23 d) Neon-Wiederherstellungsfenster, e) abgelöste Datenbank, Backup erst mit `BACKUP_ENABLED`; §4 `sendEmail` mit A12 ab dem 2. Fehlversuch, `withdrawalDeadlines`, Mail-Schlüssel, Aufgaben der Löschjobs präzisiert; §5 Status `identity_check`, Nummer `DS-JJJJ-NNNN`, Mail-Schlüssel |
 | 26.09.2026 | 1.3 | `tattoo-gallery` ohne Versionen (§1 Nr. 6, L-20, §3.5); Status-Token als Hash und Siegel, Stufe B löscht beide (L-05, §3.1); L-13 g) Tabelle `job_runs`; Exporte nie mit Beispieldaten (§3.7); Mail-IDs laut KONZEPT (§4, §5) |
 | 27.09.2026 | 1.4 | Fristen- und Erinnerungs-Tasks überspringen Beispieldaten (`seed = true`), Löschjobs nicht (§4) |
+| 11.10.2026 | 1.5 | Datenschutz-Prüfung P18.5: Einwilligungsnachweise der Kasse hängen an der Bestellung (Stufe D statt 30 Tage); Galerie-Eintrag nach Widerruf: Löschschutz, Bilder freigeben bzw. löschen, Eintrag nach L-19 b löschen (§3.5, §4); neue Regel L-13 i für gescheiterte, hängende oder verwaiste Mail-Jobs (`payload-jobs`, §2, §4); Auskunft nur mit eigenen bzw. bestätigten Treffern, Mail-Jobs als Bereich (§5.4); Löschplan ohne Einschränkung laufender Bestellungen, M15 meldet den tatsächlichen Zustand (§5.6) |
