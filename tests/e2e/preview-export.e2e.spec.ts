@@ -479,8 +479,10 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
     await expect(list).toContainText('Verwaltung')
     // „Noch nicht gebaut“ nur, solange es solche Seiten gibt (ab P8.21 ist jede Registry-Route gebaut).
     const report = PreviewReportSchema.parse(JSON.parse(readFileSync(REPORT, 'utf8')))
-    if (report.routes.some((r) => r.status === 'not-built'))
+    // Danke-/Statusseiten ohne Beispiel-Bestellungen (echter Bestand, U-76) stehen nicht in der Liste.
+    if (report.routes.some((r) => r.status === 'not-built' && r.note !== BESTAND_TOKEN_PAGES_NOTE))
       await expect(list).toContainText('Noch nicht gebaut')
+    else await expect(list).not.toContainText('Noch nicht gebaut')
     await list.locator('a[href="#/vorschau/verwaltung"]').click()
     await expect(page.locator('#pv-root h1')).toHaveText('Verwaltung auf dem Handy')
     await expect(page.locator('#pv-root [data-admin-view="login"] img')).toBeVisible()

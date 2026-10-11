@@ -5641,29 +5641,29 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-50 … U-64. Gilt für Handy und Desktop
 
 Verbindlich: `docs/UEBERARBEITUNG.md` U-68 … U-75. Gilt für Handy und Desktop, DE und EN.
 
-- [ ] **P15.1 Coco im Shop ruhiger** (U-68) – Intro mit Tempo-Grenze statt fester Dauer, Umrundung der Kategorie-Bilder ohne Springen und ohne Rennen.
+- [x] **P15.1 Coco im Shop ruhiger** (U-68) – Intro mit Tempo-Grenze statt fester Dauer, Umrundung der Kategorie-Bilder ohne Springen und ohne Rennen.
   - Akzeptanz: Unit (Intro-Tempo, Scroll-Abbildung der Umrundung), Messung Coco-Tempo Shop 1440/390 px beim Laden und Scrollen ohne Sprung, Kunst-QA grün.
-- [ ] **P15.2 Startseite oben neu geordnet** (U-69, U-70, U-71) – Foto größer und von der Linie weg, Text mittig unter Koko und größer, Tour-Schaukasten kompakter mit größerer Schrift oben neben dem Titel.
+- [x] **P15.2 Startseite oben neu geordnet** (U-69, U-70, U-71) – Foto größer und von der Linie weg, Text mittig unter Koko und größer, Tour-Schaukasten kompakter mit größerer Schrift oben neben dem Titel.
   - Akzeptanz: Screenshots 390/768/1280/1440 px, home-E2E angepasst, visuelle Referenzen, LCP/CLS-Budget, Kunst-QA (Linie kreuzt keinen Text).
-- [ ] **P15.3 Gewährleistungshinweis kompakter und weiter unten** (U-73) – Grafik lesbar (260 px), Kernsatz hervorgehoben, übriger Wortlaut als kleiner Absatz, alles ohne Aufklappen sichtbar; Produktseite: nach „Versand & Rückgabe“.
+- [x] **P15.3 Gewährleistungshinweis kompakter und weiter unten** (U-73) – Grafik lesbar (260 px), Kernsatz hervorgehoben, übriger Wortlaut als kleiner Absatz, alles ohne Aufklappen sichtbar; Produktseite: nach „Versand & Rückgabe“.
   - Akzeptanz: e2e R-049 (Grafik, Alt-Text, Link, Wortlaut im DOM) auf Produkt-, Korb- und Versandseite, Reihenfolge Produktseite.
-- [ ] **P15.4 Leine wickelt sich beim Hochscrollen auf** (U-74) – gezeichnete Länge folgt Coco auch zurück (Seiten mit Coco an der Leine).
+- [x] **P15.4 Leine wickelt sich beim Hochscrollen auf** (U-74) – gezeichnete Länge folgt Coco auch zurück (Seiten mit Coco an der Leine).
   - Akzeptanz: Unit (hochscrollen → Linie endet bei Coco), Kunst-QA MO-06 angepasst und grün.
-- [ ] **P15.5 Startseite ohne Sprungleiste** (U-75) – Kompass entfernt, Koko größer, alles rückt nach oben.
+- [x] **P15.5 Startseite ohne Sprungleiste** (U-75) – Kompass entfernt, Koko größer, alles rückt nach oben.
   - Akzeptanz: Screenshots 390/768/1440 px, home-E2E angepasst (Kompass-Test entfernt), visuelle Referenzen.
-- [ ] **P15.6 Abschluss P15** (U-72) – `ci:local full` + `art` grün, Merge, HTML-Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
+- [x] **P15.6 Abschluss P15** (U-72) – `ci:local full` + `art` grün, Merge, HTML-Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
 
 ## P16 – Echter Bestand aus Juttas Fotos (10.10.2026)
 
 Verbindlich: `docs/UEBERARBEITUNG.md` U-76, U-77. Gilt für Handy und Desktop, DE und EN.
 
-- [ ] **P16.1 Bestandsdaten** (U-76, U-77) – 74 Stücke aus 186 Fotos: Daten in `content/bestand/products.json`, Fotos verkleinert und ohne Ortsdaten in `content/bestand/fotos/`, Prüfpunkte je Stück.
+- [x] **P16.1 Bestandsdaten** (U-76, U-77) – 74 Stücke aus 186 Fotos: Daten in `content/bestand/products.json`, Fotos verkleinert und ohne Ortsdaten in `content/bestand/fotos/`, Prüfpunkte je Stück.
   - Akzeptanz: Unit (Datei gültig, jedes Foto genau einmal, keine Schriftzug-Zitate/Fremdwerke, Nummern eindeutig, EXIF ohne GPS).
-- [ ] **P16.2 Import** – `pnpm bestand:import` legt Fotos und Stücke als echten Bestand an (`seed: false`, Standard Entwurf mit Vermerk „bitte prüfen“), wiederholbar ohne Doppel.
+- [x] **P16.2 Import** – `pnpm bestand:import` legt Fotos und Stücke als echten Bestand an (`seed: false`, Standard Entwurf mit Vermerk „bitte prüfen“), wiederholbar ohne Doppel.
   - Akzeptanz: Int (Import, Wiederholung, Status, Vermerk).
-- [ ] **P16.3 Vorschau mit echtem Bestand** – die HTML-Vorschau zeigt Juttas Stücke statt des Demo-Bestands; Prüfliste für Jutta.
+- [x] **P16.3 Vorschau mit echtem Bestand** – die HTML-Vorschau zeigt Juttas Stücke statt des Demo-Bestands; Prüfliste für Jutta.
   - Akzeptanz: Vorschau-Export grün, Stichprobe Shop/Produktseite, Prüfliste.
-- [ ] **P16.4 Abschluss P16** – Prüfschleuse, Merge, HTML-Vorschau und Prüfliste an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
+- [x] **P16.4 Abschluss P16** – Prüfschleuse, Merge, HTML-Vorschau und Prüfliste an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
 
 ## P11 – Go-live gemeinsam mit Jutta
 

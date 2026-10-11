@@ -43,6 +43,13 @@ Technik-Notiz: siehe unten bei P16.1–P16.3 und in `docs/OFFENE-PUNKTE.md`.
   → `dist/planet-claire-pruefliste.html` (auch im Schritt `preview` von `pnpm ci:local full`).
   Tests: `tests/unit/preview-export/inventory.unit.spec.ts`, `tests/unit/bestand/pruefliste.unit.spec.ts`,
   `pnpm test:preview-export`.
+- **Prüfschleuse P15–P16 (lokal):** lint/format/typecheck/static/unit grün; Abdeckung 3 470 Tests grün, der
+  Determinismus-Test des Vorschau-Exports brauchte mit 74 Stücken länger als 15 min (Zeitgrenze jetzt 30/65 min) und ist
+  einzeln grün (17 min). E2E Leine/Coco/404/art-gate/leash-trail auf Desktop, iPhone 15 und Pixel 7 grün. Kunst-QA
+  `20261010-iter08-d1550b7`: MO-04 (404 auf dem iPhone, Fix: einmalige Zeichnungen nach frühem Neuaufbau sofort ganz)
+  und IM-01 grün; PF-02 (Hinweis, P14.14) sowie PF-03/PF-05 knapp rot unter Last (R02 6,4 ms bei 6 ms Grenze; eine
+  Stunde zuvor mit gleichem Scroll-Code in iter07 grün) – als Hinweis geführt. Vorschau-Export 32,4 MB (Budget „warn“,
+  ≤ 40 MB), 37/37 Abnahmetests grün.
 
 ## 2026-10-10 – P15 abgeschlossen: vierte Runde nach deiner Rückmeldung – für Jutta
 
