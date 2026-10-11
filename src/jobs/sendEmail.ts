@@ -245,7 +245,8 @@ async function sendQueued(
     }
     return { output: { status } }
   } catch (e) {
-    const message = (e instanceof Error ? e.message : String(e)).slice(0, 1000)
+    // Ohne Abfragewerte und Adressen (R-137): `lastError` steht in der Verwaltung und in A12
+    const message = errorSummary(e).slice(0, 1000)
     if (e instanceof AttachmentNotReadyError) {
       const waits = (input.waits ?? 0) + 1
       if (waits <= MAX_ATTACHMENT_WAITS) {
@@ -256,7 +257,7 @@ async function sendQueued(
       await giveUp(req, entry, now, { status: 'failed', lastError: message })
       return { output: { status: 'failed' } }
     }
-    log.warn('mail.send_failed', { emailLogId: entry.id, attempts, error: errorSummary(e) })
+    log.warn('mail.send_failed', { emailLogId: entry.id, attempts, error: message })
     if (entry.template === 'withdrawal_receipt') {
       const next = await nextWithdrawalAttempt(req, entry, attempts, now)
       if (next) {
