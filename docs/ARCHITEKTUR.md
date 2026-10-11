@@ -803,6 +803,8 @@ Pflicht (sonst Abbruch mit Liste aller Verstöße):
 | Admin-Pfad | `ADMIN_ROUTE` ≠ `/admin`, ≠ `/werkstatt`, beginnt mit `/`, nur `[a-z0-9-]`, 6–40 Zeichen |
 | URL | `NEXT_PUBLIC_SITE_URL` = `https://planetclairetattoos.com` (ohne `/` am Ende) |
 | S3 | `S3_ENDPOINT` endet auf `.eu.r2.cloudflarestorage.com` (EU-Jurisdiktion) |
+| Sentry | `SENTRY_DSN` leer **oder** Host passt zu `serverHosts` des Dienstes `sentry` in DIENSTE §7 (`*.ingest.de.sentry.io`, EU-Region – Prüfung P18.5) |
+| Datenbank | `DATABASE_URL` und `DATABASE_URL_UNPOOLED`: ein Host unter `neon.tech` muss zu `serverHosts` des Dienstes `neon` passen (`*.eu-central-1.aws.neon.tech`); ein anderer Postgres-Host (Docker-Exit-Pfad, §13) ist erlaubt, ergibt aber eine Warnung (DIENSTE und Datenschutzerklärung anpassen – Prüfung P18.5) |
 | Beispieldaten | `SEED_PREVIEW_MODE` ≠ `true` (R-181) |
 
 Außerhalb von `production`: Verstöße gegen Formate → Abbruch; fehlende optionale Schlüssel → Warnung und Mock.
