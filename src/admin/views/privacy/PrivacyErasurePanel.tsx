@@ -20,6 +20,7 @@ export interface ErasureRowView {
   ruleId: string
   until: string | null
   note: string
+  /** Wählbare Aktionen (`erasureChoices`): „keine Aktion“ fehlt bei abgelaufener Frist. */
   actions: string[]
   suggested: string
 }
@@ -85,7 +86,7 @@ export function PrivacyErasurePanel({ id, rows }: { id: number; rows: ErasureRow
                       onChange={(e) => setChoice((o) => ({ ...o, [r.key]: e.target.value }))}
                       data-testid="privacy-erasure-action"
                     >
-                      {[...new Set([...r.actions, 'none'])].map((a) => (
+                      {r.actions.map((a) => (
                         <option key={a} value={a}>
                           {adminText(ACTION_LABEL[a]!)}
                         </option>

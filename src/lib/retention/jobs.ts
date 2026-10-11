@@ -133,12 +133,30 @@ const cancelledMinimizeStep: RetentionStep = {
          AND timestamps_cancelled_at <= ${iso(eventCutoff(L_04_CANCELLED_PREPAYMENT_STAGE_1, until))}::timestamptz
          AND (shipping_address_name IS NOT NULL OR shipping_address_address_line1 IS NOT NULL
               OR billing_address_name IS NOT NULL OR billing_address_address_line1 IS NOT NULL
-              OR carrier_email_consent IS TRUE)
+              OR carrier_email_consent IS TRUE
+              OR EXISTS (SELECT 1 FROM consent_log c WHERE c.order_id = orders.id))
        ORDER BY timestamps_cancelled_at, id LIMIT ${limit}`)
     return byEvent(L_04_CANCELLED_PREPAYMENT_STAGE_1, res.rows, until)
   },
   async apply(req, id, now) {
     const db = await dbFor(req)
+    // Einwilligungs- und Abweichungsnachweise der nie bezahlten Bestellung (L-19 a) – ohne erfüllten Vertrag gibt es
+    // nichts nachzuweisen; Bestellungen hängen sie schon bei der Vorkasse an (Prüfung P18.5)
+    const consents = await db.execute(
+      sql`DELETE FROM consent_log WHERE order_id = ${id} RETURNING id`,
+    )
+    for (const c of consents.rows) {
+      await writeDeletionLog(req, {
+        entityCollection: 'consent-log',
+        entityId: Number(c.id),
+        ruleId: L_04_CANCELLED_PREPAYMENT_STAGE_1.id,
+        action: 'deleted',
+        trigger: 'job',
+        taskSlug: 'retentionOrderMinimize',
+        storageObjectsCount: 0,
+        executedAt: now,
+      })
+    }
     await db.execute(sql`
       UPDATE orders SET
         shipping_address_name = NULL, shipping_address_address_line1 = NULL,

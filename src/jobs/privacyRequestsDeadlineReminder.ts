@@ -7,7 +7,9 @@ import { runOncePer } from '@/lib/jobs/runOnce'
 
 // Task `privacyRequestsDeadlineReminder` (DATENMODELL §11, Queue `maintenance`, ARCHITEKTUR Anhang A.3, PLAN P6.16,
 // R-153): täglich ab 08:00 Berlin; offene Datenschutz-Anfragen 7 Tage und 1 Tag vor `extendedDueAt ?? dueAt` → A14,
-// je Stufe einmal (`remindersSent`), Beispieldaten ausgenommen. Logik in `src/lib/privacy/reminders.ts`.
+// je Stufe einmal (`remindersSent`), Beispieldaten ausgenommen. Logik in `src/lib/privacy/reminders.ts`. Danach der
+// Nachlauf der Löschanfragen (Prüfung P18.5, LOESCHKONZEPT §5.6 Nr. 3): Vorgänge, die beim Ausführen des Plans noch
+// liefen, nach Abschluss einschränken (`src/lib/privacy/erasureFollowUp.ts`).
 
 export const PRIVACY_REMINDER_BERLIN_HOUR = 8
 
@@ -39,6 +41,8 @@ export const privacyRequestsDeadlineReminderTask: TaskConfig<PrivacyReminderIO> 
       )
       if (!decision.due) return null
       const res = await runPrivacyRequestReminders(req.payload, now)
+      const { runErasureFollowUps } = await import('@/lib/privacy/erasureFollowUp')
+      await runErasureFollowUps(req.payload, now)
       return { period: decision.period, ...res }
     })
     if (run.status === 'locked' || run.result === null) return { output: { skipped: true } }
