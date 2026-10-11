@@ -524,7 +524,8 @@ Filter-Chip mit `aria-current="page"`. Unbekannter Slug → 404. SEO-Titel `{Kat
        darüber der Text aus `settings.shop.closedMessage`.
      - `available`, nicht im eigenen Korb → **„In den Korb“** (EN „Add to basket“).
      - bereits im eigenen Korb → „Liegt schon in deinem Korb“ + Link zum Korb.
-     - `reserved` durch fremde Kasse → Knopf deaktiviert, Text „Gerade reserviert – schau in 30 Minuten nochmal“.
+     - `reserved` durch fremde Kasse → Knopf deaktiviert, Text „Gerade reserviert – schau in 30 Minuten nochmal“ (Minuten
+       aus `settings.payment.reservationMinutes`, P18.5).
      - `reserved` durch die eigene Kasse → „Du hast es gerade in der Kasse“ + Link „Zur Kasse“.
      - `sold` → „sold“-Stempel, Text „Schon verkauft“, Links „Ähnliche Stücke“ (Kategorie) und Archiv.
   7. **Beschreibung** (Rich Text DE/EN, EN fehlt → DE).
@@ -761,8 +762,8 @@ Laufzeit, kein Tracking. Ob stattdessen ein Server-Warenkorb mit Zufalls-ID nöt
 
 **Anzeige je Position im Korb:** Foto, Titel, `Nr. 017`, Preis, „Entfernen“ und Zustand:
 - `available` → nichts.
-- `reserved` durch andere Kasse → „Gerade reserviert – schau in 30 Minuten nochmal“; „Zur Kasse“ ist gesperrt, solange
-  diese Position im Korb liegt.
+- `reserved` durch andere Kasse → „Gerade reserviert – schau in 30 Minuten nochmal“ (Minuten aus
+  `settings.payment.reservationMinutes`, P18.5); „Zur Kasse“ ist gesperrt, solange diese Position im Korb liegt.
 - `sold`/nicht mehr öffentlich → „Leider schon verkauft“ + Knopf „Entfernen“; „Zur Kasse“ gesperrt.
 - Preis seit dem Hinzufügen geändert → aktueller Preis wird gezeigt, Hinweis „Preis wurde aktualisiert“.
 

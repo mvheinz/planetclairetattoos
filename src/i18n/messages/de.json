@@ -345,7 +345,7 @@
       "decorative": "Deko – nicht für Lebensmittel",
       "foodSafe": "Lebensmittelecht – Konformitätserklärung ansehen",
       "reserved": "reserviert",
-      "reservedLong": "Gerade reserviert – schau in 30 Minuten nochmal",
+      "reservedLong": "Gerade reserviert – schau in {minutes} Minuten nochmal",
       "secondHand": "Second-Hand / Vintage",
       "smallParts": "Kein Spielzeug – verschluckbare Kleinteile"
     },
@@ -554,7 +554,7 @@
   },
   "cart": {
     "notes": {
-      "reserved": "{items} {count, plural, one {ist} other {sind}} gerade reserviert – schau in 30 Minuten nochmal.",
+      "reserved": "{items} {count, plural, one {ist} other {sind}} gerade reserviert – schau in {minutes} Minuten nochmal.",
       "unavailable": "{items} {count, plural, one {ist} other {sind}} leider schon verkauft.",
       "too_many": "Höchstens {max} Stücke pro Bestellung.",
       "shop_closed": "Der Shop schläft gerade – bestellen ist im Moment nicht möglich.",
@@ -575,7 +575,7 @@
     "remove": "Entfernen",
     "removeLabel": "{title} aus dem Korb entfernen",
     "state": {
-      "reserved": "Gerade reserviert – schau in 30 Minuten nochmal",
+      "reserved": "Gerade reserviert – schau in {minutes} Minuten nochmal",
       "sold": "Leider schon verkauft",
       "reserved_by_you": "Liegt für dich in der Kasse bereit",
       "priceChanged": "Preis wurde aktualisiert",

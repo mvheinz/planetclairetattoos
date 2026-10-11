@@ -345,7 +345,7 @@
       "decorative": "Decorative – not for food use",
       "foodSafe": "Food-safe – view declaration",
       "reserved": "reserved",
-      "reservedLong": "Reserved right now – check back in 30 minutes",
+      "reservedLong": "Reserved right now – check back in {minutes} minutes",
       "secondHand": "Second-Hand / Vintage",
       "smallParts": "Not a toy – small parts can be swallowed"
     },
@@ -554,7 +554,7 @@
   },
   "cart": {
     "notes": {
-      "reserved": "{items} {count, plural, one {is} other {are}} reserved right now – check back in 30 minutes.",
+      "reserved": "{items} {count, plural, one {is} other {are}} reserved right now – check back in {minutes} minutes.",
       "unavailable": "{items} {count, plural, one {has} other {have}} already been sold, sorry.",
       "too_many": "At most {max} pieces per order.",
       "shop_closed": "The shop is asleep for now – ordering isn’t possible at the moment.",
@@ -575,7 +575,7 @@
     "remove": "Remove",
     "removeLabel": "Remove {title} from the basket",
     "state": {
-      "reserved": "Reserved right now – check back in 30 minutes",
+      "reserved": "Reserved right now – check back in {minutes} minutes",
       "sold": "Sorry, already sold",
       "reserved_by_you": "Waiting for you at checkout",
       "priceChanged": "Price has been updated",

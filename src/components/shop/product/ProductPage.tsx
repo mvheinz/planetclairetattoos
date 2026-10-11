@@ -179,6 +179,8 @@ export async function ProductPage({
   const cartHref = localizedPath('R06', locale)
   const checkoutHref = localizedPath('R07', locale)
   const canAdd = !preview && canAddToCart(state, settings.isOpen)
+  // „Gerade reserviert – schau in … Minuten nochmal“ mit der Reservierungsdauer aus den Einstellungen (P18.5)
+  const reservedText = tBadges('reservedLong', { minutes: settings.reservationMinutes })
   // Server-Action als Formular-Aktion: ohne JavaScript leitet sie per 303 um (Rückgabe nur für `add-to-cart`).
   const formAction = addToCart as unknown as (formData: FormData) => Promise<void>
   const cartFields = (
@@ -454,12 +456,12 @@ export async function ProductPage({
               data-behavior="add-to-cart"
               data-product-id={product.id}
               data-text-add={t('addToCart')}
-              data-text-reserved={tBadges('reservedLong')}
+              data-text-reserved={reservedText}
               data-closed={closed ? '' : undefined}
             >
               {cartFields}
               <Button variant="primary" type="submit" disabled={!canAdd}>
-                {state === 'reserved' ? tBadges('reservedLong') : t('addToCart')}
+                {state === 'reserved' ? reservedText : t('addToCart')}
               </Button>
             </form>
             <div className={styles.notes} data-buy-notes="" aria-live="polite">
@@ -584,7 +586,7 @@ export async function ProductPage({
             data-behavior="add-to-cart"
             data-product-id={product.id}
             data-text-add={t('addToCart')}
-            data-text-reserved={tBadges('reservedLong')}
+            data-text-reserved={reservedText}
             data-closed={closed ? '' : undefined}
           >
             {cartFields}

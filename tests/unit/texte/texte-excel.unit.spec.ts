@@ -181,7 +181,7 @@ describe('Texte-Liste: Rückweg', () => {
     const any = find((e) => e.id.startsWith('m:home.') && !/[{<]/.test(e.de))
     const { rows } = await roundTrip((wb) => {
       setCell(wb, pickup.id, 'de', 'Abholung möglich')
-      setCell(wb, plural.id, 'de', '{items} ist gerade reserviert.')
+      setCell(wb, plural.id, 'de', '{items} ist gerade reserviert – in {minutes} Minuten.')
       setCell(wb, tag.id, 'de', 'Versandkosten: siehe Versand & Zahlung')
       setCell(wb, 'einst:shipping.deliveryTimeText', 'de', 'ca. 3 Werktage')
       setCell(wb, 'm:cart.empty.text', 'de', 'Jetzt mit Gutschein!')
