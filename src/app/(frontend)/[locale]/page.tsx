@@ -3,13 +3,12 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import React from 'react'
 
 import { ChairwomanKoko } from '@/components/home/ChairwomanKoko'
-import { HomeIntro } from '@/components/home/HomeIntro'
+import { HomeIntroPhoto, HomeIntroText } from '@/components/home/HomeIntro'
 import { HomeStation } from '@/components/home/HomeStation'
 import { InstagramLink } from '@/components/home/InstagramLink'
 import { TourDates, TourFold } from '@/components/home/TourDates'
 import styles from '@/components/home/Home.module.css'
 import { PlanetMark } from '@/components/home/SpaceMarks'
-import { StationCompass } from '@/components/home/StationCompass'
 import { Station } from '@/components/leash/Station'
 import { PriceFootnote } from '@/components/shop/PriceFootnote'
 import { StaticHtml } from '@/components/StaticHtml'
@@ -82,7 +81,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     <div
       className={`u-container ${styles.home}`}
       data-home=""
-      data-home-layout={home?.intro ? 'intro' : 'plain'}
+      data-home-layout={home?.intro?.image ? 'intro' : 'plain'}
     >
       <script
         type="application/ld+json"
@@ -112,25 +111,22 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <p className={styles.lede}>{t('intro')}</p>
         )}
       </header>
-      {home && home.stations.length > 1 ? (
-        // Kompass, Schaukasten: reines Server-Markup ohne Hydrierung (StaticHtml, Lighthouse-TBT – P14.14: die
-        // Startseite lag mit den neuen Kopf-Teilen knapp über 200 ms)
-        <StaticHtml>
-          <StationCompass stations={home.stations} locale={locale} />
-        </StaticHtml>
-      ) : null}
 
-      {/* Oben (U-50, P14.1): drei Spalten ab 1100 px – links das Foto von Jutta und Coco mit dem Text darunter, in der
-          Mitte Koko, Vorsitzende der Goth Dogs Berlin (U-08, U-41), rechts der Schaukasten „Planet Claire on Tour“ (U-20)
-          mit dem Instagram-Hinweis; darunter auf dem Handy untereinander. */}
-      {home?.intro ? (
-        <div className={styles.intro} data-home-intro="" data-slot="intro">
-          <HomeIntro intro={home.intro} locale={locale} />
+      {/* Oben (U-50, P14.1; neu geordnet P15.2, U-69–U-71): ab 1100 px rechts der Schaukasten „Planet Claire on Tour“ (U-20)
+          mit dem Instagram-Hinweis schon neben dem Titel (U-75: ohne Sprungleiste); unter dem Titel links das Foto von Jutta und Coco (größer,
+          mit Abstand zur Linie), in der Mitte Koko, Vorsitzende der Goth Dogs Berlin (U-08, U-41), und mittig darunter der
+          Text mit „Mehr über uns“. Darunter auf dem Handy untereinander (Foto, Koko mit Text; Schaukasten hinter Station 01). */}
+      {home?.intro?.image ? (
+        <div className={styles.photoSlot} data-home-intro="" data-slot="intro">
+          <HomeIntroPhoto intro={home.intro} />
         </div>
       ) : null}
       <div className={styles.chairwomanSlot} data-slot="chairwoman">
-        {/* U-53 (P14.4): nachts (Berlin 22–7 Uhr) schläft Koko – entschieden beim Rendern (ISR ≤ 1 h) */}
-        <ChairwomanKoko locale={locale} asleep={kokoAsleep(now)} />
+        <div className={styles.kokoFrame}>
+          {/* U-53 (P14.4): nachts (Berlin 22–7 Uhr) schläft Koko – entschieden beim Rendern (ISR ≤ 1 h) */}
+          <ChairwomanKoko locale={locale} asleep={kokoAsleep(now)} />
+        </div>
+        {home?.intro ? <HomeIntroText intro={home.intro} locale={locale} /> : null}
       </div>
       {/* U-51 (P14.2): unter 1100 px eingeklappt hinter Station 01 (CSS-Reihenfolge), am Desktop offen oben rechts */}
       <StaticHtml

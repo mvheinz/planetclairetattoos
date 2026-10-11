@@ -177,6 +177,19 @@ export const MAX_LOOP_SHIFT = 0.2
 /** U-55: Höchsttempo von Coco und Tinte in px je ms – glättet, was die Scroll-Abbildung nicht ausgleichen kann. */
 export const COCO_MAX_SPEED = 1.6
 
+/**
+ * U-68 (P15.1): Schrittempo in px je ms, wenn Coco eine beim Laden schon begonnene Schlaufe allein zu Ende läuft (z. B. die
+ * Umrundung der Kategorie-Bilder im Shop: ≈ 2 200 px in ≈ 4 s statt in einem Ruck); scrollt man dabei, gilt `COCO_MAX_SPEED`.
+ */
+export const COCO_WALK_SPEED = 0.55
+
+/**
+ * U-68: längste Umrundung (`contour`, px Bogen), die noch am Scrollen hängt – mehr trägt der Scroll-Weg einer Schlaufe
+ * (`loopScroll` + 2 × `MAX_LOOP_SHIFT`) bei `MAX_DRAW_RATE` nicht; längere werden zum Kringel, außer Coco läuft sie nach
+ * dem Intro allein.
+ */
+export const CONTOUR_SCROLL_MAX = 1500
+
 /** Rinnenbreite eines Presets bei gegebener Viewport-Breite (§5.3). */
 export function gutterFor(preset: PresetId, viewportW: number): number {
   const g = PRESET_CONFIG[preset].gutter

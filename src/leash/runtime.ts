@@ -4,6 +4,7 @@ import { measure, type Measurement } from './measure'
 import { getMotion, type Motion } from './motion'
 import {
   COCO_MAX_SPEED,
+  COCO_WALK_SPEED,
   DOWNGRADE,
   PRESET_CONFIG,
   READING_LINE,
@@ -177,6 +178,8 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   let lastSY = -1
   let lastScrollAt = -Infinity
   let intro: { from: number; to: number; start: number | null; dur: number } | null = null
+  /** U-68: bis hierhin läuft Coco nach dem Intro allein und ohne Sprung (Rest einer beim Laden begonnenen Schlaufe). */
+  let walkTo = 0
   let debounce: ReturnType<typeof setTimeout> | null = null
   const monitor = { active: 0, frames: 0, slow: 0, done: false }
   const restPose = cfg.coco ? REST_POSE[options.preset] : null
@@ -313,16 +316,23 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     }
   }
 
-  /** Stufe A: Stücke bis `drawnLen` fertig (Versatz 0), das Stück an der Feder anteilig (nur `stroke-dashoffset`). */
+  /**
+   * Stufe A: Stücke bis `drawnLen` fertig (Versatz 0), das Stück an der Feder anteilig (nur `stroke-dashoffset`); beim
+   * Zurückwickeln (U-74) werden Stücke hinter der Feder wieder verborgen.
+   */
   function applyStrokes(v: SegView) {
     const strokes = v.strokes!
     while (v.next < strokes.length && strokes[v.next]!.len1 <= drawnLen)
       strokes[v.next++]!.el.setAttribute('stroke-dashoffset', '0')
+    const was = v.next
+    while (v.next > 0 && strokes[v.next - 1]!.len1 > drawnLen)
+      strokes[--v.next]!.el.setAttribute('stroke-dashoffset', String(DASH))
+    if (v.next < was) strokes[was]?.el.setAttribute('stroke-dashoffset', String(DASH))
     const st = strokes[v.next]
-    if (st && drawnLen > st.len0)
+    if (st)
       st.el.setAttribute(
         'stroke-dashoffset',
-        String(Math.round((DASH - (drawnLen - st.len0)) * 10) / 10),
+        String(Math.round((DASH - Math.max(0, drawnLen - st.len0)) * 10) / 10),
       )
   }
 
@@ -339,6 +349,18 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       const state: SegState = p >= 1 - 1e-6 ? 'done' : p <= 0 ? 'future' : 'active'
       if (state !== v.state) {
         v.svg.style.visibility = state === 'future' ? 'hidden' : ''
+        // U-74: zurückgewickelt – fertiges Segment wieder enthüllbar, verborgenes Segment von vorn
+        if (v.state === 'done') {
+          if (v.reveal) v.reveal.style.strokeDasharray = `${v.L} ${v.L}`
+          if (v.strokes) {
+            v.svg.setAttribute('stroke-dashoffset', String(DASH))
+            v.next = 0
+          }
+        } else if (state === 'future' && v.strokes) {
+          for (const x of v.strokes.slice(0, v.next + 1))
+            x.el.setAttribute('stroke-dashoffset', String(DASH))
+          v.next = 0
+        }
         if (state === 'done' && v.reveal) {
           v.reveal.style.strokeDasharray = ''
           v.reveal.style.strokeDashoffset = ''
@@ -350,7 +372,8 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
         }
         v.state = state
       }
-      if (v.strokes && state !== 'future') applyStrokes(v)
+      // nur das Segment an der Feder: fertige erben den Versatz 0 vom `<svg>` (ohne eigene Werte, U-74 Zurückwickeln)
+      if (v.strokes && state === 'active') applyStrokes(v)
       else if (state === 'active' && v.reveal)
         v.reveal.style.strokeDashoffset = String(v.L * (1 - p))
     }
@@ -384,6 +407,20 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   function restLen(): number {
     const s = geometry?.stations[0]
     return s ? s.loopLen1 + 48 : 0
+  }
+
+  /**
+   * U-68: das Intro zeichnet höchstens bis zum Anfang der Schlaufe, in der `len` liegt, und nie über eine schon beim Laden
+   * begonnene Umrundung hinaus (auch nicht, wenn man währenddessen scrollt oder der Bildschirm sehr hoch ist) – den Rest
+   * läuft Coco allein. Umrundungen weiter unten hängen am Scrollen und bremsen das Intro nicht.
+   * Einmalige Zeichnungen (404, Danke) zeichnen weiter in einem Zug.
+   */
+  function introEnd(len: number): number {
+    if (cfg.draw === 'scroll')
+      for (const s of geometry?.stations ?? [])
+        if (s.loopLen0 < len && (len <= s.loopLen1 || (s.loop === 'contour' && s.y < readingY(0))))
+          return s.loopLen0
+    return len
   }
 
   /** Ziel-Pose (§10.3, §10.6): reduziert → Ruhe-Pose; in Bewegung `rennen`; an einer Station deren Pose. */
@@ -470,7 +507,7 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       const c = motion === 'reduced' ? restLen() : scrollTarget()
       if (!intro && Math.abs(c - cocoLen) >= 0.1) {
         cocoLen = c
-        if (tier !== 'C') drawnLen = Math.max(drawnLen, cfg.coco ? cocoLen : c)
+        if (tier !== 'C') drawnLen = cfg.coco ? cocoLen : Math.max(drawnLen, c)
         applyDrawn()
         emitCoco(1, false)
       }
@@ -487,11 +524,15 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     }
     if (intro) {
       if (intro.start === null) intro.start = now
-      if (cfg.draw === 'scroll') intro.to = Math.max(intro.to, target)
+      if (cfg.draw === 'scroll') intro.to = Math.max(intro.to, introEnd(target))
       const t = Math.min(1, (now - intro.start) / intro.dur)
       drawnLen = Math.max(drawnLen, intro.from + (intro.to - intro.from) * easeInkOut(t))
       if (t >= 1) intro = null
-      else again = true
+      else if (cfg.coco && target < drawnLen) {
+        // U-74: im Intro hinter die schon gezeichnete Spitze hochgescrollt – Intro endet, die Leine wickelt sich auf
+        intro = null
+        drawnLen = Math.max(cocoLen, target)
+      } else again = true
     }
 
     // Coco folgt der Lesezeile, geglättet: 1 − (1 − 0.35)^(dt/16.7); im Intro auf der schon gezeichneten Linie.
@@ -500,15 +541,19 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
       motion === 'reduced' ? restLen() : intro ? Math.min(target, drawnLen) : target
     const diff = cocoTarget - cocoLen
     let moving = !!intro
-    if (Math.abs(diff) > COCO_JUMP || Math.abs(diff) < 0.1) cocoLen = cocoTarget
+    const walk = !intro && cocoLen < walkTo
+    if (!intro && !walk) walkTo = 0 // angekommen: der Alleingang ist vorbei
+    if ((Math.abs(diff) > COCO_JUMP && !walk) || Math.abs(diff) < 0.1) cocoLen = cocoTarget
     else {
-      // U-55: geglättet, höchstens COCO_MAX_SPEED px/ms – Umrundungen werden nicht hektisch
-      const max = COCO_MAX_SPEED * dt
+      // U-55: geglättet, höchstens COCO_MAX_SPEED px/ms – Umrundungen werden nicht hektisch; U-68: allein im Schritttempo
+      const max = (walk && now - lastScrollAt > 200 ? COCO_WALK_SPEED : COCO_MAX_SPEED) * dt
       cocoLen += Math.max(-max, Math.min(max, diff * (1 - Math.pow(0.65, dt / 16.7))))
       again = moving = true
     }
-    // Coco läuft vorn und zieht die Tusche hinter sich her (U-44): die Linie wächst bis zu ihr, nie über sie hinaus.
-    if (!intro && tier !== 'C') drawnLen = Math.max(drawnLen, cfg.coco ? cocoLen : target)
+    // Coco läuft vorn und zieht die Tusche hinter sich her (U-44): die Linie wächst bis zu ihr, nie über sie hinaus; läuft
+    // sie zurück (Hochscrollen), wickelt sich die Leine mit ihr auf (U-74).
+    if (!intro && tier !== 'C')
+      drawnLen = cfg.coco && diff < 0 ? cocoLen : Math.max(drawnLen, cfg.coco ? cocoLen : target)
     applyDrawn()
     emitCoco(diff < 0 ? -1 : 1, moving)
     timing(LEASH_MEASURES.frame, t0)
@@ -568,19 +613,28 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
     // Gemessene Position statt `window.scrollY` (kein erzwungenes Layout); der nächste Frame gleicht nach.
     const target = scrollTarget(mm.scrollY)
     const running = intro
+    const walking = cocoLen < walkTo
+    const prevWalk = walkTo
     intro = null
+    walkTo = 0
     if (tier === 'C') drawnLen = total
-    else if (!first && running) {
-      // Neuaufbau mitten im Intro (z. B. späte Schrift): weiterzeichnen statt zum Ziel zu springen (R2-05)
-      running.to = target
-      intro = running
+    else if (!first && (running || walking)) {
+      // Neuaufbau mitten im Intro (z. B. späte Schrift) oder im Alleingang (U-68): weiterzeichnen statt zum Ziel zu
+      // springen (R2-05)
+      if (running) {
+        running.to = introEnd(target)
+        intro = running
+      }
+      // nur den Rest der begonnenen Schlaufe allein laufen – nicht bis zur inzwischen weiter gescrollten Lesezeile
+      walkTo = Math.min(target, prevWalk)
       drawnLen = Math.min(total, prevDrawn)
     } else if (first) {
       if (cfg.draw === 'scroll' && !(cfg.intro && m.scrollY < 8)) drawnLen = target
       else {
         // Intro (journey, MI-10) bzw. einmaliges Zeichnen; Einstieg mitten in der Seite ohne Animation.
         drawnLen = 0
-        intro = { from: 0, to: target, start: null, dur: cfg.durationMs ?? 1800 }
+        intro = { from: 0, to: introEnd(target), start: null, dur: cfg.durationMs ?? 1800 }
+        walkTo = target
       }
     } else {
       // Gezeichneter Fortschritt bleibt je Station erhalten.
@@ -591,7 +645,8 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
         if (done > 0)
           keep = geometry.stations[Math.min(done, geometry.stations.length) - 1]?.loopLen1 ?? 0
       }
-      drawnLen = Math.min(total, Math.max(target, keep))
+      // mit Coco endet die Leine bei ihr (U-74), ohne Coco bleibt der Fortschritt je Station
+      drawnLen = Math.min(total, cfg.coco ? target : Math.max(target, keep))
     }
     cocoLen = motion === 'reduced' ? restLen() : intro ? 0 : Math.min(target, drawnLen)
     applyDrawn()
@@ -698,7 +753,11 @@ export function mountLeash(root: HTMLElement, options: MountOptions): Inspectabl
   function rebuild(stepwise = false) {
     if (destroyed) return
     rebuildCount++
-    build(false, stepwise && options.stepwise !== false)
+    // Ersetzt der Neuaufbau einen noch nicht fertigen ersten Aufbau (z. B. `load` oder späte Bilder während der
+    // Idle-Teilstücke), gilt er bei Scroll-Linien als erster – sonst fiele das Intro samt Alleingang der Coco (U-68)
+    // aus. Einmalige Zeichnungen (404, Danke) erscheinen dann wie bisher sofort ganz: Ein spätes Intro schöbe Cocos
+    // Ankunft samt Boil über das 5-s-Budget (MO-04, langsames Laden auf dem iPhone).
+    build(!built && cfg.draw === 'scroll', stepwise && options.stepwise !== false)
   }
 
   // ---------- Ereignisse ----------

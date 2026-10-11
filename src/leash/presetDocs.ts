@@ -25,7 +25,7 @@ export const PRESET_DOCS: Readonly<Record<PresetId, PresetDoc>> = {
   shopString: {
     routes: ['R02', 'R03', 'R05'],
     shape:
-      'U-44: Spur wie journey in der Rinne am Rand; ab 768 Umrundung der Kategorie-Bilder, Kringel je Kartenzeile',
+      'U-44: Spur wie journey in der Rinne am Rand; ab 768 Umrundung der Kategorie-Bilder (U-68: nach dem Intro läuft Coco sie allein im Schritttempo), Kringel je Kartenzeile',
     notes: 'Coco läuft an der Leine mit; „Mehr zeigen“ und Filterwechsel = Neuaufbau',
   },
   product: {
@@ -43,7 +43,7 @@ export const PRESET_DOCS: Readonly<Record<PresetId, PresetDoc>> = {
   stencil: {
     routes: ['R11', 'R12', 'R14', 'R15', 'R16', 'R17', 'R18'],
     shape:
-      'U-44: Spur wie journey in der Rinne; Kringel an H1 und Abschnitten, je Kartenzeile; R11 Umrundung der Galerie-Leiste',
+      'U-44: Spur wie journey in der Rinne; Kringel an H1 und Abschnitten, je Kartenzeile; R11 Umrundung der Galerie-Leiste (U-68: am Desktop zu lang → Kringel)',
     notes: 'Linie bleibt --ink; Violett nur als --shadow-stencil an Karten',
   },
   frame: {

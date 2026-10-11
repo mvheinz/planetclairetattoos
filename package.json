@@ -43,6 +43,8 @@
     "seed:example": "cross-env NODE_OPTIONS=\"--no-deprecation --import=./scripts/lib/register-server-only.mjs\" payload run scripts/seed/cli.ts -- example",
     "seed:remove": "cross-env NODE_OPTIONS=\"--no-deprecation --import=./scripts/lib/register-server-only.mjs\" payload run scripts/seed/cli.ts -- remove",
     "seed:import-instagram": "tsx scripts/seed/import-instagram.ts",
+    "bestand:import": "cross-env NODE_OPTIONS=\"--no-deprecation --import=./scripts/lib/register-server-only.mjs\" payload run scripts/bestand/import.ts --",
+    "bestand:pruefliste": "cross-env NODE_OPTIONS=\"--no-deprecation --import=./scripts/lib/register-server-only.mjs\" tsx scripts/bestand/pruefliste.ts",
     "media:regenerate": "tsx --import=./scripts/lib/register-server-only.mjs scripts/media-regenerate.ts",
     "seed:reset": "cross-env NODE_OPTIONS=\"--no-deprecation --import=./scripts/lib/register-server-only.mjs\" payload run scripts/seed/cli.ts -- reset",
     "jobs:run": "tsx --import=./scripts/lib/register-server-only.mjs scripts/jobs-run.ts",

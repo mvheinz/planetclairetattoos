@@ -1,53 +1,84 @@
-/* R-049 hervorgehobene Mitteilung: Kasten mit Grafik links (mobil darüber), Text und Link. */
+/* R-049 hervorgehobene Mitteilung: eigener Kasten mit Grafik und Link. U-73 (P15.3): kompakt – kleine Schrift, enge
+   Abstände (nur über `row-gap`), der Wortlaut in zwei Absätzen; die Pflicht-Grafik bleibt lesbar (mindestens 260 px breit,
+   ihre kleinste Schrift ≈ 9 px): mobil über dem Text, ab 768 px links daneben. */
 .notice {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-4);
+  column-gap: var(--space-3);
+  row-gap: var(--space-1);
+  max-width: 44rem;
+  padding: var(--space-3);
   border: 1px solid var(--color-border-ui);
   border-radius: var(--r-card);
   background: var(--paper-2);
   color: var(--ink);
+  hyphens: manual;
+}
+
+/* Die Textteile sind Zellen des Kastens (Überschrift neben der Grafik, der Rest darunter). */
+.body {
+  display: contents;
+}
+
+.body > * {
+  grid-column: 1 / -1;
+  margin: 0;
+  hyphens: manual;
 }
 
 .graphic {
+  grid-column: 1 / -1;
   display: block;
-  width: 100%;
-  max-width: 320px;
+  width: min(100%, 260px);
   height: auto;
 }
 
-.body {
-  flex: 1 1 16rem;
-  min-width: 0;
-}
-
-.title {
-  margin: 0 0 var(--space-2);
+.body > .title {
   font-family: var(--font-display); /* U-43: Überschriften in Spectral */
   font-weight: 400;
-  font-size: var(--fs-h3);
+  font-size: 1.125rem;
+  line-height: 1.2;
 }
 
 .lead {
-  margin: 0 0 var(--space-2);
+  font-size: var(--fs-small);
   font-weight: 600;
+  line-height: 1.4;
+}
+
+.text {
+  font-size: var(--fs-meta);
+  line-height: 1.45;
+  color: var(--ink-2);
 }
 
 .note {
-  margin: 0 0 var(--space-2);
-  font-size: var(--fs-small);
+  font-size: var(--fs-meta);
+  line-height: 1.4;
   color: var(--ink-2);
   font-style: italic;
 }
 
-.text {
-  margin: 0 0 var(--space-2);
-  font-size: var(--fs-small);
+.link {
+  /* nur der Text ist Ziel (Gitterzelle sonst über die ganze Breite) */
+  justify-self: start;
+  color: var(--color-link);
+  font-size: var(--fs-meta);
 }
 
-.link {
-  color: var(--color-link);
-  font-size: var(--fs-small);
+@media (min-width: 768px) {
+  .notice {
+    align-items: start;
+  }
+
+  .graphic {
+    grid-row: 1 / span 5;
+    grid-column: 1;
+    width: 260px;
+  }
+
+  .body > * {
+    grid-column: 2;
+  }
 }

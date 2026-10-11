@@ -1,6 +1,7 @@
 // Korb und Kasse für den Vorschau-Export (PLAN P4.25, KONZEPT §12.5 Nr. 7, §12.7 Nr. 7): Ohne Korb-Cookie zeigt R06 nur
 // den leeren Korb, und R07 leitet ohne Kasse auf den Korb um. Deshalb legt der Crawler vor der Breitensuche wie eine
-// Kundin die Seed-Anker S01 und S11 in den Korb (Produktseite, „In den Korb“), klickt im Korb „Zur Kasse“ und holt dann
+// Kundin zwei Stücke in den Korb – eine Keramik und ein Textil-/Cap-Stück mit Abweichung (`cartAnchors`, inventory.ts;
+// Demo-Bestand: die Seed-Anker S01 und S11) (Produktseite, „In den Korb“), klickt im Korb „Zur Kasse“ und holt dann
 // R06 und R07 je Sprache mit denselben Cookies (`pc_cart`, `pc_checkout`). Die Export-Umgebung setzt
 // `PREVIEW_EXPORT=true` – das Zahlungsfeld der Kasse ist ein Platzhalter. Alle Anfragen gehen an den Export-Server;
 // fremde Hosts werden abgebrochen. Scheitert ein Schritt, bleibt es beim leeren Korb (Warnung im Bericht, kein Abbruch).
@@ -9,7 +10,7 @@ import { LOCALES } from '../../src/lib/routes/registry'
 
 import type { FetchResult } from './crawl'
 
-/** Seed-Anker im Korb der Vorschau (SEED-SPEC: S01 Keramik, S11 Textil mit Abweichung). */
+/** Seed-Anker im Korb der Vorschau mit Demo-Bestand (SEED-SPEC: S01 Keramik, S11 Textil mit Abweichung). */
 export const CART_ANCHORS = [901, 911] as const
 
 export interface CartSession {
@@ -23,7 +24,10 @@ export function cartSessionPaths(): string[] {
   return LOCALES.flatMap((l) => [localizedPath('R06', l), localizedPath('R07', l)])
 }
 
-export async function captureCartSession(origin: string): Promise<CartSession> {
+export async function captureCartSession(
+  origin: string,
+  anchors: readonly number[] = CART_ANCHORS,
+): Promise<CartSession> {
   const { chromium } = await import('@playwright/test')
   const warnings: string[] = []
   const pages = new Map<string, FetchResult>()
@@ -39,7 +43,7 @@ export async function captureCartSession(origin: string): Promise<CartSession> {
       (route) => route.abort(),
     )
     const page = await context.newPage()
-    for (const nr of CART_ANCHORS) {
+    for (const nr of anchors) {
       await page.goto(`/nr/${nr}`, { waitUntil: 'load' })
       // Erst klicken, wenn die Module gebunden sind und der Live-Zustand geladen ist (`data-status-live`, wie die
       // Kaufweg-E2E): Ein Klick davor geht unter Last ins Leere bzw. an die Server-Action ohne JavaScript.
@@ -73,7 +77,7 @@ export async function captureCartSession(origin: string): Promise<CartSession> {
       })
     }
     // Reservierung wieder freigeben (Stücke aus dem Korb nehmen → Kasse `cancelled`, KONZEPT §4.3 S6): Die Produkt-
-    // und Listenseiten, die der Crawl danach holt, zeigen S01 und S11 wieder als verfügbar.
+    // und Listenseiten, die der Crawl danach holt, zeigen beide Stücke wieder als verfügbar.
     await page.goto(new URL(localizedPath('R06', 'de'), base).href, { waitUntil: 'load' })
     const lines = page.locator('[data-cart-remove]')
     for (let left = await lines.count(); left > 0; left--) {

@@ -126,6 +126,14 @@ export const seedParamProvider: ParamProvider = (route) => {
   return []
 }
 
+/**
+ * Parameter je Bestand (U-76): Demo = Seed-Anker; echter Bestand = keine (Danke- und Statusseiten brauchen
+ * Beispiel-Bestellungen mit Demo-Stücken, die 404-Variante ein verkauftes Demo-Stück – sie fehlen dann in der Datei).
+ */
+export function paramProviderFor(inventory: 'bestand' | 'demo'): ParamProvider {
+  return inventory === 'demo' ? seedParamProvider : () => []
+}
+
 export function startSet(
   routes: readonly RouteEntry[] = ROUTES,
   provider: ParamProvider = () => [],

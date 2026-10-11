@@ -4,6 +4,8 @@
 import { TZDate } from '@date-fns/tz'
 import { format } from 'date-fns'
 
+import { resolveInventory } from './inventory'
+
 /** Standard-Datenbank und -Port des Exports (ARCHITEKTUR §14.3). */
 export const DEFAULT_EXPORT_DB_NAME = 'planetclaire_preview_export'
 export const DEFAULT_EXPORT_PORT = 3999
@@ -141,6 +143,8 @@ export function buildExportEnv(input: ExportEnvInput): Record<string, string> {
     NEXT_TELEMETRY_DISABLED: '1',
     TZ: 'UTC',
     PREVIEW_PHASE: input.phase.toUpperCase(),
+    // U-76: echter Bestand (Standard) oder Demo-Bestand (`PREVIEW_INVENTORY=demo`), siehe inventory.ts.
+    PREVIEW_INVENTORY: resolveInventory(input.source),
     SEED_ADMIN_EMAIL: input.example.SEED_ADMIN_EMAIL || 'admin@example.com',
     SEED_ADMIN_PASSWORD: input.example.SEED_ADMIN_PASSWORD || 'werkstatt-dev-2026',
   })

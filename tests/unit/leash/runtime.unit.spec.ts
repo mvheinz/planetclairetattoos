@@ -10,7 +10,7 @@ import {
   type InspectableLeashHandle,
   type MountOptions,
 } from '@/leash/runtime'
-import { COCO_MAX_SPEED } from '@/leash/presets'
+import { COCO_MAX_SPEED, COCO_WALK_SPEED, READING_LINE } from '@/leash/presets'
 import { resetLeashSchedule, whenLeashReady } from '@/leash/schedule'
 
 import { installTracker, type Tracker } from '../behaviors/harness'
@@ -33,15 +33,17 @@ function stubMatchMedia(reduce = false) {
   }))
 }
 
+const STATIONS = `
+        <div data-leash-station="hallo" data-leash-pose="sit" data-leash-loop="right" data-rect="60,700,24,24"></div>
+        <div data-leash-station="keramik" data-leash-pose="sniff" data-leash-loop="left" data-rect="60,1500,24,24"></div>
+        <div data-leash-station="zeichnungen" data-leash-loop="spiral" data-rect="60,2400,24,24"></div>`
+
 /** Seitencontainer mit Linien-Ebene, Inhalt mit Rinne und drei Stationen; Rechtecke über `data-rect`. */
-function setupDom(): HTMLElement {
+function setupDom(stations = STATIONS): HTMLElement {
   document.body.innerHTML = `
     <div class="page" data-rect="0,0,390,${PAGE_H}">
       <div data-leash-layer aria-hidden="true" data-rect="0,0,390,${PAGE_H}"></div>
-      <main><div class="u-container" data-rect="0,0,390,${PAGE_H}">
-        <div data-leash-station="hallo" data-leash-pose="sit" data-leash-loop="right" data-rect="60,700,24,24"></div>
-        <div data-leash-station="keramik" data-leash-pose="sniff" data-leash-loop="left" data-rect="60,1500,24,24"></div>
-        <div data-leash-station="zeichnungen" data-leash-loop="spiral" data-rect="60,2400,24,24"></div>
+      <main><div class="u-container" data-rect="0,0,390,${PAGE_H}">${stations}
       </div></main>
     </div>`
   return document.querySelector<HTMLElement>('[data-leash-layer]')!
@@ -104,7 +106,7 @@ afterEach(() => {
 const advance = (ms: number) => vi.advanceTimersByTime(ms)
 
 describe('leash/runtime – mountLeash', () => {
-  it('baut Segmente in Stufe A (Strich-Stücke ohne Maske) und zeichnet beim Scrollen monoton (§9.4, §9.6)', () => {
+  it('baut Segmente in Stufe A (Strich-Stücke ohne Maske), zeichnet beim Scrollen und wickelt beim Hochscrollen auf (§9.4, §9.6, U-74)', () => {
     const root = setupDom()
     const handle = mountLeash(root, { preset: 'journey', routeKey: 'R01' })
     const state = handle.inspect()
@@ -138,11 +140,22 @@ describe('leash/runtime – mountLeash', () => {
     const down = handle.inspect().drawnLen
     expect(down).toBeGreaterThan(afterIntro)
     setScroll(700)
-    advance(20)
-    expect(handle.inspect().drawnLen).toBe(down)
-    // Coco läuft geglättet auf der Linie zurück
-    advance(1000)
+    // Coco läuft geglättet auf der Linie zurück, die Leine wickelt sich mit ihr auf (U-74) – nie über sie hinaus
+    for (let i = 0; i < 60; i++) {
+      advance(16)
+      expect(handle.inspect().drawnLen).toBeLessThanOrEqual(handle.inspect().cocoLen + 0.01)
+    }
     expect(handle.inspect().cocoLen).toBeLessThan(down)
+    expect(handle.inspect().drawnLen).toBeCloseTo(handle.inspect().cocoLen, 1)
+    // zurückgewickelte Stücke wieder verborgen: hinter der Feder kein sichtbares Stück
+    const hidden = handle
+      .inspect()
+      .geometry!.segments.filter((g) => g.len0 > handle.inspect().drawnLen)
+    expect(hidden.length).toBeGreaterThan(0)
+    for (const g of hidden)
+      expect(
+        root.querySelector<SVGSVGElement>(`[data-leash-seg="${g.id}"]`)!.style.visibility,
+      ).toBe('hidden')
 
     // Gezeichnete Stücke ganz sichtbar (Versatz 0), höchstens eines anteilig, zukünftige Segmente unsichtbar
     const ink = [...root.querySelectorAll<SVGPathElement>('path')]
@@ -175,8 +188,9 @@ describe('leash/runtime – mountLeash', () => {
     expect(root.querySelectorAll('[mask], mask').length).toBe(0)
     handle.setMotion('full')
     expect(handle.inspect().tier).toBe('A')
-    // bereits gezeichnete Tinte bleibt
-    expect(handle.inspect().drawnLen).toBe(handle.inspect().geometry!.totalLength)
+    // U-74: mit Coco endet die Leine nach dem Umschalten bei ihr (Lesezeile), nicht mehr vollständig
+    expect(handle.inspect().drawnLen).toBeCloseTo(handle.inspect().cocoLen, 1)
+    expect(handle.inspect().drawnLen).toBeLessThan(handle.inspect().geometry!.totalLength)
     handle.destroy()
   })
 
@@ -409,7 +423,7 @@ describe('leash/runtime – reduzierte Bewegung (P2.17, §9.11, §10.6)', () => 
     handle.destroy()
   })
 
-  it('setMotion: reduziert → Linie sofort vollständig ohne Intro; zurück → Tinte bleibt (monoton)', () => {
+  it('setMotion: reduziert → Linie sofort vollständig ohne Intro; zurück → Leine endet bei Coco (U-74)', () => {
     const root = setupDom()
     const handle = mountLeash(root, { preset: 'journey', routeKey: 'R01' })
     expect(handle.inspect().drawnLen).toBe(0) // Intro läuft noch
@@ -422,7 +436,7 @@ describe('leash/runtime – reduzierte Bewegung (P2.17, §9.11, §10.6)', () => 
     handle.setMotion('full')
     s = handle.inspect()
     expect(s.tier).toBe('A')
-    expect(s.drawnLen).toBe(s.geometry!.totalLength)
+    expect(s.drawnLen).toBeCloseTo(s.cocoLen, 1)
     handle.destroy()
   })
 
@@ -538,6 +552,354 @@ describe('U-55 Coco und Tinte mit Höchsttempo (P14.6)', () => {
     expect(maxInk).toBeLessThanOrEqual(COCO_MAX_SPEED * 17 + 0.01)
     expect(api.cocoLen()).toBeGreaterThan(start + 250) // kommt trotzdem an
     off()
+    handle.destroy()
+  })
+})
+
+describe('U-68 Coco läuft eine beim Laden begonnene Schlaufe allein und ruhig zu Ende (P15.1)', () => {
+  it('Intro zeichnet nur bis zum Schlaufenanfang; danach läuft Coco im Schritttempo ohne Sprung bis ans Ende', () => {
+    // Umrundung beginnt über der Lesezeile beim Laden (0,72 × 844 ≈ 608 px) – wie die Kategorie-Bilder im Shop
+    const root = setupDom(`
+        <div data-leash-station="kategorien" data-leash-loop="contour" data-rect="60,480,200,160"></div>
+        <div data-leash-station="keramik" data-leash-loop="left" data-rect="60,1500,24,24"></div>`)
+    const handle = mountLeash(root, { preset: 'journey', routeKey: 'R02' })
+    const off = exposeLeashDebug(handle)
+    const api = (
+      window as Window & {
+        __leash?: {
+          cocoLen(): number
+          drawnLen(): number
+          geometry: {
+            stations: { id: string; loopLen0: number; loopLen1: number }[]
+            scrollMap: { readingY: number; len: number }[]
+          }
+        }
+      }
+    ).__leash!
+    const s = api.geometry.stations.find((x) => x.id === 'kategorien')!
+    expect(s.loopLen1 - s.loopLen0).toBeGreaterThan(300) // länger als die Sprung-Schwelle
+    // Die Scroll-Abbildung legt das Schlaufenende auf die Lesezeile beim Laden: ohne Scrollen ist das Ziel das Ende
+    const last = api.geometry.scrollMap.find((p) => Math.abs(p.len - s.loopLen1) < 0.5)!
+    expect(last.readingY).toBeLessThanOrEqual(READING_LINE * VIEW.h + 1)
+    // Intro (1800 ms ab dem ersten Frame): kurz vor seinem Ende fast am Schlaufenanfang, nie darüber hinaus
+    let introMax = 0
+    for (let t = 0; t < 1750; t += 16) {
+      advance(16)
+      introMax = Math.max(introMax, api.drawnLen())
+    }
+    expect(introMax).toBeLessThanOrEqual(s.loopLen0 + 0.5)
+    expect(introMax).toBeGreaterThan(s.loopLen0 - 10)
+    advance(100)
+    let prev = api.cocoLen()
+    let maxStep = 0
+    let maxLead = 0
+    for (let i = 0; i < 600 && api.cocoLen() < s.loopLen1 - 0.5; i++) {
+      advance(16)
+      maxStep = Math.max(maxStep, api.cocoLen() - prev)
+      maxLead = Math.max(maxLead, api.drawnLen() - api.cocoLen())
+      prev = api.cocoLen()
+    }
+    expect(api.cocoLen()).toBeGreaterThan(s.loopLen1 - 0.5) // kommt an
+    expect(maxStep).toBeGreaterThan(0)
+    expect(maxStep).toBeLessThanOrEqual(COCO_WALK_SPEED * 17 + 0.01) // kein Rennen, kein Sprung
+    expect(maxLead).toBeLessThanOrEqual(0.5) // die Tinte läuft hinter Coco her
+    off()
+    handle.destroy()
+  })
+
+  it('wer dabei scrollt, bekommt wieder das normale Höchsttempo; Sprünge erst nach der Schlaufe', () => {
+    const root = setupDom(`
+        <div data-leash-station="kategorien" data-leash-loop="contour" data-rect="60,480,200,160"></div>
+        <div data-leash-station="keramik" data-leash-loop="left" data-rect="60,1500,24,24"></div>`)
+    const handle = mountLeash(root, { preset: 'journey', routeKey: 'R02' })
+    const off = exposeLeashDebug(handle)
+    const api = (window as Window & { __leash?: { cocoLen(): number } }).__leash!
+    advance(1900)
+    let prev = api.cocoLen()
+    let maxStep = 0
+    for (let i = 0; i < 20; i++) {
+      setScroll(scrollY + 40)
+      advance(16)
+      maxStep = Math.max(maxStep, api.cocoLen() - prev)
+      prev = api.cocoLen()
+    }
+    expect(maxStep).toBeGreaterThan(COCO_WALK_SPEED * 17)
+    expect(maxStep).toBeLessThanOrEqual(COCO_MAX_SPEED * 17 + 0.01)
+    off()
+    handle.destroy()
+  })
+})
+
+describe('U-68 Randfälle aus der Prüfung (P15.1)', () => {
+  const CONTOUR = `
+        <div data-leash-station="kategorien" data-leash-loop="contour" data-rect="60,480,200,160"></div>
+        <div data-leash-station="keramik" data-leash-loop="left" data-rect="60,1500,24,24"></div>`
+  type Api = {
+    cocoLen(): number
+    drawnLen(): number
+    setReadingY(y: number | null): void
+    geometry: {
+      stations: { id: string; loopLen0: number; loopLen1: number }[]
+      scrollMap: { readingY: number; len: number }[]
+    }
+  }
+  const api = () => (window as Window & { __leash?: Api }).__leash!
+  const loop = () => api().geometry.stations.find((x) => x.id === 'kategorien')!
+
+  it('Scrollen während des Intros: weder Tinte noch Coco springen über die Umrundung', () => {
+    const handle = mountLeash(setupDom(CONTOUR), { preset: 'journey', routeKey: 'R02' })
+    const off = exposeLeashDebug(handle)
+    advance(800)
+    let prev = { c: api().cocoLen(), d: api().drawnLen() }
+    let maxC = 0
+    let maxD = 0
+    for (let i = 0; i < 40; i++) {
+      if (i < 5) setScroll(scrollY + 40)
+      advance(16)
+      maxC = Math.max(maxC, api().cocoLen() - prev.c)
+      maxD = Math.max(maxD, api().drawnLen() - prev.d)
+      prev = { c: api().cocoLen(), d: api().drawnLen() }
+    }
+    expect(maxD).toBeLessThanOrEqual(60) // vorher ≈ 900 px in einem Bild
+    expect(maxC).toBeLessThanOrEqual(60)
+    expect(api().drawnLen()).toBeLessThanOrEqual(loop().loopLen1)
+    off()
+    handle.destroy()
+  })
+
+  it('Umrundung weiter unten (erst beim Scrollen): bremst ein Intro, in dem man weit scrollt, nicht', () => {
+    const handle = mountLeash(
+      setupDom(`
+        <div data-leash-station="hallo" data-leash-loop="right" data-rect="60,700,24,24"></div>
+        <div data-leash-station="textil" data-leash-loop="contour" data-rect="60,1500,200,160"></div>
+        <div data-leash-station="keramik" data-leash-loop="left" data-rect="60,2600,24,24"></div>`),
+      { preset: 'journey', routeKey: 'R01' },
+    )
+    const off = exposeLeashDebug(handle)
+    advance(100)
+    setScroll(2000)
+    advance(1600)
+    const s = api().geometry.stations.find((x) => x.id === 'textil')!
+    expect(api().drawnLen()).toBeGreaterThan(s.loopLen1)
+    off()
+    handle.destroy()
+  })
+
+  it('Laden mit 1–7 px Scroll oder auf hohem Bildschirm: das Intro endet trotzdem am Anfang der Umrundung', () => {
+    for (const [y, h] of [
+      [3, VIEW.h],
+      [0, 1400],
+    ] as const) {
+      scrollY = y
+      Object.defineProperty(window, 'innerHeight', { configurable: true, value: h })
+      const handle = mountLeash(setupDom(CONTOUR), { preset: 'journey', routeKey: 'R02' })
+      const off = exposeLeashDebug(handle)
+      let introMax = 0
+      for (let t = 0; t < 1750; t += 16) {
+        advance(16)
+        introMax = Math.max(introMax, api().drawnLen())
+      }
+      expect(introMax, `scrollY ${y}, Höhe ${h}`).toBeLessThanOrEqual(loop().loopLen0 + 0.5)
+      advance(6000)
+      expect(api().cocoLen()).toBeGreaterThanOrEqual(loop().loopLen1 - 0.5) // Coco läuft sie danach allein
+      off()
+      handle.destroy()
+      Object.defineProperty(window, 'innerHeight', { configurable: true, value: VIEW.h })
+      scrollY = 0
+    }
+  })
+
+  it('Neuaufbau im Alleingang nach weitem Scrollen: kein Kriechen bis zur Lesezeile, Coco holt per Sprung auf', () => {
+    const handle = mountLeash(setupDom(CONTOUR), { preset: 'journey', routeKey: 'R02' })
+    const off = exposeLeashDebug(handle)
+    advance(1900)
+    setScroll(2400)
+    advance(50)
+    handle.rebuild()
+    // Rest der Umrundung (< 1 000 px) im Schritttempo, danach Sprung zur Lesezeile – vorher ≈ 5,6 s Kriechen bis dorthin
+    advance(2600)
+    expect(api().cocoLen()).toBeGreaterThan(loop().loopLen1 + 1500)
+    expect(Math.abs(api().cocoLen() - api().drawnLen())).toBeLessThan(1)
+    off()
+    handle.destroy()
+  })
+
+  it('angekommen ist angekommen: danach gilt wieder die Sprung-Regel (Lesezeile von Hand gesetzt)', () => {
+    const handle = mountLeash(setupDom(CONTOUR), { preset: 'journey', routeKey: 'R02' })
+    const off = exposeLeashDebug(handle)
+    advance(1900 + 6000)
+    expect(api().cocoLen()).toBeGreaterThanOrEqual(loop().loopLen1 - 0.5)
+    api().setReadingY(0)
+    advance(450)
+    const s = loop()
+    const sm = api().geometry.scrollMap
+    const k = sm.findIndex((p) => p.len >= s.loopLen0 + 400)
+    api().setReadingY(sm[k]!.readingY)
+    advance(50)
+    expect(api().cocoLen()).toBeGreaterThan(s.loopLen0 + 350) // gesprungen, nicht gekrochen
+    off()
+    handle.destroy()
+  })
+
+  it('Neuaufbau, bevor der erste Aufbau fertig ist (z. B. `load`): Intro und Alleingang fallen nicht aus', () => {
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number
+      cancelIdleCallback?: (id: number) => void
+    }
+    w.requestIdleCallback = (cb) => setTimeout(cb, 1) as unknown as number
+    w.cancelIdleCallback = (id) => clearTimeout(id)
+    try {
+      const handle = mountStepwise(setupDom(CONTOUR), { preset: 'journey', routeKey: 'R02' })
+      advance(2) // erster Aufbau läuft in Idle-Teilstücken …
+      handle.rebuild() // … und wird durch einen Neuaufbau ersetzt (wie nach `load` oder späten Bildern)
+      const built = vi.fn()
+      handle.whenBuilt(built)
+      for (let i = 0; i < 200 && !built.mock.calls.length; i++) advance(2)
+      expect(built).toHaveBeenCalledTimes(1)
+      const off = exposeLeashDebug(handle)
+      const s = loop()
+      expect(api().drawnLen()).toBeLessThan(s.loopLen0) // Intro läuft, nicht sofort fertig gezeichnet
+      advance(1800)
+      expect(api().drawnLen()).toBeLessThanOrEqual(s.loopLen0 + 30)
+      off()
+      handle.destroy()
+    } finally {
+      Reflect.deleteProperty(w, 'requestIdleCallback')
+      Reflect.deleteProperty(w, 'cancelIdleCallback')
+    }
+  })
+
+  it('404 (einmalige Zeichnung): Neuaufbau vor dem ersten Aufbau zeichnet sofort ganz – kein spätes Intro (MO-04)', () => {
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number
+      cancelIdleCallback?: (id: number) => void
+    }
+    w.requestIdleCallback = (cb) => setTimeout(cb, 1) as unknown as number
+    w.cancelIdleCallback = (id) => clearTimeout(id)
+    try {
+      document.body.innerHTML = `
+        <div class="page" data-rect="0,0,390,900">
+          <div data-leash-layer aria-hidden="true" data-rect="0,0,390,900"></div>
+          <main><div data-rect="0,0,390,900">
+            <div data-leash-anchor="end" data-leash-loop="coil" data-rect="160,480,60,10"></div>
+          </div></main>
+        </div>`
+      const root = document.querySelector<HTMLElement>('[data-leash-layer]')!
+      const handle = mountStepwise(root, { preset: 'lost', routeKey: 'R28' })
+      advance(2)
+      handle.rebuild()
+      const built = vi.fn()
+      handle.whenBuilt(built)
+      for (let i = 0; i < 200 && !built.mock.calls.length; i++) advance(2)
+      expect(built).toHaveBeenCalledTimes(1)
+      const off = exposeLeashDebug(handle)
+      advance(20)
+      expect(api().drawnLen()).toBeGreaterThanOrEqual(handle.inspect().geometry!.totalLength - 0.5)
+      off()
+      handle.destroy()
+    } finally {
+      Reflect.deleteProperty(w, 'requestIdleCallback')
+      Reflect.deleteProperty(w, 'cancelIdleCallback')
+    }
+  })
+
+  it('404 (einmalige Zeichnung, Schlusskringel): zeichnet weiter in einem Zug bis zum Ende', () => {
+    document.body.innerHTML = `
+      <div class="page" data-rect="0,0,390,900">
+        <div data-leash-layer aria-hidden="true" data-rect="0,0,390,900"></div>
+        <main><div data-rect="0,0,390,900">
+          <div data-leash-anchor="end" data-leash-loop="coil" data-rect="160,480,60,10"></div>
+        </div></main>
+      </div>`
+    const root = document.querySelector<HTMLElement>('[data-leash-layer]')!
+    const handle = mountLeash(root, { preset: 'lost', routeKey: 'R28' })
+    const off = exposeLeashDebug(handle)
+    advance(1400 + 120)
+    expect(api().drawnLen()).toBeGreaterThan(0)
+    expect(root.hasAttribute('data-leash-drawn')).toBe(true)
+    off()
+    handle.destroy()
+  })
+})
+
+describe('U-74 Leine wickelt sich beim Hochscrollen auf (P15.4)', () => {
+  /** Wirksamer Versatz eines Stücks: eigener Wert, sonst der vom `<svg>` geerbte. */
+  const offsetOf = (p: SVGPathElement) =>
+    parseFloat(
+      p.getAttribute('stroke-dashoffset') ??
+        p.closest('svg')!.getAttribute('stroke-dashoffset') ??
+        'NaN',
+    )
+
+  it('Stufe A: nach dem Zurückwickeln ist hinter der Feder kein Stück mehr sichtbar (auch aus fertigen Segmenten)', () => {
+    scrollY = 2600
+    const root = setupDom()
+    const handle = mountLeash(root, { preset: 'journey', routeKey: 'R01' })
+    advance(50)
+    setScroll(2700)
+    advance(50)
+    setScroll(700)
+    advance(1500)
+    const s = handle.inspect()
+    expect(s.drawnLen).toBeCloseTo(s.cocoLen, 1)
+    const segs = s.geometry!.segments
+    for (const seg of segs) {
+      const svg = root.querySelector<SVGSVGElement>(`[data-leash-seg="${seg.id}"]`)!
+      if (svg.style.visibility === 'hidden') continue
+      const paths = [...svg.querySelectorAll<SVGPathElement>('path')]
+      seg.strokes!.forEach((st, i) => {
+        if (st.len0 > s.drawnLen + 1)
+          expect(offsetOf(paths[i]!), `${seg.id}#${i}`).toBeGreaterThanOrEqual(2000)
+      })
+    }
+    // wieder hinunter: die Leine wächst wieder bis zu Coco, fertige Stücke sichtbar
+    setScroll(2600)
+    advance(2000)
+    const d = handle.inspect()
+    expect(d.drawnLen).toBeGreaterThan(s.drawnLen + 500)
+    expect(d.drawnLen).toBeCloseTo(d.cocoLen, 1)
+    handle.destroy()
+  })
+
+  it('ohne Coco (Randlinie `margin`): Tinte bleibt beim Hochscrollen stehen', () => {
+    const root = setupDom()
+    const handle = mountLeash(root, { preset: 'margin', routeKey: 'R21' })
+    setScroll(1500)
+    advance(100)
+    const down = handle.inspect().drawnLen
+    expect(down).toBeGreaterThan(0)
+    setScroll(300)
+    advance(1000)
+    expect(handle.inspect().drawnLen).toBe(down)
+    handle.destroy()
+  })
+
+  it('Hochscrollen während des Intros: das Intro endet, die Linie läuft nie vor Coco her', () => {
+    const root = setupDom()
+    const handle = mountLeash(root, { preset: 'journey', routeKey: 'R01' })
+    advance(300)
+    setScroll(1600)
+    advance(600)
+    setScroll(200)
+    for (let i = 0; i < 150; i++) {
+      advance(16)
+      if (i > 20)
+        expect(handle.inspect().drawnLen).toBeLessThanOrEqual(handle.inspect().cocoLen + 0.5)
+    }
+    handle.destroy()
+  })
+
+  it('Neuaufbau mit Coco: die Linie endet bei ihr (kein Rest vor ihr); ohne Coco bleibt der Fortschritt', () => {
+    const root = setupDom()
+    const handle = mountLeash(root, { preset: 'journey', routeKey: 'R01' })
+    advance(2000)
+    setScroll(1300)
+    advance(1500)
+    setScroll(400)
+    advance(1500)
+    handle.rebuild()
+    advance(50)
+    expect(handle.inspect().drawnLen).toBeCloseTo(handle.inspect().cocoLen, 1)
     handle.destroy()
   })
 })

@@ -1388,7 +1388,7 @@ Reihenfolge fest (KONZEPT AK-3-01): `hero` + `imageText` + 5 `station`-Blöcke (
 |---|---|---|---|---|---|---|
 | 0 | hero | – | Tattoos & handgemachte Unikate aus Berlin / Tattoos & handmade one-offs from Berlin | run | – | – |
 | ~~1~~ | ~~station~~ | ~~`hallo`~~ | entfällt (U-40, P13.1) | – | – | – |
-| 1a | imageText (`image` own:jutta-coco) | – | – (Text der früheren Station 7, oben links unter dem Foto, U-50) | – | – | – (Link „Mehr über uns“ / “More about us” → R19 fest) |
+| 1a | imageText (`image` own:jutta-coco) | – | – (Text der früheren Station 7; Foto oben links, U-50; Text seit U-70/P15.2 mittig unter Koko) | – | – | – (Link „Mehr über uns“ / “More about us” → R19 fest) |
 | 2 | station | `keramik` | Keramik / Ceramics | sniff | planet | category `keramik` · Alle Keramik / All ceramics |
 | 3 | station | `textil` | Textil & Caps / Textiles & caps | sniff | star | category `textil` · Alle Textilien / All textiles |
 | 4 | station | `zeichnungen` | Zeichnungen / Drawings | sit | none | category `zeichnung` · Alle Zeichnungen / All drawings |

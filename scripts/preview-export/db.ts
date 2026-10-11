@@ -1,7 +1,8 @@
 // Datenbank des Vorschau-Exports (ARCHITEKTUR §14.2 Nr. 2, KONZEPT §12.3 Nr. 2): eigene Datenbank
 // `planetclaire_preview_export` auf dem Server aus DATABASE_URL anlegen (db:ensure), Schema leeren, migrieren,
 // Grund-Seed und Beispielbestand. Dateiablage `.data/preview-export/` wird vorher geleert. Die Datenbank bleibt nach dem
-// Lauf für die Fehlersuche bestehen. Nur Seed-Daten (DATENMODELL §13.6).
+// Lauf für die Fehlersuche bestehen. Nur Seed-Daten (DATENMODELL §13.6) – und seit U-76 Juttas echter Bestand statt der
+// Demo-Stücke (`bestand:import --preview`, P16.3; `PREVIEW_INVENTORY=demo` = alter Stand mit Demo-Bestand).
 import { spawnSync } from 'node:child_process'
 import { rmSync } from 'node:fs'
 import path from 'node:path'
@@ -12,6 +13,7 @@ import { databaseNameFromUrl, destructiveActionBlockedReason } from '../../src/l
 
 import { EXPORT_DB_NAME, EXPORT_STORAGE_DIR, maintenanceDatabaseUrl } from './env'
 import { ExportError } from './errors'
+import { BESTAND_SEED_STEPS, resolveInventory } from './inventory'
 
 async function withClient<T>(url: string, fn: (c: pg.Client) => Promise<T>): Promise<T> {
   const client = new pg.Client({ connectionString: url, connectionTimeoutMillis: 5000 })
@@ -70,7 +72,10 @@ function run(cmd: string, args: string[], env: Record<string, string>, what: str
   if (res.status !== 0) throw new ExportError(1, `${what} fehlgeschlagen (Exit ${res.status}).`)
 }
 
-/** Kompletter Datenbank-Schritt: anlegen, leeren, migrieren, `seed:base`, `seed:example`. */
+/**
+ * Kompletter Datenbank-Schritt: anlegen, leeren, migrieren, `seed:base`, dann je Bestand (U-76): echter Bestand =
+ * `seed:example` ohne Stücke und Vorgänge plus `bestand:import --preview`; Demo = vollständiges `seed:example`.
+ */
 export async function prepareExportDatabase(
   env: Record<string, string>,
   root: string,
@@ -82,7 +87,13 @@ export async function prepareExportDatabase(
   const startedAt = new Date()
   run('pnpm', ['-s', 'payload', 'migrate'], env, 'payload migrate')
   run('pnpm', ['-s', 'seed:base'], env, 'seed:base')
-  run('pnpm', ['-s', 'seed:example'], env, 'seed:example')
+  if (resolveInventory(env) === 'demo') {
+    run('pnpm', ['-s', 'seed:example'], env, 'seed:example')
+  } else {
+    const only = `--only=${BESTAND_SEED_STEPS.join(',')}`
+    run('pnpm', ['-s', 'seed:example', only], env, `seed:example ${only}`)
+    run('pnpm', ['-s', 'bestand:import', '--preview'], env, 'bestand:import --preview')
+  }
   await normalizeRunTimestamps(url, env.SEED_NOW!, startedAt, new Date())
 }
 

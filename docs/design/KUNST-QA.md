@@ -188,7 +188,7 @@ Tempo-Läufe laufen **ohne** Videoaufnahme (Video kostet CPU) und getrennt von B
 | SC-05 | R04 Produktseite (available) | alle | laden, Galerie wischen, Zoom öffnen/schließen, „In den Korb“ | Video; Linie 0/150/300/450/600 ms; Hüpfer alle 40 ms; Kauf-Leiste |
 | SC-06 | R06 Korb, R07 Kasse (Mock-Zahlung), R09 Bestellstatus, R26 Widerruf | alle | Felder ausfüllen, Fehler auslösen, Ändern-Links | Frames vor/nach jeder Interaktion; `getAnimations()`-Protokoll |
 | SC-07 | R07 Countdown | alle | Clock auf `reservedUntil − 10:05`, `−5:00`, `−1:00`, `0` vorspulen | Frames je Schwelle; Live-Region-Texte |
-| SC-08 | R12 Tattoo-Flash, R11 | alle | laden, scrollen, Desktop-Hover auf Flash-Karte | Video; je Karte 0/350/700 ms (seit U-44 keine Kontur um Karten, sondern Kringel je Zeile, Coco läuft mit; R11 Umrundung der Galerie-Leiste) |
+| SC-08 | R12 Tattoo-Flash, R11 | alle | laden, scrollen, Desktop-Hover auf Flash-Karte | Video; je Karte 0/350/700 ms (seit U-44 keine Kontur um Karten, sondern Kringel je Zeile, Coco läuft mit; R11 Umrundung der Galerie-Leiste – seit U-68 am Desktop ein Kringel, weil der Umlauf über 1 500 px lang wäre, DESIGN §9.6) |
 | SC-09 | R08 Danke (Zustände: warten, bezahlt, Vorkasse, fehlgeschlagen, leider schon weg) | alle | Zustände per Mock-Zahlung | Video; MI-09 alle 100 ms bis 6 s |
 | SC-10 | R28 404, 404-Variante „Zuhause“, R29 500 | alle | laden, 6 s warten | Video; alle 200 ms bis 6 s |
 | SC-11 | R01 → R02 → R04 → R06 (weiche Navigation) | `art-pixel7`, `art-desktop` | Links klicken | Video; View-Transition-Sequenz alle 50 ms |
@@ -293,7 +293,7 @@ Beleg) **· Schwere bei Verfehlung** (B = Blocker, M = Major, m = Minor; Definit
 | MO-03 | Boil-Takt und -Reihenfolge | 8–12 fps (Frame-Länge 83–125 ms); `rennen`/`springen` 12 fps, `schlafen` 8 fps; Seek auf 0/1/2 Frame-Längen zeigt genau Frame a/b/c (Reihenfolge A → B → C, sonst läuft der Galopp rückwärts) | auto | M |
 | MO-04 | Boil-Budget | kein Boil, kein Atmen und kein Ablauf (auch endliche wie MI-09, MI-11) läuft > 5 s am Stück ohne Nutzereingabe; Danke-Wartezustand: Boil endet 5 s nach Eintritt | auto (`poseLog`, `data-boil`, `getAnimations()`) | B |
 | MO-05 | Lesezeilen-Treue | an 12 Scroll-Positionen: `drawnLen` = `map(readingY)` ± 1 px nach 2 Frames | auto | M |
-| MO-06 | Tinte bleibt | 400 px hochscrollen: `drawnLen` unverändert; Coco läuft gespiegelt zurück | auto + R2 | M |
+| MO-06 | Leine wickelt sich auf (U-74; bis P15: „Tinte bleibt“) | 400 px hochscrollen: `drawnLen` kleiner als vorher und endet bei Coco (Abstand `drawnLen` zu `cocoLen` ≤ 2 px); Coco läuft gespiegelt zurück | auto + R2 | M |
 | MO-07 | Coco folgt | nach Scrollstopp ≤ 400 ms bis Abstand < 1 px; beim schnellen Wischen nie > 300 px Bogenlänge Rückstand (sonst Sprung) | auto | m |
 | MO-08 | Posen je Station | Pose bei Ankunft/Verweilen = Tabelle DESIGN §11.4 an allen 9 Stationen | auto (`__leash.pose()`) + R2 (Bögen) | M |
 | MO-09 | Brücken | jeder Posenwechsel mit der definierten Brücke bzw. Frame-Grenze; keine Überblendung | auto (`poseLog`) + R2 | m |

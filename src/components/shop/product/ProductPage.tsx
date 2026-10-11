@@ -519,11 +519,6 @@ export async function ProductPage({
       {/* Kaufklausel: nur das Unikat, keine Rechte am Motiv (U-22 b, Baustein `ip.purchaseClause`) */}
       <IpNotice locale={locale} kind="purchase" />
 
-      {/* Harmonisierte Mitteilung zur Gewährleistung (R-049) */}
-      <StaticHtml>
-        <WarrantyNotice locale={locale} />
-      </StaticHtml>
-
       {/* 7. Beschreibung und „Jutta sagt“ */}
       <StaticHtml {...coil('description', 0, 'spiral')}>
         <ProductDescription product={product} locale={locale} langOf={de} />
@@ -554,6 +549,12 @@ export async function ProductPage({
           pickupEnabled={settings.pickupEnabled}
           pickupCity={pickupCity}
         />
+      </StaticHtml>
+
+      {/* Harmonisierte Mitteilung zur Gewährleistung (R-049), U-73 (P15.3): kompakt nach „Versand & Rückgabe“ – noch bei den
+          Produktangaben, vor „Mehr aus …“ */}
+      <StaticHtml>
+        <WarrantyNotice locale={locale} />
       </StaticHtml>
 
       {/* 11. Mehr aus {Kategorie} */}

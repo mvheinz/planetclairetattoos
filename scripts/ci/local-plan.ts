@@ -280,8 +280,7 @@ export const IPHONE_CORE: readonly { spec: string; covers: string }[] = [
   },
   {
     spec: 'tests/e2e/home/',
-    covers:
-      'Stations-Kompass (Anker, Ziele ≥ 44 px, Tastatur), Stationen mit Stücken, Stationszeichnungen',
+    covers: 'Stationen mit Stücken, Stationszeichnungen',
   },
   {
     spec: 'tests/e2e/home-tour.e2e.spec.ts',
@@ -638,9 +637,9 @@ const ALL: Step[] = [
   // ---------- full: Vorschau-Export (preview-export.yml) ----------
   {
     id: 'preview',
-    title: 'Vorschau-Export + Export-Test + Budget',
+    title: 'Vorschau-Export + Export-Test + Budget + Prüfliste',
     modes: ['full'],
-    cmd: "pnpm run preview:export && pnpm run test:preview-export && node -e \"const r=require('./dist/planet-claire-vorschau.report.json');const b=r.budget&&r.budget.result;console.log('Budget:',b);if(b==='fail')process.exit(1)\"",
+    cmd: "pnpm run preview:export && pnpm run test:preview-export && node -e \"const r=require('./dist/planet-claire-vorschau.report.json');const b=r.budget&&r.budget.result;console.log('Budget:',b);if(b==='fail')process.exit(1)\" && pnpm run bestand:pruefliste",
     timeoutMin: 60,
   },
   // ---------- art (art-qa.yml) ----------

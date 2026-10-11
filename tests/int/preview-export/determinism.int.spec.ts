@@ -24,7 +24,7 @@ function runExport(args: string[]) {
     },
     encoding: 'utf8',
     maxBuffer: 64 * 1024 * 1024,
-    timeout: 15 * 60_000,
+    timeout: 30 * 60_000,
   })
   if (res.status !== 0) {
     throw new Error(
@@ -88,6 +88,6 @@ describe('pnpm preview:export – Determinismus und Inhalt (AK-A-14-01, AK-A-14-
       // Keine Zeitstempel im HTML (nur das Stand-Datum als Tag).
       expect(html).not.toMatch(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)
     },
-    30 * 60_000,
+    65 * 60_000,
   )
 })

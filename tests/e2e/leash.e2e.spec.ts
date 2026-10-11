@@ -8,6 +8,7 @@ import { waitForLeashSettled } from './leashSettle'
 interface LeashApi {
   geometry: { totalLength: number; segments: unknown[] } | null
   drawnLen(): number
+  cocoLen(): number
   tier(): string
   rebuildCount(): number
 }
@@ -55,7 +56,7 @@ test.describe('Tuschelinie-Laufzeit', () => {
     )
   })
 
-  test('AK-DS-13 R01: Ebene aria-hidden ohne Fokusziele, Scroll zeichnet, Hochscrollen radiert nicht', async ({
+  test('AK-DS-13 R01: Ebene aria-hidden ohne Fokusziele, Scroll zeichnet, Leine wickelt sich beim Hochscrollen auf (U-74)', async ({
     page,
   }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' })
@@ -103,8 +104,13 @@ test.describe('Tuschelinie-Laufzeit', () => {
 
     const before = await drawn(page)
     await page.evaluate(() => window.scrollBy({ top: -400, behavior: 'instant' }))
-    await page.waitForTimeout(300)
-    expect(await drawn(page)).toBe(before)
+    await page.waitForTimeout(800)
+    const up = await page.evaluate(() => {
+      const l = (window as LeashWindow).__leash!
+      return { drawn: l.drawnLen(), coco: l.cocoLen() }
+    })
+    expect(up.drawn).toBeLessThan(before - 50)
+    expect(Math.abs(up.drawn - up.coco)).toBeLessThanOrEqual(2)
   })
 
   test('AK-DS-15: Resize 390 → 768 → 390 baut neu auf, ohne Konsolenfehler und ohne Layout-Verschiebung', async ({

@@ -258,6 +258,9 @@ Wunsch-Starttermin. A30 und A31 gehen erst, wenn P10 fertig ist.
   - Warum: Zum Start löschen wir alle Beispieldaten, und im Shop sollen echte Stücke stehen.
   - Aufwand: ca. 25 Min. pro Stück
   - Anleitung: [F1](ANLEITUNGEN.md#f1)
+  - Stand 10.10.2026: Die Fotos von 74 Stücken sind da (19 Pakete). Claude hat daraus Entwürfe mit geschätzten Angaben
+    gemacht (P16). Für dich bleibt: die Prüfliste `planet-claire-pruefliste.html` durchgehen und notieren, was nicht
+    stimmt – vor allem Preise, Maße, Gewicht, Material, Größe und Fasern vom Etikett, Material der Ketten.
 
 - [ ] **A30 · Die fertige Vorschau-Datei anschauen und Anmerkungen notieren** (nach P10)
   - Warum: Das ist deine Abnahme, bevor die Seite live geht.
@@ -300,6 +303,8 @@ Die Reihenfolge steht in [Z1](ANLEITUNGEN.md#z1).
 - [ ] **A34 · In der Verwaltung eintragen:** Admin-Passwort, Stammdaten, IBAN, LUCID-Nummer, Rechtstexte der
   Kanzlei, Nachweise (Nickel, Glasuren), technische Unterlagen je Produktart, Einwilligungen und die ersten Stücke
   - Warum: Das sind echte Daten statt Platzhalter. Erst damit wird die „Startklar“-Prüfung grün.
+  - Deine 74 Stücke aus den Fotos spielt Claude mit `pnpm bestand:import` als Entwürfe ein (rot markiert „bitte
+    prüfen“). Du korrigierst sie mit deiner Liste aus A29, setzt den Haken „nur eigene Figuren“ und stellst sie online.
   - Aufwand: ca. 60 Min. plus ca. 10 Min. pro Stück
   - Anleitung: [T3](ANLEITUNGEN.md#t3), [E1](ANLEITUNGEN.md#e1), [F1](ANLEITUNGEN.md#f1), [M3](ANLEITUNGEN.md#m3)
 

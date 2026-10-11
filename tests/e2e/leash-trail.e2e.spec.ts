@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 
 import { overlaps } from '../../scripts/art/lib/checks/runtime'
+import { COCO_WALK_SPEED } from '../../src/leash/presets'
 import { localizedPath } from '../../src/lib/routes/paths'
 import { probePage } from '../art/helpers/probe'
 import { waitForLeashSettled } from './leashSettle'
@@ -15,7 +16,7 @@ type LeashWindow = Window & {
     geometry: {
       totalLength: number
       scrollMap: { readingY: number }[]
-      stations: { id: string; loop: string }[]
+      stations: { id: string; loop: string; loopLen0: number; loopLen1: number }[]
     }
     drawnLen(): number
     cocoLen(): number
@@ -117,7 +118,7 @@ test('U-44: Coco läuft auf allen Shop- und Tattoo-Seiten mit, ohne Text oder Be
   expect(hits).toEqual([])
 })
 
-test('U-44: Umrundungen – Kategorie-Bilder im Shop und Galerie-Leiste auf R11 (ab 768 px), Kringel je Kartenzeile', async ({
+test('U-44/U-68: Umrundung der Kategorie-Bilder im Shop (ab 768 px), Galerie-Leiste auf R11 als Kringel, Kringel je Kartenzeile', async ({
   page,
 }, testInfo) => {
   test.skip(testInfo.project.name !== 'desktop', 'Umrundungen brauchen Platz (Desktop)')
@@ -133,7 +134,55 @@ test('U-44: Umrundungen – Kategorie-Bilder im Shop und Galerie-Leiste auf R11 
   const shop = await loops(localizedPath('R02', 'de'))
   expect(shop.kategorien).toBe('contour')
   expect(Object.keys(shop).filter((id) => id.startsWith('row-')).length).toBeGreaterThan(1)
+  // U-68 (P15.1): die lange Umrundung der Galerie-Leiste läge erst beim Scrollen an – Coco rannte oder sprang dort; jetzt
+  // ein Kringel in der Rinne
   const tattoo = await loops(localizedPath('R11', 'de'))
-  expect(tattoo.gallery).toBe('contour')
+  expect(tattoo.gallery).toBe('right')
   expect(tattoo['tattoo-title']).toBe('right')
+})
+
+test('U-68: im Shop läuft Coco nach dem Laden allein und im Schritttempo um die Kategorie-Bilder – ohne Sprung', async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop', 'Umrundung nur ab 768 px')
+  await page.addInitScript(() => {
+    const w = window as Window & { __cocoLog?: [number, number][] }
+    w.__cocoLog = []
+    const tick = (t: number) => {
+      const l = (window as LeashWindow).__leash
+      if (l?.geometry) w.__cocoLog!.push([t, l.cocoLen()])
+      requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  })
+  await page.goto(localizedPath('R02', 'de'))
+  await waitForLeash(page)
+  const s = await page.evaluate(() =>
+    (window as LeashWindow).__leash!.geometry.stations.find((x) => x.id === 'kategorien')!,
+  )
+  expect(s.loopLen1 - s.loopLen0).toBeGreaterThan(1500)
+  // ohne Scrollen kommt Coco am Ende der Umrundung an
+  await page.waitForFunction(
+    (end) => (window as LeashWindow).__leash!.cocoLen() >= end - 1,
+    s.loopLen1,
+    { timeout: 20_000 },
+  )
+  const log = await page.evaluate(
+    () => (window as Window & { __cocoLog?: [number, number][] }).__cocoLog!,
+  )
+  // auf der Umrundung: Tempo über je ≥ 150 ms (Sonde und Engine laufen im selben Bild in beliebiger Reihenfolge) höchstens
+  // Schritttempo, und nie ein Sprung von Bild zu Bild
+  const walk = log.filter(([, l]) => l >= s.loopLen0 + 1 && l < s.loopLen1 - 1)
+  let fastest = 0
+  let jump = 0
+  for (let i = 1; i < walk.length; i++) {
+    jump = Math.max(jump, walk[i]![1] - walk[i - 1]![1])
+    const j = walk.findIndex(([t]) => t >= walk[i - 1]![0] + 150)
+    if (j < 0) break
+    fastest = Math.max(fastest, (walk[j]![1] - walk[i - 1]![1]) / (walk[j]![0] - walk[i - 1]![0]))
+  }
+  expect(walk.length).toBeGreaterThan(20)
+  expect(jump).toBeLessThan(60)
+  expect(fastest).toBeGreaterThan(0)
+  expect(fastest).toBeLessThanOrEqual(COCO_WALK_SPEED * 1.25)
 })

@@ -1006,6 +1006,7 @@ Keine Repository-Secrets bis P11; auch danach **keine** Produktionsdaten oder Pr
 | `NEXT_DIST_DIR` | Build-Ordner (`distDir` in `next.config.ts`); der Vorschau-Export nutzt `.next-preview`, damit `.next` des Entwicklungsservers unberührt bleibt | leer = `.next` | – | nein | P2 |
 | `PREVIEW_EXPORT_DB_NAME` | Nur für parallele Vorschau-Exporte auf einem Rechner: eigene Wegwerf-Datenbank (`planetclaire_…preview…`, `scripts/preview-export/env.ts`) | leer = `planetclaire_preview_export` | – | nein | P8 |
 | `PREVIEW_EXPORT_PORT` | Dazu der eigene Port des Export-Servers (1024–65535) | leer = `3999` | – | nein | P8 |
+| `PREVIEW_INVENTORY` | Bestand der Vorschau-Datei (U-76, §14.2): `bestand` = Juttas echte Stücke aus `content/bestand`, `demo` = Beispielbestand mit Seed-Ankern (Danke-/Statusseiten, S08) | leer = `bestand` | – | nein | P16 |
 | `E2E_BASE_URL` | Ziel der E2E-Tests | `http://localhost:3000` | – | nein | P1 |
 | `E2E_SERVER` | `dev` (lokal) oder `start` (CI: Produktions-Build) | `dev`; CI `start` | – | nein | P1 |
 | `PW_SKIP_WEBKIT` | nur wenn die WebKit-Installation scheitert (Cloud/lokal, §4.5): Projekt `iphone-15` läuft als markierte Chromium-Emulation (§7.3); in CI nie gesetzt | leer | – | nein | P1 |
@@ -1602,7 +1603,7 @@ Kopf/Menü/Fuß, Preisschild, sold-Stempel, Kasse, 404.
 | TBT (Labor-Ersatz für INP) | ≤ 200 ms | ≤ 150 ms | Lighthouse-CI | wie LCP |
 | INP-Ersatz | ≤ 200 ms je Interaktion | ≤ 150 ms | Playwright `@perf`, `pixel-7`, CPU 4× (CDP), Event Timing: Menü öffnen, In den Korb, Zoom öffnen, Filter | R01, R02, R04 |
 | JS beim ersten Laden (gzip, Summe aller Skripte, die das ausgelieferte HTML einbindet – `<script src>` ohne `nomodule`, `preload`/`modulepreload` as=script; seit P14.13 statt „vor `load` geladen“, das je nach Last nachgeladene Chunks mitzählte; Nachgeladenes hat eigene Modul-Budgets, was zufällig vor `load` kam, steht nur im Bericht) | R01 ≤ 170 KB; R02–R05, R11–R18, R19–R27 ≤ 150 KB; R06/R07 ≤ 220 KB (ohne Stripe.js) | R01 ≤ 140 KB | `pnpm check:bundle` (Playwright lädt die Seite gegen `next start`, liest die Skript-URLs, gzipt die Dateien aus `.next/static` mit Stufe 9) | alle Seitentypen |
-| Lazy-Chunks | DESIGN §9.10: Engine ≤ 12 KB gz, Coco ≤ 3 KB, Mikro-Interaktionen ≤ 4 KB, statischer Renderer ≤ 4 KB; GSAP-Chunk (falls ADR) ≤ 30 KB | – | `check:bundle` | – |
+| Lazy-Chunks | DESIGN §9.10: Engine ≤ 12,3 KB gz (U-68, P15.1; vorher 12 KB), Coco ≤ 3 KB, Mikro-Interaktionen ≤ 4 KB, statischer Renderer ≤ 4 KB; GSAP-Chunk (falls ADR) ≤ 30 KB | – | `check:bundle` | – |
 | Schriften | genau 3 woff2, zusammen ≤ 100 KB | – | DESIGN AK-DS-04 | – |
 | Bilder | LCP-Bild der Produktseite ≤ 120 KB (`pixel-7`); Median `thumb` ≤ 40 KB, `card` ≤ 90 KB | – | DESIGN §12.2; nur Bericht in `check:bundle` (Median aus den `srcset`-Größen von R02, LCP-Bild von R04 im Profil Pixel 7; `images` in budgets.json) | R02, R04 |
 | Seitengewicht erster Aufruf | R01 ≤ 1,5 MB | ≤ 1,0 MB | Lighthouse `total-byte-weight` | R01 |
@@ -2449,7 +2450,11 @@ Widerspruch in fachlichen Punkten (Inhalt, Texte, Umfang) gilt KONZEPT §12, bei
 
 1. Voraussetzungen prüfen → sonst Exit 2.
 2. Datenbank `planetclaire_preview_export` auf dem Server aus `DATABASE_URL`: `db:ensure`, Schema `public` leeren,
-   `payload migrate`, `seed:base`, `seed:example`. Dateiablage `.data/preview-export/` wird vorher geleert.
+   `payload migrate`, `seed:base`, `seed:example`. Dateiablage `.data/preview-export/` wird vorher geleert. Seit U-76
+   (P16.3) zeigt die Datei Juttas echten Bestand: `seed:example --only=media,flash,tattoo-gallery,tour-dates,pages,faqs`
+   (ohne Demo-Stücke und ohne Vorgänge, die sie brauchen) und `bestand:import --preview` (Stücke sofort „verfügbar“).
+   Danke- und Statusseiten (Seed-Anker) und die 404-Variante S08 fehlen dann (Bericht: „nicht gebaut“ mit Hinweis);
+   `PREVIEW_INVENTORY=demo` exportiert wie bisher mit dem Demo-Bestand.
 3. Build mit der Export-Umgebung (§14.3) nach `.next-preview` – ohne `NEXT_PUBLIC_LEASH_DEBUG`.
 4. Start auf `http://127.0.0.1:3999`, Warten auf `/api/health` (höchstens 120 s).
 5. Crawl (§14.4), danach Bildschirmfotos der Verwaltung (§14.7).

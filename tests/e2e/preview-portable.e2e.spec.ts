@@ -21,7 +21,6 @@ import { localizedPath } from '../../src/lib/routes/paths'
 
 const SOURCE = path.resolve(process.env.PREVIEW_FILE ?? 'dist/planet-claire-vorschau.html')
 const FONT_FAMILIES = ['spectral', 'spectralItalic', 'bricolage', 'plexMono']
-const PRODUCT = '/de/shop/901-schale-langohr-wuschel'
 const SIZE_LIMIT = 40_000_000
 
 interface PvRoute {
@@ -141,7 +140,15 @@ test.describe('Vorschau-Datei aus einem frischen Verzeichnis (P10.20)', () => {
     await open(page)
     await expect(page.locator('#pv-banner')).toContainText('Interne Vorschau – nicht weitergeben')
     await expectImagesAndFonts(page, '/de')
-    for (const route of [localizedPath('R02', 'de'), PRODUCT]) {
+    // Erste gebaute Produktseite der Datei – echter Bestand (U-76) oder Demo-Bestand, je nach Datei.
+    const product = (
+      await page.evaluate(() => (window as unknown as { __PV_ROUTES: PvRoute[] }).__PV_ROUTES)
+    )
+      .filter((r) => r.built && r.lang === 'de' && /^\/de\/shop\/\d+-/.test(r.route))
+      .map((r) => r.route)
+      .sort()[0]
+    expect(product, 'eine gebaute Produktseite').toBeDefined()
+    for (const route of [localizedPath('R02', 'de'), product!]) {
       await go(page, route)
       await expectImagesAndFonts(page, route)
     }

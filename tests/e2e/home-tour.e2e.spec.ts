@@ -4,7 +4,8 @@ import { splitTourDates, tourState } from '../../src/lib/tour/dates'
 import type { Locale } from '../../src/lib/routes/registry'
 
 // P12.8 (U-20, KONZEPT §3.1a) und P13.3 (U-42) – „Planet Claire on Tour“ auf der Startseite mit dem Beispielbestand
-// (SEED-SPEC §12.5), seit P14.1 (U-50): unter dem Titel Foto + Text | Koko (`data-slot="chairwoman"`) | schmaler Schaukasten
+// (SEED-SPEC §12.5), seit P14.1 (U-50): unter dem Titel Foto + Text | Koko (`data-slot="chairwoman"`) | schmaler Schaukasten;
+// seit P15.2 (U-69–U-71): Schaukasten ab 1100 px schon neben dem Titel, Text mittig unter Koko
 // (ab 1100 px drei Spalten, darunter untereinander). Auf der Tafel nur die nächsten drei Termine (kompakt:
 // Datum, Name, eine Zeile); weitere und vergangene Termine in einem `<details>`; abgesagte durchgestrichen mit Text; darunter
 // der Instagram-Hinweis mit gezeichnetem Zeichen; keine Karte und keine Anfrage an Dritte. Erwartungen aus den Daten und der
@@ -65,7 +66,8 @@ for (const locale of ['de', 'en'] as const) {
     const aside = page.locator('[data-home-aside]')
     await expect(aside).toHaveCount(1)
 
-    // U-50 (P14.1): oben Foto + Text | Koko | Schaukasten (ab 1100 px drei Spalten, darunter untereinander)
+    // U-50 (P14.1), U-69–U-71 (P15.2): oben Foto | Koko mit Text darunter | Schaukasten (ab 1100 px drei Spalten, der
+    // Schaukasten schon neben dem Titel; darunter untereinander)
     const intro = page.locator('[data-home-intro]')
     const slot = page.locator('[data-slot="chairwoman"]')
     await expect(slot).toHaveCount(1)
@@ -82,7 +84,14 @@ for (const locale of ['de', 'en'] as const) {
       expect(kokoBox.x).toBeGreaterThanOrEqual(introBox.x + introBox.width - 1) // Koko rechts vom Foto
       expect(asideBox.x).toBeGreaterThanOrEqual(kokoBox.x + kokoBox.width - 1) // Schaukasten rechts von Koko
       expect(Math.abs(kokoBox.y - introBox.y)).toBeLessThan(2) // eine Zeile
-      expect(Math.abs(asideBox.y - introBox.y)).toBeLessThan(2)
+      // U-71: weiter oben – neben dem Titel, rechts von ihm
+      expect(Math.abs(asideBox.y - heroBox.y)).toBeLessThan(24)
+      expect(asideBox.x).toBeGreaterThanOrEqual(heroBox.x + heroBox.width - 1)
+      // U-69: Foto mit Abstand zur Linie (Rinne links), U-70: Text mittig unter Koko
+      const kokoImg = (await slot.locator('[data-chairwoman]').boundingBox())!
+      const text = (await slot.locator('[data-home-intro-text]').boundingBox())!
+      expect(text.y).toBeGreaterThanOrEqual(kokoImg.y + kokoImg.height - 1)
+      expect(Math.abs(text.x + text.width / 2 - (kokoImg.x + kokoImg.width / 2))).toBeLessThan(4)
       const firstNote = tour.locator('[data-tour-upcoming] > li').first()
       if (board.length)
         expect((await firstNote.boundingBox())!.y).toBeLessThan(page.viewportSize()!.height)

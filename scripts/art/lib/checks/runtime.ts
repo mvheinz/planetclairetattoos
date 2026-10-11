@@ -214,7 +214,7 @@ export function mo04(files: readonly ProbeFile[]): CheckResult {
 /** MO-05/MO-06 aus der Lesezeilen-Reihe `mo05-NN` und `mo06-up400` (SC-01, frische Seite). */
 export function mo05(files: readonly ProbeFile[]): CheckResult {
   const th =
-    'an 12 Scroll-Positionen drawnLen = map(readingY) ± 1 px nach 2 Frames (Tinte bleibt: max. mit dem bisher Gezeichneten)'
+    'an 12 Scroll-Positionen drawnLen = map(readingY) ± 1 px nach 2 Frames (abwärts: max. mit dem bisher Gezeichneten)'
   const bad: string[] = []
   let n = 0
   let worst = 0
@@ -246,7 +246,9 @@ export function mo05(files: readonly ProbeFile[]): CheckResult {
 }
 
 export function mo06(files: readonly ProbeFile[]): CheckResult {
-  const th = '400 px hoch: drawnLen unverändert (Coco gespiegelt: R2)'
+  // U-74 (P15.4): die Leine wickelt sich mit Coco auf (vorher „Tinte bleibt“: drawnLen unverändert)
+  const th =
+    '400 px hoch: drawnLen kleiner und bei Coco (|drawnLen − cocoLen| ≤ 2; Coco gespiegelt: R2)'
   const bad: string[] = []
   let n = 0
   for (const f of files.filter((x) => x.sc === 'SC-01' && x.variant === 'motion')) {
@@ -255,8 +257,9 @@ export function mo06(files: readonly ProbeFile[]): CheckResult {
     const before = rows[rows.length - 1]
     if (!up || !before) continue
     n++
-    if (Math.abs(up.leash!.drawnLen - before.leash!.drawnLen) > 1)
-      bad.push(`${f.profile}: ${before.leash!.drawnLen} → ${up.leash!.drawnLen}`)
+    const { drawnLen, cocoLen } = up.leash!
+    if (drawnLen >= before.leash!.drawnLen - 1 || Math.abs(drawnLen - cocoLen) > 2)
+      bad.push(`${f.profile}: ${before.leash!.drawnLen} → ${drawnLen} (Coco ${cocoLen})`)
   }
   if (!n) return noData('MO-06', th, 'keine Sonde mo06-up400 (SC-01)')
   return result('MO-06', bad.length === 0, `${n} Profile`, th, bad)

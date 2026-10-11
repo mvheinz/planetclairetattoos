@@ -60,14 +60,14 @@ describe('T-09 budgets.json enthält alle Werte aus ARCHITEKTUR §7.7 und DESIGN
     expect(budgets.firstLoadJs.gzipTarget.R01).toBe(140_000)
   })
 
-  it('Lazy-Module: Engine ≤ 12 KB, Coco ≤ 3 KB, Mikro ≤ 4 KB, statischer Renderer ≤ 4 KB', () => {
+  it('Lazy-Module: Engine ≤ 12,3 KB (U-68), Coco ≤ 3 KB, Mikro ≤ 4 KB, statischer Renderer ≤ 4 KB', () => {
     const byEntry = Object.fromEntries(
       budgets.modules
         .filter((m) => !m.name.startsWith('Mikro-Interaktionen'))
         .map((m) => [m.entries.join(','), m.gzipMax]),
     )
     expect(byEntry).toEqual({
-      'src/leash/runtime.ts': 12_000,
+      'src/leash/runtime.ts': 12_300, // U-68 (P15.1): Schritttempo der Coco
       'src/leash/coco.ts': 3_000,
       'src/leash/cocoExtra.ts': 2_500, // nachgeladen (P12.4)
       'src/leash/cocoTravel.ts': 2_500, // nachgeladen (P12.12)

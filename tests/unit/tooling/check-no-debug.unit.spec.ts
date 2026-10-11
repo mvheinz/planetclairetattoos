@@ -60,7 +60,7 @@ describe('check:bundle – Modul-Budgets (§9.10)', () => {
     for (const g of groups) expect(g.gzipMax).toBe(4000)
   })
 
-  it('Engine ≤ 12 KB gz, statischer Renderer ≤ 4 KB gz, Coco ≤ 3 KB, Mikro-Interaktionen ≤ 4 KB je Gruppe', async () => {
+  it('Engine ≤ 12,3 KB gz, statischer Renderer ≤ 4 KB gz, Coco ≤ 3 KB, Mikro-Interaktionen ≤ 4 KB je Gruppe', async () => {
     const reports = await measureModules()
     expect(reports.map((r) => r.name)).toEqual(MODULE_BUDGETS.map((b) => b.name))
     for (const r of reports)

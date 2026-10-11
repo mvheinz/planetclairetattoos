@@ -134,7 +134,6 @@
     "emptyTitle": "Der Planet dreht sich gerade um.",
     "emptyText": "Gleich liegt alles wieder an seinem Platz. Bis dahin erreichst du mich per Mail.",
     "emptyAction": "Zum Kontakt",
-    "compassLabel": "Stationen",
     "introMore": "Mehr über uns",
     "chairwomanAlt": "Koko, Vorsitzende der Goth Dogs Berlin: Kopf und Brust eines zotteligen schwarzen Hundes mit Narrenkappe, grünen Bommeln und spitzem Fellkragen, darunter orangefarbene Brust mit weißem Fleck; große Augen, die zur Seite schauen",
     "chairwomanAltAsleep": "Koko, Vorsitzende der Goth Dogs Berlin: Kopf und Brust eines zotteligen schwarzen Hundes mit Narrenkappe, grünen Bommeln und spitzem Fellkragen, darunter orangefarbene Brust mit weißem Fleck; die Augen sind zu – nachts schläft Koko",
@@ -333,7 +332,7 @@
         "duration": "Die gesetzliche Gewährleistung gilt nach EU-Recht mindestens zwei Jahre ab Erhalt der Ware; in einigen Ländern gilt ein längerer Zeitraum.",
         "secondHand": "Für gebrauchte Waren kann ein kürzerer Zeitraum gelten, jedoch nicht weniger als ein Jahr."
       },
-      "placeholderNote": "Platzhalter-Fassung: Wortlaut nach der EU-Durchführungsverordnung (EU) 2025/1960, Prüfung durch die Kanzlei steht noch aus; die amtliche Grafik folgt.",
+      "placeholderNote": "Platzhalter-Fassung nach der DVO (EU) 2025/1960 – Prüfung durch die Kanzlei und amtliche Grafik folgen.",
       "link": "Weitere Informationen der EU zur gesetzlichen Gewährleistung"
     },
     "card": {

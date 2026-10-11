@@ -32,6 +32,8 @@ async function expectStations(page: Page, locale: Locale) {
   await expect(stations.locator('h2')).toHaveText(HEADINGS[locale])
   await expect(stations.first()).toContainText('Station 01')
   await expect(stations.last()).toContainText('Station 05')
+  // Anker je Station bleiben für Links von außen (die Sprungleiste entfiel mit U-75)
+  for (const id of STATION_IDS) await expect(page.locator(`#station-${id}`)).toHaveCount(1)
 }
 
 test.describe('Startseite @smoke', () => {
@@ -238,15 +240,28 @@ test.describe('Startseite mit Beispielbestand (P8.17)', () => {
       expect(await flash.count()).toBeGreaterThan(0)
       expect(await flash.count()).toBeLessThanOrEqual(3)
 
-      // U-50 (P14.1): Foto von Jutta und Coco oben links, darunter der Text mit „Mehr über uns“ (keine Station mehr)
+      // U-50 (P14.1): Foto von Jutta und Coco oben links (keine Station mehr); U-70 (P15.2): der Text mit „Mehr über uns“
+      // mittig unter Koko, größer als Fließtext
       await expect(page.locator('[data-home-station="jutta-und-coco"]')).toHaveCount(0)
       const jutta = page.locator('[data-home-intro]')
       await expect(jutta.locator('[data-photo-frame] img')).toHaveCount(1)
-      await expect(jutta).toContainText(JUTTA_TEXT[locale])
-      await expect(jutta.locator(`a[href="${JUTTA_LINKS[locale].about}"]`)).toHaveText(
+      const juttaText = page.locator('[data-slot="chairwoman"] [data-home-intro-text]')
+      await expect(juttaText).toContainText(JUTTA_TEXT[locale])
+      await expect(juttaText.locator(`a[href="${JUTTA_LINKS[locale].about}"]`)).toHaveText(
         locale === 'de' ? 'Mehr über uns' : 'More about us',
       )
+      expect(
+        await juttaText.evaluate((el) => {
+          const p = el.querySelector('p')!
+          return (
+            parseFloat(getComputedStyle(p).fontSize) /
+            parseFloat(getComputedStyle(document.body).fontSize)
+          )
+        }),
+      ).toBeGreaterThanOrEqual(1.18)
+      expect(await juttaText.evaluate((el) => getComputedStyle(el).textAlign)).toBe('center')
       await expect(jutta.locator('a[href*="instagram.com"]')).toHaveCount(0)
+      await expect(juttaText.locator('a[href*="instagram.com"]')).toHaveCount(0)
       await expect(page.locator('main a[href*="ig.me"]')).toHaveCount(0)
 
       await expect(page.locator('[data-price-footnote]')).toHaveCount(1)

@@ -2,6 +2,103 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-10 – P16 abgeschlossen: dein echter Bestand – für Jutta
+
+Hallo Jutta,
+
+aus deinen 19 Foto-Paketen sind **74 Stücke** geworden: 47 Keramik, 13 Schmuck, 7 Textil und 7 Caps/Hüte – mit allen
+186 Fotos (5 Fotos waren doppelt und sind aussortiert). Der Demo-Bestand ist aus allem verschwunden, was du siehst; die
+automatischen Tests benutzen ihn intern weiter.
+
+- **Namen:** Jedes Stück hat einen erfundenen, eher nüchternen Namen nach dem gemalten Motiv, mit etwas trockenem Humor
+  (z. B. Cap „Fledermaus, schlecht ausgeschlafen“ oder Schälchen „Rose, Dornen inklusive“). Die Schriftzüge auf den
+  Stücken habe ich, wie du wolltest, **nicht gelesen und nirgends verwendet** – in den Texten steht höchstens
+  „handgeschriebener Schriftzug“.
+- **Alles ist geschätzt:** Preise (Vorschläge zwischen 32 und 89 €), Maße (am grünen Teller mit 12 cm abgeschätzt) und
+  Gewichte. Keramik steht vorerst auf „Deko – nicht für Lebensmittel“. Für Textil und Caps fehlen Größe und Fasern vom
+  Etikett, für Schmuck das Material der Ketten – das kann ich auf den Fotos nicht erkennen.
+- **Prüfliste:** In der Datei `planet-claire-pruefliste.html` steht jedes Stück mit kleinen Fotos, allen Angaben und den
+  Punkten, die du prüfen solltest. Öffne sie einfach im Browser und notiere, was nicht stimmt.
+- **Vorschau-Datei:** zeigt jetzt deinen echten Bestand im Shop. Die Beispiel-Seiten „Danke“ und „Bestellstatus“ fehlen
+  darin, weil sie Beispiel-Bestellungen mit Demo-Stücken bräuchten.
+- **Beim Start (P11):** Ich spiele die Stücke mit einem Befehl als Entwürfe in die Verwaltung ein, rot markiert „bitte
+  prüfen“. Du korrigierst sie, setzt den Haken „nur eigene Figuren“ und stellst sie selbst online.
+- **Bitte besonders anschauen:** Bei Nr. 102, 103 und 112 ist auf dem Rohling ein fremdes Logo bzw. ein Aufnäher zu sehen
+  – so lassen sie sich nicht veröffentlichen. Bei Nr. 144 ist ein Henkel gebrochen (steht als Abweichung im Text).
+
+Technik-Notiz: siehe unten bei P16.1–P16.3 und in `docs/OFFENE-PUNKTE.md`.
+
+## 2026-10-10 – P16.1–P16.3 Technik (U-76, U-77)
+
+- **P16.1 Bestandsdaten:** `content/bestand/products.json` (74 Stücke `B001`–`B074`, Nummern 101–174, Texte DE/EN,
+  Prüfpunkte je Stück) und `content/bestand/fotos/` (186 JPEG, 1600 px, ohne EXIF/GPS); Schema und Prüfungen in
+  `src/lib/bestand/schema.ts`. Tests: `tests/unit/bestand/data.unit.spec.ts` (Schema, jedes Foto genau einmal,
+  Metadaten, keine Zitate und keine Bezüge zu Liedern, Bands, Filmen oder Zitaten, Rechts-Lint V-13/V-16, Verbotsliste).
+- **P16.2 Import:** `pnpm bestand:import [--only=B001,…] [--preview]` (`src/lib/bestand/import.ts`): Fotos als Medien
+  (`sourceRef` `bestand:B001-1`), Stücke als Entwurf mit Vermerk und interner Notiz, EN als „maschinell“; wiederholbar
+  ohne Doppel. Tests: `tests/int/bestand/import.int.spec.ts`, `tests/unit/bestand/args.unit.spec.ts`.
+- **P16.3 Vorschau mit echtem Bestand:** `PREVIEW_INVENTORY` (Standard `bestand`, `demo` = alter Stand),
+  `scripts/preview-export/inventory.ts` (Korb-Stücke, Seed-Schritte ohne Demo-Stücke), Danke-/Statusseiten im Bericht
+  als „nicht gebaut“ mit Hinweis; Abnahmetests der Vorschau-Datei je Bestand. Prüfliste: `pnpm bestand:pruefliste`
+  → `dist/planet-claire-pruefliste.html` (auch im Schritt `preview` von `pnpm ci:local full`).
+  Tests: `tests/unit/preview-export/inventory.unit.spec.ts`, `tests/unit/bestand/pruefliste.unit.spec.ts`,
+  `pnpm test:preview-export`.
+- **Prüfschleuse P15–P16 (lokal):** lint/format/typecheck/static/unit grün; Abdeckung 3 470 Tests grün, der
+  Determinismus-Test des Vorschau-Exports brauchte mit 74 Stücken länger als 15 min (Zeitgrenze jetzt 30/65 min) und ist
+  einzeln grün (17 min). E2E Leine/Coco/404/art-gate/leash-trail auf Desktop, iPhone 15 und Pixel 7 grün. Kunst-QA
+  `20261010-iter08-d1550b7`: MO-04 (404 auf dem iPhone, Fix: einmalige Zeichnungen nach frühem Neuaufbau sofort ganz)
+  und IM-01 grün; PF-02 (Hinweis, P14.14) sowie PF-03/PF-05 knapp rot unter Last (R02 6,4 ms bei 6 ms Grenze; eine
+  Stunde zuvor mit gleichem Scroll-Code in iter07 grün) – als Hinweis geführt. Vorschau-Export 32,4 MB (Budget „warn“,
+  ≤ 40 MB), 37/37 Abnahmetests grün.
+
+## 2026-10-10 – P15 abgeschlossen: vierte Runde nach deiner Rückmeldung – für Jutta
+
+Hallo Jutta,
+
+deine vierte Runde ist fertig. Das ist neu:
+
+- **Coco im Shop:** Beim Betreten des Shops läuft Coco jetzt ruhig um die Kategorie-Bilder herum (etwa 5 Sekunden statt
+  in einem Ruck), ohne zu springen. Lange Umrundungen, die erst beim Scrollen kämen (Galerie auf der Tattoo-Seite am
+  Computer), sind jetzt ein kleiner Kringel – dort raste Coco vorher auch.
+- **Leine beim Hochscrollen:** Scrollst du wieder hoch, läuft Coco zurück und **wickelt die Leine mit auf** – sie bleibt
+  nicht mehr ganz ausgerollt stehen.
+- **Startseite oben:** euer Foto ist etwa ein Drittel größer und steht mit Abstand zur Linie. Der Text „Werkstatt unter
+  der Woche …“ steht jetzt mittig und größer direkt unter Koko, Koko selbst ist auch etwas größer. Die Sprungleiste
+  (Keramik, Textil …) ist weg; dafür steht die Tour-Tafel am Computer oben rechts neben dem Titel – Schrift eine Stufe
+  größer, Tafel kompakter. So ergibt der obere Teil ein geschlossenes Bild.
+- **Gewährleistungshinweis (EU):** deutlich kompakter (kleinere Schrift, Text in zwei kurzen Absätzen) und auf der
+  Produktseite weiter unten (nach „Versand & Rückgabe“). Die Pflicht-Grafik habe ich bewusst nicht kleiner als 260 Pixel
+  gemacht – sonst wäre ihre Schrift unleserlich, und die EU verlangt, dass der Hinweis gut sichtbar ist. Ob die neue Stelle
+  so passt, fragen wir die Kanzlei (steht in den offenen Punkten).
+
+Wo ich deine Wünsche etwas angepasst habe (du hattest darum gebeten): Auf dem Handy ist der Text unter Koko „nur“ ein
+Viertel größer statt 40 % – sonst stünden dort nur zwei, drei Wörter pro Zeile; am Computer sind es die vollen 40 %.
+
+Technik-Notiz: siehe unten bei P15.1–P15.5 und in `docs/OFFENE-PUNKTE.md`.
+
+## 2026-10-10 – P15.1–P15.5 Technik (U-68–U-75)
+
+- **P15.1 Coco ruhiger (U-68):** `buildScrollMap` legt das Ende einer beim Laden begonnenen Schlaufe auf die gemessene
+  Lesezeile (`readingY0` aus `measure`); `introEnd` lässt das Intro nur bis zum Schlaufenanfang zeichnen (nie über eine
+  Umrundung hinaus, auch beim Scrollen oder auf hohen Bildschirmen); den Rest läuft Coco allein (`walkTo`,
+  `COCO_WALK_SPEED` 0,55 px/ms, ohne Sprung; beim Scrollen `COCO_MAX_SPEED`). Umrundungen > `CONTOUR_SCROLL_MAX` (1 500 px)
+  unterhalb der Lesezeile werden Kringel (R11-Galerie am Desktop). Ein Neuaufbau vor dem fertigen ersten Aufbau gilt als
+  erster (Intro fiel sonst aus). Engine-Budget 12 000 → 12 300 B gz. Messung Shop 1440 px: beim Laden vorher bis 2 px/ms und
+  Sprünge bis 20 px/ms, jetzt Schritttempo ohne Sprung.
+- **P15.2/P15.5 Startseite (U-69–U-71, U-75):** Foto 286/260/300 px mit Abstand zur Rinne, Text mittig unter Koko
+  (20/21/24 px, ohne Silbentrennung), Koko 18/16,5/19 rem, Tour-Tafel ab 1100 px über Titel- und Foto-Zeile (16 rem, Schrift
+  eine Stufe größer, kompakter), Sprungleiste (U-52) entfernt (Anker `#station-…` bleiben). Mobil `sizes` 228 px, damit
+  bis Pixeldichte 1,75 das 400-px-Foto das LCP-Bild bleibt (Lighthouse R01 LCP ≈ 2,0 s).
+- **P15.3 Gewährleistung (U-73):** `WarrantyNotice` kompakt (Grafik 260 px lesbar, Kernsatz + ein kleiner Absatz, kurzer
+  Platzhalter-Hinweis), Produktseite nach „Versand & Rückgabe“; e2e R-049 jetzt auch auf der Produktseite.
+- **P15.4 Leine wickelt sich auf (U-74):** mit Coco folgt `drawnLen` ihr zurück (`diff < 0`), Stufe A setzt zurückgewickelte
+  Stücke wieder auf verborgen, fertige Segmente werden wieder enthüllbar; Intro endet beim Zurückscrollen; Neuaufbau endet
+  bei Coco. Ohne Coco bleibt „Tinte bleibt“. KUNST-QA MO-06/AK-DS-13 umgestellt.
+- **Zwei unabhängige Prüfrunden** (Workflow, je Befund widerlegt oder bestätigt): bestätigte Befunde behoben (u. a. Sprung
+  beim Scrollen im Intro, Kriechen nach Neuaufbau, 404-Kringel, Layout-Randfälle, Gewährleistungsgrafik lesbar).
+- Tests: Unit Leine 150+ (neu: Alleingang, Randfälle, Zurückwickeln Stufe A, ohne Coco monoton), e2e Startseite/Tour/
+  Leine/Shop-Umrundung/Produktseite R-049, visuelle Referenzen R01, R04, R06, R11, Fuß.
+
 ## 2026-10-10 – P14 abgeschlossen: dritte Runde nach deiner Rückmeldung – für Jutta
 
 Hallo Jutta,

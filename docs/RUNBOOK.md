@@ -152,6 +152,7 @@ Produktion ab, wenn eine Regel verletzt ist (`assertProductionEnv`, ARCHITEKTUR 
 | `NEXT_DIST_DIR` | Build-Ordner (leer = .next; Vorschau-Export .next-preview) | – | nein |
 | `PREVIEW_EXPORT_DB_NAME` | Nur parallele Vorschau-Exporte: eigene Wegwerf-DB (planetclaire_…preview…; leer = planetclaire_preview_export) | – | nein |
 | `PREVIEW_EXPORT_PORT` | Nur parallele Vorschau-Exporte: eigener Port des Export-Servers (leer = 3999) | – | nein |
+| `PREVIEW_INVENTORY` | Bestand der Vorschau-Datei: bestand = Juttas echte Stücke (leer = bestand), demo = Beispielbestand | – | nein |
 | `E2E_BASE_URL` | Ziel der E2E-Tests | – | nein |
 | `E2E_SERVER` | dev (lokal) oder start (CI: Produktions-Build) | – | nein |
 | `PW_SKIP_WEBKIT` | Nur wenn die WebKit-Installation scheitert (nie in CI) | – | nein |

@@ -106,13 +106,14 @@ test('SC-01 Startseite: Intro, Scrollen, Stationen', { tag: artTags('all') }, as
       })
     }
   }
-  // (d) MO-06: 400 px zurück – Tinte bleibt.
+  // (d) MO-06: 400 px zurück – die Leine wickelt sich mit Coco auf (U-74).
   const mid = stations[Math.floor(stations.length / 2)]
   if (mid) {
     const y = mid.y + mid.loopScroll
     await readingFrame(art, y, `up400-before-y${Math.round(y)}`)
     // R2-04-04: Zwischenbilder des gespiegelten Rücklaufs – 8 Schritte à 50 px, je 90 ms Uhr (Coco läuft in rAF-Schritten
-    // der Lesezeile nach, Linie bleibt stehen), Sichtbereich und 4×-Lupe auf Coco. Reduziert: Coco bleibt am Ruheplatz.
+    // der Lesezeile nach, die Leine wickelt sich mit ihr auf – U-74), Sichtbereich und 4×-Lupe auf Coco. Reduziert: Coco bleibt
+    // am Ruheplatz.
     if (!art.reduced)
       for (let k = 1; k <= 8; k++)
         await readingStep(art, y - k * 50, `up400-s${k}-y${Math.round(y - k * 50)}`, 90)

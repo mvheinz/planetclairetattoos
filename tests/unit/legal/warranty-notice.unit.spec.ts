@@ -91,7 +91,9 @@ describe('U-45 harmonisierte Mitteilung', () => {
       path.join(process.cwd(), 'src/components/shop/WarrantyNotice.tsx'),
       'utf8',
     )
-    expect(src).toContain('WARRANTY_NOTICE_BLOCKS.map')
+    // U-73 (P15.3): Kernsatz und übriger Wortlaut getrennt (kompakt), beide aus der Liste
+    expect(src).toMatch(/WARRANTY_NOTICE_BLOCKS\.filter\(\(block\) => block\.lead\)\.map/)
+    expect(src).toMatch(/WARRANTY_NOTICE_BLOCKS\.filter\(\(block\) => !block\.lead\)\.map/)
     expect(src).toContain('data-warranty-graphic')
     expect(src).toContain("alt={t('alt')}")
   })
