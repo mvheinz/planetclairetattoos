@@ -132,18 +132,26 @@ async function loadProducts(req: PayloadRequest, ids: number[]): Promise<Map<num
  * Nachweise der Kasse (`consent-log`: DHL-E-Mail-Einwilligung R-101, Abweichungsvereinbarung R-048) der neuen
  * Bestellung zuordnen (DATENMODELL §6.23, LOESCHKONZEPT L-19 a): Der Hook der Collection rechnet `retainUntil` dann
  * aus der Bestellung (Stufe D) statt 30 Tage wie die Kasse; Widerruf der DHL-Einwilligung, Bestellansicht und
- * DSGVO-Löschung finden die Einträge über `order`. Gleiche Transaktion wie die Bestellanlage.
+ * DSGVO-Löschung finden die Einträge über `order`. Nur die Einträge des maßgeblichen Absendens (`createdAt =
+ * submittedAt`, wie der Snapshot der Bestellung); frühere Versuche bleiben an der Kasse und gehen mit ihr (L-03).
+ * Gleiche Transaktion wie die Bestellanlage.
  */
 async function linkConsentLog(
   req: PayloadRequest,
-  checkoutId: number,
+  checkout: Checkout,
   orderId: number,
   context: Record<string, unknown>,
 ): Promise<void> {
   const res = await preservingReq(req, () =>
     req.payload.update({
       collection: 'consent-log',
-      where: { and: [{ checkout: { equals: checkoutId } }, { order: { exists: false } }] },
+      where: {
+        and: [
+          { checkout: { equals: checkout.id } },
+          { createdAt: { equals: checkout.submittedAt } },
+          { order: { exists: false } },
+        ],
+      },
       data: { order: orderId } as never,
       depth: 0,
       overrideAccess: true,
@@ -153,7 +161,7 @@ async function linkConsentLog(
   )
   if (res.errors.length > 0) {
     throw new Error(
-      `Nachweise der Kasse ${checkoutId} konnten der Bestellung nicht zugeordnet werden: ${res.errors
+      `Nachweise der Kasse ${checkout.id} konnten der Bestellung nicht zugeordnet werden: ${res.errors
         .map((e) => e.message)
         .join('; ')}`,
     )
@@ -327,7 +335,7 @@ export async function createOrderFromCheckout(
         context,
       }),
     )
-    await linkConsentLog(req, checkout.id, order.id, context)
+    await linkConsentLog(req, checkout, order.id, context)
     return { order, statusToken: issued.token }
   })
 }

@@ -367,6 +367,34 @@ describe('submitCheckout (P4.10a)', () => {
     expectOrderRetention(rows, order)
   })
 
+  it('L-19 a erneutes Absenden: nur die Nachweise des maßgeblichen Absendens hängen an der Bestellung', async () => {
+    const a = await h.piece(986)
+    const r = await h.start([a])
+    await submitCheckout(
+      { token: r.token, raw: shippingInput({ carrierEmailConsent: 'on' }), now: h.now() },
+      { payload: h.payload, payments: h.mock },
+    )
+    h.clock.set(new Date(h.now().getTime() + 60_000))
+    const reopened = await reopenCheckout(
+      { token: r.token, now: h.now() },
+      { payload: h.payload, payments: h.mock },
+    )
+    expect(reopened.ok).toBe(true)
+    h.clock.set(new Date(h.now().getTime() + 60_000))
+    // zweiter Versuch ohne Häkchen, dann Vorkasse
+    const placed = await submitCheckout(
+      { token: r.token, raw: shippingInput({ paymentChoice: 'prepayment' }), now: h.now() },
+      { payload: h.payload, payments: h.mock },
+    )
+    expect(placed).toMatchObject({ ok: true, paymentChoice: 'prepayment' })
+    const order = await h.orderOfCheckout(r.checkoutId)
+    expect(order.carrierEmailConsent).toBe(false)
+    const rows = await evidence(sql`checkout_id = ${r.checkoutId}`)
+    // die Einwilligung aus dem ersten Versuch bleibt an der Kasse (geht mit ihr nach L-03)
+    expect(rows.map((x) => [x.purpose, x.order_id])).toEqual([['carrier_email_forwarding', null]])
+    expect(await h.count('consent_log', sql`order_id = ${order.id}`)).toBe(0)
+  })
+
   it('DM-CHK-02 (Teil): abgeschlossene Kasse (Vorkasse) wird abgelehnt', async () => {
     const a = await h.piece(986)
     const r = await h.start([a])
