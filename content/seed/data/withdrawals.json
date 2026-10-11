@@ -64,6 +64,7 @@
     "status": "received",
     "contractIdentification": "Order PC-2026-90006",
     "itemsText": "Dress “Bunny Border”",
+    "affectedItemIds": ["O06-L1"],
     "reason": "Lovely dress, but too long for me."
   },
   {
