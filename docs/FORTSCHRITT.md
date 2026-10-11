@@ -2,6 +2,50 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-11 – P17 und P18 abgeschlossen: Startseite, Listen fürs iPad – für Jutta
+
+Hallo Jutta,
+
+**Deine Änderungen an der Seite (P17):**
+
+- **Koko mit den wandernden Augen** ist wieder da. Die Augen fehlten nur, weil die Vorschau nachts erzeugt wurde – nachts
+  schläft Koko. Die Vorschau zeigt jetzt immer den Tag.
+- Der Text unter Koko ist **kleiner** als die übrige Schrift, Koko ist **20 % größer** (am Handy so groß, wie die Spalte
+  es erlaubt), die Tour-Tafel ist **20 % länger** und heißt nur noch **„on Tour“**.
+- Im Shop stehen die **kleinen Vorschaubilder ohne Rahmen** – man sieht die Fotos jetzt richtig.
+
+**Pflege vom iPad (P18) – dein dauerhafter Weg:**
+
+- **Bestandsliste (Excel):** alle Stücke mit kleinem Foto. Du änderst, was nicht stimmt, und trägst ganz rechts unter
+  **„Verkauft“** ein, was du verkauft hast (Datum, gern mit Preis und Notiz, z. B. „11.10.2026 35 € Markt“).
+- **Texte-Liste (Excel):** rund 1.000 Texte der Seite auf Deutsch und Englisch, nach Bereichen. Rechtstexte stehen nicht
+  darin (die kommen von der Kanzlei), feste Pflicht-Hinweise sind grau und nur zum Lesen.
+- **Sicher:** Ich übernehme nur, was du geändert hast. Schickst du eine ältere Liste oder dieselbe noch einmal, wird nichts
+  zurückgesetzt. Hat sich ein Feld inzwischen anders geändert, frage ich nach, statt zu überschreiben. Ungültiges (z. B.
+  ein fehlender Platzhalter oder eine verbotene Formulierung wie „inkl. MwSt.“) melde ich dir.
+- **Katalog (PDF)** zum Weiterschicken und **Rundgang (PDF)** mit Bildschirmfotos der Seite – Handy und großer Bildschirm,
+  ohne Fotos von Kund:innen.
+- **Anleitung:** `docs/owner/IPAD.md` – Schritt für Schritt mit der kostenlosen App Numbers.
+- **Nach dem Start** kommt das Gleiche in die Verwaltung (P19), dann geht es ganz ohne mich.
+
+Technik-Notiz: siehe unten bei P17/P18 und in `docs/OFFENE-PUNKTE.md`.
+
+## 2026-10-11 – P17, P18 Technik (U-78–U-90)
+
+- **P17.1:** Vorschau-Export rendert mit `SEED_NOW` (12 Uhr), `tourNow` mit `PREVIEW_EXPORT`; Phasen-Kennung aus der
+  höchsten vollständig abgehakten Phase. Tests: `tests/unit/home/koko-sleep.unit.spec.ts`,
+  `tests/unit/preview-export/phase.unit.spec.ts`, Vorschau-Abnahmetest (keine `data-koko-sleep`, zwei Pupillen).
+- **P17.2/P17.3:** Startseite (`Home.module.css`, `TourDates.module.css`, `ChairwomanKoko.tsx`), „on Tour“ DE/EN,
+  Galerie-Miniaturen `frameSize="none"`. Tests: E2E home, home-tour, home-koko, shop/gallery auf drei Geräten; visuelle
+  Referenzen erneuert.
+- **P18.1/P18.2:** gemeinsamer Kern `src/lib/pflege/` (Listen-Nr., gemerkter Stand mit `consumed`, Dreiwege-Abgleich,
+  kanonischer Vergleich, Tabellensuche, ZIP-Prüfung), Bestandsliste `src/lib/bestand/excel*.ts`, Texte-Liste
+  `src/lib/texte/` (ICU-Prüfung mit `@formatjs/icu-messageformat-parser`, Regeln aus dem Schema, Rechtsliste je Ziel),
+  `pnpm pflege:export|import`; Standardtexte der Verwaltung nach `src/globals/siteTexts.defaults.json` (gleich geblieben);
+  `bestand:import` legt verkaufte Stücke als Markt-Verkauf an. Tests: `tests/unit/{bestand,texte,pflege}/*`,
+  `tests/int/bestand/import.int.spec.ts`. Prüfung mit 4 Durchgängen + Gegenprüfung (alle Funde behoben).
+- **P18.3:** `pnpm pflege:ansichten` (Katalog- und Rundgang-PDF), `docs/owner/IPAD.md`, ARCHITEKTUR §16, RUNBOOK §15.
+
 ## 2026-10-10 – P16 abgeschlossen: dein echter Bestand – für Jutta
 
 Hallo Jutta,

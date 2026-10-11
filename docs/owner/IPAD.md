@@ -12,6 +12,7 @@ U-85–U-89).
 | **Texte-Liste** (`planet-claire-texte-T-….xlsx`) | Alle Texte der Seite auf Deutsch und Englisch, nach Bereichen (Startseite, Shop, Tattoo …). Rechtstexte stehen nicht darin – die kommen von der Kanzlei. |
 | **Katalog** (`planet-claire-katalog-….pdf`) | Alle Stücke zum Anschauen und Weiterschicken. |
 | **Rundgang** (`planet-claire-rundgang-….pdf`) | So sieht die Seite gerade aus – Handy und großer Bildschirm. |
+| **Anleitung** (`planet-claire-anleitung-ipad.pdf`) | Diese Anleitung zum Nachlesen. |
 
 ## Einmal: Numbers holen (kostenlos)
 

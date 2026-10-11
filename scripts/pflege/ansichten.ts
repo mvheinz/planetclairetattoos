@@ -1,5 +1,5 @@
 // Ansichten fürs iPad (U-88, PLAN P18.3): zwei PDFs zum Ansehen und Weiterschicken per Mail.
-//   pnpm pflege:ansichten [katalog|rundgang]
+//   pnpm pflege:ansichten [katalog|rundgang|anleitung]
 //   → dist/pflege/planet-claire-katalog-<Tag>.pdf   alle noch nicht verkauften Stücke aus content/bestand (Foto, Name,
 //                                                   Preis, Maße, Material, Beschreibung; ohne interne Prüfpunkte)
 //   → dist/pflege/planet-claire-rundgang-<Tag>.pdf  Bildschirmfotos der wichtigsten Seiten (Handy und großer
@@ -18,7 +18,7 @@ import sharp from 'sharp'
 import { bestandPhotoPath, loadBestand } from '../../src/lib/bestand/schema'
 import { berlinDay } from '../../src/lib/pflege/snapshot'
 
-import { CATEGORY_LABEL_DE, catalogFacts } from './ansichtenText'
+import { CATEGORY_LABEL_DE, catalogFacts, markdownToHtml } from './ansichtenText'
 
 export const ANSICHTEN_OUT = path.join('dist', 'pflege')
 const PREVIEW_FILE = path.join('dist', 'planet-claire-vorschau.html')
@@ -295,17 +295,50 @@ ${sections.join('\n')}
   return out
 }
 
+/** Die iPad-Anleitung (`docs/owner/IPAD.md`) als PDF – zum Lesen auf dem iPad (U-88). */
+export async function anleitung(root: string, browser: Browser, now: Date): Promise<string> {
+  const md = await readFile(path.join(root, 'docs', 'owner', 'IPAD.md'), 'utf8')
+  // Verweise auf Dokumente im Repo braucht Jutta nicht
+  const body = markdownToHtml(md.replace(/\s*\(UEBERARBEITUNG[^)]*\)/g, ''))
+  const html = `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Planet Claire – Anleitung fürs iPad</title><style>
+${await fontFaces(root)}
+${BASE_CSS}
+body{font-size:12pt;line-height:1.55}
+h1{font-size:22pt;margin:0 0 4mm}
+h2{font-size:15pt;margin:7mm 0 2mm;break-after:avoid}
+ol,ul{padding-left:6mm;margin:0 0 3mm}
+li{margin:1.2mm 0}
+table{border-collapse:collapse;width:100%;margin:2mm 0 4mm;font-size:10.5pt}
+th,td{border:1px solid var(--line);padding:2mm;text-align:left;vertical-align:top}
+aside{border-left:3px solid var(--accent);padding:1mm 0 1mm 4mm;margin:3mm 0;color:var(--ink-2)}
+code{font-family:inherit;background:#f1efe6;padding:0 1mm;border-radius:2px}
+</style></head><body>${body}</body></html>`
+  const out = path.join(root, ANSICHTEN_OUT, 'planet-claire-anleitung-ipad.pdf')
+  await renderPdf(
+    browser,
+    html,
+    out,
+    `Planet Claire · Anleitung fürs iPad · Stand ${germanDate(now)}`,
+  )
+  return out
+}
+
 async function main(argv: readonly string[]): Promise<void> {
   const root = process.cwd()
   const now = new Date()
-  const which = argv.filter((a) => a === 'katalog' || a === 'rundgang')
-  const kinds = which.length ? which : ['katalog', 'rundgang']
+  const all = ['katalog', 'rundgang', 'anleitung'] as const
+  const which = all.filter((a) => argv.includes(a))
+  const kinds = which.length ? which : all
   await mkdir(path.join(root, ANSICHTEN_OUT), { recursive: true })
   const browser = await chromium.launch()
   try {
     for (const k of kinds) {
       const out =
-        k === 'katalog' ? await katalog(root, browser, now) : await rundgang(root, browser, now)
+        k === 'katalog'
+          ? await katalog(root, browser, now)
+          : k === 'rundgang'
+            ? await rundgang(root, browser, now)
+            : await anleitung(root, browser, now)
       const size = (await readFile(out)).length
       console.log(`${path.relative(root, out)} (${(size / 1024 / 1024).toFixed(1)} MB)`)
     }

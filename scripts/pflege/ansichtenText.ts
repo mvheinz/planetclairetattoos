@@ -52,3 +52,88 @@ export function catalogFacts(p: BestandProduct): {
     description: shorten(p.description.de),
   }
 }
+
+const esc = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
+/** Inline: **fett**, `Code` (als hervorgehobener Text). */
+function inline(s: string): string {
+  return esc(s)
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+}
+
+/**
+ * Kleine Markdown-Umwandlung für die iPad-Anleitung (`docs/owner/IPAD.md` → PDF): Überschriften, nummerierte und
+ * einfache Listen (mit eingerückter Fortsetzung), Tabellen, Hinweise (`>`), Absätze. Mehr braucht die Anleitung nicht.
+ */
+export function markdownToHtml(md: string): string {
+  const lines = md.replace(/\r\n/g, '\n').split('\n')
+  const out: string[] = []
+  let i = 0
+  const para: string[] = []
+  const flush = () => {
+    if (para.length) out.push(`<p>${inline(para.join(' '))}</p>`)
+    para.length = 0
+  }
+  while (i < lines.length) {
+    const line = lines[i]!
+    const h = /^(#{1,3})\s+(.*)$/.exec(line)
+    if (h) {
+      flush()
+      out.push(`<h${h[1]!.length}>${inline(h[2]!)}</h${h[1]!.length}>`)
+      i++
+      continue
+    }
+    if (/^\|/.test(line)) {
+      flush()
+      const rows: string[][] = []
+      while (i < lines.length && /^\|/.test(lines[i]!)) {
+        const cells = lines[i]!.split('|')
+          .slice(1, -1)
+          .map((c) => c.trim())
+        if (!cells.every((c) => /^-+$/.test(c))) rows.push(cells)
+        i++
+      }
+      const [head, ...body] = rows
+      out.push(
+        `<table><thead><tr>${(head ?? []).map((c) => `<th>${inline(c)}</th>`).join('')}</tr></thead><tbody>${body
+          .map((r) => `<tr>${r.map((c) => `<td>${inline(c)}</td>`).join('')}</tr>`)
+          .join('')}</tbody></table>`,
+      )
+      continue
+    }
+    const list = /^(\d+\.|-)\s+(.*)$/.exec(line)
+    if (list) {
+      flush()
+      const ordered = list[1] !== '-'
+      const items: string[] = []
+      while (i < lines.length) {
+        const m = /^(\d+\.|-)\s+(.*)$/.exec(lines[i]!)
+        if (m && (m[1] !== '-') === ordered) {
+          items.push(m[2]!)
+          i++
+        } else if (/^\s{2,}\S/.test(lines[i]!) && items.length) {
+          items[items.length - 1] += ` ${lines[i]!.trim()}`
+          i++
+        } else break
+      }
+      const tag = ordered ? 'ol' : 'ul'
+      out.push(`<${tag}>${items.map((t) => `<li>${inline(t)}</li>`).join('')}</${tag}>`)
+      continue
+    }
+    if (/^>\s?/.test(line)) {
+      flush()
+      const quote: string[] = []
+      while (i < lines.length && /^>\s?/.test(lines[i]!))
+        quote.push(lines[i++]!.replace(/^>\s?/, ''))
+      out.push(`<aside>${inline(quote.join(' '))}</aside>`)
+      continue
+    }
+    if (!line.trim()) flush()
+    else para.push(line.trim())
+    i++
+  }
+  flush()
+  return out.join('\n')
+}

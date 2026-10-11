@@ -3,7 +3,12 @@ import { describe, expect, it } from 'vitest'
 import { loadBestand } from '@/lib/bestand/schema'
 
 import { RUNDGANG_CSS, RUNDGANG_ROUTES } from '../../../scripts/pflege/ansichten'
-import { catalogFacts, dimensionsText, shorten } from '../../../scripts/pflege/ansichtenText'
+import {
+  catalogFacts,
+  dimensionsText,
+  markdownToHtml,
+  shorten,
+} from '../../../scripts/pflege/ansichtenText'
 
 // P18.3 (U-88): Katalog und Rundgang als PDF – Eckdaten je Stück, gekürzte Beschreibung, Rundgang ohne Tattoo-Galerie
 // und ohne Fotos von Kund:innen.
@@ -36,5 +41,38 @@ describe('Rundgang (PDF)', () => {
     expect(routes.some((r) => /impressum|datenschutz|agb|widerruf/.test(r))).toBe(false)
     expect(RUNDGANG_CSS).toMatch(/\[data-gallery-entry\] img[^{]*\{visibility:hidden!important\}/)
     expect(RUNDGANG_CSS).toMatch(/#pv-banner\{display:none!important\}/)
+  })
+})
+
+describe('Anleitung (PDF)', () => {
+  it('wandelt Überschriften, Listen, Tabellen und Hinweise um und maskiert HTML', () => {
+    const html = markdownToHtml(
+      [
+        '# Titel',
+        '',
+        'Ein **fetter** Satz mit `Code` und <b>.',
+        '',
+        '1. Erster Schritt',
+        '   geht weiter.',
+        '2. Zweiter',
+        '',
+        '- Punkt',
+        '',
+        '| A | B |',
+        '|---|---|',
+        '| 1 | 2 |',
+        '',
+        '> Hinweis',
+      ].join('\n'),
+    )
+    expect(html).toContain('<h1>Titel</h1>')
+    expect(html).toContain(
+      '<p>Ein <strong>fetter</strong> Satz mit <code>Code</code> und &lt;b&gt;.</p>',
+    )
+    expect(html).toContain('<ol><li>Erster Schritt geht weiter.</li><li>Zweiter</li></ol>')
+    expect(html).toContain('<ul><li>Punkt</li></ul>')
+    expect(html).toContain('<th>A</th><th>B</th>')
+    expect(html).toContain('<td>1</td><td>2</td>')
+    expect(html).toContain('<aside>Hinweis</aside>')
   })
 })
