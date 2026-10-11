@@ -127,7 +127,9 @@ for (const locale of ['de', 'en'] as const) {
       expect(await fold.evaluate((el) => (el as HTMLDetailsElement).open)).toBe(false)
       await expect(tour).toBeHidden()
       await expect(foldSummary).toBeVisible()
-      await expect(foldSummary).toContainText('Planet Claire on Tour')
+      // U-82 (P17.2): „on Tour“ statt „Planet Claire on Tour“
+      await expect(foldSummary).toContainText('on Tour')
+      await expect(foldSummary).not.toContainText('Planet Claire')
       await expect(foldSummary).toContainText(locale === 'de' ? 'nächster Termin' : 'next date')
       if (nextName) await expect(foldSummary).toContainText(nextName)
       expect((await foldSummary.boundingBox())!.height).toBeGreaterThanOrEqual(44)
@@ -142,6 +144,8 @@ for (const locale of ['de', 'en'] as const) {
       expect(tourBox.width).toBeLessThanOrEqual(20 * 16) // schmal
     }
 
+    // U-82 (P17.2): Überschrift nur „on Tour“ (DE und EN)
+    await expect(tour.locator('#tour-heading')).toHaveText('on Tour')
     // U-43: Überschrift in Spectral
     expect(
       await tour.locator('#tour-heading').evaluate((el) => getComputedStyle(el).fontFamily),
@@ -186,7 +190,13 @@ for (const locale of ['de', 'en'] as const) {
         await expect(list.nth(k).locator('time')).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}/)
       }
       const tafel = (await tour.boundingBox())!
-      expect(tafel.height).toBeLessThan(32 * 16) // drei Zettel + Aufklapper, keine lange Liste
+      // drei Zettel + Aufklapper, keine lange Liste (U-81, P17.2: Tafel ≈ 20 % länger, mehr Luft zwischen den Zetteln)
+      expect(tafel.height).toBeLessThan(36 * 16)
+      expect(
+        await tour
+          .locator('[data-tour-upcoming]')
+          .evaluate((el) => parseFloat(getComputedStyle(el).rowGap)),
+      ).toBeGreaterThanOrEqual(20)
     }
 
     // weitere und vergangene Termine: eingeklappt, Anzahl in der Beschriftung, nach dem Aufklappen sichtbar

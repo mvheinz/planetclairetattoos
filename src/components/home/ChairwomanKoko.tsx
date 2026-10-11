@@ -24,9 +24,12 @@ export const KOKO_HREF = '/art/koko.v3.webp'
 /** Breiten der ausgelieferten Fassungen (`koko-cutout.py`: 360, 520 und die volle Breite 700). */
 export const KOKO_WIDTHS = [360, 520, koko.w] as const
 
-/** Anzeigebreite (U-75 größer): Handy ≤ 18rem, 600–1099 px 16,5rem, ab 1100 px 22vw, höchstens 19rem (Home.module.css). */
+/**
+ * Anzeigebreite (U-80, P17.2: 20 % größer als U-75): Handy ≤ 21,6rem, 600–1099 px 19,8rem, ab 1100 px 26,4vw, höchstens
+ * 22,8rem (Home.module.css).
+ */
 export const KOKO_SIZES =
-  '(min-width: 1382px) 19rem, (min-width: 1100px) 22vw, (min-width: 600px) 16.5rem, 18rem'
+  '(min-width: 1382px) 22.8rem, (min-width: 1100px) 26.4vw, (min-width: 600px) 19.8rem, 21.6rem'
 
 /** `srcset` je Format: `/art/koko.v3-360.avif 360w, …, /art/koko.v3.avif 700w`. */
 export const kokoSrcSet = (ext: 'avif' | 'webp') =>

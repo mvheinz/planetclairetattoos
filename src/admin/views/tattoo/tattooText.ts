@@ -69,7 +69,7 @@ export const TATTOO_TEXT = {
   tourEditHeading: 'Termin bearbeiten',
   tourPublic: 'Startseite ansehen',
   tourHint:
-    'Hier pflegst du die Termine von „Planet Claire on Tour“ (Märkte, Flohmärkte, Kunstmärkte). Kommende stehen oben auf der Startseite, vergangene klappen sich ein – „vorbei“ setzt sich nach dem Datum von selbst.',
+    'Hier pflegst du die Termine von „on Tour“ (Märkte, Flohmärkte, Kunstmärkte). Kommende stehen oben auf der Startseite, vergangene klappen sich ein – „vorbei“ setzt sich nach dem Datum von selbst.',
   tourEmpty: 'Noch keine Termine.',
   tourUpcoming: 'Kommende Termine',
   tourPast: 'Vergangene Termine',

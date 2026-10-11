@@ -1381,7 +1381,7 @@ export interface Product {
   createdAt: string;
 }
 /**
- * Märkte, Flohmärkte und Kunstmärkte („Planet Claire on Tour“, rechte Spalte der Startseite). Vergangene Termine stehen eingeklappt.
+ * Märkte, Flohmärkte und Kunstmärkte („on Tour“, rechte Spalte der Startseite). Vergangene Termine stehen eingeklappt.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tour-dates".

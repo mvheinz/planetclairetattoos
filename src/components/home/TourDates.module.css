@@ -1,7 +1,8 @@
 /* „Planet Claire on Tour“ (P12.8 U-20, P13.3 U-42): schmaler, kompakter Schaukasten neben Koko – gerahmte Petrol-Tafel,
    darauf drei angepinnte, leicht schiefe Zettel (Datumsblock links, Name und eine Zeile rechts); der nächste Termin trägt
    einen Reiter und einen Petrol-Datumsblock. Weitere und vergangene Termine klappen darunter auf. Nur Tokens; Neigung
-   statisch (keine Animation). U-71 (P15.2): Schrift eine Stufe größer, Abstände enger (kompakter). */
+   statisch (keine Animation). U-71 (P15.2): Schrift eine Stufe größer, Abstände enger (kompakter). U-81 (P17.2): Tafel
+   ≈ 20 % länger – mehr Luft in und zwischen den Zetteln, Schrift unverändert. U-82: Überschrift „on Tour“. */
 
 .tour {
   display: flex;
@@ -27,7 +28,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  padding: var(--space-3) var(--space-3) var(--space-1);
+  padding: var(--space-4) var(--space-3) var(--space-3);
   background: var(--petrol-deep);
   color: var(--paper-field);
   border: var(--stroke-ink) solid var(--ink);
@@ -48,7 +49,7 @@
 .list {
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 22px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -62,7 +63,7 @@
   align-items: start;
   column-gap: var(--space-2);
   row-gap: 2px;
-  padding: 6px var(--space-2);
+  padding: 13px var(--space-2);
   background: var(--paper-field);
   color: var(--ink);
   border: 1px solid var(--ink);
@@ -138,7 +139,7 @@
 .body {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 3px;
   min-width: 0;
 }
 
@@ -221,7 +222,7 @@
 /* Der nächste Termin: Reiter und Petrol-Datumsblock, sonst so kompakt wie die anderen Zettel. */
 .next {
   /* Platz für den Reiter „als Nächstes“ (5 px + 0,75rem + 3 px) – wächst mit größerer Schrift mit */
-  padding-top: calc(0.75rem + 8px);
+  padding-top: calc(0.75rem + 12px);
   background: var(--paper-field);
   border-width: var(--stroke-ink);
 }

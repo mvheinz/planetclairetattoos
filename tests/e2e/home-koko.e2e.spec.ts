@@ -48,6 +48,32 @@ test.describe('Startseite: Koko', () => {
     }
   })
 
+  test('U-80 (P17.2): Koko 20 % größer als in U-75 – Desktop bis 22,8rem (26,4vw), Tablet 19,8rem, Handy bis 21,6rem bzw. Spaltenbreite', async ({
+    page,
+  }) => {
+    await page.goto('/de')
+    const { w, slot, vw, rem } = await page.evaluate(() => {
+      const koko = document.querySelector('[data-chairwoman]')!.getBoundingClientRect()
+      const s = document.querySelector('[data-slot="chairwoman"]')!.getBoundingClientRect()
+      return {
+        w: koko.width,
+        slot: s.width,
+        vw: window.innerWidth,
+        rem: parseFloat(getComputedStyle(document.documentElement).fontSize),
+      }
+    })
+    const want =
+      vw >= 1100
+        ? Math.min(Math.max(0.264 * vw, 16.8 * rem), 22.8 * rem)
+        : vw >= 600
+          ? 19.8 * rem
+          : 21.6 * rem
+    expect(Math.abs(w - Math.min(want, slot))).toBeLessThan(2)
+    // gegenüber U-75 (Desktop bis 19rem, Handy 18rem): sichtbar größer
+    if (vw >= 1100)
+      expect(w).toBeGreaterThan(Math.min(Math.max(0.22 * vw, 14 * rem), 19 * rem) * 1.18)
+  })
+
   test('Bild mit Maßen, Alt-Text DE/EN, keine Drittanfragen', async ({ page, foreignRequests }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' })
     await page.goto('/de')
