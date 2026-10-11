@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { OPEN_PRIVACY_REQUEST_STATUSES } from '@/lib/privacy/deadlines'
-import { buildErasurePlan } from '@/lib/privacy/erasure'
+import { buildErasurePlan, erasureChoices, followUpsOf } from '@/lib/privacy/erasure'
 import { emailLogsFor, privacyRequestMailsWhere } from '@/lib/privacy/logs'
 import { formatBerlin } from '@/lib/time'
 import type { Inquiry, Order, PrivacyRequest, PrivateUpload, Withdrawal } from '@/payload-types'
@@ -62,6 +62,16 @@ export async function PrivacyRequestSections(props: PrivacyRequestSectionsProps)
       })) as PrivateUpload | null)
     : null
   const plan = closed ? [] : await buildErasurePlan(req, r, { email: r.contactEmail }, props.now)
+  // Nachlauf: laufende Vorgänge, die nach Abschluss automatisch eingeschränkt werden (auch bei abgeschlossener Anfrage)
+  const followUps = followUpsOf(r.remindersSent)
+  const followUpOrders = await find<Order>(
+    'orders',
+    followUps.filter((f) => f.collection === 'orders').map((f) => f.id),
+  )
+  const followUpWithdrawals = await find<Withdrawal>(
+    'withdrawals',
+    followUps.filter((f) => f.collection === 'withdrawals').map((f) => f.id),
+  )
   const rectifiable = orders.filter((o) => !o.privacy?.anonymizedAt)
   const consentOrders = orders.filter(
     (o) => o.carrierEmailConsent && !o.carrierEmailConsentRevokedAt,
@@ -150,7 +160,7 @@ export async function PrivacyRequestSections(props: PrivacyRequestSectionsProps)
                 ruleId: p.ruleId,
                 until: day(p.until),
                 note: p.note,
-                actions: p.actions,
+                actions: erasureChoices(p),
                 suggested: p.suggested,
               }))}
             />
@@ -158,6 +168,24 @@ export async function PrivacyRequestSections(props: PrivacyRequestSectionsProps)
           {r.identityVerified !== true ? (
             <p className="pc-order__muted">{adminText('privacySendAccessIdentity')}</p>
           ) : null}
+        </section>
+      ) : null}
+      {followUps.length > 0 ? (
+        <section
+          className="pc-order__section"
+          aria-labelledby="privacy-follow-up-title"
+          data-testid="privacy-follow-up"
+        >
+          <h2 id="privacy-follow-up-title">{adminText('privacyFollowUpTitle')}</h2>
+          <p className="pc-order__muted">{adminText('privacyFollowUpHint')}</p>
+          <ul className="pc-order__list">
+            {followUpOrders.map((o) => (
+              <li key={`o${o.id}`}>{link(adminViewPath('bestellung', o.id), o.orderNumber)}</li>
+            ))}
+            {followUpWithdrawals.map((w) => (
+              <li key={`w${w.id}`}>{link(adminViewPath('widerruf', w.id), w.reference)}</li>
+            ))}
+          </ul>
         </section>
       ) : null}
       {!closed && rectifiable.length > 0 ? (

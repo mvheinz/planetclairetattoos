@@ -442,9 +442,17 @@ erfasst du sie hier. Die Verwaltung rechnet die Frist aus und erinnert dich 7 Ta
    Person ist.
 4. **Löschung:** Die Verwaltung zeigt dir je Datensatz, was gelöscht wird. Rechnungen musst du **steuerlich aufbewahren**.
    Sie bleiben erhalten, werden aber für andere Zwecke gesperrt. Das erklärt die Verwaltung bei jedem Datensatz. Ist eine
-   Bestellung noch nicht fertig (zum Beispiel bezahlt, aber noch nicht verschickt), schlägt die Verwaltung „keine
-   Aktion“ vor: Sonst würden auch die Versand- und Erstattungsmails nicht mehr rausgehen. Die Antwort an die Person sagt
-   dann, dass du die Daten noch für die Bestellung brauchst.
+   Bestellung noch nicht fertig (zum Beispiel bezahlt, aber noch nicht verschickt, oder ein Widerruf mit Rücksendung und
+   Erstattung läuft noch), schlägt die Verwaltung „keine Aktion“ vor: Sonst würden auch die Versand- und
+   Erstattungsmails nicht mehr rausgehen. Die Antwort an die Person sagt dann, dass du die Daten noch für die Bestellung
+   brauchst. **Du musst dir nichts merken:** Sobald die Bestellung abgeschlossen ist, schränkt der Shop sie beim
+   täglichen Lauf (ab 8 Uhr) von selbst ein (nur noch Aufbewahrung, keine Mails mehr) und trägt das ins Löschprotokoll
+   ein. Solange das noch aussteht, steht an der
+   Anfrage „Nachlauf: nach Abschluss einschränken“ – die Anfrage darfst du trotzdem schon abschließen. Hat die Person
+   der Weitergabe ihrer E-Mail-Adresse an DHL zugestimmt, nimmt der Shop diese Zustimmung mit der Löschung sofort
+   zurück. Ist die Aufbewahrungszeit einer alten Bestellung schon vorbei, gibt es „keine Aktion“ nicht: Dann löschst du
+   sie oder schreibst einen Grund, warum sie bleiben muss. Der Shop prüft alle deine Entscheidungen, bevor er etwas
+   löscht.
 5. **Einwilligung widerrufen** (zum Beispiel für Tattoo-Fotos oder die Weitergabe der E-Mail an DHL): ein Knopf, wirkt
    sofort.
 

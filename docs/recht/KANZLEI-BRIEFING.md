@@ -46,7 +46,7 @@ Bitte senden Sie uns vorab ein **Pauschalangebot**.
 | T6 | Versand- und Zahlungsinformationen | Liefergebiet, Versandkosten (Tabelle wird eingesetzt, §16.3), Lieferzeit, Abholung, Zahlarten, Vorkasse-Frist | Pflicht |
 | T7 | Kurze Textbausteine | Liste in §1.4 (Kasse, Produktseite, Mails) | Pflicht |
 | T8 | Vorlage Angebot/Vertrag Auftragsarbeit per E-Mail | Informationspflichten Fernabsatz, Widerrufsrecht bzw. Ausschluss nur bei individueller Anfertigung, GPSR-Angaben | optional, empfohlen |
-| T9 | Unterlagen Tattoo-Termine per E-Mail/DM | Widerrufsbelehrung für Dienstleistungen, Formulierung „vorzeitiger Beginn“, Formulierungsvorschlag Terminkaution | optional, empfohlen |
+| T9 | Unterlagen Tattoo-Termine per E-Mail | Widerrufsbelehrung für Dienstleistungen, Formulierung „vorzeitiger Beginn“, Formulierungsvorschlag Terminkaution | optional, empfohlen |
 | T10 | Einwilligung zur Veröffentlichung von Tattoo-Fotos | § 22 KUG, Art. 6/7 DSGVO; abgestuft (nur Tattoo / mit Gesicht; @-Nennung ja/nein); widerruflich | optional, empfohlen |
 | T11 | Datenschutzhinweise für das Instagram-Profil | falls erforderlich (K-29) | optional |
 | T12 | Antwortvorlagen für Datenschutz-Anfragen | Auskunft (Art. 15), Löschung/Einschränkung (Art. 17/18) | optional |
@@ -650,8 +650,8 @@ Zu jeder Frage steht in Klammern die **vorläufige Umsetzung**, die bis zu Ihrer
   § 312g Abs. 2 Nr. 1 BGB? Gilt § 356a BGB, wenn der Vertrag nur per E-Mail geschlossen wird? Bitte Vorlage T8.
 - **K-25** Anfrageformular: Genügt Art. 6 Abs. 1 lit. b DSGVO (ohne Einwilligungs-Checkbox)? Ist die Löschung 6 Monate
   nach Eingang angemessen? Umgang mit unaufgefordert hochgeladenen Personenfotos.
-- **K-26** Tattoo-Termine: Termin und Kaution werden per E-Mail/DM vereinbart. Handelt es sich um Fernabsatzverträge mit
-  Widerrufsrecht? Bitte Unterlagen T9 (Belehrung, „vorzeitiger Beginn“, Formulierung Terminkaution) sowie Hinweise zu
+- **K-26** Tattoo-Termine: Termin und Kaution werden per E-Mail vereinbart (Instagram ist kein Anfrageweg, U-15).
+  Handelt es sich um Fernabsatzverträge mit Widerrufsrecht? Bitte Unterlagen T9 (Belehrung, „vorzeitiger Beginn“, Formulierung Terminkaution) sowie Hinweise zu
   FAQ-Formulierungen (Mindestalter 18, Absagen).
 - **K-27** Einwilligung zur Veröffentlichung von Tattoo-Fotos (T10): abgestuft, widerruflich; Umgang mit Fotos, die
   bereits mit Einwilligung für Instagram gezeigt wurden.

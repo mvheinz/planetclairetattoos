@@ -3,8 +3,10 @@ import 'server-only'
 import { sql } from '@payloadcms/db-postgres'
 import type { PayloadRequest } from 'payload'
 
-import { dbFor } from '@/lib/db/tx'
+import { ORDER_FINAL_STATUSES } from '@/lib/commerce/orderTransitions'
+import { dbFor, type SqlExecutor } from '@/lib/db/tx'
 import type { PrivacyArea, PrivacyErasureOutcome } from '@/lib/email/templates/privacy'
+import type { OrderStatus, WithdrawalStatus } from '@/lib/enums'
 import { preservingReq } from '@/lib/payload/localReq'
 import {
   anonymizeOrder,
@@ -36,14 +38,20 @@ import { searchPerson, type PersonQuery } from './search'
 //   Widerrufe; nicht nötige Angaben sofort entfernen (Notizen, Packfotos); die Outbox unterdrückt danach Mails zur
 //   Bestellung (`suppressed`);
 // - „behalten“ (Art. 17 Abs. 3 lit. e): Aufbewahrungssperre `privacy.legalHold` mit Pflicht-Begründung;
-// - „keine Aktion“: Vorschlag für Bestellungen, deren Vertrag noch läuft (`timestamps.finalStatusAt` fehlt oder liegt in
-//   der Zukunft) – Versand, Zahlung und Erstattung brauchen die Daten und die Mails (Art. 17 Abs. 1 lit. a greift nicht).
-// Belege bleiben unverändert (GoBD, L-06). Jede Lösch-/Einschränkungsaktion → `deletion-log` (`trigger =
-// privacy_request`, `ruleId = DSGVO`, `privacyRequestRef`); „behalten“ protokolliert der Audit (`legal_hold_changed`).
-// Antwort M15 an die gespeicherte Adresse mit dem tatsächlichen Zustand je Bereich: „gelöscht“ / „eingeschränkt bis“
-// (nur wenn wirklich eingeschränkt) / „aufbewahrt bis“ (Sperre) / `inUse` (keine Aktion, nicht eingeschränkt:
-// „aufbewahrt bis {Datum} wegen gesetzlicher Aufbewahrungspflichten“ bzw. bei laufendem Vertrag „brauche ich noch“);
-// den Satz zum DHL-Widerruf nur, wenn in diesem Lauf eine DHL-Einwilligung widerrufen wurde.
+// - „keine Aktion“: Vorschlag für Bestellungen, deren Vertrag noch läuft (`orderStillRunning`: kein bzw. künftiger
+//   `timestamps.finalStatusAt`, Status ohne Abschluss wie Widerruf eingegangen/Ware zurück/angefochten, ausstehende
+//   Erstattung, offener Widerruf), und ihre Widerrufe – Versand, Zahlung und Erstattung brauchen die Daten und die Mails
+//   (Art. 17 Abs. 1 lit. a greift nicht). Solche Zeilen merkt sich die Anfrage (`remindersSent.erasureFollowUp`); der
+//   tägliche Nachlauf (`runErasureFollowUps`) schränkt sie nach Abschluss automatisch ein.
+// Alle Entscheidungen werden geprüft, bevor etwas geändert wird (gelöschte Dateien lassen sich nicht zurückrollen).
+// Die Löschanfrage widerruft immer eine aktive DHL-Einwilligung der Bestellungen der Person (Art. 17 Abs. 1 lit. b,
+// Art. 19), auch ohne Einschränkung. Belege bleiben unverändert (GoBD, L-06). Jede Lösch-/Einschränkungsaktion →
+// `deletion-log` (`trigger = privacy_request`, `ruleId = DSGVO`, `privacyRequestRef`); „behalten“ protokolliert der
+// Audit (`legal_hold_changed`). Antwort M15 an die gespeicherte Adresse mit dem tatsächlichen Zustand je Bereich:
+// „gelöscht“ / „eingeschränkt bis“ (nur wenn wirklich eingeschränkt) / „aufbewahrt bis“ (Sperre) / `inUse` (keine
+// Aktion, nicht eingeschränkt: „aufbewahrt bis {Datum} wegen gesetzlicher Aufbewahrungspflichten“ bzw. bei laufendem
+// Vertrag „brauche ich noch“); den Satz zum DHL-Widerruf nur, wenn in diesem Lauf eine DHL-Einwilligung widerrufen
+// wurde.
 
 export type ErasureAction = 'delete' | 'restrict' | 'keep' | 'none'
 
@@ -76,6 +84,62 @@ const iso = (d: Date | string | null | undefined) =>
 const due = (until: string | null | undefined, now: Date) =>
   !!until && new Date(until).getTime() <= now.getTime()
 
+/**
+ * Bestellstatus, in denen der Vertrag abgewickelt ist, sobald `timestamps.finalStatusAt` erreicht ist: die Endstatus
+ * (L-05), „versendet“ nach dem vorläufigen Endstatus (30 Tage) und „teilweise erstattet“ ohne offenen Vorgang.
+ */
+const SETTLED_ORDER_STATUSES: ReadonlySet<OrderStatus> = new Set<OrderStatus>([
+  ...ORDER_FINAL_STATUSES,
+  'shipped',
+  'partially_refunded',
+])
+
+/** Widerrufe, deren Rücksendung bzw. Erstattung noch aussteht (KONZEPT §5.4, vor W4/W5/W7). */
+export const OPEN_WITHDRAWAL_STATUSES = [
+  'received',
+  'goods_returned',
+  'partially_refunded',
+] as const satisfies readonly WithdrawalStatus[]
+
+/**
+ * Läuft der Vertrag noch (Prüfung P18.5)? Ja bei fehlendem bzw. künftigem `finalStatusAt`, bei einem Status ohne
+ * Abschluss (bezahlt, gepackt, abholbereit, Widerruf eingegangen, Ware zurück, angefochten – `finalStatusAt` bleibt
+ * z. B. nach „zugestellt“ stehen, wenn danach ein Widerruf kommt), bei ausstehender Erstattung, offener Anfechtung oder
+ * offenem Widerruf zur Bestellung.
+ */
+export function orderStillRunning(
+  order: Pick<Order, 'status' | 'timestamps' | 'refunds' | 'dispute'>,
+  now: Date,
+  openWithdrawal = false,
+): boolean {
+  const finalAt = order.timestamps?.finalStatusAt
+  if (!finalAt || new Date(finalAt).getTime() > now.getTime()) return true
+  if (!SETTLED_ORDER_STATUSES.has(order.status)) return true
+  if ((order.refunds ?? []).some((r) => r.status === 'pending')) return true
+  if (order.dispute?.status === 'open') return true
+  return openWithdrawal
+}
+
+/** IDs der Bestellungen, deren Vertrag noch läuft (Plan und Nachlauf; offene Widerrufe ohne Spam-Markierung). */
+export async function runningOrderIds(
+  db: SqlExecutor,
+  orders: readonly Order[],
+  now: Date,
+): Promise<Set<number>> {
+  if (orders.length === 0) return new Set()
+  const open = await db.execute(sql`
+    SELECT DISTINCT order_id FROM withdrawals
+     WHERE order_id = ANY(${sql.raw(arr(orders.map((o) => o.id)))}) AND spam_marked_at IS NULL
+       AND status IN (${sql.raw(OPEN_WITHDRAWAL_STATUSES.map((s) => `'${s}'`).join(', '))})`)
+  const withOpen = new Set(open.rows.map((r) => Number(r.order_id)))
+  return new Set(
+    orders.filter((o) => orderStillRunning(o, now, withOpen.has(o.id))).map((o) => o.id),
+  )
+}
+
+const orderIdOf = (v: Withdrawal['order']): number | null =>
+  v === null || v === undefined ? null : typeof v === 'object' ? v.id : v
+
 /** Plan je Datensatz der Person (ohne Änderungen). */
 export async function buildErasurePlan(
   req: PayloadRequest,
@@ -107,12 +171,25 @@ export async function buildErasurePlan(
           )
         ).docs as unknown as T[])
 
-  for (const o of await list<Order>('orders', m.orders)) {
+  const orders = await list<Order>('orders', m.orders)
+  const withdrawals = await list<Withdrawal>('withdrawals', m.withdrawals)
+  // Laufende Verträge – auch die Bestellungen der Widerrufe, die nicht selbst im Plan stehen
+  const otherOrderIds = [
+    ...new Set(
+      withdrawals
+        .map((w) => orderIdOf(w.order))
+        .filter((id): id is number => id !== null && !m.orders.includes(id)),
+    ),
+  ]
+  const running = await runningOrderIds(
+    db,
+    [...orders, ...(await list<Order>('orders', otherOrderIds))],
+    now,
+  )
+
+  for (const o of orders) {
     const until = iso(o.retainUntil) ?? iso(retainUntil(L_05_ORDERS_STAGE_D, now))
     const base = { area: 'orders' as const, collection: 'orders', id: o.id, label: o.orderNumber }
-    const finalAt = o.timestamps?.finalStatusAt
-    // Vertrag läuft noch: kein Endstatus oder nur der vorläufige Endstatus eines versandten Pakets (L-05, 30 Tage)
-    const running = !finalAt || new Date(finalAt).getTime() > now.getTime()
     if (o.privacy?.anonymizedAt) {
       rows.push({
         ...base,
@@ -153,14 +230,14 @@ export async function buildErasurePlan(
         note: 'bereits eingeschränkt',
         state: 'restricted',
       })
-    } else if (running) {
+    } else if (running.has(o.id)) {
       rows.push({
         ...base,
         ruleId: 'L-05 Stufe D',
         until,
         actions: ['none', 'restrict', 'keep'],
         suggested: 'none',
-        note: 'Vertrag läuft noch – Daten werden für Versand, Zahlung und Erstattung gebraucht; nach Abschluss erneut prüfen. „Einschränken“ stoppt auch Versand- und Erstattungsmails.',
+        note: 'Vertrag läuft noch – Daten werden für Versand, Zahlung, Widerruf und Erstattung gebraucht; nach Abschluss schränkt der tägliche Nachlauf sie automatisch ein. „Einschränken“ jetzt stoppt auch Versand- und Erstattungsmails.',
         state: 'running',
       })
     } else {
@@ -209,7 +286,7 @@ export async function buildErasurePlan(
       note: 'Beleg bleibt unverändert bis Fristende (GoBD)',
     })
   }
-  for (const w of await list<Withdrawal>('withdrawals', m.withdrawals)) {
+  for (const w of withdrawals) {
     const base = {
       area: 'withdrawals' as const,
       collection: 'withdrawals',
@@ -237,18 +314,36 @@ export async function buildErasurePlan(
         note: 'Aufbewahrungsfrist abgelaufen',
         state: 'due',
       })
-    } else {
-      const restricted = w.privacy?.processingRestricted === true
+    } else if (w.privacy?.processingRestricted === true) {
       rows.push({
         ...base,
         ruleId: L_08_WITHDRAWALS.id,
         until,
         actions: ['restrict', 'keep'],
-        suggested: restricted ? 'none' : 'restrict',
-        note: restricted
-          ? 'bereits eingeschränkt'
-          : 'Aufbewahrungspflicht (Nachweis des Widerrufs) – einschränken',
-        state: restricted ? 'restricted' : 'retained',
+        suggested: 'none',
+        note: 'bereits eingeschränkt',
+        state: 'restricted',
+      })
+    } else if (running.has(orderIdOf(w.order) ?? -1)) {
+      // Rücksendung/Erstattung laufen noch: Mails dazu (z. B. M09) hängen an der Bestellung und gehen weiter
+      rows.push({
+        ...base,
+        ruleId: L_08_WITHDRAWALS.id,
+        until,
+        actions: ['none', 'restrict', 'keep'],
+        suggested: 'none',
+        note: 'Widerruf wird noch abgewickelt (Rücksendung, Erstattung) – nach Abschluss schränkt der tägliche Nachlauf ihn automatisch ein.',
+        state: 'running',
+      })
+    } else {
+      rows.push({
+        ...base,
+        ruleId: L_08_WITHDRAWALS.id,
+        until,
+        actions: ['restrict', 'keep'],
+        suggested: 'restrict',
+        note: 'Aufbewahrungspflicht (Nachweis des Widerrufs) – einschränken',
+        state: 'retained',
       })
     }
   }
@@ -360,12 +455,38 @@ export interface ErasureOutcome {
   until: string | null
 }
 
+/** Vorgang, der beim Ausführen noch lief und nach Abschluss eingeschränkt wird (Nachlauf, LOESCHKONZEPT §5.6 Nr. 3). */
+export interface ErasureFollowUp {
+  collection: 'orders' | 'withdrawals'
+  id: number
+  /** Gemerkt am (ISO). */
+  since: string
+}
+
+/** Schlüssel des Nachlaufs in `privacy-requests.remindersSent` (System-Feld, nicht in der Auskunft). */
+export const ERASURE_FOLLOW_UP_KEY = 'erasureFollowUp'
+
+/** Gemerkte Nachläufe einer Anfrage (unbekannte Einträge fallen heraus). */
+export function followUpsOf(remindersSent: unknown): ErasureFollowUp[] {
+  const raw = (remindersSent as Record<string, unknown> | null | undefined)?.[ERASURE_FOLLOW_UP_KEY]
+  if (!Array.isArray(raw)) return []
+  return raw.flatMap((e) => {
+    const o = (e ?? {}) as Record<string, unknown>
+    const id = Number(o.id)
+    return (o.collection === 'orders' || o.collection === 'withdrawals') && Number.isSafeInteger(id)
+      ? [{ collection: o.collection, id, since: String(o.since ?? '') }]
+      : []
+  })
+}
+
 export interface ErasureResult {
   request: PrivacyRequest
   outcomes: ErasureOutcome[]
   jobId: number | string | null
   /** In diesem Lauf wurde eine DHL-Einwilligung widerrufen (Art. 19, LOESCHKONZEPT §5.6 Nr. 4). */
   carrierConsentWithdrawn: boolean
+  /** Vorgänge, die nach Abschluss automatisch eingeschränkt werden (Nachlauf). */
+  followUps: ErasureFollowUp[]
 }
 
 /**
@@ -392,6 +513,11 @@ export function stateWithoutAction(row: ErasurePlanRow): PrivacyErasureOutcome |
     default:
       return 'inUse'
   }
+}
+
+/** Wählbare Aktionen einer Zeile (Verwaltung und Prüfung): „keine Aktion“ überall außer bei abgelaufener Frist. */
+export function erasureChoices(row: Pick<ErasurePlanRow, 'actions' | 'state'>): ErasureAction[] {
+  return row.state === 'due' ? [...row.actions] : [...new Set([...row.actions, 'none' as const])]
 }
 
 const STATE_OF_ACTION = {
@@ -438,6 +564,25 @@ export async function applyErasure(
       : { email: request.contactEmail }
   const plan = await buildErasurePlan(req, request, query, now)
   const decisions = parseDecisions(body.decisions)
+  // 1. Alle Entscheidungen prüfen, bevor etwas geändert wird: gelöschte Dateien (Packfotos, Bilder) kommen beim
+  //    Zurückrollen der Transaktion nicht zurück (Prüfung P18.5)
+  const steps = plan.map((row) => {
+    const d = decisions.find((x) => x.collection === row.collection && x.id === row.id)
+    const action: ErasureAction = d?.action ?? 'none'
+    // „keine Aktion“ bei abgelaufener Frist wirft (bitte löschen oder begründet behalten)
+    const noneState = action === 'none' ? stateWithoutAction(row) : null
+    if (action !== 'none' && !row.actions.includes(action)) {
+      throw new PrivacyActionError(400, `„${row.label}“: Aktion nicht erlaubt.`)
+    }
+    const reason = d?.reason ?? ''
+    if (action === 'keep' && (reason.length < 10 || reason.length > 300)) {
+      throw new PrivacyActionError(
+        400,
+        `„${row.label}“: Bitte begründen, warum die Daten bleiben (10–300 Zeichen).`,
+      )
+    }
+    return { row, action, reason, noneState }
+  })
   const ref = request.reference
   const db = await dbFor(req)
   const outcomes: ErasureOutcome[] = []
@@ -465,31 +610,17 @@ export async function applyErasure(
     plan.filter((r) => r.collection === 'email-log').map((r) => r.id),
   )
 
-  for (const row of plan) {
-    const d = decisions.find((x) => x.collection === row.collection && x.id === row.id)
-    const action: ErasureAction = d?.action ?? 'none'
-    if (action !== 'none' && !row.actions.includes(action)) {
-      throw new PrivacyActionError(400, `„${row.label}“: Aktion nicht erlaubt.`)
-    }
-    if (action === 'keep') {
-      const reason = d?.reason ?? ''
-      if (reason.length < 10 || reason.length > 300) {
-        throw new PrivacyActionError(
-          400,
-          `„${row.label}“: Bitte begründen, warum die Daten bleiben (10–300 Zeichen).`,
-        )
-      }
-    }
+  // 2. Anwenden
+  for (const { row, action, reason, noneState } of steps) {
     if (action === 'none') {
-      const state = stateWithoutAction(row)
-      if (state) {
+      if (noneState) {
         outcomes.push({
           collection: row.collection,
           id: row.id,
           area: row.area,
           action,
-          state,
-          until: state === 'deleted' || row.state === 'running' ? null : row.until,
+          state: noneState,
+          until: noneState === 'deleted' || row.state === 'running' ? null : row.until,
         })
       }
       continue
@@ -503,26 +634,23 @@ export async function applyErasure(
         const restricted = await restrictOrder(req, row.id, ref, now)
         if (restricted.carrierConsentWithdrawn) carrierConsentWithdrawn = true
       } else {
-        await setLegalHold(req, 'orders', row.id, d!.reason!, ctx)
+        await setLegalHold(req, 'orders', row.id, reason, ctx)
       }
     } else if (row.collection === 'withdrawals') {
       if (action === 'delete') {
         await deleteWithdrawalRecord(req, row.id)
         await log('withdrawals', row.id, 'deleted')
       } else if (action === 'restrict') {
-        await updatePrivacy(req, 'withdrawals', row.id, { processingRestricted: true }, ctx, {
-          adminNotes: null,
-        })
-        await log('withdrawals', row.id, 'restricted')
+        await restrictWithdrawal(req, row.id, ref, now)
       } else {
-        await setLegalHold(req, 'withdrawals', row.id, d!.reason!, ctx)
+        await setLegalHold(req, 'withdrawals', row.id, reason, ctx)
       }
     } else if (row.collection === 'inquiries') {
       if (action === 'delete') {
         const files = await deleteInquiryRecord(req, row.id)
         await log('inquiries', row.id, 'deleted', files)
       } else {
-        await setLegalHold(req, 'inquiries', row.id, d!.reason!, ctx)
+        await setLegalHold(req, 'inquiries', row.id, reason, ctx)
       }
     } else if (row.collection === 'checkouts') {
       await db.execute(sql`UPDATE orders SET checkout_id = NULL WHERE checkout_id = ${row.id}`)
@@ -552,6 +680,37 @@ export async function applyErasure(
       state: STATE_OF_ACTION[action],
       until: action === 'delete' ? null : row.until,
     })
+  }
+
+  // Die Löschanfrage widerruft eine aktive DHL-Einwilligung auch dort, wo die Bestellung (noch) nicht eingeschränkt wird
+  // – laufende Verträge, „behalten“, „keine Aktion“ (Art. 17 Abs. 1 lit. b, Art. 19; LOESCHKONZEPT §5.6 Nr. 4)
+  const otherOrders = steps
+    .filter(
+      (s) => s.row.collection === 'orders' && s.action !== 'delete' && s.action !== 'restrict',
+    )
+    .map((s) => s.row.id)
+  if (otherOrders.length > 0) {
+    const active = await db.execute(sql`
+      SELECT id FROM orders WHERE id = ANY(${sql.raw(arr(otherOrders))})
+         AND carrier_email_consent IS TRUE AND carrier_email_consent_revoked_at IS NULL
+         AND privacy_anonymized_at IS NULL ORDER BY id`)
+    if (active.rows.length > 0) {
+      const { withdrawCarrierConsent } = await import('@/lib/commerce/carrierConsent')
+      for (const r of active.rows) {
+        const order = (await preservingReq(req, () =>
+          req.payload.findByID({
+            collection: 'orders',
+            id: Number(r.id),
+            depth: 0,
+            overrideAccess: true,
+            req,
+          }),
+        )) as Order
+        if (!(await withdrawCarrierConsent(req, order, now)).unchanged) {
+          carrierConsentWithdrawn = true
+        }
+      }
+    }
   }
 
   // Nicht mehr versendbare Mail-Jobs der Person (gescheitert, hängend oder ohne Protokoll-Eintrag) sofort löschen;
@@ -591,7 +750,49 @@ export async function applyErasure(
           context: { ...req.context, now: now.toISOString() },
         }),
       )) as PrivacyRequest)
-  return { request: updated, outcomes, jobId, carrierConsentWithdrawn }
+  // Nachlauf merken (nach dem Speichern von `answeredAt`, das die Zeile sonst mit dem alten Stand überschreibt):
+  // laufende Vorgänge mit „keine Aktion“ – frühere Einträge zu Zeilen dieses Plans ersetzt die neue Entscheidung
+  const remindersSent = await saveFollowUps(
+    db,
+    request.id,
+    plan,
+    steps
+      .filter((s) => s.action === 'none' && s.row.state === 'running')
+      .map((s) => ({
+        collection: s.row.collection as ErasureFollowUp['collection'],
+        id: s.row.id,
+        since: now.toISOString(),
+      })),
+  )
+  return {
+    request: { ...updated, remindersSent },
+    outcomes,
+    jobId,
+    carrierConsentWithdrawn,
+    followUps: followUpsOf(remindersSent),
+  }
+}
+
+async function saveFollowUps(
+  db: SqlExecutor,
+  requestId: number,
+  plan: readonly ErasurePlanRow[],
+  added: readonly ErasureFollowUp[],
+): Promise<Record<string, unknown>> {
+  const res = await db.execute(
+    sql`SELECT reminders_sent FROM privacy_requests WHERE id = ${requestId} FOR UPDATE`,
+  )
+  const sent = (res.rows[0]?.reminders_sent ?? {}) as Record<string, unknown>
+  const before = followUpsOf(sent)
+  const inPlan = (f: ErasureFollowUp) =>
+    plan.some((r) => r.collection === f.collection && r.id === f.id)
+  const next = [...before.filter((f) => !inPlan(f)), ...added]
+  if (next.length === 0 && before.length === 0) return sent
+  const merged = { ...sent, [ERASURE_FOLLOW_UP_KEY]: next }
+  await db.execute(
+    sql`UPDATE privacy_requests SET reminders_sent = ${JSON.stringify(merged)}::jsonb WHERE id = ${requestId}`,
+  )
+  return merged
 }
 
 /**
@@ -658,6 +859,33 @@ async function setLegalHold(
   context: PayloadRequest['context'],
 ) {
   await updatePrivacy(req, collection, id, { legalHold: true, legalHoldReason: reason }, context)
+}
+
+/** Widerruf einschränken (Art. 18): `processingRestricted`, Notizen leeren, `deletion-log`. */
+export async function restrictWithdrawal(
+  req: PayloadRequest,
+  id: number,
+  privacyRequestRef: string,
+  now: Date,
+): Promise<void> {
+  await updatePrivacy(
+    req,
+    'withdrawals',
+    id,
+    { processingRestricted: true },
+    { ...req.context, system: true, now: now.toISOString() },
+    { adminNotes: null },
+  )
+  await writeDeletionLog(req, {
+    entityCollection: 'withdrawals',
+    entityId: id,
+    ruleId: 'DSGVO',
+    action: 'restricted',
+    trigger: 'privacy_request',
+    privacyRequestRef,
+    storageObjectsCount: 0,
+    executedAt: now,
+  })
 }
 
 /**

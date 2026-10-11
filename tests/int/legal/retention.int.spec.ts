@@ -170,7 +170,7 @@ describe('Löschjobs Teil 1 (R-154)', () => {
     expect((await run('retentionAbandonedCheckouts', plus(due, 2 * DAY))).processed).toBe(0)
   })
 
-  it('R-154 L-04 Stufe 1: stornierte Vorkasse nach 30 Tagen ohne Adressen und DHL-Einwilligung; Legal Hold bleibt', async () => {
+  it('R-154 L-04 Stufe 1: stornierte Vorkasse nach 30 Tagen ohne Adressen, DHL-Einwilligung und Einwilligungsnachweise; Legal Hold bleibt', async () => {
     const cancelledAt = new Date('2026-10-05T09:00:00.000Z')
     const base = {
       status: 'cancelled',
@@ -188,9 +188,33 @@ describe('Löschjobs Teil 1 (R-154)', () => {
         legalHoldSince: iso(cancelledAt),
       },
     })
+    // schon früher minimiert (vor Prüfung P18.5): Adressen leer, Nachweise noch da
+    const legacy = await order(base)
+    await dbOf(payload).execute(sql`UPDATE orders SET shipping_address_name = NULL,
+      shipping_address_address_line1 = NULL, shipping_address_postal_code = NULL, shipping_address_city = NULL,
+      billing_address_name = NULL, billing_address_address_line1 = NULL, billing_address_postal_code = NULL,
+      billing_address_city = NULL, carrier_email_consent = false WHERE id = ${legacy.id}`)
+    // Nachweise hängen seit Prüfung P18.5 schon an der Vorkasse-Bestellung (Frist der Bestellung, Stufe 2)
+    const consent = async (orderId: number, purpose: string) =>
+      Number(
+        (
+          await dbOf(payload).execute(sql`
+      INSERT INTO consent_log (purpose, granted, text_snapshot, text_sha256, locale, email, retain_until, order_id, seed, updated_at, created_at)
+      VALUES (${purpose}, true, 'Text', ${'c'.repeat(64)}, 'de', 'erika@planetclaire.local',
+              '2032-12-31T23:00:00Z'::timestamptz, ${orderId}, false, now(), now()) RETURNING id`)
+        ).rows[0]!.id,
+      )
+    const consents = [
+      await consent(o.id, 'carrier_email_forwarding'),
+      await consent(o.id, 'deviation_agreement'),
+    ]
+    const legacyConsent = await consent(legacy.id, 'deviation_agreement')
+    const heldConsent = await consent(held.id, 'carrier_email_forwarding')
     const due = retainUntil(L_04_CANCELLED_PREPAYMENT_STAGE_1, cancelledAt)
     await run('retentionOrderMinimize', plus(due, -DAY))
     expect((await orderRow(o.id))?.shipping_address_name).toBe('Erika Beispiel')
+    for (const id of [...consents, legacyConsent])
+      expect(await exists('consent_log', id)).toBe(true)
     await run('retentionOrderMinimize', plus(due, DAY))
     const row = await orderRow(o.id)
     expect(row).toMatchObject({
@@ -201,8 +225,18 @@ describe('Löschjobs Teil 1 (R-154)', () => {
     })
     expect(row?.order_number).toBe(o.orderNumber)
     expect((await logsFor('orders', o.id)).map((l) => l.ruleId)).toEqual(['L-04 Stufe 1'])
+    for (const id of [...consents, legacyConsent]) {
+      expect(await exists('consent_log', id)).toBe(false)
+      expect(
+        (await logsFor('consent-log', id)).map((l) => [l.ruleId, l.action, l.trigger]),
+      ).toEqual([['L-04 Stufe 1', 'deleted', 'job']])
+    }
     expect((await orderRow(held.id))?.shipping_address_name).toBe('Erika Beispiel')
     expect(await logsFor('orders', held.id)).toHaveLength(0)
+    expect(await exists('consent_log', heldConsent)).toBe(true)
+    // idempotent
+    const again = await run('retentionOrderMinimize', plus(due, 2 * DAY))
+    expect(again.steps.find((st) => st.ruleId === 'L-04 Stufe 1')?.count).toBe(0)
   })
 
   it('R-154 L-05 Stufe B: Status-Token (Hash und Siegel) 180 Tage nach finalStatusAt entfernt', async () => {

@@ -1,6 +1,6 @@
 # Löschkonzept – planetclairetattoos.com
 
-> **Stand:** 11.10.2026 · **Version:** 1.5 · **Status:** verbindliches Fachdokument (Rang wie ANFORDERUNGEN.md)
+> **Stand:** 11.10.2026 · **Version:** 1.6 · **Status:** verbindliches Fachdokument (Rang wie ANFORDERUNGEN.md)
 > **Zweck:** Aufbewahrungs- und Löschfristen je Datenkategorie (L-xx), die automatischen Löschjobs und das Verfahren
 > für Anfragen betroffener Personen. Grundlage für R-150 bis R-154, die Datenschutzerklärung (Kanzlei) und das
 > Verzeichnis von Verarbeitungstätigkeiten (R-156).
@@ -59,7 +59,7 @@
 | L-01 | Warenkorb und Kasse im Browser (ARCHITEKTUR §8.7, R-130): Cookie `pc_cart` (nur Stück-IDs, Preis beim Hinzufügen und Lieferart, keine Kennung, keine Personendaten) und Cookie `pc_checkout` (zufälliger Kassen-Token, `HttpOnly`). Es gibt **keinen** Server-Warenkorb | Warenkorb- und Kassenfunktion | § 25 Abs. 2 Nr. 2 TDDDG; Art. 6 Abs. 1 lit. b DSGVO | `pc_cart` 7 Tage (`Max-Age`), `pc_checkout` 1 h (`Max-Age`); `pc_cart` wird gelöscht, wenn der Korb leer ist oder die Bestellung abgeschlossen ist | Setzen bzw. letzte Änderung des Cookies | Browser verwirft das Cookie | – (Cookie-Laufzeit; Kassen-Datensätze in der DB: L-03) |
 | L-02 | Reservierungen (`reservations`: Stück, Kassen-Referenz, Ablaufzeit, Status; keine Personendaten) | Doppelverkauf verhindern | Art. 6 Abs. 1 lit. b | 7 Tage | Freigabe bzw. Umwandlung (`releasedAt`/`convertedAt`) | Löschen | `retentionTechnical` |
 | L-03 | Kassen (`checkouts`, DATENMODELL §6.25): Hash des Kassen-Tokens, Snapshot, eingegebene Namen, E-Mail, Adressen, Einwilligungen, Stripe-Session-Referenz – **alle** Kassen, auch abgebrochene, abgelaufene, gescheiterte und abgeschlossene (die Bestellung hat einen eigenen Snapshot, DATENMODELL DM-05); `consent-log`-Einträge einer Kasse ohne Bestellung. Vor der Zahlung gibt es keine Bestellung, nur die Kasse | Bezahlvorgang abschließen, Missbrauch klären | Art. 6 Abs. 1 lit. b, f | **30 Tage** | Anlage der Kasse | Löschen (`orders.checkout` wird geleert; Danke-Link danach „nicht gefunden“, Status-Link der Bestellung bleibt) | `retentionAbandonedCheckouts`, `retentionConsentEvidence` |
-| L-04 | Stornierte Vorkasse-Bestellungen (`cancelled`, nie bezahlt; `cancelReason` `payment_timeout`, `admin` oder `withdrawn`) | Nachweis versandter Geschäftsbriefe (Bestätigung, Storno) | § 147 Abs. 1 Nr. 2, 3, Abs. 3 AO (Standard bis K-33) | Stufe 1: nach 30 Tagen Liefer- und Rechnungsadresse und DHL-Einwilligung entfernen (Telefon wird nicht erfasst); Status-Token wie §3.1 Stufe B; Stufe 2: 6 Jahre | Stornierung (`timestamps.cancelledAt`); Stufe 2 ab Ende des Stornojahres (`orders.retainUntil`) | Anonymisieren | `retentionOrderMinimize`, `retentionOrders` |
+| L-04 | Stornierte Vorkasse-Bestellungen (`cancelled`, nie bezahlt; `cancelReason` `payment_timeout`, `admin` oder `withdrawn`) | Nachweis versandter Geschäftsbriefe (Bestätigung, Storno) | § 147 Abs. 1 Nr. 2, 3, Abs. 3 AO (Standard bis K-33) | Stufe 1: nach 30 Tagen Liefer- und Rechnungsadresse, DHL-Einwilligung und die Einwilligungs- und Abweichungsnachweise der Bestellung (`consent-log`, L-19 a) entfernen (Telefon wird nicht erfasst); Status-Token wie §3.1 Stufe B; Stufe 2: 6 Jahre | Stornierung (`timestamps.cancelledAt`); Stufe 2 ab Ende des Stornojahres (`orders.retainUntil`) | Anonymisieren | `retentionOrderMinimize`, `retentionOrders` |
 | L-05 | Bestellungen mit Zahlung, auch widerrufene/erstattete (Kontaktdaten, Adressen, Snapshot, Status-Historie, Mail-Protokoll `email-log`, Einwilligungs- und Abweichungsnachweise `consent-log`, Pack- und Rückgabefotos, Status-Token als Hash und Siegel) | Vertragserfüllung, Gewährleistung, Nachweise | Art. 6 Abs. 1 lit. b, c, f; § 147 Abs. 1 Nr. 2, 3 AO; §§ 195, 199, 438 BGB | mehrstufig, siehe §3.1; Endstufe **6 Jahre** | Endstatus (`timestamps.finalStatusAt`, §3.1) | Anonymisieren | `retentionOrderMinimize`, `retentionOrders` |
 | L-06 | Rechnungen und Gutschriften (PDF + Registerzeile `invoices`) | Buchungsbelege | Art. 6 Abs. 1 lit. c; § 147 Abs. 1 Nr. 1, 4, Abs. 3 AO; § 14b Abs. 1 UStG | `settings.retention.invoiceYears`: **Standard 10 Jahre** (Konzept-Freigabe), umstellbar auf 8 (gesetzliche Mindestfrist für Buchungsbelege, K-33); beim Anlegen als `retainUntil` eingefroren | Ende des Ausstellungsjahres | PDF löschen, Registerzeile anonymisieren – erst nach `retainUntil` (DATENMODELL §9.4) | `retentionInvoices` |
 | L-07 | Monatsexporte CSV/DATEV und Rechnungs-ZIP (`private-uploads`, Zweck `monthly_export`; ohne Kundennamen, R-124) | Aufzeichnungen der EÜR | § 147 Abs. 1 Nr. 1, Abs. 3 AO | 10 Jahre | Ende des Exportjahres | Löschen | `retentionInvoices` |
@@ -74,7 +74,7 @@
 | L-16 | Zahlungsdaten bei Stripe, PayPal, Bank; im Shop nur Zahlungs-/Erstattungs-IDs | Zahlung | eigene Pflichten der Anbieter | Shop-IDs wie L-05/L-06; beim Anbieter nach dessen Regeln | – | – | – |
 | L-17 | Betroffenenanfragen `privacy-requests` (Nummer `DS-JJJJ-NNNN`) inkl. Schriftverkehr; Exportdateien (ZIP, `private-uploads` mit Zweck `data_export`) | Nachweis der Erfüllung (Art. 5 Abs. 2) | Art. 6 Abs. 1 lit. c, f; §§ 195, 199 BGB | Datensatz 3 Jahre; Exportdateien 30 Tage nach Antwort | Ende des Abschlussjahres bzw. Antwort | Löschen | `retentionPrivacyRequests` |
 | L-18 | Löschprotokoll `deletion-log` (keine Inhalte) | Nachweis; Wiederholung nach Backup-Restore | Art. 5 Abs. 2 DSGVO | 3 Jahre | Eintrag | Löschen | `retentionDeletionLog` |
-| L-19 | Einwilligungs- und Vereinbarungsnachweise: a) `consent-log`-Einträge zur Bestellung – DHL-E-Mail-Einwilligung (`carrier_email_forwarding`, Textfassung, Bausteinversion, Zeitpunkt; Widerruf als eigener Eintrag und `orders.carrierEmailConsentRevokedAt`) und Abweichungsvereinbarungen (`deviation_agreement`); b) Portfolio-Einwilligung (`tattoo-gallery`: Häkchen, Datum, Umfang, Notiz, Instagram-Name – also der ganze widerrufene Eintrag samt nicht mehr genutzter Bild-Einträge; Nachweisdatei `consent_evidence`) | Nachweis (Art. 7 Abs. 1 DSGVO, § 476 Abs. 1 S. 2 BGB) | Art. 6 Abs. 1 lit. c, f | a) mit der Bestellung (Stufe D); ohne Bestellung wie die Kasse (L-03, 30 Tage); b) solange das Foto veröffentlicht ist + 3 Jahre | a) wie Bezug; b) Ende der Veröffentlichung bzw. Widerruf | Löschen | `retentionConsentEvidence` |
+| L-19 | Einwilligungs- und Vereinbarungsnachweise: a) `consent-log`-Einträge zur Bestellung – DHL-E-Mail-Einwilligung (`carrier_email_forwarding`, Textfassung, Bausteinversion, Zeitpunkt; Widerruf als eigener Eintrag und `orders.carrierEmailConsentRevokedAt`) und Abweichungsvereinbarungen (`deviation_agreement`); b) Portfolio-Einwilligung (`tattoo-gallery`: Häkchen, Datum, Umfang, Notiz, Instagram-Name – also der ganze widerrufene Eintrag samt nicht mehr genutzter Bild-Einträge; Nachweisdatei `consent_evidence`) | Nachweis (Art. 7 Abs. 1 DSGVO, § 476 Abs. 1 S. 2 BGB) | Art. 6 Abs. 1 lit. c, f | a) mit der Bestellung (Stufe D); bei stornierten, nie bezahlten Vorkasse-Bestellungen mit L-04 Stufe 1 (30 Tage nach der Stornierung); ohne Bestellung wie die Kasse (L-03, 30 Tage); b) solange das Foto veröffentlicht ist + 3 Jahre | a) wie Bezug; b) Ende der Veröffentlichung bzw. Widerruf | Löschen | `retentionConsentEvidence`, a) bei L-04 `retentionOrderMinimize` |
 | L-20 | Portfolio-Fotos von Kund:innen (`tattoo-gallery`, Bilder mit `showsPerson = customer`) | Portfolio | Art. 6 Abs. 1 lit. a DSGVO; § 22 KUG | bis Widerruf oder Entfernung; nach Widerruf sofort unveröffentlicht und `media.restricted`, Bilddateien und Varianten spätestens nach 24 h gelöscht | Widerruf | Löschen | sofortige Aktion + `retentionConsentEvidence` |
 | L-21 | Verwaltungskonto (Jutta) und Sitzungen | Verwaltung | Art. 6 Abs. 1 lit. b, f | Konto solange genutzt; Sitzungstoken ≤ 7 Tage | – | – | Payload-Einstellung |
 | L-22 | Beispielbestand (`seed: true`, fiktive Personen); nicht dazu gehört der Grund-Seed (`seed = false`, z. B. Platzhalter-Rechtstexte, R-002) | Demo, Tests, Vorschau | keine realen Personen | vor Go-live vollständig entfernt; in der Produktionsdatenbank höchstens vorübergehend vor der Freischaltung, öffentlich nie (§3.7) | Go-live | Löschen | Knopf „Beispieldaten entfernen“ + Gate R-210 |
@@ -219,7 +219,7 @@ fachlich zu KONZEPT §8.2 gehören, stehen dort; dieses Dokument nennt für sie 
 | `sendEmail` | direkt nach dem Commit, Wiederholung per Weckzeit | R-093 | Widerrufs-Eingangsbestätigung (`withdrawal_receipt`): Wiederholung im Abstand von höchstens 5 min bis 24 h nach Eingang; Admin-Alarm A12 (`admin_alert`) schon nach dem 2. Fehlversuch und erneut, wenn nach 24 h noch kein Versand gelang |
 | `withdrawalDeadlines` | täglich 08:00 (KONZEPT §8.2) | R-094 | Erstattung fällig bis (`refundDueAt`): Warnung ab Tag 10 (`admin_withdrawal_deadline`); keine Löschung, kein automatisches Ablehnen |
 | `retentionAbandonedCheckouts` | täglich 03:05 | L-03 | alle `checkouts` 30 Tage nach Anlage, `orders.checkout` leeren |
-| `retentionOrderMinimize` | täglich 03:10 | L-04 Stufe 1, L-05 Stufen A–C | |
+| `retentionOrderMinimize` | täglich 03:10 | L-04 Stufe 1 (samt `consent-log` der Bestellung, je Eintrag ein `deletion-log`), L-05 Stufen A–C | |
 | `retentionOrders` | täglich 03:15 | L-04 Stufe 2, L-05 Stufe D, L-09 | Bestellungen mit `retainUntil ≤ $now` anonymisieren, ihre Reklamationen samt Fotos löschen |
 | `retentionInvoices` | täglich 03:20 | L-06, L-07 | Belege mit `retainUntil ≤ $now` (aus `settings.retention.invoiceYears`, L-06) |
 | `retentionWithdrawals` | täglich 03:25 | L-08 | |
@@ -312,18 +312,27 @@ Die Verwaltung unterstützt jeden Schritt (R-150 bis R-153). Antworten in der Sp
    Widerruf).
 3. Aufbewahrungspflichtige Daten (Bestellungen bis Stufe D, Rechnungen, Widerrufe) einschränken; in der Antwort
    (Mail `privacy_erasure_response`, M15, Baustein `privacyRequest.erasureResponse`) nennen, welche Daten aus welchem Grund
-   bis wann aufbewahrt und dann automatisch gelöscht werden. Ausnahme: Bestellungen, deren Vertrag noch läuft (kein
-   bzw. ein künftiger `timestamps.finalStatusAt`, z. B. bezahlt und nicht versandt oder noch unterwegs) – hier schlägt
-   der Plan „keine Aktion“ vor, weil Versand, Zahlung und Erstattung die Daten und Mails brauchen (Art. 17 Abs. 1 lit. a
-   greift nicht); nach Abschluss erneut prüfen. M15 meldet je Bereich den tatsächlichen Zustand: „eingeschränkt“ nur
+   bis wann aufbewahrt und dann automatisch gelöscht werden. Ausnahme: Bestellungen, deren Vertrag noch läuft, und ihre
+   Widerrufe – kein bzw. ein künftiger `timestamps.finalStatusAt` (z. B. bezahlt und nicht versandt oder noch
+   unterwegs), ein Status ohne Abschluss (Widerruf eingegangen, Ware zurück, angefochten – auch nach „zugestellt“), eine
+   ausstehende Erstattung, eine offene Anfechtung oder ein offener Widerruf: Hier schlägt der Plan „keine Aktion“ vor,
+   weil Versand, Zahlung, Widerruf und Erstattung die Daten und Mails brauchen (Art. 17 Abs. 1 lit. a greift nicht).
+   **Nachlauf:** Diese Vorgänge merkt sich die Anfrage (`remindersSent.erasureFollowUp`); der tägliche Lauf (Task
+   `privacyRequestsDeadlineReminder`, ab 08:00) schränkt sie automatisch ein, sobald der Vertrag abgeschlossen ist und
+   keine Mail zur Bestellung mehr in der Warteschlange wartet (höchstens 7 Tage alt) – mit `deletion-log` (`trigger =
+   privacy_request`, Regel `DSGVO`, Anfragenummer). Erledigt ist ein Eintrag auch, wenn der Datensatz inzwischen
+   gelöscht, anonymisiert, gesperrt oder schon eingeschränkt ist. Die Anfrage darf vorher abgeschlossen werden; offene
+   Nachläufe zeigt die Verwaltung an der Anfrage. M15 meldet je Bereich den tatsächlichen Zustand: „eingeschränkt“ nur
    bei echter Einschränkung, sonst „aufbewahrt bis {Datum}“ bzw. „brauche ich noch, um deine Bestellung abzuwickeln“
-   (P18.5). Eine Bestellung mit abgelaufener Frist kann nicht ohne Aktion bleiben (löschen oder begründet behalten).
-   Mail-Jobs der Person, die nicht mehr versendet werden (gescheitert, hängend oder ohne Protokoll-Eintrag), löscht die
+   (P18.5). Eine Bestellung oder ein Widerruf mit abgelaufener Frist kann nicht ohne Aktion bleiben (löschen oder
+   begründet behalten); die Verwaltung bietet „keine Aktion“ dort nicht an, und alle Entscheidungen werden geprüft,
+   bevor etwas gelöscht wird (gelöschte Dateien kämen beim Zurückrollen nicht zurück). Mail-Jobs der Person, die nicht mehr versendet werden (gescheitert, hängend oder ohne Protokoll-Eintrag), löscht die
    Funktion sofort mit (`deletion-log`, Regel `DSGVO`); wartende Mails zu aufbewahrten Vorgängen bleiben – sie werden
    versendet bzw. bei Einschränkung unterdrückt und danach gelöscht (L-13 i, Prüfung P18.5).
-4. Empfänger informieren, soweit nötig (Art. 19): DHL-E-Mail-Einwilligung widerrufen, falls erteilt (geschieht beim
-   Einschränken); den Satz dazu enthält M15 nur, wenn in diesem Lauf wirklich eine Einwilligung widerrufen wurde
-   (P18.5); bei Stripe/PayPal auf deren eigene Datenschutzkontakte hinweisen (eigene Verantwortung); Mail-Anbieter-Logs
+4. Empfänger informieren, soweit nötig (Art. 19): DHL-E-Mail-Einwilligung widerrufen, falls erteilt – bei jeder
+   Bestellung der Person, auch wenn sie (noch) nicht eingeschränkt wird (laufender Vertrag, „keine Aktion“,
+   „behalten“): Die Löschanfrage gilt auch als Widerruf (Art. 17 Abs. 1 lit. b); den Satz dazu enthält M15 nur, wenn in
+   diesem Lauf wirklich eine Einwilligung widerrufen wurde (P18.5); bei Stripe/PayPal auf deren eigene Datenschutzkontakte hinweisen (eigene Verantwortung); Mail-Anbieter-Logs
    und Backups laufen automatisch ab (L-12, L-23) – in der Antwort erwähnen.
 
 ### 5.7 Einschränkung (Art. 18)
@@ -386,3 +395,4 @@ Die Verwaltung unterstützt jeden Schritt (R-150 bis R-153). Antworten in der Sp
 | 26.09.2026 | 1.3 | `tattoo-gallery` ohne Versionen (§1 Nr. 6, L-20, §3.5); Status-Token als Hash und Siegel, Stufe B löscht beide (L-05, §3.1); L-13 g) Tabelle `job_runs`; Exporte nie mit Beispieldaten (§3.7); Mail-IDs laut KONZEPT (§4, §5) |
 | 27.09.2026 | 1.4 | Fristen- und Erinnerungs-Tasks überspringen Beispieldaten (`seed = true`), Löschjobs nicht (§4) |
 | 11.10.2026 | 1.5 | Datenschutz-Prüfung P18.5: Einwilligungsnachweise der Kasse hängen an der Bestellung (Stufe D statt 30 Tage); Galerie-Eintrag nach Widerruf: Löschschutz, Bilder freigeben bzw. löschen, Eintrag nach L-19 b löschen (§3.5, §4); neue Regel L-13 i für gescheiterte, hängende oder verwaiste Mail-Jobs (`payload-jobs`, §2, §4); Auskunft nur mit eigenen bzw. bestätigten Treffern, Mail-Jobs als Bereich (§5.4); Löschplan ohne Einschränkung laufender Bestellungen, M15 meldet den tatsächlichen Zustand (§5.6) |
+| 11.10.2026 | 1.6 | Prüfung P18.5, Nachträge: L-04 Stufe 1 löscht auch die Einwilligungs- und Abweichungsnachweise der stornierten, nie bezahlten Bestellung (L-19 a, §4); §5.6 Nr. 3 laufender Vertrag auch bei Widerruf/Rücksendung/Anfechtung nach der Zustellung, ausstehender Erstattung oder offenem Widerruf, Nachlauf schränkt nach Abschluss automatisch ein, alle Entscheidungen vor der ersten Aktion geprüft; §5.6 Nr. 4 DHL-Einwilligung bei jeder Löschanfrage widerrufen |

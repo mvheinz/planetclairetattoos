@@ -1904,8 +1904,11 @@ Alle Werte liegen im Global `settings` (Feldnamen DATENMODELL §7.1); jede Ände
     Dateien und Mail-Protokoll), einschränken bis {Datum} (`privacy.processingRestricted = true`: keine weiteren Mails, aus
     Listen ausgeblendet, nur für Export/Steuer; nicht erforderliche Felder wie Telefon, Notizen, Packfotos sofort
     entfernen) oder behalten (Aufbewahrungssperre `privacy.legalHold` mit Pflicht-Begründung); bei laufendem Vertrag
-    Vorschlag „keine Aktion“ (P18.5). Belege bleiben bis Fristende unverändert. Antwort M15 mit dem tatsächlichen
-    Zustand je Bereich.
+    (auch Widerruf, Rücksendung, Anfechtung oder Erstattung nach der Zustellung) Vorschlag „keine Aktion“ – der tägliche
+    Nachlauf schränkt solche Bestellungen und Widerrufe nach Abschluss automatisch ein (P18.5, LOESCHKONZEPT §5.6 Nr. 3).
+    Bei abgelaufener Frist gibt es „keine Aktion“ nicht; alle Entscheidungen werden vor der ersten Aktion geprüft. Die
+    Löschanfrage widerruft jede aktive DHL-Einwilligung der Person. Belege bleiben bis Fristende unverändert. Antwort M15
+    mit dem tatsächlichen Zustand je Bereich.
   - **Berichtigung:** Name/Adresse/E-Mail vor Rechnungsstellung editierbar, danach nur per Gutschrift + neuer Rechnung;
     **Einwilligungen widerrufen** (DHL-Weitergabe, Portfolio) per Knopf mit Wirkung ab sofort, Bestätigung M16 (R-152).
   - Jede Aktion → `deletion-log`.
@@ -1986,7 +1989,7 @@ Widerrufserklärungen nur lesen (Notizen separat); keine Lösch-Knöpfe für ver
 | `retention…`-Tasks (`retentionAbandonedCheckouts`, `retentionOrderMinimize`, `retentionOrders`, `retentionInvoices`, `retentionWithdrawals`, `retentionCommissionInquiries`, `retentionEmailLog`, `retentionConsentEvidence`, `retentionPrivacyRequests`, `retentionDeletionLog`) | täglich ab 03:05 (Reihenfolge und Richtzeiten LOESCHKONZEPT §4) | Löschfristen §8.3 ausführen, `deletion-log` schreiben, Legal Holds überspringen (Details: LOESCHKONZEPT §4) | P6 |
 | `retentionTechnical` | stündlich | Reservierungen 7 Tage nach Ablauf/Umwandlung (L-02), nicht abgeschickte Uploads und Rate-Limit-Zähler älter als 24 h, Webhook-Event-IDs und Job-Protokoll älter als 90 Tage, `audit-log`-Einträge nach ihrer Frist, gescheiterte oder hängende Mail-Jobs nach 30 Tagen (L-13) | P4 (Reservierungen), P7 (Uploads) |
 | `legalHoldReview` | täglich ab 08:00 | Aufbewahrungssperren älter als 6 Monate (bzw. seit der letzten Prüfung) → A15 | P6 |
-| `privacyRequestsDeadlineReminder` | täglich ab 08:00 | offene Datenschutz-Anfragen 7 Tage und 1 Tag vor `dueAt` bzw. `extendedDueAt` → A14 (R-153) | P6 |
+| `privacyRequestsDeadlineReminder` | täglich ab 08:00 | offene Datenschutz-Anfragen 7 Tage und 1 Tag vor `dueAt` bzw. `extendedDueAt` → A14 (R-153); Nachlauf der Löschungen: abgeschlossene Verträge einschränken (P18.5) | P6 |
 | `withdrawalDeadlines` | täglich ab 08:00 | Widerrufe `received`/`goods_returned`, `refundDueAt` in ≤ 4 Tagen (Eingang vor ≥ 10 Tagen), ohne Erstattung → A13 (einmal je Widerruf, `deadlineReminderSentAt`) | P6 |
 | `legalReviewReminder` | täglich ab 08:30 | je Rechtstext-Typ: Sind `activatedAt` der aktiven Fassung und `settings.legal.reviews[type].reviewedAt` beide ≥ `settings.legal.reviewIntervalDays` (Standard 365) Tage alt und die letzte Erinnerung ≥ 30 Tage her → A10 und Hinweis unter „Heute“ (E-41, R-014) | P6 |
 | `revenueGuardCheck` | täglich ab 07:00 und bei Bedarf | Umsatz berechnen, Stufen prüfen (§8.4), A09 einmal je Stufe und Jahr; am 1. Januar Stufe U0 | P5 |

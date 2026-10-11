@@ -1147,6 +1147,9 @@ export const ADMIN_CUSTOM_DE = {
   privacyActionRestrict: 'einschränken',
   privacyActionKeep: 'behalten (Sperre)',
   privacyActionNone: 'keine Aktion',
+  privacyFollowUpTitle: 'Nachlauf: nach Abschluss einschränken',
+  privacyFollowUpHint:
+    'Diese Bestellungen und Widerrufe liefen beim Ausführen des Plans noch. Sobald Versand, Zahlung, Widerruf und Erstattung abgeschlossen sind, schränkt der tägliche Lauf (ab 8 Uhr) sie automatisch ein – mit Eintrag im Löschprotokoll. Du musst nichts tun und darfst die Anfrage schon abschließen.',
   privacyRectifyTitle: 'Berichtigung',
   privacyRectifyHint:
     'Name, E-Mail oder Adresse einer gefundenen Bestellung berichtigen. Gibt es schon eine Rechnung, entstehen automatisch eine Gutschrift und eine neue Rechnung.',
