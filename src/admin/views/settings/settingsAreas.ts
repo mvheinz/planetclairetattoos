@@ -362,6 +362,8 @@ export const AREA_TEXT = {
   shipFoodNote:
     'Lebensmittelechte Keramik ist für die Niederlande und Luxemburg automatisch gesperrt.',
   shipPickup: 'Abholung möglich',
+  shipPickupHint:
+    'Aus: Korb und Kasse bieten keine Abholung an, Stücke „nur Abholung“ sind dann nicht bestellbar. Bereits bezahlte Abholungen bleiben, wie sie sind.',
   shipPickupCity: 'Abholort',
   shipDeliveryTime: 'Lieferzeit',
   shipDeliveryTimeHint: 'Konkret, z. B. „2–4 Werktage“ – keine Angaben wie „ca.“.',

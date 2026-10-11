@@ -516,6 +516,7 @@ export function ShippingForm(props: {
       <CheckField
         path="shipping.pickupEnabled"
         label={areaText('shipPickup')}
+        hint={areaText('shipPickupHint')}
         checked={v.pickupEnabled}
         onChange={(pickupEnabled) => setV({ ...v, pickupEnabled })}
       />

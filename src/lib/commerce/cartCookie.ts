@@ -139,9 +139,17 @@ export const PRODUCT_LIVE_STATES: readonly ProductLiveState[] = [
   'gone',
 ]
 
-/** Ablehnungsgründe von „In den Korb“ (feste Codes, Texte per i18n, ARCHITEKTUR §15.2). */
+/**
+ * Ablehnungsgründe von „In den Korb“ (feste Codes, Texte per i18n, ARCHITEKTUR §15.2); `pickup_disabled`: Stück nur zur
+ * Abholung, Abholung gerade aus (P18.5).
+ */
 export type AddToCartCode =
-  'shop_closed' | 'product_unavailable' | 'cart_full' | 'rate_limited' | 'invalid'
+  | 'shop_closed'
+  | 'product_unavailable'
+  | 'pickup_disabled'
+  | 'cart_full'
+  | 'rate_limited'
+  | 'invalid'
 
 /**
  * Antwort der Server-Action `addToCart` an das Verhaltensmodul `add-to-cart` – ohne Personendaten. `count` = Stücke im

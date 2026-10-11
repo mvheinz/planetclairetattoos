@@ -39,6 +39,7 @@ import type { FiberRow } from '@/lib/products/fibers'
 import { localizedPath } from '@/lib/routes/paths'
 import { BUY_NOTE_CODES, BUY_NOTE_FRAGMENTS, IN_CART_FRAGMENT } from '@/lib/shop/buyArea'
 import { productMailto } from '@/lib/shop/mailto'
+import { pickupOnlyOrderable } from '@/lib/shop/pickupPolicy'
 import { buyState, canAddToCart, foodContactDisplay } from '@/lib/shop/productState'
 import { absoluteUrl } from '@/lib/seo/metadata'
 import {
@@ -146,6 +147,11 @@ export async function ProductPage({
   const dimsLang = product.dimensions?.note ? de('dimensionsNote') : undefined
   const now = new Date()
   const closed = !settings.isOpen && state !== 'sold'
+  // Nur zur Abholung, Abholung gerade aus (P18.5): nicht bestellbar, Knopf aus mit Hinweis.
+  const pickupBlocked =
+    state !== 'sold' &&
+    product.shippingClass === 'nur_abholung' &&
+    !pickupOnlyOrderable(settings.pickupEnabled)
   const textile = product.category === 'textil' || product.category === 'cap'
   // Ohne aktive Erklärung nie „lebensmittelecht“ – dann gilt die Deko-Kennzeichnung (konservativ, E-15).
   const food = foodContactDisplay(product)
@@ -178,7 +184,7 @@ export async function ProductPage({
     : localizedPath('R02', locale)
   const cartHref = localizedPath('R06', locale)
   const checkoutHref = localizedPath('R07', locale)
-  const canAdd = !preview && canAddToCart(state, settings.isOpen)
+  const canAdd = !preview && !pickupBlocked && canAddToCart(state, settings.isOpen)
   // Server-Action als Formular-Aktion: ohne JavaScript leitet sie per 303 um (Rückgabe nur für `add-to-cart`).
   const formAction = addToCart as unknown as (formData: FormData) => Promise<void>
   const cartFields = (
@@ -420,11 +426,21 @@ export async function ProductPage({
       ) : null}
 
       {/* 6. Kaufbereich je Zustand */}
-      <div className={styles.buy} data-buy-area="" data-buy-state={closed ? 'closed' : state}>
+      <div
+        className={styles.buy}
+        data-buy-area=""
+        data-buy-state={closed || pickupBlocked ? 'closed' : state}
+      >
         {closed ? (
           <div data-shop-closed="">
             <Callout variant="info">
               <p>{settings.closedMessage ?? tList('closedFallback')}</p>
+            </Callout>
+          </div>
+        ) : pickupBlocked ? (
+          <div data-pickup-blocked="">
+            <Callout variant="info">
+              <p>{t('pickupBlocked')}</p>
             </Callout>
           </div>
         ) : null}
@@ -455,7 +471,7 @@ export async function ProductPage({
               data-product-id={product.id}
               data-text-add={t('addToCart')}
               data-text-reserved={tBadges('reservedLong')}
-              data-closed={closed ? '' : undefined}
+              data-closed={closed || pickupBlocked ? '' : undefined}
             >
               {cartFields}
               <Button variant="primary" type="submit" disabled={!canAdd}>
@@ -567,8 +583,9 @@ export async function ProductPage({
         />
       </StaticHtml>
 
-      {/* Kauf-Leiste mobil (KO-09a): nur bei `available`; eingeblendet vom Modul `buy-bar`, ohne JavaScript verborgen. */}
-      {state === 'available' && !preview ? (
+      {/* Kauf-Leiste mobil (KO-09a): nur bei `available` (und bestellbar, P18.5); eingeblendet vom Modul `buy-bar`, ohne
+          JavaScript verborgen. */}
+      {state === 'available' && !preview && !pickupBlocked ? (
         <div
           className={styles.buyBar}
           data-behavior="buy-bar"

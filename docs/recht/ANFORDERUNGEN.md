@@ -499,9 +499,13 @@ Lücken in der Nummerierung sind Reserve.
 - **Anforderung:** Der Warenkorb zeigt **vor** dem Button zur Kasse den Baustein `cart.paymentAndDeliveryInfo`:
   akzeptierte Zahlarten (Kredit-/Debitkarte, Apple Pay, Google Pay, PayPal, Vorkasse per Überweisung) und
   „Lieferung nur innerhalb Deutschlands; Abholung in Berlin nach Absprache“. Die Produktseite zeigt den Satz zum
-  Liefergebiet in der Nähe von „In den Korb“.
+  Liefergebiet in der Nähe von „In den Korb“. Ist Abholung (`settings.shipping.pickupEnabled`) oder Vorkasse
+  (`settings.payment.prepaymentEnabled`) aus, stünde im Baustein etwas, das gerade nicht angeboten wird: dann zeigt der
+  Korb dieselbe Angabe aus den Einstellungen gebaut – ohne Abhol-Satz bzw. ohne „Vorkasse“ (wie die Fußzeile, U-58 c;
+  P18.5).
 - **Rechtsgrundlage:** § 312j Abs. 1 BGB.
-- **Abnahme:** `e2e` – Warenkorb enthält beide Angaben oberhalb des Kassen-Buttons.
+- **Abnahme:** `e2e` – Warenkorb enthält beide Angaben oberhalb des Kassen-Buttons; mit Abholung aus fehlt der
+  Abhol-Satz (`tests/e2e/cart/pickup-off.e2e.spec.ts`).
 - **Phase:** P4 · **Owner:** nein
 
 ### 4.5 Produktangaben

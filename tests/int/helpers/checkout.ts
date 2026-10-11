@@ -140,6 +140,34 @@ export async function setShop(payload: Payload, shop: Record<string, unknown>) {
   }
 }
 
+/**
+ * Eine Gruppe der Einstellungen (`shipping`, `payment` …) teilweise ändern (ohne Revalidierung); liefert die Rücknahme.
+ * Die übrigen Felder der Gruppe bleiben, wie sie sind.
+ */
+export async function setSettingsGroup(
+  payload: Payload,
+  group: 'shipping' | 'payment',
+  values: Record<string, unknown>,
+) {
+  const before = (await payload.findGlobal({
+    slug: 'settings',
+    overrideAccess: true,
+    depth: 0,
+  })) as unknown as Record<string, Record<string, unknown> | undefined>
+  const original = before[group] ?? {}
+  const write = async (data: Record<string, unknown>) => {
+    await payload.updateGlobal({
+      slug: 'settings',
+      data: { [group]: data } as never,
+      overrideAccess: true,
+      locale: 'de',
+      context: { seed: true },
+    })
+  }
+  await write({ ...original, ...values })
+  return () => write(original)
+}
+
 export interface SubmitForTestOptions {
   email?: string
   now: Date

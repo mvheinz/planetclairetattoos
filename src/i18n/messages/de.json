@@ -358,6 +358,7 @@
       "factsLabel": "Kurzdaten",
       "detailsLabel": "Angaben zum Stück",
       "addToCart": "In den Korb",
+      "pickupBlocked": "Gerade nicht bestellbar – Abholung ist im Moment nicht möglich. Schreib mir gern, wenn du das Stück haben möchtest.",
       "inCart": "Liegt schon in deinem Korb",
       "toCart": "Zum Korb",
       "added": "Liegt im Korb",
@@ -368,6 +369,7 @@
         "rate_limited": "Das ging gerade zu schnell. Bitte versuch es in ein paar Minuten noch einmal.",
         "shop_closed": "Der Shop schläft gerade – in den Korb legen ist im Moment nicht möglich.",
         "product_unavailable": "Dieses Stück ist gerade nicht mehr zu haben.",
+        "pickup_disabled": "Gerade nicht bestellbar – Abholung ist im Moment nicht möglich.",
         "invalid": "Das hat nicht geklappt. Bitte lade die Seite neu und versuch es noch einmal."
       },
       "soldText": "Schon verkauft",
@@ -562,6 +564,7 @@
       "empty": "Noch liegt nichts in deinem Korb.",
       "shipping": "Der Versand für diesen Korb lässt sich gerade nicht berechnen. Wähl bitte Abholung oder schreib mir.",
       "pickup_only": "{items} gibt es nur zur Abholung.",
+      "pickup_disabled": "{count, plural, =0 {Abholung ist im Moment nicht möglich – ich schicke dir deine Stücke gern zu.} one {{items} gibt es nur zur Abholung, und Abholung ist im Moment nicht möglich. Nimm das Stück bitte aus dem Korb.} other {{items} gibt es nur zur Abholung, und Abholung ist im Moment nicht möglich. Nimm die Stücke bitte aus dem Korb.}}",
       "rate_limited": "Das ging gerade zu schnell. Bitte versuch es in ein paar Minuten noch einmal.",
       "invalid": "Das hat nicht geklappt. Bitte lade die Seite neu und versuch es noch einmal.",
       "checkout_ended": "Diese Kasse ist nicht mehr offen. Du kannst sie hier neu starten.",
@@ -580,7 +583,8 @@
       "reserved_by_you": "Liegt für dich in der Kasse bereit",
       "priceChanged": "Preis wurde aktualisiert",
       "reservedUntil": "Reserviert bis {time} Uhr – danach wird es vielleicht wieder frei",
-      "reservedUntilDate": "Reserviert bis {date}, {time} Uhr – danach wird es vielleicht wieder frei"
+      "reservedUntilDate": "Reserviert bis {date}, {time} Uhr – danach wird es vielleicht wieder frei",
+      "pickupBlocked": "Gerade nicht bestellbar – Abholung ist im Moment nicht möglich"
     },
     "soldStamp": "sold",
     "unknownTitle": "Stück {number}",
@@ -595,9 +599,18 @@
     "total": "Gesamt",
     "shippingUnknown": "wird noch berechnet",
     "paymentMethods": "Karte · Apple Pay · Google Pay · PayPal · Vorkasse",
+    "paymentMethodsNoPrepayment": "Karte · Apple Pay · Google Pay · PayPal",
+    "shippingNoPickup": "Der Versand für diesen Korb lässt sich gerade nicht berechnen. Schreib mir bitte.",
+    "info": {
+      "delivery": "Wir liefern nur innerhalb Deutschlands.",
+      "pickup": "Abholung in {city} nach Absprache.",
+      "payment": "Zahlarten: Kredit-/Debitkarte, Apple Pay, Google Pay, PayPal, Vorkasse per Überweisung.",
+      "paymentNoPrepayment": "Zahlarten: Kredit-/Debitkarte, Apple Pay, Google Pay, PayPal."
+    },
     "toCheckout": "Zur Kasse",
     "blocked": {
       "unavailable": "Entferne bitte zuerst die Stücke, die gerade nicht zu haben sind.",
+      "pickup_disabled": "{items} gibt es nur zur Abholung, und Abholung ist im Moment nicht möglich. Nimm {count, plural, one {das Stück} other {die Stücke}} bitte aus dem Korb.",
       "shop_closed": "Der Shop schläft gerade – bestellen ist im Moment nicht möglich.",
       "too_many": "Höchstens {max} Stücke pro Bestellung.",
       "shipping": "Der Versand für diesen Korb lässt sich gerade nicht berechnen. Wähl bitte Abholung oder schreib mir.",
@@ -738,6 +751,7 @@
         "invalid": "Bitte prüf deine Angaben.",
         "deviation_missing": "Bitte bestätige die Besonderheit bei jedem markierten Stück.",
         "prepayment_disabled": "Vorkasse ist gerade nicht verfügbar.",
+        "pickup_disabled": "Abholung ist im Moment nicht möglich. Starte die Kasse bitte im Korb neu – dann mit Versand.",
         "legal_missing": "Bestellen geht gerade nicht. Bitte versuch es später noch einmal.",
         "not_orderable_in_country": "Ein Stück in deinem Korb kann nicht in dieses Land geliefert werden.",
         "rate_limited": "Das ging gerade zu schnell. Bitte versuch es in ein paar Minuten noch einmal.",

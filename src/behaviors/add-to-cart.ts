@@ -21,7 +21,8 @@ import {
 // - Erfolg → Knopf wird zu „Liegt schon in deinem Korb“ + „Zum Korb“ (`[data-in-cart]`), kurze Bestätigung „Liegt im
 //   Korb“ (`[data-buy-confirm]`, 3 s), Korb-Anzahl +1 (`CART_CHANGE_EVENT`, MI-07), Coco-Hüpfer MI-01 (Grundfassung).
 // - Abgelehnt → aktueller Zustand (reserviert, verkauft mit Stempel-Knall, nicht mehr da, Shop pausiert mit
-//   `closedMessage`) bzw. Meldung (`[data-buy-note="<code>"]`: Korb voll, zu viele Versuche, Fehler).
+//   `closedMessage`, nur zur Abholung bei ausgeschalteter Abholung) bzw. Meldung (`[data-buy-note="<code>"]`: Korb voll,
+//   zu viele Versuche, Fehler). `data-closed` am Formular hält den Knopf dauerhaft aus (Shop pausiert bzw. P18.5).
 // Beim Binden liest es `pc_cart` (nur lesen, nichts setzen) und zeigt „Liegt schon in deinem Korb“, wenn das Stück schon
 // im Korb liegt. Alle Formulare desselben Stücks bleiben gleich (Ereignis `CART_ITEM_EVENT`); `PRODUCT_STATE_EVENT`
 // (Modul `product-status`) übernimmt Live-Wechsel; liegt das Stück in der eigenen laufenden Kasse (`reservedByYou`),
@@ -53,6 +54,8 @@ const FALLBACK_DOWN = 'cubic-bezier(0.55, 0, 0.85, 0.35)'
 export function viewFor(res: AddToCartResponse, current: BuyView): Omit<CartItemDetail, 'id'> {
   if (res.ok) return { view: 'in-cart', added: res.added }
   if (res.code === 'shop_closed') return { view: 'closed', note: res.code, message: res.message }
+  // Nur zur Abholung, Abholung gerade aus (P18.5): Knopf bleibt aus, Hinweis steht im Kaufbereich.
+  if (res.code === 'pickup_disabled') return { view: 'closed', note: res.code }
   if (res.code === 'product_unavailable') {
     const state = res.state && res.state !== 'available' ? res.state : 'gone'
     return state === 'gone' ? { view: 'gone', note: res.code } : { view: state }

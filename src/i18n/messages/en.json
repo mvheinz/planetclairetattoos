@@ -358,6 +358,7 @@
       "factsLabel": "Key facts",
       "detailsLabel": "About this piece",
       "addToCart": "Add to basket",
+      "pickupBlocked": "Can’t be ordered right now – pickup isn’t possible at the moment. Feel free to write to me if you’d like this piece.",
       "inCart": "Already in your basket",
       "toCart": "Go to basket",
       "added": "In your basket",
@@ -368,6 +369,7 @@
         "rate_limited": "That was a bit too fast. Please try again in a few minutes.",
         "shop_closed": "The shop is asleep for now – adding to the basket isn’t possible at the moment.",
         "product_unavailable": "This piece is no longer available right now.",
+        "pickup_disabled": "Can’t be ordered right now – pickup isn’t possible at the moment.",
         "invalid": "That did not work. Please reload the page and try again."
       },
       "soldText": "Already sold",
@@ -562,6 +564,7 @@
       "empty": "Nothing lies in your basket yet.",
       "shipping": "Shipping for this basket can't be calculated right now. Please choose pickup or write to me.",
       "pickup_only": "{items} {count, plural, one {is} other {are}} available for pickup only.",
+      "pickup_disabled": "{count, plural, =0 {Pickup isn’t possible at the moment – I’m happy to send your pieces to you.} one {{items} is available for pickup only, and pickup isn’t possible at the moment. Please take it out of your basket.} other {{items} are available for pickup only, and pickup isn’t possible at the moment. Please take them out of your basket.}}",
       "rate_limited": "That was a bit fast. Please try again in a few minutes.",
       "invalid": "That didn't work. Please reload the page and try again.",
       "checkout_ended": "This checkout is no longer open. You can start it again here.",
@@ -580,7 +583,8 @@
       "reserved_by_you": "Waiting for you at checkout",
       "priceChanged": "Price has been updated",
       "reservedUntil": "Reserved until {time} – it may be free again after that",
-      "reservedUntilDate": "Reserved until {date}, {time} – it may be free again after that"
+      "reservedUntilDate": "Reserved until {date}, {time} – it may be free again after that",
+      "pickupBlocked": "Can’t be ordered right now – pickup isn’t possible at the moment"
     },
     "soldStamp": "sold",
     "unknownTitle": "Piece {number}",
@@ -595,9 +599,18 @@
     "total": "Total",
     "shippingUnknown": "not calculated yet",
     "paymentMethods": "Card · Apple Pay · Google Pay · PayPal · Payment in advance",
+    "paymentMethodsNoPrepayment": "Card · Apple Pay · Google Pay · PayPal",
+    "shippingNoPickup": "Shipping for this basket can't be calculated right now. Please write to me.",
+    "info": {
+      "delivery": "We only deliver within Germany.",
+      "pickup": "Collection in {city} by arrangement.",
+      "payment": "Payment methods: credit/debit card, Apple Pay, Google Pay, PayPal, payment in advance by bank transfer.",
+      "paymentNoPrepayment": "Payment methods: credit/debit card, Apple Pay, Google Pay, PayPal."
+    },
     "toCheckout": "Go to checkout",
     "blocked": {
       "unavailable": "Please remove the pieces that aren't available right now first.",
+      "pickup_disabled": "{items} {count, plural, one {is} other {are}} available for pickup only, and pickup isn’t possible at the moment. Please take {count, plural, one {it} other {them}} out of your basket.",
       "shop_closed": "The shop is asleep for now – ordering isn’t possible at the moment.",
       "too_many": "At most {max} pieces per order.",
       "shipping": "Shipping for this basket can't be calculated right now. Please choose pickup or write to me.",
@@ -738,6 +751,7 @@
         "invalid": "Please check your details.",
         "deviation_missing": "Please confirm the special feature of each marked piece.",
         "prepayment_disabled": "Payment in advance is currently not available.",
+        "pickup_disabled": "Pickup isn’t possible at the moment. Please restart the checkout from your basket – with shipping this time.",
         "legal_missing": "Ordering is not possible right now. Please try again later.",
         "not_orderable_in_country": "An item in your basket cannot be delivered to this country.",
         "rate_limited": "That was a bit too fast. Please try again in a few minutes.",
