@@ -1,8 +1,8 @@
-import { str, sameText, type CellValue } from '@/lib/pflege/cells'
+import { sameText, str, UNREADABLE, type CellValue, type SheetRow } from '@/lib/pflege/cells'
 import { decide, emptyReport, NO_BASE, type PflegeReport } from '@/lib/pflege/merge'
-import type { SnapshotRows } from '@/lib/pflege/snapshot'
+import type { ConsumedCells, SnapshotRows } from '@/lib/pflege/snapshot'
 import type { TableColumn } from '@/lib/pflege/workbook'
-import { newForbiddenHits } from '@/lib/legal/forbiddenContent'
+import { newForbiddenHits, type ForbiddenTarget } from '@/lib/legal/forbiddenContent'
 
 import type { TextEntry } from './model'
 import { checkPlaceholders } from './placeholders'
@@ -47,6 +47,10 @@ export interface TextUpdate {
   value: string
 }
 
+/** Welche Zusatzmuster der Rechtsliste gelten (wie im Test über `src/i18n/messages` bzw. `content/`). */
+const forbiddenTarget = (id: string): ForbiddenTarget =>
+  id.startsWith('m:') ? 'messages' : id.startsWith('st:') ? 'code' : 'content'
+
 const short = (s: string, n = 70) => {
   const one = s.replace(/\s+/g, ' ')
   return one.length > n ? `${one.slice(0, n - 1)}…` : one
@@ -55,8 +59,8 @@ const short = (s: string, n = 70) => {
 /** Zeilen der Texte-Liste anwenden: Änderungen (je Sprache) und Bericht. */
 export function applyTextRows(
   entries: readonly TextEntry[],
-  rows: readonly Record<string, CellValue>[],
-  opts: { base: SnapshotRows | null },
+  rows: readonly SheetRow[],
+  opts: { base: SnapshotRows | null; consumed?: ConsumedCells },
 ): { updates: TextUpdate[]; report: PflegeReport } {
   const report = emptyReport()
   const updates: TextUpdate[] = []
@@ -84,12 +88,28 @@ export function applyTextRows(
     }
     seen.add(id)
     const base = opts.base ? opts.base[id] : undefined
-    const decisions = { de: 'keep', en: 'keep' } as Record<'de' | 'en', string>
+    if (opts.base && !base) {
+      report.problems.push(
+        `${e.where}: stand nicht in dieser Liste, als sie ausgegeben wurde – nicht übernommen, bitte klären.`,
+      )
+      continue
+    }
+    for (const [key, why] of Object.entries(row[UNREADABLE] ?? {}))
+      if (key !== 'id' && key !== 'wo')
+        report.problems.push(
+          `${e.where} (${key === 'en' ? 'Englisch' : key === 'de' ? 'Deutsch' : 'Notiz'}): ${why}; nicht übernommen.`,
+        )
+    const applied = { de: false, en: false }
     for (const lang of ['de', 'en'] as const) {
       if (!(lang in row)) continue
       const label = lang === 'de' ? 'Deutsch' : 'Englisch'
-      const d = decide(row[lang], base ? (base[lang] ?? null) : NO_BASE, e[lang], sameText)
-      decisions[lang] = d
+      const d = decide(
+        row[lang],
+        base ? (base[lang] ?? null) : NO_BASE,
+        e[lang],
+        sameText,
+        opts.consumed?.[id]?.[lang] ?? [],
+      )
       if (d === 'keep') continue
       const value = str(row[lang])
       if (d === 'conflict') {
@@ -98,30 +118,33 @@ export function applyTextRows(
         )
         continue
       }
-      const bad = (why: string) => {
-        decisions[lang] = 'bad'
+      const bad = (why: string) =>
         report.problems.push(`${e.where} (${label}): „${short(value)}“ – ${why}; nicht übernommen.`)
-      }
       if (e.locked) bad(e.locked)
       else if (!value && e[lang]) bad('darf nicht leer sein')
       else if (e.maxLength && value.length > e.maxLength)
         bad(`höchstens ${e.maxLength} Zeichen (jetzt ${value.length})`)
       else {
-        const ph = checkPlaceholders(e[lang], value)
-        const forbidden = newForbiddenHits(e[lang], value)
+        // Platzhalter nur in festen Texten (ICU); Seiten, Fragen usw. zeigen { } wörtlich
+        const ph = e.id.startsWith('m:') ? checkPlaceholders(e[lang], value) : null
+        const forbidden = newForbiddenHits(e[lang], value, forbiddenTarget(e.id))
+        const valid = e.validate ? e.validate(value) : true
         if (ph) bad(ph)
+        else if (valid !== true) bad(valid)
         else if (forbidden.length)
           bad(`enthält eine verbotene Formulierung (${forbidden.join(', ')}, siehe Rechtsliste)`)
         else {
           updates.push({ id, lang, value })
+          applied[lang] = true
           report.changes.push(`${e.where} (${label}): „${short(e[lang])}“ → „${short(value)}“`)
         }
       }
     }
-    if (decisions.de === 'apply' && decisions.en === 'keep')
-      report.englishTodo.push(`${e.where} – Kennung ${id}`)
+    // Englisch nachziehen, wenn das Deutsche geschrieben wurde, das Englische aber nicht (U-00)
+    if (applied.de && !applied.en) report.englishTodo.push(`${e.where} – Kennung ${id}`)
     const note = str(row.notiz)
-    if (note && !(base && sameText(base.notiz ?? null, note)))
+    const seenNotes = [base?.notiz ?? null, ...(opts.consumed?.[id]?.notiz ?? [])]
+    if (note && !(base && seenNotes.some((n) => sameText(n, note))))
       report.ownerNotes.push(`${e.where}: ${note}`)
   }
   let missing = 0

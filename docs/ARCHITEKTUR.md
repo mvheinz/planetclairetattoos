@@ -2709,35 +2709,52 @@ Jutta pflegt Bestand und Texte dauerhaft über Excel-Listen, die sie auf dem iPa
 | `src/lib/pflege/merge.ts` | Dreiwege-Entscheidung je Zelle (`keep` / `apply` / `conflict`), gemeinsamer Bericht (`PflegeReport`) |
 | `src/lib/pflege/snapshot.ts` | Listen-Nr. `B-JJJJ-MM-TT-xxxxxx` / `T-…` (Art, Berliner Tag, Prüfsumme) und gemerkter Stand |
 | `src/lib/pflege/repoStore.ts` | Stand vor dem Start: `content/pflege/stand/<Listen-Nr.>.json` (**committen**) |
-| `src/lib/pflege/workbook.ts` | Lesen: Tabellen über die Überschriften finden (erste 10 Zeilen, jedes Blatt), Listen-Nr. in Zellen, Kommentaren, Dateieigenschaften oder Dateiname; nur `.xlsx` |
+| `src/lib/pflege/workbook.ts` | Lesen: Datei prüfen (nur `.xlsx`, Größe, ZIP-Inhalt), Tabellen über die Überschriften finden (erste 10 Zeilen, jedes Blatt), Fehlerzellen und verbundene Zellen erkennen, Listen-Nr. in Zellen, Kommentaren, Dateieigenschaften oder Dateiname |
 | `src/lib/bestand/excel*.ts` | Bestandsliste: Spalten (letzte: „Verkauft“), Zeile je Stück, Rückweg, `keepValid` (ungültiges Stück bleibt alt) |
 | `src/lib/texte/*.ts` | Texte-Liste: Einträge mit fester Kennung, Platzhalter-Prüfung, Rückweg per Kennung |
-| `scripts/pflege/` | `pnpm pflege:export [bestand\|texte]`, `pnpm pflege:import <datei.xlsx> [--trocken] [--ohne-stand]` |
+| `scripts/pflege/` | `pnpm pflege:export [bestand\|texte]`, `pnpm pflege:import <datei.xlsx> [--trocken] [--ohne-stand] [--liste=<Listen-Nr.>]`, `pnpm pflege:ansichten [katalog\|rundgang]` (PDFs, P18.3) |
 
 ### 16.2 Regeln
 
-1. **Listen-Nr. und gemerkter Stand:** Beim Ausgeben wird je Zeile der Wert jeder Spalte gemerkt. Beim Zurückspielen gilt
-   je Zelle: gleich wie jetzt → nichts; gleich wie gemerkt → nichts (Jutta hat sie nicht geändert); sonst, wenn jetzt noch
-   wie gemerkt → übernehmen; sonst **Rückfrage** („Bitte entscheiden“), nichts überschrieben. Dadurch setzt eine ältere
-   Liste nichts zurück, und dieselbe Liste zweimal ändert nichts zusätzlich.
-2. **Ohne gemerkten Stand** (Listen-Nr. fehlt, Stand nicht committet): Vergleich mit dem jetzigen Stand, aber
-   `pflege:import` schreibt nur mit `--ohne-stand` (Exit-Code 3 sonst) – eine alte Liste könnte sonst Neueres zurücksetzen.
-3. **Geprüft vor dem Schreiben:** Bestand mit `bestandSchema` (ein ungültiges Stück bleibt auf dem alten Stand, Meldung);
-   Texte: Pflichttext, Höchstlänge der Verwaltungsfelder, Platzhalter (`{name}`, Mehrzahl-Fälle, `<link>…</link>`),
-   Verbotsliste RECHT §5 (`src/lib/legal/forbiddenContent.ts`, nur neue Treffer). Kategorie-Wechsel, neue Stücke und
-   neue Texte werden nie automatisch übernommen, nur gemeldet.
-4. **Texte-Liste – Umfang:** `src/i18n/messages` ohne `legal`, `withdraw`, `privacyExport`, `qa`, `previewExport`;
-   Standardtexte der Verwaltung (`src/globals/siteTexts.defaults.json`, von `SiteTexts.ts` als `defaultValue` gesetzt);
-   Seed-Seiten außer „Widerruf“ und „Konformität“, Fragen, Kategorien, drei Einstellungstexte. Nie: `slug`, Pflicht-
-   Warnhinweise. Nur zum Lesen: Namen der Rechtsseiten (`common.routes.R21–R27`) und Texte mit „Vertrag widerrufen“ /
-   „Zahlungspflichtig bestellen“.
-5. **„Verkauft“** (U-86): Datum (auch Excel-Datum, „11.10.“), „ja“, Preis („35 €“) und Notiz → `sold` in
+1. **Listen-Nr. und gemerkter Stand:** Beim Ausgeben wird je Zeile der Wert jeder Spalte gemerkt (Bestand zusätzlich der
+   feste Schlüssel `_key` des Stücks). Beim Zurückspielen gilt je Zelle: gleich wie jetzt → nichts; gleich wie gemerkt
+   oder wie ein aus dieser Liste schon übernommener Wert → nichts; sonst, wenn jetzt noch wie gemerkt bzw. wie schon
+   übernommen → übernehmen; sonst **Rückfrage** („Bitte entscheiden“), nichts überschrieben. Nach dem Schreiben hält
+   `consumed` im Stand fest, was übernommen wurde – dieselbe Liste (oder ihr unbearbeitetes Original) noch einmal ändert
+   nichts, auch nach späteren Korrekturen. Verglichen wird in kanonischer Form (Datum, Häkchen, „100% Baumwolle“, Rundung
+   wie beim Speichern), damit Numbers-Umformungen nie Rückfragen auslösen. Eine Nr./Kennung, die beim Ausgeben nicht in
+   der Liste stand oder inzwischen zu einem anderen Stück gehört, wird nicht angewendet (Meldung).
+2. **Listen-Nr. finden:** im Blatt „Anleitung“, im Kommentar der ersten Überschrift, in den Dateieigenschaften und im
+   Dateinamen (`planet-claire-bestand-B-…xlsx`). Fehlt sie überall, schreibt `pflege:import` nichts (Exit-Code 3); die
+   Sitzung gibt sie nach Prüfung mit `--liste=<Listen-Nr.>` an oder übernimmt ausdrücklich mit `--ohne-stand` (dann
+   zählt jeder Unterschied zum jetzigen Stand). Kein Raten über das Datum.
+3. **Einlesen:** nur `.xlsx` (ZIP mit `xl/workbook.xml`; Numbers-Dateien und CSV mit Anleitung abgelehnt), höchstens
+   25 MB, ZIP-Inhalt begrenzt (Einträge, entpackte Größe). Tabellen über die Überschriften (erste 10 Zeilen jedes Blatts);
+   Fehlerzellen (`#NAME?` – Text mit „-“ oder „=“ am Anfang) und Teile verbundener Zellen ändern nichts und werden gemeldet.
+4. **Geprüft vor dem Schreiben:** Bestand mit `bestandSchema` (ein ungültiges Stück bleibt auf dem alten Stand; „Verkauft“
+   und „Deine Notiz“ gelten trotzdem, wenn das Stück damit gültig ist), Rechtsliste RECHT §5 je Ziel
+   (`src/lib/legal/forbiddenContent.ts`: `content` + V-16, `messages` + V-20/V-25/V-30 – dieselben Muster wie der Test
+   über `src/**`/`content/**`), bei öffentlichen Stücktexten zusätzlich V-13/V-16 (`lintProductText`). Texte: Pflichttext,
+   Höchstlänge und Prüfungen aus dem Schema der Verwaltung (Seiten-Blöcke, Fragen, Kategorien, Einstellungen, z. B.
+   Lieferzeit ohne „ca.“, R-035), Platzhalter fester Texte mit dem ICU-Parser der Seite
+   (`@formatjs/icu-messageformat-parser`). Kategorie-Wechsel, neue Stücke und neue Texte werden nie automatisch
+   übernommen, nur gemeldet.
+5. **Texte-Liste – Umfang:** `src/i18n/messages` ohne `legal`, `withdraw`, `privacyExport`, `qa`, `previewExport`,
+   amtliche Gewährleistungs-Mitteilung (`shop.warranty`), Rechtsseite „Versand & Zahlung“ (`shippingPayment`) und Mails zu
+   Widerruf, Reklamation, Schlichtung, Datenschutz und Einwilligung; von den Standardtexten der Verwaltung nur die von der
+   Seite genutzten (`emails.signature`, `emails.inquiryResponseTime`); Seed-Seiten außer „Widerruf“ und „Konformität“,
+   Fragen, Kategorien, drei Einstellungstexte. Nie: `slug`, Pflicht-Warnhinweise. Nur zum Lesen: Namen der Rechtsseiten,
+   Pflicht-Hinweise am Stück (`shop.badges.*`), Links auf Rechtstexte und Texte mit „Vertrag widerrufen“ /
+   „Zahlungspflichtig bestellen“ (`LOCKED_*` in `src/lib/texte/model.ts`).
+6. **„Verkauft“** (U-86), streng: verkauft nur mit Datum (auch Excel-Datum, „11.10.“ = dieses Jahr, liegt der Tag noch vor
+   uns das Vorjahr) oder „ja“/„x“ am Anfang, jeweils gern mit Preis („35 €“) und Notiz; leer, „nein“, „noch da“, „-“, „0“
+   = nicht verkauft; anderer Text, eine reine Zahl oder ein Datum in der Zukunft = Meldung. Ergebnis: `sold` in
    `content/bestand/products.json`. `bestand:import` legt so ein Stück als Markt-Verkauf an (Status `sold`, Weg `offline`,
    Verkaufstag 12:00 UTC, erzielter Preis sonst Listenpreis → Umsatz-Wächter, nicht im Archiv, Audit
    `product_offline_sold`) – auch in der Vorschau-Datei nie „verfügbar“.
-6. **Englisch** (U-00): Ändert Jutta nur das Deutsche, nennt der Bericht die Stelle unter „Englisch zu ergänzen“; die
-   Sitzung schreibt das Englische vor dem Commit.
-7. **Dateien:** geschrieben wird nur, was sich ändert; Format wie im Repo (`content/` ohne Prettier, sonst Prettier), damit
+7. **Englisch** (U-00): Wurde das Deutsche geschrieben und das Englische nicht, nennt der Bericht die Stelle unter
+   „Englisch zu ergänzen“; die Sitzung schreibt das Englische vor dem Commit.
+8. **Dateien:** geschrieben wird nur, was sich ändert; Format wie im Repo (`content/` ohne Prettier, sonst Prettier), damit
    der Diff nur die geänderten Texte zeigt. Bericht: `dist/pflege/bericht-<Listen-Nr.>.md`.
 
 Ablauf für Sitzungen: RUNBOOK §15. Anleitung für Jutta: `docs/owner/IPAD.md`.

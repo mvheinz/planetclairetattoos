@@ -6,6 +6,13 @@ export type CellValue = string | number | boolean | Date | null | undefined
 /** Was im gemerkten Stand (JSON) steht. */
 export type StoredCell = string | number | boolean | null
 
+/**
+ * Zellen einer Zeile, die sich nicht lesen ließen (Fehlerwert wie `#NAME?`, Teil einer verbundenen Zelle): Spalte →
+ * Grund. Als Symbol, damit sie nie als Spalte zählen – die Spalte fehlt in der Zeile, es ändert sich also nichts.
+ */
+export const UNREADABLE = Symbol('nicht lesbare Zellen')
+export type SheetRow = Record<string, CellValue> & { [UNREADABLE]?: Record<string, string> }
+
 /** Kalendertag `JJJJ-MM-TT` (Ortszeit des Date-Objekts). */
 export const isoDay = (d: Date): string =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -14,10 +21,17 @@ export const isoDay = (d: Date): string =>
 export const excelDay = (d: Date): Date =>
   new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())
 
-/** Zelle als Text (getrimmt, Zeilenumbrüche vereinheitlicht, geschützte Leerzeichen als Leerzeichen). */
+/** „TT.MM.JJJJ“ eines Excel-Datums (für Meldungen an Jutta). */
+export const germanDay = (d: Date): string => isoDay(excelDay(d)).split('-').reverse().join('.')
+
+/**
+ * Zelle als Text (getrimmt, Zeilenumbrüche vereinheitlicht, geschützte Leerzeichen als Leerzeichen). Häkchen aus
+ * Numbers: an → „ja“, aus → leer; Datum → „TT.MM.JJJJ“.
+ */
 export function str(v: CellValue): string {
-  if (v === null || v === undefined) return ''
-  if (v instanceof Date) return Number.isNaN(v.getTime()) ? '' : isoDay(excelDay(v))
+  if (v === null || v === undefined || v === false) return ''
+  if (v === true) return 'ja'
+  if (v instanceof Date) return Number.isNaN(v.getTime()) ? '' : germanDay(v)
   return String(v).replace(/\r\n?/g, '\n').replace(/ /g, ' ').trim()
 }
 

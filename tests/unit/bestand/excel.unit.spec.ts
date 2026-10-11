@@ -7,14 +7,17 @@ import {
   parseFibers,
   parseSold,
   rowOf,
+  sameFor,
+  snapshotRowsOf,
   soldText,
   type CellValue,
 } from '@/lib/bestand/excel'
 import { buildBestandBook, BESTAND_SHEET, readBestandBook } from '@/lib/bestand/excelBook'
 import { keepValid } from '@/lib/bestand/excelRepo'
 import { bestandSchema, loadBestand, type BestandProduct } from '@/lib/bestand/schema'
-import { emptyReport } from '@/lib/pflege/merge'
-import { makeSnapshot, type SnapshotRows } from '@/lib/pflege/snapshot'
+import type { SheetRow } from '@/lib/pflege/cells'
+import { emptyReport, recordConsumed } from '@/lib/pflege/merge'
+import { makeSnapshot, type ConsumedCells, type SnapshotRows } from '@/lib/pflege/snapshot'
 
 // P18.1 (U-85, U-86, U-89): Bestandsliste als Excel – Rundweg ohne Änderung ändert nichts, geänderte Zellen werden
 // übernommen, ungültige gemeldet, „Verkauft“ wird zum Markt-Verkauf; gemerkter Stand (Listen-Nr.): ältere Listen setzen
@@ -25,7 +28,7 @@ const byKey = (list: readonly BestandProduct[], key: string) => list.find((p) =>
 const NOW = new Date('2026-10-11T10:00:00Z')
 
 const snapshotOf = (list: readonly BestandProduct[]) =>
-  makeSnapshot('bestand', NOW, new Map(list.map((p) => [String(p.itemNumber), rowOf(p)])))
+  makeSnapshot('bestand', NOW, snapshotRowsOf(list))
 const SNAP = snapshotOf(products)
 const BASE: SnapshotRows = SNAP.rows
 
@@ -50,10 +53,23 @@ const rowFor = (ws: ExcelJS.Worksheet, nr: number) => {
   return found!
 }
 const apply = (
-  rows: Record<string, CellValue>[],
+  rows: SheetRow[],
   base: SnapshotRows | null = BASE,
   list = products,
-) => applyRows(list, rows, { year: 2026, base })
+  consumed?: ConsumedCells,
+) => applyRows(list, rows, { year: 2026, base, consumed })
+
+/** Wie `pflege:import` nach dem Schreiben: Übernommenes im Stand vermerken; gibt `consumed` zurück. */
+function recorded(rows: SheetRow[], next: readonly BestandProduct[]): ConsumedCells {
+  const snap = structuredClone(SNAP)
+  recordConsumed(
+    snap,
+    rows.map((r) => [String(r.nr), r] as const),
+    new Map(next.map((p) => [String(p.itemNumber), rowOf(p)])),
+    (c: string) => sameFor(c, 2026),
+  )
+  return snap.consumed ?? {}
+}
 
 describe('Bestandsliste als Excel (P18.1)', () => {
   it('Blätter „Anleitung“ und „Bestand“, eine Zeile je Stück, „Verkauft“ am Ende, Listen-Nr. in der Datei', async () => {
@@ -116,7 +132,7 @@ describe('Bestandsliste als Excel (P18.1)', () => {
     expect(report.changes.length).toBe(9)
     expect(report.englishTodo).toEqual([
       `Nr. ${bowl.itemNumber}: Name (Deutsch geändert)`,
-      `Nr. ${chain.itemNumber}: Metallteile (neu, Englisch fehlt)`,
+      `Nr. ${chain.itemNumber}: Metallteile (Deutsch geändert, Englisch fehlt)`,
     ])
     expect(bestandSchema.safeParse(next).success).toBe(true)
     // Original unverändert
@@ -231,6 +247,153 @@ describe('Gemerkter Stand (U-89 a)', () => {
   })
 })
 
+describe('Zweites Zurückspielen und Korrekturen (U-89 c, Prüfung)', () => {
+  const shirt = products.find((p) => p.category === 'textil')!
+  const bowl = products.find((p) => p.category === 'keramik')!
+
+  it('Datum, Häkchen, „100% Baumwolle“, „Nein“, 12,34 cm: zweimal zurückgespielt ändert nichts und fragt nichts', async () => {
+    const { rows } = await roundTrip((ws) => {
+      const s = rowFor(ws, shirt.itemNumber)
+      s.getCell(col('verkauft')).value = new Date(Date.UTC(2026, 9, 11))
+      s.getCell(col('fasern')).value = '100% Baumwolle'
+      s.getCell(col('secondHand')).value = 'Nein'
+      s.getCell(col('zustand')).value = 'GUT'
+      const b = rowFor(ws, bowl.itemNumber)
+      b.getCell(col('breite')).value = 12.34
+      b.getCell(col('verkauft')).value = true
+      b.getCell(col('preis')).value = 49.999
+    })
+    const first = apply(rows)
+    expect(first.report.problems).toEqual([])
+    expect(byKey(first.products, shirt.key).sold).toEqual({ date: '2026-10-11' })
+    expect(byKey(first.products, bowl.key).sold).toEqual({})
+    expect(byKey(first.products, bowl.key).dimensions.widthCm).toBe(12.3)
+    const second = apply(rows, BASE, first.products, recorded(rows, first.products))
+    expect(second.report).toEqual(emptyReport())
+    // auch ohne fortgeschriebenen Stand keine Rückfrage (gleiche Bedeutung = keine Änderung)
+    expect(apply(rows, BASE, first.products).report.conflicts).toEqual([])
+  })
+
+  it('später korrigiert, dann dieselbe Liste noch einmal geschickt: die Korrektur bleibt', async () => {
+    const { rows } = await roundTrip((ws) => {
+      rowFor(ws, bowl.itemNumber).getCell(col('preis')).value = 99
+      rowFor(ws, bowl.itemNumber).getCell(col('verkauft')).value = 'ja'
+    })
+    const first = apply(rows)
+    const consumed = recorded(rows, first.products)
+    const corrected = first.products.map((p) => {
+      if (p.key !== bowl.key) return p
+      const { sold: _sold, ...rest } = p
+      return { ...rest, priceCents: bowl.priceCents }
+    })
+    const again = apply(rows, BASE, corrected, consumed)
+    expect(again.report).toEqual(emptyReport())
+    expect(byKey(again.products, bowl.key)).toEqual(byKey(corrected, bowl.key))
+    // das unbearbeitete Original derselben Liste setzt die Übernahme nicht zurück
+    const { rows: original } = await roundTrip()
+    const fromOriginal = apply(original, BASE, first.products, consumed)
+    expect(fromOriginal.report).toEqual(emptyReport())
+    // eine neue Änderung in derselben Liste gilt weiter
+    const { rows: edited } = await roundTrip((ws) => {
+      rowFor(ws, bowl.itemNumber).getCell(col('preis')).value = 80
+    })
+    expect(byKey(apply(edited, BASE, corrected, consumed).products, bowl.key).priceCents).toBe(8000)
+  })
+
+  it('Fehlerzelle (#NAME?) und verbundene Zellen ändern nichts und werden gemeldet', async () => {
+    const { rows } = await roundTrip((ws) => {
+      const r = rowFor(ws, bowl.itemNumber)
+      r.getCell(col('abweichung')).value = {
+        formula: '-kleiner Kratzer',
+        result: { error: '#NAME?' },
+      } as ExcelJS.CellValue
+      ws.mergeCells(r.number, col('titleDe'), r.number, col('titleEn'))
+    })
+    const { products: next, report } = apply(rows)
+    expect(next).toEqual(products)
+    expect(report.problems).toEqual([
+      expect.stringMatching(/Name \(Englisch\) – verbundene Zelle/),
+      expect.stringMatching(/Macke \/ Abweichung – die Zelle zeigt einen Fehler \(#NAME\?\)/),
+    ])
+  })
+
+  it('Nummer nicht im gemerkten Stand oder inzwischen anderes Stück: Zeile nicht angewendet', async () => {
+    const { rows } = await roundTrip((ws) => {
+      rowFor(ws, bowl.itemNumber).getCell(col('preis')).value = 30
+      rowFor(ws, shirt.itemNumber).getCell(col('verkauft')).value = 'ja'
+    })
+    const base = structuredClone(BASE)
+    delete base[String(bowl.itemNumber)]
+    base[String(shirt.itemNumber)]!._key = 'B999'
+    const { products: next, report } = apply(rows, base)
+    expect(next).toEqual(products)
+    expect(report.problems).toEqual([
+      `Nr. ${shirt.itemNumber} gehörte beim Ausgeben der Liste zu einem anderen Stück – Zeile nicht übernommen, bitte klären.`,
+      `Nr. ${bowl.itemNumber} stand nicht in dieser Liste, als sie ausgegeben wurde – Zeile nicht übernommen, bitte klären.`,
+    ])
+  })
+
+  it('Rechtsliste: verbotene Formulierung, unbelegte Aussage, fremde Marke werden nicht übernommen', async () => {
+    const chain = products.find((p) => p.category === 'schmuck')!
+    const { rows } = await roundTrip((ws) => {
+      rowFor(ws, bowl.itemNumber).getCell(col('beschreibungDe')).value = 'Nachhaltig gebrannt.'
+      rowFor(ws, shirt.itemNumber).getCell(col('titleDe')).value = 'Tanktop „Disney“'
+      rowFor(ws, chain.itemNumber).getCell(col('metall')).value = 'Edelstahl, nickelfrei'
+      rowFor(ws, bowl.itemNumber).getCell(col('notiz')).value = 'Kein Umtausch'
+    })
+    const { products: next, report } = apply(rows)
+    expect(next).toEqual(products)
+    const text = report.problems.join('\n')
+    expect(text).toMatch(/Beschreibung \(Deutsch\) .* verbotene Formulierung \(V-14/)
+    expect(text).toMatch(/Name \(Deutsch\) .* „Disney“ – solche Aussagen bzw\. fremde Marken/)
+    expect(text).toMatch(/Metallteile .* „nickelfrei“/)
+    expect(text).toMatch(/Deine Notiz .* verbotene Formulierung \(V-08/)
+  })
+
+  it('„Verkauft“ bleibt, auch wenn eine andere Zelle das Stück ungültig macht', async () => {
+    const [a, b] = products
+    const { rows } = await roundTrip((ws) => {
+      const r = rowFor(ws, b!.itemNumber)
+      r.getCell(col('titleDe')).value = a!.title.de
+      r.getCell(col('verkauft')).value = '11.10.2026 Markt'
+    })
+    const applied = apply(rows)
+    const { products: next, ok } = keepValid(products, applied.products, applied.report)
+    expect(ok).toBe(true)
+    expect(byKey(next, b!.key).title).toEqual(b!.title)
+    expect(byKey(next, b!.key).sold).toEqual({ date: '2026-10-11', note: 'Markt' })
+    expect(applied.report.changes).toEqual([
+      `Nr. ${b!.itemNumber}: Verkauft „–“ → „11.10.2026 Markt“`,
+    ])
+    expect(applied.report.problems.join('\n')).toMatch(/„Verkauft“ und „Deine Notiz“ schon/)
+  })
+
+  it('Englisch nachziehen genau dann, wenn das Deutsche geschrieben wurde und das Englische nicht', async () => {
+    const [a, b] = products
+    const { rows } = await roundTrip((ws) => {
+      const r = rowFor(ws, a!.itemNumber)
+      r.getCell(col('titleDe')).value = 'Tanktop „Neuer Name“'
+      r.getCell(col('titleEn')).value = ''
+      rowFor(ws, b!.itemNumber).getCell(col('titleDe')).value = 'Ab'
+    })
+    const { report } = apply(rows)
+    expect(report.englishTodo).toEqual([`Nr. ${a!.itemNumber}: Name (Deutsch geändert)`])
+  })
+
+  it('alle Maße geleert: nichts übernommen, keine Änderungszeilen', async () => {
+    const { rows } = await roundTrip((ws) => {
+      const r = rowFor(ws, bowl.itemNumber)
+      for (const k of ['breite', 'hoehe', 'tiefe', 'durchmesser']) r.getCell(col(k)).value = null
+    })
+    const { products: next, report } = apply(rows)
+    expect(next).toEqual(products)
+    expect(report.changes).toEqual([])
+    expect(report.problems).toEqual([
+      `Nr. ${bowl.itemNumber}: mindestens ein Maß ist Pflicht – alle Maße leer gelassen, alte Werte bleiben.`,
+    ])
+  })
+})
+
 describe('Numbers-Varianten (U-89 b)', () => {
   it('Blatt umbenannt, Anleitung entfernt, Spalten verschoben, Kopfzeile tiefer, Listen-Nr. nur im Dateinamen', async () => {
     const p = products[5]!
@@ -288,8 +451,43 @@ describe('Spalte „Verkauft“ (U-86)', () => {
     expect(parseSold(new Date(Date.UTC(2026, 9, 11)), 2026)).toEqual({
       sold: { date: '2026-10-11' },
     })
-    expect(parseSold('an Freundin', 2026)).toEqual({ sold: { note: 'an Freundin' } })
+    expect(parseSold('an Freundin', 2026)).toEqual({
+      error: expect.stringMatching(/„ja“ voranstellen/),
+    })
+    expect(parseSold('ja – an Freundin', 2026)).toEqual({ sold: { note: 'an Freundin' } })
+    for (const notSold of [
+      'noch da',
+      'Nein.',
+      '-',
+      '–',
+      '0',
+      'nicht verkauft',
+      'reserviert für Anna',
+      'offen',
+    ])
+      expect(parseSold(notSold, 2026), notSold).toEqual({ sold: null })
+    expect(parseSold(0, 2026)).toEqual({ sold: null })
+    // „20.12.“ im Januar eingetragen = Dezember davor; ausdrücklich in der Zukunft = Fehler
+    expect(parseSold('20.12. Wintermarkt', { year: 2027, today: '2027-01-10' })).toEqual({
+      sold: { date: '2026-12-20', note: 'Wintermarkt' },
+    })
+    expect(parseSold('11.10.2026', { year: 2026, today: '2026-10-01' })).toEqual({
+      error: expect.stringMatching(/Zukunft/),
+    })
+    expect(parseSold(new Date(Date.UTC(2026, 9, 11)), { year: 2026, today: '2026-10-01' })).toEqual(
+      {
+        error: expect.stringMatching(/Zukunft/),
+      },
+    )
     expect(parseSold('31.02.2026', 2026)).toEqual({ error: expect.stringMatching(/gibt es nicht/) })
+    expect(parseSold('11.10.35 € Markt', 2026)).toEqual({
+      sold: { date: '2026-10-11', priceCents: 3500, note: 'Markt' },
+    })
+    expect(parseSold('11.10.202', 2026)).toEqual({ error: expect.stringMatching(/bitte prüfen/) })
+    expect(parseSold('1.1.2027', 2026)).toEqual({ error: expect.stringMatching(/Zukunft/) })
+    expect(parseSold(35, 2026)).toEqual({ error: expect.stringMatching(/„ja 35 €“/) })
+    expect(parseSold(false, 2026)).toEqual({ sold: null })
+    expect(parseSold(true, 2026)).toEqual({ sold: {} })
   })
 
   it('Anzeige und Rückweg passen zusammen', () => {

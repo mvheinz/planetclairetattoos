@@ -74,7 +74,32 @@ describe('Texte-Liste: Inhalt (P18.2)', () => {
     expect(byId.get('m:footer.withdraw')?.locked).toBeTruthy()
     expect(byId.get('m:common.routes.R21')?.locked).toBeTruthy() // Impressum
     expect(byId.get('m:home.tour.heading')).toMatchObject({ sheet: 'Startseite', de: 'on Tour' })
-    expect(byId.get('st:footer.tagline')).toMatchObject({ sheet: 'Allgemein', maxLength: 160 })
+    expect(byId.get('st:emails.signature')).toMatchObject({ sheet: 'E-Mails', maxLength: 600 })
+    // von den Standardtexten der Verwaltung zeigt die Seite nur die beiden Mail-Bausteine
+    expect(entries.filter((e) => e.id.startsWith('st:')).map((e) => e.id)).toEqual([
+      'st:emails.signature',
+      'st:emails.inquiryResponseTime',
+    ])
+    for (const prefix of [
+      'm:shop.warranty.',
+      'm:shippingPayment.',
+      'm:email.withdrawalReceipt.',
+      'm:email.privacyAccessResponse.',
+      'm:email.disputeVsbg.',
+      'm:email.inquiryReceipt.responseTime',
+    ])
+      expect(
+        entries.some((e) => e.id.startsWith(prefix)),
+        prefix,
+      ).toBe(false)
+    expect(byId.get('m:shop.badges.decorative')?.locked).toBeTruthy()
+    expect(byId.get('m:checkout.legalLinks.agb')?.locked).toBeTruthy()
+    // Regeln aus dem Schema der Verwaltung
+    expect(byId.get('kat:keramik:name')?.maxLength).toBe(40)
+    expect(byId.get('seite:home:layout.0.subheading')?.maxLength).toBe(300)
+    expect(byId.get('faq:FAQ01:question')?.maxLength).toBe(200)
+    expect(byId.get('einst:shipping.deliveryTimeText')?.maxLength).toBe(60)
+    expect(byId.get('einst:shipping.deliveryTimeText')?.validate?.('ca. 3 Werktage')).not.toBe(true)
     expect(byId.get('seite:home:layout.0.heading')?.where).toBe(
       'Seite „Startseite“ › Block 1 (Kopf) › Überschrift',
     )
@@ -109,7 +134,7 @@ describe('Texte-Liste: Rückweg', () => {
   it('Deutsch geändert → übernommen, Englisch zum Nachziehen; Englisch geändert → übernommen', async () => {
     const page = byId.get('seite:home:layout.0.heading')!
     const faq = find((e) => e.id.startsWith('faq:') && e.id.endsWith(':answer'))
-    const st = byId.get('st:footer.tagline')!
+    const st = byId.get('st:emails.inquiryResponseTime')!
     const { rows } = await roundTrip((wb) => {
       setCell(wb, page.id, 'de', 'Ein kleiner Planet, auf dem alles einmal vorkommt')
       setCell(wb, faq.id, 'en', `${faq.en} Thanks!`)
@@ -135,7 +160,7 @@ describe('Texte-Liste: Rückweg', () => {
     )
     expect(report.ownerNotes).toEqual([`${st.where}: Englisch bitte kürzer`])
     // Zurückschreiben per Kennung
-    const copy = structuredClone({ ...data, siteTextFields: undefined })
+    const copy = structuredClone({ ...data, siteTextFields: undefined, fieldRule: undefined })
     const d = { ...copy, siteTextFields: data.siteTextFields }
     expect(setText(d, page.id, 'de', 'X')).toBe('pages')
     expect(setText(d, faq.id, 'en', 'Y')).toBe('faqs')
@@ -149,16 +174,18 @@ describe('Texte-Liste: Rückweg', () => {
   })
 
   it('Platzhalter, Länge, Pflicht, Verbotsliste und Lese-Zeilen werden geprüft', async () => {
-    const countdown = byId.get('st:cart.countdown')!
+    const pickup = byId.get('m:shop.product.shipping.pickup')!
     const plural = byId.get('m:cart.notes.reserved')!
-    const tag = byId.get('m:shop.product.shipping.withdrawal')!
-    const short = byId.get('st:shop.filterAll')!
+    const tag = byId.get('m:shop.product.shipping.noRate')!
+    const short = byId.get('kat:keramik:name')!
     const any = find((e) => e.id.startsWith('m:home.') && !/[{<]/.test(e.de))
     const { rows } = await roundTrip((wb) => {
-      setCell(wb, countdown.id, 'de', 'Coco hütet dein Stück noch')
+      setCell(wb, pickup.id, 'de', 'Abholung möglich')
       setCell(wb, plural.id, 'de', '{items} ist gerade reserviert.')
-      setCell(wb, tag.id, 'de', 'Infos zum Widerruf findest du in der Widerrufsbelehrung.')
-      setCell(wb, short.id, 'de', 'x'.repeat(200))
+      setCell(wb, tag.id, 'de', 'Versandkosten: siehe Versand & Zahlung')
+      setCell(wb, 'einst:shipping.deliveryTimeText', 'de', 'ca. 3 Werktage')
+      setCell(wb, 'm:cart.empty.text', 'de', 'Jetzt mit Gutschein!')
+      setCell(wb, short.id, 'de', 'x'.repeat(60))
       setCell(wb, any.id, 'de', '')
       setCell(wb, 'm:footer.withdraw', 'de', 'Widerrufen')
       setCell(wb, 'seite:home:layout.0.subheading', 'de', 'Alle Preise inkl. MwSt.')
@@ -166,19 +193,21 @@ describe('Texte-Liste: Rückweg', () => {
     const { updates, report } = apply(rows)
     expect(updates).toEqual([])
     const text = report.problems.join('\n')
-    expect(text).toMatch(/Platzhalter \{time\} fehlt/)
+    expect(text).toMatch(/Platzhalter \{city\} fehlt/)
     expect(text).toMatch(/Platzhalter \{count\} fehlt/)
     expect(text).toMatch(/Markierungen <link>…<\/link> bitte unverändert lassen/)
-    expect(text).toMatch(/höchstens 160 Zeichen \(jetzt 200\)/)
+    expect(text).toMatch(/höchstens 40 Zeichen \(jetzt 60\)/)
+    expect(text).toMatch(/Lieferzeit .* „ca\. 3 Werktage“ – .*nicht übernommen/)
+    expect(text).toMatch(/verbotene Formulierung \(V-30/)
     expect(text).toMatch(/darf nicht leer sein/)
     expect(text).toMatch(/rechtlich vorgegeben – nur zum Lesen/)
     expect(text).toMatch(/verbotene Formulierung \(V-02/)
-    expect(report.problems).toHaveLength(7)
+    expect(report.problems).toHaveLength(9)
   })
 
   it('gemerkter Stand: ältere Liste setzt nichts zurück; gleiche Zelle hier und dort = Rückfrage; zweimal = nichts', async () => {
-    const a = byId.get('st:footer.tagline')!
-    const b = byId.get('st:shop.uniqueHint')!
+    const a = byId.get('m:cart.empty.title')!
+    const b = byId.get('m:cart.empty.text')!
     const { rows } = await roundTrip((wb) => setCell(wb, b.id, 'de', 'Einzelstück'))
     // inzwischen anders geändert: a (Jutta hat a nicht angefasst) und b (Jutta hat b geändert)
     const current = entries.map((e) =>
@@ -216,22 +245,58 @@ describe('Texte-Liste: Rückweg', () => {
   })
 })
 
+describe('Texte-Liste: Prüfung (U-89)', () => {
+  it('Kennung nicht im gemerkten Stand, Fehlerzelle, Englisch geleert → gemeldet, Englisch nachziehen', async () => {
+    const a = byId.get('m:cart.empty.title')!
+    const b = byId.get('m:cart.empty.text')!
+    const c = byId.get('m:cart.empty.action')!
+    const { rows } = await roundTrip((wb) => {
+      setCell(wb, a.id, 'de', 'Neu')
+      setCell(wb, b.id, 'de', 'Einzelstück')
+      setCell(wb, b.id, 'en', '')
+      for (const ws of wb.worksheets)
+        ws.eachRow((row) => {
+          if (row.getCell(col('id')).value === c.id)
+            row.getCell(col('de')).value = {
+              formula: '-leer',
+              result: { error: '#NAME?' },
+            } as ExcelJS.CellValue
+        })
+    })
+    const base = structuredClone(BASE)
+    delete base[a.id]
+    const { updates, report } = apply(rows, base)
+    expect(updates).toEqual([{ id: b.id, lang: 'de', value: 'Einzelstück' }])
+    expect(report.problems).toHaveLength(3)
+    expect(report.problems).toEqual(
+      expect.arrayContaining([
+        `${a.where}: stand nicht in dieser Liste, als sie ausgegeben wurde – nicht übernommen, bitte klären.`,
+        `${b.where} (Englisch): „“ – darf nicht leer sein; nicht übernommen.`,
+        expect.stringMatching(/\(Deutsch\): die Zelle zeigt einen Fehler \(#NAME\?\)/),
+      ]),
+    )
+    expect(report.englishTodo).toEqual([`${b.where} – Kennung ${b.id}`])
+  })
+})
+
 describe('Platzhalter', () => {
   it('erkennt Argumente, Mehrzahl-Fälle und Markierungen', () => {
     expect(
       signatureOf('Hallo {name}, du hast {count, plural, one {# Stück} other {# Stücke}}'),
     ).toEqual({
-      args: ['count', 'name'],
+      args: ['count:plural', 'name:argument'],
       cases: ['count:one', 'count:other'],
       tags: [],
     })
     expect(signatureOf('siehe <link>Versand</link>')).toEqual({
       args: [],
       cases: [],
-      tags: ['/link', 'link'],
+      tags: ['link@0'],
     })
-    expect(signatureOf('kaputt {name')).toBeNull()
-    expect(signatureOf('kaputt }')).toBeNull()
+    // was die Seite nicht lesen könnte (gleicher Parser wie next-intl)
+    for (const broken of ['kaputt {name', '</link>x<link>', 'Tolle <Stücke> hier', 'Coco {time.}'])
+      expect(signatureOf(broken), broken).toBeNull()
+    expect(checkPlaceholders('Coco hütet {time}', "Coco hütet '{time}'")).toMatch(/\{time\} fehlt/)
   })
 
   it('erlaubt Umstellen, verbietet Entfernen, Umbenennen und neue Fälle', () => {

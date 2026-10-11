@@ -1,6 +1,6 @@
 import ExcelJS from 'exceljs'
 
-import { fold, type CellValue } from './cells'
+import { fold, UNREADABLE, type CellValue, type SheetRow } from './cells'
 import { LIST_ID_PATTERN } from './snapshot'
 
 // Excel-Dateien lesen, die Jutta mit Numbers oder Excel bearbeitet hat (U-89 b). Numbers benennt Blätter beim Export
@@ -19,10 +19,21 @@ export interface TableRow {
   /** Blattname und Zeilennummer (für Meldungen). */
   sheet: string
   row: number
-  values: Record<string, CellValue>
+  values: SheetRow
 }
 
-/** Zellwert normalisieren: Rich-Text → Text, Formel → Ergebnis, Link → Text, Fehler → null. */
+/** Fehlerwert einer Zelle (`#NAME?` …), auch als Ergebnis einer Formel; sonst `null`. */
+export function cellError(v: ExcelJS.CellValue | undefined): string | null {
+  if (!v || typeof v !== 'object' || v instanceof Date) return null
+  if ('error' in v) return String((v as { error: unknown }).error)
+  if ('formula' in v || 'sharedFormula' in v) {
+    const r = (v as { result?: ExcelJS.CellValue }).result
+    return cellError(r)
+  }
+  return null
+}
+
+/** Zellwert normalisieren: Rich-Text → Text, Formel → Ergebnis, Link → Text, Fehler → null (siehe `cellError`). */
 export function plainValue(v: ExcelJS.CellValue | undefined): CellValue {
   if (v === null || v === undefined) return null
   if (v instanceof Date || typeof v === 'number' || typeof v === 'string' || typeof v === 'boolean')
@@ -45,7 +56,7 @@ export function plainValue(v: ExcelJS.CellValue | undefined): CellValue {
 const SCAN_ROWS = 10
 
 /** Je Blatt die Kopfzeile mit den meisten bekannten Überschriften (muss `required` enthalten). */
-function headerOf(
+export function headerOf(
   ws: ExcelJS.Worksheet,
   columns: readonly TableColumn[],
   required: string,
@@ -88,10 +99,28 @@ export function readTables(
     found = true
     ws.eachRow({ includeEmpty: false }, (row, r) => {
       if (r <= head.row) return
-      const values: Record<string, CellValue> = {}
-      for (const [col, key] of head.cols) values[key] = plainValue(row.getCell(col).value)
-      if (Object.values(values).some((v) => v !== null && String(v).trim() !== ''))
-        rows.push({ sheet: ws.name, row: r, values })
+      const values: SheetRow = {}
+      const unreadable: Record<string, string> = {}
+      for (const [col, key] of head.cols) {
+        const cell = row.getCell(col)
+        // Verbundene Zellen: exceljs liefert den Wert der ersten Zelle auch für die übrigen – nie übernehmen
+        if (cell.isMerged && cell.master !== cell) {
+          unreadable[key] = 'verbundene Zelle – bitte die Verbindung aufheben'
+          continue
+        }
+        const error = cellError(cell.value)
+        if (error) {
+          unreadable[key] =
+            `die Zelle zeigt einen Fehler (${error}) – steht am Anfang „-“, „+“ oder „=“? Bitte ohne dieses Zeichen schreiben`
+          continue
+        }
+        values[key] = plainValue(cell.value)
+      }
+      const filled = Object.values(values).some(
+        (v) => v !== null && v !== false && String(v).trim() !== '',
+      )
+      if (Object.keys(unreadable).length) values[UNREADABLE] = unreadable
+      if (filled || Object.keys(unreadable).length) rows.push({ sheet: ws.name, row: r, values })
     })
   }
   if (!found) {
@@ -132,17 +161,81 @@ export function findListId(wb: ExcelJS.Workbook, fileName?: string): string | nu
   return null
 }
 
-/** Datei laden (xlsx). Andere Formate (z. B. .numbers, .csv) mit verständlicher Meldung ablehnen. */
+/** Grenzen für hochgeladene Listen (Schutz vor übergroßen oder präparierten Dateien, auch für P19). */
+export const XLSX_LIMITS = {
+  maxBytes: 25 * 1024 * 1024,
+  maxEntries: 5000,
+  maxUncompressed: 250 * 1024 * 1024,
+}
+
+const NOT_EXCEL =
+  'Die Datei ist keine Excel-Datei (.xlsx). In Numbers bitte „···“ → „Exportieren“ → „Excel“ wählen.'
+
+/** Inhaltsverzeichnis des ZIP-Archivs (zentrales Verzeichnis), ohne zu entpacken. */
+export function zipEntries(buf: Buffer): { name: string; size: number; packed: number }[] {
+  const min = Math.max(0, buf.length - 22 - 0xffff)
+  let eocd = -1
+  for (let i = buf.length - 22; i >= min; i--)
+    if (buf.readUInt32LE(i) === 0x06054b50) {
+      eocd = i
+      break
+    }
+  if (eocd < 0) throw new Error(NOT_EXCEL)
+  const count = buf.readUInt16LE(eocd + 10)
+  const cdOffset = buf.readUInt32LE(eocd + 16)
+  if (count === 0xffff || cdOffset === 0xffffffff || cdOffset >= buf.length)
+    throw new Error(NOT_EXCEL)
+  const out: { name: string; size: number; packed: number }[] = []
+  let p = cdOffset
+  for (let n = 0; n < count; n++) {
+    if (p + 46 > buf.length || buf.readUInt32LE(p) !== 0x02014b50) throw new Error(NOT_EXCEL)
+    const packed = buf.readUInt32LE(p + 20)
+    const size = buf.readUInt32LE(p + 24)
+    const nameLen = buf.readUInt16LE(p + 28)
+    const extraLen = buf.readUInt16LE(p + 30)
+    const commentLen = buf.readUInt16LE(p + 32)
+    out.push({ name: buf.toString('utf8', p + 46, p + 46 + nameLen), size, packed })
+    p += 46 + nameLen + extraLen + commentLen
+  }
+  return out
+}
+
+/**
+ * Datei laden (xlsx). Andere Formate (.numbers, .csv, PDF …) mit verständlicher Meldung ablehnen; übergroße Dateien und
+ * ZIP-Bomben ablehnen, bevor exceljs entpackt.
+ */
 export async function loadWorkbook(buffer: Buffer): Promise<ExcelJS.Workbook> {
   // xlsx ist ein ZIP-Archiv („PK“ am Anfang)
-  if (buffer.length < 4 || buffer[0] !== 0x50 || buffer[1] !== 0x4b) {
+  if (buffer.length < 22 || buffer[0] !== 0x50 || buffer[1] !== 0x4b) throw new Error(NOT_EXCEL)
+  if (buffer.length > XLSX_LIMITS.maxBytes)
     throw new Error(
-      'Die Datei ist keine Excel-Datei (.xlsx). In Numbers bitte „Teilen → Exportieren → Excel“ wählen.',
+      `Die Datei ist zu groß (${Math.round(buffer.length / 1024 / 1024)} MB, höchstens 25 MB).`,
     )
-  }
+  const entries = zipEntries(buffer)
+  const names = new Set(entries.map((e) => e.name))
+  if (!names.has('xl/workbook.xml') || !names.has('[Content_Types].xml')) throw new Error(NOT_EXCEL)
+  const total = entries.reduce((n, e) => n + e.size, 0)
+  if (
+    entries.length > XLSX_LIMITS.maxEntries ||
+    total > XLSX_LIMITS.maxUncompressed ||
+    entries.some((e) => e.size > 50 * 1024 * 1024 && e.size > e.packed * 200)
+  )
+    throw new Error(
+      'Die Datei ist ungewöhnlich aufgebaut (zu groß entpackt) – bitte neu aus Numbers exportieren.',
+    )
   const wb = new ExcelJS.Workbook()
   await wb.xlsx.load(buffer as unknown as ExcelJS.Buffer)
+  if (wb.worksheets.length === 0) throw new Error(NOT_EXCEL)
   return wb
+}
+
+/** Wie gut passt die Mappe zu diesen Spalten? Höchste Zahl erkannter Überschriften eines Blatts (0 = gar nicht). */
+export function tableScore(
+  wb: ExcelJS.Workbook,
+  columns: readonly TableColumn[],
+  required: string,
+): number {
+  return Math.max(0, ...wb.worksheets.map((ws) => headerOf(ws, columns, required)?.cols.size ?? 0))
 }
 
 /** Kopfzeile schreiben: dunkel, fett, mit Hinweisen als Kommentar. */

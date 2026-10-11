@@ -6,7 +6,13 @@ import path from 'node:path'
 import type ExcelJS from 'exceljs'
 import sharp from 'sharp'
 
-import { applyRows, BESTAND_COLUMNS, rowOf } from '../../src/lib/bestand/excel'
+import {
+  applyRows,
+  BESTAND_COLUMNS,
+  rowOf,
+  sameFor,
+  snapshotRowsOf,
+} from '../../src/lib/bestand/excel'
 import { buildBestandBook } from '../../src/lib/bestand/excelBook'
 import { keepValid } from '../../src/lib/bestand/excelRepo'
 import {
@@ -16,8 +22,9 @@ import {
   bestandSchema,
   loadBestand,
 } from '../../src/lib/bestand/schema'
-import type { PflegeReport } from '../../src/lib/pflege/merge'
-import { makeSnapshot, type ListSnapshot, type SnapshotRows } from '../../src/lib/pflege/snapshot'
+import { num, str } from '../../src/lib/pflege/cells'
+import { recordConsumed, type PflegeReport } from '../../src/lib/pflege/merge'
+import { makeSnapshot, type ListSnapshot } from '../../src/lib/pflege/snapshot'
 import { readTables } from '../../src/lib/pflege/workbook'
 
 import { formatJson } from './formatJson'
@@ -34,6 +41,8 @@ export interface ImportResult {
   write: (() => Promise<string>) | null
   /** Ergebnis ungültig – nichts schreiben (Meldungen stehen in `report.problems`). */
   invalid: boolean
+  /** Übernommene Werte im gemerkten Stand festhalten (nach dem Schreiben bzw. wenn nichts zu schreiben war). */
+  record: (snapshot: ListSnapshot) => number
 }
 
 export async function exportBestand(
@@ -42,11 +51,7 @@ export async function exportBestand(
   dateLabel: string,
 ): Promise<ExportResult> {
   const products = [...(await loadBestand(root))].sort((a, b) => a.itemNumber - b.itemNumber)
-  const snapshot = makeSnapshot(
-    'bestand',
-    now,
-    new Map(products.map((p) => [String(p.itemNumber), rowOf(p)])),
-  )
+  const snapshot = makeSnapshot('bestand', now, snapshotRowsOf(products))
   const thumbs = new Map<string, Buffer>()
   for (const p of products) {
     const first = p.images[0]
@@ -66,26 +71,40 @@ export async function exportBestand(
 export async function importBestand(
   root: string,
   wb: ExcelJS.Workbook,
-  base: SnapshotRows | null,
-  year: number,
+  snapshot: ListSnapshot | null,
+  clock: { year: number; today: string },
 ): Promise<ImportResult> {
+  const { year, today } = clock
   const products = await loadBestand(root)
   const rows = readTables(wb, BESTAND_COLUMNS, 'nr', 'Bestandsliste').map((r) => r.values)
-  const applied = applyRows(products, rows, { year, base })
+  const applied = applyRows(products, rows, {
+    year,
+    today,
+    base: snapshot?.rows ?? null,
+    consumed: snapshot?.consumed,
+  })
   const report = applied.report
   const { products: next, ok } = keepValid(products, applied.products, report)
+  const record = (s: ListSnapshot) =>
+    recordConsumed(
+      s,
+      rows.flatMap((r) => (num(r.nr) === null ? [] : [[str(r.nr), r] as const])),
+      new Map(next.map((p) => [String(p.itemNumber), rowOf(p)])),
+      (column) => sameFor(column, { year, today }),
+    )
   if (!ok) {
     for (const i of bestandSchema.safeParse(next).error?.issues ?? [])
       report.problems.push(
         `Ergebnis wäre ungültig (${i.path.join('.')}: ${i.message}) – nichts geschrieben.`,
       )
-    return { report, write: null, invalid: true }
+    return { report, write: null, invalid: true, record: () => 0 }
   }
-  if (report.changes.length === 0) return { report, write: null, invalid: false }
+  if (report.changes.length === 0) return { report, write: null, invalid: false, record }
   const file = path.join(root, BESTAND_DIR, BESTAND_FILE)
   return {
     report,
     invalid: false,
+    record,
     // `next` statt `valid.data`: Reihenfolge der Felder bleibt wie in der Datei (kleiner Diff)
     write: async () => {
       await writeFile(file, await formatJson(root, file, next))

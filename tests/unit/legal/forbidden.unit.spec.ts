@@ -7,7 +7,12 @@ import { isTemplateImplemented, TEMPLATE_META } from '@/lib/email/registry'
 import de from '@/i18n/messages/de.json'
 import en from '@/i18n/messages/en.json'
 import { LEGAL_SNIPPET_KEYS, type EmailTemplate } from '@/lib/enums'
-import { V16_THIRD_PARTY_MARKS } from '@/lib/legal/forbidden'
+import {
+  V16_CONTENT,
+  V20_TEXT as V20_TEXT_PATTERN,
+  V25_HEALTH,
+  V30_LATER,
+} from '@/lib/legal/forbiddenContent'
 import { LEGAL_SNIPPET_SEED } from '@/lib/legal/snippetSeed'
 import { snippetTokens } from '@/lib/legal/snippets'
 
@@ -64,25 +69,19 @@ function listFiles(dir: string): string[] {
   })
 }
 
-const v16 = V16_THIRD_PARTY_MARKS.map((r): ForbiddenPattern => ({
-  id: 'V-16',
-  re: new RegExp(r.pattern.source, 'iu'),
-}))
+// Inhaltsmuster je Ziel (V-16 für `content/`, V-20/V-25/V-30 für Texte) aus `src/lib/legal/forbiddenContent.ts` – dieselbe
+// Quelle prüft das Zurückspielen der Excel-Listen (U-89), damit Test und Rückweg nie auseinanderlaufen.
+const v16 = V16_CONTENT
+const V20_TEXT = V20_TEXT_PATTERN
+const V25 = V25_HEALTH
+const V30 = V30_LATER
 
 const p = (id: string, re: RegExp): ForbiddenPattern => ({ id, re })
 
-/** V-20 Streich-, Rabatt- und „statt“-Preise: Texte (`messages`) bzw. Markup/Stile öffentlicher Komponenten. */
-const V20_TEXT = p('V-20', /\bstatt\b|\bUVP\b|\bSale\b|-\d+\s*%/iu)
+/** V-20 Markup/Stile öffentlicher Komponenten (Streichpreise). */
 const V20_MARKUP = p('V-20', /<del\b|<s>|<s\s|line-through/iu)
 /** V-23 Zahlungsdaten von Kund:innen: Schema-Felder (Ausnahme `settings.payment`, Allowlist). */
 const V23_SCHEMA = p('V-23', /\bname:\s*'(iban|cardNumber|creditCard|cvc|cvv)'/iu)
-/** V-25 Gesundheitsdaten in Formular-Labels. */
-const V25 = p('V-25', /Allergi|Krankheit|Medikament|Schwanger|Hauterkrank/iu)
-/** V-30 Funktionen für „später“ im öffentlichen UI. */
-const V30 = p(
-  'V-30',
-  /Newsletter|Warteliste|Benachrichtige\s+mich|Mein\s+Konto|Registrieren|Gutschein/iu,
-)
 
 const isMessages = (f: string) => f.startsWith('src/i18n/messages/')
 const isPublicCode = (f: string) =>

@@ -4,9 +4,11 @@
 // Einträge mit fester Kennung bilden und Änderungen per Kennung zurückschreiben.
 //
 // Nicht in der Liste (bleibt bei der Kanzlei bzw. ist Technik): Rechtstexte und rechtliche Seiten (`legal`, `withdraw`,
-// `privacyExport`, Seiten „Widerruf“ und „Konformität“, Pflicht-Warnhinweise), interne Texte (`qa`, `previewExport`)
-// und Adressen von Seiten (`slug`). Rechtlich vorgegebene Wörter („Vertrag widerrufen“) und die Namen der Rechtsseiten
-// stehen in der Liste, sind aber nur zum Lesen.
+// `privacyExport`, „Versand & Zahlung“, Seiten „Widerruf“ und „Konformität“, Pflicht-Warnhinweise), die amtliche
+// Gewährleistungs-Mitteilung, Mails zu Widerruf, Reklamation, Schlichtung, Datenschutz und Einwilligung, interne Texte
+// (`qa`, `previewExport`), Adressen von Seiten (`slug`) und Texte, die die Seite nicht zeigt (von den Standardtexten der
+// Verwaltung nutzt die Seite nur Grußformel und Antwortzeit der Mails). Rechtlich vorgegebene Wörter („Vertrag
+// widerrufen“), Pflicht-Hinweise am Stück und die Namen der Rechtsseiten stehen in der Liste, sind aber nur zum Lesen.
 
 export type L10n = { de: string; en: string }
 type Json = unknown
@@ -33,8 +35,16 @@ export interface TextEntry {
   en: string
   /** Nur zum Lesen – Grund. */
   locked?: string
-  /** Höchstlänge (Verwaltungsfelder). */
+  /** Höchstlänge (aus dem Schema der Verwaltung). */
   maxLength?: number
+  /** Weitere Prüfung aus dem Schema (z. B. Lieferzeit ohne „ca.“, R-035). */
+  validate?: (value: unknown) => true | string
+}
+
+/** Regeln eines Feldes aus dem Schema der Verwaltung. */
+export interface FieldRule {
+  maxLength?: number
+  validate?: (value: unknown) => true | string
 }
 
 export interface TextData {
@@ -48,9 +58,43 @@ export interface TextData {
     string,
     Json
   >
+  /** Regeln je Kennung (Seiten, Fragen, Kategorien, Einstellungen); ohne = keine. */
+  fieldRule?: (id: string) => FieldRule
 }
 
 const EXCLUDED_NAMESPACES = new Set(['qa', 'previewExport', 'privacyExport', 'legal', 'withdraw'])
+/** Rechtlich vorgegebene oder geprüfte Texte (Kanzlei, amtlicher Wortlaut) – nicht in der Liste. */
+const EXCLUDED_PREFIXES = [
+  'shop.warranty.', // amtliche Gewährleistungs-Mitteilung (DVO (EU) 2025/1960, R-049)
+  'shippingPayment.', // Inhalt der Rechtsseite „Versand & Zahlung“ (R25)
+  'email.withdrawalReceipt.',
+  'email.complaintRepairChoice.',
+  'email.disputeVsbg.',
+  'email.privacyAccessResponse.',
+  'email.privacyErasureResponse.',
+  'email.consentWithdrawalConfirmation.',
+  'email.common.warranty',
+  'email.common.withdrawalInfo',
+  'email.common.dhlConsent',
+  'email.common.attAgb',
+  'email.common.privacyLink',
+  // Ersatztext; die Mail nimmt den Standardtext der Verwaltung („Antwortzeit“, in der Liste unter E-Mails)
+  'email.inquiryReceipt.responseTime',
+]
+/** Feste Bezeichnungen mit rechtlicher Bedeutung – sichtbar, aber nur zum Lesen. */
+const LOCKED_PREFIXES = [
+  'shop.badges.decorative',
+  'shop.badges.foodSafe',
+  'shop.badges.smallParts',
+  'shop.product.shipping.withdrawal',
+  'checkout.legalLinks.',
+  'checkout.dialogs.',
+  'email.footer.',
+  'orderStatus.docAgb',
+  'orderStatus.docWithdrawal',
+]
+/** Von den Standardtexten der Verwaltung zeigt die Seite nur diese (Mails); die übrigen nutzt sie nicht. */
+const USED_SITE_TEXTS = new Set(['emails.signature', 'emails.inquiryResponseTime'])
 const EXCLUDED_PAGES = new Set(['withdrawal', 'conformity'])
 const SETTINGS_TEXTS: readonly [string, string, TextSheet][] = [
   ['shipping.deliveryTimeText', 'Lieferzeit', 'Kasse & Bestellung'],
@@ -213,8 +257,10 @@ export function textEntries(d: TextData): TextEntry[] {
     const enValue = getAt(en, path)
     if (typeof enValue !== 'string') continue
     const key = path.join('.')
+    if (EXCLUDED_PREFIXES.some((x) => key.startsWith(x))) continue
     const locked =
       (ns === 'common' && path[1] === 'routes' && LOCKED_ROUTES.has(path[2] ?? '')) ||
+      LOCKED_PREFIXES.some((x) => key.startsWith(x)) ||
       LOCKED_WORDING.test(value) ||
       LOCKED_WORDING.test(enValue)
     out.push({
@@ -230,6 +276,7 @@ export function textEntries(d: TextData): TextEntry[] {
   for (const [group, fields] of Object.entries(d.siteTexts)) {
     const [sheet, label] = SITE_GROUP[group] ?? ['Allgemein', group]
     for (const [field, value] of Object.entries(fields)) {
+      if (!USED_SITE_TEXTS.has(`${group}.${field}`)) continue
       const meta = d.siteTextFields.get(`${group}.${field}`)
       out.push({
         id: `st:${group}.${field}`,
@@ -292,6 +339,13 @@ export function textEntries(d: TextData): TextEntry[] {
       en: value.en,
     })
   }
+  if (d.fieldRule)
+    for (const e of out) {
+      if (e.id.startsWith('m:') || e.id.startsWith('st:')) continue
+      const r = d.fieldRule(e.id)
+      if (r.maxLength) e.maxLength = r.maxLength
+      if (r.validate) e.validate = r.validate
+    }
   const order = new Map(TEXT_SHEETS.map((s, i) => [s, i]))
   return out
     .map((e, i) => ({ e, i }))

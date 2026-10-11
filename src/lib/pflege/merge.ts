@@ -1,9 +1,12 @@
-import type { CellValue } from './cells'
+import { storable, type CellValue } from './cells'
+import type { ListSnapshot } from './snapshot'
 
 // Dreiwege-Abgleich je Zelle (U-89 a): `mine` = Juttas Liste, `base` = Stand beim Ausgeben (gemerkt unter der
 // Listen-Nr.), `current` = Stand jetzt. Übernommen wird nur, was Jutta gegenüber dem Stand geändert hat; wurde dieselbe
-// Zelle inzwischen anders geändert, entscheidet Jutta (Bericht „Bitte entscheiden“). Ohne gemerkten Stand (`NO_BASE`)
-// zählt jeder Unterschied zum jetzigen Stand – das darf nur mit ausdrücklicher Freigabe geschrieben werden.
+// Zelle inzwischen anders geändert, entscheidet Jutta (Bericht „Bitte entscheiden“). `consumed` = Werte aus dieser Liste,
+// die schon übernommen wurden (U-89 c): Sie zählen wie der Stand – dieselbe Liste (oder ihr unbearbeitetes Original)
+// noch einmal ändert also nichts, auch wenn inzwischen korrigiert wurde. Ohne gemerkten Stand (`NO_BASE`) zählt jeder
+// Unterschied zum jetzigen Stand – das darf nur mit ausdrücklicher Freigabe geschrieben werden.
 
 export type Decision = 'keep' | 'apply' | 'conflict'
 
@@ -14,11 +17,13 @@ export function decide(
   base: CellValue | typeof NO_BASE,
   current: CellValue,
   same: (a: CellValue, b: CellValue) => boolean,
+  consumed: readonly CellValue[] = [],
 ): Decision {
   if (same(mine, current)) return 'keep'
   if (base === NO_BASE) return 'apply'
-  if (same(mine, base)) return 'keep'
-  return same(current, base) ? 'apply' : 'conflict'
+  const known = [base, ...consumed]
+  if (known.some((k) => same(mine, k))) return 'keep'
+  return known.some((k) => same(current, k)) ? 'apply' : 'conflict'
 }
 
 /** Bericht nach dem Zurückspielen – gemeinsam für beide Listen. */
@@ -67,4 +72,36 @@ export function reportMarkdown(title: string, meta: string, r: PflegeReport): st
   ]
     .filter(Boolean)
     .join('\n')
+}
+
+/**
+ * Nach dem Übernehmen festhalten, welche Werte aus dieser Liste jetzt gelten (U-89 a, c): Jede Zelle, die Jutta gegenüber
+ * dem Stand geändert hat und die jetzt so gilt, kommt in `snapshot.consumed`. Schickt sie dieselbe Liste später noch
+ * einmal, zählt die Zelle nicht mehr als Änderung – auch wenn sie inzwischen anders korrigiert wurde. Der Stand beim
+ * Ausgeben bleibt unverändert (auch das unbearbeitete Original der Liste ändert nichts). Rückfragen und Abgelehntes
+ * bleiben offen. Verändert `snapshot`; gibt die Zahl der neu festgehaltenen Zellen zurück.
+ */
+export function recordConsumed(
+  snapshot: ListSnapshot,
+  rows: Iterable<readonly [string, Record<string, CellValue>]>,
+  current: ReadonlyMap<string, Record<string, CellValue>>,
+  same: (column: string) => (a: CellValue, b: CellValue) => boolean,
+): number {
+  let n = 0
+  const consumed = (snapshot.consumed ??= {})
+  for (const [id, row] of rows) {
+    const b = snapshot.rows[id]
+    const cur = current.get(id)
+    if (!b || !cur) continue
+    for (const [column, mine] of Object.entries(row)) {
+      if (!(column in cur)) continue
+      const eq = same(column)
+      const done = consumed[id]?.[column] ?? []
+      if (eq(mine, b[column] ?? null) || done.some((v) => eq(mine, v)) || !eq(mine, cur[column]))
+        continue
+      ;((consumed[id] ??= {})[column] ??= []).push(storable(cur[column]))
+      n++
+    }
+  }
+  return n
 }

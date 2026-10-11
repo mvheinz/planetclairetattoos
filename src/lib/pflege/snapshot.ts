@@ -24,13 +24,19 @@ export function parseListId(text: string): { id: string; kind: ListKind; day: st
 
 export type SnapshotRows = Record<string, Record<string, StoredCell>>
 
+/** Je Zeile und Spalte die Werte aus dieser Liste, die schon übernommen wurden (U-89 c). */
+export type ConsumedCells = Record<string, Record<string, StoredCell[]>>
+
 export interface ListSnapshot {
   version: 1
   id: string
   kind: ListKind
   /** Zeitpunkt des Ausgebens (ISO, UTC). */
   createdAt: string
+  /** Stand beim Ausgeben – bleibt unverändert. */
   rows: SnapshotRows
+  /** Nach jedem Zurückspielen: schon übernommene Werte (dieselbe Liste noch einmal ändert nichts mehr). */
+  consumed?: ConsumedCells
 }
 
 const cell = z.union([z.string(), z.number(), z.boolean(), z.null()])
@@ -40,6 +46,7 @@ export const snapshotSchema = z.strictObject({
   kind: z.enum(['bestand', 'texte']),
   createdAt: z.string().datetime(),
   rows: z.record(z.string(), z.record(z.string(), cell)),
+  consumed: z.record(z.string(), z.record(z.string(), z.array(cell))).optional(),
 })
 
 /** Kalendertag in Berlin (`JJJJ-MM-TT`). */

@@ -5,18 +5,20 @@ import {
   TEXTILE_FIBERS,
 } from '@/lib/enums'
 import { ENUM_LABELS } from '@/lib/enumLabels'
+import { lintProductText } from '@/lib/legal/forbidden'
+import { newForbiddenHits } from '@/lib/legal/forbiddenContent'
 import {
   excelDay,
   fold,
   isoDay,
   num,
-  sameNum,
-  sameText,
   str,
+  UNREADABLE,
   type CellValue,
+  type SheetRow,
 } from '@/lib/pflege/cells'
 import { decide, emptyReport, NO_BASE, type Decision, type PflegeReport } from '@/lib/pflege/merge'
-import type { SnapshotRows } from '@/lib/pflege/snapshot'
+import type { ConsumedCells, SnapshotRows } from '@/lib/pflege/snapshot'
 
 import type { BestandProduct } from './schema'
 
@@ -95,7 +97,7 @@ export const BESTAND_COLUMNS: readonly ExcelColumn[] = [
     header: 'Metallteile (Schmuck)',
     width: 22,
     wrap: true,
-    hint: 'z. B. „Edelstahl, nickelfrei“',
+    hint: 'z. B. „Edelstahl 316L“',
   },
   {
     key: 'abweichung',
@@ -210,35 +212,81 @@ function noteAndPrice(text: string): { note?: string; priceCents?: number } {
   return out
 }
 
+/** Verkaufsjahr plausibel? Nicht in der Zukunft, nicht mehr als fünf Jahre zurück. */
+function saleYearIssue(y: number, year: number): string | null {
+  if (y > year) return 'liegt in der Zukunft – bitte prüfen'
+  if (y < year - 5) return 'liegt lange zurück – bitte prüfen'
+  return null
+}
+
+/** Bezugszeit beim Zurückspielen: Jahr für „11.10.“ und heutiger Tag in Berlin (`JJJJ-MM-TT`, gegen Zukunftsdaten). */
+export interface SoldClock {
+  year: number
+  today?: string
+}
+
+/** Wörter, die „noch da“ bedeuten (nie als verkauft lesen). */
+const NOT_SOLD = /^(nein|no|nope|nicht|noch|offen|frei|verfugbar|available|reserviert)\b/
+
 /**
- * Zelle „Verkauft“ lesen: leer/„nein“ = nicht verkauft; ein Datum (Excel-Datum, „11.10.2026“, „11.10.26“, „11.10.“)
- * oder „ja“/„x“/„verkauft“, jeweils gern mit Notiz dahinter. `year`: Jahr für „11.10.“.
+ * Zelle „Verkauft“ lesen – streng, damit nie ein Stück versehentlich als verkauft gilt: leer, „nein“, „noch da“, „-“, „0“
+ * = nicht verkauft; verkauft nur mit Datum (Excel-Datum, „11.10.2026“, „11.10.26“, „11.10.“) oder „ja“/„x“/„verkauft“ am
+ * Anfang, jeweils gern mit Preis und Notiz dahinter. Anderer Text ist ein Fehler (Meldung, nichts geändert). „11.10.“
+ * ohne Jahr: dieses Jahr, liegt der Tag noch vor uns, das Vorjahr; ein Datum in der Zukunft ist ein Fehler.
  */
 export function parseSold(
   value: CellValue,
-  year: number,
+  clock: number | SoldClock,
 ): { sold: BestandProduct['sold'] | null } | { error: string } {
+  const { year, today } = typeof clock === 'number' ? { year: clock, today: undefined } : clock
   if (value === null || value === undefined || value === false) return { sold: null }
+  const future = (iso: string) => today !== undefined && iso > today
   if (value instanceof Date) {
     if (Number.isNaN(value.getTime())) return { error: 'Datum nicht lesbar' }
     // Excel-Daten kommen als UTC-Mitternacht: Kalendertag in UTC lesen
-    return { sold: { date: isoDay(excelDay(value)) } }
+    const day = excelDay(value)
+    const off = future(isoDay(day))
+      ? 'liegt in der Zukunft – bitte prüfen'
+      : saleYearIssue(day.getFullYear(), year)
+    if (off) return { error: `Datum „${str(value)}“ ${off}` }
+    return { sold: { date: isoDay(day) } }
   }
   if (value === true) return { sold: {} }
+  // Eine reine Zahl (Numbers/Excel machen aus „35 €“ oft 35, aus „11.10“ 11,1) ist nicht eindeutig
+  if (typeof value === 'number')
+    return value === 0
+      ? { sold: null }
+      : {
+          error:
+            'bitte ein Datum (11.10.2026) oder „ja“ eintragen, Preis dahinter (z. B. „ja 35 €“)',
+        }
   const text = String(value).trim()
-  if (!text || fold(text) === NO) return { sold: null }
-  const m = /^(\d{1,2})\.(\d{1,2})\.(\d{2,4})?\s*(.*)$/s.exec(text)
+  if (!text || NOT_SOLD.test(fold(text)) || /^[-–—0.\s]+$/.test(text)) return { sold: null }
+  // „11.10.2026“, „11.10.26“, „11.10.“ – eine Jahreszahl nur mit Leerzeichen/Ende dahinter und nicht vor „€“
+  const m = /^(\d{1,2})\.(\d{1,2})\.(?:(\d{4}|\d{2})(?=\s|$)(?!\s*(?:€|eur)))?(.*)$/is.exec(text)
   if (m) {
-    const y = m[3] ? (m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3])) : year
-    const d = new Date(y, Number(m[2]) - 1, Number(m[1]))
+    const rest = m[4]!
+    if (/^\d/.test(rest) && !/^\d{1,5}(?:[.,]\d{1,2})?\s*(?:€|eur)/i.test(rest))
+      return { error: `Datum „${text}“ bitte prüfen (z. B. 11.10.2026)` }
+    const explicit = m[3] ? (m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3])) : null
+    const make = (y: number) => new Date(y, Number(m[2]) - 1, Number(m[1]))
+    let d = make(explicit ?? year)
     if (d.getDate() !== Number(m[1]) || d.getMonth() !== Number(m[2]) - 1)
       return { error: `Datum „${text}“ gibt es nicht` }
-    return { sold: { date: isoDay(d), ...noteAndPrice(m[4]!) } }
+    // „20.12.“ im Januar eingetragen: der Markt im Dezember davor
+    if (explicit === null && future(isoDay(d))) d = make(year - 1)
+    const off = future(isoDay(d))
+      ? 'liegt in der Zukunft – bitte prüfen'
+      : saleYearIssue(d.getFullYear(), year)
+    if (off) return { error: `Datum „${text}“ ${off}` }
+    return { sold: { date: isoDay(d), ...noteAndPrice(rest) } }
   }
-  const yes = /^(ja|x|verkauft|yes|sold)(?=$|[\s,:–-])[\s,:–-]*(.*)$/is.exec(text)
+  const yes = /^(ja|x|verkauft|yes|sold|✓|✔)(?=$|[\s,:–-])[\s,:–-]*(.*)$/is.exec(text)
   if (yes) return { sold: noteAndPrice(yes[2]!) }
-  // freier Text ohne „ja“/Datum: als verkauft mit Notiz (und ggf. Preis)
-  return { sold: noteAndPrice(text) }
+  return {
+    error:
+      'bitte ein Datum oder „ja“ voranstellen (z. B. „ja – an Freundin“); sonst gilt es nicht als verkauft',
+  }
 }
 
 /** Werte einer Zeile (Spalten-Schlüssel → Zellwert) für ein Stück. */
@@ -278,13 +326,83 @@ export type ApplyReport = PflegeReport
 export { num }
 
 const COLUMN = new Map(BESTAND_COLUMNS.map((c) => [c.key, c]))
-const sameIn = (key: string) => (COLUMN.get(key)?.kind === 'num' ? sameNum : sameText)
+
+const categoryOf = (v: string) =>
+  PRODUCT_CATEGORIES.find((c) => fold(CATEGORY_DE[c]) === fold(v) || c === fold(v))
+const conditionOf = (v: string) => TEXTILE_CONDITIONS.find((k) => fold(CONDITION_DE[k]) === fold(v))
+
+/** Zahl einer Zelle als Text, gerundet wie beim Speichern (`?` = keine Zahl). */
+function canonNum(v: CellValue, factor: number): string {
+  const n = num(v)
+  if (n === null) return ''
+  return Number.isNaN(n) ? `?${str(v)}` : String(Math.round(n * factor) / factor)
+}
+
+/**
+ * Kanonische Form einer Zelle – so, wie sie nach dem Übernehmen in der Liste stünde (U-89 c): „100% Baumwolle“ =
+ * „100 % Baumwolle“, „Nein“ = „nein“, Häkchen = „ja“, 12,34 cm = 12,3 cm, ein Excel-Datum = „TT.MM.JJJJ“ usw. Damit
+ * führt dieselbe Liste beim zweiten Zurückspielen nie zu Rückfragen.
+ */
+export function canonical(key: string, v: CellValue, clock: number | SoldClock): string {
+  switch (key) {
+    case 'verkauft': {
+      const r = parseSold(v, clock)
+      return 'error' in r ? `?${str(v)}` : soldText(r.sold ?? undefined)
+    }
+    case 'fasern': {
+      const t = str(v)
+      const r = t ? parseFibers(t) : null
+      return !r ? '' : 'error' in r ? `?${t}` : fibersText(r.rows)
+    }
+    case 'secondHand':
+      return v === true ? YES : v === false ? NO : fold(str(v))
+    case 'zustand': {
+      const c = conditionOf(str(v))
+      return c ? CONDITION_DE[c] : str(v)
+    }
+    case 'kategorie': {
+      const c = categoryOf(str(v))
+      return c ? CATEGORY_DE[c] : str(v)
+    }
+    case 'preis':
+      return canonNum(v, 100)
+    case 'nr':
+    case 'gewicht':
+      return canonNum(v, 1)
+    case 'breite':
+    case 'hoehe':
+    case 'tiefe':
+    case 'durchmesser':
+      return canonNum(v, 10)
+    default:
+      return str(v)
+  }
+}
+
+/** Vergleich je Spalte über die kanonische Form. */
+export function sameFor(
+  key: string,
+  clock: number | SoldClock,
+): (a: CellValue, b: CellValue) => boolean {
+  return (a, b) => canonical(key, a, clock) === canonical(key, b, clock)
+}
+
+/** Zeilen des gemerkten Stands: Werte der Liste und der feste Schlüssel des Stücks (`_key`, gegen Umnummerieren). */
+export function snapshotRowsOf(
+  products: readonly BestandProduct[],
+): Map<string, Record<string, CellValue>> {
+  return new Map(products.map((p) => [String(p.itemNumber), { ...rowOf(p), _key: p.key }]))
+}
 
 export interface ApplyOptions {
   /** Jahr für „11.10.“ ohne Jahr (Berlin). */
   year: number
+  /** Heutiger Tag in Berlin (`JJJJ-MM-TT`): kein Verkauf in der Zukunft. */
+  today?: string
   /** Gemerkter Stand der Liste (Zeilen je Nr.); `null` = unbekannt → jeder Unterschied zählt (nur mit Freigabe). */
   base: SnapshotRows | null
+  /** Schon übernommene Werte aus dieser Liste (U-89 c). */
+  consumed?: ConsumedCells
 }
 
 const fmtEuro = (n: number) => `${n.toFixed(2).replace('.', ',')} €`
@@ -301,13 +419,30 @@ function newRowSummary(row: Record<string, CellValue>): string {
 }
 
 /**
+ * Rechtliche Prüfung eines neuen Textes (RECHT §5): neue Treffer der Verbotsliste; bei öffentlichen Texten zusätzlich
+ * unbelegte Aussagen und fremde Marken (V-13, V-16). Treffer, die schon der alte Text hatte, zählen nicht.
+ */
+export function legalIssue(old: string, value: string, isPublic: boolean): string | null {
+  const hits = newForbiddenHits(old, value)
+  if (hits.length)
+    return `enthält eine verbotene Formulierung (${hits.join(', ')}, siehe Rechtsliste)`
+  if (!isPublic) return null
+  const before = new Set(lintProductText(old).map((h) => h.label))
+  const added = lintProductText(value).filter((h) => !before.has(h.label))
+  if (added.length)
+    return `enthält „${added.map((h) => h.label).join('“, „')}“ – solche Aussagen bzw. fremde Marken gehen nur mit Nachweis`
+  return null
+}
+
+/**
  * Zeilen aus Juttas Liste auf den Bestand anwenden. Gibt eine **neue** Liste zurück (Original unverändert) und den
  * Bericht. Zuordnung über „Nr.“; unbekannte Nummern, fehlende Zeilen und neue Zeilen werden gemeldet. Mit gemerktem
- * Stand (`base`) zählt nur, was Jutta gegenüber diesem Stand geändert hat (U-89 a).
+ * Stand (`base`) zählt nur, was Jutta gegenüber diesem Stand geändert hat (U-89 a); eine Nummer, die beim Ausgeben
+ * nicht in der Liste stand oder inzwischen zu einem anderen Stück gehört, wird nicht angewendet.
  */
 export function applyRows(
   products: readonly BestandProduct[],
-  rows: readonly Record<string, CellValue>[],
+  rows: readonly SheetRow[],
   opts: ApplyOptions,
 ): { products: BestandProduct[]; report: ApplyReport } {
   const report = emptyReport()
@@ -317,7 +452,10 @@ export function applyRows(
   for (const row of rows) {
     const nr = num(row.nr)
     if (nr === null) {
-      if (Object.entries(row).some(([k, v]) => k !== 'foto' && str(v)))
+      const unreadable = row[UNREADABLE]?.nr
+      if (unreadable)
+        report.problems.push(`Eine Zeile hat keine lesbare Nr. (${unreadable}) – nicht übernommen.`)
+      else if (Object.entries(row).some(([k, v]) => k !== 'foto' && str(v)))
         report.newEntries.push(
           `Neues Stück ${newRowSummary(row)} – bitte mit Fotos anlegen lassen.`,
         )
@@ -333,8 +471,24 @@ export function applyRows(
       continue
     }
     seen.add(nr)
-    const base = opts.base ? opts.base[String(nr)] : undefined
-    applyRow(p, row, rowOf(p), opts.base ? (base ?? null) : null, report, opts)
+    let base: Record<string, CellValue> | null = null
+    if (opts.base) {
+      const b = opts.base[String(nr)]
+      if (!b) {
+        report.problems.push(
+          `Nr. ${nr} stand nicht in dieser Liste, als sie ausgegeben wurde – Zeile nicht übernommen, bitte klären.`,
+        )
+        continue
+      }
+      if (typeof b._key === 'string' && b._key !== p.key) {
+        report.problems.push(
+          `Nr. ${nr} gehörte beim Ausgeben der Liste zu einem anderen Stück – Zeile nicht übernommen, bitte klären.`,
+        )
+        continue
+      }
+      base = b
+    }
+    applyRow(p, row, rowOf(p), base, opts.consumed?.[String(nr)] ?? {}, report, opts)
   }
   for (const p of next)
     if (!seen.has(p.itemNumber) && (!opts.base || opts.base[String(p.itemNumber)]))
@@ -346,25 +500,35 @@ export function applyRows(
 
 function applyRow(
   p: BestandProduct,
-  row: Record<string, CellValue>,
+  row: SheetRow,
   before: Record<string, CellValue>,
   base: Record<string, CellValue> | null,
+  consumed: Readonly<Record<string, readonly CellValue[]>>,
   report: ApplyReport,
-  opts: { year: number },
+  opts: { year: number; today?: string },
 ) {
+  const clock: SoldClock = { year: opts.year, ...(opts.today ? { today: opts.today } : {}) }
   const nr = `Nr. ${p.itemNumber}`
-  const header = (key: string) => COLUMN.get(key)!.header
+  const header = (key: string) => COLUMN.get(key)?.header ?? key
   const change = (what: string, from: string, to: string) =>
     report.changes.push(`${nr}: ${what} „${from || '–'}“ → „${to || '–'}“`)
   const bad = (what: string, value: CellValue, why: string) =>
     report.problems.push(`${nr}: ${what} „${str(value)}“ – ${why}; nicht übernommen.`)
+  for (const [key, why] of Object.entries(row[UNREADABLE] ?? {}))
+    report.problems.push(`${nr}: ${header(key)} – ${why}; nicht übernommen.`)
   // Je Spalte einmal entscheiden (Dreiwege-Abgleich); Rückfragen genau einmal melden.
   const decisions = new Map<string, Decision>()
   const changed = (key: string): boolean => {
     if (!(key in row)) return false
     let d = decisions.get(key)
     if (d === undefined) {
-      d = decide(row[key], base ? (base[key] ?? null) : NO_BASE, before[key], sameIn(key))
+      d = decide(
+        row[key],
+        base ? (base[key] ?? null) : NO_BASE,
+        before[key],
+        sameFor(key, clock),
+        consumed[key] ?? [],
+      )
       decisions.set(key, d)
       if (d === 'conflict')
         report.conflicts.push(
@@ -372,6 +536,12 @@ function applyRow(
         )
     }
     return d === 'apply'
+  }
+  /** Rechtlich prüfen; bei Treffer melden und `false`. */
+  const legal = (key: string, old: string, value: string, isPublic = true): boolean => {
+    const issue = legalIssue(old, value, isPublic)
+    if (issue) bad(header(key), row[key], issue)
+    return !issue
   }
 
   // Pflicht-Texte DE/EN (nie leer; Namen 3–120 Zeichen wie in der Verwaltung)
@@ -383,26 +553,24 @@ function applyRow(
     max = 5000,
     min = 1,
   ) => {
-    const deChanged = changed(deKey)
-    const enChanged = changed(enKey)
-    for (const [key, lang, did] of [
-      [deKey, 'de', deChanged],
-      [enKey, 'en', enChanged],
+    const applied = { de: false, en: false }
+    for (const [key, lang] of [
+      [deKey, 'de'],
+      [enKey, 'en'],
     ] as const) {
-      if (!did) continue
+      if (!changed(key)) continue
       const v = str(row[key])
-      if (!v) {
-        bad(header(key), row[key], 'darf nicht leer sein')
-        continue
-      }
-      if (v.length < min || v.length > max) {
+      if (!v) bad(header(key), row[key], 'darf nicht leer sein')
+      else if (v.length < min || v.length > max)
         bad(header(key), row[key], `bitte ${min}–${max} Zeichen`)
-        continue
+      else if (legal(key, target[lang], v)) {
+        change(header(key), target[lang], v)
+        target[lang] = v
+        applied[lang] = true
       }
-      change(header(key), target[lang], v)
-      target[lang] = v
     }
-    if (deChanged && !enChanged) report.englishTodo.push(`${nr}: ${what} (Deutsch geändert)`)
+    // Englisch nachziehen, wenn das Deutsche geschrieben wurde, das Englische aber nicht (U-00)
+    if (applied.de && !applied.en) report.englishTodo.push(`${nr}: ${what} (Deutsch geändert)`)
   }
   pair('titleDe', 'titleEn', p.title, 'Name', 120, 3)
   pair('materialDe', 'materialEn', p.materials, 'Material')
@@ -410,7 +578,7 @@ function applyRow(
 
   if (changed('kategorie')) {
     const v = str(row.kategorie)
-    const cat = PRODUCT_CATEGORIES.find((c) => fold(CATEGORY_DE[c]) === fold(v) || c === fold(v))
+    const cat = categoryOf(v)
     if (!cat)
       bad('Kategorie', row.kategorie, `bitte eine von: ${Object.values(CATEGORY_DE).join(', ')}`)
     else if (cat !== p.category) {
@@ -431,46 +599,48 @@ function applyRow(
     }
   }
 
+  // Maße: erst alle prüfen; bliebe kein Maß übrig (Pflicht außer bei Textil/Caps), nichts davon übernehmen
   const dims = [
     ['breite', 'widthCm'],
     ['hoehe', 'heightCm'],
     ['tiefe', 'depthCm'],
     ['durchmesser', 'diameterCm'],
   ] as const
-  for (const [key, field] of dims) {
+  const dimUpdates: [(typeof dims)[number], number | null][] = []
+  for (const d of dims) {
+    const [key] = d
     if (!changed(key)) continue
     const v = num(row[key])
     if (v !== null && (Number.isNaN(v) || v <= 0 || v > 300))
       bad(header(key), row[key], 'bitte eine Zahl von 0,1 bis 300')
-    else {
-      const rounded = v === null ? null : Math.round(v * 10) / 10
-      change(header(key), str(p.dimensions[field] ?? ''), rounded === null ? '' : String(rounded))
-      if (rounded === null) delete p.dimensions[field]
-      else p.dimensions[field] = rounded
-    }
+    else dimUpdates.push([d, v === null ? null : Math.round(v * 10) / 10])
   }
-  if (
-    p.category !== 'textil' &&
-    p.category !== 'cap' &&
-    !['widthCm', 'heightCm', 'depthCm', 'diameterCm'].some(
-      (f) => typeof p.dimensions[f as keyof typeof p.dimensions] === 'number',
-    )
-  ) {
-    report.problems.push(
-      `${nr}: mindestens ein Maß ist Pflicht – alle Maße leer gelassen, alte Werte bleiben.`,
-    )
-    for (const [key, field] of dims) {
-      const old = num(before[key])
-      if (old !== null) p.dimensions[field] = old
+  if (dimUpdates.length) {
+    const after = { ...p.dimensions }
+    for (const [[, field], v] of dimUpdates) {
+      if (v === null) delete after[field]
+      else after[field] = v
     }
+    if (!textile(p) && !dims.some(([, f]) => typeof after[f] === 'number'))
+      report.problems.push(
+        `${nr}: mindestens ein Maß ist Pflicht – alle Maße leer gelassen, alte Werte bleiben.`,
+      )
+    else
+      for (const [[key, field], v] of dimUpdates) {
+        change(header(key), str(p.dimensions[field] ?? ''), v === null ? '' : String(v))
+        if (v === null) delete p.dimensions[field]
+        else p.dimensions[field] = v
+      }
   }
   if (changed('masseHinweis')) {
     const v = str(row.masseHinweis)
-    change('Maße – Hinweis', p.dimensions.note?.de ?? '', v)
-    if (!v) delete p.dimensions.note
-    else {
-      p.dimensions.note = { de: v, en: p.dimensions.note?.en ?? v }
-      report.englishTodo.push(`${nr}: Maße – Hinweis (Deutsch geändert)`)
+    if (legal('masseHinweis', p.dimensions.note?.de ?? '', v)) {
+      change('Maße – Hinweis', p.dimensions.note?.de ?? '', v)
+      if (!v) delete p.dimensions.note
+      else {
+        p.dimensions.note = { de: v, en: p.dimensions.note?.en ?? v }
+        report.englishTodo.push(`${nr}: Maße – Hinweis (Deutsch geändert)`)
+      }
     }
   }
 
@@ -491,18 +661,20 @@ function applyRow(
   }
   if (!onlyFor('groesse', textile(p), 'Textil und Caps') && changed('groesse')) {
     const v = str(row.groesse)
-    change('Größe', p.sizeLabel?.de ?? '', v)
-    if (!v) delete p.sizeLabel
-    else {
-      // Größen wie „M“, „S/M“, „42“ gelten in beiden Sprachen; Wörter übersetzt Claude
-      const code = /^[A-Z0-9/ .,-]{1,12}$/i.test(v) && !/[a-z]{3,}/i.test(v)
-      p.sizeLabel = { de: v, en: code ? v : (p.sizeLabel?.en ?? v) }
-      if (!code) report.englishTodo.push(`${nr}: Größe (Deutsch geändert)`)
+    if (legal('groesse', p.sizeLabel?.de ?? '', v)) {
+      change('Größe', p.sizeLabel?.de ?? '', v)
+      if (!v) delete p.sizeLabel
+      else {
+        // Größen wie „M“, „S/M“, „42“ gelten in beiden Sprachen; Wörter übersetzt Claude
+        const code = /^[A-Z0-9/ .,-]{1,12}$/i.test(v) && !/[a-z]{3,}/i.test(v)
+        p.sizeLabel = { de: v, en: code ? v : (p.sizeLabel?.en ?? v) }
+        if (!code) report.englishTodo.push(`${nr}: Größe (Deutsch geändert)`)
+      }
     }
   }
   if (!onlyFor('zustand', textile(p), 'Textil und Caps') && changed('zustand')) {
     const v = str(row.zustand)
-    const c = TEXTILE_CONDITIONS.find((k) => fold(CONDITION_DE[k]) === fold(v))
+    const c = conditionOf(v)
     if (!v) {
       change('Zustand', p.condition ? CONDITION_DE[p.condition] : '', '')
       delete p.condition
@@ -514,7 +686,7 @@ function applyRow(
     }
   }
   if (!onlyFor('secondHand', textile(p), 'Textil und Caps') && changed('secondHand')) {
-    const v = fold(str(row.secondHand))
+    const v = canonical('secondHand', row.secondHand, clock)
     if (v !== YES && v !== NO) bad('Second Hand', row.secondHand, '„ja“ oder „nein“')
     else {
       change('Second Hand', p.isSecondHand ? YES : NO, v)
@@ -538,37 +710,41 @@ function applyRow(
   if (!onlyFor('metall', p.category === 'schmuck', 'Schmuck') && changed('metall')) {
     const v = str(row.metall)
     if (v && (v.length < 3 || v.length > 120)) bad('Metallteile', row.metall, 'bitte 3–120 Zeichen')
-    else if (!v) {
+    else if (legal('metall', p.metalPartsMaterial?.de ?? '', v)) {
       change('Metallteile', p.metalPartsMaterial?.de ?? '', v)
-      delete p.metalPartsMaterial
-    } else {
-      change('Metallteile', p.metalPartsMaterial?.de ?? '', v)
-      p.metalPartsMaterial = { de: v }
-      report.englishTodo.push(`${nr}: Metallteile (neu, Englisch fehlt)`)
+      if (!v) delete p.metalPartsMaterial
+      else {
+        p.metalPartsMaterial = { de: v }
+        report.englishTodo.push(`${nr}: Metallteile (Deutsch geändert, Englisch fehlt)`)
+      }
     }
   }
   if (changed('abweichung')) {
     const v = str(row.abweichung)
-    change('Macke / Abweichung', p.deviationDescription?.de ?? '', v)
-    if (!v) {
-      delete p.deviationDescription
-      p.deviationDecision = 'none'
-    } else {
-      p.deviationDescription = { de: v, en: p.deviationDescription?.en ?? v }
-      p.deviationDecision = 'described'
-      report.englishTodo.push(`${nr}: Macke / Abweichung (Deutsch geändert)`)
+    if (legal('abweichung', p.deviationDescription?.de ?? '', v)) {
+      change('Macke / Abweichung', p.deviationDescription?.de ?? '', v)
+      if (!v) {
+        delete p.deviationDescription
+        p.deviationDecision = 'none'
+      } else {
+        p.deviationDescription = { de: v, en: p.deviationDescription?.en ?? v }
+        p.deviationDecision = 'described'
+        report.englishTodo.push(`${nr}: Macke / Abweichung (Deutsch geändert)`)
+      }
     }
   }
   if (changed('notiz')) {
     const v = str(row.notiz).slice(0, 500)
-    change('Deine Notiz', p.ownerNote ?? '', v)
-    if (!v) delete p.ownerNote
-    else p.ownerNote = v
+    if (legal('notiz', p.ownerNote ?? '', v, false)) {
+      change('Deine Notiz', p.ownerNote ?? '', v)
+      if (!v) delete p.ownerNote
+      else p.ownerNote = v
+    }
   }
   if (changed('verkauft')) {
-    const parsed = parseSold(row.verkauft, opts.year)
+    const parsed = parseSold(row.verkauft, clock)
     if ('error' in parsed) bad('Verkauft', row.verkauft, parsed.error)
-    else {
+    else if (legal('verkauft', p.sold?.note ?? '', parsed.sold?.note ?? '', false)) {
       change('Verkauft', soldText(p.sold), soldText(parsed.sold ?? undefined))
       if (parsed.sold) p.sold = parsed.sold
       else delete p.sold
@@ -577,7 +753,7 @@ function applyRow(
   // Spalten nur zum Lesen: Änderungen melden, nie übernehmen (auch keine Rückfrage)
   for (const c of BESTAND_COLUMNS) {
     if (!c.readOnly || c.key === 'foto' || c.key === 'nr' || !(c.key in row)) continue
-    const same = sameIn(c.key)
+    const same = sameFor(c.key, clock)
     const ref = base ? (base[c.key] ?? null) : before[c.key]
     if (!same(row[c.key], ref) && !same(row[c.key], before[c.key]))
       report.problems.push(`${nr}: „${c.header}“ ist nur zum Lesen – Änderung nicht übernommen.`)

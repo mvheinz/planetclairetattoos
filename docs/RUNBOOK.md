@@ -491,13 +491,19 @@ lädt die Datei im Chat hoch (Anleitung für sie: `docs/owner/IPAD.md`).
 1. Datei als unsichere Eingabe behandeln: in einen eigenen, leeren Ordner im Arbeitsbereich legen.
 2. Probelauf: `pnpm pflege:import <datei.xlsx> --trocken` – die Art (Bestand/Texte) erkennt der Befehl selbst. Bericht
    lesen (`dist/pflege/bericht-<Listen-Nr.>.md`).
-3. Exit-Code 3 (kein gemerkter Stand): prüfen, ob der Stand unter `content/pflege/stand/` fehlt (nicht committet?). Nur
-   wenn der Bericht plausibel ist und nichts Neueres zurückgesetzt wird: `--ohne-stand`.
-4. Ernstlauf ohne `--trocken`. „Englisch zu ergänzen“ abarbeiten (Englisch selbst schreiben, U-00), „Bitte entscheiden“
-   und „Nicht übernommen“ Jutta in einfachen Worten zurückmelden (nicht raten). „Deine Notizen“ umsetzen oder nachfragen.
+3. Exit-Code 3 (kein gemerkter Stand): Steht die Listen-Nr. nicht in der Datei, sie aus Juttas Nachricht bzw. dem
+   Dateinamen ihrer letzten Liste ermitteln und mit `--liste=<Listen-Nr.>` angeben (der Befehl prüft, dass sie zur Liste
+   passt). Fehlt der Stand unter `content/pflege/stand/` (nicht committet?), nur wenn der Bericht plausibel ist und nichts
+   Neueres zurückgesetzt wird: `--ohne-stand`.
+4. Ernstlauf ohne `--trocken`; danach den geänderten Stand (`content/pflege/stand/<Listen-Nr.>.json`, „Übernommenes …
+   vermerkt“) mit committen, sonst ändert dieselbe Liste beim nächsten Mal wieder etwas. „Englisch zu ergänzen“
+   abarbeiten (Englisch selbst schreiben, U-00), „Bitte entscheiden“ und „Nicht übernommen“ Jutta in einfachen Worten
+   zurückmelden (nicht raten). „Deine Notizen“ umsetzen oder nachfragen. Mail-Texte: auf Werbung prüfen (in
+   Transaktionsmails verboten – das erkennt die Prüfung nicht).
 5. Prüfen: `pnpm check` (Texte: auch `tests/unit/i18n`, Verbotsliste), bei Bestand zusätzlich
    `pnpm bestand:pruefliste`. Commit `feat(pflege): …` mit Listen-Nr. in der Nachricht.
-6. Neue Liste für Jutta: `pnpm pflege:export` → `dist/pflege/planet-claire-{bestand,texte}-<Tag>.xlsx`; den neuen Stand
+6. Neue Liste für Jutta: `pnpm pflege:export` → `dist/pflege/planet-claire-{bestand,texte}-<Listen-Nr.>.xlsx`, dazu bei
+   Bedarf `pnpm pflege:ansichten` (Katalog- und Rundgang-PDF; Rundgang braucht vorher `pnpm preview:export`); den neuen Stand
    (`content/pflege/stand/*.json`) **mit committen**, die Dateien mit `SendUserFile` schicken.
 
 **Nach dem Start:** Die Datenbank ist der Stand. Bestand sowie Seiten- und FAQ-Texte lädt Jutta selbst in der Verwaltung

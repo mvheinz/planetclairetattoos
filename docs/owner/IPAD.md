@@ -8,8 +8,8 @@ U-85–U-89).
 
 | Datei | Wofür |
 |---|---|
-| **Bestandsliste** (`planet-claire-bestand-….xlsx`) | Alle deine Stücke mit kleinem Foto: Name, Preis, Maße, Material … und ganz rechts die Spalte **„Verkauft“**. |
-| **Texte-Liste** (`planet-claire-texte-….xlsx`) | Alle Texte der Seite auf Deutsch und Englisch, nach Bereichen (Startseite, Shop, Tattoo …). |
+| **Bestandsliste** (`planet-claire-bestand-B-….xlsx`) | Alle deine Stücke mit kleinem Foto: Name, Preis, Maße, Material … und ganz rechts die Spalte **„Verkauft“**. |
+| **Texte-Liste** (`planet-claire-texte-T-….xlsx`) | Alle Texte der Seite auf Deutsch und Englisch, nach Bereichen (Startseite, Shop, Tattoo …). Rechtstexte stehen nicht darin – die kommen von der Kanzlei. |
 | **Katalog** (`planet-claire-katalog-….pdf`) | Alle Stücke zum Anschauen und Weiterschicken. |
 | **Rundgang** (`planet-claire-rundgang-….pdf`) | So sieht die Seite gerade aus – Handy und großer Bildschirm. |
 
@@ -34,7 +34,7 @@ U-85–U-89).
 2. Unten siehst du Blätter: **Anleitung** und **Bestand** (bei den Texten: Startseite, Shop, Tattoo …).
 3. Tippe zweimal auf ein Feld, ändere den Text oder die Zahl, tippe auf **Fertig** (oder die Eingabetaste).
 4. **Verkauft:** In der letzten Spalte das Datum eintragen, gern mit Preis und Notiz, z. B. `11.10.2026 35 € Markt`.
-   Nur „ja“ geht auch.
+   Ohne Datum schreib „ja“ davor, z. B. `ja an Freundin`. Leer lassen (oder „noch da“) heißt: nicht verkauft.
 5. **Deine Notiz:** Alles, was du Claude sagen möchtest („Preis noch unsicher“, „Foto bitte tauschen“).
 6. Bitte **nicht**: Zeilen löschen, Überschriften ändern, in grauen Feldern etwas ändern. Englisch musst du nicht
    anfassen – Claude passt es an.
@@ -64,6 +64,9 @@ dasselbe Feld inzwischen anders geändert, überschreibt Claude nichts, sondern 
 - **Die Datei öffnet sich nicht in Numbers:** In **Dateien** lange auf die Datei drücken → **Teilen** → **Numbers**.
 - **Claude sagt „keine Excel-Datei“:** Du hast wahrscheinlich die Numbers-Datei geschickt. Schritt C noch einmal, dabei
   **Excel** wählen.
+- **Bitte den Dateinamen nicht ändern** – die Nummer darin (z. B. `B-2026-10-11-…`) zeigt Claude, welche Liste es ist.
+- **Ein Text beginnt mit „-“ oder „=“?** Dann zeigt die Tabelle einen Fehler (#NAME?). Schreib das Zeichen nicht an den
+  Anfang, z. B. „kleiner Kratzer“ statt „- kleiner Kratzer“.
 - **Du bist unsicher:** Schick Claude einfach ein Bildschirmfoto (obere Taste + Lauter-Taste gleichzeitig drücken) und
   frag nach.
 

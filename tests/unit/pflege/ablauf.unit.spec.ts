@@ -80,10 +80,11 @@ const tcol = (k: string) => TEXT_COLUMNS.findIndex((c) => c.key === k) + 1
 
 describe('Pflege per Excel – ganzer Weg (U-89)', () => {
   it('Ausgeben: zwei Listen mit Listen-Nr., Stand gemerkt', async () => {
-    expect(exported.map((e) => path.basename(e.file))).toEqual([
-      'planet-claire-bestand-2026-10-11.xlsx',
-      'planet-claire-texte-2026-10-11.xlsx',
-    ])
+    expect(exported.map((e) => path.basename(e.file))).toEqual(
+      exported.map(
+        (e) => `planet-claire-${e.listId.startsWith('B') ? 'bestand' : 'texte'}-${e.listId}.xlsx`,
+      ),
+    )
     expect(exported[0]!.listId).toMatch(/^B-2026-10-11-/)
     expect(exported[1]!.listId).toMatch(/^T-2026-10-11-/)
     for (const { listId } of exported)
@@ -119,6 +120,40 @@ describe('Pflege per Excel – ganzer Weg (U-89)', () => {
     expect(await readFile(second.report, 'utf8')).toMatch(/## Übernommen \(0\)/)
   })
 
+  it('Listen-Nr. fehlt in der Datei: erst Exit 3, mit --liste= gegen den richtigen Stand übernommen', async () => {
+    const before = JSON.parse(await read('content/bestand/products.json')) as {
+      itemNumber: number
+      weightGrams: number
+    }[]
+    const third = before[2]!
+    const file = await edit(exported[0]!.file, 'ohne-nummer.xlsx', (wb) => {
+      wb.removeWorksheet(wb.getWorksheet('Anleitung')!.id)
+      wb.subject = ''
+      wb.title = ''
+      const ws = wb.getWorksheet('Bestand')!
+      ws.getRow(1).getCell(bcol('nr')).note = ''
+      setByKey(ws, bcol('nr'), third.itemNumber, bcol('gewicht'), third.weightGrams + 7)
+    })
+    const blocked = await runImport(root, file, { dry: false, withoutBase: false }, NOW, quiet)
+    expect(blocked.exit).toBe(3)
+    expect(await readFile(blocked.report, 'utf8')).toMatch(/Keine Listen-Nr\. gefunden/)
+    const ok = await runImport(
+      root,
+      file,
+      { dry: false, withoutBase: false, listId: exported[0]!.listId },
+      NOW,
+      quiet,
+    )
+    expect(ok.exit).toBe(0)
+    const after = JSON.parse(await read('content/bestand/products.json')) as typeof before
+    expect(after[2]!.weightGrams).toBe(third.weightGrams + 7)
+    // die Änderungen aus der ersten Liste (Preis, Verkauft) setzt das Original nicht zurück
+    expect(after.slice(0, 2)).toEqual(before.slice(0, 2))
+    const report = await readFile(ok.report, 'utf8')
+    expect(report).toMatch(/von Hand angegeben/)
+    expect(report).toMatch(/Übernommenes in der Liste .* vermerkt/)
+  })
+
   it('Texte: nur die geänderte Zeile ändert sich in der Datei; Englisch zum Nachziehen im Bericht', async () => {
     const before = await read('content/seed/data/pages.json')
     const file = await edit(exported[1]!.file, 'texte.xlsx', (wb) => {
@@ -147,9 +182,9 @@ describe('Pflege per Excel – ganzer Weg (U-89)', () => {
     const before = await read('src/globals/siteTexts.defaults.json')
     const file = await edit(exported[1]!.file, 'ohne-stand.xlsx', (wb) => {
       setByKey(
-        wb.getWorksheet('Allgemein')!,
+        wb.getWorksheet('E-Mails')!,
         tcol('id'),
-        'st:footer.tagline',
+        'st:emails.signature',
         tcol('de'),
         'Aus meinen Händen, in Berlin.',
       )
@@ -166,7 +201,7 @@ describe('Pflege per Excel – ganzer Weg (U-89)', () => {
       'content/seed/data/pages.json',
       'src/globals/siteTexts.defaults.json',
     ])
-    expect(JSON.parse(await read('src/globals/siteTexts.defaults.json')).footer.tagline.de).toBe(
+    expect(JSON.parse(await read('src/globals/siteTexts.defaults.json')).emails.signature.de).toBe(
       'Aus meinen Händen, in Berlin.',
     )
   })

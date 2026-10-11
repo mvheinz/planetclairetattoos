@@ -17,7 +17,7 @@ const GUIDE = [
   'So korrigierst du die Texte deiner Seite',
   '',
   '1. Unten gibt es ein Blatt je Bereich: Startseite, Shop, Tattoo, Seiten, Fragen, Kasse & Bestellung, E-Mails, Allgemein.',
-  '2. In der Spalte „Deutsch“ korrigierst du einfach den Text. „Wo auf der Seite“ zeigt dir, wo er steht.',
+  '2. In der Spalte „Deutsch“ korrigierst du einfach den Text. „Wo auf der Seite“ zeigt dir, wo er steht. Einen Text bitte nicht mit „-“ oder „=“ beginnen (sonst zeigt die Tabelle einen Fehler).',
   '3. Englisch musst du nicht anfassen: Änderst du nur das Deutsche, schreibe ich das Englische passend dazu.',
   '4. Zeichen in geschweiften Klammern wie {name} oder {count, plural, …} und Markierungen wie <link>…</link> bitte genau so stehen lassen – dort setzt die Seite Namen, Zahlen oder Links ein.',
   '5. Graue Zeilen sind rechtlich vorgegeben und nur zum Lesen. Die Rechtstexte selbst stehen nicht in dieser Liste – die kommen von der Kanzlei.',

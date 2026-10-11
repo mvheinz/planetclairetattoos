@@ -1,9 +1,9 @@
 import 'server-only'
 
-import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
-import { snapshotSchema, type ListKind, type ListSnapshot } from './snapshot'
+import { snapshotSchema, type ListSnapshot } from './snapshot'
 
 // Gemerkte Stände vor dem Start (U-89 a): eine JSON-Datei je ausgegebener Liste unter `content/pflege/stand/`. Die
 // Sitzung, die eine Liste ausgibt, committet den Stand mit – sonst findet die nächste Sitzung ihn beim Zurückspielen
@@ -28,17 +28,4 @@ export async function loadSnapshot(root: string, id: string): Promise<ListSnapsh
     return null
   }
   return snapshotSchema.parse(JSON.parse(raw)) as ListSnapshot
-}
-
-/** Listen-Nr. einer Art an einem Tag (für Dateinamen ohne Listen-Nr.: nur eindeutig verwendbar). */
-export async function snapshotIdsOn(root: string, kind: ListKind, day: string): Promise<string[]> {
-  const prefix = `${kind === 'bestand' ? 'B' : 'T'}-${day}-`
-  try {
-    return (await readdir(path.join(root, PFLEGE_STAND_DIR)))
-      .filter((f) => f.startsWith(prefix) && f.endsWith('.json'))
-      .map((f) => f.slice(0, -5))
-      .sort()
-  } catch {
-    return []
-  }
 }

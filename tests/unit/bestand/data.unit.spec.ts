@@ -32,6 +32,9 @@ function publicTexts(p: BestandProduct): string[] {
     ...l(p.sizeLabel),
     ...l(p.careInstructions),
     ...l(p.deviationDescription),
+    ...(p.metalPartsMaterial
+      ? [p.metalPartsMaterial.de, ...(p.metalPartsMaterial.en ? [p.metalPartsMaterial.en] : [])]
+      : []),
     ...photosOf(p).flatMap((i) => l(i.alt)),
   ]
 }

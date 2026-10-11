@@ -1,10 +1,11 @@
 // Pflege per Excel (U-85–U-89, PLAN P18): Listen für Jutta ausgeben und ihre bearbeiteten Listen zurückspielen.
-//   pnpm pflege:export [bestand|texte]          → dist/pflege/planet-claire-<art>-<Tag>.xlsx + gemerkter Stand
-//   pnpm pflege:import <datei.xlsx> [--trocken] [--ohne-stand]
+//   pnpm pflege:export [bestand|texte]          → dist/pflege/planet-claire-<art>-<Listen-Nr.>.xlsx + gemerkter Stand
+//   pnpm pflege:import <datei.xlsx> [--trocken] [--ohne-stand] [--liste=<Listen-Nr.>]
 // Der gemerkte Stand liegt in content/pflege/stand/<Listen-Nr.>.json und **muss committet werden** (die nächste Sitzung
 // braucht ihn). Zurückspielen übernimmt nur, was Jutta gegenüber diesem Stand geändert hat; Rückfragen, ungültige Werte
 // und Englisch zum Nachziehen stehen im Bericht dist/pflege/bericht-<Listen-Nr.>.md. Ohne gemerkten Stand wird nur mit
-// `--ohne-stand` geschrieben (dann zählt jeder Unterschied zum jetzigen Stand). Ablauf: docs/RUNBOOK.md.
+// `--ohne-stand` geschrieben (dann zählt jeder Unterschied zum jetzigen Stand); fehlt die Listen-Nr. in der Datei, kann
+// sie die Sitzung nach Prüfung mit `--liste=` angeben. Ablauf: docs/RUNBOOK.md.
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -12,9 +13,16 @@ import { pathToFileURL } from 'node:url'
 import type ExcelJS from 'exceljs'
 
 import { reportMarkdown } from '../../src/lib/pflege/merge'
-import { loadSnapshot, saveSnapshot, snapshotIdsOn } from '../../src/lib/pflege/repoStore'
-import { berlinDay, parseListId, type ListKind } from '../../src/lib/pflege/snapshot'
-import { findListId, loadWorkbook } from '../../src/lib/pflege/workbook'
+import { BESTAND_COLUMNS } from '../../src/lib/bestand/excel'
+import { loadSnapshot, PFLEGE_STAND_DIR, saveSnapshot } from '../../src/lib/pflege/repoStore'
+import {
+  berlinDay,
+  parseListId,
+  type ListKind,
+  type ListSnapshot,
+} from '../../src/lib/pflege/snapshot'
+import { findListId, loadWorkbook, tableScore } from '../../src/lib/pflege/workbook'
+import { TEXT_COLUMNS } from '../../src/lib/texte/excel'
 
 import { exportBestand, importBestand, type ExportResult, type ImportResult } from './bestand'
 import { exportTexte, importTexte } from './texte'
@@ -29,8 +37,8 @@ const HANDLERS: Record<
     import: (
       root: string,
       wb: ExcelJS.Workbook,
-      base: Parameters<typeof importBestand>[2],
-      year: number,
+      snapshot: ListSnapshot | null,
+      clock: { year: number; today: string },
     ) => Promise<ImportResult>
   }
 > = {
@@ -38,7 +46,7 @@ const HANDLERS: Record<
   texte: {
     title: 'Webseitentexte',
     export: exportTexte,
-    import: (root, wb, base) => importTexte(root, wb, base),
+    import: (root, wb, snapshot) => importTexte(root, wb, snapshot),
   },
 }
 
@@ -57,7 +65,8 @@ export async function runExport(
   for (const kind of kinds) {
     const { book, snapshot, summary } = await HANDLERS[kind].export(root, now, germanDate(now))
     const stand = await saveSnapshot(root, snapshot)
-    const file = path.join(out, `planet-claire-${kind}-${berlinDay(now)}.xlsx`)
+    // Listen-Nr. im Dateinamen: bleibt beim Export aus Numbers erhalten (dritte Fundstelle neben Blatt und Kommentar)
+    const file = path.join(out, `planet-claire-${kind}-${snapshot.id}.xlsx`)
     await book.xlsx.writeFile(file)
     files.push({ file, listId: snapshot.id })
     log(
@@ -67,37 +76,37 @@ export async function runExport(
   return files
 }
 
-/** Art der Liste aus der Listen-Nr. oder aus den Überschriften. */
-function detectKind(wb: ExcelJS.Workbook, listId: string | null): ListKind {
-  if (listId) return parseListId(listId)!.kind
-  const headers = wb.worksheets.flatMap((ws) =>
-    [1, 2, 3].map((r) => ws.getRow(r).values?.toString() ?? ''),
-  )
-  return headers.some((h) => /Kennung/.test(h)) ? 'texte' : 'bestand'
+/** Art der Liste aus den Überschriften (wie beim Lesen der Tabellen); keine passt → verständlicher Fehler. */
+export function detectKind(wb: ExcelJS.Workbook): ListKind {
+  const bestand = tableScore(wb, BESTAND_COLUMNS, 'nr')
+  const texte = tableScore(wb, TEXT_COLUMNS, 'id')
+  if (bestand < 2 && texte < 2)
+    throw new Error(
+      'In der Datei steht weder die Bestandsliste noch die Texte-Liste – bitte die Überschriften nicht ändern.',
+    )
+  return texte > bestand ? 'texte' : 'bestand'
 }
 
 export async function runImport(
   root: string,
   file: string,
-  flags: { dry: boolean; withoutBase: boolean },
+  flags: { dry: boolean; withoutBase: boolean; listId?: string },
   now: Date,
   log: (line: string) => void = console.log,
 ): Promise<{ exit: number; report: string; written: string | null }> {
   const wb = await loadWorkbook(await readFile(file))
-  let listId = findListId(wb, path.basename(file))
-  const kind = detectKind(wb, listId)
+  const kind = detectKind(wb)
   const notes: string[] = []
-  if (!listId) {
-    // Dateiname mit Tag (planet-claire-bestand-2026-10-11.xlsx) und genau eine Liste an dem Tag: diese
-    const day = /(\d{4}-\d{2}-\d{2})/.exec(path.basename(file))?.[1]
-    const ids = day ? await snapshotIdsOn(root, kind, day) : []
-    if (ids.length === 1) {
-      listId = ids[0]!
-      notes.push(
-        `Listen-Nr. nicht in der Datei – über das Datum im Dateinamen zugeordnet (${listId}).`,
-      )
-    }
-  }
+  const found = findListId(wb, path.basename(file))
+  if (flags.listId && !parseListId(flags.listId))
+    throw new Error(`--liste=${flags.listId} ist keine Listen-Nr.`)
+  if (flags.listId && found && found !== flags.listId)
+    throw new Error(`Die Datei trägt die Listen-Nr. ${found}, nicht ${flags.listId}.`)
+  const listId = found ?? flags.listId ?? null
+  if (!found && flags.listId)
+    notes.push(`Listen-Nr. nicht in der Datei – von Hand angegeben (${flags.listId}).`)
+  if (listId && parseListId(listId)!.kind !== kind)
+    throw new Error(`Listen-Nr. ${listId} gehört zu einer anderen Liste.`)
   const snapshot = listId ? await loadSnapshot(root, listId) : null
   if (!snapshot)
     notes.push(
@@ -105,10 +114,11 @@ export async function runImport(
         ? `Zur Listen-Nr. ${listId} ist kein Stand gemerkt – verglichen mit dem jetzigen Stand.`
         : 'Keine Listen-Nr. gefunden – verglichen mit dem jetzigen Stand.',
     )
-  if (snapshot && snapshot.kind !== kind)
-    throw new Error(`Listen-Nr. ${listId} passt nicht zur Liste.`)
-  const year = Number(berlinDay(now).slice(0, 4))
-  const result = await HANDLERS[kind].import(root, wb, snapshot?.rows ?? null, year)
+  const today = berlinDay(now)
+  const result = await HANDLERS[kind].import(root, wb, snapshot, {
+    year: Number(today.slice(0, 4)),
+    today,
+  })
   result.report.notes.unshift(...notes)
 
   let written: string | null = null
@@ -120,7 +130,19 @@ export async function runImport(
     )
     exit = 3
   } else if (flags.dry) result.report.notes.push('Probelauf (`--trocken`) – nichts geschrieben.')
-  else if (result.write) written = await result.write()
+  else {
+    if (result.write) written = await result.write()
+    // Übernommenes festhalten: dieselbe Liste noch einmal geschickt ändert nichts mehr (U-89 c)
+    if (snapshot) {
+      const n = result.record(snapshot)
+      if (n > 0) {
+        await saveSnapshot(root, snapshot)
+        result.report.notes.push(
+          `Übernommenes in der Liste ${snapshot.id} vermerkt (${n} Zellen) – \`${path.join(PFLEGE_STAND_DIR, `${snapshot.id}.json`)}\` bitte mit committen.`,
+        )
+      }
+    }
+  }
 
   const md = reportMarkdown(
     `${HANDLERS[kind].title} zurückgespielt`,
@@ -144,11 +166,16 @@ async function main(argv: readonly string[]): Promise<void> {
     await runExport(root, kinds.length ? kinds : ['bestand', 'texte'], now)
   } else if (command === 'import' && rest.some((a) => !a.startsWith('--'))) {
     const file = path.resolve(rest.find((a) => !a.startsWith('--'))!)
-    const flags = { dry: rest.includes('--trocken'), withoutBase: rest.includes('--ohne-stand') }
+    const listId = rest.find((a) => a.startsWith('--liste='))?.slice('--liste='.length)
+    const flags = {
+      dry: rest.includes('--trocken'),
+      withoutBase: rest.includes('--ohne-stand'),
+      ...(listId ? { listId } : {}),
+    }
     process.exitCode = (await runImport(root, file, flags, now)).exit
   } else {
     console.error(
-      'Aufruf: pnpm pflege:export [bestand|texte]  |  pnpm pflege:import <datei.xlsx> [--trocken] [--ohne-stand]',
+      'Aufruf: pnpm pflege:export [bestand|texte]  |  pnpm pflege:import <datei.xlsx> [--trocken] [--ohne-stand] [--liste=<Listen-Nr.>]',
     )
     process.exitCode = 2
   }
