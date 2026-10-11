@@ -195,4 +195,62 @@ describe('PRODUCT_TRANSITIONS (AK-5-01, DM-PROD-10)', () => {
     })
     expect(run(null).ok).toBe(false)
   })
+
+  it('P11/P13 nach Widerruf vor dem Versand (Position erstattet, nie verschickt oder abgeholt), sonst nicht', () => {
+    const run = (
+      transition: 'returnToStock' | 'archiveAfterReturn',
+      order: ProductTransitionFacts['order'],
+    ) =>
+      evaluateProductTransition('sold', transition, {
+        actor: 'admin',
+        soldChannel: 'online',
+        order,
+      })
+    const withdrawn: NonNullable<ProductTransitionFacts['order']> = {
+      itemId: 'L1',
+      itemStatus: 'refunded',
+      refunds: [{ reason: 'withdrawal', status: 'succeeded', itemIds: ['L1'] }],
+    }
+    for (const t of ['returnToStock', 'archiveAfterReturn'] as const) {
+      expect(run(t, withdrawn), t).toMatchObject({ ok: true })
+      // schon verschickt bzw. abgeholt: nur mit „Ware zurück“
+      expect(run(t, { ...withdrawn, shippedAt: '2026-10-01' }).ok, t).toBe(false)
+      expect(run(t, { ...withdrawn, pickedUpAt: '2026-10-01' }).ok, t).toBe(false)
+      // Erstattung läuft noch bzw. Stück widerrufen, aber noch nicht erstattet
+      expect(
+        run(t, {
+          ...withdrawn,
+          refunds: [{ reason: 'withdrawal', status: 'pending', itemIds: ['L1'] }],
+        }).ok,
+        t,
+      ).toBe(false)
+      expect(run(t, { ...withdrawn, itemStatus: 'withdrawn' }).ok, t).toBe(false)
+      // Teil-Widerruf: dieses Stück behält die Kundin; erstattet wurde ein anderes
+      expect(
+        run(t, {
+          ...withdrawn,
+          itemStatus: 'active',
+          refunds: [{ reason: 'withdrawal', status: 'succeeded', itemIds: ['L2'] }],
+        }).ok,
+        t,
+      ).toBe(false)
+      // dieses Stück nur per Kulanz erstattet, der Widerruf betraf ein anderes
+      expect(
+        run(t, {
+          ...withdrawn,
+          refunds: [
+            { reason: 'withdrawal', status: 'succeeded', itemIds: ['L2'] },
+            { reason: 'goodwill', status: 'succeeded', itemIds: ['L1'] },
+          ],
+        }).ok,
+        t,
+      ).toBe(false)
+    }
+    expect(run('returnToStock', { ...withdrawn, shippedAt: '2026-10-01' })).toMatchObject({
+      message: expect.stringMatching(/Widerruf bzw\. Storno vor dem Versand/),
+    })
+    expect(run('archiveAfterReturn', { ...withdrawn, shippedAt: '2026-10-01' })).toMatchObject({
+      message: expect.stringMatching(/wegen Widerruf vor dem Versand/),
+    })
+  })
 })
