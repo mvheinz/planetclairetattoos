@@ -37,7 +37,7 @@ export function HomeIntroPhoto({ intro }: { intro: HomeIntroData }) {
   )
 }
 
-/** Der Text unter Koko (U-70): mittig, ≈ 40 % größer als Fließtext, darunter „Mehr über uns“. */
+/** Der Text unter Koko (U-70): mittig, kleiner als Fließtext (`--fs-small`, U-79), darunter „Mehr über uns“. */
 export async function HomeIntroText({ intro, locale }: { intro: HomeIntroData; locale: Locale }) {
   const t = await getTranslations({ locale, namespace: 'home' })
   return (

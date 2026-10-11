@@ -433,7 +433,7 @@ Link-Liste im Fuß erreichbar.
      Instagram-Link.
 - **Rechte Spalte (P12.7/P12.8, U-08, U-20):** Ab 1100 px steht rechts neben Kopf und Stationen eine Spalte (nicht haftend, damit aufgeklappte vergangene Termine erreichbar bleiben), mobil
   steht sie unter dem Kopf der Seite. Oben der leere, benannte Bereich `data-slot="chairwoman"` für Koko, die Vorsitzende
-  der Goth Dogs Berlin (P12.6 füllt ihn), darunter „Planet Claire on Tour“ (§3.1a). Instagram: nur im Fuß (U-15).
+  der Goth Dogs Berlin (P12.6 füllt ihn), darunter „on Tour“ (§3.1a; bis P16 „Planet Claire on Tour“, U-82). Instagram: nur im Fuß (U-15).
 - **Datenquelle:** `pages` mit `key = home` (Blöcke `hero` und `station`, Texte DE/EN), `settings.business`
   (Name/Geschäftsbezeichnung), Collections `products`, `categories`, `flash`.
 - **Zustände:** Kategorie ohne sichtbare Stücke → Station zeigt Zeichnung, Text „Gerade ist hier nichts – schau bald
@@ -446,7 +446,7 @@ Link-Liste im Fuß erreichbar.
 - **AK-3-01** Die Startseite zeigt die Kopf-Station „Planet Claire“ und danach genau 6 Stationen in dieser Reihenfolge (U-40: ohne „Hallo“/„Komm näher.“): Keramik, Textil, Zeichnungen, Schmuck, Tattoo, Jutta & Coco.
 - **AK-3-02** Pro Kategorie-Station höchstens 4 Stücke, nie `sold`, `draft` oder `archived`.
 
-### 3.1a Planet Claire on Tour (rechte Spalte der Startseite) [P12.8]
+### 3.1a on Tour (rechte Spalte der Startseite) [P12.8; Überschrift seit U-82 „on Tour“]
 
 - **Zweck (U-20):** Märkte, Flohmärkte und Kunstmärkte, auf denen Jutta steht. Komponente `TourDates` in der rechten Spalte
   der Startseite unter dem Platz für die Vorsitzende (`data-slot="chairwoman"`), mobil unter dem Kopf der Seite.
@@ -2084,7 +2084,7 @@ Instagram-Profil ist nur im Fuß verlinkt, ohne Anfrage-Aufforderung.
 „Angebote“ (Flash-Days und Aktionen, Collection `tattoo-offers`, Route R13, Task `revalidateEndedOffers`) gibt es nicht mehr.
 Seite, Navigationspunkt, Verwaltungs-Reiter, Collection samt Beispieldaten und Task sind entfernt (Migration
 `p12_remove_offers`); die Routen-IDs R14–R18 bleiben unverändert. Termine außer Haus zeigt die Startseite als
-„Planet Claire on Tour“ (§3.1a, U-20).
+„on Tour“ (§3.1a, U-20, U-82).
 
 ### 9.6 Preise
 

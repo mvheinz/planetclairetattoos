@@ -227,7 +227,7 @@ Die **Verpackungsmengen** (E-47, R-201) sind dagegen im Umfang: je Sendung Verpa
 | 27 | `deletion-log` | Löschprotokoll | System | Nachweis jeder Löschung/Anonymisierung/Einschränkung ohne Inhalte; Grundlage für `pnpm retention:replay` (L-18) | nein | – | P1 (Logik P6) |
 | 28 | `legal-snippets` | Rechtsbausteine | Inhalte | versionierte kurze Rechtstexte (Schlüssel aus RECHT ANFORDERUNGEN §6, R-012) | ja (aktive) | – | P6 (Migration §10.1; bis dahin Konstanten) |
 | 29 | `complaints` | Reklamationen | Shop | Reklamationsakte je Bestellung: Art, Eingang, Fotos, Abhilfe, Fristen (R-110, R-111) | nein | ✓ | P6 (Migration §10.1) |
-| 30 | `tour-dates` | Termine (on Tour) | Tattoo | Märkte „Planet Claire on Tour“ (U-20) | ja (veröffentlichte) | – | P12 |
+| 30 | `tour-dates` | Termine (on Tour) | Tattoo | Märkte „on Tour“ (U-20, U-82) | ja (veröffentlichte) | – | P12 |
 | G1 | `settings` | Einstellungen | – | Betriebs-, Steuer-, Versand-, Verpackungs-, Aufbewahrungs-, Stamm- und Go-live-Daten | nur Whitelist | – | P1 |
 | G2 | `site-texts` | Texte & Navigation | – | UI-Texte DE/EN, Navigation | ja | – | P1 |
 
@@ -2294,7 +2294,7 @@ Stufe D anonymisiert wird; `deletion-log` je Datensatz.
 ---
 
 
-### 6.30 `tour-dates` – Termine „Planet Claire on Tour“ (P12.8, U-20)
+### 6.30 `tour-dates` – Termine „on Tour“ (P12.8, U-20; Überschrift seit U-82)
 
 **Zweck:** Märkte, Flohmärkte, Kunstmärkte, auf denen Jutta steht; rechte Spalte der Startseite (KONZEPT §3.1a). Nur
 Textlink, keine Karte. Keine Versionen, keine Entwürfe.

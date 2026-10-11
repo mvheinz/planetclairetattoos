@@ -2576,9 +2576,10 @@ Umsetzung von KONZEPT §12.4 und §12.5 mit `cheerio`:
 ### 14.9 Phasen-Kennung
 
 `PREVIEW_PHASE`, falls gesetzt (CI: `preview-export.yml` setzt es aus `[ci:full pN]` in der Nachricht des PR-Kopf-Commits,
-§6.2). Sonst ermittelt `phase.ts` aus `PLAN.md` die erste Phase mit offener Checkbox und nimmt die Phase davor, also die
-höchste vollständig abgehakte (`p0`, solange P1 offen ist; `p10`, wenn P1–P10 abgehakt sind – so im Lauf von
-`release.yml`). Am Phasenende ist in `PLAN.md` noch das Häkchen „CI grün“ offen (es folgt erst nach dem Lauf, §6.7 Nr. 3);
+§6.2). Sonst ermittelt `phase.ts` aus `PLAN.md` die höchste Phasennummer unter den Abschnitten vor dem ersten Abschnitt
+mit offener Checkbox, also die höchste vollständig abgehakte (`p0`, solange P1 offen ist; `p10`, wenn P1–P10 abgehakt
+sind – so im Lauf von `release.yml`; die Nachbesserungen P12 ff. stehen in `PLAN.md` vor P11 – sind sie erledigt, heißt
+die Datei z. B. `p17`, U-78). Am Phasenende ist in `PLAN.md` noch das Häkchen „CI grün“ offen (es folgt erst nach dem Lauf, §6.7 Nr. 3);
 deshalb gilt in CI immer die Kennung aus der Commit-Nachricht. Nie aus dem Branch-Namen (Cloud-Branches heißen
 `claude/…`). Nicht ermittelbar → `px`. Die Kennung erscheint im Banner („Phase P3“), im Bericht und im Artefakt-Namen
 `planet-claire-vorschau-<phase>-<sha7>` (§6.5).

@@ -284,7 +284,7 @@ Eine Anfrage ist noch kein Vertrag, und der Preis steht nirgends fest. Du sagst 
 
 ![Der Bereich „Tattoo“](img/handbuch/tattoo.webp)
 
-**Flash** sind Motive, die du zu einem festen Preis stichst. Außerdem pflegst du hier die Galerie. Du findest die Reiter Flash, Galerie und Texte. Deine Markttermine („Planet Claire on Tour“) haben einen eigenen Menüpunkt **Termine** (siehe unten):
+**Flash** sind Motive, die du zu einem festen Preis stichst. Außerdem pflegst du hier die Galerie. Du findest die Reiter Flash, Galerie und Texte. Deine Markttermine („on Tour“) haben einen eigenen Menüpunkt **Termine** (siehe unten):
 
 ![Flash-Motive](img/handbuch/tattoo-flash.webp)
 
@@ -294,7 +294,7 @@ Eine Anfrage ist noch kein Vertrag, und der Preis steht nirgends fest. Du sagst 
 
 ![Der Menüpunkt „Termine“](img/handbuch/termine.webp)
 
-- **Termine – „Planet Claire on Tour“ (eigener Menüpunkt „Termine“):** Hier trägst du Märkte, Flohmärkte und Kunstmärkte ein. Auf der Startseite stehen
+- **Termine – „on Tour“ (eigener Menüpunkt „Termine“):** Hier trägst du Märkte, Flohmärkte und Kunstmärkte ein. Auf der Startseite stehen
   sie in der rechten Spalte (am Handy darunter): kommende Termine oben, vergangene eingeklappt. Tippe auf „Neuer Termin“
   und fülle aus: Name des Marktes, Ort oder Bezirk, Datum von–bis (bei einem Tag das Enddatum leer lassen), Uhrzeiten,
   Adresse des Marktes, Standnummer, eine kurze Notiz (zum Beispiel „Coco ist dabei“) und – wenn du magst – einen Link zur

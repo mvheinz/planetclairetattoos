@@ -69,9 +69,16 @@ test.describe('Startseite: Koko', () => {
           ? 19.8 * rem
           : 21.6 * rem
     expect(Math.abs(w - Math.min(want, slot))).toBeLessThan(2)
-    // gegenüber U-75 (Desktop bis 19rem, Handy 18rem): sichtbar größer
-    if (vw >= 1100)
-      expect(w).toBeGreaterThan(Math.min(Math.max(0.22 * vw, 14 * rem), 19 * rem) * 1.18)
+    // gegenüber U-75 (Desktop clamp(14rem, 22vw, 19rem), Tablet 16,5rem, Handy 18rem): 20 % größer, soweit die Spalte
+    // reicht – auf schmalen Handys begrenzt die Spalte (OFFENE-PUNKTE P17.2), am iPad und Desktop volle 20 %
+    const old =
+      vw >= 1100
+        ? Math.min(Math.max(0.22 * vw, 14 * rem), 19 * rem)
+        : vw >= 600
+          ? 16.5 * rem
+          : 18 * rem
+    expect(w).toBeGreaterThanOrEqual(Math.min(slot, 1.18 * Math.min(old, slot)) - 1)
+    if (vw >= 1100) expect(w).toBeGreaterThan(old * 1.18)
   })
 
   test('Bild mit Maßen, Alt-Text DE/EN, keine Drittanfragen', async ({ page, foreignRequests }) => {

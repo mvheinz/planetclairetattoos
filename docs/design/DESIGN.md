@@ -1532,14 +1532,14 @@ Die potrace-Ausgabe ist ein gefüllter Umriss (Juttas echte Strichbreite bleibt 
 
 ---
 
-### 12.7 „Planet Claire on Tour“ als Schaukasten (P12.8 U-20, P13.3 U-42)
+### 12.7 „on Tour“ als Schaukasten (P12.8 U-20, P13.3 U-42; bis P16 „Planet Claire on Tour“, U-82)
 
 **Platz (U-42):** oben rechts auf der Startseite **Koko links, direkt rechts daneben ein schmaler Schaukasten** (ab 1100 px
 neben dem Titel „Planet Claire“, Koko `clamp(13rem, 20vw, 16rem)`, Schaukasten 14,5rem; bis ≈ 1240 px rutscht die Planet-Marke über den Titel; beides über
 dem Falz bei 1280 × 800; die Stationen laufen darunter über die volle Breite). 600–1099 px: Koko und Schaukasten
 nebeneinander unter dem Kopf; Handy: untereinander (Koko ≤ 17rem mittig, darunter der Schaukasten).
 
-Überschrift „Planet Claire on Tour“ in **Spectral** (U-43). Gerahmte Tafel in `--petrol-deep` (Tusche-Rahmen 2 px, innen
+Überschrift „on Tour“ (U-82, P17.2) in **Spectral** (U-43). U-81 (P17.2): Tafel ≈ 20 % länger als in P15 (mehr Luft in und zwischen den Zetteln, Abstand 22 px). Gerahmte Tafel in `--petrol-deep` (Tusche-Rahmen 2 px, innen
 gestrichelte Hilfslinie, `--shadow-press`), darauf **nur die nächsten drei Termine** als angepinnte Zettel in
 `--paper-field`/`--paper` mit statischer Neigung (±0,3–0,8°, keine Animation). Zettel kompakt: Datumsblock links
 (Tageszahl in Spectral 700, mehrtägig „14–16“, Monat als Mono-Kürzel), rechts Name (Spectral 700) und **eine Zeile** „Ort ·
