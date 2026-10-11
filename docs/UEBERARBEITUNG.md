@@ -115,3 +115,17 @@ wo sie nicht ideal sind („verbessere mich da einfach“). Gilt vor Fachdokumen
 | U-75 | **Startseite ohne Sprungleiste (10.10.2026, nachgereicht):** Die Sprungmarken (Keramik, Textil & Caps, Zeichnungen, Schmuck, Tattoo; U-52) entfallen. Stattdessen rücken Koko (größer) und der Tour-Schaukasten weiter nach oben, sodass Titel, Foto, Koko mit Text und Schaukasten zusammen ein geschlossenes Bild ergeben. Hebt U-52 auf. |
 | U-76 | **Echter Bestand aus Juttas Fotos (10.10.2026):** Jutta lädt Fotos ihrer Stücke hoch (19 Pakete); Claude erkennt die Stücke, ordnet die Fotos zu und füllt alle Produktdaten nach bestem Wissen aus; Jutta prüft danach und korrigiert. Der **Demo-Bestand verschwindet aus allem, was Jutta sieht** (Vorschau, später die echte Seite); intern bleibt er nur als Testmaterial der automatischen Prüfungen. |
 | U-77 | **Keine Bezüge zu fremden Werken (10.10.2026):** Die Schriftzüge auf den Stücken werden nicht gelesen, nicht zitiert und nicht zur Erkennung genutzt; keine Lieder, Bands, Filme oder andere urheberrechtlich geschützte Werke in Namen, Texten oder Notizen. Namen sind erfundene, eher nüchterne Fantasienamen nach dem gemalten Motiv, gern mit trockenem Humor. Maßstab für Größen: der grüne Teller auf vielen Fotos hat 12 cm Durchmesser. |
+
+## Fünfte Runde (11.10.2026, Phase P17)
+
+Juttas Rückmeldung zur Vorschau P16 (Chat 11.10.2026). Gilt vor Fachdokumenten und E-xx; U-00 (zweisprachig) gilt weiter.
+
+| ID | Änderung |
+| --- | --- |
+| U-78 | **Koko mit den wandernden Augen:** Auf der Startseite fehlten bei Koko (mit Narrenkappe) die Augen, die nach links und rechts wandern. Ursache: Die Vorschau-Datei wurde nachts erzeugt – nachts schläft Koko mit geschlossenen Lidern (U-53). Die **Vorschau-Datei zeigt immer den Tag** (Zeitpunkt `SEED_NOW`, 12 Uhr), damit die Augen dort immer wandern; auf der echten Seite bleibt U-53 (22–7 Uhr Lider zu). |
+| U-79 | **Startseite – Text unter Koko kleiner:** Der Text unter Koko („Werkstatt unter der Woche …“) steht **kleiner als die übrige Schrift** (hebt die Vergrößerung aus U-70 auf; mittig unter Koko bleibt). |
+| U-80 | **Startseite – Koko 20 % größer** (gegenüber P15/U-75). |
+| U-81 | **Startseite – Tour-Schaukasten 20 % länger** (die Tafel mit den Terminen). |
+| U-82 | **„Planet Claire on Tour“ heißt nur noch „on Tour“** (Überschrift des Schaukastens, auch eingeklappt; DE und EN). |
+| U-83 | **Shop – Miniaturen ohne Rahmen:** Unter dem großen Produktfoto stehen die kleinen Vorschaubilder **ohne Goth-Rahmen** – mit Rahmen sah man die Fotos darin kaum. Ausnahme von U-13 nur für diese Miniaturen. |
+| U-84 | **Ablauf:** Phase **P17** vor P11, selbst durcharbeiten, lokale Prüfschleuse grün, selbst mergen (Squash), am Ende neue HTML-Vorschau an Jutta. |

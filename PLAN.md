@@ -5665,6 +5665,18 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-76, U-77. Gilt für Handy und Desktop, D
   - Akzeptanz: Vorschau-Export grün, Stichprobe Shop/Produktseite, Prüfliste.
 - [x] **P16.4 Abschluss P16** – Prüfschleuse, Merge, HTML-Vorschau und Prüfliste an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
 
+## P17 – Fünfte Nachbesserung nach Juttas Rückmeldung (11.10.2026)
+
+Verbindlich: `docs/UEBERARBEITUNG.md` U-78–U-84. Gilt für Handy und Desktop, DE und EN.
+
+- [ ] **P17.1 Vorschau zeigt den Tag** (U-78) – Koko mit wandernden Augen auch in einer nachts erzeugten Vorschau-Datei (`SEED_NOW`); Phasen-Kennung der Vorschau nennt die zuletzt erledigte Phase (P17 statt P10).
+  - Akzeptanz: Unit (`tourNow` im Export, Phasen-Kennung), Vorschau-Datei ohne `data-koko-sleep`.
+- [ ] **P17.2 Startseite oben** (U-79–U-82) – Text unter Koko kleiner als Fließtext, Koko 20 % größer, Tour-Tafel 20 % länger, Überschrift „on Tour“.
+  - Akzeptanz: E2E (Größen/Verhältnisse Desktop und Handy, Überschrift DE/EN), visuelle Referenzen erneuert.
+- [ ] **P17.3 Miniaturen ohne Rahmen** (U-83) – Galerie-Miniaturen auf der Produktseite ohne Goth-Rahmen.
+  - Akzeptanz: Unit/E2E (Miniaturen ohne `border-image`, Hauptfotos weiter gerahmt).
+- [ ] **P17.4 Abschluss P17** (U-84) – Prüfschleuse, Merge, HTML-Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
+
 ## P11 – Go-live gemeinsam mit Jutta
 
 **Ziel:** Die Seite geht unter https://planetclairetattoos.com live – zusammen mit Jutta, in der Reihenfolge von
