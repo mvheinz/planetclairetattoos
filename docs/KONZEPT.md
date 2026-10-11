@@ -692,6 +692,9 @@ Details §5.4 und §6. Zwei Schritte ohne Login (E-44, § 356a BGB):
   `WR-2026-00003`, Hinweis „Eine Bestätigung ist per E-Mail unterwegs“ und „Drucken/als PDF sichern“.
 - Kein CAPTCHA; Rate-Limit großzügig (30 pro IP-Hash und Stunde, Zähler höchstens 24 h gespeichert, ARCHITEKTUR §8.5),
   damit echte Widerrufe nie blockiert werden. Der Widerrufs-Datensatz selbst speichert keine IP und keinen IP-Hash (R-093).
+- Die Auswahl der Stücke nach Schritt 1 verrät, ob eine E-Mail-Adresse zu einer Bestellnummer gehört. Deshalb höchstens
+  10 Bestellsuchen pro IP-Hash und Stunde (`withdrawal_lookup`, ARCHITEKTUR §8.5); darüber erscheint keine Auswahl, und
+  es geht ohne Hinweis weiter wie bei einer unbekannten Bestellung – der Widerruf selbst bleibt immer möglich (Prüfung P18.5).
 - Widerrufe ohne passende Bestellung werden **trotzdem angenommen** und zur manuellen Zuordnung markiert
   (`matchStatus = needs_manual_match`).
 - Seite ist dauerhaft online (nicht nach 14 Tagen ausblenden).

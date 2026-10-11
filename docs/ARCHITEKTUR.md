@@ -1737,6 +1737,7 @@ Umsetzung §3.9 (Postgres, Schlüssel = IP-Hash, Einträge ≤ 24 h). Antwort be
 | `commission_submit` | Auftragsanfrage absenden | IP-Hash | 5 / h und 20 / Tag (KONZEPT §10.3) |
 | `commission_upload` | `POST /api/uploads/commission` | IP-Hash | 15 / h |
 | `withdrawal_submit` | Widerruf bestätigen | IP-Hash | 30 / h (großzügig, RECHT) |
+| `withdrawal_lookup` | Widerruf Schritt 1: Suche der Bestellung (Bestellnummer + E-Mail) für die Auswahl der Stücke | IP-Hash | 10 / h (darüber keine Auswahl, weiter wie ohne Treffer; der Widerruf selbst bleibt möglich – Prüfung P18.5) |
 | `admin_login` | Payload-Login | IP-Hash | 10 / 15 min (zusätzlich Konto-Sperre) |
 | `forgot_password` | Passwort vergessen | IP-Hash | 3 / h (Antwort immer gleich, keine Konto-Aufzählung) |
 | `token_pages` | R08, R09, `GET /api/checkout/[token]/state`, Dokument-Downloads, `GET /api/privacy-export/[token]` | IP-Hash | 60 / min |

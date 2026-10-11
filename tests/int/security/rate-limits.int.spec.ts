@@ -18,6 +18,7 @@ import { handleCommissionUpload } from '@/lib/commission/upload'
 import { parseEnv } from '@/lib/env'
 import { loadOrderStatusPage, loadThanksPage } from '@/lib/data/tokenPages'
 import { submitWithdrawal } from '@/lib/legal/withdrawal'
+import { initialWithdrawalState, withdrawalStep } from '@/lib/legal/withdrawalForm'
 import { handleClientError } from '@/lib/monitoring/clientErrors'
 import { setErrorReporter } from '@/lib/monitoring/errorReporter'
 import { handlePrivacyExport } from '@/lib/privacy/download'
@@ -289,6 +290,42 @@ const CASES: Case[] = [
         blocked: !r.ok && r.status === 429,
         status: r.status,
         retryAfter: !r.ok && r.status === 429 ? r.retryAfterSeconds : undefined,
+      }
+    },
+  },
+  {
+    // Prüfung P18.5: darüber keine Bestellsuche, Schritt 2 ohne Auswahl (wie ohne Treffer) – kein 429, kein Hinweis
+    name: 'withdrawal_lookup – Widerruf Schritt 1, Bestellsuche (10 / h, darüber ohne Auswahl weiter)',
+    buckets: ['withdrawal_lookup'],
+    limit: 10,
+    noHeader: true,
+    blockedStatus: 200,
+    call: async (ip, now) => {
+      const find = vi.spyOn(payload, 'find')
+      try {
+        const fd = new FormData()
+        for (const [k, v] of Object.entries({
+          locale: 'de',
+          stage: 'form',
+          intent: 'next',
+          name: 'Erika Suche',
+          contractIdentification: 'PC-2026-99997',
+          email: 'ratelimit-suche@planetclaire.local',
+          itemsText: '',
+          reason: '',
+          website: '',
+        }))
+          fd.append(k, v)
+        const state = await withdrawalStep(initialWithdrawalState(), fd, {
+          now,
+          locale: 'de',
+          ip,
+          payload,
+        })
+        const searched = find.mock.calls.some(([args]) => args.collection === 'orders')
+        return { blocked: !searched, status: state.step === 'confirm' ? 200 : 500 }
+      } finally {
+        find.mockRestore()
       }
     },
   },
