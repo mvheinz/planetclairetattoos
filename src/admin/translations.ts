@@ -593,7 +593,17 @@ export const ADMIN_CUSTOM_DE = {
   withdrawalMatchButton: 'Dieser Bestellung zuordnen',
   withdrawalMatchConfirm: 'Widerruf {{ref}} der Bestellung {{order}} zuordnen?',
   withdrawalMatchConsequence:
-    'Die Bestellung bekommt den Status „Widerruf eingegangen“ (bei offener Vorkasse wird sie storniert). Der Widerruf selbst bleibt unverändert.',
+    'Gilt der Widerruf für alle offenen Stücke, bekommt die Bestellung den Status „Widerruf eingegangen“ (bei offener Vorkasse wird sie storniert). Stehen die Stücke nur im Freitext, ordnest du sie danach zu. Der Widerruf selbst bleibt unverändert.',
+  withdrawalAssignTitle: 'Stücke zuordnen',
+  withdrawalAssignIntro:
+    'Die Stücke stehen nur im Freitext: „{{text}}“. Hake an, welche gemeint sind. Bis dahin ist kein Stück als widerrufen gebucht, und Packen, Versand und Übergabe der Bestellung sind gesperrt.',
+  withdrawalAssignLegend: 'Stücke aus der Bestellung',
+  withdrawalAssignButton: 'Stücke zuordnen',
+  withdrawalAssignConfirm: 'Stücke für {{ref}} zuordnen?',
+  withdrawalAssignConsequence:
+    'Die angehakten Stücke gelten als widerrufen und werden nicht verschickt bzw. übergeben. Sind danach noch Stücke offen, versendest bzw. übergibst du sie wie gewohnt; sonst gilt der Widerruf für die ganze Bestellung.',
+  withdrawalAssignNone:
+    'In dieser Bestellung ist kein Stück mehr offen. Ist der Widerruf doppelt, schließe ihn ohne Erstattung ab.',
   withdrawalGoodsTitle: 'Ware ist zurück',
   withdrawalGoodsNote: 'Zustand der Rücksendung (Notiz)',
   withdrawalGoodsPhotos: 'Fotos vom Zustand (optional, höchstens 6)',
@@ -675,6 +685,7 @@ export const ADMIN_CUSTOM_DE = {
   refundConsequencePrepayment:
     'Du bestätigst, dass du überwiesen hast. Sofort entstehen die Gutschrift und die Mail an die Kundin.',
   refundPending: 'Erstattung läuft – der Zahlungsanbieter meldet sich gleich.',
+  refundNeedsItems: 'Erst die Stücke zuordnen (oben) – danach kannst du hier erstatten.',
   // Reklamationen (P6.11, KONZEPT §7.8, R-110–R-112)
   complaintsTitle: 'Reklamationen',
   complaintsNone: 'Keine Reklamation zu dieser Bestellung.',

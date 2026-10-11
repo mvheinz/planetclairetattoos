@@ -14,8 +14,8 @@ import {
 import { adminText } from '../../translations'
 
 // Knöpfe im Widerrufs-Detail `/widerrufe/:id` (PLAN P6.9, KONZEPT §7.10, R-094): „Bestellung zuordnen“ (W2, Suche nach
-// Nummer, E-Mail, Name), „Ware ist zurück“ (W3/O12 mit Zustandsnotiz und optional Fotos `return_photo`),
-// „Rücksendenachweis liegt vor“, „Ohne Erstattung abschließen“ (W5, Grund Pflicht), „Ablehnen“ (W7, nur manuell,
+// Nummer, E-Mail, Name), „Stücke zuordnen“ (Teil-Widerruf nur im Freitext; nichts vorab angehakt), „Ware ist zurück“
+// (W3/O12 mit Zustandsnotiz und optional Fotos `return_photo`), „Rücksendenachweis liegt vor“, „Ohne Erstattung abschließen“ (W5, Grund Pflicht), „Ablehnen“ (W7, nur manuell,
 // Begründung Pflicht), „Als Test/Spam markieren“ und je Stück „wieder verkaufen“ (P11) bzw. „ausblenden“ (P13). Jede
 // Aktion mit Bestätigungsdialog; danach lädt die Ansicht neu. Der Server prüft alles noch einmal.
 
@@ -25,6 +25,11 @@ export interface WithdrawalActionItem {
   status: string
 }
 
+export interface WithdrawalAssignItem {
+  id: string
+  label: string
+}
+
 export interface WithdrawalActionsProps {
   id: number
   reference: string
@@ -32,6 +37,8 @@ export interface WithdrawalActionsProps {
   orderId: number | null
   returnProofReceivedAt: string | null
   items: WithdrawalActionItem[]
+  /** Stücke nur im Freitext: offene Positionen zum Anhaken (sonst `null`). */
+  assign?: { itemsText: string; items: WithdrawalAssignItem[] } | null
   closeReasons: { value: string; label: string }[]
   /** Platz für den Erstatten-Dialog (P6.10). */
   refund?: React.ReactNode
@@ -143,6 +150,72 @@ function MatchOrder({ id, reference }: { id: number; reference: string }) {
           ))}
         </ul>
       ) : null}
+    </section>
+  )
+}
+
+function AssignItems({
+  id,
+  reference,
+  itemsText,
+  items,
+}: {
+  id: number
+  reference: string
+  itemsText: string
+  items: WithdrawalAssignItem[]
+}) {
+  const router = useRouter()
+  const base = useId()
+  const [selected, setSelected] = useState<string[]>([])
+  return (
+    <section
+      className="pc-order__section"
+      aria-labelledby={`${base}-h`}
+      data-testid="withdrawal-assign"
+    >
+      <h3 id={`${base}-h`}>{adminText('withdrawalAssignTitle')}</h3>
+      <Notice tone="warning">{adminText('withdrawalAssignIntro', { text: itemsText })}</Notice>
+      {items.length === 0 ? (
+        <p>{adminText('withdrawalAssignNone')}</p>
+      ) : (
+        <>
+          <fieldset className="pc-field">
+            <legend className="pc-field__label">{adminText('withdrawalAssignLegend')}</legend>
+            {items.map((i) => (
+              <label key={i.id} className="pc-admin-row">
+                <input
+                  type="checkbox"
+                  checked={selected.includes(i.id)}
+                  onChange={(e) =>
+                    setSelected((s) =>
+                      e.target.checked ? [...s, i.id] : s.filter((x) => x !== i.id),
+                    )
+                  }
+                  data-testid={`withdrawal-assign-${i.id}`}
+                />{' '}
+                {i.label}
+              </label>
+            ))}
+          </fieldset>
+          <p className="pc-admin-row">
+            <ActionButton
+              data-testid="withdrawal-assign-button"
+              disabled={selected.length === 0}
+              confirm={{
+                title: adminText('withdrawalAssignConfirm', { ref: reference }),
+                consequence: adminText('withdrawalAssignConsequence'),
+              }}
+              action={() =>
+                postAdminAction(`/api/withdrawals/${id}/assign-items`, { itemIds: selected })
+              }
+              onDone={() => router.refresh()}
+            >
+              {adminText('withdrawalAssignButton')}
+            </ActionButton>
+          </p>
+        </>
+      )}
     </section>
   )
 }
@@ -341,7 +414,15 @@ export function WithdrawalActions(props: WithdrawalActionsProps) {
       {status === 'received' && props.orderId === null ? (
         <MatchOrder id={id} reference={reference} />
       ) : null}
-      {status === 'received' ? (
+      {status === 'received' && props.assign ? (
+        <AssignItems
+          id={id}
+          reference={reference}
+          itemsText={props.assign.itemsText}
+          items={props.assign.items}
+        />
+      ) : null}
+      {status === 'received' && !props.assign ? (
         <GoodsReturned id={id} reference={reference} orderId={props.orderId} />
       ) : null}
       {(status === 'received' || status === 'goods_returned') && !props.returnProofReceivedAt ? (

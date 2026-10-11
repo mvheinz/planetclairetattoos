@@ -7,7 +7,8 @@ import { AddressCopy } from './AddressCopy'
 import { loadPackingList, type PackingCard } from './orderQuery'
 import { PackedButton } from './PackedButton'
 
-// Ansicht „Zu packen“ `/packen` (PLAN P5.10, KONZEPT §7.6): Versandbestellungen `paid` und `packed`, älteste zuerst –
+// Ansicht „Zu packen“ `/packen` (PLAN P5.10, KONZEPT §7.6): Versandbestellungen `paid` und `packed` (und die
+// Rest-Lieferung nach einer Teil-Erstattung vor dem Versand; nur die Stücke, die ins Paket gehören), älteste zuerst –
 // Bestellnummer, Datum, Fotos und `Nr.` der Stücke, Versandklasse, Name und Ort, Hinweise (wörtlich KONZEPT §7.6),
 // „Adresse kopieren“ mit Kopier-Symbol je Zeile, Packzettel, „Gepackt“. Details (Checkliste, Verpackung, Packfotos,
 // Versenden) im Bestell-Detail.
@@ -100,7 +101,7 @@ export async function PackingListView({ adminRoute, req }: AdminViewBodyProps) {
               >
                 {adminText('orderPackingSlip')}
               </a>
-              {card.status === 'paid' ? <PackedButton orderId={card.id} /> : null}
+              {card.canPack ? <PackedButton orderId={card.id} /> : null}
               <a
                 className="pc-admin-btn pc-admin-btn--secondary"
                 href={`${adminRoute}/bestellungen/${card.id}`}

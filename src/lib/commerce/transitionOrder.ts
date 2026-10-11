@@ -35,18 +35,32 @@ export interface TransitionOrderResult {
   transition: OrderTransitionId
 }
 
-export async function lockOrder(
-  req: PayloadRequest,
-  orderId: number,
-): Promise<{
+/** Gesperrte Zeile: Status und die Angaben, die `evaluateOrderTransition` braucht. */
+export interface LockedOrder {
   status: OrderStatus
   statusBeforeDispute: OrderStatus | null
   statusBeforeWithdrawal: OrderStatus | null
   cancelReason: OrderCancelReason | null
-}> {
+  /** Positionen mit `status = active` (Rest-Lieferung aus `partially_refunded`). */
+  activeItemCount: number
+  shippedAt: string | null
+  deliveredAt: string | null
+  readyForPickupAt: string | null
+  pickedUpAt: string | null
+}
+
+const isoOrNull = (v: unknown): string | null =>
+  v === null || v === undefined ? null : new Date(v as string).toISOString()
+
+export async function lockOrder(req: PayloadRequest, orderId: number): Promise<LockedOrder> {
   const db = await dbFor(req)
   const res = await db.execute(
-    sql`SELECT status, status_before_dispute, status_before_withdrawal, cancel_reason FROM orders WHERE id = ${orderId} FOR UPDATE`,
+    sql`SELECT status, status_before_dispute, status_before_withdrawal, cancel_reason,
+               timestamps_shipped_at, timestamps_delivered_at, timestamps_ready_for_pickup_at,
+               timestamps_picked_up_at,
+               (SELECT count(*) FROM orders_items i WHERE i._parent_id = orders.id AND i.status = 'active')
+                 AS active_items
+          FROM orders WHERE id = ${orderId} FOR UPDATE`,
   )
   const row = res.rows[0]
   if (!row) throw new TransitionError(`Bestellung ${orderId} gibt es nicht.`)
@@ -55,6 +69,11 @@ export async function lockOrder(
     statusBeforeDispute: (row.status_before_dispute as OrderStatus | null) ?? null,
     statusBeforeWithdrawal: (row.status_before_withdrawal as OrderStatus | null) ?? null,
     cancelReason: (row.cancel_reason as OrderCancelReason | null) ?? null,
+    activeItemCount: Number(row.active_items ?? 0),
+    shippedAt: isoOrNull(row.timestamps_shipped_at),
+    deliveredAt: isoOrNull(row.timestamps_delivered_at),
+    readyForPickupAt: isoOrNull(row.timestamps_ready_for_pickup_at),
+    pickedUpAt: isoOrNull(row.timestamps_picked_up_at),
   }
 }
 
@@ -72,10 +91,13 @@ export async function transitionOrder(
     }
     const cancelReason =
       (options.data?.cancelReason as OrderCancelReason | undefined) ?? locked.cancelReason
+    const items = options.data?.items as { status?: string | null }[] | undefined
     const result = evaluateOrderTransition(from, to, {
-      statusBeforeDispute: locked.statusBeforeDispute,
-      statusBeforeWithdrawal: locked.statusBeforeWithdrawal,
+      ...locked,
       cancelReason,
+      ...(Array.isArray(items)
+        ? { activeItemCount: items.filter((i) => (i.status ?? 'active') === 'active').length }
+        : {}),
     })
     if (!result.ok) throw new TransitionError(result.message)
     const order = (await preservingReq(req, () =>

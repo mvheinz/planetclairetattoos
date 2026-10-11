@@ -3,6 +3,7 @@ import 'server-only'
 import type { PayloadRequest } from 'payload'
 
 import { loadOrder, transitionOrder, updateOrderFields } from '@/lib/commerce/transitionOrder'
+import { itemsUnassignedNote, withdrawalNeedsItems } from '@/lib/commerce/withdrawalHold'
 import type { WithdrawalCloseReason, WithdrawalStatus } from '@/lib/enums'
 import { WITHDRAWAL_CLOSE_REASONS } from '@/lib/enums'
 import { preservingReq } from '@/lib/payload/localReq'
@@ -12,7 +13,8 @@ import type { Order, Withdrawal } from '@/payload-types'
 import { applyWithdrawalToOrder } from './withdrawal'
 
 // Aktionen im Widerrufs-Posteingang `/widerrufe/:id` (PLAN P6.9, KONZEPT §5.4/§7.10, R-094, DATENMODELL §6.11):
-// W2 „Bestellung zuordnen“ (O11 bzw. O4 + W5), W3 „Ware ist zurück“ (O12), „Rücksendenachweis liegt vor“,
+// W2 „Bestellung zuordnen“ (O11 bzw. O4 + W5), „Stücke zuordnen“ (Teil-Widerruf nur im Freitext, KONZEPT §5.4 W1
+// Umsetzungsnotiz), W3 „Ware ist zurück“ (O12), „Rücksendenachweis liegt vor“,
 // W5 „Ohne Erstattung abschließen“ (O20 nur ohne weiteren offenen Widerruf derselben Bestellung), W7 „Ablehnen“ und
 // „Als Test/Spam markieren“ (beide nur manuell, mit Begründung). Jede Aktion läuft in der Transaktion von `req`
 // (Verwaltung: `req.user` gesetzt); der Speicher-Hook prüft Übergänge, unveränderliche Felder und schreibt Audit.
@@ -99,6 +101,24 @@ const requireStatus = (w: Withdrawal, allowed: readonly WithdrawalStatus[], what
   }
 }
 
+/** Teil-Widerruf nur im Freitext: erst „Stücke zuordnen“ (sonst ist unklar, welche Stücke dazugehören). */
+export function requireItemsAssigned(w: Withdrawal): void {
+  if (withdrawalNeedsItems(w)) {
+    throw new WithdrawalActionError(
+      409,
+      'Bitte zuerst die Stücke zuordnen – der Widerruf nennt sie nur im Freitext.',
+    )
+  }
+}
+
+/** Hinweis „Stücke zuordnen“ an der Bestellung wieder entfernen (nur den, den der Widerruf selbst gesetzt hat). */
+function clearUnassignedAttention(order: Order, w: Withdrawal): Record<string, unknown> {
+  const a = order.adminAttention
+  return a?.flag && a.reason === 'manual' && a.note === itemsUnassignedNote(w.reference)
+    ? { adminAttention: { flag: false, reason: null, note: null } }
+    : {}
+}
+
 /** Bestellungen für „Bestellung zuordnen“: Suche nach Nummer, E-Mail oder Name (höchstens 10 Treffer). */
 export async function searchOrdersForWithdrawal(
   req: PayloadRequest,
@@ -161,6 +181,50 @@ export async function matchWithdrawalOrder(
   })
 }
 
+/**
+ * „Stücke zuordnen“ (nur `received`, zugeordnete Bestellung, Stücke nur im Freitext): hält fest, welche Positionen der
+ * Teil-Widerruf meint, und bucht sie wie W1 mit Auswahl (`applyWithdrawalToOrder`: Positionen `withdrawn`; vor Versand
+ * bzw. Übergabe ohne Statuswechsel, solange noch etwas aktiv ist, sonst O11). Danach ist die Sperre für Packen, Versand
+ * und Übergabe aufgehoben; der Hinweis an der Bestellung verschwindet.
+ */
+export async function assignWithdrawalItems(
+  req: PayloadRequest,
+  id: number,
+  input: { itemIds?: unknown },
+  now: Date,
+): Promise<WithdrawalActionResult> {
+  return inTransaction(req, async () => {
+    const w = await loadWithdrawal(req, id)
+    const orderId = idOf(w.order)
+    if (orderId === null) {
+      throw new WithdrawalActionError(409, 'Bitte zuerst die Bestellung zuordnen.')
+    }
+    const wanted = [
+      ...new Set((Array.isArray(input.itemIds) ? input.itemIds : []).map(String)),
+    ].sort()
+    const own = Array.isArray(w.affectedItemIds)
+      ? (w.affectedItemIds as unknown[]).map(String).sort()
+      : []
+    if (own.length > 0 && JSON.stringify(own) === JSON.stringify(wanted)) {
+      return { doc: w, unchanged: true }
+    }
+    requireStatus(w, ['received'], 'Stücke zuordnen')
+    if (!withdrawalNeedsItems(w)) {
+      throw new WithdrawalActionError(409, 'Die Stücke dieses Widerrufs stehen schon fest.')
+    }
+    const order = await loadOrder(req, orderId)
+    const known = new Set(order.items.map((i) => String(i.id)))
+    const itemIds = wanted.filter((i) => known.has(i))
+    if (itemIds.length === 0 || itemIds.length !== wanted.length) {
+      throw new WithdrawalActionError(400, 'Bitte mindestens ein Stück dieser Bestellung wählen.')
+    }
+    const effect = await applyWithdrawalToOrder(req, w, orderId, itemIds, now)
+    const clear = clearUnassignedAttention(await loadOrder(req, orderId), w)
+    if (Object.keys(clear).length > 0) await updateOrderFields(req, orderId, clear, now)
+    return { doc: await loadWithdrawal(req, id), afterCommit: effect.afterCommit }
+  })
+}
+
 /** W3/O12: Ware ist zurück (Zustandsnotiz, optional Fotos `return_photo` an der Bestellung). */
 export async function markGoodsReturned(
   req: PayloadRequest,
@@ -172,6 +236,7 @@ export async function markGoodsReturned(
     const w = await loadWithdrawal(req, id)
     if (w.status === 'goods_returned') return { doc: w, unchanged: true }
     requireStatus(w, ['received'], 'Ware ist zurück')
+    requireItemsAssigned(w)
     const note = text(input.note, 500)
     const photoIds = (Array.isArray(input.photoIds) ? input.photoIds : [])
       .map(Number)
@@ -190,8 +255,9 @@ export async function markGoodsReturned(
       const own = new Set(
         Array.isArray(w.affectedItemIds) ? (w.affectedItemIds as unknown[]).map(String) : [],
       )
+      // nur die Stücke dieses Widerrufs (ohne eigene Stücke keine – nie die eines anderen Widerrufs)
       const items = order.items.map((i) =>
-        i.status === 'withdrawn' && (own.size === 0 || own.has(String(i.id)))
+        i.status === 'withdrawn' && own.has(String(i.id))
           ? { ...i, status: 'returned' as const }
           : i,
       )
@@ -293,6 +359,7 @@ export async function closeWithoutRefund(
             ? { ...i, status: 'active' as const }
             : i,
         )
+        const data = { items, ...clearUnassignedAttention(order, w) }
         const others = await otherOpenWithdrawals(req, orderId, id)
         const back = order.statusBeforeWithdrawal
         if (
@@ -304,14 +371,14 @@ export async function closeWithoutRefund(
             await transitionOrder(req, orderId, back, {
               now,
               note: `Widerruf ${w.reference} ohne Erstattung abgeschlossen`,
-              data: { items },
+              data,
             })
           } else {
             // `return_received` hat keinen Rückweg (O20 nur aus `withdrawal_received`): nur Positionen anpassen
-            await updateOrderFields(req, orderId, { items }, now)
+            await updateOrderFields(req, orderId, data, now)
           }
         } else {
-          await updateOrderFields(req, orderId, { items }, now)
+          await updateOrderFields(req, orderId, data, now)
         }
       }
     }
@@ -389,6 +456,7 @@ async function restoreOrderAfterEnd(req: PayloadRequest, w: Withdrawal, now: Dat
   const items = order.items.map((i) =>
     i.status === 'withdrawn' && own.has(String(i.id)) ? { ...i, status: 'active' as const } : i,
   )
+  const data = { items, ...clearUnassignedAttention(order, w) }
   const back = order.statusBeforeWithdrawal
   if (
     order.status === 'withdrawal_received' &&
@@ -398,9 +466,9 @@ async function restoreOrderAfterEnd(req: PayloadRequest, w: Withdrawal, now: Dat
     await transitionOrder(req, orderId, back, {
       now,
       note: `Widerruf ${w.reference} abgelehnt`,
-      data: { items },
+      data,
     })
   } else if (order.status !== 'cancelled') {
-    await updateOrderFields(req, orderId, { items }, now)
+    await updateOrderFields(req, orderId, data, now)
   }
 }

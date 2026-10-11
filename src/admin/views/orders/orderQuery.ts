@@ -3,7 +3,9 @@ import 'server-only'
 import type { PayloadRequest } from 'payload'
 
 import { carrierEmailConsentActive, shippingAddressLines } from '@/lib/commerce/address'
+import { deliveryFacts, restDeliveryAllowed } from '@/lib/commerce/orderTransitions'
 import {
+  handoverItems,
   packagingForOrder,
   packagingTemplates,
   packingChecklist,
@@ -15,6 +17,7 @@ import {
   type PackingHint,
 } from '@/lib/commerce/packing'
 import { resendOptions, type ResendOption } from '@/lib/commerce/resendEmail'
+import { unassignedWithdrawals } from '@/lib/commerce/withdrawalHold'
 import { defaultCarrierFor, type CarrierCode } from '@/lib/carrier'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { OrderStatus, ShippingClass } from '@/lib/enums'
@@ -39,6 +42,8 @@ export interface ItemCard {
   priceCents: number
   thumbUrl: string | null
   productId: number | null
+  /** Status der Position (`active`, `withdrawn`, …). */
+  status: string
   statusLabel: string
 }
 
@@ -59,6 +64,10 @@ export interface PackingCard {
   consentActive: boolean
   consentRevokedAt: string | null
   withdrawn: boolean
+  /** „Gepackt“ möglich (bezahlt bzw. Rest-Lieferung nach Teil-Erstattung, kein offener Freitext-Teil-Widerruf). */
+  canPack: boolean
+  /** „Versendet melden“ möglich (gleiche Bedingungen, auch aus „gepackt“). */
+  canShip: boolean
 }
 
 export interface PhotoCard {
@@ -72,8 +81,6 @@ export interface PackingDetail extends PackingCard {
   packaging: PackagingValue & { recorded: boolean; recordedAt: string | null }
   templates: PackagingTemplate[]
   photos: PhotoCard[]
-  canPack: boolean
-  canShip: boolean
   defaultCarrier: CarrierCode
   trackingNumber: string | null
 }
@@ -168,6 +175,7 @@ async function itemCards(req: PayloadRequest, orders: Order[]): Promise<Map<numb
           priceCents: i.priceCents,
           thumbUrl: (cover ? thumbs.get(cover) : null) ?? i.coverImageUrl ?? null,
           productId: idOf(i.product),
+          status: i.status ?? 'active',
           statusLabel: ENUM_LABELS.ORDER_ITEM_STATUSES[i.status ?? 'active']?.de ?? '',
         }
       }),
@@ -175,7 +183,29 @@ async function itemCards(req: PayloadRequest, orders: Order[]): Promise<Map<numb
   )
 }
 
-function packingCard(order: Order, items: ItemCard[], settings: Setting): PackingCard {
+/** Packen bzw. Versenden möglich (wie `packOrder`/`shipOrder`; die Endpunkte prüfen es noch einmal). */
+function packingActions(order: Order, unassigned: string | null) {
+  if (order.fulfillmentMethod !== 'shipping' || unassigned)
+    return { canPack: false, canShip: false }
+  const facts = deliveryFacts(order)
+  const rest = order.status === 'partially_refunded'
+  return {
+    canPack:
+      order.status === 'paid' ||
+      (rest && !order.timestamps?.packedAt && restDeliveryAllowed('packed', facts)),
+    canShip:
+      order.status === 'paid' ||
+      order.status === 'packed' ||
+      (rest && restDeliveryAllowed('shipped', facts)),
+  }
+}
+
+function packingCard(
+  order: Order,
+  items: ItemCard[],
+  settings: Setting,
+  unassigned: string | null = null,
+): PackingCard {
   return {
     id: order.id,
     orderNumber: order.orderNumber,
@@ -188,9 +218,11 @@ function packingCard(order: Order, items: ItemCard[], settings: Setting): Packin
       : null,
     name: order.shippingAddress?.name ?? order.customer?.name ?? '',
     city: order.shippingAddress?.city ?? '',
-    items,
+    // nur die Stücke, die ins Paket gehören; die übrigen nennt der Hinweis „Nicht mehr versenden – …“
+    items: handoverItems(items),
     hints: packingHints(order, {
       insuranceThresholdCents: settings.shipping?.insuranceHintThresholdCents,
+      unassignedWithdrawal: unassigned,
     }),
     addressLines: shippingAddressLines(order, { includeEmail: true }),
     consentActive: carrierEmailConsentActive(order),
@@ -198,15 +230,29 @@ function packingCard(order: Order, items: ItemCard[], settings: Setting): Packin
       ? berlin(order.carrierEmailConsentRevokedAt)
       : null,
     withdrawn: withdrawnBeforeShipping(order),
+    ...packingActions(order, unassigned),
   }
 }
 
-/** Status, die „Zu packen“ zeigt: bezahlt/gepackt, dazu Widerruf vor dem Versand (Hinweis „Nicht mehr versenden“). */
+/**
+ * Status, die „Zu packen“ zeigt: bezahlt/gepackt, dazu Widerruf vor dem Versand (Hinweis „Nicht mehr versenden“) und
+ * die Rest-Lieferung nach einer Teil-Erstattung vor dem Versand (`partially_refunded`, `restDeliveryAllowed`).
+ */
 export const PACKING_LIST_STATUSES: readonly OrderStatus[] = [
   'paid',
   'packed',
   'withdrawal_received',
+  'partially_refunded',
 ]
+
+/** Gehört die Bestellung (Status aus `PACKING_LIST_STATUSES`) auf „Zu packen“? */
+export function onPackingList(order: Order): boolean {
+  if (order.status === 'withdrawal_received') return withdrawnBeforeShipping(order)
+  if (order.status === 'partially_refunded') {
+    return restDeliveryAllowed('shipped', deliveryFacts(order))
+  }
+  return true
+}
 
 /** Karten „Zu packen“: Versandbestellungen `paid`/`packed` (und Widerruf vor dem Versand), älteste zuerst. */
 export async function loadPackingList(req: PayloadRequest): Promise<PackingCard[]> {
@@ -224,12 +270,16 @@ export async function loadPackingList(req: PayloadRequest): Promise<PackingCard[
     overrideAccess: true,
     req,
   })
-  const orders = (res.docs as Order[]).filter(
-    (o) => o.status !== 'withdrawal_received' || withdrawnBeforeShipping(o),
-  )
+  const orders = (res.docs as Order[]).filter(onPackingList)
   const settings = await loadSettings(req)
   const cards = await itemCards(req, orders)
-  return orders.map((o) => packingCard(o, cards.get(o.id) ?? [], settings))
+  const unassigned = await unassignedWithdrawals(
+    req,
+    orders.map((o) => o.id),
+  )
+  return orders.map((o) =>
+    packingCard(o, cards.get(o.id) ?? [], settings, unassigned.get(o.id) ?? null),
+  )
 }
 
 async function packingPhotos(req: PayloadRequest, value: unknown): Promise<PhotoCard[]> {
@@ -286,10 +336,10 @@ export async function loadOrderDetail(
     statusLabel: ENUM_LABELS.EMAIL_STATUSES[m.status]?.de ?? m.status,
   }))
   const shipping = order.fulfillmentMethod === 'shipping'
-  const packable = shipping && (order.status === 'paid' || order.status === 'packed')
   let packing: PackingDetail | null = null
   if (shipping) {
-    const card = packingCard(order, items, settings)
+    const unassigned = (await unassignedWithdrawals(req, [order.id])).get(order.id) ?? null
+    const card = packingCard(order, items, settings, unassigned)
     const packaging = packagingForOrder(order, settings)
     packing = {
       ...card,
@@ -300,8 +350,6 @@ export async function loadOrderDetail(
       },
       templates: packagingTemplates(settings),
       photos: await packingPhotos(req, order.packingPhotos),
-      canPack: order.status === 'paid',
-      canShip: packable,
       defaultCarrier:
         (order.shipment?.carrier as CarrierCode | null) ?? defaultCarrierFor(order.shippingClass),
       trackingNumber: order.shipment?.trackingNumber ?? null,

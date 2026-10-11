@@ -14,7 +14,8 @@ import { adminText } from '../../translations'
 export interface PickupActionsProps {
   orderId: number
   orderNumber: string
-  status: string
+  /** `ready`: „Bereit zur Abholung“ (bezahlt bzw. Rest-Abholung), `handover`: „Abgeholt“. */
+  step: 'ready' | 'handover'
   template: string | null
   messageText: string | null
 }
@@ -25,7 +26,7 @@ export function PickupActions(props: PickupActionsProps) {
   const fieldId = useId()
   const hintId = useId()
 
-  if (props.status === 'paid') {
+  if (props.step === 'ready') {
     return (
       <div className="pc-order__section" data-testid="pickup-actions">
         <div className="pc-field">

@@ -1289,6 +1289,17 @@ Bestellstatus nicht; jede weitere Erstattung entsteht als zusätzlicher `refunds
 die Summe den Gesamtbetrag nicht erreicht, bleibt die Bestellung `partially_refunded`; erreicht sie ihn, gilt O21
 (DATENMODELL DM-06).
 
+**Umsetzungsnotiz (11.10.2026, Datenschutz-/AGB-Prüfung): Teil-Widerruf und Teil-Erstattung vor Versand bzw.
+Abholung.** Die Stücke, die die Kundin behält, werden weiter geliefert – sonst fehlten M06/M07 und mit `shippedAt` bzw.
+`pickedUpAt` der Beginn von Widerrufsfrist und Gewährleistung. Ein Teil-Widerruf aus `paid`, `packed` oder
+`ready_for_pickup` (danach ist noch ein Stück aktiv) setzt nur die widerrufenen Positionen auf `withdrawn`; O11 gilt
+weiter für den Widerruf des ganzen Vertrags bzw. nach Versand oder Übergabe („Nicht mehr versenden“ bleibt dort, 409).
+Nach einer Teil-Erstattung vor Versand/Abholung (z. B. Bruch, Kulanz) gehen aus `partially_refunded` „Gepackt“,
+„Versendet melden“, „Bereit zur Abholung“ und „Abgeholt“ (O6–O9), solange noch ein Stück aktiv ist und nichts versendet
+bzw. abgeholt wurde; nach einer Teil-Erstattung während des Transports geht „Zugestellt“ (O10, auch automatisch).
+Packliste, Packzettel, Abholkarte, M06 und M07 nennen nur die Stücke, die rausgehen; „Nicht mehr versenden – Widerruf:
+Nr. …“ bzw. „– erstattet: Nr. …“ steht an den übrigen (DATENMODELL §6.8.5).
+
 Regeln zu Erstattungen:
 - **Voll-Widerruf:** Erstattet werden alle Stückpreise **und** die ursprünglichen Versandkosten (Standardversand).
   Rücksendekosten trägt die Kund:in (E-27). **Teil-Widerruf:** Preise der widerrufenen Stücke + Differenz zwischen
@@ -1330,6 +1341,17 @@ Begründung) ist kein Status; sie verkürzt die Aufbewahrung auf 30 Tage (L-08).
 | W7 | `received` | `rejected` | Admin „Ablehnen“ (`closeNote` Pflicht) | – |
 
 Die Erklärung selbst (Eingaben, Zeitpunkt) ist nach dem Anlegen **unveränderlich**; Admin-Notizen sind separat.
+
+**Umsetzungsnotiz (11.10.2026, Datenschutz-/AGB-Prüfung): Teil-Widerruf nur im Freitext.** Nennt die Person im Feld
+„Nur bestimmte Stücke?“ Stücke, hakt aber keins an, gilt der erklärte Teil-Widerruf (§ 133 BGB) – nicht „ganzer
+Vertrag“. W1/W2 (und die manuelle Erfassung) buchen dann keine Position automatisch: Die Bestellung bekommt den Hinweis
+„Teil-Widerruf WR-… im Freitext – bitte Stücke zuordnen“, A04 bittet darum, Packen, Versand und Übergabe sind bis dahin
+gesperrt (nach Versand/Übergabe trotzdem O11). Im Posteingang hält Jutta mit „Stücke zuordnen“ (nur `received`,
+nichts vorab angehakt) fest, welche Stücke gemeint sind; das bucht sie wie W1 mit Auswahl. Vorher gehen „Ware ist
+zurück“ und „Erstatten“ für diesen Widerruf nicht, im Erstattungsdialog ist nichts vorgewählt. M08 nennt als
+„Betroffene Stücke“ den Freitext – genau das, was gebucht ist. Schritt 2 der Widerrufsfunktion (und die Auswahl davor)
+weist neutral darauf hin, dass Anhaken die Zuordnung eindeutig macht; nichts ist vorab angehakt, der Knopf bleibt frei
+(V-03). Ohne Haken und ohne Freitext gilt weiter der ganze Vertrag (R-091).
 
 ### 5.5 Anfrage (Auftragsarbeit, E-11)
 

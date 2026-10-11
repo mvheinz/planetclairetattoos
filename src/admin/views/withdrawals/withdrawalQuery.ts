@@ -2,6 +2,7 @@ import 'server-only'
 
 import type { PayloadRequest } from 'payload'
 
+import { withdrawalNeedsItems } from '@/lib/commerce/withdrawalHold'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { WithdrawalStatus } from '@/lib/enums'
 import { formatItemNumber } from '@/lib/products/itemNumber'
@@ -170,6 +171,8 @@ export interface WithdrawalDetail {
   returnProofText: string | null
   returnConditionNote: string | null
   affectedItemIds: string[]
+  /** Stücke nur im Freitext, noch nicht zugeordnet („Stücke zuordnen“). */
+  needsItems: boolean
   closeNote: string | null
 }
 
@@ -251,6 +254,7 @@ export async function loadWithdrawalDetail(
     affectedItemIds: Array.isArray(w.affectedItemIds)
       ? (w.affectedItemIds as unknown[]).map(String)
       : [],
+    needsItems: withdrawalNeedsItems(w),
     closeNote: w.closeNote ?? null,
   }
 }

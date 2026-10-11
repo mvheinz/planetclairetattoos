@@ -196,6 +196,10 @@ So gehst du vor:
    „Ja“, geht die Mail raus. Erst dann.
 
 Steht an einer Bestellung **„Nicht mehr versenden – Widerruf!“**, hat die Kundin schon widerrufen (Kapitel 8).
+Hat sie nur einzelne Stücke widerrufen oder hast du einzelne Stücke schon erstattet (zum Beispiel weil eins zerbrochen
+ist), steht an der Bestellung **„Nicht mehr versenden – Widerruf: Nr. …“** bzw. **„– erstattet: Nr. …“**. Die übrigen
+Stücke packst und versendest du ganz normal; Packzettel und Versandmail nennen nur sie. Steht dort **„Noch nicht
+versenden – … erst Stücke zuordnen!“**, lies Kapitel 8.
 
 ![Die Liste „Versendet“](img/handbuch/versendet.webp)
 
@@ -234,6 +238,8 @@ Bei Abholung zeigt die Liste, wie lange die Bestellung schon wartet. Länger als
 - **Bereit zur Abholung:** Du schreibst der Kundin, wann und wo sie abholen kann. Die Vorlage kommt aus den
   Einstellungen und lässt sich ändern. Die Kundin bekommt eine Mail.
 - **Abgeholt:** Tippe darauf, wenn die Kundin das Stück hat. Ab diesem Tag zählen die 14 Tage Widerrufsfrist.
+- Steht rot **„Nicht mehr übergeben – …: Nr. …“** an der Karte, gibst du nur die übrigen Stücke mit. Fehlen die Knöpfe,
+  musst du erst bei dem Widerruf die Stücke zuordnen (Kapitel 8).
 
 ## 8. Widerrufe und Erstattung
 
@@ -253,6 +259,9 @@ So gehst du vor:
 
 1. Widerruf öffnen: Dort steht die Erklärung unverändert, dazu die zugeordnete Bestellung. Passt keine Bestellung, nutze
    „Bestellung zuordnen“. Kam der Widerruf per Mail oder Brief, erfasst du ihn mit „Widerruf manuell erfassen“.
+   Hat die Kundin die Stücke nur in Worten genannt (zum Beispiel „nur die blaue Tasse“) und nichts angehakt, siehst du
+   **Stücke zuordnen**: Hake die gemeinten Stücke an und bestätige. Bis dahin lässt sich die Bestellung nicht packen,
+   versenden oder übergeben, und „Erstatten“ wartet. Die übrigen Stücke gehen danach ganz normal raus.
 2. Die Ware kommt zurück: Prüfe sie und tippe auf **Ware ist zurück**. Eine kurze Notiz zum Zustand hilft später.
 3. **Erstatten:** Die Verwaltung rechnet den Betrag nach den gesetzlichen Regeln vor (Kaufpreis und, bei vollständigem Widerruf, der Standardversand). Du kannst ihn erhöhen, mit Notiz.
    Bei Kartenzahlung läuft die Rückzahlung automatisch über den Zahlungsanbieter. Bei Vorkasse überweist du das Geld

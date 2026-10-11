@@ -2,7 +2,10 @@ import 'server-only'
 
 import type { PayloadRequest } from 'payload'
 
+import { deliveryFacts, restDeliveryAllowed } from '@/lib/commerce/orderTransitions'
+import { handoverItems } from '@/lib/commerce/packing'
 import { PICKUP_WAIT_WARN_DAYS, pickupTemplateText } from '@/lib/commerce/pickup'
+import { unassignedWithdrawals } from '@/lib/commerce/withdrawalHold'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { OrderStatus } from '@/lib/enums'
 import { formatItemNumber } from '@/lib/products/itemNumber'
@@ -28,6 +31,8 @@ export interface ShippedCard {
   deliveredAt: string | null
   /** Zustellung vom Task `markDelivered` geschätzt. */
   estimated: boolean
+  /** „Zugestellt“ möglich (`shipped` bzw. Teil-Erstattung während des Transports). */
+  canDeliver: boolean
   carrier: string | null
   carrierLabel: string | null
   trackingNumber: string | null
@@ -36,7 +41,10 @@ export interface ShippedCard {
   items: string[]
 }
 
-/** `shipped` (alle) und `delivered` der letzten 30 Tage, neueste Sendung zuerst. */
+/**
+ * `shipped` (alle, dazu Teil-Erstattung während des Transports: `partially_refunded` mit `shippedAt` ohne
+ * `deliveredAt`) und `delivered` der letzten 30 Tage, neueste Sendung zuerst.
+ */
 export async function loadShippedList(req: PayloadRequest, now: Date): Promise<ShippedCard[]> {
   const since = new Date(now.getTime() - 30 * DAY).toISOString()
   const res = await req.payload.find({
@@ -44,6 +52,13 @@ export async function loadShippedList(req: PayloadRequest, now: Date): Promise<S
     where: {
       or: [
         { status: { equals: 'shipped' } },
+        {
+          and: [
+            { status: { equals: 'partially_refunded' } },
+            { 'timestamps.shippedAt': { exists: true } },
+            { 'timestamps.deliveredAt': { exists: false } },
+          ],
+        },
         {
           and: [
             { status: { equals: 'delivered' } },
@@ -68,6 +83,9 @@ export async function loadShippedList(req: PayloadRequest, now: Date): Promise<S
       shippedAt: date(o.timestamps?.shippedAt),
       deliveredAt: o.timestamps?.deliveredAt ? date(o.timestamps.deliveredAt) : null,
       estimated: o.shipment?.deliveredSource === 'auto',
+      canDeliver:
+        o.status === 'shipped' ||
+        (o.status === 'partially_refunded' && restDeliveryAllowed('delivered', deliveryFacts(o))),
       carrier,
       carrierLabel: carrier ? ENUM_LABELS.CARRIERS[carrier].de : null,
       trackingNumber: o.shipment?.trackingNumber ?? null,
@@ -83,10 +101,17 @@ export interface PickupCard {
   orderNumber: string
   status: OrderStatus
   statusLabel: string
+  /** Nächster Schritt: „Bereit zur Abholung“ (`ready`) bzw. „Abgeholt“ (`handover`). */
+  step: 'ready' | 'handover'
   placedAt: string
   paidAt: string
   name: string
+  /** Nur die Stücke, die übergeben werden (nach Teil-Widerruf/Teil-Erstattung ohne die übrigen). */
   items: string[]
+  /** Hinweise in Rot: Stücke, die nicht mehr übergeben werden, bzw. Teil-Widerruf ohne zugeordnete Stücke. */
+  warnings: string[]
+  /** Aktionen gesperrt (Teil-Widerruf nur im Freitext – erst Stücke zuordnen). */
+  blocked: boolean
   /** Wartetage seit „Bereit zur Abholung“ (sonst seit Zahlung). */
   waitingDays: number
   overdue: boolean
@@ -102,14 +127,31 @@ function berlinDaysBetween(from: Date, to: Date): number {
   return Math.max(0, Math.round((b - a) / DAY))
 }
 
-/** `paid` mit Abholung und `ready_for_pickup`, am längsten wartend zuerst. */
+/** Nicht mehr zu übergebende Stücke (Teil-Widerruf bzw. Teil-Erstattung vor der Abholung). */
+function notHandedOver(o: Order): string[] {
+  const out: string[] = []
+  const nrs = (statuses: string[]) =>
+    o.items
+      .filter((i) => statuses.includes(i.status ?? 'active'))
+      .map((i) => formatItemNumber(i.itemNumber, 'de'))
+  const withdrawn = nrs(['withdrawn', 'returned'])
+  if (withdrawn.length > 0) out.push(`Nicht mehr übergeben – Widerruf: ${withdrawn.join(', ')}`)
+  const refunded = nrs(['refunded'])
+  if (refunded.length > 0) out.push(`Nicht mehr übergeben – erstattet: ${refunded.join(', ')}`)
+  return out
+}
+
+/**
+ * `paid` mit Abholung und `ready_for_pickup` (dazu die Rest-Abholung nach einer Teil-Erstattung vor der Abholung,
+ * `partially_refunded`), am längsten wartend zuerst.
+ */
 export async function loadPickupList(req: PayloadRequest, now: Date): Promise<PickupCard[]> {
   const res = await req.payload.find({
     collection: 'orders',
     where: {
       and: [
         { fulfillmentMethod: { equals: 'pickup' } },
-        { status: { in: ['paid', 'ready_for_pickup'] } },
+        { status: { in: ['paid', 'ready_for_pickup', 'partially_refunded'] } },
       ],
     },
     sort: 'timestamps.placedAt',
@@ -118,13 +160,25 @@ export async function loadPickupList(req: PayloadRequest, now: Date): Promise<Pi
     overrideAccess: true,
     req,
   })
+  const orders = (res.docs as Order[]).filter((o) => {
+    if (o.status !== 'partially_refunded') return true
+    const facts = deliveryFacts(o)
+    return restDeliveryAllowed('ready_for_pickup', facts) || restDeliveryAllowed('picked_up', facts)
+  })
+  const unassigned = await unassignedWithdrawals(
+    req,
+    orders.map((o) => o.id),
+  )
   const templates = new Map<string, string>()
   const cards: PickupCard[] = []
-  for (const o of res.docs as Order[]) {
+  for (const o of orders) {
     const since = o.timestamps?.readyForPickupAt ?? o.timestamps?.paidAt ?? o.timestamps?.placedAt
     const waitingDays = since ? berlinDaysBetween(new Date(since), now) : 0
+    const step =
+      o.status === 'ready_for_pickup' || o.timestamps?.readyForPickupAt ? 'handover' : 'ready'
+    const hold = unassigned.get(o.id) ?? null
     let template: string | null = null
-    if (o.status === 'paid') {
+    if (step === 'ready') {
       if (!templates.has(o.locale)) {
         templates.set(o.locale, await pickupTemplateText(req, o.locale))
       }
@@ -135,12 +189,20 @@ export async function loadPickupList(req: PayloadRequest, now: Date): Promise<Pi
       orderNumber: o.orderNumber,
       status: o.status,
       statusLabel: ENUM_LABELS.ORDER_STATUSES[o.status].de,
+      step,
       placedAt: date(o.timestamps?.placedAt),
       paidAt: date(o.timestamps?.paidAt),
       name: o.billingAddress?.name || o.customer?.name || '',
-      items: itemsOf(o),
+      items: handoverItems(o.items).map(
+        (i) => `${formatItemNumber(i.itemNumber, 'de')} ${i.titleDe}`,
+      ),
+      warnings: [
+        ...(hold ? [`Noch nicht übergeben – Teil-Widerruf ${hold}: erst Stücke zuordnen!`] : []),
+        ...notHandedOver(o),
+      ],
+      blocked: !!hold,
       waitingDays,
-      overdue: o.status === 'ready_for_pickup' && waitingDays > PICKUP_WAIT_WARN_DAYS,
+      overdue: step === 'handover' && waitingDays > PICKUP_WAIT_WARN_DAYS,
       template,
       messageText: o.pickup?.messageText ?? null,
     })

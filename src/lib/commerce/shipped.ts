@@ -19,14 +19,29 @@ import { inTransaction } from '@/lib/payload/transaction'
 import { addBerlinDays, berlinDayStart } from '@/lib/time'
 import type { Order } from '@/payload-types'
 
+import { restDeliveryAllowed } from './orderTransitions'
 import { loadSettings } from './packOrder'
 import { shippedMailKey } from './shipOrder'
-import { loadOrder, lockOrder, transitionOrder, updateOrderFields } from './transitionOrder'
+import {
+  loadOrder,
+  lockOrder,
+  transitionOrder,
+  updateOrderFields,
+  type LockedOrder,
+} from './transitionOrder'
 
 // „Versendet“ (PLAN P5.16, KONZEPT §7.8, DATENMODELL §6.8.5 O10): „Zugestellt“ durch die Verwaltung
 // (`deliveredSource = manual`), „Sendungsnummer korrigieren/nachtragen“ (optional mit neuer Versandmail M06 unter dem
 // Schlüssel der neuen Nummer) und der Task `markDelivered`: `shipped`, deren Versandtag (Berlin) mindestens 10
-// Kalendertage zurückliegt → `delivered` mit `deliveredSource = auto`, ohne Mail.
+// Kalendertage zurückliegt → `delivered` mit `deliveredSource = auto`, ohne Mail. Nach einer Teil-Erstattung während
+// des Transports (`partially_refunded` mit `shippedAt`, ohne `deliveredAt`) gilt dasselbe (Rest-Lieferung,
+// `restDeliveryAllowed`, DATENMODELL §6.8.5) – sonst fehlte `deliveredAt` als Beginn von Widerrufsfrist und
+// Gewährleistung.
+
+/** Versendet, aber noch nicht zugestellt: `shipped` bzw. Teil-Erstattung während des Transports. */
+export const deliverableFrom = (locked: LockedOrder): boolean =>
+  locked.status === 'shipped' ||
+  (locked.status === 'partially_refunded' && restDeliveryAllowed('delivered', locked))
 
 const log = createLogger()
 
@@ -54,13 +69,13 @@ export async function markDeliveredByAdmin(
     const locked = await lockOrder(req, order.id)
     if (locked.status === 'delivered')
       return { order: await loadOrder(req, order.id), unchanged: true }
-    if (locked.status !== 'shipped') {
+    if (!deliverableFrom(locked)) {
       throw new ShippedActionError(409, '„Zugestellt“ geht nur bei versendeten Bestellungen.')
     }
     const current = await loadOrder(req, order.id)
     const res = await transitionOrder(req, order.id, 'delivered', {
       now,
-      expectedFrom: ['shipped'],
+      expectedFrom: ['shipped', 'partially_refunded'],
       actorType: 'admin',
       data: { shipment: { ...(current.shipment ?? {}), deliveredSource: 'manual' } },
     })
@@ -87,7 +102,11 @@ export async function fixTrackingNumber(
 ): Promise<{ order: Order; unchanged: boolean; mailJobId: number | string | null }> {
   return inTransaction(req, async () => {
     const locked = await lockOrder(req, order.id)
-    if (locked.status !== 'shipped' && locked.status !== 'delivered') {
+    if (
+      locked.status !== 'shipped' &&
+      locked.status !== 'delivered' &&
+      !(locked.status === 'partially_refunded' && locked.shippedAt)
+    ) {
       throw new ShippedActionError(
         409,
         'Die Sendungsnummer lässt sich nur bei versendeten Bestellungen ändern.',
@@ -158,7 +177,11 @@ export async function markDeliveredAuto(payload: Payload, now: Date): Promise<Ma
   const cutoff = autoDeliveredCutoff(now).toISOString()
   const due = await sqlOf(payload).execute(sql`
     SELECT id FROM orders
-     WHERE status = 'shipped' AND timestamps_shipped_at < ${cutoff}::timestamptz
+     WHERE timestamps_shipped_at < ${cutoff}::timestamptz
+       AND (status = 'shipped'
+            OR (status = 'partially_refunded' AND timestamps_delivered_at IS NULL
+                AND EXISTS (SELECT 1 FROM orders_items i
+                             WHERE i._parent_id = orders.id AND i.status = 'active')))
      ORDER BY timestamps_shipped_at LIMIT ${MARK_DELIVERED_BATCH}
   `)
   const out: MarkDeliveredResult = { delivered: 0, errors: 0 }
@@ -171,11 +194,11 @@ export async function markDeliveredAuto(payload: Payload, now: Date): Promise<Ma
       )
       await inTransaction(req, async () => {
         const locked = await lockOrder(req, orderId)
-        if (locked.status !== 'shipped') return
+        if (!deliverableFrom(locked)) return
         const current = await loadOrder(req, orderId)
         await transitionOrder(req, orderId, 'delivered', {
           now,
-          expectedFrom: ['shipped'],
+          expectedFrom: ['shipped', 'partially_refunded'],
           actorType: 'job',
           data: { shipment: { ...(current.shipment ?? {}), deliveredSource: 'auto' } },
         })

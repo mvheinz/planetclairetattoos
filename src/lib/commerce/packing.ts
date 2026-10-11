@@ -2,6 +2,7 @@ import 'server-only'
 
 import type { PackagingMaterial, ShippingClass } from '@/lib/enums'
 import { PACKAGING_MATERIALS, SHIPPING_CLASS_RANK } from '@/lib/enums'
+import { formatItemNumber } from '@/lib/products/itemNumber'
 
 import { carrierEmailConsentActive, type AddressOrderLike } from './address'
 
@@ -11,7 +12,15 @@ import { carrierEmailConsentActive, type AddressOrderLike } from './address'
 
 // --- Hinweise ------------------------------------------------------------------------------------------------------
 
-export type PackingHintKey = 'withdrawal' | 'ceramic' | 'insurance' | 'letter' | 'carrierEmail'
+export type PackingHintKey =
+  | 'withdrawal'
+  | 'withdrawalUnassigned'
+  | 'withdrawnItems'
+  | 'refundedItems'
+  | 'ceramic'
+  | 'insurance'
+  | 'letter'
+  | 'carrierEmail'
 
 export interface PackingHint {
   key: PackingHintKey
@@ -29,7 +38,10 @@ export interface PackingOrderLike extends AddressOrderLike {
   statusBeforeWithdrawal?: string | null
   shippingClass?: ShippingClass | null
   subtotalCents: number
-  items?: { shippingClass?: ShippingClass | null }[] | null
+  items?:
+    | { shippingClass?: ShippingClass | null; status?: string | null; itemNumber?: number | null }[]
+    | null
+  timestamps?: { shippedAt?: string | null } | null
 }
 
 /** „500 €“ bei ganzen Euro, sonst „500,50 €“ (Text der Hinweise wie in KONZEPT §7.6). */
@@ -57,16 +69,62 @@ export function withdrawnBeforeShipping(order: PackingOrderLike): boolean {
   )
 }
 
-/** Hinweise der Karte (wörtlich KONZEPT §7.6, R-100, R-101). */
+/**
+ * Stücke, die mit der Sendung bzw. Abholung übergeben werden: nur Positionen `active` – nach einem Teil-Widerruf oder
+ * einer Teil-Erstattung vor Versand/Abholung fehlen die übrigen (Packliste, Packzettel, M06, M07). Ist keine Position
+ * mehr aktiv (alles erst danach widerrufen bzw. erstattet, etwa bei „Erneut senden“), alle.
+ */
+export function handoverItems<T extends { status?: string | null }>(items: readonly T[]): T[] {
+  const active = items.filter((i) => (i.status ?? 'active') === 'active')
+  return active.length > 0 ? active : [...items]
+}
+
+/** Noch nicht versendet (Packen/Versand offen, auch Rest-Lieferung nach Teil-Erstattung). */
+const beforeShipping = (order: PackingOrderLike) =>
+  ['paid', 'packed', 'partially_refunded'].includes(order.status) && !order.timestamps?.shippedAt
+
+const numbersOf = (order: PackingOrderLike, statuses: readonly string[]) =>
+  (order.items ?? [])
+    .filter((i) => statuses.includes(i.status ?? 'active') && typeof i.itemNumber === 'number')
+    .map((i) => formatItemNumber(i.itemNumber as number, 'de'))
+
+/**
+ * Hinweise der Karte (wörtlich KONZEPT §7.6, R-100, R-101). Teil-Widerruf bzw. Teil-Erstattung vor dem Versand:
+ * „Nicht mehr versenden“ nur an den betroffenen Stücken; Teil-Widerruf nur im Freitext: erst Stücke zuordnen.
+ */
 export function packingHints(
   order: PackingOrderLike,
-  options: { insuranceThresholdCents?: number | null } = {},
+  options: { insuranceThresholdCents?: number | null; unassignedWithdrawal?: string | null } = {},
 ): PackingHint[] {
   const threshold = options.insuranceThresholdCents ?? DEFAULT_INSURANCE_THRESHOLD_CENTS
   const classes = shippingClassesOf(order)
   const hints: PackingHint[] = []
   if (withdrawnBeforeShipping(order)) {
     hints.push({ key: 'withdrawal', text: 'Nicht mehr versenden – Widerruf!', tone: 'error' })
+  } else if (beforeShipping(order)) {
+    if (options.unassignedWithdrawal) {
+      hints.push({
+        key: 'withdrawalUnassigned',
+        text: `Noch nicht versenden – Teil-Widerruf ${options.unassignedWithdrawal}: erst Stücke zuordnen!`,
+        tone: 'error',
+      })
+    }
+    const withdrawn = numbersOf(order, ['withdrawn', 'returned'])
+    if (withdrawn.length > 0) {
+      hints.push({
+        key: 'withdrawnItems',
+        text: `Nicht mehr versenden – Widerruf: ${withdrawn.join(', ')}`,
+        tone: 'error',
+      })
+    }
+    const refunded = numbersOf(order, ['refunded'])
+    if (refunded.length > 0) {
+      hints.push({
+        key: 'refundedItems',
+        text: `Nicht mehr versenden – erstattet: ${refunded.join(', ')}`,
+        tone: 'error',
+      })
+    }
   }
   if (classes.includes('keramik')) {
     hints.push({ key: 'ceramic', text: 'Keramik – Karton in Karton', tone: 'warning' })

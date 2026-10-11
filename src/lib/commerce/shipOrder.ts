@@ -16,11 +16,14 @@ import { enqueueEmail } from '@/lib/email/outbox'
 import { inTransaction } from '@/lib/payload/transaction'
 import type { Order } from '@/payload-types'
 
+import { restDeliveryAllowed } from './orderTransitions'
 import { loadSettings, packagingToRecord, type PackagingInput } from './packOrder'
 import { packagingRecorded, shippingClassesOf } from './packing'
-import { loadOrder, lockOrder, transitionOrder } from './transitionOrder'
+import { loadOrder, lockOrder, transitionOrder, type LockedOrder } from './transitionOrder'
+import { itemsUnassignedMessage, unassignedWithdrawalOf } from './withdrawalHold'
 
-// „Versendet melden“ (O7, DATENMODELL §6.8.5, KONZEPT §7.6): nur `paid`/`packed` mit Versand; Versanddienst
+// „Versendet melden“ (O7, DATENMODELL §6.8.5, KONZEPT §7.6): nur `paid`/`packed` mit Versand (bzw. Rest-Lieferung
+// aus `partially_refunded`, `restDeliveryAllowed`; nie bei Teil-Widerruf ohne zugeordnete Stücke); Versanddienst
 // (vorbelegt aus der Versandklasse), Sendungsnummer Pflicht bei `paket_klein`/`keramik`, bei `brief` optional;
 // Verpackung erfasst (Pflicht, DM-ORD-07 – wird hier mit der übergebenen bzw. vorbelegten Vorlage erfasst, falls
 // „Gepackt“ übersprungen wurde). Keramik ohne Packfoto: kein Zwang, aber Rückfrage „Ohne Packfoto versenden?“ – erst
@@ -51,6 +54,12 @@ export interface ShipInput {
 
 const TRACKING_REQUIRED = new Set(['paket_klein', 'keramik'])
 
+/** Versand möglich: `paid`/`packed` oder Rest-Lieferung nach Teil-Erstattung (DATENMODELL §6.8.5). */
+export const shippableFrom = (locked: LockedOrder): boolean =>
+  locked.status === 'paid' ||
+  locked.status === 'packed' ||
+  (locked.status === 'partially_refunded' && restDeliveryAllowed('shipped', locked))
+
 export interface ShipResult {
   order: Order
   unchanged: boolean
@@ -71,13 +80,17 @@ export async function shipOrder(
     if (order.fulfillmentMethod !== 'shipping') {
       throw new ShipError(409, '„Versendet melden“ gibt es nur bei Bestellungen mit Versand.')
     }
-    if (locked.status !== 'paid' && locked.status !== 'packed') {
+    if (!shippableFrom(locked)) {
       throw new ShipError(
         409,
         locked.status === 'withdrawal_received'
           ? 'Nicht mehr versenden – Widerruf!'
           : 'Diese Bestellung lässt sich nicht (mehr) als versendet melden.',
       )
+    }
+    const unassigned = await unassignedWithdrawalOf(req, order.id)
+    if (unassigned) {
+      throw new ShipError(409, itemsUnassignedMessage(unassigned), 'withdrawal_items_unassigned')
     }
     const carrier: CarrierCode = isCarrierCode(input.carrier)
       ? input.carrier
@@ -119,7 +132,7 @@ export async function shipOrder(
       : null
     const res = await transitionOrder(req, order.id, 'shipped', {
       now,
-      expectedFrom: ['paid', 'packed'],
+      expectedFrom: ['paid', 'packed', 'partially_refunded'],
       actorType: 'admin',
       data: {
         shipment: { ...(current.shipment ?? {}), carrier, trackingNumber, trackingUrl },

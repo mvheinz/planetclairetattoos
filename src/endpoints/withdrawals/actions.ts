@@ -10,7 +10,8 @@ import { inTransaction } from '@/lib/payload/transaction'
 import type { Withdrawal } from '@/payload-types'
 
 // Admin-Endpunkte des Widerrufs-Posteingangs (PLAN P6.9, KONZEPT §7.10, R-094; nur `isAdmin`, sonst 403):
-// `POST /api/withdrawals/:id/match` `{ orderId, itemIds? }` (W2) · `/goods-returned` `{ note?, photoIds? }` (W3/O12) ·
+// `POST /api/withdrawals/:id/match` `{ orderId, itemIds? }` (W2) · `/assign-items` `{ itemIds }` („Stücke zuordnen“ bei
+// Teil-Widerruf nur im Freitext) · `/goods-returned` `{ note?, photoIds? }` (W3/O12) ·
 // `/return-proof` · `/close` `{ closeReason, closeNote? }` (W5/O20) · `/reject` `{ closeNote }` (W7) ·
 // `/spam` `{ reason }` · `GET /api/withdrawals/order-search?q=` (Zuordnen) · `POST /api/withdrawals/manual` (manuelle
 // Erfassung per Mail/Brief). Zustandsbasiert idempotent (`unchanged: true`); Mails nach dem Commit.
@@ -78,6 +79,11 @@ export const withdrawalMatchEndpoint = withdrawalAction('match', async (req, id,
     { orderId: body.orderId, itemIds: body.itemIds },
     now,
   ),
+)
+export const withdrawalAssignItemsEndpoint = withdrawalAction(
+  'assign-items',
+  async (req, id, body, now) =>
+    (await inbox()).assignWithdrawalItems(req, id, { itemIds: body.itemIds }, now),
 )
 export const withdrawalGoodsReturnedEndpoint = withdrawalAction(
   'goods-returned',
@@ -172,6 +178,7 @@ export const WITHDRAWAL_ADMIN_ENDPOINTS: Endpoint[] = [
   withdrawalOrderSearchEndpoint,
   withdrawalManualEndpoint,
   withdrawalMatchEndpoint,
+  withdrawalAssignItemsEndpoint,
   withdrawalGoodsReturnedEndpoint,
   withdrawalReturnProofEndpoint,
   withdrawalCloseEndpoint,
