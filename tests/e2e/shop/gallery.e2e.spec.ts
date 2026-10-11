@@ -89,9 +89,8 @@ test.describe('KO-09 Galerie', () => {
     await expect(counter(page)).toHaveText('1 / 2')
     await expect(page.locator('[data-gallery-thumb="0"]')).toHaveAttribute('aria-current', 'true')
     // U-83 (P17.3): Miniaturen ohne Goth-Rahmen – das Foto füllt das ganze Feld; die großen Fotos bleiben gerahmt (U-13)
-    const frames = await page.evaluate(() => {
-      const box = (sel: string) => {
-        const f = document.querySelector<HTMLElement>(sel)!
+    const frameInfo = (selector: string) =>
+      page.locator(selector).evaluate((f) => {
         const cs = getComputedStyle(f)
         const r = f.getBoundingClientRect()
         const img = f.querySelector('img')!.getBoundingClientRect()
@@ -101,12 +100,11 @@ test.describe('KO-09 Galerie', () => {
           band: parseFloat(cs.borderTopWidth),
           fill: (img.width * img.height) / (r.width * r.height),
         }
-      }
-      return {
-        thumb: box('[data-gallery-thumb="1"] [data-photo-frame]'),
-        slide: box('[data-gallery-slide="0"] [data-photo-frame]'),
-      }
-    })
+      })
+    const frames = {
+      thumb: await frameInfo('[data-gallery-thumb="1"] [data-photo-frame]'),
+      slide: await frameInfo('[data-gallery-slide="0"] [data-photo-frame]'),
+    }
     expect(frames.thumb.attr).toBe('none')
     expect(frames.thumb.src).toBe('none')
     expect(frames.thumb.band).toBe(0)
