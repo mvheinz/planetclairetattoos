@@ -119,7 +119,7 @@ describe('P18.5 Rechtstexte im Grund-Seed', () => {
     expect(de).not.toMatch(/jederzeit erneut abrufen/)
     expect(en).not.toMatch(/retrieve them again at any time/)
     expect(de).toContain(
-      'über den Bestellstatus-Link kannst du sie bis 180 Tage nach Abschluss deiner Bestellung erneut abrufen; danach schicke ich sie dir auf Anfrage per E-Mail.',
+      'über den Bestellstatus-Link kannst du sie bis 180 Tage nach Abschluss deiner Bestellung (Zustellung, Abholung, Storno oder Erstattung) erneut abrufen; danach schicke ich sie dir auf Anfrage per E-Mail.',
     )
     expect(en).toContain('until 180 days after your order has been completed')
     expect(en).toContain('I will send them to you by email on request')
