@@ -314,8 +314,10 @@ Eine Anfrage ist noch kein Vertrag, und der Preis steht nirgends fest. Du sagst 
   veröffentlichen, wenn die Person **vorher ausdrücklich zugestimmt hat**. Trage dann Datum und eine kurze Notiz ein
   und lade, wenn du magst, den Nachweis hoch (zum Beispiel die Nachricht). Fehlt die Einwilligung, lässt sich das Foto nicht
   veröffentlichen, die Verwaltung sagt dir: „Ohne Einwilligung der Kundin/des Kunden nicht veröffentlichen“. Widerruft
-  jemand, tippst du auf „Einwilligung widerrufen“, und das Foto ist sofort offline. Eine Vorlage für die Einwilligung
-  findest du in den [Anleitungen](ANLEITUNGEN.md#e1).
+  jemand, tippst du auf „Einwilligung widerrufen“, und das Foto ist sofort offline. Das Bild selbst ist nach spätestens
+  einem Tag gelöscht, den Eintrag mit deiner Notiz und dem Nachweis löscht die Verwaltung nach drei Jahren von selbst.
+  Ein Foto mit gültiger Einwilligung lässt sich nicht einfach löschen – nutze erst „Einwilligung widerrufen“. Eine
+  Vorlage für die Einwilligung findest du in den [Anleitungen](ANLEITUNGEN.md#e1).
 
 Preise, Ablauf, Pflegehinweise und häufige Fragen bearbeitest du unter „Texte“ (nächstes Kapitel).
 

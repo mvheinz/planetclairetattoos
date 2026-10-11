@@ -797,7 +797,7 @@ dann den Datensatz und schreibt `deletion-log`, §11/§12). „Ende des Jahres +
 | `return_photo` | `order.timestamps.returnReceivedAt + 12 Monate`; Legal Hold der Bestellung verschiebt | L-05 Stufe C · `retentionOrderMinimize` |
 | `complaint_photo` | mit der Reklamation, d. h. mit Stufe D der Bestellung (`orders.retainUntil`) | L-09 · `retentionOrders` |
 | `nickel_evidence`, `lab_report`, `supplier_document`, `technical_file` | leer (keine Auto-Löschung) | L-24: 10 Jahre ab Inverkehrbringen des letzten Stücks, nur Erinnerung · `complianceDocsReview`; manuelles Löschen erlaubt, wenn kein Verweis mehr |
-| `consent_evidence` | leer; nach Widerruf (`tattoo-gallery.consentWithdrawnAt`) bzw. Ende der Veröffentlichung des Galerie-Eintrags `+ 3 Jahre` | L-19 b · `retentionConsentEvidence` |
+| `consent_evidence` | leer; nach Widerruf (`tattoo-gallery.consentWithdrawnAt`) bzw. Ende der Veröffentlichung oder Löschen des Galerie-Eintrags `+ 3 Jahre` | L-19 b · `retentionConsentEvidence` |
 | `invoice_pdf`, `credit_note_pdf` | `retainUntil` = Ende des Belegjahres + `settings.retention.invoiceYears` (= `invoices.retainUntil`) | L-06 · `retentionInvoices` |
 | `monthly_export` | `retainUntil` = Ende des Exportjahres + 10 Jahre | L-07 · `retentionInvoices` |
 | `data_export` | `privacy-requests.answeredAt + 30 Tage` (bis zur Antwort leer) | L-17 · `retentionPrivacyRequests` |
@@ -1796,7 +1796,11 @@ Task-Läufe (auch auf gefüllter Datenbank). Die Nummer 15 bleibt unbelegt.
 **Hooks:** `beforeChange`: Veröffentlichungsregel; Aktion „Einwilligung widerrufen“ (`POST /api/tattoo-gallery/:id/withdraw-consent`)
 setzt `consentGiven = false`, `published = false`, `consentWithdrawnAt = $now` + Audit `gallery_consent_withdrawn`.
 `afterChange`: `media.restricted` der verknüpften Bilder = `!(published && (!showsCustomer || consentGiven))`;
-Revalidierung. **Versionen:** keine (§1.6).
+Revalidierung. `beforeDelete` (P18.5): Einträge mit `showsCustomer` und `consentGiven` (nicht Seed) → 409 „Bitte
+zuerst … „Einwilligung widerrufen“ nutzen“. `afterDelete` (P18.5): Bilder ohne weiteren Fremdschlüssel-Verweis werden
+mit gelöscht (samt Dateien, `src/lib/media/inUse.ts`), die übrigen bekommen `restricted` neu; `consentEvidence` erhält
+`deleteAfter` = Widerruf (sonst Löschzeitpunkt) + 3 Jahre (L-19 b), wenn kein anderer Eintrag ihn nutzt.
+**Versionen:** keine (§1.6).
 **Access:** `read`: öffentlich
 `{ and: [ { published: { equals: true } }, { or: [ { showsCustomer: { equals: false } }, { consentGiven: { equals: true } } ] } ] }`;
 Ausnahme ausschließlich bei `SEED_PREVIEW_MODE = 'true'` **und** `seed = true` (Vorschau des Beispielbestands, siehe
@@ -2001,7 +2005,7 @@ Geschrieben ausschließlich über `writeAudit(req, entry)` (`src/lib/audit.ts`, 
 | `snippetKey` / `snippetVersion` | text | S | Bausteinschlüssel (z. B. `checkout.dhlEmailConsent`) und Version (`draft-1` bis P6, danach `legal-snippets.version`) – R-101 „snippetVersionId“ |
 | `locale` | select `de`, `en` | R | – |
 | `email` | email | R | – |
-| `checkout` / `order` / `inquiry` / `product` | relationship | – | erfasst bei `submitCheckout` mit `checkout`; `order` wird bei der Bestellanlage ergänzt; `product` bei `deviation_agreement` |
+| `checkout` / `order` / `inquiry` / `product` | relationship | – | erfasst bei `submitCheckout` mit `checkout`; `order` wird bei der Bestellanlage ergänzt (`createOrderFromCheckout`, gleiche Transaktion; `retainUntil` folgt dann der Bestellung, P18.5); `product` bei `deviation_agreement` |
 | `withdrawnAt` | date | – | Widerruf der Einwilligung (nur `carrier_email_forwarding`) |
 | `retainUntil` | date | S, R | = Bezugsobjekt (L-19 a: mit der Bestellung, Stufe D); ohne Bestellung wie die Kasse (30 Tage) · `retentionConsentEvidence` |
 | `seed` / `seedKey` | `seedField()` | S | – |
@@ -2852,7 +2856,7 @@ KONZEPT §8.2.
 | `retentionCommissionInquiries` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-10: Anfragen mit `deleteAfter ≤ $now` samt Referenzbildern löschen | 3 |
 | `retentionEmailLog` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-12: `email-log` mit `retainUntil ≤ $now` löschen | 3 |
 | `retentionPrivacyRequests` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-17: Exportdateien 30 Tage nach `answeredAt`, Anfragen mit `retainUntil ≤ $now` löschen | 3 |
-| `retentionConsentEvidence` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-19/L-20: Galerie-Bilddateien spätestens 24 h nach Widerruf der Einwilligung (`consentWithdrawnAt`), `consent_evidence` 3 Jahre nach Widerruf bzw. Ende der Veröffentlichung, `consent-log` mit `retainUntil ≤ $now` löschen | 3 |
+| `retentionConsentEvidence` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-19/L-20: Galerie-Bilddateien spätestens 24 h nach Widerruf der Einwilligung (`consentWithdrawnAt`), `consent_evidence` 3 Jahre nach Widerruf bzw. Ende der Veröffentlichung, widerrufene Galerie-Einträge 3 Jahre nach Widerruf samt nicht mehr genutzter Bild-Einträge (P18.5), `consent-log` mit `retainUntil ≤ $now` löschen | 3 |
 | `retentionDeletionLog` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-18: `deletion-log` mit `retainUntil ≤ $now` löschen (ohne eigenen Protokolleintrag) | 3 |
 | `retentionTechnical` | maintenance | stündlich | – | L-02: Reservierungen 7 Tage nach `releasedAt`/`convertedAt`; L-13 a: `rate_limit_hits` älter als 24 h; L-13 d: `webhook-events` älter als 90 Tage; L-13 f: nicht abgeschickte Anfrage-Uploads (`pending`) älter als 24 h; L-13 g: `job_runs` älter als 90 Tage; L-13 h: `audit-log` mit `retainUntil ≤ $now` | 3 |
 | `legalHoldReview` | maintenance | täglich ab 08:00 | – | Legal Holds, deren letzte Prüfung (`legalHoldReviewedAt`, sonst `legalHoldSince`) ≥ 6 Monate her ist ⇒ Mail `admin_legal_hold_review`, `legalHoldReviewedAt` | 3 |
@@ -2914,7 +2918,7 @@ es vor diesem Kapitel (ARCHITEKTUR Anhang A.3). Fristberechnung in Europe/Berlin
 | DSGVO-Anfragen; Exportdateien | L-17 | Datensatz: Ende des Abschlussjahres + 3 Jahre; Exportdateien: 30 Tage nach Antwort | löschen | `retentionPrivacyRequests` |
 | Löschprotokoll | L-18 | 3 Jahre ab Eintrag | löschen | `retentionDeletionLog` |
 | DHL-E-Mail-Einwilligung und Abweichungsvereinbarungen (`consent-log`) | L-19 a | mit der Bestellung (Stufe D); ohne Bestellung wie die Kasse (L-03, 30 Tage) | löschen | `retentionConsentEvidence` |
-| Portfolio-Einwilligungsnachweise | L-19 b | Widerruf bzw. Ende der Veröffentlichung + 3 Jahre | löschen | `retentionConsentEvidence` |
+| Portfolio-Einwilligungsnachweise (Nachweisdatei; widerrufener Galerie-Eintrag mit Häkchen, Datum, Umfang, Notiz, Instagram-Name und nicht mehr genutzten Bild-Einträgen, P18.5) | L-19 b | Widerruf bzw. Ende der Veröffentlichung + 3 Jahre | löschen | `retentionConsentEvidence` |
 | Portfolio-Fotos nach Widerruf | L-20 | sofort unveröffentlicht, Dateien spätestens nach 24 h | löschen | Aktion + `retentionConsentEvidence` |
 | GPSR-/Konformitätsunterlagen | L-24 | 10 Jahre ab Inverkehrbringen des letzten Stücks | nur Erinnerung | `complianceDocsReview` |
 | Beispielbestand | L-22 | vor Go-live | Knopf „Beispieldaten entfernen“ (§13.5) | – |
