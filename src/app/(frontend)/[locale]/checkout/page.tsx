@@ -184,7 +184,8 @@ export default async function Page({
         expired={data.expired}
         paymentRunning={data.paymentRunning}
         notice={notice && notice !== 'cart_changed' ? notice : null}
-        privacyHref={localizedPath('R22', locale)}
+        // R-138: Link direkt auf den Abschnitt „Bestellung“ der Datenschutzerklärung (Anker aus src/lib/legal/anchors.ts)
+        privacyHref={`${localizedPath('R22', locale)}#bestellung`}
         cartHref={localizedPath('R06', locale)}
       />
     </div>

@@ -763,7 +763,10 @@
       "agb": "Terms and conditions",
       "widerrufsbelehrung": "Withdrawal policy",
       "datenschutz": "Privacy policy",
-      "unavailable": "The text is currently unavailable. You can also find it on its own page."
+      "unavailable": "The text is currently unavailable. You can also find it on its own page.",
+      "form": "Model withdrawal form",
+      "formUnavailable": "The model withdrawal form is currently unavailable. You can also find it on the withdrawal policy page.",
+      "fullPage": "Open the withdrawal policy and form as a separate page (new tab)"
     },
     "legalLinks": {
       "agb": "terms and conditions",

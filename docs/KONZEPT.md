@@ -863,7 +863,9 @@ Abschnitt 5 „Übersicht“ steht **unmittelbar** über dem Knopf und aktualisi
    Zahlart **[Ändern → #zahlart]**.
 6. Hinweistext: Baustein `checkout.legalNotice` (Wortlaut nur in RECHT ANFORDERUNGEN §6, R-063) mit Links auf AGB,
    Widerrufsbelehrung und Datenschutzerklärung; die Links öffnen den Text in einem Dialog auf der Seite (kein
-   Seitenwechsel, kein neuer Tab). Darunter der Baustein `withdrawal.returnCostsNote` (Rücksendekosten, E-27).
+   Seitenwechsel, kein neuer Tab). Der Dialog der Widerrufsbelehrung zeigt wie R24 darunter das Muster-Widerrufsformular
+   mit PDF-Download und einen Link auf R24 (neuer Tab, damit die Eingaben bleiben; P18.5, R-095). Darunter der Baustein
+   `withdrawal.returnCostsNote` (Rücksendekosten, E-27).
 7. Die Bestätigungen zur abweichenden Beschaffenheit (falls vorhanden).
 8. **Knopf mit exakt dem Text „Zahlungspflichtig bestellen“** (E-21), EN „Order with obligation to pay“; kein weiterer
    Text im Knopf, keine Icons, die den Text ersetzen. Gleicher Knopf für Stripe und Vorkasse.

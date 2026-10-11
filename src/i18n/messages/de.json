@@ -763,7 +763,10 @@
       "agb": "AGB",
       "widerrufsbelehrung": "Widerrufsbelehrung",
       "datenschutz": "Datenschutzerklärung",
-      "unavailable": "Der Text ist gerade nicht verfügbar. Du findest ihn auch auf der eigenen Seite."
+      "unavailable": "Der Text ist gerade nicht verfügbar. Du findest ihn auch auf der eigenen Seite.",
+      "form": "Muster-Widerrufsformular",
+      "formUnavailable": "Das Muster-Widerrufsformular ist gerade nicht verfügbar. Du findest es auch auf der Seite zur Widerrufsbelehrung.",
+      "fullPage": "Widerrufsbelehrung und Formular als eigene Seite öffnen (neuer Tab)"
     },
     "legalLinks": {
       "agb": "AGB",
