@@ -1,8 +1,20 @@
 import { localizedPath } from '../../../src/lib/routes/paths'
+import { holdShippingRates, type ReleaseLock } from '../../helpers/adminSessionLock'
 import { expect, test } from '../fixtures'
 
 // P14.9 (U-58 c) – Seitenfuß: kurze Zeile zu Zahlarten, Versand und Abholung mit Link auf „Versand & Zahlung“ (R25),
 // auf jeder Seite, DE/EN. Verbotsliste: kein „inkl. MwSt.“ (Kleinunternehmer-Modus), kein Link zur EU-OS-Plattform.
+// Erwartet Abholung an: Versand-Einstellungen geteilt halten (`holdShippingRates`, der Test „Abholung aus“ hält sie
+// exklusiv, P18.5).
+
+let release: ReleaseLock | undefined
+test.beforeEach(async () => {
+  release = await holdShippingRates('shared')
+})
+test.afterEach(async () => {
+  await release?.()
+  release = undefined
+})
 
 for (const [locale, text, link] of [
   [
