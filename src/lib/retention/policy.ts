@@ -27,7 +27,7 @@ export type RetentionStart = 'event' | 'endOfYear'
 export type RetentionAction = 'delete' | 'anonymize' | 'minimize' | 'remind' | 'cookie'
 
 export interface RetentionRule {
-  /** Regel-ID wie im `deletion-log` (`^L-\d{2}( [a-h])?( Stufe [A-D12])?$`). */
+  /** Regel-ID wie im `deletion-log` (`^L-\d{2}( [a-i])?( Stufe [A-D12])?$`). */
   id: string
   duration: RetentionDuration
   start: RetentionStart
@@ -236,6 +236,16 @@ export const L_13G_JOB_RUNS = rule({
   task: 'retentionTechnical',
   from: 'Erfassung',
 })
+// L-13 i Mail-Jobs der Warteschlange (`payload-jobs`, Task `sendEmail`), die gescheitert sind oder hängen: Die Eingabe
+// enthält eine Kopie der Mail-Daten (Name, Adressen, Positionen) – Prüfung P18.5
+export const L_13I_FAILED_MAIL_JOBS = rule({
+  id: 'L-13 i',
+  duration: { days: 30 },
+  start: 'event',
+  action: 'delete',
+  task: 'retentionTechnical',
+  from: 'letzte Änderung des Jobs (updatedAt)',
+})
 export const L_13H_AUDIT_LOG_RECORDS = rule({
   id: 'L-13 h',
   duration: { years: 10 },
@@ -383,6 +393,7 @@ export const RETENTION_RULES: readonly Readonly<RetentionRule>[] = [
   L_13G_JOB_RUNS,
   L_13H_AUDIT_LOG_RECORDS,
   L_13H_AUDIT_LOG_OTHER,
+  L_13I_FAILED_MAIL_JOBS,
   L_17_PRIVACY_REQUESTS,
   L_17_EXPORT_FILES,
   L_18_DELETION_LOG,

@@ -1089,6 +1089,7 @@
       "inquiries": "Anfragen zu Auftragsarbeiten",
       "complaints": "Reklamationen",
       "emailLog": "Versandnachweise von Mails an dich",
+      "mailJobs": "Mails in der Versand-Warteschlange (Kopie der Mail-Inhalte)",
       "consentLog": "Einwilligungsnachweise",
       "privacyRequests": "Frühere Datenschutz-Anfragen",
       "files": "Dateien (Bilder, Belege)"
@@ -1133,6 +1134,7 @@
       "inquiries": "Anfragen zu Auftragsarbeiten samt Bildern: {months} Monate nach Eingang.",
       "checkouts": "Kassenvorgänge ohne Bestellung: {days} Tage.",
       "emailLog": "Versandnachweise von Mails: so lange wie der zugehörige Vorgang, ohne Bezug {days} Tage.",
+      "mailJobs": "Mails in der Versand-Warteschlange: nach dem Versand sofort gelöscht; konnten sie nicht versendet werden, {days} Tage danach.",
       "consentLog": "Einwilligungsnachweise: so lange wie die zugehörige Bestellung, ohne Bestellung {days} Tage.",
       "privacyRequests": "Datenschutz-Anfragen: {years} Jahre nach Ende des Jahres der Antwort; die Export-Datei {days} Tage nach der Antwort."
     },

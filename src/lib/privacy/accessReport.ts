@@ -12,6 +12,7 @@ import {
   L_08_WITHDRAWALS,
   L_10_INQUIRIES,
   L_12_EMAIL_LOG_UNRELATED,
+  L_13I_FAILED_MAIL_JOBS,
   L_17_EXPORT_FILES,
   L_17_PRIVACY_REQUESTS,
 } from '@/lib/retention/policy'
@@ -63,6 +64,7 @@ export function retentionLines(
     fill(t.retention.inquiries, { months: L_10_INQUIRIES.duration.months ?? 6 }),
     fill(t.retention.checkouts, { days: L_03_CHECKOUTS.duration.days ?? 30 }),
     fill(t.retention.emailLog, { days: L_12_EMAIL_LOG_UNRELATED.duration.days ?? 90 }),
+    fill(t.retention.mailJobs, { days: L_13I_FAILED_MAIL_JOBS.duration.days ?? 30 }),
     fill(t.retention.consentLog, { days: L_03_CHECKOUTS.duration.days ?? 30 }),
     fill(t.retention.privacyRequests, {
       years: L_17_PRIVACY_REQUESTS.duration.years ?? 3,

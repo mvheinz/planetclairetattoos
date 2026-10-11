@@ -21,6 +21,7 @@ import {
   L_13D_WEBHOOK_EVENTS,
   L_13F_PENDING_UPLOADS,
   L_13G_JOB_RUNS,
+  L_13I_FAILED_MAIL_JOBS,
   L_17_EXPORT_FILES,
   L_19B_PORTFOLIO_CONSENT,
   L_20_GALLERY_FILES_AFTER_WITHDRAWAL,
@@ -616,7 +617,7 @@ const deletionLogStep = sqlDeleteStep(
      WHERE retain_until <= ${iso(until)}::timestamptz ORDER BY retain_until, id LIMIT ${limit}`,
 )
 
-// --- retentionTechnical (stündlich): L-02, L-13 a/d/f/g/h -------------------------------------------------------
+// --- retentionTechnical (stündlich): L-02, L-13 a/d/f/g/h/i -----------------------------------------------------
 
 const reservationsStep = sqlDeleteStep(
   L_02_RESERVATIONS.id,
@@ -666,6 +667,92 @@ const auditLogStep = sqlDeleteStep(
     SELECT id, retain_until AS due_at FROM audit_log
      WHERE retain_until <= ${iso(until)}::timestamptz ORDER BY retain_until, id LIMIT ${limit}`,
 )
+
+// L-13 i Mail-Jobs (`payload-jobs`, Task `sendEmail`, Prüfung P18.5): Die Job-Eingabe trägt eine Kopie der Mail-Daten
+// (`input.data`: Name, Adressen, Positionen – Abweichung von DATENMODELL §1.5). Erfolgreiche Jobs löscht Payload sofort
+// (`deleteJobOnComplete`); übrig bleiben gescheiterte (`hasError`), hängende (`processing` nach Absturz/Zeitüberschreitung)
+// und abgeschlossene, aber nicht gelöschte Jobs – sie werden 30 Tage nach der letzten Änderung gelöscht. Jobs, deren
+// Protokoll-Eintrag (`email-log`) nicht mehr existiert, können nie mehr versendet werden und gehen sofort. Ein Job, der
+// gerade läuft (`processing` und in der letzten Stunde geändert), bleibt immer unberührt.
+
+/** So lange gilt ein Job mit `processing = true` als laufend (Funktionslaufzeit ≤ wenige Minuten). */
+export const MAIL_JOB_RUNNING_MS = 3_600_000
+
+/** `input.emailLogId` als Zahl (sonst NULL – ein Job ohne gültigen Verweis zählt als verwaist). */
+const JOB_EMAIL_LOG_ID = sql.raw(
+  `(CASE WHEN j.input->>'emailLogId' ~ '^[0-9]{1,9}$' THEN (j.input->>'emailLogId')::int END)`,
+)
+const MAIL_JOB = sql`j.task_slug = 'sendEmail'`
+const MAIL_JOB_ORPHANED = sql`NOT EXISTS (SELECT 1 FROM email_log e WHERE e.id = ${JOB_EMAIL_LOG_ID})`
+const MAIL_JOB_DEAD = sql`(j.has_error IS TRUE OR j.processing IS TRUE OR j.completed_at IS NOT NULL)`
+const mailJobNotRunning = (now: Date) =>
+  sql`NOT (j.processing IS TRUE AND j.updated_at > ${iso(new Date(now.getTime() - MAIL_JOB_RUNNING_MS))}::timestamptz)`
+
+const failedMailJobsStep: RetentionStep = {
+  ruleId: L_13I_FAILED_MAIL_JOBS.id,
+  collection: 'payload-jobs',
+  action: 'deleted',
+  async candidates(db, until, limit) {
+    const res = await db.execute(sql`
+      SELECT j.id, j.updated_at AS event_at, ${MAIL_JOB_ORPHANED} AS orphaned FROM payload_jobs j
+       WHERE ${MAIL_JOB} AND ${mailJobNotRunning(until)}
+         AND ((${MAIL_JOB_DEAD} AND j.updated_at <= ${iso(eventCutoff(L_13I_FAILED_MAIL_JOBS, until))}::timestamptz)
+           OR ${MAIL_JOB_ORPHANED})
+       ORDER BY j.updated_at, j.id LIMIT ${limit}`)
+    const orphaned = res.rows
+      .filter((r) => r.orphaned === true)
+      .map((r) => ({ id: Number(r.id), dueAt: asDate(r.event_at) }))
+    const dead = byEvent(
+      L_13I_FAILED_MAIL_JOBS,
+      res.rows.filter((r) => r.orphaned !== true),
+      until,
+    )
+    return [...orphaned, ...dead].sort((a, b) => a.dueAt.getTime() - b.dueAt.getTime())
+  },
+  async apply(req, id, now) {
+    const db = await dbFor(req)
+    const res = await db.execute(sql`
+      DELETE FROM payload_jobs j
+       WHERE j.id = ${Number(id)} AND ${MAIL_JOB} AND ${mailJobNotRunning(now)}
+         AND ((${MAIL_JOB_DEAD} AND j.updated_at <= ${iso(eventCutoff(L_13I_FAILED_MAIL_JOBS, now))}::timestamptz)
+           OR ${MAIL_JOB_ORPHANED})
+       RETURNING j.id`)
+    return { changed: res.rows.length > 0 }
+  },
+}
+
+/** Mail-Jobs, deren Eingabe auf einen dieser Protokoll-Einträge zeigt (Auskunft und Löschung, LOESCHKONZEPT §5). */
+export async function mailJobsFor(
+  db: SqlExecutor,
+  emailLogIds: readonly number[],
+): Promise<number[]> {
+  if (emailLogIds.length === 0) return []
+  const list = sql.raw(`ARRAY[${emailLogIds.map((n) => Number(n)).join(',')}]::int[]`)
+  const res = await db.execute(sql`
+    SELECT j.id FROM payload_jobs j WHERE ${MAIL_JOB} AND ${JOB_EMAIL_LOG_ID} = ANY(${list}) ORDER BY j.id`)
+  return res.rows.map((r) => Number(r.id))
+}
+
+/**
+ * Löschung je Person (Art. 17): Mail-Jobs der Person, die nicht mehr versendet werden – gescheitert, hängend,
+ * abgeschlossen oder ohne Protokoll-Eintrag (eben mitgelöscht) –, sofort entfernen. Wartende Mails zu aufbewahrten
+ * Vorgängen bleiben (sie werden versendet bzw. bei Einschränkung unterdrückt und danach von Payload gelöscht); ein
+ * gerade laufender Job auch (endet ohne Protokoll-Eintrag als `missing` und wird dann gelöscht).
+ */
+export async function deleteSpentMailJobs(
+  db: SqlExecutor,
+  jobIds: readonly number[],
+  now: Date,
+): Promise<number[]> {
+  if (jobIds.length === 0) return []
+  const list = sql.raw(`ARRAY[${jobIds.map((n) => Number(n)).join(',')}]::int[]`)
+  const res = await db.execute(sql`
+    DELETE FROM payload_jobs j
+     WHERE j.id = ANY(${list}) AND ${MAIL_JOB} AND ${mailJobNotRunning(now)}
+       AND (${MAIL_JOB_DEAD} OR ${MAIL_JOB_ORPHANED})
+     RETURNING j.id`)
+  return res.rows.map((r) => Number(r.id)).sort((a, b) => a - b)
+}
 
 /**
  * Technische Tabellen ohne Collection (L-13 a `rate_limit_hits`, L-13 g `job_runs`): nur Zähler bzw. IDs, keine
@@ -789,6 +876,7 @@ export const RETENTION_TASK_STEPS = {
     pendingUploadsStep,
     bulkTableStep('L-13 g', 'job_runs'),
     auditLogStep,
+    failedMailJobsStep,
   ],
 } as const satisfies Record<string, readonly RetentionStep[]>
 

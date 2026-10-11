@@ -1089,6 +1089,7 @@
       "inquiries": "Commission requests",
       "complaints": "Complaints",
       "emailLog": "Delivery records of emails to you",
+      "mailJobs": "Emails in the sending queue (copy of the email content)",
       "consentLog": "Consent records",
       "privacyRequests": "Earlier data protection requests",
       "files": "Files (images, documents)"
@@ -1133,6 +1134,7 @@
       "inquiries": "Commission requests including images: {months} months after receipt.",
       "checkouts": "Checkout sessions without an order: {days} days.",
       "emailLog": "Delivery records of emails: as long as the related matter, without one {days} days.",
+      "mailJobs": "Emails in the sending queue: deleted right after sending; if they could not be sent, {days} days later.",
       "consentLog": "Consent records: as long as the related order, without an order {days} days.",
       "privacyRequests": "Data protection requests: {years} years after the end of the year of the reply; the export file {days} days after the reply."
     },

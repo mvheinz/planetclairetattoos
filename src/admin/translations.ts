@@ -1099,6 +1099,7 @@ export const ADMIN_CUSTOM_DE = {
   privacyArea_inquiries: 'Anfragen',
   privacyArea_complaints: 'Reklamationen',
   privacyArea_emailLog: 'Mail-Protokoll',
+  privacyArea_mailJobs: 'Mail-Warteschlange',
   privacyArea_consentLog: 'Einwilligungs-Protokoll',
   privacyArea_privacyRequests: 'Frühere Datenschutz-Anfragen',
   privacyArea_files: 'Dateien',

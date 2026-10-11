@@ -166,6 +166,28 @@ describe('Outbox (DATENMODELL §1.5)', () => {
     expect(getMemoryOutbox()).toHaveLength(0)
   })
 
+  it('Prüfung P18.5 L-13 i Protokoll-Eintrag inzwischen gelöscht → Job endet ohne Versand und wird mit seiner Datenkopie gelöscht', async () => {
+    const req = await createLocalReq({}, payload)
+    const res = await enqueueEmail(req, {
+      template: 'admin_alert',
+      locale: 'de',
+      data: alertData('Gelöscht vor dem Versand'),
+      idempotencyKey: `admin_alert:deleted-before-send@${T0}`,
+    })
+    expect(res.status).toBe('queued')
+    await payload.delete({ collection: 'email-log', id: res.emailLogId, overrideAccess: true })
+    const runReq = await createLocalReq({ context: { now: T0 } }, payload)
+    await payload.jobs.runByID({ id: res.jobId!, req: runReq })
+    const left = await payload.find({
+      collection: 'payload-jobs',
+      where: { id: { equals: res.jobId } },
+      depth: 0,
+      overrideAccess: true,
+    })
+    expect(left.docs).toHaveLength(0)
+    expect(getMemoryOutbox()).toHaveLength(0)
+  })
+
   it('doppeltes Auslösen (nacheinander und parallel) → genau eine Mail', async () => {
     const input = {
       template: 'admin_alert' as const,

@@ -158,7 +158,11 @@ Quelle `content/seed/SEED-SPEC.md` §1.6). Ohne dieses Flag gilt immer die Spalt
   `src/lib/commerce/*.ts` bzw. `src/lib/legal/*.ts`. Collection-Hooks prüfen nur Invarianten, schreiben Audit-Einträge
   und reihen Mails ein; sie führen keine Geschäftslogik doppelt aus.
 - Mails werden **im selben Transaktionskontext** als Job eingereiht (Outbox-Muster): `email-log`-Zeile (`queued`) +
-  `payload.jobs.queue({ task: 'sendEmail', input: { emailLogId }, req })`.
+  `payload.jobs.queue({ task: 'sendEmail', input: { emailLogId, data, waits }, req })`. Abweichend vom ursprünglichen
+  Entwurf (`input: { emailLogId }`) trägt `data` die Vorlagen-Daten und damit eine Kopie personenbezogener Mail-Inhalte
+  (Name, Adressen, Positionen; nie Tokens). Erfolgreiche Jobs löscht Payload sofort; gescheiterte oder hängende Jobs
+  und Jobs ohne Protokoll-Eintrag löscht `retentionTechnical` (L-13 i, §11), die Löschung je Person nimmt sie mit
+  (LOESCHKONZEPT §5.6) – Prüfung P18.5.
 
 ### 1.6 Versionen und Entwürfe
 
@@ -2183,7 +2187,7 @@ Wiederherstellung aus dem Backup. **Admin:** Gruppe „System“, nur lesen.
 |---|---|---|---|
 | `entityCollection` | text | R | Slug der betroffenen Collection (z. B. `orders`) |
 | `entityId` | text | R | interne ID; **keine** Nummer mit Personenbezug, kein Name |
-| `ruleId` | text | R | `^L-\d{2}( [a-h])?( Stufe [A-D12])?$` (z. B. `L-10`, `L-13 a`, `L-23 d`, `L-05 Stufe C`, `L-04 Stufe 1`) oder `DSGVO` (Aktion aus einer Anfrage) oder `ADMIN` („Jetzt löschen“) |
+| `ruleId` | text | R | `^L-\d{2}( [a-i])?( Stufe [A-D12])?$` (z. B. `L-10`, `L-13 a`, `L-13 i`, `L-23 d`, `L-05 Stufe C`, `L-04 Stufe 1`) oder `DSGVO` (Aktion aus einer Anfrage) oder `ADMIN` („Jetzt löschen“) |
 | `action` | select `DeletionAction` | R | `deleted`, `anonymized`, `restricted`, `files_deleted` |
 | `trigger` | select `DeletionTrigger` | R | – |
 | `taskSlug` | text | – | Task-Slug aus ARCHITEKTUR Anhang A.3 (bei `trigger = job`) |
@@ -2831,7 +2835,7 @@ KONZEPT §8.2.
 
 | Task-Slug | Queue | Auslösung | Eingabe | Verhalten | Retries |
 |---|---|---|---|---|---|
-| `sendEmail` | email | direkt nach dem Commit; Wiederholung per `waitUntil` + Weckzeit | `{ emailLogId, data, waits }` (`data` = Vorlagen-Daten ohne Tokens; `waits` = Anzahl Anhang-Wartezyklen) | Vorlage rendern, über `EMAIL_DRIVER` senden, `email-log` auf `sent`/`failed`; Empfänger `example.com`, `example.org`, `example.net`, `*.invalid`, `*.test` → `suppressed` (nie versendet). Fehlt ein Pflicht-Anhang noch (Rechnung `pending_pdf`, Rechtstext-PDF), wird der Job ohne Fehlversuch mit `waitUntil = $now + 1 min` neu eingereiht (max. 30×, dann `failed` + `admin_alert`). Wiederholung nach 1, 5, 15, 60, 240 min, danach `failed` + `admin_alert`; `withdrawal_receipt` (R-093): Wiederholung im Abstand von höchstens 5 min bis 24 h nach Eingang des Widerrufs, `admin_alert` (A12) schon nach dem 2. Fehlversuch und erneut, wenn nach 24 h `failed` gesetzt wird | 5 (bei `withdrawal_receipt` bis 24 h) |
+| `sendEmail` | email | direkt nach dem Commit; Wiederholung per `waitUntil` + Weckzeit | `{ emailLogId, data, waits }` (`data` = Vorlagen-Daten ohne Tokens; `waits` = Anzahl Anhang-Wartezyklen) | Vorlage rendern, über `EMAIL_DRIVER` senden, `email-log` auf `sent`/`failed`; Empfänger `example.com`, `example.org`, `example.net`, `*.invalid`, `*.test` → `suppressed` (nie versendet). Fehlt ein Pflicht-Anhang noch (Rechnung `pending_pdf`, Rechtstext-PDF), wird der Job ohne Fehlversuch mit `waitUntil = $now + 1 min` neu eingereiht (max. 30×, dann `failed` + `admin_alert`). Wiederholung nach 1, 5, 15, 60, 240 min, danach `failed` + `admin_alert`; `withdrawal_receipt` (R-093): Wiederholung im Abstand von höchstens 5 min bis 24 h nach Eingang des Widerrufs, `admin_alert` (A12) schon nach dem 2. Fehlversuch und erneut, wenn nach 24 h `failed` gesetzt wird. Gibt es die `email-log`-Zeile nicht mehr (Löschfrist, Datenschutz-Löschung), endet der Job erfolgreich mit `missing` und wird gelöscht (L-13 i) | 5 (bei `withdrawal_receipt` bis 24 h) |
 | `renderInvoicePdf` | documents | bei Bedarf | `{ invoiceId }` | PDF aus `invoice.data` rendern, als `private-upload` speichern, `pdf`/`sha256`/`renderedAt`/`status = issued` setzen | 5 |
 | `renderLegalTextPdf` | documents | bei Bedarf | `{ legalTextId }` | PDFs DE/EN (Tokens aufgelöst) → `documents`, Hash setzen | 5 |
 | `monthlyClose` | documents | monatlich am 1. ab 04:00 | – | für den Vormonat: Monatsexport-CSV (KONZEPT §7.15, ohne Beispieldaten – auch im Vorschau-Modus; **keine** Namen, Adressen oder E-Mail-Adressen; mit Steuermodus und Stripe-Zahlungs- bzw. Erstattungs-ID; gleiche Eingaben ergeben eine byte-identische Datei, R-124) und Rechnungs-ZIP als `private-uploads` (`monthly_export`, L-07) ablegen; Mail `admin_monthly_close` inkl. Hinweis auf fehlende `revenue-entries` | 3 |
@@ -2854,7 +2858,7 @@ KONZEPT §8.2.
 | `retentionPrivacyRequests` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-17: Exportdateien 30 Tage nach `answeredAt`, Anfragen mit `retainUntil ≤ $now` löschen | 3 |
 | `retentionConsentEvidence` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-19/L-20: Galerie-Bilddateien spätestens 24 h nach Widerruf der Einwilligung (`consentWithdrawnAt`), `consent_evidence` 3 Jahre nach Widerruf bzw. Ende der Veröffentlichung, `consent-log` mit `retainUntil ≤ $now` löschen | 3 |
 | `retentionDeletionLog` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-18: `deletion-log` mit `retainUntil ≤ $now` löschen (ohne eigenen Protokolleintrag) | 3 |
-| `retentionTechnical` | maintenance | stündlich | – | L-02: Reservierungen 7 Tage nach `releasedAt`/`convertedAt`; L-13 a: `rate_limit_hits` älter als 24 h; L-13 d: `webhook-events` älter als 90 Tage; L-13 f: nicht abgeschickte Anfrage-Uploads (`pending`) älter als 24 h; L-13 g: `job_runs` älter als 90 Tage; L-13 h: `audit-log` mit `retainUntil ≤ $now` | 3 |
+| `retentionTechnical` | maintenance | stündlich | – | L-02: Reservierungen 7 Tage nach `releasedAt`/`convertedAt`; L-13 a: `rate_limit_hits` älter als 24 h; L-13 d: `webhook-events` älter als 90 Tage; L-13 f: nicht abgeschickte Anfrage-Uploads (`pending`) älter als 24 h; L-13 g: `job_runs` älter als 90 Tage; L-13 h: `audit-log` mit `retainUntil ≤ $now`; L-13 i: `payload-jobs` des Tasks `sendEmail`, die gescheitert (`hasError`), hängend (`processing`) oder abgeschlossen sind, 30 Tage nach `updatedAt`, Jobs ohne `email-log`-Zeile sofort – nie ein Job, der gerade läuft (`processing` und `updatedAt` in der letzten Stunde) | 3 |
 | `legalHoldReview` | maintenance | täglich ab 08:00 | – | Legal Holds, deren letzte Prüfung (`legalHoldReviewedAt`, sonst `legalHoldSince`) ≥ 6 Monate her ist ⇒ Mail `admin_legal_hold_review`, `legalHoldReviewedAt` | 3 |
 | `privacyRequestsDeadlineReminder` | maintenance | täglich ab 08:00 | – | offene `privacy-requests` 7 Tage und 1 Tag vor `extendedDueAt ?? dueAt` ⇒ Mail `admin_privacy_request_due` je Stufe einmal (`remindersSent`) + Dashboard-Hinweis (R-153) | 3 |
 | `complianceDocsReview` | maintenance | monatlich am 1. ab 08:10 | – | L-24: Übersicht der GPSR-/Konformitätsunterlagen (`nickel_evidence`, `lab_report`, `supplier_document`, `technical_file`, `conformity-declarations`) mit Hinweis auf die 10-Jahres-Frist ⇒ Mail `admin_compliance_docs_review`; keine Löschung | 3 |
@@ -2911,6 +2915,7 @@ es vor diesem Kapitel (ARCHITEKTUR Anhang A.3). Fristberechnung in Europe/Berlin
 | Webhook-Ereignisse | L-13 d | 90 Tage | löschen | `retentionTechnical` |
 | Job-Protokoll (`job_runs`) | L-13 g | 90 Tage ab Lauf | löschen | `retentionTechnical` |
 | Audit-Log (personenbezogene Werte maskiert) | L-13 h | Beleg-, Bestell-, Widerrufs- und Rechtstext-Aktionen 10 Jahre ab Ende des Jahres, sonst 3 Jahre (`retainUntil`, §6.21) | löschen | `retentionTechnical` |
+| Mail-Jobs der Warteschlange (`payload-jobs`, Task `sendEmail`, Eingabe mit Kopie der Mail-Daten) | L-13 i | gescheitert, hängend oder abgeschlossen: 30 Tage nach `updatedAt`; ohne `email-log`-Zeile: sofort; erfolgreich: Payload löscht sofort | löschen | `retentionTechnical` |
 | DSGVO-Anfragen; Exportdateien | L-17 | Datensatz: Ende des Abschlussjahres + 3 Jahre; Exportdateien: 30 Tage nach Antwort | löschen | `retentionPrivacyRequests` |
 | Löschprotokoll | L-18 | 3 Jahre ab Eintrag | löschen | `retentionDeletionLog` |
 | DHL-E-Mail-Einwilligung und Abweichungsvereinbarungen (`consent-log`) | L-19 a | mit der Bestellung (Stufe D); ohne Bestellung wie die Kasse (L-03, 30 Tage) | löschen | `retentionConsentEvidence` |
