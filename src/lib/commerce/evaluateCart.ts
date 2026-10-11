@@ -1,6 +1,7 @@
 import 'server-only'
 
 import type { ShippingClass, VatCategory } from '@/lib/enums'
+import { pickupEnabledIn, pickupOnlyOrderable, pickupSelectable } from '@/lib/shop/pickupPolicy'
 
 import type { CartCookie, CartDelivery } from './cartCookie'
 import {
@@ -40,8 +41,13 @@ export interface CartLine {
   id: number
   itemNumber: number | null
   state: CartLineState
-  /** Kaufbar (`available` oder in der eigenen Kasse) – zählt in die Summe. */
+  /** Kaufbar (`available` oder in der eigenen Kasse, nicht `pickupBlocked`) – zählt in die Summe. */
   purchasable: boolean
+  /**
+   * Stück `nur_abholung`, das gerade nicht bestellbar ist, weil Abholung aus ist (`settings.shipping.pickupEnabled`, P18.5):
+   * gedämpft, aus der Summe, Hinweis „Gerade nicht bestellbar – Abholung ist im Moment nicht möglich“.
+   */
+  pickupBlocked: boolean
   /** Aktueller DB-Preis (angezeigt und berechnet); `null`, wenn das Stück nicht mehr öffentlich ist. */
   priceCents: number | null
   /** Preis beim Hinzufügen (`p` im Cookie). */
@@ -56,14 +62,26 @@ export interface CartLine {
   product: CartProductFacts | null
 }
 
-export type CartBlocker = 'shop_closed' | 'empty' | 'too_many' | 'unavailable' | 'shipping'
+export type CartBlocker =
+  'shop_closed' | 'empty' | 'too_many' | 'unavailable' | 'pickup_disabled' | 'shipping'
 
 export interface CartEvaluation {
   lines: CartLine[]
-  /** Lieferart für Anzeige und Rechnung: `pickup`, sobald ein kaufbares Stück `nur_abholung` ist. */
+  /**
+   * Lieferart für Anzeige und Rechnung: `pickup`, sobald ein kaufbares Stück `nur_abholung` ist; `shipping`, solange
+   * Abholung nicht wählbar ist (Schalter aus, P18.5) – auch wenn das Cookie noch `pickup` sagt.
+   */
   delivery: CartDelivery
   /** Nummern der kaufbaren Stücke, die es nur zur Abholung gibt („Nr. 023 gibt es nur zur Abholung“). */
   pickupOnly: number[]
+  /** Nummern der `nur_abholung`-Stücke, die gerade nicht bestellbar sind (Abholung aus, P18.5). */
+  pickupBlocked: number[]
+  /** Schalter „Abholung möglich“ (`settings.shipping.pickupEnabled`). */
+  pickupEnabled: boolean
+  /** Abholung im Korb wählbar (Radio sichtbar): Schalter an – oder ein bestellbares `nur_abholung`-Stück im Korb. */
+  pickupSelectable: boolean
+  /** Vorkasse angeboten (`settings.payment.prepaymentEnabled`) – für die Zahlarten vor „Zur Kasse“ (R-036). */
+  prepaymentEnabled: boolean
   totals: {
     subtotalCents: number
     shippingCents: number
@@ -91,6 +109,8 @@ export interface CartEvaluationSettings extends TotalsSettings {
     closedMessage?: string | null
     maxItemsPerCheckout?: number | null
   } | null
+  shipping?: (NonNullable<TotalsSettings['shipping']> & { pickupEnabled?: boolean | null }) | null
+  payment?: { prepaymentEnabled?: boolean | null } | null
 }
 
 export interface EvaluateCartInput {
@@ -119,11 +139,15 @@ function lineState(p: CartProductFacts | undefined, own: string | null, now: Dat
 
 export function evaluateCartItems(input: EvaluateCartInput): CartEvaluation {
   const { cart, settings, now } = input
+  const pickupEnabled = pickupEnabledIn(settings)
+  const pickupOnlyOk = pickupOnlyOrderable(pickupEnabled)
   const byId = new Map(input.products.map((p) => [p.id, p] as const))
   const lines: CartLine[] = cart.items.map((item) => {
     const product = byId.get(item.id)
     const state = lineState(product, input.ownReservationRef, now)
     const visible = product && product.status !== null ? product : null
+    const open = state === 'available' || state === 'reserved_by_you'
+    const pickupBlocked = open && !pickupOnlyOk && visible?.shippingClass === 'nur_abholung'
     const priceCents = visible ? visible.priceCents : null
     const until =
       state === 'reserved' && product?.reservedUntil ? new Date(product.reservedUntil) : null
@@ -132,7 +156,8 @@ export function evaluateCartItems(input: EvaluateCartInput): CartEvaluation {
       itemNumber: product?.itemNumber ?? null,
       state,
       reservedUntil: until && !Number.isNaN(until.getTime()) ? until.toISOString() : null,
-      purchasable: state === 'available' || state === 'reserved_by_you',
+      purchasable: open && !pickupBlocked,
+      pickupBlocked,
       priceCents,
       addedPriceCents: item.p,
       priceChanged: priceCents !== null && priceCents !== item.p,
@@ -150,7 +175,10 @@ export function evaluateCartItems(input: EvaluateCartInput): CartEvaluation {
   const pickupOnly = buyable
     .filter((l) => l.product!.shippingClass === 'nur_abholung')
     .map((l) => l.product!.itemNumber)
-  const delivery: CartDelivery = pickupOnly.length > 0 ? 'pickup' : cart.delivery
+  const pickupBlocked = lines.flatMap((l) => (l.pickupBlocked ? [l.product!.itemNumber] : []))
+  const canPickUp = pickupSelectable(pickupEnabled, pickupOnly.length > 0)
+  const delivery: CartDelivery =
+    pickupOnly.length > 0 ? 'pickup' : canPickUp ? cart.delivery : 'shipping'
 
   let totals: CartEvaluation['totals'] = null
   let shippingError: ShippingErrorCode | null = null
@@ -202,13 +230,18 @@ export function evaluateCartItems(input: EvaluateCartInput): CartEvaluation {
   if (!shopOpen) blockers.push('shop_closed')
   if (lines.length === 0) blockers.push('empty')
   if (lines.length > maxItemsPerCheckout) blockers.push('too_many')
-  if (lines.some((l) => !l.purchasable)) blockers.push('unavailable')
+  if (lines.some((l) => !l.purchasable && !l.pickupBlocked)) blockers.push('unavailable')
+  if (pickupBlocked.length > 0) blockers.push('pickup_disabled')
   if (shippingError) blockers.push('shipping')
 
   return {
     lines,
     delivery,
     pickupOnly,
+    pickupBlocked,
+    pickupEnabled,
+    pickupSelectable: canPickUp,
+    prepaymentEnabled: settings.payment?.prepaymentEnabled !== false,
     totals,
     shippingError,
     shippingQuoteCents,

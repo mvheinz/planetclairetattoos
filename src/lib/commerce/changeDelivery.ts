@@ -12,6 +12,7 @@ import { preservingReq } from '@/lib/payload/localReq'
 import { inTransaction } from '@/lib/payload/transaction'
 import { getPaymentsAdapter, type PaymentsAdapter } from '@/lib/payments'
 import { checkoutReturnUrl } from '@/lib/payments/checkoutSession'
+import { pickupEnabledIn, pickupSelectable } from '@/lib/shop/pickupPolicy'
 import type { Checkout } from '@/payload-types'
 
 import { findCheckoutByToken } from './checkout'
@@ -26,12 +27,13 @@ import { computeTotals, type TotalsSettings } from './totals'
 // AK-4-03). Reservierung (`reservationRef`, `expiresAt`) bleibt unverändert. Die Zahlungs-Session bekommt den neuen
 // Versand per `updateShipping`; meldet der Adapter `recreate_required`, wird die alte Session beendet und eine neue für
 // **dieselbe** Reservierung mit `sessionSeq + 1` angelegt (ARCHITEKTUR §3.5, Spike B-07). Schlägt das fehl, bleibt die
-// Kasse ohne Session (nur Vorkasse, S13).
+// Kasse ohne Session (nur Vorkasse, S13). Abholung nur, solange sie wählbar ist (`settings.shipping.pickupEnabled`,
+// P18.5) – sonst `pickup_disabled`, die Kasse bleibt unverändert.
 
 const log = createLogger()
 
 export type ChangeDeliveryCode =
-  'not_found' | 'not_open' | 'expired' | 'invalid' | 'pickup_only' | 'shipping'
+  'not_found' | 'not_open' | 'expired' | 'invalid' | 'pickup_only' | 'pickup_disabled' | 'shipping'
 
 export type ChangeDeliveryResult =
   | {
@@ -78,8 +80,19 @@ export async function changeCheckoutDelivery(
   if (input.method !== 'shipping' && input.method !== 'pickup')
     return { ok: false, code: 'invalid' }
   const method = input.method as FulfillmentMethod
-  if (method === 'shipping' && checkout.items.some((i) => i.shippingClass === 'nur_abholung')) {
+  const hasPickupOnly = checkout.items.some((i) => i.shippingClass === 'nur_abholung')
+  if (method === 'shipping' && hasPickupOnly) {
     return { ok: false, code: 'pickup_only' }
+  }
+  const locale = checkout.locale as Locale
+  const raw = (await payload.findGlobal({
+    slug: 'settings',
+    depth: 0,
+    overrideAccess: true,
+    locale,
+  })) as unknown as Obj
+  if (method === 'pickup' && !pickupSelectable(pickupEnabledIn(raw), hasPickupOnly)) {
+    return { ok: false, code: 'pickup_disabled' }
   }
   if (method === checkout.fulfillmentMethod) {
     return {
@@ -92,13 +105,6 @@ export async function changeCheckoutDelivery(
     }
   }
 
-  const locale = checkout.locale as Locale
-  const raw = (await payload.findGlobal({
-    slug: 'settings',
-    depth: 0,
-    overrideAccess: true,
-    locale,
-  })) as unknown as Obj
   let totals: ReturnType<typeof computeTotals>
   try {
     totals = computeTotals(

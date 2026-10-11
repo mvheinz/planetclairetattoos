@@ -136,6 +136,7 @@ export default async function Page({
             : null
         }
         deliveryLabels={deliveryLabels}
+        pickupAvailable={data.pickupAvailable}
         pickupCity={city}
         district={data.studioDistrict}
         defaults={{

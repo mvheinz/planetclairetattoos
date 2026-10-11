@@ -1,5 +1,7 @@
 import { TAX_MODES, type TaxMode } from '@/lib/enums'
 
+import { pickupEnabledIn } from './pickupPolicy'
+
 // Projektion der öffentlichen Einstellungen (Whitelist `getPublicSettings()`, DATENMODELL §7.1) auf das, was Listen-
 // und Stückseiten anzeigen (KONZEPT §3.2, §3.4): Shop geöffnet/pausiert samt Hinweis, Abholung, Lieferzeit, aktueller
 // Steuermodus, Reservierungsdauer (Hinweis „schau in … Minuten nochmal“, P18.5).
@@ -24,7 +26,6 @@ const RESERVATION_MINUTES = { value: 30, min: 30, max: 60 } as const
 export function pickShopDisplaySettings(settings: Record<string, unknown>): ShopDisplaySettings {
   const shop = (settings.shop ?? {}) as { isOpen?: unknown; closedMessage?: unknown }
   const shipping = (settings.shipping ?? {}) as {
-    pickupEnabled?: unknown
     pickupCity?: unknown
     deliveryTimeText?: unknown
   }
@@ -34,7 +35,7 @@ export function pickShopDisplaySettings(settings: Record<string, unknown>): Shop
   return {
     isOpen: shop.isOpen !== false,
     closedMessage: text(shop.closedMessage),
-    pickupEnabled: shipping.pickupEnabled !== false,
+    pickupEnabled: pickupEnabledIn(settings),
     pickupCity: text(shipping.pickupCity),
     deliveryTimeText: text(shipping.deliveryTimeText),
     taxMode: (TAX_MODES as readonly string[]).includes(String(tax.currentMode))

@@ -17,6 +17,7 @@ import { getPaymentsAdapter, type PaymentsAdapter } from '@/lib/payments'
 import { checkoutReturnUrl } from '@/lib/payments/checkoutSession'
 import { localizedPath } from '@/lib/routes/paths'
 import { padItemNumber } from '@/lib/products/itemNumber'
+import { pickupEnabledIn, pickupSelectable } from '@/lib/shop/pickupPolicy'
 import {
   LEGAL_TEXT_VERSION_KEYS,
   LEGAL_TEXT_VERSION_TYPES,
@@ -65,6 +66,7 @@ export type SubmitCheckoutCode =
   | 'invalid'
   | 'deviation_missing'
   | 'prepayment_disabled'
+  | 'pickup_disabled'
   | 'legal_missing'
   | 'not_orderable_in_country'
 
@@ -278,12 +280,23 @@ export async function submitCheckout(
     overrideAccess: true,
   })) as unknown as Parameters<typeof paymentOptionsFor>[1]
   const options = paymentOptionsFor(checkout, settings)
+  const pickupOnly = checkout.items.some((i) => i.shippingClass === 'nur_abholung')
+  const pickupAvailable = pickupSelectable(pickupEnabledIn(settings), pickupOnly)
   const validation = validateCheckoutInput(input.raw, {
     deviationProductIds: deviationProductIds(checkout),
     paymentChoices: options.choices,
-    pickupOnly: checkout.items.some((i) => i.shippingClass === 'nur_abholung'),
+    pickupOnly,
+    pickupAvailable,
   })
   if (!validation.ok) {
+    // Abholung inzwischen ausgeschaltet (P18.5): eigener Code; die Kasse zeigt den Weg zurück in den Korb (neu starten).
+    if (
+      validation.errors.fulfillmentMethod === 'choice' &&
+      input.raw.fulfillmentMethod === 'pickup' &&
+      !pickupAvailable
+    ) {
+      return fail(409, 'pickup_disabled', validation.errors)
+    }
     const onlyChoice =
       validation.errors.paymentChoice === 'choice' &&
       input.raw.paymentChoice === 'prepayment' &&

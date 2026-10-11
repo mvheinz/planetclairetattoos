@@ -37,7 +37,10 @@ export const generateMetadata = routeMetadata('R06')
 // `Cache-Control: private, no-store` im Proxy), kein Stripe.js. Liest `pc_cart`/`pc_checkout` nur – der Seitenaufruf
 // setzt nie ein Cookie und reserviert nichts (EK-04); jede Position prüft `evaluateCart` serverseitig neu. Alle
 // Bedienelemente sind POST-Formulare mit Server-Actions (ohne JavaScript 303 zurück auf den Korb, ggf. mit Hinweis
-// `?hinweis=…`). Zahlarten und Liefergebiet (Baustein `cart.paymentAndDeliveryInfo`, R-036) stehen vor „Zur Kasse“.
+// `?hinweis=…`). Zahlarten und Liefergebiet (Baustein `cart.paymentAndDeliveryInfo`, R-036) stehen vor „Zur Kasse“;
+// ist Abholung oder Vorkasse ausgeschaltet, stimmt der Baustein nicht mehr – dann steht dort dieselbe Angabe aus den
+// Einstellungen gebaut (wie die Fußzeile, U-58 c; P18.5). Ohne Abholung (`settings.shipping.pickupEnabled`) kein
+// Abhol-Radio; `nur_abholung`-Stücke sind dann gesperrt (Hinweis an der Zeile und vor „Zur Kasse“).
 // Preset `calm`: keine Animation; Coco sitzt statisch neben der Summe. Countdown KO-15 (P4.9) nur, solange `pc_checkout`
 // auf eine laufende Kasse dieser Person mit aktiver Reservierung zeigt (V-17).
 
@@ -88,13 +91,15 @@ export default async function Page({
       list.map((n) => formatItemNumber(n, locale)),
     )
   const noticeText = (n: CartNotice) =>
-    tNotes(n.code, {
-      items: numbers(n.itemNumbers),
-      count: n.itemNumbers.length,
-      max: n.max ?? evaluation.maxItemsPerCheckout,
-      // „schau in … Minuten nochmal“: Reservierungsdauer aus den Einstellungen (P18.5)
-      minutes: display.reservationMinutes,
-    })
+    n.code === 'shipping' && !evaluation.pickupSelectable
+      ? t('shippingNoPickup')
+      : tNotes(n.code, {
+          items: numbers(n.itemNumbers),
+          count: n.itemNumbers.length,
+          max: n.max ?? evaluation.maxItemsPerCheckout,
+          // „schau in … Minuten nochmal“: Reservierungsdauer aus den Einstellungen (P18.5)
+          minutes: display.reservationMinutes,
+        })
   const closedText = evaluation.closedMessage ?? tNotes('shop_closed')
   const noticeBlock = notice ? (
     <div role="status" data-cart-notice={notice.code}>
@@ -134,7 +139,17 @@ export default async function Page({
     ? ((locale === 'en' ? classLabel.en : undefined) ?? classLabel.de)
     : null
   const blockerText = (b: CartBlocker) =>
-    b === 'shop_closed' ? closedText : t(`blocked.${b}`, { max: evaluation.maxItemsPerCheckout })
+    b === 'shop_closed'
+      ? closedText
+      : b === 'pickup_disabled'
+        ? t('blocked.pickup_disabled', {
+            items: numbers(evaluation.pickupBlocked),
+            count: evaluation.pickupBlocked.length,
+          })
+        : b === 'shipping' && !evaluation.pickupSelectable
+          ? t('shippingNoPickup')
+          : t(`blocked.${b}`, { max: evaluation.maxItemsPerCheckout })
+  const pickupSelectable = evaluation.pickupSelectable
   const deliveryAction = setDeliveryMethod as unknown as (formData: FormData) => Promise<void>
   const pickupOnlyHint = pickupOnly
     ? tNotes('pickup_only', {
@@ -197,21 +212,23 @@ export default async function Page({
                 </span>
               }
             />
-            <Radio
-              id="cart-delivery-pickup"
-              name="method"
-              value="pickup"
-              checked={delivery === 'pickup'}
-              label={
-                <span data-delivery-option="pickup">
-                  {t('deliveryPickup', { city })}
-                  {' – '}
-                  <MoneyAmount cents={0} locale={locale} />
-                </span>
-              }
-            />
+            {pickupSelectable ? (
+              <Radio
+                id="cart-delivery-pickup"
+                name="method"
+                value="pickup"
+                checked={delivery === 'pickup'}
+                label={
+                  <span data-delivery-option="pickup">
+                    {t('deliveryPickup', { city })}
+                    {' – '}
+                    <MoneyAmount cents={0} locale={locale} />
+                  </span>
+                }
+              />
+            ) : null}
           </fieldset>
-          {!pickupOnly ? (
+          {!pickupOnly && pickupSelectable ? (
             <Button variant="secondary" type="submit">
               {t('deliveryApply')}
             </Button>
@@ -278,11 +295,23 @@ export default async function Page({
           className={styles.small}
         />
         <div className={styles.info} data-cart-payment-info="">
-          <p data-snippet="cart.paymentAndDeliveryInfo">
-            {getSnippet('cart.paymentAndDeliveryInfo', locale).text}
-          </p>
+          {evaluation.pickupEnabled && evaluation.prepaymentEnabled ? (
+            <p data-snippet="cart.paymentAndDeliveryInfo">
+              {getSnippet('cart.paymentAndDeliveryInfo', locale).text}
+            </p>
+          ) : (
+            <p data-cart-info-variant="settings">
+              {[
+                t('info.delivery'),
+                evaluation.pickupEnabled ? t('info.pickup', { city }) : null,
+                evaluation.prepaymentEnabled ? t('info.payment') : t('info.paymentNoPrepayment'),
+              ]
+                .filter(Boolean)
+                .join(' ')}
+            </p>
+          )}
           <p className={styles.methods} data-payment-methods="">
-            {t('paymentMethods')}
+            {evaluation.prepaymentEnabled ? t('paymentMethods') : t('paymentMethodsNoPrepayment')}
           </p>
         </div>
         <form action={startCheckoutAction} className={styles.checkout} data-cart-checkout="">

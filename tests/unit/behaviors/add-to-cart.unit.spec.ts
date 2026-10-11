@@ -37,7 +37,7 @@ const area = (id: number, state = 'available', extra = '') =>
   `<div data-buy-area data-buy-state="${state}"><p id="in-cart" data-in-cart hidden>Liegt schon in deinem Korb ` +
   `<a href="/de/warenkorb">Zum Korb</a></p>${form(id, extra)}<div data-buy-notes aria-live="polite">` +
   `<p data-buy-confirm hidden>Liegt im Korb</p>` +
-  ['cart_full', 'rate_limited', 'shop_closed', 'product_unavailable', 'invalid']
+  ['cart_full', 'rate_limited', 'shop_closed', 'product_unavailable', 'pickup_disabled', 'invalid']
     .map((c) => `<p data-buy-note="${c}" hidden>${c}</p>`)
     .join('') +
   `</div><div data-sold-view hidden><p data-sold-text>Schon verkauft</p></div></div>`
@@ -263,6 +263,21 @@ describe('AK-3-08 Ablehnung zeigt den aktuellen Zustand', () => {
     expect(f!.querySelector('button')!.disabled).toBe(true)
   })
 
+  it('P18.5 nur zur Abholung, Abholung aus (veraltete Seite) → Meldung, Knopf bleibt aus', async () => {
+    const [f] = setup(area(17))
+    mount(f!, app(no('pickup_disabled', 'available' as never)).ctx)
+    f!.requestSubmit()
+    await vi.advanceTimersByTimeAsync(0)
+    expect(q('[data-buy-note="pickup_disabled"]').hidden).toBe(false)
+    expect(q('[data-buy-note="pickup_disabled"]').textContent).toBe('pickup_disabled')
+    expect(f!.querySelector('button')!.disabled).toBe(true)
+    // Live-Zustand „available“ schaltet den Knopf nicht wieder frei.
+    document.dispatchEvent(
+      new CustomEvent(PRODUCT_STATE_EVENT, { detail: { id: '17', state: 'available' } }),
+    )
+    expect(f!.querySelector('button')!.disabled).toBe(true)
+  })
+
   it('Korb voll / zu viele Versuche / Fehler → Meldung, Knopf bleibt', async () => {
     for (const code of ['cart_full', 'rate_limited', 'invalid'] as const) {
       const [f] = setup(area(17))
@@ -287,6 +302,10 @@ describe('AK-3-08 Ablehnung zeigt den aktuellen Zustand', () => {
   it('viewFor: Abbildung der Antworten', () => {
     expect(viewFor(ok(), 'available')).toEqual({ view: 'in-cart', added: true })
     expect(viewFor(no('cart_full'), 'available')).toEqual({ view: 'available', note: 'cart_full' })
+    expect(viewFor(no('pickup_disabled'), 'available')).toEqual({
+      view: 'closed',
+      note: 'pickup_disabled',
+    })
     expect(viewFor(no('product_unavailable', 'available' as never), 'available')).toEqual({
       view: 'gone',
       note: 'product_unavailable',

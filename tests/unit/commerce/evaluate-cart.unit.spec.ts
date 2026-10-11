@@ -206,3 +206,75 @@ describe('canCheckout', () => {
     expect(r).toMatchObject({ count: 0, totals: null, canCheckout: false, blockers: ['empty'] })
   })
 })
+
+describe('P18.5 Schalter „Abholung möglich“ aus', () => {
+  const OFF: CartEvaluationSettings = {
+    ...SETTINGS,
+    shipping: { ...SETTINGS.shipping, pickupEnabled: false },
+  }
+
+  it('Standard: Abholung wählbar, Vorkasse angeboten, nichts gesperrt', () => {
+    const r = evaluate(cart([{ id: 1 }], 'pickup'), [product(1)])
+    expect(r).toMatchObject({
+      delivery: 'pickup',
+      pickupEnabled: true,
+      pickupSelectable: true,
+      prepaymentEnabled: true,
+      pickupBlocked: [],
+    })
+    expect(r.lines[0]!.pickupBlocked).toBe(false)
+  })
+
+  it('gemerkte Abholung → Versand (mit Versandpreis), Abholung nicht wählbar', () => {
+    const r = evaluate(cart([{ id: 1 }], 'pickup'), [product(1)], { settings: OFF })
+    expect(r).toMatchObject({
+      delivery: 'shipping',
+      pickupEnabled: false,
+      pickupSelectable: false,
+      canCheckout: true,
+      blockers: [],
+    })
+    expect(r.totals).toMatchObject({ subtotalCents: 4500, shippingCents: 890, totalCents: 5390 })
+  })
+
+  it('nur_abholung → gesperrt (gedämpft, aus der Summe), eigener Blocker statt „unavailable“, kein Versandfehler', () => {
+    const r = evaluate(
+      cart([{ id: 1 }, { id: 23 }]),
+      [product(1, { shippingClass: 'brief' }), product(23, { shippingClass: 'nur_abholung' })],
+      { settings: OFF },
+    )
+    expect(r.lines.map((l) => [l.id, l.state, l.purchasable, l.pickupBlocked])).toEqual([
+      [1, 'available', true, false],
+      [23, 'available', false, true],
+    ])
+    expect(r).toMatchObject({
+      delivery: 'shipping',
+      pickupOnly: [],
+      pickupBlocked: [23],
+      shippingError: null,
+      shippingQuoteCents: 195,
+      canCheckout: false,
+      blockers: ['pickup_disabled'],
+    })
+    expect(r.totals).toMatchObject({ subtotalCents: 4500, shippingCents: 195 })
+  })
+
+  it('verkauftes nur_abholung-Stück bleibt „verkauft“ (unavailable), nicht gesperrt', () => {
+    const r = evaluate(
+      cart([{ id: 23 }]),
+      [product(23, { shippingClass: 'nur_abholung', status: 'sold' })],
+      {
+        settings: OFF,
+      },
+    )
+    expect(r.lines[0]).toMatchObject({ state: 'sold', pickupBlocked: false })
+    expect(r.blockers).toEqual(['unavailable'])
+  })
+
+  it('Vorkasse aus → prepaymentEnabled false (Zahlarten-Zeile ohne „Vorkasse“)', () => {
+    const r = evaluate(cart([{ id: 1 }]), [product(1)], {
+      settings: { ...SETTINGS, payment: { prepaymentEnabled: false } },
+    })
+    expect(r.prepaymentEnabled).toBe(false)
+  })
+})

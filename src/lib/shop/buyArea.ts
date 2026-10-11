@@ -13,6 +13,7 @@ export const BUY_NOTE_FRAGMENTS: Readonly<Record<AddToCartCode, string>> = {
   rate_limited: 'cart-wait',
   shop_closed: 'cart-closed',
   product_unavailable: 'cart-unavailable',
+  pickup_disabled: 'cart-pickup',
   invalid: 'cart-error',
 }
 
@@ -22,6 +23,7 @@ export const BUY_NOTE_CODES: readonly AddToCartCode[] = [
   'rate_limited',
   'shop_closed',
   'product_unavailable',
+  'pickup_disabled',
   'invalid',
 ]
 

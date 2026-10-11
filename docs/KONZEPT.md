@@ -579,6 +579,8 @@ Lieferart-Wahl (Versand innerhalb Deutschlands / Abholung in Berlin); Versandkos
 Lieferzeit; Hinweis Liefergebiet („Wir liefern nur innerhalb Deutschlands. Abholung in Berlin nach Absprache.“);
 **akzeptierte Zahlarten** (Karte, Apple Pay, Google Pay, PayPal, Vorkasse – § 312j Abs. 1 BGB; Baustein
 `cart.paymentAndDeliveryInfo`, R-036); harmonisierte Mitteilung zur Gewährleistung (R-049); Knopf **„Zur Kasse“**.
+Ist Abholung oder Vorkasse in den Einstellungen aus, steht statt des Bausteins dieselbe Angabe aus den Einstellungen
+gebaut (ohne Abhol-Satz bzw. ohne „Vorkasse“, wie die Fußzeile U-58 c; P18.5), ebenso die Zahlarten-Zeile.
 Shop pausiert (`settings.shop.isOpen = false`, §4.2) → `settings.shop.closedMessage` über den Positionen, „Zur Kasse“
 gesperrt. Leer → Coco mit leerem Korb + „Zum Shop“. Tuschelinie still, Coco sitzt neben dem Korb (E-78).
 `noindex`. Kein Stripe.js auf dieser Seite.
@@ -757,7 +759,7 @@ Laufzeit, kein Tracking. Ob stattdessen ein Server-Warenkorb mit Zufalls-ID nöt
 |---|---|---|---|
 | Hinzufügen | „In den Korb“ (POST/Server-Action) | Shop geöffnet (`settings.shop.isOpen = true`); Stück öffentlich, `available`, noch nicht im Korb, Korb < 20 Stücke | Cookie gesetzt/aktualisiert; Knopf wird zu „Liegt schon in deinem Korb“; Kopf-Anzahl +1; kurze Bestätigung „Liegt im Korb“ mit Link „Zum Korb“ (kein Seitenwechsel). Coco-Hüpfer (P9). |
 | Entfernen | „Entfernen“ im Korb | – | Cookie aktualisiert; aktive Kasse wird abgebrochen (Reservierung frei, §4.6) |
-| Lieferart wählen | Auswahl im Korb oder in der Kasse | Stück mit Versandklasse `nur_abholung` erzwingt `pickup` | Cookie aktualisiert; Versandkosten neu; eine aktive Kasse wird neu gerechnet (Versandbetrag im Kassen-Snapshot und in der Stripe-Session aktualisiert oder Session neu angelegt, Mechanik ARCHITEKTUR §3.5) – **die Reservierung bleibt** |
+| Lieferart wählen | Auswahl im Korb oder in der Kasse | Stück mit Versandklasse `nur_abholung` erzwingt `pickup`; `pickup` nur, solange `settings.shipping.pickupEnabled` an ist (sonst `pickup_disabled`, §4.3 Regel 7) | Cookie aktualisiert; Versandkosten neu; eine aktive Kasse wird neu gerechnet (Versandbetrag im Kassen-Snapshot und in der Stripe-Session aktualisiert oder Session neu angelegt, Mechanik ARCHITEKTUR §3.5) – **die Reservierung bleibt** |
 | Zur Kasse | Knopf „Zur Kasse“ (**POST**, nie durch Seitenaufruf oder Prefetch) | Shop geöffnet (`settings.shop.isOpen = true`); alle Stücke `available` oder bereits durch diese Kasse reserviert; höchstens `settings.shop.maxItemsPerCheckout` Stücke (Standard 10; der Korb selbst fasst bis zu 20), sonst Meldung „Höchstens {n} Stücke pro Bestellung“ | §4.6 Reservierung, Kasse anlegen, Cookie `pc_checkout` setzen, Weiterleitung auf R07 |
 
 **Anzeige je Position im Korb:** Foto, Titel, `Nr. 017`, Preis, „Entfernen“ und Zustand:
@@ -803,6 +805,13 @@ nur DE, E-24) und `pickup` (Abholung in Berlin, 0,00 €, E-25/E-29).
    Pflicht-Bestätigungen aus R-202 (`settings.shipping.euShippingAcknowledged`), lebensmittelechte Keramik bleibt für
    NL und LU gesperrt; GB und US sind nicht wählbar (E-24, R-060).
 6. Gesamtpreis = Summe der Stückpreise + Versandkosten. Keine Zahlungsgebühren/Aufschläge.
+7. Schalter „Abholung möglich“ aus (`settings.shipping.pickupEnabled = false`, P18.5): Korb und Kasse zeigen kein
+   Abhol-Radio, alle Dienste (Lieferart im Korb, Kassenstart, Lieferartwechsel, Absenden) lehnen `pickup` mit
+   `pickup_disabled` ab und fallen auf `shipping` zurück (eine offene Kasse mit Abholung wird beim Aufruf zurück in den
+   Korb geschickt und bei „Zur Kasse“ durch eine mit Versand ersetzt; eine laufende Zahlung bleibt unberührt). Stücke
+   `nur_abholung` sind dann **nicht bestellbar**: „In den Korb“ aus mit „Gerade nicht bestellbar – Abholung ist im
+   Moment nicht möglich“, im Korb gedämpft und „Zur Kasse“ gesperrt (konservativer Standard, umstellbar über
+   `PICKUP_ONLY_BLOCKED_WHEN_PICKUP_OFF` in `src/lib/shop/pickupPolicy.ts`, OFFENE-PUNKTE).
 
 **AK-4-01** Korb mit `brief` + `keramik` bei `shipping` → Versand 8,90 €; mit `pickup` → 0,00 €.
 **AK-4-02** Korb mit einem `nur_abholung`-Stück bietet `shipping` nicht an (Server lehnt `shipping` ab).
@@ -1842,7 +1851,7 @@ Alle Werte liegen im Global `settings` (Feldnamen DATENMODELL §7.1); jede Ände
 |---|---|
 | Stammdaten & Impressum | `settings.business.*`: Name (`legalName`), Geschäftsbezeichnung (`tradeName`, „Planet Claire“), Straße, PLZ, Ort, Land (Privatadresse, E-40; kein Postfach), E-Mail, Telefon, Steuernummer (`taxNumber`, nie öffentlich, E-46), W-IdNr./USt-IdNr. (`economicId`/`vatId`, optional), Rücksendeadresse (`returnAddress`, leer = Geschäftsadresse); dazu Bezirk des Privatstudios (`settings.tattoo.studioDistrict`, E-50) und Instagram-Handle (`settings.social.instagramHandle`); dienen Impressum, GPSR-Block, Rechnung, Packzettel, Etikett |
 | Steuer | Modus-Verlauf `settings.tax.modes` (Kleinunternehmerin/Regelbesteuerung + „gilt ab“, §4.14): neuer Eintrag nur mit Begründung und Häkchen „mit Steuerberatung abgestimmt“ (R-032), Warnhinweis; Knopf „Steuerangaben bestätigt“ (`settings.tax.confirmedAt`); Aufbewahrung Rechnungen/Gutschriften `settings.retention.invoiceYears` (10 oder 8 Jahre, Standard 10, §4.13, Kanzleifrage K-33) mit demselben Warnhinweis |
-| Versand | Tarife `settings.shipping.rates` je Zone und Versandklasse (E-25), Lieferzeit-Text DE/EN `deliveryTimeText` (Standard „2–5 Werktage“, E-31), Lieferländer `enabledCountries` (nur DE an; andere Länder erst nach der EU-Checkliste `euChecklist` und dem Häkchen `euShippingAcknowledged` mit Datum, R-202; lebensmittelechte Keramik nie nach NL/LU; CH vorbereitet aus, E-24), Abholung an/aus (`pickupEnabled`), Versicherungs-Hinweis ab `insuranceHintThresholdCents` (Standard 500 €), Sendungsverfolgungs-Vorlagen `trackingUrlTemplates` je Versanddienst (`dhl`, `deutsche_post`; Standard `https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode={trackingNumber}`), Abhol-Vorlage `settings.pickup.instructions`, Verpackungs-Checklisten `settings.packingChecklists` |
+| Versand | Tarife `settings.shipping.rates` je Zone und Versandklasse (E-25), Lieferzeit-Text DE/EN `deliveryTimeText` (Standard „2–5 Werktage“, E-31), Lieferländer `enabledCountries` (nur DE an; andere Länder erst nach der EU-Checkliste `euChecklist` und dem Häkchen `euShippingAcknowledged` mit Datum, R-202; lebensmittelechte Keramik nie nach NL/LU; CH vorbereitet aus, E-24), Abholung an/aus (`pickupEnabled`; aus: keine Abholung in Korb und Kasse, Stücke `nur_abholung` nicht bestellbar, §4.3 Regel 7), Versicherungs-Hinweis ab `insuranceHintThresholdCents` (Standard 500 €), Sendungsverfolgungs-Vorlagen `trackingUrlTemplates` je Versanddienst (`dhl`, `deutsche_post`; Standard `https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode={trackingNumber}`), Abhol-Vorlage `settings.pickup.instructions`, Verpackungs-Checklisten `settings.packingChecklists` |
 | Verpackung [P5] | Vorlagen `settings.packaging.templates` (Name, Materialien `paper_cardboard`/`plastic`/`other` mit Gewicht in g) und Standard je Versandklasse `settings.packaging.defaultsByShippingClass` (Startwerte sind Schätzwerte, Annahme KA-29); LUCID-Nummer `settings.business.lucidNumber` und duales System `settings.business.packagingScheme.*` (E-47, R-200) |
 | Zahlung | `settings.payment.*`: Vorkasse an/aus, Kontoinhaberin, IBAN (Prüfziffer wird geprüft; Beispiel-IBAN gilt als Platzhalter), BIC, Bank; Reservierungsdauer (`reservationMinutes`, 30–60); Anzeige des Zahlungsanbieters (Mock/Test/Live) ohne Schlüssel; Vorkasse-Fristen (`prepaymentReminderHours` Standard 72 h, `prepaymentDays` Standard 5 → Storno nach 23:59:59 Berlin am 5. Kalendertag nach dem Bestelltag; E-23, §4.8) |
 | Shop | Schalter „Shop geöffnet“ `settings.shop.isOpen` (aus = Shop-Pause: „In den Korb“ und „Zur Kasse“ gesperrt, Pausen-Text sichtbar, §4.2; einschalten in Produktion erst, wenn die Startklar-Prüfung grün ist, DATENMODELL §13.7), Pausen-Text `closedMessage` (DE/EN), `maxItemsPerCheckout` (Standard 10) |

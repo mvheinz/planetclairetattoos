@@ -131,14 +131,21 @@ export async function changeCheckoutDelivery(formData: FormData): Promise<Change
   const { jar, locale, token, viaScript } = await context(formData)
   const method = String(formData.get('fulfillmentMethod') ?? '')
   const result = await changeCheckoutDeliveryService({ token, method, now: new Date() })
-  if (result.ok && result.changed) {
-    // Der Korb merkt sich dieselbe Lieferart (nur Merkliste, ARCHITEKTUR §8.7).
+  // Der Korb merkt sich dieselbe Lieferart (nur Merkliste, ARCHITEKTUR §8.7); ist Abholung aus, fällt eine gemerkte
+  // Abholung auf Versand zurück (P18.5).
+  const remember =
+    result.ok && result.changed
+      ? result.fulfillmentMethod
+      : !result.ok && result.code === 'pickup_disabled'
+        ? 'shipping'
+        : null
+  if (remember) {
     const cart = readCart(jar.get(CART_COOKIE)?.value)
-    if (cart.items.length > 0) {
+    if (cart.items.length > 0 && cart.delivery !== remember) {
       const requestHeaders = await headers()
       jar.set(
         CART_COOKIE,
-        encodeCartCookie({ ...cart, delivery: result.fulfillmentMethod }),
+        encodeCartCookie({ ...cart, delivery: remember }),
         cartCookieAttributes(requestHeaders.get('host')),
       )
     }

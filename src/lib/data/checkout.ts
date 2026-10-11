@@ -15,6 +15,7 @@ import { createLogger } from '@/lib/monitoring/logger'
 import { pickPublicSettings } from '@/lib/payload/public'
 import { getPaymentsAdapter } from '@/lib/payments'
 import { pickShopDisplaySettings, type ShopDisplaySettings } from '@/lib/shop/displaySettings'
+import { pickupSelectable } from '@/lib/shop/pickupPolicy'
 import type { Checkout, Media } from '@/payload-types'
 
 import { getCartMedia } from './cart'
@@ -24,7 +25,8 @@ import { dbGate } from '@/lib/db/buildGate'
 // Zahlwege, Fotos, Versandpreise beider Lieferarten und – nur mit `PAYMENTS_DRIVER=stripe` – das Client-Secret der
 // Session (bei jedem Laden frisch vom Anbieter, nie gespeichert). Eine Kasse in `confirming`, deren Session noch offen
 // ist, kehrt beim Laden auf `open` zurück (Zahlung abgebrochen/abgelehnt, S8/S9). Beendete Kassen führen zurück in
-// den Korb (307 mit Hinweis). Ungecacht (dynamische Seite).
+// den Korb (307 mit Hinweis), ebenso eine offene Kasse mit Abholung, nachdem Abholung ausgeschaltet wurde (P18.5:
+// „Zur Kasse“ ersetzt sie dort durch eine mit Versand). Ungecacht (dynamische Seite).
 
 const log = createLogger()
 
@@ -41,6 +43,8 @@ export type CheckoutPageData =
       display: ShopDisplaySettings
       studioDistrict: string
       options: CheckoutPaymentOptions
+      /** Abholung wählbar (`settings.shipping.pickupEnabled`, P18.5) – sonst kein Abhol-Radio. */
+      pickupAvailable: boolean
       /** Versandpreis je Lieferart (null = nicht berechenbar bzw. nicht wählbar). */
       quotes: { shipping: number | null; pickup: number }
       /** Zahlungsfrist, falls jetzt per Vorkasse bestellt wird. */
@@ -113,6 +117,13 @@ export async function loadCheckoutPage(input: {
   const district = (settings.tattoo as { studioDistrict?: string | null } | undefined)
     ?.studioDistrict
   const options = paymentOptionsFor(checkout, settings as never)
+  const pickupOnly = checkout.items.some((i) => i.shippingClass === 'nur_abholung')
+  const pickupAvailable = pickupSelectable(display.pickupEnabled, pickupOnly)
+  // Abholung inzwischen aus (P18.5): eine offene Kasse mit Abholung lässt sich so nicht bestellen – zurück in den Korb.
+  // Eine laufende Zahlung (`confirming`) bleibt unberührt.
+  if (checkout.status === 'open' && checkout.fulfillmentMethod === 'pickup' && !pickupAvailable) {
+    return { state: 'redirect', notice: 'pickup_disabled' }
+  }
 
   const quote = (method: 'shipping' | 'pickup'): number | null => {
     try {
@@ -125,7 +136,6 @@ export async function loadCheckoutPage(input: {
       throw err
     }
   }
-  const pickupOnly = checkout.items.some((i) => i.shippingClass === 'nur_abholung')
   const quotes = {
     shipping: pickupOnly
       ? null
@@ -185,6 +195,7 @@ export async function loadCheckoutPage(input: {
     display,
     studioDistrict: district?.trim() || '[Bezirk folgt]',
     options: { ...options, choices },
+    pickupAvailable,
     quotes,
     prepaymentDueAt,
     media,
