@@ -12,6 +12,7 @@ import {
   completeProduct,
   createProduct,
   createProductFixtures,
+  createTestImage,
   deleteProducts,
 } from '../helpers/products'
 
@@ -141,5 +142,26 @@ describe('retention:replay (DM-DEL-02)', () => {
     expect(second).toMatchObject({ reapplied: 0, failed: 0 })
     expect(Object.values(second.jobs).every((n) => n === 0)).toBe(true)
     expect(await logCount()).toBe(logs)
+  })
+
+  it('L-19 b Bild-Eintrag im Protokoll, den ein wiederhergestellter Galerie-Eintrag noch nutzt: bleibt, kein Fehlschlag', async () => {
+    const image = await createTestImage(payload, 'Tattoo am Unterarm')
+    const g = await payload.create({
+      collection: 'tattoo-gallery',
+      data: { image, kind: 'fresh', showsCustomer: false, published: false } as never,
+      overrideAccess: true,
+      context: { seed: true },
+    })
+    await db().execute(sql`
+      INSERT INTO deletion_log (entity_collection, entity_id, rule_id, action, trigger, task_slug, storage_objects_count,
+                                executed_at, retain_until, updated_at, created_at)
+      VALUES ('media', ${String(image)}, 'L-19 b', 'deleted', 'job', 'retentionConsentEvidence', 0,
+              '2033-01-31T10:00:00Z', '2036-01-31T10:00:00Z', now(), now())`)
+    const res = await replayDeletionLog(payload, { now: NOW })
+    expect(res.failed).toBe(0)
+    expect(await exists('media', image)).toBe(true)
+    expect(await exists('tattoo_gallery', g.id as number)).toBe(true)
+    await db().execute(sql`DELETE FROM tattoo_gallery WHERE id = ${g.id}`)
+    await db().execute(sql`DELETE FROM deletion_log WHERE entity_collection = 'media'`)
   })
 })

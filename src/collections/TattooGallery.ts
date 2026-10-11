@@ -288,6 +288,9 @@ async function scheduleEvidenceDeletion(
 const releaseDeletedEntry: CollectionAfterDeleteHook = async ({ doc, req }) => {
   const ctx = getAppContext(req)
   if (ctx.seed) return doc
+  // Erst die Frist des Nachweises, zuletzt die Bilder: Dateien lassen sich nicht zurückrollen
+  const evidence = idOf((doc as Doc).consentEvidence)
+  if (evidence !== null) await scheduleEvidenceDeletion(req, evidence, doc as Doc)
   for (const id of new Set(mediaIdsOf(doc as Doc))) {
     if (await mediaInUse(req, Number(id))) {
       await syncRestricted(req, id)
@@ -303,8 +306,6 @@ const releaseDeletedEntry: CollectionAfterDeleteHook = async ({ doc, req }) => {
       }),
     )
   }
-  const evidence = idOf((doc as Doc).consentEvidence)
-  if (evidence !== null) await scheduleEvidenceDeletion(req, evidence, doc as Doc)
   revalidateContent(TAGS.tattooGallery, { context: ctx, immediate: true })
   revalidateContent(TAGS.home, { context: ctx, immediate: true })
   return doc

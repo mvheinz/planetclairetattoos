@@ -6,6 +6,7 @@ import { createLocalReq, type Payload, type PayloadRequest } from 'payload'
 import { dbFor, type SqlExecutor } from '@/lib/db/tx'
 import type { DeletionAction } from '@/lib/enums'
 import { jobRunError, poolDb } from '@/lib/jobs/runLog'
+import { mediaInUse } from '@/lib/media/inUse'
 import { createLogger } from '@/lib/monitoring/logger'
 import { preservingReq } from '@/lib/payload/localReq'
 import { inTransaction } from '@/lib/payload/transaction'
@@ -118,6 +119,9 @@ async function reapply(req: PayloadRequest, entry: ReplayEntry, now: Date): Prom
     await anonymizeOrder(req, id, now, 'retentionReplay')
     return
   }
+  // Bild eines Galerie-Eintrags (L-19 b): steht im Protokoll vor dem Eintrag selbst. Solange ein wiederhergestellter
+  // Datensatz noch darauf verweist, bleibt es – das Wiederanwenden jenes Eintrags löscht es danach mit.
+  if (entry.entityCollection === 'media' && (await mediaInUse(req, id))) return
   const slug = entry.entityCollection as 'users'
   if (req.payload.collections[slug]) {
     await preservingReq(req, () =>
