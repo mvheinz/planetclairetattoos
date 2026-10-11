@@ -12,8 +12,10 @@ import { inTransaction } from '@/lib/payload/transaction'
 // nur angemeldete Verwaltung, sonst 403):
 // `POST /api/privacy-requests/intake` – Anfrage erfassen (P6.16) ·
 // `POST /api/privacy-requests/:id/save` – Status, Identität, Verlängerung, Abschluss, Notizen (P6.16) ·
-// `POST /api/privacy-requests/:id/search` `{ email?, orderNumber?, name? }` – Personensuche (P6.17, R-150) ·
-// `POST /api/privacy-requests/:id/export` – Auskunft-Export als ZIP (P6.17) ·
+// `POST /api/privacy-requests/:id/search` `{ email?, orderNumber?, name?, confirmed? }` – Personensuche (P6.17, R-150;
+// Antwort mit `counts` und `candidates` = möglichen Treffern mit anderer E-Mail-Adresse) ·
+// `POST /api/privacy-requests/:id/export` – Auskunft-Export als ZIP (P6.17; mögliche Treffer nur, wenn sie in
+// `confirmed: [{ area, id }]` stehen) ·
 // `POST /api/privacy-requests/:id/send-access` – Antwort M14 mit Download-Link (P6.17) ·
 // `POST /api/privacy-requests/:id/erasure` `{ decisions }` – Löschen/Einschränken/Behalten, Antwort M15 (P6.18, R-151) ·
 // `POST /api/privacy-requests/:id/rectify` `{ orderId, changes }` – Berichtigung (P6.18, R-152).
@@ -108,15 +110,34 @@ const personQuery = (body: Record<string, unknown>) => ({
 
 export const privacySearchEndpoint = privacyAction('search', async (req, id, body, now) => {
   const { searchForRequest } = await exporter()
-  const { countMatches } = await import('@/lib/privacy/search')
-  const res = await searchForRequest(req, id, personQuery(body), now)
-  return { doc: res.request, extra: { counts: countMatches(res.matches) } }
+  const { countMatches, parseConfirmed } = await import('@/lib/privacy/search')
+  const res = await searchForRequest(
+    req,
+    id,
+    personQuery(body),
+    now,
+    parseConfirmed(body.confirmed),
+  )
+  return {
+    doc: res.request,
+    extra: { counts: countMatches(res.matches), candidates: res.candidates },
+  }
 })
 
 export const privacyExportEndpoint = privacyAction('export', async (req, id, body, now) => {
   const { createPrivacyExport } = await exporter()
-  const res = await createPrivacyExport(req, id, personQuery(body), now)
-  return { doc: res.request, extra: { counts: res.counts, exportFileId: res.upload.id } }
+  const { parseConfirmed } = await import('@/lib/privacy/search')
+  const res = await createPrivacyExport(
+    req,
+    id,
+    personQuery(body),
+    now,
+    parseConfirmed(body.confirmed),
+  )
+  return {
+    doc: res.request,
+    extra: { counts: res.counts, candidates: res.candidates, exportFileId: res.upload.id },
+  }
 })
 
 export const privacySendAccessEndpoint = privacyAction('send-access', async (req, id, _b, now) => {

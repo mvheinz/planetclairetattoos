@@ -4,7 +4,7 @@ import { sql } from '@payloadcms/db-postgres'
 import type { PayloadRequest } from 'payload'
 
 import { dbFor } from '@/lib/db/tx'
-import type { PrivacyArea } from '@/lib/email/templates/privacy'
+import type { PrivacyArea, PrivacyErasureOutcome } from '@/lib/email/templates/privacy'
 import { preservingReq } from '@/lib/payload/localReq'
 import {
   anonymizeOrder,
@@ -33,12 +33,24 @@ import { searchPerson, type PersonQuery } from './search'
 // - „einschränken bis {Datum}“ (`privacy.processingRestricted = true`): aufbewahrungspflichtige Bestellungen und
 //   Widerrufe; nicht nötige Angaben sofort entfernen (Notizen, Packfotos); die Outbox unterdrückt danach Mails zur
 //   Bestellung (`suppressed`);
-// - „behalten“ (Art. 17 Abs. 3 lit. e): Aufbewahrungssperre `privacy.legalHold` mit Pflicht-Begründung.
+// - „behalten“ (Art. 17 Abs. 3 lit. e): Aufbewahrungssperre `privacy.legalHold` mit Pflicht-Begründung;
+// - „keine Aktion“: Vorschlag für Bestellungen, deren Vertrag noch läuft (`timestamps.finalStatusAt` fehlt oder liegt in
+//   der Zukunft) – Versand, Zahlung und Erstattung brauchen die Daten und die Mails (Art. 17 Abs. 1 lit. a greift nicht).
 // Belege bleiben unverändert (GoBD, L-06). Jede Lösch-/Einschränkungsaktion → `deletion-log` (`trigger =
 // privacy_request`, `ruleId = DSGVO`, `privacyRequestRef`); „behalten“ protokolliert der Audit (`legal_hold_changed`).
-// Antwort M15 an die gespeicherte Adresse mit „gelöscht“ / „eingeschränkt bis“ / „aufbewahrt bis“ je Bereich.
+// Antwort M15 an die gespeicherte Adresse mit dem tatsächlichen Zustand je Bereich: „gelöscht“ / „eingeschränkt bis“
+// (nur wenn wirklich eingeschränkt) / „aufbewahrt bis“ (Sperre) / `inUse` (keine Aktion, nicht eingeschränkt:
+// „aufbewahrt bis {Datum} wegen gesetzlicher Aufbewahrungspflichten“ bzw. bei laufendem Vertrag „brauche ich noch“);
+// den Satz zum DHL-Widerruf nur, wenn in diesem Lauf eine DHL-Einwilligung widerrufen wurde.
 
 export type ErasureAction = 'delete' | 'restrict' | 'keep' | 'none'
+
+/**
+ * Zustand eines Datensatzes vor der Aktion (Bestellungen, Widerrufe) – daraus meldet M15 bei „keine Aktion“, was
+ * wirklich gilt: anonymisiert, gesperrt (Art. 17 Abs. 3 lit. e), eingeschränkt, Vertrag läuft noch, aufbewahrt
+ * (Frist läuft) bzw. Frist abgelaufen.
+ */
+export type ErasureRowState = 'anonymized' | 'held' | 'restricted' | 'running' | 'retained' | 'due'
 
 export interface ErasurePlanRow {
   area: PrivacyArea
@@ -53,6 +65,8 @@ export interface ErasurePlanRow {
   suggested: ErasureAction
   /** Hinweis (deutsch) zur Regel. */
   note: string
+  /** Nur Bestellungen und Widerrufe. */
+  state?: ErasureRowState
 }
 
 const iso = (d: Date | string | null | undefined) =>
@@ -67,7 +81,11 @@ export async function buildErasurePlan(
   query: PersonQuery,
   now: Date,
 ): Promise<ErasurePlanRow[]> {
-  const m = await searchPerson(req, query, { excludeRequestId: request.id })
+  // Nur Datensätze der Person (gespeicherte Adresse der Anfrage); mögliche Treffer mit anderer Adresse nie im Plan.
+  const { matches: m } = await searchPerson(req, query, {
+    excludeRequestId: request.id,
+    ownEmails: [request.contactEmail],
+  })
   const db = await dbFor(req)
   const rows: ErasurePlanRow[] = []
   const list = async <T>(collection: string, ids: number[]) =>
@@ -90,6 +108,9 @@ export async function buildErasurePlan(
   for (const o of await list<Order>('orders', m.orders)) {
     const until = iso(o.retainUntil) ?? iso(retainUntil(L_05_ORDERS_STAGE_D, now))
     const base = { area: 'orders' as const, collection: 'orders', id: o.id, label: o.orderNumber }
+    const finalAt = o.timestamps?.finalStatusAt
+    // Vertrag läuft noch: kein Endstatus oder nur der vorläufige Endstatus eines versandten Pakets (L-05, 30 Tage)
+    const running = !finalAt || new Date(finalAt).getTime() > now.getTime()
     if (o.privacy?.anonymizedAt) {
       rows.push({
         ...base,
@@ -98,6 +119,7 @@ export async function buildErasurePlan(
         actions: ['none'],
         suggested: 'none',
         note: 'bereits anonymisiert',
+        state: 'anonymized',
       })
     } else if (o.privacy?.legalHold) {
       rows.push({
@@ -107,6 +129,7 @@ export async function buildErasurePlan(
         actions: ['keep', 'restrict'],
         suggested: 'keep',
         note: `gesperrt: ${o.privacy.legalHoldReason ?? ''}`.trim(),
+        state: 'held',
       })
     } else if (due(o.retainUntil, now)) {
       rows.push({
@@ -116,6 +139,27 @@ export async function buildErasurePlan(
         actions: ['delete', 'keep'],
         suggested: 'delete',
         note: 'Aufbewahrungsfrist abgelaufen – Personendaten werden entfernt, Beleg bleibt',
+        state: 'due',
+      })
+    } else if (o.privacy?.processingRestricted) {
+      rows.push({
+        ...base,
+        ruleId: 'L-05 Stufe D',
+        until,
+        actions: ['restrict', 'keep'],
+        suggested: 'none',
+        note: 'bereits eingeschränkt',
+        state: 'restricted',
+      })
+    } else if (running) {
+      rows.push({
+        ...base,
+        ruleId: 'L-05 Stufe D',
+        until,
+        actions: ['none', 'restrict', 'keep'],
+        suggested: 'none',
+        note: 'Vertrag läuft noch – Daten werden für Versand, Zahlung und Erstattung gebraucht; nach Abschluss erneut prüfen. „Einschränken“ stoppt auch Versand- und Erstattungsmails.',
+        state: 'running',
       })
     } else {
       rows.push({
@@ -123,10 +167,9 @@ export async function buildErasurePlan(
         ruleId: 'L-05 Stufe D',
         until,
         actions: ['restrict', 'keep'],
-        suggested: o.privacy?.processingRestricted ? 'none' : 'restrict',
-        note: o.privacy?.processingRestricted
-          ? 'bereits eingeschränkt'
-          : 'Aufbewahrungspflicht (Handels- und Steuerrecht) – einschränken',
+        suggested: 'restrict',
+        note: 'Aufbewahrungspflicht (Handels- und Steuerrecht) – einschränken',
+        state: 'retained',
       })
     }
   }
@@ -180,6 +223,7 @@ export async function buildErasurePlan(
         actions: ['keep', 'restrict'],
         suggested: 'keep',
         note: 'gesperrt',
+        state: 'held',
       })
     } else if (due(until, now)) {
       rows.push({
@@ -189,15 +233,20 @@ export async function buildErasurePlan(
         actions: ['delete', 'keep'],
         suggested: 'delete',
         note: 'Aufbewahrungsfrist abgelaufen',
+        state: 'due',
       })
     } else {
+      const restricted = w.privacy?.processingRestricted === true
       rows.push({
         ...base,
         ruleId: L_08_WITHDRAWALS.id,
         until,
         actions: ['restrict', 'keep'],
-        suggested: w.privacy?.processingRestricted ? 'none' : 'restrict',
-        note: 'Aufbewahrungspflicht (Nachweis des Widerrufs) – einschränken',
+        suggested: restricted ? 'none' : 'restrict',
+        note: restricted
+          ? 'bereits eingeschränkt'
+          : 'Aufbewahrungspflicht (Nachweis des Widerrufs) – einschränken',
+        state: restricted ? 'restricted' : 'retained',
       })
     }
   }
@@ -303,6 +352,9 @@ export interface ErasureOutcome {
   id: number
   area: PrivacyArea
   action: ErasureAction
+  /** Was danach tatsächlich gilt (für M15). */
+  state: PrivacyErasureOutcome
+  /** Aufbewahrung bis (ISO); `null` bei „gelöscht“ und bei laufendem Vertrag (Ende noch offen). */
   until: string | null
 }
 
@@ -310,7 +362,41 @@ export interface ErasureResult {
   request: PrivacyRequest
   outcomes: ErasureOutcome[]
   jobId: number | string | null
+  /** In diesem Lauf wurde eine DHL-Einwilligung widerrufen (Art. 19, LOESCHKONZEPT §5.6 Nr. 4). */
+  carrierConsentWithdrawn: boolean
 }
+
+/**
+ * Zustand nach „keine Aktion“ (nichts geändert): Bestellungen/Widerrufe melden, was wirklich gilt – „eingeschränkt“ nur,
+ * wenn schon eingeschränkt; sonst „aufbewahrt“ bzw. (laufender Vertrag) „brauche ich noch“. Belege „unverändert“.
+ * Frist abgelaufen ohne Aktion ist kein gültiger Zustand (der Plan schlägt Löschen vor; „behalten“ braucht einen Grund).
+ * Andere Bereiche folgen ihrem Vorgang und erscheinen ohne Aktion nicht in M15.
+ */
+export function stateWithoutAction(row: ErasurePlanRow): PrivacyErasureOutcome | null {
+  if (row.area === 'invoices') return 'unchanged'
+  if (row.area !== 'orders' && row.area !== 'withdrawals') return null
+  switch (row.state) {
+    case 'anonymized':
+      return 'deleted'
+    case 'held':
+      return 'kept'
+    case 'restricted':
+      return 'restricted'
+    case 'due':
+      throw new PrivacyActionError(
+        400,
+        `„${row.label}“: Aufbewahrungsfrist abgelaufen – bitte „sofort löschen“ oder „behalten“ wählen.`,
+      )
+    default:
+      return 'inUse'
+  }
+}
+
+const STATE_OF_ACTION = {
+  delete: 'deleted',
+  restrict: 'restricted',
+  keep: 'kept',
+} as const satisfies Record<Exclude<ErasureAction, 'none'>, PrivacyErasureOutcome>
 
 function parseDecisions(raw: unknown): ErasureDecision[] {
   if (!Array.isArray(raw))
@@ -353,6 +439,7 @@ export async function applyErasure(
   const ref = request.reference
   const db = await dbFor(req)
   const outcomes: ErasureOutcome[] = []
+  let carrierConsentWithdrawn = false
   const log = (
     collection: string,
     entityId: number,
@@ -386,13 +473,15 @@ export async function applyErasure(
       }
     }
     if (action === 'none') {
-      if (row.area === 'invoices' || row.area === 'orders' || row.area === 'withdrawals') {
+      const state = stateWithoutAction(row)
+      if (state) {
         outcomes.push({
           collection: row.collection,
           id: row.id,
           area: row.area,
           action,
-          until: row.until,
+          state,
+          until: state === 'deleted' || row.state === 'running' ? null : row.until,
         })
       }
       continue
@@ -403,7 +492,8 @@ export async function applyErasure(
         const files = await anonymizeOrder(req, row.id, now, 'privacyRequest', ref)
         await log('orders', row.id, 'anonymized', files)
       } else if (action === 'restrict') {
-        await restrictOrder(req, row.id, ref, now)
+        const restricted = await restrictOrder(req, row.id, ref, now)
+        if (restricted.carrierConsentWithdrawn) carrierConsentWithdrawn = true
       } else {
         await setLegalHold(req, 'orders', row.id, d!.reason!, ctx)
       }
@@ -451,6 +541,7 @@ export async function applyErasure(
       id: row.id,
       area: row.area,
       action,
+      state: STATE_OF_ACTION[action],
       until: action === 'delete' ? null : row.until,
     })
   }
@@ -467,6 +558,7 @@ export async function applyErasure(
         reference: request.reference,
         name: request.contactName ?? null,
         areas: summarizeOutcomes(outcomes),
+        carrierConsentWithdrawn,
       },
       idempotencyKey: `privacy_erasure_response:${request.id}`,
     })
@@ -485,10 +577,13 @@ export async function applyErasure(
           context: { ...req.context, now: now.toISOString() },
         }),
       )) as PrivacyRequest)
-  return { request: updated, outcomes, jobId }
+  return { request: updated, outcomes, jobId, carrierConsentWithdrawn }
 }
 
-/** M15-Zusammenfassung je Bereich: eingeschränkt/aufbewahrt (spätestes Datum) vor gelöscht; Belege „unverändert“. */
+/**
+ * M15-Zusammenfassung je Bereich nach dem tatsächlichen Zustand: aufbewahrt (Sperre), eingeschränkt, „brauche ich noch“
+ * (je mit spätestem Datum; laufende Verträge ohne Datum als eigene Zeile) vor gelöscht; Belege „unverändert“.
+ */
 export function summarizeOutcomes(outcomes: readonly ErasureOutcome[]) {
   const byArea = new Map<PrivacyArea, ErasureOutcome[]>()
   for (const o of outcomes) byArea.set(o.area, [...(byArea.get(o.area) ?? []), o])
@@ -498,21 +593,20 @@ export function summarizeOutcomes(outcomes: readonly ErasureOutcome[]) {
       .filter((u): u is string => !!u)
       .sort()
       .at(-1) ?? null
-  const out: {
-    area: PrivacyArea
-    outcome: 'deleted' | 'restricted' | 'kept' | 'unchanged'
-    until?: string | null
-  }[] = []
+  const out: { area: PrivacyArea; outcome: PrivacyErasureOutcome; until?: string | null }[] = []
   for (const [area, list] of byArea) {
     if (area === 'invoices') {
       out.push({ area, outcome: 'unchanged', until: latest(list) })
       continue
     }
-    const kept = list.filter((o) => o.action === 'keep')
-    const restricted = list.filter((o) => o.action === 'restrict' || o.action === 'none')
-    if (kept.length > 0) out.push({ area, outcome: 'kept', until: latest(kept) })
-    if (restricted.length > 0) out.push({ area, outcome: 'restricted', until: latest(restricted) })
-    if (list.some((o) => o.action === 'delete')) out.push({ area, outcome: 'deleted' })
+    for (const outcome of ['kept', 'restricted'] as const) {
+      const of = list.filter((o) => o.state === outcome)
+      if (of.length > 0) out.push({ area, outcome, until: latest(of) })
+    }
+    const inUse = list.filter((o) => o.state === 'inUse')
+    if (inUse.some((o) => !o.until)) out.push({ area, outcome: 'inUse', until: null })
+    if (inUse.some((o) => !!o.until)) out.push({ area, outcome: 'inUse', until: latest(inUse) })
+    if (list.some((o) => o.state === 'deleted')) out.push({ area, outcome: 'deleted' })
   }
   return out
 }
@@ -554,14 +648,14 @@ async function setLegalHold(
 
 /**
  * Bestellung einschränken (Art. 18, LOESCHKONZEPT §5.7): `processingRestricted`, Notizen leeren, Packfotos sofort
- * löschen; Mails zur Bestellung unterdrückt danach die Outbox.
+ * löschen; Mails zur Bestellung unterdrückt danach die Outbox. Meldet, ob dabei eine DHL-Einwilligung widerrufen wurde.
  */
 export async function restrictOrder(
   req: PayloadRequest,
   id: number,
   privacyRequestRef: string,
   now: Date,
-): Promise<void> {
+): Promise<{ carrierConsentWithdrawn: boolean }> {
   const db = await dbFor(req)
   const order = (await preservingReq(req, () =>
     req.payload.findByID({ collection: 'orders', id, depth: 0, overrideAccess: true, req }),
@@ -586,9 +680,11 @@ export async function restrictOrder(
     }
   }
   // Empfänger informieren (Art. 19, LOESCHKONZEPT §5.6 Nr. 4): DHL-Einwilligung widerrufen, falls erteilt
+  let carrierConsentWithdrawn = false
   if (order.carrierEmailConsent === true && !order.carrierEmailConsentRevokedAt) {
     const { withdrawCarrierConsent } = await import('@/lib/commerce/carrierConsent')
-    await withdrawCarrierConsent(req, order, now)
+    const res = await withdrawCarrierConsent(req, order, now)
+    carrierConsentWithdrawn = !res.unchanged
   }
   const fresh = (await preservingReq(req, () =>
     req.payload.findByID({ collection: 'orders', id, depth: 0, overrideAccess: true, req }),
@@ -618,4 +714,5 @@ export async function restrictOrder(
     storageObjectsCount: 0,
     executedAt: now,
   })
+  return { carrierConsentWithdrawn }
 }

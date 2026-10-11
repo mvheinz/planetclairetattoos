@@ -1092,6 +1092,11 @@ export const ADMIN_CUSTOM_DE = {
   privacySendAccessIdentity: 'Vor dem Versand bitte die Identität prüfen und speichern.',
   privacyMatchesTitle: 'Gefunden',
   privacyMatchesNone: 'Noch nichts gefunden – bitte suchen.',
+  privacyCandidatesTitle: 'Mögliche Treffer – andere E-Mail-Adresse, bitte prüfen',
+  privacyCandidatesHint:
+    'Diese Einträge wurden nur über Name oder Bestellnummer gefunden und haben eine andere E-Mail-Adresse als die Anfrage – zum Beispiel eine Namensvetterin oder ein Geschenk an diese Person. Sie kommen nur in den Export und in „Gefunden“, wenn du sie ankreuzt und danach „Suchen“ oder „Export erstellen“ klickst. Kreuze nur an, was sicher zu dieser Person gehört.',
+  privacyCandidateNoEmail: 'ohne E-Mail-Adresse',
+  privacyMatchOtherEmail: 'andere E-Mail-Adresse: {{email}}',
   privacyArea_orders: 'Bestellungen',
   privacyArea_checkouts: 'Kassen',
   privacyArea_invoices: 'Belege',

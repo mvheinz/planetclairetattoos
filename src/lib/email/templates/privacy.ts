@@ -25,14 +25,17 @@ import {
 //   Platzhalter gekennzeichnet), signierter Download-Link (7 Tage gültig; der Token wird erst beim Versand an die Stelle
 //   von `PRIVACY_EXPORT_TOKEN_PLACEHOLDER` gesetzt und steht nie im `email-log`), Löschtermin der Datei, Rechte und
 //   Beschwerderecht.
-// - M15 `privacy_erasure_response`: Referenz, Baustein `privacyRequest.erasureResponse`, je Datenbereich „gelöscht“,
-//   „eingeschränkt bis {Datum}“ bzw. „aufbewahrt bis {Datum}“ (Art. 17 Abs. 3 lit. e), Belege unverändert bis Fristende,
-//   Hinweis zu Empfängern (Art. 19) und Beschwerderecht.
+// - M15 `privacy_erasure_response`: Referenz, Baustein `privacyRequest.erasureResponse`, je Datenbereich der
+//   tatsächliche Zustand: „gelöscht“, „eingeschränkt bis {Datum}“ (nur wenn wirklich eingeschränkt), „aufbewahrt bis
+//   {Datum}“ (Sperre, Art. 17 Abs. 3 lit. e), `inUse` (keine Aktion, nicht eingeschränkt: mit Datum „aufbewahrt bis
+//   {Datum} wegen gesetzlicher Aufbewahrungspflichten“, ohne Datum – Vertrag läuft noch – „brauche ich noch, um deine
+//   Bestellung abzuwickeln“), Belege unverändert bis Fristende; Hinweis zu Empfängern (Art. 19) – den DHL-Satz nur,
+//   wenn in diesem Lauf eine DHL-Einwilligung widerrufen wurde – und Beschwerderecht.
 // - M16 `consent_withdrawal_confirmation`: welche Einwilligung (DHL-Weitergabe bzw. Portfolio), Zeitpunkt, Wirkung ab
 //   sofort.
 
 export const PRIVACY_ACCESS_RESPONSE_VERSION = 'm14-v1'
-export const PRIVACY_ERASURE_RESPONSE_VERSION = 'm15-v1'
+export const PRIVACY_ERASURE_RESPONSE_VERSION = 'm15-v2'
 export const CONSENT_WITHDRAWAL_CONFIRMATION_VERSION = 'm16-v1'
 
 /** Platzhalter des Download-Tokens (wie der Status-Token: erst beim Versand eingesetzt, R-137). */
@@ -59,6 +62,16 @@ export const PRIVACY_AREAS = [
 ] as const
 export type PrivacyArea = (typeof PRIVACY_AREAS)[number]
 
+/** Zustand je Bereich in M15 (`inUse`: nicht eingeschränkt, wird noch gebraucht bzw. aufbewahrt). */
+export const PRIVACY_ERASURE_OUTCOMES = [
+  'deleted',
+  'restricted',
+  'kept',
+  'inUse',
+  'unchanged',
+] as const
+export type PrivacyErasureOutcome = (typeof PRIVACY_ERASURE_OUTCOMES)[number]
+
 export const privacyAccessResponseDataSchema = z.strictObject({
   privacyRequestId: z.number().int().positive(),
   reference: REFERENCE,
@@ -78,11 +91,13 @@ export const privacyErasureResponseDataSchema = z.strictObject({
     .array(
       z.strictObject({
         area: z.enum(PRIVACY_AREAS),
-        outcome: z.enum(['deleted', 'restricted', 'kept', 'unchanged']),
+        outcome: z.enum(PRIVACY_ERASURE_OUTCOMES),
         until: ISO.nullish(),
       }),
     )
     .min(1),
+  /** Nur `true`, wenn in diesem Lauf eine DHL-Einwilligung widerrufen wurde (Art. 19). */
+  carrierConsentWithdrawn: z.boolean().optional(),
 })
 export type PrivacyErasureResponseData = z.infer<typeof privacyErasureResponseDataSchema>
 
@@ -159,12 +174,13 @@ export async function renderPrivacyErasureResponse(
 ): Promise<RenderedMail> {
   const { data: d, locale, links, business } = input
   const t = mailTexts(locale).privacyErasureResponse
-  const rows = d.areas.map((a) =>
-    fill(t[a.outcome], {
-      area: t.areas[a.area],
-      ...(a.outcome !== 'deleted' ? { date: fmtDate(a.until ?? input.now, locale) } : {}),
-    }),
-  )
+  const rows = d.areas.map((a) => {
+    const area = t.areas[a.area]
+    if (a.outcome === 'deleted') return fill(t.deleted, { area })
+    // laufender Vertrag: Ende der Aufbewahrung steht noch nicht fest
+    if (a.outcome === 'inUse' && !a.until) return fill(t.inUseOpen, { area })
+    return fill(t[a.outcome], { area, date: fmtDate(a.until ?? input.now, locale) })
+  })
   const restricted = d.areas.some((a) => a.outcome === 'restricted')
   return renderCustomerMail({
     locale,
@@ -179,6 +195,7 @@ export async function renderPrivacyErasureResponse(
       block.list(rows),
       ...(restricted ? [block.p(t.restrictedMeaning)] : []),
       snippetBlock('privacyRequest.erasureResponse', locale),
+      ...(d.carrierConsentWithdrawn ? [block.p(t.carrierConsentWithdrawn)] : []),
       block.p(t.recipients),
       block.p(t.complaint),
       block.p(t.reply),

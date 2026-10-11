@@ -72,6 +72,18 @@ export async function PrivacyRequestSections(props: PrivacyRequestSectionsProps)
       {label}
     </a>
   )
+  // Treffer mit anderer gespeicherter Adresse (bestätigt oder an einer Bestellung der Person) kenntlich machen
+  // (LOESCHKONZEPT §5.4 Nr. 2)
+  const contact = r.contactEmail.trim().toLowerCase()
+  const otherEmail = (email: string | null | undefined) => {
+    const e = (email ?? '').trim().toLowerCase()
+    return e && e !== contact ? (
+      <span className="pc-order__muted" data-testid="privacy-match-other-email">
+        {' '}
+        ({adminText('privacyMatchOtherEmail', { email: e })})
+      </span>
+    ) : null
+  }
 
   return (
     <>
@@ -92,16 +104,19 @@ export async function PrivacyRequestSections(props: PrivacyRequestSectionsProps)
             {orders.map((o) => (
               <li key={`o${o.id}`} data-testid="privacy-match-order">
                 {link(adminViewPath('bestellung', o.id), o.orderNumber)}
+                {otherEmail(o.customer?.email)}
               </li>
             ))}
             {withdrawals.map((w) => (
               <li key={`w${w.id}`} data-testid="privacy-match-withdrawal">
                 {link(adminViewPath('widerruf', w.id), w.reference)}
+                {otherEmail(w.email)}
               </li>
             ))}
             {inquiries.map((i) => (
               <li key={`i${i.id}`} data-testid="privacy-match-inquiry">
                 {link(adminViewPath('anfrage', i.id), i.reference)}
+                {otherEmail(i.email)}
               </li>
             ))}
           </ul>

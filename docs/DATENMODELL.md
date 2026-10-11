@@ -2147,7 +2147,7 @@ Dashboard-Hinweis bei offenen Anfragen.
 | `identityVerified` | checkbox | R | – | `false` | – | – |
 | `identityMethod` | select `IdentityCheckMethod` | R bei `identityVerified` | – | – | keine Ausweiskopie außer bei begründeten Zweifeln | – |
 | `identityVerifiedAt` | date | S | – | – | – | – |
-| `matchedOrders` / `matchedWithdrawals` / `matchedInquiries` | relationship, hasMany | – | – | – | Treffer der Suche (R-150) | – |
+| `matchedOrders` / `matchedWithdrawals` / `matchedInquiries` | relationship, hasMany | – | – | – | Treffer der Suche (R-150): Datensätze mit der Adresse der Anfrage bzw. der gesuchten Adresse und ausdrücklich bestätigte mögliche Treffer; unbestätigte Treffer nur über Name/Bestellnummer mit anderer Adresse werden nicht gespeichert (P18.5) | – |
 | `exportFile` | upload → `private-uploads` | – | – | – | `purpose = data_export`; ZIP mit `daten.json`, `auskunft.html`, Kopien | Download-Link an die Person 7 Tage gültig |
 | `answeredAt` | date | R bei `answered`/`rejected` | – | – | ≥ `receivedAt` | – |
 | `resultNote` | textarea | R bei `rejected` | – | – | ≤ 2000; Ergebnis, Begründung, genannte Aufbewahrungsfristen | – |

@@ -36,14 +36,18 @@ import {
 } from '../helpers/products'
 
 // P6.18 – Löschen/Einschränken, Berichtigung, Einwilligungswiderruf (R-151, R-152, LOESCHKONZEPT §5.5–§5.10):
-// alte Bestellung (Frist abgelaufen) wird gelöscht (Stufe D), neue eingeschränkt (Notizen und Packfotos weg, DHL-
-// Einwilligung widerrufen, keine Mails mehr), Rechnungen unverändert, `deletion-log` mit `trigger = privacy_request`;
-// Berichtigung vor der Rechnung direkt, danach Gutschrift + neue Rechnung; DHL-Widerruf entfernt die E-Mail aus
-// „Adresse kopieren“ und bestätigt mit M16.
+// alte Bestellung (Frist abgelaufen) wird gelöscht (Stufe D), abgeschlossene eingeschränkt (Notizen und Packfotos weg,
+// DHL-Einwilligung widerrufen, keine Mails mehr), laufende (bezahlt, nicht versandt bzw. unterwegs) bekommt „keine
+// Aktion“ vorgeschlagen, Rechnungen unverändert, `deletion-log` mit `trigger = privacy_request`; M15 meldet nur, was
+// wirklich gilt („eingeschränkt“ nur bei Einschränkung, DHL-Satz nur nach Widerruf); Berichtigung vor der Rechnung
+// direkt, danach Gutschrift + neue Rechnung; DHL-Widerruf entfernt die E-Mail aus „Adresse kopieren“ und bestätigt
+// mit M16.
 
 const NUMBERS = [990, 991, 992, 993, 994]
 const EMAIL = 'lena.loesch@planetclaire.local'
 const NAME = 'Lena Loesch'
+/** Zweite Person für die M15-Prüfung ohne Einschränkung. */
+const EMAIL2 = 'lena.zwei@planetclaire.local'
 const NOW = new Date('2026-10-12T10:00:00.000Z')
 const PHOTO = path.resolve('tests/fixtures/images/landscape-small.jpg')
 
@@ -86,17 +90,17 @@ async function invoiceFor(o: Order): Promise<Invoice> {
   })) as Invoice
 }
 
-async function newRequest(types: string[]): Promise<PrivacyRequest> {
+async function newRequest(types: string[], email = EMAIL): Promise<PrivacyRequest> {
   const r = await req()
   const pr = await inTransaction(r, () =>
-    createPrivacyRequest(r, { types, receivedAt: '2026-10-12', contactEmail: EMAIL }, NOW),
+    createPrivacyRequest(r, { types, receivedAt: '2026-10-12', contactEmail: email }, NOW),
   )
   const r2 = await req()
   await inTransaction(r2, () =>
     savePrivacyRequest(r2, pr.id, { identityVerified: true, identityMethod: 'stored_email' }, NOW),
   )
   const r3 = await req()
-  return (await inTransaction(r3, () => searchForRequest(r3, pr.id, { email: EMAIL }, NOW))).request
+  return (await inTransaction(r3, () => searchForRequest(r3, pr.id, { email }, NOW))).request
 }
 
 async function logs(collection: string, id: number) {
@@ -106,11 +110,18 @@ async function logs(collection: string, id: number) {
 }
 
 async function cleanup() {
-  await db().execute(sql`DELETE FROM email_log WHERE lower("to") = ${EMAIL}
+  await db().execute(sql`DELETE FROM email_log WHERE lower("to") IN (${EMAIL}, ${EMAIL2})
     OR template IN ('privacy_erasure_response', 'consent_withdrawal_confirmation')`)
-  await db().execute(sql`DELETE FROM consent_log WHERE lower(email) = ${EMAIL}`)
-  await db().execute(sql`DELETE FROM privacy_requests WHERE contact_email = ${EMAIL}`)
+  await db().execute(sql`DELETE FROM consent_log WHERE lower(email) IN (${EMAIL}, ${EMAIL2})`)
+  await db().execute(sql`DELETE FROM privacy_requests WHERE contact_email IN (${EMAIL}, ${EMAIL2})`)
   await db().execute(sql`DELETE FROM inquiries WHERE email = ${EMAIL}`)
+}
+
+/** Abgeschlossen (zugestellt am 05.09.2026), Aufbewahrung bis 01.01.2033 (Berlin). */
+async function finish(o: Order) {
+  await db().execute(sql`UPDATE orders SET status = 'delivered',
+    timestamps_delivered_at = '2026-09-05T10:00:00Z', timestamps_final_status_at = '2026-09-05T10:00:00Z',
+    retain_until = '2032-12-31T23:00:00Z' WHERE id = ${o.id}`)
 }
 
 beforeAll(async () => {
@@ -150,6 +161,13 @@ describe('DSGVO: Löschen/Einschränken (P6.18)', () => {
       carrierEmailConsent: true,
     })
     const freshInvoice = await invoiceFor(fresh)
+    await finish(fresh)
+    // laufende Verträge: bezahlt und noch nicht versandt bzw. versandt und noch unterwegs (Endstatus erst in 30 Tagen)
+    const running = await order(2)
+    const inTransit = await order(3)
+    await db().execute(sql`UPDATE orders SET status = 'shipped',
+      timestamps_shipped_at = '2026-10-10T10:00:00Z', timestamps_final_status_at = '2026-11-09T10:00:00Z'
+      WHERE id = ${inTransit.id}`)
     const png = await readFile(PHOTO)
     const packing = (await payload.create({
       collection: 'private-uploads',
@@ -195,7 +213,12 @@ describe('DSGVO: Löschen/Einschränken (P6.18)', () => {
     const row = (c: string, id: number) => plan.find((p) => p.collection === c && p.id === id)!
     expect(row('orders', oldOrder.id).suggested).toBe('delete')
     expect(row('orders', fresh.id).suggested).toBe('restrict')
-    expect(row('orders', fresh.id).until).toBeTruthy()
+    expect(row('orders', fresh.id).until).toBe('2032-12-31T23:00:00.000Z')
+    for (const o of [running, inTransit]) {
+      expect(row('orders', o.id).suggested, o.orderNumber).toBe('none')
+      expect(row('orders', o.id).actions, o.orderNumber).toEqual(['none', 'restrict', 'keep'])
+      expect(row('orders', o.id).note, o.orderNumber).toContain('Vertrag läuft noch')
+    }
     expect(row('invoices', oldInvoice.id).actions).toEqual(['none'])
     expect(row('inquiries', inquiry.id as number).suggested).toBe('delete')
 
@@ -235,6 +258,22 @@ describe('DSGVO: Löschen/Einschränken (P6.18)', () => {
     expect(o2.notes ?? null).toBeNull()
     expect(o2.customer.email).toBe(EMAIL)
     expect(o2.carrierEmailConsentRevokedAt).toBeTruthy()
+    expect(res.carrierConsentWithdrawn).toBe(true)
+    // laufende Verträge bleiben unberührt (Versand-, Zahlungs- und Erstattungsmails gehen weiter)
+    for (const id of [running.id, inTransit.id]) {
+      const o = (await payload.findByID({
+        collection: 'orders',
+        id,
+        depth: 0,
+        overrideAccess: true,
+      })) as Order
+      expect(o.privacy?.processingRestricted ?? false).toBe(false)
+      expect(res.outcomes.find((x) => x.collection === 'orders' && x.id === id)).toMatchObject({
+        action: 'none',
+        state: 'inUse',
+        until: null,
+      })
+    }
     expect(
       (await db().execute(sql`SELECT id FROM private_uploads WHERE id = ${packing.id}`)).rows,
     ).toHaveLength(0)
@@ -277,9 +316,71 @@ describe('DSGVO: Löschen/Einschränken (P6.18)', () => {
     const m15 = getMemoryOutbox().filter((m) => m.type === 'privacy_erasure_response')
     expect(m15).toHaveLength(1)
     expect(m15[0]!.to).toEqual([EMAIL])
-    expect(m15[0]!.text).toContain('Bestellungen: eingeschränkt bis')
+    expect(m15[0]!.text).toContain('Bestellungen: eingeschränkt bis 01.01.2033')
+    expect(m15[0]!.text).toContain(
+      'Bestellungen: brauche ich noch, um deine Bestellung abzuwickeln',
+    )
     expect(m15[0]!.text).toContain('Anfragen zu Auftragsarbeiten: gelöscht')
     expect(m15[0]!.text).toContain('Rechnungen und Gutschriften: unverändert')
+    expect(m15[0]!.text).toContain('an DHL ist widerrufen')
+  })
+
+  it('R-151 M15 meldet den tatsächlichen Zustand: „keine Aktion“ ist keine Einschränkung, DHL-Satz nur nach Widerruf', async () => {
+    const lena2 = { customer: { name: 'Lena Zwei', email: EMAIL2 } }
+    const finished = await order(3, { ...lena2, carrierEmailConsent: true })
+    await finish(finished)
+    const old = await order(4, lena2)
+    await db().execute(sql`UPDATE orders SET status = 'delivered',
+      timestamps_final_status_at = '2019-06-01T10:00:00Z', retain_until = '2026-01-01T00:00:00Z'
+      WHERE id = ${old.id}`)
+    const pr = await newRequest(['erasure'], EMAIL2)
+    const plan = await buildErasurePlan(await req(), pr, { email: EMAIL2 }, NOW)
+    expect(plan.map((p) => [p.collection, p.id, p.suggested])).toEqual([
+      ['orders', finished.id, 'restrict'],
+      ['orders', old.id, 'delete'],
+    ])
+    const decide = (oldAction: string) =>
+      plan.map((p) => ({
+        collection: p.collection,
+        id: p.id,
+        action: p.id === old.id ? oldAction : 'none',
+      }))
+    // Frist abgelaufen + „keine Aktion“ ergäbe keine wahre Antwort → Jutta muss löschen oder (begründet) behalten
+    const r1 = await req()
+    await expect(
+      inTransaction(r1, () => applyErasure(r1, pr.id, { decisions: decide('none') }, NOW)),
+    ).rejects.toMatchObject({ status: 400 })
+
+    clearMemoryOutbox()
+    const r2 = await req()
+    const res = await inTransaction(r2, () =>
+      applyErasure(r2, pr.id, { decisions: decide('delete') }, NOW),
+    )
+    await runEmailJobNow(payload, res.jobId, { now: NOW })
+    expect(res.carrierConsentWithdrawn).toBe(false)
+    expect(res.outcomes.find((x) => x.id === finished.id)).toMatchObject({
+      action: 'none',
+      state: 'inUse',
+      until: '2032-12-31T23:00:00.000Z',
+    })
+    const o = (await payload.findByID({
+      collection: 'orders',
+      id: finished.id,
+      depth: 0,
+      overrideAccess: true,
+    })) as Order
+    expect(o.privacy?.processingRestricted ?? false).toBe(false)
+    expect(o.carrierEmailConsentRevokedAt ?? null).toBeNull()
+    const m15 = getMemoryOutbox().filter((m) => m.type === 'privacy_erasure_response')
+    expect(m15).toHaveLength(1)
+    expect(m15[0]!.to).toEqual([EMAIL2])
+    const text = m15[0]!.text ?? ''
+    expect(text).toContain(
+      'Bestellungen: aufbewahrt bis 01.01.2033 wegen gesetzlicher Aufbewahrungspflichten',
+    )
+    expect(text).toContain('Bestellungen: gelöscht')
+    expect(text).not.toMatch(/eingeschränkt/i)
+    expect(text).not.toContain('DHL')
   })
 
   it('R-151 eingeschränkte Bestellung erhält keine Mail mehr (Outbox suppressed)', async () => {

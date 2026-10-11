@@ -991,9 +991,12 @@
       "deleted": "{area}: deleted",
       "restricted": "{area}: restricted until {date} because of statutory retention duties, then deleted or anonymised automatically",
       "kept": "{area}: kept until {date} because the data is needed to establish, exercise or defend legal claims (Art. 17(3)(e) GDPR)",
+      "inUse": "{area}: kept until {date} because of statutory retention duties, then deleted or anonymised automatically",
+      "inUseOpen": "{area}: still needed to complete your order (for example shipping, payment or a refund); after that I keep them only as long as commercial and tax law require, then they are deleted or anonymised automatically",
       "unchanged": "{area}: unchanged – tax law requires me to keep invoices and credit notes until {date}, then they are anonymised",
       "restrictedMeaning": "“Restricted” means: I only use this data to meet legal obligations and will not send you any emails about it.",
-      "recipients": "If you had agreed to me passing your email address to DHL, that consent has been withdrawn. For card or PayPal payments, Stripe or PayPal process data as independent controllers – please contact their data protection team directly. Logs of the email provider and backups expire automatically.",
+      "carrierConsentWithdrawn": "Your consent to me passing your email address to DHL has been withdrawn: DHL will no longer receive your email address from me.",
+      "recipients": "For card or PayPal payments, Stripe or PayPal process data as independent controllers – please contact their data protection team directly. Logs of the email provider and backups expire automatically.",
       "complaint": "You can lodge a complaint with a data protection supervisory authority, for example the Berlin Commissioner for Data Protection and Freedom of Information, Alt-Moabit 59–61, 10555 Berlin, Germany.",
       "reply": "If you have any questions, just reply to this email."
     },
@@ -1121,9 +1124,16 @@
       "none": "–"
     },
     "thirdCountry": {
-      "US": "based in the USA (transfer under the EU-US Data Privacy Framework or standard contractual clauses)",
+      "US": "connection to the USA (registered office or parent company in the USA; transfer under the EU-US Data Privacy Framework or standard contractual clauses)",
       "EU": "EU/EEA",
       "none": "no transfer to third countries"
+    },
+    "furtherRecipientsIntro": "In addition, these bodies receive data as independent controllers, but only when there is a reason:",
+    "furtherRecipients": {
+      "applePay": "Apple Distribution International Ltd., Cork, Ireland – if you pay with Apple Pay (payment data from your wallet, via Stripe)",
+      "googlePay": "Google Ireland Limited, Dublin, Ireland – if you pay with Google Pay (payment data from your wallet, via Stripe)",
+      "bank": "My bank{bank} – for payment in advance by bank transfer and for refunds by transfer (name and IBAN of the payer, amount, payment reference)",
+      "tax": "The tax office and, where applicable, a tax adviser – as far as tax law requires (invoices, credit notes, accounting exports)"
     },
     "retentionHeading": "d) How long I keep your data",
     "retention": {
@@ -1148,7 +1158,7 @@
     "complaintHeading": "f) Complaint to the supervisory authority",
     "complaint": "You can lodge a complaint with a data protection supervisory authority, for example the Berlin Commissioner for Data Protection and Freedom of Information (Berliner Beauftragte für Datenschutz und Informationsfreiheit), Alt-Moabit 59–61, 10555 Berlin, Germany.",
     "sourceHeading": "g) Where the data comes from",
-    "source": "The data comes from you (checkout, forms, emails). Payment providers report the payment status, the carrier reports the delivery status.",
+    "source": "The data comes from you (checkout, forms, emails). Payment providers report the payment status. I enter the tracking number and shipping status myself; the carrier does not send anything to the website. Unless I hear otherwise, a parcel counts as delivered {days} days after shipping.",
     "automatedHeading": "h) Automated decisions",
     "automated": "I do not make automated decisions or create profiles. For payments, Stripe runs an automated fraud and risk check as an independent controller; Stripe provides information about it.",
     "notesHint": "Internal notes that may also concern other people are not included in the file. I reviewed them before sending; anything that concerns you is in my reply.",
