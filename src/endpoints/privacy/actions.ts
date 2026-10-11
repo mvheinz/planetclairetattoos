@@ -4,7 +4,7 @@ import { isAdminRequest } from '@/access'
 import { ADMIN_NO_STORE, adminActionResponse } from '@/endpoints/adminResponse'
 import { orderActionErrorResponse } from '@/endpoints/orders/_action'
 import { readJsonBody } from '@/endpoints/products/actions'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { requestNow } from '@/lib/payload/context'
 import { inTransaction } from '@/lib/payload/transaction'
 
@@ -46,7 +46,7 @@ async function runJobs(req: PayloadRequest, jobs: PrivacyActionResult['jobs'], n
   const { runEmailJobNow } = await import('@/lib/email/outbox')
   for (const job of jobs) {
     await runEmailJobNow(req.payload, job ?? null, { now }).catch((e: unknown) =>
-      log.error('privacy.mail_failed', { reason: (e as Error)?.message }),
+      log.error('privacy.mail_failed', { reason: errorSummary(e) }),
     )
   }
 }

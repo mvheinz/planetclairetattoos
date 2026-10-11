@@ -4,7 +4,7 @@ import { createLocalReq, type Payload } from 'payload'
 
 import { notifyAdmin } from '@/lib/email/notifyAdmin'
 import { runEmailJobNow } from '@/lib/email/outbox'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { preservingReq } from '@/lib/payload/localReq'
 import { inTransaction } from '@/lib/payload/transaction'
 import { addBerlinDays, berlinDateKey, berlinDayStart } from '@/lib/time'
@@ -104,7 +104,7 @@ export async function runWithdrawalDeadlines(
     if (job === null) continue
     reminded++
     await runEmailJobNow(payload, job, { now }).catch((e: unknown) =>
-      log.error('withdrawal_deadlines.mail_failed', { id: w.id, error: (e as Error)?.message }),
+      log.error('withdrawal_deadlines.mail_failed', { id: w.id, error: errorSummary(e) }),
     )
   }
   return { reminded }

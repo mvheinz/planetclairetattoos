@@ -14,7 +14,7 @@ import {
 import type { SqlExecutor } from '@/lib/db/tx'
 import { buildShippedMailData } from '@/lib/email/fulfillmentMailData'
 import { enqueueEmail } from '@/lib/email/outbox'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { inTransaction } from '@/lib/payload/transaction'
 import { addBerlinDays, berlinDayStart } from '@/lib/time'
 import type { Order } from '@/payload-types'
@@ -183,7 +183,7 @@ export async function markDeliveredAuto(payload: Payload, now: Date): Promise<Ma
       })
     } catch (err) {
       out.errors += 1
-      log.error('orders.mark_delivered_failed', { orderId, reason: (err as Error)?.message })
+      log.error('orders.mark_delivered_failed', { orderId, reason: errorSummary(err) })
     }
   }
   return out

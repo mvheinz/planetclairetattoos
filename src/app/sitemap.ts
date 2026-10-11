@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 
 import { getSitemapData } from '@/lib/data/sitemap'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { buildSitemap, EMPTY_SITEMAP_DATA, type SitemapData } from '@/lib/seo/sitemap'
 
 // `/sitemap.xml` (KONZEPT §2.5, P3.13): indexierbare `live`-Seiten, öffentliche Stücke und Kategorien beider Sprachen
@@ -17,7 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     data = await getSitemapData()
   } catch (err) {
-    log.warn('sitemap.data_unavailable', { reason: (err as Error).message })
+    log.warn('sitemap.data_unavailable', { reason: errorSummary(err) })
   }
   return buildSitemap(undefined, data)
 }

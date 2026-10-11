@@ -7,7 +7,7 @@ import { dbFor } from '@/lib/db/tx'
 import { notifyAdmin } from '@/lib/email/notifyAdmin'
 import { runEmailJobNow } from '@/lib/email/outbox'
 import type { PrivacyRequestType } from '@/lib/enums'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { inTransaction } from '@/lib/payload/transaction'
 import { berlinDateKey } from '@/lib/time'
 import type { PrivacyRequest } from '@/payload-types'
@@ -80,7 +80,7 @@ export async function runPrivacyRequestReminders(
     if (jobId === null) continue
     reminded++
     await runEmailJobNow(payload, jobId, { now }).catch((e: unknown) =>
-      log.error('privacy_reminders.mail_failed', { id: r.id, error: (e as Error)?.message }),
+      log.error('privacy_reminders.mail_failed', { id: r.id, error: errorSummary(e) }),
     )
   }
   return { reminded }

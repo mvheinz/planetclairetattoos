@@ -10,7 +10,7 @@ import type { LegalSnippetKey, Locale } from '@/lib/enums'
 import { jobAlarm } from '@/lib/jobs/alarm'
 import { getActiveLegalText } from '@/lib/legal/getActive'
 import { getSnippet, loadLegalSnippets, type RenderedSnippet } from '@/lib/legal/snippets'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { preservingReq } from '@/lib/payload/localReq'
 import { inTransaction } from '@/lib/payload/transaction'
 import { getPaymentsAdapter, type PaymentsAdapter } from '@/lib/payments'
@@ -433,7 +433,7 @@ export async function submitCheckout(
     try {
       await jobAlarm.bump(new Date(now.getTime() + CONFIRMING_RECONCILE_MS))
     } catch (err) {
-      log.error('checkout.job_alarm_failed', { checkoutId, error: (err as Error)?.message })
+      log.error('checkout.job_alarm_failed', { checkoutId, error: errorSummary(err) })
     }
   }
   log.info('checkout.submitted', { checkoutId, paymentChoice: value.paymentChoice })

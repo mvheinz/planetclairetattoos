@@ -3,7 +3,7 @@ import React from 'react'
 import { cached } from '@/lib/cache/cached'
 import { TAGS } from '@/lib/cache/tags'
 import { getEnv } from '@/lib/env'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 
 import { AnalyticsClient } from './AnalyticsClient'
 import { analyticsEnvAllows, analyticsSettingsAllow, type AnalyticsSettingsLike } from './gate'
@@ -28,7 +28,7 @@ async function loadAnalyticsSettings(): Promise<AnalyticsSettingsLike | null> {
     })) as { analytics?: AnalyticsSettingsLike }
     return raw.analytics ?? null
   } catch (err) {
-    log.warn('analytics.settings_failed', { reason: (err as Error).message })
+    log.warn('analytics.settings_failed', { reason: errorSummary(err) })
     return null
   }
 }

@@ -5,7 +5,7 @@ import { ADMIN_NO_STORE, adminActionResponse } from '@/endpoints/adminResponse'
 import { readJsonBody } from '@/endpoints/products/actions'
 import { transitionOrder } from '@/lib/commerce/transitionOrder'
 import type { OrderStatus } from '@/lib/enums'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { requestNow } from '@/lib/payload/context'
 import { inTransaction } from '@/lib/payload/transaction'
 import type { Order } from '@/payload-types'
@@ -75,7 +75,7 @@ export function orderActionErrorResponse(err: unknown, path = ''): Response {
     return orderActionError(400, err.message, { errors: err.data?.errors ?? [] })
   }
   if (err instanceof APIError) return orderActionError(err.status, err.message)
-  log.error('orders.admin_action_failed', { path, reason: (err as Error)?.message })
+  log.error('orders.admin_action_failed', { path, reason: errorSummary(err) })
   return orderActionError(
     500,
     'Unerwarteter Fehler. Bitte die Seite neu laden und noch einmal versuchen.',
@@ -116,7 +116,7 @@ export function adminOrderAction(path: string, handler: OrderActionHandler): End
             log.error('orders.admin_action_after_commit_failed', {
               orderId: order.id,
               path,
-              reason: (e as Error)?.message,
+              reason: errorSummary(e),
             }),
           )
         }

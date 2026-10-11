@@ -8,7 +8,7 @@ import { writeAudit } from '@/lib/audit'
 import { TransitionError } from '@/lib/commerce/transitionError'
 import type { LegalSnippetKey, LegalTextStatus, LegalTextType, Locale } from '@/lib/enums'
 import { jobAlarm } from '@/lib/jobs/alarm'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { requestNow } from '@/lib/payload/context'
 import { preservingReq } from '@/lib/payload/localReq'
 import { inTransaction } from '@/lib/payload/transaction'
@@ -86,9 +86,7 @@ async function taxSettings(req: PayloadRequest): Promise<TaxSettings> {
 async function wakeAt(validFrom: Date): Promise<void> {
   await jobAlarm
     .bump(validFrom)
-    .catch((err: unknown) =>
-      log.warn('legal.activate_alarm_failed', { reason: (err as Error)?.message }),
-    )
+    .catch((err: unknown) => log.warn('legal.activate_alarm_failed', { reason: errorSummary(err) }))
 }
 
 // --- Rechtstexte ---------------------------------------------------------------------------------------------------

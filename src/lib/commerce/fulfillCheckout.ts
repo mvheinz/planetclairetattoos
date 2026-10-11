@@ -14,7 +14,7 @@ import type { CheckoutStatus, PaymentProvider } from '@/lib/enums'
 import { createInvoiceForOrder } from '@/lib/invoices/create'
 import { runInvoicePdfJob } from '@/lib/invoices/issue'
 import { money } from '@/lib/email/templates/kit'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { preservingReq } from '@/lib/payload/localReq'
 import { inTransaction } from '@/lib/payload/transaction'
 import type { SessionState } from '@/lib/payments/types'
@@ -224,7 +224,7 @@ async function handleClosed(
     productIds: [],
     afterCommit: async () => {
       await runEmailJobNow(payload, jobId, { now }).catch((e: unknown) =>
-        log.error('fulfill.alert_mail_failed', { error: (e as Error)?.message }),
+        log.error('fulfill.alert_mail_failed', { error: errorSummary(e) }),
       )
     },
   }
@@ -428,7 +428,7 @@ export async function fulfillCheckout(
             now,
             reason: 'item_unavailable',
           }).catch((e: unknown) =>
-            log.error('fulfill.refund_failed', { orderId: order.id, error: (e as Error)?.message }),
+            log.error('fulfill.refund_failed', { orderId: order.id, error: errorSummary(e) }),
           )
           if (partial.a06)
             await runEmailJobNow(payload, partial.a06, { now }).catch(() => undefined)
@@ -437,12 +437,12 @@ export async function fulfillCheckout(
         await runInvoicePdfJob(payload, invoice.jobId, { now }).catch((e: unknown) =>
           log.error('fulfill.invoice_pdf_failed', {
             orderId: order.id,
-            error: (e as Error)?.message,
+            error: errorSummary(e),
           }),
         )
         for (const job of [m01.jobId, a01.jobId]) {
           await runEmailJobNow(payload, job, { now }).catch((e: unknown) =>
-            log.error('fulfill.mail_failed', { orderId: order.id, error: (e as Error)?.message }),
+            log.error('fulfill.mail_failed', { orderId: order.id, error: errorSummary(e) }),
           )
         }
         for (const id of delivered) {
@@ -479,7 +479,7 @@ async function remainingShippingCents(req: PayloadRequest, order: Order, remaini
     // Kein Tarif: vorsichtshalber keine Versand-Erstattung (Jutta sieht den Hinweis `oversold`).
     log.warn('fulfill.remaining_shipping_unknown', {
       orderId: order.id,
-      error: (err as Error)?.message,
+      error: errorSummary(err),
     })
     return order.shippingCents
   }
@@ -666,11 +666,11 @@ async function fulfillAllMissing(
         now,
         reason: 'item_unavailable',
       }).catch((e: unknown) =>
-        log.error('fulfill.refund_failed', { orderId: order.id, error: (e as Error)?.message }),
+        log.error('fulfill.refund_failed', { orderId: order.id, error: errorSummary(e) }),
       )
       for (const job of [m10.jobId, booked.a06]) {
         await runEmailJobNow(payload, job, { now }).catch((e: unknown) =>
-          log.error('fulfill.mail_failed', { orderId: order.id, error: (e as Error)?.message }),
+          log.error('fulfill.mail_failed', { orderId: order.id, error: errorSummary(e) }),
         )
       }
       for (const id of input.productIds) {

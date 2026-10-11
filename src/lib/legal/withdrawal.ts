@@ -12,7 +12,7 @@ import { loadOrder, transitionOrder, updateOrderFields } from '@/lib/commerce/tr
 import { notifyAdmin } from '@/lib/email/notifyAdmin'
 import { enqueueEmail, runEmailJobNow } from '@/lib/email/outbox'
 import { LOCALES, type Locale, type WithdrawalMatchStatus } from '@/lib/enums'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { preservingReq } from '@/lib/payload/localReq'
 import { inTransaction } from '@/lib/payload/transaction'
 import { ipHash } from '@/lib/security/ipHash'
@@ -401,12 +401,10 @@ export async function submitWithdrawal(
   // Direkt nach dem Commit (KONZEPT §6.1): M08 zuerst, dann A04; Fehler holt `sendEmail` nach
   await tx.effect
     .afterCommit?.()
-    .catch((e: unknown) =>
-      log.error('withdrawal.after_commit_failed', { error: (e as Error)?.message }),
-    )
+    .catch((e: unknown) => log.error('withdrawal.after_commit_failed', { error: errorSummary(e) }))
   for (const job of tx.jobs) {
     await runEmailJobNow(payload, job, { now }).catch((e: unknown) =>
-      log.error('withdrawal.mail_failed', { error: (e as Error)?.message }),
+      log.error('withdrawal.mail_failed', { error: errorSummary(e) }),
     )
   }
 

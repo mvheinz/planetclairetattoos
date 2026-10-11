@@ -4,7 +4,7 @@ import { unstable_cache } from 'next/cache'
 
 import { TAGS } from '@/lib/cache/tags'
 import { DEFAULT_INSTAGRAM_HANDLE } from '@/lib/data/navigation'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { getPublicSettings } from '@/lib/payload/public'
 
 // Öffentliche Kontaktwege (KONZEPT §3.13, R20/R26): E-Mail (`settings.business.email`, sonst `social.contactEmail`),
@@ -71,7 +71,7 @@ export async function loadContactInfo(): Promise<ContactInfo> {
   try {
     return pickContactInfo(await getPublicSettings())
   } catch (err) {
-    log.warn('contact.load_failed', { reason: (err as Error).message })
+    log.warn('contact.load_failed', { reason: errorSummary(err) })
     return pickContactInfo({})
   }
 }

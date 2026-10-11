@@ -1,6 +1,6 @@
 import { revalidatePath, revalidateTag, updateTag } from 'next/cache'
 
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import type { AppContext } from '@/lib/payload/context'
 
 import { productTags } from './tags'
@@ -22,7 +22,7 @@ export interface RevalidateOptions {
 }
 
 const skipped = (tag: string, err: unknown) =>
-  log.warn('cache.revalidate_skipped', { tag, reason: (err as Error)?.message })
+  log.warn('cache.revalidate_skipped', { tag, reason: errorSummary(err) })
 
 /** `updateTag` gibt es nur in Server-Actions; anderswo (Route-Handler) greift `{ expire: 0 }` mit gleicher Wirkung. */
 function expireNow(tag: string): void {

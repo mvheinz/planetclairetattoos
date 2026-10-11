@@ -4,7 +4,7 @@ import { isAdminRequest } from '@/access'
 import { orderActionErrorResponse } from '@/endpoints/orders/_action'
 import { ADMIN_NO_STORE, adminActionResponse } from '@/endpoints/adminResponse'
 import { readJsonBody } from '@/endpoints/products/actions'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { requestNow } from '@/lib/payload/context'
 import { inTransaction } from '@/lib/payload/transaction'
 import type { Withdrawal } from '@/payload-types'
@@ -59,7 +59,7 @@ function withdrawalAction(path: string, handler: Handler): Endpoint {
           log.error('withdrawals.after_commit_failed', {
             id,
             path,
-            reason: (e as Error)?.message,
+            reason: errorSummary(e),
           }),
         )
         log.info('withdrawals.admin_action', { id, path, unchanged: !!result.unchanged })
@@ -128,12 +128,12 @@ export const withdrawalManualEndpoint: Endpoint = {
       await result
         .afterCommit?.()
         .catch((e: unknown) =>
-          log.error('withdrawals.manual_after_commit_failed', { reason: (e as Error)?.message }),
+          log.error('withdrawals.manual_after_commit_failed', { reason: errorSummary(e) }),
         )
       const { runEmailJobNow } = await outbox()
       for (const job of result.jobs) {
         await runEmailJobNow(req.payload, job, { now }).catch((e: unknown) =>
-          log.error('withdrawals.manual_mail_failed', { reason: (e as Error)?.message }),
+          log.error('withdrawals.manual_mail_failed', { reason: errorSummary(e) }),
         )
       }
       return Response.json({ doc: result.doc }, { status: 201, headers: ADMIN_NO_STORE })
@@ -158,7 +158,7 @@ export const withdrawalReceiptCopyEndpoint: Endpoint = {
       const res = await inTransaction(req, () => sendWithdrawalReceiptCopy(req, id, click, now))
       const { runEmailJobNow } = await outbox()
       await runEmailJobNow(req.payload, res.jobId, { now }).catch((e: unknown) =>
-        log.error('withdrawals.copy_mail_failed', { id, reason: (e as Error)?.message }),
+        log.error('withdrawals.copy_mail_failed', { id, reason: errorSummary(e) }),
       )
       return adminActionResponse({ doc: res.withdrawal })
     } catch (err) {

@@ -6,7 +6,7 @@ import { runEmailJobNow } from '@/lib/email/outbox'
 import { runInvoicePdfJob } from '@/lib/invoices/issue'
 import { notifyAdmin } from '@/lib/email/notifyAdmin'
 import type { RefundStatus } from '@/lib/enums'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { inTransaction } from '@/lib/payload/transaction'
 import { getPaymentsAdapter, type PaymentsAdapter } from '@/lib/payments'
 import type { Order } from '@/payload-types'
@@ -168,12 +168,12 @@ export async function runRefundEffects(
 ): Promise<void> {
   for (const job of effects.pdfJobs) {
     await runInvoicePdfJob(payload, job, { now }).catch((e: unknown) =>
-      log.error('refund.credit_note_pdf_failed', { error: (e as Error)?.message }),
+      log.error('refund.credit_note_pdf_failed', { error: errorSummary(e) }),
     )
   }
   for (const job of effects.mailJobs) {
     await runEmailJobNow(payload, job, { now }).catch((e: unknown) =>
-      log.error('refund.mail_failed', { error: (e as Error)?.message }),
+      log.error('refund.mail_failed', { error: errorSummary(e) }),
     )
   }
 }

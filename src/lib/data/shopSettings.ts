@@ -3,7 +3,7 @@ import 'server-only'
 import { cached } from '@/lib/cache/cached'
 import { TAGS } from '@/lib/cache/tags'
 import type { Locale } from '@/lib/enums'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { getPublicSettings } from '@/lib/payload/public'
 import { pickShopDisplaySettings, type ShopDisplaySettings } from '@/lib/shop/displaySettings'
 import {
@@ -26,7 +26,7 @@ export async function loadShopDisplaySettings(locale: Locale): Promise<ShopDispl
   try {
     return pickShopDisplaySettings(await getPublicSettings(systemClock, { locale }))
   } catch (err) {
-    log.warn('shop_settings.load_failed', { reason: (err as Error).message })
+    log.warn('shop_settings.load_failed', { reason: errorSummary(err) })
     return pickShopDisplaySettings({})
   }
 }
@@ -51,7 +51,7 @@ export async function loadProductInfoSettings(locale: Locale): Promise<ProductIn
   try {
     settings = await getPublicSettings(systemClock, { locale })
   } catch (err) {
-    log.warn('shop_settings.load_failed', { reason: (err as Error).message })
+    log.warn('shop_settings.load_failed', { reason: errorSummary(err) })
   }
   return { business: pickBusinessInfo(settings, locale), shippingRates: shippingRatesDe(settings) }
 }
@@ -86,7 +86,7 @@ export async function loadShippingPaymentSettings(
   try {
     settings = await getPublicSettings(systemClock, { locale })
   } catch (err) {
-    log.warn('shop_settings.load_failed', { reason: (err as Error).message })
+    log.warn('shop_settings.load_failed', { reason: errorSummary(err) })
   }
   const obj = (v: unknown) =>
     (typeof v === 'object' && v !== null ? v : {}) as Record<string, unknown>

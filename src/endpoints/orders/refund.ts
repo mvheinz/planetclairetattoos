@@ -1,7 +1,7 @@
 import type { Endpoint } from 'payload'
 
 import { ADMIN_NO_STORE } from '@/endpoints/adminResponse'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 
 import { adminOrderAction, loadAdminOrder, orderActionError } from './_action'
 
@@ -29,7 +29,7 @@ export const refundProposalEndpoint: Endpoint = {
       const proposal = await (await service()).refundProposal(req, order.id, ids)
       return Response.json({ proposal }, { headers: ADMIN_NO_STORE })
     } catch (err) {
-      log.error('orders.refund_proposal_failed', { reason: (err as Error)?.message })
+      log.error('orders.refund_proposal_failed', { reason: errorSummary(err) })
       return orderActionError(500, 'Vorschlag gerade nicht berechenbar.')
     }
   },

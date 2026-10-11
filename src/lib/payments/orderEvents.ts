@@ -15,7 +15,7 @@ import { money } from '@/lib/email/templates/kit'
 import type { OrderStatus, RefundStatus } from '@/lib/enums'
 import { createCreditNote } from '@/lib/invoices/create'
 import { runInvoicePdfJob } from '@/lib/invoices/issue'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import type { Invoice, Order } from '@/payload-types'
 
 import {
@@ -62,12 +62,12 @@ function mailsAfterCommit(payload: Payload, jobs: JobId[], now: Date, pdfJob: Jo
   return async () => {
     if (pdfJob !== null) {
       await runInvoicePdfJob(payload, pdfJob, { now }).catch((e: unknown) =>
-        log.error('payments.credit_note_pdf_failed', { error: (e as Error)?.message }),
+        log.error('payments.credit_note_pdf_failed', { error: errorSummary(e) }),
       )
     }
     for (const job of jobs) {
       await runEmailJobNow(payload, job, { now }).catch((e: unknown) =>
-        log.error('payments.order_event_mail_failed', { error: (e as Error)?.message }),
+        log.error('payments.order_event_mail_failed', { error: errorSummary(e) }),
       )
     }
   }

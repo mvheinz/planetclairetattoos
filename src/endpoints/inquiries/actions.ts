@@ -6,7 +6,7 @@ import { readJsonBody } from '@/endpoints/products/actions'
 import { writeAudit } from '@/lib/audit'
 import { INQUIRY_STATUSES, type InquiryStatus } from '@/lib/enums'
 import { canTransitionInquiry, inquiryTransitionId } from '@/lib/inquiries/transitions'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { requestNow } from '@/lib/payload/context'
 import { inTransaction } from '@/lib/payload/transaction'
 import { writeDeletionLog } from '@/lib/retention/log'
@@ -72,7 +72,7 @@ export const inquiryStatusEndpoint: Endpoint = {
       return adminActionResponse({ doc })
     } catch (err) {
       if (err instanceof ValidationError) return json(409, err.message)
-      log.error('inquiries.status_failed', { id: inquiry.id, reason: (err as Error)?.message })
+      log.error('inquiries.status_failed', { id: inquiry.id, reason: errorSummary(err) })
       return json(500, 'Unerwarteter Fehler. Bitte die Seite neu laden und noch einmal versuchen.')
     }
   },
@@ -150,7 +150,7 @@ export const inquiryDeleteNowEndpoint: Endpoint = {
       )
     } catch (err) {
       if (err instanceof ValidationError) return json(409, err.message)
-      log.error('inquiries.delete_failed', { id: inquiry.id, reason: (err as Error)?.message })
+      log.error('inquiries.delete_failed', { id: inquiry.id, reason: errorSummary(err) })
       return json(
         500,
         'Löschen hat nicht geklappt. Bitte die Seite neu laden und noch einmal versuchen.',

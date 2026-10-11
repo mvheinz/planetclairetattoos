@@ -4,7 +4,7 @@ import { unstable_cache } from 'next/cache'
 
 import { TAGS } from '@/lib/cache/tags'
 import type { Locale } from '@/lib/enums'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { getPublicPayload } from '@/lib/payload/public'
 
 // Aktive Konformitätserklärungen für R27 (KONZEPT §3.14): Glasurname, „gültig ab“ und – falls öffentlich lesbar – das
@@ -41,7 +41,7 @@ export async function loadActiveConformity(locale: Locale): Promise<ConformityIt
         return { id: d.id, name: d.name, validFrom: d.validFrom, pdfUrl: url }
       })
   } catch (err) {
-    log.warn('conformity.load_failed', { locale, reason: (err as Error).message })
+    log.warn('conformity.load_failed', { locale, reason: errorSummary(err) })
     return []
   }
 }

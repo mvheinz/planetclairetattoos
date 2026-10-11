@@ -13,7 +13,7 @@ import { dbFor, type SqlExecutor } from '@/lib/db/tx'
 import { sendAdminAlert } from '@/lib/email/alerts'
 import { getEnv } from '@/lib/env'
 import type { CheckoutStatus } from '@/lib/enums'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { inTransaction } from '@/lib/payload/transaction'
 import { systemClock } from '@/lib/time'
 
@@ -354,7 +354,8 @@ export async function processPaymentEvent(
       return result
     })
   } catch (err) {
-    const message = `${(err as Error)?.name ?? 'Error'}: ${(err as Error)?.message ?? String(err)}`
+    // Ohne Abfragewerte (Drizzle `params`, Postgres-Details) – die Spalte ist ein technisches Protokoll (R-137, L-13 d)
+    const message = errorSummary(err)
     await sqlOf(payload).execute(sql`
       UPDATE webhook_events
          SET status = 'failed', last_error = ${message.slice(0, 1000)}, updated_at = ${now.toISOString()}::timestamptz
@@ -377,7 +378,7 @@ export async function processPaymentEvent(
         adminPath: '/collections/webhook-events',
         now,
       }).catch((e: unknown) =>
-        log.error('payments.webhook_alert_failed', { error: (e as Error)?.message }),
+        log.error('payments.webhook_alert_failed', { error: errorSummary(e) }),
       )
     }
     throw err
@@ -390,7 +391,7 @@ export async function processPaymentEvent(
       // Belege und Mails holt der Job-Wecker nach; die Verarbeitung selbst ist abgeschlossen.
       log.error('payments.after_commit_failed', {
         eventId: event.id,
-        error: (err as Error)?.message,
+        error: errorSummary(err),
       })
     }
   }

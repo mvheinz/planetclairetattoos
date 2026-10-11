@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto'
 
 import type { Payload } from 'payload'
 
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 
 import { getPaymentsAdapter } from './index'
 import { processPaymentEvent } from './processPaymentEvent'
@@ -46,7 +46,7 @@ export async function handleWebhookRequest(
       log.error('payments.webhook_shape_invalid', { error: err.message })
       return json(400, { error: 'invalid_event' })
     }
-    log.error('payments.webhook_parse_failed', { error: (err as Error)?.message })
+    log.error('payments.webhook_parse_failed', { error: errorSummary(err) })
     return json(500, { error: 'webhook_unavailable' })
   }
   try {

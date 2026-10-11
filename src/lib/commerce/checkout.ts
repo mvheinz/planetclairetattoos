@@ -16,7 +16,7 @@ import type {
   VatCategory,
 } from '@/lib/enums'
 import { jobAlarm } from '@/lib/jobs/alarm'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { pickPublicSettings, toPublicPayload } from '@/lib/payload/public'
 import { inTransaction } from '@/lib/payload/transaction'
 import { getPaymentsAdapter, type PaymentsAdapter } from '@/lib/payments'
@@ -440,7 +440,7 @@ export async function startCheckout(
     log.warn('checkout.payment_session_failed', {
       checkoutId,
       error: (err as Error)?.name,
-      message: (err as Error)?.message,
+      message: errorSummary(err),
     })
   }
 
@@ -448,7 +448,7 @@ export async function startCheckout(
   try {
     await jobAlarm.bump(times.expiresAt)
   } catch (err) {
-    log.error('checkout.job_alarm_failed', { checkoutId, error: (err as Error)?.message })
+    log.error('checkout.job_alarm_failed', { checkoutId, error: errorSummary(err) })
   }
   for (const id of ids) {
     revalidateProduct(id, { immediate: true, inServerAction: deps.inServerAction })

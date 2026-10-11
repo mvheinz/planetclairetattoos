@@ -1837,6 +1837,13 @@ password, authorization, cookie` werden zu `"[redacted]"`; Freitext wird per Reg
 `orderNumber`), nie Request-Bodies, Webhook-Payloads oder vollständige URLs von Token-Seiten (Pfad wird zu
 `/de/bestellung/[token]` normalisiert). Keine Log-Drains zu Dritten (DIENSTE §3.1).
 
+Datenbank-Fehler (R-137, Prüfung P18.5): `DrizzleQueryError` hängt die Werte der Abfrage als `\nparams: …` an die
+Meldung, Postgres nennt Werte in `detail` (`Failing row contains (…)`, `Key (…)=(…)`) und in `invalid input … : "…"`.
+`redactText` schneidet diese Teile vor allen anderen Mustern ab (SQL-Text, Spalten- und Constraint-Namen bleiben lesbar);
+Fehler-Objekte werden zu `{ name, code, constraint, message, cause }` (rekursiv, nie `query`, `params`, `detail`).
+Log-Felder mit Fehlern nutzen `errorSummary(err)` aus dem Logger-Modul (Name ohne das bloße `Error`, SQLSTATE-Code,
+geschwärzte Meldung, bis zu zwei Ebenen `cause`) statt `(err as Error).message`; ebenso `webhook_events.last_error`.
+
 **AK-A-8-01** Jede Antwort einer öffentlichen Route trägt die Header aus §8.1 ihres Kontexts (Test über alle Registry-Routen).
 **AK-A-8-02** `GET /admin` und `GET /admin/collections/users` → 404; `GET <ADMIN_ROUTE>` → Login-Seite; der Wert von
 `ADMIN_ROUTE` kommt in keiner Datei unter `.next/static` und in keinem öffentlichen HTML vor.
@@ -2189,7 +2196,9 @@ eine geplante Wartung keinen Alarm auslöst.
 - Optionen: `environment = SENTRY_ENVIRONMENT ?? APP_ENV`, `release = VERCEL_GIT_COMMIT_SHA`, `sendDefaultPii: false`,
   `tracesSampleRate: 0`, `maxBreadcrumbs: 20`, `ignoreErrors` für `NEXT_NOT_FOUND`/`NEXT_REDIRECT`; `beforeSend` und
   `beforeBreadcrumb` rufen `redactSentryEvent()` aus `src/lib/monitoring/sentry.ts` (Regeln §8.11; entfernt
-  `request.cookies`, `request.data`, alle Header außer `user-agent`, normalisiert Pfade von Token-Seiten).
+  `request.cookies`, `request.data`, alle Header außer `user-agent`, normalisiert Pfade von Token-Seiten; schwärzt die
+  Meldungen aller Ausnahmen der Kette einschließlich `cause`, verwirft lokale Variablen der Stack-Frames und die
+  Fehler-Eigenschaften `params`/`detail` in Kontexten und Extras – R-133, Prüfung P18.5).
 - **Nicht** verwenden: `sentry.client.config.ts`, `withSentryConfig`, Tunnel-Route, Session Replay, Performance-Tracing.
   Quellkarten werden nicht hochgeladen (Server-Stacktraces sind lesbar). `pnpm check:external` stellt sicher, dass kein
   Sentry-Host und kein Sentry-Code in `.next/static` landet.

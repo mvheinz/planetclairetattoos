@@ -6,7 +6,7 @@ import { createLocalReq, getPayload, type Payload } from 'payload'
 import { isCronAuthorized } from '@/lib/jobs/auth'
 import { withTaskLock } from '@/lib/jobs/lock'
 import { getEnv, type Env } from '@/lib/env'
-import { logger } from '@/lib/monitoring/logger'
+import { errorSummary, logger } from '@/lib/monitoring/logger'
 import { BACKUP_STATUS_KEY } from '@/lib/monitoring/freshness'
 import { readJson, writeJson } from '@/lib/storage/systemFiles'
 import { berlinMonthKey } from '@/lib/time'
@@ -123,7 +123,7 @@ async function alertFailure(payload: Payload, code: string, now: Date): Promise<
       { now },
     )
   } catch (e) {
-    logger.error('backup.alert_failed', { reason: (e as Error).message })
+    logger.error('backup.alert_failed', { reason: errorSummary(e) })
   }
 }
 

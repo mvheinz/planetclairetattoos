@@ -5,6 +5,9 @@ import { normalizeLogPath } from '../routes/paths'
 import { redact } from '../security/redact'
 import { reportError } from './errorReporter'
 
+/** Fehler als Log-Feld: `{ reason: errorSummary(err) }` statt `(err as Error).message` (ohne Abfragewerte, R-137). */
+export { errorSummary } from '../security/redact'
+
 // Einziger Logger (ARCHITEKTUR §8.11): JSON-Zeilen nach stdout, ohne Personendaten.
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 const ORDER: Record<LogLevel, number> = { debug: 10, info: 20, warn: 30, error: 40 }

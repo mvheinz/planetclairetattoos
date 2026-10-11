@@ -6,7 +6,7 @@ import { readJsonBody } from '@/endpoints/products/actions'
 import { writeAudit } from '@/lib/audit'
 import type { PrepaymentErrorCode } from '@/lib/commerce/prepayment'
 import { loadOrder, updateOrderFields } from '@/lib/commerce/transitionOrder'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { requestNow } from '@/lib/payload/context'
 import { inTransaction } from '@/lib/payload/transaction'
 import { formatBerlin } from '@/lib/time'
@@ -71,7 +71,7 @@ function errorResponse(err: unknown): Response {
   if (err instanceof APIError) {
     return Response.json({ error: err.message }, { status: err.status, headers: noStore })
   }
-  log.error('orders.action_failed', { reason: (err as Error)?.message })
+  log.error('orders.action_failed', { reason: errorSummary(err) })
   return Response.json({ error: 'Unerwarteter Fehler.' }, { status: 500, headers: noStore })
 }
 

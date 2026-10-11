@@ -2,7 +2,7 @@ import type { Endpoint } from 'payload'
 
 import { isAdminRequest } from '@/access'
 import { ADMIN_NO_STORE, pdfResponse } from '@/endpoints/adminResponse'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 
 // `GET /api/products/:id/label.pdf` (PLAN P5.12, R-203): Etikett und Beileger eines Stücks als PDF, nur Verwaltung.
 
@@ -23,7 +23,7 @@ export const productLabelEndpoint: Endpoint = {
       if (!pdf) return error(404, 'Unbekanntes Stück.')
       return pdfResponse(pdf, `etikett-${String(id)}.pdf`)
     } catch (err) {
-      log.error('products.label_failed', { productId: id, reason: (err as Error)?.message })
+      log.error('products.label_failed', { productId: id, reason: errorSummary(err) })
       return error(500, 'Etikett konnte nicht erstellt werden.')
     }
   },

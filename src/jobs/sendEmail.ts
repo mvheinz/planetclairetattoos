@@ -11,7 +11,7 @@ import { prepareMail } from '@/lib/email/prepare'
 import { templateMeta } from '@/lib/email/registry'
 import { jobAlarm } from '@/lib/jobs/alarm'
 import { jobNow } from '@/lib/jobs/now'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { inTransaction } from '@/lib/payload/transaction'
 import type { EmailLog } from '@/payload-types'
 
@@ -256,7 +256,7 @@ async function sendQueued(
       await giveUp(req, entry, now, { status: 'failed', lastError: message })
       return { output: { status: 'failed' } }
     }
-    log.warn('mail.send_failed', { emailLogId: entry.id, attempts, error: message })
+    log.warn('mail.send_failed', { emailLogId: entry.id, attempts, error: errorSummary(e) })
     if (entry.template === 'withdrawal_receipt') {
       const next = await nextWithdrawalAttempt(req, entry, attempts, now)
       if (next) {
