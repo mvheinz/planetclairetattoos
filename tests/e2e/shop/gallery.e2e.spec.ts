@@ -88,6 +88,32 @@ test.describe('KO-09 Galerie', () => {
     await page.locator('[data-gallery-thumb="0"]').click()
     await expect(counter(page)).toHaveText('1 / 2')
     await expect(page.locator('[data-gallery-thumb="0"]')).toHaveAttribute('aria-current', 'true')
+    // U-83 (P17.3): Miniaturen ohne Goth-Rahmen – das Foto füllt das ganze Feld; die großen Fotos bleiben gerahmt (U-13)
+    const frames = await page.evaluate(() => {
+      const box = (sel: string) => {
+        const f = document.querySelector<HTMLElement>(sel)!
+        const cs = getComputedStyle(f)
+        const r = f.getBoundingClientRect()
+        const img = f.querySelector('img')!.getBoundingClientRect()
+        return {
+          attr: f.getAttribute('data-photo-frame'),
+          src: cs.borderImageSource,
+          band: parseFloat(cs.borderTopWidth),
+          fill: (img.width * img.height) / (r.width * r.height),
+        }
+      }
+      return {
+        thumb: box('[data-gallery-thumb="1"] [data-photo-frame]'),
+        slide: box('[data-gallery-slide="0"] [data-photo-frame]'),
+      }
+    })
+    expect(frames.thumb.attr).toBe('none')
+    expect(frames.thumb.src).toBe('none')
+    expect(frames.thumb.band).toBe(0)
+    expect(frames.thumb.fill).toBeGreaterThan(0.97)
+    expect(frames.slide.attr).toBe('')
+    expect(frames.slide.src).toContain('/art/photo-frame.v1.svg')
+    expect(frames.slide.band).toBeGreaterThanOrEqual(14)
   })
 
   test('Lightbox: öffnen, Esc schließt, Fokus zurück aufs Foto; Zurück-Taste schließt ebenfalls', async ({

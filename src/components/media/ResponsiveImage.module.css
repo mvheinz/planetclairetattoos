@@ -43,6 +43,14 @@
   --pf-band: 6px;
 }
 
+/* U-83 (P17.3): Galerie-Miniaturen ohne Rahmen – das ganze Feld zeigt das Foto, leicht gerundet. */
+.plain {
+  --pf-band: 0px;
+  border: 0;
+  border-image: none;
+  border-radius: 4px;
+}
+
 @media (forced-colors: active) {
   .frame {
     border-image: none;
