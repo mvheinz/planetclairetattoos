@@ -61,7 +61,9 @@ export default async function Page({
   const token = jar.get(CHECKOUT_COOKIE)?.value ?? null
   const data = await loadCheckoutPage({ token, locale, now })
   if (data.state === 'redirect') {
-    redirect(`${localizedPath('R06', locale)}${cartNoticeSearch(data.notice)}`)
+    redirect(
+      `${localizedPath('R06', locale)}${cartNoticeSearch(data.notice, { itemNumbers: data.itemNumbers })}`,
+    )
   }
   const { checkout, display } = data
   const rawNotice = typeof search.hinweis === 'string' ? search.hinweis : null

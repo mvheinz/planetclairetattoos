@@ -190,8 +190,9 @@ describe('Kasse', () => {
       ok: false,
       status: 409,
       code: 'pickup_disabled',
-      errors: { fulfillmentMethod: 'choice' },
     })
+    // Ohne Feldfehler: sonst zeigt die Kasse nur die Feldliste statt des Hinweistexts zu `pickup_disabled`.
+    expect(submitted).not.toHaveProperty('errors')
     expect((await checkoutById(h.payload, r.checkoutId)).status).toBe('open')
 
     // Gleiche Stückliste, Countdown läuft noch – trotzdem nicht wiederverwendet (S14), sondern ersetzt.
@@ -205,6 +206,20 @@ describe('Kasse', () => {
     expect((await checkoutById(h.payload, r.checkoutId)).status).toBe('cancelled')
     expect((await checkoutById(h.payload, again.checkoutId)).fulfillmentMethod).toBe('shipping')
     expect((await productRow(h.payload, a)).reservation_ref).toBe(again.reservationRef)
+  })
+
+  it('offene Kasse mit nur_abholung: Rücksprung in den Korb nennt die Nummern (Zweig „aus dem Korb nehmen“)', async () => {
+    const a = await h.piece(984)
+    const p = await h.piece(985, { shippingClass: 'nur_abholung' })
+    const r = await h.start([p, a], { delivery: 'pickup' })
+    expect((await checkoutById(h.payload, r.checkoutId)).fulfillmentMethod).toBe('pickup')
+    await pickupOff()
+
+    expect(await loadCheckoutPage({ token: r.token, locale: 'de', now: h.now() })).toEqual({
+      state: 'redirect',
+      notice: 'pickup_disabled',
+      itemNumbers: [985],
+    })
   })
 
   it('Lieferartwechsel zu Abholung → pickup_disabled, Kasse unverändert; Versand bleibt wählbar', async () => {

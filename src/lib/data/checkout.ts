@@ -31,7 +31,7 @@ import { dbGate } from '@/lib/db/buildGate'
 const log = createLogger()
 
 export type CheckoutPageData =
-  | { state: 'redirect'; notice: CartNoticeCode }
+  | { state: 'redirect'; notice: CartNoticeCode; itemNumbers?: number[] }
   | {
       state: 'ok'
       checkout: Checkout
@@ -121,8 +121,18 @@ export async function loadCheckoutPage(input: {
   const pickupAvailable = pickupSelectable(display.pickupEnabled, pickupOnly)
   // Abholung inzwischen aus (P18.5): eine offene Kasse mit Abholung lässt sich so nicht bestellen – zurück in den Korb.
   // Eine laufende Zahlung (`confirming`) bleibt unberührt.
+  // Mit den Nummern der Nur-Abholung-Stücke, damit der Korb-Hinweis den passenden Zweig wählt („Nimm das Stück aus dem
+  // Korb“ statt „ich schicke dir deine Stücke gern zu“).
   if (checkout.status === 'open' && checkout.fulfillmentMethod === 'pickup' && !pickupAvailable) {
-    return { state: 'redirect', notice: 'pickup_disabled' }
+    const itemNumbers = checkout.items
+      .filter((i) => i.shippingClass === 'nur_abholung')
+      .map((i) => i.itemNumber)
+      .sort((a, b) => a - b)
+    return {
+      state: 'redirect',
+      notice: 'pickup_disabled',
+      ...(itemNumbers.length > 0 ? { itemNumbers } : {}),
+    }
   }
 
   const quote = (method: 'shipping' | 'pickup'): number | null => {

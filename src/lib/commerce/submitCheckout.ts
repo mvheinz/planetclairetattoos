@@ -289,13 +289,14 @@ export async function submitCheckout(
     pickupAvailable,
   })
   if (!validation.ok) {
-    // Abholung inzwischen ausgeschaltet (P18.5): eigener Code; die Kasse zeigt den Weg zurück in den Korb (neu starten).
+    // Abholung inzwischen ausgeschaltet (P18.5): eigener Code ohne Feldfehler, damit die Kasse den Hinweistext
+    // (`checkout.errors.codes.pickup_disabled`) samt Weg zurück in den Korb zeigt statt „Bitte wähl eine der Möglichkeiten“.
     if (
       validation.errors.fulfillmentMethod === 'choice' &&
       input.raw.fulfillmentMethod === 'pickup' &&
       !pickupAvailable
     ) {
-      return fail(409, 'pickup_disabled', validation.errors)
+      return fail(409, 'pickup_disabled')
     }
     const onlyChoice =
       validation.errors.paymentChoice === 'choice' &&
