@@ -19,6 +19,7 @@ import {
   L_04_CANCELLED_PREPAYMENT_STAGE_1,
   L_05_ORDERS_STAGE_B,
   L_05_ORDERS_STAGE_C,
+  L_19B_PORTFOLIO_CONSENT,
   retainUntil,
 } from '@/lib/retention/policy'
 import { readStoredFile } from '@/lib/storage/read'
@@ -732,6 +733,122 @@ describe('Löschjobs Teil 2 (R-154, R-134)', () => {
     // idempotent
     await run('retentionConsentEvidence', plus(withdrawn, 26 * 3_600_000))
     expect(await logsFor('media', mediaId)).toHaveLength(1)
+    await dbOf(payload).execute(sql`DELETE FROM tattoo_gallery WHERE id = ${g.id}`)
+  })
+
+  it('R-154 L-19 b Galerie-Eintrag: 3 Jahre nach Widerruf Eintrag, Nachweisdatei und ungenutzte Bild-Einträge gelöscht (Tag vorher noch da)', async () => {
+    const image = await createTestImage(payload, 'Tattoo am Oberarm')
+    const extra = await createTestImage(payload, 'Tattoo am Oberarm, Detail')
+    const shared = await createTestImage(payload, 'Schwalbe (auch in einem anderen Eintrag)')
+    const screenshot = await readFile(PHOTO)
+    const proof = await payload.create({
+      collection: 'private-uploads',
+      data: { purpose: 'consent_evidence' } as never,
+      file: {
+        data: screenshot,
+        name: 'einwilligung.jpg',
+        mimetype: 'image/jpeg',
+        size: screenshot.length,
+      },
+      overrideAccess: true,
+      context: { system: true },
+    })
+    const withdrawn = new Date('2026-10-10T12:00:00.000Z')
+    const g = await payload.create({
+      collection: 'tattoo-gallery',
+      data: {
+        image,
+        extraImages: [extra, shared],
+        kind: 'fresh',
+        showsCustomer: true,
+        consentGiven: true,
+        consentDate: '2026-05-01T00:00:00.000Z',
+        consentNote: 'per Mail bestätigt',
+        consentEvidence: proof.id,
+        creditHandleAllowed: true,
+        creditHandle: 'erika.tattoo',
+        published: false,
+      } as never,
+      overrideAccess: true,
+      context: { seed: true },
+    })
+    const other = await payload.create({
+      collection: 'tattoo-gallery',
+      data: { image: shared, kind: 'fresh', showsCustomer: false, published: false } as never,
+      overrideAccess: true,
+      context: { seed: true },
+    })
+    await dbOf(payload).execute(sql`
+      UPDATE tattoo_gallery SET consent_withdrawn_at = ${iso(withdrawn)}::timestamptz, consent_given = false
+       WHERE id = ${g.id}`)
+    const due = retainUntil(L_19B_PORTFOLIO_CONSENT, withdrawn)
+    expect(iso(due)).toBe('2029-10-10T12:00:00.000Z')
+
+    await run('retentionConsentEvidence', plus(due, -DAY))
+    expect(await exists('tattoo_gallery', g.id as number)).toBe(true)
+    expect(await exists('private_uploads', proof.id as number)).toBe(true)
+    for (const id of [image, extra, shared]) expect(await exists('media', id)).toBe(true)
+
+    await run('retentionConsentEvidence', plus(due, DAY))
+    expect(await exists('tattoo_gallery', g.id as number)).toBe(false)
+    expect(await exists('private_uploads', proof.id as number)).toBe(false)
+    expect(await exists('media', image)).toBe(false)
+    expect(await exists('media', extra)).toBe(false)
+    // noch von einem anderen Eintrag genutzt: bleibt, aber gesperrt
+    expect(await exists('media', shared)).toBe(true)
+    const sharedRow = await dbOf(payload).execute(
+      sql`SELECT restricted FROM media WHERE id = ${shared}`,
+    )
+    expect(sharedRow.rows[0]?.restricted).toBe(true)
+    expect(await exists('tattoo_gallery', other.id as number)).toBe(true)
+
+    const entryLogs = await logsFor('tattoo-gallery', g.id as number)
+    expect(entryLogs).toHaveLength(1)
+    expect(entryLogs[0]).toMatchObject({
+      ruleId: 'L-19 b',
+      action: 'deleted',
+      trigger: 'job',
+      taskSlug: 'retentionConsentEvidence',
+    })
+    expect((await logsFor('private-uploads', proof.id as number)).map((l) => l.ruleId)).toEqual([
+      'L-19 b',
+    ])
+    for (const id of [image, extra]) {
+      const ruleIds = (await logsFor('media', id)).map((l) => `${l.ruleId}:${l.action}`).sort()
+      expect(ruleIds).toEqual(['L-19 b:deleted', 'L-20:files_deleted'])
+    }
+    expect((await logsFor('media', shared)).map((l) => l.ruleId)).toEqual(['L-20'])
+    // keine Inhalte im Protokoll
+    expect(JSON.stringify(entryLogs)).not.toContain('erika.tattoo')
+    // idempotent
+    await run('retentionConsentEvidence', plus(due, 2 * DAY))
+    expect(await logsFor('tattoo-gallery', g.id as number)).toHaveLength(1)
+    await dbOf(payload).execute(sql`DELETE FROM tattoo_gallery WHERE id = ${other.id}`)
+  })
+
+  it('L-19 b erneut eingewilligt oder wieder online: Eintrag bleibt trotz altem Widerrufsdatum', async () => {
+    const image = await createTestImage(payload, 'Tattoo an der Wade')
+    const withdrawn = new Date('2026-10-10T12:00:00.000Z')
+    const g = await payload.create({
+      collection: 'tattoo-gallery',
+      data: {
+        image,
+        kind: 'fresh',
+        showsCustomer: true,
+        consentGiven: true,
+        consentDate: '2026-05-01T00:00:00.000Z',
+        consentNote: 'neu eingewilligt per Mail',
+        published: false,
+      } as never,
+      overrideAccess: true,
+      context: { seed: true },
+    })
+    await dbOf(payload).execute(sql`
+      UPDATE tattoo_gallery SET consent_withdrawn_at = ${iso(withdrawn)}::timestamptz WHERE id = ${g.id}`)
+    const later = plus(retainUntil(L_19B_PORTFOLIO_CONSENT, withdrawn), 2 * DAY)
+    await run('retentionConsentEvidence', later)
+    expect(await exists('tattoo_gallery', g.id as number)).toBe(true)
+    expect(await logsFor('tattoo-gallery', g.id as number)).toHaveLength(0)
     await dbOf(payload).execute(sql`DELETE FROM tattoo_gallery WHERE id = ${g.id}`)
   })
 

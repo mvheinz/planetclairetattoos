@@ -1,9 +1,13 @@
-import type {
-  Access,
-  CollectionAfterChangeHook,
-  CollectionBeforeChangeHook,
-  CollectionConfig,
-  Where,
+import {
+  APIError,
+  type Access,
+  type CollectionAfterChangeHook,
+  type CollectionAfterDeleteHook,
+  type CollectionBeforeChangeHook,
+  type CollectionBeforeDeleteHook,
+  type CollectionConfig,
+  type PayloadRequest,
+  type Where,
 } from 'payload'
 
 import { adminField, isAdmin, isAdminRequest, NOT_SEED } from '@/access'
@@ -24,7 +28,9 @@ import {
   mediaVisibleInGallery,
 } from '@/lib/tattoo/gallery'
 import { addBerlinDays, berlinDayStart } from '@/lib/time'
+import { mediaInUse } from '@/lib/media/inUse'
 import { registerMediaReference } from '@/lib/media/references'
+import { L_19B_PORTFOLIO_CONSENT, retainUntil } from '@/lib/retention/policy'
 import { registerUploadReference } from '@/lib/uploads/references'
 
 import { failField, idOf, rejectChanges } from './hooks/commerce'
@@ -33,7 +39,8 @@ import { changedFields } from './hooks/immutable'
 // DATENMODELL §6.16 – Galerie Fresh & Healed (E-42): Fotos mit Kund:innen erscheinen nur mit dokumentierter Einwilligung.
 // Keine Versionen/Drafts (§1.6): ein Widerruf muss ohne Rest wirken (L-19, L-20). Einzige Ausnahme: Beispieldaten
 // (`seed = true`) bei SEED_PREVIEW_MODE=true – nie in Produktion. Die Aktion „Einwilligung widerrufen“
-// (`POST /api/tattoo-gallery/:id/withdraw-consent`, `src/lib/tattoo/admin.ts`) gibt es seit P7.8.
+// (`POST /api/tattoo-gallery/:id/withdraw-consent`, `src/lib/tattoo/admin.ts`) gibt es seit P7.8. Löschen (P18.5): erst
+// nach dem Widerruf; danach gehen ungenutzte Bilder mit, der Nachweis bekommt seine Frist (L-19 b).
 
 const SLUG = 'tattoo-gallery'
 const fail = (message: string, path: string): never => failField(SLUG, message, path)
@@ -163,24 +170,27 @@ function operation(data: Doc, original: Doc, field: string): boolean {
   return field in data && idOf(data[field]) !== idOf(original[field])
 }
 
+/** `media.restricted` eines Bildes = nicht in einem öffentlich sichtbaren Eintrag (§6.16). */
+async function syncRestricted(req: PayloadRequest, id: number | string): Promise<void> {
+  const restricted = !(await mediaVisibleInGallery(req, id))
+  await preservingReq(req, () =>
+    req.payload.update({
+      collection: 'media',
+      id,
+      data: { restricted },
+      depth: 0,
+      overrideAccess: true,
+      req,
+      context: { ...req.context, gallerySync: true },
+    }),
+  )
+}
+
 /** `media.restricted` der verknüpften Bilder = nicht in einem öffentlich sichtbaren Eintrag (§6.16). */
 const syncMedia: CollectionAfterChangeHook = async ({ doc, previousDoc, req, operation: op }) => {
   const ctx = getAppContext(req)
   const ids = new Set([...mediaIdsOf(doc as Doc), ...mediaIdsOf(previousDoc as Doc | undefined)])
-  for (const id of ids) {
-    const restricted = !(await mediaVisibleInGallery(req, id))
-    await preservingReq(req, () =>
-      req.payload.update({
-        collection: 'media',
-        id,
-        data: { restricted },
-        depth: 0,
-        overrideAccess: true,
-        req,
-        context: { ...req.context, gallerySync: true },
-      }),
-    )
-  }
+  for (const id of ids) await syncRestricted(req, id)
   const nowVisible = galleryPubliclyVisible(doc as Doc)
   const wasVisible = op === 'update' && galleryPubliclyVisible((previousDoc ?? {}) as Doc)
   if (nowVisible && !wasVisible && !ctx.seed) {
@@ -192,6 +202,111 @@ const syncMedia: CollectionAfterChangeHook = async ({ doc, previousDoc, req, ope
     })
   }
   revalidateContent(TAGS.tattooGallery, { context: ctx })
+  return doc
+}
+
+/** Meldung beim Löschen eines Fotos mit wirksamer Einwilligung (R-172, L-19 b, L-20). */
+export const GALLERY_DELETE_CONSENT_MESSAGE =
+  'Dieses Foto zeigt eine Kundin oder einen Kunden mit Einwilligung. Bitte zuerst unter Tattoo → Galerie ' +
+  '„Einwilligung widerrufen“ nutzen – dann wird das Foto sicher entfernt.'
+
+/**
+ * `beforeDelete` (R-172, L-19 b, L-20): Fotos mit Kund:in und wirksamer Einwilligung erst nach „Einwilligung
+ * widerrufen“ löschen – nur dieser Weg sperrt die Bilder sofort, schreibt das Audit und schickt auf Wunsch die
+ * Bestätigung (M16). Beispieldaten und der Seed-Kontext („Beispieldaten entfernen“) sind ausgenommen.
+ */
+const guardGalleryDelete: CollectionBeforeDeleteHook = async ({ id, req }) => {
+  if (getAppContext(req).seed) return
+  const doc = (await preservingReq(req, () =>
+    req.payload.findByID({
+      collection: SLUG,
+      id,
+      depth: 0,
+      overrideAccess: true,
+      disableErrors: true,
+      req,
+    }),
+  )) as Doc | null
+  if (!doc || doc.seed === true) return
+  if (doc.showsCustomer !== false && doc.consentGiven === true) {
+    throw new APIError(GALLERY_DELETE_CONSENT_MESSAGE, 409, null, true)
+  }
+}
+
+/**
+ * Frist des Einwilligungsnachweises nach dem Löschen des Eintrags (L-19 b): 3 Jahre ab Widerruf bzw. ab jetzt (Ende der
+ * Veröffentlichung); eine kürzere Frist bleibt. Nutzt ein anderer Eintrag denselben Nachweis, bleibt er unberührt.
+ */
+async function scheduleEvidenceDeletion(
+  req: PayloadRequest,
+  evidence: number | string,
+  doc: Doc,
+): Promise<void> {
+  const others = await preservingReq(req, () =>
+    req.payload.count({
+      collection: SLUG,
+      where: { consentEvidence: { equals: evidence } },
+      overrideAccess: true,
+      req,
+    }),
+  )
+  if (others.totalDocs > 0) return
+  const upload = await preservingReq(req, () =>
+    req.payload.findByID({
+      collection: 'private-uploads',
+      id: evidence,
+      depth: 0,
+      select: { deleteAfter: true },
+      overrideAccess: true,
+      disableErrors: true,
+      req,
+    }),
+  )
+  if (!upload) return
+  const start = doc.consentWithdrawnAt ? new Date(String(doc.consentWithdrawnAt)) : requestNow(req)
+  const due = retainUntil(L_19B_PORTFOLIO_CONSENT, start)
+  const current = upload.deleteAfter ? new Date(upload.deleteAfter) : null
+  if (current && current.getTime() <= due.getTime()) return
+  await preservingReq(req, () =>
+    req.payload.update({
+      collection: 'private-uploads',
+      id: evidence,
+      data: { deleteAfter: due.toISOString() } as never,
+      depth: 0,
+      overrideAccess: true,
+      req,
+      context: { ...req.context, system: true },
+    }),
+  )
+}
+
+/**
+ * `afterDelete` (R-172, L-19 b, L-20): Bilder ohne weiteren Verweis gehen mit dem Eintrag (samt Dateien und Varianten),
+ * alle übrigen bekommen `restricted` neu wie in `syncMedia` – ein gelöschter Eintrag hält kein Bild öffentlich. Der
+ * Nachweis bekommt seine Löschfrist. Im Seed-Kontext räumt „Beispieldaten entfernen“ Bilder und Dateien selbst auf.
+ */
+const releaseDeletedEntry: CollectionAfterDeleteHook = async ({ doc, req }) => {
+  const ctx = getAppContext(req)
+  if (ctx.seed) return doc
+  for (const id of new Set(mediaIdsOf(doc as Doc))) {
+    if (await mediaInUse(req, Number(id))) {
+      await syncRestricted(req, id)
+      continue
+    }
+    await preservingReq(req, () =>
+      req.payload.delete({
+        collection: 'media',
+        id,
+        overrideAccess: true,
+        req,
+        context: { ...req.context, gallerySync: true },
+      }),
+    )
+  }
+  const evidence = idOf((doc as Doc).consentEvidence)
+  if (evidence !== null) await scheduleEvidenceDeletion(req, evidence, doc as Doc)
+  revalidateContent(TAGS.tattooGallery, { context: ctx, immediate: true })
+  revalidateContent(TAGS.home, { context: ctx, immediate: true })
   return doc
 }
 
@@ -359,5 +474,7 @@ export const TattooGallery: CollectionConfig = {
   hooks: {
     beforeChange: [guardGallery],
     afterChange: [syncMedia],
+    beforeDelete: [guardGalleryDelete],
+    afterDelete: [releaseDeletedEntry],
   },
 }
