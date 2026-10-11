@@ -5,6 +5,8 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import { loadPrepaymentList } from '@/admin/views/orders/prepaymentQuery'
 import { LATE_PAYMENT_SOLD_MESSAGE } from '@/endpoints/orders/actions'
 import { cancelOverduePrepayments, placePrepaymentOrder } from '@/lib/commerce/prepayment'
+import { paidAfterCancelMessage } from '@/lib/commerce/prepaymentMessages'
+import { submitWithdrawal } from '@/lib/legal/withdrawal'
 import type { Order } from '@/payload-types'
 
 import { productRow } from '../helpers/checkout'
@@ -18,7 +20,7 @@ import { shopHarness } from '../helpers/shop'
 // „Zahlung erhalten“ → paid, Rechnung und M05 genau einmal (R-071, R-120); „Nachträglich bezahlt“ (O5) nur, wenn alle
 // Stücke frei sind, sonst 409 ohne Änderung. Fixture analog O13 (`awaiting_prepayment`, Versand).
 
-const NUMBERS = [992, 993, 994, 995]
+const NUMBERS = [992, 993, 994, 995, 996]
 // Sa 26.09.2026 10:00 Berlin → Frist Do 01.10. 23:59:59 Berlin
 const h = shopHarness({ start: '2026-09-26T08:00:00.000Z', numbers: NUMBERS, tag: 'p518' })
 let token: string
@@ -136,5 +138,82 @@ describe('„Vorkasse offen“ (P5.18)', () => {
     expect((await productRow(h.payload, free.a)).status).toBe('sold')
     expect(await invoices(free.order.id)).toBe(1)
     expect(await mails(free.order.id, 'prepayment_received')).toBe(1)
+  })
+
+  it('P18.5 Widerruf bzw. Storno vor der Zahlung: Unterliste nur mit „Rücküberweisung erledigt“ (Widerruf mit Frist), „Zahlung erhalten“ und „Nachträglich bezahlt“ sagen, was zu tun ist', async () => {
+    // Sa 26.09.2026 10:00 Berlin: Bestellung und Widerruf → Erstattungsfrist Sa 10.10.2026
+    const { order } = await prepaymentOrder(995)
+    const res = await submitWithdrawal(
+      {
+        name: 'Erika Beispiel',
+        contractIdentification: order.orderNumber,
+        email: order.customer.email,
+        locale: 'de',
+      },
+      { now: h.now(), ip: '198.51.100.64', payload: h.payload },
+    )
+    expect(res).toMatchObject({ ok: true, status: 201 })
+    expect(await h.order(order.id)).toMatchObject({
+      status: 'cancelled',
+      cancelReason: 'withdrawn',
+    })
+
+    // Geld kommt trotzdem: „Zahlung erhalten“ (veraltete Ansicht) und „Nachträglich bezahlt“ → 409 mit Anleitung
+    const paidTry = await post(order.id, 'prepayment-received', { amountCents: order.totalCents })
+    expect(paidTry.status).toBe(409)
+    expect(paidTry.json.error).toBe(paidAfterCancelMessage('withdrawn'))
+    const late = await post(order.id, 'late-payment', { action: 'reactivate' })
+    expect(late.status).toBe(409)
+    expect(late.json.error).toBe(paidAfterCancelMessage('withdrawn'))
+    expect((await h.order(order.id)).status).toBe('cancelled')
+    expect(await invoices(order.id)).toBe(0)
+
+    const card = (await list('2026-09-28T10:00:00.000Z')).cancelled.find((c) => c.id === order.id)
+    expect(card).toMatchObject({
+      cancelReason: 'withdrawn',
+      cancelledAt: '26.09.2026',
+      refundDueDate: '10.10.2026',
+      refundNoted: false,
+    })
+    const done = await post(order.id, 'late-payment', {
+      action: 'refund_transfer_done',
+      note: 'am 29.09. zurück',
+    })
+    expect(done.status).toBe(200)
+    const after = await h.order(order.id)
+    expect(after.status).toBe('cancelled')
+    expect(after.notes).toContain('Rücküberweisung erledigt – am 29.09. zurück')
+    expect(await invoices(order.id)).toBe(0)
+    expect(await mails(order.id, 'prepayment_received')).toBe(0)
+    expect(
+      (await list('2026-09-28T10:00:00.000Z')).cancelled.find((c) => c.id === order.id)
+        ?.refundNoted,
+    ).toBe(true)
+    const audit = await h.payload.find({
+      collection: 'audit-log',
+      where: {
+        and: [
+          { entityId: { equals: String(order.id) } },
+          { action: { equals: 'order_refund_created' } },
+        ],
+      },
+      overrideAccess: true,
+    })
+    expect(audit.docs).toHaveLength(1)
+    expect(audit.docs[0]!.summary).toContain('Rücküberweisung erledigt (Zahlung trotz Widerruf)')
+
+    // Storno durch Jutta: ebenso nur Rücküberweisung, ohne Widerrufsfrist
+    const { order: other } = await prepaymentOrder(996)
+    expect((await post(other.id, 'cancel', { reason: 'Kundin hat abgesagt' })).status).toBe(200)
+    expect(
+      (await list('2026-09-28T10:00:00.000Z')).cancelled.find((c) => c.id === other.id),
+    ).toMatchObject({ cancelReason: 'admin', refundDueDate: null })
+    const reactivate = await post(other.id, 'late-payment', { action: 'reactivate' })
+    expect(reactivate.status).toBe(409)
+    expect(reactivate.json.error).toBe(paidAfterCancelMessage('admin'))
+    expect((await post(other.id, 'late-payment', { action: 'refund_transfer_done' })).status).toBe(
+      200,
+    )
+    expect((await h.order(other.id)).status).toBe('cancelled')
   })
 })

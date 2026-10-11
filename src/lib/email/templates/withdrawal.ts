@@ -25,9 +25,10 @@ import {
 // vollständiger Inhalt der Erklärung, Datum und Uhrzeit des Eingangs mit Zeitzone (MEZ/MESZ), Vorgangsnummer,
 // Bausteine `withdrawal.receiptNotice` und `withdrawal.returnInfo` (Rücksendeadresse, Rücksendekosten E-27),
 // Erstattungshinweis; bei unbezahlter Vorkasse stattdessen „Deine Bestellung ist damit storniert. Bitte nichts
-// überweisen.“ Keine Bestellmail (kein Status-Link), keine Werbung.
+// überweisen.“ samt Hinweis, dass schon überwiesenes Geld bis zur Erstattungsfrist zurückkommt (§ 357 Abs. 1 BGB).
+// Keine Bestellmail (kein Status-Link), keine Werbung.
 
-export const WITHDRAWAL_RECEIPT_VERSION = 'm08-v1'
+export const WITHDRAWAL_RECEIPT_VERSION = 'm08-v2'
 
 const iso = z.iso.datetime({ offset: true })
 
@@ -126,7 +127,7 @@ export async function renderWithdrawalReceipt(
   declaration.push([t.email, d.email])
 
   const next: Block[] = d.unpaidOrderCancelled
-    ? [block.p(t.unpaidCancelled)]
+    ? [block.p(fill(t.unpaidCancelled, { date: fmtDate(d.refundDueAt, locale) }))]
     : [
         block.h(t.nextHeading),
         ...returnInfoBlocks(d, locale, business),

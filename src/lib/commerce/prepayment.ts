@@ -23,6 +23,7 @@ import type { Order } from '@/payload-types'
 import { transitionCheckout } from './checkoutTransitions'
 import { createOrderFromCheckout } from './createOrderFromCheckout'
 import { S17_NOTE } from './fulfillCheckout'
+import { paidAfterCancelMessage } from './prepaymentMessages'
 import { intArray, releaseInTransaction } from './reservation'
 import { lockOrder, loadOrder, transitionOrder, updateOrderFields } from './transitionOrder'
 
@@ -394,13 +395,16 @@ export async function markPrepaymentPaid(
     const locked = await lockOrder(req, orderId)
     const expected = options.late ? 'cancelled' : 'awaiting_prepayment'
     if (locked.status !== expected) {
-      throw new PrepaymentError('wrong_status', `Die Bestellung ist „${locked.status}“.`)
-    }
-    if (options.late && locked.cancelReason !== 'payment_timeout') {
       throw new PrepaymentError(
         'wrong_status',
-        '„Nachträglich bezahlt“ geht nur nach abgelaufener Zahlungsfrist.',
+        locked.status === 'cancelled'
+          ? paidAfterCancelMessage(locked.cancelReason)
+          : `Die Bestellung ist „${locked.status}“.`,
       )
+    }
+    if (options.late && locked.cancelReason !== 'payment_timeout') {
+      // nach Widerruf bzw. Storno durch Jutta nie wieder aufleben lassen – Geld zurück
+      throw new PrepaymentError('wrong_status', paidAfterCancelMessage(locked.cancelReason))
     }
     const before = await loadOrder(req, orderId)
     const mismatch = amountCents !== before.totalCents

@@ -544,8 +544,13 @@ export const ADMIN_CUSTOM_DE = {
   prepaymentCancelReason: 'Grund (steht in der Mail an die Kundin, mindestens 3 Zeichen)',
   prepaymentCopyBank: 'Bankdaten kopieren',
   prepaymentNoBank: 'Bankdaten fehlen – bitte unter Einstellungen → Zahlung eintragen.',
-  prepaymentRecentlyCancelled: 'Kürzlich automatisch storniert (30 Tage)',
-  prepaymentRecentlyCancelledEmpty: 'In den letzten 30 Tagen wurde nichts automatisch storniert.',
+  prepaymentRecentlyCancelled: 'Kürzlich storniert oder widerrufen (30 Tage)',
+  prepaymentRecentlyCancelledEmpty:
+    'In den letzten 30 Tagen wurde nichts storniert oder widerrufen.',
+  prepaymentWithdrawnRefund:
+    'Widerrufen, bevor bezahlt war. Kommt trotzdem Geld an, überweise es bitte bis {{date}} zurück (auf das Konto, von dem es kam) und klicke dann „Rücküberweisung erledigt“.',
+  prepaymentAdminCancelledRefund:
+    'Von dir storniert. Kommt trotzdem Geld an, überweise es bitte zurück (auf das Konto, von dem es kam) und klicke dann „Rücküberweisung erledigt“.',
   prepaymentCancelledAt: 'storniert am {{date}}',
   prepaymentLateTitle: '{{order}} nachträglich bezahlt?',
   prepaymentGone: 'Stück ist schon weg – bitte Geld zurücküberweisen.',

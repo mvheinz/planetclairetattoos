@@ -1471,7 +1471,10 @@ Absprache aus `settings.pickup.instructions`), „Antworte einfach auf diese Mai
 4. Nächste Schritte (Baustein `withdrawal.returnInfo`): Rücksendeadresse (`settings.business.returnAddress`, leer =
    Geschäftsadresse), „Die Kosten der Rücksendung trägst du“ (E-27), Erstattung über dasselbe Zahlungsmittel spätestens
    14 Tage nach Eingang, ggf. erst nach Eingang der Ware.
-5. Bei unbezahlter Vorkasse-Bestellung stattdessen: „Deine Bestellung ist damit storniert. Bitte nichts überweisen.“
+5. Bei unbezahlter Vorkasse-Bestellung stattdessen: „Deine Bestellung ist damit storniert. Bitte nichts überweisen.“ und
+   (P18.5, § 357 Abs. 1 BGB): Wer schon überwiesen hat, bekommt das Geld spätestens 14 Tage nach Eingang des Widerrufs
+   (Datum) zurück, auf das Konto, von dem es kam; für ein anderes Konto kurz die Bankverbindung per E-Mail schicken.
+   Gleicher Hinweis auf der Ergebnisseite der Widerrufsfunktion.
 
 Versand sofort nach dem Commit; scheitert er, wiederholt `sendEmail` ihn im Abstand von höchstens 5 Minuten bis 24 Stunden
 nach Eingang. Nach dem 2. Fehlversuch geht A12 an Jutta, und erneut, wenn nach 24 Stunden noch kein Versand gelang (dann
@@ -1693,7 +1696,10 @@ Erfolgsseite mit „Link kopieren“ (kanonische DE-URL), „Kurzlink kopieren�
 - Knöpfe: **„Zahlung erhalten“** (O3, Dialog mit Verwendungszweck, eingegangenem Betrag `prepayment.receivedAmountCents`
   (Pflicht; weicht er vom Gesamtbetrag ab, erscheint eine Warnung) und optional Eingangsdatum `prepayment.receivedAt`) ·
   **„Stornieren“** (O4, Grund Pflicht in `cancelNote`, M04) · „Bankdaten kopieren“.
-- Unterliste „Kürzlich automatisch storniert (30 Tage)“ mit Knopf **„Nachträglich bezahlt“** (O5 bzw. Rücküberweisungs-Hinweis, §4.8).
+- Unterliste „Kürzlich storniert oder widerrufen (30 Tage)“: nach abgelaufener Frist Knopf **„Nachträglich bezahlt“**
+  (O5 bzw. Rücküberweisungs-Hinweis, §4.8); nach Widerruf bzw. eigenem Storno nur Hinweis und **„Rücküberweisung
+  erledigt“** (Widerruf mit Frist 14 Tage ab Eingang; die Bestellung lebt nie wieder auf, P18.5). „Zahlung erhalten“
+  auf einer so stornierten Bestellung lehnt ab und sagt, was stattdessen zu tun ist.
 
 ### 7.8 Versendet
 

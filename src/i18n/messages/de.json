@@ -292,7 +292,7 @@
     "mailNote": "Eine Bestätigung ist per E-Mail unterwegs.",
     "printNote": "Du kannst diese Seite drucken oder als PDF sichern.",
     "print": "Drucken / als PDF sichern",
-    "unpaidCancelled": "Deine noch nicht bezahlte Bestellung ist damit storniert – du musst nichts überweisen.",
+    "unpaidCancelled": "Deine noch nicht bezahlte Bestellung ist damit storniert – du musst nichts überweisen. Hast du schon überwiesen, bekommst du das Geld spätestens 14 Tage nach Eingang deines Widerrufs zurück, auf das Konto, von dem es kam. Soll es auf ein anderes Konto gehen, schick mir kurz per E-Mail deine Bankverbindung.",
     "spamDone": "Danke, deine Angaben sind angekommen.",
     "again": "Weiteren Widerruf erklären",
     "errorSummary": "Bitte prüf deine Angaben:",
@@ -919,7 +919,7 @@
       "nextHeading": "So geht es weiter",
       "returnAddress": "Bitte sende die Ware an: {address}",
       "refund": "Die Erstattung bekommst du über dasselbe Zahlungsmittel, mit dem du bezahlt hast – spätestens 14 Tage nach Eingang deines Widerrufs (bis {date}). Ich darf sie zurückhalten, bis die Ware wieder bei mir ist oder du nachweist, dass du sie abgeschickt hast.",
-      "unpaidCancelled": "Deine Bestellung ist damit storniert. Bitte nichts überweisen.",
+      "unpaidCancelled": "Deine Bestellung ist damit storniert. Bitte nichts überweisen. Hast du schon überwiesen, bekommst du das Geld spätestens 14 Tage nach Eingang deines Widerrufs (bis {date}) zurück, auf das Konto, von dem es kam. Soll es auf ein anderes Konto gehen, schick mir kurz per E-Mail deine Bankverbindung.",
       "keep": "Bitte bewahre diese E-Mail auf – sie ist dein Nachweis für den Eingang."
     },
     "refundConfirmation": {

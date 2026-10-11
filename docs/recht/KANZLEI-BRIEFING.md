@@ -307,8 +307,10 @@ Keine Aufschläge je Zahlart. Kein Klarna, keine SEPA-Lastschrift, kein Rechnung
   - **Eingangsbestätigung** (Mail M08) sofort: gesamter Inhalt der Erklärung, Datum und Uhrzeit des Eingangs,
     Vorgangsnummer, Rücksendeadresse, Hinweis zu Rücksendung und Rücksendekosten (Bausteine
     `withdrawal.receiptNotice`, `withdrawal.returnInfo`) und zur Erstattung; bei noch nicht bezahlter Vorkasse der Satz
-    „Deine Bestellung ist damit storniert. Bitte nichts überweisen.“ Scheitert der Versand, wird er bis 24 Stunden nach
-    Eingang wiederholt und die Mandantin benachrichtigt. Kopie an die Mandantin (Mail A04).
+    „Deine Bestellung ist damit storniert. Bitte nichts überweisen.“ und der Hinweis, dass schon überwiesenes Geld
+    spätestens 14 Tage nach Eingang des Widerrufs auf das Herkunftskonto zurückgeht (§ 357 Abs. 1 BGB). Scheitert der
+    Versand, wird er bis 24 Stunden nach Eingang wiederholt und die Mandantin benachrichtigt. Kopie an die Mandantin
+    (Mail A04).
   - **Gespeicherte Felder** je Erklärung: Vorgangsnummer, Eingangszeit (Serverzeit), Name, Angaben zum Vertrag,
     E-Mail, Stückauswahl bzw. Freitext, Grund, Sprache, Eingangsweg; der Datensatz ist unveränderlich. **Keine**
     IP-Adresse, kein IP-Hash, kein Browser-Kennzeichen. Eine automatische Zuordnung zur Bestellung erfolgt nur, wenn
