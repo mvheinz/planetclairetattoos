@@ -5688,6 +5688,8 @@ gemeinsamer Kern in `src/lib/pflege/` (Listen-Nr., gemerkter Stand, Dreiwege-Abg
   - Akzeptanz: Unit (Rundweg ohne Änderung, Platzhalter-Schutz, nur geänderte Zellen, Stand-Abgleich wie P18.1).
 - [ ] **P18.3 Ansichten fürs iPad** (U-88) – Katalog als PDF, Rundgang der Internetseite als PDF, Anleitung fürs iPad.
   - Akzeptanz: PDFs erzeugt und geprüft (Seitenzahl, Bilder), Anleitung in `docs/owner/`.
+- [ ] **P18.5 Datenschutz- und AGB-Prüfung** (U-91) – Prüfung mit Gegenprüfung; alle 32 bestätigten Punkte beheben (Einwilligungsnachweise an der Bestellung, Schwärzung von Datenbank-Fehlern, Rechtstexte ohne Instagram als Anfrageweg, Teil-Widerruf, Abholung-Schalter, Auskunft/Löschung u. a.), Juttas Antworten (a) und (b) umsetzen.
+  - Akzeptanz: je Punkt Unit-/Int-Test bzw. angepasster E2E-Test; Rechtstexte mit neuer Quelle (`sourceNote`); Einträge in `docs/OFFENE-PUNKTE.md`.
 - [ ] **P18.4 Abschluss P18** – Prüfschleuse, Merge, Dateien an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
 
 ## P19 – Pflege per Excel dauerhaft: in der Verwaltung (11.10.2026)
