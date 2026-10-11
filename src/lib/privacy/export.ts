@@ -66,6 +66,8 @@ const STRIP_ALWAYS = new Set([
 const STRIP_BY_AREA: Partial<Record<keyof PersonMatches, readonly string[]>> = {
   orders: ['creditNotes', 'withdrawals', 'emails', 'complaints', 'packingChecklistState'],
   privacyRequests: ['exportFile', 'matchedOrders', 'matchedWithdrawals', 'matchedInquiries'],
+  // Mail-Jobs: nur Eingabe (Kopie der Mail-Daten) und Zeitpunkte – keine Laufprotokolle oder Fehler-Stacks
+  mailJobs: ['log', 'error', 'taskStatus', 'queue', 'totalTried', 'waitUntil'],
 }
 
 function sanitize(value: unknown, extra: ReadonlySet<string>): unknown {

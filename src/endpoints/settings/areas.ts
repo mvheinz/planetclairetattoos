@@ -8,7 +8,7 @@ import { EU_CHECKLIST_KEYS } from '@/lib/settings/rules'
 import { parseEuroInput } from '@/lib/money'
 import { inTransaction } from '@/lib/payload/transaction'
 import { requestNow } from '@/lib/payload/context'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { berlinDayStart } from '@/lib/time'
 
 import { SETTINGS_AREAS, type SettingsArea } from '@/admin/views/settings/settingsAreas'
@@ -481,7 +481,7 @@ export const settingsAreaEndpoint: Endpoint = {
           errors: validationErrors(err.validation, err.locale),
         })
       }
-      log.error('settings.area_save_failed', { area: body.area, reason: (err as Error)?.message })
+      log.error('settings.area_save_failed', { area: body.area, reason: errorSummary(err) })
       return json(500, {
         error: 'Speichern hat nicht geklappt. Bitte die Seite neu laden und noch einmal versuchen.',
       })
@@ -516,7 +516,7 @@ export const settingsTranslateEndpoint: Endpoint = {
       })
       return json(200, { text: text ?? '' })
     } catch (err) {
-      log.warn('settings.translate_failed', { reason: (err as Error)?.message })
+      log.warn('settings.translate_failed', { reason: errorSummary(err) })
       return json(502, { error: 'Übersetzen hat nicht geklappt. Bitte später noch einmal.' })
     }
   },
@@ -590,7 +590,7 @@ export const settingsRevenueEntryEndpoint: Endpoint = {
           })),
         })
       }
-      log.error('settings.revenue_entry_failed', { reason: (err as Error)?.message })
+      log.error('settings.revenue_entry_failed', { reason: errorSummary(err) })
       return json(500, { error: 'Speichern hat nicht geklappt. Bitte noch einmal versuchen.' })
     }
   },

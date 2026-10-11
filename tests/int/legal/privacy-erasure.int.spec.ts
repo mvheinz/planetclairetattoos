@@ -18,7 +18,8 @@ import { createInvoiceForOrder } from '@/lib/invoices/create'
 import { runInvoicePdfJob } from '@/lib/invoices/issue'
 import { inTransaction } from '@/lib/payload/transaction'
 import { applyErasure, buildErasurePlan } from '@/lib/privacy/erasure'
-import { searchForRequest } from '@/lib/privacy/export'
+import { buildPrivacyExportZip, searchForRequest } from '@/lib/privacy/export'
+import { searchPerson } from '@/lib/privacy/search'
 import { rectifyOrder } from '@/lib/privacy/rectify'
 import { createPrivacyRequest, savePrivacyRequest } from '@/lib/privacy/requests'
 import { ANONYMIZED_EMAIL } from '@/lib/retention/jobs'
@@ -407,6 +408,83 @@ describe('DSGVO: Löschen/Einschränken (P6.18)', () => {
       overrideAccess: true,
     })
     expect(log.status).toBe('suppressed')
+  })
+
+  it('Prüfung P18.5 L-13 i Mail-Jobs der Person: in Auskunft und Suche; gescheiterte und verwaiste werden gelöscht, wartende zu aufbewahrten Vorgängen bleiben', async () => {
+    const o = await order(3)
+    const queue = async (key: string, relations?: { order: number }) => {
+      const r = await createLocalReq({ context: { system: true } }, payload)
+      return inTransaction(r, () =>
+        enqueueEmail(r, {
+          template: 'prepayment_reminder',
+          to: EMAIL,
+          locale: 'de',
+          data: { ...REMINDER_FIXTURE, orderId: o.id, customerName: NAME },
+          idempotencyKey: `prepayment_reminder:${o.id}:${key}`,
+          ...(relations ? { relations } : {}),
+        }),
+      )
+    }
+    const loose = await queue('ohne-bezug')
+    const failed = await queue('gescheitert', { order: o.id })
+    const waiting = await queue('wartet', { order: o.id })
+    const jobIds = [loose.jobId, failed.jobId, waiting.jobId].map(Number)
+    // Absturz während des Versands: Payload markiert den Job als gescheitert und behält ihn samt Eingabe
+    await db().execute(
+      sql`UPDATE payload_jobs SET has_error = true, processing = false WHERE id = ${jobIds[1]!}`,
+    )
+    const stored = await db().execute(sql`SELECT input FROM payload_jobs WHERE id = ${jobIds[1]!}`)
+    expect(JSON.stringify(stored.rows[0]!.input)).toContain(NAME)
+
+    // Auskunft: die Jobs (mit ihrer Kopie der Mail-Daten) gehören zur Person
+    const r0 = await req()
+    expect((await searchPerson(r0, { email: EMAIL })).matches.mailJobs).toEqual(
+      expect.arrayContaining(jobIds),
+    )
+    const pr = await newRequest(['access', 'erasure'])
+    const r1 = await req()
+    const built = await buildPrivacyExportZip(r1, pr, { email: EMAIL }, NOW)
+    expect(built.data.counts.mailJobs).toBeGreaterThanOrEqual(3)
+    const exported = built.data.data.mailJobs.find((j) => j.id === jobIds[1])!
+    expect(JSON.stringify(exported.input)).toContain(NAME)
+    expect(exported).not.toHaveProperty('log')
+    expect(exported).not.toHaveProperty('error')
+
+    // Löschung: Protokoll ohne Bezug gelöscht → Job verwaist; gescheiterter Job weg; wartende Mail bleibt
+    const r2 = await req()
+    const plan = await buildErasurePlan(r2, pr, { email: EMAIL }, NOW)
+    expect(
+      plan.find((p) => p.collection === 'email-log' && p.id === loose.emailLogId)?.suggested,
+    ).toBe('delete')
+    const r3 = await req()
+    await inTransaction(r3, () =>
+      applyErasure(
+        r3,
+        pr.id,
+        {
+          decisions: [
+            { collection: 'orders', id: o.id, action: 'restrict' },
+            { collection: 'email-log', id: loose.emailLogId, action: 'delete' },
+          ],
+          notify: false,
+        },
+        NOW,
+      ),
+    )
+    const left = await db().execute(
+      sql`SELECT id FROM payload_jobs WHERE id IN (${sql.raw(jobIds.join(','))})`,
+    )
+    expect(left.rows.map((r) => Number(r.id))).toEqual([jobIds[2]])
+    for (const id of jobIds.slice(0, 2)) {
+      expect(
+        (await logs('payload-jobs', id)).map((l) => [l.action, l.rule_id, l.privacy_request_ref]),
+      ).toEqual([['deleted', 'DSGVO', pr.reference]])
+    }
+    // die wartende Mail zur eingeschränkten Bestellung wird beim Lauf unterdrückt, danach ist auch ihr Job weg
+    await runEmailJobNow(payload, jobIds[2]!, { now: NOW })
+    expect(
+      (await db().execute(sql`SELECT id FROM payload_jobs WHERE id = ${jobIds[2]!}`)).rows,
+    ).toHaveLength(0)
   })
 })
 

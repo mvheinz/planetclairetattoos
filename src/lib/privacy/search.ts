@@ -4,6 +4,7 @@ import { sql } from '@payloadcms/db-postgres'
 import type { PayloadRequest } from 'payload'
 
 import { dbFor, type SqlExecutor } from '@/lib/db/tx'
+import { mailJobsFor } from '@/lib/retention/jobs'
 
 import { PrivacyActionError } from './errors'
 
@@ -11,14 +12,15 @@ import { PrivacyActionError } from './errors'
 // (normalisiert: getrimmt, ohne Groß-/Kleinschreibung), Bestellnummer oder Name (getrimmt, Leerraum zusammengefasst,
 // ohne Groß-/Kleinschreibung) über Bestellungen (Kund:in, Liefer- und Rechnungsname), Kassen, Belege, Widerrufe,
 // Auftragsanfragen, Reklamationen, Mail-Protokoll (nur Mails an die Person, keine Verwaltungs-Mails), Einwilligungs-
-// Protokoll, frühere Datenschutz-Anfragen und die zugehörigen privaten Dateien (Bilder, Beleg-PDFs). Verknüpfte
-// Datensätze (z. B. Belege, Reklamationen einer gefundenen Bestellung) zählen mit.
+// Protokoll, frühere Datenschutz-Anfragen, Mail-Jobs der Warteschlange zu diesen Mails (Kopie der Mail-Daten, L-13 i)
+// und die zugehörigen privaten Dateien (Bilder, Beleg-PDFs). Verknüpfte Datensätze (z. B. Belege, Reklamationen einer
+// gefundenen Bestellung) zählen mit.
 //
 // Daten Dritter (LOESCHKONZEPT §5.2/§5.4 Nr. 2): Ein Datensatz mit eigener gespeicherter E-Mail-Adresse (Bestellung,
 // Kasse, Widerruf, Anfrage, frühere Datenschutz-Anfrage), der nur über Name oder Bestellnummer gefunden wurde und eine
 // andere Adresse trägt als die gesuchte bzw. die der Anfrage (`ownEmails`), ist nur ein „möglicher Treffer“ – etwa
 // eine Namensvetterin oder ein Geschenk, das an die Person ging. Er zählt samt allem, was daran hängt (Belege,
-// Reklamationen, Mail- und Einwilligungsnachweise, Dateien), erst mit, wenn Jutta ihn ausdrücklich bestätigt
+// Reklamationen, Mail- und Einwilligungsnachweise, Mail-Jobs, Dateien), erst mit, wenn Jutta ihn ausdrücklich bestätigt
 // (`confirmed`). Kassen und Widerrufe einer bestätigten bzw. eigenen Bestellung gehören zur Bestellung.
 
 export interface PersonQuery {
@@ -35,6 +37,8 @@ export interface PersonMatches {
   inquiries: number[]
   complaints: number[]
   emailLog: number[]
+  /** Mail-Jobs (`payload-jobs`, Task `sendEmail`), deren Eingabe auf einen der Protokoll-Einträge zeigt. */
+  mailJobs: number[]
   consentLog: number[]
   privacyRequests: number[]
   /** Private Dateien (Anfrage-Bilder, Pack-/Rückgabe-/Reklamationsfotos, Beleg-PDFs) – ohne frühere Exporte. */
@@ -49,6 +53,7 @@ export const MATCH_COLLECTIONS = {
   inquiries: 'inquiries',
   complaints: 'complaints',
   emailLog: 'email-log',
+  mailJobs: 'payload-jobs',
   consentLog: 'consent-log',
   privacyRequests: 'privacy-requests',
   files: 'private-uploads',
@@ -260,6 +265,7 @@ export async function searchPerson(
         OR withdrawal_id = ANY(${arr(withdrawals)}) OR inquiry_id = ANY(${arr(inquiries)}))`)
     ).rows,
   )
+  const mailJobs = await mailJobsFor(db, emailLog)
   const consentLog = ids(
     (
       await db.execute(sql`
@@ -289,6 +295,7 @@ export async function searchPerson(
       inquiries,
       complaints,
       emailLog,
+      mailJobs,
       consentLog,
       privacyRequests,
       files,

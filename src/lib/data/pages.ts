@@ -4,7 +4,7 @@ import { unstable_cache } from 'next/cache'
 
 import { TAGS } from '@/lib/cache/tags'
 import type { Locale, PageKey } from '@/lib/enums'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { getPublicPayload } from '@/lib/payload/public'
 import type { Page } from '@/payload-types'
 
@@ -29,7 +29,7 @@ export async function loadPublicPage(key: PageKey, locale: Locale): Promise<Page
     })
     return res.docs[0] ?? null
   } catch (err) {
-    log.warn('pages.load_failed', { key, locale, reason: (err as Error).message })
+    log.warn('pages.load_failed', { key, locale, reason: errorSummary(err) })
     return null
   }
 }

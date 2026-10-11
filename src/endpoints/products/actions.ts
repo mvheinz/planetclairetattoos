@@ -7,7 +7,7 @@ import {
   transitionProduct,
   type ProductTransition,
 } from '@/lib/commerce/productTransitions'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { PRICE_CENTS_RANGE } from '@/lib/money'
 import { duplicateProduct } from '@/lib/products/duplicate'
 
@@ -41,7 +41,7 @@ export function errorResponse(err: unknown): Response {
   if (err instanceof APIError) {
     return Response.json({ error: err.message }, { status: err.status, headers: noStore })
   }
-  log.error('products.action_failed', { reason: (err as Error)?.message })
+  log.error('products.action_failed', { reason: errorSummary(err) })
   return Response.json({ error: 'Unerwarteter Fehler.' }, { status: 500, headers: noStore })
 }
 

@@ -22,6 +22,23 @@ export const sentryActive = (env: Pick<SentryEnvLike, 'SENTRY_DSN'>, runtime?: s
 
 type Json = Record<string, unknown>
 
+/**
+ * Eigenschaften von Datenbank-Fehlern mit den Werten der Anfrage (Drizzle `params`, Postgres `detail`): fallen in
+ * Kontexten und Extras ganz weg – z. B. wenn eine Integration die Eigenschaften eines Fehlers dort ablegt (R-137).
+ */
+const DB_VALUE_KEYS = new Set(['params', 'detail'])
+
+function withoutDbValues(value: unknown, seen = new WeakSet<object>()): unknown {
+  if (value === null || typeof value !== 'object' || seen.has(value)) return value
+  seen.add(value)
+  if (Array.isArray(value)) return value.map((v) => withoutDbValues(v, seen))
+  const out: Json = {}
+  for (const [k, v] of Object.entries(value)) {
+    if (!DB_VALUE_KEYS.has(k)) out[k] = withoutDbValues(v, seen)
+  }
+  return out
+}
+
 /** Pfad ohne Query und mit normalisierten Token-Seiten. */
 function safeUrl(url: string): string {
   try {
@@ -32,7 +49,10 @@ function safeUrl(url: string): string {
   }
 }
 
-/** Entfernt Personendaten aus einem Sentry-Ereignis (Cookies, Daten, Header außer `user-agent`, Texte, Extras). */
+/**
+ * Entfernt Personendaten aus einem Sentry-Ereignis (Cookies, Daten, Header außer `user-agent`, Texte, Extras) – auch die
+ * Werte fehlgeschlagener Datenbank-Abfragen in Fehlermeldungen (`redactText`, R-137).
+ */
 export function redactSentryEvent<T extends object>(event: T): T {
   const e = event as unknown as Json
   const request = e.request as Json | undefined
@@ -50,12 +70,18 @@ export function redactSentryEvent<T extends object>(event: T): T {
   const logentry = e.logentry as Json | undefined
   if (logentry && typeof logentry.message === 'string')
     logentry.message = redactText(logentry.message)
+  // Alle Ausnahmen der Kette – auch die über `cause` verknüpften (LinkedErrors): Meldung ohne Drizzle-`params` und
+  // Postgres-Werte (`redactText`), keine lokalen Variablen der Stack-Frames, Zusatzdaten des Mechanismus geschwärzt.
   const exception = e.exception as { values?: Json[] } | undefined
   for (const v of exception?.values ?? []) {
     if (typeof v.value === 'string') v.value = redactText(v.value)
+    const frames = (v.stacktrace as { frames?: Json[] } | undefined)?.frames
+    for (const f of frames ?? []) delete f.vars
+    const mechanism = v.mechanism as Json | undefined
+    if (mechanism?.data) mechanism.data = redact(mechanism.data)
   }
-  if (e.extra) e.extra = redact(e.extra)
-  if (e.contexts) e.contexts = redact(e.contexts)
+  if (e.extra) e.extra = redact(withoutDbValues(e.extra))
+  if (e.contexts) e.contexts = redact(withoutDbValues(e.contexts))
   if (e.tags) e.tags = redact(e.tags)
   const breadcrumbs = e.breadcrumbs as Json[] | { values?: Json[] } | undefined
   const list = Array.isArray(breadcrumbs) ? breadcrumbs : breadcrumbs?.values

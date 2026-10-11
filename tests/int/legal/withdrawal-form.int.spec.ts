@@ -258,4 +258,39 @@ describe('Ablauf (R-091, R-092)', () => {
     expect(done).toMatchObject({ step: 'done', receipt: null })
     expect(await count()).toBe(before)
   })
+
+  it('Prüfung P18.5 R-134 die 11. Bestellsuche je IP und Stunde zeigt keine Auswahl; der Widerruf wird trotzdem gespeichert', async () => {
+    const ip = '198.51.100.250'
+    const lookup = () =>
+      withdrawalStep(
+        initialWithdrawalState(),
+        step1({ contractIdentification: `Bestellung ${orderNumber}` }),
+        { now: NOW, locale: 'de' as const, ip, payload },
+      )
+    for (let i = 0; i < 10; i++) expect((await lookup()).step, `Suche ${i + 1}`).toBe('select')
+    const before = await count()
+    const over = await lookup()
+    expect(over).toMatchObject({ step: 'confirm', matched: false, selectedLabels: [] })
+    expect(over).not.toHaveProperty('notice')
+    if (over.step !== 'confirm') return
+    // eine andere IP bekommt die Auswahl weiterhin
+    expect(
+      (
+        await withdrawalStep(
+          initialWithdrawalState(),
+          step1({ contractIdentification: orderNumber }),
+          ctx(),
+        )
+      ).step,
+    ).toBe('select')
+    const done = await withdrawalStep(
+      over,
+      fd({ locale: 'de', stage: 'confirm', intent: 'confirm', token: over.token }),
+      { now: NOW, locale: 'de' as const, ip, payload },
+    )
+    expect(done.step).toBe('done')
+    if (done.step !== 'done') return
+    expect(done.receipt?.reference).toMatch(/^WR-2026-\d{5}$/)
+    expect(await count()).toBe(before + 1)
+  })
 })

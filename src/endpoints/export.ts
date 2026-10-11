@@ -1,7 +1,7 @@
 import type { Endpoint, PayloadRequest } from 'payload'
 
 import { isAdminRequest } from '@/access'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 
 // Admin-Endpunkte der Exporte (ARCHITEKTUR §2.5, KONZEPT §7.15, R-124; PLAN P5.24/P5.25):
 // `GET /api/admin/export/{JJJJ-MM}.csv` (Monats-CSV), `.zip` (Rechnungs-ZIP), `.datev.csv` (DATEV-Buchungsstapel).
@@ -67,7 +67,7 @@ async function handleExport(req: PayloadRequest): Promise<Response> {
       throw err
     }
   } catch (err) {
-    log.error('export.failed', { kind, month, reason: (err as Error)?.message })
+    log.error('export.failed', { kind, month, reason: errorSummary(err) })
     return error(500, 'Export fehlgeschlagen.')
   }
 }
@@ -88,7 +88,7 @@ async function handlePackagingReport(req: PayloadRequest): Promise<Response> {
     const res = await buildPackagingReport(req.payload, year)
     return download(res.bytes, res.filename, 'text/csv; charset=utf-8')
   } catch (err) {
-    log.error('export.packaging_failed', { reason: (err as Error)?.message })
+    log.error('export.packaging_failed', { reason: errorSummary(err) })
     return error(500, 'Export fehlgeschlagen.')
   }
 }

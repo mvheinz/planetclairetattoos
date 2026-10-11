@@ -1,7 +1,7 @@
 import { pickGalleryForOg } from '@/lib/data/ogTattoo'
 import { listGallery } from '@/lib/data/tattoo'
 import { isLocale } from '@/lib/routes/paths'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { galleryOgAlt, OG_CONTENT_TYPE, renderGalleryOg } from '@/og/render'
 import { OG_SIZE } from '@/og/templates'
 
@@ -25,7 +25,7 @@ export async function generateImageMetadata({ params }: { params: Params | Promi
   try {
     alt = galleryOgAlt(pickGalleryForOg(await listGallery(locale)), locale)
   } catch (err) {
-    log.warn('og.metadata_failed', { reason: (err as Error).message })
+    log.warn('og.metadata_failed', { reason: errorSummary(err) })
   }
   return [{ id: OG_IMAGE_ID, alt, size: OG_SIZE, contentType: OG_CONTENT_TYPE }]
 }

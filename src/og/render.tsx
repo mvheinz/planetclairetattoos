@@ -8,7 +8,7 @@ import en from '@/i18n/messages/en.json'
 import type { PublicProduct } from '@/lib/data/products'
 import type { PublicFlash, PublicGalleryEntry } from '@/lib/data/tattoo'
 import type { Locale } from '@/lib/enums'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { formatItemNumber } from '@/lib/products/itemNumber'
 import { formatTagPrice } from '@/lib/shop/priceTag'
 
@@ -45,7 +45,7 @@ async function png(element: React.ReactElement): Promise<Response> {
     const fonts = await loadOgFonts()
     body = await new ImageResponse(element, { ...OG_SIZE, fonts }).arrayBuffer()
   } catch (err) {
-    log.warn('og.render_failed', { reason: (err as Error).message })
+    log.warn('og.render_failed', { reason: errorSummary(err) })
     const fallback = await readFallbackPng()
     body = fallback.buffer.slice(
       fallback.byteOffset,

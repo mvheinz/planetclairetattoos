@@ -2,7 +2,7 @@ import 'server-only'
 
 import type { Payload } from 'payload'
 
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 
 import { createCommissionFormToken } from './formToken'
 import { submitCommission, type CommissionFieldErrors, type SubmitCommissionResult } from './submit'
@@ -94,7 +94,7 @@ export async function commissionStep(
   try {
     result = await submitCommission(fd, { now: ctx.now, ip: ctx.ip ?? null, payload: ctx.payload })
   } catch (e) {
-    log.error('commission.submit_failed', { reason: (e as Error)?.message })
+    log.error('commission.submit_failed', { reason: errorSummary(e) })
     return { step: 'form', rev, token, values, notice: 'failed' }
   }
   if (result.ok) {

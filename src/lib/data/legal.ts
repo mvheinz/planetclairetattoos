@@ -14,7 +14,7 @@ import {
   type LegalTokenSettings,
   type LexicalContent,
 } from '@/lib/legal/render'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { getPublicSettings } from '@/lib/payload/public'
 import { systemClock, type Clock } from '@/lib/time'
 
@@ -88,7 +88,7 @@ export async function loadLegalText(
     if (err instanceof LegalRenderError) {
       log.error('legal.render_failed', { type, locale, reason: err.message })
     } else {
-      log.warn('legal.load_failed', { type, locale, reason: (err as Error).message })
+      log.warn('legal.load_failed', { type, locale, reason: errorSummary(err) })
     }
     return { state: 'unavailable', type }
   }

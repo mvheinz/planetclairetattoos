@@ -5,7 +5,7 @@ import { TAGS } from '@/lib/cache/tags'
 import { getPublicPage } from '@/lib/data/pages'
 import { DEFAULT_INSTAGRAM_HANDLE } from '@/lib/data/navigation'
 import { TAX_MODES, type FaqCategory, type Locale, type TaxMode } from '@/lib/enums'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { getPublicPayload, getPublicSettings } from '@/lib/payload/public'
 import { formatFlashNumber } from '@/lib/tattoo/flash'
 import {
@@ -122,7 +122,7 @@ export async function loadTattooSettings(locale: Locale): Promise<TattooSettings
   try {
     return pickTattooSettings(await getPublicSettings(systemClock, { locale }))
   } catch (err) {
-    log.warn('tattoo.settings_load_failed', { reason: (err as Error).message })
+    log.warn('tattoo.settings_load_failed', { reason: errorSummary(err) })
     return pickTattooSettings({})
   }
 }
@@ -197,7 +197,7 @@ export async function loadFlash(locale: Locale): Promise<PublicFlash[]> {
       .map(toPublicFlash)
       .filter((f): f is PublicFlash => f !== null)
   } catch (err) {
-    log.warn('tattoo.flash_load_failed', { reason: (err as Error).message })
+    log.warn('tattoo.flash_load_failed', { reason: errorSummary(err) })
     return []
   }
 }
@@ -299,7 +299,7 @@ export async function loadGallery(locale: Locale): Promise<PublicGalleryEntry[]>
     })
     return toPublicGallery(res.docs)
   } catch (err) {
-    log.warn('tattoo.gallery_load_failed', { reason: (err as Error).message })
+    log.warn('tattoo.gallery_load_failed', { reason: errorSummary(err) })
     return []
   }
 }
@@ -346,7 +346,7 @@ export async function loadFaqs(category: FaqCategory, locale: Locale): Promise<P
     })
     return res.docs.map((d) => ({ id: d.id, question: d.question, answer: d.answer }))
   } catch (err) {
-    log.warn('tattoo.faqs_load_failed', { category, reason: (err as Error).message })
+    log.warn('tattoo.faqs_load_failed', { category, reason: errorSummary(err) })
     return []
   }
 }

@@ -14,7 +14,7 @@ import type { ActorType } from '@/lib/enums'
 import { createInvoiceForOrder } from '@/lib/invoices/create'
 import { runInvoicePdfJob } from '@/lib/invoices/issue'
 import { jobAlarm } from '@/lib/jobs/alarm'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { preservingReq } from '@/lib/payload/localReq'
 import { inTransaction } from '@/lib/payload/transaction'
 import { getPaymentsAdapter, type PaymentsAdapter } from '@/lib/payments'
@@ -62,7 +62,7 @@ type JobId = number | string | null
 async function runMails(payload: Payload, jobs: JobId[], now: Date, event: string): Promise<void> {
   for (const job of jobs) {
     await runEmailJobNow(payload, job, { now }).catch((e: unknown) =>
-      log.error(`${event}.mail_failed`, { error: (e as Error)?.message }),
+      log.error(`${event}.mail_failed`, { error: errorSummary(e) }),
     )
   }
 }
@@ -229,7 +229,7 @@ export async function placePrepaymentOrder(
           // Die Session läuft beim Anbieter ohnehin ab; ein späteres `expired` gibt nichts frei (Quelle `prepayment`).
           log.warn('prepayment.session_expire_failed', {
             orderId: order.id,
-            error: (err as Error)?.message,
+            error: errorSummary(err),
           })
         }
       }
@@ -482,7 +482,7 @@ export async function markPrepaymentPaid(
       await runInvoicePdfJob(payload, tx.invoiceJob, { now }).catch((e: unknown) =>
         log.error('prepayment.invoice_pdf_failed', {
           orderId,
-          error: (e as Error)?.message,
+          error: errorSummary(e),
         }),
       )
       await runMails(payload, [tx.m05], now, 'prepayment.paid')
@@ -582,7 +582,7 @@ export async function sendPrepaymentReminders(
       }
     } catch (err) {
       out.errors += 1
-      log.error('prepayment.reminder_failed', { orderId, error: (err as Error)?.message })
+      log.error('prepayment.reminder_failed', { orderId, error: errorSummary(err) })
     }
   }
   return finishRun(payload, now, out)
@@ -613,7 +613,7 @@ export async function cancelOverduePrepayments(
       await result.afterCommit()
     } catch (err) {
       out.errors += 1
-      log.error('prepayment.cancel_failed', { orderId, error: (err as Error)?.message })
+      log.error('prepayment.cancel_failed', { orderId, error: errorSummary(err) })
     }
   }
   return finishRun(payload, now, out)

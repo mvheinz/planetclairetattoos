@@ -18,7 +18,8 @@ import { DROPPED_VARS } from '../../../scripts/preview-export/env'
 
 const prod: Record<string, string> = {
   APP_ENV: 'production',
-  DATABASE_URL: 'postgres://u:p@db.example.test:5432/app',
+  DATABASE_URL:
+    'postgres://u:p@ep-test-000000-pooler.eu-central-1.aws.neon.tech/app?sslmode=require',
   PAYLOAD_SECRET: 'a'.repeat(64),
   CRON_SECRET: 'b'.repeat(40),
   NEXT_PUBLIC_SITE_URL: 'https://planetclairetattoos.com',

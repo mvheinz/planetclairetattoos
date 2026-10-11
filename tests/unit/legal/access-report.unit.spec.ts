@@ -27,6 +27,7 @@ const base: AccessReportInput = {
     inquiries: 0,
     complaints: 0,
     emailLog: 2,
+    mailJobs: 0,
     consentLog: 1,
     privacyRequests: 0,
     files: 1,

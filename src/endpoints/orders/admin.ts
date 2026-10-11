@@ -1,7 +1,7 @@
 import type { Endpoint } from 'payload'
 
 import { pdfResponse } from '@/endpoints/adminResponse'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 
 import { adminOrderAction, loadAdminOrder, orderActionError } from './_action'
 
@@ -162,7 +162,7 @@ const packingSlipEndpoint: Endpoint = {
     } catch (err) {
       log.error('orders.packing_slip_failed', {
         orderId: order.id,
-        reason: (err as Error)?.message,
+        reason: errorSummary(err),
       })
       return orderActionError(500, 'Packzettel konnte nicht erstellt werden.')
     }

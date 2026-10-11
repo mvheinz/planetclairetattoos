@@ -5,7 +5,7 @@ import { createLocalReq, type Payload } from 'payload'
 
 import { dbFor, type SqlExecutor } from '@/lib/db/tx'
 import { jobAlarm } from '@/lib/jobs/alarm'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { inTransaction } from '@/lib/payload/transaction'
 import { getPaymentsAdapter, type PaymentsAdapter } from '@/lib/payments'
 
@@ -63,7 +63,7 @@ async function releaseExpired(deps: Required<ExpiryDeps>, out: ExpiryResult): Pr
       else out.waiting += 1
     } catch (err) {
       out.errors += 1
-      log.error('jobs.release_failed', { ref, error: (err as Error)?.message })
+      log.error('jobs.release_failed', { ref, error: errorSummary(err) })
     }
   }
 }
@@ -126,7 +126,7 @@ async function reconcileConfirming(deps: Required<ExpiryDeps>, out: ExpiryResult
       out.waiting += 1
     } catch (err) {
       out.errors += 1
-      log.error('jobs.reconcile_failed', { checkoutId, error: (err as Error)?.message })
+      log.error('jobs.reconcile_failed', { checkoutId, error: errorSummary(err) })
     }
   }
 }

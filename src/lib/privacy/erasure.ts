@@ -10,7 +10,9 @@ import {
   anonymizeOrder,
   deleteInquiryRecord,
   deletePrivateUpload,
+  deleteSpentMailJobs,
   deleteWithdrawalRecord,
+  mailJobsFor,
 } from '@/lib/retention/jobs'
 import { writeDeletionLog } from '@/lib/retention/log'
 import {
@@ -456,6 +458,12 @@ export async function applyErasure(
       storageObjectsCount: count,
       executedAt: now,
     })
+  // Mail-Jobs zu den Protokoll-Einträgen der Person (Kopie der Mail-Daten in der Warteschlange, L-13 i) – vor der
+  // Löschung ermitteln, weil der Verweis danach ins Leere zeigt
+  const mailJobs = await mailJobsFor(
+    db,
+    plan.filter((r) => r.collection === 'email-log').map((r) => r.id),
+  )
 
   for (const row of plan) {
     const d = decisions.find((x) => x.collection === row.collection && x.id === row.id)
@@ -544,6 +552,12 @@ export async function applyErasure(
       state: STATE_OF_ACTION[action],
       until: action === 'delete' ? null : row.until,
     })
+  }
+
+  // Nicht mehr versendbare Mail-Jobs der Person (gescheitert, hängend oder ohne Protokoll-Eintrag) sofort löschen;
+  // wartende Mails zu aufbewahrten Vorgängen bleiben (Prüfung P18.5)
+  for (const jobId of await deleteSpentMailJobs(db, mailJobs, now)) {
+    await log('payload-jobs', jobId, 'deleted')
   }
 
   let jobId: number | string | null = null

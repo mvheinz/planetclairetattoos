@@ -5,7 +5,7 @@ import { ADMIN_NO_STORE } from '@/endpoints/adminResponse'
 import { readJsonBody } from '@/endpoints/products/actions'
 import { revalidateAll } from '@/lib/cache/revalidate'
 import { ENUM_LABELS } from '@/lib/enumLabels'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { SeedGuardError } from '@/lib/seed/guard'
 import { removeSeedData, seedSummary } from '@/lib/seed/remove'
 import { SEED_REMOVE_LOCK_TEXT, seedRemovalLockedTypes } from '@/lib/seed/removeLock'
@@ -79,7 +79,7 @@ export const seedAdminEndpoints: Endpoint[] = [
         return json({ doc: null, unchanged: report.counts.size === 0, keepTexts, counts })
       } catch (err) {
         if (err instanceof SeedGuardError) return json({ error: err.message }, 409)
-        log.error('seed.remove_failed', { reason: (err as Error)?.message })
+        log.error('seed.remove_failed', { reason: errorSummary(err) })
         return json({ error: 'Beispieldaten konnten nicht entfernt werden.' }, 500)
       }
     },

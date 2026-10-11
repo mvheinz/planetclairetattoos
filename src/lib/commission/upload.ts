@@ -8,7 +8,7 @@ import sharp from 'sharp'
 import de from '@/i18n/messages/de.json'
 import en from '@/i18n/messages/en.json'
 import type { Locale } from '@/lib/enums'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { ipHash } from '@/lib/security/ipHash'
 import { clientIp, hit, retryAfterSeconds } from '@/lib/security/rateLimit'
 
@@ -157,7 +157,7 @@ export async function handleCommissionUpload(
     log.info('commission.upload_stored', { uploadId: doc.id })
     return json({ uploadId: doc.id, ticket: uploadTicket(doc.id, token.nonce) }, 201)
   } catch (e) {
-    log.error('commission.upload_failed', { reason: (e as Error)?.message })
+    log.error('commission.upload_failed', { reason: errorSummary(e) })
     return error('failed', 500, locale)
   }
 }

@@ -2,7 +2,9 @@ import type { Payload } from 'payload'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const submit = vi.fn()
+const rateHit = vi.fn()
 vi.mock('@payload-config', () => ({ default: {} }))
+vi.mock('@/lib/security/rateLimit', () => ({ hit: (...args: unknown[]) => rateHit(...args) }))
 vi.mock('payload', async (orig) => ({
   ...(await orig<typeof import('payload')>()),
   getPayload: vi.fn(async () => ({
@@ -20,6 +22,7 @@ import {
   signWithdrawalToken,
   verifyWithdrawalToken,
   WITHDRAWAL_FORM_TOKEN_TTL_MS,
+  wantsOrderLookup,
   withdrawalChoices,
   withdrawalStep,
   type WithdrawalFlowState,
@@ -52,8 +55,14 @@ const order = {
   ],
 }
 
+const allowed = (ok: boolean) => ({ allowed: ok, remaining: 0, resetAt: NOW, count: 1 })
+
 describe('R-091…R-093 Widerrufsfunktion R26 (Zweige)', () => {
-  beforeEach(() => submit.mockReset())
+  beforeEach(() => {
+    submit.mockReset()
+    rateHit.mockReset()
+    rateHit.mockResolvedValue(allowed(true))
+  })
 
   it('Vorbelegung nur mit gültiger Bestellnummer', () => {
     expect(initialWithdrawalState('pc-2026-00012')).toMatchObject({
@@ -216,5 +225,65 @@ describe('R-091…R-093 Widerrufsfunktion R26 (Zweige)', () => {
     submit.mockRejectedValueOnce(new Error('db weg'))
     expect(await go()).toMatchObject({ step: 'confirm', notice: 'failed' })
     expect(submit.mock.calls[0]![1]).toMatchObject({ ip: '1.2.3.4', now: NOW })
+  })
+
+  it('Prüfung P18.5 Bestellsuche nur mit Bestellnummer und E-Mail gezählt; über dem Limit ohne Auswahl wie ohne Treffer', async () => {
+    expect(wantsOrderLookup(good)).toBe(true)
+    expect(wantsOrderLookup({ ...good, contractIdentification: 'Vertrag vom Mai' })).toBe(false)
+    expect(wantsOrderLookup({ ...good, email: '  ' })).toBe(false)
+
+    // ohne Bestellnummer: keine Suche, kein Zähler
+    const plain = payloadWith(order)
+    await withdrawalStep(
+      initialWithdrawalState(),
+      fd({ stage: 'form', ...good, contractIdentification: 'Vertrag vom Mai' }),
+      { ...CTX, ip: '203.0.113.7', payload: plain },
+    )
+    expect(rateHit).not.toHaveBeenCalled()
+    expect(plain.find).not.toHaveBeenCalled()
+
+    // innerhalb des Limits: Zähler `withdrawal_lookup` mit IP-Hash (nie die Klar-IP), dann Auswahl
+    const within = payloadWith(order)
+    const select = await withdrawalStep(initialWithdrawalState(), fd({ stage: 'form', ...good }), {
+      ...CTX,
+      ip: '203.0.113.7',
+      payload: within,
+    })
+    expect(select.step).toBe('select')
+    expect(rateHit).toHaveBeenCalledTimes(1)
+    const [bucket, key, at] = rateHit.mock.calls[0]!
+    expect(bucket).toBe('withdrawal_lookup')
+    expect(key).toMatch(/^[0-9a-f]{64}$/)
+    expect(String(key)).not.toContain('203.0.113.7')
+    expect(at).toBe(NOW)
+
+    // über dem Limit: keine Suche, Bestätigung ohne Auswahl wie bei einer unbekannten Bestellung
+    rateHit.mockResolvedValueOnce(allowed(false))
+    const over = payloadWith(order)
+    const blocked = await withdrawalStep(initialWithdrawalState(), fd({ stage: 'form', ...good }), {
+      ...CTX,
+      ip: '203.0.113.7',
+      payload: over,
+    })
+    expect(over.find).not.toHaveBeenCalled()
+    expect(blocked).toMatchObject({ step: 'confirm', matched: false, selectedLabels: [] })
+    expect(blocked).not.toHaveProperty('notice')
+    const unknown = await withdrawalStep(initialWithdrawalState(), fd({ stage: 'form', ...good }), {
+      ...CTX,
+      ip: '203.0.113.7',
+      payload: payloadWith(null),
+    })
+    expect(Object.keys(blocked).sort()).toEqual(Object.keys(unknown).sort())
+
+    // der Widerruf selbst bleibt möglich
+    if (blocked.step !== 'confirm') throw new Error('kein Schritt 2')
+    submit.mockResolvedValueOnce({ ok: true, status: 201, spam: false, receipt: { items: [] } })
+    const done = await withdrawalStep(
+      blocked,
+      fd({ stage: 'confirm', intent: 'confirm', token: blocked.token }),
+      { ...CTX, ip: '203.0.113.7' },
+    )
+    expect(done).toMatchObject({ step: 'done' })
+    expect(submit.mock.calls[0]![0]).toMatchObject({ affectedItemIds: [] })
   })
 })

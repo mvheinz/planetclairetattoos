@@ -3,7 +3,7 @@ import 'server-only'
 import { cached } from '@/lib/cache/cached'
 import { TAGS } from '@/lib/cache/tags'
 import type { Locale, TourStatus } from '@/lib/enums'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { getPublicPayload } from '@/lib/payload/public'
 import { parseTourLink } from '@/lib/tour/address'
 import { isMediaPubliclyVisible } from '@/lib/tattoo/visibility'
@@ -89,7 +89,7 @@ export async function loadTourDates(locale: Locale): Promise<PublicTourDate[]> {
     })
     return res.docs.filter((d) => d.published !== false).map(toPublicTourDate)
   } catch (err) {
-    log.warn('tour.load_failed', { reason: (err as Error).message })
+    log.warn('tour.load_failed', { reason: errorSummary(err) })
     return []
   }
 }

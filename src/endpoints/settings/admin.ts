@@ -17,7 +17,7 @@ import {
 import { ADMIN_NO_STORE } from '@/endpoints/adminResponse'
 import { readJsonBody } from '@/endpoints/products/actions'
 import { TAX_MODES, type TaxMode } from '@/lib/enums'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { berlinDayStart } from '@/lib/time'
 
 // Speichern der Einstellungen, Teil 1 (PLAN P5.21, KONZEPT §7.14) – Endpunkte am Global `settings` (nur Verwaltung):
@@ -82,7 +82,7 @@ function saveErrorResponse(err: unknown, where: string): Response {
     }))
     return fieldErrors(errors)
   }
-  log.error('settings.save_failed', { where, reason: (err as Error)?.message })
+  log.error('settings.save_failed', { where, reason: errorSummary(err) })
   return json(500, {
     error: 'Speichern hat nicht geklappt. Bitte die Seite neu laden und noch einmal versuchen.',
   })

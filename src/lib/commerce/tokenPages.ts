@@ -4,7 +4,7 @@ import config from '@payload-config'
 import { getPayload, type Payload } from 'payload'
 
 import { buildLegalAttachments } from '@/lib/legal/attachments'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import type { PaymentsAdapter } from '@/lib/payments'
 import { ipHash } from '@/lib/security/ipHash'
 import { clientIp, hit, retryAfterSeconds, type RateLimitResult } from '@/lib/security/rateLimit'
@@ -146,7 +146,7 @@ export async function handleOrderDocument(
       log.warn('order_documents.unavailable', {
         orderId: order.id,
         file,
-        error: (err as Error)?.message,
+        error: errorSummary(err),
       })
       data = null
     }

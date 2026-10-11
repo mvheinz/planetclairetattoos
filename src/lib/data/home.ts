@@ -7,7 +7,7 @@ import { loadContactInfo, type ContactInfo } from '@/lib/data/contact'
 import { instagramUrl, loadNavigation, type NavCategory } from '@/lib/data/navigation'
 import { loadPublicPage } from '@/lib/data/pages'
 import { PRODUCT_CATEGORIES, type CocoPose, type Locale, type ProductCategory } from '@/lib/enums'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { getPublicSettings } from '@/lib/payload/public'
 import { localizedPath } from '@/lib/routes/paths'
 import { isMediaPubliclyVisible } from '@/lib/tattoo/visibility'
@@ -219,7 +219,7 @@ export async function loadHomeView(locale: Locale): Promise<HomeView | null> {
     const tradeName = typeof business?.tradeName === 'string' ? text(business.tradeName) : null
     return toHomeView(page, { locale, categories: nav.categories, contact, tradeName })
   } catch (err) {
-    log.warn('home.load_failed', { locale, reason: (err as Error).message })
+    log.warn('home.load_failed', { locale, reason: errorSummary(err) })
     return null
   }
 }

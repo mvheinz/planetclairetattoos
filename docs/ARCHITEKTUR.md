@@ -803,6 +803,8 @@ Pflicht (sonst Abbruch mit Liste aller Verstöße):
 | Admin-Pfad | `ADMIN_ROUTE` ≠ `/admin`, ≠ `/werkstatt`, beginnt mit `/`, nur `[a-z0-9-]`, 6–40 Zeichen |
 | URL | `NEXT_PUBLIC_SITE_URL` = `https://planetclairetattoos.com` (ohne `/` am Ende) |
 | S3 | `S3_ENDPOINT` endet auf `.eu.r2.cloudflarestorage.com` (EU-Jurisdiktion) |
+| Sentry | `SENTRY_DSN` leer **oder** Host passt zu `serverHosts` des Dienstes `sentry` in DIENSTE §7 (`*.ingest.de.sentry.io`, EU-Region – Prüfung P18.5) |
+| Datenbank | `DATABASE_URL` und `DATABASE_URL_UNPOOLED`: ein Host unter `neon.tech` muss zu `serverHosts` des Dienstes `neon` passen (`*.eu-central-1.aws.neon.tech`); ein anderer Postgres-Host (Docker-Exit-Pfad, §13) ist erlaubt, ergibt aber eine Warnung (DIENSTE und Datenschutzerklärung anpassen – Prüfung P18.5) |
 | Beispieldaten | `SEED_PREVIEW_MODE` ≠ `true` (R-181) |
 
 Außerhalb von `production`: Verstöße gegen Formate → Abbruch; fehlende optionale Schlüssel → Warnung und Mock.
@@ -1735,6 +1737,7 @@ Umsetzung §3.9 (Postgres, Schlüssel = IP-Hash, Einträge ≤ 24 h). Antwort be
 | `commission_submit` | Auftragsanfrage absenden | IP-Hash | 5 / h und 20 / Tag (KONZEPT §10.3) |
 | `commission_upload` | `POST /api/uploads/commission` | IP-Hash | 15 / h |
 | `withdrawal_submit` | Widerruf bestätigen | IP-Hash | 30 / h (großzügig, RECHT) |
+| `withdrawal_lookup` | Widerruf Schritt 1: Suche der Bestellung (Bestellnummer + E-Mail) für die Auswahl der Stücke | IP-Hash | 10 / h (darüber keine Auswahl, weiter wie ohne Treffer; der Widerruf selbst bleibt möglich – Prüfung P18.5) |
 | `admin_login` | Payload-Login | IP-Hash | 10 / 15 min (zusätzlich Konto-Sperre) |
 | `forgot_password` | Passwort vergessen | IP-Hash | 3 / h (Antwort immer gleich, keine Konto-Aufzählung) |
 | `token_pages` | R08, R09, `GET /api/checkout/[token]/state`, Dokument-Downloads, `GET /api/privacy-export/[token]` | IP-Hash | 60 / min |
@@ -1836,6 +1839,13 @@ password, authorization, cookie` werden zu `"[redacted]"`; Freitext wird per Reg
 (`[A-Z]{2}\d{2}[A-Z0-9]{11,30}`) und 43-Zeichen-base64url-Tokens geprüft. Geloggt werden IDs und Nummern (`orderId`,
 `orderNumber`), nie Request-Bodies, Webhook-Payloads oder vollständige URLs von Token-Seiten (Pfad wird zu
 `/de/bestellung/[token]` normalisiert). Keine Log-Drains zu Dritten (DIENSTE §3.1).
+
+Datenbank-Fehler (R-137, Prüfung P18.5): `DrizzleQueryError` hängt die Werte der Abfrage als `\nparams: …` an die
+Meldung, Postgres nennt Werte in `detail` (`Failing row contains (…)`, `Key (…)=(…)`) und in `invalid input … : "…"`.
+`redactText` schneidet diese Teile vor allen anderen Mustern ab (SQL-Text, Spalten- und Constraint-Namen bleiben lesbar);
+Fehler-Objekte werden zu `{ name, code, constraint, message, cause }` (rekursiv, nie `query`, `params`, `detail`).
+Log-Felder mit Fehlern nutzen `errorSummary(err)` aus dem Logger-Modul (Name ohne das bloße `Error`, SQLSTATE-Code,
+geschwärzte Meldung, bis zu zwei Ebenen `cause`) statt `(err as Error).message`; ebenso `webhook_events.last_error`.
 
 **AK-A-8-01** Jede Antwort einer öffentlichen Route trägt die Header aus §8.1 ihres Kontexts (Test über alle Registry-Routen).
 **AK-A-8-02** `GET /admin` und `GET /admin/collections/users` → 404; `GET <ADMIN_ROUTE>` → Login-Seite; der Wert von
@@ -2189,7 +2199,9 @@ eine geplante Wartung keinen Alarm auslöst.
 - Optionen: `environment = SENTRY_ENVIRONMENT ?? APP_ENV`, `release = VERCEL_GIT_COMMIT_SHA`, `sendDefaultPii: false`,
   `tracesSampleRate: 0`, `maxBreadcrumbs: 20`, `ignoreErrors` für `NEXT_NOT_FOUND`/`NEXT_REDIRECT`; `beforeSend` und
   `beforeBreadcrumb` rufen `redactSentryEvent()` aus `src/lib/monitoring/sentry.ts` (Regeln §8.11; entfernt
-  `request.cookies`, `request.data`, alle Header außer `user-agent`, normalisiert Pfade von Token-Seiten).
+  `request.cookies`, `request.data`, alle Header außer `user-agent`, normalisiert Pfade von Token-Seiten; schwärzt die
+  Meldungen aller Ausnahmen der Kette einschließlich `cause`, verwirft lokale Variablen der Stack-Frames und die
+  Fehler-Eigenschaften `params`/`detail` in Kontexten und Extras – R-133, Prüfung P18.5).
 - **Nicht** verwenden: `sentry.client.config.ts`, `withSentryConfig`, Tunnel-Route, Session Replay, Performance-Tracing.
   Quellkarten werden nicht hochgeladen (Server-Stacktraces sind lesbar). `pnpm check:external` stellt sicher, dass kein
   Sentry-Host und kein Sentry-Code in `.next/static` landet.
@@ -2833,7 +2845,7 @@ widersprüchlichen Fristen gilt für Löschungen LOESCHKONZEPT, für Abläufe KO
 | `retentionPrivacyRequests` | maintenance | täglich | – | – (DSGVO-Exporte aus §12) | `retentionPrivacyRequests` |
 | `retentionConsentEvidence` | maintenance | täglich | `retention` | `purgeLogs` (`consent-log`), `purgePrivateUploads` (Nachweise) | `retentionConsentEvidence` |
 | `retentionDeletionLog` | maintenance | täglich | – | – | `retentionDeletionLog` |
-| `retentionTechnical` | maintenance | stündlich | `temp-uploads-cleanup` | `purgePrivateUploads` (`pending`), `purgeLogs` (`webhook-events`, `audit-log`) | `retentionTechnical` (inkl. `rate_limit_hits` > 24 h) |
+| `retentionTechnical` | maintenance | stündlich | `temp-uploads-cleanup` | `purgePrivateUploads` (`pending`), `purgeLogs` (`webhook-events`, `audit-log`) | `retentionTechnical` (inkl. `rate_limit_hits` > 24 h; gescheiterte, hängende und verwaiste Mail-Jobs in `payload-jobs`, L-13 i – Prüfung P18.5) |
 | – | – | – | – | – | `retentionCarts`: **entfällt**, solange es keinen Server-Warenkorb gibt (§8.7); L-01 erfüllt `Max-Age` des Cookies, Kassen-Datensätze löscht `retentionAbandonedCheckouts` |
 | `legalHoldReview` | maintenance | täglich | – | – | `legalHoldReview` |
 | `privacyRequestsDeadlineReminder` | maintenance | täglich | – | – | `privacyRequestsDeadlineReminder` |

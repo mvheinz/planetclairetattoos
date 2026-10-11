@@ -68,7 +68,7 @@
 | L-10 | Anfragen Auftragsarbeiten (`inquiries`) inkl. Referenzbilder (`private-uploads`, Zweck `commission_reference`), Eingangsbestätigung im `email-log` und Nachweis des Datenschutzhinweises im `consent-log` | Anfrage beantworten | Art. 6 Abs. 1 lit. b; E-11 | **6 Monate** | Eingang (`createdAt`; `deleteAfter`) | Löschen (DB + privater Speicher) | `retentionCommissionInquiries` |
 | L-11 | Postfach jutta@ (IONOS): Kundenmails, Benachrichtigungen (nur Referenzen) | Kommunikation | Art. 6 Abs. 1 lit. b, f; § 147 AO | Empfehlung: Benachrichtigungen 6 Monate; Geschäftskorrespondenz 6 Jahre | Eingang | manuell durch Jutta | – |
 | L-12 | E-Mail-Versandprotokoll `email-log` (Vorlagenschlüssel, Empfänger, Betreff, Bezug, Message-ID, Status, Zeit, Hash des gerenderten Inhalts und der Anhänge; Inhalt selbst wird nicht gespeichert) | Nachweis des Versands (§§ 312f, 356a BGB) | Art. 6 Abs. 1 lit. c, f | wie das Bezugsobjekt (Bestellung Stufe D, Widerruf L-08, Anfrage L-10); ohne Bezug 90 Tage | wie Bezug bzw. Versand (`sentAt`) | Löschen | `retentionEmailLog` |
-| L-13 | Technische Protokolle: a) Rate-Limit-Zähler (HMAC der IP mit täglich wechselndem Schlüssel, Tabelle `rate_limit_hits`, ARCHITEKTUR §3.9/§8.5); b) Sicherheitsprotokoll Admin-Login (falls mit IP-Hash); c) eigene Anwendungslogs (ohne Personendaten, R-137); d) Webhook-Ereignisse (`webhook-events`); e) Hosting-/CDN-Logs beim Anbieter; f) nicht abgeschickte Formular-Uploads (`private-uploads` mit Status `pending`, ARCHITEKTUR §8.8); g) Job-Protokoll der Jobs-Queue (Tabelle `job_runs`, DATENMODELL §11; nur IDs, keine Inhalte); h) Verwaltungsprotokoll `audit-log` (personenbezogene Werte maskiert, DATENMODELL §6.21) | Sicherheit, Missbrauchsschutz, Idempotenz, Nachvollziehbarkeit | Art. 6 Abs. 1 lit. f; Art. 32 DSGVO; f) Art. 6 Abs. 1 lit. b; h) Art. 6 Abs. 1 lit. c, f | a) 24 h; b) 14 Tage; c) ≤ 14 Tage; d) 90 Tage; e) nach Anbieter-Plan (≤ 14 Tage anstreben, P11 prüfen); f) 24 h; g) 90 Tage; h) Beleg-, Bestell-, Widerrufs- und Rechtstext-Aktionen 10 Jahre ab Ende des Jahres, sonst 3 Jahre | Erfassung; h) Eintrag | Löschen | `retentionTechnical` |
+| L-13 | Technische Protokolle: a) Rate-Limit-Zähler (HMAC der IP mit täglich wechselndem Schlüssel, Tabelle `rate_limit_hits`, ARCHITEKTUR §3.9/§8.5); b) Sicherheitsprotokoll Admin-Login (falls mit IP-Hash); c) eigene Anwendungslogs (ohne Personendaten, R-137); d) Webhook-Ereignisse (`webhook-events`); e) Hosting-/CDN-Logs beim Anbieter; f) nicht abgeschickte Formular-Uploads (`private-uploads` mit Status `pending`, ARCHITEKTUR §8.8); g) Job-Protokoll der Jobs-Queue (Tabelle `job_runs`, DATENMODELL §11; nur IDs, keine Inhalte); h) Verwaltungsprotokoll `audit-log` (personenbezogene Werte maskiert, DATENMODELL §6.21); i) Mail-Jobs der Warteschlange (`payload-jobs`, Task `sendEmail`; die Eingabe enthält eine Kopie der Mail-Daten, DATENMODELL §1.5), die gescheitert sind oder hängen, sowie Mail-Jobs ohne Protokoll-Eintrag (Prüfung P18.5) | Sicherheit, Missbrauchsschutz, Idempotenz, Nachvollziehbarkeit; i) Zustellung von Mails | Art. 6 Abs. 1 lit. f; Art. 32 DSGVO; f) Art. 6 Abs. 1 lit. b; h) Art. 6 Abs. 1 lit. c, f; i) wie die jeweilige Mail (Art. 6 Abs. 1 lit. b, c, f) | a) 24 h; b) 14 Tage; c) ≤ 14 Tage; d) 90 Tage; e) nach Anbieter-Plan (≤ 14 Tage anstreben, P11 prüfen); f) 24 h; g) 90 Tage; h) Beleg-, Bestell-, Widerrufs- und Rechtstext-Aktionen 10 Jahre ab Ende des Jahres, sonst 3 Jahre; i) 30 Tage, Jobs ohne Protokoll-Eintrag sofort (nächster stündlicher Lauf); ein gerade laufender Job nie | Erfassung; h) Eintrag; i) letzte Änderung des Jobs | Löschen | `retentionTechnical` |
 | L-14 | Sentry-Ereignisse (bereinigt) | Fehleranalyse | Art. 6 Abs. 1 lit. f | kürzeste Plan-Einstellung (Developer-Plan laut Recherche ca. 30 Tage, P11 prüfen) | Ereignis | Anbieter löscht | – |
 | L-15 | Statistik (Vercel Web Analytics, falls aktiviert) | Reichweite | Art. 6 Abs. 1 lit. f | Besucher-Hash 24 h (Anbieter); Aggregate ohne Personenbezug | Aufruf | Anbieter | – |
 | L-16 | Zahlungsdaten bei Stripe, PayPal, Bank; im Shop nur Zahlungs-/Erstattungs-IDs | Zahlung | eigene Pflichten der Anbieter | Shop-IDs wie L-05/L-06; beim Anbieter nach dessen Regeln | – | – | – |
@@ -228,7 +228,7 @@ fachlich zu KONZEPT §8.2 gehören, stehen dort; dieses Dokument nennt für sie 
 | `retentionPrivacyRequests` | täglich 03:40 | L-17 | |
 | `retentionConsentEvidence` | täglich 03:45 | L-03 (`consent-log` ohne Bestellung), L-19, L-20 | |
 | `retentionDeletionLog` | täglich 03:50 | L-18 | ohne eigenen Protokolleintrag |
-| `retentionTechnical` | stündlich | L-02, L-13 | inkl. `rate_limit_hits` und `pending`-Uploads älter als 24 h, `webhook-events` und Job-Protokoll älter als 90 Tage, `audit-log` nach Frist |
+| `retentionTechnical` | stündlich | L-02, L-13 | inkl. `rate_limit_hits` und `pending`-Uploads älter als 24 h, `webhook-events` und Job-Protokoll älter als 90 Tage, `audit-log` nach Frist, gescheiterte oder hängende Mail-Jobs 30 Tage nach der letzten Änderung und Mail-Jobs ohne Protokoll-Eintrag sofort (L-13 i) |
 | `legalHoldReview` | täglich 08:00 | Legal Holds, deren letzte Prüfung (`legalHoldReviewedAt`, sonst `legalHoldSince`) ≥ 6 Monate her ist → Mail `admin_legal_hold_review` (KONZEPT A15) an Jutta | |
 | `privacyRequestsDeadlineReminder` | täglich 08:00 | R-153 | 7 Tage und 1 Tag vor Frist (`admin_privacy_request_due`, A14) |
 | `legalReviewReminder` | täglich (KONZEPT §8.2) | R-014 | |
@@ -287,7 +287,8 @@ Die Verwaltung unterstützt jeden Schritt (R-150 bis R-153). Antworten in der Sp
 
 ### 5.4 Auskunft (Art. 15)
 1. Suche nach E-Mail, Name und Bestellnummer (R-150) über `orders`, `checkouts`, `invoices`, `withdrawals`,
-   `complaints`, `inquiries`, `consent-log`, `email-log` und frühere `privacy-requests`.
+   `complaints`, `inquiries`, `consent-log`, `email-log`, die Mail-Jobs der Warteschlange zu diesen Mails (`payload-jobs`,
+   Kopie der Mail-Daten, L-13 i) und frühere `privacy-requests`.
 2. Export erzeugen; Inhalte prüfen und Daten Dritter schwärzen (z. B. Notizen, die andere Personen betreffen).
    Datensätze, die nur über Name oder Bestellnummer gefunden wurden und eine andere gespeicherte E-Mail-Adresse als die
    Anfrage tragen (Namensvetterin, Geschenk-Bestellung), zeigt die Verwaltung als „mögliche Treffer – andere
@@ -317,6 +318,9 @@ Die Verwaltung unterstützt jeden Schritt (R-150 bis R-153). Antworten in der Sp
    greift nicht); nach Abschluss erneut prüfen. M15 meldet je Bereich den tatsächlichen Zustand: „eingeschränkt“ nur
    bei echter Einschränkung, sonst „aufbewahrt bis {Datum}“ bzw. „brauche ich noch, um deine Bestellung abzuwickeln“
    (P18.5). Eine Bestellung mit abgelaufener Frist kann nicht ohne Aktion bleiben (löschen oder begründet behalten).
+   Mail-Jobs der Person, die nicht mehr versendet werden (gescheitert, hängend oder ohne Protokoll-Eintrag), löscht die
+   Funktion sofort mit (`deletion-log`, Regel `DSGVO`); wartende Mails zu aufbewahrten Vorgängen bleiben – sie werden
+   versendet bzw. bei Einschränkung unterdrückt und danach gelöscht (L-13 i, Prüfung P18.5).
 4. Empfänger informieren, soweit nötig (Art. 19): DHL-E-Mail-Einwilligung widerrufen, falls erteilt (geschieht beim
    Einschränken); den Satz dazu enthält M15 nur, wenn in diesem Lauf wirklich eine Einwilligung widerrufen wurde
    (P18.5); bei Stripe/PayPal auf deren eigene Datenschutzkontakte hinweisen (eigene Verantwortung); Mail-Anbieter-Logs

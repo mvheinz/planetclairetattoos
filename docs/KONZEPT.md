@@ -695,6 +695,9 @@ Details §5.4 und §6. Zwei Schritte ohne Login (E-44, § 356a BGB):
   `WR-2026-00003`, Hinweis „Eine Bestätigung ist per E-Mail unterwegs“ und „Drucken/als PDF sichern“.
 - Kein CAPTCHA; Rate-Limit großzügig (30 pro IP-Hash und Stunde, Zähler höchstens 24 h gespeichert, ARCHITEKTUR §8.5),
   damit echte Widerrufe nie blockiert werden. Der Widerrufs-Datensatz selbst speichert keine IP und keinen IP-Hash (R-093).
+- Die Auswahl der Stücke nach Schritt 1 verrät, ob eine E-Mail-Adresse zu einer Bestellnummer gehört. Deshalb höchstens
+  10 Bestellsuchen pro IP-Hash und Stunde (`withdrawal_lookup`, ARCHITEKTUR §8.5); darüber erscheint keine Auswahl, und
+  es geht ohne Hinweis weiter wie bei einer unbekannten Bestellung – der Widerruf selbst bleibt immer möglich (Prüfung P18.5).
 - Widerrufe ohne passende Bestellung werden **trotzdem angenommen** und zur manuellen Zuordnung markiert
   (`matchStatus = needs_manual_match`).
 - Seite ist dauerhaft online (nicht nach 14 Tagen ausblenden).
@@ -1977,7 +1980,7 @@ Widerrufserklärungen nur lesen (Notizen separat); keine Lösch-Knöpfe für ver
 | `activateScheduledLegalTexts` | Weckzeitpunkt `validFrom`; stündliches Sicherheitsnetz | Rechtstexte (ab P6 auch Rechtsbausteine) im Status `scheduled` mit `validFrom ≤ jetzt` aktivieren, Vorgängerfassung `superseded` | P6 |
 | `markDelivered` | täglich ab 03:00 | `shipped` am 10. Berliner Kalendertag nach dem Versandtag (`timestamps.shippedAt`) → `delivered` (O10, `shipment.deliveredSource = auto`); in der Verwaltung als „geschätzt“ gekennzeichnet | P5 |
 | `retention…`-Tasks (`retentionAbandonedCheckouts`, `retentionOrderMinimize`, `retentionOrders`, `retentionInvoices`, `retentionWithdrawals`, `retentionCommissionInquiries`, `retentionEmailLog`, `retentionConsentEvidence`, `retentionPrivacyRequests`, `retentionDeletionLog`) | täglich ab 03:05 (Reihenfolge und Richtzeiten LOESCHKONZEPT §4) | Löschfristen §8.3 ausführen, `deletion-log` schreiben, Legal Holds überspringen (Details: LOESCHKONZEPT §4) | P6 |
-| `retentionTechnical` | stündlich | Reservierungen 7 Tage nach Ablauf/Umwandlung (L-02), nicht abgeschickte Uploads und Rate-Limit-Zähler älter als 24 h, Webhook-Event-IDs und Job-Protokoll älter als 90 Tage, `audit-log`-Einträge nach ihrer Frist (L-13) | P4 (Reservierungen), P7 (Uploads) |
+| `retentionTechnical` | stündlich | Reservierungen 7 Tage nach Ablauf/Umwandlung (L-02), nicht abgeschickte Uploads und Rate-Limit-Zähler älter als 24 h, Webhook-Event-IDs und Job-Protokoll älter als 90 Tage, `audit-log`-Einträge nach ihrer Frist, gescheiterte oder hängende Mail-Jobs nach 30 Tagen (L-13) | P4 (Reservierungen), P7 (Uploads) |
 | `legalHoldReview` | täglich ab 08:00 | Aufbewahrungssperren älter als 6 Monate (bzw. seit der letzten Prüfung) → A15 | P6 |
 | `privacyRequestsDeadlineReminder` | täglich ab 08:00 | offene Datenschutz-Anfragen 7 Tage und 1 Tag vor `dueAt` bzw. `extendedDueAt` → A14 (R-153) | P6 |
 | `withdrawalDeadlines` | täglich ab 08:00 | Widerrufe `received`/`goods_returned`, `refundDueAt` in ≤ 4 Tagen (Eingang vor ≥ 10 Tagen), ohne Erstattung → A13 (einmal je Widerruf, `deadlineReminderSentAt`) | P6 |
@@ -2007,7 +2010,7 @@ Umsetzung zentral in `src/lib/retention/policy.ts`, ausgeführt von den Tasks au
 | L-09 | Reklamationen (Fotos, Verlauf, gesendete Mails) | wie die Bestellung (L-05) | mit der Bestellung |
 | L-10 | Auftragsarbeiten: Anfrage inkl. Bilder | **6 Monate nach Eingang** (`createdAt`), unabhängig vom Bearbeitungsstand | löschen (Datenbank und privater Speicher) |
 | L-12 | Mail-Protokoll `email-log` | wie das Bezugsobjekt; ohne Bezug 90 Tage | löschen |
-| L-13 | Technische Protokolle: a) Rate-Limit-Zähler (HMAC der IP, nie Klar-IP); b) Sicherheitsprotokoll Admin-Login; c) eigene Anwendungslogs; d) Webhook-Ereignisse; f) nicht abgeschickte Uploads; g) Job-Protokoll der Jobs-Queue (nur IDs, §8.1 Nr. 4); h) Verwaltungsprotokoll `audit-log` | a) 24 h; b) 14 Tage; c) ≤ 14 Tage; d) 90 Tage; f) 24 h; g) 90 Tage; h) Beleg-, Bestell-, Widerrufs- und Rechtstext-Aktionen 10 Jahre ab Ende des Jahres, sonst 3 Jahre | löschen |
+| L-13 | Technische Protokolle: a) Rate-Limit-Zähler (HMAC der IP, nie Klar-IP); b) Sicherheitsprotokoll Admin-Login; c) eigene Anwendungslogs; d) Webhook-Ereignisse; f) nicht abgeschickte Uploads; g) Job-Protokoll der Jobs-Queue (nur IDs, §8.1 Nr. 4); h) Verwaltungsprotokoll `audit-log`; i) gescheiterte oder hängende Mail-Jobs der Warteschlange (Kopie der Mail-Daten) und Mail-Jobs ohne Protokoll-Eintrag | a) 24 h; b) 14 Tage; c) ≤ 14 Tage; d) 90 Tage; f) 24 h; g) 90 Tage; h) Beleg-, Bestell-, Widerrufs- und Rechtstext-Aktionen 10 Jahre ab Ende des Jahres, sonst 3 Jahre; i) 30 Tage, ohne Protokoll-Eintrag sofort | löschen |
 | L-17 | Datenschutz-Anfragen; Exportdateien | 3 Jahre ab Ende des Abschlussjahres; Exporte 30 Tage nach der Antwort | löschen |
 | L-18 | Löschprotokoll `deletion-log` (keine Inhalte) | 3 Jahre | löschen |
 | L-19, L-20 | Einwilligungsnachweise; Portfolio-Fotos | DHL-Einwilligung mit der Bestellung; Portfolio-Nachweis 3 Jahre ab Widerruf bzw. Ende der Veröffentlichung; Fotos nach Widerruf sofort offline, Dateien spätestens nach 24 h gelöscht | löschen |

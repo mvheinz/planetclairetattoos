@@ -7,7 +7,9 @@ import { z } from 'zod'
 
 import type { Locale } from '@/lib/enums'
 import { formatItemNumber } from '@/lib/products/itemNumber'
+import { ipHash } from '@/lib/security/ipHash'
 import { deriveKey } from '@/lib/security/keys'
+import { hit } from '@/lib/security/rateLimit'
 import { safeEqual } from '@/lib/security/tokens'
 import type { Order } from '@/payload-types'
 
@@ -185,6 +187,28 @@ function itemLabel(item: OrderItem, locale: Locale): string {
   return `${formatItemNumber(item.itemNumber, locale)} · ${title}`.trim().slice(0, 300)
 }
 
+/** Würde Schritt 1 eine Bestellung suchen (Bestellnummer `PC-…` im Text und eine E-Mail)? */
+export function wantsOrderLookup(
+  values: Pick<WithdrawalFormValues, 'contractIdentification' | 'email'>,
+): boolean {
+  return ORDER_NUMBER_IN_TEXT.test(values.contractIdentification) && values.email.trim() !== ''
+}
+
+/**
+ * Rate-Limit `withdrawal_lookup` (10 / h je IP-Hash, ARCHITEKTUR §8.5, Prüfung P18.5): Die Auswahl der Stücke verrät,
+ * ob eine E-Mail-Adresse zu einer Bestellnummer gehört und was darin ist. Gezählt wird nur eine echte Suche; darüber
+ * gibt es keine Auswahl und es geht weiter wie ohne Treffer – nie ein Hinweis, nie ein Hindernis für den Widerruf selbst.
+ */
+export async function withdrawalLookupAllowed(
+  values: Pick<WithdrawalFormValues, 'contractIdentification' | 'email'>,
+  ctx: Pick<WithdrawalStepContext, 'now' | 'ip' | 'payload'>,
+): Promise<boolean> {
+  if (!wantsOrderLookup(values)) return true
+  const p = ctx.payload ?? (await getPayload({ config }))
+  const key = ipHash(ctx.ip ?? 'unknown', { now: () => ctx.now })
+  return (await hit('withdrawal_lookup', key, ctx.now, p)).allowed
+}
+
 /**
  * Positionen zur Auswahl: nur wenn eine Bestellnummer `PC-…` im Text steht **und** die E-Mail (ohne Groß/Klein) zur
  * Bestellung passt – dieselbe Regel wie die automatische Zuordnung (DATENMODELL §6.11). Sonst `[]` (keine Auswahl).
@@ -270,7 +294,9 @@ export async function withdrawalStep(
     const values = valuesOf(fd)
     const errors = validate(values, locale)
     if (errors) return { step: 'form', rev, values, errors }
-    const choices = await withdrawalChoices(values, locale, ctx.payload)
+    const choices = (await withdrawalLookupAllowed(values, ctx))
+      ? await withdrawalChoices(values, locale, ctx.payload)
+      : []
     const body: TokenBody = {
       v: TOKEN_VERSION,
       iat: now.getTime(),

@@ -11,7 +11,7 @@ import { prepareMail } from '@/lib/email/prepare'
 import { templateMeta } from '@/lib/email/registry'
 import { jobAlarm } from '@/lib/jobs/alarm'
 import { jobNow } from '@/lib/jobs/now'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { inTransaction } from '@/lib/payload/transaction'
 import type { EmailLog } from '@/payload-types'
 
@@ -185,13 +185,17 @@ async function sendQueued(
   req: PayloadRequest,
 ): Promise<{ output: { status: string } }> {
   const now = jobNow(req)
-  const entry = await req.payload.findByID({
+  const entry = (await req.payload.findByID({
     collection: 'email-log',
     id: input.emailLogId,
     depth: 0,
     overrideAccess: true,
+    disableErrors: true,
     req,
-  })
+  })) as EmailLog | null
+  // Protokoll-Eintrag gelöscht (Löschfrist, Datenschutz-Löschung, Beispieldaten entfernt): nichts mehr zu senden. Der Job
+  // endet erfolgreich und wird damit samt seiner Kopie der Mail-Daten gelöscht – als Fehler bliebe er liegen (L-13 i).
+  if (!entry) return { output: { status: 'missing' } }
   if (entry.status !== 'queued') return { output: { status: entry.status } }
   // Inzwischen eingeschränkte Bestellung (Art. 18, P6.18): Kund:innen-Mail nicht mehr versenden
   const orderId = idOf(entry.order)
@@ -245,7 +249,8 @@ async function sendQueued(
     }
     return { output: { status } }
   } catch (e) {
-    const message = (e instanceof Error ? e.message : String(e)).slice(0, 1000)
+    // Ohne Abfragewerte und Adressen (R-137): `lastError` steht in der Verwaltung und in A12
+    const message = errorSummary(e).slice(0, 1000)
     if (e instanceof AttachmentNotReadyError) {
       const waits = (input.waits ?? 0) + 1
       if (waits <= MAX_ATTACHMENT_WAITS) {

@@ -11,7 +11,7 @@ import { paymentOptionsFor, type CheckoutPaymentOptions } from '@/lib/commerce/s
 import { computeTotals, type TotalsSettings } from '@/lib/commerce/totals'
 import { getEnv } from '@/lib/env'
 import type { Locale } from '@/lib/enums'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { pickPublicSettings } from '@/lib/payload/public'
 import { getPaymentsAdapter } from '@/lib/payments'
 import { pickShopDisplaySettings, type ShopDisplaySettings } from '@/lib/shop/displaySettings'
@@ -222,7 +222,7 @@ export async function activeCheckoutCountdown(
     if (new Date(checkout.displayExpiresAt).getTime() <= now.getTime()) return null
     return { displayExpiresAt: new Date(checkout.displayExpiresAt) }
   } catch (err) {
-    log.warn('cart.countdown_failed', { reason: (err as Error).message })
+    log.warn('cart.countdown_failed', { reason: errorSummary(err) })
     return null
   }
 }

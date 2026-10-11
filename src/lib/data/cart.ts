@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { getPublicPayload } from '@/lib/payload/public'
 import type { Media } from '@/payload-types'
 
@@ -22,7 +22,7 @@ export async function getCartMedia(ids: readonly number[]): Promise<Map<number, 
     })
     for (const m of res.docs as Media[]) out.set(m.id, m)
   } catch (err) {
-    log.warn('cart.media_failed', { reason: (err as Error).message })
+    log.warn('cart.media_failed', { reason: errorSummary(err) })
   }
   return out
 }

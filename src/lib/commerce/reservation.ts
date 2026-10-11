@@ -7,7 +7,7 @@ import { createLocalReq, getPayload, type Payload, type PayloadRequest } from 'p
 import { revalidateProduct } from '@/lib/cache/revalidate'
 import { dbFor, type SqlExecutor } from '@/lib/db/tx'
 import type { CheckoutCloseReason, CheckoutStatus, ReservationReleaseReason } from '@/lib/enums'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { inTransaction } from '@/lib/payload/transaction'
 import { getPaymentsAdapter, type PaymentsAdapter } from '@/lib/payments'
 import type { Checkout } from '@/payload-types'
@@ -157,7 +157,7 @@ async function fulfillPaidInsteadOfRelease(
     await result.afterCommit()
     log.info('reservation.fulfilled_instead_of_release', { checkoutId, status: result.status })
   } catch (err) {
-    log.error('reservation.fulfill_failed', { checkoutId, error: (err as Error)?.message })
+    log.error('reservation.fulfill_failed', { checkoutId, error: errorSummary(err) })
   }
 }
 
@@ -269,7 +269,7 @@ export async function releaseReservation(
       log.warn('reservation.release_provider_error', {
         checkoutId,
         reason,
-        error: (err as Error)?.message,
+        error: errorSummary(err),
       })
       return { status: 'provider_error', checkoutId }
     }

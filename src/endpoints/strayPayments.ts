@@ -3,7 +3,7 @@ import type { Endpoint } from 'payload'
 import { isAdminRequest } from '@/access'
 import { ADMIN_NO_STORE } from '@/endpoints/adminResponse'
 import { readJsonBody } from '@/endpoints/products/actions'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { requestNow } from '@/lib/payload/context'
 
 // „Erstatten“ für Zahlungen ohne Bestellung (U-58 a, J-26/J-27; nur Verwaltung):
@@ -45,7 +45,7 @@ export const refundStrayPaymentEndpoint: Endpoint = {
       })
     } catch (err) {
       if (err instanceof StrayRefundError) return json({ error: err.message }, err.status)
-      log.error('stray_refund.failed', { reason: (err as Error)?.message })
+      log.error('stray_refund.failed', { reason: errorSummary(err) })
       return json({ error: 'Gerade nicht möglich – bitte später noch einmal versuchen.' }, 500)
     }
   },
