@@ -120,6 +120,8 @@ export const TATTOO_TEXT = {
   tourStatus: 'Status',
   tourStatusHint: '„Vorbei“ setzt sich nach dem Datum von selbst – du musst nichts tun.',
   tourPhoto: 'Foto vom Stand (optional)',
+  tourPhotoHint:
+    'Bitte ohne erkennbare Gesichter anderer Menschen (Besucher:innen, Nachbarstände) – sonst nur mit deren Einverständnis. Das Foto wird vor dem Hochladen verkleinert; Standortdaten entfernt der Server.',
   tourPhotoAlt: 'Bild',
 
   // Galerie (P7.8)

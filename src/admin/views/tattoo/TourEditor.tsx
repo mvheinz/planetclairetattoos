@@ -336,6 +336,7 @@ export function TourEditor({
         setPhotos={setPhotos}
         max={1}
         recommended={0}
+        hint={tattooText('tourPhotoHint')}
         altInfo={{ category: 'zeichnung', title: form.name.de }}
         onRemoved={(p) => setRemoved((r) => [...r, p.id])}
         onBusyChange={setUploading}

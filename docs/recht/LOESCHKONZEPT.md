@@ -74,7 +74,7 @@
 | L-16 | Zahlungsdaten bei Stripe, PayPal, Bank; im Shop nur Zahlungs-/Erstattungs-IDs | Zahlung | eigene Pflichten der Anbieter | Shop-IDs wie L-05/L-06; beim Anbieter nach dessen Regeln | – | – | – |
 | L-17 | Betroffenenanfragen `privacy-requests` (Nummer `DS-JJJJ-NNNN`) inkl. Schriftverkehr; Exportdateien (ZIP, `private-uploads` mit Zweck `data_export`) | Nachweis der Erfüllung (Art. 5 Abs. 2) | Art. 6 Abs. 1 lit. c, f; §§ 195, 199 BGB | Datensatz 3 Jahre; Exportdateien 30 Tage nach Antwort | Ende des Abschlussjahres bzw. Antwort | Löschen | `retentionPrivacyRequests` |
 | L-18 | Löschprotokoll `deletion-log` (keine Inhalte) | Nachweis; Wiederholung nach Backup-Restore | Art. 5 Abs. 2 DSGVO | 3 Jahre | Eintrag | Löschen | `retentionDeletionLog` |
-| L-19 | Einwilligungs- und Vereinbarungsnachweise: a) `consent-log`-Einträge zur Bestellung – DHL-E-Mail-Einwilligung (`carrier_email_forwarding`, Textfassung, Bausteinversion, Zeitpunkt; Widerruf als eigener Eintrag und `orders.carrierEmailConsentRevokedAt`) und Abweichungsvereinbarungen (`deviation_agreement`); b) Portfolio-Einwilligung (`tattoo-gallery`: Häkchen, Datum, Umfang; Nachweisdatei `consent_evidence`) | Nachweis (Art. 7 Abs. 1 DSGVO, § 476 Abs. 1 S. 2 BGB) | Art. 6 Abs. 1 lit. c, f | a) mit der Bestellung (Stufe D); ohne Bestellung wie die Kasse (L-03, 30 Tage); b) solange das Foto veröffentlicht ist + 3 Jahre | a) wie Bezug; b) Ende der Veröffentlichung bzw. Widerruf | Löschen | `retentionConsentEvidence` |
+| L-19 | Einwilligungs- und Vereinbarungsnachweise: a) `consent-log`-Einträge zur Bestellung – DHL-E-Mail-Einwilligung (`carrier_email_forwarding`, Textfassung, Bausteinversion, Zeitpunkt; Widerruf als eigener Eintrag und `orders.carrierEmailConsentRevokedAt`) und Abweichungsvereinbarungen (`deviation_agreement`); b) Portfolio-Einwilligung (`tattoo-gallery`: Häkchen, Datum, Umfang, Notiz, Instagram-Name – also der ganze widerrufene Eintrag samt nicht mehr genutzter Bild-Einträge; Nachweisdatei `consent_evidence`) | Nachweis (Art. 7 Abs. 1 DSGVO, § 476 Abs. 1 S. 2 BGB) | Art. 6 Abs. 1 lit. c, f | a) mit der Bestellung (Stufe D); ohne Bestellung wie die Kasse (L-03, 30 Tage); b) solange das Foto veröffentlicht ist + 3 Jahre | a) wie Bezug; b) Ende der Veröffentlichung bzw. Widerruf | Löschen | `retentionConsentEvidence` |
 | L-20 | Portfolio-Fotos von Kund:innen (`tattoo-gallery`, Bilder mit `showsPerson = customer`) | Portfolio | Art. 6 Abs. 1 lit. a DSGVO; § 22 KUG | bis Widerruf oder Entfernung; nach Widerruf sofort unveröffentlicht und `media.restricted`, Bilddateien und Varianten spätestens nach 24 h gelöscht | Widerruf | Löschen | sofortige Aktion + `retentionConsentEvidence` |
 | L-21 | Verwaltungskonto (Jutta) und Sitzungen | Verwaltung | Art. 6 Abs. 1 lit. b, f | Konto solange genutzt; Sitzungstoken ≤ 7 Tage | – | – | Payload-Einstellung |
 | L-22 | Beispielbestand (`seed: true`, fiktive Personen); nicht dazu gehört der Grund-Seed (`seed = false`, z. B. Platzhalter-Rechtstexte, R-002) | Demo, Tests, Vorschau | keine realen Personen | vor Go-live vollständig entfernt; in der Produktionsdatenbank höchstens vorübergehend vor der Freischaltung, öffentlich nie (§3.7) | Go-live | Löschen | Knopf „Beispieldaten entfernen“ + Gate R-210 |
@@ -148,7 +148,18 @@ Reparatur + 12 Monate) und die regelmäßige Verjährung (3 Jahre ab Jahresende,
 - Portfolio: Widerruf → Eintrag sofort unveröffentlicht, `consentWithdrawnAt` gesetzt, Bilder `media.restricted`
   (R-172); Bilddateien und Varianten nach spätestens 24 h gelöscht (der Galerie-Eintrag hat keine Versionen, §1
   Nr. 6); Einwilligungsnachweis (Häkchen, Datum, Umfang,
-  Nachweisdatei) noch 3 Jahre ab Widerruf bzw. Ende der Veröffentlichung, dann Löschung.
+  Nachweisdatei) noch 3 Jahre ab Widerruf bzw. Ende der Veröffentlichung, dann Löschung: `retentionConsentEvidence`
+  löscht zuerst die Nachweisdatei, dann den Galerie-Eintrag (mit Notiz und Instagram-Name), dann die Bild-Einträge,
+  auf die nichts anderes mehr verweist – je ein `deletion-log`-Eintrag mit L-19 b (P18.5). Einträge, die erneut
+  eingewilligt oder wieder online sind, bleiben.
+- Portfolio-Eintrag von Hand löschen (P18.5): Solange die Einwilligung wirksam ist, lehnt die Verwaltung das Löschen ab
+  und verweist auf „Einwilligung widerrufen“. Danach (oder ohne Einwilligung) gehen beim Löschen die Bild-Einträge mit,
+  auf die nichts anderes mehr verweist (samt Dateien); übrige Bilder werden neu gesperrt (`media.restricted`), sodass
+  kein gelöschter Eintrag ein Bild öffentlich hält. Die Nachweisdatei bekommt ihre Frist (3 Jahre ab Widerruf bzw. ab
+  dem Löschen) und wird danach gelöscht.
+- DHL-Einwilligung und Abweichungsvereinbarung hängen ab der Bestellanlage an der Bestellung (`consent-log.order`,
+  P18.5) und folgen damit Stufe D; das Löschen der Kasse nach L-03 lässt sie stehen. Einträge früherer, nicht
+  bezahlter Absende-Versuche derselben Kasse gehören nicht zum Vertrag und gehen mit der Kasse (L-03).
 
 ### 3.6 Backups und Wiederherstellung (L-23)
 

@@ -606,6 +606,85 @@ const consentEvidenceStep: RetentionStep = {
   },
 }
 
+// L-19 b Galerie-Eintrag: 3 Jahre nach dem Widerruf geht der Eintrag selbst (Häkchen, Datum, Umfang, Notiz,
+// Instagram-Name, Bildunterschrift) – zuerst die Nachweisdatei, dann der Eintrag, dann die nicht mehr genutzten
+// Bild-Einträge (ihre Dateien sind seit L-20 weg). Erneut eingewilligte oder wieder veröffentlichte Einträge bleiben.
+const galleryEntryStep: RetentionStep = {
+  ruleId: L_19B_PORTFOLIO_CONSENT.id,
+  collection: 'tattoo-gallery',
+  action: 'deleted',
+  async candidates(db, until, limit) {
+    const res = await db.execute(sql`
+      SELECT id, consent_withdrawn_at AS event_at FROM tattoo_gallery
+       WHERE consent_withdrawn_at IS NOT NULL AND consent_given IS NOT TRUE AND published IS NOT TRUE
+         AND consent_withdrawn_at <= ${iso(eventCutoff(L_19B_PORTFOLIO_CONSENT, until))}::timestamptz
+       ORDER BY consent_withdrawn_at, id LIMIT ${limit}`)
+    return byEvent(L_19B_PORTFOLIO_CONSENT, res.rows, until)
+  },
+  async apply(req, id, now) {
+    return deleteWithdrawnGalleryEntry(req, Number(id), now, 'retentionConsentEvidence')
+  },
+}
+
+/**
+ * Widerrufenen Galerie-Eintrag löschen (L-19 b): Nachweisdatei (wenn kein anderer Eintrag sie nutzt), Eintrag über die
+ * Local API (Hook `afterDelete` löscht Bild-Einträge ohne weiteren Verweis und sperrt die übrigen), je gelöschte Datei
+ * bzw. gelöschtes Bild ein eigener Protokolleintrag. Den Eintrag selbst protokolliert der Runner.
+ */
+async function deleteWithdrawnGalleryEntry(
+  req: PayloadRequest,
+  id: number,
+  now: Date,
+  taskSlug: string,
+): Promise<{ storageObjectsCount: number } | { changed: false }> {
+  const db = await dbFor(req)
+  const res = await db.execute(sql`
+    SELECT consent_evidence_id FROM tattoo_gallery
+     WHERE id = ${id} AND consent_withdrawn_at IS NOT NULL AND consent_given IS NOT TRUE`)
+  const row = res.rows[0]
+  if (!row) return { changed: false }
+  const log = (collection: string, entityId: number, count: number) =>
+    writeDeletionLog(req, {
+      entityCollection: collection,
+      entityId,
+      ruleId: L_19B_PORTFOLIO_CONSENT.id,
+      action: 'deleted',
+      trigger: 'job',
+      taskSlug,
+      storageObjectsCount: count,
+      executedAt: now,
+    })
+  let files = 0
+  const evidence = row.consent_evidence_id == null ? null : Number(row.consent_evidence_id)
+  if (evidence !== null) {
+    const shared = await db.execute(sql`
+      SELECT 1 FROM tattoo_gallery WHERE consent_evidence_id = ${evidence} AND id <> ${id} LIMIT 1`)
+    if (shared.rows.length === 0) {
+      const n = await deletePrivateUpload(req, evidence)
+      if (n) await log('private-uploads', evidence, n)
+      files += n
+    }
+  }
+  const media = await db.execute(sql`
+    SELECT image_id AS id FROM tattoo_gallery WHERE id = ${id} AND image_id IS NOT NULL
+    UNION SELECT media_id FROM tattoo_gallery_rels WHERE parent_id = ${id} AND media_id IS NOT NULL`)
+  await preservingReq(req, () =>
+    req.payload.delete({
+      collection: 'tattoo-gallery',
+      id,
+      overrideAccess: true,
+      req,
+      context: { ...req.context, system: true },
+    }),
+  )
+  for (const m of media.rows) {
+    const mediaId = Number(m.id)
+    const left = await db.execute(sql`SELECT 1 FROM media WHERE id = ${mediaId}`)
+    if (left.rows.length === 0) await log('media', mediaId, 0)
+  }
+  return { storageObjectsCount: files }
+}
+
 // L-18 Löschprotokoll: 3 Jahre (ohne eigenen Protokolleintrag)
 const deletionLogStep = sqlDeleteStep(
   'L-18',
@@ -780,7 +859,12 @@ export const RETENTION_TASK_STEPS = {
   retentionCommissionInquiries: [inquiriesStep],
   retentionEmailLog: [emailLogStep],
   retentionPrivacyRequests: [privacyExportsStep, privacyRequestsStep],
-  retentionConsentEvidence: [consentLogStep, galleryFilesStep, consentEvidenceStep],
+  retentionConsentEvidence: [
+    consentLogStep,
+    galleryFilesStep,
+    consentEvidenceStep,
+    galleryEntryStep,
+  ],
   retentionDeletionLog: [deletionLogStep],
   retentionTechnical: [
     reservationsStep,

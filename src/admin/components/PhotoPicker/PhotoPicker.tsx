@@ -40,6 +40,8 @@ export interface PhotoPickerProps {
   recommended?: number
   /** Zusätzliche Felder beim Hochladen (z. B. `showsPerson: 'customer'` → Bild bleibt gesperrt, R-172). */
   uploadData?: Record<string, unknown>
+  /** Eigener Hinweis unter den Knöpfen statt „Erstes Foto = Titelbild …“ (z. B. Foto vom Stand, P18.5). */
+  hint?: string
   /**
    * Einzelnes Zusatzfoto (U-57 d: Foto zum Größenvergleich): eigene Überschrift, Hinweis, Anker und Test-IDs; ohne
    * „Titelbild“, Verschieben und Mehrfachauswahl.
@@ -105,6 +107,7 @@ export function PhotoPicker({
   max = MAX_PHOTOS,
   recommended = RECOMMENDED_PHOTOS,
   uploadData,
+  hint,
   single,
 }: PhotoPickerProps) {
   const tid = (name: string) => `${single?.testIdPrefix ?? 'photo'}-${name}`
@@ -266,7 +269,7 @@ export function PhotoPicker({
           </button>
         ) : null}
       </div>
-      <p className="pc-piece__hint">{single ? single.hint : adminText('photoHint')}</p>
+      <p className="pc-piece__hint">{single ? single.hint : (hint ?? adminText('photoHint'))}</p>
       <div aria-live="polite" role="status" className="pc-photos__status">
         {busy
           ? adminText('photoUploading', { current: busy.done + 1, total: busy.total })

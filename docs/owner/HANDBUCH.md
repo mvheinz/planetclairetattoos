@@ -307,7 +307,8 @@ Eine Anfrage ist noch kein Vertrag, und der Preis steht nirgends fest. Du sagst 
   sie in der rechten Spalte (am Handy darunter): kommende Termine oben, vergangene eingeklappt. Tippe auf „Neuer Termin“
   und fülle aus: Name des Marktes, Ort oder Bezirk, Datum von–bis (bei einem Tag das Enddatum leer lassen), Uhrzeiten,
   Adresse des Marktes, Standnummer, eine kurze Notiz (zum Beispiel „Coco ist dabei“) und – wenn du magst – einen Link zur
-  Seite des Marktes und ein Foto von deinem Stand. Es gibt keine Karte, nur Text. Bitte nie die Adresse deines
+  Seite des Marktes und ein Foto von deinem Stand. Bitte ohne erkennbare Gesichter anderer Menschen (Besucher:innen,
+  Nachbarstände) – sonst nur mit deren Einverständnis. Es gibt keine Karte, nur Text. Bitte nie die Adresse deines
   Privatstudios eintragen, die Verwaltung lehnt sie ab. Fällt ein Markt aus, tippst du bei dem Termin auf „Absagen“: Er
   steht dann durchgestrichen mit dem Hinweis „abgesagt“ auf der Seite. „Vorbei“ musst du nicht setzen, das passiert nach
   dem Datum von selbst. „Übersetzen“ füllt die englischen Texte vor. Die Beispiel-Termine verschwinden mit den übrigen
@@ -322,8 +323,10 @@ Eine Anfrage ist noch kein Vertrag, und der Preis steht nirgends fest. Du sagst 
   veröffentlichen, wenn die Person **vorher ausdrücklich zugestimmt hat**. Trage dann Datum und eine kurze Notiz ein
   und lade, wenn du magst, den Nachweis hoch (zum Beispiel die Nachricht). Fehlt die Einwilligung, lässt sich das Foto nicht
   veröffentlichen, die Verwaltung sagt dir: „Ohne Einwilligung der Kundin/des Kunden nicht veröffentlichen“. Widerruft
-  jemand, tippst du auf „Einwilligung widerrufen“, und das Foto ist sofort offline. Eine Vorlage für die Einwilligung
-  findest du in den [Anleitungen](ANLEITUNGEN.md#e1).
+  jemand, tippst du auf „Einwilligung widerrufen“, und das Foto ist sofort offline. Die Bilddateien löscht die
+  Verwaltung danach von selbst, den Eintrag mit deiner Notiz und dem Nachweis nach drei Jahren. Ein Foto mit gültiger
+  Einwilligung lässt sich nicht einfach löschen – nutze erst „Einwilligung widerrufen“. Eine Vorlage für die
+  Einwilligung findest du in den [Anleitungen](ANLEITUNGEN.md#e1).
 
 Preise, Ablauf, Pflegehinweise und häufige Fragen bearbeitest du unter „Texte“ (nächstes Kapitel).
 

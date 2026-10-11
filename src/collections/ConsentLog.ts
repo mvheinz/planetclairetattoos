@@ -17,7 +17,8 @@ import { retainUntilFromInquiry } from './EmailLog'
 import { immutableFields } from './hooks/immutable'
 
 // DATENMODELL §6.23. Relationen `checkout`/`order`/`product` seit P1.20, `inquiry` seit P1.24 (Frist wie die
-// Anfrage). Änderbar ist nur `withdrawnAt` (Endpoint, P5) sowie der Bezug und seine Frist.
+// Anfrage). Änderbar ist nur `withdrawnAt` (Endpoint, P5) sowie der Bezug und seine Frist. `order` setzt die
+// Bestellanlage (`createOrderFromCheckout`, P18.5); die Frist folgt dann der Bestellung.
 
 export const sha256Hex = (text: string) => createHash('sha256').update(text, 'utf8').digest('hex')
 
@@ -42,6 +43,32 @@ async function retainUntilFromOrder(
   )
   const until = doc?.retainUntil ? new Date(doc.retainUntil) : null
   return orderRelatedRetainUntil(until, eventAt).toISOString()
+}
+
+const relId = (v: unknown): string | null => {
+  const id = typeof v === 'object' && v ? (v as { id?: unknown }).id : v
+  return id === null || id === undefined || id === '' ? null : String(id)
+}
+const sameInstant = (a: unknown, b: unknown) =>
+  (a ? new Date(a as string).getTime() : null) === (b ? new Date(b as string).getTime() : null)
+
+/**
+ * Frist neu aus dem Bezug? Beim Anlegen, wenn keine Frist mitkommt; beim Ändern, wenn der Bezug neu gesetzt wird
+ * (z. B. `order` bei der Bestellanlage) und die Frist nicht ausdrücklich mitgeändert wird. Payload füllt `data` bei
+ * Updates mit den bisherigen Werten auf – `'order' in data` und `!data.retainUntil` allein sagen dann nichts.
+ */
+function relationNeedsRetention(
+  field: 'order' | 'inquiry',
+  operation: string,
+  data: Record<string, unknown>,
+  originalDoc: Record<string, unknown> | undefined,
+): boolean {
+  if (relId(data[field]) === null) return false
+  if (operation === 'create') return !data.retainUntil
+  return (
+    relId(data[field]) !== relId(originalDoc?.[field]) &&
+    sameInstant(data.retainUntil, originalDoc?.retainUntil)
+  )
 }
 
 export const ConsentLog: CollectionConfig = {
@@ -109,7 +136,8 @@ export const ConsentLog: CollectionConfig = {
         if (!data) return data
         if (typeof data.textSnapshot === 'string') data.textSha256 = sha256Hex(data.textSnapshot)
         // L-19 a: mit Bestellung wie die Bestellung (Stufe D); ohne wie die Kasse (30 Tage, L-03).
-        if ((operation === 'create' || 'order' in data) && data.order && !data.retainUntil) {
+        const original = originalDoc as Record<string, unknown> | undefined
+        if (relationNeedsRetention('order', operation, data, original)) {
           const created = data.createdAt ?? originalDoc?.createdAt
           const until = await retainUntilFromOrder(
             req,
@@ -118,7 +146,7 @@ export const ConsentLog: CollectionConfig = {
           )
           if (until) data.retainUntil = until
         }
-        if ((operation === 'create' || 'inquiry' in data) && data.inquiry && !data.retainUntil) {
+        if (relationNeedsRetention('inquiry', operation, data, original)) {
           const until = await retainUntilFromInquiry(req, data.inquiry)
           if (until) data.retainUntil = until
         }
