@@ -127,11 +127,21 @@ export async function finalizeRefund(
       }),
     )) as Withdrawal | null
     if (withdrawal) {
-      const own = Array.isArray(withdrawal.affectedItemIds)
+      // Positionen des Widerrufs; ohne eigene (`affectedItemIds` leer) die mit diesem Widerruf erstatteten – leer heißt
+      // nie „alle“ (sonst bliebe ein Teil-Widerruf offen, bis die ganze Bestellung erstattet ist)
+      const assigned = Array.isArray(withdrawal.affectedItemIds)
         ? (withdrawal.affectedItemIds as unknown[]).map(String)
         : []
-      const ownItems = own.length > 0 ? items.filter((i) => own.includes(String(i.id))) : items
-      const done = full || ownItems.every((i) => i.status === 'refunded')
+      const own =
+        assigned.length > 0
+          ? assigned
+          : refunds
+              .filter((r) => idOf(r.withdrawal) === withdrawalId && r.status === 'succeeded')
+              .flatMap((r) =>
+                Array.isArray(r.itemIds) ? (r.itemIds as unknown[]).map(String) : [],
+              )
+      const ownItems = items.filter((i) => own.includes(String(i.id)))
+      const done = full || (ownItems.length > 0 && ownItems.every((i) => i.status === 'refunded'))
       const to: WithdrawalStatus = done ? 'refunded' : 'partially_refunded'
       if (withdrawal.status !== to && canTransitionWithdrawal(withdrawal.status, to)) {
         await preservingReq(req, () =>

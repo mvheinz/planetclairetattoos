@@ -9,6 +9,7 @@ import { cancelPrepaymentOrder } from '@/lib/commerce/prepayment'
 import { dbFor } from '@/lib/db/tx'
 import { ORDER_TRANSITIONS } from '@/lib/commerce/orderTransitions'
 import { loadOrder, transitionOrder, updateOrderFields } from '@/lib/commerce/transitionOrder'
+import { itemsUnassignedNote } from '@/lib/commerce/withdrawalHold'
 import { notifyAdmin } from '@/lib/email/notifyAdmin'
 import { enqueueEmail, runEmailJobNow } from '@/lib/email/outbox'
 import { LOCALES, type Locale, type WithdrawalMatchStatus } from '@/lib/enums'
@@ -27,9 +28,10 @@ import type { Order, Withdrawal } from '@/payload-types'
 // 3. zod-Prüfung; dann in **einer** Transaktion: unveränderlicher Datensatz (`WR-JJJJ-NNNNN` aus
 //    `withdrawal_number_seq`, `receivedAt` = Serverzeit der injizierten Uhr, `submissionSnapshot`, `refundDueAt`; keine
 //    IP, kein IP-Hash, kein User-Agent), automatische Zuordnung durch den Collection-Hook (Bestellnummer **und**
-//    E-Mail ohne Groß/Klein → `auto_matched`, sonst `needs_manual_match`), Bestellung O11 (`statusBeforeWithdrawal`,
-//    Positionen `withdrawn`) bzw. bei `awaiting_prepayment` O4 (`withdrawn`, Stücke frei, keine M04) + W5 (`closed`,
-//    `unpaid_order_cancelled`), M08 und A04 in die Outbox.
+//    E-Mail ohne Groß/Klein → `auto_matched`, sonst `needs_manual_match`), Bestellung nach `applyWithdrawalToOrder`
+//    (O11 bzw. Teil-Widerruf vor dem Versand ohne Statuswechsel, Stücke nur im Freitext → „Stücke zuordnen“) bzw. bei
+//    `awaiting_prepayment` O4 (`withdrawn`, Stücke frei, keine M04) + W5 (`closed`, `unpaid_order_cancelled`), M08 und
+//    A04 in die Outbox.
 // 4. Direkt nach dem Commit M08 und A04 ausführen; scheitert M08, wiederholt `sendEmail` (≤ 5 min, bis 24 h).
 
 const log = createLogger()
@@ -138,13 +140,34 @@ const itemTitle = (i: OrderItem, locale: Locale) =>
 export interface OrderEffect {
   unpaidOrderCancelled: boolean
   selectedItems: OrderItem[]
+  /** Stücke nur im Freitext genannt, keins angehakt: nichts gebucht, Jutta ordnet zu („Stücke zuordnen“). */
+  needsItemAssignment?: boolean
   afterCommit?: () => Promise<void>
 }
 
+/** Vor Versand bzw. Übergabe: ein Teil-Widerruf lässt die Bestellung im Lieferstatus (Rest wird geliefert). */
+const BEFORE_HANDOVER = new Set<Order['status']>(['paid', 'packed', 'ready_for_pickup'])
+/** Ohne Wirkung auf Positionen: Vertrag schon storniert bzw. voll erstattet. */
+const CLOSED_ORDER = new Set<Order['status']>(['cancelled', 'refunded'])
+
+/** Hinweis „Stücke zuordnen“ an der Bestellung – nur, wenn dort noch kein anderer Hinweis steht. */
+function unassignedAttention(order: Order, reference: string): Record<string, unknown> {
+  return order.adminAttention?.flag
+    ? {}
+    : { adminAttention: { flag: true, reason: 'manual', note: itemsUnassignedNote(reference) } }
+}
+
 /**
- * Bestellung zum zugeordneten Widerruf (KONZEPT §5.4 W1): `awaiting_prepayment` → O4 (`withdrawn`) + W5; sonst O11 mit
- * `statusBeforeWithdrawal` und den gewählten (bzw. allen aktiven) Positionen `withdrawn`. Steht die Bestellung schon
- * in `withdrawal_received` (zweiter Widerruf), werden nur die Positionen markiert.
+ * Bestellung zum zugeordneten Widerruf (KONZEPT §5.4 W1, DATENMODELL §6.11 mit Umsetzungsnotizen):
+ * - `awaiting_prepayment` → O4 (`withdrawn`) + W5.
+ * - Keine Position angehakt, aber Stücke im Freitext genannt → keine Position automatisch widerrufen (§ 133 BGB: es
+ *   gilt der erklärte Teil-Widerruf); `affectedItemIds` bleibt leer, Hinweis `adminAttention` „bitte Stücke
+ *   zuordnen“; nach Versand/Übergabe trotzdem O11 (Rücksendung läuft), davor kein Statuswechsel – Packen, Versand und
+ *   Übergabe sperrt `withdrawalHold` bis zur Zuordnung.
+ * - Sonst die gewählten (bzw. ohne Auswahl und ohne Freitext alle aktiven) Positionen `withdrawn`:
+ *   Teil-Widerruf vor Versand/Übergabe (danach ist noch eine Position aktiv) → kein Statuswechsel, der Rest wird
+ *   geliefert; sonst O11 mit `statusBeforeWithdrawal`. Steht die Bestellung schon in `withdrawal_received` bzw. ist
+ *   O11 nicht möglich (z. B. `partially_refunded`, DM-06), werden nur die Positionen markiert.
  */
 export async function applyWithdrawalToOrder(
   req: PayloadRequest,
@@ -177,7 +200,25 @@ export async function applyWithdrawalToOrder(
   }
 
   const known = new Set(order.items.map((i) => i.id).filter(Boolean) as string[])
-  const chosen = selectedIds.filter((id) => known.has(id))
+  const chosen = [...new Set(selectedIds.filter((id) => known.has(id)))]
+  const canO11 = ORDER_TRANSITIONS[order.status].includes('withdrawal_received')
+
+  if (chosen.length === 0 && withdrawal.itemsText?.trim()) {
+    await saveAffectedItems(req, withdrawal.id, [], now)
+    const attention = unassignedAttention(order, withdrawal.reference)
+    if (!BEFORE_HANDOVER.has(order.status) && canO11) {
+      await transitionOrder(req, orderId, 'withdrawal_received', {
+        now,
+        note: `${note} (Stücke im Freitext, noch nicht zugeordnet)`,
+        actorType: 'customer',
+        data: attention,
+      })
+    } else if (!CLOSED_ORDER.has(order.status) && Object.keys(attention).length > 0) {
+      await updateOrderFields(req, orderId, attention, now)
+    }
+    return { unpaidOrderCancelled: false, selectedItems: [], needsItemAssignment: true }
+  }
+
   const target = new Set(
     chosen.length > 0
       ? chosen
@@ -188,32 +229,43 @@ export async function applyWithdrawalToOrder(
       ? { ...i, status: 'withdrawn' as const }
       : i,
   )
-  await preservingReq(req, () =>
-    req.payload.update({
-      collection: 'withdrawals',
-      id: withdrawal.id,
-      data: { affectedItemIds: [...target] },
-      depth: 0,
-      overrideAccess: true,
-      req,
-      context: { ...req.context, system: true, now: now.toISOString() },
-    }),
-  )
+  await saveAffectedItems(req, withdrawal.id, [...target], now)
   const selectedItems = order.items.filter((i) => chosen.includes(i.id as string))
+  const remaining = items.filter((i) => i.status === 'active').length
   if (order.status === 'withdrawal_received') {
     await updateOrderFields(req, orderId, { items }, now)
-  } else if (ORDER_TRANSITIONS[order.status].includes('withdrawal_received')) {
+  } else if (BEFORE_HANDOVER.has(order.status) && remaining > 0) {
+    // Teil-Widerruf vor Versand/Übergabe: Rest wird geliefert (Packliste, M06/M07 nur mit aktiven Stücken)
+    await updateOrderFields(req, orderId, { items }, now)
+  } else if (canO11) {
     await transitionOrder(req, orderId, 'withdrawal_received', {
       now,
       note,
       actorType: 'customer',
       data: { items },
     })
+  } else if (!CLOSED_ORDER.has(order.status)) {
+    // z. B. `partially_refunded` (DM-06: Status ändert sich erst mit der Erstattung) oder `disputed`
+    await updateOrderFields(req, orderId, { items }, now)
   } else {
-    // z. B. schon storniert/erstattet/angefochten: Bestellung bleibt, Jutta entscheidet im Posteingang (R-094)
+    // schon storniert bzw. voll erstattet: Bestellung bleibt, Jutta entscheidet im Posteingang (R-094)
     log.warn('withdrawal.order_not_transitionable', { orderId, status: order.status })
   }
   return { unpaidOrderCancelled: false, selectedItems }
+}
+
+async function saveAffectedItems(req: PayloadRequest, id: number, ids: string[], now: Date) {
+  await preservingReq(req, () =>
+    req.payload.update({
+      collection: 'withdrawals',
+      id,
+      data: { affectedItemIds: ids },
+      depth: 0,
+      overrideAccess: true,
+      req,
+      context: { ...req.context, system: true, now: now.toISOString() },
+    }),
+  )
 }
 
 /**
@@ -369,6 +421,7 @@ export async function submitWithdrawal(
         orderNumber: order?.orderNumber ?? null,
         receivedAt: created.receivedAt,
         items: items.length > 0 ? items : [],
+        needsItemAssignment: effect.needsItemAssignment === true,
         refundDueAt: created.refundDueAt,
         declaration: {
           name: value.name,

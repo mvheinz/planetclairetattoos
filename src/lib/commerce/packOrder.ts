@@ -6,6 +6,7 @@ import { preservingReq } from '@/lib/payload/localReq'
 import { inTransaction } from '@/lib/payload/transaction'
 import type { Order, Setting } from '@/payload-types'
 
+import { restDeliveryAllowed } from './orderTransitions'
 import {
   checklistState,
   cleanComponents,
@@ -13,7 +14,14 @@ import {
   packagingTemplates,
   type PackagingComponent,
 } from './packing'
-import { loadOrder, lockOrder, transitionOrder, updateOrderFields } from './transitionOrder'
+import {
+  loadOrder,
+  lockOrder,
+  transitionOrder,
+  updateOrderFields,
+  type LockedOrder,
+} from './transitionOrder'
+import { itemsUnassignedMessage, unassignedWithdrawalOf } from './withdrawalHold'
 
 // Packen (PLAN P5.10/P5.11, KONZEPT §7.6, DATENMODELL §6.8.8): Checkliste, Verpackungsmengen und Packfotos an der
 // Bestellung speichern sowie „Gepackt“ (O6, `timestamps.packedAt`). Die Verpackung wird als Wertkopie gespeichert
@@ -51,16 +59,20 @@ export async function loadSettings(req: PayloadRequest): Promise<Setting> {
   )) as Setting
 }
 
-const PACKABLE = new Set(['paid', 'packed'])
+/** Packen möglich: `paid`/`packed` oder Rest-Lieferung nach Teil-Erstattung (DATENMODELL §6.8.5). */
+const packable = (locked: LockedOrder): boolean =>
+  locked.status === 'paid' ||
+  locked.status === 'packed' ||
+  (locked.status === 'partially_refunded' && restDeliveryAllowed('packed', locked))
 
-function assertPackable(order: Order, status = order.status): void {
+function assertPackable(order: Order, locked: LockedOrder): void {
   if (order.fulfillmentMethod !== 'shipping') {
     throw new PackingError(409, 'Packen gibt es nur bei Bestellungen mit Versand.')
   }
-  if (!PACKABLE.has(status)) {
+  if (!packable(locked)) {
     throw new PackingError(
       409,
-      status === 'withdrawal_received'
+      locked.status === 'withdrawal_received'
         ? 'Nicht mehr versenden – Widerruf! Die Bestellung lässt sich nicht mehr packen.'
         : 'Diese Bestellung ist nicht (mehr) zu packen.',
     )
@@ -144,7 +156,7 @@ export async function savePacking(
 ): Promise<Order> {
   return inTransaction(req, async () => {
     const locked = await lockOrder(req, order.id)
-    assertPackable(order, locked.status)
+    assertPackable(order, locked)
     const data: Record<string, unknown> = {}
     if (input.checklist !== undefined) data.packingChecklistState = parseChecklist(input.checklist)
     if (input.packaging) {
@@ -201,7 +213,7 @@ export async function packagingToRecord(
 
 /**
  * „Gepackt“ (O6): Übergang gegen `ORDER_TRANSITIONS` (unerlaubt → 409 ohne Änderung), Verpackung im selben Schritt;
- * zweiter Tipp → keine zweite Wirkung.
+ * zweiter Tipp → keine zweite Wirkung. Gesperrt, solange ein Teil-Widerruf nur im Freitext steht (Stücke zuordnen).
  */
 export async function markPacked(
   req: PayloadRequest,
@@ -216,6 +228,9 @@ export async function markPacked(
     if (order.fulfillmentMethod !== 'shipping') {
       throw new PackingError(409, 'Packen gibt es nur bei Bestellungen mit Versand.')
     }
+    // Den Übergang selbst prüft `transitionOrder` (auch die Rest-Lieferung aus `partially_refunded`)
+    const unassigned = packable(locked) ? await unassignedWithdrawalOf(req, order.id) : null
+    if (unassigned) throw new PackingError(409, itemsUnassignedMessage(unassigned))
     const current = await loadOrder(req, order.id)
     const packaging = await packagingToRecord(req, current, input.packaging)
     const res = await transitionOrder(req, order.id, 'packed', {

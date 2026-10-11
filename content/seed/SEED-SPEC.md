@@ -1183,7 +1183,7 @@ Alle mit `channel = online_form` (Widerrufsfunktion R26). `submissionSnapshot` b
 | W2 | WR-2026-90002 | O05 | `D-14@22:47` | C05 | manually_matched (Zuordnung `D-13@09:00`) | partially_refunded | goodsReturnedAt `D-8@11:30`, refundedAt `D-7@10:05`, `affectedItemIds` [O05-L2] |
 | W3 | WR-2026-90003 | O04 | `D-9@19:30` | C04 | auto_matched | goods_returned | goodsReturnedAt `D-2@11:15`, `returnTrackingNumber` `SEEDRET9000000000004`, refundDueAt `D+5@19:30` |
 | W4 | WR-2026-90004 | – | `D-4@16:02` | C15 | needs_manual_match | received | – |
-| W5 | WR-2026-90005 | O06 | `D-1@21:18` | C06 (`locale en`) | auto_matched | received | refundDueAt `D+13@21:18` |
+| W5 | WR-2026-90005 | O06 | `D-1@21:18` | C06 (`locale en`) | auto_matched | received | refundDueAt `D+13@21:18`, `affectedItemIds` [O06-L1] (Kleid im Freitext genannt, schon zugeordnet) |
 | W6 | WR-2026-90006 | – | `D-1@23:05` | C15 | needs_manual_match | closed (`closeReason = duplicate`) | closedAt `D+0@08:40` |
 | W7 | WR-2026-90007 | – | `D+0@03:12` | C23 | no_order | rejected | rejectedAt `D+0@08:45`, `closeNote` (unten), `spam.markedAt` `D+0@08:45` |
 

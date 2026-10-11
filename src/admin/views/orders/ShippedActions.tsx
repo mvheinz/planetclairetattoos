@@ -16,7 +16,8 @@ import { adminText } from '../../translations'
 export interface ShippedActionsProps {
   orderId: number
   orderNumber: string
-  status: string
+  /** „Zugestellt“ anbieten (versendet, noch nicht zugestellt). */
+  canDeliver: boolean
   carrier: string | null
   trackingNumber: string | null
   complaintHref: string
@@ -74,7 +75,7 @@ export function ShippedActions(props: ShippedActionsProps) {
   return (
     <div className="pc-order__section" data-testid="shipped-actions">
       <div className="pc-admin-row">
-        {props.status === 'shipped' ? (
+        {props.canDeliver ? (
           <ActionButton
             data-testid="mark-delivered"
             action={() => postAdminAction(`/api/orders/${props.orderId}/delivered`)}

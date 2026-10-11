@@ -19,6 +19,7 @@ import {
 } from '@/fields'
 import { writeAudit } from '@/lib/audit'
 import {
+  deliveryFacts,
   evaluateOrderTransition,
   ORDER_FINAL_STATUSES,
   ORDER_INITIAL,
@@ -302,6 +303,11 @@ const guardOrder: CollectionBeforeChangeHook = ({ data, originalDoc, operation, 
       statusBeforeDispute: original.statusBeforeDispute as OrderStatus | null,
       statusBeforeWithdrawal: original.statusBeforeWithdrawal as OrderStatus | null,
       cancelReason: (data.cancelReason ?? original.cancelReason) as OrderCancelReason | null,
+      // Rest-Lieferung aus `partially_refunded` (DATENMODELL §6.8.5 Umsetzungsnotiz)
+      ...deliveryFacts({
+        items: ('items' in data ? data.items : original.items) as { status?: string | null }[],
+        timestamps: groupOf(original, 'timestamps') as Record<string, string | null>,
+      }),
     })
     if (!result.ok) return fail(result.message, 'status')
     if (status === 'disputed') data.statusBeforeDispute = from

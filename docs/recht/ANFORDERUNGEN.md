@@ -153,10 +153,10 @@ Lücken in der Nummerierung sind Reserve.
 | R-083 | Abholmail und Übergabe | P5 | int | nein | `tests/int/legal/pickup.int.spec.ts` |
 | R-084 | Weitere Pflichtmails | P4 | unit | nein | `tests/unit/legal/admin-templates.unit.spec.ts`, `tests/unit/legal/p6-mails.unit.spec.ts`, `tests/unit/email/templates/order-confirmation.unit.spec.ts`, `tests/unit/email/templates/oversold-apology.unit.spec.ts` |
 | R-090 | Link „Vertrag widerrufen“ überall | P2, P6 | unit, e2e | nein | `tests/unit/legal/constants.unit.spec.ts`, `tests/unit/legal/footer-links.unit.spec.ts`, `tests/unit/legal/mail-withdrawal-link.unit.spec.ts`, `tests/e2e/legal-pages.e2e.spec.ts` |
-| R-091 | Widerrufsfunktion Schritt 1: Erklärung erfassen | P6 | e2e | nein | `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts` |
+| R-091 | Widerrufsfunktion Schritt 1: Erklärung erfassen | P6 | e2e | nein | `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts`, `tests/unit/legal/withdrawal-view.unit.spec.tsx` |
 | R-092 | Widerrufsfunktion Schritt 2: „Widerruf bestätigen“ | P6 | e2e | nein | `tests/unit/legal/constants.unit.spec.ts`, `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts` |
 | R-093 | Widerruf speichern und sofort bestätigen | P6 | int, e2e | nein | `tests/int/legal/withdrawal.int.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts`, `tests/unit/email/templates/withdrawal-receipt.unit.spec.ts`, `tests/int/email/logs-admin.int.spec.ts` |
-| R-094 | Widerrufs-Posteingang in der Verwaltung | P6 | int | nein | `tests/int/legal/withdrawal-inbox.int.spec.ts`, `tests/int/collections/withdrawals.int.spec.ts`, `tests/e2e/admin/withdrawal-inbox.e2e.spec.ts` |
+| R-094 | Widerrufs-Posteingang in der Verwaltung | P6 | int | nein | `tests/int/legal/withdrawal-inbox.int.spec.ts`, `tests/int/collections/withdrawals.int.spec.ts`, `tests/e2e/admin/withdrawal-inbox.e2e.spec.ts`, `tests/int/orders/partial-delivery.int.spec.ts` |
 | R-095 | Widerrufsbelehrung, Muster-Formular, Rücksendekosten | P6 | unit, manuell | ja | `tests/unit/legal/render-tokens.unit.spec.ts`, `tests/int/legal/legal-texts.int.spec.ts`, `tests/e2e/legal/pages.e2e.spec.ts`, `tests/unit/legal/legal-texts-p12.unit.spec.ts` |
 | R-096 | Kein Widerrufsausschluss im Shop | P3, P6 | unit | nein | `tests/unit/legal/forbidden.unit.spec.ts`, `tests/e2e/legal/forbidden.e2e.spec.ts` |
 | R-100 | Transportrisiko trägt die Verkäuferin | P5 | int | nein | `tests/int/legal/packing-hints.int.spec.ts`, `tests/int/legal/transport-risk.int.spec.ts` |
@@ -954,6 +954,10 @@ Lücken in der Nummerierung sind Reserve.
   Honeypot; großzügiges Rate-Limit von 30 Absendungen je Stunde und IP-Hash (Bucket `withdrawal_submit`,
   ARCHITEKTUR §8.5; der IP-Hash liegt nur im Rate-Limit-Zähler, nie im Widerrufs-Datensatz). Unbekannte
   Bestellnummern werden angenommen (`matchStatus = needs_manual_match`). Link auf die Datenschutzerklärung (R-138).
+  Umsetzungsnotiz (11.10.2026): Stehen Stücke nur im Freitext und ist keins angehakt, gilt der erklärte Teil-Widerruf
+  (§ 133 BGB), nicht der ganze Vertrag – Auswahl und Schritt 2 weisen neutral aufs Anhaken hin (nichts vorab
+  angehakt, Knopf frei), gebucht wird nichts automatisch, Jutta ordnet die Stücke im Posteingang zu (R-094,
+  DATENMODELL §6.11).
 - **Rechtsgrundlage:** § 356a BGB. Kanzlei: K-11.
 - **Abnahme:** `e2e` – Absenden mit unbekannter Bestellnummer funktioniert; „Grund“ leer funktioniert; kein
   CAPTCHA-Element im DOM; alle Checkboxen initial nicht angehakt.

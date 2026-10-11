@@ -84,7 +84,7 @@ export async function ShippedListView({ adminRoute, req }: AdminViewBodyProps) {
             <ShippedActions
               orderId={card.id}
               orderNumber={card.orderNumber}
-              status={card.status}
+              canDeliver={card.canDeliver}
               carrier={card.carrier}
               trackingNumber={card.trackingNumber}
               complaintHref={`${adminRoute}/bestellungen/${card.id}#order-complaints`}

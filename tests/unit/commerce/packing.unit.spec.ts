@@ -5,6 +5,7 @@ import {
   cleanComponents,
   defaultTemplateFor,
   euroLabel,
+  handoverItems,
   packagingForOrder,
   packagingRecorded,
   packagingTemplates,
@@ -136,6 +137,53 @@ describe('Packen – Hinweise und Versandklassen (P5.10)', () => {
       }),
     )
     expect(letter.map((h) => h.text)).toEqual(['E-Mail an DHL: nein'])
+  })
+
+  it('Teil-Widerruf/Teil-Erstattung vor dem Versand: „Nicht mehr versenden“ nur an den betroffenen Stücken; Freitext-Teil-Widerruf sperrt', () => {
+    const items = [
+      { shippingClass: 'paket_klein' as const, itemNumber: 17, status: 'withdrawn' },
+      { shippingClass: 'paket_klein' as const, itemNumber: 18, status: 'returned' },
+      { shippingClass: 'paket_klein' as const, itemNumber: 19, status: 'refunded' },
+      { shippingClass: 'paket_klein' as const, itemNumber: 20, status: 'active' },
+    ]
+    for (const status of ['paid', 'packed', 'partially_refunded']) {
+      const hints = packingHints(order({ status, items }), {
+        unassignedWithdrawal: 'WR-2026-00007',
+      })
+      expect(hints.slice(0, 3)).toEqual([
+        {
+          key: 'withdrawalUnassigned',
+          text: 'Noch nicht versenden – Teil-Widerruf WR-2026-00007: erst Stücke zuordnen!',
+          tone: 'error',
+        },
+        {
+          key: 'withdrawnItems',
+          text: 'Nicht mehr versenden – Widerruf: Nr. 017, Nr. 018',
+          tone: 'error',
+        },
+        { key: 'refundedItems', text: 'Nicht mehr versenden – erstattet: Nr. 019', tone: 'error' },
+      ])
+      expect(hints.some((h) => h.key === 'withdrawal')).toBe(false)
+    }
+    // nach dem Versand bzw. bei Widerruf des ganzen Vertrags keine Stück-Hinweise
+    const keys = (o: PackingOrderLike) => packingHints(o).map((h) => h.key)
+    expect(
+      keys(order({ status: 'partially_refunded', items, timestamps: { shippedAt: '2026-10-02' } })),
+    ).toEqual(['carrierEmail'])
+    expect(keys(order({ status: 'delivered', items }))).toEqual(['carrierEmail'])
+    expect(
+      keys(order({ status: 'withdrawal_received', statusBeforeWithdrawal: 'paid', items })),
+    ).toEqual(['withdrawal', 'carrierEmail'])
+  })
+
+  it('handoverItems: nur aktive Positionen; ohne aktive alle (Nachdruck, „Erneut senden“)', () => {
+    const a = { id: 'a', status: 'active' }
+    const w = { id: 'w', status: 'withdrawn' }
+    const r = { id: 'r', status: 'refunded' }
+    const legacy = { id: 'l', status: null }
+    expect(handoverItems([w, a, r, legacy])).toEqual([a, legacy])
+    expect(handoverItems([w, r])).toEqual([w, r])
+    expect(handoverItems([])).toEqual([])
   })
 })
 

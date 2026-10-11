@@ -17,6 +17,7 @@ import {
 } from './refundFinalize'
 import { executeRefund, runRefundEffects } from './refunds'
 import { lockOrder, loadOrder, updateOrderFields } from './transitionOrder'
+import { withdrawalNeedsItems } from './withdrawalHold'
 
 // Dialog „Erstatten“ (PLAN P6.10, KONZEPT §5.3/§7.10, R-072): im Widerrufs-Detail (Grund `withdrawal`, W4) und im
 // Bestell-Detail (O15/O21 mit Pflicht-Grund `admin_cancellation`, `breakage`, `goodwill`, `complaint`). Positionen
@@ -111,20 +112,25 @@ export interface RefundDialogData {
   proposal: RefundProposal
   pending: boolean
   refundable: boolean
+  /** Widerruf nennt die Stücke nur im Freitext: erst „Stücke zuordnen“, nichts vorgewählt. */
+  needsItemAssignment: boolean
 }
 
-/** Startdaten des Dialogs; im Widerruf sind dessen Positionen (bzw. alle offenen) vorgewählt. */
+/**
+ * Startdaten des Dialogs; im Widerruf sind dessen Positionen (`affectedItemIds`) vorgewählt. Ohne eigene Positionen
+ * (Stücke nur im Freitext, noch nicht zugeordnet) ist nichts vorgewählt – leer heißt nie „alle“.
+ */
 export async function refundDialogData(
   req: PayloadRequest,
   orderId: number,
-  withdrawal?: Pick<Withdrawal, 'affectedItemIds'> | null,
+  withdrawal?: Pick<Withdrawal, 'affectedItemIds' | 'order' | 'status' | 'itemsText'> | null,
 ): Promise<RefundDialogData> {
   const [order, settings] = await Promise.all([loadOrder(req, orderId), shippingSettings(req)])
   const own = Array.isArray(withdrawal?.affectedItemIds)
     ? (withdrawal!.affectedItemIds as unknown[]).map(String)
     : []
   const open = order.items.filter((i) => i.status !== 'refunded').map((i) => String(i.id))
-  const pre = withdrawal ? (own.length > 0 ? own.filter((id) => open.includes(id)) : open) : []
+  const pre = withdrawal ? own.filter((id) => open.includes(id)) : []
   return {
     orderId,
     orderNumber: order.orderNumber,
@@ -141,6 +147,7 @@ export async function refundDialogData(
     proposal: proposalFor(order, settings, pre),
     pending: (order.refunds ?? []).some((r) => r.status === 'pending'),
     refundable: REFUNDABLE_ORDER_STATUSES.includes(order.status),
+    needsItemAssignment: !!withdrawal && withdrawalNeedsItems(withdrawal),
   }
 }
 
@@ -221,6 +228,13 @@ export async function requestRefund(
       }
       if (!OPEN_WITHDRAWAL.includes(w.status)) {
         throw new RefundRequestError(409, 'Dieser Widerruf ist schon abgeschlossen.')
+      }
+      if (withdrawalNeedsItems(w)) {
+        throw new RefundRequestError(
+          409,
+          'Bitte zuerst die Stücke zuordnen – der Widerruf nennt sie nur im Freitext.',
+          'withdrawal_items_unassigned',
+        )
       }
     }
 

@@ -9,12 +9,23 @@ import { preservingReq } from '@/lib/payload/localReq'
 import { inTransaction } from '@/lib/payload/transaction'
 import type { Order, Setting } from '@/payload-types'
 
+import { restDeliveryAllowed } from './orderTransitions'
 import { loadOrder, lockOrder, transitionOrder } from './transitionOrder'
+import { itemsUnassignedMessage, unassignedWithdrawalOf } from './withdrawalHold'
 
 // Abholung (PLAN P5.17, KONZEPT §4.9/§7.9, E-29, R-083): „Bereit zur Abholung“ (O8) speichert den von Jutta
 // bestätigten Text an der Bestellung (`pickup.messageText`, danach fest) und schickt M07 (`pickup_ready`, Schlüssel
 // `pickup_ready:<id>:O8`); die Adresse des Privatstudios steht nur in dieser Mail. „Abgeholt“ (O9) setzt
-// `timestamps.pickedUpAt` – Beginn von Widerrufsfrist und Gewährleistung.
+// `timestamps.pickedUpAt` – Beginn von Widerrufsfrist und Gewährleistung. Nach einer Teil-Erstattung vor der Abholung
+// gehen beide auch aus `partially_refunded` (Rest-Lieferung, `restDeliveryAllowed`); Widerruf des ganzen Vertrags
+// (`withdrawal_received`) und ein Teil-Widerruf nur im Freitext (Stücke noch nicht zugeordnet) sperren beide.
+
+const WITHDRAWN_MESSAGE = 'Nicht mehr übergeben – Widerruf!'
+
+async function assertNoUnassignedWithdrawal(req: PayloadRequest, orderId: number) {
+  const unassigned = await unassignedWithdrawalOf(req, orderId)
+  if (unassigned) throw new PickupError(409, itemsUnassignedMessage(unassigned))
+}
 
 export const PICKUP_TEXT_MAX = 1500
 /** Ab so vielen Wartetagen markiert die Ansicht „Abholung“ die Bestellung (KONZEPT §4.9). */
@@ -60,9 +71,18 @@ export async function markReadyForPickup(
     if (order.fulfillmentMethod !== 'pickup') {
       throw new PickupError(409, '„Bereit zur Abholung“ gibt es nur bei Abholung.')
     }
-    if (locked.status !== 'paid') {
-      throw new PickupError(409, 'Nur bezahlte Abholbestellungen können abholbereit sein.')
+    if (
+      locked.status !== 'paid' &&
+      !(locked.status === 'partially_refunded' && restDeliveryAllowed('ready_for_pickup', locked))
+    ) {
+      throw new PickupError(
+        409,
+        locked.status === 'withdrawal_received'
+          ? WITHDRAWN_MESSAGE
+          : 'Nur bezahlte Abholbestellungen können abholbereit sein.',
+      )
     }
+    await assertNoUnassignedWithdrawal(req, order.id)
     const text = typeof input.messageText === 'string' ? input.messageText.trim() : ''
     if (!text) throw new PickupError(400, 'Bitte den Abholtext ausfüllen (Ort, Zeiten, Kontakt).')
     if (text.length > PICKUP_TEXT_MAX) {
@@ -70,7 +90,7 @@ export async function markReadyForPickup(
     }
     const res = await transitionOrder(req, order.id, 'ready_for_pickup', {
       now,
-      expectedFrom: ['paid'],
+      expectedFrom: ['paid', 'partially_refunded'],
       actorType: 'admin',
       data: { pickup: { messageText: text } },
     })
@@ -97,12 +117,21 @@ export async function markPickedUp(
     if (locked.status === 'picked_up') {
       return { order: await loadOrder(req, order.id), unchanged: true }
     }
-    if (locked.status !== 'ready_for_pickup') {
-      throw new PickupError(409, '„Abgeholt“ geht erst, wenn die Bestellung abholbereit ist.')
+    if (
+      locked.status !== 'ready_for_pickup' &&
+      !(locked.status === 'partially_refunded' && restDeliveryAllowed('picked_up', locked))
+    ) {
+      throw new PickupError(
+        409,
+        locked.status === 'withdrawal_received'
+          ? WITHDRAWN_MESSAGE
+          : '„Abgeholt“ geht erst, wenn die Bestellung abholbereit ist.',
+      )
     }
+    await assertNoUnassignedWithdrawal(req, order.id)
     const res = await transitionOrder(req, order.id, 'picked_up', {
       now,
-      expectedFrom: ['ready_for_pickup'],
+      expectedFrom: ['ready_for_pickup', 'partially_refunded'],
       actorType: 'admin',
     })
     return { order: res.order, unchanged: false }

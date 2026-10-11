@@ -1443,6 +1443,28 @@ export const ORDER_TRANSITIONS: Record<OrderStatus, readonly OrderStatus[]> = {
 `refund.failed` bzw. `refund.updated` mit `status = failed` → `refunds[].status = failed`, `adminAttention = refund_failed`,
 Mail `admin_refund_failed` (kein Statuswechsel). Stripe-Refund `pending` → Status bleibt, Anzeige „Erstattung läuft“.
 
+**Umsetzungsnotiz (11.10.2026, Datenschutz-/AGB-Prüfung): Teil-Widerruf und Teil-Erstattung vor Versand bzw.
+Abholung.** Die behaltenen, bezahlten Stücke müssen geliefert werden können (M06/M07, `shippedAt`/`pickedUpAt` = Beginn
+von Widerrufsfrist und Gewährleistung):
+- O11 nur, wenn danach keine Position mehr `active` ist (Widerruf des ganzen Vertrags) oder die Ware schon versendet
+  bzw. übergeben ist. Ein Teil-Widerruf aus `paid`, `packed` oder `ready_for_pickup` setzt nur die gewählten Positionen
+  auf `withdrawn`; die Bestellung bleibt im Lieferstatus (`applyWithdrawalToOrder`). Aus `partially_refunded` und
+  `disputed` markiert ein Widerruf nur die Positionen (DM-06).
+- Rest-Lieferung aus `partially_refunded` (`restDeliveryAllowed` in `orderTransitions.ts`): O6/O7/O8 wie aus `paid`,
+  O9 wie aus `ready_for_pickup`, O10 wie aus `shipped` – nur solange mindestens eine Position `active` ist und nichts
+  abgeholt wurde; O6–O8 nur ohne `shippedAt` und `readyForPickupAt`, O9 nur mit `readyForPickupAt`, O10 nur mit
+  `shippedAt` und ohne `deliveredAt` (Teil-Erstattung während des Transports; „Zugestellt“ von Hand und Task
+  `markDelivered`, Liste „Versendet“). Fakten aus der gesperrten Zeile (`lockOrder`) bzw. im Speicher-Hook aus
+  Positionen und Zeitstempeln. Danach normal weiter (O10, O15 …). Eine Erstattung mit Grund `withdrawal` aus
+  `paid`/`packed`/`ready_for_pickup` ist damit O15.
+- „Zu packen“ zeigt zusätzlich `partially_refunded` mit Rest-Lieferung, „Abholung“ ebenso; Packliste, Packzettel,
+  Abholkarte, M06 und M07 nennen nur Positionen `active` (`handoverItems`; ohne aktive Position alle, etwa bei „Erneut
+  senden“ nach einem späteren Widerruf); „Nicht mehr versenden – Widerruf: Nr. …“ bzw. „– erstattet: Nr. …“ steht an
+  den übrigen. Widerruf des ganzen Vertrags (`withdrawal_received` aus `paid`/`packed`/`ready_for_pickup`) sperrt weiter
+  mit 409 („Nicht mehr versenden – Widerruf!“ bzw. „Nicht mehr übergeben – Widerruf!“).
+- Teil-Widerruf nur im Freitext (§6.11 Umsetzungsnotiz): Packen, Versand, „Bereit zur Abholung“ und „Abgeholt“ →
+  409, bis die Stücke zugeordnet sind (`withdrawalHold.ts`).
+
 #### 6.8.6 Indizes & Constraints
 `order_number` UNIQUE · `checkout_id` UNIQUE · `stripe_checkout_session_id` UNIQUE · `stripe_payment_intent_id` UNIQUE ·
 `status_token_hash` UNIQUE · Index `status` · Index `customer_email` · Index `timestamps_placed_at` · Index
@@ -1452,7 +1474,8 @@ Mail `admin_refund_failed` (kein Statuswechsel). Stripe-Refund `pending` → Sta
 #### 6.8.7 Akzeptanzkriterien
 - DM-ORD-01: Matrix-Test über alle Paare aus `ORDER_STATUSES`: genau die Übergänge O3–O18, O20 und O21 gelingen (mit
   ihren Bedingungen), alle anderen werfen einen Fehler (KONZEPT AK-5-01); jeder Wechsel erzeugt einen
-  `statusHistory`-Eintrag.
+  `statusHistory`-Eintrag. Dazu O6–O10 aus `partially_refunded` nur unter den Bedingungen der Rest-Lieferung
+  (Umsetzungsnotiz §6.8.5).
 - DM-ORD-02: Nach Anlage lassen sich `items`, Summen und `legalTextVersions` per Local API nicht ändern.
 - DM-ORD-03: Doppelte Zustellung desselben Webhooks erzeugt genau eine Bestellung, eine Rechnung, eine Bestätigungsmail, einen Verkauf.
 - DM-ORD-04: Status-Seite mit falschem Token → 404; mit richtigem → keine Adresse der Rechnungsempfängerin außer Name, keine internen Felder; nach Stufe B „Link abgelaufen“.
@@ -1613,6 +1636,18 @@ Auch Erklärungen ohne passende Bestellung werden angenommen und manuell zugeord
 
 `refunded`, `closed` (ohne (weitere) Erstattung, mit `closeReason`) und `rejected` sind Endzustände. Niemals automatische
 Ablehnung (R-094). Die Zuordnung zu einer Bestellung (W2) ändert den Widerrufsstatus nicht.
+
+**Umsetzungsnotiz (11.10.2026, Datenschutz-/AGB-Prüfung): Teil-Widerruf nur im Freitext.** Keine Position angehakt,
+aber `itemsText` gefüllt → W1/W2 bzw. die manuelle Erfassung buchen keine Position automatisch (§ 133 BGB: es gilt der
+erklärte Teil-Widerruf): `affectedItemIds` bleibt leer, die Bestellung bekommt `adminAttention` (`manual`, Notiz
+„Teil-Widerruf WR-… im Freitext – bitte Stücke zuordnen“, nur wenn dort noch kein Hinweis steht), A04 bittet ums
+Zuordnen (`needsItemAssignment`, Vorlage `a04-v2`). Vor Versand/Übergabe kein Statuswechsel, Packen/Versand/Übergabe →
+409 (`withdrawalHold.ts`); danach O11 wie bisher. Posteingang „Stücke zuordnen“
+(`POST /api/withdrawals/:id/assign-items` `{ itemIds }`, nur `received`, nichts vorab angehakt) setzt `affectedItemIds` und bucht wie W1 mit Auswahl
+(Umsetzungsnotiz §6.8.5); der Hinweis verschwindet (ebenso bei W5/W7). Bis dahin W3 und „Erstatten“ mit Grund
+`withdrawal` → 409, im Dialog keine Vorauswahl. Leeres `affectedItemIds` heißt nirgends „alle Positionen“: Dialog ohne
+Vorauswahl, W3 ändert keine Position, W4 rechnet mit den für diesen Widerruf erstatteten Positionen. Ohne Haken und ohne
+Freitext weiter ganzer Vertrag (alle aktiven Positionen, R-091).
 
 **Hooks**
 - `beforeChange` (create, nur `context.system`): aus dem Route-Handler der Widerrufsfunktion (`channel = online_form`,
