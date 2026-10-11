@@ -6,7 +6,12 @@ import { legalAttachmentInfo } from '@/lib/legal/attachments'
 import { preservingReq } from '@/lib/payload/localReq'
 import type { Invoice, Order, Setting } from '@/payload-types'
 
-import type { MailAddress, OrderMailData } from './templates/orderSections'
+import {
+  clampMailText,
+  MAIL_CHARACTERISTICS_MAX,
+  type MailAddress,
+  type OrderMailData,
+} from './templates/orderSections'
 
 // Daten der Bestellmails M01/M02/M05 aus dem Snapshot der Bestellung (DM-05) und den Einstellungen (KONZEPT §6.3):
 // entstehen beim Einreihen in der Transaktion des Ereignisses und gehen nur in die Job-Eingabe (Outbox, P4.13).
@@ -85,7 +90,10 @@ export async function buildOrderMailData(
       .map((i) => ({
         itemNumber: i.itemNumber,
         title: (locale === 'en' ? i.titleEn : null) || i.titleDe,
-        characteristics: (locale === 'en' ? i.characteristicsEn : null) || i.characteristicsDe,
+        characteristics: clampMailText(
+          (locale === 'en' ? i.characteristicsEn : null) || i.characteristicsDe,
+          MAIL_CHARACTERISTICS_MAX,
+        ),
         priceCents: i.priceCents,
         deviationText: i.deviationText ?? null,
       })),

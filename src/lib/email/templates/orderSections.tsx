@@ -43,6 +43,25 @@ export type MailBank = z.infer<typeof bankSchema>
 
 export const legalVersionSchema = z.object({ version: z.number().int().positive(), date: iso })
 
+/**
+ * Höchstlänge der Eigenschaftszeile je Stück in den Bestellmails. Die Zeile entsteht aus Pflegefeldern
+ * (`buildCharacteristics`: Material bis 200, Abweichung bis 300, Fasern, Größe …) und darf das Einreihen der Mail in der
+ * Bestell-Transaktion nie scheitern lassen – `buildOrderMailData` kürzt deshalb mit `clampMailText` auf diese Länge.
+ */
+export const MAIL_CHARACTERISTICS_MAX = 2000
+
+/** Kürzt einen Snapshot-Text für die Mail-Daten auf `max` Zeichen (mit „…“), ohne ein Ersatzzeichen-Paar zu trennen. */
+export function clampMailText(text: string, max: number): string {
+  if (text.length <= max) return text
+  const chars = Array.from(text)
+  let out = ''
+  for (const ch of chars) {
+    if (out.length + ch.length > max - 1) break
+    out += ch
+  }
+  return `${out.trimEnd()}…`
+}
+
 export const orderMailDataSchema = z.object({
   orderId: z.number().int().positive(),
   orderNumber: z.string().regex(/^(BSP-)?PC-\d{4}-\d{5}$/),
@@ -53,7 +72,7 @@ export const orderMailDataSchema = z.object({
       z.object({
         itemNumber: z.number().int().positive(),
         title: z.string().min(1).max(200),
-        characteristics: z.string().max(500),
+        characteristics: z.string().max(MAIL_CHARACTERISTICS_MAX),
         priceCents: cents,
         deviationText: z.string().max(1000).nullish(),
       }),
