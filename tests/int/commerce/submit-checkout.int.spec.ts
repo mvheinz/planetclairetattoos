@@ -2,12 +2,20 @@ import { sql } from '@payloadcms/db-postgres'
 import { createLocalReq } from 'payload'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { withdrawCarrierConsent } from '@/lib/commerce/carrierConsent'
 import { reopenCheckout } from '@/lib/commerce/changeDelivery'
 import type { CheckoutRawInput } from '@/lib/commerce/checkoutSchema'
 import { transitionCheckout } from '@/lib/commerce/checkoutTransitions'
 import { submitCheckout } from '@/lib/commerce/submitCheckout'
 import { jobAlarm } from '@/lib/jobs/alarm'
 import { getSnippet } from '@/lib/legal/snippets'
+import { runRetentionTask } from '@/lib/retention/jobs'
+import {
+  L_19A_CONSENT_WITHOUT_ORDER,
+  orderRelatedRetainUntil,
+  retainUntil,
+} from '@/lib/retention/policy'
+import type { Order } from '@/payload-types'
 
 import { checkoutById, productRow } from '../helpers/checkout'
 import { dbOf } from '../helpers/commerce'
@@ -57,6 +65,39 @@ async function consents(checkoutId: number) {
     product_id: number | null
     email: string
   }[]
+}
+
+/** Nachweise einer Kasse samt Bestellbezug und Frist (DATENMODELL §6.23, L-19 a). */
+async function evidence(where: ReturnType<typeof sql>) {
+  const r = await dbOf(h.payload).execute(
+    sql`SELECT id, purpose, granted, order_id, checkout_id, retain_until, withdrawn_at, created_at
+          FROM consent_log WHERE ${where} ORDER BY id`,
+  )
+  return r.rows as {
+    id: number
+    purpose: string
+    granted: boolean
+    order_id: number | null
+    checkout_id: number | null
+    retain_until: string | Date
+    withdrawn_at: string | Date | null
+    created_at: string | Date
+  }[]
+}
+
+/** Erwartete Frist eines Nachweises mit Bestellbezug: wie die Bestellung (Stufe D), nicht 30 Tage wie die Kasse. */
+function expectOrderRetention(rows: Awaited<ReturnType<typeof evidence>>, order: Order) {
+  for (const row of rows) {
+    const created = new Date(row.created_at)
+    const expected = orderRelatedRetainUntil(
+      order.retainUntil ? new Date(order.retainUntil) : null,
+      created,
+    )
+    expect(new Date(row.retain_until).toISOString()).toBe(expected.toISOString())
+    expect(new Date(row.retain_until).getTime()).toBeGreaterThan(
+      retainUntil(L_19A_CONSENT_WITHOUT_ORDER, created).getTime(),
+    )
+  }
 }
 
 describe('submitCheckout (P4.10a)', () => {
@@ -241,6 +282,89 @@ describe('submitCheckout (P4.10a)', () => {
       )
       expect(res, to).toMatchObject({ ok: false, status: 409, code: 'not_open' })
     }
+  })
+
+  it('R-101/R-048/L-19 a Stripe-Mock: Nachweise hängen nach der Zahlung an der Bestellung – Frist wie die Bestellung, DHL-Widerruf trifft das Original, Löschen der Kasse lässt sie stehen', async () => {
+    const a = await h.piece(987, DEVIATION)
+    const b = await h.piece(988)
+    const r = await h.start([a, b])
+    const res = await submitCheckout(
+      {
+        token: r.token,
+        raw: shippingInput({ carrierEmailConsent: 'on', deviationAgreements: [String(a)] }),
+        now: h.now(),
+      },
+      { payload: h.payload, payments: h.mock },
+    )
+    expect(res.ok).toBe(true)
+    // vor der Zahlung: nur an der Kasse (L-19 a ohne Bestellung, 30 Tage)
+    const before = await evidence(sql`checkout_id = ${r.checkoutId}`)
+    expect(before.map((x) => [x.purpose, x.order_id])).toEqual([
+      ['carrier_email_forwarding', null],
+      ['deviation_agreement', null],
+    ])
+    const session = (await checkoutById(h.payload, r.checkoutId)).stripe?.checkoutSessionId
+    expect(session).toBeTruthy()
+    await h.deliver(session!, 'checkout.session.completed')
+    const order = await h.orderOfCheckout(r.checkoutId)
+    expect(order.status).toBe('paid')
+
+    const linked = await evidence(sql`checkout_id = ${r.checkoutId}`)
+    expect(linked.map((x) => [x.purpose, x.order_id])).toEqual([
+      ['carrier_email_forwarding', order.id],
+      ['deviation_agreement', order.id],
+    ])
+    expectOrderRetention(linked, order)
+    // Bestellansicht (OrderDetailView) und Widerruf suchen über `order`
+    const byOrder = await h.payload.find({
+      collection: 'consent-log',
+      where: { order: { equals: order.id } },
+      overrideAccess: true,
+      depth: 0,
+    })
+    expect(byOrder.totalDocs).toBe(2)
+
+    // R-101: „Einwilligung widerrufen“ setzt withdrawnAt am ursprünglichen Eintrag
+    const req = await createLocalReq({ context: { system: true } }, h.payload)
+    await withdrawCarrierConsent(req, order, h.now())
+    const afterWithdraw = await evidence(sql`order_id = ${order.id}`)
+    const original = afterWithdraw.find((x) => x.id === linked[0]!.id)!
+    expect(original.withdrawn_at).toBeTruthy()
+    expect(
+      afterWithdraw.filter((x) => x.purpose === 'carrier_email_forwarding' && !x.granted),
+    ).toHaveLength(1)
+
+    // L-03/L-19 a: Kasse nach 30 Tagen gelöscht (Reservierungen vorher nach L-02) – die Nachweise bleiben mit der
+    // Bestellung
+    const later = new Date(Date.now() + 60 * 86_400_000)
+    await runRetentionTask(h.payload, 'retentionTechnical', { now: later })
+    await runRetentionTask(h.payload, 'retentionAbandonedCheckouts', { now: later })
+    await runRetentionTask(h.payload, 'retentionConsentEvidence', { now: later })
+    expect(await h.count('checkouts', sql`id = ${r.checkoutId}`)).toBe(0)
+    const kept = await evidence(sql`order_id = ${order.id}`)
+    expect(kept.map((x) => x.id)).toEqual(afterWithdraw.map((x) => x.id))
+    expect(kept.every((x) => x.checkout_id === null)).toBe(true)
+  })
+
+  it('R-101/L-19 a Vorkasse: Nachweis hängt sofort an der Bestellung awaiting_prepayment', async () => {
+    const a = await h.piece(986)
+    const r = await h.start([a])
+    const placed = await submitCheckout(
+      {
+        token: r.token,
+        raw: shippingInput({ paymentChoice: 'prepayment', carrierEmailConsent: 'on' }),
+        now: h.now(),
+      },
+      { payload: h.payload, payments: h.mock },
+    )
+    expect(placed).toMatchObject({ ok: true, paymentChoice: 'prepayment' })
+    const order = await h.orderOfCheckout(r.checkoutId)
+    expect(order.status).toBe('awaiting_prepayment')
+    const rows = await evidence(sql`checkout_id = ${r.checkoutId}`)
+    expect(rows.map((x) => [x.purpose, x.order_id])).toEqual([
+      ['carrier_email_forwarding', order.id],
+    ])
+    expectOrderRetention(rows, order)
   })
 
   it('DM-CHK-02 (Teil): abgeschlossene Kasse (Vorkasse) wird abgelehnt', async () => {

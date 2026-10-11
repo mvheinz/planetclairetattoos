@@ -129,10 +129,43 @@ async function loadProducts(req: PayloadRequest, ids: number[]): Promise<Map<num
 }
 
 /**
+ * Nachweise der Kasse (`consent-log`: DHL-E-Mail-Einwilligung R-101, Abweichungsvereinbarung R-048) der neuen
+ * Bestellung zuordnen (DATENMODELL §6.23, LOESCHKONZEPT L-19 a): Der Hook der Collection rechnet `retainUntil` dann
+ * aus der Bestellung (Stufe D) statt 30 Tage wie die Kasse; Widerruf der DHL-Einwilligung, Bestellansicht und
+ * DSGVO-Löschung finden die Einträge über `order`. Gleiche Transaktion wie die Bestellanlage.
+ */
+async function linkConsentLog(
+  req: PayloadRequest,
+  checkoutId: number,
+  orderId: number,
+  context: Record<string, unknown>,
+): Promise<void> {
+  const res = await preservingReq(req, () =>
+    req.payload.update({
+      collection: 'consent-log',
+      where: { and: [{ checkout: { equals: checkoutId } }, { order: { exists: false } }] },
+      data: { order: orderId } as never,
+      depth: 0,
+      overrideAccess: true,
+      req,
+      context,
+    }),
+  )
+  if (res.errors.length > 0) {
+    throw new Error(
+      `Nachweise der Kasse ${checkoutId} konnten der Bestellung nicht zugeordnet werden: ${res.errors
+        .map((e) => e.message)
+        .join('; ')}`,
+    )
+  }
+}
+
+/**
  * Legt die Bestellung zur Kasse `checkoutId` an (O1 `paid`, O2 `awaiting_prepayment`, O19 `refunded`), mit neuem
  * Status-Token (Hash + Siegel), erstem `statusHistory`-Eintrag und Audit `order_created` (Hook), und setzt
- * `checkouts.order`. Lehnt Kassen ohne `submittedAt`, mit Bestellung oder außerhalb von `open`/`confirming` ab; die
- * Kassenzeile wird dafür gesperrt (`FOR UPDATE`), zusätzlich schützt UNIQUE `orders.checkout_id`.
+ * `checkouts.order` sowie `consent-log.order` der Kassen-Nachweise. Lehnt Kassen ohne `submittedAt`, mit Bestellung
+ * oder außerhalb von `open`/`confirming` ab; die Kassenzeile wird dafür gesperrt (`FOR UPDATE`), zusätzlich schützt
+ * UNIQUE `orders.checkout_id`.
  * Der Klartext-Token geht nur an die Mail-Daten im Speicher, nie in Logs.
  */
 export async function createOrderFromCheckout(
@@ -294,6 +327,7 @@ export async function createOrderFromCheckout(
         context,
       }),
     )
+    await linkConsentLog(req, checkout.id, order.id, context)
     return { order, statusToken: issued.token }
   })
 }
