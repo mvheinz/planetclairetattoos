@@ -298,7 +298,8 @@ Eine Anfrage ist noch kein Vertrag, und der Preis steht nirgends fest. Du sagst 
   sie in der rechten Spalte (am Handy darunter): kommende Termine oben, vergangene eingeklappt. Tippe auf „Neuer Termin“
   und fülle aus: Name des Marktes, Ort oder Bezirk, Datum von–bis (bei einem Tag das Enddatum leer lassen), Uhrzeiten,
   Adresse des Marktes, Standnummer, eine kurze Notiz (zum Beispiel „Coco ist dabei“) und – wenn du magst – einen Link zur
-  Seite des Marktes und ein Foto von deinem Stand. Es gibt keine Karte, nur Text. Bitte nie die Adresse deines
+  Seite des Marktes und ein Foto von deinem Stand. Bitte ohne erkennbare Gesichter anderer Menschen (Besucher:innen,
+  Nachbarstände) – sonst nur mit deren Einverständnis. Es gibt keine Karte, nur Text. Bitte nie die Adresse deines
   Privatstudios eintragen, die Verwaltung lehnt sie ab. Fällt ein Markt aus, tippst du bei dem Termin auf „Absagen“: Er
   steht dann durchgestrichen mit dem Hinweis „abgesagt“ auf der Seite. „Vorbei“ musst du nicht setzen, das passiert nach
   dem Datum von selbst. „Übersetzen“ füllt die englischen Texte vor. Die Beispiel-Termine verschwinden mit den übrigen
