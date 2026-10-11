@@ -361,7 +361,7 @@
     {
       "type": "impressum",
       "validFrom": "2026-01-01T00:00:00+01:00",
-      "sourceNote": "Platzhalter-Fassung (ausformuliert in P12.11, Kanzlei-Prüfung offen)",
+      "sourceNote": "Platzhalter-Fassung (ausformuliert in P12.11, überarbeitet in P18.5, Kanzlei-Prüfung offen)",
       "intro": "Hier steht schwarz auf weiß, wer hinter Planet Claire steckt.",
       "introEn": "Here, in plain black and white, is who stands behind Planet Claire.",
       "sections": [
@@ -377,7 +377,7 @@
           "heading": "Kontakt",
           "paragraphs": [
             "E-Mail: {{email}}\nTelefon: {{phone}}",
-            "Am schnellsten erreichst du mich per E-Mail. Auch auf Instagram (@planet.claire.tattoos) kannst du mir schreiben, rechtlich verbindliche Erklärungen schickst du bitte per E-Mail oder Post."
+            "Am schnellsten erreichst du mich per E-Mail. Einen Widerruf erklärst du am einfachsten über „Vertrag widerrufen“ unten auf jeder Seite."
           ]
         },
         {
@@ -443,7 +443,7 @@
           "heading": "Contact",
           "paragraphs": [
             "Email: {{email}}\nPhone: {{phone}}",
-            "Email is the quickest way to reach me. You can also write to me on Instagram (@planet.claire.tattoos); legally binding statements, however, please send by email or post."
+            "Email is the quickest way to reach me. The easiest way to withdraw from a contract is the “Withdraw from contract here” link at the bottom of every page."
           ]
         },
         {
@@ -500,7 +500,7 @@
     {
       "type": "datenschutz",
       "validFrom": "2026-01-01T00:00:00+01:00",
-      "sourceNote": "Platzhalter-Fassung (ausformuliert in P12.11, Kanzlei-Prüfung offen)",
+      "sourceNote": "Platzhalter-Fassung (ausformuliert in P12.11, überarbeitet in P18.5, Kanzlei-Prüfung offen)",
       "intro": "Ich sammle so wenig wie möglich über dich. Hier steht genau, was trotzdem anfällt, wozu ich es brauche und wann es wieder verschwindet.",
       "introEn": "I collect as little about you as possible. Here is exactly what still accrues, what I need it for and when it disappears again.",
       "sections": [
@@ -577,7 +577,7 @@
           "heading": "Kontakt",
           "paragraphs": [
             "Wenn du mir schreibst, verarbeite ich deine Nachricht und deine Kontaktdaten, um dir zu antworten (Art. 6 Abs. 1 lit. b oder f DSGVO). Geschäftsbriefe bewahre ich bis zu 6 Jahre auf, sonstige Nachrichten so lange, wie es der Zweck verlangt. Schreibst du mir auf Instagram, verarbeitet Meta Platforms Ireland Ltd. deine Daten in eigener Verantwortung; siehe „Instagram“.",
-            "Für Tattoo-Anfragen gibt es kein Formular. Du schreibst mir per E-Mail oder per Instagram-Nachricht; für Termine und eine mögliche Kaution vereinbaren wir alles einzeln und außerhalb dieser Website. Den Aufklärungs- und Einwilligungsbogen füllst du vor Ort auf Papier aus."
+            "Für Tattoo-Anfragen gibt es kein Formular. Du schreibst mir per E-Mail; für Termine und eine mögliche Kaution vereinbaren wir alles einzeln und außerhalb dieser Website. Den Aufklärungs- und Einwilligungsbogen füllst du vor Ort auf Papier aus."
           ]
         },
         {
@@ -712,7 +712,7 @@
           "heading": "Contact",
           "paragraphs": [
             "When you write to me, I process your message and your contact details in order to reply (Art. 6 (1) (b) or (f) GDPR). I keep business letters for up to 6 years and other messages as long as the purpose requires. If you write to me on Instagram, Meta Platforms Ireland Ltd. processes your data as an independent controller; see “Instagram”.",
-            "There is no form for tattoo enquiries. You write to me by email or Instagram message; for appointments and a possible deposit we agree everything individually and outside this website. You fill in the briefing and consent form on paper on site."
+            "There is no form for tattoo enquiries. You write to me by email; for appointments and a possible deposit we agree everything individually and outside this website. You fill in the briefing and consent form on paper on site."
           ]
         },
         {
@@ -777,7 +777,7 @@
     {
       "type": "agb",
       "validFrom": "2026-01-01T00:00:00+01:00",
-      "sourceNote": "Platzhalter-Fassung (ausformuliert in P12.11, Kanzlei-Prüfung offen)",
+      "sourceNote": "Platzhalter-Fassung (ausformuliert in P12.11, überarbeitet in P18.5, Kanzlei-Prüfung offen)",
       "intro": "Ein Stück, ein Mensch, ein Vertrag. Die Spielregeln dazu stehen hier.",
       "introEn": "One piece, one person, one contract. The ground rules are written down here.",
       "sections": [
@@ -802,7 +802,7 @@
             "Du legst Stücke in den Warenkorb, gehst zur Kasse und gibst Daten ein. Vor dem Absenden siehst du eine Übersicht mit allen Angaben und kannst Eingabefehler über die „Ändern“-Links korrigieren. Mit dem Klick auf „Zahlungspflichtig bestellen“ gibst du ein verbindliches Angebot zum Kauf der Stücke im Warenkorb ab.",
             "Bei Zahlung per Karte, Apple Pay, Google Pay oder PayPal nehme ich dein Angebot an, indem ich dir nach bestätigter Zahlung die Bestellbestätigung per E-Mail sende. Scheitert die Zahlung, kommt kein Vertrag zustande.",
             "Bei Vorkasse nehme ich dein Angebot mit der Bestellbestätigung an, die du sofort per E-Mail erhältst. Dein Stück bleibt bis zum Ende der Zahlungsfrist für dich reserviert. Wird nicht fristgerecht gezahlt, wird die Bestellung nach dem Abschnitt „Zahlung und Vorkasse“ automatisch storniert.",
-            "Mit Beginn des Bezahlvorgangs reserviere ich das Stück 30 Minuten für dich. Läuft die Zeit ab, wird es wieder freigegeben. Da es jedes Stück nur einmal gibt, kann es vorkommen, dass es zuvor verkauft wurde. Ist das Stück nicht mehr verfügbar, kommt kein Vertrag zustande und ich erstatte bereits geleistete Zahlungen unverzüglich."
+            "Mit Beginn des Bezahlvorgangs reserviere ich das Stück {{reservationMinutes}} Minuten für dich. Läuft die Zeit ab, wird es wieder freigegeben. Da es jedes Stück nur einmal gibt, kann es vorkommen, dass es zuvor verkauft wurde. Ist das Stück nicht mehr verfügbar, kommt kein Vertrag zustande und ich erstatte bereits geleistete Zahlungen unverzüglich."
           ]
         },
         {
@@ -815,7 +815,7 @@
           "heading": "Zahlung und Vorkasse",
           "paragraphs": [
             "Du kannst per Kredit- oder Debitkarte, Apple Pay, Google Pay, PayPal oder per Vorkasse (Überweisung) bezahlen. Aufschläge für eine Zahlart erhebe ich nicht. Karte, Wallets und PayPal werden sofort belastet.",
-            "Bei Vorkasse überweist du den Gesamtbetrag bis 23:59 Uhr (Berliner Zeit) am {{vorkasseDays}}. Kalendertag nach dem Bestelltag an das Konto, das ich dir in der Bestellbestätigung nenne, mit der Bestellnummer als Verwendungszweck. Etwa 72 Stunden nach der Bestellung erinnere ich dich per E-Mail. Geht die Zahlung bis zum Ende der Frist nicht ein, storniere ich die Bestellung automatisch, du bekommst eine Mail darüber, und das Stück wird wieder angeboten. Hast du in der Zwischenzeit schon überwiesen, schreib mir bitte sofort; ich erstatte dir das Geld dann zurück."
+            "Bei Vorkasse überweist du den Gesamtbetrag bis 23:59 Uhr (Berliner Zeit) am {{vorkasseDays}}. Kalendertag nach dem Bestelltag an das Konto, das ich dir in der Bestellbestätigung nenne, mit der Bestellnummer als Verwendungszweck. Vor Ablauf der Frist erinnere ich dich per E-Mail. Geht die Zahlung bis zum Ende der Frist nicht ein, storniere ich die Bestellung automatisch, du bekommst eine Mail darüber, und das Stück wird wieder angeboten. Hast du in der Zwischenzeit schon überwiesen, schreib mir bitte sofort; ich erstatte dir das Geld dann zurück."
           ]
         },
         {
@@ -874,13 +874,13 @@
         {
           "heading": "Auftragsarbeiten und Tattoo-Termine",
           "paragraphs": [
-            "Anfragen zu Auftragsarbeiten gehen über das Anfrageformular, Tattoo-Anfragen per E-Mail oder Instagram-Nachricht. Ein Vertrag kommt dort erst durch ein individuelles Angebot und deine Annahme per E-Mail zustande; Bezahlung und weitere Bedingungen vereinbaren wir dabei außerhalb des Shops. Diese AGB gelten für solche Verträge nur, soweit ich es in meinem Angebot ausdrücklich sage."
+            "Anfragen zu Auftragsarbeiten gehen über das Anfrageformular, Tattoo-Anfragen per E-Mail. Ein Vertrag kommt dort erst durch ein individuelles Angebot und deine Annahme per E-Mail zustande; Bezahlung und weitere Bedingungen vereinbaren wir dabei außerhalb des Shops. Diese AGB gelten für solche Verträge nur, soweit ich es in meinem Angebot ausdrücklich sage."
           ]
         },
         {
           "heading": "Vertragstext und Vertragssprache",
           "paragraphs": [
-            "Den Vertragstext (deine Bestellung mit allen Angaben) speichere ich. Die AGB und die Widerrufsbelehrung mit Muster-Widerrufsformular erhältst du als PDF mit der Bestellbestätigung; über den Bestellstatus-Link kannst du sie jederzeit erneut abrufen. Vertragssprache ist Deutsch. Die englische Fassung dieser Bedingungen ist eine Lesehilfe; verbindlich ist die deutsche Fassung."
+            "Den Vertragstext (deine Bestellung mit allen Angaben) speichere ich. Die AGB und die Widerrufsbelehrung mit Muster-Widerrufsformular erhältst du als PDF mit der Bestellbestätigung; über den Bestellstatus-Link kannst du sie bis 180 Tage nach Abschluss deiner Bestellung erneut abrufen; danach schicke ich sie dir auf Anfrage per E-Mail. Vertragssprache ist Deutsch. Die englische Fassung dieser Bedingungen ist eine Lesehilfe; verbindlich ist die deutsche Fassung."
           ]
         },
         {
@@ -912,7 +912,7 @@
             "You put pieces into the cart, go to the checkout and enter your details. Before submitting you see an overview of all details and can correct input errors using the “Change” links. By clicking “Order with obligation to pay” you make a binding offer to buy the pieces in your cart.",
             "When you pay by card, Apple Pay, Google Pay or PayPal, I accept your offer by sending you the order confirmation by email after payment has been confirmed. If payment fails, no contract is concluded.",
             "With payment in advance I accept your offer with the order confirmation, which you receive immediately by email. Your piece stays reserved for you until the end of the payment period. If payment is not made in time, the order is cancelled automatically as described in the section “Payment and payment in advance”.",
-            "When the payment process starts, I reserve the piece for you for 30 minutes. If the time runs out, it is released again. Since each piece exists only once, it may have been sold in the meantime. If the piece is no longer available, no contract is concluded and I refund any payments already made without delay."
+            "When the payment process starts, I reserve the piece for you for {{reservationMinutes}} minutes. If the time runs out, it is released again. Since each piece exists only once, it may have been sold in the meantime. If the piece is no longer available, no contract is concluded and I refund any payments already made without delay."
           ]
         },
         {
@@ -925,7 +925,7 @@
           "heading": "Payment and payment in advance",
           "paragraphs": [
             "You can pay by credit or debit card, Apple Pay, Google Pay, PayPal or in advance (bank transfer). I charge no surcharges for any payment method. Cards, wallets and PayPal are charged immediately.",
-            "With payment in advance you transfer the total amount by 11:59 pm (Berlin time) on calendar day {{vorkasseDays}} after the day of the order to the account that I name in the order confirmation, using the order number as the payment reference. About 72 hours after the order I remind you by email. If payment has not been received by the end of the period, I cancel the order automatically, you receive an email about it, and the piece is offered again. If you have already transferred the money in the meantime, please write to me immediately; I will then refund it."
+            "With payment in advance you transfer the total amount by 11:59 pm (Berlin time) on calendar day {{vorkasseDays}} after the day of the order to the account that I name in the order confirmation, using the order number as the payment reference. Before the period ends, I remind you by email. If payment has not been received by the end of the period, I cancel the order automatically, you receive an email about it, and the piece is offered again. If you have already transferred the money in the meantime, please write to me immediately; I will then refund it."
           ]
         },
         {
@@ -984,13 +984,13 @@
         {
           "heading": "Commissions and tattoo appointments",
           "paragraphs": [
-            "Requests for commissioned work go through the request form, tattoo enquiries by email or Instagram message. There, a contract comes into being only through an individual offer and your acceptance by email; payment and further conditions are agreed outside the shop. These terms apply to such contracts only if I say so expressly in my offer."
+            "Requests for commissioned work go through the request form, tattoo enquiries by email. There, a contract comes into being only through an individual offer and your acceptance by email; payment and further conditions are agreed outside the shop. These terms apply to such contracts only if I say so expressly in my offer."
           ]
         },
         {
           "heading": "Contract text and language",
           "paragraphs": [
-            "I store the contract text (your order with all details). You receive the terms and the withdrawal policy with the model withdrawal form as a PDF with the order confirmation; through the order status link you can retrieve them again at any time. The contract language is German. The English version of these terms is a reading aid; the German version is binding."
+            "I store the contract text (your order with all details). You receive the terms and the withdrawal policy with the model withdrawal form as a PDF with the order confirmation; through the order status link you can retrieve them again until 180 days after your order has been completed; after that, I will send them to you by email on request. The contract language is German. The English version of these terms is a reading aid; the German version is binding."
           ]
         },
         {
@@ -1108,7 +1108,7 @@
     {
       "type": "versand-zahlung",
       "validFrom": "2026-01-01T00:00:00+01:00",
-      "sourceNote": "Platzhalter-Fassung (ausformuliert in P12.11, Kanzlei-Prüfung offen)",
+      "sourceNote": "Platzhalter-Fassung (ausformuliert in P12.11, überarbeitet in P18.5, Kanzlei-Prüfung offen)",
       "intro": "Wie ein Stück zu dir kommt und wie du dafür bezahlst – kurz und ohne Umwege.",
       "introEn": "How a piece reaches you and how you pay for it – short and without detours.",
       "sections": [
@@ -1151,7 +1151,7 @@
           "heading": "Vorkasse",
           "paragraphs": [
             "Bei Vorkasse legst du die Bestellung an und bekommst sofort eine Bestätigung per E-Mail mit meiner Bankverbindung (Kontoinhaberin, IBAN) und der Bestellnummer als Verwendungszweck. Dein Stück ist bis zum Ende der Zahlungsfrist für dich reserviert.",
-            "Die Zahlungsfrist endet um 23:59 Uhr (Berliner Zeit) am {{vorkasseDays}}. Kalendertag nach dem Bestelltag. Bestellst du zum Beispiel am 12.10., endet die Frist am 17.10. um 23:59 Uhr. Etwa 72 Stunden nach der Bestellung erinnere ich dich per E-Mail. Geht bis zum Ende der Frist kein Geld ein, storniere ich die Bestellung automatisch, schicke dir eine Mail, und das Stück wird wieder angeboten."
+            "Die Zahlungsfrist endet um 23:59 Uhr (Berliner Zeit) am {{vorkasseDays}}. Kalendertag nach dem Bestelltag. Vor Ablauf der Frist erinnere ich dich per E-Mail. Geht bis zum Ende der Frist kein Geld ein, storniere ich die Bestellung automatisch, schicke dir eine Mail, und das Stück wird wieder angeboten."
           ]
         }
       ],
@@ -1195,7 +1195,7 @@
           "heading": "Payment in advance",
           "paragraphs": [
             "With payment in advance you place the order and immediately receive a confirmation by email with my bank details (account holder, IBAN) and the order number as the payment reference. Your piece is reserved for you until the end of the payment period.",
-            "The payment period ends at 11:59 pm (Berlin time) on calendar day {{vorkasseDays}} after the day of the order. If you order on 12 October, for example, the period ends on 17 October at 11:59 pm. About 72 hours after the order I remind you by email. If no money has arrived by the end of the period, I cancel the order automatically, send you an email, and the piece is offered again."
+            "The payment period ends at 11:59 pm (Berlin time) on calendar day {{vorkasseDays}} after the day of the order. Before the period ends, I remind you by email. If no money has arrived by the end of the period, I cancel the order automatically, send you an email, and the piece is offered again."
           ]
         }
       ]

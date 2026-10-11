@@ -318,6 +318,7 @@ Lücken in der Nummerierung sind Reserve.
   | `{{shippingTable}}` | Tabelle aus `settings.shipping.rates` (Zone DE) plus Abholung und Regel „höchste Versandklasse“ |
   | `{{deliveryTime}}` | `settings.shipping.deliveryTimeText` in der Sprache des Inhalts |
   | `{{vorkasseDays}}` | `settings.payment.prepaymentDays` |
+  | `{{reservationMinutes}}` | `settings.payment.reservationMinutes` (ohne Wert der Standard 30 wie bei der Reservierung selbst; P18.5, damit die AGB nie eine feste Minutenzahl nennen) |
   | `{{returnCostsNote}}` | aktiver Baustein `withdrawal.returnCostsNote` (§6) |
 
   Ein unbekanntes oder unersetztes Token ist ein Render-Fehler (Aktivieren gesperrt, öffentliche Seiten zeigen nie

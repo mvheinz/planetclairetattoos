@@ -1774,7 +1774,8 @@ Unterbereiche (Details §9):
     und wird unveränderlich gespeichert.
   - Platzhalter im Text – genau diese Liste (R-012, KANZLEI-BRIEFING §16.3): `{{name}}`, `{{street}}`, `{{postalCode}}`,
     `{{city}}`, `{{email}}`, `{{phone}}`, `{{wIdNr}}`, `{{ustIdNr}}`, `{{siteUrl}}`, `{{withdrawalUrl}}` (= absolute URL von
-    R26 in der Sprache der Fassung), `{{shippingTable}}`, `{{deliveryTime}}`, `{{vorkasseDays}}`, `{{returnCostsNote}}` –
+    R26 in der Sprache der Fassung), `{{shippingTable}}`, `{{deliveryTime}}`, `{{vorkasseDays}}`, `{{reservationMinutes}}`,
+    `{{returnCostsNote}}` –
     ersetzt aus `settings`, Umgebung bzw. dem Baustein `withdrawal.returnCostsNote` (Quellen DATENMODELL §6.12). Ein unbekanntes oder nicht ersetzbares Token ist ein Render-Fehler und sperrt das
     Veröffentlichen; `{{STEUERNUMMER}}` wird nie ersetzt (E-46).
   - Prüfungen vor dem Veröffentlichen: `widerrufsbelehrung` muss `{{withdrawalUrl}}` oder die URL von R26 enthalten

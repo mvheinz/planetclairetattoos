@@ -40,7 +40,7 @@ describe('R-012 Renderer: Werte laden, Klartext, Mehrzeiler (Zweige)', () => {
   it('Werte laden: Hinweis aus Aufruf oder aktivem Baustein; Website ohne Schrägstrich', async () => {
     const findGlobal = vi.fn(async () => ({
       business: { legalName: 'Jutta', tradeName: 'Planet Claire' },
-      payment: { prepaymentDays: 7 },
+      payment: { prepaymentDays: 7, reservationMinutes: 45 },
     }))
     const req = { payload: { findGlobal } } as unknown as PayloadRequest
     snippet.fn.mockReturnValue({ text: 'aus Baustein' })
@@ -49,6 +49,7 @@ describe('R-012 Renderer: Werte laden, Klartext, Mehrzeiler (Zweige)', () => {
       name: 'Jutta, Planet Claire',
       siteUrl: 'https://example.test',
       vorkasseDays: '7',
+      reservationMinutes: '45',
       returnCostsNote: 'aus Baustein',
     })
     const b = await loadLegalTokenValues(req, 'en', { returnCostsNote: null })
@@ -65,6 +66,8 @@ describe('R-012 Renderer: Werte laden, Klartext, Mehrzeiler (Zweige)', () => {
       ustIdNr: '',
       withdrawalUrl: undefined,
       vorkasseDays: undefined,
+      // wie `reservationTimes`: ohne Einstellung gilt der Standard von 30 Minuten (P18.5)
+      reservationMinutes: '30',
     })
     const only = buildLegalTokenValues({
       settings: { business: { legalName: 'Jutta' } },
