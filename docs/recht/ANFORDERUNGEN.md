@@ -1843,7 +1843,7 @@ Feste UI-Texte (nicht editierbar, keine Bausteine): „Zahlungspflichtig bestell
 | `price.shippingNote` | Übersicht, Produktseite | ja | „zzgl. Versandkosten“ (als Link) |
 | `price.tattooNote` | Tattoo-Preise (R-034) | ja | „Gesamtpreis · gemäß § 19 UStG wird keine Umsatzsteuer berechnet“ |
 | `delivery.timeShipping` | R-035 | ja | „Lieferzeit: {{deliveryTime}} (bei Vorkasse ab Zahlungseingang)“ |
-| `delivery.timePickup` | R-035 | ja | „Abholbereit innerhalb von {{deliveryTime}} nach Zahlungseingang, Termin nach Absprache per E-Mail“ |
+| `delivery.timePickup` | R-035 | ja | „Abholbereit: {{deliveryTime}} nach Zahlungseingang, Termin nach Absprache per E-Mail“ (P18.5: Doppelpunkt statt „innerhalb von“, weil die Lieferzeit im Nominativ steht, z. B. „2–5 Werktage“) |
 | `cart.paymentAndDeliveryInfo` | Warenkorb (R-036) | ja | „Wir liefern nur innerhalb Deutschlands. Abholung in Berlin nach Absprache. Zahlarten: Kredit-/Debitkarte, Apple Pay, Google Pay, PayPal, Vorkasse per Überweisung.“ |
 | `checkout.legalNotice` | Übersicht (R-063) | ja | „Es gelten unsere AGB. Informationen zu deinem Widerrufsrecht findest du in der Widerrufsbelehrung, Hinweise zum Datenschutz in der Datenschutzerklärung.“ |
 | `checkout.dhlEmailConsent` | Kasse (R-101) | ja | „Ich bin einverstanden, dass meine E-Mail-Adresse an DHL (DHL Paket GmbH bzw. Deutsche Post AG) übermittelt wird, damit DHL mich über die Zustellung informieren kann. Ich kann diese Einwilligung jederzeit per E-Mail an jutta@planetclairetattoos.com widerrufen.“ |

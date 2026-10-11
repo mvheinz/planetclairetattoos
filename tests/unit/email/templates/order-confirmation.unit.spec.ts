@@ -87,7 +87,7 @@ describe('M01 order_confirmation – R-081 Pflichtinhalte (DE)', () => {
     })
     expect(m.text).toContain('Ich melde mich wegen der Abholung.')
     // P18.5: auch bei Abholung steht die Zeitangabe in der Bestätigung (Baustein `delivery.timePickup`)
-    expect(m.text).toMatch(/Abholbereit innerhalb von 2–5 Werktagen? nach Zahlungseingang/)
+    expect(m.text).toMatch(/Abholbereit: 2–5 Werktage nach Zahlungseingang/)
     expect(m.text).not.toContain('Lieferzeit:')
     expect(m.text).toContain('Abholung in Berlin: 0,00 €')
     expect(m.text).not.toContain('Lieferadresse')

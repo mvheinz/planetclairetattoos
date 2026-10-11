@@ -134,7 +134,7 @@ describe('DeliveryTime (R-035)', () => {
       'Lieferzeit: 2–5 Werktage (bei Vorkasse ab Zahlungseingang)',
     )
     expect(deliveryTimeText('de', '2–5 Werktage', 'nur_abholung')).toMatch(
-      /^Abholbereit innerhalb von 2–5 Werktage nach Zahlungseingang/,
+      /^Abholbereit: 2–5 Werktage nach Zahlungseingang/,
     )
     const el = renderIntl(
       h(DeliveryTime, { locale: 'en', deliveryTime: '2–5 working days', shippingClass: 'keramik' }),

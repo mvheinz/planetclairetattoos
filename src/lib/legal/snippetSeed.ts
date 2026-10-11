@@ -71,7 +71,7 @@ const TEXTS: Record<LegalSnippetKey, LegalSnippetSeedText> = {
     'Delivery time: {{deliveryTime}} (for payment in advance, from receipt of payment)',
   ),
   'delivery.timePickup': draft(
-    'Abholbereit innerhalb von {{deliveryTime}} nach Zahlungseingang, Termin nach Absprache per E-Mail',
+    'Abholbereit: {{deliveryTime}} nach Zahlungseingang, Termin nach Absprache per E-Mail',
     'Ready for collection within {{deliveryTime}} after receipt of payment, appointment by arrangement via email',
   ),
   'cart.paymentAndDeliveryInfo': draft(
