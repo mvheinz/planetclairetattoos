@@ -2845,7 +2845,7 @@ widersprüchlichen Fristen gilt für Löschungen LOESCHKONZEPT, für Abläufe KO
 | `retentionPrivacyRequests` | maintenance | täglich | – | – (DSGVO-Exporte aus §12) | `retentionPrivacyRequests` |
 | `retentionConsentEvidence` | maintenance | täglich | `retention` | `purgeLogs` (`consent-log`), `purgePrivateUploads` (Nachweise) | `retentionConsentEvidence` |
 | `retentionDeletionLog` | maintenance | täglich | – | – | `retentionDeletionLog` |
-| `retentionTechnical` | maintenance | stündlich | `temp-uploads-cleanup` | `purgePrivateUploads` (`pending`), `purgeLogs` (`webhook-events`, `audit-log`) | `retentionTechnical` (inkl. `rate_limit_hits` > 24 h) |
+| `retentionTechnical` | maintenance | stündlich | `temp-uploads-cleanup` | `purgePrivateUploads` (`pending`), `purgeLogs` (`webhook-events`, `audit-log`) | `retentionTechnical` (inkl. `rate_limit_hits` > 24 h; gescheiterte, hängende und verwaiste Mail-Jobs in `payload-jobs`, L-13 i – Prüfung P18.5) |
 | – | – | – | – | – | `retentionCarts`: **entfällt**, solange es keinen Server-Warenkorb gibt (§8.7); L-01 erfüllt `Max-Age` des Cookies, Kassen-Datensätze löscht `retentionAbandonedCheckouts` |
 | `legalHoldReview` | maintenance | täglich | – | – | `legalHoldReview` |
 | `privacyRequestsDeadlineReminder` | maintenance | täglich | – | – | `privacyRequestsDeadlineReminder` |
