@@ -6,7 +6,7 @@ import sharp from 'sharp'
 import React from 'react'
 
 import { formatShippingAddress } from '@/lib/commerce/address'
-import { handoverItems, packingChecklist } from '@/lib/commerce/packing'
+import { handoverItems, packingChecklist, shipmentClassOf } from '@/lib/commerce/packing'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import { getEnv } from '@/lib/env'
 import { preservingReq } from '@/lib/payload/localReq'
@@ -154,14 +154,14 @@ export async function packingSlipData(req: PayloadRequest, order: Order): Promis
           },
     )
   }
+  // Klasse der Sendung (nach Teil-Widerruf bzw. Teil-Erstattung ohne die übrigen Stücke); Abholung ohne Klasse
+  const shipmentClass = order.shippingClass ? shipmentClassOf(order) : null
   return {
     orderNumber: order.orderNumber,
     placedAt: formatBerlin(new Date(order.timestamps.placedAt), 'dd.MM.yyyy'),
     locale: order.locale === 'en' ? 'en' : 'de',
     recipient: formatShippingAddress(order).split('\n').filter(Boolean),
-    shippingClassLabel: order.shippingClass
-      ? ENUM_LABELS.SHIPPING_CLASSES[order.shippingClass].de
-      : null,
+    shippingClassLabel: shipmentClass ? ENUM_LABELS.SHIPPING_CLASSES[shipmentClass].de : null,
     items,
     checklist: packingChecklist(order, settings).map((c) => c.text),
     maker,

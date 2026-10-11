@@ -74,7 +74,8 @@ allem anderen. Am Laptop steht dieselbe Liste als Seitenleiste links.
 Beim Öffnen siehst du, was ansteht:
 
 - **Kacheln:** „Zu packen“, „Vorkasse offen“, „Abholung“, „Widerrufe offen“ (mit der nächsten Frist) und „Neue Anfragen“. Tippe
-  auf eine Kachel, dann bist du in der passenden Liste.
+  auf eine Kachel, dann bist du in der passenden Liste. „Zu packen“ und „Abholung“ zählen auch Bestellungen, bei denen
+  du ein Stück schon erstattet hast und der Rest noch rausgeht bzw. abgeholt wird.
 - **Hinweise:** rot heißt „bitte bald kümmern“, gelb heißt „bitte ansehen“. Jeder Hinweis hat einen Link zur Stelle, an der
   du etwas tun kannst, zum Beispiel offene Datenschutz-Anfragen, der Umsatz-Wächter, eine fehlgeschlagene Mail,
   Rechtstexte, die geprüft werden sollten, oder „Startklar-Prüfung nicht grün“.
@@ -198,8 +199,11 @@ So gehst du vor:
 Steht an einer Bestellung **„Nicht mehr versenden – Widerruf!“**, hat die Kundin schon widerrufen (Kapitel 8).
 Hat sie nur einzelne Stücke widerrufen oder hast du einzelne Stücke schon erstattet (zum Beispiel weil eins zerbrochen
 ist), steht an der Bestellung **„Nicht mehr versenden – Widerruf: Nr. …“** bzw. **„– erstattet: Nr. …“**. Die übrigen
-Stücke packst und versendest du ganz normal; Packzettel und Versandmail nennen nur sie. Steht dort **„Noch nicht
-versenden – … erst Stücke zuordnen!“**, lies Kapitel 8.
+Stücke packst und versendest du ganz normal; Packzettel und Versandmail nennen nur sie. Versandart, Hinweise, Checkliste
+und Verpackung richten sich dann nur nach diesen Stücken: Bleibt zum Beispiel nur eine Postkarte übrig, geht sie als
+Brief, und die Sendungsnummer ist freiwillig. Das nicht verschickte Stück kannst du nach der Erstattung wieder verkaufen
+oder ausblenden, auch wenn der Rest schon unterwegs ist. Steht dort **„Noch nicht versenden – … erst Stücke
+zuordnen!“**, lies Kapitel 8.
 
 ![Die Liste „Versendet“](img/handbuch/versendet.webp)
 

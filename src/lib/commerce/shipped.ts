@@ -21,6 +21,7 @@ import type { Order } from '@/payload-types'
 
 import { restDeliveryAllowed } from './orderTransitions'
 import { loadSettings } from './packOrder'
+import { shipmentClassOf } from './packing'
 import { shippedMailKey } from './shipOrder'
 import {
   loadOrder,
@@ -125,7 +126,7 @@ export async function fixTrackingNumber(
       ? input.carrier
       : isCarrierCode(current.shipment?.carrier)
         ? current.shipment.carrier
-        : defaultCarrierFor(current.shippingClass)
+        : defaultCarrierFor(shipmentClassOf(current))
     const sameNumber =
       current.shipment?.trackingNumber === trackingNumber && current.shipment?.carrier === carrier
     let updated = current

@@ -700,6 +700,7 @@ export interface Order {
     deviationAgreedAt?: string | null;
     status: 'active' | 'withdrawn' | 'returned' | 'refunded';
     refundedCents: number;
+    handedOverAt?: string | null;
     id?: string | null;
   }[];
   subtotalCents: number;
@@ -3427,6 +3428,7 @@ export interface OrdersSelect<T extends boolean = true> {
         deviationAgreedAt?: T;
         status?: T;
         refundedCents?: T;
+        handedOverAt?: T;
         id?: T;
       };
   subtotalCents?: T;

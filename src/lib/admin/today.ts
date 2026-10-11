@@ -2,6 +2,7 @@ import 'server-only'
 
 import type { Payload, Where } from 'payload'
 
+import { restPickupPending, restShipmentPending } from '@/lib/commerce/orderTransitions'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { AttentionReason, OrderStatus, RevenueGuardStage } from '@/lib/enums'
 import {
@@ -44,13 +45,30 @@ import { OPEN_WITHDRAWAL_STATUSES } from '@/admin/views/withdrawals/withdrawalQu
 
 const DAY = 86_400_000
 
-/** „Zu packen“ auf „Heute“: Versandbestellungen `paid`/`packed` (SEED-SPEC §17: O14 + O12). */
-export const TODAY_PACKING_STATUSES = ['paid', 'packed'] as const satisfies readonly OrderStatus[]
-/** „Abholung“: wie die Ansicht `/abholung` – `paid` mit Abholung und `ready_for_pickup`. */
+/**
+ * „Zu packen“ auf „Heute“: Versandbestellungen `paid`/`packed` (SEED-SPEC §17: O14 + O12) und die noch ausstehende
+ * Rest-Lieferung nach einer Teil-Erstattung vor dem Versand (`partially_refunded`, `restShipmentPending`) – wie die
+ * Ansicht `/packen`, ohne den Widerruf vor dem Versand („Nicht mehr versenden“, dort nur als Hinweis).
+ */
+export const TODAY_PACKING_STATUSES = [
+  'paid',
+  'packed',
+  'partially_refunded',
+] as const satisfies readonly OrderStatus[]
+/**
+ * „Abholung“: wie die Ansicht `/abholung` – `paid` mit Abholung, `ready_for_pickup` und die noch ausstehende
+ * Rest-Abholung nach einer Teil-Erstattung (`partially_refunded`, `restPickupPending`).
+ */
 export const TODAY_PICKUP_STATUSES = [
   'paid',
   'ready_for_pickup',
+  'partially_refunded',
 ] as const satisfies readonly OrderStatus[]
+
+/** Rest-Lieferung bzw. Rest-Abholung (`partially_refunded`) zählt nur, solange sie aussteht (wie die Listen). */
+const pendingPacking = (o: Order) => o.status !== 'partially_refunded' || restShipmentPending(o)
+const pendingPickup = (o: Order) => o.status !== 'partially_refunded' || restPickupPending(o)
+
 /** Hinweis „Abholung wartet“ ab so vielen Tagen seit „Kann abgeholt werden“. */
 export const PICKUP_WAIT_WARN_DAYS = 14
 /** Aufbewahrungssperren zur Prüfung: letzte Prüfung (sonst Beginn) mindestens so viele Monate her (auch P6.15). */
@@ -181,30 +199,44 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
     stuckReceipts,
     privacyRequests,
   ] = await inSequence([
-    () =>
-      count('orders', {
+    async () =>
+      (await count('orders', {
         and: [
           { fulfillmentMethod: { equals: 'shipping' } },
-          { status: { in: [...TODAY_PACKING_STATUSES] } },
+          { status: { in: TODAY_PACKING_STATUSES.filter((s) => s !== 'partially_refunded') } },
         ],
-      }),
+      })) +
+      (
+        await find<Order>({
+          collection: 'orders',
+          where: {
+            and: [
+              { fulfillmentMethod: { equals: 'shipping' } },
+              { status: { equals: 'partially_refunded' } },
+            ],
+          },
+          select: { status: true, items: true, timestamps: true },
+        })
+      ).filter(pendingPacking).length,
     () =>
       find<Order>({
         collection: 'orders',
         where: { status: { equals: 'awaiting_prepayment' } },
         select: { prepayment: true },
       }),
-    () =>
-      find<Order>({
-        collection: 'orders',
-        where: {
-          and: [
-            { fulfillmentMethod: { equals: 'pickup' } },
-            { status: { in: [...TODAY_PICKUP_STATUSES] } },
-          ],
-        },
-        select: { orderNumber: true, status: true, timestamps: true },
-      }),
+    async () =>
+      (
+        await find<Order>({
+          collection: 'orders',
+          where: {
+            and: [
+              { fulfillmentMethod: { equals: 'pickup' } },
+              { status: { in: [...TODAY_PICKUP_STATUSES] } },
+            ],
+          },
+          select: { orderNumber: true, status: true, items: true, timestamps: true },
+        })
+      ).filter(pendingPickup),
     () =>
       find<Withdrawal>({
         collection: 'withdrawals',
@@ -457,8 +489,9 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
   // Abholungen > 14 Tage (gelb)
   const pickupLimit = addBerlinDays(now, -PICKUP_WAIT_WARN_DAYS).getTime()
   for (const o of abholung) {
+    // abholbereit, auch die Rest-Abholung nach einer Teil-Erstattung (`partially_refunded` mit `readyForPickupAt`)
     const since = o.timestamps?.readyForPickupAt
-    if (o.status !== 'ready_for_pickup' || !since || Date.parse(since) > pickupLimit) continue
+    if (o.status === 'paid' || !since || Date.parse(since) > pickupLimit) continue
     hint({
       id: `pickup-${o.id}`,
       tone: 'warning',

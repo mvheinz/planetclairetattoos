@@ -391,6 +391,13 @@ describe('AK-5-01 Produkt – Erstattungsgründe bei nie versendetem Stück (KA-
       orderId: order.id as number,
       channel: 'online',
     })
+    // Position mit erstattet (wie der Dialog „Erstatten“ mit gewähltem Stück)
+    const saved = await payload.findByID({
+      collection: 'orders',
+      id: order.id,
+      depth: 0,
+      overrideAccess: true,
+    })
     await payload.update({
       collection: 'orders',
       id: order.id,
@@ -399,10 +406,12 @@ describe('AK-5-01 Produkt – Erstattungsgründe bei nie versendetem Stück (KA-
           {
             amountCents: 5390,
             reason,
+            itemIds: saved.items.map((i) => i.id),
             status: 'succeeded',
             createdAt: '2026-09-28T10:00:00.000Z',
           },
         ],
+        items: saved.items.map((i) => ({ ...i, status: 'refunded', refundedCents: i.priceCents })),
       } as never,
       overrideAccess: true,
     })

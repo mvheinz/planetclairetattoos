@@ -2,7 +2,11 @@ import 'server-only'
 
 import type { PayloadRequest } from 'payload'
 
-import { deliveryFacts, restDeliveryAllowed } from '@/lib/commerce/orderTransitions'
+import {
+  deliveryFacts,
+  restDeliveryAllowed,
+  restPickupPending,
+} from '@/lib/commerce/orderTransitions'
 import { handoverItems } from '@/lib/commerce/packing'
 import { PICKUP_WAIT_WARN_DAYS, pickupTemplateText } from '@/lib/commerce/pickup'
 import { unassignedWithdrawals } from '@/lib/commerce/withdrawalHold'
@@ -19,8 +23,9 @@ const DAY = 86_400_000
 const date = (iso: string | null | undefined) =>
   iso ? formatBerlin(new Date(iso), 'dd.MM.yyyy') : ''
 
+/** Stücke der Sendung (`handoverItems`: die verschickten, nicht die vorher widerrufenen bzw. erstatteten). */
 const itemsOf = (o: Order) =>
-  o.items.map((i) => `${formatItemNumber(i.itemNumber, 'de')} ${i.titleDe}`)
+  handoverItems(o.items).map((i) => `${formatItemNumber(i.itemNumber, 'de')} ${i.titleDe}`)
 
 export interface ShippedCard {
   id: number
@@ -160,11 +165,9 @@ export async function loadPickupList(req: PayloadRequest, now: Date): Promise<Pi
     overrideAccess: true,
     req,
   })
-  const orders = (res.docs as Order[]).filter((o) => {
-    if (o.status !== 'partially_refunded') return true
-    const facts = deliveryFacts(o)
-    return restDeliveryAllowed('ready_for_pickup', facts) || restDeliveryAllowed('picked_up', facts)
-  })
+  const orders = (res.docs as Order[]).filter(
+    (o) => o.status !== 'partially_refunded' || restPickupPending(o),
+  )
   const unassigned = await unassignedWithdrawals(
     req,
     orders.map((o) => o.id),

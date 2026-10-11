@@ -18,13 +18,15 @@ import type { Order } from '@/payload-types'
 
 import { restDeliveryAllowed } from './orderTransitions'
 import { loadSettings, packagingToRecord, type PackagingInput } from './packOrder'
-import { packagingRecorded, shippingClassesOf } from './packing'
+import { packagingRecorded, shipmentClassesOf } from './packing'
 import { loadOrder, lockOrder, transitionOrder, type LockedOrder } from './transitionOrder'
 import { itemsUnassignedMessage, unassignedWithdrawalOf } from './withdrawalHold'
 
 // „Versendet melden“ (O7, DATENMODELL §6.8.5, KONZEPT §7.6): nur `paid`/`packed` mit Versand (bzw. Rest-Lieferung
 // aus `partially_refunded`, `restDeliveryAllowed`; nie bei Teil-Widerruf ohne zugeordnete Stücke); Versanddienst
-// (vorbelegt aus der Versandklasse), Sendungsnummer Pflicht bei `paket_klein`/`keramik`, bei `brief` optional;
+// (vorbelegt aus der Versandklasse), Sendungsnummer Pflicht bei `paket_klein`/`keramik`, bei `brief` optional – nur die
+// Klassen der Stücke, die in die Sendung gehören (`shipmentClassesOf`; nach Teil-Widerruf bzw. Teil-Erstattung vor dem
+// Versand ohne die übrigen, P18.5);
 // Verpackung erfasst (Pflicht, DM-ORD-07 – wird hier mit der übergebenen bzw. vorbelegten Vorlage erfasst, falls
 // „Gepackt“ übersprungen wurde). Keramik ohne Packfoto: kein Zwang, aber Rückfrage „Ohne Packfoto versenden?“ – erst
 // mit `confirmWithoutPackingPhoto: true` wird versendet und Audit `packing_photo_skipped` geschrieben (R-100).
@@ -92,15 +94,17 @@ export async function shipOrder(
     if (unassigned) {
       throw new ShipError(409, itemsUnassignedMessage(unassigned), 'withdrawal_items_unassigned')
     }
+    // Stand nach der Sperre (ein gleichzeitiger Teil-Widerruf ist dann schon gebucht bzw. wartet)
+    const current = await loadOrder(req, order.id)
+    const classes = shipmentClassesOf(current)
     const carrier: CarrierCode = isCarrierCode(input.carrier)
       ? input.carrier
-      : defaultCarrierFor(order.shippingClass)
+      : defaultCarrierFor(classes[0] ?? null)
     const rawTracking = typeof input.trackingNumber === 'string' ? input.trackingNumber.trim() : ''
     const trackingNumber = rawTracking ? parseTrackingNumber(rawTracking) : null
     if (rawTracking && !trackingNumber) {
       throw new ShipError(400, 'Sendungsnummer: 8–35 Buchstaben oder Ziffern, ohne Sonderzeichen.')
     }
-    const classes = shippingClassesOf(order)
     if (!trackingNumber && classes.some((c) => TRACKING_REQUIRED.has(c))) {
       throw new ShipError(
         409,
@@ -108,7 +112,6 @@ export async function shipOrder(
       )
     }
 
-    const current = await loadOrder(req, order.id)
     const packaging = input.packaging
       ? await packagingToRecord(req, current, input.packaging)
       : null

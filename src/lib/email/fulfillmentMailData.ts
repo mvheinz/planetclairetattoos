@@ -6,9 +6,11 @@ import type { Order } from '@/payload-types'
 import type { OrderShippedData, PickupReadyData } from './templates/fulfillment'
 
 // Daten der Mails M06 (Versand, P5.15) und M07 (Abholbereit, P5.17) aus dem Snapshot der Bestellung (DM-05): beim
-// Einreihen in der Transaktion des Ereignisses bzw. bei „Erneut senden“ (P5.9) aus dem aktuellen Stand gebildet. Es
-// stehen nur die Stücke darin, die tatsächlich verschickt bzw. übergeben werden (`handoverItems`: nach Teil-Widerruf
-// oder Teil-Erstattung vor Versand/Abholung ohne die widerrufenen bzw. erstatteten).
+// Einreihen in der Transaktion des Ereignisses bzw. bei „Erneut senden“ (P5.9) und „Sendungsnummer korrigieren“ aus dem
+// aktuellen Stand gebildet. Es stehen nur die Stücke darin, die tatsächlich verschickt bzw. übergeben werden bzw.
+// wurden (`handoverItems`): nach „Versendet“ bzw. „Abgeholt“ die dabei übergebenen (`items[].handedOverAt`, auch wenn
+// eins danach widerrufen oder erstattet wurde), davor die aktiven – nach Teil-Widerruf oder Teil-Erstattung vor
+// Versand/Abholung ohne die widerrufenen bzw. erstatteten.
 
 const items = (order: Order) =>
   handoverItems(order.items).map((i) => ({

@@ -11,6 +11,9 @@ import {
   packagingTemplates,
   packingChecklist,
   packingHints,
+  shipmentClassesOf,
+  shipmentClassOf,
+  shipmentValueCents,
   shippingClassesOf,
   withdrawnBeforeShipping,
   type PackagingSettings,
@@ -96,26 +99,22 @@ describe('Packen – Hinweise und Versandklassen (P5.10)', () => {
       order({
         status: 'withdrawal_received',
         statusBeforeWithdrawal: 'packed',
-        shippingClass: 'brief',
+        shippingClass: 'keramik',
         items: [{ shippingClass: 'keramik' }],
         subtotalCents: 60_000,
         carrierEmailConsent: true,
       }),
     )
-    expect(all.map((h) => h.key)).toEqual([
-      'withdrawal',
-      'ceramic',
-      'insurance',
-      'letter',
-      'carrierEmail',
-    ])
+    expect(all.map((h) => h.key)).toEqual(['withdrawal', 'ceramic', 'insurance', 'carrierEmail'])
     expect(all.find((h) => h.key === 'insurance')?.text).toBe(
       'Warenwert > 500 € – Transportversicherung buchen',
     )
-    expect(all.find((h) => h.key === 'letter')?.text).toBe(
-      'Brief über 25 € – Einschreiben haftet nur bis 25 €',
-    )
     expect(all.at(-1)).toEqual({ key: 'carrierEmail', text: 'E-Mail an DHL: ja', tone: 'info' })
+    const brief = packingHints(
+      order({ shippingClass: 'brief', items: [{ shippingClass: 'brief' }], subtotalCents: 2_501 }),
+    )
+    expect(brief.map((h) => h.key)).toEqual(['letter', 'carrierEmail'])
+    expect(brief[0]?.text).toBe('Brief über 25 € – Einschreiben haftet nur bis 25 €')
 
     const own = packingHints(order({ subtotalCents: 30_050 }), { insuranceThresholdCents: 30_000 })
     expect(own.map((h) => h.text)).toEqual([
@@ -185,6 +184,57 @@ describe('Packen – Hinweise und Versandklassen (P5.10)', () => {
     expect(handoverItems([w, r])).toEqual([w, r])
     expect(handoverItems([])).toEqual([])
   })
+
+  it('handoverItems nach „Versendet“/„Abgeholt“: die übergebenen Stücke, auch wenn sie danach widerrufen oder erstattet wurden', () => {
+    const at = '2026-10-02T10:00:00.000Z'
+    // A und B zusammen verschickt, A danach erstattet: M06 („Erneut senden“) nennt weiter A und B
+    const a = { id: 'a', status: 'refunded', handedOverAt: at }
+    const b = { id: 'b', status: 'active', handedOverAt: at }
+    expect(handoverItems([a, b])).toEqual([a, b])
+    // Rest-Lieferung: A vor dem Versand widerrufen, nur B verschickt; B danach auch widerrufen → weiter nur B
+    const w = { id: 'w', status: 'withdrawn', handedOverAt: null }
+    const kept = { id: 'k', status: 'withdrawn', handedOverAt: at }
+    expect(handoverItems([w, kept])).toEqual([kept])
+  })
+
+  it('Rest-Sendung: Versandklassen, Warenwert und Hinweise nur aus den Stücken, die in das Paket gehören', () => {
+    // Keramikschale vor dem Versand widerrufen, Postkarte (Brief) wird verschickt
+    const rest = order({
+      shippingClass: 'keramik',
+      subtotalCents: 62_000,
+      items: [
+        { shippingClass: 'keramik', status: 'withdrawn', itemNumber: 980, priceCents: 59_000 },
+        { shippingClass: 'brief', status: 'active', itemNumber: 981, priceCents: 3_000 },
+      ],
+    })
+    expect(shipmentClassesOf(rest)).toEqual(['brief'])
+    expect(shipmentClassOf(rest)).toBe('brief')
+    expect(shipmentValueCents(rest)).toBe(3_000)
+    expect(packingHints(rest).map((h) => h.key)).toEqual([
+      'withdrawnItems',
+      'letter',
+      'carrierEmail',
+    ])
+    // nach dem Versand die verschickten Stücke (auch nach späterer Erstattung)
+    const sent = order({
+      status: 'partially_refunded',
+      shippingClass: 'keramik',
+      subtotalCents: 62_000,
+      timestamps: { shippedAt: '2026-10-02' },
+      items: [
+        { shippingClass: 'keramik', status: 'refunded', priceCents: 59_000, handedOverAt: 'x' },
+        { shippingClass: 'brief', status: 'active', priceCents: 3_000, handedOverAt: 'x' },
+      ],
+    })
+    expect(shipmentClassesOf(sent)).toEqual(['keramik', 'brief'])
+    expect(shipmentValueCents(sent)).toBe(62_000)
+    // ohne Positionen bzw. ohne Preis: Klasse und Zwischensumme der Bestellung
+    expect(shipmentClassesOf({ shippingClass: 'paket_klein', items: [] })).toEqual(['paket_klein'])
+    expect(shipmentClassesOf({ shippingClass: 'paket_klein', items: [{}] })).toEqual([
+      'paket_klein',
+    ])
+    expect(shipmentValueCents(order({ subtotalCents: 4_500 }))).toBe(4_500)
+  })
 })
 
 describe('Verpackungs-Checkliste (P5.11)', () => {
@@ -192,7 +242,7 @@ describe('Verpackungs-Checkliste (P5.11)', () => {
     const list = packingChecklist(
       {
         shippingClass: 'keramik',
-        items: [{ shippingClass: 'brief' }],
+        items: [{ shippingClass: 'keramik' }, { shippingClass: 'brief' }],
         packingChecklistState: {
           'Karton in Karton': true,
           'zwei Fotos vor dem Zukleben': false,
@@ -329,6 +379,20 @@ describe('Verpackungsmengen (E-47, R-201)', () => {
       components: [],
       recorded: false,
     })
+    // Rest-Sendung: Keramik vor dem Versand widerrufen → Vorlage der verbleibenden Klasse
+    expect(
+      packagingForOrder(
+        {
+          shippingClass: 'keramik',
+          items: [
+            { shippingClass: 'keramik', status: 'withdrawn' },
+            { shippingClass: 'paket_klein', status: 'active' },
+          ],
+          packaging: null,
+        },
+        SETTINGS,
+      ),
+    ).toMatchObject({ templateKey: 'karton-s', recorded: false })
   })
 
   it('packagingRecorded: Zeitpunkt, Vorlage und mindestens ein gültiger Bestandteil', () => {

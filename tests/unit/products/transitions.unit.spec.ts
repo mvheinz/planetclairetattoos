@@ -157,19 +157,46 @@ describe('PRODUCT_TRANSITIONS (AK-5-01, DM-PROD-10)', () => {
     expect(run(null, 'offline' as never)).toBe(true)
     expect(run({ itemStatus: 'refunded', returnReceivedAt: '2026-10-01' })).toBe(true)
     expect(run({ itemStatus: 'refunded', returnReceivedAt: null })).toBe(false)
+    // ganze Bestellung storniert (auch ohne gewählte Positionen) bzw. Position mit erstattet
     expect(
       run({
+        status: 'refunded',
         itemStatus: 'active',
         refunds: [{ reason: 'admin_cancellation', status: 'succeeded' }],
       }),
     ).toBe(true)
     expect(
       run({
+        status: 'partially_refunded',
+        itemStatus: 'refunded',
+        refunds: [{ reason: 'admin_cancellation', status: 'succeeded', itemIds: ['L1'] }],
+      }),
+    ).toBe(true)
+    expect(
+      run({
+        status: 'refunded',
         itemStatus: 'active',
         shippedAt: '2026-10-01',
         refunds: [{ reason: 'admin_cancellation', status: 'succeeded' }],
       }),
     ).toBe(false)
+    // Teil-Storno: dieses Stück steht noch als Rest-Lieferung aus – bleibt verkauft (nie doppelt verkaufen)
+    expect(
+      run({
+        status: 'partially_refunded',
+        itemStatus: 'active',
+        refunds: [{ reason: 'admin_cancellation', status: 'succeeded', itemIds: ['L2'] }],
+      }),
+    ).toBe(false)
+    // Teil-Storno vor dem Versand, Rest danach verschickt: das stornierte Stück war nicht im Paket
+    const restShipped = {
+      status: 'shipped' as const,
+      itemStatus: 'refunded' as const,
+      shippedAt: '2026-10-02',
+      refunds: [{ reason: 'admin_cancellation' as const, status: 'succeeded' as const }],
+    }
+    expect(run({ ...restShipped, itemHandedOver: false })).toBe(true)
+    expect(run({ ...restShipped, itemHandedOver: true })).toBe(false)
     expect(run({ refunds: [{ reason: 'admin_cancellation', status: 'pending' }] })).toBe(false)
     expect(run({ refunds: [{ reason: 'breakage', status: 'succeeded' }] })).toBe(false)
     expect(
@@ -213,9 +240,20 @@ describe('PRODUCT_TRANSITIONS (AK-5-01, DM-PROD-10)', () => {
     }
     for (const t of ['returnToStock', 'archiveAfterReturn'] as const) {
       expect(run(t, withdrawn), t).toMatchObject({ ok: true })
-      // schon verschickt bzw. abgeholt: nur mit „Ware zurück“
+      // schon verschickt bzw. abgeholt (Bestellung ohne erfasste Übergabe je Position): nur mit „Ware zurück“
       expect(run(t, { ...withdrawn, shippedAt: '2026-10-01' }).ok, t).toBe(false)
       expect(run(t, { ...withdrawn, pickedUpAt: '2026-10-01' }).ok, t).toBe(false)
+      // Rest-Lieferung: Bestellung verschickt bzw. abgeholt, aber dieses Stück nicht (Übergabe je Position)
+      expect(run(t, { ...withdrawn, shippedAt: '2026-10-01', itemHandedOver: false }).ok, t).toBe(
+        true,
+      )
+      expect(run(t, { ...withdrawn, pickedUpAt: '2026-10-01', itemHandedOver: false }).ok, t).toBe(
+        true,
+      )
+      // dieses Stück war im Paket: nur mit „Ware zurück“
+      expect(run(t, { ...withdrawn, shippedAt: '2026-10-01', itemHandedOver: true }).ok, t).toBe(
+        false,
+      )
       // Erstattung läuft noch bzw. Stück widerrufen, aber noch nicht erstattet
       expect(
         run(t, {

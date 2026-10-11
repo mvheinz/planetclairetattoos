@@ -3,13 +3,18 @@ import 'server-only'
 import type { PayloadRequest } from 'payload'
 
 import { carrierEmailConsentActive, shippingAddressLines } from '@/lib/commerce/address'
-import { deliveryFacts, restDeliveryAllowed } from '@/lib/commerce/orderTransitions'
+import {
+  deliveryFacts,
+  restDeliveryAllowed,
+  restShipmentPending,
+} from '@/lib/commerce/orderTransitions'
 import {
   handoverItems,
   packagingForOrder,
   packagingTemplates,
   packingChecklist,
   packingHints,
+  shipmentClassOf,
   withdrawnBeforeShipping,
   type ChecklistItem,
   type PackagingTemplate,
@@ -206,20 +211,21 @@ function packingCard(
   settings: Setting,
   unassigned: string | null = null,
 ): PackingCard {
+  // nur die Stücke, die ins Paket gehören bzw. darin waren (`handoverItems`, gleiche Reihenfolge wie `order.items`);
+  // die übrigen nennt der Hinweis „Nicht mehr versenden – …“
+  const inParcel = new Set(handoverItems(order.items))
+  const shipmentClass = shipmentClassOf(order)
   return {
     id: order.id,
     orderNumber: order.orderNumber,
     status: order.status,
     statusLabel: ENUM_LABELS.ORDER_STATUSES[order.status].de,
     placedAt: berlin(order.timestamps.placedAt, 'dd.MM.yyyy'),
-    shippingClass: order.shippingClass ?? null,
-    shippingClassLabel: order.shippingClass
-      ? ENUM_LABELS.SHIPPING_CLASSES[order.shippingClass].de
-      : null,
+    shippingClass: shipmentClass,
+    shippingClassLabel: shipmentClass ? ENUM_LABELS.SHIPPING_CLASSES[shipmentClass].de : null,
     name: order.shippingAddress?.name ?? order.customer?.name ?? '',
     city: order.shippingAddress?.city ?? '',
-    // nur die Stücke, die ins Paket gehören; die übrigen nennt der Hinweis „Nicht mehr versenden – …“
-    items: handoverItems(items),
+    items: items.filter((_, i) => inParcel.has(order.items[i]!)),
     hints: packingHints(order, {
       insuranceThresholdCents: settings.shipping?.insuranceHintThresholdCents,
       unassignedWithdrawal: unassigned,
@@ -248,9 +254,7 @@ export const PACKING_LIST_STATUSES: readonly OrderStatus[] = [
 /** Gehört die Bestellung (Status aus `PACKING_LIST_STATUSES`) auf „Zu packen“? */
 export function onPackingList(order: Order): boolean {
   if (order.status === 'withdrawal_received') return withdrawnBeforeShipping(order)
-  if (order.status === 'partially_refunded') {
-    return restDeliveryAllowed('shipped', deliveryFacts(order))
-  }
+  if (order.status === 'partially_refunded') return restShipmentPending(order)
   return true
 }
 
@@ -351,7 +355,7 @@ export async function loadOrderDetail(
       templates: packagingTemplates(settings),
       photos: await packingPhotos(req, order.packingPhotos),
       defaultCarrier:
-        (order.shipment?.carrier as CarrierCode | null) ?? defaultCarrierFor(order.shippingClass),
+        (order.shipment?.carrier as CarrierCode | null) ?? defaultCarrierFor(card.shippingClass),
       trackingNumber: order.shipment?.trackingNumber ?? null,
     }
   }

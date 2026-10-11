@@ -1208,9 +1208,9 @@ Zusatzfelder (DATENMODELL §6.6.1): `showInArchiveAfterSale` (bool, Standard `tr
 | P8 | `available` | `sold` | System `fulfillCheckout` (Reservierung war schon frei, Stück noch frei) / Admin „Nachträglich bezahlt“ | – | wie P7 |
 | P9 | `available` | `sold` | Admin „Offline verkauft“ | – | `soldChannel=offline`, `soldAt`; `showInArchiveAfterSale` wie im Dialog gewählt |
 | P10 | `reserved` (`source = checkout_session`) | `sold` | Admin „Offline verkauft“ mit Warnung (S5) | Bestätigung im Dialog | Stripe-Session beenden, Reservierung freigeben, `soldChannel=offline` |
-| P11 | `sold` | `available` | Admin „Wieder verkaufen“ | `soldChannel=offline` (Korrektur) **oder** zugehörige Bestellposition erstattet und Ware zurück **oder** Bestellung vor Versand bzw. Übergabe mit Grund `admin_cancellation` erstattet (Stück nie verschickt) **oder** Bestellposition des Stücks nach Widerruf vor Versand bzw. Übergabe mit Grund `withdrawal` erstattet (P18.5) [Annahme KA-37] | `soldAt`, `soldChannel`, `currentOrder` leeren; Historie bleibt; Veröffentlichungsprüfung erneut |
+| P11 | `sold` | `available` | Admin „Wieder verkaufen“ | `soldChannel=offline` (Korrektur) **oder** zugehörige Bestellposition erstattet und Ware zurück **oder** Bestellung vor Versand bzw. Übergabe mit Grund `admin_cancellation` erstattet (Stück nie verschickt und nicht mehr zu liefern) **oder** Bestellposition des Stücks nach Widerruf vor Versand bzw. Übergabe mit Grund `withdrawal` erstattet (P18.5); „nie verschickt“ gilt je Stück, auch wenn der Rest der Bestellung danach verschickt bzw. abgeholt wurde [Annahme KA-37] | `soldAt`, `soldChannel`, `currentOrder` leeren; Historie bleibt; Veröffentlichungsprüfung erneut |
 | P12 | `draft`, `available` | `archived` | Admin „Ausblenden“ | keine aktive Reservierung | `archivedAt`, Revalidierung |
-| P13 | `sold` | `archived` | Admin „Ausblenden“ nach Rückgabe oder Bruch (beschädigt) | Bestellposition erstattet und Ware zurück **oder** Bestellung wegen `breakage` erstattet (Stück vor dem Versand beschädigt, nie verschickt) **oder** Bestellposition des Stücks nach Widerruf vor Versand bzw. Übergabe mit Grund `withdrawal` erstattet (P18.5, KA-37) | `archivedAt`; `soldAt`, `soldChannel`, `currentOrder` leeren; Revalidierung |
+| P13 | `sold` | `archived` | Admin „Ausblenden“ nach Rückgabe oder Bruch (beschädigt) | Bestellposition erstattet und Ware zurück **oder** Bestellung wegen `breakage` erstattet (Stück vor dem Versand beschädigt, nie verschickt) **oder** Bestellposition des Stücks nach Widerruf vor Versand bzw. Übergabe mit Grund `withdrawal` erstattet (P18.5, KA-37; je Stück wie bei P11) | `archivedAt`; `soldAt`, `soldChannel`, `currentOrder` leeren; Revalidierung |
 | P14 | `archived` | `draft` | Admin „Wieder bearbeiten“ (Endpunkt `/restore`) | – | `archivedAt = null` |
 | P15 | `draft` | gelöscht | Admin „Löschen“ | `firstPublishedAt` leer (nie veröffentlicht) und keine Bestellposition verweist auf das Stück | Bilder gelöscht, Nummer wieder frei |
 
@@ -1617,7 +1617,9 @@ Admin-Ansicht. Keine Kund:innen-Freitexte, keine Anfrage-Bilder.
 ### 7.3 Heute (Start-Ansicht)
 
 - **Kacheln mit Zahl und Link:** Zu packen · Vorkasse offen (davon heute fällig) · Abholung · Widerrufe offen (nächste Frist)
-  · Neue Anfragen.
+  · Neue Anfragen. „Zu packen“ und „Abholung“ zählen dieselben Bestellungen wie die Listen §7.6 bzw. §7.9, auch die
+  Rest-Lieferung bzw. Rest-Abholung nach einer Teil-Erstattung (P18.5); einen Widerruf vor dem Versand („Nicht mehr
+  versenden“) zählt „Zu packen“ nicht.
 - **Hinweise** (rot/gelb, jeweils mit Link): Umsatz-Wächter-Stufe (§8.4); Rechtstexte-Prüfung fällig (R-014); offene
   Datenschutz-Anfragen mit nächster Frist (R-153); Aufbewahrungssperren zur Prüfung; Stücke und Bestellungen mit
   `adminAttention` (z. B. Konformitätserklärung widerrufen, abweichender Zahlbetrag); fehlgeschlagene Mails;
@@ -1717,7 +1719,9 @@ Erfolgsseite mit „Link kopieren“ (kanonische DE-URL), „Kurzlink kopieren�
   Datum, Fotos + `Nr.` der Stücke, Versandklasse, Name und Ort, Badges: „Keramik – Karton in Karton“, „Warenwert > 500 € –
   Transportversicherung buchen“ (`settings.shipping.insuranceHintThresholdCents`, DHL haftet bis 500 €, Konzeptseite),
   „Brief über 25 € – Einschreiben haftet nur bis 25 €“, „E-Mail an DHL: ja/nein“ (`carrierEmailConsent` ohne
-  `carrierEmailConsentRevokedAt`), „Nicht mehr versenden – Widerruf!“ (falls O11).
+  `carrierEmailConsentRevokedAt`), „Nicht mehr versenden – Widerruf!“ (falls O11). Nach einem Teil-Widerruf bzw. einer
+  Teil-Erstattung vor dem Versand gelten Versandklasse, Warenwert, Checkliste, Verpackungsvorlage, Versanddienst und
+  Sendungsnummer-Pflicht nur für die Stücke, die noch in das Paket gehören (P18.5).
 - **Detail und Knöpfe:**
 
 | Knopf | Wirkung |
@@ -2653,7 +2657,7 @@ Einträge mit „geklärt (Abgleich vom 26.09.2026)“ sind zwischen den Fachdok
 | KA-34 | Zahlung zu einer beendeten Kasse (§4.10, §4.11 S16) | Meldet Stripe eine bezahlte Session zu einer Kasse in `expired`, `cancelled` oder `failed`, entsteht **keine** Bestellung (die Stücke können längst anders verkauft sein); der Shop erstattet nicht automatisch, sondern schickt A12 mit Betrag und Stripe-Zahlungs-ID, Jutta erstattet im Stripe-Dashboard. Änderbar in `processPaymentEvent()` (z. B. automatische Erstattung wie S4) | Jutta (P11) |
 | KA-35 | Karte/PayPal bezahlt, obwohl Vorkasse bestellt (§4.10, §4.11 S17) | Keine zweite Bestellung; die Vorkasse-Bestellung bleibt `awaiting_prepayment` und erhält einen Hinweis (`adminAttention` mit Notiz); A12 empfiehlt, die Kartenzahlung im Stripe-Dashboard zu erstatten oder mit der Kundin zu klären. Kein automatisches Umbuchen auf „bezahlt“, weil Zahlart, Rechnung und Frist dann nicht zur Bestellung passen. Änderbar in `processPaymentEvent()` | Jutta (P11) |
 | KA-36 | Shop-Pause und laufende Kassen (§4.2) | `settings.shop.isOpen = false` sperrt nur neue Aktionen („In den Korb“, „Zur Kasse“); eine schon gestartete Kasse läuft weiter und kann bis zu ihrem Ablauf bezahlt werden (kein Abbruch mitten in der Zahlung). Änderbar in der Prüfung von `submitCheckout` | Jutta |
-| KA-37 | Stück nach Storno vor dem Versand (§5.1 P11, §5.3 O15) | Wird eine bezahlte Bestellung mit Grund `admin_cancellation` erstattet, bevor das Stück verschickt oder übergeben wurde, darf Jutta es mit „Wieder verkaufen“ (P11) zurück in den Shop stellen, ohne dass „Ware zurück“ erfasst ist. Bei `breakage` gibt es stattdessen nur „Ausblenden“ (P13). Ebenso nach einem Widerruf vor dem Versand bzw. der Übergabe: Ist die Position des Stücks mit Grund `withdrawal` erstattet, gehen „Wieder verkaufen“ (P11) und „Ausblenden“ (P13) ohne „Ware zurück“ (P18.5). Änderbar in `src/lib/commerce/productTransitions.ts` | Jutta |
+| KA-37 | Stück nach Storno vor dem Versand (§5.1 P11, §5.3 O15) | Wird eine bezahlte Bestellung mit Grund `admin_cancellation` erstattet, bevor das Stück verschickt oder übergeben wurde, darf Jutta es mit „Wieder verkaufen“ (P11) zurück in den Shop stellen, ohne dass „Ware zurück“ erfasst ist. Bei `breakage` gibt es stattdessen nur „Ausblenden“ (P13). Ebenso nach einem Widerruf vor dem Versand bzw. der Übergabe: Ist die Position des Stücks mit Grund `withdrawal` erstattet, gehen „Wieder verkaufen“ (P11) und „Ausblenden“ (P13) ohne „Ware zurück“ (P18.5). „Vor dem Versand“ gilt je Stück: Wurde der Rest der Bestellung danach verschickt bzw. abgeholt, zählt nur, ob dieses Stück dabei war (`orders.items[].handedOverAt`). Ein Stück, das nach einem Teil-Storno noch geliefert werden muss, bleibt verkauft. Änderbar in `src/lib/commerce/productTransitions.ts` | Jutta |
 
 ## Anhang B – Recherche-Empfehlungen, die nicht gelten
 

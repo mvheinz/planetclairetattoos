@@ -152,6 +152,19 @@ export function deliveryFacts(order: {
   }
 }
 
+type DeliveryOrder = Parameters<typeof deliveryFacts>[0]
+
+/** Rest-Lieferung (`partially_refunded`) steht noch aus: „Versendet melden“ geht noch („Zu packen“, „Heute“). */
+export function restShipmentPending(order: DeliveryOrder): boolean {
+  return restDeliveryAllowed('shipped', deliveryFacts(order))
+}
+
+/** Rest-Abholung (`partially_refunded`) steht noch aus: „Bereit zur Abholung“ bzw. „Abgeholt“ („Abholung“, „Heute“). */
+export function restPickupPending(order: DeliveryOrder): boolean {
+  const facts = deliveryFacts(order)
+  return restDeliveryAllowed('ready_for_pickup', facts) || restDeliveryAllowed('picked_up', facts)
+}
+
 /**
  * Übergangs-ID für `from → to` oder eine deutsche Begründung, warum der Wechsel nicht erlaubt ist. O17 (Anfechtung
  * gewonnen) und O20 (Widerruf ohne Erstattung) springen auf den gemerkten Vorstatus zurück; aus `partially_refunded`

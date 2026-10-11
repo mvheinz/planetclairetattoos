@@ -3,8 +3,12 @@ import { beforeAll, describe, expect, it } from 'vitest'
 
 import { loadPackingList } from '@/admin/views/orders/orderQuery'
 import { loadPickupList, loadShippedList } from '@/admin/views/orders/fulfillmentQuery'
+import { getTodaySummary } from '@/lib/admin/today'
+import { defaultTemplateFor } from '@/lib/commerce/packing'
+import { transitionProduct } from '@/lib/commerce/productTransitions'
 import { refundDialogData, refundProposal, requestRefund } from '@/lib/commerce/refundOrder'
 import { markDeliveredAuto } from '@/lib/commerce/shipped'
+import { lockOrder, transitionOrder } from '@/lib/commerce/transitionOrder'
 import { submitWithdrawal } from '@/lib/legal/withdrawal'
 import { markGoodsReturned } from '@/lib/legal/withdrawalInbox'
 import { inTransaction } from '@/lib/payload/transaction'
@@ -52,17 +56,21 @@ const PICKUP = {
   },
 }
 
+type ItemClass = NonNullable<ItemInput['shippingClass']>
+
 /** Bezahlte Bestellung mit zwei Stücken (Paket klein; bei Abholung ohne Versand). */
 async function twoPieces(
   [a, b]: [number, number],
-  options: { pickup?: boolean; prepayment?: boolean } = {},
+  options: { pickup?: boolean; prepayment?: boolean; classes?: [ItemClass, ItemClass] } = {},
 ): Promise<Order> {
+  const [classA, classB] = options.classes ?? ['paket_klein', 'paket_klein']
   const items: ItemInput[] = [
-    { id: await h.piece(a), itemNumber: a, shippingClass: 'paket_klein' },
-    { id: await h.piece(b), itemNumber: b, shippingClass: 'paket_klein' },
+    { id: await h.piece(a), itemNumber: a, shippingClass: classA },
+    { id: await h.piece(b), itemNumber: b, shippingClass: classB },
   ]
+  const rank = ['brief', 'paket_klein', 'keramik']
   const over: Record<string, unknown> = {
-    shippingClass: 'paket_klein',
+    shippingClass: rank.indexOf(classA) >= rank.indexOf(classB) ? classA : classB,
     customer: { name: 'Erika Teil', email: EMAIL },
     ...(options.pickup ? { ...PICKUP, totalCents: 9000 } : {}),
     ...(options.prepayment
@@ -73,6 +81,21 @@ async function twoPieces(
 }
 
 const itemId = (o: Order, nr: number) => String(o.items.find((i) => i.itemNumber === nr)!.id)
+const productId = (o: Order, nr: number) => {
+  const p = o.items.find((i) => i.itemNumber === nr)!.product
+  return typeof p === 'object' ? p.id : p
+}
+/** Stücke der Bestellung verkaufen (P8, wie `fulfillCheckout`). */
+async function sellPieces(o: Order) {
+  for (const i of o.items) {
+    await transitionProduct(await systemReq(), productId(o, i.itemNumber), 'sell', {
+      orderId: o.id,
+      channel: o.fulfillmentMethod === 'pickup' ? 'pickup' : 'online',
+    })
+  }
+}
+const productStatus = async (id: number) =>
+  (await h.payload.findByID({ collection: 'products', id, depth: 0, overrideAccess: true })).status
 
 async function withdraw(
   o: Order,
@@ -481,5 +504,168 @@ describe('Teil-Widerruf nur im Freitext (keins angehakt)', () => {
     expect(after.status).toBe('paid')
     expect(after.adminAttention?.flag ?? false).toBe(false)
     expect((await order(o.id, 'packed')).status).toBe(200)
+  })
+})
+
+describe('Übergabe je Position (handedOverAt): was wirklich verschickt bzw. abgeholt wurde', () => {
+  it('Teil-Widerruf vor dem Versand, Rest verschickt, widerrufenes Stück erstattet → „Wieder verkaufen“ geht (nie verschickt), beim verschickten nicht', async () => {
+    const o = await twoPieces([980, 981], { prepayment: true })
+    await sellPieces(o)
+    const w = await withdraw(o, { affectedItemIds: [itemId(o, 980)] })
+    await packAndShip(o, '00340434312345681')
+    const shipped = await h.order(o.id)
+    expect(shipped.items.map((i) => [i.itemNumber, !!i.handedOverAt])).toEqual([
+      [980, false],
+      [981, true],
+    ])
+    expect(shipped.items[1]!.handedOverAt).toBe(shipped.timestamps.shippedAt)
+    await refundItems(o, [itemId(o, 980)], 'withdrawal', w.id)
+    expect((await h.order(o.id)).items.map((i) => i.status)).toEqual(['refunded', 'active'])
+
+    const kept = await post(`/products/${productId(o, 981)}/return-to-stock`)
+    expect(kept.status).toBe(409)
+    expect(await productStatus(productId(o, 981))).toBe('sold')
+    const back = await post(`/products/${productId(o, 980)}/return-to-stock`)
+    expect(back.status).toBe(200)
+    expect(await productStatus(productId(o, 980))).toBe('available')
+  })
+
+  it('Teil-Widerruf vor der Abholung: „Abgeholt“ setzt die Übergabe nur am behaltenen Stück; das erstattete lässt sich ausblenden', async () => {
+    const o = await twoPieces([982, 983], { pickup: true, prepayment: true })
+    await sellPieces(o)
+    expect((await order(o.id, 'pickup-ready', { messageText: 'Abholung im Studio' })).status).toBe(
+      200,
+    )
+    const w = await withdraw(o, { affectedItemIds: [itemId(o, 982)] })
+    expect((await h.order(o.id)).items.every((i) => !i.handedOverAt)).toBe(true)
+    expect((await order(o.id, 'picked-up')).status).toBe(200)
+    const done = await h.order(o.id)
+    expect(done.items.map((i) => [i.itemNumber, !!i.handedOverAt])).toEqual([
+      [982, false],
+      [983, true],
+    ])
+    await refundItems(o, [itemId(o, 982)], 'withdrawal', w.id)
+    expect((await post(`/products/${productId(o, 982)}/archive-after-return`)).status).toBe(200)
+    expect(await productStatus(productId(o, 982))).toBe('archived')
+    expect((await post(`/products/${productId(o, 983)}/archive-after-return`)).status).toBe(409)
+  })
+
+  it('A und B zusammen verschickt, A während des Transports erstattet → „Erneut senden“ und neue Sendungsnummer nennen weiter A und B', async () => {
+    const o = await twoPieces([980, 981], { prepayment: true })
+    await packAndShip(o, '00340434312345682')
+    await refundItems(o, [itemId(o, 980)], 'goodwill')
+    const refunded = await h.order(o.id)
+    expect(refunded.status).toBe('partially_refunded')
+    expect(refunded.items.map((i) => i.status)).toEqual(['refunded', 'active'])
+
+    const resent = await order(o.id, 'resend-email', {
+      template: 'order_shipped',
+      dialogKey: crypto.randomUUID(),
+    })
+    expect(resent.status).toBe(200)
+    const fixed = await order(o.id, 'tracking', {
+      carrier: 'dhl',
+      trackingNumber: '00340434312345683',
+      resendMail: true,
+    })
+    expect(fixed.status).toBe(200)
+    const m06 = await mails('order_shipped', o.orderNumber)
+    expect(m06).toHaveLength(3)
+    for (const m of m06) {
+      expect(m.text).toContain('Teststück 980')
+      expect(m.text).toContain('Teststück 981')
+    }
+    // Liste „Versendet“: was im Paket war
+    const card = (await loadShippedList(await systemReq(), NOW)).find((c) => c.id === o.id)
+    expect(card?.items).toEqual(['Nr. 980 Teststück 980', 'Nr. 981 Teststück 981'])
+  })
+
+  it('Rest-Sendung nach Teil-Widerruf: Keramik widerrufen, Brief bleibt → Versand ohne Sendungsnummer, Deutsche Post, Brief-Verpackung, kein Keramik-Hinweis', async () => {
+    const o = await twoPieces([982, 983], { classes: ['keramik', 'brief'] })
+    expect(o.shippingClass).toBe('keramik')
+    await withdraw(o, { affectedItemIds: [itemId(o, 982)] })
+
+    const card = await packingCard(o.id)
+    expect(card).toMatchObject({ shippingClass: 'brief', shippingClassLabel: expect.any(String) })
+    const keys = card?.hints.map((x) => x.key) ?? []
+    expect(keys).toContain('letter')
+    expect(keys).not.toContain('ceramic')
+
+    expect((await order(o.id, 'packed')).status).toBe(200)
+    const settings = await h.payload.findGlobal({
+      slug: 'settings',
+      depth: 0,
+      overrideAccess: true,
+    })
+    const packed = await h.order(o.id)
+    expect(packed.packaging?.templateKey).toBe(
+      defaultTemplateFor('brief', settings as never)?.key ?? null,
+    )
+    // ohne Sendungsnummer und ohne Rückfrage „Ohne Packfoto versenden?“
+    const shipped = await order(o.id, 'ship', {})
+    expect(shipped.status).toBe(200)
+    const s = await h.order(o.id)
+    expect(s.status).toBe('shipped')
+    expect(s.shipment?.carrier).toBe('deutsche_post')
+    expect(s.shipment?.trackingNumber ?? null).toBeNull()
+    const m06 = await mails('order_shipped', o.orderNumber)
+    expect(m06).toHaveLength(1)
+    expect(m06[0]!.text).toContain('Teststück 983')
+    expect(m06[0]!.text).not.toContain('Teststück 982')
+  })
+
+  it('„Stücke zuordnen“ gleichzeitig mit einem Statuswechsel: entscheidet erst nach der Sperre der Bestellung (O11 auf den Versand)', async () => {
+    // Beim Einreichen sperrt schon der Fremdschlüssel des neuen Widerrufs die Bestellzeile; beim Zuordnen nicht –
+    // hier entscheidet nur die Sperre in `applyWithdrawalToOrder`, ob der Teil-Widerruf vor oder nach dem Versand liegt.
+    const o = await twoPieces([980, 981])
+    const w = await withdraw(o, { itemsText: 'nur die Nr. 980' })
+    const req = await systemReq()
+    let assigned: ReturnType<typeof post> | null = null
+    await inTransaction(req, async () => {
+      await lockOrder(req, o.id)
+      assigned = post(`/withdrawals/${w.id}/assign-items`, { itemIds: [itemId(o, 980)] })
+      // die Zuordnung liest die Bestellung, solange der Versand noch nicht festgeschrieben ist
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+      await transitionOrder(req, o.id, 'shipped', { now: NOW, actorType: 'admin' })
+    })
+    expect((await assigned!).status).toBe(200)
+    const after = await h.order(o.id)
+    expect(after.status).toBe('withdrawal_received')
+    expect(after.statusBeforeWithdrawal).toBe('shipped')
+    expect(after.items.map((i) => [i.status, !!i.handedOverAt])).toEqual([
+      ['withdrawn', true],
+      ['active', true],
+    ])
+  })
+})
+
+describe('„Heute“ zählt Rest-Lieferung und Rest-Abholung wie die Listen', () => {
+  const tiles = async (now = NOW) => (await getTodaySummary(now, h.payload)).tiles
+
+  it('Teil-Erstattung vor dem Versand: „Zu packen“ zählt die Bestellung weiter, bis der Rest verschickt ist', async () => {
+    const o = await twoPieces([980, 981], { prepayment: true })
+    const before = (await tiles()).packen.count
+    await refundItems(o, [itemId(o, 980)])
+    expect((await h.order(o.id)).status).toBe('partially_refunded')
+    expect((await tiles()).packen.count).toBe(before)
+    await packAndShip(o, '00340434312345684')
+    expect((await tiles()).packen.count).toBe(before - 1)
+  })
+
+  it('Teil-Erstattung vor der Abholung: „Abholung“ zählt die Bestellung bis „Abgeholt“, „Abholung wartet“ auch für den Rest', async () => {
+    const o = await twoPieces([982, 983], { pickup: true, prepayment: true })
+    const before = (await tiles()).abholung.count
+    expect((await order(o.id, 'pickup-ready', { messageText: 'Abholung im Studio' })).status).toBe(
+      200,
+    )
+    await refundItems(o, [itemId(o, 982)], 'goodwill')
+    const r = await h.order(o.id)
+    expect(r.status).toBe('partially_refunded')
+    expect((await tiles()).abholung.count).toBe(before)
+    const later = new Date(Date.parse(r.timestamps.readyForPickupAt!) + 15 * 86_400_000)
+    const summary = await getTodaySummary(later, h.payload)
+    expect(summary.hints.some((x) => x.id === `pickup-${o.id}`)).toBe(true)
+    expect((await order(o.id, 'picked-up')).status).toBe(200)
+    expect((await tiles()).abholung.count).toBe(before - 1)
   })
 })

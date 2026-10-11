@@ -5,6 +5,7 @@ import type { PayloadRequest } from 'payload'
 import type {
   CheckoutStatus,
   OrderItemStatus,
+  OrderStatus,
   ProductStatus,
   RefundReason,
   RefundStatus,
@@ -91,9 +92,17 @@ export interface ProductTransitionFacts {
   } | null
   /** Bezugsbestellung (`currentOrder`) und die Position dieses Stücks. */
   order?: {
+    /** Status der Bestellung (KA-37: ganz erstattet). */
+    status?: OrderStatus | null
     /** `orders.items[].id` der Position dieses Stücks. */
     itemId?: string | null
     itemStatus?: OrderItemStatus | null
+    /**
+     * Stück mit der Sendung bzw. bei der Abholung übergeben (`items[].handedOverAt`, P18.5). `null`/fehlend: an der
+     * Bestellung nicht erfasst (vor P18.5 versendet bzw. abgeholt, Beispielbestand) – dann zählen `shippedAt` und
+     * `pickedUpAt`.
+     */
+    itemHandedOver?: boolean | null
     returnReceivedAt?: string | null
     shippedAt?: string | null
     pickedUpAt?: string | null
@@ -138,18 +147,36 @@ const succeeded = (facts: ProductTransitionFacts, reason: RefundReason) =>
 const refundedAndReturned = (facts: ProductTransitionFacts) =>
   facts.order?.itemStatus === 'refunded' && !!facts.order?.returnReceivedAt
 /**
+ * Hat dieses Stück das Atelier verlassen? Je Position (`itemHandedOver`): nach einer Rest-Lieferung ist das zuvor
+ * widerrufene bzw. erstattete Stück nie verschickt worden, obwohl die Bestellung `shippedAt` hat. Ohne erfasste
+ * Übergabe (Altbestellung) entscheiden die Zeitstempel der Bestellung.
+ */
+const dispatched = (o: NonNullable<ProductTransitionFacts['order']>) =>
+  typeof o.itemHandedOver === 'boolean' ? o.itemHandedOver : !!(o.shippedAt || o.pickedUpAt)
+/**
  * Widerruf vor dem Versand bzw. der Übergabe (analog KA-37): die Position dieses Stücks ist mit Grund `withdrawal`
  * erfolgreich erstattet, und das Stück wurde nie verschickt oder abgeholt – „Ware zurück“ gibt es dann nicht.
  */
 const withdrawnBeforeDispatch = (facts: ProductTransitionFacts) => {
   const o = facts.order
-  if (!o || o.itemStatus !== 'refunded' || !o.itemId || o.shippedAt || o.pickedUpAt) return false
+  if (!o || o.itemStatus !== 'refunded' || !o.itemId || dispatched(o)) return false
   return (o.refunds ?? []).some(
     (r) =>
       r.reason === 'withdrawal' &&
       r.status === 'succeeded' &&
       (r.itemIds ?? []).map(String).includes(String(o.itemId)),
   )
+}
+/**
+ * Storno vor dem Versand bzw. der Übergabe (KA-37): Erstattung mit Grund `admin_cancellation` erfolgreich, dieses
+ * Stück nie verschickt oder abgeholt, und es ist nicht mehr zu liefern – seine Position ist nicht mehr `active` (z. B.
+ * mit erstattet) oder die Bestellung ist ganz erstattet. Ein Stück, das nach einer Teil-Erstattung noch als
+ * Rest-Lieferung aussteht, bleibt verkauft (nie doppelt verkaufen).
+ */
+const cancelledBeforeDispatch = (facts: ProductTransitionFacts) => {
+  const o = facts.order
+  if (!o || !succeeded(facts, 'admin_cancellation') || dispatched(o)) return false
+  return o.status === 'refunded' || (!!o.itemStatus && o.itemStatus !== 'active')
 }
 
 /** Prüft Übergang und Vorbedingungen (reine Funktion, DM-PROD-10). */
@@ -215,11 +242,7 @@ export function evaluateProductTransition(
         facts.soldChannel !== 'offline' &&
         !refundedAndReturned(facts) &&
         !withdrawnBeforeDispatch(facts) &&
-        !(
-          succeeded(facts, 'admin_cancellation') &&
-          !facts.order?.shippedAt &&
-          !facts.order?.pickedUpAt
-        )
+        !cancelledBeforeDispatch(facts)
       ) {
         return no(
           '„Wieder verkaufen“ geht nur nach einem Offline-Verkauf, nach Erstattung mit Rücksendung oder nach Erstattung wegen Widerruf bzw. Storno vor dem Versand.',
@@ -327,9 +350,12 @@ export async function loadProductTransitionFacts(
     )
     if (order) {
       const item = order.items.find((i) => idOf(i.product) === Number(product.id))
+      const handoverRecorded = order.items.some((i) => !!i.handedOverAt)
       facts.order = {
+        status: order.status,
         itemId: item?.id ?? null,
         itemStatus: item?.status ?? null,
+        itemHandedOver: handoverRecorded ? !!item?.handedOverAt : null,
         returnReceivedAt: order.timestamps?.returnReceivedAt ?? null,
         shippedAt: order.timestamps?.shippedAt ?? null,
         pickedUpAt: order.timestamps?.pickedUpAt ?? null,

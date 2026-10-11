@@ -1077,9 +1077,9 @@ stateDiagram-v2
 | P8 | available → sold | `sell` | System `fulfillCheckout` (Reservierung abgelaufen, Stück noch frei) / Admin „Nachträglich bezahlt“ (O5) | – | wie P7 (§8.3, Zweig `available`) |
 | P9 | available → sold | `sellOffline` | Admin | – | `soldChannel = offline`, `soldAt`, `offlineSaleNote`, `showInArchiveAfterSale` wie im Dialog gewählt, seit U-60 optional `offlineSaleTourDate` und `offlineSalePriceCents`; Audit `product_offline_sold`; keine Bestellung, kein Beleg (R-127) |
 | P10 | reserved (Kasse, `source = checkout_session`) → sold | `sellOffline` mit `confirmReservedCheckout: true` | Admin nach Warndialog (KONZEPT §4.11 S5) | zugehörige Kasse im Status `open` (bei `confirming` gesperrt: „Zahlung läuft gerade“, DM-34) | zuerst Stripe-Session beenden: meldet der Anbieter „bezahlt“, bricht die Aktion ab und `fulfillCheckout` übernimmt; sonst Reservierung `released` (`releaseReason = admin`), Kasse `cancelled` (`closeReason = sold_offline`), dann wie P9 |
-| P11 | sold → available | `returnToStock` | Admin „Wieder verkaufen“ | `soldChannel = offline` (Korrektur) **oder** zugehörige Bestellposition `refunded` und Ware zurück (`timestamps.returnReceivedAt` gesetzt) **oder** Bestellung mit Grund `admin_cancellation` erstattet, bevor das Stück verschickt oder übergeben wurde (`shippedAt`/`pickedUpAt` leer; KONZEPT KA-37) **oder** Position des Stücks `refunded` durch eine erfolgreiche Erstattung mit Grund `withdrawal` (`refunds[].itemIds`), `shippedAt`/`pickedUpAt` leer (Widerruf vor dem Versand, P18.5); `validateForPublish` | `soldAt`, `soldChannel`, `currentOrder` leeren; Verlauf bleibt; Audit |
+| P11 | sold → available | `returnToStock` | Admin „Wieder verkaufen“ | `soldChannel = offline` (Korrektur) **oder** zugehörige Bestellposition `refunded` und Ware zurück (`timestamps.returnReceivedAt` gesetzt) **oder** Bestellung mit Grund `admin_cancellation` erstattet, bevor das Stück verschickt oder übergeben wurde, und das Stück ist nicht mehr zu liefern (Position nicht mehr `active` oder Bestellung `refunded`; KONZEPT KA-37) **oder** Position des Stücks `refunded` durch eine erfolgreiche Erstattung mit Grund `withdrawal` (`refunds[].itemIds`), Stück nie verschickt oder abgeholt (Widerruf vor dem Versand, P18.5). „Nie verschickt oder abgeholt“ gilt je Position: `items[].handedOverAt` leer, obwohl die Bestellung eine Übergabe erfasst hat (Rest-Lieferung); ohne erfasste Übergabe (Bestellung vor P18.5) `shippedAt`/`pickedUpAt` leer; `validateForPublish` | `soldAt`, `soldChannel`, `currentOrder` leeren; Verlauf bleibt; Audit |
 | P12 | draft/available → archived | `archive` | Admin „Ausblenden“ | keine aktive Reservierung | `archivedAt`; Revalidierung |
-| P13 | sold → archived | `archiveAfterReturn` | Admin „Ausblenden“ nach Rückgabe oder Bruch (z. B. beschädigt) | Bestellposition `refunded` und Ware zurück (`timestamps.returnReceivedAt` gesetzt) **oder** Bestellung mit Grund `breakage` erstattet (`refunds[].reason`, §6.8.5 O15; DM-39) **oder** Widerruf vor dem Versand wie bei P11 (Position mit Grund `withdrawal` erstattet, `shippedAt`/`pickedUpAt` leer; P18.5) | `archivedAt`, `soldAt`/`soldChannel`/`currentOrder` leeren; Audit |
+| P13 | sold → archived | `archiveAfterReturn` | Admin „Ausblenden“ nach Rückgabe oder Bruch (z. B. beschädigt) | Bestellposition `refunded` und Ware zurück (`timestamps.returnReceivedAt` gesetzt) **oder** Bestellung mit Grund `breakage` erstattet (`refunds[].reason`, §6.8.5 O15; DM-39) **oder** Widerruf vor dem Versand wie bei P11 (Position mit Grund `withdrawal` erstattet, Stück nie verschickt oder abgeholt – je Position wie bei P11; P18.5) | `archivedAt`, `soldAt`/`soldChannel`/`currentOrder` leeren; Audit |
 | P14 | archived → draft | `restore` | Admin „Wieder bearbeiten“ | – | `archivedAt = null`; danach wieder P2 |
 | P15 | draft → gelöscht | Payload-`delete` | Admin „Löschen“ | `firstPublishedAt` leer (nie veröffentlicht) und keine Bestellposition verweist auf das Stück | nur von diesem Stück genutzte Bilder werden mit gelöscht; Nummer wieder frei; Audit `product_deleted` |
 
@@ -1243,6 +1243,7 @@ sind gefilterte Listen dieser Collection.
 | ↳ `deviationAgreedAt` | date | – | – | – | Pflicht, wenn `deviationText` gesetzt | Kasse: eigene Checkbox (§ 476 BGB) |
 | ↳ `status` | select `OrderItemStatus` | R | – | `active` | – | Teilwiderruf |
 | ↳ `refundedCents` | number | R | – | 0 | ≤ `priceCents` | – |
+| ↳ `handedOverAt` | date | S | – | gesetzt vom Speicher-Hook bei O7 („Versendet“) bzw. O9 („Abgeholt“) an den dann übergebenen Positionen (`handoverItems`: die aktiven) | einmal je Bestellung, danach unveränderlich; leer bei Bestellungen vor P18.5 | Stück hat das Atelier verlassen: Inhalt von M06/M07 (auch „Erneut senden“), Versandklassen der Sendung, P11/P13 nach Widerruf bzw. Storno vor dem Versand (P18.5) |
 | `subtotalCents` | number | S, R | – | Σ Positionen | – | – |
 | `shippingCents` | number | S, R | – | aus `settings.shipping.rates`, `pickup` = 0 | – | – |
 | `totalCents` | number | S, R | – | `subtotal + shipping` | DB-CHECK | – |
@@ -1345,7 +1346,8 @@ Hash und Siegel wie bei echten Bestellungen) – nie aus `orderNumber` oder `PAY
   1. `status`-Änderung nur mit `context.transition` und erlaubtem Übergang (§6.8.5); jeder Wechsel hängt einen
      `statusHistory`-Eintrag an und setzt den passenden `timestamps.*`-Wert.
   2. Unveränderlich nach Anlage: `orderNumber`, `checkout` (außer Leeren durch `retentionAbandonedCheckouts`), `items`
-     (außer `items[].status`, `items[].refundedCents`), Summen, `legalTextVersions`, `taxModeAtOrder`,
+     (außer `items[].status`, `items[].refundedCents` und `items[].handedOverAt`, das nur dieser Hook bei O7/O9 setzt),
+     Summen, `legalTextVersions`, `taxModeAtOrder`,
      `shippingRatesAtOrder`, `paymentMethod`,
      `statusTokenHash`/`statusTokenSealed` (außer Rotation mit `context.transition = 'rotateToken'` und Löschung in
      Stufe B), `pickup.messageText` nach O8.
@@ -1463,11 +1465,21 @@ von Widerrufsfrist und Gewährleistung):
   `markDelivered`, Liste „Versendet“). Fakten aus der gesperrten Zeile (`lockOrder`) bzw. im Speicher-Hook aus
   Positionen und Zeitstempeln. Danach normal weiter (O10, O15 …). Eine Erstattung mit Grund `withdrawal` aus
   `paid`/`packed`/`ready_for_pickup` ist damit O15.
-- „Zu packen“ zeigt zusätzlich `partially_refunded` mit Rest-Lieferung, „Abholung“ ebenso; Packliste, Packzettel,
-  Abholkarte, M06 und M07 nennen nur Positionen `active` (`handoverItems`; ohne aktive Position alle, etwa bei „Erneut
-  senden“ nach einem späteren Widerruf); „Nicht mehr versenden – Widerruf: Nr. …“ bzw. „– erstattet: Nr. …“ steht an
-  den übrigen. Widerruf des ganzen Vertrags (`withdrawal_received` aus `paid`/`packed`/`ready_for_pickup`) sperrt weiter
-  mit 409 („Nicht mehr versenden – Widerruf!“ bzw. „Nicht mehr übergeben – Widerruf!“).
+- „Zu packen“ zeigt zusätzlich `partially_refunded` mit Rest-Lieferung, „Abholung“ ebenso; die Kacheln „Zu packen“ und
+  „Abholung“ auf „Heute“ zählen dieselben Bestellungen (`restShipmentPending`/`restPickupPending`; „Zu packen“ ohne den
+  Widerruf des ganzen Vertrags vor dem Versand). Packliste, Packzettel, Abholkarte, Liste „Versendet“, M06 und M07
+  nennen die Stücke der Sendung bzw. Abholung (`handoverItems`): vor „Versendet“/„Abgeholt“ die Positionen `active`,
+  danach die übergebenen (`items[].handedOverAt`, gesetzt bei O7/O9) – auch bei „Erneut senden“ und „Sendungsnummer
+  korrigieren“, wenn ein mitgeschicktes Stück später widerrufen oder erstattet wurde (Bestellungen vor P18.5 ohne
+  `handedOverAt`: die aktiven, ohne aktive alle). „Nicht mehr versenden – Widerruf: Nr. …“ bzw. „– erstattet: Nr. …“
+  steht an den übrigen. Versandklassen, Warenwert und Vorbelegungen der Sendung (Sendungsnummer-Pflicht, Rückfrage
+  „Ohne Packfoto versenden?“, Keramik-/Versicherungs-/Brief-Hinweis, Checkliste, Verpackungsvorlage, Versanddienst)
+  kommen nur aus diesen Stücken (`shipmentClassesOf`, `shipmentValueCents` in `packing.ts`), nicht aus
+  `orders.shippingClass`. Widerruf des ganzen Vertrags (`withdrawal_received` aus `paid`/`packed`/`ready_for_pickup`)
+  sperrt weiter mit 409 („Nicht mehr versenden – Widerruf!“ bzw. „Nicht mehr übergeben – Widerruf!“).
+- `applyWithdrawalToOrder` sperrt die Bestellung (`lockOrder`), bevor es zwischen „vor der Übergabe, kein
+  Statuswechsel“ und O11 wählt; ein gleichzeitiges „Versendet melden“ bzw. „Abgeholt“ ist dann schon festgeschrieben
+  (→ O11) oder wartet.
 - Teil-Widerruf nur im Freitext (§6.11 Umsetzungsnotiz): Packen, Versand, „Bereit zur Abholung“ und „Abgeholt“ →
   409, bis die Stücke zugeordnet sind (`withdrawalHold.ts`).
 

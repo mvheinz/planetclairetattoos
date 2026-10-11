@@ -8,7 +8,12 @@ import { z } from 'zod'
 import { cancelPrepaymentOrder } from '@/lib/commerce/prepayment'
 import { dbFor } from '@/lib/db/tx'
 import { ORDER_TRANSITIONS } from '@/lib/commerce/orderTransitions'
-import { loadOrder, transitionOrder, updateOrderFields } from '@/lib/commerce/transitionOrder'
+import {
+  loadOrder,
+  lockOrder,
+  transitionOrder,
+  updateOrderFields,
+} from '@/lib/commerce/transitionOrder'
 import { itemsUnassignedNote } from '@/lib/commerce/withdrawalHold'
 import { notifyAdmin } from '@/lib/email/notifyAdmin'
 import { enqueueEmail, runEmailJobNow } from '@/lib/email/outbox'
@@ -168,6 +173,9 @@ function unassignedAttention(order: Order, reference: string): Record<string, un
  *   Teil-Widerruf vor Versand/Übergabe (danach ist noch eine Position aktiv) → kein Statuswechsel, der Rest wird
  *   geliefert; sonst O11 mit `statusBeforeWithdrawal`. Steht die Bestellung schon in `withdrawal_received` bzw. ist
  *   O11 nicht möglich (z. B. `partially_refunded`, DM-06), werden nur die Positionen markiert.
+ * Läuft in der Transaktion des Aufrufers und sperrt zuerst die Bestellung (`lockOrder`): Die Wahl „vor der Übergabe,
+ * kein Statuswechsel“ fällt auf dem festgeschriebenen Stand – ein gleichzeitiges „Versendet melden“ bzw. „Abgeholt“
+ * wartet oder ist schon gebucht (dann O11).
  */
 export async function applyWithdrawalToOrder(
   req: PayloadRequest,
@@ -176,6 +184,7 @@ export async function applyWithdrawalToOrder(
   selectedIds: readonly string[],
   now: Date,
 ): Promise<OrderEffect> {
+  await lockOrder(req, orderId)
   const order = await loadOrder(req, orderId)
   const note = `Widerruf ${withdrawal.reference}`
   if (order.status === 'awaiting_prepayment') {

@@ -25,6 +25,7 @@ import {
   ORDER_INITIAL,
   ORDER_TIMESTAMP_FIELD,
 } from '@/lib/commerce/orderTransitions'
+import { handoverItems } from '@/lib/commerce/packing'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import {
   ACTOR_TYPES,
@@ -169,6 +170,18 @@ function stampStatus(data: Doc, original: Doc, status: OrderStatus, now: Date): 
     data.retainUntil = retainUntil(L_05_ORDERS_STAGE_D, final).toISOString()
   }
   data.timestamps = ts
+}
+
+/**
+ * Übergabe je Position (P18.5, DATENMODELL §6.8.1): „Versendet“ (O7) bzw. „Abgeholt“ (O9) setzt `items[].handedOverAt`
+ * an den Stücken, die jetzt übergeben werden (`handoverItems`: die aktiven, ohne aktive alle). Einmal je Bestellung –
+ * eine Rest-Lieferung gibt es nur vor dem ersten Versand bzw. der Abholung; spätere Übergänge (O17, O20) ändern nichts.
+ */
+function stampHandover(data: Doc, original: Doc, now: Date): void {
+  const items = (('items' in data ? data.items : original.items) ?? []) as Doc[]
+  if (items.some((i) => !!i.handedOverAt)) return
+  const handed = new Set(handoverItems(items as { status?: string | null }[]))
+  data.items = items.map((i) => (handed.has(i) ? { ...i, handedOverAt: now.toISOString() } : i))
 }
 
 const prepareOrder: CollectionBeforeValidateHook = ({ data }) => {
@@ -328,6 +341,7 @@ const guardOrder: CollectionBeforeChangeHook = ({ data, originalDoc, operation, 
       },
     ]
     stampStatus(data, original, status, now)
+    if (result.id === 'O7' || result.id === 'O9') stampHandover(data, original, now)
   }
   const cancelReason = data.cancelReason ?? original.cancelReason
   const cancelNote = (data.cancelNote ?? original.cancelNote) as string | null | undefined
@@ -506,6 +520,14 @@ const itemFields: Field[] = [
         ? true
         : 'Erstattet: 0 bis Preis (ganze Cent).',
   } as Field,
+  {
+    // P18.5: Das Stück hat das Atelier verlassen – gesetzt nur vom Speicher-Hook bei „Versendet“ (O7) bzw. „Abgeholt“
+    // (O9) an den dann übergebenen Positionen (`stampHandover`). Leer bei Bestellungen davor.
+    name: 'handedOverAt',
+    type: 'date',
+    label: 'Übergeben am',
+    admin: ro,
+  },
 ]
 
 const shippingRequired = (data: Record<string, unknown>) =>
