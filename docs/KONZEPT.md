@@ -852,8 +852,9 @@ Weitere Regeln:
 Abschnitt 5 „Übersicht“ steht **unmittelbar** über dem Knopf und aktualisiert sich live (§ 312j Abs. 2 BGB):
 
 1. Jede Position: Foto, Titel, `Nr. 017`, wesentliche Eigenschaften (`buildCharacteristics`, DATENMODELL §6.6.2:
-   Kategorie, Maße, Material bzw. bei Textil/Caps Faserzusammensetzung, Größe und Zustand, bei Keramik „Deko – nicht für
-   Lebensmittel“ bzw. „lebensmittelecht“, bei Schmuck Material der Metallteile, Abweichungstext), Preis.
+   Kategorie, Maße, Material bzw. bei Textil/Caps „Second-Hand, von Hand bemalt“ (immer gebraucht, R-043; P18.5),
+   Faserzusammensetzung, Größe und Zustand, bei Keramik „Deko – nicht für Lebensmittel“ bzw. „lebensmittelecht“, bei
+   Schmuck Material der Metallteile, Abweichungstext), Preis.
 2. Versand: Klasse und Preis (z. B. „Versand als Keramik-Paket (DHL) 8,90 €“) oder „Abholung in Berlin 0,00 €“.
 3. **Gesamtpreis** (hervorgehoben) mit Steuerhinweis (Kleinunternehmerin: „Gemäß § 19 UStG wird keine Umsatzsteuer
    berechnet.“; Regelbesteuerung: enthaltene MwSt. je Satz).

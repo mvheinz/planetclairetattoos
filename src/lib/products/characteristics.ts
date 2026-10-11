@@ -5,8 +5,9 @@ import { formatFibers, type FiberRow } from './fibers'
 import { pickLocale, type LocalizedValue } from './localized'
 
 // Wesentliche Eigenschaften eines Stücks als eine Zeile (DATENMODELL §6.6.2, KONZEPT §4.5 Nr. 1, § 312j BGB):
-// Kategorie, Maße, Material bzw. bei Textil/Caps Faserzusammensetzung, Größe und Zustand, bei Keramik der
-// Lebensmittelkontakt, bei Schmuck das Material der Metallteile, bei Zeichnungen der Rahmen, dazu der Abweichungstext.
+// Kategorie, Maße, Material bzw. bei Textil/Caps „Second-Hand, von Hand bemalt“ (immer gebraucht, R-043; wie Baustein
+// `product.textileSecondHand`, P18.5), Faserzusammensetzung, Größe und Zustand, bei Keramik der Lebensmittelkontakt, bei
+// Schmuck das Material der Metallteile, bei Zeichnungen der Rahmen, dazu der Abweichungstext.
 // Wird in Kasse und Bestell-Snapshot verwendet. Reines Modul.
 
 export interface CharacteristicsInput {
@@ -41,6 +42,7 @@ const W = {
     schmuck: { de: 'Schmuck', en: 'Jewellery' },
     sonstiges: { de: 'Sonstiges', en: 'Other' },
   } satisfies Record<ProductCategory, Words>,
+  secondHand: { de: 'Second-Hand, von Hand bemalt', en: 'second-hand, hand-painted' },
   size: { de: 'Größe', en: 'Size' },
   condition: { de: 'Zustand', en: 'Condition' },
   bestKnowledge: { de: 'nach bestem Wissen', en: 'to the best of our knowledge' },
@@ -87,6 +89,8 @@ export function buildCharacteristics(product: CharacteristicsInput, locale: Loca
   const pick = (v: LocalizedValue) => pickLocale(v, locale)
 
   if (category === 'textil' || category === 'cap') {
+    // Textil und Caps sind immer gebraucht (R-043, categoryRules) – wesentliche Eigenschaft (Art. 246a § 1 Nr. 1 EGBGB)
+    parts.push(W.secondHand[locale])
     const size = pick(product.sizeLabel)
     if (size) parts.push(`${W.size[locale]} ${size}`)
     const fibers = formatFibers(product.fiberComposition, locale)

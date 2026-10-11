@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { ProductCategory } from '@/lib/enums'
 import { buildCharacteristics, type CharacteristicsInput } from '@/lib/products/characteristics'
+import { LEGAL_SNIPPET_SEED } from '@/lib/legal/snippetSeed'
 import { formatFibers } from '@/lib/products/fibers'
 import { pickLocale } from '@/lib/products/localized'
 
@@ -64,8 +65,8 @@ describe('buildCharacteristics (DATENMODELL §6.6.2)', () => {
     expect(lines).toMatchInlineSnapshot(`
       {
         "cap": {
-          "de": "Cap · Größe Einheitsgröße, verstellbar · 100 % Baumwolle (nach bestem Wissen) · Zustand: gut",
-          "en": "Cap · Size One size, adjustable · 100 % Baumwolle (cotton) (to the best of our knowledge) · Condition: good",
+          "de": "Cap · Second-Hand, von Hand bemalt · Größe Einheitsgröße, verstellbar · 100 % Baumwolle (nach bestem Wissen) · Zustand: gut",
+          "en": "Cap · second-hand, hand-painted · Size One size, adjustable · 100 % Baumwolle (cotton) (to the best of our knowledge) · Condition: good",
         },
         "keramik": {
           "de": "Keramik · Ø 14 cm, Höhe 6,5 cm · Steinzeug, Unterglasurfarbe · Deko – nicht für Lebensmittel",
@@ -80,8 +81,8 @@ describe('buildCharacteristics (DATENMODELL §6.6.2)', () => {
           "en": "Other · 10 × 15 × 2 cm · Holz, Acryl",
         },
         "textil": {
-          "de": "Textil · Größe M · 60 % Baumwolle, 40 % Polyester; Futter: 100 % Viskose · Zustand: sehr gut · Besonderheit: kleiner Fleck am linken Ärmel",
-          "en": "Textile · Size M · 60 % Baumwolle (cotton), 40 % Polyester (polyester); lining: 100 % Viskose (viscose) · Condition: very good · Special feature: kleiner Fleck am linken Ärmel",
+          "de": "Textil · Second-Hand, von Hand bemalt · Größe M · 60 % Baumwolle, 40 % Polyester; Futter: 100 % Viskose · Zustand: sehr gut · Besonderheit: kleiner Fleck am linken Ärmel",
+          "en": "Textile · second-hand, hand-painted · Size M · 60 % Baumwolle (cotton), 40 % Polyester (polyester); lining: 100 % Viskose (viscose) · Condition: very good · Special feature: kleiner Fleck am linken Ärmel",
         },
         "zeichnung": {
           "de": "Zeichnung · 21 × 29,7 cm · Aquarell auf Papier 300 g · gerahmt, mit Glas",
@@ -106,6 +107,26 @@ describe('buildCharacteristics (DATENMODELL §6.6.2)', () => {
     expect(buildCharacteristics({ ...p, hasDeviation: true }, 'de')).toBe(
       'Sonstiges · Besonderheit: Glasurfehler am Rand',
     )
+  })
+
+  it('R-043 P18.5 Textil und Caps sind immer als Second-Hand gekennzeichnet (Kasse, Bestätigung), andere nie', () => {
+    expect(buildCharacteristics({ category: 'cap' }, 'de')).toBe(
+      'Cap · Second-Hand, von Hand bemalt',
+    )
+    expect(buildCharacteristics({ category: 'textil' }, 'en')).toBe(
+      'Textile · second-hand, hand-painted',
+    )
+    for (const category of ['keramik', 'zeichnung', 'schmuck', 'sonstiges'] as const)
+      for (const locale of ['de', 'en'] as const)
+        expect(
+          buildCharacteristics(SAMPLES[category], locale),
+          `${category} ${locale}`,
+        ).not.toMatch(/second-hand/i)
+    // gleicher Wortlaut wie der Baustein auf der Produktseite
+    const snippet = LEGAL_SNIPPET_SEED['product.textileSecondHand']
+    expect(snippet.de).toMatch(/Second-Hand/)
+    expect(snippet.de).toMatch(/von Hand bemalt/)
+    expect(snippet.en).toMatch(/hand-painted/)
   })
 
   it('leeres Stück ergibt leere Zeile', () => {

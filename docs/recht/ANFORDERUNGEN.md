@@ -710,7 +710,8 @@ Lücken in der Nummerierung sind Reserve.
 #### R-063 · Bestellübersicht unmittelbar vor dem Button
 - **Anforderung:** Direkt oberhalb des Bestell-Buttons (mobil ohne andere Inhalte dazwischen) stehen: je Position
   Miniaturbild, Titel, Objektnummer, wesentliche Eigenschaften (Kategorie, Maße, Material bzw. Faserzusammensetzung,
-  Größe und Zustand bei Textil, Lebensmittelkontakt-Status bei Keramik, Metallteile bei Schmuck, Abweichungstext),
+  „Second-Hand, von Hand bemalt“ (R-043; P18.5), Größe und Zustand bei Textil und Caps, Lebensmittelkontakt-Status bei
+  Keramik, Metallteile bei Schmuck, Abweichungstext),
   Einzelpreis; Versandart und -kosten; **Gesamtpreis** mit Kleinunternehmer-Hinweis; Lieferzeit (R-035);
   Rechnungs-/Lieferadresse bzw. „Abholung in Berlin“; gewählte Zahlart; bei Vorkasse die Zahlungsfrist. Jeder Block
   hat einen „Ändern“-Link, der ohne Datenverlust zum jeweiligen Schritt führt. Darunter Baustein
