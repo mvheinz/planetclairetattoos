@@ -995,9 +995,12 @@
       "deleted": "{area}: gelöscht",
       "restricted": "{area}: eingeschränkt bis {date} wegen gesetzlicher Aufbewahrungspflichten, danach automatisch gelöscht bzw. anonymisiert",
       "kept": "{area}: aufbewahrt bis {date}, weil die Daten zur Geltendmachung oder Abwehr von Rechtsansprüchen nötig sind (Art. 17 Abs. 3 lit. e DSGVO)",
+      "inUse": "{area}: aufbewahrt bis {date} wegen gesetzlicher Aufbewahrungspflichten, danach automatisch gelöscht bzw. anonymisiert",
+      "inUseOpen": "{area}: brauche ich noch, um deine Bestellung abzuwickeln (zum Beispiel Versand, Zahlung oder Erstattung); danach bewahre ich sie nur so lange auf, wie Handels- und Steuerrecht es verlangen, und lösche bzw. anonymisiere sie dann automatisch",
       "unchanged": "{area}: unverändert – Rechnungen und Gutschriften muss ich nach Steuerrecht bis {date} aufbewahren, danach werden sie anonymisiert",
       "restrictedMeaning": "„Eingeschränkt“ heißt: Ich nutze diese Daten nur noch, um gesetzliche Pflichten zu erfüllen, und schicke dir dazu keine Mails mehr.",
-      "recipients": "Falls du der Weitergabe deiner E-Mail-Adresse an DHL zugestimmt hattest, ist diese Einwilligung widerrufen. Bei Zahlungen per Karte oder PayPal verarbeiten Stripe bzw. PayPal Daten in eigener Verantwortung – wende dich dafür bitte direkt an deren Datenschutz-Kontakt. Protokolle des Mail-Anbieters und Datensicherungen laufen automatisch ab.",
+      "carrierConsentWithdrawn": "Deine Einwilligung zur Weitergabe deiner E-Mail-Adresse an DHL ist widerrufen: DHL bekommt deine E-Mail-Adresse von mir nicht mehr.",
+      "recipients": "Bei Zahlungen per Karte oder PayPal verarbeiten Stripe bzw. PayPal Daten in eigener Verantwortung – wende dich dafür bitte direkt an deren Datenschutz-Kontakt. Protokolle des Mail-Anbieters und Datensicherungen laufen automatisch ab.",
       "complaint": "Du kannst dich bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel bei der Berliner Beauftragten für Datenschutz und Informationsfreiheit, Alt-Moabit 59–61, 10555 Berlin.",
       "reply": "Wenn du Fragen hast, antworte einfach auf diese Mail."
     },
@@ -1121,9 +1124,16 @@
       "none": "–"
     },
     "thirdCountry": {
-      "US": "Sitz in den USA (Übermittlung auf Grundlage des EU-US Data Privacy Framework bzw. von Standardvertragsklauseln)",
+      "US": "Bezug zu den USA (Sitz oder Mutterkonzern in den USA; Übermittlung auf Grundlage des EU-US Data Privacy Framework bzw. von Standardvertragsklauseln)",
       "EU": "EU/EWR",
       "none": "keine Übermittlung in Drittländer"
+    },
+    "furtherRecipientsIntro": "Außerdem bekommen diese Stellen Daten in eigener Verantwortung, aber nur, wenn es einen Anlass gibt:",
+    "furtherRecipients": {
+      "applePay": "Apple Distribution International Ltd., Cork, Irland – wenn du mit Apple Pay zahlst (Zahlungsdaten aus deinem Wallet, über Stripe)",
+      "googlePay": "Google Ireland Limited, Dublin, Irland – wenn du mit Google Pay zahlst (Zahlungsdaten aus deinem Wallet, über Stripe)",
+      "bank": "Meine Bank{bank} – bei Zahlung per Vorkasse und bei Rücküberweisungen (Name und IBAN der zahlenden Person, Betrag, Verwendungszweck)",
+      "tax": "Finanzamt und gegebenenfalls Steuerberatung – soweit das Steuerrecht es verlangt (Rechnungen, Gutschriften, Buchhaltungs-Exporte)"
     },
     "retentionHeading": "d) Wie lange ich deine Daten aufbewahre",
     "retention": {
@@ -1148,7 +1158,7 @@
     "complaintHeading": "f) Beschwerde bei der Aufsichtsbehörde",
     "complaint": "Du kannst dich bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel bei der Berliner Beauftragten für Datenschutz und Informationsfreiheit, Alt-Moabit 59–61, 10555 Berlin.",
     "sourceHeading": "g) Woher die Daten stammen",
-    "source": "Die Daten stammen von dir selbst (Kasse, Formulare, Mails). Den Zahlungsstatus melden die Zahlungsdienstleister, den Zustellstatus der Versanddienstleister.",
+    "source": "Die Daten stammen von dir selbst (Kasse, Formulare, Mails). Den Zahlungsstatus melden die Zahlungsdienstleister. Sendungsnummer und Versandstatus trage ich selbst ein; der Versanddienstleister übermittelt nichts an die Website. Ohne andere Nachricht gilt ein Paket {days} Tage nach dem Versand als zugestellt.",
     "automatedHeading": "h) Automatisierte Entscheidungen",
     "automated": "Ich treffe keine automatisierten Entscheidungen und erstelle kein Profiling. Stripe führt bei Zahlungen in eigener Verantwortung eine automatisierte Betrugs- und Risikoprüfung durch; Auskunft dazu gibt Stripe selbst.",
     "notesHint": "Interne Notizen, die auch andere Personen betreffen können, sind nicht in der Datei enthalten. Ich habe sie vor dem Versand geprüft; was dich betrifft, steht in meiner Antwort.",

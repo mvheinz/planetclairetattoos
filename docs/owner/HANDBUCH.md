@@ -427,9 +427,16 @@ erfasst du sie hier. Die Verwaltung rechnet die Frist aus und erinnert dich 7 Ta
 1. **Anfrage erfassen:** Art (Auskunft, Löschung …) und Eingangsdatum.
 2. **Identität prüfen:** Antworte nur an die Person, die ihre Daten verlangt. Im Zweifel frag nach.
 3. **Auskunft:** Die Verwaltung sucht über E-Mail, Name oder Bestellnummer alle Daten und erstellt eine ZIP-Datei. Sie wird
-   privat gespeichert und 30 Tage nach dem Versand der Antwort gelöscht.
+   privat gespeichert und 30 Tage nach dem Versand der Antwort gelöscht. Findet die Suche etwas nur über den Namen oder
+   die Bestellnummer und steht dort eine **andere E-Mail-Adresse** (zum Beispiel eine Namensvetterin oder ein Geschenk,
+   das jemand anderes bestellt hat), erscheint es unter „Mögliche Treffer – andere E-Mail-Adresse, bitte prüfen“. Das
+   kommt nur in die ZIP-Datei, wenn du das Kästchen ankreuzt – mach das nur, wenn du sicher bist, dass es dieselbe
+   Person ist.
 4. **Löschung:** Die Verwaltung zeigt dir je Datensatz, was gelöscht wird. Rechnungen musst du **steuerlich aufbewahren**.
-   Sie bleiben erhalten, werden aber für andere Zwecke gesperrt. Das erklärt die Verwaltung bei jedem Datensatz.
+   Sie bleiben erhalten, werden aber für andere Zwecke gesperrt. Das erklärt die Verwaltung bei jedem Datensatz. Ist eine
+   Bestellung noch nicht fertig (zum Beispiel bezahlt, aber noch nicht verschickt), schlägt die Verwaltung „keine
+   Aktion“ vor: Sonst würden auch die Versand- und Erstattungsmails nicht mehr rausgehen. Die Antwort an die Person sagt
+   dann, dass du die Daten noch für die Bestellung brauchst.
 5. **Einwilligung widerrufen** (zum Beispiel für Tattoo-Fotos oder die Weitergabe der E-Mail an DHL): ein Knopf, wirkt
    sofort.
 

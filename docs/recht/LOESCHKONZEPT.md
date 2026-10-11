@@ -289,7 +289,12 @@ Die Verwaltung unterstützt jeden Schritt (R-150 bis R-153). Antworten in der Sp
 1. Suche nach E-Mail, Name und Bestellnummer (R-150) über `orders`, `checkouts`, `invoices`, `withdrawals`,
    `complaints`, `inquiries`, `consent-log`, `email-log` und frühere `privacy-requests`.
 2. Export erzeugen; Inhalte prüfen und Daten Dritter schwärzen (z. B. Notizen, die andere Personen betreffen).
-3. Antwort per Mail `privacy_access_response` (KONZEPT M14) mit Baustein `privacyRequest.accessResponse`: Zwecke, Datenkategorien, Empfänger (DIENSTE.md),
+   Datensätze, die nur über Name oder Bestellnummer gefunden wurden und eine andere gespeicherte E-Mail-Adresse als die
+   Anfrage tragen (Namensvetterin, Geschenk-Bestellung), zeigt die Verwaltung als „mögliche Treffer – andere
+   E-Mail-Adresse, bitte prüfen“ mit ihrer Adresse und nicht angekreuztem Kästchen; sie kommen samt Belegen,
+   Reklamationen, Mail- und Einwilligungsnachweisen und Dateien nur nach ausdrücklicher Bestätigung in den Export
+   (P18.5). Bestätigen nur, wenn der Datensatz sicher zur anfragenden Person gehört.
+3. Antwort per Mail `privacy_access_response` (KONZEPT M14) mit Baustein `privacyRequest.accessResponse`: Zwecke, Datenkategorien, Empfänger (DIENSTE.md, inkl. der Empfänger ohne technische Einbindung aus DIENSTE §3.13),
    Speicherdauer (dieses Dokument), Rechte (Berichtigung, Löschung, Einschränkung, Widerspruch, Übertragbarkeit),
    Beschwerderecht, Herkunft der Daten, Hinweis zur automatisierten Risikoprüfung durch Stripe (eigene
    Verantwortung), Kopie der Daten.
@@ -306,10 +311,16 @@ Die Verwaltung unterstützt jeden Schritt (R-150 bis R-153). Antworten in der Sp
    Widerruf).
 3. Aufbewahrungspflichtige Daten (Bestellungen bis Stufe D, Rechnungen, Widerrufe) einschränken; in der Antwort
    (Mail `privacy_erasure_response`, M15, Baustein `privacyRequest.erasureResponse`) nennen, welche Daten aus welchem Grund
-   bis wann aufbewahrt und dann automatisch gelöscht werden.
-4. Empfänger informieren, soweit nötig (Art. 19): DHL-E-Mail-Einwilligung widerrufen, falls erteilt; bei Stripe/PayPal
-   auf deren eigene Datenschutzkontakte hinweisen (eigene Verantwortung); Mail-Anbieter-Logs und Backups laufen
-   automatisch ab (L-12, L-23) – in der Antwort erwähnen.
+   bis wann aufbewahrt und dann automatisch gelöscht werden. Ausnahme: Bestellungen, deren Vertrag noch läuft (kein
+   bzw. ein künftiger `timestamps.finalStatusAt`, z. B. bezahlt und nicht versandt oder noch unterwegs) – hier schlägt
+   der Plan „keine Aktion“ vor, weil Versand, Zahlung und Erstattung die Daten und Mails brauchen (Art. 17 Abs. 1 lit. a
+   greift nicht); nach Abschluss erneut prüfen. M15 meldet je Bereich den tatsächlichen Zustand: „eingeschränkt“ nur
+   bei echter Einschränkung, sonst „aufbewahrt bis {Datum}“ bzw. „brauche ich noch, um deine Bestellung abzuwickeln“
+   (P18.5). Eine Bestellung mit abgelaufener Frist kann nicht ohne Aktion bleiben (löschen oder begründet behalten).
+4. Empfänger informieren, soweit nötig (Art. 19): DHL-E-Mail-Einwilligung widerrufen, falls erteilt (geschieht beim
+   Einschränken); den Satz dazu enthält M15 nur, wenn in diesem Lauf wirklich eine Einwilligung widerrufen wurde
+   (P18.5); bei Stripe/PayPal auf deren eigene Datenschutzkontakte hinweisen (eigene Verantwortung); Mail-Anbieter-Logs
+   und Backups laufen automatisch ab (L-12, L-23) – in der Antwort erwähnen.
 
 ### 5.7 Einschränkung (Art. 18)
 - `privacy.processingRestricted: true` setzen; keine Mails, keine Nutzung außer Aufbewahrung und Rechtsverteidigung;

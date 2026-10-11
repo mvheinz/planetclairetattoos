@@ -1418,10 +1418,16 @@ Lücken in der Nummerierung sind Reserve.
   `privacy-requests`. Export als ZIP: `daten.json` (strukturiert, maschinenlesbar – Art. 20), `auskunft.html` (lesbar,
   mit den Angaben nach Art. 15 Abs. 1 lit. a–h aus Bausteinen der Datenschutzerklärung), Kopien der Bilder und PDFs.
   Exportdateien liegen privat (`private-uploads`, Zweck `data_export`) und werden 30 Tage nach Versand der Antwort
-  gelöscht (L-17).
+  gelöscht (L-17). Daten Dritter (P18.5): Datensätze, die nur über Name oder Bestellnummer gefunden wurden und eine
+  andere gespeicherte E-Mail-Adresse als die Anfrage tragen (Namensvetterin, Geschenk-Bestellung), zeigt die Verwaltung
+  als „mögliche Treffer“ mit ihrer Adresse und nicht angekreuztem Kästchen; sie kommen samt allem, was daran hängt, nur
+  nach ausdrücklicher Bestätigung in den Export. Empfänger in `auskunft.html`: Dienste laut DIENSTE §7 plus die
+  Empfänger ohne technische Einbindung aus DIENSTE §3.13 (Apple/Google, Bank, Finanzamt/Steuerberatung).
 - **Rechtsgrundlage:** Art. 12, 15, 20 DSGVO.
 - **Abnahme:** `int` – Seed-Person mit Daten in allen Collections → Export enthält jeden Datensatz (Zählvergleich),
-  JSON valide, Bilder enthalten.
+  JSON valide, Bilder enthalten; Namensvetterin mit anderer Adresse und Geschenk-Bestellung (nur Liefername) bleiben
+  ohne Bestätigung draußen (`tests/int/legal/privacy-export.int.spec.ts`); `unit` – Empfängerliste und Herkunft in
+  `auskunft.html` (`tests/unit/legal/access-report.unit.spec.ts`).
 - **Phase:** P6 · **Owner:** nein
 
 #### R-151 · Löschen und Einschränken mit Aufbewahrungssperre (Art. 17, 18 DSGVO)
@@ -1430,11 +1436,17 @@ Lücken in der Nummerierung sind Reserve.
   {Datum}** (gesetzliche Aufbewahrung: `privacy.processingRestricted = true`, keine weiteren Mails/Verarbeitung,
   nicht erforderliche Felder sofort entfernen – Telefon, Notizen, Packfotos), oder **behalten** (Legal Hold
   `privacy.legalHold` bei Rechtsstreit, Pflicht-Begründung, Art. 17 Abs. 3 lit. e). Unveränderliche Rechnungen bleiben
-  unverändert bis Fristende. Jede Aktion → `deletion-log`.
-  Vorlage für die Antwort-Mail.
+  unverändert bis Fristende. Jede Aktion → `deletion-log`. Bestellungen mit laufendem Vertrag (ohne bzw. mit künftigem
+  `timestamps.finalStatusAt`) bekommen „keine Aktion“ vorgeschlagen, weil „einschränken“ auch Versand- und
+  Erstattungsmails stoppt (P18.5).
+  Vorlage für die Antwort-Mail; sie meldet je Bereich den tatsächlichen Zustand („eingeschränkt“ nur bei echter
+  Einschränkung, sonst „aufbewahrt bis“ bzw. „brauche ich noch“) und den DHL-Widerruf nur, wenn er in diesem Lauf
+  geschah (P18.5).
 - **Rechtsgrundlage:** Art. 17, 18, 19 DSGVO; § 147 AO.
 - **Abnahme:** `int` – Person mit alter und neuer Bestellung: alte (Frist abgelaufen) gelöscht, neue eingeschränkt,
-  Rechnung unverändert, Log-Einträge vorhanden.
+  laufende mit Vorschlag „keine Aktion“, Rechnung unverändert, Log-Einträge vorhanden; M15 ohne Einschränkung und ohne
+  DHL-Widerruf nennt beides nicht; `unit` – `summarizeOutcomes` und M15 mit/ohne DHL-Widerruf
+  (`tests/unit/legal/privacy-erasure.unit.spec.ts`, `tests/unit/legal/p6-mails.unit.spec.ts`).
 - **Phase:** P6 · **Owner:** nein
 
 #### R-152 · Berichtigung, Widerspruch, Widerruf von Einwilligungen

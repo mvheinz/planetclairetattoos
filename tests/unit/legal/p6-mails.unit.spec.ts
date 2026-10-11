@@ -110,6 +110,37 @@ describe('R-084 P6-Kund:innen-Mails', () => {
       'en',
     )
     expect(en.text).toContain('Orders: restricted until')
+    expect(en.text).toContain('Orders: still needed to complete your order')
+    expect(en.text).toContain('consent to me passing your email address to DHL has been withdrawn')
+  })
+
+  it('R-151 M15 meldet „keine Aktion“ nicht als Einschränkung und den DHL-Widerruf nur, wenn er geschah (DE/EN)', async () => {
+    const data = {
+      ...MAIL_FIXTURE_DATA.privacy_erasure_response!,
+      areas: [
+        { area: 'orders', outcome: 'inUse', until: '2033-01-01T00:00:00.000+01:00' },
+        { area: 'orders', outcome: 'inUse', until: null },
+        { area: 'withdrawals', outcome: 'inUse', until: '2033-01-01T00:00:00.000+01:00' },
+      ],
+      carrierConsentWithdrawn: false,
+    }
+    const de = await renderFixture('privacy_erasure_response', data, 'de')
+    expect(de.text).toContain(
+      'Bestellungen: aufbewahrt bis 01.01.2033 wegen gesetzlicher Aufbewahrungspflichten',
+    )
+    expect(de.text).toContain('Bestellungen: brauche ich noch, um deine Bestellung abzuwickeln')
+    expect(de.text).toContain('Widerrufe: aufbewahrt bis 01.01.2033')
+    expect(de.text).not.toMatch(/eingeschränkt/i)
+    expect(de.text).not.toContain('DHL')
+    expect(de.text).toContain('Stripe bzw. PayPal')
+    const en = await renderFixture('privacy_erasure_response', data, 'en')
+    expect(en.text).toContain('Orders: kept until 1 Jan 2033 because of statutory retention duties')
+    expect(en.text).toContain('Orders: still needed to complete your order')
+    expect(en.text).not.toMatch(/restricted/i)
+    expect(en.text).not.toContain('DHL')
+    const { carrierConsentWithdrawn: _omit, ...withoutFlag } = data
+    const legacy = await renderFixture('privacy_erasure_response', withoutFlag, 'de')
+    expect(legacy.text).not.toContain('DHL')
   })
 
   it('R-152 M16 nennt die Einwilligung, den Zeitpunkt und die Wirkung ab sofort (beide Varianten)', async () => {

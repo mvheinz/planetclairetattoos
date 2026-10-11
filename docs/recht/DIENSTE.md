@@ -257,6 +257,12 @@
 | Meta Platforms Ireland Ltd., Merrion Road, Dublin 4, Irland | Instagram-Profil; die Website verlinkt nur | keine Übermittlung durch die Website; Profil-Insights ggf. gemeinsame Verantwortung (K-29) | eV / ggf. Art. 26 |
 | SumUp o. ä. (Flohmarkt, E-28) | Kartenzahlung vor Ort | keine Verbindung zur Website | nicht Teil der Website-DSE |
 
+Die Auskunft `auskunft.html` (R-150) nennt Apple, Google, die Bank (Name aus Einstellungen → Zahlung) und Finanzamt/
+Steuerberatung als feste Liste `privacyExport.furtherRecipients` in `src/i18n/messages/{de,en}.json` nach den Diensten
+aus §7 – bewusst nicht in der YAML, damit CSP-Abgleich, Auftragsverarbeiter-Tabelle und „Auftragsverarbeitung“
+unverändert bleiben (P18.5). Meta (keine Übermittlung durch die Website) und SumUp (nicht Teil der Website) fehlen dort
+absichtlich. Kommt hier ein Empfänger dazu, auch diese Liste (DE/EN) ergänzen.
+
 ### 3.14 Endgeräte-Speicher ohne Dienst
 
 Kein Fremddienst, aber für Datenschutzerklärung und VVT zu nennen (vollständige Liste ARCHITEKTUR §8.7):

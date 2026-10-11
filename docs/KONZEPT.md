@@ -1872,12 +1872,15 @@ Alle Werte liegen im Global `settings` (Feldnamen DATENMODELL §7.1); jede Ände
   - **Auskunft/Übertragbarkeit:** Suche nach E-Mail (normalisiert), Bestellnummer oder Name über Bestellungen, Kassen,
     Belege, Widerrufe, Anfragen (inkl. Bilder), Reklamationen, Mail- und Einwilligungs-Protokoll und frühere
     Datenschutz-Anfragen → ZIP mit `daten.json`, `auskunft.html` und Kopien der Bilder/PDFs, privat gespeichert und
-    30 Tage nach Versand der Antwort gelöscht (L-17); Antwort M14.
+    30 Tage nach Versand der Antwort gelöscht (L-17); Antwort M14. Treffer nur über Name/Bestellnummer mit anderer
+    gespeicherter E-Mail-Adresse sind „mögliche Treffer“ (mit Adresse, Kästchen nicht angekreuzt) und kommen samt
+    Anhängen nur nach Bestätigung in den Export (P18.5, LOESCHKONZEPT §5.4).
   - **Löschen/Einschränken:** zeigt je Datensatz die Regel aus dem LOESCHKONZEPT und die Aktion: sofort löschen (inkl.
     Dateien und Mail-Protokoll), einschränken bis {Datum} (`privacy.processingRestricted = true`: keine weiteren Mails, aus
     Listen ausgeblendet, nur für Export/Steuer; nicht erforderliche Felder wie Telefon, Notizen, Packfotos sofort
-    entfernen) oder behalten (Aufbewahrungssperre `privacy.legalHold` mit Pflicht-Begründung). Belege bleiben bis
-    Fristende unverändert. Antwort M15.
+    entfernen) oder behalten (Aufbewahrungssperre `privacy.legalHold` mit Pflicht-Begründung); bei laufendem Vertrag
+    Vorschlag „keine Aktion“ (P18.5). Belege bleiben bis Fristende unverändert. Antwort M15 mit dem tatsächlichen
+    Zustand je Bereich.
   - **Berichtigung:** Name/Adresse/E-Mail vor Rechnungsstellung editierbar, danach nur per Gutschrift + neuer Rechnung;
     **Einwilligungen widerrufen** (DHL-Weitergabe, Portfolio) per Knopf mit Wirkung ab sofort, Bestätigung M16 (R-152).
   - Jede Aktion → `deletion-log`.

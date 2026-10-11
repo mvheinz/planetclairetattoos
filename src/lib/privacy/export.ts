@@ -22,6 +22,8 @@ import {
   countMatches,
   MATCH_COLLECTIONS,
   searchPerson,
+  type ConfirmedMatches,
+  type PersonCandidate,
   type PersonMatches,
   type PersonQuery,
 } from './search'
@@ -31,7 +33,10 @@ import {
 // der Bilder und Belege unter `dateien/`. Privat abgelegt (`private-uploads`, Zweck `data_export`), an der Anfrage als
 // `exportFile` (ein neuer Export ersetzt den alten, die alte Datei wird gelöscht und protokolliert), Audit
 // `data_exported` ohne Inhalte. Ohne Daten Dritter: keine internen Notizen, keine Verwaltungs-Mails, keine Token-
-// Hashes oder Siegel, keine Seed-Kennzeichen. Die Datei wird 30 Tage nach der Antwort gelöscht (L-17, P6.15).
+// Hashes oder Siegel, keine Seed-Kennzeichen; Datensätze, die nur über Name oder Bestellnummer gefunden wurden und eine
+// andere E-Mail-Adresse als die der Anfrage tragen („mögliche Treffer“, `search.ts`), samt allem, was daran hängt, nur
+// nach ausdrücklicher Bestätigung (`confirmed`, LOESCHKONZEPT §5.4 Nr. 2). Die Datei wird 30 Tage nach der Antwort
+// gelöscht (L-17, P6.15).
 
 export const EXPORT_FORMAT = 'planetclaire-dsgvo-auskunft'
 export const EXPORT_VERSION = 1
@@ -115,6 +120,21 @@ export interface BuiltExport {
   zip: Buffer
   data: PrivacyExportData
   matches: PersonMatches
+  candidates: PersonCandidate[]
+}
+
+/** Suche für eine Anfrage: eigene Adresse = gespeicherte Adresse der Anfrage (LOESCHKONZEPT §5.2). */
+function searchForPrivacyRequest(
+  req: PayloadRequest,
+  request: PrivacyRequest,
+  query: PersonQuery,
+  confirmed: ConfirmedMatches,
+) {
+  return searchPerson(req, query, {
+    excludeRequestId: request.id,
+    ownEmails: [request.contactEmail],
+    confirmed,
+  })
 }
 
 /** Baut das ZIP (ohne es abzulegen) – auch für Tests. */
@@ -123,8 +143,9 @@ export async function buildPrivacyExportZip(
   request: PrivacyRequest,
   query: PersonQuery,
   now: Date,
+  confirmed: ConfirmedMatches = {},
 ): Promise<BuiltExport> {
-  const matches = await searchPerson(req, query, { excludeRequestId: request.id })
+  const { matches, candidates } = await searchForPrivacyRequest(req, request, query, confirmed)
   const data = {} as PrivacyExportData['data']
   for (const area of Object.keys(MATCH_COLLECTIONS) as (keyof PersonMatches)[]) {
     if (area === 'files') continue
@@ -186,17 +207,19 @@ export async function buildPrivacyExportZip(
     business: (settings.business ?? {}) as Parameters<typeof renderAccessReport>[0]['business'],
     counts,
     invoiceYears: Number(settings.retention?.invoiceYears) || undefined,
+    bankName: settings.payment?.bankName ?? null,
   })
   zipFiles['daten.json'] = [strToU8(`${JSON.stringify(exportData, null, 2)}\n`), { level: 6 }]
   zipFiles['auskunft.html'] = [strToU8(html), { level: 6 }]
   const zip = Buffer.from(zipSync(zipFiles, { mtime: now }))
-  return { zip, data: exportData, matches }
+  return { zip, data: exportData, matches, candidates }
 }
 
 export interface CreatedExport {
   request: PrivacyRequest
   upload: PrivateUpload
   counts: PrivacyExportData['counts']
+  candidates: PersonCandidate[]
 }
 
 /** Export erzeugen, privat ablegen, an der Anfrage hinterlegen (ersetzt einen älteren Export). */
@@ -205,6 +228,7 @@ export async function createPrivacyExport(
   id: number,
   query: PersonQuery,
   now: Date,
+  confirmed: ConfirmedMatches = {},
 ): Promise<CreatedExport> {
   const request = await loadPrivacyRequest(req, id)
   if (request.status === 'answered' || request.status === 'rejected') {
@@ -212,7 +236,7 @@ export async function createPrivacyExport(
   }
   const effective: PersonQuery =
     query.email || query.orderNumber || query.name ? query : { email: request.contactEmail }
-  const built = await buildPrivacyExportZip(req, request, effective, now)
+  const built = await buildPrivacyExportZip(req, request, effective, now, confirmed)
   const stamp = formatBerlin(now, 'yyyyMMdd-HHmmss')
   const upload = await storePrivateFile(req, {
     purpose: 'data_export',
@@ -267,20 +291,24 @@ export async function createPrivacyExport(
     ).reduce((a, b) => a + b, 0)} Einträge).`,
     seed: request.seed === true,
   })
-  return { request: updated, upload, counts: built.data.counts }
+  return { request: updated, upload, counts: built.data.counts, candidates: built.candidates }
 }
 
-/** Nur suchen und Treffer an der Anfrage speichern (Anzeige „Gefunden“). */
+/**
+ * Nur suchen und Treffer an der Anfrage speichern (Anzeige „Gefunden“, Berichtigung); unbestätigte mögliche Treffer
+ * gehen nur als `candidates` an die Verwaltung zurück.
+ */
 export async function searchForRequest(
   req: PayloadRequest,
   id: number,
   query: PersonQuery,
   now: Date,
-): Promise<{ request: PrivacyRequest; matches: PersonMatches }> {
+  confirmed: ConfirmedMatches = {},
+): Promise<{ request: PrivacyRequest; matches: PersonMatches; candidates: PersonCandidate[] }> {
   const request = await loadPrivacyRequest(req, id)
   const effective: PersonQuery =
     query.email || query.orderNumber || query.name ? query : { email: request.contactEmail }
-  const matches = await searchPerson(req, effective, { excludeRequestId: request.id })
+  const { matches, candidates } = await searchForPrivacyRequest(req, request, effective, confirmed)
   const updated = (await preservingReq(req, () =>
     req.payload.update({
       collection: 'privacy-requests',
@@ -296,7 +324,7 @@ export async function searchForRequest(
       context: { ...req.context, now: now.toISOString(), skipAudit: true },
     }),
   )) as PrivacyRequest
-  return { request: updated, matches }
+  return { request: updated, matches, candidates }
 }
 
 /**
