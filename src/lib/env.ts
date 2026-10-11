@@ -226,6 +226,11 @@ export function isProduction(env: Env = getEnv()): boolean {
   return env.APP_ENV === 'production'
 }
 
+/** Ausgerollte Umgebung (Vorschau, Staging, Produktion) – dort laufen Fehlerausgaben durch die Schwärzung (R-137). */
+export function isDeployedEnv(appEnv: Env['APP_ENV']): boolean {
+  return appEnv === 'preview' || appEnv === 'staging' || appEnv === 'production'
+}
+
 /** `next build` ohne Datenbank (Docker, Spike B-08): `BUILD_WITHOUT_DB=1` und Build-Phase (`NEXT_PHASE`). */
 export function buildWithoutDb(env: Env = getEnv()): boolean {
   return env.BUILD_WITHOUT_DB === true && process.env.NEXT_PHASE === 'phase-production-build'

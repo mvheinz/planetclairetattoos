@@ -1846,6 +1846,10 @@ Meldung, Postgres nennt Werte in `detail` (`Failing row contains (…)`, `Key (�
 Fehler-Objekte werden zu `{ name, code, constraint, message, cause }` (rekursiv, nie `query`, `params`, `detail`).
 Log-Felder mit Fehlern nutzen `errorSummary(err)` aus dem Logger-Modul (Name ohne das bloße `Error`, SQLSTATE-Code,
 geschwärzte Meldung, bis zu zwei Ebenen `cause`) statt `(err as Error).message`; ebenso `webhook_events.last_error`.
+Ausgaben außerhalb des Loggers (P18.5): In ausgerollten Umgebungen (`APP_ENV` preview/staging/production) hüllt
+`src/instrumentation.ts` `console.error`/`console.warn` ein (Next.js gibt unbehandelte Fehler so aus), und Payloads
+pino-Logger serialisiert `err` mit `serializeLogError` – beide aus `src/lib/monitoring/consoleGuard.ts`, gleiche
+Schwärzung, Stack ohne die Meldungszeile.
 
 **AK-A-8-01** Jede Antwort einer öffentlichen Route trägt die Header aus §8.1 ihres Kontexts (Test über alle Registry-Routen).
 **AK-A-8-02** `GET /admin` und `GET /admin/collections/users` → 404; `GET <ADMIN_ROUTE>` → Login-Seite; der Wert von

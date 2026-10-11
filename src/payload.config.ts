@@ -37,6 +37,7 @@ import { DeletionLog } from './collections/DeletionLog'
 import { EmailLog } from './collections/EmailLog'
 import { WebhookEvents } from './collections/WebhookEvents'
 import { Settings } from './globals/Settings'
+import { serializeLogError } from './lib/monitoring/consoleGuard'
 import { complianceTemplateEndpoint } from './endpoints/compliance'
 import { exportEndpoints } from './endpoints/export'
 import { postRestoreEndpoints } from './endpoints/postRestore'
@@ -52,7 +53,7 @@ import { adminViewsConfig } from './admin/views/config'
 import { isAdmin, isAdminRequest } from './access'
 import { JOB_TASKS } from './jobs'
 import { createMailTransport, parseMailFrom } from './lib/email'
-import { getEnv } from './lib/env'
+import { getEnv, isDeployedEnv } from './lib/env'
 import { isCronAuthorized } from './lib/jobs/auth'
 import { storagePlugins } from './lib/storage'
 import { initLegalSnippets } from './lib/legal/snippets'
@@ -148,6 +149,11 @@ export default buildConfig({
     complianceTemplateEndpoint,
   ],
   hooks: { afterError: [keepValidationErrorData] },
+  // Payload-Fehler im Produktionsbetrieb ohne Abfragewerte (R-137, P18.5): pino-Serializer für `err`; in der
+  // Entwicklung bleibt die lesbare Standardausgabe.
+  ...(isDeployedEnv(env.APP_ENV)
+    ? { logger: { options: { serializers: { err: serializeLogError } } } }
+    : {}),
   // Rechtsbausteine in den Speicher laden (`getSnippet` bleibt synchron, DATENMODELL §6.28).
   onInit: initLegalSnippets,
   editor: lexicalEditor(),
