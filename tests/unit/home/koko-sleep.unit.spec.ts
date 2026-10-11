@@ -47,6 +47,23 @@ describe('kokoAsleep (Europe/Berlin)', () => {
     expect(kokoAsleep(night)).toBe(true)
     expect(kokoAsleep(day)).toBe(false)
   })
+
+  it('U-78: im Vorschau-Export zählt SEED_NOW (12 Uhr) – eine nachts erzeugte Datei zeigt Koko wach', () => {
+    const seedNow = '2026-10-11T12:00:00+02:00'
+    expect(tourNow({ APP_ENV: 'preview', PREVIEW_EXPORT: true, SEED_NOW: seedNow })).toEqual(
+      new Date(seedNow),
+    )
+    expect(
+      kokoAsleep(tourNow({ APP_ENV: 'preview', PREVIEW_EXPORT: true, SEED_NOW: seedNow })),
+    ).toBe(false)
+    // ohne Export (echte Seite, Vorschau-Server) gilt die Uhr – SEED_NOW wird ignoriert
+    const real = tourNow({
+      APP_ENV: 'preview',
+      PREVIEW_EXPORT: false,
+      SEED_NOW: '2000-01-01T12:00:00Z',
+    })
+    expect(real.getFullYear()).toBeGreaterThan(2000)
+  })
 })
 
 describe('kokoLid (Lider im Stil der Tusche)', () => {
