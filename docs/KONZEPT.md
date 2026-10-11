@@ -1294,7 +1294,10 @@ Regeln zu Erstattungen:
   Rücksendekosten trägt die Kund:in (E-27). **Teil-Widerruf:** Preise der widerrufenen Stücke + Differenz zwischen
   bezahlten Versandkosten und den Versandkosten, die für die behaltenen Stücke angefallen wären. Diese
   kundenfreundliche Regel ist vorläufig, bis Kanzleifrage K-09 beantwortet ist (RECHT R-072); der Erstattungsdialog
-  weist darauf hin [Annahme KA-32].
+  weist darauf hin [Annahme KA-32]. Gerechnet wird mit den Tarifen **bei der Bestellung** (Snapshot
+  `orders.shippingRatesAtOrder`, P18.5; Bestellungen von vor dem Snapshot: aktuelle Tarife). Fehlt der Tarif der
+  behaltenen Stücke, enthält der Vorschlag keinen Versandanteil und der Dialog zeigt „Tarif fehlt – Versandanteil bitte
+  prüfen“.
 - Jutta kann den Betrag im Dialog **erhöhen** (Kulanz, z. B. Rücksendekosten übernehmen) mit Pflicht-Notiz; nie über den
   noch erstattbaren Betrag hinaus.
 - Stripe-Erstattung immer über dasselbe Zahlungsmittel (Refund-API). Vorkasse: Jutta überweist selbst und bestätigt

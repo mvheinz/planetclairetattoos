@@ -673,6 +673,15 @@ export interface Order {
   };
   shippingZone?: ('DE' | 'EU' | 'CH') | null;
   shippingClass?: ('brief' | 'paket_klein' | 'keramik' | 'nur_abholung') | null;
+  shippingRatesAtOrder?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   items: {
     product: number | Product;
     itemNumber: number;
@@ -3397,6 +3406,7 @@ export interface OrdersSelect<T extends boolean = true> {
       };
   shippingZone?: T;
   shippingClass?: T;
+  shippingRatesAtOrder?: T;
   items?:
     | T
     | {

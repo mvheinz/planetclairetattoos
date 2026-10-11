@@ -23,6 +23,8 @@ export interface RefundProposalView {
   proposedCents: number
   maxCents: number
   partial: boolean
+  /** Kein Tarif für die behaltenen Stücke (Versandanteil nicht berechnet). */
+  shippingRateMissing?: boolean
 }
 
 export interface RefundDialogProps {
@@ -150,6 +152,11 @@ export function RefundDialog(props: RefundDialogProps) {
       {proposal.partial ? (
         <Notice tone="info" data-testid="refund-k09">
           {adminText('refundPartialHint')}
+        </Notice>
+      ) : null}
+      {proposal.shippingRateMissing ? (
+        <Notice tone="warning" data-testid="refund-rate-missing">
+          {adminText('refundShippingRateMissing')}
         </Notice>
       ) : null}
       <div className="pc-field">

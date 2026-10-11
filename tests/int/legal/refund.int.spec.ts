@@ -2,7 +2,13 @@ import { sql } from '@payloadcms/db-postgres'
 import { createLocalReq, type Payload } from 'payload'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import { requestRefund, type RefundRequestInput } from '@/lib/commerce/refundOrder'
+import { transitionProduct } from '@/lib/commerce/productTransitions'
+import {
+  refundDialogData,
+  refundProposal,
+  requestRefund,
+  type RefundRequestInput,
+} from '@/lib/commerce/refundOrder'
 import { __setEmailAdapterForTests, clearMemoryOutbox, createEmailAdapter } from '@/lib/email'
 import { parseEnv } from '@/lib/env'
 import { createInvoiceForOrder } from '@/lib/invoices/create'
@@ -312,5 +318,108 @@ describe('R-072 O15 Erstatten aus der Bestellung', () => {
     expect(o.refunds?.[0]?.manualTransferConfirmedAt).toBe(NOW.toISOString())
     expect(await mails(order.id, 'refund_confirmation')).toHaveLength(1)
     expect(JSON.stringify(o)).not.toMatch(/iban/i)
+  })
+})
+
+describe('KA-32 Versandtarife bei der Bestellung (P18.5)', () => {
+  it('KA-32 Teil-Widerruf rechnet mit dem Tarif-Snapshot der Bestellung, nicht mit den heutigen Tarifen; fehlt der Tarif, sagt der Vorschlag es', async () => {
+    // Bei der Bestellung kostete Paket klein 590 (heute laut Grund-Seed 650)
+    const order = await paidOrder(
+      [
+        { ...pieces[2]!, priceCents: 3800 },
+        { ...pieces[3]!, priceCents: 2900, shippingClass: 'paket_klein' },
+      ],
+      { shippingRatesAtOrder: { zone: 'DE', rates: { keramik: 890, paket_klein: 590 } } },
+    )
+    const cup = String(order.items[0]!.id)
+    const proposal = await refundProposal(await req(), order.id, [cup])
+    expect(proposal).toMatchObject({
+      itemsCents: 3800,
+      shippingCents: 300,
+      proposedCents: 4100,
+      shippingRateMissing: false,
+    })
+    // Der Server prüft gegen denselben Vorschlag (4040 nach heutigem Tarif wäre zu wenig)
+    const w = await withdraw(order, [cup])
+    await expect(
+      refund(order, {
+        reason: 'withdrawal',
+        withdrawalId: w.id,
+        itemIds: [cup],
+        amountCents: 4040,
+      }),
+    ).rejects.toThrow(/nur erhöhen/)
+    expect(calls).toHaveLength(0)
+
+    // Snapshot ohne Tarif für die behaltene Klasse: kein stiller Versandanteil, sondern Hinweis
+    const missing = await paidOrder(
+      [
+        { ...pieces[4]!, priceCents: 3800 },
+        { ...pieces[5]!, priceCents: 2900, shippingClass: 'paket_klein' },
+      ],
+      { shippingRatesAtOrder: { zone: 'DE', rates: { keramik: 890 } } },
+    )
+    const dialog = await refundDialogData(await req(), missing.id)
+    expect(dialog.proposal.shippingRateMissing).toBe(false) // nichts gewählt
+    expect(
+      await refundProposal(await req(), missing.id, [String(missing.items[0]!.id)]),
+    ).toMatchObject({ shippingCents: 0, proposedCents: 3800, shippingRateMissing: true })
+  })
+})
+
+describe('P18.5 Stück nach Widerruf vor dem Versand (analog KA-37)', () => {
+  it('Teil-Widerruf vor dem Versand → Erstattung → „Wieder verkaufen“ (P11) gelingt; das behaltene Stück bleibt verkauft', async () => {
+    const r = await req()
+    const [returned, kept] = [pieces[6]!, pieces[7]!]
+    for (const p of [returned, kept]) {
+      await transitionProduct(r, p.id, 'publish', { actor: 'admin' })
+    }
+    const order = await paidOrder([
+      { ...returned, priceCents: 3800 },
+      { ...kept, priceCents: 2900, shippingClass: 'paket_klein' },
+    ])
+    for (const p of [returned, kept]) {
+      await transitionProduct(r, p.id, 'sell', {
+        actor: 'system',
+        orderId: order.id,
+        channel: 'online',
+      })
+    }
+    const line = String(order.items[0]!.id)
+    const w = await withdraw(order, [line])
+    // Widerruf allein (noch nicht erstattet) reicht nicht
+    await expect(
+      transitionProduct(r, returned.id, 'returnToStock', { actor: 'admin' }),
+    ).rejects.toThrow(/Widerruf bzw\. Storno vor dem Versand/)
+    const proposal = await refundProposal(await req(), order.id, [line])
+    await refund(order, {
+      reason: 'withdrawal',
+      withdrawalId: w.id,
+      itemIds: [line],
+      amountCents: proposal.proposedCents,
+    })
+    const o = await reload(order.id)
+    expect(o.items.map((i) => i.status)).toEqual(['refunded', 'active'])
+    expect(o.timestamps.shippedAt ?? null).toBeNull()
+
+    await transitionProduct(await req(), returned.id, 'returnToStock', { actor: 'admin' })
+    const back = await payload.findByID({
+      collection: 'products',
+      id: returned.id,
+      depth: 0,
+      overrideAccess: true,
+    })
+    expect(back).toMatchObject({ status: 'available', currentOrder: null, soldChannel: null })
+    // das behaltene Stück (noch zu liefern) lässt sich weder zurückstellen noch ausblenden
+    for (const t of ['returnToStock', 'archiveAfterReturn'] as const) {
+      await expect(transitionProduct(await req(), kept.id, t, { actor: 'admin' })).rejects.toThrow()
+    }
+    const still = await payload.findByID({
+      collection: 'products',
+      id: kept.id,
+      depth: 0,
+      overrideAccess: true,
+    })
+    expect(still).toMatchObject({ status: 'sold', currentOrder: order.id })
   })
 })

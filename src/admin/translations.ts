@@ -662,6 +662,8 @@ export const ADMIN_CUSTOM_DE = {
   refundProposalMax: 'noch erstattbar:',
   refundPartialHint:
     'Teil-Widerruf: Der Versandanteil ist vorläufig kundenfreundlich berechnet – die Kanzlei klärt das noch (Frage K-09).',
+  refundShippingRateMissing:
+    'Tarif fehlt – Versandanteil bitte prüfen: Für die Stücke, die die Kundin behält, ist kein Versandpreis hinterlegt. Der Vorschlag enthält deshalb keinen Versandanteil; erhöhe den Betrag, wenn nötig.',
   refundAmount: 'Betrag',
   refundAmountInvalid: 'Bitte einen Betrag wie 12,50 eingeben.',
   refundNote: 'Notiz (optional)',

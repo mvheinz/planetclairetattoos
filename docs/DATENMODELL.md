@@ -1221,6 +1221,7 @@ sind gefilterte Listen dieser Collection.
 | `billingAddress` | group `addressFields` | R bei `billingAddressDiffers` **und immer bei `pickup`** (R-061; DM-29) | – | – | Land wie Lieferadresse nur aus `settings.shipping.enabledCountries` (derzeit fest `DE`) | Rechnungsempfänger (§ 34a UStDV); bei `shipping` ohne Abweichung gilt die Lieferadresse |
 | `shippingZone` | select `ShippingZone` | S | – | – | leer bei `pickup` | – |
 | `shippingClass` | select `ShippingClass` | S | – | höchste Klasse im Korb | – | E-25 |
+| `shippingRatesAtOrder` | json | S | – | bei der Anlage (`createOrderFromCheckout`): `{ "zone": "<ShippingZone>", "rates": { "<ShippingClass>": <Cent> } }` für die Klassen der Positionen in der Zone der Kasse, die bezahlte Klasse mit `shippingCents` | unveränderlich; leer bei `pickup` und bei Bestellungen vor P18.5 (dann rechnet der Erstattungsvorschlag mit den aktuellen Tarifen) | Versanddifferenz beim Teil-Widerruf (KONZEPT §5.3, KA-32) |
 | `items` | array | R (1–10) | – | – | Snapshot, nach Anlage unveränderlich (außer `status`, `refundedCents`) | – |
 | ↳ `product` | relationship → `products` | R | – | – | – | – |
 | ↳ `itemNumber` | number | R | – | – | – | – |
@@ -1339,7 +1340,8 @@ Hash und Siegel wie bei echten Bestellungen) – nie aus `orderNumber` oder `PAY
   1. `status`-Änderung nur mit `context.transition` und erlaubtem Übergang (§6.8.5); jeder Wechsel hängt einen
      `statusHistory`-Eintrag an und setzt den passenden `timestamps.*`-Wert.
   2. Unveränderlich nach Anlage: `orderNumber`, `checkout` (außer Leeren durch `retentionAbandonedCheckouts`), `items`
-     (außer `items[].status`, `items[].refundedCents`), Summen, `legalTextVersions`, `taxModeAtOrder`, `paymentMethod`,
+     (außer `items[].status`, `items[].refundedCents`), Summen, `legalTextVersions`, `taxModeAtOrder`,
+     `shippingRatesAtOrder`, `paymentMethod`,
      `statusTokenHash`/`statusTokenSealed` (außer Rotation mit `context.transition = 'rotateToken'` und Löschung in
      Stufe B), `pickup.messageText` nach O8.
   3. Adressen änderbar nur bei `awaiting_prepayment`, `paid`, `packed`, `ready_for_pickup` → Audit `order_address_changed`.
