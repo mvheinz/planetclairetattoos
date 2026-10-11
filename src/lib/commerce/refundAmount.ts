@@ -1,13 +1,27 @@
 import 'server-only'
 
-import type { FulfillmentMethod, ShippingClass } from '@/lib/enums'
+import {
+  COUNTRY_CODES,
+  type FulfillmentMethod,
+  type ShippingClass,
+  type ShippingZone,
+} from '@/lib/enums'
+import { zoneForCountry } from '@/lib/settings/rules'
 
-import { computeShipping, type ShippingSettings } from './shipping'
+import {
+  parseShippingRatesSnapshot,
+  shippingFromSnapshot,
+  snapshotShippingRates,
+  type ShippingRatesSnapshot,
+  type ShippingSettings,
+} from './shipping'
 
 // Erstattungsvorschlag (PLAN P6.10, KONZEPT §5.3 „Regeln zu Erstattungen“, R-072, KA-32): Voll-Widerruf = Stückpreise
 // + ursprüngliche Versandkosten; Teil-Widerruf = Preise der gewählten Stücke + Differenz aus bezahlten Versandkosten
 // und den Versandkosten, die für die behaltenen Stücke angefallen wären (vorläufig kundenfreundlich bis Kanzleifrage
-// K-09). Nie über den noch erstattbaren Betrag. Reine Funktion (Tarife aus `settings.shipping.rates`), alles in Cent.
+// K-09) – zu den Tarifen bei der Bestellung (`orders.shippingRatesAtOrder`; Altbestellungen ohne Snapshot: aktuelle
+// Tarife). Fehlt der Tarif der behaltenen Stücke, bleibt der Versandanteil 0 und der Dialog sagt das
+// (`shippingRateMissing`), statt still zu rechnen. Nie über den noch erstattbaren Betrag. Reine Funktion, alles in Cent.
 
 export interface RefundItem {
   id: string
@@ -24,9 +38,8 @@ export interface RefundProposalInput {
   /** Bezahlte Versandkosten der Bestellung. */
   shippingCents: number
   fulfillmentMethod: FulfillmentMethod
-  /** Lieferland (Standard `DE`). */
-  country?: string | null
-  settings: ShippingSettings
+  /** Versandtarife der Bestellung (`orderShippingRates`); `null` = keine bekannt. */
+  rates: ShippingRatesSnapshot | null
   totalCents: number
   /** Summe der erfolgreichen und laufenden Erstattungen. */
   refundedCents: number
@@ -40,18 +53,56 @@ export interface RefundProposal {
   maxCents: number
   /** Teil-Widerruf (es bleiben Stücke behalten) → Hinweis auf K-09 im Dialog. */
   partial: boolean
+  /** Kein Tarif für die behaltenen Stücke → Versandanteil nicht berechnet, Dialog: „bitte prüfen“. */
+  shippingRateMissing: boolean
 }
 
-/** Versandkosten, die für `kept` angefallen wären (ohne Tarif: bezahlter Versand, also keine Differenz). */
-function shippingFor(kept: readonly RefundItem[], input: RefundProposalInput): number {
+/** Bestellung, soweit der Vorschlag sie braucht (`orders`-Dokument). */
+export interface RefundRatesOrder {
+  fulfillmentMethod: FulfillmentMethod
+  shippingRatesAtOrder?: unknown
+  shippingZone?: ShippingZone | null
+  shippingClass?: ShippingClass | null
+  shippingCents?: number | null
+  shippingAddress?: { country?: string | null } | null
+  items: readonly { shippingClass: ShippingClass }[]
+}
+
+/**
+ * Tarife für den Vorschlag: der Snapshot der Bestellung; für Altbestellungen ohne Snapshot die aktuellen Tarife aus
+ * `settings` (Zone der Bestellung, die bezahlte Klasse mit dem bezahlten Versand). `null` bei Abholung.
+ */
+export function orderShippingRates(
+  order: RefundRatesOrder,
+  settings: ShippingSettings | null | undefined,
+): ShippingRatesSnapshot | null {
+  if (order.fulfillmentMethod !== 'shipping') return null
+  const saved = parseShippingRatesSnapshot(order.shippingRatesAtOrder)
+  if (saved) return saved
+  const country = String(order.shippingAddress?.country ?? 'DE').toUpperCase()
+  const zone =
+    order.shippingZone ??
+    ((COUNTRY_CODES as readonly string[]).includes(country)
+      ? zoneForCountry(country as (typeof COUNTRY_CODES)[number])
+      : null)
+  if (!zone) return null
+  const paid =
+    order.shippingClass && typeof order.shippingCents === 'number'
+      ? { shippingClass: order.shippingClass, shippingCents: order.shippingCents }
+      : null
+  return snapshotShippingRates(
+    order.items.map((i) => i.shippingClass),
+    zone,
+    settings,
+    paid,
+  )
+}
+
+/** Versandkosten, die für `kept` angefallen wären; `null`, wenn dafür kein Tarif bekannt ist. */
+function shippingFor(kept: readonly RefundItem[], input: RefundProposalInput): number | null {
   if (kept.length === 0) return 0
   if (input.fulfillmentMethod === 'pickup') return 0
-  try {
-    return computeShipping(kept, 'shipping', input.settings, { country: input.country ?? 'DE' })
-      .shippingCents
-  } catch {
-    return input.shippingCents
-  }
+  return input.rates ? shippingFromSnapshot(kept, input.rates) : null
 }
 
 export function proposeRefund(input: RefundProposalInput): RefundProposal {
@@ -61,14 +112,21 @@ export function proposeRefund(input: RefundProposalInput): RefundProposal {
   const selected = open.filter((i) => chosen.has(i.id))
   const kept = open.filter((i) => !chosen.has(i.id))
   const itemsCents = selected.reduce((n, i) => n + i.priceCents, 0)
-  const shippingCents =
-    selected.length === 0 ? 0 : Math.max(0, input.shippingCents - shippingFor(kept, input))
+  let shippingCents = 0
+  let shippingRateMissing = false
+  if (selected.length > 0) {
+    const keptShipping = shippingFor(kept, input)
+    // Ohne Tarif keine Differenz (der Vorschlag ist eine Untergrenze, Jutta kann erhöhen) – aber mit Hinweis.
+    if (keptShipping === null) shippingRateMissing = true
+    else shippingCents = Math.max(0, input.shippingCents - keptShipping)
+  }
   return {
     itemsCents,
     shippingCents,
     proposedCents: Math.min(maxCents, itemsCents + shippingCents),
     maxCents,
     partial: selected.length > 0 && kept.length > 0,
+    shippingRateMissing,
   }
 }
 

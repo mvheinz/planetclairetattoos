@@ -18,6 +18,11 @@ import { getTaxModeAt } from '@/lib/tax'
 import type { Checkout, Media, Order, Product } from '@/payload-types'
 
 import { prepaymentDeadlines } from './deadlines'
+import {
+  snapshotShippingRates,
+  type ShippingRatesSnapshot,
+  type ShippingSettings,
+} from './shipping'
 import { issueStatusToken } from './statusToken'
 
 // Bestellanlage aus der Kasse (KONZEPT §4, §5.3 O1/O2/O19; DATENMODELL §6.8, §6.25). Einzige Stelle, die
@@ -102,6 +107,16 @@ function address(group: Checkout['shippingAddress']): Doc | undefined {
     Object.entries(group).filter(([, v]) => v !== null && v !== undefined && v !== ''),
   )
   return Object.keys(out).length > 0 ? out : undefined
+}
+
+/** Versandtarife zum Bestellzeitpunkt (Klassen der Positionen, Zone der Kasse) für den Teil-Widerruf (KA-32). */
+function ratesAtOrder(checkout: Checkout, settings: unknown): ShippingRatesSnapshot | null {
+  if (!checkout.shippingZone) return null
+  const paid = checkout.shippingClass
+    ? { shippingClass: checkout.shippingClass, shippingCents: checkout.shippingCents }
+    : null
+  const classes = checkout.items.map((i) => i.shippingClass)
+  return snapshotShippingRates(classes, checkout.shippingZone, settings as ShippingSettings, paid)
 }
 
 function coverOf(product: Product | undefined): { coverImage?: number; coverImageUrl?: string } {
@@ -279,6 +294,7 @@ export async function createOrderFromCheckout(
       ...(billingAddress ? { billingAddress } : {}),
       shippingZone: shipping ? checkout.shippingZone : null,
       shippingClass: checkout.shippingClass,
+      shippingRatesAtOrder: shipping ? ratesAtOrder(checkout, settings) : null,
       items,
       subtotalCents: checkout.subtotalCents,
       shippingCents: checkout.shippingCents,

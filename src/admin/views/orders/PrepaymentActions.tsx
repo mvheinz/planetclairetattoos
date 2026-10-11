@@ -16,7 +16,8 @@ import { adminText } from '../../translations'
 // „Zahlung erhalten“ (O3; Dialog mit Betrag und Verwendungszweck, eingegangener Betrag Pflicht, Abweichung → Warnung und
 // bewusste Bestätigung, optional Eingangsdatum), „Stornieren“ (O4, Grund Pflicht, M04), „Bankdaten kopieren“; in der
 // Unterliste „Nachträglich bezahlt“ (O5) bzw. – ist ein Stück schon weg – Hinweis, Vorlage „Bitte um IBAN“ und
-// „Rücküberweisung erledigt“.
+// „Rücküberweisung erledigt“; nach Widerruf bzw. Storno durch Jutta nur Hinweis (mit Frist) und „Rücküberweisung
+// erledigt“ (P18.5).
 
 type Feedback = { tone: 'success' | 'error'; text: string } | null
 
@@ -236,6 +237,10 @@ export interface PrepaymentLateActionsProps {
   orderId: number
   orderNumber: string
   allAvailable: boolean
+  /** Storno-Grund: nur nach `payment_timeout` gibt es „Nachträglich bezahlt“ (Standard). */
+  cancelReason?: 'payment_timeout' | 'withdrawn' | 'admin'
+  /** Nach Widerruf: spätestes Datum der Rücküberweisung. */
+  refundDueDate?: string | null
   refundNoted: boolean
   /** Pfad zu den Vorlagen („Bitte um IBAN“, P5.27). */
   templatesHref: string
@@ -244,6 +249,46 @@ export interface PrepaymentLateActionsProps {
 export function PrepaymentLateActions(props: PrepaymentLateActionsProps) {
   const router = useRouter()
   const [gone, setGone] = useState(!props.allAvailable)
+  const reason = props.cancelReason ?? 'payment_timeout'
+
+  const refundDone = props.refundNoted ? (
+    <p className="pc-order__muted" data-testid="late-refund-noted">
+      {adminText('prepaymentRefundNoted')}
+    </p>
+  ) : (
+    <p className="pc-admin-row">
+      <ActionButton
+        variant="secondary"
+        data-testid="late-refund-done"
+        confirm={{
+          title: adminText('prepaymentRefundDoneTitle', { order: props.orderNumber }),
+          consequence: adminText('orderActionsRefundDoneConfirm'),
+        }}
+        action={() =>
+          postAdminAction(`/api/orders/${props.orderId}/late-payment`, {
+            action: 'refund_transfer_done',
+          })
+        }
+        onDone={() => router.refresh()}
+      >
+        {adminText('orderActionsRefundDone')}
+      </ActionButton>
+    </p>
+  )
+
+  // Nach Widerruf bzw. Storno durch Jutta lebt die Bestellung nie wieder auf – nur Rücküberweisung (P18.5)
+  if (reason !== 'payment_timeout') {
+    return (
+      <div className="pc-order__section" data-testid="late-actions">
+        <Notice tone="info" data-testid="late-refund-only">
+          {reason === 'withdrawn'
+            ? adminText('prepaymentWithdrawnRefund', { date: props.refundDueDate ?? '–' })
+            : adminText('prepaymentAdminCancelledRefund')}
+        </Notice>
+        {refundDone}
+      </div>
+    )
+  }
 
   return (
     <div className="pc-order__section" data-testid="late-actions">
@@ -256,30 +301,7 @@ export function PrepaymentLateActions(props: PrepaymentLateActionsProps) {
           >
             {adminText('prepaymentGone')}
           </Notice>
-          {props.refundNoted ? (
-            <p className="pc-order__muted" data-testid="late-refund-noted">
-              {adminText('prepaymentRefundNoted')}
-            </p>
-          ) : (
-            <p className="pc-admin-row">
-              <ActionButton
-                variant="secondary"
-                data-testid="late-refund-done"
-                confirm={{
-                  title: adminText('prepaymentRefundDoneTitle', { order: props.orderNumber }),
-                  consequence: adminText('orderActionsRefundDoneConfirm'),
-                }}
-                action={() =>
-                  postAdminAction(`/api/orders/${props.orderId}/late-payment`, {
-                    action: 'refund_transfer_done',
-                  })
-                }
-                onDone={() => router.refresh()}
-              >
-                {adminText('orderActionsRefundDone')}
-              </ActionButton>
-            </p>
-          )}
+          {refundDone}
         </>
       ) : (
         <p className="pc-admin-row">

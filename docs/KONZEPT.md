@@ -1196,9 +1196,9 @@ Zusatzfelder (DATENMODELL §6.6.1): `showInArchiveAfterSale` (bool, Standard `tr
 | P8 | `available` | `sold` | System `fulfillCheckout` (Reservierung war schon frei, Stück noch frei) / Admin „Nachträglich bezahlt“ | – | wie P7 |
 | P9 | `available` | `sold` | Admin „Offline verkauft“ | – | `soldChannel=offline`, `soldAt`; `showInArchiveAfterSale` wie im Dialog gewählt |
 | P10 | `reserved` (`source = checkout_session`) | `sold` | Admin „Offline verkauft“ mit Warnung (S5) | Bestätigung im Dialog | Stripe-Session beenden, Reservierung freigeben, `soldChannel=offline` |
-| P11 | `sold` | `available` | Admin „Wieder verkaufen“ | `soldChannel=offline` (Korrektur) **oder** zugehörige Bestellposition erstattet und Ware zurück **oder** Bestellung vor Versand bzw. Übergabe mit Grund `admin_cancellation` erstattet (Stück nie verschickt) [Annahme KA-37] | `soldAt`, `soldChannel`, `currentOrder` leeren; Historie bleibt; Veröffentlichungsprüfung erneut |
+| P11 | `sold` | `available` | Admin „Wieder verkaufen“ | `soldChannel=offline` (Korrektur) **oder** zugehörige Bestellposition erstattet und Ware zurück **oder** Bestellung vor Versand bzw. Übergabe mit Grund `admin_cancellation` erstattet (Stück nie verschickt) **oder** Bestellposition des Stücks nach Widerruf vor Versand bzw. Übergabe mit Grund `withdrawal` erstattet (P18.5) [Annahme KA-37] | `soldAt`, `soldChannel`, `currentOrder` leeren; Historie bleibt; Veröffentlichungsprüfung erneut |
 | P12 | `draft`, `available` | `archived` | Admin „Ausblenden“ | keine aktive Reservierung | `archivedAt`, Revalidierung |
-| P13 | `sold` | `archived` | Admin „Ausblenden“ nach Rückgabe oder Bruch (beschädigt) | Bestellposition erstattet und Ware zurück **oder** Bestellung wegen `breakage` erstattet (Stück vor dem Versand beschädigt, nie verschickt) | `archivedAt`; `soldAt`, `soldChannel`, `currentOrder` leeren; Revalidierung |
+| P13 | `sold` | `archived` | Admin „Ausblenden“ nach Rückgabe oder Bruch (beschädigt) | Bestellposition erstattet und Ware zurück **oder** Bestellung wegen `breakage` erstattet (Stück vor dem Versand beschädigt, nie verschickt) **oder** Bestellposition des Stücks nach Widerruf vor Versand bzw. Übergabe mit Grund `withdrawal` erstattet (P18.5, KA-37) | `archivedAt`; `soldAt`, `soldChannel`, `currentOrder` leeren; Revalidierung |
 | P14 | `archived` | `draft` | Admin „Wieder bearbeiten“ (Endpunkt `/restore`) | – | `archivedAt = null` |
 | P15 | `draft` | gelöscht | Admin „Löschen“ | `firstPublishedAt` leer (nie veröffentlicht) und keine Bestellposition verweist auf das Stück | Bilder gelöscht, Nummer wieder frei |
 
@@ -1309,7 +1309,10 @@ Regeln zu Erstattungen:
   Rücksendekosten trägt die Kund:in (E-27). **Teil-Widerruf:** Preise der widerrufenen Stücke + Differenz zwischen
   bezahlten Versandkosten und den Versandkosten, die für die behaltenen Stücke angefallen wären. Diese
   kundenfreundliche Regel ist vorläufig, bis Kanzleifrage K-09 beantwortet ist (RECHT R-072); der Erstattungsdialog
-  weist darauf hin [Annahme KA-32].
+  weist darauf hin [Annahme KA-32]. Gerechnet wird mit den Tarifen **bei der Bestellung** (Snapshot
+  `orders.shippingRatesAtOrder`, P18.5; Bestellungen von vor dem Snapshot: aktuelle Tarife). Fehlt der Tarif der
+  behaltenen Stücke, enthält der Vorschlag keinen Versandanteil und der Dialog zeigt „Tarif fehlt – Versandanteil bitte
+  prüfen“.
 - Jutta kann den Betrag im Dialog **erhöhen** (Kulanz, z. B. Rücksendekosten übernehmen) mit Pflicht-Notiz; nie über den
   noch erstattbaren Betrag hinaus.
 - Stripe-Erstattung immer über dasselbe Zahlungsmittel (Refund-API). Vorkasse: Jutta überweist selbst und bestätigt
@@ -1496,7 +1499,10 @@ Absprache aus `settings.pickup.instructions`), „Antworte einfach auf diese Mai
 4. Nächste Schritte (Baustein `withdrawal.returnInfo`): Rücksendeadresse (`settings.business.returnAddress`, leer =
    Geschäftsadresse), „Die Kosten der Rücksendung trägst du“ (E-27), Erstattung über dasselbe Zahlungsmittel spätestens
    14 Tage nach Eingang, ggf. erst nach Eingang der Ware.
-5. Bei unbezahlter Vorkasse-Bestellung stattdessen: „Deine Bestellung ist damit storniert. Bitte nichts überweisen.“
+5. Bei unbezahlter Vorkasse-Bestellung stattdessen: „Deine Bestellung ist damit storniert. Bitte nichts überweisen.“ und
+   (P18.5, § 357 Abs. 1 BGB): Wer schon überwiesen hat, bekommt das Geld spätestens 14 Tage nach Eingang des Widerrufs
+   (Datum) zurück, auf das Konto, von dem es kam; für ein anderes Konto kurz die Bankverbindung per E-Mail schicken.
+   Gleicher Hinweis auf der Ergebnisseite der Widerrufsfunktion.
 
 Versand sofort nach dem Commit; scheitert er, wiederholt `sendEmail` ihn im Abstand von höchstens 5 Minuten bis 24 Stunden
 nach Eingang. Nach dem 2. Fehlversuch geht A12 an Jutta, und erneut, wenn nach 24 Stunden noch kein Versand gelang (dann
@@ -1722,7 +1728,10 @@ Erfolgsseite mit „Link kopieren“ (kanonische DE-URL), „Kurzlink kopieren�
 - Knöpfe: **„Zahlung erhalten“** (O3, Dialog mit Verwendungszweck, eingegangenem Betrag `prepayment.receivedAmountCents`
   (Pflicht; weicht er vom Gesamtbetrag ab, erscheint eine Warnung) und optional Eingangsdatum `prepayment.receivedAt`) ·
   **„Stornieren“** (O4, Grund Pflicht in `cancelNote`, M04) · „Bankdaten kopieren“.
-- Unterliste „Kürzlich automatisch storniert (30 Tage)“ mit Knopf **„Nachträglich bezahlt“** (O5 bzw. Rücküberweisungs-Hinweis, §4.8).
+- Unterliste „Kürzlich storniert oder widerrufen (30 Tage)“: nach abgelaufener Frist Knopf **„Nachträglich bezahlt“**
+  (O5 bzw. Rücküberweisungs-Hinweis, §4.8); nach Widerruf bzw. eigenem Storno nur Hinweis und **„Rücküberweisung
+  erledigt“** (Widerruf mit Frist 14 Tage ab Eingang; die Bestellung lebt nie wieder auf, P18.5). „Zahlung erhalten“
+  auf einer so stornierten Bestellung lehnt ab und sagt, was stattdessen zu tun ist.
 
 ### 7.8 Versendet
 
@@ -2632,7 +2641,7 @@ Einträge mit „geklärt (Abgleich vom 26.09.2026)“ sind zwischen den Fachdok
 | KA-34 | Zahlung zu einer beendeten Kasse (§4.10, §4.11 S16) | Meldet Stripe eine bezahlte Session zu einer Kasse in `expired`, `cancelled` oder `failed`, entsteht **keine** Bestellung (die Stücke können längst anders verkauft sein); der Shop erstattet nicht automatisch, sondern schickt A12 mit Betrag und Stripe-Zahlungs-ID, Jutta erstattet im Stripe-Dashboard. Änderbar in `processPaymentEvent()` (z. B. automatische Erstattung wie S4) | Jutta (P11) |
 | KA-35 | Karte/PayPal bezahlt, obwohl Vorkasse bestellt (§4.10, §4.11 S17) | Keine zweite Bestellung; die Vorkasse-Bestellung bleibt `awaiting_prepayment` und erhält einen Hinweis (`adminAttention` mit Notiz); A12 empfiehlt, die Kartenzahlung im Stripe-Dashboard zu erstatten oder mit der Kundin zu klären. Kein automatisches Umbuchen auf „bezahlt“, weil Zahlart, Rechnung und Frist dann nicht zur Bestellung passen. Änderbar in `processPaymentEvent()` | Jutta (P11) |
 | KA-36 | Shop-Pause und laufende Kassen (§4.2) | `settings.shop.isOpen = false` sperrt nur neue Aktionen („In den Korb“, „Zur Kasse“); eine schon gestartete Kasse läuft weiter und kann bis zu ihrem Ablauf bezahlt werden (kein Abbruch mitten in der Zahlung). Änderbar in der Prüfung von `submitCheckout` | Jutta |
-| KA-37 | Stück nach Storno vor dem Versand (§5.1 P11, §5.3 O15) | Wird eine bezahlte Bestellung mit Grund `admin_cancellation` erstattet, bevor das Stück verschickt oder übergeben wurde, darf Jutta es mit „Wieder verkaufen“ (P11) zurück in den Shop stellen, ohne dass „Ware zurück“ erfasst ist. Bei `breakage` gibt es stattdessen nur „Ausblenden“ (P13). Änderbar in `src/lib/commerce/productTransitions.ts` | Jutta |
+| KA-37 | Stück nach Storno vor dem Versand (§5.1 P11, §5.3 O15) | Wird eine bezahlte Bestellung mit Grund `admin_cancellation` erstattet, bevor das Stück verschickt oder übergeben wurde, darf Jutta es mit „Wieder verkaufen“ (P11) zurück in den Shop stellen, ohne dass „Ware zurück“ erfasst ist. Bei `breakage` gibt es stattdessen nur „Ausblenden“ (P13). Ebenso nach einem Widerruf vor dem Versand bzw. der Übergabe: Ist die Position des Stücks mit Grund `withdrawal` erstattet, gehen „Wieder verkaufen“ (P11) und „Ausblenden“ (P13) ohne „Ware zurück“ (P18.5). Änderbar in `src/lib/commerce/productTransitions.ts` | Jutta |
 
 ## Anhang B – Recherche-Empfehlungen, die nicht gelten
 

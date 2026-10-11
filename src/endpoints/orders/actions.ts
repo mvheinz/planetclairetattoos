@@ -5,6 +5,7 @@ import { adminActionResponse } from '@/endpoints/adminResponse'
 import { readJsonBody } from '@/endpoints/products/actions'
 import { writeAudit } from '@/lib/audit'
 import type { PrepaymentErrorCode } from '@/lib/commerce/prepayment'
+import { paidAfterCancelMessage, REFUND_TRANSFER_OCCASION } from '@/lib/commerce/prepaymentMessages'
 import { loadOrder, updateOrderFields } from '@/lib/commerce/transitionOrder'
 import { createLogger } from '@/lib/monitoring/logger'
 import { requestNow } from '@/lib/payload/context'
@@ -15,7 +16,9 @@ import type { Order } from '@/payload-types'
 // Admin-Endpunkte der Vorkasse (PLAN P4.20, KONZEPT §5.3 O3/O4/O5, nur `isAdmin`):
 // `POST /api/orders/:id/prepayment-received` `{ amountCents, receivedAt?, confirmMismatch? }` → O3,
 // `POST /api/orders/:id/cancel` `{ reason }` → O4 (`admin`),
-// `POST /api/orders/:id/late-payment` `{ action: 'reactivate' | 'refund_transfer_done', note? }` → O5 bzw. Notiz.
+// `POST /api/orders/:id/late-payment` `{ action: 'reactivate' | 'refund_transfer_done', note? }` → O5 bzw. Notiz
+// („Nachträglich bezahlt“ nur nach `payment_timeout`; „Rücküberweisung erledigt“ bei jedem Storno, auch nach Widerruf
+// oder Storno durch Jutta – P18.5).
 // Doppeltippen: ist die Bestellung schon im Zielzustand desselben Übergangs, antwortet der Endpunkt 200 mit
 // `alreadyDone: true` ohne Nebenwirkungen (keine zweite Rechnung, keine zweite Mail); der Knopf schickt je Klick einen
 // Idempotenz-Schlüssel (`Idempotency-Key`), der im Log landet.
@@ -188,11 +191,17 @@ export const latePaymentEndpoint = orderAction('late-payment', async (req, order
   if (action === 'reactivate' && order.status === 'paid' && lastTransition(order) === 'O5') {
     return { doc: order, alreadyDone: true }
   }
-  if (order.status !== 'cancelled' || order.cancelReason !== 'payment_timeout') {
+  if (order.status !== 'cancelled') {
     throw new ActionError(
       'wrong_status',
-      '„Nachträglich bezahlt“ geht nur bei Bestellungen, die wegen abgelaufener Zahlungsfrist storniert wurden.',
+      action === 'reactivate'
+        ? '„Nachträglich bezahlt“ geht nur bei Bestellungen, die wegen abgelaufener Zahlungsfrist storniert wurden.'
+        : '„Rücküberweisung erledigt“ geht nur bei stornierten Vorkasse-Bestellungen.',
     )
+  }
+  // Nach Widerruf bzw. Storno durch Jutta nur „Rücküberweisung erledigt“, nie O5 (P18.5)
+  if (action === 'reactivate' && order.cancelReason !== 'payment_timeout') {
+    throw new ActionError('wrong_status', paidAfterCancelMessage(order.cancelReason))
   }
   const note = typeof body.note === 'string' ? body.note.trim().slice(0, 300) : ''
   if (action === 'reactivate') {
@@ -214,7 +223,7 @@ export const latePaymentEndpoint = orderAction('late-payment', async (req, order
       action: 'order_refund_created',
       entityCollection: 'orders',
       entityId: order.id,
-      summary: `Bestellung ${order.orderNumber}: ${REFUND_TRANSFER_NOTE} (verspätete Vorkasse-Zahlung)`,
+      summary: `Bestellung ${order.orderNumber}: ${REFUND_TRANSFER_NOTE} (${REFUND_TRANSFER_OCCASION[order.cancelReason ?? 'payment_timeout']})`,
     })
     return loadOrder(req, order.id)
   })

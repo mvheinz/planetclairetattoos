@@ -109,6 +109,7 @@ const IMMUTABLE = [
   'totalCents',
   'currency',
   'taxModeAtOrder',
+  'shippingRatesAtOrder',
   'paymentMethod',
   'legalTextVersions',
   'legalSnippetVersions',
@@ -647,6 +648,14 @@ export const Orders: CollectionConfig = {
     select('shippingClass', 'Versandklasse', SHIPPING_CLASSES, ENUM_LABELS.SHIPPING_CLASSES, {
       admin: ro,
     }),
+    {
+      // Tarif-Snapshot bei der Anlage (KA-32): `{ zone, rates: { <Versandklasse>: Cent } }` für die Klassen der
+      // Positionen; Grundlage der Versanddifferenz beim Teil-Widerruf. Leer bei Abholung und bei Altbestellungen.
+      name: 'shippingRatesAtOrder',
+      type: 'json',
+      label: 'Versandtarife bei Bestellung',
+      admin: ro,
+    },
     {
       name: 'items',
       type: 'array',

@@ -61,6 +61,8 @@ interface CheckoutOptions {
   submittedAt?: string | null
   seed?: boolean
   deviation?: boolean
+  /** Versandklasse je Position (Standard `keramik`). */
+  classes?: string[]
 }
 
 /** Kasse wie nach „Zahlungspflichtig bestellen“ (P4.10a): Snapshot, Eingaben, Rechtsstand, `submittedAt`. */
@@ -74,7 +76,7 @@ async function preparedCheckout(o: CheckoutOptions = {}) {
     category: 'keramik',
     priceCents: 4500 + i * 100,
     vatCategory: 'standard',
-    shippingClass: 'keramik',
+    shippingClass: o.classes?.[i] ?? 'keramik',
     characteristicsDe: `Keramik · Ø 14 cm · Nr. ${p.itemNumber}`,
     characteristicsEn: `Ceramics · Ø 14 cm · No. ${p.itemNumber}`,
     ...(o.deviation && i === 0
@@ -234,6 +236,8 @@ describe('createOrderFromCheckout (P4.1)', () => {
       paymentMethod: 'card',
       paymentProvider: 'mock',
     })
+    // Tarif-Snapshot (KA-32): Klassen der Positionen in der Zone, bezahlte Klasse = bezahlter Versand
+    expect(order.shippingRatesAtOrder).toEqual({ zone: 'DE', rates: { keramik: 890 } })
     expect(order.stripe?.checkoutSessionId).toBe(checkout.stripe?.checkoutSessionId)
     expect(order.stripe?.paymentMethodType).toBe('card')
     expect(order.legalTextVersions).toEqual(checkout.legalTextVersions)
@@ -269,6 +273,38 @@ describe('createOrderFromCheckout (P4.1)', () => {
     expect(await auditCount('order_created', order.id)).toBe(1)
   })
 
+  it('KA-32 Tarif-Snapshot: alle Klassen der Positionen zu den Tarifen bei der Anlage, danach unveränderlich', async () => {
+    // zweite Position als Paket klein, bezahlt wurde Keramik (höchste Klasse)
+    const { checkout } = await preparedCheckout({ count: 2, classes: ['keramik', 'paket_klein'] })
+    const settings = await payload.findGlobal({ slug: 'settings', overrideAccess: true })
+    const paketKlein = settings.shipping?.rates?.find(
+      (r) => r.zone === 'DE' && r.shippingClass === 'paket_klein',
+    )?.priceCents
+    const { order } = await createOrderFromCheckout(await sysReq(), checkout.id, o1())
+    expect(order.shippingRatesAtOrder).toEqual({
+      zone: 'DE',
+      rates: {
+        keramik: 890,
+        ...(typeof paketKlein === 'number' ? { paket_klein: paketKlein } : {}),
+      },
+    })
+    await expect(
+      payload.update({
+        collection: 'orders',
+        id: order.id,
+        data: { shippingRatesAtOrder: { zone: 'DE', rates: { keramik: 1 } } } as never,
+        overrideAccess: true,
+        context: { system: true },
+      }),
+    ).rejects.toThrow()
+    const reloaded = await payload.findByID({
+      collection: 'orders',
+      id: order.id,
+      overrideAccess: true,
+    })
+    expect(reloaded.shippingRatesAtOrder).toEqual(order.shippingRatesAtOrder)
+  })
+
   it('O1 mit abweichender Rechnungsadresse: Name aus der Rechnungsadresse', async () => {
     const { checkout } = await preparedCheckout({ differs: true, count: 1 })
     const { order } = await createOrderFromCheckout(await sysReq(), checkout.id, o1())
@@ -302,6 +338,7 @@ describe('createOrderFromCheckout (P4.1)', () => {
     })
     expect(order.stripe?.checkoutSessionId ?? null).toBeNull()
     expect(order.shippingAddress?.addressLine1 ?? null).toBeNull()
+    expect(order.shippingRatesAtOrder ?? null).toBeNull() // Abholung: kein Versand, kein Snapshot
     expect(order.timestamps.paidAt ?? null).toBeNull()
     expect(order.prepayment?.dueAt).toBe(deadlines.dueAt.toISOString())
     expect(order.prepayment?.reminderDueAt).toBe(deadlines.reminderDueAt.toISOString())

@@ -8,7 +8,12 @@ import type { PaymentsAdapter } from '@/lib/payments'
 import { inTransaction } from '@/lib/payload/transaction'
 import type { Order, Setting, Withdrawal } from '@/payload-types'
 
-import { checkRefundAmount, proposeRefund, type RefundProposal } from './refundAmount'
+import {
+  checkRefundAmount,
+  orderShippingRates,
+  proposeRefund,
+  type RefundProposal,
+} from './refundAmount'
 import {
   DIALOG_REFUND_REASONS,
   finalizeRefund,
@@ -16,6 +21,7 @@ import {
   type RefundEffects,
 } from './refundFinalize'
 import { executeRefund, runRefundEffects } from './refunds'
+import type { ShippingSettings } from './shipping'
 import { lockOrder, loadOrder, updateOrderFields } from './transitionOrder'
 import { withdrawalNeedsItems } from './withdrawalHold'
 
@@ -88,8 +94,8 @@ export function proposalFor(
     selectedIds,
     shippingCents: order.shippingCents ?? 0,
     fulfillmentMethod: order.fulfillmentMethod,
-    country: order.shippingAddress?.country ?? 'DE',
-    settings: settings as never,
+    // Tarife bei der Bestellung (Snapshot), für Altbestellungen die aktuellen (KA-32)
+    rates: orderShippingRates(order, settings as ShippingSettings),
     totalCents: order.totalCents,
     refundedCents: committedCents(order),
   })

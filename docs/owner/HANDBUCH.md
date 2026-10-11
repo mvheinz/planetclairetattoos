@@ -225,7 +225,11 @@ ist so lange für die Kundin reserviert. Unter **Vorkasse** siehst du die offene
 - **Stornieren:** wenn die Kundin absagt. Der Grund ist Pflicht, das Stück wird wieder frei.
 - **Automatik:** Nach 3 Tagen erinnert der Shop die Kundin. Ist bis zum Ende des 5. Tages nach der Bestellung kein
   Geld da, storniert der Shop von selbst. Kommt das Geld später doch, hilft der Knopf „Nachträglich bezahlt“ unter
-  „Kürzlich automatisch storniert“.
+  „Kürzlich storniert oder widerrufen“.
+- **Geld nach Widerruf oder eigenem Storno:** Hat die Kundin widerrufen oder hast du storniert, bevor das Geld da war,
+  lebt die Bestellung nicht wieder auf. Kommt trotzdem Geld an, überweise es zurück (auf das Konto, von dem es kam;
+  nach einem Widerruf spätestens bis zu dem Datum, das die Karte zeigt – 14 Tage nach dem Widerruf) und tippe dann auf
+  „Rücküberweisung erledigt“. „Zahlung erhalten“ sagt dir das auch, falls du es dort versuchst.
 
 ## 7. Abholung
 

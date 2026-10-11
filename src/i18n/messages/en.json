@@ -295,7 +295,7 @@
     "mailNote": "A confirmation is on its way by email.",
     "printNote": "You can print this page or save it as a PDF.",
     "print": "Print / save as PDF",
-    "unpaidCancelled": "Your unpaid order has been cancelled – you don't need to transfer anything.",
+    "unpaidCancelled": "Your unpaid order has been cancelled – you don't need to transfer anything. If you have already transferred the money, you'll get it back no later than 14 days after I received your withdrawal, to the account it came from. If you'd like it sent to a different account, just email me your bank details.",
     "spamDone": "Thank you, your details have arrived.",
     "again": "Declare another withdrawal",
     "errorSummary": "Please check your details:",
@@ -923,7 +923,7 @@
       "nextHeading": "What happens next",
       "returnAddress": "Please send the goods to: {address}",
       "refund": "You will receive the refund via the same means of payment you used – no later than 14 days after receipt of your withdrawal (by {date}). I may withhold it until I have received the goods back or you have provided proof that you have sent them.",
-      "unpaidCancelled": "Your order is therefore cancelled. Please do not transfer any money.",
+      "unpaidCancelled": "Your order is therefore cancelled. Please do not transfer any money. If you have already transferred it, you'll get the money back no later than 14 days after I received your withdrawal (by {date}), to the account it came from. If you'd like it sent to a different account, just email me your bank details.",
       "keep": "Please keep this email – it is your proof of receipt."
     },
     "refundConfirmation": {

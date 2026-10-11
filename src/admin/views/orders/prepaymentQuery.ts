@@ -4,18 +4,23 @@ import type { PayloadRequest } from 'payload'
 
 import { daysUntilCancel } from '@/admin/components/orderActionsModel'
 import { formatIban } from '@/lib/commerce/epc'
+import type { OrderCancelReason } from '@/lib/enums'
 import { formatEuroInput } from '@/lib/money'
 import { formatItemNumber } from '@/lib/products/itemNumber'
-import { formatBerlin } from '@/lib/time'
+import { addBerlinDays, formatBerlin } from '@/lib/time'
 import type { Order, Product, Setting } from '@/payload-types'
 
 // Daten der Ansicht „Vorkasse offen“ `/vorkasse` (PLAN P5.18, KONZEPT §7.7, §4.8). Nur lesend; die Aktionen laufen über
-// die Endpunkte aus P4.20 (`src/endpoints/orders/actions.ts`). Fälligste zuerst; Unterliste „Kürzlich automatisch
-// storniert (30 Tage)“ mit der Angabe, ob alle Stücke noch frei sind (dann geht „Nachträglich bezahlt“, O5).
+// die Endpunkte aus P4.20 (`src/endpoints/orders/actions.ts`). Fälligste zuerst; Unterliste „Kürzlich storniert oder
+// widerrufen (30 Tage)“: nach abgelaufener Frist mit der Angabe, ob alle Stücke noch frei sind (dann geht „Nachträglich
+// bezahlt“, O5); nach Widerruf bzw. Storno durch Jutta nur „Rücküberweisung erledigt“, beim Widerruf mit der Frist
+// (14 Tage ab Eingang, § 357 Abs. 1 BGB; P18.5).
 
 const DAY = 86_400_000
-/** Zeitraum der Unterliste „Kürzlich automatisch storniert“. */
+/** Zeitraum der Unterliste „Kürzlich storniert oder widerrufen“. */
 export const RECENTLY_CANCELLED_DAYS = 30
+/** Frist für die Rücküberweisung nach einem Widerruf (wie `withdrawals.refundDueAt`, § 357 Abs. 1 BGB). */
+export const WITHDRAWN_REFUND_DAYS = 14
 
 const date = (iso: string | null | undefined, fmt = 'dd.MM.yyyy') =>
   iso ? formatBerlin(new Date(iso), fmt) : ''
@@ -52,6 +57,10 @@ export interface CancelledCard {
   totalCents: number
   placedAt: string
   cancelledAt: string
+  /** `payment_timeout` → „Nachträglich bezahlt“ möglich; `withdrawn`/`admin` → nur Rücküberweisung. */
+  cancelReason: OrderCancelReason
+  /** Nach Widerruf: spätestes Datum der Rücküberweisung (Berlin), sonst `null`. */
+  refundDueDate: string | null
   name: string
   items: string[]
   /** Alle Stücke noch `available` → „Nachträglich bezahlt“ möglich (der Dienst prüft erneut, atomar). */
@@ -110,7 +119,7 @@ export async function loadPrepaymentList(req: PayloadRequest, now: Date): Promis
       where: {
         and: [
           { status: { equals: 'cancelled' } },
-          { cancelReason: { equals: 'payment_timeout' } },
+          { cancelReason: { in: ['payment_timeout', 'withdrawn', 'admin'] } },
           {
             'timestamps.cancelledAt': {
               greater_than_equal: new Date(now.getTime() - RECENTLY_CANCELLED_DAYS * DAY),
@@ -169,12 +178,19 @@ export async function loadPrepaymentList(req: PayloadRequest, now: Date): Promis
   }
   const cancelled = cancelledDocs.map((o): CancelledCard => {
     const ids = o.items.map((i) => productIdOf(i.product))
+    const cancelledAt = o.timestamps?.cancelledAt ?? null
+    const cancelReason = (o.cancelReason ?? 'payment_timeout') as OrderCancelReason
     return {
       id: o.id,
       orderNumber: o.orderNumber,
       totalCents: o.totalCents,
       placedAt: date(o.timestamps?.placedAt),
-      cancelledAt: date(o.timestamps?.cancelledAt),
+      cancelledAt: date(cancelledAt),
+      cancelReason,
+      refundDueDate:
+        cancelReason === 'withdrawn' && cancelledAt
+          ? date(addBerlinDays(new Date(cancelledAt), WITHDRAWN_REFUND_DAYS).toISOString())
+          : null,
       name: o.billingAddress?.name || o.customer?.name || '',
       items: itemsOf(o),
       allAvailable:

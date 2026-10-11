@@ -1073,9 +1073,9 @@ stateDiagram-v2
 | P8 | available → sold | `sell` | System `fulfillCheckout` (Reservierung abgelaufen, Stück noch frei) / Admin „Nachträglich bezahlt“ (O5) | – | wie P7 (§8.3, Zweig `available`) |
 | P9 | available → sold | `sellOffline` | Admin | – | `soldChannel = offline`, `soldAt`, `offlineSaleNote`, `showInArchiveAfterSale` wie im Dialog gewählt, seit U-60 optional `offlineSaleTourDate` und `offlineSalePriceCents`; Audit `product_offline_sold`; keine Bestellung, kein Beleg (R-127) |
 | P10 | reserved (Kasse, `source = checkout_session`) → sold | `sellOffline` mit `confirmReservedCheckout: true` | Admin nach Warndialog (KONZEPT §4.11 S5) | zugehörige Kasse im Status `open` (bei `confirming` gesperrt: „Zahlung läuft gerade“, DM-34) | zuerst Stripe-Session beenden: meldet der Anbieter „bezahlt“, bricht die Aktion ab und `fulfillCheckout` übernimmt; sonst Reservierung `released` (`releaseReason = admin`), Kasse `cancelled` (`closeReason = sold_offline`), dann wie P9 |
-| P11 | sold → available | `returnToStock` | Admin „Wieder verkaufen“ | `soldChannel = offline` (Korrektur) **oder** zugehörige Bestellposition `refunded` und Ware zurück (`timestamps.returnReceivedAt` gesetzt) **oder** Bestellung mit Grund `admin_cancellation` erstattet, bevor das Stück verschickt oder übergeben wurde (`shippedAt`/`pickedUpAt` leer; KONZEPT KA-37); `validateForPublish` | `soldAt`, `soldChannel`, `currentOrder` leeren; Verlauf bleibt; Audit |
+| P11 | sold → available | `returnToStock` | Admin „Wieder verkaufen“ | `soldChannel = offline` (Korrektur) **oder** zugehörige Bestellposition `refunded` und Ware zurück (`timestamps.returnReceivedAt` gesetzt) **oder** Bestellung mit Grund `admin_cancellation` erstattet, bevor das Stück verschickt oder übergeben wurde (`shippedAt`/`pickedUpAt` leer; KONZEPT KA-37) **oder** Position des Stücks `refunded` durch eine erfolgreiche Erstattung mit Grund `withdrawal` (`refunds[].itemIds`), `shippedAt`/`pickedUpAt` leer (Widerruf vor dem Versand, P18.5); `validateForPublish` | `soldAt`, `soldChannel`, `currentOrder` leeren; Verlauf bleibt; Audit |
 | P12 | draft/available → archived | `archive` | Admin „Ausblenden“ | keine aktive Reservierung | `archivedAt`; Revalidierung |
-| P13 | sold → archived | `archiveAfterReturn` | Admin „Ausblenden“ nach Rückgabe oder Bruch (z. B. beschädigt) | Bestellposition `refunded` und Ware zurück (`timestamps.returnReceivedAt` gesetzt) **oder** Bestellung mit Grund `breakage` erstattet (`refunds[].reason`, §6.8.5 O15; DM-39) | `archivedAt`, `soldAt`/`soldChannel`/`currentOrder` leeren; Audit |
+| P13 | sold → archived | `archiveAfterReturn` | Admin „Ausblenden“ nach Rückgabe oder Bruch (z. B. beschädigt) | Bestellposition `refunded` und Ware zurück (`timestamps.returnReceivedAt` gesetzt) **oder** Bestellung mit Grund `breakage` erstattet (`refunds[].reason`, §6.8.5 O15; DM-39) **oder** Widerruf vor dem Versand wie bei P11 (Position mit Grund `withdrawal` erstattet, `shippedAt`/`pickedUpAt` leer; P18.5) | `archivedAt`, `soldAt`/`soldChannel`/`currentOrder` leeren; Audit |
 | P14 | archived → draft | `restore` | Admin „Wieder bearbeiten“ | – | `archivedAt = null`; danach wieder P2 |
 | P15 | draft → gelöscht | Payload-`delete` | Admin „Löschen“ | `firstPublishedAt` leer (nie veröffentlicht) und keine Bestellposition verweist auf das Stück | nur von diesem Stück genutzte Bilder werden mit gelöscht; Nummer wieder frei; Audit `product_deleted` |
 
@@ -1222,6 +1222,7 @@ sind gefilterte Listen dieser Collection.
 | `billingAddress` | group `addressFields` | R bei `billingAddressDiffers` **und immer bei `pickup`** (R-061; DM-29) | – | – | Land wie Lieferadresse nur aus `settings.shipping.enabledCountries` (derzeit fest `DE`) | Rechnungsempfänger (§ 34a UStDV); bei `shipping` ohne Abweichung gilt die Lieferadresse |
 | `shippingZone` | select `ShippingZone` | S | – | – | leer bei `pickup` | – |
 | `shippingClass` | select `ShippingClass` | S | – | höchste Klasse im Korb | – | E-25 |
+| `shippingRatesAtOrder` | json | S | – | bei der Anlage (`createOrderFromCheckout`): `{ "zone": "<ShippingZone>", "rates": { "<ShippingClass>": <Cent> } }` für die Klassen der Positionen in der Zone der Kasse, die bezahlte Klasse mit `shippingCents` | unveränderlich; leer bei `pickup` und bei Bestellungen vor P18.5 (dann rechnet der Erstattungsvorschlag mit den aktuellen Tarifen) | Versanddifferenz beim Teil-Widerruf (KONZEPT §5.3, KA-32) |
 | `items` | array | R (1–10) | – | – | Snapshot, nach Anlage unveränderlich (außer `status`, `refundedCents`) | – |
 | ↳ `product` | relationship → `products` | R | – | – | – | – |
 | ↳ `itemNumber` | number | R | – | – | – | – |
@@ -1340,7 +1341,8 @@ Hash und Siegel wie bei echten Bestellungen) – nie aus `orderNumber` oder `PAY
   1. `status`-Änderung nur mit `context.transition` und erlaubtem Übergang (§6.8.5); jeder Wechsel hängt einen
      `statusHistory`-Eintrag an und setzt den passenden `timestamps.*`-Wert.
   2. Unveränderlich nach Anlage: `orderNumber`, `checkout` (außer Leeren durch `retentionAbandonedCheckouts`), `items`
-     (außer `items[].status`, `items[].refundedCents`), Summen, `legalTextVersions`, `taxModeAtOrder`, `paymentMethod`,
+     (außer `items[].status`, `items[].refundedCents`), Summen, `legalTextVersions`, `taxModeAtOrder`,
+     `shippingRatesAtOrder`, `paymentMethod`,
      `statusTokenHash`/`statusTokenSealed` (außer Rotation mit `context.transition = 'rotateToken'` und Löschung in
      Stufe B), `pickup.messageText` nach O8.
   3. Adressen änderbar nur bei `awaiting_prepayment`, `paid`, `packed`, `ready_for_pickup` → Audit `order_address_changed`.

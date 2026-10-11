@@ -91,11 +91,18 @@ export interface ProductTransitionFacts {
   } | null
   /** Bezugsbestellung (`currentOrder`) und die Position dieses Stücks. */
   order?: {
+    /** `orders.items[].id` der Position dieses Stücks. */
+    itemId?: string | null
     itemStatus?: OrderItemStatus | null
     returnReceivedAt?: string | null
     shippedAt?: string | null
     pickedUpAt?: string | null
-    refunds?: readonly { reason: RefundReason; status?: RefundStatus | null }[]
+    refunds?: readonly {
+      reason: RefundReason
+      status?: RefundStatus | null
+      /** Erstattete Positionen (`orders.items[].id`). */
+      itemIds?: readonly string[] | null
+    }[]
   } | null
 }
 
@@ -130,6 +137,20 @@ const succeeded = (facts: ProductTransitionFacts, reason: RefundReason) =>
   (facts.order?.refunds ?? []).some((r) => r.reason === reason && r.status === 'succeeded')
 const refundedAndReturned = (facts: ProductTransitionFacts) =>
   facts.order?.itemStatus === 'refunded' && !!facts.order?.returnReceivedAt
+/**
+ * Widerruf vor dem Versand bzw. der Übergabe (analog KA-37): die Position dieses Stücks ist mit Grund `withdrawal`
+ * erfolgreich erstattet, und das Stück wurde nie verschickt oder abgeholt – „Ware zurück“ gibt es dann nicht.
+ */
+const withdrawnBeforeDispatch = (facts: ProductTransitionFacts) => {
+  const o = facts.order
+  if (!o || o.itemStatus !== 'refunded' || !o.itemId || o.shippedAt || o.pickedUpAt) return false
+  return (o.refunds ?? []).some(
+    (r) =>
+      r.reason === 'withdrawal' &&
+      r.status === 'succeeded' &&
+      (r.itemIds ?? []).map(String).includes(String(o.itemId)),
+  )
+}
 
 /** Prüft Übergang und Vorbedingungen (reine Funktion, DM-PROD-10). */
 export function evaluateProductTransition(
@@ -193,6 +214,7 @@ export function evaluateProductTransition(
       if (
         facts.soldChannel !== 'offline' &&
         !refundedAndReturned(facts) &&
+        !withdrawnBeforeDispatch(facts) &&
         !(
           succeeded(facts, 'admin_cancellation') &&
           !facts.order?.shippedAt &&
@@ -200,14 +222,18 @@ export function evaluateProductTransition(
         )
       ) {
         return no(
-          '„Wieder verkaufen“ geht nur nach einem Offline-Verkauf, nach Erstattung mit Rücksendung oder nach Storno vor dem Versand.',
+          '„Wieder verkaufen“ geht nur nach einem Offline-Verkauf, nach Erstattung mit Rücksendung oder nach Erstattung wegen Widerruf bzw. Storno vor dem Versand.',
         )
       }
       break
     case 'P13':
-      if (!refundedAndReturned(facts) && !succeeded(facts, 'breakage')) {
+      if (
+        !refundedAndReturned(facts) &&
+        !succeeded(facts, 'breakage') &&
+        !withdrawnBeforeDispatch(facts)
+      ) {
         return no(
-          '„Ausblenden“ geht bei verkauften Stücken nur nach Erstattung mit Rücksendung oder nach Erstattung wegen Bruch.',
+          '„Ausblenden“ geht bei verkauften Stücken nur nach Erstattung mit Rücksendung oder nach Erstattung wegen Bruch bzw. wegen Widerruf vor dem Versand.',
         )
       }
       break
@@ -302,11 +328,16 @@ export async function loadProductTransitionFacts(
     if (order) {
       const item = order.items.find((i) => idOf(i.product) === Number(product.id))
       facts.order = {
+        itemId: item?.id ?? null,
         itemStatus: item?.status ?? null,
         returnReceivedAt: order.timestamps?.returnReceivedAt ?? null,
         shippedAt: order.timestamps?.shippedAt ?? null,
         pickedUpAt: order.timestamps?.pickedUpAt ?? null,
-        refunds: (order.refunds ?? []).map((r) => ({ reason: r.reason, status: r.status })),
+        refunds: (order.refunds ?? []).map((r) => ({
+          reason: r.reason,
+          status: r.status,
+          itemIds: Array.isArray(r.itemIds) ? (r.itemIds as unknown[]).map(String) : [],
+        })),
       }
     }
   }
