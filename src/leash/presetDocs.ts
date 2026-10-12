@@ -26,7 +26,8 @@ export const PRESET_DOCS: Readonly<Record<PresetId, PresetDoc>> = {
     routes: ['R02', 'R03', 'R05'],
     shape:
       'U-44: Spur wie journey in der Rinne am Rand; ab 768 Umrundung der Kategorie-Bilder (U-68: nach dem Intro läuft Coco sie allein im Schritttempo), Kringel je Kartenzeile',
-    notes: 'Coco läuft an der Leine mit; Seitenwechsel (Zurück/Weiter) und Filterwechsel = Neuaufbau',
+    notes:
+      'Coco läuft an der Leine mit; Seitenwechsel (Zurück/Weiter) und Filterwechsel = Neuaufbau',
   },
   product: {
     routes: ['R04'],

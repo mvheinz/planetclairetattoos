@@ -307,13 +307,15 @@ test.describe('Shop R02/R03 – mit eigenen Stücken (nur desktop)', () => {
     await expect(next).toHaveText(`Weiter (noch ${unsold - 24})`)
     await next.click()
     await expect(page).toHaveURL(new RegExp(`${shop}\\?page=2#liste$`))
+    // erst die neue Seite abwarten (die URL wechselt schon beim Start der Navigation)
+    await expect(page.locator('[data-list-page-of]')).toHaveText(`Seite 2 von ${total}`)
+    await page.waitForLoadState('domcontentloaded')
     const second = await cardNumbers(page, GRID_CARDS)
     expect(second.length).toBe(Math.min(24, unsold - 24))
     for (const nr of PAGINATION) expect([...first, ...second], `Nr. ${nr}`).toContain(nr)
     expect(first.filter((n) => second.includes(n))).toEqual([])
     // Sprungziel: das Raster steht im Bild, nicht der Seitenkopf
     await expect(page.locator('#liste [data-product-card]').first()).toBeInViewport()
-    await expect(page.locator('[data-list-page-of]')).toHaveText(`Seite 2 von ${total}`)
     await expect(page.locator('[data-list-prev]')).toHaveAttribute('href', `${shop}#liste`)
     // Die letzte Seite braucht keinen „Weiter“-Link
     if (total === 2) await expect(page.locator('[data-list-more]')).toHaveCount(0)
