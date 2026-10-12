@@ -115,6 +115,149 @@ test.describe('Kasse R07 – Formular', () => {
     await expect(page.locator('#checkout-shipping-postal-code')).toHaveValue('10115')
   })
 
+  test('V-17 Abholung mit Rechnungsadresse in Österreich: Land wählbar (Standard Deutschland, EU/EWR ohne CH/GB), PLZ mit 4 Ziffern, Übersicht nennt das Land; gespeichert mit AT', async ({
+    page,
+    context,
+    fixtureProducts,
+  }) => {
+    const a = await keramik(fixtureProducts)
+    const started = await startCheckoutFor(context, page, [a], { delivery: 'pickup' })
+    await page.goto(R07.de)
+    await hydrated(page)
+    const country = page.locator('#checkout-billing-country')
+    await expect(country).toBeVisible()
+    await expect(country).toHaveValue('DE')
+    const values = await country
+      .locator('option')
+      .evaluateAll((os) => os.map((o) => (o as HTMLOptionElement).value))
+    expect(values[0]).toBe('DE')
+    expect(values).toEqual(expect.arrayContaining(['AT', 'FR', 'IS', 'LI', 'NO']))
+    expect(values).not.toContain('CH')
+    expect(values).not.toContain('GB')
+    expect(values).toHaveLength(30)
+    await expect(page.locator('[data-billing-fields]')).toContainText(
+      'Liefern kann ich nur innerhalb Deutschlands.',
+    )
+
+    await page.locator('#checkout-email').fill('anna.alpen@planetclaire.local')
+    await page.locator('#checkout-name').fill('Anna Alpen')
+    await page.locator('#checkout-billing-line1').fill('Ringstraße 1')
+    await country.selectOption('AT')
+    await expect(page.locator('#checkout-billing-postal-code')).toHaveAttribute('maxlength', '10')
+    await page.locator('#checkout-billing-postal-code').fill('1010')
+    await page.locator('#checkout-billing-city').fill('Wien')
+    await expect(
+      page.locator('[data-overview-block="rechnung"] [data-overview-value]'),
+    ).toContainText('Österreich')
+    await orderButton(page).click()
+    await page.waitForURL(/\/de\/danke\//)
+    const row = (
+      await (
+        await db()
+      ).execute(
+        sql`SELECT billing_address_country, billing_address_postal_code, fulfillment_method FROM checkouts WHERE id = ${started.checkoutId}`,
+      )
+    ).rows[0]
+    expect(row).toMatchObject({
+      billing_address_country: 'AT',
+      billing_address_postal_code: '1010',
+      fulfillment_method: 'pickup',
+    })
+  })
+
+  test('V-17 Rechnungsland Deutschland verlangt weiter 5 Ziffern; Versand bleibt fest Deutschland', async ({
+    page,
+    context,
+    fixtureProducts,
+  }) => {
+    const a = await keramik(fixtureProducts)
+    await startCheckoutFor(context, page, [a])
+    await page.goto(R07.de)
+    await hydrated(page)
+    await expect(page.locator('[data-shipping-fields] [data-country]')).toContainText('Deutschland')
+    await expect(page.locator('select[name="shippingAddress.country"]')).toHaveCount(0)
+    await fillShipping(page)
+    await page.locator('#checkout-billing-differs').check()
+    await page.locator('#checkout-billing-name').fill('Rita Rechnung')
+    await page.locator('#checkout-billing-line1').fill('Weg 2')
+    await page.locator('#checkout-billing-postal-code').fill('1010')
+    await page.locator('#checkout-billing-city').fill('Hamburg')
+    await orderButton(page).click()
+    const summary = page.locator('[data-error-summary]')
+    await expect(summary.locator('[data-error-link="billingPostalCode"]')).toContainText(
+      'genau 5 Ziffern',
+    )
+    await page.locator('#checkout-billing-country').selectOption('NO')
+    await orderButton(page).click()
+    await page.waitForURL(/\/de\/danke\//)
+  })
+
+  test('V-18 b Geschenk: Hinweis bei Versand, Häkchen nicht vorangekreuzt, Gruß erscheint erst mit Häkchen, Übersicht „Geschenk“, gespeichert an der Kasse', async ({
+    page,
+    context,
+    fixtureProducts,
+  }) => {
+    const a = await keramik(fixtureProducts)
+    const started = await startCheckoutFor(context, page, [a])
+    await page.goto(R07.de)
+    await hydrated(page)
+    await expect(page.locator('[data-gift-hint]')).toHaveText(
+      'Ein Geschenk? Gib einfach die Adresse der beschenkten Person als Lieferadresse an – auf dem Packzettel steht kein Preis, die Rechnung kommt nur per E-Mail an dich.',
+    )
+    const gift = page.locator('#checkout-gift')
+    await expect(gift).not.toBeChecked()
+    await expect(page.locator('#checkout-gift-message')).toBeHidden()
+    await expect(page.locator('[data-overview-block="geschenk"]')).toHaveCount(0)
+    await fillShipping(page)
+    await page.locator('label[for="checkout-gift"]').click()
+    await expect(gift).toBeChecked()
+    const message = page.locator('#checkout-gift-message')
+    await expect(message).toBeVisible()
+    await expect(message).toHaveAttribute('maxlength', '300')
+    await expect(page.locator('[data-gift-billing-hint]')).toContainText(
+      'Rechnungsadresse weicht ab',
+    )
+    const overview = page.locator('[data-overview-block="geschenk"] [data-overview-value]')
+    await expect(overview).toHaveText('ja – mit handgeschriebener Karte')
+    await message.fill('Alles Liebe zum Geburtstag!\nDeine Erika')
+    await expect(overview).toHaveText('ja – Karte mit deinem Gruß')
+    // Abholung: kein Liefer-Hinweis, das Häkchen bleibt möglich
+    await page.locator('#checkout-delivery-pickup').check()
+    await expect(page.locator('[data-overview-shipping="pickup"]')).toBeVisible()
+    await expect(page.locator('[data-gift-hint]')).toBeHidden()
+    await expect(gift).toBeVisible()
+    await page.locator('#checkout-delivery-shipping').check()
+    await expect(page.locator('[data-overview-shipping="shipping"]')).toBeVisible()
+    await orderButton(page).click()
+    await page.waitForURL(/\/de\/danke\//)
+    const row = (
+      await (
+        await db()
+      ).execute(
+        sql`SELECT gift_is_gift, gift_message FROM checkouts WHERE id = ${started.checkoutId}`,
+      )
+    ).rows[0]
+    expect(row).toMatchObject({
+      gift_is_gift: true,
+      gift_message: 'Alles Liebe zum Geburtstag!\nDeine Erika',
+    })
+  })
+
+  test('V-16 nur Abholung im Korb: die Kasse wählt Abholung und sagt warum', async ({
+    page,
+    context,
+    fixtureProducts,
+  }) => {
+    const p = await keramik(fixtureProducts, { shippingClass: 'nur_abholung' })
+    await startCheckoutFor(context, page, [p])
+    await page.goto(R07.de)
+    await expect(page.locator('#checkout-delivery-pickup')).toBeChecked()
+    await expect(page.locator('#checkout-delivery-shipping')).toBeDisabled()
+    await expect(page.locator('[data-checkout-delivery]')).toContainText(
+      'gibt es nur zur Abholung.',
+    )
+  })
+
   test('KA-25 ohne Instagram-User-Agent kein Hinweis', async ({
     page,
     context,

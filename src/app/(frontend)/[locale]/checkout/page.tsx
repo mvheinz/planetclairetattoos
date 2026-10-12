@@ -87,9 +87,12 @@ export default async function Page({
     .filter((i) => i.shippingClass === 'nur_abholung')
     .map((i) => formatItemNumber(i.itemNumber, locale))
   const highest = checkout.items.some((i) => i.shippingClass !== 'brief') ? 'DHL' : 'Deutsche Post'
+  // Die Beschriftungen gehen als Elemente an die Client-Komponente (RSC-Grenze) und landen dort in der Kinderliste des
+  // Labels – mit Schlüssel, sonst meldet React im Browser „Each child in a list should have a unique key“ (saubere Konsole,
+  // ARCHITEKTUR §7.2).
   const deliveryLabels = {
     shipping: (
-      <span data-delivery-option="shipping">
+      <span key="shipping" data-delivery-option="shipping">
         {t('fields.deliveryShipping', { carrier: highest })}
         {data.quotes.shipping !== null ? (
           <>
@@ -100,7 +103,7 @@ export default async function Page({
       </span>
     ),
     pickup: (
-      <span data-delivery-option="pickup">
+      <span key="pickup" data-delivery-option="pickup">
         {t('fields.deliveryPickup', { city })}
         {' – '}
         <MoneyAmount cents={0} locale={locale} />
