@@ -56,7 +56,16 @@ Was du entscheiden kannst, steht in `docs/OFFENE-PUNKTE.md` (Einträge „P18.5�
   Versand, Versandtarife als Snapshot (Migration `20261011_132759_p18_order_shipping_rates`); (7) Schalter Abholung
   wirksam (`src/lib/shop/pickupPolicy.ts`). Dazu: Baustein `delivery.timePickup` grammatisch („Abholbereit: …“),
   KANZLEI-BRIEFING und LOESCHKONZEPT Version 1.5.
-- Tests: je Gruppe Unit/Int (eigene DB), nach dem Zusammenführen `pnpm check`, Int und die Prüfschleuse (siehe PR).
+- Gegenprüfung der zusammengeführten Änderungen (4 Bereiche, je Fund ein skeptischer Prüfer): 15 echte Funde, alle
+  behoben (Übergabe je Stück `orders.items[].handedOverAt`, Migration `20261011_153702_p18_order_item_handover`;
+  Löschanfrage zweistufig geprüft, Nachlauf für laufende Verträge, DHL-Widerruf immer; Eigenschaftszeile begrenzt;
+  Abhol-Hinweise an der Kasse). Dazu: `console.error`/Payload-Logger geschwärzt (`consoleGuard.ts`).
+- Tests: Prüfschleuse `ci:local full` (Stand bf5d030): statisch, Unit, Int mit Abdeckung, Wiederherstellungs-Übung,
+  Build, Tempo-Budgets, Fremd-URLs, Bildvergleich (Kasse/AGB/Impressum neu), E2E desktop 1011, iPhone 15 alle Kernfälle,
+  Pixel 7 759 grün; je ein wackliger Test (Flash-Foto, Tour-Tafel) danach 3× einzeln grün; Docker nicht verfügbar.
+  Kunst-QA iter09: 60/62, PF-02/PF-03 knapp rot unter Last (Hinweis, OFFENE-PUNKTE).
+- Dateien für Jutta: Bestandsliste `B-2026-10-12-ffe712`, Texte-Liste `T-2026-10-12-7bc103` (Stand in
+  `content/pflege/stand/`), Katalog (19 S.), Rundgang (44 S.), Anleitung (3 S.).
 
 ## 2026-10-11 – P17 und P18 abgeschlossen: Startseite, Listen fürs iPad – für Jutta
 

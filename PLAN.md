@@ -5669,28 +5669,28 @@ Verbindlich: `docs/UEBERARBEITUNG.md` U-76, U-77. Gilt für Handy und Desktop, D
 
 Verbindlich: `docs/UEBERARBEITUNG.md` U-78–U-84. Gilt für Handy und Desktop, DE und EN.
 
-- [ ] **P17.1 Vorschau zeigt den Tag** (U-78) – Koko mit wandernden Augen auch in einer nachts erzeugten Vorschau-Datei (`SEED_NOW`); Phasen-Kennung der Vorschau nennt die zuletzt erledigte Phase (P17 statt P10).
+- [x] **P17.1 Vorschau zeigt den Tag** (U-78) – Koko mit wandernden Augen auch in einer nachts erzeugten Vorschau-Datei (`SEED_NOW`); Phasen-Kennung der Vorschau nennt die zuletzt erledigte Phase (P17 statt P10).
   - Akzeptanz: Unit (`tourNow` im Export, Phasen-Kennung), Vorschau-Datei ohne `data-koko-sleep`.
-- [ ] **P17.2 Startseite oben** (U-79–U-82) – Text unter Koko kleiner als Fließtext, Koko 20 % größer, Tour-Tafel 20 % länger, Überschrift „on Tour“.
+- [x] **P17.2 Startseite oben** (U-79–U-82) – Text unter Koko kleiner als Fließtext, Koko 20 % größer, Tour-Tafel 20 % länger, Überschrift „on Tour“.
   - Akzeptanz: E2E (Größen/Verhältnisse Desktop und Handy, Überschrift DE/EN), visuelle Referenzen erneuert.
-- [ ] **P17.3 Miniaturen ohne Rahmen** (U-83) – Galerie-Miniaturen auf der Produktseite ohne Goth-Rahmen.
+- [x] **P17.3 Miniaturen ohne Rahmen** (U-83) – Galerie-Miniaturen auf der Produktseite ohne Goth-Rahmen.
   - Akzeptanz: Unit/E2E (Miniaturen ohne `border-image`, Hauptfotos weiter gerahmt).
-- [ ] **P17.4 Abschluss P17** (U-84) – Prüfschleuse, Merge, HTML-Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
+- [x] **P17.4 Abschluss P17** (U-84) – Prüfschleuse, Merge, HTML-Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
 
 ## P18 – Arbeiten vom iPad: Excel-Listen und Ansichten (11.10.2026)
 
 Verbindlich: `docs/UEBERARBEITUNG.md` U-85–U-90. Erst nach P17 (Juttas Wunsch). Die Listen sind Juttas dauerhafter Pflegeweg (U-89):
 gemeinsamer Kern in `src/lib/pflege/` (Listen-Nr., gemerkter Stand, Dreiwege-Abgleich, Tabellensuche für Numbers/Excel).
 
-- [ ] **P18.1 Bestandsliste als Excel** (U-85, U-86) – Export mit Fotos, Rückweg in `content/bestand/products.json`, Spalte „Verkauft“.
+- [x] **P18.1 Bestandsliste als Excel** (U-85, U-86) – Export mit Fotos, Rückweg in `content/bestand/products.json`, Spalte „Verkauft“.
   - Akzeptanz: Unit (Export–Import ohne Änderung = keine Änderung; geänderte Zellen übernommen; ungültige Werte gemeldet; „Verkauft“ wird zum Markt-Verkauf; Listen-Nr. und Stand-Abgleich: ältere Liste setzt nichts zurück, dieselbe Zelle hier und dort geändert = Rückfrage; Numbers-Varianten: Blatt umbenannt, Spalten verschoben, Kopfzeile nicht in Zeile 1), Int (Import legt verkaufte Stücke als Markt-Verkauf an).
-- [ ] **P18.2 Webseitentexte als Excel** (U-87) – Export aller Texte DE/EN nach Bereichen, Rückweg in Sprachdateien und Seiteninhalte, Platzhalter geprüft.
+- [x] **P18.2 Webseitentexte als Excel** (U-87) – Export aller Texte DE/EN nach Bereichen, Rückweg in Sprachdateien und Seiteninhalte, Platzhalter geprüft.
   - Akzeptanz: Unit (Rundweg ohne Änderung, Platzhalter-Schutz, nur geänderte Zellen, Stand-Abgleich wie P18.1).
-- [ ] **P18.3 Ansichten fürs iPad** (U-88) – Katalog als PDF, Rundgang der Internetseite als PDF, Anleitung fürs iPad.
+- [x] **P18.3 Ansichten fürs iPad** (U-88) – Katalog als PDF, Rundgang der Internetseite als PDF, Anleitung fürs iPad.
   - Akzeptanz: PDFs erzeugt und geprüft (Seitenzahl, Bilder), Anleitung in `docs/owner/`.
-- [ ] **P18.5 Datenschutz- und AGB-Prüfung** (U-91) – Prüfung mit Gegenprüfung; alle 32 bestätigten Punkte beheben (Einwilligungsnachweise an der Bestellung, Schwärzung von Datenbank-Fehlern, Rechtstexte ohne Instagram als Anfrageweg, Teil-Widerruf, Abholung-Schalter, Auskunft/Löschung u. a.), Juttas Antworten (a) und (b) umsetzen.
+- [x] **P18.5 Datenschutz- und AGB-Prüfung** (U-91) – Prüfung mit Gegenprüfung; alle 32 bestätigten Punkte beheben (Einwilligungsnachweise an der Bestellung, Schwärzung von Datenbank-Fehlern, Rechtstexte ohne Instagram als Anfrageweg, Teil-Widerruf, Abholung-Schalter, Auskunft/Löschung u. a.), Juttas Antworten (a) und (b) umsetzen.
   - Akzeptanz: je Punkt Unit-/Int-Test bzw. angepasster E2E-Test; Rechtstexte mit neuer Quelle (`sourceNote`); Einträge in `docs/OFFENE-PUNKTE.md`.
-- [ ] **P18.4 Abschluss P18** – Prüfschleuse, Merge, Dateien an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
+- [x] **P18.4 Abschluss P18** – Prüfschleuse, Merge, Dateien an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
 
 ## P19 – Pflege per Excel dauerhaft: in der Verwaltung (11.10.2026)
 
