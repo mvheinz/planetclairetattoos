@@ -47,7 +47,7 @@ Grund-Seed und den Mini-Satz an (Spalte „Phase“, §1.8).
 | `tattoo-gallery` | 6 | `true` | P8 | §12.3 |
 | `tour-dates` | 8 | `true` | P12 | §12.5 |
 | `pages` | 13 (alle `PAGE_KEYS`) | `true` | P1 Mini-Satz (`home`, `contact`) · P8 vollständig | §13 |
-| `faqs` | 12 | `true` | P8 | §14 |
+| `faqs` | 19 | `true` | P8 | §14 |
 | `revenue-entries` | 18 (9 Monate × Tattoo/Flohmarkt) | `true` | P8 | §15 |
 | `email-log` | 78 | `true` | P8 | §16.1 |
 | `consent-log` | 14 | `true` | P8 | §16.2 |
@@ -80,7 +80,7 @@ Grund-Seed und den Mini-Satz an (Spalte „Phase“, §1.8).
   Brief, Instagram-Nachricht; eine auf Englisch; Fristen `dueAt` vor und nach `N`.
 - **Tattoo:** 10 Flash (4 wiederholbar, 2 vergeben), 8 Termine „on Tour“ (§12.5), 6 Galerie-Einträge
   (2 echte Fotos ohne Einwilligung, 4 Platzhalter), Preisrahmen.
-- **Texte:** alle 13 Seiten, Startseite mit Kopf-Station + 7 Stationen, 12 FAQ, Aftercare-Phasen – DE und EN.
+- **Texte:** alle 13 Seiten, Startseite mit Kopf-Station + 7 Stationen, 19 FAQ, Aftercare-Phasen – DE und EN.
 
 ### 0.3 Festlegungen (verbindlich, mit DATENMODELL §13.3 abgestimmt)
 
@@ -94,7 +94,7 @@ Grund-Seed und den Mini-Satz an (Spalte „Phase“, §1.8).
 | Keramik | **alle** Keramik `foodContact = deko`, 0 `conformity-declarations`; Stücke mit Lebensmittelkontakt gibt es nur als Test-Fixtures (Nummern 980–999), nie im Seed | keine erfundenen Glasur-Nachweise (E-15) |
 | Stücke je Kategorie | keramik 9, textil 5, cap 4, zeichnung 7, schmuck 4, sonstiges 1 | richtet sich nach dem Instagram-Material |
 | Status-Verteilung | 14 `available`, 2 `reserved`, 11 `sold`, 1 `archived`, 2 `draft` | jede verkaufende Bestellung braucht ein `sold`-Stück |
-| Vorgänge | 14 Bestellungen (alle 13 Status, `refunded` zweimal) + 2 Kassen ohne Bestellung (abgelaufen, offen), 7 Widerrufe, 4 Reklamationen, 7 Anfragen, 5 Datenschutz-Anfragen (jeweils jeder Status mindestens einmal), 12 FAQ, 18 Umsatzeinträge (9 Monate) | E-63; KONZEPT §11.1; vor der Zahlung gibt es nur die Kasse (DATENMODELL §6.8, §6.25) |
+| Vorgänge | 14 Bestellungen (alle 13 Status, `refunded` zweimal) + 2 Kassen ohne Bestellung (abgelaufen, offen), 7 Widerrufe, 4 Reklamationen, 7 Anfragen, 5 Datenschutz-Anfragen (jeweils jeder Status mindestens einmal), 19 FAQ, 18 Umsatzeinträge (9 Monate) | E-63; KONZEPT §11.1; vor der Zahlung gibt es nur die Kasse (DATENMODELL §6.8, §6.25) |
 | Kassen und Reservierungen | der Seed legt nur an, was bei `N` nach den Löschfristen noch existiert: Kassen mit Anlage nach `N − 30 Tage` (L-03), Reservierungen `active` oder mit Freigabe/Umwandlung nach `N − 7 Tage` (L-02); ältere Bestellungen haben `checkout = null` (SE-12) | Löschjobs ändern die Mengen nach dem Seed nicht |
 | Idempotenz-Schlüssel | Feld `seedKey` in `seedField()` aller seedbaren Collections, partieller UNIQUE-Index (§1.2) | FAQ, Logs und Medien-Ausschnitte haben keinen natürlichen Schlüssel |
 | Seed-Kontext | Hook-Ausnahmen bei `req.context.seed === true` (§1.6, DATENMODELL §1.5) | Endstatus und vergangene Zeitstempel beim Anlegen |
@@ -142,7 +142,7 @@ Grund-Seed und den Mini-Satz an (Spalte „Phase“, §1.8).
 | `withdrawals` / `inquiries` | `W1`…`W7` / `A1`…`A7` | `withdrawals:W2` |
 | `complaints` / `privacy-requests` | `RK1`…`RK4` / `DS1`…`DS5` | `complaints:RK2`, `privacy-requests:DS3` |
 | `flash` / `tattoo-gallery` / `tour-dates` | `F901`…`F910` / `G1`…`G6` / `TD1`…`TD8` | `flash:F907` |
-| `pages` / `faqs` | Page-Key / `FAQ01`…`FAQ12` | `pages:home`, `faqs:FAQ05` |
+| `pages` / `faqs` | Page-Key / `FAQ01`…`FAQ19` | `pages:home`, `faqs:FAQ05` |
 | `revenue-entries` | `<M-k>:<source>` | `revenue-entries:M-9:tattoo` |
 | `email-log` / `consent-log` / `audit-log` | `<Bezug>:<template/zweck>` | `email-log:O05:refund_confirmation` |
 
@@ -1520,10 +1520,13 @@ Berlin“ / “Planet Claire – Tattoos & one-offs from Berlin”.
 
 ---
 
-## 14. FAQ (`faqs`, 12)
+## 14. FAQ (`faqs`, 19)
 
 `published = true`. Antworten als Klartext → `toLexical()` (§2.4). Die Aussagen sind Entwürfe in Juttas Ton (E-62) und
-fachliche Annahmen (SE-07).
+fachliche Annahmen (SE-07). FAQ13–FAQ19 (P20.3, V-19 der Analyse vom 12.10.2026, U-93): Fragen zum Shop, unten auf der
+Shop-Seite (R02, Anker `#shop-fragen`) und auf der Kontaktseite (Block „Shop“); Rückgabe nur als Verweis auf die
+Widerrufsbelehrung (keine pauschalen Ausschlüsse), keine Zusagen über die gesetzlichen Rechte hinaus,
+Abholung nur bedingt („wenn Abholung gerade möglich ist“), Versand nur innerhalb Deutschlands (R-060).
 
 | Key | `category` | `sortOrder` | Frage DE | Question EN |
 |---|---|---|---|---|
@@ -1539,6 +1542,13 @@ fachliche Annahmen (SE-07).
 | FAQ10 | shop | 10 | Warum steht bei der Keramik „Deko“? | Why is the ceramic labelled “decorative”? |
 | FAQ11 | shipping | 10 | Wohin verschickst du, und was kostet der Versand? | Where do you ship, and what does shipping cost? |
 | FAQ12 | commissions | 10 | Kann ich etwas Eigenes bestellen? | Can I order something custom? |
+| FAQ13 | shop | 20 | Gibt es das nochmal? | Can I get it again? |
+| FAQ14 | shop | 30 | Sind die Shirts neu? | Are the shirts new? |
+| FAQ15 | shop | 40 | Wie verpackst du Keramik? | How do you pack ceramics? |
+| FAQ16 | shop | 50 | Was, wenn etwas kaputt ankommt? | What if something arrives broken? |
+| FAQ17 | shop | 60 | Kann ich abholen? | Can I pick up my piece? |
+| FAQ18 | shop | 70 | Kann ich etwas zurückgeben? | Can I return something? |
+| FAQ19 | shop | 80 | Versendest du ins Ausland? | Do you ship abroad? |
 
 Antworten:
 - **FAQ01** DE: Ab 18. Bring zum Termin bitte deinen Ausweis mit. · EN: 18 and up. Please bring your ID to the appointment.
@@ -1553,6 +1563,13 @@ Antworten:
 - **FAQ10** DE: Weil es für meine Glasuren noch keine Konformitätserklärung gibt. Bis dahin steht bei jedem Stück: Deko – nicht für Lebensmittel. Für Schlüssel, Ringe, Pinsel und Kleinkram sind sie super. · EN: Because there's no declaration of conformity for my glazes yet. Until then, every piece says: decorative – not for food. They're great for keys, rings, brushes and odds and ends.
 - **FAQ11** DE: Zurzeit nur innerhalb Deutschlands. Was der Versand kostet, hängt vom Stück ab (Brief, kleines Paket oder Keramik-Paket) – im Warenkorb gilt immer die höchste Versandart. Alles Weitere steht unter Versand & Zahlung. Abholen in Berlin kostet nichts. · EN: Only within Germany for now. The shipping cost depends on the piece (letter, small parcel or ceramics parcel) – in the cart, the highest one applies. Details are on the Shipping & payment page. Pickup in Berlin is free.
 - **FAQ12** DE: Ja! Eine Cap mit deinem Hund, ein Teller zur Hochzeit, eine Zeichnung – schreib mir über das Formular bei den Auftragsarbeiten. Ich antworte mit einem Angebot per Mail; bezahlt wird nicht über den Shop. Fremde Figuren aus Comics, Filmen oder von Marken male ich nicht. · EN: Yes! A cap with your dog, a plate for a wedding, a drawing – write to me via the form on the commissions page. I'll reply with an offer by email; payment doesn't go through the shop. I don't paint characters from comics, films or brands.
+- **FAQ13** DE: Nein – jedes Stück mache ich nur ein einziges Mal, nachbestellen lässt sich nichts. Gefällt dir etwas, das schon verkauft ist, tipp auf seiner Seite auf „Etwas Ähnliches anfragen“: Dann mache ich dir gern ein neues Stück in der Art. Genau gleich wird es nie – das gehört dazu. · EN: No – I make each piece only once, so nothing can be reordered. If you like something that has already sold, tap “Ask for something similar” on its page: I’m happy to make you a new piece along those lines. It will never be exactly the same – that’s part of it.
+- **FAQ14** DE: Nein. Alle Textilien und Caps sind Second-Hand: Ich finde sie gebraucht und bemale sie von Hand. Bei jedem Stück steht, in welchem Zustand es ist – und wenn es eine Macke hat, steht auch die dabei. · EN: No. All textiles and caps are second-hand: I find them used and paint them by hand. Each piece says what condition it is in – and if it has a flaw, that is listed too.
+- **FAQ15** DE: Gut gepolstert und fest in einem stabilen Karton, damit unterwegs nichts klappert – so, wie ich es selbst gern bekommen würde. · EN: Well padded and snug in a sturdy box, so nothing rattles on the way – the way I’d like to receive it myself.
+- **FAQ16** DE: Dann melde dich bitte möglichst schnell bei mir, am besten mit ein paar Fotos von Paket und Stück – ich kümmere mich darum. Deine gesetzlichen Rechte bleiben davon unberührt. · EN: Then please get in touch as soon as you can, ideally with a few photos of the parcel and the piece – I’ll take care of it. Your statutory rights remain unaffected.
+- **FAQ17** DE: Wenn Abholung gerade möglich ist, ja: Dann wählst du in der Kasse „Abholung in Berlin“ – kostenlos, den Termin machen wir per Mail aus. Ob es gerade geht, siehst du bei jedem Stück direkt unter dem Preis. · EN: Yes, whenever pickup is available: choose “Pickup in Berlin” at checkout – it’s free, and we arrange the time by email. Whether it’s possible right now is shown right under the price of each piece.
+- **FAQ18** DE: Als Verbraucherin oder Verbraucher hast du bei Käufen im Shop ein gesetzliches Widerrufsrecht. Wie es geht, wie lange es gilt und wer die Rücksendung bezahlt, steht in der Widerrufsbelehrung. Erklären kannst du den Widerruf zum Beispiel über „Vertrag widerrufen“ unten auf jeder Seite. · EN: As a consumer you have a statutory right of withdrawal for purchases in the shop. How it works, how long it lasts and who pays for the return is explained on the Right of withdrawal page. You can declare your withdrawal, for example, via “Withdraw from contract here” at the bottom of every page.
+- **FAQ19** DE: Im Moment nicht – ich verschicke nur innerhalb Deutschlands. Bist du in Berlin, kannst du dein Stück abholen, wenn Abholung gerade möglich ist. · EN: Not at the moment – I only ship within Germany. If you’re in Berlin, you can collect your piece whenever pickup is available.
 
 ---
 

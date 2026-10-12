@@ -69,7 +69,7 @@ describe('ProductCard – AK-DS-10', () => {
       link.querySelector('img'),
       link.querySelector('[data-price-tag]'),
       [...link.querySelectorAll('span')].find((s) => s.textContent === 'Vase „Fuchs“'),
-      [...link.querySelectorAll('span')].find((s) => s.textContent === 'Keramik · Ø 14 cm'),
+      [...link.querySelectorAll('span')].find((s) => s.textContent === 'Keramik · Ø 14\u00a0cm'),
     ]) {
       expect(part).toBeTruthy()
       expect(part!.closest('a')).toBe(link)
@@ -147,13 +147,41 @@ describe('ProductCard – AK-DS-10', () => {
 
   it('Meta „Keramik · Ø 14 cm“; EN mit englischer Kategorie; ohne Maße nur die Kategorie', () => {
     const deEl = renderIntl(h(ProductCard, { product: product(), locale: 'de' }))
-    expect(deEl.textContent).toContain('Keramik · Ø 14 cm')
+    expect(deEl.textContent).toContain('Keramik · Ø 14\u00a0cm')
     cleanup()
     const enEl = renderIntl(
       h(ProductCard, { product: product({ dimensions: null }), locale: 'en' }),
       'en',
     )
     expect(enEl.textContent).toMatch(/Ceramics$/)
+  })
+
+  it('V-13 a: höchstens zwei Maße, geschätzt → „ca.“, Textil/Caps mit Größe; schmaler Rahmen (frameSize card)', () => {
+    const meta = (p: ProductCardData, locale: Locale = 'de') => {
+      cleanup()
+      return renderIntl(h(ProductCard, { product: p, locale }), locale).querySelector(
+        '[data-card-facts]',
+      )!.textContent
+    }
+    expect(
+      meta(
+        product({
+          dimensions: { widthCm: 9.5, heightCm: 7, diameterCm: 5, note: 'Maße geschätzt' },
+        }),
+      ),
+    ).toBe('Keramik · ca. Ø 5\u00a0cm, H 7\u00a0cm')
+    expect(
+      meta(
+        product({
+          category: 'cap',
+          sizeLabel: 'Einheitsgröße, verstellbar',
+          dimensions: { note: 'Kopfumfang ca. 54–60 cm – geschätzt' },
+        }),
+      ),
+    ).toBe('Caps · Einheitsgröße, verstellbar')
+    cleanup()
+    const el = renderIntl(h(ProductCard, { product: product(), locale: 'de' }))
+    expect(el.querySelector('[data-photo-frame]')!.className).toMatch(/card/)
   })
 })
 

@@ -342,7 +342,7 @@ export async function ProductPage({
               </Note>
             </>
           ) : (
-            // V-14: ein Abzeichen statt Abzeichen und gleichlautendem Satz direkt darunter; der Warnhinweis (Baustein
+            // V-14: nur ein Abzeichen, kein gleichlautender Satz direkt darunter; der Warnhinweis (Baustein
             // `product.ceramicsDecorative`, R-044) steht unter „Herstellerin & Sicherheit“.
             <Badge locale={locale} kind="decorative" />
           )

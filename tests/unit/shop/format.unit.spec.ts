@@ -8,6 +8,8 @@ import {
 } from '../../../scripts/lib/static-checks/money-usage'
 import { formatMoney } from '@/lib/money'
 import {
+  CARD_FACTS_MAX,
+  formatCardFacts,
   formatCondition,
   formatDimensions,
   formatFibers,
@@ -48,6 +50,72 @@ describe('formatDimensions', () => {
     )
     expect(formatDimensions({}, 'de')).toBe('')
     expect(formatDimensions(null, 'de')).toBe('')
+  })
+})
+
+describe('formatCardFacts (V-13 a, Produktkarten)', () => {
+  it('höchstens zwei Maße in der Reihenfolge Ø, H, B, T; Notiz nicht auf der Karte', () => {
+    expect(CARD_FACTS_MAX).toBe(2)
+    expect(
+      formatCardFacts({ category: 'keramik', dimensions: { diameterCm: 8, heightCm: 3 } }, 'de'),
+    ).toBe(`Ø 8${NB}cm, H 3${NB}cm`)
+    expect(
+      formatCardFacts(
+        { category: 'schmuck', dimensions: { widthCm: 2.7, heightCm: 4.5, depthCm: 0.5 } },
+        'en',
+      ),
+    ).toBe(`H 4.5${NB}cm, W 2.7${NB}cm`)
+    expect(formatCardFacts({ category: 'keramik', dimensions: { note: 'nur Text' } }, 'de')).toBe(
+      '',
+    )
+    expect(formatCardFacts({ category: 'keramik', dimensions: null }, 'de')).toBe('')
+  })
+
+  it('geschätzte Maße (Notiz „geschätzt“, „ca.“, „estimated“) → „ca.“ bzw. „approx.“ davor', () => {
+    const d = {
+      widthCm: 9.5,
+      heightCm: 7,
+      diameterCm: 5,
+      note: {
+        de: 'Höhe mit Zacken ca. 7 cm, Breite mit Henkeln ca. 9,5 cm – geschätzt',
+        en: 'Height including spikes approx. 7 cm – estimated',
+      },
+    }
+    expect(formatCardFacts({ category: 'keramik', dimensions: d }, 'de')).toBe(
+      `ca. Ø 5${NB}cm, H 7${NB}cm`,
+    )
+    expect(formatCardFacts({ category: 'keramik', dimensions: d }, 'en')).toBe(
+      `approx. Ø 5${NB}cm, H 7${NB}cm`,
+    )
+    expect(
+      formatCardFacts(
+        { category: 'keramik', dimensions: { heightCm: 7, note: 'Maße geschätzt; handgeformt' } },
+        'de',
+      ),
+    ).toBe(`ca. H 7${NB}cm`)
+  })
+
+  it('Textil und Caps: die Größe statt der Maße; ohne Größe die Maße', () => {
+    expect(
+      formatCardFacts(
+        {
+          category: 'cap',
+          sizeLabel: 'Einheitsgröße, verstellbar',
+          dimensions: { note: 'Kopfumfang ca. 54–60 cm – geschätzt' },
+        },
+        'de',
+      ),
+    ).toBe('Einheitsgröße, verstellbar')
+    expect(
+      formatCardFacts({ category: 'textil', dimensions: { widthCm: 38, heightCm: 42 } }, 'de'),
+    ).toBe(`H 42${NB}cm, B 38${NB}cm`)
+    expect(
+      formatCardFacts({ category: 'textil', dimensions: { note: 'Brustweite ca. 50 cm' } }, 'de'),
+    ).toBe('')
+    // Größe zählt nur bei Textil/Caps
+    expect(
+      formatCardFacts({ category: 'keramik', sizeLabel: 'M', dimensions: { heightCm: 5 } }, 'de'),
+    ).toBe(`H 5${NB}cm`)
   })
 })
 

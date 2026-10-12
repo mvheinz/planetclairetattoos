@@ -35,7 +35,7 @@ export interface ProductCardData {
   status: string
   category: ProductCategory
   dimensions?: DimensionsInput | null
-  /** Größe bei Textil/Caps (statt der Maße auf der Karte, V-13 a). */
+  /** Größe bei Textil/Caps – steht auf der Karte anstelle der Maße (V-13 a). */
   sizeLabel?: string | null
   images?: (number | Media)[] | null
 }
