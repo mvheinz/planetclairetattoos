@@ -1,10 +1,10 @@
 import type { ShippingClass } from '@/lib/enums'
-import { formatMoney } from '@/lib/money'
+import { formatTagPrice } from '@/lib/shop/priceTag'
 
 import { formatItemNumber } from './itemNumber'
 
 // Text für Instagram nach dem Online-Stellen (V-39, U-93): Name, Nummer, Preis „42 € zzgl. Versand“ (Endpreis, R-030 –
-// nie „inkl. MwSt.“, solange die Kleinunternehmerregelung gilt), ein kurzer Satz und der Kurzlink aufs Stück. Zweisprachig
+// ohne Steuerzusatz, solange die Kleinunternehmerregelung gilt, V-02), ein kurzer Satz und der Kurzlink aufs Stück. Zweisprachig
 // (U-00): erst Deutsch, dann Englisch. Keine Zitate von Schriftzügen am Stück (U-77) – Anführungszeichen aus dem Titel
 // fallen weg –, kein Aufruf zu Direktnachrichten (U-15/U-42: gekauft wird im Shop), keine Hashtag-Listen. Rein, auch im
 // Browser nutzbar (der Knopf „Für Instagram“ kopiert den Text, bevor das Teilen-Menü aufgeht).
@@ -31,8 +31,8 @@ export function instagramPostText(input: InstagramPostInput): string {
   const de = plainTitle(input.title.de)
   const en = plainTitle(input.title.en?.trim() || input.title.de)
   const pickupOnly = input.shippingClass === 'nur_abholung'
-  const priceDe = `${formatMoney(input.priceCents, 'de', { style: 'tag' })} ${pickupOnly ? '· nur Abholung in Berlin' : 'zzgl. Versand'}`
-  const priceEn = `${formatMoney(input.priceCents, 'en', { style: 'tag' })} ${pickupOnly ? '· pickup in Berlin only' : 'plus shipping'}`
+  const priceDe = `${formatTagPrice(input.priceCents, 'de')} ${pickupOnly ? '· nur Abholung in Berlin' : 'zzgl. Versand'}`
+  const priceEn = `${formatTagPrice(input.priceCents, 'en')} ${pickupOnly ? '· pickup in Berlin only' : 'plus shipping'}`
   return [
     de,
     `${formatItemNumber(input.itemNumber, 'de')} · ${priceDe}`,
