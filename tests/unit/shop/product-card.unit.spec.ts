@@ -183,6 +183,40 @@ describe('ProductCard – AK-DS-10', () => {
     const el = renderIntl(h(ProductCard, { product: product(), locale: 'de' }))
     expect(el.querySelector('[data-photo-frame]')!.className).toMatch(/card/)
   })
+
+  it('V-60 Stempel „frisch im Shop“: auf dem Foto, dekorativ, im Namen nur solange verfügbar; ohne `fresh` nie', () => {
+    const card = (p: ProductCardData, fresh: boolean, locale: Locale = 'de') => {
+      cleanup()
+      return renderIntl(h(ProductCard, { product: p, locale, fresh }), locale).querySelector('a')!
+    }
+    const a = card(product(), true)
+    const stamp = a.querySelector<HTMLElement>('[data-fresh-stamp="card"]')!
+    expect(stamp).not.toBeNull()
+    expect(stamp.getAttribute('aria-hidden')).toBe('true')
+    expect(stamp.textContent).toBe('frischim Shop')
+    // auf dem Foto (gleiche Hülle wie das Bild), Karte bleibt ein einziger Link ohne weitere Fokusziele
+    expect(stamp.parentElement!.querySelector('img')).not.toBeNull()
+    expect(a.querySelectorAll(FOCUSABLE)).toHaveLength(0)
+    expect(a.getAttribute('aria-label')).toBe('Vase „Fuchs“, 45\u00a0€, frisch im Shop')
+    expect(a.getAttribute('data-fresh-label')).toBe(', frisch im Shop')
+    expect(a.hasAttribute('data-fresh')).toBe(true)
+    // reserviert: Stempel liegt (per CSS verborgen) im Markup, Name ohne „frisch“
+    const r = card(product({ status: 'reserved' }), true)
+    expect(r.querySelector('[data-fresh-stamp]')).not.toBeNull()
+    expect(r.getAttribute('aria-label')).toBe('Vase „Fuchs“, 45\u00a0€, gerade reserviert')
+    // verkauft: kein Stempel
+    const sold = card(product({ status: 'sold' }), true)
+    expect(sold.querySelector('[data-fresh-stamp]')).toBeNull()
+    expect(sold.getAttribute('aria-label')).toBe('Vase „Fuchs“, 45\u00a0€, verkauft')
+    // ohne fresh: nichts
+    const plain = card(product(), false)
+    expect(plain.querySelector('[data-fresh-stamp]')).toBeNull()
+    expect(plain.hasAttribute('data-fresh-label')).toBe(false)
+    // EN
+    const en = card(product({ title: 'Fox vase' }), true, 'en')
+    expect(en.getAttribute('aria-label')).toBe('Fox vase, €45, fresh in the shop')
+    expect(en.querySelector('[data-fresh-stamp]')!.textContent).toBe('freshin the shop')
+  })
 })
 
 describe('Badge – KO-10', () => {

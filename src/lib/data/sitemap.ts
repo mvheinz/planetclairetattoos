@@ -63,7 +63,6 @@ export async function loadSitemapData(): Promise<SitemapData> {
       depth: 1,
       pagination: false,
       select: { itemNumber: true, images: true },
-      populate: { media: { url: true, sizes: true } },
     }),
   ])
   const withContent = new Set(products.docs.map((d) => d.category))

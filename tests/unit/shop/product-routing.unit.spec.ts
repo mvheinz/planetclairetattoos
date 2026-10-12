@@ -2,7 +2,14 @@ import { describe, expect, it } from 'vitest'
 
 import { getRoute, matchRoute, samplePath } from '@/lib/routes/paths'
 import { parseProductSegment, productParams, productPath, productSegment } from '@/lib/shop/format'
-import { SHORT_LINK_HEADERS, parseShortLinkNumber, shortLinkLocale } from '@/lib/shop/shortLink'
+import {
+  SHORT_LINK_FORM_PATH,
+  SHORT_LINK_HEADERS,
+  SHORT_LINK_LOCALE_PARAM,
+  SHORT_LINK_NUMBER_PARAM,
+  parseShortLinkNumber,
+  shortLinkLocale,
+} from '@/lib/shop/shortLink'
 
 // P3.7 Produktseite R04 und Kurzlink R31 (KONZEPT §2.3, §2.4): reine Regeln der Auflösung. Die HTTP-Antworten prüft
 // `tests/e2e/shop/product-routing.e2e.spec.ts`.
@@ -63,6 +70,37 @@ describe('AK-2-06 Kurzlink /nr/[nummer]', () => {
     expect(shortLinkLocale('fr-FR,en;q=0.5,de;q=0.8')).toBe('de')
     expect(shortLinkLocale('fr-FR')).toBe('de')
     expect(shortLinkLocale(null)).toBe('de')
+  })
+
+  it('V-60 Nummernfeld: Sprache der Seite (`locale`) geht vor Accept-Language; Unbekanntes zählt nicht', () => {
+    expect(shortLinkLocale('de-DE,de;q=0.9', 'en')).toBe('en')
+    expect(shortLinkLocale('en-US,en;q=0.9', 'de')).toBe('de')
+    expect(shortLinkLocale('en-US', ' EN ')).toBe('en')
+    expect(shortLinkLocale('en-US', 'fr')).toBe('en')
+    expect(shortLinkLocale('de', '')).toBe('de')
+    expect(shortLinkLocale(null, null)).toBe('de')
+  })
+
+  it('V-60 Nummernfeld: was auf Instagram steht („Nr. 115“, „#115“, „No. 115“) wird verstanden', () => {
+    for (const raw of [
+      'Nr. 115',
+      'nr.115',
+      'Nr 115',
+      'NR. 0115',
+      '#115',
+      '# 115',
+      'No. 115',
+      'no115',
+    ])
+      expect(parseShortLinkNumber(raw), raw).toBe(115)
+    for (const bad of ['Nr.', '#', 'Nr. abc', 'Nummer 115', '115 Nr.', 'Nr. 1234567'])
+      expect(parseShortLinkNumber(bad), bad).toBeNull()
+  })
+
+  it('V-60 Formular-Namen: GET /nr mit `nummer` und `locale`', () => {
+    expect(SHORT_LINK_FORM_PATH).toBe('/nr')
+    expect(SHORT_LINK_NUMBER_PARAM).toBe('nummer')
+    expect(SHORT_LINK_LOCALE_PARAM).toBe('locale')
   })
 
   it('Antwort-Kopfzeilen: Vary Accept-Language, no-store', () => {

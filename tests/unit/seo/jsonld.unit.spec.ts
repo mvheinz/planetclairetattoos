@@ -3,15 +3,25 @@ import { describe, expect, it } from 'vitest'
 import type { TaxMode } from '@/lib/enums'
 import { breadcrumbItems } from '@/lib/seo/breadcrumbs'
 import {
+  RETURN_DAYS,
   breadcrumbJsonLd,
   priceString,
   productImageUrls,
   productJsonLd,
+  returnPolicyJsonLd,
   serializeJsonLd,
+  shippingDetailsJsonLd,
+  splitDeliveryDays,
   type ProductJsonLdInput,
   type PublicProductStatus,
 } from '@/lib/seo/jsonld'
-import { productMetaDescription, productPageTitle } from '@/lib/seo/product'
+import {
+  categoryMetaDescription,
+  metaExcerpt,
+  productMetaDescription,
+  productPageTitle,
+} from '@/lib/seo/product'
+import { deliveryDayRange } from '@/lib/shop/deliveryTime'
 
 // P3.13 JSON-LD (KONZEPT §3.0.5, §3.4): `Product` mit `Offer` je Zustand und Steuermodus, `BreadcrumbList` auf
 // R02–R05; R-126: im Kleinunternehmer-Modus keine Steuerangabe.
@@ -385,5 +395,144 @@ describe('SEO-Texte der Produktseite', () => {
       productMetaDescription({ description: long, seo: { metaDescription: ' Aus dem CMS ' } }),
     ).toBe('Aus dem CMS')
     expect(productMetaDescription({ description: ' ' })).toBeUndefined()
+  })
+})
+
+// V-61 b (U-93, normale Google-Suche ohne Google Shopping): Versand und Rückgabe im `Offer`, eigene Beschreibung je
+// Kategorie. Form nach schema.org (`OfferShippingDetails`, `ShippingDeliveryTime`, `MerchantReturnPolicy`).
+describe('V-61 b Versand und Rückgabe im Offer', () => {
+  const shipping = { rateCents: 890, deliveryDays: { min: 2, max: 5 } }
+
+  it('OfferShippingDetails: Deutschland, Preis der Versandklasse als Zeichenkette, Lieferzeit = Bearbeitung + Laufzeit', () => {
+    expect(shippingDetailsJsonLd(shipping)).toEqual({
+      '@type': 'OfferShippingDetails',
+      shippingRate: { '@type': 'MonetaryAmount', value: '8.90', currency: 'EUR' },
+      shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'DE' },
+      deliveryTime: {
+        '@type': 'ShippingDeliveryTime',
+        handlingTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 3, unitCode: 'DAY' },
+        transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 2, unitCode: 'DAY' },
+      },
+    })
+    // ohne verwertbare Lieferzeit: nur Preis und Ziel (lieber nichts als etwas Falsches)
+    expect(shippingDetailsJsonLd({ rateCents: 450, deliveryDays: null })).not.toHaveProperty(
+      'deliveryTime',
+    )
+    expect(() => shippingDetailsJsonLd({ rateCents: 8.9, deliveryDays: null })).toThrow()
+  })
+
+  it('splitDeliveryDays: Summen ergeben genau die Lieferzeit, Laufzeit höchstens 2 Tage, nie negativ', () => {
+    for (let min = 1; min <= 10; min++) {
+      for (let max = min; max <= 14; max++) {
+        const { handling, transit } = splitDeliveryDays({ min, max })
+        expect(handling.min + transit.min, `${min}–${max}`).toBe(min)
+        expect(handling.max + transit.max, `${min}–${max}`).toBe(max)
+        expect(handling.min).toBeGreaterThanOrEqual(0)
+        expect(handling.max).toBeGreaterThanOrEqual(handling.min)
+        expect(transit.min).toBe(1)
+        expect(transit.max).toBeLessThanOrEqual(2)
+        expect(transit.max).toBeGreaterThanOrEqual(transit.min)
+      }
+    }
+    expect(splitDeliveryDays({ min: 3, max: 3 })).toEqual({
+      handling: { min: 2, max: 2 },
+      transit: { min: 1, max: 1 },
+    })
+  })
+
+  it('deliveryDayRange liest die Lieferzeit der Einstellungen (DE/EN), sonst null', () => {
+    expect(deliveryDayRange('2–5 Werktage')).toEqual({ min: 2, max: 5 })
+    expect(deliveryDayRange('2-5 working days')).toEqual({ min: 2, max: 5 })
+    expect(deliveryDayRange('2 bis 4 Werktage')).toEqual({ min: 2, max: 4 })
+    expect(deliveryDayRange('3 Werktage')).toEqual({ min: 3, max: 3 })
+    expect(deliveryDayRange('1–2 business days')).toEqual({ min: 1, max: 2 })
+    for (const bad of [
+      null,
+      '',
+      '1–2 Wochen',
+      'ca. 2–5 Werktage',
+      '5–2 Werktage',
+      'bald',
+      '0 Tage',
+    ])
+      expect(deliveryDayRange(bad), String(bad)).toBeNull()
+  })
+
+  it('MerchantReturnPolicy: 14 Tage Widerruf, Rücksendekosten trägt die Kundin (E-27), per Post nur bei Versandstücken', () => {
+    expect(RETURN_DAYS).toBe(14)
+    expect(returnPolicyJsonLd({ byMail: true })).toEqual({
+      '@type': 'MerchantReturnPolicy',
+      applicableCountry: 'DE',
+      returnPolicyCountry: 'DE',
+      returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+      merchantReturnDays: 14,
+      returnMethod: 'https://schema.org/ReturnByMail',
+      returnFees: 'https://schema.org/ReturnFeesCustomerResponsibility',
+    })
+    expect(returnPolicyJsonLd({ byMail: false })).not.toHaveProperty('returnMethod')
+  })
+
+  it('Product: Versand und Rückgabe nur, solange man das Stück kaufen kann; ohne Angaben unverändert', () => {
+    for (const status of ['available', 'reserved'] as const) {
+      const ld = productJsonLd({
+        ...base,
+        status,
+        taxMode: 'kleinunternehmer',
+        shipping,
+        returns: { byMail: true },
+      })
+      expect(ld.offers).toMatchObject({
+        shippingDetails: { '@type': 'OfferShippingDetails' },
+        hasMerchantReturnPolicy: { '@type': 'MerchantReturnPolicy', merchantReturnDays: 14 },
+      })
+    }
+    const sold = productJsonLd({
+      ...base,
+      status: 'sold',
+      taxMode: 'kleinunternehmer',
+      shipping,
+      returns: { byMail: true },
+    })
+    expect(sold.offers).not.toHaveProperty('shippingDetails')
+    expect(sold.offers).not.toHaveProperty('hasMerchantReturnPolicy')
+    // reines Abholstück: keine Versandangabe, Rückgabe ohne Post
+    const pickup = productJsonLd({
+      ...base,
+      status: 'available',
+      taxMode: 'kleinunternehmer',
+      shipping: null,
+      returns: { byMail: false },
+    })
+    expect(pickup.offers).not.toHaveProperty('shippingDetails')
+    expect(pickup.offers).toHaveProperty('hasMerchantReturnPolicy.merchantReturnDays', 14)
+  })
+
+  it('R-126: auch mit Versand und Rückgabe im Kleinunternehmer-Modus keine Steuerangabe', () => {
+    const ld = productJsonLd({
+      ...base,
+      status: 'available',
+      taxMode: 'kleinunternehmer',
+      shipping,
+      returns: { byMail: true },
+    })
+    expect(JSON.stringify(ld)).not.toMatch(/valueAddedTax|TaxRate|taxRate|MwSt|VAT/i)
+  })
+})
+
+describe('V-61 b Beschreibung je Kategorie', () => {
+  it('CMS-Feld, sonst die Einleitung (gekürzt auf ≤ 155 Zeichen), sonst undefined (gemeinsame Vorlage)', () => {
+    expect(
+      categoryMetaDescription({ intro: 'Einleitung', seo: { metaDescription: ' Eigener Text ' } }),
+    ).toBe('Eigener Text')
+    expect(categoryMetaDescription({ intro: '  Teller, Schalen und Becher.  ' })).toBe(
+      'Teller, Schalen und Becher.',
+    )
+    const long = `${'Bemalte Keramik aus Berlin '.repeat(10)}`
+    const cut = categoryMetaDescription({ intro: long, seo: { metaDescription: null } })!
+    expect(cut.length).toBeLessThanOrEqual(155)
+    expect(cut.endsWith('…')).toBe(true)
+    expect(categoryMetaDescription({ intro: null })).toBeUndefined()
+    expect(categoryMetaDescription({ intro: ' ', seo: { metaDescription: '' } })).toBeUndefined()
+    expect(metaExcerpt('a  b\n c')).toBe('a b c')
   })
 })

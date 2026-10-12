@@ -76,6 +76,43 @@ describe('decidePublicRoute (ARCHITEKTUR §2.3)', () => {
     })
   })
 
+  it('V-60 Kurzadresse /on-tour → 307 auf den Schaukasten der erkannten Sprache (#on-tour), mit Präfix 308', () => {
+    expect(decidePublicRoute('/on-tour', '', 'en-US,en;q=0.9')).toEqual({
+      kind: 'redirect',
+      status: 307,
+      location: '/en#on-tour',
+      vary: true,
+    })
+    expect(decidePublicRoute('/on-tour', '', null)).toEqual({
+      kind: 'redirect',
+      status: 307,
+      location: '/de#on-tour',
+      vary: true,
+    })
+    // Kampagnen-Parameter bleiben, der Anker steht hinter der Query
+    expect(decidePublicRoute('/on-tour', '?utm_source=ig', 'de')).toMatchObject({
+      location: '/de?utm_source=ig#on-tour',
+    })
+    expect(decidePublicRoute('/on-tour/', '', 'en')).toMatchObject({
+      status: 308,
+      location: '/on-tour',
+    })
+    expect(decidePublicRoute('/en/on-tour', '', 'de')).toEqual({
+      kind: 'redirect',
+      status: 308,
+      location: '/en#on-tour',
+    })
+    expect(decidePublicRoute('/de/on-tour', '', 'en')).toMatchObject({
+      status: 308,
+      location: '/de#on-tour',
+    })
+    // /shop gibt es schon ohne Präfix (307 wie jeder Pfad)
+    expect(decidePublicRoute('/shop', '', 'en')).toMatchObject({
+      status: 307,
+      location: '/en/shop',
+    })
+  })
+
   it('Pfade der eigenen Sprache und Unbekanntes gehen an next-intl', () => {
     expect(decidePublicRoute('/de/impressum', '', 'en')).toEqual({ kind: 'intl' })
     expect(decidePublicRoute('/en', '', 'de')).toEqual({ kind: 'intl' })

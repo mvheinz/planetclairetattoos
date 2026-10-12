@@ -7,7 +7,7 @@ import { LOCALES } from '@/lib/routes/registry'
 import { organizationJsonLd, serializeJsonLd } from '@/lib/seo/jsonld'
 import { buildMetadata, notFoundMetadata, robotsFor } from '@/lib/seo/metadata'
 import { disallowedPaths, robotsRules, xRobotsTag } from '@/lib/seo/robots'
-import { buildSitemap } from '@/lib/seo/sitemap'
+import { buildSitemap, sitemapImages, SITEMAP_MAX_IMAGES, xmlEscape } from '@/lib/seo/sitemap'
 
 // P2.11 SEO-Grundlagen (KONZEPT §2.5, §3.0.5).
 
@@ -231,6 +231,43 @@ describe('P3.13 Produkt, 404-Varianten, Sitemap mit Daten', () => {
     expect(JSON.stringify(map)).not.toMatch(
       /warenkorb|cart|kasse|checkout|danke|thank-you|bestellung|order\//,
     )
+  })
+})
+
+describe('V-61 b Sitemap mit Fotos der Stücke im Shop', () => {
+  it('Stücke mit Fotos tragen `images` (absolut, beide Sprachen); ohne Fotos kein Feld', () => {
+    const map = buildSitemap(SITE, {
+      categories: [],
+      products: [
+        {
+          itemNumber: 901,
+          slug: { de: '901-schale', en: '901-bowl' },
+          updatedAt: '2026-09-02T10:00:00.000Z',
+          images: ['/api/media/file/schale-1600.webp', `${SITE}/api/media/file/schale-b.webp`],
+        },
+        { itemNumber: 902, slug: { de: '902-becher' }, updatedAt: '2026-09-02T10:00:00.000Z' },
+      ],
+    })
+    const byUrl = new Map(map.map((e) => [e.url, e]))
+    const images = [
+      `${SITE}/api/media/file/schale-1600.webp`,
+      `${SITE}/api/media/file/schale-b.webp`,
+    ]
+    expect(byUrl.get(`${SITE}/de/shop/901-schale`)?.images).toEqual(images)
+    expect(byUrl.get(`${SITE}/en/shop/901-bowl`)?.images).toEqual(images)
+    expect(byUrl.get(`${SITE}/de/shop/902-becher`)).not.toHaveProperty('images')
+    // feste Seiten nie mit Fotos
+    expect(byUrl.get(`${SITE}/de`)).not.toHaveProperty('images')
+  })
+
+  it('Adressen werden XML-maskiert, doppelte entfernt, höchstens 12 je Seite', () => {
+    expect(xmlEscape(`a&b<c>"d'`)).toBe('a&amp;b&lt;c&gt;&quot;d&apos;')
+    expect(sitemapImages(['/x.webp?a=1&b=2', '/x.webp?a=1&b=2'], SITE)).toEqual([
+      `${SITE}/x.webp?a=1&amp;b=2`,
+    ])
+    const many = Array.from({ length: 20 }, (_, i) => `/f${i}.webp`)
+    expect(sitemapImages(many, SITE)).toHaveLength(SITEMAP_MAX_IMAGES)
+    expect(sitemapImages(undefined, SITE)).toEqual([])
   })
 })
 

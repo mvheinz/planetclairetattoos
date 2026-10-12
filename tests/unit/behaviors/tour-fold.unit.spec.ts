@@ -59,4 +59,22 @@ describe('tour-fold (U-51)', () => {
     mount(d)
     expect(d.open).toBe(false)
   })
+
+  it('V-60 Kurzadresse /on-tour: mit Anker #on-tour klappt der Schaukasten auch am Handy auf (auch bei späterem Sprung)', () => {
+    fakeMatchMedia(false)
+    window.location.hash = '#on-tour'
+    const d = details()
+    const un = mount(d)
+    expect(d.open).toBe(true)
+    un()
+    window.location.hash = ''
+    const d2 = details()
+    const un2 = mount(d2)
+    expect(d2.open).toBe(false)
+    window.location.hash = '#on-tour'
+    window.dispatchEvent(new HashChangeEvent('hashchange'))
+    expect(d2.open).toBe(true)
+    un2()
+    window.location.hash = ''
+  })
 })

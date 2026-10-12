@@ -192,6 +192,18 @@ describe('Live-Wechsel', () => {
     const suffix = (s: string) => ({ reserved: ', r', sold: ', s' })[s] ?? ''
     expect(relabel('Vase, 45 €, r', 'reserved', 'sold', suffix)).toBe('Vase, 45 €, s')
     expect(relabel('Vase, 45 €', 'available', 'reserved', suffix)).toBe('Vase, 45 €, r')
+    // V-60: „, frisch im Shop“ nur im Zustand available
+    const fresh = ', frisch im Shop'
+    expect(relabel('Vase, 45 €, frisch im Shop', 'available', 'reserved', suffix, fresh)).toBe(
+      'Vase, 45 €, r',
+    )
+    expect(relabel('Vase, 45 €, frisch im Shop', 'available', 'sold', suffix, fresh)).toBe(
+      'Vase, 45 €, s',
+    )
+    expect(relabel('Vase, 45 €, r', 'reserved', 'available', suffix, fresh)).toBe(
+      'Vase, 45 €, frisch im Shop',
+    )
+    expect(relabel('Vase, 45 €', 'available', 'reserved', suffix, '')).toBe('Vase, 45 €, r')
   })
 })
 
