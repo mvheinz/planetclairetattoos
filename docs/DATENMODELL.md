@@ -925,7 +925,7 @@ und `title`. Formular in Tabs „Basis“, „Pflichtangaben“, „Bilder“, �
 |---|---|---|---|---|---|---|
 | `status` | select `ProductStatus` | R | – | `draft` | nur über Aktionen/Services (§6.6.7) | readOnly, Aktionsknöpfe |
 | `showInArchiveAfterSale` | checkbox | R | – | `true` | jederzeit änderbar | „Nach Verkauf mit sold-Stempel im Archiv zeigen“ (E-14) |
-| `firstPublishedAt` | date | S | – | – | einmalig gesetzt | – |
+| `firstPublishedAt` | date | S | – | – | einmalig gesetzt; Grundlage für Sortierung im Shop und den Stempel „frisch im Shop“ (≤ 14 Tage, ohne die ersten 48 h nach dem frühesten Wert aller Stücke = Erstbefüllung; V-60, `src/lib/shop/fresh.ts`) | – |
 | `soldAt` | date | S | – | – | – | – |
 | `soldChannel` | select `SoldChannel` | S | – | – | gesetzt genau dann, wenn `status = sold` | `online` = Bestellung mit Versand, `pickup` = Bestellung mit Abholung, `offline` = außerhalb des Shops (Flohmarkt, Studio) |
 | `offlineSaleNote` | text | – | – | – | ≤ 120 | z. B. „Flohmarkt Mauerpark“ (kein Preis; Flohmarkt-Umsatz kommt als Monatssumme, E-45) |

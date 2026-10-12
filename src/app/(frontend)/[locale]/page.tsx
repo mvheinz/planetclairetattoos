@@ -6,7 +6,7 @@ import { ChairwomanKoko } from '@/components/home/ChairwomanKoko'
 import { HomeIntroPhoto, HomeIntroText } from '@/components/home/HomeIntro'
 import { HomeStation } from '@/components/home/HomeStation'
 import { InstagramLink } from '@/components/home/InstagramLink'
-import { TourDates, TourFold } from '@/components/home/TourDates'
+import { TourCalendarHint, TourDates, TourFold } from '@/components/home/TourDates'
 import styles from '@/components/home/Home.module.css'
 import { PlanetMark } from '@/components/home/SpaceMarks'
 import { Station } from '@/components/leash/Station'
@@ -146,6 +146,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       >
         <TourFold items={tourItems} locale={locale} now={now}>
           <TourDates items={tourItems} locale={locale} now={now} />
+          <TourCalendarHint items={tourItems} locale={locale} now={now} />
           <InstagramLink handle={nav.instagramHandle} locale={locale} />
         </TourFold>
       </StaticHtml>

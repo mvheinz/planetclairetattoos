@@ -164,6 +164,48 @@ test.describe('P3.13 SEO der Shop-Routen', () => {
       expect(url).toMatch(/^https?:\/\/.+\/api\/media\//)
     // Seed-Einstellungen: Kleinunternehmer-Modus → keine Steuerangabe (R-126)
     expect(raw).not.toMatch(/valueAddedTaxIncluded|priceSpecification/)
+    // V-61 b: Versand nach Deutschland (Keramik-Paket 8,90 €, „2–5 Werktage“) und Rückgabe (14 Tage, E-27)
+    expect(product!.offers).toMatchObject({
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingRate: { '@type': 'MonetaryAmount', value: '8.90', currency: 'EUR' },
+        shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'DE' },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: { minValue: 1, maxValue: 3, unitCode: 'DAY' },
+          transitTime: { minValue: 1, maxValue: 2, unitCode: 'DAY' },
+        },
+      },
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'DE',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 14,
+        returnMethod: 'https://schema.org/ReturnByMail',
+        returnFees: 'https://schema.org/ReturnFeesCustomerResponsibility',
+      },
+    })
+  })
+
+  test('V-61 b eigene Beschreibung je Kategorie (Einleitung statt gemeinsamer Vorlage)', async ({
+    request,
+  }) => {
+    const descriptions = new Set<string>()
+    for (const path of [
+      '/de/shop/kategorie/keramik',
+      '/de/shop/kategorie/zeichnungen',
+      '/en/shop/category/ceramics',
+    ]) {
+      const { status, $ } = await html(request, path)
+      expect(status, path).toBe(200)
+      const description = $('head meta[name="description"]').attr('content') ?? ''
+      expect(description.length, path).toBeGreaterThan(40)
+      expect(description.length, path).toBeLessThanOrEqual(155)
+      descriptions.add(description)
+    }
+    expect(descriptions.size).toBe(3)
+    const { $ } = await html(request, '/de/shop/kategorie/zeichnungen')
+    expect($('head meta[name="description"]').attr('content')).toMatch(/^Originale auf Papier/)
   })
 
   test('verkauftes Stück im Archiv (S06): availability SoldOut', async ({ request }) => {

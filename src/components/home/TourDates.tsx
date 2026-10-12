@@ -24,8 +24,8 @@ import styles from './TourDates.module.css'
 // JavaScript bedienbar). Abgesagte Termine sind durchgestrichen und tragen zusätzlich den Text „abgesagt“. Adresse und
 // Link sind einfacher Text bzw. Textlink – keine Karte, keine Einbettung, keine Anfrage an Dritte. Reines Server-Markup
 // (nicht hydriert); der Zustand folgt dem Datum beim Rendern (ISR ≤ 1 h). V-60: Jeder kommende, nicht abgesagte Termin hat
-// den Link „In den Kalender“ (Kalender-Datei `.ics` vom eigenen Server, `src/lib/tour/ics.ts`); unter den Zetteln steht
-// einmal der Hinweis, dass das im Instagram-Browser oft erst nach „Im Browser öffnen“ klappt.
+// den Link „In den Kalender“ (Kalender-Datei `.ics` vom eigenen Server, `src/lib/tour/ics.ts`); unter der Tafel steht
+// einmal der Hinweis, dass das im Instagram-Browser oft erst nach „Im Browser öffnen“ klappt (`TourCalendarHint`).
 
 /** So viele kommende Termine stehen direkt auf der Tafel (U-42: „nächste 2–3“). */
 export const TOUR_ON_BOARD = 3
@@ -219,7 +219,6 @@ export async function TourDates({
   const { upcoming, past } = splitTourDates(items, now)
   const onBoard = upcoming.slice(0, TOUR_ON_BOARD)
   const later = upcoming.slice(TOUR_ON_BOARD)
-  const anyCalendar = upcoming.some((i) => hasCalendar(tourState(i, now)))
   const more = later.length + past.length
   const summary =
     later.length > 0 && past.length > 0
@@ -244,11 +243,6 @@ export async function TourDates({
             {t('empty')}
           </p>
         )}
-        {anyCalendar ? (
-          <p className={styles.calendarHint} data-tour-calendar-hint="">
-            {t('calendarHint')}
-          </p>
-        ) : null}
         {more > 0 ? (
           <details className={styles.more} data-tour-more="">
             <summary className={styles.summary}>{summary}</summary>
@@ -279,6 +273,29 @@ export async function TourDates({
         ) : null}
       </div>
     </section>
+  )
+}
+
+/**
+ * V-60: Hinweis unter der Tafel (einmal, nicht je Zettel), nur wenn es einen Kalender-Link gibt: Im Instagram-Browser
+ * lädt die Kalender-Datei oft erst, wenn man die Seite über ⋯ „Im Browser öffnen“ geöffnet hat.
+ */
+export async function TourCalendarHint({
+  items,
+  locale,
+  now,
+}: {
+  items: PublicTourDate[]
+  locale: Locale
+  now: Date
+}) {
+  const { upcoming } = splitTourDates(items, now)
+  if (!upcoming.some((i) => hasCalendar(tourState(i, now)))) return null
+  const t = await getTranslations({ locale, namespace: 'home.tour' })
+  return (
+    <p className={styles.calendarHint} data-tour-calendar-hint="">
+      {t('calendarHint')}
+    </p>
   )
 }
 

@@ -192,7 +192,8 @@ test.describe('R31 Kurzlink /nr/[nummer]', () => {
 })
 
 test.describe('R28 Nummernfeld → R31', () => {
-  // Das Ziel folgt Accept-Language (R31), nicht der Seite, auf der das Feld steht: Browser auf Deutsch.
+  // V-60: Das Ziel folgt der Sprache der Seite, auf der das Feld steht (verstecktes Feld `locale`), erst danach
+  // Accept-Language (R31). Hier: deutsche 404-Seite, Browser auf Deutsch.
   test.use({ locale: 'de-DE' })
 
   test('Nummernfeld der 404-Seite zielt auf /nr (ohne JavaScript bedienbar) und führt zum Stück', async ({
@@ -204,6 +205,7 @@ test.describe('R28 Nummernfeld → R31', () => {
     const form = page.locator('[data-number-form]')
     await expect(form).toHaveAttribute('action', '/nr')
     await expect(form).toHaveAttribute('method', 'get')
+    await expect(form.locator('input[type="hidden"][name="locale"]')).toHaveValue('de')
     await form.getByLabel('Ein bestimmtes Stück im Kopf? Nummer eingeben').fill('901')
     await form.getByRole('button', { name: 'Stück suchen' }).click()
     await expect(page).toHaveURL(new RegExp(`${S01_DE}$`))

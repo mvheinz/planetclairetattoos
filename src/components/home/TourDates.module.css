@@ -354,11 +354,11 @@
   color: var(--petrol);
 }
 
-/* Hinweis zum Instagram-Browser: einmal unter den Zetteln, klein und hell auf der Tafel. */
+/* Hinweis zum Instagram-Browser: einmal unter der Tafel (auf dem Papier), klein und leise. */
 .calendarHint {
-  margin: var(--space-1) 0 0;
+  margin: 0;
   padding-inline: var(--space-1);
-  color: var(--paper-2);
+  color: var(--ink-2);
   font-size: var(--fs-kicker);
   line-height: 1.4;
 }

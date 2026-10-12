@@ -355,8 +355,8 @@ Die Reihenfolge steht in [Z1](ANLEITUNGEN.md#z1).
 
 - [ ] **A40 · Links in die Instagram-Bio setzen: zur Website und zum Impressum**
   - Warum: So findet man dich. Außerdem braucht ein Profil, das du geschäftlich nutzt, einen leicht erreichbaren Link
-    zum Impressum.
-  - Aufwand: ca. 5 Min.
+    zum Impressum. Wenn du magst, kommt ein dritter Link `…/on-tour` zu deinen Marktterminen dazu (V-60, freiwillig).
+  - Aufwand: ca. 5 Min. – am iPad in der Instagram-App oder am Computer im Browser.
   - Anleitung: [I3](ANLEITUNGEN.md#i3)
 
 ---

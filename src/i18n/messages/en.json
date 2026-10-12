@@ -165,7 +165,7 @@
       "pastHeading": "Where I have been",
       "calendar": "Add to calendar",
       "calendarLabel": "Add to calendar: {name}",
-      "calendarHint": "In the Instagram browser? Tap ⋯ at the top right and choose “Open in browser” – then the calendar works.",
+      "calendarHint": "In the Instagram browser? Tap ⋯ → “Open in browser” first, then the calendar works.",
       "icsMore": "All dates: {url}",
       "icsCancelled": "cancelled"
     }

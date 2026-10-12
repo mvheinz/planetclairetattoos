@@ -165,7 +165,7 @@
       "pastHeading": "Wo ich schon war",
       "calendar": "In den Kalender",
       "calendarLabel": "In den Kalender: {name}",
-      "calendarHint": "Im Instagram-Browser? Tipp oben rechts auf ⋯ und „Im Browser öffnen“ – dann klappt es mit dem Kalender.",
+      "calendarHint": "Im Instagram-Browser? Erst über ⋯ „Im Browser öffnen“, dann klappt der Kalender.",
       "icsMore": "Alle Termine: {url}",
       "icsCancelled": "abgesagt"
     }

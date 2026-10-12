@@ -17,6 +17,8 @@ interface Entry {
   loc: string
   lastmod: string | null
   alternates: Record<string, string>
+  /** `<image:image><image:loc>` (V-61 b). */
+  images: string[]
 }
 
 function parseSitemap(xml: string): Entry[] {
@@ -31,9 +33,13 @@ function parseSitemap(xml: string): Entry[] {
           .get() as [string, string][],
       )
       return {
-        loc: url.find('loc').text(),
+        loc: url.children('loc').text(),
         lastmod: url.find('lastmod').text() || null,
         alternates,
+        images: url
+          .find('image\\:loc')
+          .map((__, l) => $(l).text())
+          .get() as string[],
       }
     })
     .get()
@@ -99,6 +105,15 @@ test.describe('P3.13 sitemap.xml', () => {
     }
     expect(byLoc.has(`${SITE}/en/shop/901-bowl-long-ears-fluff`)).toBe(true)
     expect(byLoc.has(`${SITE}/de/shop/901-schale-langohr-wuschel`)).toBe(true)
+    // V-61 b: Fotos der Stücke im Shop (S01 verfügbar) als <image:image>, verkaufte (S06) ohne
+    expect(xml).toContain('xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"')
+    const s01 = byLoc.get(`${SITE}/de/shop/901-schale-langohr-wuschel`)!
+    expect(s01.images.length).toBeGreaterThan(0)
+    for (const img of s01.images) expect(img).toMatch(/^https?:\/\/.+\/api\/media\//)
+    expect(byLoc.get(`${SITE}/en/shop/901-bowl-long-ears-fluff`)!.images).toEqual(s01.images)
+    const s06 = [...byLoc.values()].find((e) => e.loc.includes('/de/shop/906-'))!
+    expect(s06.images).toEqual([])
+    expect(byLoc.get(`${SITE}/de/impressum`)!.images).toEqual([])
 
     // sichtbares Fixture-Stück ja, verkauft-ausgeblendetes (analog S08) nein; S09 (archived), S18 (draft) nein
     const locs = entries.map((e) => e.loc)

@@ -310,6 +310,8 @@ Token → 404.
 | sonstiger Pfad ohne Sprachpräfix, z. B. `/shop/017`, `/tattoo/flash` | Entsprechung in erkannter Sprache, z. B. `/de/shop/017-…` bzw. `/en/tattoo/flash` | 307 | Pfad wird gegen die DE- und EN-Routentabelle geprüft und in die erkannte Sprache übersetzt; kein Treffer → 404 in erkannter Sprache. Ausgenommen: `/api`, Admin-Pfad, `/_next`, statische Dateien, `/nr`, Kurz-URLs (Zeile davor), `/sitemap.xml`, `/robots.txt`. |
 | DE-Slug unter `/en/…`, z. B. `/en/impressum`, `/en/vertrag-widerrufen`, sowie feste EN-Aliasse der Routen-Registry, z. B. `/en/imprint` | EN-Route aus §2.2, z. B. `/en/legal-notice`, `/en/withdraw-from-contract` | 308 | – |
 | `/nr/[nummer]` | kanonische Produktseite in erkannter Sprache | 307 | Nummer unbekannt oder Stück nicht öffentlich → 404 |
+| `/nr?nummer=115&locale=en` (Nummernfeld „Nr. aus dem Post“: Shop-Kopf, Menü, 404 – V-60, U-93) | kanonische Produktseite in der Sprache `locale` (der Seite, auf der das Feld stand); ohne `locale` erkannte Sprache | 307 | wie `/nr/[nummer]`; „Nr. 115“, „No. 115“ und „#115“ werden verstanden; unbekannt → freundliche 404 mit Nummernfeld; kein Cookie |
+| `/on-tour` (Kurzadresse für Bio und Stories, V-60, U-93) | Schaukasten „on Tour“ auf der Startseite in erkannter Sprache: `/de#on-tour` bzw. `/en#on-tour` | 307 + `Vary: Accept-Language` | **Kein Cookie.** Mit Sprachpräfix (`/en/on-tour`) 308 auf diese Sprache. Am Handy klappt der Schaukasten beim Anker von selbst auf. `/shop` ist schon ohne Präfix erreichbar (Zeile „sonstiger Pfad“) |
 | Pfad mit abschließendem `/` | ohne `/` | 308 | – |
 | Nicht-kanonische Produkt-URL | kanonische Produkt-URL | 308 | §2.3 |
 | Kategorie-Slug der anderen Sprache (`/en/shop/category/keramik`) | richtiger Slug (`/en/shop/category/ceramics`) | 308 | – |
@@ -326,7 +328,8 @@ Token → 404.
 - `/robots.txt` außerhalb von Produktion: `Disallow: /`; zusätzlich Header `X-Robots-Tag: noindex` auf allen Antworten.
 - `/sitemap.xml`: alle indexierbaren Routen beider Sprachen inkl. `xhtml:link`-Alternates; Produkte in `available`,
   `reserved` und `sold` mit `showInArchiveAfterSale=true`; Kategorien; `lastmod` aus `updatedAt`. Seed-Dokumente nur
-  außerhalb von Produktion.
+  außerhalb von Produktion. V-61 b (U-93): Stücke im Shop (`available`, `reserved`) nennen ihre Fotos als
+  `<image:image>` (Größe `detail`, höchstens 12 je Seite) – für die Bildersuche; verkaufte nicht.
 
 ### 2.6 Sprachwechsel
 
@@ -348,6 +351,7 @@ Namen sind Vorschläge; verbindlich ist ARCHITEKTUR (§2.5).
 | `GET /api/legal/[type].pdf?locale=de` und `/api/legal/[type]/[versionId].pdf` | aktuelle bzw. historische Rechtstext-PDFs (`type` laut DATENMODELL `LEGAL_TEXT_TYPES`) | öffentlich |
 | `GET /api/orders/[token]/documents/[file]` | Rechtstext-PDFs der Bestellung in ihrer Fassung (AGB, Widerrufsbelehrung inkl. Formular); **keine** Rechnungen/Gutschriften (R-067, §4.12) | Token |
 | `GET /api/public/product-status?ids=…` | Live-Zustand von Stücken (Kaufknopf, Korb), höchstens 24 IDs | öffentlich, Rate-Limit |
+| `GET /api/public/tour-dates/[id].ics?locale=de` | Kalender-Datei eines veröffentlichten Markttermins (V-60, §3.1a) – `text/calendar`, Download, keine Personendaten | öffentlich, aus der gecachten Terminliste |
 | `GET /api/checkout/[token]/state` | Zustand der Kasse bzw. Bestellung für die wartende Danke-Seite (§4.12), `no-store` | Token, Rate-Limit `token_pages` |
 | `POST /api/uploads/commission` | einzelnes Referenzbild des Anfrageformulars (§10.2) | Formular-Token, Rate-Limit |
 | `POST /api/client-errors` | minimale Browser-Fehlermeldungen; **standardmäßig aus**, bis Kanzleifrage K-30 (c) beantwortet ist; wenn an, nur first-party, ohne Cookies, IP-Speicher und Personendaten (R-133, R-137) | öffentlich, Rate-Limit |
@@ -360,6 +364,9 @@ Namen sind Vorschläge; verbindlich ist ARCHITEKTUR (§2.5).
 **AK-2-04** `GET /admin` → 404; der konfigurierte Admin-Pfad erscheint weder in `robots.txt` noch in `sitemap.xml` noch im HTML öffentlicher Seiten.
 **AK-2-05** Jede indexierbare Seite hat canonical und drei hreflang-Links mit absoluten Apex-URLs.
 **AK-2-06** `/nr/17` mit `Accept-Language: de` → 307 auf die kanonische DE-Produktseite; unbekannte Nummer → 404.
+`/nr?nummer=17&locale=en` → EN-Produktseite, auch mit `Accept-Language: de` (V-60).
+**AK-2-08** (V-60) `GET /on-tour` → 307 auf `/{erkannte Sprache}#on-tour` mit `Vary: Accept-Language`, ohne Cookie;
+`/en/on-tour` → 308 auf `/en#on-tour`.
 **AK-2-07** `GET /widerruf` und `GET /vertrag-widerrufen` → 308 auf `/de/vertrag-widerrufen` (auch mit `Accept-Language: en`); jede Kurz-URL aus §2.4 liefert 308 auf ihre DE-Route und setzt kein Cookie.
 
 ---
@@ -383,7 +390,8 @@ Seiten kommen aus `pages` (Feld `key` aus `PAGE_KEYS`), Stammdaten und Betriebsw
 **3.0.2 Menü** [P2] – „Papierseite“ mit handgeschriebenen Links, die Linie unterstreicht den Link unter Zeiger/Finger:
 Start · Shop · Archiv · Auftragsarbeiten · Tattoo · Über mich & Coco · Kontakt · Sprache DE/EN.
 Fokus wird im Menü gehalten, `Esc` schließt, Fokus kehrt zum Menü-Knopf zurück. Ohne JavaScript ist das Menü als
-Link-Liste im Fuß erreichbar.
+Link-Liste im Fuß erreichbar. Unter den Links das Nummernfeld **„Nr. aus dem Post“** (EN „No. from the post“, Knopf
+„Zeigen“/„Show“, V-60): GET-Formular auf `/nr` mit der Sprache der Seite (§2.4), kein Cookie.
 
 **3.0.3 Fußbereich** [P2, Inhalte P6] – auf **jeder** Seite inklusive Kasse, Danke, Bestellstatus, 404, 500:
 - Pflichtlinks: Impressum · Datenschutz · AGB · Widerrufsbelehrung · Versand & Zahlung · Kontakt ·
@@ -407,7 +415,15 @@ Link-Liste im Fuß erreichbar.
   (`de_DE` / `en_GB`, Alternate der anderen Sprache), `og:image` 1200×630 (Produkt: erstes Foto mit Fokuspunkt
   zugeschnitten; sonst Standardbild mit Wortmarke und Coco-Zeichnung).
 - JSON-LD: Startseite `Organization` (Name „Planet Claire“, `sameAs` Instagram, **ohne** Adresse); Produkt `Product`
-  mit `Offer`; Listen `BreadcrumbList`.
+  mit `Offer`; Listen `BreadcrumbList`. V-61 b (U-93, nur die normale Google-Suche, **kein** Google Shopping, kein Feed,
+  kein neues Konto): Das `Offer` eines Stücks im Shop trägt `shippingDetails` (`OfferShippingDetails`: Deutschland,
+  Preis der Versandklasse aus den Einstellungen, Lieferzeit aus `deliveryTimeText` als Bearbeitung + Laufzeit; nicht bei
+  reinen Abholstücken) und `hasMerchantReturnPolicy` (`MerchantReturnPolicy`: 14 Tage, Rücksendekosten trägt die Kundin
+  laut E-27 und Widerrufsbelehrung, Rücksendung per Post außer bei Abholstücken); verkaufte Stücke nicht. Kein
+  Event-JSON-LD für Markttermine (V-60).
+- Kategorie-Seiten (R03, V-61 b): `meta description` aus dem CMS-Feld der Kategorie, sonst aus ihrer Einleitung
+  (`intro`, auf ≤ 155 Zeichen an einer Wortgrenze gekürzt), erst danach die gemeinsame Vorlage – jede Kategorie hat so
+  ihren eigenen Text.
 
 **3.0.6 Zustände – gemeinsame Regeln**
 - **leer:** jede Liste hat einen gestalteten Leerzustand mit Coco und einem Weiter-Link (nie eine leere Fläche).
@@ -468,6 +484,15 @@ Link-Liste im Fuß erreichbar.
   beim Rendern aus dem Datum berechnet. Leerzustand: „Gerade sind keine Termine geplant.“
 - **Pflege:** Verwaltung `/termine` (eigener Menüpunkt seit U-60/P14.11, vorher Reiter in `/tattoo`; Liste kommend/vergangen, „Neuer Termin“, Absagen, Offline nehmen,
   Löschen, Übersetzen). Beispieltermine `seed = true` (SEED-SPEC §12.5).
+- **In den Kalender (V-60, U-93, P20.3):** Jeder kommende oder laufende, nicht abgesagte Termin hat den Textlink „In den
+  Kalender“ (EN „Add to calendar“, zugänglicher Name mit dem Marktnamen) auf
+  `/api/public/tour-dates/<id>.ics?locale=de|en` (§2.7): eine iCalendar-Datei vom eigenen Server (`text/calendar`, Download)
+  mit genau einem Termin – mit Uhrzeit in Ortszeit Europe/Berlin samt Zeitzone, mehrtägig täglich wiederholt (die
+  Uhrzeit stimmt auch über die Zeitumstellung), ohne Uhrzeit ganztägig; feste UID je Termin, Titel „{Markt} · Planet
+  Claire“, Ort und Adresse, Uhrzeit, Stand, Notiz, Link; **keine Personendaten**, kein Event-JSON-LD. Unter der Tafel
+  steht einmal der Hinweis „Im Instagram-Browser? Erst über ⋯ „Im Browser öffnen“, dann klappt der Kalender.“
+- **Kurzadresse `/on-tour` (V-60):** springt auf den Schaukasten (`#on-tour`, §2.4); am Handy klappt er dabei auf. Für
+  Bio-Link und Story-Sticker; der Bio-Link auf die Startseite bleibt (AUFGABEN A40, ANLEITUNGEN I3).
 - **Recht:** Die Adresse eines Termins ist die des Marktes, nie die des Privatstudios (E-50, Prüfung gegen
   `settings.business.street`). Keine Cookies, keine Fremd-Requests (R-130, R-139).
 - **AK-3-13** Ein in der Verwaltung angelegter Termin erscheint nach der Revalidierung in der rechten Spalte der Startseite
@@ -477,12 +502,19 @@ Link-Liste im Fuß erreichbar.
 
 - **Zweck:** Alle Stücke stöbern, filtern, Verfügbarkeit auf einen Blick.
 - **Blöcke:**
-  1. H1 „Shop“, 1 Satz Einleitung (pflegbar).
+  1. H1 „Shop“, 1 Satz Einleitung (pflegbar). Darunter ruhig das Nummernfeld **„Nr. aus dem Post“** (V-60, U-93; EN „No.
+     from the post“, Knopf „Zeigen“/„Show“): Wer auf Instagram „Nr. 115“ sieht, tippt 115 ein und landet beim Stück
+     (`/nr?nummer=115&locale=…`, §2.4; ohne JavaScript, kein Cookie; unbekannte Nummer → freundliche 404 mit Feld). Auch
+     auf R03 und im Menü (§3.0.2).
   2. Filter-Chips (Links, mit Kategorie-Kachel): „Alle“ + je Kategorie **mit Inhalt** → R03 (V-11, P20.3: Kategorien ohne
      verfügbares, reserviertes oder im Archiv sichtbares Stück fehlen und tauchen mit dem ersten Stück von selbst wieder
      auf; auf R03 bleibt die gerade offene Kategorie stehen). Der Schalter „nur verfügbare“ entfiel mit V-12.
   3. Raster: Karte je Stück = Foto (4:5), Titel (bis 3 Zeilen), Preisschild (Preis, `Nr. 017`), Kurzangabe (höchstens zwei
-     Maße wie „ca. H 7 cm“ bzw. bei Textil/Caps die Größe, V-13 a), Zustand. Sortierung: `available` und `reserved` nach
+     Maße wie „ca. H 7 cm“ bzw. bei Textil/Caps die Größe, V-13 a), Zustand. **„frisch im Shop“** (V-60, U-93; EN „fresh in
+     the shop“; bewusst nicht „neu“ – die Textilien sind Second-Hand): gezeichneter Stempel oben rechts auf dem Foto für
+     verfügbare Stücke, die höchstens 14 Tage online sind (`firstPublishedAt`, beim Rendern, ISR ≤ 1 h). Ausgenommen ist
+     die Erstbefüllung zum Start: alles, was in den ersten 48 Stunden nach dem allerersten Online-Stellen des Shops online
+     ging (Regel in `src/lib/shop/fresh.ts`). Gleicher Stempel auf den Karten der Startseite und unter „Mehr aus …“. Sortierung: `available` und `reserved` nach
      `firstPublishedAt` absteigend; verkaufte (`sold` mit `showInArchiveAfterSale=true`, nach `soldAt` absteigend) nur als
      kurze Reihe (höchstens 4) unter der letzten Seite mit „Archiv ansehen“ (U-57 c).
   4. Seiten-Leiste (V-12, P20.3): „Zurück · Seite 2 von 4 · Weiter (noch 26)“, 24 Stücke je Seite, echte Links
@@ -584,7 +616,11 @@ Kategorie ohne Inhalt bleibt unter ihrer Adresse erreichbar (Leerzustand KO-17),
 - **SEO/OG:** Titel `{Titel} – Nr. 017 · Planet Claire`; Beschreibung = erste 155 Zeichen der Beschreibung;
   `og:type=product`, `og:image` = erstes Foto 1200×630; JSON-LD `Product` (`name`, `image`, `description`, `sku`=`017`,
   `brand`=„Planet Claire“, `itemCondition` = `UsedCondition` bei `isSecondHand` sonst `NewCondition`, `offers`
-  mit `price`, `priceCurrency=EUR`, `availability` `InStock` | `SoldOut` (reserviert = `InStock`)).
+  mit `price`, `priceCurrency=EUR`, `availability` `InStock` | `SoldOut` (reserviert = `InStock`); V-61 b: dazu
+  `shippingDetails` und `hasMerchantReturnPolicy` wie in §3.0.5 – nicht bei verkauften Stücken).
+- **„frisch im Shop“ (V-60):** Ist das Stück höchstens 14 Tage online (ohne die Erstbefüllung, §3.2), steht neben dem
+  Preisschild der gezeichnete Stempel „frisch im Shop“ (mit Text für Screenreader); reserviert oder verkauft verschwindet
+  er (auch beim Live-Wechsel).
 - **Tuschelinie:** unterstreicht den Titel und führt zum Knopf „In den Korb“; sonst Ruhe (Konzeptseite).
   **Coco** hüpft kurz bei „In den Korb“ (Mikromoment, P9).
 - **AK-3-05** Bei `category` ∈ {`textil`, `cap`} stehen Faserzusammensetzung und Größe im DOM **vor** dem Knopf „In den Korb“.
@@ -750,7 +786,8 @@ Details §5.4 und §6. Zwei Schritte ohne Login (E-44, § 356a BGB):
 
 - **404:** HTTP 404, H1 fest „Coco hat sich losgerissen“ (EN „Coco slipped her leash“); darunter als Fließtext der
   Rich Text der Seite `pages` mit `key = not_found` (die Überschrift der Seite ersetzt die H1 nicht); Links Start, Shop,
-  Tattoo; Feld „Du suchst ein Stück? Nummer eingeben“ → `/nr/[nummer]`. Tuschelinie hängt lose, Coco ist weg. Variante für
+  Tattoo; Feld „Du suchst ein Stück? Nummer eingeben“ → `/nr?nummer=…&locale=…` (wie `/nr/[nummer]`, Ziel in der Sprache
+  dieser Seite, V-60). Tuschelinie hängt lose, Coco ist weg. Variante für
   verkaufte, ausgeblendete Stücke: „Dieses Stück hat schon ein Zuhause gefunden“ (§2.3).
 - **500:** H1 „Hoppla – die Leine hat sich verheddert“, „Nochmal versuchen“, Link Start. Fehler an Monitoring (falls aktiv).
 - Beide mit vollständigem Fußbereich.

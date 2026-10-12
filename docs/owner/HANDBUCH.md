@@ -175,6 +175,12 @@ nickelfrei“ setzt du trotzdem bei jedem Stück selbst.
 Nach dem Online-Stellen erscheint eine Erfolgsseite mit **Link kopieren** und **Kurzlink kopieren** (zum Beispiel
 `…/nr/17`), praktisch für Instagram.
 
+**Für Instagram (V-60):** Schreib in deinen Post einfach „Nr. 17“. Im Shop und im Menü der Website gibt es das Feld
+„Nr. aus dem Post“ – wer die Nummer dort eintippt, landet direkt beim Stück. Ein neues Stück trägt 14 Tage lang den
+gezeichneten Stempel **„frisch im Shop“** (nicht „neu“, weil deine Textilien Second-Hand sind). Das passiert von selbst,
+du musst nichts anklicken; die Stücke vom Start-Tag bekommen ihn nicht, sonst stünde er auf allem. Am iPad und am
+Computer ist das gleich.
+
 ## 4. Meine Stücke
 
 ![Die Liste „Meine Stücke“](img/handbuch/stuecke.webp)
@@ -398,6 +404,10 @@ Eine Anfrage ist noch kein Vertrag, und der Preis steht nirgends fest. Du sagst 
   steht dann durchgestrichen mit dem Hinweis „abgesagt“ auf der Seite. „Vorbei“ musst du nicht setzen, das passiert nach
   dem Datum von selbst. „Übersetzen“ füllt die englischen Texte vor. Die Beispiel-Termine verschwinden mit den übrigen
   [Beispieldaten](#18-beispieldaten).
+  **In den Kalender (V-60):** Unter jedem kommenden Termin steht auf der Startseite „In den Kalender“. Besucher:innen
+  holen sich den Termin damit in ihren Handy-Kalender – mit Datum, Uhrzeit, Ort und Standnummer. Du musst dafür nichts
+  tun. Sagst du einen Termin ab, verschwindet der Link. Für Bio und Stories gibt es die kurze Adresse
+  `planetclairetattoos.com/on-tour`, die direkt zu deinen Terminen springt ([ANLEITUNGEN I3](ANLEITUNGEN.md#i3)).
   **Termin kopieren:** Gehst du öfter auf denselben Markt, öffnest du den Termin und tippst unten auf „Termin kopieren“.
   Es entsteht ein neuer Termin eine Woche später mit Name, Ort, Adresse, Uhrzeiten und Notiz. Er ist erst einmal offline:
   Prüfe das Datum, ändere es bei Bedarf und hake dann „Online“ an. Standnummer und Foto trägst du neu ein.

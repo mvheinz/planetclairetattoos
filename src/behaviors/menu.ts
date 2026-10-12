@@ -17,8 +17,9 @@ const COCO_MS = 300
 const COCO_DELAY = 200
 const STAGGER_FALLBACK = 40
 const EASE_FALLBACK = 'ease-out'
+// Ohne versteckte Felder: das Nummernfeld (V-60) trägt `<input type="hidden" name="locale">` – Tab bliebe sonst daran hängen.
 const FOCUSABLE =
-  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 export const MENU_OPEN_ATTR = 'data-menu-open'
 

@@ -392,15 +392,50 @@ Foto mit Kund:innen ohne dein Einwilligungs-Häkchen ([E1](#e1)).
 <a id="i3"></a>
 ### I3 · Links in der Instagram-Bio (erst am Start-Tag)
 
-Das machst du erst, wenn die Seite live ist.
+Das machst du erst, wenn die Seite live ist. Es geht am iPad (oder Handy) in der Instagram-App **und** am Computer im
+Browser – such dir einen Weg aus.
+
+**Am iPad (Instagram-App):**
 
 1. Instagram-App → dein Profil → „Profil bearbeiten“.
 2. „Links“ → „Externen Link hinzufügen“.
 3. Bei URL trägst du `https://planetclairetattoos.com` ein, als Titel „Shop & Tattoo“. Dann „Fertig“.
 4. Noch einmal „Externen Link hinzufügen“: URL `https://planetclairetattoos.com/impressum`, Titel „Impressum“. Dann „Fertig“.
-5. Test: Schau dir dein Profil an und tipp beide Links an. Das Impressum muss sich öffnen.
+5. Wenn du magst, ein dritter Link für deine Markttermine: URL `https://planetclairetattoos.com/on-tour`, Titel „Märkte“
+   (oder „on Tour“). Dann „Fertig“.
+6. Test: Schau dir dein Profil an und tipp die Links an. Das Impressum muss sich öffnen, „Märkte“ springt direkt zu deinen
+   Terminen auf der Startseite.
+
+**Am Computer (Browser):**
+
+1. Öffne `instagram.com` im Browser und melde dich an.
+2. Links auf „Profil“ → oben „Profil bearbeiten“.
+3. Bei „Website“ bzw. „Links“ trägst du dieselben Adressen ein wie oben (Startseite, Impressum, wenn du magst
+   `…/on-tour`) und speicherst mit „Senden“ bzw. „Fertig“.
+4. Lässt der Browser nur einen Link zu, setzt du die Startseite dort ein und die übrigen Links am iPad in der App.
+5. Test wie oben: Profil öffnen, Links anklicken.
 
 Warum das Impressum? Ein Profil, das du geschäftlich nutzt, braucht eine leicht erreichbare Anbieterangabe (§ 5 DDG).
+
+**Kurze Adressen für Posts und Stories** (V-60) – alle ohne Cookie, sie öffnen deine Seite in der Sprache des Handys:
+
+| Adresse | Wohin | Wofür |
+|---|---|---|
+| `planetclairetattoos.com/shop` | Shop | Story-Link „Neu im Shop“ |
+| `planetclairetattoos.com/on-tour` | deine Markttermine auf der Startseite (am Handy klappen sie gleich auf) | Bio-Link „Märkte“, Story vor einem Markt |
+| `planetclairetattoos.com/nr/115` | das Stück Nr. 115 | Story-Link zu einem einzelnen Stück |
+
+So setzt du einen Link in eine Story: am iPad in der App eine Story anlegen → oben auf das Sticker-Symbol → „Link“ →
+Adresse eintragen → „Fertig“. Am Computer lassen sich Stories mit Link nicht anlegen; das geht nur in der App.
+
+**Nummer im Post:** Schreib in deine Posts einfach „Nr. 115“. Auf der Website gibt es im Shop und im Menü ein Feld
+„Nr. aus dem Post“: Wer die Nummer dort eintippt, landet direkt beim Stück. Die Nummer findest du in der Verwaltung
+bei jedem Stück (am iPad wie am Computer gleich).
+
+**Markttermine im Kalender:** Unter jedem kommenden Termin auf der Startseite steht „In den Kalender“. Wer darauf
+tippt, bekommt den Termin in seinen Handy-Kalender. Im Instagram-Browser klappt das manchmal erst, wenn man oben
+rechts über ⋯ „Im Browser öffnen“ wählt – das steht als kleiner Hinweis unter den Terminen. Du musst dafür nichts tun:
+Jeder Termin, den du unter „Termine“ einträgst, bekommt den Link von selbst.
 
 ---
 

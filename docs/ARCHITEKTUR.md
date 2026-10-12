@@ -223,10 +223,11 @@ der Patch nach dem Stichtag, gibt `pnpm check:versions` eine Warnung aus und end
 │  │  ├─ (api)/                     eigene Route-Handler (öffentlich/System), §2.4 – auch `/api/health` liegt hier
 │  │  │  ├─ api/health/route.ts · api/health/freshness/route.ts · api/stripe/webhook/route.ts
 │  │  │  ├─ api/cron/tick/route.ts · api/cron/run/[task]/route.ts · api/cron/backup/route.ts
-│  │  │  ├─ api/public/product-status/route.ts · api/uploads/commission/route.ts · api/client-errors/route.ts
+│  │  │  ├─ api/public/product-status/route.ts · api/public/tour-dates/[file]/route.ts (V-60, `.ics`)
+│  │  │  ├─ api/uploads/commission/route.ts · api/client-errors/route.ts
 │  │  │  ├─ api/checkout/[token]/state/route.ts · api/privacy-export/[token]/route.ts
 │  │  │  ├─ api/orders/[token]/documents/[file]/route.ts · api/legal/[...slug]/route.ts
-│  │  │  └─ nr/[nummer]/route.ts    R31 Kurzlink
+│  │  │  └─ nr/route.ts · nr/[nummer]/route.ts    R31 Kurzlink und Nummernfeld (`?nummer=…&locale=…`, V-60)
 │  │  ├─ sitemap.ts · robots.ts · global-error.tsx · icon.svg, favicon.ico, apple-icon.png (DESIGN §12.6)
 │  ├─ proxy.ts                      Next-16-„Proxy“ (früher middleware.ts), §8.4, §9.5
 │  ├─ instrumentation.ts            Sentry (Server), Env-Prüfung beim Start
@@ -383,7 +384,13 @@ Vorrang):
    `/en/shop/category/keramik` → `/en/shop/category/ceramics`, nicht kanonische Produkt-URL, KONZEPT §2.3) korrigiert nicht
    der Proxy, sondern die Seite selbst per `permanentRedirect()` (308).
 3. Übrige Pfade ohne Sprachpräfix und `/` → **307** in die erkannte Sprache (KONZEPT §2.4, kein Cookie). `/nr/[nummer]`
-   (R31) → 307 über den eigenen Route-Handler (§2.5), weil die Nummer in der DB nachgeschlagen wird.
+   (R31) → 307 über den eigenen Route-Handler (§2.5), weil die Nummer in der DB nachgeschlagen wird; das Nummernfeld
+   (`/nr?nummer=…&locale=…`, V-60) nimmt die Sprache aus `locale` vor `Accept-Language`.
+4. **Kurzadressen mit Anker** aus `anchorLinks` der Registry (V-60, U-93): `/on-tour` → **307** auf
+   `/{erkannte Sprache}#on-tour` (Schaukasten „on Tour“ auf R01, `Vary: Accept-Language`, kein Cookie); mit Präfix
+   (`/en/on-tour`) → **308** auf `/en#on-tour`. Im Proxy (`decidePublicRoute`), nicht in `redirects()`, weil die Sprache
+   erkannt werden muss. Der Anker steht in `src/lib/routes/anchors.ts` (klein, auch vom Verhaltensmodul `tour-fold`
+   importiert, das den Schaukasten am Handy beim Anker aufklappt).
 
 ### 2.4 Wohin gehört ein Endpunkt?
 
@@ -416,6 +423,8 @@ den eigenen Handler trifft.
 | `GET /api/legal/[type].pdf?locale=de`, `/api/legal/[type]/[versionId].pdf` | aktuelle bzw. historische Rechtstext-PDFs | öffentlich | `public, max-age=3600` |
 | `POST /api/client-errors` | minimale Fehlermeldungen aus dem Browser → Sentry serverseitig. **Standardmäßig aus** bis Kanzleifrage K-30 (c) beantwortet ist: nur aktiv bei `NEXT_PUBLIC_CLIENT_ERRORS_ENABLED=true` **und** `APP_ENV=production`, sonst 404 ohne Verarbeitung und kein Client-Skript. Wenn aktiv: nur first-party, gesampelt, geschwärzt, keine Cookies, keine IP-Speicherung, keine Personendaten (R-133, R-137) | öffentlich, Rate-Limit | – |
 | `GET /nr/[nummer]` | Kurzlink R31 → 307 auf kanonische Produktseite | öffentlich | `no-store` |
+| `GET /nr?nummer=115&locale=de` | Nummernfeld „Nr. aus dem Post“ (Shop-Kopf, Menü, 404; V-60): wie R31, Sprache aus `locale` vor `Accept-Language`; „Nr. 115“/„#115“ erlaubt; unbekannt → 404-Seite | öffentlich | `no-store` |
+| `GET /api/public/tour-dates/[id].ics?locale=de` | Kalender-Datei eines veröffentlichten Markttermins (V-60, `src/lib/tour/ics.ts`): `text/calendar; charset=utf-8`, `Content-Disposition: attachment`, ein VEVENT mit fester UID `tour-<id>@<host>`, Ortszeit `TZID=Europe/Berlin` mit VTIMEZONE (mehrtägig `RRULE:FREQ=DAILY;COUNT=n`) bzw. ganztägig; keine Personendaten. Liest die gecachte Terminliste (`listTourDates`, Tag `tour-dates`) – keine eigene DB-Abfrage je Abruf; unbekannt/unveröffentlicht → 404 | öffentlich | `public, max-age=300` |
 | `GET /<Kurz-URL>` (z. B. `/widerruf`) | 308 auf die kanonische DE-Route (§2.3 Nr. 1), statisch per `redirects()` in `next.config.ts`, ohne DB | öffentlich | – |
 | `GET /sitemap.xml`, `GET /robots.txt` | KONZEPT §2.5 | öffentlich | ISR, Tag `sitemap` |
 

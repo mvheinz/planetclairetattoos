@@ -183,15 +183,17 @@ for (const locale of ['de', 'en'] as const) {
       if (board.length > 1) expect((await block(0))!.width).toBeGreaterThan((await block(1))!.width)
       for (let k = 0; k < board.length; k++) {
         const b = (await list.nth(k).boundingBox())!
-        // 10 rem: Namen in Spectral mindestens 16 px (LG-03) – ein langer englischer Name bricht in der schmalen Spalte um
-        expect(b.height, `Zettel ${k}`).toBeLessThan(10 * 16)
+        // 10 rem: Namen in Spectral mindestens 16 px (LG-03) – ein langer englischer Name bricht in der schmalen Spalte um;
+        // V-60 (P20.3): + 1 rem für die Zeile „In den Kalender“ (Ziel 24 px)
+        expect(b.height, `Zettel ${k}`).toBeLessThan(11 * 16)
         // eine Zeile unter dem Namen (Ort · Uhrzeit), das volle Datum für Screenreader
         await expect(list.nth(k).locator('p')).toHaveCount(1)
         await expect(list.nth(k).locator('time')).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}/)
       }
       const tafel = (await tour.boundingBox())!
-      // drei Zettel + Aufklapper, keine lange Liste (U-81, P17.2: Tafel ≈ 20 % länger, mehr Luft zwischen den Zetteln)
-      expect(tafel.height).toBeLessThan(36 * 16)
+      // drei Zettel + Aufklapper, keine lange Liste (U-81, P17.2: Tafel ≈ 20 % länger, mehr Luft zwischen den Zetteln;
+      // V-60, P20.3: je Zettel die Zeile „In den Kalender“, der Hinweis zum Instagram-Browser steht unter der Tafel)
+      expect(tafel.height).toBeLessThan(40 * 16)
       expect(
         await tour
           .locator('[data-tour-upcoming]')

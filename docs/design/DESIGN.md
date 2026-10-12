@@ -576,9 +576,9 @@ Jede Komponente: **Zweck · Aufbau · Maße · Zustände · Bewegung · Barriere
 
 ### KO-03 Menü (`MenuOverlay`)
 
-- **Aufbau:** natives `<dialog id="menu" aria-label="Menü">` (modal, `showModal()`), Vollbild, Grund `--paper` mit eigenen Zeilenlinien. Oben: Wortmarke + Knopf „Schließen“ (Text + Icon). Hauptliste (KONZEPT §3.0.2) in Spectral `--fs-menu`: Start · Shop · Archiv · Auftragsarbeiten · Tattoo · Über mich & Coco · Kontakt. Unter „Shop“ klein (Bricolage 17 px) die Kategorien; unter „Tattoo“ die Tattoo-Unterseiten. Unten: Sprachumschalter „Deutsch · English“, Instagram-Link, Pflichtlinks klein inkl. „Vertrag widerrufen“. Rechts unten schaut Coco herein (Pose `kopfschief`, Größe `--coco-m`, `aria-hidden`).
+- **Aufbau:** natives `<dialog id="menu" aria-label="Menü">` (modal, `showModal()`), Vollbild, Grund `--paper` mit eigenen Zeilenlinien. Oben: Wortmarke + Knopf „Schließen“ (Text + Icon). Hauptliste (KONZEPT §3.0.2) in Spectral `--fs-menu`: Start · Shop · Archiv · Auftragsarbeiten · Tattoo · Über mich & Coco · Kontakt. Unter „Shop“ klein (Bricolage 17 px) die Kategorien; unter „Tattoo“ die Tattoo-Unterseiten. Unter der Hauptliste das Nummernfeld **„Nr. aus dem Post“** (V-60, Komponente `NumberLookup`: Label über dem schmalen Feld, Sekundärknopf „Zeigen“ daneben, höchstens 24rem breit, KO-12-Feld 48 px). Unten: Sprachumschalter „Deutsch · English“, Instagram-Link, Pflichtlinks klein inkl. „Vertrag widerrufen“. Rechts unten schaut Coco herein (Pose `kopfschief`, Größe `--coco-m`, `aria-hidden`).
 - **Unterstreichung:** jeder Hauptlink trägt ein Inline-SVG `LinkUnderline` (drei Pfadvarianten, Wahl per Hash des `href`), 100 % Linkbreite + 8 px Überstand, Strich `--stroke-ink`, `--ink`. Zustände: unsichtbar → bei Hover (nur `(hover: hover) and (pointer: fine)`), `:focus-visible` und `:active` wird sie gezeichnet (MI-06); aktuelle Seite: statisch gezeichnet + `aria-current="page"`.
-- **Öffnen/Schließen:** MI-05. `Esc` und „Schließen“ schließen; Fokus kehrt zum Menü-Knopf zurück; `<html>` bekommt `overflow: hidden` + `scrollbar-gutter: stable` (keine Verschiebung). Klick auf einen Link schließt das Menü sofort (ohne Schließ-Animation) und navigiert.
+- **Öffnen/Schließen:** MI-05. `Esc` und „Schließen“ schließen; Fokus kehrt zum Menü-Knopf zurück; `<html>` bekommt `overflow: hidden` + `scrollbar-gutter: stable` (keine Verschiebung). Klick auf einen Link – oder Absenden des Nummernfelds – schließt das Menü sofort (ohne Schließ-Animation) und navigiert. Die Tab-Reihenfolge im Dialog überspringt versteckte Felder.
 - **Ohne JavaScript:** der Menü-Knopf ist ein Link `#fussnavigation` auf die Navigation im Fußbereich.
 - **Tests:** AK-DS-08.
 
@@ -624,6 +624,13 @@ Flohmarkt-Anhänger, handgeschrieben, an der Schnur hängend (E-77).
 - **Barrierefreiheit:** Stempel ist `aria-hidden`; der Verkauft-Zustand steht als Text im zugänglichen Namen der Karte bzw. als Text auf der Produktseite („verkauft“ / „sold“).
 - **Bewegung:** MI-03 (Knall) **nur im Moment des Verkaufs** (KONZEPT §3.5): (a) auf der Danke-Seite, wenn die Zahlung bestätigt ist, auf dem Mini-Schild des gekauften Stücks; (b) wenn eine geöffnete Shop-/Produktseite eine Statusänderung auf `sold` live übernimmt. Beim Laden von Seiten mit verkauften Stücken: statisch.
 
+### KO-06a Stempel „frisch im Shop“ (`FreshStamp`, V-60)
+
+- **Zweck:** Wer auf Instagram ein neues Stück gesehen hat, erkennt es im Shop sofort wieder. Text **„frisch im Shop“** (EN „fresh in the shop“) – bewusst nicht „neu“, weil die Textilien Second-Hand sind. **Kein generisches Abzeichen.**
+- **Aufbau:** Geschwister von KO-06: derselbe raue Rahmen mit 3–5 Lücken (`stampFramePaths`, anderer Startwert als „sold“), darin zweizeilig „frisch“ (Spectral Italic 17 px, Karte; 22 px Produktseite – LG-03: nie unter 16 px) und „im Shop“ (Bricolage 600, 12 bzw. 14 px), statische Fehlstellen-Maske im Wort. Farbe `--fox-text` (warm, Kontrast > 7 : 1 auf Papier; unterscheidet sich vom Petrol-„sold“), auf einem Zettel in `--paper` (auf jedem Foto lesbar), Drehung **+4° … +8°** nach Objektnummer (`freshStampAngle`, kippt anders als „sold“). Keine Bewegung.
+- **Platzierung:** Karte – oben rechts auf dem Foto innerhalb des Rahmenbands (`aria-hidden`; der Kartenname trägt den Text). Produktseite – rechts neben dem Preisschild `pinned` (Text für Screenreader dabei).
+- **Regel:** `src/lib/shop/fresh.ts` – erstmals online vor ≤ 14 Tagen und nicht in den ersten 48 h nach dem allerersten Online-Stellen des Shops (Erstbefüllung beim Start); nur `available` sichtbar.
+
 ### KO-07 Produktkarte (`ProductCard`)
 
 - **Aufbau (von oben):** Foto 4:5 (`aspect-ratio: 4 / 5`, `object-fit: cover`, Fokuspunkt aus dem CMS, `--r-photo`) → Schnur-Anschlusspunkt (Anker für die Linie, §9.7 `shopString`) → Preisschild KO-05 (`hanging`), links ausgerichtet, 8 px Einzug → Titel (Bricolage 600 15/16 px, max. **3** Zeilen, `line-clamp: 3`) → Meta (Bricolage `--fs-meta`, `--ink-2`, `tabular-nums`: „Keramik · Ø 8,5 cm, H 5 cm“).
@@ -634,6 +641,7 @@ Flohmarkt-Anhänger, handgeschrieben, an der Schnur hängend (E-77).
   - `available`: normal.
   - `reserved`: Badge „reserviert“ (KO-10) oben links auf dem Foto (8 px Einzug).
   - `sold`: Foto `opacity: 0.82` („gedämpft“, KONZEPT §3.2), Stempel KO-06 auf dem Schild; Text bleibt ungedämpft.
+  - **frisch** (V-60, P20.3): verfügbar und höchstens 14 Tage online (ohne Erstbefüllung, KONZEPT §3.2) → Stempel KO-06a oben rechts auf dem Foto (gegenüber der Reserviert-Plakette); `aria-label` endet auf „, frisch im Shop“. Reserviert/verkauft (auch beim Live-Wechsel `data-status`) blendet CSS ihn aus.
   - Bild fehlt/lädt: Grund = gespeicherte Dominanzfarbe des Fotos (§12.2), sonst `--paper-2` mit Schraffur; feste Maße, keine Verschiebung.
 - **Fokus:** Ring um die ganze Karte (`outline` am `<a>`, `outline-offset: 4px`).
 - **Bild:** über `<ResponsiveImage>` (ARCHITEKTUR §9.4), `srcset` aus den Payload-Größen `thumb`/`card` (§12.2), `sizes="(min-width:1200px) 25vw, (min-width:768px) 33vw, 50vw"`, `loading="lazy"` außer den ersten 2 Karten, `decoding="async"`; Alt-Text aus dem CMS (Pflichtfeld).
@@ -650,6 +658,7 @@ Flohmarkt-Anhänger, handgeschrieben, an der Schnur hängend (E-77).
 - ~~**„nur verfügbare“:** als Chip-Umschalter mit Häkchen-Icon (Link auf `?available=1`, KONZEPT §3.2).~~ – entfällt (V-12, P20.3): verkaufte Stücke stehen ohnehin nur in der kurzen Reihe unter dem Raster. *Umsetzungsnotiz zu AK-3-03:* geprüft wird jetzt das Raster selbst (nie `sold`).
 - **Seiten-Leiste** (V-12, P20.3; ersetzt „Mehr zeigen“): mittig unter dem Raster `<nav aria-label="Seiten">` mit „Zurück“ (Sekundärknopf KO-11, ab Seite 2), „Seite 2 von 4“ (Bricolage `--ink-2`, `tabular-nums`) und „Weiter“ mit leiser Zahl „(noch 26)“; echte Links `?page=n#liste`, der Anker landet am Raster (`scroll-margin-top`). Die „wachsende“ Liste wurde mit 74 Karten gemessen und verworfen (Pfaddaten 60,4 KB > PF-10, LCP beim Direktaufruf deutlich später). Ganz unten auf R02 die **Fragen zum Shop** (`<details>`, KONZEPT §3.2 Nr. 6).
 - **Fußnote:** Preis-/Versandhinweis einmal pro Seite (KONZEPT §3.4) unter dem Raster, Bricolage 14 px `--ink-2`.
+- **Nummernfeld „Nr. aus dem Post“** (V-60, P20.3; R02/R03): im Kopf unter der Einleitung, ruhig ohne Rahmen – Label `--ink-2` über einem schmalen Feld (11rem, KO-12, Ziffern-Tastatur per `inputmode="numeric"`, Beispiel-Platzhalter „z. B. 115“), Sekundärknopf „Zeigen“ daneben (bricht auf schmalen Handys darunter um). Reines GET-Formular, ohne JavaScript bedienbar.
 
 ### KO-09 Produktgalerie und Zoom (`ProductGallery`, `Lightbox`)
 
@@ -776,7 +785,7 @@ Aufbau: Coco (`--coco-xl`, statisch; Boil 2 s nach Eintritt, dann Stillstand) ·
 
 ### KO-18 404, „schon ein Zuhause“, 500
 
-- **404 „Coco hat sich losgerissen“** (EN „Coco slipped her leash“, KONZEPT §3.17): Preset `lost` (§9.7). Die Leine kommt vom Kopf herunter und liegt in lockeren Schlingen am Boden, das Ende ist ein leerer, offener Karabiner mit leerem roten Geschirr. Ganz klein am Horizont rennt Coco einmal aus dem Bild (MI-11). Darunter die H1 „Coco hat sich losgerissen“ (fest im Code, nicht aus dem CMS), darunter als Fließtext der Inhalt der Seite `not_found` aus dem CMS (Rückfall ohne Seite: „Diese Seite gibt es nicht (mehr).“), dann Links Start, Shop, Tattoo und das Nummernfeld „Du suchst ein Stück? Nummer eingeben“ (KO-12).
+- **404 „Coco hat sich losgerissen“** (EN „Coco slipped her leash“, KONZEPT §3.17): Preset `lost` (§9.7). Die Leine kommt vom Kopf herunter und liegt in lockeren Schlingen am Boden, das Ende ist ein leerer, offener Karabiner mit leerem roten Geschirr. Ganz klein am Horizont rennt Coco einmal aus dem Bild (MI-11). Darunter die H1 „Coco hat sich losgerissen“ (fest im Code, nicht aus dem CMS), darunter als Fließtext der Inhalt der Seite `not_found` aus dem CMS (Rückfall ohne Seite: „Diese Seite gibt es nicht (mehr).“), dann Links Start, Shop, Tattoo und das Nummernfeld „Du suchst ein Stück? Nummer eingeben“ (KO-12; seit V-60 dieselbe Komponente `NumberLookup` wie Shop-Kopf und Menü, Ziel in der Sprache der Seite).
 - **Variante „Dieses Stück hat schon ein Zuhause gefunden“** (verkauft + ausgeblendet): statt Karabiner liegt ein kleines Preisschild mit Stempel „sold“ am Leinenende; Coco sitzt daneben (`sitzen`, `--coco-xl`), keine Weglauf-Animation.
 - **500 „Hoppla – die Leine hat sich verheddert“:** statische, verknotete Linie (ein Knäuel aus 3 Schlingen, statisch), Coco `kopfschief`; Knopf „Nochmal versuchen“. Keine Animation (Fehlerfall, geringes Risiko).
 
@@ -1563,6 +1572,13 @@ Uhrzeit“; das volle Datum steht für Screenreader dabei. Der nächste Termin t
 Petrol-Datumsblock. Abgesagt: durchgestrichen, Stempel „ABGESAGT“ (Fuchs-Text). **Alle weiteren kommenden und die
 vergangenen Termine** liegen ausführlich (Datum, Uhrzeit, Ort, Adresse, Stand, Notiz, Link, Foto) in einem `<details>`
 darunter, mit Juttas Einleitungssatz. Ohne Karte, ohne Dritt-Anfragen.
+
+**In den Kalender (V-60, P20.3):** Jeder kommende, nicht abgesagte Zettel (und jeder Eintrag im aufgeklappten Teil) trägt
+unter „Ort · Uhrzeit“ einen kleinen Textlink „In den Kalender“ (`--fs-kicker`, 500, `--petrol`, unterstrichen, Zielhöhe
+24 px). Dadurch wird jeder Zettel etwa eine Zeile höher (Prüfung: Zettel < 11rem, Tafel < 40rem). Unter der Tafel steht
+**einmal** der leise Hinweis zum Instagram-Browser („Im Instagram-Browser? Erst über ⋯ „Im Browser öffnen“, dann klappt
+der Kalender.“, `--fs-kicker`, `--ink-2`). Anker der Spalte `#on-tour` (Kurzadresse `/on-tour`); am Handy klappt der
+Schaukasten beim Anker auf (`tour-fold`).
 
 **Instagram-Hinweis (U-42, ändert U-15):** unter dem Schaukasten ein Textlink „@planet.claire.tattoos“ mit einem **von Hand
 gezeichneten Instagram-Zeichen** (abgerundetes Quadrat mit Linse und Punkt als zittriger, offener Tuschestrich,
