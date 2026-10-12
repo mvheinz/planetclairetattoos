@@ -2,6 +2,17 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-12 – P20.3
+
+- Im Shop und im Menü gibt es das Feld „Nr. aus dem Post“: Wer auf Instagram „Nr. 115“ liest, tippt die Zahl ein und landet direkt beim Stück.
+- Neue Stücke tragen 14 Tage einen gezeichneten Stempel „frisch im Shop“ (nicht „neu“, weil Textilien Second-Hand sind); die Stücke vom Start-Tag bekommen ihn nicht.
+- Kurze Adresse planetclairetattoos.com/on-tour für Bio und Stories springt zu deinen Markt-Terminen; unter jedem Termin steht „In den Kalender“.
+- Für die normale Google-Suche (ohne Google Shopping): eigene Beschreibung je Kategorie, Fotos in der Liste für Suchmaschinen, Versand und 14 Tage Rückgabe in den Produktdaten.
+- Korb aufgeräumt: keine Lieferart-Wahl mehr im Korb, nur Stücke, Versand, Summe, eine Zeile Zahlarten und „Zur Kasse“ – Versand oder Abholung wählt man in der Kasse.
+- Rechnungsadressen aus der EU (und Island, Liechtenstein, Norwegen) sind erlaubt; verschickt wird weiter nur innerhalb Deutschlands.
+- Geschenke: Hinweis-Satz in Kasse und „Versand & Zahlung“, dazu ein freiwilliges Häkchen „Das ist ein Geschenk“ mit kurzem Gruß für eine Karte, die du von Hand schreibst. Du siehst ihn beim Packen; er wird 30 Tage nach Versand gelöscht. Die Kanzlei prüft den Wortlaut (K-42).
+- Tests: Unit (Nummernfeld, Stempel, Kalender-Datei auch über die Zeitumstellung, Google-Daten, Kasse), Integration (Abholung mit österreichischer Rechnungsadresse, Versand nach Österreich abgelehnt, Gruß-Löschung), Browser-Tests Korb, Kasse, Shop, Startseite am Computer und Handy. Teil 1 siehe Eintrag „P20.3 (Teil 1)“; Gegenprüfung je Teil.
+
 ## 2026-10-12 – P20.6 (Teil 1) Verwaltung: prüfen, fertig machen, Markt
 
 - **Erst messen, dann online:** Steht bei den Maßen oder der Größe noch „geschätzt“ (oder „estimated“), lässt sich ein Stück nicht online stellen („Bitte erst nachmessen“). Bei 44 Stücken deiner Liste steht jetzt „Maße geschätzt“, weil die Zahlen nur geschätzt sind – trägst du in der Liste eine nachgemessene Zahl ein, verschwindet der Vermerk von selbst. Sehr kleine Stücke (unter 4 cm) bekommen im Shop einen Vergleich, z. B. „Etwa so groß wie eine 1-Euro-Münze“.
