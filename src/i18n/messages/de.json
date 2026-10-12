@@ -53,6 +53,7 @@
     "legalHeading": "Rechtliches",
     "withdraw": "Vertrag widerrufen",
     "instagram": "Instagram",
+    "ipMore": "Mehr dazu im Impressum",
     "language": "Sprache",
     "languageSwitch": "English",
     "motionOn": "an",
@@ -1249,7 +1250,7 @@
       "galleryAll": "Zur Galerie",
       "pagesHeading": "Wege zum Tattoo",
       "pageHints": {
-        "R12": "Fertige Motive mit Festpreis, die auf Haut warten.",
+        "R12": "Fertige Motive, die auf Haut warten.",
         "R14": "Was es kostet: Mindestpreis, Rahmen für eigene Ideen, Anzahlung.",
         "R15": "Frisch gestochen und verheilt – was bleibt.",
         "R16": "Fünf Schritte von der ersten Mail bis zur Pflege.",
@@ -1258,7 +1259,7 @@
       }
     },
     "flash": {
-      "intro": "Zeichnungen, die auf Haut warten. Manche steche ich nur ein einziges Mal, andere dürfen wiederkehren. Jedes hat einen Festpreis; anfragen kannst du per Mail.",
+      "intro": "Zeichnungen, die auf Haut warten. Manche steche ich nur ein einziges Mal, andere dürfen wiederkehren. Anfragen kannst du per Mail.",
       "filterLabel": "Flash-Motive filtern",
       "all": "Alle",
       "available": "verfügbar",

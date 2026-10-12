@@ -17,7 +17,7 @@ const HEADINGS: Record<Locale, string[]> = {
 
 const HERO: Record<Locale, string> = {
   de: 'Ein kleiner Planet, auf dem alles nur einmal vorkommt',
-  en: 'A small planet where everything happens only once',
+  en: 'A small planet where everything exists only once',
 }
 
 async function expectStations(page: Page, locale: Locale) {

@@ -57,7 +57,7 @@ describe('Startseite (P2.20)', () => {
 
   it('AK-3-01 EN vollständig: englische Texte und Pfade', async () => {
     const view = await loadHomeView('en')
-    expect(view!.hero?.heading).toBe('A small planet where everything happens only once')
+    expect(view!.hero?.heading).toBe('A small planet where everything exists only once')
     expect(view!.stations.map((s) => s.stationId)).toEqual([...HOME_STATION_IDS])
     const keramik = view!.stations.find((s) => s.stationId === 'keramik')!
     expect(keramik.heading).toBe('Ceramics')

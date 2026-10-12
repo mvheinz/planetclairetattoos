@@ -180,7 +180,6 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
       />
       <header className={styles.head}>
         <h1 className={styles.title}>{title}</h1>
-        {archive ? <p className={styles.intro}>{t('archive.lead')}</p> : null}
         {routeId === 'R03' ? (
           category?.intro ? (
             <p className={styles.intro}>{category.intro}</p>
@@ -189,9 +188,10 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
           <div className={styles.intro}>
             <PageBlocks blocks={content.layout} locale={locale} />
           </div>
-        ) : !archive ? (
-          <p className={styles.intro}>{t('shop.list.intro')}</p>
-        ) : null}
+        ) : (
+          // V-24: Archiv-Einleitung nur einmal – der Text der Seite `archive`, sonst der feste Satz
+          <p className={styles.intro}>{t(archive ? 'archive.lead' : 'shop.list.intro')}</p>
+        )}
         {/* V-60: Nummer aus einem Instagram-Post → direkt zum Stück (Sprache dieser Seite, kein Cookie) */}
         {!archive ? <NumberLookup locale={locale} id="shop-nr" variant="shop" /> : null}
       </header>

@@ -58,11 +58,7 @@ export const LEGAL_SNIPPET_REQUIRES_LAWYER: readonly LegalSnippetKey[] = LEGAL_S
       'product.noSpecialWarnings',
       'product.glassFrame',
       'email.pickup.ready',
-      // Schutz des geistigen Eigentums (U-22): Juttas eigene Klauseln, keine Pflichttexte; Kanzlei-Durchsicht empfohlen
-      'ip.copyrightNotice',
-      'ip.aiMiningReservation',
-      'ip.purchaseClause',
-      'ip.tattooFlashNotice',
+      // Schutz des geistigen Eigentums (U-22): seit V-44 a (U-93) „Kanzlei: ja“ – die Kanzlei prüft die Texte mit
     ].includes(k),
 )
 

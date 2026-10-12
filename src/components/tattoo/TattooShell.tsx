@@ -21,8 +21,8 @@ import { TattooSubNav, type TattooRouteId } from './TattooSubNav'
 // Ist der Schalter „Anfragen offen“ aus (V-64), steht der Hinweis „Gerade ausgebucht“ unter der Einleitung und im
 // Kontakt-Block statt des Mail-Knopfs; er endet von selbst nach dem eingetragenen Monat (Berliner Zeit, beim Rendern).
 
-/** Seiten mit Flash-Motiven bzw. Preis-/Ablauf-Angaben: R12 Flash, R14 Preise, R16 Ablauf. */
-const FLASH_NOTICE_ROUTES: ReadonlySet<string> = new Set(['R12', 'R14', 'R16'])
+/** Nachstech-Hinweis nur noch bei den Flash-Motiven (V-44 a, U-93 – vorher auch Preise und Ablauf). */
+const FLASH_NOTICE_ROUTES: ReadonlySet<string> = new Set(['R12'])
 
 export async function TattooShell({
   locale,
@@ -69,7 +69,7 @@ export async function TattooShell({
       </header>
       <TattooSubNav locale={locale} current={routeId} />
       <div className={styles.body}>{children}</div>
-      {/* Nachstech-Genehmigung bei Flash-Motiven, Preisen und Ablauf (U-22 d, Baustein `ip.tattooFlashNotice`) */}
+      {/* Nachstech-Genehmigung bei den Flash-Motiven (U-22 d, V-44 a, Baustein `ip.tattooFlashNotice`) */}
       {FLASH_NOTICE_ROUTES.has(routeId) ? <IpNotice locale={locale} kind="flash" /> : null}
       <TattooContactBlock
         locale={locale}

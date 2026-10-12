@@ -18,7 +18,7 @@ import styles from './SiteFooter.module.css'
 // Fußbereich (DESIGN KO-04, KONZEPT §3.0.3) auf jeder öffentlichen Seite, auch 404/500. DOM-Reihenfolge:
 // 1.+2. LegalFooter („Vertrag widerrufen“ + Pflichtlinks) · 3. `<nav id="fussnavigation">` (Menüliste als Ersatz ohne
 // JavaScript, Instagram als einfacher Link) · 4. Sprachumschalter · 5. Schalter „Animationen“ (Modul `motion-toggle`,
-// ohne JavaScript verborgen) · 5a. Zeile „Zahlung · Versand · Abholung“ mit Link auf R25 (U-58 c) · 6. Platz für die Preis-Fußnote (ab P3) · 7. Urheberrechtsvermerk und KI-/TDM-Vorbehalt (Bausteine `ip.*`, P12.11), 8. „© {Berliner Jahr} Planet Claire · Berlin“.
+// ohne JavaScript verborgen; „Kontakt“ nur im Pflichtlink-Block, V-24) · 5a. Zeile „Zahlung · Versand · Abholung“ mit Link auf R25 (U-58 c) · 6. Platz für die Preis-Fußnote (ab P3) · 7. eine Zeile Urheberrecht/„kein KI-Training“ mit Link zum Impressum (Baustein `ip.copyrightNotice`, V-44 a), 8. „© {Berliner Jahr} Planet Claire · Berlin“.
 // Nie animiert; liegt über Dekor-Ebenen (z-index), die keine Zeigerereignisse annehmen. Linie, Pflichtlinks und
 // Fußnavigation sind statisches HTML (`StaticHtml`, nicht hydriert, TBT P7); der Sprachumschalter hängt an der Route.
 export async function SiteFooter({
@@ -62,7 +62,8 @@ export async function SiteFooter({
         >
           <h2 className={styles.heading}>{t('siteNav')}</h2>
           <ul className={styles.list}>
-            {MENU_MAIN.map((id) => (
+            {/* V-24: „Kontakt“ steht schon im Pflichtlink-Block (LEGAL_LINKS, R-011) – hier nicht doppelt */}
+            {MENU_MAIN.filter((id) => id !== 'R20').map((id) => (
               <li key={id}>
                 <a href={localizedPath(id, locale)} className={styles.link}>
                   {tRoutes(id as 'R01')}
@@ -124,7 +125,15 @@ export async function SiteFooter({
         {priceNote ? <div className={styles.priceNote}>{priceNote}</div> : null}
 
         <div className={styles.ipNotice}>
-          <IpNotice locale={locale} kind="footer" />
+          <IpNotice
+            locale={locale}
+            kind="footer"
+            more={{
+              href: localizedPath('R21', locale),
+              label: t('ipMore'),
+              className: styles.link,
+            }}
+          />
         </div>
 
         <p className={styles.copyright}>{t('copyright', { year: berlinYear(clock.now()) })}</p>

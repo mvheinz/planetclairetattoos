@@ -10,7 +10,7 @@
         "blockType": "hero",
         "heading": {
           "de": "Ein kleiner Planet, auf dem alles nur einmal vorkommt",
-          "en": "A small planet where everything happens only once"
+          "en": "A small planet where everything exists only once"
         },
         "subheading": {
           "de": "Tattoos, bemalter Ton, Stoff und Tusche aus Berlin – mit leiser Hand gezeichnet. Coco läuft voraus.",
@@ -296,14 +296,6 @@
         }
       },
       {
-        "blockType": "callout",
-        "tone": "hint",
-        "text": {
-          "de": "Auftragsarbeiten vereinbaren wir einzeln per Mail; bezahlt wird nicht hier im Shop. Fremde Figuren aus Comics, Filmen oder von Marken male ich nicht.",
-          "en": "We agree on commissions one by one by email; payment does not go through this shop. I do not paint characters from comics, films or brands."
-        }
-      },
-      {
         "blockType": "commissionForm",
         "heading": {
           "de": "Deine Idee",
@@ -362,8 +354,8 @@
           "en": "Prices"
         },
         "content": {
-          "de": "Für eigene Ideen findest du oben meinen Preisrahmen. Die Anzahlung besprechen wir persönlich per Mail – auf dieser Website zahlst du nichts.",
-          "en": "For ideas of your own you will find my price range above. We settle the deposit personally by email – you pay nothing on this website."
+          "de": "Wie groß und wie fein dein Motiv wird, besprechen wir per Mail – den Preis kennst du, bevor wir einen Termin ausmachen.",
+          "en": "We talk through the size and detail of your design by email – you’ll know the price before we set a date."
         }
       },
       {
