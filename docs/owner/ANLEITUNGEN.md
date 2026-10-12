@@ -421,7 +421,7 @@ Warum das Impressum? Ein Profil, das du geschäftlich nutzt, braucht eine leicht
 
 | Adresse | Wohin | Wofür |
 |---|---|---|
-| `planetclairetattoos.com/shop` | Shop | Story-Link „Neu im Shop“ |
+| `planetclairetattoos.com/shop` | Shop | Story-Link „Frisch im Shop“ |
 | `planetclairetattoos.com/on-tour` | deine Markttermine auf der Startseite (am Handy klappen sie gleich auf) | Bio-Link „Märkte“, Story vor einem Markt |
 | `planetclairetattoos.com/nr/115` | das Stück Nr. 115 | Story-Link zu einem einzelnen Stück |
 

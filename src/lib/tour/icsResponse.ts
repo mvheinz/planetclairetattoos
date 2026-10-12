@@ -12,7 +12,9 @@ import { buildTourIcs, ICS_CONTENT_TYPE, tourIcsFileName } from './ics'
 // `GET /api/public/tour-dates/<id>.ics?locale=de|en` (V-60, ARCHITEKTUR §2.5): Kalender-Datei eines veröffentlichten
 // Markttermins aus derselben gecachten Liste wie die Startseite (`listTourDates`, Tag `tour-dates`) – keine eigene
 // Datenbankabfrage je Download, kein Cookie, keine Personendaten. Unbekannt oder nicht veröffentlicht → 404.
-// `Content-Disposition: attachment` mit Dateinamen; kurz zwischenspeicherbar (eine Absage soll bald ankommen).
+// `Content-Disposition: inline` mit Dateinamen: iPhone/iPad-Safari zeigt dann direkt „Zum Kalender hinzufügen“ (mit
+// `attachment` landet die Datei sonst in „Dateien“); Desktop-Browser laden `text/calendar` ohnehin herunter. Kurz
+// zwischenspeicherbar (eine Absage soll bald ankommen).
 
 const FILE_RE = /^(\d{1,9})\.ics$/
 
@@ -67,7 +69,7 @@ export async function tourIcsResponse(
     status: 200,
     headers: {
       'content-type': ICS_CONTENT_TYPE,
-      'content-disposition': `attachment; filename="${tourIcsFileName(item)}"`,
+      'content-disposition': `inline; filename="${tourIcsFileName(item)}"`,
       'cache-control': ICS_CACHE_CONTROL,
       'x-content-type-options': 'nosniff',
     },

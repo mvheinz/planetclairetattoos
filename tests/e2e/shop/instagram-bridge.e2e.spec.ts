@@ -274,7 +274,7 @@ test.describe('V-60 „In den Kalender“', () => {
     expect(res.status()).toBe(200)
     expect(res.headers()['content-type']).toBe('text/calendar; charset=utf-8')
     expect(res.headers()['content-disposition']).toMatch(
-      /^attachment; filename="planet-claire-on-tour-\d{4}-\d{2}-\d{2}\.ics"$/,
+      /^inline; filename="planet-claire-on-tour-\d{4}-\d{2}-\d{2}\.ics"$/,
     )
     expectNoCookie(res)
     const body = await res.text()

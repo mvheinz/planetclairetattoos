@@ -140,7 +140,7 @@ describe('V-60 Kalender-Datei GET /api/public/tour-dates/<id>.ics', () => {
     expect(res.status).toBe(200)
     expect(res.headers.get('content-type')).toBe('text/calendar; charset=utf-8')
     expect(res.headers.get('content-disposition')).toBe(
-      'attachment; filename="planet-claire-on-tour-2026-10-24.ics"',
+      'inline; filename="planet-claire-on-tour-2026-10-24.ics"',
     )
     expect(res.headers.get('cache-control')).toBe('public, max-age=300')
     expect(res.headers.get('set-cookie')).toBeNull()
