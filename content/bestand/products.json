@@ -11,6 +11,10 @@
       "de": "Weißes Spaghettiträger-Top mit Spitzenkante an Ausschnitt und Trägern. Vorne ist ein orangefarbener Fuchs mit weißen Flügeln auf dem Rücken zu sehen, dessen Körper so lang ist, dass er einen geschlossenen Ring bildet, darunter ein handgeschriebener Schriftzug; hinten stehen nur ein Schriftzug und eine kleine Signatur. Von Hand mit Textilfarbe bemalt – bitte vor dem Kauf die Maße vergleichen.",
       "en": "White spaghetti-strap top with lace edging along the neckline and straps. The front shows an orange fox with white wings on its back, its body so long that it forms a closed ring, with hand-lettered writing below; the back carries only hand-lettered writing and a small signature. Hand-painted with fabric paint – please compare the measurements before buying."
     },
+    "juttaSaysSuggestion": {
+      "de": "Den Fuchs habe ich so lange weitergemalt, bis er sich selbst in den Schwanz beißen konnte. Ich mag Motive, die nirgends anfangen und nirgends aufhören – das hier ist eins für warme Tage.",
+      "en": "I kept painting the fox until it could bite its own tail. I like motifs that start nowhere and end nowhere – this one is for warm days."
+    },
     "materials": {
       "de": "Second-Hand-Top mit Spitzenkante, bemalt mit Textilfarbe",
       "en": "Second-hand top with lace trim, painted with fabric paint"
@@ -42,7 +46,9 @@
       "Kleiner Anhänger am Träger: gehört er zum Top dazu oder wird er vor dem Versand entfernt?",
       "Gewicht (90 g) geschätzt.",
       "01_IMG_7380 hat einen starken Schattenwurf – ggf. Ersatzfoto.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -80,6 +86,10 @@
       "de": "Ausgewaschenes, flaschengrünes T-Shirt mit Rundhalsausschnitt. Vorne breitet eine große, fein schraffierte schwarze Fledermaus mit kleinen weißen Zähnen und seitlich schielenden Augen ihre Flügel aus, darüber ein handgeschriebener Schriftzug in Lila und Silbergrau mit schwarzen Ranken; hinten ein kleines weißes Herz mit Pfeil neben einem weißen Schriftzug. Von Hand mit Textilfarbe bemalt; der Aufdruck im Nacken war schon auf dem Second-Hand-Shirt.",
       "en": "Washed bottle-green crew-neck T-shirt. On the front a large, finely hatched black bat with small white fangs and sideways-glancing eyes spreads its wings, with hand-lettered writing in lilac and silver-grey framed by black tendrils above it; on the back a small white heart with an arrow sits next to white hand-lettered writing. Hand-painted with fabric paint; the print at the back of the neck was already on the second-hand shirt."
     },
+    "juttaSaysSuggestion": {
+      "de": "Diese Fledermaus traut niemandem, nicht mal mir. Das grüne Shirt hatte schon ein Leben, bevor sie eingezogen ist – jetzt sind sie zu zweit.",
+      "en": "This bat trusts nobody, not even me. The green shirt had a whole life before she moved in – now they’re a pair."
+    },
     "materials": {
       "de": "Second-Hand-T-Shirt, bemalt mit Textilfarbe",
       "en": "Second-hand T-shirt, painted with fabric paint"
@@ -111,7 +121,10 @@
       "Ausgewaschene Optik: gewollte Färbung oder Gebrauchsspur? Zustand ggf. anpassen.",
       "Preisanhänger aus Kraftpapier ist auf dem Vorderseitenfoto sichtbar.",
       "Gewicht (170 g) geschätzt.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "Name: „skeptisch“ steht in vier Namen (Nr. 102, 116, 123, 133). Magst du hier ein anderes Wort, z. B. „misstrauisch“ oder „nicht überzeugt“? Du entscheidest.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -148,6 +161,10 @@
     "description": {
       "de": "Ausgewaschene beige Baseball-Cap im Used-Look. Auf dem Schirm steht links ein grauschwarzer Dinosaurier vor einer grauen Bergkette mit hellblauem Himmel und grünem Boden, daneben verteilen sich fünf weiße Hasen mit rosa Ohren – sitzend, liegend, aufrecht stehend – und lassen sich nicht stören; an jeder Seite ein weiterer Hase, hinten ein handgeschriebener Schriftzug. Von Hand mit Textilfarbe bemalt; die aufgenähten Buchstaben und der runde Aufnäher vorne stammen von der Original-Cap, die Weite ist hinten verstellbar.",
       "en": "Washed beige baseball cap with a worn-in look. The brim shows a grey-black dinosaur on the left in front of a grey mountain range with pale blue sky and green ground, while five white rabbits with pink ears – sitting, lying, standing upright – carry on regardless next to it; one more rabbit on each side panel and hand-lettered writing on the back. Hand-painted with fabric paint; the sewn-on letters and the round patch on the front come from the original cap, and the size adjusts at the back."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Der Dinosaurier gibt sich solche Mühe, gefährlich auszusehen. Die Hasen sehen das entspannt, und ich ehrlich gesagt auch.",
+      "en": "The dinosaur is trying so hard to look dangerous. The rabbits aren’t bothered, and honestly, neither am I."
     },
     "materials": {
       "de": "Second-Hand-Baseball-Cap, bemalt mit Textilfarbe",
@@ -187,7 +204,9 @@
       "Used-Look (ausgefranste Kanten, angerauter Stoff) als Abweichung beschrieben und Zustand „gut“ gewählt – bitte prüfen.",
       "Pflegehinweis auf Handwäsche angepasst (Cap) – bitte bestätigen.",
       "Gewicht (110 g) geschätzt.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -232,6 +251,10 @@
       "de": "Weißer Stoffbeutel mit einer Figur, die man von hinten sieht: Kopf und Rücken sind mit rot-rosa und blauen Federn bedeckt, dazu hellblaue Jeans und eine gelbe Hand. Darüber und neben dem Kopf steht ein schwarz umrandeter, handgeschriebener Schriftzug. Von Hand mit Textilfarbe bemalt; ein A4-Heft passt gut hinein.",
       "en": "White tote bag with a figure seen from behind: its head and back are covered in pink-red and blue feathers, paired with light-blue jeans and a yellow hand. Black outlined hand-lettered writing runs above it and beside the head. Hand-painted with fabric paint; an A4 notebook fits comfortably inside."
     },
+    "juttaSaysSuggestion": {
+      "de": "Ein Vogel in Jeans, von hinten gemalt – wie er von vorne guckt, wollte ich gar nicht wissen. Der Beutel trägt gern Bücher und Einkäufe.",
+      "en": "A bird in jeans, painted from behind – I didn’t need to know what his face looks like. The bag happily carries books and shopping."
+    },
     "materials": {
       "de": "Second-Hand-Stoffbeutel, bemalt mit Textilfarbe",
       "en": "Second-hand tote bag, painted with fabric paint"
@@ -263,7 +286,9 @@
       "Nur ein Foto vorhanden – ist die Rückseite bemalt? Ggf. Foto der Rückseite ergänzen.",
       "Preisanhänger und Pappeinlage vor einem neuen Shopfoto ggf. entfernen.",
       "Gewicht (120 g) geschätzt.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -286,6 +311,10 @@
     "description": {
       "de": "Weißer Stoffbeutel mit gemaltem Rand aus rosa Wellenlinien und schwarzen Punkten und lila Kästchen mit Kreuz an den Henkelansätzen. Auf der einen Seite ein türkisblauer Drache mit offenem Maul und gefächerten Stacheln, quer darüber ein handgeschriebener Schriftzug in Rosa und Schwarz; auf der anderen Seite ein großes, türkisblau umrissenes Herz, von einem Pfeil durchbohrt, mit drei roten Tropfen und kleiner Signatur. Von Hand mit Textilfarbe bemalt – je nach Laune mit Drache oder Herz nach außen tragbar.",
       "en": "White tote bag with a painted border of pink wavy lines and black dots, and purple boxes with a cross at the handle seams. One side shows a teal dragon with an open mouth and fanned-out spines, with hand-lettered writing in pink and black across it; the other side shows a large heart outlined in teal, pierced by an arrow, with three red drops and a small signature. Hand-painted with fabric paint – wear it dragon side out or heart side out, depending on the mood."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Drache oder Herz – du entscheidest jeden Morgen, welche Seite heute nach außen darf. Ich habe beide mit gleich viel Liebe gemalt.",
+      "en": "Dragon or heart – you decide each morning which side gets to face the world. I painted both with the same amount of love."
     },
     "materials": {
       "de": "Second-Hand-Stoffbeutel, bemalt mit Textilfarbe",
@@ -317,7 +346,9 @@
       "Second-Hand oder neuer Rohling? Faserzusammensetzung vom Etikett eintragen (Pflichtangabe).",
       "Zuordnung von Drachen- und Herzseite (gleicher Rand, gleiche lila Henkelmarkierung) bestätigen.",
       "Gewicht (120 g) geschätzt.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -347,6 +378,10 @@
     "description": {
       "de": "Weißer Stoffbeutel mit drei blassgrünen Schlangen, die mit langen, gespaltenen Zungen in Mauve nach oben züngeln. Die Augen sind orange umrandet; unten steht ein handgeschriebener Schriftzug, an den Henkelnähten sitzen orange Kreuzmarken und an den Kanten kleine grüne Punkte. Alles von Hand mit Textilfarbe bemalt, leicht und zusammengefaltet gut zu verstauen.",
       "en": "White tote bag with three pale green snakes rising upwards, sticking out long forked tongues in mauve. Their eyes are ringed in orange; there is hand-lettered writing along the bottom, orange cross marks at the handle seams and small green dots along the edges. All hand-painted with fabric paint, light and easy to fold away."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Drei Schlangen, drei Zungen, null Manieren. Beim Malen musste ich die ganze Zeit grinsen.",
+      "en": "Three snakes, three tongues, zero manners. I couldn’t stop grinning while I painted them."
     },
     "materials": {
       "de": "Second-Hand-Stoffbeutel, bemalt mit Textilfarbe",
@@ -379,9 +414,10 @@
       "Second Hand oder neuer Rohling? Bitte bestätigen, Zustand prüfen",
       "Kein Markenaufdruck außen sichtbar – bitte bestätigen",
       "Gewicht geschätzt (120 g)",
-      "Schriftzug: Rechte an Text/Namen vor Verkauf selbst prüfen",
       "Nur ein Foto vorhanden – ggf. Rückseite/Detail ergänzen",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -404,6 +440,10 @@
     "description": {
       "de": "Gewaschene rosa Basecap, deren Front komplett von einer großen schwarzen Fledermaus mit halb geschlossenen Augen und kleinen Reißzähnen eingenommen wird; die Flügel reichen bis auf die Seiten, die Krallen halten sich am Schirm fest. Hinten ein großer handgeschriebener Schriftzug, der Knopf oben ist orange bemalt und trägt ein winziges Gesicht – alles von Hand mit Textilfarbe gemalt. Mit Stoffriemen und Metallschnalle in der Weite verstellbar.",
       "en": "Washed pink baseball cap whose whole front is taken up by a large black bat with half-closed eyes and small fangs; its wings reach round to the sides and its claws hold on to the brim. Large hand-lettered writing on the back, and the top button is painted orange with a tiny face – all hand-painted with fabric paint. Adjustable with a fabric strap and metal buckle."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Für Morgen, an denen ich mich genau so fühle, wie diese Fledermaus aussieht. Sie hält sich am Schirm fest, damit sie nicht wieder einschläft.",
+      "en": "For mornings when I feel exactly the way this bat looks. She’s clinging to the brim so she doesn’t nod off again."
     },
     "materials": {
       "de": "Second-Hand-Basecap in gewaschener Optik, bemalt mit Textilfarbe",
@@ -438,8 +478,9 @@
       "Kein Markenlogo außen sichtbar – bitte bestätigen",
       "Pflegehinweis für Cap angepasst (nur Handreinigung) – bitte bestätigen",
       "Gewicht geschätzt (110 g)",
-      "Schriftzug: Rechte an Text/Namen vor Verkauf selbst prüfen",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -477,6 +518,10 @@
       "de": "Hellgraues Canvas-Etui mit schwarzem Reißverschluss. Vorne ein hellbrauner Hund mit langen Ohren, schwarzer Augenbemalung, langen Schnurrhaaren und Stachelhalsband; hinten zwei weiße gekreuzte Knochen, ein handgeschriebener Schriftzug und eine dünne schwarze Linie, die einmal ums Etui läuft – alles von Hand mit Textilfarbe bemalt. Passt für Stifte, Kosmetik oder Kleinkram.",
       "en": "Light grey canvas pouch with a black zip. On the front a light brown long-eared dog with black eye make-up, long whiskers and a spiked collar; on the back two white crossed bones, hand-lettered writing and a thin black line running once around the pouch – all hand-painted with fabric paint. Fits pens, make-up or odds and ends."
     },
+    "juttaSaysSuggestion": {
+      "de": "Er guckt streng, ist aber ein ganz Lieber – das weiß ich aus sicherer Quelle. Auf deine Stifte passt er gut auf.",
+      "en": "He looks tough, but he’s a softie really – I have that on good authority. He’ll keep a good eye on your pens."
+    },
     "materials": {
       "de": "Second-Hand-Canvas-Etui mit Reißverschluss, bemalt mit Textilfarbe",
       "en": "Second-hand canvas zip pouch, painted with fabric paint"
@@ -509,8 +554,9 @@
       "Kein Markenaufdruck außen sichtbar – bitte bestätigen",
       "Gewicht geschätzt (60 g)",
       "Bitte bestätigen, dass beide Fotos dasselbe Etui zeigen (Vorder-/Rückseite)",
-      "Schriftzug: Rechte an Text/Namen vor Verkauf selbst prüfen",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -540,6 +586,10 @@
     "description": {
       "de": "Naturweißes Canvas-Etui mit schwarzem Reißverschluss. Vorne ein weißes Monster mit großen Augen, kleinen Zähnen, gestreiften Hörnern und gelber Flammenfrisur in einem graugrünen Rollkragenpullover mit schwarzen Sternen; hinten ein grünes Herz mit Pfeil, aus dem magentafarbene Tropfen fallen. Auf beiden Seiten handgeschriebene Schriftzüge, alles von Hand mit Textilfarbe bemalt – passt für Stifte oder Kosmetik.",
       "en": "Natural white canvas pouch with a black zip. On the front a white monster with big eyes, small teeth, striped horns and a yellow flame-shaped crest, wearing a grey-green turtleneck with black stars; on the back a green heart pierced by an arrow, dripping magenta drops. Hand-lettered writing on both sides, all hand-painted with fabric paint – fits pens or make-up."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Mein Monster friert leicht, deshalb der Rollkragen. Es bewacht gern Lippenstifte und Kleinkram.",
+      "en": "My monster feels the cold, hence the turtleneck. It’s happy to guard lipsticks and bits and bobs."
     },
     "materials": {
       "de": "Second-Hand-Canvas-Etui mit Reißverschluss, bemalt mit Textilfarbe",
@@ -573,8 +623,9 @@
       "Kein Markenaufdruck außen sichtbar – bitte bestätigen",
       "Gewicht geschätzt (60 g)",
       "Zuordnung unsicher: bitte bestätigen, dass beide Fotos dasselbe Etui zeigen",
-      "Schriftzüge (beide Seiten): Rechte an Text/Namen vor Verkauf selbst prüfen",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -602,8 +653,12 @@
       "en": "Cap “Snakes and company”"
     },
     "description": {
-      "de": "Hellgraue Jeans-Cap im Used-Look mit ausgefranstem Schirm, der fast vollständig mit silbernen Strasssteinen besetzt ist, und einem schwarzen Strasskreuz auf der Front. Von Hand mit Textilfarbe dazugemalt: schwarze, schlangenartige Linien um das Kreuz, ein rosa Wesen mit offenem Maul, eine grüne Figur mit großem Auge, lila Formen und ein kleines braunes Langohr-Gesicht am Schirm sowie handgeschriebene Schriftzüge an Seite und Rückseite. Mit schwarzem Gurtband und Metallschnalle verstellbar; wegen der Strasssteine nicht für die Waschmaschine geeignet.",
-      "en": "Light grey denim cap with a worn-in look, a frayed brim almost fully set with silver rhinestones and a black rhinestone cross on the front. Hand-painted around it with fabric paint: black snake-like lines around the cross, a pink creature with open jaws, a green figure with one big eye, purple shapes and a small brown long-eared face on the brim, plus hand-lettered writing on the side and back. Adjustable with a black webbing strap and metal buckle; because of the rhinestones it is not made for the washing machine."
+      "de": "Hellgraue Jeans-Cap im Used-Look mit ausgefranstem Schirm, der fast vollständig mit silbernen Strasssteinen besetzt ist, und einem schwarzen Strasskreuz auf der Front. Von Hand mit Textilfarbe dazugemalt: schwarze, schlangenartige Linien um das Kreuz, ein rosa Wesen mit offenem Maul, eine grüne Figur mit großem Auge, lila Formen und ein kleines braunes Langohr-Gesicht am Schirm sowie handgeschriebene Schriftzüge an Seite und Rückseite. Mit schwarzem Gurtband und Metallschnalle verstellbar.",
+      "en": "Light grey denim cap with a worn-in look, a frayed brim almost fully set with silver rhinestones and a black rhinestone cross on the front. Hand-painted around it with fabric paint: black snake-like lines around the cross, a pink creature with open jaws, a green figure with one big eye, purple shapes and a small brown long-eared face on the brim, plus hand-lettered writing on the side and back. Adjustable with a black webbing strap and metal buckle."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Die Cap hatte ihren Glitzer schon, bevor ich kam – ich habe ihr nur Gesellschaft dazugemalt. Lauter Wesen, die sich im Strass wohlfühlen.",
+      "en": "The cap already had its sparkle before I got to it – I just painted it some company. A crowd of creatures who feel at home among the rhinestones."
     },
     "materials": {
       "de": "Second-Hand-Jeans-Cap mit Strassbesatz (Schirm und Kreuz), bemalt mit Textilfarbe",
@@ -651,8 +706,9 @@
       "Pflegehinweis wegen Strass angepasst (nur punktuell reinigen) – bitte bestätigen",
       "Gewicht geschätzt (160 g)",
       "Kleines Gesicht am Schirm: sicherstellen, dass es keine fremde geschützte Figur ist",
-      "Schriftzüge: Rechte am Text vor Verkauf selbst prüfen",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -708,8 +764,12 @@
       "en": "Cap “Ball of yarn, contested”"
     },
     "description": {
-      "de": "Weiße Baseballcap mit handgemaltem Schachbrettschirm in Schwarz, Weiß und Rosa. Vorne springt eine getigerte Katze über ein hellblaues Wollknäuel, eine zweite streckt sich darunter; an den Seiten sitzen Hasen, ein Hund im Strickpullover und eine Schlange, dazu handgeschriebene Schriftzüge. Bemalt mit Textilfarbe; weil der Stoff weiß ist, Flecken am besten gleich mit einem feuchten Tuch abtupfen.",
-      "en": "White baseball cap with a hand-painted checkerboard brim in black, white and pink. On the front a tabby cat leaps over a light-blue ball of yarn while a second one stretches out underneath; the sides have rabbits, a dog in a knitted jumper and a snake, plus hand-lettered writing. Painted with fabric paint; the fabric is white, so best to dab off any marks with a damp cloth straight away."
+      "de": "Weiße Baseballcap mit handgemaltem Schachbrettschirm in Schwarz, Weiß und Rosa. Vorne springt eine getigerte Katze über ein hellblaues Wollknäuel, eine zweite streckt sich darunter; an den Seiten sitzen Hasen, ein Hund im Strickpullover und eine Schlange, dazu handgeschriebene Schriftzüge. Bemalt mit Textilfarbe.",
+      "en": "White baseball cap with a hand-painted checkerboard brim in black, white and pink. On the front a tabby cat leaps over a light-blue ball of yarn while a second one stretches out underneath; the sides have rabbits, a dog in a knitted jumper and a snake, plus hand-lettered writing. Painted with fabric paint."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Zwei Katzen, ein Wollknäuel – ich wusste gleich, dass das nicht gut geht. Alle anderen rundherum schauen zu und warten ab.",
+      "en": "Two cats, one ball of yarn – I knew straight away that wouldn’t end well. Everyone else around the cap is just watching and waiting."
     },
     "materials": {
       "de": "Second-Hand-Baseballcap, bemalt mit Textilfarbe",
@@ -750,7 +810,9 @@
       "Seite mit der Schlange, unter den rosa Punkten: Ist der graue Schatten ein echter Fleck oder nur Licht? Falls nur Licht, den Abweichungstext entfernen.",
       "Pflegehinweis: Ich habe den Standardtext für Caps aus den Einstellungen übernommen (nicht waschen, nur abtupfen). Bitte mit dem Etikett innen abgleichen.",
       "Gewicht (110 g) ist geschätzt.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -795,6 +857,10 @@
       "de": "Baseballcap mit Tarnmuster in Oliv, Braun und Schwarz und schwarzem Schirm. Vorne purzeln zwei gelb-weiße Hunde mit langen Ohren über einen großen gestickten Schriftzug in Grau und Rot, der schon auf der Cap war; dazu handgemalte Schriftzüge in Weiß und Rot vorne, an den Seiten und hinten. Bemalt mit Textilfarbe, hinten mit verstellbarem Snapback-Verschluss.",
       "en": "Baseball cap in olive, brown and black camouflage with a black brim. On the front two yellow-and-white long-eared dogs tumble over large grey-and-red embroidered lettering that was already on the cap, with hand-lettered writing in white and red on the front, sides and back. Painted with fabric paint; adjustable snapback closure at the back."
     },
+    "juttaSaysSuggestion": {
+      "de": "Die Cap war schon getarnt, die Hunde haben es trotzdem versucht. Ich muss ehrlich sein: Man sieht sie sofort.",
+      "en": "The cap was already in camouflage, and the dogs still gave it a go. I have to be honest: you spot them straight away."
+    },
     "materials": {
       "de": "Second-Hand-Baseballcap mit Tarnmuster, bemalt mit Textilfarbe",
       "en": "Second-hand camouflage baseball cap, painted with fabric paint"
@@ -830,7 +896,9 @@
       "Second-Hand oder neuer Rohling? Zustand bestätigen.",
       "Pflegehinweis: Ich habe den Standardtext für Caps aus den Einstellungen übernommen. Bitte mit dem Etikett abgleichen.",
       "Gewicht (110 g) ist geschätzt.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -875,6 +943,10 @@
       "de": "Fischerhut aus cremefarbenem Breitcord, rundherum bemalt mit orange-ockerfarbenen Hunden in schwarzer Kontur – sitzend, sich kratzend, stehend, liegend und gestreckt. Oben auf dem Kopf kreuzen sich zwei hellblaue Knochen, an der Seite steht ein kleiner handgeschriebener Schriftzug. Bemalt mit Textilfarbe; der Hut hat keinen Verstellriemen, bitte auf die Kopfweite achten.",
       "en": "Bucket hat in cream wide-wale corduroy, painted all the way round with orange-ochre dogs in black outline – sitting, scratching, standing, lying down and stretching. Two crossed light-blue bones sit on top, with a small piece of hand-lettered writing on the side. Painted with fabric paint; the hat has no adjustable strap, so please check the head size."
     },
+    "juttaSaysSuggestion": {
+      "de": "Rundherum Hunde, die genau das machen, was Hunde eben machen: sitzen, kratzen, liegen, strecken. Ich könnte ihnen stundenlang zusehen.",
+      "en": "Dogs all the way round, doing exactly what dogs do: sitting, scratching, lying about, stretching. I could watch them for hours."
+    },
     "materials": {
       "de": "Second-Hand-Fischerhut aus Cord, bemalt mit Textilfarbe",
       "en": "Second-hand corduroy bucket hat, painted with fabric paint"
@@ -906,7 +978,9 @@
       "Second-Hand oder neuer Rohling? Zustand bestätigen.",
       "Pflegehinweis: Ich habe den Standardtext für Caps übernommen (nicht waschen, abtupfen). Bei Cord ohne festen Schirm ist eventuell Handwäsche möglich, bitte mit dem Etikett abgleichen.",
       "Gewicht (100 g) ist geschätzt.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -951,6 +1025,10 @@
       "de": "Baseballcap in verwaschenem Rosa; über die ganze Krone zieht sich ein feines schwarzes Spinnennetz mit kleinen braun-orangen Spinnen. Am Schirmrand schläft ein langer orange-weißer Hund, mit winzigen Schleifen an den Fäden festgebunden, dazu handgeschriebene Schriftzüge vorne, seitlich und hinten. Bemalt mit Textilfarbe, hinten ein Stoffriemen mit Metallschnalle zum Verstellen.",
       "en": "Baseball cap in washed-out pink, with a fine black spider web across the whole crown and small brown-orange spiders. A long orange-and-white dog sleeps along the edge of the brim, tied to the threads with tiny bows, and hand-lettered writing runs across the front, sides and back. Painted with fabric paint; adjustable fabric strap with a metal buckle at the back."
     },
+    "juttaSaysSuggestion": {
+      "de": "Die Spinnen haben sich mit dem Netz so viel Mühe gegeben, und der Hund schläft trotzdem tief und fest. Ich bewundere seine Gelassenheit.",
+      "en": "The spiders put so much work into that web, and the dog is still fast asleep. I admire his calm."
+    },
     "materials": {
       "de": "Second-Hand-Baseballcap in Washed-Optik, bemalt mit Textilfarbe",
       "en": "Second-hand washed-look baseball cap, painted with fabric paint"
@@ -984,7 +1062,9 @@
       "Kommt die verwaschene Optik vom Rohling? Second-Hand oder neu? Zustand bestätigen.",
       "Pflegehinweis: Ich habe den Standardtext für Caps übernommen. Bitte mit dem Etikett abgleichen.",
       "Gewicht (110 g) ist geschätzt.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -1029,6 +1109,10 @@
       "de": "Kleine ovale Wandtasche aus cremefarbener Keramik mit einem Loch zum Aufhängen. Auf der Tasche steht ein orange-weißer Hund mit schwarzer Zipfelmütze und schwarzem Kragen und trägt eine rote Blume im Maul; oben und unten ein handgeschriebener Schriftzug. Die flache Tasche passt für Trockenblumen oder kleine Zettel.",
       "en": "Small oval wall pocket in cream ceramic with a hole for hanging. On the pocket an orange-and-white dog in a pointed black hat and a black collar carries a red flower in its mouth, with hand-lettered writing above and below. The shallow pocket holds dried flowers or small notes."
     },
+    "juttaSaysSuggestion": {
+      "de": "Ein Hund mit Mütze, der dir eine Blume bringt – mehr Höflichkeit kann ich an keine Wand hängen. In die Tasche kommen Trockenblumen oder kleine Zettel.",
+      "en": "A dog in a hat bringing you a flower – I can’t hang any more politeness on a wall. The pocket is for dried flowers or little notes."
+    },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
       "en": "Stoneware, underglaze colours, clear glaze"
@@ -1055,7 +1139,9 @@
       "Gewicht nachwiegen (geschätzt 100 g).",
       "Glasur auf kleine Nadelstiche oder Abplatzer prüfen; falls sichtbar, als Abweichung beschreiben.",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -1093,6 +1179,10 @@
       "de": "Kleiner Fingerhut aus Keramik mit cremefarbener Glasur. Oben auf der Kuppe guckt ein weißer Hund mit orangefarbenen Ohren unter dunklen Brauen hervor, darunter laufen ein handgeschriebener Schriftzug und eine dunkle Wellenlinie rundherum. Die feinen Haarrisse in der Glasur (Krakelee) gehören zur Oberfläche.",
       "en": "Small ceramic thimble with a cream glaze. On the dome a white dog with orange ears peers out from under dark brows; below it, hand-lettered writing and a dark wavy line run all the way around. The fine hairline cracks in the glaze (crackle) are part of the surface."
     },
+    "juttaSaysSuggestion": {
+      "de": "Der kleinste Hund, den ich je gemalt habe, und er schaut trotzdem, als hätte ich etwas falsch gemacht. Ein Fingerhut zum Hinstellen und Anschauen.",
+      "en": "The smallest dog I’ve ever painted, and he still looks at me as if I’ve done something wrong. A thimble to put on a shelf and look at."
+    },
     "materials": {
       "de": "Keramik, Unterglasurfarben, transparente Krakelee-Glasur",
       "en": "Ceramic, underglaze colours, clear crackle glaze"
@@ -1117,11 +1207,13 @@
       "Maße anhand des 12-cm-Tellers geschätzt (ca. 2,8 cm hoch, Ø ca. 2,6 cm) – bitte nachmessen",
       "Gewicht geschätzt (20 g)",
       "Material prüfen (Steinzeug oder Irdenware?) und bestätigen, dass die Haarrisse in der Glasur (Krakelee) gewollt sind",
-      "Schriftzug wird im Text bewusst nicht wiedergegeben",
       "Bildreihenfolge: Draufsicht mit Hund zuerst gesetzt",
       "Versandklasse Keramik – bei so kleinem Stück evtl. günstigerer Versand möglich",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "Name: „skeptisch“ steht in vier Namen (Nr. 102, 116, 123, 133). Magst du hier ein anderes Wort, z. B. „misstrauisch“ oder „nicht überzeugt“? Du entscheidest.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -1152,6 +1244,10 @@
       "de": "Flacher Anhänger in Form eines Pferdekopfs im Profil, beige-grau mit dunklen Streifen als Mähne und einem durchbrochenen Auge. Er hängt an einer feinen silberfarbenen Panzerkette. Von Hand geformt und bemalt, deshalb ein Einzelstück.",
       "en": "Flat pendant shaped like a horse's head in profile, beige-grey with dark stripes for the mane and a pierced eye. It hangs on a fine silver-coloured curb chain. Shaped and painted by hand, so it is a one-off."
     },
+    "juttaSaysSuggestion": {
+      "de": "Mein Pferd schaut lieber nach links, warum auch immer. Klein, flach und leicht – du merkst kaum, dass du es trägst.",
+      "en": "My horse prefers to look left, for whatever reason. Small, flat and light – you’ll hardly notice you’re wearing it."
+    },
     "materials": {
       "de": "Keramik, glasiert; silberfarbene Panzerkette",
       "en": "Ceramic, glazed; silver-coloured curb chain"
@@ -1180,7 +1276,8 @@
       "Gewicht geschätzt (15 g)",
       "Nur ein Foto – evtl. Rückseite/ganze Kette ergänzen",
       "Material der Metallteile eintragen, Nickelfrei-Nachweis hochladen und „Glasur bleifrei“ bestätigen (Pflicht für Schmuck).",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -1203,6 +1300,10 @@
     "description": {
       "de": "Tropfenförmiger Keramik-Anhänger mit cremefarbener Krakelee-Glasur. Vorne ist ein gelbes Katzengesicht mit orangefarbenen Augen und struppigen schwarzen Strichen gemalt, auf der Rückseite steht ein handgeschriebener Schriftzug. Er hängt an einer silberfarbenen Kugelkette.",
       "en": "Teardrop-shaped ceramic pendant with a cream crackle glaze. The front shows a yellow cat face with orange eyes and scruffy black strokes; the back carries hand-lettered writing. It hangs on a silver-coloured ball chain."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Diese Katze hatte einen langen Tag, und man sieht es ihr an. Ich mag sie gerade deshalb.",
+      "en": "This cat has had a long day, and it shows. That’s exactly why I like her."
     },
     "materials": {
       "de": "Keramik, Unterglasurfarben, transparente Krakelee-Glasur; silberfarbene Kugelkette",
@@ -1230,9 +1331,10 @@
       "Kettenlänge nachmessen und ergänzen",
       "Maße geschätzt (ca. 2,2 × 4 cm, ca. 1,5 cm dick) – bitte nachmessen",
       "Gewicht geschätzt (20 g)",
-      "Schriftzug auf der Rückseite wird im Text bewusst nicht wiedergegeben",
       "Material der Metallteile eintragen, Nickelfrei-Nachweis hochladen und „Glasur bleifrei“ bestätigen (Pflicht für Schmuck).",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -1260,8 +1362,12 @@
       "en": "Necklace “Bat, in a bad mood”"
     },
     "description": {
-      "de": "Großer, flacher Keramik-Anhänger in Form einer Fledermaus mit ausgebreiteten, gewellten Flügeln, glänzend schwarz glasiert. Das Gesicht hat weiße Augen, gebleckte weiße Zähne und rotbraune Ohren, neben dem Kopf sitzen zwei Aussparungen, und über Körper und Flügel läuft ein weißer handgeschriebener Schriftzug. Er hängt an einer silberfarbenen Kugelkette; bitte vor Stößen schützen, die Flügelspitzen sind spitz und empfindlich.",
-      "en": "Large, flat ceramic pendant shaped like a bat with spread, scalloped wings in glossy black glaze. The face has white eyes, bared white fangs and reddish-brown ears, there are two cut-outs beside the head, and hand-lettered white writing runs across body and wing. It hangs on a silver-coloured ball chain; please protect it from knocks, as the pointed wing tips are delicate."
+      "de": "Großer, flacher Keramik-Anhänger in Form einer Fledermaus mit ausgebreiteten, gewellten Flügeln, glänzend schwarz glasiert. Das Gesicht hat weiße Augen, gebleckte weiße Zähne und rotbraune Ohren, neben dem Kopf sitzen zwei Aussparungen, und über Körper und Flügel läuft ein weißer handgeschriebener Schriftzug. Er hängt an einer silberfarbenen Kugelkette; die Flügelspitzen sind spitz und etwas empfindlich.",
+      "en": "Large, flat ceramic pendant shaped like a bat with spread, scalloped wings in glossy black glaze. The face has white eyes, bared white fangs and reddish-brown ears, there are two cut-outs beside the head, and hand-lettered white writing runs across body and wing. It hangs on a silver-coloured ball chain; the pointed wing tips are a little delicate."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Groß, schwarz, schlecht gelaunt – meine Fledermaus für Tage, an denen man nicht reden will. Sie trägt ihre Laune mit Würde.",
+      "en": "Big, black and grumpy – my bat for days when you’d rather not talk. She wears her mood with dignity."
     },
     "materials": {
       "de": "Keramik, schwarze Glasur, Unterglasurfarben; silberfarbene Kugelkette",
@@ -1288,9 +1394,10 @@
       "Kettenlänge nachmessen und ergänzen",
       "Maße geschätzt (ca. 8 × 6,5 cm) – bitte nachmessen",
       "Gewicht geschätzt (40 g); Briefversand nur gut gepolstert",
-      "Schriftzug wird im Text bewusst nicht wiedergegeben – bitte selbst prüfen, ob er Namen oder Werke Dritter betrifft",
       "Material der Metallteile eintragen, Nickelfrei-Nachweis hochladen und „Glasur bleifrei“ bestätigen (Pflicht für Schmuck).",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -1318,8 +1425,12 @@
       "en": "Mug “Skull with a spiky hairdo”"
     },
     "description": {
-      "de": "Handgeformte Keramiktasse als Schädel: Augenhöhlen, Nase und spitze Zähne sind mit schwarzen Strichen auf den cremefarbenen Grund gezeichnet, am hinteren Rand stehen sieben Zacken hoch. Dazu zwei Henkel in glänzendem Rotbraun und unter dem Rand ein kleiner handgeschriebener Schriftzug. Bitte von Hand spülen.",
-      "en": "Hand-built ceramic mug in the shape of a skull: eye sockets, nose and pointed teeth are drawn in black lines on the cream ground, and seven spikes rise from the back rim. It has two handles in glossy reddish brown and a small line of hand-lettered writing below the rim. Please wash by hand."
+      "de": "Handgeformte Keramiktasse als Schädel: Augenhöhlen, Nase und spitze Zähne sind mit schwarzen Strichen auf den cremefarbenen Grund gezeichnet, am hinteren Rand stehen sieben Zacken hoch. Dazu zwei Henkel in glänzendem Rotbraun und unter dem Rand ein kleiner handgeschriebener Schriftzug. Als Deko gedacht – zum Beispiel für Pinsel, Stifte oder ein paar Trockenblumen.",
+      "en": "Hand-built ceramic mug in the shape of a skull: eye sockets, nose and pointed teeth are drawn in black lines on the cream ground, and seven spikes rise from the back rim. It has two handles in glossy reddish brown and a small line of hand-lettered writing below the rim. Meant as decoration – for brushes, pens or a few dried flowers, for example."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Ein Schädel mit Frisur, weil auch Knochen Stil haben dürfen. Er ist zum Hinstellen gedacht, nicht zum Trinken – bei mir würden Pinsel darin wohnen.",
+      "en": "A skull with a hairdo, because bones deserve some style too. He’s meant for display, not for drinking – at my place he’d hold brushes."
     },
     "materials": {
       "de": "Keramik, Unterglasurstift und -farben, Transparentglasur; Henkel braun glasiert",
@@ -1342,15 +1453,17 @@
     "foodContact": "deko",
     "review": [
       "Preis prüfen (Vorschlag 75 €, aufwendige Form mit zwei Henkeln – trotz eher kleiner Größe)",
-      "Ist die Tasse zum Trinken gedacht? Dann Lebensmittelechtheit der Glasur bestätigen, sonst als Deko-Objekt kennzeichnen",
       "Spülmaschinen-/Mikrowellen-Eignung prüfen; Pflegehinweis vorsichtig auf Handwäsche gesetzt",
       "Maße anhand des 12-cm-Tellers geschätzt: eher Espressotassen-Größe (ca. 7 cm hoch mit Zacken, Ø ca. 5 cm, ca. 9,5 cm breit mit Henkeln, ca. 160 g) – bitte nachmessen, Fassungsvermögen ergänzen",
       "Grauer Gegenstand im Inneren hinter den Zacken – gehört er zum Stück? Sonst für das Foto entfernen",
       "Papieranhänger am linken Henkel vor dem Produktfoto entfernen",
       "Nur ein Foto – Rückseite und Innenansicht ergänzen",
-      "Schriftzug wird im Text bewusst nicht wiedergegeben",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "Beschreibung: Pflegesatz entfernt (es gilt die feste Pflegezeile für Keramik) und ein Deko-Zweck ergänzt – passt so?",
+      "Name „Tasse“: klingt nach Trinken, das Stück ist aber Deko. Magst du es anders nennen, z. B. „Pinselbecher“? Du entscheidest.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -1371,8 +1484,12 @@
       "en": "Necklace “Molar, slightly worried”"
     },
     "description": {
-      "de": "Kleiner Kettenanhänger aus Keramik in Form eines Backenzahns, mit großen schwarzen Augen, ein paar schiefen Zähnchen, rosa Wange und rötlich-braunen Wurzelspitzen. Von Hand geformt, bemalt und glasiert, an einem cremefarbenen gewachsten Band. Keramik ist zerbrechlich – am besten nicht fallen lassen.",
-      "en": "Small ceramic pendant shaped like a molar, with big black eyes, a few crooked little teeth, a pink cheek and reddish-brown root tips. Shaped, painted and glazed by hand, on a cream waxed cord. Ceramic is fragile – best not to drop it."
+      "de": "Kleiner Kettenanhänger aus Keramik in Form eines Backenzahns, mit großen schwarzen Augen, ein paar schiefen Zähnchen, rosa Wange und rötlich-braunen Wurzelspitzen. Von Hand geformt, bemalt und glasiert, an einem cremefarbenen gewachsten Band.",
+      "en": "Small ceramic pendant shaped like a molar, with big black eyes, a few crooked little teeth, a pink cheek and reddish-brown root tips. Shaped, painted and glazed by hand, on a cream waxed cord."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Ein Backenzahn, der sich ein bisschen Sorgen macht – vermutlich wegen des nächsten Zahnarzttermins. Ich kann ihn gut verstehen.",
+      "en": "A molar who’s a little worried – probably about the next dentist appointment. I can relate."
     },
     "materials": {
       "de": "Keramik, Unterglasurfarben, Glasur; gewachstes Band, Metallösen",
@@ -1400,7 +1517,8 @@
       "Material bestätigen: Keramikart (Steinzeug/Porzellan?), Material von Band und Ösen (z. B. Edelstahl?)",
       "Gewicht geschätzt (ca. 12 g mit Band)",
       "Material der Metallteile eintragen, Nickelfrei-Nachweis hochladen und „Glasur bleifrei“ bestätigen (Pflicht für Schmuck).",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -1435,8 +1553,12 @@
       "en": "Necklace “Skull, well preserved”"
     },
     "description": {
-      "de": "Kleiner Totenkopf-Anhänger aus schwarz glänzend glasierter Keramik, Augenhöhlen, Nase und Zähne cremeweiß bemalt. Von Hand geformt und bemalt, an einem cremefarbenen gewachsten Band. Am besten trocken aufbewahren, dann hält das Band länger.",
-      "en": "Small skull pendant in glossy black glazed ceramic, with eye sockets, nose and teeth painted in creamy white. Shaped and painted by hand, on a cream waxed cord. Best kept dry so the cord lasts longer."
+      "de": "Kleiner Totenkopf-Anhänger aus schwarz glänzend glasierter Keramik, Augenhöhlen, Nase und Zähne cremeweiß bemalt. Von Hand geformt und bemalt, an einem cremefarbenen gewachsten Band.",
+      "en": "Small skull pendant in glossy black glazed ceramic, with eye sockets, nose and teeth painted in creamy white. Shaped and painted by hand, on a cream waxed cord."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Klein, schwarz und für sein Alter erstaunlich gut in Form. Ich würde ihn jeden Tag tragen.",
+      "en": "Small, black and in remarkably good shape for its age. I’d wear it every day."
     },
     "materials": {
       "de": "Keramik, Unterglasurfarben, Glasur; gewachstes Band, Metallöse",
@@ -1464,7 +1586,8 @@
       "Material bestätigen: Keramikart, Material von Band und Öse",
       "Gewicht geschätzt (ca. 12 g mit Band)",
       "Material der Metallteile eintragen, Nickelfrei-Nachweis hochladen und „Glasur bleifrei“ bestätigen (Pflicht für Schmuck).",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -1495,6 +1618,10 @@
       "de": "Winziger Anhänger in Form eines Tigerkatzenkopfs: orange-ocker mit schwarzem Stirnstreifen, schmalen schwarzen Augen und cremefarbener Schnauze, die Rückseite kräftig orange mit ein paar schwarzen Streifen. Von Hand geformt, bemalt und glasiert, an einem oliv-goldenen geflochtenen Band. Klein und leicht, gut für jeden Tag.",
       "en": "Tiny pendant shaped like a tiger cat's head: orange-ochre with a black forehead stripe, narrow black eyes and a cream muzzle, the back bright orange with a few black stripes. Shaped, painted and glazed by hand, on an olive-gold braided cord. Small and light, easy to wear every day."
     },
+    "juttaSaysSuggestion": {
+      "de": "Winzig, aber mit sehr klarer Meinung. Meine Tigerkatze schaut dich an, als wüsste sie mehr als du.",
+      "en": "Tiny, but with very firm opinions. My tiger cat looks at you as if she knows more than you do."
+    },
     "materials": {
       "de": "Keramik, Unterglasurfarben, Glasur; geflochtenes Band, Metallöse",
       "en": "Ceramic, underglaze colours, glaze; braided cord, metal jump ring"
@@ -1521,7 +1648,9 @@
       "Material bestätigen: Keramikart, Material des oliv-goldenen Bands und der Öse",
       "Gewicht geschätzt (ca. 8 g mit Band)",
       "Material der Metallteile eintragen, Nickelfrei-Nachweis hochladen und „Glasur bleifrei“ bestätigen (Pflicht für Schmuck).",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Name: „skeptisch“ steht in vier Namen (Nr. 102, 116, 123, 133). Magst du hier ein anderes Wort, z. B. „misstrauisch“ oder „nicht überzeugt“? Du entscheidest.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -1552,6 +1681,10 @@
       "de": "Anhänger in Form eines grau-beigen Ziegenkopfs mit glänzend schwarzen Hörnern, braun ausgemalten Ohren, braun umrandeten Augen, brauner Schnauze und einer Reihe weißer Zähne. Die Rückseite ist schlicht grau-braun glasiert und hat eine kleine eingeprägte Marke. Von Hand geformt und bemalt, an einem oliv-goldenen geflochtenen Band; Hörner und Ohrspitzen sind etwas empfindlich.",
       "en": "Pendant shaped like a grey-beige goat's head with glossy black horns, brown-filled ears, brown-ringed eyes, a brown snout and a row of white teeth. The back is plainly glazed in grey-brown and has a small pressed mark. Shaped and painted by hand, on an olive-gold braided cord; the horns and ear tips are a little delicate."
     },
+    "juttaSaysSuggestion": {
+      "de": "Mein Ziegenbock ist von gar nichts begeistert, aber er ist treu. Auf seine glänzenden Hörner ist er sehr stolz.",
+      "en": "My goat isn’t impressed by anything, but he’s loyal. He’s very proud of his shiny horns."
+    },
     "materials": {
       "de": "Keramik, Unterglasurfarben, Glasur; geflochtenes Band, Metallöse",
       "en": "Ceramic, underglaze colours, glaze; braided cord, metal jump ring"
@@ -1579,7 +1712,8 @@
       "Material bestätigen: Keramikart, Material von Band und Öse",
       "Gewicht geschätzt (ca. 15 g mit Band)",
       "Material der Metallteile eintragen, Nickelfrei-Nachweis hochladen und „Glasur bleifrei“ bestätigen (Pflicht für Schmuck).",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -1607,8 +1741,12 @@
       "en": "Dish “Dragon with heartburn”"
     },
     "description": {
-      "de": "Flache, abgerundet-eckige Schale mit leicht welligem, von Hand geformtem Rand, innen cremeweiß und bemalt mit einem grün geschuppten Drachen, der orange-gelbes Feuer speit. Hörner in Schwarz, Zacken in Blaugrau, dazu dunkle Sprenkel und etwas Glitzer. Gut für Schmuck, Schlüssel oder Kleinkram; bitte von Hand spülen.",
-      "en": "Shallow dish with rounded corners and a slightly wavy, hand-formed rim, cream inside and painted with a green scaly dragon breathing orange-yellow fire. Black horns, blue-grey spikes, plus dark speckles and a bit of glitter. Good for jewellery, keys or odds and ends; please wash by hand."
+      "de": "Flache, abgerundet-eckige Schale mit leicht welligem, von Hand geformtem Rand, innen cremeweiß und bemalt mit einem grün geschuppten Drachen, der orange-gelbes Feuer speit. Hörner in Schwarz, Zacken in Blaugrau, dazu dunkle Sprenkel und etwas Glitzer. Gut für Schmuck, Schlüssel oder Kleinkram.",
+      "en": "Shallow dish with rounded corners and a slightly wavy, hand-formed rim, cream inside and painted with a green scaly dragon breathing orange-yellow fire. Black horns, blue-grey spikes, plus dark speckles and a bit of glitter. Good for jewellery, keys or odds and ends."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Ich glaube, der Drache hat etwas zu scharf gegessen. In seine Schale kommen Schlüssel und Ringe – das Feuer bleibt gemalt.",
+      "en": "I think the dragon ate something too spicy. His dish is for keys and rings – the fire stays painted."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
@@ -1637,11 +1775,12 @@
       "Preis prüfen (Vorschlag 79 € wegen der aufwendigen Malerei)",
       "Maße geschätzt anhand der grünen 12-cm-Platte unter der Schale (ca. 14 × 11 cm, Höhe ca. 3 cm) – bitte nachmessen",
       "Gewicht geschätzt (ca. 280 g)",
-      "Material bestätigen (Steinzeug? Glitzer in der Glasur?) und klären, ob die Schale lebensmittelecht ist – bisher bewusst nicht behauptet",
       "Feine Haarlinien in der Glasur (unten links) vorsorglich als Abweichung beschrieben – falls das gewolltes Craquelé ist, Hinweis anpassen oder entfernen",
       "Nur ein Foto – Rückseite/Unterseite und Seitenansicht ergänzen",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Beschreibung: Pflegesatz entfernt (es gilt die feste Pflegezeile für Keramik) und ein Deko-Zweck ergänzt – passt so?",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -1662,8 +1801,12 @@
       "en": "Dish “Crocodile, slightly peckish”"
     },
     "description": {
-      "de": "Von Hand geformte, ovale Schale mit hellgelber, fein gesprenkelter Glasur und unregelmäßigem Rand. Innen streckt sich ein grün geschupptes Krokodil mit orangen Punkten und offenem Maul voller spitzer Zähne über dunklen Grund; außen läuft ein handgeschriebener Schriftzug. Bemalt mit Unterglasurfarben – bitte von Hand reinigen.",
-      "en": "Hand-formed oval dish with a pale yellow, finely speckled glaze and an uneven rim. Inside, a green scaly crocodile with orange dots and an open mouth full of pointed teeth stretches across a dark ground; hand-lettered writing runs around the outside. Painted with underglaze colours – please wash by hand."
+      "de": "Von Hand geformte, ovale Schale mit hellgelber, fein gesprenkelter Glasur und unregelmäßigem Rand. Innen streckt sich ein grün geschupptes Krokodil mit orangen Punkten und offenem Maul voller spitzer Zähne über dunklen Grund; außen läuft ein handgeschriebener Schriftzug. Bemalt mit Unterglasurfarben – schön als Ablage für Schmuck oder Kleinkram.",
+      "en": "Hand-formed oval dish with a pale yellow, finely speckled glaze and an uneven rim. Inside, a green scaly crocodile with orange dots and an open mouth full of pointed teeth stretches across a dark ground; hand-lettered writing runs around the outside. Painted with underglaze colours – lovely as a tray for jewellery or odds and ends."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Mein Krokodil hat nur ein kleines bisschen Hunger – Finger also lieber draußen lassen. Ringe und Kleinkram mag es aber.",
+      "en": "My crocodile is only a tiny bit peckish – so best keep your fingers out. It doesn’t mind rings and odds and ends, though."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
@@ -1689,10 +1832,11 @@
       "Maße und Gewicht nachmessen – nur geschätzt (ca. 12 × 10 cm, Höhe ca. 3 cm, ca. 220 g); neben dem grünen 12-cm-Teller wirkt die Schale flacher und weniger länglich als auf dem ersten Foto",
       "Prüfen, ob beide Fotos dieselbe Schale zeigen: Auf Foto 2 ist die Schrift rotbraun statt blau-violett, außen ist ein feines Haarrissnetz (Krakelee) zu sehen, und innen sind graue, verzweigte Formen zu sehen, die auf Foto 1 nicht vorkommen. Falls es zwei Schalen sind, bitte in zwei Produkte aufteilen",
       "Tonart und Glasur bestätigen (Steinzeug mit Transparentglasur angenommen)",
-      "Lebensmittelechtheit und Spülmaschineneignung klären – feine Haarrisse in der Glasur sprechen eher gegen Lebensmittel; der Text sagt derzeit nur „von Hand reinigen“",
-      "Schriftzug wird im Shoptext bewusst nicht wiedergegeben – bitte selbst prüfen, ob die Verwendung des Textes unbedenklich ist",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "Beschreibung: Pflegesatz entfernt (es gilt die feste Pflegezeile für Keramik) und ein Deko-Zweck ergänzt – passt so?",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -1720,8 +1864,12 @@
       "en": "Pendant “Bat, hanging out”"
     },
     "description": {
-      "de": "Flacher Keramikanhänger in Fledermausform, glänzend schwarz glasiert, mit weißen Augen, zwei kleinen Zähnen und tropfenartig auslaufendem Flügelsaum; neben dem Kopf sitzen zwei runde Aussparungen. Quer über den Körper läuft ein handgeschriebener Schriftzug in Weiß. Hängt an einer schwarzen Kordel mit eingeflochtenem Goldfaden – Keramik ist zerbrechlich, bitte nicht fallen lassen.",
-      "en": "Flat ceramic pendant shaped like a bat, glazed in glossy black, with white eyes, two small fangs and a drippy wing hem; two round cut-outs sit beside the head. White hand-lettered writing runs across the body. Hangs on a black cord braided with gold thread – ceramic is breakable, so please don't drop it."
+      "de": "Flacher Keramikanhänger in Fledermausform, glänzend schwarz glasiert, mit weißen Augen, zwei kleinen Zähnen und tropfenartig auslaufendem Flügelsaum; neben dem Kopf sitzen zwei runde Aussparungen. Quer über den Körper läuft ein handgeschriebener Schriftzug in Weiß. Hängt an einer schwarzen Kordel mit eingeflochtenem Goldfaden.",
+      "en": "Flat ceramic pendant shaped like a bat, glazed in glossy black, with white eyes, two small fangs and a drippy wing hem; two round cut-outs sit beside the head. White hand-lettered writing runs across the body. Hangs on a black cord braided with gold thread."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Diese Fledermaus macht einfach gar nichts, und das so überzeugend, dass ich fast neidisch werde. An der Kordel mit Goldfaden hängt sie gut ab.",
+      "en": "This bat does absolutely nothing, so convincingly that I’m almost jealous. On its cord with the gold thread it’s just hanging out."
     },
     "materials": {
       "de": "Keramik, Unterglasurfarben, Glanzglasur; schwarz-goldene Kordel, Biegering aus Metall",
@@ -1747,9 +1895,10 @@
       "Größe des Anhängers nachmessen – nur geschätzt (ca. 4 × 4,5 cm), Gewicht ca. 15 g geschätzt",
       "Länge der Kordel und Art des Verschlusses ergänzen",
       "Metallteile prüfen (nickelfrei? Angabe für Schmuck mit Hautkontakt)",
-      "Schriftzug wird im Shoptext bewusst nicht wiedergegeben – bitte selbst prüfen, ob die Verwendung des Textes unbedenklich ist",
       "Material der Metallteile eintragen, Nickelfrei-Nachweis hochladen und „Glasur bleifrei“ bestätigen (Pflicht für Schmuck).",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -1770,8 +1919,12 @@
       "en": "Pendant “Horse, reversible mane”"
     },
     "description": {
-      "de": "Flacher, beidseitig bemalter Keramikanhänger in Form eines Pferdekopfs, mit cremefarbener Krakelee-Glasur und grauen Tupfen. Auf der einen Seite trägt das Pferd eine kräftig schwarz gestreifte Mähne, auf der anderen eine weich grau gestrichelte. Hängt an einer doppelten feinen silberfarbenen Kette; Keramik ist zerbrechlich.",
-      "en": "Flat ceramic pendant shaped like a horse's head, painted on both sides, with a cream crackle glaze and grey dapple spots. One side has a bold black striped mane, the other a soft grey brushed one. Hangs on a doubled fine silver-tone chain; ceramic is breakable."
+      "de": "Flacher, beidseitig bemalter Keramikanhänger in Form eines Pferdekopfs, mit cremefarbener Krakelee-Glasur und grauen Tupfen. Auf der einen Seite trägt das Pferd eine kräftig schwarz gestreifte Mähne, auf der anderen eine weich grau gestrichelte. Hängt an einer doppelten feinen silberfarbenen Kette.",
+      "en": "Flat ceramic pendant shaped like a horse's head, painted on both sides, with a cream crackle glaze and grey dapple spots. One side has a bold black striped mane, the other a soft grey brushed one. Hangs on a doubled fine silver-tone chain."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Zwei Frisuren, ein Pferd: Ich konnte mich nicht entscheiden, also bekam es beide. Du drehst den Anhänger einfach je nach Laune.",
+      "en": "Two hairstyles, one horse: I couldn’t decide, so it got both. Just turn the pendant to suit your mood."
     },
     "materials": {
       "de": "Keramik, Unterglasurfarben, Krakelee-Glasur; doppelte silberfarbene Gliederkette, Biegering",
@@ -1799,7 +1952,8 @@
       "Kettenlänge und Verschluss ergänzen",
       "Metallteile prüfen (nickelfrei? Angabe für Schmuck mit Hautkontakt)",
       "Material der Metallteile eintragen, Nickelfrei-Nachweis hochladen und „Glasur bleifrei“ bestätigen (Pflicht für Schmuck).",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -1824,11 +1978,15 @@
     "category": "schmuck",
     "title": {
       "de": "Anhänger „Schwarze Katze, unbeeindruckt“",
-      "en": "Charm “Black cat, unimpressed”"
+      "en": "Pendant “Black cat, unimpressed”"
     },
     "description": {
-      "de": "Kleiner, plastisch geformter Katzenkopf aus Keramik, glänzend schwarz glasiert, mit beigen Innenohren, halb geschlossenen Augenlidern und erhabener, getupfter Schnauze. Wird mit einem Karabiner an einer silberfarbenen Kugelkette getragen und lässt sich auch an Schlüsselbund oder Tasche hängen. Keramik ist zerbrechlich.",
-      "en": "Small, sculpted ceramic cat head glazed in glossy black, with beige inner ears, half-closed eyelids and a raised, dotted muzzle. Worn with a lobster clasp on a silver-tone ball chain, and can also be clipped to keys or a bag. Ceramic is breakable."
+      "de": "Kleiner, plastisch geformter Katzenkopf aus Keramik, glänzend schwarz glasiert, mit beigen Innenohren, halb geschlossenen Augenlidern und erhabener, getupfter Schnauze. Wird mit einem Karabiner an einer silberfarbenen Kugelkette getragen und lässt sich auch an Schlüsselbund oder Tasche hängen.",
+      "en": "Small, sculpted ceramic cat head glazed in glossy black, with beige inner ears, half-closed eyelids and a raised, dotted muzzle. Worn with a lobster clasp on a silver-tone ball chain, and can also be clipped to keys or a bag."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Meine schwarze Katze hat schon alles gesehen und ist von nichts beeindruckt. Mit dem Karabiner kommt sie auch an Schlüssel oder Tasche mit.",
+      "en": "My black cat has seen it all and isn’t impressed by any of it. With the clasp she’ll come along on your keys or bag too."
     },
     "materials": {
       "de": "Keramik, Unterglasurfarben, Glanzglasur; silberfarbene Kugelkette, Karabiner, Biegeringe",
@@ -1855,14 +2013,15 @@
       "Länge der Kugelkette ergänzen; prüfen, ob die Kette mitverkauft wird",
       "Metallteile prüfen (nickelfrei? Angabe für Schmuck mit Hautkontakt)",
       "Material der Metallteile eintragen, Nickelfrei-Nachweis hochladen und „Glasur bleifrei“ bestätigen (Pflicht für Schmuck).",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
         "file": "B029-1.jpg",
         "alt": {
           "de": "Anhänger „Schwarze Katze, unbeeindruckt“ – Vorderseite",
-          "en": "Charm “Black cat, unimpressed” – front"
+          "en": "Pendant “Black cat, unimpressed” – front"
         }
       }
     ]
@@ -1876,8 +2035,12 @@
       "en": "Pendant “Calico cat, still tired”"
     },
     "description": {
-      "de": "Tropfenförmiger Keramikanhänger, beidseitig bemalt: vorne ein verschlafenes Katzengesicht in Orange, Schwarz und Weiß, hinten ein handgeschriebener Schriftzug in Schwarz auf cremefarbenem Grund. Glänzend glasiert, an einer braunen geflochtenen Kordel mit dunklen Biegeringen. Keramik ist zerbrechlich.",
-      "en": "Teardrop-shaped ceramic pendant painted on both sides: a sleepy cat face in orange, black and white on the front, black hand-lettered writing on a cream ground on the back. Glossy glaze, on a brown braided cord with dark jump rings. Ceramic is breakable."
+      "de": "Tropfenförmiger Keramikanhänger, beidseitig bemalt: vorne ein verschlafenes Katzengesicht in Orange, Schwarz und Weiß, hinten ein handgeschriebener Schriftzug in Schwarz auf cremefarbenem Grund. Glänzend glasiert, an einer braunen geflochtenen Kordel mit dunklen Biegeringen.",
+      "en": "Teardrop-shaped ceramic pendant painted on both sides: a sleepy cat face in orange, black and white on the front, black hand-lettered writing on a cream ground on the back. Glossy glaze, on a brown braided cord with dark jump rings."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Sie ist wach, aber nur so halb – ich kenne das gut. Ein Anhänger für alle, die morgens auch noch etwas Zeit brauchen.",
+      "en": "She’s awake, but only just – I know the feeling. A pendant for everyone who needs a little time in the morning too."
     },
     "materials": {
       "de": "Keramik, Unterglasurfarben, Glanzglasur; braune geflochtene Kordel, Biegeringe aus Metall",
@@ -1904,9 +2067,10 @@
       "Größe nachmessen – nur geschätzt (ca. 2,5 × 4 cm), Gewicht ca. 15 g geschätzt",
       "Länge der Kordel und Verschluss ergänzen",
       "Metallteile prüfen (nickelfrei? Angabe für Schmuck mit Hautkontakt)",
-      "Schriftzug wird im Shoptext bewusst nicht wiedergegeben – bitte selbst prüfen, ob die Verwendung des Textes unbedenklich ist",
       "Material der Metallteile eintragen, Nickelfrei-Nachweis hochladen und „Glasur bleifrei“ bestätigen (Pflicht für Schmuck).",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -1934,8 +2098,12 @@
       "en": "Two-handled cup “Teeth, meant kindly”"
     },
     "description": {
-      "de": "Kleiner, cremeweiß glasierter Becher mit zwei glänzend dunkelbraunen Henkeln und einer Reihe modellierter Zähne am Rand. Vorne sind zwei große Augen mit einem kleinen grauen Herz dazwischen aufgemalt, darunter steht ein handgeschriebener Schriftzug in Braun. Von Hand geformt und bemalt – am besten von Hand spülen.",
-      "en": "Small cream-glazed cup with two glossy dark-brown handles and a row of sculpted teeth along the rim. Two large eyes with a small grey heart between them are painted on the front, with hand-lettered writing in brown below. Shaped and painted by hand – best washed by hand."
+      "de": "Kleiner, cremeweiß glasierter Becher mit zwei glänzend dunkelbraunen Henkeln und einer Reihe modellierter Zähne am Rand. Vorne sind zwei große Augen mit einem kleinen grauen Herz dazwischen aufgemalt, darunter steht ein handgeschriebener Schriftzug in Braun. Von Hand geformt und bemalt – als Deko gedacht, etwa für Pinsel, Stifte oder Trockenblumen.",
+      "en": "Small cream-glazed cup with two glossy dark-brown handles and a row of sculpted teeth along the rim. Two large eyes with a small grey heart between them are painted on the front, with hand-lettered writing in brown below. Shaped and painted by hand – meant as decoration, for brushes, pens or dried flowers."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Er zeigt die Zähne, meint es aber freundlich – ehrlich, ich kenne ihn. Zum Trinken ist er nicht gedacht, für Stifte und Pinsel umso mehr.",
+      "en": "He’s showing his teeth, but he means well – honestly, I know him. He isn’t meant for drinking, but he’s perfect for pens and brushes."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur; Henkel mit brauner Glasur",
@@ -1960,13 +2128,13 @@
       "Preis prüfen (Vorschlag 65 €).",
       "Maße und Gewicht sind geschätzt (Höhe ca. 6 cm, Rand ca. 5 cm, mit Henkeln ca. 9,5 cm, ca. 150 g) – bitte nachmessen und wiegen.",
       "Am unteren Ansatz des rechten Henkels ist ein heller, umwickelter Streifen zu sehen: gewollt (modelliert/glasiert) oder Klebeband bzw. Reparatur? Falls Reparatur oder Riss: als Abweichung beschreiben.",
-      "Lebensmittelecht? Bitte bestätigen, ob der Becher zum Trinken gedacht ist (Glasur innen); sonst als Deko- oder Stiftebecher kennzeichnen.",
       "Material (Steinzeug, Unterglasurfarben, Transparentglasur, braune Henkelglasur) bestätigen.",
-      "Pflegehinweis (von Hand spülen) prüfen.",
-      "Der Schriftzug wird absichtlich nicht wiedergegeben.",
       "Nur ein Foto vorhanden – evtl. Rückseite/Innenseite ergänzen.",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "Beschreibung: Pflegesatz entfernt (es gilt die feste Pflegezeile für Keramik) und ein Deko-Zweck ergänzt – passt so?",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -1989,6 +2157,10 @@
     "description": {
       "de": "Kleine Keramikfigur: ein Schlangenkopf auf langem, gebogenem Hals mit breitem, flachem Fuß. Die Schuppen sind schwarz gezeichnet und mit Pfirsich-Orange, Hellblau und Petrol laviert, das offene Maul ist schwarz glitzernd glasiert und zeigt zwei weiße Fangzähne. Von Hand geformt und bemalt; steht sicher auf ihrem Fuß.",
       "en": "Small ceramic figurine: a snake head on a long, curved neck with a wide, flat base. The scales are drawn in black and washed with peach-orange, pale blue and teal; the open mouth has a glittery black glaze and two white fangs. Shaped and painted by hand; stands steadily on its base."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Ich habe sie mitten im Zischen erwischt. Jetzt steht sie sicher auf ihrem Fuß und zischt dein Regal an.",
+      "en": "I caught her mid-hiss. Now she stands firmly on her foot and hisses at your shelf."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
@@ -2015,7 +2187,8 @@
       "Material bestätigen (Steinzeug, Unterglasurfarben, Transparentglasur; glitzernde schwarze Glasur im Maul).",
       "Bildreihenfolge prüfen: Profil links zuerst, dann Frontansicht, dann Profil rechts.",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -2047,11 +2220,15 @@
     "category": "keramik",
     "title": {
       "de": "Figur „Vogel, etwas skeptisch“",
-      "en": "Figurine “Bird, somewhat skeptical”"
+      "en": "Figurine “Bird, somewhat sceptical”"
     },
     "description": {
       "de": "Kleine Keramikfigur: ein Vogelkopf auf langem Hals mit leicht nach unten gebogenem Schnabel und großen weißen Augen. Die cremefarbene Glasur hat ein feines Craquelé, der Kopf ist kobaltblau gesprenkelt, am Hals sitzen petrolgrüne Tupfen und rund um den Fuß dunkle Punkte. Von Hand geformt und bemalt; steht auf einem flachen, ausgestellten Fuß.",
       "en": "Small ceramic figurine: a bird head on a long neck with a slightly down-curved beak and large white eyes. The cream glaze has a fine crackle, the head is speckled in cobalt blue, with teal spots on the neck and dark dots around the base. Shaped and painted by hand; stands on a flat, flared base."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Dieser Vogel ist von dir noch nicht ganz überzeugt, gib ihm etwas Zeit. Die blauen Sprenkel mag ich besonders.",
+      "en": "This bird isn’t quite sure about you yet – give him some time. I’m especially fond of the blue speckles."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur (Craquelé)",
@@ -2078,28 +2255,30 @@
       "Craquelé (feine Haarrisse in der Glasur) gewollt? Dann passt die Beschreibung; sonst als Abweichung beschreiben.",
       "Material bestätigen (Steinzeug, Unterglasurfarben, Transparentglasur).",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Name: „skeptisch“ steht in vier Namen (Nr. 102, 116, 123, 133). Magst du hier ein anderes Wort, z. B. „misstrauisch“ oder „nicht überzeugt“? Du entscheidest.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
         "file": "B033-1.jpg",
         "alt": {
           "de": "Figur „Vogel, etwas skeptisch“ – Seitenansicht",
-          "en": "Figurine “Bird, somewhat skeptical” – side view"
+          "en": "Figurine “Bird, somewhat sceptical” – side view"
         }
       },
       {
         "file": "B033-2.jpg",
         "alt": {
           "de": "Figur „Vogel, etwas skeptisch“ – Vorderseite",
-          "en": "Figurine “Bird, somewhat skeptical” – front"
+          "en": "Figurine “Bird, somewhat sceptical” – front"
         }
       },
       {
         "file": "B033-3.jpg",
         "alt": {
           "de": "Figur „Vogel, etwas skeptisch“ – Seitenansicht",
-          "en": "Figurine “Bird, somewhat skeptical” – side view"
+          "en": "Figurine “Bird, somewhat sceptical” – side view"
         }
       }
     ]
@@ -2115,6 +2294,10 @@
     "description": {
       "de": "Set aus kleinen Keramikfiguren: ein aufrecht stehendes, schwarz-weiß marmoriertes Wesen mit Stachelkamm, buschigem Schwanz und ausgestreckten Armen, dazu vier cremeweiße Hasen mit rosa Ohren, Punktaugen und kleinem x-förmigem Mund. Von Hand geformt und bemalt; die Hasen lassen sich frei um die große Figur aufstellen.",
       "en": "Set of small ceramic figurines: an upright, black-and-white marbled creature with a spiky crest, bushy tail and outstretched arms, plus four cream rabbits with pink ears, dot eyes and a small x-shaped mouth. Shaped and painted by hand; the rabbits can be arranged freely around the large figure."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Ein Stachelwesen gegen vier Hasen – ich verrate nicht, wer hier wirklich bestimmt. Die Hasen kannst du jeden Tag anders aufstellen.",
+      "en": "One spiky creature against four rabbits – I won’t tell you who’s really in charge. You can arrange the rabbits differently every day."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
@@ -2143,7 +2326,8 @@
       "Material bestätigen (Steinzeug, Unterglasurfarben, Transparentglasur).",
       "Nur ein Gruppenfoto vorhanden – evtl. Einzelfotos ergänzen.",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -2166,6 +2350,10 @@
     "description": {
       "de": "Länglicher, leicht gewellter Anhänger aus cremeweiß glasierter Keramik an einer hellgrauen geflochtenen Kordel. Unten schaut ein skizziertes Katzengesicht in Schwarz und Rostbraun vom Rand herein, darüber steht ein handgeschriebener Schriftzug in zwei Zeilen. Von Hand geformt und bemalt; die kleinen dunklen Sprenkel stammen aus dem Ton.",
       "en": "Long, slightly wavy pendant in cream-glazed ceramic on a light grey braided cord. A sketched cat face in black and rust brown peeks in from the lower edge, with two lines of hand-lettered writing above it. Shaped and painted by hand; the small dark speckles come from the clay."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Die Katze schaut nur kurz rein, wie Katzen das eben machen. Die kleinen Sprenkel kommen aus dem Ton, ich habe sie gelassen.",
+      "en": "The cat is just popping in, the way cats do. The little speckles come from the clay – I left them be."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur; geflochtene Kordel",
@@ -2191,10 +2379,11 @@
       "Maße sind geschätzt (ca. 2 × 6 cm, kein Größenvergleich im Foto) – bitte nachmessen; Kordellänge und Material der Kordel ergänzen.",
       "Gewicht geschätzt (ca. 15 g mit Kordel).",
       "Material bestätigen (Steinzeug, Unterglasurfarben, Transparentglasur).",
-      "Der Schriftzug wird absichtlich nicht wiedergegeben.",
       "Nur ein Foto vorhanden – evtl. Rückseite ergänzen.",
       "Material der Metallteile eintragen, Nickelfrei-Nachweis hochladen und „Glasur bleifrei“ bestätigen (Pflicht für Schmuck).",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -2217,6 +2406,10 @@
     "description": {
       "de": "Kleiner Anhänger aus Keramik: ein Fuchs als Brustbild mit großen spitzen Ohren, cremefarbenem Lätzchen und orangebraunem Fell, von Hand bemalt und glänzend glasiert. Hinten deuten zwei schwarze Striche den Schwanz an. Mit kleinem Karabiner zum Einhängen an eine Kette, den Schlüsselbund oder die Tasche.",
       "en": "Small ceramic pendant: a fox bust with big pointed ears, a cream bib and orange-brown fur, hand-painted and glossy-glazed. Two black strokes on the back hint at a tail. Fitted with a small lobster clasp to hook onto a chain, a key ring or a bag."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Ein kleiner Fuchs, der gern mitkommt – an der Kette, am Schlüsselbund oder an der Tasche. Ich mag Begleiter, die überallhin passen.",
+      "en": "A little fox who likes to tag along – on a chain, your keys or your bag. I like companions who fit in anywhere."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur; Ösen und Karabiner aus Metall",
@@ -2246,7 +2439,8 @@
       "Tonart/Glasur bestätigen (Steinzeug angenommen)",
       "Gewicht geschätzt",
       "Material der Metallteile eintragen, Nickelfrei-Nachweis hochladen und „Glasur bleifrei“ bestätigen (Pflicht für Schmuck).",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -2270,12 +2464,16 @@
     "itemNumber": 137,
     "category": "keramik",
     "title": {
-      "de": "Keramikfigur „Schlange, Zunge raus“",
-      "en": "Ceramic figurine “Snake, tongue out”"
+      "de": "Figur „Schlange, Zunge raus“",
+      "en": "Figurine “Snake, tongue out”"
     },
     "description": {
       "de": "Kleine Keramikschlange, flach aufgerollt, mit hochgerecktem Hals, großem Seitenblick und langer orangefarbener Zunge. Gelbgrün glasiert, die Schuppen sind als dunkelgrüne Kringel von Hand aufgemalt. Die Zunge ist dünn modelliert – bitte nicht daran hochheben.",
       "en": "Small ceramic snake, coiled flat, with a raised neck, a big sideways glance and a long orange tongue. Glazed in yellow-green, with the scales hand-painted as dark green squiggles. The tongue is thinly modelled – please don't pick it up by it."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Sie streckt dir die Zunge raus, aber ganz ohne böse Absicht, das verspreche ich. Klein genug für jedes Fensterbrett.",
+      "en": "She’s sticking her tongue out at you, but with no bad intentions at all, I promise. Small enough for any windowsill."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
@@ -2304,21 +2502,23 @@
       "Zunge auf Haarrisse/Bruchstellen prüfen",
       "Tonart/Glasur bestätigen (Steinzeug angenommen)",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Name ohne „Keramik“ davor – die Kategorie sagt es schon. Passt so?",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
         "file": "B037-1.jpg",
         "alt": {
-          "de": "Keramikfigur „Schlange, Zunge raus“ – Vorderseite",
-          "en": "Ceramic figurine “Snake, tongue out” – front"
+          "de": "Figur „Schlange, Zunge raus“ – Vorderseite",
+          "en": "Figurine “Snake, tongue out” – front"
         }
       },
       {
         "file": "B037-2.jpg",
         "alt": {
-          "de": "Keramikfigur „Schlange, Zunge raus“ – Vorderseite",
-          "en": "Ceramic figurine “Snake, tongue out” – front"
+          "de": "Figur „Schlange, Zunge raus“ – Vorderseite",
+          "en": "Figurine “Snake, tongue out” – front"
         }
       }
     ]
@@ -2328,12 +2528,16 @@
     "itemNumber": 138,
     "category": "keramik",
     "title": {
-      "de": "Keramikfigur „Tiger, schaut weg“",
-      "en": "Ceramic figurine “Tiger, looking the other way”"
+      "de": "Figur „Tiger, schaut weg“",
+      "en": "Figurine “Tiger, looking the other way”"
     },
     "description": {
       "de": "Kleiner sitzender Keramiktiger in Cremeweiß und Orange, mit kräftigen schwarzen Pinselstreifen und aufgestelltem geringeltem Schwanz mit schwarzer Spitze. Von Hand bemalt, glänzende Glasur mit feinem Craquelé (Haarrissmuster in der Glasur). Steht sicher auf seinen Pfoten.",
       "en": "Small seated ceramic tiger in cream and orange, with bold black brush stripes and an upright banded tail with a black tip. Hand-painted, glossy glaze with a fine crackle pattern. Sits steadily on its paws."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Der Tiger tut so, als hätte er dich nicht gesehen. Ich verrate dir was: Hat er aber.",
+      "en": "The tiger is pretending he hasn’t seen you. I’ll let you in on a secret: he has."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
@@ -2361,28 +2565,30 @@
       "Craquelé ist als Gestaltungsmerkmal beschrieben, nicht als Mangel – passt das so?",
       "Tonart/Glasur bestätigen (Steinzeug angenommen)",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Name ohne „Keramik“ davor – die Kategorie sagt es schon. Passt so?",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
         "file": "B038-1.jpg",
         "alt": {
-          "de": "Keramikfigur „Tiger, schaut weg“ – Seitenansicht",
-          "en": "Ceramic figurine “Tiger, looking the other way” – side view"
+          "de": "Figur „Tiger, schaut weg“ – Seitenansicht",
+          "en": "Figurine “Tiger, looking the other way” – side view"
         }
       },
       {
         "file": "B038-2.jpg",
         "alt": {
-          "de": "Keramikfigur „Tiger, schaut weg“ – Seitenansicht",
-          "en": "Ceramic figurine “Tiger, looking the other way” – side view"
+          "de": "Figur „Tiger, schaut weg“ – Seitenansicht",
+          "en": "Figurine “Tiger, looking the other way” – side view"
         }
       },
       {
         "file": "B038-3.jpg",
         "alt": {
-          "de": "Keramikfigur „Tiger, schaut weg“ – Rückseite",
-          "en": "Ceramic figurine “Tiger, looking the other way” – back"
+          "de": "Figur „Tiger, schaut weg“ – Rückseite",
+          "en": "Figurine “Tiger, looking the other way” – back"
         }
       }
     ]
@@ -2393,11 +2599,15 @@
     "category": "keramik",
     "title": {
       "de": "Kelch „Fuchs mit Narrenkappe“",
-      "en": "Goblet “Fox in a jester’s cap”"
+      "en": "Chalice “Fox in a jester’s cap”"
     },
     "description": {
       "de": "Kleiner Keramikkelch mit Fuß und langem Bogenhenkel, cremeweiß mit feinem Craquelé. Innen ein Fuchs mit grüner Narrenkappe und gelben Schellen, außen ein handgeschriebener Schriftzug, am Fuß ein grüner Zackenrand. Als Dekoobjekt gedacht, z. B. als Ablage für Ringe oder Kleinkram.",
       "en": "Small ceramic goblet with a foot and a long looping handle, cream with a fine crackle glaze. Inside, a fox in a green jester’s cap with yellow bells; outside, hand-lettered writing; a green zigzag edge around the foot. Intended as a decorative piece, for example to hold rings or small odds and ends."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Ein Fuchs mit Narrenkappe, der sich selbst nicht so ernst nimmt – das mag ich an ihm. Er ist Deko, kein Trinkgefäß, Ringe hebt er gern auf.",
+      "en": "A fox in a jester’s cap who doesn’t take himself too seriously – that’s what I like about him. He’s decoration, not for drinking, but he’ll happily look after your rings."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
@@ -2422,33 +2632,33 @@
       "Preis prüfen",
       "Maße über die 12-cm-Platte geschätzt (Breite inkl. Henkel, Durchmesser = Schale) – nachmessen",
       "Gewicht geschätzt",
-      "Lebensmittelkontakt: als Deko beschrieben (Standard) – nur ändern, wenn eine Konformitätserklärung vorliegt",
       "Henkel und Rand auf Abplatzer prüfen (auf 11_IMG_7243 wirkt das Henkelende grau) – falls ja, als Abweichung beschreiben",
-      "Schriftzug außen bewusst nicht wiedergegeben",
       "Foto 11_IMG_7243 zeigt vermutlich dieselbe Schale von innen – bestätigen",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
         "file": "B039-1.jpg",
         "alt": {
           "de": "Kelch „Fuchs mit Narrenkappe“ – Seitenansicht",
-          "en": "Goblet “Fox in a jester’s cap” – side view"
+          "en": "Chalice “Fox in a jester’s cap” – side view"
         }
       },
       {
         "file": "B039-2.jpg",
         "alt": {
           "de": "Kelch „Fuchs mit Narrenkappe“ – Seitenansicht",
-          "en": "Goblet “Fox in a jester’s cap” – side view"
+          "en": "Chalice “Fox in a jester’s cap” – side view"
         }
       },
       {
         "file": "B039-3.jpg",
         "alt": {
           "de": "Kelch „Fuchs mit Narrenkappe“ – Blick hinein",
-          "en": "Goblet “Fox in a jester’s cap” – view inside"
+          "en": "Chalice “Fox in a jester’s cap” – view inside"
         }
       }
     ]
@@ -2458,12 +2668,16 @@
     "itemNumber": 140,
     "category": "keramik",
     "title": {
-      "de": "Keramikbüste „Hund, Nase im Wind“",
-      "en": "Ceramic bust “Dog, nose in the wind”"
+      "de": "Büste „Hund, Nase im Wind“",
+      "en": "Bust “Dog, nose in the wind”"
     },
     "description": {
       "de": "Keramikbüste eines Hundes mit langem Hals auf breitem Sockel, die Nase nach oben gereckt, ein Ohr steht seitlich ab, das andere aufrecht. Cremeweiß mit orangefarbener Lasur und glänzend schwarzer Nase, von Hand bemalt, Glasur mit feinem Craquelé. Steht sicher auf dem ausgestellten Fuß.",
       "en": "Ceramic bust of a long-necked dog on a broad base, nose raised, one ear sticking out sideways and the other upright. Cream with an orange wash and a glossy black nose, hand-painted under a fine crackle glaze. Stands securely on its flared base."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Nase in den Wind und alles riechen, was kommt – so stelle ich mir einen guten Tag vor. Er macht sich gut auf dem Regal.",
+      "en": "Nose in the wind, sniffing whatever comes along – that’s my idea of a good day. He looks great on a shelf."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
@@ -2494,28 +2708,30 @@
       "Abstehendes Ohr auf Haarrisse prüfen",
       "Tonart/Glasur bestätigen (Steinzeug angenommen)",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Name ohne „Keramik“ davor – die Kategorie sagt es schon. Passt so?",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
         "file": "B040-1.jpg",
         "alt": {
-          "de": "Keramikbüste „Hund, Nase im Wind“ – Seitenansicht",
-          "en": "Ceramic bust “Dog, nose in the wind” – side view"
+          "de": "Büste „Hund, Nase im Wind“ – Seitenansicht",
+          "en": "Bust “Dog, nose in the wind” – side view"
         }
       },
       {
         "file": "B040-2.jpg",
         "alt": {
-          "de": "Keramikbüste „Hund, Nase im Wind“ – Seitenansicht",
-          "en": "Ceramic bust “Dog, nose in the wind” – side view"
+          "de": "Büste „Hund, Nase im Wind“ – Seitenansicht",
+          "en": "Bust “Dog, nose in the wind” – side view"
         }
       },
       {
         "file": "B040-3.jpg",
         "alt": {
-          "de": "Keramikbüste „Hund, Nase im Wind“ – Seitenansicht",
-          "en": "Ceramic bust “Dog, nose in the wind” – side view"
+          "de": "Büste „Hund, Nase im Wind“ – Seitenansicht",
+          "en": "Bust “Dog, nose in the wind” – side view"
         }
       }
     ]
@@ -2531,6 +2747,10 @@
     "description": {
       "de": "Kleine Hundefigur aus Keramik auf schlankem Hals, cremeweiß mit orangefarbener Lasur, glänzend schwarzer Nase und schwarzen Augenflecken. Ein Ohr steht aufrecht, das andere ist umgeklappt. Von Hand geformt und mit Unterglasurfarben bemalt; feine schwarze Sprenkel und ein leichtes Craquelé in der Glasur gehören dazu.",
       "en": "Small ceramic dog figurine on a slender neck, cream with an orange wash, a glossy black nose and black eye patches. One ear stands up, the other is folded over. Shaped by hand and painted with underglaze colours; fine black speckles and a light crackle in the glaze are part of the look."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Ein Ohr hört zu, das andere hat Feierabend. Meine Lieblingshaltung für Sonntage.",
+      "en": "One ear is listening, the other has clocked off. My favourite way to spend a Sunday."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
@@ -2558,7 +2778,8 @@
       "Material und Glasur bestätigen (Steinzeug? Transparentglasur?)",
       "Feines Craquelé in der Glasur: gewollt? Sonst als Abweichung beschreiben",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -2590,11 +2811,15 @@
     "category": "keramik",
     "title": {
       "de": "Henkelschälchen „Innen Seestern, außen Geschrei“",
-      "en": "Two-handled cup “Starfish inside, shouting outside”"
+      "en": "Two-handled dish “Starfish inside, shouting outside”"
     },
     "description": {
-      "de": "Kleines, cremeweißes Schälchen auf schmalem Fuß mit welligem Rand und zwei großen, blau gesprenkelten Henkeln, die bis auf den Tisch reichen. Außen ein Gesicht mit Kulleraugen und grüner Zipfelmütze, auf der Rückseite ein schreiendes Gesicht mit erhobenen Händen; innen ein schraffierter schwarzer Seestern mit handgeschriebenem Schriftzug. Von Hand geformt und mit Unterglasurfarben bemalt – gut für Ringe und Kleinkram, bitte von Hand reinigen.",
-      "en": "Small cream cup on a narrow foot with a wavy rim and two large blue-speckled handles that reach down to the table. On the outside a goggle-eyed face in a green pointed hood, on the back a shouting face with raised hands; inside a hatched black starfish with hand-lettered writing. Shaped by hand and painted with underglaze colours – handy for rings and small things, please clean by hand."
+      "de": "Kleines, cremeweißes Schälchen auf schmalem Fuß mit welligem Rand und zwei großen, blau gesprenkelten Henkeln, die bis auf den Tisch reichen. Außen ein Gesicht mit Kulleraugen und grüner Zipfelmütze, auf der Rückseite ein schreiendes Gesicht mit erhobenen Händen; innen ein schraffierter schwarzer Seestern mit handgeschriebenem Schriftzug. Von Hand geformt und mit Unterglasurfarben bemalt – gut für Ringe und Kleinkram.",
+      "en": "Small cream dish on a narrow foot with a wavy rim and two large blue-speckled handles that reach down to the table. On the outside a goggle-eyed face in a green pointed hood, on the back a shouting face with raised hands; inside a hatched black starfish with hand-lettered writing. Shaped by hand and painted with underglaze colours – handy for rings and small things."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Außen wird geschrien, innen liegt der Seestern ganz ruhig. Ich finde, Ringe brauchen auch mal ihre Ruhe.",
+      "en": "Outside there’s shouting, inside the starfish lies perfectly still. I think rings need some peace and quiet too."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur, blaue Glasur an den Henkeln",
@@ -2620,30 +2845,33 @@
       "Maße nur geschätzt (ca. 11 cm breit mit Henkeln, 4 cm hoch) – bitte nachmessen",
       "Gewicht geschätzt (ca. 90 g) – bitte wiegen",
       "Prüfen, ob alle drei Fotos dasselbe Schälchen zeigen",
-      "Material und Glasur bestätigen; lebensmittelecht/spülmaschinenfest? Bisher nur als Schälchen für Kleinkram beschrieben",
+      "Material und Glasur bestätigen",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "Beschreibung: Pflegesatz entfernt (es gilt die feste Pflegezeile für Keramik) und ein Deko-Zweck ergänzt – passt so?",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
         "file": "B042-1.jpg",
         "alt": {
           "de": "Henkelschälchen „Innen Seestern, außen Geschrei“ – Vorderseite",
-          "en": "Two-handled cup “Starfish inside, shouting outside” – front"
+          "en": "Two-handled dish “Starfish inside, shouting outside” – front"
         }
       },
       {
         "file": "B042-2.jpg",
         "alt": {
           "de": "Henkelschälchen „Innen Seestern, außen Geschrei“ – Vorderseite",
-          "en": "Two-handled cup “Starfish inside, shouting outside” – front"
+          "en": "Two-handled dish “Starfish inside, shouting outside” – front"
         }
       },
       {
         "file": "B042-3.jpg",
         "alt": {
           "de": "Henkelschälchen „Innen Seestern, außen Geschrei“ – Blick hinein",
-          "en": "Two-handled cup “Starfish inside, shouting outside” – view inside"
+          "en": "Two-handled dish “Starfish inside, shouting outside” – view inside"
         }
       }
     ]
@@ -2657,8 +2885,12 @@
       "en": "Goblet “Skull, crying a little”"
     },
     "description": {
-      "de": "Kleiner Pokal mit dunkelbraun marmoriertem Stiel und Fuß und zwei hellgrünen Henkeln, die zusammen ein Herz bilden. Innen auf dunklem Grund ein cremefarbener Totenkopf mit Flügeln und Tränen, außen ein handgeschriebener Schriftzug und ein kleines Blatt. Von Hand geformt und mit Unterglasurfarben bemalt – passt für Ringe oder Kleinkram, bitte von Hand reinigen.",
-      "en": "Small goblet with a dark brown marbled stem and foot and two light green handles that together form a heart. Inside, on a dark ground, a cream skull with wings and tears; on the outside hand-lettered writing and a small leaf. Shaped by hand and painted with underglaze colours – fits rings or small things, please clean by hand."
+      "de": "Kleiner Pokal mit dunkelbraun marmoriertem Stiel und Fuß und zwei hellgrünen Henkeln, die zusammen ein Herz bilden. Innen auf dunklem Grund ein cremefarbener Totenkopf mit Flügeln und Tränen, außen ein handgeschriebener Schriftzug und ein kleines Blatt. Von Hand geformt und mit Unterglasurfarben bemalt – als Deko gedacht, passt für Ringe oder Kleinkram.",
+      "en": "Small goblet with a dark brown marbled stem and foot and two light green handles that together form a heart. Inside, on a dark ground, a cream skull with wings and tears; on the outside hand-lettered writing and a small leaf. Shaped by hand and painted with underglaze colours – meant as decoration, fits rings or small things."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Auch Totenköpfe dürfen mal weinen, finde ich. Die Henkel ergeben zusammen ein Herz – und darin haben Ringe einen guten Platz.",
+      "en": "Even skulls are allowed a little cry, I think. Together the handles make a heart – and rings have a good home inside."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur, grüne Glasur an den Henkeln",
@@ -2683,11 +2915,14 @@
       "Preis prüfen (Vorschlag 68 €)",
       "Maße nur geschätzt (ca. 7 cm hoch, 10 cm breit mit Henkeln) – bitte nachmessen",
       "Gewicht geschätzt (ca. 110 g) – bitte wiegen",
-      "Material und Glasur bestätigen (Stiel braun glasiert oder bemalt?); lebensmittelecht/spülmaschinenfest?",
+      "Material und Glasur bestätigen (Stiel braun glasiert oder bemalt?)",
       "Henkelansatz rechts (Foto 3) wirkt etwas uneben – kurz prüfen, ob das gewollt ist",
       "Reihenfolge der Fotos prüfen (evtl. Foto mit Totenkopf innen als erstes Bild)",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "Beschreibung: Pflegesatz entfernt (es gilt die feste Pflegezeile für Keramik) und ein Deko-Zweck ergänzt – passt so?",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -2722,8 +2957,12 @@
       "en": "Small dish “Shark, coming up from below”"
     },
     "description": {
-      "de": "Flaches, welliges Schälchen auf kleinem Fuß mit cremefarbenen Henkeln in Craquelé-Glasur; einer der beiden Henkel ist in der Mitte gebrochen. Innen steigt ein Hai mit offenem Maul aus tiefblauem Wasser auf, oben an der Oberfläche schwimmt eine kleine Figur mit gelben Haaren; außen am Fuß ein feiner handgeschriebener Schriftzug in Orangebraun. Von Hand geformt und mit Unterglasurfarben bemalt – bitte von Hand reinigen und die Bruchstellen vorsichtig anfassen.",
-      "en": "Shallow, wavy little dish on a small foot with cream handles in a crackle glaze; one of the two handles is broken in the middle. Inside, a shark with open jaws rises from deep blue water towards a small swimmer with yellow hair at the surface; near the foot on the outside fine hand-lettered writing in orange-brown. Shaped by hand and painted with underglaze colours – please clean by hand and handle the broken ends with care."
+      "de": "Flaches, welliges Schälchen auf kleinem Fuß mit cremefarbenen Henkeln in Craquelé-Glasur; einer der beiden Henkel ist in der Mitte gebrochen. Innen steigt ein Hai mit offenem Maul aus tiefblauem Wasser auf, oben an der Oberfläche schwimmt eine kleine Figur mit gelben Haaren; außen am Fuß ein feiner handgeschriebener Schriftzug in Orangebraun. Von Hand geformt und mit Unterglasurfarben bemalt – gut für Ringe oder Kleinkram; die Bruchstellen bitte vorsichtig anfassen.",
+      "en": "Shallow, wavy little dish on a small foot with cream handles in a crackle glaze; one of the two handles is broken in the middle. Inside, a shark with open jaws rises from deep blue water towards a small swimmer with yellow hair at the surface; near the foot on the outside fine hand-lettered writing in orange-brown. Shaped by hand and painted with underglaze colours – good for rings or odds and ends; please handle the broken ends with care."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Der Hai kommt von unten, die kleine Figur oben merkt noch nichts. Ein Henkel ist gebrochen – ich mag das Schälchen trotzdem sehr.",
+      "en": "The shark is coming up from below, and the little swimmer hasn’t noticed yet. One handle is broken – I still love this dish."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur mit Craquelé",
@@ -2756,9 +2995,12 @@
       "Maße nur geschätzt (ca. 10 cm breit mit Henkeln, 3 cm hoch) – bitte nachmessen",
       "Gewicht geschätzt (ca. 100 g) – bitte wiegen",
       "Craquelé in der Glasur: gewollt? Sonst ebenfalls als Abweichung beschreiben",
-      "Material und Glasur bestätigen; lebensmittelecht/spülmaschinenfest?",
+      "Material und Glasur bestätigen",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "Beschreibung: Pflegesatz entfernt (es gilt die feste Pflegezeile für Keramik) und ein Deko-Zweck ergänzt – passt so?",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -2789,12 +3031,16 @@
     "itemNumber": 145,
     "category": "keramik",
     "title": {
-      "de": "Keramik-Set „Hase, wartet auf Einsatz“",
-      "en": "Ceramic set “Rabbit, waiting for its cue”"
+      "de": "Set „Hase, wartet auf Einsatz“",
+      "en": "Set “Rabbit, waiting for its cue”"
     },
     "description": {
       "de": "Zweiteiliges Set: ein kleiner Zylinder mit welliger Krempe, glänzend schwarzer, leicht marmorierter Glasur und rosa Innenseite, dazu ein cremefarbener Hase mit langen, innen rosa Ohren und lila Kreuzstich-Nase. Der Hase passt in den Hut, dann schauen nur noch die Ohren heraus. Von Hand geformt und bemalt; Kleinteile, daher nichts für kleine Kinder.",
       "en": "Two-piece set: a small top hat with a wavy brim, glossy, slightly marbled black glaze and a pink inside, plus a cream rabbit with long, pink-lined ears and a purple cross-stitch nose. The rabbit fits into the hat so that only its ears stick out. Shaped and painted by hand; small parts, so not suitable for small children."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Mein Hase wartet im Hut auf seinen großen Auftritt. Bis dahin schauen nur die Ohren raus.",
+      "en": "My rabbit is waiting in the hat for his big moment. Until then, only his ears peek out."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
@@ -2822,21 +3068,23 @@
       "Gewicht geschätzt (ca. 60 g für beide) – bitte wiegen",
       "Material und Glasur bestätigen (schwarzer Hut: Glasur oder Unterglasurfarbe?)",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Name ohne „Keramik“ davor – die Kategorie sagt es schon. Passt so?",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
         "file": "B045-1.jpg",
         "alt": {
-          "de": "Keramik-Set „Hase, wartet auf Einsatz“ – Vorderseite",
-          "en": "Ceramic set “Rabbit, waiting for its cue” – front"
+          "de": "Set „Hase, wartet auf Einsatz“ – Vorderseite",
+          "en": "Set “Rabbit, waiting for its cue” – front"
         }
       },
       {
         "file": "B045-2.jpg",
         "alt": {
-          "de": "Keramik-Set „Hase, wartet auf Einsatz“ – Vorderseite",
-          "en": "Ceramic set “Rabbit, waiting for its cue” – front"
+          "de": "Set „Hase, wartet auf Einsatz“ – Vorderseite",
+          "en": "Set “Rabbit, waiting for its cue” – front"
         }
       }
     ]
@@ -2850,8 +3098,12 @@
       "en": "Bowl “Sea serpent, once around”"
     },
     "description": {
-      "de": "Kleine handgeformte Schale auf schmalem Fuß. Außen zieht sich eine blau geschuppte Seeschlange mit großem Auge einmal um die Wand. Dazu kommen eine rostbraune Flosse, kleine schwarze Punkte und ein handgeschriebener Schriftzug, innen läuft ein schwarz-weißes Karomuster zur Mitte hin zusammen. Handgeformt und deshalb leicht unrund – am besten von Hand spülen.",
-      "en": "Small hand-formed bowl on a narrow foot. On the outside, a blue-scaled sea serpent with a large eye wraps once around the wall. It comes with a rust-brown fin, small black dots and hand-lettered writing, while inside a black-and-white checkerboard runs together towards the centre. Hand-formed and therefore slightly uneven – best washed by hand."
+      "de": "Kleine handgeformte Schale auf schmalem Fuß. Außen zieht sich eine blau geschuppte Seeschlange mit großem Auge einmal um die Wand. Dazu kommen eine rostbraune Flosse, kleine schwarze Punkte und ein handgeschriebener Schriftzug, innen läuft ein schwarz-weißes Karomuster zur Mitte hin zusammen. Handgeformt und deshalb leicht unrund – schön für Ringe, Ohrringe oder Kleinkram.",
+      "en": "Small hand-formed bowl on a narrow foot. On the outside, a blue-scaled sea serpent with a large eye wraps once around the wall. It comes with a rust-brown fin, small black dots and hand-lettered writing, while inside a black-and-white checkerboard runs together towards the centre. Hand-formed and therefore slightly uneven – lovely for rings, earrings or odds and ends."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Meine Seeschlange schwimmt einmal rundherum und ist dann wieder am Anfang. Innen zieht das Karo alles zur Mitte.",
+      "en": "My sea serpent swims once around and ends up back where it started. Inside, the checks pull everything towards the middle."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
@@ -2876,9 +3128,11 @@
       "Durchmesser und Höhe nachmessen (geschätzt über den 12-cm-Teller: ca. 8,5 × 5 cm)",
       "Gewicht nachwiegen (geschätzt 170 g)",
       "Material prüfen: Steinzeug? Unterglasur + Transparentglasur?",
-      "Klären, ob lebensmittelecht und spülmaschinenfest – im Text steht vorsichtshalber nur „von Hand spülen“",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "Beschreibung: Pflegesatz entfernt (es gilt die feste Pflegezeile für Keramik) und ein Deko-Zweck ergänzt – passt so?",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -2920,8 +3174,12 @@
       "en": "Bowl “Horned, with company”"
     },
     "description": {
-      "de": "Kleine handgeformte Schale auf schmalem Fuß: Innen legt sich ein schwarzes Wesen mit zwei Hörnern und großen weißen Augen um den Boden, daneben sitzt ein kleines oranges Langohr. Außen sind eine gezeichnete Hand mit langem schwarzem Stab, vier kleine Sterne und ein großer, umrandeter handgeschriebener Schriftzug zu sehen. Mit Unterglasurfarben bemalt und transparent glasiert – am besten von Hand spülen.",
-      "en": "Small hand-formed bowl on a narrow foot: inside, a black creature with two horns and large white eyes curls around the bottom, next to a small orange long-eared companion. On the outside there is a drawn hand holding a long black stick, four small stars and large outlined hand-lettered writing. Painted with underglaze colours and finished with a clear glaze – best washed by hand."
+      "de": "Kleine handgeformte Schale auf schmalem Fuß: Innen legt sich ein schwarzes Wesen mit zwei Hörnern und großen weißen Augen um den Boden, daneben sitzt ein kleines oranges Langohr. Außen sind eine gezeichnete Hand mit langem schwarzem Stab, vier kleine Sterne und ein großer, umrandeter handgeschriebener Schriftzug zu sehen. Mit Unterglasurfarben bemalt und transparent glasiert – gut als Ablage für Schmuck oder Kleinkram.",
+      "en": "Small hand-formed bowl on a narrow foot: inside, a black creature with two horns and large white eyes curls around the bottom, next to a small orange long-eared companion. On the outside there is a drawn hand holding a long black stick, four small stars and large outlined hand-lettered writing. Painted with underglaze colours and finished with a clear glaze – good as a tray for jewellery or odds and ends."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Das gehörnte Wesen ist nie allein, das kleine Langohr weicht ihm nicht von der Seite. So eine Freundschaft wünsche ich allen.",
+      "en": "The horned creature is never alone – the little long-ear never leaves its side. I wish everyone a friendship like that."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
@@ -2952,9 +3210,11 @@
       "Durchmesser und Höhe nachmessen (geschätzt ca. 8 × 5 cm)",
       "Gewicht nachwiegen (geschätzt 160 g)",
       "Material prüfen: Steinzeug? Unterglasur + Transparentglasur?",
-      "Klären, ob lebensmittelecht und spülmaschinenfest – im Text steht vorsichtshalber nur „von Hand spülen“",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "Beschreibung: Pflegesatz entfernt (es gilt die feste Pflegezeile für Keramik) und ein Deko-Zweck ergänzt – passt so?",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -2989,8 +3249,12 @@
       "en": "Bowl “Checks, slightly bent”"
     },
     "description": {
-      "de": "Kleine handgeformte Schale auf schmalem Fuß. Innen wölbt sich ein verzogenes Schwarz-Weiß-Karo durch die Mitte, eingerahmt von braunen und schwarzen Netzlinien und breiten schwarzen Balken am Rand. Außen läuft ein handgeschriebener Schriftzug über zwei Reihen Schlaufenbordüre. Leicht unrund geformt – am besten von Hand spülen.",
-      "en": "Small hand-formed bowl on a narrow foot. Inside, a warped black-and-white checkerboard bulges through the centre, framed by brown and black net lines and broad black bars at the rim. On the outside, hand-lettered writing runs above two rows of looped border. Slightly uneven in shape – best washed by hand."
+      "de": "Kleine handgeformte Schale auf schmalem Fuß. Innen wölbt sich ein verzogenes Schwarz-Weiß-Karo durch die Mitte, eingerahmt von braunen und schwarzen Netzlinien und breiten schwarzen Balken am Rand. Außen läuft ein handgeschriebener Schriftzug über zwei Reihen Schlaufenbordüre. Leicht unrund geformt – gut für Ringe, Büroklammern oder Kleinkram.",
+      "en": "Small hand-formed bowl on a narrow foot. Inside, a warped black-and-white checkerboard bulges through the centre, framed by brown and black net lines and broad black bars at the rim. On the outside, hand-lettered writing runs above two rows of looped border. Slightly uneven in shape – good for rings, paper clips or odds and ends."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Ich wollte ein gerades Karo malen. Es hatte andere Pläne, und so gefällt es mir viel besser.",
+      "en": "I meant to paint straight checks. They had other plans, and I like them much better this way."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
@@ -3016,9 +3280,11 @@
       "Gewicht nachwiegen (geschätzt 170 g)",
       "Rand links und Außenwand auf kleine Macken oder Nadelstiche in der Glasur prüfen; falls ja, als Abweichung beschreiben",
       "Material prüfen: Steinzeug? Unterglasur + Transparentglasur?",
-      "Klären, ob lebensmittelecht und spülmaschinenfest – im Text steht vorsichtshalber nur „von Hand spülen“",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "Beschreibung: Pflegesatz entfernt (es gilt die feste Pflegezeile für Keramik) und ein Deko-Zweck ergänzt – passt so?",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -3046,8 +3312,12 @@
       "en": "Goblet “Grinning, slightly on fire”"
     },
     "description": {
-      "de": "Kleiner Pokal mit konischer Schale, schwarzem Standfuß und zwei großen geschwungenen Henkeln in grüner Craquelé-Glasur; außen pfirsichfarben laviert, mit schwarzen Zackenlinien und handgeschriebenem Schriftzug. Innen grinst auf schwarzem Grund ein Gesicht im Profil zwischen gelbgrünen Zacken und orangen Flammen. Die Henkel sind zart, also bitte von Hand spülen und vorsichtig anfassen.",
-      "en": "Small goblet with a conical bowl, a black pedestal foot and two large looping handles in green crackle glaze; the outside has a peach wash with black zigzag lines and hand-lettered writing. Inside, a face in profile grins on a black ground between yellow-green spikes and orange flames. The handles are delicate, so please wash by hand and handle with care."
+      "de": "Kleiner Pokal mit konischer Schale, schwarzem Standfuß und zwei großen geschwungenen Henkeln in grüner Craquelé-Glasur; außen pfirsichfarben laviert, mit schwarzen Zackenlinien und handgeschriebenem Schriftzug. Innen grinst auf schwarzem Grund ein Gesicht im Profil zwischen gelbgrünen Zacken und orangen Flammen. Als Deko gedacht, etwa für Trockenblumen oder Ringe; die Henkel sind zart, also bitte vorsichtig anfassen.",
+      "en": "Small goblet with a conical bowl, a black pedestal foot and two large looping handles in green crackle glaze; the outside has a peach wash with black zigzag lines and hand-lettered writing. Inside, a face in profile grins on a black ground between yellow-green spikes and orange flames. Meant as decoration, for dried flowers or rings, say; the handles are delicate, so please handle with care."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Er grinst, obwohl es um ihn herum ein bisschen brennt – eine Haltung, die ich bewundere. Schön mit ein paar Trockenblumen.",
+      "en": "He’s grinning even though things are a little on fire around him – an attitude I admire. Lovely with a few dried flowers."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur; Henkel mit grüner Craquelé-Glasur, Fuß schwarz glasiert",
@@ -3077,11 +3347,13 @@
       "Preis prüfen (Vorschlag 79 €, aufwendiger wegen Henkeln und Fuß)",
       "Maße nachmessen (geschätzt: Breite mit Henkeln ca. 11 cm, Schale ca. 7 cm, Höhe ca. 5,5 cm)",
       "Gewicht nachwiegen (geschätzt 200 g)",
-      "Klären, ob die Glasur innen (Haarrisse, raue Stellen) für Lebensmittel geeignet ist – im Text steht vorsichtshalber nur „von Hand spülen“",
       "Henkel sind bruchgefährdet: Versandverpackung entsprechend planen",
       "Material prüfen: Steinzeug? Welche Glasuren genau?",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "Beschreibung: Pflegesatz entfernt (es gilt die feste Pflegezeile für Keramik) und ein Deko-Zweck ergänzt – passt so?",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -3109,8 +3381,12 @@
       "en": "Bowl “Just resting my eyes”"
     },
     "description": {
-      "de": "Kleine handgeformte Schale auf hellem Fuß, außen leuchtend grün mit Craquelé-Glasur und einem weißen, schwarz umrandeten Schriftzug. Innen ist eine fein gezeichnete Person mit geschlossenen Augen zu sehen, links und rechts von großen hellen Federn gerahmt; darüber steht auf schwarzem Grund ein weiterer handgeschriebener Schriftzug. Am besten von Hand spülen.",
-      "en": "Small hand-formed bowl on a light foot, bright green outside with a crackle glaze and white hand-lettered writing outlined in black. Inside is a finely drawn person with closed eyes, framed on both sides by large pale feathers, with more hand-lettered writing on a black ground above. Best washed by hand."
+      "de": "Kleine handgeformte Schale auf hellem Fuß, außen leuchtend grün mit Craquelé-Glasur und einem weißen, schwarz umrandeten Schriftzug. Innen ist eine fein gezeichnete Person mit geschlossenen Augen zu sehen, links und rechts von großen hellen Federn gerahmt; darüber steht auf schwarzem Grund ein weiterer handgeschriebener Schriftzug. Gut als Ablage für Ringe oder Kleinkram.",
+      "en": "Small hand-formed bowl on a light foot, bright green outside with a crackle glaze and white hand-lettered writing outlined in black. Inside is a finely drawn person with closed eyes, framed on both sides by large pale feathers, with more hand-lettered writing on a black ground above. Good as a tray for rings or odds and ends."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Nur kurz die Augen zu, wirklich nur fünf Minuten – das sage ich mir auch oft. Ein Schälchen für alle, die das kennen.",
+      "en": "Just resting my eyes, honestly, only five minutes – I tell myself that a lot. A bowl for everyone who knows the feeling."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur; außen grüne Craquelé-Glasur",
@@ -3135,10 +3411,12 @@
       "Durchmesser und Höhe nachmessen (geschätzt ca. 8,5 × 5,5 cm; auf den Fotos ist der Teller nur zum Teil zu sehen)",
       "Gewicht nachwiegen (geschätzt 170 g)",
       "Schwarzen Innenrand rechts auf helle Fehlstellen in der Glasur prüfen; falls ja, als Abweichung beschreiben",
-      "Klären, ob die Craquelé-Glasur für Lebensmittel geeignet ist – im Text steht vorsichtshalber nur „von Hand spülen“",
       "Material prüfen: Steinzeug? Welche Glasuren genau?",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "Beschreibung: Pflegesatz entfernt (es gilt die feste Pflegezeile für Keramik) und ein Deko-Zweck ergänzt – passt so?",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -3169,6 +3447,10 @@
       "de": "Kleines, von Hand geformtes Schälchen mit welligem, rosa-lila gefasstem Rand, bemalt mit Unterglasurfarben. Außen läuft eine Reihe olivgrüner Stiefel um den Fuß, dazu ein blaues Herz und handgeschriebener Schriftzug; innen stehen zwei Stiefel mit Absatz auf hellblauem Grund. Gut für Ringe, Ohrringe oder anderen Kleinkram.",
       "en": "Small hand-formed bowl with a wavy rim edged in pink-lilac, painted with underglaze colours. A row of olive-green boots runs around the base outside, along with a blue heart and hand-lettered writing; inside, two heeled boots stand on a light-blue ground. Good for rings, earrings or other small things."
     },
+    "juttaSaysSuggestion": {
+      "de": "Stiefel gibt es bei mir nur paarweise, auch auf Keramik. Innen stehen sie schon bereit für den Abend.",
+      "en": "With me, boots only come in pairs, even on ceramics. Inside, they’re already lined up for a night out."
+    },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
       "en": "Stoneware, underglaze colours, clear glaze"
@@ -3192,10 +3474,10 @@
       "Maße geschätzt (Ø ca. 8 cm, Höhe ca. 4,5 cm) – bitte nachmessen",
       "Gewicht geschätzt (150 g) – bitte wiegen",
       "Material prüfen: Steinzeug? Unterglasur + Transparentglasur?",
-      "Lebensmittelecht / spülmaschinenfest? Im Text bewusst nicht versprochen – ggf. ergänzen",
-      "Schriftzug nur neutral beschrieben (Inhaber-Regel) – passt so?",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -3233,6 +3515,10 @@
       "de": "Kleines, von Hand geformtes Schälchen auf niedrigem Fuß, cremeweiß glasiert und mit Unterglasurfarben bemalt. Innen ein schwarzes gehörntes Tier und ein orangefarbenes Langohr, das kopfüber hängt; außen hält eine Hand eine Lupe mit einem Auge darin, auf der anderen Seite steht ein großer, hohl umrandeter Schriftzug. Gut für Schmuck, Büroklammern oder Kleinkram.",
       "en": "Small hand-formed bowl on a low foot, glazed in cream and painted with underglaze colours. Inside, a black horned creature and an orange long-eared one hanging upside down; outside, a hand holds a magnifying glass with an eye in it, and the other side carries large outlined hand-lettering. Good for jewellery, paper clips or small odds and ends."
     },
+    "juttaSaysSuggestion": {
+      "de": "Jemand schaut mit der Lupe ganz genau hin, und mein Langohr hängt trotzdem kopfüber herum. Ein Schälchen für Neugierige.",
+      "en": "Someone is looking very closely through a magnifying glass, and my long-ear is still hanging upside down. A little bowl for the curious."
+    },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
       "en": "Stoneware, underglaze colours, clear glaze"
@@ -3258,10 +3544,10 @@
       "Gewicht geschätzt (180 g) – bitte wiegen",
       "Tiere innen nur neutral beschrieben (gehörntes Tier, Langohr) – ggf. genauer benennen",
       "Material prüfen: Steinzeug? Unterglasur + Transparentglasur? Feine Haarrisse in der Glasur gewollt?",
-      "Lebensmittelecht / spülmaschinenfest? Im Text bewusst nicht versprochen",
-      "Schriftzug nur neutral beschrieben (Inhaber-Regel)",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -3293,11 +3579,15 @@
     "category": "keramik",
     "title": {
       "de": "Schälchen „Hund, angeleint“",
-      "en": "Small bowl “Dog, on a leash”"
+      "en": "Small bowl “Dog, on a lead”"
     },
     "description": {
       "de": "Kleines, von Hand geformtes Schälchen mit Craquelé-Glasur und welligem Rand. Innen steht ein struppiger grau-schwarzer Hund mit großen Augen an der Leine im grün schraffierten Gras, gezeichnet mit Unterglasurfarben; außen dunkelgrüner handgeschriebener Schriftzug und eine schwarze Wellenlinie. Gut für Ringe, Ohrstecker oder Kleinkram.",
-      "en": "Small hand-formed bowl with a crackle glaze and a wavy rim. Inside, a scruffy grey-black dog with big eyes stands on a leash in green hatched grass, drawn in underglaze colours; outside, dark green hand-lettered writing and a black wavy line. Good for rings, stud earrings or small odds and ends."
+      "en": "Small hand-formed bowl with a crackle glaze and a wavy rim. Inside, a scruffy grey-black dog with big eyes stands on a lead in green hatched grass, drawn in underglaze colours; outside, dark green hand-lettered writing and a black wavy line. Good for rings, stud earrings or small odds and ends."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Er wartet geduldig an der Leine, als ginge es gleich los – ich habe es nicht übers Herz gebracht, ihn zu enttäuschen. Ein Schälchen für Ringe und Ohrstecker.",
+      "en": "He’s waiting patiently on his lead as if you’re about to head out – I didn’t have the heart to disappoint him. A little bowl for rings and stud earrings."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, transparente Craquelé-Glasur",
@@ -3322,24 +3612,24 @@
       "Maße geschätzt (Ø ca. 7,5 cm, Höhe ca. 4,5 cm) – bitte nachmessen",
       "Gewicht geschätzt (150 g) – bitte wiegen",
       "Material prüfen: Steinzeug? Craquelé-Glasur gewollt?",
-      "Craquelé: für Lebensmittel eher ungeeignet – im Text bewusst nichts dazu versprochen, ggf. Hinweis ergänzen",
-      "Schriftzug nur neutral beschrieben (Inhaber-Regel)",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
         "file": "B053-1.jpg",
         "alt": {
           "de": "Schälchen „Hund, angeleint“ – Blick hinein",
-          "en": "Small bowl “Dog, on a leash” – view inside"
+          "en": "Small bowl “Dog, on a lead” – view inside"
         }
       },
       {
         "file": "B053-2.jpg",
         "alt": {
           "de": "Schälchen „Hund, angeleint“ – Seitenansicht",
-          "en": "Small bowl “Dog, on a leash” – side view"
+          "en": "Small bowl “Dog, on a lead” – side view"
         }
       }
     ]
@@ -3355,6 +3645,10 @@
     "description": {
       "de": "Flaches, von Hand geformtes Schälchen, außen blass buttergelb und innen hellblau glasiert. Innen sitzt ein sandfarbener Hund mit einem aufgestellten und einem umgeklappten Ohr und großer schwarzer Nase, mit lockerem schwarzem Strich gezeichnet; außen handgeschriebener Schriftzug. Gut als Ablage für Ringe oder Ohrringe.",
       "en": "Low hand-formed dish, pale butter-yellow outside and glazed light blue inside. Inside sits a sandy dog with one ear up, one ear folded and a big black nose, drawn in loose black lines; the outside carries hand-lettered writing. Good as a tray for rings or earrings."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Ein Ohr oben, eins unten – der Hund weiß noch nicht, ob er zuhören soll. Mir ging es beim Malen ähnlich.",
+      "en": "One ear up, one ear down – the dog hasn’t decided whether to listen yet. I felt much the same while painting him."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
@@ -3380,10 +3674,10 @@
       "Gewicht geschätzt (120 g) – bitte wiegen",
       "Unter dem Fuß ist in 15_IMG_7167 ein rötliches Pad/Aufkleber zu sehen – gehört das dazu (Filzgleiter?) oder vor Versand entfernen?",
       "Material prüfen: Steinzeug? Außenseite matt oder glasiert?",
-      "Lebensmittelecht / spülmaschinenfest? Im Text bewusst nicht versprochen",
-      "Schriftzug nur neutral beschrieben (Inhaber-Regel)",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -3421,6 +3715,10 @@
       "de": "Kleines, trichterförmiges Schälchen auf schmalem Fuß, von Hand geformt und mit Craquelé-Glasur. Innen eine schwarz umrandete Lilie mit zartrosa Blütenblättern und gelbgrünem Stiel neben einer lavendelblauen Blume, gemalt mit Unterglasurfarben; innen und außen handgeschriebener Schriftzug. Gut für Ohrstecker oder ein, zwei Ringe.",
       "en": "Small funnel-shaped bowl on a narrow foot, hand-formed, with a crackle glaze. Inside, a black-outlined lily with pale pink petals and a yellow-green stem next to a lavender-blue flower, painted in underglaze colours; hand-lettered writing inside and out. Good for stud earrings or a ring or two."
     },
+    "juttaSaysSuggestion": {
+      "de": "Meine Lilie wollte nicht allein sein, also bekam sie eine kleine Freundin. Gerade richtig für ein, zwei Ringe.",
+      "en": "My lily didn’t want to be alone, so she got a little friend. Just right for one or two rings."
+    },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, transparente Craquelé-Glasur",
       "en": "Stoneware, underglaze colours, clear crackle glaze"
@@ -3445,10 +3743,10 @@
       "Gewicht geschätzt (100 g) – bitte wiegen",
       "Unter dem Fuß liegt in 15_IMG_7169 ein weißes Papier/Pad – gehört das dazu oder vor Versand entfernen?",
       "Material prüfen: Steinzeug? Craquelé-Glasur gewollt?",
-      "Craquelé: für Lebensmittel eher ungeeignet – im Text bewusst nichts dazu versprochen",
-      "Schriftzug nur neutral beschrieben (Inhaber-Regel)",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -3486,6 +3784,10 @@
       "de": "Kleines konisches Schälchen auf Standring, innen von Hand mit einer pfirsichrosa Rose samt dornigem Stiel und graugrünem, gezacktem Blatt bemalt, rundherum am Innenrand ein handgeschriebener Schriftzug. Außen ein schlanker Pflanzenstängel, ein großes schraffiertes Blatt und weitere Schrift unter cremefarbener Craquelé-Glasur. Gedacht als Ablage für Ringe und Kleinkram – nicht für Lebensmittel.",
       "en": "Small conical bowl on a foot ring, hand-painted inside with a peach-pink rose, its thorny stem and a grey-green serrated leaf, with hand-lettered writing running around the inner rim. Outside: a slender plant stem, a large hatched leaf and more lettering under a cream crackle glaze. Meant for rings and small bits – not for food."
     },
+    "juttaSaysSuggestion": {
+      "de": "Eine Rose gibt es bei mir nur mit Dornen, sonst wäre es keine richtige. Ein Schälchen für Ringe und Kleinkram.",
+      "en": "With me, roses only come with thorns – otherwise they’re not the real thing. A little bowl for rings and odds and ends."
+    },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur mit Craquelé",
       "en": "Stoneware, underglaze colours, clear crackle glaze"
@@ -3509,9 +3811,10 @@
       "Maße grob über die 12-cm-Platte geschätzt (Ø ca. 6 cm, Höhe ca. 3,5 cm) – bitte nachmessen",
       "Gewicht geschätzt (ca. 90 g) – bitte wiegen",
       "Material prüfen: Steinzeug oder Steingut, Glasur-Angabe korrekt?",
-      "Lebensmittelkontakt bleibt auf „Deko“ – nur ändern, wenn eine Konformitätserklärung für die Glasur vorliegt",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -3549,6 +3852,10 @@
       "de": "Kleines, trichterförmiges Schälchen auf schmalem Fuß in zartem Rosa. Innen von Hand gezeichnet: eine Pusteblume auf langem Stiel vor einem cremefarbenen Kreis, daneben eine geschlossene Knospe und zwei gezackte Blätter, dazu türkise und schwarze Tupfen und eine Zeile handgeschriebener Schrift. Gedacht als Ablage für Ringe und Kleinkram – nicht für Lebensmittel.",
       "en": "Small funnel-shaped bowl on a narrow foot in pale pink. Hand-drawn inside: a dandelion clock on a tall stem against a cream circle, a closed bud and two serrated leaves, plus turquoise and black dots and one line of hand-lettered writing. Meant for rings and small bits – not for food."
     },
+    "juttaSaysSuggestion": {
+      "de": "Die Pusteblume wartet noch auf deinen Wunsch. Ich habe sie lieber nicht gepustet.",
+      "en": "The dandelion clock is still waiting for your wish. I decided not to blow on it."
+    },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
       "en": "Stoneware, underglaze colours, clear glaze"
@@ -3578,9 +3885,10 @@
       "Kleiner Tonknubbel innen als Abweichung beschrieben – wenn gewollt, auf „keine Abweichung“ stellen",
       "Motiv als Pusteblume gelesen – bitte bestätigen",
       "Material prüfen: Steinzeug oder Steingut?",
-      "Lebensmittelkontakt bleibt auf „Deko“ – nur ändern, wenn eine Konformitätserklärung für die Glasur vorliegt",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -3618,6 +3926,10 @@
       "de": "Rundes Schälchen auf niedrigem Standring, innen rundum von Hand bemalt: ein Haus auf dem Hügel, Vögel am Himmel, grüne Büsche, ein Mann mit schwarzem Hut neben einem ockerfarbenen Weg und eine Gruppe weißer Gänse. Außen ein Schriftzug in dunkelgrüner Handschrift und feine dunkle Sprenkel unter cremefarbener Craquelé-Glasur. Gedacht als Ablage für Kleinkram oder als Deko – nicht für Lebensmittel.",
       "en": "Round small bowl on a low foot ring, hand-painted all around the inside: a house on a hill, birds in the sky, green bushes, a man in a black hat beside an ochre path and a group of white geese. Outside: dark green hand-lettered writing and fine dark speckles under a cream crackle glaze. Meant for small things or as decoration – not for food."
     },
+    "juttaSaysSuggestion": {
+      "de": "Ein Mann mit Hut, ein Haus auf dem Hügel und Gänse, die ganz ohne Hut auskommen. Ich habe dir eine kleine Landschaft für deinen Kleinkram gemalt.",
+      "en": "A man in a hat, a house on the hill and geese who manage fine without hats. I painted you a little landscape for your odds and ends."
+    },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur mit Craquelé",
       "en": "Stoneware, underglaze colours, clear crackle glaze"
@@ -3641,9 +3953,10 @@
       "Maße grob über die 12-cm-Platte geschätzt (Ø ca. 7 cm, Höhe ca. 3,5 cm) – bitte nachmessen",
       "Gewicht geschätzt (ca. 110 g) – bitte wiegen",
       "Material prüfen: Steinzeug oder Steingut, Glasur-Angabe korrekt?",
-      "Lebensmittelkontakt bleibt auf „Deko“ – nur ändern, wenn eine Konformitätserklärung für die Glasur vorliegt",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -3681,6 +3994,10 @@
       "de": "Kleines, von Hand gedrücktes Schälchen aus hellem, gesprenkeltem Ton mit unregelmäßigem Rand. Innen eine schwarze, körnige Strichzeichnung einer struppigen Katze mit langem Schwanz und ein gelber Punkt, am Innenrand ein handgeschriebener Schriftzug; außen eine blaue Wellenlinie mit kleinen gelben Punkten. Gedacht als Ablage für Ringe – nicht für Lebensmittel.",
       "en": "Small hand-pinched bowl in pale speckled clay with an irregular rim. Inside, a grainy black line drawing of a scruffy cat with a long tail and one yellow dot, with hand-lettered writing along the inner rim; outside, a blue wavy line with small yellow dots. Meant for rings – not for food."
     },
+    "juttaSaysSuggestion": {
+      "de": "Die Katze hat sich nicht gekämmt, und ich finde, das ist auch gut so. Gezeichnet mit schnellem, körnigem Strich.",
+      "en": "The cat didn’t brush her fur, and I think that’s just fine. Drawn with quick, grainy lines."
+    },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur (innen)",
       "en": "Stoneware, underglaze colours, clear glaze (inside)"
@@ -3706,9 +4023,10 @@
       "Tier als Katze gelesen – bitte bestätigen (könnte auch Fuchs sein)",
       "Material prüfen: außen wirkt die Oberfläche matt/unglasiert – Angabe „Glasur innen“ stimmt?",
       "Auf allen Fotos liegt ein Schatten über der Zeichnung – evtl. ein Foto im Schatten oder bei bedecktem Himmel nachreichen",
-      "Lebensmittelkontakt bleibt auf „Deko“ – nur ändern, wenn eine Konformitätserklärung für die Glasur vorliegt",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -3746,6 +4064,10 @@
       "de": "Flaches Schälchen auf kleinem Fuß, außen rot-orange, innen glänzend schwarz. Innen von Hand gemalt: ein gelbes Gespenst mit Totenkopfgesicht, weißen Zähnen und schwarzen, herablaufenden Streifen, rundherum ein weißer handgeschriebener Schriftzug; außen große schwarze Pinselschrift. Gedacht als Ablage für Ringe und Kleinkram – nicht für Lebensmittel.",
       "en": "Shallow dish on a small foot, red-orange outside, glossy black inside. Hand-painted inside: a yellow ghost with a skull face, white teeth and black drip stripes, ringed by white hand-lettered writing; large black brush lettering outside. Meant for rings and small bits – not for food."
     },
+    "juttaSaysSuggestion": {
+      "de": "Ein Gespenst mit Totenkopfgesicht und trotzdem bester Laune. Ich finde, davon können wir uns alle etwas abschauen.",
+      "en": "A ghost with a skull for a face and still in the best of spirits. I think we could all learn something from that."
+    },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
       "en": "Stoneware, underglaze colours, clear glaze"
@@ -3774,9 +4096,10 @@
       "Gewicht geschätzt (ca. 90 g) – bitte wiegen",
       "Streifige rote Außenseite als Abweichung beschrieben – wenn so gewollt, auf „keine Abweichung“ stellen",
       "Material prüfen: Steinzeug oder Steingut, Glasur-Angabe korrekt?",
-      "Lebensmittelkontakt bleibt auf „Deko“ – nur ändern, wenn eine Konformitätserklärung für die Glasur vorliegt",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -3814,6 +4137,10 @@
       "de": "Kleines, von Hand geformtes Schälchen aus hellem, gesprenkeltem Ton mit schwarzer Wellenlinie am Rand. Innen ein schwarz umrandeter Vogelschädel mit großem Kringelauge auf hellgrauem Grund, außen rote Wellenbänder mit roten und schwarzen Punkten – dazu handgeschriebene Schriftzüge innen und außen und ein kleiner roter Stempel. Die Glasur zeigt ein feines Craquelé; gedacht als Ablage für Ringe, Ohrringe oder Kleinkram.",
       "en": "Small hand-formed bowl in pale speckled clay with a black wavy line around the rim. Inside, a black-outlined bird skull with a big swirly eye on a pale grey ground; outside, red wavy bands with red and black dots – plus hand-lettered writing inside and out and a small red stamp. The glaze shows a fine crackle; meant as a dish for rings, earrings or small odds and ends."
     },
+    "juttaSaysSuggestion": {
+      "de": "Der Vogelschädel weiß selbst nicht so genau, was hier los ist. Außen habe ich rote Wellen gemalt, damit es nicht zu ernst wird.",
+      "en": "The bird skull isn’t quite sure what’s going on here either. I painted red waves on the outside, so it doesn’t get too serious."
+    },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
       "en": "Stoneware, underglaze colours, clear glaze"
@@ -3837,11 +4164,11 @@
       "Maße geschätzt anhand der 12-cm-Platte (Ø ca. 7 cm, Höhe ca. 3,5 cm) – bitte nachmessen",
       "Gewicht geschätzt (ca. 90 g) – bitte wiegen",
       "Material/Glasur prüfen (Steinzeug? Unterglasurfarben + Transparentglasur?)",
-      "Lebensmittelecht/spülmaschinenfest? Craquelé-Glasur – Nutzungshinweis „Ablage für Schmuck/Kleinkram“ ggf. anpassen",
       "Pflegehinweis für Keramik fehlt – bei Bedarf ergänzen",
-      "Schriftzüge und Stempel nur neutral erwähnt, kein Wortlaut im Text",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -3879,6 +4206,10 @@
       "de": "Kleine Fußschale aus hellem, gesprenkeltem Ton mit unregelmäßig gewelltem Rand. Innen ein schwarzes, gehörntes Wesen mit großen runden Augen und ausgestrecktem hellem Arm, daneben eine zottelige schwarze Form mit langem Schwanz und ein ockerfarbenes Fuchsgesicht, das herüberschaut – alles mit skizzenhaften schwarzen Konturen; außen läuft ein großer handgeschriebener Schriftzug in umrandeten Buchstaben um die Schale. Passt für Schmuck oder Kleinkram.",
       "en": "Small footed bowl in pale speckled clay with an uneven, wavy rim. Inside, a black horned creature with big round eyes and an outstretched pale arm, next to a shaggy black shape with a long tail and an ochre fox face looking over – all in sketchy black outlines; outside, large hand-lettered writing in outlined letters runs around the bowl. Good for jewellery or small odds and ends."
     },
+    "juttaSaysSuggestion": {
+      "de": "Vorne das Wesen mit Hörnern, am Rand der Fuchs, der so tut, als würde er nicht zuschauen. Ich mag Szenen, in denen jemand heimlich guckt.",
+      "en": "The horned creature up front, and at the edge a fox pretending not to watch. I like scenes where someone is secretly looking on."
+    },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
       "en": "Stoneware, underglaze colours, clear glaze"
@@ -3902,13 +4233,13 @@
       "Maße geschätzt anhand der 12-cm-Platte (Ø ca. 8 cm, Höhe ca. 4,5 cm mit Fuß) – bitte nachmessen",
       "Gewicht geschätzt (ca. 140 g) – bitte wiegen",
       "Material/Glasur prüfen (Steinzeug? Unterglasurfarben + Transparentglasur?)",
-      "Lebensmittelecht/spülmaschinenfest? Nutzungshinweis ggf. anpassen",
       "Pflegehinweis für Keramik fehlt – bei Bedarf ergänzen",
       "Schwesterstück zu P47/P52 – prüfen, ob die Titel gut unterscheidbar sind",
       "Motivdeutung prüfen (gehörntes Wesen, zottelige Form mit Schwanz, Fuchsgesicht) – ggf. anpassen",
-      "Schriftzug außen nur neutral erwähnt, kein Wortlaut im Text",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -3939,6 +4270,10 @@
       "de": "Kleines, flaches Schälchen aus hellem Ton, von Hand geformt, mit welligem Rand. Innen ein grau skizzierter Vogel mit langem Schnabel, der auf einer liegenden Flasche mit rotem Verschluss steht, eingerahmt von handgeschriebenem Schriftzug; außen ein schwarz-weißes Schachbrettmuster mit kleinen korallroten Herzen. Die Glasur zeigt ein feines Craquelé; gedacht als Ablage für Ringe oder Kleinkram.",
       "en": "Small, shallow hand-formed bowl in pale clay with a wavy rim. Inside, a grey sketched long-beaked bird standing on a bottle lying on its side with a red cap, framed by hand-lettered writing; outside, a black-and-white checkerboard with small coral-red hearts. The glaze shows a fine crackle; meant as a dish for rings or small odds and ends."
     },
+    "juttaSaysSuggestion": {
+      "de": "Der Vogel hat sich die Flasche als Aussichtspunkt ausgesucht. Außen habe ich ihm Schachbrett und kleine Herzen gemalt, damit er sich wohlfühlt.",
+      "en": "The bird picked the bottle as its lookout. I painted checks and little hearts on the outside, so it feels at home."
+    },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
       "en": "Stoneware, underglaze colours, clear glaze"
@@ -3962,11 +4297,11 @@
       "Maße geschätzt anhand der 12-cm-Platte (Ø ca. 7,5 cm, Höhe ca. 3 cm) – bitte nachmessen",
       "Gewicht geschätzt (ca. 80 g) – bitte wiegen",
       "Material/Glasur prüfen (Steinzeug? Unterglasurstift/-farben + Transparentglasur?)",
-      "Lebensmittelecht/spülmaschinenfest? Craquelé-Glasur – Nutzungshinweis „Ablage“ ggf. anpassen",
       "Pflegehinweis für Keramik fehlt – bei Bedarf ergänzen",
-      "Schriftzug innen nur neutral erwähnt, kein Wortlaut im Text",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -4004,6 +4339,10 @@
       "de": "Kleine, von Hand modellierte Hundefigur in rotbraun geflammter, glänzender Glasur mit weißer Brust, weißen Pfoten mit feinen roten Krallenstrichen, einem stehenden und einem umgeklappten Ohr und großen Kulleraugen. Dazu gehört ein loser gelber Ball mit weißem Streifen. Dekoobjekt, kein Spielzeug – der kleine Ball ist ein Kleinteil.",
       "en": "Small hand-modelled dog figurine in a mottled, glossy ginger glaze with a white chest, white paws with fine red claw lines, one ear up and one folded, and big round eyes. It comes with a loose yellow ball with a white stripe. Decorative object, not a toy – the little ball is a small part."
     },
+    "juttaSaysSuggestion": {
+      "de": "Er hat seinen Ball und ist trotzdem gerade mit etwas ganz anderem beschäftigt. Typisch Hund – ich liebe das.",
+      "en": "He’s got his ball and is still busy with something else entirely. Typical dog – I love that."
+    },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
       "en": "Stoneware, underglaze colours, clear glaze"
@@ -4032,7 +4371,8 @@
       "Versand: Ball separat einpacken, Ohren gut polstern",
       "Pflegehinweis für Keramik fehlt – bei Bedarf ergänzen",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -4070,12 +4410,16 @@
     "itemNumber": 165,
     "category": "keramik",
     "title": {
-      "de": "Keramikgesicht „Brauen, entschlossen“",
-      "en": "Ceramic face “Brows, determined”"
+      "de": "Gesicht „Brauen, entschlossen“",
+      "en": "Face “Brows, determined”"
     },
     "description": {
       "de": "Flaches, von Hand ausgeschnittenes Keramikgesicht mit glänzend schwarzem, schulterlangem Haar, kräftigen schwarzen Balkenbrauen, hellen Augenpartien und rotbraunen Lippen; unten läuft es in einen langen Hals aus. Nase und Lippen sind leicht erhaben modelliert, die Oberfläche ist glänzend glasiert. Liegt flach auf – fürs Regal, den Schreibtisch oder die Fensterbank.",
       "en": "Flat, hand-cut ceramic face with glossy black shoulder-length hair, strong black bar-shaped brows, pale eye areas and reddish-brown lips, ending in a long neck at the bottom. The nose and lips are slightly raised, and the surface is glossy glazed. Lies flat – for a shelf, desk or windowsill."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Diese Brauen haben einen Plan, da bin ich sicher. Das Gesicht macht sich gut auf dem Schreibtisch und schaut beim Arbeiten zu.",
+      "en": "These brows have a plan, I’m sure of it. The face looks great on a desk and keeps an eye on you while you work."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Glasur",
@@ -4109,28 +4453,30 @@
       "Verwendung klären: Liegeobjekt, Wandobjekt (Aufhängung?) oder Ablage – Beschreibung ggf. anpassen",
       "Pflegehinweis für Keramik fehlt – bei Bedarf ergänzen",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Name ohne „Keramik“ davor – die Kategorie sagt es schon. Passt so?",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
         "file": "B065-1.jpg",
         "alt": {
-          "de": "Keramikgesicht „Brauen, entschlossen“ – Vorderseite",
-          "en": "Ceramic face “Brows, determined” – front"
+          "de": "Gesicht „Brauen, entschlossen“ – Vorderseite",
+          "en": "Face “Brows, determined” – front"
         }
       },
       {
         "file": "B065-2.jpg",
         "alt": {
-          "de": "Keramikgesicht „Brauen, entschlossen“ – Vorderseite",
-          "en": "Ceramic face “Brows, determined” – front"
+          "de": "Gesicht „Brauen, entschlossen“ – Vorderseite",
+          "en": "Face “Brows, determined” – front"
         }
       },
       {
         "file": "B065-3.jpg",
         "alt": {
-          "de": "Keramikgesicht „Brauen, entschlossen“ – Seitenansicht",
-          "en": "Ceramic face “Brows, determined” – side view"
+          "de": "Gesicht „Brauen, entschlossen“ – Seitenansicht",
+          "en": "Face “Brows, determined” – side view"
         }
       }
     ]
@@ -4146,6 +4492,10 @@
     "description": {
       "de": "Kleine, von Hand aufgebaute Schale mit gezacktem Kronenrand, jede zweite Spitze innen schwarz bemalt. Außen züngeln gelbe und orange Flammen mit feinen schwarzen Konturen, dazu ein handgeschriebener Schriftzug; innen läuft ein schwarz-cremefarbenes Strahlenmuster zur Mitte. Mit Unterglasurfarben bemalt, Craquelé-Glasur und orangefarbener Standring – gedacht als Ablage für Ringe und Kleinkram.",
       "en": "Small hand-built bowl with a jagged crown rim, every other point painted black on the inside. Yellow and orange flames with fine black outlines climb the outside, along with hand-lettered writing; inside, black and cream stripes radiate towards the centre. Painted with underglaze colours under a crackle glaze, with an orange foot ring – meant as a catch-all for rings and small things."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Eine Krone, die schon ein bisschen was mitgemacht hat. Ich finde, das steht ihr.",
+      "en": "A crown that has been through a thing or two. I think it suits her."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
@@ -4170,10 +4520,11 @@
       "Maße geschätzt (Ø ca. 7 cm, Höhe ca. 4,5 cm) – bitte nachmessen",
       "Gewicht geschätzt (ca. 130 g) – bitte wiegen",
       "Material prüfen: Steinzeug oder Irdenware, Glasur korrekt?",
-      "Lebensmittelecht? Falls nicht/unklar: Hinweis „nicht für Lebensmittel“ ergänzen",
       "Spitzer Zackenrand: beim Versand besonders gut polstern",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -4211,6 +4562,10 @@
       "de": "Dickes, rundes Schälchen, von Hand geformt und im Tusche-Stil bemalt: Zwei blau-weiße Vögel sitzen auf einem Sims vor einer dunklen Tür und einem grünen Sprossenfenster, darunter ein Frauengesicht mit langen, wehenden Haaren. Am unteren Rand ein handgeschriebener Schriftzug in Schwarz. Unterglasurfarben unter Craquelé-Glasur, leicht unregelmäßige Form – gut als Ablage für Schmuck.",
       "en": "Thick, round hand-formed dish painted in an ink-drawing style: two blue-and-white birds perch on a ledge in front of a dark doorway and a green-paned window, with a woman's face and long wind-blown hair below. Black hand-lettered writing runs along the lower rim. Underglaze colours under a crackle glaze, slightly irregular shape – works well as a jewellery dish."
     },
+    "juttaSaysSuggestion": {
+      "de": "Zwei Vögel auf dem Sims, und drinnen wehen die Haare – irgendwer hat das Fenster offen gelassen. Ich habe es gemalt wie mit Tusche.",
+      "en": "Two birds on the sill, and indoors someone’s hair is blowing about – somebody left the window open. I painted it as if with ink."
+    },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
       "en": "Stoneware, underglaze colours, clear glaze"
@@ -4234,9 +4589,10 @@
       "Maße geschätzt (Ø ca. 8 cm, Höhe ca. 1,5 cm) – bitte nachmessen",
       "Gewicht geschätzt (ca. 150 g) – bitte wiegen",
       "Material prüfen: Steinzeug oder Irdenware, Glasur korrekt?",
-      "Lebensmittelecht? Falls nicht/unklar: Hinweis „nicht für Lebensmittel“ ergänzen",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -4260,12 +4616,16 @@
     "itemNumber": 168,
     "category": "keramik",
     "title": {
-      "de": "Keramikherz „Glüht ein bisschen“",
-      "en": "Ceramic heart “Glowing a little”"
+      "de": "Herz „Glüht ein bisschen“",
+      "en": "Heart “Glowing a little”"
     },
     "description": {
       "de": "Flaches Flammenherz aus Keramik mit fünf breiten Flammenzungen, von Hand ausgeschnitten. Lasiert in Orange, Pfirsich und Gelb mit schwarzen Sprenkeln und schwarz umrandeter Kante, quer über das Herz ein zarter grauer handgeschriebener Schriftzug. Craquelé-Glasur – zum Hinlegen, Anlehnen oder als kleine Ablage.",
       "en": "Flat ceramic flaming heart with five broad flame tongues, cut out by hand. Washed in orange, peach and yellow with black speckles and a black-outlined edge, with faint grey hand-lettered writing across the heart. Crackle glaze – lay it flat, lean it against the wall or use it as a small tray."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Ein Herz, das ein bisschen glüht, aber nicht gleich lichterloh brennt. Genau richtig, finde ich.",
+      "en": "A heart that glows a little but doesn’t burst into flames. Just right, I think."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
@@ -4294,14 +4654,17 @@
       "Keine Aufhänge-Öse sichtbar – falls vorhanden, in der Beschreibung ergänzen",
       "Nur ein Foto – evtl. Rückseite/Seitenansicht ergänzen",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "Name ohne „Keramik“ davor – die Kategorie sagt es schon. Passt so?",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
         "file": "B068-1.jpg",
         "alt": {
-          "de": "Keramikherz „Glüht ein bisschen“ – Vorderseite",
-          "en": "Ceramic heart “Glowing a little” – front"
+          "de": "Herz „Glüht ein bisschen“ – Vorderseite",
+          "en": "Heart “Glowing a little” – front"
         }
       }
     ]
@@ -4311,12 +4674,16 @@
     "itemNumber": 169,
     "category": "keramik",
     "title": {
-      "de": "Keramikherz „Brennt, ungeschminkt“",
-      "en": "Ceramic heart “On fire, no make-up”"
+      "de": "Herz „Brennt, ungeschminkt“",
+      "en": "Heart “On fire, no make-up”"
     },
     "description": {
       "de": "Flaches Flammenherz aus Keramik mit fünf schmalen, fingerartigen Flammen, von Hand ausgeschnitten. Cremeweiß mit schwarzen Sprenkeln und ganz ohne Farblasur; Flammen und Herz tragen einen handgeschriebenen Schriftzug in Schwarz. Craquelé-Glasur – zum Hinlegen, Anlehnen oder als kleine Ablage.",
       "en": "Flat ceramic flaming heart with five slim, finger-like flames, cut out by hand. Cream with black speckles and no colour wash at all; the flames and the heart carry black hand-lettered writing. Crackle glaze – lay it flat, lean it against the wall or use it as a small tray."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Dieses Herz brennt ganz ohne Farbe, nur mit Linie. Mir hat das gereicht, manchmal braucht es nicht mehr.",
+      "en": "This heart is on fire without any colour, just line. That was enough for me – sometimes that’s all it needs."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
@@ -4349,14 +4716,17 @@
       "Weißer Glasurtropfen am Flammenansatz: prüfen, ob gewollt – sonst Abweichungstext so lassen, wenn gewollt löschen",
       "Nur ein Foto – evtl. Rückseite/Seitenansicht ergänzen",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "Name ohne „Keramik“ davor – die Kategorie sagt es schon. Passt so?",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
         "file": "B069-1.jpg",
         "alt": {
-          "de": "Keramikherz „Brennt, ungeschminkt“ – Vorderseite",
-          "en": "Ceramic heart “On fire, no make-up” – front"
+          "de": "Herz „Brennt, ungeschminkt“ – Vorderseite",
+          "en": "Heart “On fire, no make-up” – front"
         }
       }
     ]
@@ -4372,6 +4742,10 @@
     "description": {
       "de": "Kleine quadratische Kachel mit dickem, schwarz gemaltem Rahmen. Darauf ein Frauengesicht mit blonden Haaren und geschlossenen Augen, das in hellgrünem Gras liegt; die untere Hälfte füllen schwarze und graue Tupfen. Mit Unterglasurfarben bemalt, Craquelé-Glasur – zum Anlehnen ins Regal oder zum Hinlegen.",
       "en": "Small square tile with a thick black painted frame. It shows a woman's face with blond hair and closed eyes resting in pale green grass, with black and grey dots filling the lower half. Painted with underglaze colours under a crackle glaze – lean it on a shelf or lay it flat."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Ein Nickerchen im Gras – so stelle ich mir einen freien Nachmittag vor. Die Kachel lehnt gern im Regal.",
+      "en": "A nap in the grass – that’s my idea of a free afternoon. The tile is happy leaning on a shelf."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
@@ -4399,7 +4773,8 @@
       "Material prüfen: Steinzeug oder Irdenware, Glasur korrekt?",
       "Zweites Foto ist eine weite Übersicht – evtl. durch Detail- oder Rückseitenfoto ersetzen",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -4430,6 +4805,10 @@
       "de": "Ein von Hand geformtes ovales Schälchen mit gewelltem, terrakottafarbenem Rand, rundherum aufgesetzten orangen Punkten und kleinen hellblauen Tupfen. In der Mitte ist ein Gesicht mit gelben Locken und roten Wangen gemalt, das eine blaue Blume im Mund hält, dazu ein kleiner handgeschriebener Schriftzug. Passt für Ringe, Ohrringe oder anderen Kleinkram.",
       "en": "A hand-built oval dish with a wavy terracotta rim, raised orange dots and small pale blue spots all the way round. In the middle there is a painted face with yellow curls and red cheeks, holding a blue flower in its mouth, plus a little hand-lettered writing. Handy for rings, earrings or other small things."
     },
+    "juttaSaysSuggestion": {
+      "de": "Sie hält die Blume zwischen den Zähnen, ganz selbstverständlich. Die Punkte rundherum habe ich gemalt, weil sie Spaß gemacht haben.",
+      "en": "She holds the flower between her teeth as if it’s the most natural thing. I painted the dots all round because they were fun to do."
+    },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur (Craquelé)",
       "en": "Stoneware, underglaze colours, clear crackle glaze"
@@ -4454,9 +4833,10 @@
       "Maße geschätzt anhand der 12-cm-Platte (ca. 7,5 × 5,5 cm, Höhe ca. 1,5 cm) – bitte nachmessen",
       "Gewicht geschätzt (70 g) – bitte wiegen",
       "Material und Glasur bestätigen (Steinzeug? Craquelé-Glasur?)",
-      "Lebensmitteltauglichkeit nicht angegeben – im Text nur als Ablage für Schmuck/Kleinkram beschrieben",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -4484,8 +4864,12 @@
       "en": "Cup “Dog with its own lead”"
     },
     "description": {
-      "de": "Ein von Hand geformter Becher, der auf vier modellierten Beinen mit weißen Pfoten steht. Rundherum ist ein orange-weißer Hund mit großen Augen, hellgrüner Narrenkappe mit rosa Bommeln und gezacktem Kragen gemalt; er trägt ein gelbes Seil im Maul, das um den Becher läuft, und auf der Rückseite gehen Hinterbeine und Schwanz in die Beine des Bechers über. Dazu ein handgeschriebener Schriftzug; bitte von Hand reinigen.",
-      "en": "A hand-built cup standing on four sculpted legs with white paws. An orange-and-white dog with big eyes, a pale green jester’s hat with pink pompoms and a zigzag collar is painted around it; it carries a yellow rope in its mouth that runs round the cup, and on the back its hind legs and tail run down into the cup’s legs. With some hand-lettered writing; please wash by hand."
+      "de": "Ein von Hand geformter Becher, der auf vier modellierten Beinen mit weißen Pfoten steht. Rundherum ist ein orange-weißer Hund mit großen Augen, hellgrüner Narrenkappe mit rosa Bommeln und gezacktem Kragen gemalt; er trägt ein gelbes Seil im Maul, das um den Becher läuft, und auf der Rückseite gehen Hinterbeine und Schwanz in die Beine des Bechers über. Dazu ein handgeschriebener Schriftzug. Als Deko gedacht – für Pinsel, Stifte oder Trockenblumen.",
+      "en": "A hand-built cup standing on four sculpted legs with white paws. An orange-and-white dog with big eyes, a pale green jester’s hat with pink pompoms and a zigzag collar is painted around it; it carries a yellow rope in its mouth that runs round the cup, and on the back its hind legs and tail run down into the cup’s legs. With some hand-lettered writing. Meant as decoration – for brushes, pens or dried flowers."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Mein Hund trägt seine Leine selbst – er hat beschlossen, dass er niemanden braucht. Ein Becher auf vier Pfoten für Pinsel oder Stifte.",
+      "en": "My dog carries his own lead – he’s decided he doesn’t need anyone. A cup on four paws for brushes or pens."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur",
@@ -4510,11 +4894,14 @@
       "Maße geschätzt anhand der 12-cm-Platte (Öffnung ca. 5,5 cm, Höhe mit Beinen ca. 8 cm) – bitte nachmessen",
       "Gewicht geschätzt (140 g) – bitte wiegen",
       "Hund oder Fuchs? Text nennt jetzt einen Hund (dünner Schwanz, weiße Pfoten) – ggf. Titel und Text anpassen",
-      "Innenseite: glasiert oder unglasiert, welche Farbe? (wirkt auf dem Foto von oben bräunlich, liegt aber im Schatten) Lebensmitteltauglich/spülmaschinenfest? Text sagt nur „von Hand reinigen“",
+      "Innenseite: glasiert oder unglasiert, welche Farbe? (wirkt auf dem Foto von oben bräunlich, liegt aber im Schatten)",
       "Kleine dunkle Pünktchen in der Glasur (Fotos 7108/7110) – gewollt oder als Abweichung beschreiben?",
       "Material und Glasur bestätigen",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "Beschreibung: Pflegesatz entfernt (es gilt die feste Pflegezeile für Keramik) und ein Deko-Zweck ergänzt – passt so?",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
@@ -4559,12 +4946,16 @@
     "itemNumber": 173,
     "category": "keramik",
     "title": {
-      "de": "Keramikplakette „Falter, schaut zurück“",
-      "en": "Ceramic plaque “Butterfly, looking back”"
+      "de": "Plakette „Falter, schaut zurück“",
+      "en": "Plaque “Butterfly, looking back”"
     },
     "description": {
       "de": "Eine kleine, flache Keramikplakette mit Loch zum Aufhängen, etwa so groß wie eine Handfläche. Darauf ein Falter in schwarzer Linie mit zarter rosa, salbeigrüner und graublauer Schraffur, zwei Augen auf dem Flügel und langen Fühlern, dazu blaue handgeschriebene Schrift und eine feine blaue Wellenlinie am Rand. Craquelé-Glasur mit dunkel abgesetzter Kante; hängt an einem Nagel oder an einem Band.",
       "en": "A small, flat ceramic plaque with a hole for hanging, roughly the size of a palm. It shows a butterfly drawn in black line with soft pink, sage-green and grey-blue hatching, two eyes on its wing and long antennae, together with blue hand-lettered writing and a fine blue wavy line along the edge. Crackle glaze with a dark edge; hangs from a nail or a ribbon."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Der Falter schaut über die Schulter zurück, als hätte er etwas vergessen. Die zarten Farben mag ich besonders.",
+      "en": "The butterfly is looking back over its shoulder as if it’s forgotten something. I’m especially fond of the soft colours."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben und Unterglasurstift, Transparentglasur (Craquelé)",
@@ -4595,22 +4986,25 @@
       "Foto 7112 zeigt eine Hand mit Ringen – ok für den Shop?",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
       "Das Foto mit deiner Hand ist als „Foto zum Größenvergleich“ eingetragen – passt das so?",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "Name ohne „Keramik“ davor – die Kategorie sagt es schon. Passt so?",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
         "file": "B073-1.jpg",
         "alt": {
-          "de": "Keramikplakette „Falter, schaut zurück“ – Vorderseite",
-          "en": "Ceramic plaque “Butterfly, looking back” – front"
+          "de": "Plakette „Falter, schaut zurück“ – Vorderseite",
+          "en": "Plaque “Butterfly, looking back” – front"
         }
       }
     ],
     "scalePhoto": {
       "file": "B073-2.jpg",
       "alt": {
-        "de": "Keramikplakette „Falter, schaut zurück“ – auf der Hand, zum Größenvergleich",
-        "en": "Ceramic plaque “Butterfly, looking back” – on a hand, for scale"
+        "de": "Plakette „Falter, schaut zurück“ – auf der Hand, zum Größenvergleich",
+        "en": "Plaque “Butterfly, looking back” – on a hand, for scale"
       }
     }
   },
@@ -4625,6 +5019,10 @@
     "description": {
       "de": "Ein kleines, flaches Schälchen, von Hand geformt, mit Craquelé-Glasur und rosarotem, gepunktetem Rand. Innen hebt ein orangefarbenes Wesen mit Widderhörnern und hellblauen Brauen missmutig einen Arm, darüber rote Zickzack-Blitze und graublaue Wolken. Außen orange Striche, schwarze Punkte und ein kurzer handgeschriebener Schriftzug; passt für Schmuck, Büroklammern oder Kleinkram.",
       "en": "A small, shallow hand-built bowl with a crackle glaze and a pinkish-red dotted rim. Inside, an orange creature with ram’s horns and pale blue brows grumpily raises one arm, under red zigzag bolts and grey-blue clouds. Outside there are orange strokes, black dots and a short bit of hand-lettered writing; good for jewellery, paper clips or other small things."
+    },
+    "juttaSaysSuggestion": {
+      "de": "Er hebt missmutig den Arm, und über ihm blitzt es. Ich kenne solche Tage, du bestimmt auch.",
+      "en": "He’s raising an arm in a huff, with lightning overhead. I know days like that, and I bet you do too."
     },
     "materials": {
       "de": "Steinzeug, Unterglasurfarben, Transparentglasur (Craquelé)",
@@ -4649,9 +5047,10 @@
       "Maße geschätzt anhand der 12-cm-Platte (Durchmesser ca. 8 cm, Höhe ca. 3 cm) – bitte nachmessen",
       "Gewicht geschätzt (110 g) – bitte wiegen",
       "Material und Glasur bestätigen (Steinzeug? Craquelé-Glasur?)",
-      "Lebensmitteltauglichkeit nicht angegeben – im Text nur als Ablage beschrieben",
       "Lebensmittelkontakt vorerst „Deko – nicht für Lebensmittel“ eingetragen – „lebensmittelecht“ geht nur mit gültiger Konformitätserklärung.",
-      "Bestätigen: Das Motiv zeigt nur deine eigenen Figuren (Haken „nur eigene Figuren“)."
+      "Bestätigen: Motiv und Schriftzug sind von dir (Haken „Motiv und Schriftzug sind von mir“).",
+      "Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.",
+      "„Ein Wort von mir“: Claude hat einen Vorschlag geschrieben – übernehmen, ändern oder leer lassen."
     ],
     "images": [
       {
