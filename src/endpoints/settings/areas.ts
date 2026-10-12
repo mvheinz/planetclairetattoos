@@ -633,3 +633,34 @@ export const settingsRevenueEntryEndpoint: Endpoint = {
     }
   },
 }
+
+/**
+ * „Monat abschließen“ (V-38, U-93, KONZEPT §8.4): `POST /api/globals/settings/month-close`
+ * `{ month, amounts: { tattoo, flohmarkt, auftragsarbeiten, sonstiges } }` – alle vier Monatssummen auf einmal (leer =
+ * 0 €), idempotent (`closeRevenueMonth`). Antwort `{ unchanged, changed }`.
+ */
+export const settingsMonthCloseEndpoint: Endpoint = {
+  path: '/month-close',
+  method: 'post',
+  handler: async (req) => {
+    if (!isAdminRequest(req)) return json(403, { error: 'Nicht erlaubt.' })
+    const body = await readJsonBody(req)
+    try {
+      const { closeRevenueMonth } = await import('@/lib/revenue/monthClose')
+      const res = await closeRevenueMonth(req, { month: body.month, amounts: obj(body.amounts) })
+      return json(200, { unchanged: res.changed.length === 0, changed: res.changed })
+    } catch (err) {
+      if (err instanceof ValidationError) {
+        return json(400, {
+          error: 'Bitte die markierten Felder prüfen.',
+          errors: (err.data?.errors ?? []).map((e) => ({
+            path: String(e.path ?? ''),
+            message: e.message,
+          })),
+        })
+      }
+      log.error('settings.month_close_failed', { reason: errorSummary(err) })
+      return json(500, { error: 'Speichern hat nicht geklappt. Bitte noch einmal versuchen.' })
+    }
+  },
+}

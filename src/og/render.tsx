@@ -14,7 +14,15 @@ import { formatTagPrice } from '@/lib/shop/priceTag'
 
 import { loadOgArt, loadOgFonts, readFallbackPng } from './assets'
 import { productPhotoDataUrl, type OgMediaInput } from './photo'
-import { DefaultOgImage, OG_SIZE, ProductOgImage, TattooOgImage } from './templates'
+import {
+  DefaultOgImage,
+  OG_SIZE,
+  ProductOgImage,
+  STORY_PHOTO,
+  STORY_SIZE,
+  StoryImage,
+  TattooOgImage,
+} from './templates'
 
 // OG-Bilder erzeugen (P3.14, DESIGN §12.6, KONZEPT §3.0.5): PNG 1200 × 630 per `next/og` mit den TTF-Schriften aus
 // `src/og/fonts/`. Scheitert das Erzeugen, liefert die Route das statische Standardbild `public/og/default.png`.
@@ -39,11 +47,14 @@ export function productOgAlt(
 
 export const defaultOgAlt = (locale: Locale) => og(locale).defaultAlt
 
-async function png(element: React.ReactElement): Promise<Response> {
+async function png(
+  element: React.ReactElement,
+  size: { width: number; height: number } = OG_SIZE,
+): Promise<Response> {
   let body: ArrayBuffer
   try {
     const fonts = await loadOgFonts()
-    body = await new ImageResponse(element, { ...OG_SIZE, fonts }).arrayBuffer()
+    body = await new ImageResponse(element, { ...size, fonts }).arrayBuffer()
   } catch (err) {
     log.warn('og.render_failed', { reason: errorSummary(err) })
     const fallback = await readFallbackPng()
@@ -136,5 +147,33 @@ export async function renderGalleryOg(
       seed={entry.id}
       art={art}
     />,
+  )
+}
+
+// --- Instagram (V-39, P20.6; nur Verwaltung) -----------------------------------------------------------------------
+
+/** Daten eines Stücks für Story-Bild und geteiltes Foto (aus der Verwaltung, nicht aus dem öffentlichen Shop). */
+export interface StoryProduct {
+  title: string
+  itemNumber: number
+  priceCents: number
+  pickupOnly: boolean
+  image: OgMediaInput | number | null
+}
+
+/** Story-Bild 1080 × 1920 (Foto, Titel, Nummer, Preis „Endpreis zzgl. Versand“). Immer Deutsch. */
+export async function renderStoryImage(p: StoryProduct): Promise<Response> {
+  const [art, photo] = await Promise.all([loadOgArt(), productPhotoDataUrl(p.image, STORY_PHOTO)])
+  return png(
+    <StoryImage
+      title={p.title}
+      itemNumber={p.itemNumber}
+      itemNumberText={formatItemNumber(p.itemNumber, 'de')}
+      priceText={formatTagPrice(p.priceCents, 'de')}
+      priceNote={p.pickupOnly ? 'nur Abholung in Berlin' : og('de').priceNote}
+      photo={photo}
+      art={art}
+    />,
+    STORY_SIZE,
   )
 }

@@ -545,3 +545,163 @@ export function DefaultOgImage(props: DefaultOgProps) {
     </div>
   )
 }
+
+// --- Instagram-Story (V-39, P20.6) ------------------------------------------------------------------------------
+
+export const STORY_SIZE = { width: 1080, height: 1920 } as const
+export const STORY_PHOTO = { width: 1080, height: 1350 } as const
+export const STORY_TITLE = { fontSize: 64, lineHeight: 74, maxLines: 2, maxWidth: 940 } as const
+
+export interface StoryProps {
+  title: string
+  itemNumberText: string
+  priceText: string
+  /** Hinweis unter dem Preis („Endpreis zzgl. Versand“ bzw. „nur Abholung in Berlin“). */
+  priceNote: string
+  itemNumber: number
+  /** JPEG-Data-URL 1080 × 1350 oder `null` (dann Planet-Marke auf Papier). */
+  photo: string | null
+  art: { wordmark: string; wordmarkRatio: number; planet: string }
+}
+
+/** Titelzeilen der Story (Bricolage 600, höchstens 2 Zeilen, sonst „…“). */
+export function storyTitleLines(title: string): string[] {
+  return wrapLines(keepCovered(title, 'bricolage600'), {
+    maxWidth: STORY_TITLE.maxWidth,
+    maxLines: STORY_TITLE.maxLines,
+    measure: (t) => textWidth(t, 'bricolage600', STORY_TITLE.fontSize),
+  })
+}
+
+/**
+ * Story-Bild 1080 × 1920 für den Link-Sticker (V-39): oben das Foto (4:5), darunter auf Linienpapier Titel, Nummer und
+ * Preisschild mit „Endpreis zzgl. Versand“, Wortmarke unten rechts. Unten links bleibt Platz für den Sticker.
+ */
+export function StoryImage(props: StoryProps) {
+  const W = STORY_SIZE.width
+  const H = STORY_SIZE.height
+  const top = STORY_PHOTO.height
+  const panelH = H - top
+  const pad = 70
+  const lines = storyTitleLines(props.title)
+  const price = keepCovered(props.priceText, 'spectral500i')
+  const nr = keepCovered(props.itemNumberText, 'bricolage600')
+  const note = keepCovered(`* ${props.priceNote}`, 'bricolage600')
+  const titleTop = top + 48
+  const tagTop = titleTop + Math.max(1, lines.length) * STORY_TITLE.lineHeight + 34
+  const tagH = 150
+  const tagW = Math.max(220, Math.round(textWidth(`${price}*`, 'spectral500i', 72) + 76))
+  const tagSvg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${tagW}" height="${tagH}" viewBox="0 0 ${tagW} ${tagH}">` +
+    `<path d="${tagOutlinePath(tagW, tagH, props.itemNumber)}" fill="${PAPER_2}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>` +
+    `<circle cx="${tagW / 2}" cy="18" r="7" fill="${PAPER}" stroke="${INK}" stroke-width="2.5"/></svg>`
+  const wmW = 300
+  const wmH = Math.round(wmW / props.art.wordmarkRatio)
+  return (
+    <div
+      style={{ display: 'flex', position: 'relative', width: W, height: H, backgroundColor: PAPER }}
+    >
+      {props.photo ? (
+        // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
+        <img
+          src={props.photo}
+          width={W}
+          height={top}
+          style={abs(0, 0, { width: W, height: top })}
+        />
+      ) : (
+        <div
+          style={abs(0, 0, {
+            width: W,
+            height: top,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: PAPER_2,
+          })}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
+          <img src={props.art.planet} width={320} height={320} />
+        </div>
+      )}
+      {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
+      <img src={svgUrl(gridSvg(W, panelH))} width={W} height={panelH} style={abs(0, top)} />
+      <div style={abs(pad, titleTop, { flexDirection: 'column', width: STORY_TITLE.maxWidth + 8 })}>
+        {lines.map((l, i) => (
+          <div
+            key={i}
+            style={{
+              display: 'flex',
+              fontFamily: 'Bricolage Grotesque',
+              fontWeight: 600,
+              fontSize: STORY_TITLE.fontSize,
+              lineHeight: `${STORY_TITLE.lineHeight}px`,
+              color: INK,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {l}
+          </div>
+        ))}
+      </div>
+      <div
+        style={abs(pad + 8, tagTop, {
+          width: tagW,
+          height: tagH,
+          transform: `rotate(${tagAngle(props.itemNumber)}deg)`,
+          transformOrigin: `${tagW / 2}px 18px`,
+          flexDirection: 'column',
+          alignItems: 'center',
+        })}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
+        <img src={svgUrl(tagSvg)} width={tagW} height={tagH} style={abs(0, 0)} />
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            marginTop: 30,
+            fontFamily: 'Spectral',
+            fontStyle: 'italic',
+            fontSize: 72,
+            lineHeight: '76px',
+            color: INK,
+          }}
+        >
+          {price}
+          <span style={{ fontSize: 42, lineHeight: '42px', marginLeft: 4 }}>*</span>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            marginTop: 2,
+            fontFamily: 'Bricolage Grotesque',
+            fontWeight: 600,
+            fontSize: 22,
+            letterSpacing: 1,
+            color: INK_2,
+          }}
+        >
+          {nr}
+        </div>
+      </div>
+      <div
+        style={abs(pad + tagW + 60, tagTop + 54, {
+          fontFamily: 'Bricolage Grotesque',
+          fontWeight: 600,
+          fontSize: 28,
+          color: INK_2,
+          maxWidth: W - pad * 2 - tagW - 60,
+        })}
+      >
+        {note}
+      </div>
+      {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
+      <img
+        src={props.art.wordmark}
+        width={wmW}
+        height={wmH}
+        style={abs(W - pad - wmW, H - 64 - wmH)}
+      />
+    </div>
+  )
+}

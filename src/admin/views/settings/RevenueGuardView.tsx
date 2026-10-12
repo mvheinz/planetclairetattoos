@@ -1,7 +1,14 @@
 import React from 'react'
 
 import { ENUM_LABELS } from '@/lib/enumLabels'
-import { REVENUE_GUARD_STAGES, REVENUE_SOURCES, type RevenueGuardStage } from '@/lib/enums'
+import {
+  PRODUCT_CATEGORIES,
+  REVENUE_GUARD_STAGES,
+  REVENUE_SOURCES,
+  SOLD_CHANNELS,
+  type RevenueGuardStage,
+} from '@/lib/enums'
+import { formatItemNumber } from '@/lib/products/itemNumber'
 import { getRevenueStatus } from '@/lib/revenue/check'
 import {
   formatSignedEuro,
@@ -12,19 +19,29 @@ import {
   stageMessage,
   type RevenueColumn,
 } from '@/lib/revenue/guard'
+import { monthCloseStates } from '@/lib/revenue/monthClose'
+import {
+  REVIEW_ABANDONED_DAYS,
+  REVIEW_LONG_DAYS,
+  REVIEW_SALES_MONTHS,
+  workshopReview,
+  type WorkshopReview,
+} from '@/lib/revenue/review'
 import { addBerlinMonths, berlinMonthKey } from '@/lib/time'
 
 import { Notice } from '../../components/Notice'
 import { StatusBadge } from '../../components/StatusBadge'
 import { adminText } from '../../translations'
 import type { AdminViewBodyProps } from '../AdminViewBody'
-import { RevenueEntryForm, YearTotalsForm } from './AreaForms'
+import { MonthCloseForm, YearTotalsForm } from './AreaForms'
 import { initialAreaValues, type Obj } from './settingsAreas'
 
 // Einstellungen → Umsatz-Wächter `/einstellungen/umsatz-waechter` (PLAN P5.23, KONZEPT §8.4, R-125): Balken mit Stand
-// und Schwellen, Monatstabelle (Shop, Tattoo, Flohmarkt, Auftragsarbeiten, Sonstiges) mit Eingabe der manuellen
-// Monatssummen (dazu „Markt-Verkäufe (Stücke)“ aus „Offline verkauft“ mit Preis, U-60), Jahressummen vor dem Shop (dieselbe Komponente wie in Einstellungen → Steuer, P5.22a), Verlauf der
-// gemeldeten Stufen und der Satz „Der Wächter ersetzt keine Steuerberatung.“ Daten aus `getRevenueStatus()`.
+// und Schwellen, Monatstabelle (Shop, Tattoo, Flohmarkt, Auftragsarbeiten, Sonstiges; dazu „Markt-Verkäufe (Stücke)“
+// aus „Offline verkauft“ mit Preis, U-60) mit dem Formular „Monat abschließen“ (V-38: vier Beträge, ein Knopf; Ziel des
+// Links der Monatsmail A11 mit `?monat=JJJJ-MM`), Jahressummen vor dem Shop (nur hier, V-37), der Werkstatt-Rückblick
+// aus den eigenen Verkaufsdaten (V-40, ohne Besucherdaten), Verlauf der gemeldeten Stufen und der Satz „Der Wächter
+// ersetzt keine Steuerberatung.“ Daten aus `getRevenueStatus()`, `monthCloseStates()` und `workshopReview()`.
 
 const COLUMN_LABEL = (c: RevenueColumn) =>
   c === 'shop'
@@ -48,7 +65,124 @@ const MONTH_NAMES = [
 ]
 const monthLabel = (key: string) => `${MONTH_NAMES[Number(key.slice(5, 7)) - 1]} ${key.slice(0, 4)}`
 
-export async function RevenueGuardView({ req }: AdminViewBodyProps) {
+function param(v: string | string[] | undefined): string {
+  return (Array.isArray(v) ? v[0] : v)?.trim() ?? ''
+}
+
+const pieceLabel = (p: { itemNumber: number | null; title: string }) =>
+  p.itemNumber === null ? p.title : `${formatItemNumber(p.itemNumber, 'de')} · ${p.title}`
+
+/** Werkstatt-Rückblick (V-40): Verkäufe je Kategorie und Weg, Liegezeit, „liegt lange“, „fast gekauft“. */
+function WorkshopReviewSection({ review }: { review: WorkshopReview }) {
+  const categories = PRODUCT_CATEGORIES.filter((c) =>
+    SOLD_CHANNELS.some((ch) => review.sales[c][ch] > 0),
+  )
+  return (
+    <section
+      className="pc-order__section"
+      aria-labelledby="revenue-review"
+      data-testid="revenue-review"
+    >
+      <h2 id="revenue-review">{adminText('reviewTitle')}</h2>
+      <p className="pc-order__muted">{adminText('reviewIntro')}</p>
+      <h3 id="revenue-review-sales">{adminText('reviewSales', { months: REVIEW_SALES_MONTHS })}</h3>
+      {review.salesTotal === 0 ? (
+        <p data-testid="revenue-review-sales-none">{adminText('reviewSalesNone')}</p>
+      ) : (
+        <div
+          className="pc-revenue__scroll"
+          tabIndex={0}
+          role="region"
+          aria-labelledby="revenue-review-sales"
+        >
+          <table className="pc-revenue__table" data-testid="revenue-review-sales">
+            <thead>
+              <tr>
+                <th scope="col">{adminText('reviewCategory')}</th>
+                {SOLD_CHANNELS.map((ch) => (
+                  <th key={ch} scope="col">
+                    {adminText(
+                      ch === 'online'
+                        ? 'reviewChannelOnline'
+                        : ch === 'pickup'
+                          ? 'reviewChannelPickup'
+                          : 'reviewChannelMarket',
+                    )}
+                  </th>
+                ))}
+                <th scope="col">{adminText('revenueSum')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {categories.map((c) => (
+                <tr key={c} data-category={c}>
+                  <th scope="row">{ENUM_LABELS.PRODUCT_CATEGORIES[c].de}</th>
+                  {SOLD_CHANNELS.map((ch) => (
+                    <td key={ch}>{review.sales[c][ch]}</td>
+                  ))}
+                  <td>{SOLD_CHANNELS.reduce((n, ch) => n + review.sales[c][ch], 0)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      <p data-testid="revenue-review-average">
+        {review.averageDaysToSale === null
+          ? adminText('reviewAverageNone')
+          : adminText('reviewAverage', {
+              days: review.averageDaysToSale,
+              n: review.averageBasis,
+            })}
+      </p>
+      <h3>{adminText('reviewLong', { days: REVIEW_LONG_DAYS })}</h3>
+      {review.longListed.length === 0 ? (
+        <p data-testid="revenue-review-long-none">{adminText('reviewLongNone')}</p>
+      ) : (
+        <ul className="pc-order__items" data-testid="revenue-review-long">
+          {review.longListed.map((p) => (
+            <li key={p.id} className="pc-order__item" data-item={p.itemNumber ?? ''}>
+              <span>
+                {pieceLabel(p)} · {adminText('reviewLongDays', { days: p.days })}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <h3>{adminText('reviewAlmost', { days: REVIEW_ABANDONED_DAYS })}</h3>
+      <p className="pc-order__muted">{adminText('reviewAlmostHint')}</p>
+      {review.almostBought.length === 0 ? (
+        <p data-testid="revenue-review-almost-none">{adminText('reviewAlmostNone')}</p>
+      ) : (
+        <ul className="pc-order__items" data-testid="revenue-review-almost">
+          {review.almostBought.map((p) => (
+            <li
+              key={p.id}
+              className="pc-order__item"
+              data-item={p.itemNumber ?? ''}
+              data-count={p.count}
+            >
+              <span>
+                {pieceLabel(p)} ·{' '}
+                {adminText(p.count === 1 ? 'reviewAlmostOnce' : 'reviewAlmostCount', {
+                  n: p.count,
+                })}
+                {p.available ? null : (
+                  <>
+                    {' '}
+                    <StatusBadge tone="neutral">{adminText('reviewAlmostGone')}</StatusBadge>
+                  </>
+                )}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  )
+}
+
+export async function RevenueGuardView({ req, searchParams }: AdminViewBodyProps) {
   const now = new Date()
   const settingsDe = (await req.payload.findGlobal({
     slug: 'settings',
@@ -79,6 +213,10 @@ export async function RevenueGuardView({ req }: AdminViewBodyProps) {
   const currentMonth = berlinMonthKey(now)
   const months = Array.from({ length: 13 }, (_, i) => berlinMonthKey(addBerlinMonths(now, -i)))
   const visibleMonths = status.months.filter((m) => m.month <= currentMonth)
+  const closeStates = await monthCloseStates(req.payload, months)
+  const wanted = param(searchParams?.monat)
+  const initialMonth = months.includes(wanted) ? wanted : (months[1] ?? currentMonth)
+  const review = await workshopReview(req.payload, now)
 
   return (
     <div className="pc-order pc-settings" data-testid="settings-revenue-view">
@@ -183,17 +321,23 @@ export async function RevenueGuardView({ req }: AdminViewBodyProps) {
             </tbody>
           </table>
         </div>
-        <h3>{adminText('revenueEntryTitle')}</h3>
+        <h3 id="monat-abschliessen-titel">{adminText('revenueEntryTitle')}</h3>
         <p className="pc-order__muted">{adminText('revenueEntryHint')}</p>
         <p className="pc-order__muted" data-testid="revenue-offline-hint">
           {adminText('revenueOfflineHint')}
         </p>
-        <RevenueEntryForm
-          months={months.map((m) => ({ value: m, label: monthLabel(m) }))}
+        <MonthCloseForm
+          months={closeStates.map((m) => ({
+            value: m.month,
+            label: monthLabel(m.month),
+            amounts: m.amounts,
+            marketCents: m.marketCents,
+          }))}
           sources={REVENUE_SOURCES.map((s) => ({
             value: s,
             label: ENUM_LABELS.REVENUE_SOURCES[s].de,
           }))}
+          initialMonth={initialMonth}
         />
       </section>
 
@@ -201,6 +345,8 @@ export async function RevenueGuardView({ req }: AdminViewBodyProps) {
         <h2 id="revenue-years">{adminText('revenueYearsTitle')}</h2>
         <YearTotalsForm initial={area.yearTotals} idPrefix="revenue" />
       </section>
+
+      <WorkshopReviewSection review={review} />
 
       <section className="pc-order__section" aria-labelledby="revenue-history">
         <h2 id="revenue-history">{adminText('revenueHistory')}</h2>

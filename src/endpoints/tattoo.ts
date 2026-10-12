@@ -7,7 +7,6 @@ import {
   moveTattooFaq,
   saveFaq,
   savePageTexts,
-  saveTattooFaq,
   saveTattooPageTexts,
   setFlashPublished,
   setFlashStatus,
@@ -15,7 +14,6 @@ import {
   translatePage,
   translateTattooDocument,
   withdrawGalleryConsent,
-  type FaqForm,
 } from '@/lib/tattoo/admin'
 import { adoptSeedDocument } from '@/lib/seed/adopt'
 import { copyTourDate } from '@/lib/tour/copy'
@@ -30,9 +28,9 @@ import {
 // `GET /api/flash/next-number` · `POST /api/flash/:id/status` `{ status }` · `POST /api/flash/:id/published`
 // `{ published }` · `POST /api/{flash,faqs,pages,tour-dates}/:id/translate` `{ force }` ·
 // `POST /api/tattoo-gallery/:id/withdraw-consent` `{ email?, locale? }` · `POST /api/pages/tattoo-texts`
-// `{ key, blocks, title? }` · `POST /api/faqs/tattoo-save` `{ id?, category, question, answer, published }` ·
-// `POST /api/faqs/:id/move` `{ direction }` · `POST /api/{flash,tattoo-gallery,media}/:id/adopt` (P8.19) ·
-// `POST /api/pages/texts` `{ key, blocks, title?, seo? }` und `POST /api/faqs/texts-save` (alle Seiten/Kategorien, P8.19a). Antwort `{ doc, unchanged }` (+ `warnings`); Fehler `{ error, errors? }` –
+// `{ key, blocks, title? }` · `POST /api/faqs/:id/move` `{ direction }` · `POST /api/{flash,tattoo-gallery,media}/:id/adopt` (P8.19) ·
+// `POST /api/pages/texts` `{ key, blocks, title?, seo? }` und `POST /api/faqs/texts-save` `{ id?, category, question,
+// answer, published }` (alle Seiten/Kategorien, P8.19a; seit V-37 der einzige Weg für Fragen). Antwort `{ doc, unchanged }` (+ `warnings`); Fehler `{ error, errors? }` –
 // bei Feldfehlern steht die erste deutsche Meldung in `error` (der Knopf zeigt sie direkt an).
 
 const forbidden = () =>
@@ -205,7 +203,6 @@ export const pageAdminEndpoints: Endpoint[] = [
 ]
 
 export const faqAdminEndpoints: Endpoint[] = [
-  plainAction('tattoo-save', (req, body) => saveTattooFaq(req, body as unknown as FaqForm)),
   plainAction('texts-save', (req, body) =>
     saveFaq(req, body as unknown as Parameters<typeof saveFaq>[1]),
   ),

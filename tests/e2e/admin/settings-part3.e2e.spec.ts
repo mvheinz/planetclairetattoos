@@ -63,7 +63,17 @@ test('@a11y Einstellungen Teil 3: alle Bereiche bei 390×844 bedienbar, Prüfung
     await expectAccessible(page, 'dialog[open]')
     await dialog.getByTestId('confirm-dialog-ok').click()
     await expect(page.getByTestId('settings-tax-confirmed')).toContainText('Zuletzt bestätigt am')
-    await expect(page.getByTestId('settings-tax-year-totals')).toContainText('Vorjahr auch mit 0 €')
+    // V-37: Jahressummen vor dem Shop nur im Umsatz-Wächter – hier ein Link dorthin
+    await expect(page.getByTestId('settings-tax-year-totals')).toHaveCount(0)
+    await expect(
+      page
+        .getByTestId('settings-tax-year-totals-link')
+        .getByRole('link', { name: 'Umsatz-Wächter' }),
+    ).toHaveAttribute('href', /\/einstellungen\/umsatz-waechter#revenue-years$/)
+    // Zwei Gruppen „Alltag“ und „Einrichtung (einmal)“; Kosten unter Einrichtung
+    await expect(page.getByTestId('settings-group-alltag')).toContainText('Shop')
+    await expect(page.getByTestId('settings-group-einrichtung')).toContainText('Kosten')
+    await expect(page.getByTestId('settings-group-alltag')).not.toContainText('Kosten')
 
     // Kosten: Monatswert hinzufügen und speichern
     const costs = page.getByTestId('area-form-costs')

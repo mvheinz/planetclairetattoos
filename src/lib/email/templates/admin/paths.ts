@@ -20,4 +20,7 @@ export const ADMIN_MAIL_PATHS = {
   privateUploads: () => '/collections/private-uploads',
   settings: () => adminViewPath('einstellungen'),
   productSafety: () => adminView('produktsicherheit').path,
+  /** Formular „Monat abschließen“ im Umsatz-Wächter für diesen Monat (V-38). */
+  monthClose: (month: string) =>
+    `${adminView('umsatz-waechter').path}?monat=${encodeURIComponent(month)}#monat-abschliessen`,
 } as const

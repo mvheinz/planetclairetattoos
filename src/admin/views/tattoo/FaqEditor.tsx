@@ -25,10 +25,10 @@ import {
 } from './tattooForm'
 import { tattooText } from './tattooText'
 
-// FAQ der Kategorien „Tattoo“ und „Aftercare“ (PLAN P7.9): je Frage ein kleines Formular (Frage und Antwort DE/EN,
-// online), „Übersetzen“ (`POST /api/faqs/:id/translate`), Reihenfolge per „Hoch“/„Runter“ (`POST /api/faqs/:id/move`).
-// Gespeichert über `POST /api/faqs/tattoo-save` mit Warnungen bei V-24/V-15 (Speichern bleibt möglich). In der Ansicht
-// „Texte“ (P8.19a) für alle Kategorien über `POST /api/faqs/texts-save`.
+// FAQ (PLAN P7.9, P8.19a): je Frage ein kleines Formular (Frage und Antwort DE/EN, online), „Übersetzen“
+// (`POST /api/faqs/:id/translate`), Reihenfolge per „Hoch“/„Runter“ (`POST /api/faqs/:id/move`). Gespeichert über
+// `POST /api/faqs/texts-save` – seit V-37 (P20.6) der einzige Weg, in der Ansicht „Texte“ → „Seiten und FAQ“; in den
+// Kategorien Tattoo/Aftercare mit Warnungen bei V-24/V-15 (Speichern bleibt möglich).
 
 export interface FaqItemValues {
   id: number | null
@@ -237,12 +237,12 @@ export function FaqEditor({
   category,
   items,
   translateDisabled,
-  saveEndpoint = '/api/faqs/tattoo-save',
+  saveEndpoint = '/api/faqs/texts-save',
 }: {
   category: FaqCategory
   items: FaqItemValues[]
   translateDisabled: string | null
-  /** P8.19a: alle Kategorien über `POST /api/faqs/texts-save`. */
+  /** Speichern-Endpunkt (alle Kategorien: `POST /api/faqs/texts-save`). */
   saveEndpoint?: string
 }) {
   const [adding, setAdding] = useState(0)

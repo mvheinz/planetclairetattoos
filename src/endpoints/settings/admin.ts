@@ -11,6 +11,7 @@ import {
 import { isAdminRequest } from '@/access'
 import {
   settingsAreaEndpoint,
+  settingsMonthCloseEndpoint,
   settingsRevenueEntryEndpoint,
   settingsTranslateEndpoint,
 } from '@/endpoints/settings/areas'
@@ -236,6 +237,7 @@ export const settingsAdminEndpoints: Endpoint[] = [
   settingsAreaEndpoint,
   settingsTranslateEndpoint,
   settingsRevenueEntryEndpoint,
+  settingsMonthCloseEndpoint,
   settingsTaxModeEndpoint,
   settingsPasswordEndpoint,
 ]

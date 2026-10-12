@@ -2,8 +2,9 @@ import { adminPath, expect, test, testPayload } from '../fixtures'
 import { refreshTattoo } from '../tattoo/tattooFixtures'
 import { expectAccessible, expectNoHorizontalScroll } from './orderHelpers'
 
-// P7.9 – Reiter „Texte“ (KONZEPT §7.12, §9.6): Preise (`settings.tattoo.*`), Blöcke der Seiten `tattoo` und
-// `tattoo_aftercare`, FAQ Tattoo/Aftercare. „Anzahlung verfällt bei Absage“ speichert mit sichtbarer Warnung (V-24);
+// P7.9 – Reiter „Texte“ (KONZEPT §7.12, §9.6): Preise (`settings.tattoo.*`); Blöcke der Seiten `tattoo` und
+// `tattoo_aftercare` und FAQ Tattoo/Aftercare seit V-37 (P20.6) nur noch unter „Texte“ → „Seiten und FAQ“ (der Reiter
+// verlinkt dorthin). „Anzahlung verfällt bei Absage“ speichert mit sichtbarer Warnung (V-24);
 // „Übersetzen“ (Mock) füllt die EN-Felder mit „[EN] …“. Die Seite `tattoo` gibt es im Test-Bestand nicht – der Test
 // legt sie an und entfernt sie danach wieder (P7.4 prüft die Rückfall-Texte).
 
@@ -75,7 +76,12 @@ test('@a11y Texte: Warnung bei „Anzahlung verfällt bei Absage“, Speichern b
   await page.goto(adminPath('/tattoo?reiter=texte'))
   await expect(page.getByTestId('tattoo-texts')).toBeVisible()
   await expect(page.getByTestId('area-form-tattooPrices')).toBeVisible()
-  const form = page.getByTestId('page-texts-tattoo')
+  // Jede Sache an einer Stelle (V-37): Seitentexte und Fragen nur unter „Texte“, hier ein Link dorthin
+  await expect(page.getByTestId('page-texts-tattoo')).toHaveCount(0)
+  await expect(page.getByTestId('faq-editor-tattoo')).toHaveCount(0)
+  await page.getByTestId('tattoo-texts-link-tattoo').click()
+  await expect(page).toHaveURL(/\/texte\?seite=tattoo#seite$/)
+  const form = page.getByTestId('page-texts-all-tattoo')
   const add = form.getByTestId('page-add-priceInfo')
   if (await add.isVisible()) await add.click()
   const block = form.locator('[data-testid="page-block"][data-block-type="priceInfo"]').first()
@@ -88,8 +94,8 @@ test('@a11y Texte: Warnung bei „Anzahlung verfällt bei Absage“, Speichern b
   await field('content', 'en').fill('')
   await expectNoHorizontalScroll(page)
   await expectAccessible(page, '.pc-admin-view')
-  await form.getByTestId('page-save-tattoo').click()
-  await expect(form.getByTestId('page-saved-tattoo')).toBeVisible()
+  await form.getByTestId('page-save-all-tattoo').click()
+  await expect(form.getByTestId('page-saved-all-tattoo')).toBeVisible()
   await expect(form.getByTestId('tattoo-text-warning')).toContainText('Anzahlung verfällt')
 
   await form.getByTestId('translate-button').click()
@@ -118,6 +124,7 @@ test('@a11y Texte: Warnung bei „Anzahlung verfällt bei Absage“, Speichern b
   expect(price?.heading).toBe('[EN] Preise')
 
   // Preise-Formular: Warnung schon beim Tippen
+  await page.goto(adminPath('/tattoo?reiter=texte'))
   const prices = page.getByTestId('area-form-tattooPrices')
   await prices.getByTestId('area-field-tattoo.priceNote.de').fill('Anzahlung nicht erstattbar')
   await expect(prices.getByTestId('tattoo-prices-warning')).toBeVisible()
